@@ -178,6 +178,8 @@ QSPIFBlockDevice::QSPIFBlockDevice(PinName io0, PinName io1, PinName io2, PinNam
     _write_status_reg_2_inst = QSPIF_INST_WSR2_DEFAULT;
     _read_status_reg_2_inst = QSPIF_INST_RSR2_DEFAULT;
 
+    _clear_protection_method = QSPIF_BP_CLEAR_SR;
+
     // Set default 4-byte addressing extension register write instruction
     _4byte_msb_reg_write_inst = QSPIF_INST_4BYTE_REG_WRITE_DEFAULT;
 }
@@ -232,6 +234,12 @@ int QSPIFBlockDevice::init()
     if (false == _is_mem_ready()) {
         tr_error("Init - _is_mem_ready Failed");
         status = QSPIF_BD_ERROR_READY_FAILED;
+        goto exit_point;
+    }
+
+    if (0 != _handle_vendor_quirks()) {
+        tr_error("Init - Could not read vendor id");
+        status = QSPIF_BD_ERROR_DEVICE_ERROR;
         goto exit_point;
     }
 
@@ -1204,16 +1212,9 @@ int QSPIFBlockDevice::_sfdp_parse_sector_map_table(uint32_t sector_map_table_add
     return 0;
 }
 
-int QSPIFBlockDevice::_clear_block_protection()
+int QSPIFBlockDevice::_handle_vendor_quirks()
 {
     uint8_t vendor_device_ids[QSPI_RDID_DATA_LENGTH] = {0};
-    uint8_t status_regs[QSPI_STATUS_REGISTER_COUNT] = {0};
-
-    if (false == _is_mem_ready()) {
-        tr_error("Device not ready, clearing block protection failed");
-        return -1;
-    }
-
     /* Read Manufacturer ID (1byte), and Device ID (2bytes) */
     qspi_status_t status = _qspi_send_general_command(QSPIF_INST_RDID, QSPI_NO_ADDRESS_COMMAND,
                                                       NULL, 0,
@@ -1224,8 +1225,31 @@ int QSPIFBlockDevice::_clear_block_protection()
     }
 
     tr_debug("Vendor device ID = 0x%x 0x%x 0x%x", vendor_device_ids[0], vendor_device_ids[1], vendor_device_ids[2]);
+
     switch (vendor_device_ids[0]) {
         case 0xbf:
+            // SST devices come preset with block protection
+            // enabled for some regions, issue global protection unlock to clear
+            tr_debug("Applying quirks for SST");
+            _clear_protection_method = QSPIF_BP_ULBPR;
+            break;
+    }
+
+    return 0;
+}
+
+int QSPIFBlockDevice::_clear_block_protection()
+{
+    uint8_t status_regs[QSPI_STATUS_REGISTER_COUNT] = {0};
+
+    if (false == _is_mem_ready()) {
+        tr_error("Device not ready, clearing block protection failed");
+        return -1;
+    }
+    qspi_status_t status;
+    switch (_clear_protection_method) {
+        case QSPIF_BP_ULBPR:
+            tr_debug("Clearing block protection via ULBPR");
             // SST devices come preset with block protection
             // enabled for some regions, issue global protection unlock to clear
             if (0 != _set_write_enable()) {
@@ -1238,9 +1262,10 @@ int QSPIFBlockDevice::_clear_block_protection()
                 return -1;
             }
             break;
-        default:
+        case QSPIF_BP_CLEAR_SR:
             // For all other devices, to clear the block protection bits clear all bits
             // in status register 1 that aren't the WIP or WEL bits, or the QE bit (if it is in SR 1)
+            tr_debug("Clearing block protection via status register protection bits");
             status = _qspi_read_status_registers(status_regs);
             if (QSPI_STATUS_OK != status) {
                 tr_error("_clear_block_protection - Status register read failed");
