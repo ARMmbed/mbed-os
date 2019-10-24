@@ -23,7 +23,7 @@
 #include "cybsp_types.h"
 
 // Pin Modes
-#define PullNone CYHAL_GPIO_DRIVE_STRONG
+#define PullNone CYHAL_GPIO_DRIVE_PULL_NONE
 #define PullDefault CYHAL_GPIO_DRIVE_NONE
 #define PullDown CYHAL_GPIO_DRIVE_PULLDOWN
 #define PullUp CYHAL_GPIO_DRIVE_PULLUP
