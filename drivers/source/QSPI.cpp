@@ -60,9 +60,10 @@ QSPI::QSPI(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, Pin
     _mode = mode;
     _hz = ONE_MHZ;
     _initialized = false;
+    _init_func = &QSPI::_initialize;
 
     //Go ahead init the device here with the default config
-    bool success = _initialize();
+    bool success = (this->*_init_func)();
     MBED_ASSERT(success);
 }
 
@@ -85,9 +86,10 @@ QSPI::QSPI(const qspi_pinmap_t &pinmap, int mode) : _qspi()
     _mode = mode;
     _hz = ONE_MHZ;
     _initialized = false;
+    _init_func = &QSPI::_initialize_direct;
 
     //Go ahead init the device here with the default config
-    bool success = _initialize_direct();
+    bool success =  (this->*_init_func)();
     MBED_ASSERT(success);
 }
 
@@ -304,7 +306,7 @@ bool QSPI::_acquire()
 {
     if (_owner != this) {
         //This will set freq as well
-        _initialize();
+        (this->*_init_func)();
         _owner = this;
     }
 
