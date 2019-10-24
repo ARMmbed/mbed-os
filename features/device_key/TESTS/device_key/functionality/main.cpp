@@ -15,6 +15,7 @@
  */
 
 #include "DeviceKey.h"
+#include "mbedtls/config.h"
 #include "utest/utest.h"
 #include "mbed_error.h"
 #include "unity/unity.h"
@@ -51,7 +52,7 @@ void generate_derived_key_consistency_32_byte_key_long_consistency_test(char *ke
  */
 int inject_dummy_rot_key()
 {
-#if !DEVICE_TRNG
+#if !DEVICE_TRNG && !defined(MBEDTLS_ENTROPY_HARDWARE_ALT)
     uint32_t key[DEVICE_KEY_16BYTE / sizeof(uint32_t)];
 
     memcpy(key, "1234567812345678", DEVICE_KEY_16BYTE);

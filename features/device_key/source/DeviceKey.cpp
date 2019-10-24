@@ -271,7 +271,7 @@ int DeviceKey::generate_key_by_random(uint32_t *output, size_t size)
         return DEVICEKEY_INVALID_PARAM;
     }
 
-#if defined(DEVICE_TRNG) || defined(MBEDTLS_ENTROPY_NV_SEED)
+#if defined(DEVICE_TRNG) || defined(MBEDTLS_ENTROPY_NV_SEED) || defined(MBEDTLS_ENTROPY_HARDWARE_ALT)
     uint32_t test_buff[DEVICE_KEY_32BYTE / sizeof(int)];
     mbedtls_entropy_context *entropy = new mbedtls_entropy_context;
     mbedtls_entropy_init(entropy);
