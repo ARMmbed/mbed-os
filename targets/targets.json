@@ -8861,7 +8861,6 @@
         "release_versions": ["5"],
         "device_name": "M2351KIAAEES",
         "bootloader_supported": true,
-        "tickless-from-us-ticker": true,
         "forced_reset_timeout": 3,
         "public": false
     },
