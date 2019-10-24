@@ -97,6 +97,13 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 }
 
 //******************************************************************************
+void serial_free(serial_t *obj)
+{
+    UART_Shutdown(obj->uart);
+    objs[obj->index] = 0;
+}
+
+//******************************************************************************
 void serial_baud(serial_t *obj, int baudrate)
 {
     uint32_t idiv = 0, ddiv = 0, div = 0;
