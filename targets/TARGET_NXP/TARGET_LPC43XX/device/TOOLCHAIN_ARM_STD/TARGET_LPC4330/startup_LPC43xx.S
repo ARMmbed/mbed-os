@@ -29,9 +29,6 @@
 ; * this code.
 ; */
 
-; __initial_sp    EQU     0x10020000  ; Top of first RAM segment for LPC43XX (IRAM1)
-__initial_sp    EQU     0x10092000  ; Top of first RAM segment for LPC43XX (IRAM2)
-
                 PRESERVE8
                 THUMB
 
@@ -39,10 +36,11 @@ __initial_sp    EQU     0x10092000  ; Top of first RAM segment for LPC43XX (IRAM
 
                 AREA    RESET, DATA, READONLY
                 EXPORT  __Vectors
+                IMPORT  |Image$$ARM_LIB_STACK$$ZI$$Limit|
 
 Sign_Value		EQU		0x5A5A5A5A
 
-__Vectors       DCD     __initial_sp              	; 0 Top of Stack
+__Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit| ; 0 Top of Stack
                 DCD     Reset_Handler             	; 1 Reset Handler
                 DCD     NMI_Handler               	; 2 NMI Handler
                 DCD     HardFault_Handler         	; 3 Hard Fault Handler

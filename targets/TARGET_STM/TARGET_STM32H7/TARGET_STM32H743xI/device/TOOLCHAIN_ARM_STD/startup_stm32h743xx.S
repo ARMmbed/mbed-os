@@ -24,7 +24,7 @@
 ;*
 ;******************************************************************************
 
-            IMPORT |Image$$ARM_LIB_STACK$$ZI$$Limit|
+            IMPORT  |Image$$ARM_LIB_STACK$$ZI$$Limit|
 
                 PRESERVE8
                 THUMB
