@@ -25,11 +25,6 @@ namespace mbed {
 CAN::CAN(PinName rd, PinName td) : _can(), _irq()
 {
     // No lock needed in constructor
-
-    for (size_t i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
-        _irq[i] = NULL;
-    }
-
     can_init(&_can, rd, td);
     can_irq_init(&_can, (&CAN::_irq_handler), (uint32_t)this);
 }
@@ -37,11 +32,6 @@ CAN::CAN(PinName rd, PinName td) : _can(), _irq()
 CAN::CAN(PinName rd, PinName td, int hz) : _can(), _irq()
 {
     // No lock needed in constructor
-
-    for (size_t i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
-        _irq[i] = NULL;
-    }
-
     can_init_freq(&_can, rd, td, hz);
     can_irq_init(&_can, (&CAN::_irq_handler), (uint32_t)this);
 }
@@ -49,11 +39,6 @@ CAN::CAN(PinName rd, PinName td, int hz) : _can(), _irq()
 CAN::CAN(const can_pinmap_t &pinmap) : _can(), _irq()
 {
     // No lock needed in constructor
-
-    for (size_t i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
-        _irq[i] = NULL;
-    }
-
     can_init_direct(&_can, &pinmap);
     can_irq_init(&_can, (&CAN::_irq_handler), (uint32_t)this);
 }
@@ -61,11 +46,6 @@ CAN::CAN(const can_pinmap_t &pinmap) : _can(), _irq()
 CAN::CAN(const can_pinmap_t &pinmap, int hz) : _can(), _irq()
 {
     // No lock needed in constructor
-
-    for (size_t i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
-        _irq[i] = NULL;
-    }
-
     can_init_freq_direct(&_can, &pinmap, hz);
     can_irq_init(&_can, (&CAN::_irq_handler), (uint32_t)this);
 }
