@@ -1,127 +1,100 @@
 /*
- * The Clear BSD License
  * Copyright 2017 NXP
  * All rights reserved.
  *
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided
- *  that the following conditions are met:
- *
- * o Redistributions of source code must retain the above copyright notice, this list
- *   of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice, this
- *   list of conditions and the following disclaimer in the documentation and/or
- *   other materials provided with the distribution.
- *
- * o Neither the name of the copyright holder nor the names of its
- *   contributors may be used to endorse or promote products derived from this
- *   software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef _LPM_H_
 #define _LPM_H_
 
 #include "fsl_clock.h"
+#include <stdint.h>
 
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
 extern void vPortGPTIsr(void);
+extern uint32_t g_savedPrimask;
 
 #define vPortGptIsr GPT1_IRQHandler
 
-#define CLOCK_SET_MUX(mux, value)                                                                        \
-    \
-do                                                                                                \
-    {                                                                                                    \
-        CCM_TUPLE_REG(CCM, mux) = (CCM_TUPLE_REG(CCM, mux) & (~CCM_TUPLE_MASK(mux))) |                   \
-                                  (((uint32_t)((value) << CCM_TUPLE_SHIFT(mux))) & CCM_TUPLE_MASK(mux)); \
-        while (CCM->CDHIPR != 0)                                                                         \
-        {                                                                                                \
-        }                                                                                                \
-    \
-}                                                                                                 \
-    while (0)
-
-#define CLOCK_SET_DIV(divider, value)                                                                                \
-    \
-do                                                                                                            \
-    {                                                                                                                \
-        CCM_TUPLE_REG(CCM, divider) = (CCM_TUPLE_REG(CCM, divider) & (~CCM_TUPLE_MASK(divider))) |                   \
-                                      (((uint32_t)((value) << CCM_TUPLE_SHIFT(divider))) & CCM_TUPLE_MASK(divider)); \
-        while (CCM->CDHIPR != 0)                                                                                     \
-        {                                                                                                            \
-        }                                                                                                            \
-    \
-}                                                                                                             \
-    while (0)
-
 #define CLOCK_CCM_HANDSHAKE_WAIT() \
-    \
-do                          \
+                                   \
+    do                             \
     {                              \
         while (CCM->CDHIPR != 0)   \
         {                          \
         }                          \
-    \
-}                           \
-    while (0)
+                                   \
+    } while (0)
 
-#define LPM_DELAY(value)                         \
-    \
-do                                        \
-    {                                            \
-        for (uint32_t i = 0; i < 5 * value; i++) \
-        {                                        \
-            __NOP();                             \
-        }                                        \
-    \
-}                                         \
-    while (0)
-
-#define ROM_CODE_ENTRY_ADDR (0x200000U)
-
-/*! @name Time sensitive region */
-/* @{ */
 #if defined(XIP_EXTERNAL_FLASH) && (XIP_EXTERNAL_FLASH == 1)
-#if (defined(__ICCARM__))
-#define AT_QUICKACCESS_SECTION_CODE(func) __ramfunc func
-#elif(defined(__ARMCC_VERSION))
-#define AT_QUICKACCESS_SECTION_CODE(func) __attribute__((section("RamFunction"))) func
-#elif defined(__MCUXPRESSO)
-#define AT_QUICKACCESS_SECTION_CODE(func) __attribute__((section(".ramfunc.$SRAM_ITC"))) func
-#elif(defined(__GNUC__))
-#define AT_QUICKACCESS_SECTION_CODE(func) __attribute__((section("RamFunction"))) func
+#define LPM_EnterCritical()                        \
+                                                   \
+    do                                             \
+    {                                              \
+        g_savedPrimask = DisableGlobalIRQ();       \
+        SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk; \
+                                                   \
+    } while (0)
+
+#define LPM_ExitCritical()                        \
+                                                  \
+    do                                            \
+    {                                             \
+        EnableGlobalIRQ(g_savedPrimask);          \
+        SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk; \
+                                                  \
+    } while (0)
+
 #else
-#error Toolchain not supported.
-#endif /* defined(__ICCARM__) */
-#else
-#if (defined(__ICCARM__))
-#define AT_QUICKACCESS_SECTION_CODE(func) func
-#elif(defined(__ARMCC_VERSION))
-#define AT_QUICKACCESS_SECTION_CODE(func) func
-#elif(defined(__MCUXPRESSO))
-#define AT_QUICKACCESS_SECTION_CODE(func) func
-#elif(defined(__GNUC__))
-#define AT_QUICKACCESS_SECTION_CODE(func) func
-#else
-#error Toolchain not supported.
+#define LPM_EnterCritical()
+#define LPM_ExitCritical()
 #endif
-#endif /* __FSL_SDK_DRIVER_QUICK_ACCESS_ENABLE */
+
+/* Power mode definition of low power management.
+ * Waken up duration Off > Dsm > Idle > Wait > Run.
+ */
+typedef enum _lpm_power_mode
+{
+    LPM_PowerModeOverRun = 0, /* Over RUN mode, CPU won't stop running */
+
+    LPM_PowerModeFullRun, /* Full RUN mode, CPU won't stop running */
+
+    LPM_PowerModeLowSpeedRun,
+
+    LPM_PowerModeLowPowerRun,
+
+    LPM_PowerModeRunEnd = LPM_PowerModeLowPowerRun,
+    /* In system wait mode, cpu clock is gated.
+     * All peripheral can remain active, clock gating decided by CCGR setting.
+     * DRAM enters auto-refresh mode when there is no access.
+     */
+    LPM_PowerModeSysIdle, /* System WAIT mode, also system low speed idle */
+
+    /* In low power idle mode, all PLL/PFD is off, cpu power is off.
+     * Analog modules running in low power mode.
+     * All high-speed peripherals are power gated
+     * Low speed peripherals can remain running at low frequency
+     * DRAM in self-refresh.
+     */
+    LPM_PowerModeLPIdle, /* Low Power Idle mode */
+
+    /* In deep sleep mode, all PLL/PFD is off, XTAL is off, cpu power is off.
+     * All clocks are shut off except 32K RTC clock
+     * All high-speed peripherals are power gated
+     * Low speed peripherals are clock gated
+     * DRAM in self-refresh.
+     * If RTOS is used, systick will be disabled in DSM
+     */
+    LPM_PowerModeSuspend, /* Deep Sleep mode, suspend. */
+
+    LPM_PowerModeSNVS, /* Power off mode, or shutdown mode */
+
+    LPM_PowerModeEnd = LPM_PowerModeSNVS
+} lpm_power_mode_t;
 
 /*******************************************************************************
  * API
@@ -131,8 +104,8 @@ do                                        \
 extern "C" {
 #endif /* __cplusplus*/
 
-AT_QUICKACCESS_SECTION_CODE(void LPM_SwitchFlexspiClock(clock_mode_t powermode));
-AT_QUICKACCESS_SECTION_CODE(void LPM_RestoreFlexspiClock(void));
+AT_QUICKACCESS_SECTION_CODE(void CLOCK_SET_MUX(clock_mux_t mux, uint32_t value));
+AT_QUICKACCESS_SECTION_CODE(void CLOCK_SET_DIV(clock_div_t divider, uint32_t value));
 
 /* Initialize the Low Power Management */
 bool LPM_Init(void);
@@ -145,6 +118,25 @@ void LPM_EnableWakeupSource(uint32_t irq);
 
 /* Disable wakeup source in low power mode */
 void LPM_DisableWakeupSource(uint32_t irq);
+
+void ClockSelectXtalOsc(void);
+void ClockSelectRcOsc(void);
+void LPM_EnableWakeupSource(uint32_t irq);
+void LPM_DisableWakeupSource(uint32_t irq);
+void LPM_PreEnterWaitMode(void);
+void LPM_PostExitWaitMode(void);
+void LPM_PreEnterStopMode(void);
+void LPM_PostExitStopMode(void);
+void LPM_OverDriveRun(void);
+void LPM_FullSpeedRun(void);
+void LPM_LowSpeedRun(void);
+void LPM_LowPowerRun(void);
+void LPM_EnterSystemIdle(void);
+void LPM_ExitSystemIdle(void);
+void LPM_EnterLowPowerIdle(void);
+void LPM_ExitLowPowerIdle(void);
+void LPM_EnterSuspend(void);
+void LPM_EnterSNVS(void);
 
 #if defined(__cplusplus)
 }
