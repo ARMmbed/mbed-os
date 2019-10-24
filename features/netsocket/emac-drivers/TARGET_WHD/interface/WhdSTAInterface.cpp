@@ -37,6 +37,7 @@
 
 struct whd_scan_userdata {
     rtos::Semaphore *sema;
+    scan_result_type sres_type;
     WiFiAccessPoint *aps;
     std::vector<whd_scan_result_t> *result_buff;
     unsigned count;
@@ -172,6 +173,7 @@ static void *whd_wifi_link_state_change_handler(whd_interface_t ifp,
 
     return handler_user_data;
 }
+
 
 MBED_WEAK WhdSTAInterface::OlmInterface &WhdSTAInterface::OlmInterface::get_default_instance()
 {
@@ -395,7 +397,6 @@ static void whd_scan_handler(whd_scan_result_t **result_ptr,
     if (data->count > 0 && data->aps != NULL) {
         // get ap stats
         nsapi_wifi_ap ap;
-
         uint8_t length = record->SSID.length;
         if (length < sizeof(ap.ssid) - 1) {
             length = sizeof(ap.ssid) - 1;
@@ -408,17 +409,21 @@ static void whd_scan_handler(whd_scan_result_t **result_ptr,
         ap.security = whd_tosecurity(record->security);
         ap.rssi = record->signal_strength;
         ap.channel = record->channel;
-        data->aps[data->offset] = WiFiAccessPoint(ap);
+        if (data->sres_type == SRES_TYPE_WIFI_ACCESS_POINT) {
+            data->aps[data->offset] = WiFiAccessPoint(ap);
+        } else if (data->sres_type == SRES_TYPE_WHD_ACCESS_POINT) {
+            WhdAccessPoint *aps_sres = static_cast<WhdAccessPoint *>(data->aps);
+            aps_sres[data->offset] = std::move(WhdAccessPoint(ap, record->bss_type,
+                                                              record->ie_ptr, record->ie_len));
+        }
     }
 
     // store to result_buff for future duplication removal
     data->result_buff->push_back(*record);
     data->offset = data->result_buff->size();
-
 }
 
-
-int WhdSTAInterface::scan(WiFiAccessPoint *aps, unsigned count)
+int WhdSTAInterface::internal_scan(WiFiAccessPoint *aps, unsigned count, scan_result_type sres_type)
 {
     // initialize wiced, this is noop if already init
     if (!_whd_emac.powered_up) {
@@ -426,6 +431,7 @@ int WhdSTAInterface::scan(WiFiAccessPoint *aps, unsigned count)
     }
 
     interal_scan_data.sema = new Semaphore();
+    interal_scan_data.sres_type = sres_type;
     interal_scan_data.aps = aps;
     interal_scan_data.count = count;
     interal_scan_data.offset = 0;
@@ -447,6 +453,16 @@ int WhdSTAInterface::scan(WiFiAccessPoint *aps, unsigned count)
     delete interal_scan_data.sema;
     delete interal_scan_data.result_buff;
     return res;
+}
+
+int WhdSTAInterface::scan(WiFiAccessPoint *aps, unsigned count)
+{
+    return internal_scan(aps, count, SRES_TYPE_WIFI_ACCESS_POINT);
+}
+
+int WhdSTAInterface::scan_whd(WhdAccessPoint *aps, unsigned count)
+{
+    return internal_scan(aps, count, SRES_TYPE_WHD_ACCESS_POINT);
 }
 
 int WhdSTAInterface::is_interface_connected(void)
