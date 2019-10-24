@@ -88,6 +88,8 @@ extern "C"
 #define CRYPTO_DMA_CONTINUE     0x6UL   /*!< Do continuous encrypt/decrypt in DMA cascade \hideinitializer */
 #define CRYPTO_DMA_LAST         0x7UL   /*!< Do last encrypt/decrypt in DMA cascade          \hideinitializer */
 
+
+
 typedef enum
 {
     CURVE_P_192,
@@ -109,10 +111,32 @@ typedef enum
 E_ECC_CURVE;
 
 
-/*@}*/ /* end of group M2351_CRYPTO_EXPORTED_CONSTANTS */
+
+typedef struct e_curve_t
+{
+    E_ECC_CURVE  curve_id;
+    int32_t   Echar;
+    char  Ea[144];
+    char  Eb[144];
+    char  Px[144];
+    char  Py[144];
+    int32_t   Epl;
+    char  Pp[176];
+    int32_t   Eol;
+    char  Eorder[176];
+    int32_t   key_len;
+    int32_t   irreducible_k1;
+    int32_t   irreducible_k2;
+    int32_t   irreducible_k3;
+    int32_t   GF;
+}  ECC_CURVE;
 
 
-/** @addtogroup M2351_CRYPTO_EXPORTED_MACROS CRYPTO Exported Macros
+
+/*@}*/ /* end of group CRYPTO_EXPORTED_CONSTANTS */
+
+
+/** @addtogroup CRYPTO_EXPORTED_MACROS CRYPTO Exported Macros
   @{
 */
 
@@ -315,11 +339,11 @@ E_ECC_CURVE;
 #define ECC_CLR_INT_FLAG(crpt)      ((crpt)->INTSTS = (CRPT_INTSTS_ECCIF_Msk|CRPT_INTSTS_ECCEIF_Msk))
 
 
-/*@}*/ /* end of group M2351_CRYPTO_EXPORTED_MACROS */
+/*@}*/ /* end of group CRYPTO_EXPORTED_MACROS */
 
 
 
-/** @addtogroup M2351_CRYPTO_EXPORTED_FUNCTIONS CRYPTO Exported Functions
+/** @addtogroup CRYPTO_EXPORTED_FUNCTIONS CRYPTO Exported Functions
   @{
 */
 

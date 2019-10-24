@@ -27,7 +27,7 @@
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
 
-#if DEVICE_TRNG || defined(MBEDTLS_CONFIG_HW_SUPPORT)
+#if defined(MBEDTLS_CONFIG_HW_SUPPORT)
 
 /* Consideration for choosing proper synchronization mechanism
  *
@@ -342,4 +342,4 @@ extern "C" void CRPT_IRQHandler()
     }
 }
 
-#endif /* #if DEVICE_TRNG || defined(MBEDTLS_CONFIG_HW_SUPPORT) */
+#endif /* #if defined(MBEDTLS_CONFIG_HW_SUPPORT) */

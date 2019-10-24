@@ -258,7 +258,7 @@ __STATIC_INLINE void FMC_NSBA_Setup(void)
 //   </h>
 //   <o.25>  TRNG    <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_PNSSET5_VAL      0xFFFFFFFF
+#define SCU_INIT_PNSSET5_VAL      0xFDFFFFFF
 /*
     PNSSET6
 */
@@ -748,7 +748,7 @@ __STATIC_INLINE void SCU_Setup(void)
 //
 //   <o.5>  TRNG              <0=> Secure <1=> Non-Secure
 */
-#define NVIC_INIT_ITNS3_VAL      0xFFFFFFFF
+#define NVIC_INIT_ITNS3_VAL      0xFFFFFFDF
 
 
 
