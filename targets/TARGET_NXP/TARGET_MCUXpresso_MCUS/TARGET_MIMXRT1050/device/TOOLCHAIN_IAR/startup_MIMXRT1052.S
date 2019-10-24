@@ -2,44 +2,16 @@
 ;  @file:    startup_MIMXRT1052.s
 ;  @purpose: CMSIS Cortex-M7 Core Device Startup File
 ;            MIMXRT1052
-;  @version: 0.1
-;  @date:    2017-1-10
-;  @build:   b180509
+;  @version: 1.2
+;  @date:    2018-11-27
+;  @build:   b190124
 ; -------------------------------------------------------------------------
 ;
-; The Clear BSD License
 ; Copyright 1997-2016 Freescale Semiconductor, Inc.
-; Copyright 2016-2018 NXP
+; Copyright 2016-2019 NXP
 ; All rights reserved.
 ;
-; Redistribution and use in source and binary forms, with or without
-; modification, are permitted (subject to the limitations in the
-; disclaimer below) provided that the following conditions are met:
-;
-; * Redistributions of source code must retain the above copyright
-;   notice, this list of conditions and the following disclaimer.
-;
-; * Redistributions in binary form must reproduce the above copyright
-;   notice, this list of conditions and the following disclaimer in the
-;   documentation and/or other materials provided with the distribution.
-;
-; * Neither the name of the copyright holder nor the names of its
-;   contributors may be used to endorse or promote products derived from
-;   this software without specific prior written permission.
-;
-; NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE
-; GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT
-; HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
-; WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-; MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-; DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-; LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-; CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-; SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-; BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-; WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-; OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
-; IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+; SPDX-License-Identifier: BSD-3-Clause
 ;
 ; The modules in this file are included in the libraries, and may be replaced
 ; by any user-defined modules that define the PUBLIC symbol _program_start or
@@ -155,10 +127,10 @@ __vector_table_0x1c
         DCD     SAI3_RX_IRQHandler                            ;SAI3 interrupt
         DCD     SAI3_TX_IRQHandler                            ;SAI3 interrupt
         DCD     SPDIF_IRQHandler                              ;SPDIF interrupt
-        DCD     ANATOP_EVENT0_IRQHandler                      ;ANATOP interrupt
-        DCD     ANATOP_EVENT1_IRQHandler                      ;ANATOP interrupt
-        DCD     ANATOP_TAMP_LOW_HIGH_IRQHandler               ;ANATOP interrupt
-        DCD     ANATOP_TEMP_PANIC_IRQHandler                  ;ANATOP interrupt
+        DCD     PMU_EVENT_IRQHandler                          ;Brown-out event interrupt
+        DCD     Reserved78_IRQHandler                         ;Reserved interrupt
+        DCD     TEMP_LOW_HIGH_IRQHandler                      ;TempSensor low/high interrupt
+        DCD     TEMP_PANIC_IRQHandler                         ;TempSensor panic interrupt
         DCD     USB_PHY1_IRQHandler                           ;USBPHY (UTMI0), Interrupt
         DCD     USB_PHY2_IRQHandler                           ;USBPHY (UTMI0), Interrupt
         DCD     ADC1_IRQHandler                               ;ADC1 interrupt
@@ -246,14 +218,14 @@ __vector_table_0x1c
         DCD     PWM4_2_IRQHandler                             ;PWM4 capture 2, compare 2, or reload 0 interrupt
         DCD     PWM4_3_IRQHandler                             ;PWM4 capture 3, compare 3, or reload 0 interrupt
         DCD     PWM4_FAULT_IRQHandler                         ;PWM4 fault or reload error interrupt
-        DCD     Reserved168_IRQHandler                        ;Reserved interrupt
-        DCD     Reserved169_IRQHandler                        ;Reserved interrupt
-        DCD     Reserved170_IRQHandler                        ;Reserved interrupt
-        DCD     Reserved171_IRQHandler                        ;Reserved interrupt
-        DCD     Reserved172_IRQHandler                        ;Reserved interrupt
-        DCD     Reserved173_IRQHandler                        ;Reserved interrupt
-        DCD     SJC_ARM_DEBUG_IRQHandler                      ;SJC ARM debug interrupt
-        DCD     NMI_WAKEUP_IRQHandler                         ;NMI wake up
+        DCD     DefaultISR                                    ;168
+        DCD     DefaultISR                                    ;169
+        DCD     DefaultISR                                    ;170
+        DCD     DefaultISR                                    ;171
+        DCD     DefaultISR                                    ;172
+        DCD     DefaultISR                                    ;173
+        DCD     DefaultISR                                    ;174
+        DCD     DefaultISR                                    ;175
         DCD     DefaultISR                                    ;176
         DCD     DefaultISR                                    ;177
         DCD     DefaultISR                                    ;178
@@ -707,10 +679,10 @@ SPDIF_IRQHandler
         LDR     R0, =SPDIF_DriverIRQHandler
         BX      R0
 
-        PUBWEAK ANATOP_EVENT0_IRQHandler
-        PUBWEAK ANATOP_EVENT1_IRQHandler
-        PUBWEAK ANATOP_TAMP_LOW_HIGH_IRQHandler
-        PUBWEAK ANATOP_TEMP_PANIC_IRQHandler
+        PUBWEAK PMU_EVENT_IRQHandler
+        PUBWEAK Reserved78_IRQHandler
+        PUBWEAK TEMP_LOW_HIGH_IRQHandler
+        PUBWEAK TEMP_PANIC_IRQHandler
         PUBWEAK USB_PHY1_IRQHandler
         PUBWEAK USB_PHY2_IRQHandler
         PUBWEAK ADC1_IRQHandler
@@ -840,14 +812,6 @@ ENET_1588_Timer_IRQHandler
         PUBWEAK PWM4_2_IRQHandler
         PUBWEAK PWM4_3_IRQHandler
         PUBWEAK PWM4_FAULT_IRQHandler
-        PUBWEAK Reserved168_IRQHandler
-        PUBWEAK Reserved169_IRQHandler
-        PUBWEAK Reserved170_IRQHandler
-        PUBWEAK Reserved171_IRQHandler
-        PUBWEAK Reserved172_IRQHandler
-        PUBWEAK Reserved173_IRQHandler
-        PUBWEAK SJC_ARM_DEBUG_IRQHandler
-        PUBWEAK NMI_WAKEUP_IRQHandler
         PUBWEAK DefaultISR
         SECTION .text:CODE:REORDER:NOROOT(1)
 DMA0_DMA16_DriverIRQHandler
@@ -911,10 +875,10 @@ SAI2_DriverIRQHandler
 SAI3_RX_DriverIRQHandler
 SAI3_TX_DriverIRQHandler
 SPDIF_DriverIRQHandler
-ANATOP_EVENT0_IRQHandler
-ANATOP_EVENT1_IRQHandler
-ANATOP_TAMP_LOW_HIGH_IRQHandler
-ANATOP_TEMP_PANIC_IRQHandler
+PMU_EVENT_IRQHandler
+Reserved78_IRQHandler
+TEMP_LOW_HIGH_IRQHandler
+TEMP_PANIC_IRQHandler
 USB_PHY1_IRQHandler
 USB_PHY2_IRQHandler
 ADC1_IRQHandler
@@ -1002,14 +966,6 @@ PWM4_1_IRQHandler
 PWM4_2_IRQHandler
 PWM4_3_IRQHandler
 PWM4_FAULT_IRQHandler
-Reserved168_IRQHandler
-Reserved169_IRQHandler
-Reserved170_IRQHandler
-Reserved171_IRQHandler
-Reserved172_IRQHandler
-Reserved173_IRQHandler
-SJC_ARM_DEBUG_IRQHandler
-NMI_WAKEUP_IRQHandler
 DefaultISR
         B DefaultISR
 
