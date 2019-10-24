@@ -354,8 +354,9 @@ private:
     mbed::qspi_inst_t _legacy_erase_instruction;
 
     // Status register write/read instructions
+    unsigned int _num_status_registers;
     mbed::qspi_inst_t _write_status_reg_2_inst;
-    mbed::qspi_inst_t _read_status_reg_2_inst;
+    mbed::qspi_inst_t _read_status_reg_2_inst; // If three registers, this instruction reads the latter two
 
     // 4-byte addressing extension register write instruction
     mbed::qspi_inst_t _4byte_msb_reg_write_inst;

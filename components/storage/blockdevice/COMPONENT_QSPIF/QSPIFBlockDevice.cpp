@@ -31,7 +31,10 @@ using namespace mbed;
 /****************************/
 #define QSPIF_DEFAULT_PAGE_SIZE  256
 #define QSPIF_DEFAULT_SE_SIZE    4096
-#define QSPI_STATUS_REGISTER_COUNT 2
+// The SFDP spec only defines two status registers. But some devices,
+// have three "status-like" registers (one status, two config)
+#define QSPI_MAX_STATUS_REGISTERS 3
+#define QSPI_DEFAULT_STATUS_REGISTERS 2
 #ifndef UINT64_MAX
 #define UINT64_MAX -1
 #endif
@@ -110,6 +113,7 @@ using namespace mbed;
 
 // Device-specific instructions
 #define QSPIF_INST_ULBPR 0x98 // Clear all write-protection bits in the Block-Protection register
+#define QSPIF_INST_RDCR  0x15 // Read the two control registers
 
 // Default read/legacy erase instructions
 #define QSPIF_INST_READ_DEFAULT          0x03
@@ -174,6 +178,7 @@ QSPIFBlockDevice::QSPIFBlockDevice(PinName io0, PinName io1, PinName io2, PinNam
     _read_instruction = QSPIF_INST_READ_DEFAULT;
     _legacy_erase_instruction = QSPIF_INST_LEGACY_ERASE_DEFAULT;
 
+    _num_status_registers = QSPI_DEFAULT_STATUS_REGISTERS;
     // Set default status register 2 write/read instructions
     _write_status_reg_2_inst = QSPIF_INST_WSR2_DEFAULT;
     _read_status_reg_2_inst = QSPIF_INST_RSR2_DEFAULT;
@@ -757,8 +762,8 @@ int QSPIFBlockDevice::_sfdp_parse_basic_param_table(uint32_t basic_table_addr, s
 
 int QSPIFBlockDevice::_sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr)
 {
-    uint8_t status_reg_setup[QSPI_STATUS_REGISTER_COUNT] = {0};
-    uint8_t status_regs[QSPI_STATUS_REGISTER_COUNT] = {0};
+    uint8_t status_reg_setup[QSPI_MAX_STATUS_REGISTERS] = {0};
+    uint8_t status_regs[QSPI_MAX_STATUS_REGISTERS] = {0};
 
     // QUAD Enable procedure is specified by 3 bits
     uint8_t qer_value = (basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_QER_BYTE] & 0x70) >> 4;
@@ -807,7 +812,7 @@ int QSPIFBlockDevice::_sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr)
     _qspi_read_status_registers(status_regs);
 
     // Set Bits for Quad Enable
-    for (int i = 0; i < QSPI_STATUS_REGISTER_COUNT; i++) {
+    for (int i = 0; i < QSPI_MAX_STATUS_REGISTERS; i++) {
         status_regs[i] |= status_reg_setup[i];
     }
 
@@ -820,7 +825,7 @@ int QSPIFBlockDevice::_sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr)
     }
 
     // For Debug
-    memset(status_regs, 0, QSPI_STATUS_REGISTER_COUNT);
+    memset(status_regs, 0, QSPI_MAX_STATUS_REGISTERS);
     _qspi_read_status_registers(status_regs);
     if (((status_regs[0] & status_reg_setup[0]) | (status_regs[1] & status_reg_setup[1])) == 0) {
         tr_error("Status register not set correctly");
@@ -1233,6 +1238,14 @@ int QSPIFBlockDevice::_handle_vendor_quirks()
             tr_debug("Applying quirks for SST");
             _clear_protection_method = QSPIF_BP_ULBPR;
             break;
+        case 0xc2:
+            // Macronix devices have two quirks:
+            // 1. Have one status register and 2 config registers, with a nonstandard instruction for reading the config registers
+            // 2. Require setting a "fast mode" bit in config register 2 to operate at higher clock rates
+            tr_debug("Applying quirks for macronix");
+            _num_status_registers = 3;
+            _read_status_reg_2_inst = QSPIF_INST_RDCR;
+            break;
     }
 
     return 0;
@@ -1240,7 +1253,7 @@ int QSPIFBlockDevice::_handle_vendor_quirks()
 
 int QSPIFBlockDevice::_clear_block_protection()
 {
-    uint8_t status_regs[QSPI_STATUS_REGISTER_COUNT] = {0};
+    uint8_t status_regs[QSPI_MAX_STATUS_REGISTERS] = {0};
 
     if (false == _is_mem_ready()) {
         tr_error("Device not ready, clearing block protection failed");
@@ -1329,10 +1342,9 @@ int QSPIFBlockDevice::_set_write_enable()
 
 int QSPIFBlockDevice::_enable_fast_mode()
 {
-    const int NUM_REGISTERS = QSPI_STATUS_REGISTER_COUNT + 1; // Status registers + one config register
-    char status_reg[NUM_REGISTERS] = {0};
+    char status_reg[QSPI_MAX_STATUS_REGISTERS] = {0};
     unsigned int read_conf_register_inst = 0x15;
-    char status_reg_qer_setup[NUM_REGISTERS] = {0};
+    char status_reg_qer_setup[QSPI_MAX_STATUS_REGISTERS] = {0};
 
     status_reg_qer_setup[2] = 0x2; // Bit 1 of config Reg 2
 
@@ -1347,7 +1359,7 @@ int QSPIFBlockDevice::_enable_fast_mode()
     // Read Status Register
     if (QSPI_STATUS_OK == _qspi_send_general_command(read_conf_register_inst, QSPI_NO_ADDRESS_COMMAND, NULL, 0,
                                                      &status_reg[1],
-                                                     NUM_REGISTERS - 1)) {  // store received values in status_value
+                                                     QSPI_MAX_STATUS_REGISTERS - 1)) {  // store received values in status_value
         tr_debug("Reading Config Register Success: value = 0x%x", (int)status_reg[2]);
     } else {
         tr_error("Reading Config Register failed");
@@ -1355,7 +1367,7 @@ int QSPIFBlockDevice::_enable_fast_mode()
     }
 
     // Set Bits for Quad Enable
-    for (int i = 0; i < NUM_REGISTERS; i++) {
+    for (int i = 0; i < QSPI_MAX_STATUS_REGISTERS; i++) {
         status_reg[i] |= status_reg_qer_setup[i];
     }
 
@@ -1366,7 +1378,7 @@ int QSPIFBlockDevice::_enable_fast_mode()
     }
 
     if (QSPI_STATUS_OK == _qspi_send_general_command(QSPIF_INST_WSR1, QSPI_NO_ADDRESS_COMMAND, status_reg,
-                                                     NUM_REGISTERS, NULL,
+                                                     QSPI_MAX_STATUS_REGISTERS, NULL,
                                                      0)) {   // Write Fast mode bit to status_register
         tr_debug("fast mode enable - Writing Config Register Success: value = 0x%x",
                  (int)status_reg[2]);
@@ -1381,10 +1393,10 @@ int QSPIFBlockDevice::_enable_fast_mode()
     }
 
     // For Debug
-    memset(status_reg, 0, NUM_REGISTERS);
+    memset(status_reg, 0, QSPI_MAX_STATUS_REGISTERS);
     if (QSPI_STATUS_OK == _qspi_send_general_command(read_conf_register_inst, QSPI_NO_ADDRESS_COMMAND, NULL, 0,
                                                      &status_reg[1],
-                                                     NUM_REGISTERS - 1)) {  // store received values in status_value
+                                                     QSPI_MAX_STATUS_REGISTERS - 1)) {  // store received values in status_value
         tr_debug("Verifying Config Register Success: value = 0x%x", (int)status_reg[2]);
     } else {
         tr_error("Verifying Config Register failed");
@@ -1647,12 +1659,16 @@ qspi_status_t QSPIFBlockDevice::_qspi_read_status_registers(uint8_t *reg_buffer)
         return status;
     }
 
-    // Read Status Register 2
+    // Read Status Register 2 (and beyond, if applicable)
+    unsigned int read_length = _num_status_registers - 1; // We already read status reg 1 above
     status = _qspi_send_general_command(_read_status_reg_2_inst, QSPI_NO_ADDRESS_COMMAND,
                                         NULL, 0,
-                                        (char *) &reg_buffer[1], 1);
+                                        (char *) &reg_buffer[1], read_length);
     if (QSPI_STATUS_OK == status) {
         tr_debug("Reading Status Register 2 Success: value = 0x%x", (int) reg_buffer[1]);
+        if (_num_status_registers > 2) {
+            tr_debug("Reading Register 3 Success: value = 0x%x", (int) reg_buffer[2]);
+        }
     } else {
         tr_error("Reading Status Register 2 failed");
         return status;
@@ -1672,17 +1688,21 @@ qspi_status_t QSPIFBlockDevice::_qspi_write_status_registers(uint8_t *reg_buffer
             return QSPI_STATUS_ERROR;
         }
         status = _qspi_send_general_command(QSPIF_INST_WSR1, QSPI_NO_ADDRESS_COMMAND,
-                                            (char *) reg_buffer, 2,
+                                            (char *) reg_buffer, _num_status_registers,
                                             NULL, 0);
         if (QSPI_STATUS_OK == status) {
             tr_debug("Writing Status Registers Success: reg 1 value = 0x%x, reg 2 value = 0x%x",
                      (int) reg_buffer[0], (int) reg_buffer[1]);
+            if (_num_status_registers > 2) {
+                tr_debug("Writing Register 3 Success: value = 0x%x", (int) reg_buffer[2]);
+            }
         } else {
             tr_error("Writing Status Registers failed");
             return status;
         }
     } else {
         // Status registers are written using different commands
+        MBED_ASSERT(_num_status_registers == 2); // This flow doesn't support a nonstandard third status/config register
 
         // Write status register 1
         if (_set_write_enable() != 0) {
