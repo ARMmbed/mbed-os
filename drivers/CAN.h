@@ -177,6 +177,7 @@ public:
       * @param hz the bus frequency in hertz
       */
     CAN(const can_pinmap_t &pinmap);
+    CAN(const can_pinmap_t &&) = delete; // prevent passing of temporary objects
 
     /** Initialize CAN interface and set the frequency
       *
@@ -185,6 +186,7 @@ public:
       * @param hz the bus frequency in hertz
       */
     CAN(const can_pinmap_t &pinmap, int hz);
+    CAN(const can_pinmap_t &&, int) = delete; // prevent passing of temporary objects
 
     virtual ~CAN();
 
@@ -359,4 +361,3 @@ protected:
 #endif
 
 #endif    // MBED_CAN_H
-

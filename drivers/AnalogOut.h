@@ -70,6 +70,7 @@ public:
      *
      * @param pinmap reference to structure which holds static pinmap.
      */
+    AnalogOut(const PinMap &&) = delete; // prevent passing of temporary objects
     AnalogOut(const PinMap &pinmap)
     {
         analogout_init_direct(&_dac, &pinmap);

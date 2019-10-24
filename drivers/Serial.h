@@ -83,6 +83,7 @@ public:
      *    Either tx or rx may be specified as NC (Not Connected) if unused
      */
     Serial(const serial_pinmap_t &explicit_pinmap, const char *name = NULL, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
+    Serial(const serial_pinmap_t &&, const char* = NULL, int = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE) = delete; // prevent passing of temporary objects
 
     /** Create a Serial port, connected to the specified transmit and receive pins, with the specified baud
      *
@@ -104,6 +105,7 @@ public:
      *    Either tx or rx may be specified as NC (Not Connected) if unused
      */
     Serial(const serial_pinmap_t &explicit_pinmap, int baud);
+    Serial(const serial_pinmap_t &&, int) = delete; // prevent passing of temporary objects
 
     /* Stream gives us a FileHandle with non-functional poll()/readable()/writable. Pass through
      * the calls from the SerialBase instead for backwards compatibility. This problem is
