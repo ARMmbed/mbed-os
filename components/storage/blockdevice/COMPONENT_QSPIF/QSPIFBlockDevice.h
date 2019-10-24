@@ -313,6 +313,9 @@ private:
     // Detect 4-byte addressing mode and enable it if supported
     int _sfdp_detect_and_enable_4byte_addressing(uint8_t *basic_param_table_ptr, int basic_param_table_size);
 
+    // Query vendor ID and handle special behavior that isn't covered by SFDP data
+    int _handle_vendor_quirks();
+
     /***********************/
     /* Utilities Functions */
     /***********************/
@@ -324,6 +327,11 @@ private:
     int _utils_iterate_next_largest_erase_type(uint8_t &bitfield, int size, int offset, int boundry);
 
 private:
+    enum qspif_clear_protection_method_t {
+        QSPIF_BP_ULBPR,    // Issue global protection unlock instruction
+        QSPIF_BP_CLEAR_SR, // Clear protection bits in status register 1
+    };
+
     // QSPI Driver Object
     mbed::QSPI _qspi;
 
@@ -359,6 +367,9 @@ private:
     // Quad mode enable status register and bit
     int _quad_enable_register_idx;
     int _quad_enable_bit;
+
+    // Clear block protection
+    qspif_clear_protection_method_t _clear_protection_method;
 
     // Sector Regions Map
     int _regions_count; //number of regions
