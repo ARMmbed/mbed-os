@@ -66,6 +66,7 @@ public:
      *  @param pinmap reference to structure which holds static pinmap.
      */
     PwmOut(const PinMap &pinmap);
+    PwmOut(const PinMap &&) = delete; // prevent passing of temporary objects
 
     ~PwmOut();
 
