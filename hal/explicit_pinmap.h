@@ -285,7 +285,7 @@ MSTD_CONSTEXPR_FN_14 qspi_pinmap_t get_qspi_pinmap(const PinName data0, const Pi
         }
     }
 
-    if (!data0_map || !data1_map || !data2_map || !data3_map || !sclk_map || ssel_map || data0_map->peripheral != data1_map->peripheral || data0_map->peripheral != data2_map->peripheral  || data0_map->peripheral != data3_map->peripheral || data0_map->peripheral != sclk_map->peripheral || data0_map->peripheral != ssel_map->peripheral) {
+    if (!data0_map || !data1_map || !data2_map || !data3_map || !sclk_map || !ssel_map || data0_map->peripheral != data1_map->peripheral || data0_map->peripheral != data2_map->peripheral  || data0_map->peripheral != data3_map->peripheral || data0_map->peripheral != sclk_map->peripheral || data0_map->peripheral != ssel_map->peripheral) {
         return {(int) NC, NC, (int) NC, NC, (int) NC, NC, (int) NC, NC, (int) NC};
     }
 
