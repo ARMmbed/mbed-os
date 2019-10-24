@@ -78,6 +78,7 @@ public:
      *  @param explicit_pinmap reference to structure which holds static pinmap.
      */
     SPISlave(const spi_pinmap_t &pinmap);
+    SPISlave(const spi_pinmap_t &&) = delete; // prevent passing of temporary objects
 
     /** Configure the data transmission format.
      *
