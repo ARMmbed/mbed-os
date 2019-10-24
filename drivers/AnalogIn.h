@@ -72,6 +72,7 @@ public:
      * @param pinmap reference to structure which holds static pinmap.
      */
     AnalogIn(const PinMap &pinmap);
+    AnalogIn(const PinMap &&) = delete; // prevent passing of temporary objects
 
     /** Create an AnalogIn, connected to the specified pin
      *

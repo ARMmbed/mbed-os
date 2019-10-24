@@ -143,6 +143,7 @@ public:
      *  @param explicit_pinmap reference to structure which holds static pinmap.
      */
     SPI(const spi_pinmap_t &explicit_pinmap);
+    SPI(const spi_pinmap_t &&) = delete; // prevent passing of temporary objects
 
     /** Create a SPI master connected to the specified pins.
      *
@@ -157,6 +158,7 @@ public:
      *  @param ssel SPI Chip Select pin.
      */
     SPI(const spi_pinmap_t &explicit_pinmap, PinName ssel);
+    SPI(const spi_pinmap_t &&, PinName) = delete; // prevent passing of temporary objects
 
     virtual ~SPI();
 
