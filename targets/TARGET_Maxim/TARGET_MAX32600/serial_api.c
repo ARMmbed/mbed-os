@@ -100,7 +100,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 void serial_free(serial_t *obj)
 {
     UART_Shutdown(obj->uart);
-    objs[obj->index] = 0;
 }
 
 //******************************************************************************
