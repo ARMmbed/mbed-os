@@ -8791,7 +8791,7 @@
         "macros_add": ["CMSDK_CM7"],
         "device_has_add": ["MPU"]
     },
-    "NU_PFM_M2351_CM": {
+    "NU_PFM_M2351": {
         "default_toolchain": "ARMC6",
         "extra_labels": [
             "NUVOTON",
@@ -8866,7 +8866,7 @@
         "public": false
     },
     "NU_PFM_M2351_NPSA_NS": {
-        "inherits": ["NU_PFM_M2351_CM"],
+        "inherits": ["NU_PFM_M2351"],
         "core": "Cortex-M23-NS",
         "trustzone": true,
         "extra_labels_add": [
@@ -8885,7 +8885,7 @@
         "mbed_ram_size"         : "0x10000"
     },
     "NU_PFM_M2351_NPSA_S": {
-        "inherits": ["NU_PFM_M2351_CM"],
+        "inherits": ["NU_PFM_M2351"],
         "core": "Cortex-M23",
         "trustzone": true,
         "extra_labels_add": [
