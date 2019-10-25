@@ -370,8 +370,8 @@
         "targets" : ["NUCLEO_F401RE", "DISCO_L475VG_IOT01A"],
         "toolchains" : [],
         "exporters": [],
-        "compile" : true,
-        "export": true,
+        "compile" : false,
+        "export": false,
         "test" : false,
         "auto-update" : true
     },
