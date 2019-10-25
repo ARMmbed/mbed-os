@@ -162,13 +162,21 @@ static void *whd_wifi_link_state_change_handler(whd_interface_t ifp,
         return NULL;
     }
 
-    if (event_header->event_type == WLC_E_DEAUTH_IND ||
-            event_header->event_type == WLC_E_DISASSOC_IND) {
+    if ((event_header->event_type == WLC_E_DEAUTH_IND) ||
+            (event_header->event_type == WLC_E_DISASSOC_IND) ||
+            ((event_header->event_type == WLC_E_PSK_SUP) &&
+            (event_header->status == WLC_SUP_KEYED) &&
+            (event_header->reason == WLC_E_SUP_DEAUTH))) {
         whd_emac_wifi_link_state_changed(ifp, WHD_FALSE);
+        return handler_user_data;
     }
 
-    if (whd_wifi_is_ready_to_transceive(ifp) == WHD_SUCCESS) {
+    if (((event_header->event_type == WLC_E_PSK_SUP) &&
+            (event_header->status == WLC_SUP_KEYED) &&
+            (event_header->reason == WLC_E_SUP_OTHER)) ||
+            (whd_wifi_is_ready_to_transceive(ifp) == WHD_SUCCESS)) {
         whd_emac_wifi_link_state_changed(ifp, WHD_TRUE);
+        return handler_user_data;
     }
 
     return handler_user_data;
