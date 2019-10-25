@@ -128,7 +128,7 @@
         "ppp-thread-stacksize": {
             "help": "Thread stack size for PPP (obsolete: use netsocket/ppp configuration instead)",
             "value": 768
-        }
+        },
         "raw-socket-enabled": {
         "help": "Enable lwip raw sockets, required for Mbed OS ICMPSocket", 
         "value": false
