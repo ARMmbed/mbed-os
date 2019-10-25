@@ -2298,8 +2298,8 @@ void MbedTester::timer_reset()
 
 void MbedTester::timer_set_mode(TimerMode mode, bool one_pulse)
 {
-    const uint8_t ctrl = (uint8_t) ((uint8_t) mode | (one_pulse ? (1 << 1) : 0));
-    
+    const uint8_t ctrl = (uint8_t)((uint8_t) mode | (one_pulse ? (1 << 1) : 0));
+
     write(TESTER_TIMER_CTRL, &ctrl, TESTER_TIMER_CTRL_SIZE);
 
     if (mode == TimerModeTimer) {
