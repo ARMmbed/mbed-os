@@ -89,7 +89,7 @@ QSPI::QSPI(const qspi_pinmap_t &pinmap, int mode) : _qspi()
     _init_func = &QSPI::_initialize_direct;
 
     //Go ahead init the device here with the default config
-    bool success =  (this->*_init_func)();
+    bool success = (this->*_init_func)();
     MBED_ASSERT(success);
 }
 
