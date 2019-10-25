@@ -24,7 +24,7 @@
             "internal_base_address": "0x00200000"
         },
         "MCU_PSOC6": {
-            "internal_size": "7168"
+            "internal_size": "0x10000"
         }
     }
 }
