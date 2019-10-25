@@ -83,7 +83,7 @@ public:
      *    Either tx or rx may be specified as NC (Not Connected) if unused
      */
     Serial(const serial_pinmap_t &explicit_pinmap, const char *name = NULL, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
-    Serial(const serial_pinmap_t &&, const char* = NULL, int = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE) = delete; // prevent passing of temporary objects
+    Serial(const serial_pinmap_t &&, const char * = NULL, int = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE) = delete; // prevent passing of temporary objects
 
     /** Create a Serial port, connected to the specified transmit and receive pins, with the specified baud
      *
