@@ -33,6 +33,7 @@ int result_exp_timeout;
 
 const int EXTERNAL_THREAD_SIZE = 2048;
 const int EVENT_QUEUE_SIZE = 10;
+const int MAX_TRIAL_ATTEMPTS = 15;
 
 events::EventQueue *event_queue;
 }
@@ -66,9 +67,22 @@ void ASYNCHRONOUS_DNS_TIMEOUTS()
     // Depends on timing, but at least one operation shall fail to timeout
     TEST_ASSERT(result_exp_timeout > 0);
 
-    // Give event queue time to finalise before destructors
-    ThisThread::sleep_for(12000);
-
     nsapi_dns_call_in_set(0);
+
+    nsapi_dns_reset();
+    SocketAddress address;
+    nsapi_error_t result;
+    int count = MAX_TRIAL_ATTEMPTS;
+    do {
+        result = NetworkInterface::get_default_instance()->gethostbyname(dns_test_hosts[0], &address);
+        if (result == NSAPI_ERROR_OK) {
+            return;
+        }
+        ThisThread::sleep_for(1000);
+        count--;
+    } while (result != NSAPI_ERROR_OK && count);
+
+
 }
 #endif // defined(MBED_CONF_RTOS_PRESENT)
+
