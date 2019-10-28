@@ -78,7 +78,7 @@ uint32_t FLEXSPI_GetInstance(FLEXSPI_Type *base);
  * @param base FLEXSPI base pointer.
  * @param config Flash configuration parameters.
  */
-static uint32_t FLEXSPI_ConfigureDll(FLEXSPI_Type *base, flexspi_device_config_t *config);
+AT_QUICKACCESS_SECTION_CODE(static uint32_t FLEXSPI_ConfigureDll(FLEXSPI_Type *base, flexspi_device_config_t *config));
 
 /*!
  * @brief Check and clear IP command execution errors.
@@ -86,7 +86,7 @@ static uint32_t FLEXSPI_ConfigureDll(FLEXSPI_Type *base, flexspi_device_config_t
  * @param base FLEXSPI base pointer.
  * @param status interrupt status.
  */
-status_t FLEXSPI_CheckAndClearError(FLEXSPI_Type *base, uint32_t status);
+AT_QUICKACCESS_SECTION_CODE(status_t FLEXSPI_CheckAndClearError(FLEXSPI_Type *base, uint32_t status));
 
 /*******************************************************************************
  * Variables
@@ -164,7 +164,7 @@ static uint32_t FLEXSPI_ConfigureDll(FLEXSPI_Type *base, flexspi_device_config_t
             }
             break;
         default:
-            assert(false);
+            //assert(false);
             break;
     }
 
@@ -216,7 +216,7 @@ status_t FLEXSPI_CheckAndClearError(FLEXSPI_Type *base, uint32_t status)
         }
         else
         {
-            assert(false);
+            //assert(false);
         }
 
         /* Clear the flags. */
@@ -246,7 +246,9 @@ void FLEXSPI_Init(FLEXSPI_Type *base, const flexspi_config_t *config)
 
 #if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     /* Enable the flexspi clock */
-    CLOCK_EnableClock(s_flexspiClock[FLEXSPI_GetInstance(base)]);
+    //CLOCK_EnableClock(s_flexspiClock[FLEXSPI_GetInstance(base)]);
+    /* Access the register directly to avoid warnings accessing non ran functions */
+    CCM->CCGR6 |= CCM_CCGR6_CG5_MASK;
 #endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
 #if defined(FSL_FEATURE_FLEXSPI_HAS_RESET) && FSL_FEATURE_FLEXSPI_HAS_RESET
@@ -497,7 +499,7 @@ void FLEXSPI_SetFlashConfig(FLEXSPI_Type *base, flexspi_device_config_t *config,
  */
 void FLEXSPI_UpdateLUT(FLEXSPI_Type *base, uint32_t index, const uint32_t *cmd, uint32_t count)
 {
-    assert(index < 64U);
+    //assert(index < 64U);
 
     uint8_t i = 0;
     volatile uint32_t *lutBase;
