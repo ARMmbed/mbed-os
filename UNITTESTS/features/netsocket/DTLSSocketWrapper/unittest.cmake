@@ -7,6 +7,7 @@ set(unittest-sources
   ../features/netsocket/SocketAddress.cpp
   ../features/netsocket/NetworkStack.cpp
   ../features/netsocket/InternetSocket.cpp
+  ../features/netsocket/InternetDatagramSocket.cpp
   ../features/netsocket/UDPSocket.cpp
   ../features/netsocket/DTLSSocketWrapper.cpp
   ../features/netsocket/TLSSocketWrapper.cpp
