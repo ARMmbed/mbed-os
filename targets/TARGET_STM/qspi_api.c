@@ -262,28 +262,42 @@ qspi_status_t qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTy
     st_command->DdrMode = QSPI_DDR_MODE_DISABLE;
     st_command->DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
 
-    switch (command->address.bus_width) {
-        case QSPI_CFG_BUS_SINGLE:
-            st_command->AddressMode = QSPI_ADDRESS_1_LINE;
-            break;
-        case QSPI_CFG_BUS_DUAL:
-            st_command->AddressMode = QSPI_ADDRESS_2_LINES;
-            break;
-        case QSPI_CFG_BUS_QUAD:
-            st_command->AddressMode = QSPI_ADDRESS_4_LINES;
-            break;
-        default:
-            st_command->AddressMode = QSPI_ADDRESS_NONE;
-            break;
-    }
-
     if (command->address.disabled == true) {
         st_command->AddressMode = QSPI_ADDRESS_NONE;
         st_command->AddressSize = 0;
     } else {
         st_command->Address = command->address.value;
-        /* command->address.size needs to be shifted by QUADSPI_CCR_ADSIZE_Pos */
-        st_command->AddressSize = (command->address.size << QUADSPI_CCR_ADSIZE_Pos) & QUADSPI_CCR_ADSIZE_Msk;
+        switch (command->address.bus_width) {
+            case QSPI_CFG_BUS_SINGLE:
+                st_command->AddressMode = QSPI_ADDRESS_1_LINE;
+                break;
+            case QSPI_CFG_BUS_DUAL:
+                st_command->AddressMode = QSPI_ADDRESS_2_LINES;
+                break;
+            case QSPI_CFG_BUS_QUAD:
+                st_command->AddressMode = QSPI_ADDRESS_4_LINES;
+                break;
+            default:
+                error("Command param error: wrong address size\n");
+                return QSPI_STATUS_ERROR;
+        }
+        switch (command->address.size) {
+            case QSPI_CFG_ADDR_SIZE_8:
+                st_command->AddressSize = QSPI_ADDRESS_8_BITS;
+                break;
+            case QSPI_CFG_ADDR_SIZE_16:
+                st_command->AddressSize = QSPI_ADDRESS_16_BITS;
+                break;
+            case QSPI_CFG_ADDR_SIZE_24:
+                st_command->AddressSize = QSPI_ADDRESS_24_BITS;
+                break;
+            case QSPI_CFG_ADDR_SIZE_32:
+                st_command->AddressSize = QSPI_ADDRESS_32_BITS;
+                break;
+            default:
+                error("Command param error: wrong address size\n");
+                return QSPI_STATUS_ERROR;
+        }
     }
 
     uint8_t alt_lines = 0;
