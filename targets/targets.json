@@ -2393,7 +2393,6 @@
             }
         },
         "detect_code": ["0835"],
-        "macros_add": ["USBHOST_OTHER"],
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -2536,7 +2535,7 @@
             }
         },
         "detect_code": ["0720"],
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER", "MBED_TICKLESS"],
+        "macros_add": ["MBED_TICKLESS"],
         "device_has_add": [
             "SERIAL_ASYNCH",
             "FLASH",
@@ -2556,7 +2555,7 @@
                 "macro_name": "CLOCK_SOURCE"
             }
         },
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER", "HSE_VALUE=25000000"],
+        "macros_add": ["HSE_VALUE=25000000"],
         "device_has_add": [
             "SERIAL_ASYNCH",
             "FLASH",
@@ -2616,7 +2615,7 @@
                 "macro_name": "CLOCK_SOURCE"
             }
         },
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER", "MBED_TICKLESS"],
+        "macros_add": ["MBED_TICKLESS"],
         "device_has_add": [
             "SERIAL_ASYNCH",
             "FLASH",
@@ -2639,7 +2638,6 @@
             }
         },
         "detect_code": ["0826"],
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": [
             "CAN",
             "SERIAL_ASYNCH",
@@ -2765,9 +2763,7 @@
         "overrides": { "lpticker_delay_ticks": 4, "tickless-from-us-ticker": true },
         "detect_code": ["0743"],
         "macros_add": [
-            "MBED_TICKLESS",
-            "USB_STM_HAL",
-            "USBHOST_OTHER"
+            "MBED_TICKLESS"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -2807,9 +2803,7 @@
         "overrides": { "lpticker_delay_ticks": 4, "tickless-from-us-ticker": true},
         "detect_code": ["0743"],
         "macros_add": [
-            "MBED_TICKLESS",
-            "USB_STM_HAL",
-            "USBHOST_OTHER"
+            "MBED_TICKLESS"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -2848,6 +2842,10 @@
                 "value": "PA_7",
                 "macro_name": "STM32_D11_SPI_ETHERNET_PIN"
             },
+            "usb_speed": {
+                "help": "USE_USB_OTG_FS or USE_USB_OTG_HS or USE_USB_HS_IN_FS",
+                "value": "USE_USB_OTG_FS"
+            },
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
@@ -2863,10 +2861,6 @@
             "PSA"
         ],
         "components_add": ["FLASHIAP"],
-        "macros_add": [
-            "USB_STM_HAL",
-            "USBHOST_OTHER"
-        ],
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -2936,9 +2930,7 @@
             "STM32F439xI"
         ],
         "macros_add": [
-            "MBEDTLS_CONFIG_HW_SUPPORT",
-            "USB_STM_HAL",
-            "USBHOST_OTHER"
+            "MBEDTLS_CONFIG_HW_SUPPORT"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -3006,7 +2998,6 @@
             }
         },
         "detect_code": ["0777"],
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -3028,10 +3019,13 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "usb_speed": {
+                "help": "USE_USB_OTG_FS or USE_USB_OTG_HS or USE_USB_HS_IN_FS",
+                "value": "USE_USB_OTG_FS"
             }
         },
         "detect_code": ["0778"],
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -3086,8 +3080,7 @@
         },
         "macros_add": [
             "MBED_TICKLESS",
-            "EXTRA_IDLE_STACK_REQUIRED",
-            "USBHOST_OTHER"
+            "EXTRA_IDLE_STACK_REQUIRED"
         ],
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0816"],
@@ -3138,7 +3131,6 @@
         "macros_add": [
             "MBED_TICKLESS",
             "EXTRA_IDLE_STACK_REQUIRED",
-            "USBHOST_OTHER",
             "MBEDTLS_CONFIG_HW_SUPPORT"
         ],
         "supported_form_factors": ["ARDUINO"],
@@ -3194,8 +3186,7 @@
         "supported_form_factors": ["ARDUINO"],
         "macros_add": [
             "MBED_TICKLESS",
-            "EXTRA_IDLE_STACK_REQUIRED",
-            "USBHOST_OTHER"
+            "EXTRA_IDLE_STACK_REQUIRED"
         ],
         "detect_code": ["0818"],
         "device_has_add": [
@@ -3700,7 +3691,6 @@
             "STM32L476xx",
             "MBED_TICKLESS",
             "EXTRA_IDLE_STACK_REQUIRED",
-            "USBHOST_OTHER",
             "MBED_SPLIT_HEAP"
         ],
         "device_has_add": [
@@ -4051,9 +4041,12 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "usb_speed": {
+                "help": "USE_USB_OTG_FS or USE_USB_OTG_HS or USE_USB_HS_IN_FS",
+                "value": "USE_USB_OTG_FS"
             }
         },
-        "macros_add": ["USB_STM_HAL"],
         "overrides": { "lse_available": 0 },
         "device_has_add": ["ANALOGOUT", "TRNG", "FLASH", "MPU"],
         "release_versions": ["2", "5"],
@@ -4110,10 +4103,13 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "usb_speed": {
+                "help": "USE_USB_OTG_FS or USE_USB_OTG_HS or USE_USB_HS_IN_FS",
+                "value": "USE_USB_HS_IN_FS"
             }
         },
         "overrides": { "lse_available": 0 },
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -4147,7 +4143,6 @@
             }
         },
         "detect_code": ["0788"],
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -4309,8 +4304,8 @@
                 "macro_name": "CLOCK_SOURCE"
             },
             "usb_speed": {
-                "help": "Select the USB speed/connector (0=FullSpeed, 1=HighSpeed)",
-                "value": "1"
+                "help": "USE_USB_OTG_FS or USE_USB_OTG_HS or USE_USB_HS_IN_FS",
+                "value": "USE_USB_OTG_FS"
             },
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
@@ -4320,9 +4315,7 @@
         "detect_code": ["0815"],
         "macros_add": [
             "MBED_TICKLESS",
-            "EXTRA_IDLE_STACK_REQUIRED",
-            "USB_STM_HAL",
-            "USBHOST_OTHER"
+            "EXTRA_IDLE_STACK_REQUIRED"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -4374,9 +4367,7 @@
         "detect_code": ["0817"],
         "macros_add": [
             "MBED_TICKLESS",
-            "EXTRA_IDLE_STACK_REQUIRED",
-            "USB_STM_HAL",
-            "USBHOST_OTHER"
+            "EXTRA_IDLE_STACK_REQUIRED"
         ],
         "device_has_add": [
             "ANALOGOUT",
