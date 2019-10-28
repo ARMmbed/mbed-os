@@ -23,4 +23,6 @@
 #define QSPI_SECTOR_COUNT                       1024 // for MX25R3235F
 #endif
 
+#define QSPI_MIN_FREQUENCY  2000000
+
 #endif // MBED_QSPI_FLASH_CONFIG_H
