@@ -1887,6 +1887,19 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         address = _pal_gap.get_random_address();
     }
 
+    // legacy process event
+    processConnectionEvent(
+        e.connection_handle,
+        e.role.value() == e.role.CENTRAL ? LegacyGap::CENTRAL : LegacyGap::PERIPHERAL,
+        e.peer_address_type,
+        e.peer_address.data(),
+        _address_type,
+        address.data(),
+        &connection_params,
+        e.local_resolvable_private_address.data(),
+        e.peer_resolvable_private_address.data()
+    );
+
     // new process event
     if (_eventHandler) {
         _eventHandler->onConnectionComplete(
@@ -1905,19 +1918,6 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
             )
         );
     }
-
-    // legacy process event
-    processConnectionEvent(
-        e.connection_handle,
-        e.role.value() == e.role.CENTRAL ? LegacyGap::CENTRAL : LegacyGap::PERIPHERAL,
-        e.peer_address_type,
-        e.peer_address.data(),
-        _address_type,
-        address.data(),
-        &connection_params,
-        e.local_resolvable_private_address.data(),
-        e.peer_resolvable_private_address.data()
-    );
 
 #if BLE_FEATURE_SECURITY
     // Now starts pairing or authentication procedures if required
