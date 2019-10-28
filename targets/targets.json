@@ -2441,7 +2441,7 @@
             "TRNG",
             "FLASH",
             "WATCHDOG"
-        ],        
+        ],
         "release_versions": [
             "2",
             "5"
@@ -2464,7 +2464,7 @@
             "FSL_RTOS_MBED",
             "USE_EXTERNAL_RTC"
         ],
-        "default_toolchain": "ARM",        
+        "default_toolchain": "ARM",
         "forced_reset_timeout": 7,
         "release_versions": [
             "2",
@@ -2850,7 +2850,8 @@
             "SPISLAVE",
             "STDIO_MESSAGES",
             "TRNG",
-            "WATCHDOG"
+            "WATCHDOG",
+            "FLASH"
         ],
         "release_versions": [
             "2",
@@ -14128,7 +14129,7 @@
             "smclk_select": "HFXT",
             "smclk_div": "DIV2",
             "adc_auto_scan": 1
-        },        
+        },
         "release_versions": [
             "2",
             "5"
