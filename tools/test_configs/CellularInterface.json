@@ -1,4 +1,7 @@
 {
+    "macros": [
+        "OS_THREAD_LIBSPACE_NUM=5"
+    ],
     "config": {
         "echo-server-addr" : {
             "help" : "IP address of echo server",
