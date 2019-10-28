@@ -346,14 +346,14 @@ extern "C" {
  * @param base FLEXSPI peripheral base address.
  * @param config FLEXSPI configure structure.
  */
-void FLEXSPI_Init(FLEXSPI_Type *base, const flexspi_config_t *config);
+AT_QUICKACCESS_SECTION_CODE(void FLEXSPI_Init(FLEXSPI_Type *base, const flexspi_config_t *config));
 
 /*!
  * @brief Gets default settings for FLEXSPI.
  *
  * @param config FLEXSPI configuration structure.
  */
-void FLEXSPI_GetDefaultConfig(flexspi_config_t *config);
+AT_QUICKACCESS_SECTION_CODE(void FLEXSPI_GetDefaultConfig(flexspi_config_t *config));
 
 /*!
  * @brief Deinitializes the FLEXSPI module.
@@ -374,7 +374,9 @@ void FLEXSPI_Deinit(FLEXSPI_Type *base);
  * @param config Flash configuration parameters.
  * @param port FLEXSPI Operation port.
  */
-void FLEXSPI_SetFlashConfig(FLEXSPI_Type *base, flexspi_device_config_t *config, flexspi_port_t port);
+AT_QUICKACCESS_SECTION_CODE(void FLEXSPI_SetFlashConfig(FLEXSPI_Type *base,
+                                                        flexspi_device_config_t *config,
+                                                        flexspi_port_t port));
 
 /*!
  * @brief Software reset for the FLEXSPI logic.
@@ -384,7 +386,7 @@ void FLEXSPI_SetFlashConfig(FLEXSPI_Type *base, flexspi_device_config_t *config,
  *
  * @param base FLEXSPI peripheral base address.
  */
-static inline void FLEXSPI_SoftwareReset(FLEXSPI_Type *base)
+AT_QUICKACCESS_SECTION_CODE(static inline void FLEXSPI_SoftwareReset(FLEXSPI_Type *base))
 {
     base->MCR0 |= FLEXSPI_MCR0_SWRESET_MASK;
     while (0U != (base->MCR0 & FLEXSPI_MCR0_SWRESET_MASK))
@@ -398,7 +400,7 @@ static inline void FLEXSPI_SoftwareReset(FLEXSPI_Type *base)
  * @param base FLEXSPI peripheral base address.
  * @param enable True means enable FLEXSPI, false means disable.
  */
-static inline void FLEXSPI_Enable(FLEXSPI_Type *base, bool enable)
+AT_QUICKACCESS_SECTION_CODE(static inline void FLEXSPI_Enable(FLEXSPI_Type *base, bool enable))
 {
     if (enable)
     {
@@ -568,7 +570,7 @@ static inline uint32_t FLEXSPI_GetInterruptStatusFlags(FLEXSPI_Type *base)
  * @param base FLEXSPI peripheral base address.
  * @param interrupt status flag.
  */
-static inline void FLEXSPI_ClearInterruptStatusFlags(FLEXSPI_Type *base, uint32_t mask)
+AT_QUICKACCESS_SECTION_CODE(static inline void FLEXSPI_ClearInterruptStatusFlags(FLEXSPI_Type *base, uint32_t mask))
 {
     base->INTR |= mask;
 }
@@ -637,7 +639,7 @@ static inline flexspi_ahb_error_code_t FLEXSPI_GetAHBCommandErrorCode(FLEXSPI_Ty
  * @retval true Bus is idle.
  * @retval false Bus is busy.
  */
-static inline bool FLEXSPI_GetBusIdleStatus(FLEXSPI_Type *base)
+AT_QUICKACCESS_SECTION_CODE(static inline bool FLEXSPI_GetBusIdleStatus(FLEXSPI_Type *base))
 {
     return (0U != (base->STS0 & FLEXSPI_STS0_ARBIDLE_MASK)) && (0U != (base->STS0 & FLEXSPI_STS0_SEQIDLE_MASK));
 }
@@ -698,7 +700,8 @@ static inline void FLEXSPI_EnableAHBParallelMode(FLEXSPI_Type *base, bool enable
  * @param cmd Command sequence array.
  * @param count Number of sequences.
  */
-void FLEXSPI_UpdateLUT(FLEXSPI_Type *base, uint32_t index, const uint32_t *cmd, uint32_t count);
+AT_QUICKACCESS_SECTION_CODE(void FLEXSPI_UpdateLUT(FLEXSPI_Type *base, uint32_t index,
+                                                   const uint32_t *cmd, uint32_t count));
 
 /*!
  * @brief Writes data into FIFO.
@@ -735,7 +738,8 @@ static inline uint32_t FLEXSPI_ReadData(FLEXSPI_Type *base, uint8_t fifoIndex)
  * @retval kStatus_FLEXSPI_IpCommandSequenceError IP command sequence error detected
  * @retval kStatus_FLEXSPI_IpCommandGrantTimeout IP command grant timeout detected
  */
-status_t FLEXSPI_WriteBlocking(FLEXSPI_Type *base, uint32_t *buffer, size_t size);
+AT_QUICKACCESS_SECTION_CODE(status_t FLEXSPI_WriteBlocking(FLEXSPI_Type *base,
+                                                           uint32_t *buffer, size_t size));
 
 /*!
  * @brief Receives a buffer of data bytes using a blocking method.
@@ -748,7 +752,8 @@ status_t FLEXSPI_WriteBlocking(FLEXSPI_Type *base, uint32_t *buffer, size_t size
  * @retval kStatus_FLEXSPI_IpCommandSequenceError IP command sequencen error detected
  * @retval kStatus_FLEXSPI_IpCommandGrantTimeout IP command grant timeout detected
  */
-status_t FLEXSPI_ReadBlocking(FLEXSPI_Type *base, uint32_t *buffer, size_t size);
+AT_QUICKACCESS_SECTION_CODE(status_t FLEXSPI_ReadBlocking(FLEXSPI_Type *base,
+                                                          uint32_t *buffer, size_t size));
 
 /*!
  * @brief Execute command to transfer a buffer data bytes using a blocking method.
@@ -759,7 +764,8 @@ status_t FLEXSPI_ReadBlocking(FLEXSPI_Type *base, uint32_t *buffer, size_t size)
  * @retval kStatus_FLEXSPI_IpCommandSequenceError IP command sequence error detected
  * @retval kStatus_FLEXSPI_IpCommandGrantTimeout IP command grant timeout detected
  */
-status_t FLEXSPI_TransferBlocking(FLEXSPI_Type *base, flexspi_transfer_t *xfer);
+AT_QUICKACCESS_SECTION_CODE(status_t FLEXSPI_TransferBlocking(FLEXSPI_Type *base,
+                                                              flexspi_transfer_t *xfer));
 /*! @} */
 
 /*!
