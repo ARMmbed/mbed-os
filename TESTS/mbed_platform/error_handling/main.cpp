@@ -118,6 +118,7 @@ void test_error_capturing()
  */
 void test_error_context_capture()
 {
+#if defined(MBED_CONF_RTOS_PRESENT)
     uint32_t error_value = 0xABCD;
     mbed_error_ctx error_ctx = {0};
 
@@ -134,6 +135,7 @@ void test_error_context_capture()
     TEST_ASSERT_EQUAL_UINT((uint32_t)current_thread->stack_mem, error_ctx.thread_stack_mem);
 #if MBED_CONF_PLATFORM_ERROR_FILENAME_CAPTURE_ENABLED
     TEST_ASSERT_EQUAL_STRING(MBED_FILENAME, error_ctx.error_filename);
+#endif
 #endif
 }
 
@@ -246,16 +248,19 @@ void test_error_logging_multithread()
 }
 #endif
 
+#if defined(MBED_CONF_RTOS_PRESENT)
 static Semaphore    callback_sem;
 void MyErrorHook(const mbed_error_ctx *error_ctx)
 {
     callback_sem.release();
 }
+#endif
 
 /** Test error hook
  */
 void test_error_hook()
 {
+#if defined(MBED_CONF_RTOS_PRESENT)
     if (MBED_SUCCESS != mbed_set_error_hook(MyErrorHook)) {
         TEST_FAIL();
     }
@@ -264,6 +269,7 @@ void test_error_hook()
     bool acquired = callback_sem.try_acquire_for(5000);
 
     TEST_ASSERT(acquired);
+#endif
 }
 
 #if MBED_CONF_PLATFORM_ERROR_HIST_ENABLED && defined(MBED_TEST_SIM_BLOCKDEVICE)

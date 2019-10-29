@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if defined(MBED_CONF_RTOS_PRESENT)
 
 #ifndef EMAC_UTIL_H
 #define EMAC_UTIL_H
@@ -124,5 +125,5 @@ void worker_loop_init(void);
 void worker_loop_start(void (*test_step_cb_fnc)(int opt), int timeout);
 void worker_loop_end(void);
 void worker_loop_link_up_wait(void);
-
+#endif /* #if defined(MBED_CONF_RTOS_PRESENT) */
 #endif /* EMAC_UTIL_H */

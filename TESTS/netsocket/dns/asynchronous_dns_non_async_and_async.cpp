@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#if defined(MBED_CONF_RTOS_PRESENT)
+
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
@@ -56,3 +58,4 @@ void ASYNCHRONOUS_DNS_NON_ASYNC_AND_ASYNC()
 
     TEST_ASSERT(strlen(data.addr.get_ip_address()) > 1);
 }
+#endif // defined(MBED_CONF_RTOS_PRESENT)

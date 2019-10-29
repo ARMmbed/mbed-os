@@ -19,6 +19,9 @@
 #include "unity.h"
 #include "utest.h"
 #include "ticker_api.h"
+#if !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] test not supported
+#else
 
 extern "C" {
 #include "rtx_lib.h"
@@ -351,3 +354,4 @@ int main()
 {
     return !Harness::run(specification);
 }
+#endif

@@ -17,6 +17,7 @@
 
 #ifndef MBEDMICRO_RTOS_MBED_THREADS_SYNCHRONIZED_INTEGRAL
 #define MBEDMICRO_RTOS_MBED_THREADS_SYNCHRONIZED_INTEGRAL
+#if defined(MBED_CONF_RTOS_PRESENT)
 
 #include <rtos.h>
 #include "LockGuard.h"
@@ -75,5 +76,5 @@ private:
     mutable rtos::Mutex _mutex;
     T _value;
 };
-
+#endif /* #if defined(MBED_CONF_RTOS_PRESENT) */
 #endif /* MBEDMICRO_RTOS_MBED_THREADS_SYNCHRONIZED_INTEGRAL */

@@ -17,6 +17,7 @@
 
 #ifndef USB_ENDPOINT_TESTER_H
 #define USB_ENDPOINT_TESTER_H
+#if defined(MBED_CONF_RTOS_PRESENT)
 
 /* These headers are included for child class. */
 #include "USBDescriptor.h"
@@ -132,4 +133,5 @@ private:
     bool _request_abort_buff_check(const setup_packet_t *setup);
 };
 
+#endif
 #endif

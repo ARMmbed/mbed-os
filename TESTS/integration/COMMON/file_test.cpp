@@ -20,9 +20,7 @@
 /*
  * Based on mbed-stress-test by Marcus Chang @ Arm Mbed - http://github.com/ARMmbed/mbed-stress-test
 */
-#if !INTEGRATION_TESTS
-#error [NOT_SUPPORTED] integration tests not enabled for this target
-#endif
+#if INTEGRATION_TESTS
 
 #include "mbed.h"
 #include "unity/unity.h"
@@ -106,3 +104,4 @@ void file_test_read(const char *file, size_t offset, const unsigned char *data, 
            float(data_length) / 1024, float(data_length) / timer.read() / 1024, timer.read());
 }
 
+#endif //#if INTEGRATION_TESTS

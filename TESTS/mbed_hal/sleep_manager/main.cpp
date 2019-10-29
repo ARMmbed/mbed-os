@@ -23,7 +23,7 @@
 #include "../sleep/sleep_test_utils.h"
 #include "sleep_manager_api_tests.h"
 
-#if !DEVICE_SLEEP
+#if !DEVICE_SLEEP || !defined(MBED_CONF_RTOS_PRESENT)
 #error [NOT_SUPPORTED] test not supported
 #else
 
@@ -335,4 +335,4 @@ int main()
     return !Harness::run(specification);
 }
 
-#endif // !DEVICE_SLEEP
+#endif // !DEVICE_SLEEP || !defined(MBED_CONF_RTOS_PRESENT)

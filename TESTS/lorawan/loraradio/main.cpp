@@ -13,10 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] LORADIO tests are not enabled for Bare Metal.
+#else
 
 #include "utest.h"
 #include "unity.h"
 #include "greentea-client/test_env.h"
+
+#include "Semaphore.h"
 
 #include "mbed_trace.h"
 #define TRACE_GROUP "RTST"
@@ -33,8 +38,6 @@
 #else
 #error [NOT_SUPPORTED] Requires parameters from application config file.
 #endif
-
-#include "Semaphore.h"
 
 #if (MBED_CONF_APP_LORA_RADIO == SX1272) || (MBED_CONF_APP_LORA_RADIO == SX1276)
 
@@ -284,3 +287,4 @@ int main()
 }
 
 #endif // (MBED_CONF_APP_LORA_RADIO == SX1272) || (MBED_CONF_APP_LORA_RADIO == SX1276)
+#endif // !defined(MBED_CONF_RTOS_PRESENT)

@@ -15,6 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if !defined(TARGET_K64F) && !defined(TARGET_ARM_FM) || !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] Kvstore API tests run only on K64F devices,Fastmodels and RTOS
+#else
 
 #include "rtos/Thread.h"
 #include "mbed_trace.h"
@@ -26,10 +29,6 @@
 #include "unity.h"
 #include "utest.h"
 #include <stdlib.h>
-
-#if !defined(TARGET_K64F) && !defined(TARGET_ARM_FM)
-#error [NOT_SUPPORTED] Kvstore API tests run only on K64F devices and Fastmodels
-#else
 
 #define FSST_TEST_NUM_OF_THREADS 5
 

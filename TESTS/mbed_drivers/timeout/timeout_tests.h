@@ -15,6 +15,7 @@
  */
 #ifndef MBED_TIMEOUT_TESTS_H
 #define MBED_TIMEOUT_TESTS_H
+#if defined(MBED_CONF_RTOS_PRESENT)
 
 #include "mbed.h"
 #include "unity/unity.h"
@@ -413,4 +414,5 @@ void test_drift(void)
     TEST_ASSERT_EQUAL_STRING_MESSAGE("pass", _key, "Host script reported a failure");
 }
 
+#endif // defined(MBED_CONF_RTOS_PRESENT)
 #endif

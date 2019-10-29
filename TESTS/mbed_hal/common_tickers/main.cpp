@@ -13,6 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if !DEVICE_USTICKER || !defined(MBED_RTOS_CONF_PRESENT)
+#error [NOT_SUPPORTED] test not supported
+#else
+
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
@@ -30,9 +35,6 @@ extern "C" {
 }
 #endif // __cplusplus
 
-#if !DEVICE_USTICKER
-#error [NOT_SUPPORTED] test not supported
-#else
 
 #define US_PER_S 1000000
 
@@ -605,4 +607,4 @@ int main()
 {
     return !Harness::run(specification);
 }
-#endif // !DEVICE_USTICKER
+#endif // !DEVICE_USTICKER || !defined(MBED_RTOS_CONF_PRESENT)

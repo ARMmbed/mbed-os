@@ -20,8 +20,8 @@
 #include "unity.h"
 #include "utest.h"
 
-#ifdef TARGET_RENESAS
-#error [NOT_SUPPORTED] Cortex-A target not supported for this test
+#if defined(TARGET_RENESAS) || !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] Cortex-A target and bare metal not supported for this test
 #else
 
 using namespace utest::v1;
@@ -75,4 +75,4 @@ int main()
     return !Harness::run(specification);
 }
 
-#endif // TARGET_RENESAS
+#endif // TARGET_RENESAS || !defined(MBED_CONF_RTOS_PRESENT)

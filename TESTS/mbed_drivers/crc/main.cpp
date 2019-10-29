@@ -136,6 +136,7 @@ void test_thread(void)
 
 void test_thread_safety()
 {
+#if defined(MBED_CONF_RTOS_PRESENT)
     char  test[] = "123456789";
     uint32_t crc;
 
@@ -152,6 +153,7 @@ void test_thread_safety()
 
     // Wait for the thread to finish
     t1.join();
+#endif
 }
 
 Case cases[] = {

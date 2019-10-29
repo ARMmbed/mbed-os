@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#if !DEVICE_LPTICKER
-#error [NOT_SUPPORTED] Low power timer not supported for this target
+#if !DEVICE_LPTICKER || !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] Low power timer test cases are not supported.
 #else
 
 #include "mbed.h"

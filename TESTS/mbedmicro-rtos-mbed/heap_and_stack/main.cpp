@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#if defined(TARGET_CORTEX_A) || !DEVICE_USTICKER
-#error [NOT_SUPPORTED] This function not supported for this target
+#if defined(TARGET_CORTEX_A) || !DEVICE_USTICKER || !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] test not supported.
 #else
 
 #include <stdio.h>
@@ -263,4 +263,4 @@ int main()
     return !utest::v1::Harness::run(specification);
 }
 
-#endif // defined(TARGET_CORTEX_A) || !DEVICE_USTICKER
+#endif // defined(TARGET_CORTEX_A) || !DEVICE_USTICKER || !defined(MBED_CONF_RTOS_PRESENT)

@@ -13,6 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER || !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] test not supported
+#else
+
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
@@ -20,10 +25,6 @@
 #include "rtos.h"
 
 using namespace utest::v1;
-
-#if defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER
-#error [NOT_SUPPORTED] test not supported
-#else
 
 #define THREAD_DELAY     30
 #define SEMAPHORE_SLOTS  2
@@ -246,4 +247,4 @@ int main()
     return !Harness::run(specification);
 }
 
-#endif // defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER
+#endif // defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER || !defined(MBED_CONF_RTOS_PRESENT)

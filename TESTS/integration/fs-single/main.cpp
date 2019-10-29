@@ -23,7 +23,7 @@
 
 #if !INTEGRATION_TESTS
 #error [NOT_SUPPORTED] integration tests not enabled for this target
-#endif
+#else
 
 #include "mbed.h"
 #include "FATFileSystem.h"
@@ -162,3 +162,4 @@ int main()
 
     return !Harness::run(specification);
 }
+#endif

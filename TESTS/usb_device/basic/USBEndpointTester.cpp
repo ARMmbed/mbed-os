@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#if defined(MBED_CONF_RTOS_PRESENT)
+
 #include "stdint.h"
 #include "stdlib.h"
 #include "USBEndpointTester.h"
@@ -169,8 +171,11 @@ USBEndpointTester::USBEndpointTester(USBPhy *phy, uint16_t vendor_id, uint16_t p
         MBED_ASSERT(_endpoint_buffs[i] != NULL);
     }
     MBED_ASSERT(resolver.valid());
-
+#if defined(MBED_CONF_RTOS_PRESENT)
     queue = mbed::mbed_highprio_event_queue();
+#else
+    queue = mbed::mbed_event_queue();
+#endif
     configuration_desc(0);
     ctrl_buf = new uint8_t[CTRL_BUF_SIZE];
     init();
@@ -861,3 +866,4 @@ void USBEndpointTester::start_ep_in_abort_test()
     write_start(_endpoints[EP_BULK_IN], _endpoint_buffs[EP_BULK_IN], (*_endpoint_configs)[EP_BULK_IN].max_packet);
     write_start(_endpoints[EP_INT_IN], _endpoint_buffs[EP_INT_IN], (*_endpoint_configs)[EP_INT_IN].max_packet);
 }
+#endif

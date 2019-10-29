@@ -19,8 +19,8 @@
 #include "unity/unity.h"
 #include "timeout_tests.h"
 
-#if !DEVICE_USTICKER
-#error [NOT_SUPPORTED] usticker not supported for this target.
+#if !DEVICE_USTICKER || !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] usticker test not supported.
 #else
 
 using namespace utest::v1;

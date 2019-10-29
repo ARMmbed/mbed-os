@@ -16,8 +16,8 @@
 * limitations under the License.
 */
 
-#ifndef TARGET_PSA
-#error [NOT_SUPPORTED] ITS/PS tests can run only on PSA-enabled targets.
+#if !defined(TARGET_PSA) || !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] ITS/PS tests can run only on PSA-enabled targets and RTOS.
 #else
 
 #include "greentea-client/test_env.h"
@@ -238,4 +238,4 @@ int main()
     return !Harness::run(specification);
 }
 
-#endif // TARGET_PSA
+#endif // TARGET_PSA || !defined(MBED_CONF_RTOS_PRESENT)

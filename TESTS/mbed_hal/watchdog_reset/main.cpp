@@ -14,8 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if !DEVICE_WATCHDOG
-#error [NOT_SUPPORTED] Watchdog not supported for this target
+#if !DEVICE_WATCHDOG || !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] Watchdog test not supported.
 #else
 
 #include "greentea-client/test_env.h"
@@ -320,4 +320,4 @@ int main()
     return !Harness::run(specification);
 }
 
-#endif // !DEVICE_WATCHDOG
+#endif // !DEVICE_WATCHDOG || !defined(MBED_CONF_RTOS_PRESENT)

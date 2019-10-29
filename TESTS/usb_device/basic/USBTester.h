@@ -17,6 +17,7 @@
 
 #ifndef USB_TESTER_H
 #define USB_TESTER_H
+#if defined(MBED_CONF_RTOS_PRESENT)
 
 /* These headers are included for child class. */
 #include "USBDescriptor.h"
@@ -143,4 +144,5 @@ protected:
 
 };
 
+#endif
 #endif

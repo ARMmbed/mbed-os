@@ -120,6 +120,7 @@ void rtc_sleep_test()
 /* Test that the RTC keeps counting even after ::rtc_free has been called. */
 void rtc_persist_test()
 {
+#if defined(MBED_CONF_RTOS_PRESENT)
     const uint32_t start = 100;
     rtc_init();
     rtc_write(start);
@@ -134,6 +135,7 @@ void rtc_persist_test()
 
     TEST_ASSERT_TRUE(enabled);
     TEST_ASSERT_UINT32_WITHIN(WAIT_TOLERANCE, WAIT_TIME, stop - start);
+#endif
 }
 
 /* Test time does not glitch backwards due to an incorrectly implemented ripple counter driver. */
@@ -156,6 +158,7 @@ void rtc_glitch_test()
 /* Test that the RTC correctly handles different time values. */
 void rtc_range_test()
 {
+#if defined(MBED_CONF_RTOS_PRESENT)
     static const uint32_t starts[] = {
         0x00000000,
         0xEFFFFFFF,
@@ -172,6 +175,7 @@ void rtc_range_test()
         TEST_ASSERT_UINT32_WITHIN(WAIT_TOLERANCE, WAIT_TIME, stop - start);
     }
     rtc_free();
+#endif
 }
 
 /* Test that the RTC accuracy is at least 10%. */

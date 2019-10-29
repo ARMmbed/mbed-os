@@ -26,7 +26,7 @@
 using namespace utest::v1;
 
 #define TEST_STACK_SIZE 256
-
+#if defined(MBED_CONF_RTOS_PRESENT)
 void sleep_manager_locking_thread_test()
 {
     for (uint32_t i = 0; i < 100; i++) {
@@ -35,9 +35,10 @@ void sleep_manager_locking_thread_test()
         sleep_manager_unlock_deep_sleep();
     }
 }
-
+#endif
 void sleep_manager_multithread_test()
 {
+#if defined(MBED_CONF_RTOS_PRESENT)
     {
         Callback<void()> cb(sleep_manager_locking_thread_test);
         Thread t1(osPriorityNormal, TEST_STACK_SIZE);
@@ -54,6 +55,7 @@ void sleep_manager_multithread_test()
 
     bool deep_sleep_allowed = sleep_manager_can_deep_sleep_test_check();
     TEST_ASSERT_TRUE_MESSAGE(deep_sleep_allowed, "Deep sleep should be allowed");
+#endif
 }
 
 void sleep_manager_locking_irq_test()

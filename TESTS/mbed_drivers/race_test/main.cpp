@@ -14,6 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER || !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] Test not supported for single threaded and also bare metal enviroment. UsTicker need to be enabled for this test.
+#else
+
 #include "mbed.h"
 #include "rtos.h"
 #include "greentea-client/test_env.h"
@@ -21,10 +26,6 @@
 #include "utest/utest.h"
 #include "SingletonPtr.h"
 #include <stdio.h>
-
-#if defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER
-#error [NOT_SUPPORTED] Test not supported for single threaded enviroment. UsTicker need to be enabled for this test.
-#else
 
 using namespace utest::v1;
 

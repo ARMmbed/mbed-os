@@ -19,7 +19,7 @@
 #include "utest/utest.h"
 #include "unity/unity.h"
 
-#if defined(SKIP_TIME_DRIFT_TESTS) || defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER
+#if defined(SKIP_TIME_DRIFT_TESTS) || defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER || !defined(MBED_CONF_RTOS_PRESENT)
 #error [NOT_SUPPORTED] test not supported
 #else
 
@@ -116,4 +116,4 @@ int main()
     utest::v1::Harness::run(specification);
 }
 
-#endif // defined(SKIP_TIME_DRIFT_TESTS) || defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER
+#endif // defined(SKIP_TIME_DRIFT_TESTS) || defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER || !defined(MBED_CONF_RTOS_PRESENT)

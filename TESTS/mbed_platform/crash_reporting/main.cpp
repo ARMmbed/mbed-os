@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if !MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED || !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] crash_reporting test not supported
+#else
+
 #include "mbed.h"
 #include "mbed_error.h"
 #include "mbed_crash_data_offsets.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
-
-#if !MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
-#error [NOT_SUPPORTED] crash_reporting test not supported
-#else
 
 #define MSG_VALUE_DUMMY "0"
 #define MSG_VALUE_LEN 32
@@ -79,4 +79,4 @@ int main(void)
     return 0;
 }
 
-#endif // !MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
+#endif // !MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED || !defined(MBED_CONF_RTOS_PRESENT)

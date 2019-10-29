@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#if defined(MBED_CONF_RTOS_PRESENT)
+
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
@@ -69,3 +71,4 @@ void ASYNCHRONOUS_DNS_TIMEOUTS()
 
     nsapi_dns_call_in_set(0);
 }
+#endif // defined(MBED_CONF_RTOS_PRESENT)

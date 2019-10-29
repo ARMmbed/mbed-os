@@ -17,6 +17,7 @@
 
 #ifndef DNS_TESTS_H
 #define DNS_TESTS_H
+#if defined(MBED_CONF_RTOS_PRESENT)
 
 #include "nsapi_dns.h"
 
@@ -92,4 +93,5 @@ void SYNCHRONOUS_DNS();
 void SYNCHRONOUS_DNS_MULTIPLE();
 void SYNCHRONOUS_DNS_CACHE();
 void SYNCHRONOUS_DNS_INVALID();
+#endif /* defined(MBED_CONF_RTOS_PRESENT) */
 #endif

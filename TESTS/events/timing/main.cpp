@@ -15,7 +15,9 @@
  */
 #include "mbed_events.h"
 #include "mbed.h"
+#if defined(MBED_CONF_RTOS_PRESENT)
 #include "rtos.h"
+#endif
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"
@@ -84,6 +86,7 @@ void timer_timing_test()
 // equeue tick timing test
 void tick_timing_test()
 {
+#if defined(MBED_CONF_RTOS_PRESENT)
     unsigned start = equeue_tick();
     int prev = 0;
 
@@ -96,11 +99,13 @@ void tick_timing_test()
         TEST_ASSERT(next >= prev);
         prev = next;
     }
+#endif
 }
 
 // equeue semaphore timing test
 void semaphore_timing_test()
 {
+#if defined(MBED_CONF_RTOS_PRESENT)
     srand(0);
     timer.reset();
     timer.start();
@@ -125,6 +130,7 @@ void semaphore_timing_test()
     }
 
     equeue_sema_destroy(&sema);
+#endif
 }
 
 

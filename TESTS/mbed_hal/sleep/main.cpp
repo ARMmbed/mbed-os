@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#if !DEVICE_SLEEP
-#error [NOT_SUPPORTED] sleep not supported for this target
+#if !DEVICE_SLEEP || !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] sleep not supported for this target and also for bare metal.
 #else
 
 #include "mbed.h"
@@ -262,4 +262,4 @@ int main()
     Harness::run(specification);
 }
 
-#endif // !DEVICE_SLEEP
+#endif // !DEVICE_SLEEP || !defined(MBED_CONF_RTOS_PRESENT)

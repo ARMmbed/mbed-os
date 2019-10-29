@@ -20,6 +20,7 @@
 /*
  * Based on mbed-stress-test by Marcus Chang @ Arm Mbed - http://github.com/ARMmbed/mbed-stress-test
 */
-
+#if INTEGRATION_TESTS
 size_t download_test(NetworkInterface *interface, const unsigned char *data, size_t data_length, size_t buff_size, uint32_t thread_id = 0);
+#endif
 

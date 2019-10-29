@@ -30,7 +30,7 @@
 #include "hal/lp_ticker_api.h"
 #include "hal/mbed_lp_ticker_wrapper.h"
 
-#if defined(SKIP_TIME_DRIFT_TESTS) || !DEVICE_USTICKER
+#if defined(SKIP_TIME_DRIFT_TESTS) || !DEVICE_USTICKER || !defined(MBED_CONF_RTOS_PRESENT)
 #error [NOT_SUPPORTED] test not supported
 #else
 
@@ -205,4 +205,4 @@ int main()
     Harness::run(specification);
 }
 
-#endif // defined(SKIP_TIME_DRIFT_TESTS) || !DEVICE_USTICKER
+#endif // defined(SKIP_TIME_DRIFT_TESTS) || !DEVICE_USTICKER || !defined(MBED_RTOS_CONF_PRESENT)

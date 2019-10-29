@@ -21,9 +21,7 @@
  * Based on mbed-stress-test by Marcus Chang @ Arm Mbed - http://github.com/ARMmbed/mbed-stress-test
 */
 
-#if !INTEGRATION_TESTS
-#error [NOT_SUPPORTED] integration tests not enabled for this target
-#endif
+#if INTEGRATION_TESTS
 
 #include "mbed.h"
 #include "unity/unity.h"
@@ -206,4 +204,4 @@ size_t download_test(NetworkInterface *interface, const unsigned char *data, siz
 
     return received_bytes;
 }
-
+#endif // INTEGRATION_TESTS

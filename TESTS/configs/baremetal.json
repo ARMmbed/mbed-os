@@ -11,7 +11,30 @@
         "filesystem",
         "littlefs",
         "mbed-trace",
-        "device-key",
-        "lora"
-    ] 
+        "device_key",
+	"storage_tdb_internal",
+	"storage_filesystem",
+	"storage_tdb_external",
+        "lora",
+	"nfc",
+	"network-emac",
+	"nanostack-libservice",
+	"flashiap-block-device",
+	"system-storage",
+	"filesystemstore",
+	"SecureStore",
+	"storage",
+	"kv-map",
+	"direct-access-devicekey",
+	"tdbstore",
+	"kv-config",
+	"events",
+	"kv-global-api",
+	"sd"
+    ],
+    "target_overrides": {
+        "*": {
+	    "target.device_has_remove": ["EMAC", "USBDEVICE"]
+        }
+     }
 }

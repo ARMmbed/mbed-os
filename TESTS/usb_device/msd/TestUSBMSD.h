@@ -17,6 +17,8 @@
 #ifndef Test_USBMSD_H
 #define Test_USBMSD_H
 
+#if defined(MBED_CONF_RTOS_PRESENT)
+
 #include "USBMSD.h"
 
 
@@ -131,3 +133,4 @@ volatile uint32_t TestUSBMSD::program_counter = 0;
 volatile uint32_t TestUSBMSD::erase_counter = 0;
 
 #endif // Test_USBMSD_H
+#endif
