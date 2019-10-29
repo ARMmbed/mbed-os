@@ -301,10 +301,9 @@ public:
 
     /**
      * @brief Get the TDBStore flash bounds from the configured start address and size.
-     * Configured start address/size must not both be 0.
      *
      * @param[inout] start_address    Configured TDBStore start address in flash.
-     * @param[inout] size             Configured TDBStore size.
+     * @param[inout] size             Configured TDBStore size. If 0, the size will be from the start address to the end of flash
      *
      * @returns MBED_SUCCESS                        Success.
      *          MBED_ERROR_INVALID_ARGUMENT         One of the arguments is NULL or both the configured start address and size are 0.

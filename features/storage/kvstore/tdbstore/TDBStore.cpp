@@ -1504,8 +1504,8 @@ int TDBStore::get_flash_bounds_from_config(bd_addr_t *start_address, bd_size_t *
 
     if (*start_address == 0) {
         if (*size == 0) {
-            flash.deinit();
-            return MBED_ERROR_INVALID_ARGUMENT;
+            //The block device will have all space from start address to the end of the flash
+            *size = flash.get_flash_size();
         }
 
         *start_address = flash_end_address - *size;
