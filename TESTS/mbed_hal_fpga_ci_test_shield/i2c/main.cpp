@@ -50,18 +50,7 @@ void fpga_test_i2c_init_free(PinName sda, PinName scl)
     i2c_init(&obj, sda, scl);
     i2c_frequency(&obj, 100000);
 
-    /* Free up I2C pins
-     *
-     * The most suitable place to free up I2C pins is in i2c_free(). Due to
-     * i2c_free() not available in I2C HAL, we free up I2C pins manually by
-     * configuring them back to GPIO.
-     *
-     * Without free-up of I2C pins, SDA/SCL pins of the same I2C peripheral may
-     * share by multiple ports due to 'all ports' tests here, and the following
-     * I2C tests would be subject to interference by shared ports.
-     */
-    gpio_set(sda);
-    gpio_set(scl);
+    i2c_free(&obj);
 }
 
 void fpga_i2c_test_write(PinName sda, PinName scl)
@@ -149,6 +138,7 @@ void fpga_i2c_test_write(PinName sda, PinName scl)
     tester.reset();
     tester.pin_set_pull(sda, MbedTester::PullNone);
     tester.pin_set_pull(scl, MbedTester::PullNone);
+    i2c_free(&i2c);
 }
 
 void fpga_i2c_test_read(PinName sda, PinName scl)
@@ -235,6 +225,7 @@ void fpga_i2c_test_read(PinName sda, PinName scl)
     tester.reset();
     tester.pin_set_pull(sda, MbedTester::PullNone);
     tester.pin_set_pull(scl, MbedTester::PullNone);
+    i2c_free(&i2c);
 }
 
 void fpga_i2c_test_byte_write(PinName sda, PinName scl)
@@ -332,6 +323,7 @@ void fpga_i2c_test_byte_write(PinName sda, PinName scl)
     tester.reset();
     tester.pin_set_pull(sda, MbedTester::PullNone);
     tester.pin_set_pull(scl, MbedTester::PullNone);
+    i2c_free(&i2c);
 }
 
 void fpga_i2c_test_byte_read(PinName sda, PinName scl)
@@ -432,6 +424,7 @@ void fpga_i2c_test_byte_read(PinName sda, PinName scl)
     tester.reset();
     tester.pin_set_pull(sda, MbedTester::PullNone);
     tester.pin_set_pull(scl, MbedTester::PullNone);
+    i2c_free(&i2c);
 }
 
 Case cases[] = {

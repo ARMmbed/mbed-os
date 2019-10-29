@@ -61,6 +61,7 @@ void fpga_test_basic_input_output(PinName pin)
     // Test gpio_is_connected() returned value.
     gpio_init(&gpio, NC);
     TEST_ASSERT_EQUAL_INT(0, gpio_is_connected(&gpio));
+    gpio_free(&gpio);
     gpio_init(&gpio, pin);
     TEST_ASSERT_NOT_EQUAL(0, gpio_is_connected(&gpio));
 
@@ -120,6 +121,8 @@ void fpga_test_basic_input_output(PinName pin)
     TEST_ASSERT_EQUAL_INT(1, tester.gpio_read(MbedTester::LogicalPinGPIO0));
     gpio_write(&gpio, 0);
     TEST_ASSERT_EQUAL_INT(0, tester.gpio_read(MbedTester::LogicalPinGPIO0));
+
+    gpio_free(&gpio);
 }
 
 /* Test explicit input initialization.
@@ -148,6 +151,7 @@ void fpga_test_explicit_input(PinName pin)
     tester.gpio_write(MbedTester::LogicalPinGPIO0, 0, false);
     wait_us(HI_Z_READ_DELAY_US);
     TEST_ASSERT_EQUAL_INT(1, gpio_read(&gpio)); // hi-Z, pulled up
+    gpio_free(&gpio);
 
     // Initialize GPIO pin as an input, pull-down mode.
     memset(&gpio, 0, sizeof gpio);
@@ -156,6 +160,7 @@ void fpga_test_explicit_input(PinName pin)
     tester.gpio_write(MbedTester::LogicalPinGPIO0, 0, false);
     wait_us(HI_Z_READ_DELAY_US);
     TEST_ASSERT_EQUAL_INT(0, gpio_read(&gpio)); // hi-Z, pulled down
+    gpio_free(&gpio);
 
     // Initialize GPIO pin as an input, pull-up mode.
     memset(&gpio, 0, sizeof gpio);
@@ -164,6 +169,7 @@ void fpga_test_explicit_input(PinName pin)
     tester.gpio_write(MbedTester::LogicalPinGPIO0, 0, false);
     wait_us(HI_Z_READ_DELAY_US);
     TEST_ASSERT_EQUAL_INT(1, gpio_read(&gpio)); // hi-Z, pulled up
+    gpio_free(&gpio);
 
     // Initialize GPIO pin as an input, pull-down mode.
     memset(&gpio, 0, sizeof gpio);
@@ -172,6 +178,7 @@ void fpga_test_explicit_input(PinName pin)
     tester.gpio_write(MbedTester::LogicalPinGPIO0, 0, false);
     wait_us(HI_Z_READ_DELAY_US);
     TEST_ASSERT_EQUAL_INT(0, gpio_read(&gpio)); // hi-Z, pulled down
+    gpio_free(&gpio);
 }
 
 /* Test explicit output initialization.
@@ -198,30 +205,35 @@ void fpga_test_explicit_output(PinName pin)
     gpio_init_out(&gpio, pin);
     TEST_ASSERT_NOT_EQUAL(0, gpio_is_connected(&gpio));
     TEST_ASSERT_EQUAL_INT(0, tester.gpio_read(MbedTester::LogicalPinGPIO0));
+    gpio_free(&gpio);
 
     // Initialize GPIO pin as an output, output value = 1.
     memset(&gpio, 0, sizeof gpio);
     gpio_init_out_ex(&gpio, pin, 1);
     TEST_ASSERT_NOT_EQUAL(0, gpio_is_connected(&gpio));
     TEST_ASSERT_EQUAL_INT(1, tester.gpio_read(MbedTester::LogicalPinGPIO0));
+    gpio_free(&gpio);
 
     // Initialize GPIO pin as an output, output value = 0.
     memset(&gpio, 0, sizeof gpio);
     gpio_init_out_ex(&gpio, pin, 0);
     TEST_ASSERT_NOT_EQUAL(0, gpio_is_connected(&gpio));
     TEST_ASSERT_EQUAL_INT(0, tester.gpio_read(MbedTester::LogicalPinGPIO0));
+    gpio_free(&gpio);
 
     // Initialize GPIO pin as an output, output value = 1.
     memset(&gpio, 0, sizeof gpio);
     gpio_init_inout(&gpio, pin, PIN_OUTPUT, PullNone, 1);
     TEST_ASSERT_NOT_EQUAL(0, gpio_is_connected(&gpio));
     TEST_ASSERT_EQUAL_INT(1, tester.gpio_read(MbedTester::LogicalPinGPIO0));
+    gpio_free(&gpio);
 
     // Initialize GPIO pin as an output, output value = 0.
     memset(&gpio, 0, sizeof gpio);
     gpio_init_inout(&gpio, pin, PIN_OUTPUT, PullNone, 0);
     TEST_ASSERT_NOT_EQUAL(0, gpio_is_connected(&gpio));
     TEST_ASSERT_EQUAL_INT(0, tester.gpio_read(MbedTester::LogicalPinGPIO0));
+    gpio_free(&gpio);
 }
 
 Case cases[] = {

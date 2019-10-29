@@ -49,6 +49,7 @@ void fpga_analogin_init_test(PinName pin)
     analogin_t analogin;
 
     analogin_init(&analogin, pin);
+    analogin_free(&analogin);
 }
 
 void fpga_analogin_test(PinName pin)
@@ -72,6 +73,8 @@ void fpga_analogin_test(PinName pin)
 
     /* Set gpio back to Hi-Z */
     tester.gpio_write(MbedTester::LogicalPinGPIO0, 0, false);
+
+    analogin_free(&analogin);
 }
 
 Case cases[] = {
