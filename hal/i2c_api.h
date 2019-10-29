@@ -74,6 +74,7 @@ extern "C" {
  * # Defined behavior
  * * ::i2c_init initializes i2c_t control structure
  * * ::i2c_init configures the pins used by I2C
+ * * ::i2c_free returns the pins owned by the I2C object to their reset state
  * * ::i2c_frequency configure the I2C frequency
  * * ::i2c_start sends START command
  * * ::i2c_read reads `length` bytes from the I2C slave specified by `address` to the `data` buffer
@@ -143,6 +144,13 @@ extern "C" {
  *  @param scl  The scl pin
  */
 void i2c_init(i2c_t *obj, PinName sda, PinName scl);
+
+/** Release a I2C object
+ *
+ * Return the pins owned by the I2C object to their reset state
+ * @param obj The I2C object to deinitialize
+ */
+void i2c_free(i2c_t *obj);
 
 /** Configure the I2C frequency
  *
