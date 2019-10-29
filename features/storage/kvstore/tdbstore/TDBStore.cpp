@@ -1439,7 +1439,8 @@ int TDBStore::get_default_flash_addresses(bd_addr_t *start_address, bd_size_t *s
     }
 
     // Let's work from end of the flash backwards
-    bd_addr_t curr_addr = flash.get_flash_start() + flash.get_flash_size();
+    bd_addr_t end_of_flash = flash.get_flash_start() + flash.get_flash_size();
+    bd_addr_t curr_addr = end_of_flash;
     bd_size_t sector_space = 0;
 
     for (int i = STORE_SECTORS; i; i--) {
@@ -1453,7 +1454,9 @@ int TDBStore::get_default_flash_addresses(bd_addr_t *start_address, bd_size_t *s
         *size = sector_space;
     } else {
         curr_addr -= page_space;
-        *size = page_space;
+        // Align to 2 sector boundary so that garbage collection works properly
+        curr_addr = align_down(curr_addr, 2 * flash.get_sector_size(curr_addr));
+        *size = end_of_flash - curr_addr;
     }
 
     // Store- and application-sectors mustn't overlap
