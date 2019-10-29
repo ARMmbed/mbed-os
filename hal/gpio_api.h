@@ -35,6 +35,7 @@ extern "C" {
  * * ::gpio_init and other init functions can be called with NC or a valid PinName for the target - Verified by ::gpio_nc_test
  * * ::gpio_is_connected can be used to test whether a gpio_t object was initialized with NC - Verified by ::gpio_nc_test
  * * ::gpio_init initializes the GPIO pin
+ * * ::gpio_free returns the pin owned by the GPIO object to its reset state
  * * ::gpio_mode sets the mode of the given pin
  * * ::gpio_dir sets the direction of the given pin
  * * ::gpio_write sets the gpio output value
@@ -84,6 +85,12 @@ int gpio_is_connected(const gpio_t *obj);
  * @param pin The GPIO pin to initialize (may be NC)
  */
 void gpio_init(gpio_t *obj, PinName pin);
+
+/** Releases the GPIO pin
+ *
+ * @param obj The GPIO object to release
+ */
+void gpio_free(gpio_t *obj);
 
 /** Set the input pin mode
  *
