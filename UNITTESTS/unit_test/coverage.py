@@ -137,6 +137,9 @@ class CoverageAPI(object):
                 coverage_path = os.path.join(build_path, "coverage")
                 if not os.path.exists(coverage_path):
                     os.mkdir(coverage_path)
+                coverage_output = os.path.join(coverage_path, "index.html")
+            else:
+                coverage_output = os.path.join(build_path, "coverage.xml")
 
             # Generate the command
             args = self._gen_cmd(output, excludes, filter_regex)
@@ -145,4 +148,4 @@ class CoverageAPI(object):
             execute_program(
                 args,
                 "%s code coverage report generation failed." % output.upper(),
-                "%s code coverage report created." % output.upper())
+                "%s code coverage report created in %s" % (output.upper(), coverage_output))
