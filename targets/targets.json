@@ -9266,6 +9266,30 @@
             "network-default-interface-type": "WIFI"
         }
     },
+    "CYW9P62S1_43012EVB_01": {
+        "inherits": ["MCU_PSOC6_M4"],
+        "features": ["BLE"],
+        "components_remove": ["QSPIF"],
+        "device_has_remove": ["ANALOGOUT", "CRC", "TRNG", "QSPI"],
+        "macros_remove": ["MBEDTLS_CONFIG_HW_SUPPORT"],
+        "extra_labels_add": [
+            "PSOC6_01",
+            "CM0P_SLEEP",
+            "WHD",
+            "43012",
+            "CYW43XXX",
+            "CORDIO"
+        ],
+        "extra_labels_remove": ["MXCRYPTO"],
+        "macros_add": ["CY8C6247FDI_D32", "CYHAL_UDB_SDIO", "CYBSP_WIFI_CAPABLE"],
+        "detect_code": ["1903"],
+        "post_binary_hook": {
+            "function": "PSOC6Code.complete"
+        },
+        "overrides": {
+            "network-default-interface-type": "WIFI"
+        }
+    },
     "FUTURE_SEQUANA_M0": {
         "inherits": ["MCU_PSOC6_M0"],
         "supported_form_factors": ["ARDUINO"],

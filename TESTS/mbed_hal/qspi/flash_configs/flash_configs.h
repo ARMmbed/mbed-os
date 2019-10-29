@@ -73,7 +73,7 @@
 #include "S25FL512S_config.h"
 
 #elif   defined(TARGET_CYW9P62S1_43012EVB_01)
-#include "S25FS128S_config.h"
+#include "S25FS512S_config.h"
 
 #elif   defined(TARGET_CY8CPROTO_064_SB)
 #include "S25FL128S_config.h"
