@@ -1438,11 +1438,6 @@ int TDBStore::get_default_flash_addresses(bd_addr_t *start_address, bd_size_t *s
         return MBED_ERROR_INITIALIZATION_FAILED;
     }
 
-    // Use the last 2 sectors or 10 pages of flash for the TDBStore by default (whichever is larger)
-    // For each area: must be a minimum of 1 page of reserved and 2 pages for master record
-    static const int STORE_SECTORS = 2;
-    static const int STORE_PAGES = 10;
-
     // Let's work from end of the flash backwards
     bd_addr_t curr_addr = flash.get_flash_start() + flash.get_flash_size();
     bd_size_t sector_space = 0;

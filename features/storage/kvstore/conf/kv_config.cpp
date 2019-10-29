@@ -180,10 +180,16 @@ int _calculate_blocksize_match_tdbstore(BlockDevice *bd)
 {
     bd_size_t size = bd->size();
     bd_size_t erase_size = bd->get_erase_size();
+    bd_size_t page_size = bd->get_program_size();
     bd_size_t number_of_sector = size / erase_size;
-
-    if (number_of_sector < 2) {
+    bd_size_t number_of_page = size / page_size;
+    if (number_of_sector < TDBStore::STORE_SECTORS) {
         tr_warning("KV Config: There are less than two sectors - TDBStore will not work.");
+        return -1;
+    }
+
+    if (number_of_page < TDBStore::STORE_PAGES) {
+        tr_warning("KV Config: There are less than ten pages sectors - TDBStore will not work.");
         return -1;
     }
 
@@ -586,9 +592,9 @@ int _create_internal_tdb(BlockDevice **internal_bd, KVStore **internal_tdb, bd_s
         return MBED_ERROR_FAILED_OPERATION ;
     }
 
-    //Check if TDBStore has at least 2 sector.
+    //Check if TDBStore has at least 2 sectors or 10 pages.
     if (_calculate_blocksize_match_tdbstore(*internal_bd) != MBED_SUCCESS) {
-        tr_error("KV Config: Can not create TDBStore with less then 2 sector.");
+        tr_error("KV Config: Can not create TDBStore with less then 2 sectors or 10 pages.");
         return MBED_ERROR_INVALID_ARGUMENT;
     }
 
@@ -754,9 +760,9 @@ int _storage_config_tdb_external_common()
         return MBED_ERROR_FAILED_OPERATION ;
     }
 
-    //Check that there is at least 2 sector for the external TDBStore
+    //Check that there is at least 2 sectors for the external TDBStore
     if (_calculate_blocksize_match_tdbstore(kvstore_config.external_bd) != MBED_SUCCESS) {
-        tr_error("KV Config: Can not create TDBStore with less then 2 sector.");
+        tr_error("KV Config: Can not create TDBStore with less then 2 sectors or 10 pages.");
         return MBED_ERROR_INVALID_SIZE;
     }
 
