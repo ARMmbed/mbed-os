@@ -68,6 +68,10 @@
  */
 #define SERIAL_FLUSH_TIME_MS 20
 
+#define TIMEOUT_US (1000 * (TIMEOUT_MS))
+#define KICK_ADVANCE_US (1000 * (KICK_ADVANCE_MS))
+#define SERIAL_FLUSH_TIME_US (1000 * (SERIAL_FLUSH_TIME_MS))
+
 using utest::v1::Case;
 using utest::v1::Specification;
 using utest::v1::Harness;
@@ -133,9 +137,9 @@ void test_simple_reset()
     TEST_ASSERT_TRUE(watchdog.start(TIMEOUT_MS));
     TEST_ASSERT_TRUE(watchdog.is_running());
     // Watchdog should fire before twice the timeout value.
-    wait_ms(2 * TIMEOUT_MS); // Device reset expected.
+    wait_us(2 * TIMEOUT_US); // Device reset expected.
 
-    // Watchdog reset should have occurred during wait_ms() above;
+    // Watchdog reset should have occurred during a wait above.
 
     kick_wdg_during_test_teardown.release(); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
@@ -169,10 +173,10 @@ void test_sleep_reset()
         TEST_ASSERT_MESSAGE(0, "Deepsleep should be disallowed.");
         return;
     }
-    sem.wait(); // Device reset expected.
+    sem.acquire(); // Device reset expected.
     sleep_manager_unlock_deep_sleep();
 
-    // Watchdog reset should have occurred during sem.wait() (sleep) above;
+    // Watchdog reset should have occurred during sem.acquire() (sleep) above.
 
     kick_wdg_during_test_teardown.release(); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
@@ -201,13 +205,13 @@ void test_deepsleep_reset()
     TEST_ASSERT_TRUE(watchdog.is_running());
     // Watchdog should fire before twice the timeout value.
     lp_timeout.attach_us(mbed::callback(release_sem, &sem), 1000ULL * (2 * TIMEOUT_MS));
-    wait_ms(SERIAL_FLUSH_TIME_MS); // Wait for the serial buffers to flush.
+    wait_us(SERIAL_FLUSH_TIME_US); // Wait for the serial buffers to flush.
     if (!sleep_manager_can_deep_sleep()) {
         TEST_ASSERT_MESSAGE(0, "Deepsleep should be allowed.");
     }
-    sem.wait(); // Device reset expected.
+    sem.acquire(); // Device reset expected.
 
-    // Watchdog reset should have occurred during sem.wait() (deepsleep) above;
+    // Watchdog reset should have occurred during sem.acquire() (deepsleep) above.
 
     kick_wdg_during_test_teardown.release(); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
@@ -235,13 +239,13 @@ void test_restart_reset()
     TEST_ASSERT_FALSE(watchdog.is_running());
     TEST_ASSERT_TRUE(watchdog.start(TIMEOUT_MS));
     TEST_ASSERT_TRUE(watchdog.is_running());
-    wait_ms(TIMEOUT_MS / 2UL);
+    wait_us(TIMEOUT_US / 2);
     TEST_ASSERT_TRUE(watchdog.stop());
     TEST_ASSERT_FALSE(watchdog.is_running());
     // Check that stopping the Watchdog prevents a device reset.
     // The watchdog should trigger at, or after the timeout value.
     // The watchdog should trigger before twice the timeout value.
-    wait_ms(TIMEOUT_MS / 2UL + TIMEOUT_MS);
+    wait_us(TIMEOUT_US / 2 + TIMEOUT_US);
 
     if (send_reset_notification(&current_case, 2 * TIMEOUT_MS) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
@@ -250,9 +254,9 @@ void test_restart_reset()
     TEST_ASSERT_TRUE(watchdog.start(TIMEOUT_MS));
     TEST_ASSERT_TRUE(watchdog.is_running());
     // Watchdog should fire before twice the timeout value.
-    wait_ms(2 * TIMEOUT_MS); // Device reset expected.
+    wait_us(2 * TIMEOUT_US); // Device reset expected.
 
-    // Watchdog reset should have occurred during that wait() above;
+    // Watchdog reset should have occurred during a wait above.
 
     kick_wdg_during_test_teardown.release(); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
@@ -275,7 +279,7 @@ void test_kick_reset()
     for (int i = 3; i; i--) {
         // The reset is prevented as long as the watchdog is kicked
         // anytime before the timeout.
-        wait_ms(TIMEOUT_MS - KICK_ADVANCE_MS);
+        wait_us(TIMEOUT_US - KICK_ADVANCE_US);
         watchdog.kick();
     }
     if (send_reset_notification(&current_case, 2 * TIMEOUT_MS) == false) {
@@ -283,9 +287,9 @@ void test_kick_reset()
         return;
     }
     // Watchdog should fire before twice the timeout value.
-    wait_ms(2 * TIMEOUT_MS); // Device reset expected.
+    wait_us(2 * TIMEOUT_US); // Device reset expected.
 
-    // Watchdog reset should have occurred during that wait() above;
+    // Watchdog reset should have occurred during a wait above.
 
     kick_wdg_during_test_teardown.release(); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
