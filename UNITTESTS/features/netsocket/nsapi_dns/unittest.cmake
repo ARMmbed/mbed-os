@@ -26,15 +26,15 @@ set(unittest-test-sources
   stubs/NetworkInterfaceDefaults_stub.cpp
   stubs/mbed_atomic_stub.c
   stubs/mbed_critical_stub.c
+  stubs/mbed_rtos_rtx_stub.c
   stubs/Kernel_stub.cpp
-  #stubs/mbed_error.c
-  #stubs/mbed_shared_queues_stub.cpp
-#InternetSocket.cpp:
   stubs/EventFlags_stub.cpp
+  stubs/rtx_mutex_stub.c
   stubs/SocketStats_Stub.cpp
   features/netsocket/nsapi_dns/test_nsapi_dns.cpp
   ../features/netsocket/NetworkInterface.cpp
   ../features/netsocket/InternetSocket.cpp
+  ../features/netsocket/InternetDatagramSocket.cpp
   ../features/netsocket/UDPSocket.cpp
 )
 

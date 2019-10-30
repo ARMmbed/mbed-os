@@ -411,7 +411,7 @@ static void nsapi_dns_cache_reset()
     dns_cache_mutex->lock();
     for (int i = 0; i < MBED_CONF_NSAPI_DNS_CACHE_SIZE; i++) {
         if (dns_cache[i]) {
-            delete dns_cache[i]->host;
+            delete[] dns_cache[i]->host;
             dns_cache[i]->host = NULL;
             delete dns_cache[i];
             dns_cache[i] = NULL;
@@ -984,7 +984,7 @@ static nsapi_error_t nsapi_dns_query_async_delete(intptr_t unique_id)
         delete[] query->addrs;
     }
 
-    delete query->host;
+    delete[] query->host;
     delete query;
     dns_query_queue[index] = NULL;
 

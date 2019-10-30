@@ -331,7 +331,9 @@ TEST_F(Test_nsapi_dns, single_query)
     .WillOnce(DoAll(SetArgPointee<0>((void **)&NetworkStackMock::get_instance()), Return(NSAPI_ERROR_OK)));
 
     // Returning UNSUPPORTED will cause the nsapi_dns addresses to be used.
-    EXPECT_CALL(*((NetworkStackMock *)iface->get_stack()), get_dns_server(_, _, _)).Times(1).WillOnce(Return(NSAPI_ERROR_OK));
+    EXPECT_CALL(*((NetworkStackMock *)iface->get_stack()), get_dns_server(_, _, _))
+    .Times(1)
+    .WillOnce(DoAll(SetArgPointee<1>(SocketAddress("1.2.3.4", 53)), Return(NSAPI_ERROR_OK)));
 
     EXPECT_CALL(*((NetworkStackMock *)iface->get_stack()), socket_sendto(_, _, _, _)).Times(1).WillOnce(Return(NSAPI_ERROR_OK));
 
@@ -419,6 +421,7 @@ TEST_F(Test_nsapi_dns, multiple_queries)
     EXPECT_FALSE(strncmp(addr[1].get_ip_address(), "222.173.190.239", sizeof("222.173.190.239")));
     EXPECT_EQ(addr[2].get_ip_version(), NSAPI_IPv4);
     EXPECT_FALSE(strncmp(addr[2].get_ip_address(), "1.2.3.4", sizeof("1.2.3.4")));
+    delete[] addr;
 
     SocketAddress *addr_cache;
     // Cache will only raturn one address.
@@ -427,6 +430,7 @@ TEST_F(Test_nsapi_dns, multiple_queries)
     // This is a bug which will be fixed in
     EXPECT_EQ(addr_cache[0].get_ip_version(), NSAPI_IPv4);
     EXPECT_FALSE(strncmp(addr_cache[0].get_ip_address(), "216.58.207.238", sizeof("216.58.207.238")));
+    delete[] addr_cache;
 }
 
 TEST_F(Test_nsapi_dns, single_query_errors)
