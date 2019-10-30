@@ -62,7 +62,23 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
     1,  // PROPERTY_AT_CGEREP
 };
 #else
-#error This modem is currently not supported.
+static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+    0,  // C_EREG
+    0,  // C_GREG
+    0,  // C_REG
+    0,  // AT_CGSN_WITH_TYPE
+    0,  // AT_CGDATA
+    0,  // AT_CGAUTH
+    0,  // AT_CNMI
+    0,  // AT_CSMP
+    0,  // AT_CMGF
+    0,  // AT_CSDH
+    0,  // PROPERTY_IPV4_STACK
+    0,  // PROPERTY_IPV6_STACK
+    0,  // PROPERTY_IPV4V6_STACK
+    0,  // PROPERTY_NON_IP_PDP_TYPE
+    0,  // PROPERTY_AT_CGEREP
+};
 #endif
 
 UBLOX_PPP::UBLOX_PPP(FileHandle *fh) : AT_CellularDevice(fh)
