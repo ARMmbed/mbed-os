@@ -189,14 +189,14 @@ void test_deepsleep_reset()
     watchdog_config_t config = { TIMEOUT_MS };
     Semaphore sem(0, 1);
     LowPowerTimeout lp_timeout;
-    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS) == false) {
+    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS + SERIAL_FLUSH_TIME_MS) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
+    wait_us(SERIAL_FLUSH_TIME_US); // Wait for the serial buffers to flush.
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
     // Watchdog should fire before twice the timeout value.
     lp_timeout.attach_us(mbed::callback(release_sem, &sem), 1000ULL * (2 * TIMEOUT_MS));
-    wait_us(SERIAL_FLUSH_TIME_US); // Wait for the serial buffers to flush.
     if (!sleep_manager_can_deep_sleep()) {
         TEST_ASSERT_MESSAGE(0, "Deepsleep should be allowed.");
     }
