@@ -26,17 +26,16 @@
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
-
 #include "platform/mbed_critical.h"
-
-using namespace utest::v1;
-
 #include <stdlib.h>
 #include "UARTTester.h"
 #include "pinmap.h"
 #include "test_utils.h"
 #include "serial_api.h"
 #include "us_ticker_api.h"
+#include "uart_fpga_test.h"
+
+using namespace utest::v1;
 
 #define PUTC_REPS 16
 #define GETC_REPS 16
@@ -82,7 +81,7 @@ static void test_irq_handler(uint32_t id, SerialIrq event)
     }
 }
 
-static void uart_test_common(int baudrate, int data_bits, SerialParity parity, int stop_bits, PinName tx, PinName rx, PinName cts = NC, PinName rts = NC)
+static void uart_test_common(int baudrate, int data_bits, SerialParity parity, int stop_bits, PinName tx, PinName rx, PinName cts, PinName rts)
 {
     // The FPGA CI shield only supports None, Odd & Even.
     // Forced parity is not supported on Atmel, Freescale, Nordic & STM targets.
@@ -274,7 +273,7 @@ static void uart_test_common(int baudrate, int data_bits, SerialParity parity, i
     tester.reset();
 }
 
-void test_init_free(PinName tx, PinName rx, PinName cts = NC, PinName rts = NC)
+void fpga_uart_init_free_test(PinName tx, PinName rx, PinName cts, PinName rts)
 {
     bool use_flow_control = (cts != NC && rts != NC) ? true : false;
     serial_t serial;
@@ -289,56 +288,56 @@ void test_init_free(PinName tx, PinName rx, PinName cts = NC, PinName rts = NC)
     serial_free(&serial);
 }
 
-void test_init_free_no_fc(PinName tx, PinName rx)
+void fpga_uart_init_free_test_no_fc(PinName tx, PinName rx)
 {
-    test_init_free(tx, rx);
+    fpga_uart_init_free_test(tx, rx);
 }
 
 template<int BAUDRATE, int DATA_BITS, SerialParity PARITY, int STOP_BITS>
-void test_common(PinName tx, PinName rx, PinName cts, PinName rts)
+void fpga_uart_test_common(PinName tx, PinName rx, PinName cts, PinName rts)
 {
     uart_test_common(BAUDRATE, DATA_BITS, PARITY, STOP_BITS, tx, rx, cts, rts);
 }
 
 template<int BAUDRATE, int DATA_BITS, SerialParity PARITY, int STOP_BITS>
-void test_common_no_fc(PinName tx, PinName rx)
+void fpga_uart_test_common_no_fc(PinName tx, PinName rx)
 {
     uart_test_common(BAUDRATE, DATA_BITS, PARITY, STOP_BITS, tx, rx);
 }
 
 Case cases[] = {
     // Every set of pins from every peripheral.
-    Case("init/free, FC off", all_ports<UARTNoFCPort, DefaultFormFactor, test_init_free_no_fc>),
+    Case("init/free, FC off", all_ports<UARTNoFCPort, DefaultFormFactor, fpga_uart_init_free_test_no_fc>),
 
     // One set of pins from every peripheral.
-    Case("basic, 9600, 8N1, FC off", all_peripherals<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<9600, 8, ParityNone, 1> >),
+    Case("basic, 9600, 8N1, FC off", all_peripherals<UARTNoFCPort, DefaultFormFactor, fpga_uart_test_common_no_fc<9600, 8, ParityNone, 1> >),
 
     // One set of pins from one peripheral.
     // baudrate
-    Case("19200, 8N1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<19200, 8, ParityNone, 1> >),
-    Case("38400, 8N1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<38400, 8, ParityNone, 1> >),
-    Case("115200, 8N1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<115200, 8, ParityNone, 1> >),
+    Case("19200, 8N1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, fpga_uart_test_common_no_fc<19200, 8, ParityNone, 1> >),
+    Case("38400, 8N1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, fpga_uart_test_common_no_fc<38400, 8, ParityNone, 1> >),
+    Case("115200, 8N1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, fpga_uart_test_common_no_fc<115200, 8, ParityNone, 1> >),
     // stop bits
-    Case("9600, 8N2, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<9600, 8, ParityNone, 2> >),
+    Case("9600, 8N2, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, fpga_uart_test_common_no_fc<9600, 8, ParityNone, 2> >),
 
 #if DEVICE_SERIAL_FC
     // Every set of pins from every peripheral.
-    Case("init/free, FC on", all_ports<UARTPort, DefaultFormFactor, test_init_free>),
+    Case("init/free, FC on", all_ports<UARTPort, DefaultFormFactor, fpga_uart_init_free_test>),
 
     // One set of pins from every peripheral.
-    Case("basic, 9600, 8N1, FC on", all_peripherals<UARTPort, DefaultFormFactor, test_common<9600, 8, ParityNone, 1> >),
+    Case("basic, 9600, 8N1, FC on", all_peripherals<UARTPort, DefaultFormFactor, fpga_uart_test_common<9600, 8, ParityNone, 1> >),
 
     // One set of pins from one peripheral.
     // baudrate
-    Case("19200, 8N1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<19200, 8, ParityNone, 1> >),
-    Case("38400, 8N1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<38400, 8, ParityNone, 1> >),
-    Case("115200, 8N1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<115200, 8, ParityNone, 1> >),
+    Case("19200, 8N1, FC on", one_peripheral<UARTPort, DefaultFormFactor, fpga_uart_test_common<19200, 8, ParityNone, 1> >),
+    Case("38400, 8N1, FC on", one_peripheral<UARTPort, DefaultFormFactor, fpga_uart_test_common<38400, 8, ParityNone, 1> >),
+    Case("115200, 8N1, FC on", one_peripheral<UARTPort, DefaultFormFactor, fpga_uart_test_common<115200, 8, ParityNone, 1> >),
     // data bits: not tested (some platforms support 8 bits only)
     // parity
-    Case("9600, 8O1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<9600, 8, ParityOdd, 1> >),
-    Case("9600, 8E1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<9600, 8, ParityEven, 1> >),
+    Case("9600, 8O1, FC on", one_peripheral<UARTPort, DefaultFormFactor, fpga_uart_test_common<9600, 8, ParityOdd, 1> >),
+    Case("9600, 8E1, FC on", one_peripheral<UARTPort, DefaultFormFactor, fpga_uart_test_common<9600, 8, ParityEven, 1> >),
     // stop bits
-    Case("9600, 8N2, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<9600, 8, ParityNone, 2> >),
+    Case("9600, 8N2, FC on", one_peripheral<UARTPort, DefaultFormFactor, fpga_uart_test_common<9600, 8, ParityNone, 2> >),
 #endif
 };
 

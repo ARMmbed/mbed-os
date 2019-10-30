@@ -35,7 +35,32 @@ typedef struct dac_s dac_t;
 
 /**
  * \defgroup hal_analogout Analogout hal functions
+ *
+ * # Defined behaviour
+ * * The function ::analogout_init initializes the dac_t control structure
+ * * The function ::analogout_write sets the output voltage, specified as a percentage (float) in range [0.0 (GND), 1.0 (VCC)]
+ * * The function ::analogout_write_u16 sets the output voltage, specified as unsigned 16-bit value [0 (GND), MAX_UINT16 (VCC)]
+ * * The function ::analogout_read reads the current voltage value on the pin and returns a floating-point value representing the current voltage in range [0.0 (GND), 1.0 (VCC)]
+ * * The function ::analogout_read_u16 reads the current voltage value on the pin and returns the output voltage, specified as unsigned 16-bit value [0 (GND), MAX_UINT16 (VCC)]
+ * * The accuracy of the DAC is +/- 10%
+ * * The DAC operations ::analogout_write, ::analogout_write_u16, ::analogout_read, ::analogout_read_u16 take less than 20us to complete
+ * * The function ::analogout_free releases the analogout object
+ *
+ * # Undefined behaviour
+ *
+ * * ::analogout_init is called with invalid pin (which does not support analog output function)
+ * * Calling other functions before ::analogout_init
  * @{
+ */
+
+/**
+ * \defgroup hal_analogin_tests Analogout hal tests
+ * The Analogout HAL tests ensure driver conformance to defined behaviour.
+ *
+ * To run the Analogout hal tests use the command:
+ *
+ *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal_fpga_ci_test_shield-analogout
+ *
  */
 
 /** Initialize the analogout peripheral

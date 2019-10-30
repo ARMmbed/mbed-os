@@ -27,13 +27,11 @@
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
 #include "mbed.h"
-
-#include "mbed.h"
 #include "i2c_api.h"
 #include "pinmap.h"
 #include "test_utils.h"
 #include "I2CTester.h"
-
+#include "i2c_fpga_test.h"
 
 using namespace utest::v1;
 
@@ -45,28 +43,17 @@ const int TRANSFER_COUNT = 300;
 
 I2CTester tester(DefaultFormFactor::pins(), DefaultFormFactor::restricted_pins());
 
-void test_i2c_init_free(PinName sda, PinName scl)
+void fpga_test_i2c_init_free(PinName sda, PinName scl)
 {
     i2c_t obj = {};
     memset(&obj, 0, sizeof(obj));
     i2c_init(&obj, sda, scl);
     i2c_frequency(&obj, 100000);
 
-    /* Free up I2C pins
-     *
-     * The most suitable place to free up I2C pins is in i2c_free(). Due to
-     * i2c_free() not available in I2C HAL, we free up I2C pins manually by
-     * configuring them back to GPIO.
-     *
-     * Without free-up of I2C pins, SDA/SCL pins of the same I2C peripheral may
-     * share by multiple ports due to 'all ports' tests here, and the following
-     * I2C tests would be subject to interference by shared ports.
-     */
-    gpio_set(sda);
-    gpio_set(scl);
+    i2c_free(&obj);
 }
 
-void i2c_test_write(PinName sda, PinName scl)
+void fpga_i2c_test_write(PinName sda, PinName scl)
 {
     // Remap pins for test
     tester.reset();
@@ -151,9 +138,10 @@ void i2c_test_write(PinName sda, PinName scl)
     tester.reset();
     tester.pin_set_pull(sda, MbedTester::PullNone);
     tester.pin_set_pull(scl, MbedTester::PullNone);
+    i2c_free(&i2c);
 }
 
-void i2c_test_read(PinName sda, PinName scl)
+void fpga_i2c_test_read(PinName sda, PinName scl)
 {
     // Remap pins for test
     tester.reset();
@@ -237,9 +225,10 @@ void i2c_test_read(PinName sda, PinName scl)
     tester.reset();
     tester.pin_set_pull(sda, MbedTester::PullNone);
     tester.pin_set_pull(scl, MbedTester::PullNone);
+    i2c_free(&i2c);
 }
 
-void i2c_test_byte_write(PinName sda, PinName scl)
+void fpga_i2c_test_byte_write(PinName sda, PinName scl)
 {
     // Remap pins for test
     tester.reset();
@@ -334,9 +323,10 @@ void i2c_test_byte_write(PinName sda, PinName scl)
     tester.reset();
     tester.pin_set_pull(sda, MbedTester::PullNone);
     tester.pin_set_pull(scl, MbedTester::PullNone);
+    i2c_free(&i2c);
 }
 
-void i2c_test_byte_read(PinName sda, PinName scl)
+void fpga_i2c_test_byte_read(PinName sda, PinName scl)
 {
     // Remap pins for test
     tester.reset();
@@ -434,14 +424,15 @@ void i2c_test_byte_read(PinName sda, PinName scl)
     tester.reset();
     tester.pin_set_pull(sda, MbedTester::PullNone);
     tester.pin_set_pull(scl, MbedTester::PullNone);
+    i2c_free(&i2c);
 }
 
 Case cases[] = {
-    Case("i2c - init/free test all pins", one_peripheral<I2CPort, DefaultFormFactor, test_i2c_init_free>),
-    Case("i2c - test write i2c API", one_peripheral<I2CPort, DefaultFormFactor, i2c_test_write>),
-    Case("i2c - test read i2c API", one_peripheral<I2CPort, DefaultFormFactor, i2c_test_read>),
-    Case("i2c - test single byte write i2c API", one_peripheral<I2CPort, DefaultFormFactor, i2c_test_byte_write>),
-    Case("i2c - test single byte read i2c API", one_peripheral<I2CPort, DefaultFormFactor, i2c_test_byte_read>)
+    Case("i2c - init/free test all pins", one_peripheral<I2CPort, DefaultFormFactor, fpga_test_i2c_init_free>),
+    Case("i2c - test write i2c API", one_peripheral<I2CPort, DefaultFormFactor, fpga_i2c_test_write>),
+    Case("i2c - test read i2c API", one_peripheral<I2CPort, DefaultFormFactor, fpga_i2c_test_read>),
+    Case("i2c - test single byte write i2c API", one_peripheral<I2CPort, DefaultFormFactor, fpga_i2c_test_byte_write>),
+    Case("i2c - test single byte read i2c API", one_peripheral<I2CPort, DefaultFormFactor, fpga_i2c_test_byte_read>)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

@@ -27,6 +27,9 @@
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
 #include "mbed.h"
+#include "MbedTester.h"
+#include "pinmap.h"
+#include "gpio_irq_fpga_test.h"
 
 using namespace utest::v1;
 
@@ -44,7 +47,7 @@ void test_gpio_irq_handler(uint32_t id, gpio_irq_event event)
 
 #define WAIT() wait_us(10)
 
-void gpio_irq_test(PinName pin)
+void fpga_gpio_irq_test(PinName pin)
 {
     // Reset everything and set all tester pins to hi-Z.
     tester.reset();
@@ -250,7 +253,7 @@ void gpio_irq_test(PinName pin)
     gpio_irq_free(&gpio_irq);
 }
 
-void init_free_test(PinName pin)
+void fpga_gpio_irq_init_free_test(PinName pin)
 {
     gpio_t gpio;
     gpio_irq_t gpio_irq;
@@ -260,8 +263,8 @@ void init_free_test(PinName pin)
 }
 
 Case cases[] = {
-    Case("init/free", all_ports<GPIOIRQPort, DefaultFormFactor, init_free_test>),
-    Case("rising & falling edge", all_ports<GPIOIRQPort, DefaultFormFactor, gpio_irq_test>),
+    Case("init/free", all_ports<GPIOIRQPort, DefaultFormFactor, fpga_gpio_irq_init_free_test>),
+    Case("rising & falling edge", all_ports<GPIOIRQPort, DefaultFormFactor, fpga_gpio_irq_test>),
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

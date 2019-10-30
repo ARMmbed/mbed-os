@@ -59,7 +59,59 @@ extern "C" {
 
 /**
  * \defgroup hal_GeneralSPI SPI Configuration Functions
+ *
+ * # Defined behavior
+ * * ::spi_init initializes the spi_t control structure
+ * * ::spi_init configures the pins used by SPI
+ * * ::spi_free returns the pins owned by the SPI object to their reset state
+ * * ::spi_format sets the number of bits per frame
+ * * ::spi_format configures clock polarity and phase
+ * * ::spi_format configures master/slave mode
+ * * ::spi_frequency sets the SPI baud rate
+ * * ::spi_master_write writes a symbol out in master mode and receives a symbol
+ * * ::spi_master_block_write writes `tx_length` words to the bus
+ * * ::spi_master_block_write reads `rx_length` words from the bus
+ * * ::spi_master_block_write returns the maximum of tx_length and rx_length
+ * * ::spi_master_block_write specifies the write_fill which is default data transmitted while performing a read
+ * * ::spi_get_module returns non-zero if a value is available to read from SPI channel, 0 otherwise
+ * * ::spi_slave_read returns a received value out of the SPI receive buffer in slave mode
+ * * ::spi_slave_read blocks until a value is available
+ * * ::spi_slave_write writes a value to the SPI peripheral in slave mode
+ * * ::spi_slave_write blocks until the SPI peripheral can be written to
+ * * ::spi_busy returns non-zero if the peripheral is currently transmitting, 0 otherwise
+ * * ::spi_master_transfer starts the SPI asynchronous transfer
+ * * ::spi_master_transfer writes `tx_len` words to the bus
+ * * ::spi_master_transfer reads `rx_len` words from the bus
+ * * ::spi_master_transfer specifies the bit width of buffer words
+ * * The callback given to ::spi_master_transfer is invoked when the transfer completes (with a success or an error)
+ * * ::spi_master_transfer specifies the logical OR of events to be registered
+ * * The ::spi_master_transfer function may use the `DMAUsage` hint to select the appropriate async algorithm
+ * * ::spi_irq_handler_asynch reads the received values out of the RX FIFO
+ * * ::spi_irq_handler_asynch writes values into the TX FIFO
+ * * ::spi_irq_handler_asynch checks for transfer termination conditions, such as buffer overflows or transfer complete
+ * * ::spi_irq_handler_asynch returns event flags if a transfer termination condition was met, otherwise 0
+ * * ::spi_abort_asynch aborts an on-going async transfer
+ * * ::spi_active returns non-zero if the SPI port is active or zero if it is not
+ *
+ * # Undefined behavior
+ * * Calling ::spi_init multiple times on the same `spi_t` without ::spi_free
+ * * Calling any function other than ::spi_init on a non-initialized or freed `spi_t`
+ * * Passing pins that cannot be on the same peripheral
+ * * Passing an invalid pointer as `obj` to any function
+ * * Passing an invalid pointer as `handler` to ::spi_master_transfer
+ * * Calling ::spi_abort while no async transfer is being processed (no transfer or a synchronous transfer)
+ *
  * @{
+ */
+
+/**
+ * \defgroup hal_GeneralSPI_tests SPI hal tests
+ * The SPI HAL tests ensure driver conformance to defined behaviour.
+ *
+ * To run the SPI hal tests use the command:
+ *
+ *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal_fpga_ci_test_shield-spi
+ *
  */
 
 #ifdef DEVICE_SPI_COUNT
