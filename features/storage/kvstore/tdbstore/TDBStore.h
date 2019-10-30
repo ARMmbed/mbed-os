@@ -19,9 +19,9 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#include "KVStore.h"
-#include "BlockDevice.h"
-#include "BufferedBlockDevice.h"
+#include "features/storage/kvstore/include/KVStore.h"
+#include "features/storage/blockdevice/BlockDevice.h"
+#include "features/storage/blockdevice/BufferedBlockDevice.h"
 #include "PlatformMutex.h"
 
 namespace mbed {

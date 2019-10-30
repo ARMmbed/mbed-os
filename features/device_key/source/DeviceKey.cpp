@@ -20,18 +20,16 @@
 #include "mbedtls/config.h"
 #include "mbedtls/cmac.h"
 #include "mbedtls/platform.h"
-#include "KVStore.h"
-#include "TDBStore.h"
-#include "KVMap.h"
-#include "kv_config.h"
+#include "features/storage/kvstore/include/KVStore.h"
+#include "features/storage/kvstore/tdbstore/TDBStore.h"
+#include "features/storage/kvstore/kv_map/KVMap.h"
+#include "features/storage/kvstore/conf/kv_config.h"
 #include "mbed_wait_api.h"
-#include "stdlib.h"
+#include <stdlib.h>
 #include "platform/mbed_error.h"
 #include <string.h>
 #include "entropy.h"
-#include "platform_mbed.h"
 #include "mbed_trace.h"
-#include "ssl_internal.h"
 
 #define TRACE_GROUP "DEVKEY"
 
