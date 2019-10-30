@@ -23,13 +23,9 @@ extern bool serial_check_tx_ongoing();
 
 void hal_sleep(void)
 {
-    vPortPRE_SLEEP_PROCESSING(kCLOCK_ModeWait);
-
     __DSB();
     __WFI();
     __ISB();
-
-    vPortPOST_SLEEP_PROCESSING(kCLOCK_ModeWait);
 }
 
 void hal_deepsleep(void)
