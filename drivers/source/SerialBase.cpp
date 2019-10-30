@@ -30,7 +30,17 @@ SerialBase::SerialBase(PinName tx, PinName rx, int baud) :
     _rx_callback(NULL), _tx_asynch_set(false),
     _rx_asynch_set(false),
 #endif
-    _serial(), _baud(baud)
+    _serial(),
+    _baud(baud),
+#if DEVICE_SERIAL_FC
+    _flow_type(Disabled),
+    _flow1(NC),
+    _flow2(NC),
+#endif
+    _rx_enabled(true),
+    _tx_enabled(true),
+    _tx_pin(tx),
+    _rx_pin(rx)
 {
     // No lock needed in the constructor
 
@@ -38,9 +48,7 @@ SerialBase::SerialBase(PinName tx, PinName rx, int baud) :
         _irq[i] = NULL;
     }
 
-    serial_init(&_serial, tx, rx);
-    serial_baud(&_serial, _baud);
-    serial_irq_handler(&_serial, SerialBase::_irq_handler, (uint32_t)this);
+    _init();
 }
 
 void SerialBase::baud(int baudrate)
@@ -78,24 +86,30 @@ int SerialBase::writeable()
 void SerialBase::attach(Callback<void()> func, IrqType type)
 {
     lock();
-    // Disable interrupts when attaching interrupt handler
-    core_util_critical_section_enter();
-    if (func) {
-        // lock deep sleep only the first time
-        if (!_irq[type]) {
-            sleep_manager_lock_deep_sleep();
-        }
+    const bool enabled { (_rx_enabled &&(type == RxIrq)) || (_tx_enabled &&(type == TxIrq)) };
+    // If corresponding direction is not enabled only update the handler
+    if (!enabled) {
         _irq[type] = func;
-        serial_irq_set(&_serial, (SerialIrq)type, 1);
     } else {
-        // unlock deep sleep only the first time
-        if (_irq[type]) {
-            sleep_manager_unlock_deep_sleep();
+        // Disable interrupts when attaching interrupt handler
+        core_util_critical_section_enter();
+        if (func) {
+            // lock deep sleep only the first time
+            if (!_irq[type]) {
+                sleep_manager_lock_deep_sleep();
+            }
+            _irq[type] = func;
+            serial_irq_set(&_serial, (SerialIrq)type, 1);
+        } else {
+            // unlock deep sleep only the first time
+            if (_irq[type]) {
+                sleep_manager_unlock_deep_sleep();
+            }
+            _irq[type] = NULL;
+            serial_irq_set(&_serial, (SerialIrq)type, 0);
         }
-        _irq[type] = NULL;
-        serial_irq_set(&_serial, (SerialIrq)type, 0);
+        core_util_critical_section_exit();
     }
-    core_util_critical_section_exit();
     unlock();
 }
 
@@ -118,6 +132,95 @@ int SerialBase::_base_putc(int c)
     // Mutex is already held
     serial_putc(&_serial, c);
     return c;
+}
+
+void SerialBase::_init()
+{
+    serial_init(&_serial, _tx_pin, _rx_pin);
+#if DEVICE_SERIAL_FC
+    set_flow_control(_flow_type, _flow1, _flow2);
+#endif
+    serial_baud(&_serial, _baud);
+    serial_irq_handler(&_serial, SerialBase::_irq_handler, (uint32_t)this);
+}
+
+void SerialBase::_deinit()
+{
+    serial_free(&_serial);
+}
+
+void SerialBase::enable_input(bool enable)
+{
+    lock();
+    if (_rx_enabled != enable) {
+        if (enable && !_tx_enabled) {
+            _init();
+        }
+
+        core_util_critical_section_enter();
+        if (enable) {
+            // Enable rx IRQ and lock deep sleep if a rx handler is attached
+            // (indicated by rx IRQ callback not NULL)
+            if (_irq[RxIrq]) {
+                _irq[RxIrq].call();
+                sleep_manager_lock_deep_sleep();
+                serial_irq_set(&_serial, (SerialIrq)RxIrq, 1);
+            }
+        } else {
+            // Disable rx IRQ
+            serial_irq_set(&_serial, (SerialIrq)RxIrq, 0);
+            // Unlock deep sleep if a rx handler is attached
+            // (indicated by rx IRQ callback not NULL)
+            if (_irq[RxIrq]) {
+                sleep_manager_unlock_deep_sleep();
+            }
+        }
+        core_util_critical_section_exit();
+
+        _rx_enabled = enable;
+
+        if (!enable && !_tx_enabled) {
+            _deinit();
+        }
+    }
+    unlock();
+}
+
+void SerialBase::enable_output(bool enable)
+{
+    lock();
+    if (_tx_enabled != enable) {
+        if (enable && !_rx_enabled) {
+            _init();
+        }
+
+        core_util_critical_section_enter();
+        if (enable) {
+            // Enable tx IRQ and lock deep sleep if a tx handler is attached
+            // (indicated by tx IRQ callback not NULL)
+            if (_irq[TxIrq]) {
+                _irq[TxIrq].call();
+                sleep_manager_lock_deep_sleep();
+                serial_irq_set(&_serial, (SerialIrq)TxIrq, 1);
+            }
+        } else {
+            // Disable tx IRQ
+            serial_irq_set(&_serial, (SerialIrq)TxIrq, 0);
+            // Unlock deep sleep if a tx handler is attached
+            // (indicated by tx IRQ callback not NULL)
+            if (_irq[TxIrq]) {
+                sleep_manager_unlock_deep_sleep();
+            }
+        }
+        core_util_critical_section_exit();
+
+        _tx_enabled = enable;
+
+        if (!enable && !_rx_enabled) {
+            _deinit();
+        }
+    }
+    unlock();
 }
 
 void SerialBase::set_break()
@@ -175,6 +278,11 @@ SerialBase::~SerialBase()
 void SerialBase::set_flow_control(Flow type, PinName flow1, PinName flow2)
 {
     lock();
+
+    _flow_type = type;
+    _flow1 = flow1;
+    _flow2 = flow2;
+
     FlowControl flow_type = (FlowControl)type;
     switch (type) {
         case RTS:

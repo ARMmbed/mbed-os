@@ -366,38 +366,18 @@ void UARTSerial::disable_tx_irq()
 
 int UARTSerial::enable_input(bool enabled)
 {
-    core_util_critical_section_enter();
-    if (_rx_enabled != enabled) {
-        if (enabled) {
-            UARTSerial::rx_irq();
-            if (!_rxbuf.full()) {
-                enable_rx_irq();
-            }
-        } else {
-            disable_rx_irq();
-        }
-        _rx_enabled = enabled;
-    }
-    core_util_critical_section_exit();
+    api_lock();
+    SerialBase::enable_input(enabled);
+    api_unlock();
 
     return 0;
 }
 
 int UARTSerial::enable_output(bool enabled)
 {
-    core_util_critical_section_enter();
-    if (_tx_enabled != enabled) {
-        if (enabled) {
-            UARTSerial::tx_irq();
-            if (!_txbuf.empty()) {
-                enable_tx_irq();
-            }
-        } else {
-            disable_tx_irq();
-        }
-        _tx_enabled = enabled;
-    }
-    core_util_critical_section_exit();
+    api_lock();
+    SerialBase::enable_output(enabled);
+    api_unlock();
 
     return 0;
 }

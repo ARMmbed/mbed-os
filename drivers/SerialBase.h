@@ -155,6 +155,30 @@ public:
      */
     void send_break();
 
+    /** Enable serial input
+     *
+     * If both serial input and serial output are disabled, the
+     * peripheral is freed. If either serial input or serial
+     * output is re-enabled, the peripheral is reinitialized.
+     *
+     * On re-initialization rx interrupts will be enabled if a
+     * rx handler is attached. The rx handler is called once
+     * during re-initialization.
+     */
+    void enable_input(bool enable = true);
+
+    /** Enable serial output
+     *
+     * If both serial input and serial output are disabled, the
+     * peripheral is freed. If either serial input or serial
+     * output is re-enabled, the peripheral is reinitialized.
+     *
+     * On re-initialization tx interrupts will be enabled if a
+     * tx handler is attached. The tx handler is called once
+     * during re-initialization.
+     */
+    void enable_output(bool enable = true);
+
 #if !defined(DOXYGEN_ONLY)
 protected:
 
@@ -295,6 +319,14 @@ protected:
 
     int _base_putc(int c);
 
+    /** Initialize serial port
+     */
+    void _init();
+
+    /** Deinitialize serial port
+     */
+    void _deinit();
+
 #if DEVICE_SERIAL_ASYNCH
     CThunk<SerialBase> _thunk_irq;
     DMAUsage _tx_usage;
@@ -308,6 +340,17 @@ protected:
     serial_t         _serial;
     Callback<void()> _irq[IrqCnt];
     int              _baud;
+    bool             _rx_enabled;
+    bool             _tx_enabled;
+    const PinName    _tx_pin;
+    const PinName    _rx_pin;
+
+#if DEVICE_SERIAL_FC
+    Flow             _flow_type;
+    PinName          _flow1;
+    PinName          _flow2;
+#endif
+
 #endif
 };
 
