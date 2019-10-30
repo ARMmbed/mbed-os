@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "KVStore.h"
-#include "KVMap.h"
-#include "kv_config.h"
+#include "features/storage/kvstore/include/KVStore.h"
+#include "features/storage/kvstore/kv_map/KVMap.h"
+#include "features/storage/kvstore/conf/kv_config.h"
 #include <stdlib.h>
 #include "string.h"
 #include "mbed_error.h"
