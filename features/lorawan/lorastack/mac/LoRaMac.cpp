@@ -121,7 +121,8 @@ LoRaMac::LoRaMac()
     _params.rejoin_forced = false;
     _params.forced_datarate = DR_0;
     memset(&_params.sys_params, 0, sizeof(_params.sys_params));
-        
+
+
     _params.is_rx_window_enabled = true;
     _params.max_ack_timeout_retries = 1;
     _params.ack_timeout_retry_counter = 1;
