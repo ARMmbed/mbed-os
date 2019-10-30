@@ -37,7 +37,6 @@ PwmOut::PwmOut(PinName pin) :
 
 PwmOut::~PwmOut()
 {
-    MBED_ASSERT(!_initialized);
     PwmOut::deinit();
 }
 

@@ -18,6 +18,7 @@
 #ifndef MBED_OBJECTS_H
 #define MBED_OBJECTS_H
 
+#include <stdint.h>
 #include "PeripheralNames.h"
 #include "PinNames.h"
 
@@ -32,6 +33,12 @@ struct gpio_irq_s {
 struct serial_s {
     int x;
 };
+
+struct pwmout_s {
+    int pwm_name;
+};
+
+
 
 #include "gpio_object.h"
 
