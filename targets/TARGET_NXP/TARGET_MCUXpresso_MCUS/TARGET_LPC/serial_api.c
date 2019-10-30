@@ -398,8 +398,10 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
 
         case FlowControlCTS:
             /* Do not use RTS, configure pin to GPIO input */
-            gpio_init(&gpio, rxflow);
-            gpio_dir(&gpio, PIN_INPUT);
+            if (rxflow != NC) {
+                gpio_init(&gpio, rxflow);
+                gpio_dir(&gpio, PIN_INPUT);
+            }
 
             pinmap_pinout(txflow, PinMap_UART_CTS);
             uart_addrs[obj->index]->CFG |= USART_CFG_CTSEN_MASK;
@@ -413,8 +415,10 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
 
         case FlowControlNone:
             /* Do not use RTS, configure pin to GPIO input */
-            gpio_init(&gpio, rxflow);
-            gpio_dir(&gpio, PIN_INPUT);
+            if (rxflow != NC) {
+                gpio_init(&gpio, rxflow);
+                gpio_dir(&gpio, PIN_INPUT);
+            }
 
             uart_addrs[obj->index]->CFG &= ~USART_CFG_CTSEN_MASK;
             break;
