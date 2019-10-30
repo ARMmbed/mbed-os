@@ -14,35 +14,35 @@
  * limitations under the License.
  */
 #include "SystemStorage.h"
-#include "BlockDevice.h"
-#include "FileSystem.h"
-#include "FATFileSystem.h"
-#include "LittleFileSystem.h"
+#include "features/storage/blockdevice/BlockDevice.h"
+#include "features/storage/filesystem/FileSystem.h"
+#include "features/storage/filesystem/fat/FATFileSystem.h"
+#include "features/storage/filesystem/littlefs/LittleFileSystem.h"
 #include "mbed_error.h"
 
 
 #if COMPONENT_SPIF
-#include "SPIFBlockDevice.h"
+#include "components/storage/blockdevice/COMPONENT_SPIF/SPIFBlockDevice.h"
 #endif
 
 #if COMPONENT_RSPIF
-#include "SPIFReducedBlockDevice.h"
+#include "components/storage/blockdevice/COMPONENT_RSPIF/SPIFReducedBlockDevice.h"
 #endif
 
 #if COMPONENT_QSPIF
-#include "QSPIFBlockDevice.h"
+#include "components/storage/blockdevice/COMPONENT_QSPIF/QSPIFBlockDevice.h"
 #endif
 
 #if COMPONENT_DATAFLASH
-#include "DataFlashBlockDevice.h"
+#include "components/storage/blockdevice/COMPONENT_DATAFLASH/DataFlashBlockDevice.h"
 #endif
 
 #if COMPONENT_SD
-#include "SDBlockDevice.h"
+#include "components/storage/blockdevice/COMPONENT_SD/SDBlockDevice.h"
 #endif
 
 #if COMPONENT_FLASHIAP
-#include "FlashIAPBlockDevice.h"
+#include "components/storage/blockdevice/COMPONENT_FLASHIAP/FlashIAPBlockDevice.h"
 #endif
 
 using namespace mbed;

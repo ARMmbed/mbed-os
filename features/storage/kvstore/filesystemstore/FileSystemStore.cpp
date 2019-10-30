@@ -17,10 +17,10 @@
  */
 
 #include "FileSystemStore.h"
-#include "kv_config.h"
-#include "Dir.h"
-#include "File.h"
-#include "BlockDevice.h"
+#include "features/storage/kvstore/conf/kv_config.h"
+#include "features/storage/filesystem/Dir.h"
+#include "features/storage/filesystem/File.h"
+#include "features/storage/blockdevice/BlockDevice.h"
 #include "mbed_error.h"
 #include <string.h>
 #include <stdio.h>
