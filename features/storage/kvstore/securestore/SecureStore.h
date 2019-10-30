@@ -23,7 +23,7 @@
 #include MBEDTLS_CONFIG_FILE
 #endif
 
-#include "DeviceKey.h"
+#include "features/device_key/source/DeviceKey.h"
 
 #define SECURESTORE_ENABLED 1
 

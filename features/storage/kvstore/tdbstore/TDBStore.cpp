@@ -26,7 +26,7 @@
 #include "MbedCRC.h"
 //Bypass the check of NVStore co existance if compiled for TARGET_TFM
 #if !(BYPASS_NVSTORE_CHECK)
-#include "SystemStorage.h"
+#include "features/storage/system_storage/SystemStorage.h"
 #endif
 
 using namespace mbed;
@@ -251,7 +251,7 @@ int TDBStore::read_record(uint8_t area, uint32_t offset, char *key,
         return MBED_ERROR_INVALID_SIZE;
     }
 
-    actual_data_size = std::min(data_buf_size, data_size - data_offset);
+    actual_data_size = std::min((size_t)data_buf_size, (size_t)data_size - data_offset);
 
     if (copy_data && actual_data_size && !data_buf) {
         return MBED_ERROR_INVALID_ARGUMENT;
@@ -295,7 +295,7 @@ int TDBStore::read_record(uint8_t area, uint32_t offset, char *key,
             // 3. After actual part is finished - read to work buffer
             // 4. Copy data flag not set - read to work buffer
             if (curr_data_offset < data_offset) {
-                chunk_size = std::min(work_buf_size, data_offset - curr_data_offset);
+                chunk_size = std::min((size_t)work_buf_size, (size_t)(data_offset - curr_data_offset));
                 dest_buf = _work_buf;
             } else if (copy_data && (curr_data_offset < data_offset + actual_data_size)) {
                 chunk_size = actual_data_size;

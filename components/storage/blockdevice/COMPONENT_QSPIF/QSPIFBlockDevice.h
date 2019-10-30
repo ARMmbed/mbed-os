@@ -16,8 +16,8 @@
 #ifndef MBED_QSPIF_BLOCK_DEVICE_H
 #define MBED_QSPIF_BLOCK_DEVICE_H
 
-#include "QSPI.h"
-#include "BlockDevice.h"
+#include "drivers/QSPI.h"
+#include "features/storage/blockdevice/BlockDevice.h"
 
 /** Enum qspif standard error codes
  *
