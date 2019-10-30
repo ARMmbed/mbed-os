@@ -23,7 +23,7 @@
 #define MBED_POWER_MGMT_H
 extern void mock_system_reset();
 
-MBED_NORETURN static inline void system_reset(void)
+static inline void system_reset(void)
 {
     mock_system_reset();
 }
