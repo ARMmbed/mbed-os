@@ -154,7 +154,7 @@ void test_timeout_lower_limit()
     // Watchdog should not trigger before timeout * clock accuracy.
     // If device restarts while waiting for the kick, test fails.
 
-    ThisThread::sleep_for(sleep_time_ms);
+    wait_us(sleep_time_ms * 1000);
     hal_watchdog_kick();
 
     if (send_reset_notification(&current_case, 2 * TIMEOUT_LOWER_LIMIT_MS) == false) {
@@ -164,7 +164,7 @@ void test_timeout_lower_limit()
     hal_watchdog_kick();
 
     // Watchdog should fire before twice the timeout value.
-    ThisThread::sleep_for(2 * TIMEOUT_LOWER_LIMIT_MS);
+    wait_us(2 * TIMEOUT_LOWER_LIMIT_MS * 1000);
 
     // Watchdog reset should have occurred during that wait() above;
 
