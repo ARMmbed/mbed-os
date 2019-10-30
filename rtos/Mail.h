@@ -41,9 +41,9 @@ using namespace rtos;
 #if MBED_CONF_RTOS_PRESENT || defined(DOXYGEN_ONLY)
 
 namespace rtos {
-/** \ingroup mbed-os-public */
 /** \addtogroup rtos-public-api */
 /** @{*/
+
 /**
  * \defgroup rtos_Mail Mail class
  * @{

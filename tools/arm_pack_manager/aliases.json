@@ -1016,6 +1016,12 @@
       "M2351KIAAE"
     ]
   },
+  "OLIMEX-STM32E407": {
+    "name": "OLIMEX-STM32E407",
+    "mounted_devices": [
+      "STM32F407ZG"
+    ]
+  },
   "PAC52XX EVK": {
     "name": "PAC52XX EVK",
     "mounted_devices": [

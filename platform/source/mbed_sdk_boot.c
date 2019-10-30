@@ -87,6 +87,9 @@ void _platform_post_stackheap_init(void)
     us_ticker_init();
 #endif
 }
+//Define an empty os_cb_sections to remove a RTX warning when building with no RTOS due
+//to the --keep=os_cb_sections linker option
+const uint32_t os_cb_sections[] __attribute__((section(".rodata"))) = {};
 
 #elif defined (__GNUC__)
 

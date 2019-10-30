@@ -65,6 +65,10 @@
         "socket-stats-max-count": {
             "help": "Maximum number of socket statistics cached",
             "value": 10
+        },
+        "offload-tlssocket" : {
+            "help": "Use external TLSSocket implementation. Used network stack must support external TLSSocket setsockopt values (see nsapi_types.h)",
+            "value": null
         }
     },
     "target_overrides": {

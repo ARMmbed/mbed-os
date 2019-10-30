@@ -1,5 +1,13 @@
 # Change Log
 
+## [v5.1.1](https://github.com/ARMmbed/mbed-coap/releases/tag/v5.1.1)
+
+- Delay the random initialization of message id to a later phase and not during init() so there is enough time
+  for system to complete the rest of the initialization.
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v5.1.0...v5.1.1)
+
+
 ## [v5.1.0](https://github.com/ARMmbed/mbed-coap/releases/tag/v5.1.0)
 
 - Introduce SN_COAP_REDUCE_BLOCKWISE_HEAP_FOOTPRINT configuration flag. 

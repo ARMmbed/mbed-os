@@ -95,7 +95,7 @@ typedef struct {
 /* Tasklet data */
 static wisun_tasklet_data_str_t *wisun_tasklet_data_ptr = NULL;
 static wisun_certificates_t *wisun_certificates_ptr = NULL;
-static wisun_network_settings_t wisun_settings_str = {NULL, WS_NA, WS_NA, WS_NA};
+static wisun_network_settings_t wisun_settings_str = {NULL, MBED_CONF_MBED_MESH_API_WISUN_REGULATORY_DOMAIN, MBED_CONF_MBED_MESH_API_WISUN_OPERATING_CLASS, MBED_CONF_MBED_MESH_API_WISUN_OPERATING_MODE};
 static mac_api_t *mac_api = NULL;
 
 extern fhss_timer_t fhss_functions;
@@ -269,15 +269,36 @@ static void wisun_tasklet_configure_and_connect_to_network(void)
     }
 
 #if defined(MBED_CONF_MBED_MESH_API_CERTIFICATE_HEADER)
-    arm_certificate_chain_entry_s chain_info;
-    memset(&chain_info, 0, sizeof(arm_certificate_chain_entry_s));
-    chain_info.cert_chain[0] = (const uint8_t *) MBED_CONF_MBED_MESH_API_ROOT_CERTIFICATE;
-    chain_info.cert_len[0] = strlen((const char *) MBED_CONF_MBED_MESH_API_ROOT_CERTIFICATE) + 1;
-    chain_info.cert_chain[1] = (const uint8_t *) MBED_CONF_MBED_MESH_API_OWN_CERTIFICATE;
-    chain_info.cert_len[1] = strlen((const char *) MBED_CONF_MBED_MESH_API_OWN_CERTIFICATE) + 1;
-    chain_info.key_chain[1] = (const uint8_t *) MBED_CONF_MBED_MESH_API_OWN_CERTIFICATE_KEY;
-    chain_info.chain_length = 2;
-    arm_network_certificate_chain_set((const arm_certificate_chain_entry_s *) &chain_info);
+    arm_certificate_entry_s trusted_cert = {
+        .cert = MBED_CONF_MBED_MESH_API_ROOT_CERTIFICATE,
+        .key = NULL,
+        .cert_len = 0,
+        .key_len = 0
+    };
+#ifdef MBED_CONF_MBED_MESH_API_ROOT_CERTIFICATE_LEN
+    trusted_cert.cert_len = MBED_CONF_MBED_MESH_API_ROOT_CERTIFICATE_LEN;
+#else
+    trusted_cert.cert_len = strlen((const char *) MBED_CONF_MBED_MESH_API_ROOT_CERTIFICATE) + 1;
+#endif
+    arm_network_trusted_certificate_add((const arm_certificate_entry_s *)&trusted_cert);
+
+    arm_certificate_entry_s own_cert = {
+        .cert = MBED_CONF_MBED_MESH_API_OWN_CERTIFICATE,
+        .key =  MBED_CONF_MBED_MESH_API_OWN_CERTIFICATE_KEY,
+        .cert_len = 0,
+        .key_len = 0
+    };
+#ifdef MBED_CONF_MBED_MESH_API_OWN_CERTIFICATE_LEN
+    own_cert.cert_len = MBED_CONF_MBED_MESH_API_OWN_CERTIFICATE_LEN;
+#else
+    own_cert.cert_len = strlen((const char *) MBED_CONF_MBED_MESH_API_OWN_CERTIFICATE) + 1;
+#endif
+#ifdef MBED_CONF_MBED_MESH_API_OWN_CERTIFICATE_KEY_LEN
+    own_cert.key_len = MBED_CONF_MBED_MESH_API_OWN_CERTIFICATE_KEY_LEN;
+#else
+    own_cert.key_len = strlen((const char *) MBED_CONF_MBED_MESH_API_OWN_CERTIFICATE_KEY) + 1;
+#endif
+    arm_network_own_certificate_add((const arm_certificate_entry_s *)&own_cert);
 #endif
 
     status = arm_nwk_interface_up(wisun_tasklet_data_ptr->network_interface_id);

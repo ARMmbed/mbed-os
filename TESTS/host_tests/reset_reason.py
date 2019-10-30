@@ -16,7 +16,6 @@ limitations under the License.
 """
 import time
 from mbed_host_tests import BaseHostTest
-from mbed_host_tests.host_tests_runner.host_test_default import DefaultTestSelector
 
 DEFAULT_SYNC_DELAY = 4.0
 
@@ -32,6 +31,7 @@ MSG_KEY_RESET_REASON_RAW = 'reason_raw'
 MSG_KEY_RESET_REASON = 'reason'
 MSG_KEY_DEVICE_RESET = 'reset'
 MSG_KEY_SYNC = '__sync'
+MSG_KEY_RESET_COMPLETE = 'reset_complete'
 
 RESET_REASONS = {
     'POWER_ON': '0',
@@ -80,6 +80,7 @@ class ResetReasonTest(BaseHostTest):
         self.register_callback(MSG_KEY_RESET_REASON_RAW, self.cb_reset_reason_raw)
         self.register_callback(MSG_KEY_RESET_REASON, self.cb_reset_reason)
         self.register_callback(MSG_KEY_DEVICE_RESET, self.cb_reset_reason)
+        self.register_callback(MSG_KEY_RESET_COMPLETE, self.cb_reset_reason)
 
     def cb_device_ready(self, key, value, timestamp):
         """Request a raw value of the reset_reason register.
@@ -142,7 +143,10 @@ class ResetReasonTest(BaseHostTest):
         __ignored_clear_ack = yield
 
         # Reset the device using DAP.
-        self.reset_dut(DefaultTestSelector.RESET_TYPE_SW_RST)
+        self.reset()
+        __ignored_reset_ack = yield  # 'reset_complete'
+        time.sleep(self.sync_delay)
+        self.send_kv(MSG_KEY_SYNC, MSG_VALUE_DUMMY)
         reset_reason = yield
         raise_if_different(RESET_REASONS['PIN_RESET'], reset_reason, 'Wrong reset reason. ')
         self.send_kv(MSG_KEY_RESET_REASON, MSG_VALUE_RESET_REASON_CLEAR)

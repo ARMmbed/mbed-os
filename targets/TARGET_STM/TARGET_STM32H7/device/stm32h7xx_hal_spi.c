@@ -2445,7 +2445,7 @@ HAL_StatusTypeDef HAL_SPI_Abort(SPI_HandleTypeDef *hspi)
 
   /* Initialized local variable  */
   errorcode = HAL_OK;
-  count = SPI_DEFAULT_TIMEOUT * (SystemCoreClock / 24UL / 1000UL);
+  count = SPI_DEFAULT_TIMEOUT * (SystemD1Clock / 24UL / 1000UL);
 
   /* If master communication on going, make sure current frame is done before closing the connection */
   if (HAL_IS_BIT_SET(hspi->Instance->CR1, SPI_CR1_CSTART))
@@ -2551,7 +2551,7 @@ HAL_StatusTypeDef HAL_SPI_Abort_IT(SPI_HandleTypeDef *hspi)
 
   /* Initialized local variable  */
   errorcode = HAL_OK;
-  count = SPI_DEFAULT_TIMEOUT * (SystemCoreClock / 24UL / 1000UL);
+  count = SPI_DEFAULT_TIMEOUT * (SystemD1Clock / 24UL / 1000UL);
 
   /* If master communication on going, make sure current frame is done before closing the connection */
   if (HAL_IS_BIT_SET(hspi->Instance->CR1, SPI_CR1_CSTART))
@@ -3414,7 +3414,7 @@ static void SPI_RxISR_8BIT(SPI_HandleTypeDef *hspi)
       /* Disable RXP interrupts */
       __HAL_SPI_DISABLE_IT(hspi, SPI_IT_RXP);
     }
-#else 
+#else
     /* Disable RXP interrupts */
     __HAL_SPI_DISABLE_IT(hspi, SPI_IT_RXP);
 #endif /* USE_HSPI_RELOAD_TRANSFER */
@@ -3451,7 +3451,7 @@ static void SPI_RxISR_16BIT(SPI_HandleTypeDef *hspi)
       /* Disable RXP interrupts */
       __HAL_SPI_DISABLE_IT(hspi, SPI_IT_RXP);
     }
-#else 
+#else
     /* Disable RXP interrupts */
     __HAL_SPI_DISABLE_IT(hspi, SPI_IT_RXP);
 #endif /* USE_HSPI_RELOAD_TRANSFER */
@@ -3488,7 +3488,7 @@ static void SPI_RxISR_32BIT(SPI_HandleTypeDef *hspi)
       /* Disable RXP interrupts */
       __HAL_SPI_DISABLE_IT(hspi, SPI_IT_RXP);
     }
-#else 
+#else
     /* Disable RXP interrupts */
     __HAL_SPI_DISABLE_IT(hspi, SPI_IT_RXP);
 #endif /* USE_HSPI_RELOAD_TRANSFER */
@@ -3525,7 +3525,7 @@ static void SPI_TxISR_8BIT(SPI_HandleTypeDef *hspi)
       /* Disable TXP interrupts */
       __HAL_SPI_DISABLE_IT(hspi, SPI_IT_TXP);
     }
-#else 
+#else
     /* Disable TXP interrupts */
     __HAL_SPI_DISABLE_IT(hspi, SPI_IT_TXP);
 #endif /* USE_HSPI_RELOAD_TRANSFER */
@@ -3561,7 +3561,7 @@ static void SPI_TxISR_16BIT(SPI_HandleTypeDef *hspi)
       /* Disable TXP interrupts */
       __HAL_SPI_DISABLE_IT(hspi, SPI_IT_TXP);
     }
-#else 
+#else
     /* Disable TXP interrupts */
     __HAL_SPI_DISABLE_IT(hspi, SPI_IT_TXP);
 #endif /* USE_HSPI_RELOAD_TRANSFER */
@@ -3597,7 +3597,7 @@ static void SPI_TxISR_32BIT(SPI_HandleTypeDef *hspi)
       /* Disable TXP interrupts */
       __HAL_SPI_DISABLE_IT(hspi, SPI_IT_TXP);
     }
-#else 
+#else
     /* Disable TXP interrupts */
     __HAL_SPI_DISABLE_IT(hspi, SPI_IT_TXP);
 #endif /* USE_HSPI_RELOAD_TRANSFER */

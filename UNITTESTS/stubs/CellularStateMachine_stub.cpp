@@ -24,10 +24,12 @@ nsapi_error_t CellularStateMachine_stub::nsapi_error_value = NSAPI_ERROR_OK;
 CellularStubState CellularStateMachine_stub::get_current_target_state = STATE_INIT;
 CellularStubState CellularStateMachine_stub::get_current_current_state = STATE_INIT;
 bool CellularStateMachine_stub::bool_value = false;
+std::vector<uint16_t> CellularStateMachine_stub::timeouts;
 
 CellularStateMachine::CellularStateMachine(CellularDevice &device, events::EventQueue &queue, CellularNetwork &nw) :
     _cellularDevice(device), _network(nw), _queue(queue)
 {
+    CellularStateMachine_stub::timeouts.clear();
 }
 
 CellularStateMachine::~CellularStateMachine()
@@ -77,11 +79,21 @@ void CellularStateMachine::cellular_event_changed(nsapi_event_t ev, intptr_t ptr
 
 void CellularStateMachine::get_retry_timeout_array(uint16_t *timeout, int &array_len) const
 {
-
+    const int array_size = CellularStateMachine_stub::timeouts.size();
+    for (int i = 0; i < array_size; i++) {
+        timeout[i] = CellularStateMachine_stub::timeouts[i];
+    }
+    array_len = array_size;
 }
 
 void CellularStateMachine::set_retry_timeout_array(const uint16_t timeout[], int array_len)
 {
+    CellularStateMachine_stub::timeouts.clear();
+
+    const int real_size = array_len > CELLULAR_RETRY_ARRAY_SIZE ? CELLULAR_RETRY_ARRAY_SIZE : array_len;
+    for (int i = 0; i < real_size; i++) {
+        CellularStateMachine_stub::timeouts.push_back(timeout[i]);
+    }
 }
 
 void CellularStateMachine::set_timeout(int timeout)

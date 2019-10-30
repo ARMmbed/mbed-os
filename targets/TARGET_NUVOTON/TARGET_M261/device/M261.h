@@ -607,6 +607,7 @@ typedef volatile unsigned short vu16;
 #include "m261_qei.h"
 #include "m261_can.h"
 #include "m261_scu.h"
+#include "m261_mkromlib.h"
 
 #endif  /* __M261_H__ */
 

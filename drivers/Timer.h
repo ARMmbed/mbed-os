@@ -23,7 +23,7 @@
 
 namespace mbed {
 /**
- * \addtogroup drivers_Timer Timer class
+ * \defgroup drivers_Timer Timer class
  * \ingroup drivers-public-api-ticker
  * @{
  */

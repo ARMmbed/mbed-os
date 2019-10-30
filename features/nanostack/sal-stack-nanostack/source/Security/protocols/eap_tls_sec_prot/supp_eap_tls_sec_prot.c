@@ -72,12 +72,10 @@ typedef struct {
     bool                          send_pending: 1;  /**< TLS data is not yet send to network */
 } eap_tls_sec_prot_int_t;
 
-static const trickle_params_t eap_tls_trickle_params = {
-    .Imin = 200,           /* 20s; ticks are 100ms */
-    .Imax = 450,           /* 45s */
-    .k = 0,                /* infinity - no consistency checking */
-    .TimerExpirations = 2
-};
+#define FWH_RETRY_TIMEOUT_SMALL 330*10 // retry timeout for small network additional 30 seconds for authenticator delay
+#define FWH_RETRY_TIMEOUT_LARGE 750*10 // retry timeout for large network additional 30 seconds for authenticator delay
+
+static uint16_t retry_timeout = FWH_RETRY_TIMEOUT_SMALL;
 
 static uint16_t supp_eap_tls_sec_prot_size(void);
 static int8_t supp_eap_tls_sec_prot_init(sec_prot_t *prot);
@@ -92,7 +90,7 @@ static int8_t supp_eap_tls_sec_prot_message_handle(sec_prot_t *prot);
 static int8_t supp_eap_tls_sec_prot_message_send(sec_prot_t *prot, uint8_t eap_code, uint8_t eap_type, uint8_t tls_state);
 
 static void supp_eap_tls_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks);
-static void supp_eap_tls_sec_prot_init_tls(sec_prot_t *prot);
+static int8_t supp_eap_tls_sec_prot_init_tls(sec_prot_t *prot);
 static void supp_eap_tls_sec_prot_delete_tls(sec_prot_t *prot);
 
 static void supp_eap_tls_sec_prot_seq_id_update(sec_prot_t *prot);
@@ -111,6 +109,17 @@ int8_t supp_eap_tls_sec_prot_register(kmp_service_t *service)
 
     return 0;
 }
+
+int8_t supp_eap_sec_prot_timing_adjust(uint8_t timing)
+{
+    if (timing < 16) {
+        retry_timeout = FWH_RETRY_TIMEOUT_SMALL;
+    } else {
+        retry_timeout = FWH_RETRY_TIMEOUT_LARGE;
+    }
+    return 0;
+}
+
 
 static uint16_t supp_eap_tls_sec_prot_size(void)
 {
@@ -281,7 +290,7 @@ static void supp_eap_tls_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks
         data->burst_filt_timer = 0;
     }
 
-    sec_prot_timer_timeout_handle(prot, &data->common, &eap_tls_trickle_params, ticks);
+    sec_prot_timer_timeout_handle(prot, &data->common, NULL, ticks);
 }
 
 static void supp_eap_tls_sec_prot_tls_create_confirm(sec_prot_t *tls_prot, sec_prot_result_e result)
@@ -351,16 +360,16 @@ static int8_t supp_eap_tls_sec_prot_tls_send(sec_prot_t *tls_prot, void *pdu, ui
     return 0;
 }
 
-static void supp_eap_tls_sec_prot_init_tls(sec_prot_t *prot)
+static int8_t supp_eap_tls_sec_prot_init_tls(sec_prot_t *prot)
 {
     eap_tls_sec_prot_int_t *data = eap_tls_sec_prot_get(prot);
     if (data->tls_prot) {
-        return;
+        return 0;
     }
 
     data->tls_prot = prot->type_get(prot, SEC_PROT_TYPE_TLS);
     if (!data->tls_prot) {
-        return;
+        return -1;
     }
 
     data->tls_prot->header_size = TLS_HEAD_LEN;
@@ -372,6 +381,8 @@ static void supp_eap_tls_sec_prot_init_tls(sec_prot_t *prot)
     data->tls_prot->send = supp_eap_tls_sec_prot_tls_send;
 
     data->tls_ongoing = true;
+
+    return 0;
 }
 
 static void supp_eap_tls_sec_prot_delete_tls(sec_prot_t *prot)
@@ -391,7 +402,9 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
     // EAP-TLS supplicant state machine
     switch (sec_prot_state_get(&data->common)) {
         case EAP_TLS_STATE_INIT:
+            tr_info("EAP-TLS init");
             sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_REQUEST_ID);
+            prot->timer_start(prot);
             break;
 
         // Wait EAP request, Identity (starts handshake on supplicant)
@@ -402,12 +415,13 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
                 return;
             }
 
+            // Set default timeout for the total maximum length of the negotiation
+            sec_prot_default_timeout_set(&data->common);
+
             // Store sequence ID
             supp_eap_tls_sec_prot_seq_id_update(prot);
 
             tr_info("EAP-TLS start");
-
-            prot->timer_start(prot);
 
             // Send KMP-CREATE.indication
             prot->create_ind(prot);
@@ -420,9 +434,6 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
                 // Send EAP response, Identity
                 supp_eap_tls_sec_prot_message_send(prot, EAP_RESPONSE, EAP_IDENTITY, EAP_TLS_EXCHANGE_NONE);
 
-                // Start trickle timer to re-send if no response
-                sec_prot_timer_trickle_start(&data->common, &eap_tls_trickle_params);
-
                 sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_REQUEST_TLS_EAP);
             } else {
                 // Ready to be deleted
@@ -431,12 +442,6 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case EAP_TLS_STATE_REQUEST_TLS_EAP:
-            // On timeout
-            if (sec_prot_result_timeout_check(&data->common)) {
-                /* Waits for next trickle expire. If trickle expirations reach the limit,
-                   terminates EAP-TLS */
-                return;
-            }
 
             // Handle EAP request (expected TLS EAP start)
             result = supp_eap_tls_sec_prot_message_handle(prot);
@@ -456,20 +461,18 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             supp_eap_tls_sec_prot_seq_id_update(prot);
 
             sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_REQUEST);
+            data->common.ticks = retry_timeout;
 
             // Initialize TLS protocol
-            supp_eap_tls_sec_prot_init_tls(prot);
+            if (supp_eap_tls_sec_prot_init_tls(prot) < 0) {
+                tr_error("TLS init failed");
+                return;
+            }
             // Request TLS to start (send client hello)
             data->tls_prot->create_req(data->tls_prot, prot->sec_keys);
             break;
 
         case EAP_TLS_STATE_REQUEST:
-            // On timeout
-            if (sec_prot_result_timeout_check(&data->common)) {
-                /* Waits for next trickle expire. If trickle expirations reach the limit,
-                   terminates EAP-TLS */
-                return;
-            }
 
             // EAP success
             if (data->eap_code == EAP_SUCCESS) {
@@ -514,8 +517,9 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             supp_eap_tls_sec_prot_message_send(prot, EAP_RESPONSE, EAP_TLS, EAP_TLS_EXCHANGE_ONGOING);
             data->send_pending = false;
 
-            // Start trickle timer to re-send if no response
-            sec_prot_timer_trickle_start(&data->common, &eap_tls_trickle_params);
+            // Add more time for re-send if no response
+            data->common.ticks = retry_timeout;
+
             break;
 
         case EAP_TLS_STATE_FINISH:
@@ -527,6 +531,7 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case EAP_TLS_STATE_FINISHED:
+            tr_info("EAP-TLS finished");
             supp_eap_tls_sec_prot_delete_tls(prot);
             prot->timer_stop(prot);
             prot->finished(prot);

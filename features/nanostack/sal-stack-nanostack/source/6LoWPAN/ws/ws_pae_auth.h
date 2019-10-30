@@ -55,6 +55,28 @@
 int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *next_gtks, const sec_prot_certs_t *certs, timer_settings_t *timer_settings);
 
 /**
+ * ws_pae_auth_timing_adjust Adjust retries and timings of the security protocols
+ *
+ * Timing value is a generic number between 0 to 32 that goes from fast and
+ * reactive network to low bandwidth and long latency.
+ *
+ * example value definitions:
+ * 0-8 very fast network
+ * 9-16 medium network
+ * 16-24 slow network
+ * 25-32 extremely slow network
+ *
+ * There is no need to have lots variations in every layer if protocol is not very active in any case.
+ *
+ * \param timing Timing value.
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_auth_timing_adjust(uint8_t timing);
+
+/**
  * ws_pae_auth_addresses_set set relay addresses
  *
  * \param interface_ptr interface
@@ -147,6 +169,26 @@ int8_t ws_pae_auth_node_keys_remove(protocol_interface_info_entry_t *interface_p
 int8_t ws_pae_auth_node_access_revoke_start(protocol_interface_info_entry_t *interface_ptr);
 
 /**
+ * ws_pae_auth_node_limit_set set node limit
+ *
+ * \param interface_ptr interface
+ * \param limit limit for nodes
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_auth_node_limit_set(protocol_interface_info_entry_t *interface_ptr, uint16_t limit);
+
+/**
+ * ws_pae_auth_forced_gc garbage cleanup call
+ *
+ * \param interface_ptr interface
+ *
+ */
+void ws_pae_auth_forced_gc(protocol_interface_info_entry_t *interface_ptr);
+
+/**
  * ws_pae_auth_gtk_hash_set GTK hash set callback
  *
  * \param interface_ptr interface
@@ -190,6 +232,7 @@ void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_
 #else
 
 #define ws_pae_auth_init(interface_ptr, gtks, next_gtks, certs, timer_settings) 1
+#define ws_pae_auth_timing_adjust(timing) 1
 #define ws_pae_auth_addresses_set(interface_ptr, local_port, remote_addr, remote_port) 1
 #define ws_pae_auth_delete NULL
 #define ws_pae_auth_cb_register(interface_ptr, hash_set, nw_key_insert, nw_key_index_set) {(void) hash_set;}
@@ -198,6 +241,8 @@ void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_
 #define ws_pae_auth_nw_key_index_update NULL
 #define ws_pae_auth_node_keys_remove(interface_ptr, eui64) -1
 #define ws_pae_auth_node_access_revoke_start(interface_ptr)
+#define ws_pae_auth_node_limit_set(interface_ptr, limit)
+#define ws_pae_auth_forced_gc(interface_ptr)
 #define ws_pae_auth_fast_timer NULL
 #define ws_pae_auth_slow_timer NULL
 

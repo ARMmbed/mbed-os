@@ -25,8 +25,6 @@
 #include "platform/PlatformMutex.h"
 
 namespace mbed {
-/** \addtogroup drivers-public-api */
-
 /**
  * \defgroup drivers_AnalogOut AnalogOut class
  * \ingroup drivers-public-api-gpio
@@ -127,7 +125,9 @@ public:
 
     virtual ~AnalogOut()
     {
-        // Do nothing
+        /** Deinitialize pin configuration.
+         */
+        analogout_free(&_dac);
     }
 
 protected:

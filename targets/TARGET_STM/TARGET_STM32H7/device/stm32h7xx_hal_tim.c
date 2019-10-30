@@ -3747,6 +3747,10 @@ HAL_StatusTypeDef HAL_TIM_PWM_ConfigChannel(TIM_HandleTypeDef *htim,
   *          This parameter can be one of the following values:
   *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
   *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
+  * @note  To output a waveform with a minimum delay user can enable the fast
+  *        mode by calling the @ref __HAL_TIM_ENABLE_OCxFAST macro. Then CCx
+  *        output is forced in response to the edge detection on TIx input,
+  *        without taking in account the comparison.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_TIM_OnePulse_ConfigChannel(TIM_HandleTypeDef *htim,  TIM_OnePulse_InitTypeDef *sConfig,

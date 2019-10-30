@@ -59,12 +59,12 @@ static enum tfm_security_lifecycle_t security_lifecycle_psa_to_tfm(void)
 /* Hash of attestation public key */
 static enum tfm_plat_err_t attest_public_key_sha256(uint32_t *size, uint8_t *buf)
 {
-    const psa_key_id_t key_id = PSA_ATTESTATION_PRIVATE_KEY_ID;
     psa_key_handle_t handle = 0;
 
     uint8_t *public_key = NULL;
     psa_key_type_t type;
     psa_key_type_t public_type;
+    psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
     size_t bits;
     size_t public_key_size = 0;
     size_t public_key_length = 0;
@@ -73,21 +73,23 @@ static enum tfm_plat_err_t attest_public_key_sha256(uint32_t *size, uint8_t *buf
     enum tfm_plat_err_t status = TFM_PLAT_ERR_SUCCESS;
     psa_hash_operation_t hash_handle = {0};
 
-    crypto_ret = psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, key_id, &handle);
+    crypto_ret = psa_open_key(PSA_ATTESTATION_PRIVATE_KEY_ID, &handle);
     if (crypto_ret != PSA_SUCCESS) {
         return TFM_PLAT_ERR_SYSTEM_ERR;
     }
 
-    crypto_ret = psa_get_key_information(handle, &type, &bits);
+    crypto_ret = psa_get_key_attributes(handle, &attributes);
     if (crypto_ret != PSA_SUCCESS) {
         status = TFM_PLAT_ERR_SYSTEM_ERR;
         goto exit;
     }
+    type = psa_get_key_type(&attributes);
     if (!PSA_KEY_TYPE_IS_ECC(type)) {
         status = TFM_PLAT_ERR_SYSTEM_ERR;
         goto exit;
     }
-    public_type = PSA_KEY_TYPE_PUBLIC_KEY_OF_KEYPAIR(type);
+    public_type = PSA_KEY_TYPE_PUBLIC_KEY_OF_KEY_PAIR(type);
+    bits = psa_get_key_bits(&attributes);
     public_key_size = PSA_KEY_EXPORT_MAX_SIZE(public_type, bits);
     public_key = (uint8_t *) malloc(public_key_size);
     if (public_key == NULL) {

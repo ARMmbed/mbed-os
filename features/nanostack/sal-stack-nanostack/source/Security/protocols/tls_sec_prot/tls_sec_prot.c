@@ -104,6 +104,8 @@ static bool tls_sec_prot_queue_check(sec_prot_t *prot);
 static bool tls_sec_prot_queue_process(sec_prot_t *prot);
 static void tls_sec_prot_queue_remove(sec_prot_t *prot);
 
+static uint16_t tls_sec_prot_send_buffer_size_get(sec_prot_t *prot);
+
 #define tls_sec_prot_get(prot) (tls_sec_prot_int_t *) &prot->data
 
 static NS_LIST_DEFINE(tls_sec_prot_queue, tls_sec_prot_queue_t, link);
@@ -292,14 +294,16 @@ static void client_tls_sec_prot_state_machine(sec_prot_t *prot)
 
     switch (sec_prot_state_get(&data->common)) {
         case TLS_STATE_INIT:
+            tr_debug("TLS: init");
             sec_prot_state_set(prot, &data->common, TLS_STATE_CREATE_REQ);
+            prot->timer_start(prot);
+            // Set default timeout for the total maximum length of the negotiation
+            sec_prot_default_timeout_set(&data->common);
             break;
 
         // Wait KMP-CREATE.request
         case TLS_STATE_CREATE_REQ:
             tr_debug("TLS: start");
-
-            prot->timer_start(prot);
 
             prot->create_conf(prot, SEC_RESULT_OK);
 
@@ -383,15 +387,17 @@ static void server_tls_sec_prot_state_machine(sec_prot_t *prot)
 
     switch (sec_prot_state_get(&data->common)) {
         case TLS_STATE_INIT:
+            tr_debug("TLS: init");
             sec_prot_state_set(prot, &data->common, TLS_STATE_CLIENT_HELLO);
+            prot->timer_start(prot);
+            // Set default timeout for the total maximum length of the negotiation
+            sec_prot_default_timeout_set(&data->common);
             break;
 
         // Wait EAP request, Identity (starts handshake on supplicant)
         case TLS_STATE_CLIENT_HELLO:
-
             tr_debug("TLS: start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
-            prot->timer_start(prot);
             client_hello = true;
 
             sec_prot_state_set(prot, &data->common, TLS_STATE_CREATE_RESP);
@@ -494,10 +500,21 @@ static int16_t tls_sec_prot_tls_send(void *handle, const void *buf, size_t len)
     tls_sec_prot_int_t *data = tls_sec_prot_get(prot);
 
     if (!data->tls_send.data) {
-        eap_tls_sec_prot_lib_message_allocate(&data->tls_send, prot->header_size, TLS_SEC_PROT_BUFFER_SIZE);
+        uint16_t buffer_len = tls_sec_prot_send_buffer_size_get(prot);
+        eap_tls_sec_prot_lib_message_allocate(&data->tls_send, prot->header_size, buffer_len);
     }
     if (!data->tls_send.data) {
         return -1;
+    }
+
+    /* If send buffer is too small for the TLS payload, re-allocates */
+    uint16_t new_len = prot->header_size + data->tls_send.handled_len + len;
+    if (new_len > data->tls_send.total_len) {
+        tr_error("TLS send buffer size too small: %i < %i, allocating new: %i", data->tls_send.total_len, new_len, data->tls_send.total_len + TLS_SEC_PROT_SEND_BUFFER_SIZE_INCREMENT);
+        if (eap_tls_sec_prot_lib_message_realloc(&data->tls_send, prot->header_size,
+                                                 data->tls_send.total_len + TLS_SEC_PROT_SEND_BUFFER_SIZE_INCREMENT) < 0) {
+            return -1;
+        }
     }
 
     memcpy(data->tls_send.data + prot->header_size + data->tls_send.handled_len, buf, len);
@@ -683,6 +700,11 @@ static void tls_sec_prot_queue_remove(sec_prot_t *prot)
             tr_debug("TLS QUEUE remove%s, eui-64: %s", ns_list_is_empty(&tls_sec_prot_queue) ? " last" : "", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
         }
     }
+}
+
+static uint16_t tls_sec_prot_send_buffer_size_get(sec_prot_t *prot)
+{
+    return TLS_SEC_PROT_SEND_BUFFER_SIZE + sec_prot_certs_own_cert_chain_len_get(prot->sec_keys->certs);
 }
 
 #endif /* HAVE_WS */

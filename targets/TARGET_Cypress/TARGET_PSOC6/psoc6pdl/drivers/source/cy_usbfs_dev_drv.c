@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_usbfs_dev_drv.c
-* \version 2.10
+* \version 2.20
 *
 * Provides general API implementation of the USBFS driver.
 *
@@ -1273,6 +1273,8 @@ void Cy_USBFS_Dev_Drv_Suspend(USBFS_Type *base, cy_stc_usbfs_dev_drv_context_t *
 *******************************************************************************/
 void Cy_USBFS_Dev_Drv_Resume(USBFS_Type *base, cy_stc_usbfs_dev_drv_context_t *context)
 {
+    uint32_t lpmCtl;
+
     /* Enables the clock to mxusbfs IP */
     USBFS_DEV_USB_CLK_EN(base) = CY_USBFS_DEV_DRV_WRITE_ODD(USBFS_USBDEV_USB_CLK_EN_CSR_CLK_EN_Msk);
 
@@ -1284,6 +1286,10 @@ void Cy_USBFS_Dev_Drv_Resume(USBFS_Type *base, cy_stc_usbfs_dev_drv_context_t *c
 
     /* Restores the data endpoints configuration  */
     RestoreDeviceConfiguration(base, context);
+
+    /* Cypress ID# 337915: Restore response to LPM packets */
+    lpmCtl = USBFS_DEV_LPM_LPM_CTL(base);
+    USBFS_DEV_LPM_LPM_CTL(base) = lpmCtl;
 
     /* Releases PHY from suspend mode */
     USBFS_DEV_LPM_POWER_CTL(base) &= ~USBFS_USBLPM_POWER_CTL_SUSPEND_Msk;

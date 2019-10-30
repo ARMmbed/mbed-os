@@ -65,9 +65,10 @@
 #define DEBUG_PRINTF(...)
 #endif
 
-#define DEFAULT_TIMEOUT_US (1000)   // timeout for waiting for address NACK
-#define MAXIMUM_TIMEOUT_US (10000)  // timeout for waiting for RX
+#define MAXIMUM_TIMEOUT_US (10000)  // timeout for waiting for RX/TX
 #define I2C_READ_BIT 0x01           // read bit
+
+static uint32_t tick2us = 1;
 
 /* Keep track of what mode the peripheral is in. On NRF52, Driver mode can use TWIM. */
 typedef enum {
@@ -105,6 +106,9 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 #else
     struct i2c_s *config = obj;
 #endif
+
+    const ticker_info_t *ti = lp_ticker_get_info();
+    tick2us = 1000000 / ti->frequency;
 
     /* Get instance from pin configuration. */
     int instance = pin_instance_i2c(sda, scl);
@@ -167,6 +171,21 @@ void i2c_frequency(i2c_t *obj, int hz)
     /* Only store frequency in object. Configuration happens at the beginning of each transaction. */
     config->frequency = new_frequency;
     config->update = true;
+}
+
+static uint32_t byte_timeout(nrf_twi_frequency_t frequency)
+{
+    uint32_t timeout = 0;
+    // set timeout in [us] as: 10 [bits] * 1000000 / frequency
+    if (frequency == NRF_TWI_FREQ_100K) {
+        timeout = 100; // 10 * 10us
+    } else if (frequency == NRF_TWI_FREQ_250K) {
+        timeout = 40; // 10 * 4us
+    } else if (frequency == NRF_TWI_FREQ_400K) {
+        timeout = 25; // 10 * 2.5us
+    }
+
+    return timeout;
 }
 
 const PinMap *i2c_master_sda_pinmap()
@@ -354,69 +373,71 @@ int i2c_byte_write(i2c_t *obj, int data)
     struct i2c_s *config = obj;
 #endif
 
-    int instance = config->instance;
+    NRF_TWI_Type *p_twi = nordic_nrf5_twi_register[config->instance];
     int result = 1; // default to ACK
+    uint32_t start_us, now_us, timeout;
 
-    /* Check if this is the first byte to be transferred. If it is, then send start signal and address. */
     if (config->state == NORDIC_TWI_STATE_START) {
         config->state = NORDIC_TWI_STATE_BUSY;
 
-        /* Beginning of new transaction, configure peripheral if necessary. */
+        config->update = true;
         i2c_configure_twi_instance(obj);
 
-        /* Set I2C device address. NOTE: due to hardware limitations only 7-bit addresses are supported. */
-        nrf_twi_address_set(nordic_nrf5_twi_register[instance], data >> 1);
-
-        /* If read bit is set, trigger read task otherwise trigger write task. */
         if (data & I2C_READ_BIT) {
-            /* For timing reasons, reading bytes requires shorts to suspend peripheral after each byte. */
-            nrf_twi_shorts_set(nordic_nrf5_twi_register[instance], NRF_TWI_SHORT_BB_SUSPEND_MASK);
-            nrf_twi_task_trigger(nordic_nrf5_twi_register[instance], NRF_TWI_TASK_STARTRX);
+            nrf_twi_event_clear(p_twi, NRF_TWI_EVENT_STOPPED);
+            nrf_twi_event_clear(p_twi, NRF_TWI_EVENT_RXDREADY);
+            nrf_twi_event_clear(p_twi, NRF_TWI_EVENT_ERROR);
+            (void)nrf_twi_errorsrc_get_and_clear(p_twi);
+
+            nrf_twi_shorts_set(p_twi, NRF_TWI_SHORT_BB_SUSPEND_MASK);
+
+            nrf_twi_address_set(p_twi, data >> 1);
+            nrf_twi_task_trigger(p_twi, NRF_TWI_TASK_RESUME);
+            nrf_twi_task_trigger(p_twi, NRF_TWI_TASK_STARTRX);
         } else {
-            /* Reset shorts register. */
-            nrf_twi_shorts_set(nordic_nrf5_twi_register[instance], 0);
-            nrf_twi_task_trigger(nordic_nrf5_twi_register[instance], NRF_TWI_TASK_STARTTX);
+            nrf_twi_event_clear(p_twi, NRF_TWI_EVENT_STOPPED);
+            nrf_twi_event_clear(p_twi, NRF_TWI_EVENT_TXDSENT);
+            nrf_twi_event_clear(p_twi, NRF_TWI_EVENT_ERROR);
+            nrf_twi_event_clear(p_twi, NRF_TWI_EVENT_BB);
+            (void)nrf_twi_errorsrc_get_and_clear(p_twi);
+
+            nrf_twi_shorts_set(p_twi, 0);
+
+            nrf_twi_address_set(p_twi, data >> 1);
+            nrf_twi_task_trigger(p_twi, NRF_TWI_TASK_RESUME);
+            nrf_twi_task_trigger(p_twi, NRF_TWI_TASK_STARTTX);
         }
+        /* Wait two byte duration for address ACK */
+        timeout = 2 * byte_timeout(config->frequency);
+    } else {
+        nrf_twi_event_clear(p_twi, NRF_TWI_EVENT_TXDSENT);
+        nrf_twi_event_clear(p_twi, NRF_TWI_EVENT_ERROR);
+        nrf_twi_event_clear(p_twi, NRF_TWI_EVENT_BB);
+        (void)nrf_twi_errorsrc_get_and_clear(p_twi);
 
-        /* Setup stop watch for timeout. */
-        uint32_t start_us = lp_ticker_read();
-        uint32_t now_us = start_us;
+        nrf_twi_task_trigger(p_twi, NRF_TWI_TASK_RESUME);
+        nrf_twi_txd_set(p_twi, data);
+        /* Wait ten byte duration for data ACK */
+        timeout = 10 * byte_timeout(config->frequency);
+    }
 
-        /* Block until timeout or an address error has been detected. */
-        while (((now_us - start_us) < DEFAULT_TIMEOUT_US) &&
-               !(nrf_twi_event_check(nordic_nrf5_twi_register[instance], NRF_TWI_EVENT_ERROR))) {
-            now_us = lp_ticker_read();
-        }
+    start_us = tick2us * lp_ticker_read();
+    now_us = start_us;
 
-        /* Check error register and update return value if an address NACK was detected. */
-        uint32_t error = nrf_twi_errorsrc_get_and_clear(nordic_nrf5_twi_register[instance]);
+    /* Block until timeout or an address/data error has been detected. */
+    while (((now_us - start_us) < timeout) &&
+            !nrf_twi_event_check(p_twi, NRF_TWI_EVENT_TXDSENT) &&
+            !nrf_twi_event_check(p_twi, NRF_TWI_EVENT_ERROR)) {
+        now_us = tick2us * lp_ticker_read();
+    }
 
-        if (error & NRF_TWI_ERROR_ADDRESS_NACK) {
-            result = 0; // set NACK
-        } else {
-            /* Normal write. Send next byte after clearing event flag. */
-            nrf_twi_event_clear(nordic_nrf5_twi_register[instance], NRF_TWI_EVENT_TXDSENT);
-            nrf_twi_txd_set(nordic_nrf5_twi_register[instance], data);
+    /* Check error register and update return value if an address/data NACK was detected. */
+    uint32_t error = nrf_twi_errorsrc_get_and_clear(p_twi);
 
-            /* Setup stop watch for timeout. */
-            uint32_t start_us = lp_ticker_read();
-            uint32_t now_us = start_us;
-
-            /* Block until timeout or the byte has been sent. */
-            while (((now_us - start_us) < MAXIMUM_TIMEOUT_US) &&
-                !(nrf_twi_event_check(nordic_nrf5_twi_register[instance], NRF_TWI_EVENT_TXDSENT))) {
-                now_us = lp_ticker_read();
-            }
-
-            /* Check the error code to see if the byte was acknowledged. */
-            uint32_t error = nrf_twi_errorsrc_get_and_clear(nordic_nrf5_twi_register[instance]);
-
-            if (error & NRF_TWI_ERROR_DATA_NACK) {
-                result = 0; // set NACK
-            } else if (now_us - start_us >= MAXIMUM_TIMEOUT_US) {
-                result = 2; // set timeout
-            }
-        }
+    if ((error & NRF_TWI_ERROR_ADDRESS_NACK) || (error & NRF_TWI_ERROR_DATA_NACK)) {
+        result = 0; // NACK
+    } else if (now_us - start_us >= timeout) {
+        result = 2; // timeout
     }
 
     return result;
@@ -441,9 +462,6 @@ int i2c_byte_read(i2c_t *obj, int last)
     int instance = config->instance;
     int retval = I2C_ERROR_NO_SLAVE;
 
-    uint32_t start_us = 0;
-    uint32_t now_us = 0;
-
     /* Due to hardware limitations, the stop condition must triggered through a short before
      * reading the last byte.
      */
@@ -465,18 +483,20 @@ int i2c_byte_read(i2c_t *obj, int last)
         /* No data available, resume reception. */
         nrf_twi_task_trigger(nordic_nrf5_twi_register[instance], NRF_TWI_TASK_RESUME);
 
+        /* Wait ten byte duration for data */
+        uint32_t timeout = 10 * byte_timeout(config->frequency);
         /* Setup timeout */
-        start_us = lp_ticker_read();
-        now_us = start_us;
+        uint32_t start_us = tick2us * lp_ticker_read();
+        uint32_t now_us = start_us;
 
         /* Block until timeout or data ready event has been signaled. */
-        while (((now_us - start_us) < MAXIMUM_TIMEOUT_US) &&
+        while (((now_us - start_us) < timeout) &&
                !(nrf_twi_event_check(nordic_nrf5_twi_register[instance], NRF_TWI_EVENT_RXDREADY))) {
-            now_us = lp_ticker_read();
+            now_us = tick2us * lp_ticker_read();
         }
 
         /* Retrieve data from buffer. */
-        if ((now_us - start_us) < MAXIMUM_TIMEOUT_US) {
+        if ((now_us - start_us) < timeout) {
             retval = nrf_twi_rxd_get(nordic_nrf5_twi_register[instance]);
             nrf_twi_event_clear(nordic_nrf5_twi_register[instance], NRF_TWI_EVENT_RXDREADY);
         }
@@ -506,12 +526,12 @@ int i2c_stop(i2c_t *obj)
     nrf_twi_task_trigger(nordic_nrf5_twi_register[instance], NRF_TWI_TASK_STOP);
 
     /* Block until stop signal has been generated. */
-    uint32_t start_us = lp_ticker_read();
+    uint32_t start_us = tick2us * lp_ticker_read();
     uint32_t now_us = start_us;
 
     while (((now_us - start_us) < MAXIMUM_TIMEOUT_US) &&
            !(nrf_twi_event_check(nordic_nrf5_twi_register[instance], NRF_TWI_EVENT_STOPPED))) {
-        now_us = lp_ticker_read();
+        now_us = tick2us * lp_ticker_read();
     }
 
     /* Reset state. */

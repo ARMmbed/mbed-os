@@ -38,6 +38,8 @@ set(unittest-test-sources
   stubs/EventQueue_stub.cpp
   stubs/equeue_stub.c
   stubs/CellularContext_stub.cpp
+  stubs/ConditionVariable_stub.cpp
+  stubs/Mutex_stub.cpp
 )
 
 # defines

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_usbfs_dev_drv.h
-* \version 2.10
+* \version 2.20
 *
 * Provides API declarations of the USBFS driver.
 *
@@ -183,6 +183,13 @@
 *
 * Refer to \ref group_sysclk driver API for more detail about clock 
 * configuration.
+*
+* The FLL (Clock Path 0) with ECO also can be used as an alternative USB source
+* with the next configuration settings, for 48 MHz:
+* \snippet usbfs/snippet/main.c snipped_Cy_USBFS_Dev_Drv_fllConfig48MHz
+* And for 96 MHz:
+* \snippet usbfs/snippet/main.c snipped_Cy_USBFS_Dev_Drv_fllConfig96MHz
+* Use these structures with \ref Cy_SysClk_FllManualConfigure
 *
 ********************************************************************************
 * \subsection group_usbfs_dev_drv_dma Assign and Route DMA Channels
@@ -633,6 +640,22 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td rowspan="2">2.20</td>
+*     <td>Fix configuration register value restoring in resume routine after 
+*         Deep Sleep.
+*     </td>
+*     <td>Fix issue that USB Device stops working in DMA modes after wake up 
+*         from Deep Sleep.
+*     </td>
+*   </tr>
+*   <tr>
+*     <td>The LPM requests are ignored after wake up from Deep Sleep and the 
+*         host starts sending SOFs.</td>
+*     <td>Updated \ref Cy_USBFS_Dev_Drv_Resume function to restore LPM control
+*          register after exit Deep Sleep.
+*     </td>
+*   </tr>
+*   <tr>
 *     <td>2.10</td>
 *     <td>Returns the data toggle bit into the previous state after detecting 
 *         that the host is retrying an OUT transaction.</td>
@@ -640,8 +663,9 @@
 *         continues communication through the endpoint after the host retried 
 *         the OUT transaction (the retried transaction has the same toggle bit 
 *         as the previous had).
-*    </td>
+*     </td>
 *   </tr>
+*   <tr>
 *     <td>2.0</td>
 *     <td>The list of changes to support the MBED-OS USB Device stack is provided below:
 *         - Changed the processing of the control transfers.
@@ -737,7 +761,7 @@ extern "C" {
 #define CY_USBFS_VERSION_MAJOR      (2)
 
 /** USBFS Driver minor version */
-#define CY_USBFS_VERSION_MINOR      (10)
+#define CY_USBFS_VERSION_MINOR      (20)
 
 /** USBFS Driver identifier */
 #define CY_USBFS_ID                 CY_PDL_DRV_ID(0x3BU)

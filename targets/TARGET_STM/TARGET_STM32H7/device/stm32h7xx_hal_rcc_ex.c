@@ -1915,6 +1915,33 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
         }
       }
     }
+  else if (PeriphClk == RCC_PERIPHCLK_SDMMC)
+    {
+      /* Get SDMMC clock source */
+      srcclk= __HAL_RCC_GET_SDMMC_SOURCE();
+
+      switch (srcclk)
+      {
+      case RCC_SDMMCCLKSOURCE_PLL: /* PLL1 is the clock source for SDMMC */
+        {
+          HAL_RCCEx_GetPLL1ClockFreq(&pll1_clocks);
+          frequency = pll1_clocks.PLL1_Q_Frequency;
+          break;
+        }
+      case RCC_SDMMCCLKSOURCE_PLL2: /* PLL2 is the clock source for SDMMC */
+        {
+          HAL_RCCEx_GetPLL2ClockFreq(&pll2_clocks);
+          frequency = pll2_clocks.PLL2_R_Frequency;
+          break;
+        }
+
+      default :
+        {
+          frequency = 0;
+          break;
+        }
+      }
+    }
   else
     {
       frequency = 0;
@@ -2161,8 +2188,8 @@ void HAL_RCCEx_GetPLL1ClockFreq(PLL1_ClocksTypeDef* PLL1_Clocks)
   */
 uint32_t HAL_RCCEx_GetD1SysClockFreq(void)
 {
-  SystemCoreClock = HAL_RCC_GetSysClockFreq() >> (D1CorePrescTable[(RCC->D1CFGR & RCC_D1CFGR_D1CPRE)>> RCC_D1CFGR_D1CPRE_Pos] & 0x1FU);
-  return SystemCoreClock;
+  SystemD1Clock = HAL_RCC_GetSysClockFreq() >> (D1CorePrescTable[(RCC->D1CFGR & RCC_D1CFGR_D1CPRE)>> RCC_D1CFGR_D1CPRE_Pos] & 0x1FU);
+  return SystemD1Clock;
 }
 
 /**

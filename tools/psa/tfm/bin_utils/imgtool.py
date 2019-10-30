@@ -19,9 +19,9 @@ from __future__ import print_function
 import os
 import re
 import argparse
-from imgtool_lib import keys
-from imgtool_lib import image
-from imgtool_lib import version
+from .imgtool_lib import keys
+from .imgtool_lib import image
+from .imgtool_lib import version
 import sys
 
 def find_load_address(args):

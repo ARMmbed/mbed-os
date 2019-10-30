@@ -75,7 +75,7 @@ Case cases[] = {
     Case("WIFI-CONNECT-PARAMS-VALID-UNSECURE", wifi_connect_params_valid_unsecure),
     Case("WIFI-CONNECT", wifi_connect),
     //Most boards are not passing this test, but they should if they support non-blocking API.
-    //Case("WIFI-CONNECT-NONBLOCKING", wifi_connect_nonblock),
+    //Case("WIFI_CONNECT_DISCONNECT_NONBLOCK", wifi_connect_disconnect_nonblock),
     Case("WIFI-CONNECT-DISCONNECT-REPEAT", wifi_connect_disconnect_repeat),
 #endif
 #if defined(MBED_CONF_APP_WIFI_SECURE_SSID)
@@ -94,18 +94,8 @@ int main()
 {
     return !Harness::run(specification);
 }
-#endif // defined(MBED_CONF_APP_WIFI_UNSECURE_SSID) &&  \
-!defined(MBED_CONF_APP_AP_MAC_UNSECURE)    || \
-!defined(MBED_CONF_APP_MAX_SCAN_SIZE)      || \
-!defined(MBED_CONF_APP_WIFI_CH_UNSECURE)   || \
-!defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
+#endif // defined(MBED_CONF_APP_WIFI_UNSECURE_SSID) && !defined(MBED_CONF_APP_*
 
-#endif // defined(MBED_CONF_APP_WIFI_SECURE_SSID) && \
-(!defined(MBED_CONF_APP_AP_MAC_SECURE)      || \
-!defined(MBED_CONF_APP_MAX_SCAN_SIZE)      || \
-!defined(MBED_CONF_APP_WIFI_CH_SECURE)     || \
-!defined(MBED_CONF_APP_WIFI_PASSWORD)      || \
-!defined(MBED_CONF_APP_WIFI_SECURE_SSID)   || \
-!defined MBED_CONF_APP_WIFI_SECURE_PROTOCOL)
+#endif // defined(MBED_CONF_APP_WIFI_SECURE_SSID) && (!defined(MBED_CONF_APP_*
 
 #endif //!defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE) || MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE != WIFI

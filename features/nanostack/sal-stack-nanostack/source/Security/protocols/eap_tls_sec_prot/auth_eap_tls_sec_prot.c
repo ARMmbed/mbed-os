@@ -69,9 +69,18 @@ typedef struct {
     bool                          send_pending: 1;  /**< TLS data is not yet send to network */
 } eap_tls_sec_prot_int_t;
 
-static const trickle_params_t eap_tls_trickle_params = {
-    .Imin = 200,           /* 20s; ticks are 100ms */
-    .Imax = 450,           /* 45s */
+/*Small network setup*/
+#define EAP_TLS_SMALL_IMIN 300 // retries done in 30 seconds
+#define EAP_TLS_SMALL_IMAX 900 // Largest value 90 seconds
+
+/* Large network setup*/
+#define EAP_TLS_LARGE_IMIN 600 // retries done in 60 seconds
+#define EAP_TLS_LARGE_IMAX 2400 // Largest value 240 seconds
+
+
+static trickle_params_t eap_tls_trickle_params = {
+    .Imin = EAP_TLS_SMALL_IMIN,           /* ticks are 100ms */
+    .Imax = EAP_TLS_SMALL_IMAX,           /* ticks are 100ms */
     .k = 0,                /* infinity - no consistency checking */
     .TimerExpirations = 2
 };
@@ -89,7 +98,7 @@ static int8_t auth_eap_tls_sec_prot_message_handle(sec_prot_t *prot);
 static int8_t auth_eap_tls_sec_prot_message_send(sec_prot_t *prot, uint8_t eap_code, uint8_t eap_type, uint8_t tls_state);
 
 static void auth_eap_tls_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks);
-static void auth_eap_tls_sec_prot_init_tls(sec_prot_t *prot);
+static int8_t auth_eap_tls_sec_prot_init_tls(sec_prot_t *prot);
 static void auth_eap_tls_sec_prot_delete_tls(sec_prot_t *prot);
 
 static void auth_eap_tls_sec_prot_seq_id_update(sec_prot_t *prot);
@@ -106,6 +115,19 @@ int8_t auth_eap_tls_sec_prot_register(kmp_service_t *service)
         return -1;
     }
 
+    return 0;
+}
+
+int8_t auth_eap_tls_sec_prot_timing_adjust(uint8_t timing)
+{
+
+    if (timing < 16) {
+        eap_tls_trickle_params.Imin = EAP_TLS_SMALL_IMIN;
+        eap_tls_trickle_params.Imax = EAP_TLS_SMALL_IMAX;
+    } else {
+        eap_tls_trickle_params.Imin = EAP_TLS_LARGE_IMIN;
+        eap_tls_trickle_params.Imax = EAP_TLS_LARGE_IMAX;
+    }
     return 0;
 }
 
@@ -326,16 +348,16 @@ static int8_t auth_eap_tls_sec_prot_tls_send(sec_prot_t *tls_prot, void *pdu, ui
     return 0;
 }
 
-static void auth_eap_tls_sec_prot_init_tls(sec_prot_t *prot)
+static int8_t auth_eap_tls_sec_prot_init_tls(sec_prot_t *prot)
 {
     eap_tls_sec_prot_int_t *data = eap_tls_sec_prot_get(prot);
     if (data->tls_prot) {
-        return;
+        return 0;
     }
 
     data->tls_prot = prot->type_get(prot, SEC_PROT_TYPE_TLS);
     if (!data->tls_prot) {
-        return;
+        return -1;
     }
 
     data->tls_prot->header_size = TLS_HEAD_LEN;
@@ -347,6 +369,8 @@ static void auth_eap_tls_sec_prot_init_tls(sec_prot_t *prot)
     data->tls_prot->send = auth_eap_tls_sec_prot_tls_send;
 
     data->tls_ongoing = true;
+
+    return 0;
 }
 
 static void auth_eap_tls_sec_prot_delete_tls(sec_prot_t *prot)
@@ -366,14 +390,17 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
     // EAP-TLS authenticator state machine
     switch (sec_prot_state_get(&data->common)) {
         case EAP_TLS_STATE_INIT:
+            tr_info("EAP-TLS init");
             sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_CREATE_REQ);
+            prot->timer_start(prot);
             break;
 
         // Wait KMP-CREATE.request
         case EAP_TLS_STATE_CREATE_REQ:
             tr_info("EAP-TLS start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
-            prot->timer_start(prot);
+            // Set default timeout for the total maximum length of the negotiation
+            sec_prot_default_timeout_set(&data->common);
 
             // KMP-CREATE.confirm
             prot->create_conf(prot, SEC_RESULT_OK);
@@ -430,8 +457,6 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
                 return;
             }
 
-            sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_RESPONSE);
-
             // EAP response
             if (data->eap_code == EAP_RESPONSE) {
                 // Handle EAP response, TLS EAP
@@ -445,10 +470,15 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
                     return;
                 }
 
+                sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_RESPONSE);
+
                 // All fragments received for a message
                 if (result == EAP_TLS_MSG_RECEIVE_DONE) {
-                    auth_eap_tls_sec_prot_init_tls(prot);
-
+                    // Initialize TLS protocol
+                    if (auth_eap_tls_sec_prot_init_tls(prot) < 0) {
+                        tr_error("TLS init failed");
+                        return;
+                    }
                     if (data->tls_ongoing) {
                         // Call TLS
                         data->tls_prot->receive(data->tls_prot, data->tls_recv.data, data->tls_recv.total_len);
@@ -516,12 +546,14 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_FINISHED);
             break;
 
-        case EAP_TLS_STATE_FINISHED:
+        case EAP_TLS_STATE_FINISHED: {
+            uint8_t *remote_eui_64 = sec_prot_remote_eui_64_addr_get(prot);
+            tr_info("EAP-TLS finished, eui-64: %s", remote_eui_64 ? trace_array(sec_prot_remote_eui_64_addr_get(prot), 8) : "not set");
             auth_eap_tls_sec_prot_delete_tls(prot);
             prot->timer_stop(prot);
             prot->finished(prot);
             break;
-
+        }
         default:
             break;
     }

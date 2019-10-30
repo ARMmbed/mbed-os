@@ -30,11 +30,6 @@
 * \ingroup group_hal
 * \{
 * High level interface for interacting with the Cypress digital routing.
-*
-* \defgroup group_hal_interconnect_macros Macros
-* \defgroup group_hal_interconnect_functions Functions
-* \defgroup group_hal_interconnect_data_structures Data Structures
-* \defgroup group_hal_interconnect_enums Enumerated Types
 */
 
 #pragma once
@@ -49,11 +44,6 @@
 extern "C" {
 #endif
 
-/**
-* \addtogroup group_hal_interconnect_macros
-* \{
-*/
-
 /** No connection is available */
 #define CYHAL_CONNECT_RSLT_NO_CONNECTION (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_INTERCONNECT, 0))
 /** The connections source and destination are already connected */
@@ -63,14 +53,6 @@ extern "C" {
 
 /** Indicates that a mux output does not continue to another mux */
 #define CYHAL_INTERCONNECT_MUX_NOT_CONTINUATION 0xFF
-
-/** \} group_hal_interconnect_macros */
-
-
-/**
-* \addtogroup group_hal_interconnect_functions
-* \{
-*/
 
 /** Connect a pin to a peripheral terminal. This will route a direct connect from the pin to the peripheral.
  * Any previous direct connection from the pin will be overriden.
@@ -94,8 +76,6 @@ cy_rslt_t cyhal_disconnect_pin(cyhal_gpio_t pin);
  * @return The status of the connect request
  */
 cy_rslt_t cyhal_connect_trigger(cyhal_source_t source, cyhal_dest_t dest);
-
-/** \} group_hal_interconnect_functions */
 
 #if defined(__cplusplus)
 }

@@ -53,18 +53,11 @@ from tools.paths import HOST_TESTS
 from tools.utils import ToolException
 from tools.utils import NotSupportedException
 from tools.utils import construct_enum
-from tools.memap import MemapParser
 from tools.targets import TARGET_MAP, Target
 from tools.config import Config
 import tools.test_configs as TestConfig
 from tools.build_api import build_project, build_mbed_libs, build_lib
 from tools.build_api import get_target_supported_toolchains
-from tools.build_api import write_build_report
-from tools.build_api import prep_report
-from tools.build_api import prep_properties
-from tools.build_api import create_result
-from tools.build_api import add_result_to_report
-from tools.build_api import prepare_toolchain
 from tools.build_api import get_config
 from tools.resources import Resources, MbedIgnoreSet, IGNORE_FILENAME
 from tools.libraries import LIBRARIES, LIBRARY_MAP
@@ -1498,7 +1491,6 @@ def singletest_in_cli_mode(single_test):
                                                           shuffle_seed))
 
     print("Completed in %.2f sec" % elapsed_time)
-    print
     # Write summary of the builds
 
     print_report_exporter = ReportExporter(ResultExporterType.PRINT, package="build")
@@ -2083,7 +2075,6 @@ def build_test_worker(*args, **kwargs):
                   This includes arguments that were modified (ex. report)
     }
     """
-    bin_file = None
     ret = {
         'result': False,
         'args': args,
@@ -2152,8 +2143,6 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         "test_apps": {}
     }
 
-    result = True
-
     jobs_count = int(jobs if jobs else cpu_count())
     p = Pool(processes=jobs_count)
     results = []
@@ -2163,7 +2152,6 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
 
         test_build_path = os.path.join(build_path, test_paths[0])
         src_paths = base_source_paths + test_paths
-        bin_file = None
         test_case_folder_name = os.path.basename(test_paths[0])
 
         args = (src_paths, test_build_path, deepcopy(target), toolchain_name)
@@ -2272,11 +2260,21 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
 
 def test_spec_from_test_builds(test_builds):
     for build in test_builds:
-        if Target.get_target(test_builds[build]['platform']).is_PSA_non_secure_target:
+        # Convert TZ target name to test spec platform name
+        #
+        # 1. All TZ targets should have name pattern: PLATFORM_[NPSA_]S/NS, where:
+        #    (1) 'PLATFORM' for test spec platform name
+        #    (2) 'NPSA' for non-PSA targets. Defaults to PSA target if absent.
+        #    (3) 'S'/'NS' for secure/non-secure targets
+        # 2. Secure target may participate in Greentea, so its name is also truncated here.
+        if Target.get_target(test_builds[build]['platform']).is_TrustZone_target:
             if test_builds[build]['platform'].endswith('_NS'):
                 test_builds[build]['platform'] = test_builds[build]['platform'][:-3]
-            if test_builds[build]['platform'].endswith('_PSA'):
-                test_builds[build]['platform'] = test_builds[build]['platform'][:-4]
+            elif test_builds[build]['platform'].endswith('_S'):
+                test_builds[build]['platform'] = test_builds[build]['platform'][:-2]
+
+            if test_builds[build]['platform'].endswith('_NPSA'):
+                test_builds[build]['platform'] = test_builds[build]['platform'][:-5]
     return {
         "builds": test_builds
     }

@@ -28,10 +28,10 @@
 using namespace mbed;
 namespace mbed_cellular_util {
 
-void convert_ipv6(char *ip)
+nsapi_version_t convert_ipv6(char *ip)
 {
     if (!ip) {
-        return;
+        return NSAPI_UNSPEC;
     }
 
     int len = strlen(ip);
@@ -49,7 +49,11 @@ void convert_ipv6(char *ip)
 
     // more that 3 periods mean that it was ipv6 but in format of a1.a2.a3.a4.a5.a6.a7.a8.a9.a10.a11.a12.a13.a14.a15.a16
     // we need to convert it to hexadecimal format separated with colons
-    if (pos > 3) {
+    if (pos == 3) {
+
+        return NSAPI_IPv4;
+
+    } else if (pos > 3) {
         pos = 0;
         int ip_pos = 0;
         char b;
@@ -74,7 +78,11 @@ void convert_ipv6(char *ip)
                 ip[pos] = '\0';
             }
         }
+
+        return NSAPI_IPv6;
     }
+
+    return NSAPI_UNSPEC;
 }
 
 // For example "32.1.13.184.0.0.205.48.0.0.0.0.0.0.0.0"
@@ -197,16 +205,7 @@ void separate_ip_addresses(char *orig, char *ip, size_t ip_size, char *ip2, size
             }
         }
     } else {
-        temp = strstr(orig, " ");
-        // found space as separator and it wasn't in beginning --> contains 2 ip addresses
-        if (temp && temp != orig) {
-            separate_ip4like_addresses(temp++, ip2, ip2_size, NULL, 0);
-            orig[temp - orig - 1] = '\0';
-            separate_ip4like_addresses(orig, ip, ip_size, NULL, 0);
-            orig[temp - orig - 1] = ' '; // put space back to keep orig as original
-        } else {
-            separate_ip4like_addresses(orig, ip, ip_size, ip2, ip2_size);
-        }
+        separate_ip4like_addresses(orig, ip, ip_size, ip2, ip2_size);
     }
 }
 
@@ -228,7 +227,7 @@ void prefer_ipv6(char *ip, size_t ip_size, char *ip2, size_t ip2_size)
         if (temp) {
             // ipv6 was found in ip2 but not in ip ---> we must swap them. Sadly ip and ip2 might not be pointers
             // so we can't just swap them, must use copy.
-            if (strlen(ip) < ip2_size && strlen(ip2) < ip_size && strlen(ip) < 64) {
+            if (strlen(ip) < ip2_size && strlen(ip2) < ip_size && strlen(ip) < 64 && strlen(ip2) < 64) {
                 char tmp[64];
                 strncpy(tmp, ip, strlen(ip));
                 tmp[strlen(ip)] = '\0';
@@ -270,11 +269,13 @@ int hex_str_to_int(const char *hex_string, int hex_string_length)
 int hex_str_to_char_str(const char *str, uint16_t len, char *buf)
 {
     int strcount = 0;
-    for (int i = 0; i + 1 < len; i += 2) {
-        char tmp;
-        hex_to_char(str + i, tmp);
-        buf[strcount] = tmp;
-        strcount++;
+    if (str && buf) {
+        for (int i = 0; i + 1 < len; i += 2) {
+            char tmp;
+            hex_to_char(str + i, tmp);
+            buf[strcount] = tmp;
+            strcount++;
+        }
     }
 
     return strcount;
@@ -282,9 +283,11 @@ int hex_str_to_char_str(const char *str, uint16_t len, char *buf)
 
 void hex_to_char(const char *hex, char &buf)
 {
-    int upper = hex_str_to_int(hex, 1);
-    int lower = hex_str_to_int(hex + 1, 1);
-    buf = ((upper << 4) & 0xF0) | (lower & 0x0F);
+    if (hex) {
+        int upper = hex_str_to_int(hex, 1);
+        int lower = hex_str_to_int(hex + 1, 1);
+        buf = ((upper << 4) & 0xF0) | (lower & 0x0F);
+    }
 }
 
 void uint_to_binary_str(uint32_t num, char *str, int str_size, int bit_cnt)

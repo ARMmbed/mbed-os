@@ -28,12 +28,18 @@ using namespace utest::v1;
 
 void TLSSOCKET_HANDSHAKE_INVALID()
 {
+    const int https_port = 443;
     SKIP_IF_TCP_UNSUPPORTED();
     TLSSocket sock;
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(NetworkInterface::get_default_instance()));
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.set_root_ca_cert(tls_global::cert));
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_AUTH_FAILURE,
-                      sock.connect("google.com", 443)); // 443 is https port.
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sock.connect("expired.badssl.com", https_port));
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sock.connect("wrong.host.badssl.com", https_port));
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sock.connect("self-signed.badssl.com", https_port));
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sock.connect("untrusted-root.badssl.com", https_port));
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sock.connect("revoked.badssl.com", https_port));
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sock.connect("pinning-test.badssl.com", https_port));
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sock.connect("sha1-intermediate.badssl.com", https_port));
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
 

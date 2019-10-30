@@ -158,6 +158,13 @@ public:
      */
     virtual const char *get_netmask();
 
+    /** Get the network interface name
+     *
+     *  @return         Null-terminated representation of the network interface name
+     *                  or null if interface not exists
+     */
+    virtual char *get_interface_name(char *interface_name);
+
     /** Gets the current radio signal strength for active connection
      *
      * @return          Connection strength in dBm (negative value)
@@ -381,6 +388,15 @@ private:
     ESP8266 _esp;
     void refresh_conn_state_cb();
 
+    /** Status of software connection
+     */
+    typedef enum esp_connection_software_status {
+        IFACE_STATUS_DISCONNECTED = 0,
+        IFACE_STATUS_CONNECTING = 1,
+        IFACE_STATUS_CONNECTED = 2,
+        IFACE_STATUS_DISCONNECTING = 3
+    } esp_connection_software_status_t;
+
     // HW reset pin
     class ResetPin {
     public:
@@ -402,6 +418,12 @@ private:
     private:
         mbed::DigitalOut  _pwr_pin;
     } _pwr_pin;
+
+    /** Assert the reset and power pins
+     *  ESP8266 has two pins serving similar purpose and this function asserts them both
+     *  if they are configured in mbed_app.json.
+     */
+    void _power_off();
 
     // Credentials
     static const int ESP8266_SSID_MAX_LENGTH = 32; /* 32 is what 802.11 defines as longest possible name */
@@ -437,6 +459,7 @@ private:
     // Driver's state
     int _initialized;
     nsapi_error_t _connect_retval;
+    nsapi_error_t _disconnect_retval;
     bool _get_firmware_ok();
     nsapi_error_t _init(void);
     nsapi_error_t _reset();
@@ -459,9 +482,12 @@ private:
     events::EventQueue *_global_event_queue;
     int _oob_event_id;
     int _connect_event_id;
+    int _disconnect_event_id;
     void proc_oob_evnt();
     void _connect_async();
+    void _disconnect_async();
     rtos::Mutex _cmutex; // Protect asynchronous connection logic
+    esp_connection_software_status_t _software_conn_stat ;
 
 };
 #endif

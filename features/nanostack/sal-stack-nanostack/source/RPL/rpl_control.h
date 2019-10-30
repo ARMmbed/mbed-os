@@ -42,6 +42,8 @@ typedef void rpl_domain_callback_t(rpl_event_t event, void *handle);
 
 typedef void rpl_prefix_callback_t(struct prefix_entry_t *prefix, void *handle, uint8_t *parent_link_local);
 
+typedef bool rpl_new_parent_callback_t(uint8_t *ll_parent_address, void *handle);
+
 typedef struct rpl_domain {
     NS_LIST_HEAD_INCOMPLETE(struct rpl_instance) instances;
     ns_list_link_t link;
@@ -54,6 +56,7 @@ typedef struct rpl_domain {
     bool force_leaf;
     rpl_domain_callback_t *callback;
     rpl_prefix_callback_t *prefix_cb;
+    rpl_new_parent_callback_t *new_parent_add;
     void *cb_handle;
 } rpl_domain_t;
 
@@ -142,7 +145,8 @@ rpl_domain_t *rpl_control_create_domain(void);
 void rpl_control_delete_domain(rpl_domain_t *domain);
 void rpl_control_set_domain_on_interface(struct protocol_interface_info_entry *cur, rpl_domain_t *domain, bool downstream);
 void rpl_control_remove_domain_from_interface(struct protocol_interface_info_entry *cur);
-void rpl_control_set_callback(rpl_domain_t *domain, rpl_domain_callback_t callback, rpl_prefix_callback_t prefix_learn_cb,  void *cb_handle);
+void rpl_control_free_domain_instances_from_interface(struct protocol_interface_info_entry *cur);
+void rpl_control_set_callback(rpl_domain_t *domain, rpl_domain_callback_t callback, rpl_prefix_callback_t prefix_learn_cb, rpl_new_parent_callback_t new_parent_add,  void *cb_handle);
 
 /* Target publishing */
 void rpl_control_publish_host_address(rpl_domain_t *domain, const uint8_t addr[16], uint32_t lifetime);
@@ -153,6 +157,9 @@ uint16_t rpl_control_parent_candidate_list_size(struct protocol_interface_info_e
 void rpl_control_neighbor_delete(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16]);
 /* Parent link confirmation API extension */
 void rpl_control_request_parent_link_confirmation(bool requested);
+void rpl_control_set_dio_multicast_min_config_advertisment_count(uint8_t min_count);
+void rpl_control_set_dao_retry_count(uint8_t count);
+void rpl_control_set_initial_dao_ack_wait(uint16_t timeout_in_ms);
 void rpl_control_register_address(struct protocol_interface_info_entry *interface, const uint8_t addr[16]);
 void rpl_control_address_register_done(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16], uint8_t status);
 
@@ -175,6 +182,7 @@ uint16_t rpl_control_current_rank(const struct rpl_instance *instance);
 #define rpl_control_fast_timer(ticks) ((void) 0)
 #define rpl_control_slow_timer(seconds) ((void) 0)
 #define rpl_control_remove_domain_from_interface(cur) ((void) 0)
+#define rpl_control_free_domain_instances_from_interface(cur) ((void) 0)
 #define rpl_control_register_address(interface, addr) ((void) 0)
 #define rpl_control_address_register_done(interface, ll_addr, status) ((void) 0)
 

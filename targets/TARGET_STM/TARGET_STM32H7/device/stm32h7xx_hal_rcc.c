@@ -210,11 +210,11 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
   /* Reset CFGR register */
   CLEAR_REG(RCC->CFGR);
 
-  /* Update the SystemCoreClock global variable */
-  SystemCoreClock = HSI_VALUE;
+  /* Update the SystemD1Clock global variable */
+  SystemD1Clock = HSI_VALUE;
 
   /* Adapt Systick interrupt period */
-  if(HAL_InitTick(TICK_INT_PRIORITY) != HAL_OK)
+  if(HAL_InitTick(uwTickPrio) != HAL_OK)
   {
     return HAL_ERROR;
   }
@@ -1044,11 +1044,11 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
    }
  }
 
-  /* Update the SystemCoreClock global variable */
-  SystemCoreClock = HAL_RCC_GetSysClockFreq() >> ((D1CorePrescTable[(RCC->D1CFGR & RCC_D1CFGR_D1CPRE)>> RCC_D1CFGR_D1CPRE_Pos]) & 0x1FU);
+  /* Update the SystemD1Clock global variable */
+  SystemD1Clock = HAL_RCC_GetSysClockFreq() >> ((D1CorePrescTable[(RCC->D1CFGR & RCC_D1CFGR_D1CPRE)>> RCC_D1CFGR_D1CPRE_Pos]) & 0x1FU);
 
   /* Configure the source of time base considering new system clocks settings*/
-  halstatus = HAL_InitTick (TICK_INT_PRIORITY);
+  halstatus = HAL_InitTick (uwTickPrio);
 
   return halstatus;
 }

@@ -30,11 +30,6 @@
 * \ingroup group_hal
 * \{
 * High level interface for interacting with the Cypress GPIO.
-*
-* \defgroup group_hal_gpio_macros Macros
-* \defgroup group_hal_gpio_functions Functions
-* \defgroup group_hal_gpio_data_structures Data Structures
-* \defgroup group_hal_gpio_enums Enumerated Types
 */
 
 #pragma once
@@ -52,21 +47,8 @@ extern "C" {
 *       Defines
 *******************************************************************************/
 
-/**
-* \addtogroup group_hal_gpio_macros
-* \{
-*/
-
 /** Integer representation of no connect pin (required to exist in all BSPs) */
 #define CYHAL_NC_PIN_VALUE ((cyhal_gpio_t)0xFFFFFFFF)
-
-/** \} group_hal_gpio_macros */
-
-
-/**
-* \addtogroup group_hal_gpio_enums
-* \{
-*/
 
 /*******************************************************************************
 *       Enumerations
@@ -99,24 +81,8 @@ typedef enum {
     CYHAL_GPIO_DRIVE_PULLUPDOWN,          /**< Pull-up and pull-down resistors */
 } cyhal_gpio_drive_mode_t;
 
-/** \} group_hal_gpio_enums */
-
-
-/**
-* \addtogroup group_hal_gpio_data_structures
-* \{
-*/
-
 /** GPIO callback function type */
 typedef void (*cyhal_gpio_event_callback_t)(void *callback_arg, cyhal_gpio_event_t event);
-
-/** \} group_hal_gpio_data_structures */
-
-
-/**
-* \addtogroup group_hal_gpio_functions
-* \{
-*/
 
 /*******************************************************************************
 *       Functions
@@ -185,8 +151,6 @@ void cyhal_gpio_register_callback(cyhal_gpio_t pin, cyhal_gpio_event_callback_t 
  * @param[in] enable        True to turn on interrupts, False to turn off
  */
 void cyhal_gpio_enable_event(cyhal_gpio_t pin, cyhal_gpio_event_t event, uint8_t intrPriority, bool enable);
-
-/** \} group_hal_gpio_functions */
 
 /*******************************************************************************
 * Backward compatibility macro. The following code is DEPRECATED and must 

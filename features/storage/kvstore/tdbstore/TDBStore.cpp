@@ -1019,7 +1019,10 @@ int TDBStore::init()
     _size = (size_t) -1;
 
     _buff_bd = new BufferedBlockDevice(_bd);
-    _buff_bd->init();
+    ret = _buff_bd->init();
+    if (ret) {
+        goto fail;
+    }
 
     // Underlying BD must have flash attributes, i.e. have an erase value
     if (_bd->get_erase_value() == -1) {
@@ -1138,6 +1141,19 @@ int TDBStore::init()
 
 end:
     _is_initialized = true;
+    _mutex.unlock();
+    return ret;
+fail:
+    delete[] ram_table;
+    delete _buff_bd;
+    delete[] _work_buf;
+    delete[] _key_buf;
+    delete reinterpret_cast<inc_set_handle_t *>(_inc_set_handle);
+    _ram_table = nullptr;
+    _buff_bd = nullptr;
+    _work_buf = nullptr;
+    _key_buf = nullptr;
+    _inc_set_handle = nullptr;
     _mutex.unlock();
     return ret;
 }

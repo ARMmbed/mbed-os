@@ -12,6 +12,30 @@
         "spi_count_max": {
             "help": "The maximum number of SPI peripherals used at the same time. Determines RAM allocated for SPI peripheral management. If null, limit determined by hardware.",
             "value": null
+        },
+        "qspi_io0": {
+            "help": "QSPI data I/O 0 pin",
+            "value": "QSPI_FLASH1_IO0"
+        },
+        "qspi_io1": {
+            "help": "QSPI data I/O 1 pin",
+            "value": "QSPI_FLASH1_IO1"
+        },
+        "qspi_io2": {
+            "help": "QSPI data I/O 2 pin",
+            "value": "QSPI_FLASH1_IO2"
+        },
+        "qspi_io3": {
+            "help": "QSPI data I/O 3 pin",
+            "value": "QSPI_FLASH1_IO3"
+        },
+        "qspi_sck": {
+            "help": "QSPI clock pin",
+            "value": "QSPI_FLASH1_SCK"
+        },
+        "qspi_csn": {
+            "help": "QSPI chip select pin",
+            "value": "QSPI_FLASH1_CSN"
         }
     }
 }

@@ -29,6 +29,7 @@ void ASYNCHRONOUS_DNS_CANCEL()
     dns_application_data *data = new dns_application_data[MBED_CONF_APP_DNS_TEST_HOSTS_NUM];
 
     int count = 0;
+    nsapi_dns_reset();
 
     for (unsigned int i = 0; i < MBED_CONF_APP_DNS_TEST_HOSTS_NUM; i++) {
         data[i].value_set = false;

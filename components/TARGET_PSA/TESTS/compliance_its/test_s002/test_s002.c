@@ -35,7 +35,7 @@ client_test_t test_s002_sst_list[] = {
     NULL,
 };
 
-int32_t psa_sst_update_write_once_flag_after_create(security_t caller)
+int32_t psa_sst_update_write_once_flag_after_create(caller_security_t caller)
 {
     uint32_t status;
     psa_sst_uid_t uid = UID_WRITE_ONCE_1;
@@ -84,7 +84,7 @@ int32_t psa_sst_update_write_once_flag_after_create(security_t caller)
 }
 
 
-int32_t psa_sst_create_with_write_once_flag(security_t caller)
+int32_t psa_sst_create_with_write_once_flag(caller_security_t caller)
 {
     uint32_t status;
     psa_sst_uid_t uid = UID_WRITE_ONCE_2;

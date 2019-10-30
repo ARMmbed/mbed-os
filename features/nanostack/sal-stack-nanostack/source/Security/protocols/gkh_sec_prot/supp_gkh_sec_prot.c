@@ -60,13 +60,6 @@ typedef struct {
     uint16_t                      recv_size;        /**< Received pdu size */
 } gkh_sec_prot_int_t;
 
-static const trickle_params_t gkh_trickle_params = {
-    .Imin = 50,            /* 5000ms; ticks are 100ms */
-    .Imax = 150,           /* 15000ms */
-    .k = 0,                /* infinity - no consistency checking */
-    .TimerExpirations = 4
-};
-
 static uint16_t supp_gkh_sec_prot_size(void);
 static int8_t supp_gkh_sec_prot_init(sec_prot_t *prot);
 
@@ -227,7 +220,7 @@ static int8_t supp_gkh_sec_prot_message_send(sec_prot_t *prot, gkh_sec_prot_msg_
 static void supp_gkh_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks)
 {
     gkh_sec_prot_int_t *data = gkh_sec_prot_get(prot);
-    sec_prot_timer_timeout_handle(prot, &data->common, &gkh_trickle_params, ticks);
+    sec_prot_timer_timeout_handle(prot, &data->common, NULL, ticks);
 }
 
 static void supp_gkh_sec_prot_state_machine(sec_prot_t *prot)
@@ -237,7 +230,9 @@ static void supp_gkh_sec_prot_state_machine(sec_prot_t *prot)
     // GKH supplicant state machine
     switch (sec_prot_state_get(&data->common)) {
         case GKH_STATE_INIT:
+            tr_info("GKH init");
             sec_prot_state_set(prot, &data->common, GKH_STATE_MESSAGE_1);
+            prot->timer_start(prot);
             break;
 
         // Wait GKH message 1 (starts handshake on supplicant)
@@ -250,11 +245,12 @@ static void supp_gkh_sec_prot_state_machine(sec_prot_t *prot)
                 return;
             }
 
+            // Set default timeout for the total maximum length of the negotiation
+            sec_prot_default_timeout_set(&data->common);
+
             supp_gkh_sec_prot_security_replay_counter_update(prot);
 
-            tr_debug("GKH start");
-
-            prot->timer_start(prot);
+            tr_info("GKH start");
 
             // Send KMP-CREATE.indication
             prot->create_ind(prot);
@@ -274,7 +270,7 @@ static void supp_gkh_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case GKH_STATE_FINISH:
-            tr_debug("GKH finish");
+            tr_info("GKH finish");
 
             // KMP-FINISHED.indication,
             prot->finished_ind(prot, sec_prot_result_get(&data->common), prot->sec_keys);
@@ -282,6 +278,7 @@ static void supp_gkh_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case GKH_STATE_FINISHED:
+            tr_info("GKH finished");
             prot->timer_stop(prot);
             prot->finished(prot);
             break;

@@ -30,6 +30,7 @@ struct mlme_security_s;
 struct ws_hopping_schedule_s;
 struct ws_neighbor_class_entry;
 struct mac_neighbor_table_entry;
+struct ws_neighbor_temp_class_s;
 
 
 /**
@@ -73,9 +74,22 @@ typedef struct asynch_request_s {
  * @brief LLC neighbour info request parameters
  */
 typedef struct llc_neighbour_req {
-    struct mac_neighbor_table_entry *neighbor;         /**< Generic Link Layer Neighbor information entry. */
-    struct ws_neighbor_class_entry *ws_neighbor;       /**< Wi-sun Neighbor information entry. */
+    struct mac_neighbor_table_entry *neighbor;                  /**< Generic Link Layer Neighbor information entry. */
+    struct ws_neighbor_class_entry *ws_neighbor;                /**< Wi-sun Neighbor information entry. */
 } llc_neighbour_req_t;
+
+/**
+ * Neighbor temporary structure for storage FHSS data before create a real Neighbour info
+ */
+typedef struct ws_neighbor_temp_class_s {
+    struct ws_neighbor_class_entry neigh_info_list;  /*!< Allocated hopping info array*/
+    uint8_t mac64[8];
+    uint8_t mpduLinkQuality;
+    int8_t signal_dbm;
+    ns_list_link_t link;
+} ws_neighbor_temp_class_t;
+
+typedef NS_LIST_HEAD(ws_neighbor_temp_class_t, link) ws_neighbor_temp_list_t;
 
 /**
  * @brief ws_asynch_ind ws asynch data indication
@@ -99,12 +113,11 @@ typedef void ws_asynch_confirm(struct protocol_interface_info_entry *interface, 
  * @param mac_64 Neighbor 64-bit address
  * @param neighbor_buffer Buffer where neighbor infor is buffered
  * @param request_new true if is possible to allocate new entry
- * @param multicast true if packet is multicast
  *
  * @return true when neighbor info is available
  * @return false when no neighbor info
  */
-typedef bool ws_neighbor_info_request(struct protocol_interface_info_entry *interface, const uint8_t *mac_64, llc_neighbour_req_t *neighbor_buffer, bool request_new, bool multicast);
+typedef bool ws_neighbor_info_request(struct protocol_interface_info_entry *interface, const uint8_t *mac_64, llc_neighbour_req_t *neighbor_buffer, bool request_new);
 
 /**
  * @brief ws_llc_create ws LLC module create
@@ -204,6 +217,8 @@ void ws_llc_set_pan_information_pointer(struct protocol_interface_info_entry *in
  */
 void ws_llc_hopping_schedule_config(struct protocol_interface_info_entry *interface, struct ws_hopping_schedule_s *hopping_schedule);
 
+ws_neighbor_temp_class_t *ws_llc_get_multicast_temp_entry(struct protocol_interface_info_entry *interface, const uint8_t *mac64);
 
+void ws_llc_free_multicast_temp_entry(struct protocol_interface_info_entry *interface, ws_neighbor_temp_class_t *neighbor);
 
 #endif /* WS_LLC_H_ */

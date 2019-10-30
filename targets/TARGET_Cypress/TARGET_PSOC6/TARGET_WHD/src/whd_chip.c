@@ -795,6 +795,8 @@ whd_result_t whd_wifi_read_wlan_log(whd_driver_t whd_driver, char *buffer, uint3
     uint32_t wlan_shared_address;
     uint16_t wlan_chip_id = 0;
 
+    CHECK_DRIVER_NULL(whd_driver);
+
     whd_ioctl_print(whd_driver);
 
     wlan_chip_id = whd_chip_get_chip_id(whd_driver);

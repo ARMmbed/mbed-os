@@ -39,6 +39,8 @@ public:
     AT_CellularDevice(FileHandle *fh);
     virtual ~AT_CellularDevice();
 
+    virtual nsapi_error_t clear();
+
     virtual nsapi_error_t hard_power_on();
 
     virtual nsapi_error_t hard_power_off();

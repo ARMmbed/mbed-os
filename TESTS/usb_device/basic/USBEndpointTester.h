@@ -23,12 +23,13 @@
 #include "USBDevice_Types.h"
 #include "EventQueue.h"
 #include "EventFlags.h"
+#include "platform/NonCopyable.h"
 
 #include "USBDevice.h"
 
 #define NUM_ENDPOINTS 6 // Not including CTRL OUT/IN
 
-class USBEndpointTester: public USBDevice {
+class USBEndpointTester: public USBDevice, private mbed::NonCopyable<USBEndpointTester> {
 
 public:
     USBEndpointTester(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release,
@@ -80,7 +81,7 @@ public:
 protected:
     events::EventQueue *queue;
     rtos::EventFlags flags;
-    uint8_t ctrl_buf[2048];
+    uint8_t *ctrl_buf;
 
     bool _abort_transfer_test;
     usb_ep_t _endpoints[NUM_ENDPOINTS];

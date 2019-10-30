@@ -180,6 +180,16 @@ static void rpl_downward_target_refresh(rpl_dao_target_t *target)
     target->info.non_root.path_lifetime = 0;
 }
 
+static bool rpl_instance_parent_selection_ready(rpl_instance_t *instance)
+{
+    rpl_neighbour_t *neighbour = ns_list_get_first(&instance->candidate_neighbours);
+    if (neighbour && neighbour->dodag_parent &&  neighbour->dao_path_control) {
+        //We have a Primary parent with Dao patha control
+        return true;
+    }
+    return false;
+}
+
 void rpl_downward_neighbour_gone(rpl_instance_t *instance, rpl_neighbour_t *neighbour)
 {
     if (neighbour->dao_path_control == 0) {
@@ -380,6 +390,7 @@ void rpl_instance_publish_dao_target(rpl_instance_t *instance, const uint8_t *pr
     tr_debug("New Target %s", trace_ipv6(target->prefix));
     /* Path lifetime left as 0 for now - will be filled in on transmission, along with refresh timer */
     rpl_instance_dao_trigger(instance, 0);
+
 }
 
 void rpl_instance_dao_trigger(rpl_instance_t *instance, uint16_t delay)
@@ -627,6 +638,11 @@ static rpl_dao_target_t *rpl_instance_get_pending_target_confirmation(rpl_instan
 
 void rpl_instance_send_address_registration(rpl_instance_t *instance, const uint8_t addr[16])
 {
+    if (!rpl_instance_parent_selection_ready(instance)) {
+        return;
+    }
+
+
     if (addr) {
         rpl_dao_target_t *target = rpl_instance_get_pending_target_confirmation_for_address(instance, addr);
         if (!target) {
@@ -696,6 +712,21 @@ void rpl_instance_send_dao_update(rpl_instance_t *instance)
         return;
     }
 
+    if (rpl_policy_dao_retry_count() > 0 && instance->dao_attempt >= rpl_policy_dao_retry_count()) {
+        // Check if recovery logic is started
+        // after half the retries are done we remove the primary parent
+        tr_info("DAO remove primary parent");
+        rpl_neighbour_t *neighbour = ns_list_get_first(&instance->candidate_neighbours);
+        if (neighbour) {
+            rpl_delete_neighbour(instance, neighbour);
+        }
+        // Set parameters to restart
+        instance->dao_in_transit = false;
+        instance->dao_attempt = 0;
+        instance->dao_retry_timer = 0;
+        instance->delay_dao_timer = 0;
+        return;
+    }
 
     /* Which parent this DAO will be for if storing */
     rpl_neighbour_t *parent = NULL;
@@ -829,6 +860,15 @@ void rpl_instance_send_dao_update(rpl_instance_t *instance)
     } else {
         dst = dodag->id;
         cur = NULL;
+    }
+
+    if (instance->dao_attempt > 0) {
+        // Start informing problem in routing. This will cause us to select secondary routes when sending the DAO
+        tr_info("DAO reachability problem");
+        protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_rpl_domain(instance->domain, -1);
+        if (interface) {
+            ipv6_neighbour_reachability_problem(dst, interface->id);
+        }
     }
 
     bool need_ack = rpl_control_transmit_dao(instance->domain, cur, instance, instance->id, instance->dao_sequence, dodag->id, opts, ptr - opts, dst);
@@ -1751,12 +1791,29 @@ static if_address_entry_t *rpl_interface_addr_get(protocol_interface_info_entry_
     return NULL;
 }
 
+static void rpl_instance_address_registration_cancel(rpl_instance_t *instance)
+{
+    ns_list_foreach_safe(rpl_dao_target_t, n, &instance->dao_targets) {
+        n->active_confirmation_state = false;
+        n->trig_confirmation_state = false;
+        n->response_wait_time = 0;
+    }
 
+    instance->wait_response = NULL;
+    instance->pending_neighbour_confirmation = false;
+    instance->delay_dao_timer = 0;
+}
 
 void rpl_instance_parent_address_reg_timer_update(rpl_instance_t *instance, uint16_t seconds)
 {
     if (!instance->pending_neighbour_confirmation) {
         return; //No need validate any confirmation
+    }
+
+    //Verify that we have selected parent and it have a dao path control
+    if (!rpl_instance_parent_selection_ready(instance)) {
+        rpl_instance_address_registration_cancel(instance);
+        return;
     }
 
     //Get Pendig active target
@@ -1772,8 +1829,7 @@ void rpl_instance_parent_address_reg_timer_update(rpl_instance_t *instance, uint
     }
 
     if (instance->wait_response) {
-        uint16_t wait_time = dao_target->response_wait_time;
-        if (seconds < wait_time) {
+        if (seconds < dao_target->response_wait_time) {
             //Must Wait response time untill finish
             dao_target->response_wait_time -= seconds;
             return;
@@ -1792,17 +1848,13 @@ void rpl_instance_parent_address_reg_timer_update(rpl_instance_t *instance, uint
     //Get address and buffer
     protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_id(neighbour->interface_id);
     if (!interface) {
-        dao_target->response_wait_time = 0;
-        instance->wait_response = NULL;
-        dao_target->active_confirmation_state = false;
+        rpl_instance_address_registration_cancel(instance);
         return;
     }
 
     if_address_entry_t *address = rpl_interface_addr_get(interface, dao_target->prefix);
     if (!address) {
-        dao_target->response_wait_time = 0;
-        instance->wait_response = NULL;
-        dao_target->active_confirmation_state = false;
+        rpl_instance_address_registration_cancel(instance);
         return;
     }
 
@@ -1831,7 +1883,7 @@ void rpl_instance_address_registration_done(protocol_interface_info_entry_t *int
     if (status == SOCKET_TX_DONE) {
         /* State_timer is 1/10 s. Set renewal to 75-85% of lifetime */
         if_address_entry_t *address = rpl_interface_addr_get(interface, dao_target->prefix);
-        if (address) {
+        if (address && address->source != ADDR_SOURCE_DHCP) {
             address->state_timer = (address->preferred_lifetime * randLIB_get_random_in_range(75, 85) / 10);
         }
         neighbour->confirmed = true;
@@ -1839,6 +1891,7 @@ void rpl_instance_address_registration_done(protocol_interface_info_entry_t *int
     } else {
         tr_error("Address registration failed");
         rpl_delete_neighbour(instance, neighbour);
+        rpl_instance_address_registration_cancel(instance);
     }
 }
 

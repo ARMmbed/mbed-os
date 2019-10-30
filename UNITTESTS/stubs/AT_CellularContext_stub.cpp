@@ -279,6 +279,10 @@ void AT_CellularContext::set_disconnect()
 {
 }
 
+void AT_CellularContext::set_cid(int cid)
+{
+}
+
 void AT_CellularContext::do_connect_with_retry()
 {
 

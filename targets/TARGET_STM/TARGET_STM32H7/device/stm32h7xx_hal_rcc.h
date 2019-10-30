@@ -430,6 +430,9 @@ typedef struct
 /** @defgroup RCC_RTC_Clock_Source  RCC RTC Clock Source
   * @{
   */
+/* MBED */
+#define RCC_RTCCLKSOURCE_NO_CLK          (0x00000000U)
+/* MBED */
 #define RCC_RTCCLKSOURCE_LSE             (0x00000100U)
 #define RCC_RTCCLKSOURCE_LSI             (0x00000200U)
 #define RCC_RTCCLKSOURCE_HSE_DIV2        (0x00002300U)

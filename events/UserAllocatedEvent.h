@@ -23,8 +23,7 @@
 
 namespace events {
 /**
- * \addtogroup events-public-api Events
- * \ingroup mbed-os-public
+ * \addtogroup events-public-api
  * @{
  */
 template <typename F, typename A>
@@ -215,6 +214,7 @@ public:
      */
     void delay(int delay)
     {
+        MBED_ASSERT(!_post_ref);
         equeue_event_delay(&_e + 1, delay);
     }
 
@@ -224,6 +224,7 @@ public:
      */
     void period(int period)
     {
+        MBED_ASSERT(!_post_ref);
         equeue_event_period(&_e + 1, period);
     }
 

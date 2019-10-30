@@ -119,11 +119,11 @@
             "value": "3"
         },
         "wisun-operating-class": {
-            "help": "Operating class.",
+            "help": "Operating class. Use 255 to use Nanostack default",
             "value": "255"
         },
         "wisun-operating-mode": {
-            "help": "Operating mode.",
+            "help": "Operating mode. Use 255 to use Nanostack default",
             "value": "255"
         },
         "wisun-uc-channel-function": {
@@ -159,17 +159,29 @@
             "value": null
         },
         "root-certificate": {
-            "help": "Root certificate in PEM format (must be a null terminated c-string)",
+            "help": "Root certificate; in PEM format must be a null terminated c-string, in DER format the root-certificate-len must be set",
             "value": null
         },
+        "root-certificate-len": {
+            "help": "Root certificate length; optional for PEM format, must be defined for DER format",
+            "value": null
+        },        
         "own-certificate": {
-            "help": "Own certificate in PEM format (must be a null terminated c-string)",
+            "help": "Own certificate; in PEM format must be a null terminated c-string, in DER format the own-certificate-len must be set",
+            "value": null
+        },
+        "own-certificate-len": {
+            "help": "Own certificate length; optional for PEM format, must be defined for DER format",
             "value": null
         },
         "own-certificate-key": {
-            "help": "Own certificate's key in PEM format (must be a null terminated c-string)",
+            "help": "Own certificate's key; in PEM format must be a null terminated c-string, in DER format the own-certificate-key-len must be set",
             "value": null
-        }
+        },
+        "own-certificate-key-len": {
+            "help": "Own certificate's key length; optional for PEM format, must be defined for DER format",
+            "value": null
+        }        
     },
     "target_overrides": {
         "KW24D": {

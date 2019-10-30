@@ -42,7 +42,7 @@ set(unittest-test-sources
   stubs/LoRaMacCommand_stub.cpp
   stubs/EventQueue_stub.cpp
   stubs/equeue_stub.c
-
+  stubs/Mutex_stub.cpp
 )
 
 # defines

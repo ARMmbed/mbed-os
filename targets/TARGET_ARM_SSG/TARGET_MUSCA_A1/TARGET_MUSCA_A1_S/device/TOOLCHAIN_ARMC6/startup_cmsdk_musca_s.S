@@ -28,7 +28,7 @@
 ;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ; </h>
 
-                IMPORT |Image$$ARM_LIB_STACK_MSP$$ZI$$Limit|
+                IMPORT  |Image$$ARM_LIB_STACK_MSP$$ZI$$Limit|
 
 ; Vector Table Mapped to Address 0 at Reset
 

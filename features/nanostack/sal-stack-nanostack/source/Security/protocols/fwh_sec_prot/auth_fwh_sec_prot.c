@@ -68,11 +68,19 @@ typedef struct {
     uint16_t                      recv_size;                   /**< received pdu size */
 } fwh_sec_prot_int_t;
 
-static const trickle_params_t fwh_trickle_params = {
-    .Imin = 50,            /* 5000ms; ticks are 100ms */
-    .Imax = 150,           /* 15000ms */
+/*Small network setup*/
+#define FWH_SMALL_IMIN 300 // retries done in 30 seconds
+#define FWH_SMALL_IMAX 900 // Largest value 90 seconds
+
+/* Large network setup*/
+#define FWH_LARGE_IMIN 600 // retries done in 60 seconds
+#define FWH_LARGE_IMAX 2400 // Largest value 240 seconds
+
+static trickle_params_t fwh_trickle_params = {
+    .Imin = FWH_SMALL_IMIN,            /* ticks are 100ms */
+    .Imax = FWH_SMALL_IMAX,            /* ticks are 100ms */
     .k = 0,                /* infinity - no consistency checking */
-    .TimerExpirations = 4
+    .TimerExpirations = 2
 };
 
 static uint16_t auth_fwh_sec_prot_size(void);
@@ -102,6 +110,18 @@ int8_t auth_fwh_sec_prot_register(kmp_service_t *service)
         return -1;
     }
 
+    return 0;
+}
+
+int8_t auth_fwh_sec_prot_timing_adjust(uint8_t timing)
+{
+    if (timing < 16) {
+        fwh_trickle_params.Imin = FWH_SMALL_IMIN;
+        fwh_trickle_params.Imax = FWH_SMALL_IMAX;
+    } else {
+        fwh_trickle_params.Imin = FWH_LARGE_IMIN;
+        fwh_trickle_params.Imax = FWH_LARGE_IMAX;
+    }
     return 0;
 }
 
@@ -321,6 +341,7 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
     // 4WH authenticator state machine
     switch (sec_prot_state_get(&data->common)) {
         case FWH_STATE_INIT:
+            tr_info("4WH: init");
             prot->timer_start(prot);
             sec_prot_state_set(prot, &data->common, FWH_STATE_CREATE_REQ);
             break;
@@ -328,6 +349,9 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
         // Wait KMP-CREATE.request
         case FWH_STATE_CREATE_REQ:
             tr_info("4WH: start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+
+            // Set default timeout for the total maximum length of the negotiation
+            sec_prot_default_timeout_set(&data->common);
 
             uint8_t *pmk = sec_prot_keys_pmk_get(prot->sec_keys);
             if (!pmk) { // If PMK is not set fails
@@ -409,10 +433,13 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
             sec_prot_state_set(prot, &data->common, FWH_STATE_FINISHED);
             break;
 
-        case FWH_STATE_FINISHED:
+        case FWH_STATE_FINISHED: {
+            uint8_t *remote_eui_64 = sec_prot_remote_eui_64_addr_get(prot);
+            tr_info("4WH: finished, eui-64: %s", remote_eui_64 ? trace_array(sec_prot_remote_eui_64_addr_get(prot), 8) : "not set");
             prot->timer_stop(prot);
             prot->finished(prot);
             break;
+        }
 
         default:
             break;

@@ -26,7 +26,7 @@
 
 namespace mbed {
 /**
- * \addtogroup drivers_Ticker Ticker class
+ * \defgroup drivers_Ticker Ticker class
  * \ingroup drivers-public-api-ticker
  * @{
  */
@@ -83,8 +83,12 @@ public:
      *  @param func pointer to the function to be called
      *  @param t the time between calls in seconds
      */
-    template <typename F>
-    MBED_FORCEINLINE void attach(F &&func, float t)
+#if defined(__ICCARM__)
+    MBED_FORCEINLINE template <typename F>
+#else
+    template <typename F> MBED_FORCEINLINE
+#endif
+    void attach(F &&func, float t)
     {
         attach_us(std::forward<F>(func), t * 1000000.0f);
     }

@@ -64,7 +64,14 @@ public:
      */
     virtual uint16_t write(uint8_t type, uint16_t len, uint8_t *pData);
 
-    void bt_host_wake_irq_handler();
+    void bt_host_wake_rise_irq_handler();
+    void bt_host_wake_fall_irq_handler();
+
+#if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
+    void on_host_stack_inactivity();
+#endif
+
+    void update_uart_baud_rate(int baud);
 
     bool get_enabled_powersave();
     uint8_t get_host_wake_irq_event();
@@ -87,6 +94,7 @@ private:
 
     DigitalInOut bt_host_wake;
     DigitalInOut bt_device_wake;
+    bool bt_host_wake_active;
 
     bool     enabled_powersave;
     uint8_t  host_wake_irq_event;
@@ -101,9 +109,14 @@ private:
 } // namespace ble
 
 #define DEF_BT_BAUD_RATE    (115200)
+#define DEF_BT_3M_BAUD_RATE (3000000)     /* Both Host and BT device have to be adapt to this */
 
 #define WAKE_EVENT_ACTIVE_HIGH ( 1 )      /* Interrupt Rising Edge  */
 #define WAKE_EVENT_ACTIVE_LOW  ( 0 )      /* Interrupt Falling Edge */
+
+#if (defined(TARGET_CY8CPROTO_062_4343W))
+#define BT_UART_NO_3M_SUPPORT  ( 1 )
+#endif
 
 ble::vendor::cypress_ble::CyH4TransportDriver& ble_cordio_get_default_h4_transport_driver();
 ble::vendor::cypress_ble::CyH4TransportDriver& ble_cordio_get_h4_transport_driver();

@@ -143,13 +143,13 @@ LR_IROM1 FLASH_START (FLASH_SIZE - 0x8000)
     }
     
     ; Application heap area (HEAP)
-    ARM_LIB_HEAP  +0
+    ARM_LIB_HEAP  +0 EMPTY RAM_START+RAM_SIZE-Stack_Size-ImageLimit(RW_IRAM1)
     { 
-        * (HEAP) 
     }
-
-    ARM_LIB_STACK RAM_START + RAM_SIZE EMPTY - Stack_Size 
-    { ; Stack region growing down
+    
+    ; Stack region growing down
+    ARM_LIB_STACK RAM_START+RAM_SIZE EMPTY -Stack_Size
+    {
     }
 }
 

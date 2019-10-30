@@ -88,10 +88,10 @@
 #endif /* USE_HAL_DRIVER */
 
 /**
-  * @brief CMSIS Device version number V1.5.0
+  * @brief CMSIS Device version number V1.6.0
   */
 #define __STM32H7xx_CMSIS_DEVICE_VERSION_MAIN   (0x01) /*!< [31:24] main version */
-#define __STM32H7xx_CMSIS_DEVICE_VERSION_SUB1   (0x05) /*!< [23:16] sub1 version */
+#define __STM32H7xx_CMSIS_DEVICE_VERSION_SUB1   (0x06) /*!< [23:16] sub1 version */
 #define __STM32H7xx_CMSIS_DEVICE_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
 #define __STM32H7xx_CMSIS_DEVICE_VERSION_RC     (0x00) /*!< [7:0]  release candidate */
 #define __STM32H7xx_CMSIS_DEVICE_VERSION        ((__CMSIS_DEVICE_VERSION_MAIN     << 24)\

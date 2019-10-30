@@ -82,6 +82,8 @@ static void cyhal_i2c_irq_handler(void)
 
     if (obj->async)
     {
+        /* This code is part of cyhal_i2c_master_transfer_async() API functionality */
+        /* cyhal_i2c_master_transfer_async() API uses this interrupt handler for RX Transfer */
         if (0 == (Cy_SCB_I2C_MasterGetStatus(obj->base,  &obj->context) & CY_SCB_I2C_MASTER_BUSY))
         {
             if (obj->tx_config.bufferSize)

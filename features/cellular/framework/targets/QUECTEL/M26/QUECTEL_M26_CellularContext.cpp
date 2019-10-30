@@ -36,22 +36,17 @@ NetworkStack *QUECTEL_M26_CellularContext::get_stack()
 
 nsapi_error_t QUECTEL_M26_CellularContext::do_user_authentication()
 {
-
-    _at.cmd_start("AT+QICSGP=");
-    _at.write_int(1); /*GPRS MODE = 1, CSD MODE = 0*/
-    _at.write_string(_apn);
+    nsapi_error_t err = NSAPI_ERROR_OK;
     if (_pwd && _uname) {
-        _at.write_string(_uname);
-        _at.write_string(_pwd);
+        err = _at.at_cmd_discard("^SISO", "=", "%d%s%s%s", 1, _apn, _uname, _pwd);
+    } else {
+        err = _at.at_cmd_discard("^SISO", "=", "%d%s", 1, _apn);
     }
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
-    if (_at.get_last_error() != NSAPI_ERROR_OK) {
+    if (err != NSAPI_ERROR_OK) {
         return NSAPI_ERROR_AUTH_FAILURE;
     }
 
-    return NSAPI_ERROR_OK;
+    return err;
 }
 
 } /* namespace mbed */

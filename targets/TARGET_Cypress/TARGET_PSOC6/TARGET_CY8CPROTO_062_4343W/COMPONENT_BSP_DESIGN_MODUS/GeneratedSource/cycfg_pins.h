@@ -252,6 +252,54 @@ extern "C" {
 #if defined (CY_USING_HAL)
 	#define CYBSP_QSPI_SCK_HAL_DRIVEMODE CYHAL_GPIO_DRIVE_STRONG
 #endif //defined (CY_USING_HAL)
+#define CYBSP_USB_DP_ENABLED 1U
+#define CYBSP_USB_DP_PORT GPIO_PRT14
+#define CYBSP_USB_DP_PORT_NUM 14U
+#define CYBSP_USB_DP_PIN 0U
+#define CYBSP_USB_DP_NUM 0U
+#define CYBSP_USB_DP_DRIVEMODE CY_GPIO_DM_ANALOG
+#define CYBSP_USB_DP_INIT_DRIVESTATE 1
+#ifndef ioss_0_port_14_pin_0_HSIOM
+	#define ioss_0_port_14_pin_0_HSIOM HSIOM_SEL_GPIO
+#endif
+#define CYBSP_USB_DP_HSIOM ioss_0_port_14_pin_0_HSIOM
+#define CYBSP_USB_DP_IRQ ioss_interrupts_gpio_14_IRQn
+#if defined (CY_USING_HAL)
+	#define CYBSP_USB_DP_HAL_PORT_PIN P14_0
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	#define CYBSP_USB_DP_HAL_IRQ CYHAL_GPIO_IRQ_NONE
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	#define CYBSP_USB_DP_HAL_DIR CYHAL_GPIO_DIR_INPUT 
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	#define CYBSP_USB_DP_HAL_DRIVEMODE CYHAL_GPIO_DRIVE_ANALOG
+#endif //defined (CY_USING_HAL)
+#define CYBSP_USB_DM_ENABLED 1U
+#define CYBSP_USB_DM_PORT GPIO_PRT14
+#define CYBSP_USB_DM_PORT_NUM 14U
+#define CYBSP_USB_DM_PIN 1U
+#define CYBSP_USB_DM_NUM 1U
+#define CYBSP_USB_DM_DRIVEMODE CY_GPIO_DM_ANALOG
+#define CYBSP_USB_DM_INIT_DRIVESTATE 1
+#ifndef ioss_0_port_14_pin_1_HSIOM
+	#define ioss_0_port_14_pin_1_HSIOM HSIOM_SEL_GPIO
+#endif
+#define CYBSP_USB_DM_HSIOM ioss_0_port_14_pin_1_HSIOM
+#define CYBSP_USB_DM_IRQ ioss_interrupts_gpio_14_IRQn
+#if defined (CY_USING_HAL)
+	#define CYBSP_USB_DM_HAL_PORT_PIN P14_1
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	#define CYBSP_USB_DM_HAL_IRQ CYHAL_GPIO_IRQ_NONE
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	#define CYBSP_USB_DM_HAL_DIR CYHAL_GPIO_DIR_INPUT 
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	#define CYBSP_USB_DM_HAL_DRIVEMODE CYHAL_GPIO_DRIVE_ANALOG
+#endif //defined (CY_USING_HAL)
 #define CYBSP_CSD_TX_ENABLED 1U
 #define CYBSP_CSD_TX_PORT GPIO_PRT1
 #define CYBSP_CSD_TX_PORT_NUM 1U
@@ -840,6 +888,14 @@ extern const cy_stc_gpio_pin_config_t CYBSP_QSPI_DATA0_config;
 extern const cy_stc_gpio_pin_config_t CYBSP_QSPI_SCK_config;
 #if defined (CY_USING_HAL)
 	extern const cyhal_resource_inst_t CYBSP_QSPI_SCK_obj;
+#endif //defined (CY_USING_HAL)
+extern const cy_stc_gpio_pin_config_t CYBSP_USB_DP_config;
+#if defined (CY_USING_HAL)
+	extern const cyhal_resource_inst_t CYBSP_USB_DP_obj;
+#endif //defined (CY_USING_HAL)
+extern const cy_stc_gpio_pin_config_t CYBSP_USB_DM_config;
+#if defined (CY_USING_HAL)
+	extern const cyhal_resource_inst_t CYBSP_USB_DM_obj;
 #endif //defined (CY_USING_HAL)
 extern const cy_stc_gpio_pin_config_t CYBSP_CSD_TX_config;
 #if defined (CY_USING_HAL)

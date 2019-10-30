@@ -27,20 +27,27 @@
 
 #include "cycfg_notices.h"
 #include "cy_sysclk.h"
+#if defined (CY_USING_HAL)
+	#include "cyhal_hwmgr.h"
+#endif //defined (CY_USING_HAL)
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-#define peri_0_div_16_0_ENABLED 1U
-#define peri_0_div_16_0_HW CY_SYSCLK_DIV_16_BIT
-#define peri_0_div_16_0_NUM 0U
-#define CYBSP_DEBUG_UART_CLK_DIV_ENABLED 1U
-#define CYBSP_DEBUG_UART_CLK_DIV_HW CY_SYSCLK_DIV_8_BIT
-#define CYBSP_DEBUG_UART_CLK_DIV_NUM 0U
+#define CYBSP_USB_CLK_DIV_ENABLED 1U
+#define CYBSP_USB_CLK_DIV_HW CY_SYSCLK_DIV_16_BIT
+#define CYBSP_USB_CLK_DIV_NUM 0U
 #define CYBSP_I2C_CLK_DIV_ENABLED 1U
 #define CYBSP_I2C_CLK_DIV_HW CY_SYSCLK_DIV_8_BIT
 #define CYBSP_I2C_CLK_DIV_NUM 1U
+
+#if defined (CY_USING_HAL)
+	extern const cyhal_resource_inst_t CYBSP_USB_CLK_DIV_obj;
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	extern const cyhal_resource_inst_t CYBSP_I2C_CLK_DIV_obj;
+#endif //defined (CY_USING_HAL)
 
 void init_cycfg_clocks(void);
 

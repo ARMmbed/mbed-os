@@ -1,6 +1,7 @@
 """
 * mbed Microcontroller Library
-* Copyright (c) 2006-2018 ARM Limited
+* Copyright (c) 2006-2019 ARM Limited
+* Copyright (c) 2006-2019 STMicroelectronics
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,7 +27,7 @@ import textwrap
 from xml.dom.minidom import parse, Node
 from argparse import RawTextHelpFormatter
 
-GENPINMAP_VERSION = "1.5"
+GENPINMAP_VERSION = "1.8"
 
 ADD_DEVICE_IF = 0
 ADD_QSPI_FEATURE = 1
@@ -56,7 +57,9 @@ quadspidata2_list = []      #'PIN','name','QUADSPIDATA2'
 quadspidata3_list = []      #'PIN','name','QUADSPIDATA3'
 quadspisclk_list = []      #'PIN','name','QUADSPISCLK'
 quadspissel_list = []      #'PIN','name','QUADSPISSEL'
-usb_list = []      #'PIN','name','USB'
+usb_list = []        # 'PIN','name','USB'
+usb_otgfs_list = []  # 'PIN','name','USB'
+usb_otghs_list = []  # 'PIN','name','USB'
 osc_list = []      #'PIN','name','OSC'
 sys_list = []      #'PIN','name','SYS'
 
@@ -79,6 +82,7 @@ TIM_MST_LIST = { # Timer used for us ticker is hardcoded in this script
 "NUCLEO_F446RE":"TIM5",
 "NUCLEO_F410RB":"TIM5",
 "NUCLEO_F429ZI":"TIM5",
+"STM32F427V(G-I)Tx":"TIM5",
 "NUCLEO_F446ZE":"TIM5",
 "NUCLEO_F412ZG":"TIM5",
 "NUCLEO_F413ZH":"TIM5",
@@ -99,6 +103,7 @@ TIM_MST_LIST = { # Timer used for us ticker is hardcoded in this script
 "NUCLEO_L4R5ZI":"TIM5",
 "NUCLEO_L4R5ZI_P":"TIM5",
 
+"NUCLEO_WB55R":"TIM16",
 "DISCO_F051R8":"TIM1",
 "DISCO_F100RB":"TIM4",
 "DISCO_F303VC":"TIM2",
@@ -114,7 +119,8 @@ TIM_MST_LIST = { # Timer used for us ticker is hardcoded in this script
 "DISCO_L072CZ_LRWAN1":"TIM21",
 "DISCO_L475VG_IOT01A":"TIM5",
 "DISCO_L476VG":"TIM5",
-"DISCO_L496AG":"TIM5"
+"DISCO_L496AG":"TIM5",
+"DISCO_L4R9A":"TIM5"
 }
 
 
@@ -328,7 +334,12 @@ def store_qspi(pin, name, signal):
 
 # function to store USB pins
 def store_usb(pin, name, signal):
-    usb_list.append([pin, name, signal])
+    if "OTG" not in signal:
+        usb_list.append([pin, name, signal])
+    elif signal.startswith("USB_OTG_FS"):
+        usb_otgfs_list.append([pin, name, signal])
+    elif signal.startswith("USB_OTG_HS"):
+        usb_otghs_list.append([pin, name, signal])
 
 
 # function to store OSC pins
@@ -514,7 +525,15 @@ def print_all_lists():
             print_qspi(quadspisclk_list)
         if print_list_header("", "QSPI_SSEL", quadspissel_list, "QSPI"):
             print_qspi(quadspissel_list)
+    if print_list_header("USBDEVICE", "USB_FS", usb_list, "USBDEVICE"):
+        print_usb(usb_list)
+    if print_list_header("USBDEVICE", "USB_FS", usb_otgfs_list, "USBDEVICE"):
+        print_usb(usb_otgfs_list)
+    if print_list_header("USBDEVICE", "USB_HS", usb_otghs_list, "USBDEVICE"):
+        print_usb(usb_otghs_list)
     print_h_file(usb_list, "USB")
+    print_h_file(usb_otgfs_list, "USB FS")
+    print_h_file(usb_otghs_list, "USB HS")
     print_h_file(eth_list, "ETHERNET")
     print_h_file(osc_list, "OSCILLATOR")
     print_h_file(sys_list, "DEBUG")
@@ -852,7 +871,10 @@ def print_qspi(l):
                 CommentedLine = "//"
         s1 = "%-16s" % (CommentedLine + "  {" + p[0] + ',')
         # p[2] : QUADSPI_BK1_IO3 / QUADSPI_CLK / QUADSPI_NCS
-        s1 += "%-8s" % ('QSPI_1,')
+        if "OCTOSPIM_P2" in p[2]:
+            s1 += "%-8s" % ('QSPI_2,')
+        else:
+            s1 += "%-8s" % ('QSPI_1,')
         result = result.replace("GPIO_AF10_OTG_FS", "GPIO_AF10_QSPI")
         s1 += 'STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, ' + result +')},'
         s1 += '  // ' + p[2]
@@ -866,8 +888,80 @@ def print_qspi(l):
     if ADD_DEVICE_IF:
         out_c_file.write( "#endif\n" )
 
+def print_usb(lst):
+    use_hs_in_fs = False
+    nb_loop = 1
+    inst = "USB_FS"
+    if lst is usb_otgfs_list:
+        inst = "USB_FS"
+    elif lst is usb_otghs_list:
+        inst = "USB_HS"
+        nb_loop = 2
+
+    for nb in range(nb_loop):
+        for p in lst:
+            result = get_gpio_af_num(p[1], p[2])
+
+            CommentedLine = "  "
+
+            if p[1] in PinLabel.keys():
+                if "STDIO_UART" in PinLabel[p[1]]:
+                    CommentedLine = "//"
+                if "RCC_OSC" in PinLabel[p[1]]:
+                    CommentedLine = "//"
+
+            if "_SOF" in p[2] or "_NOE" in p[2]:
+                CommentedLine = "//"
+
+            if lst is usb_otghs_list:
+                if nb == 0:
+                    if "ULPI" in p[2]:
+                        continue
+                    elif not use_hs_in_fs:
+                        out_c_file.write("#if (MBED_CONF_TARGET_USB_SPEED == USE_USB_HS_IN_FS)\n")
+                        use_hs_in_fs = True
+                else:
+                    if "ULPI" not in p[2]:
+                        continue
+                    elif use_hs_in_fs:
+                        out_c_file.write("#else /* MBED_CONF_TARGET_USB_SPEED */\n")
+                        use_hs_in_fs = False
+
+            s1 = "%-16s" % (CommentedLine + "  {" + p[0] + ',')
+
+            # 2nd element is the USB_XXXX signal
+            if not p[2].startswith("USB_D") and "VBUS" not in p[2]:
+                if "ID" not in p[2]:
+                    s1 += inst + ", STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, "
+                else:
+                    # ID pin: AF_PP + PULLUP
+                    s1 += inst + ", STM_PIN_DATA(STM_MODE_AF_OD, GPIO_PULLUP, "
+            else:
+                # USB_DM/DP and VBUS: INPUT + NOPULL
+                s1 += inst + ", STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, "
+            if result == "NOTFOUND":
+                s1 += "0)},"
+            else:
+                r = result.split(" ")
+                for af in r:
+                    s1 += af + ")},"
+            s1 += " // " + p[2]
+            if p[1] in PinLabel.keys():
+                s1 += ' // Connected to ' + PinLabel[p[1]]
+            s1 += "\n"
+            out_c_file.write(s1)
+    if lst:
+        if lst is usb_otghs_list:
+            out_c_file.write("#endif /* MBED_CONF_TARGET_USB_SPEED */\n")
+        out_c_file.write("""    {NC, NC, 0}
+};
+""")
+    if ADD_DEVICE_IF:
+        out_c_file.write( "#endif\n" )
+
 
 def print_h_file(l, comment):
+    l.sort(key=natural_sortkey2)
     if len(l) > 0:
         s = ("\n    /**** %s pins ****/\n" % comment)
         out_h_file.write(s)
@@ -927,16 +1021,15 @@ def sort_my_lists():
     spisclk_list.sort(key=natural_sortkey)
     cantd_list.sort(key=natural_sortkey)
     canrd_list.sort(key=natural_sortkey)
-    eth_list.sort(key=natural_sortkey2)
     quadspidata0_list.sort(key=natural_sortkey)
     quadspidata1_list.sort(key=natural_sortkey)
     quadspidata2_list.sort(key=natural_sortkey)
     quadspidata3_list.sort(key=natural_sortkey)
     quadspisclk_list.sort(key=natural_sortkey)
     quadspissel_list.sort(key=natural_sortkey)
-    usb_list.sort(key=natural_sortkey2)
-    osc_list.sort(key=natural_sortkey2)
-    sys_list.sort(key=natural_sortkey2)
+    usb_list.sort(key=natural_sortkey)
+    usb_otgfs_list.sort(key=natural_sortkey)
+    usb_otghs_list.sort(key=natural_sortkey)
 
 def clean_all_lists():
     del io_list[:]
@@ -1001,13 +1094,13 @@ def parse_pins():
                     store_can(pin, name, sig)
                 if "ETH" in sig:
                     store_eth(pin, name, sig)
-                if "QUADSPI" in sig:
+                if "QUADSPI" in sig or "OCTOSPI" in sig:
                     store_qspi(pin, name, sig)
                 if "USB" in sig:
                     store_usb(pin, name, sig)
                 if "RCC_OSC" in sig:
                     store_osc(pin, name, sig)
-                if "SYS_" in sig:
+                if "SYS_" in sig or "PWR_" in sig or "DEBUG_" in sig:
                     store_sys(pin, name, sig)
 
 
@@ -1072,6 +1165,8 @@ def parse_BoardFile(fileName):
                     PinLabel[EachPin] = "STDIO_UART_RX"
                 else:
                     PinLabel[EachPin] = "STDIO_UART_TX"
+            elif "_RESERVED" in PinLabel[EachPin]:
+                PinLabel[EachPin] = "RESERVED_RADIO"
         except:
             pass
 
@@ -1225,16 +1320,22 @@ if args.target:
         TargetName += "DISCO_"
     elif "Evaluation" in board_file_name:
         TargetName += "EVAL_"
-    m = re.search(r'STM32([\w][\dR]{3}[\w]{0,2})[\w]*_Board', board_file_name)
+    m = re.search(r'STM32([\w]{1,2}[\dR]{3}[\w]{0,2})[\w]*_Board', board_file_name)
     if m:
         TargetName += "%s" % m.group(1)
         # specific case
         if "-P" in args.target:
             TargetName += "_P"
+
+        if "H743ZI2" in board_file_name:
+            TargetName += "2"
+
         if TargetName == "DISCO_L072C":
             TargetName += "Z_LRWAN1"
-        if TargetName == "DISCO_L475V":
+        elif TargetName == "DISCO_L475V":
             TargetName += "G_IOT01A"
+        elif TargetName == "DISCO_G071RBT":
+            TargetName = "DISCO_G071RB"
     else:
         quit()
 

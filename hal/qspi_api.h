@@ -60,12 +60,14 @@ typedef enum qspi_address_size {
 
 /** Alternative size in bits
  */
-typedef enum qspi_alt_size {
-    QSPI_CFG_ALT_SIZE_8,
-    QSPI_CFG_ALT_SIZE_16,
-    QSPI_CFG_ALT_SIZE_24,
-    QSPI_CFG_ALT_SIZE_32,
-} qspi_alt_size_t;
+typedef uint8_t qspi_alt_size_t;
+
+// The following defines are provided for backwards compatibilty. New code should explicitly
+// specify the required number of alt bits.
+#define QSPI_CFG_ALT_SIZE_8 8u
+#define QSPI_CFG_ALT_SIZE_16 16u
+#define QSPI_CFG_ALT_SIZE_24 24u
+#define QSPI_CFG_ALT_SIZE_32 32u
 
 /** QSPI command
  *

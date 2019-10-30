@@ -49,9 +49,9 @@ extern uint32_t Load$$LR$$LR_IROM1$$Limit[];
 
 namespace mbed {
 
-/** \ingroup mbed-os-public */
 /** \addtogroup drivers-public-api */
 /** @{*/
+
 /**
  * \defgroup drivers_FlashIAP FlashIAP class
  * @{
@@ -63,8 +63,10 @@ namespace mbed {
  */
 class FlashIAP : private NonCopyable<FlashIAP> {
 public:
-    FlashIAP();
-    ~FlashIAP();
+    constexpr FlashIAP() : _flash(), _page_buf(nullptr)
+    {
+
+    }
 
     /** Initialize a flash IAP device
      *

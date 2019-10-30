@@ -26,7 +26,6 @@
 #include "rtos/mbed_rtos_types.h"
 
 namespace rtos {
-/** \ingroup mbed-os-public */
 /** \addtogroup rtos-public-api */
 /** @{*/
 
@@ -62,5 +61,6 @@ void attach_thread_terminate_hook(void (*fptr)(osThreadId_t id));
 } // namespace Kernel
 
 /** @}*/
+
 } // namespace rtos
 #endif

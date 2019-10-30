@@ -234,19 +234,19 @@ private:
     /********************************/
     /*   Calls to QSPI Driver APIs  */
     /********************************/
-    // Send Program => Write command to Driver
-    qspi_status_t _qspi_send_program_command(unsigned int prog_instruction, const void *buffer, mbed::bd_addr_t addr,
-                                             mbed::bd_size_t *size);
+    // Send Program/Write command to Driver
+    qspi_status_t _qspi_send_program_command(mbed::qspi_inst_t prog_instruction, const void *buffer,
+                                             mbed::bd_addr_t addr, mbed::bd_size_t *size);
 
     // Send Read command to Driver
-    qspi_status_t _qspi_send_read_command(unsigned int read_instruction, void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
+    qspi_status_t _qspi_send_read_command(mbed::qspi_inst_t read_instruction, void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     // Send Erase Instruction using command_transfer command to Driver
-    qspi_status_t _qspi_send_erase_command(unsigned int erase_instruction, mbed::bd_addr_t addr, mbed::bd_size_t size);
+    qspi_status_t _qspi_send_erase_command(mbed::qspi_inst_t erase_instruction, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     // Send Generic command_transfer command to Driver
-    qspi_status_t _qspi_send_general_command(unsigned int instruction_int, mbed::bd_addr_t addr, const char *tx_buffer,
-                                             size_t tx_length, const char *rx_buffer, size_t rx_length);
+    qspi_status_t _qspi_send_general_command(mbed::qspi_inst_t instruction_int, mbed::bd_addr_t addr, const char *tx_buffer,
+                                             mbed::bd_size_t tx_length, const char *rx_buffer, mbed::bd_size_t rx_length);
 
     // Send Bus configure_format command to Driver
     qspi_status_t _qspi_configure_format(qspi_bus_width_t inst_width, qspi_bus_width_t address_width,
@@ -286,7 +286,7 @@ private:
 
     // Detect fastest read Bus mode supported by device
     int _sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table_ptr, int basic_param_table_size, bool &set_quad_enable,
-                                        bool &is_qpi_mode, unsigned int &read_inst);
+                                        bool &is_qpi_mode, mbed::qspi_inst_t &read_inst);
 
     // Enable Quad mode if supported (1-1-4, 1-4-4, 4-4-4 bus modes)
     int _sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr);
@@ -299,8 +299,8 @@ private:
 
     // Detect all supported erase types
     int _sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr, int basic_param_table_size,
-                                               unsigned int &erase4k_inst,
-                                               unsigned int *erase_type_inst_arr, unsigned int *erase_type_size_arr);
+                                               mbed::qspi_inst_t &erase4k_inst,
+                                               mbed::qspi_inst_t *erase_type_inst_arr, unsigned int *erase_type_size_arr);
 
     /***********************/
     /* Utilities Functions */
@@ -331,15 +331,15 @@ private:
     PlatformMutex _mutex;
 
     // Command Instructions
-    unsigned int _read_instruction;
-    unsigned int _prog_instruction;
-    unsigned int _erase_instruction;
-    unsigned int _erase4k_inst;  // Legacy 4K erase instruction (default 0x20h)
-    unsigned int _write_register_inst; // Write status/config register instruction may vary between chips
-    unsigned int _read_register_inst; // Read status/config register instruction may vary between chips
+    mbed::qspi_inst_t _read_instruction;
+    mbed::qspi_inst_t _prog_instruction;
+    mbed::qspi_inst_t _erase_instruction;
+    mbed::qspi_inst_t _erase4k_inst;  // Legacy 4K erase instruction (default 0x20h)
+    mbed::qspi_inst_t _write_register_inst; // Write status/config register instruction may vary between chips
+    mbed::qspi_inst_t _read_register_inst; // Read status/config register instruction may vary between chips
 
     // Up To 4 Erase Types are supported by SFDP (each with its own command Instruction and Size)
-    unsigned int _erase_type_inst_arr[MAX_NUM_OF_ERASE_TYPES];
+    mbed::qspi_inst_t _erase_type_inst_arr[MAX_NUM_OF_ERASE_TYPES];
     unsigned int _erase_type_size_arr[MAX_NUM_OF_ERASE_TYPES];
 
     // Sector Regions Map
@@ -357,9 +357,11 @@ private:
     // Bus speed configuration
     qspi_bus_width_t _inst_width; //Bus width for Instruction phase
     qspi_bus_width_t _address_width; //Bus width for Address phase
-    qspi_address_size_t _address_size; // number of bytes for address
+    qspi_address_size_t _address_size; //Number of bits for address
+    qspi_alt_size_t _alt_size; //Number of bits for alt
+    bool _alt_enabled; //Whether alt is enabled
+    uint8_t _dummy_cycles; //Number of Dummy cycles required by Current Bus Mode
     qspi_bus_width_t _data_width; //Bus width for Data phase
-    int _dummy_and_mode_cycles; // Number of Dummy and Mode Bits required by Current Bus Mode
 
     uint32_t _init_ref_count;
     bool _is_initialized;

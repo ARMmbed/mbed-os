@@ -179,13 +179,7 @@ struct coap_s *sn_coap_protocol_init(void *(*used_malloc_func_ptr)(uint16_t), vo
 
 #endif /* ENABLE_RESENDINGS */
 
-    /* Randomize global message ID */
-    randLIB_seed_random();
-    message_id = randLIB_get_16bit();
-    if (message_id == 0) {
-        message_id = 1;
-    }
-
+    message_id = 0;
     return handle;
 }
 
@@ -1203,6 +1197,8 @@ void sn_coap_protocol_linked_list_duplication_info_remove(struct coap_s *handle,
     (void)msg_id;
 #endif //SN_COAP_DUPLICATION_MAX_MSGS_COUNT
 }
+
+#if SN_COAP_DUPLICATION_MAX_MSGS_COUNT
 static void sn_coap_protocol_duplication_info_free(struct coap_s *handle, coap_duplication_info_s *duplication_info_ptr)
 {
     if (duplication_info_ptr) {
@@ -1214,6 +1210,7 @@ static void sn_coap_protocol_duplication_info_free(struct coap_s *handle, coap_d
         handle->sn_coap_protocol_free(duplication_info_ptr);
     }
 }
+#endif // SN_COAP_DUPLICATION_MAX_MSGS_COUNT
 
 #if SN_COAP_BLOCKWISE_ENABLED || SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
 /**************************************************************************//**
@@ -2523,6 +2520,11 @@ static bool compare_address_and_port(const sn_nsdl_addr_s* left, const sn_nsdl_a
 
 static uint16_t get_new_message_id(void)
 {
+    if (message_id == 0) {
+        /* Randomize global message ID */
+        randLIB_seed_random();
+        message_id = randLIB_get_16bit();
+    }
     message_id++;
     if (message_id == 0) {
         message_id = 1;

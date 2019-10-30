@@ -31,172 +31,168 @@
 extern "C" {
 #endif
 
+
+/**
+* \addtogroup group_bsp_pin_state Pin States
+* \{
+*/
+
+/** Pin state for the LED on. */
+#define CYBSP_LED_STATE_ON          (0U)
+/** Pin state for the LED off. */
+#define CYBSP_LED_STATE_OFF         (1U)
+
+/** Pin state for when a button is pressed. */
+#define CYBSP_BTN_PRESSED           (0U)
+/** Pin state for when a button is released. */
+#define CYBSP_BTN_OFF               (1U)
+
+/** \} group_bsp_pin_state */
+
+
 /**
 * \addtogroup group_bsp_pins Pin Mappings
 * \{
 */
 
-// Arduino connector namings
-/** Arduino A0 */
-#define CYBSP_A0 P10_0
-/** Arduino A1 */
-#define CYBSP_A1 P10_1
-/** Arduino A2 */
-#define CYBSP_A2 P10_2
-/** Arduino A3 */
-#define CYBSP_A3 P10_3
-/** Arduino A4 */
-#define CYBSP_A4 P10_4
-/** Arduino A5 */
-#define CYBSP_A5 P10_5
-/** Arduino D0 */
-#define CYBSP_D0 P5_0
-/** Arduino D1 */
-#define CYBSP_D1 P5_1
-/** Arduino D2 */
-#define CYBSP_D2 P5_2
-/** Arduino D3 */
-#define CYBSP_D3 P5_3
-/** Arduino D4 */
-#define CYBSP_D4 P5_4
-/** Arduino D5 */
-#define CYBSP_D5 P5_5
-/** Arduino D6 */
-#define CYBSP_D6 P5_6
-/** Arduino D7 */
-#define CYBSP_D7 P0_2
-/** Arduino D8 */
-#define CYBSP_D8 P13_0
-/** Arduino D9 */
-#define CYBSP_D9 P13_1
-/** Arduino D10 */
-#define CYBSP_D10 P12_3
-/** Arduino D11 */
-#define CYBSP_D11 P12_0
-/** Arduino D12 */
-#define CYBSP_D12 P12_1
-/** Arduino D13 */
-#define CYBSP_D13 P12_2
-/** Arduino D14 */
-#define CYBSP_D14 P6_1
-/** Arduino D15 */
-#define CYBSP_D15 P6_0
-
-// Generic signal names
-/** Pin: WCO input */
-#define CYBSP_WCO_IN           P0_0
-/** Pin: WCO output */
-#define CYBSP_WCO_OUT          P0_1
-
-/** Pin: UART RX */
-/* Corresponds to: ioss[0].port[5].pin[0], scb[5] */
-#define CYBSP_DEBUG_UART_RX    P5_0
-/** Pin: UART TX */
-/* Corresponds to: ioss[0].port[5].pin[1], scb[5] */
-#define CYBSP_DEBUG_UART_TX    P5_1
-
-/** Pin: I2C SCL */
-#define CYBSP_I2C_SCL          P6_0
-/** Pin: I2C SDA */
-#define CYBSP_I2C_SDA          P6_1
-
-/** Pin: SWO */
-#define CYBSP_SWO              P6_4
-/** Pin: SWDIO */
-#define CYBSP_SWDIO            P6_6
-/** Pin: SWDCK */
-#define CYBSP_SWDCK            P6_7
-
-/** Pin: CapSesnse TX */
-#define CYBSP_CSD_TX           P1_0
-/** Pin: CapSesnse CINA */
-#define CYBSP_CINA             P7_1
-/** Pin: CapSesnse CINB */
-#define CYBSP_CINB             P7_2
-/** Pin: CapSesnse CMOD */
-#define CYBSP_CMOD             P7_7
-/** Pin: CapSesnse Button 0 */
-#define CYBSP_CSD_BTN0         P8_1
-/** Pin: CapSesnse Button 1 */
-#define CYBSP_CSD_BTN1         P8_2
-/** Pin: CapSesnse Slider 0 */
-#define CYBSP_CSD_SLD0         P8_3
-/** Pin: CapSesnse Slider 1 */
-#define CYBSP_CSD_SLD1         P8_4
-/** Pin: CapSesnse Slider 2 */
-#define CYBSP_CSD_SLD2         P8_5
-/** Pin: CapSesnse Slider 3 */
-#define CYBSP_CSD_SLD3         P8_6
-/** Pin: CapSesnse Slider 4 */
-#define CYBSP_CSD_SLD4         P8_7
-
-/** Pin: QUAD SPI SS */
-#define CYBSP_QSPI_SS          P11_2
-/** Pin: QUAD SPI D3 */
-#define CYBSP_QSPI_D3          P11_3
-/** Pin: QUAD SPI D2 */
-#define CYBSP_QSPI_D2          P11_4
-/** Pin: QUAD SPI D1 */
-#define CYBSP_QSPI_D1          P11_5
-/** Pin: QUAD SPI D0 */
-#define CYBSP_QSPI_D0          P11_6
-/** Pin: QUAD SPI SCK */
-#define CYBSP_QSPI_SCK         P11_7
-
-/** \} group_bsp_pins */
-
 /**
-* \addtogroup group_bsp_enums Enumerated Types
+* \addtogroup group_bsp_pins_led LED Pins
 * \{
 */
 
-/** Enum defining the different states for the LED. */
-typedef enum
-{
-    CYBSP_LED_STATE_ON          = 0,
-    CYBSP_LED_STATE_OFF         = 1,
-} cybsp_led_state_t;
+/** LED 8; User LED1 */
+#define CYBSP_LED8                  (P1_5)
+/** LED 9; User LED2 */
+#define CYBSP_LED9                  (P13_7)
+/** LED 5: RGB LED - Red; User LED3 */
+#define CYBSP_LED_RGB_RED           (P0_3)
+/** LED 5: RGB LED - Green; User LED4 */
+#define CYBSP_LED_RGB_GREEN         (P1_1)
+/** LED 5: RGB LED - Blue; User LED5 */
+#define CYBSP_LED_RGB_BLUE          (P11_1)
 
-/** Enum defining the different states for a button. */
-typedef enum
-{
-    CYBSP_BTN_PRESSED           = 0,
-    CYBSP_BTN_OFF               = 1,
-} cybsp_btn_state_t;
+/** LED 8; User LED1 */
+#define CYBSP_USER_LED1             (CYBSP_LED8)
+/** LED 9; User LED2 */
+#define CYBSP_USER_LED2             (CYBSP_LED9)
+/** LED 5: RGB LED - Red; User LED3 */
+#define CYBSP_USER_LED3             (CYBSP_LED_RGB_RED)
+/** LED 5: RGB LED - Green; User LED4 */
+#define CYBSP_USER_LED4             (CYBSP_LED_RGB_GREEN)
+/** LED 5: RGB LED - Blue; User LED5 */
+#define CYBSP_USER_LED5             (CYBSP_LED_RGB_BLUE)
+/** LED 8; User LED1 */
+#define CYBSP_USER_LED              (CYBSP_USER_LED1)
 
-/** Enum defining the different LED pins on the board. */
-typedef enum
-{
-    CYBSP_LED9 = P13_7,
-    CYBSP_LED8 = P1_5,
-    CYBSP_LED_RGB_RED = P0_3,
-    CYBSP_LED_RGB_GREEN = P1_1,
-    CYBSP_LED_RGB_BLUE = P11_1,
+/** \} group_bsp_pins_led */
 
-    /* Corresponds to: ioss[0].port[1].pin[5] */
-    CYBSP_USER_LED1 = CYBSP_LED8,
-    /* Corresponds to: ioss[0].port[13].pin[7] */
-    CYBSP_USER_LED2 = CYBSP_LED9,
-    /* Corresponds to: ioss[0].port[0].pin[3] */
-    CYBSP_USER_LED3 = CYBSP_LED_RGB_RED,
-    /* Corresponds to: ioss[0].port[1].pin[1] */
-    CYBSP_USER_LED4 = CYBSP_LED_RGB_GREEN,
-    /* Corresponds to: ioss[0].port[11].pin[1] */
-    CYBSP_USER_LED5 = CYBSP_LED_RGB_BLUE,
-    CYBSP_USER_LED = CYBSP_USER_LED1,
-} cybsp_led_t;
+/**
+* \addtogroup group_bsp_pins_btn Button Pins
+* \{
+*/
 
-/** Enum defining the different button pins on the board. */
-typedef enum
-{
-    CYBSP_SW2 = P0_4,
+/** Switch 2; User Button 1 */
+#define CYBSP_SW2                   (P0_4)
 
-    /* Corresponds to: ioss[0].port[0].pin[4] */
-    CYBSP_USER_BTN1 = CYBSP_SW2,
-    CYBSP_USER_BTN = CYBSP_USER_BTN1,
-} cybsp_btn_t;
+/** Switch 2; User Button 1 */
+#define CYBSP_USER_BTN1             (CYBSP_SW2)
+/** Switch 2; User Button 1 */
+#define CYBSP_USER_BTN              (CYBSP_USER_BTN1)
 
-/** \} group_bsp_enums */
+/** \} group_bsp_pins_btn */
+
+
+/**
+* \addtogroup group_bsp_pins_comm Communication Pins
+* \{
+*/
+
+/** Pin: UART RX */
+#define CYBSP_DEBUG_UART_RX         (P5_0)
+/** Pin: UART TX */
+#define CYBSP_DEBUG_UART_TX         (P5_1)
+
+/** Pin: I2C SCL */
+#define CYBSP_I2C_SCL               (P6_0)
+/** Pin: I2C SDA */
+#define CYBSP_I2C_SDA               (P6_1)
+
+/** Pin: SWO */
+#define CYBSP_SWO                   (P6_4)
+/** Pin: SWDIO */
+#define CYBSP_SWDIO                 (P6_6)
+/** Pin: SWDCK */
+#define CYBSP_SWDCK                 (P6_7)
+
+/** Pin: QUAD SPI SS */
+#define CYBSP_QSPI_SS               (P11_2)
+/** Pin: QUAD SPI D3 */
+#define CYBSP_QSPI_D3               (P11_3)
+/** Pin: QUAD SPI D2 */
+#define CYBSP_QSPI_D2               (P11_4)
+/** Pin: QUAD SPI D1 */
+#define CYBSP_QSPI_D1               (P11_5)
+/** Pin: QUAD SPI D0 */
+#define CYBSP_QSPI_D0               (P11_6)
+/** Pin: QUAD SPI SCK */
+#define CYBSP_QSPI_SCK              (P11_7)
+
+/** \} group_bsp_pins_comm */
+
+
+/**
+* \addtogroup group_bsp_pins_arduino Arduino Header Pins
+* \{
+*/
+
+/** Arduino A0 */
+#define CYBSP_A0                    P10_0
+/** Arduino A1 */
+#define CYBSP_A1                    P10_1
+/** Arduino A2 */
+#define CYBSP_A2                    P10_2
+/** Arduino A3 */
+#define CYBSP_A3                    P10_3
+/** Arduino A4 */
+#define CYBSP_A4                    P10_4
+/** Arduino A5 */
+#define CYBSP_A5                    P10_5
+/** Arduino D0 */
+#define CYBSP_D0                    (P5_0)
+/** Arduino D1 */
+#define CYBSP_D1                    (P5_1)
+/** Arduino D2 */
+#define CYBSP_D2                    (P5_2)
+/** Arduino D3 */
+#define CYBSP_D3                    (P5_3)
+/** Arduino D4 */
+#define CYBSP_D4                    (P5_4)
+/** Arduino D5 */
+#define CYBSP_D5                    (P5_5)
+/** Arduino D6 */
+#define CYBSP_D6                    (P5_6)
+/** Arduino D7 */
+#define CYBSP_D7                    (P0_2)
+/** Arduino D8 */
+#define CYBSP_D8                    (P13_0)
+/** Arduino D9 */
+#define CYBSP_D9                    (P13_1)
+/** Arduino D10 */
+#define CYBSP_D10                   (P12_3)
+/** Arduino D11 */
+#define CYBSP_D11                   (P12_0)
+/** Arduino D12 */
+#define CYBSP_D12                   (P12_1)
+/** Arduino D13 */
+#define CYBSP_D13                   (P12_2)
+/** Arduino D14 */
+#define CYBSP_D14                   (P6_1)
+/** Arduino D15 */
+#define CYBSP_D15                   (P6_0)
+
+/** \} group_bsp_pins_arduino */
+
+/** \} group_bsp_pins */
 
 #if defined(__cplusplus)
 }

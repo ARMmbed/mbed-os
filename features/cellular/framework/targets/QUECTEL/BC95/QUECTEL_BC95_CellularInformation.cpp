@@ -29,13 +29,7 @@ QUECTEL_BC95_CellularInformation::~QUECTEL_BC95_CellularInformation()
 // According to BC95_AT_Commands_Manual_V1.9
 nsapi_error_t QUECTEL_BC95_CellularInformation::get_iccid(char *buf, size_t buf_size)
 {
-    _at.lock();
-    _at.cmd_start("AT+NCCID?");
-    _at.cmd_stop();
-    _at.resp_start("+NCCID:");
-    _at.read_string(buf, buf_size);
-    _at.resp_stop();
-    return _at.unlock_return_error();
+    return _at.at_cmd_str("+NCCID", "?", buf, buf_size);
 }
 
 } /* namespace mbed */

@@ -1,12 +1,3 @@
-
-/** \ingroup mbed-os-public */
-/** \addtogroup platform-public-api */
-/** @{*/
-/**
- * \defgroup platform_debug Debug functions
- * @{
- */
-
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
@@ -34,6 +25,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** \addtogroup platform-public-api */
+/** @{*/
+
+/**
+ * \defgroup platform_debug Debug functions
+ * @{
+ */
 
 static inline void debug(const char *format, ...) MBED_PRINTF(1, 2);
 static inline void debug_if(int condition, const char *format, ...) MBED_PRINTF(2, 3);

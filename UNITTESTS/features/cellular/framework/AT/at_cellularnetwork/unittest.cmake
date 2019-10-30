@@ -28,4 +28,6 @@ set(unittest-test-sources
   stubs/mbed_assert_stub.c
   stubs/SocketAddress_stub.cpp
   stubs/randLIB_stub.cpp
+  stubs/ConditionVariable_stub.cpp
+  stubs/Mutex_stub.cpp
 )

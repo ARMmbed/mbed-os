@@ -24,27 +24,24 @@
 extern "C" {
 #endif
 
-psa_status_t test_partition_crypto_create_persistent_key(psa_key_id_t key_id, psa_key_handle_t *key_handle);
+psa_status_t test_partition_crypto_get_key_attributes(
+    psa_key_handle_t key_handle, psa_key_attributes_t *attributes);
 
-psa_status_t test_partition_crypto_set_key_policy(psa_key_handle_t key_handle, psa_key_usage_t key_usage,
-                                                  psa_algorithm_t key_alg);
+psa_status_t test_partition_crypto_generate_key(
+    const psa_key_attributes_t *attributes, psa_key_handle_t *key_handle);
 
-psa_status_t test_partition_crypto_get_key_policy(psa_key_handle_t key_handle, psa_key_usage_t *key_usage,
-                                                  psa_algorithm_t *key_alg);
-
-psa_status_t test_partition_crypto_get_key_information(psa_key_handle_t key_handle, psa_key_type_t *key_type,
-                                                       size_t *key_bits);
-
-psa_status_t test_partition_crypto_generate_key(psa_key_handle_t key_handle, psa_key_type_t key_type, size_t key_bits);
-
-psa_status_t test_partition_crypto_open_persistent_key(psa_key_id_t key_id, psa_key_handle_t *key_handle);
+psa_status_t test_partition_crypto_open_key(
+    psa_key_id_t key_id, psa_key_handle_t *key_handle);
 
 psa_status_t test_partition_crypto_close_key(psa_key_handle_t key_handle);
 
 psa_status_t test_partition_crypto_destroy_key(psa_key_handle_t key_handle);
 
-psa_status_t test_partition_crypto_import_key(psa_key_handle_t key_handle, psa_key_type_t key_type,
-                                              const unsigned char *key_data, size_t key_data_size);
+psa_status_t test_partition_crypto_import_key(
+    const psa_key_attributes_t *attributes,
+    const uint8_t *key_data,
+    size_t key_data_size,
+    psa_key_handle_t *key_handle);
 
 #ifdef __cplusplus
 }

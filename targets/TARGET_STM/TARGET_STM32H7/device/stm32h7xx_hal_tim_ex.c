@@ -1694,6 +1694,9 @@ HAL_StatusTypeDef HAL_TIMEx_MasterConfigSynchronization(TIM_HandleTypeDef *htim,
   * @param  htim TIM handle
   * @param  sBreakDeadTimeConfig pointer to a TIM_ConfigBreakDeadConfigTypeDef structure that
   *         contains the BDTR Register configuration  information for the TIM peripheral.
+  * @note   Interrupts can be generated when an active level is detected on the
+  *         break input, the break 2 input or the system break input. Break
+  *         interrupt can be enabled by calling the @ref __HAL_TIM_ENABLE_IT macro.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_TIMEx_ConfigBreakDeadTime(TIM_HandleTypeDef *htim,
@@ -1767,10 +1770,10 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigBreakInput(TIM_HandleTypeDef *htim,
 
 {
   uint32_t tmporx;
-  uint32_t bkin_enable_mask = 0U;
-  uint32_t bkin_polarity_mask = 0U;
-  uint32_t bkin_enable_bitpos = 0U;
-  uint32_t bkin_polarity_bitpos = 0U;
+  uint32_t bkin_enable_mask;
+  uint32_t bkin_polarity_mask;
+  uint32_t bkin_enable_bitpos;
+  uint32_t bkin_polarity_bitpos;
 
   /* Check the parameters */
   assert_param(IS_TIM_BREAK_INSTANCE(htim->Instance));
@@ -1815,11 +1818,19 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigBreakInput(TIM_HandleTypeDef *htim,
     {
       bkin_enable_mask = TIM1_AF1_BKDF1BK0E;
       bkin_enable_bitpos = 8U;
+      bkin_polarity_mask = 0U;
+      bkin_polarity_bitpos = 0U;
       break;
     }
 
     default:
+    {
+      bkin_enable_mask = 0U;
+      bkin_polarity_mask = 0U;
+      bkin_enable_bitpos = 0U;
+      bkin_polarity_bitpos = 0U;
       break;
+    }
   }
 
   switch (BreakInput)
@@ -1882,9 +1893,9 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigBreakInput(TIM_HandleTypeDef *htim,
   *            @arg TIM_TIM1_ETR_GPIO:               TIM1_ETR is connected to GPIO
   *            @arg TIM_TIM1_ETR_COMP1:              TIM1_ETR is connected to COMP1 output
   *            @arg TIM_TIM1_ETR_COMP2:              TIM1_ETR is connected to COMP2 output
-  *            @arg TIM_TIM1_ETR_ADC1_AWD1:          TIM1_ETR is connected to ADC1 AWD1
-  *            @arg TIM_TIM1_ETR_ADC1_AWD2:          TIM1_ETR is connected to ADC1 AWD2
-  *            @arg TIM_TIM1_ETR_ADC1_AWD3:          TIM1_ETR is connected to ADC1 AWD3
+  *            @arg TIM_TIM1_ETR_ADC2_AWD1:          TIM1_ETR is connected to ADC2 AWD1
+  *            @arg TIM_TIM1_ETR_ADC2_AWD2:          TIM1_ETR is connected to ADC2 AWD2
+  *            @arg TIM_TIM1_ETR_ADC2_AWD3:          TIM1_ETR is connected to ADC2 AWD3
   *            @arg TIM_TIM1_ETR_ADC3_AWD1:          TIM1_ETR is connected to ADC3 AWD1
   *            @arg TIM_TIM1_ETR_ADC3_AWD2:          TIM1_ETR is connected to ADC3 AWD2
   *            @arg TIM_TIM1_ETR_ADC3_AWD3:          TIM1_ETR is connected to ADC3 AWD3
@@ -1969,6 +1980,10 @@ HAL_StatusTypeDef HAL_TIMEx_RemapConfig(TIM_HandleTypeDef *htim, uint32_t Remap)
   *            @arg TIM_TIM8_TI1_GPIO:               TIM8 TI1 is connected to GPIO
   *            @arg TIM_TIM8_TI1_COMP2:              TIM8 TI1 is connected to COMP2 output
   *
+  *         For TIM12, the parameter can have the following values: (*)
+  *            @arg TIM_TIM12_TI1_GPIO:              TIM12 TI1 is connected to GPIO
+  *            @arg TIM_TIM12_TI1_SPDIF_FS:          TIM12 TI1 is connected to SPDIF FS
+  *
   *         For TIM15, the parameter is one of the following values:
   *            @arg TIM_TIM15_TI1_GPIO:              TIM15 TI1 is connected to GPIO
   *            @arg TIM_TIM15_TI1_TIM2:              TIM15 TI1 is connected to TIM2 CH1
@@ -1990,10 +2005,11 @@ HAL_StatusTypeDef HAL_TIMEx_RemapConfig(TIM_HandleTypeDef *htim, uint32_t Remap)
   *
   *         For TIM17, the parameter can have the following values:
   *            @arg TIM_TIM17_TI1_GPIO:              TIM17 TI1 is connected to GPIO
-  *            @arg TIM_TIM17_TI1_SPDIFFS:           TIM17 TI1 is connected to SPDIF FS
+  *            @arg TIM_TIM17_TI1_SPDIF_FS:          TIM17 TI1 is connected to SPDIF FS (*)
   *            @arg TIM_TIM17_TI1_HSE_1MHZ:          TIM17 TI1 is connected to HSE 1MHz
   *            @arg TIM_TIM17_TI1_MCO1:              TIM17 TI1 is connected to MCO1
   *
+  *         (*)  Value not defined in all devices. \n
   * @retval HAL status
   */
 HAL_StatusTypeDef  HAL_TIMEx_TISelection(TIM_HandleTypeDef *htim, uint32_t TISelection, uint32_t Channel)

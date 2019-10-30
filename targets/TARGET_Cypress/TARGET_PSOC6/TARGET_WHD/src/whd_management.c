@@ -67,6 +67,13 @@ whd_result_t whd_add_interface(whd_driver_t whd_driver, uint8_t bsscfgidx, uint8
 {
     whd_interface_t ifp;
 
+    if (!whd_driver || !ifpp)
+    {
+        WPRINT_WHD_ERROR( ("Invalid param in func %s at line %d \n",
+                           __func__, __LINE__) );
+        return WHD_WLAN_BADARG;
+    }
+
     if (bsscfgidx < WHD_INTERFACE_MAX)
     {
         if (whd_driver->iflist[bsscfgidx] != NULL)
@@ -123,15 +130,17 @@ uint32_t whd_init(whd_driver_t *whd_driver_ptr, whd_init_config_t *whd_init_conf
                   whd_netif_funcs_t *network_ops)
 {
     whd_driver_t whd_drv;
+
+    if (!whd_driver_ptr || !buffer_ops || !network_ops || !resource_ops || !whd_init_config)
+    {
+        WPRINT_WHD_ERROR( ("Invalid param in func %s at line %d \n",
+                           __func__, __LINE__) );
+        return WHD_WLAN_BADARG;
+    }
     if (whd_init_config->thread_stack_size <  MINIMUM_WHD_STACK_SIZE)
     {
         WPRINT_WHD_INFO( ("Stack size is less than minimum stack size required.\n") );
         return WHD_WLAN_BUFTOOSHORT;
-    }
-    if (!buffer_ops || !network_ops || !resource_ops)
-    {
-        WPRINT_WHD_INFO( ("Function pointers not provided .\n") );
-        return WHD_WLAN_NOFUNCTION;
     }
 
     if ( (whd_drv = (whd_driver_t)malloc(sizeof(struct whd_driver) ) ) != NULL )
@@ -264,6 +273,13 @@ uint32_t whd_wifi_on(whd_driver_t whd_driver, whd_interface_t *ifpp)
     uint32_t *data;
     uint32_t counter;
     whd_interface_t ifp;
+
+    if (!whd_driver || !ifpp)
+    {
+        WPRINT_WHD_ERROR( ("Invalid param in func %s at line %d \n",
+                           __func__, __LINE__) );
+        return WHD_WLAN_BADARG;
+    }
 
     if (whd_driver->internal_info.whd_wlan_status.state == WLAN_UP)
     {
@@ -432,8 +448,11 @@ uint32_t whd_wifi_on(whd_driver_t whd_driver, whd_interface_t *ifpp)
 uint32_t whd_wifi_off(whd_interface_t ifp)
 {
     whd_result_t retval;
-    whd_driver_t whd_driver = ifp->whd_driver;
+    whd_driver_t whd_driver;
 
+    CHECK_IFP_NULL(ifp);
+
+    whd_driver = ifp->whd_driver;
     if (whd_driver->internal_info.whd_wlan_status.state == WLAN_OFF)
     {
         return WHD_SUCCESS;

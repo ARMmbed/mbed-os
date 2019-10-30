@@ -27,9 +27,12 @@
 #include "6LoWPAN/ws/ws_common.h"
 #include "6LoWPAN/ws/ws_bootstrap.h"
 #include "6LoWPAN/ws/ws_bbr_api_internal.h"
+#include "6LoWPAN/ws/ws_pae_controller.h"
 #include "Service_Libs/etx/etx.h"
 #include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "Service_Libs/blacklist/blacklist.h"
+#include "RPL/rpl_protocol.h"
+#include "RPL/rpl_control.h"
 #include "ws_management_api.h"
 #include "mac_api.h"
 
@@ -327,7 +330,7 @@ void ws_common_network_size_configure(protocol_interface_info_entry_t *cur, uint
         } else {
             ws_bbr_rpl_config(0, 0, 0);
         }
-
+        ws_pae_controller_timing_adjust(1); // Fast and reactive network
     } else if (network_size < 300) {
         // Configure the Wi-SUN discovery trickle parameters
         cur->ws_info->trickle_params_pan_discovery = trickle_params_pan_discovery_medium;
@@ -336,6 +339,7 @@ void ws_common_network_size_configure(protocol_interface_info_entry_t *cur, uint
         // doublings:5 (960s)
         // redundancy; 10
         ws_bbr_rpl_config(15, 5, 10);
+        ws_pae_controller_timing_adjust(9); // medium limited network
     } else {
         // Configure the Wi-SUN discovery trickle parameters
         cur->ws_info->trickle_params_pan_discovery = trickle_params_pan_discovery_large;
@@ -344,6 +348,7 @@ void ws_common_network_size_configure(protocol_interface_info_entry_t *cur, uint
         // doublings:1 (1048s, 17 min)
         // redundancy; 10 May need some tuning still
         ws_bbr_rpl_config(19, 1, 10);
+        ws_pae_controller_timing_adjust(24); // Very slow and high latency network
     }
     return;
 }
@@ -401,6 +406,13 @@ bool ws_common_allow_child_registration(protocol_interface_info_entry_t *interfa
         return true;
     }
 
+    //Verify that we have Selected Parent
+    if (interface->bootsrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER && !rpl_control_parent_candidate_list_size(interface, true)) {
+        tr_info("Do not accept new ARO child: no selected parent");
+        return false;
+    }
+
+
     ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &mac_neighbor_info(interface)->neighbour_list) {
 
         if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, cur->mac64)) {
@@ -423,7 +435,7 @@ bool ws_common_negative_aro_mark(protocol_interface_info_entry_t *interface, con
     }
     ws_neighbor_class_entry_t *ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info->neighbor_storage, neighbour->index);
     ws_neighbor->negative_aro_send = true;
-    neighbour->lifetime = WS_NEIGHBOR_NOT_TRUSTED_LINK_MIN_TIMEOUT; //Remove anyway if Packet is freed before MAC push
+    neighbour->lifetime = WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT; //Remove anyway if Packet is freed before MAC push
     return true;
 }
 

@@ -119,8 +119,8 @@ private:
     void ciot_opt_cb(mbed::CellularNetwork::CIoT_Supported_Opt ciot_opt);
     virtual void do_connect_with_retry();
     void do_disconnect();
+    void set_cid(int cid);
 private:
-    bool _is_connected;
     ContextOperation  _current_op;
     FileHandle *_fh;
     rtos::Semaphore _semaphore;
@@ -130,6 +130,7 @@ protected:
     char _found_apn[MAX_APN_LENGTH];
     // flag indicating if CP was requested to be setup
     bool _cp_req;
+    bool _is_connected;
 };
 
 } // namespace mbed

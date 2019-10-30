@@ -201,6 +201,7 @@ int mbedtls_ecdh_compute_shared( mbedtls_ecp_group *grp, mbedtls_mpi *z,
     }
     else if ( grp->id ==  MBEDTLS_ECP_DP_CURVE25519 )
     {
+        uint8_t temp_buf[CURVE_25519_KEY_SIZE] = {0};
         cc_ecc_25519_comp_shared_params_t* ecdhParams =  mbedtls_calloc( 1, sizeof(cc_ecc_25519_comp_shared_params_t) );
         if ( ecdhParams == NULL )
         {
@@ -211,16 +212,64 @@ int mbedtls_ecdh_compute_shared( mbedtls_ecp_group *grp, mbedtls_mpi *z,
         pHeap = ecdhParams;
         heapSize = sizeof(cc_ecc_25519_comp_shared_params_t);
 
+        if( mbedtls_mpi_size( d ) != CURVE_25519_KEY_SIZE )
+        {
+            ret = MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
+            goto cleanup;
+        }
+        MBEDTLS_MPI_CHK( mbedtls_mpi_write_binary( d, temp_buf,
+                                                   mbedtls_mpi_size( d ) ) ) ;
+        ret = convert_CrysError_to_mbedtls_err(
+                CRYS_COMMON_ConvertLswMswWordsToMsbLsbBytes( ecdhParams->privKey,
+                                                             CURVE_25519_KEY_SIZE,
+                                                             (uint32_t*)temp_buf,
+                                                             sizeof( temp_buf) ) );
+        if ( ret != 0 )
+        {
+            mbedtls_platform_zeroize( temp_buf, sizeof(temp_buf) );
+            goto cleanup;
+        }
 
-        MBEDTLS_MPI_CHK( mbedtls_mpi_write_binary( d, ecdhParams->privKey, mbedtls_mpi_size( d ) ) ) ;
-        MBEDTLS_MPI_CHK( mbedtls_mpi_write_binary( &Q->X, ecdhParams->pubKey, public_key_size ) );
+        if( public_key_size != CURVE_25519_KEY_SIZE )
+        {
+            ret = MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
+            goto cleanup;
+        }
 
-        ret = convert_CrysError_to_mbedtls_err( CRYS_ECMONT_Scalarmult( secret, ( size_t* )&secret_size,
+        MBEDTLS_MPI_CHK( mbedtls_mpi_write_binary( &Q->X, temp_buf, public_key_size ) );
+        ret = convert_CrysError_to_mbedtls_err(
+                CRYS_COMMON_ConvertLswMswWordsToMsbLsbBytes( ecdhParams->pubKey,
+                                                             CURVE_25519_KEY_SIZE,
+                                                             (uint32_t*)temp_buf,
+                                                             sizeof( temp_buf) ) );
+        if ( ret != 0 )
+        {
+            mbedtls_platform_zeroize( temp_buf, sizeof(temp_buf) );
+            goto cleanup;
+        }
+
+        if( secret_size != CURVE_25519_KEY_SIZE )
+        {
+            ret = MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
+            goto cleanup;
+        }
+
+        ret = convert_CrysError_to_mbedtls_err( CRYS_ECMONT_Scalarmult( temp_buf, ( size_t* )&secret_size,
                                                                         ecdhParams->privKey, CURVE_25519_KEY_SIZE ,
                                                                         ecdhParams->pubKey, CURVE_25519_KEY_SIZE ,
                                                                         &ecdhParams->kgTempData ) );
         if ( ret != 0 )
         {
+            goto cleanup;
+        }
+        ret = convert_CrysError_to_mbedtls_err(
+                CRYS_COMMON_ConvertLswMswWordsToMsbLsbBytes( secret,
+                                                             secret_size,
+                                                             (uint32_t*)temp_buf,
+                                                             CURVE_25519_KEY_SIZE ) );
+        if ( ret != 0 )
+        {
+            mbedtls_platform_zeroize( temp_buf, sizeof(temp_buf) );
             goto cleanup;
         }
     }

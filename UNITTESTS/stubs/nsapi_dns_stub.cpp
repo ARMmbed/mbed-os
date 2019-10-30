@@ -46,3 +46,8 @@ extern "C" nsapi_error_t nsapi_dns_add_server(nsapi_addr_t addr, const char *int
 {
     return NSAPI_ERROR_OK;
 }
+
+void nsapi_dns_cache_reset()
+{
+
+}

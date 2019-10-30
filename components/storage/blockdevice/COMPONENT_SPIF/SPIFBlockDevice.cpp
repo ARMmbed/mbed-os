@@ -19,6 +19,7 @@
 #include "mbed_critical.h"
 
 #include <string.h>
+#include <inttypes.h>
 
 #include "mbed_trace.h"
 #include "mbed_debug.h"

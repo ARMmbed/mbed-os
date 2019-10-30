@@ -34,7 +34,7 @@ client_test_t test_s010_sst_list[] = {
 
 static uint8_t write_buff[TEST_BUFF_SIZE] = {0xFF};
 
-int32_t psa_sst_uid_value_zero_check(security_t caller)
+int32_t psa_sst_uid_value_zero_check(caller_security_t caller)
 {
     int32_t status;
     psa_sst_uid_t uid = 0;

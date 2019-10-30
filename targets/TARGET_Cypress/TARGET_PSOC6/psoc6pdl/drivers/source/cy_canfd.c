@@ -1,6 +1,6 @@
 /*******************************************************************************
 * \file cy_canfd.c
-* \version 1.0
+* \version 1.0.1
 *
 * \brief
 *  Provides an API implementation of the CAN FD driver.
@@ -229,6 +229,7 @@ static uint32_t Cy_CANFD_CalcTxBufAdrs(CANFD_Type *base, uint32_t chan,
 * "Rx FIFO 1 New Message" and "Rx FIFO 0 New Message" interrupt events only. 
 * Other interrupts can be configured with the Cy_CANFD_SetInterruptMask() function.
 * \note If the channel was disabled, call Cy_CANFD_Enable before calling Cy_CANFD_Init.
+* \note Call this function only after all debug messages reception is completed.
 *
 * \param *base
 * The pointer to a CAN FD instance.
@@ -512,8 +513,8 @@ cy_en_canfd_status_t Cy_CANFD_Init(CANFD_Type *base, uint32_t chan,
 *
 *  De-initializes the CAN FD block, returns registers values to default.
 *
-* \note
-* Do not call Cy_CANFD_Disable before Cy_CANFD_DeInit.
+* \note Do not call Cy_CANFD_Disable before Cy_CANFD_DeInit.
+* \note Call this function only after all debug messages reception is completed.
 *
 * \param *base
 * The pointer to a CAN FD instance.

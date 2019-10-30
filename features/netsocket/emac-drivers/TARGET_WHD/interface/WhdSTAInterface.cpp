@@ -37,6 +37,7 @@
 
 struct whd_scan_userdata {
     rtos::Semaphore *sema;
+    scan_result_type sres_type;
     WiFiAccessPoint *aps;
     std::vector<whd_scan_result_t> *result_buff;
     unsigned count;
@@ -161,17 +162,26 @@ static void *whd_wifi_link_state_change_handler(whd_interface_t ifp,
         return NULL;
     }
 
-    if (event_header->event_type == WLC_E_DEAUTH_IND ||
-            event_header->event_type == WLC_E_DISASSOC_IND) {
+    if ((event_header->event_type == WLC_E_DEAUTH_IND) ||
+            (event_header->event_type == WLC_E_DISASSOC_IND) ||
+            ((event_header->event_type == WLC_E_PSK_SUP) &&
+            (event_header->status == WLC_SUP_KEYED) &&
+            (event_header->reason == WLC_E_SUP_DEAUTH))) {
         whd_emac_wifi_link_state_changed(ifp, WHD_FALSE);
+        return handler_user_data;
     }
 
-    if (whd_wifi_is_ready_to_transceive(ifp) == WHD_SUCCESS) {
+    if (((event_header->event_type == WLC_E_PSK_SUP) &&
+            (event_header->status == WLC_SUP_KEYED) &&
+            (event_header->reason == WLC_E_SUP_OTHER)) ||
+            (whd_wifi_is_ready_to_transceive(ifp) == WHD_SUCCESS)) {
         whd_emac_wifi_link_state_changed(ifp, WHD_TRUE);
+        return handler_user_data;
     }
 
     return handler_user_data;
 }
+
 
 MBED_WEAK WhdSTAInterface::OlmInterface &WhdSTAInterface::OlmInterface::get_default_instance()
 {
@@ -179,13 +189,14 @@ MBED_WEAK WhdSTAInterface::OlmInterface &WhdSTAInterface::OlmInterface::get_defa
     return olm;
 }
 
-WhdSTAInterface::WhdSTAInterface(WHD_EMAC &emac, OnboardNetworkStack &stack, OlmInterface &olm)
+WhdSTAInterface::WhdSTAInterface(WHD_EMAC &emac, OnboardNetworkStack &stack, OlmInterface &olm, whd_interface_shared_info_t &shared)
     : EMACInterface(emac, stack),
       _ssid("\0"),
       _pass("\0"),
       _security(NSAPI_SECURITY_NONE),
       _whd_emac(emac),
-      _olm(&olm)
+      _olm(&olm),
+      _iface_shared(shared)
 {
 }
 
@@ -231,6 +242,7 @@ nsapi_error_t WhdSTAInterface::set_credentials(const char *ssid, const char *pas
 
 nsapi_error_t WhdSTAInterface::connect()
 {
+    ScopedMutexLock lock(_iface_shared.mutex);
 
 #define MAX_RETRY_COUNT    ( 5 )
     int i;
@@ -247,6 +259,8 @@ nsapi_error_t WhdSTAInterface::connect()
         return whd_toerror(res);
     }
 
+    _iface_shared.if_status_flags |= IF_STATUS_STA_UP;
+    _iface_shared.default_if_cfg = DEFAULT_IF_STA;
     if (!_interface) {
         nsapi_error_t err = _stack.add_ethernet_interface(_emac, true, &_interface);
         if (err != NSAPI_ERROR_OK) {
@@ -254,6 +268,9 @@ nsapi_error_t WhdSTAInterface::connect()
             return err;
         }
         _interface->attach(_connection_status_cb);
+        _iface_shared.iface_sta = _interface;
+    } else {
+        _stack.set_default_interface(_interface);
     }
 
     // Initialize the Offload Manager
@@ -311,6 +328,8 @@ void WhdSTAInterface::wifi_on()
 
 nsapi_error_t WhdSTAInterface::disconnect()
 {
+    ScopedMutexLock lock(_iface_shared.mutex);
+
     if (!_interface) {
         return NSAPI_STATUS_DISCONNECTED;
     }
@@ -319,6 +338,14 @@ nsapi_error_t WhdSTAInterface::disconnect()
     int err = _interface->bringdown();
     if (err) {
         return err;
+    }
+
+    _iface_shared.if_status_flags &= ~IF_STATUS_STA_UP;
+    if (_iface_shared.if_status_flags & IF_STATUS_SOFT_AP_UP) {
+        _iface_shared.default_if_cfg = DEFAULT_IF_SOFT_AP;
+        _stack.set_default_interface(_iface_shared.iface_softap);
+    } else {
+        _iface_shared.default_if_cfg = DEFAULT_IF_NOT_SET;
     }
 
     // leave network
@@ -395,7 +422,6 @@ static void whd_scan_handler(whd_scan_result_t **result_ptr,
     if (data->count > 0 && data->aps != NULL) {
         // get ap stats
         nsapi_wifi_ap ap;
-
         uint8_t length = record->SSID.length;
         if (length < sizeof(ap.ssid) - 1) {
             length = sizeof(ap.ssid) - 1;
@@ -408,24 +434,31 @@ static void whd_scan_handler(whd_scan_result_t **result_ptr,
         ap.security = whd_tosecurity(record->security);
         ap.rssi = record->signal_strength;
         ap.channel = record->channel;
-        data->aps[data->offset] = WiFiAccessPoint(ap);
+        if (data->sres_type == SRES_TYPE_WIFI_ACCESS_POINT) {
+            data->aps[data->offset] = WiFiAccessPoint(ap);
+        } else if (data->sres_type == SRES_TYPE_WHD_ACCESS_POINT) {
+            WhdAccessPoint *aps_sres = static_cast<WhdAccessPoint *>(data->aps);
+            aps_sres[data->offset] = std::move(WhdAccessPoint(ap, record->bss_type,
+                                                              record->ie_ptr, record->ie_len));
+        }
     }
 
     // store to result_buff for future duplication removal
     data->result_buff->push_back(*record);
     data->offset = data->result_buff->size();
-
 }
 
-
-int WhdSTAInterface::scan(WiFiAccessPoint *aps, unsigned count)
+int WhdSTAInterface::internal_scan(WiFiAccessPoint *aps, unsigned count, scan_result_type sres_type)
 {
+    ScopedMutexLock lock(_iface_shared.mutex);
+
     // initialize wiced, this is noop if already init
     if (!_whd_emac.powered_up) {
         _whd_emac.power_up();
     }
 
     interal_scan_data.sema = new Semaphore();
+    interal_scan_data.sres_type = sres_type;
     interal_scan_data.aps = aps;
     interal_scan_data.count = count;
     interal_scan_data.offset = 0;
@@ -447,6 +480,16 @@ int WhdSTAInterface::scan(WiFiAccessPoint *aps, unsigned count)
     delete interal_scan_data.sema;
     delete interal_scan_data.result_buff;
     return res;
+}
+
+int WhdSTAInterface::scan(WiFiAccessPoint *aps, unsigned count)
+{
+    return internal_scan(aps, count, SRES_TYPE_WIFI_ACCESS_POINT);
+}
+
+int WhdSTAInterface::scan_whd(WhdAccessPoint *aps, unsigned count)
+{
+    return internal_scan(aps, count, SRES_TYPE_WHD_ACCESS_POINT);
 }
 
 int WhdSTAInterface::is_interface_connected(void)

@@ -25,7 +25,7 @@
 
 namespace mbed {
 /**
- * \addtogroup drivers_I2CSlave I2CSlave class
+ * \defgroup drivers_I2CSlave I2CSlave class
  * \ingroup drivers-public-api-i2c
  * @{
  */

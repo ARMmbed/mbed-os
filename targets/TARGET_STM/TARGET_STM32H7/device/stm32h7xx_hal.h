@@ -624,6 +624,31 @@ typedef enum
 
 
 /* Exported macro ------------------------------------------------------------*/
+/** @defgroup ART_Exported_Macros ART Exported Macros
+  * @{
+  */
+#if defined(DUAL_CORE)
+
+/** @brief  ART Enable Macro.
+  *         Enable the Cortex-M4 ART cache.
+  */
+#define __HAL_ART_ENABLE()   SET_BIT(ART->CTR, ART_CTR_EN)
+
+/** @brief  ART Disable Macro.
+  *         Disable the Cortex-M4 ART cache.
+  */
+#define __HAL_ART_DISABLE()   CLEAR_BIT(ART->CTR, ART_CTR_EN)
+
+/** @brief  ART Cache BaseAddress Config.
+  *         Configure the Cortex-M4 ART cache Base Address.
+  */
+#define __HAL_ART_CONFIG_BASE_ADDRESS(__BASE_ADDRESS__)   MODIFY_REG(ART->CTR, ART_CTR_PCACHEADDR, (((__BASE_ADDRESS__) >> 12U) & 0x000FFF00UL))
+
+#endif /* DUAL_CORE */
+/**
+  * @}
+  */
+
 /** @defgroup SYSCFG_Exported_Macros SYSCFG Exported Macros
   * @{
   */
@@ -874,6 +899,18 @@ typedef enum
   * @}
   */
 
+/* Exported variables --------------------------------------------------------*/
+
+/** @addtogroup HAL_Exported_Variables
+  * @{
+  */
+extern __IO uint32_t uwTick;
+extern uint32_t uwTickPrio;
+extern HAL_TickFreqTypeDef uwTickFreq;
+/**
+  * @}
+  */
+
 /* Exported functions --------------------------------------------------------*/
 
 /* Initialization and de-initialization functions  ******************************/
@@ -895,6 +932,9 @@ void HAL_ResumeTick(void);
 uint32_t HAL_GetHalVersion(void);
 uint32_t HAL_GetREVID(void);
 uint32_t HAL_GetDEVID(void);
+uint32_t HAL_GetUIDw0(void);
+uint32_t HAL_GetUIDw1(void);
+uint32_t HAL_GetUIDw2(void);
 void HAL_SYSCFG_ETHInterfaceSelect(uint32_t SYSCFG_ETHInterface);
 void HAL_SYSCFG_AnalogSwitchConfig(uint32_t SYSCFG_AnalogSwitch , uint32_t SYSCFG_SwitchState );
 void HAL_SYSCFG_EnableBOOST(void);

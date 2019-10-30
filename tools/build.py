@@ -126,12 +126,6 @@ def main():
                       default=False,
                       help="Silent diagnostic output (no copy, compile notification)")
 
-    parser.add_argument("-x", "--extra-verbose-notifications",
-                      action="store_true",
-                      dest="extra_verbose_notify",
-                      default=False,
-                      help="Makes compiler more verbose, CI friendly.")
-
     parser.add_argument("--ignore", dest="ignore", type=argparse_many(str),
                         default=None, help="Comma separated list of patterns to add to mbedignore (eg. ./main.cpp)")
 

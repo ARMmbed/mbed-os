@@ -133,4 +133,12 @@ extern uint8_t DEVICE_MIN_SENS;
 #define FRAME_COUNTER_INCREMENT          1000 // How much frame counter is incremented on start up
 #define FRAME_COUNTER_STORE_THRESHOLD    800  // How much frame counter must increment before it is stored
 
+
+/*
+ *  RPL Configuration parameters
+ */
+#define WS_MAX_DAO_RETRIES 3 // With 40s, 80s, 160s, 320s, 640s
+#define WS_MAX_DAO_INITIAL_TIMEOUT 400 // With 40s initial value exponentially increasing
+#define WS_MIN_DIO_MULTICAST_CONFIG_ADVERTISMENT_COUNT 10 // Define 10 multicast advertisment when learn config or learn config update
+
 #endif /* WS_CONFIG_H_ */

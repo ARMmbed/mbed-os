@@ -560,13 +560,14 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
                 return NSAPI_ERROR_PARAMETER;
             }
 
-            /* Convert the interface address, or make sure it's the correct sort of "any" */
             if (imr->imr_interface.version != NSAPI_UNSPEC) {
+                /* Convert the interface address */
                 if (!convert_mbed_addr_to_lwip(&if_addr, &imr->imr_interface)) {
                     return NSAPI_ERROR_PARAMETER;
                 }
             } else {
-                ip_addr_set_any(IP_IS_V6(&if_addr), &if_addr);
+                /* Set interface address to "any", matching the group address type */
+                ip_addr_set_any(IP_IS_V6(&multi_addr), &if_addr);
             }
 
             igmp_err = ERR_USE; // Maps to NSAPI_ERROR_UNSUPPORTED

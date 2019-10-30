@@ -125,6 +125,13 @@ uint32_t whd_bus_sdio_attach(whd_driver_t whd_driver, whd_sdio_config_t *whd_sdi
 {
     struct whd_bus_info *whd_bus_info;
 
+    if (!whd_driver || !whd_sdio_config)
+    {
+        WPRINT_WHD_ERROR( ("Invalid param in func %s at line %d \n",
+                           __func__, __LINE__) );
+        return WHD_WLAN_BADARG;
+    }
+
     whd_bus_info = (whd_bus_info_t *)malloc(sizeof(whd_bus_info_t) );
 
     if (whd_bus_info == NULL)

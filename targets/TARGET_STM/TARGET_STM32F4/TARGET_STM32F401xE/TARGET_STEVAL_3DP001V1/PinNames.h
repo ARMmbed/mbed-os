@@ -180,12 +180,31 @@ typedef enum {
     SPI_CS      = PB_6,
     PWM_OUT     = PB_3,
 
-    //USB pins
-    USB_OTG_FS_SOF = PA_8,
-    USB_OTG_FS_VBUS = PA_9,
-    USB_OTG_FS_ID = PA_10,
+    /**** USB OTG FS pins ****/
     USB_OTG_FS_DM = PA_11,
     USB_OTG_FS_DP = PA_12,
+    USB_OTG_FS_ID = PA_10,
+    USB_OTG_FS_SOF = PA_8,
+    USB_OTG_FS_VBUS = PA_9,
+
+    /**** OSCILLATOR pins ****/
+    RCC_OSC32_IN = PC_14,
+    RCC_OSC32_OUT = PC_15,
+    RCC_OSC_IN = PH_0,
+    RCC_OSC_OUT = PH_1,
+
+    /**** DEBUG pins ****/
+    SYS_JTCK_SWCLK = PA_14,
+    SYS_JTDI = PA_15,
+    SYS_JTDO_SWO = PB_3,
+    SYS_JTMS_SWDIO = PA_13,
+    SYS_JTRST = PB_4,
+    SYS_TRACECLK = PE_2,
+    SYS_TRACED0 = PE_3,
+    SYS_TRACED1 = PE_4,
+    SYS_TRACED2 = PE_5,
+    SYS_TRACED3 = PE_6,
+    SYS_WKUP = PA_0,
 
     // Not connected
     NC = (int)0xFFFFFFFF

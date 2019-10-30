@@ -54,6 +54,7 @@ static void _sigio_handler(osThreadId id)
 
 void MULTIHOMING_UDPSOCKET_ECHOTEST()
 {
+    nsapi_dns_reset();
 
     for (unsigned int interface_index = 0; interface_index < MBED_CONF_MULTIHOMING_MAX_INTERFACES_NUM; interface_index++) {
         NetworkInterface  *interface = get_interface(interface_index);
@@ -66,7 +67,7 @@ void MULTIHOMING_UDPSOCKET_ECHOTEST()
 
         UDPSocket sock;
         TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(interface));
-        for (unsigned int j = 0; j < interface_num; j++) {
+        for (int j = 0; j < interface_num; j++) {
             int recvd;
             int sent;
             int s_idx = 0;
@@ -113,7 +114,7 @@ void udpsocket_echotest_nonblock_receiver(void *receive_bytes)
     for (int retry_cnt = 0; retry_cnt <= RETRIES; retry_cnt++) {
         recvd = sock.recvfrom(NULL, rx_buffer, expt2recv);
         if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
-            wait_ms(WAIT2RECV_TIMEOUT);
+            ThisThread::sleep_for(WAIT2RECV_TIMEOUT);
             --retry_cnt;
             continue;
         } else if (recvd == expt2recv) {
@@ -144,7 +145,7 @@ void MULTIHOMING_UDPSOCKET_ECHOTEST_NONBLOCK()
         TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(interface));
         sock.set_blocking(false);
         sock.sigio(callback(_sigio_handler, ThisThread::get_id()));
-        for (unsigned int j = 0; j < interface_num; j++) {
+        for (int j = 0; j < interface_num; j++) {
             int s_idx = 0;
             int packets_sent = 0;
             int packets_recv = 0;

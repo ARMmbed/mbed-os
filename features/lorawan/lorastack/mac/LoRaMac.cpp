@@ -101,11 +101,13 @@ LoRaMac::LoRaMac()
       _mac_commands(),
       _channel_plan(),
       _lora_crypto(),
+      _params(),
       _ev_queue(NULL),
       _mcps_indication(),
       _mcps_confirmation(),
       _mlme_indication(),
       _mlme_confirmation(),
+      _ongoing_tx_msg(),
       _is_nwk_joined(false),
       _can_cancel_tx(true),
       _continuous_rx2_window_open(false),
@@ -115,40 +117,20 @@ LoRaMac::LoRaMac()
       _demod_ongoing(false),
       _mod_ongoing(false)
 {
-    memset(&_params, 0, sizeof(_params));
-    _params.dev_eui = NULL;
-    _params.app_eui = NULL;
 
     _params.rejoin_forced = false;
     _params.forced_datarate = DR_0;
-
-    memset(&_ongoing_tx_msg, 0, sizeof(_ongoing_tx_msg));
     memset(&_params.sys_params, 0, sizeof(_params.sys_params));
-
-    _params.dev_nonce = 0;
-    _params.net_id = 0;
-    _params.dev_addr = 0;
-    _params.tx_buffer_len = 0;
-    _params.rx_buffer_len = 0;
-    _params.ul_frame_counter = 0;
-    _params.dl_frame_counter = 0;
-    _params.app_dl_frame_counter = 0;
+        
     _params.is_rx_window_enabled = true;
-    _params.adr_ack_counter = 0;
-    _params.is_node_ack_requested = false;
-    _params.is_srv_ack_requested = false;
-    _params.ul_nb_rep_counter = 0;
-    _params.timers.mac_init_time = 0;
     _params.max_ack_timeout_retries = 1;
     _params.ack_timeout_retry_counter = 1;
-    _params.is_ack_retry_timeout_expired = false;
-    _params.timers.tx_toa = 0;
 
-    _params.multicast_channels = NULL;
+    _params.join_request_type = JOIN_REQUEST;
 
-
-    _params.sys_params.adr_on = false;
-    _params.sys_params.max_duty_cycle = 0;
+    //TODO: RJcount1 must be stored to NVM!
+    _params.RJcount0 = 0;
+    _params.RJcount1 = 0;
 
     _params.join_request_type = JOIN_REQUEST;
 
@@ -892,7 +874,6 @@ void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
     mac_hdr.value = payload[pos++];
 
     switch (mac_hdr.bits.mtype) {
-
         case FRAME_TYPE_JOIN_ACCEPT: {
             loramac_mhdr_t tx_mac_hdr;
             tx_mac_hdr.value = _params.tx_buffer[0];
@@ -908,7 +889,6 @@ void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
             } else {
                 unexpected_mtype = true;
             }
-
             break;
         }
         case FRAME_TYPE_DATA_UNCONFIRMED_DOWN:

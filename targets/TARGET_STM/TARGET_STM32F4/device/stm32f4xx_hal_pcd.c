@@ -343,7 +343,6 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
   USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
   uint32_t i = 0U, ep_intr = 0U, epint = 0U, epnum = 0U;
   uint32_t fifoemptymsk = 0U, temp = 0U;
-  USB_OTG_EPTypeDef *ep;
   uint32_t hclk = 180000000U;
   
   /* ensure that we are in device mode */

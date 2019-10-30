@@ -1979,6 +1979,69 @@ __STATIC_INLINE uint32_t LL_FLASH_GetLatency(void)
   * @}
   */
 
+#if defined(DUAL_CORE)
+/** @defgroup SYSTEM_LL_EF_ART ART
+  * @{
+  */
+
+/**
+  * @brief  Enable the Cortex-M4 ART cache.
+  * @rmtoll ART_CTR    EN   LL_ART_Enable
+  * @retval None
+  */
+__STATIC_INLINE void LL_ART_Enable(void)
+{
+ SET_BIT(ART->CTR, ART_CTR_EN);
+}
+
+/**
+  * @brief  Disable the Cortex-M4 ART cache.
+  * @rmtoll ART_CTR    EN   LL_ART_Disable
+  * @retval None
+  */
+__STATIC_INLINE void LL_ART_Disable(void)
+{
+ CLEAR_BIT(ART->CTR, ART_CTR_EN);
+}
+
+/**
+  * @brief  Check if the Cortex-M4 ART cache is enabled
+  * @rmtoll ART_CTR   EN    LL_ART_IsEnabled
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_ART_IsEnabled(void)
+{
+  return ((READ_BIT(ART->CTR, ART_CTR_EN) == ART_CTR_EN) ? 1UL : 0UL);
+}
+
+/**
+  * @brief  Set the Cortex-M4 ART cache Base Address.
+  * @rmtoll ART_CTR    PCACHEADDR   LL_ART_SetBaseAddress
+  * @param  BaseAddress Specifies the Base address of 1 Mbyte address page (cacheable page)
+            from which the ART accelerator loads code to the cache.
+  * @retval None
+  */
+__STATIC_INLINE void LL_ART_SetBaseAddress(uint32_t BaseAddress)
+{
+ MODIFY_REG(ART->CTR, ART_CTR_PCACHEADDR, (((BaseAddress) >> 12U) & 0x000FFF00UL));
+}
+
+/**
+  * @brief  Get the Cortex-M4 ART cache Base Address.
+  * @rmtoll ART_CTR    PCACHEADDR   LL_ART_GetBaseAddress
+  * @retval the Base address of 1 Mbyte address page (cacheable page)
+            from which the ART accelerator loads code to the cache
+  */
+__STATIC_INLINE uint32_t LL_ART_GetBaseAddress(void)
+{
+  return (uint32_t)(READ_BIT(ART->CTR, ART_CTR_PCACHEADDR) << 12U);
+}
+#endif /* DUAL_CORE */
+
+/**
+  * @}
+  */
+
 /**
   * @}
   */

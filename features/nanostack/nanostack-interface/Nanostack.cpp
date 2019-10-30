@@ -116,7 +116,7 @@ nsapi_error_t map_mesh_error(mesh_error_t err)
         case MESH_ERROR_PARAM:
             return NSAPI_ERROR_PARAMETER;
         case MESH_ERROR_STATE:
-            return NSAPI_ERROR_DEVICE_ERROR;
+            return NSAPI_ERROR_IS_CONNECTED;
         default:
             return NSAPI_ERROR_DEVICE_ERROR;
     }

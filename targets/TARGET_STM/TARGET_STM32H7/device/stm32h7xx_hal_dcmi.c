@@ -643,7 +643,7 @@ HAL_StatusTypeDef HAL_DCMI_Start_DMA(DCMI_HandleTypeDef* hdcmi, uint32_t DCMI_Mo
   */
 HAL_StatusTypeDef HAL_DCMI_Stop(DCMI_HandleTypeDef* hdcmi)
 {
-  register uint32_t count = HAL_TIMEOUT_DCMI_STOP * (SystemCoreClock /8U/1000U);
+  register uint32_t count = HAL_TIMEOUT_DCMI_STOP * ( SystemD1Clock/8U/1000U);
   HAL_StatusTypeDef status = HAL_OK;
 
   /* Process locked */
@@ -697,7 +697,7 @@ HAL_StatusTypeDef HAL_DCMI_Stop(DCMI_HandleTypeDef* hdcmi)
   */
 HAL_StatusTypeDef HAL_DCMI_Suspend(DCMI_HandleTypeDef* hdcmi)
 {
-  register uint32_t count = HAL_TIMEOUT_DCMI_STOP * (SystemCoreClock /8U/1000U);
+  register uint32_t count = HAL_TIMEOUT_DCMI_STOP * ( SystemD1Clock/8U/1000U);
   HAL_StatusTypeDef status = HAL_OK;
 
   /* Process locked */

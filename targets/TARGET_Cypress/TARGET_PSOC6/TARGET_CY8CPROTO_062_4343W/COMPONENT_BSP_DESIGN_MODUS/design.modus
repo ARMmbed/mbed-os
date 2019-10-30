@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Design version="11" device_library_hint_path="../../psoc6pdl/devicesupport.xml" xmlns="http://cypress.com/xsd/cydesignfile_v2">
+<Design version="11" xmlns="http://cypress.com/xsd/cydesignfile_v2">
     <ToolInfo version="1.0.0"/>
     <Devices>
         <Device mpn="CY8C624ABZI-D44">
@@ -126,6 +126,26 @@
                 </Block>
                 <Block location="ioss[0].port[11].pin[7]" alias="CYBSP_QSPI_SCK" template="mxs40pin" version="1.1">
                     <Param id="DriveModes" value="CY_GPIO_DM_STRONG_IN_OFF"/>
+                    <Param id="initialState" value="1"/>
+                    <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
+                    <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
+                    <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
+                    <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
+                    <Param id="sioOutputBuffer" value="true"/>
+                    <Param id="inFlash" value="true"/>
+                </Block>
+                <Block location="ioss[0].port[14].pin[0]" alias="CYBSP_USB_DP" template="mxs40pin" version="1.1">
+                    <Param id="DriveModes" value="CY_GPIO_DM_ANALOG"/>
+                    <Param id="initialState" value="1"/>
+                    <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
+                    <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
+                    <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
+                    <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
+                    <Param id="sioOutputBuffer" value="true"/>
+                    <Param id="inFlash" value="true"/>
+                </Block>
+                <Block location="ioss[0].port[14].pin[1]" alias="CYBSP_USB_DM" template="mxs40pin" version="1.1">
+                    <Param id="DriveModes" value="CY_GPIO_DM_ANALOG"/>
                     <Param id="initialState" value="1"/>
                     <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
                     <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
@@ -364,6 +384,11 @@
                     <Param id="sioOutputBuffer" value="true"/>
                     <Param id="inFlash" value="true"/>
                 </Block>
+                <Block location="peri[0].div_16[0]" alias="CYBSP_USB_CLK_DIV" template="mxs40peripheralclock" version="1.0">
+                    <Param id="intDivider" value="500"/>
+                    <Param id="fracDivider" value="0"/>
+                    <Param id="startOnReset" value="true"/>
+                </Block>
                 <Block location="peri[0].div_8[0]" alias="CYBSP_CSD_CLK_DIV" template="mxs40peripheralclock" version="1.0">
                     <Param id="intDivider" value="256"/>
                     <Param id="fracDivider" value="0"/>
@@ -474,7 +499,7 @@
                     <Param id="hibernate" value="true"/>
                 </Block>
                 <Block location="srss[0].clock[0].imo[0]" alias="" template="mxs40imo" version="1.0">
-                    <Param id="trim" value="1"/>
+                    <Param id="trim" value="0.25"/>
                 </Block>
                 <Block location="srss[0].clock[0].lfclk[0]" alias="" template="mxs40lfclk" version="1.1">
                     <Param id="sourceClock" value="wco"/>
@@ -531,7 +556,6 @@
                     <Param id="inFlash" value="true"/>
                 </Block>
                 <Block location="srss[0].power[0]" alias="" template="mxs40power" version="1.2">
-                    <Param id="pwrEstimator" value="0"/>
                     <Param id="pwrMode" value="LDO_1_1"/>
                     <Param id="actPwrMode" value="LP"/>
                     <Param id="coreRegulator" value="CY_SYSPM_LDO_MODE_NORMAL"/>
@@ -569,6 +593,27 @@
                     <Param id="dstStopWeek" value="CY_RTC_LAST_WEEK_OF_MONTH"/>
                     <Param id="dstStopDayOfWeek" value="CY_RTC_SUNDAY"/>
                     <Param id="dstStopHour" value="0"/>
+                    <Param id="inFlash" value="true"/>
+                </Block>
+                <Block location="usb[0]" alias="CYBSP_USBUART" template="mxs40usbfsdevice" version="1.1">
+                    <Param id="epMask" value="0"/>
+                    <Param id="mngMode" value="CY_USBFS_DEV_DRV_EP_MANAGEMENT_CPU"/>
+                    <Param id="bufSize" value="512"/>
+                    <Param id="epAccess" value="CY_USBFS_DEV_DRV_USE_8_BITS_DR"/>
+                    <Param id="enableLpm" value="false"/>
+                    <Param id="lpmIntr" value="0x0U"/>
+                    <Param id="ArbIntr" value="0x0U"/>
+                    <Param id="ep0CntrIntr" value="0x2U"/>
+                    <Param id="busResetIntr" value="0x2U"/>
+                    <Param id="sofIntr" value="0x1U"/>
+                    <Param id="ep0Intr" value="0x1U"/>
+                    <Param id="ep1Intr" value="0x1U"/>
+                    <Param id="ep2Intr" value="0x1U"/>
+                    <Param id="ep3Intr" value="0x1U"/>
+                    <Param id="ep4Intr" value="0x1U"/>
+                    <Param id="ep5Intr" value="0x1U"/>
+                    <Param id="ep6Intr" value="0x1U"/>
+                    <Param id="ep7Intr" value="0x1U"/>
                     <Param id="inFlash" value="true"/>
                 </Block>
             </BlockConfig>
@@ -646,6 +691,18 @@
                     <Port name="smif[0].spi_clk[0]"/>
                 </Net>
                 <Net>
+                    <Port name="ioss[0].port[14].pin[0].aux[0]"/>
+                    <Port name="usb[0].usb_dp_pad[0]"/>
+                </Net>
+                <Net>
+                    <Port name="ioss[0].port[14].pin[1].aux[0]"/>
+                    <Port name="usb[0].usb_dm_pad[0]"/>
+                </Net>
+                <Net>
+                    <Port name="peri[0].div_16[0].clk[0]"/>
+                    <Port name="usb[0].clock_dev_brs[0]"/>
+                </Net>
+                <Net>
                     <Port name="peri[0].div_8[1].clk[0]"/>
                     <Port name="scb[3].clock[0]"/>
                 </Net>
@@ -660,6 +717,10 @@
                 <Net>
                     <Port name="smif[0].clk_if[0]"/>
                     <Port name="srss[0].clock[0].hfclk[2].root_clk[0]"/>
+                </Net>
+                <Net>
+                    <Port name="srss[0].clock[0].hfclk[3].root_clk[0]"/>
+                    <Port name="usb[0].clk_usb_dev[0]"/>
                 </Net>
                 <Mux name="sense" location="csd[0].csd[0]">
                     <Arm>
@@ -706,8 +767,6 @@
             <Netlist/>
         </Device>
     </Devices>
-    <Libraries>
-        <Library name="psoc6sw" version="1.2"/>
-    </Libraries>
+    <Libraries/>
     <ConfiguratorData/>
 </Design>

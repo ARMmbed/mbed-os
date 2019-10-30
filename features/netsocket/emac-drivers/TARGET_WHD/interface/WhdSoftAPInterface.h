@@ -23,6 +23,7 @@
 #include "netsocket/OnboardNetworkStack.h"
 #include "whd_emac.h"
 #include "CyDhcpServer.h"
+#include "whd_interface.h"
 #include <memory>
 
 /**
@@ -47,7 +48,8 @@ public:
      *  @return  pointer to default WhdSoftAPInterface instance
      */
     WhdSoftAPInterface(WHD_EMAC &emac = WHD_EMAC::get_instance(WHD_AP_ROLE),
-                       OnboardNetworkStack &stack = OnboardNetworkStack::get_default_instance());
+                       OnboardNetworkStack &stack = OnboardNetworkStack::get_default_instance(),
+                       whd_interface_shared_info_t &shared = whd_iface_shared);
 
     /** Get the default WhdSoftAPInterface instance.
      *  @return  pointer to default WhdSoftAPInterface instance
@@ -131,10 +133,26 @@ public:
      */
     int unregister_event_handler(void);
 
+    /** Set blocking status of interface. 
+     *  Nonblocking mode unsupported.
+     *
+     *  @param blocking true if connect is blocking
+     *  @return         0 on success, negative error code on failure
+     */
+    nsapi_error_t set_blocking(bool blocking)
+    {
+        if (blocking) {
+            _blocking = blocking;
+            return NSAPI_ERROR_OK;
+        } else {
+            return NSAPI_ERROR_UNSUPPORTED;
+        }
+    }
 
 protected:
     WHD_EMAC &_whd_emac;
     std::unique_ptr<CyDhcpServer> _dhcp_server;
+    whd_interface_shared_info_t &_iface_shared;
 };
 
 #endif

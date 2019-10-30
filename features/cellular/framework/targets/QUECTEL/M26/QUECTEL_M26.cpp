@@ -52,34 +52,29 @@ nsapi_error_t QUECTEL_M26::get_sim_state(SimState &state)
     char buf[13];
 
     _at->lock();
-    _at->cmd_start("AT+CPIN?");
-    _at->cmd_stop();
-    _at->resp_start("+CPIN:");
-    if (_at->info_resp()) {
-        _at->read_string(buf, 13);
-        tr_debug("CPIN: %s", buf);
+    nsapi_error_t err = _at->at_cmd_str("+CPIN", "?", buf, 13);
+    tr_debug("CPIN: %s", buf);
+    _at->unlock();
 
-        if (memcmp(buf, "READY", 5) == 0) {
-            state = SimStateReady;
-        } else if (memcmp(buf, "SIM PIN", 7) == 0) {
-            state = SimStatePinNeeded;
-        } else if (memcmp(buf, "SIM PUK", 7) == 0) {
-            state = SimStatePukNeeded;
-        } else if (memcmp(buf, "PH_SIM PIN", 10) == 0) {
-            state = SimStatePinNeeded;
-        } else if (memcmp(buf, "PH_SIM PUK", 10) == 0) {
-            state = SimStatePukNeeded;
-        } else if (memcmp(buf, "SIM PIN2", 8) == 0) {
-            state = SimStatePinNeeded;
-        } else if (memcmp(buf, "SIM PUK2", 8) == 0) {
-            state = SimStatePukNeeded;
-        } else {
-            state = SimStateUnknown; // SIM may not be ready yet
-        }
-
+    if (memcmp(buf, "READY", 5) == 0) {
+        state = SimStateReady;
+    } else if (memcmp(buf, "SIM PIN", 7) == 0) {
+        state = SimStatePinNeeded;
+    } else if (memcmp(buf, "SIM PUK", 7) == 0) {
+        state = SimStatePukNeeded;
+    } else if (memcmp(buf, "PH_SIM PIN", 10) == 0) {
+        state = SimStatePinNeeded;
+    } else if (memcmp(buf, "PH_SIM PUK", 10) == 0) {
+        state = SimStatePukNeeded;
+    } else if (memcmp(buf, "SIM PIN2", 8) == 0) {
+        state = SimStatePinNeeded;
+    } else if (memcmp(buf, "SIM PUK2", 8) == 0) {
+        state = SimStatePukNeeded;
+    } else {
+        state = SimStateUnknown; // SIM may not be ready yet
     }
-    _at->resp_stop();
-    return _at->unlock_return_error();
+
+    return err;
 }
 
 AT_CellularContext *QUECTEL_M26::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
@@ -89,13 +84,7 @@ AT_CellularContext *QUECTEL_M26::create_context_impl(ATHandler &at, const char *
 
 nsapi_error_t QUECTEL_M26::shutdown()
 {
-    _at->lock();
-    _at->cmd_start("AT+QPOWD=0");
-    _at->cmd_stop();
-    _at->resp_start();
-    _at->resp_stop();
-
-    return _at->unlock_return_error();;
+    return _at->at_cmd_discard("+QPOWD", "=0");
 }
 
 

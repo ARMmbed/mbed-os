@@ -54,6 +54,12 @@ TEST_F(TestDTLSSocket, constructor)
     EXPECT_TRUE(socket);
 }
 
+TEST_F(TestDTLSSocket, connect_no_socket)
+{
+    EXPECT_TRUE(socket);
+    EXPECT_EQ(socket->connect("127.0.0.1", 1024), NSAPI_ERROR_NO_SOCKET);
+}
+
 /* connect */
 
 TEST_F(TestDTLSSocket, connect)

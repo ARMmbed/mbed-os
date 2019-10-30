@@ -372,3 +372,11 @@ MBED_WEAK const PinMap PinMap_CAN_TD[] = {
     {PD_1,       CAN_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF7_CAN)},
     {NC, NC, 0}
 };
+
+//*** USBDEVICE ***
+
+MBED_WEAK const PinMap PinMap_USB_FS[] = {
+    {PA_11,     USB_FS, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF14_USB)}, // USB_DM // Connected to DM
+    {PA_12,     USB_FS, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF14_USB)}, // USB_DP // Connected to DP
+    {NC, NC, 0}
+};

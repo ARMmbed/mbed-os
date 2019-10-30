@@ -1,11 +1,3 @@
-
-/** \ingroup mbed-os-public */
-/** \addtogroup platform-public-api */
-/** @{*/
-/**
- * \defgroup platform_rtc_time rtc_time functions
- * @{
- */
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
@@ -23,11 +15,22 @@
  * limitations under the License.
  */
 
+#ifndef __MBED_RTC_TIME_H__
+#define __MBED_RTC_TIME_H__
+
 #include <time.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** \addtogroup platform-public-api */
+/** @{*/
+
+/**
+ * \defgroup platform_rtc_time rtc_time functions
+ * @{
+ */
 
 /* Timeval definition for non GCC_ARM toolchains */
 #if !defined(__GNUC__) || defined(__CC_ARM) || defined(__clang__)
@@ -129,3 +132,5 @@ int settimeofday(const struct timeval *tv, const struct timezone *tz);
 
 /** @}*/
 /** @}*/
+
+#endif /* __MBED_RTC_TIME_H__ */

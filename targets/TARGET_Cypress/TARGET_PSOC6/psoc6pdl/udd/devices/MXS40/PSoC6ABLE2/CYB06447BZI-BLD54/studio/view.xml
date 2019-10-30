@@ -8,7 +8,7 @@
   <Param name="DeviceSeries" value="PSoC 63" />
   <Param name="Cores_REMOVED" value="NA" />
   <Param name="Speed_MHz" value="150" />
-  <Param name="Flash_KB" value="1024" />
+  <Param name="Flash_KB" value="832" />
   <Param name="SRAM_KB" value="288" />
   <Param name="Bluetooth" value="5" />
   <Param name="UDB_Count" value="12" />

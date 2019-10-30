@@ -52,8 +52,8 @@ add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
 # dependencies automatically when using CMake 2.8.11 or
 # later.
 target_include_directories(gmock_main SYSTEM BEFORE INTERFACE
-  "${gtest_SOURCE_DIR}/include"
-  "${gmock_SOURCE_DIR}/include")
+  "$<BUILD_INTERFACE:${gtest_SOURCE_DIR}/include>"
+  "$<BUILD_INTERFACE:${gmock_SOURCE_DIR}/include>")
 
 ####################
 # TESTING
@@ -133,6 +133,7 @@ set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/../features/lorawan/system"
   "${PROJECT_SOURCE_DIR}/../features/mbedtls"
   "${PROJECT_SOURCE_DIR}/../features/mbedtls/inc"
+  "${PROJECT_SOURCE_DIR}/../features/mbedtls/mbed-crypto/inc"
 )
 
 # Create a list for test suites.

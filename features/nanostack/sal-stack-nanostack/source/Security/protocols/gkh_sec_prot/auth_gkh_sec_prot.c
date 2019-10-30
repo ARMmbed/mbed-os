@@ -60,11 +60,19 @@ typedef struct {
     uint16_t                      recv_size;        /**< Received pdu size */
 } gkh_sec_prot_int_t;
 
-static const trickle_params_t gkh_trickle_params = {
-    .Imin = 50,            /* 5000ms; ticks are 100ms */
-    .Imax = 150,           /* 15000ms */
+/*Small network setup*/
+#define GKH_SMALL_IMIN 300 // retries done in 30 seconds
+#define GKH_SMALL_IMAX 900 // Largest value 90 seconds
+
+/* Large network setup*/
+#define GKH_LARGE_IMIN 600 // retries done in 60 seconds
+#define GKH_LARGE_IMAX 2400 // Largest value 240 seconds
+
+static trickle_params_t gkh_trickle_params = {
+    .Imin = GKH_SMALL_IMIN,            /* ticks are 100ms */
+    .Imax = GKH_SMALL_IMAX,            /* ticks are 100ms */
     .k = 0,                /* infinity - no consistency checking */
-    .TimerExpirations = 4
+    .TimerExpirations = 2
 };
 
 static uint16_t auth_gkh_sec_prot_size(void);
@@ -92,6 +100,18 @@ int8_t auth_gkh_sec_prot_register(kmp_service_t *service)
         return -1;
     }
 
+    return 0;
+}
+
+int8_t auth_gkh_sec_prot_timing_adjust(uint8_t timing)
+{
+    if (timing < 16) {
+        gkh_trickle_params.Imin = GKH_SMALL_IMIN;
+        gkh_trickle_params.Imax = GKH_SMALL_IMAX;
+    } else {
+        gkh_trickle_params.Imin = GKH_LARGE_IMIN;
+        gkh_trickle_params.Imax = GKH_LARGE_IMAX;
+    }
     return 0;
 }
 
@@ -273,14 +293,17 @@ static void auth_gkh_sec_prot_state_machine(sec_prot_t *prot)
     // GKH authenticator state machine
     switch (sec_prot_state_get(&data->common)) {
         case GKH_STATE_INIT:
+            tr_info("GKH init");
             sec_prot_state_set(prot, &data->common, GKH_STATE_CREATE_REQ);
+            prot->timer_start(prot);
             break;
 
         // Wait KMP-CREATE.request
         case GKH_STATE_CREATE_REQ:
             tr_info("GKH start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
-            prot->timer_start(prot);
+            // Set default timeout for the total maximum length of the negotiation
+            sec_prot_default_timeout_set(&data->common);
 
             // KMP-CREATE.confirm
             prot->create_conf(prot, SEC_RESULT_OK);
@@ -320,10 +343,13 @@ static void auth_gkh_sec_prot_state_machine(sec_prot_t *prot)
             sec_prot_state_set(prot, &data->common, GKH_STATE_FINISHED);
             break;
 
-        case GKH_STATE_FINISHED:
+        case GKH_STATE_FINISHED: {
+            uint8_t *remote_eui_64 = sec_prot_remote_eui_64_addr_get(prot);
+            tr_info("GKH finished, eui-64: %s", remote_eui_64 ? trace_array(sec_prot_remote_eui_64_addr_get(prot), 8) : "not set");
             prot->timer_stop(prot);
             prot->finished(prot);
             break;
+        }
 
         default:
             break;

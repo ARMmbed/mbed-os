@@ -41,7 +41,9 @@ Text::Text(const Text &other) :
     _text_record(other._text_record ? new uint8_t[other._text_record_size] : NULL),
     _text_record_size(other._text_record_size)
 {
-    memcpy(_text_record, other._text_record, _text_record_size);
+    if (_text_record) {
+        memcpy(_text_record, other._text_record, _text_record_size);
+    }
 }
 
 Text::Text(
