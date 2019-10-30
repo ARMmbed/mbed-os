@@ -2,7 +2,7 @@
     "name": "storage_tdb_internal",
     "config": {
         "internal_size": {
-            "help": "Size of the FlashIAP block device. Default size will be the larger of the last 2 sectors or last 10 pages of flash.",
+            "help": "Size of the FlashIAP block device. Default size will be the larger of the last 2 sectors or last 14 pages of flash.",
             "value": "0"
         },
         "internal_base_address": {

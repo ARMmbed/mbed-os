@@ -37,12 +37,12 @@ public:
 
     static const uint32_t RESERVED_AREA_SIZE = 64;
 
-    // Use the last 2 sectors or 10 pages of flash for the TDBStore by default (whichever is larger)
+    // Use the last 2 sectors or 14 pages of flash for the TDBStore by default (whichever is larger)
     // For each area: must be a minimum of 1 page of reserved and 2 pages for master record
     /** Minimum number of internal flash sectors required for TDBStore */
     static const int STORE_SECTORS = 2;
     /** Minimum number of internal flash pages required for TDBStore */
-    static const int STORE_PAGES = 10;
+    static const int STORE_PAGES = 14;
 
     /**
      * @brief Class constructor
