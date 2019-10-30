@@ -76,7 +76,7 @@ if (COVERAGE)
   endif()
 
   # Append coverage compiler flags
-  set(COVERAGE_COMPILER_FLAGS "-g -O0 --coverage -fprofile-arcs -ftest-coverage")
+  set(COVERAGE_COMPILER_FLAGS "-g -O0 --coverage")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COVERAGE_COMPILER_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COVERAGE_COMPILER_FLAGS}")
 
