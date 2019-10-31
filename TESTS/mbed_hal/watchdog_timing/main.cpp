@@ -24,9 +24,16 @@
 #include "us_ticker_api.h"
 #include "utest/utest.h"
 #include "watchdog_timing_tests.h"
+#include "mbed.h"
+
+#define TIMEOUT_LOWER_LIMIT_MS 1000ULL
+
+// A window to allow to process watchdog kick before timeout occurs.
+#define TIME_WINDOW_MS 2UL
 
 #define MSG_VALUE_DUMMY "0"
 #define CASE_DATA_INVALID 0xffffffffUL
+#define CASE_DATA_PHASE2_OK 0xfffffffeUL
 
 #define MSG_VALUE_LEN 24
 #define MSG_KEY_LEN 24
@@ -34,6 +41,7 @@
 #define MSG_KEY_DEVICE_READY "ready"
 #define MSG_KEY_START_CASE "start_case"
 #define MSG_KEY_HEARTBEAT "hb"
+#define MSG_KEY_DEVICE_RESET "dev_reset"
 
 using utest::v1::Case;
 using utest::v1::Specification;
@@ -46,6 +54,18 @@ struct testcase_data {
 };
 
 testcase_data current_case;
+
+bool send_reset_notification(testcase_data *tcdata, uint32_t delay_ms)
+{
+    char msg_value[12];
+    int str_len = snprintf(msg_value, sizeof msg_value, "%02x,%08lx", tcdata->start_index + tcdata->index, delay_ms);
+    if (str_len != (sizeof msg_value) - 1) {
+        utest_printf("Failed to compose a value string to be sent to host.");
+        return false;
+    }
+    greentea_send_kv(MSG_KEY_DEVICE_RESET, msg_value);
+    return true;
+}
 
 template<uint32_t timeout_ms>
 void test_timing()
@@ -110,6 +130,48 @@ void test_timing()
     }
 }
 
+void test_timeout_lower_limit()
+{
+    watchdog_features_t features = hal_watchdog_get_platform_features();
+    if (TIMEOUT_LOWER_LIMIT_MS > features.max_timeout) {
+        TEST_IGNORE_MESSAGE("Requested timeout value not supported for this target -- ignoring test case.");
+        return;
+    }
+
+    // Phase 2. -- verify the test results.
+    if (current_case.received_data != CASE_DATA_INVALID) {
+        TEST_ASSERT_EQUAL(CASE_DATA_PHASE2_OK, current_case.received_data);
+        current_case.received_data = CASE_DATA_INVALID;
+        return;
+    }
+
+    // Phase 1. -- run the test code.
+    watchdog_config_t config = { TIMEOUT_LOWER_LIMIT_MS };
+    uint32_t sleep_time_ms = (TIMEOUT_LOWER_LIMIT_MS * features.clock_typical_frequency / features.clock_max_frequency) - TIME_WINDOW_MS;
+    TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
+
+    // Kick watchdog before timeout.
+    // Watchdog should not trigger before timeout * clock accuracy.
+    // If device restarts while waiting for the kick, test fails.
+
+    wait_us(sleep_time_ms * 1000);
+    hal_watchdog_kick();
+
+    if (send_reset_notification(&current_case, 2 * TIMEOUT_LOWER_LIMIT_MS) == false) {
+        TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
+        return;
+    }
+    hal_watchdog_kick();
+
+    // Watchdog should fire before twice the timeout value.
+    wait_us(2 * TIMEOUT_LOWER_LIMIT_MS * 1000);
+
+    // Watchdog reset should have occurred during that wait() above;
+
+    hal_watchdog_kick();  // Just to buy some time for testsuite failure handling.
+    TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
+}
+
 utest::v1::status_t case_setup(const Case *const source, const size_t index_of_case)
 {
     current_case.index = index_of_case;
@@ -151,6 +213,7 @@ Case cases[] = {
     Case("Timing, 500 ms", case_setup, test_timing<500UL>),
     Case("Timing, 1000 ms", case_setup, test_timing<1000UL>),
     Case("Timing, 3000 ms", case_setup, test_timing<3000UL>),
+    Case("timeout accuracy", case_setup, test_timeout_lower_limit)
 };
 
 Specification specification((utest::v1::test_setup_handler_t) testsuite_setup, cases);

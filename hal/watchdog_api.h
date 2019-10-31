@@ -47,7 +47,9 @@
  * already initialized the hardware watchdog timer.
  * * Maximum supported timeout is `UINT32_MAX` milliseconds; minimum timeout
  * is 1 millisecond.
- * * The watchdog should trigger at or after the timeout value.
+ * * The uncalibrated watchdog should trigger at or after the timeout value
+ * multiplied by the frequency accuracy ratio of its oscillator (typical_frequency / max_frequency).
+ * * The calibrated watchdog should trigger at or after the timeout value.
  * * The watchdog should trigger before twice the timeout value.
  *
  * # Undefined behavior
@@ -99,6 +101,14 @@ typedef struct {
      * You can stop the watchdog after it starts without a reset.
      */
     bool disable_watchdog;
+    /**
+     * Typical frequency of not calibrated watchdog clock in Hz.
+     */
+    uint32_t clock_typical_frequency;
+    /**
+     * Maximum frequency of not calibrated watchdog clock in Hz.
+     */
+    uint32_t clock_max_frequency;
 } watchdog_features_t;
 
 
