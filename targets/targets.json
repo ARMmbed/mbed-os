@@ -6103,6 +6103,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+			"RTC",
             "SERIAL",
             "SERIAL_FC",
             "SPI",

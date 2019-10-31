@@ -118,7 +118,11 @@ int gpio_irq_init(gpio_irq_t *obj, PinName name, gpio_irq_handler handler, uint3
 
     /* enable the requested interrupt */
     MXC_GPIO->inten[port] |= (1 << pin);
-    NVIC_EnableIRQ((IRQn_Type)((uint32_t)GPIO_P0_IRQn + port));
+	if (port >= 7) {
+		NVIC_EnableIRQ((IRQn_Type)((uint32_t)GPIO_P7_IRQn + (port - 7)));
+	} else {
+		NVIC_EnableIRQ((IRQn_Type)((uint32_t)GPIO_P0_IRQn + port));
+	}
 
     return 0;
 }
