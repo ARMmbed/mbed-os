@@ -166,6 +166,34 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     i2c_modinit_mask |= 1 << i;
 }
 
+void i2c_free(i2c_t *obj)
+{
+    const struct nu_modinit_s *modinit = get_modinit(obj->i2c.i2c, i2c_modinit_tab);
+    MBED_ASSERT(modinit != NULL);
+    MBED_ASSERT(modinit->modname == (int) obj->i2c.i2c);
+
+    /* Disable I2C interrupt */
+    NVIC_DisableIRQ(modinit->irq_n);
+
+    I2C_T *i2c_base = (I2C_T *) NU_MODBASE(obj->i2c.i2c);
+
+    /* Disable I2C module */
+    I2C_Close(i2c_base);
+
+    /* Disable IP clock */
+    CLK_DisableModuleClock(modinit->clkidx);
+
+    // Mark this module to be deinited.
+    int i = modinit - i2c_modinit_tab;
+    i2c_modinit_mask &= ~(1 << i);
+
+    /* Free up pins */
+    gpio_set(obj->i2c.pin_sda);
+    gpio_set(obj->i2c.pin_scl);
+    obj->i2c.pin_sda = NC;
+    obj->i2c.pin_scl = NC;
+}
+
 int i2c_start(i2c_t *obj)
 {
     return i2c_do_trsn(obj, I2C_CON_START_Msk | I2C_CON_I2C_STS_Msk, 1);
