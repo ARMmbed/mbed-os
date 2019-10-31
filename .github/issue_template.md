@@ -2,6 +2,8 @@
 
    ************************************** WARNING **************************************
 
+   Some test text
+
    The ciarcom bot parses this header automatically. Any deviation from the 
    template may cause the bot to automatically correct this header or may result in a 
    warning message, requesting updates.
