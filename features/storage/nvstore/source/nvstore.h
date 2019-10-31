@@ -294,6 +294,7 @@ private:
     uint8_t *_page_buf;
 
     // Private constructor, as class is a singleton
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "NVStore is deprecated in favor of KVStore")
     NVStore();
 
     /**
