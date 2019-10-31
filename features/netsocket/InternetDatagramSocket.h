@@ -40,8 +40,12 @@ public:
      *  @param port     Port of the remote host.
      *  @param data     Buffer of data to send to the host.
      *  @param size     Size of the buffer in bytes.
-     *  @return         Number of sent bytes on success, negative error
-     *                  code on failure.
+     *  @retval         int Number of sent bytes on success.
+     *  @retval         NSAPI_ERROR_NO_SOCKET in case socket was not created correctly.
+     *  @retval         NSAPI_ERROR_WOULD_BLOCK in case non-blocking mode is enabled
+     *                  and send cannot be performed immediately.
+     *  @retval         int Other negative error codes for stack-related failures.
+     *                  See @ref NetworkStack::socket_send.
      */
     virtual nsapi_size_or_error_t sendto(const char *host, uint16_t port,
                                          const void *data, nsapi_size_t size);
@@ -55,8 +59,13 @@ public:
      *  @param address  The SocketAddress of the remote host.
      *  @param data     Buffer of data to send to the host.
      *  @param size     Size of the buffer in bytes.
-     *  @return         Number of sent bytes on success, negative error
-     *                  code on failure.
+     *  @retval         NSAPI_ERROR_DNS_FAILURE in case the address parameter cannot
+     *                  be resolved.
+     *  @retval         NSAPI_ERROR_NO_SOCKET in case socket was not created correctly.
+     *  @retval         NSAPI_ERROR_WOULD_BLOCK in case non-blocking mode is enabled
+     *                  and send cannot be performed immediately.
+     *  @retval         int Other negative error codes for stack-related failures.
+     *                  See \ref NetworkStack::socket_send.
      */
     virtual nsapi_size_or_error_t sendto(const SocketAddress &address,
                                          const void *data, nsapi_size_t size);
@@ -77,8 +86,12 @@ public:
      *  @param address  Destination for the source address or NULL.
      *  @param data     Destination buffer for RAW data to be received from the host.
      *  @param size     Size of the buffer in bytes.
-     *  @return         Number of received bytes on success, negative error
-     *                  code on failure.
+     *  @retval         int Number of received bytes on success.
+     *  @retval         NSAPI_ERROR_NO_SOCKET in case socket was not created correctly.
+     *  @retval         NSAPI_ERROR_WOULD_BLOCK in case non-blocking mode is enabled
+     *                  and send cannot be performed immediately.
+     *  @retval         int Other negative error codes for stack-related failures.
+     *                  See \ref NetworkStack::socket_recv.
      */
     virtual nsapi_size_or_error_t recvfrom(SocketAddress *address,
                                            void *data, nsapi_size_t size);
@@ -88,7 +101,7 @@ public:
      *  SocketAddress must be in the address parameter.
      *
      *  @param address  The SocketAddress of the remote host.
-     *  @return         0 on success, negative error code on failure.
+     *  @return         NSAPI_ERROR_OK on success.
      */
     virtual nsapi_error_t connect(const SocketAddress &address);
 
@@ -102,8 +115,12 @@ public:
      *
      *  @param data     Buffer of data to send to the host.
      *  @param size     Size of the buffer in bytes.
-     *  @return         Number of sent bytes on success, negative error
-     *                  code on failure.
+     *  @retval         int Number of sent bytes on success.
+     *  @retval         NSAPI_ERROR_NO_SOCKET in case socket was not created correctly.
+     *  @retval         NSAPI_ERROR_WOULD_BLOCK in case non-blocking mode is enabled
+     *                  and send cannot be performed immediately.
+     *  @retval         int Other negative error codes for stack-related failures.
+     *                  See \ref NetworkStack::socket_send.
      */
     virtual nsapi_size_or_error_t send(const void *data, nsapi_size_t size);
 
@@ -119,8 +136,12 @@ public:
      *
      *  @param data     Pointer to buffer for data received from the host.
      *  @param size     Size of the buffer in bytes.
-     *  @return         Number of received bytes on success, negative error
-     *                  code on failure.
+     *  @retval         int Number of received bytes on success.
+     *  @retval         NSAPI_ERROR_NO_SOCKET in case socket was not created correctly.
+     *  @retval         NSAPI_ERROR_WOULD_BLOCK in case non-blocking mode is enabled
+     *                  and send cannot be performed immediately.
+     *  @retval         int Other negative error codes for stack-related failures.
+     *                  See \ref NetworkStack::socket_recv.
      */
     virtual nsapi_size_or_error_t recv(void *data, nsapi_size_t size);
 
