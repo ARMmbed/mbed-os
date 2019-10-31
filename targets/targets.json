@@ -3058,7 +3058,6 @@
         "core": "Cortex-M7F",
         "extra_labels_add": [
             "STM32F7",
-            "STM32F746",
             "STM32F746xG",
             "STM32F746ZG"
         ],
@@ -3079,6 +3078,7 @@
             }
         },
         "macros_add": [
+            "STM32F746xx",
             "MBED_TICKLESS",
             "EXTRA_IDLE_STACK_REQUIRED"
         ],
@@ -3108,7 +3108,6 @@
         "core": "Cortex-M7F",
         "extra_labels_add": [
             "STM32F7",
-            "STM32F756",
             "STM32F756xG",
             "STM32F756ZG"
         ],
@@ -3129,6 +3128,7 @@
             }
         },
         "macros_add": [
+            "STM32F756xx",
             "MBED_TICKLESS",
             "EXTRA_IDLE_STACK_REQUIRED",
             "MBEDTLS_CONFIG_HW_SUPPORT"
@@ -3155,11 +3155,12 @@
     },
     "NUCLEO_F767ZI": {
         "inherits": ["FAMILY_STM32"],
-        "components_add": ["FLASHIAP"],
+        "components_add": [
+            "FLASHIAP"
+        ],
         "core": "Cortex-M7FD",
         "extra_labels_add": [
             "STM32F7",
-            "STM32F767",
             "STM32F767xI",
             "STM32F767ZI"
         ],
@@ -3185,6 +3186,7 @@
         },
         "supported_form_factors": ["ARDUINO"],
         "macros_add": [
+            "STM32F767xx",
             "MBED_TICKLESS",
             "EXTRA_IDLE_STACK_REQUIRED"
         ],
@@ -3387,7 +3389,10 @@
     "UHURU_RAVEN": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M7FD",
-        "extra_labels_add": ["STM32F7", "STM32F767", "STM32F767xI", "STM32F767VI"],
+        "extra_labels_add": [
+            "STM32F7",
+            "STM32F767xI"
+        ],
         "config": {
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL | USE_PLL_HSI",
@@ -3404,6 +3409,9 @@
             "network-default-interface-type": "WIFI"
         },
         "components_add": ["SPIF"],
+        "macros_add": [
+            "STM32F767xx"
+        ],
         "detect_code": ["9020"],
         "device_has_add": ["ANALOGOUT", "CAN", "CRC", "TRNG", "FLASH", "MPU"],
         "device_has_remove": ["SERIAL_FC"],
@@ -4292,9 +4300,7 @@
         "extra_labels_add": [
             "N25Q128A",
             "STM32F7",
-            "STM32F746",
-            "STM32F746xG",
-            "STM32F746NG"
+            "STM32F746xG"
         ],
         "components_add": ["QSPIF", "FLASHIAP"],
         "supported_form_factors": ["ARDUINO"],
@@ -4315,6 +4321,8 @@
         },
         "detect_code": ["0815"],
         "macros_add": [
+            "STM32F746xx",
+            "HSE_VALUE=25000000",
             "MBED_TICKLESS",
             "EXTRA_IDLE_STACK_REQUIRED"
         ],
@@ -4344,9 +4352,7 @@
         "extra_labels_add": [
             "MX25L51245G",
             "STM32F7",
-            "STM32F769",
-            "STM32F769xI",
-            "STM32F769NI"
+            "STM32F769xI"
         ],
         "components_add": ["QSPIF"],
         "supported_form_factors": ["ARDUINO"],
@@ -4367,6 +4373,8 @@
         },
         "detect_code": ["0817"],
         "macros_add": [
+            "STM32F769xx",
+            "HSE_VALUE=25000000",
             "MBED_TICKLESS",
             "EXTRA_IDLE_STACK_REQUIRED"
         ],
