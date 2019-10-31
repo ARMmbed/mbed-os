@@ -852,6 +852,21 @@ void user_allocated_event_test()
     equeue_destroy(&q);
 }
 
+void id_cycle()
+{
+    equeue_t q;
+    int err = equeue_create(&q, 10000000);
+    test_assert(!err);
+
+    for (int i = 0; i < 300; i++) {
+        int id = equeue_call(&q, pass_func, 0);
+        test_assert(id != 0);
+        test_assert(equeue_cancel(&q, id));
+    }
+
+    equeue_destroy(&q);
+}
+
 int main()
 {
     printf("beginning tests...\n");
@@ -881,6 +896,7 @@ int main()
     test_run(break_request_cleared_on_timeout);
     test_run(sibling_test);
     test_run(user_allocated_event_test);
+    test_run(id_cycle);
     printf("done!\n");
     return test_failure;
 }
