@@ -94,30 +94,49 @@ void analogin_init(analogin_t *obj, PinName pin)
     adc_busy_flag = 0;
 }
 
-void analogin_deinit(PinName pin)
+void analogin_free(analogin_t *obj)
 {
-    analogin_t obj;
-    obj.adc = (ADCName) pinmap_peripheral(pin, PinMap_ADC);
-    MBED_ASSERT(obj.adc != (ADCName) NC);
+    const struct nu_modinit_s *modinit = get_modinit(obj->adc, adc_modinit_tab);
+    MBED_ASSERT(modinit->modname == (int) obj->adc);
 
-    const struct nu_modinit_s *modinit = get_modinit(obj.adc, adc_modinit_tab);
-    MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT((ADCName) modinit->modname == obj.adc);
-    
-    ADC_T *adc_base = (ADC_T *) NU_MODBASE(obj.adc);
-    uint32_t chn =  NU_MODSUBINDEX(obj.adc);
-    
+    /* Module subindex (aka channel) */
+    uint32_t chn =  NU_MODSUBINDEX(obj->adc);
+
+    ADC_T *adc_base = (ADC_T *) NU_MODBASE(obj->adc);
+
     // Wait for ADC is not busy, due to all ADC channels share the same module
     while (adc_busy_flag != 0) {
         wait_us(100);
     }
     adc_busy_flag = 1;
-    
-    // Disable channel N
+
+    /* Channel-level windup from here */
+
+    /* Mark channel free */
+    adc_modinit_mask &= ~(1 << chn);
+
     adc_base->CHEN &= ~(1 << chn);
     adc_modinit_mask &= ~(1 << chn);
 
+    /* Module-level windup from here */
+
+    /* See analogin_init() for reason */
+    if (! adc_modinit_mask) {
+        /* Disable ADC module */
+        ADC_Close(adc_base);
+
+        // Power off ADC
+        ADC_POWER_DOWN(adc_base);
+
+        /* Disable IP clock */
+        CLK_DisableModuleClock(modinit->clkidx);
+    }
+
     adc_busy_flag = 0;
+
+    /* Free up pins */
+    gpio_set(obj->pin);
+    obj->pin = NC;
 }
 
 uint16_t analogin_read_u16(analogin_t *obj)
