@@ -22,36 +22,7 @@
 
 #include "features/netsocket/EthernetInterface.h"
 #include <iostream>
-
-class MockEMAC : public EMAC {
-public:
-    MOCK_METHOD0(power_up, bool());
-    MOCK_METHOD0(power_down, void());
-    MOCK_CONST_METHOD0(get_mtu_size, uint32_t());
-    MOCK_CONST_METHOD0(get_align_preference, uint32_t());
-    MOCK_CONST_METHOD2(get_ifname, void(char *name, uint8_t size));
-    MOCK_CONST_METHOD0(get_hwaddr_size, uint8_t());
-    MOCK_CONST_METHOD1(get_hwaddr, bool(uint8_t *addr));
-    MOCK_METHOD1(set_hwaddr, void(const uint8_t *));
-    MOCK_METHOD1(link_out, bool(emac_mem_buf_t *buf));
-    MOCK_METHOD1(set_link_input_cb, void(emac_link_input_cb_t input_cb));
-    MOCK_METHOD1(set_link_state_cb, void(emac_link_state_change_cb_t state_cb));
-    MOCK_METHOD1(add_multicast_group, void(const uint8_t *address));
-    MOCK_METHOD1(remove_multicast_group, void(const uint8_t *address));
-    MOCK_METHOD1(set_all_multicast, void(bool all));
-    MOCK_METHOD1(set_memory_manager, void(EMACMemoryManager &mem_mngr));
-
-    static MockEMAC &get_instance()
-    {
-        static MockEMAC emacMock1;
-        return emacMock1;
-    }
-};
-
-MBED_WEAK EMAC &EMAC::get_default_instance()
-{
-    return MockEMAC::get_instance();
-}
+#include "EMAC_mock.h"
 
 OnboardNetworkStack &OnboardNetworkStack::get_default_instance()
 {
@@ -168,6 +139,8 @@ TEST_F(TestEthernetInterface, set_network)
     SocketAddress ipAddress("127.0.0.1");
     SocketAddress netmask("255.255.0.0");
     SocketAddress gateway("127.0.0.2");
+    char macAddress[NSAPI_MAC_SIZE];
+    memset(macAddress, '\0', NSAPI_MAC_SIZE);
 
     SocketAddress ipAddressArg;
     SocketAddress netmaskArg;
@@ -205,6 +178,11 @@ TEST_F(TestEthernetInterface, set_network)
     EXPECT_EQ(gateway, gatewayArg);
 
     // Testing the getters makes sense now.
+    EXPECT_CALL(*netStackIface, get_mac_address(_, _))
+    .Times(1)
+    .WillOnce(DoAll(SetArrayArgument<0>(macAddress, macAddress+NSAPI_MAC_SIZE), Return(macAddress)));
+    EXPECT_EQ(std::string(macAddress), std::string(iface->get_mac_address()));
+
     EXPECT_CALL(*netStackIface, get_ip_address(_))
     .Times(1)
     .WillOnce(DoAll(SetArgPointee<0>(ipAddress), Return(NSAPI_ERROR_OK)));

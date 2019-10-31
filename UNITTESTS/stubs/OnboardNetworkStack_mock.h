@@ -32,6 +32,7 @@ class OnboardNetworkStackMock : public OnboardNetworkStack {
 public:
     MOCK_METHOD3(gethostbyname, nsapi_error_t(const char *host, SocketAddress *address, nsapi_version_t version));
     MOCK_METHOD1(add_dns_server, nsapi_error_t(const SocketAddress &address));
+    MOCK_METHOD3(get_dns_server, nsapi_error_t(int index, SocketAddress *address, const char *interface_name));
     MOCK_METHOD2(call_in, nsapi_error_t(int delay, mbed::Callback<void()> func));
     MOCK_METHOD2(socket_open, nsapi_error_t(nsapi_socket_t *handle, nsapi_protocol_t proto));
     MOCK_METHOD1(socket_close, nsapi_error_t(nsapi_socket_t handle));
@@ -45,10 +46,17 @@ public:
     MOCK_METHOD4(socket_recvfrom, nsapi_error_t(nsapi_socket_t handle, SocketAddress *address, void *data, nsapi_size_t size));
     MOCK_METHOD5(setsockopt, nsapi_error_t(nsapi_socket_t handle, int level, int optname, const void *optval, unsigned optlen));
     MOCK_METHOD5(getsockopt, nsapi_error_t(nsapi_socket_t handle, int level, int optname, const void *optval, unsigned *optlen));
-    MOCK_METHOD3(socket_attach, void(nsapi_socket_t handle, void (*callback)(void *), void *data));
+//    MOCK_METHOD3(socket_attach, void(nsapi_socket_t handle, void (*callback)(void *), void *data));
     MOCK_METHOD3(add_ethernet_interface, nsapi_error_t(EMAC &emac, bool default_if, OnboardNetworkStack::Interface **interface_out));
     MOCK_METHOD3(add_ppp_interface, nsapi_error_t(PPP &ppp, bool default_if, OnboardNetworkStack::Interface **interface_out));
     MOCK_METHOD1(set_default_interface, void (OnboardNetworkStack::Interface *interface));
+    void *socket_cb;
+    // No need to mock socket_attach really.
+    void socket_attach(nsapi_socket_t handle, void (*callback)(void *), void *data)
+    {
+        socket_cb = data;
+    };
+
 
     static OnboardNetworkStackMock &get_instance()
     {
