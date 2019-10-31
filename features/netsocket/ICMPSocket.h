@@ -1,7 +1,6 @@
-
 /** \addtogroup netsocket */
 /** @{*/
-/* UDPSocket
+/* ICMPSocket
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,43 +16,25 @@
  * limitations under the License.
  */
 
-#ifndef UDPSOCKET_H
-#define UDPSOCKET_H
+#ifndef ICMPSOCKET_H
+#define ICMPSOCKET_H
 
 #include "netsocket/InternetSocket.h"
+#include "netsocket/InternetDatagramSocket.h"
 #include "netsocket/NetworkStack.h"
 #include "netsocket/NetworkInterface.h"
-#include "netsocket/InternetDatagramSocket.h"
 #include "rtos/EventFlags.h"
-#include "ICMPSocket.h"
 
 
-/** UDP socket implementation.
+/** ICMP socket implementation.
  */
-class UDPSocket : public InternetDatagramSocket {
+class ICMPSocket : public InternetDatagramSocket {
 public:
     /** Create an uninitialized socket.
      *
      *  @note Must call open to initialize the socket on a network stack.
      */
-    UDPSocket();
-
-    /** Create and open a socket on the network stack of the given
-     *  network interface.
-     *
-     *  @tparam S    Type of the Network stack.
-     *  @param stack Network stack as target for socket.
-     *  @deprecated since mbed-os-5.11
-     */
-    template <typename S>
-    MBED_DEPRECATED_SINCE("mbed-os-5.11",
-                          "The UDPSocket(S *stack) constructor is deprecated"
-                          "It discards the open() call return value."
-                          "Use another constructor and call open() explicitly, instead.")
-    UDPSocket(S *stack)
-    {
-        open(stack);
-    }
+    ICMPSocket();
 
 #if !defined(DOXYGEN_ONLY)
 
@@ -61,7 +42,6 @@ protected:
     virtual nsapi_protocol_t get_proto();
 
 #endif //!defined(DOXYGEN_ONLY)
-
 };
 
 

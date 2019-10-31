@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#include "UDPSocket.h"
+#include "ICMPSocket.h"
 #include "Timer.h"
 #include "mbed_assert.h"
 
-UDPSocket::UDPSocket()
+ICMPSocket::ICMPSocket()
 {
-    _socket_stats.stats_update_proto(this, NSAPI_UDP);
+    _socket_stats.stats_update_proto(this, NSAPI_ICMP);
 }
 
-nsapi_protocol_t UDPSocket::get_proto()
+nsapi_protocol_t ICMPSocket::get_proto()
 {
-    return NSAPI_UDP;
+    return NSAPI_ICMP;
 }
