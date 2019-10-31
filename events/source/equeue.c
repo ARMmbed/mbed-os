@@ -36,14 +36,14 @@ static inline int equeue_tickdiff(unsigned a, unsigned b)
 static inline int equeue_clampdiff(unsigned a, unsigned b)
 {
     int diff = equeue_tickdiff(a, b);
-    return ~(diff >> (8 * sizeof(int) -1)) & diff;
+    return diff > 0 ? diff : 0;
 }
 
 // Increment the unique id in an event, hiding the event from cancel
 static inline void equeue_incid(equeue_t *q, struct equeue_event *e)
 {
     e->id += 1;
-    if ((e->id << q->npw2) == 0) {
+    if (((unsigned)e->id << q->npw2) == 0) {
         e->id = 1;
     }
 }
@@ -280,7 +280,7 @@ void equeue_enqueue(equeue_t *q, struct equeue_event *e, unsigned tick)
 static int equeue_event_id(equeue_t *q, struct equeue_event *e)
 {
     // setup event and hash local id with buffer offset for unique id
-    return ((e->id << q->npw2) | ((unsigned char *)e - q->buffer));
+    return ((unsigned)e->id << q->npw2) | ((unsigned char *)e - q->buffer);
 }
 
 static struct equeue_event *equeue_unqueue_by_address(equeue_t *q, struct equeue_event *e)
@@ -319,10 +319,10 @@ static struct equeue_event *equeue_unqueue_by_id(equeue_t *q, int id)
 {
     // decode event from unique id and check that the local id matches
     struct equeue_event *e = (struct equeue_event *)
-                             &q->buffer[id & ((1 << q->npw2) - 1)];
+                             &q->buffer[id & ((1u << q->npw2) - 1u)];
 
     equeue_mutex_lock(&q->queuelock);
-    if (e->id != id >> q->npw2) {
+    if (e->id != (unsigned)id >> q->npw2) {
         equeue_mutex_unlock(&q->queuelock);
         return 0;
     }
@@ -447,10 +447,10 @@ int equeue_timeleft(equeue_t *q, int id)
 
     // decode event from unique id and check that the local id matches
     struct equeue_event *e = (struct equeue_event *)
-                             &q->buffer[id & ((1 << q->npw2) - 1)];
+                             &q->buffer[id & ((1u << q->npw2) - 1u)];
 
     equeue_mutex_lock(&q->queuelock);
-    if (e->id == id >> q->npw2) {
+    if (e->id == (unsigned)id >> q->npw2) {
         ret = equeue_clampdiff(e->target, equeue_tick());
     }
     equeue_mutex_unlock(&q->queuelock);
