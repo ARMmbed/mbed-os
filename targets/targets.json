@@ -3318,6 +3318,8 @@
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M7FD",
         "components_add": ["FLASHIAP"],
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size" : "0x100000",
         "extra_labels_add": [
             "STM32H7",
             "STM32H747xI",
@@ -3355,6 +3357,7 @@
             "MPU"
         ],
         "release_versions": ["2", "5"],
+        "device_name": "STM32H747AGIx",
         "bootloader_supported": true
     },
     "DISCO_H747I_CM4": {
