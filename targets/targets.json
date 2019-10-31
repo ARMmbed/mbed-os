@@ -3264,6 +3264,9 @@
     "NUCLEO_H743ZI2": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M7FD",
+        "components_add": ["FLASHIAP"],
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size" : "0x200000",
         "extra_labels_add": [
             "STM32H7",
             "STM32H743xI"
