@@ -149,7 +149,7 @@
  *
  * \warning If a function returns this error, it is undetermined
  * whether the requested action has completed or not. Implementations
- * should return #PSA_SUCCESS on successful completion whenver
+ * should return #PSA_SUCCESS on successful completion whenever
  * possible, however functions may return #PSA_ERROR_COMMUNICATION_FAILURE
  * if the requested action was completed successfully in an external
  * cryptoprocessor but there was a breakdown of communication before
@@ -284,7 +284,7 @@
  */
 #define PSA_KEY_TYPE_NONE                       ((psa_key_type_t)0x00000000)
 
-/** Vendor-defined flag
+/** Vendor-defined key type flag.
  *
  * Key types defined by this standard will never have the
  * #PSA_KEY_TYPE_VENDOR_FLAG bit set. Vendors who define additional key types
@@ -301,7 +301,10 @@
 
 #define PSA_KEY_TYPE_CATEGORY_FLAG_PAIR         ((psa_key_type_t)0x10000000)
 
-/** Whether a key type is vendor-defined. */
+/** Whether a key type is vendor-defined.
+ *
+ * See also #PSA_KEY_TYPE_VENDOR_FLAG.
+ */
 #define PSA_KEY_TYPE_IS_VENDOR_DEFINED(type) \
     (((type) & PSA_KEY_TYPE_VENDOR_FLAG) != 0)
 
@@ -421,10 +424,18 @@
 #define PSA_KEY_TYPE_ECC_PUBLIC_KEY_BASE        ((psa_key_type_t)0x60030000)
 #define PSA_KEY_TYPE_ECC_KEY_PAIR_BASE           ((psa_key_type_t)0x70030000)
 #define PSA_KEY_TYPE_ECC_CURVE_MASK             ((psa_key_type_t)0x0000ffff)
-/** Elliptic curve key pair. */
+/** Elliptic curve key pair.
+ *
+ * \param curve     A value of type ::psa_ecc_curve_t that identifies the
+ *                  ECC curve to be used.
+ */
 #define PSA_KEY_TYPE_ECC_KEY_PAIR(curve)         \
     (PSA_KEY_TYPE_ECC_KEY_PAIR_BASE | (curve))
-/** Elliptic curve public key. */
+/** Elliptic curve public key.
+ *
+ * \param curve     A value of type ::psa_ecc_curve_t that identifies the
+ *                  ECC curve to be used.
+ */
 #define PSA_KEY_TYPE_ECC_PUBLIC_KEY(curve)              \
     (PSA_KEY_TYPE_ECC_PUBLIC_KEY_BASE | (curve))
 
@@ -495,13 +506,34 @@
  */
 #define PSA_ECC_CURVE_CURVE448          ((psa_ecc_curve_t) 0x001e)
 
+/** Minimum value for a vendor-defined ECC curve identifier
+ *
+ * The range for vendor-defined curve identifiers is a subset of the IANA
+ * registry private use range, `0xfe00` - `0xfeff`.
+ */
+#define PSA_ECC_CURVE_VENDOR_MIN        ((psa_ecc_curve_t) 0xfe00)
+/** Maximum value for a vendor-defined ECC curve identifier
+ *
+ * The range for vendor-defined curve identifiers is a subset of the IANA
+ * registry private use range, `0xfe00` - `0xfeff`.
+ */
+#define PSA_ECC_CURVE_VENDOR_MAX        ((psa_ecc_curve_t) 0xfe7f)
+
 #define PSA_KEY_TYPE_DH_PUBLIC_KEY_BASE         ((psa_key_type_t)0x60040000)
 #define PSA_KEY_TYPE_DH_KEY_PAIR_BASE            ((psa_key_type_t)0x70040000)
 #define PSA_KEY_TYPE_DH_GROUP_MASK              ((psa_key_type_t)0x0000ffff)
-/** Diffie-Hellman key pair. */
+/** Diffie-Hellman key pair.
+ *
+ * \param group     A value of type ::psa_dh_group_t that identifies the
+ *                  Diffie-Hellman group to be used.
+ */
 #define PSA_KEY_TYPE_DH_KEY_PAIR(group)          \
     (PSA_KEY_TYPE_DH_KEY_PAIR_BASE | (group))
-/** Diffie-Hellman public key. */
+/** Diffie-Hellman public key.
+ *
+ * \param group     A value of type ::psa_dh_group_t that identifies the
+ *                  Diffie-Hellman group to be used.
+ */
 #define PSA_KEY_TYPE_DH_PUBLIC_KEY(group)               \
     (PSA_KEY_TYPE_DH_PUBLIC_KEY_BASE | (group))
 
@@ -535,6 +567,19 @@
 #define PSA_DH_GROUP_FFDHE6144          ((psa_dh_group_t) 0x0103)
 #define PSA_DH_GROUP_FFDHE8192          ((psa_dh_group_t) 0x0104)
 
+/** Minimum value for a vendor-defined Diffie Hellman group identifier
+ *
+ * The range for vendor-defined group identifiers is a subset of the IANA
+ * registry private use range, `0x01fc` - `0x01ff`.
+ */
+#define PSA_DH_GROUP_VENDOR_MIN         ((psa_dh_group_t) 0x01fc)
+/** Maximum value for a vendor-defined Diffie Hellman group identifier
+ *
+ * The range for vendor-defined group identifiers is a subset of the IANA
+ * registry private use range, `0x01fc` - `0x01ff`.
+ */
+#define PSA_DH_GROUP_VENDOR_MAX         ((psa_dh_group_t) 0x01fd)
+
 /** The block size of a block cipher.
  *
  * \param type  A cipher key type (value of type #psa_key_type_t).
@@ -561,7 +606,15 @@
         (type) == PSA_KEY_TYPE_ARC4 ? 1 :            \
         0)
 
+/** Vendor-defined algorithm flag.
+ *
+ * Algorithms defined by this standard will never have the #PSA_ALG_VENDOR_FLAG
+ * bit set. Vendors who define additional algorithms must use an encoding with
+ * the #PSA_ALG_VENDOR_FLAG bit set and should respect the bitwise structure
+ * used by standard encodings whenever practical.
+ */
 #define PSA_ALG_VENDOR_FLAG                     ((psa_algorithm_t)0x80000000)
+
 #define PSA_ALG_CATEGORY_MASK                   ((psa_algorithm_t)0x7f000000)
 #define PSA_ALG_CATEGORY_HASH                   ((psa_algorithm_t)0x01000000)
 #define PSA_ALG_CATEGORY_MAC                    ((psa_algorithm_t)0x02000000)
@@ -572,6 +625,10 @@
 #define PSA_ALG_CATEGORY_KEY_DERIVATION         ((psa_algorithm_t)0x20000000)
 #define PSA_ALG_CATEGORY_KEY_AGREEMENT          ((psa_algorithm_t)0x30000000)
 
+/** Whether an algorithm is vendor-defined.
+ *
+ * See also #PSA_ALG_VENDOR_FLAG.
+ */
 #define PSA_ALG_IS_VENDOR_DEFINED(alg)                                  \
     (((alg) & PSA_ALG_VENDOR_FLAG) != 0)
 
@@ -665,11 +722,15 @@
     (((alg) & PSA_ALG_CATEGORY_MASK) == PSA_ALG_CATEGORY_KEY_DERIVATION)
 
 #define PSA_ALG_HASH_MASK                       ((psa_algorithm_t)0x000000ff)
-
+/** MD2 */
 #define PSA_ALG_MD2                             ((psa_algorithm_t)0x01000001)
+/** MD4 */
 #define PSA_ALG_MD4                             ((psa_algorithm_t)0x01000002)
+/** MD5 */
 #define PSA_ALG_MD5                             ((psa_algorithm_t)0x01000003)
+/** PSA_ALG_RIPEMD160 */
 #define PSA_ALG_RIPEMD160                       ((psa_algorithm_t)0x01000004)
+/** SHA1 */
 #define PSA_ALG_SHA_1                           ((psa_algorithm_t)0x01000005)
 /** SHA2-224 */
 #define PSA_ALG_SHA_224                         ((psa_algorithm_t)0x01000008)
@@ -1603,31 +1664,43 @@
 
 /** A secret input for key derivation.
  *
- * This must be a key of type #PSA_KEY_TYPE_DERIVE.
+ * This should be a key of type #PSA_KEY_TYPE_DERIVE
+ * (passed to psa_key_derivation_input_key())
+ * or the shared secret resulting from a key agreement
+ * (obtained via psa_key_derivation_key_agreement()).
+ *
+ * The secret can also be a direct input (passed to
+ * key_derivation_input_bytes()). In this case, the derivation operation
+ * may not be used to derive keys: the operation will only allow
+ * psa_key_derivation_output_bytes(), not psa_key_derivation_output_key().
  */
 #define PSA_KEY_DERIVATION_INPUT_SECRET     ((psa_key_derivation_step_t)0x0101)
 
 /** A label for key derivation.
  *
- * This must be a direct input.
+ * This should be a direct input.
+ * It can also be a key of type #PSA_KEY_TYPE_RAW_DATA.
  */
 #define PSA_KEY_DERIVATION_INPUT_LABEL      ((psa_key_derivation_step_t)0x0201)
 
 /** A salt for key derivation.
  *
- * This must be a direct input.
+ * This should be a direct input.
+ * It can also be a key of type #PSA_KEY_TYPE_RAW_DATA.
  */
 #define PSA_KEY_DERIVATION_INPUT_SALT       ((psa_key_derivation_step_t)0x0202)
 
 /** An information string for key derivation.
  *
- * This must be a direct input.
+ * This should be a direct input.
+ * It can also be a key of type #PSA_KEY_TYPE_RAW_DATA.
  */
 #define PSA_KEY_DERIVATION_INPUT_INFO       ((psa_key_derivation_step_t)0x0203)
 
 /** A seed for key derivation.
  *
- * This must be a direct input.
+ * This should be a direct input.
+ * It can also be a key of type #PSA_KEY_TYPE_RAW_DATA.
  */
 #define PSA_KEY_DERIVATION_INPUT_SEED       ((psa_key_derivation_step_t)0x0204)
 
