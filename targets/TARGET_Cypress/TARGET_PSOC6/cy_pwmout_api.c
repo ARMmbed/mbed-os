@@ -50,7 +50,7 @@ void pwmout_write(pwmout_t *obj, float percent)
 
 float pwmout_read(pwmout_t *obj)
 {
-    return 100.0f * obj->width_us / obj->period_us;
+    return ((float)(obj->width_us) / obj->period_us);
 }
 
 void pwmout_period(pwmout_t *obj, float seconds)
