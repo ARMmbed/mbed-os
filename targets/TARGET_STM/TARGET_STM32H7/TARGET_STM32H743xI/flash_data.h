@@ -2,7 +2,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2016-2019 STMicroelectronics.
+  * <h2><center>&copy; Copyright (c) 2018-2019 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under BSD 3-Clause license,

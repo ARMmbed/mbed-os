@@ -401,7 +401,7 @@ typedef enum {
     ETH_CRS = PH_2,
     ETH_CRS_ALT0 = PA_0,
     ETH_CRS_DV = PA_7,
-    ETH_MDC = PC_1,
+    ETH_MDC = PC_1, /* not default HW - need SB8 on/SB21 off */
     ETH_MDIO = PA_2,
     ETH_PPS_OUT = PB_5,
     ETH_PPS_OUT_ALT0 = PG_8,
@@ -461,6 +461,49 @@ typedef enum {
     PWR_WKUP3 = PI_8,
     PWR_WKUP4 = PI_11,
     PWR_WKUP5 = PC_1,
+
+    /**** STMOD+ pins ****/
+#ifdef STMOD_UART_SOLDERBRIDGE
+    STMOD_1  = PA_0,
+    STMOD_2  = PD_5,
+    STMOD_3  = PD_6,
+    STMOD_4  = PD_4,
+#else /* default HW configuration */
+    STMOD_1  = PA_11,
+    STMOD_2  = PC_3,
+    STMOD_3  = PC_2,
+    STMOD_4  = PA_12,
+#endif /* STMOD_UART_SOLDERBRIDGE */
+//  STMOD_5 is connected to GND
+//  STMOD_6 is connected to +5V
+    STMOD_7  = PD_12,
+    STMOD_8  = PB_15,
+    STMOD_9  = PB_14,
+    STMOD_10 = PD_13,
+    STMOD_11 = PC_6,
+    STMOD_12 = PJ_13,
+    STMOD_13 = PA_4,
+    STMOD_14 = PF_8,
+//  STMOD_15 is connected to +5V
+//  STMOD_16 is connected to GND
+    STMOD_17 = PC_7,
+    STMOD_18 = PD_3,
+    STMOD_19 = PB_9,
+    STMOD_20 = PB_8,
+
+    /**** PMOD pins ****/
+    PMOD_1  = STMOD_1,
+    PMOD_2  = STMOD_2,
+    PMOD_3  = STMOD_3,
+    PMOD_4  = STMOD_4,
+//  PMOD_5 is connected to GND
+//  PMOD_6 is connected to +3V3
+    PMOD_7  = STMOD_11,
+    PMOD_8  = STMOD_12,
+//  PMOD_9 is not connected
+//  PMOD_10 is not connected
+//  PMOD_11 is connected to GND
+//  PMOD_12 is connected to +3V3
 
     // Not connected
     NC = (int)0xFFFFFFFF
