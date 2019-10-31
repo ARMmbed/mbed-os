@@ -863,19 +863,31 @@ void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
     loramac_mhdr_t mac_hdr;
     loramac_mlme_confirm_t mlme;
     uint8_t pos = 0;
+    bool unexpected_mtype = false;
     mac_hdr.value = payload[pos++];
 
     switch (mac_hdr.bits.mtype) {
 
-        case FRAME_TYPE_JOIN_ACCEPT:
+        case FRAME_TYPE_JOIN_ACCEPT: {
+            loramac_mhdr_t tx_mac_hdr;
+            tx_mac_hdr.value = _params.tx_buffer[0];
 
-            ret = handle_join_accept_frame(payload, size);
-            mlme.type = MLME_JOIN_ACCEPT;
-            mlme.status = ret;
-            confirm_handler(mlme);
+            // Do not allow join accept if not received in class A downlink after join request
+            bool allow_join_accept = ((rx_slot == RX_SLOT_WIN_1) || (rx_slot == RX_SLOT_WIN_2)) &&
+                                     ((tx_mac_hdr.bits.mtype == FRAME_TYPE_JOIN_REQ) ||
+                                      (tx_mac_hdr.bits.mtype == FRAME_TYPE_REJOIN_REQUEST));
+
+            if (allow_join_accept) {
+                ret = handle_join_accept_frame(payload, size);
+                mlme.type = MLME_JOIN_ACCEPT;
+                mlme.status = ret;
+                confirm_handler(mlme);
+            }
+
+            unexpected_mtype = !allow_join_accept;
 
             break;
-
+        }
         case FRAME_TYPE_DATA_UNCONFIRMED_DOWN:
         case FRAME_TYPE_DATA_CONFIRMED_DOWN:
         case FRAME_TYPE_PROPRIETARY:
@@ -885,16 +897,21 @@ void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
             break;
 
         default:
-            //  This can happen e.g. if we happen to receive uplink of another device
-            //  during the receive window. Block RX2 window since it can overlap with
-            //  QOS TX and cause a mess.
-            tr_debug("RX unexpected mtype %u", mac_hdr.bits.mtype);
-            if (get_current_slot() == RX_SLOT_WIN_1) {
-                _lora_time.stop(_params.timers.rx_window2_timer);
-            }
-            _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL;
-            _mcps_indication.pending = false;
+            unexpected_mtype = true;
             break;
+    }
+
+    if (unexpected_mtype) {
+        //  This can happen e.g. if we happen to receive uplink of another device
+        //  during the receive window. Block RX2 window since it can overlap with
+        //  QOS TX and cause a mess.
+        tr_debug("RX unexpected mtype %u", mac_hdr.bits.mtype);
+        if (get_current_slot() == RX_SLOT_WIN_1) {
+            _lora_time.stop(_params.timers.rx_window2_timer);
+        }
+        _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL;
+        _mcps_indication.pending = false;
+
     }
 }
 
