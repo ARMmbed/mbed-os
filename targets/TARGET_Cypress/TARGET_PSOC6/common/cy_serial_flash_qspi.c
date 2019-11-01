@@ -48,7 +48,7 @@ extern "C" {
 
 /* SMIF slot from which the memory configuration is picked up - fixed to 0 as the driver
  * supports only one device */
-#define MEM_SLOT                                        (0u)
+#define MEM_SLOT                                    (0u)
 
 /** \endcond */
 
@@ -123,21 +123,26 @@ cy_rslt_t cy_serial_flash_qspi_init(
         }
     }
 
-    if((CY_RSLT_SUCCESS == result) && (CY_SMIF_SUCCESS == smifStatus))
+    if((CY_RSLT_SUCCESS != result) || (CY_SMIF_SUCCESS != smifStatus))
     {
-        return CY_RSLT_SUCCESS;
-    }
-    else
-    {
-        Cy_SMIF_MemDeInit(qspi_obj.base);
         cy_serial_flash_qspi_deinit();
-        return (cy_rslt_t)smifStatus;
+        
+        if(CY_SMIF_SUCCESS != smifStatus)
+        {
+            result = (cy_rslt_t)smifStatus;
+        }
     }
+            
+    return result;
 }
 
 void cy_serial_flash_qspi_deinit(void)
 {
-    Cy_SMIF_MemDeInit(qspi_obj.base);
+    if (qspi_obj.base != NULL)
+    {
+        Cy_SMIF_MemDeInit(qspi_obj.base);
+    }
+    
     cyhal_qspi_free(&qspi_obj);
 }
 
