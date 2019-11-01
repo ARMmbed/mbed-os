@@ -31,3 +31,4 @@
 ^TESTS/mbed_hal/trng/pithy
 ^TESTS/mbed_hal/trng/pithy
 ^tools
+^UNITTESTS

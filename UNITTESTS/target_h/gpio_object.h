@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 typedef struct {
-	int unused;
+   int unused;
 } gpio_t;
 
 #ifdef __cplusplus

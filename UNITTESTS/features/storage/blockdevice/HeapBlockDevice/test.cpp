@@ -16,7 +16,7 @@
 
 #include "gtest/gtest.h"
 #include "features/storage/blockdevice/HeapBlockDevice.h"
-#include "string.h"
+#include <string.h>
 #include "mbed_assert.h"
 
 #define BLOCK_SIZE (512)
@@ -67,7 +67,7 @@ TEST_F(HeapBlockDeviceTest, get_type)
 
 TEST_F(HeapBlockDeviceTest, erase_program_read)
 {
-    uint8_t *block = new uint8_t[BLOCK_SIZE]{0xaa,0xbb,0xcc};
+    uint8_t *block = new uint8_t[BLOCK_SIZE] {0xaa,0xbb,0xcc};
     uint8_t *buf = new uint8_t[BLOCK_SIZE];
     EXPECT_EQ(bd.erase(0, BLOCK_SIZE),          BD_ERROR_OK);
     EXPECT_EQ(bd.program(block, 0, BLOCK_SIZE), BD_ERROR_OK);
@@ -77,7 +77,7 @@ TEST_F(HeapBlockDeviceTest, erase_program_read)
     delete[] buf;
 }
 
-TEST_F(HeapBlockDeviceTest, use_uninitalized)
+TEST_F(HeapBlockDeviceTest, use_uninitialized)
 {
     mbed::HeapBlockDevice one{DEVICE_SIZE};
     uint8_t *buf = new uint8_t[BLOCK_SIZE];
@@ -95,7 +95,7 @@ TEST_F(HeapBlockDeviceTest, over_read)
 
 TEST_F(HeapBlockDeviceTest, over_write)
 {
-    uint8_t *buf = new uint8_t[BLOCK_SIZE]{0xaa,0xbb,0xcc};
+    uint8_t *buf = new uint8_t[BLOCK_SIZE] {0xaa,0xbb,0xcc};
     EXPECT_EQ(bd.program(buf, DEVICE_SIZE, BLOCK_SIZE), BD_ERROR_DEVICE_ERROR);
     delete[] buf;
 }

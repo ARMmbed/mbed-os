@@ -35,39 +35,39 @@ struct serial_s {
 };
 
 struct dac_s {
-	int unused;
+    int unused;
 };
 
 struct i2c_s {
-	int unused;
+    int unused;
 };
 
 struct qspi_s {
-	int unused;
+    int unused;
 };
 
 struct spi_s {
-	int unused;
+    int unused;
 };
 
 struct analogin_s {
-	int unused;
+    int unused;
 };
 
 struct port_s {
-	int unused;
+    int unused;
 };
 
 struct pwmout_s {
-	int unused;
+    int unused;
 };
 
 struct flash_s {
-	int unused;
+    int unused;
 };
 
 struct can_s {
-	int unused;
+    int unused;
 };
 
 #include "gpio_object.h"
