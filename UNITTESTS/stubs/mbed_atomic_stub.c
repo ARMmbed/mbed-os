@@ -57,33 +57,33 @@ uint32_t core_util_atomic_exchange_u32(volatile uint32_t *ptr, uint32_t desiredV
 
 uint8_t core_util_atomic_incr_u8(volatile uint8_t *valuePtr, uint8_t delta)
 {
-    return *valuePtr+=delta;
+    return *valuePtr += delta;
 }
 
 uint16_t core_util_atomic_incr_u16(volatile uint16_t *valuePtr, uint16_t delta)
 {
-    return *valuePtr+=delta;
+    return *valuePtr += delta;
 }
 
 uint32_t core_util_atomic_incr_u32(volatile uint32_t *valuePtr, uint32_t delta)
 {
-    return *valuePtr+=delta;
+    return *valuePtr += delta;
 }
 
 
 uint8_t core_util_atomic_decr_u8(volatile uint8_t *valuePtr, uint8_t delta)
 {
-    return *valuePtr-=delta;
+    return *valuePtr -= delta;
 }
 
 uint16_t core_util_atomic_decr_u16(volatile uint16_t *valuePtr, uint16_t delta)
 {
-    return *valuePtr-=delta;
+    return *valuePtr -= delta;
 }
 
 uint32_t core_util_atomic_decr_u32(volatile uint32_t *valuePtr, uint32_t delta)
 {
-    return *valuePtr-=delta;
+    return *valuePtr -= delta;
 }
 
 
