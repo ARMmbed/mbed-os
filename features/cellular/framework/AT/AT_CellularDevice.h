@@ -135,6 +135,8 @@ public:
 
     virtual CellularContext *get_context_list() const;
 
+    virtual nsapi_error_t set_baud_rate(int baud_rate);
+
     AT_CellularNetwork *_network;
     AT_CellularSMS *_sms;
     AT_CellularInformation *_information;
@@ -153,6 +155,7 @@ protected:
     // Sets up parameters for AT handler, for now only the send delay and URCs.
     // This kind of routine is needed for initialisation routines that are virtual and therefore cannot be called from constructor.
     void setup_at_handler();
+    virtual nsapi_error_t set_baud_rate_impl(int baud_rate);
 
 private:
     void urc_nw_deact();

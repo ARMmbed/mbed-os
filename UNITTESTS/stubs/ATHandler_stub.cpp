@@ -418,3 +418,7 @@ void ATHandler::set_send_delay(uint16_t send_delay)
 {
 }
 
+void ATHandler::set_baud(int baud_rate)
+{
+}
+

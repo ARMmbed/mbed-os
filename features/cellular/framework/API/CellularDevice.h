@@ -443,6 +443,13 @@ public:
      */
     virtual nsapi_error_t release_at_handler(ATHandler *at_handler) = 0;
 
+    /** Sets cellular modem to given baud rate
+     *
+     *  @param baud_rate
+     *  @return NSAPI_ERROR_OK on success, NSAPI_ERROR_DEVICE_ERROR on failure
+     */
+    virtual nsapi_error_t set_baud_rate(int baud_rate) = 0;
+
 protected:
     friend class AT_CellularNetwork;
     friend class AT_CellularContext;

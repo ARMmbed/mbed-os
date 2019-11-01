@@ -95,6 +95,11 @@ nsapi_error_t QUECTEL_BC95::init()
     return _at->unlock_return_error();
 }
 
+nsapi_error_t QUECTEL_BC95::set_baud_rate_impl(int baud_rate)
+{
+    return _at->at_cmd_discard("+NATSPEED", "=", "%d%d%d%d%d%d%d", baud_rate, 30, 0, 2, 1, 0, 0);
+}
+
 #if MBED_CONF_QUECTEL_BC95_PROVIDE_DEFAULT
 #include "UARTSerial.h"
 CellularDevice *CellularDevice::get_default_instance()
