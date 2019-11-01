@@ -21,6 +21,7 @@
 #include "unity/unity.h"
 #include "utest.h"
 #include "tcp_tests.h"
+#include "CellularDevice.h"
 
 using namespace utest::v1;
 
@@ -119,6 +120,11 @@ void rcv_n_chk_against_rfc864_pattern(TCPSocket &sock)
 void TCPSOCKET_RECV_100K()
 {
     SKIP_IF_TCP_UNSUPPORTED();
+
+#ifdef MBED_CONF_APP_BAUD_RATE
+    CellularDevice::get_default_instance()->set_baud_rate(MBED_CONF_APP_BAUD_RATE);
+#endif
+
     TCPSocket sock;
     if (_tcpsocket_connect_to_chargen_srv(sock) != NSAPI_ERROR_OK) {
         TEST_FAIL();
