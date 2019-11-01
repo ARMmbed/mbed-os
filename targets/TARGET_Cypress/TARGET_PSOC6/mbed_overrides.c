@@ -23,6 +23,10 @@
 #include "mbed_power_mgmt.h"
 #include "rtos_idle.h"
 #include "us_ticker_api.h"
+
+#if defined(CY_ENABLE_XIP_PROGRAM)
+#include "cycfg_qspi_memslot.h"
+#endif /*defined(CY_ENABLE_XIP_PROGRAM)*/
 #if defined(MBED_CONF_TARGET_XIP_ENABLE)
 #include "cy_serial_flash_qspi.h"
 #endif /* defined(MBED_CONF_TARGET_XIP_ENABLE) */
@@ -70,31 +74,26 @@ void mbed_sdk_init(void)
     mailbox_init();
 #endif
 
-#if (CY_CPU_CORTEX_M0P)
-#if defined(COMPONENT_SPE)
     /* Set up the device based on configurator selections */
-    init_cycfg_all();
-#endif
+    cybsp_init();
 
+#if (CY_CPU_CORTEX_M0P)
 #if !defined(COMPONENT_SPM_MAILBOX)
     /* Enable global interrupts */
     __enable_irq();
 #endif
 #else
-#if !defined(TARGET_PSA)
-    /* Set up the device based on configurator selections */
-    cybsp_init();
     /*
      * Init the us Ticker here to avoid imposing on the limited stack space of the idle thread.
      * This also allows the first call to sleep to occur faster.
      */
     us_ticker_init();
-#endif
 
 #if defined(CYBSP_ENABLE_FLASH_STORAGE)
     /* The linker script allows storing data in external memory, if needed, enable access to that memory. */
-    cy_serial_flash_init();
-    cy_serial_flash_enable_xip(true);
+    const uint32_t bus_frequency = 50000000lu;
+    cy_serial_flash_qspi_init(smifMemConfigs[0], CYBSP_QSPI_D0, CYBSP_QSPI_D1, CYBSP_QSPI_D2, CYBSP_QSPI_D3, NC, NC, NC, NC, CYBSP_QSPI_SCK, CYBSP_QSPI_SS, bus_frequency);
+    cy_serial_flash_qspi_enable_xip(true);
 #endif
 
     /* Enable global interrupts (disabled in CM4 startup assembly) */
