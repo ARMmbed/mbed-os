@@ -270,14 +270,12 @@ int DeviceKey::generate_key_by_random(uint32_t *output, size_t size)
     }
 
 #if defined(DEVICE_TRNG) || defined(MBEDTLS_ENTROPY_NV_SEED) || defined(MBEDTLS_ENTROPY_HARDWARE_ALT)
-    uint32_t test_buff[DEVICE_KEY_32BYTE / sizeof(int)];
     mbedtls_entropy_context *entropy = new mbedtls_entropy_context;
     mbedtls_entropy_init(entropy);
     memset(output, 0, size);
-    memset(test_buff, 0, size);
 
     ret = mbedtls_entropy_func(entropy, (unsigned char *)output, size);
-    if (ret != MBED_SUCCESS || mbedtls_ssl_safer_memcmp(test_buff, (unsigned char *)output, size) == 0) {
+    if (ret != MBED_SUCCESS) {
         ret = DEVICEKEY_GENERATE_RANDOM_ERROR;
     } else {
         ret = DEVICEKEY_SUCCESS;
