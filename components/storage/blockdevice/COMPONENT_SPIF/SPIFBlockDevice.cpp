@@ -157,7 +157,7 @@ int SPIFBlockDevice::init()
         status = SPIF_BD_ERROR_DEVICE_ERROR;
         goto exit_point;
     } else {
-        tr_debug("Initialize flash memory OK\n");
+        tr_debug("Initialize flash memory OK");
     }
 
     /* Read Manufacturer ID (1byte), and Device ID (2bytes)*/
@@ -907,13 +907,13 @@ int SPIFBlockDevice::_reset_flash_mem()
     // Perform Soft Reset of the Device prior to initialization
     int status = 0;
     char status_value[2] = {0};
-    tr_info("_reset_flash_mem:\n");
+    tr_info("_reset_flash_mem:");
     //Read the Status Register from device
     if (SPIF_BD_ERROR_OK == _spi_send_general_command(SPIF_RDSR, SPI_NO_ADDRESS_COMMAND, NULL, 0, status_value, 1)) {
         // store received values in status_value
-        tr_debug("Reading Status Register Success: value = 0x%x\n", (int)status_value[0]);
+        tr_debug("Reading Status Register Success: value = 0x%x", (int)status_value[0]);
     } else {
-        tr_error("Reading Status Register failed\n");
+        tr_error("Reading Status Register failed");
         status = -1;
     }
 
@@ -921,7 +921,7 @@ int SPIFBlockDevice::_reset_flash_mem()
         //Send Reset Enable
         if (SPIF_BD_ERROR_OK == _spi_send_general_command(SPIF_RSTEN, SPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0)) {
             // store received values in status_value
-            tr_debug("Sending RSTEN Success\n");
+            tr_debug("Sending RSTEN Success");
         } else {
             tr_error("Sending RSTEN failed");
             status = -1;
@@ -931,7 +931,7 @@ int SPIFBlockDevice::_reset_flash_mem()
             //Send Reset
             if (SPIF_BD_ERROR_OK == _spi_send_general_command(SPIF_RST, SPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0)) {
                 // store received values in status_value
-                tr_debug("Sending RST Success\n");
+                tr_debug("Sending RST Success");
             } else {
                 tr_error("Sending RST failed");
                 status = -1;
