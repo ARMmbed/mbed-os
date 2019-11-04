@@ -101,6 +101,13 @@ public:
          */
         virtual char *get_ip_address(char *buf, nsapi_size_t buflen);
 
+        /** Get the IPv6 link local address in SocketAddress representation
+         *
+         *  @address        SocketAddress representation of the link local IPv6 address
+         *  @return         NSAPI_ERROR_OK on success, or error code
+         */
+        virtual nsapi_error_t get_ipv6_link_local_address(SocketAddress *address);
+
         /** Copies IP address of the name based network interface to user supplied buffer
          *
          * @param    buf        buffer to which IP address will be copied as "W:X:Y:Z"
@@ -571,6 +578,7 @@ private:
     static const ip_addr_t *get_ip_addr(bool any_addr, const struct netif *netif);
     static const ip_addr_t *get_ipv4_addr(const struct netif *netif);
     static const ip_addr_t *get_ipv6_addr(const struct netif *netif);
+    static const ip_addr_t *get_ipv6_link_local_addr(const struct netif *netif);
 
     static void add_dns_addr(struct netif *lwip_netif, const char *interface_name);
 

@@ -107,6 +107,13 @@ public:
      */
     virtual const char *get_ip_address();
 
+    /** Get the IPv6 link local address
+     *
+     *  @address        SocketAddress representation of the link local IPv6 address
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure
+     */
+    virtual nsapi_error_t get_ipv6_link_local_address(SocketAddress *address);
+
     /** Get the local network mask.
      *
      *  @return         Null-terminated representation of the local network mask

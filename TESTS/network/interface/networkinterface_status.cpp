@@ -156,6 +156,15 @@ void NETWORKINTERFACE_STATUS_GET()
             ThisThread::sleep_for(500);
         }
 
+#if MBED_CONF_LWIP_IPV6_ENABLED
+        /* if IPv6 is enabled, validate ipv6_link_local_address API*/
+        SocketAddress ipv6_link_local_address  = NULL;
+        err = net->get_ipv6_link_local_address(&ipv6_link_local_address);
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
+        TEST_ASSERT_NOT_NULL(ipv6_link_local_address.get_ip_address());
+        TEST_ASSERT_EQUAL(NSAPI_IPv6, ipv6_link_local_address.get_ip_version());
+#endif
+
         err = net->disconnect();
         TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
 
