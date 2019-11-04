@@ -34,6 +34,10 @@ typedef enum {
 } PinName;
 
 typedef enum {
+    PullNone = 0,
+    PullDown = 1,
+    PullUp   = 2,
+    PullDefault = PullUp
 } PinMode;
 
 #ifdef __cplusplus
