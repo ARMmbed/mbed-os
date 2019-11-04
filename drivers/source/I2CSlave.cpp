@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "platform/mbed_assert.h"
 #include "drivers/I2CSlave.h"
 
 #if DEVICE_I2CSLAVE
@@ -22,45 +23,60 @@ namespace mbed {
 
 I2CSlave::I2CSlave(PinName sda, PinName scl) : _i2c()
 {
-    i2c_init(&_i2c, sda, scl);
+    i2c_init(&_i2c, sda, scl, true);
     i2c_frequency(&_i2c, 100000);
-    i2c_slave_mode(&_i2c, 1);
+}
+
+I2CSlave::~I2CSlave()
+{
+    i2c_free(&_i2c);
 }
 
 void I2CSlave::frequency(int hz)
 {
-    i2c_frequency(&_i2c, hz);
+    MBED_ASSERT(hz > 0);
+    i2c_frequency(&_i2c, (uint32_t)hz);
+}
+
+void I2CSlave::timeout(uint32_t timeout)
+{
+    i2c_timeout(&_i2c, timeout);
 }
 
 void I2CSlave::address(int address)
 {
     int addr = (address & 0xFF) | 1;
-    i2c_slave_address(&_i2c, 0, addr, 0);
+
+    i2c_slave_address(&_i2c, addr);
 }
 
 int I2CSlave::receive(void)
 {
-    return i2c_slave_receive(&_i2c);
+    return i2c_slave_status(&_i2c);
 }
 
 int I2CSlave::read(char *data, int length)
 {
-    return i2c_slave_read(&_i2c, data, length) != length;
+    return i2c_read(&_i2c, 0, (uint8_t *)data, length, false) != length;
 }
 
 int I2CSlave::read(void)
 {
-    return i2c_byte_read(&_i2c, 0);
+    uint8_t ret;
+    i2c_read(&_i2c, 0, &ret, 1, false);
+
+    return ret;
 }
 
 int I2CSlave::write(const char *data, int length)
 {
-    return i2c_slave_write(&_i2c, data, length) != length;
+    return i2c_write(&_i2c, 0, (const uint8_t *)data, length, false) != length;
 }
 
 int I2CSlave::write(int data)
 {
-    return i2c_byte_write(&_i2c, data);
+    uint8_t byte = data;
+    return i2c_write(&_i2c, 0, &byte, 1, false);
 }
 
 void I2CSlave::stop(void)
@@ -68,6 +84,6 @@ void I2CSlave::stop(void)
     i2c_stop(&_i2c);
 }
 
-}
+} // namespace mbed
 
-#endif
+#endif // DEVICE_I2CSLAVE

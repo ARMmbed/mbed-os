@@ -18,6 +18,7 @@
 #include "drivers/I2C.h"
 #include "drivers/DigitalInOut.h"
 #include "platform/mbed_wait_api.h"
+#include "platform/mbed_assert.h"
 
 #if DEVICE_I2C
 
@@ -32,7 +33,8 @@ SingletonPtr<PlatformMutex> I2C::_mutex;
 
 I2C::I2C(PinName sda, PinName scl) :
 #if DEVICE_I2C_ASYNCH
-    _irq(this), _usage(DMA_USAGE_NEVER), _deep_sleep_locked(false),
+    _deep_sleep_locked(false),
+    _async_transfer_ongoing(false),
 #endif
     _i2c(), _hz(100000)
 {
@@ -41,16 +43,24 @@ I2C::I2C(PinName sda, PinName scl) :
     _sda = sda;
     _scl = scl;
     recover(sda, scl);
-    i2c_init(&_i2c, _sda, _scl);
+    i2c_init(&_i2c, sda, scl, false);
+    frequency(_hz);
+
     // Used to avoid unnecessary frequency updates
     _owner = this;
     unlock();
 }
 
+I2C::~I2C()
+{
+    i2c_free(&_i2c);
+}
+
 void I2C::frequency(int hz)
 {
     lock();
-    _hz = hz;
+    MBED_ASSERT(_hz > 0);
+    _hz = (uint32_t)hz;
 
     // We want to update the frequency even if we are already the bus owners
     i2c_frequency(&_i2c, _hz);
@@ -59,6 +69,14 @@ void I2C::frequency(int hz)
     _owner = this;
     unlock();
 }
+
+void I2C::timeout(uint32_t timeout)
+{
+    lock();
+    i2c_timeout(&_i2c, timeout);
+    unlock();
+}
+
 
 void I2C::aquire()
 {
@@ -77,7 +95,7 @@ int I2C::write(int address, const char *data, int length, bool repeated)
     aquire();
 
     int stop = (repeated) ? 0 : 1;
-    int written = i2c_write(&_i2c, address, data, length, stop);
+    int written = i2c_write(&_i2c, address, (const uint8_t *)data, length, stop);
 
     unlock();
     return length != written;
@@ -86,7 +104,8 @@ int I2C::write(int address, const char *data, int length, bool repeated)
 int I2C::write(int data)
 {
     lock();
-    int ret = i2c_byte_write(&_i2c, data);
+    uint8_t byte = data;
+    int ret = i2c_write(&_i2c, 0, &byte, 1, false);
     unlock();
     return ret;
 }
@@ -98,7 +117,7 @@ int I2C::read(int address, char *data, int length, bool repeated)
     aquire();
 
     int stop = (repeated) ? 0 : 1;
-    int read = i2c_read(&_i2c, address, data, length, stop);
+    int read = i2c_read(&_i2c, address, (uint8_t *)data, length, stop);
 
     unlock();
     return length != read;
@@ -107,12 +126,8 @@ int I2C::read(int address, char *data, int length, bool repeated)
 int I2C::read(int ack)
 {
     lock();
-    int ret;
-    if (ack) {
-        ret = i2c_byte_read(&_i2c, 0);
-    } else {
-        ret = i2c_byte_read(&_i2c, 1);
-    }
+    uint8_t ret;
+    i2c_read(&_i2c, 0, &ret, 1, (ack == 0));
     unlock();
     return ret;
 }
@@ -192,17 +207,17 @@ int I2C::recover(PinName sda, PinName scl)
 int I2C::transfer(int address, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, const event_callback_t &callback, int event, bool repeated)
 {
     lock();
-    if (i2c_active(&_i2c)) {
+    if (_async_transfer_ongoing) {
         unlock();
-        return -1; // transaction ongoing
+        return -1;
     }
     lock_deep_sleep();
     aquire();
 
     _callback = callback;
-    int stop = (repeated) ? 0 : 1;
-    _irq.callback(&I2C::irq_handler_asynch);
-    i2c_transfer_asynch(&_i2c, (void *)tx_buffer, tx_length, (void *)rx_buffer, rx_length, address, stop, _irq.entry(), event, _usage);
+    bool stop = (repeated) ? false : true;
+    _async_transfer_ongoing = true;
+    i2c_transfer_async(&_i2c, (const uint8_t *)tx_buffer, tx_length, (uint8_t *)rx_buffer, rx_length, address, stop, &I2C::irq_handler_asynch, (void *)this);
     unlock();
     return 0;
 }
@@ -210,21 +225,20 @@ int I2C::transfer(int address, const char *tx_buffer, int tx_length, char *rx_bu
 void I2C::abort_transfer(void)
 {
     lock();
-    i2c_abort_asynch(&_i2c);
+    i2c_abort_async(&_i2c);
+    _async_transfer_ongoing = false;
     unlock_deep_sleep();
     unlock();
 }
 
-void I2C::irq_handler_asynch(void)
+void I2C::irq_handler_asynch(i2c_t *obj, i2c_async_event_t *event, void *ctx)
 {
-    int event = i2c_irq_handler_asynch(&_i2c);
-    if (_callback && event) {
-        _callback.call(event);
+    I2C *self = (I2C *)ctx;
+    if (self->_callback) {
+        self->_callback.call(event->error ? I2C_EVENT_ERROR : I2C_EVENT_TRANSFER_COMPLETE);
     }
-
-    if (event) {
-        unlock_deep_sleep();
-    }
+    self->_async_transfer_ongoing = false;
+    self->unlock_deep_sleep();
 }
 
 void I2C::lock_deep_sleep()

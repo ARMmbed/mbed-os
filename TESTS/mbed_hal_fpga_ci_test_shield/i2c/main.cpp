@@ -34,6 +34,7 @@
 #include "test_utils.h"
 #include "I2CTester.h"
 #include "i2c_test.h"
+#include "hal/us_ticker_api.h"
 
 using namespace utest::v1;
 
