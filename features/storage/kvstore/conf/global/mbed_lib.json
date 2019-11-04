@@ -20,7 +20,16 @@
         "NUCLEO_F429ZI": {
             "storage_type": "TDB_INTERNAL"
         },
+        "NUCLEO_H743ZI": {
+            "storage_type": "TDB_INTERNAL"
+        },
+        "NUCLEO_H743ZI2": {
+            "storage_type": "TDB_INTERNAL"
+        },
         "DISCO_H747I": {
+            "storage_type": "TDB_INTERNAL"
+        },
+        "DISCO_H747I_CM4": {
             "storage_type": "TDB_INTERNAL"
         },
         "UBLOX_EVK_ODIN_W2": {

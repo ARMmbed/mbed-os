@@ -27,7 +27,7 @@ import textwrap
 from xml.dom.minidom import parse, Node
 from argparse import RawTextHelpFormatter
 
-GENPINMAP_VERSION = "1.8"
+GENPINMAP_VERSION = "1.9"
 
 ADD_DEVICE_IF = 0
 ADD_QSPI_FEATURE = 1
@@ -82,14 +82,16 @@ TIM_MST_LIST = { # Timer used for us ticker is hardcoded in this script
 "NUCLEO_F446RE":"TIM5",
 "NUCLEO_F410RB":"TIM5",
 "NUCLEO_F429ZI":"TIM5",
-"STM32F427V(G-I)Tx":"TIM5",
 "NUCLEO_F446ZE":"TIM5",
 "NUCLEO_F412ZG":"TIM5",
 "NUCLEO_F413ZH":"TIM5",
 "NUCLEO_F746ZG":"TIM5",
 "NUCLEO_F767ZI":"TIM5",
 "NUCLEO_F722ZE":"TIM5",
+
 "NUCLEO_H743ZI":"TIM5",
+"NUCLEO_H743ZI2":"TIM5",
+
 "NUCLEO_L053R8":"TIM21",
 "NUCLEO_L073RZ":"TIM21",
 "NUCLEO_L031K6":"TIM21",
@@ -102,8 +104,10 @@ TIM_MST_LIST = { # Timer used for us ticker is hardcoded in this script
 "NUCLEO_L433RC_P":"TIM2",
 "NUCLEO_L4R5ZI":"TIM5",
 "NUCLEO_L4R5ZI_P":"TIM5",
+"NUCLEO_L552ZE":"TIM5",
 
 "NUCLEO_WB55R":"TIM16",
+
 "DISCO_F051R8":"TIM1",
 "DISCO_F100RB":"TIM4",
 "DISCO_F303VC":"TIM2",
@@ -115,12 +119,20 @@ TIM_MST_LIST = { # Timer used for us ticker is hardcoded in this script
 "DISCO_F469NI":"TIM5",
 "DISCO_F769NI":"TIM5",
 "DISCO_F746NG":"TIM5",
+
+"DISCO_H747I":"TIM5",
+
 "DISCO_L053C8":"TIM21",
 "DISCO_L072CZ_LRWAN1":"TIM21",
 "DISCO_L475VG_IOT01A":"TIM5",
 "DISCO_L476VG":"TIM5",
 "DISCO_L496AG":"TIM5",
-"DISCO_L4R9A":"TIM5"
+"DISCO_L4R9A":"TIM5",
+"DISCO_L562QE":"TIM5"
+}
+
+TIM_DUALCORE_LIST = { # Timer used for us ticker is hardcoded in this script
+"DISCO_H747I":"TIM2"
 }
 
 
@@ -550,6 +562,8 @@ def print_list_header(comment, name, l, switch):
         if name == "PWM":
             if TargetName in TIM_MST_LIST.keys():
                 s += "// %s cannot be used because already used by the us_ticker\n" % TIM_MST_LIST[TargetName]
+                if TargetName in TIM_DUALCORE_LIST.keys():
+                    s += "// %s cannot be used because already used by the us_ticker (DUAL_CORE)\n" % TIM_DUALCORE_LIST[TargetName]
             else:
                 s += "// TIM<x> cannot be used because already used by the us_ticker\n"
                 s += "// You have to comment all PWM using TIM_MST defined in hal_tick.h file\n"
@@ -697,8 +711,11 @@ def print_pwm():
     prev_p = ''
     alt_index = 0
     TIM_MST = "NOT_KNOWN"
+    TIM_DUALCORE = "NOT_KNOWN"
     if TargetName in TIM_MST_LIST.keys():
         TIM_MST = TIM_MST_LIST[TargetName]
+    if TargetName in TIM_DUALCORE_LIST.keys():
+        TIM_DUALCORE = TIM_DUALCORE_LIST[TargetName]
     for p in pwm_list:
         result = get_gpio_af_num(p[1], p[2])
         CommentedLine = "  "
@@ -708,6 +725,8 @@ def print_pwm():
             if "RCC_OSC" in PinLabel[p[1]]:
                 CommentedLine = "//"
         if "%s_" % TIM_MST in p[2]:
+            CommentedLine = "//"
+        if "%s_" % TIM_DUALCORE in p[2]:
             CommentedLine = "//"
         if CommentedLine != "//":
             if p[0] == prev_p:
@@ -1336,6 +1355,12 @@ if args.target:
             TargetName += "G_IOT01A"
         elif TargetName == "DISCO_G071RBT":
             TargetName = "DISCO_G071RB"
+        elif TargetName == "DISCO_H747XI":
+            if "DISC1" in board_file_name:
+                TargetName = "DISCO_H747I_DISC1"
+            else:
+                TargetName = "DISCO_H747I"
+
     else:
         quit()
 

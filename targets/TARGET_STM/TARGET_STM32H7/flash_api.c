@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
- * Copyright (c) 2017 STMicroelectronics
+ * Copyright (c) 2017-2019 ARM Limited
+ * Copyright (c) 2017-2019 STMicroelectronics
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,7 @@
 
 static uint32_t GetSector(uint32_t Address);
 static uint32_t GetSectorSize(uint32_t Sector);
-static uint32_t GetSectorBase(uint32_t SectorId);
+static uint32_t GetSectorBase(uint32_t SectorId, uint32_t BanksId);
 
 int32_t flash_init(flash_t *obj)
 {
@@ -50,7 +50,6 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 {
     /* Variable used for Erase procedure */
     FLASH_EraseInitTypeDef EraseInitStruct;
-    uint32_t SectorId;
     uint32_t SectorError = 0;
     int32_t status = 0;
 
@@ -70,29 +69,23 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
         return -1;
     }
 
-    /* Get the 1st sector to erase */
-    SectorId = GetSector(address);
-
     /* Fill EraseInit structure */
     EraseInitStruct.TypeErase = FLASH_TYPEERASE_SECTORS;
     EraseInitStruct.VoltageRange = FLASH_VOLTAGE_RANGE_3;
-    EraseInitStruct.Sector = SectorId;
+    EraseInitStruct.Sector = GetSector(address);
     EraseInitStruct.NbSectors = 1;
 
     if (address < ADDR_FLASH_SECTOR_0_BANK2) {
         EraseInitStruct.Banks = FLASH_BANK_1;
-        if (HAL_FLASHEx_Erase(&EraseInitStruct, &SectorError) != HAL_OK) {
-            status =  -1;
-        }
     } else {
-        EraseInitStruct.TypeErase = FLASH_TYPEERASE_SECTORS;
         EraseInitStruct.Banks = FLASH_BANK_2;
-        if (HAL_FLASHEx_Erase(&EraseInitStruct, &SectorError) != HAL_OK) {
-            status = -1;
-        }
     }
 
-    SCB_CleanInvalidateDCache_by_Addr((uint32_t *)GetSectorBase(SectorId), GetSectorSize(SectorId));
+    if (HAL_FLASHEx_Erase(&EraseInitStruct, &SectorError) != HAL_OK) {
+        status = -1;
+    }
+
+    SCB_CleanInvalidateDCache_by_Addr((uint32_t *)GetSectorBase(EraseInitStruct.Sector, EraseInitStruct.Banks), GetSectorSize(EraseInitStruct.Sector));
     SCB_InvalidateICache();
 
     HAL_FLASH_Lock();
@@ -218,18 +211,25 @@ static uint32_t GetSector(uint32_t Address)
   */
 static uint32_t GetSectorSize(uint32_t Sector)
 {
-    return (uint32_t)(128 * 1024); // 128 KB
+    return FLASH_SECTOR_SIZE;
 }
 
 /**
   * @brief  Gets sector base address
   * @param  SectorId
+  * @param  BanksId
   * @retval base address of a given sector
   */
-static uint32_t GetSectorBase(uint32_t SectorId)
+static uint32_t GetSectorBase(uint32_t SectorId, uint32_t BanksId)
 {
     uint32_t i = 0;
-    uint32_t address_sector = FLASH_BASE;
+    uint32_t address_sector;
+
+    if (BanksId == FLASH_BANK_1) {
+        address_sector = FLASH_BANK1_BASE;
+    } else {
+        address_sector = FLASH_BANK2_BASE;
+    }
 
     for (i = 0; i < SectorId; i++) {
         address_sector += GetSectorSize(i);

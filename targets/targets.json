@@ -3236,6 +3236,7 @@
                 "macro_name": "HSE_VALUE"
             }
         },
+        "components_add": ["FLASHIAP"],
         "macros_add": [
             "STM32H743xx",
             "EXTRA_IDLE_STACK_REQUIRED",
@@ -3269,7 +3270,7 @@
         ],
         "config": {
             "d11_configuration": {
-                "help": "Value:",
+                "help": "Value: PB_5 for the default board configuration, PA_7 in case of solder bridge update (SB33 on/ SB35 off)",
                 "value": "PB_5",
                 "macro_name": "STM32_D11_SPI_ETHERNET_PIN"
             },
@@ -3288,6 +3289,7 @@
                 "macro_name": "HSE_VALUE"
             }
         },
+        "components_add": ["FLASHIAP"],
         "macros_add": [
             "STM32H743xx",
             "EXTRA_IDLE_STACK_REQUIRED",
@@ -3338,7 +3340,11 @@
             "EXTRA_IDLE_STACK_REQUIRED"
         ],
         "overrides": { "lpticker_delay_ticks": 0 },
-        "supported_form_factors": ["ARDUINO"],
+        "supported_form_factors": [
+            "ARDUINO",
+            "STMOD",
+            "PMOD"
+        ],
         "detect_code": ["0814"],
         "device_has_add": [
             "ANALOGOUT",
@@ -3359,6 +3365,7 @@
             "STM32H747xI",
             "DISCO_H747I"
         ],
+        "components_add": ["FLASHIAP"],
         "config": {
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
@@ -3371,7 +3378,11 @@
             "EXTRA_IDLE_STACK_REQUIRED"
         ],
         "overrides": { "lpticker_delay_ticks": 0 },
-        "supported_form_factors": ["ARDUINO"],
+        "supported_form_factors": [
+            "ARDUINO",
+            "STMOD",
+            "PMOD"
+        ],
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
