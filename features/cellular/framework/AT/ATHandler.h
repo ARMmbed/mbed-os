@@ -27,6 +27,8 @@
 
 #include <cstdarg>
 
+#include "UARTSerial.h"
+
 /**
  * If application calls associated FileHandle only from single thread context
   * then locking between AT command and response is not needed. However,
@@ -218,6 +220,12 @@ public:
      *  @param send_delay the minimum delay in ms between the end of last response and the beginning of a new command
      */
     void set_send_delay(uint16_t send_delay);
+
+    /** Sets UARTSerial filehandle to given baud rate
+     *
+     *  @param baud_rate
+     */
+    void set_baud(int baud_rate);
 
 protected:
     void event();

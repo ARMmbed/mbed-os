@@ -1612,3 +1612,9 @@ void ATHandler::write_hex_string(char *str, size_t size)
         write(hexbuf, 2);
     }
 }
+
+void ATHandler::set_baud(int baud_rate)
+{
+    static_cast<UARTSerial *>(_fileHandle)->set_baud(baud_rate);
+}
+
