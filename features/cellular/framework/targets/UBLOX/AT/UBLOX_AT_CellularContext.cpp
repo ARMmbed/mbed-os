@@ -56,6 +56,13 @@ void UBLOX_AT_CellularContext::do_connect()
 #ifndef TARGET_UBLOX_C030_R41XM
     _cb_data.error = define_context();
 #elif TARGET_UBLOX_C030_R410M
+    _at.cmd_start_stop("+CGACT", "?");
+    _at.resp_start("+CGACT:");
+    _cid = _at.read_int();
+    _at.skip_param(1);
+    _at.resp_stop();
+
+    _is_connected = true;
     _is_context_active = true;
     _is_context_activated = true;
     _cb_data.error = NSAPI_ERROR_OK;
@@ -74,11 +81,19 @@ void UBLOX_AT_CellularContext::do_connect()
             _at.restore_at_timeout();
             if (_is_context_activated == true) {
                 _cid = 1;
+                _is_connected = true;
                 _is_context_active = true;
                 _cb_data.error = NSAPI_ERROR_OK;
             }
         }
     } else if (rat == CellularNetwork::RadioAccessTechnology::RAT_CATM1 || rat == CellularNetwork::RadioAccessTechnology::RAT_NB1) {
+        _at.cmd_start_stop("+CGACT", "?");
+        _at.resp_start("+CGACT:");
+        _cid = _at.read_int();
+        _at.skip_param(1);
+        _at.resp_stop();
+
+        _is_connected = true;
         _is_context_active = true;
         _is_context_activated = true;
         _cb_data.error = NSAPI_ERROR_OK;
