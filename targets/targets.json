@@ -3215,6 +3215,8 @@
             "STM32H7",
             "STM32H743xI"
         ],
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size" : "0x200000",
         "config": {
             "d11_configuration": {
                 "help": "Value: PA_7 for the default board configuration, PB_5 in case of solder bridge update (SB121 off/ SB122 on)",
@@ -3264,7 +3266,6 @@
     "NUCLEO_H743ZI2": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M7FD",
-        "components_add": ["FLASHIAP"],
         "mbed_rom_start": "0x08000000",
         "mbed_rom_size" : "0x200000",
         "extra_labels_add": [
@@ -3323,6 +3324,8 @@
         "components_add": ["FLASHIAP"],
         "mbed_rom_start": "0x08000000",
         "mbed_rom_size" : "0x100000",
+        "mbed_ram_start": "0x24000000",
+        "mbed_ram_size" : "0x80000",
         "extra_labels_add": [
             "STM32H7",
             "STM32H747xI",
@@ -3360,7 +3363,7 @@
             "MPU"
         ],
         "release_versions": ["2", "5"],
-        "device_name": "STM32H747AGIx",
+        "device_name": "STM32H747XIHx",
         "bootloader_supported": true
     },
     "DISCO_H747I_CM4": {
@@ -3372,6 +3375,10 @@
             "DISCO_H747I"
         ],
         "components_add": ["FLASHIAP"],
+        "mbed_rom_start": "0x08100000",
+        "mbed_rom_size" : "0x100000",
+        "mbed_ram_start": "0x10000000",
+        "mbed_ram_size" : "0x48000",
         "config": {
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
@@ -3396,7 +3403,9 @@
             "TRNG",
             "FLASH",
             "MPU"
-        ]
+        ],
+        "device_name": "STM32H747XIHx",
+        "bootloader_supported": true
     },
     "DISCO_H747I_CM7": {
         "inherits": ["DISCO_H747I"]
