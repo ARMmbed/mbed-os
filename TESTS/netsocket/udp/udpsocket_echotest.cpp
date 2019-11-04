@@ -46,6 +46,11 @@ static const int pkt_sizes[PKTS] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, \
                                     100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, \
                                     1100, 1200
                                    };
+static bool pkt_received[PKTS] = {false, false, false, false, false, false, false, false, false, false, \
+                                  false, false, false, false, false, false, false, false, false, false, \
+                                  false, false
+                                 };
+
 Timer tc_exec_time;
 int time_allotted;
 }
@@ -68,6 +73,7 @@ void UDPSOCKET_ECHOTEST()
     int sent;
     int packets_sent = 0;
     int packets_recv = 0;
+    bool received_duplicate_packet = false;
     for (unsigned int s_idx = 0; s_idx < sizeof(pkt_sizes) / sizeof(*pkt_sizes); ++s_idx) {
         int pkt_s = pkt_sizes[s_idx];
 
@@ -85,7 +91,20 @@ void UDPSOCKET_ECHOTEST()
                 printf("[Round#%02d - Sender] error, returned %d\n", s_idx, sent);
                 continue;
             }
-            recvd = sock.recvfrom(NULL, rx_buffer, pkt_s);
+
+            do {
+                received_duplicate_packet = false;
+                recvd = sock.recvfrom(NULL, rx_buffer, pkt_s);
+                //Check if received duplicated packet
+                for (unsigned int d_idx = 0; d_idx < PKTS; ++d_idx) {
+                    if (pkt_received[d_idx] && d_idx != s_idx && recvd == pkt_sizes[d_idx]) {
+                        printf("[Round#%02d - Receiver] info, received duplicate packet %d\n", s_idx, d_idx);
+                        received_duplicate_packet = true;
+                        break;
+                    }
+                }
+            } while (received_duplicate_packet);
+
             if (recvd == pkt_s) {
                 break;
             } else {
@@ -94,6 +113,7 @@ void UDPSOCKET_ECHOTEST()
         }
         if (memcmp(tx_buffer, rx_buffer, pkt_s) == 0) {
             packets_recv++;
+            pkt_received[s_idx] = true;
         }
         // Make sure that at least one packet of every size was sent.
         TEST_ASSERT_TRUE(packets_sent > packets_sent_prev);
