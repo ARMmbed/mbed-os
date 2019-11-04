@@ -188,8 +188,12 @@ void test_deepsleep_reset()
     if (!sleep_manager_can_deep_sleep()) {
         TEST_ASSERT_MESSAGE(0, "Deepsleep should be allowed.");
     }
-    // Watchdog should fire before twice the timeout value.
-    ThisThread::sleep_for(2 * TIMEOUT_MS); // Device reset expected.
+
+    // The Watchdog reset is allowed to be delayed up to twice the timeout
+    // value when the deepsleep mode is active.
+    // To make the test less sensitive to clock/wait accuracy, add 20% extra
+    // (making tha whole deepsleep wait equal to 2.2 * timeout).
+    ThisThread::sleep_for(220 * TIMEOUT_MS / 100); // Device reset expected.
 
     // Watchdog reset should have occurred during the deepsleep above.
 
