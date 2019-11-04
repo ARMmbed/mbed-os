@@ -85,8 +85,17 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
         status = -1;
     }
 
+#if defined(DUAL_CORE)
+#if defined(CORE_CM7)
     SCB_CleanInvalidateDCache_by_Addr((uint32_t *)GetSectorBase(EraseInitStruct.Sector, EraseInitStruct.Banks), GetSectorSize(EraseInitStruct.Sector));
     SCB_InvalidateICache();
+#endif /* CORE_CM7 */
+#else /* DUAL_CORE */
+    SCB_CleanInvalidateDCache_by_Addr((uint32_t *)GetSectorBase(EraseInitStruct.Sector, EraseInitStruct.Banks), GetSectorSize(EraseInitStruct.Sector));
+    SCB_InvalidateICache();
+#endif /* DUAL_CORE */
+
+
 
     HAL_FLASH_Lock();
 #if defined(DUAL_CORE)
@@ -133,8 +142,15 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data,
         }
     }
 
+#if defined(DUAL_CORE)
+#if defined(CORE_CM7)
     SCB_CleanInvalidateDCache_by_Addr((uint32_t *)StartAddress, FullSize);
     SCB_InvalidateICache();
+#endif /* CORE_CM7 */
+#else /* DUAL_CORE */
+    SCB_CleanInvalidateDCache_by_Addr((uint32_t *)StartAddress, FullSize);
+    SCB_InvalidateICache();
+#endif /* DUAL_CORE */
 
     HAL_FLASH_Lock();
 #if defined(DUAL_CORE)
