@@ -44,9 +44,9 @@
       "targets" : ["K66F", "NUCLEO_F429ZI"],
       "toolchains" : ["GCC_ARM", "ARM"],
       "exporters": [],
-      "compile" : false,
-      "export": false,
-      "test" : false,
+      "compile" : true,
+      "export": true,
+      "test" : true,
       "baud_rate": 9600,
       "compare_log": [
           "mbed-os-example-tls/tests/benchmark.log",
@@ -74,8 +74,8 @@
       "targets" : ["NRF51_DK", "NRF52_DK", "K66F", "NUCLEO_F401RE"],
       "toolchains" : [],
       "exporters": [],
-      "compile" : false,
-      "export": false,
+      "compile" : true,
+      "export": true,
       "test" : false,
       "auto-update" : true
     },
@@ -351,9 +351,9 @@
         "targets" : ["K64F"],
         "toolchains" : [],
         "exporters": [],
-        "compile" : false,
-        "export": false,
-        "test" : false,
+        "compile" : true,
+        "export": true,
+        "test" : true,
         "baud_rate": 9600,
         "compare_log": ["mbed-os-example-mbed-crypto/tests/getting-started.log"],
         "auto-update" : true
@@ -370,8 +370,8 @@
         "targets" : ["NUCLEO_F401RE", "DISCO_L475VG_IOT01A"],
         "toolchains" : [],
         "exporters": [],
-        "compile" : false,
-        "export": false,
+        "compile" : true,
+        "export": true,
         "test" : false,
         "auto-update" : true
     },
@@ -459,6 +459,22 @@
         "test" : true,
         "baud_rate": 9600,
         "compare_log": ["mbed-os-example-attestation/tests/attestation.log"],
+        "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-atecc608a",
+        "github": "https://github.com/ARMmbed/mbed-os-example-atecc608a",
+        "sub-repo-example": true,
+        "subs": ["atecc608a"],
+        "features" : [],
+        "targets" : ["K64F"],
+        "toolchains" : ["GCC_ARM"],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "test" : false,
+        "baud_rate": 9600,
+        "compare_log": ["mbed-os-example-atecc608a/tests/atecc608a.log"],
         "auto-update" : true
     }
   ]
