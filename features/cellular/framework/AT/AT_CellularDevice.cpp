@@ -454,10 +454,12 @@ nsapi_error_t AT_CellularDevice::init()
         _at->clear_error();
         _at->flush();
         _at->at_cmd_discard("E0", "");
-        _at->at_cmd_discard("+CMEE", "=1");
-        _at->at_cmd_discard("+CFUN", "=1");
         if (_at->get_last_error() == NSAPI_ERROR_OK) {
-            break;
+            _at->at_cmd_discard("+CMEE", "=1");
+            _at->at_cmd_discard("+CFUN", "=1");
+            if (_at->get_last_error() == NSAPI_ERROR_OK) {
+                break;
+            }
         }
         tr_debug("Wait 100ms to init modem");
         rtos::ThisThread::sleep_for(100); // let modem have time to get ready
