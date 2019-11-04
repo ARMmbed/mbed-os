@@ -846,7 +846,7 @@ int SPIFBlockDevice::_sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param
                 _region_erase_types_bitfield[0] |= bitfield; // If there's no region map, set region "0" types bitfield as defualt;
             }
             tr_info("Erase Type %d - Inst: 0x%xh, Size: %d", (i_ind + 1),
-                     erase_type_inst_arr[i_ind], erase_type_size_arr[i_ind]);
+                    erase_type_inst_arr[i_ind], erase_type_size_arr[i_ind]);
             bitfield = bitfield << 1;
         }
     }
@@ -863,38 +863,6 @@ int SPIFBlockDevice::_sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table_
     do {
 
         // TBD - SPIF Dual Read Modes Require SPI driver support
-        /*
-        uint8_t examined_byte;
-
-        if (basic_param_table_size > SPIF_BASIC_PARAM_TABLE_QPI_READ_SUPPORT_BYTE) {
-            examined_byte = basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_QPI_READ_SUPPORT_BYTE];
-            if (examined_byte & 0x01) {
-                //  Fast Read 2-2-2 Supported
-                read_inst = basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_222_READ_INST_BYTE];
-                _read_dummy_and_mode_cycles = (basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_222_READ_INST_BYTE - 1] >> 5)
-                                         + (basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_222_READ_INST_BYTE - 1] & 0x1F);
-                tr_debug("\nRead Bus Mode set to 2-2-2, Instruction: 0x%xh", read_inst);
-                break;
-            }
-        }
-        examined_byte = basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_FAST_READ_SUPPORT_BYTE];
-        if (examined_byte & 0x20) {
-            //  Fast Read 1-2-2 Supported
-            read_inst = basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_122_READ_INST_BYTE];
-            _read_dummy_and_mode_cycles = (basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_122_READ_INST_BYTE - 1] >> 5)
-                                     + (basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_122_READ_INST_BYTE - 1] & 0x1F);
-            tr_debug("\nRead Bus Mode set to 1-2-2, Instruction: 0x%xh", read_inst);
-            break;
-        }
-        if (examined_byte & 0x01) {
-            // Fast Read 1-1-2 Supported
-            read_inst = basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_112_READ_INST_BYTE];
-            _read_dummy_and_mode_cycles = (basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_112_READ_INST_BYTE - 1] >> 5)
-                                     + (basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_112_READ_INST_BYTE - 1] & 0x1F);
-            tr_debug("\nRead Bus Mode set to 1-1-2, Instruction: 0x%xh", _read_instruction);
-            break;
-        }
-         */
         _read_dummy_and_mode_cycles = 0;
         tr_debug("Read Bus Mode set to 1-1-1, Instruction: 0x%xh", read_inst);
     } while (false);
