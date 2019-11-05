@@ -3217,6 +3217,8 @@
         ],
         "mbed_rom_start": "0x08000000",
         "mbed_rom_size" : "0x200000",
+        "mbed_ram_start": "0x24000000",
+        "mbed_ram_size" : "0x80000",
         "config": {
             "d11_configuration": {
                 "help": "Value: PA_7 for the default board configuration, PB_5 in case of solder bridge update (SB121 off/ SB122 on)",
@@ -3268,6 +3270,8 @@
         "core": "Cortex-M7FD",
         "mbed_rom_start": "0x08000000",
         "mbed_rom_size" : "0x200000",
+        "mbed_ram_start": "0x24000000",
+        "mbed_ram_size" : "0x80000",
         "extra_labels_add": [
             "STM32H7",
             "STM32H743xI"
