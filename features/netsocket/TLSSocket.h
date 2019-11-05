@@ -65,7 +65,7 @@ public:
      *        clear internal TLS memory structures.
      *
      *  @param stack    Network stack as target for socket.
-     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
+     *  @return         NSAPI_ERROR_OK on success. See @ref TCPSocket::open
      */
     virtual nsapi_error_t open(NetworkStack *stack)
     {
@@ -91,6 +91,7 @@ public:
      *  @param host     Hostname of the remote host.
      *  @param port     Port of the remote host.
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
+     *                  See @ref TLSSocketWrapper::connect.
      */
     nsapi_error_t connect(const char *host, uint16_t port);
 
