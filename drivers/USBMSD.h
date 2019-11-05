@@ -302,6 +302,7 @@ private:
     bool infoTransfer(void);
     void memoryRead(void);
     bool modeSense6(void);
+    bool modeSense10(void);
     void testUnitReady(void);
     bool requestSense(void);
     void memoryVerify(uint8_t *buf, uint16_t size);

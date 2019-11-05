@@ -706,6 +706,15 @@ bool USBMSD::modeSense6(void)
     return true;
 }
 
+bool USBMSD::modeSense10(void)
+{
+    uint8_t sense10[] = { 0x00, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+    if (!write(sense10, sizeof(sense10))) {
+        return false;
+    }
+    return true;
+}
+
 void USBMSD::sendCSW()
 {
     _csw.Signature = CSW_Signature;
@@ -825,6 +834,9 @@ void USBMSD::CBWDecode(uint8_t *buf, uint16_t size)
                         _csw.Status = CSW_PASSED;
                         sendCSW();
                         _media_removed = true;
+                        break;
+                    case MODE_SENSE10:
+                        modeSense10();
                         break;
                     default:
                         fail();
