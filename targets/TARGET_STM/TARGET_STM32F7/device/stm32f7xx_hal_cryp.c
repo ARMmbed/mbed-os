@@ -1021,6 +1021,10 @@ HAL_StatusTypeDef HAL_CRYP_Encrypt(CRYP_HandleTypeDef *hcryp, uint32_t *Input, u
        
     default:
       hcryp->ErrorCode |= HAL_CRYP_ERROR_NOT_SUPPORTED;
+
+      /* Process unlocked */
+      __HAL_UNLOCK(hcryp); // MBED patch
+
       return HAL_ERROR;
     }      
     
@@ -1057,6 +1061,10 @@ HAL_StatusTypeDef HAL_CRYP_Encrypt(CRYP_HandleTypeDef *hcryp, uint32_t *Input, u
       
     default:
       hcryp->ErrorCode |= HAL_CRYP_ERROR_NOT_SUPPORTED;
+
+      /* Process unlocked */
+      __HAL_UNLOCK(hcryp); // MBED patch
+
       return HAL_ERROR;
     }
 #endif /*end AES or CRYP */   
@@ -1065,10 +1073,10 @@ HAL_StatusTypeDef HAL_CRYP_Encrypt(CRYP_HandleTypeDef *hcryp, uint32_t *Input, u
     { 
       /* Change the CRYP peripheral state */
       hcryp->State = HAL_CRYP_STATE_READY;
-      
+    }
+
       /* Process unlocked */
-      __HAL_UNLOCK(hcryp);
-    }    
+      __HAL_UNLOCK(hcryp); // MBED patch
   }
   else
   {
@@ -1186,6 +1194,10 @@ HAL_StatusTypeDef HAL_CRYP_Decrypt(CRYP_HandleTypeDef *hcryp, uint32_t *Input, u
        
     default:
       hcryp->ErrorCode |= HAL_CRYP_ERROR_NOT_SUPPORTED;
+
+      /* Process unlocked */
+      __HAL_UNLOCK(hcryp); // MBED patch
+
       return HAL_ERROR;
     }      
     
@@ -1230,10 +1242,10 @@ HAL_StatusTypeDef HAL_CRYP_Decrypt(CRYP_HandleTypeDef *hcryp, uint32_t *Input, u
     { 
       /* Change the CRYP peripheral state */
       hcryp->State = HAL_CRYP_STATE_READY;
-      
-      /* Process unlocked */
-      __HAL_UNLOCK(hcryp);
     }    
+
+    /* Process unlocked */
+    __HAL_UNLOCK(hcryp); // MBED patch
   }
   else
   {
