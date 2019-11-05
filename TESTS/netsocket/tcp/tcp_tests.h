@@ -17,7 +17,6 @@
 
 #ifndef TCP_TESTS_H
 #define TCP_TESTS_H
-#if defined(MBED_CONF_RTOS_PRESENT)
 
 #include "../test_params.h"
 
@@ -89,4 +88,3 @@ void TCPSOCKET_THREAD_PER_SOCKET_SAFETY();
 void TCPSOCKET_SETSOCKOPT_KEEPALIVE_VALID();
 
 #endif //TCP_TESTS_H
-#endif //!defined(MBED_CONF_RTOS_PRESENT)

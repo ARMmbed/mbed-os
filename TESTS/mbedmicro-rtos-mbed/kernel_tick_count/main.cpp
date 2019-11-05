@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] kernel tick count test cases requires RTOS to run.
 #else
 
 #include "greentea-client/test_env.h"

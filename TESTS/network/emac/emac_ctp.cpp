@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(MBED_CONF_RTOS_PRESENT)
+
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
 #include "utest.h"
@@ -149,5 +149,5 @@ void emac_if_ctp_msg_build(int eth_frame_len, const unsigned char *dest_addr, co
     emac_if_get()->link_out(buf);
     emac_if_check_memory(false);
 }
-#endif //#if defined(MBED_CONF_RTOS_PRESENT)
+
 

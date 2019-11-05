@@ -872,9 +872,7 @@ uint32_t SDBlockDevice::_go_idle_state()
         if (R1_IDLE_STATE == response) {
             break;
         }
-#if defined(MBED_CONF_RTOS_PRESENT)
         rtos::ThisThread::sleep_for(1);
-#endif
     }
     return response;
 }

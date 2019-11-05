@@ -18,9 +18,7 @@
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"
-#if defined(MBED_CONF_RTOS_PRESENT)
 #include "rtos.h"
-#endif
 
 using namespace utest::v1;
 

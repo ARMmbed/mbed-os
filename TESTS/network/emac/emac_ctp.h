@@ -17,7 +17,7 @@
 
 #ifndef EMAC_CTP_H
 #define EMAC_CTP_H
-#if defined(MBED_CONF_RTOS_PRESENT)
+
 enum ctp_function {
     CTP_NONE,
     CTP_FORWARD,
@@ -37,5 +37,5 @@ enum ctp_function {
 ctp_function emac_if_ctp_header_handle(unsigned char *eth_input_frame, unsigned char *eth_output_frame, unsigned char *origin_addr, int *receipt_number);
 void emac_if_ctp_msg_build(int eth_frame_len, const unsigned char *dest_addr, const unsigned char *origin_addr, const unsigned char *forward_addr, int options);
 void emac_if_ctp_reply_handle(int lenght, int invalid_data_index);
-#endif /* #if defined(MBED_CONF_RTOS_PRESENT) */
+
 #endif /* EMAC_CTP_H */

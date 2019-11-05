@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#if !DEVICE_USTICKER || !defined(MBED_RTOS_CONF_PRESENT)
-#error [NOT_SUPPORTED] test not supported
+#if !defined(MBED_RTOS_CONF_PRESENT)
+#error [NOT_SUPPORTED] usticker test cases requires RTOS to run
 #else
 
 #include "mbed.h"
@@ -35,6 +35,9 @@ extern "C" {
 }
 #endif // __cplusplus
 
+#if !DEVICE_USTICKER
+#error [NOT_SUPPORTED] test not supported
+#else
 
 #define US_PER_S 1000000
 
@@ -607,4 +610,5 @@ int main()
 {
     return !Harness::run(specification);
 }
-#endif // !DEVICE_USTICKER || !defined(MBED_RTOS_CONF_PRESENT)
+#endif // !DEVICE_USTICKER
+#endif // !defined(MBED_RTOS_CONF_PRESENT)

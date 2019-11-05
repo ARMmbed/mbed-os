@@ -20,7 +20,7 @@
 #include "utest.h"
 #include "ticker_api.h"
 #if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] systimer test cases requires RTOS to run.
 #else
 
 extern "C" {

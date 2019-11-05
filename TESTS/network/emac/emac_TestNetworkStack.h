@@ -17,7 +17,6 @@
 
 #ifndef EMAC_TEST_NETWORK_STACK_H
 #define EMAC_TEST_NETWORK_STACK_H
-#if defined(MBED_CONF_RTOS_PRESENT)
 
 #include "netsocket/nsapi_types.h"
 #include "netsocket/EMAC.h"
@@ -388,5 +387,5 @@ private:
 
     Interface *m_interface;
 };
-#endif /* #if defined(MBED_CONF_RTOS_PRESENT) */
+
 #endif /* EMAC_TEST_NETWORK_STACK_H */

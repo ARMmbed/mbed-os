@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(MBED_CONF_RTOS_PRESENT)
 
 #include "mbed.h"
 #include "greentea-client/test_env.h"
@@ -87,4 +86,3 @@ void ASYNCHRONOUS_DNS_CANCEL()
 
     ThisThread::sleep_for(5000);
 }
-#endif // #if defined(MBED_CONF_RTOS_PRESENT)

@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] sleep manager test cases requires RTOS to run.
+#else
+
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -23,7 +27,7 @@
 #include "../sleep/sleep_test_utils.h"
 #include "sleep_manager_api_tests.h"
 
-#if !DEVICE_SLEEP || !defined(MBED_CONF_RTOS_PRESENT)
+#if !DEVICE_SLEEP
 #error [NOT_SUPPORTED] test not supported
 #else
 
@@ -335,4 +339,5 @@ int main()
     return !Harness::run(specification);
 }
 
-#endif // !DEVICE_SLEEP || !defined(MBED_CONF_RTOS_PRESENT)
+#endif // !DEVICE_SLEEP
+#endif // !defined(MBED_CONF_RTOS_PRESENT)

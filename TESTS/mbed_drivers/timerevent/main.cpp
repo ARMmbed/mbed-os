@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #if !DEVICE_USTICKER || !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] usticker test not supported.
+#error [NOT_SUPPORTED] usticker test case requires RTOS to run and also usticker needs to be enabled for this target.
 #else
 
 #include "mbed.h"

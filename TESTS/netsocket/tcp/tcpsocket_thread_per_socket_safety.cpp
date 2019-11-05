@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-#if defined(MBED_CONF_RTOS_PRESENT)
 #include "mbed.h"
 #include "TCPSocket.h"
 #include "greentea-client/test_env.h"
@@ -168,4 +167,3 @@ void TCPSOCKET_THREAD_PER_SOCKET_SAFETY()
     running = false;
     thread.join();
 }
-#endif

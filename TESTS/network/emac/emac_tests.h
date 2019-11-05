@@ -17,7 +17,7 @@
 
 #ifndef EMAC_TESTS_H
 #define EMAC_TESTS_H
-#if defined(MBED_CONF_RTOS_PRESENT)
+
 void test_emac_initialize();
 void test_emac_broadcast();
 void test_emac_unicast();
@@ -26,5 +26,5 @@ void test_emac_unicast_burst();
 void test_emac_unicast_long();
 void test_emac_multicast_filter();
 void test_emac_memory();
-#endif /* #if defined(MBED_CONF_RTOS_PRESENT) */
+
 #endif /* EMAC_TESTS_H */

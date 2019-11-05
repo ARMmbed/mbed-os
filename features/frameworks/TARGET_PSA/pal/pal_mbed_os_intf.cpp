@@ -135,11 +135,9 @@ int test_start(test_entry_f test_f, compliance_test_type type)
 {
     test_g = test_f;
     type_g = type;
-#if defined(MBED_CONF_RTOS_PRESENT)
     MBED_ASSERT((type > COMPLIANCE_TEST_START) && (type < COMPLIANCE_TEST_END));
     Thread thread(osPriorityNormal, TEST_STACK_SIZE, NULL);
     thread.start(main_wrapper);
     thread.join();
-#endif
     return 0;
 }

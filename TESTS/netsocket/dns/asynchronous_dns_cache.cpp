@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(MBED_CONF_RTOS_PRESENT)
 
 #include "mbed.h"
 #include "greentea-client/test_env.h"
@@ -67,4 +66,3 @@ void ASYNCHRONOUS_DNS_CACHE()
                dns_test_hosts[0], data.addr.get_ip_address(), delay_ms);
     }
 }
-#endif

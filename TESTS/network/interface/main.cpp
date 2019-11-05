@@ -15,10 +15,6 @@
  * limitations under the License.
  */
 
-#if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] test not supported.
-#else
-
 #define WIFI 2
 #if !defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE) || \
     (MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == WIFI && !defined(MBED_CONF_NSAPI_DEFAULT_WIFI_SSID))
@@ -60,4 +56,3 @@ int main()
 }
 
 #endif // !defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE) || (MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == WIFI && !defined(MBED_CONF_NSAPI_DEFAULT_WIFI_SSID))
-#endif // !defined(MBED_CONF_RTOS_PRESENT)

@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-#if defined(MBED_CONF_RTOS_PRESENT)
 
 #include "mbed_interface.h"
 #include "netsocket/nsapi_types.h"
@@ -113,7 +112,7 @@ MBED_WEAK L3IP &L3IP::get_default_instance()
 {
     return Cellular_driver_L3IP::get_instance();
 }
-#endif
+
 /**
  * @}
  */

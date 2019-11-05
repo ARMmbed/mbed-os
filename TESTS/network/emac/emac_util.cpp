@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(MBED_CONF_RTOS_PRESENT)
 
 #include "mbed.h"
 #include "greentea-client/test_env.h"
@@ -583,4 +582,3 @@ void emac_if_set_mtu_size(int mtu_size)
 {
     eth_mtu_size = mtu_size;
 }
-#endif //#if defined(MBED_CONF_RTOS_PRESENT)

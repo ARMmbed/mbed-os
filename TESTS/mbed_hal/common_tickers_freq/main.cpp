@@ -20,6 +20,9 @@
  * freqency is valid.
  */
 
+#if !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] common tickers frequency test cases requires RTOS to run.
+#else
 
 #include "mbed.h"
 #include "greentea-client/test_env.h"
@@ -30,7 +33,7 @@
 #include "hal/lp_ticker_api.h"
 #include "hal/mbed_lp_ticker_wrapper.h"
 
-#if defined(SKIP_TIME_DRIFT_TESTS) || !DEVICE_USTICKER || !defined(MBED_CONF_RTOS_PRESENT)
+#if defined(SKIP_TIME_DRIFT_TESTS) || !DEVICE_USTICKER
 #error [NOT_SUPPORTED] test not supported
 #else
 
@@ -205,4 +208,5 @@ int main()
     Harness::run(specification);
 }
 
-#endif // defined(SKIP_TIME_DRIFT_TESTS) || !DEVICE_USTICKER || !defined(MBED_RTOS_CONF_PRESENT)
+#endif // defined(SKIP_TIME_DRIFT_TESTS) || !DEVICE_USTICKER
+#endif // !defined(MBED_RTOS_CONF_PRESENT)

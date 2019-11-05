@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(MBED_CONF_RTOS_PRESENT)
 
 #include "mbed.h"
 #include "greentea-client/test_env.h"
@@ -80,4 +79,3 @@ void test_emac_unicast_frame_len()
     TEST_ASSERT_FALSE(ERROR_FLAGS);
     RESET_OUTGOING_MSG_DATA;
 }
-#endif //#if defined(MBED_CONF_RTOS_PRESENT)

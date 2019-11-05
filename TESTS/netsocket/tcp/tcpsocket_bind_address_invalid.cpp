@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-#if defined(MBED_CONF_RTOS_PRESENT)
-
 #include "greentea-client/test_env.h"
 #include "mbed.h"
 #include "tcp_tests.h"
@@ -51,4 +49,3 @@ void TCPSOCKET_BIND_ADDRESS_INVALID()
 
     delete sock;
 }
-#endif

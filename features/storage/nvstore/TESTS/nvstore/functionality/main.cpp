@@ -14,10 +14,6 @@
 * limitations under the License.
 */
 
-#if !NVSTORE_ENABLED
-#error [NOT_SUPPORTED] NVSTORE needs to be enabled for this test
-#else
-
 #include "nvstore.h"
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "Thread.h"
@@ -30,6 +26,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <algorithm>
+
+#if !NVSTORE_ENABLED
+#error [NOT_SUPPORTED] NVSTORE needs to be enabled for this test
+#else
 
 using namespace utest::v1;
 

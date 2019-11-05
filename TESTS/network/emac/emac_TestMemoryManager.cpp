@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(MBED_CONF_RTOS_PRESENT)
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
@@ -554,4 +554,3 @@ EmacTestMemoryManager &EmacTestMemoryManager::get_instance()
     return test_memory_manager;
 }
 
-#endif //#if defined(MBED_CONF_RTOS_PRESENT)

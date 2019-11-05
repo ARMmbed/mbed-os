@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#if !DEVICE_LPTICKER || !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] Low power timer test not supported.
+#if !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] Low power timer test cases requires RTOS to run.
 #else
 
 #include "mbed.h"
@@ -28,7 +28,9 @@
 #include "hal/mbed_lp_ticker_wrapper.h"
 #include "hal/us_ticker_api.h"
 
-
+#if !DEVICE_LPTICKER
+#error [NOT_SUPPORTED] Low power timer not supported for this target
+#else
 
 using namespace utest::v1;
 
@@ -209,4 +211,5 @@ int main()
     return !Harness::run(specification);
 }
 
-#endif // !DEVICE_LPTICKER || !defined(MBED_CONF_RTOS_PRESENT)
+#endif // !DEVICE_LPTICKER
+#endif // !defined(MBED_CONF_RTOS_PRESENT)

@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-#if defined(MBED_CONF_RTOS_PRESENT)
 #include "mbed.h"
 #include "TCPSocket.h"
 #include "greentea-client/test_env.h"
@@ -202,4 +201,3 @@ END:
     tc_exec_time.stop();
     free(stack_mem);
 }
-#endif

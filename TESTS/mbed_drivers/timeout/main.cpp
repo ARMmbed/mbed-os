@@ -13,14 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] usticker test requires RTOS to run.
+#else
+
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "timeout_tests.h"
 
-#if !DEVICE_USTICKER || !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] usticker test not supported.
+#if !DEVICE_USTICKER
+#error [NOT_SUPPORTED] usticker not supported for this target.
 #else
 
 using namespace utest::v1;
@@ -89,3 +94,4 @@ int main()
 }
 
 #endif // !DEVICE_USTICKER
+#endif // !defined(MBED_CONF_RTOS_PRESENT)

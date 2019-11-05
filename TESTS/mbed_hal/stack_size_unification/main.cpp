@@ -15,13 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] stack size unification test cases requires RTOS to run.
+#else
+
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"
 
-#if defined(TARGET_RENESAS) || !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] Cortex-A target and bare metal not supported for this test
+#ifdef TARGET_RENESAS
+#error [NOT_SUPPORTED] Cortex-A target not supported for this test
 #else
 
 using namespace utest::v1;
@@ -75,4 +79,5 @@ int main()
     return !Harness::run(specification);
 }
 
-#endif // TARGET_RENESAS || !defined(MBED_CONF_RTOS_PRESENT)
+#endif // TARGET_RENESAS
+#endif // !defined(MBED_CONF_RTOS_PRESENT)

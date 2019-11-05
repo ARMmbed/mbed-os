@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] test not supported
-#else
 
 #include "mbed.h"
 #include "greentea-client/test_env.h"
@@ -210,4 +207,3 @@ int main()
 {
     return !Harness::run(specification);
 }
-#endif // !defined(MBED_CONF_RTOS_PRESENT)

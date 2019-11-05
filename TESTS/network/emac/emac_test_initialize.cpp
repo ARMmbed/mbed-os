@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(MBED_CONF_RTOS_PRESENT)
 
 #include <inttypes.h>
 #include "mbed.h"
@@ -118,4 +117,3 @@ bool emac_if_init(EMAC *emac)
 
     return true;
 }
-#endif //#if defined(MBED_CONF_RTOS_PRESENT)

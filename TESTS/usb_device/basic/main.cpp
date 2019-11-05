@@ -16,7 +16,7 @@
  */
 
 #if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] USB test cases are not supported on Bare metal
+#error [NOT_SUPPORTED] USB test cases requires RTOS to run.
 #else
 
 #include <stdio.h>

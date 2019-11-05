@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-#if defined(MBED_CONF_RTOS_PRESENT)
 #include "mbed.h"
 #include "TCPSocket.h"
 #include "greentea-client/test_env.h"
@@ -89,4 +88,3 @@ void TCPSOCKET_ENDPOINT_CLOSE()
     tc_exec_time.stop();
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
-#endif

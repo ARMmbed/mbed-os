@@ -16,10 +16,6 @@
 * limitations under the License.
 */
 
-#if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] test not supported.
-#else
-
 #include "psa/crypto.h"
 
 #if ((!defined(TARGET_PSA)) || (!defined(MBEDTLS_PSA_CRYPTO_C)))
@@ -161,4 +157,3 @@ int main()
 }
 
 #endif // ((!defined(TARGET_PSA)) || (!defined(MBEDTLS_PSA_CRYPTO_C)))
-#endif // !defined(MBED_CONF_RTOS_PRESENT)

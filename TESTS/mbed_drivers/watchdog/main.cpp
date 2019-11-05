@@ -14,8 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if !DEVICE_WATCHDOG || !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] Watchdo test not supported.
+
+#if !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] Watchdog test cases requires RTOS to run.
+#else
+
+#if !DEVICE_WATCHDOG
+#error [NOT_SUPPORTED] Watchdog not supported for this target
 #else
 
 #include "greentea-client/test_env.h"
@@ -284,3 +289,4 @@ int main()
 }
 
 #endif // !DEVICE_WATCHDOG
+#endif // !defined(MBED_CONG_RTOS_PRESENT)

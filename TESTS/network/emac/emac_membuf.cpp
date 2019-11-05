@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(MBED_CONF_RTOS_PRESENT)
 
 #include "mbed.h"
 #include "greentea-client/test_env.h"
@@ -76,4 +75,3 @@ void emac_if_memory_buffer_write(void *buf, unsigned char *eth_frame, bool write
         }
     }
 }
-#endif //#if defined(MBED_CONF_RTOS_PRESENT)
