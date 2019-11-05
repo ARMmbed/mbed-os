@@ -169,9 +169,9 @@ static cy_en_scb_spi_sclk_mode_t cyhal_convert_mode_sclk(cyhal_spi_mode_t mode)
         case 0:
             return (CY_SCB_SPI_CPHA0_CPOL0);
         case 1:
-            return (CY_SCB_SPI_CPHA0_CPOL1);
-        case 2:
             return (CY_SCB_SPI_CPHA1_CPOL0);
+        case 2:
+            return (CY_SCB_SPI_CPHA0_CPOL1);
         case 3:
             return (CY_SCB_SPI_CPHA1_CPOL1);
         default:
