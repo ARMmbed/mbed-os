@@ -20,10 +20,10 @@
 #ifndef MBED_LFSFILESYSTEM_H
 #define MBED_LFSFILESYSTEM_H
 
-#include "FileSystem.h"
-#include "BlockDevice.h"
-#include "PlatformMutex.h"
-#include "lfs.h"
+#include "features/storage/filesystem/FileSystem.h"
+#include "features/storage/blockdevice/BlockDevice.h"
+#include "platform/PlatformMutex.h"
+#include "features/storage/filesystem/littlefs/littlefs/lfs.h"
 
 namespace mbed {
 

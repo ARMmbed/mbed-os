@@ -119,11 +119,11 @@ QSPIFBlockDevice::QSPIFBlockDevice(PinName io0, PinName io1, PinName io2, PinNam
     _unique_device_status = add_new_csel_instance(csel);
 
     if (_unique_device_status == 0) {
-        tr_debug("Adding a new QSPIFBlockDevice csel: %d\n", (int)csel);
+        tr_debug("Adding a new QSPIFBlockDevice csel: %d", (int)csel);
     } else if (_unique_device_status == -1) {
-        tr_error("QSPIFBlockDevice with the same csel(%d) already exists\n", (int)csel);
+        tr_error("QSPIFBlockDevice with the same csel(%d) already exists", (int)csel);
     } else {
-        tr_error("Too many different QSPIFBlockDevice devices - max allowed: %d\n", QSPIF_MAX_ACTIVE_FLASH_DEVICES);
+        tr_error("Too many different QSPIFBlockDevice devices - max allowed: %d", QSPIF_MAX_ACTIVE_FLASH_DEVICES);
     }
 }
 
@@ -199,7 +199,7 @@ int QSPIFBlockDevice::init()
         goto exit_point;
     }
 
-    tr_debug("Vendor device ID = 0x%x 0x%x 0x%x 0x%x \n", vendor_device_ids[0],
+    tr_debug("Vendor device ID = 0x%x 0x%x 0x%x 0x%x", vendor_device_ids[0],
              vendor_device_ids[1], vendor_device_ids[2], vendor_device_ids[3]);
     switch (vendor_device_ids[0]) {
         case 0xbf:

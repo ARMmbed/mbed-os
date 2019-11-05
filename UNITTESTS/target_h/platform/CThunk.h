@@ -1,5 +1,4 @@
-/*
- * Copyright (c) 2017, Arm Limited and affiliates.
+/* Copyright (c) 2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,38 +14,39 @@
  * limitations under the License.
  */
 
-#ifndef MBED_PINNAMES_H
-#define MBED_PINNAMES_H
+#ifndef __CTHUNK_H__
+#define __CTHUNK_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+/**
+ * Class for created a pointer with data bound to it
+ *
+ * @note Synchronization level: Not protected
+ */
+template<class T>
+class CThunk {
+public:
+    typedef void (T::*CCallbackSimple)(void);
+    typedef void (T::*CCallback)(void *context);
+    CThunk()
+    {}
+    CThunk(T *instance)
+    {}
+    CThunk(T &instance)
+    {}
+    void callback(CCallback callback)
+    {}
 
-typedef enum {
-    PIN_INPUT,
-    PIN_OUTPUT
-} PinDirection;
+    void callback(CCallbackSimple callback)
+    {
+    }
+    uint32_t entry(void)
+    {
+        
+        return 0;
+    }
+};
 
-typedef enum {
-    PTC0 = 0,
-    PTC1 = 1,
-    NC = (int)0xFFFFFFFF
-} PinName;
 
-typedef enum {
-    PullNone = 0,
-    PullDown = 1,
-    PullUp   = 2,
-    PullDefault = PullUp
-} PinMode;
+#endif/*__CTHUNK_H__*/
 
-typedef enum {
-    PortA = 0,
-} PortName;
 
-#ifdef __cplusplus
-}
-#endif
-#include "pinmap.h"
-
-#endif

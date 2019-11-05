@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "filesystem/Dir.h"
-#include "filesystem/File.h"
-#include "filesystem/FileSystem.h"
+#include "features/storage/filesystem/Dir.h"
+#include "features/storage/filesystem/File.h"
+#include "features/storage/filesystem/FileSystem.h"
 #include <errno.h>
 
 namespace mbed {

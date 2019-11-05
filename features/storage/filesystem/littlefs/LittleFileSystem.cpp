@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "filesystem/mbed_filesystem.h"
+#include "features/storage/filesystem/mbed_filesystem.h"
 #include "LittleFileSystem.h"
 #include "errno.h"
-#include "lfs.h"
-#include "lfs_util.h"
+#include "features/storage/filesystem/littlefs/littlefs/lfs.h"
+#include "features/storage/filesystem/littlefs/littlefs/lfs_util.h"
 #include "MbedCRC.h"
 
 namespace mbed {

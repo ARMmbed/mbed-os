@@ -1,5 +1,4 @@
-/*
- * Copyright (c) 2017, Arm Limited and affiliates.
+/* Copyright (c) 2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,38 +14,26 @@
  * limitations under the License.
  */
 
-#ifndef MBED_PINNAMES_H
-#define MBED_PINNAMES_H
+#include "gtest/gtest.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+/*
+ * Purpose of this test is just to be empty baseline
+ * that does nothing, but includes all source files
+ * in the build.
+ * Do not add any tests here
+ */
 
-typedef enum {
-    PIN_INPUT,
-    PIN_OUTPUT
-} PinDirection;
+class EmptyBaseline : public testing::Test {
+    virtual void SetUp()
+    {
+    }
 
-typedef enum {
-    PTC0 = 0,
-    PTC1 = 1,
-    NC = (int)0xFFFFFFFF
-} PinName;
+    virtual void TearDown()
+    {
+    }
+};
 
-typedef enum {
-    PullNone = 0,
-    PullDown = 1,
-    PullUp   = 2,
-    PullDefault = PullUp
-} PinMode;
-
-typedef enum {
-    PortA = 0,
-} PortName;
-
-#ifdef __cplusplus
+TEST_F(EmptyBaseline, constructor)
+{
+    EXPECT_TRUE(true);
 }
-#endif
-#include "pinmap.h"
-
-#endif

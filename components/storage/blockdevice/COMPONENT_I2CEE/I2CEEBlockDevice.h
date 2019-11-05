@@ -16,8 +16,8 @@
 #ifndef MBED_I2CEEPROM_BLOCK_DEVICE_H
 #define MBED_I2CEEPROM_BLOCK_DEVICE_H
 
-#include "BlockDevice.h"
-#include "I2C.h"
+#include "features/storage/blockdevice/BlockDevice.h"
+#include "drivers/I2C.h"
 
 /** BlockDevice for I2C based flash device such as
  *  Microchip's 24LC or ATMEL's AT24C ranges
