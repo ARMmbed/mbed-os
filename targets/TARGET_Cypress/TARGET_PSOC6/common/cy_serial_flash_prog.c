@@ -72,7 +72,8 @@ const stc_smif_ipblocks_arr_t smifIpBlocksArr = {&smifBlockConfig, 0x00000000};
  * process and programming tools to determine key characteristics about the memory usage including
  * where the boot process should start the application from and what external memories are connected
  * (if any). This must consume a full row of flash memory row. The last entry is a checksum of the
- * other values in the ToC which must be updated if any other value changes.
+ * other values in the ToC which must be updated if any other value changes. This can be done manually
+ * or by running 'cymcuelftool -S' to recompute the checksum.
  */
 CY_SECTION(".cy_toc_part2") __attribute__( (used) )
 const uint32_t cyToc[128] =

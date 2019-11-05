@@ -39,7 +39,7 @@
 #include "cy_result.h"
 #include "whd.h"
 #include "whd_network_types.h"
-#include "pbuf.h"
+#include "lwip/pbuf.h"
 
 #if defined(__cplusplus)
 extern "C" {
