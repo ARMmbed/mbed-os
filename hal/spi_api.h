@@ -53,6 +53,28 @@ typedef struct spi_s spi_t;
 
 #endif
 
+/**
+ * Describes the capabilities of a SPI peripherals
+ */
+typedef struct {
+    /** Minimum frequency supported must be set by target device and it will be assessed during
+     *  testing.
+     */
+    uint32_t    minimum_frequency;
+    /** Maximum frequency supported must be set by target device and it will be assessed during
+     *  testing.
+     */
+    uint32_t    maximum_frequency;
+    /** Each bit represents the corresponding word length. lsb => 1bit, msb => 32bit. */
+    uint32_t    word_length;
+    uint16_t    slave_delay_between_symbols_ns; /**< specifies required number of ns between transmission of successive symbols in slave mode. */
+    uint8_t     clk_modes; /**< specifies supported modes from spi_mode_t. Each bit represents the corresponding mode. */
+    bool        support_slave_mode; /**< If true, the device can handle SPI slave mode using hardware management on the specified ssel pin. */
+    bool        hw_cs_handle; /**< If true, in SPI master mode Chip Select can be handled by hardware. */
+    bool        async_mode; /**< If true, in async mode is supported. */
+
+} spi_capabilities_t;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -63,6 +85,11 @@ extern "C" {
  * # Defined behavior
  * * ::spi_init initializes the spi_t control structure
  * * ::spi_init configures the pins used by SPI
+ * * ::spi_get_capabilities() fills the given `spi_capabilities_t` instance
+ * * ::spi_get_capabilities() should consider the `ssel` pin when evaluation the `support_slave_mode` and `hw_cs_handle` capability
+ * * ::spi_get_capabilities(): if the given `ssel` pin cannot be managed by hardware, `support_slave_mode` and `hw_cs_handle` should be false
+ * * At least a symbol width of 8bit must be supported
+ * * The supported frequency range must include the range [0.2..2] MHz
  * * ::spi_free returns the pins owned by the SPI object to their reset state
  * * ::spi_format sets the number of bits per frame
  * * ::spi_format configures clock polarity and phase
@@ -124,6 +151,11 @@ extern "C" {
  */
 SPIName spi_get_peripheral_name(PinName mosi, PinName miso, PinName mclk);
 #endif
+
+/**
+ * Fills the given spi_capabilities_t structure with the capabilities of the given peripheral.
+ */
+void spi_get_capabilities(PinName ssel, bool slave, spi_capabilities_t *cap);
 
 /** Initialize the SPI peripheral
  *
