@@ -23642,3 +23642,5 @@ const unsigned char wifi_mfg_firmware_image_data[391277] =
     49, 45, 48, 56, 98, 98, 49, 100, 102, 51
 };
 
+const resource_hnd_t wifi_mfg_firmware_image =
+{ RESOURCE_IN_MEMORY, 391277, {.mem = { (const char *)wifi_mfg_firmware_image_data }}};

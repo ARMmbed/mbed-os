@@ -180,7 +180,7 @@ static void *whd_handle_apsta_event(whd_interface_t ifp, const whd_event_header_
         {
             whd_result_t result;
             result = cy_rtos_set_semaphore(&ap->whd_wifi_sleep_flag, WHD_FALSE);
-            whd_assert("failed to post AP link semaphore", result == WHD_SUCCESS);
+            WPRINT_WHD_DEBUG( ("%s failed to post AP link semaphore at %d\n", __func__, __LINE__) );
             REFERENCE_DEBUG_ONLY_VARIABLE(result);
         }
     }
@@ -191,17 +191,18 @@ static void *whd_handle_apsta_event(whd_interface_t ifp, const whd_event_header_
 uint32_t whd_wifi_init_ap(whd_interface_t ifp, whd_ssid_t *ssid, whd_security_t auth_type,
                           const uint8_t *security_key, uint8_t key_length, uint8_t channel)
 {
+    whd_driver_t whd_driver;
     whd_bool_t wait_for_interface = WHD_FALSE;
     whd_result_t result;
     whd_buffer_t response;
     whd_buffer_t buffer;
-    uint32_t *data;
+    whd_interface_t prim_ifp;
     whd_ap_int_info_t *ap;
+    uint32_t *data;
     uint32_t bss_index;
     uint16_t wlan_chip_id;
     uint16_t event_entry = (uint16_t)0xFF;
-    whd_interface_t prim_ifp;
-    whd_driver_t whd_driver;
+
 
     CHECK_IFP_NULL(ifp);
 
@@ -209,13 +210,31 @@ uint32_t whd_wifi_init_ap(whd_interface_t ifp, whd_ssid_t *ssid, whd_security_t 
 
     CHECK_DRIVER_NULL(whd_driver);
 
+    ap = &whd_driver->ap_info;
+
     prim_ifp = whd_get_primary_interface(whd_driver);
     if (prim_ifp == NULL)
     {
         WPRINT_WHD_ERROR( ("%s failed at %d \n", __func__, __LINE__) );
         return WHD_UNKNOWN_INTERFACE;
     }
-    ap = &whd_driver->ap_info;
+
+    /* Turn off APSTA when creating AP mode on primary interface */
+    if (ifp == prim_ifp)
+    {
+        CHECK_RETURN(whd_wifi_set_ioctl_buffer(prim_ifp, WLC_DOWN, NULL, 0) );
+        data = (uint32_t *)whd_cdc_get_iovar_buffer(whd_driver, &buffer, (uint16_t)4, IOVAR_STR_APSTA);
+        CHECK_IOCTL_BUFFER(data);
+        *data = 0;
+        result = whd_cdc_send_iovar(ifp, CDC_SET, buffer, 0);
+        if ( (result != WHD_SUCCESS) && (result != WHD_WLAN_UNSUPPORTED) )
+        {
+            WPRINT_WHD_ERROR( ("Could not turn off apsta\n") );
+            return result;
+        }
+        CHECK_RETURN(whd_wifi_set_ioctl_buffer(prim_ifp, WLC_UP, NULL, 0) );
+    }
+
     bss_index = ifp->bsscfgidx;
     /* Get the Chip Number */
     wlan_chip_id = whd_chip_get_chip_id(whd_driver);

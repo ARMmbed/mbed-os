@@ -54,17 +54,26 @@ extern "C"
 #define whd_minor_assert(error_string, \
                          assertion)   do { if (!(assertion) ) WPRINT_MACRO( (error_string) ); } while (0)
 #else
-#define whd_assert(error_string, assertion)         do { if (!(assertion) ) WPRINT_MACRO( (error_string) ); } while (0)
+#define whd_assert(error_string, \
+                   assertion)         do { if (!(assertion) ){ WPRINT_MACRO( (error_string) ); } } while (0)
 #define whd_minor_assert(error_string, assertion)   do { (void)(assertion); } while (0)
 #endif
 
 /******************************************************
 *             Print declarations
 ******************************************************/
+/* IF MFG TEST is enabled then disable all LOGGING VIA UART as
+ + * this interrupts communication between WL TOOL and MFG Test APP
+ + * via STDIO UART causing Wrong Message Exchange and failure.
+ + */
+#ifdef WLAN_MFG_FIRMWARE
+#define WPRINT_MACRO(args)
+#else
 #if defined(WHD_LOGGING_BUFFER_ENABLE)
 #define WPRINT_MACRO(args) do { whd_buffer_printf args; } while (0 == 1)
 #else
 #define WPRINT_MACRO(args) do { printf args;} while (0 == 1)
+#endif
 #endif
 
 
