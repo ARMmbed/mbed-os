@@ -28,7 +28,7 @@ static DAC_Type *const dac_bases[] = DAC_BASE_PTRS;
 
 #define RANGE_12BIT     0xFFF
 
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
 #define ANALOGOUT_INIT_DIRECT analogout_init_direct
 void analogout_init_direct(dac_t *obj, const PinMap *pinmap)
 #else
@@ -54,9 +54,9 @@ void analogout_init(dac_t *obj, PinName pin)
 {
     int peripheral = (int)pinmap_peripheral(pin, PinMap_ADC);
 
-    const PinMap explicit_pinmap = {pin, peripheral, 0};
+    const PinMap static_pinmap = {pin, peripheral, 0};
 
-    ANALOGOUT_INIT_DIRECT(obj, &explicit_pinmap);
+    ANALOGOUT_INIT_DIRECT(obj, &static_pinmap);
 }
 
 void analogout_free(dac_t *obj)

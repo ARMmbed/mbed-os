@@ -38,7 +38,7 @@ static USART_Type *const uart_addrs[] = USART_BASE_PTRS;
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
 #define SERIAL_INIT_DIRECT serial_init_direct
 void serial_init_direct(serial_t *obj, const serial_pinmap_t *pinmap)
 #else
@@ -405,7 +405,7 @@ void serial_break_clear(serial_t *obj)
 /*
  * Only hardware flow control is implemented in this API.
  */
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
 #define SERIAL_SET_FC_DIRECT serial_set_flow_control_direct
 void serial_set_flow_control_direct(serial_t *obj, FlowControl type, const serial_fc_pinmap_t *pinmap)
 #else

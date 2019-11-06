@@ -32,7 +32,7 @@ extern void ADC_ClockPower_Configuration(void);
 
 #define LPADC_USER_CMDID 1U /* CMD1 */
 
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
 #define ANALOGIN_INIT_DIRECT analogin_init_direct
 void analogin_init_direct(analogin_t *obj, const PinMap *pinmap)
 #else
@@ -113,9 +113,9 @@ void analogin_init(analogin_t *obj, PinName pin)
     int peripheral = (int)pinmap_peripheral(pin, PinMap_ADC);
     int function = (int)pinmap_find_function(pin, PinMap_ADC);
 
-    const PinMap explicit_pinmap = {pin, peripheral, function};
+    const PinMap static_pinmap = {pin, peripheral, function};
 
-    ANALOGIN_INIT_DIRECT(obj, &explicit_pinmap);
+    ANALOGIN_INIT_DIRECT(obj, &static_pinmap);
 }
 
 uint16_t analogin_read_u16(analogin_t *obj)

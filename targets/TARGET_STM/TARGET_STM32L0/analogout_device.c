@@ -39,7 +39,7 @@
 static int channel1_used = 0;
 static int channel2_used = 0;
 
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
 #define ANALOGOUT_INIT_DIRECT analogout_init_direct
 void analogout_init_direct(dac_t *obj, const PinMap *pinmap)
 #else
@@ -109,9 +109,9 @@ void analogout_init(dac_t *obj, PinName pin)
     int peripheral = (int)pinmap_peripheral(pin, PinMap_DAC);
     int function = (int)pinmap_find_function(pin, PinMap_DAC);
 
-    const PinMap explicit_pinmap = {pin, peripheral, function};
+    const PinMap static_pinmap = {pin, peripheral, function};
 
-    ANALOGOUT_INIT_DIRECT(obj, &explicit_pinmap);
+    ANALOGOUT_INIT_DIRECT(obj, &static_pinmap);
 }
 
 void analogout_free(dac_t *obj)

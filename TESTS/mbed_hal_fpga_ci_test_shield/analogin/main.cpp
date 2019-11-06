@@ -28,7 +28,7 @@
 #include "greentea-client/test_env.h"
 #include "mbed.h"
 #include "pinmap.h"
-#include "hal/explicit_pinmap.h"
+#include "hal/static_pinmap.h"
 #include "test_utils.h"
 #include "MbedTester.h"
 #include "analogin_fpga_test.h"

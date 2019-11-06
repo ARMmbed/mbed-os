@@ -75,14 +75,14 @@ public:
 
     /** Create a Serial port, connected to the specified transmit and receive pins
      *
-     *  @param explicit_pinmap reference to structure which holds static pinmap.
+     *  @param static_pinmap reference to structure which holds static pinmap.
      *  @param name The name of the stream associated with this serial port (optional)
      *  @param baud The baud rate of the serial port (optional, defaults to MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE or 9600)
      *
      *  @note
      *    Either tx or rx may be specified as NC (Not Connected) if unused
      */
-    Serial(const serial_pinmap_t &explicit_pinmap, const char *name = NULL, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
+    Serial(const serial_pinmap_t &static_pinmap, const char *name = NULL, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
     Serial(const serial_pinmap_t &&, const char * = NULL, int = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE) = delete; // prevent passing of temporary objects
 
     /** Create a Serial port, connected to the specified transmit and receive pins, with the specified baud
@@ -98,13 +98,13 @@ public:
 
     /** Create a Serial port, connected to the specified transmit and receive pins, with the specified baud
      *
-     *  @param explicit_pinmap reference to structure which holds static pinmap.
+     *  @param static_pinmap reference to structure which holds static pinmap.
      *  @param baud The baud rate of the serial port
      *
      *  @note
      *    Either tx or rx may be specified as NC (Not Connected) if unused
      */
-    Serial(const serial_pinmap_t &explicit_pinmap, int baud);
+    Serial(const serial_pinmap_t &static_pinmap, int baud);
     Serial(const serial_pinmap_t &&, int) = delete; // prevent passing of temporary objects
 
     /* Stream gives us a FileHandle with non-functional poll()/readable()/writable. Pass through
