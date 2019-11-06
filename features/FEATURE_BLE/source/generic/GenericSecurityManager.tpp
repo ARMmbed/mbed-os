@@ -137,6 +137,7 @@ ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::setData
 
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::reset_(void) {
+    delete _db;
     _pal.reset();
     SecurityManager::reset_();
 
