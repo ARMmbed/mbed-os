@@ -118,7 +118,9 @@ typedef struct wl_af_params whd_af_params_t;
 /**
  * The maximum size in bytes of the data part of an Ethernet frame
  */
+#ifndef WHD_PAYLOAD_MTU
 #define WHD_PAYLOAD_MTU           (1500)
+#endif
 
 /**
  * The maximum size in bytes of a packet used within whd.

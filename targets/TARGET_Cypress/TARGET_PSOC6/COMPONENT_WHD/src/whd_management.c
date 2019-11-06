@@ -42,6 +42,7 @@
 
 #define MINIMUM_WHD_STACK_SIZE        (1024 + 1200 + 2500)
 
+#define DEFAULT_PM2_SLEEP_RET_TIME  200
 /******************************************************
 *             Static Variables
 ******************************************************/
@@ -329,7 +330,6 @@ uint32_t whd_wifi_on(whd_driver_t whd_driver, whd_interface_t *ifpp)
         return retval;
     }
 
-#if 0
     /* Turn APSTA on */
     data = (uint32_t *)whd_cdc_get_iovar_buffer(whd_driver, &buffer, (uint16_t)sizeof(*data), IOVAR_STR_APSTA);
     if (data == NULL)
@@ -340,12 +340,15 @@ uint32_t whd_wifi_on(whd_driver_t whd_driver, whd_interface_t *ifpp)
     *data = htod32( (uint32_t)1 );
     /* This will fail on manufacturing test build since it does not have APSTA available */
     retval = whd_cdc_send_iovar(ifp, CDC_SET, buffer, 0);
-    if ( (retval != WHD_SUCCESS) && (retval != WHD_WLAN_UNSUPPORTED) )
+    if (retval == WHD_WLAN_UNSUPPORTED)
     {
-        /* Could not turn on APSTA */
-        WPRINT_WHD_DEBUG( ("Could not turn on APSTA\n") );
+        WPRINT_WHD_DEBUG( ("Firmware does not support APSTA\n") );
     }
-#endif
+    else if (retval != WHD_SUCCESS)
+    {
+        WPRINT_WHD_ERROR( ("Could not turn on APSTA\n") );
+        return retval;
+    }
 
     /* Send set country command */
     /* This is the first time that the WLAN chip is required to respond
@@ -414,7 +417,7 @@ uint32_t whd_wifi_on(whd_driver_t whd_driver, whd_interface_t *ifpp)
     /* Send UP command */
     CHECK_RETURN(whd_wifi_set_up(ifp) );
 
-    whd_wifi_enable_powersave_with_throughput(ifp, 0);
+    whd_wifi_enable_powersave_with_throughput(ifp, DEFAULT_PM2_SLEEP_RET_TIME);
     /* Set the GMode */
     data = (uint32_t *)whd_cdc_get_ioctl_buffer(whd_driver, &buffer, (uint16_t)4);
     if (data == NULL)

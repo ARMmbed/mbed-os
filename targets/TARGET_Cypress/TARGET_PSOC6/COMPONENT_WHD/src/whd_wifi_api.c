@@ -2680,11 +2680,7 @@ uint32_t whd_wifi_enable_powersave_with_throughput(whd_interface_t ifp, uint16_t
 
     CHECK_DRIVER_NULL(whd_driver);
 
-    if (return_to_sleep_delay_ms == 0)
-    {
-        return WHD_BADARG;
-    }
-    else if (return_to_sleep_delay_ms < PM2_SLEEP_RET_TIME_MIN)
+    if (return_to_sleep_delay_ms < PM2_SLEEP_RET_TIME_MIN)
     {
         WPRINT_WHD_ERROR( ("Delay too short, %s failed at line %d \n", __func__, __LINE__) );
         return WHD_DELAY_TOO_SHORT;
@@ -3102,7 +3098,7 @@ uint32_t whd_wifi_get_ioctl_value(whd_interface_t ifp, uint32_t ioctl, uint32_t 
     CHECK_IOCTL_BUFFER(whd_cdc_get_ioctl_buffer(whd_driver, &buffer, (uint16_t)sizeof(*value) ) );
     CHECK_RETURN_UNSUPPORTED_OK(whd_cdc_send_ioctl(ifp, CDC_GET, ioctl, buffer, &response) );
 
-    *value = dtoh32(*whd_buffer_get_current_piece_data_pointer(whd_driver, response) );
+    *value = dtoh32(*(uint32_t *)whd_buffer_get_current_piece_data_pointer(whd_driver, response) );
 
     CHECK_RETURN(whd_buffer_release(whd_driver, response, WHD_NETWORK_RX) );
 
@@ -3138,6 +3134,7 @@ uint32_t whd_wifi_get_ioctl_buffer(whd_interface_t ifp, uint32_t ioctl, uint8_t 
     whd_driver = ifp->whd_driver;
     data = (uint32_t *)whd_cdc_get_ioctl_buffer(whd_driver, &buffer, out_length);
     CHECK_IOCTL_BUFFER(data);
+    memcpy(data, out_buffer, out_length);
 
     result = whd_cdc_send_ioctl(ifp, CDC_GET, ioctl, buffer, &response);
 
