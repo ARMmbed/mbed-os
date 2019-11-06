@@ -14,8 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef EXPLICIT_PINMAP_H
-#define EXPLICIT_PINMAP_H
+#ifndef STATIC_PINMAP_H
+#define STATIC_PINMAP_H
 
 #include "PinNames.h"
 #include "spi_api.h"
@@ -28,7 +28,7 @@
 #include "can_api.h"
 #include <mstd_cstddef>
 
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
 #include "PeripheralPinMaps.h"
 
 
@@ -293,7 +293,7 @@ MSTD_CONSTEXPR_FN_14 qspi_pinmap_t get_qspi_pinmap(const PinName data0, const Pi
 }
 #endif //DEVICE_QSPI
 
-#else // EXPLICIT_PINMAP_READY
+#else // STATIC_PINMAP_READY
 
 #if DEVICE_PWMOUT
 MSTD_CONSTEXPR_FN_14 PinMap get_pwm_pinmap(const PinName pin)
@@ -358,6 +358,6 @@ MSTD_CONSTEXPR_FN_14 qspi_pinmap_t get_qspi_pinmap(const PinName data0, const Pi
 }
 #endif //DEVICE_QSPI
 
-#endif // EXPLICIT_PINMAP_READY
+#endif // STATIC_PINMAP_READY
 
-#endif // EXPLICIT_PINMAP_H
+#endif // STATIC_PINMAP_H

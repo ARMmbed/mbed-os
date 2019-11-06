@@ -29,7 +29,7 @@
 #include "mbed.h"
 #include "MbedTester.h"
 #include "pinmap.h"
-#include "hal/explicit_pinmap.h"
+#include "hal/static_pinmap.h"
 #include "test_utils.h"
 #include "pwm_fpga_test.h"
 

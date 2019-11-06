@@ -34,7 +34,7 @@
 #include "serial_api.h"
 #include "us_ticker_api.h"
 #include "uart_fpga_test.h"
-#include "hal/explicit_pinmap.h"
+#include "hal/static_pinmap.h"
 
 using namespace utest::v1;
 
@@ -128,11 +128,11 @@ static void uart_test_common(int baudrate, int data_bits, SerialParity parity, i
 #if DEVICE_SERIAL_FC
     if (use_flow_control) {
         if (init_direct) {
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
             const serial_fc_pinmap_t pinmap = get_uart_fc_pinmap(rts, cts);
             serial_set_flow_control_direct(&serial, FlowControlRTSCTS, &pinmap);
 #else
-            //skip this test case if explicit pinmap is not supported
+            //skip this test case if static pinmap is not supported
             return;
 #endif
         } else {

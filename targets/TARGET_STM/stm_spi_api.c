@@ -111,7 +111,7 @@ SPIName spi_get_peripheral_name(PinName mosi, PinName miso, PinName sclk)
     return spi_per;
 }
 
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
 #define SPI_INIT_DIRECT spi_init_direct
 void spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
 #else

@@ -57,7 +57,7 @@ int can_internal_init(can_t *obj)
     return 1;
 }
 
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
 #define CAN_INIT_FREQ_DIRECT can_init_freq_direct
 void can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz)
 #else
@@ -155,7 +155,7 @@ static void _can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz
     can_internal_init(obj);
 }
 
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
 #define CAN_INIT_DIRECT can_init_direct
 void can_init_direct(can_t *obj, const can_pinmap_t *pinmap)
 #else
@@ -176,10 +176,10 @@ void can_init(can_t *obj, PinName rd, PinName td)
     int function_rd = (int)pinmap_find_function(rd, PinMap_CAN_RD);
     int function_td = (int)pinmap_find_function(td, PinMap_CAN_TD);
 
-    const can_pinmap_t explicit_pinmap = {peripheral, rd, function_rd, td, function_td};
+    const can_pinmap_t static_pinmap = {peripheral, rd, function_rd, td, function_td};
 
     /* default frequency is 100 kHz */
-    CAN_INIT_DIRECT(obj, &explicit_pinmap);
+    CAN_INIT_DIRECT(obj, &static_pinmap);
 }
 
 
@@ -193,9 +193,9 @@ void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
     int function_rd = (int)pinmap_find_function(rd, PinMap_CAN_RD);
     int function_td = (int)pinmap_find_function(td, PinMap_CAN_TD);
 
-    const can_pinmap_t explicit_pinmap = {peripheral, rd, function_rd, td, function_td};
+    const can_pinmap_t static_pinmap = {peripheral, rd, function_rd, td, function_td};
 
-    CAN_INIT_FREQ_DIRECT(obj, &explicit_pinmap, 100000);
+    CAN_INIT_FREQ_DIRECT(obj, &static_pinmap, 100000);
 }
 
 
@@ -582,7 +582,7 @@ static void can_registers_init(can_t *obj)
     }
 }
 
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
 #define CAN_INIT_FREQ_DIRECT can_init_freq_direct
 void can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz)
 #else
@@ -654,7 +654,7 @@ static void _can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz
     can_filter(obj, 0, 0, CANStandard, filter_number);
 }
 
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
 #define CAN_INIT_DIRECT can_init_direct
 void can_init_direct(can_t *obj, const can_pinmap_t *pinmap)
 #else
@@ -675,10 +675,10 @@ void can_init(can_t *obj, PinName rd, PinName td)
     int function_rd = (int)pinmap_find_function(rd, PinMap_CAN_RD);
     int function_td = (int)pinmap_find_function(td, PinMap_CAN_TD);
 
-    const can_pinmap_t explicit_pinmap = {peripheral, rd, function_rd, td, function_td};
+    const can_pinmap_t static_pinmap = {peripheral, rd, function_rd, td, function_td};
 
     /* default frequency is 100 kHz */
-    CAN_INIT_DIRECT(obj, &explicit_pinmap);
+    CAN_INIT_DIRECT(obj, &static_pinmap);
 }
 
 void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
@@ -690,9 +690,9 @@ void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
     int function_rd = (int)pinmap_find_function(rd, PinMap_CAN_RD);
     int function_td = (int)pinmap_find_function(td, PinMap_CAN_TD);
 
-    const can_pinmap_t explicit_pinmap = {peripheral, rd, function_rd, td, function_td};
+    const can_pinmap_t static_pinmap = {peripheral, rd, function_rd, td, function_td};
 
-    CAN_INIT_FREQ_DIRECT(obj, &explicit_pinmap, 100000);
+    CAN_INIT_FREQ_DIRECT(obj, &static_pinmap, 100000);
 }
 
 void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id)

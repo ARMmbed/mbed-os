@@ -33,7 +33,7 @@
 #include "drivers/UARTSerial.h"
 #include "hal/us_ticker_api.h"
 #include "hal/lp_ticker_api.h"
-#include "hal/explicit_pinmap.h"
+#include "hal/static_pinmap.h"
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
@@ -155,7 +155,7 @@ extern serial_t stdio_uart;
 class DirectSerial : public FileHandle {
 public:
     DirectSerial(PinName tx, PinName rx, int baud);
-    DirectSerial(const serial_pinmap_t &explicit_pinmap, int baud);
+    DirectSerial(const serial_pinmap_t &static_pinmap, int baud);
     virtual ssize_t write(const void *buffer, size_t size);
     virtual ssize_t read(void *buffer, size_t size);
     virtual off_t seek(off_t offset, int whence = SEEK_SET)
@@ -198,12 +198,12 @@ DirectSerial::DirectSerial(PinName tx, PinName rx, int baud)
 #endif
 }
 
-DirectSerial::DirectSerial(const serial_pinmap_t &explicit_pinmap, int baud)
+DirectSerial::DirectSerial(const serial_pinmap_t &static_pinmap, int baud)
 {
     if (stdio_uart_inited) {
         return;
     }
-    serial_init_direct(&stdio_uart, &explicit_pinmap);
+    serial_init_direct(&stdio_uart, &static_pinmap);
     serial_baud(&stdio_uart, baud);
 
 #if   CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS

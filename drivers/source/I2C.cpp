@@ -47,7 +47,7 @@ I2C::I2C(PinName sda, PinName scl) :
     unlock();
 }
 
-I2C::I2C(const i2c_pinmap_t &explicit_pinmap) :
+I2C::I2C(const i2c_pinmap_t &static_pinmap) :
 #if DEVICE_I2C_ASYNCH
     _irq(this), _usage(DMA_USAGE_NEVER), _deep_sleep_locked(false),
 #endif
@@ -55,10 +55,10 @@ I2C::I2C(const i2c_pinmap_t &explicit_pinmap) :
 {
     lock();
     // The init function also set the frequency to 100000
-    _sda = explicit_pinmap.sda_pin;
-    _scl = explicit_pinmap.scl_pin;
-    recover(explicit_pinmap.sda_pin, explicit_pinmap.scl_pin);
-    i2c_init_direct(&_i2c, &explicit_pinmap);
+    _sda = static_pinmap.sda_pin;
+    _scl = static_pinmap.scl_pin;
+    recover(static_pinmap.sda_pin, static_pinmap.scl_pin);
+    i2c_init_direct(&_i2c, &static_pinmap);
     // Used to avoid unnecessary frequency updates
     _owner = this;
     unlock();

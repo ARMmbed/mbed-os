@@ -16,7 +16,7 @@
  */
 
 #include "mbed_error.h"
-#include "explicit_pinmap.h"
+#include "static_pinmap.h"
 
 
 /*

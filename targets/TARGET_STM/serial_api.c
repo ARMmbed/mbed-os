@@ -47,7 +47,7 @@ extern uint32_t serial_irq_ids[];
 HAL_StatusTypeDef init_uart(serial_t *obj);
 int8_t get_uart_index(UARTName uart_name);
 
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
 #define SERIAL_INIT_DIRECT serial_init_direct
 void serial_init_direct(serial_t *obj, const serial_pinmap_t *pinmap)
 #else

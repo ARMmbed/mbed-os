@@ -29,7 +29,7 @@
 #include "mbed.h"
 #include "SPIMasterTester.h"
 #include "pinmap.h"
-#include "hal/explicit_pinmap.h"
+#include "hal/static_pinmap.h"
 #include "test_utils.h"
 #include "spi_fpga_test.h"
 

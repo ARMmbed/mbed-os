@@ -32,7 +32,7 @@ static I2C_Type *const i2c_addrs[] = I2C_BASE_PTRS;
 /* Array of I2C bus clock frequencies */
 static clock_name_t const i2c_clocks[] = I2C_CLOCK_FREQS;
 
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
 #define I2C_INIT_DIRECT i2c_init_direct
 void i2c_init_direct(i2c_t *obj, const i2c_pinmap_t *pinmap)
 #else

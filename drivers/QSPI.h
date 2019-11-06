@@ -235,7 +235,7 @@ protected:
     int _mode; //SPI mode
     bool _initialized;
     PinName _qspi_io0, _qspi_io1, _qspi_io2, _qspi_io3, _qspi_clk, _qspi_cs; //IO lines, clock and chip select
-    const qspi_pinmap_t *_explicit_pinmap;
+    const qspi_pinmap_t *_static_pinmap;
     bool (QSPI::* _init_func)(void);
 
 private:

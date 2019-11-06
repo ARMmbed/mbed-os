@@ -49,7 +49,7 @@ QSPI::QSPI(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, Pin
     _qspi_io3 = io3;
     _qspi_clk = sclk;
     _qspi_cs = ssel;
-    _explicit_pinmap = NULL;
+    _static_pinmap = NULL;
     _inst_width = QSPI_CFG_BUS_SINGLE;
     _address_width = QSPI_CFG_BUS_SINGLE;
     _address_size = QSPI_CFG_ADDR_SIZE_24;
@@ -75,7 +75,7 @@ QSPI::QSPI(const qspi_pinmap_t &pinmap, int mode) : _qspi()
     _qspi_io3 = pinmap.data3_pin;
     _qspi_clk = pinmap.sclk_pin;
     _qspi_cs = pinmap.ssel_pin;
-    _explicit_pinmap = &pinmap;
+    _static_pinmap = &pinmap;
     _inst_width = QSPI_CFG_BUS_SINGLE;
     _address_width = QSPI_CFG_BUS_SINGLE;
     _address_size = QSPI_CFG_ADDR_SIZE_24;
@@ -291,7 +291,7 @@ bool QSPI::_initialize_direct()
         return _initialized;
     }
 
-    qspi_status_t ret = qspi_init_direct(&_qspi, _explicit_pinmap, _hz, _mode);
+    qspi_status_t ret = qspi_init_direct(&_qspi, _static_pinmap, _hz, _mode);
     if (QSPI_STATUS_OK == ret) {
         _initialized = true;
     } else {
