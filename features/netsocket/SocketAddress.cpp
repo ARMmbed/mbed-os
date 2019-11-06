@@ -182,6 +182,8 @@ bool operator==(const SocketAddress &a, const SocketAddress &b)
         return true;
     } else if (a._addr.version != b._addr.version) {
         return false;
+    } else if (a.get_port() != b.get_port()) {
+        return false;
     } else if (a._addr.version == NSAPI_IPv4) {
         return memcmp(a._addr.bytes, b._addr.bytes, NSAPI_IPv4_BYTES) == 0;
     } else if (a._addr.version == NSAPI_IPv6) {

@@ -145,6 +145,13 @@ TEST_F(TestSocketAddress, equality_wrong_version)
     EXPECT_NE(addr4, addr6); // But they should still be inequal.
 }
 
+TEST_F(TestSocketAddress, equality_wrong_port)
+{
+    SocketAddress addr1("127.0.0.1", 80);
+    SocketAddress addr2("127.0.0.1", 801);
+    EXPECT_NE(addr1, addr2);
+}
+
 TEST_F(TestSocketAddress, bool_operator_false)
 {
     EXPECT_FALSE(*address ? true : false);
@@ -167,4 +174,3 @@ TEST_F(TestSocketAddress, bool_operator_ip6_false)
     SocketAddress addr("0:0:0:0:0:0:0:0", 80);
     EXPECT_FALSE(addr ? true : false);
 }
-
