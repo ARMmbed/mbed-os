@@ -310,6 +310,7 @@ end:
 
 static void test_thread_job()
 {
+#if defined(MBED_CONF_RTOS_PRESENT)
     static int thread_num = 0;
     _mutex->lock();
     int block_num = thread_num++ % TEST_NUM_OF_THREADS;
@@ -335,10 +336,12 @@ static void test_thread_job()
 end:
     delete[] read_block;
     delete[] write_block;
+#endif
 }
 
 void test_multi_threads()
 {
+#if defined(MBED_CONF_RTOS_PRESENT)
     utest_printf("\nTest Multi Threaded Erase/Program/Read Starts..\n");
 
     TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
@@ -392,7 +395,7 @@ void test_multi_threads()
 
         delete[] bd_thread;
     }
-
+#endif
 }
 
 void test_erase_functionality()
@@ -727,7 +730,9 @@ typedef struct {
 template_case_t template_cases[] = {
     {"Testing Init block device", test_init_bd, greentea_failure_handler},
     {"Testing read write random blocks", test_random_program_read_erase, greentea_failure_handler},
+#if defined(MBED_CONF_RTOS_PRESENT)
     {"Testing multi threads erase program read", test_multi_threads, greentea_failure_handler},
+#endif
     {"Testing contiguous erase, write and read", test_contiguous_erase_write_read, greentea_failure_handler},
     {"Testing BlockDevice erase functionality", test_erase_functionality, greentea_failure_handler},
     {"Testing program read small data sizes", test_program_read_small_data_sizes, greentea_failure_handler},
