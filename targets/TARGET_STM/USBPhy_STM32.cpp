@@ -239,7 +239,8 @@ void USBPhyHw::init(USBPhyEvents *events)
     // Configure PCD and FIFOs
     hpcd.pData = (void *)this;
     hpcd.State = HAL_PCD_STATE_RESET;
-    MBED_ASSERT(HAL_PCD_Init(&hpcd) == HAL_OK);
+    HAL_StatusTypeDef ret = HAL_PCD_Init(&hpcd);
+    MBED_ASSERT(ret == HAL_OK);
 
 
     uint32_t total_bytes = 0;
@@ -272,7 +273,9 @@ void USBPhyHw::init(USBPhyEvents *events)
 
 void USBPhyHw::deinit()
 {
-    MBED_ASSERT(HAL_PCD_DeInit(&hpcd) == HAL_OK);
+    HAL_StatusTypeDef ret = HAL_PCD_DeInit(&hpcd);
+    MBED_ASSERT(ret == HAL_OK);
+
     NVIC_DisableIRQ(USBHAL_IRQn);
 
     if (events != NULL) {
@@ -288,12 +291,14 @@ bool USBPhyHw::powered()
 
 void USBPhyHw::connect()
 {
-    MBED_ASSERT(HAL_PCD_Start(&hpcd) == HAL_OK);
+    HAL_StatusTypeDef ret = HAL_PCD_Start(&hpcd);
+    MBED_ASSERT(ret == HAL_OK);
 }
 
 void USBPhyHw::disconnect()
 {
-    MBED_ASSERT(HAL_PCD_Stop(&hpcd) == HAL_OK);
+    HAL_StatusTypeDef ret = HAL_PCD_Stop(&hpcd);
+    MBED_ASSERT(ret == HAL_OK);
 }
 
 void USBPhyHw::configure()
@@ -318,7 +323,8 @@ void USBPhyHw::sof_disable()
 
 void USBPhyHw::set_address(uint8_t address)
 {
-    MBED_ASSERT(HAL_PCD_SetAddress(&hpcd, address) == HAL_OK);
+    HAL_StatusTypeDef ret = HAL_PCD_SetAddress(&hpcd, address);
+    MBED_ASSERT(ret == HAL_OK);
 }
 
 void USBPhyHw::remote_wakeup()
