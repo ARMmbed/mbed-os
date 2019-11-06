@@ -23,8 +23,10 @@ Making use of the pinmap tables optional by allowing the peripheral configuratio
 
 ### Overview and background
 
+In modern MCUs peripherals often can be mapped to different pins and each pin can have multiple functions. Mbed supports dynamic pin mapping, meaning that pins can be reconfigured at run time to be used by different driver. That provides great flexibility, but it's not free. There's non trivial ROM cost to maintain the pinmap tables and infrastructure to parse it. In some use cases this flexibility is worth the cost. Quite often pin configuration is frozen at hw design stage and doesn't require runtime modification. Shifting this configuration to compile time will allow us free memory associated with the dynamic approach.
+
 HAL APIs making use of pins take these pins in their constructor and use those pins to lookup which peripheral/function to use. The process of looking up the peripheral/function requires there to be a pinmap table which maps pins to peripherals/functions. This pinmap table takes up ROM which could be saved if the pinmap wasn't used.
-The goal is to provide additional HAL API/constructors which takes pinmap as a parameter where pin/peripheral/function is specified statically and there is no need to use the pinmap tables.
+The goal is to provide additional HAL API/constructors which takes pinmap as a parameter where pin/peripheral/function is specified statically and there is no need to use the pinmap tables. Also add the constant expression utility functions to find pin mappings in compile time.
 This extension should give the following savings:
 - removed pinmap tables,
 - removed `hal\mbed_pinmap_common library` (required for pin lookup mechanism),
