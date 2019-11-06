@@ -1,14 +1,14 @@
-# HAL Explicit PinMap Extension Design Document
+# HAL Static PinMap Extension Design Document
 
 # Table of contents
 
-1. [HAL Explicit PinMap Extension Design Document](#hal-explicit-pinmap-extension-design-document).
+1. [HAL Static PinMap Extension Design Document](#hal-static-pinmap-extension-design-document).
 1. [Table of contents](#table-of-contents).
 1. [Introduction](#introduction).
     1. [Overview and background](#overview-and-background).
     1. [Requirements and assumptions](#requirements-and-assumptions).
 1. [System architecture and high-level design](#system-architecture-and-high-level-design).
-    1. [Explicit pinmap mechanism](#explicit-pinmap-mechanism).
+    1. [Static pinmap mechanism](#static-pinmap-mechanism).
     1. [How much we can save](#how-much-we-can-save).
 1. [Detailed design](#detailed-design).
     1. [Pinmap types](#pinmap-types).
@@ -19,12 +19,12 @@
 
 # Introduction
 
-Making use of the pinmap tables optional by allowing the peripheral configuration (pin/periheral/function) to be explicitly specified in the HAL API function.
+Making use of the pinmap tables optional by allowing the peripheral configuration (pin/periheral/function) to be statically specified in the HAL API function.
 
 ### Overview and background
 
 HAL APIs making use of pins take these pins in their constructor and use those pins to lookup which peripheral/function to use. The process of looking up the peripheral/function requires there to be a pinmap table which maps pins to peripherals/functions. This pinmap table takes up ROM which could be saved if the pinmap wasn't used.
-The goal is to provide additional HAL API/constructors which takes pinmap as a parameter where pin/peripheral/function is specified explicitly and there is no need to use the pinmap tables.
+The goal is to provide additional HAL API/constructors which takes pinmap as a parameter where pin/peripheral/function is specified statically and there is no need to use the pinmap tables.
 This extension should give the following savings:
 - removed pinmap tables,
 - removed `hal\mbed_pinmap_common library` (required for pin lookup mechanism),
@@ -32,43 +32,43 @@ This extension should give the following savings:
 
 ### Requirements and assumptions
 
-1. Provide types which will hold explicit pinmaps for peripherals(`PWM`, `AnalogIn`, `AnalogOut`, `SPI`, `I2C`, `UART`, `QSPI`, `CAN`).
-2. Provide `xxx_init_direct(xxx_t *obj, explicit_pinmap_t *)` functions to HAL API (these functions will not use pinmap tables).
-3. Provide additional constructors in drivers layer which will use the `xxx_init_direct(xxx_t *obj, explicit_pinmap_t*)` HAL functions.
-4. Provide default weak implementations of `xxx_init_direct(explicit_pinmap_t *)` functions. These functions will call standard `xxx_init(xxx_t *obj, PinName, ...)` function (backward compatibility for targets which do not support explicit pinmap mechanism).
+1. Provide types which will hold static pinmaps for peripherals(`PWM`, `AnalogIn`, `AnalogOut`, `SPI`, `I2C`, `UART`, `QSPI`, `CAN`).
+2. Provide `xxx_init_direct(xxx_t *obj, static_pinmap_t *)` functions to HAL API (these functions will not use pinmap tables).
+3. Provide additional constructors in drivers layer which will use the `xxx_init_direct(xxx_t *obj, static_pinmap_t*)` HAL functions.
+4. Provide default weak implementations of `xxx_init_direct(static_pinmap_t *)` functions. These functions will call standard `xxx_init(xxx_t *obj, PinName, ...)` function (backward compatibility for targets which do not support static pinmap mechanism).
 5. Provide `constexpr` utility functions to lookup for pin mapping in compile time (requires C++14).
-6. Initialize console using explicit pinmap mechanism, so `hal\mbed_pinmap_common library` is not needed and can be removed.
-7. Modify FPGA tests to verify `xxx_init_direct(xxx_t *obj, explicit_pinmap_t*)` APIs.
+6. Initialize console using static pinmap mechanism, so `hal\mbed_pinmap_common library` is not needed and can be removed.
+7. Modify FPGA tests to verify `xxx_init_direct(xxx_t *obj, static_pinmap_t*)` APIs.
 
 # System architecture and high-level design
 
-### Explicit pinmap mechanism
+### Static pinmap mechanism
 
-The explicit pinmap mechanism with backward compatibility is shown below on PWM peripheral example.
+The static pinmap mechanism with backward compatibility is shown below on PWM peripheral example.
 
-![Explicit pinmap model](img/explicit_pinmap.png)
+![Static pinmap model](img/static_pinmap.png)
 
-For targets which do not provide explicit pinmap support standard initialization will be performed (which uses pinmap tables) even if direct API is selected.
+For targets which do not provide static pinmap support standard initialization will be performed (which uses pinmap tables) even if direct API is selected.
 
 ### How much we can save
 
-Example code used to test memory usage for peripheral with and without explicit pinmap extension can be found below:
+Example code used to test memory usage for peripheral with and without static pinmap extension can be found below:
 
 ```
-#ifndef USE_EXPLICIT_PINMAP
-#define USE_EXPLICIT_PINMAP 1
+#ifndef USE_STATIC_PINMAP
+#define USE_STATIC_PINMAP 1
 #endif
 
 // SPI app for build test
 static void test_spi()
 {
-#if !USE_EXPLICIT_PINMAP
+#if !USE_STATIC_PINMAP
     /* Regular use (master) */
     SPI spi(D1, D2, D3, D4);
 #else
-    /* Explicit pinmap */
-    constexpr spi_pinmap_t explicit_spi_pinmap = get_spi_pinmap(D1, D2, D3, D4);
-    SPI spi(explicit_spi_pinmap);
+    /* Static pinmap */
+    constexpr spi_pinmap_t static_spi_pinmap = get_spi_pinmap(D1, D2, D3, D4);
+    SPI spi(static_spi_pinmap);
 #endif
     spi.format(8,0);
 }
@@ -76,11 +76,11 @@ static void test_spi()
 // PWM app for build test
 static void test_pwm()
 {
-#if !USE_EXPLICIT_PINMAP
+#if !USE_STATIC_PINMAP
     PwmOut led(LED1);
 #else
-    constexpr PinMap explicit_pinmap = get_pwm_pinmap(LED1);
-    PwmOut led(explicit_pinmap);
+    constexpr PinMap static_pinmap = get_pwm_pinmap(LED1);
+    PwmOut led(static_pinmap);
 #endif
     led.period(4.0f);
 }
@@ -88,11 +88,11 @@ static void test_pwm()
 // ANALOGIN app for build test
 static void test_analogin()
 {
-#if !USE_EXPLICIT_PINMAP
+#if !USE_STATIC_PINMAP
     AnalogIn ain(A0);
 #else
-    constexpr PinMap explicit_pinmap = get_analogin_pinmap(A0);
-    AnalogIn ain(explicit_pinmap);
+    constexpr PinMap static_pinmap = get_analogin_pinmap(A0);
+    AnalogIn ain(static_pinmap);
 #endif
     if(ain > 0.3f) {
         while(1);
@@ -102,11 +102,11 @@ static void test_analogin()
 // ANALOGOUT app for build test
 static void test_analogout()
 {
-#if !USE_EXPLICIT_PINMAP
+#if !USE_STATIC_PINMAP
     AnalogOut  aout(D1);
 #else
-    constexpr PinMap explicit_pinmap = get_analogout_pinmap(D1);
-    AnalogOut aout(explicit_pinmap);
+    constexpr PinMap static_pinmap = get_analogout_pinmap(D1);
+    AnalogOut aout(static_pinmap);
 #endif
     aout = 0.1;
 }
@@ -114,11 +114,11 @@ static void test_analogout()
 // I2C app for build test
 static void test_i2c()
 {
-#if !USE_EXPLICIT_PINMAP
+#if !USE_STATIC_PINMAP
     I2C i2c(D1, D2);
 #else
-    constexpr i2c_pinmap_t explicit_pinmap = get_i2c_pinmap(D1, D2);
-    I2C i2c(explicit_pinmap);
+    constexpr i2c_pinmap_t static_pinmap = get_i2c_pinmap(D1, D2);
+    I2C i2c(static_pinmap);
 #endif
     i2c.frequency(1000000);
 }
@@ -126,14 +126,14 @@ static void test_i2c()
 // SERIAL app for build test
 static void test_serial()
 {
-#if !USE_EXPLICIT_PINMAP
+#if !USE_STATIC_PINMAP
     Serial serial(D0, D1);
     serial.set_flow_control(Serial::RTSCTS, D2, D3);
 #else
-    constexpr serial_pinmap_t explicit_pinmap = get_uart_pinmap(D0, D1);
-    constexpr serial_fc_pinmap_t explicit_pinmap_fc = get_uart_fc_pinmap(D2, D3);
-    Serial serial(explicit_pinmap);
-    serial.set_flow_control(Serial::RTSCTS, explicit_pinmap_fc);
+    constexpr serial_pinmap_t static_pinmap = get_uart_pinmap(D0, D1);
+    constexpr serial_fc_pinmap_t static_pinmap_fc = get_uart_fc_pinmap(D2, D3);
+    Serial serial(static_pinmap);
+    serial.set_flow_control(Serial::RTSCTS, static_pinmap_fc);
 #endif
     if (serial.readable()) {
         while(1);
@@ -143,11 +143,11 @@ static void test_serial()
 // QSPI app for build test
 static void test_qspi()
 {
-#if !USE_EXPLICIT_PINMAP
+#if !USE_STATIC_PINMAP
     QSPI qspi_device(D1, D2, D3, D4, D5, D6);
 #else
-    constexpr qspi_pinmap_t explicit_pinmap = get_qspi_pinmap(D1, D2, D3, D4, D5, D6);
-    QSPI qspi_device(explicit_pinmap);
+    constexpr qspi_pinmap_t static_pinmap = get_qspi_pinmap(D1, D2, D3, D4, D5, D6);
+    QSPI qspi_device(static_pinmap);
 #endif
 
     qspi_device.configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE,
@@ -160,11 +160,11 @@ static void test_can()
 {
     char counter;
 
-#if !USE_EXPLICIT_PINMAP
+#if !USE_STATIC_PINMAP
     CAN can(D0, D1);
 #else
-    constexpr can_pinmap_t explicit_pinmap = get_can_pinmap(D0, D1);
-    CAN can(explicit_pinmap, 10000);
+    constexpr can_pinmap_t static_pinmap = get_can_pinmap(D0, D1);
+    CAN can(static_pinmap, 10000);
 #endif
     can.write(CANMessage(1337, &counter, 1));
 }
@@ -176,7 +176,7 @@ Detailed information about the memory savings for K64F and all compilers can be 
 
 <table>
 <tr><th colspan='7'>GCC_ARM/K64F [bytes]</th></tr>
-<tr><th>Peripheral</th><th>Pinmap size</th><th>Master</th><th>Explicit pinmap</th><th>Explicit pinmap constexpr</th><th>constexpr diff</th><th>Saved ROM</th></tr>
+<tr><th>Peripheral</th><th>Pinmap size</th><th>Master</th><th>Static pinmap</th><th>Static pinmap constexpr</th><th>constexpr diff</th><th>Saved ROM</th></tr>
 <tr><th>PWM</th><td>468</td><td>54743</td><td>53810</td><td>53810</td><td>0</td><td>933</td></tr>
 <tr><th>Analogin</th><td>288</td><td>59967</td><td>59202</td><td>59202</td><td>0</td><td>765</td></tr>
 <tr><th>Analogout</th><td>24</td><td>53619</td><td>53094</td><td>53094</td><td>0</td><td>525</td></tr>
@@ -187,7 +187,7 @@ Detailed information about the memory savings for K64F and all compilers can be 
 
 <table>
 <tr><th colspan='7'>ARM/K64F [bytes]</th></tr>
-<tr><th>Peripheral</th><th>Pinmap size</th><th>Master</th><th>Explicit pinmap</th><th>Explicit pinmap constexpr</th><th>constexpr diff</th><th>Saved ROM</th></tr>
+<tr><th>Peripheral</th><th>Pinmap size</th><th>Master</th><th>Static pinmap</th><th>Static pinmap constexpr</th><th>constexpr diff</th><th>Saved ROM</th></tr>
 <tr><th>PWM</th><td>468</td><td>45564</td><td>44554</td><td>44554</td><td>0</td><td>1010</td></tr>
 <tr><th>Analogin</th><td>288</td><td>44469</td><td>43643</td><td>43643</td><td>0</td><td>826</td></tr>
 <tr><th>Analogout</th><td>24</td><td>43840</td><td>43274</td><td>43274</td><td>0</td><td>566</td></tr>
@@ -198,7 +198,7 @@ Detailed information about the memory savings for K64F and all compilers can be 
 
 <table>
 <tr><th colspan='7'>IAR/K64F [bytes]</th></tr>
-<tr><th>Peripheral</th><th>Pinmap size</th><th>Master</th><th>Explicit pinmap</th><th>Explicit pinmap constexpr</th><th>constexpr diff</th><th>Saved ROM</th></tr>
+<tr><th>Peripheral</th><th>Pinmap size</th><th>Master</th><th>Static pinmap</th><th>Static pinmap constexpr</th><th>constexpr diff</th><th>Saved ROM</th></tr>
 <tr><th>PWM</th><td>468</td><td>41125</td><td>40114</td><td>40103</td><td>-11</td><td>1011</td></tr>
 <tr><th>Analogin</th><td>288</td><td>39913</td><td>39073</td><td>39061</td><td>-12</td><td>840</td></tr>
 <tr><th>Analogout</th><td>24</td><td>39913</td><td>38645</td><td>38633</td><td>-12</td><td>1268</td></tr>
@@ -207,12 +207,12 @@ Detailed information about the memory savings for K64F and all compilers can be 
 <tr><th>Serial</th><td>288</td><td>41427</td><td>40883</td><td>40883</td><td>0</td><td>544</td></tr>
 </table>
 
-The tables contain two columns for explicit pinmap case: `Explicit pinmap` (pinmap specified manually), `Explicit pinmap constexpr` (`constexpr` utility function used to create pinmap table). We expect that in both cases memory usage should be the same. Above results proves this assumption. In some cases we can get few bytes of extra savings when `constexpr` utility function is used.
+The tables contain two columns for static pinmap case: `Static pinmap` (pinmap specified manually), `Static pinmap constexpr` (`constexpr` utility function used to create pinmap table). We expect that in both cases memory usage should be the same. Above results proves this assumption. In some cases we can get few bytes of extra savings when `constexpr` utility function is used.
 For more details about `constexpr` utility functions please check [constexpr utility functions](#constexpr-utility-functions), [example usage](#constexpr-utility-functions).
 
-Note that on the master pinmap tables are used by the: serial console and tested peripheral. So in case of explicit pinmap we have savings from removing pinmap tables used by serial console and tested peripheral.
+Note that on the master pinmap tables are used by the: serial console and tested peripheral. So in case of static pinmap we have savings from removing pinmap tables used by serial console and tested peripheral.
 
-Example memory usage change for ARM/PWM example: master vs constexpr explicit pinmap:
+Example memory usage change for ARM/PWM example: master vs constexpr static pinmap:
 
 ```
 | Module                          |        .text |   .data |       .bss |
@@ -228,8 +228,8 @@ Example memory usage change for ARM/PWM example: master vs constexpr explicit pi
 | hal\mbed_pinmap_common.o        |      0(-272) |   0(+0) |      0(+0) |  // removed pinmap lib (this is common for all peripherals)
 | hal\mbed_ticker_api.o           |      978(+0) |   0(+0) |      0(+0) |
 | hal\mbed_us_ticker_api.o        |      114(+0) |   4(+0) |     65(+0) |
-| main.o                          |      70(+32) |   0(+0) |      0(+0) |  // extra space for explicit pinmap structure in application
-| platform\source                 |    5683(+46) |  64(+0) |    249(+0) |  // extra space for UART explicit pinmap structure to initialize the console
+| main.o                          |      70(+32) |   0(+0) |      0(+0) |  // extra space for static pinmap structure in application
+| platform\source                 |    5683(+46) |  64(+0) |    249(+0) |  // extra space for UART static pinmap structure to initialize the console
 | rtos\source                     |     8990(+0) | 168(+0) |   6626(+0) |
 | targets\TARGET_Freescale        |  16581(-816) |  12(+0) |    340(+0) |  // removed pinmaps + driver code reduction
 | Subtotals                       | 44290(-1010) | 264(+0) | 205518(+0) |
@@ -237,7 +237,7 @@ Total Static RAM memory (data + bss): 205782(+0) bytes
 Total Flash memory (text + data): 44554(-1010) bytes
 ```
 
-Below table contains memory savings when explicit pinmap is used for supported targets (ARM compiler):
+Below table contains memory savings when static pinmap is used for supported targets (ARM compiler):
 
 <table>
 <tr><th colspan='9'>ARM/supported Targets [bytes]</th></tr>
@@ -290,7 +290,7 @@ Below example changes for the HAL API (K64F).
 Master:
 
 ```
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel) 
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
     // determine the SPI to use
     uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
@@ -317,7 +317,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 }
 ```
 
-Explicit pinmap:
+Static pinmap:
 
 ```
 void spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
@@ -361,24 +361,24 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     int sclk_function = (int)pinmap_find_function(sclk, PinMap_SPI_SCLK);
     int ssel_function = (int)pinmap_find_function(ssel, PinMap_SPI_SSEL);
 
-    const spi_pinmap_t explicit_spi_pinmap = {peripheral, mosi, mosi_function, miso, miso_function, sclk, sclk_function, ssel, ssel_function};
+    const spi_pinmap_t static_spi_pinmap = {peripheral, mosi, mosi_function, miso, miso_function, sclk, sclk_function, ssel, ssel_function};
 
-    spi_init_direct(obj, &explicit_spi_pinmap);
+    spi_init_direct(obj, &static_spi_pinmap);
 }
 ```
 
 In the version `v5.14.0` we have one init function: `spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)` which uses pinmap tables to determine associated peripheral/function with the given pins and then initializes the peripheral.
 
-In the new version(`feature-hal-spec-explicit-pinmap`) we will have two init functions:
+In the new version(`feature-hal-spec-static-pinmap`) we will have two init functions:
 - `void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)`
   This function will use pinmap tables to determine associated peripheral/function with the given pins, populate the pinmap structure and call `void spi_init_direct()` using created pinmap.
 - `void spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)`
-  This function will perform peripheral initialization using given explicit pinmap.
+  This function will perform peripheral initialization using given static pinmap.
 
 
 This way we will give user the option to use comfortable, but expensive for ROM traditional peripheral init or to provide pin mappings manually and use the direct API which should give some ROM savings.
 
-Below you can find weak implementation of `void spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)` for targets which does not support explicit pinmap:
+Below you can find weak implementation of `void spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)` for targets which does not support static pinmap:
 
 ```
 #if DEVICE_SPI
@@ -389,12 +389,12 @@ MBED_WEAK void spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
 #endif
 ```
 
-If direct API is used for the target which does not support the explicit pinmap mechanism, then traditional API will be invoked to initialize the peripheral (no ROM savings).
+If direct API is used for the target which does not support the static pinmap mechanism, then traditional API will be invoked to initialize the peripheral (no ROM savings).
 
 ### Drivers API changes
 
 In the current version (master), all peripheral constructors in drivers layer take pins as parameters and then call `xxx_init(xxx_t *obj, PinName, ...)` HAL function to initialize the peripheral (and find peripheral/function associated with given pin).
-Now we will add an extra constructor which will take reference to the explicit pinmap structure and call `void spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)` HAL function (in this case pinmap tables are not needed).
+Now we will add an extra constructor which will take reference to the static pinmap structure and call `void spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)` HAL function (in this case pinmap tables are not needed).
 
 Below example changes for the SPI Driver API.
 
@@ -405,19 +405,19 @@ SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel = NC);
 SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel, use_gpio_ssel_t);
 ```
 
-Explicit pinmap:
+Static pinmap:
 
 ```
 SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel = NC);
 SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel, use_gpio_ssel_t);
 
-SPI(const spi_pinmap_t &explicit_pinmap);
-SPI(const spi_pinmap_t &explicit_pinmap, PinName ssel);
+SPI(const spi_pinmap_t &static_pinmap);
+SPI(const spi_pinmap_t &static_pinmap, PinName ssel);
 
 ```
 
 Note that for SPI class currently, we have 2 constructors. One is used when `ssel` is to be driven by hardware and the other one if `ssel` is controlled manually.
-In the new version, the second constructor is a bit different. Does not provide `use_gpio_ssel_t`, but has `PinName ssel` instead. This is because in the case when we want to manually handle the `ssel` pin, then `ssel` pin in the given `explicit_pinmap` will be undefined (`NC`) and `ssel` pin must be provided separately. In this case we don't need additional `use_gpio_ssel_t` any more.
+In the new version, the second constructor is a bit different. Does not provide `use_gpio_ssel_t`, but has `PinName ssel` instead. This is because in the case when we want to manually handle the `ssel` pin, then `ssel` pin in the given `static_pinmap` will be undefined (`NC`) and `ssel` pin must be provided separately. In this case we don't need additional `use_gpio_ssel_t` any more.
 
 ### `constexpr` utility functions
 
@@ -437,7 +437,7 @@ constexpr PinMap get_pwm_pinmap(const PinName pin)
 }
 ```
 
-For targets which do not support explicit pinmap the utility functions will populate the pinmap structure only with given pins (backward compatibility):
+For targets which do not support static pinmap the utility functions will populate the pinmap structure only with given pins (backward compatibility):
 
 ```
 constexpr spi_pinmap_t get_spi_pinmap(const PinName mosi, const PinName miso, const PinName sclk, const PinName ssel)
@@ -456,13 +456,13 @@ int main()
     /* Regular use (master) */
     SPI spi(D1, D2, D3, D4);
 
-    /* Explicit pinmap */
-    const spi_pinmap_t explicit_spi_pinmap = {SPI_1, D1, 2, D2, 2, D3, 2, D4, 2};
-    SPI spi(explicit_spi_pinmap);
+    /* Static pinmap */
+    const spi_pinmap_t static_spi_pinmap = {SPI_1, D1, 2, D2, 2, D3, 2, D4, 2};
+    SPI spi(static_spi_pinmap);
 
-    /* Explicit pinmap with constexpr */
-    constexpr spi_pinmap_t explicit_spi_pinmap = get_spi_pinmap(D1, D2, D3, D4);
-    SPI spi(explicit_spi_pinmap);
+    /* Static pinmap with constexpr */
+    constexpr spi_pinmap_t static_spi_pinmap = get_spi_pinmap(D1, D2, D3, D4);
+    SPI spi(static_spi_pinmap);
 
     return 0;
 }
