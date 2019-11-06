@@ -11,9 +11,8 @@
       "exporters": [],
       "compile" : true,
       "export": true,
-      "test" : true,
+      "test" : false,
       "baud_rate": 9600,
-      "compare_log": ["mbed-os-example-blinky/tests/blinky.log"],
       "auto-update" : true
     },
     {
