@@ -556,9 +556,7 @@ class mbedToolchain:
                             ])
                         objects.append(result['object'])
                     except ToolException as err:
-                        if p._taskqueue.queue:
-                            p._taskqueue.queue.clear()
-                            sleep(0.5)
+                        # Stop the worker processes immediately without completing outstanding work
                         p.terminate()
                         p.join()
                         raise ToolException(err)
