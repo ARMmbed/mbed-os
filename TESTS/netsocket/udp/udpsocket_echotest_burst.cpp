@@ -21,6 +21,7 @@
 #include "unity/unity.h"
 #include "utest.h"
 #include "udp_tests.h"
+#include "CellularDevice.h"
 
 using namespace utest::v1;
 
@@ -70,6 +71,10 @@ static void _sigio_handler(osThreadId id)
 
 void UDPSOCKET_ECHOTEST_BURST()
 {
+#ifdef MBED_CONF_APP_BAUD_RATE
+    CellularDevice::get_default_instance()->set_baud_rate(MBED_CONF_APP_BAUD_RATE);
+#endif
+
     SocketAddress udp_addr;
     NetworkInterface::get_default_instance()->gethostbyname(ECHO_SERVER_ADDR, &udp_addr);
     udp_addr.set_port(ECHO_SERVER_PORT);
@@ -153,6 +158,10 @@ void UDPSOCKET_ECHOTEST_BURST()
 
 void UDPSOCKET_ECHOTEST_BURST_NONBLOCK()
 {
+#ifdef MBED_CONF_APP_BAUD_RATE
+    CellularDevice::get_default_instance()->set_baud_rate(MBED_CONF_APP_BAUD_RATE);
+#endif
+
     SocketAddress udp_addr;
     NetworkInterface::get_default_instance()->gethostbyname(ECHO_SERVER_ADDR, &udp_addr);
     udp_addr.set_port(ECHO_SERVER_PORT);
