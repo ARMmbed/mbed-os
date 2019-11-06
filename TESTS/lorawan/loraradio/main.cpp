@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] LORADIO test cases requires RTOS to run.
+#else
 
 #include "utest.h"
 #include "unity.h"
@@ -284,3 +287,4 @@ int main()
 }
 
 #endif // (MBED_CONF_APP_LORA_RADIO == SX1272) || (MBED_CONF_APP_LORA_RADIO == SX1276)
+#endif // !defined(MBED_CONF_RTOS_PRESENT)

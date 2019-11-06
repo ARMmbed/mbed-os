@@ -14,6 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] EMAC test cases requires RTOS to run
+#else
 
 #if !defined(MBED_CONF_APP_ECHO_SERVER)       || \
     !defined(MBED_CONF_APP_ECHO_SERVER_TRACE) || \
@@ -90,3 +93,4 @@ int main()
 
 #endif // MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE != ETHERNET && MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE != WIFI
 #endif // !defined(MBED_CONF_APP_ECHO_SERVER) || !defined(MBED_CONF_APP_ECHO_SERVER_TRACE) || !defined(MBED_CONF_APP_WIFI_SCAN)
+#endif // !defined(MBED_CONF_RTOS_PRESENT)

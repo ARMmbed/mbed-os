@@ -17,6 +17,7 @@
 
 #ifndef CELLULAR_DRIVER_L3IP_H_
 #define CELLULAR_DRIVER_L3IP_H_
+#if defined(MBED_CONF_RTOS_PRESENT)
 
 #include "L3IP.h"
 
@@ -133,3 +134,4 @@ private:
 };
 
 #endif /* CELLULAR_DRIVER_L3IP_H_ */
+#endif

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#if defined(MBED_CONF_RTOS_PRESENT)
 #include "greentea-client/test_env.h"
 #include "mbed.h"
 #include "tcp_tests.h"
@@ -96,3 +97,4 @@ void TCPSOCKET_OPEN_LIMIT()
     TEST_ASSERT_EQUAL(open_sockets[0], open_sockets[1]);
     TEST_ASSERT(open_sockets[0] >= 4);
 }
+#endif
