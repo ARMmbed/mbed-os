@@ -626,6 +626,7 @@ nsapi_error_t ESP8266::send(int id, const void *data, uint32_t amount)
     }
 
     _smutex.lock();
+RETRY:
     set_timeout(ESP8266_SEND_TIMEOUT);
     _busy = false;
     _error = false;
@@ -634,11 +635,25 @@ nsapi_error_t ESP8266::send(int id, const void *data, uint32_t amount)
         goto END;
     }
 
+    //We might receive "busy s/p..." and "OK" from modem, so we need to check that also
+    _ok_received = false;
+    _parser.oob("OK", callback(this, &ESP8266::_oob_ok_received));
+
     if (!_parser.recv(">")) {
+        _parser.remove_oob("OK");
+        if (_busy) {
+            if (_ok_received) {
+                goto RETRY;
+            } else if (_parser.recv("OK")) {
+                goto RETRY;
+            }
+        }
         tr_debug("send(): Didn't get \">\"");
         ret = NSAPI_ERROR_WOULD_BLOCK;
         goto END;
     }
+    _ok_received = false;
+    _parser.remove_oob("OK");
 
     if (_parser.write((char *)data, (int)amount) >= 0 && _parser.recv("SEND OK")) {
         ret = NSAPI_ERROR_OK;
@@ -1071,7 +1086,6 @@ void ESP8266::_oob_busy()
                    "ESP8266::_oob_busy() AT timeout\n");
     }
     _busy = true;
-    _parser.abort();
 }
 
 void ESP8266::_oob_tcp_data_hdlr()
@@ -1203,6 +1217,12 @@ void ESP8266::_oob_connection_status()
 
     MBED_ASSERT(_conn_stat_cb);
     _conn_stat_cb();
+}
+
+void ESP8266::_oob_ok_received()
+{
+    tr_debug("_oob_ok_received called");
+    _ok_received = true;
 }
 
 int8_t ESP8266::default_wifi_mode()
