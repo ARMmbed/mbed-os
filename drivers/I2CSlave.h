@@ -88,9 +88,9 @@ public:
 
     /** Create an I2C Slave interface, connected to the specified pins.
      *
-     *  @param explicit_pinmap reference to structure which holds static pinmap.
+     *  @param static_pinmap reference to structure which holds static pinmap.
      */
-    I2CSlave(const i2c_pinmap_t &explicit_pinmap);
+    I2CSlave(const i2c_pinmap_t &static_pinmap);
     I2CSlave(const i2c_pinmap_t &&) = delete; // prevent passing of temporary objects
 
     /** Set the frequency of the I2C interface.

@@ -37,7 +37,7 @@ SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel) :
     _sclk(sclk),
     _hw_ssel(ssel),
     _sw_ssel(NC),
-    _explicit_pinmap(NULL),
+    _static_pinmap(NULL),
     _init_func(_do_init)
 {
     // Need backwards compatibility with HALs not providing API
@@ -59,7 +59,7 @@ SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel, use_gpio_ssel_t
     _sclk(sclk),
     _hw_ssel(NC),
     _sw_ssel(ssel, 1),
-    _explicit_pinmap(NULL),
+    _static_pinmap(NULL),
     _init_func(_do_init)
 {
     // Need backwards compatibility with HALs not providing API
@@ -80,7 +80,7 @@ SPI::SPI(const spi_pinmap_t &pinmap) :
     _sclk(pinmap.sclk_pin),
     _hw_ssel(pinmap.ssel_pin),
     _sw_ssel(NC),
-    _explicit_pinmap(&pinmap),
+    _static_pinmap(&pinmap),
     _peripheral_name((SPIName)pinmap.peripheral),
     _init_func(_do_init_direct)
 
@@ -97,7 +97,7 @@ SPI::SPI(const spi_pinmap_t &pinmap, PinName ssel) :
     _sclk(pinmap.sclk_pin),
     _hw_ssel(NC),
     _sw_ssel(ssel, 1),
-    _explicit_pinmap(&pinmap),
+    _static_pinmap(&pinmap),
     _peripheral_name((SPIName)pinmap.peripheral),
     _init_func(_do_init_direct)
 {
@@ -111,7 +111,7 @@ void SPI::_do_init(SPI *obj)
 
 void SPI::_do_init_direct(SPI *obj)
 {
-    spi_init_direct(&obj->_peripheral->spi, obj->_explicit_pinmap);
+    spi_init_direct(&obj->_peripheral->spi, obj->_static_pinmap);
 }
 
 void SPI::_do_construct()

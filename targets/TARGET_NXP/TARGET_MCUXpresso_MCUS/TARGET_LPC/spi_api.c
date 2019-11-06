@@ -30,7 +30,7 @@
 static SPI_Type *const spi_address[] = SPI_BASE_PTRS;
 static int baud_rate = 0;
 
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
 #define SPI_INIT_DIRECT spi_init_direct
 void spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
 #else

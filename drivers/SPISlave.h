@@ -75,7 +75,7 @@ public:
      *
      *  @note Either mosi or miso can be specified as NC if not used.
      *
-     *  @param explicit_pinmap reference to structure which holds static pinmap.
+     *  @param static_pinmap reference to structure which holds static pinmap.
      */
     SPISlave(const spi_pinmap_t &pinmap);
     SPISlave(const spi_pinmap_t &&) = delete; // prevent passing of temporary objects

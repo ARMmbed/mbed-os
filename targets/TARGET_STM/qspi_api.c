@@ -381,7 +381,7 @@ qspi_status_t qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTy
 
 
 #if defined(OCTOSPI1)
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
 #define QSPI_INIT_DIRECT qspi_init_direct
 qspi_status_t qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap, uint32_t hz, uint8_t mode)
 #else
@@ -512,13 +512,13 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
     int function_sclk = (int)pinmap_find_function(sclk, PinMap_QSPI_SCLK);
     int function_ssel = (int)pinmap_find_function(ssel, PinMap_QSPI_SSEL);
 
-    const qspi_pinmap_t explicit_pinmap = {peripheral, io0, function_io0, io1, function_io1, io2, function_io2, io3, function_io3, sclk, function_sclk, ssel, function_ssel};
+    const qspi_pinmap_t static_pinmap = {peripheral, io0, function_io0, io1, function_io1, io2, function_io2, io3, function_io3, sclk, function_sclk, ssel, function_ssel};
 
-    QSPI_INIT_DIRECT(obj, &explicit_pinmap, hz, mode);
+    QSPI_INIT_DIRECT(obj, &static_pinmap, hz, mode);
 }
 
 #else /* OCTOSPI */
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
 #define QSPI_INIT_DIRECT qspi_init_direct
 qspi_status_t qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap, uint32_t hz, uint8_t mode)
 #else
@@ -613,9 +613,9 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
     int function_sclk = (int)pinmap_find_function(sclk, PinMap_QSPI_SCLK);
     int function_ssel = (int)pinmap_find_function(ssel, PinMap_QSPI_SSEL);
 
-    const qspi_pinmap_t explicit_pinmap = {peripheral, io0, function_io0, io1, function_io1, io2, function_io2, io3, function_io3, sclk, function_sclk, ssel, function_ssel};
+    const qspi_pinmap_t static_pinmap = {peripheral, io0, function_io0, io1, function_io1, io2, function_io2, io3, function_io3, sclk, function_sclk, ssel, function_ssel};
 
-    QSPI_INIT_DIRECT(obj, &explicit_pinmap, hz, mode);
+    QSPI_INIT_DIRECT(obj, &static_pinmap, hz, mode);
 }
 
 #endif /* OCTOSPI */

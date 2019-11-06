@@ -631,7 +631,7 @@ void serial_rx_abort_asynch(serial_t *obj)
  * @param type   The Control Flow type (FlowControlNone, FlowControlRTS, FlowControlCTS, FlowControlRTSCTS)
  * @param pinmap Pointer to structure which holds static pinmap
  */
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
 #define SERIAL_SET_FC_DIRECT serial_set_flow_control_direct
 void serial_set_flow_control_direct(serial_t *obj, FlowControl type, const serial_fc_pinmap_t *pinmap)
 #else

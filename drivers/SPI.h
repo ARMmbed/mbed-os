@@ -140,9 +140,9 @@ public:
      *
      *  @note You can specify mosi or miso as NC if not used.
      *
-     *  @param explicit_pinmap reference to structure which holds static pinmap.
+     *  @param static_pinmap reference to structure which holds static pinmap.
      */
-    SPI(const spi_pinmap_t &explicit_pinmap);
+    SPI(const spi_pinmap_t &static_pinmap);
     SPI(const spi_pinmap_t &&) = delete; // prevent passing of temporary objects
 
     /** Create a SPI master connected to the specified pins.
@@ -154,10 +154,10 @@ public:
      *
      *  @note You can specify mosi or miso as NC if not used.
      *
-     *  @param explicit_pinmap reference to structure which holds static pinmap.
+     *  @param static_pinmap reference to structure which holds static pinmap.
      *  @param ssel SPI Chip Select pin.
      */
-    SPI(const spi_pinmap_t &explicit_pinmap, PinName ssel);
+    SPI(const spi_pinmap_t &static_pinmap, PinName ssel);
     SPI(const spi_pinmap_t &&, PinName) = delete; // prevent passing of temporary objects
 
     virtual ~SPI();
@@ -438,7 +438,7 @@ protected:
     /* Select count to handle re-entrant selection */
     int8_t _select_count;
     /* Static pinmap data */
-    const spi_pinmap_t *_explicit_pinmap;
+    const spi_pinmap_t *_static_pinmap;
     /* SPI peripheral name */
     SPIName _peripheral_name;
     /* Pointer to spi init function */

@@ -40,7 +40,7 @@ SerialBase::SerialBase(PinName tx, PinName rx, int baud) :
     _init();
 }
 
-SerialBase::SerialBase(const serial_pinmap_t &explicit_pinmap, int baud) :
+SerialBase::SerialBase(const serial_pinmap_t &static_pinmap, int baud) :
 #if DEVICE_SERIAL_ASYNCH
     _thunk_irq(this), _tx_usage(DMA_USAGE_NEVER),
     _rx_usage(DMA_USAGE_NEVER), _tx_callback(NULL),
@@ -49,8 +49,8 @@ SerialBase::SerialBase(const serial_pinmap_t &explicit_pinmap, int baud) :
 #endif
     _serial(),
     _baud(baud),
-    _tx_pin(explicit_pinmap.tx_pin),
-    _rx_pin(explicit_pinmap.rx_pin)
+    _tx_pin(static_pinmap.tx_pin),
+    _rx_pin(static_pinmap.rx_pin)
 {
     // No lock needed in the constructor
 
@@ -58,7 +58,7 @@ SerialBase::SerialBase(const serial_pinmap_t &explicit_pinmap, int baud) :
         _irq[i] = NULL;
     }
 
-    serial_init_direct(&_serial, &explicit_pinmap);
+    serial_init_direct(&_serial, &static_pinmap);
     serial_baud(&_serial, _baud);
     serial_irq_handler(&_serial, SerialBase::_irq_handler, (uint32_t)this);
 }
@@ -316,11 +316,11 @@ void SerialBase::set_flow_control(Flow type, PinName flow1, PinName flow2)
     unlock();
 }
 
-void SerialBase::set_flow_control(Flow type, const serial_fc_pinmap_t &explicit_pinmap)
+void SerialBase::set_flow_control(Flow type, const serial_fc_pinmap_t &static_pinmap)
 {
     lock();
     FlowControl flow_type = (FlowControl)type;
-    serial_set_flow_control_direct(&_serial, flow_type, &explicit_pinmap);
+    serial_set_flow_control_direct(&_serial, flow_type, &static_pinmap);
     unlock();
 }
 #endif

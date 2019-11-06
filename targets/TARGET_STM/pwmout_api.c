@@ -76,7 +76,7 @@ uint32_t TIM_ChannelConvert_HAL2LL(uint32_t channel, pwmout_t *obj)
     }
 }
 
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
 #define PWM_INIT_DIRECT pwmout_init_direct
 void pwmout_init_direct(pwmout_t *obj, const PinMap *pinmap)
 #else
@@ -212,9 +212,9 @@ void pwmout_init(pwmout_t *obj, PinName pin)
     int peripheral = (int)pinmap_peripheral(pin, PinMap_PWM);
     int function = (int)pinmap_find_function(pin, PinMap_PWM);
 
-    const PinMap explicit_pinmap = {pin, peripheral, function};
+    const PinMap static_pinmap = {pin, peripheral, function};
 
-    PWM_INIT_DIRECT(obj, &explicit_pinmap);
+    PWM_INIT_DIRECT(obj, &static_pinmap);
 }
 
 void pwmout_free(pwmout_t *obj)

@@ -45,7 +45,7 @@ void SAADC_IRQHandler(void);
  * @param obj The analogin object to initialize
  * @param pin The analogin pin name
  */
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
 #define ANALOGIN_INIT_DIRECT analogin_init_direct
 void analogin_init_direct(analogin_t *obj, const PinMap *pinmap)
 #else
@@ -117,9 +117,9 @@ void analogin_init(analogin_t *obj, PinName pin)
     int peripheral = (int)pinmap_peripheral(pin, PinMap_ADC);
     int function = (int)pinmap_find_function(pin, PinMap_ADC);
 
-    const PinMap explicit_pinmap = {pin, peripheral, function};
+    const PinMap static_pinmap = {pin, peripheral, function};
 
-    ANALOGIN_INIT_DIRECT(obj, &explicit_pinmap);
+    ANALOGIN_INIT_DIRECT(obj, &static_pinmap);
 }
 
 /** Read the input voltage, represented as a float in the range [0.0, 1.0]

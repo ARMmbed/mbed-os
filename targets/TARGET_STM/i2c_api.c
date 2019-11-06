@@ -279,7 +279,7 @@ void i2c_init_internal(i2c_t *obj, const i2c_pinmap_t *pinmap)
     if (pinmap != NULL) {
         obj_s->sda = pinmap->sda_pin;
         obj_s->scl = pinmap->scl_pin;
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
         obj_s->sda_func = pinmap->sda_function;
         obj_s->scl_func = pinmap->scl_function;
 #endif
@@ -335,7 +335,7 @@ void i2c_init_internal(i2c_t *obj, const i2c_pinmap_t *pinmap)
 #endif
 
     // Configure I2C pins
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
     pin_function(obj_s->sda, obj_s->sda_func);
     pin_function(obj_s->scl, obj_s->scl_func);
 #else
@@ -370,7 +370,7 @@ void i2c_init_internal(i2c_t *obj, const i2c_pinmap_t *pinmap)
 #endif
 }
 
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
 #define I2C_INIT_DIRECT i2c_init_direct
 void i2c_init_direct(i2c_t *obj, const i2c_pinmap_t *pinmap)
 #else

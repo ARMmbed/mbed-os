@@ -79,9 +79,9 @@ void pwmout_init(pwmout_t *obj, PinName pin)
     int peripheral = (int)pinmap_peripheral(pin, PinMap_PWM);
     int function = (int)pinmap_find_function(pin, PinMap_PWM);
 
-    const PinMap explicit_pinmap = {pin, peripheral, function};
+    const PinMap static_pinmap = {pin, peripheral, function};
 
-    pwmout_init_direct(obj, &explicit_pinmap);
+    pwmout_init_direct(obj, &static_pinmap);
 }
 
 void pwmout_free(pwmout_t *obj)

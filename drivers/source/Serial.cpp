@@ -24,7 +24,7 @@ Serial::Serial(PinName tx, PinName rx, const char *name, int baud) : SerialBase(
 {
 }
 
-Serial::Serial(const serial_pinmap_t &explicit_pinmap, const char *name, int baud) : SerialBase(explicit_pinmap, baud), Stream(name)
+Serial::Serial(const serial_pinmap_t &static_pinmap, const char *name, int baud) : SerialBase(static_pinmap, baud), Stream(name)
 {
 }
 
@@ -32,7 +32,7 @@ Serial::Serial(PinName tx, PinName rx, int baud): SerialBase(tx, rx, baud), Stre
 {
 }
 
-Serial::Serial(const serial_pinmap_t &explicit_pinmap, int baud): SerialBase(explicit_pinmap, baud), Stream(NULL)
+Serial::Serial(const serial_pinmap_t &static_pinmap, int baud): SerialBase(static_pinmap, baud), Stream(NULL)
 {
 }
 

@@ -29,7 +29,7 @@
 #include "mbed.h"
 #include "i2c_api.h"
 #include "pinmap.h"
-#include "hal/explicit_pinmap.h"
+#include "hal/static_pinmap.h"
 #include "test_utils.h"
 #include "I2CTester.h"
 #include "i2c_fpga_test.h"
@@ -69,11 +69,11 @@ void fpga_i2c_test_write(PinName sda, PinName scl)
     i2c_t i2c;
     memset(&i2c, 0, sizeof(i2c));
     if (init_direct) {
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
         const i2c_pinmap_t pinmap = get_i2c_pinmap(sda, scl);
         i2c_init_direct(&i2c, &pinmap);
 #else
-        //skip this test case if explicit pinmap is not supported
+        //skip this test case if static pinmap is not supported
         return;
 #endif
     } else {

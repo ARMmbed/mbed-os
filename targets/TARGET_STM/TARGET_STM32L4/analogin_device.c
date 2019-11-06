@@ -36,7 +36,7 @@
 #include "mbed_error.h"
 #include "PeripheralPins.h"
 
-#if EXPLICIT_PINMAP_READY
+#if STATIC_PINMAP_READY
 #define ANALOGIN_INIT_DIRECT analogin_init_direct
 void analogin_init_direct(analogin_t *obj, const PinMap *pinmap)
 #else
@@ -127,9 +127,9 @@ void analogin_init(analogin_t *obj, PinName pin)
         function = (int)pinmap_find_function(pin, PinMap_ADC_Internal);
     }
 
-    const PinMap explicit_pinmap = {pin, peripheral, function};
+    const PinMap static_pinmap = {pin, peripheral, function};
 
-    ANALOGIN_INIT_DIRECT(obj, &explicit_pinmap);
+    ANALOGIN_INIT_DIRECT(obj, &static_pinmap);
 }
 
 
