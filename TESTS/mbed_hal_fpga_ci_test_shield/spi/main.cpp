@@ -41,9 +41,13 @@ typedef enum {
     TRANSFER_SPI_MASTER_TRANSFER_ASYNC
 } transfer_type_t;
 
-#define FREQ_500_KHZ 500000
-#define FREQ_1_MHZ 1000000
-#define FREQ_2_MHZ 2000000
+#define FREQ_500_KHZ  500000
+#define FREQ_1_MHZ    1000000
+#define FREQ_2_MHZ    2000000
+#define FREQ_MIN      ((uint32_t)0)
+#define FREQ_MAX      ((uint32_t)-1)
+
+#define TEST_CAPABILITY_BIT(MASK, CAP) ((1 << CAP) & (MASK))
 
 const int TRANSFER_COUNT = 300;
 SPIMasterTester tester(DefaultFormFactor::pins(), DefaultFormFactor::restricted_pins());
@@ -62,6 +66,36 @@ void spi_async_handler()
 }
 #endif
 
+/* Auxiliary function to check platform capabilities against test case. */
+static bool check_capabilities(const spi_capabilities_t *capabilities, SPITester::SpiMode spi_mode, uint32_t sym_size, transfer_type_t transfer_type, uint32_t frequency)
+{
+    // Symbol size
+    if (!TEST_CAPABILITY_BIT(capabilities->word_length, (sym_size - 1))) {
+        utest_printf("\n<Specified symbol size is not supported on this platform> skipped ");
+        return false;
+    }
+
+    // SPI clock mode
+    if (!TEST_CAPABILITY_BIT(capabilities->clk_modes, spi_mode)) {
+        utest_printf("\n<Specified spi clock mode is not supported on this platform> skipped");
+        return false;
+    }
+
+    // Frequency
+    if (frequency != FREQ_MAX && frequency != FREQ_MIN && frequency < capabilities->minimum_frequency && frequency > capabilities->maximum_frequency) {
+        utest_printf("\n<Specified frequency is not supported on this platform> skipped ");
+        return false;
+    }
+
+    // Async mode
+    if (transfer_type == TRANSFER_SPI_MASTER_TRANSFER_ASYNC && capabilities->async_mode == false) {
+        utest_printf("\n<Async mode is not supported on this platform> skipped ");
+        return false;
+    }
+
+    return true;
+}
+
 void fpga_spi_test_init_free(PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
     spi_init(&spi, mosi, miso, sclk, ssel);
@@ -72,6 +106,15 @@ void fpga_spi_test_init_free(PinName mosi, PinName miso, PinName sclk, PinName s
 
 void fpga_spi_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel, SPITester::SpiMode spi_mode, uint32_t sym_size, transfer_type_t transfer_type, uint32_t frequency)
 {
+    spi_capabilities_t capabilities;
+
+
+    spi_get_capabilities(ssel, false, &capabilities);
+
+    if (check_capabilities(&capabilities, spi_mode, sym_size, transfer_type, frequency) == false) {
+        return;
+    }
+
     uint32_t sym_mask = ((1 << sym_size) - 1);
 
     // Remap pins for test
@@ -178,14 +221,10 @@ Case cases[] = {
     Case("SPI - mode testing (MODE_1)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode1, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
     Case("SPI - mode testing (MODE_2)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode2, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
     Case("SPI - mode testing (MODE_3)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode3, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
-#if !defined(TARGET_NRF52840_DK)
     Case("SPI - symbol size testing (16)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 16, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
-#endif
     Case("SPI - frequency testing (500 kHz)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_500_KHZ> >),
     Case("SPI - frequency testing (2 MHz)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_2_MHZ> >),
-
     Case("SPI - block write", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_BLOCK_WRITE_SYNC, FREQ_1_MHZ> >),
-
 #if DEVICE_SPI_ASYNCH
     Case("SPI - async mode", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_TRANSFER_ASYNC, FREQ_1_MHZ> >)
 #endif
