@@ -9122,13 +9122,11 @@
     "CY8CMOD_062_4343W": {
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
+        "components_add": ["WHD", "4343W", "CYW43XXX"],
         "device_has_remove": ["ANALOGOUT"],
         "extra_labels_add": [
             "PSOC6_02",
             "MXCRYPTO_02",
-            "WHD",
-            "4343W",
-            "CYW43XXX",
             "CORDIO"
         ],
         "macros_add": ["CY8C624ABZI_D44", "CYBSP_WIFI_CAPABLE"],
@@ -9140,13 +9138,11 @@
     "CY8CMOD_062S2_43012": {
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
+        "components_add": ["WHD", "43012", "CYW43XXX"],
         "device_has_remove": ["ANALOGOUT"],
         "extra_labels_add": [
             "PSOC6_02",
             "MXCRYPTO_02",
-            "WHD",
-            "43012",
-            "CYW43XXX",
             "CORDIO"
         ],
         "macros_add": ["CY8C624ABZI_D44", "CYBSP_WIFI_CAPABLE"],
@@ -9158,15 +9154,13 @@
     "CY8CKIT_064S2_4343W": {
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
+        "components_add": ["WHD", "4343W", "CYW43XXX"],
         "components_remove": ["QSPIF"],
         "supported_form_factors": ["ARDUINO"],
         "device_has_remove": ["ANALOGOUT", "QSPI"],
         "extra_labels_add": [
             "PSOC6_02",
             "MXCRYPTO_02",
-            "WHD",
-            "4343W",
-            "CYW43XXX",
             "CORDIO"
         ],
         "macros_add": ["CYB0644ABZI_S2D44", "CYBSP_WIFI_CAPABLE"],
@@ -9183,13 +9177,11 @@
     "CY8CKIT_062_WIFI_BT": {
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
+        "components_add": ["WHD", "4343W", "CYW43XXX"],
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": [
             "PSOC6_01",
             "MXCRYPTO_01",
-            "WHD",
-            "4343W",
-            "CYW43XXX",
             "CORDIO"
         ],
         "macros_add": ["CY8C6247BZI_D54", "CYHAL_UDB_SDIO", "CYBSP_WIFI_CAPABLE"],
@@ -9273,12 +9265,10 @@
     "CYW943012P6EVB_01": {
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
+        "components_add": ["WHD", "43012", "CYW43XXX"],
         "extra_labels_add": [
             "PSOC6_01",
             "MXCRYPTO_01",
-            "WHD",
-            "43012",
-            "CYW43XXX",
             "CORDIO"
         ],
         "macros_add": ["CY8C6247BZI_D54", "CYHAL_UDB_SDIO", "CYBSP_WIFI_CAPABLE"],
@@ -9293,14 +9283,12 @@
     "CYW9P62S1_43012EVB_01": {
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
+        "components_add": ["WHD", "43012", "CYW43XXX"],
         "components_remove": ["QSPIF"],
         "device_has_remove": ["ANALOGOUT", "CRC", "TRNG", "QSPI"],
         "macros_remove": ["MBEDTLS_CONFIG_HW_SUPPORT"],
         "extra_labels_add": [
             "PSOC6_01",
-            "WHD",
-            "43012",
-            "CYW43XXX",
             "CORDIO"
         ],
         "extra_labels_remove": ["MXCRYPTO"],
