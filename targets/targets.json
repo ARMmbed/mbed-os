@@ -9115,7 +9115,7 @@
     },
     "MCU_PSOC6_M4": {
         "inherits": ["MCU_PSOC6"],
-        "components_add": ["FLASHIAP", "QSPIF", "BSP_DESIGN_MODUS"],
+        "components_add": ["FLASHIAP", "QSPIF", "BSP_DESIGN_MODUS", "CM0P_SLEEP"],
         "macros_add": ["MCU_PSOC6_M4", "CY_RTOS_AWARE", "CY_USING_HAL", "MBED_TICKLESS"],
         "public": false
     },
@@ -9126,7 +9126,6 @@
         "extra_labels_add": [
             "PSOC6_02",
             "MXCRYPTO_02",
-            "CM0P_SLEEP",
             "WHD",
             "4343W",
             "CYW43XXX",
@@ -9145,7 +9144,6 @@
         "extra_labels_add": [
             "PSOC6_02",
             "MXCRYPTO_02",
-            "CM0P_SLEEP",
             "WHD",
             "43012",
             "CYW43XXX",
@@ -9166,7 +9164,6 @@
         "extra_labels_add": [
             "PSOC6_02",
             "MXCRYPTO_02",
-            "CM0P_SLEEP",
             "WHD",
             "4343W",
             "CYW43XXX",
@@ -9190,7 +9187,6 @@
         "extra_labels_add": [
             "PSOC6_01",
             "MXCRYPTO_01",
-            "CM0P_SLEEP",
             "WHD",
             "4343W",
             "CYW43XXX",
@@ -9231,8 +9227,7 @@
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": [
             "PSOC6_01",
-            "MXCRYPTO_01",
-            "CM0P_SLEEP"
+            "MXCRYPTO_01"
         ],
         "macros_add": ["CY8C6347BZI_BLD53"],
         "detect_code": ["1902"],
@@ -9248,8 +9243,7 @@
         "device_has_remove": ["USBDEVICE", "QSPI"],
         "extra_labels_add": [
             "PSOC6_01",
-            "MXCRYPTO_01",
-            "CM0P_SLEEP"
+            "MXCRYPTO_01"
         ],
         "macros_add": ["CYBLE_416045_02"],
         "detect_code": ["1904"],
@@ -9282,7 +9276,6 @@
         "extra_labels_add": [
             "PSOC6_01",
             "MXCRYPTO_01",
-            "CM0P_SLEEP",
             "WHD",
             "43012",
             "CYW43XXX",
@@ -9305,7 +9298,6 @@
         "macros_remove": ["MBEDTLS_CONFIG_HW_SUPPORT"],
         "extra_labels_add": [
             "PSOC6_01",
-            "CM0P_SLEEP",
             "WHD",
             "43012",
             "CYW43XXX",
