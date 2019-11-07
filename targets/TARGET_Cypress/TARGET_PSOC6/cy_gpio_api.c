@@ -87,6 +87,11 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
     apply_config(obj);
 }
 
+void gpio_free(gpio_t *obj)
+{
+    cyhal_gpio_free(obj->pin);
+}
+
 #ifdef __cplusplus
 }
 #endif
