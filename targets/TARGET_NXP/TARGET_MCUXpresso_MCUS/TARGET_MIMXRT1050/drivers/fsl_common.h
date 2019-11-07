@@ -338,7 +338,7 @@ _Pragma("diag_suppress=Pm120")
 /* @{ */
 #if defined(FSL_SDK_DRIVER_QUICK_ACCESS_ENABLE) && FSL_SDK_DRIVER_QUICK_ACCESS_ENABLE
 #if (defined(__ICCARM__))
-#define AT_QUICKACCESS_SECTION_CODE(func) func @"CodeQuickAccess"
+#define AT_QUICKACCESS_SECTION_CODE(func) __ramfunc func
 #define AT_QUICKACCESS_SECTION_DATA(func) func @"DataQuickAccess"
 #elif(defined(__CC_ARM) || defined(__ARMCC_VERSION))
 #define AT_QUICKACCESS_SECTION_CODE(func) __attribute__((section("CodeQuickAccess"))) func
