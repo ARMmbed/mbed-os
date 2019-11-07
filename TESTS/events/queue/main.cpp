@@ -15,10 +15,6 @@
  */
 #include "mbed_events.h"
 #include "mbed.h"
-#if defined(MBED_CONF_RTOS_PRESENT)
-#include "rtos.h"
-#endif
-
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"

@@ -13,10 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] sleep manager test cases requires RTOS to run.
-#else
-
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -92,7 +88,9 @@ void test_lock_eq_ushrt_max()
 utest::v1::status_t testcase_setup(const Case *const source, const size_t index_of_case)
 {
     // Suspend the RTOS kernel scheduler to prevent interference with duration of sleep.
+#if defined(MBED_RTOS_PRESENT)
     osKernelSuspend();
+#endif
 #if DEVICE_LPTICKER
     ticker_suspend(get_lp_ticker_data());
 #if (LPTICKER_DELAY_TICKS > 0)
@@ -119,7 +117,9 @@ utest::v1::status_t testcase_teardown(const Case *const source, const size_t pas
 #endif
     ticker_resume(get_lp_ticker_data());
 #endif
+#if defined(MBED_RTOS_PRESENT)
     osKernelResume(0);
+#endif
     return utest::v1::greentea_case_teardown_handler(source, passed, failed, failure);
 }
 
@@ -340,4 +340,3 @@ int main()
 }
 
 #endif // !DEVICE_SLEEP
-#endif // !defined(MBED_CONF_RTOS_PRESENT)
