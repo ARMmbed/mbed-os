@@ -128,6 +128,17 @@ void hal_deepsleep(void) {
     wk_CPGSTBCR13 = CPGSTBCR13;
 #endif
 
+    /* Waits for the serial transmission to complete */
+    const struct st_scif *SCIF[SCIF_COUNT] = SCIF_ADDRESS_LIST;
+
+    for (int uart = 0; uart < SCIF_COUNT; uart++) {
+        if ((wk_CPGSTBCR4 & (1 << (7 - uart))) == 0) {     // Is the power turned on?
+            if ((SCIF[uart]->SCSCR & 0x00A0) == 0x00A0) {  // Is transmission enabled? (TE = 1, TIE = 1)
+                while ((SCIF[uart]->SCFSR & 0x0040) == 0); // Waits for the transmission to complete (TEND = 1)
+            }
+        }
+    }
+
     /* MTU2 (for low power ticker) */
     CPGSTBCR3  |= ~(CPG_STBCR3_BIT_MSTP33);
     dummy_8    = CPGSTBCR3;

@@ -592,7 +592,6 @@ void serial_putc(serial_t *obj, int c) {
     while (!serial_writable(obj));
     obj->serial.uart->SCFTDR = c;
     serial_put_done(obj);
-    while ((obj->serial.uart->SCFSR & 0x40) == 0); // Wait TEND = 1
 }
 
 static void serial_put_done(serial_t *obj)
