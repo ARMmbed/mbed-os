@@ -243,8 +243,6 @@ def main():
                 resource_filter = None
                 if target.is_PSA_secure_target:
                     resource_filter = OsAndSpeResourceFilter()
-
-                if target.is_PSA_target:
                     generate_psa_sources(
                         source_dirs=base_source_paths,
                         ignore_paths=[options.build_dir]

@@ -191,14 +191,12 @@ def main():
                     profile = extract_profile(parser, options, internal_tc_name)
 
                     if options.source_dir:
-                        if target.is_PSA_target:
+                        resource_filter = None
+                        if target.is_PSA_secure_target:
                             generate_psa_sources(
                                 source_dirs=options.source_dir,
                                 ignore_paths=[options.build_dir]
                             )
-
-                        resource_filter = None
-                        if target.is_PSA_secure_target:
                             resource_filter = OsAndSpeResourceFilter()
 
                         lib_build_res = build_library(

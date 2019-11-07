@@ -339,14 +339,12 @@ def main():
             args_error(parser, str(e))
 
         if options.source_dir is not None:
-            if target.is_PSA_target:
+            resource_filter = None
+            if target.is_PSA_secure_target:
                 generate_psa_sources(
                     source_dirs=options.source_dir,
                     ignore_paths=[options.build_dir]
                 )
-
-            resource_filter = None
-            if target.is_PSA_secure_target:
                 resource_filter = OsAndSpeResourceFilter()
 
             wrapped_build_project(
