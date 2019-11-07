@@ -28,6 +28,7 @@
 #include "utest/utest_stack_trace.h"
 #include "tls_tests.h"
 #include "cert.h"
+#include "CellularDevice.h"
 
 #ifndef ECHO_SERVER_ADDR
 #error [NOT_SUPPORTED] Requires parameters for echo server
@@ -150,6 +151,11 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(tls_global::TESTS_TIMEOUT, "default_auto");
     _ifup();
+
+#ifdef MBED_CONF_APP_BAUD_RATE
+    CellularDevice::get_default_instance()->set_baud_rate(MBED_CONF_APP_BAUD_RATE);
+#endif
+
     tc_bucket.start();
     return greentea_test_setup_handler(number_of_cases);
 }
