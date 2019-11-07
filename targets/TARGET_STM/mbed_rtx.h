@@ -117,16 +117,14 @@
 
 #elif (defined(TARGET_STM32F413ZH) ||\
        defined(TARGET_STM32F469NI) ||\
-       defined(TARGET_STM32F746NG) ||\
-       defined(TARGET_STM32F746ZG) ||\
-       defined(TARGET_STM32F756ZG) ||\
+       defined(TARGET_STM32F746xG) ||\
+       defined(TARGET_STM32F756xG) ||\
        defined(TARGET_STM32L496AG) ||\
        defined(TARGET_STM32L496ZG))
 #define INITIAL_SP              (0x20050000UL)
 
-#elif (defined(TARGET_STM32F767ZI) ||\
-       defined(TARGET_STM32F767VI) ||\
-       defined(TARGET_STM32F769NI))
+#elif (defined(TARGET_STM32F767xI) ||\
+       defined(TARGET_STM32F769xI))
 #define INITIAL_SP              (0x20080000UL)
 
 #elif defined(TARGET_STM32L4R5xI)
