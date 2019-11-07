@@ -63,6 +63,7 @@ static void _sigio_handler()
 void UDPSOCKET_ECHOTEST()
 {
     SocketAddress udp_addr;
+    SocketAddress recv_addr;
     NetworkInterface::get_default_instance()->gethostbyname(ECHO_SERVER_ADDR, &udp_addr);
     udp_addr.set_port(ECHO_SERVER_PORT);
 
@@ -94,7 +95,7 @@ void UDPSOCKET_ECHOTEST()
 
             do {
                 received_duplicate_packet = false;
-                recvd = sock.recvfrom(NULL, rx_buffer, pkt_s);
+                recvd = sock.recvfrom(&recv_addr, rx_buffer, pkt_s);
                 //Check if received duplicated packet
                 for (unsigned int d_idx = 0; d_idx < PKTS; ++d_idx) {
                     if (pkt_received[d_idx] && d_idx != s_idx && recvd == pkt_sizes[d_idx]) {
@@ -111,6 +112,10 @@ void UDPSOCKET_ECHOTEST()
                 printf("[Round#%02d - Receiver] error, returned %d\n", s_idx, recvd);
             }
         }
+        // Verify received address is correct
+        TEST_ASSERT(udp_addr == recv_addr);
+        TEST_ASSERT_EQUAL(udp_addr.get_port(), recv_addr.get_port());
+
         if (memcmp(tx_buffer, rx_buffer, pkt_s) == 0) {
             packets_recv++;
             pkt_received[s_idx] = true;
