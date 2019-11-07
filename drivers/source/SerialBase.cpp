@@ -25,20 +25,9 @@ namespace mbed {
 
 SerialBase::SerialBase(PinName tx, PinName rx, int baud) :
 #if DEVICE_SERIAL_ASYNCH
-    _thunk_irq(this), _tx_usage(DMA_USAGE_NEVER),
-    _rx_usage(DMA_USAGE_NEVER), _tx_callback(NULL),
-    _rx_callback(NULL), _tx_asynch_set(false),
-    _rx_asynch_set(false),
+    _thunk_irq(this),
 #endif
-    _serial(),
     _baud(baud),
-#if DEVICE_SERIAL_FC
-    _flow_type(Disabled),
-    _flow1(NC),
-    _flow2(NC),
-#endif
-    _rx_enabled(true),
-    _tx_enabled(true),
     _tx_pin(tx),
     _rx_pin(rx)
 {
