@@ -35,10 +35,9 @@ void sleep_manager_locking_thread_test()
         sleep_manager_unlock_deep_sleep();
     }
 }
-#endif
+
 void sleep_manager_multithread_test()
 {
-#if defined(MBED_CONF_RTOS_PRESENT)
     {
         Callback<void()> cb(sleep_manager_locking_thread_test);
         Thread t1(osPriorityNormal, TEST_STACK_SIZE);
@@ -55,8 +54,8 @@ void sleep_manager_multithread_test()
 
     bool deep_sleep_allowed = sleep_manager_can_deep_sleep_test_check();
     TEST_ASSERT_TRUE_MESSAGE(deep_sleep_allowed, "Deep sleep should be allowed");
-#endif
 }
+#endif
 
 void sleep_manager_locking_irq_test()
 {
@@ -93,7 +92,9 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
+#if defined(MBED_CONF_RTOS_PRESENT)
     Case("deep sleep lock/unlock is thread safe", sleep_manager_multithread_test),
+#endif
     Case("deep sleep lock/unlock is IRQ safe", sleep_manager_irq_test),
 };
 

@@ -1,6 +1,7 @@
 { 
     "requires": [ 
         "bare-metal", 
+        "rtos-api",
         "greentea-client", 
         "utest", 
         "unity",
@@ -12,29 +13,29 @@
         "littlefs",
         "mbed-trace",
         "device_key",
-	"storage_tdb_internal",
-	"storage_filesystem",
-	"storage_tdb_external",
+        "storage_tdb_internal",
+        "storage_filesystem",
+        "storage_tdb_external",
         "lora",
-	"nfc",
-	"network-emac",
-	"nanostack-libservice",
-	"flashiap-block-device",
-	"system-storage",
-	"filesystemstore",
-	"SecureStore",
-	"storage",
-	"kv-map",
-	"direct-access-devicekey",
-	"tdbstore",
-	"kv-config",
-	"events",
-	"kv-global-api",
-	"sd"
+        "nfc",
+        "network-emac",
+        "nanostack-libservice",
+        "flashiap-block-device",
+        "system-storage",
+        "filesystemstore",
+        "SecureStore",
+        "storage",
+        "kv-map",
+        "direct-access-devicekey",
+        "tdbstore",
+        "kv-config",
+        "events",
+        "kv-global-api",
+        "sd"
     ],
     "target_overrides": {
         "*": {
-	    "target.device_has_remove": ["EMAC", "USBDEVICE"]
+            "target.device_has_remove": ["EMAC", "USBDEVICE"]
         }
      }
 }

@@ -134,9 +134,9 @@ void test_thread(void)
     TEST_ASSERT_EQUAL(0xCBF43926, crc);
 }
 
+#if defined(MBED_CONF_RTOS_PRESENT)
 void test_thread_safety()
 {
-#if defined(MBED_CONF_RTOS_PRESENT)
     char  test[] = "123456789";
     uint32_t crc;
 
@@ -153,15 +153,17 @@ void test_thread_safety()
 
     // Wait for the thread to finish
     t1.join();
-#endif
 }
+#endif
 
 Case cases[] = {
     Case("Test supported polynomials", test_supported_polynomials),
     Case("Test partial CRC", test_partial_crc),
     Case("Test SD CRC polynomials", test_sd_crc),
-    Case("Test not supported polynomials", test_any_polynomial),
-    Case("Test thread safety", test_thread_safety)
+#if defined(MBED_CONF_RTOS_PRESENT)
+    Case("Test thread safety", test_thread_safety),
+#endif
+    Case("Test not supported polynomials", test_any_polynomial)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

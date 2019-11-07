@@ -171,11 +171,7 @@ USBEndpointTester::USBEndpointTester(USBPhy *phy, uint16_t vendor_id, uint16_t p
         MBED_ASSERT(_endpoint_buffs[i] != NULL);
     }
     MBED_ASSERT(resolver.valid());
-#if defined(MBED_CONF_RTOS_PRESENT)
     queue = mbed::mbed_highprio_event_queue();
-#else
-    queue = mbed::mbed_event_queue();
-#endif
     configuration_desc(0);
     ctrl_buf = new uint8_t[CTRL_BUF_SIZE];
     init();

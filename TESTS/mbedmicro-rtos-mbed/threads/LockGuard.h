@@ -17,7 +17,6 @@
 
 #ifndef MBEDMICRO_RTOS_MBED_THREADS_LOCK_GUARD
 #define MBEDMICRO_RTOS_MBED_THREADS_LOCK_GUARD
-#if defined(MBED_CONF_RTOS_PRESENT)
 
 #include <rtos.h>
 
@@ -50,5 +49,4 @@ private:
     LockGuard &operator=(const LockGuard &);
     rtos::Mutex &_mutex;
 };
-#endif /* #if defined(MBED_CONF_RTOS_PRESENT) */
 #endif /* MBEDMICRO_RTOS_MBED_THREADS_LOCK_GUARD */

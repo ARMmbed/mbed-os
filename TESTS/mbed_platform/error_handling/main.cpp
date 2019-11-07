@@ -118,7 +118,6 @@ void test_error_capturing()
  */
 void test_error_context_capture()
 {
-#if defined(MBED_CONF_RTOS_PRESENT)
     uint32_t error_value = 0xABCD;
     mbed_error_ctx error_ctx = {0};
 
@@ -126,6 +125,7 @@ void test_error_context_capture()
     mbed_error_status_t status = mbed_get_last_error_info(&error_ctx);
     TEST_ASSERT(status == MBED_SUCCESS);
     TEST_ASSERT_EQUAL_UINT(error_value, error_ctx.error_value);
+#if defined(MBED_CONF_RTOS_PRESENT)
     TEST_ASSERT_EQUAL_UINT((uint32_t)osThreadGetId(), error_ctx.thread_id);
 
     //Capture thread info and compare
@@ -258,9 +258,9 @@ void MyErrorHook(const mbed_error_ctx *error_ctx)
 
 /** Test error hook
  */
+#if defined(MBED_CONF_RTOS_PRESENT)
 void test_error_hook()
 {
-#if defined(MBED_CONF_RTOS_PRESENT)
     if (MBED_SUCCESS != mbed_set_error_hook(MyErrorHook)) {
         TEST_FAIL();
     }
@@ -269,8 +269,8 @@ void test_error_hook()
     bool acquired = callback_sem.try_acquire_for(5000);
 
     TEST_ASSERT(acquired);
-#endif
 }
+#endif
 
 #if MBED_CONF_PLATFORM_ERROR_HIST_ENABLED && defined(MBED_TEST_SIM_BLOCKDEVICE)
 
@@ -358,13 +358,11 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 Case cases[] = {
     Case("Test error counting and reset", test_error_count_and_reset),
     Case("Test error encoding, value capture, first and last errors", test_error_capturing),
-#if MBED_CONF_RTOS_PRESENT
     Case("Test error context capture", test_error_context_capture),
-#endif //MBED_CONF_RTOS_PRESENT
-    Case("Test error hook", test_error_hook),
 #if MBED_CONF_PLATFORM_ERROR_HIST_ENABLED
     Case("Test error logging", test_error_logging),
 #if MBED_CONF_RTOS_PRESENT
+    Case("Test error hook", test_error_hook),
     Case("Test error handling multi-threaded", test_error_logging_multithread),
 #endif //MBED_CONF_RTOS_PRESENT
 #if MBED_CONF_PLATFORM_ERROR_HIST_ENABLED && defined(MBED_TEST_SIM_BLOCKDEVICE)

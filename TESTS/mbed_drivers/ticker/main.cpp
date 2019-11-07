@@ -76,12 +76,11 @@ void ticker_callback_2(void)
     }
 }
 
-#if defined(MBED_CONF_RTOS_PRESENT)
+
 void sem_release(Semaphore *sem)
 {
     sem->release();
 }
-#endif
 
 
 void stop_gtimer_set_flag(void)
@@ -194,7 +193,6 @@ void test_case_2x_ticker()
  */
 void test_multi_ticker(void)
 {
-#if defined(MBED_CONF_RTOS_PRESENT)
     Ticker ticker[TICKER_COUNT];
     const uint32_t extra_wait = 5; // extra 5ms wait time
 
@@ -229,7 +227,6 @@ void test_multi_ticker(void)
     // (e.g. when head event is removed), it's good to check if
     // no more callbacks were triggered during detaching.
     TEST_ASSERT_EQUAL(TICKER_COUNT, multi_counter);
-#endif
 }
 
 /** Test multi callback time
@@ -265,7 +262,6 @@ void test_multi_call_time(void)
  */
 void test_detach(void)
 {
-#if defined(MBED_CONF_RTOS_PRESENT)
     Ticker ticker;
     bool ret;
     const float ticker_time_s = 0.1f;
@@ -281,7 +277,6 @@ void test_detach(void)
 
     ret = sem.try_acquire_for(wait_time_ms);
     TEST_ASSERT_FALSE(ret);
-#endif
 }
 
 /** Test single callback time via attach

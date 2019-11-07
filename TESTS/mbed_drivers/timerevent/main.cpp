@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if !DEVICE_USTICKER || !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] usticker test case requires RTOS to run and also usticker needs to be enabled for this target.
+#if !DEVICE_USTICKER
+#error [NOT_SUPPORTED] usticker not supported for this target.
 #else
 
 #include "mbed.h"
@@ -243,4 +243,4 @@ int main()
     return !Harness::run(specification);
 }
 
-#endif // !DEVICE_USTICKER || !defined(MBED_CONF_RTOS_PRESENT)
+#endif // !DEVICE_USTICKER
