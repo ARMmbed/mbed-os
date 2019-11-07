@@ -16,7 +16,7 @@
  */
 
 #if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] Test not supported.
+#error [NOT_SUPPORTED] dns test cases requires RTOS to run.
 #else
 
 #define WIFI 2
