@@ -391,13 +391,11 @@ def main():
 
         try:
             target = Target.get_target(mcu)
-            if target.is_PSA_target:
+            resource_filter = None
+            if target.is_PSA_secure_target:
                 generate_psa_sources(source_dirs=options.source_dir,
                                      ignore_paths=[]
                 )
-
-            resource_filter = None
-            if target.is_PSA_secure_target:
                 resource_filter = OsAndSpeResourceFilter()
 
             export(
