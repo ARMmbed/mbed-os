@@ -1,7 +1,7 @@
 #include "val_interfaces.h"
 #include "pal_mbed_os_intf.h"
 #if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] PSA compliance its test cases requires RTOS to run
+#error [NOT_SUPPORTED] PSA compliance its test cases require RTOS to run
 #else
 
 #ifdef ITS_TEST
@@ -18,4 +18,4 @@ int main(void)
     test_start(test_entry_p004, COMPLIANCE_TEST_STORAGE);
 #endif
 }
-#endif
+#endif // !defined(MBED_CONF_RTOS_PRESENT)

@@ -17,7 +17,7 @@
 */
 
 #if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] PSA attestation test case requires RTOS to run.
+#error [NOT_SUPPORTED] PSA attestation test cases require RTOS to run.
 #else
 
 #include "psa/crypto.h"
