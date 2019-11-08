@@ -329,26 +329,26 @@ protected:
 
 #if DEVICE_SERIAL_ASYNCH
     CThunk<SerialBase> _thunk_irq;
-    DMAUsage _tx_usage;
-    DMAUsage _rx_usage;
+    DMAUsage _tx_usage = DMA_USAGE_NEVER;
+    DMAUsage _rx_usage = DMA_USAGE_NEVER;
     event_callback_t _tx_callback;
     event_callback_t _rx_callback;
-    bool _tx_asynch_set;
-    bool _rx_asynch_set;
+    bool _tx_asynch_set = false;
+    bool _rx_asynch_set = false;
 #endif
 
-    serial_t         _serial;
+    serial_t         _serial {};
     Callback<void()> _irq[IrqCnt];
     int              _baud;
-    bool             _rx_enabled;
-    bool             _tx_enabled;
+    bool             _rx_enabled = true;
+    bool             _tx_enabled = true;
     const PinName    _tx_pin;
     const PinName    _rx_pin;
 
 #if DEVICE_SERIAL_FC
-    Flow             _flow_type;
-    PinName          _flow1;
-    PinName          _flow2;
+    Flow             _flow_type = Disabled;
+    PinName          _flow1 = NC;
+    PinName          _flow2 = NC;
 #endif
 
 #endif
