@@ -55,7 +55,7 @@ from tools.utils import print_end_warnings
 from tools.utils import print_large_string
 from tools.settings import ROOT
 from tools.targets import Target
-from tools.psa import generate_psa_sources, clean_psa_autogen
+from tools.psa import generate_psa_sources
 from tools.resources import OsAndSpeResourceFilter
 
 def default_args_dict(options):
@@ -305,10 +305,6 @@ def main():
     elif options.list_tests is True:
         print('\n'.join(map(str, sorted(TEST_MAP.values()))))
     else:
-
-        if options.clean:
-            clean_psa_autogen()
-
         # Target
         if options.mcu is None:
             args_error(parser, "argument -m/--mcu is required")

@@ -44,7 +44,7 @@ from tools.utils import argparse_filestring_type, args_error, argparse_many
 from tools.utils import argparse_dir_not_parent
 from tools.utils import NoValidToolchainException
 from tools.utils import print_end_warnings
-from tools.psa import generate_psa_sources, clean_psa_autogen
+from tools.psa import generate_psa_sources
 from tools.resources import OsAndSpeResourceFilter
 
 def main():
@@ -165,9 +165,6 @@ def main():
     successes = []
     skipped = []
     end_warnings = []
-
-    if options.clean:
-        clean_psa_autogen()
 
     for toolchain in toolchains:
         for target_name in targets:
