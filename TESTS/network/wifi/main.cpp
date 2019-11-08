@@ -70,20 +70,19 @@ Case cases[] = {
 #if defined(MBED_CONF_APP_WIFI_SECURE_SSID) || defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
     Case("WIFI-SCAN", wifi_scan),
 #endif
-#if defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
-    Case("WIFI-GET-RSSI", wifi_get_rssi),
-    Case("WIFI-CONNECT-PARAMS-VALID-UNSECURE", wifi_connect_params_valid_unsecure),
-    Case("WIFI-CONNECT", wifi_connect),
-    //Most boards are not passing this test, but they should if they support non-blocking API.
-    //Case("WIFI_CONNECT_DISCONNECT_NONBLOCK", wifi_connect_disconnect_nonblock),
-    Case("WIFI-CONNECT-DISCONNECT-REPEAT", wifi_connect_disconnect_repeat),
-#endif
 #if defined(MBED_CONF_APP_WIFI_SECURE_SSID)
+    Case("WIFI-GET-RSSI", wifi_get_rssi),
+    Case("WIFI-CONNECT-DISCONNECT-REPEAT", wifi_connect_disconnect_repeat),
     Case("WIFI-CONNECT-PARAMS-VALID-SECURE", wifi_connect_params_valid_secure),
     Case("WIFI-CONNECT-PARAMS-CHANNEL", wifi_connect_params_channel),
     Case("WIFI-CONNECT-PARAMS-CHANNEL-FAIL", wifi_connect_params_channel_fail),
     Case("WIFI-CONNECT-SECURE", wifi_connect_secure),
     Case("WIFI-CONNECT-SECURE-FAIL", wifi_connect_secure_fail),
+#endif
+#if defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
+    Case("WIFI-CONNECT", wifi_connect),
+    //Most boards are not passing this test, but they should if they support non-blocking API.
+    //Case("WIFI_CONNECT_DISCONNECT_NONBLOCK", wifi_connect_disconnect_nonblock),
 #endif
 };
 

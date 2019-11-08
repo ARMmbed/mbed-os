@@ -48,9 +48,6 @@ void wifi_get_rssi(void);
 /** Test WiFiInterface::connect(ssid, pass, security, channel) with NULL parameters */
 void wifi_connect_params_null(void);
 
-/** Test WiFiInterface::connect(ssid, pass, security) with valid parameters for unsecure network */
-void wifi_connect_params_valid_unsecure(void);
-
 /** Test WiFiInterface::connect(ssid, pass, security) with valid parameters for secure network */
 void wifi_connect_params_valid_secure(void);
 

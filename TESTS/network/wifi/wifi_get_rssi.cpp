@@ -23,13 +23,13 @@
 
 using namespace utest::v1;
 
-#if defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
+#if defined(MBED_CONF_APP_WIFI_SECURE_SSID)
 
 void wifi_get_rssi(void)
 {
     WiFiInterface *wifi = get_interface();
 
-    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->set_credentials(MBED_CONF_APP_WIFI_UNSECURE_SSID, NULL));
+    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->set_credentials(MBED_CONF_APP_WIFI_SECURE_SSID, MBED_CONF_APP_WIFI_PASSWORD, get_security()));
 
     TEST_ASSERT_EQUAL_INT8(0, wifi->get_rssi());
 
@@ -40,4 +40,4 @@ void wifi_get_rssi(void)
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->disconnect());
 }
 
-#endif // defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
+#endif // defined(MBED_CONF_APP_WIFI_SECURE_SSID)
