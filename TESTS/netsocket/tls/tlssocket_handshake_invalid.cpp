@@ -30,6 +30,14 @@ void TLSSOCKET_HANDSHAKE_INVALID()
 {
     const int https_port = 443;
     SKIP_IF_TCP_UNSUPPORTED();
+
+#if (MBED_CONF_NSAPI_DEFAULT_STACK == NANOSTACK || (MBED_CONF_NSAPI_DEFAULT_STACK == LWIP && defined(MBED_CONF_LWIP_PPP_IPV6_ENABLED)))
+    SocketAddress address;
+    nsapi_error_t result = NetworkInterface::get_default_instance()->gethostbyname("expired.badssl.com", &address);
+    if (result != NSAPI_ERROR_OK) {
+        TEST_SKIP_MESSAGE(" badssl.com not supported IP6 AAA records");
+    }
+#endif
     TLSSocket sock;
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(NetworkInterface::get_default_instance()));
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.set_root_ca_cert(tls_global::cert));
