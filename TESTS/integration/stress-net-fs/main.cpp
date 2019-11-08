@@ -244,4 +244,4 @@ int main()
 
     return !Harness::run(specification);
 }
-#endif
+#endif // !INTEGRATION_TESTS

@@ -16,7 +16,7 @@
  */
 
 #if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] USB test cases requires RTOS to run.
+#error [NOT_SUPPORTED] USB stack and test cases require RTOS to run.
 #else
 
 #include <stdio.h>

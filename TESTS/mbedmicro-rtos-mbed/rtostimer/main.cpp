@@ -15,7 +15,7 @@
  */
 
 #if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] RTOS timer test cases require RTOS to run
 #else
 
 #include "mbed.h"
