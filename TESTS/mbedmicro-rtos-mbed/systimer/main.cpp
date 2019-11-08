@@ -20,12 +20,6 @@
 #include "utest.h"
 #include "ticker_api.h"
 
-#if defined(MBED_CONF_RTOS_PRESENT)
-extern "C" {
-#include "rtx_lib.h"
-}
-#endif
-
 #include "platform/source/SysTimer.h"
 
 #define TEST_TICKS 42

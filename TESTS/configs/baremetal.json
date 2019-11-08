@@ -31,7 +31,8 @@
         "kv-config",
         "events",
         "kv-global-api",
-        "sd"
+        "sd",
+        "nvstore"
     ],
     "target_overrides": {
         "*": {

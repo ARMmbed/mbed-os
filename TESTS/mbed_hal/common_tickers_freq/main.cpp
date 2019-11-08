@@ -21,7 +21,7 @@
  */
 
 #if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] common tickers frequency test cases requires RTOS to run.
+#error [NOT_SUPPORTED] common tickers frequency test cases require a RTOS to run.
 #else
 
 #include "mbed.h"

@@ -15,7 +15,7 @@
  */
 
 #if !defined(MBED_RTOS_CONF_PRESENT)
-#error [NOT_SUPPORTED] usticker test cases requires RTOS to run
+#error [NOT_SUPPORTED] usticker test cases require a RTOS to run
 #else
 
 #include "mbed.h"

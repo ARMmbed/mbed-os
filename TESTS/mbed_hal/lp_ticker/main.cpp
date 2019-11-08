@@ -15,7 +15,7 @@
  */
 
 #if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] Low power timer test cases requires RTOS to run.
+#error [NOT_SUPPORTED] Low power timer test cases require a RTOS to run.
 #else
 
 #include "mbed.h"

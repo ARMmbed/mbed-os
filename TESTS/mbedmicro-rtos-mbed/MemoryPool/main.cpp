@@ -19,7 +19,7 @@
 #include "utest.h"
 
 #if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] MemoryPool test cases requires RTOS to run.
+#error [NOT_SUPPORTED] MemoryPool test cases require a RTOS to run.
 #else
 
 using namespace utest::v1;
@@ -670,4 +670,4 @@ int main()
     Harness::run(specification);
 }
 
-#endif
+#endif // !defined(MBED_CONF_RTOS_PRESENT)
