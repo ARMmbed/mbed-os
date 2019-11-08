@@ -38,6 +38,9 @@ static const char   num_of_keys = 3;
 #if defined(MBED_CONF_RTOS_PRESENT)
 /* Forked 3 threads plus misc, so minimum (4 * OS_STACK_SIZE) heap are required. */
 static const int heap_alloc_threshold_size = 4 * OS_STACK_SIZE;
+#else
+/* Bare metal does not require memory for threads, so use just minimum for test */
+static const int heap_alloc_threshold_size = MBED_CONF_TARGET_BOOT_STACK_SIZE;
 #endif
 static const char *keys[] = {"key1", "key2", "key3"};
 
@@ -69,7 +72,6 @@ static void parse_default_kv()
 //init the blockdevice
 static void kvstore_init()
 {
-#if defined(MBED_CONF_RTOS_PRESENT)
     uint8_t *dummy = new (std::nothrow) uint8_t[heap_alloc_threshold_size];
     TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough heap to run test");
     delete[] dummy;
@@ -79,7 +81,6 @@ static void kvstore_init()
     init_res = kv_reset(def_kv);
     TEST_SKIP_UNLESS_MESSAGE(init_res != MBED_ERROR_UNSUPPORTED, "Unsupported configuration. Test skipped.");
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, init_res);
-#endif
 }
 
 /*----------------set()------------------*/

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 #if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] Kvstore API test cases requires RTOS to run
+#error [NOT_SUPPORTED] Kvstore API test cases require a RTOS to run
 #else
 
 #include "rtos/Thread.h"

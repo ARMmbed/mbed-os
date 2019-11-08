@@ -308,9 +308,9 @@ end:
     delete[] write_block;
 }
 
+#if defined(MBED_CONF_RTOS_PRESENT)
 static void test_thread_job()
 {
-#if defined(MBED_CONF_RTOS_PRESENT)
     static int thread_num = 0;
     _mutex->lock();
     int block_num = thread_num++ % TEST_NUM_OF_THREADS;
@@ -336,12 +336,10 @@ static void test_thread_job()
 end:
     delete[] read_block;
     delete[] write_block;
-#endif
 }
 
 void test_multi_threads()
 {
-#if defined(MBED_CONF_RTOS_PRESENT)
     utest_printf("\nTest Multi Threaded Erase/Program/Read Starts..\n");
 
     TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
@@ -395,8 +393,8 @@ void test_multi_threads()
 
         delete[] bd_thread;
     }
-#endif
 }
+#endif
 
 void test_erase_functionality()
 {

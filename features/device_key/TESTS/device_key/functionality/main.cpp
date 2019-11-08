@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-#if !DEVICEKEY_ENABLED
-#error [NOT_SUPPORTED] DeviceKey needs to be enabled for this test
-#else
-
 #include "DeviceKey.h"
 #include "mbedtls/config.h"
 #include "utest/utest.h"
@@ -31,6 +27,10 @@
 
 using namespace utest::v1;
 using namespace mbed;
+
+#if !DEVICEKEY_ENABLED
+#error [NOT_SUPPORTED] DeviceKey needs to be enabled for this test
+#else
 
 #define MSG_VALUE_DUMMY "0"
 #define MSG_VALUE_LEN 32
