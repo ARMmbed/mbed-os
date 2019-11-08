@@ -117,6 +117,15 @@ protected:
 TEST_F(TestEthernetInterface, constructor_default)
 {
     EXPECT_TRUE(iface);
+
+    // Test that this clas presents itself correctly
+    EXPECT_NE(nullptr, iface->ethInterface());
+    EXPECT_NE(nullptr, iface->emacInterface());
+
+    EXPECT_EQ(nullptr, iface->wifiInterface());
+    EXPECT_EQ(nullptr, iface->cellularBase());
+    EXPECT_EQ(nullptr, iface->cellularInterface());
+    EXPECT_EQ(nullptr, iface->meshInterface());
 }
 
 TEST_F(TestEthernetInterface, constructor_getter)
@@ -163,6 +172,9 @@ TEST_F(TestEthernetInterface, set_network)
     SocketAddress ipAddressArg;
     SocketAddress netmaskArg;
     SocketAddress gatewayArg;
+
+    // Before connecting return NULL
+    EXPECT_EQ(NULL, iface->get_mac_address());
 
     SocketAddress tmp;
     EXPECT_EQ(NSAPI_ERROR_NO_CONNECTION, iface->get_ip_address(&tmp));
@@ -228,6 +240,45 @@ TEST_F(TestEthernetInterface, attach)
     .Times(1);
     iface->attach(cb);
 }
+
+
+TEST_F(TestEthernetInterface, get_interface_name)
+{
+    char name[100] = "eth0";
+    EXPECT_EQ(NULL, iface->get_interface_name(name));
+
+    doConnect();
+
+    // The parameter will be an internal variable.
+    EXPECT_CALL(*netStackIface, get_interface_name(_))
+    .Times(1)
+    .WillOnce(Return(name));
+    EXPECT_EQ(std::string(name), std::string(iface->get_interface_name(name)));
+}
+
+TEST_F(TestEthernetInterface, get_ipv6_link_local_address)
+{
+    SocketAddress addr("4.3.2.1");
+    EXPECT_EQ(NSAPI_ERROR_NO_CONNECTION, iface->get_ipv6_link_local_address(&addr));
+    EXPECT_EQ(std::string(addr.get_ip_address()), std::string("4.3.2.1"));
+    doConnect();
+
+    // The parameter will be an internal variable.
+    EXPECT_CALL(*netStackIface, get_ipv6_link_local_address(&addr))
+    .Times(1)
+    .WillOnce(Return(NSAPI_ERROR_OK));
+    EXPECT_EQ(NSAPI_ERROR_OK, iface->get_ipv6_link_local_address(&addr));
+}
+
+TEST_F(TestEthernetInterface, set_as_default)
+{
+    doConnect();
+
+    EXPECT_CALL(*stackMock, set_default_interface(netStackIface))
+    .Times(1);
+    iface->set_as_default();
+}
+
 
 TEST_F(TestEthernetInterface, set_dhcp)
 {

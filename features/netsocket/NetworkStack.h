@@ -90,7 +90,10 @@ public:
      *  @param version  IP version of address to resolve, NSAPI_UNSPEC indicates
      *                  version is chosen by the stack (defaults to NSAPI_UNSPEC)
      *  @param interface_name  Network interface_name
-     *  @return         NSAPI_ERROR_OK on success, negative error code on failure
+     *  @retval         NSAPI_ERROR_OK on success
+     *  @retval         NSAPI_ERROR_PARAMETER if invalid (null) name is provided
+     *  @retval         NSAPI_ERROR_DNS_FAILURE if DNS resolution fails
+     *  @retval         int other negative errors, see @ref nsapi_dns_query
      */
     virtual nsapi_error_t gethostbyname(const char *host,
                                         SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC, const char *interface_name = NULL);

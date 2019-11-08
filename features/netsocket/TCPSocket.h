@@ -197,7 +197,10 @@ public:
      *  By default, accept blocks until incoming connection occurs. If socket is set to
      *  non-blocking or times out, error is set to NSAPI_ERROR_WOULD_BLOCK.
      *
-     *  @param error      pointer to storage of the error value or NULL
+     *  @param error      pointer to storage of the error value or NULL:
+     *                    NSAPI_ERROR_OK on success
+     *                    NSAPI_ERROR_WOULD_BLOCK if socket is set to non-blocking and would block
+     *                    NSAPI_ERROR_NO_SOCKET if the socket was not open
      *  @return           pointer to a socket
      */
     virtual TCPSocket *accept(nsapi_error_t *error = NULL);

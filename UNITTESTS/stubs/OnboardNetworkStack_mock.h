@@ -47,6 +47,8 @@ public:
     MOCK_METHOD5(getsockopt, nsapi_error_t(nsapi_socket_t handle, int level, int optname, const void *optval, unsigned *optlen));
     MOCK_METHOD3(socket_attach, void(nsapi_socket_t handle, void (*callback)(void *), void *data));
     MOCK_METHOD3(add_ethernet_interface, nsapi_error_t(EMAC &emac, bool default_if, OnboardNetworkStack::Interface **interface_out));
+    MOCK_METHOD3(add_ppp_interface, nsapi_error_t(PPP &ppp, bool default_if, OnboardNetworkStack::Interface **interface_out));
+    MOCK_METHOD1(set_default_interface, void (OnboardNetworkStack::Interface *interface));
 
     static OnboardNetworkStackMock &get_instance()
     {
@@ -70,11 +72,15 @@ public:
         MOCK_METHOD0(bringdown, nsapi_error_t());
         MOCK_METHOD1(attach, void(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb));
         MOCK_CONST_METHOD0(get_connection_status, nsapi_connection_status_t());
+        MOCK_METHOD1(get_interface_name, char *(char *buf));
         MOCK_METHOD2(get_mac_address, char *(char *buf, nsapi_size_t buflen));
         MOCK_METHOD2(get_ip_address, char *(char *buf, nsapi_size_t buflen));
+        MOCK_METHOD1(get_ip_address, nsapi_error_t (SocketAddress *address));
         MOCK_METHOD1(get_ipv6_link_local_address, nsapi_error_t(SocketAddress *address));
         MOCK_METHOD2(get_netmask, char *(char *buf, nsapi_size_t buflen));
+        MOCK_METHOD1(get_netmask, nsapi_error_t (SocketAddress *address));
         MOCK_METHOD2(get_gateway, char *(char *buf, nsapi_size_t buflen));
+        MOCK_METHOD1(get_gateway, nsapi_error_t (SocketAddress *address));
     };
 };
 
