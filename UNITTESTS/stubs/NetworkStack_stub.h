@@ -21,6 +21,13 @@
 #include "netsocket/NetworkStack.h"
 #include <list>
 
+/*
+ * Note: If you want to:
+ * - control and/or set expectations for the data returned/sent from/to the stack
+ * - set expectations on the calls to NetworkStack
+ * See OnboardNetworkStack_mock.h and its OnboardNetworkStackMock class.
+ */
+
 class NetworkStackstub : public NetworkStack {
 public:
     std::list<nsapi_error_t> return_values;
