@@ -29,10 +29,13 @@ void wifi_connect_secure(void)
 {
     WiFiInterface *wifi = get_interface();
 
-    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->set_credentials(MBED_CONF_APP_WIFI_SECURE_SSID, MBED_CONF_APP_WIFI_PASSWORD, get_security()));
-
+    // Driver shall cache the credentials
+    char ssid[] = MBED_CONF_APP_WIFI_SECURE_SSID;
+    char password[] = MBED_CONF_APP_WIFI_PASSWORD;
+    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->set_credentials(ssid, password, get_security()));
+    ssid[0] = '\0';
+    password[0] = '\0';
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->connect());
-
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->disconnect());
 }
 
