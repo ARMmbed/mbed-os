@@ -43,7 +43,7 @@ from tools.utils import argparse_dir_not_parent
 from tools.utils import print_end_warnings
 from tools.settings import ROOT
 from tools.targets import Target
-from tools.psa import generate_psa_sources, clean_psa_autogen
+from tools.psa import generate_psa_sources
 from tools.resources import OsAndSpeResourceFilter, SpeOnlyResourceFilter
 
 def main():
@@ -220,10 +220,6 @@ def main():
             print_tests(tests, options.format)
             sys.exit(0)
         else:
-
-            if options.clean:
-                clean_psa_autogen()
-
             # Build all tests
             if not options.build_dir:
                 args_error(parser, "argument --build is required")
