@@ -184,12 +184,12 @@ int _calculate_blocksize_match_tdbstore(BlockDevice *bd)
     bd_size_t number_of_sector = size / erase_size;
     bd_size_t number_of_page = size / page_size;
     if (number_of_sector < TDBStore::STORE_SECTORS) {
-        tr_warning("KV Config: There are less than %d sectors - TDBStore will not work.", TDBStore::STORE_SECTORS);
+        tr_error("KV Config: There are less than %d sectors - TDBStore will not work.", TDBStore::STORE_SECTORS);
         return -1;
     }
 
     if (number_of_page < TDBStore::STORE_PAGES) {
-        tr_warning("KV Config: There are less than %d pages - TDBStore will not work.", TDBStore::STORE_PAGES);
+        tr_error("KV Config: There are less than %d pages - TDBStore will not work.", TDBStore::STORE_PAGES);
         return -1;
     }
 
