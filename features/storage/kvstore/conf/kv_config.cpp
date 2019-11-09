@@ -276,7 +276,7 @@ FileSystem *_get_filesystem_default(const char *mount)
 #endif
 }
 
-BlockDevice *_get_blockdevice_FLASHIAP(bd_addr_t &start_address, bd_size_t &size)
+BlockDevice *_get_blockdevice_FLASHIAP(bd_addr_t start_address, bd_size_t size)
 {
 #if COMPONENT_FLASHIAP
     int ret = TDBStore::get_flash_bounds_from_config(&start_address, &size);
@@ -292,7 +292,7 @@ BlockDevice *_get_blockdevice_FLASHIAP(bd_addr_t &start_address, bd_size_t &size
 #endif
 }
 
-BlockDevice *_get_blockdevice_SPIF(bd_addr_t &start_address, bd_size_t &size)
+BlockDevice *_get_blockdevice_SPIF(bd_addr_t start_address, bd_size_t size)
 {
 #if COMPONENT_SPIF
 
@@ -333,7 +333,7 @@ BlockDevice *_get_blockdevice_SPIF(bd_addr_t &start_address, bd_size_t &size)
 #endif
 }
 
-BlockDevice *_get_blockdevice_QSPIF(bd_addr_t &start_address, bd_size_t &size)
+BlockDevice *_get_blockdevice_QSPIF(bd_addr_t start_address, bd_size_t size)
 {
 #if COMPONENT_QSPIF
 
@@ -377,7 +377,7 @@ BlockDevice *_get_blockdevice_QSPIF(bd_addr_t &start_address, bd_size_t &size)
 #endif
 }
 
-BlockDevice *_get_blockdevice_DATAFLASH(bd_addr_t &start_address, bd_size_t &size)
+BlockDevice *_get_blockdevice_DATAFLASH(bd_addr_t start_address, bd_size_t size)
 {
 #if COMPONENT_DATAFLASH
 
@@ -418,7 +418,7 @@ BlockDevice *_get_blockdevice_DATAFLASH(bd_addr_t &start_address, bd_size_t &siz
 #endif
 }
 
-BlockDevice *_get_blockdevice_SD(bd_addr_t &start_address, bd_size_t &size)
+BlockDevice *_get_blockdevice_SD(bd_addr_t start_address, bd_size_t size)
 {
 #if COMPONENT_SD
 
@@ -487,7 +487,7 @@ BlockDevice *_get_blockdevice_SD(bd_addr_t &start_address, bd_size_t &size)
 #endif
 }
 
-BlockDevice *_get_blockdevice_default(bd_addr_t &start_address, bd_size_t &size)
+BlockDevice *_get_blockdevice_default(bd_addr_t start_address, bd_size_t size)
 {
 #if COMPONENT_QSPIF
     return _get_blockdevice_QSPIF(start_address, size);
@@ -505,7 +505,7 @@ BlockDevice *_get_blockdevice_default(bd_addr_t &start_address, bd_size_t &size)
 
 /* Same logic as _get_blockdevice_SD() except block device replaced with from
  * get_other_blockdevice() */
-BlockDevice *_get_blockdevice_other(bd_addr_t &start_address, bd_size_t &size)
+BlockDevice *_get_blockdevice_other(bd_addr_t start_address, bd_size_t size)
 {
     bd_addr_t aligned_end_address;
     bd_addr_t aligned_start_address;
@@ -565,21 +565,21 @@ MBED_WEAK BlockDevice *get_other_blockdevice()
     return NULL;
 }
 
-int _create_internal_tdb(BlockDevice **internal_bd, KVStore **internal_tdb, bd_size_t *size, bd_addr_t *start_address)
+int _create_internal_tdb(BlockDevice **internal_bd, KVStore **internal_tdb, bd_size_t size, bd_addr_t start_address)
 {
     int ret;
 
     //Get the default address and size for the TDBStore
-    if (*size == 0 && *start_address == 0) {
+    if (size == 0 && start_address == 0) {
         //Calculate the block device size and start address in case default values are used.
-        ret = TDBStore::get_default_flash_addresses(start_address, size);
+        ret = TDBStore::get_default_flash_addresses(&start_address, &size);
         if (ret != MBED_SUCCESS) {
             return MBED_ERROR_FAILED_OPERATION;
         }
     }
 
     //Create internal FLASHIAP block device
-    *internal_bd = GET_BLOCKDEVICE(INTERNAL_BLOCKDEVICE_NAME, *start_address, *size);
+    *internal_bd = GET_BLOCKDEVICE(INTERNAL_BLOCKDEVICE_NAME, start_address, size);
     if (*internal_bd == NULL) {
         tr_error("KV Config: Fail to get internal BlockDevice.");
         return MBED_ERROR_FAILED_OPERATION ;
@@ -624,7 +624,7 @@ int _storage_config_TDB_INTERNAL()
     bd_size_t internal_size = MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE;
     bd_addr_t internal_start_address = MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS;
 
-    int ret = _create_internal_tdb(&kvstore_config.internal_bd, &kvstore_config.internal_store, &internal_size, &internal_start_address);
+    int ret = _create_internal_tdb(&kvstore_config.internal_bd, &kvstore_config.internal_store, internal_size, internal_start_address);
     if (MBED_SUCCESS != ret) {
         tr_error("KV Config: Fail to create internal TDBStore");
         return ret;
@@ -669,7 +669,7 @@ int _storage_config_TDB_EXTERNAL()
     bd_size_t internal_rbp_size = MBED_CONF_STORAGE_TDB_EXTERNAL_RBP_INTERNAL_SIZE;
     bd_addr_t internal_start_address = MBED_CONF_STORAGE_TDB_EXTERNAL_INTERNAL_BASE_ADDRESS;
 
-    int ret = _create_internal_tdb(&kvstore_config.internal_bd, &kvstore_config.internal_store, &internal_rbp_size, &internal_start_address);
+    int ret = _create_internal_tdb(&kvstore_config.internal_bd, &kvstore_config.internal_store, internal_rbp_size, internal_start_address);
     if (MBED_SUCCESS != ret) {
         tr_error("KV Config: Fail to create internal TDBStore");
         return ret;
@@ -813,7 +813,7 @@ int _storage_config_FILESYSTEM()
     bd_size_t internal_rbp_size = MBED_CONF_STORAGE_FILESYSTEM_RBP_INTERNAL_SIZE;
     bd_addr_t internal_start_address = MBED_CONF_STORAGE_FILESYSTEM_INTERNAL_BASE_ADDRESS;
 
-    int ret = _create_internal_tdb(&kvstore_config.internal_bd, &kvstore_config.internal_store, &internal_rbp_size, &internal_start_address);
+    int ret = _create_internal_tdb(&kvstore_config.internal_bd, &kvstore_config.internal_store, internal_rbp_size, internal_start_address);
     if (MBED_SUCCESS != ret) {
         tr_error("KV Config: Fail to create internal TDBStore");
         return ret;
