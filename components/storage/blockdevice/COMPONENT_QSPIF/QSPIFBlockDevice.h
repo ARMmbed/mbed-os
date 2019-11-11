@@ -358,6 +358,8 @@ private:
     mbed::qspi_inst_t _write_status_reg_2_inst;
     mbed::qspi_inst_t _read_status_reg_2_inst; // If three registers, this instruction reads the latter two
 
+    // Attempt to enable 4-byte addressing. True by default, but may be disabled for some vendors
+    bool _attempt_4_byte_addressing;
     // 4-byte addressing extension register write instruction
     mbed::qspi_inst_t _4byte_msb_reg_write_inst;
 

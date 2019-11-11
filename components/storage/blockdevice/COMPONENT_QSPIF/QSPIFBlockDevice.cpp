@@ -187,6 +187,7 @@ QSPIFBlockDevice::QSPIFBlockDevice(PinName io0, PinName io1, PinName io2, PinNam
     _clear_protection_method = QSPIF_BP_CLEAR_SR;
 
     // Set default 4-byte addressing extension register write instruction
+    _attempt_4_byte_addressing = true;
     _4byte_msb_reg_write_inst = QSPIF_INST_4BYTE_REG_WRITE_DEFAULT;
 }
 
@@ -750,10 +751,15 @@ int QSPIFBlockDevice::_sfdp_parse_basic_param_table(uint32_t basic_table_addr, s
         }
     }
 
-    if (_sfdp_detect_and_enable_4byte_addressing(param_table, basic_table_size) != QSPIF_BD_ERROR_OK) {
-        tr_error("Init - Detecting/enabling 4-byte addressing failed");
-        return -1;
+#ifndef TARGET_NORDIC
+    // 4 byte addressing is not currently supported with the Nordic QSPI controller
+    if (_attempt_4_byte_addressing) {
+        if (_sfdp_detect_and_enable_4byte_addressing(param_table, basic_table_size) != QSPIF_BD_ERROR_OK) {
+            tr_error("Init - Detecting/enabling 4-byte addressing failed");
+            return -1;
+        }
     }
+#endif
 
     if (false == _is_mem_ready()) {
         tr_error("Init - _is_mem_ready Failed");
@@ -1242,13 +1248,15 @@ int QSPIFBlockDevice::_handle_vendor_quirks()
             _clear_protection_method = QSPIF_BP_ULBPR;
             break;
         case 0xc2:
-            // Macronix devices have two quirks:
+            // Macronix devices have several quirks:
             // 1. Have one status register and 2 config registers, with a nonstandard instruction for reading the config registers
             // 2. Require setting a "fast mode" bit in config register 2 to operate at higher clock rates
+            // 3. Should never attempt to enable 4-byte addressing (it causes reads and writes to fail)
             tr_debug("Applying quirks for macronix");
             _needs_fast_mode = true;
             _num_status_registers = 3;
             _read_status_reg_2_inst = QSPIF_INST_RDCR;
+            _attempt_4_byte_addressing = false;
             break;
     }
 
