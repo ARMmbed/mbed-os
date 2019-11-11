@@ -98,6 +98,7 @@ emac_mem_buf_t *SMSC9220_EMAC::low_level_input()
                                   _memory_manager->get_len(p));
         if(received_bytes == 0){
             _memory_manager->free(p);
+            p = nullptr;
         } else {
             _memory_manager->set_len(p, received_bytes);
         }
@@ -178,11 +179,7 @@ bool SMSC9220_EMAC::link_out(emac_mem_buf_t *buf)
                                       _memory_manager->get_len(buf));
         _memory_manager->free(buf);
         _TXLockMutex.unlock();
-        if (error == SMSC9220_ERROR_NONE) {
-            return true;
-        } else {
-            return false;
-        }
+        return (error == SMSC9220_ERROR_NONE)
     }
 }
 
