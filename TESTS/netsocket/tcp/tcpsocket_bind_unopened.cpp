@@ -42,4 +42,4 @@ void TCPSOCKET_BIND_UNOPENED()
 
     delete sock;
 }
-#endif
+#endif // defined(MBED_CONF_RTOS_PRESENT)

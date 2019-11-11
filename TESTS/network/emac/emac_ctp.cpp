@@ -149,5 +149,5 @@ void emac_if_ctp_msg_build(int eth_frame_len, const unsigned char *dest_addr, co
     emac_if_get()->link_out(buf);
     emac_if_check_memory(false);
 }
-#endif //#if defined(MBED_CONF_RTOS_PRESENT)
+#endif // defined(MBED_CONF_RTOS_PRESENT)
 

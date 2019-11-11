@@ -52,4 +52,4 @@ void TCPSOCKET_BIND_WRONG_TYPE()
 
     delete sock;
 }
-#endif
+#endif // defined(MBED_CONF_RTOS_PRESENT)

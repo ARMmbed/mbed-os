@@ -17,7 +17,6 @@
 
 #ifndef TLS_TESTS_H
 #define TLS_TESTS_H
-#if defined(MBED_CONF_RTOS_PRESENT)
 
 #include "../test_params.h"
 #include "TLSSocket.h"
@@ -84,5 +83,5 @@ void TLSSOCKET_SIMULTANEOUS();
 void TLSSOCKET_SEND_TIMEOUT();
 
 #endif // defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
-#endif // !defined(MBED_CONF_RTOS_PRESENT)
+
 #endif //TLS_TESTS_H

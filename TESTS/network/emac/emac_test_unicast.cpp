@@ -77,4 +77,4 @@ void test_emac_unicast()
     RESET_OUTGOING_MSG_DATA;
 }
 
-#endif //#if defined(MBED_CONF_RTOS_PRESENT)
+#endif // defined(MBED_CONF_RTOS_PRESENT)

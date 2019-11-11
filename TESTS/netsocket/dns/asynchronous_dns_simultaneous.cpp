@@ -43,4 +43,4 @@ void ASYNCHRONOUS_DNS_SIMULTANEOUS()
     TEST_ASSERT_EQUAL(0, result_dns_failure);
     TEST_ASSERT_EQUAL(0, result_exp_timeout);
 }
-#endif
+#endif // defined(MBED_CONF_RTOS_PRESENT)

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] EMAC test cases requires RTOS to run
+#error [NOT_SUPPORTED] EMAC test cases require a RTOS to run
 #else
 
 #if !defined(MBED_CONF_APP_ECHO_SERVER)       || \

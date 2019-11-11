@@ -202,4 +202,4 @@ END:
     tc_exec_time.stop();
     free(stack_mem);
 }
-#endif
+#endif // defined(MBED_CONF_RTOS_PRESENT)

@@ -44,4 +44,4 @@ void TCPSOCKET_SEND_REPEAT()
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
-#endif
+#endif // defined(MBED_CONF_RTOS_PRESENT)

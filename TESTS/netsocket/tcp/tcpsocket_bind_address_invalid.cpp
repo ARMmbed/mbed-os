@@ -51,4 +51,4 @@ void TCPSOCKET_BIND_ADDRESS_INVALID()
 
     delete sock;
 }
-#endif
+#endif // defined(MBED_CONF_RTOS_PRESENT)

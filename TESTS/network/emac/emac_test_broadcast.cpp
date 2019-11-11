@@ -100,4 +100,4 @@ void test_emac_broadcast(void)
     RESET_OUTGOING_MSG_DATA;
 }
 
-#endif //#if defined(MBED_CONF_RTOS_PRESENT)
+#endif // defined(MBED_CONF_RTOS_PRESENT)

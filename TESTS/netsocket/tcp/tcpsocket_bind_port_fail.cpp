@@ -53,4 +53,4 @@ void TCPSOCKET_BIND_PORT_FAIL()
     delete sock;
     delete sock2;
 }
-#endif
+#endif // defined(MBED_CONF_RTOS_PRESENT)

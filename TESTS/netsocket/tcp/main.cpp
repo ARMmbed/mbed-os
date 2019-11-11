@@ -16,7 +16,7 @@
  */
 
 #if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] tcp test cases requires RTOS to run
+#error [NOT_SUPPORTED] tcp test cases require a RTOS to run
 #else
 
 #define WIFI 2

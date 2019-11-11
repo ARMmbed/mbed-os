@@ -80,4 +80,4 @@ void test_emac_unicast_frame_len()
     TEST_ASSERT_FALSE(ERROR_FLAGS);
     RESET_OUTGOING_MSG_DATA;
 }
-#endif //#if defined(MBED_CONF_RTOS_PRESENT)
+#endif // defined(MBED_CONF_RTOS_PRESENT)

@@ -554,4 +554,4 @@ EmacTestMemoryManager &EmacTestMemoryManager::get_instance()
     return test_memory_manager;
 }
 
-#endif //#if defined(MBED_CONF_RTOS_PRESENT)
+#endif // defined(MBED_CONF_RTOS_PRESENT)

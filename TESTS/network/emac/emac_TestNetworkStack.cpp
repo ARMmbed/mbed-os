@@ -203,5 +203,5 @@ OnboardNetworkStack &OnboardNetworkStack::get_default_instance()
 {
     return EmacTestNetworkStack::get_instance();
 }
-#endif //#if defined(MBED_CONF_RTOS_PRESENT)
+#endif // defined(MBED_CONF_RTOS_PRESENT)
 #endif

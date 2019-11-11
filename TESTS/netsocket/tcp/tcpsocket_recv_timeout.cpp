@@ -89,4 +89,4 @@ CLEANUP:
     tc_exec_time.stop();
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
-#endif
+#endif // defined(MBED_CONF_RTOS_PRESENT)

@@ -118,4 +118,4 @@ bool emac_if_init(EMAC *emac)
 
     return true;
 }
-#endif //#if defined(MBED_CONF_RTOS_PRESENT)
+#endif // defined(MBED_CONF_RTOS_PRESENT)

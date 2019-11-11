@@ -87,4 +87,4 @@ void ASYNCHRONOUS_DNS_CANCEL()
 
     ThisThread::sleep_for(5000);
 }
-#endif // #if defined(MBED_CONF_RTOS_PRESENT)
+#endif // defined(MBED_CONF_RTOS_PRESENT)

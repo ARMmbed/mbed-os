@@ -97,4 +97,4 @@ void TCPSOCKET_OPEN_LIMIT()
     TEST_ASSERT_EQUAL(open_sockets[0], open_sockets[1]);
     TEST_ASSERT(open_sockets[0] >= 4);
 }
-#endif
+#endif // defined(MBED_CONF_RTOS_PRESENT)

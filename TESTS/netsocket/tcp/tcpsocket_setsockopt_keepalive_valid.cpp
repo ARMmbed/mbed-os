@@ -50,4 +50,4 @@ void TCPSOCKET_SETSOCKOPT_KEEPALIVE_VALID()
     //    TEST_ASSERT_EQUAL(optval, seconds);
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
-#endif
+#endif // defined(MBED_CONF_RTOS_PRESENT)

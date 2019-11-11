@@ -17,8 +17,8 @@
 
 #ifndef EMAC_MEMBUF_H
 #define EMAC_MEMBUF_H
-#if defined(MBED_CONF_RTOS_PRESENT)
+
 int emac_if_memory_buffer_read(void *buf, unsigned char *eth_frame);
 void emac_if_memory_buffer_write(void *buf, unsigned char *eth_frame, bool write_data);
-#endif /* #if defined(MBED_CONF_RTOS_PRESENT) */
+
 #endif /* EMAC_MEMBUF_H */

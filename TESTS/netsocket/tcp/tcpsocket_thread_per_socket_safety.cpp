@@ -168,4 +168,4 @@ void TCPSOCKET_THREAD_PER_SOCKET_SAFETY()
     running = false;
     thread.join();
 }
-#endif
+#endif // defined(MBED_CONF_RTOS_PRESENT)

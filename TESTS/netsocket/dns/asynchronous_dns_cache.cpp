@@ -67,4 +67,4 @@ void ASYNCHRONOUS_DNS_CACHE()
                dns_test_hosts[0], data.addr.get_ip_address(), delay_ms);
     }
 }
-#endif
+#endif // defined(MBED_CONF_RTOS_PRESENT)

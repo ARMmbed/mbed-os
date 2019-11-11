@@ -113,7 +113,7 @@ MBED_WEAK L3IP &L3IP::get_default_instance()
 {
     return Cellular_driver_L3IP::get_instance();
 }
-#endif
+#endif // defined(MBED_CONF_RTOS_PRESENT)
 /**
  * @}
  */

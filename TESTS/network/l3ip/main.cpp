@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] l3ip test cases requires RTOS to run
+#error [NOT_SUPPORTED] l3ip test cases require a RTOS to run
 #else
 
 #include "mbed.h"

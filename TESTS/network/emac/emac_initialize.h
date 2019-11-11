@@ -17,11 +17,10 @@
 
 #ifndef EMAC_INITIALIZE_H
 #define EMAC_INITIALIZE_H
-#if defined(MBED_CONF_RTOS_PRESENT)
 
 unsigned char *emac_if_get_hw_addr(void);
 bool emac_if_init(EMAC *emac);
 EMAC *emac_if_get(void);
 EmacTestMemoryManager *emac_m_mngr_get(void);
-#endif /* #if defined(MBED_CONF_RTOS_PRESENT) */
+
 #endif /* EMAC_INITIALIZE_H */

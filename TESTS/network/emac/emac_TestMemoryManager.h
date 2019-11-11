@@ -17,7 +17,6 @@
 
 #ifndef EMAC_TEST_MEMORY_MANAGER_H
 #define EMAC_TEST_MEMORY_MANAGER_H
-#if defined(MBED_CONF_RTOS_PRESENT)
 
 #include <list>
 
@@ -226,5 +225,5 @@ private:
     unsigned int m_alloc_unit;
     bool m_memory_available;
 };
-#endif /* #if defined(MBED_CONF_RTOS_PRESENT) */
+
 #endif /* EMAC_TEST_MEMORY_MANAGER_H */

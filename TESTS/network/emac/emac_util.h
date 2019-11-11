@@ -17,7 +17,6 @@
 
 #ifndef EMAC_UTIL_H
 #define EMAC_UTIL_H
-#if defined(MBED_CONF_RTOS_PRESENT)
 
 #define SECOND_TO_US            1000000
 #define SECOND_TO_MS            1000
@@ -125,5 +124,5 @@ void worker_loop_init(void);
 void worker_loop_start(void (*test_step_cb_fnc)(int opt), int timeout);
 void worker_loop_end(void);
 void worker_loop_link_up_wait(void);
-#endif /* #if defined(MBED_CONF_RTOS_PRESENT) */
+
 #endif /* EMAC_UTIL_H */

@@ -37,4 +37,4 @@ void TCPSOCKET_OPEN_DESTRUCT()
         delete sock;
     }
 }
-#endif
+#endif // defined(MBED_CONF_RTOS_PRESENT)
