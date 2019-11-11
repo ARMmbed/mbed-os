@@ -244,7 +244,7 @@ void nd_tasklet_configure_and_connect_to_network(void)
         tr_debug("Using PSK security mode.");
         tasklet_data_ptr->sec_mode = NET_SEC_MODE_PSK_LINK_SECURITY;
         tasklet_data_ptr->psk_sec_info.key_id = MBED_CONF_MBED_MESH_API_6LOWPAN_ND_PSK_KEY_ID;
-        memcpy(tasklet_data_ptr->psk_sec_info.security_key, (const uint8_t[16])MBED_CONF_MBED_MESH_API_6LOWPAN_ND_PSK_KEY, 16);
+        memcpy(tasklet_data_ptr->psk_sec_info.security_key, ((const uint8_t[16]) MBED_CONF_MBED_MESH_API_6LOWPAN_ND_PSK_KEY), 16);
     } else {
         tr_debug("Link-layer security NOT enabled.");
         tasklet_data_ptr->sec_mode = NET_SEC_MODE_NO_LINK_SECURITY;
