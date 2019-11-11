@@ -179,7 +179,7 @@ bool SMSC9220_EMAC::link_out(emac_mem_buf_t *buf)
                                       _memory_manager->get_len(buf));
         _memory_manager->free(buf);
         _TXLockMutex.unlock();
-        return (error == SMSC9220_ERROR_NONE)
+        return (error == SMSC9220_ERROR_NONE);
     }
 }
 
