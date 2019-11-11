@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Arm Limited
+ * Copyright (c) 2019 Arm Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,11 +29,12 @@
  */
 #define SMSC9220_ETH_MTU_SIZE                1500U
 #define SMSC9220_ETH_IF_NAME                 "smsc9220"
+#define SMSC9220_ETH_MAX_FRAME_SIZE          1522U
 
 /** \brief Defines for receiver thread */
 #define FLAG_RX                              1U
 #define LINK_STATUS_THREAD_PRIORITY          (osPriorityNormal)
-#define LINK_STATUS_THREAD_STACKSIZE         2048U
+#define LINK_STATUS_THREAD_STACKSIZE         512U
 #define LINK_STATUS_TASK_PERIOD_MS           200U
 #define PHY_STATE_LINK_DOWN                  false
 #define PHY_STATE_LINK_UP                    true
