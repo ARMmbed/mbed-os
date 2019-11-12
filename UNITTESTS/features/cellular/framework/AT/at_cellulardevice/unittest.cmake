@@ -34,7 +34,7 @@ set(unittest-test-sources
   stubs/NetworkInterfaceDefaults_stub.cpp
   stubs/EventQueue_stub.cpp
   stubs/FileHandle_stub.cpp
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
   stubs/CellularDevice_stub.cpp
   stubs/NetworkStack_stub.cpp
   stubs/AT_CellularContext_stub.cpp

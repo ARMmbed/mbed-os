@@ -21,7 +21,7 @@ set(unittest-sources
 # Test files
 set(unittest-test-sources
   features/cellular/framework/AT/at_cellularbase/at_cellularbasetest.cpp
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
   stubs/ATHandler_stub.cpp
   stubs/EventQueue_stub.cpp
   stubs/FileHandle_stub.cpp

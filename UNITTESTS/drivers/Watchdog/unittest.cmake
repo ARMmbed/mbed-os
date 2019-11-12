@@ -19,7 +19,7 @@ set(unittest-sources
 set(unittest-test-sources
   drivers/Watchdog/test_watchdog.cpp  
   stubs/mbed_critical_stub.c  
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
   stubs/watchdog_api_stub.c
 )
 

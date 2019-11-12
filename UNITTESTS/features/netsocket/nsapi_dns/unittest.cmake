@@ -21,7 +21,7 @@ set(unittest-sources
 set(unittest-test-sources
   stubs/Mutex_stub.cpp
   ../features/netsocket/SocketAddress.cpp
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
   stubs/NetworkStack_stub.cpp
   stubs/NetworkInterfaceDefaults_stub.cpp
   stubs/mbed_atomic_stub.c
