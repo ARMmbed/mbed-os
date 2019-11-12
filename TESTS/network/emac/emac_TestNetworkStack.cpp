@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if defined(MBED_CONF_RTOS_PRESENT)
 
 #include "unity.h"
 
@@ -202,4 +203,5 @@ OnboardNetworkStack &OnboardNetworkStack::get_default_instance()
 {
     return EmacTestNetworkStack::get_instance();
 }
+#endif // defined(MBED_CONF_RTOS_PRESENT)
 #endif
