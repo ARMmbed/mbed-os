@@ -25,7 +25,7 @@ set(unittest-test-sources
   stubs/FileHandle_stub.cpp
   stubs/CellularUtil_stub.cpp
   stubs/us_ticker_stub.cpp
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
   stubs/ThisThread_stub.cpp
   stubs/mbed_wait_api_stub.cpp
   stubs/ConditionVariable_stub.cpp

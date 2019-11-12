@@ -30,7 +30,7 @@ set(unittest-test-sources
   stubs/equeue_stub.c
   stubs/EventQueue_stub.cpp
   stubs/FileHandle_stub.cpp
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
   stubs/NetworkInterface_stub.cpp
   stubs/NetworkInterfaceDefaults_stub.cpp
   stubs/NetworkStack_stub.cpp

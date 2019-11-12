@@ -33,7 +33,7 @@ set(unittest-includes ${unittest-includes}
 set(unittest-test-sources
   features/lorawan/loraphyeu868/Test_LoRaPHYEU868.cpp
   stubs/LoRaPHY_stub.cpp
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
 
 )
 
