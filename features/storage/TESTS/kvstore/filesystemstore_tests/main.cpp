@@ -15,6 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] Kvstore API test cases require a RTOS to run
+#else
 
 #include "rtos/Thread.h"
 #include "mbed_trace.h"
@@ -522,3 +525,4 @@ int main()
 }
 
 #endif // !defined(TARGET_K64F) && !defined(TARGET_ARM_FM)
+#endif // !defined(MBED_CONF_RTOS_PRESENT)
