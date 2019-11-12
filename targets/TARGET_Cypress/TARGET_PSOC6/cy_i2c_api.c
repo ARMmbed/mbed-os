@@ -173,6 +173,12 @@ int i2c_byte_write(i2c_t *obj, int data)
     cy_en_scb_i2c_status_t status = i2c->hal_i2c.context.state == CY_SCB_I2C_IDLE
                                     ? Cy_SCB_I2C_MasterSendStart(i2c->hal_i2c.base, data >> 1, CY_SCB_I2C_WRITE_XFER, CY_I2C_DEFAULT_TIMEOUT, &(i2c->hal_i2c.context))
                                     : Cy_SCB_I2C_MasterWriteByte(i2c->hal_i2c.base, (uint8_t)data, CY_I2C_DEFAULT_TIMEOUT, &(i2c->hal_i2c.context));
+    
+    if (CY_SCB_I2C_SUCCESS == status)
+    {
+    		Cy_SCB_I2C_MasterSendReStart(i2c->hal_i2c.base, data >> 1, CY_SCB_I2C_READ_XFER, CY_I2C_DEFAULT_TIMEOUT, &(i2c->hal_i2c.context));
+    }
+    
     switch (status) {
         case CY_SCB_I2C_MASTER_MANUAL_TIMEOUT:
             return 2;
