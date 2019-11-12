@@ -14,13 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if defined(MBED_RTOS_SINGLE_THREAD) || !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] RTOS basic test cases require RTOS with multithread to run
+#else
+
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 
-#if defined(SKIP_TIME_DRIFT_TESTS) || defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER
-#error [NOT_SUPPORTED] test not supported
+#if defined(SKIP_TIME_DRIFT_TESTS) || !DEVICE_USTICKER
+#error [NOT_SUPPORTED] UsTicker need to be enabled for this test.
 #else
 
 using utest::v1::Case;
@@ -116,4 +120,5 @@ int main()
     utest::v1::Harness::run(specification);
 }
 
-#endif // defined(SKIP_TIME_DRIFT_TESTS) || defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER
+#endif // defined(SKIP_TIME_DRIFT_TESTS) || !DEVICE_USTICKER
+#endif // defined(MBED_RTOS_SINGLE_THREAD) || !defined(MBED_CONF_RTOS_PRESENT)

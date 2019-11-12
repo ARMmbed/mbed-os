@@ -20,19 +20,7 @@
 #include "platform/mbed_stats.h"
 #include <stdint.h>
 
-#define THREAD_BUF_COUNT    16
-
-typedef struct {
-    uint32_t entry;
-    uint32_t stack_size;
-    uint32_t max_stack;
-} thread_info_t;
-
-#if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED
-
-#if !defined(MBED_CONF_RTOS_PRESENT) || !(MBED_CONF_RTOS_PRESENT)
-#error "RTOS required for Stack stats"
-#endif
+#if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED && defined(MBED_CONF_RTOS_PRESENT)
 
 #include "rtos/Mutex.h"
 #include "rtos/Thread.h"
@@ -43,6 +31,14 @@ typedef struct {
 #include "platform/CircularBuffer.h"
 using namespace mbed;
 using namespace rtos;
+
+#define THREAD_BUF_COUNT    16
+
+typedef struct {
+    uint32_t entry;
+    uint32_t stack_size;
+    uint32_t max_stack;
+} thread_info_t;
 
 // Mutex to protect "buf"
 static SingletonPtr<Mutex> mutex;
@@ -57,7 +53,7 @@ static void send_CPU_info(void);
 #if defined(MBED_HEAP_STATS_ENABLED ) && MBED_HEAP_STATS_ENABLED
 static void send_heap_info(void);
 #endif
-#if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED
+#if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED && defined(MBED_CONF_RTOS_PRESENT)
 static void send_stack_info(void);
 static void on_thread_terminate(osThreadId_t id);
 static void enqeue_thread_info(osThreadId_t id);
@@ -70,7 +66,7 @@ static uint32_t print_dec(char *buf, uint32_t value);
 
 void greentea_metrics_setup()
 {
-#if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED
+#if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED && defined(MBED_CONF_RTOS_PRESENT)
     Kernel::attach_thread_terminate_hook(on_thread_terminate);
 #endif
 }
@@ -80,7 +76,7 @@ void greentea_metrics_report()
 #if defined(MBED_HEAP_STATS_ENABLED ) && MBED_HEAP_STATS_ENABLED
     send_heap_info();
 #endif
-#if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED
+#if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED && defined(MBED_CONF_RTOS_PRESENT)
     send_stack_info();
     Kernel::attach_thread_terminate_hook(NULL);
 #endif
@@ -112,7 +108,7 @@ static void send_heap_info()
 }
 #endif
 
-#if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED
+#if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED && defined(MBED_CONF_RTOS_PRESENT)
 MBED_UNUSED static void send_stack_info()
 {
     mutex->lock();
