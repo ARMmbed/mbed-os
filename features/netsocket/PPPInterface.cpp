@@ -80,7 +80,7 @@ nsapi_error_t PPPInterface::disconnect()
     if (_interface) {
         return _interface->bringdown();
     }
-    return NSAPI_ERROR_OK;
+    return NSAPI_ERROR_NO_CONNECTION;
 }
 
 const char *PPPInterface::get_ip_address()
