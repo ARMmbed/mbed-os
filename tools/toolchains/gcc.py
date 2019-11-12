@@ -149,7 +149,8 @@ class GCC(mbedToolchain):
         self.cppc += self.flags['cxx'] + self.flags['common']
 
         self.flags['ld'] += self.cpu
-        self.ld = [join(tool_path, "arm-none-eabi-gcc")] + self.flags['ld']
+        self.ld = [join(tool_path, "arm-none-eabi-gcc")]
+        self.ld += self.flags['ld'] + self.flags['common']
         self.sys_libs = ["stdc++", "supc++", "m", "c", "gcc", "nosys"]
         self.preproc = [join(tool_path, "arm-none-eabi-cpp"), "-E", "-P"]
 
