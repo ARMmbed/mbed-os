@@ -379,11 +379,11 @@
         "release_versions": ["2"],
         "device_name": "LPC11U35FBD48/401"
     },
-    "LPC11U35_501": {
+    "MCU_LPC11U35_501": {
         "inherits": ["LPCTarget"],
         "core": "Cortex-M0",
         "default_toolchain": "uARM",
-        "extra_labels": ["NXP", "LPC11UXX", "MCU_LPC11U35_501"],
+        "extra_labels": ["NXP", "LPC11UXX"],
         "macros": [
             "CMSIS_VECTAB_VIRTUAL",
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
@@ -404,65 +404,24 @@
             "SPISLAVE"
         ],
         "default_lib": "small",
-        "release_versions": ["2"],
-        "device_name": "LPC11U35FHI33/501"
+        "device_name": "LPC11U35FHI33/501",
+        "public": false
+    },
+    "LPC11U35_501": {
+        "inherits": ["MCU_LPC11U35_501"],
+        "release_versions": ["2"]
     },
     "LPC11U35_501_IBDAP": {
-        "inherits": ["LPCTarget"],
-        "core": "Cortex-M0",
-        "default_toolchain": "uARM",
-        "extra_labels": ["NXP", "LPC11UXX", "MCU_LPC11U35_501"],
-        "macros": [
-            "CMSIS_VECTAB_VIRTUAL",
-            "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
-        ],
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
-        "device_has": [
-            "ANALOGIN",
-            "I2C",
-            "I2CSLAVE",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "SERIAL",
-            "SLEEP",
-            "SPI",
-            "SPISLAVE"
-        ],
-        "default_lib": "small",
-        "device_name": "LPC11U35FHI33/501"
+        "inherits": ["MCU_LPC11U35_501"],
+        "release_versions": ["2"]
     },
     "XADOW_M0": {
-        "inherits": ["LPC11U35_501"]
+        "inherits": ["MCU_LPC11U35_501"],
+        "release_versions": ["2"]
     },
     "LPC11U35_Y5_MBUG": {
-        "inherits": ["LPCTarget"],
-        "core": "Cortex-M0",
-        "default_toolchain": "uARM",
-        "extra_labels": ["NXP", "LPC11UXX", "MCU_LPC11U35_501"],
-        "macros": [
-            "CMSIS_VECTAB_VIRTUAL",
-            "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
-        ],
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
-        "device_has": [
-            "ANALOGIN",
-            "I2C",
-            "I2CSLAVE",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "SERIAL",
-            "SLEEP",
-            "SPI",
-            "SPISLAVE"
-        ],
-        "default_lib": "small",
-        "device_name": "LPC11U35FHI33/501"
+        "inherits": ["MCU_LPC11U35_501"],
+        "release_versions": ["2"]
     },
     "LPC11U37_501": {
         "inherits": ["LPCTarget"],
