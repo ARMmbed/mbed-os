@@ -147,12 +147,7 @@ bd_size_t SlicingBlockDevice::size() const
 
 const char *SlicingBlockDevice::get_type() const
 {
-    if (_bd != NULL) {
-        return _bd->get_type();
-    }
-
-    return NULL;
+    return _bd->get_type();
 }
 
 } // namespace mbed
-

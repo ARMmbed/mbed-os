@@ -148,6 +148,7 @@ TEST_F(SlicingBlockModuleTest, slice_at_the_end)
 TEST_F(SlicingBlockModuleTest, over_write)
 {
     uint8_t *program = new uint8_t[BLOCK_SIZE] {0xbb,0xbb,0xbb};
+    uint8_t *buf = new uint8_t[BLOCK_SIZE];
 
     //Screate sclicing device, with size of 2 blocks
     mbed::SlicingBlockDevice slice(&bd, BLOCK_SIZE, BLOCK_SIZE * 3);
@@ -155,7 +156,59 @@ TEST_F(SlicingBlockModuleTest, over_write)
 
     EXPECT_EQ(slice.program(program, 0, BLOCK_SIZE), BD_ERROR_OK);
     EXPECT_EQ(slice.program(program, BLOCK_SIZE, BLOCK_SIZE), BD_ERROR_OK);
+
+    // Verify written value
+    EXPECT_EQ(slice.read(buf, BLOCK_SIZE, BLOCK_SIZE), BD_ERROR_OK);
+    EXPECT_EQ(0, memcmp(buf, program, BLOCK_SIZE));
+
     //Program a test value to address that is one pass the device size
     EXPECT_EQ(slice.program(program, 2 * BLOCK_SIZE, BLOCK_SIZE), BD_ERROR_DEVICE_ERROR);
     delete[] program;
+}
+
+TEST_F(SlicingBlockModuleTest, over_read)
+{
+    uint8_t *buf = new uint8_t[BLOCK_SIZE];
+
+    //Screate sclicing device, with size of 2 blocks
+    mbed::SlicingBlockDevice slice(&bd, BLOCK_SIZE, BLOCK_SIZE * 3);
+    EXPECT_EQ(slice.init(), BD_ERROR_OK);
+
+    //Try to read a block after the slice
+    EXPECT_EQ(slice.read(buf, 2 * BLOCK_SIZE, BLOCK_SIZE), BD_ERROR_DEVICE_ERROR);
+    delete[] buf;
+}
+
+TEST_F(SlicingBlockModuleTest, get_type)
+{
+    mbed::SlicingBlockDevice slice(&bd, BLOCK_SIZE, BLOCK_SIZE * 3);
+    EXPECT_EQ(bd.get_type(), slice.get_type());
+}
+
+TEST_F(SlicingBlockModuleTest, get_erase_value)
+{
+    mbed::SlicingBlockDevice slice(&bd, BLOCK_SIZE, BLOCK_SIZE * 3);
+    EXPECT_EQ(bd.get_erase_value(), slice.get_erase_value());
+}
+
+TEST_F(SlicingBlockModuleTest, erase)
+{
+    mbed::SlicingBlockDevice slice(&bd, BLOCK_SIZE, BLOCK_SIZE * 3);
+    EXPECT_EQ(slice.erase(0, BLOCK_SIZE), BD_ERROR_OK);
+    // Erase one block after the slice
+    EXPECT_EQ(slice.erase(2*BLOCK_SIZE, BLOCK_SIZE), BD_ERROR_DEVICE_ERROR);
+}
+
+TEST_F(SlicingBlockModuleTest, sync)
+{
+    mbed::SlicingBlockDevice slice(&bd, BLOCK_SIZE, BLOCK_SIZE * 3);
+    // Just a pass through
+    EXPECT_EQ(slice.sync(), 0);
+}
+
+TEST_F(SlicingBlockModuleTest, too_big_to_init)
+{
+    mbed::SlicingBlockDevice slice(&bd, 0, DEVICE_SIZE + BLOCK_SIZE);
+    // Just a pass through
+    EXPECT_EQ(slice.init(), BD_ERROR_DEVICE_ERROR);
 }
