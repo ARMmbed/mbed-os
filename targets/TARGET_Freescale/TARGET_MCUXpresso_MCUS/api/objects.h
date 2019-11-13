@@ -105,6 +105,10 @@ struct qspi_s {
 
 #include "us_ticker_defines.h"
 
+#if DEVICE_CRC
+#define HAL_CRC_IS_SUPPORTED(polynomial, width) ((width) == 16 || (width) == 32)
+#endif
+
 #ifdef __cplusplus
 }
 #endif

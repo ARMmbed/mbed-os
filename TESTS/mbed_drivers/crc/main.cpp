@@ -25,32 +25,62 @@ using namespace utest::v1;
 
 void test_supported_polynomials()
 {
-    char  test[] = "123456789";
+    const char test[] = "123456789";
     uint32_t crc;
 
     {
         MbedCRC<POLY_7BIT_SD, 7> ct;
-        TEST_ASSERT_EQUAL(0, ct.compute((void *)test, strlen((const char *)test), &crc));
-        TEST_ASSERT_EQUAL(0xEA, crc);
+        TEST_ASSERT_EQUAL(0, ct.compute(test, strlen(test), &crc));
+        TEST_ASSERT_EQUAL(0x75, crc);
+    }
+    {
+        MbedCRC<POLY_7BIT_SD, 7> ct(0x7F, 0, false, false);
+        TEST_ASSERT_EQUAL(0, ct.compute(test, strlen(test), &crc));
+        TEST_ASSERT_EQUAL(0x50, crc);
+    }
+    {
+        MbedCRC<POLY_7BIT_SD, 7> ct(0x2B, 0, false, false);
+        TEST_ASSERT_EQUAL(0, ct.compute(test, strlen(test), &crc));
+        TEST_ASSERT_EQUAL(0x3A, crc);
+    }
+    {
+        MbedCRC<POLY_7BIT_SD, 7> ct(0, 0x7F, false, false);
+        TEST_ASSERT_EQUAL(0, ct.compute(test, strlen(test), &crc));
+        TEST_ASSERT_EQUAL(0x0A, crc);
+    }
+    {
+        MbedCRC<POLY_7BIT_SD, 7> ct(0, 0x2B, false, false);
+        TEST_ASSERT_EQUAL(0, ct.compute(test, strlen(test), &crc));
+        TEST_ASSERT_EQUAL(0x5E, crc);
+    }
+    {
+        MbedCRC<POLY_7BIT_SD, 7> ct(0, 0, true, false);
+        TEST_ASSERT_EQUAL(0, ct.compute(test, strlen(test), &crc));
+        TEST_ASSERT_EQUAL(0x52, crc);
+    }
+    {
+        MbedCRC<POLY_7BIT_SD, 7> ct(0, 0, false, true);
+        TEST_ASSERT_EQUAL(0, ct.compute(test, strlen(test), &crc));
+        TEST_ASSERT_EQUAL(0x57, crc);
     }
     {
         MbedCRC<POLY_8BIT_CCITT, 8> ct;
-        TEST_ASSERT_EQUAL(0, ct.compute((void *)test, strlen((const char *)test), &crc));
+        TEST_ASSERT_EQUAL(0, ct.compute(test, strlen(test), &crc));
         TEST_ASSERT_EQUAL(0xF4, crc);
     }
     {
         MbedCRC<POLY_16BIT_CCITT, 16> ct;
-        TEST_ASSERT_EQUAL(0, ct.compute((void *)test, strlen((const char *)test), &crc));
+        TEST_ASSERT_EQUAL(0, ct.compute(test, strlen(test), &crc));
         TEST_ASSERT_EQUAL(0x29B1, crc);
     }
     {
         MbedCRC<POLY_16BIT_IBM, 16> ct;
-        TEST_ASSERT_EQUAL(0, ct.compute((void *)test, strlen((const char *)test), &crc));
+        TEST_ASSERT_EQUAL(0, ct.compute(test, strlen(test), &crc));
         TEST_ASSERT_EQUAL(0xBB3D, crc);
     }
     {
         MbedCRC<POLY_32BIT_ANSI, 32> ct;
-        TEST_ASSERT_EQUAL(0, ct.compute((void *)test, strlen((const char *)test), &crc));
+        TEST_ASSERT_EQUAL(0, ct.compute(test, strlen(test), &crc));
         TEST_ASSERT_EQUAL(0xCBF43926, crc);
     }
 }
@@ -62,8 +92,8 @@ void test_partial_crc()
     {
         MbedCRC<POLY_16BIT_CCITT, 16> ct;
         TEST_ASSERT_EQUAL(0, ct.compute_partial_start(&crc));
-        TEST_ASSERT_EQUAL(0, ct.compute_partial((void *)&test, 4, &crc));
-        TEST_ASSERT_EQUAL(0, ct.compute_partial((void *)&test[4], 5, &crc));
+        TEST_ASSERT_EQUAL(0, ct.compute_partial(test, 4, &crc));
+        TEST_ASSERT_EQUAL(0, ct.compute_partial(&test[4], 5, &crc));
         TEST_ASSERT_EQUAL(0, ct.compute_partial_stop(&crc));
 
         TEST_ASSERT_EQUAL(0x29B1, crc);
@@ -81,8 +111,8 @@ void test_sd_crc()
     test[2] = 0x00;
     test[3] = 0x00;
     test[4] = 0x00;
-    TEST_ASSERT_EQUAL(0, crc7.compute((void *)test, 5, &crc));
-    crc = (crc | 0x1) & 0xFF;
+    TEST_ASSERT_EQUAL(0, crc7.compute(test, 5, &crc));
+    crc = (crc << 1) | 0x1;
     TEST_ASSERT_EQUAL(0x95, crc);
 
     test[0] = 0x48;
@@ -90,8 +120,8 @@ void test_sd_crc()
     test[2] = 0x00;
     test[3] = 0x01;
     test[4] = 0xAA;
-    TEST_ASSERT_EQUAL(0, crc7.compute((void *)test, 5, &crc));
-    crc = (crc | 0x1) & 0xFF;
+    TEST_ASSERT_EQUAL(0, crc7.compute(test, 5, &crc));
+    crc = (crc << 1) | 0x1;
     TEST_ASSERT_EQUAL(0x87, crc);
 
     test[0] = 0x51;
@@ -99,13 +129,13 @@ void test_sd_crc()
     test[2] = 0x00;
     test[3] = 0x00;
     test[4] = 0x00;
-    TEST_ASSERT_EQUAL(0, crc7.compute((void *)test, 5, &crc));
-    crc = (crc | 0x1) & 0xFF;
+    TEST_ASSERT_EQUAL(0, crc7.compute(test, 5, &crc));
+    crc = (crc << 1) | 0x1;
     TEST_ASSERT_EQUAL(0x55, crc);
 
     MbedCRC<POLY_16BIT_CCITT, 16> crc16(0, 0, false, false);
     memset(test, 0xFF, 512);
-    TEST_ASSERT_EQUAL(0, crc16.compute((void *)test, 512, &crc));
+    TEST_ASSERT_EQUAL(0, crc16.compute(test, 512, &crc));
     TEST_ASSERT_EQUAL(0x7FA1, crc);
 }
 
@@ -115,12 +145,12 @@ void test_any_polynomial()
     uint32_t crc;
     {
         MbedCRC<0x3D65, 16> ct(0x0, 0xFFFF, 0, 0);
-        TEST_ASSERT_EQUAL(0, ct.compute((void *)test, strlen((const char *)test), &crc));
+        TEST_ASSERT_EQUAL(0, ct.compute(test, strlen(test), &crc));
         TEST_ASSERT_EQUAL(0xC2B7, crc);
     }
     {
         MbedCRC<0x1EDC6F41, 32> ct(0xFFFFFFFF, 0xFFFFFFFF, 1, 1);
-        TEST_ASSERT_EQUAL(0, ct.compute((void *)test, strlen((const char *)test), &crc));
+        TEST_ASSERT_EQUAL(0, ct.compute(test, strlen(test), &crc));
         TEST_ASSERT_EQUAL(0xE3069283, crc);
     }
 }
@@ -130,7 +160,7 @@ void test_thread(void)
     char  test[] = "123456789";
     uint32_t crc;
     MbedCRC<POLY_32BIT_ANSI, 32> ct;
-    TEST_ASSERT_EQUAL(0, ct.compute((void *)test, strlen((const char *)test), &crc));
+    TEST_ASSERT_EQUAL(0, ct.compute(test, strlen(test), &crc));
     TEST_ASSERT_EQUAL(0xCBF43926, crc);
 }
 
@@ -143,11 +173,11 @@ void test_thread_safety()
     MbedCRC<POLY_16BIT_IBM, 16> ct;
 
     TEST_ASSERT_EQUAL(0, ct.compute_partial_start(&crc));
-    TEST_ASSERT_EQUAL(0, ct.compute_partial((void *)&test, 4, &crc));
+    TEST_ASSERT_EQUAL(0, ct.compute_partial(test, 4, &crc));
 
     Thread t1(osPriorityNormal1, 380);
     t1.start(callback(test_thread));
-    TEST_ASSERT_EQUAL(0, ct.compute_partial((void *)&test[4], 5, &crc));
+    TEST_ASSERT_EQUAL(0, ct.compute_partial(&test[4], 5, &crc));
     TEST_ASSERT_EQUAL(0, ct.compute_partial_stop(&crc));
     TEST_ASSERT_EQUAL(0xBB3D, crc);
 
