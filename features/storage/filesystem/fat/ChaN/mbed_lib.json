@@ -1,5 +1,5 @@
 {
-    "name": "fat",
+    "name": "fat_chan",
     "config": {
         "ffs_dbg": {
             "help": "Switches debug mode. 0: disable, 1: enable.",
