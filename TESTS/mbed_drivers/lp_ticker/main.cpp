@@ -201,16 +201,52 @@ void test_attach_us_time(void)
     TEST_ASSERT_UINT64_WITHIN(TOLERANCE_US(DELAY_US), DELAY_US, time_diff);
 }
 
+#if __cplusplus >= 201103 && !defined __CC_ARM
+/** Test single callback time via attach(Callback<void()> func, std::chrono::microseconds t)
+
+    Given a Ticker
+    When callback attached with time interval specified
+    Then ticker properly executes callback within a specified time interval
+ */
+template<us_timestamp_t DELAY_US>
+void test_attach_chrono_microseconds(void)
+{
+    LowPowerTicker ticker;
+    ticker_callback_flag = 0;
+
+    gtimer.reset();
+    gtimer.start();
+    ticker.attach(callback(stop_gtimer_set_flag), std::chrono::microseconds(DELAY_US));
+    while (!ticker_callback_flag);
+    ticker.detach();
+    const int time_diff = gtimer.read_us();
+
+    TEST_ASSERT_UINT64_WITHIN(TOLERANCE_US(DELAY_US), DELAY_US, time_diff);
+}
+#endif
+
 // Test cases
 Case cases[] = {
     Case("Test attach for 0.001s and time measure", test_attach_time<1000>),
     Case("Test attach_us for 1ms and time measure", test_attach_us_time<1000>),
+#if __cplusplus >= 201103 && !defined __CC_ARM
+    Case("Test attach_us for std::chrono::microseconds(1000) and time measure", test_attach_chrono_microseconds<1000>),
+#endif
     Case("Test attach for 0.01s and time measure", test_attach_time<10000>),
     Case("Test attach_us for 10ms and time measure", test_attach_us_time<10000>),
+#if __cplusplus >= 201103 && !defined __CC_ARM
+    Case("Test attach_us for std::chrono::microseconds(10000) and time measure", test_attach_chrono_microseconds<10000>),
+#endif
     Case("Test attach for 0.1s and time measure", test_attach_time<100000>),
     Case("Test attach_us for 100ms and time measure", test_attach_us_time<100000>),
+#if __cplusplus >= 201103 && !defined __CC_ARM
+    Case("Test attach_us for std::chrono::microseconds(100000) and time measure", test_attach_chrono_microseconds<100000>),
+#endif
     Case("Test attach for 0.5s and time measure", test_attach_time<500000>),
     Case("Test attach_us for 500ms and time measure", test_attach_us_time<500000>),
+#if __cplusplus >= 201103 && !defined __CC_ARM
+    Case("Test attach_us for std::chrono::microseconds(500000) and time measure", test_attach_chrono_microseconds<500000>),
+#endif
     Case("Test detach", test_detach),
     Case("Test multi call and time measure", test_multi_call_time),
     Case("Test multi ticker", test_multi_ticker),
