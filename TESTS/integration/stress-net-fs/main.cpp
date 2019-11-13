@@ -73,12 +73,12 @@ static control_t setup_network(const size_t call_count)
         if (err == NSAPI_ERROR_OK) {
             break;
         } else {
-            printf("[ERROR] Connecting to network. Retrying %d of %d...\r\n", tries, MAX_RETRIES);
+            tr_error("[ERROR] Connecting to network. Retrying %d of %d...", tries, MAX_RETRIES);
         }
     }
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
-    printf("[NET] IP address is '%s'\n", interface->get_ip_address());
-    printf("[NET] MAC address is '%s'\n", interface->get_mac_address());
+    tr_info("[NET] IP address is '%s'", interface->get_ip_address());
+    tr_info("[NET] MAC address is '%s'", interface->get_mac_address());
     return CaseNext;
 }
 
@@ -206,7 +206,7 @@ void test_malloc()
 
     void *bufferTest = NULL;
     TEST_ASSERT_MESSAGE(size > 0, "Size must not be zero for test");
-    printf("Allocating %d bytes", (int)size);
+    tr_info("Allocating %d bytes", (int)size);
     bufferTest = malloc(size);
     TEST_ASSERT(bufferTest != NULL);
     free(bufferTest);

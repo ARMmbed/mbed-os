@@ -54,11 +54,11 @@ void TLSSOCKET_ECHOTEST_BURST()
     for (int i = 0; i < BURST_CNT; i++) {
         sent = sock->send(tls_global::tx_buffer, BURST_SIZE);
         if (sent < 0) {
-            printf("[%02d] network error %d\n", i, sent);
+            tr_error("[%02d] network error %d\n", i, sent);
             TEST_FAIL();
             break;
         } else if (sent != BURST_SIZE) {
-            printf("[%02d] sock.send return size %d does not match the expectation %d\n", i, sent, BURST_SIZE);
+            tr_error("[%02d] sock.send return size %d does not match the expectation %d\n", i, sent, BURST_SIZE);
             TEST_FAIL();
             break;
         }
@@ -67,7 +67,7 @@ void TLSSOCKET_ECHOTEST_BURST()
         while (bytes2recv) {
             recvd = sock->recv(&(tls_global::rx_buffer[sent - bytes2recv]), bytes2recv);
             if (recvd < 0) {
-                printf("[Round#%02d] network error %d\n", i, recvd);
+                tr_error("[Round#%02d] network error %d\n", i, recvd);
                 TEST_FAIL();
                 TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->close());
                 return;
@@ -106,7 +106,7 @@ void TLSSOCKET_ECHOTEST_BURST_NONBLOCK()
                 }
                 continue;
             } else if (sent < 0) {
-                printf("[%02d] network error %d\n", i, sent);
+                tr_error("[%02d] network error %d\n", i, sent);
                 TEST_FAIL();
                 goto END;
             }
@@ -122,19 +122,19 @@ void TLSSOCKET_ECHOTEST_BURST_NONBLOCK()
             recvd = sock->recv(&(tls_global::rx_buffer[BURST_SIZE - bt_left]), BURST_SIZE);
             if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
                 if (osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
-                    printf("[bt#%02d] packet timeout...", i);
+                    tr_error("[bt#%02d] packet timeout...", i);
                     break;
                 }
                 continue;
             } else if (recvd < 0) {
-                printf("[%02d] network error %d\n", i, recvd);
+                tr_error("[%02d] network error %d\n", i, recvd);
                 break;
             }
             bt_left -= recvd;
         }
 
         if (bt_left != 0) {
-            printf("network error %d, missing %d bytes from a burst\n", recvd, bt_left);
+            tr_error("network error %d, missing %d bytes from a burst\n", recvd, bt_left);
             TEST_FAIL();
             goto END;
         }

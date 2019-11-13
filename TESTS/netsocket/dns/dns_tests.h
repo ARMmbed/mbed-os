@@ -19,6 +19,9 @@
 #define DNS_TESTS_H
 
 #include "nsapi_dns.h"
+#include "mbed_trace.h"
+
+#define TRACE_GROUP "GRNT"
 
 #ifndef MBED_CONF_APP_DNS_SIMULT_QUERIES
 #ifdef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES

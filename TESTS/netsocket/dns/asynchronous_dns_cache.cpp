@@ -59,12 +59,12 @@ void ASYNCHRONOUS_DNS_CACHE()
         int delay_ms = (ticker_us - started_us) / 1000;
 
         static int delay_first = delay_ms / 2;
-        printf("Delays: first: %i, delay_ms: %i\n", delay_first, delay_ms);
+        tr_info("Delays: first: %i, delay_ms: %i", delay_first, delay_ms);
         // Check that cached accesses are at least twice as fast as the first one
         TEST_ASSERT_TRUE(i == 0 || delay_ms <= delay_first);
 
-        printf("DNS: query \"%s\" => \"%s\", time %i ms\n",
-               dns_test_hosts[0], data.addr.get_ip_address(), delay_ms);
+        tr_info("DNS: query \"%s\" => \"%s\", time %i ms",
+                dns_test_hosts[0], data.addr.get_ip_address(), delay_ms);
     }
 }
 #endif // defined(MBED_CONF_RTOS_PRESENT)
