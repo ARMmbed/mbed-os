@@ -12,7 +12,12 @@
         },
 
         "stdio-buffered-serial": {
-            "help": "(Applies if target.console-uart is true.) Use UARTSerial driver to obtain buffered serial I/O on stdin/stdout/stderr. If false, unbuffered serial_getc and serial_putc are used directly.",
+            "help": "(Applies if target.console-uart is true and stdio-minimal-console-only is false.) Use UARTSerial driver to obtain buffered serial I/O on stdin/stdout/stderr. If false, unbuffered serial_getc and serial_putc are used directly.",
+            "value": false
+        },
+
+        "stdio-minimal-console-only": {
+            "help": "(Ignores stdio-buffered-serial) Creates a console for basic unbuffered I/O operations. Enable if your application does not require file handles to access the serial interface. The POSIX `fsync` function will always an error.",
             "value": false
         },
 
