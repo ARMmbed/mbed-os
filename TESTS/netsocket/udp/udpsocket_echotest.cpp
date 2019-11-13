@@ -89,7 +89,7 @@ void UDPSOCKET_ECHOTEST()
             } else if (sent == pkt_s) {
                 packets_sent++;
             } else {
-                printf("[Round#%02d - Sender] error, returned %d\n", s_idx, sent);
+                tr_error("[Round#%02d - Sender] error, returned %d", s_idx, sent);
                 continue;
             }
 
@@ -109,7 +109,7 @@ void UDPSOCKET_ECHOTEST()
             if (recvd == pkt_s) {
                 break;
             } else {
-                printf("[Round#%02d - Receiver] error, returned %d\n", s_idx, recvd);
+                tr_error("[Round#%02d - Receiver] error, returned %d", s_idx, recvd);
             }
         }
         // Verify received address is correct
@@ -127,7 +127,7 @@ void UDPSOCKET_ECHOTEST()
     // Packet loss up to 30% tolerated
     if (packets_sent > 0) {
         double loss_ratio = 1 - ((double)packets_recv / (double)packets_sent);
-        printf("Packets sent: %d, packets received %d, loss ratio %.2lf\r\n", packets_sent, packets_recv, loss_ratio);
+        tr_info("Packets sent: %d, packets received %d, loss ratio %.2lf", packets_sent, packets_recv, loss_ratio);
         TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
     }
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
@@ -168,7 +168,7 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
                 }
                 --retry_cnt;
             } else {
-                printf("[Round#%02d - Sender] error, returned %d\n", s_idx, sent);
+                tr_error("[Round#%02d - Sender] error, returned %d", s_idx, sent);
                 continue;
             }
 
@@ -183,7 +183,7 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
                     --retry_recv;
                     continue;
                 } else if (recvd < 0) {
-                    printf("sock.recvfrom returned %d\n", recvd);
+                    tr_error("sock.recvfrom returned %d", recvd);
                     TEST_FAIL();
                     break;
                 } else if (recvd == pkt_s) {
@@ -205,7 +205,7 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
     // Packet loss up to 30% tolerated
     if (packets_sent > 0) {
         double loss_ratio = 1 - ((double)packets_recv / (double)packets_sent);
-        printf("Packets sent: %d, packets received %d, loss ratio %.2lf\r\n", packets_sent, packets_recv, loss_ratio);
+        tr_info("Packets sent: %d, packets received %d, loss ratio %.2lf", packets_sent, packets_recv, loss_ratio);
         TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
 
 #if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
@@ -219,7 +219,7 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
             }
         }
         loss_ratio = 1 - ((double)udp_stats[j].recv_bytes / (double)udp_stats[j].sent_bytes);
-        printf("Bytes sent: %d, bytes received %d, loss ratio %.2lf\r\n", udp_stats[j].sent_bytes, udp_stats[j].recv_bytes, loss_ratio);
+        tr_info("Bytes sent: %d, bytes received %d, loss ratio %.2lf", udp_stats[j].sent_bytes, udp_stats[j].recv_bytes, loss_ratio);
         TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
 
 #endif

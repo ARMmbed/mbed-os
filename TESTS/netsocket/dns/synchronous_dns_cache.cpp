@@ -52,8 +52,8 @@ void SYNCHRONOUS_DNS_CACHE()
         // Check that cached accesses are at least twice as fast as the first one
         TEST_ASSERT_TRUE(i == 0 || delay_ms <= delay_first);
 
-        printf("DNS: query \"%s\" => \"%s\", time %i ms\n",
-               dns_test_hosts[0], address.get_ip_address(), delay_ms);
+        tr_info("DNS: query \"%s\" => \"%s\", time %i ms",
+                dns_test_hosts[0], address.get_ip_address(), delay_ms);
     }
 }
 #endif // defined(MBED_CONF_RTOS_PRESENT)

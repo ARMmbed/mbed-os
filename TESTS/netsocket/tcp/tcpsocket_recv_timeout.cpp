@@ -69,7 +69,7 @@ void TCPSOCKET_RECV_TIMEOUT()
                     goto CLEANUP;
                 }
                 int recv_time_ms = (timer.read_us() + 500) / 1000;
-                printf("MBED: recv() took: %dus\n", recv_time_ms);
+                tr_info("MBED: recv() took: %dus", recv_time_ms);
                 if (recv_time_ms > 150) {
                     TEST_ASSERT(150 - recv_time_ms < 51);
                 } else {
@@ -77,7 +77,7 @@ void TCPSOCKET_RECV_TIMEOUT()
                 }
                 continue;
             } else if (recvd < 0) {
-                printf("[pkt#%02d] network error %d\n", i, recvd);
+                tr_error("[pkt#%02d] network error %d", i, recvd);
                 TEST_FAIL();
                 goto CLEANUP;
             }

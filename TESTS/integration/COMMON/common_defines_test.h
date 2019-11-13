@@ -16,6 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mbed_trace.h"
+
+#define TRACE_GROUP "GRNT"
 
 #define ETHERNET 1
 #define WIFI 2
