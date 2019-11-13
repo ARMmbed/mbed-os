@@ -292,7 +292,10 @@ class Target(namedtuple(
         # inheritance level, left to right order to figure out all the
         # other classes that change the definition by adding or removing
         # elements
-        for idx in range(self.resolution_order[def_idx][1] - 1, -1, -1):
+        highest_order = 0
+        for t in self.resolution_order:
+            highest_order = highest_order if highest_order > t[1] else t[1]
+        for idx in range(highest_order - 1, -1, -1):
             same_level_targets = [tar[0] for tar in self.resolution_order
                                   if tar[1] == idx]
             for tar in same_level_targets:
