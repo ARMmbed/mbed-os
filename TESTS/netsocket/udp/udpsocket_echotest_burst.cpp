@@ -114,12 +114,12 @@ void UDPSOCKET_ECHOTEST_BURST()
                 }
             } else if (recvd < 0) {
                 pkg_fail += BURST_PKTS - j; // Assume all the following packets of the burst to be lost
-                printf("[%02d] network error %d\n", i, recvd);
+                tr_error("[%02d] network error %d", i, recvd);
                 ThisThread::sleep_for(recv_timeout * 1000);
                 recv_timeout *= 2; // Back off,
                 break;
             } else if (temp_addr != udp_addr) {
-                printf("[%02d] packet from wrong address\n", i);
+                tr_info("[%02d] packet from wrong address", i);
                 --j;
                 continue;
             }
@@ -139,15 +139,15 @@ void UDPSOCKET_ECHOTEST_BURST()
             ok_bursts++;
         } else {
             drop_bad_packets(sock, TIMEOUT);
-            printf("[%02d] burst failure, rcv %d\n", i, bt_total);
+            tr_error("[%02d] burst failure, rcv %d", i, bt_total);
         }
     }
 
     free_tx_buffers();
 
     double loss_ratio = 1 - ((double)(BURST_CNT * BURST_PKTS - pkg_fail) / (double)(BURST_CNT * BURST_PKTS));
-    printf("Packets sent: %d, packets received %d, loss ratio %.2lf\r\n",
-           BURST_CNT * BURST_PKTS, BURST_CNT * BURST_PKTS - pkg_fail, loss_ratio);
+    tr_info("Packets sent: %d, packets received %d, loss ratio %.2lf",
+            BURST_CNT * BURST_PKTS, BURST_CNT * BURST_PKTS - pkg_fail, loss_ratio);
     // Packet loss up to 30% tolerated
     TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
     // 70% of the bursts need to be successful
@@ -215,7 +215,7 @@ void UDPSOCKET_ECHOTEST_BURST_NONBLOCK()
                     goto PKT_OK;
                 }
             }
-            printf("[bt#%02d] corrupted packet...", i);
+            tr_error("[bt#%02d] corrupted packet...", i);
             pkg_fail++;
             break;
 PKT_OK:
@@ -233,8 +233,8 @@ PKT_OK:
     free_tx_buffers();
 
     double loss_ratio = 1 - ((double)(BURST_CNT * BURST_PKTS - pkg_fail) / (double)(BURST_CNT * BURST_PKTS));
-    printf("Packets sent: %d, packets received %d, loss ratio %.2lf\r\n",
-           BURST_CNT * BURST_PKTS, BURST_CNT * BURST_PKTS - pkg_fail, loss_ratio);
+    tr_info("Packets sent: %d, packets received %d, loss ratio %.2lf",
+            BURST_CNT * BURST_PKTS, BURST_CNT * BURST_PKTS - pkg_fail, loss_ratio);
     // Packet loss up to 30% tolerated
     TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
     // 70% of the bursts need to be successful

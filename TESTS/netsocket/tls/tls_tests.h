@@ -20,6 +20,9 @@
 
 #include "../test_params.h"
 #include "TLSSocket.h"
+#include "mbed_trace.h"
+
+#define TRACE_GROUP "GRNT"
 
 #if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
 
