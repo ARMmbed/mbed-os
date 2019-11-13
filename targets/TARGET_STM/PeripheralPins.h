@@ -34,8 +34,6 @@
 #include "pinmap.h"
 #include "PeripheralNames.h"
 
-#define GPIO_AF_NONE 0
-
 //*** ADC ***
 #if DEVICE_ANALOGIN
 extern const PinMap PinMap_ADC[];
