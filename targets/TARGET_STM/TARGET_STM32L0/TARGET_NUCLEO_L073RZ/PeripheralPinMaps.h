@@ -49,6 +49,7 @@
 #ifndef MBED_PERIPHERALPINMAPS_H
 #define MBED_PERIPHERALPINMAPS_H
 
+#include "PinNamesTypes.h"
 #include <mstd_cstddef>
 
 //*** ADC ***
