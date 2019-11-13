@@ -1606,7 +1606,7 @@ void ATHandler::write_hex_string(char *str, size_t size)
     }
 
     char hexbuf[2];
-    for (int i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
         hexbuf[0] = hex_values[((str[i]) >> 4) & 0x0F];
         hexbuf[1] = hex_values[(str[i]) & 0x0F];
         write(hexbuf, 2);
