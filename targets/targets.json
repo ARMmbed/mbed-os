@@ -7853,7 +7853,7 @@
         "features_add": ["BLE", "STORAGE"],
         "components_remove": ["QSPIF"],
         "components_add": ["FLASHIAP"],
-        "device_has_remove": ["QSPI"],
+        "device_has_remove": ["QSPI", "ITM"],
         "device_has_add": ["FLASH"],
         "macros_add": [
             "CONFIG_GPIO_AS_PINRESET"
