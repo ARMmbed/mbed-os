@@ -39,9 +39,9 @@ void apply_config(gpio_t *obj)
     }
 
     if (obj->drive_mode == PullUp) {
-        gpio_write(obj, 1);
+        gpio_set_pull(obj, 1);
     } else if (obj->drive_mode == PullDown) {
-        gpio_write(obj, 0);
+        gpio_set_pull(obj, 0);
     }
 }
 
@@ -80,6 +80,7 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
     } else if (direction == PIN_OUTPUT) {
         // mbed reads from input buffer instead of DR even for output pins so always leave input buffer enabled
         obj->direction = CYHAL_GPIO_DIR_BIDIRECTIONAL;
+        gpio_write(obj, obj->output_val);
         if (obj->drive_mode == CYHAL_GPIO_DRIVE_NONE || obj->drive_mode == CYHAL_GPIO_DRIVE_ANALOG) {
             obj->drive_mode = CYHAL_GPIO_DRIVE_STRONG;
         }
