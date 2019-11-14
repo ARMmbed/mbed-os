@@ -160,6 +160,17 @@ int i2c_byte_read(i2c_t *obj, int last)
 {
     struct i2c_s *i2c = cy_get_i2c(obj);
     uint8_t value;
+
+    /* Make sure if I2C transaction direction is 'Read' */
+    /* This code prevents from error 'MASTER_IS_NOT_READY', because master expects I2C transaction direction 'Write' */
+    /* from previous write operation */
+    if (i2c->hal_i2c.context.state != CY_SCB_I2C_IDLE) {
+        if (CY_SCB_I2C_SUCCESS != Cy_SCB_I2C_MasterSendReStart(i2c->hal_i2c.base, i2c->hal_i2c.address, CY_SCB_I2C_READ_XFER, CY_I2C_DEFAULT_TIMEOUT, &(i2c->hal_i2c.context))) {
+            MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_I2C, MBED_ERROR_CODE_FAILED_OPERATION), "i2c_send_restart");
+        }
+    }
+
+    /* Read data byte */
     if (CY_SCB_I2C_SUCCESS != Cy_SCB_I2C_MasterReadByte(i2c->hal_i2c.base, last != 0 ? CY_SCB_I2C_NAK : CY_SCB_I2C_ACK, &value, CY_I2C_DEFAULT_TIMEOUT, &(i2c->hal_i2c.context))) {
         MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_I2C, MBED_ERROR_CODE_FAILED_OPERATION), "i2c_byte_read");
     }
@@ -169,16 +180,23 @@ int i2c_byte_read(i2c_t *obj, int last)
 int i2c_byte_write(i2c_t *obj, int data)
 {
     struct i2c_s *i2c = cy_get_i2c(obj);
-    // If we have not yet written the address, the first byte being sent is the address.
-    cy_en_scb_i2c_status_t status = i2c->hal_i2c.context.state == CY_SCB_I2C_IDLE
-                                    ? Cy_SCB_I2C_MasterSendStart(i2c->hal_i2c.base, data >> 1, CY_SCB_I2C_WRITE_XFER, CY_I2C_DEFAULT_TIMEOUT, &(i2c->hal_i2c.context))
-                                    : Cy_SCB_I2C_MasterWriteByte(i2c->hal_i2c.base, (uint8_t)data, CY_I2C_DEFAULT_TIMEOUT, &(i2c->hal_i2c.context));
+    cy_en_scb_i2c_status_t status;
+
+    if (i2c->hal_i2c.context.state == CY_SCB_I2C_IDLE) {
+        /* Store device address for read operation */
+        i2c->hal_i2c.address = data >> 1;
     
-    if (CY_SCB_I2C_SUCCESS == status)
-    {
-    		Cy_SCB_I2C_MasterSendReStart(i2c->hal_i2c.base, data >> 1, CY_SCB_I2C_READ_XFER, CY_I2C_DEFAULT_TIMEOUT, &(i2c->hal_i2c.context));
+        /* Send slave device address */
+        /* Make sure if I2C transaction direction is 'Write' */
+        status = Cy_SCB_I2C_MasterSendStart(i2c->hal_i2c.base, data >> 1, CY_SCB_I2C_WRITE_XFER, CY_I2C_DEFAULT_TIMEOUT, &(i2c->hal_i2c.context));
     }
-    
+    else {
+        /* Send data byte after address */
+        if (status == CY_SCB_I2C_SUCCESS) {
+            status = Cy_SCB_I2C_MasterWriteByte(i2c->hal_i2c.base, (uint8_t)data, CY_I2C_DEFAULT_TIMEOUT, &(i2c->hal_i2c.context));
+        }
+    }
+
     switch (status) {
         case CY_SCB_I2C_MASTER_MANUAL_TIMEOUT:
             return 2;
