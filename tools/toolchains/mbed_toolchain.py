@@ -1086,6 +1086,14 @@ class mbedToolchain:
             self._overwrite_when_not_equal(where, json.dumps(
                 to_dump, sort_keys=True, indent=4))
 
+    def check_and_add_minimal_printf(self, target):
+        """Add toolchain flag if minimal-printf is selected."""
+        if (
+            getattr(target, "printf_lib", "std") == "minimal-printf"
+            and "-DMBED_MINIMAL_PRINTF" not in self.flags["common"]
+        ):
+            self.flags["common"].append("-DMBED_MINIMAL_PRINTF")
+
     @staticmethod
     def _overwrite_when_not_equal(filename, content):
         if not exists(filename) or content != open(filename).read():

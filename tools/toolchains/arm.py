@@ -81,6 +81,8 @@ class ARM(mbedToolchain):
             if "--library_type=microlib" not in self.flags['common']:
                 self.flags['common'].append("--library_type=microlib")
 
+        self.check_and_add_minimal_printf(target)
+
         cpu = {
             "Cortex-M0+": "Cortex-M0plus",
             "Cortex-M4F": "Cortex-M4.fp.sp",
@@ -568,6 +570,8 @@ class ARMC6(ARM_STD):
             if "--library_type=microlib" not in self.flags['asm']:
                 self.flags['asm'].append("--library_type=microlib")
 
+        self.check_and_add_minimal_printf(target)
+
         if target.is_TrustZone_secure_target:
             if kwargs.get('build_dir', False):
                 # Output secure import library
@@ -767,3 +771,4 @@ class ARMC6(ARM_STD):
             cmd.insert(1, "--ide=mbed")
 
         return cmd
+
