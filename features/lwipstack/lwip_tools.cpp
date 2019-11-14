@@ -273,11 +273,8 @@ bool convert_mbed_addr_to_lwip(ip_addr_t *out, const nsapi_addr_t *in)
 
 #if LWIP_IPV4 && LWIP_IPV6
     if (in->version == NSAPI_UNSPEC) {
-#if IP_VERSION_PREF == PREF_IPV4
-        ip_addr_set_zero_ip4(out);
-#else
-        ip_addr_set_zero_ip6(out);
-#endif
+        ip6_addr_set_zero(ip_2_ip6(out));
+        IP_SET_TYPE(out, IPADDR_TYPE_ANY);
         return true;
     }
 #endif

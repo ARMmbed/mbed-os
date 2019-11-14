@@ -439,7 +439,7 @@ nsapi_size_or_error_t LWIP::socket_sendto(nsapi_socket_t handle, const SocketAdd
     }
     if (netif_) {
         if ((addr.version == NSAPI_IPv4 && !get_ipv4_addr(netif_)) ||
-                (addr.version == NSAPI_IPv6 && !get_ipv6_addr(netif_))) {
+                (addr.version == NSAPI_IPv6 && !get_ipv6_addr(netif_) && !get_ipv6_link_local_addr(netif_))) {
             return NSAPI_ERROR_PARAMETER;
         }
     }
