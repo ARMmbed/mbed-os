@@ -29,6 +29,7 @@ namespace {
 static const int SIGNAL_SIGIO_RX = 0x1;
 static const int SIGNAL_SIGIO_TX = 0x2;
 static const int SIGIO_TIMEOUT = 5000; //[ms]
+static const int SOCKET_TIMEOUT = (10 * 1000); //[ms]
 static const int RETRIES = 2;
 
 static const double EXPECTED_LOSS_RATIO = 0.0;
@@ -70,6 +71,7 @@ void UDPSOCKET_ECHOTEST()
     UDPSocket sock;
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(NetworkInterface::get_default_instance()));
 
+    sock.set_timeout(SOCKET_TIMEOUT);
     int recvd;
     int sent;
     int packets_sent = 0;
