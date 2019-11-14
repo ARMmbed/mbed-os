@@ -1,5 +1,7 @@
 #! armcc -E
 ; Scatter-Loading Description File
+;
+; SPDX-License-Identifier: BSD-3-Clause
 ;******************************************************************************
 ;* @attention
 ;*
@@ -12,18 +14,28 @@
 ;*                        opensource.org/licenses/BSD-3-Clause
 ;*
 ;******************************************************************************
+#include "../cmsis_nvic.h"
 
 ; STM32F767xI:
-; FLASH: 2048K (0x200000) @0x08000000
-; RAM1:   384K (0x60000)  @0x20020000
-; RAM2:   128K (0x20000)  @0x20000000
+; FLASH:   2048K (0x200000) @0x08000000
+; SRAM1:    368K (0x5C000)  @0x20020000
+; SRAM2:     16K (0x4000)   @0x2007C000
+; DTCM-RAM: 128K (0x20000)  @0x20000000
+; ITCM-RAM:  16K (0x3FFF)   @0x00000000
+
+#define MBED_ROM_START   0x8000000
+#define MBED_ROM_SIZE    0x200000
+#define MBED_RAM_START   0x20020000
+#define MBED_RAM_SIZE    0x60000
+#define MBED_RAM1_START  0x20000000
+#define MBED_RAM1_SIZE   0x20000
 
 #if !defined(MBED_APP_START)
-  #define MBED_APP_START 0x08000000
+  #define MBED_APP_START MBED_ROM_START
 #endif
 
 #if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE 0x200000
+  #define MBED_APP_SIZE MBED_ROM_SIZE
 #endif
 
 #if !defined(MBED_BOOT_STACK_SIZE)
@@ -32,14 +44,14 @@
 
 #define Stack_Size MBED_BOOT_STACK_SIZE
 
-#define MBED_RAM_START              0x20020000
-#define MBED_RAM_SIZE               0x60000
-#define MBED_VECTTABLE_RAM_START    0x20000000
-#define MBED_VECTTABLE_RAM_SIZE     0x1F8
+#define MBED_VECTTABLE_RAM_START    (NVIC_RAM_VECTOR_ADDRESS)
+#define MBED_VECTTABLE_RAM_SIZE     (((NVIC_NUM_VECTORS * 4) + 7) AND ~7)
+
 #define MBED_CRASH_REPORT_RAM_START (MBED_VECTTABLE_RAM_START + MBED_VECTTABLE_RAM_SIZE)
 #define MBED_CRASH_REPORT_RAM_SIZE  0x100
-#define MBED_RAM0_START             (MBED_RAM_START)
-#define MBED_RAM0_SIZE              (MBED_RAM_SIZE)
+
+#define MBED_RAM0_START  (MBED_CRASH_REPORT_RAM_START + MBED_CRASH_REPORT_RAM_SIZE)
+#define MBED_RAM0_SIZE   (MBED_RAM_SIZE + MBED_RAM1_SIZE - MBED_VECTTABLE_RAM_SIZE - MBED_CRASH_REPORT_RAM_SIZE)
 
 LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
 
@@ -59,4 +71,3 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
   ARM_LIB_STACK (MBED_RAM0_START+MBED_RAM0_SIZE) EMPTY -Stack_Size { ; stack
   }
 }
-
