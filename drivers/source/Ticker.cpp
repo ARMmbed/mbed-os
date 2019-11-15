@@ -65,6 +65,16 @@ void Ticker::handler()
 
 void Ticker::attach_us(Callback<void()> func, us_timestamp_t t)
 {
+    do_attach_us(func, t);
+}
+
+void Ticker::attach(Callback<void()> func, std::chrono::microseconds t)
+{
+    do_attach_us(func, t.count());
+}
+
+void Ticker::do_attach_us(Callback<void()> func, us_timestamp_t t)
+{
     core_util_critical_section_enter();
     // lock only for the initial callback setup and this is not low power ticker
     if (!_function && _lock_deepsleep) {

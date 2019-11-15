@@ -18,15 +18,13 @@
 #define MBED_TICKER_H
 
 #include <mstd_utility>
-#if __cplusplus >= 201103 && !defined __CC_ARM
+#if !defined __CC_ARM
 #include <chrono>
 #endif
 #include "drivers/TimerEvent.h"
 #include "platform/Callback.h"
 #include "platform/mbed_toolchain.h"
 #include "platform/NonCopyable.h"
-#include "platform/mbed_critical.h"
-#include "platform/mbed_power_mgmt.h"
 #include "hal/lp_ticker_api.h"
 
 namespace mbed {
@@ -79,29 +77,22 @@ public:
     // When low power ticker is in use, then do not disable deep sleep.
     Ticker(const ticker_data_t *data);
 
-    /** Attach a function to be called by the Ticker, specifying the interval in std::chrono::duration
+    /** Attach a function to be called by the Ticker, specifying the interval in std::chrono::microseconds
+     *  For example, to call my_callback_function at a 2-second interval:
+     *  attach(callback(my_callback_function), 2000000us); 
+     *  attach(callback(my_callback_function), 2000ms);
+     *  attach(callback(my_callback_function), 2s);
      *
      *  @param func pointer to the function to be called
-     *  @param t the time interval between calls
+     *  @param t the time interval between calls in std::chrono::microseconds
      *
      *  @note setting @a t to a value shorter than it takes to process the ticker callback
      *  causes the system to hang. Ticker callback is called constantly with no time
      *  for threads scheduling.
      *
      */
-#if __cplusplus >= 201103 && !defined __CC_ARM
-    template <typename Rep, typename Period>
-    void attach(Callback<void()> func, std::chrono::duration<Rep, Period> t)
-    {
-        core_util_critical_section_enter();
-        // lock only for the initial callback setup and this is not low power ticker
-        if (!_function && _lock_deepsleep) {
-            sleep_manager_lock_deep_sleep();
-        }
-        _function = func;
-        setup(std::chrono::microseconds(t).count());
-        core_util_critical_section_exit();
-    }
+#if !defined __CC_ARM
+    void attach(Callback<void()> func, std::chrono::microseconds t);
 #endif
     /** Attach a function to be called by the Ticker, specifying the interval in seconds
      *
@@ -113,7 +104,7 @@ public:
      *  @param t the time between calls in seconds
      *  @deprecated
      *      This function is replaced by
-     *      attach(Callback<void()> func, std::chrono::duration<Rep, Period> t).
+     *      attach(Callback<void()> func, std::chrono::microseconds t).
      */
 #if defined(__ICCARM__)
     MBED_FORCEINLINE template <typename F>
@@ -122,7 +113,7 @@ public:
 #endif
     MBED_DEPRECATED_SINCE("mbed-os-5.15",
                           "This function is replaced by "
-                          "attach(Callback<void()> func, std::chrono::duration<Rep, Period> t).")
+                          "attach(Callback<void()> func, std::chrono::microseconds t).")
     void attach(F &&func, float t)
     {
         attach_us(std::forward<F>(func), t * 1000000.0f);
@@ -156,12 +147,12 @@ public:
      *  for threads scheduling.
      *  @deprecated
      *      This function is replaced by
-     *      attach(Callback<void()> func, std::chrono::duration<Rep, Period> t).
+     *      attach(Callback<void()> func, std::chrono::microseconds t).
      *
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.15",
                           "This function is replaced by "
-                          "attach(Callback<void()> func, std::chrono::duration<Rep, Period> t).")
+                          "attach(Callback<void()> func, std::chrono::microseconds t).")
     void attach_us(Callback<void()> func, us_timestamp_t t);
 
     /** Attach a member function to be called by the Ticker, specifying the interval in microseconds
@@ -195,6 +186,7 @@ public:
 protected:
     void setup(us_timestamp_t t);
     virtual void handler();
+    void do_attach_us(Callback<void()> func, us_timestamp_t t);
 
 protected:
     us_timestamp_t         _delay;  /**< Time delay (in microseconds) for resetting the multishot callback. */
