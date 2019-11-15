@@ -29,7 +29,8 @@
 #include "PeripheralPins.h"
 #include "fsl_clock_config.h"
 
-static uint32_t serial_irq_ids[FSL_FEATURE_SOC_LPUART_COUNT] = {0};
+/* LPUART starts from index 1 */
+static uint32_t serial_irq_ids[FSL_FEATURE_SOC_LPUART_COUNT + 1] = {0};
 static uart_irq_handler irq_handler;
 /* Array of UART peripheral base address. */
 static LPUART_Type *const uart_addrs[] = LPUART_BASE_PTRS;
@@ -320,28 +321,28 @@ static int serial_is_enabled(uint32_t uart_index)
 {
     int clock_enabled = 0;
     switch (uart_index) {
-        case 0:
+        case 1:
             clock_enabled = (CCM->CCGR5 & CCM_CCGR5_CG12_MASK) >> CCM_CCGR5_CG12_SHIFT;
             break;
-        case 1:
+        case 2:
             clock_enabled = (CCM->CCGR0 & CCM_CCGR0_CG14_MASK) >> CCM_CCGR0_CG14_SHIFT;
             break;
-        case 2:
+        case 3:
             clock_enabled = (CCM->CCGR0 & CCM_CCGR0_CG6_MASK) >> CCM_CCGR0_CG6_SHIFT;
             break;
-        case 3:
+        case 4:
             clock_enabled = (CCM->CCGR1 & CCM_CCGR1_CG12_MASK) >> CCM_CCGR1_CG12_SHIFT;
             break;
-        case 4:
+        case 5:
             clock_enabled = (CCM->CCGR3 & CCM_CCGR3_CG1_MASK) >> CCM_CCGR3_CG1_SHIFT;
             break;
-        case 5:
+        case 6:
             clock_enabled = (CCM->CCGR3 & CCM_CCGR3_CG3_MASK) >> CCM_CCGR3_CG3_SHIFT;
             break;
-        case 6:
+        case 7:
             clock_enabled = (CCM->CCGR5 & CCM_CCGR5_CG13_MASK) >> CCM_CCGR5_CG13_SHIFT;
             break;
-        case 7:
+        case 8:
             clock_enabled = (CCM->CCGR6 & CCM_CCGR6_CG7_MASK) >> CCM_CCGR6_CG7_SHIFT;
             break;
         default:
@@ -357,7 +358,8 @@ bool serial_check_tx_ongoing()
     int i;
     bool uart_tx_ongoing = false;
 
-    for (i = 0; i < FSL_FEATURE_SOC_LPUART_COUNT; i++) {
+    /* The first LPUART instance number is 1 */
+    for (i = 1; i <= FSL_FEATURE_SOC_LPUART_COUNT; i++) {
         /* First check if UART is enabled */
         if (!serial_is_enabled(i)) {
             /* UART is not enabled, check the next instance */
