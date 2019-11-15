@@ -53,7 +53,6 @@ Please refer to the following table for priorities of test cases. Priorities are
 | 4   | WIFI_SET_CHANNEL                        |                            | SHOULD   |
 | 5   | WIFI_GET_RSSI                           |                            | SHOULD   |
 | 6   | WIFI_CONNECT_PARAMS_NULL                |                            | MUST     |
-| 7   | WIFI_CONNECT_PARAMS_VALID_UNSECURE      |                            | MUST     |
 | 8   | WIFI_CONNECT_PARAMS_VALID_SECURE        | With security type:        |          |
 |     |                                         | NSAPI_SECURITY_WEP         | SHOULD   |
 |     |                                         | NSAPI_SECURITY_WPA         | SHOULD   |
@@ -271,28 +270,6 @@ Test enviroment is set up as specified in "Test Environment" chapter.
 
 Both `connect()` calls return NSAPI_ERROR_PARAMETER.
 
-### WIFI_CONNECT_PARAMS_VALID_UNSECURE
-
-**Description:**
-
-Test `WiFiInterface::connect(ssid, pass, security)` with valid parameters for the unsecure network.
-
-**Precondition:**
-
-Test enviroment is set up as specified in the "Test Environment" chapter.
-
-**Test steps:**
-
-1.  Initialize the driver.
-2.  Call `WiFiInterface::connect( <ssid:unsecure>, NULL)`.
-3.  `disconnect()`.
-4.  Call `WiFiInterface::connect( <ssid:unsecure>, "")`.
-5.  `disconnect()`.
-
-**Expected result:**
-
-`connect()` calls return NSAPI_ERROR_OK.
-
 ### WIFI_CONNECT_PARAMS_VALID_SECURE
 
 **Description:**
@@ -350,7 +327,7 @@ Test enviroment is set up as specified in the "Test Environment" chapter.
 **Test steps:**
 
 1.  Initialize the driver.
-2.  Call `WiFiInterface::connect( <ssid:secure>, <pw:secure>, NSAPI_SECURITY_WPA2, <ch:unsecure>)`.
+2.  Call `WiFiInterface::connect( <ssid:secure>, <pw:secure>, NSAPI_SECURITY_WPA2, <ch:secure>)`.
 3.  `disconnect()`.
 
 **Expected result:**
@@ -398,7 +375,7 @@ Test `WiFiInterface::connect()` and `WiFiInterface::disconnect()` in non-blockin
 **Test steps:**
 
 1.  Initialize the driver.
-2.  `Call WiFiInterface::set_credentials( <ssid:unsecure>, NULL)`.
+2.  `Call WiFiInterface::set_credentials( <ssid:secure>, NULL)`.
 3.  `Call WiFiInterface::set_blocking(false)`
 4.  `Call WiFiInterface::connect()`.
 5.  `Cal WiFiInterface::set_credentials(const char *ssid, const char *pass, nsapi_security_t security)`
@@ -473,7 +450,7 @@ The test enviroment is set up as specified in the "Test Environment" chapter.
 **Test steps:**
 
 1.  Initialize the driver.
-2.  Call `WiFiInterface::set_credentials( <ssid:unsecure>, NULL)`.
+2.  Call `WiFiInterface::set_credentials( <ssid:secure>, NULL)`.
 3.  Repeat 10 times:
     1.  Call `WiFiInterface::connect()`.
     2.  `disconnect()`.
