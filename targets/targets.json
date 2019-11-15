@@ -9129,6 +9129,28 @@
             "network-default-interface-type": "WIFI"
         }
     },
+    "CY8CMOD_062S3_4343W": {
+        "inherits": ["MCU_PSOC6_M4"],
+        "features": ["BLE"],
+        "components_add": ["WHD", "4343W", "CYW43XXX"],
+        "device_has_remove": ["ANALOGOUT"],
+        "extra_labels_add": [
+            "PSOC6_03",
+            "MXCRYPTO_02",
+            "CORDIO"
+        ],
+        "macros_add": [
+            "CY8C6245LQI_S3D72",
+            "CYBSP_WIFI_CAPABLE",
+            "CY_ENABLE_XIP_PROGRAM",
+            "CY_STORAGE_WIFI_DATA=\".cy_xip\""
+        ],
+        "public": false,
+        "overrides": {
+            "network-default-interface-type": "WIFI",
+            "xip-enable": true
+        }
+    },
     "CY8CKIT_064S2_4343W": {
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
@@ -9182,6 +9204,13 @@
         },
         "bootloader_supported": true,
         "sectors": [[268435456, 512]]
+    },
+    "CY8CPROTO_062S3_4343W": {
+        "inherits": ["CY8CMOD_062S3_4343W"],
+        "detect_code": ["190E"],
+        "post_binary_hook": {
+            "function": "PSOC6Code.complete"
+        }
     },
     "CY8CKIT_062S2_43012": {
         "inherits": ["CY8CMOD_062S2_43012"],

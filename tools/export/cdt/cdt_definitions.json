@@ -55,6 +55,14 @@
         "gdbServerOther": "-p 3333&#13;&#10;--no-deprecation-warning",
         "corePortNumber": 3334
       }
+    },
+
+    "PSOC6_03": {
+      "generic": {
+        "gdbServerGdbPortNumber": 3334,
+        "gdbServerOther": "-p 3333&#13;&#10;--no-deprecation-warning",
+        "corePortNumber": 3334
+      }
     }
   }
 }
