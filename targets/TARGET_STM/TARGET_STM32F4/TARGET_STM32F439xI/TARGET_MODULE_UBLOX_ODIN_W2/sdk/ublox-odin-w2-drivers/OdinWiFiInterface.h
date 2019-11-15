@@ -1,5 +1,5 @@
 /* ODIN-W2 implementation of WiFiInterface
- * Copyright (c) 2016 u-blox Malmö AB
+ * Copyright (c) 2016 u-blox Malmï¿½ AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 #ifndef ODIN_WIFI_INTERFACE_H
 #define ODIN_WIFI_INTERFACE_H
+
+#if MBED_CONF_LWIP_PRESENT
 
 #include "WiFiInterface.h"
 #if DEVICE_WIFI_AP
@@ -443,3 +445,5 @@ private:
 };
 
 #endif
+
+#endif // MBED_CONF_LWIP_PRESENT
