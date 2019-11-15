@@ -63,13 +63,9 @@ public:
 
     virtual CellularNetwork *open_network(FileHandle *fh = NULL);
 
-    virtual CellularSMS *open_sms(FileHandle *fh = NULL);
-
     virtual CellularInformation *open_information(FileHandle *fh = NULL);
 
     virtual void close_network();
-
-    virtual void close_sms();
 
     virtual void close_information();
 
@@ -119,13 +115,6 @@ public:
      */
     virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
 
-    /** Create new instance of AT_CellularSMS or if overridden, modem specific implementation.
-     *
-     *  @param at   ATHandler reference for communication with the modem.
-     *  @return new instance of class AT_CellularSMS
-     */
-    virtual AT_CellularSMS *open_sms_impl(ATHandler &at);
-
     /** Create new instance of AT_CellularInformation or if overridden, modem specific implementation.
      *
      *  @param at   ATHandler reference for communication with the modem.
@@ -137,8 +126,24 @@ public:
 
     virtual nsapi_error_t set_baud_rate(int baud_rate);
 
-    AT_CellularNetwork *_network;
+#if MBED_CONF_CELLULAR_USE_SMS
+    virtual CellularSMS *open_sms(FileHandle *fh = NULL);
+
+    virtual void close_sms();
+
+    /** Create new instance of AT_CellularSMS or if overridden, modem specific implementation.
+     *
+     *  @param at   ATHandler reference for communication with the modem.
+     *  @return new instance of class AT_CellularSMS
+     */
+    virtual AT_CellularSMS *open_sms_impl(ATHandler &at);
+
     AT_CellularSMS *_sms;
+
+#endif // MBED_CONF_CELLULAR_USE_SMS
+
+    AT_CellularNetwork *_network;
+
     AT_CellularInformation *_information;
     AT_CellularContext *_context_list;
     int _default_timeout;

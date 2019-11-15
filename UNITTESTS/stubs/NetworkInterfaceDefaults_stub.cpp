@@ -16,7 +16,7 @@
  */
 #include "netsocket/NetworkInterface.h"
 #include "WiFiInterface.h"
-#include "CellularBase.h"
+#include "CellularInterface.h"
 #include "MeshInterface.h"
 
 MBED_WEAK WiFiInterface *WiFiInterface::get_default_instance()
@@ -29,7 +29,7 @@ MBED_WEAK MeshInterface *MeshInterface::get_default_instance()
     return NULL;
 }
 
-MBED_WEAK CellularBase *CellularBase::get_default_instance()
+MBED_WEAK CellularInterface *CellularInterface::get_default_instance()
 {
     return NULL;
 }
@@ -52,7 +52,7 @@ void WiFiInterface::set_default_parameters()
 {
 }
 
-void CellularBase::set_default_parameters()
+void CellularInterface::set_default_parameters()
 {
 }
 

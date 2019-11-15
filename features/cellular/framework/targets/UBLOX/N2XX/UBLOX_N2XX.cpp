@@ -63,10 +63,12 @@ AT_CellularContext *UBLOX_N2XX::create_context_impl(ATHandler &at, const char *a
     return new UBLOX_N2XX_CellularContext(at, this, apn, cp_req, nonip_req);
 }
 
+#if MBED_CONF_CELLULAR_USE_SMS
 AT_CellularSMS *UBLOX_N2XX::open_sms_impl(ATHandler &at)
 {
     return new UBLOX_N2XX_CellularSMS(at);
 }
+#endif // MBED_CONF_CELLULAR_USE_SMS
 
 nsapi_error_t UBLOX_N2XX::init()
 {

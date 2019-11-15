@@ -5,6 +5,10 @@
             "help": "Use APN database lookup",
             "value": true
         },
+        "use-sms": {
+            "help": "Enable or disable SMS functionality in Cellular stack.",
+            "value": false
+        },
         "random_max_start_delay": {
             "help": "Maximum random delay value used in start-up sequence in milliseconds",
             "value": 0
