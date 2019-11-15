@@ -775,11 +775,6 @@ static void *whd_wifi_join_events_handler(whd_interface_t ifp, const whd_event_h
         case WLC_E_DISASSOC_IND:
             whd_driver->internal_info.whd_join_status[event_header->bsscfgidx] &=
                 ~(JOIN_AUTHENTICATED | JOIN_LINK_READY);
-            if (ifp->event_reg_list[WHD_JOIN_EVENT_ENTRY] != WHD_EVENT_NOT_REGISTERED)
-            {
-                whd_wifi_deregister_event_handler(ifp, ifp->event_reg_list[WHD_JOIN_EVENT_ENTRY]);
-                ifp->event_reg_list[WHD_JOIN_EVENT_ENTRY] = WHD_EVENT_NOT_REGISTERED;
-            }
             break;
 
         case WLC_E_AUTH:
@@ -1278,6 +1273,12 @@ static uint32_t whd_wifi_prepare_join(whd_interface_t ifp, whd_security_t auth_t
     }
     *wpa_auth = htod32(*wpa_auth);
     CHECK_RETURN(whd_cdc_send_ioctl(ifp, CDC_SET, WLC_SET_WPA_AUTH, buffer, 0) );
+
+    if (ifp->event_reg_list[WHD_JOIN_EVENT_ENTRY] != WHD_EVENT_NOT_REGISTERED)
+    {
+        whd_wifi_deregister_event_handler(ifp, ifp->event_reg_list[WHD_JOIN_EVENT_ENTRY]);
+        ifp->event_reg_list[WHD_JOIN_EVENT_ENTRY] = WHD_EVENT_NOT_REGISTERED;
+    }
 
     CHECK_RETURN(whd_management_set_event_handler(ifp, join_events, whd_wifi_join_events_handler, (void *)semaphore,
                                                   &event_entry) );
@@ -2237,6 +2238,12 @@ uint32_t whd_wifi_scan(whd_interface_t ifp,
         {
         }
         param_size = ( uint16_t )(param_size + channel_list_size * sizeof(uint16_t) );
+    }
+
+    if (ifp->event_reg_list[WHD_SCAN_EVENT_ENTRY] != WHD_EVENT_NOT_REGISTERED)
+    {
+        whd_wifi_deregister_event_handler(ifp, ifp->event_reg_list[WHD_SCAN_EVENT_ENTRY]);
+        ifp->event_reg_list[WHD_SCAN_EVENT_ENTRY] = WHD_EVENT_NOT_REGISTERED;
     }
     CHECK_RETURN(whd_management_set_event_handler(ifp, scan_events, whd_wifi_scan_events_handler, user_data,
                                                   &event_entry) );
