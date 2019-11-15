@@ -448,6 +448,9 @@ static void set_several_unvalid_key_names()
 //set key initialize kvstore and retrieve it
 static void set_key_init_deinit()
 {
+    if (kv_setup == TDBStoreSet) {
+        TEST_SKIP_MESSAGE("Unstable testcase. Skipped. Issue # IOTSTOR-978");
+    }
     TEST_SKIP_UNLESS(kvstore != NULL);
 
     int res = kvstore->set(key, data, data_size, 0);
