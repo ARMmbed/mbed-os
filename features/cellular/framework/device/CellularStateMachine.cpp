@@ -19,6 +19,7 @@
 #include "CellularDevice.h"
 #include "CellularLog.h"
 #include "Thread.h"
+#include "mbed_shared_queues.h"
 
 #ifndef MBED_TRACE_MAX_LEVEL
 #define MBED_TRACE_MAX_LEVEL TRACE_LEVEL_INFO
@@ -111,6 +112,8 @@ void CellularStateMachine::stop()
         delete _queue_thread;
         _queue_thread = NULL;
     }
+#else
+    _queue.chain(NULL);
 #endif
 
     reset();
@@ -655,6 +658,8 @@ nsapi_error_t CellularStateMachine::start_dispatch()
     }
 
     _event_id = -1;
+#else
+    _queue.chain(mbed_event_queue());
 #endif
     return NSAPI_ERROR_OK;
 }
