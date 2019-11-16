@@ -19,6 +19,9 @@
 #define TCP_TESTS_H
 
 #include "../test_params.h"
+#include "mbed_trace.h"
+
+#define TRACE_GROUP "GRNT"
 
 NetworkInterface *get_interface();
 void drop_bad_packets(TCPSocket &sock, int orig_timeout);

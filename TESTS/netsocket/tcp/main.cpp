@@ -76,13 +76,13 @@ static void _ifup()
     NetworkInterface *net = NetworkInterface::get_default_instance();
     nsapi_error_t err = net->connect();
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
-    printf("MBED: TCPClient IP address is '%s'\n", net->get_ip_address() ? net->get_ip_address() : "null");
+    tr_info("MBED: TCPClient IP address is '%s'", net->get_ip_address() ? net->get_ip_address() : "null");
 }
 
 static void _ifdown()
 {
     NetworkInterface::get_default_instance()->disconnect();
-    printf("MBED: ifdown\n");
+    tr_info("MBED: ifdown");
 }
 
 nsapi_error_t tcpsocket_connect_to_srv(TCPSocket &sock, uint16_t port)
@@ -92,17 +92,17 @@ nsapi_error_t tcpsocket_connect_to_srv(TCPSocket &sock, uint16_t port)
     NetworkInterface::get_default_instance()->gethostbyname(ECHO_SERVER_ADDR, &tcp_addr);
     tcp_addr.set_port(port);
 
-    printf("MBED: Server '%s', port %d\n", tcp_addr.get_ip_address(), tcp_addr.get_port());
+    tr_info("MBED: Server '%s', port %d", tcp_addr.get_ip_address(), tcp_addr.get_port());
 
     nsapi_error_t err = sock.open(NetworkInterface::get_default_instance());
     if (err != NSAPI_ERROR_OK) {
-        printf("Error from sock.open: %d\n", err);
+        tr_error("Error from sock.open: %d", err);
         return err;
     }
 
     err = sock.connect(tcp_addr);
     if (err != NSAPI_ERROR_OK) {
-        printf("Error from sock.connect: %d\n", err);
+        tr_error("Error from sock.connect: %d", err);
         return err;
     }
 
