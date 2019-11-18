@@ -38,16 +38,23 @@ static NS_LARGE NS_LIST_DEFINE(dhcpv6_client_nonTemporal_list, dhcpv6_client_ser
 static dhcpv6_client_server_data_t *libdhcvp6_nontemporalAddress_entry_allocate(void)
 {
     dhcpv6_client_server_data_t *newEntry = ns_dyn_mem_alloc(sizeof(dhcpv6_client_server_data_t));
-    if (newEntry) {
-        newEntry->T0 = 0;
-        newEntry->T1 = 0;
-        newEntry->reNewTimer = 0;
-        newEntry->iaNonTemporalStructValid = false;
-        newEntry->GlobalAddress = false;
-        newEntry->useServerAddress = false;
-        newEntry->iaNontemporalAddress.preferredTime = 0;
-        newEntry->iaNontemporalAddress.validLifetime = 0;
+    uint8_t *temporary_duid = ns_dyn_mem_alloc(16); //Support DUID-LL, DUID-LLP and DUID-UUID  by default
+    if (!newEntry || !temporary_duid) {
+        ns_dyn_mem_free(newEntry);
+        ns_dyn_mem_free(temporary_duid);
+        return NULL;
     }
+
+    newEntry->T0 = 0;
+    newEntry->T1 = 0;
+    newEntry->reNewTimer = 0;
+    newEntry->iaNonTemporalStructValid = false;
+    newEntry->GlobalAddress = false;
+    newEntry->useServerAddress = false;
+    newEntry->iaNontemporalAddress.preferredTime = 0;
+    newEntry->iaNontemporalAddress.validLifetime = 0;
+    newEntry->dyn_server_duid_length = 16;
+    newEntry->serverDynamic_DUID = temporary_duid;
     return newEntry;
 }
 
@@ -123,35 +130,34 @@ uint32_t libdhcpv6_renew_time_define(dhcpv6_client_server_data_t *addresInfo)
     return renewTimer;
 }
 
-dhcpv6_client_server_data_t *libdhcvp6_nontemporalAddress_server_data_allocate(int8_t interfaceId, uint8_t instanceId, uint8_t *duiId, uint16_t duiLinkType, uint8_t *nonTemporalPrefix, uint8_t *serverIPv6Address)
+dhcpv6_client_server_data_t *libdhcvp6_nontemporalAddress_server_data_allocate(int8_t interfaceId, uint8_t instanceId, uint8_t *nonTemporalPrefix, uint8_t *serverIPv6Address)
 {
     uint32_t iaId;
+    uint8_t *ptr;
     dhcpv6_client_server_data_t *new_entry = NULL;
-    if (duiId) {
-        //allocate new Entry
-        iaId = libdhcpv6_IAID_generate();
-        new_entry = libdhcvp6_nontemporalAddress_entry_allocate();
-        if (new_entry) {
-            new_entry->IAID = iaId;
-            new_entry->interfaceId = interfaceId;
-            new_entry->instanceId = instanceId;
-            //save Cliet ID
-            memcpy(new_entry->clientId, duiId, 8);
-            new_entry->clientLinkIdType = duiLinkType;
-            if (serverIPv6Address) {
-                memcpy(new_entry->server_address, serverIPv6Address, 16);
-                new_entry->useServerAddress = true;
-            }
-            if (nonTemporalPrefix) {
-                uint8_t *ptr = new_entry->iaNontemporalAddress.addressPrefix;
-                memcpy(ptr, nonTemporalPrefix, 8);
-                memset((ptr + 8), 0, 8);
-                new_entry->iaNonTemporalStructValid = true;
-                new_entry->iaNontemporalAddress.preferredTime = 0;
-                new_entry->iaNontemporalAddress.validLifetime = 0;
-            }
-            ns_list_add_to_end(&dhcpv6_client_nonTemporal_list, new_entry);
+    //allocate new Entry
+    iaId = libdhcpv6_IAID_generate();
+    new_entry = libdhcvp6_nontemporalAddress_entry_allocate();
+    if (new_entry) {
+        new_entry->IAID = iaId;
+        new_entry->interfaceId = interfaceId;
+        new_entry->instanceId = instanceId;
+        new_entry->serverDUID.duid = NULL;
+        new_entry->serverDUID.duid_length = 0;
+
+        if (serverIPv6Address) {
+            memcpy(new_entry->server_address, serverIPv6Address, 16);
+            new_entry->useServerAddress = true;
         }
+        if (nonTemporalPrefix) {
+            ptr = new_entry->iaNontemporalAddress.addressPrefix;
+            memcpy(ptr, nonTemporalPrefix, 8);
+            memset((ptr + 8), 0, 8);
+            new_entry->iaNonTemporalStructValid = true;
+            new_entry->iaNontemporalAddress.preferredTime = 0;
+            new_entry->iaNontemporalAddress.validLifetime = 0;
+        }
+        ns_list_add_to_end(&dhcpv6_client_nonTemporal_list, new_entry);
     }
     return new_entry;
 }
@@ -160,6 +166,7 @@ void libdhcvp6_nontemporalAddress_server_data_free(dhcpv6_client_server_data_t *
 {
     if (removedEntry) {
         ns_list_remove(&dhcpv6_client_nonTemporal_list, removedEntry);
+        ns_dyn_mem_free(removedEntry->serverDynamic_DUID);
         ns_dyn_mem_free(removedEntry);
     }
 }
@@ -228,26 +235,19 @@ dhcpv6_client_server_data_t *libdhcpv6_nonTemporal_validate_class_pointer(void *
 }
 
 
-uint16_t libdhcpv6_duid_option_size(uint16_t linkType)
+uint16_t libdhcpv6_duid_option_size(uint16_t duidLength)
 {
-    uint16_t length = 8; // Type & Length header part *2
-    if (linkType == DHCPV6_DUID_HARDWARE_EUI64_TYPE ||
-            linkType == DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE) {
-        length += 8;
-    } else {
-        length += 6;
-    }
-
-    return length;
+    return duidLength + 6; //ID Type 2, length 2 ,Duid Type 2 + duid data
 }
 
-uint16_t libdhcpv6_client_data_option_size(uint16_t linkType)
+uint8_t libdhcpv6_duid_linktype_size(uint16_t linkType)
 {
-    uint16_t optionLength = 4;
-    optionLength += libdhcpv6_duid_option_size(linkType);
-    optionLength += libdhcpv6_ia_address_option_size();
-    optionLength += libdhcpv6_client_last_transaction_time_option_size();
-    return optionLength;
+    if (linkType == DHCPV6_DUID_HARDWARE_EUI64_TYPE ||
+            linkType == DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE) {
+        return 8;
+    }
+
+    return 6;
 }
 
 uint16_t libdhcvp6_request_option_size(uint8_t optionCnt)
@@ -345,18 +345,14 @@ uint8_t *libdhcvp6_request_option_write(uint8_t *ptr, uint8_t optionCnt, uint16_
     return ptr;
 }
 
-uint8_t *libdhcpv6_duid_option_write(uint8_t *ptr, uint16_t duidRole, const dhcp_link_options_params_t *duid)
+uint8_t *libdhcpv6_duid_option_write(uint8_t *ptr, uint16_t duidRole, const dhcp_duid_options_params_t *duid)
 {
-    uint16_t length = libdhcpv6_duid_option_size(duid->linkType);
-
-    length -= 4; //Cut normal option header out
+    uint16_t length = duid->duid_length + 2;
     ptr = common_write_16_bit(duidRole, ptr);
     ptr = common_write_16_bit(length, ptr);
-    ptr = common_write_16_bit(DHCPV6_DUID_LINK_LAYER_TYPE, ptr);
-    ptr = common_write_16_bit(duid->linkType, ptr);
-    length -= 4; //Cut normal option header out
-    memcpy(ptr, duid->linkID, length);
-    ptr += length;
+    ptr = common_write_16_bit(duid->type, ptr);
+    memcpy(ptr, duid->duid, duid->duid_length);
+    ptr += duid->duid_length;
     return ptr;
 }
 
@@ -460,25 +456,23 @@ int libdhcpv6_message_option_discover(uint8_t *ptr, uint16_t data_len, uint16_t 
     return -1;
 }
 
-int libdhcpv6_compare_DUID(dhcp_link_options_params_t *targetId, dhcp_link_options_params_t *parsedId)
+int libdhcpv6_compare_DUID(dhcp_duid_options_params_t *targetId, dhcp_duid_options_params_t *parsedId)
 {
-    if (targetId->linkType == parsedId->linkType) {
-        uint8_t cmpLen;
-        if (targetId->linkType == DHCPV6_DUID_HARDWARE_EUI64_TYPE  ||
-                targetId->linkType == DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE) {
-            //Compare Current Interface EUID64
-            cmpLen = 8;
-        } else {
-            cmpLen = 6;
-        }
-        if (memcmp(targetId->linkID, parsedId->linkID, cmpLen) == 0) {
-            return 0;
-        }
+    if (targetId->type != parsedId->type) {
+        return -1;
     }
-    return -1;
+
+    if (targetId->duid_length != parsedId->duid_length) {
+        return -1;
+    }
+
+    if (memcmp(targetId->duid, parsedId->duid, targetId->duid_length) != 0) {
+        return -1;
+    }
+    return 0;
 }
 
-int libdhcpv6_reply_message_option_validate(dhcp_link_options_params_t *clientId, dhcp_link_options_params_t *serverId, dhcp_ia_non_temporal_params_t *dhcp_ia_non_temporal_params, uint8_t *ptr, uint16_t data_length)
+int libdhcpv6_reply_message_option_validate(dhcp_duid_options_params_t *clientId, dhcp_duid_options_params_t *serverId, dhcp_ia_non_temporal_params_t *dhcp_ia_non_temporal_params, uint8_t *ptr, uint16_t data_length)
 {
     /**
      * Solication Message Should Include Next Options:
@@ -503,7 +497,7 @@ int libdhcpv6_reply_message_option_validate(dhcp_link_options_params_t *clientId
     return 0;
 }
 
-int libdhcpv6_advertisment_message_option_validate(dhcp_link_options_params_t *clientId, dhcp_link_options_params_t *serverId, dhcp_ia_non_temporal_params_t *dhcp_ia_non_temporal_params, uint8_t *ptr, uint16_t data_length)
+int libdhcpv6_advertisment_message_option_validate(dhcp_duid_options_params_t *clientId, dhcp_duid_options_params_t *serverId, dhcp_ia_non_temporal_params_t *dhcp_ia_non_temporal_params, uint8_t *ptr, uint16_t data_length)
 {
     /**
      * Solication Message Should Include Next Options:
@@ -528,7 +522,7 @@ int libdhcpv6_advertisment_message_option_validate(dhcp_link_options_params_t *c
     return 0;
 }
 #ifdef HAVE_DHCPV6_SERVER
-int libdhcpv6_renew_message_options_validate(uint8_t *ptr, uint16_t data_length, dhcp_link_options_params_t *clientLinkData, dhcp_link_options_params_t *serverLinkData, dhcp_ia_non_temporal_params_t *dhcp_ia_non_temporal_params)
+int libdhcpv6_renew_message_options_validate(uint8_t *ptr, uint16_t data_length, dhcp_duid_options_params_t *clientLinkData, dhcp_duid_options_params_t *serverLinkData, dhcp_ia_non_temporal_params_t *dhcp_ia_non_temporal_params)
 {
 
     /**
@@ -565,7 +559,7 @@ int libdhcpv6_renew_message_options_validate(uint8_t *ptr, uint16_t data_length,
 
 
 
-int libdhcpv6_solication_message_options_validate(uint8_t *ptr, uint16_t data_length, dhcp_link_options_params_t *clientLink, dhcp_ia_non_temporal_params_t *dhcp_ia_non_temporal_params)
+int libdhcpv6_solication_message_options_validate(uint8_t *ptr, uint16_t data_length, dhcp_duid_options_params_t *clientLink, dhcp_ia_non_temporal_params_t *dhcp_ia_non_temporal_params)
 {
     /**
      * Solication Message Should Include Next Options:
@@ -620,33 +614,101 @@ bool libdhcpv6_rapid_commit_option_at_packet(uint8_t *ptr, uint16_t length)
     return retVal;
 }
 
-int libdhcpv6_get_duid_by_selected_type_id_opt(uint8_t *ptr, uint16_t data_length, uint16_t type, dhcp_link_options_params_t *params)
+bool libdhcpv6_duid_length_validate(uint16_t duid_type, uint16_t duid_length)
+{
+    uint16_t min_length;
+    switch (duid_type) {
+        case DHCPV6_DUID_LINK_LAYER_PLUS_TIME_TYPE:
+            //hardware type (16 bits) + time (32 bits) +link layer address (variable length 1 min)
+            min_length = 7; //Link Time Time
+            break;
+        case DHCPV6_DUID_EN_TYPE: //enterprise-number (32-bits) +identifier (variable length 1 min)
+            min_length = 5;
+            break;
+        case DHCPV6_DUID_LINK_LAYER_TYPE:
+            //hardware type (16 bits)  + link layer address (variable length 1 min)
+            min_length = 3; //Type 2 and MiN DUI-id 1
+            break;
+
+        case DHCPV6_DUID_UUID_TYPE:
+            //UUID (128-bits)
+            if (duid_length != 16) {
+                return false;
+            }
+            min_length = 16;
+            break;
+
+        default://Unsupported type set length to inpossible
+            min_length = 0xffff;
+            break;
+    }
+
+    //Validate min and MAX length
+    if (min_length > duid_length || min_length == 0xffff) {
+        //Too short
+        return false;
+    }
+
+    if (duid_length > 128 - min_length) {
+        //Too Long
+        return false;
+    }
+
+    return true;
+}
+
+
+int libdhcpv6_get_duid_by_selected_type_id_opt(uint8_t *ptr, uint16_t data_length, uint16_t type, dhcp_duid_options_params_t *params)
 {
     dhcp_options_msg_t option_msg;
 
     /** Verify DHCPV6_CLIENT_ID_OPTION */
-    if (libdhcpv6_message_option_discover(ptr, data_length, type, &option_msg) == 0) {
-        if (option_msg.len >= DHCPV6_SERVER_ID_MAC48_OPTION_LEN) {
-            uint8_t *t_ptr = option_msg.msg_ptr;
-            type = common_read_16_bit(t_ptr);
-            t_ptr += 2;
-            params->linkType = common_read_16_bit(t_ptr);
-            t_ptr += 2;
-            if (type == DHCPV6_DUID_LINK_LAYER_TYPE) {
-                params->linkID = t_ptr;
-                if ((params->linkType == DHCPV6_DUID_HARDWARE_EUI48_TYPE) && (option_msg.len == DHCPV6_SERVER_ID_MAC48_OPTION_LEN)) {
-                    return 0;
-                } else if ((params->linkType == DHCPV6_DUID_HARDWARE_EUI64_TYPE) && (option_msg.len == DHCPV6_SERVER_ID_MAC64_OPTION_LEN)) {
-                    return 0;
-                } else if ((params->linkType == DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE) && (option_msg.len == DHCPV6_SERVER_ID_MAC64_OPTION_LEN)) {
-                    return 0;
-                }
-            }
-        }
+    if (libdhcpv6_message_option_discover(ptr, data_length, type, &option_msg) != 0) {
+        return -1;
     }
 
-    return -1;
+    if (option_msg.len < 5) {
+        return -1;
+    }
+
+    uint8_t *t_ptr = option_msg.msg_ptr;
+    params->type = common_read_16_bit(t_ptr);
+    t_ptr += 2;
+    params->duid = t_ptr;
+    params->duid_length = option_msg.len - 2;
+    //Validate types and lengths
+    if (!libdhcpv6_duid_length_validate(params->type, params->duid_length)) {
+        return -1;
+    }
+
+    return 0;
 }
+
+int libdhcpv6_get_link_address_from_duid(uint8_t *ptr, uint16_t data_length, uint16_t type, dhcp_link_options_params_t *params)
+{
+
+    if ((type != DHCPV6_DUID_LINK_LAYER_TYPE && type != DHCPV6_DUID_LINK_LAYER_PLUS_TIME_TYPE) || data_length < 8) {
+        return -1;
+    }
+
+    params->link_type = common_read_16_bit(ptr);
+    ptr += 2;
+    data_length -= 2;
+    if (type == DHCPV6_DUID_LINK_LAYER_PLUS_TIME_TYPE) {
+        params->link_time = common_read_32_bit(ptr);
+        ptr += 4;
+        data_length -= 4;
+    } else {
+        params->link_time = 0;
+    }
+    if (libdhcpv6_duid_linktype_size(params->link_type) > data_length) {
+        return -1;
+    }
+
+    params->link_id = ptr;
+    return 0;
+}
+
 
 int libdhcpv6_get_IA_address(uint8_t *ptr, uint16_t data_length, dhcp_ia_non_temporal_params_t *params)
 {
@@ -708,26 +770,26 @@ int libdhcpv6_get_IA_address(uint8_t *ptr, uint16_t data_length, dhcp_ia_non_tem
     return -1;
 }
 
-uint16_t libdhcpv6_address_request_message_len(uint16_t clientLinkType, uint16_t serverLinkType, uint8_t requstOptionCnt, bool add_address)
+uint16_t libdhcpv6_address_request_message_len(uint16_t clientDUIDLength, uint16_t serverDUIDLength, uint8_t requstOptionCnt, bool add_address)
 {
     uint16_t length = 0;
     length += libdhcpv6_header_size();
     length += libdhcpv6_elapsed_time_option_size();
-    length += libdhcpv6_duid_option_size(clientLinkType);
-    length += libdhcpv6_duid_option_size(serverLinkType);
+    length += libdhcpv6_duid_option_size(clientDUIDLength);
+    length += libdhcpv6_duid_option_size(serverDUIDLength);
     length += libdhcvp6_request_option_size(requstOptionCnt);
     length += libdhcpv6_rapid_commit_option_size();
     length += libdhcpv6_non_temporal_address_size(add_address);
     return length;
 }
 #ifdef HAVE_DHCPV6_SERVER
-uint16_t libdhcpv6_address_reply_message_len(uint16_t clientLinkType, uint16_t serverLinkType, uint16_t vendorDataLen, bool rapidCommon, bool status)
+uint16_t libdhcpv6_address_reply_message_len(uint16_t clientDUIDLength, uint16_t serverDUIDLength, uint16_t vendorDataLen, bool rapidCommon, bool status)
 {
     uint16_t length = 0;
 
     length += libdhcpv6_header_size();
-    length += libdhcpv6_duid_option_size(clientLinkType);
-    length += libdhcpv6_duid_option_size(serverLinkType);
+    length += libdhcpv6_duid_option_size(clientDUIDLength);
+    length += libdhcpv6_duid_option_size(serverDUIDLength);
     if (rapidCommon) {
         length += libdhcpv6_rapid_commit_option_size();
     }
@@ -747,7 +809,7 @@ uint16_t libdhcpv6_address_reply_message_len(uint16_t clientLinkType, uint16_t s
 }
 #endif
 
-uint8_t *libdhcpv6_generic_nontemporal_address_message_write(uint8_t *ptr, dhcpv6_solication_base_packet_s *packet, dhcpv6_ia_non_temporal_address_s *nonTemporalAddress, dhcp_link_options_params_t *serverLink)
+uint8_t *libdhcpv6_generic_nontemporal_address_message_write(uint8_t *ptr, dhcpv6_solication_base_packet_s *packet, dhcpv6_ia_non_temporal_address_s *nonTemporalAddress, dhcp_duid_options_params_t *serverLink)
 {
     bool add_address = false;
     if (nonTemporalAddress) {
@@ -803,13 +865,13 @@ uint8_t *libdhcpv6_reply_message_write(uint8_t *ptr, dhcpv6_reply_packet_s *repl
     return ptr;
 }
 
-uint16_t libdhcpv6_solication_message_length(uint16_t clientLinkType, bool addressDefined, uint8_t requestOptionCount)
+uint16_t libdhcpv6_solication_message_length(uint16_t clientDUIDLength, bool addressDefined, uint8_t requestOptionCount)
 {
     uint16_t length = 0;
     length += libdhcpv6_header_size();
     length += libdhcpv6_elapsed_time_option_size();
     length += libdhcpv6_rapid_commit_option_size();
-    length += libdhcpv6_duid_option_size(clientLinkType);
+    length += libdhcpv6_duid_option_size(clientDUIDLength);
     length += libdhcpv6_non_temporal_address_size(addressDefined);
     length += libdhcvp6_request_option_size(requestOptionCount);
     return length;

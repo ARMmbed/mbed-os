@@ -198,6 +198,13 @@ static rpl_neighbour_t *rpl_mrhof_select_best_parent(rpl_instance_t *instance, c
     /* We can use this to simplify some logic */
     if (prev_preferred) {
         prev_preferred_path_cost = rpl_mrhof_path_cost_through_neighbour(prev_preferred);
+        // Path cost might be not much worse than alternate parents, but it might push
+        // us over our DAGMaxRankIncrease limit. In that case, makes sense to treat
+        // the path cost as "infinite", allowing immediate switch to an alternative,
+        // defeating hysteresis.
+        if (prev_preferred_path_cost > prev_preferred->dodag_version->hard_rank_limit) {
+            prev_preferred_path_cost = RPL_RANK_INFINITE;
+        }
     }
 
     ns_list_foreach(rpl_neighbour_t, c, &instance->candidate_neighbours) {

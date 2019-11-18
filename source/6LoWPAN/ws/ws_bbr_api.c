@@ -37,12 +37,15 @@
 #include "6LoWPAN/ws/ws_bbr_api_internal.h"
 #include "6LoWPAN/ws/ws_pae_controller.h"
 #include "DHCPv6_Server/DHCPv6_server_service.h"
+#include "DHCPv6_client/dhcpv6_client_api.h"
 
 #include "ws_bbr_api.h"
 
 #define TRACE_GROUP "BBRw"
 
 #define RPL_INSTANCE_ID 1
+
+static uint8_t current_instance_id = RPL_INSTANCE_ID;
 
 #ifdef HAVE_WS_BORDER_ROUTER
 
@@ -59,7 +62,8 @@
 static int8_t backbone_interface_id = -1; // BBR backbone information
 static uint16_t configuration = 0;
 
-static uint8_t static_dodag_prefix[8] = {0xfd, 0x00, 0x61, 0x72, 0x6d};
+static uint8_t static_dodag_prefix[8] = {0xfd, 0x00, 0x72, 0x83, 0x7e};
+static uint8_t static_dodag_id_prefix[8] = {0xfd, 0x00, 0x61, 0x72, 0x6d};
 static uint8_t current_dodag_id[16] = {0};
 static uint8_t current_local_prefix[8] = {0};
 static uint8_t current_global_prefix[8] = {0};
@@ -71,17 +75,17 @@ static rpl_dodag_conf_t rpl_conf = {
     .default_lifetime = 120,
     .lifetime_unit = 60,
     .objective_code_point = 1, // MRHOF algorithm used
-    .authentication = 0,
+    .authentication = false,
     .path_control_size = 7,
-    .dag_max_rank_increase = 2048,
-    .min_hop_rank_increase = 196,
+    .dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE,
+    .min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE,
     // DIO configuration
     .dio_interval_min = WS_RPL_DIO_IMIN,
     .dio_interval_doublings = WS_RPL_DIO_DOUBLING,
     .dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY
 };
 
-void ws_bbr_rpl_config(uint8_t imin, uint8_t doubling, uint8_t redundancy)
+void ws_bbr_rpl_config(uint8_t imin, uint8_t doubling, uint8_t redundancy, uint16_t dag_max_rank_increase, uint16_t min_hop_rank_increase)
 {
     if (imin == 0 || doubling == 0) {
         // use default values
@@ -89,15 +93,22 @@ void ws_bbr_rpl_config(uint8_t imin, uint8_t doubling, uint8_t redundancy)
         doubling = WS_RPL_DIO_DOUBLING;
         redundancy = WS_RPL_DIO_REDUNDANCY;
     }
+
     if (rpl_conf.dio_interval_min == imin &&
             rpl_conf.dio_interval_doublings == doubling &&
-            rpl_conf.dio_redundancy_constant == redundancy) {
+            rpl_conf.dio_redundancy_constant == redundancy &&
+            rpl_conf.dag_max_rank_increase == dag_max_rank_increase &&
+            rpl_conf.min_hop_rank_increase == min_hop_rank_increase) {
         // Same values no update needed
         return;
     }
+
     rpl_conf.dio_interval_min = imin;
     rpl_conf.dio_interval_doublings = doubling;
     rpl_conf.dio_redundancy_constant = redundancy;
+    rpl_conf.dag_max_rank_increase = dag_max_rank_increase;
+    rpl_conf.min_hop_rank_increase = min_hop_rank_increase;
+
     if (protocol_6lowpan_rpl_root_dodag) {
         rpl_control_update_dodag_config(protocol_6lowpan_rpl_root_dodag, &rpl_conf);
         rpl_control_increment_dodag_version(protocol_6lowpan_rpl_root_dodag);
@@ -112,9 +123,10 @@ static void ws_bbr_rpl_root_start(uint8_t *dodag_id)
     if (protocol_6lowpan_rpl_root_dodag) {
         rpl_control_delete_dodag_root(protocol_6lowpan_rpl_domain, protocol_6lowpan_rpl_root_dodag);
         protocol_6lowpan_rpl_root_dodag = NULL;
+        current_instance_id++;
     }
 
-    protocol_6lowpan_rpl_root_dodag = rpl_control_create_dodag_root(protocol_6lowpan_rpl_domain, RPL_INSTANCE_ID, dodag_id, &rpl_conf, rpl_conf.min_hop_rank_increase, RPL_GROUNDED | RPL_MODE_NON_STORING | RPL_DODAG_PREF(0));
+    protocol_6lowpan_rpl_root_dodag = rpl_control_create_dodag_root(protocol_6lowpan_rpl_domain, current_instance_id, dodag_id, &rpl_conf, rpl_conf.min_hop_rank_increase, RPL_GROUNDED | RPL_MODE_NON_STORING | RPL_DODAG_PREF(0));
     if (!protocol_6lowpan_rpl_root_dodag) {
         tr_err("RPL dodag init failed");
         return;
@@ -129,6 +141,7 @@ static void ws_bbr_rpl_root_stop(void)
     if (protocol_6lowpan_rpl_root_dodag) {
         rpl_control_delete_dodag_root(protocol_6lowpan_rpl_domain, protocol_6lowpan_rpl_root_dodag);
         protocol_6lowpan_rpl_root_dodag = NULL;
+        current_instance_id++;
     }
     memset(current_local_prefix, 0, 8);
     memset(current_global_prefix, 0, 8);
@@ -162,6 +175,24 @@ int ws_border_router_proxy_state_update(int8_t caller_interface_id, int8_t handl
     return 0;
 }
 
+static if_address_entry_t *ws_bbr_slaac_generate(protocol_interface_info_entry_t *cur, uint8_t *ula_prefix)
+{
+    if_address_entry_t *add_entry = icmpv6_slaac_address_add(cur, ula_prefix, 64, 0xffffffff, 0xffffffff, true, SLAAC_IID_FIXED);
+    if (!add_entry) {
+        tr_err("ula create failed");
+        return NULL;
+    }
+    addr_policy_table_add_entry(ula_prefix, 64, 2, WS_NON_PREFFRED_LABEL);
+    return add_entry;
+}
+
+static void ws_bbr_slaac_remove(protocol_interface_info_entry_t *cur, uint8_t *ula_prefix)
+{
+    icmpv6_slaac_prefix_update(cur, ula_prefix, 64, 0, 0);
+    addr_policy_table_delete_entry(ula_prefix, 64);
+}
+
+
 static int ws_bbr_static_dodagid_create(protocol_interface_info_entry_t *cur)
 {
     if (memcmp(current_dodag_id, ADDR_UNSPECIFIED, 16) != 0) {
@@ -169,14 +200,13 @@ static int ws_bbr_static_dodagid_create(protocol_interface_info_entry_t *cur)
         return 0;
     }
     // This address is only used if no other address available.
-    if_address_entry_t *add_entry = icmpv6_slaac_address_add(cur, static_dodag_prefix, 64, 0xffffffff, 0xffffffff, true, SLAAC_IID_FIXED);
+    if_address_entry_t *add_entry = ws_bbr_slaac_generate(cur, static_dodag_id_prefix);
     if (!add_entry) {
         tr_err("dodagid create failed");
         return -1;
     }
     memcpy(current_dodag_id, add_entry->address, 16);
     tr_info("BBR generate DODAGID %s", trace_ipv6(current_dodag_id));
-    addr_policy_table_add_entry(static_dodag_prefix, 64, 2, WS_NON_PREFFRED_LABEL);
 
     return 0;
 }
@@ -211,7 +241,7 @@ static void ws_bbr_dodag_get(uint8_t *local_prefix_ptr, uint8_t *global_prefix_p
     memset(global_prefix_ptr, 0, 8);
 
     // By default static dodagID prefix is used as local prefix
-    memcpy(local_prefix_ptr, current_dodag_id, 8);
+    memcpy(local_prefix_ptr, static_dodag_prefix, 8);
     ws_bbr_bb_static_prefix_get(local_prefix_ptr);
 
     if (arm_net_address_get(backbone_interface_id, ADDR_IPV6_GP, global_address) != 0) {
@@ -285,8 +315,13 @@ static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8
 }
 static void ws_bbr_dhcp_server_stop(protocol_interface_info_entry_t *cur, uint8_t *global_id)
 {
-    tr_debug("DHCP server deactivate %s", trace_ipv6(global_id));
+    uint8_t temp_address[16];
+    memcpy(temp_address, global_id, 8);
+    memset(temp_address + 8, 0, 8);
+    tr_debug("DHCP server deactivate %s", trace_ipv6(temp_address));
     DHCPv6_server_service_delete(cur->id, global_id, false);
+    //Delete Client
+    dhcp_client_global_address_delete(cur->id, NULL, temp_address);
 
 }
 
@@ -342,9 +377,16 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
         // Start static ULA prefix and routing always
         if (memcmp(current_local_prefix, ADDR_UNSPECIFIED, 8) != 0) {
             // Remove Old ULA prefix
+            ws_bbr_slaac_remove(cur, current_local_prefix);
             rpl_control_update_dodag_prefix(protocol_6lowpan_rpl_root_dodag, current_local_prefix, 64, PIO_A, 0, 0, true);
+            memset(current_local_prefix, 0, 8);
         }
+
         if (memcmp(local_prefix, ADDR_UNSPECIFIED, 8) != 0) {
+            if (!ws_bbr_slaac_generate(cur, local_prefix)) {
+                return;
+            }
+
             tr_info("RPL Local prefix activate %s", trace_ipv6_prefix(local_prefix, 64));
             rpl_control_update_dodag_prefix(protocol_6lowpan_rpl_root_dodag, local_prefix, 64, PIO_A, WS_ULA_LIFETIME, WS_ULA_LIFETIME, false);
             memcpy(current_local_prefix, local_prefix, 8);
@@ -354,7 +396,7 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
     /*
      * Check if backup ULA prefix is needed
      */
-    if (memcmp(global_prefix, ADDR_UNSPECIFIED, 8) == 0) {
+    if ((configuration & BBR_ULA_C) == 0 && memcmp(global_prefix, ADDR_UNSPECIFIED, 8) == 0) {
         //Global prefix not available count if backup ULA should be created
         global_prefix_unavailable_timer += BBR_CHECK_INTERVAL;
         tr_debug("Check for backup prefix %"PRIu32"", global_prefix_unavailable_timer);
@@ -479,13 +521,6 @@ void ws_bbr_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds
             if (cur->ws_info->network_size_config == NETWORK_SIZE_AUTOMATIC) {
                 ws_common_network_size_configure(cur, cur->ws_info->pan_information.pan_size);
             }
-            // We update the RPL version in same time to allow nodes to reselect parent
-            // As configuration is made so that devices cant move downward in dodag this allows it
-            // Version number update is only done if DoDAG MAX Rank Increase parameter is 0
-            if (rpl_conf.dag_max_rank_increase == 0 && cur->ws_info->pan_information.pan_version && cur->ws_info->pan_information.pan_version % RPL_VERSION_LIFETIME / cur->ws_info->pan_version_timer  == 0) {
-                // Third the rate of configuration version change at default 5 hours
-                rpl_control_increment_dodag_version(protocol_6lowpan_rpl_root_dodag);
-            }
         }
 
     }
@@ -510,7 +545,7 @@ uint16_t ws_bbr_pan_size(protocol_interface_info_entry_t *cur)
         prefix_ptr = current_local_prefix;
     }
 
-    rpl_control_get_instance_dao_target_count(cur->rpl_domain, RPL_INSTANCE_ID, NULL, prefix_ptr, &result);
+    rpl_control_get_instance_dao_target_count(cur->rpl_domain, current_instance_id, NULL, prefix_ptr, &result);
     if (result > 0) {
         // remove the Border router from the PAN size
         result--;
@@ -581,6 +616,7 @@ void ws_bbr_stop(int8_t interface_id)
 
     rpl_control_delete_dodag_root(protocol_6lowpan_rpl_domain, protocol_6lowpan_rpl_root_dodag);
     protocol_6lowpan_rpl_root_dodag = NULL;
+    current_instance_id++;
 
 #else
     (void)interface_id;
@@ -593,7 +629,7 @@ int ws_bbr_configure(int8_t interface_id, uint16_t options)
     (void)interface_id;
     if (protocol_6lowpan_rpl_root_dodag &&
             options != configuration) {
-        //Configuration changed delete previus setup
+        //Configuration changed delete previous setup
         ws_bbr_rpl_root_stop();
     }
     configuration = options;

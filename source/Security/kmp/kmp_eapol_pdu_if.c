@@ -48,7 +48,8 @@ typedef struct {
 
 static NS_LIST_DEFINE(kmp_eapol_pdu_if_list, kmp_eapol_pdu_if_t, link);
 
-static int8_t kmp_eapol_pdu_if_send(kmp_service_t *service, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size);
+static int8_t kmp_eapol_pdu_if_send(kmp_service_t *service, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier);
+static int8_t kmp_eapol_pdu_if_tx_status(protocol_interface_info_entry_t *interface_ptr, eapol_pdu_tx_status_e tx_status, uint8_t tx_identifier);
 
 int8_t kmp_eapol_pdu_if_register(kmp_service_t *service, protocol_interface_info_entry_t *interface_ptr)
 {
@@ -96,7 +97,7 @@ int8_t kmp_eapol_pdu_if_unregister(kmp_service_t *service)
     return 0;
 }
 
-static int8_t kmp_eapol_pdu_if_send(kmp_service_t *service, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size)
+static int8_t kmp_eapol_pdu_if_send(kmp_service_t *service, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier)
 {
     if (!service || !addr || !pdu) {
         return -1;
@@ -123,7 +124,7 @@ static int8_t kmp_eapol_pdu_if_send(kmp_service_t *service, kmp_type_e kmp_id, c
     uint8_t *ptr = pdu;
     *ptr = kmp_id;
 
-    int8_t ret = ws_eapol_pdu_send_to_mpx(interface_ptr, eui_64, pdu, size, pdu);
+    int8_t ret = ws_eapol_pdu_send_to_mpx(interface_ptr, eui_64, pdu, size, pdu, kmp_eapol_pdu_if_tx_status, tx_identifier);
 
     return ret;
 }
@@ -159,6 +160,36 @@ int8_t kmp_eapol_pdu_if_receive(protocol_interface_info_entry_t *interface_ptr, 
 
     return ret;
 }
+
+static int8_t kmp_eapol_pdu_if_tx_status(protocol_interface_info_entry_t *interface_ptr, eapol_pdu_tx_status_e tx_status, uint8_t tx_identifier)
+{
+    kmp_service_t *service = NULL;
+
+    ns_list_foreach(kmp_eapol_pdu_if_t, entry, &kmp_eapol_pdu_if_list) {
+        if (entry->interface_ptr == interface_ptr) {
+            service = entry->kmp_service;
+            break;
+        }
+    }
+
+    if (!service) {
+        return -1;
+    }
+
+    kmp_tx_status_e kmp_tx_status;
+    if (tx_status == EAPOL_PDU_TX_OK) {
+        kmp_tx_status = KMP_TX_OK;
+    } else if (tx_status == EAPOL_PDU_TX_ERR_TX_NO_ACK) {
+        kmp_tx_status = KMP_TX_ERR_TX_NO_ACK;
+    } else {
+        kmp_tx_status = KMP_TX_ERR_UNSPEC;
+    }
+
+    int8_t ret = kmp_service_tx_status_indication(service, kmp_tx_status, tx_identifier);
+
+    return ret;
+}
+
 
 #endif /* HAVE_WS */
 

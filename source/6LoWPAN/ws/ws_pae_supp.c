@@ -99,7 +99,7 @@ typedef struct {
     timer_settings_t *timer_settings;                      /**< Timer settings */
     uint8_t nw_keys_used_cnt;                              /**< How many times bootstrap has been tried with current keys */
     bool auth_trickle_running : 1;                         /**< Initial EAPOL-Key Trickle timer running */
-    bool auth_requested : 1;                               /**< Authentication has been requested */
+    bool auth_requested : 1;                               /**< Authentication has been requested by the bootstrap */
     bool timer_running : 1;                                /**< Timer is running */
     bool new_br_eui_64_set : 1;                            /**< Border router address has been set */
     bool new_br_eui_64_fresh : 1;                          /**< Border router address is fresh (set during this authentication attempt) */
@@ -117,7 +117,7 @@ static trickle_params_t initial_eapol_key_trickle_params = {
 };
 
 static void ws_pae_supp_free(pae_supp_t *pae_supp);
-static void ws_pae_supp_authenticate_response(pae_supp_t *pae_supp, bool success);
+static void ws_pae_supp_authenticate_response(pae_supp_t *pae_supp, auth_result_e result);
 static int8_t ws_pae_supp_initial_key_send(pae_supp_t *pae_supp);
 static void ws_pae_supp_nvm_update(pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan_id);
@@ -134,6 +134,7 @@ static bool ws_pae_supp_timer_running(pae_supp_t *pae_supp);
 static void ws_pae_supp_kmp_service_addr_get(kmp_service_t *service, kmp_api_t *kmp, kmp_addr_t *local_addr, kmp_addr_t *remote_addr);
 static kmp_api_t *ws_pae_supp_kmp_service_api_get(kmp_service_t *service, kmp_api_t *kmp, kmp_type_e type);
 static kmp_api_t *ws_pae_supp_kmp_incoming_ind(kmp_service_t *service, kmp_type_e type, const kmp_addr_t *addr);
+static kmp_api_t *ws_pae_supp_kmp_tx_status_ind(kmp_service_t *service, uint8_t instance_id);
 static kmp_api_t *ws_pae_supp_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_eapol_pdu_address_check(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64);
 static int8_t ws_pae_supp_parent_eui_64_get(protocol_interface_info_entry_t *interface_ptr, uint8_t *eui_64);
@@ -142,6 +143,7 @@ static void ws_pae_supp_kmp_api_create_confirm(kmp_api_t *kmp, kmp_result_e resu
 static void ws_pae_supp_kmp_api_create_indication(kmp_api_t *kmp, kmp_type_e type, kmp_addr_t *addr);
 static void ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e result, kmp_sec_keys_t *sec_keys);
 static void ws_pae_supp_kmp_api_finished(kmp_api_t *kmp);
+
 
 static const eapol_pdu_recv_cb_data_t eapol_pdu_recv_cb_data = {
     .priority = EAPOL_PDU_RECV_HIGH_PRIORITY,
@@ -179,7 +181,7 @@ int8_t ws_pae_supp_authenticate(protocol_interface_info_entry_t *interface_ptr, 
     }
 
     if (ws_pae_supp_nw_keys_valid_check(pae_supp, dest_pan_id) >= 0) {
-        pae_supp->auth_completed(interface_ptr, true);
+        pae_supp->auth_completed(interface_ptr, AUTH_RESULT_OK, NULL);
         return 0;
     }
 
@@ -354,6 +356,18 @@ int8_t ws_pae_supp_nw_key_index_update(protocol_interface_info_entry_t *interfac
     return 0;
 }
 
+int8_t ws_pae_supp_gtks_set(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks)
+{
+    pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
+    if (!pae_supp) {
+        return -1;
+    }
+
+    pae_supp->gtks = *gtks;
+
+    return 0;
+}
+
 int8_t ws_pae_supp_eapol_target_remove(protocol_interface_info_entry_t *interface_ptr)
 {
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
@@ -381,8 +395,6 @@ static void ws_pae_supp_nvm_update(pae_supp_t *pae_supp)
         ws_pae_supp_nvm_keys_write(pae_supp);
         sec_prot_keys_updated_reset(&pae_supp->entry.sec_keys);
     }
-
-
 }
 
 static int8_t ws_pae_supp_nvm_nw_info_write(pae_supp_t *pae_supp)
@@ -457,12 +469,16 @@ static int8_t ws_pae_supp_nvm_keys_read(pae_supp_t *pae_supp)
     return 0;
 }
 
-static void ws_pae_supp_authenticate_response(pae_supp_t *pae_supp, bool success)
+static void ws_pae_supp_authenticate_response(pae_supp_t *pae_supp, auth_result_e result)
 {
     pae_supp->auth_trickle_running = false;
     if (pae_supp->auth_requested && pae_supp->auth_completed) {
         pae_supp->auth_requested = false;
-        pae_supp->auth_completed(pae_supp->interface_ptr, success);
+        uint8_t *target_eui_64 = NULL;
+        if (result != AUTH_RESULT_OK) {
+            target_eui_64 = pae_supp->target_addr.eui_64;
+        }
+        pae_supp->auth_completed(pae_supp->interface_ptr, result, target_eui_64);
     }
 }
 
@@ -605,7 +621,7 @@ int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const se
         goto error;
     }
 
-    if (kmp_service_cb_register(pae_supp->kmp_service, ws_pae_supp_kmp_incoming_ind, ws_pae_supp_kmp_service_addr_get, ws_pae_supp_kmp_service_api_get) < 0) {
+    if (kmp_service_cb_register(pae_supp->kmp_service, ws_pae_supp_kmp_incoming_ind, ws_pae_supp_kmp_tx_status_ind, ws_pae_supp_kmp_service_addr_get, ws_pae_supp_kmp_service_api_get) < 0) {
         goto error;
     }
 
@@ -625,7 +641,7 @@ int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const se
         goto error;
     }
 
-    if (key_sec_prot_register(pae_supp->kmp_service) < 0) {
+    if (supp_key_sec_prot_register(pae_supp->kmp_service) < 0) {
         goto error;
     }
 
@@ -788,7 +804,7 @@ void ws_pae_supp_fast_timer(uint16_t ticks)
         if (!pae_supp->initial_key_timer && !pae_supp->auth_trickle_running && !running) {
             tr_debug("PAE idle");
             // If not already completed, restart bootstrap
-            ws_pae_supp_authenticate_response(pae_supp, false);
+            ws_pae_supp_authenticate_response(pae_supp, AUTH_RESULT_ERR_UNSPEC);
 
             ws_pae_supp_timer_stop(pae_supp);
         }
@@ -808,7 +824,7 @@ void ws_pae_supp_slow_timer(uint16_t seconds)
             }
             // Maximum number of trickle expires, authentication fails
             if (!trickle_running(&pae_supp->auth_trickle_timer, &pae_supp->auth_trickle_params)) {
-                ws_pae_supp_authenticate_response(pae_supp, false);
+                ws_pae_supp_authenticate_response(pae_supp, AUTH_RESULT_ERR_UNSPEC);
             }
         }
 
@@ -1087,7 +1103,7 @@ static void ws_pae_supp_kmp_api_create_confirm(kmp_api_t *kmp, kmp_result_e resu
 
     // KMP-CREATE.request has failed, authentication error
     if (result != KMP_RESULT_OK) {
-        ws_pae_supp_authenticate_response(pae_supp, false);
+        ws_pae_supp_authenticate_response(pae_supp, AUTH_RESULT_ERR_UNSPEC);
     }
 }
 
@@ -1115,14 +1131,24 @@ static void ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e
         ws_pae_lib_supp_timer_ticks_set(&pae_supp->entry, WAIT_FOR_AUTHENTICATION_TICKS);
     }
 
+    /* When 4WH or GKH completes inserts keys and indicates authentication completed
+       (if not alredy indicated) */
     if ((type == IEEE_802_11_4WH || type == IEEE_802_11_GKH) && result == KMP_RESULT_OK) {
         if (sec_keys) {
             sec_prot_keys_t *keys = sec_keys;
             pae_supp->nw_key_insert(pae_supp->interface_ptr, keys->gtks);
         }
 
-        ws_pae_supp_authenticate_response(pae_supp, true);
+        ws_pae_supp_authenticate_response(pae_supp, AUTH_RESULT_OK);
     }
+
+    /* If initial EAPOL-key message sending fails to tx no acknowledge, indicates failure so
+       that bootstrap can decide if EAPOL target should be changed */
+    else if (type > IEEE_802_1X_INITIAL_KEY && result == KMP_RESULT_ERR_TX_NO_ACK) {
+        tr_info("Initial EAPOL-Key TX failure, target: %s", trace_array(kmp_address_eui_64_get(&pae_supp->entry.addr), 8));
+        ws_pae_supp_authenticate_response(pae_supp, AUTH_RESULT_ERR_TX_NO_ACK);
+    }
+
 }
 
 static void ws_pae_supp_kmp_api_finished(kmp_api_t *kmp)
@@ -1135,6 +1161,21 @@ static void ws_pae_supp_kmp_api_finished(kmp_api_t *kmp)
 
     // Delete KMP
     ws_pae_lib_kmp_list_delete(&pae_supp->entry.kmp_list, kmp);
+}
+
+static kmp_api_t *ws_pae_supp_kmp_tx_status_ind(kmp_service_t *service, uint8_t instance_id)
+{
+    pae_supp_t *pae_supp = ws_pae_supp_by_kmp_service_get(service);
+    if (!pae_supp) {
+        return NULL;
+    }
+
+    kmp_api_t *kmp = ws_pae_lib_kmp_list_instance_id_get(&pae_supp->entry.kmp_list, instance_id);
+    if (!kmp) {
+        return NULL;
+    }
+
+    return kmp;
 }
 
 #endif /* HAVE_PAE_SUPP */

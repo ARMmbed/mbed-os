@@ -183,6 +183,18 @@ int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_pt
 int8_t ws_pae_supp_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
 
 /**
+ *  ws_pae_supp_gtks_set set supplicant GTKs
+ *
+ * \param interface_ptr interface
+ * \param gtks GTKs
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_supp_gtks_set(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks);
+
+/**
  * ws_pae_supp_eapol_target_remove remove EAPOL target set using authentication start
  *
  * \param interface_ptr interface
@@ -206,10 +218,11 @@ typedef void ws_pae_supp_nw_key_index_set(protocol_interface_info_entry_t *inter
  * ws_pae_supp_auth_completed authentication completed callback
  *
  * \param interface_ptr interface
- * \param success true if authentication was successful
+ * \param result result, either ok or failure reason
+ * \param target_eui_64 EAPOL target in case of failure or NULL
  *
  */
-typedef void ws_pae_supp_auth_completed(protocol_interface_info_entry_t *interface_ptr, bool success);
+typedef void ws_pae_supp_auth_completed(protocol_interface_info_entry_t *interface_ptr, auth_result_e result, uint8_t *target_eui_64);
 
 /**
  * ws_pae_supp_nw_key_insert network key insert callback
@@ -249,6 +262,7 @@ void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_
 #define ws_pae_supp_border_router_addr_read NULL
 #define ws_pae_supp_gtk_hash_update NULL
 #define ws_pae_supp_nw_key_index_update NULL
+#define ws_pae_supp_gtks_set(interface_ptr, gtks)
 #define ws_pae_supp_eapol_target_remove(interface_ptr)
 
 #endif

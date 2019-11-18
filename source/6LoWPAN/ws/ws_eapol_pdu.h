@@ -127,6 +127,22 @@ int8_t ws_eapol_pdu_cb_register(protocol_interface_info_entry_t *interface_ptr, 
  */
 int8_t ws_eapol_pdu_cb_unregister(protocol_interface_info_entry_t *interface_ptr, const eapol_pdu_recv_cb_data_t *cb_data);
 
+typedef enum {
+    EAPOL_PDU_TX_OK = 0,                 // Successful
+    EAPOL_PDU_TX_ERR_TX_NO_ACK  = -1,    // No acknowledge was received
+    EAPOL_PDU_TX_ERR_UNSPEC = -2,        // Other reason
+} eapol_pdu_tx_status_e;
+
+/**
+ * ws_eapol_pdu_tx_status will be called when TX status is known
+ *
+ * \param interface_ptr interface
+ * \param tx_status tx status
+ * \param tx_identifier tx identifier
+ *
+ */
+typedef int8_t ws_eapol_pdu_tx_status(protocol_interface_info_entry_t *interface_ptr, eapol_pdu_tx_status_e tx_status, uint8_t tx_identifier);
+
 /**
  *  ws_eapol_pdu_send_to_mpx send EAPOL PDU to MPX
  *
@@ -135,11 +151,13 @@ int8_t ws_eapol_pdu_cb_unregister(protocol_interface_info_entry_t *interface_ptr
  * \param data EAPOL PDU
  * \param size PDU size
  * \param buffer pointer to allocated buffer
+ * \param tx_status tx status callback
+ * \param tx_identifier tx identifier
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-int8_t ws_eapol_pdu_send_to_mpx(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64, void *data, uint16_t size, void *buffer);
+int8_t ws_eapol_pdu_send_to_mpx(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64, void *data, uint16_t size, void *buffer, ws_eapol_pdu_tx_status tx_status, uint8_t tx_identifier);
 
 #endif /* WS_EAPOL_PDU_H_ */

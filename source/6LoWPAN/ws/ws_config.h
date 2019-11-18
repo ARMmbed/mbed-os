@@ -31,6 +31,11 @@
 #define WS_RPL_DIO_DOUBLING 2
 #define WS_RPL_DIO_REDUNDANCY 0
 
+#define WS_RPL_MIN_HOP_RANK_INCREASE 196
+#define WS_RPL_MAX_HOP_RANK_INCREASE 2048
+
+#define WS_CERTIFICATE_RPL_MIN_HOP_RANK_INCREASE 128
+#define WS_CERTIFICATE_RPL_MAX_HOP_RANK_INCREASE 0
 
 /* Border router version change interval
  *
@@ -130,6 +135,7 @@ extern uint8_t DEVICE_MIN_SENS;
  * MAC frame counter NVM storing configuration
  */
 #define FRAME_COUNTER_STORE_INTERVAL     60   // Time interval (on seconds) between frame counter store operations
+#define FRAME_COUNTER_STORE_TRIGGER      5    // Delay (on seconds) before storing, when storing of frame counters is triggered
 #define FRAME_COUNTER_INCREMENT          1000 // How much frame counter is incremented on start up
 #define FRAME_COUNTER_STORE_THRESHOLD    800  // How much frame counter must increment before it is stored
 
@@ -140,5 +146,21 @@ extern uint8_t DEVICE_MIN_SENS;
 #define WS_MAX_DAO_RETRIES 3 // With 40s, 80s, 160s, 320s, 640s
 #define WS_MAX_DAO_INITIAL_TIMEOUT 400 // With 40s initial value exponentially increasing
 #define WS_MIN_DIO_MULTICAST_CONFIG_ADVERTISMENT_COUNT 10 // Define 10 multicast advertisment when learn config or learn config update
+
+/*
+ * Candidate parent list parameters
+ */
+
+#define WS_PARENT_LIST_SIZE 10
+#define WS_PARENT_LIST_MAX_AGE 3600*10         // 1 hour in 100ms ticks
+#define WS_PARENT_LIST_MAX_PAN_IN_DISCOVERY 5  // During discovery state how many neighbours per pan
+#define WS_PARENT_LIST_MAX_PAN_IN_ACTIVE 2     // During active state two nodes per pan is allowed
+
+/*
+ * Modifications for base specification.
+ *
+ * ERRATA changes after 1.0 specification release.
+ */
+#define WISUN_1_0_ERRATA_FIX
 
 #endif /* WS_CONFIG_H_ */

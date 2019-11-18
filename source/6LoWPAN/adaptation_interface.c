@@ -92,6 +92,7 @@ typedef struct {
     fragmenter_tx_entry_t active_unicast_tx_buf; //Current active direct unicast tx process
     fragmenter_tx_entry_t active_broadcast_tx_buf; //Current active direct broadcast tx process
     buffer_list_t directTxQueue; //Waiting free tx process
+    uint16_t directTxQueue_size;
     uint16_t indirect_big_packet_threshold;
     uint16_t max_indirect_big_packets_total;
     uint16_t max_indirect_small_packets_per_child;
@@ -216,6 +217,8 @@ static void lowpan_adaptation_tx_queue_write(fragmenter_interface_t *interface_p
     } else {
         ns_list_add_to_end(&interface_ptr->directTxQueue, buf);
     }
+    interface_ptr->directTxQueue_size++;
+    protocol_stats_update(STATS_AL_TX_QUEUE_SIZE, interface_ptr->directTxQueue_size);
 }
 
 static buffer_t *lowpan_adaptation_tx_queue_read(fragmenter_interface_t *interface_ptr, protocol_interface_info_entry_t *cur)
@@ -231,6 +234,8 @@ static buffer_t *lowpan_adaptation_tx_queue_read(fragmenter_interface_t *interfa
         } else if ((buf->link_specific.ieee802_15_4.requestAck && !interface_ptr->active_unicast_tx_buf.buf)
                    || (!buf->link_specific.ieee802_15_4.requestAck && !interface_ptr->active_broadcast_tx_buf.buf)) {
             ns_list_remove(&interface_ptr->directTxQueue, buf);
+            interface_ptr->directTxQueue_size--;
+            protocol_stats_update(STATS_AL_TX_QUEUE_SIZE, interface_ptr->directTxQueue_size);
             return buf;
         }
     }
