@@ -464,8 +464,8 @@ void USBCDC::_receive_isr_start()
 {
     if ((_rx_size == 0) && !_rx_in_progress) {
         // Refill the buffer
-        read_start(_bulk_out, _rx_buffer, sizeof(_rx_buffer));
         _rx_in_progress = true;
+        read_start(_bulk_out, _rx_buffer, sizeof(_rx_buffer));
     }
 }
 
