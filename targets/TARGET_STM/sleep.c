@@ -204,6 +204,25 @@ __WEAK void hal_deepsleep(void)
     if (!pwrClockEnabled) {
         __HAL_RCC_PWR_CLK_DISABLE();
     }
+#elif defined(DUAL_CORE)
+    int lowPowerModeEnabled = LL_PWR_GetRegulModeDS();
+
+#if defined(CORE_CM7)
+    HAL_PWREx_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI, PWR_D3_DOMAIN);
+    HAL_PWREx_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI, PWR_D1_DOMAIN);
+
+#elif defined(CORE_CM4)
+    HAL_PWREx_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI, PWR_D3_DOMAIN);
+    HAL_PWREx_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI, PWR_D2_DOMAIN);
+
+#else
+#error "Wrong Core selection"
+#endif /* CORE_CM7 */
+
+    if (lowPowerModeEnabled) {
+        LL_PWR_SetRegulModeDS(lowPowerModeEnabled);
+    }
+
 #else /* PWR_CR1_LPMS_STOP2 */
     HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 #endif /* PWR_CR1_LPMS_STOP2 */
@@ -220,8 +239,19 @@ __WEAK void hal_deepsleep(void)
     ForceOscOutofDeepSleep();
     ForcePeriphOutofDeepSleep();
 
-    // After wake-up from STOP reconfigure the PLL
+    /* After wake-up from STOP reconfigure the PLL */
+#if defined(DUAL_CORE)
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
+    }
+
+    if ((LL_RCC_GetSysClkSource() ==  LL_RCC_SYS_CLKSOURCE_STATUS_HSI)) {
+        LL_PWR_ClearFlag_CPU();
+        SetSysClock();
+    }
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
+#else
     SetSysClock();
+#endif
 
     /*  Wait for clock to be stabilized.
      *  TO DO: a better way of doing this, would be to rely on
