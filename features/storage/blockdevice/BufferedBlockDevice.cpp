@@ -31,6 +31,7 @@ BufferedBlockDevice::BufferedBlockDevice(BlockDevice *bd)
     : _bd(bd), _bd_program_size(0), _bd_read_size(0), _bd_size(0), _write_cache_addr(0), _write_cache_valid(false),
       _write_cache(0), _read_buf(0), _init_ref_count(0), _is_initialized(false)
 {
+    MBED_ASSERT(_bd);
 }
 
 BufferedBlockDevice::~BufferedBlockDevice()
@@ -332,11 +333,7 @@ bd_size_t BufferedBlockDevice::size() const
 
 const char *BufferedBlockDevice::get_type() const
 {
-    if (_bd != NULL) {
-        return _bd->get_type();
-    }
-
-    return NULL;
+    return _bd->get_type();
 }
 
 } // namespace mbed
