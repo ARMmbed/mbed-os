@@ -134,6 +134,11 @@ int BufferedBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
     }
 
     MBED_ASSERT(_write_cache && _read_buf);
+
+    if (!is_valid_read(addr, size)) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     // Common case - no need to involve write cache or read buffer
     if (_bd->is_valid_read(addr, size) &&
             ((addr + size <= _write_cache_addr) || (addr > _write_cache_addr + _bd_program_size))) {
@@ -146,9 +151,9 @@ int BufferedBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
     while (size) {
         bd_size_t chunk;
         bool read_from_bd = true;
-        if (addr < _write_cache_addr) {
+        if (_write_cache_valid && addr < _write_cache_addr) {
             chunk = std::min(size, _write_cache_addr - addr);
-        } else if ((addr >= _write_cache_addr) && (addr < _write_cache_addr + _bd_program_size)) {
+        } else if (_write_cache_valid && (addr >= _write_cache_addr) && (addr < _write_cache_addr + _bd_program_size)) {
             // One case we need to take our data from cache
             chunk = std::min(size, _bd_program_size - addr % _bd_program_size);
             memcpy(buf, _write_cache + addr % _bd_program_size, chunk);
