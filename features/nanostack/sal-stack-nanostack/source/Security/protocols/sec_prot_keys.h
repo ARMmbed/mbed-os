@@ -92,6 +92,17 @@ typedef struct {
     bool                   ptk_mismatch: 1;           /**< Remote PTK mismatch reported */
 } sec_prot_keys_t;
 
+// Frame counter data
+typedef struct {
+    uint8_t gtk[GTK_LEN];                             /**< GTK of the frame counter */
+    uint32_t frame_counter;                           /**< Frame counter */
+    bool set : 1;                                     /**< Value has been set */
+} frame_counter_t;
+
+typedef struct {
+    frame_counter_t counter[GTK_NUM];                 /**< Frame counter for each GTK key */
+} frame_counters_t;
+
 /*
  * GTK mismatch types, list is ordered according to priority of mismatch i.e. if there
  * are both hash and lifetime mismatch, hash has greater priority
@@ -631,6 +642,15 @@ bool sec_prot_keys_gtk_status_is_live(sec_prot_gtk_keys_t *gtks, uint8_t index);
  *
  */
 void sec_prot_keys_gtks_hash_generate(sec_prot_gtk_keys_t *gtks, uint8_t *gtk_hash);
+
+/**
+ * sec_prot_keys_gtk_hash_generate generate GTK hash for a GTK
+ *
+ * \param gtk GTK key
+ * \param gtk_hash GTK hash for a GTK
+ *
+ */
+void sec_prot_keys_gtk_hash_generate(uint8_t *gtk, uint8_t *gtk_hash);
 
 /**
  * sec_prot_keys_gtks_hash_update update GTKs based on GTK hash

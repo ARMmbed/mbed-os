@@ -542,6 +542,9 @@ static int8_t mac_mlme_16bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup
         case macTransactionPersistenceTime:
             //TODO: check this also
             break;
+        case macDeviceDescriptionPanIDUpdate:
+            mac_sec_mib_device_description_pan_update(rf_mac_setup, value);
+            break;
 
         default:
             return -1;

@@ -159,7 +159,7 @@ int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot
         goto error;
     }
 
-    if (kmp_service_cb_register(pae_auth->kmp_service, ws_pae_auth_kmp_incoming_ind, ws_pae_auth_kmp_service_addr_get, ws_pae_auth_kmp_service_api_get)) {
+    if (kmp_service_cb_register(pae_auth->kmp_service, ws_pae_auth_kmp_incoming_ind, NULL, ws_pae_auth_kmp_service_addr_get, ws_pae_auth_kmp_service_api_get)) {
         goto error;
     }
 
@@ -171,7 +171,7 @@ int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot
         goto error;
     }
 
-    if (key_sec_prot_register(pae_auth->kmp_service) < 0) {
+    if (auth_key_sec_prot_register(pae_auth->kmp_service) < 0) {
         goto error;
     }
 

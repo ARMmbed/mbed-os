@@ -81,6 +81,12 @@ uint16_t nrpl_dag_rank(const rpl_dodag_t *dodag, uint16_t rank)
     return rank == RPL_RANK_INFINITE ? rank : rank / dodag->config.min_hop_rank_increase;
 }
 
+uint16_t nrpl_rank(const rpl_dodag_t *dodag, uint16_t dag_rank)
+{
+    uint32_t rank = (uint32_t) dag_rank * dodag->config.min_hop_rank_increase;
+    return rank < RPL_RANK_INFINITE ? rank : RPL_RANK_INFINITE;
+}
+
 /* Silly function needed because RPL HbH option includes dagrank directly */
 rpl_cmp_t rpl_rank_compare_dagrank_rank(const rpl_dodag_t *dodag, uint16_t dag_rank_a, uint16_t b)
 {
@@ -1566,7 +1572,27 @@ void rpl_instance_dio_trigger(rpl_instance_t *instance, protocol_interface_info_
     /* When we advertise a new lowest rank, need to re-evaluate our rank limits */
     if (rank < dodag_version->lowest_advertised_rank) {
         dodag_version->lowest_advertised_rank = rank;
+#if 0
+        // Standard RFC 6550 behaviour
         dodag_version->hard_rank_limit = rpl_rank_add(rank, dodag->config.dag_max_rank_increase);
+#else
+        // Round up hard limit - DAGRank interpretation. Contrary to wording of RFC 6550 8.2.2.4.3,
+        // but needed to cope reasonably with Wi-SUN insisting on DAGMaxRankIncrease of 0.
+        // Interpret that as a request to not increase DAGRank, rather than Rank.
+        //
+        // Example, if DAGMaxRankIncrease is 0, MinHopRankIncrease is 0x80, and our advertised
+        // 0xC0, then we permit up to 0xFF, which doesn't increase DAGRank. If DAGMaxRankIncrease
+        // is 0x80, then we permit can go form 0xC0 to 0x17F, increasing DAGRank by 1, even though
+        // it's a Rank increase of 0xBF. Fractional parts of DAGMaxRankIncrease are ignored.
+        uint16_t dagrank = nrpl_dag_rank(dodag, rank);
+        uint16_t dagmaxinc = nrpl_dag_rank(dodag, dodag->config.dag_max_rank_increase);
+        uint16_t dagmax = rpl_rank_add(dagrank, dagmaxinc);
+        if (dagmax == RPL_RANK_INFINITE) {
+            dodag_version->hard_rank_limit = RPL_RANK_INFINITE;
+        } else {
+            dodag_version->hard_rank_limit = nrpl_rank(dodag, 1 + dagmax) - 1;
+        }
+#endif
     }
     rpl_dodag_version_limit_greediness(dodag_version, rank);
 

@@ -581,6 +581,11 @@ void sec_prot_keys_gtks_hash_generate(sec_prot_gtk_keys_t *gtks, uint8_t *gtkhas
     }
 }
 
+void sec_prot_keys_gtk_hash_generate(uint8_t *gtk, uint8_t *gtk_hash)
+{
+    sec_prot_lib_gtkhash_generate(gtk, gtk_hash);
+}
+
 gtk_mismatch_e sec_prot_keys_gtks_hash_update(sec_prot_gtk_keys_t *gtks, uint8_t *gtkhash)
 {
     uint8_t *gtk_hash_ptr = gtkhash;

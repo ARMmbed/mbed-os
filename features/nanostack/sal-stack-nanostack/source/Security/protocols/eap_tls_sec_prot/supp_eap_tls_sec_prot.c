@@ -415,8 +415,8 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
                 return;
             }
 
-            // Set default timeout for the total maximum length of the negotiation
-            sec_prot_default_timeout_set(&data->common);
+            // Set retry timeout based on network size
+            data->common.ticks = retry_timeout;
 
             // Store sequence ID
             supp_eap_tls_sec_prot_seq_id_update(prot);
@@ -466,6 +466,9 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             // Initialize TLS protocol
             if (supp_eap_tls_sec_prot_init_tls(prot) < 0) {
                 tr_error("TLS init failed");
+                // If fatal error terminates EAP-TLS
+                sec_prot_result_set(&data->common, SEC_RESULT_ERROR);
+                sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_FINISH);
                 return;
             }
             // Request TLS to start (send client hello)
@@ -508,7 +511,12 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
                 }
             } else {
                 data->wait_tls = false;
-                if (!data->tls_send.data || data->tls_result == EAP_TLS_RESULT_HANDSHAKE_FATAL_ERROR) {
+                if (data->tls_result == EAP_TLS_RESULT_HANDSHAKE_FATAL_ERROR) {
+                    // If fatal error terminates EAP-TLS (TLS init has failed)
+                    sec_prot_result_set(&data->common, SEC_RESULT_ERROR);
+                    sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_FINISH);
+                    return;
+                } else if (!data->tls_send.data) {
                     // If no more data send response, TLS EAP (empty)
                     eap_tls_sec_prot_lib_message_allocate(&data->tls_send, TLS_HEAD_LEN, 0);
                 }
