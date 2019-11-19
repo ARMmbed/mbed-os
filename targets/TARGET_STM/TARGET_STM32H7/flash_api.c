@@ -28,8 +28,7 @@ static uint32_t GetSectorBase(uint32_t SectorId, uint32_t BanksId);
 int32_t flash_init(flash_t *obj)
 {
 #if defined(DUAL_CORE)
-    uint32_t timeout = HSEM_TIMEOUT;
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_FLASH_SEMID) && (--timeout != 0)) {
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_FLASH_SEMID)) {
     }
 #endif /* DUAL_CORE */
     /* Clear pending flags (if any) */
@@ -58,8 +57,7 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     }
 
 #if defined(DUAL_CORE)
-    uint32_t timeout = HSEM_TIMEOUT;
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_FLASH_SEMID) && (--timeout != 0)) {
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_FLASH_SEMID)) {
     }
 #endif /* DUAL_CORE */
     if (HAL_FLASH_Unlock() != HAL_OK) {
@@ -121,8 +119,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data,
     }
 
 #if defined(DUAL_CORE)
-    uint32_t timeout = HSEM_TIMEOUT;
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_FLASH_SEMID) && (--timeout != 0)) {
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_FLASH_SEMID)) {
     }
 #endif /* DUAL_CORE */
     if (HAL_FLASH_Unlock() != HAL_OK) {

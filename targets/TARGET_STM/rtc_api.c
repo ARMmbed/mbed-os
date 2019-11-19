@@ -59,8 +59,7 @@ void rtc_init(void)
     HAL_PWR_EnableBkUpAccess();
 
 #if defined(DUAL_CORE)
-    uint32_t timeout = HSEM_TIMEOUT;
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
     }
 #endif /* DUAL_CORE */
 #if MBED_CONF_TARGET_LSE_AVAILABLE

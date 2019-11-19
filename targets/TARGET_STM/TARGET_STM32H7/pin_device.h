@@ -45,8 +45,7 @@ static inline void stm_pin_DisconnectDebug(PinName pin)
 static inline void stm_pin_PullConfig(GPIO_TypeDef *gpio, uint32_t ll_pin, uint32_t pull_config)
 {
 #if defined(DUAL_CORE)
-    uint32_t timeout = HSEM_TIMEOUT;
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_GPIO_SEMID) && (--timeout != 0)) {
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_GPIO_SEMID)) {
     }
 #endif /* DUAL_CORE */
 
@@ -72,8 +71,7 @@ static inline void stm_pin_SetAFPin(GPIO_TypeDef *gpio, PinName pin, uint32_t af
     uint32_t ll_pin  = ll_pin_defines[STM_PIN(pin)];
 
 #if defined(DUAL_CORE)
-    uint32_t timeout = HSEM_TIMEOUT;
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_GPIO_SEMID) && (--timeout != 0)) {
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_GPIO_SEMID)) {
     }
 #endif /* DUAL_CORE */
 

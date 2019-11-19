@@ -211,8 +211,7 @@ void serial_free(serial_t *obj)
 
     // Reset UART and disable clock
 #if defined(DUAL_CORE)
-    uint32_t timeout = HSEM_TIMEOUT;
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
     }
 #endif /* DUAL_CORE */
 #if defined(USART1_BASE)
@@ -365,8 +364,7 @@ void serial_baud(serial_t *obj, int baudrate)
                 RCC_OscInitStruct.LSEState       = RCC_LSE_ON;
                 RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_OFF;
 #if defined(DUAL_CORE)
-                uint32_t timeout = HSEM_TIMEOUT;
-                while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+                while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
                 }
 #endif /* DUAL_CORE */
                 HAL_RCC_OscConfig(&RCC_OscInitStruct);
@@ -377,8 +375,7 @@ void serial_baud(serial_t *obj, int baudrate)
             // Keep it to verify if HAL_RCC_OscConfig didn't exit with a timeout
             if (__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY)) {
 #if defined(DUAL_CORE)
-                uint32_t timeout = HSEM_TIMEOUT;
-                while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+                while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
                 }
 #endif /* DUAL_CORE */
                 PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;
@@ -408,8 +405,7 @@ void serial_baud(serial_t *obj, int baudrate)
             RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_OFF;
             RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
 #if defined(DUAL_CORE)
-            uint32_t timeout = HSEM_TIMEOUT;
-            while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+            while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
             }
 #endif /* DUAL_CORE */
             HAL_RCC_OscConfig(&RCC_OscInitStruct);
@@ -421,8 +417,7 @@ void serial_baud(serial_t *obj, int baudrate)
         if (__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY)) {
             PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_HSI;
 #if defined(DUAL_CORE)
-            uint32_t timeout = HSEM_TIMEOUT;
-            while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+            while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
             }
 #endif /* DUAL_CORE */
             HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
@@ -437,8 +432,7 @@ void serial_baud(serial_t *obj, int baudrate)
         // Last chance using SYSCLK
         PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_SYSCLK;
 #if defined(DUAL_CORE)
-        uint32_t timeout = HSEM_TIMEOUT;
-        while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+        while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
         }
 #endif /* DUAL_CORE */
         HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);

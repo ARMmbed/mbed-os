@@ -215,8 +215,7 @@ void i2c_hw_reset(i2c_t *obj)
     timeout = BYTE_TIMEOUT;
     while ((__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BUSY)) && (--timeout != 0));
 #if defined(DUAL_CORE)
-    timeout = HSEM_TIMEOUT;
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
     }
 #endif /* DUAL_CORE */
 #if defined I2C1_BASE
@@ -422,8 +421,7 @@ void i2c_frequency(i2c_t *obj, int hz)
 
     /*##-1- Configure the I2C clock source. The clock is derived from the SYSCLK #*/
 #if defined(DUAL_CORE)
-    timeout = HSEM_TIMEOUT;
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
     }
 #endif /* DUAL_CORE */
 #if defined(I2C1_BASE) && defined (__HAL_RCC_I2C1_CONFIG)
