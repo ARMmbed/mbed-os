@@ -58,8 +58,7 @@ static void ForcePeriphOutofDeepSleep(void)
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
 #if defined(DUAL_CORE)
-    uint32_t timeout = HSEM_TIMEOUT;
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
     }
 #endif /* DUAL_CORE */
     /* Get the Clocks configuration according to the internal RCC registers */
@@ -100,8 +99,7 @@ static void ForceOscOutofDeepSleep(void)
     __HAL_RCC_PWR_CLK_ENABLE();
 
 #if defined(DUAL_CORE)
-    uint32_t timeout = HSEM_TIMEOUT;
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
     }
 #endif /* DUAL_CORE */
     /* Get the Oscillators configuration according to the internal RCC registers */

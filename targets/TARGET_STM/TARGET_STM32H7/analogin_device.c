@@ -89,8 +89,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     PeriphClkInitStruct.AdcClockSelection    = RCC_ADCCLKSOURCE_CLKP;
     PeriphClkInitStruct.PLL2.PLL2P           = 4;
 #if defined(DUAL_CORE)
-    uint32_t timeout = HSEM_TIMEOUT;
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
     }
 #endif /* DUAL_CORE */
     HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);

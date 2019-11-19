@@ -81,8 +81,7 @@ void pin_function(PinName pin, int data)
     if (mode == STM_PIN_OUTPUT) {
 #endif
 #if defined(DUAL_CORE)
-        uint32_t timeout = HSEM_TIMEOUT;
-        while (LL_HSEM_1StepLock(HSEM, CFG_HW_GPIO_SEMID) && (--timeout != 0)) {
+        while (LL_HSEM_1StepLock(HSEM, CFG_HW_GPIO_SEMID)) {
         }
 #endif /* DUAL_CORE */
         switch (speed) {
@@ -126,7 +125,7 @@ void pin_function(PinName pin, int data)
     }
 
 #if defined(DUAL_CORE)
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_GPIO_SEMID) && (--timeout != 0)) {
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_GPIO_SEMID)) {
     }
 #endif /* DUAL_CORE */
 
@@ -172,8 +171,7 @@ void pin_mode(PinName pin, PinMode mode)
     GPIO_TypeDef *gpio = Set_GPIO_Clock(port_index);
 
 #if defined(DUAL_CORE)
-    uint32_t timeout = HSEM_TIMEOUT;
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_GPIO_SEMID) && (--timeout != 0)) {
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_GPIO_SEMID)) {
     }
 #endif /* DUAL_CORE */
 
