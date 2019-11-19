@@ -25,12 +25,40 @@
 
 #pragma once
 
+#if defined(CY_USING_HAL)
 #include "cyhal_pin_package.h"
+#endif
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
+/**
+* \addtogroup group_bsp_settings BSP Settings
+* \{
+*
+* <div class="category">Peripheral Default HAL Settings:</div>
+* | Resource | Parameter | Value | Remarks |
+* | :------: | :-------: | :---: | :------ |
+* | ADC      | VREF      | 1.2 V | |
+* | ^        | Measurement type | Single Ended | |
+* | ^        | Input voltage range | 0 to 2.4 V (0 to 2*VREF) | |
+* | ^        | Output range | 0x000 to 0x7FF | |
+* | DAC      | Reference source | VDDA | |
+* | ^        | Input range | 0x000 to 0xFFF | |
+* | ^        | Output range | 0 to VDDA | |
+* | ^        | Output type | Unbuffered output | |
+* | I2C      | Role | Master | Configurable to slave mode through HAL function |
+* | ^        | Data rate | 100 kbps | Configurable through HAL function |
+* | ^        | Drive mode of SCL & SDA pins | Open Drain (drives low) | External pull-up resistors are required |
+* | LpTimer  | Uses WCO (32.768 kHz) as clock source & MCWDT as counter. 1 count = 1/32768 second or 32768 counts = 1 second. |||
+* | SPI      | Data rate | 100 kpbs | Configurable through HAL function |
+* | ^        | Slave select polarity | Active low | |
+* | UART     | Flow control | No flow control | Configurable through HAL function |
+* | ^        | Data format | 8N1 | Configurable through HAL function |
+* | ^        | Baud rate | 115200 | Configurable through HAL function |
+*/
+/** \} group_bsp_settings */
 
 /**
 * \addtogroup group_bsp_pin_state Pin States
@@ -49,6 +77,7 @@ extern "C" {
 
 /** \} group_bsp_pin_state */
 
+#if defined(CY_USING_HAL)
 
 /**
 * \addtogroup group_bsp_pins Pin Mappings
@@ -137,6 +166,15 @@ extern "C" {
 /** Pin: QUAD SPI SCK */
 #define CYBSP_QSPI_SCK              (P11_7)
 
+/** Pin: SPI MOSI */
+#define CYBSP_SPI_MOSI              (P12_0)
+/** Pin: SPI MISO */
+#define CYBSP_SPI_MISO              (P12_1)
+/** Pin: SPI CLK */
+#define CYBSP_SPI_CLK               (P12_2)
+/** Pin: SPI CS */
+#define CYBSP_SPI_CS                (P12_4)
+
 /** \} group_bsp_pins_comm */
 
 
@@ -192,7 +230,58 @@ extern "C" {
 
 /** \} group_bsp_pins_arduino */
 
+
+/**
+* \addtogroup group_bsp_pins_j2 J2 Header Pins
+* \{
+*/
+
+/** Cypress J2 Header pin 1 */
+#define CYBSP_J2_1                  (CYBSP_A0)
+/** Cypress J2 Header pin 2 */
+#define CYBSP_J2_2                  (P9_0)
+/** Cypress J2 Header pin 3 */
+#define CYBSP_J2_3                  (CYBSP_A1)
+/** Cypress J2 Header pin 4 */
+#define CYBSP_J2_4                  (P9_1)
+/** Cypress J2 Header pin 5 */
+#define CYBSP_J2_5                  (CYBSP_A2)
+/** Cypress J2 Header pin 6 */
+#define CYBSP_J2_6                  (P9_2)
+/** Cypress J2 Header pin 7 */
+#define CYBSP_J2_7                  (CYBSP_A3)
+/** Cypress J2 Header pin 8 */
+#define CYBSP_J2_8                  (P9_3)
+/** Cypress J2 Header pin 9 */
+#define CYBSP_J2_9                  (CYBSP_A4)
+/** Cypress J2 Header pin 10 */
+#define CYBSP_J2_10                 (P9_4)
+/** Cypress J2 Header pin 11 */
+#define CYBSP_J2_11                 (CYBSP_A5)
+/** Cypress J2 Header pin 12 */
+#define CYBSP_J2_12                 (P9_5)
+/** Cypress J2 Header pin 13 */
+#define CYBSP_J2_13                 (P10_6)
+/** Cypress J2 Header pin 14 */
+#define CYBSP_J2_14                 (NC)
+/** Cypress J2 Header pin 15 */
+#define CYBSP_J2_15                 (P6_2)
+/** Cypress J2 Header pin 16 */
+#define CYBSP_J2_16                 (P9_6)
+/** Cypress J2 Header pin 17 */
+#define CYBSP_J2_17                 (P6_3)
+/** Cypress J2 Header pin 18 */
+#define CYBSP_J2_18                 (P9_7)
+/** Cypress J2 Header pin 19 */
+#define CYBSP_J2_19                 (P13_6)
+/** Cypress J2 Header pin 20 */
+#define CYBSP_J2_20                 (P13_7)
+
+/** \} group_bsp_pins_j2 */
+
 /** \} group_bsp_pins */
+
+#endif /* defined(CY_USING_HAL) */
 
 #if defined(__cplusplus)
 }
