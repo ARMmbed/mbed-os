@@ -129,11 +129,9 @@ int i2c_start(i2c_t *obj)
 
 int i2c_stop(i2c_t *obj)
 {
-    struct i2c_s *i2c = cy_get_i2c(obj);
-    
+    struct i2c_s *i2c = cy_get_i2c(obj);    
     /* Clear state of address */
-    i2c->address_set = false;
-    
+    i2c->address_set = false;    
     if (i2c->hal_i2c.context.state != CY_SCB_I2C_IDLE) {
         return Cy_SCB_I2C_MasterSendStop(i2c->hal_i2c.base, CY_I2C_DEFAULT_TIMEOUT, &(i2c->hal_i2c.context));
     }
@@ -170,7 +168,7 @@ int i2c_byte_read(i2c_t *obj, int last)
     uint8_t value;
 
     /* Slave device address is stored in object by first write operation */
-    if(i2c->address_set) {
+    if (i2c->address_set) {
         /* Send slave device address */
         /* Make sure if I2C transaction direction is 'Read' */
         if (CY_SCB_I2C_SUCCESS != Cy_SCB_I2C_MasterSendStart(i2c->hal_i2c.base, i2c->address, CY_SCB_I2C_READ_XFER, CY_I2C_DEFAULT_TIMEOUT, &(i2c->hal_i2c.context))) {
@@ -194,7 +192,7 @@ int i2c_byte_write(i2c_t *obj, int data)
     cy_en_scb_i2c_status_t status;
 
     /* First byte should be address */
-    if(i2c->address_set) {
+    if (i2c->address_set) {
         /* Verify if Master is ready for send slave address and send first data byte */
         /* Make sure that I2C transaction direction is 'Write' */
         if (i2c->hal_i2c.context.state == CY_SCB_I2C_IDLE) {
@@ -202,13 +200,11 @@ int i2c_byte_write(i2c_t *obj, int data)
             if (status == CY_SCB_I2C_SUCCESS) {
                 status = Cy_SCB_I2C_MasterWriteByte(i2c->hal_i2c.base, (uint8_t)data, CY_I2C_DEFAULT_TIMEOUT, &(i2c->hal_i2c.context));
             }
-        }
-        else {
+        } else {
             /* No need to send slave address because it is done by previous operation, just send next data byte */
             status = Cy_SCB_I2C_MasterWriteByte(i2c->hal_i2c.base, (uint8_t)data, CY_I2C_DEFAULT_TIMEOUT, &(i2c->hal_i2c.context));
         }
-    }
-    else {
+    } else {
         /* Store slave address and remember status for next byte read or write operation */
         i2c->address = data >> 1;
         i2c->address_set = true;
