@@ -4,7 +4,9 @@
 * Description:
 * Establishes all necessary connections between hardware elements.
 * This file was automatically generated and should not be modified.
-* 
+* Device Configurator: 2.0.0.1483
+* Device Support Library: 1.3.1.1474
+*
 ********************************************************************************
 * Copyright 2017-2019 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
@@ -28,10 +30,6 @@
 
 void init_cycfg_routing(void)
 {
-	HSIOM->AMUX_SPLIT_CTL[2] = HSIOM_AMUX_SPLIT_CTL_SWITCH_AA_SL_Msk |
-		HSIOM_AMUX_SPLIT_CTL_SWITCH_AA_SR_Msk |
-		HSIOM_AMUX_SPLIT_CTL_SWITCH_BB_SL_Msk |
-		HSIOM_AMUX_SPLIT_CTL_SWITCH_BB_SR_Msk;
 	HSIOM->AMUX_SPLIT_CTL[4] = HSIOM_AMUX_SPLIT_CTL_SWITCH_AA_SL_Msk |
 		HSIOM_AMUX_SPLIT_CTL_SWITCH_AA_SR_Msk |
 		HSIOM_AMUX_SPLIT_CTL_SWITCH_BB_SL_Msk |
