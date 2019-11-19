@@ -5,7 +5,7 @@
                    "-fmessage-length=0", "-fno-exceptions",
                    "-ffunction-sections", "-fdata-sections", "-funsigned-char",
                    "-MMD",
-                   "-fomit-frame-pointer", "-Os", "-g", "-DMBED_TRAP_ERRORS_ENABLED=1"],
+                   "-fomit-frame-pointer", "-Os", "-flto", "-g", "-DMBED_TRAP_ERRORS_ENABLED=1"],
         "asm": ["-c", "-x", "assembler-with-cpp"],
         "c": ["-c", "-std=gnu11"],
         "cxx": ["-c", "-std=gnu++14", "-fno-rtti", "-Wvla"],
