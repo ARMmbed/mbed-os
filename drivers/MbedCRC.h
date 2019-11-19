@@ -479,11 +479,10 @@ private:
                                           >>;
     // *INDENT-ON*
 
-    /* Not [MBED_CRC_TABLE_SIZE] as that could be [0], which is illegal.
-     * We do need the declaration to always exist so that do_compute_partial<TABLE> is always well-formed,
-     * but we never actually use it MBED_CRC_TABLE_SIZE is 0.
-     */
-    static const crc_table_t _crc_table[];
+#if MBED_CRC_TABLE_SIZE > 0
+    /* Tables only actually defined for mode == TABLE, and certain polynomials - see below */
+    static const crc_table_t _crc_table[MBED_CRC_TABLE_SIZE];
+#endif
 
     static uint32_t adjust_initial_value(uint32_t initial_xor, bool reflect_data)
     {
@@ -742,6 +741,7 @@ private:
         return 0;
     }
 
+#if MBED_CRC_TABLE_SIZE > 0
     /** CRC computation using ROM tables.
     *
     * @param  buffer  data buffer
@@ -774,6 +774,7 @@ private:
         *crc = p_crc;
         return 0;
     }
+#endif
 
 #ifdef DEVICE_CRC
     /** Hardware CRC computation.
@@ -792,6 +793,28 @@ private:
 #endif
 
 };
+
+#if MBED_CRC_TABLE_SIZE > 0
+/* Declarations of the tables we provide. (Not strictly needed, but compilers
+ * can warn if they see us using the template without a generic definition, so
+ * let it know we have provided these specialisations.)
+ */
+template<>
+const uint8_t MbedCRC<POLY_7BIT_SD, 7, CrcMode::TABLE>::_crc_table[MBED_CRC_TABLE_SIZE];
+
+template<>
+const uint8_t MbedCRC<POLY_8BIT_CCITT, 8, CrcMode::TABLE>::_crc_table[MBED_CRC_TABLE_SIZE];
+
+template<>
+const uint16_t MbedCRC<POLY_16BIT_CCITT, 16, CrcMode::TABLE>::_crc_table[MBED_CRC_TABLE_SIZE];
+
+template<>
+const uint16_t MbedCRC<POLY_16BIT_IBM, 16, CrcMode::TABLE>::_crc_table[MBED_CRC_TABLE_SIZE];
+
+template<>
+const uint32_t MbedCRC<POLY_32BIT_ANSI, 32, CrcMode::TABLE>::_crc_table[MBED_CRC_TABLE_SIZE];
+
+#endif // MBED_CRC_TABLE_SIZE > 0
 
 } // namespace impl
 
