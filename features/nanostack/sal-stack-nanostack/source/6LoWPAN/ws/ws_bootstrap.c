@@ -1189,7 +1189,7 @@ static void ws_bootstrap_pan_advertisement_solicit_analyse(struct protocol_inter
     if (ws_bootstrap_state_discovery(cur) &&
             cur->bootsrap_state_machine_cnt > cur->ws_info->trickle_params_pan_discovery.Imin + 50) {
         cur->bootsrap_state_machine_cnt = cur->ws_info->trickle_params_pan_discovery.Imin + randLIB_get_8bit() % 50;
-        tr_info("Making parent selection in %d s", (uint32_t)(cur->bootsrap_state_machine_cnt / 10));
+        tr_info("Making parent selection in %u s", (cur->bootsrap_state_machine_cnt / 10));
     }
 }
 
@@ -2294,7 +2294,7 @@ static void ws_bootstrap_start_discovery(protocol_interface_info_entry_t *cur)
              cur->ws_info->trickle_pan_advertisement_solicit.I, cur->ws_info->trickle_pan_advertisement_solicit.t, cur->ws_info->trickle_pan_advertisement_solicit.now, cur->ws_info->trickle_pan_advertisement_solicit.c);
 
     cur->bootsrap_state_machine_cnt = time_to_solicit + cur->ws_info->trickle_params_pan_discovery.Imin + randLIB_get_8bit() % 50;
-    tr_info("Making parent selection in %d s", (uint32_t)(cur->bootsrap_state_machine_cnt / 10));
+    tr_info("Making parent selection in %u s", (cur->bootsrap_state_machine_cnt / 10));
 }
 
 // Start authentication
@@ -2355,7 +2355,7 @@ static void ws_bootstrap_authentication_completed(protocol_interface_info_entry_
         // Go back for network scanning
         ws_bootstrap_state_change(cur, ER_ACTIVE_SCAN);
         cur->bootsrap_state_machine_cnt = randLIB_get_random_in_range(10, cur->ws_info->trickle_params_pan_discovery.Imin >> 1);
-        tr_info("Making parent selection in %d s", (uint32_t)(cur->bootsrap_state_machine_cnt / 10));
+        tr_info("Making parent selection in %u s", (cur->bootsrap_state_machine_cnt / 10));
     } else {
         tr_debug("authentication failed");
         // What else to do to start over again...
@@ -2727,7 +2727,7 @@ void ws_bootstrap_network_scan_process(protocol_interface_info_entry_t *cur)
     if (!selected_parent_ptr) {
         // Next check will be after one trickle
         cur->bootsrap_state_machine_cnt += cur->ws_info->trickle_params_pan_discovery.Imin + randLIB_get_8bit() % 50;
-        tr_info("Making parent selection in %d s", (uint32_t)(cur->bootsrap_state_machine_cnt / 10));
+        tr_info("Making parent selection in %u s", (cur->bootsrap_state_machine_cnt / 10));
         return;
     }
     tr_info("selected parent:%s panid %u", trace_array(selected_parent_ptr->addr, 8), selected_parent_ptr->pan_id);

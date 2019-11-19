@@ -1543,7 +1543,7 @@ static int8_t mcps_generic_packet_build(protocol_interface_rf_mac_setup_s *rf_pt
     mac_header_information_elements_preparation(buffer);
 
     mcps_generic_sequence_number_allocate(rf_ptr, buffer);
-    mlme_key_descriptor_t *key_desc;
+    mlme_key_descriptor_t *key_desc = NULL;
     if (buffer->fcf_dsn.securityEnabled) {
         bool increment_framecounter = false;
         //Remember to update security counter here!
@@ -1600,7 +1600,7 @@ static int8_t mcps_generic_packet_build(protocol_interface_rf_mac_setup_s *rf_pt
         tr_debug("Too Long %u, %u pa %u header %u mic %u", frame_length, mac_payload_length, buffer->mac_header_length_with_security,  buffer->security_mic_len, dev_driver->phy_MTU);
         buffer->status = MLME_FRAME_TOO_LONG;
         //decrement security counter
-        if (buffer->fcf_dsn.securityEnabled) {
+        if (key_desc) {
             mac_sec_mib_key_outgoing_frame_counter_decrement(rf_ptr, key_desc);
         }
         return -1;
@@ -1716,7 +1716,7 @@ int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, bool in
 
     ccm_globals_t ccm_ptr;
     mac_pre_build_frame_t *buffer = &rf_ptr->enhanced_ack_buffer;
-    mlme_key_descriptor_t *key_desc;
+    mlme_key_descriptor_t *key_desc = NULL;
 
     if (buffer->fcf_dsn.securityEnabled) {
         //Remember to update security counter here!
@@ -1755,7 +1755,7 @@ int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, bool in
     if ((frame_length) > ack_mtu_size - 2) {
         buffer->status = MLME_FRAME_TOO_LONG;
 
-        if (buffer->fcf_dsn.securityEnabled) {
+        if (key_desc) {
             //decrement security counter
             mac_sec_mib_key_outgoing_frame_counter_decrement(rf_ptr, key_desc);
             ccm_free(&ccm_ptr);

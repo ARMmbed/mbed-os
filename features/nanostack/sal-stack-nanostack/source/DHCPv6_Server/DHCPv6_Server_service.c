@@ -87,7 +87,7 @@ static void DHCP_server_service_timer_stop(void)
 
 int DHCPv6_server_respond_client(dhcpv6_gua_server_entry_s *serverBase, dhcpv6_reply_packet_s *replyPacket, dhcp_ia_non_temporal_params_t *dhcp_ia_non_temporal_params, dhcpv6_gua_response_t *response, bool allocateNew)
 {
-    dhcpv6_alloacted_address_entry_t *dhcp_allocated_address;
+    dhcpv6_alloacted_address_entry_t *dhcp_allocated_address = NULL;
     dhcpv6_ia_non_temporal_address_s nonTemporalAddress;
     bool address_allocated = false;
     //Validate Client DUID
