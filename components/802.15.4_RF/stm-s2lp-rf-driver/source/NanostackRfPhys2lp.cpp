@@ -543,6 +543,19 @@ static void rf_set_channel_configuration_registers(void)
         rf_channel_multiplier++;
     }
     rf_write_register(CHSPACE, ch_space);
+    /* Preamble is set for S2-LP as repetitions of 01 or 10 pair
+     *
+     * For datarate < 150kbps, using phyFskPreambleLength = 8 repetitions of 01010101
+     * For datarate >= 150kbps and datarate < 300kbps, using phyFskPreambleLength = 12 repetitions of 01010101
+     * For datarate >= 300kbps, using phyFskPreambleLength = 24 repetitions of 01010101
+     */
+    uint8_t preamble_len = 24 * 4;
+    if (phy_subghz.datarate < 150000) {
+        preamble_len = 8 * 4;
+    } else if (phy_subghz.datarate < 300000) {
+        preamble_len = 12 * 4;
+    }
+    rf_write_register(PCKTCTRL5, preamble_len);
 }
 
 static void rf_init_registers(void)
@@ -557,7 +570,6 @@ static void rf_init_registers(void)
     rf_write_register_field(PCKTCTRL2, PCKT_FCS_TYPE_FIELD, PCKT_FCS_TYPE_4_OCTET);
     rf_write_register_field(PCKTCTRL3, PCKT_RXMODE_FIELD, PCKT_RXMODE_NORMAL);
     rf_write_register_field(PCKTCTRL3, PCKT_BYTE_SWAP_FIELD, PCKT_BYTE_SWAP_LSB);
-    rf_write_register(PCKTCTRL5, PCKT_PREAMBLE_LEN);
     rf_write_register_field(PCKTCTRL6, PCKT_SYNCLEN_FIELD, PCKT_SYNCLEN);
     rf_write_register_field(QI, PQI_TH_FIELD, PQI_TH);
     rf_write_register_field(QI, SQI_EN_FIELD, SQI_EN);
