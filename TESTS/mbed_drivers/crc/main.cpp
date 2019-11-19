@@ -64,6 +64,26 @@ void test_supported_polynomials()
         TEST_ASSERT_EQUAL(0x57, crc);
     }
     {
+        MbedCRC<POLY_7BIT_SD, 7> ct(0x2B, 0, true, false);
+        TEST_ASSERT_EQUAL(0, ct.compute(test, strlen(test), &crc));
+        TEST_ASSERT_EQUAL(0x1D, crc);
+    }
+    {
+        MbedCRC<POLY_7BIT_SD, 7> ct(0x2B, 0, false, true);
+        TEST_ASSERT_EQUAL(0, ct.compute(test, strlen(test), &crc));
+        TEST_ASSERT_EQUAL(0x2E, crc);
+    }
+    {
+        MbedCRC<POLY_7BIT_SD, 7> ct(0x2B, 0, true, true);
+        TEST_ASSERT_EQUAL(0, ct.compute(test, strlen(test), &crc));
+        TEST_ASSERT_EQUAL(0x5C, crc);
+    }
+    {
+        MbedCRC<POLY_7BIT_SD, 7> ct(0, 0x2B, false, true);
+        TEST_ASSERT_EQUAL(0, ct.compute(test, strlen(test), &crc));
+        TEST_ASSERT_EQUAL(0x7C, crc);
+    }
+    {
         MbedCRC<POLY_8BIT_CCITT, 8> ct;
         TEST_ASSERT_EQUAL(0, ct.compute(test, strlen(test), &crc));
         TEST_ASSERT_EQUAL(0xF4, crc);
@@ -97,6 +117,29 @@ void test_partial_crc()
         TEST_ASSERT_EQUAL(0, ct.compute_partial_stop(&crc));
 
         TEST_ASSERT_EQUAL(0x29B1, crc);
+    }
+    {
+        MbedCRC<POLY_32BIT_ANSI, 32> ct;
+        TEST_ASSERT_EQUAL(0, ct.compute_partial_start(&crc));
+        TEST_ASSERT_EQUAL(0, ct.compute_partial(test, 8, &crc));
+        TEST_ASSERT_EQUAL(0, ct.compute_partial(&test[8], 1, &crc));
+        TEST_ASSERT_EQUAL(0, ct.compute_partial_stop(&crc));
+
+        TEST_ASSERT_EQUAL(0xCBF43926, crc);
+    }
+    {
+        MbedCRC<POLY_32BIT_ANSI, 32> ct(0xFFFFFFFF, 0, true, false);
+        TEST_ASSERT_EQUAL(0, ct.compute_partial_start(&crc));
+        TEST_ASSERT_EQUAL(0, ct.compute_partial(test, 8, &crc));
+        TEST_ASSERT_EQUAL(0, ct.compute_partial_stop(&crc));
+    }
+    {
+        MbedCRC<POLY_32BIT_ANSI, 32> ct(crc, 0xFFFFFFFF, true, true);
+        TEST_ASSERT_EQUAL(0, ct.compute_partial_start(&crc));
+        TEST_ASSERT_EQUAL(0, ct.compute_partial(&test[8], 1, &crc));
+        TEST_ASSERT_EQUAL(0, ct.compute_partial_stop(&crc));
+
+        TEST_ASSERT_EQUAL(0xCBF43926, crc);
     }
 }
 
