@@ -24,7 +24,7 @@ namespace mbed {
 
 extern "C" void lfs_crc(uint32_t *crc, const void *buffer, size_t size)
 {
-    uint32_t initial_xor = *crc;
+    uint32_t initial_xor = lfs_rbit(*crc);
     // lfs_cache_crc calls lfs_crc for every byte individually, so can't afford
     // start-up overhead for hardware acceleration. Limit to table-based.
     MbedCRC<POLY_32BIT_ANSI, 32, CrcMode::TABLE> ct(initial_xor, 0x0, true, true);
