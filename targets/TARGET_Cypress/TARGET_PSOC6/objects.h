@@ -94,6 +94,7 @@ struct i2c_s {
     size_t async_rx_size;
 #endif
     uint8_t slave_event;
+    uint32_t address;
     bool address_set;
 };
 #endif
