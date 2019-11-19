@@ -29,7 +29,12 @@
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
 
+#ifdef UNITTEST
 #include <type_traits>
+#define MSTD_CONSTEXPR_IF_HAS_IS_CONSTANT_EVALUATED
+#else
+#include <mstd_type_traits>
+#endif
 
 namespace mbed {
 /** \addtogroup drivers-public-api */
@@ -175,11 +180,13 @@ public:
      *             polynomials with different initial/final/reflect values
      *
      */
+    constexpr
     MbedCRC(uint32_t initial_xor, uint32_t final_xor, bool reflect_data, bool reflect_remainder) :
         crc_impl(initial_xor, final_xor, reflect_data, reflect_remainder)
     {
     }
 
+    constexpr
     MbedCRC();
 
     /** Compute CRC for the data input
@@ -279,6 +286,7 @@ class MbedCRC {
 public:
     typedef size_t crc_data_size_t;
 
+    constexpr
     MbedCRC(uint32_t initial_xor, uint32_t final_xor, bool reflect_data, bool reflect_remainder) :
         _initial_value(adjust_initial_value(initial_xor, reflect_data)),
         _final_xor(final_xor),
@@ -400,7 +408,7 @@ public:
                 }
             } else {
                 /* CRC has MSB in top bit of register */
-                p_crc = _reflect_remainder ? reflect_register(p_crc) : shift_right(p_crc);
+                p_crc = _reflect_remainder ? reflect(p_crc) : shift_right(p_crc);
             }
         } else { // TABLE
             /* CRC has MSB in bottom bit of register */
@@ -417,45 +425,91 @@ public:
     }
 
 private:
+    /** Guaranteed constexpr reflection (all toolchains)
+     *
+     * @note   This should never be run-time evaluated - very inefficient
+     * @param  Register value to be reflected (full 32-bit value)
+     * @return Reflected value (full 32-bit value)
+     */
+    static constexpr uint32_t reflect_constant(uint32_t data)
+    {
+        /* Doing this hard way to keep it C++11 constexpr and hence ARM C 5 compatible */
+        return ((data & 0x00000001) << 31) |
+               ((data & 0x00000002) << 29) |
+               ((data & 0x00000004) << 27) |
+               ((data & 0x00000008) << 25) |
+               ((data & 0x00000010) << 23) |
+               ((data & 0x00000020) << 21) |
+               ((data & 0x00000040) << 19) |
+               ((data & 0x00000080) << 17) |
+               ((data & 0x00000100) << 15) |
+               ((data & 0x00000200) << 13) |
+               ((data & 0x00000400) << 11) |
+               ((data & 0x00000800) <<  9) |
+               ((data & 0x00001000) <<  7) |
+               ((data & 0x00002000) <<  5) |
+               ((data & 0x00004000) <<  3) |
+               ((data & 0x00008000) <<  1) |
+               ((data & 0x00010000) >>  1) |
+               ((data & 0x00020000) >>  3) |
+               ((data & 0x00040000) >>  5) |
+               ((data & 0x00080000) >>  7) |
+               ((data & 0x00100000) >>  9) |
+               ((data & 0x00200000) >> 11) |
+               ((data & 0x00400000) >> 13) |
+               ((data & 0x00800000) >> 15) |
+               ((data & 0x01000000) >> 17) |
+               ((data & 0x02000000) >> 19) |
+               ((data & 0x04000000) >> 21) |
+               ((data & 0x08000000) >> 23) |
+               ((data & 0x10000000) >> 25) |
+               ((data & 0x20000000) >> 27) |
+               ((data & 0x40000000) >> 29) |
+               ((data & 0x80000000) >> 31);
+    }
+
+    /** General reflection
+     *
+     * @note This is used when we may need to perform run-time computation, so
+     * we need the possibility to produce the optimal run-time RBIT instruction. But
+     * if the compiler doesn't treat RBIT as a built-in, it's useful to have a C fallback
+     * for the constant case, avoiding runtime RBIT(0) computations. This is an
+     * optimization only available for some toolchains; others will always use runtime
+     * RBIT. If we require a constant expression, use reflect_constant instead.
+     *
+     * @param  Register value to be reflected (full 32-bit value)
+     * @return Reflected value (full 32-bit value)
+     */
+#ifdef MSTD_HAS_IS_CONSTANT_EVALUATED
+    static constexpr uint32_t reflect(uint32_t data)
+    {
+        return mstd::is_constant_evaluated() ? reflect_constant(data) : __RBIT(data);
+    }
+#else
+    static uint32_t reflect(uint32_t data)
+    {
+        return __RBIT(data);
+    }
+#endif
+
+    /** Data bytes may need to be reflected.
+     *
+     * @param  data value to be reflected (bottom 8 bits)
+     * @return Reflected value (bottom 8 bits)
+     */
+    static MSTD_CONSTEXPR_IF_HAS_IS_CONSTANT_EVALUATED
+    uint_fast32_t reflect_byte(uint_fast32_t data)
+    {
+        return reflect(data) >> 24;
+    }
+
     /** Get the current CRC polynomial, reflected at bottom of register.
      *
      * @return  Reflected polynomial value (so x^width term would be at bit -1)
      */
     static constexpr uint32_t get_reflected_polynomial()
     {
-        /* Doing this hard way to keep it C++11 constexpr and hence ARM C 5 compatible */
-        return shift_right(((polynomial & 0x00000001) << 31) |
-                           ((polynomial & 0x00000002) << 29) |
-                           ((polynomial & 0x00000004) << 27) |
-                           ((polynomial & 0x00000008) << 25) |
-                           ((polynomial & 0x00000010) << 23) |
-                           ((polynomial & 0x00000020) << 21) |
-                           ((polynomial & 0x00000040) << 19) |
-                           ((polynomial & 0x00000080) << 17) |
-                           ((polynomial & 0x00000100) << 15) |
-                           ((polynomial & 0x00000200) << 13) |
-                           ((polynomial & 0x00000400) << 11) |
-                           ((polynomial & 0x00000800) <<  9) |
-                           ((polynomial & 0x00001000) <<  7) |
-                           ((polynomial & 0x00002000) <<  5) |
-                           ((polynomial & 0x00004000) <<  3) |
-                           ((polynomial & 0x00008000) <<  1) |
-                           ((polynomial & 0x00010000) >>  1) |
-                           ((polynomial & 0x00020000) >>  3) |
-                           ((polynomial & 0x00040000) >>  5) |
-                           ((polynomial & 0x00080000) >>  7) |
-                           ((polynomial & 0x00100000) >>  9) |
-                           ((polynomial & 0x00200000) >> 11) |
-                           ((polynomial & 0x00400000) >> 13) |
-                           ((polynomial & 0x00800000) >> 15) |
-                           ((polynomial & 0x01000000) >> 17) |
-                           ((polynomial & 0x02000000) >> 19) |
-                           ((polynomial & 0x04000000) >> 21) |
-                           ((polynomial & 0x08000000) >> 23) |
-                           ((polynomial & 0x10000000) >> 25) |
-                           ((polynomial & 0x20000000) >> 27) |
-                           ((polynomial & 0x40000000) >> 29) |
-                           ((polynomial & 0x80000000) >> 31));
+        return shift_right(reflect_constant(polynomial));
     }
 
     /** Get the current CRC polynomial, at top of register.
@@ -484,21 +538,8 @@ private:
     static const crc_table_t _crc_table[MBED_CRC_TABLE_SIZE];
 #endif
 
-    static uint32_t adjust_initial_value(uint32_t initial_xor, bool reflect_data)
+    static constexpr uint32_t adjust_initial_value(uint32_t initial_xor, bool reflect_data)
     {
-        /* As initial_xor is almost certain to be constant all zeros or ones, try to
-         * process that a constant, avoiding an RBIT instruction (or worse).
-         */
-        if (initial_xor == 0 || initial_xor == (get_crc_mask() & -1U)) {
-            /* Only possible adjustment is shifting to top for bitwise */
-            if (mode == CrcMode::BITWISE && !reflect_data) {
-                return shift_left(initial_xor);
-            } else {
-                return initial_xor;
-            }
-        }
-
-        /* Weird or non-constant initial value - need to think about reflection */
         if (mode == CrcMode::BITWISE) {
             /* For bitwise calculation, CRC register is reflected if data is, to match input.
              * (MSB at bottom of register). If not reflected, it is at the top of the register
@@ -545,34 +586,15 @@ private:
         return (uint32_t)((uint32_t)2U << (width - 1)) - 1U;
     }
 
-    /** Data bytes may need to be reflected.
-     *
-     * @param  data value to be reflected (bottom 8 bits)
-     * @return Reflected value (bottom 8 bits)
-     */
-    static uint_fast32_t reflect_byte(uint_fast32_t data)
-    {
-        return __RBIT(data) >> 24;
-    }
-
     /** CRC values may need to be reflected.
      *
      * @param  CRC value to be reflected (width bits at bottom of 32-bit word)
      * @return Reflected value (still at bottom of 32-bit word)
      */
-    static uint32_t reflect_crc(uint32_t data)
+    static MSTD_CONSTEXPR_IF_HAS_IS_CONSTANT_EVALUATED
+    uint32_t reflect_crc(uint32_t data)
     {
-        return __RBIT(data) >> (32 - width);
-    }
-
-    /** Register values may need to be reflected.
-     *
-     * @param  Register value to be reflected (full 32-bit value)
-     * @return Reflected value (full 32-bit value)
-     */
-    static uint32_t reflect_register(uint32_t data)
-    {
-        return __RBIT(data);
+        return reflect(data) >> (32 - width);
     }
 
     /** Register values may need to be shifted left.
@@ -823,27 +845,32 @@ const uint32_t MbedCRC<POLY_32BIT_ANSI, 32, CrcMode::TABLE>::_crc_table[MBED_CRC
 /* Default values for different types of polynomials
 */
 template<>
-inline MbedCRC<POLY_32BIT_ANSI, 32>::MbedCRC() : MbedCRC(0xFFFFFFFF, 0xFFFFFFFF, true, true)
+inline MSTD_CONSTEXPR_FN_14
+MbedCRC<POLY_32BIT_ANSI, 32>::MbedCRC() : MbedCRC(0xFFFFFFFF, 0xFFFFFFFF, true, true)
 {
 }
 
 template<>
-inline MbedCRC<POLY_16BIT_IBM, 16>::MbedCRC() : MbedCRC(0, 0, true, true)
+inline MSTD_CONSTEXPR_FN_14
+MbedCRC<POLY_16BIT_IBM, 16>::MbedCRC() : MbedCRC(0, 0, true, true)
 {
 }
 
 template<>
-inline MbedCRC<POLY_16BIT_CCITT, 16>::MbedCRC() : MbedCRC(0xFFFF, 0, false, false)
+inline MSTD_CONSTEXPR_FN_14
+MbedCRC<POLY_16BIT_CCITT, 16>::MbedCRC() : MbedCRC(0xFFFF, 0, false, false)
 {
 }
 
 template<>
-inline MbedCRC<POLY_7BIT_SD, 7>::MbedCRC(): MbedCRC(0, 0, false, false)
+inline MSTD_CONSTEXPR_FN_14
+MbedCRC<POLY_7BIT_SD, 7>::MbedCRC(): MbedCRC(0, 0, false, false)
 {
 }
 
 template<>
-inline MbedCRC<POLY_8BIT_CCITT, 8>::MbedCRC(): MbedCRC(0, 0, false, false)
+inline MSTD_CONSTEXPR_FN_14
+MbedCRC<POLY_8BIT_CCITT, 8>::MbedCRC(): MbedCRC(0, 0, false, false)
 {
 }
 
