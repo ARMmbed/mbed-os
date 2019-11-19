@@ -27,8 +27,6 @@
 using namespace utest::v1;
 
 #define POLY_8BIT_MAXIM 0x31
-#define POLY_16BIT_MAXIM 0x8005
-#define POLY_32BIT_POSIX 0x4C11DB7
 
 #define UNSUPPORTED (-1)
 #define POL_CNT (2)
@@ -249,22 +247,6 @@ int main()
         /* 39 */{ {POLY_8BIT_MAXIM  ,  8, 0x00000000, 0x000000AB, false, false}, 0x09       },
         /* 40 */{ {POLY_8BIT_MAXIM  ,  8, 0x00000000, 0x00000000, true , false}, 0x85       },
         /* 41 */{ {POLY_8BIT_MAXIM  ,  8, 0x00000000, 0x00000000, false, true }, 0x45       },
-
-        /* 42 */{ {POLY_16BIT_MAXIM , 16, 0x00000000, 0x00000000, false, false}, 0xFEE8     },
-        /* 43 */{ {POLY_16BIT_MAXIM , 16, 0x0000FFFF, 0x00000000, false, false}, 0xAEE7     },
-        /* 44 */{ {POLY_16BIT_MAXIM , 16, 0x0000ABAB, 0x00000000, false, false}, 0x0887     },
-        /* 45 */{ {POLY_16BIT_MAXIM , 16, 0x00000000, 0x0000FFFF, false, false}, 0x0117     },
-        /* 46 */{ {POLY_16BIT_MAXIM , 16, 0x00000000, 0x0000ABAB, false, false}, 0x5543     },
-        /* 47 */{ {POLY_16BIT_MAXIM , 16, 0x00000000, 0x00000000, true , false}, 0xBCDD     },
-        /* 48 */{ {POLY_16BIT_MAXIM , 16, 0x00000000, 0x00000000, false, true }, 0x177F     },
-
-        /* 49 */{ {POLY_32BIT_POSIX , 32, 0x00000000, 0x00000000, false, false}, 0x89A1897F },
-        /* 50 */{ {POLY_32BIT_POSIX , 32, 0xFFFFFFFF, 0x00000000, false, false}, 0x0376E6E7 },
-        /* 51 */{ {POLY_32BIT_POSIX , 32, 0xABABABAB, 0x00000000, false, false}, 0x871A2FAA },
-        /* 52 */{ {POLY_32BIT_POSIX , 32, 0x00000000, 0xFFFFFFFF, false, false}, 0x765E7680 },
-        /* 53 */{ {POLY_32BIT_POSIX , 32, 0x00000000, 0xABABABAB, false, false}, 0x220A22D4 },
-        /* 54 */{ {POLY_32BIT_POSIX , 32, 0x00000000, 0x00000000, true , false}, 0x11B4BFB4 },
-        /* 55 */{ {POLY_32BIT_POSIX , 32, 0x00000000, 0x00000000, false, true }, 0xFE918591 },
     };
     // *INDENT-ON*
 
