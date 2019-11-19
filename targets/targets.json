@@ -9083,11 +9083,12 @@
         "inherits": ["MCU_PSOC6"],
         "core": "Cortex-M0+",
         "macros_add": ["MCU_PSOC6_M0"],
+        "components_add": ["CM0P"],
         "public": false
     },
     "MCU_PSOC6_M4": {
         "inherits": ["MCU_PSOC6"],
-        "components_add": ["FLASHIAP", "QSPIF", "BSP_DESIGN_MODUS", "CM0P_SLEEP"],
+        "components_add": ["CM4", "FLASHIAP", "QSPIF", "BSP_DESIGN_MODUS", "CM0P_SLEEP"],
         "macros_add": ["MCU_PSOC6_M4", "CY_RTOS_AWARE", "CY_USING_HAL", "MBED_TICKLESS"],
         "public": false
     },
