@@ -37,6 +37,11 @@ public:
     {
         return "127.0.0.1";
     }
+    virtual nsapi_error_t get_ip_address(SocketAddress* address)
+    {
+        address->set_ip_address("127.0.0.1");
+        return NSAPI_ERROR_OK;
+    }
     virtual nsapi_error_t gethostbyname(const char *host,
                                         SocketAddress *address, nsapi_version_t version, const char *interface_name)
     {

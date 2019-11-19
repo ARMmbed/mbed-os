@@ -155,14 +155,29 @@ char *EmacTestNetworkStack::Interface::get_mac_address(char *buf, nsapi_size_t b
     return NULL;
 }
 
+nsapi_error_t EmacTestNetworkStack::Interface::get_ip_address(SocketAddress *address)
+{
+    return NSAPI_ERROR_OK;
+}
+
 char *EmacTestNetworkStack::Interface::get_ip_address(char *buf, nsapi_size_t buflen)
 {
     return NULL;
 }
 
+nsapi_error_t EmacTestNetworkStack::Interface::get_netmask(SocketAddress *address)
+{
+    return NSAPI_ERROR_OK;
+}
+
 char *EmacTestNetworkStack::Interface::get_netmask(char *buf, nsapi_size_t buflen)
 {
     return NULL;
+}
+
+nsapi_error_t EmacTestNetworkStack::Interface::get_gateway(SocketAddress *address)
+{
+    return NSAPI_ERROR_OK;
 }
 
 char *EmacTestNetworkStack::Interface::get_gateway(char *buf, nsapi_size_t buflen)

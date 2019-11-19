@@ -91,25 +91,25 @@ public:
      *
      * @param address an IP4 multicast group address
      */
-    virtual void add_ipv4_multicast_group(const char *address);
+    virtual void add_ipv4_multicast_group(const SocketAddress &address);
 
     /** Add device to an IP6 multicast group
     *
     * @param address  an IP6 multicast group address
     */
-    virtual void add_ipv6_multicast_group(const char *address);
+    virtual void add_ipv6_multicast_group(const SocketAddress &address);
 
     /** Remove device from an IPV4 multicast group
      *
      * @param address  An IPV4 multicast group address
      */
-    virtual void remove_ipv4_multicast_group(const char *address);
+    virtual void remove_ipv4_multicast_group(const SocketAddress &address);
 
     /** Remove device from an IPV6 multicast group
     *
     * @param address  An IPV6 multicast group address
     */
-    virtual void remove_ipv6_multicast_group(const char *address);
+    virtual void remove_ipv6_multicast_group(const SocketAddress &address);
 
     /** Request reception of all multicast packets
      *

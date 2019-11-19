@@ -97,6 +97,7 @@ public:
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      *                  See @ref TLSSocketWrapper::connect.
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     nsapi_error_t connect(const char *host, uint16_t port);
 
 private:

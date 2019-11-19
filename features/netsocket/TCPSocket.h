@@ -85,6 +85,7 @@ public:
      *  @retval         int Other negative error codes for stack-related failures.
      *                  See NetworkStack::socket_connect().
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     nsapi_error_t connect(const char *host, uint16_t port);
 
     /** Connects TCP socket to a remote host

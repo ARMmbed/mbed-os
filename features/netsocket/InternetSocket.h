@@ -106,6 +106,7 @@ public:
      *  @retval         int negative error codes for stack-related failures.
      *                  See @ref NetworkStack::socket_bind.
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     nsapi_error_t bind(const char *address, uint16_t port);
 
     /** @copydoc Socket::bind

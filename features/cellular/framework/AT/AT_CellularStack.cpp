@@ -55,6 +55,16 @@ int AT_CellularStack::find_socket_index(nsapi_socket_t handle)
 
 /** NetworkStack
  */
+nsapi_error_t AT_CellularStack::get_ip_address(SocketAddress *address)
+{
+    address->set_ip_address(get_ip_address());
+    if (address) {
+        return NSAPI_ERROR_OK;
+    } else {
+        return NSAPI_ERROR_NO_ADDRESS;
+    }
+}
+
 const char *AT_CellularStack::get_ip_address()
 {
     _at.lock();

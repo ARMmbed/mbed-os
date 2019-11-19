@@ -302,6 +302,32 @@ nsapi_error_t LWIP::Interface::get_ipv6_link_local_address(SocketAddress *addres
 #endif
 }
 
+nsapi_error_t LWIP::Interface::get_ip_address(SocketAddress *address)
+{
+    if (!address) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+    const ip_addr_t *addr = LWIP::get_ip_addr(true, &netif);
+    if (!addr) {
+        return NSAPI_ERROR_NO_ADDRESS;
+    }
+#if LWIP_IPV6
+    if (IP_IS_V6(addr)) {
+        char buf[NSAPI_IPv6_SIZE];
+        address->set_ip_address(ip6addr_ntoa_r(ip_2_ip6(addr), buf, NSAPI_IPv6_SIZE));
+        return NSAPI_ERROR_OK;
+    }
+#endif
+#if LWIP_IPV4
+    if (IP_IS_V4(addr)) {
+        char buf[NSAPI_IPv4_SIZE];
+        address->set_ip_address(ip4addr_ntoa_r(ip_2_ip4(addr), buf, NSAPI_IPv4_SIZE));
+        return NSAPI_ERROR_OK;
+    }
+#endif
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
 char *LWIP::Interface::get_ip_address(char *buf, nsapi_size_t buflen)
 {
     const ip_addr_t *addr = LWIP::get_ip_addr(true, &netif);
@@ -321,6 +347,36 @@ char *LWIP::Interface::get_ip_address(char *buf, nsapi_size_t buflen)
 #if LWIP_IPV6 && LWIP_IPV4
     return NULL;
 #endif
+}
+
+nsapi_error_t LWIP::Interface::get_ip_address_if(const char *interface_name, SocketAddress *address)
+{
+    if (!address) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    const ip_addr_t *addr;
+
+    if (interface_name == NULL) {
+        addr = LWIP::get_ip_addr(true, &netif);
+    } else {
+        addr = LWIP::get_ip_addr(true, netif_find(interface_name));
+    }
+#if LWIP_IPV6
+    if (IP_IS_V6(addr)) {
+        char buf[NSAPI_IPv6_SIZE];
+        address->set_ip_address(ip6addr_ntoa_r(ip_2_ip6(addr), buf, NSAPI_IPv6_SIZE));
+        return NSAPI_ERROR_OK;
+    }
+#endif
+#if LWIP_IPV4
+    if (IP_IS_V4(addr)) {
+        char buf[NSAPI_IPv4_SIZE];
+        address->set_ip_address(ip4addr_ntoa_r(ip_2_ip4(addr), buf, NSAPI_IPv4_SIZE));
+        return NSAPI_ERROR_OK;
+    }
+#endif
+    return NSAPI_ERROR_UNSUPPORTED;
 }
 
 char *LWIP::Interface::get_ip_address_if(char *buf, nsapi_size_t buflen, const char *interface_name)
@@ -350,6 +406,25 @@ char *LWIP::Interface::get_ip_address_if(char *buf, nsapi_size_t buflen, const c
 #endif
 }
 
+nsapi_error_t LWIP::Interface::get_netmask(SocketAddress *address)
+{
+    if (!address) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+#if LWIP_IPV4
+    const ip4_addr_t *addr = netif_ip4_netmask(&netif);
+    if (!ip4_addr_isany(addr)) {
+        char buf[NSAPI_IPv4_SIZE];
+        address->set_ip_address(ip4addr_ntoa_r(addr, buf, NSAPI_IPv4_SIZE));
+        return NSAPI_ERROR_OK;
+    } else {
+        return NSAPI_ERROR_NO_ADDRESS;
+    }
+#else
+    return NSAPI_ERROR_UNSUPPORTED;
+#endif
+}
+
 char *LWIP::Interface::get_netmask(char *buf, nsapi_size_t buflen)
 {
 #if LWIP_IPV4
@@ -361,6 +436,25 @@ char *LWIP::Interface::get_netmask(char *buf, nsapi_size_t buflen)
     }
 #else
     return NULL;
+#endif
+}
+
+nsapi_error_t LWIP::Interface::get_gateway(SocketAddress *address)
+{
+    if (!address) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+#if LWIP_IPV4
+    const ip4_addr_t *addr = netif_ip4_gw(&netif);
+    if (!ip4_addr_isany(addr)) {
+        char buf[NSAPI_IPv4_SIZE];
+        address->set_ip_address(ip4addr_ntoa_r(addr, buf, NSAPI_IPv4_SIZE));
+        return NSAPI_ERROR_OK;
+    } else {
+        return NSAPI_ERROR_NO_ADDRESS;
+    }
+#else
+    return NSAPI_ERROR_UNSUPPORTED;
 #endif
 }
 
