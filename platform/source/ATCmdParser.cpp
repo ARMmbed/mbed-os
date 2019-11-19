@@ -166,10 +166,16 @@ restart:
 
         while (response && response[i]) {
             if (response[i] == '%' && response[i + 1] != '%' && response[i + 1] != '*') {
+                if ((offset + 2) > _buffer_size) {
+                    return -1;
+                }
                 _buffer[offset++] = '%';
                 _buffer[offset++] = '*';
                 i++;
             } else {
+                if ((offset + 1) > _buffer_size) {
+                    return -1;
+                }
                 _buffer[offset++] = response[i++];
                 // Find linebreaks, taking care not to be fooled if they're in a %[^\n] conversion specification
                 if (response[i - 1] == '\n' && !(i >= 3 && response[i - 3] == '[' && response[i - 2] == '^')) {
@@ -182,6 +188,9 @@ restart:
         // Scanf has very poor support for catching errors
         // fortunately, we can abuse the %n specifier to determine
         // if the entire string was matched.
+        if ((offset + 3) > _buffer_size) {
+            return -1;
+        }
         _buffer[offset++] = '%';
         _buffer[offset++] = 'n';
         _buffer[offset++] = 0;
@@ -229,6 +238,9 @@ restart:
                 _in_prev = c;
             }
 
+            if ((offset + j + 1) > _buffer_size) {
+                return -1;
+            }
             _buffer[offset + j++] = c;
             _buffer[offset + j] = 0;
 
