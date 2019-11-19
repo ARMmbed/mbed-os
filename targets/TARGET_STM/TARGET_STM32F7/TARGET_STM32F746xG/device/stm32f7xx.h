@@ -9,8 +9,8 @@
   *           - Configuration section that allows to select:
   *              - The STM32F7xx device used in the target application
   *              - To use or not the peripheral’s drivers in application code(i.e.
-  *                code will be based on direct access to peripheral’s registers
-  *                rather than drivers API), this option is controlled by
+  *                code will be based on direct access to peripheral’s registers 
+  *                rather than drivers API), this option is controlled by 
   *                "#define USE_HAL_DRIVER"
   *
   ******************************************************************************
@@ -74,12 +74,10 @@
   */
 #if !defined (STM32F756xx) && !defined (STM32F746xx) && !defined (STM32F745xx) && !defined (STM32F767xx) && \
     !defined (STM32F769xx) && !defined (STM32F777xx) && !defined (STM32F779xx) && !defined (STM32F722xx) && \
-    !defined (STM32F723xx) && !defined (STM32F732xx) && !defined (STM32F733xx) && !defined (STM32F730xx) && \
-    !defined (STM32F750xx)
-
+	!defined (STM32F723xx) && !defined (STM32F732xx) && !defined (STM32F733xx)
   /* #define STM32F756xx */   /*!< STM32F756VG, STM32F756ZG, STM32F756ZG, STM32F756IG, STM32F756BG,
                                    STM32F756NG Devices */
-  /* #define STM32F746xx */   /*!< STM32F746VE, STM32F746VG, STM32F746ZE, STM32F746ZG, STM32F746IE, STM32F746IG,
+#define STM32F746xx           /*!< STM32F746VE, STM32F746VG, STM32F746ZE, STM32F746ZG, STM32F746IE, STM32F746IG,
                                    STM32F746BE, STM32F746BG, STM32F746NE, STM32F746NG Devices */
   /* #define STM32F745xx */   /*!< STM32F745VE, STM32F745VG, STM32F745ZG, STM32F745ZE, STM32F745IE, STM32F745IG Devices */
   /* #define STM32F765xx */   /*!< STM32F765BI, STM32F765BG, STM32F765NI, STM32F765NG, STM32F765II, STM32F765IG,
@@ -95,8 +93,6 @@
   /* #define STM32F723xx */   /*!< STM32F723IE, STM32F723ZE, STM32F723VE, STM32F723IC, STM32F723ZC, STM32F723VC Devices */
   /* #define STM32F732xx */   /*!< STM32F732IE, STM32F732ZE, STM32F732VE, STM32F732RE Devices */
   /* #define STM32F733xx */   /*!< STM32F733IE, STM32F733ZE, STM32F733VE Devices */
-  /* #define STM32F730xx */   /*!< STM32F730R, STM32F730V, STM32F730Z, STM32F730I Devices */
-  /* #define STM32F750xx */   /*!< STM32F750V, STM32F750Z, STM32F750N Devices */
 #endif
 
 /*  Tip: To avoid modifying this file each time you need to switch between these
@@ -109,20 +105,20 @@
    In this case, these drivers will not be included and the application code will
    be based on direct access to peripherals registers
    */
-  /*#define USE_HAL_DRIVER */
+#define USE_HAL_DRIVER
 #endif /* USE_HAL_DRIVER */
 
 /**
-  * @brief CMSIS Device version number V1.2.4
+  * @brief CMSIS Device version number V1.2.2
   */
 #define __STM32F7_CMSIS_VERSION_MAIN   (0x01) /*!< [31:24] main version */
 #define __STM32F7_CMSIS_VERSION_SUB1   (0x02) /*!< [23:16] sub1 version */
-#define __STM32F7_CMSIS_VERSION_SUB2   (0x04) /*!< [15:8]  sub2 version */
+#define __STM32F7_CMSIS_VERSION_SUB2   (0x02) /*!< [15:8]  sub2 version */
 #define __STM32F7_CMSIS_VERSION_RC     (0x00) /*!< [7:0]  release candidate */
 #define __STM32F7_CMSIS_VERSION        ((__STM32F7_CMSIS_VERSION_MAIN << 24)\
                                        |(__STM32F7_CMSIS_VERSION_SUB1 << 16)\
                                        |(__STM32F7_CMSIS_VERSION_SUB2 << 8 )\
-                                       |(__STM32F7_CMSIS_VERSION_RC))
+                                       |(__STM32F7_CMSIS_VERSION))
 /**
   * @}
   */
@@ -154,10 +150,6 @@
   #include "stm32f777xx.h"
 #elif defined(STM32F779xx)
   #include "stm32f779xx.h"
-#elif defined(STM32F730xx)
-  #include "stm32f730xx.h"
-#elif defined(STM32F750xx)
-  #include "stm32f750xx.h"
 #else
  #error "Please select first the target STM32F7xx device used in your application (in stm32f7xx.h file)"
 #endif
@@ -184,8 +176,8 @@ typedef enum
 
 typedef enum
 {
-  SUCCESS = 0U,
-  ERROR = !SUCCESS
+  ERROR = 0U,
+  SUCCESS = !ERROR
 } ErrorStatus;
 
 /**
