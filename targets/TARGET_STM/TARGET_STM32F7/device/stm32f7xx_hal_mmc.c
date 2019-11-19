@@ -186,63 +186,33 @@
   [..]
     (@) You can refer to the MMC HAL driver header file for more useful macros 
       
-  *** Callback registration ***
-  =============================================
-  [..]
-    The compilation define USE_HAL_MMC_REGISTER_CALLBACKS when set to 1
-    allows the user to configure dynamically the driver callbacks.
-
-    Use Functions @ref HAL_MMC_RegisterCallback() to register a user callback,
-    it allows to register following callbacks:
-      (+) TxCpltCallback : callback when a transmission transfer is completed.
-      (+) RxCpltCallback : callback when a reception transfer is completed.
-      (+) ErrorCallback : callback when error occurs.
-      (+) AbortCpltCallback : callback when abort is completed.
-      (+) MspInitCallback    : MMC MspInit.
-      (+) MspDeInitCallback  : MMC MspDeInit.
-    This function takes as parameters the HAL peripheral handle, the Callback ID
-    and a pointer to the user callback function.
-
-    Use function @ref HAL_MMC_UnRegisterCallback() to reset a callback to the default
-    weak (surcharged) function. It allows to reset following callbacks:
-      (+) TxCpltCallback : callback when a transmission transfer is completed.
-      (+) RxCpltCallback : callback when a reception transfer is completed.
-      (+) ErrorCallback : callback when error occurs.
-      (+) AbortCpltCallback : callback when abort is completed.
-      (+) MspInitCallback    : MMC MspInit.
-      (+) MspDeInitCallback  : MMC MspDeInit.
-    This function) takes as parameters the HAL peripheral handle and the Callback ID.
-
-    By default, after the @ref HAL_MMC_Init and if the state is HAL_MMC_STATE_RESET
-    all callbacks are reset to the corresponding legacy weak (surcharged) functions.
-    Exception done for MspInit and MspDeInit callbacks that are respectively
-    reset to the legacy weak (surcharged) functions in the @ref HAL_MMC_Init 
-    and @ref  HAL_MMC_DeInit only when these callbacks are null (not registered beforehand).
-    If not, MspInit or MspDeInit are not null, the @ref HAL_MMC_Init and @ref HAL_MMC_DeInit
-    keep and use the user MspInit/MspDeInit callbacks (registered beforehand)
-
-    Callbacks can be registered/unregistered in READY state only.
-    Exception done for MspInit/MspDeInit callbacks that can be registered/unregistered
-    in READY or RESET state, thus registered (user) MspInit/DeInit callbacks can be used
-    during the Init/DeInit.
-    In that case first register the MspInit/MspDeInit user callbacks
-    using @ref HAL__RegisterCallback before calling @ref HAL_MMC_DeInit 
-    or @ref HAL_MMC_Init function.
-
-    When The compilation define USE_HAL_MMC_REGISTER_CALLBACKS is set to 0 or
-    not defined, the callback registering feature is not available 
-    and weak (surcharged) callbacks are used.
   @endverbatim
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * Redistribution and use in source and binary forms, with or without modification,
+  * are permitted provided that the following conditions are met:
+  *   1. Redistributions of source code must retain the above copyright notice,
+  *      this list of conditions and the following disclaimer.
+  *   2. Redistributions in binary form must reproduce the above copyright notice,
+  *      this list of conditions and the following disclaimer in the documentation
+  *      and/or other materials provided with the distribution.
+  *   3. Neither the name of STMicroelectronics nor the names of its contributors
+  *      may be used to endorse or promote products derived from this software
+  *      without specific prior written permission.
+  *
+  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
   */ 
@@ -340,24 +310,8 @@ HAL_StatusTypeDef HAL_MMC_Init(MMC_HandleTypeDef *hmmc)
   {
     /* Allocate lock resource and initialize it */
     hmmc->Lock = HAL_UNLOCKED;
-#if (USE_HAL_MMC_REGISTER_CALLBACKS == 1)
-    /* Reset Callback pointers in HAL_MMC_STATE_RESET only */
-    hmmc->TxCpltCallback    = HAL_MMC_TxCpltCallback;
-    hmmc->RxCpltCallback    = HAL_MMC_RxCpltCallback;
-    hmmc->ErrorCallback     = HAL_MMC_ErrorCallback;
-    hmmc->AbortCpltCallback = HAL_MMC_AbortCallback;
-
-    if(hmmc->MspInitCallback == NULL)
-    {
-      hmmc->MspInitCallback = HAL_MMC_MspInit;
-    }
-
-    /* Init the low level hardware */
-    hmmc->MspInitCallback(hmmc);
-#else
     /* Init the low level hardware : GPIO, CLOCK, CORTEX...etc */
     HAL_MMC_MspInit(hmmc);
-#endif	
   }
 
   hmmc->State = HAL_MMC_STATE_BUSY;
@@ -410,7 +364,8 @@ HAL_StatusTypeDef HAL_MMC_InitCard(MMC_HandleTypeDef *hmmc)
   __HAL_MMC_ENABLE(hmmc);
   
   /* Required power up waiting time before starting the SD initialization sequence */
-  HAL_Delay(2);
+  // MBED: removed
+  //HAL_Delay(2);
   
   /* Identify card operating voltage */
   errorstate = MMC_PowerON(hmmc);
@@ -454,18 +409,8 @@ HAL_StatusTypeDef HAL_MMC_DeInit(MMC_HandleTypeDef *hmmc)
   /* Set MMC power state to off */ 
   MMC_PowerOFF(hmmc);
   
-#if (USE_HAL_MMC_REGISTER_CALLBACKS == 1)
-  if(hmmc->MspDeInitCallback == NULL)
-  {
-    hmmc->MspDeInitCallback = HAL_MMC_MspDeInit;
-  }
-
-  /* DeInit the low level hardware */
-  hmmc->MspDeInitCallback(hmmc);
-#else
   /* De-Initialize the MSP layer */
   HAL_MMC_MspDeInit(hmmc);
-#endif
   
   hmmc->ErrorCode = HAL_MMC_ERROR_NONE;
   hmmc->State = HAL_MMC_STATE_RESET;
@@ -1435,11 +1380,7 @@ void HAL_MMC_IRQHandler(MMC_HandleTypeDef *hmmc)
         if(errorstate != HAL_MMC_ERROR_NONE)
         {
           hmmc->ErrorCode |= errorstate;
-#if (USE_HAL_MMC_REGISTER_CALLBACKS == 1)
-          hmmc->ErrorCallback(hmmc);
-#else
           HAL_MMC_ErrorCallback(hmmc);
-#endif
         }
       }
       
@@ -1449,19 +1390,11 @@ void HAL_MMC_IRQHandler(MMC_HandleTypeDef *hmmc)
       hmmc->State = HAL_MMC_STATE_READY;
       if(((hmmc->Context & MMC_CONTEXT_READ_SINGLE_BLOCK) != RESET) || ((hmmc->Context & MMC_CONTEXT_READ_MULTIPLE_BLOCK) != RESET))
       {
-#if (USE_HAL_MMC_REGISTER_CALLBACKS == 1)
-        hmmc->RxCpltCallback(hmmc);
-#else
         HAL_MMC_RxCpltCallback(hmmc);
-#endif
       }
       else
       {
-#if (USE_HAL_MMC_REGISTER_CALLBACKS == 1)
-        hmmc->TxCpltCallback(hmmc);
-#else      
         HAL_MMC_TxCpltCallback(hmmc);
-#endif
       }
     }
     else if((hmmc->Context & MMC_CONTEXT_DMA) != RESET)
@@ -1472,11 +1405,7 @@ void HAL_MMC_IRQHandler(MMC_HandleTypeDef *hmmc)
         if(errorstate != HAL_MMC_ERROR_NONE)
         {
           hmmc->ErrorCode |= errorstate;
-#if (USE_HAL_MMC_REGISTER_CALLBACKS == 1)
-          hmmc->ErrorCallback(hmmc);
-#else
           HAL_MMC_ErrorCallback(hmmc);
-#endif
         }
       }
       if(((hmmc->Context & MMC_CONTEXT_READ_SINGLE_BLOCK) == RESET) && ((hmmc->Context & MMC_CONTEXT_READ_MULTIPLE_BLOCK) == RESET))
@@ -1487,11 +1416,7 @@ void HAL_MMC_IRQHandler(MMC_HandleTypeDef *hmmc)
         
         hmmc->State = HAL_MMC_STATE_READY;
         
-#if (USE_HAL_MMC_REGISTER_CALLBACKS == 1)
-        hmmc->TxCpltCallback(hmmc);
-#else      
         HAL_MMC_TxCpltCallback(hmmc);
-#endif
       }
     }
   }
@@ -1564,22 +1489,14 @@ void HAL_MMC_IRQHandler(MMC_HandleTypeDef *hmmc)
       {
         hmmc->ErrorCode = HAL_MMC_ERROR_NONE;
         hmmc->State = HAL_MMC_STATE_READY;
-#if (USE_HAL_MMC_REGISTER_CALLBACKS == 1)
-        hmmc->AbortCpltCallback(hmmc);
-#else
         HAL_MMC_AbortCallback(hmmc);
-#endif
       }
     }
     else if((hmmc->Context & MMC_CONTEXT_IT) != RESET)
     {
       /* Set the MMC state to ready to be able to start again the process */
       hmmc->State = HAL_MMC_STATE_READY;
-#if (USE_HAL_MMC_REGISTER_CALLBACKS == 1)
-      hmmc->ErrorCallback(hmmc);
-#else
       HAL_MMC_ErrorCallback(hmmc);
-#endif
     }
   }   
 }
@@ -1631,7 +1548,7 @@ __weak void HAL_MMC_RxCpltCallback(MMC_HandleTypeDef *hmmc)
   UNUSED(hmmc);
  
   /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_MMC_RxCpltCallback can be implemented in the user file
+            the HAL_MMC_ErrorCallback can be implemented in the user file
    */
 }
 
@@ -1664,180 +1581,6 @@ __weak void HAL_MMC_AbortCallback(MMC_HandleTypeDef *hmmc)
             the HAL_MMC_ErrorCallback can be implemented in the user file
    */ 
 }
-
-#if (USE_HAL_MMC_REGISTER_CALLBACKS == 1)
-/**
-  * @brief  Register a User MMC Callback
-  *         To be used instead of the weak (surcharged) predefined callback 
-  * @param hmmc : MMC handle
-  * @param CallbackID : ID of the callback to be registered
-  *        This parameter can be one of the following values:
-  *          @arg @ref HAL_MMC_TX_CPLT_CB_ID    MMC Tx Complete Callback ID
-  *          @arg @ref HAL_MMC_RX_CPLT_CB_ID    MMC Rx Complete Callback ID
-  *          @arg @ref HAL_MMC_ERROR_CB_ID      MMC Error Callback ID
-  *          @arg @ref HAL_MMC_ABORT_CB_ID      MMC Abort Callback ID
-  *          @arg @ref HAL_MMC_MSP_INIT_CB_ID   MMC MspInit Callback ID 
-  *          @arg @ref HAL_MMC_MSP_DEINIT_CB_ID MMC MspDeInit Callback ID  
-  * @param pCallback : pointer to the Callback function
-  * @retval status
-  */
-HAL_StatusTypeDef HAL_MMC_RegisterCallback(MMC_HandleTypeDef *hmmc, HAL_MMC_CallbackIDTypeDef CallbackId, pMMC_CallbackTypeDef pCallback)
-{
-  HAL_StatusTypeDef status = HAL_OK;
-
-  if(pCallback == NULL)
-  {
-    /* Update the error code */
-    hmmc->ErrorCode |= HAL_MMC_ERROR_INVALID_CALLBACK;
-    return HAL_ERROR;
-  }
-
-  /* Process locked */
-  __HAL_LOCK(hmmc);
-  
-  if(hmmc->State == HAL_MMC_STATE_READY)
-  {
-    switch (CallbackId)
-    {
-    case HAL_MMC_TX_CPLT_CB_ID :
-      hmmc->TxCpltCallback = pCallback;
-      break;
-    case HAL_MMC_RX_CPLT_CB_ID :
-      hmmc->RxCpltCallback = pCallback;
-      break;
-    case HAL_MMC_ERROR_CB_ID :
-      hmmc->ErrorCallback = pCallback;
-      break;
-    case HAL_MMC_ABORT_CB_ID :
-      hmmc->AbortCpltCallback = pCallback;
-      break;
-    case HAL_MMC_MSP_INIT_CB_ID :
-      hmmc->MspInitCallback = pCallback;
-      break;
-    case HAL_MMC_MSP_DEINIT_CB_ID :
-      hmmc->MspDeInitCallback = pCallback;
-      break;
-    default :
-      /* Update the error code */
-      hmmc->ErrorCode |= HAL_MMC_ERROR_INVALID_CALLBACK; 
-      /* update return status */
-      status =  HAL_ERROR;
-      break;
-    }
-  }
-  else if (hmmc->State == HAL_MMC_STATE_RESET)
-  {
-    switch (CallbackId)
-    {
-    case HAL_MMC_MSP_INIT_CB_ID :
-      hmmc->MspInitCallback = pCallback;
-      break;
-    case HAL_MMC_MSP_DEINIT_CB_ID :
-      hmmc->MspDeInitCallback = pCallback;
-      break;
-    default :
-      /* Update the error code */
-      hmmc->ErrorCode |= HAL_MMC_ERROR_INVALID_CALLBACK; 
-      /* update return status */
-      status =  HAL_ERROR;
-      break;
-    }
-  }
-  else
-  {
-    /* Update the error code */
-    hmmc->ErrorCode |= HAL_MMC_ERROR_INVALID_CALLBACK; 
-    /* update return status */
-    status =  HAL_ERROR;
-  }
-
-  /* Release Lock */
-  __HAL_UNLOCK(hmmc);
-  return status;
-}
-
-/**
-  * @brief  Unregister a User MMC Callback
-  *         MMC Callback is redirected to the weak (surcharged) predefined callback 
-  * @param hmmc : MMC handle
-  * @param CallbackID : ID of the callback to be unregistered
-  *        This parameter can be one of the following values:
-  *          @arg @ref HAL_MMC_TX_CPLT_CB_ID    MMC Tx Complete Callback ID
-  *          @arg @ref HAL_MMC_RX_CPLT_CB_ID    MMC Rx Complete Callback ID
-  *          @arg @ref HAL_MMC_ERROR_CB_ID      MMC Error Callback ID
-  *          @arg @ref HAL_MMC_ABORT_CB_ID      MMC Abort Callback ID
-  *          @arg @ref HAL_MMC_MSP_INIT_CB_ID   MMC MspInit Callback ID 
-  *          @arg @ref HAL_MMC_MSP_DEINIT_CB_ID MMC MspDeInit Callback ID  
-  * @retval status
-  */
-HAL_StatusTypeDef HAL_MMC_UnRegisterCallback(MMC_HandleTypeDef *hmmc, HAL_MMC_CallbackIDTypeDef CallbackId)
-{
-  HAL_StatusTypeDef status = HAL_OK;
-
-  /* Process locked */
-  __HAL_LOCK(hmmc);
-  
-  if(hmmc->State == HAL_MMC_STATE_READY)
-  {
-    switch (CallbackId)
-    {
-    case HAL_MMC_TX_CPLT_CB_ID :
-      hmmc->TxCpltCallback = HAL_MMC_TxCpltCallback;
-      break;
-    case HAL_MMC_RX_CPLT_CB_ID :
-      hmmc->RxCpltCallback = HAL_MMC_RxCpltCallback;
-      break;
-    case HAL_MMC_ERROR_CB_ID :
-      hmmc->ErrorCallback = HAL_MMC_ErrorCallback;
-      break;
-    case HAL_MMC_ABORT_CB_ID :
-      hmmc->AbortCpltCallback = HAL_MMC_AbortCallback;
-      break;
-    case HAL_MMC_MSP_INIT_CB_ID :
-      hmmc->MspInitCallback = HAL_MMC_MspInit;
-      break;
-    case HAL_MMC_MSP_DEINIT_CB_ID :
-      hmmc->MspDeInitCallback = HAL_MMC_MspDeInit;
-      break;
-    default :
-      /* Update the error code */
-      hmmc->ErrorCode |= HAL_MMC_ERROR_INVALID_CALLBACK; 
-      /* update return status */
-      status =  HAL_ERROR;
-      break;
-    }
-  }
-  else if (hmmc->State == HAL_MMC_STATE_RESET)
-  {
-    switch (CallbackId)
-    {
-    case HAL_MMC_MSP_INIT_CB_ID :
-      hmmc->MspInitCallback = HAL_MMC_MspInit;
-      break;
-    case HAL_MMC_MSP_DEINIT_CB_ID :
-      hmmc->MspDeInitCallback = HAL_MMC_MspDeInit;
-      break;
-    default :
-      /* Update the error code */
-      hmmc->ErrorCode |= HAL_MMC_ERROR_INVALID_CALLBACK; 
-      /* update return status */
-      status =  HAL_ERROR;
-      break;
-    }
-  }
-  else
-  {
-    /* Update the error code */
-    hmmc->ErrorCode |= HAL_MMC_ERROR_INVALID_CALLBACK; 
-    /* update return status */
-    status =  HAL_ERROR;
-  }
-
-  /* Release Lock */
-  __HAL_UNLOCK(hmmc);
-  return status;
-}
-#endif
 
 
 /**
@@ -2387,11 +2130,7 @@ static void MMC_DMAReceiveCplt(DMA_HandleTypeDef *hdma)
     if(errorstate != HAL_MMC_ERROR_NONE)
     {
       hmmc->ErrorCode |= errorstate;
-#if (USE_HAL_MMC_REGISTER_CALLBACKS == 1)
-      hmmc->ErrorCallback(hmmc);
-#else
       HAL_MMC_ErrorCallback(hmmc);
-#endif
     }
   }
   
@@ -2404,11 +2143,7 @@ static void MMC_DMAReceiveCplt(DMA_HandleTypeDef *hdma)
   
   hmmc->State = HAL_MMC_STATE_READY;
 
-#if (USE_HAL_MMC_REGISTER_CALLBACKS == 1)
-  hmmc->RxCpltCallback(hmmc);
-#else
   HAL_MMC_RxCpltCallback(hmmc);
-#endif
 }
 
 /**
@@ -2421,35 +2156,27 @@ static void MMC_DMAError(DMA_HandleTypeDef *hdma)
   MMC_HandleTypeDef* hmmc = (MMC_HandleTypeDef* )(hdma->Parent);
   HAL_MMC_CardStateTypeDef CardState;
   
-  /* if DMA error is FIFO error ignore it */
-  if(HAL_DMA_GetError(hdma) != HAL_DMA_ERROR_FE)
+  // MBED: changed
+  if((hmmc->hdmarx->ErrorCode == HAL_DMA_ERROR_TE) || (hmmc->hdmatx->ErrorCode == HAL_DMA_ERROR_TE))
   {
-    if((hmmc->hdmarx->ErrorCode == HAL_DMA_ERROR_TE) || (hmmc->hdmatx->ErrorCode == HAL_DMA_ERROR_TE))
+    /* Clear All flags */
+    __HAL_MMC_CLEAR_FLAG(hmmc, SDMMC_STATIC_FLAGS);
+    
+    /* Disable All interrupts */
+    __HAL_MMC_DISABLE_IT(hmmc, SDMMC_IT_DATAEND | SDMMC_IT_DCRCFAIL | SDMMC_IT_DTIMEOUT|\
+      SDMMC_IT_TXUNDERR| SDMMC_IT_RXOVERR);
+    
+    hmmc->ErrorCode |= HAL_MMC_ERROR_DMA;
+    CardState = HAL_MMC_GetCardState(hmmc);
+    if((CardState == HAL_MMC_CARD_RECEIVING) || (CardState == HAL_MMC_CARD_SENDING))
     {
-      /* Clear All flags */
-      __HAL_MMC_CLEAR_FLAG(hmmc, SDMMC_STATIC_FLAGS);
-      
-      /* Disable All interrupts */
-      __HAL_MMC_DISABLE_IT(hmmc, SDMMC_IT_DATAEND | SDMMC_IT_DCRCFAIL | SDMMC_IT_DTIMEOUT|\
-        SDMMC_IT_TXUNDERR| SDMMC_IT_RXOVERR);
-      
-      hmmc->ErrorCode |= HAL_MMC_ERROR_DMA;
-      CardState = HAL_MMC_GetCardState(hmmc);
-      if((CardState == HAL_MMC_CARD_RECEIVING) || (CardState == HAL_MMC_CARD_SENDING))
-      {
-        hmmc->ErrorCode |= SDMMC_CmdStopTransfer(hmmc->Instance);
-      }
-      
-      hmmc->State= HAL_MMC_STATE_READY;
+      hmmc->ErrorCode |= SDMMC_CmdStopTransfer(hmmc->Instance);
     }
     
-#if (USE_HAL_MMC_REGISTER_CALLBACKS == 1)
-    hmmc->ErrorCallback(hmmc);
-#else
-    HAL_MMC_ErrorCallback(hmmc);
-#endif
+    hmmc->State= HAL_MMC_STATE_READY;
   }
 
+  HAL_MMC_ErrorCallback(hmmc);
 }
 
 /**
@@ -2483,11 +2210,7 @@ static void MMC_DMATxAbort(DMA_HandleTypeDef *hdma)
       }
       else
       {
-#if (USE_HAL_MMC_REGISTER_CALLBACKS == 1)
-        hmmc->ErrorCallback(hmmc);
-#else
         HAL_MMC_ErrorCallback(hmmc);
-#endif
       }
     }
   }
@@ -2524,11 +2247,7 @@ static void MMC_DMARxAbort(DMA_HandleTypeDef *hdma)
       }
       else
       {
-#if (USE_HAL_MMC_REGISTER_CALLBACKS == 1)
-        hmmc->ErrorCallback(hmmc);
-#else
         HAL_MMC_ErrorCallback(hmmc);
-#endif
       }
     }
   }
@@ -2764,7 +2483,7 @@ static HAL_StatusTypeDef MMC_Write_IT(MMC_HandleTypeDef *hmmc)
   * @}
   */
 
-#endif /* HAL_MMC_MODULE_ENABLED */
+#endif /* HAL_SD_MODULE_ENABLED */
 
 /**
   * @}
