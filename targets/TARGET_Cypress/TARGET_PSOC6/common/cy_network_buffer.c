@@ -33,8 +33,8 @@
 
 whd_result_t cy_host_buffer_get(whd_buffer_t *buffer, whd_buffer_dir_t direction, unsigned short size, unsigned long timeout_ms)
 {
-    UNUSED_PARAMETER( direction );
-    UNUSED_PARAMETER( timeout_ms );
+    CY_UNUSED_PARAMETER( direction );
+    CY_UNUSED_PARAMETER( timeout_ms );
     struct pbuf *p = NULL;
     if ( ( direction == WHD_NETWORK_TX) && ( size <= PBUF_POOL_BUFSIZE ) )
     {
@@ -62,7 +62,7 @@ whd_result_t cy_host_buffer_get(whd_buffer_t *buffer, whd_buffer_dir_t direction
 
 void cy_buffer_release(whd_buffer_t buffer, whd_buffer_dir_t direction)
 {
-    UNUSED_PARAMETER( direction );
+    CY_UNUSED_PARAMETER( direction );
     (void) pbuf_free( (struct pbuf *)buffer );
 }
 
