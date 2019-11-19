@@ -1,20 +1,18 @@
 <!--
-For more information on the requirements for pull requests, please see [the contributing guidelines](https://os.mbed.com/docs/mbed-os/latest/contributing/workflow.html#pull-request-types).
+For more information on the requirements for pull requests, please see [the contributing guidelines](https://os.mbed.com/docs/mbed-os/latest/contributing/workflow.html).
 -->
-### Description (*required*)
 
-<!--
-    Required
-    Add here detailed changes summary, testing results, dependencies
-    Good example: https://os.mbed.com/docs/mbed-os/latest/contributing/workflow.html (Pull request template)
--->
-##### Summary of change (*What the change is for and why*)
+### Description 
+#### Summary of change <!-- Required -->
 
+<!-- Basic information about the change: what the change is for, why do we need it any implications -->
 
-##### Documentation (*Details of any document updates required*)
+#### Documentation <!-- Optional, but most likely you need it -->
+
+<!-- Details of any document updates required, including links to PR against the docs repository -->
 
 ----------------------------------------------------------------------------------------------------------------
-### Pull request type (*required*)
+### Pull request type <!-- Required -->
 
 <!--
     Required
@@ -28,11 +26,12 @@ For more information on the requirements for pull requests, please see [the cont
     [] Major update (Breaking change E.g. Return code change / API behaviour change)
 
 ----------------------------------------------------------------------------------------------------------------
-### Test results (*required*)
+### Test results <!-- Required -->
 
 <!--
     Required
-    For example, add test results for new target
+    Provide all the information required, listing all the testing performed. For new targets please attach full test results
+    for all supported compilers.
 -->
     [] No Tests required for this change (E.g docs only update)
     [] Covered by existing mbed-os tests (Greentea or Unittest)
@@ -40,27 +39,24 @@ For more information on the requirements for pull requests, please see [the cont
     
     
 ----------------------------------------------------------------------------------------------------------------
-### Reviewers (*optional*)
+### Reviewers <!-- Optional -->
 
 <!--
     Optional
-    Request additional reviewers with @username
+    Request additional reviewers with @username or @team
 -->
 
 ----------------------------------------------------------------------------------------------------------------
-### Release Notes (*required for feature/major PRs*)
+### Release Notes <!-- Required for features, deprecations, breaking changes and other major PRs -->
 
 <!--
     All 3 sections are compulsory for Major PR types. For Feature PRs only the summary section is required.
-    This section is automatically added to release notes. Please fill in each sub-section with sufficient detail for a user.
+    This section is automatically added to release notes. Please fill in each sub-section with sufficient detail for an user.
     For more information, please see [the contributing guidelines](https://os.mbed.com/docs/mbed-os/latest/contributing/workflow.html#pull-request-types). 
 -->
 
-##### Summary of changes
+#### Summary of changes
 
-##### Impact of changes
+#### Impact of changes
 
-##### Migration actions required
-
-
-
+#### Migration actions required
