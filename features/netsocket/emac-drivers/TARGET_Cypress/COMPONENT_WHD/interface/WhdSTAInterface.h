@@ -191,6 +191,15 @@ public:
     /* set ioctl value */
     int wifi_set_ioctl_value(uint32_t ioctl, uint32_t value) ;
 
+    /* get  ioctl value */
+    int wifi_get_ioctl_value(uint32_t ioctl, uint32_t *value);
+
+    /* get ioctl buffer */
+    int wifi_get_ioctl_buffer(uint32_t ioctl, uint8_t *buffer, uint16_t len);
+
+    /* set ioctl buffer */
+    int wifi_set_ioctl_buffer(uint32_t ioctl, uint8_t *buffer, uint16_t len);
+
     /* get WHD ifp value */
     int wifi_get_ifp(whd_interface_t *ifp);
 

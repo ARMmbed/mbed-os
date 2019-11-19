@@ -571,6 +571,30 @@ int WhdSTAInterface::wifi_set_ioctl_value(uint32_t ioctl, uint32_t value)
     return res;
 }
 
+int WhdSTAInterface::wifi_get_ioctl_value(uint32_t ioctl, uint32_t *value )
+{
+    int res = WHD_SUCCESS;
+    _whd_emac.ifp->role = WHD_STA_ROLE;
+    res = whd_wifi_get_ioctl_value(_whd_emac.ifp, ioctl, value);
+    return res;
+}
+
+int WhdSTAInterface::wifi_get_ioctl_buffer(uint32_t ioctl, uint8_t *buffer, uint16_t len)
+{
+    int res = WHD_SUCCESS;
+    _whd_emac.ifp->role = WHD_STA_ROLE;
+    res = whd_wifi_get_ioctl_buffer(_whd_emac.ifp, ioctl, buffer, len);
+    return res;
+}
+
+int WhdSTAInterface::wifi_set_ioctl_buffer(uint32_t ioctl, uint8_t *buffer, uint16_t len)
+{
+    int res = WHD_SUCCESS;
+    _whd_emac.ifp->role = WHD_STA_ROLE;
+    res = whd_wifi_set_ioctl_buffer(_whd_emac.ifp, ioctl, buffer, len);
+    return res;
+}
+
 int WhdSTAInterface::wifi_get_ifp(whd_interface_t *ifp)
 {
     int res = WHD_SUCCESS;
