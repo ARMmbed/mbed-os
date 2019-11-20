@@ -1336,10 +1336,8 @@ nsapi_error_t ATHandler::at_cmd_str_va(const char *cmd, const char *cmd_chr, con
         resp_start();
     }
 
-    for (int i = 0; i < desc_count; i ++)
-    {
-        if (resp_buf_desc[i].resp_buf_ptr)
-        {
+    for (int i = 0; i < desc_count; i ++) {
+        if (resp_buf_desc[i].resp_buf_ptr) {
             *(resp_buf_desc[i].resp_buf_ptr) = '\0';
         }
         read_string(resp_buf_desc[i].resp_buf_ptr, resp_buf_desc[i].resp_buf_size);
