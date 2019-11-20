@@ -281,6 +281,12 @@ void i2c_abort_asynch(i2c_t *obj)
     }
 }
 
+void i2c_free(i2c_t *obj)
+{
+    struct i2c_s *i2c = cy_get_i2c(obj);
+    cyhal_i2c_free(&i2c->hal_i2c);
+}
+
 #endif
 
 #ifdef __cplusplus

@@ -404,6 +404,21 @@ static control_t test_printf_x(const size_t call_count)
     return CaseNext;
 }
 
+static control_t test_printf_percent(const size_t call_count)
+{
+    int result_baseline;
+    int result_minimal;
+    int result_file;
+
+    result_minimal = mbed_printf("%% \r\n");
+    result_file = mbed_fprintf(stderr, "%% \r\n");
+    result_baseline = printf("%% \r\n");
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
+
+    return CaseNext;
+}
+
 /******************************************************************************/
 /*                                                                            */
 /* SNPRINTF                                                                   */
@@ -721,6 +736,34 @@ static control_t test_snprintf_x(const size_t call_count)
     return CaseNext;
 }
 
+static control_t test_snprintf_percent(const size_t call_count)
+{
+    char buffer_baseline[100];
+    char buffer_minimal[100];
+    int result_baseline;
+    int result_minimal;
+
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "%% \r\n");
+    result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "%% \r\n");
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+
+    return CaseNext;
+}
+
+static control_t test_snprintf_unsupported_specifier(const size_t call_count)
+{
+    char buffer_minimal[100];
+
+    TEST_ASSERT_NOT_EQUAL(
+        0,
+        mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "%a \r\n", 5)
+    );
+    TEST_ASSERT_EQUAL_STRING("%a \r\n", buffer_minimal);
+
+    return CaseNext;
+}
+
 #if MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FLOATING_POINT
 static control_t test_printf_f(const size_t call_count)
 {
@@ -902,6 +945,9 @@ Case cases[] = {
     Case("snprintf %u", test_snprintf_u),
     Case("printf %x", test_printf_x),
     Case("snprintf %x", test_snprintf_x),
+    Case("printf %%", test_printf_percent),
+    Case("snprintf %%", test_snprintf_percent),
+    Case("snprintf unsupported specifier", test_snprintf_unsupported_specifier),
 #if MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FLOATING_POINT
     Case("printf %f", test_printf_f),
     Case("snprintf %f", test_snprintf_f),

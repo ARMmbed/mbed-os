@@ -500,7 +500,7 @@ HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef *hadc)
     /* Note: Variable divided by 2 to compensate partially              */
     /*       CPU processing cycles, scaling in us split to not          */
     /*       exceed 32 bits register capacity and handle low frequency. */
-    wait_loop_index = ((LL_ADC_DELAY_INTERNAL_REGUL_STAB_US / 10UL) * (SystemCoreClock / (100000UL * 2UL)));
+    wait_loop_index = ((LL_ADC_DELAY_INTERNAL_REGUL_STAB_US / 10UL) * (SystemD1Clock / (100000UL * 2UL)));
     while (wait_loop_index != 0UL)
     {
       wait_loop_index--;
@@ -2804,7 +2804,7 @@ HAL_StatusTypeDef HAL_ADC_ConfigChannel(ADC_HandleTypeDef *hadc, ADC_ChannelConf
               /* Note: Variable divided by 2 to compensate partially              */
               /*       CPU processing cycles, scaling in us split to not          */
               /*       exceed 32 bits register capacity and handle low frequency. */
-              wait_loop_index = ((LL_ADC_DELAY_TEMPSENSOR_STAB_US / 10UL) * (SystemCoreClock / (100000UL * 2UL)));
+              wait_loop_index = ((LL_ADC_DELAY_TEMPSENSOR_STAB_US / 10UL) * (SystemD1Clock / (100000UL * 2UL)));
               while(wait_loop_index != 0UL)
               {
                 wait_loop_index--;

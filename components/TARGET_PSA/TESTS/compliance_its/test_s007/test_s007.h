@@ -31,6 +31,6 @@ extern val_api_t *val;
 extern psa_api_t *psa;
 extern client_test_t test_s007_sst_list[];
 
-int32_t psa_sst_get_incorrect_size(security_t caller);
+int32_t psa_sst_get_incorrect_size(caller_security_t caller);
 
 #endif /* _TEST_S007_CLIENT_TESTS_H_ */

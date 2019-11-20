@@ -16,11 +16,11 @@
 #ifndef _KV_MAP
 #define _KV_MAP
 
-#include "KVStore.h"
+#include "features/storage/kvstore/include/KVStore.h"
 #include "platform/PlatformMutex.h"
 #include "platform/SingletonPtr.h"
-#include "BlockDevice.h"
-#include "FileSystem.h"
+#include "features/storage/blockdevice/BlockDevice.h"
+#include "features/storage/filesystem/FileSystem.h"
 
 namespace mbed {
 

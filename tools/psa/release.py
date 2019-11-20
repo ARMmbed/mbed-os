@@ -48,7 +48,7 @@ PSA_TESTS = {
     '*psa-crypto_access_control': ['USE_PSA_TEST_PARTITIONS',
                                    'USE_CRYPTO_ACL_TEST']
 }
-
+PSA_AUTOGEN_LOCATION = os.path.join(ROOT, 'components', 'TARGET_PSA')
 
 def _psa_backend(target):
     """
@@ -247,6 +247,34 @@ def commit_binaries(target, delivery_dir, toolchain):
     else:
         logger.info("No changes detected in {}, Skipping commit".format(target))
 
+def commit_psa_autogen():
+    """
+    Commit changes related to auto-generated PSA components and services
+    """
+    changes_made = verbose_check_call([
+        'git',
+        '-C', ROOT,
+        'diff', '--exit-code', '--quiet',
+        PSA_AUTOGEN_LOCATION], check_call=False)
+
+    if changes_made:
+        logger.info("Change in PSA auto-generated files has been detected")
+        verbose_check_call([
+            'git',
+            '-C', ROOT,
+            'add', PSA_AUTOGEN_LOCATION])
+
+        logger.info("Committing changes...")
+        commit_message = ('--message=Update PSA auto-generated components and '
+                          'services')
+        verbose_check_call([
+            'git',
+            '-C', ROOT,
+            'commit',
+            commit_message])
+    else:
+        logger.info("No changes has been detected for PSA autogen, "
+                    "Skipping commit")
 
 def build_psa_platform(target, toolchain, delivery_dir, debug, git_commit,
                        skip_tests, args):
@@ -268,6 +296,7 @@ def build_psa_platform(target, toolchain, delivery_dir, debug, git_commit,
     build_default_image(target, toolchain, profile, args)
     if git_commit:
         commit_binaries(target, delivery_dir, toolchain)
+        commit_psa_autogen()
 
 
 def get_parser():

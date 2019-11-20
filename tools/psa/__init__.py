@@ -57,23 +57,11 @@ def find_secure_image(notify, resources, ns_image_path,
 
     return secure_image
 
-
-def _get_psa_autogen_dir():
-    return os.path.join(ROOT, 'PSA_AUTOGEN')
-
-
-def clean_psa_autogen():
-    psa_out_dir = _get_psa_autogen_dir()
-
-    if os.path.isdir(psa_out_dir):
-        shutil.rmtree(psa_out_dir)
-
-
 def generate_psa_sources(source_dirs, ignore_paths):
     services, apps = manifests_discovery(root_dirs=source_dirs,
                                          ignore_paths=ignore_paths + ['.git'])
     assert len(services + apps), 'PSA manifest discovery failed'
-    psa_out_dir = _get_psa_autogen_dir()
+    psa_out_dir = os.path.join(ROOT, 'components', 'TARGET_PSA')
 
     generate_spm_code(services, apps, psa_out_dir)
     return psa_out_dir

@@ -37,6 +37,7 @@
 #include "lwip/udp.h"
 
 #include "LWIPStack.h"
+#include "lwip_tools.h"
 
 LWIP::Interface *LWIP::Interface::list;
 
@@ -227,7 +228,13 @@ void LWIP::Interface::netif_status_irq(struct netif *netif)
 
         if (interface->has_addr_state & HAS_ANY_ADDR) {
             interface->connected = NSAPI_STATUS_GLOBAL_UP;
+#if LWIP_IPV6
+            if (ip_addr_islinklocal(get_ipv6_addr(netif))) {
+                interface->connected = NSAPI_STATUS_LOCAL_UP;
+            }
+#endif
         }
+
     } else if (!netif_is_up(&interface->netif) && netif_is_link_up(&interface->netif)) {
         interface->connected = NSAPI_STATUS_DISCONNECTED;
     }
@@ -269,6 +276,30 @@ char *LWIP::Interface::get_interface_name(char *buf)
 {
     sprintf(buf, "%c%c%d", netif.name[0], netif.name[1], netif.num);
     return buf;
+}
+
+nsapi_error_t LWIP::Interface::get_ipv6_link_local_address(SocketAddress *address)
+{
+#if LWIP_IPV6
+    const ip_addr_t *addr = LWIP::get_ipv6_link_local_addr(&netif);
+    nsapi_addr_t out;
+    bool ret;
+
+    if (!addr) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    ret = convert_lwip_addr_to_mbed(&out, addr);
+    if (ret != true) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    address->set_addr(out);
+
+    return NSAPI_ERROR_OK;
+#else
+    return NSAPI_ERROR_UNSUPPORTED;
+#endif
 }
 
 char *LWIP::Interface::get_ip_address(char *buf, nsapi_size_t buflen)

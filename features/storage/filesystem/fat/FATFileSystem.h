@@ -26,12 +26,12 @@
 #ifndef MBED_FATFILESYSTEM_H
 #define MBED_FATFILESYSTEM_H
 
-#include "FileSystem.h"
-#include "BlockDevice.h"
+#include "features/storage/filesystem/FileSystem.h"
+#include "features/storage/blockdevice/BlockDevice.h"
 #include "FileHandle.h"
-#include "ff.h"
 #include <stdint.h>
 #include "PlatformMutex.h"
+#include "features/storage/filesystem/fat/ChaN/ff.h"
 
 namespace mbed {
 

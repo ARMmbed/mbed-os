@@ -64,7 +64,7 @@ using namespace utest::v1;
 #define TEST_BLOCK_COUNT 10
 #define TEST_ERROR_MASK 16
 #define TEST_NUM_OF_THREADS 5
-#define TEST_THREAD_STACK_SIZE 1024
+#define TEST_THREAD_STACK_SIZE 1152
 
 uint8_t num_of_sectors = TEST_NUM_OF_THREADS * TEST_BLOCK_COUNT;
 uint32_t sectors_addr[TEST_NUM_OF_THREADS * TEST_BLOCK_COUNT] = {0};

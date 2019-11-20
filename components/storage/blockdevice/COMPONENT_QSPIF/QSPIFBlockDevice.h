@@ -16,8 +16,8 @@
 #ifndef MBED_QSPIF_BLOCK_DEVICE_H
 #define MBED_QSPIF_BLOCK_DEVICE_H
 
-#include "QSPI.h"
-#include "BlockDevice.h"
+#include "drivers/QSPI.h"
+#include "features/storage/blockdevice/BlockDevice.h"
 
 /** Enum qspif standard error codes
  *
@@ -27,11 +27,11 @@ enum qspif_bd_error {
     QSPIF_BD_ERROR_OK                    = 0,     /*!< no error */
     QSPIF_BD_ERROR_DEVICE_ERROR          = BD_ERROR_DEVICE_ERROR, /*!< device specific error -4001 */
     QSPIF_BD_ERROR_PARSING_FAILED        = -4002, /* SFDP Parsing failed */
-    QSPIF_BD_ERROR_READY_FAILED          = -4003, /* Wait for  Mem Ready failed */
+    QSPIF_BD_ERROR_READY_FAILED          = -4003, /* Wait for Mem Ready failed */
     QSPIF_BD_ERROR_WREN_FAILED           = -4004, /* Write Enable Failed */
     QSPIF_BD_ERROR_INVALID_ERASE_PARAMS  = -4005, /* Erase command not on sector aligned addresses or exceeds device size */
-    QSPIF_BD_ERROR_DEVICE_NOT_UNIQE      = -4006, /* Only one instance per csel is allowed */
-    QSPIF_BD_ERROR_DEVICE_MAX_EXCEED     = -4007 /* Max active QSPIF devices exceeded */
+    QSPIF_BD_ERROR_DEVICE_NOT_UNIQUE     = -4006, /* Only one instance per csel is allowed */
+    QSPIF_BD_ERROR_DEVICE_MAX_EXCEED     = -4007  /* Max active QSPIF devices exceeded */
 };
 
 /** Enum qspif polarity mode
@@ -234,33 +234,40 @@ private:
     /********************************/
     /*   Calls to QSPI Driver APIs  */
     /********************************/
-    // Send Program => Write command to Driver
-    qspi_status_t _qspi_send_program_command(unsigned int prog_instruction, const void *buffer, mbed::bd_addr_t addr,
-                                             mbed::bd_size_t *size);
+    // Send Program/Write command to Driver
+    qspi_status_t _qspi_send_program_command(mbed::qspi_inst_t prog_instruction, const void *buffer,
+                                             mbed::bd_addr_t addr, mbed::bd_size_t *size);
 
     // Send Read command to Driver
-    qspi_status_t _qspi_send_read_command(unsigned int read_instruction, void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
+    qspi_status_t _qspi_send_read_command(mbed::qspi_inst_t read_instruction, void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     // Send Erase Instruction using command_transfer command to Driver
-    qspi_status_t _qspi_send_erase_command(unsigned int erase_instruction, mbed::bd_addr_t addr, mbed::bd_size_t size);
+    qspi_status_t _qspi_send_erase_command(mbed::qspi_inst_t erase_instruction, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     // Send Generic command_transfer command to Driver
-    qspi_status_t _qspi_send_general_command(unsigned int instruction_int, mbed::bd_addr_t addr, const char *tx_buffer,
-                                             size_t tx_length, const char *rx_buffer, size_t rx_length);
+    qspi_status_t _qspi_send_general_command(mbed::qspi_inst_t instruction_int, mbed::bd_addr_t addr, const char *tx_buffer,
+                                             mbed::bd_size_t tx_length, const char *rx_buffer, mbed::bd_size_t rx_length);
 
-    // Send Bus configure_format command to Driver
-    qspi_status_t _qspi_configure_format(qspi_bus_width_t inst_width, qspi_bus_width_t address_width,
-                                         qspi_address_size_t address_size, qspi_bus_width_t alt_width, qspi_alt_size_t alt_size, qspi_bus_width_t data_width,
-                                         int dummy_cycles);
+    // Send command to read from the SFDP table
+    qspi_status_t _qspi_send_read_sfdp_command(mbed::bd_addr_t addr, void *rx_buffer, mbed::bd_size_t rx_length);
+
+    // Read the contents of status registers 1 and 2 into a buffer (buffer must have a length of 2)
+    qspi_status_t _qspi_read_status_registers(uint8_t *reg_buffer);
+
+    // Set the contents of status registers 1 and 2 from a buffer (buffer must have a length of 2)
+    qspi_status_t _qspi_write_status_registers(uint8_t *reg_buffer);
 
     // Send set_frequency command to Driver
     qspi_status_t _qspi_set_frequency(int freq);
 
+    // Update the 4-byte addressing extension register with the MSB of the address if it is in use
+    qspi_status_t _qspi_update_4byte_ext_addr_reg(bd_addr_t addr);
+
     /*********************************/
     /* Flash Configuration Functions */
     /*********************************/
-    // Soft Reset Flash Memory
-    int _reset_flash_mem();
+    // Clear the device's block protection
+    int _clear_block_protection();
 
     // Configure Write Enable in Status Register
     int _set_write_enable();
@@ -269,7 +276,7 @@ private:
     bool _is_mem_ready();
 
     // Enable Fast Mode - for flash chips with low power default
-    int _enable_fast_mdoe();
+    int _enable_fast_mode();
 
     /****************************************/
     /* SFDP Detection and Parsing Functions */
@@ -281,26 +288,33 @@ private:
     // Parse and Detect required Basic Parameters from Table
     int _sfdp_parse_basic_param_table(uint32_t basic_table_addr, size_t basic_table_size);
 
-    // Parse and read information required by Regions Secotr Map
+    // Parse and read information required by Regions Sector Map
     int _sfdp_parse_sector_map_table(uint32_t sector_map_table_addr, size_t sector_map_table_size);
 
+    // Detect the soft reset protocol and reset - returns error if soft reset is not supported
+    int _sfdp_detect_reset_protocol_and_reset(uint8_t *basic_param_table_ptr);
+
     // Detect fastest read Bus mode supported by device
-    int _sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table_ptr, int basic_param_table_size, bool &set_quad_enable,
-                                        bool &is_qpi_mode, unsigned int &read_inst);
+    int _sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table_ptr, int basic_param_table_size,
+                                        bool &set_quad_enable, bool &is_qpi_mode);
 
     // Enable Quad mode if supported (1-1-4, 1-4-4, 4-4-4 bus modes)
     int _sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr);
 
-    // Enable QPI mode (4-4-4) is supported
+    // Enable QPI mode (4-4-4)
     int _sfdp_set_qpi_enabled(uint8_t *basic_param_table_ptr);
 
     // Set Page size for program
     int _sfdp_detect_page_size(uint8_t *basic_param_table_ptr, int basic_param_table_size);
 
     // Detect all supported erase types
-    int _sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr, int basic_param_table_size,
-                                               unsigned int &erase4k_inst,
-                                               unsigned int *erase_type_inst_arr, unsigned int *erase_type_size_arr);
+    int _sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr, int basic_param_table_size);
+
+    // Detect 4-byte addressing mode and enable it if supported
+    int _sfdp_detect_and_enable_4byte_addressing(uint8_t *basic_param_table_ptr, int basic_param_table_size);
+
+    // Query vendor ID and handle special behavior that isn't covered by SFDP data
+    int _handle_vendor_quirks();
 
     /***********************/
     /* Utilities Functions */
@@ -313,6 +327,11 @@ private:
     int _utils_iterate_next_largest_erase_type(uint8_t &bitfield, int size, int offset, int boundry);
 
 private:
+    enum qspif_clear_protection_method_t {
+        QSPIF_BP_ULBPR,    // Issue global protection unlock instruction
+        QSPIF_BP_CLEAR_SR, // Clear protection bits in status register 1
+    };
+
     // QSPI Driver Object
     mbed::QSPI _qspi;
 
@@ -331,16 +350,31 @@ private:
     PlatformMutex _mutex;
 
     // Command Instructions
-    unsigned int _read_instruction;
-    unsigned int _prog_instruction;
-    unsigned int _erase_instruction;
-    unsigned int _erase4k_inst;  // Legacy 4K erase instruction (default 0x20h)
-    unsigned int _write_register_inst; // Write status/config register instruction may vary between chips
-    unsigned int _read_register_inst; // Read status/config register instruction may vary between chips
+    mbed::qspi_inst_t _read_instruction;
+    mbed::qspi_inst_t _legacy_erase_instruction;
+
+    // Status register write/read instructions
+    unsigned int _num_status_registers;
+    mbed::qspi_inst_t _write_status_reg_2_inst;
+    mbed::qspi_inst_t _read_status_reg_2_inst; // If three registers, this instruction reads the latter two
+
+    // Attempt to enable 4-byte addressing. True by default, but may be disabled for some vendors
+    bool _attempt_4_byte_addressing;
+    // 4-byte addressing extension register write instruction
+    mbed::qspi_inst_t _4byte_msb_reg_write_inst;
 
     // Up To 4 Erase Types are supported by SFDP (each with its own command Instruction and Size)
-    unsigned int _erase_type_inst_arr[MAX_NUM_OF_ERASE_TYPES];
+    mbed::qspi_inst_t _erase_type_inst_arr[MAX_NUM_OF_ERASE_TYPES];
     unsigned int _erase_type_size_arr[MAX_NUM_OF_ERASE_TYPES];
+
+    // Quad mode enable status register and bit
+    int _quad_enable_register_idx;
+    int _quad_enable_bit;
+
+    bool _needs_fast_mode;
+
+    // Clear block protection
+    qspif_clear_protection_method_t _clear_protection_method;
 
     // Sector Regions Map
     int _regions_count; //number of regions

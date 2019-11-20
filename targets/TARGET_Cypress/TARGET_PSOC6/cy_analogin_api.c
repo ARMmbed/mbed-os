@@ -60,6 +60,12 @@ uint16_t analogin_read_u16(analogin_t *obj)
     return cyhal_adc_read_u16(&(obj->hal_adc_channel));
 }
 
+void analogin_free(analogin_t *obj)
+{
+    cyhal_adc_channel_free(&(obj->hal_adc_channel));
+    cyhal_adc_free(obj->hal_adc);
+}
+
 const PinMap *analogin_pinmap(void)
 {
     return PinMap_ADC;

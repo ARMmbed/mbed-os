@@ -43,10 +43,44 @@
 #define QSPI_FLASH_SIZE_DEFAULT 0x80000000
 
 #if defined(OCTOSPI1)
+static uint32_t get_alt_bytes_size(const uint32_t num_bytes)
+{
+    switch (num_bytes) {
+        case 1:
+            return HAL_OSPI_ALTERNATE_BYTES_8_BITS;
+        case 2:
+            return HAL_OSPI_ALTERNATE_BYTES_16_BITS;
+        case 3:
+            return HAL_OSPI_ALTERNATE_BYTES_24_BITS;
+        case 4:
+            return HAL_OSPI_ALTERNATE_BYTES_32_BITS;
+    }
+    error("Invalid alt bytes size");
+    return 0xFFFFFFFF;
+}
+#else /* OCTOSPI1 */
+static uint32_t get_alt_bytes_size(const uint32_t num_bytes)
+{
+    switch (num_bytes) {
+        case 1:
+            return QSPI_ALTERNATE_BYTES_8_BITS;
+        case 2:
+            return QSPI_ALTERNATE_BYTES_16_BITS;
+        case 3:
+            return QSPI_ALTERNATE_BYTES_24_BITS;
+        case 4:
+            return QSPI_ALTERNATE_BYTES_32_BITS;
+    }
+    error("Invalid alt bytes size");
+    return 0xFFFFFFFF;
+}
+#endif /* OCTOSPI1 */
+
+#if defined(OCTOSPI1)
 qspi_status_t qspi_prepare_command(const qspi_command_t *command, OSPI_RegularCmdTypeDef *st_command)
 {
     debug_if(qspi_api_c_debug, "qspi_prepare_command In: instruction.value %x dummy_count %x address.bus_width %x address.disabled %x address.value %x address.size %x\n",
-        command->instruction.value, command->dummy_count, command->address.bus_width, command->address.disabled, command->address.value, command->address.size);
+             command->instruction.value, command->dummy_count, command->address.bus_width, command->address.disabled, command->address.value, command->address.size);
 
     st_command->FlashId = HAL_OSPI_FLASH_ID_1;
 
@@ -101,7 +135,7 @@ qspi_status_t qspi_prepare_command(const qspi_command_t *command, OSPI_RegularCm
                 error("Command param error: wrong address size\n");
                 return QSPI_STATUS_ERROR;
         }
-        switch(command->address.size) {
+        switch (command->address.size) {
             case QSPI_CFG_ADDR_SIZE_8:
                 st_command->AddressSize = HAL_OSPI_ADDRESS_8_BITS;
                 break;
@@ -143,7 +177,7 @@ qspi_status_t qspi_prepare_command(const qspi_command_t *command, OSPI_RegularCm
                 error("Command param error: invalid alt bytes mode\n");
                 return QSPI_STATUS_ERROR;
         }
-        
+
         // Alt size must be a multiple of the number of bus lines used (i.e. a whole number of cycles)
         if (command->alt.size % alt_lines != 0) {
             error("Command param error: incompatible alt size and alt bus width\n");
@@ -151,20 +185,19 @@ qspi_status_t qspi_prepare_command(const qspi_command_t *command, OSPI_RegularCm
         }
 
         // Round up to nearest byte - unused parts of byte act as dummy cycles
-        uint32_t rounded_size = ((command->alt.size - 1) >> 3) + 1;
+        uint32_t alt_bytes = ((command->alt.size - 1) >> 3) + 1;
         // Maximum of 4 alt bytes
-        if (rounded_size > 4) {
+        if (alt_bytes > 4) {
             error("Command param error: alt size exceeds maximum of 32 bits\n");
             return QSPI_STATUS_ERROR;
         }
-        
+
         // Unused bits in most significant byte of alt
-        uint8_t leftover_bits = (rounded_size << 3) - command->alt.size;
+        uint8_t leftover_bits = (alt_bytes << 3) - command->alt.size;
         if (leftover_bits != 0) {
             // Account for dummy cycles that will be spent in the alt portion of the command
             uint8_t integrated_dummy_cycles = leftover_bits / alt_lines;
-            if (st_command->DummyCycles < integrated_dummy_cycles)
-            {
+            if (st_command->DummyCycles < integrated_dummy_cycles) {
                 // Not enough dummy cycles to account for a short alt
                 error("Command param error: not enough dummy cycles to make up for given alt size\n");
                 return QSPI_STATUS_ERROR;
@@ -176,10 +209,8 @@ qspi_status_t qspi_prepare_command(const qspi_command_t *command, OSPI_RegularCm
         } else {
             st_command->AlternateBytes = command->alt.value;
         }
-            
-        /* command->AlternateBytesSize needs to be shifted by OCTOSPI_CCR_ABSIZE_Pos */
-        // 0b00 = 1 byte, 0b01 = 2 bytes, 0b10 = 3 bytes, 0b11 = 4 bytes
-        st_command->AlternateBytesSize = ((rounded_size - 1) << OCTOSPI_CCR_ABSIZE_Pos) & OCTOSPI_CCR_ABSIZE_Msk;
+
+        st_command->AlternateBytesSize = get_alt_bytes_size(alt_bytes);
     }
 
     switch (command->data.bus_width) {
@@ -198,7 +229,7 @@ qspi_status_t qspi_prepare_command(const qspi_command_t *command, OSPI_RegularCm
     }
 
     debug_if(qspi_api_c_debug, "qspi_prepare_command Out: InstructionMode %x Instruction %x AddressMode %x AddressSize %x Address %x DataMode %x\n",
-        st_command->InstructionMode, st_command->Instruction, st_command->AddressMode, st_command->AddressSize, st_command->Address, st_command->DataMode);
+             st_command->InstructionMode, st_command->Instruction, st_command->AddressMode, st_command->AddressSize, st_command->Address, st_command->DataMode);
 
     return QSPI_STATUS_OK;
 }
@@ -206,7 +237,7 @@ qspi_status_t qspi_prepare_command(const qspi_command_t *command, OSPI_RegularCm
 qspi_status_t qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTypeDef *st_command)
 {
     debug_if(qspi_api_c_debug, "qspi_prepare_command In: instruction.value %x dummy_count %x address.bus_width %x address.disabled %x address.value %x address.size %x\n",
-        command->instruction.value, command->dummy_count, command->address.bus_width, command->address.disabled, command->address.value, command->address.size);
+             command->instruction.value, command->dummy_count, command->address.bus_width, command->address.disabled, command->address.value, command->address.size);
 
     // TODO: shift these around to get more dynamic mapping
     switch (command->instruction.bus_width) {
@@ -231,28 +262,42 @@ qspi_status_t qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTy
     st_command->DdrMode = QSPI_DDR_MODE_DISABLE;
     st_command->DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
 
-    switch (command->address.bus_width) {
-        case QSPI_CFG_BUS_SINGLE:
-            st_command->AddressMode = QSPI_ADDRESS_1_LINE;
-            break;
-        case QSPI_CFG_BUS_DUAL:
-            st_command->AddressMode = QSPI_ADDRESS_2_LINES;
-            break;
-        case QSPI_CFG_BUS_QUAD:
-            st_command->AddressMode = QSPI_ADDRESS_4_LINES;
-            break;
-        default:
-            st_command->AddressMode = QSPI_ADDRESS_NONE;
-            break;
-    }
-
     if (command->address.disabled == true) {
         st_command->AddressMode = QSPI_ADDRESS_NONE;
         st_command->AddressSize = 0;
     } else {
         st_command->Address = command->address.value;
-        /* command->address.size needs to be shifted by QUADSPI_CCR_ADSIZE_Pos */
-        st_command->AddressSize = (command->address.size << QUADSPI_CCR_ADSIZE_Pos) & QUADSPI_CCR_ADSIZE_Msk;
+        switch (command->address.bus_width) {
+            case QSPI_CFG_BUS_SINGLE:
+                st_command->AddressMode = QSPI_ADDRESS_1_LINE;
+                break;
+            case QSPI_CFG_BUS_DUAL:
+                st_command->AddressMode = QSPI_ADDRESS_2_LINES;
+                break;
+            case QSPI_CFG_BUS_QUAD:
+                st_command->AddressMode = QSPI_ADDRESS_4_LINES;
+                break;
+            default:
+                error("Command param error: wrong address size\n");
+                return QSPI_STATUS_ERROR;
+        }
+        switch (command->address.size) {
+            case QSPI_CFG_ADDR_SIZE_8:
+                st_command->AddressSize = QSPI_ADDRESS_8_BITS;
+                break;
+            case QSPI_CFG_ADDR_SIZE_16:
+                st_command->AddressSize = QSPI_ADDRESS_16_BITS;
+                break;
+            case QSPI_CFG_ADDR_SIZE_24:
+                st_command->AddressSize = QSPI_ADDRESS_24_BITS;
+                break;
+            case QSPI_CFG_ADDR_SIZE_32:
+                st_command->AddressSize = QSPI_ADDRESS_32_BITS;
+                break;
+            default:
+                error("Command param error: wrong address size\n");
+                return QSPI_STATUS_ERROR;
+        }
     }
 
     uint8_t alt_lines = 0;
@@ -284,19 +329,18 @@ qspi_status_t qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTy
         }
 
         // Round up to nearest byte - unused parts of byte act as dummy cycles
-        uint32_t rounded_size = ((command->alt.size - 1) >> 3) + 1;
+        uint32_t alt_bytes = ((command->alt.size - 1) >> 3) + 1;
         // Maximum of 4 alt bytes
-        if (rounded_size > 4) {
+        if (alt_bytes > 4) {
             return QSPI_STATUS_ERROR;
         }
-        
+
         // Unused bits in most significant byte of alt
-        uint8_t leftover_bits = (rounded_size << 3) - command->alt.size;
+        uint8_t leftover_bits = (alt_bytes << 3) - command->alt.size;
         if (leftover_bits != 0) {
             // Account for dummy cycles that will be spent in the alt portion of the command
             uint8_t integrated_dummy_cycles = leftover_bits / alt_lines;
-            if (st_command->DummyCycles < integrated_dummy_cycles)
-            {
+            if (st_command->DummyCycles < integrated_dummy_cycles) {
                 // Not enough dummy cycles to account for a short alt
                 return QSPI_STATUS_ERROR;
             }
@@ -307,10 +351,8 @@ qspi_status_t qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTy
         } else {
             st_command->AlternateBytes = command->alt.value;
         }
-            
-        /* command->AlternateBytesSize needs to be shifted by QUADSPI_CCR_ABSIZE_Pos */
-        // 0b00 = 1 byte, 0b01 = 2 bytes, 0b10 = 3 bytes, 0b11 = 4 bytes
-        st_command->AlternateBytesSize = ((rounded_size - 1) << QUADSPI_CCR_ABSIZE_Pos) & QUADSPI_CCR_ABSIZE_Msk;
+
+        st_command->AlternateBytesSize = get_alt_bytes_size(alt_bytes);
     }
 
     switch (command->data.bus_width) {
@@ -331,7 +373,7 @@ qspi_status_t qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTy
     st_command->NbData = 0;
 
     debug_if(qspi_api_c_debug, "qspi_prepare_command Out: InstructionMode %x Instruction %x AddressMode %x AddressSize %x Address %x DataMode %x\n",
-        st_command->InstructionMode, st_command->Instruction, st_command->AddressMode, st_command->AddressSize, st_command->Address, st_command->DataMode);
+             st_command->InstructionMode, st_command->Instruction, st_command->AddressMode, st_command->AddressSize, st_command->Address, st_command->DataMode);
 
     return QSPI_STATUS_OK;
 }
@@ -382,18 +424,18 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
     obj->qspi = qspi_data_third;
 
 #if defined(OCTOSPI1)
-    if(obj->qspi == QSPI_1) {
+    if (obj->qspi == QSPI_1) {
         obj->handle.Instance = OCTOSPI1;
     }
 #endif
 #if defined(OCTOSPI2)
-    if(obj->qspi == QSPI_2) {
+    if (obj->qspi == QSPI_2) {
         obj->handle.Instance = OCTOSPI2;
     }
 #endif
 
 #if defined(OCTOSPI1)
-    if(obj->qspi == QSPI_1) {
+    if (obj->qspi == QSPI_1) {
         __HAL_RCC_OSPI1_CLK_ENABLE();
         __HAL_RCC_OSPIM_CLK_ENABLE();
         __HAL_RCC_OSPI1_FORCE_RESET();
@@ -401,7 +443,7 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
     }
 #endif
 #if defined(OCTOSPI2)
-    if(obj->qspi == QSPI_2) {
+    if (obj->qspi == QSPI_2) {
         __HAL_RCC_OSPI2_CLK_ENABLE();
         __HAL_RCC_OSPIM_CLK_ENABLE();
         __HAL_RCC_OSPI2_FORCE_RESET();
@@ -427,7 +469,7 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
     /* The OctoSPI IO Manager OCTOSPIM configuration is supported in a simplified mode in mbed-os
      * QSPI1 signals are mapped to port 1 and QSPI2 signals are mapped to port 2.
      * This  is coded in this way in PeripheralPins.c */
-    if(obj->qspi == QSPI_1) {
+    if (obj->qspi == QSPI_1) {
         OSPIM_Cfg_Struct.ClkPort = 1;
         OSPIM_Cfg_Struct.DQSPort    = 1;
         OSPIM_Cfg_Struct.NCSPort = 1;
@@ -441,8 +483,7 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
         OSPIM_Cfg_Struct.IOHighPort = HAL_OSPIM_IOPORT_2_HIGH;
     }
 
-    if (HAL_OSPIM_Config(&obj->handle, &OSPIM_Cfg_Struct, HAL_OSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK)
-    {
+    if (HAL_OSPIM_Config(&obj->handle, &OSPIM_Cfg_Struct, HAL_OSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
         debug_if(qspi_api_c_debug, "HAL_OSPIM_Config error\n");
         return QSPI_STATUS_ERROR;
     }
@@ -457,8 +498,16 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
     __HAL_RCC_QSPI_CLK_ENABLE();
 
     // Reset QSPI
+#if defined(DUAL_CORE)
+    uint32_t timeout = HSEM_TIMEOUT;
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    }
+#endif /* DUAL_CORE */
     __HAL_RCC_QSPI_FORCE_RESET();
     __HAL_RCC_QSPI_RELEASE_RESET();
+#if defined(DUAL_CORE)
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
 
     // Reset handle internal state
     obj->handle.State = HAL_QSPI_STATE_RESET;
@@ -526,13 +575,13 @@ qspi_status_t qspi_free(qspi_t *obj)
     }
 
 #if defined(OCTOSPI1)
-    if(obj->qspi == QSPI_1) {
+    if (obj->qspi == QSPI_1) {
         __HAL_RCC_OSPI1_FORCE_RESET();
         __HAL_RCC_OSPI1_CLK_DISABLE();
     }
 #endif
 #if defined(OCTOSPI2)
-    if(obj->qspi == QSPI_2) {
+    if (obj->qspi == QSPI_2) {
         __HAL_RCC_OSPI2_FORCE_RESET();
         __HAL_RCC_OSPI2_CLK_DISABLE();
     }
@@ -557,8 +606,16 @@ qspi_status_t qspi_free(qspi_t *obj)
     }
 
     // Reset QSPI
+#if defined(DUAL_CORE)
+    uint32_t timeout = HSEM_TIMEOUT;
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    }
+#endif /* DUAL_CORE */
     __HAL_RCC_QSPI_FORCE_RESET();
     __HAL_RCC_QSPI_RELEASE_RESET();
+#if defined(DUAL_CORE)
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
 
     // Disable interface clock for QSPI
     __HAL_RCC_QSPI_CLK_DISABLE();
@@ -725,7 +782,7 @@ qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, 
     if (status != QSPI_STATUS_OK) {
         return status;
     }
-    
+
     st_command.NbData = *length;
 
     if (HAL_QSPI_Command(&obj->handle, &st_command, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {

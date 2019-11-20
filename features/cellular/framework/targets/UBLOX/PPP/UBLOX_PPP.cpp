@@ -21,14 +21,36 @@
 using namespace mbed;
 using namespace events;
 
-#ifdef TARGET_UBLOX_C027
+#ifdef UBX_MDM_SARA_R41XM
 static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
     AT_CellularNetwork::RegistrationModeDisable,// C_EREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_REG
     0,  // AT_CGSN_WITH_TYPE
+    0,  // AT_CGDATA
+    0,  // AT_CGAUTH
+    1,  // AT_CNMI
+    1,  // AT_CSMP
+    1,  // AT_CMGF
+    0,  // AT_CSDH
+    1,  // PROPERTY_IPV4_STACK
+    0,  // PROPERTY_IPV6_STACK
+    0,  // PROPERTY_IPV4V6_STACK
+    0,  // PROPERTY_NON_IP_PDP_TYPE
+    1,  // PROPERTY_AT_CGEREP
+};
+#elif defined(UBX_MDM_SARA_U2XX) || defined(UBX_MDM_SARA_G3XX)
+static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+    AT_CellularNetwork::RegistrationModeDisable,// C_EREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_REG
+#ifdef UBX_MDM_SARA_G3XX
+    0,  // AT_CGSN_WITH_TYPE
+#else
+    1,  // AT_CGSN_WITH_TYPE
+#endif
     1,  // AT_CGDATA
-    1,  // AT_CGAUTH
+    0,  // AT_CGAUTH
     1,  // AT_CNMI
     1,  // AT_CSMP
     1,  // AT_CMGF
@@ -41,21 +63,21 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
 };
 #else
 static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
-    AT_CellularNetwork::RegistrationModeDisable,// C_EREG
-    AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
-    AT_CellularNetwork::RegistrationModeLAC,    // C_REG
-    1,  // AT_CGSN_WITH_TYPE
-    1,  // AT_CGDATA
-    1,  // AT_CGAUTH
-    1,  // AT_CNMI
-    1,  // AT_CSMP
-    1,  // AT_CMGF
-    1,  // AT_CSDH
-    1,  // PROPERTY_IPV4_STACK
+    0,  // C_EREG
+    0,  // C_GREG
+    0,  // C_REG
+    0,  // AT_CGSN_WITH_TYPE
+    0,  // AT_CGDATA
+    0,  // AT_CGAUTH
+    0,  // AT_CNMI
+    0,  // AT_CSMP
+    0,  // AT_CMGF
+    0,  // AT_CSDH
+    0,  // PROPERTY_IPV4_STACK
     0,  // PROPERTY_IPV6_STACK
     0,  // PROPERTY_IPV4V6_STACK
     0,  // PROPERTY_NON_IP_PDP_TYPE
-    1,  // PROPERTY_AT_CGEREP
+    0,  // PROPERTY_AT_CGEREP
 };
 #endif
 

@@ -15,40 +15,40 @@
  */
 
 #include "kv_config.h"
-#include "KVStore.h"
-#include "KVMap.h"
-#include "BlockDevice.h"
-#include "FileSystem.h"
-#include "FileSystemStore.h"
-#include "SlicingBlockDevice.h"
-#include "FATFileSystem.h"
-#include "LittleFileSystem.h"
-#include "TDBStore.h"
+#include "features/storage/kvstore/include/KVStore.h"
+#include "features/storage/kvstore/kv_map/KVMap.h"
+#include "features/storage/blockdevice/BlockDevice.h"
+#include "features/storage/filesystem/FileSystem.h"
+#include "features/storage/kvstore/filesystemstore/FileSystemStore.h"
+#include "features/storage/blockdevice/SlicingBlockDevice.h"
+#include "features/storage/filesystem/fat/FATFileSystem.h"
+#include "features/storage/filesystem/littlefs/LittleFileSystem.h"
+#include "features/storage/kvstore/tdbstore/TDBStore.h"
 #include "mbed_error.h"
-#include "FlashIAP.h"
-#include "FlashSimBlockDevice.h"
+#include "drivers/FlashIAP.h"
+#include "features/storage/blockdevice/FlashSimBlockDevice.h"
 #include "mbed_trace.h"
-#include "SecureStore.h"
+#include "features/storage/kvstore/securestore/SecureStore.h"
 #define TRACE_GROUP "KVCFG"
 
 #if COMPONENT_FLASHIAP
-#include "FlashIAPBlockDevice.h"
+#include "components/storage/blockdevice/COMPONENT_FLASHIAP/FlashIAPBlockDevice.h"
 #endif
 
 #if COMPONENT_QSPIF
-#include "QSPIFBlockDevice.h"
+#include "components/storage/blockdevice/COMPONENT_QSPIF/QSPIFBlockDevice.h"
 #endif
 
 #if COMPONENT_SPIF
-#include "SPIFBlockDevice.h"
+#include "components/storage/blockdevice/COMPONENT_SPIF/SPIFBlockDevice.h"
 #endif
 
 #if COMPONENT_DATAFLASH
-#include "DataFlashBlockDevice.h"
+#include "components/storage/blockdevice/COMPONENT_DATAFLASH/DataFlashBlockDevice.h"
 #endif
 
 #if COMPONENT_SD
-#include "SDBlockDevice.h"
+#include "components/storage/blockdevice/COMPONENT_SD/SDBlockDevice.h"
 #endif
 
 /**

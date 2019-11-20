@@ -20,14 +20,36 @@
 using namespace mbed;
 using namespace events;
 
-#ifdef TARGET_UBLOX_C030_R41XM
+#ifdef UBX_MDM_SARA_R41XM
 static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
     AT_CellularNetwork::RegistrationModeDisable,// C_EREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_REG
     0,  // AT_CGSN_WITH_TYPE
+    0,  // AT_CGDATA
+    0,  // AT_CGAUTH
+    1,  // AT_CNMI
+    1,  // AT_CSMP
+    1,  // AT_CMGF
+    0,  // AT_CSDH
+    1,  // PROPERTY_IPV4_STACK
+    0,  // PROPERTY_IPV6_STACK
+    0,  // PROPERTY_IPV4V6_STACK
+    0,  // PROPERTY_NON_IP_PDP_TYPE
+    1,  // PROPERTY_AT_CGEREP
+};
+#elif defined(UBX_MDM_SARA_U2XX) || defined(UBX_MDM_SARA_G3XX)
+static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+    AT_CellularNetwork::RegistrationModeDisable,// C_EREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_REG
+#ifdef UBX_MDM_SARA_G3XX
+    0,  // AT_CGSN_WITH_TYPE
+#else
+    1,  // AT_CGSN_WITH_TYPE
+#endif
     1,  // AT_CGDATA
-    1,  // AT_CGAUTH
+    0,  // AT_CGAUTH
     1,  // AT_CNMI
     1,  // AT_CSMP
     1,  // AT_CMGF
@@ -40,21 +62,21 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
 };
 #else
 static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
-    AT_CellularNetwork::RegistrationModeDisable,// C_EREG
-    AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
-    AT_CellularNetwork::RegistrationModeLAC,    // C_REG
-    1,  // AT_CGSN_WITH_TYPE
-    1,  // AT_CGDATA
-    1,  // AT_CGAUTH
-    1,  // AT_CNMI
-    1,  // AT_CSMP
-    1,  // AT_CMGF
-    1,  // AT_CSDH
-    1,  // PROPERTY_IPV4_STACK
+    0,  // C_EREG
+    0,  // C_GREG
+    0,  // C_REG
+    0,  // AT_CGSN_WITH_TYPE
+    0,  // AT_CGDATA
+    0,  // AT_CGAUTH
+    0,  // AT_CNMI
+    0,  // AT_CSMP
+    0,  // AT_CMGF
+    0,  // AT_CSDH
+    0,  // PROPERTY_IPV4_STACK
     0,  // PROPERTY_IPV6_STACK
     0,  // PROPERTY_IPV4V6_STACK
     0,  // PROPERTY_NON_IP_PDP_TYPE
-    1,  // PROPERTY_AT_CGEREP
+    0,  // PROPERTY_AT_CGEREP
 };
 #endif
 
@@ -98,7 +120,7 @@ nsapi_error_t UBLOX_AT::init()
 
     nsapi_error_t err = NSAPI_ERROR_OK;
 
-#ifdef TARGET_UBLOX_C027
+#ifdef UBX_MDM_SARA_G3XX
     err = _at->at_cmd_discard("+CFUN", "=0");
 
     if (err == NSAPI_ERROR_OK) {
@@ -107,7 +129,7 @@ nsapi_error_t UBLOX_AT::init()
         config_authentication_parameters();
         err = _at->at_cmd_discard("+CFUN", "=1"); // set full functionality
     }
-#else
+#elif defined(UBX_MDM_SARA_U2XX) || defined(UBX_MDM_SARA_R41XM)
     err = _at->at_cmd_discard("+CFUN", "=4");
     if (err == NSAPI_ERROR_OK) {
         _at->at_cmd_discard("E0", ""); // echo off
@@ -115,6 +137,9 @@ nsapi_error_t UBLOX_AT::init()
         config_authentication_parameters();
         err = _at->at_cmd_discard("+CFUN", "=1"); // set full functionality
     }
+#else
+    _at->unlock();
+    return NSAPI_ERROR_UNSUPPORTED;
 #endif
 
     return _at->unlock_return_error();
@@ -126,14 +151,14 @@ nsapi_error_t UBLOX_AT::config_authentication_parameters()
     nsapi_error_t err;
     char imsi[MAX_IMSI_LENGTH + 1];
 
-    if (apn == NULL) {
+    if (ubx_context->get_apn() == NULL) {
         err = get_imsi(imsi);
         if (err == NSAPI_ERROR_OK) {
             config = (char *)apnconfig(imsi);
         }
+        ubx_context->get_next_credentials(&config);
     }
 
-    ubx_context->get_next_credentials(&config);
     apn = ubx_context->get_apn();
     pwd = ubx_context->get_pwd();
     uname = ubx_context->get_uname();
@@ -155,7 +180,7 @@ nsapi_error_t UBLOX_AT::set_authentication_parameters(const char *apn,
     nsapi_error_t err = _at->at_cmd_discard("+CGDCONT", "=", "%d%s%s", 1, "IP", apn);
 
     if (err == NSAPI_ERROR_OK) {
-#ifdef TARGET_UBLOX_C030_R41XM
+#ifdef UBX_MDM_SARA_R41XM
         if (modem_security == CellularContext::CHAP) {
             err = _at->at_cmd_discard("+UAUTHREQ", "=", "%d%d%s%s", 1, modem_security, password, username);
         } else if (modem_security == CellularContext::NOAUTH) {

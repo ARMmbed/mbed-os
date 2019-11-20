@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018 ARM Limited
+ * Copyright (c) 2016-2019 Arm Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@
 #ifndef __SMSC9220_ETH_H__
 #define __SMSC9220_ETH_H__
 
-#include "stdbool.h"
-#include "stdint.h"
+#include <stdbool.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -198,7 +198,7 @@ enum smsc9220_error_t smsc9220_init(const struct smsc9220_eth_dev_t* dev,
                                void(* wait_ms_function)(int));
 
 /**
- * \brief Read MAC register.
+ * \brief Reads the MAC register.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  * \param[in] regoffset Register offset
@@ -212,7 +212,7 @@ enum smsc9220_error_t smsc9220_mac_regread(
         uint32_t *data);
 
 /**
- * \brief Write MAC register.
+ * \brief Writes the MAC register.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  * \param[in] regoffset Register offset
@@ -226,7 +226,7 @@ enum smsc9220_error_t smsc9220_mac_regwrite(
         uint32_t data);
 
 /**
- * \brief Read PHY register.
+ * \brief Reads the PHY register.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  * \param[in] regoffset Register offset
@@ -240,7 +240,7 @@ enum smsc9220_error_t smsc9220_phy_regread(
         uint32_t *data);
 
 /**
- * \brief Write PHY register.
+ * \brief Writes the PHY register.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  * \param[in] regoffset Register offset
@@ -254,7 +254,7 @@ enum smsc9220_error_t smsc9220_phy_regwrite(
         uint32_t data);
 
 /**
- * \brief Read SMSC9220 ID.
+ * \brief Reads the Ethernet Controller's ID.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  *
@@ -273,9 +273,9 @@ enum smsc9220_error_t smsc9220_soft_reset(
         const struct smsc9220_eth_dev_t* dev);
 
 /**
- * \brief Set maximum transition unit by Tx fifo size.
+ * \brief Sets the Maximum Transmission Unit by Tx fifo size.
  *        Note: The MTU will be smaller by 512 bytes,
- *        because the status uses this fixed space.
+ *        whis is used by the status.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  * \param[in] val Size of the fifo in kbytes
@@ -286,7 +286,7 @@ void smsc9220_set_txfifo(const struct smsc9220_eth_dev_t* dev,
                          uint32_t val);
 
 /**
- * \brief Set FIFO level interrupt for a given source
+ * \brief Sets the FIFO level interrupt for a given source.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  * \param[in] irq_level_pos Bit position of the FIFO to set
@@ -302,7 +302,7 @@ enum smsc9220_error_t smsc9220_set_fifo_level_irq(
         uint32_t level);
 
 /**
- * \brief Wait for EEPROM to be ready to use.
+ * \brief Waits for EEPROM to be ready to use.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  *
@@ -312,7 +312,7 @@ enum smsc9220_error_t smsc9220_wait_eeprom(
         const struct smsc9220_eth_dev_t* dev);
 
 /**
- * \brief Initialise irqs by clearing and disabling all interrupt sources
+ * \brief Initializes irqs by clearing and disabling all interrupt sources
  *        and enable interrupts. Since all interrupt sources are disabled,
  *        interrupt won't be triggered, until interrupt sources won't be
  *        enabled by \ref smsc9220_enable_interrupt
@@ -322,7 +322,7 @@ enum smsc9220_error_t smsc9220_wait_eeprom(
 void smsc9220_init_irqs(const struct smsc9220_eth_dev_t* dev);
 
 /**
- * \brief Check PHY ID registers.
+ * \brief Checks PHY ID registers.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  *
@@ -331,7 +331,7 @@ void smsc9220_init_irqs(const struct smsc9220_eth_dev_t* dev);
 enum smsc9220_error_t smsc9220_check_phy(const struct smsc9220_eth_dev_t* dev);
 
 /**
- * \brief Reset PHY
+ * \brief Resets PHY.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  *
@@ -340,56 +340,56 @@ enum smsc9220_error_t smsc9220_check_phy(const struct smsc9220_eth_dev_t* dev);
 enum smsc9220_error_t smsc9220_reset_phy(const struct smsc9220_eth_dev_t* dev);
 
 /**
- * \brief Advertise all speeds and pause capabilities
+ * \brief Advertises all speeds and pauses capabilities.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  */
 void smsc9220_advertise_cap(const struct smsc9220_eth_dev_t* dev);
 
 /**
- * \brief Enable transmission
+ * \brief Enables transmission.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  */
 void smsc9220_enable_xmit(const struct smsc9220_eth_dev_t* dev);
 
 /**
- * \brief Disable transmission
+ * \brief Disables transmission.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  */
 void smsc9220_disable_xmit(const struct smsc9220_eth_dev_t* dev);
 
 /**
- * \brief Enable MAC transmitter
+ * \brief Enables MAC Transmitter.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  */
 void smsc9220_enable_mac_xmit(const struct smsc9220_eth_dev_t* dev);
 
 /**
- * \brief Disable MAC transmitter
+ * \brief Disables MAC Transmitter.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  */
 void smsc9220_disable_mac_xmit(const struct smsc9220_eth_dev_t* dev);
 
 /**
- * \brief Enable receive
+ * \brief Enables receiving.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  */
 void smsc9220_enable_mac_recv(const struct smsc9220_eth_dev_t* dev);
 
 /**
- * \brief Disable receive
+ * \brief Disables receiving.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  */
 void smsc9220_disable_mac_recv(const struct smsc9220_eth_dev_t* dev);
 
 /**
- * \brief Enable the given interrupt source.
+ * \brief Enables the given interrupt source.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  * \param[in] source Enum of the interrupt source.
@@ -398,7 +398,7 @@ void smsc9220_enable_interrupt(const struct smsc9220_eth_dev_t* dev,
                                enum smsc9220_interrupt_source source);
 
 /**
- * \brief Disable the given interrupt source.
+ * \brief Disables the given interrupt source.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  * \param[in] source Enum of the interrupt source.
@@ -407,14 +407,14 @@ void smsc9220_disable_interrupt(const struct smsc9220_eth_dev_t* dev,
                                 enum smsc9220_interrupt_source source);
 
 /**
- * \brief Disable all of the interrupt sources.
+ * \brief Disables all interrupt sources.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  */
 void smsc9220_disable_all_interrupts(const struct smsc9220_eth_dev_t* dev);
 
 /**
- * \brief Clear the given interrupt source.
+ * \brief Clears the given interrupt source.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  * \param[in] source Enum of the interrupt source.
@@ -423,14 +423,14 @@ void smsc9220_clear_interrupt(const struct smsc9220_eth_dev_t* dev,
                               enum smsc9220_interrupt_source source);
 
 /**
- * \brief Clear all of the interrupt sources.
+ * \brief Clears all interrupt sources.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  */
 void smsc9220_clear_all_interrupts(const struct smsc9220_eth_dev_t* dev);
 
 /**
- * \brief Get the status of the given interrupt source.
+ * \brief Gets the status of the given interrupt source.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  * \param[in] source Enum of the interrupt source.
@@ -441,14 +441,14 @@ int smsc9220_get_interrupt(const struct smsc9220_eth_dev_t* dev,
                            enum smsc9220_interrupt_source source);
 
 /**
- * \brief Establish link
+ * \brief Establishes link
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  */
 void smsc9220_establish_link(const struct smsc9220_eth_dev_t* dev);
 
 /**
- * \brief Read MAC address from EEPROM.
+ * \brief Reads the Ethernet Controller's MAC address from its EEPROM.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  * \param[in,out] mac array will include the read MAC address in
@@ -468,7 +468,7 @@ enum smsc9220_error_t smsc9220_read_mac_address(
 int smsc9220_check_id(const struct smsc9220_eth_dev_t* dev);
 
 /**
- * \brief Get the data size of the Tx buffer, aka Maximum Transition Unit
+ * \brief Gets the data size of the Tx buffer, aka Maximum Trasmission Unit
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  *
@@ -478,16 +478,16 @@ uint32_t smsc9220_get_tx_data_fifo_size(const struct
                                             smsc9220_eth_dev_t* dev);
 
 /**
- * \brief Send Ethernet packet from buffer chain.
- *        The full packet length should be known in the beginning
- *        of a new packet.
+ * \brief Sends data from the given buffer as an Ethernet packet.
+ *        The full packet length must be specified at the beginning
+ *        of a new packet transmission.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  * \param[in] total_payload_length Length of the ethernet payload.
  *            Should be equal to the sum of passed buffers within a packet.
  * \param[in] is_new_packet Should be set to true if the input buffer has to
  *            be sent as the start of a new packet or as a full packet.
- * \param[in] data Pointer to the data should be sent.
+ * \param[in] data Pointer to the data buffer to be sent.
  * \param[in] current_size Size of the data in bytes.
  *
  * \return error code /ref smsc9220_error_t
@@ -499,20 +499,17 @@ enum smsc9220_error_t smsc9220_send_by_chunks(
         const char *data, uint32_t current_size);
 
 /**
- * \brief Receive Ethernet packet from Rx FIFO to the passed buffer.
+ * \brief Reads an incoming Ethernet packet into the given buffer.
  *        Stops reading at packet border.
- *        If the passed buffer is larger than the current packet,
- *        the whole packet will be read into the buffer.
- *        If the current packet is larger than the passed buffer,
- *        the buffer will be filled with data and the next call
- *        will continue the read from that point.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
- * \param[in,out] data Pointer where the data will be read to.
- *                     The caller is responsible to allocate it.
+ * \param[in,out] data Pointer to a pre-allocated input buffer.
+ *                     Allocating sufficient memory space is the caller's
+ *                     responsibility, which is typically done by calling
+ *                     \ref smsc9220_peek_next_packet_size.
  * \param[in] dlen Length of the allocated data in bytes.
  *
- * \return Remaining bytes left in the fifo of the current packet.
+ * \return Number of bytes read from the Rx FIFO into the given buffer.
  */
 uint32_t smsc9220_receive_by_chunks(const struct smsc9220_eth_dev_t* dev,
                                         char *data, uint32_t dlen);
@@ -528,15 +525,14 @@ uint32_t smsc9220_get_rxfifo_data_used_space(const struct
                                                  smsc9220_eth_dev_t* dev);
 
 /**
- * \brief Get the size of next unread packet in Rx buffer, using the peak
+ * \brief Gets the size of next unread packet in Rx buffer, using the peak
  *        register, which is not destructive so can be read asynchronously.
- *        Warning: In case of heavy receiving load, it's possible this register
- *        is not perfectly in sync.
+ *        Warning: In case of heavy receiving loads, this register may not
+ *        be in perfect sync.
  *
  * \param[in] dev Ethernet device structure \ref smsc9220_eth_dev_t
  *
- * \return Size in bytes of the next packet can be read from Rx fifo, according
- *         to the peek register.
+ * \return Size of the next packet in bytes, read from the Rx Peek register.
  */
 uint32_t smsc9220_peek_next_packet_size(const struct
                                             smsc9220_eth_dev_t* dev);

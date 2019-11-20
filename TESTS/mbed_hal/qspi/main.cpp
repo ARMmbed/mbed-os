@@ -42,7 +42,9 @@ using namespace utest::v1;
 
 
 
+#ifndef QSPI_MIN_FREQUENCY
 #define QSPI_MIN_FREQUENCY  1000000
+#endif
 
 // max write size is usually page size
 #define DATA_SIZE_256  (QSPI_PAGE_SIZE)
@@ -82,6 +84,7 @@ static uint32_t gen_flash_address()
 {
     srand(ticker_read(get_us_ticker_data()));
     uint32_t address = (((uint32_t)rand()) % QSPI_SECTOR_COUNT) * QSPI_SECTOR_SIZE;
+    address &= 0xFFFFFF; // Ensure address is within 24 bits so as to not have to deal with 4-byte addressing
     return address;
 }
 
@@ -344,18 +347,17 @@ void qspi_frequency_test(void)
     ret = qspi_init(&qspi.handle, QPIN_0, QPIN_1, QPIN_2, QPIN_3, QSCK, QCSN, freq, 0);
     TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
 
-    do {
+    while (ret == QSPI_STATUS_OK && freq >= QSPI_MIN_FREQUENCY) {
         // check if the memory is working properly
         qspi.cmd.configure(MODE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8);
-
+        ret = qspi_frequency(&qspi.handle, freq);
         flash_init(qspi);
         _qspi_write_read_test(qspi, WRITE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8, WRITE_SINGLE, READ_1_1_1, ADDR_SIZE_24, ALT_SIZE_8, READ_SINGLE, TEST_REPEAT_SINGLE, DATA_SIZE_256, TEST_FLASH_ADDRESS);
 
         utest_printf("frequency setting %d [Hz] - OK\r\n", freq);
 
         freq /= 2;
-        ret = qspi_frequency(&qspi.handle, freq);
-    } while (ret == QSPI_STATUS_OK && freq >= QSPI_MIN_FREQUENCY);
+    }
 
     qspi_free(&qspi.handle);
 }

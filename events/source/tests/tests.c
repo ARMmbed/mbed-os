@@ -297,7 +297,7 @@ void cancel_test(int N)
     }
 
     for (int i = N - 1; i >= 0; i--) {
-        equeue_cancel(&q, ids[i]);
+        test_assert(equeue_cancel(&q, ids[i]));
     }
 
     free(ids);
@@ -317,13 +317,13 @@ void cancel_inflight_test(void)
     bool touched = false;
 
     int id = equeue_call(&q, simple_func, &touched);
-    equeue_cancel(&q, id);
+    test_assert(equeue_cancel(&q, id));
 
     equeue_dispatch(&q, 0);
     test_assert(!touched);
 
     id = equeue_call(&q, simple_func, &touched);
-    equeue_cancel(&q, id);
+    test_assert(equeue_cancel(&q, id));
 
     equeue_dispatch(&q, 0);
     test_assert(!touched);
@@ -352,19 +352,19 @@ void cancel_unnecessarily_test(void)
 
     int id = equeue_call(&q, pass_func, 0);
     for (int i = 0; i < 5; i++) {
-        equeue_cancel(&q, id);
+        test_assert(equeue_cancel(&q, id) == (i == 0));
     }
 
     id = equeue_call(&q, pass_func, 0);
     equeue_dispatch(&q, 0);
     for (int i = 0; i < 5; i++) {
-        equeue_cancel(&q, id);
+        test_assert(!equeue_cancel(&q, id));
     }
 
     bool touched = false;
     equeue_call(&q, simple_func, &touched);
     for (int i = 0; i < 5; i++) {
-        equeue_cancel(&q, id);
+        test_assert(!equeue_cancel(&q, id));
     }
 
     equeue_dispatch(&q, 0);
@@ -595,8 +595,8 @@ void chain_test(void)
     id2 = equeue_call_in(&q2, 5, simple_func, &touched);
     test_assert(id1 && id2);
 
-    equeue_cancel(&q1, id1);
-    equeue_cancel(&q2, id2);
+    test_assert(equeue_cancel(&q1, id1));
+    test_assert(equeue_cancel(&q2, id2));
 
     id1 = equeue_call_in(&q1, 10, simple_func, &touched);
     id2 = equeue_call_in(&q2, 10, simple_func, &touched);
@@ -768,7 +768,7 @@ void break_request_cleared_on_timeout(void)
     equeue_dispatch(&q, 10);
     test_assert(pq.p == 1);
 
-    equeue_cancel(&q, id);
+    test_assert(equeue_cancel(&q, id));
 
     int count = 0;
     equeue_call_every(&q, 10, simple_func, &count);
@@ -796,9 +796,9 @@ void sibling_test(void)
             test_assert(!s->next);
         }
     }
-    equeue_cancel(&q, id0);
-    equeue_cancel(&q, id1);
-    equeue_cancel(&q, id2);
+    test_assert(equeue_cancel(&q, id0));
+    test_assert(equeue_cancel(&q, id1));
+    test_assert(equeue_cancel(&q, id2));
     equeue_destroy(&q);
 }
 
@@ -829,7 +829,7 @@ void user_allocated_event_test()
     equeue_post_user_allocated(&q, simple_func, &e3.e);
     equeue_post_user_allocated(&q, simple_func, &e4.e);
     equeue_post_user_allocated(&q, simple_func, &e5.e);
-    equeue_cancel_user_allocated(&q, &e3.e);
+    test_assert(equeue_cancel_user_allocated(&q, &e3.e));
 
     equeue_dispatch(&q, 1);
 
@@ -848,6 +848,21 @@ void user_allocated_event_test()
     test_assert(false == e3.touched);
     test_assert(true == e4.touched);
     test_assert(true == e5.touched);
+
+    equeue_destroy(&q);
+}
+
+void id_cycle()
+{
+    equeue_t q;
+    int err = equeue_create(&q, 10000000);
+    test_assert(!err);
+
+    for (int i = 0; i < 300; i++) {
+        int id = equeue_call(&q, pass_func, 0);
+        test_assert(id != 0);
+        test_assert(equeue_cancel(&q, id));
+    }
 
     equeue_destroy(&q);
 }
@@ -881,6 +896,7 @@ int main()
     test_run(break_request_cleared_on_timeout);
     test_run(sibling_test);
     test_run(user_allocated_event_test);
+    test_run(id_cycle);
     printf("done!\n");
     return test_failure;
 }

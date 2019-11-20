@@ -1866,7 +1866,7 @@
 #endif
 // <o> NRFX_GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS - Number of lower power input pins 
 #ifndef NRFX_GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS
-#define NRFX_GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS 1
+#define NRFX_GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS 4
 #endif
 
 // <o> NRFX_GPIOTE_CONFIG_IRQ_PRIORITY  - Interrupt priority
@@ -4450,6 +4450,18 @@
 #ifndef NRFX_WDT_CONFIG_LOG_LEVEL
 #define NRFX_WDT_CONFIG_LOG_LEVEL 3
 #endif
+
+
+// <e> NRFX_WDT_CONFIG_NO_IRQ - Remove WDT IRQ handling from WDT driver.
+//==========================================================
+
+// <0=> Include WDT IRQ handling
+// <1=> Remove WDT IRQ handling
+
+#ifndef NRFX_WDT_CONFIG_NO_IRQ
+#define NRFX_WDT_CONFIG_NO_IRQ 1
+#endif
+
 
 // <o> NRFX_WDT_CONFIG_INFO_COLOR  - ANSI escape code prefix.
  

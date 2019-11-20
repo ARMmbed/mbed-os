@@ -177,8 +177,8 @@ typedef enum {
     A1 = P0_23,
     A2 = P0_0,
     A3 = P1_31,
-    A4 = P0_14,
-    A5 = P0_13,
+    A4 = P0_13,
+    A5 = P0_14,
 
     //SPI Pins configuration
     SPI_MOSI    = D11,

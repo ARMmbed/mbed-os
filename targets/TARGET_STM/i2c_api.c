@@ -214,6 +214,11 @@ void i2c_hw_reset(i2c_t *obj)
     // wait before reset
     timeout = BYTE_TIMEOUT;
     while ((__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BUSY)) && (--timeout != 0));
+#if defined(DUAL_CORE)
+    timeout = HSEM_TIMEOUT;
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    }
+#endif /* DUAL_CORE */
 #if defined I2C1_BASE
     if (obj_s->i2c == I2C_1) {
         __HAL_RCC_I2C1_FORCE_RESET();
@@ -244,6 +249,9 @@ void i2c_hw_reset(i2c_t *obj)
         __HAL_RCC_FMPI2C1_RELEASE_RESET();
     }
 #endif
+#if defined(DUAL_CORE)
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
 }
 
 void i2c_sw_reset(i2c_t *obj)
@@ -381,30 +389,43 @@ void i2c_frequency(i2c_t *obj, int hz)
 
     // Enable the Fast Mode Plus capability
     if (hz == 1000000) {
-#if defined(I2C1_BASE) && defined(__HAL_SYSCFG_FASTMODEPLUS_ENABLE) && defined (I2C_FASTMODEPLUS_I2C1)
+#if defined(I2C1_BASE) && defined(I2C_FASTMODEPLUS_I2C1)  // sometimes I2C_FASTMODEPLUS_I2Cx is define even if not supported by the chip
+#if defined(SYSCFG_CFGR1_I2C_FMP_I2C1) || defined(SYSCFG_CFGR1_I2C1_FMP) || defined(SYSCFG_PMC_I2C1_FMP) || defined(SYSCFG_PMCR_I2C1_FMP) || defined(SYSCFG_CFGR2_I2C1_FMP)
         if (obj_s->i2c == I2C_1) {
             HAL_I2CEx_EnableFastModePlus(I2C_FASTMODEPLUS_I2C1);
         }
 #endif
-#if defined(I2C2_BASE) && defined(__HAL_SYSCFG_FASTMODEPLUS_ENABLE) && defined (I2C_FASTMODEPLUS_I2C2)
+#endif
+#if defined(I2C2_BASE) && defined(I2C_FASTMODEPLUS_I2C2)  // sometimes I2C_FASTMODEPLUS_I2Cx is define even if not supported by the chip
+#if defined(SYSCFG_CFGR1_I2C_FMP_I2C2) || defined(SYSCFG_CFGR1_I2C2_FMP) || defined(SYSCFG_PMC_I2C2_FMP) || defined(SYSCFG_PMCR_I2C2_FMP) || defined(SYSCFG_CFGR2_I2C2_FMP)
         if (obj_s->i2c == I2C_2) {
             HAL_I2CEx_EnableFastModePlus(I2C_FASTMODEPLUS_I2C2);
         }
 #endif
-#if defined(I2C3_BASE) && defined(__HAL_SYSCFG_FASTMODEPLUS_ENABLE) && defined (I2C_FASTMODEPLUS_I2C3)
+#endif
+#if defined(I2C3_BASE) && defined (I2C_FASTMODEPLUS_I2C3)  // sometimes I2C_FASTMODEPLUS_I2Cx is define even if not supported by the chip
+#if defined(SYSCFG_CFGR1_I2C_FMP_I2C3) || defined(SYSCFG_CFGR1_I2C3_FMP) || defined(SYSCFG_PMC_I2C3_FMP) || defined(SYSCFG_PMCR_I2C3_FMP) || defined(SYSCFG_CFGR2_I2C3_FMP)
         if (obj_s->i2c == I2C_3) {
             HAL_I2CEx_EnableFastModePlus(I2C_FASTMODEPLUS_I2C3);
         }
 #endif
-#if defined(I2C4_BASE) && defined(__HAL_SYSCFG_FASTMODEPLUS_ENABLE) && defined (I2C_FASTMODEPLUS_I2C4)
+#endif
+#if defined(I2C4_BASE) && defined (I2C_FASTMODEPLUS_I2C4)  // sometimes I2C_FASTMODEPLUS_I2Cx is define even if not supported by the chip
+#if defined(SYSCFG_CFGR1_I2C_FMP_I2C4) || defined(SYSCFG_CFGR1_I2C4_FMP) || defined(SYSCFG_PMC_I2C4_FMP) || defined(SYSCFG_PMCR_I2C4_FMP) || defined(SYSCFG_CFGR2_I2C4_FMP)
         if (obj_s->i2c == I2C_4) {
             HAL_I2CEx_EnableFastModePlus(I2C_FASTMODEPLUS_I2C4);
         }
+#endif
 #endif
     }
 #endif //I2C_IP_VERSION_V2
 
     /*##-1- Configure the I2C clock source. The clock is derived from the SYSCLK #*/
+#if defined(DUAL_CORE)
+    timeout = HSEM_TIMEOUT;
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    }
+#endif /* DUAL_CORE */
 #if defined(I2C1_BASE) && defined (__HAL_RCC_I2C1_CONFIG)
     if (obj_s->i2c == I2C_1) {
         __HAL_RCC_I2C1_CONFIG(I2CAPI_I2C1_CLKSRC);
@@ -425,6 +446,9 @@ void i2c_frequency(i2c_t *obj, int hz)
         __HAL_RCC_I2C4_CONFIG(I2CAPI_I2C4_CLKSRC);
     }
 #endif
+#if defined(DUAL_CORE)
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
 
 #ifdef I2C_ANALOGFILTER_ENABLE
     /* Enable the Analog I2C Filter */

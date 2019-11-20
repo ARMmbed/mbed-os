@@ -686,7 +686,7 @@ typedef volatile unsigned short vu16;
 #include "m2351_qei.h"
 #include "m2351_can.h"
 #include "m2351_scu.h"
-#include "m2351_bootloader.h"
+#include "m2351_mkromlib.h"
 
 #endif  /* __M2351_H__ */
 

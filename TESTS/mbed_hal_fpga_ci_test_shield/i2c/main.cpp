@@ -437,11 +437,11 @@ void i2c_test_byte_read(PinName sda, PinName scl)
 }
 
 Case cases[] = {
-    Case("i2c - init/free test all pins", all_ports<I2CPort, DefaultFormFactor, test_i2c_init_free>),
-    Case("i2c - test write i2c API", all_peripherals<I2CPort, DefaultFormFactor, i2c_test_write>),
-    Case("i2c - test read i2c API", all_peripherals<I2CPort, DefaultFormFactor, i2c_test_read>),
-    Case("i2c - test single byte write i2c API", all_peripherals<I2CPort, DefaultFormFactor, i2c_test_byte_write>),
-    Case("i2c - test single byte read i2c API", all_peripherals<I2CPort, DefaultFormFactor, i2c_test_byte_read>)
+    Case("i2c - init/free test all pins", one_peripheral<I2CPort, DefaultFormFactor, test_i2c_init_free>),
+    Case("i2c - test write i2c API", one_peripheral<I2CPort, DefaultFormFactor, i2c_test_write>),
+    Case("i2c - test read i2c API", one_peripheral<I2CPort, DefaultFormFactor, i2c_test_read>),
+    Case("i2c - test single byte write i2c API", one_peripheral<I2CPort, DefaultFormFactor, i2c_test_byte_write>),
+    Case("i2c - test single byte read i2c API", one_peripheral<I2CPort, DefaultFormFactor, i2c_test_byte_read>)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

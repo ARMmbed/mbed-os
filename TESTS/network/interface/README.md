@@ -155,10 +155,14 @@ Test `NetworkInterface::get_connection_status()`.
 1.  Check that `get_connection_status()` returns status `NSAPI_STATUS_DISCONNECTED`.
 2.  Connect interface.
 3.  Poll the `get_connection_status()` until it returns status `NSAPI_STATUS_GLOBAL_UP`.
-4.  Disconnect interface.
-5.  Check that `get_connection_status()` returns status `NSAPI_STATUS_DISCONNECTED`.
-6.  Repeat connect and disconnect steps 2 to 5 four times.
+4.  (IPv6 only) Get IPv6 link local address using `get_ipv6_link_local_address` API.
+5.  (IPv6 only) Check that `get_ipv6_link_local_address` returned status `NSAPI_ERROR_OK`.
+6.  (IPv6 only) Check that the IP address associated with the Socket Address is not `NULL`.
+7.  (IPv6 only) Check that the IP version of the IPv6 link local address is `NSAPI_IPv6`.
+8.  Disconnect interface.
+9.  Check that `get_connection_status()` returns status `NSAPI_STATUS_DISCONNECTED`.
+10. Repeat connect and disconnect steps 2 to 5 four times.
 
 **Expected result:**
 
-`Connect()` and `disconnect()` calls return `NSAPI_ERROR_OK`. The right status is returned by `get_connection_status()`.
+`Connect()`, `get_ipv6_link_local_address` and `disconnect()` calls return `NSAPI_ERROR_OK`. The right status is returned by `get_connection_status()`. And the right IPv6 link local address is returned by `get_ipv6_link_local_address`.

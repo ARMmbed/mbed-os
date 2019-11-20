@@ -72,6 +72,30 @@ int64_t rtc_read_s(void);
 __NONSECURE_ENTRY
 void rtc_write_s(int64_t t);
 
+/* trng_init (secure version)
+ *
+ * Its synopsis is the same as normal version except change of return/argument type for
+ * binary-compatible across compilers.
+ */
+__NONSECURE_ENTRY
+void trng_init_s(void *obj);
+
+/* trng_free (secure version)
+ *
+ * Its synopsis is the same as normal version except change of return/argument type for
+ * binary-compatible across compilers.
+ */
+__NONSECURE_ENTRY
+void trng_free_s(void *obj);
+
+/* trng_get_bytes (secure version)
+ *
+ * Its synopsis is the same as normal version except change of return/argument type for
+ * binary-compatible across compilers.
+ */
+__NONSECURE_ENTRY
+int32_t trng_get_bytes_s(void *obj, uint8_t *output, uint32_t length, uint32_t *output_length);
+
 #ifdef __cplusplus
 }
 #endif

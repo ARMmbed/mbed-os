@@ -28,6 +28,7 @@
 #include "utest/utest_stack_trace.h"
 #include "tls_tests.h"
 #include "cert.h"
+#include "CellularDevice.h"
 
 #ifndef ECHO_SERVER_ADDR
 #error [NOT_SUPPORTED] Requires parameters for echo server
@@ -66,13 +67,13 @@ static void _ifup()
     NetworkInterface *net = NetworkInterface::get_default_instance();
     nsapi_error_t err = net->connect();
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
-    printf("MBED: TLSClient IP address is '%s'\n", net->get_ip_address() ? net->get_ip_address() : "null");
+    tr_info("MBED: TLSClient IP address is '%s'\n", net->get_ip_address() ? net->get_ip_address() : "null");
 }
 
 static void _ifdown()
 {
     NetworkInterface::get_default_instance()->disconnect();
-    printf("MBED: ifdown\n");
+    tr_info("MBED: ifdown\n");
 }
 
 nsapi_error_t tlssocket_connect_to_srv(TLSSocket &sock, uint16_t port)
@@ -82,23 +83,23 @@ nsapi_error_t tlssocket_connect_to_srv(TLSSocket &sock, uint16_t port)
     NetworkInterface::get_default_instance()->gethostbyname(ECHO_SERVER_ADDR, &tls_addr);
     tls_addr.set_port(port);
 
-    printf("MBED: Server '%s', port %d\n", tls_addr.get_ip_address(), tls_addr.get_port());
+    tr_info("MBED: Server '%s', port %d\n", tls_addr.get_ip_address(), tls_addr.get_port());
 
     nsapi_error_t err = sock.set_root_ca_cert(tls_global::cert);
     if (err != NSAPI_ERROR_OK) {
-        printf("Error from sock.set_root_ca_cert: %d\n", err);
+        tr_error("Error from sock.open: %d\n", err);
         return err;
     }
 
     err = sock.open(NetworkInterface::get_default_instance());
     if (err != NSAPI_ERROR_OK) {
-        printf("Error from sock.open: %d\n", err);
+        tr_error("Error from sock.set_root_ca_cert: %d\n", err);
         return err;
     }
 
     err = sock.connect(tls_addr);
     if (err != NSAPI_ERROR_OK) {
-        printf("Error from sock.connect: %d\n", err);
+        tr_error("Error from sock.connect: %d\n", err);
         return err;
     }
 
@@ -150,6 +151,11 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(tls_global::TESTS_TIMEOUT, "default_auto");
     _ifup();
+
+#ifdef MBED_CONF_APP_BAUD_RATE
+    CellularDevice::get_default_instance()->set_baud_rate(MBED_CONF_APP_BAUD_RATE);
+#endif
+
     tc_bucket.start();
     return greentea_test_setup_handler(number_of_cases);
 }

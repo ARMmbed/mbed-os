@@ -23,11 +23,20 @@
 
 static uint32_t GetSector(uint32_t Address);
 static uint32_t GetSectorSize(uint32_t Sector);
+static uint32_t GetSectorBase(uint32_t SectorId);
 
 int32_t flash_init(flash_t *obj)
 {
+#if defined(DUAL_CORE)
+    uint32_t timeout = HSEM_TIMEOUT;
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_FLASH_SEMID) && (--timeout != 0)) {
+    }
+#endif /* DUAL_CORE */
     /* Clear pending flags (if any) */
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGSERR | FLASH_FLAG_WRPERR);
+#if defined(DUAL_CORE)
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_FLASH_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
     return 0;
 }
 
@@ -49,7 +58,15 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
         return -1;
     }
 
+#if defined(DUAL_CORE)
+    uint32_t timeout = HSEM_TIMEOUT;
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_FLASH_SEMID) && (--timeout != 0)) {
+    }
+#endif /* DUAL_CORE */
     if (HAL_FLASH_Unlock() != HAL_OK) {
+#if defined(DUAL_CORE)
+        LL_HSEM_ReleaseLock(HSEM, CFG_HW_FLASH_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
         return -1;
     }
 
@@ -75,8 +92,13 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
         }
     }
 
-    HAL_FLASH_Lock();
+    SCB_CleanInvalidateDCache_by_Addr((uint32_t *)GetSectorBase(SectorId), GetSectorSize(SectorId));
+    SCB_InvalidateICache();
 
+    HAL_FLASH_Lock();
+#if defined(DUAL_CORE)
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_FLASH_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
     return status;
 }
 
@@ -85,6 +107,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data,
 {
     uint32_t StartAddress = 0;
     int32_t status = 0;
+    uint32_t FullSize = size;
 
     if ((address >= (FLASH_BASE + FLASH_SIZE)) || (address < FLASH_BASE)) {
         return -1;
@@ -95,7 +118,15 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data,
         return -1;
     }
 
+#if defined(DUAL_CORE)
+    uint32_t timeout = HSEM_TIMEOUT;
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_FLASH_SEMID) && (--timeout != 0)) {
+    }
+#endif /* DUAL_CORE */
     if (HAL_FLASH_Unlock() != HAL_OK) {
+#if defined(DUAL_CORE)
+        LL_HSEM_ReleaseLock(HSEM, CFG_HW_FLASH_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
         return -1;
     }
 
@@ -109,7 +140,13 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data,
         }
     }
 
+    SCB_CleanInvalidateDCache_by_Addr((uint32_t *)StartAddress, FullSize);
+    SCB_InvalidateICache();
+
     HAL_FLASH_Lock();
+#if defined(DUAL_CORE)
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_FLASH_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
 
     return status;
 }
@@ -182,6 +219,22 @@ static uint32_t GetSector(uint32_t Address)
 static uint32_t GetSectorSize(uint32_t Sector)
 {
     return (uint32_t)(128 * 1024); // 128 KB
+}
+
+/**
+  * @brief  Gets sector base address
+  * @param  SectorId
+  * @retval base address of a given sector
+  */
+static uint32_t GetSectorBase(uint32_t SectorId)
+{
+    uint32_t i = 0;
+    uint32_t address_sector = FLASH_BASE;
+
+    for (i = 0; i < SectorId; i++) {
+        address_sector += GetSectorSize(i);
+    }
+    return address_sector;
 }
 
 uint8_t flash_get_erase_value(const flash_t *obj)

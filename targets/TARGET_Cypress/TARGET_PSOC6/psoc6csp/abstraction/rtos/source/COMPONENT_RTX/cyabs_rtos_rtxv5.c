@@ -803,7 +803,7 @@ cy_rslt_t cy_rtos_get_time(cy_time_t *tval)
 
         /* Convert ticks count to time in milliseconds */
         if (tick_freq != 0)
-            *tval = ((osKernelGetTickCount() * 1000) / tick_freq);
+            *tval = (cy_time_t)((osKernelGetTickCount() * 1000LL) / tick_freq);
         else
             status = CY_RTOS_GENERAL_ERROR;
     }

@@ -54,6 +54,7 @@ nsapi_error_t QUECTEL_M26::get_sim_state(SimState &state)
     _at->lock();
     nsapi_error_t err = _at->at_cmd_str("+CPIN", "?", buf, 13);
     tr_debug("CPIN: %s", buf);
+    _at->unlock();
 
     if (memcmp(buf, "READY", 5) == 0) {
         state = SimStateReady;

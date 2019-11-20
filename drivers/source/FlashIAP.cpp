@@ -99,6 +99,7 @@ int FlashIAP::program(const void *buffer, uint32_t addr, uint32_t size)
     uint32_t page_size = get_page_size();
     uint32_t flash_size = flash_get_size(&_flash);
     uint32_t flash_start_addr = flash_get_start_address(&_flash);
+    uint8_t flash_erase_value = flash_get_erase_value(&_flash);
     uint32_t chunk, prog_size;
     const uint8_t *buf = (uint8_t *) buffer;
     const uint8_t *prog_buf;
@@ -123,7 +124,7 @@ int FlashIAP::program(const void *buffer, uint32_t addr, uint32_t size)
             chunk = std::min(chunk, page_size);
             memcpy(_page_buf, buf, chunk);
             if (chunk < page_size) {
-                memset(_page_buf + chunk, 0xFF, page_size - chunk);
+                memset(_page_buf + chunk, flash_erase_value, page_size - chunk);
             }
             prog_buf = _page_buf;
             prog_size = page_size;

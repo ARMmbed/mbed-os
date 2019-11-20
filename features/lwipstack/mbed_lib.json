@@ -21,6 +21,10 @@
             "help": "Address timeout mode; true: wait both stack's addresses; false: wait for preferred stack's address",
             "value": true
         },
+        "dhcp-timeout": {
+            "help": "DHCP timeout value",
+            "value": 60
+        },
         "ethernet-enabled": {
             "help": "Enable support for Ethernet interfaces",
             "value": true
@@ -74,16 +78,16 @@
             "value": 4
         },
         "memp-num-tcp-seg": {
-            "help": "Number of simultaneously queued TCP segments. Current default (used if null here) is set to 16 in opt.h, unless overridden by target Ethernet drivers.",
-            "value": null
+            "help": "Number of simultaneously queued TCP segments, see LWIP opt.h for more information. Current default is 16.",
+            "value": 16
         },
         "memp-num-tcpip-msg-inpkt": {
             "help": "Number of simultaneously queued TCP messages that are received",
             "value": 8
         },
         "tcp-mss": {
-            "help": "TCP Maximum segment size. Current default (used if null here) is set to 536 in opt.h, unless overridden by target Ethernet drivers.",
-            "value": null
+            "help": "TCP Maximum segment size, see LWIP opt.h for more information. Current default is 536.",
+            "value": 536
         },
         "tcpip-mbox-size": {
             "help": "TCPIP mailbox size",
@@ -98,20 +102,20 @@
             "value": 8
         },
         "tcp-snd-buf": {
-            "help": "TCP sender buffer space (bytes). Current default (used if null here) is set to (2 * TCP_MSS) in opt.h, unless overridden by target Ethernet drivers.",
-            "value": null
+            "help": "TCP sender buffer space (bytes), see LWIP's opt.h for more information. Current default is (2 * TCP_MSS).",
+            "value": "(2 * TCP_MSS)"
         },
         "tcp-wnd": {
-            "help": "TCP sender buffer space (bytes). Current default (used if null here) is set to (4 * TCP_MSS) in opt.h, unless overridden by target Ethernet drivers.",
-            "value": null
+            "help": "TCP sender buffer space (bytes), see LWIP's opt.h for more information. Current default is (4 * TCP_MSS).",
+            "value": "(4 * TCP_MSS)"
         },
         "tcp-maxrtx": {
-            "help": "Maximum number of retransmissions of data segments.",
+            "help": "Maximum number of retransmissions of data segments, see LWIP's opt.h for more information. Current default is 6.",
             "value": 6
         },
         "tcp-synmaxrtx": {
-            "help": "Maximum number of retransmissions of SYN segments. Current default (used if null here) is set to 6 in opt.h",
-            "value": null
+            "help": "Maximum number of retransmissions of SYN segments, see LWIP's opt.h for more information. Current default is 6.",
+            "value": 6
         },
         "tcp-close-timeout": {
             "help": "Maximum timeout (ms) for TCP close handshaking timeout",
@@ -122,16 +126,16 @@
             "value": "osPriorityNormal"
         },
         "pbuf-pool-size": {
-            "help": "Number of pbufs in pool - usually used for received packets, so this determines how much data can be buffered between reception and the application reading. If a driver uses PBUF_RAM for reception, less pool may be needed. Current default (used if null here) is set to 5 in lwipopts.h, unless overridden by target Ethernet drivers.",
-            "value": null
+            "help": "Number of pbufs in pool - usually used for received packets, so this determines how much data can be buffered between reception and the application reading, see LWIP's opt.h for more information. If a driver uses PBUF_RAM for reception, less pool may be needed. Current default  is 5.",
+            "value": 5
         },
         "pbuf-pool-bufsize": {
-            "help": "Size of pbufs in pool. If set to null, lwIP will base the size on the TCP MSS, which is 536 unless overridden by the target",
+            "help": "Size of pbufs in pool, see LWIP's opt.h for more information.",
             "value": null
         },
         "mem-size": {
-            "help": "Size of heap (bytes) - used for outgoing packets, and also used by some drivers for reception. Current default (used if null here) is set to 1600 in opt.h, unless overridden by target Ethernet drivers.",
-            "value": null
+            "help": "Size of heap (bytes) - used for outgoing packets, and also used by some drivers for reception, see LWIP's opt.h for more information. Current default is 1600.",
+            "value": 1600
         },
         "tcpip-thread-stacksize": {
             "help": "Stack size for lwip TCPIP thread",
@@ -144,6 +148,14 @@
         "ppp-thread-stacksize": {
             "help": "Thread stack size for PPP (obsolete: use netsocket/ppp configuration instead)",
             "value": 768
+        },
+        "num-pbuf": {
+            "help": "Number of non-pool pbufs, each needs 92 bytes of RAM, see LWIP's opt.h for more information. Current default is 8.",
+            "value": 8
+        },
+        "num-netbuf": {
+            "help": "Number of netbufs, each netbuf requires 64 bytes of RAM, see LWIP's opt.h for more information. Current default is 8.",
+            "value": 8
         }
     },
     "target_overrides": {

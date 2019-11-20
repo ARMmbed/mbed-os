@@ -69,7 +69,7 @@ static void check_const_len_rand_sequence()
                 }
                 continue;
             } else if (sent < 0) {
-                printf("network error %d\n", sent);
+                tr_error("network error %d", sent);
                 TEST_FAIL();
                 goto END;
             }
@@ -82,7 +82,7 @@ static void check_const_len_rand_sequence()
             if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
                 continue;
             } else if (recvd < 0) {
-                printf("network error %d\n", recvd);
+                tr_error("network error %d", recvd);
                 TEST_FAIL();
                 goto END;
             }
@@ -126,7 +126,7 @@ static void check_var_len_rand_sequence()
                 }
                 continue;
             } else if (sent < 0) {
-                printf("[%02d] network error %d\n", i, sent);
+                tr_error("[%02d] network error %d", i, sent);
                 TEST_FAIL();
                 goto END;
             }
@@ -139,7 +139,7 @@ static void check_var_len_rand_sequence()
             if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
                 continue;
             } else if (recvd < 0) {
-                printf("[%02d] network error %d\n", i, recvd);
+                tr_error("[%02d] network error %d", i, recvd);
                 TEST_FAIL();
                 goto END;
             }

@@ -58,10 +58,16 @@ void rtc_init(void)
     __HAL_RCC_PWR_CLK_ENABLE();
     HAL_PWR_EnableBkUpAccess();
 
+#if defined(DUAL_CORE)
+    uint32_t timeout = HSEM_TIMEOUT;
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    }
+#endif /* DUAL_CORE */
 #if MBED_CONF_TARGET_LSE_AVAILABLE
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
     RCC_OscInitStruct.LSEState       = RCC_LSE_ON;
+
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         error("Cannot initialize RTC with LSE\n");
     }
@@ -93,6 +99,9 @@ void rtc_init(void)
         error("PeriphClkInitStruct RTC failed with LSI\n");
     }
 #endif /* MBED_CONF_TARGET_LSE_AVAILABLE */
+#if defined(DUAL_CORE)
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
 
     // Enable RTC
     __HAL_RCC_RTC_ENABLE();

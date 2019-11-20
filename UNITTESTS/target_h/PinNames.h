@@ -36,8 +36,13 @@ typedef enum {
 typedef enum {
 } PinMode;
 
+typedef enum {
+    PortA = 0,
+} PortName;
+
 #ifdef __cplusplus
 }
 #endif
+#include "pinmap.h"
 
 #endif

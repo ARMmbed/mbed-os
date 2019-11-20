@@ -92,6 +92,40 @@ void analogin_init(analogin_t *obj, PinName pin)
     eadc_modinit_mask |= 1 << chn;
 }
 
+void analogin_free(analogin_t *obj)
+{
+    const struct nu_modinit_s *modinit = get_modinit(obj->adc, adc_modinit_tab);
+    MBED_ASSERT(modinit->modname == (int) obj->adc);
+
+    /* Module subindex (aka channel) */
+    uint32_t chn =  NU_MODSUBINDEX(obj->adc);
+
+    EADC_T *eadc_base = (EADC_T *) NU_MODBASE(obj->adc);
+
+    /* Channel-level windup from here */
+
+    /* Mark channel free */
+    eadc_modinit_mask &= ~(1 << chn);
+
+    /* Module-level windup from here */
+
+    /* See analogin_init() for reason */
+    if (! eadc_modinit_mask) {
+        /* Disable EADC module */
+        EADC_Close(eadc_base);
+
+        /* Disable IP clock
+         *
+         * NOTE: We must call secure version (from non-secure domain) because SYS/CLK regions are secure.
+         */
+        CLK_DisableModuleClock_S(modinit->clkidx);
+    }
+    
+    /* Free up pins */
+    gpio_set(obj->pin);
+    obj->pin = NC;
+}
+
 uint16_t analogin_read_u16(analogin_t *obj)
 {
     EADC_T *eadc_base = (EADC_T *) NU_MODBASE(obj->adc);

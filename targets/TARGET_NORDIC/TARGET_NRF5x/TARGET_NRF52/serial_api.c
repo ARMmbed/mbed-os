@@ -1009,6 +1009,21 @@ void serial_free(serial_t *obj)
         if (nordic_nrf5_uart_state[instance].usage_counter == 0) {
 
             nrf_uarte_disable(nordic_nrf5_uart_register[instance]);
+            
+            /* Turn NRF_UARTE0_BASE or NRF_UARTE1_BASE power off and on to reset peripheral. */
+            if (instance == 0) {
+                *(volatile uint32_t *)0x40002FFC = 0;
+                *(volatile uint32_t *)0x40002FFC;
+                *(volatile uint32_t *)0x40002FFC = 1;
+            }
+#if UART1_ENABLED
+            else {
+                *(volatile uint32_t *)0x40028FFC = 0;
+                *(volatile uint32_t *)0x40028FFC;
+                *(volatile uint32_t *)0x40028FFC = 1;
+            }
+#endif
+            
         }
     }
 }

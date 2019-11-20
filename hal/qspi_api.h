@@ -62,6 +62,13 @@ typedef enum qspi_address_size {
  */
 typedef uint8_t qspi_alt_size_t;
 
+// The following defines are provided for backwards compatibilty. New code should explicitly
+// specify the required number of alt bits.
+#define QSPI_CFG_ALT_SIZE_8 8u
+#define QSPI_CFG_ALT_SIZE_16 16u
+#define QSPI_CFG_ALT_SIZE_24 24u
+#define QSPI_CFG_ALT_SIZE_32 32u
+
 /** QSPI command
  *
  * Defines a frame format. It consists of instruction, address, alternative, dummy count and data

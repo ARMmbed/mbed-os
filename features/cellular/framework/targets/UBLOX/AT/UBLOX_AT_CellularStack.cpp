@@ -447,7 +447,7 @@ nsapi_error_t UBLOX_AT_CellularStack::gethostbyname(const char *host, SocketAddr
     if (address->set_ip_address(host)) {
         err = NSAPI_ERROR_OK;
     } else {
-#ifdef TARGET_UBLOX_C030_R41XM
+#ifdef UBX_MDM_SARA_R41XM
         _at.set_at_timeout(70000);
 #else
         _at.set_at_timeout(120000);

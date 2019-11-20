@@ -17,6 +17,7 @@
 
 #include "cy_usb_phy_hw.h"
 #include "mbed_assert.h"
+#include "mbed_power_mgmt.h"
 
 #if defined(DEVICE_USBDEVICE)
 
@@ -63,6 +64,10 @@ void USBPhyHw::init(USBPhyEvents *events)
 
     // Initialize instance to access class data
     instance = this;
+
+    if (this->events == NULL) {
+        sleep_manager_lock_deep_sleep();
+    }
 
     // Store events
     instance->events = events;
@@ -176,6 +181,12 @@ void USBPhyHw::usb_dev_execute_ep_callbacks(void)
 void USBPhyHw::deinit()
 {
     cyhal_usb_dev_free(&obj);
+
+    if (events != NULL) {
+        sleep_manager_unlock_deep_sleep();
+    }
+
+    events = NULL;
 }
 
 bool USBPhyHw::powered()

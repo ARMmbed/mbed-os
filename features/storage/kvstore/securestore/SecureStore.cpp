@@ -52,19 +52,19 @@ static const uint32_t security_flags = KVStore::REQUIRE_CONFIDENTIALITY_FLAG | K
 namespace {
 
 typedef struct {
-    uint16_t metadata_size;
-    uint16_t revision;
-    uint32_t data_size;
-    uint32_t create_flags;
-    uint8_t  iv[iv_size];
+    uint16_t metadata_size = 0u;
+    uint16_t revision = 0u;
+    uint32_t data_size = 0u;
+    uint32_t create_flags = 0u;
+    uint8_t  iv[iv_size] = { 0u };
 } record_metadata_t;
 
 // incremental set handle
 typedef struct {
     record_metadata_t metadata;
-    char *key;
-    uint32_t offset_in_data;
-    uint8_t ctr_buf[enc_block_size];
+    char *key = nullptr;
+    uint32_t offset_in_data = 0u;
+    uint8_t ctr_buf[enc_block_size] = { 0u };
     mbedtls_aes_context enc_ctx;
     mbedtls_cipher_context_t auth_ctx;
     KVStore::set_handle_t underlying_handle;

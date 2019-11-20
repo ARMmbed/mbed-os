@@ -25,7 +25,6 @@
 #include "nu_modutil.h"
 
 static uint32_t adc_modinit_mask = 0;
-volatile int adc_busy_flag = 0;
 
 static const struct nu_modinit_s adc_modinit_tab[] = {
     {ADC_0_0, ADC_MODULE, CLK_CLKSEL1_ADC_S_HIRC, CLK_ADC_CLK_DIVIDER(1), ADC_RST, ADC_IRQn, NULL},
@@ -58,13 +57,7 @@ void analogin_init(analogin_t *obj, PinName pin)
 
     ADC_T *adc_base = (ADC_T *) NU_MODBASE(obj->adc);
     uint32_t chn =  NU_MODSUBINDEX(obj->adc);
-    
-    // Wait for ADC is not busy, due to all ADC channels share the same module
-    while (adc_busy_flag != 0) {
-        wait_us(100);
-    }
-    adc_busy_flag = 1;
-    
+
     // NOTE: All channels (identified by ADCName) share a ADC module. This reset will also affect other channels of the same ADC module.
     if (! adc_modinit_mask) {
         // Select clock source of paired channels
@@ -88,63 +81,64 @@ void analogin_init(analogin_t *obj, PinName pin)
         // Just enable channel N
         adc_base->CHEN |= 1 << chn;
     }
-    
+
     adc_modinit_mask |= 1 << chn;
-    
-    adc_busy_flag = 0;
 }
 
-void analogin_deinit(PinName pin)
+void analogin_free(analogin_t *obj)
 {
-    analogin_t obj;
-    obj.adc = (ADCName) pinmap_peripheral(pin, PinMap_ADC);
-    MBED_ASSERT(obj.adc != (ADCName) NC);
+    const struct nu_modinit_s *modinit = get_modinit(obj->adc, adc_modinit_tab);
+    MBED_ASSERT(modinit->modname == (int) obj->adc);
 
-    const struct nu_modinit_s *modinit = get_modinit(obj.adc, adc_modinit_tab);
-    MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT((ADCName) modinit->modname == obj.adc);
-    
-    ADC_T *adc_base = (ADC_T *) NU_MODBASE(obj.adc);
-    uint32_t chn =  NU_MODSUBINDEX(obj.adc);
-    
-    // Wait for ADC is not busy, due to all ADC channels share the same module
-    while (adc_busy_flag != 0) {
-        wait_us(100);
-    }
-    adc_busy_flag = 1;
-    
-    // Disable channel N
+    /* Module subindex (aka channel) */
+    uint32_t chn =  NU_MODSUBINDEX(obj->adc);
+
+    ADC_T *adc_base = (ADC_T *) NU_MODBASE(obj->adc);
+
+    /* Channel-level windup from here */
+
+    /* Mark channel free */
+    adc_modinit_mask &= ~(1 << chn);
+
     adc_base->CHEN &= ~(1 << chn);
     adc_modinit_mask &= ~(1 << chn);
 
-    adc_busy_flag = 0;
+    /* Module-level windup from here */
+
+    /* See analogin_init() for reason */
+    if (! adc_modinit_mask) {
+        /* Disable ADC module */
+        ADC_Close(adc_base);
+
+        // Power off ADC
+        ADC_POWER_DOWN(adc_base);
+
+        /* Disable IP clock */
+        CLK_DisableModuleClock(modinit->clkidx);
+    }
+
+    /* Free up pins */
+    gpio_set(obj->pin);
+    obj->pin = NC;
 }
 
 uint16_t analogin_read_u16(analogin_t *obj)
 {
     ADC_T *adc_base = (ADC_T *) NU_MODBASE(obj->adc);
     uint32_t chn =  NU_MODSUBINDEX(obj->adc);
-    
-    // Wait for ADC is not busy, due to all ADC channels share the same module
-    while (adc_busy_flag != 0) {
-        wait_us(100);
-    }
-    adc_busy_flag = 1;
-    
+
     // Start the A/D conversion
     adc_base->CR |= ADC_CR_ADST_Msk;
     // Wait for conversion finish
     while (! ADC_GET_INT_FLAG(adc_base, ADC_ADF_INT) & ADC_ADF_INT) ;
     ADC_CLR_INT_FLAG(ADC, ADC_ADF_INT);
     uint16_t conv_res_12 = ADC_GET_CONVERSION_DATA(adc_base, chn);
-    
-    adc_busy_flag = 0;
-    
+
     // Just 12 bits are effective. Convert to 16 bits.
     // conv_res_12: 0000 b11b10b9b8 b7b6b5b4 b3b2b1b0
     // conv_res_16: b11b10b9b8 b7b6b5b4 b3b2b1b0 b11b10b9b8
     uint16_t conv_res_16 = (conv_res_12 << 4) | (conv_res_12 >> 8);
-    
+
     return conv_res_16;
 }
 

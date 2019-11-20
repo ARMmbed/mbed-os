@@ -155,10 +155,20 @@ void gpio_mode(gpio_t *obj, PinMode mode)
 
 inline void gpio_dir(gpio_t *obj, PinDirection direction)
 {
+#if defined(DUAL_CORE)
+    uint32_t timeout = HSEM_TIMEOUT;
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_GPIO_SEMID) && (--timeout != 0)) {
+    }
+#endif /* DUAL_CORE */
+
     if (direction == PIN_INPUT) {
         LL_GPIO_SetPinMode(obj->gpio, obj->ll_pin, LL_GPIO_MODE_INPUT);
     } else {
         LL_GPIO_SetPinMode(obj->gpio, obj->ll_pin, LL_GPIO_MODE_OUTPUT);
     }
+
+#if defined(DUAL_CORE)
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_GPIO_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
 }
 

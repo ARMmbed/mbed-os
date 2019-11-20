@@ -335,7 +335,7 @@ HAL_StatusTypeDef HAL_ADCEx_LinearCalibration_SetValue(ADC_HandleTypeDef *hadc, 
     /* Wait loop initialization and execution                                 */
     /* Note: Variable divided by 2 to compensate partially                    */
     /*       CPU processing cycles.                                           */
-    wait_loop_index = (ADC_STAB_DELAY_US * (SystemCoreClock / (1000000UL * 2UL)));
+    wait_loop_index = (ADC_STAB_DELAY_US * (SystemD1Clock / (1000000UL * 2UL)));
     while(wait_loop_index != 0UL)
     {
       wait_loop_index--;
@@ -2122,7 +2122,7 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef *hadc, ADC_I
             /* Note: Variable divided by 2 to compensate partially              */
             /*       CPU processing cycles, scaling in us split to not          */
             /*       exceed 32 bits register capacity and handle low frequency. */
-            wait_loop_index = ((LL_ADC_DELAY_TEMPSENSOR_STAB_US / 10UL) * (SystemCoreClock / (100000UL * 2UL)));
+            wait_loop_index = ((LL_ADC_DELAY_TEMPSENSOR_STAB_US / 10UL) * (SystemD1Clock / (100000UL * 2UL)));
             while(wait_loop_index != 0UL)
             {
               wait_loop_index--;
