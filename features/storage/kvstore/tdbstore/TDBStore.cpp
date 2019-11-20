@@ -148,6 +148,10 @@ TDBStore::~TDBStore()
 
 int TDBStore::read_area(uint8_t area, uint32_t offset, uint32_t size, void *buf)
 {
+    //Check that we are not crossing area boundary
+    if (offset + size > _size) {
+        return MBED_ERROR_READ_FAILED;
+    }
     int os_ret = _buff_bd->read(buf, _area_params[area].address + offset, size);
 
     if (os_ret) {
@@ -649,6 +653,15 @@ int TDBStore::set_finalize(set_handle_t handle)
 
     _free_space_offset = align_up(ih->bd_curr_offset, _prog_size);
 
+    // Safety check: If there seems to be valid keys on the free space
+    // we should erase one sector more, just to ensure that in case of power failure
+    // next init() would not extend the scan phase to that section as well.
+    os_ret = read_record(_active_area, _free_space_offset, 0, 0, 0, actual_data_size, 0,
+                          false, false, false, false, hash, flags, next_offset);
+    if (os_ret == MBED_SUCCESS) {
+        check_erase_before_write(_active_area, _free_space_offset, sizeof(record_header_t));
+    }
+
 end:
     if ((need_gc) && (ih->bd_base_offset != _master_record_offset)) {
         garbage_collection();
@@ -972,6 +985,7 @@ int TDBStore::increment_max_keys(void **ram_table)
     // Reallocate ram table with new size
     ram_table_entry_t *old_ram_table = (ram_table_entry_t *) _ram_table;
     ram_table_entry_t *new_ram_table = new ram_table_entry_t[_max_keys + 1];
+    memset(new_ram_table, 0, sizeof(ram_table_entry_t)*(_max_keys + 1));
 
     // Copy old content to new table
     memcpy(new_ram_table, old_ram_table, sizeof(ram_table_entry_t) * _max_keys);
@@ -1018,6 +1032,7 @@ int TDBStore::init()
     _max_keys = initial_max_keys;
 
     ram_table = new ram_table_entry_t[_max_keys];
+    memset(ram_table, 0, sizeof(ram_table_entry_t) * _max_keys);
     _ram_table = ram_table;
     _num_keys = 0;
 
@@ -1211,7 +1226,7 @@ int TDBStore::reset()
     _num_keys = 0;
     _free_space_offset = _master_record_offset;
     _active_area_version = 1;
-
+    memset(_ram_table, 0, sizeof(ram_table_entry_t) * _max_keys);
     // Write an initial master record on active area
     ret = write_master_record(_active_area, _active_area_version, _free_space_offset);
 
