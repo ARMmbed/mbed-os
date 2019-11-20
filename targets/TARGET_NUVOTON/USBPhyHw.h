@@ -57,16 +57,14 @@ public:
 
     virtual void process();
 
-private:
     USBPhyEvents *events;
+private:
     uint8_t *read_buffers[16];
     uint16_t read_sizes[16];
 
     bool endpoint_read_core(usb_ep_t endpoint, uint32_t max_packet);
     bool endpoint_read_result_core(usb_ep_t endpoint, uint8_t *data, uint32_t size, uint32_t *bytesRead);
 
-
-    static void _usbisr(void);
 };
 
 #endif

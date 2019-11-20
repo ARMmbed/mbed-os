@@ -36,8 +36,11 @@ static USBPhyHw *instance;
 #define MBED_CONF_TARGET_USB_DEVICE_HSUSBD 1  /* USB 2.0 Only */
 #endif
 
+extern "C" void USBD_IRQHandler(void);
+
 void chip_config(void)
 {
+
 #if defined(TARGET_M451)
     /* Enable USBD module clock */
     CLK_EnableModuleClock(USBD_MODULE);
@@ -180,12 +183,16 @@ void USBPhyHw::init(USBPhyEvents *events)
     chip_config();
     
     /* Initial USB engine */
+#if defined (TARGET_NANO100)
+    USBD->CTL = 0x29f;
+    USBD->PDMA |= USBD_PDMA_BYTEM_Msk;
+#else    
     USBD->ATTR = 0x7D0;
-
+#endif
     /* Set SE0 (disconnect) */
     USBD_SET_SE0();
 
-    NVIC_SetVector(USBD_IRQn, (uint32_t) &_usbisr);
+    NVIC_SetVector(USBD_IRQn, (uint32_t) &USBD_IRQHandler);
     NVIC_EnableIRQ(USBD_IRQn);
 
     instance = this;  
@@ -220,7 +227,12 @@ void USBPhyHw::connect()
     memset(read_sizes, 0, sizeof(read_sizes));
     memset((void *)s_ep_valid, 0, sizeof(s_ep_valid));
 
+
+#if defined (TARGET_NANO100)
+    USBD->BUFSEG = 0;
+#else
     USBD->STBUFSEG = 0;
+#endif    
 
     frame_cnt = 0;
 
@@ -254,17 +266,29 @@ void USBPhyHw::disconnect()
 {
     uint32_t volatile i = 0;
 
+#if defined (TARGET_NANO100)
+    SYS->IPRST_CTL2 = SYS_IPRST_CTL2_USBD_RST_Msk;
+#else
     SYS->IPRST1 =  SYS_IPRST1_USBDRST_Msk;
-
+#endif
     for(i=0;i<1000;i++)
         ;
 
+#if defined (TARGET_NANO100)
+    SYS->IPRST_CTL2 = 0;
+#else
     SYS->IPRST1 =  0;
+#endif
 
     s_ep_buf_ind = 0;
     
     /* Initial USB engine */
+#if defined (TARGET_NANO100)
+    USBD->CTL = 0x29f;
+    USBD->PDMA |= USBD_PDMA_BYTEM_Msk;
+#else    
     USBD->ATTR = 0x7D0;
+#endif
 
     /* Set SE0 (disconnect) */
     USBD_SET_SE0();
@@ -273,7 +297,13 @@ void USBPhyHw::disconnect()
     memset(read_sizes, 0, sizeof(read_sizes));
     memset((void *)s_ep_valid, 0, sizeof(s_ep_valid));
 
+
+#if defined (TARGET_NANO100)
+    USBD->BUFSEG = 0;
+#else
     USBD->STBUFSEG = 0;
+#endif
+
 
     frame_cnt = 0;
 
@@ -335,7 +365,11 @@ void USBPhyHw::set_address(uint8_t address)
 /* Wake upstream devices */
 void USBPhyHw::remote_wakeup()
 {
+#if defined (TARGET_NANO100)
+    USBD->CTL |= USBD_CTL_RWAKEUP_Msk;
+#else
     USBD->ATTR |= USBD_ATTR_RWAKEUP_Msk;
+#endif
 }
 
 /*
@@ -444,11 +478,11 @@ void USBPhyHw::ep0_write(uint8_t *buffer, uint32_t size)
 
 void stallEndpoint(uint8_t endpoint)
 {
-    uint32_t ep_hw_index = DESC_TO_LOG(endpoint);
-    if (ep_hw_index >= NUMBER_OF_PHYSICAL_ENDPOINTS)
+    uint32_t ep_logic_index = DESC_TO_LOG(endpoint);
+    if (ep_logic_index >= NUMBER_OF_LOGICAL_ENDPOINTS)
         return;
 
-    USBD_SetStall(NU_EPL2EPH(ep_hw_index));
+    USBD_SetStall(ep_logic_index);
 }
 
 /* Protocol stall on endpoint 0.
@@ -608,11 +642,18 @@ void USBPhyHw::process()
     uint32_t u32IntSts = USBD_GET_INT_FLAG();
     uint32_t u32State = USBD_GET_BUS_STATE();
 
+#if defined (TARGET_NANO100)   
+    if(u32IntSts & USBD_INTSTS_FLD_STS_Msk)
+#else
     if(u32IntSts & USBD_INTSTS_VBDETIF_Msk)
+#endif
     {
         // Floating detect
+#if defined (TARGET_NANO100)        
+        USBD_CLR_INT_FLAG(USBD_INTSTS_FLD_STS_Msk);
+#else
         USBD_CLR_INT_FLAG(USBD_INTSTS_VBDETIF_Msk);
-
+#endif
         if(USBD_IS_ATTACHED())
         {
             /* USB Plug In */
@@ -625,36 +666,58 @@ void USBPhyHw::process()
         }
     }
 
+#if defined (TARGET_NANO100)   
+    if(u32IntSts & USBD_INTSTS_BUS_STS_Msk)
+#else
     if(u32IntSts & USBD_INTSTS_BUSIF_Msk)
+#endif
     {
         /* Clear event flag */
+#if defined (TARGET_NANO100)           
+        USBD_CLR_INT_FLAG(USBD_INTSTS_BUS_STS_Msk);
+        if(u32State & USBD_BUSSTS_USBRST_Msk)
+#else
         USBD_CLR_INT_FLAG(USBD_INTSTS_BUSIF_Msk);
-
         if(u32State & USBD_ATTR_USBRST_Msk)
+#endif
         {
             /* Bus reset */
             USBD_ENABLE_USB();
-            USBD_SwReset();
+            
+            USBD_SwReset();      
 
             connect();
             events->reset();
         }
+
+#if defined (TARGET_NANO100)
+        if(u32State & USBD_BUSSTS_SUSPEND_Msk)
+#else
         if(u32State & USBD_ATTR_SUSPEND_Msk)
+#endif
         {
             /* Enable USB but disable PHY */
             USBD_DISABLE_PHY();
         }
+#if defined (TARGET_NANO100)
+        if(u32State & USBD_BUSSTS_RESUME_Msk)
+#else
         if(u32State & USBD_ATTR_RESUME_Msk)
+#endif        
         {
             /* Enable USB and enable PHY */
             USBD_ENABLE_USB();
         }
     }
 
+#if defined (TARGET_NANO100)
+    if(u32IntSts & USBD_INTSTS_USB_STS_Msk)
+#else
     if(u32IntSts & USBD_INTSTS_USBIF_Msk)
+#endif    
     {
         /* USB event */
-        if(u32IntSts & USBD_INTSTS_SETUP_Msk)
+        if(u32IntSts & USBD_INTSTS_SETUP_Msk)       
         {
             /* Setup packet */
             /* Clear event flag */
@@ -704,10 +767,10 @@ void USBPhyHw::process()
 #if defined(TARGET_M451)
                 ep_status = (USBD->EPSTS >> (ep_hw_index * 3 + 8)) & 0x7;
 #elif defined(TARGET_NANO100)
-                if(ep_hw_index < 5)
-                    ep_status = (USBD->EPSTS >> (ep_hw_index * 4) + 8) & 0x7;
+                if(ep_hw_index < 6)
+                    ep_status = (USBD->EPSTS >> (ep_hw_index * 4 + 8)) & 0xF;
                 else
-                    ep_status = (USBD->EPSTS2 >> ((ep_hw_index - 4) * 4)) & 0x7;
+                    ep_status = (USBD->EPSTS2 >> ((ep_hw_index - 6) * 4)) & 0x7;
 #elif defined(TARGET_M480) || defined(TARGET_M2351) || defined(TARGET_M261)   
                 if(ep_hw_index < 8)
                     ep_status = (USBD->EPSTS0 >> (ep_hw_index * 4)) & 0x7;
@@ -740,7 +803,7 @@ void USBPhyHw::process()
     }
 }
 
-void USBPhyHw::_usbisr(void)
+extern "C" void USBD_IRQHandler(void)
 {
     instance->events->start_process();
 }
@@ -765,8 +828,11 @@ static volatile int epComplete = 0;
 #elif defined (TARGET_NUC472)
 #define USBD_GET_EP_MAX_PAYLOAD(ep)       *((__IO uint32_t *) ((uint32_t)&USBD->EPAMPS + (uint32_t)(ep*0x28)))
 #define USBD_GET_EP_DATA_COUNT(ep)        *((__IO uint32_t *) ((uint32_t)&USBD->EPADATCNT + (uint32_t)(ep*0x28)))
-#define USBD_SET_EP_SHORT_PACKET(ep)      *((__IO uint32_t *) ((uint32_t)&USBD->EPARSPCTL+(uint32_t)(ep*0x28)))=((*((__IO uint32_t *)((uint32_t)&USBD->EPARSPCTL+(uint32_t)(ep*0x28))) & 0x10) | 0x40)
-#define USBD_GET_EP_INT_EN(ep)            *((__IO uint32_t *) ((uint32_t)&USBD->EPAINTEN + (uint32_t)(ep*0x28)))
+#define USBD_SET_EP_SHORT_PACKET(ep)      *((__IO uint32_t *) ((uint32_t)&USBD->EPARSPCTL + (uint32_t)(ep*0x28))) = ((*((__IO uint32_t *)((uint32_t)&USBD->EPARSPCTL+(uint32_t)(ep*0x28))) & 0x10) | 0x40)
+#define USBD_SET_EP_BUF_FLUSH(ep)         *((__IO uint32_t *) ((uint32_t)&USBD->EPARSPCTL + (uint32_t)(ep*0x28))) = USBD_EPRSPCTL_FLUSH_Msk
+#define USBD_GET_EP_INT_EN(ep)            *((__IO uint32_t *) ((uint32_t)&USBD->EPAINTEN  + (uint32_t)(ep*0x28)))
+#define USBD_GET_EP_INT(ep)               *((__IO uint32_t *) ((uint32_t)&USBD->EPAINTSTS + (uint32_t)(ep*0x28)))
+#define USBD_CLR_EP_INT(ep, intr)        (*((__IO uint32_t *) ((uint32_t)&USBD->EPAINTSTS + (uint32_t)(ep*0x28))) = (intr)) /*!<Enable EPx Interrupt  \hideinitializer */
 #endif
 
 static volatile uint32_t s_ep_compl = 0;
@@ -880,7 +946,7 @@ void USBPhyHw::init(USBPhyEvents *events)
     /* Set SE0 (disconnect) */
     USBD_SET_SE0();
 
-    NVIC_SetVector(USBD_IRQn, (uint32_t) &_usbisr);
+    NVIC_SetVector(USBD_IRQn, (uint32_t) &USBD_IRQHandler);
     NVIC_EnableIRQ(USBD_IRQn);
     
 #elif defined (TARGET_M480)
@@ -897,10 +963,10 @@ void USBPhyHw::init(USBPhyEvents *events)
     HSUSBD_SET_SE0();
 
 #if defined (TARGET_M480)
-    NVIC_SetVector(USBD20_IRQn, (uint32_t) &_usbisr);
+    NVIC_SetVector(USBD20_IRQn, (uint32_t) &USBD_IRQHandler);
     NVIC_EnableIRQ(USBD20_IRQn);
 #elif defined (TARGET_NUC472)
-    NVIC_SetVector(USBD_IRQn, (uint32_t) &_usbisr);
+    NVIC_SetVector(USBD_IRQn, (uint32_t) &USBD_IRQHandler);
     NVIC_EnableIRQ(USBD_IRQn);
 #endif
 #endif
@@ -964,7 +1030,7 @@ void USBPhyHw::connect()
     s_ep_buf_ind = s_ep0_max_packet_size;
 
     /* Enable USB/CEP interrupt */
-    USBD_ENABLE_USB_INT(USBD_GINTEN_USBIEN_Msk | USBD_GINTEN_CEPIEN_Msk);
+    USBD_ENABLE_USB_INT(USBD_GINTEN_USBIE_Msk | USBD_GINTEN_CEPIE_Msk);
     USBD_ENABLE_CEP_INT(USBD_CEPINTEN_SETUPPKIEN_Msk| USBD_CEPINTEN_STSDONEIEN_Msk);
 
     /* Enable BUS interrupt */
@@ -1276,25 +1342,25 @@ bool USBPhyHw::endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_
     switch (type) 
     {
         case USB_EP_TYPE_INT:
-            ep_type = USBD_EP_CFG_TYPE_INT;
+            ep_type = USB_EP_CFG_TYPE_INT;
             break;
 
         case USB_EP_TYPE_ISO:
-            ep_type = USBD_EP_CFG_TYPE_ISO;
+            ep_type = USB_EP_CFG_TYPE_ISO;
             break;
 
         default:
-            ep_type = USBD_EP_CFG_TYPE_BULK;
+            ep_type = USB_EP_CFG_TYPE_BULK;
     }
 
-    uint32_t ep_dir = ((endpoint & EP_DIR_Msk) == EP_DIR_IN) ? USBD_EP_CFG_DIR_IN : USBD_EP_CFG_DIR_OUT;
+    uint32_t ep_dir = ((endpoint & EP_DIR_Msk) == EP_DIR_IN) ? USB_EP_CFG_DIR_IN : USB_EP_CFG_DIR_OUT;
     USBD_ConfigEp(ep_hw_index, DESC_TO_LOG(endpoint), ep_type, ep_dir);
 
     /* Enable USB/EPX interrupt */
     // NOTE: Require USBD_GINTEN_EPAIE_Pos, USBD_GINTEN_EPBIE_Pos, ... USBD_GINTEN_EPLIE_Pos to be consecutive.
-    USBD_ENABLE_USB_INT(USBD->GINTEN | USBD_GINTEN_USBIEN_Msk |
-                          USBD_GINTEN_CEPIEN_Msk |
-                          1 << (ep_hw_index  + USBD_GINTEN_EPAIEN_Pos));
+    USBD_ENABLE_USB_INT(USBD->GINTEN | USBD_GINTEN_USBIE_Msk |
+                          USBD_GINTEN_CEPIE_Msk |
+                          1 << (ep_hw_index  + USBD_GINTEN_EPAIE_Pos));
 
     if (ep_dir != 0)
         USBD_ENABLE_EP_INT(ep_hw_index, USBD_EPINTEN_TXPKIEN_Msk);    
@@ -1332,7 +1398,7 @@ void USBPhyHw::endpoint_remove(usb_ep_t endpoint)
 {
     uint32_t ep_hw_index = NU_EPL2EPH(DESC_TO_LOG(endpoint));
 #if defined (TARGET_NUC472)
-    USBD->EP[ep_hw_index].EPCFG = USBD->EP[ep_hw_index].EPCFG  & ~USBD_EP_CFG_VALID;    
+    *((__IO uint32_t *) ((uint32_t)&USBD->EPACFG + (uint32_t)(ep_hw_index*0x28))) = (*((__IO uint32_t *)((uint32_t)&USBD->EPACFG+(uint32_t)(ep_hw_index*0x28))) & ~USB_EP_CFG_VALID);  
 #elif defined (TARGET_M480)
     HSUSBD->EP[ep_hw_index].EPCFG = HSUSBD->EP[ep_hw_index].EPCFG  & ~HSUSBD_EP_CFG_VALID;
 #endif
@@ -1348,9 +1414,9 @@ void USBPhyHw::endpoint_stall(usb_ep_t endpoint)
     uint32_t ep_hw_index = NU_EPL2EPH(ep_logic_index);
 #if defined (TARGET_NUC472)
     if(ep_logic_index == 0)
-        USBD_SetEpStall(CEP);
+        USBD_SetStall(0);
     else
-        USBD_SetEpStall(ep_hw_index);
+        USBD_SetStall(ep_logic_index);
 #elif defined (TARGET_M480)
     if(ep_logic_index == 0)
         HSUSBD_SetEpStall(CEP);
@@ -1369,7 +1435,7 @@ void USBPhyHw::endpoint_unstall(usb_ep_t endpoint)
     uint32_t ep_hw_index = NU_EPL2EPH(ep_logic_index);
 #if defined (TARGET_NUC472)
     if(ep_logic_index != 0)
-        USBD_ClearEpStall(ep_hw_index);
+        USBD_ClearStall(ep_logic_index);
 #elif defined (TARGET_M480)
     if(ep_logic_index != 0)
         HSUSBD_ClearEpStall(ep_hw_index);
@@ -1384,8 +1450,8 @@ bool USBPhyHw::endpoint_read(usb_ep_t endpoint, uint8_t *data, uint32_t size)
     uint32_t ep_hw_index = NU_EPL2EPH(ep_logic_index);
     read_buffers[ep_logic_index] = data;
     read_sizes[ep_logic_index] = size;
-#if defined (TARGET_NUC472)
-    USBD->EP[ep_hw_index].EPINTEN |= USBD_EPINTEN_RXPKIEN_Msk;
+#if defined (TARGET_NUC472)    
+    USBD_ENABLE_EP_INT(ep_hw_index, USBD_GET_EP_INT_EN(ep_hw_index) | USBD_EPINTEN_RXPKIEN_Msk);
 #elif defined (TARGET_M480)
     HSUSBD->EP[ep_hw_index].EPINTEN |= HSUSBD_EPINTEN_RXPKIEN_Msk;
 #endif
@@ -1428,14 +1494,6 @@ bool USBPhyHw::endpoint_read_result_core(usb_ep_t endpoint, uint8_t *data, uint3
         return true;
     }
 
-#ifdef USBD_CPU_MODE 
-    for(i=0;i<gEpReadCnt;i++)
-#if defined (TARGET_NUC472)
-        data[i]  = USBD->EP[ep_hw_index].EPDAT_BYTE;
-#elif defined (TARGET_M480)
-        data[i]  = HSUSBD->EP[ep_hw_index].EPDAT_BYTE;
-#endif
-#else
     buffer = (uint32_t)data;
 
     if(buffer % 4)
@@ -1522,7 +1580,6 @@ bool USBPhyHw::endpoint_read_result_core(usb_ep_t endpoint, uint8_t *data, uint3
 #endif
 
     }
-#endif
     *bytes_read = gEpReadCnt;
     return true;
 }
@@ -1552,7 +1609,7 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
             return false;
 
 #if defined (TARGET_NUC472)
-        if(USBD->EP[ep_hw_index].EPDATCNT & 0xFFFF)
+        if(USBD_GET_EP_DATA_COUNT(ep_hw_index) & 0xFFFF)
         {
             USBD_SET_EP_SHORT_PACKET(ep_hw_index);
             return false;
@@ -1567,14 +1624,7 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 
         if(size < mps)
             g_usb_ShortPacket = 1;
-#ifdef USBD_CPU_MODE
-        for(i=0;i<size;i++)
-#if defined (TARGET_NUC472)
-            USBD->EP[ep_hw_index].EPDAT_BYTE = data[i];
-#elif defined (TARGET_M480)
-            HSUSBD->EP[ep_hw_index].EPDAT_BYTE = data[i];
-#endif
-#else
+
         while(1)
         {
 #if defined (TARGET_NUC472)
@@ -1658,12 +1708,11 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
             }
 #endif
         }
-#endif
 
 #if defined (TARGET_NUC472)
         if(g_usb_ShortPacket)
             USBD_SET_EP_SHORT_PACKET(ep_hw_index);         
-    USBD->EP[ep_hw_index].EPINTEN |= USBD_EPINTEN_TXPKIEN_Msk;
+    USBD_ENABLE_EP_INT(ep_hw_index, USBD_GET_EP_INT_EN(ep_hw_index) | USBD_EPINTEN_TXPKIEN_Msk);
 #elif defined (TARGET_M480)
         if(g_usb_ShortPacket)
             HSUSBD_SET_EP_SHORT_PACKET(ep_hw_index);
@@ -1679,9 +1728,9 @@ void USBPhyHw::endpoint_abort(usb_ep_t endpoint)
    uint32_t ep_logic_index = DESC_TO_LOG(endpoint);
    uint32_t ep_hw_index = NU_EPL2EPH(ep_logic_index);
 #if defined (TARGET_NUC472)
-   USBD->EP[ep_hw_index].EPINTEN = 0;
-   USBD->EP[ep_hw_index].EPINTSTS = USBD->EP[ep_hw_index].EPINTSTS;
-   USBD->EP[ep_hw_index].EPRSPCTL = USBD_EPRSPCTL_FLUSH_Msk;
+   USBD_CLR_EP_INT(ep_hw_index, USBD_GET_EP_INT(ep_hw_index));
+   USBD_ENABLE_EP_INT(ep_hw_index, 0);
+   USBD_SET_EP_BUF_FLUSH(ep_hw_index);
 #elif defined (TARGET_M480)
    HSUSBD->EP[ep_hw_index].EPINTEN = 0;        
    HSUSBD->EP[ep_hw_index].EPINTSTS = HSUSBD->EP[ep_hw_index].EPINTSTS;
@@ -1935,15 +1984,14 @@ void USBPhyHw::process()
             /* Data Packet Transmitted */
             if (epxintsts & USBD_EPINTSTS_TXPKIF_Msk)
             {
-                USBD->EP[ep_hw_index].EPINTEN &= ~USBD_EPINTEN_TXPKIEN_Msk;
+                USBD_ENABLE_EP_INT(ep_hw_index, USBD_GET_EP_INT_EN(ep_hw_index) & ~USBD_EPINTEN_TXPKIEN_Msk);
                 events->in(NU_EPH2EPL(ep_hw_index) | EP_DIR_Msk);
-
             }
 
             /* Data Packet Received */
             if (epxintsts & USBD_EPINTSTS_RXPKIF_Msk)
             {
-                USBD->EP[ep_hw_index].EPINTEN &= ~USBD_EPINTEN_RXPKIEN_Msk;
+                USBD_ENABLE_EP_INT(ep_hw_index, USBD_GET_EP_INT_EN(ep_hw_index) & ~USBD_EPINTEN_RXPKIEN_Msk);
                 events->out(ep_logic_index);    
             }
 
@@ -2295,7 +2343,7 @@ void USBPhyHw::process()
 #endif
 }
 
-void USBPhyHw::_usbisr(void)
+extern "C" void USBD_IRQHandler(void)
 {
 #if defined (TARGET_NUC472)
      NVIC_DisableIRQ(USBD_IRQn);
