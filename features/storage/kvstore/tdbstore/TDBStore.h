@@ -501,17 +501,6 @@ private:
                               uint32_t &dist_to_end);
 
     /**
-     * @brief Check whether erase unit is erased (from offset until end of unit).
-     *
-     * @param[in]  area                  Area.
-     * @param[in]  offset                Offset in area.
-     * @param[out] erased                Unit is erased.
-     *
-     * @returns 0 for success, nonzero for failure.
-     */
-    int is_erase_unit_erased(uint8_t area, uint32_t offset, bool &erased);
-
-    /**
      * @brief Before writing a record, check whether you are crossing an erase unit.
      *        If you do, check if it's erased, and erase it if not.
      *
