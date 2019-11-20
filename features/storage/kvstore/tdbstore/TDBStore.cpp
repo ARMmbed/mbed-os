@@ -848,31 +848,9 @@ int TDBStore::garbage_collection()
     int ret;
     size_t ind;
 
-    ret = check_erase_before_write(1 - _active_area, 0, _master_record_offset + _master_record_size);
+    ret = reset_area(1 - _active_area);
     if (ret) {
         return ret;
-    }
-
-    ret = do_reserved_data_get(0, RESERVED_AREA_SIZE);
-
-    if (!ret) {
-        // Copy reserved data
-        to_offset = 0;
-        reserved_size = _master_record_offset;
-
-        while (reserved_size) {
-            chunk_size = std::min(work_buf_size, reserved_size);
-            ret = read_area(_active_area, to_offset, chunk_size, _work_buf);
-            if (ret) {
-                return ret;
-            }
-            ret = write_area(1 - _active_area, to_offset, chunk_size, _work_buf);
-            if (ret) {
-                return ret;
-            }
-            to_offset += chunk_size;
-            reserved_size -= chunk_size;
-        }
     }
 
     to_offset = _master_record_offset + _master_record_size;
@@ -1078,7 +1056,7 @@ int TDBStore::init()
         // Master record may be either corrupt or erased - either way erase it
         // (this will do nothing if already erased)
         if (ret == MBED_ERROR_INVALID_DATA_DETECTED) {
-            if (check_erase_before_write(area, _master_record_offset, _master_record_size, true)) {
+            if (reset_area(area)) {
                 MBED_ERROR(MBED_ERROR_READ_FAILED, "TDBSTORE: Unable to reset area at init");
             }
             area_state[area] = TDBSTORE_AREA_STATE_EMPTY;
@@ -1143,11 +1121,9 @@ int TDBStore::init()
         }
     }
 
-    reserved_ret = do_reserved_data_get(0, RESERVED_AREA_SIZE);
-
-    // If we either have a corrupt record somewhere, or the reserved area is corrupt,
-    // perform garbage collection to salvage all preceding records and/or clean reserved area.
-    if ((ret == MBED_ERROR_INVALID_DATA_DETECTED) || (reserved_ret == MBED_ERROR_INVALID_DATA_DETECTED)) {
+    // If we either have a corrupt record somewhere
+    // perform garbage collection to salvage all preceding records.
+    if ((ret == MBED_ERROR_INVALID_DATA_DETECTED)) {
         ret = garbage_collection();
         if (ret) {
             MBED_ERROR(ret, "TDBSTORE: Unable to perform GC at init");
@@ -1198,8 +1174,19 @@ int TDBStore::deinit()
 
 int TDBStore::reset_area(uint8_t area)
 {
+    uint8_t buf[RESERVED_AREA_SIZE + sizeof(reserved_trailer_t)];
+    int ret;
+    bool copy_reserved_data = do_reserved_data_get(buf, sizeof(buf), 0, buf + RESERVED_AREA_SIZE) == MBED_SUCCESS;
+
     // Erase reserved area and master record
-    return check_erase_before_write(area, 0, _master_record_offset + _master_record_size, true);
+    ret = check_erase_before_write(area, 0, _master_record_offset + _master_record_size, true);
+    if (ret) {
+        return ret;
+    }
+    if (copy_reserved_data) {
+        ret = write_area(area, 0, sizeof(buf), buf);
+    }
+    return ret;
 }
 
 int TDBStore::reset()
@@ -1215,7 +1202,7 @@ int TDBStore::reset()
 
     // Reset both areas
     for (area = 0; area < _num_areas; area++) {
-        ret = reset_area(area);
+        ret = check_erase_before_write(area, 0, _master_record_offset + _master_record_size, true);
         if (ret) {
             goto end;
         }
@@ -1362,7 +1349,7 @@ void TDBStore::update_all_iterators(bool added, uint32_t ram_table_ind)
 int TDBStore::reserved_data_set(const void *reserved_data, size_t reserved_data_buf_size)
 {
     reserved_trailer_t trailer;
-    int os_ret, ret = MBED_SUCCESS;
+    int ret;
 
     if (reserved_data_buf_size > RESERVED_AREA_SIZE) {
         return MBED_ERROR_INVALID_SIZE;
@@ -1370,16 +1357,9 @@ int TDBStore::reserved_data_set(const void *reserved_data, size_t reserved_data_
 
     _mutex.lock();
 
-    ret = do_reserved_data_get(0, RESERVED_AREA_SIZE);
-    if ((ret == MBED_SUCCESS) || (ret == MBED_ERROR_INVALID_DATA_DETECTED)) {
+    ret = do_reserved_data_get(0, 0);
+    if (ret == MBED_SUCCESS) {
         ret = MBED_ERROR_WRITE_FAILED;
-        goto end;
-    } else if (ret != MBED_ERROR_ITEM_NOT_FOUND) {
-        goto end;
-    }
-
-    ret = write_area(_active_area, 0, reserved_data_buf_size, reserved_data);
-    if (ret) {
         goto end;
     }
 
@@ -1387,91 +1367,79 @@ int TDBStore::reserved_data_set(const void *reserved_data, size_t reserved_data_
     trailer.data_size = reserved_data_buf_size;
     trailer.crc = calc_crc(initial_crc, reserved_data_buf_size, reserved_data);
 
-    ret = write_area(_active_area, RESERVED_AREA_SIZE, sizeof(trailer), &trailer);
-    if (ret) {
-        goto end;
+    /*
+     * Write to both areas
+     * Both must success, as they are required to be erased when TDBStore initializes
+     * its area
+     */
+    for (int i = 0; i < _num_areas; ++i) {
+        ret = write_area(i, 0, reserved_data_buf_size, reserved_data);
+        if (ret) {
+            goto end;
+        }
+        ret = write_area(i, RESERVED_AREA_SIZE, sizeof(trailer), &trailer);
+        if (ret) {
+            goto end;
+        }
+        ret = _buff_bd->sync();
+        if (ret) {
+            goto end;
+        }
     }
-
-    os_ret = _buff_bd->sync();
-    if (os_ret) {
-        ret = MBED_ERROR_WRITE_FAILED;
-        goto end;
-    }
-
+    ret = MBED_SUCCESS;
 end:
     _mutex.unlock();
     return ret;
 }
 
-int TDBStore::do_reserved_data_get(void *reserved_data, size_t reserved_data_buf_size, size_t *actual_data_size)
+int TDBStore::do_reserved_data_get(void *reserved_data, size_t reserved_data_buf_size, size_t *actual_data_size, void *copy_trailer)
 {
     reserved_trailer_t trailer;
-    uint8_t *buf;
+    uint8_t buf[RESERVED_AREA_SIZE];
     int ret;
-    bool erased = true;
-    size_t actual_size;
-    uint32_t crc = initial_crc;
-    uint32_t offset;
-    uint8_t blank = _buff_bd->get_erase_value();
+    uint32_t crc;
 
-    ret = read_area(_active_area, RESERVED_AREA_SIZE, sizeof(trailer), &trailer);
-    if (ret) {
-        return ret;
-    }
-
-    buf = reinterpret_cast <uint8_t *>(&trailer);
-    for (uint32_t i = 0; i < sizeof(trailer); i++) {
-        if (buf[i] != blank) {
-            erased = false;
-            break;
-        }
-    }
-
-    if (!erased) {
-        actual_size = trailer.data_size;
-        if (actual_data_size) {
-            *actual_data_size = actual_size;
-        }
-        if (reserved_data_buf_size < actual_size) {
-            return MBED_ERROR_INVALID_SIZE;
-        }
-    } else {
-        actual_size = std::min((size_t) RESERVED_AREA_SIZE, reserved_data_buf_size);
-    }
-
-    if (reserved_data) {
-        buf = reinterpret_cast <uint8_t *>(reserved_data);
-    } else {
-        buf = _work_buf;
-    }
-
-    offset = 0;
-
-    while (actual_size) {
-        uint32_t chunk = std::min(work_buf_size, (uint32_t) actual_size);
-        ret = read_area(_active_area, offset, chunk, buf + offset);
+    /*
+     * Try to keep reserved data identical on both areas, therefore
+     * we can return any of these data, if the checmsum is correct.
+     */
+    for (int i = 0; i < _num_areas; ++i) {
+        ret = read_area(i, RESERVED_AREA_SIZE, sizeof(trailer), &trailer);
         if (ret) {
             return ret;
         }
-        for (uint32_t i = 0; i < chunk; i++) {
-            if (buf[i] != blank) {
-                erased = false;
-                break;
-            }
+
+        // First validy check: is the trailer header size correct
+        if (trailer.trailer_size != sizeof(trailer)) {
+            continue;
+        }
+        // Second validy check: Is the data too big (corrupt header)
+        if (trailer.data_size > RESERVED_AREA_SIZE) {
+            continue;
         }
 
-        crc = calc_crc(crc, chunk, buf + offset);
-        offset += chunk;
-        actual_size -= chunk;
+        // Next, verify the checksum
+        ret = read_area(i, 0, trailer.data_size, buf);
+        if (ret) {
+            return ret;
+        }
+        crc = calc_crc(initial_crc, trailer.data_size, buf);
+        if (crc == trailer.crc) {
+            // Correct data, copy it and return to caller
+            if (reserved_data) {
+                memcpy(reserved_data, buf, trailer.data_size);
+            }
+            if (actual_data_size) {
+                *actual_data_size = trailer.data_size;
+            }
+            if (copy_trailer) {
+                memcpy(copy_trailer, &trailer, sizeof(trailer));
+            }
+            return MBED_SUCCESS;
+        }
     }
 
-    if (erased) {
-        return MBED_ERROR_ITEM_NOT_FOUND;
-    } else if (crc != trailer.crc) {
-        return MBED_ERROR_INVALID_DATA_DETECTED;
-    }
-
-    return MBED_SUCCESS;
+    return MBED_ERROR_ITEM_NOT_FOUND;
 }
 
 int TDBStore::reserved_data_get(void *reserved_data, size_t reserved_data_buf_size, size_t *actual_data_size)
