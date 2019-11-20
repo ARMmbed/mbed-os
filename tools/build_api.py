@@ -454,6 +454,7 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
     app_config - location of a chosen mbed_app.json file
     build_profile - a list of mergeable build profiles
     ignore - list of paths to add to mbedignore
+    coverage_patterns - list of patterns for code coverage
     """
 
     # We need to remove all paths which are repeated to avoid

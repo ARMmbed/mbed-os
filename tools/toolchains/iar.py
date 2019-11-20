@@ -44,7 +44,7 @@ class IAR(mbedToolchain):
         )
 
     def __init__(self, target, notify=None, macros=None, build_profile=None,
-                 build_dir=None):
+                 build_dir=None, coverage_patterns=None):
         mbedToolchain.__init__(
             self,
             target,

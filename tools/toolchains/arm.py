@@ -63,7 +63,7 @@ class ARM(mbedToolchain):
         return mbedToolchain.generic_check_executable("ARM", 'armcc', 2, 'bin')
 
     def __init__(self, target, notify=None, macros=None,
-                 build_profile=None, build_dir=None):
+                 build_profile=None, build_dir=None, coverage_patterns=None):
         mbedToolchain.__init__(
             self, target, notify, macros, build_dir=build_dir,
             build_profile=build_profile)
@@ -440,7 +440,8 @@ class ARM_STD(ARM):
             notify=None,
             macros=None,
             build_profile=None,
-            build_dir=None
+            build_dir=None,
+            coverage_patterns=None
     ):
         ARM.__init__(
             self,
@@ -448,7 +449,8 @@ class ARM_STD(ARM):
             notify,
             macros,
             build_dir=build_dir,
-            build_profile=build_profile
+            build_profile=build_profile,
+            coverage_patterns=None
         )
         if int(target.build_tools_metadata["version"]) > 0:
             # check only for ARMC5 because ARM_STD means using ARMC5, and thus
