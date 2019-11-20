@@ -96,3 +96,21 @@ TEST_F(TDBStoreModuleTest, set_deinit_init_get)
         EXPECT_EQ(tdb.remove("key"), MBED_SUCCESS);
     }
 }
+
+TEST_F(TDBStoreModuleTest, reserved_data)
+{
+    char data[20];
+    char buf[20];
+    for (int i = 0; i < sizeof(buf); ++i) {
+        data[i] = rand();
+    }
+    EXPECT_EQ(tdb.reserved_data_set(data, sizeof(data)), MBED_SUCCESS);
+    EXPECT_EQ(tdb.reserved_data_get(buf, sizeof(buf)), MBED_SUCCESS);
+    EXPECT_EQ(0, memcmp(data, buf, sizeof(buf)));
+    EXPECT_EQ(tdb.reserved_data_set(data, 1024), MBED_ERROR_INVALID_SIZE);
+    EXPECT_EQ(tdb.reserved_data_set(data, sizeof(data)), MBED_ERROR_WRITE_FAILED);
+    EXPECT_EQ(tdb.deinit(), MBED_SUCCESS);
+    EXPECT_EQ(tdb.init(), MBED_SUCCESS);
+    EXPECT_EQ(tdb.reserved_data_get(buf, sizeof(buf)), MBED_SUCCESS);
+    EXPECT_EQ(0, memcmp(data, buf, sizeof(buf)));
+}
