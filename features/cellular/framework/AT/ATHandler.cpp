@@ -1316,17 +1316,14 @@ void ATHandler::cmd_start_stop(const char *cmd, const char *cmd_chr, const char 
     cmd_stop();
 }
 
-nsapi_error_t ATHandler::at_cmd_str(const char *cmd, const char *cmd_chr, char *resp_buf, size_t buf_size, const char *format, ...)
+nsapi_error_t ATHandler::at_cmd_str_va(const char *cmd, const char *cmd_chr, const resp_buf_desc_t *resp_buf_desc, const int desc_count, const char *format, const va_list list)
 {
     MBED_ASSERT(strlen(cmd) < BUFF_SIZE);
     lock();
 
     handle_start(cmd, cmd_chr);
 
-    va_list list;
-    va_start(list, format);
     handle_args(format, list);
-    va_end(list);
 
     cmd_stop();
 
@@ -1339,10 +1336,47 @@ nsapi_error_t ATHandler::at_cmd_str(const char *cmd, const char *cmd_chr, char *
         resp_start();
     }
 
-    resp_buf[0] = '\0';
-    read_string(resp_buf, buf_size);
+    for (int i = 0; i < desc_count; i ++)
+    {
+        if (resp_buf_desc[i].resp_buf_ptr)
+        {
+            *(resp_buf_desc[i].resp_buf_ptr) = '\0';
+        }
+        read_string(resp_buf_desc[i].resp_buf_ptr, resp_buf_desc[i].resp_buf_size);
+    }
     resp_stop();
     return unlock_return_error();
+}
+
+nsapi_error_t ATHandler::at_cmd_str(const char *cmd, const char *cmd_chr, char *resp_buf, size_t buf_size, const char *format, ...)
+{
+    va_list list;
+    va_start(list, format);
+
+    resp_buf_desc_t resp_buf_desc;
+    resp_buf_desc.resp_buf_ptr = resp_buf;
+    resp_buf_desc.resp_buf_size = buf_size;
+
+    nsapi_error_t ret = at_cmd_str_va(cmd, cmd_chr, &resp_buf_desc, 1, format, list);
+    va_end(list);
+    return ret;
+}
+
+nsapi_error_t ATHandler::at_cmd_str(const char *cmd, const char *cmd_chr, char *resp_buf_0, size_t resp_buf_0_size, char *resp_buf_1, size_t resp_buf_1_size, const char *format, ...)
+{
+    va_list list;
+    va_start(list, format);
+
+    resp_buf_desc_t resp_buf_desc[2];
+
+    resp_buf_desc[0].resp_buf_ptr = resp_buf_0;
+    resp_buf_desc[0].resp_buf_size = resp_buf_0_size;
+    resp_buf_desc[1].resp_buf_ptr = resp_buf_1;
+    resp_buf_desc[1].resp_buf_size = resp_buf_1_size;
+
+    nsapi_error_t ret = at_cmd_str_va(cmd, cmd_chr, resp_buf_desc, 2, format, list);
+    va_end(list);
+    return ret;
 }
 
 nsapi_error_t ATHandler::at_cmd_int(const char *cmd, const char *cmd_chr, int &resp, const char *format, ...)

@@ -303,6 +303,20 @@ public:
     nsapi_error_t at_cmd_str(const char *cmd, const char *cmd_chr, char *resp_buf, size_t resp_buf_size, const char *format = "", ...);
 
     /**
+     * @brief at_cmd_str Send an AT command and read a single string response. Locks and unlocks ATHandler for operation
+     * @param cmd AT command in form +<CMD> (will be used also in response reading, no extra chars allowed)
+     * @param cmd_chr Char to be added to specific AT command: '?', '=' or ''. Will be used as such so '=1' is valid as well.
+     * @param resp_buf_0 First response buffer
+     * @param resp_buf_0_size First response buffer size
+     * @param resp_buf_1 Second response buffer
+     * @param resp_buf_1_size Second response buffer size
+     * @param format Format string for variadic arguments to be added to AT command; No separator needed.
+     *        Use %d for integer, %s for string and %b for byte string (requires 2 arguments: string and length)
+     * @return last error that happened when parsing AT responses
+     */
+    nsapi_error_t at_cmd_str(const char *cmd, const char *cmd_chr, char *resp_buf_0, size_t resp_buf_0_size, char *resp_buf_1, size_t resp_buf_1_size, const char *format = "", ...);
+
+    /**
      * @brief at_cmd_int Send an AT command and read a single integer response. Locks and unlocks ATHandler for operation
      * @param cmd AT command in form +<CMD> (will be used also in response reading, no extra chars allowed)
      * @param cmd_chr Char to be added to specific AT command: '?', '=' or ''. Will be used as such so '=1' is valid as well.
@@ -660,6 +674,13 @@ private:
         AT_TX
     };
     void debug_print(const char *p, int len, ATType type);
+
+    /** AT response buffer descriptor */
+    struct resp_buf_desc_t {
+        char  *resp_buf_ptr;
+        size_t resp_buf_size;
+    };
+    nsapi_error_t at_cmd_str_va(const char *cmd, const char *cmd_chr, const resp_buf_desc_t *resp_buf_desc, const int desc_count, const char *format, const va_list list);
 };
 
 } // namespace mbed
