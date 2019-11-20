@@ -188,7 +188,7 @@ int i2c_byte_read(i2c_t *obj, int last)
 int i2c_byte_write(i2c_t *obj, int data)
 {
     struct i2c_s *i2c = cy_get_i2c(obj);
-    cy_en_scb_i2c_status_t status;
+    cy_en_scb_i2c_status_t status = CY_SCB_I2C_SUCCESS;
 
     /* First byte should be address */
     if (i2c->address_set) {
@@ -196,11 +196,9 @@ int i2c_byte_write(i2c_t *obj, int data)
         /* Make sure that I2C transaction direction is 'Write' */
         if (i2c->hal_i2c.context.state == CY_SCB_I2C_IDLE) {
             status = Cy_SCB_I2C_MasterSendStart(i2c->hal_i2c.base, i2c->address, CY_SCB_I2C_WRITE_XFER, CY_I2C_DEFAULT_TIMEOUT, &(i2c->hal_i2c.context));
-            if (status == CY_SCB_I2C_SUCCESS) {
-                status = Cy_SCB_I2C_MasterWriteByte(i2c->hal_i2c.base, (uint8_t)data, CY_I2C_DEFAULT_TIMEOUT, &(i2c->hal_i2c.context));
-            }
-        } else {
-            /* No need to send slave address because it is done by previous operation, just send next data byte */
+        }
+
+        if (status == CY_SCB_I2C_SUCCESS) {
             status = Cy_SCB_I2C_MasterWriteByte(i2c->hal_i2c.base, (uint8_t)data, CY_I2C_DEFAULT_TIMEOUT, &(i2c->hal_i2c.context));
         }
     } else {
@@ -208,6 +206,7 @@ int i2c_byte_write(i2c_t *obj, int data)
         i2c->address = data >> 1;
         i2c->address_set = true;
     }
+
 
     switch (status) {
         case CY_SCB_I2C_MASTER_MANUAL_TIMEOUT:
