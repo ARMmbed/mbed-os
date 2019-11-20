@@ -317,7 +317,9 @@ bool STM32_EMAC::low_level_init_successful()
 }
 #else // ETH_IP_VERSION_V2
 {
-    uint32_t idx;
+    uint32_t idx, duplex, speed = 0;
+    int32_t PHYLinkState;
+    ETH_MACConfigTypeDef MACConf;
 
     MPU_Config();
 
