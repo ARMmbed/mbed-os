@@ -31,6 +31,7 @@
 #include "utest.h"
 #include "utest/utest_stack_trace.h"
 #include "udp_tests.h"
+#include "ip6string.h"
 
 #ifndef ECHO_SERVER_ADDR
 #error [NOT_SUPPORTED] Requires parameters for echo server
@@ -63,7 +64,16 @@ static void _ifup()
     NetworkInterface *net = NetworkInterface::get_default_instance();
     nsapi_error_t err = net->connect();
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
-    tr_info("MBED: UDPClient IP address is '%s'", net->get_ip_address() ? net->get_ip_address() : "null");
+    const char *address = net->get_ip_address();
+
+#define MESH 3
+#if MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == MESH
+    printf("Waiting for GLOBAL_UP\n");
+    while (net->get_connection_status() != NSAPI_STATUS_GLOBAL_UP) {
+        ThisThread::sleep_for(500);
+    }
+#endif
+    printf("MBED: UDPClient IP address is '%s'\n", address ? address : "null");
 }
 
 static void _ifdown()
