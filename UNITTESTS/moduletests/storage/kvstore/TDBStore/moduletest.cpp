@@ -72,7 +72,7 @@ TEST_F(TDBStoreModuleTest, reset)
     size_t size, read;
     // Write so much, that we are sure that garbage collection have kicked up
     for (int i = 0; i < 100; ++i) {
-        size = sprintf(buf, "data%d", i);
+        size = sprintf(buf, "reset_%d", i);
         EXPECT_EQ(tdb.set("key", buf, size, 0), MBED_SUCCESS);
     }
     EXPECT_EQ(tdb.reset(), MBED_SUCCESS);
@@ -80,6 +80,17 @@ TEST_F(TDBStoreModuleTest, reset)
     EXPECT_EQ(tdb.init(), MBED_SUCCESS);
     // After reset->deinit()->init() there should be no data
     EXPECT_NE(tdb.get("key", buf, 100, &read), MBED_SUCCESS);
+}
+
+TEST_F(TDBStoreModuleTest, remove)
+{
+    char buf[100];
+    size_t size;
+    EXPECT_EQ(tdb.set("key", "data1", 5, 0), MBED_SUCCESS);
+    EXPECT_EQ(tdb.set("key", "data2", 5, 0), MBED_SUCCESS);
+    EXPECT_EQ(tdb.remove("key"), MBED_SUCCESS);
+    // Previous key should not be found
+    EXPECT_NE(tdb.get("key", buf, 100, &size), MBED_SUCCESS);
 }
 
 TEST_F(TDBStoreModuleTest, set_deinit_init_get)
