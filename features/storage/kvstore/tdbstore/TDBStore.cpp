@@ -1146,7 +1146,7 @@ int TDBStore::reset_area(uint8_t area)
     bool copy_reserved_data = do_reserved_data_get(buf, sizeof(buf), 0, buf + RESERVED_AREA_SIZE) == MBED_SUCCESS;
 
     // Erase reserved area and master record
-    ret = check_erase_before_write(area, 0, _master_record_offset + _master_record_size, true);
+    ret = check_erase_before_write(area, 0, _master_record_offset + _master_record_size + _prog_size, true);
     if (ret) {
         return ret;
     }
@@ -1169,7 +1169,7 @@ int TDBStore::reset()
 
     // Reset both areas
     for (area = 0; area < _num_areas; area++) {
-        ret = check_erase_before_write(area, 0, _master_record_offset + _master_record_size, true);
+        ret = check_erase_before_write(area, 0, _master_record_offset + _master_record_size + _prog_size, true);
         if (ret) {
             goto end;
         }
