@@ -25,8 +25,8 @@
 
 //#include "cmsis.h"
 //#include <stdint.h>
+#include "rda_ccfg_api.h"
 
-extern void rda_ccfg_ckrst(void);
 extern void rda_wdt_softreset(void);
 #ifdef __cplusplus
 extern "C" {
@@ -38,7 +38,7 @@ extern "C" {
  */
 __NO_RETURN __STATIC_INLINE void __RDA5981_SystemReset(void)
 {
-	
+  rda_ccfg_perrst();
   rda_ccfg_ckrst () ;
   __DSB();                                                          /* Ensure all outstanding memory accesses included
                                                                        buffered write are completed before reset */
