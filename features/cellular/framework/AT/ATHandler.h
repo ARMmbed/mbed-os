@@ -303,7 +303,7 @@ public:
     nsapi_error_t at_cmd_str(const char *cmd, const char *cmd_chr, char *resp_buf, size_t resp_buf_size, const char *format = "", ...);
 
     /**
-     * @brief at_cmd_str Send an AT command and read a single string response. Locks and unlocks ATHandler for operation
+     * @brief at_cmd_str Send an AT command and read two-string response. Locks and unlocks ATHandler for operation
      * @param cmd AT command in form +<CMD> (will be used also in response reading, no extra chars allowed)
      * @param cmd_chr Char to be added to specific AT command: '?', '=' or ''. Will be used as such so '=1' is valid as well.
      * @param resp_buf_0 First response buffer
