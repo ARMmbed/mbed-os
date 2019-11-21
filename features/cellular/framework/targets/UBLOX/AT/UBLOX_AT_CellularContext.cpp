@@ -299,11 +299,6 @@ void UBLOX_AT_CellularContext::get_next_credentials(char **config)
     }
 }
 
-const char *UBLOX_AT_CellularContext::get_gateway()
-{
-    return get_ip_address();
-}
-
 nsapi_error_t UBLOX_AT_CellularContext::get_gateway(SocketAddress *addr)
 {
     return get_ip_address(addr);

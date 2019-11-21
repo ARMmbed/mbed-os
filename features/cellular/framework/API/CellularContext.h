@@ -122,8 +122,6 @@ public: // from NetworkInterface
     virtual nsapi_error_t set_blocking(bool blocking) = 0;
     virtual NetworkStack *get_stack() = 0;
     virtual nsapi_error_t get_ip_address(SocketAddress *address) = 0;
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual const char *get_ip_address() = 0;
 
     /** Register callback for status reporting.
      *

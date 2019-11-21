@@ -31,10 +31,6 @@ nsapi_error_t NetworkInterface::get_ip_address(SocketAddress *)
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
-const char *NetworkInterface::get_ip_address()
-{
-    return nullptr;
-}
 nsapi_error_t NetworkInterface::get_ipv6_link_local_address(SocketAddress *address)
 {
     return NSAPI_ERROR_UNSUPPORTED;
@@ -45,27 +41,12 @@ nsapi_error_t NetworkInterface::get_netmask(SocketAddress *)
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
-const char *NetworkInterface::get_netmask()
-{
-    return nullptr;
-}
-
 nsapi_error_t NetworkInterface::get_gateway(SocketAddress *)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
-const char *NetworkInterface::get_gateway()
-{
-    return nullptr;
-}
-
 nsapi_error_t NetworkInterface::set_network(const SocketAddress &ip_address, const SocketAddress &netmask, const SocketAddress &gateway)
-{
-    return NSAPI_ERROR_UNSUPPORTED;
-}
-
-nsapi_error_t NetworkInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }

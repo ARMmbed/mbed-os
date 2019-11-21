@@ -23,31 +23,6 @@
 // This class requires Mbed TLS SSL/TLS client code
 #if defined(MBEDTLS_SSL_CLI_C)
 
-nsapi_error_t DTLSSocket::connect(const char *host, uint16_t port)
-{
-    SocketAddress addr;
-    nsapi_error_t ret;
-
-    ret = _udp_socket.getpeername(&addr);
-    if (ret != NSAPI_ERROR_NO_CONNECTION) {
-        return ret;
-    }
-
-    if (!addr || ret == NSAPI_ERROR_NO_CONNECTION) {
-        nsapi_error_t err = _udp_socket._stack->gethostbyname(host, &addr);
-        if (err) {
-            return NSAPI_ERROR_DNS_FAILURE;
-        }
-
-        addr.set_port(port);
-
-        set_hostname(host);
-        _udp_socket.connect(addr); // UDPSocket::connect() cannot fail
-    }
-
-    return connect(addr);
-}
-
 DTLSSocket::~DTLSSocket()
 {
     // Make sure that DTLSSocketWrapper::close() is called before the transport is

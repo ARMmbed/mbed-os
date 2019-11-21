@@ -83,15 +83,6 @@ nsapi_error_t PPPInterface::disconnect()
     return NSAPI_ERROR_NO_CONNECTION;
 }
 
-const char *PPPInterface::get_ip_address()
-{
-    if (_interface && _interface->get_ip_address(_ip_address, sizeof(_ip_address))) {
-        return _ip_address;
-    }
-
-    return NULL;
-}
-
 nsapi_error_t PPPInterface::get_ip_address(SocketAddress *address)
 {
     if (_interface && _interface->get_ip_address(address) == NSAPI_ERROR_OK) {
@@ -121,24 +112,6 @@ nsapi_error_t PPPInterface::get_gateway(SocketAddress *address)
     }
 
     return NSAPI_ERROR_NO_CONNECTION;
-}
-
-const char *PPPInterface::get_netmask()
-{
-    if (_interface && _interface->get_netmask(_netmask, sizeof(_netmask))) {
-        return _netmask;
-    }
-
-    return 0;
-}
-
-const char *PPPInterface::get_gateway()
-{
-    if (_interface && _interface->get_gateway(_gateway, sizeof(_gateway))) {
-        return _gateway;
-    }
-
-    return 0;
 }
 
 char *PPPInterface::get_interface_name(char *interface_name)

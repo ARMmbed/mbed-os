@@ -96,19 +96,6 @@ public:
      */
     nsapi_error_t bind(uint16_t port);
 
-    /** Bind the socket to a specific address and port on which to receive
-     *  data. If the IP address is zeroed, only the port is bound.
-     *
-     *  @param address  Null-terminated local address to bind.
-     *  @param port     Local port to bind.
-     *  @retval         NSAPI_ERROR_OK on success.
-     *  @retval         NSAPI_ERROR_NO_SOCKET if socket is not open.
-     *  @retval         int negative error codes for stack-related failures.
-     *                  See @ref NetworkStack::socket_bind.
-     */
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    nsapi_error_t bind(const char *address, uint16_t port);
-
     /** @copydoc Socket::bind
      */
     virtual nsapi_error_t bind(const SocketAddress &address);

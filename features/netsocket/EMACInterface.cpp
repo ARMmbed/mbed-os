@@ -31,20 +31,6 @@ EMACInterface::EMACInterface(EMAC &emac, OnboardNetworkStack &stack) :
 {
 }
 
-nsapi_error_t EMACInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
-{
-    _dhcp = false;
-
-    strncpy(_ip_address, ip_address ? ip_address : "", sizeof(_ip_address));
-    _ip_address[sizeof(_ip_address) - 1] = '\0';
-    strncpy(_netmask, netmask ? netmask : "", sizeof(_netmask));
-    _netmask[sizeof(_netmask) - 1] = '\0';
-    strncpy(_gateway, gateway ? gateway : "", sizeof(_gateway));
-    _gateway[sizeof(_gateway) - 1] = '\0';
-
-    return NSAPI_ERROR_OK;
-}
-
 nsapi_error_t EMACInterface::set_network(const SocketAddress &ip_address, const SocketAddress &netmask, const SocketAddress &gateway)
 {
     _dhcp = false;
@@ -110,14 +96,6 @@ nsapi_error_t EMACInterface::get_ip_address(SocketAddress *address)
     return NSAPI_ERROR_NO_CONNECTION;
 }
 
-const char *EMACInterface::get_ip_address()
-{
-    if (_interface && _interface->get_ip_address(_ip_address, sizeof(_ip_address))) {
-        return _ip_address;
-    }
-    return nullptr;
-}
-
 nsapi_error_t EMACInterface::get_ipv6_link_local_address(SocketAddress *address)
 {
     if (_interface) {
@@ -137,14 +115,6 @@ nsapi_error_t EMACInterface::get_netmask(SocketAddress *address)
     return NSAPI_ERROR_NO_CONNECTION;
 }
 
-const char *EMACInterface::get_netmask()
-{
-    if (_interface && _interface->get_netmask(_netmask, sizeof(_netmask))) {
-        return _netmask;
-    }
-    return nullptr;
-}
-
 nsapi_error_t EMACInterface::get_gateway(SocketAddress *address)
 {
     if (_interface && _interface->get_gateway(address) == NSAPI_ERROR_OK) {
@@ -154,14 +124,6 @@ nsapi_error_t EMACInterface::get_gateway(SocketAddress *address)
     }
 
     return NSAPI_ERROR_NO_CONNECTION;
-}
-
-const char *EMACInterface::get_gateway()
-{
-    if (_interface && _interface->get_gateway(_gateway, sizeof(_gateway))) {
-        return _gateway;
-    }
-    return nullptr;
 }
 
 char *EMACInterface::get_interface_name(char *interface_name)

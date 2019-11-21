@@ -168,8 +168,9 @@ static void sendPacket(UDPSocket *socket, dhcp_packet_t *dhcp, uint32_t size)
     uint32_t broadcast_ip = 0xFFFFFFFF;
     char string_addr[16];
     ipv4_to_string(string_addr, htonl(broadcast_ip));
+    SocketAddress sock_addr(string_addr, IP_PORT_DHCP_CLIENT);
 
-    err = socket->sendto(string_addr, IP_PORT_DHCP_CLIENT, reinterpret_cast<uint8_t *>(dhcp), size);
+    err = socket->sendto(sock_addr, reinterpret_cast<uint8_t *>(dhcp), size);
     if (err < 0) {
         printf("DHCP ERROR: Packet send failure with error %d.", err);
     } else if (err != (int)size) {
@@ -352,8 +353,11 @@ void CyDhcpServer::runServer(void)
     _socket.bind((uint16_t)IP_PORT_DHCP_SERVER);
 
     /* Save the current netmask to be sent in DHCP packets as the 'subnet mask option' */
-    _server_addr.addrv4.addr = string_to_ipv4(_niface->get_ip_address());
-    _netmask.addrv4.addr = string_to_ipv4(_niface->get_netmask());
+    SocketAddress sock_addr;
+    _niface->get_ip_address(&sock_addr);
+    _server_addr.addrv4.addr = string_to_ipv4(sock_addr.get_ip_address());
+    _niface->get_netmask(&sock_addr);
+    _netmask.addrv4.addr = string_to_ipv4(sock_addr.get_ip_address());
 
 #ifdef DHCP_EXTENSIVE_DEBUG
     printf("DHCP Server started.\n");

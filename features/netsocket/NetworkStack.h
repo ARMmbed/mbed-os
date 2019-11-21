@@ -51,9 +51,6 @@ public:
      */
     virtual nsapi_error_t get_ip_address(SocketAddress *address);
 
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual const char *get_ip_address();
-
     /** Get the IPv6 link local address
      *
      *  @param          address SocketAddress representation of the link local IPv6 address
@@ -73,9 +70,6 @@ public:
      *  @retval         NSAPI_ERROR_NO_ADDRESS if the address cannot be obtained from stack
      */
     virtual nsapi_error_t get_ip_address_if(SocketAddress *address, const char *interface_name);
-
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual const char *get_ip_address_if(const char *interface_name);
 
     /** Translates a hostname to an IP address with specific version
      *

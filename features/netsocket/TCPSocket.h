@@ -72,24 +72,6 @@ public:
 
     /** Connects TCP socket to a remote host
      *
-     *  Initiates a connection to a remote server specified by either
-     *  a domain name or an IP address and a port.
-     *
-     *  @param host     Hostname of the remote host
-     *  @param port     Port of the remote host
-     *  @retval         NSAPI_ERROR_OK on success
-     *  @retval         NSAPI_ERROR_IN_PROGRESS if the operation is ongoing
-     *  @retval         NSAPI_ERROR_NO_SOCKET if the socket has not been allocated
-     *  @retval         NSAPI_ERROR_DNS_FAILURE if the DNS address of host could not be resolved
-     *  @retval         NSAPI_ERROR_IS_CONNECTED if the connection is already established
-     *  @retval         int Other negative error codes for stack-related failures.
-     *                  See NetworkStack::socket_connect().
-     */
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    nsapi_error_t connect(const char *host, uint16_t port);
-
-    /** Connects TCP socket to a remote host
-     *
      *  Initiates a connection to a remote server specified by the
      *  indicated address.
      *

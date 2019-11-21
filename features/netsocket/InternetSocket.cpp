@@ -127,13 +127,6 @@ nsapi_error_t InternetSocket::bind(uint16_t port)
     return bind(addr);
 }
 
-nsapi_error_t InternetSocket::bind(const char *address, uint16_t port)
-{
-    // Underlying bind is thread safe
-    SocketAddress addr(address, port);
-    return bind(addr);
-}
-
 nsapi_error_t InternetSocket::bind(const SocketAddress &address)
 {
     _lock.lock();

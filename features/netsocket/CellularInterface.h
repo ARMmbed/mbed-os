@@ -98,9 +98,6 @@ public:
     /** @copydoc NetworkInterface::get_ip_address */
     virtual nsapi_error_t get_ip_address(SocketAddress *address) = 0;
 
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual const char *get_ip_address() = 0;
-
     /** @copydoc NetworkInterface::cellularInterface
      */
     virtual CellularInterface *cellularInterface()
