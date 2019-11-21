@@ -186,8 +186,34 @@ public:
     {
     }
 
-    constexpr
-    MbedCRC();
+    /* Default values for different types of polynomials
+    */
+    // *INDENT-OFF*
+    template<uint32_t poly = polynomial, std::enable_if_t<poly == POLY_32BIT_ANSI && width == 32, int> = 0>
+    constexpr MbedCRC() : MbedCRC(0xFFFFFFFF, 0xFFFFFFFF, true, true)
+    {
+    }
+
+    template<uint32_t poly = polynomial, std::enable_if_t<poly == POLY_16BIT_IBM && width == 16, int> = 0>
+    constexpr MbedCRC() : MbedCRC(0, 0, true, true)
+    {
+    }
+
+    template<uint32_t poly = polynomial, std::enable_if_t<poly == POLY_16BIT_CCITT && width == 16, int> = 0>
+    constexpr MbedCRC() : MbedCRC(0xFFFF, 0, false, false)
+    {
+    }
+
+    template<uint32_t poly = polynomial, std::enable_if_t<poly == POLY_7BIT_SD && width == 7, int> = 0>
+    constexpr MbedCRC() : MbedCRC(0, 0, false, false)
+    {
+    }
+
+    template<uint32_t poly = polynomial, std::enable_if_t<poly == POLY_8BIT_CCITT && width == 8, int> = 0>
+    constexpr MbedCRC() : MbedCRC(0, 0, false, false)
+    {
+    }
+    // *INDENT-ON*
 
     /** Compute CRC for the data input
      *  Compute CRC performs the initialization, computation and collection of
@@ -841,38 +867,6 @@ const uint32_t MbedCRC<POLY_32BIT_ANSI, 32, CrcMode::TABLE>::_crc_table[MBED_CRC
 } // namespace impl
 
 #endif // !defined(DOXYGEN_ONLY)
-
-/* Default values for different types of polynomials
-*/
-template<>
-inline MSTD_CONSTEXPR_FN_14
-MbedCRC<POLY_32BIT_ANSI, 32>::MbedCRC() : MbedCRC(0xFFFFFFFF, 0xFFFFFFFF, true, true)
-{
-}
-
-template<>
-inline MSTD_CONSTEXPR_FN_14
-MbedCRC<POLY_16BIT_IBM, 16>::MbedCRC() : MbedCRC(0, 0, true, true)
-{
-}
-
-template<>
-inline MSTD_CONSTEXPR_FN_14
-MbedCRC<POLY_16BIT_CCITT, 16>::MbedCRC() : MbedCRC(0xFFFF, 0, false, false)
-{
-}
-
-template<>
-inline MSTD_CONSTEXPR_FN_14
-MbedCRC<POLY_7BIT_SD, 7>::MbedCRC(): MbedCRC(0, 0, false, false)
-{
-}
-
-template<>
-inline MSTD_CONSTEXPR_FN_14
-MbedCRC<POLY_8BIT_CCITT, 8>::MbedCRC(): MbedCRC(0, 0, false, false)
-{
-}
 
 /** @}*/
 /** @}*/

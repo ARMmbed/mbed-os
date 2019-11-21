@@ -143,6 +143,28 @@ void test_partial_crc()
     }
 }
 
+void test_mode_limit()
+{
+    const char test[] = "123456789";
+    uint32_t crc;
+
+    {
+        MbedCRC<POLY_32BIT_ANSI, 32, CrcMode::BITWISE> ct;
+        TEST_ASSERT_EQUAL(0, ct.compute(test, strlen(test), &crc));
+        TEST_ASSERT_EQUAL(0xCBF43926, crc);
+    }
+    {
+        MbedCRC<POLY_32BIT_ANSI, 32, CrcMode::TABLE> ct;
+        TEST_ASSERT_EQUAL(0, ct.compute(test, strlen(test), &crc));
+        TEST_ASSERT_EQUAL(0xCBF43926, crc);
+    }
+    {
+        MbedCRC<POLY_32BIT_ANSI, 32, CrcMode::HARDWARE> ct;
+        TEST_ASSERT_EQUAL(0, ct.compute(test, strlen(test), &crc));
+        TEST_ASSERT_EQUAL(0xCBF43926, crc);
+    }
+}
+
 void test_sd_crc()
 {
     MbedCRC<POLY_7BIT_SD, 7> crc7;
@@ -232,6 +254,7 @@ void test_thread_safety()
 Case cases[] = {
     Case("Test supported polynomials", test_supported_polynomials),
     Case("Test partial CRC", test_partial_crc),
+    Case("Test mode-limited CRC", test_mode_limit),
     Case("Test SD CRC polynomials", test_sd_crc),
 #if defined(MBED_CONF_RTOS_PRESENT)
     Case("Test thread safety", test_thread_safety),
