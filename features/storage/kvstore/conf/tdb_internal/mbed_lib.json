@@ -15,6 +15,10 @@
             "internal_size": "0x8000",
             "internal_base_address": "0x00028000"
         },
+        "LPC55S69_NS": {
+            "internal_size": "0x8000",
+            "internal_base_address": "0x00090000"
+        },
         "DISCO_H747I": {
             "internal_size": "2*FLASH_SECTOR_SIZE",
             "internal_base_address": "0x080C0000"
