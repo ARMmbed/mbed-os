@@ -1,25 +1,38 @@
 <!--
 For more information on the requirements for pull requests, please see [the contributing guidelines](https://os.mbed.com/docs/mbed-os/latest/contributing/workflow.html).
+
+NOTE: Do not remove any of the template headings (even for optional sections) as this
+template is automatically parsed. 
 -->
 
-### Description 
-#### Summary of change <!-- Required -->
+### Summary of changes <!-- Required -->
 
-<!-- Basic information about the change: what the change is for, why do we need it any implications -->
+<!-- 
+    Please provide the following information: 
 
-#### Documentation <!-- Optional, but most likely you need it -->
+    Description of the the change (what is this fixing / adding / removing?).
 
-<!-- Details of any document updates required, including links to PR against the docs repository -->
+    Why the change is needed (if this is fixing a reported issue please summarize what
+    the issue is and add the reference. E.g. Fixes #17119).
+
+    Any implications for users taking this change.
+ -->
+
+### Documentation <!-- Required -->
+
+<!-- 
+    Please provide details of any document updates required, including links to any
+    related PRs against the docs repository.
+    If no document updates are required please specify 'None', this at least tells us
+    that this has been considered.
+-->
 
 ----------------------------------------------------------------------------------------------------------------
 ### Pull request type <!-- Required -->
 
 <!--
-    Required
     Please add only one X to one of the following types. Do not fill multiple types (split the pull request otherwise).
-    Please note this is not a GitHub task list, indenting the boxes or changing the format to add a '.' or '*' in front
-    of them would change the meaning incorrectly. The only changes to be made are to add a description text under the
-    description heading and to add a 'x' to the correct box.
+    Please note this is not a GitHub task list, indenting the boxes or changing the format to add a '.' or '*' in front of them would change the meaning incorrectly. 
 -->
     [] Patch update (Bug fix / Target update / Docs update / Test update / Refactor)
     [] Feature update (New feature / Functionality change / New API)
@@ -29,9 +42,7 @@ For more information on the requirements for pull requests, please see [the cont
 ### Test results <!-- Required -->
 
 <!--
-    Required
-    Provide all the information required, listing all the testing performed. For new targets please attach full test results
-    for all supported compilers.
+    Provide all the information required, listing all the testing performed. For new targets please attach full test results for all supported compilers.
 -->
     [] No Tests required for this change (E.g docs only update)
     [] Covered by existing mbed-os tests (Greentea or Unittest)
@@ -42,7 +53,6 @@ For more information on the requirements for pull requests, please see [the cont
 ### Reviewers <!-- Optional -->
 
 <!--
-    Optional
     Request additional reviewers with @username or @team
 -->
 
