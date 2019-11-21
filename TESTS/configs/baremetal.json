@@ -19,7 +19,6 @@
         "lora",
         "nfc",
         "network-emac",
-        "nanostack-libservice",
         "flashiap-block-device",
         "system-storage",
         "filesystemstore",
@@ -37,7 +36,8 @@
     ],
     "target_overrides": {
         "*": {
-            "target.device_has_remove": ["EMAC", "USBDEVICE"]
+            "target.device_has_remove": ["EMAC", "USBDEVICE"],
+            "mbed-trace.fea-ipv6": false
         }
      }
 }
