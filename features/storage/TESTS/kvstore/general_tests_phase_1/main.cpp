@@ -292,9 +292,13 @@ static void set_write_once_flag_try_set_twice()
 //set key "write once" and try to remove it
 static void set_write_once_flag_try_remove()
 {
+    int res;
     TEST_SKIP_UNLESS(kvstore != NULL);
 
-    int res = kvstore->set(key, data, data_size, KVStore::WRITE_ONCE_FLAG);
+    res = kvstore->reset();
+    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+
+    res = kvstore->set(key, data, data_size, KVStore::WRITE_ONCE_FLAG);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
     res = kvstore->remove(key);
