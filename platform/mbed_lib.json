@@ -125,7 +125,7 @@
         },
         "callback-nontrivial": {
             "help": "Enables support for non-trivial callable objects in Callback. Can be disabled to save ROM if no-one is using non-trivial types. Changing this value may cause incompatibility with pre-built binaries.",
-            "value": true
+            "value": false
         },
         "callback-comparable": {
             "help": "Enables support for comparing two Callbacks. See notes on operator== for limitations. Can be disabled to save ROM if not required.",
