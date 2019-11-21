@@ -253,7 +253,7 @@ extern "C"
 
         WHD_EMAC &emac = WHD_EMAC::get_instance(ifp->role);
 
-        if (!emac.powered_up && !emac.emac_link_input_cb) {
+        if (!emac.powered_up || !emac.emac_link_input_cb) {
             // ignore any trailing packets
             whd_buffer_release(emac.drvp, buffer, WHD_NETWORK_RX);
             return;
