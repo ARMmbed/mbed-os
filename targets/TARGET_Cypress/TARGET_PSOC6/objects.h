@@ -111,6 +111,7 @@ struct spi_s {
     cyhal_gpio_t sclk;
     cyhal_gpio_t ssel;
     int hz;
+    bool async_in_progress;
 };
 #endif
 

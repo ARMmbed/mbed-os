@@ -54,6 +54,12 @@ static void cy_spi_irq_handler_internal(void *handler_arg, cyhal_spi_event_t eve
     spi->async_events = 0;
     if (0 != (event & CYHAL_SPI_IRQ_DONE)) {
         spi->async_events |= SPI_EVENT_COMPLETE;
+        if (spi->async_in_progress == true) {
+            /* Disable event CYHAL_SPI_IRQ_DONE */
+            cyhal_spi_enable_event(&(spi->hal_spi), CYHAL_SPI_IRQ_DONE, CYHAL_ISR_PRIORITY_DEFAULT, false);
+            /* Clear status */
+            spi->async_in_progress = false;
+        }
     }
     if (0 != (event & CYHAL_SPI_IRQ_ERROR)) {
         spi->async_events |= SPI_EVENT_ERROR;
@@ -79,6 +85,8 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     if (CY_RSLT_SUCCESS != cyhal_spi_init(&(spi->hal_spi), mosi, miso, sclk, ssel, NULL, spi->cfg.data_bits, spi->cfg.mode, spi->cfg.is_slave)) {
         MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_spi_init");
     }
+
+    /* Register callback mechanism */
     cyhal_spi_register_callback(&(spi->hal_spi), &cy_spi_irq_handler_internal, obj);
 }
 
@@ -116,6 +124,9 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     if (spi->hz != 0) {
         spi_frequency(obj, hz);
     }
+
+    /* Register callback mechanism after second init */
+    cyhal_spi_register_callback(&(spi->hal_spi), &cy_spi_irq_handler_internal, obj);
 }
 
 void spi_frequency(spi_t *obj, int hz)
@@ -229,9 +240,15 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     struct spi_s *spi = cy_get_spi(obj);
     spi->async_handler = (void (*)(void))handler;
     spi->async_event_mask = event;
+    spi->async_in_progress = false;
+
+    /* Enable event CYHAL_SPI_IRQ_DONE to know when asynchronous transfer is done */
+    cyhal_spi_enable_event(&(spi->hal_spi), CYHAL_SPI_IRQ_DONE, CYHAL_ISR_PRIORITY_DEFAULT, true);
+
     if (CY_RSLT_SUCCESS != cyhal_spi_transfer_async(&(spi->hal_spi), (const uint8_t *)tx, (size_t)tx_length, (uint8_t *)rx, (size_t)rx_length)) {
         MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_spi_transfer_async");
     }
+    spi->async_in_progress = true;
 }
 
 uint32_t spi_irq_handler_asynch(spi_t *obj)
