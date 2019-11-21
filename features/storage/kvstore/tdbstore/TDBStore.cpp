@@ -177,7 +177,22 @@ int TDBStore::erase_erase_unit(uint8_t area, uint32_t offset)
     uint32_t bd_offset = _area_params[area].address + offset;
     uint32_t eu_size = _buff_bd->get_erase_size(bd_offset);
 
-    return _buff_bd->erase(bd_offset, eu_size);
+    if (_buff_bd->get_erase_value() != -1) {
+        return _buff_bd->erase(bd_offset, eu_size);
+    } else {
+        // We need to simulate erase, as our block device
+        // does not do it. We can do this one byte at a time
+        // because we use BufferedBlockDevice that has page buffers
+        uint8_t val = 0xff;
+        int ret;
+        for (; eu_size; --eu_size) {
+            ret = _buff_bd->program(&val, bd_offset++, 1);
+            if (ret) {
+                return ret;
+            }
+        }
+    }
+    return MBED_SUCCESS;
 }
 
 void TDBStore::calc_area_params()
@@ -1015,11 +1030,6 @@ int TDBStore::init()
     ret = _buff_bd->init();
     if (ret) {
         goto fail;
-    }
-
-    // Underlying BD must have flash attributes, i.e. have an erase value
-    if (_bd->get_erase_value() == -1) {
-        MBED_ERROR(MBED_ERROR_INVALID_ARGUMENT, "Underlying BD must have flash attributes");
     }
 
     _prog_size = _bd->get_program_size();
