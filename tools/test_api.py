@@ -1461,11 +1461,11 @@ def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','
 def progress_bar(percent_progress, saturation=0):
     """ This function creates progress bar with optional simple saturation mark
     """
-    step = int(percent_progress / 2)    # Scale by to (scale: 1 - 50)
+    step = percent_progress // 2    # Scale by to (scale: 1 - 50)
     str_progress = '#' * step + '.' * int(50 - step)
     c = '!' if str_progress[38] == '.' else '|'
     if saturation > 0:
-        saturation = saturation / 2
+        saturation = saturation // 2
         str_progress = str_progress[:saturation] + c + str_progress[saturation:]
     return str_progress
 
@@ -1517,7 +1517,7 @@ def singletest_in_cli_mode(single_test):
     # Returns True if no build failures of the test projects or their dependencies
     return status
 
-class TestLogger():
+class TestLogger(object):
     """ Super-class for logging and printing ongoing events for test suite pass
     """
     def __init__(self, store_log=True):
