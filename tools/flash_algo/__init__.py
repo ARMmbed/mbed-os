@@ -134,7 +134,7 @@ class PackFlashAlgo(object):
             blob = self.algo_data[:]
             pad_size = 0 if len(blob) % 4 == 0 else 4 - len(blob) % 4
             blob = blob + "\x00" * pad_size
-            integer_list = struct.unpack("<" + "L" * (len(blob) / 4), blob)
+            integer_list = struct.unpack("<" + "L" * (len(blob) // 4), blob)
             line_list = []
             for pos in range(0, len(integer_list), group_size):
                 group = ["0x%08x" % value for value in

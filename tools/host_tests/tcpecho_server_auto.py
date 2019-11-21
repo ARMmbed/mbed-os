@@ -22,7 +22,7 @@ import uuid
 import socket
 from sys import stdout
 
-class TCPEchoServerTest():
+class TCPEchoServerTest(object):
     ECHO_SERVER_ADDRESS = ""
     ECHO_PORT = 0
     ECHO_LOOPs = 100

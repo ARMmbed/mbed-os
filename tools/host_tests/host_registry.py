@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-class HostRegistry:
+class HostRegistry(object):
     """ Class stores registry with host tests and objects representing them
     """ 
     HOST_TESTS = {} # host_test_name -> host_test_ojbect

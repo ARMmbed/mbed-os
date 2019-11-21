@@ -49,6 +49,7 @@ from ..config import (ConfigException, RAM_ALL_MEMORIES, ROM_ALL_MEMORIES)
 from ..regions import (UPDATE_WHITELIST, merge_region_list)
 from ..settings import COMPARE_FIXED
 from ..settings import ARM_PATH, ARMC6_PATH, GCC_ARM_PATH, IAR_PATH
+from future.utils import with_metaclass
 
 
 TOOLCHAIN_PATHS = {
@@ -109,7 +110,7 @@ CORTEX_SYMBOLS = {
 }
 
 
-class mbedToolchain:
+class mbedToolchain(with_metaclass(ABCMeta, object)):
     OFFICIALLY_SUPPORTED = False
 
     # Verbose logging
@@ -126,8 +127,6 @@ class mbedToolchain:
     MBED_CONFIG_FILE_NAME = "mbed_config.h"
 
     PROFILE_FILE_NAME = ".profile"
-
-    __metaclass__ = ABCMeta
 
     profile_template = {'common': [], 'c': [], 'cxx': [], 'asm': [], 'ld': []}
 

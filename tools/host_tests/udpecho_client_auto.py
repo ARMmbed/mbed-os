@@ -36,7 +36,7 @@ class UDPEchoClient_Handler(BaseRequestHandler):
             sys.stdout.write('.')
         stdout.flush()
 
-class UDPEchoClientTest():
+class UDPEchoClientTest(object):
 
     def send_server_ip_port(self, selftest, ip_address, port_no):
         c = selftest.mbed.serial_readline() # 'UDPCllient waiting for server IP and port...'

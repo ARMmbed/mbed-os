@@ -16,6 +16,7 @@ limitations under the License.
 """
 
 class HelloTest():
+class HelloTest(object):
     HELLO_WORLD = "Hello World"
 
     def test(self, selftest):

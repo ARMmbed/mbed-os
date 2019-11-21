@@ -646,7 +646,7 @@ class MCU_NRF51Code(object):
             binh.write_hex_file(fileout, write_start_addr=False)
 
 
-class NCS36510TargetCode:
+class NCS36510TargetCode(object):
     @staticmethod
     def ncs36510_addfib(t_self, resources, elf, binf):
         from tools.targets.NCS import add_fib_at_start
@@ -654,7 +654,7 @@ class NCS36510TargetCode:
         add_fib_at_start(binf[:-4])
 
 
-class RTL8195ACode:
+class RTL8195ACode(object):
     """RTL8195A Hooks"""
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
@@ -662,7 +662,7 @@ class RTL8195ACode:
         rtl8195a_elf2bin(t_self, elf, binf)
 
 
-class PSOC6Code:
+class PSOC6Code(object):
     @staticmethod
     def complete(t_self, resources, elf, binf):
         from tools.targets.PSOC6 import complete as psoc6_complete
@@ -694,7 +694,7 @@ class PSOC6Code:
             from tools.targets.PSOC6 import sign_image as psoc6_sign_image
             psoc6_sign_image(t_self, binf)
 
-class ArmMuscaA1Code:
+class ArmMuscaA1Code(object):
     """Musca-A1 Hooks"""
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
@@ -710,7 +710,7 @@ class ArmMuscaA1Code:
         musca_tfm_bin(t_self, binf, secure_bin)
 
 
-class LPC55S69Code:
+class LPC55S69Code(object):
     """LPC55S69 Hooks"""
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
@@ -725,7 +725,7 @@ class LPC55S69Code:
         )
         lpc55s69_complete(t_self, binf, secure_bin)
 
-class M2351Code:
+class M2351Code(object):
     """M2351 Hooks"""
     @staticmethod
     def merge_secure(t_self, resources, ns_elf, ns_hex):

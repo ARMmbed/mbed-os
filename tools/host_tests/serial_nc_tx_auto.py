@@ -21,7 +21,7 @@ import time
 import string
 from sys import stdout
 
-class SerialNCTXTest():
+class SerialNCTXTest(object):
 
     def test(self, selftest):
         selftest.mbed.flush();

@@ -35,7 +35,7 @@ class TCPEchoClient_Handler(BaseRequestHandler):
             if not data: break
             self.request.sendall(data)
             if '{{end}}' in str(data):
-                print
+                print()
                 print(str(data))
             else:
                 if not count % 10:
@@ -43,7 +43,7 @@ class TCPEchoClient_Handler(BaseRequestHandler):
                 count += 1
             stdout.flush()
 
-class TCPEchoClientTest():
+class TCPEchoClientTest(object):
     def send_server_ip_port(self, selftest, ip_address, port_no):
         """ Set up network host. Reset target and and send server IP via serial to Mbed
         """

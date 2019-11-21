@@ -20,7 +20,7 @@ import uuid
 import time
 from sys import stdout
 
-class WFITest():
+class WFITest(object):
 
     def test(self, selftest):
         c = selftest.mbed.serial_readline()
