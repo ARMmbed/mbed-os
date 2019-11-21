@@ -1,5 +1,12 @@
 # Change Log
 
+## [v5.1.2](https://github.com/ARMmbed/mbed-coap/releases/tag/v5.1.2)
+
+- Compiler warning cleanups.
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v5.1.1...v5.1.2)
+
+
 ## [v5.1.1](https://github.com/ARMmbed/mbed-coap/releases/tag/v5.1.1)
 
 - Delay the random initialization of message id to a later phase and not during init() so there is enough time
