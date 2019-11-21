@@ -29,7 +29,7 @@
 
 from future import standard_library
 standard_library.install_aliases()
-import serial, urllib.request, urllib.error, urllib.parse, time
+import serial, urllib.request, time
 
 # mbed super class
 class mbed(object):

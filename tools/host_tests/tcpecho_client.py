@@ -26,7 +26,7 @@ LEN_PACKET = 127
 N_PACKETS = 5000
 TOT_BITS = float(LEN_PACKET * N_PACKETS * 8) * 2
 MEGA = float(1024 * 1024)
-UPDATE_STEP = N_PACKETS // 10
+UPDATE_STEP = (N_PACKETS // 10)
 
 class TCP_EchoClient(object):
     def __init__(self, host):
