@@ -17,6 +17,7 @@
 #include "FlashSimBlockDevice.h"
 #include "platform/mbed_assert.h"
 #include "platform/mbed_atomic.h"
+#include "features/storage/internal/utils.h"
 #include <algorithm>
 #include <stdlib.h>
 #include <string.h>
@@ -24,11 +25,6 @@
 namespace mbed {
 
 static const bd_size_t min_blank_buf_size = 32;
-
-static inline uint32_t align_up(bd_size_t val, bd_size_t size)
-{
-    return (((val - 1) / size) + 1) * size;
-}
 
 FlashSimBlockDevice::FlashSimBlockDevice(BlockDevice *bd, uint8_t erase_value) :
     _erase_value(erase_value), _blank_buf_size(0),
@@ -222,4 +218,3 @@ const char *FlashSimBlockDevice::get_type() const
 }
 
 } // namespace mbed
-

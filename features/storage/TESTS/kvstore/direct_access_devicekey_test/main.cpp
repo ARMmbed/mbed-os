@@ -31,6 +31,7 @@
 #include "FlashIAPBlockDevice.h"
 #include "DirectAccessDevicekey.h"
 #include "greentea-client/test_env.h"
+#include "features/storage/internal/utils.h"
 #include "unity.h"
 #include "utest.h"
 #include <stdlib.h>
@@ -39,16 +40,6 @@ using namespace utest::v1;
 using namespace mbed;
 
 #define TEST_DEVICEKEY_LENGTH 32
-
-static inline uint32_t align_up(uint64_t val, uint64_t size)
-{
-    return (((val - 1) / size) + 1) * size;
-}
-
-static inline uint32_t align_down(uint64_t val, uint64_t size)
-{
-    return (((val) / size)) * size;
-}
 
 int  get_virtual_TDBStore_position(uint32_t conf_start_address, uint32_t conf_size,
                                    uint32_t *tdb_start_address, uint32_t *tdb_end_address)

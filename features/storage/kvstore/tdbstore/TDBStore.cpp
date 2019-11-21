@@ -23,11 +23,11 @@
 #include <stdio.h>
 #include "mbed_error.h"
 #include "mbed_wait_api.h"
-#include "MbedCRC.h"
 //Bypass the check of NVStore co existance if compiled for TARGET_TFM
 #if !(BYPASS_NVSTORE_CHECK)
 #include "features/storage/system_storage/SystemStorage.h"
 #endif
+#include "features/storage/internal/utils.h"
 
 using namespace mbed;
 
@@ -102,25 +102,6 @@ typedef struct {
 } key_iterator_handle_t;
 
 } // anonymous namespace
-
-
-// -------------------------------------------------- Local Functions Declaration ----------------------------------------------------
-
-// -------------------------------------------------- Functions Implementation ----------------------------------------------------
-
-static inline uint32_t align_up(uint32_t val, uint32_t size)
-{
-    return (((val - 1) / size) + 1) * size;
-}
-
-
-static uint32_t calc_crc(uint32_t init_crc, uint32_t data_size, const void *data_buf)
-{
-    uint32_t crc;
-    MbedCRC<POLY_32BIT_ANSI, 32> ct(init_crc, 0x0, true, false);
-    ct.compute(data_buf, data_size, &crc);
-    return crc;
-}
 
 // Class member functions
 
@@ -861,7 +842,6 @@ int TDBStore::garbage_collection()
 {
     ram_table_entry_t *ram_table = (ram_table_entry_t *) _ram_table;
     uint32_t to_offset, to_next_offset;
-    uint32_t chunk_size, reserved_size;
     int ret;
     size_t ind;
 
@@ -997,7 +977,7 @@ int TDBStore::init()
     uint32_t next_offset;
     uint32_t flags, hash;
     uint32_t actual_data_size;
-    int os_ret, ret = MBED_SUCCESS;
+    int ret;
     uint16_t versions[_num_areas];
 
     _mutex.lock();

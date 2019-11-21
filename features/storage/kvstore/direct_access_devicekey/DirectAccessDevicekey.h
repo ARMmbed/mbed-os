@@ -24,7 +24,7 @@
  *
  * @param[in]  tdb_start_offset     FlashIAP Start address offset of tdb store
  * @param[in]  tdb_end_offset       FlashIAP End address offset of tdb store
- * @param[in]  data_buf             Buffer to store devicekey data
+ * @param[out] data_buf             Buffer to store devicekey data
  * @param[in]  data_buf_size        Max expected size of buffer to store the devicekey data
  * @param[out] actual_data_size_ptr Actual retrieved devicekey size
  *

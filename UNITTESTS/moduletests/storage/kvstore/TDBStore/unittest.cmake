@@ -14,6 +14,7 @@ set(unittest-sources
   ../features/storage/blockdevice/HeapBlockDevice.cpp
   ../features/storage/blockdevice/BufferedBlockDevice.cpp
   ../features/storage/kvstore/tdbstore/TDBStore.cpp
+  ../features/storage/internal/utils.cpp
   ../features/frameworks/mbed-trace/source/mbed_trace.c
   stubs/mbed_atomic_stub.c
   stubs/mbed_assert_stub.cpp

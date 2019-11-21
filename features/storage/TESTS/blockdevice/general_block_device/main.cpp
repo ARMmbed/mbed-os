@@ -27,6 +27,7 @@
 #include "BufferedBlockDevice.h"
 #include "BlockDevice.h"
 #include <algorithm>
+#include "features/storage/internal/utils.h"
 
 #if COMPONENT_SPIF
 #include "SPIFBlockDevice.h"
@@ -95,13 +96,6 @@ static uint8_t test_iteration = 0;
 static SingletonPtr<PlatformMutex> _mutex;
 
 BlockDevice *block_device = NULL;
-
-#if COMPONENT_FLASHIAP
-static inline uint32_t align_up(uint32_t val, uint32_t size)
-{
-    return (((val - 1) / size) + 1) * size;
-}
-#endif
 
 static BlockDevice *get_bd_instance(uint8_t bd_type)
 {

@@ -26,6 +26,7 @@
 #include "mbed_assert.h"
 #include "mbed_error.h"
 #include "ThisThread.h"
+#include "features/storage/internal/utils.h"
 #include <algorithm>
 #include <string.h>
 #include <stdio.h>
@@ -111,38 +112,6 @@ NVStore::nvstore_area_data_t NVStore::initial_area_params[] = {{0, 0},
 // -------------------------------------------------- Local Functions Declaration ----------------------------------------------------
 
 // -------------------------------------------------- Functions Implementation ----------------------------------------------------
-
-// Align a value to a specified size.
-// Parameters :
-// val           - [IN]   Value.
-// size          - [IN]   Size.
-// Return        : Aligned value.
-static inline uint32_t align_up(uint32_t val, uint32_t size)
-{
-    return (((val - 1) / size) + 1) * size;
-}
-
-// CRC32 calculation. Supports "rolling" calculation (using the initial value).
-// Parameters :
-// init_crc      - [IN]   Initial CRC.
-// data_size      - [IN]   Buffer's data size.
-// data_buf      - [IN]   Data buffer.
-// Return        : CRC.
-static uint32_t crc32(uint32_t init_crc, uint32_t data_size, uint8_t *data_buf)
-{
-    uint32_t i, j;
-    uint32_t crc, mask;
-
-    crc = init_crc;
-    for (i = 0; i < data_size; i++) {
-        crc = crc ^ (uint32_t)(data_buf[i]);
-        for (j = 0; j < 8; j++) {
-            mask = -(crc & 1);
-            crc = (crc >> 1) ^ (0xEDB88320 & mask);
-        }
-    }
-    return crc;
-}
 
 NVStore::NVStore() : _init_done(0), _init_attempts(0), _active_area(0), _max_keys(NVSTORE_MAX_KEYS),
     _active_area_version(0), _free_space_offset(0), _size(0), _mutex(0), _offset_by_key(0), _flash_area_params{},
@@ -359,7 +328,7 @@ int NVStore::read_record(uint8_t area, uint32_t offset, uint16_t buf_size, void 
         return NVSTORE_READ_ERROR;
     }
 
-    crc = crc32(crc, sizeof(header) - sizeof(header.crc), (uint8_t *) &header);
+    crc = calc_crc(crc, sizeof(header) - sizeof(header.crc), (uint8_t *) &header);
 
     actual_size = 0;
     key   = header.key_and_flags & ~header_flag_mask;
@@ -396,7 +365,7 @@ int NVStore::read_record(uint8_t area, uint32_t offset, uint16_t buf_size, void 
         if (os_ret) {
             return NVSTORE_READ_ERROR;
         }
-        crc = crc32(crc, chunk_size, (uint8_t *) buf_ptr);
+        crc = calc_crc(crc, chunk_size, (uint8_t *) buf_ptr);
         data_size -= chunk_size;
         offset += chunk_size;
     }
@@ -423,9 +392,9 @@ int NVStore::write_record(uint8_t area, uint32_t offset, uint16_t key, uint16_t 
     header.key_and_flags = key | flags;
     header.size_and_owner = data_size | (owner << owner_bit_pos);
     header.crc = 0; // Satisfy compiler
-    crc = crc32(crc, sizeof(header) - sizeof(header.crc), (uint8_t *) &header);
+    crc = calc_crc(crc, sizeof(header) - sizeof(header.crc), (uint8_t *) &header);
     if (data_size) {
-        crc = crc32(crc, data_size, (uint8_t *) data_buf);
+        crc = calc_crc(crc, data_size, (uint8_t *) data_buf);
     }
     header.crc = crc;
 

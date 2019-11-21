@@ -18,6 +18,7 @@
 #include "features/storage/filesystem/FileSystem.h"
 #include "features/storage/filesystem/fat/FATFileSystem.h"
 #include "features/storage/filesystem/littlefs/LittleFileSystem.h"
+#include "features/storage/internal/utils.h"
 #include "mbed_error.h"
 
 
@@ -70,16 +71,6 @@ MBED_WEAK int avoid_conflict_nvstore_tdbstore(owner_type_e in_mem_owner)
     _mutex.unlock();
 
     return status;
-}
-
-// Align a value to a specified size.
-// Parameters :
-// val           - [IN]   Value.
-// size          - [IN]   Size.
-// Return        : Aligned value.
-static inline uint32_t align_up(uint32_t val, uint32_t size)
-{
-    return (((val - 1) / size) + 1) * size;
 }
 
 MBED_WEAK BlockDevice *BlockDevice::get_default_instance()

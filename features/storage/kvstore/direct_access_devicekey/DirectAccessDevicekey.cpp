@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include "mbed_error.h"
 #include "MbedCRC.h"
+#include "features/storage/internal/utils.h"
 #include "mbed_trace.h"
 #define TRACE_GROUP "DADK"
 
@@ -51,9 +52,6 @@ static int calc_area_params(FlashIAP *flash, uint32_t out_tdb_start_offset, uint
                             tdbstore_area_data_t *area_params);
 static int reserved_data_get(FlashIAP *flash, tdbstore_area_data_t *area_params, void *reserved_data_buf,
                              size_t reserved_data_buf_size, size_t *actual_data_size_ptr);
-static inline uint32_t align_up(uint64_t val, uint64_t size);
-static inline uint32_t align_down(uint64_t val, uint64_t size);
-static uint32_t calc_crc(uint32_t init_crc, uint32_t data_size, const void *data_buf);
 
 // -------------------------------------------------- API Functions Implementation ----------------------------------------------------
 int direct_access_to_devicekey(uint32_t tdb_start_offset, uint32_t tdb_end_offset, void *data_buf,
@@ -295,21 +293,4 @@ exit_point:
     return status;
 }
 
-static inline uint32_t align_up(uint64_t val, uint64_t size)
-{
-    return (((val - 1) / size) + 1) * size;
-}
-
-static inline uint32_t align_down(uint64_t val, uint64_t size)
-{
-    return (((val) / size)) * size;
-}
-
-static uint32_t calc_crc(uint32_t init_crc, uint32_t data_size, const void *data_buf)
-{
-    uint32_t crc;
-    MbedCRC<POLY_32BIT_ANSI, 32> ct(init_crc, 0x0, true, false);
-    ct.compute(data_buf, data_size, &crc);
-    return crc;
-}
 #endif // DEVICE_FLASH

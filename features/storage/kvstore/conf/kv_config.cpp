@@ -27,8 +27,9 @@
 #include "mbed_error.h"
 #include "drivers/FlashIAP.h"
 #include "features/storage/blockdevice/FlashSimBlockDevice.h"
-#include "mbed_trace.h"
 #include "features/storage/kvstore/securestore/SecureStore.h"
+#include "features/storage/internal/utils.h"
+#include "mbed_trace.h"
 #define TRACE_GROUP "KVCFG"
 
 #if COMPONENT_FLASHIAP
@@ -161,16 +162,6 @@ static kvstore_config_t kvstore_config;
 
 #define _GET_BLOCKDEVICE_concat(dev, ...) _get_blockdevice_##dev(__VA_ARGS__)
 #define GET_BLOCKDEVICE(dev, ...) _GET_BLOCKDEVICE_concat(dev, __VA_ARGS__)
-
-static inline uint32_t align_up(uint64_t val, uint64_t size)
-{
-    return (((val - 1) / size) + 1) * size;
-}
-
-static inline uint32_t align_down(uint64_t val, uint64_t size)
-{
-    return (((val) / size)) * size;
-}
 
 int _calculate_blocksize_match_tdbstore(BlockDevice *bd)
 {
