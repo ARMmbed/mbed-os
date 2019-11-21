@@ -34,8 +34,7 @@ HeapBlockDevice sd{DEVICE_SIZE};
 
 class TDBStoreModuleTest : public testing::Test {
 protected:
-    FlashSimBlockDevice flash{&sd};
-    TDBStore tdb{&flash};
+    TDBStore tdb{&sd};
 
     virtual void SetUp()
     {
