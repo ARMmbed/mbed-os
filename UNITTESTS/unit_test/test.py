@@ -110,7 +110,6 @@ class UnitTestTool(object):
         # Speed up compilation by running on more than one core
         count = psutil.cpu_count()
         args.append("-j{}".format(count+1))
-        args.append("-l{}".format(count))
 
         if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
             args.append("VERBOSE=1")
