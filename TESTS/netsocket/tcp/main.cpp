@@ -66,7 +66,7 @@ void drop_bad_packets(TCPSocket &sock, int orig_timeout)
 nsapi_version_t get_ip_version()
 {
     SocketAddress test;
-    if (!test.set_ip_address(NetworkInterface::get_default_instance()->get_ip_address())) {
+    if (NetworkInterface::get_default_instance()->get_ip_address(&test) != NSAPI_ERROR_OK) {
         return NSAPI_UNSPEC;
     }
     return test.get_ip_version();
@@ -77,7 +77,8 @@ static void _ifup()
     NetworkInterface *net = NetworkInterface::get_default_instance();
     nsapi_error_t err = net->connect();
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
-    const char *address = net->get_ip_address();
+    SocketAddress address;
+    net->get_ip_address(&address);
 
 #define MESH 3
 #if MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == MESH
@@ -86,7 +87,7 @@ static void _ifup()
         ThisThread::sleep_for(500);
     }
 #endif
-    printf("MBED: TCPClient IP address is '%s'\n", address ? address : "null");
+    printf("MBED: TCPClient IP address is '%s'\n", address ? address.get_ip_address() : "null");
 }
 
 static void _ifdown()
@@ -221,8 +222,6 @@ Case cases[] = {
     Case("TCPSOCKET_OPEN_TWICE", TCPSOCKET_OPEN_TWICE),
     Case("TCPSOCKET_BIND_PORT", TCPSOCKET_BIND_PORT),
     Case("TCPSOCKET_BIND_PORT_FAIL", TCPSOCKET_BIND_PORT_FAIL),
-    Case("TCPSOCKET_BIND_ADDRESS_PORT", TCPSOCKET_BIND_ADDRESS_PORT),
-    Case("TCPSOCKET_BIND_ADDRESS_NULL", TCPSOCKET_BIND_ADDRESS_NULL),
     Case("TCPSOCKET_BIND_ADDRESS_INVALID", TCPSOCKET_BIND_ADDRESS_INVALID),
     Case("TCPSOCKET_BIND_ADDRESS", TCPSOCKET_BIND_ADDRESS),
     Case("TCPSOCKET_BIND_WRONG_TYPE", TCPSOCKET_BIND_WRONG_TYPE),

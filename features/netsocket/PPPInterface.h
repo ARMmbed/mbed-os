@@ -80,6 +80,15 @@ public:
      */
     virtual const char *get_ip_address();
 
+    /** @copydoc NetworkInterface::get_ip_address */
+    virtual nsapi_error_t get_ip_address(SocketAddress *address);
+
+    /** @copydoc NetworkInterface::get_netmask */
+    virtual nsapi_error_t get_netmask(SocketAddress *address);
+
+    /** @copydoc NetworkInterface::get_gateway */
+    virtual nsapi_error_t get_gateway(SocketAddress *address);
+
     /** Get the local network mask
      *
      *  @return         Null-terminated representation of the local network mask

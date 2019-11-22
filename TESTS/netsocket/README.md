@@ -221,8 +221,6 @@ Please refer to the following table for priorities of test cases. Priorities are
 | 4   | UDPSOCKET_OPEN_CLOSE_REPEAT             | MUST     |
 | 5   | UDPSOCKET_BIND_PORT                     | SHOULD   |
 | 6   | UDPSOCKET_BIND_PORT_FAIL                | SHOULD   |
-| 7   | UDPSOCKET_BIND_ADDRESS_PORT             | SHOULD   |
-| 8   | UDPSOCKET_BIND_ADDRESS_NULL             | SHOULD   |
 | 9   | UDPSOCKET_BIND_ADDRESS_INVALID          | SHOULD   |
 | 10  | UDPSOCKET_BIND_WRONG_TYPE               | SHOULD   |
 | 11  | UDPSOCKET_BIND_ADDRESS                  | SHOULD   |
@@ -239,8 +237,6 @@ Please refer to the following table for priorities of test cases. Priorities are
 | 22  | TCPSOCKET_OPEN_CLOSE_REPEAT             | MUST     |
 | 23  | TCPSOCKET_BIND_PORT                     | SHOULD   |
 | 24  | TCPSOCKET_BIND_PORT_FAIL                | SHOULD   |
-| 25  | TCPSOCKET_BIND_ADDRESS_PORT             | SHOULD   |
-| 26  | TCPSOCKET_BIND_ADDRESS_NULL             | SHOULD   |
 | 27  | TCPSOCKET_BIND_ADDRESS_INVALID          | SHOULD   |
 | 28  | TCPSOCKET_BIND_WRONG_TYPE               | SHOULD   |
 | 29  | TCPSOCKET_BIND_ADDRESS                  | SHOULD   |
@@ -617,51 +613,6 @@ Call `Socket::bind(port)` on a port number that is already used.
 
 The second `Socket::bind()` returns `NSAPI_ERROR_PARAMETER`.
 
-### SOCKET_BIND_ADDRESS_PORT
-
-**Description:**
-
-Call `Socket::bind(addr, port)`.
-
-**Preconditions:**
-
-1. Network interface and stack are initialized.
-1. Network connection is up.
-
-**Test steps:**
-
-1. Create an object by calling `new Socket()`.
-1. Call `Socket::open(stack)`.
-1. Get address by calling `NetworkInterface::get_ip_address()`.
-1. Call `Socket::bind(address, <any unused port number>);`.
-1. Destroy the socket.
-
-**Expected result:**
-
-All calls return `NSAPI_ERROR_OK`.
-
-### SOCKET_BIND_ADDRESS_NULL
-
-**Description:**
-
-Call `Socket::bind(NULL, port)`.
-
-**Preconditions:**
-
-1. Network interface and stack are initialized.
-1. Network connection is up.
-
-**Test steps:**
-
-1. Create an object by calling `new Socket()`.
-1. Call `Socket::open(stack)`.
-1. Call `Socket::bind(NULL, <any unused port number>);`.
-1. Destroy the socket.
-
-**Expected result:**
-
-`Socket::bind()` returns `NSAPI_ERROR_OK`.
-
 ### SOCKET_BIND_ADDRESS_INVALID
 
 **Description:**
@@ -782,14 +733,6 @@ Test cases for UDPSocket class
 ### UDPSOCKET_BIND_PORT_FAIL
 
 **Description:** Run `SOCKET_BIND_PORT_FAIL` for UDPSocket.
-
-### UDPSOCKET_BIND_ADDRESS_PORT
-
-**Description:** Run `SOCKET_BIND_ADDRESS_PORT` for UDPSocket.
-
-### UDPSOCKET_BIND_ADDRESS_NULL
-
-**Description:** Run `SOCKET_BIND_ADDRESS_NULL` for UDPSocket.
 
 ### UDPSOCKET_BIND_ADDRESS_INVALID
 
@@ -999,14 +942,6 @@ Test cases for TCPSocket class
 ### TCPSOCKET_BIND_PORT_FAIL
 
 **Description:** Run `SOCKET_BIND_PORT_FAIL` for TCPSocket.
-
-### TCPSOCKET_BIND_ADDRESS_PORT
-
-**Description:** Run `SOCKET_BIND_ADDRESS_PORT` for TCPSocket.
-
-### TCPSOCKET_BIND_ADDRESS_NULL
-
-**Description:** Run `SOCKET_BIND_ADDRESS_NULL` for TCPSocket.
 
 ### TCPSOCKET_BIND_ADDRESS_INVALID
 

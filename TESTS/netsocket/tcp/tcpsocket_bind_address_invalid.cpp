@@ -29,17 +29,16 @@ using namespace utest::v1;
 void TCPSOCKET_BIND_ADDRESS_INVALID()
 {
     SKIP_IF_TCP_UNSUPPORTED();
-    TCPSocket *sock = new TCPSocket;
-    if (!sock) {
-        TEST_FAIL();
-        return;
-    }
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->open(NetworkInterface::get_default_instance()));
+    TCPSocket sock;
+
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(NetworkInterface::get_default_instance()));
     nsapi_error_t bind_result = NSAPI_ERROR_OK;
     if (get_ip_version() == NSAPI_IPv4) {
-        bind_result = sock->bind("190.2.3.4", 1024);
+        SocketAddress a("190.2.3.4", 1024);
+        bind_result = sock.bind(a);
     } else if (get_ip_version() == NSAPI_IPv6) {
-        bind_result = sock->bind("fe80::ff01", 1024);
+        SocketAddress a("fe80::ff01", 1024);
+        bind_result = sock.bind(a);
     } else {
         TEST_FAIL_MESSAGE("This stack is neither IPv4 nor IPv6");
     }
@@ -48,7 +47,5 @@ void TCPSOCKET_BIND_ADDRESS_INVALID()
     } else {
         TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, bind_result);
     }
-
-    delete sock;
 }
 #endif // defined(MBED_CONF_RTOS_PRESENT)

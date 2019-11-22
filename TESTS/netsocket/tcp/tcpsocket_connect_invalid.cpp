@@ -31,10 +31,15 @@ void TCPSOCKET_CONNECT_INVALID()
     TCPSocket sock;
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(NetworkInterface::get_default_instance()));
 
-    TEST_ASSERT(sock.connect(NULL, 9) < 0);
-    TEST_ASSERT(sock.connect("", 9) < 0);
-    TEST_ASSERT(sock.connect("", 0) < 0);
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.connect(ECHO_SERVER_ADDR, ECHO_SERVER_DISCARD_PORT));
+    SocketAddress address;
+    address.set_port(9);
+
+    TEST_ASSERT_FALSE(address.set_ip_address(NULL));
+
+    // Valid address for the final check
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, NetworkInterface::get_default_instance()->gethostbyname(ECHO_SERVER_ADDR, &address));
+    address.set_port(ECHO_SERVER_DISCARD_PORT);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.connect(address));
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }

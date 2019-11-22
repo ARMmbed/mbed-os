@@ -70,13 +70,13 @@ TEST_F(TestUDPSocket, sendto_addr_port)
     socket->open((NetworkStack *)&stack);
 
     stack.return_value = NSAPI_ERROR_PARAMETER;
-    EXPECT_EQ(socket->sendto("127.0.0.1", 0, 0, 0), NSAPI_ERROR_DNS_FAILURE);
+    EXPECT_EQ(socket->sendto(a, 0, 0), NSAPI_ERROR_PARAMETER);
 
     stack.return_value = NSAPI_ERROR_OK;
-    EXPECT_EQ(socket->sendto("127.0.0.1", 0, 0, 0), 0);
+    EXPECT_EQ(socket->sendto(a, 0, 0), 0);
 
     EXPECT_EQ(socket->setsockopt(NSAPI_SOCKET, NSAPI_BIND_TO_DEVICE, "12324", 5), NSAPI_ERROR_UNSUPPORTED);
-    EXPECT_EQ(socket->sendto("127.0.0.1", 0, 0, 0), 0);
+    EXPECT_EQ(socket->sendto(a, 0, 0), 0);
 }
 
 TEST_F(TestUDPSocket, connect)

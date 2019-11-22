@@ -57,12 +57,47 @@ int AT_CellularStack::find_socket_index(nsapi_socket_t handle)
  */
 nsapi_error_t AT_CellularStack::get_ip_address(SocketAddress *address)
 {
-    address->set_ip_address(get_ip_address());
-    if (address) {
-        return NSAPI_ERROR_OK;
-    } else {
-        return NSAPI_ERROR_NO_ADDRESS;
+    if (!address) {
+        return NSAPI_ERROR_PARAMETER;
     }
+    _at.lock();
+
+    bool ipv4 = false, ipv6 = false;
+
+    _at.cmd_start_stop("+CGPADDR", "=", "%d", _cid);
+    _at.resp_start("+CGPADDR:");
+
+    if (_at.info_resp()) {
+        _at.skip_param();
+
+        if (_at.read_string(_ip, PDP_IPV6_SIZE) != -1) {
+            convert_ipv6(_ip);
+            address->set_ip_address(_ip);
+
+            ipv4 = (address->get_ip_version() == NSAPI_IPv4);
+            ipv6 = (address->get_ip_version() == NSAPI_IPv6);
+
+            // Try to look for second address ONLY if modem has support for dual stack(can handle both IPv4 and IPv6 simultaneously).
+            // Otherwise assumption is that second address is not reliable, even if network provides one.
+            if ((get_property(PROPERTY_IPV4V6_PDP_TYPE) && (_at.read_string(_ip, PDP_IPV6_SIZE) != -1))) {
+                convert_ipv6(_ip);
+                address->set_ip_address(_ip);
+                ipv6 = (address->get_ip_version() == NSAPI_IPv6);
+            }
+        }
+    }
+    _at.resp_stop();
+    _at.unlock();
+
+    if (ipv4 && ipv6) {
+        _stack_type = IPV4V6_STACK;
+    } else if (ipv4) {
+        _stack_type = IPV4_STACK;
+    } else if (ipv6) {
+        _stack_type = IPV6_STACK;
+    }
+
+    return (ipv4 || ipv6) ? NSAPI_ERROR_OK : NSAPI_ERROR_NO_ADDRESS;
 }
 
 const char *AT_CellularStack::get_ip_address()
