@@ -1,0 +1,165 @@
+{
+    "name": "fat_chan",
+    "config": {
+        "ffs_dbg": {
+            "help": "Switches debug mode. 0: disable, 1: enable.",
+            "value": "0"
+        },
+        "ff_fs_readonly": {
+            "help": "Switches read-only configuration. 0: read/write, 1: read-only.",
+            "value": "0"
+        },
+        "ff_fs_minimize": {
+            "help": "Defines minimization level to remove some basic API functions. 0: all functions enabled, 1: f_stat() removed, 2: f_opendir() removed in addition to 1, 3: f_lseek() removed in addition to 2.",
+            "value": "0"
+        },
+        "ff_use_strfunc": {
+            "help": "Switches string functions. 0: disable string functions, 1: enable without LF-CRLF conversion, 2: enable with LF-CRLF conversion.",
+            "value": "0"
+        },
+        "ff_use_find": {
+            "help": "Switches filtered directory read functions. 0: disable, 1: enable, 2: enable with matching altname[] too.",
+            "value": "0"
+        },
+        "ff_use_mkfs": {
+            "help": "Switches f_mkfs() function. 0: disable, 1: enable.",
+            "value": "1"
+        },
+        "ff_use_fastseek": {
+            "help": "Switches fast seek function. 0: disable, 1: enable.",
+            "value": "0"
+        },
+        "ff_use_expand": {
+            "help": "Switches f_expand function. 0: disable, 1: enable.",
+            "value": "0"
+        },
+        "ff_use_chmod": {
+            "help": "Switches attribute manipulation functions. 0: disable, 1: enable. ff_fs_readonly needs to be 0 to enable this option.",
+            "value": "0"
+        },
+        "ff_use_label": {
+            "help": "Switches volume label functions. 0: disable, 1: enable.",
+            "value": "0"
+        },
+        "ff_use_forward": {
+            "help": "Switches f_forward() function. 0: disable, 1: enable.",
+            "value": "0"
+        },
+        "ff_code_page": {
+            "help": "Specifies the OEM code page to be used on the target system.",
+            "value": "437"
+        },
+        "ff_use_lfn": {
+            "help": "Switches the support for LFN (long file name). 0: disable LFN, 1: enable LFN with static working buffer on the BSS, always NOT thread-safe, 2: enable LFN with dynamic working buffer on the STACK, 3: enable LFN with dynamic working buffer on the HEAP.",
+            "value": "3"
+        },
+        "ff_max_lfn": {
+            "help": "Defines size of the working buffer in UTF-16 code unit and it can be in range of 12 to 255. It is recommended to be set 255 to fully support LFN specification.",
+            "value": "255"
+        },
+        "ff_lfn_unicode": {
+            "help": "Switches the character encoding on the API when LFN is enabled. 0: ANSI/OEM in current CP (TCHAR = char), 1: unicode in UTF-16 (TCHAR = WCHAR), 2: unicode in UTF-8 (TCHAR = char).",
+            "value": "0"
+        },
+        "ff_lfn_buf": {
+            "help": "Defines size of file name members in the FILINFO structure which is used to read out directory items. The value should be suffcient for the file names to read. The maximum possible length of the read file name depends on character encoding. When LFN is not enabled, these options have no effect.",
+            "value": "255"
+        },
+        "ff_sfn_buf": {
+            "help": "See ff_lfn_buf.",
+            "value": "12"
+        },
+        "ff_strf_encode": {
+            "help": "When FF_LFN_UNICODE >= 1 with LFN enabled, string I/O functions convert the character encoding in it. This option selects assumption of character encoding ON THE FILE to be read/written via those functions. 0: ANSI/OEM in current CP, 1: unicode in UTF-16LE, 2: unicode in UTF-16BE, 3: unicode in UTF-8.",
+            "value": "3"
+        },
+        "ff_fs_rpath": {
+            "help": "Configures support for relative path. 0: disable relative path and remove related functions, 1: enable relative path. f_chdir() and f_chdrive() are available, 2: f_getcwd() function is available in addition to 1.",
+            "value": "1"
+        },
+        "ff_volumes": {
+            "help": "Number of volumes (logical drives) to be used. (1-10).",
+            "value": "4"
+        },
+        "ff_str_volume_id": {
+            "help": "Switches string support for volume ID. When ff_volume_strs is set to 1, also pre-defined strings can be used as drive number in the path name.",
+            "value": "0"
+        },
+        "ff_volume_strs": {
+            "help": "Defines the drive ID strings for each logical drive. Number of items must be equal to ff_volumes. Valid characters for the drive ID strings are: A-Z and 0-9.",
+            "value": "\"RAM\",\"NAND\",\"CF\",\"SD\",\"SD2\",\"USB\",\"USB2\",\"USB3\""
+        },
+        "ff_multi_partition": {
+            "help": "Switches support for multiple volumes on the physical drive. By default (0), each logical drive number is bound to the same physical drive number and only an FAT volume found on the physical drive will be mounted. When this function is enabled (1), each logical drive number can be bound to arbitrary physical drive.",
+            "value": "0"
+        },
+        "ff_min_ss": {
+            "help": "This and the next option configures the range of sector size to be supported. (512, 1024, 2048 or 4096) Always set both 512 for most systems, generic memory card and harddisk. But a larger value may be required for on-board flash memory and some type of optical media.",
+            "value": "512"
+        },
+        "ff_max_ss": {
+            "help": "When ff_max_ss is larger than ff_min_ss, FatFs is configured for variable sector size mode.",
+            "value": "4096"
+        },
+        "ff_use_trim": {
+            "help": "Switches support for ATA-TRIM. 0: disable, 1: enable",
+            "value": "1"
+        },
+        "ff_fs_nofsinfo": {
+            "help": "If you need to know correct free space on the FAT32 volume, set bit 0 of this option, and f_getfree() function at first time after volume mount will force a full FAT scan. Bit 1 controls the use of last allocated cluster number.",
+            "value": "0"
+        },
+        "ff_fs_tiny": {
+            "help": "Switches tiny buffer configuration. (0:Normal or 1:Tiny). At the tiny configuration, size of file object (FIL) is shrinked ff_max_ss bytes. Instead of private sector buffer eliminated from the file object, common sector buffer in the filesystem object (FATFS) is used for the file data transfer.",
+            "value": "1"
+        },
+        "ff_fs_exfat": {
+            "help": "Switches support for exFAT filesystem. 0: disable, 1: enable. When enable exFAT, also LFN needs to be enabled. Note that enabling exFAT discards ANSI C (C89) compatibility.",
+            "value": "0"
+        },
+        "ff_fs_heapbuf": {
+            "help": "Enables the use of the heap for allocating buffers. Otherwise _max_ss sized buffers are allocated statically in relevant structures (in FATFS if _fs_tiny, otherwise in FATFS and FIL).",
+            "value": "1"
+        },
+        "ff_fs_nortc": {
+            "help": "Switches timestamp functiton. If the system does not have any RTC function or valid timestamp is not needed, set to 1 to disable the timestamp function. All objects modified by FatFs will have a fixed timestamp defined by ff_nortc_mon, ff_nortc_mday and ff_nortc_year in local time.",
+            "value": "0"
+        },
+        "ff_nortc_mon": {
+            "help": "See ff_fs_nortc.",
+            "value": "1"
+        },
+        "ff_nortc_mday": {
+            "help": "See ff_fs_nortc.",
+            "value": "1"
+        },
+        "ff_nortc_year": {
+            "help": "See ff_fs_nortc.",
+            "value": "2017"
+        },
+        "ff_fs_lock": {
+            "help": "Switches file lock function to control duplicated file open and illegal operation to open objects. This option must be 0 when ff_fs_readonly is 1. The value defines how many files/sub-directories can be opened simultaneously under file lock control. Note that the file lock control is independent of re-entrancy.",
+            "value": "0"
+        },
+        "ff_fs_reentrant": {
+            "help": "Switches the re-entrancy (thread safe) of the FatFs module itself. Note that regardless of this option, file access to different volume is always re-entrant and volume control functions. 0: disable re-entrancy. ff_fs_timeout and ff_sync_t have no effect. 1: enable re-entrancy. Also user provided synchronization handlers must be added to the project. Samples are available in option/syscall.c.",
+            "value": "0"
+        },
+        "ff_fs_timeout": {
+            "help": "Defines timeout period in unit of time tick.",
+            "value": "1000"
+        },
+        "ff_sync_t": {
+            "help": "Defines O/S dependent sync object type. e.g. HANDLE, ID, OS_EVENT* and SemaphoreHandle_t.",
+            "value": "HANDLE"
+        },
+        "flush_on_new_cluster": {
+            "help": "Sync the file on every new cluster.",
+            "value": "0"
+        },
+        "flush_on_new_sector": {
+            "help": "Sync the file on every new sector.",
+            "value": "1"
+        }
+    }
+}
