@@ -72,6 +72,10 @@
  */
 #define SERIAL_FLUSH_TIME_MS 20
 
+#define TIMEOUT_US (1000 * (TIMEOUT_MS))
+#define KICK_ADVANCE_US (1000 * (KICK_ADVANCE_MS))
+#define SERIAL_FLUSH_TIME_US (1000 * (SERIAL_FLUSH_TIME_MS))
+
 using utest::v1::Case;
 using utest::v1::Specification;
 using utest::v1::Harness;
@@ -84,12 +88,20 @@ struct testcase_data {
     uint32_t received_data;
 };
 
-void release_sem(Semaphore *sem)
-{
-    sem->release();
-}
-
 testcase_data current_case;
+
+Thread wdg_kicking_thread(osPriorityNormal, 768);
+Semaphore kick_wdg_during_test_teardown(0, 1);
+
+void wdg_kicking_thread_fun()
+{
+    kick_wdg_during_test_teardown.acquire();
+    Watchdog &watchdog = Watchdog::get_instance();
+    while (true) {
+        watchdog.kick();
+        wait_us(20000);
+    }
+}
 
 bool send_reset_notification(testcase_data *tcdata, uint32_t delay_ms)
 {
@@ -124,11 +136,11 @@ void test_simple_reset()
     TEST_ASSERT_TRUE(watchdog.start(TIMEOUT_MS));
     TEST_ASSERT_TRUE(watchdog.is_running());
     // Watchdog should fire before twice the timeout value.
-    wait_ms(2 * TIMEOUT_MS); // Device reset expected.
+    wait_us(2 * TIMEOUT_US); // Device reset expected.
 
-    // Watchdog reset should have occurred during wait_ms() above;
+    // Watchdog reset should have occurred during a wait above.
 
-    watchdog.kick();  // Just to buy some time for testsuite failure handling.
+    kick_wdg_during_test_teardown.release(); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 
@@ -143,8 +155,6 @@ void test_sleep_reset()
     }
 
     // Phase 1. -- run the test code.
-    Semaphore sem(0, 1);
-    Timeout timeout;
     if (send_reset_notification(&current_case, 2 * TIMEOUT_MS) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
@@ -154,22 +164,21 @@ void test_sleep_reset()
     TEST_ASSERT_TRUE(watchdog.start(TIMEOUT_MS));
     TEST_ASSERT_TRUE(watchdog.is_running());
     sleep_manager_lock_deep_sleep();
-    // Watchdog should fire before twice the timeout value.
-    timeout.attach_us(mbed::callback(release_sem, &sem), 1000ULL * (2 * TIMEOUT_MS));
     if (sleep_manager_can_deep_sleep()) {
         TEST_ASSERT_MESSAGE(0, "Deepsleep should be disallowed.");
         return;
     }
-    sem.wait(); // Device reset expected.
+    // Watchdog should fire before twice the timeout value.
+    ThisThread::sleep_for(2 * TIMEOUT_MS); // Device reset expected.
     sleep_manager_unlock_deep_sleep();
 
-    // Watchdog reset should have occurred during sem.wait() (sleep) above;
+    // Watchdog reset should have occurred during the sleep above.
 
-    watchdog.kick();  // Just to buy some time for testsuite failure handling.
+    kick_wdg_during_test_teardown.release(); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
 void test_deepsleep_reset()
 {
     // Phase 2. -- verify the test results.
@@ -180,27 +189,28 @@ void test_deepsleep_reset()
     }
 
     // Phase 1. -- run the test code.
-    Semaphore sem(0, 1);
-    LowPowerTimeout lp_timeout;
-    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS) == false) {
+    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS + SERIAL_FLUSH_TIME_MS) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
+    wait_us(SERIAL_FLUSH_TIME_US); // Wait for the serial buffers to flush.
     Watchdog &watchdog = Watchdog::get_instance();
     TEST_ASSERT_FALSE(watchdog.is_running());
     TEST_ASSERT_TRUE(watchdog.start(TIMEOUT_MS));
     TEST_ASSERT_TRUE(watchdog.is_running());
-    // Watchdog should fire before twice the timeout value.
-    lp_timeout.attach_us(mbed::callback(release_sem, &sem), 1000ULL * (2 * TIMEOUT_MS));
-    wait_ms(SERIAL_FLUSH_TIME_MS); // Wait for the serial buffers to flush.
     if (!sleep_manager_can_deep_sleep()) {
         TEST_ASSERT_MESSAGE(0, "Deepsleep should be allowed.");
     }
-    sem.wait(); // Device reset expected.
 
-    // Watchdog reset should have occurred during sem.wait() (deepsleep) above;
+    // The Watchdog reset is allowed to be delayed up to twice the timeout
+    // value when the deepsleep mode is active.
+    // To make the test less sensitive to clock/wait accuracy, add 20% extra
+    // (making tha whole deepsleep wait equal to 2.2 * timeout).
+    ThisThread::sleep_for(220 * TIMEOUT_MS / 100); // Device reset expected.
 
-    watchdog.kick();  // Just to buy some time for testsuite failure handling.
+    // Watchdog reset should have occurred during the deepsleep above.
+
+    kick_wdg_during_test_teardown.release(); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 #endif
@@ -226,13 +236,13 @@ void test_restart_reset()
     TEST_ASSERT_FALSE(watchdog.is_running());
     TEST_ASSERT_TRUE(watchdog.start(TIMEOUT_MS));
     TEST_ASSERT_TRUE(watchdog.is_running());
-    wait_ms(TIMEOUT_MS / 2UL);
+    wait_us(TIMEOUT_US / 2);
     TEST_ASSERT_TRUE(watchdog.stop());
     TEST_ASSERT_FALSE(watchdog.is_running());
     // Check that stopping the Watchdog prevents a device reset.
     // The watchdog should trigger at, or after the timeout value.
     // The watchdog should trigger before twice the timeout value.
-    wait_ms(TIMEOUT_MS / 2UL + TIMEOUT_MS);
+    wait_us(TIMEOUT_US / 2 + TIMEOUT_US);
 
     if (send_reset_notification(&current_case, 2 * TIMEOUT_MS) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
@@ -241,11 +251,11 @@ void test_restart_reset()
     TEST_ASSERT_TRUE(watchdog.start(TIMEOUT_MS));
     TEST_ASSERT_TRUE(watchdog.is_running());
     // Watchdog should fire before twice the timeout value.
-    wait_ms(2 * TIMEOUT_MS); // Device reset expected.
+    wait_us(2 * TIMEOUT_US); // Device reset expected.
 
-    // Watchdog reset should have occurred during that wait() above;
+    // Watchdog reset should have occurred during a wait above.
 
-    watchdog.kick();  // Just to buy some time for testsuite failure handling.
+    kick_wdg_during_test_teardown.release(); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 
@@ -266,7 +276,7 @@ void test_kick_reset()
     for (int i = 3; i; i--) {
         // The reset is prevented as long as the watchdog is kicked
         // anytime before the timeout.
-        wait_ms(TIMEOUT_MS - KICK_ADVANCE_MS);
+        wait_us(TIMEOUT_US - KICK_ADVANCE_US);
         watchdog.kick();
     }
     if (send_reset_notification(&current_case, 2 * TIMEOUT_MS) == false) {
@@ -274,11 +284,11 @@ void test_kick_reset()
         return;
     }
     // Watchdog should fire before twice the timeout value.
-    wait_ms(2 * TIMEOUT_MS); // Device reset expected.
+    wait_us(2 * TIMEOUT_US); // Device reset expected.
 
-    // Watchdog reset should have occurred during that wait() above;
+    // Watchdog reset should have occurred during a wait above.
 
-    watchdog.kick();  // Just to buy some time for testsuite failure handling.
+    kick_wdg_during_test_teardown.release(); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 
@@ -313,6 +323,10 @@ int testsuite_setup(const size_t number_of_cases)
         return utest::v1::STATUS_ABORT;
     }
 
+    // The thread is started here, but feeding the watchdog will start
+    // when the semaphore is released during a test case teardown.
+    wdg_kicking_thread.start(mbed::callback(wdg_kicking_thread_fun));
+
     utest_printf("This test suite is composed of %i test cases. Starting at index %i.\n", number_of_cases,
                  current_case.start_index);
     return current_case.start_index;
@@ -322,7 +336,7 @@ Case cases[] = {
     Case("Watchdog reset", case_setup, test_simple_reset),
 #if DEVICE_SLEEP
     Case("Watchdog reset in sleep mode", case_setup, test_sleep_reset),
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
     Case("Watchdog reset in deepsleep mode", case_setup, test_deepsleep_reset),
 #endif
 #endif

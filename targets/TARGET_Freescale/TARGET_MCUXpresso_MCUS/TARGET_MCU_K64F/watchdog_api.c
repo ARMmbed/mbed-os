@@ -75,8 +75,8 @@ watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
   cfg.enableInterrupt = false;
   cfg.enableWindowMode = false;
   cfg.workMode.enableWait = true;
-  cfg.workMode.enableStop = false;
-  cfg.workMode.enableDebug = false;
+  cfg.workMode.enableStop = true;
+  cfg.workMode.enableDebug = true;
 
   const uint32_t prescaler = calculate_prescaler_value(config->timeout_ms);
 
