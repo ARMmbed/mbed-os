@@ -47,6 +47,7 @@ public:
      *  @retval         int Other negative error codes for stack-related failures.
      *                  See @ref NetworkStack::socket_send.
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual nsapi_size_or_error_t sendto(const char *host, uint16_t port,
                                          const void *data, nsapi_size_t size);
 

@@ -109,52 +109,40 @@ public:
 
         virtual char *get_mac_address(char *buf, nsapi_size_t buflen) = 0;
 
-        /** Copies IP address of the network interface to user supplied buffer
-         *
-         * @param    buf        buffer to which IP address will be copied as "W:X:Y:Z"
-         * @param    buflen     size of supplied buffer
-         * @param    interface_name  Network interface name
-         * @return              Pointer to a buffer, or NULL if the buffer is too small
-         */
+        /** @copydoc NetworkStack::get_ip_address */
+        virtual nsapi_error_t get_ip_address(SocketAddress *address) = 0;
 
+        MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
         virtual char *get_ip_address(char *buf, nsapi_size_t buflen) = 0;
 
-        /** Copies IPv6 link local address of the network interface in SocketAddress format
-         *
-         *  @address        SocketAddress representation of the link local IPv6 address
-         *  @return         NSAPI_ERROR_OK on success, negative error code on failure
-         */
+        /** @copydoc NetworkStack::get_ipv6_link_local_address */
         virtual nsapi_error_t get_ipv6_link_local_address(SocketAddress *address)
         {
             return NSAPI_ERROR_UNSUPPORTED;
         }
 
-        /** Copies IP address of the network interface to user supplied buffer
-         *
-         * @param    buf        buffer to which IP address will be copied as "W:X:Y:Z"
-         * @param    buflen     size of supplied buffer
-         * @param    interface_name  Network interface name
-         * @return              Pointer to a buffer, or NULL if the buffer is too small
-         */
+        /** @copydoc NetworkStack::get_ip_address_if */
+        virtual nsapi_error_t get_ip_address_if(SocketAddress *address, const char *interface_name)
+        {
+            return NSAPI_ERROR_UNSUPPORTED;
+        }
+
+        MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
         virtual char *get_ip_address_if(char *buf, nsapi_size_t buflen, const char *interface_name)
         {
             return NULL;
         };
 
-        /** Copies netmask of the network interface to user supplied buffer
-         *
-         * @param    buf        buffer to which netmask will be copied as "W:X:Y:Z"
-         * @param    buflen     size of supplied buffer
-         * @return              Pointer to a buffer, or NULL if the buffer is too small
-         */
+        /** @copydoc NetworkStack::get_netmask */
+        virtual nsapi_error_t get_netmask(SocketAddress *address) = 0;
+
+        MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
         virtual char *get_netmask(char *buf, nsapi_size_t buflen) = 0;
 
-        /** Copies gateway address of the network interface to user supplied buffer
-         *
-         * @param    buf        buffer to which gateway address will be copied as "W:X:Y:Z"
-         * @param    buflen     size of supplied buffer
-         * @return              Pointer to a buffer, or NULL if the buffer is too small
-         */
+        /** @copydoc NetworkStack::get_gateway */
+        virtual nsapi_error_t get_gateway(SocketAddress *address) = 0;
+
+        MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
         virtual char *get_gateway(char *buf, nsapi_size_t buflen) = 0;
     };
 

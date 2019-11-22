@@ -45,6 +45,20 @@ nsapi_error_t EMACInterface::set_network(const char *ip_address, const char *net
     return NSAPI_ERROR_OK;
 }
 
+nsapi_error_t EMACInterface::set_network(const SocketAddress &ip_address, const SocketAddress &netmask, const SocketAddress &gateway)
+{
+    _dhcp = false;
+
+    strncpy(_ip_address, ip_address.get_ip_address() ? ip_address.get_ip_address() : "", sizeof(_ip_address));
+    _ip_address[sizeof(_ip_address) - 1] = '\0';
+    strncpy(_netmask, netmask.get_ip_address() ? netmask.get_ip_address() : "", sizeof(_netmask));
+    _netmask[sizeof(_netmask) - 1] = '\0';
+    strncpy(_gateway, gateway.get_ip_address() ? gateway.get_ip_address() : "", sizeof(_gateway));
+    _gateway[sizeof(_gateway) - 1] = '\0';
+
+    return NSAPI_ERROR_OK;
+}
+
 nsapi_error_t EMACInterface::set_dhcp(bool dhcp)
 {
     _dhcp = dhcp;
@@ -83,7 +97,17 @@ const char *EMACInterface::get_mac_address()
     if (_interface && _interface->get_mac_address(_mac_address, sizeof(_mac_address))) {
         return _mac_address;
     }
-    return NULL;
+    return nullptr;
+}
+
+nsapi_error_t EMACInterface::get_ip_address(SocketAddress *address)
+{
+    if (_interface && _interface->get_ip_address(_ip_address, sizeof(_ip_address))) {
+        address->set_ip_address(_ip_address);
+        return NSAPI_ERROR_OK;
+    }
+
+    return NSAPI_ERROR_NO_CONNECTION;
 }
 
 const char *EMACInterface::get_ip_address()
@@ -91,8 +115,7 @@ const char *EMACInterface::get_ip_address()
     if (_interface && _interface->get_ip_address(_ip_address, sizeof(_ip_address))) {
         return _ip_address;
     }
-
-    return NULL;
+    return nullptr;
 }
 
 nsapi_error_t EMACInterface::get_ipv6_link_local_address(SocketAddress *address)
@@ -104,13 +127,32 @@ nsapi_error_t EMACInterface::get_ipv6_link_local_address(SocketAddress *address)
     return NSAPI_ERROR_NO_CONNECTION;
 }
 
+nsapi_error_t EMACInterface::get_netmask(SocketAddress *address)
+{
+    if (_interface && _interface->get_netmask(_netmask, sizeof(_netmask))) {
+        address->set_ip_address(_netmask);
+        return NSAPI_ERROR_OK;
+    }
+
+    return NSAPI_ERROR_NO_CONNECTION;
+}
+
 const char *EMACInterface::get_netmask()
 {
     if (_interface && _interface->get_netmask(_netmask, sizeof(_netmask))) {
         return _netmask;
     }
+    return nullptr;
+}
 
-    return 0;
+nsapi_error_t EMACInterface::get_gateway(SocketAddress *address)
+{
+    if (_interface && _interface->get_gateway(_gateway, sizeof(_gateway))) {
+        address->set_ip_address(_gateway);
+        return NSAPI_ERROR_OK;
+    }
+
+    return NSAPI_ERROR_NO_CONNECTION;
 }
 
 const char *EMACInterface::get_gateway()
@@ -118,8 +160,7 @@ const char *EMACInterface::get_gateway()
     if (_interface && _interface->get_gateway(_gateway, sizeof(_gateway))) {
         return _gateway;
     }
-
-    return 0;
+    return nullptr;
 }
 
 char *EMACInterface::get_interface_name(char *interface_name)

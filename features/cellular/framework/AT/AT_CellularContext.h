@@ -35,6 +35,7 @@ public:
 // from CellularBase/NetworkInterface
     virtual nsapi_error_t set_blocking(bool blocking);
     virtual NetworkStack *get_stack();
+    virtual nsapi_error_t get_ip_address(SocketAddress *address);
     virtual const char *get_ip_address();
     virtual char *get_interface_name(char *interface_name);
     virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
@@ -48,7 +49,9 @@ public:
     virtual nsapi_error_t connect(const char *sim_pin, const char *apn = 0, const char *uname = 0,
                                   const char *pwd = 0);
     virtual void set_credentials(const char *apn, const char *uname = 0, const char *pwd = 0);
+    virtual nsapi_error_t get_netmask(SocketAddress *address);
     virtual const char *get_netmask();
+    virtual nsapi_error_t get_gateway(SocketAddress *address);
     virtual const char *get_gateway();
 
 // from CellularContext

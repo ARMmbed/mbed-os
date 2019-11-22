@@ -111,6 +111,11 @@ NetworkStack *AT_CellularContext::get_stack()
     return NULL;
 }
 
+nsapi_error_t AT_CellularContext::get_ip_address(SocketAddress *address)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
 const char *AT_CellularContext::get_ip_address()
 {
     return NULL;
@@ -144,9 +149,19 @@ void AT_CellularContext::set_credentials(const char *apn, const char *uname, con
 
 }
 
+nsapi_error_t AT_CellularContext::get_netmask(SocketAddress *address)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
 const char *AT_CellularContext::get_netmask()
 {
     return NULL;
+}
+
+nsapi_error_t AT_CellularContext::get_gateway(SocketAddress *address)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
 }
 
 const char *AT_CellularContext::get_gateway()
