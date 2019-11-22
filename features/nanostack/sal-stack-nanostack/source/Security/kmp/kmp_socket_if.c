@@ -47,7 +47,7 @@ typedef struct {
     ns_list_link_t link;                              /**< Link */
 } kmp_socket_if_t;
 
-static int8_t kmp_socket_if_send(kmp_service_t *service, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size);
+static int8_t kmp_socket_if_send(kmp_service_t *service, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier);
 static void kmp_socket_if_socket_cb(void *ptr);
 
 static NS_LIST_DEFINE(kmp_socket_if_list, kmp_socket_if_t, link);
@@ -108,8 +108,10 @@ int8_t kmp_socket_if_unregister(kmp_service_t *service)
     return 0;
 }
 
-static int8_t kmp_socket_if_send(kmp_service_t *service, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size)
+static int8_t kmp_socket_if_send(kmp_service_t *service, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier)
 {
+    (void) tx_identifier;
+
     if (!service || !pdu || !addr) {
         return -1;
     }

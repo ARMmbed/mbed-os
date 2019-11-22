@@ -35,7 +35,7 @@ typedef enum rpl_event {
     RPL_EVENT_DAO_DONE,         /* Simplistic trigger for bootstrap advance - a DAO registration completed */
     RPL_EVENT_LOCAL_REPAIR_START, /* RPL start scanning new parent by multicast DIS user can disable beacon request responser here*/
     RPL_EVENT_LOCAL_REPAIR_NO_MORE_DIS, /* RPL not sending DIS anymore user can report bootstrap error */
-    RPL_EVENT_DAO_PARENT_SWITCH, /* RPL indicate that DAO downward Parent state have been updated */
+    RPL_EVENT_DAO_PARENT_ADD, /* RPL indicate that DAO downward Parent has been added */
 } rpl_event_t;
 
 typedef void rpl_domain_callback_t(rpl_event_t event, void *handle);

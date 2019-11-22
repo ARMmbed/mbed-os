@@ -356,7 +356,7 @@ static void icmpv6_na_wisun_aro_handler(protocol_interface_info_entry_t *cur_int
 
     (void)life_time;
     if (nd_status != ARO_SUCCESS) {
-        ws_common_aro_failure(cur_interface, src_addr);
+        ws_common_aro_failure(cur_interface, src_addr, true);
     }
 }
 
@@ -1389,7 +1389,7 @@ static void icmpv6_aro_cb(buffer_t *buf, uint8_t status)
     }
     rpl_control_address_register_done(buf->interface, ll_address, status);
     if (status != SOCKET_TX_DONE) {
-        ws_common_aro_failure(buf->interface, ll_address);
+        ws_common_aro_failure(buf->interface, ll_address, false);
     }
 }
 

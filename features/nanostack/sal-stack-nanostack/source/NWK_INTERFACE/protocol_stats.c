@@ -146,6 +146,12 @@ void protocol_stats_update(nwk_stats_type_t type, uint16_t update_val)
             case STATS_ETX_2ND_PARENT:
                 nwk_stats_ptr->etx_2nd_parent = update_val;
                 break;
+            case STATS_AL_TX_QUEUE_SIZE:
+                nwk_stats_ptr->adapt_layer_tx_queue_size = update_val;
+                if (nwk_stats_ptr->adapt_layer_tx_queue_size > nwk_stats_ptr->adapt_layer_tx_queue_peak) {
+                    nwk_stats_ptr->adapt_layer_tx_queue_peak = nwk_stats_ptr->adapt_layer_tx_queue_size;
+                }
+                break;
         }
     }
 }

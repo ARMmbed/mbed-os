@@ -39,6 +39,7 @@ typedef enum mac_event_t {
     MAC_TIMER_CCA,
     MAC_TX_FAIL,
     MAC_TX_TIMEOUT,
+    MAC_ACK_SECURITY_FAIL,
     MAC_UNKNOWN_DESTINATION,
     MAC_TX_PRECOND_FAIL
 } mac_event_t;

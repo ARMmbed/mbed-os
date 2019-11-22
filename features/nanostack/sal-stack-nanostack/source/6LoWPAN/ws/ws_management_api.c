@@ -136,18 +136,35 @@ int ws_management_network_size_set(
     if (!cur || !ws_info(cur)) {
         return -1;
     }
-    if (network_size > NETWORK_SIZE_LARGE) {
-        return -2;
-    }
+    //Store old setup if new is not accepted
+    uint8_t old_setup = ws_info(cur)->network_size_config;
     ws_info(cur)->network_size_config = network_size;
+
+    uint16_t rpl_parent_candidate_max;
+    uint16_t rpl_selected_parent_max;
+
+    if (network_size == NETWORK_SIZE_CERTIFICATE) {
+        rpl_parent_candidate_max = WS_CERTIFICATE_RPL_PARENT_CANDIDATE_MAX;
+        rpl_selected_parent_max = WS_CERTIFICATE_RPL_SELECTED_PARENT_MAX;
+    } else {
+        rpl_parent_candidate_max = WS_RPL_PARENT_CANDIDATE_MAX;
+        rpl_selected_parent_max = WS_RPL_SELECTED_PARENT_MAX;
+    }
 
     if (network_size == NETWORK_SIZE_LARGE) {
         ws_common_network_size_configure(cur, 5000);
     } else if (network_size == NETWORK_SIZE_MEDIUM) {
         ws_common_network_size_configure(cur, 200);
-    } else {
+    } else if (network_size == NETWORK_SIZE_SMALL) {
         ws_common_network_size_configure(cur, 10);
+    } else if (network_size == NETWORK_SIZE_CERTIFICATE) {
+        ws_common_network_size_configure(cur, 0);
+    } else {
+        ws_info(cur)->network_size_config = old_setup;
+        return -2;
     }
+    cur->ws_info->rpl_parent_candidate_max = rpl_parent_candidate_max;
+    cur->ws_info->rpl_selected_parent_max = rpl_selected_parent_max;
     return 0;
 }
 
@@ -241,8 +258,20 @@ int ws_management_fhss_unicast_channel_function_configure(
             channel_function != WS_TR51CF) {
         return -2;
     }
+
+    if (channel_function == WS_FIXED_CHANNEL && fixed_channel == 0xffff) {
+        fixed_channel = 0;
+        tr_warn("Fixed channel not configured. Set to 0");
+    }
+
+
     cur->ws_info->fhss_uc_channel_function = channel_function;
-    cur->ws_info->fhss_uc_fixed_channel = fixed_channel;
+    if (cur->ws_info->fhss_uc_channel_function == WS_FIXED_CHANNEL) {
+        cur->ws_info->fhss_uc_fixed_channel = fixed_channel;
+    } else {
+        cur->ws_info->fhss_uc_fixed_channel = 0xffff;
+    }
+
     cur->ws_info->fhss_uc_dwell_interval = dwell_interval;
 
     // if settings change reset_restart for the settings needed
@@ -273,8 +302,19 @@ int ws_management_fhss_broadcast_channel_function_configure(
             channel_function != WS_TR51CF) {
         return -2;
     }
+
+    if (channel_function == WS_FIXED_CHANNEL && fixed_channel == 0xffff) {
+        fixed_channel = 0;
+        tr_warn("Fixed channel not configured. Set to 0");
+    }
+
     cur->ws_info->fhss_bc_channel_function = channel_function;
-    cur->ws_info->fhss_bc_fixed_channel = fixed_channel;
+    if (cur->ws_info->fhss_bc_channel_function == WS_FIXED_CHANNEL) {
+        cur->ws_info->fhss_bc_fixed_channel = fixed_channel;
+    } else {
+        cur->ws_info->fhss_bc_fixed_channel = 0xffff;
+    }
+
     cur->ws_info->fhss_bc_dwell_interval = dwell_interval;
     cur->ws_info->fhss_bc_interval = broadcast_interval;
 

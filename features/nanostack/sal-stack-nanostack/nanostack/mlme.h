@@ -264,6 +264,7 @@ typedef enum {
     macAutoRequestKeyIndex = 0x7b,  /*<The index of the key used for automatic data*/
     macDefaultKeySource = 0x7c,      /*<Default key source*/
     //NON standard extension
+    macDeviceDescriptionPanIDUpdate = 0xf7, /*<Thread pending link update case this will update device descrioton list pan-id to new one*/
     macTXPower = 0xf8,              /*<TX output power*/
     macCCAThreshold = 0xf9,         /*<CCA threshold*/
     macMultiCSMAParameters = 0xfa,  /*<Multi CSMA parameters*/

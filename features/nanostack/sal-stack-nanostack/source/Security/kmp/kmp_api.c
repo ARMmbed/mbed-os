@@ -45,6 +45,7 @@ struct kmp_api_s {
     kmp_type_e                   type;                    /**< KMP type */
     kmp_addr_t                   *addr;                   /**< Supplicant EUI-64, Relay IP address, Relay port */
     kmp_service_t                *service;                /**< KMP service */
+    uint8_t                      instance_identifier;     /**< KMP instance identifier, incremented when created, from 0 to 255 */
     bool                         timer_start_pending : 1; /**< Timer is pending to start */
     bool                         receive_disable : 1;     /**< Receiving disabled, do not route messages anymore */
     sec_prot_t                   sec_prot;                /**< Security protocol interface */
@@ -62,6 +63,7 @@ typedef NS_LIST_HEAD(kmp_sec_prot_entry_t, link) kmp_sec_prot_list_t;
 struct kmp_service_s {
     kmp_sec_prot_list_t              sec_prot_list;             /**< Security protocols list */
     kmp_service_incoming_ind         *incoming_ind;             /**< Callback to application to indicate incoming KMP frame */
+    kmp_service_tx_status_ind        *tx_status_ind;            /**< Callback to application to indicate TX status */
     kmp_service_addr_get             *addr_get;                 /**< Callback to get addresses related to KMP */
     kmp_service_api_get              *api_get;                  /**< Callback to get KMP API from a service */
     kmp_service_msg_if_send          *send;                     /**< Callback to send KMP frames */
@@ -78,6 +80,9 @@ typedef struct {
 } kmp_pdu_t;
 
 static NS_LIST_DEFINE(kmp_service_list, kmp_service_t, link);
+
+// KMP instance identifier value
+static uint8_t kmp_instance_identifier = 0;
 
 static void kmp_api_sec_prot_create_confirm(sec_prot_t *prot, sec_prot_result_e result);
 static void kmp_api_sec_prot_create_indication(sec_prot_t *prot);
@@ -125,6 +130,7 @@ kmp_api_t *kmp_api_create(kmp_service_t *service, kmp_type_e type)
     kmp->create_ind = 0;
     kmp->finished_ind = 0;
     kmp->finished = 0;
+    kmp->instance_identifier = kmp_instance_identifier++;
     kmp->addr = 0;
     kmp->service = service;
     kmp->timer_start_pending = false;
@@ -212,7 +218,7 @@ static int8_t kmp_sec_prot_send(sec_prot_t *prot, void *pdu, uint16_t size)
     int8_t result = -1;
 
     if (kmp->service->send) {
-        result = kmp->service->send(kmp->service, kmp_id, kmp->addr, pdu, size);
+        result = kmp->service->send(kmp->service, kmp_id, kmp->addr, pdu, size, kmp->instance_identifier);
     }
 
     if (result < 0) {
@@ -348,6 +354,11 @@ void *kmp_api_data_get(kmp_api_t *kmp)
     return kmp->app_data_ptr;
 }
 
+uint8_t kmp_api_instance_id_get(kmp_api_t *kmp)
+{
+    return kmp->instance_identifier;
+}
+
 void kmp_api_addr_set(kmp_api_t *kmp, kmp_addr_t *addr)
 {
     kmp->addr = addr;
@@ -367,6 +378,7 @@ kmp_service_t *kmp_service_create(void)
 
     ns_list_init(&service->sec_prot_list);
     service->incoming_ind = 0;
+    service->tx_status_ind = 0;
     service->addr_get = 0;
     service->api_get = 0;
     service->send = 0;
@@ -405,13 +417,14 @@ static void kmp_sec_prot_state_machine_call(sec_prot_t *prot)
     kmp->service->event_send(kmp->service, prot);
 }
 
-int8_t kmp_service_cb_register(kmp_service_t *service, kmp_service_incoming_ind *incoming_ind, kmp_service_addr_get *addr_get, kmp_service_api_get *api_get)
+int8_t kmp_service_cb_register(kmp_service_t *service, kmp_service_incoming_ind *incoming_ind, kmp_service_tx_status_ind *tx_status_ind, kmp_service_addr_get *addr_get, kmp_service_api_get *api_get)
 {
     if (!service) {
         return -1;
     }
 
     service->incoming_ind = incoming_ind;
+    service->tx_status_ind = tx_status_ind;
     service->addr_get = addr_get;
     service->api_get = api_get;
 
@@ -447,6 +460,36 @@ int8_t kmp_service_msg_if_receive(kmp_service_t *service, kmp_type_e type, const
     }
 
     int8_t ret = kmp->sec_prot.receive(&kmp->sec_prot, pdu, size);
+    return ret;
+}
+
+int8_t kmp_service_tx_status_indication(kmp_service_t *service, kmp_tx_status_e tx_status, uint8_t tx_identifier)
+{
+    if (!service || !service->tx_status_ind) {
+        return -1;
+    }
+
+    // Application can use the tx_identifier to match the TX status indication to kmp
+    kmp_api_t *kmp = (kmp_api_t *) service->tx_status_ind(service, tx_identifier);
+    if (!kmp) {
+        return -1;
+    }
+
+    // Security protocol has disabled message receiving or tx status indication is not set
+    if (kmp->receive_disable || !kmp->sec_prot.tx_status_ind) {
+        return -1;
+    }
+
+    sec_prot_tx_status_e sec_prot_tx_status;
+    if (tx_status == KMP_TX_OK) {
+        sec_prot_tx_status = SEC_PROT_TX_OK;
+    } else if (tx_status == KMP_TX_ERR_TX_NO_ACK) {
+        sec_prot_tx_status = SEC_PROT_TX_ERR_TX_NO_ACK;
+    } else {
+        sec_prot_tx_status = SEC_PROT_TX_ERR_UNSPEC;
+    }
+
+    int8_t ret = kmp->sec_prot.tx_status_ind(&kmp->sec_prot, sec_prot_tx_status);
     return ret;
 }
 

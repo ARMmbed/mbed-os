@@ -93,6 +93,17 @@ kmp_api_t *ws_pae_lib_kmp_list_type_get(kmp_list_t *kmp_list, kmp_type_e type)
     return kmp;
 }
 
+kmp_api_t *ws_pae_lib_kmp_list_instance_id_get(kmp_list_t *kmp_list, uint8_t instance_id)
+{
+    ns_list_foreach(kmp_entry_t, cur, kmp_list) {
+        if (kmp_api_instance_id_get(cur->kmp) == instance_id) {
+            return cur->kmp;
+        }
+    }
+
+    return NULL;
+}
+
 void ws_pae_lib_kmp_list_free(kmp_list_t *kmp_list)
 {
     ns_list_foreach_safe(kmp_entry_t, cur, kmp_list) {

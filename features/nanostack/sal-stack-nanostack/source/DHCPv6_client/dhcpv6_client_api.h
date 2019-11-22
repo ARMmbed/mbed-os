@@ -32,9 +32,10 @@
  * if only one thread instance is supported this is needed to call only once.
  *
  * /param interface interface id of this instance.
+ * /param link_type DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE, DHCPV6_DUID_HARDWARE_EUI64_TYPE or DHCPV6_DUID_HARDWARE_EUI48_TYPE
  *
  */
-void dhcp_client_init(int8_t interface);
+void dhcp_client_init(int8_t interface, uint16_t link_type);
 
 /* Set configurations for DHCP client
  *
@@ -72,15 +73,13 @@ void dhcp_client_delete(int8_t interface);
  * /param interface interface where address is got
  * /param dhcp_addr dhcp server ML16 address where address is registered.
  * /param prefix dhcp server ML16 address where address is registered.
- * /param mac64 64 bit mac address for identifieng client.
- * /param link_type Link hardware type.
  * /param error_cb error callback that is called if address cannot be created or becomes invalid.
  * /param register_status true if address registered.
  *
  */
 typedef void (dhcp_client_global_adress_cb)(int8_t interface, uint8_t dhcp_addr[static 16], uint8_t prefix[static 16], bool register_status);
 
-int dhcp_client_get_global_address(int8_t interface, uint8_t dhcp_addr[static 16], uint8_t prefix[static 16], uint8_t mac64[static 8], uint16_t link_type, dhcp_client_global_adress_cb *error_cb);
+int dhcp_client_get_global_address(int8_t interface, uint8_t dhcp_addr[static 16], uint8_t prefix[static 16], dhcp_client_global_adress_cb *error_cb);
 
 /* Renew all leased adddresses might be used when short address changes
  *

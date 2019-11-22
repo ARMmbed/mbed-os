@@ -192,20 +192,18 @@ static bool rpl_instance_parent_selection_ready(rpl_instance_t *instance)
 
 void rpl_downward_neighbour_gone(rpl_instance_t *instance, rpl_neighbour_t *neighbour)
 {
-    if (neighbour->dao_path_control == 0) {
-        return;
-    }
-    neighbour->old_dao_path_control = neighbour->dao_path_control;
-    neighbour->dao_path_control = 0;
-    rpl_downward_process_dao_parent_changes(instance);
+
+    // Currently don't need to do anything - caller is expected to
+    // trigger parent selection, which will do everything required.
+    (void) instance;
+    (void) neighbour;
 }
 
 void rpl_downward_process_dao_parent_changes(rpl_instance_t *instance)
 {
-    uint8_t mop = rpl_instance_mop(instance);
     bool storing;
 
-    switch (mop) {
+    switch (rpl_instance_mop(instance)) {
         case RPL_MODE_NON_STORING:
             storing = false;
             break;
@@ -219,6 +217,7 @@ void rpl_downward_process_dao_parent_changes(rpl_instance_t *instance)
 
     bool bits_removed = false;
     uint8_t bits_added = 0;
+
     ns_list_foreach(rpl_neighbour_t, neighbour, &instance->candidate_neighbours) {
         if (neighbour->old_dao_path_control != neighbour->dao_path_control) {
             if (neighbour->old_dao_path_control & ~ neighbour->dao_path_control) {
@@ -230,9 +229,19 @@ void rpl_downward_process_dao_parent_changes(rpl_instance_t *instance)
             }
         }
     }
-    tr_debug("removed=%x, added=%x", bits_removed, bits_added);
+
     if (!(bits_removed || bits_added)) {
         return;
+    }
+
+    tr_debug("removed=%x, added=%x", bits_removed, bits_added);
+
+    ns_list_foreach(rpl_neighbour_t, neighbour, &instance->candidate_neighbours) {
+        if (neighbour->dao_path_control != 0 && neighbour->old_dao_path_control == 0) {
+            //Candidate has become a DAO parent
+            rpl_control_event(instance->domain, RPL_EVENT_DAO_PARENT_ADD);
+            break;
+        }
     }
 
     if (storing) {
@@ -253,8 +262,8 @@ void rpl_downward_process_dao_parent_changes(rpl_instance_t *instance)
                 }
             }
         }
-        //GENERATE PARENT Update event
-        rpl_control_event(instance->domain, RPL_EVENT_DAO_PARENT_SWITCH);
+
+        //Trig DAO allways after change
         rpl_instance_dao_trigger(instance, 0);
     }
 }

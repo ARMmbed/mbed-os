@@ -514,6 +514,11 @@ static void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t
             return;
         }
 
+        if (interface->mac_parameters->pan_id != 0xffff && data->SrcPANId != interface->mac_parameters->pan_id) {
+            //Drop wrong PAN-id messages in this phase.
+            return;
+        }
+
         mpx_user_t *user_cb;
         mac_payload_IE_t mpx_ie;
         mpx_ie.id = MAC_PAYLOAD_MPX_IE_GROUP_ID;
