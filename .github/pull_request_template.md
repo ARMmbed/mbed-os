@@ -15,14 +15,12 @@ template is automatically parsed.
     Why the change is needed (if this is fixing a reported issue please summarize what
     the issue is and add the reference. E.g. Fixes #17119).
 
-    Any implications for users taking this change.
-    
     NOTE: This section is automatically written to release notes for Feature and 
     Major releases and should contain enough details for a user.
     
 -->
 
-### Impact of changes <!-- Optional -->
+#### Impact of changes <!-- Optional -->
 <!-- 
     If there are any implications for users taking this change then they must be 
     provided here. For Major PR types this field is MANDATORY.
@@ -31,7 +29,7 @@ template is automatically parsed.
     Major releases and should contain enough details for a user.
 -->
 
-### Migration actions required <!-- Optional -->
+#### Migration actions required <!-- Optional -->
 <!-- 
     This should only be applicable in Major PR types for which this field is MANDATORY.
 
