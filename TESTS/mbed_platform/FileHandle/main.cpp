@@ -360,7 +360,7 @@ void test_fprintf_fscanf()
     TEST_ASSERT_EQUAL_INT(str1_size, fprintf_ret);
 
 #if !defined(__MICROLIB)
-    // feof() and ferror() functions are not supported for Microlib.
+    // feof() and ferror() functions are not supported in Microlib.
     // write 3; expected written 2
     TestFile<FS>::resetFunctionCallHistory();
     fprintf_ret = fprintf(file, "%s", str2);
