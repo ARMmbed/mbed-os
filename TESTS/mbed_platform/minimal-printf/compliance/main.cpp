@@ -857,9 +857,9 @@ static control_t test_snprintf_buffer_overflow_generic(const char *fmt, T data)
     int result_baseline;
     int result_minimal;
 #if !defined(__MICROLIB)
-    // Microlib snprintf always returns zero if the size 
+    // Microlib snprintf always returns zero if the size
     // to copy from the buffer is zero.
-    // See reported bug https://jira.arm.com/browse/SDCOMP-54710
+    // See reported microlib bug SDCOMP-54710
 
     /* empty buffer test */
     result_minimal = mbed_snprintf(buffer_minimal, 0, fmt, data);
