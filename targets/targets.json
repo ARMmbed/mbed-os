@@ -8396,6 +8396,7 @@
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M4F",
+        "components_add": ["FLASHIAP"],
         "extra_labels_add": [
             "STM32L4",
             "STM32L4R5ZI",
