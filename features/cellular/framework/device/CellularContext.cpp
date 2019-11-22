@@ -119,12 +119,14 @@ void CellularContext::do_connect_with_retry()
     }
     do_connect();
     if (_cb_data.error == NSAPI_ERROR_OK) {
+#if !NSAPI_PPP_AVAILABLE
         // Some modems don't get the ip address right after connect so we must
         // validate it but even if we don't get ip we still send NSAPI_STATUS_GLOBAL_UP
         if (!_nonip_req && !_cp_in_use) { // don't validate if non-ip case
             validate_ip_address();
         }
         call_network_cb(NSAPI_STATUS_GLOBAL_UP);
+#endif
         return;
     }
 
