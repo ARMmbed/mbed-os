@@ -16,7 +16,28 @@ template is automatically parsed.
     the issue is and add the reference. E.g. Fixes #17119).
 
     Any implications for users taking this change.
- -->
+    
+    NOTE: This section is automatically written to release notes for Feature and 
+    Major releases and should contain enough details for a user.
+    
+-->
+
+### Impact of changes <!-- Optional -->
+<!-- 
+    If there are any implications for users taking this change then they must be 
+    provided here. For Major PR types this field is MANDATORY.
+
+    NOTE: This section is automatically written to release notes for Feature and 
+    Major releases and should contain enough details for a user.
+-->
+
+### Migration actions required <!-- Optional -->
+<!-- 
+    This should only be applicable in Major PR types for which this field is MANDATORY.
+
+    NOTE: This section is automatically written to release notes for Feature and 
+    Major releases and should contain enough details for a user.
+-->
 
 ### Documentation <!-- Required -->
 
@@ -57,16 +78,3 @@ template is automatically parsed.
 -->
 
 ----------------------------------------------------------------------------------------------------------------
-### Release Notes <!-- Required for features, deprecations, breaking changes and other major PRs -->
-
-<!--
-    All 3 sections are compulsory for Major PR types. For Feature PRs only the summary section is required.
-    This section is automatically added to release notes. Please fill in each sub-section with sufficient detail for a user.
-    For more information, please see [the contributing guidelines](https://os.mbed.com/docs/mbed-os/latest/contributing/workflow.html#pull-request-types). 
--->
-
-#### Summary of changes
-
-#### Impact of changes
-
-#### Migration actions required
