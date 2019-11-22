@@ -9222,7 +9222,6 @@
         "inherits": ["MCU_PSOC6_M4"],
         "components_remove": ["QSPIF"],
         "device_has_remove": ["QSPI"],
-        "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["PSOC6_01", "MXCRYPTO_01"],
         "macros_add": ["CYB06447BZI_D54",
                        "PSOC6_DYNSRM_DISABLE=1",
@@ -9256,6 +9255,7 @@
     "CYW9P62S1_43012EVB_01": {
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
+        "supported_form_factors": ["ARDUINO"],
         "components_add": ["WHD", "43012", "CYW43XXX"],
         "components_remove": ["QSPIF"],
         "device_has_remove": ["ANALOGOUT", "CRC", "TRNG", "QSPI"],
