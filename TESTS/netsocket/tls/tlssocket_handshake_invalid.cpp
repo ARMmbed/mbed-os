@@ -30,24 +30,49 @@ void TLSSOCKET_HANDSHAKE_INVALID()
 {
     const int https_port = 443;
     SKIP_IF_TCP_UNSUPPORTED();
+    NetworkInterface *net = NetworkInterface::get_default_instance();
 
 #if (MBED_CONF_NSAPI_DEFAULT_STACK == NANOSTACK || (MBED_CONF_NSAPI_DEFAULT_STACK == LWIP && defined(MBED_CONF_LWIP_PPP_IPV6_ENABLED)))
     SocketAddress address;
-    nsapi_error_t result = NetworkInterface::get_default_instance()->gethostbyname("expired.badssl.com", &address);
+    nsapi_error_t result = net->gethostbyname("expired.badssl.com", &address);
     if (result != NSAPI_ERROR_OK) {
         TEST_SKIP_MESSAGE(" badssl.com not supported IP6 AAA records");
     }
 #endif
     TLSSocket sock;
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(NetworkInterface::get_default_instance()));
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(net));
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.set_root_ca_cert(tls_global::cert));
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sock.connect("expired.badssl.com", https_port));
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sock.connect("wrong.host.badssl.com", https_port));
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sock.connect("self-signed.badssl.com", https_port));
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sock.connect("untrusted-root.badssl.com", https_port));
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sock.connect("revoked.badssl.com", https_port));
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sock.connect("pinning-test.badssl.com", https_port));
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sock.connect("sha1-intermediate.badssl.com", https_port));
+
+    SocketAddress a;
+
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, net->gethostbyname("expired.badssl.com", &a));
+    a.set_port(https_port);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sock.connect(a));
+
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, net->gethostbyname("wrong.host.badssl.com", &a));
+    a.set_port(https_port);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sock.connect(a));
+
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, net->gethostbyname("self-signed.badssl.com", &a));
+    a.set_port(https_port);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sock.connect(a));
+
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, net->gethostbyname("untrusted-root.badssl.com", &a));
+    a.set_port(https_port);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sock.connect(a));
+
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, net->gethostbyname("revoked.badssl.com", &a));
+    a.set_port(https_port);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sock.connect(a));
+
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, net->gethostbyname("pinning-test.badssl.com", &a));
+    a.set_port(https_port);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sock.connect(a));
+
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, net->gethostbyname("sha1-intermediate.badssl.com", &a));
+    a.set_port(https_port);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sock.connect(a));
+
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
 

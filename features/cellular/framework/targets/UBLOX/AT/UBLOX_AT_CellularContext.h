@@ -29,6 +29,7 @@ public:
 
     virtual void do_connect();
     virtual const char *get_gateway();
+    virtual nsapi_error_t get_gateway(SocketAddress *addr);
 
     const char *get_apn(void);
     const char *get_uname(void);

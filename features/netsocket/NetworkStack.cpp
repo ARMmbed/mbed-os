@@ -68,7 +68,7 @@ nsapi_error_t NetworkStack::gethostbyname(const char *name, SocketAddress *addre
     // ip address of the underlying stack
     if (version == NSAPI_UNSPEC) {
         SocketAddress testaddress;
-        if (testaddress.set_ip_address(this->get_ip_address())) {
+        if (this->get_ip_address(&testaddress) == NSAPI_ERROR_OK) {
             version = testaddress.get_ip_version();
         }
     }
@@ -98,7 +98,7 @@ nsapi_value_or_error_t NetworkStack::gethostbyname_async(const char *name, hostb
     // ip address of the underlying stack
     if (version == NSAPI_UNSPEC) {
         SocketAddress testaddress;
-        if (testaddress.set_ip_address(this->get_ip_address())) {
+        if (this->get_ip_address(&testaddress) == NSAPI_ERROR_OK) {
             version = testaddress.get_ip_version();
         }
     }

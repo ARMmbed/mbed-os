@@ -92,6 +92,41 @@ const char *PPPInterface::get_ip_address()
     return NULL;
 }
 
+nsapi_error_t PPPInterface::get_ip_address(SocketAddress *address)
+{
+    if (address) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    if (_interface && _interface->get_ip_address(address) == NSAPI_ERROR_OK) {
+        strncpy(_ip_address, address->get_ip_address(), sizeof(_ip_address));
+        return NSAPI_ERROR_OK;
+    }
+
+    return NSAPI_ERROR_NO_CONNECTION;
+}
+
+nsapi_error_t PPPInterface::get_netmask(SocketAddress *address)
+{
+    if (_interface && _interface->get_netmask(address) == NSAPI_ERROR_OK) {
+        strncpy(_netmask, address->get_ip_address(), sizeof(_netmask));
+        return NSAPI_ERROR_OK;
+    }
+
+    return NSAPI_ERROR_NO_CONNECTION;
+}
+
+nsapi_error_t PPPInterface::get_gateway(SocketAddress *address)
+{
+    if (_interface && _interface->get_gateway(address) == NSAPI_ERROR_OK) {
+        strncpy(_gateway, address->get_ip_address(), sizeof(_gateway));
+        address->set_ip_address(_gateway);
+        return NSAPI_ERROR_OK;
+    }
+
+    return NSAPI_ERROR_NO_CONNECTION;
+}
+
 const char *PPPInterface::get_netmask()
 {
     if (_interface && _interface->get_netmask(_netmask, sizeof(_netmask))) {

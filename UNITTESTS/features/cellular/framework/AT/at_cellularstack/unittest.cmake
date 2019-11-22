@@ -15,6 +15,12 @@ set(unittest-includes ${unittest-includes}
 # Source files
 set(unittest-sources
   ../features/cellular/framework/AT/AT_CellularStack.cpp
+  ../features/frameworks/nanostack-libservice/source/libip4string/ip4tos.c
+  ../features/frameworks/nanostack-libservice/source/libip6string/ip6tos.c
+  ../features/frameworks/nanostack-libservice/source/libip4string/stoip4.c
+  ../features/frameworks/nanostack-libservice/source/libip6string/stoip6.c
+  ../features/frameworks/nanostack-libservice/source/libBits/common_functions.c
+  ../features/netsocket/SocketAddress.cpp
 )
 
 # Test files
@@ -33,7 +39,6 @@ set(unittest-test-sources
   stubs/AT_CellularDevice_stub.cpp
   stubs/us_ticker_stub.cpp
   stubs/NetworkStack_stub.cpp
-  stubs/SocketAddress_stub.cpp
   stubs/mbed_assert_stub.cpp
   stubs/ThisThread_stub.cpp
   stubs/ConditionVariable_stub.cpp

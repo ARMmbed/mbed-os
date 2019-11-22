@@ -268,7 +268,8 @@ int UBLOX_AT_CellularContext::nsapi_security_to_modem_security(AuthenticationTyp
 // Disconnect the on board IP stack of the modem.
 bool UBLOX_AT_CellularContext::disconnect_modem_stack()
 {
-    if (get_ip_address() != NULL) {
+    SocketAddress addr;
+    if (get_ip_address(&addr) == NSAPI_ERROR_OK) {
         if (_at.at_cmd_discard("+UPSDA", "=", "%d%d", PROFILE, 4) == NSAPI_ERROR_OK) {
             return true;
         }
@@ -301,6 +302,11 @@ void UBLOX_AT_CellularContext::get_next_credentials(char **config)
 const char *UBLOX_AT_CellularContext::get_gateway()
 {
     return get_ip_address();
+}
+
+nsapi_error_t UBLOX_AT_CellularContext::get_gateway(SocketAddress *addr)
+{
+    return get_ip_address(addr);
 }
 
 const char *UBLOX_AT_CellularContext::get_apn()

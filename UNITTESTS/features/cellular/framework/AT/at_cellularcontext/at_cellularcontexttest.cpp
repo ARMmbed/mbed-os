@@ -254,12 +254,11 @@ TEST_F(TestAT_CellularContext, get_ip_address)
     ATHandler at(&fh1, que, 0, ",");
     AT_CellularDevice dev(&fh1);
     AT_CellularContext ctx(at, &dev);
-    const char *ip = ctx.get_ip_address();
-    EXPECT_TRUE(ip == NULL);
+    SocketAddress addr;
+    EXPECT_EQ(NSAPI_ERROR_NO_CONNECTION, ctx.get_ip_address(&addr));
 
     my_AT_CTX ctx1(at, NULL);
-    ip = ctx1.get_ip_address();
-    EXPECT_TRUE(ip != NULL);
+    EXPECT_EQ(NSAPI_ERROR_OK, ctx1.get_ip_address(&addr));
 }
 
 TEST_F(TestAT_CellularContext, get_interface_name)
@@ -336,10 +335,11 @@ TEST_F(TestAT_CellularContext, get_netmask_gateway)
     ATHandler at(&fh1, que, 0, ",");
     AT_CellularDevice dev(&fh1);
     AT_CellularContext ctx(at, &dev);
-    const char *gg = ctx.get_netmask();
-    EXPECT_TRUE(gg == NULL);
-    gg = ctx.get_gateway();
-    EXPECT_TRUE(gg == NULL);
+    SocketAddress addr;
+    EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == ctx.get_netmask(&addr));
+    EXPECT_TRUE(addr.get_ip_address() == NULL);
+    EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == ctx.get_gateway(&addr));
+    EXPECT_TRUE(addr.get_ip_address() == NULL);
 }
 
 TEST_F(TestAT_CellularContext, get_pdpcontext_params)
