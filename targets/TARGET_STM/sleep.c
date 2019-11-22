@@ -57,10 +57,6 @@ static void ForcePeriphOutofDeepSleep(void)
     uint32_t pFLatency = 0;
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-#if defined(DUAL_CORE)
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
-    }
-#endif /* DUAL_CORE */
     /* Get the Clocks configuration according to the internal RCC registers */
     HAL_RCC_GetClockConfig(&RCC_ClkInitStruct, &pFLatency);
 
@@ -85,9 +81,6 @@ static void ForcePeriphOutofDeepSleep(void)
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, pFLatency) != HAL_OK) {
         error("ForcePeriphOutofDeepSleep clock issue\r\n");
     }
-#if defined(DUAL_CORE)
-    LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
-#endif /* DUAL_CORE */
 }
 
 
@@ -98,10 +91,6 @@ static void ForceOscOutofDeepSleep(void)
     /* Enable Power Control clock */
     __HAL_RCC_PWR_CLK_ENABLE();
 
-#if defined(DUAL_CORE)
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
-    }
-#endif /* DUAL_CORE */
     /* Get the Oscillators configuration according to the internal RCC registers */
     HAL_RCC_GetOscConfig(&RCC_OscInitStruct);
 
@@ -121,9 +110,7 @@ static void ForceOscOutofDeepSleep(void)
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         error("ForceOscOutofDeepSleep clock issue\r\n");
     }
-#if defined(DUAL_CORE)
-    LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
-#endif /* DUAL_CORE */
+
 }
 
 
@@ -236,6 +223,36 @@ __WEAK void hal_deepsleep(void)
      * us_ticker timestamp until the us_ticker context is restored. */
     mbed_sdk_inited = 0;
 
+    /* After wake-up from STOP reconfigure the PLL */
+#if defined(DUAL_CORE)
+    /* CFG_HW_STOP_MODE_SEMID is used to protect read access to STOP flag, and this avoid both core to configure clocks if both exit from stop at the same time */
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_STOP_MODE_SEMID)) {
+    }
+
+    /* Clocks need to be reconfigured only if system has been in stop mode */
+    if (LL_PWR_CPU_IsActiveFlag_STOP() && LL_PWR_CPU2_IsActiveFlag_STOP()) {
+        /* We've seen unstable PLL CLK configuration when DEEP SLEEP exits just few µs after being entered
+        *  So we need to force clock init out of Deep Sleep.
+        *  This init has been split into 2 separate functions so that the involved structures are not allocated on the stack in parallel.
+        *  This will reduce the maximum stack usage in case on non-optimized / debug compilers settings
+        */
+        while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
+        }
+        ForceOscOutofDeepSleep();
+        ForcePeriphOutofDeepSleep();
+        SetSysClock();
+        LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
+    }
+#if defined(CORE_CM7)
+    LL_PWR_ClearFlag_CPU();
+#elif defined(CORE_CM4)
+    LL_PWR_ClearFlag_CPU2();
+#else
+#error "Core not supported"
+#endif
+
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_STOP_MODE_SEMID, HSEM_CR_COREID_CURRENT);
+#else
     /* We've seen unstable PLL CLK configuration when DEEP SLEEP exits just few µs after being entered
     *  So we need to force clock init out of Deep Sleep.
     *  This init has been split into 2 separate functions so that the involved structures are not allocated on the stack in parallel.
@@ -243,18 +260,6 @@ __WEAK void hal_deepsleep(void)
     */
     ForceOscOutofDeepSleep();
     ForcePeriphOutofDeepSleep();
-
-    /* After wake-up from STOP reconfigure the PLL */
-#if defined(DUAL_CORE)
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
-    }
-
-    if ((LL_RCC_GetSysClkSource() ==  LL_RCC_SYS_CLKSOURCE_STATUS_HSI)) {
-        LL_PWR_ClearFlag_CPU();
-        SetSysClock();
-    }
-    LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
-#else
     SetSysClock();
 #endif
 

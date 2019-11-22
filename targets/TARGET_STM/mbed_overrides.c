@@ -60,7 +60,7 @@ void mbed_sdk_init()
         /* CM4 boots at the same time than CM7. It is necessary to synchronize with CM7, by mean of HSEM, that CM7 finishes its initialization.  */
 
         /* Activate HSEM notification for Cortex-M4*/
-        LL_HSEM_EnableIT_C2IER(HSEM, CFG_HW_ENTRY_STOP_MODE_MASK_SEMID);
+        LL_HSEM_EnableIT_C2IER(HSEM, CFG_HW_STOP_MODE_MASK_SEMID);
 
         /*
         * Domain D2 goes to STOP mode (Cortex-M4 in deep-sleep) waiting for
@@ -89,7 +89,8 @@ void mbed_sdk_init()
         LL_LPM_EnableSleep();
 
         /* Clear HSEM flag */
-        LL_HSEM_ClearFlag_C2ICR(HSEM, CFG_HW_ENTRY_STOP_MODE_MASK_SEMID);
+        LL_HSEM_DisableIT_C2IER(HSEM, CFG_HW_STOP_MODE_MASK_SEMID);
+        LL_HSEM_ClearFlag_C2ICR(HSEM, CFG_HW_STOP_MODE_MASK_SEMID);
     }
 
     // Update the SystemCoreClock variable.
@@ -109,9 +110,9 @@ void mbed_sdk_init()
     /* Check wether CM4 boot in parallel with CM7. If CM4 was gated but CM7 trigger the CM4 boot. No need to wait for synchronization.
        otherwise CM7 should wakeup CM4 when system clocks initialization is done.  */
     if (READ_BIT(SYSCFG->UR1, SYSCFG_UR1_BCM4)) {
-        LL_HSEM_1StepLock(HSEM, CFG_HW_ENTRY_STOP_MODE_SEMID);
+        LL_HSEM_1StepLock(HSEM, CFG_HW_STOP_MODE_SEMID);
         /*Release HSEM in order to notify the CPU2(CM4)*/
-        LL_HSEM_ReleaseLock(HSEM, CFG_HW_ENTRY_STOP_MODE_SEMID, 0);
+        LL_HSEM_ReleaseLock(HSEM, CFG_HW_STOP_MODE_SEMID, 0);
     } else {
         LL_RCC_ForceCM4Boot();
     }
