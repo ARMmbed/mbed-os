@@ -9237,6 +9237,7 @@
     "CYW9P62S1_43438EVB_01": {
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
+        "supported_form_factors": ["ARDUINO"],
         "components_add": ["WHD", "43438", "CYW43XXX" ],
         "extra_labels_add": [
             "PSOC6_01",
