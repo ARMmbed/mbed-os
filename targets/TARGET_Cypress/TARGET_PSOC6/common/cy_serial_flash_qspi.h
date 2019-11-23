@@ -25,12 +25,8 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_serial_flash Serial Flash
+* \addtogroup group_board_libs Serial Flash
 * \{
-* Driver for interfacing with the serial flash (QSPI NOR flash). 
-*
-* \defgroup group_serial_flash_macros Macros
-* \defgroup group_serial_flash_functions Functions
 */
 
 #pragma once
@@ -46,35 +42,31 @@
 extern "C" {
 #endif
 
-/**
-* \addtogroup group_serial_flash_macros
-* \{
-*/
-
 /** The function or operation is not supported on the target or the memory */
 #define CY_RSLT_SERIAL_FLASH_ERR_UNSUPPORTED (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_BOARD_LIB_SERIAL_FLASH, 1))
 
-/** \} group_serial_flash_macros */
-
 /**
-* \addtogroup group_serial_flash_functions
-* \{
-*/
-
-/**
- * \brief Initializes the serial flash memory.
+ * \brief Initializes the serial flash memory. This function accepts up to 8
+ * I/Os. Number of I/Os depend on the type of memory interface. Pass NC when an
+ * I/O is unused. 
+ * Single SPI - (io0, io1) or (io2, io3) or (io4, io5) or (io6, io7)
+ * Dual SPI   - (io0, io1) or (io2, io3) or (io4, io5) or (io6, io7) 
+ * Quad SPI   - (io0, io1, io2, io3) or (io4, io5, io6, io7) 
+ * Octal SPI  - All 8 I/Os are used. 
  * \param mem_config Memory configuration to be used for initializing
- * \param io0 Data/IO pin 0 connected to the memory
- * \param io1 Data/IO pin 1 connected to the memory
- * \param io2 Data/IO pin 2 connected to the memory
- * \param io3 Data/IO pin 3 connected to the memory
- * \param io4 Data/IO pin 4 connected to the memory
- * \param io5 Data/IO pin 5 connected to the memory
- * \param io6 Data/IO pin 6 connected to the memory
- * \param io7 Data/IO pin 7 connected to the memory
+ * \param io0 Data/IO pin 0 connected to the memory, Pass NC when unused.
+ * \param io1 Data/IO pin 1 connected to the memory, Pass NC when unused.
+ * \param io2 Data/IO pin 2 connected to the memory, Pass NC when unused.
+ * \param io3 Data/IO pin 3 connected to the memory, Pass NC when unused.
+ * \param io4 Data/IO pin 4 connected to the memory, Pass NC when unused.
+ * \param io5 Data/IO pin 5 connected to the memory, Pass NC when unused.
+ * \param io6 Data/IO pin 6 connected to the memory, Pass NC when unused.
+ * \param io7 Data/IO pin 7 connected to the memory, Pass NC when unused.
  * \param sclk Clock pin connected to the memory
  * \param ssel Slave select pin connected to the memory
- * \param hz Clock frequency to be used with the memory
+ * \param hz Clock frequency to be used with the memory. This parameter is
+ *           ignored currently. Change the CLK_HF frequency using either the
+             Device Configurator tool or the clock driver. 
  * \returns CY_RSLT_SUCCESS if the initialization was successful, an error code
  *          otherwise.
  */
@@ -110,6 +102,17 @@ size_t cy_serial_flash_qspi_get_size(void);
  * \returns Erase sector size in bytes.
  */
 size_t cy_serial_flash_qspi_get_erase_size(uint32_t addr);
+
+/**
+ * \brief Utility function to calculate the starting address of an erase sector
+ * to which the given address belongs.
+ * \param addr Address in the sector for which the starting address is returned.
+ * \returns Starting address of the sector
+ */
+__STATIC_INLINE uint32_t cy_serial_flash_get_sector_start_address(uint32_t addr)
+{
+    return (addr & ~(cy_serial_flash_qspi_get_erase_size(addr) - 1));
+}
 
 /**
  * \brief Reads data from the serial flash memory. This is a blocking
@@ -162,12 +165,10 @@ cy_rslt_t cy_serial_flash_qspi_erase(uint32_t addr, size_t length);
  */
 cy_rslt_t cy_serial_flash_qspi_enable_xip(bool enable);
 
-/** \} group_serial_flash_functions */
-
 #if defined(__cplusplus)
 }
 #endif
 
 #endif /* CY_IP_MXSMIF */
 
-/** \} group_serial_flash */
+/** \} group_board_libs */

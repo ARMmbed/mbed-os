@@ -27,12 +27,16 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_serial_flash Serial Flash
+* \addtogroup group_board_libs
 * \{
-* Variables for informing programming tools that there is an attached memory device and what
-* its characteristics are so it can be programmed just like the on-chip memory.
-*
-* \defgroup group_serial_flash_variables Variables
+* In addition to the APIs for reading and writting to memory at runtime, this library also 
+* provides support for informing programming tools about the external memory so it can be
+* be written at the same time as internal flash. This support can be enabled by defining 
+* CY_ENABLE_XIP_PROGRAM while building the application. With this define in place, code
+* will be generated in the .cy_sflash_user_data & .cy_toc_part2 sections. These locations 
+* can be read by programming tools (eg: Cypress Programmer, OpenOCD, pyOCD) to know that 
+* there is a memory device attached and how to program it.
+* \} group_board_libs
 */
 
 #include <stdint.h>
@@ -51,12 +55,7 @@ typedef struct
     const uint32_t null_t; /* NULL termination */
 } stc_smif_ipblocks_arr_t;
 
-/**
-* \addtogroup group_serial_flash_variables
-* \{
-*/
-
-/**
+/*
  * This data can be placed anywhere in the internal memory, but it must be at a location that
  * can be determined and used for the calculation of the CRC16 checksum in the cyToc below. There
  * are multiple ways this can be accomplished including:
@@ -67,7 +66,7 @@ typedef struct
 CY_SECTION(".cy_sflash_user_data") __attribute__( (used) )
 const stc_smif_ipblocks_arr_t smifIpBlocksArr = {&smifBlockConfig, 0x00000000};
 
-/**
+/*
  * This data is used to populate the table of contents part 2. When present, it is used by the boot
  * process and programming tools to determine key characteristics about the memory usage including
  * where the boot process should start the application from and what external memories are connected
@@ -92,12 +91,8 @@ const uint32_t cyToc[128] =
     [127] =  0x3BB30000     /* Offset=0x01FC: CRC16-CCITT (the upper 2 bytes contain the CRC and the lower 2 bytes are 0) */
 };
 
-/** \} group_serial_flash_variables */
-
 #endif /* defined(CY_ENABLE_XIP_PROGRAM) */
 
 #if defined(__cplusplus)
 }
 #endif
-
-/** \} group_serial_flash */

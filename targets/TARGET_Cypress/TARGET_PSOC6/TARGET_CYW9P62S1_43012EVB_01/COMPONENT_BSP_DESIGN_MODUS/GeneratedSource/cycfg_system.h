@@ -4,7 +4,9 @@
 * Description:
 * System configuration
 * This file was automatically generated and should not be modified.
-* 
+* Device Configurator: 2.0.0.1483
+* Device Support Library: 1.3.1.1474
+*
 ********************************************************************************
 * Copyright 2017-2019 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
@@ -76,12 +78,12 @@ extern "C" {
 #define CY_CFG_PWR_SYS_ACTIVE_MODE CY_CFG_PWR_MODE_LP
 #define CY_CFG_PWR_DEEPSLEEP_LATENCY 0UL
 #define CY_CFG_PWR_USING_LDO 1
-#define CY_CFG_PWR_VDDA_MV 3300
-#define CY_CFG_PWR_VDDD_MV 3300
-#define CY_CFG_PWR_VBACKUP_MV 3300
-#define CY_CFG_PWR_VDD_NS_MV 3300
-#define CY_CFG_PWR_VDDIO0_MV 3300
-#define CY_CFG_PWR_VDDIO1_MV 3300
+#define CY_CFG_PWR_VDDA_MV 1800
+#define CY_CFG_PWR_VDDD_MV 1800
+#define CY_CFG_PWR_VBACKUP_MV 1800
+#define CY_CFG_PWR_VDD_NS_MV 1800
+#define CY_CFG_PWR_VDDIO0_MV 1800
+#define CY_CFG_PWR_VDDIO1_MV 1800
 
 #if defined (CY_USING_HAL)
 	extern const cyhal_resource_inst_t srss_0_clock_0_pathmux_0_obj;

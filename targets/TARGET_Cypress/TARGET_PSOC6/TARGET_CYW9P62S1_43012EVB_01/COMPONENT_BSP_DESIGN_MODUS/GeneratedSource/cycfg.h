@@ -4,7 +4,9 @@
 * Description:
 * Simple wrapper header containing all generated files.
 * This file was automatically generated and should not be modified.
-* 
+* Device Configurator: 2.0.0.1483
+* Device Support Library: 1.3.1.1474
+*
 ********************************************************************************
 * Copyright 2017-2019 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0

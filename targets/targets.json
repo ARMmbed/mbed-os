@@ -9088,11 +9088,12 @@
         "inherits": ["MCU_PSOC6"],
         "core": "Cortex-M0+",
         "macros_add": ["MCU_PSOC6_M0"],
+        "components_add": ["CM0P"],
         "public": false
     },
     "MCU_PSOC6_M4": {
         "inherits": ["MCU_PSOC6"],
-        "components_add": ["FLASHIAP", "QSPIF", "BSP_DESIGN_MODUS", "CM0P_SLEEP"],
+        "components_add": ["CM4", "FLASHIAP", "QSPIF", "BSP_DESIGN_MODUS", "CM0P_SLEEP"],
         "macros_add": ["MCU_PSOC6_M4", "CY_RTOS_AWARE", "CY_USING_HAL", "MBED_TICKLESS"],
         "public": false
     },
@@ -9226,7 +9227,6 @@
         "inherits": ["MCU_PSOC6_M4"],
         "components_remove": ["QSPIF"],
         "device_has_remove": ["QSPI"],
-        "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["PSOC6_01", "MXCRYPTO_01"],
         "macros_add": ["CYB06447BZI_D54",
                        "PSOC6_DYNSRM_DISABLE=1",
@@ -9260,6 +9260,7 @@
     "CYW9P62S1_43012EVB_01": {
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
+        "supported_form_factors": ["ARDUINO"],
         "components_add": ["WHD", "43012", "CYW43XXX"],
         "components_remove": ["QSPIF"],
         "device_has_remove": ["ANALOGOUT", "CRC", "TRNG", "QSPI"],

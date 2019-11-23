@@ -4,7 +4,9 @@
 * Description:
 * Clock configuration
 * This file was automatically generated and should not be modified.
-* 
+* cfg-backend-cli: 1.2.0.1478
+* Device Support Library (../../../../output/psoc6/psoc6pdl): 1.4.0.1571
+*
 ********************************************************************************
 * Copyright 2017-2019 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
@@ -40,6 +42,6 @@ void init_cycfg_clocks(void)
 	Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_8_BIT, 1U, 3U);
 	Cy_SysClk_PeriphEnableDivider(CY_SYSCLK_DIV_8_BIT, 1U);
 #if defined (CY_USING_HAL)
-		cyhal_hwmgr_reserve(&CYBSP_I2C_CLK_DIV_obj);
+	cyhal_hwmgr_reserve(&CYBSP_I2C_CLK_DIV_obj);
 #endif //defined (CY_USING_HAL)
 }

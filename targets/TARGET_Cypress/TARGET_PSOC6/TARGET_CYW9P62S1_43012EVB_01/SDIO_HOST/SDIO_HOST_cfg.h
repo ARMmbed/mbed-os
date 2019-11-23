@@ -825,9 +825,9 @@ extern cy_stc_dma_descriptor_config_t SDIO_HOST_Write_DMA_Write_DMA_Desc_config;
 extern cy_stc_dma_descriptor_t SDIO_HOST_Write_DMA_Write_DMA_Desc;
 
 /***************************SDIO Clock**************************************/
-/* The peripheral clock divider number */
+/** The peripheral clock divider number */
 #define SDIO_HOST_Internal_Clock_DIV_NUM ((uint32_t)SDIO_HOST_Internal_Clock__DIV_NUM)
-/* The peripheral clock divider type */
+/** The peripheral clock divider type */
 #define SDIO_HOST_Internal_Clock_DIV_TYPE ((cy_en_divider_types_t)SDIO_HOST_Internal_Clock__DIV_TYPE)
 
 /*Function for configuring TriggerMuxes*/

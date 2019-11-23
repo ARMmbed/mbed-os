@@ -36,7 +36,7 @@ extern "C" {
 #endif
 
 
-/** \cond internal */
+/** \cond INTERNAL */
 
 /** Timeout to apply while polling the memory for its ready status after quad
  * enable command has been sent out. Quad enable is a non-volatile write.
@@ -75,21 +75,21 @@ static cy_stc_smif_block_config_t qspi_block_config =
  * configuration */
 cy_rslt_t cy_serial_flash_qspi_init(
     const cy_stc_smif_mem_config_t* mem_config,
-    cyhal_gpio_t io0, 
-    cyhal_gpio_t io1, 
-    cyhal_gpio_t io2, 
+    cyhal_gpio_t io0,
+    cyhal_gpio_t io1,
+    cyhal_gpio_t io2,
     cyhal_gpio_t io3,
-    cyhal_gpio_t io4, 
-    cyhal_gpio_t io5, 
-    cyhal_gpio_t io6, 
-    cyhal_gpio_t io7, 
+    cyhal_gpio_t io4,
+    cyhal_gpio_t io5,
+    cyhal_gpio_t io6,
+    cyhal_gpio_t io7,
     cyhal_gpio_t sclk,
-    cyhal_gpio_t ssel, 
+    cyhal_gpio_t ssel,
     uint32_t hz)
 {
     cy_en_smif_status_t smifStatus = CY_SMIF_SUCCESS;
 
-    
+
     cy_rslt_t result = cyhal_qspi_init(&qspi_obj, io0, io1, io2, io3, io4, io5, io6, io7,
                                         sclk, ssel, hz, 0);
 
@@ -106,7 +106,7 @@ cy_rslt_t cy_serial_flash_qspi_init(
             /* Enable Quad mode (1-1-4 or 1-4-4 modes) to use all the four I/Os during
             * communication.
             */
-            
+
             if(qspi_block_config.memConfig[MEM_SLOT]->deviceCfg->readCmd->dataWidth == CY_SMIF_WIDTH_QUAD
                     || qspi_block_config.memConfig[MEM_SLOT]->deviceCfg->programCmd->dataWidth == CY_SMIF_WIDTH_QUAD)
             {
@@ -126,13 +126,13 @@ cy_rslt_t cy_serial_flash_qspi_init(
     if((CY_RSLT_SUCCESS != result) || (CY_SMIF_SUCCESS != smifStatus))
     {
         cy_serial_flash_qspi_deinit();
-        
+
         if(CY_SMIF_SUCCESS != smifStatus)
         {
             result = (cy_rslt_t)smifStatus;
         }
     }
-            
+
     return result;
 }
 
@@ -142,7 +142,7 @@ void cy_serial_flash_qspi_deinit(void)
     {
         Cy_SMIF_MemDeInit(qspi_obj.base);
     }
-    
+
     cyhal_qspi_free(&qspi_obj);
 }
 

@@ -21,51 +21,35 @@
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the License for the specific language governing permissions and
 * limitations under the License.
-*******************************************************************************
-* \addtogroup group_udb_sdio_changelog
-* <table class="doxtable">
-*   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
-*   <tr>
-*     <td>1.0</td>
-*     <td>Initial version</td>
-*     <td></td>
-*   </tr>
-* </table>
 *******************************************************************************/
 
 /**
+* \defgroup group_bsp_pin_state Pin States
+* \defgroup group_bsp_pins Pin Mappings
+* \defgroup group_bsp_macros Macros
+* \defgroup group_bsp_functions Functions
+*
 * \defgroup group_udb_sdio UDB_SDIO
 * \{
-*  SDIO - Secure Digital Input Output Is a standard for communicating with various
+*  SDIO - Secure Digital Input Output is a standard for communicating with various
     external devices such as Wifi and bluetooth devices. 
-* \{
-* \defgroup group_udb_sdio_general_description General Description
-* \defgroup group_udb_sdio_changelog Changelog
-* \}
-* \defgroup group_udb_sdio_API API Reference
-* \{
-* \defgroup group_udb_sdio_macros Macros
-* \defgroup group_udb_sdio_functions Functions
-* \defgroup group_udb_sdio_data_structures Data Structures
-* \}
-*/
-
-/**
-* \addtogroup group_udb_sdio_general_description
-* \section group_udb_sdio_section_overview Overview
-*  This driver is currently designed to only support communication with certain
-*  Broadcom Wifi and Bluetooth chipsets, it is not designed to work with a general
-*  SDIO card, or even and SD card. Consult TDU#315 for information on limitations
+*  <p>
+*  The driver is currently designed to only support communication with certain
+*  Cypress Wifi and Bluetooth chipsets, it is not designed to work with a general
+*  SDIO card, or even and SD card. It is only intended to be used by the WiFi 
+*  driver for communication.
+*  <p>
+*  This is not intended to be used as a general purpose API.
 *
 * \section group_udb_sdio_section_configuration_considerations Configuration Considerations
 * Features:
 * * Always Four Wire Mode
 * * Supports Card Interrupt
 * * Uses DMA for command and data transfer 
-**
-* \section group_udb_sdio_section_more_information More Information
 *
-* \} group_udb_sdio_general_description
+* \defgroup group_udb_sdio_macros Macros
+* \defgroup group_udb_sdio_functions Functions
+* \defgroup group_udb_sdio_data_structures Data Structures
 */
     
 #if !defined(CY_SDIO_H)
@@ -258,8 +242,6 @@ typedef struct stc_sdio_cmd
 * \{
 */
 
-/** \cond INTERNAL */
-
 /* Main functions*/ 
 void                SDIO_Init(stc_sdio_irq_cb_t* pfuCb);
 en_sdio_result_t    SDIO_SendCommandAndWait(stc_sdio_cmd_t *pstcCmd);
@@ -281,7 +263,6 @@ en_sdio_result_t    SDIO_CheckForEvent(en_sdio_event_t enEventType);
 uint8_t             SDIO_CalculateCrc7(uint8_t* pu8Data, uint8_t pu8Size);
 void                SDIO_SetBlockSize(uint8_t u8ByteCount);
 void                SDIO_SetNumBlocks(uint8_t u8BlockCount);
-en_sdio_result_t    SDIO_CheckReadCRC(void);
 
 /*DMA setup function*/
 void                SDIO_SetupDMA(void);

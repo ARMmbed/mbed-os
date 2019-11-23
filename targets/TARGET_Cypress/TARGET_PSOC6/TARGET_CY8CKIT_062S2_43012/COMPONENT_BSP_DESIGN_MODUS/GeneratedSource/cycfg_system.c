@@ -4,7 +4,9 @@
 * Description:
 * System configuration
 * This file was automatically generated and should not be modified.
-* 
+* Device Configurator: 2.0.0.1483
+* Device Support Library (../../../../output/psoc6/psoc6pdl): 1.3.0.1412
+*
 ********************************************************************************
 * Copyright 2017-2019 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
@@ -73,7 +75,7 @@ static const cy_stc_fll_manual_config_t srss_0_clock_0_fll_0_fllConfig =
 	.refDiv = 20U,
 	.ccoRange = CY_SYSCLK_FLL_CCO_RANGE4,
 	.enableOutputDiv = true,
-	.lockTolerance = 4U,
+	.lockTolerance = 10U,
 	.igain = 9U,
 	.pgain = 5U,
 	.settlingCount = 8U,
@@ -181,7 +183,7 @@ __STATIC_INLINE void Cy_SysClk_IloInit()
 __STATIC_INLINE void Cy_SysClk_ClkLfInit()
 {
     /* The WDT is unlocked in the default startup code */
-    Cy_SysClk_ClkLfSetSource(CY_SYSCLK_CLKLF_IN_ILO);
+    Cy_SysClk_ClkLfSetSource(CY_SYSCLK_CLKLF_IN_WCO);
 }
 __STATIC_INLINE void Cy_SysClk_ClkPath0Init()
 {
@@ -557,14 +559,14 @@ void init_cycfg_system(void)
 	SystemCoreClockUpdate();
 
 #if defined (CY_USING_HAL)
-		cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_0_obj);
+	cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_0_obj);
 #endif //defined (CY_USING_HAL)
 
 #if defined (CY_USING_HAL)
-		cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_1_obj);
+	cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_1_obj);
 #endif //defined (CY_USING_HAL)
 
 #if defined (CY_USING_HAL)
-		cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_2_obj);
+	cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_2_obj);
 #endif //defined (CY_USING_HAL)
 }

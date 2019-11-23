@@ -26,8 +26,10 @@
 
 #include "cy_result.h"
 #include "cybsp_types.h"
+#if defined(COMPONENT_BSP_DESIGN_MODUS)
 #include "cycfg.h"
-#if defined(CYBSP_WIFI_CAPABLE)
+#endif
+#if defined(CYBSP_WIFI_CAPABLE) && defined(CY_USING_HAL)
 #include "cyhal_sdio.h"
 #endif
 
@@ -58,7 +60,7 @@ extern "C" {
  */
 cy_rslt_t cybsp_init(void);
 
-#if defined(CYBSP_WIFI_CAPABLE)
+#if defined(CYBSP_WIFI_CAPABLE) && defined(CY_USING_HAL)
 /**
  * \brief Get the initialized sdio object used for communicating with the WiFi Chip. 
  * \note This function should only be called after cybsp_init();

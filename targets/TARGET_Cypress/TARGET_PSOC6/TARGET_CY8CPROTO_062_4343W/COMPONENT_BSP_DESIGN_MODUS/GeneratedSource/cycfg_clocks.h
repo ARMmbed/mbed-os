@@ -4,7 +4,9 @@
 * Description:
 * Clock configuration
 * This file was automatically generated and should not be modified.
-* 
+* cfg-backend-cli: 1.2.0.1478
+* Device Support Library (../../../../output/psoc6/psoc6pdl): 1.4.0.1571
+*
 ********************************************************************************
 * Copyright 2017-2019 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
@@ -35,30 +37,12 @@
 extern "C" {
 #endif
 
-#define CYBSP_USB_CLK_DIV_ENABLED 1U
-#define CYBSP_USB_CLK_DIV_HW CY_SYSCLK_DIV_16_BIT
-#define CYBSP_USB_CLK_DIV_NUM 0U
 #define CYBSP_CSD_CLK_DIV_ENABLED 1U
 #define CYBSP_CSD_CLK_DIV_HW CY_SYSCLK_DIV_8_BIT
 #define CYBSP_CSD_CLK_DIV_NUM 0U
-#define CYBSP_CSD_COMM_CLK_DIV_ENABLED 1U
-#define CYBSP_CSD_COMM_CLK_DIV_HW CY_SYSCLK_DIV_8_BIT
-#define CYBSP_CSD_COMM_CLK_DIV_NUM 1U
-#define CYBSP_BT_UART_CLK_DIV_ENABLED 1U
-#define CYBSP_BT_UART_CLK_DIV_HW CY_SYSCLK_DIV_8_BIT
-#define CYBSP_BT_UART_CLK_DIV_NUM 3U
 
 #if defined (CY_USING_HAL)
-	extern const cyhal_resource_inst_t CYBSP_USB_CLK_DIV_obj;
-#endif //defined (CY_USING_HAL)
-#if defined (CY_USING_HAL)
 	extern const cyhal_resource_inst_t CYBSP_CSD_CLK_DIV_obj;
-#endif //defined (CY_USING_HAL)
-#if defined (CY_USING_HAL)
-	extern const cyhal_resource_inst_t CYBSP_CSD_COMM_CLK_DIV_obj;
-#endif //defined (CY_USING_HAL)
-#if defined (CY_USING_HAL)
-	extern const cyhal_resource_inst_t CYBSP_BT_UART_CLK_DIV_obj;
 #endif //defined (CY_USING_HAL)
 
 void init_cycfg_clocks(void);

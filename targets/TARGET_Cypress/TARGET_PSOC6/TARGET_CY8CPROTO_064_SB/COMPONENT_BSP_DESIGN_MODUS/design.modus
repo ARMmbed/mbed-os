@@ -1,315 +1,243 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Design version="11" xmlns="http://cypress.com/xsd/cydesignfile_v2">
+<Design version="12" device_library_hint_path="../../psoc6pdl/devicesupport.xml" xmlns="http://cypress.com/xsd/cydesignfile_v3">
     <ToolInfo version="1.0.0"/>
     <Devices>
         <Device mpn="CYB06447BZI-D54">
             <BlockConfig>
-                <Block location="cpuss[0].dap[0]" alias="" template="mxs40dap" version="1.0">
-                    <Param id="dbgMode" value="SWD"/>
-                    <Param id="traceEnable" value="false"/>
+                <Block location="cpuss[0].dap[0]">
+                    <Personality template="mxs40dap" version="1.0">
+                        <Param id="dbgMode" value="SWD"/>
+                        <Param id="traceEnable" value="false"/>
+                    </Personality>
                 </Block>
-                <Block location="ioss[0].port[0].pin[0]" alias="CYBSP_WCO_IN" template="mxs40pin" version="1.1">
-                    <Param id="DriveModes" value="CY_GPIO_DM_ANALOG"/>
-                    <Param id="initialState" value="1"/>
-                    <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
-                    <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
-                    <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
-                    <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
-                    <Param id="sioOutputBuffer" value="true"/>
-                    <Param id="inFlash" value="true"/>
+                <Block location="ioss[0].port[0].pin[0]">
+                    <Alias value="CYBSP_WCO_IN"/>
+                    <Personality template="mxs40pin" version="1.1">
+                        <Param id="DriveModes" value="CY_GPIO_DM_ANALOG"/>
+                        <Param id="initialState" value="1"/>
+                        <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
+                        <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
+                        <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
+                        <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
+                        <Param id="sioOutputBuffer" value="true"/>
+                        <Param id="inFlash" value="true"/>
+                    </Personality>
                 </Block>
-                <Block location="ioss[0].port[0].pin[1]" alias="CYBSP_WCO_OUT" template="mxs40pin" version="1.1">
-                    <Param id="DriveModes" value="CY_GPIO_DM_ANALOG"/>
-                    <Param id="initialState" value="1"/>
-                    <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
-                    <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
-                    <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
-                    <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
-                    <Param id="sioOutputBuffer" value="true"/>
-                    <Param id="inFlash" value="true"/>
+                <Block location="ioss[0].port[0].pin[1]">
+                    <Alias value="CYBSP_WCO_OUT"/>
+                    <Personality template="mxs40pin" version="1.1">
+                        <Param id="DriveModes" value="CY_GPIO_DM_ANALOG"/>
+                        <Param id="initialState" value="1"/>
+                        <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
+                        <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
+                        <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
+                        <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
+                        <Param id="sioOutputBuffer" value="true"/>
+                        <Param id="inFlash" value="true"/>
+                    </Personality>
                 </Block>
-                <Block location="ioss[0].port[11].pin[2]" alias="CYBSP_QSPI_SS" template="mxs40pin" version="1.1">
-                    <Param id="DriveModes" value="CY_GPIO_DM_STRONG_IN_OFF"/>
-                    <Param id="initialState" value="1"/>
-                    <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
-                    <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
-                    <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
-                    <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
-                    <Param id="sioOutputBuffer" value="true"/>
-                    <Param id="inFlash" value="true"/>
+                <Block location="ioss[0].port[11].pin[2]"/>
+                <Block location="ioss[0].port[11].pin[3]"/>
+                <Block location="ioss[0].port[11].pin[4]"/>
+                <Block location="ioss[0].port[11].pin[5]"/>
+                <Block location="ioss[0].port[11].pin[6]"/>
+                <Block location="ioss[0].port[11].pin[7]"/>
+                <Block location="ioss[0].port[12].pin[6]">
+                    <Alias value="CYBSP_ECO_IN"/>
+                    <Personality template="mxs40pin" version="1.1">
+                        <Param id="DriveModes" value="CY_GPIO_DM_ANALOG"/>
+                        <Param id="initialState" value="1"/>
+                        <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
+                        <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
+                        <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
+                        <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
+                        <Param id="sioOutputBuffer" value="true"/>
+                        <Param id="inFlash" value="true"/>
+                    </Personality>
                 </Block>
-                <Block location="ioss[0].port[11].pin[3]" alias="CYBSP_QSPI_D3" template="mxs40pin" version="1.1">
-                    <Param id="DriveModes" value="CY_GPIO_DM_STRONG"/>
-                    <Param id="initialState" value="1"/>
-                    <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
-                    <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
-                    <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
-                    <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
-                    <Param id="sioOutputBuffer" value="true"/>
-                    <Param id="inFlash" value="true"/>
+                <Block location="ioss[0].port[12].pin[7]">
+                    <Alias value="CYBSP_ECO_OUT"/>
+                    <Personality template="mxs40pin" version="1.1">
+                        <Param id="DriveModes" value="CY_GPIO_DM_ANALOG"/>
+                        <Param id="initialState" value="1"/>
+                        <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
+                        <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
+                        <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
+                        <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
+                        <Param id="sioOutputBuffer" value="true"/>
+                        <Param id="inFlash" value="true"/>
+                    </Personality>
                 </Block>
-                <Block location="ioss[0].port[11].pin[4]" alias="CYBSP_QSPI_D2" template="mxs40pin" version="1.1">
-                    <Param id="DriveModes" value="CY_GPIO_DM_STRONG"/>
-                    <Param id="initialState" value="1"/>
-                    <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
-                    <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
-                    <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
-                    <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
-                    <Param id="sioOutputBuffer" value="true"/>
-                    <Param id="inFlash" value="true"/>
+                <Block location="ioss[0].port[14].pin[0]"/>
+                <Block location="ioss[0].port[14].pin[1]"/>
+                <Block location="ioss[0].port[6].pin[0]"/>
+                <Block location="ioss[0].port[6].pin[1]"/>
+                <Block location="ioss[0].port[6].pin[4]">
+                    <Alias value="CYBSP_SWO"/>
+                    <Personality template="mxs40pin" version="1.1">
+                        <Param id="DriveModes" value="CY_GPIO_DM_STRONG_IN_OFF"/>
+                        <Param id="initialState" value="1"/>
+                        <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
+                        <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
+                        <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
+                        <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
+                        <Param id="sioOutputBuffer" value="true"/>
+                        <Param id="inFlash" value="true"/>
+                    </Personality>
                 </Block>
-                <Block location="ioss[0].port[11].pin[5]" alias="CYBSP_QSPI_D1" template="mxs40pin" version="1.1">
-                    <Param id="DriveModes" value="CY_GPIO_DM_STRONG"/>
-                    <Param id="initialState" value="1"/>
-                    <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
-                    <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
-                    <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
-                    <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
-                    <Param id="sioOutputBuffer" value="true"/>
-                    <Param id="inFlash" value="true"/>
+                <Block location="ioss[0].port[6].pin[6]">
+                    <Alias value="CYBSP_SWDIO"/>
+                    <Personality template="mxs40pin" version="1.1">
+                        <Param id="DriveModes" value="CY_GPIO_DM_PULLUP"/>
+                        <Param id="initialState" value="1"/>
+                        <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
+                        <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
+                        <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
+                        <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
+                        <Param id="sioOutputBuffer" value="true"/>
+                        <Param id="inFlash" value="true"/>
+                    </Personality>
                 </Block>
-                <Block location="ioss[0].port[11].pin[6]" alias="CYBSP_QSPI_D0" template="mxs40pin" version="1.1">
-                    <Param id="DriveModes" value="CY_GPIO_DM_STRONG"/>
-                    <Param id="initialState" value="1"/>
-                    <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
-                    <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
-                    <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
-                    <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
-                    <Param id="sioOutputBuffer" value="true"/>
-                    <Param id="inFlash" value="true"/>
+                <Block location="ioss[0].port[6].pin[7]">
+                    <Alias value="CYBSP_SWCLK"/>
+                    <Personality template="mxs40pin" version="1.1">
+                        <Param id="DriveModes" value="CY_GPIO_DM_PULLDOWN"/>
+                        <Param id="initialState" value="1"/>
+                        <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
+                        <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
+                        <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
+                        <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
+                        <Param id="sioOutputBuffer" value="true"/>
+                        <Param id="inFlash" value="true"/>
+                    </Personality>
                 </Block>
-                <Block location="ioss[0].port[11].pin[7]" alias="CYBSP_QSPI_SCK" template="mxs40pin" version="1.1">
-                    <Param id="DriveModes" value="CY_GPIO_DM_STRONG_IN_OFF"/>
-                    <Param id="initialState" value="1"/>
-                    <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
-                    <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
-                    <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
-                    <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
-                    <Param id="sioOutputBuffer" value="true"/>
-                    <Param id="inFlash" value="true"/>
+                <Block location="peri[0].div_16[0]"/>
+                <Block location="peri[0].div_8[1]"/>
+                <Block location="scb[3]"/>
+                <Block location="smif[0]"/>
+                <Block location="srss[0].clock[0]">
+                    <Personality template="mxs40sysclocks" version="1.2"/>
                 </Block>
-                <Block location="ioss[0].port[12].pin[6]" alias="CYBSP_ECO_IN" template="mxs40pin" version="1.1">
-                    <Param id="DriveModes" value="CY_GPIO_DM_ANALOG"/>
-                    <Param id="initialState" value="1"/>
-                    <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
-                    <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
-                    <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
-                    <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
-                    <Param id="sioOutputBuffer" value="true"/>
-                    <Param id="inFlash" value="true"/>
+                <Block location="srss[0].clock[0].bakclk[0]">
+                    <Personality template="mxs40bakclk" version="1.0">
+                        <Param id="sourceClock" value="wco"/>
+                    </Personality>
                 </Block>
-                <Block location="ioss[0].port[12].pin[7]" alias="CYBSP_ECO_OUT" template="mxs40pin" version="1.1">
-                    <Param id="DriveModes" value="CY_GPIO_DM_ANALOG"/>
-                    <Param id="initialState" value="1"/>
-                    <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
-                    <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
-                    <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
-                    <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
-                    <Param id="sioOutputBuffer" value="true"/>
-                    <Param id="inFlash" value="true"/>
+                <Block location="srss[0].clock[0].fastclk[0]">
+                    <Personality template="mxs40fastclk" version="1.0">
+                        <Param id="divider" value="1"/>
+                    </Personality>
                 </Block>
-                <Block location="ioss[0].port[14].pin[0]" alias="CYBSP_USB_DP" template="mxs40pin" version="1.1">
-                    <Param id="DriveModes" value="CY_GPIO_DM_ANALOG"/>
-                    <Param id="initialState" value="1"/>
-                    <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
-                    <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
-                    <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
-                    <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
-                    <Param id="sioOutputBuffer" value="true"/>
-                    <Param id="inFlash" value="true"/>
+                <Block location="srss[0].clock[0].fll[0]">
+                    <Personality template="mxs40fll" version="1.0">
+                        <Param id="configuration" value="auto"/>
+                        <Param id="desiredFrequency" value="100.000"/>
+                    </Personality>
                 </Block>
-                <Block location="ioss[0].port[14].pin[1]" alias="CYBSP_USB_DM" template="mxs40pin" version="1.1">
-                    <Param id="DriveModes" value="CY_GPIO_DM_ANALOG"/>
-                    <Param id="initialState" value="1"/>
-                    <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
-                    <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
-                    <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
-                    <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
-                    <Param id="sioOutputBuffer" value="true"/>
-                    <Param id="inFlash" value="true"/>
+                <Block location="srss[0].clock[0].hfclk[0]">
+                    <Personality template="mxs40hfclk" version="1.1">
+                        <Param id="sourceClockNumber" value="0"/>
+                        <Param id="divider" value="1"/>
+                    </Personality>
                 </Block>
-                <Block location="ioss[0].port[6].pin[0]" alias="CYBSP_I2C_SCL" template="mxs40pin" version="1.1">
-                    <Param id="DriveModes" value="CY_GPIO_DM_OD_DRIVESLOW"/>
-                    <Param id="initialState" value="1"/>
-                    <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
-                    <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
-                    <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
-                    <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
-                    <Param id="sioOutputBuffer" value="true"/>
-                    <Param id="inFlash" value="true"/>
+                <Block location="srss[0].clock[0].hfclk[2]">
+                    <Personality template="mxs40hfclk" version="1.1">
+                        <Param id="sourceClockNumber" value="0"/>
+                        <Param id="divider" value="2"/>
+                    </Personality>
                 </Block>
-                <Block location="ioss[0].port[6].pin[1]" alias="CYBSP_I2C_SDA" template="mxs40pin" version="1.1">
-                    <Param id="DriveModes" value="CY_GPIO_DM_OD_DRIVESLOW"/>
-                    <Param id="initialState" value="1"/>
-                    <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
-                    <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
-                    <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
-                    <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
-                    <Param id="sioOutputBuffer" value="true"/>
-                    <Param id="inFlash" value="true"/>
+                <Block location="srss[0].clock[0].hfclk[3]">
+                    <Personality template="mxs40hfclk" version="1.1">
+                        <Param id="sourceClockNumber" value="1"/>
+                        <Param id="divider" value="1"/>
+                    </Personality>
                 </Block>
-                <Block location="ioss[0].port[6].pin[4]" alias="CYBSP_SWO" template="mxs40pin" version="1.1">
-                    <Param id="DriveModes" value="CY_GPIO_DM_STRONG_IN_OFF"/>
-                    <Param id="initialState" value="1"/>
-                    <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
-                    <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
-                    <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
-                    <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
-                    <Param id="sioOutputBuffer" value="true"/>
-                    <Param id="inFlash" value="true"/>
+                <Block location="srss[0].clock[0].ilo[0]">
+                    <Personality template="mxs40ilo" version="1.0">
+                        <Param id="hibernate" value="true"/>
+                    </Personality>
                 </Block>
-                <Block location="ioss[0].port[6].pin[6]" alias="CYBSP_SWDIO" template="mxs40pin" version="1.1">
-                    <Param id="DriveModes" value="CY_GPIO_DM_PULLUP"/>
-                    <Param id="initialState" value="1"/>
-                    <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
-                    <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
-                    <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
-                    <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
-                    <Param id="sioOutputBuffer" value="true"/>
-                    <Param id="inFlash" value="true"/>
+                <Block location="srss[0].clock[0].imo[0]">
+                    <Personality template="mxs40imo" version="1.0">
+                        <Param id="trim" value="1"/>
+                    </Personality>
                 </Block>
-                <Block location="ioss[0].port[6].pin[7]" alias="CYBSP_SWCLK" template="mxs40pin" version="1.1">
-                    <Param id="DriveModes" value="CY_GPIO_DM_PULLDOWN"/>
-                    <Param id="initialState" value="1"/>
-                    <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
-                    <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
-                    <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
-                    <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
-                    <Param id="sioOutputBuffer" value="true"/>
-                    <Param id="inFlash" value="true"/>
+                <Block location="srss[0].clock[0].lfclk[0]">
+                    <Personality template="mxs40lfclk" version="1.1">
+                        <Param id="sourceClock" value="wco"/>
+                    </Personality>
                 </Block>
-                <Block location="peri[0].div_16[0]" alias="CYBSP_USB_CLK_DIV" template="mxs40peripheralclock" version="1.0">
-                    <Param id="intDivider" value="500"/>
-                    <Param id="fracDivider" value="0"/>
-                    <Param id="startOnReset" value="true"/>
+                <Block location="srss[0].clock[0].pathmux[0]">
+                    <Personality template="mxs40pathmux" version="1.0">
+                        <Param id="sourceClock" value="imo"/>
+                    </Personality>
                 </Block>
-                <Block location="peri[0].div_8[1]" alias="CYBSP_I2C_CLK_DIV" template="mxs40peripheralclock" version="1.0">
-                    <Param id="intDivider" value="4"/>
-                    <Param id="fracDivider" value="0"/>
-                    <Param id="startOnReset" value="true"/>
+                <Block location="srss[0].clock[0].pathmux[1]">
+                    <Personality template="mxs40pathmux" version="1.0">
+                        <Param id="sourceClock" value="imo"/>
+                    </Personality>
                 </Block>
-                <Block location="scb[3]" alias="CYBSP_I2C" template="mxs40ezi2c" version="1.0">
-                    <Param id="DataRate" value="400"/>
-                    <Param id="NumOfAddr" value="CY_SCB_EZI2C_ONE_ADDRESS"/>
-                    <Param id="SlaveAddress1" value="8"/>
-                    <Param id="SlaveAddress2" value="9"/>
-                    <Param id="SubAddrSize" value="CY_SCB_EZI2C_SUB_ADDR8_BITS"/>
-                    <Param id="EnableWakeup" value="false"/>
-                    <Param id="inFlash" value="true"/>
+                <Block location="srss[0].clock[0].pathmux[2]">
+                    <Personality template="mxs40pathmux" version="1.0">
+                        <Param id="sourceClock" value="imo"/>
+                    </Personality>
                 </Block>
-                <Block location="smif[0]" alias="CYBSP_QSPI" template="mxs40smif" version="1.1">
-                    <Param id="configurator" value="0"/>
-                    <Param id="isrAlignment" value="false"/>
-                    <Param id="isrUnderflow" value="false"/>
-                    <Param id="isrCmdOverflow" value="false"/>
-                    <Param id="isrDataOverflow" value="false"/>
-                    <Param id="rxTriggerLevel" value="0"/>
-                    <Param id="txTriggerLevel" value="0"/>
-                    <Param id="inFlash" value="true"/>
+                <Block location="srss[0].clock[0].pathmux[3]">
+                    <Personality template="mxs40pathmux" version="1.0">
+                        <Param id="sourceClock" value="imo"/>
+                    </Personality>
                 </Block>
-                <Block location="srss[0].clock[0]" alias="" template="mxs40sysclocks" version="1.2"/>
-                <Block location="srss[0].clock[0].bakclk[0]" alias="" template="mxs40bakclk" version="1.0">
-                    <Param id="sourceClock" value="wco"/>
+                <Block location="srss[0].clock[0].pathmux[4]">
+                    <Personality template="mxs40pathmux" version="1.0">
+                        <Param id="sourceClock" value="imo"/>
+                    </Personality>
                 </Block>
-                <Block location="srss[0].clock[0].fastclk[0]" alias="" template="mxs40fastclk" version="1.0">
-                    <Param id="divider" value="1"/>
+                <Block location="srss[0].clock[0].periclk[0]">
+                    <Personality template="mxs40periclk" version="1.0">
+                        <Param id="divider" value="2"/>
+                    </Personality>
                 </Block>
-                <Block location="srss[0].clock[0].fll[0]" alias="" template="mxs40fll" version="1.0">
-                    <Param id="configuration" value="auto"/>
-                    <Param id="desiredFrequency" value="100.000"/>
+                <Block location="srss[0].clock[0].pll[0]">
+                    <Personality template="mxs40pll" version="1.0">
+                        <Param id="lowFrequencyMode" value="false"/>
+                        <Param id="configuration" value="auto"/>
+                        <Param id="desiredFrequency" value="48.000"/>
+                        <Param id="optimization" value="MinPower"/>
+                    </Personality>
                 </Block>
-                <Block location="srss[0].clock[0].hfclk[0]" alias="" template="mxs40hfclk" version="1.1">
-                    <Param id="sourceClockNumber" value="0"/>
-                    <Param id="divider" value="1"/>
+                <Block location="srss[0].clock[0].slowclk[0]">
+                    <Personality template="mxs40slowclk" version="1.0">
+                        <Param id="divider" value="1"/>
+                    </Personality>
                 </Block>
-                <Block location="srss[0].clock[0].hfclk[2]" alias="" template="mxs40hfclk" version="1.1">
-                    <Param id="sourceClockNumber" value="0"/>
-                    <Param id="divider" value="2"/>
+                <Block location="srss[0].clock[0].wco[0]">
+                    <Personality template="mxs40wco" version="1.0">
+                        <Param id="clockPort" value="CY_SYSCLK_WCO_NOT_BYPASSED"/>
+                        <Param id="clockLostDetection" value="false"/>
+                        <Param id="clockSupervisor" value="CY_SYSCLK_WCO_CSV_SUPERVISOR_ILO"/>
+                        <Param id="lossWindow" value="CY_SYSCLK_CSV_LOSS_4_CYCLES"/>
+                        <Param id="lossAction" value="CY_SYSCLK_CSV_ERROR_FAULT"/>
+                        <Param id="accuracyPpm" value="150"/>
+                    </Personality>
                 </Block>
-                <Block location="srss[0].clock[0].hfclk[3]" alias="" template="mxs40hfclk" version="1.1">
-                    <Param id="sourceClockNumber" value="1"/>
-                    <Param id="divider" value="1"/>
+                <Block location="srss[0].power[0]">
+                    <Personality template="mxs40power" version="1.2">
+                        <Param id="pwrMode" value="LDO_1_1"/>
+                        <Param id="actPwrMode" value="LP"/>
+                        <Param id="coreRegulator" value="CY_SYSPM_LDO_MODE_NORMAL"/>
+                        <Param id="pmicEnable" value="false"/>
+                        <Param id="backupSrc" value="VDDD"/>
+                        <Param id="idlePwrMode" value="CY_CFG_PWR_MODE_DEEPSLEEP"/>
+                        <Param id="deepsleepLatency" value="0"/>
+                        <Param id="vddaMv" value="3300"/>
+                        <Param id="vdddMv" value="3300"/>
+                        <Param id="vBackupMv" value="3300"/>
+                        <Param id="vddNsMv" value="3300"/>
+                        <Param id="vddio0Mv" value="3300"/>
+                        <Param id="vddio1Mv" value="3300"/>
+                    </Personality>
                 </Block>
-                <Block location="srss[0].clock[0].ilo[0]" alias="" template="mxs40ilo" version="1.0">
-                    <Param id="hibernate" value="true"/>
-                </Block>
-                <Block location="srss[0].clock[0].imo[0]" alias="" template="mxs40imo" version="1.0">
-                    <Param id="trim" value="0.25"/>
-                </Block>
-                <Block location="srss[0].clock[0].lfclk[0]" alias="" template="mxs40lfclk" version="1.1">
-                    <Param id="sourceClock" value="wco"/>
-                </Block>
-                <Block location="srss[0].clock[0].pathmux[0]" alias="" template="mxs40pathmux" version="1.0">
-                    <Param id="sourceClock" value="imo"/>
-                </Block>
-                <Block location="srss[0].clock[0].pathmux[1]" alias="" template="mxs40pathmux" version="1.0">
-                    <Param id="sourceClock" value="imo"/>
-                </Block>
-                <Block location="srss[0].clock[0].pathmux[2]" alias="" template="mxs40pathmux" version="1.0">
-                    <Param id="sourceClock" value="imo"/>
-                </Block>
-                <Block location="srss[0].clock[0].pathmux[3]" alias="" template="mxs40pathmux" version="1.0">
-                    <Param id="sourceClock" value="imo"/>
-                </Block>
-                <Block location="srss[0].clock[0].pathmux[4]" alias="" template="mxs40pathmux" version="1.0">
-                    <Param id="sourceClock" value="imo"/>
-                </Block>
-                <Block location="srss[0].clock[0].periclk[0]" alias="" template="mxs40periclk" version="1.0">
-                    <Param id="divider" value="2"/>
-                </Block>
-                <Block location="srss[0].clock[0].pll[0]" alias="" template="mxs40pll" version="1.0">
-                    <Param id="lowFrequencyMode" value="false"/>
-                    <Param id="configuration" value="auto"/>
-                    <Param id="desiredFrequency" value="48.000"/>
-                    <Param id="optimization" value="MinPower"/>
-                </Block>
-                <Block location="srss[0].clock[0].slowclk[0]" alias="" template="mxs40slowclk" version="1.0">
-                    <Param id="divider" value="1"/>
-                </Block>
-                <Block location="srss[0].clock[0].wco[0]" alias="" template="mxs40wco" version="1.0">
-                    <Param id="clockPort" value="CY_SYSCLK_WCO_NOT_BYPASSED"/>
-                    <Param id="clockLostDetection" value="false"/>
-                    <Param id="clockSupervisor" value="CY_SYSCLK_WCO_CSV_SUPERVISOR_ILO"/>
-                    <Param id="lossWindow" value="CY_SYSCLK_CSV_LOSS_4_CYCLES"/>
-                    <Param id="lossAction" value="CY_SYSCLK_CSV_ERROR_FAULT"/>
-                    <Param id="accuracyPpm" value="150"/>
-                </Block>
-                <Block location="srss[0].power[0]" alias="" template="mxs40power" version="1.2">
-                    <Param id="pwrMode" value="LDO_1_1"/>
-                    <Param id="actPwrMode" value="LP"/>
-                    <Param id="coreRegulator" value="CY_SYSPM_LDO_MODE_NORMAL"/>
-                    <Param id="pmicEnable" value="false"/>
-                    <Param id="backupSrc" value="VDDD"/>
-                    <Param id="idlePwrMode" value="CY_CFG_PWR_MODE_DEEPSLEEP"/>
-                    <Param id="deepsleepLatency" value="0"/>
-                    <Param id="vddaMv" value="3300"/>
-                    <Param id="vdddMv" value="3300"/>
-                    <Param id="vBackupMv" value="3300"/>
-                    <Param id="vddNsMv" value="3300"/>
-                    <Param id="vddio0Mv" value="3300"/>
-                    <Param id="vddio1Mv" value="3300"/>
-                </Block>
-                <Block location="usb[0]" alias="CYBSP_USBUART" template="mxs40usbfsdevice" version="1.1">
-                    <Param id="epMask" value="0"/>
-                    <Param id="mngMode" value="CY_USBFS_DEV_DRV_EP_MANAGEMENT_CPU"/>
-                    <Param id="bufSize" value="512"/>
-                    <Param id="epAccess" value="CY_USBFS_DEV_DRV_USE_8_BITS_DR"/>
-                    <Param id="enableLpm" value="false"/>
-                    <Param id="lpmIntr" value="0x0U"/>
-                    <Param id="ArbIntr" value="0x0U"/>
-                    <Param id="ep0CntrIntr" value="0x2U"/>
-                    <Param id="busResetIntr" value="0x2U"/>
-                    <Param id="sofIntr" value="0x1U"/>
-                    <Param id="ep0Intr" value="0x1U"/>
-                    <Param id="ep1Intr" value="0x1U"/>
-                    <Param id="ep2Intr" value="0x1U"/>
-                    <Param id="ep3Intr" value="0x1U"/>
-                    <Param id="ep4Intr" value="0x1U"/>
-                    <Param id="ep5Intr" value="0x1U"/>
-                    <Param id="ep6Intr" value="0x1U"/>
-                    <Param id="ep7Intr" value="0x1U"/>
-                    <Param id="inFlash" value="true"/>
-                </Block>
+                <Block location="usb[0]"/>
             </BlockConfig>
             <Netlist>
                 <Net>
@@ -331,66 +259,6 @@
                 <Net>
                     <Port name="ioss[0].port[0].pin[1].analog[0]"/>
                     <Port name="srss[0].clock[0].wco[0].wco_out[0]"/>
-                </Net>
-                <Net>
-                    <Port name="ioss[0].port[6].pin[0].digital_inout[0]"/>
-                    <Port name="scb[3].i2c_scl[0]"/>
-                </Net>
-                <Net>
-                    <Port name="ioss[0].port[6].pin[1].digital_inout[0]"/>
-                    <Port name="scb[3].i2c_sda[0]"/>
-                </Net>
-                <Net>
-                    <Port name="ioss[0].port[11].pin[2].digital_out[0]"/>
-                    <Port name="smif[0].spi_select0[0]"/>
-                </Net>
-                <Net>
-                    <Port name="ioss[0].port[11].pin[3].digital_out[0]"/>
-                    <Port name="smif[0].spi_data3[0]"/>
-                </Net>
-                <Net>
-                    <Port name="ioss[0].port[11].pin[4].digital_out[0]"/>
-                    <Port name="smif[0].spi_data2[0]"/>
-                </Net>
-                <Net>
-                    <Port name="ioss[0].port[11].pin[5].digital_out[0]"/>
-                    <Port name="smif[0].spi_data1[0]"/>
-                </Net>
-                <Net>
-                    <Port name="ioss[0].port[11].pin[6].digital_out[0]"/>
-                    <Port name="smif[0].spi_data0[0]"/>
-                </Net>
-                <Net>
-                    <Port name="ioss[0].port[11].pin[7].digital_inout[0]"/>
-                    <Port name="smif[0].spi_clk[0]"/>
-                </Net>
-                <Net>
-                    <Port name="ioss[0].port[14].pin[0].aux[0]"/>
-                    <Port name="usb[0].usb_dp_pad[0]"/>
-                </Net>
-                <Net>
-                    <Port name="ioss[0].port[14].pin[1].aux[0]"/>
-                    <Port name="usb[0].usb_dm_pad[0]"/>
-                </Net>
-                <Net>
-                    <Port name="peri[0].div_16[0].clk[0]"/>
-                    <Port name="usb[0].clock_dev_brs[0]"/>
-                </Net>
-                <Net>
-                    <Port name="peri[0].div_8[1].clk[0]"/>
-                    <Port name="scb[3].clock[0]"/>
-                </Net>
-                <Net>
-                    <Port name="smif[0].clk_hf[0]"/>
-                    <Port name="srss[0].clock[0].hfclk[0].root_clk[0]"/>
-                </Net>
-                <Net>
-                    <Port name="smif[0].clk_if[0]"/>
-                    <Port name="srss[0].clock[0].hfclk[2].root_clk[0]"/>
-                </Net>
-                <Net>
-                    <Port name="srss[0].clock[0].hfclk[3].root_clk[0]"/>
-                    <Port name="usb[0].clk_usb_dev[0]"/>
                 </Net>
             </Netlist>
         </Device>

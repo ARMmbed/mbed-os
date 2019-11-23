@@ -25,12 +25,40 @@
 
 #pragma once
 
+#if defined(CY_USING_HAL)
 #include "cyhal_pin_package.h"
+#endif
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
+/**
+* \addtogroup group_bsp_settings BSP Settings
+* \{
+*
+* <div class="category">Peripheral Default HAL Settings:</div>
+* | Resource | Parameter | Value | Remarks |
+* | :------: | :-------: | :---: | :------ |
+* | ADC      | VREF      | 1.2 V | |
+* | ^        | Measurement type | Single Ended | |
+* | ^        | Input voltage range | 0 to 2.4 V (0 to 2*VREF) | |
+* | ^        | Output range | 0x000 to 0x7FF | |
+* | DAC      | Reference source | VDDA | |
+* | ^        | Input range | 0x000 to 0xFFF | |
+* | ^        | Output range | 0 to VDDA | |
+* | ^        | Output type | Unbuffered output | |
+* | I2C      | Role | Master | Configurable to slave mode through HAL function |
+* | ^        | Data rate | 100 kbps | Configurable through HAL function |
+* | ^        | Drive mode of SCL & SDA pins | Open Drain (drives low) | External pull-up resistors are required |
+* | LpTimer  | Uses WCO (32.768 kHz) as clock source & MCWDT as counter. 1 count = 1/32768 second or 32768 counts = 1 second. |||
+* | SPI      | Data rate | 100 kpbs | Configurable through HAL function |
+* | ^        | Slave select polarity | Active low | |
+* | UART     | Flow control | No flow control | Configurable through HAL function |
+* | ^        | Data format | 8N1 | Configurable through HAL function |
+* | ^        | Baud rate | 115200 | Configurable through HAL function |
+*/
+/** \} group_bsp_settings */
 
 /**
 * \addtogroup group_bsp_pin_state Pin States
@@ -49,6 +77,7 @@ extern "C" {
 
 /** \} group_bsp_pin_state */
 
+#if defined(CY_USING_HAL)
 
 /**
 * \addtogroup group_bsp_pins Pin Mappings
@@ -162,6 +191,15 @@ extern "C" {
 /** Pin: QUAD SPI SCK */
 #define CYBSP_QSPI_SCK              (P11_7)
 
+/** Pin: SPI MOSI */
+#define CYBSP_SPI_MOSI              (P12_0)
+/** Pin: SPI MISO */
+#define CYBSP_SPI_MISO              (P12_1)
+/** Pin: SPI CLK */
+#define CYBSP_SPI_CLK               (P12_2)
+/** Pin: SPI CS */
+#define CYBSP_SPI_CS                (P12_4)
+
 /** Host-wake GPIO drive mode */
 #define CYBSP_WIFI_HOST_WAKE_GPIO_DM (CYHAL_GPIO_DRIVE_ANALOG)
 /** Host-wake IRQ event */
@@ -223,6 +261,8 @@ extern "C" {
 /** \} group_bsp_pins_arduino */
 
 /** \} group_bsp_pins */
+
+#endif /* defined(CY_USING_HAL) */
 
 #if defined(__cplusplus)
 }

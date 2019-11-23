@@ -4,7 +4,9 @@
 * Description:
 * Simple wrapper header containing all generated files.
 * This file was automatically generated and should not be modified.
-* 
+* cfg-backend-cli: 1.2.0.1478
+* Device Support Library (../../../../output/psoc6/psoc6pdl): 1.4.0.1571
+*
 ********************************************************************************
 * Copyright 2017-2019 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
@@ -32,7 +34,6 @@ extern "C" {
 #include "cycfg_notices.h"
 #include "cycfg_system.h"
 #include "cycfg_clocks.h"
-#include "cycfg_dmas.h"
 #include "cycfg_routing.h"
 #include "cycfg_peripherals.h"
 #include "cycfg_pins.h"

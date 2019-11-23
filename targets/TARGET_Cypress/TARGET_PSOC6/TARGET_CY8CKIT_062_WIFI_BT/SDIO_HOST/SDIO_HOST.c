@@ -23,6 +23,7 @@
 *******************************************************************************/
 
 #include "SDIO_HOST.h"
+#include "cy_utils.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -92,11 +93,22 @@ static void SDIO_RestoreConfig(void);
 *
 * Callback executed during Deep Sleep entry/exit
 *
+* \param params
+* Pointer to structure that holds callback parameters for this driver.
+*
+* \param mode
+* The state transition mode that is currently happening.
+*
 * \note
 * Saves/Restores SDIO UDB registers
+*
+* \return
+* CY_SYSPM_SUCCESS if the transition was successful, otherwise CY_SYSPM_FAIL
+*
 *******************************************************************************/
 cy_en_syspm_status_t SDIO_DeepSleepCallback(cy_stc_syspm_callback_params_t *params, cy_en_syspm_callback_mode_t mode)
 {
+    CY_UNUSED_PARAMETER(params);
     cy_en_syspm_status_t status = CY_SYSPM_FAIL;
 
     switch (mode) 
@@ -358,7 +370,7 @@ en_sdio_result_t SDIO_GetResponse(uint8_t bCmdIndexCheck, uint8_t bCmdCrcCheck, 
 * Configure the data channel for a data transfer. For a write this doesn't start
 * the write, that must be done separately after the response is received.
 *
-* \param stc_sdio_data_config_t
+* \param pstcDataConfig
 * Data configuration structure. See \ref stc_sdio_data_config_t
 *
 *
@@ -710,7 +722,6 @@ en_sdio_result_t SDIO_SendCommandAndWait(stc_sdio_cmd_t *pstcCmd)
     /*Wait for the command to finish*/
     do
     {
-        //TODO: Use RTOS timeout
         u32CmdTimeout++;
         enRetTmp = SDIO_CheckForEvent(SdCmdEventCmdDone);
 
@@ -986,7 +997,7 @@ void SDIO_SetBlockSize(uint8_t u8ByteCount)
 *
 * Sets the number of blocks to send
 *
-* \param u8ByteCount
+* \param u8BlockCount
 * Size of the block
 *
 *******************************************************************************/
@@ -1300,6 +1311,14 @@ void SDIO_IRQ(void)
 }
 
 
+/*******************************************************************************
+* Function Name: SDIO_READ_DMA_IRQ
+****************************************************************************//**
+*
+* SDIO DMA Read interrupt, checks counts and toggles to other descriptor if
+* needed
+*
+*******************************************************************************/
 void SDIO_READ_DMA_IRQ(void)
 {
     /*Shouldn't have to change anything unless it is the last descriptor*/
@@ -1362,6 +1381,14 @@ void SDIO_READ_DMA_IRQ(void)
     yCounts--;
 }
 
+/*******************************************************************************
+* Function Name: SDIO_WRITE_DMA_IRQ
+****************************************************************************//**
+*
+* SDIO DMA Write interrupt, checks counts and toggles to other descriptor if
+* needed
+*
+*******************************************************************************/
 void SDIO_WRITE_DMA_IRQ(void)
 {
     /*We shouldn't have to change anything unless it is the last descriptor*/
@@ -1423,6 +1450,13 @@ void SDIO_WRITE_DMA_IRQ(void)
     yCounts--;
 }
 
+/*******************************************************************************
+* Function Name: SDIO_Free
+****************************************************************************//**
+*
+* Frees any system resources that were allocated by the SDIO driver.
+*
+*******************************************************************************/
 void SDIO_Free(void)
 {
 #ifdef CY_RTOS_AWARE
