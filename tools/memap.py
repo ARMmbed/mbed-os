@@ -76,7 +76,7 @@ class _Parser(with_metaclass(ABCMeta, object)):
             return
 
         obj_split = sep + basename(object_name)
-        for module_path, contents in list(self.modules.items()):
+        for module_path, contents in self.modules.items():
             if module_path.endswith(obj_split) or module_path == object_name:
                 contents.setdefault(section, 0)
                 contents[section] += size
