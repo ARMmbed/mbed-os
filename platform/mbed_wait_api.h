@@ -46,9 +46,9 @@ extern "C" {
  * int main() {
  *     while (1) {
  *         heartbeat = 1;
- *         wait(0.5);
+ *         ThisThread::sleep_for(500);
  *         heartbeat = 0;
- *         wait(0.5);
+ *         ThisThread::sleep_for(500);
  *     }
  * }
  * @endcode
