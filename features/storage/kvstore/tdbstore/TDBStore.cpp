@@ -22,6 +22,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "mbed_error.h"
+#include "mbed_assert.h"
 #include "mbed_wait_api.h"
 //Bypass the check of NVStore co existance if compiled for TARGET_TFM
 #if !(BYPASS_NVSTORE_CHECK)
