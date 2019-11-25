@@ -228,7 +228,9 @@ void serial_clear(serial_t *obj)
     struct serial_s *obj_s = SERIAL_S(obj);
     UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
 
-    __HAL_UART_SEND_REQ(huart, UART_RXDATA_FLUSH_REQUEST);
+    /* Clear RXNE and error flags */
+    volatile uint32_t tmpval __attribute__((unused)) = huart->Instance->RDR;
+    HAL_UART_ErrorCallback(huart);
 }
 
 void serial_break_set(serial_t *obj)
