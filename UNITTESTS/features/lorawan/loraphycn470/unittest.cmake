@@ -34,7 +34,7 @@ set(unittest-test-sources
   features/lorawan/loraphycn470/Test_LoRaPHYCN470.cpp
   stubs/LoRaPHY_stub.cpp
   stubs/LoRaWANTimer_stub.cpp
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
 
 )
 

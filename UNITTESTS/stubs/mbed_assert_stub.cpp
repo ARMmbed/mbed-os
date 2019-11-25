@@ -17,9 +17,14 @@
 
 #include "platform/mbed_assert.h"
 #include <stdio.h>
+#include <stdbool.h>
 
-void mbed_assert_internal(const char *expr, const char *file, int line)
+bool mbed_assert_throw_errors = false;
+
+extern "C" void mbed_assert_internal(const char *expr, const char *file, int line)
 {
     fprintf(stderr, "mbed assertation failed: %s, file: %s, line %d \n", expr, file, line);
+    if (mbed_assert_throw_errors) {
+        throw 1;
+    }
 }
-

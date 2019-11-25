@@ -22,7 +22,7 @@ set(unittest-sources
 set(unittest-test-sources
   features/netsocket/DTLSSocket/test_DTLSSocket.cpp
   stubs/Mutex_stub.cpp
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
   stubs/mbed_atomic_stub.c
   stubs/mbed_critical_stub.c
   stubs/equeue_stub.c

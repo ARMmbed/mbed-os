@@ -34,7 +34,7 @@ set(unittest-test-sources
   features/lorawan/lorawanstack/Test_LoRaWANStack.cpp
   stubs/LoRaPHY_stub.cpp
   stubs/LoRaMac_stub.cpp
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
   stubs/mbed_atomic_stub.c
   stubs/LoRaMacCrypto_stub.cpp
   stubs/LoRaMacChannelPlan_stub.cpp

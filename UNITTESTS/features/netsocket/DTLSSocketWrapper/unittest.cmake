@@ -21,7 +21,7 @@ set(unittest-sources
 set(unittest-test-sources
   features/netsocket/DTLSSocketWrapper/test_DTLSSocketWrapper.cpp
   stubs/Mutex_stub.cpp
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
   stubs/mbed_atomic_stub.c
   stubs/mbed_critical_stub.c
   stubs/equeue_stub.c

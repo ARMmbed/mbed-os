@@ -25,7 +25,7 @@ set(unittest-test-sources
   stubs/EventQueue_stub.cpp
   stubs/FileHandle_stub.cpp
   stubs/us_ticker_stub.cpp
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
   stubs/SocketAddress_stub.cpp
   stubs/randLIB_stub.cpp
   stubs/ConditionVariable_stub.cpp

@@ -22,7 +22,7 @@ set(unittest-test-sources
   stubs/FileHandle_stub.cpp
   stubs/CellularStateMachine_stub.cpp
   stubs/EventQueue_stub.cpp
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
   stubs/UARTSerial_stub.cpp
   stubs/SerialBase_stub.cpp
   stubs/ATHandler_stub.cpp

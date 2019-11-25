@@ -33,7 +33,7 @@ set(unittest-includes ${unittest-includes}
 set(unittest-test-sources
   features/lorawan/lorawantimer/Test_LoRaWANTimer.cpp
   stubs/EventQueue_stub.cpp
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
   stubs/equeue_stub.c
 )
 
