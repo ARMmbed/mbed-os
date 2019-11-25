@@ -274,7 +274,7 @@ nsapi_size_or_error_t AT_CellularStack::socket_sendto(nsapi_socket_t handle, con
         return NSAPI_ERROR_NO_SOCKET;
     }
 
-    if (socket->closed && !socket->rx_avail) {
+    if (socket->closed && !socket->pending_bytes) {
         tr_info("sendto socket %d closed", socket->id);
         return NSAPI_ERROR_NO_CONNECTION;
     }

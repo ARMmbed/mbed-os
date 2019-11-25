@@ -112,7 +112,6 @@ protected:
             closed(false),
             started(false),
             tx_ready(false),
-            rx_avail(false),
             tls_socket(false),
             pending_bytes(0)
         {
@@ -130,7 +129,6 @@ protected:
         bool closed; // socket has been closed by a peer
         bool started; // socket has been opened on modem stack
         bool tx_ready; // socket is ready for sending on modem stack
-        bool rx_avail; // socket has data for reading on modem stack
         bool tls_socket; // socket uses modem's internal TLS socket functionality
         nsapi_size_t pending_bytes; // The number of received bytes pending
     };
