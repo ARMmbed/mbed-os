@@ -9239,6 +9239,29 @@
             "function": "PSOC6Code.sign_image"
         }
     },
+    "CYW9P62S1_43438EVB_01": {
+        "inherits": ["MCU_PSOC6_M4"],
+        "features": ["BLE"],
+        "supported_form_factors": ["ARDUINO"],
+        "components_add": ["WHD", "43438", "CYW43XXX" ],
+        "extra_labels_add": [
+            "PSOC6_01",
+            "MXCRYPTO_01",
+            "CM0P_SLEEP",
+            "CORDIO"
+        ],
+        "macros_add": ["CY8C6247BZI_D54", "CYHAL_UDB_SDIO", "CYBSP_WIFI_CAPABLE"],
+        "detect_code": ["1900"],
+        "post_binary_hook": {
+            "function": "PSOC6Code.complete"
+        },
+        "bootloader_supported": true,
+        "sectors": [[268435456, 512]],
+        "overrides": {
+            "network-default-interface-type": "WIFI"
+        },
+        "program_cycle_s": 10
+    },
     "CYW943012P6EVB_01": {
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
