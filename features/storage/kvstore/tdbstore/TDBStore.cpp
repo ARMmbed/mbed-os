@@ -22,6 +22,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "mbed_error.h"
+#include "mbed_assert.h"
 #include "mbed_wait_api.h"
 #include "MbedCRC.h"
 //Bypass the check of NVStore co existance if compiled for TARGET_TFM
@@ -135,11 +136,6 @@ TDBStore::TDBStore(BlockDevice *bd) : _ram_table(0), _max_keys(0),
     for (int i = 0; i < _max_open_iterators; i++) {
         _iterator_table[i] = { 0 };
     }
-
-    /* Minimum space required by Reserved area and master record */
-    MBED_ASSERT(bd->size()
-                >= (align_up(RESERVED_AREA_SIZE + sizeof(reserved_trailer_t), _prog_size)
-                    + record_size(master_rec_key, sizeof(master_record_data_t))));
 }
 
 TDBStore::~TDBStore()
@@ -1043,6 +1039,11 @@ int TDBStore::init()
     _master_record_size = record_size(master_rec_key, sizeof(master_record_data_t));
 
     calc_area_params();
+
+    /* Minimum space required by Reserved area and master record */
+    MBED_ASSERT(_bd->size()
+                >= (align_up(RESERVED_AREA_SIZE + sizeof(reserved_trailer_t), _prog_size)
+                    + record_size(master_rec_key, sizeof(master_record_data_t))));
 
     for (uint8_t area = 0; area < _num_areas; area++) {
         area_state[area] = TDBSTORE_AREA_STATE_NONE;
