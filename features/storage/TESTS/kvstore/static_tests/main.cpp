@@ -34,7 +34,7 @@ static const size_t data_size = 5;
 static size_t       actual_size = 0;
 static const size_t buffer_size = 20;
 static const int    num_of_threads = 3;
-static const char   num_of_keys = 3;
+static const char num_of_keys = 11;
 #if defined(MBED_CONF_RTOS_PRESENT)
 /* Forked 3 threads plus misc, so minimum (4 * OS_STACK_SIZE) heap are required. */
 static const int heap_alloc_threshold_size = 4 * OS_STACK_SIZE;
@@ -42,7 +42,9 @@ static const int heap_alloc_threshold_size = 4 * OS_STACK_SIZE;
 /* Bare metal does not require memory for threads, so use just minimum for test */
 static const int heap_alloc_threshold_size = MBED_CONF_TARGET_BOOT_STACK_SIZE;
 #endif
-static const char *keys[] = {"key1", "key2", "key3"};
+static const char *keys[num_of_keys] = { "key1", "key2", "key3", "key4", "key5", "key6", "key7", "key8", "key9",
+                                         "key10", "key11"
+                                       };
 
 static int init_res = MBED_ERROR_NOT_READY;
 
@@ -298,14 +300,14 @@ static void set_several_key_value_sizes()
 
     name[6] = 0;
 
-    for (i = 0; i < 26; i++) {
+    for (i = 0; i < num_of_keys; i++) {
         c = i + 'a';
         name[5] = c;
         res = kv_set(name, name, sizeof(name), 0);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
     }
 
-    for (i = 0; i < 26; i++) {
+    for (i = 0; i < num_of_keys; i++) {
         c = i + 'a';
         name[5] = c;
         res = kv_get(name, buffer, sizeof(buffer), &actual_size);
@@ -328,7 +330,7 @@ static void set_several_unvalid_key_names()
 
     name[6] = 0;
 
-    for (i = 0; i < 11; i++) {
+    for (i = 0; i < num_of_keys; i++) {
         name[5] = unvalid[i];
         res = kv_set(name, name, sizeof(name), 0);
         if (unvalid[i] != '/') {
@@ -817,7 +819,7 @@ static void iterator_next_full_list()
     res = kv_iterator_close(kvstore_it);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    for (i = 0; i < num_of_threads; i++) {
+    for (i = 0; i < num_of_keys; i++) {
         res = kv_remove(keys[i]);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
     }
@@ -855,7 +857,7 @@ static void iterator_next_remove_while_iterating()
 
     int i = 0, res = 0;
 
-    for (i = 0; i < num_of_keys; i++) {
+    for (i = 0; i < 3; i++) {
         int res = kv_set(keys[i], data, data_size, 0);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
     }
