@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#include <stdio.h>
 #include "AT_CellularContext.h"
 #include "AT_CellularNetwork.h"
 #include "AT_CellularStack.h"
