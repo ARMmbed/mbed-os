@@ -28,6 +28,7 @@ namespace mbed {
  */
 class AT_CellularBase {
 public:
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "This class will be refactored away, affected drivers if any will be updated accordingly.")
     AT_CellularBase(ATHandler &at);
     /** Getter for at handler. Common method for all AT-classes.
      *
