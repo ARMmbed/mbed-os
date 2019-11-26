@@ -25,7 +25,7 @@ set(unittest-sources
 set(unittest-test-sources
   features/netsocket/PPPInterface/test_PPPInterface.cpp
   stubs/Mutex_stub.cpp
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
   stubs/equeue_stub.c
   stubs/EventQueue_stub.cpp
   stubs/FileHandle_stub.cpp
