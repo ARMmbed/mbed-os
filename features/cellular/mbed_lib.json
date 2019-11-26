@@ -7,7 +7,7 @@
         },
         "use-sms": {
             "help": "Enable or disable SMS functionality in Cellular stack.",
-            "value": false
+            "value": true
         },
         "random_max_start_delay": {
             "help": "Maximum random delay value used in start-up sequence in milliseconds",
