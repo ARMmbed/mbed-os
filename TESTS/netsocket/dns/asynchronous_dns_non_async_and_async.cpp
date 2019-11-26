@@ -30,6 +30,7 @@ void ASYNCHRONOUS_DNS_NON_ASYNC_AND_ASYNC()
     rtos::Semaphore semaphore;
     dns_application_data data;
     data.semaphore = &semaphore;
+    data.result = NSAPI_ERROR_TIMEOUT;
 
     nsapi_dns_reset();
 
@@ -49,7 +50,9 @@ void ASYNCHRONOUS_DNS_NON_ASYNC_AND_ASYNC()
         TEST_ASSERT(strlen(addr.get_ip_address()) > 1);
     }
 
-    semaphore.try_acquire_for(100);
+    if (!semaphore.try_acquire_for(1000)) {
+        get_interface()->gethostbyname_async_cancel(err);
+    }
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, data.result);
 
