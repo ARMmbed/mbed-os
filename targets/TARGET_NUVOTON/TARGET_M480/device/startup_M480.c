@@ -24,11 +24,13 @@
 #if defined(__CC_ARM)
 #define WEAK            __attribute__ ((weak))
 #define ALIAS(f)        __attribute__ ((weak, alias(#f)))
+#define USED            __attribute__ ((used))
 
 #define WEAK_ALIAS_FUNC(FUN, FUN_ALIAS) \
 void FUN(void) __attribute__ ((weak, alias(#FUN_ALIAS)));
 
 #elif defined(__ICCARM__)
+#define USED            __root
 //#define STRINGIFY(x) #x
 //#define _STRINGIFY(x) STRINGIFY(x)
 #define WEAK_ALIAS_FUNC(FUN, FUN_ALIAS) \
@@ -42,6 +44,7 @@ _Pragma(_STRINGIFY(_WEAK_ALIAS_FUNC(FUN, FUN_ALIAS)))
 #elif defined(__GNUC__)
 #define WEAK            __attribute__ ((weak))
 #define ALIAS(f)        __attribute__ ((weak, alias(#f)))
+#define USED            __attribute__ ((used))
 
 #define WEAK_ALIAS_FUNC(FUN, FUN_ALIAS) \
 void FUN(void) __attribute__ ((weak, alias(#FUN_ALIAS)));
@@ -77,7 +80,7 @@ void Default_Handler(void);
 void Reset_Handler(void);
 void Reset_Handler_1(void);
 void Reset_Handler_2(void);
-void Reset_Handler_Cascade(void *sp, void *pc);
+USED void Reset_Handler_Cascade(void *sp, void *pc);
 
 /* Cortex-M4 core handlers */
 WEAK_ALIAS_FUNC(NMI_Handler, Default_Handler)
