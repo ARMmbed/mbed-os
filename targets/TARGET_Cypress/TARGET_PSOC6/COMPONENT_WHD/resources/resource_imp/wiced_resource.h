@@ -34,6 +34,7 @@
 #define INCLUDED_RESOURCE_H_
 
 #include <stdint.h>
+#include "cy_syslib.h"
 
 #ifdef __cplusplus
 extern "C" {
