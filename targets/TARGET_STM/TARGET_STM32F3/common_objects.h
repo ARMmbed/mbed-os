@@ -141,8 +141,6 @@ struct flash_s {
 };
 #endif
 
-#define HAL_CRC_IS_SUPPORTED(polynomial, width) ((width) == 7 || (width) == 8 || (width) == 16 || (width) == 32)
-
 #include "gpio_object.h"
 
 #ifdef __cplusplus

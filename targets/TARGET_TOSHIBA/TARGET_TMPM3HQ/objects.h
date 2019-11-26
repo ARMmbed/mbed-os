@@ -120,9 +120,6 @@ struct flash_s {
     int flash_inited;
 };
 
-#define HAL_CRC_IS_SUPPORTED(polynomial, width) (((width) == 16 && (polynomial) == 0x1021) || \
-                                                 ((width) == 32 && (polynomial) == 0x04C11DB7))
-
 extern const gpio_regtypedef_t GPIO_SFRs[];
 extern const uint32_t          GPIO_Base[];
 

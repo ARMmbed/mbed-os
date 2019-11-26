@@ -54,7 +54,7 @@ void crc_is_supported_test()
     uint32_t num_of_supported_polynomials = 0;
 
     for (unsigned int i = 0; i < (test_cases_size / sizeof(TEST_CASE)); i++) {
-        if (HAL_CRC_IS_SUPPORTED(test_cases[i].config_data.polynomial, test_cases[i].config_data.width)) {
+        if (hal_crc_is_supported(&test_cases[i].config_data) == true) {
 
             num_of_supported_polynomials++;
         }
@@ -68,7 +68,7 @@ void crc_is_supported_test()
 void crc_calc_single_test()
 {
     for (unsigned int i = 0; i < (test_cases_size / sizeof(TEST_CASE)); i++) {
-        if (HAL_CRC_IS_SUPPORTED(test_cases[i].config_data.polynomial, test_cases[i].config_data.width)) {
+        if (hal_crc_is_supported(&test_cases[i].config_data) == true) {
 
             hal_crc_compute_partial_start(&test_cases[i].config_data);
             hal_crc_compute_partial((uint8_t *) input_data, strlen((const char *) input_data));
@@ -84,7 +84,7 @@ void crc_calc_single_test()
 void crc_calc_multi_test()
 {
     for (unsigned int i = 0; i < (test_cases_size / sizeof(TEST_CASE)); i++) {
-        if (HAL_CRC_IS_SUPPORTED(test_cases[i].config_data.polynomial, test_cases[i].config_data.width)) {
+        if (hal_crc_is_supported(&test_cases[i].config_data) == true) {
 
             const uint32_t first_part_bytes = 3;
             const uint32_t second_part_bytes = 1;
@@ -117,7 +117,7 @@ void crc_reconfigure_test()
     for (unsigned int i = 0; i < (test_cases_size / sizeof(TEST_CASE)); i++) {
 
         /* Find two supported polynomials if possible. */
-        if (HAL_CRC_IS_SUPPORTED(test_cases[i].config_data.polynomial, test_cases[i].config_data.width)) {
+        if (hal_crc_is_supported(&test_cases[i].config_data) == true) {
             if (pol_cnt == 0) {
                 pol_idx[pol_cnt] = i;
                 pol_cnt++;
@@ -159,7 +159,7 @@ void crc_compute_partial_invalid_param_test()
 
     /* At least one polynomial must be supported. */
     for (unsigned int i = 0; i < (test_cases_size / sizeof(TEST_CASE)); i++) {
-        if (HAL_CRC_IS_SUPPORTED(test_cases[i].config_data.polynomial, test_cases[i].config_data.width)) {
+        if (hal_crc_is_supported(&test_cases[i].config_data) == true) {
 
             hal_crc_compute_partial_start(&test_cases[i].config_data);
 
@@ -180,12 +180,19 @@ void crc_compute_partial_invalid_param_test()
     }
 }
 
+/* Test that hal_crc_is_supported() returns false if pointer to the config structure is undefined. */
+void crc_is_supported_invalid_param_test()
+{
+    TEST_ASSERT_EQUAL(false, hal_crc_is_supported(NULL));
+}
+
 Case cases[] = {
     Case("test: supported polynomials.", crc_is_supported_test),
     Case("test: CRC calculation - single input.", crc_calc_single_test),
     Case("test: CRC calculation - multi input.", crc_calc_multi_test),
     Case("test: re-configure without getting the result.", crc_reconfigure_test),
     Case("test: hal_crc_compute_partial() - invalid parameters.", crc_compute_partial_invalid_param_test),
+    Case("test: hal_crc_is_supported() - invalid parameter.", crc_is_supported_invalid_param_test),
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
@@ -201,12 +208,12 @@ int main()
     // *INDENT-OFF*
     TEST_CASE local_test_cases[] = {
         /* Predefined polynomials. */
-        /* 00 */{ {POLY_7BIT_SD     ,  7, 0x00000000, 0x00000000, false, false}, 0x75       },
-        /* 01 */{ {POLY_7BIT_SD     ,  7, 0x0000007F, 0x00000000, false, false}, 0x50       },
-        /* 02 */{ {POLY_7BIT_SD     ,  7, 0x0000002B, 0x00000000, false, false}, 0x3A       },
-        /* 03 */{ {POLY_7BIT_SD     ,  7, 0x00000000, 0x0000007F, false, false}, 0x0A       },
-        /* 04 */{ {POLY_7BIT_SD     ,  7, 0x00000000, 0x0000002B, false, false}, 0x5E       },
-        /* 05 */{ {POLY_7BIT_SD     ,  7, 0x00000000, 0x00000000, true , false}, 0x52       },
+        /* 00 */{ {POLY_7BIT_SD     ,  7, 0x00000000, 0x00000000, false, false}, 0xEA       },
+        /* 01 */{ {POLY_7BIT_SD     ,  7, 0x0000007F, 0x00000000, false, false}, 0xA0       },
+        /* 02 */{ {POLY_7BIT_SD     ,  7, 0x0000002B, 0x00000000, false, false}, 0x74       },
+        /* 03 */{ {POLY_7BIT_SD     ,  7, 0x00000000, 0x0000007F, false, false}, 0x95       },
+        /* 04 */{ {POLY_7BIT_SD     ,  7, 0x00000000, 0x0000002B, false, false}, 0xC1       },
+        /* 05 */{ {POLY_7BIT_SD     ,  7, 0x00000000, 0x00000000, true , false}, 0xA4       },
         /* 06 */{ {POLY_7BIT_SD     ,  7, 0x00000000, 0x00000000, false, true }, 0x57       },
 
         /* 07 */{ {POLY_8BIT_CCITT  ,  8, 0x00000000, 0x00000000, false, false}, 0xF4       },
