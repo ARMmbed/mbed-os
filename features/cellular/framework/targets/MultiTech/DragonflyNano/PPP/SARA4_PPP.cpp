@@ -23,7 +23,7 @@ using namespace events;
 
 static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
     AT_CellularNetwork::RegistrationModeLAC, // C_EREG
-    AT_CellularNetwork::RegistrationModeDisable, // C_GREG
+    AT_CellularNetwork::RegistrationModeLAC, // C_GREG
     AT_CellularNetwork::RegistrationModeDisable, // C_REG
     0,  // AT_CGSN_WITH_TYPE
     0,  // AT_CGDATA
