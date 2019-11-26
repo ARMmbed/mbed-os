@@ -33,8 +33,10 @@ define block STACKHEAP with fixed order { block HEAP, block CSTACK };
 
 initialize by copy with packing = zeros { readwrite };
 do not initialize  { section .noinit };
+do not initialize  { section CCMRAM };
 
 place at address mem:__intvec_start__ { readonly section .intvec };
 
 place in ROM_region   { readonly };
 place in RAM_region   { readwrite, block STACKHEAP };
+place in CCMRAM_region    { section CCMRAM };

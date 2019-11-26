@@ -4,7 +4,9 @@
 * Description:
 * System configuration
 * This file was automatically generated and should not be modified.
-* 
+* cfg-backend-cli: 1.2.0.1478
+* Device Support Library (../../../../output/psoc6/psoc6pdl): 1.4.0.1571
+*
 ********************************************************************************
 * Copyright 2017-2019 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0

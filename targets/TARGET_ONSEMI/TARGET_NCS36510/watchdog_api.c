@@ -103,7 +103,9 @@ watchdog_features_t hal_watchdog_get_platform_features(void)
     const watchdog_features_t features = {
             .max_timeout = WDT_MAX_TIMEOUT_MS,
             .update_config = WDT_CAN_UPDATE,
-            .disable_watchdog = WDT_CAN_STOP
+            .disable_watchdog = WDT_CAN_STOP,
+            .clock_typical_frequency = 36000,
+            .clock_max_frequency = 47000
     };
 
     return features;

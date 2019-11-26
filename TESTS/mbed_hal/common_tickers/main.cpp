@@ -13,6 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if !defined(MBED_RTOS_CONF_PRESENT)
+#error [NOT_SUPPORTED] usticker test cases require a RTOS to run
+#else
+
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
@@ -606,3 +611,4 @@ int main()
     return !Harness::run(specification);
 }
 #endif // !DEVICE_USTICKER
+#endif // !defined(MBED_RTOS_CONF_PRESENT)

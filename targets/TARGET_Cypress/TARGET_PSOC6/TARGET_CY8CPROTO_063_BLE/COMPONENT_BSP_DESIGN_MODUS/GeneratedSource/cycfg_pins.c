@@ -4,7 +4,9 @@
 * Description:
 * Pin configuration
 * This file was automatically generated and should not be modified.
-* 
+* cfg-backend-cli: 1.2.0.1478
+* Device Support Library (../../../../output/psoc6/psoc6pdl): 1.4.0.1571
+*
 ********************************************************************************
 * Copyright 2017-2019 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
@@ -72,54 +74,6 @@ const cy_stc_gpio_pin_config_t WCO_OUT_config =
 		.channel_num = WCO_OUT_PIN,
 	};
 #endif //defined (CY_USING_HAL)
-const cy_stc_gpio_pin_config_t CYBSP_I2C_SCL_config = 
-{
-	.outVal = 1,
-	.driveMode = CY_GPIO_DM_OD_DRIVESLOW,
-	.hsiom = CYBSP_I2C_SCL_HSIOM,
-	.intEdge = CY_GPIO_INTR_DISABLE,
-	.intMask = 0UL,
-	.vtrip = CY_GPIO_VTRIP_CMOS,
-	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_1_2,
-	.vregEn = 0UL,
-	.ibufMode = 0UL,
-	.vtripSel = 0UL,
-	.vrefSel = 0UL,
-	.vohSel = 0UL,
-};
-#if defined (CY_USING_HAL)
-	const cyhal_resource_inst_t CYBSP_I2C_SCL_obj = 
-	{
-		.type = CYHAL_RSC_GPIO,
-		.block_num = CYBSP_I2C_SCL_PORT_NUM,
-		.channel_num = CYBSP_I2C_SCL_PIN,
-	};
-#endif //defined (CY_USING_HAL)
-const cy_stc_gpio_pin_config_t CYBSP_I2C_SDA_config = 
-{
-	.outVal = 1,
-	.driveMode = CY_GPIO_DM_OD_DRIVESLOW,
-	.hsiom = CYBSP_I2C_SDA_HSIOM,
-	.intEdge = CY_GPIO_INTR_DISABLE,
-	.intMask = 0UL,
-	.vtrip = CY_GPIO_VTRIP_CMOS,
-	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_1_2,
-	.vregEn = 0UL,
-	.ibufMode = 0UL,
-	.vtripSel = 0UL,
-	.vrefSel = 0UL,
-	.vohSel = 0UL,
-};
-#if defined (CY_USING_HAL)
-	const cyhal_resource_inst_t CYBSP_I2C_SDA_obj = 
-	{
-		.type = CYHAL_RSC_GPIO,
-		.block_num = CYBSP_I2C_SDA_PORT_NUM,
-		.channel_num = CYBSP_I2C_SDA_PIN,
-	};
-#endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t SWDIO_config = 
 {
 	.outVal = 1,
@@ -174,31 +128,21 @@ void init_cycfg_pins(void)
 {
 	Cy_GPIO_Pin_Init(WCO_IN_PORT, WCO_IN_PIN, &WCO_IN_config);
 #if defined (CY_USING_HAL)
-		cyhal_hwmgr_reserve(&WCO_IN_obj);
+	cyhal_hwmgr_reserve(&WCO_IN_obj);
 #endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(WCO_OUT_PORT, WCO_OUT_PIN, &WCO_OUT_config);
 #if defined (CY_USING_HAL)
-		cyhal_hwmgr_reserve(&WCO_OUT_obj);
-#endif //defined (CY_USING_HAL)
-
-	Cy_GPIO_Pin_Init(CYBSP_I2C_SCL_PORT, CYBSP_I2C_SCL_PIN, &CYBSP_I2C_SCL_config);
-#if defined (CY_USING_HAL)
-		cyhal_hwmgr_reserve(&CYBSP_I2C_SCL_obj);
-#endif //defined (CY_USING_HAL)
-
-	Cy_GPIO_Pin_Init(CYBSP_I2C_SDA_PORT, CYBSP_I2C_SDA_PIN, &CYBSP_I2C_SDA_config);
-#if defined (CY_USING_HAL)
-		cyhal_hwmgr_reserve(&CYBSP_I2C_SDA_obj);
+	cyhal_hwmgr_reserve(&WCO_OUT_obj);
 #endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(SWDIO_PORT, SWDIO_PIN, &SWDIO_config);
 #if defined (CY_USING_HAL)
-		cyhal_hwmgr_reserve(&SWDIO_obj);
+	cyhal_hwmgr_reserve(&SWDIO_obj);
 #endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(SWCLK_PORT, SWCLK_PIN, &SWCLK_config);
 #if defined (CY_USING_HAL)
-		cyhal_hwmgr_reserve(&SWCLK_obj);
+	cyhal_hwmgr_reserve(&SWCLK_obj);
 #endif //defined (CY_USING_HAL)
 }

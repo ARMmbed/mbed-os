@@ -177,11 +177,13 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
         return 0; // FAIL
     }
 
+#if DEVICE_USBDEVICE
     RCC_PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;
     RCC_PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
     if (HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphClkInit) != HAL_OK) {
         return 0; // FAIL
     }
+#endif /* DEVICE_USBDEVICE */
 
     /* Output clock on MCO1 pin(PA8) for debugging purpose */
     //if (bypass == 0)
@@ -234,11 +236,13 @@ uint8_t SetSysClock_PLL_HSI(void)
         return 0; // FAIL
     }
 
+#if DEVICE_USBDEVICE
     RCC_PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;
     RCC_PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
     if (HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphClkInit) != HAL_OK) {
         return 0; // FAIL
     }
+#endif /* DEVICE_USBDEVICE */
 
     /* Output clock on MCO1 pin(PA8) for debugging purpose */
     //HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSI, RCC_MCODIV_1); // 16 MHz

@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#if defined(MBED_CONF_RTOS_PRESENT)
+
 #include "stdint.h"
 #include "USBTester.h"
 #include "mbed_shared_queues.h"
@@ -57,7 +59,6 @@ USBTester::USBTester(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint1
     int_out = resolver.endpoint_out(USB_EP_TYPE_INT, 64);
     MBED_ASSERT(resolver.valid());
     queue = mbed::mbed_highprio_event_queue();
-
     configuration_desc(0);
     ctrl_buf = new uint8_t[CTRL_BUF_SIZE];
     init();
@@ -703,3 +704,4 @@ void USBTester::epbulk_out_callback()
     read_finish(bulk_out);
     read_start(bulk_out, bulk_buf, sizeof(bulk_buf));
 }
+#endif

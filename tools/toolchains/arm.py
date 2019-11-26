@@ -19,7 +19,7 @@ from builtins import str  # noqa: F401
 
 import re
 from copy import copy
-from os.path import join, dirname, splitext, basename, exists, isfile, relpath
+from os.path import join, dirname, splitext, basename, exists, isfile, relpath, sep
 from os import makedirs, write, remove
 from tempfile import mkstemp
 from shutil import rmtree
@@ -270,6 +270,41 @@ class ARM(mbedToolchain):
     def correct_scatter_shebang(self, sc_fileref, cur_dir_name=None):
         """Correct the shebang at the top of a scatter file.
 
+        The shebang line is the line at the top of the file starting with '#!'. If this line is present
+        then the linker will execute the command on that line on the content of the scatter file prior
+        to consuming the content into the link. Typically the shebang line will contain an instruction
+        to run the C-preprocessor (either 'armcc -E' or 'armclang -E') which allows for macro expansion,
+        inclusion of headers etc. Other options are passed to the preprocessor to specify aspects of the
+        system such as the processor architecture and cpu type.
+
+        The build system (at this point) will have constructed what it considers to be a correct shebang
+        line for this build. If this differs from the line in the scatter file then the scatter file
+        will be rewritten by this function to contain the build-system-generated shebang line. Note
+        that the rewritten file will be placed in the BUILD output directory.
+
+        Include processing
+
+        If the scatter file runs the preprocessor, and contains #include statements then the pre-processor
+        include path specifies where the #include files are to be found. Typically, #include files
+        are specified with a path relative to the location of the original scatter file. When the
+        preprocessor runs, the system automatically passes the location of the scatter file into the
+        include path through an implicit '-I' option to the preprocessor, and this works fine in the
+        offline build system.
+        Unfortunately this approach does not work in the online build, because the preprocessor
+        command runs in a chroot. The true (non-chroot) path to the file as known by the build system
+        looks something like this:
+            /tmp/chroots/ch-eefd72fb-2bcb-4e99-9043-573d016618bb/extras/mbed-os.lib/...
+        whereas the path known by the preprocessor will be:
+            /extras/mbed-os.lib/...
+        Consequently, the chroot path has to be explicitly passed to the preprocessor through an
+        explicit -I/path/to/chroot/file option in the shebang line.
+
+        *** THERE IS AN ASSUMPTION THAT THE CHROOT PATH IS THE REAL FILE PATH WITH THE FIRST
+        *** THREE ELEMENTS REMOVED. THIS ONLY HOLDS TRUE UNTIL THE ONLINE BUILD SYSTEM CHANGES
+
+        If the include path manipulation as described above does change, then any scatter file
+        containing a #include statement is likely to fail on the online compiler.
+
         Positional arguments:
         sc_fileref -- FileRef object of the scatter file
 
@@ -285,21 +320,34 @@ class ARM(mbedToolchain):
         """
         with open(sc_fileref.path, "r") as input:
             lines = input.readlines()
-            if (lines[0].startswith(self.SHEBANG) or
-                not lines[0].startswith("#!")):
-                return sc_fileref
-            else:
-                new_scatter = join(self.build_dir, ".link_script.sct")
-                if cur_dir_name is None:
-                    cur_dir_name = dirname(sc_fileref.path)
-                self.SHEBANG += " -I %s" % cur_dir_name
-                if self.need_update(new_scatter, [sc_fileref.path]):
-                    with open(new_scatter, "w") as out:
-                        out.write(self.SHEBANG)
-                        out.write("\n")
-                        out.write("".join(lines[1:]))
 
-                return FileRef(".link_script.sct", new_scatter)
+            # If the existing scatter file has no shebang line, or the line that it does have
+            # matches the desired line then the existing scatter file is used directly without rewriting.
+            if (lines[0].startswith(self.SHEBANG) or
+                    not lines[0].startswith("#!")):
+                return sc_fileref
+
+            new_scatter = join(self.build_dir, ".link_script.sct")
+            if cur_dir_name is None:
+                cur_dir_name = dirname(sc_fileref.path)
+
+                # For a chrooted system, adjust the path to the scatter file to be a valid
+                # chroot location by removing the first three elements of the path.
+                if cur_dir_name.startswith("/tmp/chroots"):
+                    cur_dir_name = sep + join(*(cur_dir_name.split(sep)[4:]))
+
+            # Add the relocated scatter file path to the include path.
+            self.SHEBANG += " -I%s" % cur_dir_name
+
+            # Only rewrite if doing a full build...
+            if self.need_update(new_scatter, [sc_fileref.path]):
+                with open(new_scatter, "w") as out:
+                    # Write the new shebang line...
+                    out.write(self.SHEBANG + "\n")
+                    # ...followed by the unmolested remaining content from the original scatter file.
+                    out.write("".join(lines[1:]))
+
+            return FileRef(".link_script.sct", new_scatter)
 
     def get_link_command(
             self,

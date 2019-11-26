@@ -46,7 +46,11 @@ public:
      *  @note Not needed if stack is passed to the socket's constructor.
      *
      *  @param stack    Network stack as target for socket.
-     *  @return         0 on success, negative error code on failure (@see nsapi_types.h).
+     *  @retval         NSAPI_ERROR_OK on success.
+     *  @retval         NSAPI_ERROR_PARAMETER in case the provided stack was invalid
+     *                  or a stack was already created and socket opened successfully.
+     *  @retval         int negative error codes for stack-related failures.
+     *                  See @ref NetworkStack::socket_open.
      */
     nsapi_error_t open(NetworkStack *stack);
 
@@ -61,28 +65,34 @@ public:
     /** Close any open connection, and deallocate any memory associated
      *  with the socket. Called from destructor if socket is not closed.
      *
-     *  @return         0 on success, negative error code on failure (@see nsapi_types.h).
+     *  @retval         NSAPI_ERROR_OK on success.
+     *  @retval         NSAPI_ERROR_NO_SOCKET if socket is not open.
+     *  @retval         int negative error codes for stack-related failures.
+     *                  See @ref NetworkStack::socket_close.
      */
     virtual nsapi_error_t close();
 
     /** Subscribe to an IP multicast group.
      *
      * @param address   Multicast group IP address.
-     *  @return         0 on success, negative error code on failure (@see nsapi_types.h).
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure (@see InternetSocket::setsockopt).
      */
     int join_multicast_group(const SocketAddress &address);
 
     /** Leave an IP multicast group.
      *
      * @param address   Multicast group IP address.
-     *  @return         0 on success, negative error code on failure (@see nsapi_types.h).
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure (@see InternetSocket::setsockopt).
      */
     int leave_multicast_group(const SocketAddress &address);
 
     /** Bind the socket to a port on which to receive data.
      *
      *  @param port     Local port to bind.
-     *  @return         0 on success, negative error code on failure (@see nsapi_types.h).
+     *  @retval         NSAPI_ERROR_OK on success.
+     *  @retval         NSAPI_ERROR_NO_SOCKET if socket is not open.
+     *  @retval         int negative error codes for stack-related failures.
+     *                  See @ref NetworkStack::socket_bind.
      */
     nsapi_error_t bind(uint16_t port);
 
@@ -91,8 +101,12 @@ public:
      *
      *  @param address  Null-terminated local address to bind.
      *  @param port     Local port to bind.
-     *  @return         0 on success, negative error code on failure (@see nsapi_types.h).
+     *  @retval         NSAPI_ERROR_OK on success.
+     *  @retval         NSAPI_ERROR_NO_SOCKET if socket is not open.
+     *  @retval         int negative error codes for stack-related failures.
+     *                  See @ref NetworkStack::socket_bind.
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     nsapi_error_t bind(const char *address, uint16_t port);
 
     /** @copydoc Socket::bind

@@ -26,7 +26,7 @@
 #include "MbedCRC.h"
 //Bypass the check of NVStore co existance if compiled for TARGET_TFM
 #if !(BYPASS_NVSTORE_CHECK)
-#include "SystemStorage.h"
+#include "features/storage/system_storage/SystemStorage.h"
 #endif
 
 using namespace mbed;
@@ -117,7 +117,7 @@ static uint32_t calc_crc(uint32_t init_crc, uint32_t data_size, const void *data
 {
     uint32_t crc;
     MbedCRC<POLY_32BIT_ANSI, 32> ct(init_crc, 0x0, true, false);
-    ct.compute(const_cast<void *>(data_buf), data_size, &crc);
+    ct.compute(data_buf, data_size, &crc);
     return crc;
 }
 
@@ -134,6 +134,11 @@ TDBStore::TDBStore(BlockDevice *bd) : _ram_table(0), _max_keys(0),
     for (int i = 0; i < _max_open_iterators; i++) {
         _iterator_table[i] = { 0 };
     }
+
+    /* Minimum space required by Reserved area and master record */
+    MBED_ASSERT(bd->size()
+                >= (align_up(RESERVED_AREA_SIZE + sizeof(reserved_trailer_t), _prog_size)
+                    + record_size(master_rec_key, sizeof(master_record_data_t))));
 }
 
 TDBStore::~TDBStore()
@@ -251,7 +256,7 @@ int TDBStore::read_record(uint8_t area, uint32_t offset, char *key,
         return MBED_ERROR_INVALID_SIZE;
     }
 
-    actual_data_size = std::min(data_buf_size, data_size - data_offset);
+    actual_data_size = std::min((size_t)data_buf_size, (size_t)data_size - data_offset);
 
     if (copy_data && actual_data_size && !data_buf) {
         return MBED_ERROR_INVALID_ARGUMENT;
@@ -295,7 +300,7 @@ int TDBStore::read_record(uint8_t area, uint32_t offset, char *key,
             // 3. After actual part is finished - read to work buffer
             // 4. Copy data flag not set - read to work buffer
             if (curr_data_offset < data_offset) {
-                chunk_size = std::min(work_buf_size, data_offset - curr_data_offset);
+                chunk_size = std::min((size_t)work_buf_size, (size_t)(data_offset - curr_data_offset));
                 dest_buf = _work_buf;
             } else if (copy_data && (curr_data_offset < data_offset + actual_data_size)) {
                 chunk_size = actual_data_size;

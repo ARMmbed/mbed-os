@@ -21,7 +21,7 @@
 #include <stdbool.h>
 #include "Callback.h"
 #include "NetStackMemoryManager.h"
-
+#include "SocketAddress.h"
 
 /**
  * This interface should be used to abstract low level access to networking hardware
@@ -118,25 +118,25 @@ public:
      *
      * @param address  An IP4 multicast group address
      */
-    virtual void add_ipv4_multicast_group(const char *address) = 0;
+    virtual void add_ipv4_multicast_group(const SocketAddress &address) = 0;
 
     /** Add device to an IP6 multicast group
      *
      * @param address  An IP6 multicast group address
      */
-    virtual void add_ipv6_multicast_group(const char *address) = 0;
+    virtual void add_ipv6_multicast_group(const SocketAddress &address) = 0;
 
     /** Remove device from an IPV4 multicast group
      *
      * @param address  An IPV4 multicast group address
      */
-    virtual void remove_ipv4_multicast_group(const char *address) = 0;
+    virtual void remove_ipv4_multicast_group(const SocketAddress &address) = 0;
 
     /** Remove device from an IPV6 multicast group
     *
     * @param address  An IPV6 multicast group address
     */
-    virtual void remove_ipv6_multicast_group(const char *address) = 0;
+    virtual void remove_ipv6_multicast_group(const SocketAddress &address) = 0;
 
     /** Request reception of all multicast packets
      *

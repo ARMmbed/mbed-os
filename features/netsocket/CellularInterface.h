@@ -95,25 +95,22 @@ public:
      */
     virtual bool is_connected() = 0;
 
-    /** Get the local IP address.
-     *
-     *  @return         Null-terminated representation of the local IP address,
-     *                  or null if no IP address has been received.
-     */
+    /** @copydoc NetworkInterface::get_ip_address */
+    virtual nsapi_error_t get_ip_address(SocketAddress *address) = 0;
+
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual const char *get_ip_address() = 0;
 
-    /** Get the local network mask.
-     *
-     *  @return         Null-terminated representation of the local network mask,
-     *                  or null if no network mask has been received.
-     */
+    /** @copydoc NetworkInterface::get_netmask */
+    virtual nsapi_error_t get_netmask(SocketAddress *address) = 0;
+
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual const char *get_netmask() = 0;
 
-    /** Get the local gateways.
-     *
-     *  @return         Null-terminated representation of the local gateway,
-     *                  or null if no network mask has been received.
-     */
+    /** @copydoc NetworkInterface::get_gateway */
+    virtual nsapi_error_t get_gateway(SocketAddress *address) = 0;
+
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual const char *get_gateway() = 0;
 
     /** @copydoc NetworkInterface::cellularBase

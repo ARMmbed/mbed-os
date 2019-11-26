@@ -30,9 +30,11 @@
 typedef enum {
     SEC_RESULT_OK = 0,
     SEC_RESULT_ERR_NO_MEM = -1,
-    SEC_RESULT_TIMEOUT = -2,
-    SEC_RESULT_ERROR = -3,
-    SEC_RESULT_CONF_ERROR = -4
+    SEC_RESULT_ERR_TX_NO_ACK = -2,
+    SEC_RESULT_ERR_UNSPEC = -3,
+    SEC_RESULT_TIMEOUT = -4,
+    SEC_RESULT_ERROR = -5,
+    SEC_RESULT_CONF_ERROR = -6
 } sec_prot_result_e;
 
 typedef enum {
@@ -49,6 +51,12 @@ typedef enum {
     SEC_PROT_TYPE_EAP_TLS = 0,
     SEC_PROT_TYPE_TLS
 } sec_prot_type_e;
+
+typedef enum {
+    SEC_PROT_TX_OK = 0,                       // Successful
+    SEC_PROT_TX_ERR_TX_NO_ACK = -1,           // No acknowledge was received
+    SEC_PROT_TX_ERR_UNSPEC = -2,              // Other reason
+} sec_prot_tx_status_e;
 
 /**
  * sec_prot_create_request KMP-CREATE.request to security protocol
@@ -136,6 +144,18 @@ typedef int8_t sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size);
  *
  */
 typedef int8_t sec_prot_send(sec_prot_t *prot, void *pdu, uint16_t size);
+
+/**
+ * sec_prot_tx_status_ind tx status indication
+ *
+ * \param prot protocol
+ * \param tx_status tx status
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+typedef int8_t sec_prot_tx_status_ind(sec_prot_t *prot, sec_prot_tx_status_e tx_status);
 
 /**
  * sec_prot_delete delete the protocol data
@@ -232,6 +252,7 @@ struct sec_prot_s {
 
     sec_prot_send                 *send;                 /**< Protocol send */
     sec_prot_receive              *receive;              /**< Protocol receive */
+    sec_prot_tx_status_ind        *tx_status_ind;        /**< TX status indication */
 
     sec_prot_delete               *delete;               /**< Protocol delete */
 

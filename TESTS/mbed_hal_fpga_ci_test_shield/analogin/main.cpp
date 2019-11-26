@@ -26,11 +26,11 @@
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
-
 #include "mbed.h"
 #include "pinmap.h"
 #include "test_utils.h"
 #include "MbedTester.h"
+#include "analogin_fpga_test.h"
 
 using namespace utest::v1;
 
@@ -44,14 +44,15 @@ const PinList *restricted = pinmap_restricted_pins();
 
 MbedTester tester(form_factor, restricted);
 
-void analogin_init(PinName pin)
+void fpga_analogin_init_test(PinName pin)
 {
     analogin_t analogin;
 
     analogin_init(&analogin, pin);
+    analogin_free(&analogin);
 }
 
-void analogin_test(PinName pin)
+void fpga_analogin_test(PinName pin)
 {
     tester.reset();
     tester.pin_map_set(pin, MbedTester::LogicalPinGPIO0);
@@ -72,13 +73,15 @@ void analogin_test(PinName pin)
 
     /* Set gpio back to Hi-Z */
     tester.gpio_write(MbedTester::LogicalPinGPIO0, 0, false);
+
+    analogin_free(&analogin);
 }
 
 Case cases[] = {
     // This will be run for all pins
-    Case("AnalogIn - init test", all_ports<AnaloginPort, DefaultFormFactor, analogin_init>),
+    Case("AnalogIn - init test", all_ports<AnaloginPort, DefaultFormFactor, fpga_analogin_init_test>),
     // This will be run for single pin
-    Case("AnalogIn - read test", all_ports<AnaloginPort, DefaultFormFactor, analogin_test>),
+    Case("AnalogIn - read test", all_ports<AnaloginPort, DefaultFormFactor, fpga_analogin_test>),
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

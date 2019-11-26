@@ -87,10 +87,14 @@ static void DHCP_server_service_timer_stop(void)
 
 int DHCPv6_server_respond_client(dhcpv6_gua_server_entry_s *serverBase, dhcpv6_reply_packet_s *replyPacket, dhcp_ia_non_temporal_params_t *dhcp_ia_non_temporal_params, dhcpv6_gua_response_t *response, bool allocateNew)
 {
-    dhcpv6_alloacted_address_entry_t *dhcp_allocated_address;
+    dhcpv6_alloacted_address_entry_t *dhcp_allocated_address = NULL;
     dhcpv6_ia_non_temporal_address_s nonTemporalAddress;
     bool address_allocated = false;
-    dhcp_allocated_address = libdhcpv6_address_allocated_list_scan(serverBase, replyPacket->clientDUID.linkID, replyPacket->clientDUID.linkType, dhcp_ia_non_temporal_params->iaId, dhcp_ia_non_temporal_params->T0, dhcp_ia_non_temporal_params->T1, allocateNew);
+    //Validate Client DUID
+    dhcp_link_options_params_t clientDUID;
+    if (libdhcpv6_get_link_address_from_duid(replyPacket->clientDUID.duid, replyPacket->clientDUID.duid_length, replyPacket->clientDUID.type, &clientDUID) == 0) {
+        dhcp_allocated_address = libdhcpv6_address_allocated_list_scan(serverBase, clientDUID.link_id, clientDUID.link_type, dhcp_ia_non_temporal_params->iaId, dhcp_ia_non_temporal_params->T0, dhcp_ia_non_temporal_params->T1, allocateNew);
+    }
     if (dhcp_allocated_address) {
         address_allocated = true;
         nonTemporalAddress.requestedAddress = dhcp_allocated_address->nonTemporalAddress;
@@ -110,7 +114,7 @@ int DHCPv6_server_respond_client(dhcpv6_gua_server_entry_s *serverBase, dhcpv6_r
         }
     }
 
-    response->responseLength = libdhcpv6_address_reply_message_len(replyPacket->clientDUID.linkType, replyPacket->serverDUID.linkType, 0, replyPacket->rapidCommit, address_allocated);
+    response->responseLength = libdhcpv6_address_reply_message_len(replyPacket->clientDUID.duid_length, replyPacket->serverDUID.duid_length, 0, replyPacket->rapidCommit, address_allocated);
     response->responsePtr = ns_dyn_mem_temporary_alloc(response->responseLength);
     if (response->responsePtr) {
         if (address_allocated) {
@@ -141,16 +145,13 @@ int DHCPV6_server_service_request_handler(uint16_t instance_id, uint32_t msg_tr_
                 if (serverBase) {
                     //Here Allocate address
                     replyPacket.rapidCommit = libdhcpv6_rapid_commit_option_at_packet(msg_ptr, msg_len);
-                    replyPacket.serverDUID.linkID = serverBase->serverDUID;
-                    replyPacket.serverDUID.linkType = serverBase->serverLinkType;
+                    replyPacket.serverDUID = serverBase->serverDUID;
                     replyPacket.T0 = dhcp_ia_non_temporal_params.T0;
                     replyPacket.T1 = dhcp_ia_non_temporal_params.T1;
                     replyPacket.iaId = dhcp_ia_non_temporal_params.iaId;
                     replyPacket.transaction_ID = msg_tr_id;
 
-                    uint16_t duid_length = libdhcpv6_duid_option_size(replyPacket.clientDUID.linkType);
-                    duid_length -= 8;
-                    tr_debug("Response dhcp sol %s clientDUID", trace_array(replyPacket.clientDUID.linkID, duid_length));
+                    tr_debug("Response dhcp sol %s clientDUID", trace_array(replyPacket.clientDUID.duid, replyPacket.clientDUID.duid_length));
 
                     //Check First Current list
                     if (DHCPv6_server_respond_client(serverBase, &replyPacket, &dhcp_ia_non_temporal_params, &responseBuf, true) == 0) {
@@ -173,10 +174,7 @@ int DHCPV6_server_service_request_handler(uint16_t instance_id, uint32_t msg_tr_
                 // Discover SERVER
                 serverBase = libdhcpv6_server_data_get_by_prefix_and_socketinstance(instance_id, dhcp_ia_non_temporal_params.nonTemporalAddress);
                 if (serverBase) {
-                    dhcp_link_options_params_t serverInfoDui;
-                    serverInfoDui.linkID = serverBase->serverDUID;
-                    serverInfoDui.linkType = serverBase->serverLinkType;
-                    if (libdhcpv6_compare_DUID(&serverInfoDui, &replyPacket.serverDUID) == 0) {
+                    if (libdhcpv6_compare_DUID(&serverBase->serverDUID, &replyPacket.serverDUID) == 0) {
                         replyPacket.rapidCommit = libdhcpv6_rapid_commit_option_at_packet(msg_ptr, msg_len);
                         replyPacket.T0 = dhcp_ia_non_temporal_params.T0;
                         replyPacket.T1 = dhcp_ia_non_temporal_params.T1;
@@ -338,6 +336,25 @@ void DHCPv6_server_service_callback_set(int8_t interface, uint8_t guaPrefix[stat
     serverInfo->addCb = add_cb;
     serverInfo->removeCb = remove_cb;
 }
+
+
+int DHCPv6_server_service_duid_update(int8_t interface, uint8_t guaPrefix[static 16],  uint8_t *duid_ptr, uint16_t duid_type, uint8_t duid_length)
+{
+
+    //Validate length and type
+    if (!libdhcpv6_duid_length_validate(duid_type, duid_length)) {
+        return -1;
+    }
+
+
+    dhcpv6_gua_server_entry_s *serverInfo = libdhcpv6_server_data_get_by_prefix_and_interfaceid(interface, guaPrefix);
+    if (!serverInfo) {
+        return -1;
+    }
+
+    return libdhcpv6_server_duid_set(serverInfo, duid_ptr, duid_type, duid_length);
+}
+
 
 /* SET max accepted clients to server, Default is 200
  *

@@ -41,16 +41,22 @@ bool libdhcpv6_gua_server_list_empty(void)
 static dhcpv6_gua_server_entry_s *libdhcpv6_server_entry_allocate(void)
 {
     dhcpv6_gua_server_entry_s *entry = ns_dyn_mem_alloc(sizeof(dhcpv6_gua_server_entry_s));
-    if (entry) {
-        entry->clientIdSequence = 0;
-        entry->enableAddressAutonous = true;
-        entry->clientIdDefaultSuffics = 0x0000000;
-        entry->maxSuppertedClients = 200;
-        entry->validLifetime = 7200;
-        entry->removeCb = NULL;
-        entry->addCb = NULL;
-        ns_list_init(&entry->allocatedAddressList);
+    uint8_t *server_duid_ptr = ns_dyn_mem_alloc(16);// Allocate 128-bit DUID-UUID by default it cover DUID-LL and DUID-LLTP also
+    if (!entry || !server_duid_ptr) {
+        ns_dyn_mem_free(entry);
+        ns_dyn_mem_free(server_duid_ptr);
+        return NULL;
     }
+    entry->serverDynamic_DUID = server_duid_ptr;
+    entry->serverDynamic_DUID_length = 16;
+    entry->clientIdSequence = 0;
+    entry->enableAddressAutonous = true;
+    entry->clientIdDefaultSuffics = 0x0000000;
+    entry->maxSuppertedClients = 200;
+    entry->validLifetime = 7200;
+    entry->removeCb = NULL;
+    entry->addCb = NULL;
+    ns_list_init(&entry->allocatedAddressList);
     return entry;
 }
 static void libdhcpv6_address_generate(dhcpv6_gua_server_entry_s *serverInfo, dhcpv6_alloacted_address_entry_t *entry)
@@ -141,19 +147,58 @@ dhcpv6_gua_server_entry_s *libdhcpv6_server_data_get_by_prefix_and_socketinstanc
     return NULL;
 }
 
+int libdhcpv6_server_duid_set(dhcpv6_gua_server_entry_s *server_info, uint8_t *duid_ptr, uint16_t duid_type, uint8_t duid_length)
+{
+    //Allocate dynamically new Server DUID if needed
+    if (duid_length > server_info->serverDynamic_DUID_length) {
+        //Allocate dynamic new bigger
+        uint8_t *new_ptr = ns_dyn_mem_alloc(duid_length);
+        if (!new_ptr) {
+            return -1;
+        }
+        server_info->serverDynamic_DUID_length = duid_length;
+        ns_dyn_mem_free(server_info->serverDynamic_DUID);
+        server_info->serverDynamic_DUID = new_ptr;
+    }
+    //SET DUID
+    server_info->serverDUID.duid = server_info->serverDynamic_DUID;
+    memcpy(server_info->serverDUID.duid, duid_ptr, duid_length);
+    server_info->serverDUID.duid_length = duid_length;
+    server_info->serverDUID.type = duid_type;
+    return 0;
+}
+
 
 dhcpv6_gua_server_entry_s *libdhcpv6_gua_server_allocate(uint8_t *prefix, int8_t interfaceId, uint8_t *serverDUID, uint16_t serverDUIDType)
 {
+
+
     dhcpv6_gua_server_entry_s *entry = libdhcpv6_server_data_get_by_prefix_and_interfaceid(interfaceId, prefix);
     if (entry == NULL) {
         entry = libdhcpv6_server_entry_allocate();
-        if (entry) {
-            memcpy(entry->guaPrefix, prefix, 8);
-            memcpy(entry->serverDUID, serverDUID, 8);
-            entry->serverLinkType = serverDUIDType;
-            entry->interfaceId = interfaceId;
-            ns_list_add_to_end(&dhcpv6_gua_server_list, entry);
+        if (!entry) {
+            return NULL;
         }
+        //Generate Server DUID-LL by default
+        uint8_t *ptr;
+        uint8_t duid_ll[16];
+        uint8_t duid_length;
+        ptr = duid_ll;
+        duid_length = libdhcpv6_duid_linktype_size(serverDUIDType) + 2;
+        ptr = common_write_16_bit(serverDUIDType, ptr);
+        memcpy(ptr, serverDUID, libdhcpv6_duid_linktype_size(serverDUIDType));
+
+        //SET DUID
+        if (libdhcpv6_server_duid_set(entry, duid_ll, DHCPV6_DUID_LINK_LAYER_TYPE, duid_length) != 0) {
+            ns_dyn_mem_free(entry->serverDynamic_DUID);
+            ns_dyn_mem_free(entry);
+            return NULL;
+        }
+
+
+        memcpy(entry->guaPrefix, prefix, 8);
+        entry->interfaceId = interfaceId;
+        ns_list_add_to_end(&dhcpv6_gua_server_list, entry);
     }
     return entry;
 }
@@ -168,6 +213,7 @@ void libdhcpv6_gua_server_free_by_prefix_and_interfaceid(uint8_t *prefix, int8_t
                 ns_dyn_mem_free(cur);
             }
             ns_list_remove(&dhcpv6_gua_server_list, serverInfo);
+            ns_dyn_mem_free(serverInfo->serverDynamic_DUID);
             ns_dyn_mem_free(serverInfo);
         }
     }

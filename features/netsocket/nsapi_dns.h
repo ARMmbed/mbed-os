@@ -216,7 +216,7 @@ nsapi_size_or_error_t nsapi_dns_query_multiple(S *stack, const char *host,
   *  @param id       Unique id of the hostname translation operation
   *  @return         0 on success, negative error code on failure
   */
-nsapi_error_t nsapi_dns_query_async_cancel(nsapi_error_t id);
+nsapi_error_t nsapi_dns_query_async_cancel(nsapi_size_or_error_t id);
 
 /** Set a call in callback
  *

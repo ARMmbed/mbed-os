@@ -20,9 +20,6 @@
 #include "utest.h"
 #include "ticker_api.h"
 
-extern "C" {
-#include "rtx_lib.h"
-}
 #include "platform/source/SysTimer.h"
 
 #define TEST_TICKS 42

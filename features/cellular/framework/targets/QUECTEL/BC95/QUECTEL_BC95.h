@@ -42,6 +42,7 @@ protected: // AT_CellularDevice
     virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
     virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, bool cp_req = false, bool nonip_req = false);
     virtual AT_CellularInformation *open_information_impl(ATHandler &at);
+    virtual nsapi_error_t set_baud_rate_impl(int baud_rate);
     virtual nsapi_error_t init();
 
 public: // NetworkInterface

@@ -43,17 +43,38 @@ public:
 
     /** Get the local IP address
      *
-     *  @return         Null-terminated representation of the local IP address
-     *                  or null if not yet connected
+     *  @param          address SocketAddress representation of the local IP address
+     *  @retval         NSAPI_ERROR_OK on success
+     *  @retval         NSAPI_ERROR_UNSUPPORTED if this feature is not supported
+     *  @retval         NSAPI_ERROR_PARAMETER if the provided pointer is invalid
+     *  @retval         NSAPI_ERROR_NO_ADDRESS if the address cannot be obtained from stack
      */
+    virtual nsapi_error_t get_ip_address(SocketAddress *address);
+
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual const char *get_ip_address();
+
+    /** Get the IPv6 link local address
+     *
+     *  @param          address SocketAddress representation of the link local IPv6 address
+     *  @retval         NSAPI_ERROR_OK on success
+     *  @retval         NSAPI_ERROR_UNSUPPORTED if this feature is not supported
+     *  @retval         NSAPI_ERROR_PARAMETER if the provided pointer is invalid
+     */
+    virtual nsapi_error_t get_ipv6_link_local_address(SocketAddress *address);
 
     /** Get the local IP address on interface name
      *
+     *  @param          address SocketAddress representation of the link local IPv6 address
      *  @param          interface_name  Network interface_name
-     *  @return         Null-terminated representation of the local IP address
-     *                  or null if not yet connected
+     *  @retval         NSAPI_ERROR_OK on success
+     *  @retval         NSAPI_ERROR_UNSUPPORTED if this feature is not supported
+     *  @retval         NSAPI_ERROR_PARAMETER if the provided pointer is invalid
+     *  @retval         NSAPI_ERROR_NO_ADDRESS if the address cannot be obtained from stack
      */
+    virtual nsapi_error_t get_ip_address_if(SocketAddress *address, const char *interface_name);
+
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual const char *get_ip_address_if(const char *interface_name);
 
     /** Translates a hostname to an IP address with specific version
@@ -183,7 +204,7 @@ public:
 
 protected:
     friend class InternetSocket;
-    friend class UDPSocket;
+    friend class InternetDatagramSocket;
     friend class TCPSocket;
     friend class TCPServer;
 

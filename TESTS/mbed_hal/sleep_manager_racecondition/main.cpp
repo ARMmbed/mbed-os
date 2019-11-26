@@ -26,7 +26,7 @@
 using namespace utest::v1;
 
 #define TEST_STACK_SIZE 256
-
+#if defined(MBED_CONF_RTOS_PRESENT)
 void sleep_manager_locking_thread_test()
 {
     for (uint32_t i = 0; i < 100; i++) {
@@ -55,6 +55,7 @@ void sleep_manager_multithread_test()
     bool deep_sleep_allowed = sleep_manager_can_deep_sleep_test_check();
     TEST_ASSERT_TRUE_MESSAGE(deep_sleep_allowed, "Deep sleep should be allowed");
 }
+#endif
 
 void sleep_manager_locking_irq_test()
 {
@@ -91,7 +92,9 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
+#if defined(MBED_CONF_RTOS_PRESENT)
     Case("deep sleep lock/unlock is thread safe", sleep_manager_multithread_test),
+#endif
     Case("deep sleep lock/unlock is IRQ safe", sleep_manager_irq_test),
 };
 

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#if defined(MBED_CONF_RTOS_PRESENT)
 
 #include "mbed_interface.h"
 #include "netsocket/nsapi_types.h"
@@ -65,22 +66,22 @@ void Cellular_driver_L3IP::set_link_state_cb(l3ip_link_state_change_cb_t state_c
     l3ip_link_state_cb = state_cb;
 }
 
-void Cellular_driver_L3IP::add_ipv4_multicast_group(const char *address)
+void Cellular_driver_L3IP::add_ipv4_multicast_group(const SocketAddress &address)
 {
 
 }
 
-void Cellular_driver_L3IP::add_ipv6_multicast_group(const char *address)
+void Cellular_driver_L3IP::add_ipv6_multicast_group(const SocketAddress &address)
 {
 
 }
 
-void Cellular_driver_L3IP::remove_ipv4_multicast_group(const char *address)
+void Cellular_driver_L3IP::remove_ipv4_multicast_group(const SocketAddress &address)
 {
 
 }
 
-void Cellular_driver_L3IP::remove_ipv6_multicast_group(const char *address)
+void Cellular_driver_L3IP::remove_ipv6_multicast_group(const SocketAddress &address)
 {
 
 }
@@ -112,7 +113,7 @@ MBED_WEAK L3IP &L3IP::get_default_instance()
 {
     return Cellular_driver_L3IP::get_instance();
 }
-
+#endif // defined(MBED_CONF_RTOS_PRESENT)
 /**
  * @}
  */

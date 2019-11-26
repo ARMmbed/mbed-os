@@ -25,7 +25,9 @@ set(unittest-test-sources
   stubs/EventQueue_stub.cpp
   stubs/FileHandle_stub.cpp
   stubs/us_ticker_stub.cpp
-  stubs/mbed_assert_stub.c
+  stubs/UARTSerial_stub.cpp
+  stubs/SerialBase_stub.cpp
+  stubs/mbed_assert_stub.cpp
   stubs/mbed_poll_stub.cpp
   stubs/Timer_stub.cpp
   stubs/equeue_stub.c

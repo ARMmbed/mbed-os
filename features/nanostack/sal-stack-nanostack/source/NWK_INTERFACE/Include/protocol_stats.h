@@ -44,6 +44,7 @@ typedef enum {
     STATS_BUFFER_HEADROOM_FAIL,
     STATS_ETX_1ST_PARENT,
     STATS_ETX_2ND_PARENT,
+    STATS_AL_TX_QUEUE_SIZE
 
 } nwk_stats_type_t;
 

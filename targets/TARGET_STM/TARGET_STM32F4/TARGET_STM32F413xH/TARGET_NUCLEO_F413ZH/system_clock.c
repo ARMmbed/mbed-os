@@ -176,14 +176,15 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
         return 0; // FAIL
     }
 
+#if DEVICE_USBDEVICE
     /* Select PLLSAI output as USB clock source */
     PeriphClkInitStruct.PLLI2S.PLLI2SM = 8;
     PeriphClkInitStruct.PLLI2S.PLLI2SQ = 4;
     PeriphClkInitStruct.PLLI2S.PLLI2SN = 192;
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_CLK48;
     PeriphClkInitStruct.Clk48ClockSelection = RCC_CLK48CLKSOURCE_PLLI2SQ;
-
     HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+#endif /* DEVICE_USBDEVICE */
 
     /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers */
     RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
@@ -241,14 +242,15 @@ uint8_t SetSysClock_PLL_HSI(void)
         return 0; // FAIL
     }
 
+#if DEVICE_USBDEVICE
     /* Select PLLI2S output as USB clock source */
     PeriphClkInitStruct.PLLI2S.PLLI2SM = 16;
     PeriphClkInitStruct.PLLI2S.PLLI2SN = 192;
     PeriphClkInitStruct.PLLI2S.PLLI2SQ = 4;
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_CLK48;
     PeriphClkInitStruct.Clk48ClockSelection = RCC_CLK48CLKSOURCE_PLLI2SQ;
-
     HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+#endif /* DEVICE_USBDEVICE */
 
     /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers */
     RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);

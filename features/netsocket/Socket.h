@@ -49,7 +49,8 @@ public:
      *  Closes any open connection and deallocates any memory associated
      *  with the socket. Called from destructor if socket is not closed.
      *
-     *  @return         NSAPI_ERROR_OK on success, negative error code on failure
+     *  @return         NSAPI_ERROR_OK on success.
+     *                  Negative subclass-dependent error code on failure.
      */
     virtual nsapi_error_t close() = 0;
 
@@ -68,7 +69,8 @@ public:
      *  a new one before attempting to reconnect.
      *
      *  @param address  The SocketAddress of the remote peer.
-     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
+     *  @return         NSAPI_ERROR_OK on success.
+     *                  Negative subclass-dependent error code on failure.
      */
     virtual nsapi_error_t connect(const SocketAddress &address) = 0;
 
@@ -84,8 +86,8 @@ public:
      *
      *  @param data     Buffer of data to send to the host.
      *  @param size     Size of the buffer in bytes.
-     *  @return         Number of sent bytes on success, negative error
-     *                  code on failure.
+     *  @return         NSAPI_ERROR_OK on success.
+     *                  Negative subclass-dependent error code on failure.
      */
     virtual nsapi_size_or_error_t send(const void *data, nsapi_size_t size) = 0;
 
@@ -105,8 +107,8 @@ public:
      *
      *  @param data     Destination buffer for data received from the host.
      *  @param size     Size of the buffer in bytes.
-     *  @return         Number of received bytes on success, negative error
-     *                  code on failure. If no data is available to be received
+     *  @return         Number of received bytes on success, negative, subclass-dependent
+     *                  error code on failure. If no data is available to be received
      *                  and the peer has performed an orderly shutdown,
      *                  recv() returns 0.
      */
@@ -125,7 +127,7 @@ public:
      *  @param address  Remote address
      *  @param data     Buffer of data to send to the host
      *  @param size     Size of the buffer in bytes
-     *  @return         Number of sent bytes on success, negative error
+     *  @return         Number of sent bytes on success, negative subclass-dependent error
      *                  code on failure
      */
     virtual nsapi_size_or_error_t sendto(const SocketAddress &address,
@@ -148,8 +150,8 @@ public:
      *  @param address  Destination for the source address or NULL
      *  @param data     Destination buffer for datagram received from the host
      *  @param size     Size of the buffer in bytes
-     *  @return         Number of received bytes on success, negative error
-     *                  code on failure
+     *  @return         Number of received bytes on success, negative subclass-dependent
+     *                  error code on failure
      */
     virtual nsapi_size_or_error_t recvfrom(SocketAddress *address,
                                            void *data, nsapi_size_t size) = 0;
@@ -160,7 +162,8 @@ public:
      *  data. If the IP address is zeroed, only the port is bound.
      *
      *  @param address  Local address to bind.
-     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
+     *  @return         NSAPI_ERROR_OK on success, negative subclass-dependent error
+     *                  code on failure.
      */
     virtual nsapi_error_t bind(const SocketAddress &address) = 0;
 
@@ -222,7 +225,9 @@ public:
      *  @param optname  Level-specific option name.
      *  @param optval   Option value.
      *  @param optlen   Length of the option value.
-     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
+     *  @retval         NSAPI_ERROR_OK on success.
+     *  @retval         NSAPI_ERROR_NO_SOCKET if socket is not open.
+     *  @retval         int Negative error code on failure, see @ref NetworkStack::setsockopt.
      */
     virtual nsapi_error_t setsockopt(int level, int optname, const void *optval, unsigned optlen) = 0;
 
@@ -239,7 +244,9 @@ public:
      *  @param optname  Level-specific option name.
      *  @param optval   Destination for option value.
      *  @param optlen   Length of the option value.
-     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
+     *  @retval         NSAPI_ERROR_OK on success.
+     *  @retval         NSAPI_ERROR_NO_SOCKET if socket is not open.
+     *  @retval         int Negative error code on failure, see @ref NetworkStack::getsockopt.
      */
     virtual nsapi_error_t getsockopt(int level, int optname, void *optval, unsigned *optlen) = 0;
 
@@ -276,7 +283,9 @@ public:
      * associated.
      *
      *  @param address  Pointer to SocketAddress structure.
-     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
+     *  @retval         NSAPI_ERROR_OK on success.
+     *  @retval         NSAPI_ERROR_NO_SOCKET if socket is not connected.
+     *  @retval         NSAPI_ERROR_NO_CONNECTION if the remote peer was not set.
      */
     virtual nsapi_error_t getpeername(SocketAddress *address) = 0;
 };

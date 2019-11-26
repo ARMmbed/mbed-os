@@ -24,7 +24,7 @@ set(unittest-test-sources
   stubs/AT_CellularBase_stub.cpp
   stubs/EventQueue_stub.cpp
   stubs/FileHandle_stub.cpp
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
   stubs/ConditionVariable_stub.cpp
   stubs/Mutex_stub.cpp
 )

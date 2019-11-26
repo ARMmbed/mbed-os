@@ -71,7 +71,8 @@ public:
      *  socket's constructor.
      *
      *  @param stack    Network stack as target for socket.
-     *  @return         0 on success, negative error code on failure.
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
+     *                  See @ref UDPSocket::open.
      */
     virtual nsapi_error_t open(NetworkStack *stack)
     {
@@ -93,8 +94,10 @@ public:
      *
      *  @param host     Hostname of the remote host.
      *  @param port     Port of the remote host.
-     *  @return         0 on success, negative error code on failure.
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
+     *                  See @ref TLSSocketWrapper::connect.
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     nsapi_error_t connect(const char *host, uint16_t port);
 
 private:

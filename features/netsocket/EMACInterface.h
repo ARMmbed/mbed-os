@@ -64,6 +64,9 @@ public:
      *  @param gateway     Null-terminated representation of the local gateway
      *  @return            0 on success, negative error code on failure
      */
+    virtual nsapi_error_t set_network(const SocketAddress &ip_address, const SocketAddress &netmask, const SocketAddress &gateway);
+
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual nsapi_error_t set_network(const char *ip_address, const char *netmask, const char *gateway);
 
     /** Enable or disable DHCP on the network
@@ -101,13 +104,26 @@ public:
      *  @return         Null-terminated representation of the local IP address
      *                  or null if no IP address has been received
      */
+    virtual nsapi_error_t get_ip_address(SocketAddress *address);
+
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual const char *get_ip_address();
+
+    /** Get the IPv6 link local address
+     *
+     *  @address        SocketAddress representation of the link local IPv6 address
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual nsapi_error_t get_ipv6_link_local_address(SocketAddress *address);
 
     /** Get the local network mask
      *
      *  @return         Null-terminated representation of the local network mask
      *                  or null if no network mask has been received
      */
+    virtual nsapi_error_t get_netmask(SocketAddress *address);
+
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual const char *get_netmask();
 
     /** Get the local gateways
@@ -115,6 +131,9 @@ public:
      *  @return         Null-terminated representation of the local gateway
      *                  or null if no network mask has been received
      */
+    virtual nsapi_error_t get_gateway(SocketAddress *address);
+
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual const char *get_gateway();
 
     /** Get the network interface name

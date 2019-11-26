@@ -24,9 +24,11 @@
 *******************************************************************************/
 
 #include <stdlib.h>
+#include "cy_syspm.h"
+#include "cy_sysclk.h"
 #include "cybsp.h"
 #if defined(CY_USING_HAL)
-#include "cyhal_utils.h"
+#include "cyhal_hwmgr.h"
 #endif
 
 #if defined(__cplusplus)
@@ -83,7 +85,9 @@ cy_rslt_t cybsp_init(void)
     cy_rslt_t result = CY_RSLT_SUCCESS;
 #endif
 
-    init_cycfg_system();
+#if defined(COMPONENT_BSP_DESIGN_MODUS)
+    init_cycfg_all();
+#endif
 
     if (CY_RSLT_SUCCESS == result)
     {

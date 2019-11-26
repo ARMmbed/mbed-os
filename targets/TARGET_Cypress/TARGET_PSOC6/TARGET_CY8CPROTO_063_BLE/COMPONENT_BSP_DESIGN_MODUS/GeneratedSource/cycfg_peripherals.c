@@ -4,7 +4,9 @@
 * Description:
 * Peripheral Hardware Block configuration
 * This file was automatically generated and should not be modified.
-* 
+* cfg-backend-cli: 1.2.0.1478
+* Device Support Library (../../../../output/psoc6/psoc6pdl): 1.4.0.1571
+*
 ********************************************************************************
 * Copyright 2017-2019 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
@@ -25,26 +27,10 @@
 #include "cycfg_peripherals.h"
 
 #if defined (CY_USING_HAL)
-	const cyhal_resource_inst_t bless_0_obj = 
+	const cyhal_resource_inst_t CYBSP_BLE_obj = 
 	{
 		.type = CYHAL_RSC_BLESS,
 		.block_num = 0U,
-		.channel_num = 0U,
-	};
-#endif //defined (CY_USING_HAL)
-const cy_stc_scb_ezi2c_config_t CYBSP_I2C_config = 
-{
-	.numberOfAddresses = CY_SCB_EZI2C_ONE_ADDRESS,
-	.slaveAddress1 = 8U,
-	.slaveAddress2 = 0U,
-	.subAddressSize = CY_SCB_EZI2C_SUB_ADDR16_BITS,
-	.enableWakeFromSleep = false,
-};
-#if defined (CY_USING_HAL)
-	const cyhal_resource_inst_t CYBSP_I2C_obj = 
-	{
-		.type = CYHAL_RSC_SCB,
-		.block_num = 8U,
 		.channel_num = 0U,
 	};
 #endif //defined (CY_USING_HAL)
@@ -53,11 +39,6 @@ const cy_stc_scb_ezi2c_config_t CYBSP_I2C_config =
 void init_cycfg_peripherals(void)
 {
 #if defined (CY_USING_HAL)
-		cyhal_hwmgr_reserve(&bless_0_obj);
-#endif //defined (CY_USING_HAL)
-
-	Cy_SysClk_PeriphAssignDivider(PCLK_SCB8_CLOCK, CY_SYSCLK_DIV_8_BIT, 1U);
-#if defined (CY_USING_HAL)
-		cyhal_hwmgr_reserve(&CYBSP_I2C_obj);
+	cyhal_hwmgr_reserve(&CYBSP_BLE_obj);
 #endif //defined (CY_USING_HAL)
 }

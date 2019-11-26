@@ -70,7 +70,9 @@ typedef struct nwk_stats_t {
     /* ETX */
     uint16_t etx_1st_parent;        /**< Primary parent ETX. */
     uint16_t etx_2nd_parent;        /**< Secondary parent ETX. */
-
+    /* MAC */
+    uint16_t adapt_layer_tx_queue_size; /**< Adaptation layer direct TX queue size. */
+    uint16_t adapt_layer_tx_queue_peak; /**< Adaptation layer direct TX queue size peak. */
 } nwk_stats_t;
 
 /**

@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#if defined(MBED_CONF_RTOS_PRESENT)
+
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
@@ -64,3 +66,4 @@ void ASYNCHRONOUS_DNS_INVALID_HOST()
     TEST_ASSERT(result_dns_failure == exp_dns_failure || result_dns_failure == exp_dns_failure + 1);
     TEST_ASSERT_EQUAL(0, result_exp_timeout);
 }
+#endif // defined(MBED_CONF_RTOS_PRESENT)

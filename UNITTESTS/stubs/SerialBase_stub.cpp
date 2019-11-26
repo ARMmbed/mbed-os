@@ -19,7 +19,8 @@
 
 namespace mbed {
 
-SerialBase::SerialBase(PinName tx, PinName rx, int baud)
+SerialBase::SerialBase(PinName tx, PinName rx, int baud) :
+    _tx_pin(tx), _rx_pin(rx)
 {
 }
 

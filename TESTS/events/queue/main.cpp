@@ -15,7 +15,6 @@
  */
 #include "mbed_events.h"
 #include "mbed.h"
-#include "rtos.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"

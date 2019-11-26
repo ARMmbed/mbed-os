@@ -125,6 +125,7 @@ void test_error_context_capture()
     mbed_error_status_t status = mbed_get_last_error_info(&error_ctx);
     TEST_ASSERT(status == MBED_SUCCESS);
     TEST_ASSERT_EQUAL_UINT(error_value, error_ctx.error_value);
+#if defined(MBED_CONF_RTOS_PRESENT)
     TEST_ASSERT_EQUAL_UINT((uint32_t)osThreadGetId(), error_ctx.thread_id);
 
     //Capture thread info and compare
@@ -134,6 +135,7 @@ void test_error_context_capture()
     TEST_ASSERT_EQUAL_UINT((uint32_t)current_thread->stack_mem, error_ctx.thread_stack_mem);
 #if MBED_CONF_PLATFORM_ERROR_FILENAME_CAPTURE_ENABLED
     TEST_ASSERT_EQUAL_STRING(MBED_FILENAME, error_ctx.error_filename);
+#endif
 #endif
 }
 
@@ -246,14 +248,17 @@ void test_error_logging_multithread()
 }
 #endif
 
+#if defined(MBED_CONF_RTOS_PRESENT)
 static Semaphore    callback_sem;
 void MyErrorHook(const mbed_error_ctx *error_ctx)
 {
     callback_sem.release();
 }
+#endif
 
 /** Test error hook
  */
+#if defined(MBED_CONF_RTOS_PRESENT)
 void test_error_hook()
 {
     if (MBED_SUCCESS != mbed_set_error_hook(MyErrorHook)) {
@@ -265,6 +270,7 @@ void test_error_hook()
 
     TEST_ASSERT(acquired);
 }
+#endif
 
 #if MBED_CONF_PLATFORM_ERROR_HIST_ENABLED && defined(MBED_TEST_SIM_BLOCKDEVICE)
 
@@ -352,13 +358,11 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 Case cases[] = {
     Case("Test error counting and reset", test_error_count_and_reset),
     Case("Test error encoding, value capture, first and last errors", test_error_capturing),
-#if MBED_CONF_RTOS_PRESENT
     Case("Test error context capture", test_error_context_capture),
-#endif //MBED_CONF_RTOS_PRESENT
-    Case("Test error hook", test_error_hook),
 #if MBED_CONF_PLATFORM_ERROR_HIST_ENABLED
     Case("Test error logging", test_error_logging),
 #if MBED_CONF_RTOS_PRESENT
+    Case("Test error hook", test_error_hook),
     Case("Test error handling multi-threaded", test_error_logging_multithread),
 #endif //MBED_CONF_RTOS_PRESENT
 #if MBED_CONF_PLATFORM_ERROR_HIST_ENABLED && defined(MBED_TEST_SIM_BLOCKDEVICE)

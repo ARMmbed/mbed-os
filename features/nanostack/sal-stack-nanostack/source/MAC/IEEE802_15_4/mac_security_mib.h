@@ -51,7 +51,9 @@ int8_t mac_sec_mib_key_description_set(uint8_t atribute_index, mlme_key_descript
 
 mlme_device_descriptor_t *mac_sec_mib_device_description_get_attribute_index(struct protocol_interface_rf_mac_setup *rf_mac_setup, uint8_t attribute_index);
 
-mlme_device_descriptor_t *mac_sec_mib_device_description_get(struct protocol_interface_rf_mac_setup *rf_mac_setup, const uint8_t *address, uint8_t type);
+mlme_device_descriptor_t *mac_sec_mib_device_description_get(struct protocol_interface_rf_mac_setup *rf_mac_setup, const uint8_t *address, uint8_t type, uint16_t pan_id);
+
+void mac_sec_mib_device_description_pan_update(struct protocol_interface_rf_mac_setup *rf_mac_setup, uint16_t pan_id);
 
 uint8_t mac_mib_device_descption_attribute_get_by_descriptor(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_device_descriptor_t *descriptor);
 

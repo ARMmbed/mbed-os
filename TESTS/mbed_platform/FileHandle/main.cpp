@@ -94,7 +94,9 @@ void test_fwrite_fread()
     TestFile<FS>::resetFunctionCallHistory();
     write_ret = std::fwrite(str2, 1, str2_size, file);
     TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnWrite));
+#if !defined(__MICROLIB)
     TEST_ASSERT_TRUE(std::ferror(file) != 0);
+#endif
     std::clearerr(file);
 
     // ARMCC/IAR returns 0 here instead of number of elements successfully written !!!
@@ -104,7 +106,9 @@ void test_fwrite_fread()
     TestFile<FS>::resetFunctionCallHistory();
     write_ret = std::fwrite(str1, 1, str1_size, file);
     TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnWrite));
+#if !defined(__MICROLIB)
     TEST_ASSERT_TRUE(std::ferror(file) != 0);
+#endif
     TEST_ASSERT_EQUAL_INT(0, write_ret);
 
     std::rewind(file);
@@ -120,7 +124,9 @@ void test_fwrite_fread()
     TestFile<FS>::resetFunctionCallHistory();
     read_ret = std::fread(read_buf, 1, str2_size, file);
     TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnRead));
+#if !defined(__MICROLIB)
     TEST_ASSERT_TRUE(std::feof(file) != 0);
+#endif
     std::clearerr(file);
     TEST_ASSERT_EQUAL_INT(str2_size - 1, read_ret);
     TEST_ASSERT_EQUAL_INT(0, strncmp(str2, read_buf, str2_size - 1));
@@ -129,7 +135,9 @@ void test_fwrite_fread()
     TestFile<FS>::resetFunctionCallHistory();
     read_ret = std::fread(read_buf, 1, str2_size, file);
     TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnRead));
+#if !defined(__MICROLIB)
     TEST_ASSERT_TRUE(std::feof(file) != 0);
+#endif
     TEST_ASSERT_EQUAL_INT(0, read_ret);
 
     std::fclose(file);
@@ -187,7 +195,9 @@ void test_fputc_fgetc()
     TestFile<FS>::resetFunctionCallHistory();
     ret = std::fputc(char_buf[0], file);
     TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnWrite));
+#if !defined(__MICROLIB)
     TEST_ASSERT_TRUE(std::ferror(file) != 0);
+#endif
     TEST_ASSERT_EQUAL_INT(EOF, ret);
 
     std::rewind(file);
@@ -212,7 +222,9 @@ void test_fputc_fgetc()
     TestFile<FS>::resetFunctionCallHistory();
     ret = std::fgetc(file);
     TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnRead));
+#if !defined(__MICROLIB)
     TEST_ASSERT_TRUE(std::feof(file) != 0);
+#endif
     TEST_ASSERT_EQUAL_INT(EOF, ret);
 
     std::fclose(file);
@@ -261,7 +273,9 @@ void test_fputs_fgets()
     TestFile<FS>::resetFunctionCallHistory();
     fputs_ret = std::fputs(str2, file);
     TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnWrite));
+#if !defined(__MICROLIB)
     TEST_ASSERT_TRUE(std::ferror(file) != 0);
+#endif
     std::clearerr(file);
     TEST_ASSERT_EQUAL_INT(EOF, fputs_ret);
 
@@ -269,7 +283,9 @@ void test_fputs_fgets()
     TestFile<FS>::resetFunctionCallHistory();
     fputs_ret = std::fputs(str1, file);
     TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnWrite));
+#if !defined(__MICROLIB)
     TEST_ASSERT_TRUE(std::ferror(file) != 0);
+#endif
     TEST_ASSERT_EQUAL_INT(EOF, fputs_ret);
 
     std::rewind(file);
@@ -285,7 +301,9 @@ void test_fputs_fgets()
     TestFile<FS>::resetFunctionCallHistory();
     fgets_ret = std::fgets(read_buf, str2_size + 1, file);
     TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnRead));
+#if !defined(__MICROLIB)
     TEST_ASSERT_TRUE(std::feof(file) != 0);
+#endif
     std::clearerr(file);
     TEST_ASSERT_EQUAL_INT(read_buf, fgets_ret);
     TEST_ASSERT_EQUAL_INT(0, strncmp(read_buf, str2, str2_size - 2));
@@ -294,7 +312,9 @@ void test_fputs_fgets()
     TestFile<FS>::resetFunctionCallHistory();
     fgets_ret = std::fgets(read_buf, str2_size + 1, file);
     TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnRead));
+#if !defined(__MICROLIB)
     TEST_ASSERT_TRUE(std::feof(file) != 0);
+#endif
     TEST_ASSERT_EQUAL_INT(NULL, fgets_ret);
 
     std::fclose(file);
@@ -339,6 +359,8 @@ void test_fprintf_fscanf()
     TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnWrite));
     TEST_ASSERT_EQUAL_INT(str1_size, fprintf_ret);
 
+#if !defined(__MICROLIB)
+    // feof() and ferror() functions are not supported in Microlib.
     // write 3; expected written 2
     TestFile<FS>::resetFunctionCallHistory();
     fprintf_ret = fprintf(file, "%s", str2);
@@ -353,7 +375,17 @@ void test_fprintf_fscanf()
     TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnWrite));
     TEST_ASSERT_TRUE(std::ferror(file) != 0);
     TEST_ASSERT_TRUE(fprintf_ret < 0);
-
+#else
+    // Writing remaining available file space of 2 characters
+    // to make further fscanf() test to pass.
+    // write 2; expected written 2
+    TestFile<FS>::resetFunctionCallHistory();
+    fprintf_ret = 0;
+    fprintf_ret += fprintf(file, "%c", str2[0]);
+    fprintf_ret += fprintf(file, "%c", str2[1]);
+    TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnWrite));
+    TEST_ASSERT_EQUAL_INT(2, fprintf_ret);
+#endif
     std::rewind(file);
 
     // read 3; expected read 3
@@ -367,8 +399,10 @@ void test_fprintf_fscanf()
     TestFile<FS>::resetFunctionCallHistory();
     fscanf_ret = fscanf(file, "%3s", read_buf);
     TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnRead));
+#if !defined(__MICROLIB)
     TEST_ASSERT_TRUE(std::feof(file) != 0);
     std::clearerr(file);
+#endif
     TEST_ASSERT_EQUAL_INT(1, fscanf_ret);
     TEST_ASSERT_EQUAL_INT(0, strncmp(read_buf, str2, str2_size - 1));
 
@@ -376,7 +410,9 @@ void test_fprintf_fscanf()
     TestFile<FS>::resetFunctionCallHistory();
     fscanf_ret = fscanf(file, "%3s", read_buf);
     TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnRead));
+#if !defined(__MICROLIB)
     TEST_ASSERT_TRUE(std::feof(file) != 0);
+#endif
     TEST_ASSERT_EQUAL_INT(EOF, fscanf_ret);
 
     std::fclose(file);

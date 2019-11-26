@@ -43,6 +43,12 @@ nsapi_error_t QUECTEL_BG96_CellularNetwork::set_access_technology_impl(RadioAcce
             _at.at_cmd_discard("+QCFG", "=\"nwscanseq\",030201");
             _at.at_cmd_discard("+QCFG", "=\"nwscanmode\",3,1");
             _at.at_cmd_discard("+QCFG", "=\"iotopmode\",1,1");
+#ifdef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
+            // enable ePCO IE for DNS address
+            _at.cmd_start("AT+QNVFW=");
+            _at.write_string("/nv/item_files/modem/nas/nas_ciot_capability_config");
+            _at.write_string("0101", false);
+#endif
             break;
         case RAT_GSM:
         case RAT_GSM_COMPACT:

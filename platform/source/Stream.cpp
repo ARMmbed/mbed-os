@@ -20,9 +20,14 @@
 
 namespace mbed {
 
-Stream::Stream(const char *name) : FileLike(name), _file(NULL)
+Stream::Stream(const char *name) :
+    FileLike(name)
+#if !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
+    , _file(NULL)
+#endif // !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
 {
     // No lock needed in constructor
+#if !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
     /* open ourselves */
     _file = fdopen(this, "w+");
     // fdopen() will make us buffered because Stream::isatty()
@@ -33,14 +38,18 @@ Stream::Stream(const char *name) : FileLike(name), _file(NULL)
     } else {
         MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OPEN_FAILED), "Stream obj failure", _file);
     }
+#endif // !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
 }
 
 Stream::~Stream()
 {
+#if !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
     // No lock can be used in destructor
     fclose(_file);
+#endif // !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
 }
 
+#if !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
 int Stream::putc(int c)
 {
     lock();
@@ -73,6 +82,7 @@ char *Stream::gets(char *s, int size)
     unlock();
     return ret;
 }
+#endif // !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
 
 int Stream::close()
 {
@@ -142,6 +152,8 @@ off_t Stream::size()
     return 0;
 }
 
+#if !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
+
 int Stream::printf(const char *format, ...)
 {
     lock();
@@ -183,5 +195,7 @@ int Stream::vscanf(const char *format, std::va_list args)
     unlock();
     return r;
 }
+
+#endif // !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
 
 } // namespace mbed

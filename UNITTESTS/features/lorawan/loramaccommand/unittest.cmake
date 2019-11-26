@@ -32,7 +32,7 @@ set(unittest-includes ${unittest-includes}
 # Test & stub files
 set(unittest-test-sources
   features/lorawan/loramaccommand/Test_LoRaMacCommand.cpp
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
   stubs/LoRaPHY_stub.cpp
 )
 

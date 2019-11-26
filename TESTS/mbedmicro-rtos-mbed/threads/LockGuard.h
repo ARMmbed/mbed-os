@@ -49,5 +49,4 @@ private:
     LockGuard &operator=(const LockGuard &);
     rtos::Mutex &_mutex;
 };
-
 #endif /* MBEDMICRO_RTOS_MBED_THREADS_LOCK_GUARD */

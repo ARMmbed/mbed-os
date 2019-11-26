@@ -25,12 +25,12 @@
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
 #include "mbed.h"
-
-using namespace utest::v1;
-
 #include "MbedTester.h"
 #include "pinmap.h"
 #include "test_utils.h"
+#include "gpio_fpga_test.h"
+
+using namespace utest::v1;
 
 // This delay is used when reading a floating input that has an internal pull-up
 // or pull-down resistor. The voltage response is much slower when the input
@@ -45,7 +45,7 @@ MbedTester tester(DefaultFormFactor::pins(), DefaultFormFactor::restricted_pins(
  * when basic input and output operations are performed,
  * then all operations succeed.
  */
-void test_basic_input_output(PinName pin)
+void fpga_test_basic_input_output(PinName pin)
 {
     // Reset everything and set all tester pins to hi-Z.
     tester.reset();
@@ -61,6 +61,7 @@ void test_basic_input_output(PinName pin)
     // Test gpio_is_connected() returned value.
     gpio_init(&gpio, NC);
     TEST_ASSERT_EQUAL_INT(0, gpio_is_connected(&gpio));
+    gpio_free(&gpio);
     gpio_init(&gpio, pin);
     TEST_ASSERT_NOT_EQUAL(0, gpio_is_connected(&gpio));
 
@@ -120,6 +121,8 @@ void test_basic_input_output(PinName pin)
     TEST_ASSERT_EQUAL_INT(1, tester.gpio_read(MbedTester::LogicalPinGPIO0));
     gpio_write(&gpio, 0);
     TEST_ASSERT_EQUAL_INT(0, tester.gpio_read(MbedTester::LogicalPinGPIO0));
+
+    gpio_free(&gpio);
 }
 
 /* Test explicit input initialization.
@@ -128,7 +131,7 @@ void test_basic_input_output(PinName pin)
  * when additional parameters are passed to the input init function,
  * then the GPIO is correctly initialized as an input.
  */
-void test_explicit_input(PinName pin)
+void fpga_test_explicit_input(PinName pin)
 {
     // Reset everything and set all tester pins to hi-Z.
     tester.reset();
@@ -148,6 +151,7 @@ void test_explicit_input(PinName pin)
     tester.gpio_write(MbedTester::LogicalPinGPIO0, 0, false);
     wait_us(HI_Z_READ_DELAY_US);
     TEST_ASSERT_EQUAL_INT(1, gpio_read(&gpio)); // hi-Z, pulled up
+    gpio_free(&gpio);
 
     // Initialize GPIO pin as an input, pull-down mode.
     memset(&gpio, 0, sizeof gpio);
@@ -156,6 +160,7 @@ void test_explicit_input(PinName pin)
     tester.gpio_write(MbedTester::LogicalPinGPIO0, 0, false);
     wait_us(HI_Z_READ_DELAY_US);
     TEST_ASSERT_EQUAL_INT(0, gpio_read(&gpio)); // hi-Z, pulled down
+    gpio_free(&gpio);
 
     // Initialize GPIO pin as an input, pull-up mode.
     memset(&gpio, 0, sizeof gpio);
@@ -164,6 +169,7 @@ void test_explicit_input(PinName pin)
     tester.gpio_write(MbedTester::LogicalPinGPIO0, 0, false);
     wait_us(HI_Z_READ_DELAY_US);
     TEST_ASSERT_EQUAL_INT(1, gpio_read(&gpio)); // hi-Z, pulled up
+    gpio_free(&gpio);
 
     // Initialize GPIO pin as an input, pull-down mode.
     memset(&gpio, 0, sizeof gpio);
@@ -172,6 +178,7 @@ void test_explicit_input(PinName pin)
     tester.gpio_write(MbedTester::LogicalPinGPIO0, 0, false);
     wait_us(HI_Z_READ_DELAY_US);
     TEST_ASSERT_EQUAL_INT(0, gpio_read(&gpio)); // hi-Z, pulled down
+    gpio_free(&gpio);
 }
 
 /* Test explicit output initialization.
@@ -180,7 +187,7 @@ void test_explicit_input(PinName pin)
  * when additional parameters are passed to the output init function,
  * then the GPIO is correctly initialized as an output.
  */
-void test_explicit_output(PinName pin)
+void fpga_test_explicit_output(PinName pin)
 {
     // Reset everything and set all tester pins to hi-Z.
     tester.reset();
@@ -198,41 +205,46 @@ void test_explicit_output(PinName pin)
     gpio_init_out(&gpio, pin);
     TEST_ASSERT_NOT_EQUAL(0, gpio_is_connected(&gpio));
     TEST_ASSERT_EQUAL_INT(0, tester.gpio_read(MbedTester::LogicalPinGPIO0));
+    gpio_free(&gpio);
 
     // Initialize GPIO pin as an output, output value = 1.
     memset(&gpio, 0, sizeof gpio);
     gpio_init_out_ex(&gpio, pin, 1);
     TEST_ASSERT_NOT_EQUAL(0, gpio_is_connected(&gpio));
     TEST_ASSERT_EQUAL_INT(1, tester.gpio_read(MbedTester::LogicalPinGPIO0));
+    gpio_free(&gpio);
 
     // Initialize GPIO pin as an output, output value = 0.
     memset(&gpio, 0, sizeof gpio);
     gpio_init_out_ex(&gpio, pin, 0);
     TEST_ASSERT_NOT_EQUAL(0, gpio_is_connected(&gpio));
     TEST_ASSERT_EQUAL_INT(0, tester.gpio_read(MbedTester::LogicalPinGPIO0));
+    gpio_free(&gpio);
 
     // Initialize GPIO pin as an output, output value = 1.
     memset(&gpio, 0, sizeof gpio);
     gpio_init_inout(&gpio, pin, PIN_OUTPUT, PullNone, 1);
     TEST_ASSERT_NOT_EQUAL(0, gpio_is_connected(&gpio));
     TEST_ASSERT_EQUAL_INT(1, tester.gpio_read(MbedTester::LogicalPinGPIO0));
+    gpio_free(&gpio);
 
     // Initialize GPIO pin as an output, output value = 0.
     memset(&gpio, 0, sizeof gpio);
     gpio_init_inout(&gpio, pin, PIN_OUTPUT, PullNone, 0);
     TEST_ASSERT_NOT_EQUAL(0, gpio_is_connected(&gpio));
     TEST_ASSERT_EQUAL_INT(0, tester.gpio_read(MbedTester::LogicalPinGPIO0));
+    gpio_free(&gpio);
 }
 
 Case cases[] = {
-    Case("generic init, input & output", all_ports<GPIOPort, DefaultFormFactor, test_basic_input_output>),
+    Case("generic init, input & output", all_ports<GPIOPort, DefaultFormFactor, fpga_test_basic_input_output>),
     // Some targets don't support input pull mode.
 #if !defined(TARGET_NANO100) &&         \
     !defined(TARGET_NUC472) &&          \
     !defined(TARGET_M451)
-    Case("explicit init, input", all_ports<GPIOPort, DefaultFormFactor, test_explicit_input>),
+    Case("explicit init, input", all_ports<GPIOPort, DefaultFormFactor, fpga_test_explicit_input>),
 #endif
-    Case("explicit init, output", all_ports<GPIOPort, DefaultFormFactor, test_explicit_output>),
+    Case("explicit init, output", all_ports<GPIOPort, DefaultFormFactor, fpga_test_explicit_output>),
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

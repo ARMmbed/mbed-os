@@ -75,5 +75,4 @@ private:
     mutable rtos::Mutex _mutex;
     T _value;
 };
-
 #endif /* MBEDMICRO_RTOS_MBED_THREADS_SYNCHRONIZED_INTEGRAL */

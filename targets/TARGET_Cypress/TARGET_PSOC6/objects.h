@@ -94,6 +94,8 @@ struct i2c_s {
     size_t async_rx_size;
 #endif
     uint8_t slave_event;
+    uint32_t address;
+    bool address_set;
 };
 #endif
 
@@ -109,6 +111,7 @@ struct spi_s {
     cyhal_gpio_t sclk;
     cyhal_gpio_t ssel;
     int hz;
+    bool async_in_progress;
 };
 #endif
 
@@ -116,6 +119,10 @@ struct spi_s {
 struct qspi_s {
     cyhal_qspi_t hal_qspi;
 };
+#endif
+
+#if DEVICE_CRC
+#define HAL_CRC_IS_SUPPORTED(polynomial, width) ((width) <= 32)
 #endif
 
 #ifdef __cplusplus

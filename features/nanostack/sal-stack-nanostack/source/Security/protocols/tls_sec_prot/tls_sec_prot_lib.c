@@ -487,6 +487,10 @@ static int tls_sec_prot_lib_x509_crt_verify(void *ctx, mbedtls_x509_crt *crt, in
     if (crt->sig_pk != MBEDTLS_PK_ECDSA) {
         tr_error("Invalid signature pk algorithm");
     }
+    if (*flags & MBEDTLS_X509_BADCERT_FUTURE) {
+        tr_info("Certificate time future");
+        *flags &= ~MBEDTLS_X509_BADCERT_FUTURE;
+    }
 
     // Verify client/server certificate of the chain
     if (certificate_depth == 0) {

@@ -2,15 +2,28 @@
 
 ### Overview
 
-Precompiled application images executed on Cortex M0+ core of the PSoC 6 dual-core MCU.
+Prebuilt application images are executed on the Cortex M0+ core of the PSoC 6 dual-core MCU.
 The images are provided as C arrays ready to be compiled as part of the Cortex M4 application.
 The Cortex M0+ application code is placed to internal flash by the Cortex M4 linker script.
 
 ### Images
 
-* CM0P_SLEEP
+* [COMPONENT_CM0P_SLEEP](./COMPONENT_CM0P_SLEEP/README.md)
 
-    This image starts CM4 core at CY_CORTEX_M4_APPL_ADDR=0x10008000 and puts CM0+ core into a deep sleep.
+    This image starts CM4 core at CY_CORTEX_M4_APPL_ADDR=0x10002000
+    and puts CM0+ core into a deep sleep mode.
+
+* [COMPONENT_CM0P_CRYPTO](./COMPONENT_CM0P_CRYPTO/README.md)
+
+    This image starts crypto server on CM0+ core,
+    starts CM4 core at CY_CORTEX_M4_APPL_ADDR=0x10008000
+    and puts CM0+ core into a deep sleep mode.
+
+* [COMPONENT_CM0P_BLESS](./COMPONENT_CM0P_BLESS/README.md)
+
+    This image starts BLE controller on CM0+ core,
+    starts CM4 core at CY_CORTEX_M4_APPL_ADDR=0x10020000
+    and puts CM0+ core into a deep sleep mode.
 
 ### More information
 Use the following links for more information, as needed:

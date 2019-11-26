@@ -14,6 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] USB stack and test cases require RTOS to run.
+#else
+
 #if !defined(DEVICE_USBDEVICE) || !DEVICE_USBDEVICE
 #error [NOT_SUPPORTED] USB Device not supported for this target
 #else
@@ -848,3 +852,4 @@ int main()
 }
 
 #endif // !defined(DEVICE_USBDEVICE) || !DEVICE_USBDEVICE
+#endif // !defined(MBED_CONF_RTOS_PRESENT)

@@ -20,12 +20,12 @@
   *                       | 2- USE_PLL_HSE_XTAL (external 8 MHz xtal)
   *                       | 3- USE_PLL_HSI (internal 64 MHz clock)
   *--------------------------------------------------------------------
-  * SYSCLK(MHz)           |            400
-  * AHBCLK (MHz)          |            200
-  * APB1CLK (MHz)         |            100
-  * APB2CLK (MHz)         |            100
-  * APB3CLK (MHz)         |            100
-  * APB4CLK (MHz)         |            100
+  * SYSCLK(MHz)           |            480
+  * AHBCLK (MHz)          |            240
+  * APB1CLK (MHz)         |            120
+  * APB2CLK (MHz)         |            120
+  * APB3CLK (MHz)         |            120
+  * APB4CLK (MHz)         |            120
   * USB capable (48 MHz)  |            YES
   *--------------------------------------------------------------------
 **/
@@ -64,7 +64,6 @@ uint8_t SetSysClock_PLL_HSI(void);
 
 void SetSysClock(void)
 {
-
 #if ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC)
     /* 1- Try to start with HSE and external clock (MCO from STLink PCB part) */
     if (SetSysClock_PLL_HSE(1) == 0)
@@ -96,16 +95,21 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 
+    /* Supply configuration update enable */
     HAL_PWREx_ConfigSupply(PWR_DIRECT_SMPS_SUPPLY);
+    /* Configure the main internal regulator output voltage */
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+
     while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
 
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    /* Enable HSE Oscillator and activate PLL with HSE as source */
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI48;
     if (bypass) {
         RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
     } else {
         RCC_OscInitStruct.HSEState = RCC_HSE_ON;
     }
+    RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM = 5;   // 5 MHz
@@ -131,23 +135,26 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV2;
     RCC_ClkInitStruct.APB3CLKDivider = RCC_APB3_DIV2;
     RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV2;
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK) {
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK) {
         return 0; // FAIL
     }
 
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART3 | RCC_PERIPHCLK_USB;
-    PeriphClkInitStruct.Usart234578ClockSelection = RCC_USART234578CLKSOURCE_D2PCLK1;
+#if DEVICE_USBDEVICE
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
     PeriphClkInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
         return 0; // FAIL
     }
 
+    HAL_PWREx_EnableUSBVoltageDetector();
+#endif /* DEVICE_USBDEVICE */
+
     __HAL_RCC_CSI_ENABLE() ;
-  
-  __HAL_RCC_SYSCFG_CLK_ENABLE() ;
-  
-  HAL_EnableCompensationCell();
-  
+
+    __HAL_RCC_SYSCFG_CLK_ENABLE() ;
+
+    HAL_EnableCompensationCell();
+
     return 1; // OK
 }
 #endif /* ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC) */

@@ -572,9 +572,9 @@ static uint8_t mac_data_interface_decrypt_packet(mac_pre_parsed_frame_t *b, mlme
     } else {
 
         if (!b->neigh_info) {
-            if (rf_mac_setup->mac_security_bypass_unknow_device && (b->fcf_dsn.SrcAddrMode == MAC_ADDR_MODE_64_BIT
-                                                                    && security_params->SecurityLevel > AES_SECURITY_LEVEL_ENC)) {
-                security_by_pass = true;
+            if (SrcPANId == rf_mac_setup->pan_id && rf_mac_setup->mac_security_bypass_unknow_device &&
+                    (b->fcf_dsn.SrcAddrMode == MAC_ADDR_MODE_64_BIT && security_params->SecurityLevel > AES_SECURITY_LEVEL_ENC)) {
+                security_by_pass = true;//Accept by pass only from same PAN-ID
             } else {
                 return MLME_UNSUPPORTED_SECURITY;
             }
@@ -723,7 +723,7 @@ static int8_t mac_data_sap_rx_handler(mac_pre_parsed_frame_t *buf, protocol_inte
     /* Parse security part */
     mac_header_security_components_read(buf, &data_ind->Key);
 
-    buf->neigh_info = mac_sec_mib_device_description_get(rf_mac_setup, data_ind->SrcAddr, data_ind->SrcAddrMode);
+    buf->neigh_info = mac_sec_mib_device_description_get(rf_mac_setup, data_ind->SrcAddr, data_ind->SrcAddrMode, data_ind->SrcPANId);
     if (buf->fcf_dsn.securityEnabled) {
         status = mac_data_interface_decrypt_packet(buf, &data_ind->Key);
         if (status != MLME_SUCCESS) {
@@ -846,7 +846,8 @@ static int8_t mac_command_sap_rx_handler(mac_pre_parsed_frame_t *buf, protocol_i
     //Read address and pan-id
     mac_header_get_src_address(&buf->fcf_dsn, mac_header_message_start_pointer(buf), temp_src_address);
     uint8_t address_mode = buf->fcf_dsn.SrcAddrMode;
-    buf->neigh_info = mac_sec_mib_device_description_get(rf_mac_setup, temp_src_address, address_mode);
+    uint16_t pan_id = mac_header_get_src_panid(&buf->fcf_dsn, mac_header_message_start_pointer(buf), rf_mac_setup->pan_id);
+    buf->neigh_info = mac_sec_mib_device_description_get(rf_mac_setup, temp_src_address, address_mode, pan_id);
     //Decrypt Packet if secured
     if (buf->fcf_dsn.securityEnabled) {
         mac_header_security_components_read(buf, &security_params);
@@ -1082,18 +1083,21 @@ static int8_t mac_ack_sap_rx_handler(mac_pre_parsed_frame_t *buf, protocol_inter
     memset(SrcAddr, 0, 8);
     memset(&key, 0, sizeof(mlme_security_t));
     mac_header_get_src_address(&buf->fcf_dsn, mac_header_message_start_pointer(buf), SrcAddr);
+    uint16_t pan_id = mac_header_get_src_panid(&buf->fcf_dsn, mac_header_message_start_pointer(buf), rf_mac_setup->pan_id);
     /* Parse security part */
     mac_header_security_components_read(buf, &key);
 
-    buf->neigh_info = mac_sec_mib_device_description_get(rf_mac_setup, SrcAddr, buf->fcf_dsn.SrcAddrMode);
+    buf->neigh_info = mac_sec_mib_device_description_get(rf_mac_setup, SrcAddr, buf->fcf_dsn.SrcAddrMode, pan_id);
     if (buf->fcf_dsn.securityEnabled) {
         uint8_t status = mac_data_interface_decrypt_packet(buf, &key);
         if (status != MLME_SUCCESS) {
+            rf_mac_setup->mac_tx_result = MAC_ACK_SECURITY_FAIL;
             return -1;
         }
     }
 
     if (buf->mac_payload_length && !mac_payload_information_elements_parse(buf)) {
+        rf_mac_setup->mac_tx_result = MAC_ACK_SECURITY_FAIL;
         return -1;
     }
 
@@ -1144,6 +1148,7 @@ static void mac_pd_data_ack_handler(mac_pre_parsed_frame_t *buf)
             //Do not forward ACK payload but Accept ACK
             mcps_sap_pre_parsed_frame_buffer_free(buf);
             buf = NULL;
+
         }
 
         rf_mac_setup->active_pd_data_request = NULL;
@@ -1276,7 +1281,7 @@ static bool mac_frame_security_parameters_init(ccm_globals_t *ccm_ptr, protocol_
     } else {
         //Discover device descriptor only unicast packet which need ack
         if (buffer->fcf_dsn.DstAddrMode && buffer->fcf_dsn.ackRequested) {
-            device_description =  mac_sec_mib_device_description_get(rf_ptr, buffer->DstAddr, buffer->fcf_dsn.DstAddrMode);
+            device_description =  mac_sec_mib_device_description_get(rf_ptr, buffer->DstAddr, buffer->fcf_dsn.DstAddrMode, buffer->DstPANId);
             if (!device_description) {
                 buffer->status = MLME_UNAVAILABLE_KEY;
                 return false;
@@ -1348,6 +1353,8 @@ static void mac_common_data_confirmation_handle(protocol_interface_rf_mac_setup_
             buf->status = MLME_TRANSACTION_EXPIRED;
         } else if (m_event == MAC_UNKNOWN_DESTINATION) {
             buf->status = MLME_UNAVAILABLE_KEY;
+        } else if (m_event == MAC_ACK_SECURITY_FAIL) {
+            buf->status = MLME_TX_NO_ACK;
         }/** else if (m_event == MAC_TX_PRECOND_FAIL) {
            * Nothing to do, status already set to buf->status.
         }**/
@@ -1536,7 +1543,7 @@ static int8_t mcps_generic_packet_build(protocol_interface_rf_mac_setup_s *rf_pt
     mac_header_information_elements_preparation(buffer);
 
     mcps_generic_sequence_number_allocate(rf_ptr, buffer);
-    mlme_key_descriptor_t *key_desc;
+    mlme_key_descriptor_t *key_desc = NULL;
     if (buffer->fcf_dsn.securityEnabled) {
         bool increment_framecounter = false;
         //Remember to update security counter here!
@@ -1593,7 +1600,7 @@ static int8_t mcps_generic_packet_build(protocol_interface_rf_mac_setup_s *rf_pt
         tr_debug("Too Long %u, %u pa %u header %u mic %u", frame_length, mac_payload_length, buffer->mac_header_length_with_security,  buffer->security_mic_len, dev_driver->phy_MTU);
         buffer->status = MLME_FRAME_TOO_LONG;
         //decrement security counter
-        if (buffer->fcf_dsn.securityEnabled) {
+        if (key_desc) {
             mac_sec_mib_key_outgoing_frame_counter_decrement(rf_ptr, key_desc);
         }
         return -1;
@@ -1709,7 +1716,7 @@ int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, bool in
 
     ccm_globals_t ccm_ptr;
     mac_pre_build_frame_t *buffer = &rf_ptr->enhanced_ack_buffer;
-    mlme_key_descriptor_t *key_desc;
+    mlme_key_descriptor_t *key_desc = NULL;
 
     if (buffer->fcf_dsn.securityEnabled) {
         //Remember to update security counter here!
@@ -1748,7 +1755,7 @@ int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, bool in
     if ((frame_length) > ack_mtu_size - 2) {
         buffer->status = MLME_FRAME_TOO_LONG;
 
-        if (buffer->fcf_dsn.securityEnabled) {
+        if (key_desc) {
             //decrement security counter
             mac_sec_mib_key_outgoing_frame_counter_decrement(rf_ptr, key_desc);
             ccm_free(&ccm_ptr);

@@ -29,7 +29,7 @@
 
 # Set the Mbed Crypto release to import (this can/should be edited before
 # import)
-CRYPTO_RELEASE ?= mbedcrypto-2.0.0
+CRYPTO_RELEASE ?= mbedcrypto-2.1.0d0
 CRYPTO_REPO_URL ?= git@github.com:ARMmbed/mbedtls-psa.git
 
 # Translate between Mbed Crypto namespace and Mbed OS namespace

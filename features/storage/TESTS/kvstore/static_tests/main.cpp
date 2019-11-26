@@ -15,7 +15,9 @@
 * limitations under the License.
 */
 
+#if defined(MBED_CONF_RTOS_PRESENT)
 #include "Thread.h"
+#endif
 #include "mbed_error.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
@@ -33,10 +35,13 @@ static size_t       actual_size = 0;
 static const size_t buffer_size = 20;
 static const int    num_of_threads = 3;
 static const char   num_of_keys = 3;
-
+#if defined(MBED_CONF_RTOS_PRESENT)
 /* Forked 3 threads plus misc, so minimum (4 * OS_STACK_SIZE) heap are required. */
 static const int heap_alloc_threshold_size = 4 * OS_STACK_SIZE;
-
+#else
+/* Bare metal does not require memory for threads, so use just minimum for test */
+static const int heap_alloc_threshold_size = MBED_CONF_TARGET_BOOT_STACK_SIZE;
+#endif
 static const char *keys[] = {"key1", "key2", "key3"};
 
 static int init_res = MBED_ERROR_NOT_READY;
@@ -144,6 +149,7 @@ static void test_thread_set(char *th_key)
 //get several keys multithreaded
 static void set_several_keys_multithreaded()
 {
+#if defined(MBED_CONF_RTOS_PRESENT)
     TEST_SKIP_UNLESS(!init_res);
     rtos::Thread kvstore_thread[num_of_threads];
     osStatus threadStatus;
@@ -169,6 +175,7 @@ static void set_several_keys_multithreaded()
         res = kv_remove(keys[i]);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
     }
+#endif
 }
 
 //set key "write once" and try to set it again
@@ -464,6 +471,7 @@ static void test_thread_get(const void *th_key)
 //get several keys multithreaded
 static void get_several_keys_multithreaded()
 {
+#if defined(MBED_CONF_RTOS_PRESENT)
     TEST_SKIP_UNLESS(!init_res);
     int i = 0, res = 0;
     rtos::Thread kvstore_thread[num_of_threads];
@@ -489,6 +497,7 @@ static void get_several_keys_multithreaded()
         res = kv_remove(keys[i]);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
     }
+#endif
 }
 
 /*----------------remove()------------------*/
@@ -924,7 +933,9 @@ Case cases[] = {
     Case("set_buffer_null_size_not_zero", set_buffer_null_size_not_zero, greentea_failure_handler),
     Case("set_buffer_size_is_zero", set_buffer_size_is_zero, greentea_failure_handler),
     Case("set_same_key_several_time", set_same_key_several_time, greentea_failure_handler),
+#if defined(MBED_CONF_RTOS_PRESENT)
     Case("set_several_keys_multithreaded", set_several_keys_multithreaded, greentea_failure_handler),
+#endif
     Case("set_write_once_flag_try_set_twice", set_write_once_flag_try_set_twice, greentea_failure_handler),
     Case("set_write_once_flag_try_remove", set_write_once_flag_try_remove, greentea_failure_handler),
     Case("set_key_value_one_byte_size", set_key_value_one_byte_size, greentea_failure_handler),
@@ -944,8 +955,9 @@ Case cases[] = {
     Case("get_non_existing_key", get_non_existing_key, greentea_failure_handler),
     Case("get_removed_key", get_removed_key, greentea_failure_handler),
     Case("get_key_that_was_set_twice", get_key_that_was_set_twice, greentea_failure_handler),
+#if defined(MBED_CONF_RTOS_PRESENT)
     Case("get_several_keys_multithreaded", get_several_keys_multithreaded, greentea_failure_handler),
-
+#endif
     Case("remove_key_null", remove_key_null, greentea_failure_handler),
     Case("remove_key_length_exceeds_max", remove_key_length_exceeds_max, greentea_failure_handler),
     Case("remove_non_existing_key", remove_non_existing_key, greentea_failure_handler),

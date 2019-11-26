@@ -1,25 +1,59 @@
 /* Linker script to configure memory regions. */
+/*
+ * SPDX-License-Identifier: BSD-3-Clause
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2016-2019 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
+ *
+ ******************************************************************************
+*/
+#include "../cmsis_nvic.h"
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE 0x400
-#endif
+/* STM32F756xG:
+FLASH:   1024K (0x100000) @0x08000000
+SRAM1:    240K (0x3C000)  @0x20010000
+SRAM2:     16K (0x4000)   @0x2004C000
+DTCM-RAM:  64K (0x10000)  @0x20000000
+ITCM-RAM:  16K (0x3FFF)   @0x00000000
+*/
 
-STACK_SIZE = MBED_BOOT_STACK_SIZE;
+#define MBED_ROM_START   0x8000000
+#define MBED_ROM_SIZE    0x100000
+#define MBED_RAM_START   0x20010000
+#define MBED_RAM_SIZE    0x40000
+#define MBED_RAM1_START  0x20000000
+#define MBED_RAM1_SIZE   0x10000
 
 #if !defined(MBED_APP_START)
-  #define MBED_APP_START 0x08000000
+  #define MBED_APP_START MBED_ROM_START
 #endif
 
 #if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE 1024K
+  #define MBED_APP_SIZE MBED_ROM_SIZE
 #endif
 
 M_CRASH_DATA_RAM_SIZE = 0x100;
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+    #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+STACK_SIZE = MBED_BOOT_STACK_SIZE;
+
+#define MBED_VECTTABLE_RAM_SIZE (((NVIC_NUM_VECTORS * 4) + 7) & 0xFFFFFFF8)
+#define MBED_RAM0_START  (MBED_RAM1_START + MBED_VECTTABLE_RAM_SIZE)
+#define MBED_RAM0_SIZE   (MBED_RAM_SIZE + MBED_RAM1_SIZE - MBED_VECTTABLE_RAM_SIZE)
+
 MEMORY
 { 
   FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
-  RAM (rwx)  : ORIGIN = 0x200001C8, LENGTH = 320K - 0x1C8
+  RAM (rwx)  : ORIGIN = MBED_RAM0_START, LENGTH = MBED_RAM0_SIZE
 }
 
 /* Linker script to place sections and symbol values. Should be used together
@@ -93,7 +127,7 @@ SECTIONS
 
     __etext = .;
     _sidata = .;
-
+    
     .crash_data_ram :
     {
         . = ALIGN(8);

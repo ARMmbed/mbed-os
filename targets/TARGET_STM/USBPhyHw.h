@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2018-2018 ARM Limited
+ * Copyright (c) 2018-2019 ARM Limited
+ * Copyright (c) 2018-2019 STMicroelectronics
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,34 +20,41 @@
 
 #include "mbed.h"
 #include "USBPhy.h"
+#include "PeripheralPins.h"
 
-#if defined(TARGET_DISCO_F746NG)
-#if (MBED_CONF_TARGET_USB_SPEED == 1) // Defined in json configuration file
-#define TARGET_DISCO_F746NG_OTG_HS
+#if !defined(MBED_CONF_TARGET_USB_SPEED)
+
+#if defined (USB)
+#define MBED_CONF_TARGET_USB_SPEED USE_USB_NO_OTG
+#elif defined(USB_OTG_FS)
+#define MBED_CONF_TARGET_USB_SPEED USE_USB_OTG_FS
 #else
-#define TARGET_DISCO_F746NG_OTG_FS
-#endif
+#define MBED_CONF_TARGET_USB_SPEED USE_USB_OTG_HS
 #endif
 
-#if defined(TARGET_DISCO_F429ZI) || \
-    defined(TARGET_DISCO_F769NI) || \
-    defined(TARGET_DISCO_F746NG_OTG_HS)
-#define USBHAL_IRQn  OTG_HS_IRQn
+#endif /* !defined(MBED_CONF_TARGET_USB_SPEED) */
+
+#if MBED_CONF_TARGET_USB_SPEED == USE_USB_NO_OTG
+
+#if defined(TARGET_STM32F3) || defined(TARGET_STM32WB)
+#define USBHAL_IRQn  USB_HP_IRQn
 #else
+#define USBHAL_IRQn  USB_IRQn
+#endif
+
+#elif (MBED_CONF_TARGET_USB_SPEED == USE_USB_OTG_FS)
 #define USBHAL_IRQn  OTG_FS_IRQn
+
+#else
+#define USBHAL_IRQn  OTG_HS_IRQn
+
 #endif
 
-#include "USBEndpoints_STM32.h"
+#define NB_ENDPOINT  16
 
-#define NB_ENDPOINT  4 // Must be a multiple of 4 bytes
-
-#define MAXTRANSFER_SIZE  0x200
-
-#define FIFO_USB_RAM_SIZE (MAXTRANSFER_SIZE + MAX_PACKET_SIZE_EP0 + MAX_PACKET_SIZE_EP1 + MAX_PACKET_SIZE_EP2 + MAX_PACKET_SIZE_EP3)
-
-#if (FIFO_USB_RAM_SIZE > 0x500)
-#error "FIFO dimensioning incorrect"
-#endif
+// #define MAXTRANSFER_SIZE  0x200
+#define MAX_PACKET_SIZE_SETUP (48)
+#define MAX_PACKET_SIZE_EP0 (64)
 
 class USBPhyHw : public USBPhy {
 public:

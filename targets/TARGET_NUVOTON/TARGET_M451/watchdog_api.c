@@ -125,6 +125,9 @@ watchdog_features_t hal_watchdog_get_platform_features(void)
     wdt_feat.update_config = 1;
     /* Support stopping watchdog timer */
     wdt_feat.disable_watchdog = 1;
+    /* Accuracy of watchdog timer */
+    wdt_feat.clock_typical_frequency = 10000;
+    wdt_feat.clock_max_frequency = 15000;
 
     return wdt_feat;
 }

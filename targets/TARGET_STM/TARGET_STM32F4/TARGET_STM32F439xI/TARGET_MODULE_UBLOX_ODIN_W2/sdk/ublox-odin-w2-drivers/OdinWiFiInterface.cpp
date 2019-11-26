@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#if MBED_CONF_LWIP_PRESENT
+
 #include "OdinWiFiInterface.h"
 #include "cb_main.h"
 #include "cb_wlan.h"
@@ -2107,3 +2109,4 @@ static cbTARGET_PowerSaveMode convertPowerSaveAtToIoctl(target_power_save_mode_e
     return mode;
 }
 
+#endif // MBED_CONF_LWIP_PRESENT

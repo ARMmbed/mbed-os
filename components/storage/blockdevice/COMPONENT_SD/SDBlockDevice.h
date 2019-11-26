@@ -20,7 +20,7 @@
 /* If the target has no SPI support, then SD Card is not supported. */
 #if DEVICE_SPI
 
-#include "BlockDevice.h"
+#include "features/storage/blockdevice/BlockDevice.h"
 #include "drivers/SPI.h"
 #include "drivers/Timer.h"
 #include "drivers/MbedCRC.h"
@@ -256,8 +256,6 @@ private:
 
 #if MBED_CONF_SD_CRC_ENABLED
     bool _crc_on;
-    mbed::MbedCRC<POLY_7BIT_SD, 7> _crc7;
-    mbed::MbedCRC<POLY_16BIT_CCITT, 16> _crc16;
 #endif
 };
 

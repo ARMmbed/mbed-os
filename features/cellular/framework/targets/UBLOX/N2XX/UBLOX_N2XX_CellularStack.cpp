@@ -54,7 +54,6 @@ void UBLOX_N2XX_CellularStack::NSONMI_URC()
 
     socket = find_socket(a);
     if (socket != NULL) {
-        socket->rx_avail = true;
         socket->pending_bytes = b;
         // No debug prints here as they can affect timing
         // and cause data loss in UARTSerial
@@ -209,7 +208,6 @@ nsapi_size_or_error_t UBLOX_N2XX_CellularStack::socket_recvfrom_impl(CellularSoc
     }
     timer.stop();
 
-    socket->rx_avail = false;
     socket->pending_bytes = 0;
     if (!count || (_at.get_last_error() != NSAPI_ERROR_OK)) {
         return NSAPI_ERROR_WOULD_BLOCK;

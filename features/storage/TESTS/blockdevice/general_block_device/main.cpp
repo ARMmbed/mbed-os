@@ -64,7 +64,7 @@ using namespace utest::v1;
 #define TEST_BLOCK_COUNT 10
 #define TEST_ERROR_MASK 16
 #define TEST_NUM_OF_THREADS 5
-#define TEST_THREAD_STACK_SIZE 1024
+#define TEST_THREAD_STACK_SIZE 1152
 
 uint8_t num_of_sectors = TEST_NUM_OF_THREADS * TEST_BLOCK_COUNT;
 uint32_t sectors_addr[TEST_NUM_OF_THREADS * TEST_BLOCK_COUNT] = {0};
@@ -308,6 +308,7 @@ end:
     delete[] write_block;
 }
 
+#if defined(MBED_CONF_RTOS_PRESENT)
 static void test_thread_job()
 {
     static int thread_num = 0;
@@ -392,8 +393,8 @@ void test_multi_threads()
 
         delete[] bd_thread;
     }
-
 }
+#endif
 
 void test_erase_functionality()
 {
@@ -727,7 +728,9 @@ typedef struct {
 template_case_t template_cases[] = {
     {"Testing Init block device", test_init_bd, greentea_failure_handler},
     {"Testing read write random blocks", test_random_program_read_erase, greentea_failure_handler},
+#if defined(MBED_CONF_RTOS_PRESENT)
     {"Testing multi threads erase program read", test_multi_threads, greentea_failure_handler},
+#endif
     {"Testing contiguous erase, write and read", test_contiguous_erase_write_read, greentea_failure_handler},
     {"Testing BlockDevice erase functionality", test_erase_functionality, greentea_failure_handler},
     {"Testing program read small data sizes", test_program_read_small_data_sizes, greentea_failure_handler},

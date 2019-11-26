@@ -102,23 +102,50 @@ public:
 
     /** Get the local IP address
      *
-     *  @return         Null-terminated representation of the local IP address
-     *                  or null if not yet connected
+     *  @param          address SocketAddress representation of the local IP address
+     *  @retval         NSAPI_ERROR_OK on success
+     *  @retval         NSAPI_ERROR_UNSUPPORTED if this feature is not supported
+     *  @retval         NSAPI_ERROR_PARAMETER if the provided pointer is invalid
+     *  @retval         NSAPI_ERROR_NO_ADDRESS if the address cannot be obtained from stack
      */
+    virtual nsapi_error_t get_ip_address(SocketAddress *address);
+
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual const char *get_ip_address();
+
+    /** Get the IPv6 link local address
+     *
+     *  @param          address SocketAddress representation of the link local IPv6 address
+     *  @retval         NSAPI_ERROR_OK on success
+     *  @retval         NSAPI_ERROR_UNSUPPORTED if this feature is not supported
+     *  @retval         NSAPI_ERROR_PARAMETER if the provided pointer is invalid
+     */
+    virtual nsapi_error_t get_ipv6_link_local_address(SocketAddress *address);
 
     /** Get the local network mask.
      *
-     *  @return         Null-terminated representation of the local network mask
-     *                  or null if no network mask has been received.
+     *  @param          address SocketAddress representation of netmask
+     *  @retval         NSAPI_ERROR_OK on success
+     *  @retval         NSAPI_ERROR_UNSUPPORTED if this feature is not supported
+     *  @retval         NSAPI_ERROR_PARAMETER if the provided pointer is invalid
+     *  @retval         NSAPI_ERROR_NO_ADDRESS if the address cannot be obtained from stack
      */
+    virtual nsapi_error_t get_netmask(SocketAddress *address);
+
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual const char *get_netmask();
 
     /** Get the local gateway.
      *
-     *  @return         Null-terminated representation of the local gateway
-     *                  or null if no network mask has been received.
+     *  @param          address SocketAddress representation of gateway address
+     *  @retval         NSAPI_ERROR_OK on success
+     *  @retval         NSAPI_ERROR_UNSUPPORTED if this feature is not supported
+     *  @retval         NSAPI_ERROR_PARAMETER if the provided pointer is invalid
+     *  @retval         NSAPI_ERROR_NO_ADDRESS if the address cannot be obtained from stack
      */
+    virtual nsapi_error_t get_gateway(SocketAddress *address);
+
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual const char *get_gateway();
 
     /** Get the network interface name
@@ -132,11 +159,14 @@ public:
      *  Implicitly disables DHCP, which can be enabled in set_dhcp.
      *  Requires that the network is disconnected.
      *
-     *  @param ip_address Null-terminated representation of the local IP address
-     *  @param netmask    Null-terminated representation of the local network mask
-     *  @param gateway    Null-terminated representation of the local gateway
+     *  @param ip_address SocketAddress object containing the local IP address
+     *  @param netmask    SocketAddress object containing the local network mask
+     *  @param gateway    SocketAddress object containing the local gateway
      *  @return           NSAPI_ERROR_OK on success, negative error code on failure
      */
+    virtual nsapi_error_t set_network(const SocketAddress &ip_address, const SocketAddress &netmask, const SocketAddress &gateway);
+
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual nsapi_error_t set_network(const char *ip_address, const char *netmask, const char *gateway);
 
     /** Enable or disable DHCP on connecting the network.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Arm Limited
+ * Copyright (c) 2019 Arm Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,6 +76,7 @@ emac_mem_buf_t *SMSC9220_EMAC::low_level_input()
 {
     emac_mem_buf_t *p = NULL;
     uint32_t message_length = 0;
+    uint32_t received_bytes = 0;
 
     message_length = smsc9220_peek_next_packet_size(dev);
     if (message_length == 0) {
@@ -87,12 +88,20 @@ emac_mem_buf_t *SMSC9220_EMAC::low_level_input()
         message_length -= CRC_LENGTH_BYTES;
     }
 
-    p = _memory_manager->alloc_heap(message_length, SMSC9220_BUFF_ALIGNMENT);
+    p = _memory_manager->alloc_heap(SMSC9220_ETH_MAX_FRAME_SIZE,
+                                    SMSC9220_BUFF_ALIGNMENT);
 
     if (p != NULL) {
         _RXLockMutex.lock();
-        smsc9220_receive_by_chunks(dev, (char*)_memory_manager->get_ptr(p),
-                                   _memory_manager->get_len(p));
+        received_bytes = smsc9220_receive_by_chunks(dev,
+                                  (char*)_memory_manager->get_ptr(p),
+                                  _memory_manager->get_len(p));
+        if(received_bytes == 0){
+            _memory_manager->free(p);
+            p = nullptr;
+        } else {
+            _memory_manager->set_len(p, received_bytes);
+        }
         _RXLockMutex.unlock();
     }
 
@@ -169,12 +178,8 @@ bool SMSC9220_EMAC::link_out(emac_mem_buf_t *buf)
                                       (const char*)_memory_manager->get_ptr(buf),
                                       _memory_manager->get_len(buf));
         _memory_manager->free(buf);
-        if (error != SMSC9220_ERROR_NONE) {
-            _TXLockMutex.unlock();
-            return false;
-        }
         _TXLockMutex.unlock();
-        return true;
+        return (error == SMSC9220_ERROR_NONE);
     }
 }
 
@@ -190,7 +195,7 @@ void SMSC9220_EMAC::link_status_task()
     current_link_status_up = (bool)(phy_basic_status_reg_value &
                           (1ul << (PHY_REG_BSTATUS_LINK_STATUS_INDEX)));
 
-    /* Compare with previous state */
+    /* Compare with the previous state */
     if (current_link_status_up != _prev_link_status_up) {
         _emac_link_state_cb(current_link_status_up);
         _prev_link_status_up = current_link_status_up;

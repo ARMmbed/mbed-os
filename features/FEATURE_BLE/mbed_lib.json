@@ -1,6 +1,7 @@
 {
     "name": "ble",
     "config": {
+        "present": 1,
         "ble-role-observer": {
             "help": "Include observer BLE role support (scanning for and processing advertising packets).",
             "value": true,

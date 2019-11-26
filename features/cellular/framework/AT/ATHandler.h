@@ -27,6 +27,8 @@
 
 #include <cstdarg>
 
+#include "UARTSerial.h"
+
 /**
  * If application calls associated FileHandle only from single thread context
   * then locking between AT command and response is not needed. However,
@@ -218,6 +220,12 @@ public:
      *  @param send_delay the minimum delay in ms between the end of last response and the beginning of a new command
      */
     void set_send_delay(uint16_t send_delay);
+
+    /** Sets UARTSerial filehandle to given baud rate
+     *
+     *  @param baud_rate
+     */
+    void set_baud(int baud_rate);
 
 protected:
     void event();
@@ -418,6 +426,14 @@ public:
      *  @return length of output string or -1 in case of read timeout before delimiter or stop tag is found
      */
     ssize_t read_hex_string(char *str, size_t size);
+
+    /** Converts contained chars to their hex ascii value and writes the resulting string to the file handle
+     *  For example: "AV" to "4156".
+     *
+     *  @param str input buffer to be converted to hex ascii
+     *  @param size of the input param str
+     */
+    void write_hex_string(char *str, size_t size);
 
     /** Reads as string and converts result to integer. Supports only non-negative integers.
      *

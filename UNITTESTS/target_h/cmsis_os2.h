@@ -64,6 +64,7 @@ typedef void *osEventFlagsId_t;
 
 /// Attributes structure for thread.
 typedef struct {
+    int unused;
 } osThreadAttr_t;
 
 #define osWaitForever         0xFFFFFFFFU ///< Wait forever timeout value.

@@ -185,11 +185,6 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_sendto_impl(CellularSoc
         return NSAPI_ERROR_PARAMETER;
     }
 
-    char *hexstr = new char[size * 2 + 1];
-    int hexlen = char_str_to_hex_str((const char *)data, size, hexstr);
-    // NULL terminated for write_string
-    hexstr[hexlen] = 0;
-
     if (socket->proto == NSAPI_UDP) {
         _at.cmd_start("AT+NSOST=");
         _at.write_int(socket->id);
@@ -201,19 +196,16 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_sendto_impl(CellularSoc
         _at.write_int(socket->id);
         _at.write_int(size);
     } else {
-        delete [] hexstr;
         return NSAPI_ERROR_PARAMETER;
     }
 
-    _at.write_string(hexstr, false);
+    _at.write_hex_string((char *)data, size);
     _at.cmd_stop();
     _at.resp_start();
     // skip socket id
     _at.skip_param();
     sent_len = _at.read_int();
     _at.resp_stop();
-
-    delete [] hexstr;
 
     if (_at.get_last_error() == NSAPI_ERROR_OK) {
         return sent_len;

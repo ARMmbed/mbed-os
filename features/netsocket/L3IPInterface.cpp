@@ -16,6 +16,8 @@
  */
 
 #include "L3IPInterface.h"
+
+#if MBED_CONF_LWIP_L3IP_ENABLED
 #include "LWIPStack.h"
 using namespace mbed;
 
@@ -157,3 +159,5 @@ nsapi_error_t L3IPInterface::set_blocking(bool blocking)
     _blocking = blocking;
     return NSAPI_ERROR_OK;
 }
+
+#endif

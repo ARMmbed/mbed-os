@@ -261,3 +261,13 @@ nsapi_error_t AT_CellularDevice::clear()
 {
     return NSAPI_ERROR_OK;
 }
+
+nsapi_error_t AT_CellularDevice::set_baud_rate(int baud_rate)
+{
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t AT_CellularDevice::set_baud_rate_impl(int baud_rate)
+{
+    return NSAPI_ERROR_OK;
+}

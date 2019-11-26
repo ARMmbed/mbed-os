@@ -856,11 +856,16 @@ static control_t test_snprintf_buffer_overflow_generic(const char *fmt, T data)
     char buffer_minimal[buf_size];
     int result_baseline;
     int result_minimal;
+#if !defined(__MICROLIB)
+    // Microlib snprintf always returns zero if the size
+    // to copy from the buffer is zero.
+    // See reported microlib bug SDCOMP-54710
 
     /* empty buffer test */
     result_minimal = mbed_snprintf(buffer_minimal, 0, fmt, data);
     result_baseline = snprintf(buffer_baseline, 0, fmt, data);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+#endif
 
     /* buffer isn't large enough, output needs to be truncated */
     result_minimal = mbed_snprintf(buffer_minimal, buf_size - 2, fmt, data);

@@ -107,6 +107,14 @@ class RDAWiFiInterface : public EMACInterface, public WiFiInterface
          */
         virtual nsapi_error_t disconnect();
 
+        /** Restart the interface
+        *
+        *  Attempts to reconnect to a WiFi network. Ssid and passphrase has been stored.
+        *
+        *  @return         0 on success, negative error code on failure
+        */
+        virtual nsapi_error_t reconnect();
+
         /** Scan for available networks
          *
          *  This function will block. If the @a count is 0, function will only return count of available networks, so that
@@ -121,6 +129,9 @@ class RDAWiFiInterface : public EMACInterface, public WiFiInterface
         virtual nsapi_size_or_error_t scan(WiFiAccessPoint *res, nsapi_size_t count);
 
         virtual nsapi_size_or_error_t init();
+
+        virtual nsapi_size_or_error_t set_msg_queue(void *queue);
+
     private:
         char _ssid[33];
         char _pass[65];
