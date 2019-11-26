@@ -3369,7 +3369,6 @@
             "FLASH",
             "MPU"
         ],
-        "device_name": "STM32H747XIHx",
         "bootloader_supported": true
     },
     "DISCO_H747I_CM7": {
