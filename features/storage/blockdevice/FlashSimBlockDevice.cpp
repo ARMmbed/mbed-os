@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <stdlib.h>
 #include <string.h>
+#include "mbed_assert.h"
 
 namespace mbed {
 
@@ -34,6 +35,7 @@ FlashSimBlockDevice::FlashSimBlockDevice(BlockDevice *bd, uint8_t erase_value) :
     _erase_value(erase_value), _blank_buf_size(0),
     _blank_buf(0), _bd(bd), _init_ref_count(0), _is_initialized(false)
 {
+    MBED_ASSERT(bd);
 }
 
 FlashSimBlockDevice::~FlashSimBlockDevice()
