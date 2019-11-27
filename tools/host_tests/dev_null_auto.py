@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-class DevNullTest():
+class DevNullTest(object):
 
     def check_readline(self, selftest, text):
         """ Reads line from serial port and checks if text was part of read string
