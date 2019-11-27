@@ -314,6 +314,7 @@ public:
      */
     virtual CellularNetwork *open_network(FileHandle *fh = NULL) = 0;
 
+#if MBED_CONF_CELLULAR_USE_SMS || defined(DOXYGEN_ONLY)
     /** Create new CellularSMS interface.
      *
      *  @param fh    file handle used in communication to modem. This can be, for example, UART handle. If null, then the default
@@ -321,6 +322,12 @@ public:
      *  @return      New instance of interface CellularSMS.
      */
     virtual CellularSMS *open_sms(FileHandle *fh = NULL) = 0;
+
+    /** Closes the opened CellularSMS by deleting the CellularSMS instance.
+     */
+    virtual void close_sms() = 0;
+
+#endif // MBED_CONF_CELLULAR_USE_SMS
 
     /** Create new CellularInformation interface.
      *
@@ -333,10 +340,6 @@ public:
     /** Closes the opened CellularNetwork by deleting the CellularNetwork instance.
      */
     virtual void close_network() = 0;
-
-    /** Closes the opened CellularSMS by deleting the CellularSMS instance.
-     */
-    virtual void close_sms() = 0;
 
     /** Closes the opened CellularInformation by deleting the CellularInformation instance.
      */
@@ -472,7 +475,9 @@ protected:
     virtual void cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx = NULL);
     void stm_callback(nsapi_event_t ev, intptr_t ptr);
     int _network_ref_count;
+#if MBED_CONF_CELLULAR_USE_SMS
     int _sms_ref_count;
+#endif // MBED_CONF_CELLULAR_USE_SMS
     int _info_ref_count;
     FileHandle *_fh;
     events::EventQueue _queue;
