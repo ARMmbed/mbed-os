@@ -26,7 +26,7 @@
 *******************************************************************************/
 
 #include "cmsis_compiler.h"
-#include "cy_wdt.h"
+#include "cy_mcwdt.h"
 #include "cy_syslib.h"
 #include "cy_sysint.h"
 #include "cyhal_lptimer.h"
@@ -52,15 +52,10 @@ static MCWDT_STRUCT_Type * const CYHAL_LPTIMER_BASE_ADDRESSES[] = {
 #endif
 };
 
-#if !defined (CY_CFG_SYSCLK_CLKLF_FREQ_HZ)
-#define CY_CFG_SYSCLK_CLKLF_FREQ_HZ    32768UL  /* Default to 32K ILO */
-#endif /* CY_CFG_SYSCLK_CLKLF_FREQ_HZ */
-
-#define CY_MCWDT_COUNTER0_MAX_TICKS (0xffffUL)
-#define CY_MCWDT_COUNTER1_MAX_TICKS (0xffffUL)
-#define CY_MCWDT_COUNTER2_MAX_TICKS (0xffffffffUL)
 #define CY_MCWDT_MAX_DELAY_TICKS    (0xfff0ffffUL) /* ~36hours, Not set to 0xffffffff to avoid C0 and C1 both overflowing */
 #define CY_MCWDT_LPTIMER_CTRL       (CY_MCWDT_CTR0 | CY_MCWDT_CTR1 | CY_MCWDT_CTR2)
+
+#define CY_MCWDT_MIN_DELAY          3 /* minimum amount of lfclk cycles of that LPTIMER can delay for. */
 
 #define CY_DEFAULT_MCWDT_PRIORITY   3
 
@@ -95,8 +90,8 @@ cy_rslt_t cyhal_lptimer_init(cyhal_lptimer_t *obj)
         obj->base = CYHAL_LPTIMER_BASE_ADDRESSES[obj->resource.block_num];
 
         const cy_stc_mcwdt_config_t cfg = {
-                .c0Match = CY_MCWDT_COUNTER0_MAX_TICKS,
-                .c1Match = CY_MCWDT_COUNTER1_MAX_TICKS,
+                .c0Match = 0xFFFF,
+                .c1Match = 0xFFFF,
                 .c0Mode = CY_MCWDT_MODE_INT,
                 .c1Mode = CY_MCWDT_MODE_INT,
                 .c2Mode = CY_MCWDT_MODE_NONE,
@@ -107,24 +102,27 @@ cy_rslt_t cyhal_lptimer_init(cyhal_lptimer_t *obj)
                 .c1c2Cascade = false
         };
         rslt = (cy_rslt_t) Cy_MCWDT_Init(obj->base, &cfg);
+    }
 
+    if (CY_RSLT_SUCCESS == rslt)
+    {
+        obj->callback_data.callback = NULL;
+        obj->callback_data.callback_arg = NULL;
+        cyhal_lptimer_config_structs[obj->resource.block_num] = obj;
+    }
+    
+    if (CY_RSLT_SUCCESS == rslt)
+    {
+        IRQn_Type irqn = (IRQn_Type) (srss_interrupt_mcwdt_0_IRQn + obj->resource.block_num);
+        cy_stc_sysint_t irqCfg = { irqn, CY_DEFAULT_MCWDT_PRIORITY };
+        rslt = (cy_rslt_t) Cy_SysInt_Init(&irqCfg, &cyhal_lptimer_irq_handler);
         if (CY_RSLT_SUCCESS == rslt)
         {
-            obj->callback_data.callback = NULL;
-            obj->callback_data.callback_arg = NULL;
-            cyhal_lptimer_config_structs[obj->resource.block_num] = obj;
-
-            IRQn_Type irqn = (IRQn_Type) (srss_interrupt_mcwdt_0_IRQn + obj->resource.block_num);
-            cy_stc_sysint_t irqCfg = { irqn, CY_DEFAULT_MCWDT_PRIORITY };
-            rslt = (cy_rslt_t) Cy_SysInt_Init(&irqCfg, &cyhal_lptimer_irq_handler);
-
-            if (CY_RSLT_SUCCESS == rslt)
-            {
-                NVIC_EnableIRQ(irqn);
-                Cy_MCWDT_Enable(obj->base, CY_MCWDT_LPTIMER_CTRL, CY_MCWDT_RESET_TIME_US);
-            }
+            NVIC_EnableIRQ(irqn);
+            Cy_MCWDT_Enable(obj->base, CY_MCWDT_LPTIMER_CTRL, CY_MCWDT_RESET_TIME_US);
         }
     }
+
 
     if (CY_RSLT_SUCCESS != rslt)
     {
@@ -154,96 +152,74 @@ void cyhal_lptimer_free(cyhal_lptimer_t *obj)
 
 cy_rslt_t cyhal_lptimer_reload(cyhal_lptimer_t *obj)
 {
-    Cy_MCWDT_ResetCounters(obj->base, (CY_MCWDT_CTR0 | CY_MCWDT_CTR1), CY_MCWDT_RESET_TIME_US);
+    Cy_MCWDT_ResetCounters(obj->base, CY_MCWDT_CTR2, CY_MCWDT_RESET_TIME_US);
     return CY_RSLT_SUCCESS;
-}
-
-cy_rslt_t cyhal_lptimer_set_time(cyhal_lptimer_t *obj, uint32_t ticks)
-{
-    return cyhal_lptimer_set_match(obj, ticks);
 }
 
 cy_rslt_t cyhal_lptimer_set_match(cyhal_lptimer_t *obj, uint32_t ticks)
 {
-    uint16_t c0_match_ticks;
-    uint16_t c1_match_ticks;
-    uint32_t mcwdt_interrupt_mask;
-    uint16_t c0_current_ticks = Cy_MCWDT_GetCount(obj->base, CY_MCWDT_COUNTER0);
+    return cyhal_lptimer_set_delay(obj, ticks - cyhal_lptimer_read(obj));
+}
+
+cy_rslt_t cyhal_lptimer_set_delay(cyhal_lptimer_t *obj, uint32_t delay)
+{
+    /**
+     * 16 bit C0/C1 are cascaded to generated a 32 bit counter.
+     * Counter0 continues counting after reaching its match value
+     * Interrupt is generated on Counter1 match.
+     * 
+     * Supposed T=C0=C1=0, and we need to trigger an interrupt at T=0x28000.
+     * We set C0_match to 0x8000 and C1 match to 1.
+     * At T = 0x8000, C0_value matches C0_match so C1 get incremented. C1/C0=0x18000.
+     * At T = 0x18000, C0_value matches C0_match again so C1 get incremented from 1 to 2.
+     * When C1 get incremented from 1 to 2 theinterrupt is generated.
+     * At T = 0x18000, C1/C0 = 0x28000.
+     */
+
+    if (delay <= CY_MCWDT_MIN_DELAY)
+    {
+        delay = CY_MCWDT_MIN_DELAY;
+    }
+    if (delay > CY_MCWDT_MAX_DELAY_TICKS)
+    {
+        delay = CY_MCWDT_MAX_DELAY_TICKS;
+    }
+
+    uint16_t c0_increment = (uint16_t)delay;
+    uint16_t c1_increment = (uint16_t)(delay >> 16);
+
+    Cy_MCWDT_ClearInterrupt(obj->base, CY_MCWDT_CTR1);
+    
+    uint16_t c0_old_match = Cy_MCWDT_GetMatch(obj->base, CY_MCWDT_COUNTER0);
+
+    uint32_t critical_section = cyhal_system_critical_section_enter();
+
+    /* Cascading from C0 match into C1 is queued and can take 1 full LF clk cycle.
+     * There are 3 cases:
+     * Case 1: if c0 = match0 then the cascade into C1 will happen 1 cycle from now. The value c1_current_ticks is 1 lower than expected.
+     * Case 2: if c0 = match0 -1 then cascade may or not happen before new match value would occur. Match occurs on rising clock edge.
+     *          Synching match value occurs on falling edge. Wait until c0 = match0 to ensure cascade occurs.
+     * Case 3: everything works as expected.
+     */
+    uint16_t c0_current_ticks;
+    while ((c0_current_ticks = (Cy_MCWDT_GetCount(obj->base, CY_MCWDT_COUNTER0))) == c0_old_match) {}
+
     uint16_t c1_current_ticks = Cy_MCWDT_GetCount(obj->base, CY_MCWDT_COUNTER1);
-
-    Cy_MCWDT_ClearInterrupt(obj->base, (CY_MCWDT_CTR0 | CY_MCWDT_CTR1));
-
-    /* Use MCWDT C0,C1 and C2 to implement a 32bit free running counter
-       C2 alone can not be used as it does not support interrupt on match feature
-       C2 is used to keep track of time, while C0 and C1 are used to set interrupts
-       To set an interrupt:
-       1. delay = diff between timestamp(time in future) vs current value of C2
-       2. if delay > 2seconds (Max time that can be counted by C0)
-          Yes
-            - use both C0 and C1
-            - Increment C0 by delay % (CY_MCWDT_COUNTER0_MAX_TICKS + 1)
-            - Increment C1 by delay / (CY_MCWDT_COUNTER1_MAX_TICKS + 1)
-            - Special case : In case delay is multiple of (CY_MCWDT_COUNTER0_MAX_TICKS + 1), then
-              delay % (CY_MCWDT_COUNTER0_MAX_TICKS + 1) will be 0, in this case
-              - Increment C0 by c0_current_ticks -1
-              - Increment C1 by (delay / (CY_MCWDT_COUNTER1_MAX_TICKS + 1)) -1
-          No
-            - Use only C0
-    */
-    if (ticks > CY_MCWDT_COUNTER0_MAX_TICKS)
+    if (c0_current_ticks == c0_old_match + 1)
     {
-        uint16_t c0_increment;
-        uint16_t c1_increment;
-
-        if (ticks > CY_MCWDT_MAX_DELAY_TICKS)
-        {
-            ticks = CY_MCWDT_MAX_DELAY_TICKS;
-        }
-
-        c0_increment   = ticks % (CY_MCWDT_COUNTER0_MAX_TICKS + 1);
-        c0_match_ticks = (c0_current_ticks + c0_increment) % (CY_MCWDT_COUNTER0_MAX_TICKS + 1);
-        c1_increment   = (ticks) / (CY_MCWDT_COUNTER0_MAX_TICKS + 1);
-        c1_match_ticks = (c1_current_ticks + c1_increment) % (CY_MCWDT_COUNTER1_MAX_TICKS + 1);
-
-        /* Special case - ticks is  multiple of (CY_MCWDT_COUNTER0_MAX_TICKS + 1) */
-        if (c0_increment == 0)
-        {
-            c0_match_ticks = c0_current_ticks - 1;
-            c1_match_ticks = c1_match_ticks -1;
-        }
-
-        mcwdt_interrupt_mask = CY_MCWDT_CTR1;
+        c1_current_ticks++;
     }
-    else
+    if (Cy_MCWDT_GetCount(obj->base, CY_MCWDT_COUNTER0) != c0_current_ticks)
     {
-        c0_match_ticks = c0_current_ticks + (uint16_t)ticks;
-        c1_match_ticks = CY_MCWDT_COUNTER1_MAX_TICKS;
-
-        /* MCWDT has internal delay of about 1.5 LF clock ticks, so this is the minimum
-         * that we can schedule.
-         */
-        if (ticks < 3)
-        {
-            /* Cheating a bit here. */
-            c0_match_ticks = c0_current_ticks + 3;
-        }
-
-        mcwdt_interrupt_mask = CY_MCWDT_CTR0;
+        // Just in the very unlikely case that an increment occurred while previous instruction was running.
+        c1_current_ticks = Cy_MCWDT_GetCount(obj->base, CY_MCWDT_COUNTER1);
     }
+    Cy_MCWDT_SetMatch(obj->base, CY_MCWDT_COUNTER0, c0_current_ticks + c0_increment, CY_MCWDT_SETMATCH_NOWAIT_TIME_US);
+    Cy_MCWDT_SetMatch(obj->base, CY_MCWDT_COUNTER1, c1_current_ticks + c1_increment, CY_MCWDT_SETMATCH_NOWAIT_TIME_US);
 
-    if(c1_match_ticks == 0)
-    {
-        c1_match_ticks = 1;
-    }
+    cyhal_system_critical_section_exit(critical_section);
 
-    if(c0_match_ticks == 0)
-    {
-        c0_match_ticks = 1;
-    }
-
-    Cy_MCWDT_SetMatch(obj->base, CY_MCWDT_COUNTER0, c0_match_ticks, CY_MCWDT_SETMATCH_NOWAIT_TIME_US);
-    Cy_MCWDT_SetMatch(obj->base, CY_MCWDT_COUNTER1, c1_match_ticks, CY_MCWDT_SETMATCH_NOWAIT_TIME_US);
-    Cy_MCWDT_SetInterruptMask(obj->base, mcwdt_interrupt_mask);
+    Cy_MCWDT_SetInterruptMask(obj->base, CY_MCWDT_CTR1);
 
     return CY_RSLT_SUCCESS;
 }
@@ -265,7 +241,9 @@ void cyhal_lptimer_register_callback(cyhal_lptimer_t *obj, cyhal_lptimer_event_c
 
 void cyhal_lptimer_enable_event(cyhal_lptimer_t *obj, cyhal_lptimer_event_t event, uint8_t intrPriority, bool enable)
 {
-    Cy_MCWDT_SetInterruptMask(obj->base, enable ? CY_MCWDT_CTR0 : 0);
+    CY_ASSERT(event == CYHAL_LPTIMER_COMPARE_MATCH);
+    Cy_MCWDT_ClearInterrupt(obj->base, CY_MCWDT_CTR1);
+    Cy_MCWDT_SetInterruptMask(obj->base, enable ? CY_MCWDT_CTR1 : 0);
     
     IRQn_Type irqn = (IRQn_Type)(srss_interrupt_mcwdt_0_IRQn + obj->resource.block_num);
     NVIC_SetPriority(irqn, intrPriority);
