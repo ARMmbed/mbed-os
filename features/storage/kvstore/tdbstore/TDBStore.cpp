@@ -816,6 +816,10 @@ int TDBStore::copy_record(uint8_t from_area, uint32_t from_offset, uint32_t to_o
                  align_up(header.key_size + header.data_size, _prog_size);;
 
 
+    if (to_offset + total_size > _size) {
+        // We are trying to copy more that the are can hold
+        return MBED_ERROR_MEDIA_FULL;
+    }
     ret = check_erase_before_write(1 - from_area, to_offset, total_size);
     if (ret) {
         return ret;
