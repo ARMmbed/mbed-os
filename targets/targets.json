@@ -119,6 +119,11 @@
         "inherits": [
             "PSA_Target"
         ],
+        "tfm_target_name": "",
+        "tfm_bootloader_supported": "",
+        "tfm_default_toolchain": "ARMCLANG",
+        "tfm_supported_toolchains": null,
+        "delivery_dir": "",
         "public": false
     },
     "PSA_V8_M_NSPE": {
@@ -138,6 +143,11 @@
         "inherits": [
             "PSA_Target"
         ],
+        "tfm_target_name": "",
+        "tfm_bootloader_supported": "",
+        "tfm_default_toolchain": "ARMCLANG",
+        "tfm_supported_toolchains": null,
+        "delivery_dir": "",
         "public": false
     },
     "CM4_UARM": {
@@ -12861,8 +12871,22 @@
         ],
         "bootloader_supported": false
     },
+    "CY8CPROTO_064_SB_S": {
+        "inherits": [
+            "PSA_DUAL_V7_M_SPE"
+        ],
+        "tfm_target_name": "psoc64",
+        "tfm_bootloader_supported": false,
+        "tfm_default_toolchain": "ARMCLANG",
+        "tfm_supported_toolchains": [
+            "ARMCLANG",
+            "GNUARM"
+        ],
+        "delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CPROTO_064_SB/prebuilt"
+    },
     "CY8CPROTO_064_SB": {
         "inherits": [
+            "PSA_DUAL_V7_M_NSPE",
             "MCU_PSOC6_M4"
         ],
         "components_remove": [
