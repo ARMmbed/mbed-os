@@ -797,21 +797,36 @@ fail:
 int SecureStore::deinit()
 {
     _mutex.lock();
+    int ret;
     if (_is_initialized) {
-        mbedtls_entropy_free(static_cast<mbedtls_entropy_context *>(_entropy));
-        delete static_cast<mbedtls_entropy_context *>(_entropy);
-        delete static_cast<inc_set_handle_t *>(_inc_set_handle);
-        delete _scratch_buf;
-        // TODO: Deinit member KVs?
+        if (_entropy) {
+            mbedtls_entropy_free(static_cast<mbedtls_entropy_context *>(_entropy));
+            delete static_cast<mbedtls_entropy_context *>(_entropy);
+            delete static_cast<inc_set_handle_t *>(_inc_set_handle);
+            delete _scratch_buf;
+            _entropy = nullptr;
+        }
+        ret = _underlying_kv->deinit();
+        if (ret) {
+            goto END;
+        }
+        if (_rbp_kv) {
+            ret = _rbp_kv->deinit();
+            if (ret) {
+                goto END;
+            }
+        }
     }
 
     _is_initialized = false;
 #if defined(MBEDTLS_PLATFORM_C)
     mbedtls_platform_teardown(NULL);
 #endif /* MBEDTLS_PLATFORM_C */
+    ret = MBED_SUCCESS;
+END:
     _mutex.unlock();
 
-    return MBED_SUCCESS;
+    return ret;
 }
 
 
