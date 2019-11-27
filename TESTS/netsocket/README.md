@@ -750,34 +750,6 @@ Test cases for UDPSocket class
 
 **Description:** Run `SOCKET_BIND_UNOPENED` for UDPSocket.
 
-### UDPSOCKET_SENDTO_INVALID
-
-**Description:**
-
-Call `UDPSocket::sendto()` with invalid parameters.
-
-**Preconditions:**
-
-1. Network interface and stack are initialized.
-1. Network connection is up.
-1. UDPSocket is open.
-
-**Test steps:**
-
-1. Call `UDPSocket:sendto( NULL, 9, NULL, 0);`.
-1. Call `UDPSocket:sendto( "", 9, NULL, 0);`.
-1. Call `UDPSocket:sendto( "", 0, NULL, 0);`.
-1. Call `UDPSocket:sendto("echo.mbedcloudtesting.com", 9,NULL, 0);`.
-1. Call `UDPSocket:sendto("echo.mbedcloudtesting.com", 9, "hello", 5);`.
-1. Destroy the socket.
-
-**Expected result:**
-
-All `sendto()` calls return an error code except:
-
--   Step 4 returns 0.
--   Step 5 returns 5.
-
 ### UDPSOCKET_SENDTO_REPEAT
 
 **Description:**
