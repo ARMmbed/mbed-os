@@ -491,7 +491,7 @@ int SecureStore::remove(const char *key)
         goto end;
     }
 
-    if (info.flags & WRITE_ONCE_FLAG) {
+    if (ret == 0 && info.flags & WRITE_ONCE_FLAG) {
         ret = MBED_ERROR_WRITE_PROTECTED;
         goto end;
     }
