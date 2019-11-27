@@ -200,31 +200,37 @@ int SecureStore::set_start(set_handle_t *handle, const char *key, size_t final_d
 
     _mutex.lock();
 
-    ret = _underlying_kv->get(key, &ih->metadata, sizeof(record_metadata_t));
-    if (ret == MBED_SUCCESS) {
-        // Must not remove RP flag
-        if (!(create_flags & REQUIRE_REPLAY_PROTECTION_FLAG) && (ih->metadata.create_flags & REQUIRE_REPLAY_PROTECTION_FLAG)) {
-            ret = MBED_ERROR_INVALID_ARGUMENT;
+    // Validate internal RBP data
+    if (_rbp_kv) {
+        ret = _rbp_kv->get_info(key, &info);
+        if (ret == MBED_SUCCESS) {
+            if (info.flags & WRITE_ONCE_FLAG) {
+                // Trying to re-write a key that is write protected
+                ret = MBED_ERROR_WRITE_PROTECTED;
+                goto fail;
+            }
+            if (!(create_flags & REQUIRE_REPLAY_PROTECTION_FLAG)) {
+                // Trying to re-write a key that that has REPLAY_PROTECTION
+                // with a new key that has this flag not set.
+                ret = MBED_ERROR_INVALID_ARGUMENT;
+                goto fail;
+            }
+        } else if (ret != MBED_ERROR_ITEM_NOT_FOUND) {
+            ret = MBED_ERROR_READ_FAILED;
             goto fail;
         }
-    } else if (ret != MBED_ERROR_ITEM_NOT_FOUND) {
-        ret = MBED_ERROR_READ_FAILED;
-        goto fail;
-    }
-
-    if (ih->metadata.create_flags & WRITE_ONCE_FLAG) {
-        // If write once flag set, check whether key exists in either of the underlying and RBP stores
-        if (ret != MBED_ERROR_ITEM_NOT_FOUND) {
-            ret = MBED_ERROR_WRITE_PROTECTED;
-            goto fail;
-        }
-
-        if (_rbp_kv) {
-            ret = _rbp_kv->get_info(key, &info);
-            if (ret != MBED_ERROR_ITEM_NOT_FOUND) {
-                if (ret == MBED_SUCCESS) {
-                    ret = MBED_ERROR_WRITE_PROTECTED;
-                }
+    } else {
+        // Only trust external flags, if internal RBP is not in use
+        ret = _underlying_kv->get(key, &ih->metadata, sizeof(record_metadata_t));
+        if (ret == MBED_SUCCESS) {
+            // Must not remove RP flag, even though internal RBP KV is not in use.
+            if (!(create_flags & REQUIRE_REPLAY_PROTECTION_FLAG) && (ih->metadata.create_flags & REQUIRE_REPLAY_PROTECTION_FLAG)) {
+                ret = MBED_ERROR_INVALID_ARGUMENT;
+                goto fail;
+            }
+            // Existing key is write protected
+            if (ih->metadata.create_flags & WRITE_ONCE_FLAG) {
+                ret = MBED_ERROR_WRITE_PROTECTED;
                 goto fail;
             }
         }
@@ -531,6 +537,7 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
     bool enc_started = false, auth_started = false;
     uint32_t create_flags;
     size_t read_len;
+    info_t rbp_info;
 
     if (!is_valid_key(key)) {
         return MBED_ERROR_INVALID_ARGUMENT;
@@ -541,9 +548,16 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
     inc_set_handle_t *ih = static_cast<inc_set_handle_t *>(_inc_set_handle);
 
     if (_rbp_kv) {
-        ret = _rbp_kv->get(key, rbp_cmac, cmac_size, 0);
-        if (!ret) {
+        ret = _rbp_kv->get_info(key, &rbp_info);
+        if (ret == MBED_SUCCESS) {
             rbp_key_exists = true;
+            ret = _rbp_kv->get(key, rbp_cmac, cmac_size, &read_len);
+            if (ret) {
+                goto end;
+            }
+            if ((read_len != cmac_size) || (rbp_info.size != cmac_size)) {
+                ret = MBED_ERROR_RBP_AUTHENTICATION_FAILED;
+            }
         } else if (ret != MBED_ERROR_ITEM_NOT_FOUND) {
             goto end;
         }
