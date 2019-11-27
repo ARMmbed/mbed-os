@@ -19,7 +19,6 @@
 #include "mbed_assert.h"
 #include "mbed_error.h"
 #include "cyhal_crc.h"
-#include "objects.h"
 
 #if DEVICE_CRC
 
@@ -31,6 +30,11 @@ static cyhal_crc_t cy_crc;
 static crc_algorithm_t cy_crc_cfg;
 static bool cy_crc_initialized = false;
 
+bool hal_crc_is_supported(const crc_mbed_config_t *config)
+{
+    return config->width <= 32;
+}
+
 void hal_crc_compute_partial_start(const crc_mbed_config_t *config)
 {
     if (!cy_crc_initialized) {
@@ -39,7 +43,7 @@ void hal_crc_compute_partial_start(const crc_mbed_config_t *config)
         }
         cy_crc_initialized = true;
     }
-    if (!HAL_CRC_IS_SUPPORTED(config->polynomial, config->width)) {
+    if (!hal_crc_is_supported(config)) {
         MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_UNSUPPORTED), "unsupported CRC width");
     }
     cy_crc_cfg.width = config->width;
@@ -73,6 +77,12 @@ uint32_t hal_crc_get_result(void)
     }
     cyhal_crc_free(&cy_crc);
     cy_crc_initialized = false;
+    // mbed expects result to be aligned unusually in this case
+    if (0 != (cy_crc_cfg.width % 8) && 0 == cy_crc_cfg.remReverse) {
+        value ^= cy_crc_cfg.remXor; // Undo result XOR
+        value <<= 8 - (cy_crc_cfg.width % 8);   // Left align to nearest byte
+        value ^= cy_crc_cfg.remXor; // Redo result XOR
+    }
     return value;
 }
 
