@@ -38,6 +38,7 @@
 #include "PinNames.h"
 #include "stm32wbxx_ll_usart.h"
 #include "stm32wbxx_ll_tim.h"
+#include "stm32wbxx_ll_pwr.h"
 
 #ifdef __cplusplus
 extern "C" {
