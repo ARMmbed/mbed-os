@@ -135,7 +135,7 @@ void hal_sleep(void)
     core_util_critical_section_enter();
 
     // Request to enter SLEEP mode
-#ifdef PWR_CR1_LPR
+#if defined(PWR_CR1_LPR)
     // State Transitions (see 5.3 Low-power modes, Fig. 13):
     //  * (opt): Low Power Run (LPR) Mode -> Run Mode
     //  * Run Mode -> Sleep
@@ -145,7 +145,14 @@ void hal_sleep(void)
 
     // [5.4.1 Power control register 1 (PWR_CR1)]
     // LPR: When this bit is set, the regulator is switched from main mode (MR) to low-power mode (LPR).
-    int lowPowerMode = PWR->CR1 & PWR_CR1_LPR;
+    uint32_t lowPowerMode = LL_PWR_IsEnabledLowPowerRunMode();
+    if (lowPowerMode) {
+        HAL_PWR_EnterSLEEPMode(PWR_LOWPOWERREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+    } else {
+        HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+    }
+#elif defined(PWR_CR_LPDS) || defined(PWR_CR1_LPDS)
+    uint32_t lowPowerMode = LL_PWR_GetRegulModeDS();
     if (lowPowerMode) {
         HAL_PWR_EnterSLEEPMode(PWR_LOWPOWERREGULATOR_ON, PWR_SLEEPENTRY_WFI);
     } else {
