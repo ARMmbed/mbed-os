@@ -530,6 +530,7 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
     uint8_t *dest_buf;
     bool enc_started = false, auth_started = false;
     uint32_t create_flags;
+    size_t read_len;
 
     if (!is_valid_key(key)) {
         return MBED_ERROR_INVALID_ARGUMENT;
@@ -548,13 +549,19 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
         }
     }
 
-    ret = _underlying_kv->get(key, &ih->metadata, sizeof(record_metadata_t));
+    ret = _underlying_kv->get(key, &ih->metadata, sizeof(record_metadata_t), &read_len);
     if (ret) {
         // In case we have the key in the RBP KV, then even if the key wasn't found in
         // the underlying KV, we may have been exposed to an attack. Return an RBP authentication error.
         if (rbp_key_exists) {
             ret = MBED_ERROR_RBP_AUTHENTICATION_FAILED;
         }
+        goto end;
+    }
+
+    // Validate header size
+    if ((read_len != sizeof(record_metadata_t))  || (ih->metadata.metadata_size != sizeof(record_metadata_t))) {
+        ret = MBED_ERROR_RBP_AUTHENTICATION_FAILED;
         goto end;
     }
 
