@@ -62,11 +62,8 @@ uint32_t lp_ticker_read(void)
 
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
-    uint32_t delay;
-    delay = (uint32_t)timestamp - cyhal_lptimer_read(&cy_lptimer0);
-
-    if (CY_RSLT_SUCCESS != cyhal_lptimer_set_match(&cy_lptimer0, delay)) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_lptimer_set_time");
+    if (CY_RSLT_SUCCESS != cyhal_lptimer_set_match(&cy_lptimer0, (uint32_t)timestamp)) {
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_lptimer_set_match");
     }
 }
 
