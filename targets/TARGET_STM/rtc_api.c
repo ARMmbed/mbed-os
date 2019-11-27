@@ -289,12 +289,12 @@ int rtc_isenabled(void)
 
 #if DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM
 
-static void RTC_IRQHandler(void);
+static void _RTC_IRQHandler(void);
 static void (*irq_handler)(void);
 
 volatile uint8_t lp_Fired = 0;
 
-static void RTC_IRQHandler(void)
+static void _RTC_IRQHandler(void)
 {
     /*  Update HAL state */
     RtcHandle.Instance = RTC;
@@ -428,7 +428,7 @@ void rtc_set_wake_up_timer(timestamp_t timestamp)
     }
 #endif /* RTC_WUTR_WUTOCLR */
 
-    NVIC_SetVector(RTC_WKUP_IRQn, (uint32_t)RTC_IRQHandler);
+    NVIC_SetVector(RTC_WKUP_IRQn, (uint32_t)_RTC_IRQHandler);
     irq_handler = (void (*)(void))lp_ticker_irq_handler;
     NVIC_EnableIRQ(RTC_WKUP_IRQn);
     core_util_critical_section_exit();
@@ -437,7 +437,7 @@ void rtc_set_wake_up_timer(timestamp_t timestamp)
 void rtc_fire_interrupt(void)
 {
     lp_Fired = 1;
-    NVIC_SetVector(RTC_WKUP_IRQn, (uint32_t)RTC_IRQHandler);
+    NVIC_SetVector(RTC_WKUP_IRQn, (uint32_t)_RTC_IRQHandler);
     irq_handler = (void (*)(void))lp_ticker_irq_handler;
     NVIC_SetPendingIRQ(RTC_WKUP_IRQn);
     NVIC_EnableIRQ(RTC_WKUP_IRQn);
