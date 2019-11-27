@@ -103,14 +103,14 @@ if __name__ == '__main__':
 
     # Print scrip version
     if opts.version:
-        print parser.description
-        print parser.epilog
-        print "Version %d.%d"% get_version()
+        print(parser.description)
+        print(parser.epilog)
+        print("Version %d.%d"% get_version())
         exit(0)
 
     # Print summary / information about automation test status
     if opts.test_automation_report:
-        print get_avail_tests_summary_table(platform_filter=opts.general_filter_regex)
+        print(get_avail_tests_summary_table(platform_filter=opts.general_filter_regex))
         exit(0)
 
     # Print summary / information about automation test status
@@ -122,15 +122,15 @@ if __name__ == '__main__':
                                  'host_test',
                                  'duration',
                                  'source_dir']
-        print get_avail_tests_summary_table(cols=test_case_report_cols,
+        print(get_avail_tests_summary_table(cols=test_case_report_cols,
                                             result_summary=False,
                                             join_delim='\n',
-                                            platform_filter=opts.general_filter_regex)
+                                            platform_filter=opts.general_filter_regex))
         exit(0)
 
     # Only prints matrix of supported toolchains
     if opts.supported_toolchains:
-        print mcu_toolchain_matrix(platform_filter=opts.general_filter_regex)
+        print(mcu_toolchain_matrix(platform_filter=opts.general_filter_regex))
         exit(0)
 
     test_spec = None
@@ -139,14 +139,14 @@ if __name__ == '__main__':
     if hasattr(opts, 'auto_detect') and opts.auto_detect:
         # If auto_detect attribute is present, we assume other auto-detection
         # parameters like 'toolchains_filter' are also set.
-        print "MBEDLS: Detecting connected mbed-enabled devices... "
+        print("MBEDLS: Detecting connected mbed-enabled devices... ")
 
         MUTs = get_autodetected_MUTS_list()
 
         for mut in MUTs.values():
-            print "MBEDLS: Detected %s, port: %s, mounted: %s"% (mut['mcu_unique'] if 'mcu_unique' in mut else mut['mcu'],
+            print("MBEDLS: Detected %s, port: %s, mounted: %s"% (mut['mcu_unique'] if 'mcu_unique' in mut else mut['mcu'],
                                     mut['port'],
-                                    mut['disk'])
+                                    mut['disk']))
 
         # Set up parameters for test specification filter function (we need to set toolchains per target here)
         use_default_toolchain = 'default' in opts.toolchains_filter if opts.toolchains_filter is not None else True
@@ -179,13 +179,13 @@ if __name__ == '__main__':
             exit(-1)
 
     if opts.verbose_test_configuration_only:
-        print "MUTs configuration in %s:" % ('auto-detected' if opts.auto_detect else opts.muts_spec_filename)
+        print("MUTs configuration in %s:" % ('auto-detected' if opts.auto_detect else opts.muts_spec_filename))
         if MUTs:
-            print print_muts_configuration_from_json(MUTs, platform_filter=opts.general_filter_regex)
-        print
-        print "Test specification in %s:" % ('auto-detected' if opts.auto_detect else opts.test_spec_filename)
+            print(print_muts_configuration_from_json(MUTs, platform_filter=opts.general_filter_regex))
+        print()
+        print("Test specification in %s:" % ('auto-detected' if opts.auto_detect else opts.test_spec_filename))
         if test_spec:
-            print print_test_configuration_from_json(test_spec)
+            print(print_test_configuration_from_json(test_spec))
         exit(0)
 
     if get_module_avail('mbed_lstools'):
@@ -201,16 +201,16 @@ if __name__ == '__main__':
                     report_exporter = ReportExporter(ResultExporterType.JUNIT_OPER)
                     report_exporter.report_to_file(test_results, opts.report_junit_file_name)
             else:
-                print "Unknown interoperability test scope name: '%s'" % (opts.operability_checks)
-                print "Available test scopes: %s" % (','.join(["'%s'" % n for n in test_scope]))
+                print("Unknown interoperability test scope name: '%s'" % (opts.operability_checks))
+                print("Available test scopes: %s" % (','.join(["'%s'" % n for n in test_scope])))
 
             exit(0)
 
     # Verbose test specification and MUTs configuration
     if MUTs and opts.verbose:
-        print print_muts_configuration_from_json(MUTs)
+        print(print_muts_configuration_from_json(MUTs))
     if test_spec and opts.verbose:
-        print print_test_configuration_from_json(test_spec)
+        print(print_test_configuration_from_json(test_spec))
 
     if opts.only_build_tests:
         # We are skipping testing phase, and suppress summary

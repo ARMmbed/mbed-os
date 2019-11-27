@@ -1274,7 +1274,7 @@ if args.list:
     for f in fnmatch.filter(os.listdir(cubemxdirMCU), "STM32*.xml"):
         print(f)
         FileCount += 1
-    print
+    print()
     print("%i available xml files description" % FileCount)
     quit()
 
@@ -1287,7 +1287,7 @@ if args.boards:
             NucleoFileCount += 1
         elif "Discovery" in f:
             DiscoFileCount += 1
-    print
+    print()
     print("%2i available Nucleo files description" % NucleoFileCount)
     print("%2i available Disco  files description" % DiscoFileCount)
     quit()

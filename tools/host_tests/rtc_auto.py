@@ -18,7 +18,7 @@ limitations under the License.
 import re
 from time import time, strftime, gmtime
 
-class RTCTest():
+class RTCTest(object):
     PATTERN_RTC_VALUE = "\[(\d+)\] \[(\d+-\d+-\d+ \d+:\d+:\d+ [AaPpMm]{2})\]"
     re_detect_rtc_value = re.compile(PATTERN_RTC_VALUE)
 

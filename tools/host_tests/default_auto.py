@@ -18,7 +18,7 @@ from __future__ import print_function
 
 from sys import stdout
 
-class DefaultAuto():
+class DefaultAuto(object):
     """ Simple, basic host test's test runner waiting for serial port
         output from MUT, no supervision over test running in MUT is executed.
     """

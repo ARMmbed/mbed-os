@@ -28,6 +28,7 @@ import copy
 from tools.targets import TARGET_MAP
 from tools.utils import mkdir
 from tools.resources import FileType, FileRef
+from future.utils import with_metaclass
 
 """Just a template for subclassing"""
 
@@ -57,14 +58,13 @@ def deprecated_exporter(CLS):
     CLS.NAME = "%s (DEPRECATED)" % old_name
     return CLS
 
-class Exporter(object):
+class Exporter(with_metaclass(ABCMeta, object)):
     """Exporter base class
 
     This class is meant to be extended by individual exporters, and provides a
     few helper methods for implementing an exporter with either jinja2 or
     progen.
     """
-    __metaclass__ = ABCMeta
     TEMPLATE_DIR = dirname(__file__)
     DOT_IN_RELATIVE_PATH = False
     NAME = None

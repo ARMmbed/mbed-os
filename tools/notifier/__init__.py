@@ -16,9 +16,10 @@
 from __future__ import print_function, division, absolute_import
 
 from abc import ABCMeta, abstractmethod
+from future.utils import with_metaclass
 
 
-class Notifier(object):
+class Notifier(with_metaclass(ABCMeta, object)):
     """
     Notifiers send build system events to a front end or may implement a front
     end themselves, displaying warnings and errors for a user.
@@ -47,8 +48,6 @@ class Notifier(object):
                  | key, for use in a UI. At the time of writing it's used to
                  | communicate the binary location to the online IDE.
     """
-
-    __metaclass__ = ABCMeta
 
     @abstractmethod
     def notify(self, event):
