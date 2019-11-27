@@ -573,10 +573,10 @@ extern "C" {
     ssize_t write(int fildes, const void *buf, size_t nbyte);
     ssize_t read(int fildes, void *buf, size_t nbyte);
     int fsync(int fildes);
+    int isatty(int fildes);
 #if !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
     off_t lseek(int fildes, off_t offset, int whence);
     int ftruncate(int fildes, off_t length);
-    int isatty(int fildes);
     int fstat(int fildes, struct stat *st);
     int fcntl(int fildes, int cmd, ...);
     int poll(struct pollfd fds[], nfds_t nfds, int timeout);
