@@ -744,7 +744,7 @@ extern "C" ssize_t write(int fildes, const void *buf, size_t length)
 #if MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
     if (fildes != STDOUT_FILENO && fildes != STDERR_FILENO) {
         errno = EBADF;
-        return -1
+        return -1;
     }
 
     const unsigned char *buffer = static_cast<const unsigned char *>(buf);
@@ -874,7 +874,7 @@ extern "C" ssize_t read(int fildes, void *buf, size_t length)
 
     unsigned char *buffer = static_cast<unsigned char *>(buf);
 
-    buf[0] = minimal_console_getc();
+    buffer[0] = minimal_console_getc();
 
     ssize_t ret = 1;
 
