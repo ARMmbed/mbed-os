@@ -657,7 +657,7 @@ int TDBStore::set_finalize(set_handle_t handle)
     // we should erase one sector more, just to ensure that in case of power failure
     // next init() would not extend the scan phase to that section as well.
     os_ret = read_record(_active_area, _free_space_offset, 0, 0, 0, actual_data_size, 0,
-                          false, false, false, false, hash, flags, next_offset);
+                         false, false, false, false, hash, flags, next_offset);
     if (os_ret == MBED_SUCCESS) {
         check_erase_before_write(_active_area, _free_space_offset, sizeof(record_header_t));
     }
@@ -985,7 +985,7 @@ int TDBStore::increment_max_keys(void **ram_table)
     // Reallocate ram table with new size
     ram_table_entry_t *old_ram_table = (ram_table_entry_t *) _ram_table;
     ram_table_entry_t *new_ram_table = new ram_table_entry_t[_max_keys + 1];
-    memset(new_ram_table, 0, sizeof(ram_table_entry_t)*(_max_keys + 1));
+    memset(new_ram_table, 0, sizeof(ram_table_entry_t) * (_max_keys + 1));
 
     // Copy old content to new table
     memcpy(new_ram_table, old_ram_table, sizeof(ram_table_entry_t) * _max_keys);
