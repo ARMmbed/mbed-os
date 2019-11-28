@@ -19,10 +19,10 @@
 #include "ATHandler_stub.h"
 #include "events/EventQueue.h"
 #include "FileHandle_stub.h"
-#include "AT_CellularBase_stub.h"
+#include "CellularDevice_stub.h"
 #include "ATHandler.h"
+#include "myCellularDevice.h"
 #include "AT_CellularInformation.h"
-#include "AT_CellularBase.h"
 
 using namespace mbed;
 using namespace events;
@@ -38,11 +38,17 @@ protected:
         ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
         ATHandler_stub::read_string_value = NULL;
         ATHandler_stub::ssize_value = 0;
+
+        _dev = new myCellularDevice(&_fh);
     }
 
     void TearDown()
     {
+        delete _dev;
     }
+
+    FileHandle_stub _fh;
+    CellularDevice *_dev;
 };
 // *INDENT-ON*
 
@@ -51,7 +57,7 @@ TEST_F(TestAT_CellularInformation, Create)
     EventQueue eq;
     FileHandle_stub fh;
     ATHandler ah(&fh, eq, 0, ",");
-    AT_CellularInformation *unit = new AT_CellularInformation(ah);
+    AT_CellularInformation *unit = new AT_CellularInformation(ah, *_dev);
     EXPECT_TRUE(unit != NULL);
     delete unit;
 }
@@ -61,7 +67,7 @@ TEST_F(TestAT_CellularInformation, test_AT_CellularInformation_get_manufacturer)
     EventQueue eq;
     FileHandle_stub fh;
     ATHandler ah(&fh, eq, 0, ",");
-    AT_CellularInformation aci(ah);
+    AT_CellularInformation aci(ah, *_dev);
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ATHandler_stub::read_string_value = (char *)"some";
@@ -83,7 +89,7 @@ TEST_F(TestAT_CellularInformation, test_AT_CellularInformation_get_model)
     EventQueue eq;
     FileHandle_stub fh;
     ATHandler ah(&fh, eq, 0, ",");
-    AT_CellularInformation aci(ah);
+    AT_CellularInformation aci(ah, *_dev);
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ATHandler_stub::read_string_value = (char *)"model";
@@ -106,7 +112,7 @@ TEST_F(TestAT_CellularInformation, test_AT_CellularInformation_get_revision)
     ATHandler ah(&fh, eq, 0, ",");
 
     //Used heap var here to visit heap constructor
-    AT_CellularInformation *aci = new AT_CellularInformation(ah);
+    AT_CellularInformation *aci = new AT_CellularInformation(ah, *_dev);
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ATHandler_stub::read_string_value = (char *)"revision";
@@ -132,7 +138,7 @@ TEST_F(TestAT_CellularInformation, test_AT_CellularInformation_get_serial_number
     EventQueue eq;
     FileHandle_stub fh;
     ATHandler ah(&fh, eq, 0, ",");
-    AT_CellularInformation aci(ah);
+    AT_CellularInformation aci(ah, *_dev);
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ATHandler_stub::read_string_value = (char *)"1234567";
@@ -148,14 +154,14 @@ TEST_F(TestAT_CellularInformation, test_AT_CellularInformation_get_serial_number
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == aci.get_serial_number(buf, 8, CellularInformation::SN));
     EXPECT_TRUE(strlen(buf) == 0);
 
-    AT_CellularBase_stub::supported_bool = false;
+    CellularDevice_stub::supported_bool = false;
     EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == aci.get_serial_number(buf, 8, CellularInformation::IMEI));
     EXPECT_TRUE(strlen(buf) == 0);
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ATHandler_stub::read_string_value = (char *)"1234567";
     ATHandler_stub::ssize_value = 7;
-    AT_CellularBase_stub::supported_bool = true;
+    CellularDevice_stub::supported_bool = true;
     EXPECT_TRUE(NSAPI_ERROR_OK == aci.get_serial_number(buf, 8, CellularInformation::IMEI));
     EXPECT_TRUE(strcmp("1234567", buf) == 0);
 
@@ -168,7 +174,7 @@ TEST_F(TestAT_CellularInformation, TestAT_CellularInformation_get_imsi)
     EventQueue eq;
     FileHandle_stub fh;
     ATHandler ah(&fh, eq, 0, ",");
-    AT_CellularInformation aci(ah);
+    AT_CellularInformation aci(ah, *_dev);
 
     char imsi[16];
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
@@ -195,7 +201,7 @@ TEST_F(TestAT_CellularInformation, TestAT_CellularInformation_get_iccid)
     EventQueue eq;
     FileHandle_stub fh;
     ATHandler ah(&fh, eq, 0, ",");
-    AT_CellularInformation aci(ah);
+    AT_CellularInformation aci(ah, *_dev);
 
     char buf[16];
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;

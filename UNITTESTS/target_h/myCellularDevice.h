@@ -89,7 +89,7 @@ public:
         EventQueue que;
         FileHandle_stub fh1;
         ATHandler at(&fh1, que, 0, ",");
-        _network = new AT_CellularNetwork(at);
+        _network = new AT_CellularNetwork(at, *this);
         return _network;
     }
 

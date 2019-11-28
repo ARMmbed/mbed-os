@@ -26,6 +26,9 @@ int CellularDevice_stub::connect_counter = -1;
 bool CellularDevice_stub::create_in_get_default = false;
 uint16_t CellularDevice_stub::retry_timeout_array[CELLULAR_RETRY_ARRAY_SIZE] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 int CellularDevice_stub::retry_array_length = 0;
+bool CellularDevice_stub::supported_bool = false;
+mbed::ATHandler *CellularDevice_stub::handler_value = NULL;
+mbed::ATHandler *CellularDevice_stub::handler_at_constructor_value = NULL;
 
 MBED_WEAK CellularDevice *CellularDevice::get_default_instance()
 {
@@ -128,4 +131,23 @@ void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularC
 nsapi_error_t CellularDevice::clear()
 {
     return NSAPI_ERROR_OK;
+}
+
+void CellularDevice::set_cellular_properties(const intptr_t *property_array)
+{
+}
+
+intptr_t CellularDevice::get_property(CellularProperty key)
+{
+    if (key == PROPERTY_C_GREG) {
+            return AT_CellularNetwork::RegistrationModeDisable;
+        } else if (key == PROPERTY_C_REG || key == PROPERTY_C_EREG) {
+            return AT_CellularNetwork::RegistrationModeEnable;
+        } else if (key == PROPERTY_AT_CGAUTH) {
+            return true;
+        } else if (key == PROPERTY_IPV4_PDP_TYPE) {
+            return true;
+        }
+
+        return CellularDevice_stub::supported_bool;
 }

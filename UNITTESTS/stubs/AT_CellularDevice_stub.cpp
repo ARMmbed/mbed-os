@@ -83,7 +83,7 @@ CellularNetwork *AT_CellularDevice::open_network(FileHandle *fh)
                                                                _default_timeout,
                                                                "\r",
                                                                get_send_delay(),
-                                                               _modem_debug_on));
+                                                               _modem_debug_on), *this);
     return _network;
 }
 
@@ -136,7 +136,7 @@ void AT_CellularDevice::delete_context(CellularContext *context)
 
 AT_CellularNetwork *AT_CellularDevice::open_network_impl(ATHandler &at)
 {
-    _network = new AT_CellularNetwork(at);
+    _network = new AT_CellularNetwork(at, *this);
 
     return _network;
 }

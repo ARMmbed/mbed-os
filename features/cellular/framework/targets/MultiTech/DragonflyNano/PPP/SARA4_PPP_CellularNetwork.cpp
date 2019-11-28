@@ -19,7 +19,7 @@
 
 using namespace mbed;
 
-SARA4_PPP_CellularNetwork::SARA4_PPP_CellularNetwork(ATHandler &atHandler) : AT_CellularNetwork(atHandler)
+SARA4_PPP_CellularNetwork::SARA4_PPP_CellularNetwork(ATHandler &atHandler, CellularDevice& device) : AT_CellularNetwork(atHandler, device)
 {
 }
 

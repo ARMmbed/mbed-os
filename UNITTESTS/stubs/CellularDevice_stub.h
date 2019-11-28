@@ -18,12 +18,16 @@
 #define CELLULARDEVICE_STUB_H_
 
 #include "CellularDevice.h"
+#include "ATHandler.h"
 
 namespace CellularDevice_stub {
 extern int connect_counter;
 extern bool create_in_get_default;
 extern uint16_t retry_timeout_array[CELLULAR_RETRY_ARRAY_SIZE];
 extern int retry_array_length;
+extern bool supported_bool;
+extern mbed::ATHandler *handler_value;
+extern mbed::ATHandler *handler_at_constructor_value;
 }
 
 
