@@ -99,8 +99,8 @@ def get_options_parser():
                         dest="test_regex")
 
     parser.add_argument("--build",
-                        default="build",
-                        help="Build directory. Default: UNITTESTS/build/",
+                        default="BUILD",
+                        help="Build directory. Default: mbed-os/BUILD",
                         dest="build")
 
     parser.add_argument("--new",
