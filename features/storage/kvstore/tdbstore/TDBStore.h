@@ -365,8 +365,8 @@ private:
      *
      * @param[in]  area                   Area.
      * @param[in]  offset                 Offset of record in area.
-     * @param[in]  key                    Key - must not include '*' '/' '?' ':' ';' '\' '"' '|' ' ' '<' '>' '\'.
-     * @param[in]  data_buf               Data buffer.
+     * @param[out] key                    Key - must not include '*' '/' '?' ':' ';' '\' '"' '|' ' ' '<' '>' '\'.
+     * @param[out] data_buf               Data buffer.
      * @param[in]  data_buf_size          Data buffer size.
      * @param[out] actual_data_size       Actual data size.
      * @param[in]  data_offset            Offset in data.
