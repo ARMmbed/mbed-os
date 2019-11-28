@@ -137,6 +137,9 @@ public:
     /** Get the internally stored IP address
      *  @return             IP address of the interface or null if not yet connected
      */
+    virtual nsapi_error_t get_ip_address(SocketAddress *address);
+
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual const char *get_ip_address();
 
     /** Get the internally stored MAC address
@@ -149,6 +152,9 @@ public:
     *  @return         Null-terminated representation of the local gateway
     *                  or null if no network mask has been recieved
     */
+    virtual nsapi_error_t get_gateway(SocketAddress *address);
+
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual const char *get_gateway();
 
     /** Get the local network mask
@@ -156,6 +162,9 @@ public:
      *  @return         Null-terminated representation of the local network mask
      *                  or null if no network mask has been recieved
      */
+    virtual nsapi_error_t get_netmask(SocketAddress *address);
+
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual const char *get_netmask();
 
     /** Get the network interface name

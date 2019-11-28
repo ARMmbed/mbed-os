@@ -30,7 +30,8 @@ void UDPSOCKET_SENDTO_REPEAT()
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(NetworkInterface::get_default_instance()));
 
     SocketAddress udp_addr;
-    NetworkInterface::get_default_instance()->gethostbyname(ECHO_SERVER_ADDR, &udp_addr);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK,
+                      NetworkInterface::get_default_instance()->gethostbyname(ECHO_SERVER_ADDR, &udp_addr));
     udp_addr.set_port(9);
 
     int sent;

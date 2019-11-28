@@ -78,7 +78,7 @@ TEST_F(TestTCPSocket, connect)
     const SocketAddress a("127.0.0.1", 1024);
     EXPECT_EQ(socket->connect(a), NSAPI_ERROR_OK);
     EXPECT_EQ(socket->setsockopt(NSAPI_SOCKET, NSAPI_BIND_TO_DEVICE, "12345", 5), NSAPI_ERROR_UNSUPPORTED);
-    EXPECT_EQ(socket->connect("127.0.0.1", 1024), NSAPI_ERROR_OK);
+    EXPECT_EQ(socket->connect(a), NSAPI_ERROR_OK);
 }
 
 TEST_F(TestTCPSocket, connect_no_open)
@@ -115,20 +115,6 @@ TEST_F(TestTCPSocket, connect_error_is_connected)
     const SocketAddress a("127.0.0.1", 1024);
     socket->set_timeout(1);
     EXPECT_EQ(socket->connect(a), NSAPI_ERROR_OK);
-}
-
-TEST_F(TestTCPSocket, connect_by_name_and_port)
-{
-    socket->open((NetworkStack *)&stack);
-    stack.return_value = NSAPI_ERROR_OK;
-    EXPECT_EQ(socket->connect("testhost", 80), NSAPI_ERROR_OK);
-}
-
-TEST_F(TestTCPSocket, connect_by_name_and_port_dns_fail)
-{
-    socket->open((NetworkStack *)&stack);
-    stack.return_value = NSAPI_ERROR_DNS_FAILURE;
-    EXPECT_EQ(socket->connect("testhost", 80), NSAPI_ERROR_DNS_FAILURE);
 }
 
 /* send */

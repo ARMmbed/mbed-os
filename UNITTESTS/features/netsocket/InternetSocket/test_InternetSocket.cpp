@@ -195,13 +195,8 @@ TEST_F(TestInternetSocket, bind_no_socket)
 TEST_F(TestInternetSocket, bind)
 {
     socket->open((NetworkStack *)&stack);
-    EXPECT_EQ(socket->bind("127.0.0.1", 80), NSAPI_ERROR_OK);
-}
-
-TEST_F(TestInternetSocket, bind_nullstring)
-{
-    socket->open((NetworkStack *)&stack);
-    EXPECT_EQ(socket->bind(NULL, 80), NSAPI_ERROR_OK);
+    SocketAddress a("127.0.0.1", 80);
+    EXPECT_EQ(socket->bind(a), NSAPI_ERROR_OK);
 }
 
 // setsockopt and getsockopt are really just calling the underlying stack functions

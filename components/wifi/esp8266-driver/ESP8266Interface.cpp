@@ -509,6 +509,26 @@ const char *ESP8266Interface::get_ip_address()
     return ip_buff;
 }
 
+nsapi_error_t ESP8266Interface::get_ip_address(SocketAddress *address)
+{
+    if (_software_conn_stat == IFACE_STATUS_DISCONNECTED) {
+        _esp.uart_enable_input(true);
+    }
+
+    const char *ip_buff = _esp.ip_addr();
+    if (!ip_buff || strcmp(ip_buff, "0.0.0.0") == 0) {
+        ip_buff = NULL;
+    }
+    if (_software_conn_stat == IFACE_STATUS_DISCONNECTED) {
+        _esp.uart_enable_input(false);
+    }
+    if (ip_buff) {
+        address->set_ip_address(ip_buff);
+        return NSAPI_ERROR_OK;
+    }
+    return NSAPI_ERROR_NO_ADDRESS;
+}
+
 const char *ESP8266Interface::get_mac_address()
 {
     if (_software_conn_stat == IFACE_STATUS_DISCONNECTED) {
@@ -522,9 +542,41 @@ const char *ESP8266Interface::get_mac_address()
     return ret;
 }
 
+nsapi_error_t ESP8266Interface::get_gateway(SocketAddress *address)
+{
+    if (address == nullptr) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+    if (_conn_stat == NSAPI_STATUS_DISCONNECTED) {
+        return NSAPI_ERROR_NO_CONNECTION;
+    }
+
+    if (!address->set_ip_address(_esp.gateway())) {
+        return NSAPI_ERROR_NO_ADDRESS;
+    }
+
+    return NSAPI_ERROR_OK;
+}
+
 const char *ESP8266Interface::get_gateway()
 {
     return _conn_stat != NSAPI_STATUS_DISCONNECTED ? _esp.gateway() : NULL;
+}
+
+nsapi_error_t ESP8266Interface::get_netmask(SocketAddress *address)
+{
+    if (address == nullptr) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+    if (_conn_stat == NSAPI_STATUS_DISCONNECTED) {
+        return NSAPI_ERROR_NO_CONNECTION;
+    }
+
+    if (!address->set_ip_address(_esp.gateway())) {
+        return NSAPI_ERROR_NO_ADDRESS;
+    }
+
+    return NSAPI_ERROR_OK;
 }
 
 const char *ESP8266Interface::get_netmask()
