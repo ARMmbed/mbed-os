@@ -2029,13 +2029,11 @@
         ],
         "overrides": {
             "tickless-from-us-ticker": true,
-            "init-us-ticker-at-boot": true
+            "init-us-ticker-at-boot": true,
+            "network-default-interface-type": "ETHERNET"
         },
         "device_name": "LPC54628J512ET180",
-        "post_binary_hook": { "function": "LPCTargetCode.lpc_patch" },
-        "overrides": {
-            "network-default-interface-type": "ETHERNET"
-        }
+        "post_binary_hook": { "function": "LPCTargetCode.lpc_patch" }
     },
     "LPC546XX": {
         "supported_form_factors": ["ARDUINO"],
@@ -7533,11 +7531,9 @@
         "inherits": ["MCU_NRF52832"],
         "release_versions": ["5"],
         "device_name": "nRF52832_xxAA",
-        "macros_add": [
-            "WSF_MAX_HANDLERS=10"
-        ],
         "device_has_remove": ["ITM"],
         "macros_add": [
+                "WSF_MAX_HANDLERS=10",
                 "CONFIG_GPIO_AS_PINRESET",
                 "NRF52_PAN_12",
                 "NRF52_PAN_15",
