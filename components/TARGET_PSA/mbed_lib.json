@@ -1,3 +1,6 @@
 {
-    "name": "psa"
+    "name": "psa",
+    "config": {
+        "present": 1
+    }
 }
