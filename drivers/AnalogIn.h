@@ -69,6 +69,13 @@ public:
 
     /** Create an AnalogIn, connected to the specified pin
      *
+     * @param pinmap reference to structure which holds static pinmap.
+     */
+    AnalogIn(const PinMap &pinmap);
+    AnalogIn(const PinMap &&) = delete; // prevent passing of temporary objects
+
+    /** Create an AnalogIn, connected to the specified pin
+     *
      * @param pin AnalogIn pin to connect to
      */
     AnalogIn(PinName pin);
@@ -135,4 +142,3 @@ protected:
 #endif
 
 #endif
-

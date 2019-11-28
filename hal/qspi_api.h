@@ -39,6 +39,22 @@ extern "C" {
  */
 typedef struct qspi_s qspi_t;
 
+typedef struct {
+    int peripheral;
+    PinName data0_pin;
+    int data0_function;
+    PinName data1_pin;
+    int data1_function;
+    PinName data2_pin;
+    int data2_function;
+    PinName data3_pin;
+    int data3_function;
+    PinName sclk_pin;
+    int sclk_function;
+    PinName ssel_pin;
+    int ssel_function;
+} qspi_pinmap_t;
+
 /** QSPI Bus width
  *
  * Some parts of commands provide variable bus width
@@ -123,6 +139,20 @@ typedef enum qspi_status {
            QSPI_STATUS_ERROR otherwise
  */
 qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, PinName ssel, uint32_t hz, uint8_t mode);
+
+/** Initialize QSPI peripheral.
+ *
+ * It should initialize QSPI pins (io0-io3, sclk and ssel), set frequency, clock polarity and phase mode. The clock for the peripheral should be enabled
+ *
+ * @param obj QSPI object
+ * @param pinmap pointer to structure which holds static pinmap
+ * @param hz The bus frequency
+ * @param mode Clock polarity and phase mode (0 - 3)
+ * @return QSPI_STATUS_OK if initialisation successfully executed
+           QSPI_STATUS_INVALID_PARAMETER if invalid parameter found
+           QSPI_STATUS_ERROR otherwise
+ */
+qspi_status_t qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap, uint32_t hz, uint8_t mode);
 
 /** Deinitilize QSPI peripheral
  *

@@ -21,6 +21,10 @@ void pwmout_init(pwmout_t *obj, PinName pin)
 {
 }
 
+void pwmout_init_direct(pwmout_t *obj, const PinMap *pinmap)
+{
+}
+
 void pwmout_free(pwmout_t *obj)
 {
 }
