@@ -455,10 +455,10 @@ static qspi_status_t _qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap,
     pin_mode(pinmap->data3_pin, PullNone);
 
     obj->sclk  = pinmap->sclk_pin;
-    pin_function(pinmap->sclk_pin, pinmap->sclk_pin);
+    pin_function(pinmap->sclk_pin, pinmap->sclk_function);
     pin_mode(pinmap->sclk_pin, PullNone);
     obj->ssel = pinmap->ssel_pin;
-    pin_function(pinmap->ssel_pin, pinmap->ssel_pin);
+    pin_function(pinmap->ssel_pin, pinmap->ssel_function);
     pin_mode(pinmap->ssel_pin, PullNone);
 
     /* The OctoSPI IO Manager OCTOSPIM configuration is supported in a simplified mode in mbed-os
@@ -514,9 +514,8 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
 
     const qspi_pinmap_t static_pinmap = {peripheral, io0, function_io0, io1, function_io1, io2, function_io2, io3, function_io3, sclk, function_sclk, ssel, function_ssel};
 
-    QSPI_INIT_DIRECT(obj, &static_pinmap, hz, mode);
+    return QSPI_INIT_DIRECT(obj, &static_pinmap, hz, mode);
 }
-
 #else /* OCTOSPI */
 #if STATIC_PINMAP_READY
 #define QSPI_INIT_DIRECT qspi_init_direct
@@ -578,10 +577,10 @@ static qspi_status_t _qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap,
     pin_mode(pinmap->data3_pin, PullNone);
 
     obj->sclk  = pinmap->sclk_pin;
-    pin_function(pinmap->sclk_pin, pinmap->sclk_pin);
+    pin_function(pinmap->sclk_pin, pinmap->sclk_function);
     pin_mode(pinmap->sclk_pin, PullNone);
     obj->ssel = pinmap->ssel_pin;
-    pin_function(pinmap->ssel_pin, pinmap->ssel_pin);
+    pin_function(pinmap->ssel_pin, pinmap->ssel_function);
     pin_mode(pinmap->ssel_pin, PullNone);
 
     return qspi_frequency(obj, hz);
@@ -615,7 +614,7 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
 
     const qspi_pinmap_t static_pinmap = {peripheral, io0, function_io0, io1, function_io1, io2, function_io2, io3, function_io3, sclk, function_sclk, ssel, function_ssel};
 
-    QSPI_INIT_DIRECT(obj, &static_pinmap, hz, mode);
+    return QSPI_INIT_DIRECT(obj, &static_pinmap, hz, mode);
 }
 
 #endif /* OCTOSPI */
