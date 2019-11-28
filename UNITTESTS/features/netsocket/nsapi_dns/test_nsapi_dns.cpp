@@ -141,7 +141,7 @@ public:
 public:
     NetworkStack *get_stack()
     {
-        NetworkStackMock::get_instance();
+        return &NetworkStackMock::get_instance();
     }
     MOCK_METHOD0(set_default_parameters, void());
 };
