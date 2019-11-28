@@ -45,7 +45,7 @@ using namespace rtos;
 #define MBED_CONF_QUECTEL_BG96_POLARITY    1 // active high
 #endif
 
-static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     AT_CellularNetwork::RegistrationModeLAC,    // C_EREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_REG
@@ -69,7 +69,7 @@ QUECTEL_BG96::QUECTEL_BG96(FileHandle *fh, PinName pwr, bool active_high, PinNam
       _pwr(pwr, !_active_high),
       _rst(rst, !_active_high)
 {
-    AT_CellularBase::set_cellular_properties(cellular_properties);
+    set_cellular_properties(cellular_properties);
 }
 
 void QUECTEL_BG96::set_at_urcs_impl()
@@ -79,7 +79,7 @@ void QUECTEL_BG96::set_at_urcs_impl()
 
 AT_CellularNetwork *QUECTEL_BG96::open_network_impl(ATHandler &at)
 {
-    return new QUECTEL_BG96_CellularNetwork(at);
+    return new QUECTEL_BG96_CellularNetwork(at, *this);
 }
 
 AT_CellularContext *QUECTEL_BG96::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
@@ -89,7 +89,7 @@ AT_CellularContext *QUECTEL_BG96::create_context_impl(ATHandler &at, const char 
 
 AT_CellularInformation *QUECTEL_BG96::open_information_impl(ATHandler &at)
 {
-    return new QUECTEL_BG96_CellularInformation(at);
+    return new QUECTEL_BG96_CellularInformation(at, *this);
 }
 
 void QUECTEL_BG96::set_ready_cb(Callback<void()> callback)

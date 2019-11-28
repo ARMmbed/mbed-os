@@ -34,8 +34,8 @@ TELIT_ME910_CellularContext::~TELIT_ME910_CellularContext()
 
 bool TELIT_ME910_CellularContext::get_context()
 {
-    bool modem_supports_ipv6 = get_property(PROPERTY_IPV6_PDP_TYPE);
-    bool modem_supports_ipv4 = get_property(PROPERTY_IPV4_PDP_TYPE);
+    bool modem_supports_ipv6 = get_device()->get_property(AT_CellularDevice::PROPERTY_IPV6_PDP_TYPE);
+    bool modem_supports_ipv4 = get_device()->get_property(AT_CellularDevice::PROPERTY_IPV4_PDP_TYPE);
 
     _at.cmd_start_stop("+CGDCONT", "?");
     _at.resp_start("+CGDCONT:");
@@ -62,7 +62,7 @@ bool TELIT_ME910_CellularContext::get_context()
                 pdp_type_t pdp_type = string_to_pdp_type(pdp_type_from_context);
 
                 // Accept exact matching PDP context type or dual PDP context for IPv4/IPv6 only modems
-                if (get_property(pdp_type_t_to_cellular_property(pdp_type)) ||
+                if (get_device()->get_property(pdp_type_t_to_cellular_property(pdp_type)) ||
                         ((pdp_type == IPV4V6_PDP_TYPE && (modem_supports_ipv4 || modem_supports_ipv6)) && !_nonip_req)) {
                     _pdp_type = pdp_type;
                     _cid = cid;

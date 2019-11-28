@@ -19,7 +19,8 @@
 #define AT_CELLULAR_INFORMATION_H_
 
 #include "CellularInformation.h"
-#include "AT_CellularBase.h"
+#include "ATHandler.h"
+#include "AT_CellularDevice.h"
 
 namespace mbed {
 
@@ -28,9 +29,10 @@ namespace mbed {
  *
  * Class that provides information about cellular device.
  */
-class AT_CellularInformation : public CellularInformation, public AT_CellularBase {
+class AT_CellularInformation : public CellularInformation {
 public:
-    AT_CellularInformation(ATHandler &atHandler);
+    AT_CellularInformation(ATHandler &at, AT_CellularDevice &device);
+
     virtual ~AT_CellularInformation();
 
 public:
@@ -45,6 +47,8 @@ public:
     virtual nsapi_error_t get_imsi(char *imsi, size_t buf_size);
 
     virtual nsapi_error_t get_iccid(char *buf, size_t buf_size);
+
+    ATHandler &get_at_handler();
 protected:
     /** Request information text from cellular device
      *
@@ -54,6 +58,11 @@ protected:
      *  @return         on success read character count, on failure negative error code
      */
     nsapi_error_t get_info(const char *cmd, char *buf, size_t buf_size);
+
+protected:
+    ATHandler &_at;
+
+    AT_CellularDevice &_device;
 };
 
 } // namespace mbed

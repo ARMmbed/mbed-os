@@ -24,7 +24,7 @@ namespace mbed {
 
 class SARA4_PPP_CellularNetwork : public AT_CellularNetwork {
 public:
-    SARA4_PPP_CellularNetwork(ATHandler &atHandler);
+    SARA4_PPP_CellularNetwork(ATHandler &atHandler, AT_CellularDevice &device);
     virtual ~SARA4_PPP_CellularNetwork();
 
 protected:

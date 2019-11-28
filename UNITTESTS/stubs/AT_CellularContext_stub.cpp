@@ -20,7 +20,7 @@
 using namespace mbed;
 
 AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn,  bool cp_req, bool nonip_req) :
-    AT_CellularBase(at), _is_connected(false),
+    _at(at), _is_connected(false),
     _current_op(OP_INVALID), _fh(0), _cp_req(cp_req)
 {
     _stack = NULL;
@@ -169,15 +169,15 @@ const char *AT_CellularContext::get_gateway()
     return NULL;
 }
 
-AT_CellularBase::CellularProperty AT_CellularContext::pdp_type_t_to_cellular_property(pdp_type_t pdp_type)
+AT_CellularDevice::CellularProperty AT_CellularContext::pdp_type_t_to_cellular_property(pdp_type_t pdp_type)
 {
-    AT_CellularBase::CellularProperty prop = PROPERTY_IPV4_PDP_TYPE;
+    AT_CellularDevice::CellularProperty prop = AT_CellularDevice::PROPERTY_IPV4_PDP_TYPE;
     if (pdp_type == IPV6_PDP_TYPE) {
-        prop = PROPERTY_IPV6_PDP_TYPE;
+        prop = AT_CellularDevice::PROPERTY_IPV6_PDP_TYPE;
     } else if (pdp_type == IPV4V6_PDP_TYPE) {
-        prop = PROPERTY_IPV4V6_PDP_TYPE;
+        prop = AT_CellularDevice::PROPERTY_IPV4V6_PDP_TYPE;
     } else if (pdp_type == NON_IP_PDP_TYPE) {
-        prop = PROPERTY_NON_IP_PDP_TYPE;
+        prop = AT_CellularDevice::PROPERTY_NON_IP_PDP_TYPE;
     }
 
     return prop;
@@ -306,4 +306,9 @@ void AT_CellularContext::do_connect_with_retry()
 char *AT_CellularContext::get_interface_name(char *interface_name)
 {
     return NULL;
+}
+
+ATHandler &AT_CellularContext::get_at_handler()
+{
+    return _at;
 }

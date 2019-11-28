@@ -24,6 +24,9 @@
 #include "CellularLog.h"
 #include "ATHandler_stub.h"
 #include "AT_CellularStack.h"
+#include "myCellularDevice.h"
+#include "CellularDevice_stub.h"
+#include "AT_CellularDevice_stub.h"
 
 using namespace mbed;
 using namespace events;
@@ -40,28 +43,26 @@ protected:
         ATHandler_stub::resp_stop_success_count = kResp_stop_count_default;
         ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
         ATHandler_stub::int_value = -1;
+        AT_CellularDevice_stub::supported_bool = false;
+
+        _dev = new myCellularDevice(&_fh);
     }
 
     void TearDown()
     {
+        delete _dev;
+        AT_CellularDevice_stub::supported_bool = false;
     }
+
+    FileHandle_stub _fh;
+    AT_CellularDevice *_dev;
 };
 
 
 class my_AT_CN : public AT_CellularNetwork {
 public:
-    my_AT_CN(ATHandler &atHandler) : AT_CellularNetwork(atHandler) {}
+    my_AT_CN(ATHandler &atHandler, AT_CellularDevice &device) : AT_CellularNetwork(atHandler, device) {}
     virtual ~my_AT_CN() {}
-    virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology op_rat)
-    {
-        return NSAPI_ERROR_OK;
-    }
-};
-
-class my_AT_CNipv6 : public AT_CellularNetwork {
-public:
-    my_AT_CNipv6(ATHandler &atHandler) : AT_CellularNetwork(atHandler) {}
-    virtual ~my_AT_CNipv6() {}
     virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology op_rat)
     {
         return NSAPI_ERROR_OK;
@@ -80,7 +81,7 @@ TEST_F(TestAT_CellularNetwork, Create)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork *cn = new AT_CellularNetwork(at);
+    AT_CellularNetwork *cn = new AT_CellularNetwork(at, *_dev);
     EXPECT_TRUE(cn != NULL);
     delete cn;
 }
@@ -120,7 +121,7 @@ TEST_F(TestAT_CellularNetwork, test_urc_creg)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork cn(at);
+    AT_CellularNetwork cn(at, *_dev);
     cn.attach(status_cb_urc);
 
     EXPECT_STREQ("+CEREG:", ATHandler_stub::urc_handlers[0].urc);
@@ -174,7 +175,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_registration)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork cn(at);
+    AT_CellularNetwork cn(at, *_dev);
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.set_registration());
@@ -195,7 +196,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_registration_params)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork cn(at);
+    AT_CellularNetwork cn(at, *_dev);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ATHandler_stub::int_value = 3;
     CellularNetwork::registration_params_t reg_params;
@@ -236,7 +237,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_registration_params)
     ASSERT_EQ(reg_params._act, CellularNetwork::RAT_EGPRS);
     ASSERT_EQ(reg_params._cell_id, -1);
 
-    my_AT_CN nw(at);
+    my_AT_CN nw(at, *_dev);
     reg_params._status = CellularNetwork::NotRegistered;
     reg_params._act = CellularNetwork::RAT_GSM;
 
@@ -300,7 +301,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_registration_status_chang
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork cn(at);
+    AT_CellularNetwork cn(at, *_dev);
 
 
     cn.attach(&disconnect_cb);
@@ -353,7 +354,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_network_registering_m
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork cn(at);
+    AT_CellularNetwork cn(at, *_dev);
 
     ATHandler_stub::int_value = 0;
     CellularNetwork::NWRegisteringMode mode = CellularNetwork::NWModeManual;
@@ -372,7 +373,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_registration_urc)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork cn(at);
+    AT_CellularNetwork cn(at, *_dev);
 
     CellularNetwork::RegistrationType type = CellularNetwork::C_EREG;
     ASSERT_EQ(NSAPI_ERROR_OK, cn.set_registration_urc(type, true));
@@ -381,7 +382,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_registration_urc)
     type = CellularNetwork::C_REG;
     ASSERT_EQ(NSAPI_ERROR_OK, cn.set_registration_urc(type, true));
 
-    my_AT_CN nw(at);
+    my_AT_CN nw(at, *_dev);
     type = CellularNetwork::C_EREG;
     ASSERT_EQ(NSAPI_ERROR_OK, nw.set_registration_urc(type, true));
     type = CellularNetwork::C_GREG;
@@ -440,7 +441,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_attach)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork cn(at);
+    AT_CellularNetwork cn(at, *_dev);
     ATHandler_stub::int_value = 0;
     EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_attach());
     ATHandler_stub::int_value = 1;
@@ -456,7 +457,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_attach)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork cn(at);
+    AT_CellularNetwork cn(at, *_dev);
     CellularNetwork::AttachStatus stat = CellularNetwork::Detached;
     ATHandler_stub::int_value = 1;
     ATHandler_stub::bool_value = true;
@@ -490,7 +491,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_detach)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    my_AT_CN cn(at);
+    my_AT_CN cn(at, *_dev);
 
     EXPECT_TRUE(NSAPI_ERROR_OK == cn.detach());
 
@@ -504,12 +505,12 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_access_technology)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork cn(at);
+    AT_CellularNetwork cn(at, *_dev);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == cn.set_access_technology(CellularNetwork::RAT_UNKNOWN));
     EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == cn.set_access_technology(CellularNetwork::RAT_GSM_COMPACT));
 
-    my_AT_CN my_cn(at);
+    my_AT_CN my_cn(at, *_dev);
     EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.set_access_technology(CellularNetwork::RAT_GSM_COMPACT));
 }
 
@@ -519,7 +520,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_scan_plmn)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork cn(at);
+    AT_CellularNetwork cn(at, *_dev);
     int c = -1;
     CellularNetwork::operList_t ops;
     ATHandler_stub::bool_value = false;
@@ -567,7 +568,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_ciot_optimization_con
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork cn(at);
+    AT_CellularNetwork cn(at, *_dev);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_ciot_optimization_config(CellularNetwork::CIOT_OPT_NO_SUPPORT, CellularNetwork::PREFERRED_UE_OPT_NO_PREFERENCE, NULL));
 
@@ -581,7 +582,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_ciot_ue_optimization_
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork cn(at);
+    AT_CellularNetwork cn(at, *_dev);
     CellularNetwork::CIoT_Supported_Opt sup = CellularNetwork::CIOT_OPT_NO_SUPPORT;
     CellularNetwork::CIoT_Preferred_UE_Opt pref = CellularNetwork::PREFERRED_UE_OPT_NO_PREFERENCE;
     ATHandler_stub::int_value = 1;
@@ -606,7 +607,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_ciot_network_optimiza
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork cn(at);
+    AT_CellularNetwork cn(at, *_dev);
     CellularNetwork::CIoT_Supported_Opt sup = CellularNetwork::CIOT_OPT_NO_SUPPORT;
     ATHandler_stub::int_value = 1;
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
@@ -620,7 +621,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_signal_quality)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork cn(at);
+    AT_CellularNetwork cn(at, *_dev);
     int rs = -1, ber = -1;
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.get_signal_quality(rs, &ber));
@@ -639,7 +640,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_3gpp_error)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork cn(at);
+    AT_CellularNetwork cn(at, *_dev);
     ATHandler_stub::int_value = 8;
     EXPECT_TRUE(8 == cn.get_3gpp_error());
 }
@@ -650,7 +651,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_operator_params)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork cn(at);
+    AT_CellularNetwork cn(at, *_dev);
     int format;
     CellularNetwork::operator_t ops;
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
@@ -696,7 +697,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_operator_names)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork cn(at);
+    AT_CellularNetwork cn(at, *_dev);
     CellularNetwork::operator_names_list name_list;
 
     ATHandler_stub::resp_info_true_counter = 0;
@@ -731,7 +732,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_attach)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork cn(at);
+    AT_CellularNetwork cn(at, *_dev);
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     network_cb_count = 0;
@@ -744,7 +745,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_receive_period)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork cn(at);
+    AT_CellularNetwork cn(at, *_dev);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_receive_period(1, CellularNetwork::EDRXUTRAN_Iu_mode, 3));
 
@@ -758,8 +759,11 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_packet_domain_event_r
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork cn(at);
+    AT_CellularNetwork cn(at, *_dev);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == cn.set_packet_domain_event_reporting(true));
+    AT_CellularDevice_stub::supported_bool = true;
+
     EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_packet_domain_event_reporting(true));
     EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_packet_domain_event_reporting(false));
 
@@ -774,7 +778,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_is_active_context)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork cn(at);
+    AT_CellularNetwork cn(at, *_dev);
 
     // No contexts
     int active_contexts = -1;

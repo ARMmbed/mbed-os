@@ -21,7 +21,6 @@ set(unittest-sources
 set(unittest-test-sources
   features/cellular/framework/AT/at_cellularcontext/at_cellularcontexttest.cpp
   stubs/ATHandler_stub.cpp
-  stubs/AT_CellularBase_stub.cpp
   stubs/AT_CellularDevice_stub.cpp
   stubs/AT_CellularStack_stub.cpp
   stubs/AT_CellularNetwork_stub.cpp

@@ -19,11 +19,14 @@
 #include "CellularUtil.h"
 #include "CellularLog.h"
 #include "ThisThread.h"
+#include "AT_CellularDevice.h"
 
 using namespace mbed_cellular_util;
 using namespace mbed;
 
-AT_CellularStack::AT_CellularStack(ATHandler &at, int cid, nsapi_ip_stack_t stack_type) : AT_CellularBase(at), _socket(NULL), _socket_count(0), _cid(cid), _stack_type(stack_type), _ip_ver_sendto(NSAPI_UNSPEC)
+AT_CellularStack::AT_CellularStack(ATHandler &at, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
+    _socket(NULL), _socket_count(0), _cid(cid),
+    _stack_type(stack_type), _ip_ver_sendto(NSAPI_UNSPEC), _at(at), _device(device)
 {
     memset(_ip, 0, PDP_IPV6_SIZE);
 }
@@ -122,7 +125,7 @@ const char *AT_CellularStack::get_ip_address()
 
             // Try to look for second address ONLY if modem has support for dual stack(can handle both IPv4 and IPv6 simultaneously).
             // Otherwise assumption is that second address is not reliable, even if network provides one.
-            if ((get_property(PROPERTY_IPV4V6_PDP_TYPE) && (_at.read_string(_ip, PDP_IPV6_SIZE) != -1))) {
+            if ((_device.get_property(AT_CellularDevice::PROPERTY_IPV4V6_PDP_TYPE) && (_at.read_string(_ip, PDP_IPV6_SIZE) != -1))) {
                 convert_ipv6(_ip);
                 address.set_ip_address(_ip);
                 ipv6 = (address.get_ip_version() == NSAPI_IPv6);

@@ -28,7 +28,7 @@
 using namespace events;
 using namespace mbed;
 
-static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     AT_CellularNetwork::RegistrationModeLAC,        // C_EREG
     AT_CellularNetwork::RegistrationModeDisable,    // C_GREG
     AT_CellularNetwork::RegistrationModeDisable,    // C_REG
@@ -48,7 +48,7 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
 
 QUECTEL_BC95::QUECTEL_BC95(FileHandle *fh) : AT_CellularDevice(fh)
 {
-    AT_CellularBase::set_cellular_properties(cellular_properties);
+    set_cellular_properties(cellular_properties);
 }
 
 nsapi_error_t QUECTEL_BC95::get_sim_state(SimState &state)
@@ -69,7 +69,7 @@ nsapi_error_t QUECTEL_BC95::get_sim_state(SimState &state)
 
 AT_CellularNetwork *QUECTEL_BC95::open_network_impl(ATHandler &at)
 {
-    return new QUECTEL_BC95_CellularNetwork(at);
+    return new QUECTEL_BC95_CellularNetwork(at, *this);
 }
 
 AT_CellularContext *QUECTEL_BC95::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
@@ -79,7 +79,7 @@ AT_CellularContext *QUECTEL_BC95::create_context_impl(ATHandler &at, const char 
 
 AT_CellularInformation *QUECTEL_BC95::open_information_impl(ATHandler &at)
 {
-    return new QUECTEL_BC95_CellularInformation(at);
+    return new QUECTEL_BC95_CellularInformation(at, *this);
 }
 
 nsapi_error_t QUECTEL_BC95::init()

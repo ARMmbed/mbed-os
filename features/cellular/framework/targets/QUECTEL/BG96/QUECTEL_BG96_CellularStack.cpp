@@ -31,7 +31,8 @@ static const int sslctxID = 0;
 
 using namespace mbed;
 
-QUECTEL_BG96_CellularStack::QUECTEL_BG96_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type) : AT_CellularStack(atHandler, cid, stack_type)
+QUECTEL_BG96_CellularStack::QUECTEL_BG96_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
+    AT_CellularStack(atHandler, cid, stack_type, device)
 #ifdef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
 #if (MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES != 1)
 #error Define cellular.offload-dns-queries to null or 1.

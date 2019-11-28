@@ -48,7 +48,7 @@ using namespace mbed;
 using namespace rtos;
 
 AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, bool cp_req, bool nonip_req) :
-    AT_CellularBase(at), _current_op(OP_INVALID), _fh(0), _cp_req(cp_req), _is_connected(false)
+    _current_op(OP_INVALID), _fh(0), _cp_req(cp_req), _is_connected(false), _at(at)
 {
     tr_info("New CellularContext %s (%p)", apn ? apn : "", this);
     _nonip_req = nonip_req;
@@ -342,7 +342,7 @@ nsapi_error_t AT_CellularContext::do_user_authentication()
 {
     // if user has defined user name and password we need to call CGAUTH before activating or modifying context
     if (_pwd && _uname) {
-        if (!get_property(PROPERTY_AT_CGAUTH)) {
+        if (!get_device()->get_property(AT_CellularDevice::PROPERTY_AT_CGAUTH)) {
             return NSAPI_ERROR_UNSUPPORTED;
         }
         const bool stored_debug_state = _at.get_debug();
@@ -360,15 +360,15 @@ nsapi_error_t AT_CellularContext::do_user_authentication()
     return NSAPI_ERROR_OK;
 }
 
-AT_CellularBase::CellularProperty AT_CellularContext::pdp_type_t_to_cellular_property(pdp_type_t pdp_type)
+AT_CellularDevice::CellularProperty AT_CellularContext::pdp_type_t_to_cellular_property(pdp_type_t pdp_type)
 {
-    AT_CellularBase::CellularProperty prop = PROPERTY_IPV4_PDP_TYPE;
+    AT_CellularDevice::CellularProperty prop = AT_CellularDevice::PROPERTY_IPV4_PDP_TYPE;
     if (pdp_type == IPV6_PDP_TYPE) {
-        prop = PROPERTY_IPV6_PDP_TYPE;
+        prop = AT_CellularDevice::PROPERTY_IPV6_PDP_TYPE;
     } else if (pdp_type == IPV4V6_PDP_TYPE) {
-        prop = PROPERTY_IPV4V6_PDP_TYPE;
+        prop = AT_CellularDevice::PROPERTY_IPV4V6_PDP_TYPE;
     } else if (pdp_type == NON_IP_PDP_TYPE) {
-        prop = PROPERTY_NON_IP_PDP_TYPE;
+        prop = AT_CellularDevice::PROPERTY_NON_IP_PDP_TYPE;
     }
 
     return prop;
@@ -401,8 +401,9 @@ bool AT_CellularContext::get_context()
                 pdp_type_t pdp_type = string_to_pdp_type(pdp_type_from_context);
 
                 // Accept exact matching PDP context type or dual PDP context for modems that support both IPv4 and IPv6 stacks
-                if (get_property(pdp_type_t_to_cellular_property(pdp_type)) ||
-                        ((pdp_type == IPV4V6_PDP_TYPE && (get_property(PROPERTY_IPV4_PDP_TYPE) && get_property(PROPERTY_IPV6_PDP_TYPE))) && !_nonip_req)) {
+                if (get_device()->get_property(pdp_type_t_to_cellular_property(pdp_type)) ||
+                        ((pdp_type == IPV4V6_PDP_TYPE && (get_device()->get_property(AT_CellularDevice::PROPERTY_IPV4_PDP_TYPE) &&
+                                                          get_device()->get_property(AT_CellularDevice::PROPERTY_IPV6_PDP_TYPE))) && !_nonip_req)) {
                     _pdp_type = pdp_type;
                     set_cid(cid);
                 }
@@ -432,16 +433,18 @@ bool AT_CellularContext::set_new_context(int cid)
     char pdp_type_str[8 + 1] = {0};
     pdp_type_t pdp_type = IPV4_PDP_TYPE;
 
-    if (_nonip_req && _cp_in_use && get_property(PROPERTY_NON_IP_PDP_TYPE)) {
+    if (_nonip_req && _cp_in_use && get_device()->get_property(AT_CellularDevice::PROPERTY_NON_IP_PDP_TYPE)) {
         strncpy(pdp_type_str, "Non-IP", sizeof(pdp_type_str));
         pdp_type = NON_IP_PDP_TYPE;
-    } else if (get_property(PROPERTY_IPV4V6_PDP_TYPE) || (get_property(PROPERTY_IPV4_PDP_TYPE) && get_property(PROPERTY_IPV6_PDP_TYPE))) {
+    } else if (get_device()->get_property(AT_CellularDevice::PROPERTY_IPV4V6_PDP_TYPE) ||
+               (get_device()->get_property(AT_CellularDevice::PROPERTY_IPV4_PDP_TYPE) &&
+                get_device()->get_property(AT_CellularDevice::PROPERTY_IPV6_PDP_TYPE))) {
         strncpy(pdp_type_str, "IPV4V6", sizeof(pdp_type_str));
         pdp_type = IPV4V6_PDP_TYPE;
-    } else if (get_property(PROPERTY_IPV6_PDP_TYPE)) {
+    } else if (get_device()->get_property(AT_CellularDevice::PROPERTY_IPV6_PDP_TYPE)) {
         strncpy(pdp_type_str, "IPV6", sizeof(pdp_type_str));
         pdp_type = IPV6_PDP_TYPE;
-    } else if (get_property(PROPERTY_IPV4_PDP_TYPE)) {
+    } else if (get_device()->get_property(AT_CellularDevice::PROPERTY_IPV4_PDP_TYPE)) {
         strncpy(pdp_type_str, "IP", sizeof(pdp_type_str));
         pdp_type = IPV4_PDP_TYPE;
     } else {
@@ -615,7 +618,7 @@ nsapi_error_t AT_CellularContext::open_data_channel()
     }
 
     tr_info("CellularContext PPP connect");
-    if (get_property(PROPERTY_AT_CGDATA)) {
+    if (get_device()->get_property(AT_CellularDevice::PROPERTY_AT_CGDATA)) {
         _at.cmd_start_stop("+CGDATA", "=\"PPP\",", "%d", _cid);
     } else {
         MBED_ASSERT(_cid >= 0 && _cid <= 99);
@@ -1092,4 +1095,9 @@ void AT_CellularContext::set_cid(int cid)
     if (_stack) {
         static_cast<AT_CellularStack *>(_stack)->set_cid(_cid);
     }
+}
+
+ATHandler &AT_CellularContext::get_at_handler()
+{
+    return _at;
 }

@@ -113,14 +113,6 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual const char *get_gateway() = 0;
 
-    /** @copydoc NetworkInterface::cellularBase
-     */
-    MBED_DEPRECATED_SINCE("mbed-os-5.12", "Migrated to CellularInterface")
-    virtual CellularInterface *cellularBase()
-    {
-        return this;
-    }
-
     /** @copydoc NetworkInterface::cellularInterface
      */
     virtual CellularInterface *cellularInterface()

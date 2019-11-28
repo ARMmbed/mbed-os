@@ -21,7 +21,7 @@
 
 using namespace mbed;
 
-QUECTEL_BG96_CellularNetwork::QUECTEL_BG96_CellularNetwork(ATHandler &atHandler) : AT_CellularNetwork(atHandler)
+QUECTEL_BG96_CellularNetwork::QUECTEL_BG96_CellularNetwork(ATHandler &atHandler, AT_CellularDevice &device) : AT_CellularNetwork(atHandler, device)
 {
 }
 
