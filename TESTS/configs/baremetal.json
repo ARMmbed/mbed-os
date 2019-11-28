@@ -16,6 +16,7 @@
         "storage_tdb_internal",
         "storage_filesystem",
         "storage_tdb_external",
+        "fat_chan",
         "lora",
         "nfc",
         "network-emac",
