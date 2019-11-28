@@ -51,7 +51,7 @@ static void print_error_report(const mbed_error_ctx *ctx, const char *, const ch
 #define ERROR_REPORT(ctx, error_msg, error_filename, error_line) ((void) 0)
 #endif
 
-static bool error_in_progress;
+bool mbed_error_in_progress;
 static core_util_atomic_flag halt_in_progress = CORE_UTIL_ATOMIC_FLAG_INIT;
 static int error_count = 0;
 static mbed_error_ctx first_error_ctx = {0};
@@ -121,7 +121,7 @@ static MBED_NORETURN void mbed_halt_system(void)
 WEAK MBED_NORETURN void error(const char *format, ...)
 {
     // Prevent recursion if error is called again during store+print attempt
-    if (!core_util_atomic_exchange_bool(&error_in_progress, true)) {
+    if (!core_util_atomic_exchange_bool(&mbed_error_in_progress, true)) {
         handle_error(MBED_ERROR_UNKNOWN, 0, NULL, 0, MBED_CALLER_ADDR());
         ERROR_REPORT(&last_error_ctx, "Fatal Run-time error", NULL, 0);
 
@@ -298,7 +298,7 @@ int mbed_get_error_count(void)
 //Reads the fatal error occurred" flag
 bool mbed_get_error_in_progress(void)
 {
-    return core_util_atomic_load_bool(&error_in_progress);
+    return core_util_atomic_load_bool(&mbed_error_in_progress);
 }
 
 //Sets a non-fatal error
@@ -311,7 +311,7 @@ mbed_error_status_t mbed_warning(mbed_error_status_t error_status, const char *e
 WEAK MBED_NORETURN mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number)
 {
     // Prevent recursion if error is called again during store+print attempt
-    if (!core_util_atomic_exchange_bool(&error_in_progress, true)) {
+    if (!core_util_atomic_exchange_bool(&mbed_error_in_progress, true)) {
         //set the error reported
         (void) handle_error(error_status, error_value, filename, line_number, MBED_CALLER_ADDR());
 
