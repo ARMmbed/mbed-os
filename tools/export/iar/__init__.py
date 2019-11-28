@@ -18,13 +18,16 @@ from multiprocessing import cpu_count
 
 
 def _supported(mcu, iar_targets):
-    if "IAR" not in mcu.supported_toolchains:
+    if not mcu.is_TFM_target:
+        if "IAR" not in mcu.supported_toolchains:
+            return False
+        if hasattr(mcu, 'device_name') and mcu.device_name in iar_targets:
+            return True
+        if mcu.name in iar_targets:
+            return True
         return False
-    if hasattr(mcu, 'device_name') and mcu.device_name in iar_targets:
-        return True
-    if mcu.name in iar_targets:
-        return True
-    return False
+    else:
+        return False
 
 
 _iar_defs = os.path.join(

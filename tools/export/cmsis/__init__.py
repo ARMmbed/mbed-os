@@ -129,7 +129,10 @@ class CMSIS(Exporter):
     @classmethod
     def is_target_supported(cls, target_name):
         target = TARGET_MAP[target_name]
-        return cls.TOOLCHAIN in target.supported_toolchains
+        if not target.is_TFM_target:
+            return cls.TOOLCHAIN in target.supported_toolchains
+        else:
+            return False
 
     def make_key(self, src):
         """turn a source file into its group name"""
