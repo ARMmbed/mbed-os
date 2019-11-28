@@ -121,10 +121,13 @@ class EclipseArmc5(Eclipse, Armc5):
     @classmethod
     def is_target_supported(cls, target_name):
         target = TARGET_MAP[target_name]
-        if int(target.build_tools_metadata["version"]) > 0:
-            return "ARMC5" in target.supported_toolchains
+        if not target.is_TFM_target:
+            if int(target.build_tools_metadata["version"]) > 0:
+                return "ARMC5" in target.supported_toolchains
+            else:
+                return True
         else:
-            return True
+            return False
 
 class EclipseIAR(Eclipse, IAR):
     LOAD_EXE = True
