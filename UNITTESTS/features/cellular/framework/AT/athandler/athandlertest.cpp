@@ -385,7 +385,13 @@ TEST_F(TestATHandler, test_ATHandler_write_int)
 
     at.write_int(2147483647);
 
+//This is intentional for this test, so let's disable build time warning for next line
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverflow"
+
     at.write_int(2147483647 + 1);
+
+#pragma GCC diagnostic pop
 
 //    at.at_error(0, DeviceErrorType(0));
 //    at.write_int(4);

@@ -1,10 +1,9 @@
 #include "ControlPlane_netif.h"
 #include "ATHandler.h"
-#include "AT_CellularBase.h"
 
 namespace mbed {
 
-class AT_ControlPlane_netif: public ControlPlane_netif, public AT_CellularBase {
+class AT_ControlPlane_netif: public ControlPlane_netif {
 public:
     AT_ControlPlane_netif(ATHandler &at, int cid);
     virtual ~AT_ControlPlane_netif();
@@ -37,6 +36,9 @@ private:
     size_t _recv_len;
     // Called on receiving URC: +CRTDCP
     void urc_cp_recv();
+
+protected:
+    ATHandler &_at;
 };
 
 } //mbed namespace

@@ -32,7 +32,7 @@ int AT_CellularNetwork_stub::fail_counter = 0;
 int AT_CellularNetwork_stub::set_registration_urc_fail_counter = 0;
 int AT_CellularNetwork_stub::get_registration_params_fail_counter = 0;
 
-AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(atHandler)
+AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler, AT_CellularDevice &device) : _at(atHandler), _device(device)
 {
 }
 
@@ -170,4 +170,9 @@ nsapi_error_t AT_CellularNetwork::set_packet_domain_event_reporting(bool on)
 nsapi_error_t AT_CellularNetwork::clear()
 {
     return NSAPI_ERROR_OK;
+}
+
+ATHandler &AT_CellularNetwork::get_at_handler()
+{
+    return _at;
 }

@@ -20,7 +20,7 @@
 
 using namespace mbed;
 
-UBLOX_AT_CellularNetwork::UBLOX_AT_CellularNetwork(ATHandler &atHandler) : AT_CellularNetwork(atHandler)
+UBLOX_AT_CellularNetwork::UBLOX_AT_CellularNetwork(ATHandler &atHandler, AT_CellularDevice &device) : AT_CellularNetwork(atHandler, device)
 {
     _op_act = RAT_UNKNOWN;
 }
