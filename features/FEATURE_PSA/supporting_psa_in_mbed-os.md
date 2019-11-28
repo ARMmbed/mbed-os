@@ -8,6 +8,9 @@ TF-M - Trusted Firmware M
 SPE - Secure Processing Environment
 NSPE - Non-Secure Processing Environment
 
+**Note**  
+Please note that Mbed OS exporters are currently **NOT** supported for PSA dual-core and Armv8-M targets.
+
 # TODO
 * Adding v8-M targets
 * Running PSA compliance tests

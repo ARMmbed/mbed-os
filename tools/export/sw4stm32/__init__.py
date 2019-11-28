@@ -308,10 +308,12 @@ class Sw4STM32(GNUARMEclipse):
     @classmethod
     def is_target_supported(cls, target_name):
         target = TARGET_MAP[target_name]
-        target_supported = bool(set(target.resolution_order_names)
-                                .intersection(set(cls.BOARDS.keys())))
-        toolchain_supported = cls.TOOLCHAIN in target.supported_toolchains
-        return target_supported and toolchain_supported
+        if not target.is_TFM_target:
+            target_supported = bool(set(target.resolution_order_names)
+                                    .intersection(set(cls.BOARDS.keys())))
+            toolchain_supported = cls.TOOLCHAIN in target.supported_toolchains
+            return target_supported and toolchain_supported
+        return False
 
     def __gen_dir(self, dir_name):
         """

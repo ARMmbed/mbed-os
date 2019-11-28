@@ -325,8 +325,11 @@ class Exporter(with_metaclass(ABCMeta, object)):
         target_name - the name of the target.
         """
         target = TARGET_MAP[target_name]
-        return bool(set(target.resolution_order_names).intersection(set(cls.TARGETS))) \
-            and cls.TOOLCHAIN in target.supported_toolchains
+        if not target.is_TFM_target:
+            return bool(set(target.resolution_order_names).intersection(set(cls.TARGETS))) \
+                and cls.TOOLCHAIN in target.supported_toolchains
+        else:
+            return False
 
 
     @classmethod
@@ -351,11 +354,14 @@ class Exporter(with_metaclass(ABCMeta, object)):
 def apply_supported_whitelist(compiler, whitelist, target):
     """Generate a list of supported targets for a given compiler and post-binary hook
     white-list."""
-    if compiler not in target.supported_toolchains:
-        return False
-    if not hasattr(target, "post_binary_hook"):
-        return True
-    if target.post_binary_hook['function'] in whitelist:
-        return True
+    if not target.is_TFM_target:
+        if compiler not in target.supported_toolchains:
+            return False
+        if not hasattr(target, "post_binary_hook"):
+            return True
+        if target.post_binary_hook['function'] in whitelist:
+            return True
+        else:
+            return False
     else:
         return False
