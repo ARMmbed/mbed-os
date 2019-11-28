@@ -289,18 +289,21 @@ class Armc5(Arm):
     @classmethod
     def is_target_supported(cls, target_name):
         target = TARGET_MAP[target_name]
-        if int(target.build_tools_metadata["version"]) > 0:
-            #Although toolchain name is set to ARM above we should check for ARMC5 for 5.12/onwards
-            if "ARMC5" not in target.supported_toolchains:
-                return False
+        if not target.is_TFM_target:
+            if int(target.build_tools_metadata["version"]) > 0:
+                # Although toolchain name is set to ARM above we should check for ARMC5 for 5.12/onwards
+                if "ARMC5" not in target.supported_toolchains:
+                    return False
 
-        arm_res = apply_supported_whitelist(
-            "ARM", cls.POST_BINARY_WHITELIST, target
-        )
-        armc5_res = apply_supported_whitelist(
-            "ARMC5", cls.POST_BINARY_WHITELIST, target
-        )
-        return arm_res or armc5_res
+            arm_res = apply_supported_whitelist(
+                "ARM", cls.POST_BINARY_WHITELIST, target
+            )
+            armc5_res = apply_supported_whitelist(
+                "ARMC5", cls.POST_BINARY_WHITELIST, target
+            )
+            return arm_res or armc5_res
+        else:
+            return False
 
 class Armc6(Arm):
     """ARM Compiler 6 (armclang) specific generic makefile target"""
@@ -310,23 +313,25 @@ class Armc6(Arm):
     @classmethod
     def is_target_supported(cls, target_name):
         target = TARGET_MAP[target_name]
+        if not target.is_TFM_target:
+            if int(target.build_tools_metadata["version"]) > 0:
+                if not (len(set(target.supported_toolchains).intersection(
+                        set(["ARM", "ARMC6"]))) > 0):
+                    return False
 
-        if int(target.build_tools_metadata["version"]) > 0:
-            if not (len(set(target.supported_toolchains).intersection(
-                    set(["ARM", "ARMC6"]))) > 0):
-                return False
-
-            if not apply_supported_whitelist(
-                cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target):
-                #ARMC6 is not in the list, but also check for ARM as ARM represents ARMC6 for 5.12/onwards
-                #and still keep cls.TOOLCHAIN as ARMC6 as thats the toolchain we want to use
-                return apply_supported_whitelist(
-                    "ARM", cls.POST_BINARY_WHITELIST, target)
+                if not apply_supported_whitelist(
+                    cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target):
+                    # ARMC6 is not in the list, but also check for ARM as ARM represents ARMC6 for 5.12/onwards
+                    # and still keep cls.TOOLCHAIN as ARMC6 as thats the toolchain we want to use
+                    return apply_supported_whitelist(
+                        "ARM", cls.POST_BINARY_WHITELIST, target)
+                else:
+                    return True
             else:
-                return True
+                return apply_supported_whitelist(
+                        cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target)
         else:
-            return apply_supported_whitelist(
-                    cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target)
+            return
 
 
 class IAR(Makefile):
