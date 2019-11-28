@@ -948,17 +948,13 @@ extern "C" int PREFIX(_istty)(FILEHANDLE fh)
 extern "C" int _isatty(FILEHANDLE fh)
 #endif
 {
-#if !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
     return isatty(fh);
-#else
-    // Is attached to an interactive device
-    return 1;
-#endif // !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
 }
 
-#if !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
+
 extern "C" int isatty(int fildes)
 {
+#if !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
     FileHandle *fhc = mbed_file_handle(fildes);
     if (fhc == NULL) {
         errno = EBADF;
@@ -972,8 +968,11 @@ extern "C" int isatty(int fildes)
     } else {
         return tty;
     }
-}
+#else
+    // Is attached to an interactive device
+    return 1;
 #endif // !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
+}
 
 extern "C"
 #if defined(__ARMCC_VERSION)
