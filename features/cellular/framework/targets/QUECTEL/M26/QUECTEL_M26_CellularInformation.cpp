@@ -19,7 +19,7 @@
 
 using namespace mbed;
 
-QUECTEL_M26_CellularInformation::QUECTEL_M26_CellularInformation(ATHandler &atHandler) : AT_CellularInformation(atHandler)
+QUECTEL_M26_CellularInformation::QUECTEL_M26_CellularInformation(ATHandler &atHandler, AT_CellularDevice &device) : AT_CellularInformation(atHandler, device)
 {
 
 }

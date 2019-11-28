@@ -37,7 +37,8 @@ CellularDevice::CellularDevice(FileHandle *fh) : _network_ref_count(0),
 #if MBED_CONF_CELLULAR_USE_SMS
     _sms_ref_count(0),
 #endif //MBED_CONF_CELLULAR_USE_SMS
-    _info_ref_count(0), _fh(fh), _queue(10 * EVENTS_EVENT_SIZE), _state_machine(0), _nw(0), _status_cb(0)
+    _info_ref_count(0), _fh(fh), _queue(10 * EVENTS_EVENT_SIZE), _state_machine(0),
+    _nw(0), _status_cb(0), _property_array(0)
 {
     MBED_ASSERT(fh);
     set_sim_pin(NULL);
@@ -257,5 +258,6 @@ nsapi_error_t CellularDevice::clear()
 {
     return NSAPI_ERROR_OK;
 }
+
 
 } // namespace mbed

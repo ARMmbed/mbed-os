@@ -24,7 +24,7 @@ namespace mbed {
 
 class QUECTEL_BG96_CellularNetwork : public AT_CellularNetwork {
 public:
-    QUECTEL_BG96_CellularNetwork(ATHandler &atHandler);
+    QUECTEL_BG96_CellularNetwork(ATHandler &atHandler, AT_CellularDevice &device);
     virtual ~QUECTEL_BG96_CellularNetwork();
 
 protected:

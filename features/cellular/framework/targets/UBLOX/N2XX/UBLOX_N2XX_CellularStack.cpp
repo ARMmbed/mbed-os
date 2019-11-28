@@ -22,7 +22,8 @@
 using namespace mbed;
 using namespace mbed_cellular_util;
 
-UBLOX_N2XX_CellularStack::UBLOX_N2XX_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type): AT_CellularStack(atHandler, cid, stack_type)
+UBLOX_N2XX_CellularStack::UBLOX_N2XX_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device):
+    AT_CellularStack(atHandler, cid, stack_type, device)
 {
     // URC handlers for sockets
     _at.set_urc_handler("+NSONMI:", callback(this, &UBLOX_N2XX_CellularStack::NSONMI_URC));

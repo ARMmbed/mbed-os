@@ -21,7 +21,7 @@
 using namespace mbed;
 using namespace events;
 
-static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     AT_CellularNetwork::RegistrationModeDisable,// C_EREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_REG
@@ -41,7 +41,7 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
 
 TELIT_HE910::TELIT_HE910(FileHandle *fh) : AT_CellularDevice(fh)
 {
-    AT_CellularBase::set_cellular_properties(cellular_properties);
+    set_cellular_properties(cellular_properties);
 }
 
 uint16_t TELIT_HE910::get_send_delay() const

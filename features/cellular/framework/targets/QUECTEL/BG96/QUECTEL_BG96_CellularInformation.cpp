@@ -18,7 +18,7 @@
 
 namespace mbed {
 
-QUECTEL_BG96_CellularInformation::QUECTEL_BG96_CellularInformation(ATHandler &at) : AT_CellularInformation(at)
+QUECTEL_BG96_CellularInformation::QUECTEL_BG96_CellularInformation(ATHandler &at, AT_CellularDevice &device) : AT_CellularInformation(at, device)
 {
 }
 

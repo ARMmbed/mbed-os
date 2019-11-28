@@ -25,6 +25,8 @@
 #include "CellularLog.h"
 #include "ATHandler_stub.h"
 #include "SocketAddress.h"
+#include "CellularDevice_stub.h"
+#include "myCellularDevice.h"
 
 using namespace mbed;
 using namespace events;
@@ -36,7 +38,7 @@ public:
     nsapi_error_t create_error;
     CellularSocket socket;
 
-    MyStack(ATHandler &atr, int cid, nsapi_ip_stack_t typ) : AT_CellularStack(atr, cid, typ)
+    MyStack(ATHandler &atr, int cid, nsapi_ip_stack_t typ, AT_CellularDevice &device) : AT_CellularStack(atr, cid, typ, device)
     {
         bool_value = false;
         max_sock_value = 0;
@@ -148,11 +150,16 @@ protected:
         ATHandler_stub::ssize_value = 0;
         ATHandler_stub::bool_value = false;
         ATHandler_stub::read_string_value = NULL;
+        _dev = new myCellularDevice(&_fh);
     }
 
     void TearDown()
     {
+        delete _dev;
     }
+
+    FileHandle_stub _fh;
+    AT_CellularDevice *_dev;
 };
 // *INDENT-ON*
 
@@ -162,7 +169,7 @@ TEST_F(TestAT_CellularStack, Create)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    MyStack *st = new MyStack(at, 0, IPV4_STACK);
+    MyStack *st = new MyStack(at, 0, IPV4_STACK, *_dev);
 
     EXPECT_TRUE(st != NULL);
     delete st;
@@ -174,7 +181,7 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_get_ip_address)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    MyStack st(at, 0, IPV6_STACK);
+    MyStack st(at, 0, IPV6_STACK, *_dev);
     SocketAddress a;
     EXPECT_EQ(st.get_ip_address(&a), NSAPI_ERROR_NO_ADDRESS);
     EXPECT_EQ(a.get_ip_address(), nullptr);
@@ -199,7 +206,7 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_open)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    MyStack st(at, 0, IPV6_STACK);
+    MyStack st(at, 0, IPV6_STACK, *_dev);
     st.bool_value = false;
     EXPECT_EQ(st.socket_open(NULL, NSAPI_TCP), NSAPI_ERROR_UNSUPPORTED);
 
@@ -208,7 +215,7 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_open)
     nsapi_socket_t sock = &st.socket;
     EXPECT_EQ(st.socket_open(&sock, NSAPI_TCP), NSAPI_ERROR_NO_SOCKET);
 
-    MyStack st2(at, 0, IPV6_STACK);
+    MyStack st2(at, 0, IPV6_STACK, *_dev);
     st2.bool_value = true;
     st2.max_sock_value = 1;
     sock = &st2.socket;
@@ -221,7 +228,7 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_close)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    MyStack st(at, 0, IPV6_STACK);
+    MyStack st(at, 0, IPV6_STACK, *_dev);
     EXPECT_EQ(st.socket_close(&st.socket), NSAPI_ERROR_DEVICE_ERROR);
 
     nsapi_socket_t sock = &st.socket;
@@ -231,7 +238,7 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_close)
     st.max_sock_value = 0;
     EXPECT_EQ(st.socket_close(sock), NSAPI_ERROR_DEVICE_ERROR);
 
-    MyStack st2(at, 0, IPV6_STACK);
+    MyStack st2(at, 0, IPV6_STACK, *_dev);
     st2.max_sock_value = 1;
     st2.bool_value = true;
     sock = &st2.socket;
@@ -245,7 +252,7 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_bind)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    MyStack st(at, 0, IPV6_STACK);
+    MyStack st(at, 0, IPV6_STACK, *_dev);
     SocketAddress addr;
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_ALREADY;
     EXPECT_EQ(st.socket_bind(NULL, addr), NSAPI_ERROR_NO_SOCKET);
@@ -259,7 +266,7 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_listen)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    MyStack st(at, 0, IPV6_STACK);
+    MyStack st(at, 0, IPV6_STACK, *_dev);
     EXPECT_EQ(st.socket_listen(&st.socket, 4), NSAPI_ERROR_UNSUPPORTED);
 }
 
@@ -269,7 +276,7 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_connect)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    MyStack st(at, 0, IPV6_STACK);
+    MyStack st(at, 0, IPV6_STACK, *_dev);
     SocketAddress addr;
     EXPECT_EQ(st.socket_connect(NULL, addr), NSAPI_ERROR_NO_SOCKET);
 
@@ -282,7 +289,7 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_accept)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    MyStack st(at, 0, IPV6_STACK);
+    MyStack st(at, 0, IPV6_STACK, *_dev);
     nsapi_socket_t sock = &st.socket;
     EXPECT_EQ(st.socket_accept(NULL, &sock), NSAPI_ERROR_UNSUPPORTED);
 }
@@ -293,7 +300,7 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_send)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    MyStack st(at, 0, IPV6_STACK);
+    MyStack st(at, 0, IPV6_STACK, *_dev);
     EXPECT_EQ(st.socket_send(NULL, "addr", 4), NSAPI_ERROR_NO_SOCKET);
 
     EXPECT_EQ(st.socket_send(&st.socket, "addr", 4), NSAPI_ERROR_NO_CONNECTION);
@@ -313,7 +320,7 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_sendto)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    MyStack st(at, 0, IPV6_STACK);
+    MyStack st(at, 0, IPV6_STACK, *_dev);
 
     SocketAddress addr("fc00::", 123);
     EXPECT_EQ(st.socket_sendto(NULL, addr, "addr", 4), NSAPI_ERROR_NO_SOCKET);
@@ -336,7 +343,7 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_recv)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    MyStack st(at, 0, IPV6_STACK);
+    MyStack st(at, 0, IPV6_STACK, *_dev);
     char table[4];
     EXPECT_EQ(st.socket_recv(NULL, table, 4), NSAPI_ERROR_NO_SOCKET);
 }
@@ -347,7 +354,7 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_recvfrom)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    MyStack st(at, 0, IPV6_STACK);
+    MyStack st(at, 0, IPV6_STACK, *_dev);
     char table[4];
     EXPECT_EQ(st.socket_recvfrom(NULL, NULL, table, 4), NSAPI_ERROR_NO_SOCKET);
 
@@ -370,7 +377,7 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_attach)
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
-    MyStack st(at, 0, IPV6_STACK);
+    MyStack st(at, 0, IPV6_STACK, *_dev);
 
     st.socket_attach(NULL, NULL, NULL);
     st.max_sock_value = 1;

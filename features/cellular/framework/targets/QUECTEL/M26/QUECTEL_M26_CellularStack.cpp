@@ -24,7 +24,8 @@
 
 using namespace mbed;
 
-QUECTEL_M26_CellularStack::QUECTEL_M26_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type) : AT_CellularStack(atHandler, cid, stack_type)
+QUECTEL_M26_CellularStack::QUECTEL_M26_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
+    AT_CellularStack(atHandler, cid, stack_type, device)
 {
     _at.set_urc_handler("+QIRDI:", Callback<void()>(this, &QUECTEL_M26_CellularStack::urc_qiurc));
 

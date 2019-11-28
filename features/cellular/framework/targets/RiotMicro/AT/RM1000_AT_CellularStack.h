@@ -27,7 +27,7 @@ namespace mbed {
 
 class RM1000_AT_CellularStack : public AT_CellularStack {
 public:
-    RM1000_AT_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type);
+    RM1000_AT_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device);
     virtual ~RM1000_AT_CellularStack();
 
     virtual nsapi_error_t gethostbyname(const char *host,

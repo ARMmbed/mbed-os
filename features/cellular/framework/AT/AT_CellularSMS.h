@@ -21,8 +21,9 @@
 #if MBED_CONF_CELLULAR_USE_SMS
 
 #include "CellularSMS.h"
-#include "AT_CellularBase.h"
+#include "ATHandler.h"
 #include "Callback.h"
+#include "AT_CellularDevice.h"
 #include <time.h>
 
 namespace mbed {
@@ -32,10 +33,10 @@ namespace mbed {
  *
  *  Class for SMS sending, reading and deleting.
  */
-class AT_CellularSMS: public CellularSMS, public AT_CellularBase {
+class AT_CellularSMS: public CellularSMS {
 
 public:
-    AT_CellularSMS(ATHandler &atHandler);
+    AT_CellularSMS(ATHandler &atHandler, AT_CellularDevice &device);
     virtual ~AT_CellularSMS();
 
 public:
@@ -60,6 +61,9 @@ public:
     virtual nsapi_error_t delete_all_messages();
 
     virtual void set_extra_sim_wait_time(int sim_wait_time);
+
+public:
+    ATHandler &get_at_handler();
 
 private:
 
@@ -165,6 +169,11 @@ private:
      */
     uint16_t unpack_7_bit_gsm_to_str(const char *str, int len, char *buf, int padding_bits,
                                      int msg_len);
+
+private:
+    ATHandler &_at;
+
+    AT_CellularDevice &_device;
 };
 
 } // namespace mbed

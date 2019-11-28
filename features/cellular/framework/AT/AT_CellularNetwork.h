@@ -19,7 +19,8 @@
 #define AT_CELLULAR_NETWORK_H_
 
 #include "CellularNetwork.h"
-#include "AT_CellularBase.h"
+#include "ATHandler.h"
+#include "AT_CellularDevice.h"
 
 namespace mbed {
 
@@ -34,11 +35,11 @@ namespace mbed {
  *
  *  Class for attaching to a network and getting information from it.
  */
-class AT_CellularNetwork : public CellularNetwork, public AT_CellularBase {
+class AT_CellularNetwork : public CellularNetwork {
 
 public:
 
-    AT_CellularNetwork(ATHandler &atHandler);
+    AT_CellularNetwork(ATHandler &atHandler, AT_CellularDevice &device);
     virtual ~AT_CellularNetwork();
     // declare friend so it can access stack
     friend class AT_CellularDevice;
@@ -96,6 +97,9 @@ public: // CellularNetwork
 
     virtual nsapi_error_t set_packet_domain_event_reporting(bool on);
 
+public:
+    ATHandler &get_at_handler();
+
 protected:
 
     /** Sets access technology to be scanned. Modem specific implementation.
@@ -145,6 +149,11 @@ protected:
 
     registration_params_t _reg_params;
     mbed::Callback<void()> _urc_funcs[C_MAX];
+
+protected:
+    ATHandler &_at;
+
+    AT_CellularDevice &_device;
 };
 
 } // namespace mbed

@@ -24,7 +24,7 @@ namespace mbed {
 
 class GEMALTO_CINTERION_CellularInformation: public AT_CellularInformation {
 public:
-    GEMALTO_CINTERION_CellularInformation(ATHandler &at);
+    GEMALTO_CINTERION_CellularInformation(ATHandler &at, AT_CellularDevice &device);
 
 public: // AT_CellularInformation
     virtual nsapi_error_t get_iccid(char *buf, size_t buf_size);

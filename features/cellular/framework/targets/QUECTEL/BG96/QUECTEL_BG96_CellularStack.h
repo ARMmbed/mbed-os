@@ -36,7 +36,7 @@ typedef enum {
 
 class QUECTEL_BG96_CellularStack : public AT_CellularStack {
 public:
-    QUECTEL_BG96_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type);
+    QUECTEL_BG96_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device);
     virtual ~QUECTEL_BG96_CellularStack();
 
 protected: // NetworkStack
