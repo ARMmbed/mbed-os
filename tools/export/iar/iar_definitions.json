@@ -371,7 +371,7 @@
     "STM32H743ZI": {
         "OGChipSelectEditMenu": "STM32H743ZI\tST STM32H743ZI"
     },
-    "DISCO_H747I": {
+    "STM32H747XIHx": {
         "OGChipSelectEditMenu": "STM32H747XI_CM7\tST STM32H747XI_CM7"
     },
     "DISCO_H747I_CM4": {

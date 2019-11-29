@@ -93,8 +93,7 @@ void mbedtls_aes_free(mbedtls_aes_context *ctx)
         return;
     }
 #if defined(DUAL_CORE)
-    uint32_t timeout = HSEM_TIMEOUT;
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
     }
 #endif /* DUAL_CORE */
     /* Force the CRYP Periheral Clock Reset */

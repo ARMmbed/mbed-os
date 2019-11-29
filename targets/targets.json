@@ -3301,7 +3301,8 @@
         "macros_add": [
             "STM32H747xx",
             "CORE_CM7",
-            "EXTRA_IDLE_STACK_REQUIRED"
+            "EXTRA_IDLE_STACK_REQUIRED",
+            "MBED_TICKLESS"
         ],
         "overrides": { "lpticker_delay_ticks": 0 },
         "supported_form_factors": [
@@ -3336,6 +3337,11 @@
         "mbed_ram_start": "0x10000000",
         "mbed_ram_size" : "0x48000",
         "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_EXTC",
+                "macro_name": "CLOCK_SOURCE"
+            },
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
@@ -3344,7 +3350,8 @@
         "macros_add": [
             "STM32H747xx",
             "CORE_CM4",
-            "EXTRA_IDLE_STACK_REQUIRED"
+            "EXTRA_IDLE_STACK_REQUIRED",
+            "MBED_TICKLESS"
         ],
         "overrides": { "lpticker_delay_ticks": 0 },
         "supported_form_factors": [
@@ -3360,7 +3367,6 @@
             "FLASH",
             "MPU"
         ],
-        "device_name": "STM32H747XIHx",
         "bootloader_supported": true
     },
     "DISCO_H747I_CM7": {

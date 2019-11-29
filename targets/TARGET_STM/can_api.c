@@ -87,8 +87,7 @@ static void _can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz
     RCC_PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
     RCC_PeriphClkInit.FdcanClockSelection = RCC_FDCANCLKSOURCE_PLL; // 10 MHz (RCC_OscInitStruct.PLL.PLLQ = 80)
 #if defined(DUAL_CORE)
-    uint32_t timeout = HSEM_TIMEOUT;
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
     }
 #endif /* DUAL_CORE */
     if (HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphClkInit) != HAL_OK) {
@@ -229,8 +228,7 @@ void can_irq_free(can_t *obj)
 void can_free(can_t *obj)
 {
 #if defined(DUAL_CORE)
-    uint32_t timeout = HSEM_TIMEOUT;
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
     }
 #endif /* DUAL_CORE */
     __HAL_RCC_FDCAN_FORCE_RESET();
@@ -716,8 +714,7 @@ void can_free(can_t *obj)
 {
     CANName can = (CANName) obj->CanHandle.Instance;
 #if defined(DUAL_CORE)
-    uint32_t timeout = HSEM_TIMEOUT;
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
     }
 #endif /* DUAL_CORE */
     // Reset CAN and disable clock

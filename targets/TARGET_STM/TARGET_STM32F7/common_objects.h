@@ -38,6 +38,7 @@
 #include "stm32f7xx_ll_tim.h"
 #include "stm32f7xx_ll_adc.h"
 #include "stm32f7xx_ll_rtc.h"
+#include "stm32f7xx_ll_pwr.h"
 
 #ifdef __cplusplus
 extern "C" {
