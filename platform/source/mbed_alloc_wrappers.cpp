@@ -347,6 +347,16 @@ extern "C" void *SUB_REALLOC(void *ptr, size_t size)
         memcpy(new_ptr, (void *)ptr, copy_size);
         free(ptr);
     }
+
+    {
+        volatile uint8_t dummy = 0;
+        if (dummy != 0) { // always false
+            // this code will never be executed
+            // it's just to tell the compiler/linker to preserve SUB_REALLOC symbol
+            // when LTO enabled
+            SUPER_REALLOC(NULL, 0);
+        }
+    }
 #else // #if MBED_HEAP_STATS_ENABLED
     new_ptr = SUPER_REALLOC(ptr, size);
 #endif // #if MBED_HEAP_STATS_ENABLED
@@ -368,6 +378,16 @@ extern "C" void *SUB_CALLOC(size_t nmemb, size_t size)
     ptr = malloc(nmemb * size);
     if (ptr != NULL) {
         memset(ptr, 0, nmemb * size);
+    }
+
+    {
+        volatile uint8_t dummy = 0;
+        if (dummy != 0) { // always false
+            // this code will never be executed
+            // it's just to tell the compiler/linker to preserve SUB_CALLOC symbol
+            // when LTO enabled
+            SUPER_CALLOC(NULL, 0);
+        }
     }
 #else // #if MBED_HEAP_STATS_ENABLED
     ptr = SUPER_CALLOC(nmemb, size);
