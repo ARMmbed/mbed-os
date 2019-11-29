@@ -663,16 +663,15 @@ int TDBStore::set_finalize(set_handle_t handle)
     }
 
 end:
-    if ((need_gc) && (ih->bd_base_offset != _master_record_offset)) {
-        garbage_collection();
-    }
-
     // mark handle as invalid by clearing magic field in header
     ih->header.magic = 0;
 
     _inc_set_mutex.unlock();
 
     if (ih->bd_base_offset != _master_record_offset) {
+        if (need_gc) {
+            garbage_collection();
+        }
         _mutex.unlock();
     }
     return ret;
