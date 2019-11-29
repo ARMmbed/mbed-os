@@ -12882,7 +12882,7 @@
             "ARMCLANG",
             "GNUARM"
         ],
-        "delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CPROTO_064_SB/prebuilt"
+        "delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CPROTO_064_SB"
     },
     "CY8CPROTO_064_SB": {
         "inherits": [
