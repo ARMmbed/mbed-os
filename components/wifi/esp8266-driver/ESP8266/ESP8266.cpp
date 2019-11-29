@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if DEVICE_SERIAL && DEVICE_INTERRUPTIN && defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_PRESENT)
+#if DEVICE_SERIAL && DEVICE_INTERRUPTIN && defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_API_PRESENT)
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
 #endif
@@ -57,7 +57,6 @@ ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
       _closed(false),
       _error(false),
       _busy(false),
-      _reset_check(_rmutex),
       _reset_done(false),
       _conn_status(NSAPI_STATUS_DISCONNECTED)
 {
@@ -272,14 +271,15 @@ bool ESP8266::reset(void)
             continue;
         }
 
-        _rmutex.lock();
-        while ((rtos::Kernel::get_ms_count() - start_time < ESP8266_BOOTTIME) && !_reset_done) {
+        while (!_reset_done) {
             _process_oob(ESP8266_RECV_TIMEOUT, true); // UART mutex claimed -> need to check for OOBs ourselves
-            _reset_check.wait_for(100); // Arbitrary relatively short delay
+            if (_reset_done || (rtos::Kernel::get_ms_count() - start_time >= ESP8266_BOOTTIME)) {
+                break;
+            }
+            rtos::ThisThread::sleep_for(100);
         }
 
         done = _reset_done;
-        _rmutex.unlock();
         if (done) {
             break;
         }
@@ -1040,11 +1040,7 @@ void ESP8266::_oob_watchdog_reset()
 
 void ESP8266::_oob_ready()
 {
-
-    _rmutex.lock();
     _reset_done = true;
-    _reset_check.notify_all();
-    _rmutex.unlock();
 
     for (int i = 0; i < SOCKET_COUNT; i++) {
         _sock_i[i].open = false;
