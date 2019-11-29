@@ -75,6 +75,13 @@ typedef struct {
     uint8_t regulatory_domain;
     uint8_t rd_operating_class;
     uint8_t rd_operating_mode;
+    uint8_t uc_channel_function;
+    uint8_t bc_channel_function;
+    uint8_t uc_dwell_interval;
+    uint32_t bc_interval;
+    uint8_t bc_dwell_interval;
+    uint16_t uc_fixed_channel;
+    uint16_t bc_fixed_channel;
 } wisun_network_settings_t;
 
 typedef struct {
@@ -90,12 +97,25 @@ typedef struct {
     bool remove_trusted_certificates: 1;
 } wisun_certificates_t;
 
-#define WS_NA 0xff  // Not applicable value
+#define WS_NA 0xff       // Not applicable value
+#define WS_DEFAULT 0x00  // Use default value
 
 /* Tasklet data */
 static wisun_tasklet_data_str_t *wisun_tasklet_data_ptr = NULL;
 static wisun_certificates_t *wisun_certificates_ptr = NULL;
-static wisun_network_settings_t wisun_settings_str = {NULL, MBED_CONF_MBED_MESH_API_WISUN_REGULATORY_DOMAIN, MBED_CONF_MBED_MESH_API_WISUN_OPERATING_CLASS, MBED_CONF_MBED_MESH_API_WISUN_OPERATING_MODE};
+static wisun_network_settings_t wisun_settings_str = {
+    .network_name = NULL,
+    .regulatory_domain = MBED_CONF_MBED_MESH_API_WISUN_REGULATORY_DOMAIN,
+    .rd_operating_class = MBED_CONF_MBED_MESH_API_WISUN_OPERATING_CLASS,
+    .rd_operating_mode = MBED_CONF_MBED_MESH_API_WISUN_OPERATING_MODE,
+    .uc_channel_function = MBED_CONF_MBED_MESH_API_WISUN_UC_CHANNEL_FUNCTION,
+    .bc_channel_function = MBED_CONF_MBED_MESH_API_WISUN_BC_CHANNEL_FUNCTION,
+    .uc_dwell_interval = MBED_CONF_MBED_MESH_API_WISUN_UC_DWELL_INTERVAL,
+    .bc_interval = MBED_CONF_MBED_MESH_API_WISUN_BC_INTERVAL,
+    .bc_dwell_interval = MBED_CONF_MBED_MESH_API_WISUN_BC_DWELL_INTERVAL,
+    .uc_fixed_channel = MBED_CONF_MBED_MESH_API_WISUN_UC_FIXED_CHANNEL,
+    .bc_fixed_channel = MBED_CONF_MBED_MESH_API_WISUN_BC_FIXED_CHANNEL
+};
 static mac_api_t *mac_api = NULL;
 
 extern fhss_timer_t fhss_functions;
@@ -252,6 +272,47 @@ static void wisun_tasklet_configure_and_connect_to_network(void)
     if (status < 0) {
         tr_error("Failed to initialize WS");
         return;
+    }
+
+    if (wisun_settings_str.uc_channel_function != WS_NA) {
+        status = ws_management_fhss_unicast_channel_function_configure(wisun_tasklet_data_ptr->network_interface_id,
+                                                                       wisun_settings_str.uc_channel_function,
+                                                                       wisun_settings_str.uc_fixed_channel,
+                                                                       wisun_settings_str.uc_dwell_interval);
+
+        if (status < 0) {
+            tr_error("Failed to set unicast channel function configuration");
+            return;
+        }
+    }
+
+    if (wisun_settings_str.bc_channel_function != WS_NA ||
+            wisun_settings_str.bc_dwell_interval != WS_DEFAULT ||
+            wisun_settings_str.bc_interval != WS_DEFAULT) {
+        status = ws_management_fhss_broadcast_channel_function_configure(wisun_tasklet_data_ptr->network_interface_id,
+                                                                         wisun_settings_str.bc_channel_function,
+                                                                         wisun_settings_str.bc_fixed_channel,
+                                                                         wisun_settings_str.bc_dwell_interval,
+                                                                         wisun_settings_str.bc_interval);
+
+        if (status < 0) {
+            tr_error("Failed to set broadcast channel function configuration");
+            return;
+        }
+    }
+
+    if (wisun_settings_str.uc_dwell_interval != WS_DEFAULT ||
+            wisun_settings_str.bc_dwell_interval != WS_DEFAULT ||
+            wisun_settings_str.bc_interval != WS_DEFAULT) {
+        status = ws_management_fhss_timing_configure(wisun_tasklet_data_ptr->network_interface_id,
+                                                     wisun_settings_str.uc_dwell_interval,
+                                                     wisun_settings_str.bc_interval,
+                                                     wisun_settings_str.bc_dwell_interval);
+
+        if (status < 0) {
+            tr_error("Failed to set fhss configuration");
+            return;
+        }
     }
 
     if (wisun_settings_str.regulatory_domain != WS_NA ||
