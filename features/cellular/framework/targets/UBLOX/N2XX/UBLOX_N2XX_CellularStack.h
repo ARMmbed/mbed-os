@@ -28,7 +28,7 @@ class UBLOX_N2XX_CellularStack : public AT_CellularStack {
 
 public:
 
-    UBLOX_N2XX_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type);
+    UBLOX_N2XX_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device);
     virtual ~UBLOX_N2XX_CellularStack();
 
 protected:

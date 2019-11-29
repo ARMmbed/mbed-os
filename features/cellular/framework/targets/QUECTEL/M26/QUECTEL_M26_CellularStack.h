@@ -29,7 +29,7 @@ namespace mbed {
 
 class QUECTEL_M26_CellularStack : public AT_CellularStack {
 public:
-    QUECTEL_M26_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type);
+    QUECTEL_M26_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device);
     virtual ~QUECTEL_M26_CellularStack();
 
 protected: // NetworkStack

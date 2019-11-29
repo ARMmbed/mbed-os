@@ -22,7 +22,8 @@
 using namespace mbed;
 using namespace mbed_cellular_util;
 
-AT_CellularStack::AT_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type) : AT_CellularBase(atHandler), _socket(NULL), _cid(cid), _stack_type(stack_type)
+AT_CellularStack::AT_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
+    _socket(NULL), _cid(cid), _stack_type(stack_type), _at(atHandler), _device(device)
 {
 }
 

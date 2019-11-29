@@ -24,7 +24,7 @@ namespace mbed {
 
 class RM1000_AT_CellularNetwork : public AT_CellularNetwork {
 public:
-    RM1000_AT_CellularNetwork(ATHandler &atHandler);
+    RM1000_AT_CellularNetwork(ATHandler &atHandler, AT_CellularDevice &device);
     virtual ~RM1000_AT_CellularNetwork();
 
     virtual nsapi_error_t set_registration_urc(RegistrationType type, bool on);

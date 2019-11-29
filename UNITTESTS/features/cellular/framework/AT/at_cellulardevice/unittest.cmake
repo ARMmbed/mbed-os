@@ -29,7 +29,6 @@ set(unittest-test-sources
   stubs/AT_CellularSMS_stub.cpp
   stubs/AT_CellularInformation_stub.cpp
   stubs/CellularUtil_stub.cpp
-  stubs/AT_CellularBase_stub.cpp
   stubs/NetworkInterface_stub.cpp
   stubs/NetworkInterfaceDefaults_stub.cpp
   stubs/EventQueue_stub.cpp

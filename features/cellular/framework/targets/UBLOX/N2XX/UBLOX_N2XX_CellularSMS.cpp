@@ -21,7 +21,7 @@
 
 using namespace mbed;
 
-UBLOX_N2XX_CellularSMS::UBLOX_N2XX_CellularSMS(ATHandler &atHandler) : AT_CellularSMS(atHandler)
+UBLOX_N2XX_CellularSMS::UBLOX_N2XX_CellularSMS(ATHandler &atHandler, AT_CellularDevice &device) : AT_CellularSMS(atHandler, device)
 {
 }
 

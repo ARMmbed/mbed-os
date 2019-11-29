@@ -41,7 +41,7 @@ using namespace events;
 #define MBED_CONF_TELIT_ME910_POLARITY    1 // active high
 #endif
 
-static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     AT_CellularNetwork::RegistrationModeLAC,    // C_EREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_REG
@@ -67,7 +67,7 @@ TELIT_ME910::TELIT_ME910(FileHandle *fh, PinName pwr, bool active_high)
       _active_high(active_high),
       _pwr_key(pwr, !_active_high)
 {
-    AT_CellularBase::set_cellular_properties(cellular_properties);
+    set_cellular_properties(cellular_properties);
 }
 
 AT_CellularContext *TELIT_ME910::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
