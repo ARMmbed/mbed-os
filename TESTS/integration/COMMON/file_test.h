@@ -20,6 +20,10 @@
 /*
  * Based on mbed-stress-test by Marcus Chang @ Arm Mbed - http://github.com/ARMmbed/mbed-stress-test
 */
+#include "mbed_trace.h"
+
+#define TRACE_GROUP "GRNT"
+
 void file_test_write(const char *file, size_t offset, const unsigned char *data, size_t data_length, size_t block_size);
 
 void file_test_read(const char *file, size_t offset, const unsigned char *data, size_t data_length, size_t block_size);
