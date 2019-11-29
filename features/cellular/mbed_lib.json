@@ -3,7 +3,7 @@
     "config": {
         "use-apn-lookup": {
             "help": "Use APN database lookup",
-            "value": true
+            "value": false
         },
         "use-sms": {
             "help": "Enable or disable SMS functionality in Cellular stack.",
