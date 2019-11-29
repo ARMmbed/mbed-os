@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if DEVICE_SERIAL && DEVICE_INTERRUPTIN && defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_PRESENT)
+#if DEVICE_SERIAL && DEVICE_INTERRUPTIN && defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_API_PRESENT)
 
 #include <string.h>
 #include <stdint.h>
@@ -64,7 +64,9 @@ ESP8266Interface::ESP8266Interface()
       _pwr_pin(MBED_CONF_ESP8266_PWR),
       _ap_sec(NSAPI_SECURITY_UNKNOWN),
       _if_blocking(true),
+#if MBED_CONF_RTOS_PRESENT
       _if_connected(_cmutex),
+#endif
       _initialized(false),
       _connect_retval(NSAPI_ERROR_OK),
       _disconnect_retval(NSAPI_ERROR_OK),
@@ -104,7 +106,9 @@ ESP8266Interface::ESP8266Interface(PinName tx, PinName rx, bool debug, PinName r
       _pwr_pin(pwr),
       _ap_sec(NSAPI_SECURITY_UNKNOWN),
       _if_blocking(true),
+#if MBED_CONF_RTOS_PRESENT
       _if_connected(_cmutex),
+#endif
       _initialized(false),
       _connect_retval(NSAPI_ERROR_OK),
       _disconnect_retval(NSAPI_ERROR_OK),
@@ -267,7 +271,9 @@ void ESP8266Interface::_connect_async()
             _esp.uart_enable_input(false);
             _software_conn_stat = IFACE_STATUS_DISCONNECTED;
         }
+#if MBED_CONF_RTOS_PRESENT
         _if_connected.notify_all();
+#endif
     } else {
         // Postpone to give other stuff time to run
         _connect_event_id = _global_event_queue->call_in(ESP8266_INTERFACE_CONNECT_INTERVAL_MS,
@@ -329,10 +335,12 @@ int ESP8266Interface::connect()
                    "connect(): unable to add event to queue. Increase \"events.shared-eventsize\"\n");
     }
 
+#if MBED_CONF_RTOS_PRESENT
     while (_if_blocking && (_conn_status_to_error() != NSAPI_ERROR_IS_CONNECTED)
             && (_connect_retval == NSAPI_ERROR_NO_CONNECTION)) {
         _if_connected.wait();
     }
+#endif
 
     _cmutex.unlock();
 
@@ -418,7 +426,9 @@ void ESP8266Interface::_disconnect_async()
 
         _power_off();
         _software_conn_stat = IFACE_STATUS_DISCONNECTED;
+#if MBED_CONF_RTOS_PRESENT
         _if_connected.notify_all();
+#endif
 
     } else {
         // Postpone to give other stuff time to run
@@ -479,11 +489,13 @@ int ESP8266Interface::disconnect()
                    "disconnect(): unable to add event to queue. Increase \"events.shared-eventsize\"\n");
     }
 
+#if MBED_CONF_RTOS_PRESENT
     while (_if_blocking
             && (_conn_status_to_error() != NSAPI_ERROR_NO_CONNECTION)
             && (_disconnect_retval != NSAPI_ERROR_OK)) {
         _if_connected.wait();
     }
+#endif
 
     _cmutex.unlock();
     if (!_if_blocking) {
