@@ -9056,7 +9056,7 @@
         "tfm_bootloader_supported": false,
         "tfm_default_toolchain": "ARMCLANG",
         "tfm_supported_toolchains": ["ARMCLANG", "GNUARM"],
-        "delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CPROTO_064_SB/prebuilt"
+        "delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CPROTO_064_SB"
     },
     "CY8CPROTO_064_SB_NS": {
         "inherits": ["PSA_DUAL_V7_M_NSPE", "MCU_PSOC6_M4"],
