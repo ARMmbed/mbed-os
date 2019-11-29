@@ -36,12 +36,10 @@
 #include "nsapi_ppp.h"
 #endif
 
-#define USE_APN_LOOKUP (MBED_CONF_CELLULAR_USE_APN_LOOKUP || (NSAPI_PPP_AVAILABLE && MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP))
-
-#if USE_APN_LOOKUP
+#if MBED_CONF_CELLULAR_USE_APN_LOOKUP
 #include "CellularInformation.h"
 #include "APN_db.h"
-#endif //USE_APN_LOOKUP
+#endif //MBED_CONF_CELLULAR_USE_APN_LOOKUP
 
 using namespace mbed_cellular_util;
 using namespace mbed;
@@ -917,7 +915,7 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
                 _semaphore.release();
             }
         }
-#if USE_APN_LOOKUP
+#if MBED_CONF_CELLULAR_USE_APN_LOOKUP
         if (st == CellularSIMStatusChanged && data->status_data == CellularDevice::SimStateReady &&
                 _cb_data.error == NSAPI_ERROR_OK) {
             if (!_apn) {
@@ -946,7 +944,7 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
                 _device->close_information();
             }
         }
-#endif // USE_APN_LOOKUP
+#endif // MBED_CONF_CELLULAR_USE_APN_LOOKUP
 
         if (!_nw && st == CellularDeviceReady && _cb_data.error == NSAPI_ERROR_OK) {
             _nw = _device->open_network(_fh);
