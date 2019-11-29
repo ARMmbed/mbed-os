@@ -82,7 +82,7 @@ nsapi_error_t AT_CellularStack::get_ip_address(SocketAddress *address)
 
             // Try to look for second address ONLY if modem has support for dual stack(can handle both IPv4 and IPv6 simultaneously).
             // Otherwise assumption is that second address is not reliable, even if network provides one.
-            if ((get_property(PROPERTY_IPV4V6_PDP_TYPE) && (_at.read_string(_ip, PDP_IPV6_SIZE) != -1))) {
+            if ((_device.get_property(AT_CellularDevice::PROPERTY_IPV4V6_PDP_TYPE) && (_at.read_string(_ip, PDP_IPV6_SIZE) != -1))) {
                 convert_ipv6(_ip);
                 address->set_ip_address(_ip);
                 ipv6 = (address->get_ip_version() == NSAPI_IPv6);
