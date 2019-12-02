@@ -1409,15 +1409,15 @@ void OdinWiFiInterface::handle_wlan_status_disconnected(void)
 				case cbWLAN_STATUS_DISCONNECTED_AUTH_FAILURE:
 				case cbWLAN_STATUS_DISCONNECTED_ASSOC_FAILURE:
 				case cbWLAN_STATUS_DISCONNECTED_MIC_FAILURE:
-					error_code = NSAPI_ERROR_AUTH_FAILURE;
-					break;
+				    error_code = NSAPI_ERROR_AUTH_FAILURE;
+				    break;
 				case cbWLAN_STATUS_DISCONNECTED_NO_BSSID_FOUND:
 				case cbWLAN_STATUS_DISCONNECTED_UNKNOWN:
-					error_code = NSAPI_ERROR_NO_CONNECTION;
-					break;
+				    error_code = NSAPI_ERROR_NO_CONNECTION;
+				    break;
 				default:
-					error_code = NSAPI_ERROR_DEVICE_ERROR;
-					break;
+				    error_code = NSAPI_ERROR_DEVICE_ERROR;
+				    break;
 			}
 			send_user_response_msg(ODIN_WIFI_MSG_USER_CONNECT, error_code);
 			break;
@@ -1841,8 +1841,8 @@ void OdinWiFiInterface::wlan_status_indication(cbWLAN_StatusIndicationInfo statu
         msg->type = status;
         memcpy(&(msg->data), data, sizeof(odin_wifi_msg_s::data_t));
 
-		osStatus ok = _in_queue.put(msg, 0);
-		MBED_ASSERT(ok == osOK);
+        osStatus ok = _in_queue.put(msg, 0);
+        MBED_ASSERT(ok == osOK);
 	}
 }
 
