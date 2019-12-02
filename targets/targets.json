@@ -7844,6 +7844,7 @@
     "NRF52840_DK": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52840"],
+        "detect_code": ["1102"],
         "macros_add": [
             "CONFIG_GPIO_AS_PINRESET"
         ]
