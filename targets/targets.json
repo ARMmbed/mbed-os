@@ -6970,7 +6970,8 @@
             "USTICKER",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "ITM"
         ],
         "forced_reset_timeout": 5,
         "config": {
