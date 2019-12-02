@@ -7850,11 +7850,9 @@
     },
     "ARDUINO_NANO33BLE": {
         "inherits": ["MCU_NRF52840"],
-        "features_add": ["BLE", "STORAGE"],
+        "features_add": ["STORAGE"],
         "components_remove": ["QSPIF"],
-        "components_add": ["FLASHIAP"],
         "device_has_remove": ["QSPI", "ITM"],
-        "device_has_add": ["FLASH"],
         "macros_add": [
             "CONFIG_GPIO_AS_PINRESET"
         ]
@@ -7875,8 +7873,7 @@
         "detect_code": ["1026"],
         "device_has_remove": ["ITM"],
         "macros_add": [
-            "CONFIG_GPIO_AS_PINRESET",
-            "NRF52_ERRATA_20"
+            "CONFIG_GPIO_AS_PINRESET"
         ]
     },
     "BLUEPILL_F103C8": {
