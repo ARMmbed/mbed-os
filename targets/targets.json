@@ -8454,7 +8454,7 @@
         ],
         "config": {
             "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
+                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL | USE_PLL_HSI | USE_PLL_MSI",
                 "value": "USE_PLL_MSI",
                 "macro_name": "CLOCK_SOURCE"
             },
@@ -8467,6 +8467,7 @@
             "FLASHIAP"
         ],
         "macros_add": [
+            "HSE_VALUE=16000000",
             "STM32L4R9xx",
             "MBED_TICKLESS",
             "EXTRA_IDLE_STACK_REQUIRED"
