@@ -424,8 +424,10 @@ static void _serial_set_flow_control_direct(serial_t *obj, FlowControl type, con
 
         case FlowControlCTS:
             /* Do not use RTS, configure pin to GPIO input */
-            gpio_init(&gpio, pinmap->rx_flow_pin);
-            gpio_dir(&gpio, PIN_INPUT);
+            if (pinmap->rx_flow_pin != NC) {
+                gpio_init(&gpio, pinmap->rx_flow_pin);
+                gpio_dir(&gpio, PIN_INPUT);
+            }
 
             pin_function(pinmap->tx_flow_pin, pinmap->tx_flow_function);
             pin_mode(pinmap->tx_flow_pin, PullNone);
@@ -442,8 +444,10 @@ static void _serial_set_flow_control_direct(serial_t *obj, FlowControl type, con
 
         case FlowControlNone:
             /* Do not use RTS, configure pin to GPIO input */
-            gpio_init(&gpio, pinmap->rx_flow_pin);
-            gpio_dir(&gpio, PIN_INPUT);
+            if (pinmap->rx_flow_pin != NC) {
+                gpio_init(&gpio, pinmap->rx_flow_pin);
+                gpio_dir(&gpio, PIN_INPUT);
+            }
 
             uart_addrs[obj->index]->CFG &= ~USART_CFG_CTSEN_MASK;
             break;
