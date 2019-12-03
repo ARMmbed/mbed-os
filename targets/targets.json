@@ -7831,6 +7831,8 @@
         "overrides": {
             "mpu-rom-end": "0x1fffffff"
         },
+        "release_versions": ["5"],
+        "device_name": "nRF52840_xxAA",
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
@@ -7842,29 +7844,22 @@
     "NRF52840_DK": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52840"],
-        "release_versions": ["5"],
-        "device_name": "nRF52840_xxAA",
+        "detect_code": ["1102"],
         "macros_add": [
             "CONFIG_GPIO_AS_PINRESET"
         ]
     },
     "ARDUINO_NANO33BLE": {
         "inherits": ["MCU_NRF52840"],
-        "release_versions": ["5"],
-        "device_name": "nRF52840_xxAA",
-        "features_add": ["BLE", "STORAGE"],
+        "features_add": ["STORAGE"],
         "components_remove": ["QSPIF"],
-        "components_add": ["FLASHIAP"],
         "device_has_remove": ["QSPI", "ITM"],
-        "device_has_add": ["FLASH"],
         "macros_add": [
             "CONFIG_GPIO_AS_PINRESET"
         ]
     },
     "MTB_LAIRD_BL654": {
         "inherits": ["MCU_NRF52840"],
-        "release_versions": ["5"],
-        "device_name": "nRF52840_xxAA",
         "detect_code": ["0465"],
         "features_remove": ["CRYPTOCELL310"],
         "macros_remove": ["MBEDTLS_CONFIG_HW_SUPPORT"],
@@ -7876,13 +7871,10 @@
     },
     "MAKERDIARY_NRF52840_MDK": {
         "inherits": ["MCU_NRF52840"],
-        "release_versions": ["5"],
-        "device_name": "nRF52840_xxAA",
         "detect_code": ["1026"],
         "device_has_remove": ["ITM"],
         "macros_add": [
-            "CONFIG_GPIO_AS_PINRESET",
-            "NRF52_ERRATA_20"
+            "CONFIG_GPIO_AS_PINRESET"
         ]
     },
     "BLUEPILL_F103C8": {
@@ -9634,7 +9626,6 @@
     },
     "EP_AGORA": {
         "inherits": ["MCU_NRF52840"],
-        "device_name": "nRF52840_xxAA",
         "supported_form_factors": [],
         "config": {
             "modem_is_on_board": {
@@ -9650,7 +9641,6 @@
         },
         "components_add": ["SPIF"],
         "components_remove": ["QSPIF"],
-        "release_versions": ["5"],
         "macros_add": [
             "CONFIG_GPIO_AS_PINRESET"
         ]
