@@ -27,9 +27,10 @@
 #define DELAY_DELTA_US 2500ULL
 
 /*  Use a specific delta value for deep sleep, as entry/exit adds up extra latency.
- *  Use deep sleep latency if defined and add 1ms extra delta */
+ *  Use deep sleep latency if defined and add 2ms extra delta works for both 
+ *  std and small library. */
 #if defined MBED_CONF_TARGET_DEEP_SLEEP_LATENCY
-#define DEEP_SLEEP_DELAY_DELTA_US ((MBED_CONF_TARGET_DEEP_SLEEP_LATENCY * 1000ULL) + 1000ULL)
+#define DEEP_SLEEP_DELAY_DELTA_US ((MBED_CONF_TARGET_DEEP_SLEEP_LATENCY * 1000ULL) + 2000ULL)
 #else
 #define DEEP_SLEEP_DELAY_DELTA_US 2500ULL
 #endif
