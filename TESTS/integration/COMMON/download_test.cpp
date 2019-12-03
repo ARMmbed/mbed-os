@@ -27,7 +27,7 @@
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
 #include <string>
-#include "common_defines_test.h"
+#include "download_test.h"
 
 #define MAX_THREADS 5
 

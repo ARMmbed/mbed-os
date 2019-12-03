@@ -24,7 +24,7 @@
 
 #include "mbed.h"
 #include "unity/unity.h"
-#include "common_defines_test.h"
+#include "file_test.h"
 
 void file_test_write(const char *file, size_t offset, const unsigned char *data, size_t data_length, size_t block_size)
 {

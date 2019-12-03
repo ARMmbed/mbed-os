@@ -16,9 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "mbed_trace.h"
-
-#define TRACE_GROUP "GRNT"
 
 #define FS_FAT 1
 #define FS_LFS 2
