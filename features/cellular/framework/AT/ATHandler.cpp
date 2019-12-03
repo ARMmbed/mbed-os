@@ -549,6 +549,9 @@ void ATHandler::skip_param(uint32_t count)
                 }
             } else if (match_pos) {
                 match_pos = 0;
+                if (c == _stop_tag->tag[match_pos]) {
+                    match_pos++;
+                }
             }
         }
     }
@@ -633,6 +636,9 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
             }
         } else if (match_pos) {
             match_pos = 0;
+            if (c == _stop_tag->tag[match_pos]) {
+                match_pos++;
+            }
         }
 
         buf[len] = c;
@@ -717,6 +723,9 @@ ssize_t ATHandler::read_hex_string(char *buf, size_t size)
             }
         } else if (match_pos) {
             match_pos = 0;
+            if (c == _stop_tag->tag[match_pos]) {
+                match_pos++;
+            }
         }
 
         if (match_pos) {
@@ -1605,12 +1614,14 @@ void ATHandler::write_hex_string(char *str, size_t size)
         return;
     }
 
+    (void) write("\"", 1);
     char hexbuf[2];
     for (size_t i = 0; i < size; i++) {
         hexbuf[0] = hex_values[((str[i]) >> 4) & 0x0F];
         hexbuf[1] = hex_values[(str[i]) & 0x0F];
         write(hexbuf, 2);
     }
+    (void) write("\"", 1);
 }
 
 void ATHandler::set_baud(int baud_rate)
