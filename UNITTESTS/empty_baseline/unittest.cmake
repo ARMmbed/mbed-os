@@ -31,7 +31,6 @@ set(unittest-sources
 	../features/storage/kvstore/conf/kv_config.cpp
 	../features/storage/kvstore/filesystemstore/FileSystemStore.cpp
 	../features/storage/system_storage/SystemStorage.cpp
-	../features/storage/nvstore/source/nvstore.cpp
 	../features/storage/blockdevice/ChainingBlockDevice.cpp
 	../features/storage/blockdevice/ReadOnlyBlockDevice.cpp
 	../features/storage/blockdevice/SlicingBlockDevice.cpp

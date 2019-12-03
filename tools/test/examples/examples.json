@@ -167,22 +167,6 @@
         "auto-update" : true
     },
     {
-        "name": "mbed-os-example-nvstore",
-        "github":"https://github.com/ARMmbed/mbed-os-example-nvstore",
-        "sub-repo-example": false,
-        "subs": [],
-        "features" : [],
-        "targets" : ["K66F", "FVP_MPS2_M3"],
-        "toolchains" : [],
-        "exporters": [],
-        "compile" : true,
-        "export": true,
-        "test" : true,
-        "baud_rate": 9600,
-        "compare_log": ["mbed-os-example-nvstore/tests/nvstore.log"],
-        "auto-update" : true
-    },
-    {
         "name": "mbed-os-example-devicekey",
         "github":"https://github.com/ARMmbed/mbed-os-example-devicekey",
         "sub-repo-example": false,

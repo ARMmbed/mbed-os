@@ -17,7 +17,7 @@ limitations under the License.
 This script is the host script for trng test sequence, it send the 
 step signaling sequence and receive and transmit data to the device after 
 reset if necesarry (default loading and storing mechanism while reseting the device
-is NVstore, in case NVstore isn't enabled we'll use current infrastructure,
+is KVStore, in case KVStore isn't enabled we'll use current infrastructure,
 for more details see main.cpp file)
 """
 

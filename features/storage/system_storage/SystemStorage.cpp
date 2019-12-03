@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "SystemStorage.h"
 #include "features/storage/blockdevice/BlockDevice.h"
 #include "features/storage/filesystem/FileSystem.h"
 #include "features/storage/filesystem/fat/FATFileSystem.h"
@@ -46,31 +45,6 @@
 #endif
 
 using namespace mbed;
-
-
-
-MBED_WEAK int avoid_conflict_nvstore_tdbstore(owner_type_e in_mem_owner)
-{
-    int status = MBED_SUCCESS;
-    static PlatformMutex _mutex;
-    static owner_type_e internal_memory_owner = NONE;
-
-    _mutex.lock();
-
-    if (internal_memory_owner != NONE &&
-            internal_memory_owner != in_mem_owner) {
-
-        status = MBED_ERROR_ALREADY_INITIALIZED;
-
-    } else {
-
-        internal_memory_owner = in_mem_owner;
-    }
-
-    _mutex.unlock();
-
-    return status;
-}
 
 // Align a value to a specified size.
 // Parameters :
