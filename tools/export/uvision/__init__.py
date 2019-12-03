@@ -393,7 +393,7 @@ class UvisionArmc5(Uvision):
         target = TARGET_MAP[target_name]
         if not target.is_TFM_target:
             if int(target.build_tools_metadata["version"]) > 0:
-                #Just check for ARMC5 as ARMC5 must be there irrespective of whether uARM is there or not if the target is staying with ARMC5
+                # Just check for ARMC5 as ARMC5 must be there irrespective of whether uARM is there or not if the target is staying with ARMC5
                 if "ARMC5" not in target.supported_toolchains:
                     return False
             else:
