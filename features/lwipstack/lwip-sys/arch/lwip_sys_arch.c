@@ -116,9 +116,6 @@ u32_t sys_now(void) {
 /* CMSIS-RTOS implementation of the lwip operating system abstraction */
 #include "arch/sys_arch.h"
 
-/* modulus subtract: (a - b) mod m, where a, b belongs to mod m ring */
-#define SUB_MOD(a, b, m) ((a) >= (b) ? (a) - (b) : (m) - (b) + (a))
-
 /*---------------------------------------------------------------------------*
  * Routine:  sys_mbox_new
  *---------------------------------------------------------------------------*
@@ -181,7 +178,7 @@ void sys_mbox_post(sys_mbox_t *mbox, void *msg) {
     mbox->post_idx = (mbox->post_idx + 1) % MB_SIZE;
 
     osEventFlagsSet(mbox->id, SYS_MBOX_FETCH_EVENT);
-    if (SUB_MOD(mbox->post_idx, mbox->fetch_idx, MB_SIZE) >= MB_SIZE-1)
+    if ((mbox->post_idx + 1) % MB_SIZE == mbox->fetch_idx)
         osEventFlagsClear(mbox->id, SYS_MBOX_POST_EVENT);
 
     osKernelRestoreLock(state);
@@ -214,7 +211,7 @@ err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg) {
     mbox->post_idx = (mbox->post_idx + 1) % MB_SIZE;
 
     osEventFlagsSet(mbox->id, SYS_MBOX_FETCH_EVENT);
-    if (SUB_MOD(mbox->post_idx, mbox->fetch_idx, MB_SIZE) >= MB_SIZE-1)
+    if ((mbox->post_idx + 1) % MB_SIZE == mbox->fetch_idx)
         osEventFlagsClear(mbox->id, SYS_MBOX_POST_EVENT);
 
     osKernelRestoreLock(state);
