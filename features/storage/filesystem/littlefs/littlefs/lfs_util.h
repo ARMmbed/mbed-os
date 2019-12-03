@@ -47,6 +47,7 @@ extern "C"
 #ifdef __MBED__
 #include "mbed_debug.h"
 #include "mbed_assert.h"
+#include "cmsis_compiler.h"
 #else
 #define MBED_LFS_ENABLE_INFO   false
 #define MBED_LFS_ENABLE_DEBUG  true
@@ -181,6 +182,21 @@ static inline uint32_t lfs_fromle32(uint32_t a) {
 // Convert to 32-bit little-endian from native order
 static inline uint32_t lfs_tole32(uint32_t a) {
     return lfs_fromle32(a);
+}
+
+// Reverse the bits in a
+static inline uint32_t lfs_rbit(uint32_t a) {
+#if !defined(LFS_NO_INTRINSICS) && MBED_LFS_INTRINSICS && \
+    defined(__MBED__)
+    return __RBIT(a);
+#else
+    a = ((a & 0xaaaaaaaa) >> 1) | ((a & 0x55555555) << 1);
+    a = ((a & 0xcccccccc) >> 2) | ((a & 0x33333333) << 2);
+    a = ((a & 0xf0f0f0f0) >> 4) | ((a & 0x0f0f0f0f) << 4);
+    a = ((a & 0xff00ff00) >> 8) | ((a & 0x00ff00ff) << 8);
+    a = (a >> 16) | (a << 16);
+    return a;
+#endif
 }
 
 // Calculate CRC-32 with polynomial = 0x04c11db7

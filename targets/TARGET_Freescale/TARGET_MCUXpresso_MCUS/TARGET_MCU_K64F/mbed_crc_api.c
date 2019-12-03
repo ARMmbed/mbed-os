@@ -23,19 +23,6 @@
 static crc_bits_t width;
 static uint32_t final_xor;
 
-bool hal_crc_is_supported(const crc_mbed_config_t* config)
-{
-    if (config == NULL) {
-        return false;
-    }
-
-    if ((config->width != 32) && (config->width != 16)) {
-        return false;
-    }
-
-    return true;
-}
-
 void hal_crc_compute_partial_start(const crc_mbed_config_t* config)
 {
     if (config == NULL) {
@@ -50,12 +37,7 @@ void hal_crc_compute_partial_start(const crc_mbed_config_t* config)
     platform_config.seed = config->initial_xor;
     platform_config.reflectIn = config->reflect_in;
     platform_config.reflectOut = config->reflect_out;
-    if ((width == kCrcBits16 && config->final_xor == 0xFFFFU) ||
-        (width == kCrcBits32 && config->final_xor == 0xFFFFFFFFU)) {
-        platform_config.complementChecksum = true;
-    } else {
-        platform_config.complementChecksum = false;
-    }
+    platform_config.complementChecksum = false;
     platform_config.crcBits = width;
     platform_config.crcResult = kCrcFinalChecksum;
 
@@ -79,24 +61,15 @@ uint32_t hal_crc_get_result(void)
 {
     uint32_t result;
 
-    const bool manual_final_xor = ((final_xor != 0x00000000U) &&
-                                   ((final_xor != 0xFFFFFFFFU && width == kCrcBits32) ||
-                                    (final_xor != 0xFFFFU && width == kCrcBits16)));
-
     switch (width)
     {
         case kCrcBits16:
             result = CRC_Get16bitResult(CRC0);
-            if (manual_final_xor) {
-                result ^= final_xor;
-                result &= 0xFFFF;
-            }
+            result ^= final_xor;
             return result;
         case kCrcBits32:
             result = CRC_Get32bitResult(CRC0);
-            if (manual_final_xor) {
-                result ^= final_xor;
-            }
+             result ^= final_xor;
             return result;
         default:
             MBED_ASSERT("Unhandled switch case");

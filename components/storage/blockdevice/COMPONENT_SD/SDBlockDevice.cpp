@@ -252,7 +252,7 @@ const uint32_t SDBlockDevice::_block_size = BLOCK_SIZE_HC;
 #if MBED_CONF_SD_CRC_ENABLED
 SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz, bool crc_on)
     : _sectors(0), _spi(mosi, miso, sclk), _cs(cs), _is_initialized(0),
-      _init_ref_count(0), _crc_on(crc_on), _crc16(0, 0, false, false)
+      _init_ref_count(0), _crc_on(crc_on)
 #else
 SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz, bool crc_on)
     : _sectors(0), _spi(mosi, miso, sclk), _cs(cs), _is_initialized(0),
@@ -678,10 +678,11 @@ uint8_t SDBlockDevice::_cmd_spi(SDBlockDevice::cmdSupported cmd, uint32_t arg)
     cmdPacket[4] = (arg >> 0);
 
 #if MBED_CONF_SD_CRC_ENABLED
-    uint32_t crc;
     if (_crc_on) {
-        _crc7.compute((void *)cmdPacket, 5, &crc);
-        cmdPacket[5] = (char)(crc | 0x01);
+        MbedCRC<POLY_7BIT_SD, 7> crc7;
+        uint32_t crc;
+        crc7.compute(cmdPacket, 5, &crc);
+        cmdPacket[5] = ((uint8_t) crc << 1) | 0x01;
     } else
 #endif
     {
@@ -899,12 +900,13 @@ int SDBlockDevice::_read_bytes(uint8_t *buffer, uint32_t length)
 
 #if MBED_CONF_SD_CRC_ENABLED
     if (_crc_on) {
+        mbed::MbedCRC<POLY_16BIT_CCITT, 16> crc16(0, 0, false, false);
         uint32_t crc_result;
         // Compute and verify checksum
-        _crc16.compute((void *)buffer, length, &crc_result);
-        if ((uint16_t)crc_result != crc) {
-            debug_if(SD_DBG, "_read_bytes: Invalid CRC received 0x%" PRIx16 " result of computation 0x%" PRIx16 "\n",
-                     crc, (uint16_t)crc_result);
+        crc16.compute(buffer, length, &crc_result);
+        if (crc_result != crc) {
+            debug_if(SD_DBG, "_read_bytes: Invalid CRC received 0x%" PRIx16 " result of computation 0x%" PRIx32 "\n",
+                     crc, crc_result);
             _deselect();
             return SD_BLOCK_DEVICE_ERROR_CRC;
         }
@@ -934,9 +936,10 @@ int SDBlockDevice::_read(uint8_t *buffer, uint32_t length)
 
 #if MBED_CONF_SD_CRC_ENABLED
     if (_crc_on) {
+        mbed::MbedCRC<POLY_16BIT_CCITT, 16> crc16(0, 0, false, false);
         uint32_t crc_result;
         // Compute and verify checksum
-        _crc16.compute((void *)buffer, length, &crc_result);
+        crc16.compute((void *)buffer, length, &crc_result);
         if ((uint16_t)crc_result != crc) {
             debug_if(SD_DBG, "_read_bytes: Invalid CRC received 0x%" PRIx16 " result of computation 0x%" PRIx16 "\n",
                      crc, (uint16_t)crc_result);
@@ -962,8 +965,9 @@ uint8_t SDBlockDevice::_write(const uint8_t *buffer, uint8_t token, uint32_t len
 
 #if MBED_CONF_SD_CRC_ENABLED
     if (_crc_on) {
+        mbed::MbedCRC<POLY_16BIT_CCITT, 16> crc16(0, 0, false, false);
         // Compute CRC
-        _crc16.compute((void *)buffer, length, &crc);
+        crc16.compute(buffer, length, &crc);
     }
 #endif
 
