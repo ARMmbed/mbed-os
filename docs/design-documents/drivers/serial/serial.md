@@ -91,27 +91,23 @@ class BufferedSerial : private SerialBase, public FileHandle, private NonCopyabl
 
 **API description**
 
-These are the new constructors for `BufferedSerial`. The first constructor creates the buffers dynamically.
+These are the constructors for `BufferedSerial`. The first constructor statically allocates the receive and transmit buffers with a configurable size of MBED_CONF_DRIVERS_UART_SERIAL_RXBUF_SIZE and MBED_CONF_DRIVERS_UART_SERIAL_TXBUF_SIZE respectively.
 
 ```C
     /** Create a BufferedSerial port, connected to the specified transmit and receive pins, with a particular baud rate.
      *  @param tx Transmit pin
      *  @param rx Receive pin
      *  @param baud The baud rate of the serial port (optional, defaults to MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE)
-     *  @param rx_buffer_size The size of the receive buffer (optional, defaults to MBED_CONF_DRIVERS_UART_SERIAL_RXBUF_SIZE)
-     *  @param tx_buffer_size The size of the transmit buffer (optional, defaults to MBED_CONF_DRIVERS_UART_SERIAL_TXBUF_SIZE)
      *
      *  @note
      *    Either tx or rx may be specified as NC if unused
      */
     BufferedSerial(PinName tx,
                    PinName rx,
-                   int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE,
-                   size_t rx_buffer_size = MBED_CONF_DRIVERS_UART_SERIAL_RXBUF_SIZE,
-                   size_t tx_buffer_size = MBED_CONF_DRIVERS_UART_SERIAL_TXBUF_SIZE);
+                   int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
 ```
 
-The second constructor takes buffer pointers as arguments.
+If MBED_CONF_DRIVERS_UART_SERIAL_RXBUF_SIZE and MBED_CONF_DRIVERS_UART_SERIAL_TXBUF_SIZE are set to zero, then another constructor is provided to allow the application to pass different buffers based on the intended usage of the serial instance. 
 
 ```C
     /** Create a BufferedSerial port, connected to the specified transmit and receive pins, with a particular baud rate.
@@ -265,16 +261,14 @@ There are two approaches to achieve a minimal retarget layer. You can:
 
 A minimal console only needs to write a single character at a time. So redefining the default fputc() to directly write to the serial port if the output stream is stdout and bypassing the system I/O functions should achieve higher memory savings. If we take this approach, we will have to rework some error handlers that rely on the POSIX form of `write(STDOUT_FILENO, buf, len)` to do emergency printing.
 
-The second solution keeps the POSIX layer with the main saving coming from dropping the use of `FileHandle` and the file handle table itself. In this case, a `MinimalConsole` class will be implemented as an internal class in the retarget code and `write()` will call `MinimalConsole::putc` in a loop.
+The second solution keeps the POSIX layer with the main saving coming from dropping the use of `FileHandle` and the file handle table itself. In this case, two weak functions will be defined `minimal_console_getc` and `minimal_console_putc`. These functions will be called by `read()` and `write()` in the retarget code and will in turn call `serial_getc` and `serial_putc` on `stdio_uart`.
 
 ```C
-class MinimalConsole {
-public:
-    MinimalConsole(int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
-    ~MinimalConsole();
-    int getc();
-    int putc(int c);
-};
+/* Read a character from the serial interface */
+ MBED_WEAK int mbed::minimal_console_getc();
+
+/* Write one character to a serial interface */
+ MBED_WEAK int mbed::minimal_console_putc(int c);
 ```
 
 List of tasks to simplify the retarget code:
