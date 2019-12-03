@@ -11,40 +11,70 @@ and [p-l496g-cell02](https://www.st.com/en/evaluation-tools/p-l496g-cell02.html)
 
 The STMOD+ Connector specification can be found [here](https://www.st.com/content/ccc/resource/technical/document/technical_note/group0/04/7f/90/c1/ad/54/46/1f/DM00323609/files/DM00323609.pdf/jcr:content/translations/en.DM00323609.pdf).
 
+## Debug print
+
+mbed_trace feature is used: https://github.com/ARMmbed/mbed-os/blob/master/features/frameworks/mbed-trace/README.md
+
+Enable it in your mbed_app.json file:
+
+````
+{
+    "target_overrides": {
+        "*": {
+            "mbed-trace.enable": 1
+        }
+    }
+}
+````
+
+Look for "STMOD" group name:
+````
+[DBG ][STMOD]: STMOD_CELLULAR default instance
+[INFO][STMOD]: STModCellular creation
+[DBG ][STMOD]: STMOD cellular modem power ON
+[INFO][STMOD]: Booting BG96
+[INFO][STMOD]: Modem ready to receive AT commands
+[INFO][STMOD]: Enable flow control
+[DBG ][STMOD]: Flow control turned ON
+````
+
+
 ## Cellular tests in mbed-os
 
-- features-cellular-tests-api-cellular_device
-- features-cellular-tests-api-cellular_information
-- features-cellular-tests-api-cellular_network
-- features-cellular-tests-api-cellular_sms
-- features-cellular-tests-socket-udp
+Since mbed-os-5.14.1, cellular tests have been replaced with generic mbed-os netsocket and network interface tests.
 
-Here is the used mbed_app.json:
+https://github.com/ARMmbed/mbed-os/blob/master/TESTS/netsocket/README.md
+
+Here is an example of needed mbed_app.json:
 
 ````
 {
     "config": {
-        "cellular-sim-pin" : {
-            "help": "PIN code",
-            "value": "\"1234\""
+        "echo-server-discard-port": {
+            "help": "Discard port of echo server",
+            "value": "9
         },
-        "apn": {
-            "help": "The APN string to use for this SIM/network, set to 0 if none",
-            "value": "\"APN\""
+        "echo-server-discard-port-tls": {
+            "help": "Discard port of echo server",
+            "value": "2009"
         },
-        "username": {
-            "help": "The user name string to use for this APN, set to zero if none",
-            "value": 0
+        "echo-server-port": {
+            "help": "Port of echo server",
+            "value": "7"
         },
-        "password": {
-            "help": "The password string to use for this APN, set to 0 if none",
-            "value": 0
-        }
-   },
+        "echo-server-port-tls": {
+            "help": "Echo port of echo server",
+            "value": "2007"
+        },
+    },
     "target_overrides": {
         "DISCO_L496AG": {
-            "target.components_add": ["STMOD_CELLULAR"],
-            "stmod_cellular.provide-default": "true"
+            "target.components_add": [
+                "STMOD_CELLULAR"
+            ],
+            "stmod_cellular.provide-default": "true",
+            "nsapi.default-cellular-apn": "\"APN\"",
+            "target.network-default-interface-type": "CELLULAR"
         }
     }
 }
@@ -52,7 +82,7 @@ Here is the used mbed_app.json:
 
 
 ````
-$ mbed test -t ARM -m DISCO_L496AG -v -n features-cellular-*
+$ mbed test -t ARM -m DISCO_L496AG -v -n tests-net*
 ````
 
 ## Cellular mbed-os example
