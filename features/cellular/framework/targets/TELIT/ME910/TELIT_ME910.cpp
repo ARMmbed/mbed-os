@@ -17,6 +17,7 @@
 
 #include "TELIT_ME910.h"
 #include "TELIT_ME910_CellularContext.h"
+#include "TELIT_ME910_CellularNetwork.h"
 #include "AT_CellularNetwork.h"
 #include "PinNames.h"
 #include "rtos/ThisThread.h"
@@ -186,4 +187,9 @@ nsapi_error_t TELIT_ME910::hard_power_off()
 nsapi_error_t TELIT_ME910::soft_power_off()
 {
     return AT_CellularDevice::soft_power_off();
+}
+
+AT_CellularNetwork *TELIT_ME910::open_network_impl(ATHandler &at)
+{
+    return new TELIT_ME910_CellularNetwork(at);
 }
