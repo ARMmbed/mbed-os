@@ -290,7 +290,7 @@ class Armc5(Arm):
         target = TARGET_MAP[target_name]
         if not target.is_TFM_target:
             if int(target.build_tools_metadata["version"]) > 0:
-                #Although toolchain name is set to ARM above we should check for ARMC5 for 5.12/onwards
+                # Although toolchain name is set to ARM above we should check for ARMC5 for 5.12/onwards
                 if "ARMC5" not in target.supported_toolchains:
                     return False
 
@@ -320,8 +320,8 @@ class Armc6(Arm):
 
                 if not apply_supported_whitelist(
                     cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target):
-                    #ARMC6 is not in the list, but also check for ARM as ARM represents ARMC6 for 5.12/onwards
-                    #and still keep cls.TOOLCHAIN as ARMC6 as thats the toolchain we want to use
+                    # ARMC6 is not in the list, but also check for ARM as ARM represents ARMC6 for 5.12/onwards
+                    # and still keep cls.TOOLCHAIN as ARMC6 as thats the toolchain we want to use
                     return apply_supported_whitelist(
                         "ARM", cls.POST_BINARY_WHITELIST, target)
                 else:
