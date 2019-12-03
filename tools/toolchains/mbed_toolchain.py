@@ -895,62 +895,52 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
         """Add regions to the build profile, if there are any.
         """
         if self.config.has_regions:
-            try:
-                regions = list(self.config.regions)
-                regions.sort(key=lambda x: x.start)
-                self.notify.info("Using ROM region%s %s in this build." % (
-                    "s" if len(regions) > 1 else "",
-                    ", ".join(r.name for r in regions)
-                ))
-                self._add_all_regions(regions, "MBED_APP")
-            except ConfigException:
-                pass
+            regions = list(self.config.regions)
+            regions.sort(key=lambda x: x.start)
+            self.notify.info("Using ROM region%s %s in this build." % (
+                "s" if len(regions) > 1 else "",
+                ", ".join(r.name for r in regions)
+            ))
+            self._add_all_regions(regions, "MBED_APP")
 
         if self.config.has_ram_regions:
-            try:
-                regions = list(self.config.ram_regions)
-                self.notify.info("Using RAM region%s %s in this build." % (
-                    "s" if len(regions) > 1 else "",
-                    ", ".join(r.name for r in regions)
-                ))
-                self._add_all_regions(regions, None)
-            except ConfigException:
-                pass
+            regions = list(self.config.ram_regions)
+            self.notify.info("Using RAM region%s %s in this build." % (
+                "s" if len(regions) > 1 else "",
+                ", ".join(r.name for r in regions)
+            ))
+            self._add_all_regions(regions, None)
 
         Region = namedtuple("Region", "name start size")
 
-        try:
-            # Add all available ROM regions to build profile
-            if not getattr(self.target, "static_memory_defines", False):
-                raise ConfigException()
-            rom_available_regions = self.config.get_all_active_memories(
-                ROM_ALL_MEMORIES
+        # Add all available ROM regions to build profile
+        if not getattr(self.target, "static_memory_defines", False):
+            raise ConfigException()
+        rom_available_regions = self.config.get_all_active_memories(
+            ROM_ALL_MEMORIES
+        )
+        for key, value in rom_available_regions.items():
+            rom_start, rom_size = value
+            self._add_defines_from_region(
+                Region("MBED_" + key, rom_start, rom_size),
+                True,
+                suffixes=["_START", "_SIZE"]
             )
-            for key, value in rom_available_regions.items():
-                rom_start, rom_size = value
-                self._add_defines_from_region(
-                    Region("MBED_" + key, rom_start, rom_size),
-                    True,
-                    suffixes=["_START", "_SIZE"]
-                )
-        except ConfigException:
-            pass
-        try:
-            # Add all available RAM regions to build profile
-            if not getattr(self.target, "static_memory_defines", False):
-                raise ConfigException()
-            ram_available_regions = self.config.get_all_active_memories(
-                RAM_ALL_MEMORIES
+
+        # Add all available RAM regions to build profile
+        if not getattr(self.target, "static_memory_defines", False):
+            raise ConfigException()
+        ram_available_regions = self.config.get_all_active_memories(
+            RAM_ALL_MEMORIES
+        )
+        for key, value in ram_available_regions.items():
+            ram_start, ram_size = value
+            self._add_defines_from_region(
+                Region("MBED_" + key, ram_start, ram_size),
+                True,
+                suffixes=["_START", "_SIZE"]
             )
-            for key, value in ram_available_regions.items():
-                ram_start, ram_size = value
-                self._add_defines_from_region(
-                    Region("MBED_" + key, ram_start, ram_size),
-                    True,
-                    suffixes=["_START", "_SIZE"]
-                )
-        except ConfigException:
-            pass
+
 
     STACK_PARAM = "target.boot-stack-size"
     TFM_LVL_PARAM = "tfm.level"
