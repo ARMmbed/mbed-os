@@ -336,28 +336,28 @@ cy_rslt_t cyhal_sdio_init(cyhal_sdio_t *obj, cyhal_gpio_t cmd, cyhal_gpio_t clk,
     if (retVal == CY_RSLT_SUCCESS)
     {
         /* Reserve DMA0 CH0 */
-        cyhal_resource_inst_t dmaRsc = { CYHAL_RSC_DMA, 0, 0 };
+        cyhal_resource_inst_t dmaRsc = { CYHAL_RSC_DW, 0, 0 };
         retVal = cyhal_hwmgr_reserve(&dmaRsc);
     }
 
     if (retVal == CY_RSLT_SUCCESS)
     {
         /* Reserve DMA0 CH1 */
-        cyhal_resource_inst_t dmaRsc = { CYHAL_RSC_DMA, 0, 1 };
+        cyhal_resource_inst_t dmaRsc = { CYHAL_RSC_DW, 0, 1 };
         retVal = cyhal_hwmgr_reserve(&dmaRsc);
     }
 
     if (retVal == CY_RSLT_SUCCESS)
     {
         /* Reserve DMA1 CH1 */
-        cyhal_resource_inst_t dmaRsc = { CYHAL_RSC_DMA, 1, 1 };
+        cyhal_resource_inst_t dmaRsc = { CYHAL_RSC_DW, 1, 1 };
         retVal = cyhal_hwmgr_reserve(&dmaRsc);
     }
 
     if (retVal == CY_RSLT_SUCCESS)
     {
         /* Reserve DMA1 CH3 */
-        cyhal_resource_inst_t dmaRsc = { CYHAL_RSC_DMA, 1, 3 };
+        cyhal_resource_inst_t dmaRsc = { CYHAL_RSC_DW, 1, 3 };
         retVal = cyhal_hwmgr_reserve(&dmaRsc);
     }
 
