@@ -222,7 +222,7 @@ nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
     } else {
         tr_debug("Manual network registration to %s", plmn);
         if (_op_act != RAT_UNKNOWN) {
-            return _at.at_cmd_discard("+COPS", "=1,2,", "%s%d", plmn, _op_act);
+            return _at.at_cmd_discard("+COPS", "=4,2,", "%s%d", plmn, _op_act);
         } else {
             return _at.at_cmd_discard("+COPS", "=1,2,", "%s", plmn);
         }
