@@ -66,7 +66,7 @@ void fpga_uart_test_common(PinName tx, PinName rx, PinName cts = NC, PinName rts
 void fpga_uart_test_common_no_fc(PinName tx, PinName rx);
 
 /* Common test function. */
-static void uart_test_common(int baudrate, int data_bits, SerialParity parity, int stop_bits, PinName tx, PinName rx, PinName cts = NC, PinName rts = NC);
+static void uart_test_common(int baudrate, int data_bits, SerialParity parity, int stop_bits, bool init_direct, PinName tx, PinName rx, PinName cts = NC, PinName rts = NC);
 
 /**@}*/
 

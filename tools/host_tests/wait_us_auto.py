@@ -17,7 +17,7 @@ limitations under the License.
 
 from time import time
 
-class WaitusTest():
+class WaitusTest(object):
     """ This test is reading single characters from stdio
         and measures time between their occurrences.
     """

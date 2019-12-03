@@ -24,11 +24,20 @@ udp_link_layer_auto.py -p COM20 -d E:\ -t 10
 import re
 import uuid
 import socket
-import thread
+try:
+    # Python 3
+    import _thread as thread
+except ImportError:
+    # Python 2
+    import thread
 from sys import stdout
 from time import time, sleep
-from host_test import DefaultTest
-from SocketServer import BaseRequestHandler, UDPServer
+from .host_test import DefaultTest
+
+try:
+    from SocketServer import BaseRequestHandler, UDPServer
+except ImportError:
+    from socketserver import BaseRequestHandler, UDPServer
 
 
 # Received datagrams (with time)
@@ -52,7 +61,7 @@ def udp_packet_recv(threadName, server_ip, server_port):
     """ This function will receive packet stream from mbed device
     """
     server = UDPServer((server_ip, server_port), UDPEchoClient_Handler)
-    print "[UDP_COUNTER] Listening for connections... %s:%d"% (server_ip, server_port)
+    print("[UDP_COUNTER] Listening for connections... %s:%d"% (server_ip, server_port))
     server.serve_forever()
 
 
@@ -74,7 +83,7 @@ class UDPEchoServerTest(DefaultTest):
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((self.ECHO_SERVER_ADDRESS, self.CONTROL_PORT))
-        except Exception, e:
+        except Exception as e:
             data = None
         s.send(command)
         data = s.recv(BUFFER_SIZE)
@@ -97,7 +106,7 @@ class UDPEchoServerTest(DefaultTest):
         # Open client socket to burst datagrams to UDP server in mbed
         try:
             self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        except Exception, e:
+        except Exception as e:
             self.s = None
             self.notify("HOST: Error: %s"% e)
             return self.RESULT_ERROR

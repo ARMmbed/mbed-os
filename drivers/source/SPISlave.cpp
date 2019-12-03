@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 #include "drivers/SPISlave.h"
+#include "mbed_assert.h"
 
 #if DEVICE_SPISLAVE
 
@@ -27,6 +28,17 @@ SPISlave::SPISlave(PinName mosi, PinName miso, PinName sclk, PinName ssel) :
     _hz(1000000)
 {
     spi_init(&_spi, mosi, miso, sclk, ssel);
+    spi_format(&_spi, _bits, _mode, 1);
+    spi_frequency(&_spi, _hz);
+}
+
+SPISlave::SPISlave(const spi_pinmap_t &pinmap) :
+    _spi(),
+    _bits(8),
+    _mode(0),
+    _hz(1000000)
+{
+    spi_init_direct(&_spi, &pinmap);
     spi_format(&_spi, _bits, _mode, 1);
     spi_frequency(&_spi, _hz);
 }

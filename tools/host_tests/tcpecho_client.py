@@ -26,9 +26,9 @@ LEN_PACKET = 127
 N_PACKETS = 5000
 TOT_BITS = float(LEN_PACKET * N_PACKETS * 8) * 2
 MEGA = float(1024 * 1024)
-UPDATE_STEP = (N_PACKETS/10)
+UPDATE_STEP = (N_PACKETS // 10)
 
-class TCP_EchoClient:
+class TCP_EchoClient(object):
     def __init__(self, host):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect((host, ECHO_PORT))
@@ -44,10 +44,10 @@ class TCP_EchoClient:
     def test(self):
         start = time()
         for i in range(N_PACKETS):
-            if (i % UPDATE_STEP) == 0: print '%.2f%%' % ((float(i)/float(N_PACKETS)) * 100.)
+            if (i % UPDATE_STEP) == 0: print('%.2f%%' % ((float(i)/float(N_PACKETS)) * 100.))
             self.__packet()
         t = time() - start
-        print 'Throughput: (%.2f)Mbits/s' % ((TOT_BITS / t)/MEGA)
+        print('Throughput: (%.2f)Mbits/s' % ((TOT_BITS / t)/MEGA))
 
     def __del__(self):
         self.s.close()

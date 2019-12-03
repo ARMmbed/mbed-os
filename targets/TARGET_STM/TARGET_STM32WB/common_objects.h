@@ -38,6 +38,7 @@
 #include "PinNames.h"
 #include "stm32wbxx_ll_usart.h"
 #include "stm32wbxx_ll_tim.h"
+#include "stm32wbxx_ll_pwr.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -125,8 +126,6 @@ struct analogin_s {
     PinName pin;
     uint8_t channel;
 };
-
-#define HAL_CRC_IS_SUPPORTED(polynomial, width) ((width) == 7 || (width) == 8 || (width) == 16 || (width) == 32)
 
 #include "gpio_object.h"
 

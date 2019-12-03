@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#include <stdio.h>
 #include "AT_CellularContext.h"
 #include "AT_CellularNetwork.h"
 #include "AT_CellularStack.h"
@@ -246,7 +247,7 @@ nsapi_error_t AT_CellularContext::get_ip_address(SocketAddress *address)
         _stack = get_stack();
     }
     if (_stack) {
-        address->set_ip_address(_stack->get_ip_address());
+        _stack->get_ip_address(address);
         return NSAPI_ERROR_OK;
     }
     return NSAPI_ERROR_NO_CONNECTION;

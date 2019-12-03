@@ -33,6 +33,7 @@ from collections import defaultdict
 from prettytable import PrettyTable, HEADER
 from jinja2 import FileSystemLoader, StrictUndefined
 from jinja2.environment import Environment
+from future.utils import with_metaclass
 
 
 # Be sure that the tools directory is in the search path
@@ -46,9 +47,8 @@ from tools.utils import (
 )  # noqa: E402
 
 
-class _Parser(object):
+class _Parser(with_metaclass(ABCMeta, object)):
     """Internal interface for parsing"""
-    __metaclass__ = ABCMeta
     SECTIONS = ('.text', '.data', '.bss', '.heap', '.stack')
     MISC_FLASH_SECTIONS = ('.interrupts', '.flash_config')
     OTHER_SECTIONS = ('.interrupts_ram', '.init', '.ARM.extab',

@@ -14,16 +14,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from SocketServer import BaseRequestHandler, UDPServer
+from __future__ import print_function
+try:
+    from SocketServer import BaseRequestHandler, UDPServer
+except ImportError:
+    from socketserver import BaseRequestHandler, UDPServer
 from mbed_settings import SERVER_ADDRESS
 
 class UDP_EchoHandler(BaseRequestHandler):
     def handle(self):
         data, socket = self.request
-        print "client:", self.client_address
-        print "data:", data
+        print("client:", self.client_address)
+        print("data:", data)
         socket.sendto(data, self.client_address)
 
 server = UDPServer((SERVER_ADDRESS, 7195), UDP_EchoHandler)
-print "listening for connections"
+print("listening for connections")
 server.serve_forever()

@@ -20,7 +20,7 @@ from mock import patch
 from tools.detect_targets import get_interface_version
 
 
-class MbedLsToolsMock():
+class MbedLsToolsMock(object):
     """
     Mock of mbedls tools
     """

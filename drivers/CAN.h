@@ -170,6 +170,24 @@ public:
       */
     CAN(PinName rd, PinName td, int hz);
 
+    /** Initialize CAN interface
+      *
+      * @param pinmap reference to structure which holds static pinmap
+      * @param td the transmit pin
+      * @param hz the bus frequency in hertz
+      */
+    CAN(const can_pinmap_t &pinmap);
+    CAN(const can_pinmap_t &&) = delete; // prevent passing of temporary objects
+
+    /** Initialize CAN interface and set the frequency
+      *
+      * @param pinmap reference to structure which holds static pinmap
+      * @param td the transmit pin
+      * @param hz the bus frequency in hertz
+      */
+    CAN(const can_pinmap_t &pinmap, int hz);
+    CAN(const can_pinmap_t &&, int) = delete; // prevent passing of temporary objects
+
     virtual ~CAN();
 
     /** Set the frequency of the CAN interface
@@ -343,4 +361,3 @@ protected:
 #endif
 
 #endif    // MBED_CAN_H
-

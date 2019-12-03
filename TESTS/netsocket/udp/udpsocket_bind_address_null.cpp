@@ -31,7 +31,7 @@ void UDPSOCKET_BIND_ADDRESS_NULL()
         TEST_FAIL();
     }
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->open(NetworkInterface::get_default_instance()));
-    nsapi_error_t bind_result = sock->bind(NULL, 1024);
+    nsapi_error_t bind_result = sock->bind(nullptr);
     if (bind_result == NSAPI_ERROR_UNSUPPORTED) {
         TEST_IGNORE_MESSAGE("bind() not supported");
     } else {

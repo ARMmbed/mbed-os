@@ -49,6 +49,7 @@ QSPI::QSPI(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, Pin
     _qspi_io3 = io3;
     _qspi_clk = sclk;
     _qspi_cs = ssel;
+    _static_pinmap = NULL;
     _inst_width = QSPI_CFG_BUS_SINGLE;
     _address_width = QSPI_CFG_BUS_SINGLE;
     _address_size = QSPI_CFG_ADDR_SIZE_24;
@@ -59,9 +60,36 @@ QSPI::QSPI(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, Pin
     _mode = mode;
     _hz = ONE_MHZ;
     _initialized = false;
+    _init_func = &QSPI::_initialize;
 
     //Go ahead init the device here with the default config
-    bool success = _initialize();
+    bool success = (this->*_init_func)();
+    MBED_ASSERT(success);
+}
+
+QSPI::QSPI(const qspi_pinmap_t &pinmap, int mode) : _qspi()
+{
+    _qspi_io0 = pinmap.data0_pin;
+    _qspi_io1 = pinmap.data1_pin;
+    _qspi_io2 = pinmap.data2_pin;
+    _qspi_io3 = pinmap.data3_pin;
+    _qspi_clk = pinmap.sclk_pin;
+    _qspi_cs = pinmap.ssel_pin;
+    _static_pinmap = &pinmap;
+    _inst_width = QSPI_CFG_BUS_SINGLE;
+    _address_width = QSPI_CFG_BUS_SINGLE;
+    _address_size = QSPI_CFG_ADDR_SIZE_24;
+    _alt_width = QSPI_CFG_BUS_SINGLE;
+    _alt_size = QSPI_CFG_ALT_SIZE_8;
+    _data_width = QSPI_CFG_BUS_SINGLE;
+    _num_dummy_cycles = 0;
+    _mode = mode;
+    _hz = ONE_MHZ;
+    _initialized = false;
+    _init_func = &QSPI::_initialize_direct;
+
+    //Go ahead init the device here with the default config
+    bool success = (this->*_init_func)();
     MBED_ASSERT(success);
 }
 
@@ -255,12 +283,30 @@ bool QSPI::_initialize()
     return _initialized;
 }
 
+// Note: Private helper function to initialize qspi HAL
+bool QSPI::_initialize_direct()
+{
+    if (_mode != 0 && _mode != 1) {
+        _initialized = false;
+        return _initialized;
+    }
+
+    qspi_status_t ret = qspi_init_direct(&_qspi, _static_pinmap, _hz, _mode);
+    if (QSPI_STATUS_OK == ret) {
+        _initialized = true;
+    } else {
+        _initialized = false;
+    }
+
+    return _initialized;
+}
+
 // Note: Private function with no locking
 bool QSPI::_acquire()
 {
     if (_owner != this) {
         //This will set freq as well
-        _initialize();
+        (this->*_init_func)();
         _owner = this;
     }
 

@@ -40,9 +40,9 @@
 #if defined(DUAL_CORE)
 #include "stm32h7xx_ll_hsem.h"
 #include "stm32h7xx_ll_rcc.h"
-#include "stm32h7xx_ll_pwr.h"
 #include "stm32h7xx_ll_cortex.h"
 #endif /* CONFIG_STM32H7_DUAL_CORE */
+#include "stm32h7xx_ll_pwr.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -151,8 +151,8 @@ struct analogin_s {
 #if defined(DUAL_CORE)
 /* HW semaphore Complement ID list defined in hw_conf.h from STM32WB */
 /* Index of the semaphore used to manage the entry Stop Mode procedure */
-#define CFG_HW_ENTRY_STOP_MODE_SEMID                            4
-#define CFG_HW_ENTRY_STOP_MODE_MASK_SEMID                      (1 << CFG_HW_ENTRY_STOP_MODE_SEMID)
+#define CFG_HW_STOP_MODE_SEMID                                  4
+#define CFG_HW_STOP_MODE_MASK_SEMID                            (1 << CFG_HW_STOP_MODE_SEMID)
 
 /* Index of the semaphore used to access the RCC */
 #define CFG_HW_RCC_SEMID                                        3
@@ -192,8 +192,6 @@ struct can_s {
     int hz;
 };
 #endif
-
-#define HAL_CRC_IS_SUPPORTED(polynomial, width) ((width) == 7 || (width) == 8 || (width) == 16 || (width) == 32)
 
 /* rtc_api.c */
 #define __HAL_RCC_PWR_CLK_ENABLE()

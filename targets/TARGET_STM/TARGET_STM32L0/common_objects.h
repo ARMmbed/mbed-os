@@ -36,6 +36,7 @@
 #include "PinNames.h"
 #include "stm32l0xx_ll_usart.h"
 #include "stm32l0xx_ll_tim.h"
+#include "stm32l0xx_ll_pwr.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -96,6 +97,8 @@ struct i2c_s {
     int hz;
     PinName sda;
     PinName scl;
+    int sda_func;
+    int scl_func;
     IRQn_Type event_i2cIRQ;
     IRQn_Type error_i2cIRQ;
     uint32_t XferOperation;
@@ -134,8 +137,6 @@ struct dac_s {
     DAC_HandleTypeDef handle;
 };
 #endif
-
-#define HAL_CRC_IS_SUPPORTED(polynomial, width) ((width) == 7 || (width) == 8 || (width) == 16 || (width) == 32)
 
 #ifdef __cplusplus
 }

@@ -27,6 +27,13 @@ I2CSlave::I2CSlave(PinName sda, PinName scl) : _i2c()
     i2c_slave_mode(&_i2c, 1);
 }
 
+I2CSlave::I2CSlave(const i2c_pinmap_t &static_pinmap) : _i2c()
+{
+    i2c_init_direct(&_i2c, &static_pinmap);
+    i2c_frequency(&_i2c, 100000);
+    i2c_slave_mode(&_i2c, 1);
+}
+
 void I2CSlave::frequency(int hz)
 {
     i2c_frequency(&_i2c, hz);

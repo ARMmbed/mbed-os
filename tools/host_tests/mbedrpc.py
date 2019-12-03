@@ -27,10 +27,12 @@
 # >myled.write(1)
 # >
 
-import serial, urllib2, time
+from future import standard_library
+standard_library.install_aliases()
+import serial, urllib.request, time
 
 # mbed super class
-class mbed:
+class mbed(object):
     def __init__(self):
         print("This will work as a demo but no transport mechanism has been selected")
 
@@ -48,7 +50,7 @@ class SerialRPC(mbed):
         # creates the command to be sent serially - /name/method arg1 arg2 arg3 ... argN
         str = "/" + name + "/" + method + " " + " ".join(args) + "\n"
         # prints the command being executed
-        print str
+        print(str)
         # writes the command to serial
         self.ser.write(str)
         # strips trailing characters from the line just written
@@ -61,12 +63,12 @@ class HTTPRPC(mbed):
         self.host = "http://" + ip
 
     def rpc(self, name, method, args):
-        response = urllib2.urlopen(self.host + "/rpc/" + name + "/" + method + "%20" + "%20".join(args))
+        response = urllib.request.urlopen(self.host + "/rpc/" + name + "/" + method + "%20" + "%20".join(args))
         return response.read().strip()
 
 
 # generic mbed interface super class
-class mbed_interface():
+class mbed_interface(object):
     # initialize an mbed interface with a transport mechanism and pin name
     def __init__(self, this_mbed, mpin):
         self.mbed = this_mbed
@@ -198,7 +200,7 @@ class Timer(mbed_interface):
         return float(re.search('\d+\.*\d*', r).group(0))
 
 # Serial
-class Serial():
+class Serial(object):
     def __init__(self, this_mbed, tx, rx=""):
         self.mbed = this_mbed
         if isinstance(tx, str):

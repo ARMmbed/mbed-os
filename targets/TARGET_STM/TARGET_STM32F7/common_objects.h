@@ -38,6 +38,7 @@
 #include "stm32f7xx_ll_tim.h"
 #include "stm32f7xx_ll_adc.h"
 #include "stm32f7xx_ll_rtc.h"
+#include "stm32f7xx_ll_pwr.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -160,8 +161,6 @@ struct qspi_s {
     PinName ssel;
 };
 #endif
-
-#define HAL_CRC_IS_SUPPORTED(polynomial, width) ((width) == 7 || (width) == 8 || (width) == 16 || (width) == 32)
 
 #ifdef __cplusplus
 }

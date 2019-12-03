@@ -256,6 +256,8 @@ private:
 
 #if MBED_CONF_SD_CRC_ENABLED
     bool _crc_on;
+    mbed::MbedCRC<POLY_7BIT_SD, 7> _crc7;
+    mbed::MbedCRC<POLY_16BIT_CCITT, 16> _crc16;
 #endif
 };
 

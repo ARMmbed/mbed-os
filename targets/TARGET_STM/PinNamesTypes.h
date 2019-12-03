@@ -36,6 +36,8 @@
 extern "C" {
 #endif
 
+#define GPIO_AF_NONE 0
+
 /*  STM PIN data as used in pin_function is coded on 32 bits as below
  *   [2:0]  Function (like in MODER reg) : Input / Output / Alt / Analog
  *     [3]  Output Push-Pull / Open Drain (as in OTYPER reg)
@@ -170,4 +172,3 @@ typedef enum {
 #endif
 
 #endif
-

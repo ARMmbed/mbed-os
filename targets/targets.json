@@ -2029,13 +2029,11 @@
         ],
         "overrides": {
             "tickless-from-us-ticker": true,
-            "init-us-ticker-at-boot": true
+            "init-us-ticker-at-boot": true,
+            "network-default-interface-type": "ETHERNET"
         },
         "device_name": "LPC54628J512ET180",
-        "post_binary_hook": { "function": "LPCTargetCode.lpc_patch" },
-        "overrides": {
-            "network-default-interface-type": "ETHERNET"
-        }
+        "post_binary_hook": { "function": "LPCTargetCode.lpc_patch" }
     },
     "LPC546XX": {
         "supported_form_factors": ["ARDUINO"],
@@ -3303,7 +3301,8 @@
         "macros_add": [
             "STM32H747xx",
             "CORE_CM7",
-            "EXTRA_IDLE_STACK_REQUIRED"
+            "EXTRA_IDLE_STACK_REQUIRED",
+            "MBED_TICKLESS"
         ],
         "overrides": { "lpticker_delay_ticks": 0 },
         "supported_form_factors": [
@@ -3338,6 +3337,11 @@
         "mbed_ram_start": "0x10000000",
         "mbed_ram_size" : "0x48000",
         "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_EXTC",
+                "macro_name": "CLOCK_SOURCE"
+            },
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
@@ -3346,7 +3350,8 @@
         "macros_add": [
             "STM32H747xx",
             "CORE_CM4",
-            "EXTRA_IDLE_STACK_REQUIRED"
+            "EXTRA_IDLE_STACK_REQUIRED",
+            "MBED_TICKLESS"
         ],
         "overrides": { "lpticker_delay_ticks": 0 },
         "supported_form_factors": [
@@ -3362,7 +3367,6 @@
             "FLASH",
             "MPU"
         ],
-        "device_name": "STM32H747XIHx",
         "bootloader_supported": true
     },
     "DISCO_H747I_CM7": {
@@ -7533,11 +7537,9 @@
         "inherits": ["MCU_NRF52832"],
         "release_versions": ["5"],
         "device_name": "nRF52832_xxAA",
-        "macros_add": [
-            "WSF_MAX_HANDLERS=10"
-        ],
         "device_has_remove": ["ITM"],
         "macros_add": [
+                "WSF_MAX_HANDLERS=10",
                 "CONFIG_GPIO_AS_PINRESET",
                 "NRF52_PAN_12",
                 "NRF52_PAN_15",
@@ -7829,6 +7831,8 @@
         "overrides": {
             "mpu-rom-end": "0x1fffffff"
         },
+        "release_versions": ["5"],
+        "device_name": "nRF52840_xxAA",
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
@@ -7840,29 +7844,22 @@
     "NRF52840_DK": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52840"],
-        "release_versions": ["5"],
-        "device_name": "nRF52840_xxAA",
+        "detect_code": ["1102"],
         "macros_add": [
             "CONFIG_GPIO_AS_PINRESET"
         ]
     },
     "ARDUINO_NANO33BLE": {
         "inherits": ["MCU_NRF52840"],
-        "release_versions": ["5"],
-        "device_name": "nRF52840_xxAA",
-        "features_add": ["BLE", "STORAGE"],
+        "features_add": ["STORAGE"],
         "components_remove": ["QSPIF"],
-        "components_add": ["FLASHIAP"],
         "device_has_remove": ["QSPI", "ITM"],
-        "device_has_add": ["FLASH"],
         "macros_add": [
             "CONFIG_GPIO_AS_PINRESET"
         ]
     },
     "MTB_LAIRD_BL654": {
         "inherits": ["MCU_NRF52840"],
-        "release_versions": ["5"],
-        "device_name": "nRF52840_xxAA",
         "detect_code": ["0465"],
         "features_remove": ["CRYPTOCELL310"],
         "macros_remove": ["MBEDTLS_CONFIG_HW_SUPPORT"],
@@ -7874,13 +7871,10 @@
     },
     "MAKERDIARY_NRF52840_MDK": {
         "inherits": ["MCU_NRF52840"],
-        "release_versions": ["5"],
-        "device_name": "nRF52840_xxAA",
         "detect_code": ["1026"],
         "device_has_remove": ["ITM"],
         "macros_add": [
-            "CONFIG_GPIO_AS_PINRESET",
-            "NRF52_ERRATA_20"
+            "CONFIG_GPIO_AS_PINRESET"
         ]
     },
     "BLUEPILL_F103C8": {
@@ -8452,7 +8446,7 @@
         ],
         "config": {
             "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
+                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL | USE_PLL_HSI | USE_PLL_MSI",
                 "value": "USE_PLL_MSI",
                 "macro_name": "CLOCK_SOURCE"
             },
@@ -8465,6 +8459,7 @@
             "FLASHIAP"
         ],
         "macros_add": [
+            "HSE_VALUE=16000000",
             "STM32L4R9xx",
             "MBED_TICKLESS",
             "EXTRA_IDLE_STACK_REQUIRED"
@@ -8860,7 +8855,6 @@
         "release_versions": ["5"],
         "device_name": "M2351KIAAEES",
         "bootloader_supported": true,
-        "tickless-from-us-ticker": true,
         "forced_reset_timeout": 3,
         "public": false
     },
@@ -8878,25 +8872,29 @@
         "components_add": ["FLASHIAP"],
         "post_binary_hook": {"function": "M2351Code.merge_secure"},
         "secure_image_filename": "NuMaker-mbed-TZ-secure-example.hex",
-        "mbed_rom_start"        : "0x10040000",
-        "mbed_rom_size"         : "0x40000",
-        "mbed_ram_start"        : "0x30008000",
-        "mbed_ram_size"         : "0x10000"
+        "mbed_rom_start"        : "0x10010000",
+        "mbed_rom_size"         : "0x70000",
+        "mbed_ram_start"        : "0x30002000",
+        "mbed_ram_size"         : "0x16000"
     },
     "NU_PFM_M2351_NPSA_S": {
+        "overrides": {
+            "boot-stack-size"   : "0x600"
+        },
         "inherits": ["NU_PFM_M2351"],
         "core": "Cortex-M23",
         "trustzone": true,
         "extra_labels_add": [
             "M23_S"
         ],
+        "device_has_remove": ["SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES"],
         "components_add": ["FLASHIAP"],
         "deliver_to_target": "NU_PFM_M2351_NPSA_NS",
         "delivery_dir": "TARGET_NUVOTON/TARGET_M2351/TARGET_M23_NS/TARGET_NU_PFM_M2351_NPSA_NS/TARGET_NU_PREBUILD_SECURE",
         "mbed_rom_start"        : "0x0",
-        "mbed_rom_size"         : "0x40000",
+        "mbed_rom_size"         : "0x10000",
         "mbed_ram_start"        : "0x20000000",
-        "mbed_ram_size"         : "0x8000"
+        "mbed_ram_size"         : "0x2000"
     },
     "NUMAKER_M252KG": {
         "core": "Cortex-M23",
@@ -9631,7 +9629,6 @@
     },
     "EP_AGORA": {
         "inherits": ["MCU_NRF52840"],
-        "device_name": "nRF52840_xxAA",
         "supported_form_factors": [],
         "config": {
             "modem_is_on_board": {
@@ -9647,7 +9644,6 @@
         },
         "components_add": ["SPIF"],
         "components_remove": ["QSPIF"],
-        "release_versions": ["5"],
         "macros_add": [
             "CONFIG_GPIO_AS_PINRESET"
         ]

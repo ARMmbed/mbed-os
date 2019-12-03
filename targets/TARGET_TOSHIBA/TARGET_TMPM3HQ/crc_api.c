@@ -20,9 +20,28 @@
 
 #ifdef DEVICE_CRC
 
-static bool reflect_in;
-static bool reflect_out;
 static uint32_t final_xor;
+
+bool hal_crc_is_supported(const crc_mbed_config_t *config)
+{
+    if (config == NULL) {
+        return false;
+    }
+    // Currently supported only CRC16_CCITT polynomial.
+    if (config->polynomial != POLY_16BIT_CCITT) {
+        return false;
+    }
+
+    if (config->width != 16) {
+        return false;
+    }
+    // Not support for reflect_in and reflect_out.
+    if ((config->reflect_in == true) || (config->reflect_out == true)) {
+        return false;
+    }
+
+    return true;
+}
 
 void hal_crc_compute_partial_start(const crc_mbed_config_t *config)
 {
@@ -30,26 +49,19 @@ void hal_crc_compute_partial_start(const crc_mbed_config_t *config)
 
     // Intial Value as initial_xor
     TSB_CRC->CLC = config->initial_xor;
-    reflect_in = config->reflect_in;
-    reflect_out = config->reflect_out;
     final_xor = config->final_xor;
 
-    // Data width setting CRC data width is 8 bits (--01)
-    // Form setting CRC form is CRC16 (00--) or CRC32 (11--)
-    TSB_CRC->TYP = config->width == 16 ? 0x01 : 0x0D;
+    // Data width setting CRC data width is 8 bits.
+    // Form setting CRC form is CRC16.
+    TSB_CRC->TYP = 0x01;
 }
 
 void hal_crc_compute_partial(const uint8_t *data, const size_t size)
 {
     if (data && size) {
         uint32_t index = 0U;
-        bool reflect = reflect_in;
         for(index = 0U; index < size; index++) {
-            unsigned int byte = data[index];
-            if (reflect) {
-                byte = __RBIT(byte) >> 24;
-            }
-            TSB_CRC->DIN = byte;
+            TSB_CRC->DIN = data[index];
         }
     }
 }
@@ -60,14 +72,7 @@ uint32_t hal_crc_get_result(void)
 
     // Note: Please read [CRCCLC] twice and use the result of the 2nd time
     result = TSB_CRC->CLC;
-    result = TSB_CRC->CLC;
-    if (reflect_out) {
-        result = __RBIT(result);
-        if ((TSB_CRC->TYP & 0x0C) == 0) {
-            result >>= 16;
-        }
-    }
-    result ^= final_xor;
+    result = TSB_CRC->CLC ^ final_xor;
 
     return (result);
 }

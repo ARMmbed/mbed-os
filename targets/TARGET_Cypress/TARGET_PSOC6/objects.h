@@ -121,10 +121,6 @@ struct qspi_s {
 };
 #endif
 
-#if DEVICE_CRC
-#define HAL_CRC_IS_SUPPORTED(polynomial, width) ((width) <= 32)
-#endif
-
 #ifdef __cplusplus
 }
 #endif

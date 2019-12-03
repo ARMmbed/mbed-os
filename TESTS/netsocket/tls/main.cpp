@@ -71,7 +71,8 @@ static void _ifup()
     NetworkInterface *net = NetworkInterface::get_default_instance();
     nsapi_error_t err = net->connect();
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
-    const char *address = net->get_ip_address();
+    SocketAddress address;
+    net->get_ip_address(&address);
 
 #define MESH 3
 #if MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == MESH
@@ -80,7 +81,7 @@ static void _ifup()
         ThisThread::sleep_for(500);
     }
 #endif
-    printf("MBED: TLSClient address is '%s'\n", address ? address : "null");
+    printf("MBED: TLSClient address is '%s'\n", address ? address.get_ip_address() : "null");
 }
 
 static void _ifdown()

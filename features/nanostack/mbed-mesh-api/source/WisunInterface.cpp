@@ -168,7 +168,12 @@ char *Nanostack::WisunInterface::get_gateway(char *buf, nsapi_size_t buflen)
 
 bool WisunInterface::getRouterIpAddress(char *address, int8_t len)
 {
-    return _interface->get_gateway(address, len);
+    SocketAddress sock_addr;
+    if (_interface->get_gateway(&sock_addr) == NSAPI_ERROR_OK) {
+        strncpy(address, sock_addr.get_ip_address(), len);
+        return true;
+    }
+    return false;
 }
 
 mesh_error_t WisunInterface::set_network_name(char *network_name)

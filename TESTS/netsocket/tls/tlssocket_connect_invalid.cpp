@@ -33,12 +33,11 @@ void TLSSOCKET_CONNECT_INVALID()
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(NetworkInterface::get_default_instance()));
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.set_root_ca_cert(tls_global::cert));
 
-    TEST_ASSERT(sock.connect(NULL, ECHO_SERVER_DISCARD_PORT_TLS) < 0);
-    TEST_ASSERT(sock.connect("", ECHO_SERVER_DISCARD_PORT_TLS) < 0);
-    TEST_ASSERT(sock.connect("", 0) < 0);
+    SocketAddress address;
+    // ism43362 returns DEVICE_ERROR, but LWIP returns NO_CONNECTION.
+    TEST_ASSERT_TRUE(sock.connect(address) < 0);
 
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK,
-                      sock.connect(ECHO_SERVER_ADDR, ECHO_SERVER_DISCARD_PORT_TLS));
+    // If connect returns an error socket is in unspecified state.
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }

@@ -76,8 +76,7 @@ void init_16bit_timer(void)
 
     // Reset timer
 #if defined(DUAL_CORE)
-    uint32_t timeout = HSEM_TIMEOUT;
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
     }
 #endif /* DUAL_CORE */
     TIM_MST_RESET_ON;
@@ -170,8 +169,7 @@ void init_32bit_timer(void)
 
     // Reset timer
 #if defined(DUAL_CORE)
-    uint32_t timeout = HSEM_TIMEOUT;
-    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
     }
 #endif /* DUAL_CORE */
     TIM_MST_RESET_ON;

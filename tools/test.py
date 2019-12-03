@@ -312,7 +312,7 @@ def main():
 
             # Print memory map summary on screen
             if build_report:
-                print
+                print()
                 print(print_build_memory_usage(build_report))
 
             print_report_exporter = ReportExporter(ResultExporterType.PRINT, package="build")

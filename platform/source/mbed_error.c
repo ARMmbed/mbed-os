@@ -27,7 +27,6 @@
 #include "platform/mbed_power_mgmt.h"
 #include "platform/mbed_stats.h"
 #include "platform/source/TARGET_CORTEX_M/mbed_fault_handler.h"
-#include "drivers/MbedCRC.h"
 #include "mbed_rtx.h"
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "rtx_os.h"
@@ -65,6 +64,36 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
 //Global for populating the context in exception handler
 static mbed_error_ctx *const report_error_ctx = (mbed_error_ctx *)(ERROR_CONTEXT_LOCATION);
 static bool is_reboot_error_valid = false;
+
+//Helper function to calculate CRC
+//NOTE: It would have been better to use MbedCRC implementation. But
+//MbedCRC uses table based calculation and we dont want to keep that table memory
+//used up for this purpose. Also we cannot force bitwise calculation in MbedCRC
+//and it also requires a new wrapper to be called from C implementation. Since
+//we dont have many uses cases to create a C wrapper for MbedCRC and the data
+//we calculate CRC on in this context is very less we will use a local
+//implementation here.
+static unsigned int compute_crc32(const void *data, int datalen)
+{
+    const unsigned int polynomial = 0x04C11DB7; /* divisor is 32bit */
+    unsigned int crc = 0; /* CRC value is 32bit */
+    unsigned char *buf = (unsigned char *)data;//use a temp variable to make code readable and to avoid typecasting issues.
+
+    for (; datalen > 0; datalen--) {
+        unsigned char b = *buf++;
+        crc ^= (unsigned int)(b << 24); /* move byte into upper 8bit */
+        for (int i = 0; i < 8; i++) {
+            /* is MSB 1 */
+            if ((crc & 0x80000000) != 0) {
+                crc = (unsigned int)((crc << 1) ^ polynomial);
+            } else {
+                crc <<= 1;
+            }
+        }
+    }
+
+    return crc;
+}
 #endif
 
 //Helper function to halt the system
@@ -217,7 +246,7 @@ mbed_error_status_t mbed_error_initialize(void)
 
     //Just check if we have valid value for error_status, if error_status is positive(which is not valid), no need to check crc
     if (report_error_ctx->error_status < 0) {
-        crc_val = mbed_tiny_compute_crc32(report_error_ctx, offsetof(mbed_error_ctx, crc_error_ctx));
+        crc_val = compute_crc32(report_error_ctx, offsetof(mbed_error_ctx, crc_error_ctx));
         //Read report_error_ctx and check if CRC is correct, and with valid status code
         if ((report_error_ctx->crc_error_ctx == crc_val) && (report_error_ctx->is_error_processed == 0)) {
             is_reboot_error_valid = true;
@@ -229,7 +258,7 @@ mbed_error_status_t mbed_error_initialize(void)
             if (report_error_ctx->error_reboot_count > 0) {
 
                 report_error_ctx->is_error_processed = 1;//Set the flag that we already processed this error
-                crc_val = mbed_tiny_compute_crc32(report_error_ctx, offsetof(mbed_error_ctx, crc_error_ctx));
+                crc_val = compute_crc32(report_error_ctx, offsetof(mbed_error_ctx, crc_error_ctx));
                 report_error_ctx->crc_error_ctx = crc_val;
 
                 //Enforce max-reboot only if auto reboot is enabled
@@ -292,7 +321,7 @@ WEAK MBED_NORETURN mbed_error_status_t mbed_error(mbed_error_status_t error_stat
 
 #if MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
     uint32_t crc_val = 0;
-    crc_val = mbed_tiny_compute_crc32(report_error_ctx, offsetof(mbed_error_ctx, crc_error_ctx));
+    crc_val = compute_crc32(report_error_ctx, offsetof(mbed_error_ctx, crc_error_ctx));
     //Read report_error_ctx and check if CRC is correct for report_error_ctx
     if (report_error_ctx->crc_error_ctx == crc_val) {
         uint32_t current_reboot_count = report_error_ctx->error_reboot_count;
@@ -302,7 +331,7 @@ WEAK MBED_NORETURN mbed_error_status_t mbed_error(mbed_error_status_t error_stat
     }
     last_error_ctx.is_error_processed = 0;//Set the flag that this is a new error
     //Update the struct with crc
-    last_error_ctx.crc_error_ctx = mbed_tiny_compute_crc32(&last_error_ctx, offsetof(mbed_error_ctx, crc_error_ctx));
+    last_error_ctx.crc_error_ctx = compute_crc32(&last_error_ctx, offsetof(mbed_error_ctx, crc_error_ctx));
     //Protect report_error_ctx while we update it
     core_util_critical_section_enter();
     memcpy(report_error_ctx, &last_error_ctx, sizeof(mbed_error_ctx));
@@ -355,7 +384,7 @@ mbed_error_status_t mbed_reset_reboot_count()
         core_util_critical_section_enter();
         report_error_ctx->error_reboot_count = 0;//Set reboot count to 0
         //Update CRC
-        crc_val = mbed_tiny_compute_crc32(report_error_ctx, offsetof(mbed_error_ctx, crc_error_ctx));
+        crc_val = compute_crc32(report_error_ctx, offsetof(mbed_error_ctx, crc_error_ctx));
         report_error_ctx->crc_error_ctx = crc_val;
         core_util_critical_section_exit();
         return MBED_SUCCESS;

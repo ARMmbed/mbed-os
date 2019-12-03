@@ -17,19 +17,27 @@
 #ifndef MBED_CRC_API_H
 #define MBED_CRC_API_H
 
-#include "cmsis.h"
+#include "drivers/internal/TableCRC.h"
 #include "hal/crc_api.h"
-#ifdef DEVICE_CRC
-#include "device.h"
-#endif
 #include "platform/mbed_assert.h"
-
-#ifdef __cplusplus
-
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
 
-#include <type_traits>
+/* This is an invalid warning from the compiler for the below section of code
+if ((width < 8) && (NULL == _crc_table)) {
+    p_crc = (uint32_t)(p_crc << (8 - width));
+}
+Compiler warns of the shift operation with width as it is width=(std::uint8_t),
+but we check for ( width < 8) before performing shift, so it should not be an issue.
+*/
+#if defined ( __CC_ARM )
+#pragma diag_suppress 62  // Shift count is negative
+#elif defined ( __GNUC__ )
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshift-count-negative"
+#elif defined (__ICCARM__)
+#pragma diag_suppress=Pe062  // Shift count is negative
+#endif
 
 namespace mbed {
 /** \addtogroup drivers-public-api */
@@ -41,49 +49,10 @@ namespace mbed {
 
 extern SingletonPtr<PlatformMutex> mbed_crc_mutex;
 
-/** CRC mode selection
- */
-enum class CrcMode {
-    HARDWARE,   /// Use hardware (if available), else table-based computation
-    TABLE,      /// Use table-based computation (if table available), else bitwise
-    BITWISE     /// Always use bitwise manual computation
-};
-
-#ifndef DOXYGEN_ONLY
-namespace impl {
-template<uint32_t polynomial, uint8_t width, CrcMode mode>
-class MbedCRC;
-
-constexpr bool have_crc_table(uint32_t polynomial, uint8_t width)
-{
-#if MBED_CRC_TABLE_SIZE > 0
-    return (polynomial == POLY_32BIT_ANSI && width == 32) ||
-           (polynomial == POLY_16BIT_IBM && width == 16) ||
-           (polynomial == POLY_16BIT_CCITT && width == 16) ||
-           (polynomial == POLY_8BIT_CCITT && width == 8) ||
-           (polynomial == POLY_7BIT_SD && width == 7);
-#else
-    return false;
-#endif
-}
-
-constexpr CrcMode choose_crc_mode(uint32_t polynomial, uint8_t width, CrcMode mode_limit)
-{
-    return
-#if DEVICE_CRC
-        mode_limit == CrcMode::HARDWARE && HAL_CRC_IS_SUPPORTED(polynomial, width) ? CrcMode::HARDWARE :
-#endif
-        mode_limit <= CrcMode::TABLE && have_crc_table(polynomial, width) ? CrcMode::TABLE :
-        CrcMode::BITWISE;
-}
-#endif // DOXYGEN_ONLY
-
-} // namespace impl
-
 /** CRC object provides CRC generation through hardware or software
  *
  *  CRC sums can be generated using three different methods: hardware, software ROM tables
- *  and bitwise computation. The mode used is normally selected automatically based on required
+ *  and bitwise computation. The mode used is selected automatically based on required
  *  polynomial and hardware capabilities. Any polynomial in standard form (`x^3 + x + 1`)
  *  can be used for computation, but custom ones can affect the performance.
  *
@@ -93,17 +62,10 @@ constexpr CrcMode choose_crc_mode(uint32_t polynomial, uint8_t width, CrcMode mo
  *  configuration is supported, it will accelerate the software computations. If ROM tables
  *  are not available for the selected polynomial, then CRC is computed at run time bit by bit
  *  for all data input.
- *
- *  If desired, the mode can be manually limited for a given instance by specifying the mode_limit
- *  template parameter. This might be appropriate to ensure a table is not pulled in for a
- *  non-speed-critical CRC, or to avoid the hardware set-up overhead if you know you will be
- *  calling `compute` with very small data sizes.
- *
  *  @note Synchronization level: Thread safe
  *
  *  @tparam  polynomial CRC polynomial value in hex
- *  @tparam  width      CRC polynomial width
- *  @tparam  mode_limit Maximum amount of acceleration to use
+ *  @tparam  width CRC polynomial width
  *
  * Example: Compute CRC data
  * @code
@@ -144,25 +106,23 @@ constexpr CrcMode choose_crc_mode(uint32_t polynomial, uint8_t width, CrcMode mo
  *  }
  * @endcode
  */
-template <uint32_t polynomial = POLY_32BIT_ANSI, uint8_t width = 32, CrcMode mode_limit = CrcMode::HARDWARE>
-class MbedCRC  {
-    impl::MbedCRC<polynomial, width, impl::choose_crc_mode(polynomial, width, mode_limit)> crc_impl;
+template <uint32_t polynomial = POLY_32BIT_ANSI, uint8_t width = 32>
+class MbedCRC {
 
 public:
-    /* Backwards compatibility */
     enum CrcMode {
 #if DEVICE_CRC
-        HARDWARE    = int(::mbed::CrcMode::HARDWARE),
+        HARDWARE = 0,
 #endif
-        TABLE       = int(::mbed::CrcMode::TABLE),
-        BITWISE     = int(::mbed::CrcMode::BITWISE)
+        TABLE = 1,
+        BITWISE
     };
 
-    typedef size_t crc_data_size_t;
+    typedef uint64_t crc_data_size_t;
 
     /** Lifetime of CRC object
      *
-     *  @param  initial_xor  Initial value/seed to Xor
+     *  @param  initial_xor  Inital value/seed to Xor
      *  @param  final_xor  Final Xor value
      *  @param  reflect_data
      *  @param  reflect_remainder
@@ -172,120 +132,19 @@ public:
      *          MbedCRC <POLY_16BIT_CCITT, 32> ct; --- Invalid, compilation error
      *          MbedCRC <POLY_16BIT_CCITT, 32> ct (i,f,rd,rr) Constructor can be used for not supported polynomials
      *          MbedCRC<POLY_16BIT_CCITT, 16> sd(0, 0, false, false); Constructor can also be used for supported
-     *             polynomials with different initial/final/reflect values
+     *             polynomials with different intial/final/reflect values
      *
      */
     MbedCRC(uint32_t initial_xor, uint32_t final_xor, bool reflect_data, bool reflect_remainder) :
-        crc_impl(initial_xor, final_xor, reflect_data, reflect_remainder)
-    {
-    }
-
-    MbedCRC();
-
-    /** Compute CRC for the data input
-     *  Compute CRC performs the initialization, computation and collection of
-     *  final CRC.
-     *
-     *  @param  buffer  Data bytes
-     *  @param  size  Size of data
-     *  @param  crc  CRC is the output value
-     *  @return  0 on success, negative error code on failure
-     */
-    int32_t compute(const void *buffer, crc_data_size_t size, uint32_t *crc)
-    {
-        return crc_impl.compute(buffer, size, crc);
-    }
-
-    /** Compute partial CRC for the data input.
-     *
-     *  CRC data if not available fully, CRC can be computed in parts with available data.
-     *
-     *  In case of hardware, intermediate values and states are saved by hardware. Mutex
-     *  locking is used to serialize access to hardware CRC.
-     *
-     *  In case of software CRC, previous CRC output should be passed as argument to the
-     *  current compute_partial call. Please note the intermediate CRC value is maintained by
-     *  application and not the driver.
-     *
-     *  @pre: Call `compute_partial_start` to start the partial CRC calculation.
-     *  @post: Call `compute_partial_stop` to get the final CRC value.
-     *
-     *  @param  buffer  Data bytes
-     *  @param  size  Size of data
-     *  @param  crc  CRC value is intermediate CRC value filled by API.
-     *  @return  0  on success or a negative error code on failure
-     *  @note: CRC as output in compute_partial is not final CRC value, call `compute_partial_stop`
-     *         to get final correct CRC value.
-     */
-    int32_t compute_partial(const void *buffer, crc_data_size_t size, uint32_t *crc)
-    {
-        return crc_impl.compute_partial(buffer, size, crc);
-    }
-
-    /** Compute partial start, indicate start of partial computation.
-     *
-     *  This API should be called before performing any partial computation
-     *  with compute_partial API.
-     *
-     *  @param  crc  Initial CRC value set by the API
-     *  @return  0  on success or a negative in case of failure
-     *  @note: CRC is an out parameter and must be reused with compute_partial
-     *         and `compute_partial_stop` without any modifications in application.
-     */
-    int32_t compute_partial_start(uint32_t *crc)
-    {
-        return crc_impl.compute_partial_start(crc);
-    }
-
-    /** Get the final CRC value of partial computation.
-     *
-     *  CRC value available in partial computation is not correct CRC, as some
-     *  algorithms require remainder to be reflected and final value to be XORed
-     *  This API is used to perform final computation to get correct CRC value.
-     *
-     *  @param crc  CRC result
-     *  @return  0  on success or a negative in case of failure.
-     */
-    int32_t compute_partial_stop(uint32_t *crc)
-    {
-        return crc_impl.compute_partial_stop(crc);
-    }
-
-    /** Get the current CRC polynomial.
-     *
-     * @return  Polynomial value
-     */
-    static constexpr uint32_t get_polynomial()
-    {
-        return polynomial;
-    }
-
-    /** Get the current CRC width
-     *
-     * @return  CRC width
-     */
-    static constexpr uint8_t get_width()
-    {
-        return width;
-    }
-};
-
-#if !defined(DOXYGEN_ONLY)
-/* Internal implementation - basically same as public, but actual mode locked in */
-namespace impl {
-
-template <uint32_t polynomial, uint8_t width, CrcMode mode>
-class MbedCRC {
-public:
-    typedef size_t crc_data_size_t;
-
-    MbedCRC(uint32_t initial_xor, uint32_t final_xor, bool reflect_data, bool reflect_remainder) :
-        _initial_value(adjust_initial_value(initial_xor, reflect_data)),
-        _final_xor(final_xor),
-        _reflect_data(reflect_data),
+        _initial_value(initial_xor), _final_xor(final_xor), _reflect_data(reflect_data),
         _reflect_remainder(reflect_remainder)
     {
-        static_assert(width <= 32, "Max 32-bit CRC supported");
+        mbed_crc_ctor();
+    }
+    MbedCRC();
+    virtual ~MbedCRC()
+    {
+        // Do nothing
     }
 
     /** Compute CRC for the data input
@@ -299,20 +158,28 @@ public:
      */
     int32_t compute(const void *buffer, crc_data_size_t size, uint32_t *crc)
     {
-        int32_t status;
+        MBED_ASSERT(crc != NULL);
+        int32_t status = 0;
 
         status = compute_partial_start(crc);
         if (0 != status) {
+            unlock();
             return status;
         }
 
         status = compute_partial(buffer, size, crc);
         if (0 != status) {
+            unlock();
             return status;
         }
 
         status = compute_partial_stop(crc);
+        if (0 != status) {
+            *crc = 0;
+        }
+
         return status;
+
     }
 
     /** Compute partial CRC for the data input.
@@ -338,8 +205,27 @@ public:
      */
     int32_t compute_partial(const void *buffer, crc_data_size_t size, uint32_t *crc)
     {
-        const uint8_t *data = static_cast<const uint8_t *>(buffer);
-        return do_compute_partial(data, size, crc);
+        int32_t status = 0;
+
+        switch (_mode) {
+#if DEVICE_CRC
+            case HARDWARE:
+                hal_crc_compute_partial(static_cast<const uint8_t *>(buffer), size);
+                *crc = 0;
+                break;
+#endif
+            case TABLE:
+                status = table_compute_partial(buffer, size, crc);
+                break;
+            case BITWISE:
+                status = bitwise_compute_partial(buffer, size, crc);
+                break;
+            default:
+                status = -1;
+                break;
+        }
+
+        return status;
     }
 
     /** Compute partial start, indicate start of partial computation.
@@ -354,8 +240,10 @@ public:
      */
     int32_t compute_partial_start(uint32_t *crc)
     {
+        MBED_ASSERT(crc != NULL);
+
 #if DEVICE_CRC
-        if (mode == CrcMode::HARDWARE) {
+        if (_mode == HARDWARE) {
             lock();
             crc_mbed_config_t config;
             config.polynomial  = polynomial;
@@ -384,143 +272,62 @@ public:
      */
     int32_t compute_partial_stop(uint32_t *crc)
     {
+        MBED_ASSERT(crc != NULL);
+
 #if DEVICE_CRC
-        if (mode == CrcMode::HARDWARE) {
+        if (_mode == HARDWARE) {
             *crc = hal_crc_get_result();
             unlock();
             return 0;
         }
 #endif
-        uint_fast32_t p_crc = *crc;
-        if (mode == CrcMode::BITWISE) {
-            if (_reflect_data) {
-                /* CRC has MSB in bottom bit of register */
-                if (!_reflect_remainder) {
-                    p_crc = reflect_crc(p_crc);
-                }
-            } else {
-                /* CRC has MSB in top bit of register */
-                p_crc = _reflect_remainder ? reflect_register(p_crc) : shift_right(p_crc);
-            }
-        } else { // TABLE
-            /* CRC has MSB in bottom bit of register */
-            if (!_reflect_remainder) {
-                p_crc = reflect_crc(p_crc);
-            }
+        uint32_t p_crc = *crc;
+        if ((width < 8) && (NULL == _crc_table)) {
+            p_crc = (uint32_t)(p_crc << (8 - width));
         }
-
-        p_crc ^= _final_xor;
-        p_crc &= get_crc_mask();
-        *crc = p_crc;
-
+        // Optimized algorithm for 32BitANSI does not need additional reflect_remainder
+        if ((TABLE == _mode) && (POLY_32BIT_REV_ANSI == polynomial)) {
+            *crc = (p_crc ^ _final_xor) & get_crc_mask();
+        } else {
+            *crc = (reflect_remainder(p_crc) ^ _final_xor) & get_crc_mask();
+        }
+        unlock();
         return 0;
     }
 
+    /** Get the current CRC polynomial.
+     *
+     * @return  Polynomial value
+     */
+    uint32_t get_polynomial(void) const
+    {
+        return polynomial;
+    }
+
+    /** Get the current CRC width
+     *
+     * @return  CRC width
+     */
+    uint8_t get_width(void) const
+    {
+        return width;
+    }
+
+#if !defined(DOXYGEN_ONLY)
 private:
-    /** Get the current CRC polynomial, reflected at bottom of register.
-     *
-     * @return  Reflected polynomial value (so x^width term would be at bit -1)
-     */
-    static constexpr uint32_t get_reflected_polynomial()
-    {
-        /* Doing this hard way to keep it C++11 constexpr and hence ARM C 5 compatible */
-        return shift_right(((polynomial & 0x00000001) << 31) |
-                           ((polynomial & 0x00000002) << 29) |
-                           ((polynomial & 0x00000004) << 27) |
-                           ((polynomial & 0x00000008) << 25) |
-                           ((polynomial & 0x00000010) << 23) |
-                           ((polynomial & 0x00000020) << 21) |
-                           ((polynomial & 0x00000040) << 19) |
-                           ((polynomial & 0x00000080) << 17) |
-                           ((polynomial & 0x00000100) << 15) |
-                           ((polynomial & 0x00000200) << 13) |
-                           ((polynomial & 0x00000400) << 11) |
-                           ((polynomial & 0x00000800) <<  9) |
-                           ((polynomial & 0x00001000) <<  7) |
-                           ((polynomial & 0x00002000) <<  5) |
-                           ((polynomial & 0x00004000) <<  3) |
-                           ((polynomial & 0x00008000) <<  1) |
-                           ((polynomial & 0x00010000) >>  1) |
-                           ((polynomial & 0x00020000) >>  3) |
-                           ((polynomial & 0x00040000) >>  5) |
-                           ((polynomial & 0x00080000) >>  7) |
-                           ((polynomial & 0x00100000) >>  9) |
-                           ((polynomial & 0x00200000) >> 11) |
-                           ((polynomial & 0x00400000) >> 13) |
-                           ((polynomial & 0x00800000) >> 15) |
-                           ((polynomial & 0x01000000) >> 17) |
-                           ((polynomial & 0x02000000) >> 19) |
-                           ((polynomial & 0x04000000) >> 21) |
-                           ((polynomial & 0x08000000) >> 23) |
-                           ((polynomial & 0x10000000) >> 25) |
-                           ((polynomial & 0x20000000) >> 27) |
-                           ((polynomial & 0x40000000) >> 29) |
-                           ((polynomial & 0x80000000) >> 31));
-    }
-
-    /** Get the current CRC polynomial, at top of register.
-     *
-     * @return  Shifted polynomial value (so x^width term would be at bit 32)
-     */
-    static constexpr uint32_t get_top_polynomial()
-    {
-        return shift_left(polynomial);
-    }
-
-    const uint32_t _initial_value;
-    const uint32_t _final_xor;
-    const bool _reflect_data;
-    const bool _reflect_remainder;
-
-    // *INDENT-OFF*
-    using crc_table_t = std::conditional_t<width <= 8,  uint8_t,
-                        std::conditional_t<width <= 16, uint16_t,
-                                                        uint32_t
-                                          >>;
-    // *INDENT-ON*
-
-    /* Not [MBED_CRC_TABLE_SIZE] as that could be [0], which is illegal.
-     * We do need the declaration to always exist so that do_compute_partial<TABLE> is always well-formed,
-     * but we never actually use it MBED_CRC_TABLE_SIZE is 0.
-     */
-    static const crc_table_t _crc_table[];
-
-    static uint32_t adjust_initial_value(uint32_t initial_xor, bool reflect_data)
-    {
-        /* As initial_xor is almost certain to be constant all zeros or ones, try to
-         * process that a constant, avoiding an RBIT instruction (or worse).
-         */
-        if (initial_xor == 0 || initial_xor == (get_crc_mask() & -1U)) {
-            /* Only possible adjustment is shifting to top for bitwise */
-            if (mode == CrcMode::BITWISE && !reflect_data) {
-                return shift_left(initial_xor);
-            } else {
-                return initial_xor;
-            }
-        }
-
-        /* Weird or non-constant initial value - need to think about reflection */
-        if (mode == CrcMode::BITWISE) {
-            /* For bitwise calculation, CRC register is reflected if data is, to match input.
-             * (MSB at bottom of register). If not reflected, it is at the top of the register
-             * (MSB at top of register).
-             */
-            return reflect_data ? reflect_crc(initial_xor) : shift_left(initial_xor);
-        } else if (mode == CrcMode::TABLE) {
-            /* For table calculation, CRC value is reflected, to match tables.
-             * (MSB at bottom of register). */
-            return reflect_crc(initial_xor);
-        } else { // CrcMode::HARDWARE
-            return initial_xor;
-        }
-    }
+    uint32_t _initial_value;
+    uint32_t _final_xor;
+    bool _reflect_data;
+    bool _reflect_remainder;
+    uint32_t *_crc_table;
+    CrcMode _mode;
 
     /** Acquire exclusive access to CRC hardware/software.
      */
-    static void lock()
+    void lock()
     {
 #if DEVICE_CRC
-        if (mode == CrcMode::HARDWARE) {
+        if (_mode == HARDWARE) {
             mbed_crc_mutex->lock();
         }
 #endif
@@ -528,179 +335,87 @@ private:
 
     /** Release exclusive access to CRC hardware/software.
      */
-    static void unlock()
+    virtual void unlock()
     {
 #if DEVICE_CRC
-        if (mode == CrcMode::HARDWARE) {
+        if (_mode == HARDWARE) {
             mbed_crc_mutex->unlock();
         }
 #endif
+    }
+
+    /** Get the current CRC data size.
+     *
+     * @return  CRC data size in bytes
+     */
+    uint8_t get_data_size(void) const
+    {
+        return (width <= 8 ? 1 : (width <= 16 ? 2 : 4));
+    }
+
+    /** Get the top bit of current CRC.
+     *
+     * @return  Top bit is set high for respective data width of current CRC
+     *          Top bit for CRC width less then 8 bits will be set as 8th bit.
+     */
+    uint32_t get_top_bit(void) const
+    {
+        return (width < 8 ? (1u << 7) : (uint32_t)(1ul << (width - 1)));
     }
 
     /** Get the CRC data mask.
      *
      * @return  CRC data mask is generated based on current CRC width
      */
-    static constexpr uint32_t get_crc_mask()
+    uint32_t get_crc_mask(void) const
     {
-        return (uint32_t)((uint32_t)2U << (width - 1)) - 1U;
+        return (width < 8 ? ((1u << 8) - 1) : (uint32_t)((uint64_t)(1ull << width) - 1));
     }
 
-    /** Data bytes may need to be reflected.
+    /** Final value of CRC is reflected.
      *
-     * @param  data value to be reflected (bottom 8 bits)
-     * @return Reflected value (bottom 8 bits)
+     * @param  data final crc value, which should be reflected
+     * @return  Reflected CRC value
      */
-    static uint_fast32_t reflect_byte(uint_fast32_t data)
+    uint32_t reflect_remainder(uint32_t data) const
     {
-        return __RBIT(data) >> 24;
-    }
+        if (_reflect_remainder) {
+            uint32_t reflection = 0x0;
+            uint8_t const nBits = (width < 8 ? 8 : width);
 
-    /** CRC values may need to be reflected.
-     *
-     * @param  CRC value to be reflected (width bits at bottom of 32-bit word)
-     * @return Reflected value (still at bottom of 32-bit word)
-     */
-    static uint32_t reflect_crc(uint32_t data)
-    {
-        return __RBIT(data) >> (32 - width);
-    }
-
-    /** Register values may need to be reflected.
-     *
-     * @param  Register value to be reflected (full 32-bit value)
-     * @return Reflected value (full 32-bit value)
-     */
-    static uint32_t reflect_register(uint32_t data)
-    {
-        return __RBIT(data);
-    }
-
-    /** Register values may need to be shifted left.
-     *
-     * @param  Register value to be shifted up (in bottom width bits)
-     * @return Shifted value (in top width bits)
-     */
-    static constexpr uint32_t shift_left(uint32_t data)
-    {
-        return data << (32 - width);
-    }
-
-    /** Register values may need to be shifted right.
-     *
-     * @param  Register value to be shifted right (in top width bits)
-     * @return  Shifted value (in bottom width bits)
-     */
-    static constexpr uint32_t shift_right(uint32_t data)
-    {
-        return data >> (32 - width);
-    }
-
-    /* Check to see if we can do assembler optimizations */
-#if ((defined __GNUC__ || defined __clang__) && !defined __CC_ARM) && \
-    (defined __arm__ || defined __ARM_ARCH)
-#if (__ARM_ARCH_7M__      == 1U) || \
-    (__ARM_ARCH_7EM__     == 1U) || \
-    (__ARM_ARCH_8M_MAIN__ == 1U) || \
-    (__ARM_ARCH_7A__      == 1U)
-    /* ARM that has Thumb-2 - same unified assembly is good for either ARM or Thumb state (LSRS; IT CS; EORCS reg/imm) */
-#define MBED_CRC_ARM_THUMB2     1
-#define MBED_CRC_THUMB1         0
-#elif (__ARM_ARCH_6M__      == 1U) || \
-      (__ARM_ARCH_8M_BASE__ == 1U)
-    /* Thumb-1-only ARM-M device - use Thumb-1 compatible assembly with branch (LSRS; BCC; EORS reg) */
-#define MBED_CRC_ARM_THUMB2     0
-#define MBED_CRC_THUMB1         1
-#else // __ARM_ARCH_xxx
-#error "Unknown ARM architecture for CRC optimization"
-#endif // __ARM_ARCH_xxx
-#else // __arm__ || defined __ICC_ARM__ || defined __ARM_ARCH
-    /* Seem to be compiling for non-ARM, or an unsupported toolchain, so stick with C implementations */
-#define MBED_CRC_ARM_THUMB2     0
-#define MBED_CRC_THUMB1         0
-#endif
-
-    // *INDENT-OFF*
-    /** Process 1 bit of non-reflected CRC
-     *
-     * Shift the p_crc register left 1 bit - if a one is shifted
-     * out, exclusive-or with the polynomial mask.
-     *
-     * Assembler optimizations can be applied here, to make
-     * use of the CPU's carry output from shifts.
-     *
-     * @param  p_crc input register value
-     * @return updated register value
-     */
-    static uint_fast32_t do_1_bit_normal(uint_fast32_t p_crc)
-    {
-#if MBED_CRC_ARM_THUMB2
-        __asm(".syntax unified\n\t"
-              "LSLS"  "\t%[p_crc], %[p_crc], #1\n\t"
-              "IT"    "\tCS\n\t"
-              "EORCS" "\t%[p_crc], %[poly]"
-              : [p_crc] "+&r" (p_crc)
-              : [poly] "rI" (get_top_polynomial())
-              : "cc");
-#elif MBED_CRC_THUMB1
-        __asm(".syntax unified\n\t"
-              "LSLS"  "\t%[p_crc], %[p_crc], #1\n\t"
-              "BCC"   "\t%=f\n\t"
-              "EORS"  "\t%[p_crc], %[poly]\n"
-              "%=:"
-              : [p_crc] "+&l" (p_crc)
-              : [poly] "l" (get_top_polynomial())
-              : "cc");
-#else
-        if (p_crc & 0x80000000) {
-            p_crc = (p_crc << 1) ^ get_top_polynomial();
+            for (uint8_t bit = 0; bit < nBits; ++bit) {
+                if (data & 0x01) {
+                    reflection |= (1 << ((nBits - 1) - bit));
+                }
+                data = (data >> 1);
+            }
+            return (reflection);
         } else {
-            p_crc = (p_crc << 1);
+            return data;
         }
-#endif
-        return p_crc;
     }
 
-    /** Process 1 bit of reflected CRC
+    /** Data bytes are reflected.
      *
-     * Shift the p_crc register right 1 bit - if a one is shifted
-     * out, exclusive-or with the polynomial mask.
-     *
-     * Assembler optimizations can be applied here, to make
-     * use of the CPU's carry output from shifts.
-     *
-     * @param  p_crc input register value
-     * @return updated register value
+     * @param  data value to be reflected
+     * @return  Reflected data value
      */
-    static uint_fast32_t do_1_bit_reflected(uint_fast32_t p_crc)
+    uint32_t reflect_bytes(uint32_t data) const
     {
-#if MBED_CRC_ARM_THUMB2
-        __asm(".syntax unified\n\t"
-              "LSRS"  "\t%[p_crc], %[p_crc], #1\n\t"
-              "IT"    "\tCS\n\t"
-              "EORCS" "\t%[p_crc], %[poly]"
-              : [p_crc] "+&r" (p_crc)
-              : [poly] "rI" (get_reflected_polynomial())
-              : "cc");
-#elif MBED_CRC_THUMB1
-        __asm(".syntax unified\n\t"
-              "LSRS"  "\t%[p_crc], %[p_crc], #1\n\t"
-              "BCC"   "\t%=f\n\t"
-              "EORS"  "\t%[p_crc], %[poly]\n"
-              "%=:"
-              : [p_crc] "+&l" (p_crc)
-              : [poly] "l" (get_reflected_polynomial())
-              : "cc");
-#else
-        if (p_crc & 1) {
-            p_crc = (p_crc >> 1) ^ get_reflected_polynomial();
+        if (_reflect_data) {
+            uint32_t reflection = 0x0;
+
+            for (uint8_t bit = 0; bit < 8; ++bit) {
+                if (data & 0x01) {
+                    reflection |= (1 << (7 - bit));
+                }
+                data = (data >> 1);
+            }
+            return (reflection);
         } else {
-            p_crc = (p_crc >> 1);
+            return data;
         }
-#endif
-        return p_crc;
     }
-    // *INDENT-ON*
 
     /** Bitwise CRC computation.
      *
@@ -709,36 +424,40 @@ private:
      * @param  crc  CRC value is filled in, but the value is not the final
      * @return  0  on success or a negative error code on failure
      */
-    template<CrcMode mode_ = mode>
-    std::enable_if_t<mode_ == CrcMode::BITWISE, int32_t>
-    do_compute_partial(const uint8_t *data, crc_data_size_t size, uint32_t *crc) const
+    int32_t bitwise_compute_partial(const void *buffer, crc_data_size_t size, uint32_t *crc) const
     {
-        uint_fast32_t p_crc = *crc;
+        MBED_ASSERT(crc != NULL);
 
-        if (_reflect_data) {
-            /* Everything is reflected to match data - MSB of polynomial at bottom of 32-bit register */
+        const uint8_t *data = static_cast<const uint8_t *>(buffer);
+        uint32_t p_crc = *crc;
+
+        if (width < 8) {
+            uint8_t data_byte;
             for (crc_data_size_t byte = 0; byte < size; byte++) {
-                p_crc ^= data[byte];
-
-                // Perform modulo-2 division, a bit at a time
-                for (unsigned int bit = 8; bit > 0; --bit) {
-                    p_crc = do_1_bit_reflected(p_crc);
+                data_byte = reflect_bytes(data[byte]);
+                for (uint8_t bit = 8; bit > 0; --bit) {
+                    p_crc <<= 1;
+                    if ((data_byte ^ p_crc) & get_top_bit()) {
+                        p_crc ^= polynomial;
+                    }
+                    data_byte <<= 1;
                 }
             }
         } else {
-            /* Polynomial is shifted to put MSB of polynomial at top of 32-bit register */
             for (crc_data_size_t byte = 0; byte < size; byte++) {
-                p_crc ^= (uint_fast32_t) data[byte] << 24;
+                p_crc ^= (reflect_bytes(data[byte]) << (width - 8));
 
                 // Perform modulo-2 division, a bit at a time
-                for (unsigned int bit = 8; bit > 0; --bit) {
-                    p_crc = do_1_bit_normal(p_crc);
+                for (uint8_t bit = 8; bit > 0; --bit) {
+                    if (p_crc & get_top_bit()) {
+                        p_crc = (p_crc << 1) ^ polynomial;
+                    } else {
+                        p_crc = (p_crc << 1);
+                    }
                 }
             }
         }
-
-        *crc = p_crc;
-
+        *crc = p_crc & get_crc_mask();
         return 0;
     }
 
@@ -749,92 +468,105 @@ private:
     * @param  crc  CRC value is filled in, but the value is not the final
     * @return  0  on success or a negative error code on failure
     */
-    template<CrcMode mode_ = mode>
-    std::enable_if_t<mode_ == CrcMode::TABLE, int32_t>
-    do_compute_partial(const uint8_t *data, crc_data_size_t size, uint32_t *crc) const
+    int32_t table_compute_partial(const void *buffer, crc_data_size_t size, uint32_t *crc) const
     {
-        uint_fast32_t p_crc = *crc;
-        // GCC has been observed to not hoist the load of _reflect_data out of the loop
-        // Note the inversion because table and CRC are reflected - data must be
-        bool reflect = !_reflect_data;
+        MBED_ASSERT(crc != NULL);
 
-        for (crc_data_size_t byte = 0; byte < size; byte++) {
-            uint_fast32_t data_byte = data[byte];
-            if (reflect) {
-                data_byte = reflect_byte(data_byte);
+        const uint8_t *data = static_cast<const uint8_t *>(buffer);
+        uint32_t p_crc = *crc;
+        uint8_t data_byte = 0;
+
+        if (width <= 8) {
+            uint8_t *crc_table = (uint8_t *)_crc_table;
+            for (crc_data_size_t byte = 0; byte < size; byte++) {
+                data_byte = reflect_bytes(data[byte]) ^ p_crc;
+                p_crc = crc_table[data_byte];
             }
-#if MBED_CRC_TABLE_SIZE == 16
-            p_crc = _crc_table[(data_byte ^ p_crc) & 0xF] ^ (p_crc >> 4);
-            data_byte >>= 4;
-            p_crc = _crc_table[(data_byte ^ p_crc) & 0xF] ^ (p_crc >> 4);
-#else
-            p_crc = _crc_table[(data_byte ^ p_crc) & 0xFF] ^ (p_crc >> 8);
-#endif
+        } else if (width <= 16) {
+            uint16_t *crc_table = (uint16_t *)_crc_table;
+            for (crc_data_size_t byte = 0; byte < size; byte++) {
+                data_byte = reflect_bytes(data[byte]) ^ (p_crc >> (width - 8));
+                p_crc = crc_table[data_byte] ^ (p_crc << 8);
+            }
+        } else {
+            uint32_t *crc_table = (uint32_t *)_crc_table;
+            if (POLY_32BIT_REV_ANSI == polynomial) {
+                for (crc_data_size_t i = 0; i < size; i++) {
+                    p_crc = (p_crc >> 4) ^ crc_table[(p_crc ^ (data[i] >> 0)) & 0xf];
+                    p_crc = (p_crc >> 4) ^ crc_table[(p_crc ^ (data[i] >> 4)) & 0xf];
+                }
+            } else {
+                for (crc_data_size_t byte = 0; byte < size; byte++) {
+                    data_byte = reflect_bytes(data[byte]) ^ (p_crc >> (width - 8));
+                    p_crc = crc_table[data_byte] ^ (p_crc << 8);
+                }
+            }
         }
-        *crc = p_crc;
+        *crc = p_crc & get_crc_mask();
         return 0;
     }
 
-#ifdef DEVICE_CRC
-    /** Hardware CRC computation.
-     *
-     * @param  buffer  data buffer
-     * @param  size  size of the data
-     * @return  0  on success or a negative error code on failure
+    /** Constructor init called from all specialized cases of constructor.
+     *  Note: All constructor common code should be in this function.
      */
-    template<CrcMode mode_ = mode>
-    std::enable_if_t<mode_ == CrcMode::HARDWARE, int32_t>
-    do_compute_partial(const uint8_t *data, crc_data_size_t size, uint32_t *) const
+    void mbed_crc_ctor(void)
     {
-        hal_crc_compute_partial(data, size);
-        return 0;
-    }
+        MBED_STATIC_ASSERT(width <= 32, "Max 32-bit CRC supported");
+
+#if DEVICE_CRC
+        if (POLY_32BIT_REV_ANSI != polynomial) {
+            crc_mbed_config_t config;
+            config.polynomial  = polynomial;
+            config.width       = width;
+            config.initial_xor = _initial_value;
+            config.final_xor   = _final_xor;
+            config.reflect_in  = _reflect_data;
+            config.reflect_out = _reflect_remainder;
+
+            if (hal_crc_is_supported(&config)) {
+                _mode = HARDWARE;
+                return;
+            }
+        }
 #endif
 
+        switch (polynomial) {
+            case POLY_32BIT_ANSI:
+                _crc_table = (uint32_t *)Table_CRC_32bit_ANSI;
+                break;
+            case POLY_32BIT_REV_ANSI:
+                _crc_table = (uint32_t *)Table_CRC_32bit_Rev_ANSI;
+                break;
+            case POLY_8BIT_CCITT:
+                _crc_table = (uint32_t *)Table_CRC_8bit_CCITT;
+                break;
+            case POLY_7BIT_SD:
+                _crc_table = (uint32_t *)Table_CRC_7Bit_SD;
+                break;
+            case POLY_16BIT_CCITT:
+                _crc_table = (uint32_t *)Table_CRC_16bit_CCITT;
+                break;
+            case POLY_16BIT_IBM:
+                _crc_table = (uint32_t *)Table_CRC_16bit_IBM;
+                break;
+            default:
+                _crc_table = NULL;
+                break;
+        }
+        _mode = (_crc_table != NULL) ? TABLE : BITWISE;
+    }
+#endif
 };
 
-} // namespace impl
-
-#endif // !defined(DOXYGEN_ONLY)
-
-/* Default values for different types of polynomials
-*/
-template<>
-inline MbedCRC<POLY_32BIT_ANSI, 32>::MbedCRC() : MbedCRC(0xFFFFFFFF, 0xFFFFFFFF, true, true)
-{
-}
-
-template<>
-inline MbedCRC<POLY_16BIT_IBM, 16>::MbedCRC() : MbedCRC(0, 0, true, true)
-{
-}
-
-template<>
-inline MbedCRC<POLY_16BIT_CCITT, 16>::MbedCRC() : MbedCRC(0xFFFF, 0, false, false)
-{
-}
-
-template<>
-inline MbedCRC<POLY_7BIT_SD, 7>::MbedCRC(): MbedCRC(0, 0, false, false)
-{
-}
-
-template<>
-inline MbedCRC<POLY_8BIT_CCITT, 8>::MbedCRC(): MbedCRC(0, 0, false, false)
-{
-}
+#if   defined ( __CC_ARM )
+#elif defined ( __GNUC__ )
+#pragma GCC diagnostic pop
+#elif defined (__ICCARM__)
+#endif
 
 /** @}*/
 /** @}*/
 
 } // namespace mbed
-
-#endif // __cplusplus
-
-/* Internal helper for mbed_error.c crash recovery */
-#ifdef __cplusplus
-extern "C"
-#endif
-uint32_t mbed_tiny_compute_crc32(const void *data, int datalen);
 
 #endif

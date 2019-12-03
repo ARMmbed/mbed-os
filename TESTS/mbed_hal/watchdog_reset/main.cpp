@@ -14,6 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if !MBED_CONF_RTOS_PRESENT
+#error [NOT_SUPPORTED] Watchdog reset test cases require a RTOS to run.
+#else
+
 #if !DEVICE_WATCHDOG
 #error [NOT_SUPPORTED] Watchdog not supported for this target
 #else
@@ -334,3 +338,4 @@ int main()
 }
 
 #endif // !DEVICE_WATCHDOG
+#endif // !MBED_CONF_RTOS_PRESENT

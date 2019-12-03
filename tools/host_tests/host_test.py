@@ -18,8 +18,8 @@ limitations under the License.
 # Check if 'serial' module is installed
 try:
     from serial import Serial
-except ImportError, e:
-    print "Error: Can't import 'serial' module: %s"% e
+except ImportError as e:
+    print("Error: Can't import 'serial' module: %s"% e)
     exit(-1)
 
 import os
@@ -29,7 +29,7 @@ from sys import stdout
 from time import sleep, time
 from optparse import OptionParser
 
-import host_tests_plugins
+from . import host_tests_plugins
 
 # This is a little tricky. We need to add upper directory to path so
 # we can find packages we want from the same level as other files do
@@ -39,7 +39,7 @@ from tools.test_api import get_autodetected_MUTS_list
 from tools.test_api import get_module_avail
 
 
-class Mbed:
+class Mbed(object):
     """ Base class for a host driven test
     """
     def __init__(self):
@@ -117,7 +117,7 @@ class Mbed:
         self.serial_timeout = 1
 
         self.timeout = self.DEFAULT_TOUT if self.options.timeout is None else self.options.timeout
-        print 'MBED: Instrumentation: "%s" and disk: "%s"' % (self.port, self.disk)
+        print('MBED: Instrumentation: "%s" and disk: "%s"' % (self.port, self.disk))
 
     def init_serial_params(self, serial_baud=9600, serial_timeout=1):
         """ Initialize port parameters.
@@ -183,11 +183,11 @@ class Mbed:
                 stdout.write('.')
                 stdout.flush()
             else:
-                print "...port ready!"
+                print("...port ready!")
                 result = True
                 break
         if not result and last_error:
-            print last_error
+            print(last_error)
         return result
 
     def set_serial_timeout(self, timeout):
@@ -221,7 +221,7 @@ class Mbed:
                     c = self.serial.read(1)
                     result += c
                 except Exception as e:
-                    print "MBED: %s"% str(e)
+                    print("MBED: %s"% str(e))
                     result = None
                     break
                 if c == '\n':
@@ -298,7 +298,7 @@ class Mbed:
         return result
 
 
-class HostTestResults:
+class HostTestResults(object):
     """ Test results set by host tests
     """
     def __init__(self):
@@ -389,8 +389,8 @@ class Test(HostTestResults):
                 self.print_result(result)
             else:
                 self.notify("HOST: Passive mode...")
-        except Exception, e:
-            print str(e)
+        except Exception as e:
+            print(str(e))
             self.print_result(self.RESULT_ERROR)
 
     def setup(self):
@@ -406,7 +406,7 @@ class Test(HostTestResults):
     def notify(self, message):
         """ On screen notification function
         """
-        print message
+        print(message)
         stdout.flush()
 
     def print_result(self, result):
