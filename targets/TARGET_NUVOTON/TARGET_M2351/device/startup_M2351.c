@@ -192,7 +192,7 @@ WEAK_ALIAS_FUNC(TRNG_IRQHandler, Default_Handler)       // 101:
 
 /* Vector table */
 #if defined(__ARMCC_VERSION)
-__attribute__ ((section("RESET")))
+__attribute__ ((section("RESET"), used))
 const uint32_t __vector_handlers[] = {
 #elif defined(__ICCARM__)
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) && (TFM_LVL > 0)
