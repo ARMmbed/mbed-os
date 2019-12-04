@@ -19,7 +19,7 @@
 #include "rtos/ThisThread.h"
 #include "mbed_trace.h"
 
-#define TRACE_GROUP "CELL"
+#define TRACE_GROUP "STMOD"
 
 using namespace mbed;
 
@@ -33,7 +33,7 @@ STModCellular::STModCellular(FileHandle *fh) : STMOD_CELLULAR_MODEM(fh),
     m_sim_clk(MBED_CONF_STMOD_CELLULAR_SIM_CLK),
     m_sim_data(MBED_CONF_STMOD_CELLULAR_SIM_DATA)
 {
-    tr_debug("STModCellular creation\r\n");
+    tr_info("STModCellular creation");
 
     // start with modem disabled
     m_powerkey.write(0);
@@ -54,10 +54,10 @@ STModCellular::~STModCellular()
 
 nsapi_error_t STModCellular::soft_power_on()
 {
-    tr_debug("STMOD cellular modem power ON\r\n");
+    tr_debug("STMOD cellular modem power ON");
 
 #if (MBED_CONF_STMOD_CELLULAR_TYPE == STMOD_UG96)
-    tr_debug("Booting UG96\r\n");
+    tr_info("Booting UG96");
     m_reset.write(1);
     rtos::ThisThread::sleep_for(200);
     m_reset.write(0);
@@ -68,9 +68,8 @@ nsapi_error_t STModCellular::soft_power_on()
     /* Because modem status is not available on STMOD+ connector,
      * let's wait for Modem complete boot */
     rtos::ThisThread::sleep_for(2300);
-#endif
-#if (MBED_CONF_STMOD_CELLULAR_TYPE == STMOD_BG96)
-    tr_debug("Booting BG96\r\n");
+#elif (MBED_CONF_STMOD_CELLULAR_TYPE == STMOD_BG96)
+    tr_info("Booting BG96");
     m_powerkey.write(1);
     m_reset.write(1);
     rtos::ThisThread::sleep_for(150);
@@ -107,10 +106,10 @@ nsapi_error_t STModCellular::soft_power_on()
     _at->restore_at_timeout();
     _at->unlock();
 
-    tr_debug("Modem %sready to receive AT commands\r\n", rdy ? "" : "NOT ");
+    tr_info("Modem %sready to receive AT commands", rdy ? "" : "NOT ");
 
     if ((MBED_CONF_STMOD_CELLULAR_CTS != NC) && (MBED_CONF_STMOD_CELLULAR_RTS != NC)) {
-        tr_debug("Enable flow control\r\n");
+        tr_info("Enable flow control");
 
         pin_mode(MBED_CONF_STMOD_CELLULAR_CTS, PullDown);
 
@@ -127,9 +126,9 @@ nsapi_error_t STModCellular::soft_power_on()
         _at->unlock();
 
         if (err == NSAPI_ERROR_OK) {
-            tr_debug("Flow control turned ON\r\n");
+            tr_debug("Flow control turned ON");
         } else {
-            tr_error("Failed to enable hw flow control\r\n");
+            tr_error("Failed to enable hw flow control");
         }
     }
 
@@ -160,11 +159,10 @@ nsapi_error_t STModCellular::soft_power_off()
 #include "UARTSerial.h"
 CellularDevice *CellularDevice::get_default_instance()
 {
-    tr_debug("MODEM default instance\r\n");
+    tr_debug("STMOD_CELLULAR default instance");
 
     static UARTSerial serial(MBED_CONF_STMOD_CELLULAR_TX, MBED_CONF_STMOD_CELLULAR_RX, MBED_CONF_STMOD_CELLULAR_BAUDRATE);
     if ((MBED_CONF_STMOD_CELLULAR_CTS != NC) && (MBED_CONF_STMOD_CELLULAR_RTS != NC)) {
-        tr_debug("STMOD_CELLULAR flow control: RTS %d CTS %d\r\n", MBED_CONF_STMOD_CELLULAR_RTS, MBED_CONF_STMOD_CELLULAR_CTS);
         serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_STMOD_CELLULAR_RTS, MBED_CONF_STMOD_CELLULAR_CTS);
     }
     static STModCellular device(&serial);
