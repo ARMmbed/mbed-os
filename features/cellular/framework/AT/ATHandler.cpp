@@ -491,7 +491,7 @@ bool ATHandler::fill_buffer(bool wait_for_timeout)
 {
     // Reset buffer when full
     if (sizeof(_recv_buff) == _recv_len) {
-        tr_error("AT overflow");
+        tr_warn("AT overflow");
         debug_print(_recv_buff, _recv_len, AT_ERR);
         reset_buffer();
     }
@@ -1586,7 +1586,7 @@ void ATHandler::debug_print(const char *p, int len, ATType type)
             } else if (type == AT_TX) {
                 tr_info("AT TX (%2d): %s", len, buffer);
             } else {
-                tr_info("AT ERR (%2d): %s", len, buffer);
+                tr_warn("AT ERR (%2d): %s", len, buffer);
             }
 
             delete [] buffer;
