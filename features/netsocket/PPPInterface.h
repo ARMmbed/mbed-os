@@ -50,34 +50,16 @@ public:
                  OnboardNetworkStack &stack = OnboardNetworkStack::get_default_instance());
     virtual ~PPPInterface();
 
-    /** Set a static IP address
-     *
-     *  Configures this network interface to use a static IP address.
-     *  Implicitly disables DHCP, which can be enabled in set_dhcp.
-     *  Requires that the network is disconnected.
-     *
-     *  @param ip_address  Null-terminated representation of the local IP address
-     *  @param netmask     Null-terminated representation of the local network mask
-     *  @param gateway     Null-terminated representation of the local gateway
-     *  @return            0 on success, negative error code on failure
-     */
+    /** @copydoc NetworkInterface::set_network */
     virtual nsapi_error_t set_network(const char *ip_address, const char *netmask, const char *gateway);
 
-    /** Start the interface
-     *  @return             0 on success, negative on failure
-     */
+    /** @copydoc NetworkInterface::connect */
     virtual nsapi_error_t connect();
 
-    /** Stop the interface
-     *  @return             0 on success, negative on failure
-     */
+    /** @copydoc NetworkInterface::disconnect */
     virtual nsapi_error_t disconnect();
 
-    /** Get the local IP address
-     *
-     *  @return         Null-terminated representation of the local IP address
-     *                  or null if no IP address has been received
-     */
+    /** @copydoc NetworkInterface::get_ip_address */
     virtual const char *get_ip_address();
 
     /** @copydoc NetworkInterface::get_ip_address */
@@ -89,48 +71,25 @@ public:
     /** @copydoc NetworkInterface::get_gateway */
     virtual nsapi_error_t get_gateway(SocketAddress *address);
 
-    /** Get the local network mask
-     *
-     *  @return         Null-terminated representation of the local network mask
-     *                  or null if no network mask has been received
-     */
+    /** @copydoc NetworkInterface::get_netmask */
     virtual const char *get_netmask();
 
-    /** Get the local gateways
-     *
-     *  @return         Null-terminated representation of the local gateway
-     *                  or null if no network mask has been received
-     */
+    /** @copydoc NetworkInterface::get_gateway */
     virtual const char *get_gateway();
 
-    /** Get the network interface name
-     *
-     *  @return         Null-terminated representation of the network interface name
-     *                  or null if  interface not exists
-     */
+    /** @copydoc NetworkInterface::get_interface_name */
     virtual char *get_interface_name(char *interface_name);
 
-    /** Set the network interface as default one
-      */
+    /** @copydoc NetworkInterface::set_as_default */
     virtual void set_as_default();
 
-    /** Register callback for status reporting
-     *
-     *  @param status_cb The callback for status changes
-     */
+    /** @copydoc NetworkInterface::attach */
     virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
 
-    /** Get the connection status
-     *
-     *  @return         The connection status according to nsapi_connection_status_t
-     */
+    /** @copydoc NetworkInterface::get_connection_status */
     virtual nsapi_connection_status_t get_connection_status() const;
 
-    /** Set blocking status of connect() which by default should be blocking
-     *
-     *  @param blocking true if connect is blocking
-     *  @return         0 on success, negative error code on failure
-     */
+    /** @copydoc NetworkInterface::set_blocking */
     virtual nsapi_error_t set_blocking(bool blocking);
 
     /** Sets file stream used to communicate with modem

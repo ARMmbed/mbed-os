@@ -213,6 +213,11 @@ TEST_F(TestTLSSocketWrapper, connect_handshake_fail_ssl_handshake_in_progress)
     mbedtls_stub.retArray[3] = MBEDTLS_ERR_SSL_WANT_READ; // mbedtls_ssl_handshake error
     eventFlagsStubNextRetval.push_back(osFlagsError); // Break the wait loop
     EXPECT_EQ(wrapper->send(dataBuf, dataSize), NSAPI_ERROR_WOULD_BLOCK);
+
+    // Check that recv will fail in this situation.
+    mbedtls_stub.retArray[4] = MBEDTLS_ERR_SSL_WANT_READ; // mbedtls_ssl_handshake error
+    eventFlagsStubNextRetval.push_back(osFlagsError); // Break the wait loop
+    EXPECT_EQ(wrapper->recv(dataBuf, dataSize), NSAPI_ERROR_WOULD_BLOCK);
 }
 
 TEST_F(TestTLSSocketWrapper, connect_handshake_fail_ssl_get_verify_result)
@@ -296,7 +301,7 @@ TEST_F(TestTLSSocketWrapper, recv_all_data)
 {
     transport->open((NetworkStack *)&stack);
     mbedtls_stub.useCounter = true;
-    mbedtls_stub.retArray[3] = dataSize; // mbedtls_ssl_write
+    mbedtls_stub.retArray[3] = dataSize; // mbedtls_ssl_read
     const SocketAddress a("127.0.0.1", 1024);
     EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_OK);
     EXPECT_EQ(wrapper->recv(dataBuf, dataSize), dataSize);
@@ -307,7 +312,7 @@ TEST_F(TestTLSSocketWrapper, recv_less_than_expected)
     transport->open((NetworkStack *)&stack);
     unsigned int lessThanDataSize = dataSize - 1;
     mbedtls_stub.useCounter = true;
-    mbedtls_stub.retArray[3] = lessThanDataSize; // mbedtls_ssl_write
+    mbedtls_stub.retArray[3] = lessThanDataSize; // mbedtls_ssl_read
     const SocketAddress a("127.0.0.1", 1024);
     EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_OK);
     EXPECT_EQ(wrapper->recv(dataBuf, dataSize), lessThanDataSize);
@@ -317,7 +322,7 @@ TEST_F(TestTLSSocketWrapper, recv_would_block)
 {
     transport->open((NetworkStack *)&stack);
     mbedtls_stub.useCounter = true;
-    mbedtls_stub.retArray[3] = MBEDTLS_ERR_SSL_WANT_WRITE; // mbedtls_ssl_write
+    mbedtls_stub.retArray[3] = MBEDTLS_ERR_SSL_WANT_WRITE; // mbedtls_ssl_read
     const SocketAddress a("127.0.0.1", 1024);
     EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_OK);
     eventFlagsStubNextRetval.push_back(osFlagsError); // Break the wait loop
@@ -328,11 +333,22 @@ TEST_F(TestTLSSocketWrapper, recv_device_error)
 {
     transport->open((NetworkStack *)&stack);
     mbedtls_stub.useCounter = true;
-    mbedtls_stub.retArray[3] = MBEDTLS_ERR_SSL_FATAL_ALERT_MESSAGE; // mbedtls_ssl_write
+    mbedtls_stub.retArray[3] = MBEDTLS_ERR_SSL_FATAL_ALERT_MESSAGE; // mbedtls_ssl_read
     const SocketAddress a("127.0.0.1", 1024);
     EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_OK);
     eventFlagsStubNextRetval.push_back(osFlagsError); // Break the wait loop
     EXPECT_EQ(wrapper->recv(dataBuf, dataSize), NSAPI_ERROR_DEVICE_ERROR);
+}
+
+TEST_F(TestTLSSocketWrapper, recv_peer_clode_notify)
+{
+    transport->open((NetworkStack *)&stack);
+    mbedtls_stub.useCounter = true;
+    mbedtls_stub.retArray[3] = MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY; // mbedtls_ssl_read
+    const SocketAddress a("127.0.0.1", 1024);
+    EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_OK);
+    eventFlagsStubNextRetval.push_back(osFlagsError); // Break the wait loop
+    EXPECT_EQ(wrapper->recv(dataBuf, dataSize), 0);
 }
 
 TEST_F(TestTLSSocketWrapper, recv_from_no_socket)

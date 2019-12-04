@@ -42,6 +42,7 @@ public:
      *  @param size     Size of the buffer in bytes.
      *  @retval         int Number of sent bytes on success.
      *  @retval         NSAPI_ERROR_NO_SOCKET in case socket was not created correctly.
+     *  @retval         NSAPI_ERROR_DNS_FAILURE if the DNS address of host could not be resolved
      *  @retval         NSAPI_ERROR_WOULD_BLOCK in case non-blocking mode is enabled
      *                  and send cannot be performed immediately.
      *  @retval         int Other negative error codes for stack-related failures.
@@ -60,8 +61,6 @@ public:
      *  @param address  The SocketAddress of the remote host.
      *  @param data     Buffer of data to send to the host.
      *  @param size     Size of the buffer in bytes.
-     *  @retval         NSAPI_ERROR_DNS_FAILURE in case the address parameter cannot
-     *                  be resolved.
      *  @retval         NSAPI_ERROR_NO_SOCKET in case socket was not created correctly.
      *  @retval         NSAPI_ERROR_WOULD_BLOCK in case non-blocking mode is enabled
      *                  and send cannot be performed immediately.
@@ -120,6 +119,7 @@ public:
      *  @retval         NSAPI_ERROR_NO_SOCKET in case socket was not created correctly.
      *  @retval         NSAPI_ERROR_WOULD_BLOCK in case non-blocking mode is enabled
      *                  and send cannot be performed immediately.
+     *  #retval         NSAPI_ERROR_NO_ADDRESS if the address was not set with connect().
      *  @retval         int Other negative error codes for stack-related failures.
      *                  See \ref NetworkStack::socket_send.
      */
