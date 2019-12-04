@@ -21,10 +21,11 @@
 
 using namespace mbed;
 
+ControlPlane_netif *CellularNonIPSocket::_cp_netif;
+
 CellularNonIPSocket::CellularNonIPSocket()
     : _timeout(osWaitForever),
       _readers(0), _writers(0), _pending(0),
-      _cp_netif(NULL),
       _opened(false)
 {}
 
@@ -46,9 +47,14 @@ nsapi_error_t CellularNonIPSocket::open(ControlPlane_netif *cp_netif)
 {
     _lock.lock();
 
-    if (_cp_netif != NULL || cp_netif == NULL) {
+    if (cp_netif == NULL || _opened) {
         _lock.unlock();
         return NSAPI_ERROR_PARAMETER;
+    }
+
+    if (_cp_netif) {
+        _lock.unlock();
+        return NSAPI_ERROR_NO_SOCKET;
     }
     _cp_netif = cp_netif;
 
@@ -92,6 +98,9 @@ nsapi_error_t CellularNonIPSocket::close()
 
 nsapi_size_or_error_t CellularNonIPSocket::send(const void *data, nsapi_size_t size)
 {
+    if (!data) {
+        return NSAPI_ERROR_PARAMETER;
+    }
     _lock.lock();
     nsapi_size_or_error_t ret;
 
@@ -164,7 +173,6 @@ nsapi_size_or_error_t CellularNonIPSocket::recv(void *buffer, nsapi_size_t size)
 
             if (flag & osFlagsError) {
                 // Timeout break
-                ret = NSAPI_ERROR_WOULD_BLOCK;
                 break;
             }
         }
