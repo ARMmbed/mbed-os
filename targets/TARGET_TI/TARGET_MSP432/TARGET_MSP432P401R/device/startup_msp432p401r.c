@@ -156,7 +156,7 @@ WEAK_ALIAS_FUNC(EUSCIB3_SPI_IRQHandler, Default_Handler)
 // to ensure that it ends up at physical address 0x0000.0000 or at the start of the
 // program if located at a start address other than 0.
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
-void (* const interruptVectors[])(void) __attribute__((section("RESET"))) = {
+void (* const interruptVectors[])(void) __attribute__((section("RESET"), used)) = {
     (pFunc) &Image$$ARM_LIB_STACK$$ZI$$Limit,  // The initial stack pointer
 #elif defined(__ICCARM__)
 void (* const __vector_table[])(void) @ ".intvec" = {
