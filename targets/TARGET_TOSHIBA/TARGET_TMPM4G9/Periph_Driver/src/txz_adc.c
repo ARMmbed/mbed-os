@@ -1,13 +1,13 @@
 /**
  *******************************************************************************
- * @file    adc.c
+ * @file    txz_adc.c
  * @brief   This file provides API functions for ADC driver.
  * @version V1.0.0.0
  * $Date:: 2017-09-07 13:52:12 #$
  * 
  * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LICENSE AGREEMENT.
  * 
- * (C)Copyright TOSHIBA MICROELECTRONICS CORPORATION 2017 All rights reserved
+ * Copyright(C) Toshiba Electronic Device Solutions Corporation 2019
  *******************************************************************************
  */
 
@@ -18,9 +18,9 @@
 /*------------------------------------------------------------------------------*/
 /*  Includes                                                                    */
 /*------------------------------------------------------------------------------*/
-#include "adc_include.h"
-#include "adc_ch.h"
-#include "adc.h"
+#include "txz_adc_include.h"
+#include "txz_adc_ch.h"
+#include "txz_adc.h"
 
 #if defined(__ADC_H)
 /**

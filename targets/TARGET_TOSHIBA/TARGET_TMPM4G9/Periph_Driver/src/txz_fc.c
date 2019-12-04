@@ -2,12 +2,12 @@
  *******************************************************************************
  * @file    fc.c
  * @brief   Flash_Userboot Sample Application.
- * @version V1.0.1.0
- * $Date:: 2017-06-23 13:52:12 #$
+ * @version V1.0.0.0
+ * $Date:: 2018-09-21 11:11:53 #$
  * 
  * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LICENSE AGREEMENT.
  * 
- * (C)Copyright TOSHIBA MICROELECTRONICS CORPORATION 2017 All rights reserved
+ * Copyright(C) Toshiba Electronic Device Solutions Corporation 2019
  *******************************************************************************
  */
 #ifdef __cplusplus
@@ -18,7 +18,7 @@
 /*  Includes                                                                    */
 /*------------------------------------------------------------------------------*/
 #include <string.h>
-#include "tmpm4g9_fc.h"
+#include "txz_fc.h"
 //#include "txz_sample_def.h"
 
 /**
@@ -184,6 +184,7 @@ __ramfunc
 __STATIC_INLINE TXZ_Result fc_enable_areasel(void)
 {
 	TXZ_Result retval = TXZ_ERROR;
+
 	/* Writes the FCKER register the KEYCODE. */
 	TSB_FC->KCR = FC_KCR_KEYCODE;
 
@@ -359,7 +360,7 @@ static TXZ_Result fc_erase_command(uint32_t* flash_top_address, uint32_t* erase_
 {
 	TXZ_Result retval;
 	
-			/******** Changed/Added by TSIP next 12 lines *************/
+	/******** Changed/Added by TSIP next 12 lines *************/
 	volatile uint32_t *addr1;
 	volatile uint32_t *addr2;
 	if(erase_top_address <= (uint32_t *)0x5E07FFFFUL) {
@@ -373,9 +374,9 @@ static TXZ_Result fc_erase_command(uint32_t* flash_top_address, uint32_t* erase_
 			addr2 = (uint32_t *) ((uint32_t)flash_top_address + FC_CMD_BC2_ADDR + 0x100000);
 	}
   volatile uint32_t *addr3 = (uint32_t *) erase_top_address;
+
 	/* Enables the AREA0. Write Mode. */
 	retval = fc_enable_areasel();
-   // printf("Areasel done\n\r");
 
 	if(retval == TXZ_SUCCESS){
 		*addr1 = (0x000000AAUL);
@@ -396,6 +397,7 @@ static TXZ_Result fc_erase_command(uint32_t* flash_top_address, uint32_t* erase_
 
 	/* Disables the AREA0. Read Mode. */
 	retval = fc_disable_areasel();
+
 	return retval;
 }
 
@@ -618,7 +620,7 @@ TXZ_Result fc_erase_block_code_flash(uint32_t *top_addr, uint32_t *blk_addr)
         if(fc_blank_check(blk_addr, (uint32_t)0x8000) == TXZ_ERROR){
             retval = TXZ_ERROR;
         } else{
-       // do nothing
+	       // do nothing
         }
     }
     else {

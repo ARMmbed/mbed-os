@@ -5,9 +5,9 @@
  * @version V1.0.0.
  * $Date:: 2017-11-09 16:44:27 #$
  * 
- * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LISENCE AGREEMENT.
+ * Copyright(C) Toshiba Electronic Device Solutions Corporation 2019
  * 
- * (C)Copyright TOSHIBA MICROELECTRONICS CORPORATION 2017 All rights reserved
+ * Copyright(C) Toshiba Electronic Device Solutions Corporation 2019
  *******************************************************************************
  */
 /*------------------------------------------------------------------------------*/
@@ -91,8 +91,8 @@ typedef enum
   GPIO_PIN_INOUT,      /*!< 2: Input/Output */
   GPIO_PIN_NOTINOUT,   /*!< 3: Not Input/Output */
 }gpio_pininout_t;
- 
-/** 
+
+/**
  *  @enum gpio_gr_t
  *  @brief    Port Group Enumerated Type Definition.
  */
@@ -121,7 +121,7 @@ typedef enum
   GPIO_GROUP_Max     /*!< Max Number   */
 }gpio_gr_t;
 
-/** 
+/**
  *  @enum gpio_num_t
  *  @brief    Port Number Enumerated Type Definition.
  */
@@ -204,7 +204,7 @@ typedef enum
   GPIO_PA1_EA01       = GPIO_FR_1, /*!< PAFR1: EA01           */
   GPIO_PA1_T32A00OUTA = GPIO_FR_3, /*!< PAFR3: T32A00OUTA     */
   GPIO_PA1_T32A00OUTC = GPIO_FR_5, /*!< PAFR5: T32A00OUTC     */
-  GPIO_PA1_TSPI0CLK   = GPIO_FR_7, /*!< PAFR7: TSPI0CLK       */
+  GPIO_PA1_TSPI0SCK   = GPIO_FR_7, /*!< PAFR7: TSPI0SCK       */
 }gpio_pa1_func_t;
  
 /** 
@@ -233,7 +233,7 @@ typedef enum
   GPIO_PA3_T32A00INB0 = GPIO_FR_3, /*!< PAFR3: T32A00INB0     */
   GPIO_PA3_T32A00INC1 = GPIO_FR_5, /*!< PAFR5: T32A00INC1     */
   GPIO_PA3_TSPI2CS1   = GPIO_FR_6, /*!< PAFR6: TSPI2CS1       */
-  GPIO_PA3_TSPI0TXD   = GPIO_FR_7, /*!< PAFR6: TSPI2CS1       */
+  GPIO_PA3_TSPI0TXD   = GPIO_FR_7, /*!< PAFR7: TSPI0TXD       */
 }gpio_pa3_func_t;
 
  /** 
@@ -883,7 +883,7 @@ typedef enum
   GPIO_PG2_INPUT    = 0,          /*!<     0: Input Port   */
   GPIO_PG2_OUTPUT   = 0,          /*!<     0: Output Port  */
   GPIO_PG2_UT2RTS_N = GPIO_FR_3,  /*!< PCFR3: UT2RTS_N     */
-  GPIO_PG2_RTCALARM = GPIO_FR_4,  /*!< PCFR4: RTCALARM     */
+  GPIO_PG2_ALARM_N = GPIO_FR_4,   /*!< PCFR4: ALARM_N     */
   GPIO_PG2_UT2CTS_N = GPIO_FR_5,  /*!< PCFR5: UT2CTS_N     */
   GPIO_PG2_I2C0SDA  = GPIO_FR_7,  /*!< PCFR7: I2C0SDA      */
 }gpio_pg2_func_t;
@@ -1257,7 +1257,7 @@ typedef enum
   GPIO_PK6_T32A01INA0 = GPIO_FR_2, /*!< PKFR2: T32A01INA0     */
   GPIO_PK6_T32A01INC0 = GPIO_FR_3, /*!< PKFR3: T32A01INC0     */
   GPIO_PK6_TSPI3SCK   = GPIO_FR_4, /*!< PKFR4: TSPI3SCK       */
-  GPIO_PK6_SMI0SCK    = GPIO_FR_6, /*!< PKFR6: SMI0SCK        */
+  GPIO_PK6_SMI0CLK    = GPIO_FR_6, /*!< PKFR6: SMI0CLK        */
 }gpio_pk6_func_t;
 
 /** 
@@ -1299,7 +1299,7 @@ typedef enum
 {
   GPIO_PL1_INPUT     = 0,         /*!<     0: Input Port     */
   GPIO_PL1_OUTPUT    = 0,         /*!<     0: Output Port    */
-  GPIO_PL1_TPI1SCK   = GPIO_FR_7, /*!< PLFR7: TPI1SCK        */
+  GPIO_PL1_TSPI1SCK   = GPIO_FR_7,/*!< PLFR7: TSPI1SCK        */
 }gpio_pl1_func_t;
  
 /** 
@@ -1845,7 +1845,7 @@ typedef enum
   GPIO_PT3_INPUT      = 0,         /*!<     0: Input Port     */
   GPIO_PT3_OUTPUT     = 0,         /*!<     0: Output Port    */
   GPIO_PT3_INT00b     = 0,         /*!<     0: INT00b         */
-  GPIO_PT3_RTCCLK     = GPIO_FR_1, /*!< PTFR1: RTCCLK         */
+  GPIO_PT3_RTCOUT     = GPIO_FR_1, /*!< PTFR1: RTCOUT         */
   GPIO_PT3_T32A03OUTA = GPIO_FR_2, /*!< PTFR2: T32A03OUTA     */
   GPIO_PT3_T32A03OUTC = GPIO_FR_3, /*!< PTFR3: T32A03OUTC     */
   GPIO_PT3_RXIN0      = 0,         /*!<     0: RXIN0          */
@@ -2276,7 +2276,7 @@ typedef enum
  */
 /*----------------------------------*/
 /** 
- * @brief  GPIO handle structure definenition.
+ * @brief  GPIO handle structure definition.
 */
 /*----------------------------------*/
 #if defined(TMPM4G6)

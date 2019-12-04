@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library - CMSIS for TMPM4G9
- * Copyright (C) 2011 ARM Limited. All rights reserved.
+ * Copyright (C) 2019 ARM Limited.
+ * SPDX-License-Identifier: Apache-2.0
  *
  * A generic CMSIS include header, pulling in TMPM4G9 specifics
  */

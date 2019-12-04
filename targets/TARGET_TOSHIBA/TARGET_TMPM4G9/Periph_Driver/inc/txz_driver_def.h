@@ -7,7 +7,7 @@
  * 
  * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LICENSE AGREEMENT.
  * 
- * (C)Copyright TOSHIBA MICROELECTRONICS CORPORATION 2017 All rights reserved
+ * Copyright(C) Toshiba Electronic Device Solutions Corporation 2019
  *******************************************************************************
  */
 /* Define to prevent recursive inclusion -------------------------------------*/

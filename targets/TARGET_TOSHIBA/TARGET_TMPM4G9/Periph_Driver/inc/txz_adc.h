@@ -1,13 +1,13 @@
 /** 
  *******************************************************************************
- * @file    adc.h
+ * @file    txz_adc.h
  * @brief   This file provides all the functions prototypes for ADC driver.
  * @version V1.0.0.0
  * $Date:: 2017-09-12 13:52:12 #$
  * 
  * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LICENSE AGREEMENT.
  * 
- * (C)Copyright TOSHIBA MICROELECTRONICS CORPORATION 2017 All rights reserved
+ * Copyright(C) Toshiba Electronic Device Solutions Corporation 2019
  *******************************************************************************
  */
 /*------------------------------------------------------------------------------*/
@@ -24,7 +24,7 @@ extern "C" {
 /*  Includes                                                                    */
 /*------------------------------------------------------------------------------*/
 #include "txz_driver_def.h"
-#include "adc_ch.h"
+#include "txz_adc_ch.h"
 /**
  *  @addtogroup Periph_Driver Peripheral Driver
  *  @{
@@ -160,7 +160,7 @@ typedef enum
 }adc_dma_int_t;
 
 /*! @enum adc_ain_range_t
-    @brief Range of AIN Macro Definisiton.
+    @brief Range of AIN Macro Definition.
            Range of AIN be set "(ADC_AIN_RANGE_MIN <= Value <= ADC_AIN_RANGE_MAX)".
  */
 typedef enum
@@ -359,7 +359,7 @@ typedef enum
 
 /*----------------------------------*/
 /*! @struct adc_clock_t
-    @brief  Clock information structure definenition.
+    @brief  Clock information structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -375,7 +375,7 @@ typedef struct
 
 /*----------------------------------*/
 /*! @struct adc_cmpx_t
-    @brief  Clock information structure definenition.
+    @brief  Clock information structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -386,12 +386,12 @@ typedef struct
     uint32_t CMPBigSml;         /*!< Compare Big/Small condition */
     uint32_t StrReg;            /*!< Compare Store register */
     uint32_t ADComp;            /*!< ADxCMP0 register data */
-    void (*handle)(uint32_t id, TXZ_Result result);        /*!< Notity Compare Done.       */
+    void (*handle)(uint32_t id, TXZ_Result result);        /*!< Notify Compare Done.       */
 } adc_cmpx_t;
 
 /*----------------------------------*/
 /*! @struct adc_initial_setting_t
-    @brief  Initial setting structure definenition.
+    @brief  Initial setting structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -424,7 +424,7 @@ typedef struct
 
 /*----------------------------------*/
 /*! @struct adc_internal_info_t
-    @brief  Driver internal information structure definenition.
+    @brief  Driver internal information structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -434,7 +434,7 @@ typedef struct
 
 /*----------------------------------*/
 /*! @struct adc_t
-    @brief  ADC handle structure definenition.
+    @brief  ADC handle structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -444,10 +444,10 @@ typedef struct
     adc_internal_info_t      info;            /*!< Driver internal information.      */
     struct
     {
-        void (*single)(uint32_t id, TXZ_Result result);        /*!< Notity Single Conversion Done.       */
-        void (*continuity)(uint32_t id, TXZ_Result result);    /*!< Notity Continuity Conversion Done.   */
-        void (*trigger)(uint32_t id, TXZ_Result result);       /*!< Notity Trigger Conversion Done.      */
-        void (*highpriority)(uint32_t id, TXZ_Result result);       /*!< Notity HighPriority Conversion Done.      */
+        void (*single)(uint32_t id, TXZ_Result result);        /*!< Notify Single Conversion Done.       */
+        void (*continuity)(uint32_t id, TXZ_Result result);    /*!< Notify Continuity Conversion Done.   */
+        void (*trigger)(uint32_t id, TXZ_Result result);       /*!< Notify Trigger Conversion Done.      */
+        void (*highpriority)(uint32_t id, TXZ_Result result);       /*!< Notify HighPriority Conversion Done.      */
     } handler;                                                 /*!< Handler structure. */
 } adc_t;
 

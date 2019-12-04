@@ -7,7 +7,7 @@
  * 
  * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LICENSE AGREEMENT.
  * 
- * (C)Copyright TOSHIBA MICROELECTRONICS CORPORATION 2017 All rights reserved
+ * Copyright(C) Toshiba Electronic Device Solutions Corporation 2019
  *******************************************************************************
  */
 /*------------------------------------------------------------------------------*/
@@ -368,7 +368,7 @@ extern "C" {
 /*  Inline Functions                                                             */
 /*------------------------------------------------------------------------------*/
 /** 
- *  @addtogroup UART_Private_fuctions
+ *  @addtogroup UART_Private_functions
  *  @{
  */
 __STATIC_INLINE void disable_UARTxTRANS_TXE(TSB_UART_TypeDef *p_instance);

@@ -1,13 +1,13 @@
 /**
  *******************************************************************************
- * @file    startup_TMPM4G9.s
+ * @file    startup_TMPM4G9.S
  * @brief   CMSIS Cortex-M4F Core Device Startup File for the
  *          TOSHIBA 'TMPM4G9' Device Series
  * @version 
  * @date    
  *------- <<< Use Configuration Wizard in Context Menu >>> ------------------
  *
- * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2017 All rights reserved
+ * Copyright(C) Toshiba Electronic Device Solutions Corporation 2019
  *******************************************************************************
  */
 

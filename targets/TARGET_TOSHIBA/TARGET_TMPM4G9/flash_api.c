@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
- * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2018 All rights reserved
+ * Copyright(C) Toshiba Electronic Device Solutions Corporation 2019
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +17,7 @@
 
 #include "flash_api.h"
 #include "mbed_critical.h"
-#include "tmpm4g9_fc.h"
+#include "txz_fc.h"
 
 #define PROGRAM_WIRTE_MAX               (16U)           // Page program could be written 16 bytes/4 words once
 #define SECTOR_SIZE                     (0x8000)        // 32KB each sectors or block

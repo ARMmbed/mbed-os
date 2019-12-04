@@ -1,6 +1,6 @@
 /** 
  *******************************************************************************
- * @file    adc_ch.h
+ * @file    txz_adc_ch.h
  * @brief   This file provides all the functions prototypes for ADC driver. \n
  *          Channel Class.
  * @version V1.0.0.0
@@ -8,14 +8,14 @@
  * 
  * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LICENSE AGREEMENT.
  * 
- * (C)Copyright TOSHIBA MICROELECTRONICS CORPORATION 2017 All rights reserved
+ * Copyright(C) Toshiba Electronic Device Solutions Corporation 2019
  *******************************************************************************
  */
 /*------------------------------------------------------------------------------*/
 /*  Define to prevent recursive inclusion                                       */
 /*------------------------------------------------------------------------------*/
-#ifndef __ADC_CH_H
-#define __ADC_CH_H
+#ifndef __TXZ_ADC_CH_H
+#define __TXZ_ADC_CH_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -130,6 +130,6 @@ TXZ_Result adc_ch_get_value(adc_ch_t *p_obj, uint32_t *p_value);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-#endif /* __ADC_CH_H */
+#endif /* __TXZ_ADC_CH_H */
 
 

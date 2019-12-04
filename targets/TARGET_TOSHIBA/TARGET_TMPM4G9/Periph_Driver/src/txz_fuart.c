@@ -7,7 +7,7 @@
  * 
  * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LICENSE AGREEMENT.
  * 
- * (C)Copyright TOSHIBA MICROELECTRONICS CORPORATION 2017 All rights reserved
+ * Copyright(C) Toshiba Electronic Device Solutions Corporation 2019
  *******************************************************************************
  */
 
@@ -895,6 +895,7 @@ TXZ_Result fuart_receiveIt(fuart_t *p_obj, fuart_receive_t *p_info)
     while((fr_reg & FUARTxFR_RXFE_MASK) == FUARTxFR_RXFE_FLAG_CLR)
     {
         dummy  =  (uint8_t)(p_obj->p_instance->DR & FUARTxDR_DR_8BIT_MASK);
+        (void)dummy;
         if(p_obj->init.fifo == 1)
         {
             if(++rx_count > FUART_RX_FIFO_MAX)
@@ -1122,6 +1123,7 @@ void fuart_error_irq_handler(fuart_t *p_obj)
             icr_reg |= FUARTxICR_OEIC_CLR;
             ecr_reg |= FUARTxECR_OE_CLR;
             dummy  =  (uint8_t)(p_obj->p_instance->DR & FUARTxDR_DR_8BIT_MASK);
+            (void)dummy;
             err = TXZ_ERROR;
         }
         /* BREAK */

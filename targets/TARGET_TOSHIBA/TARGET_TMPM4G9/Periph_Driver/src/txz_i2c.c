@@ -5,9 +5,9 @@
  * @version V1.0.0.2
  * $Date:: 2016-11-08 00:00:00 #$
  * 
- * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LISENSE AGREEMENT.
+ * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LICENSE AGREEMENT.
  * 
- * (C)Copyright TOSHIBA MICROELECTRONICS CORPORATION 2017 All rights reserved
+ * Copyright(C) Toshiba Electronic Device Solutions Corporation 2019
  *******************************************************************************
  */
 
@@ -347,7 +347,7 @@ void I2CS_init(I2CS_t *p_obj)
     assert_param(IS_POINTER_NOT_NULL(p_obj->p_instance));
 #endif /* #ifdef DEBUG */
 
-    p_obj->p_instance->WUPCR1 = (p-obj->init.wup.sgcdi | p_obj->init.wup.ack | p_obj->init.wup.reset | p_obj->init.wup.intend);
+    p_obj->p_instance->WUPCR1 = (p_obj->init.wup.sgcdi | p_obj->init.wup.ack | p_obj->init.wup.reset | p_obj->init.wup.intend);
 }
 
 /*--------------------------------------------------*/

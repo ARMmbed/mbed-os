@@ -1,20 +1,20 @@
 /** 
  *******************************************************************************
- * @file    adc_include.h
+ * @file    txz_adc_include.h
  * @brief   This file provides internal common definition.
  * @version V1.0.0.0
  * $Date:: 2017-09-07 13:52:12 #$
  * 
  * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LICENSE AGREEMENT.
  * 
- * (C)Copyright TOSHIBA MICROELECTRONICS CORPORATION 2017 All rights reserved
+ * Copyright(C) Toshiba Electronic Device Solutions Corporation 2019
  *******************************************************************************
  */
 /*------------------------------------------------------------------------------*/
 /*  Define to prevent recursive inclusion                                       */
 /*------------------------------------------------------------------------------*/
-#ifndef __ADC_INCLUDE_H
-#define __ADC_INCLUDE_H
+#ifndef __TXZ_ADC_INCLUDE_H
+#define __TXZ_ADC_INCLUDE_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -344,6 +344,6 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-#endif /* __ADC_INCLUDE_H */
+#endif /* __TXZ_ADC_INCLUDE_H */
 
 

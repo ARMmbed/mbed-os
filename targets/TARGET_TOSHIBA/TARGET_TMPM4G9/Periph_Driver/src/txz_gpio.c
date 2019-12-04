@@ -5,9 +5,9 @@
  * @version V1.0.0.2
  * $Date:: 2018-04-11 14:13:48 #$
  * 
- * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LISENCE AGREEMENT.
+ * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LICENSE AGREEMENT.
  * 
- * (C)Copyright TOSHIBA MICROELECTRONICS CORPORATION 2017 All rights reserved
+ * Copyright(C) Toshiba Electronic Device Solutions Corporation 2019
  *******************************************************************************
  */
 
@@ -4039,6 +4039,7 @@ TXZ_Result gpio_read_mode(_gpio_t *p_obj, uint32_t group, uint32_t mode, uint32_
 #endif  /* TMPM4G9 */
         default:
             result = TXZ_ERROR;
+            break;
         }
     }
 
@@ -4283,6 +4284,7 @@ TXZ_Result gpio_func(_gpio_t *p_obj, gpio_gr_t group, gpio_num_t num, uint32_t f
         #endif  /* TMPM4G9 */
         default:
             result = TXZ_ERROR;
+            break;
         }
         if(result == TXZ_ERROR)
         {

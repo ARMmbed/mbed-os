@@ -5,9 +5,9 @@
  * @version V1.0.0.0
  * $Date:: 2018-01-25 17:07:20 #$
  * 
- * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LISENCE AGREEMENT.
+ * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LICENSE AGREEMENT.
  * 
- * (C)Copyright TOSHIBA MICROELECTRONICS CORPORATION 2017 All rights reserved
+ * Copyright(C) Toshiba Electronic Device Solutions Corporation 2019
  *******************************************************************************
  */
 
@@ -315,7 +315,7 @@ __INLINE static int32_t check_param_transmit_master(uint32_t param)
 
     switch (param) 
     {
-        case TSPI_MASTER_OPEARTION:
+        case TSPI_MASTER_OPERATION:
         case TSPI_SLAVE_OPERATION:
             result = PARAM_OK;
             break;
@@ -398,7 +398,7 @@ __INLINE static int32_t check_param_frame_range(uint32_t param)
 {
     int32_t result = PARAM_NG;
 
-    if ((TSPI_TRANS_RANGE_SINGLE == param) || (param <= TSPI_TRANS_RANGE_MAX)){
+    if ((TSPI_TRANS_RANGE_CONTINUE == param) || (TSPI_TRANS_RANGE_SINGLE == param) || (param <= TSPI_TRANS_RANGE_MAX)){
         result = PARAM_OK;
     }
 
@@ -510,7 +510,6 @@ __INLINE static int32_t check_param_rx_fill_level(uint32_t param)
 
     switch (param) 
     {
-    case TSPI_RX_FILL_LEVEL_0:
     case TSPI_RX_FILL_LEVEL_1:
     case TSPI_RX_FILL_LEVEL_2:
     case TSPI_RX_FILL_LEVEL_3:
@@ -518,6 +517,7 @@ __INLINE static int32_t check_param_rx_fill_level(uint32_t param)
     case TSPI_RX_FILL_LEVEL_5:
     case TSPI_RX_FILL_LEVEL_6:
     case TSPI_RX_FILL_LEVEL_7:
+    case TSPI_RX_FILL_LEVEL_8:
         result = PARAM_OK;
         break;
     default:

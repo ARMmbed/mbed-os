@@ -7,7 +7,7 @@
  * 
  * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LISENSE AGREEMENT.
  * 
- * (C)Copyright TOSHIBA MICROELECTRONICS CORPORATION 2017 All rights reserved
+ * Copyright(C) Toshiba Electronic Device Solutions Corporation 2019
  *******************************************************************************
  */
 #ifdef __cplusplus
@@ -656,6 +656,7 @@ __STATIC_INLINE int32_t wait_status(_i2c_t *p_obj)
         {
             volatile uint32_t dummy = 0;
             dummy = I2C_read_data(&p_obj->i2c);
+            (void)dummy;
              return (-5);
         }
         if ((timeout--) == 0)
@@ -667,6 +668,7 @@ __STATIC_INLINE int32_t wait_status(_i2c_t *p_obj)
     {
         volatile uint32_t dummy = 0;
         dummy = I2C_read_data(&p_obj->i2c);
+        (void)dummy;
         return (-5);
     }
     return (0);
@@ -701,6 +703,7 @@ static void i2c_irq_handler(_i2c_t *p_obj)
         if (I2C_transmitter(&p_obj->i2c))
         {
             int32_t start = I2C_restart(&p_obj->i2c);
+            (void)start;
 
             if (!I2C_get_ack(&p_obj->i2c))
             {
@@ -815,6 +818,7 @@ static void i2c_slave_irq_handler(_i2c_t *p_obj)
         if (start)
         {
             uint8_t sa = (uint8_t)I2C_read_data(&p_obj->i2c);
+            (void)sa;
         }
         if (I2C_transmitter(&p_obj->i2c))
         {
@@ -1606,6 +1610,7 @@ int32_t i2c_slave_receive_t(_i2c_t *p_obj)
     if (I2C_slave_detected(&p_obj->i2c))
     {
         uint32_t sa = I2C_read_data(&p_obj->i2c);
+        (void)sa;
 
         if (!I2C_transmitter(&p_obj->i2c))
         {

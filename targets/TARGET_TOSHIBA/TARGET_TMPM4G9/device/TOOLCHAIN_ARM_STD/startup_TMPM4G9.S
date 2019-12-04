@@ -1,15 +1,15 @@
 ;/**
 ; *******************************************************************************
-; * @file    startup_TMPM4G9.s
+; * @file    startup_TMPM4G9.S
 ; * @brief   CMSIS Cortex-M4 Core Device Startup File for the
 ; *          TOSHIBA 'TMPM4G9' Device Series
-; * @version V1.0.6.0
-; * $Date:: 2017-10-04 #$
+; * @version V1.0.9.0
+; * $Date:: 2018-04-02 #$
 ; *------- <<< Use Configuration Wizard in Context Menu >>> ------------------
-; *
+; * 
 ; * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LICENSE AGREEMENT.
-; *
-; * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2017 All rights reserved
+; * 
+; * Copyright(C) Toshiba Electronic Device Solutions Corporation 2019
 ; *******************************************************************************
 ; */
 
@@ -65,7 +65,7 @@ __Vectors   DCD |Image$$ARM_LIB_STACK$$ZI$$Limit| ; Top of Stack
             DCD INTISDC_IRQHandler              ; 21: Interval Sensing Detector Interrupt (Unit C)
             DCD INTRMC0_IRQHandler              ; 22: Remote control reception interrupt 0
             DCD INTRMC1_IRQHandler              ; 23: Remote control reception interrupt 1
-            DCD INTLTTMR_IRQHandler             ; 24: Long Term Timer Interrupt
+            DCD INTLTTMR0_IRQHandler             ; 24: Long Term Timer Interrupt
             DCD INTHDMAATC_IRQHandler           ; 25: HDMA Complete of transfer(Unit A)
             DCD INTHDMAAERR_IRQHandler          ; 26: HDMA transfer error(Unit A)
             DCD INTHDMABTC_IRQHandler           ; 27: HDMA end of transfer(Unit B)
@@ -267,7 +267,7 @@ Default_Handler PROC
                 EXPORT  INTISDC_IRQHandler        [WEAK]
                 EXPORT  INTRMC0_IRQHandler        [WEAK]
                 EXPORT  INTRMC1_IRQHandler        [WEAK]
-                EXPORT  INTLTTMR_IRQHandler       [WEAK]
+                EXPORT  INTLTTMR0_IRQHandler      [WEAK]
                 EXPORT  INTHDMAATC_IRQHandler     [WEAK]
                 EXPORT  INTHDMAAERR_IRQHandler    [WEAK]
                 EXPORT  INTHDMABTC_IRQHandler     [WEAK]
@@ -408,7 +408,7 @@ INTISDB_IRQHandler
 INTISDC_IRQHandler
 INTRMC0_IRQHandler
 INTRMC1_IRQHandler
-INTLTTMR_IRQHandler
+INTLTTMR0_IRQHandler
 INTHDMAATC_IRQHandler
 INTHDMAAERR_IRQHandler
 INTHDMABTC_IRQHandler

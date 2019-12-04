@@ -5,9 +5,9 @@
  * @version V1.0.0.4
  * $Date:: 2016-11-24 00:00:00 #$
  * 
- * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LISENSE AGREEMENT.
+ * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LICENSE AGREEMENT.
  * 
- * (C)Copyright TOSHIBA MICROELECTRONICS CORPORATION 2017 All rights reserved
+ * Copyright(C) Toshiba Electronic Device Solutions Corporation 2019
  *******************************************************************************
  */
 /*------------------------------------------------------------------------------*/
@@ -292,7 +292,7 @@ extern "C" {
 
 /*----------------------------------*/
 /** 
- * @brief  Clock setting structure definenition.
+ * @brief  Clock setting structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -303,7 +303,7 @@ typedef struct
 
 /*----------------------------------*/
 /** 
- * @brief  Wakeup Control setting structure definenition.
+ * @brief  Wakeup Control setting structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -316,7 +316,7 @@ typedef struct
 
 /*----------------------------------*/
 /** 
- * @brief  Initial setting structure definenition.
+ * @brief  Initial setting structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -326,7 +326,7 @@ typedef struct
 
 /*----------------------------------*/
 /** 
- * @brief  Initial setting structure definenition.
+ * @brief  Initial setting structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -336,7 +336,7 @@ typedef struct
 
 /*----------------------------------*/
 /** 
- * @brief  I2C handle structure definenition.
+ * @brief  I2C handle structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -347,7 +347,7 @@ typedef struct
 #if defined(I2CSxWUP_EN)
 /*----------------------------------*/
 /** 
- * @brief  I2CS handle structure definenition.
+ * @brief  I2CS handle structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -644,8 +644,8 @@ __STATIC_INLINE int32_t I2C_transmitter(I2C_t *p_obj)
 /**
   * @brief     Interrupt Status
   * @param     p_obj       :I2C object.
-  * @retval    true        :Interruput Occured.
-  * @retval    false       :No Interruput Occured.
+  * @retval    true        :Interrupt Occurred.
+  * @retval    false       :No Interrupt Occurred.
   * @note      -
   */
 /*--------------------------------------------------*/
