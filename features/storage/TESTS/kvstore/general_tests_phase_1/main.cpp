@@ -289,13 +289,20 @@ static void set_several_keys_multithreaded()
 //set key "write once" and try to set it again
 static void set_write_once_flag_try_set_twice()
 {
+    char buf[10];
+    size_t len;
     TEST_SKIP_UNLESS(kvstore != NULL);
 
-    int res = kvstore->set(key, data, data_size, KVStore::WRITE_ONCE_FLAG);
+    int res = kvstore->set(key, "ONCE", 5, KVStore::WRITE_ONCE_FLAG);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    res = kvstore->set(key, data, data_size, KVStore::WRITE_ONCE_FLAG);
+    res = kvstore->set(key, "TWICE", 6, KVStore::WRITE_ONCE_FLAG);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_WRITE_PROTECTED, res);
+
+    res = kvstore->get(key, buf, 10, &len);
+    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+    TEST_ASSERT_EQUAL(len, 5);
+    TEST_ASSERT_EQUAL_STRING_LEN(buf, "ONCE", 5);
 
     res = kvstore->reset();
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
@@ -304,13 +311,23 @@ static void set_write_once_flag_try_set_twice()
 //set key "write once" and try to remove it
 static void set_write_once_flag_try_remove()
 {
+    char buf[20];
+    size_t len;
     TEST_SKIP_UNLESS(kvstore != NULL);
 
-    int res = kvstore->set(key, data, data_size, KVStore::WRITE_ONCE_FLAG);
+    int res = kvstore->set(key, "TO_BE_REMOVED", 14, KVStore::WRITE_ONCE_FLAG);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+
+    res = kvstore->get(key, buf, 20, &len);
+    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+    TEST_ASSERT_EQUAL(len, 14);
+    TEST_ASSERT_EQUAL_STRING_LEN(buf, "TO_BE_REMOVED", 14);
 
     res = kvstore->remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_WRITE_PROTECTED, res);
+
+    res = kvstore->get(key, buf, 20, &len);
+    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
     res = kvstore->reset();
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
@@ -873,7 +890,7 @@ int main()
     }
 
     Specification specification(greentea_test_setup, cases, total_num_cases,
-                                greentea_test_teardown_handler, (test_failure_handler_t)greentea_failure_handler);
+                                greentea_test_teardown_handler, default_handler);
 
     return !Harness::run(specification);
 }

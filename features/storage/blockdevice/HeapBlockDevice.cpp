@@ -87,31 +87,26 @@ int HeapBlockDevice::deinit()
 
 bd_size_t HeapBlockDevice::get_read_size() const
 {
-    MBED_ASSERT(_blocks != NULL);
     return _read_size;
 }
 
 bd_size_t HeapBlockDevice::get_program_size() const
 {
-    MBED_ASSERT(_blocks != NULL);
     return _program_size;
 }
 
 bd_size_t HeapBlockDevice::get_erase_size() const
 {
-    MBED_ASSERT(_blocks != NULL);
     return _erase_size;
 }
 
 bd_size_t HeapBlockDevice::get_erase_size(bd_addr_t addr) const
 {
-    MBED_ASSERT(_blocks != NULL);
     return _erase_size;
 }
 
 bd_size_t HeapBlockDevice::size() const
 {
-    MBED_ASSERT(_blocks != NULL);
     return _count * _erase_size;
 }
 
@@ -193,4 +188,3 @@ const char *HeapBlockDevice::get_type() const
 }
 
 } // namespace mbed
-

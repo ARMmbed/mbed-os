@@ -31,6 +31,7 @@ BufferedBlockDevice::BufferedBlockDevice(BlockDevice *bd)
     : _bd(bd), _bd_program_size(0), _bd_read_size(0), _bd_size(0), _write_cache_addr(0), _write_cache_valid(false),
       _write_cache(0), _read_buf(0), _init_ref_count(0), _is_initialized(false)
 {
+    MBED_ASSERT(_bd);
 }
 
 BufferedBlockDevice::~BufferedBlockDevice()
@@ -73,6 +74,12 @@ int BufferedBlockDevice::deinit()
 {
     if (!_is_initialized) {
         return BD_ERROR_OK;
+    }
+
+    // Flush out all data from buffers
+    int err = sync();
+    if (err) {
+        return err;
     }
 
     uint32_t val = core_util_atomic_decr_u32(&_init_ref_count, 1);
@@ -133,6 +140,11 @@ int BufferedBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
     }
 
     MBED_ASSERT(_write_cache && _read_buf);
+
+    if (!is_valid_read(addr, size)) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     // Common case - no need to involve write cache or read buffer
     if (_bd->is_valid_read(addr, size) &&
             ((addr + size <= _write_cache_addr) || (addr > _write_cache_addr + _bd_program_size))) {
@@ -145,9 +157,9 @@ int BufferedBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
     while (size) {
         bd_size_t chunk;
         bool read_from_bd = true;
-        if (addr < _write_cache_addr) {
+        if (_write_cache_valid && addr < _write_cache_addr) {
             chunk = std::min(size, _write_cache_addr - addr);
-        } else if ((addr >= _write_cache_addr) && (addr < _write_cache_addr + _bd_program_size)) {
+        } else if (_write_cache_valid && (addr >= _write_cache_addr) && (addr < _write_cache_addr + _bd_program_size)) {
             // One case we need to take our data from cache
             chunk = std::min(size, _bd_program_size - addr % _bd_program_size);
             memcpy(buf, _write_cache + addr % _bd_program_size, chunk);
@@ -202,7 +214,6 @@ int BufferedBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
         if (ret) {
             return ret;
         }
-        _write_cache_addr = aligned_addr;
     }
 
     // Write logic: Keep data in cache as long as we don't reach the end of the program unit.
@@ -241,11 +252,11 @@ int BufferedBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
             if (ret) {
                 return ret;
             }
+            invalidate_write_cache();
             ret = _bd->sync();
             if (ret) {
                 return ret;
             }
-            invalidate_write_cache();
         } else {
             _write_cache_valid = true;
         }
@@ -332,11 +343,7 @@ bd_size_t BufferedBlockDevice::size() const
 
 const char *BufferedBlockDevice::get_type() const
 {
-    if (_bd != NULL) {
-        return _bd->get_type();
-    }
-
-    return NULL;
+    return _bd->get_type();
 }
 
 } // namespace mbed
