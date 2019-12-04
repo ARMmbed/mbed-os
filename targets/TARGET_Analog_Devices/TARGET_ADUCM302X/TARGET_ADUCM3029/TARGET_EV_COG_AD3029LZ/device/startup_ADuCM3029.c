@@ -62,7 +62,9 @@ extern void SramInit(void);
 
 #if defined( __ICCARM__)
 __root
-#endif /* __ICCARM__ */
+#else
+__attribute__((used))
+#endif
 const uint32_t SECTION_PLACE(blank_checksum[],".checksum") =
 {
     BLANKX60,BLANKX600
@@ -139,6 +141,11 @@ WEAK_FUNCTION( DMA_SIP7_Int_Handler        )
 /*----------------------------------------------------------------------------
   Exception / Interrupt Vector table
  *----------------------------------------------------------------------------*/
+#if defined( __ICCARM__)
+__root
+#else
+__attribute__((used))
+#endif
 const pFunc SECTION_PLACE(IVT_NAME[104],VECTOR_SECTION) =
 {
     (pFunc) INITIAL_SP,    /* Initial Stack Pointer */
