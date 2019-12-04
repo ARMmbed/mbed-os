@@ -50,7 +50,6 @@ static const char *const auth_prefix = "AUTH";
 static const uint32_t security_flags = KVStore::REQUIRE_CONFIDENTIALITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG;
 
 namespace {
-
 typedef struct {
     uint16_t metadata_size = 0u;
     uint16_t revision = 0u;
@@ -59,8 +58,15 @@ typedef struct {
     uint8_t  iv[iv_size] = { 0u };
 } record_metadata_t;
 
-// incremental set handle
+// iterator handle
 typedef struct {
+    KVStore::iterator_t underlying_it;
+} key_iterator_handle_t;
+
+}
+
+// incremental set handle
+struct SecureStore::inc_set_handle_t {
     record_metadata_t metadata;
     char *key = nullptr;
     uint32_t offset_in_data = 0u;
@@ -68,15 +74,7 @@ typedef struct {
     mbedtls_aes_context enc_ctx;
     mbedtls_cipher_context_t auth_ctx;
     KVStore::set_handle_t underlying_handle;
-} inc_set_handle_t;
-
-// iterator handle
-typedef struct {
-    KVStore::iterator_t underlying_it;
-} key_iterator_handle_t;
-
-} // anonymous namespace
-
+};
 
 // -------------------------------------------------- Local Functions Declaration ----------------------------------------------------
 
@@ -169,7 +167,7 @@ int cmac_calc_finish(mbedtls_cipher_context_t &auth_ctx, uint8_t *output)
 
 SecureStore::SecureStore(KVStore *underlying_kv, KVStore *rbp_kv) :
     _is_initialized(false), _underlying_kv(underlying_kv), _rbp_kv(rbp_kv), _entropy(0),
-    _inc_set_handle(0), _scratch_buf(0)
+    _ih(0), _scratch_buf(0)
 {
 }
 
@@ -183,7 +181,6 @@ int SecureStore::set_start(set_handle_t *handle, const char *key, size_t final_d
                            uint32_t create_flags)
 {
     int ret, os_ret;
-    inc_set_handle_t *ih;
     info_t info;
     bool enc_started = false, auth_started = false;
 
@@ -195,10 +192,8 @@ int SecureStore::set_start(set_handle_t *handle, const char *key, size_t final_d
         return MBED_ERROR_INVALID_ARGUMENT;
     }
 
-    *handle = static_cast<set_handle_t>(_inc_set_handle);
-    ih = reinterpret_cast<inc_set_handle_t *>(*handle);
-
     _mutex.lock();
+    *handle = reinterpret_cast<set_handle_t>(_ih);
 
     // Validate internal RBP data
     if (_rbp_kv) {
@@ -221,15 +216,15 @@ int SecureStore::set_start(set_handle_t *handle, const char *key, size_t final_d
         }
     } else {
         // Only trust external flags, if internal RBP is not in use
-        ret = _underlying_kv->get(key, &ih->metadata, sizeof(record_metadata_t));
+        ret = _underlying_kv->get(key, &_ih->metadata, sizeof(record_metadata_t));
         if (ret == MBED_SUCCESS) {
             // Must not remove RP flag, even though internal RBP KV is not in use.
-            if (!(create_flags & REQUIRE_REPLAY_PROTECTION_FLAG) && (ih->metadata.create_flags & REQUIRE_REPLAY_PROTECTION_FLAG)) {
+            if (!(create_flags & REQUIRE_REPLAY_PROTECTION_FLAG) && (_ih->metadata.create_flags & REQUIRE_REPLAY_PROTECTION_FLAG)) {
                 ret = MBED_ERROR_INVALID_ARGUMENT;
                 goto fail;
             }
             // Existing key is write protected
-            if (ih->metadata.create_flags & WRITE_ONCE_FLAG) {
+            if (_ih->metadata.create_flags & WRITE_ONCE_FLAG) {
                 ret = MBED_ERROR_WRITE_PROTECTED;
                 goto fail;
             }
@@ -237,19 +232,19 @@ int SecureStore::set_start(set_handle_t *handle, const char *key, size_t final_d
     }
 
     // Fill metadata
-    ih->metadata.create_flags = create_flags;
-    ih->metadata.data_size = final_data_size;
-    ih->metadata.metadata_size = sizeof(record_metadata_t);
-    ih->metadata.revision = securestore_revision;
+    _ih->metadata.create_flags = create_flags;
+    _ih->metadata.data_size = final_data_size;
+    _ih->metadata.metadata_size = sizeof(record_metadata_t);
+    _ih->metadata.revision = securestore_revision;
 
     if (create_flags & REQUIRE_CONFIDENTIALITY_FLAG) {
         // generate a new random iv
-        os_ret = mbedtls_entropy_func(_entropy, ih->metadata.iv, iv_size);
+        os_ret = mbedtls_entropy_func(_entropy, _ih->metadata.iv, iv_size);
         if (os_ret) {
             ret = MBED_ERROR_FAILED_OPERATION;
             goto fail;
         }
-        os_ret = encrypt_decrypt_start(ih->enc_ctx, ih->metadata.iv, key, ih->ctr_buf, _scratch_buf,
+        os_ret = encrypt_decrypt_start(_ih->enc_ctx, _ih->metadata.iv, key, _ih->ctr_buf, _scratch_buf,
                                        scratch_buf_size);
         if (os_ret) {
             ret = MBED_ERROR_FAILED_OPERATION;
@@ -257,62 +252,62 @@ int SecureStore::set_start(set_handle_t *handle, const char *key, size_t final_d
         }
         enc_started = true;
     } else {
-        memset(ih->metadata.iv, 0, iv_size);
+        memset(_ih->metadata.iv, 0, iv_size);
     }
 
-    os_ret = cmac_calc_start(ih->auth_ctx, key, _scratch_buf, scratch_buf_size);
+    os_ret = cmac_calc_start(_ih->auth_ctx, key, _scratch_buf, scratch_buf_size);
     if (os_ret) {
         ret = MBED_ERROR_FAILED_OPERATION;
         goto fail;
     }
     auth_started = true;
     // Although name is not part of the data, we calculate CMAC on it as well
-    os_ret = cmac_calc_data(ih->auth_ctx, key, strlen(key));
+    os_ret = cmac_calc_data(_ih->auth_ctx, key, strlen(key));
     if (os_ret) {
         ret = MBED_ERROR_FAILED_OPERATION;
         goto fail;
     }
-    os_ret = cmac_calc_data(ih->auth_ctx, &ih->metadata, sizeof(record_metadata_t));
+    os_ret = cmac_calc_data(_ih->auth_ctx, &_ih->metadata, sizeof(record_metadata_t));
     if (os_ret) {
         ret = MBED_ERROR_FAILED_OPERATION;
         goto fail;
     }
 
-    ih->offset_in_data = 0;
-    ih->key = 0;
+    _ih->offset_in_data = 0;
+    _ih->key = 0;
 
     // Should strip security flags from underlying storage
-    ret = _underlying_kv->set_start(&ih->underlying_handle, key,
+    ret = _underlying_kv->set_start(&_ih->underlying_handle, key,
                                     sizeof(record_metadata_t) + final_data_size + cmac_size,
                                     create_flags & ~security_flags);
     if (ret) {
         goto fail;
     }
 
-    ret = _underlying_kv->set_add_data(ih->underlying_handle, &ih->metadata,
+    ret = _underlying_kv->set_add_data(_ih->underlying_handle, &_ih->metadata,
                                        sizeof(record_metadata_t));
     if (ret) {
         goto fail;
     }
 
     if (create_flags & (REQUIRE_REPLAY_PROTECTION_FLAG | WRITE_ONCE_FLAG)) {
-        ih->key = new char[strlen(key) + 1];
-        strcpy(ih->key, key);
+        _ih->key = new char[strlen(key) + 1];
+        strcpy(_ih->key, key);
     }
 
     goto end;
 
 fail:
     if (enc_started) {
-        mbedtls_aes_free(&ih->enc_ctx);
+        mbedtls_aes_free(&_ih->enc_ctx);
     }
 
     if (auth_started) {
-        mbedtls_cipher_free(&ih->auth_ctx);
+        mbedtls_cipher_free(&_ih->auth_ctx);
     }
 
     // mark handle as invalid by clearing metadata size field in header
-    ih->metadata.metadata_size = 0;
+    _ih->metadata.metadata_size = 0;
     _mutex.unlock();
 
 end:
@@ -323,10 +318,9 @@ int SecureStore::set_add_data(set_handle_t handle, const void *value_data, size_
 {
     size_t aes_offs = 0;
     int os_ret, ret = MBED_SUCCESS;
-    inc_set_handle_t *ih;
     const uint8_t *src_ptr;
 
-    if (handle != _inc_set_handle) {
+    if (reinterpret_cast<inc_set_handle_t *>(handle) != _ih) {
         return MBED_ERROR_INVALID_ARGUMENT;
     }
 
@@ -334,12 +328,11 @@ int SecureStore::set_add_data(set_handle_t handle, const void *value_data, size_
         return MBED_ERROR_INVALID_ARGUMENT;
     }
 
-    ih = reinterpret_cast<inc_set_handle_t *>(handle);
-    if (!ih->metadata.metadata_size) {
+    if (!_ih->metadata.metadata_size) {
         return MBED_ERROR_INVALID_ARGUMENT;
     }
 
-    if (ih->offset_in_data + data_size > ih->metadata.data_size) {
+    if (_ih->offset_in_data + data_size > _ih->metadata.data_size) {
         ret = MBED_ERROR_INVALID_SIZE;
         goto end;
     }
@@ -348,13 +341,13 @@ int SecureStore::set_add_data(set_handle_t handle, const void *value_data, size_
     while (data_size) {
         uint32_t chunk_size;
         const uint8_t *dst_ptr;
-        if (ih->metadata.create_flags & REQUIRE_CONFIDENTIALITY_FLAG) {
+        if (_ih->metadata.create_flags & REQUIRE_CONFIDENTIALITY_FLAG) {
             // In encrypt mode we don't want to allocate a buffer in the size given by the user -
             // Encrypt the data chunk by chunk
             chunk_size = std::min((uint32_t) data_size, scratch_buf_size);
             dst_ptr = _scratch_buf;
-            os_ret = encrypt_decrypt_data(ih->enc_ctx, src_ptr, _scratch_buf,
-                                          chunk_size, ih->ctr_buf, aes_offs);
+            os_ret = encrypt_decrypt_data(_ih->enc_ctx, src_ptr, _scratch_buf,
+                                          chunk_size, _ih->ctr_buf, aes_offs);
             if (os_ret) {
                 ret = MBED_ERROR_FAILED_OPERATION;
                 goto fail;
@@ -364,35 +357,35 @@ int SecureStore::set_add_data(set_handle_t handle, const void *value_data, size_
             dst_ptr = static_cast <const uint8_t *>(value_data);
         }
 
-        os_ret = cmac_calc_data(ih->auth_ctx, dst_ptr, chunk_size);
+        os_ret = cmac_calc_data(_ih->auth_ctx, dst_ptr, chunk_size);
         if (os_ret) {
             ret = MBED_ERROR_FAILED_OPERATION;
             goto fail;
         }
 
-        ret = _underlying_kv->set_add_data(ih->underlying_handle, dst_ptr, chunk_size);
+        ret = _underlying_kv->set_add_data(_ih->underlying_handle, dst_ptr, chunk_size);
         if (ret) {
             goto fail;
         }
         data_size -= chunk_size;
         src_ptr += chunk_size;
-        ih->offset_in_data += chunk_size;
+        _ih->offset_in_data += chunk_size;
     }
 
     goto end;
 
 fail:
-    if (ih->key) {
-        delete[] ih->key;
+    if (_ih->key) {
+        delete[] _ih->key;
     }
-    if (ih->metadata.create_flags & REQUIRE_CONFIDENTIALITY_FLAG) {
-        mbedtls_aes_free(&ih->enc_ctx);
+    if (_ih->metadata.create_flags & REQUIRE_CONFIDENTIALITY_FLAG) {
+        mbedtls_aes_free(&_ih->enc_ctx);
     }
 
-    mbedtls_cipher_free(&ih->auth_ctx);
+    mbedtls_cipher_free(&_ih->auth_ctx);
 
     // mark handle as invalid by clearing metadata size field in header
-    ih->metadata.metadata_size = 0;
+    _ih->metadata.metadata_size = 0;
     _mutex.unlock();
 
 end:
@@ -402,47 +395,44 @@ end:
 int SecureStore::set_finalize(set_handle_t handle)
 {
     int os_ret, ret = MBED_SUCCESS;
-    inc_set_handle_t *ih;
     uint8_t cmac[cmac_size] = {0};
 
-    if (handle != _inc_set_handle) {
+    if (reinterpret_cast<inc_set_handle_t *>(handle) != _ih) {
         return MBED_ERROR_INVALID_ARGUMENT;
     }
 
-    ih = reinterpret_cast<inc_set_handle_t *>(handle);
-
-    if (!ih->metadata.metadata_size) {
+    if (!_ih->metadata.metadata_size) {
         return MBED_ERROR_INVALID_ARGUMENT;
     }
 
-    if (ih->offset_in_data != ih->metadata.data_size) {
+    if (_ih->offset_in_data != _ih->metadata.data_size) {
         ret = MBED_ERROR_INVALID_SIZE;
         goto end;
     }
 
-    os_ret = cmac_calc_finish(ih->auth_ctx, cmac);
+    os_ret = cmac_calc_finish(_ih->auth_ctx, cmac);
     if (os_ret) {
         ret = MBED_ERROR_FAILED_OPERATION;
         goto end;
     }
 
-    ret = _underlying_kv->set_add_data(ih->underlying_handle, cmac, cmac_size);
+    ret = _underlying_kv->set_add_data(_ih->underlying_handle, cmac, cmac_size);
     if (ret) {
         goto end;
     }
 
-    ret = _underlying_kv->set_finalize(ih->underlying_handle);
+    ret = _underlying_kv->set_finalize(_ih->underlying_handle);
     if (ret) {
         goto end;
     }
 
-    if (_rbp_kv && (ih->metadata.create_flags & (REQUIRE_REPLAY_PROTECTION_FLAG | WRITE_ONCE_FLAG))) {
+    if (_rbp_kv && (_ih->metadata.create_flags & (REQUIRE_REPLAY_PROTECTION_FLAG | WRITE_ONCE_FLAG))) {
         // In rollback protect case, we need to store CMAC in RBP store.
         // If it's also write once case, set write once flag in the RBP key as well.
         // Use RBP storage also in write once case only - in order to prevent attacks removing
         // a written once value from underlying KV.
-        ret = _rbp_kv->set(ih->key, cmac, cmac_size, ih->metadata.create_flags & WRITE_ONCE_FLAG);
-        delete[] ih->key;
+        ret = _rbp_kv->set(_ih->key, cmac, cmac_size, _ih->metadata.create_flags & WRITE_ONCE_FLAG);
+        delete[] _ih->key;
         if (ret) {
             goto end;
         }
@@ -450,12 +440,12 @@ int SecureStore::set_finalize(set_handle_t handle)
 
 end:
     // mark handle as invalid by clearing metadata size field in header
-    ih->metadata.metadata_size = 0;
-    if (ih->metadata.create_flags & REQUIRE_CONFIDENTIALITY_FLAG) {
-        mbedtls_aes_free(&ih->enc_ctx);
+    _ih->metadata.metadata_size = 0;
+    if (_ih->metadata.create_flags & REQUIRE_CONFIDENTIALITY_FLAG) {
+        mbedtls_aes_free(&_ih->enc_ctx);
     }
 
-    mbedtls_cipher_free(&ih->auth_ctx);
+    mbedtls_cipher_free(&_ih->auth_ctx);
 
     _mutex.unlock();
     return ret;
@@ -543,10 +533,6 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
         return MBED_ERROR_INVALID_ARGUMENT;
     }
 
-    // Use member variable _inc_set_handle as no set operation is used now,
-    // and it saves us the need to define all members on stack
-    inc_set_handle_t *ih = static_cast<inc_set_handle_t *>(_inc_set_handle);
-
     if (_rbp_kv) {
         ret = _rbp_kv->get_info(key, &rbp_info);
         if (ret == MBED_SUCCESS) {
@@ -563,7 +549,7 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
         }
     }
 
-    ret = _underlying_kv->get(key, &ih->metadata, sizeof(record_metadata_t), &read_len);
+    ret = _underlying_kv->get(key, &_ih->metadata, sizeof(record_metadata_t), &read_len);
     if (ret) {
         // In case we have the key in the RBP KV, then even if the key wasn't found in
         // the underlying KV, we may have been exposed to an attack. Return an RBP authentication error.
@@ -574,12 +560,12 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
     }
 
     // Validate header size
-    if ((read_len != sizeof(record_metadata_t))  || (ih->metadata.metadata_size != sizeof(record_metadata_t))) {
+    if ((read_len != sizeof(record_metadata_t))  || (_ih->metadata.metadata_size != sizeof(record_metadata_t))) {
         ret = MBED_ERROR_RBP_AUTHENTICATION_FAILED;
         goto end;
     }
 
-    create_flags = ih->metadata.create_flags;
+    create_flags = _ih->metadata.create_flags;
     if (!_rbp_kv) {
         create_flags &= ~REQUIRE_REPLAY_PROTECTION_FLAG;
     }
@@ -590,7 +576,7 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
         goto end;
     }
 
-    os_ret = cmac_calc_start(ih->auth_ctx, key, _scratch_buf, scratch_buf_size);
+    os_ret = cmac_calc_start(_ih->auth_ctx, key, _scratch_buf, scratch_buf_size);
     if (os_ret) {
         ret = MBED_ERROR_FAILED_OPERATION;
         goto end;
@@ -598,19 +584,19 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
     auth_started = true;
 
     // Although name is not part of the data, we calculate CMAC on it as well
-    os_ret = cmac_calc_data(ih->auth_ctx, key, strlen(key));
+    os_ret = cmac_calc_data(_ih->auth_ctx, key, strlen(key));
     if (os_ret) {
         ret = MBED_ERROR_FAILED_OPERATION;
         goto end;
     }
-    os_ret = cmac_calc_data(ih->auth_ctx, &ih->metadata, sizeof(record_metadata_t));
+    os_ret = cmac_calc_data(_ih->auth_ctx, &_ih->metadata, sizeof(record_metadata_t));
     if (os_ret) {
         ret = MBED_ERROR_FAILED_OPERATION;
         goto end;
     }
 
     if (create_flags & REQUIRE_CONFIDENTIALITY_FLAG) {
-        os_ret = encrypt_decrypt_start(ih->enc_ctx, ih->metadata.iv, key, ih->ctr_buf, _scratch_buf,
+        os_ret = encrypt_decrypt_start(_ih->enc_ctx, _ih->metadata.iv, key, _ih->ctr_buf, _scratch_buf,
                                        scratch_buf_size);
         if (os_ret) {
             ret = MBED_ERROR_FAILED_OPERATION;
@@ -619,7 +605,7 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
         enc_started = true;
     }
 
-    data_size = ih->metadata.data_size;
+    data_size = _ih->metadata.data_size;
     actual_data_size = std::min((uint32_t) buffer_size, data_size - offset);
     current_offset = 0;
     enc_lead_size = 0;
@@ -649,12 +635,12 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
         }
 
         ret = _underlying_kv->get(key, dest_buf, chunk_size, 0,
-                                  ih->metadata.metadata_size + current_offset);
+                                  _ih->metadata.metadata_size + current_offset);
         if (ret != MBED_SUCCESS) {
             goto end;
         }
 
-        os_ret = cmac_calc_data(ih->auth_ctx, dest_buf, chunk_size);
+        os_ret = cmac_calc_data(_ih->auth_ctx, dest_buf, chunk_size);
         if (os_ret) {
             ret = MBED_ERROR_FAILED_OPERATION;
             goto end;
@@ -662,7 +648,7 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
 
         if (create_flags & REQUIRE_CONFIDENTIALITY_FLAG) {
             // Decrypt data in place
-            os_ret = encrypt_decrypt_data(ih->enc_ctx, dest_buf, dest_buf, chunk_size, ih->ctr_buf,
+            os_ret = encrypt_decrypt_data(_ih->enc_ctx, dest_buf, dest_buf, chunk_size, _ih->ctr_buf,
                                           aes_offs);
             if (os_ret) {
                 ret = MBED_ERROR_FAILED_OPERATION;
@@ -684,7 +670,7 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
     }
 
     uint8_t calc_cmac[cmac_size], read_cmac[cmac_size];
-    os_ret = cmac_calc_finish(ih->auth_ctx, calc_cmac);
+    os_ret = cmac_calc_finish(_ih->auth_ctx, calc_cmac);
     if (os_ret) {
         ret = MBED_ERROR_FAILED_OPERATION;
         goto end;
@@ -692,7 +678,7 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
 
     // Check with record CMAC
     ret = _underlying_kv->get(key, read_cmac, cmac_size, 0,
-                              ih->metadata.metadata_size + ih->metadata.data_size);
+                              _ih->metadata.metadata_size + _ih->metadata.data_size);
     if (ret) {
         goto end;
     }
@@ -714,19 +700,19 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
     }
 
     if (info) {
-        info->flags = ih->metadata.create_flags;
-        info->size = ih->metadata.data_size;
+        info->flags = _ih->metadata.create_flags;
+        info->size = _ih->metadata.data_size;
     }
 
 end:
-    ih->metadata.metadata_size = 0;
+    _ih->metadata.metadata_size = 0;
 
     if (enc_started) {
-        mbedtls_aes_free(&ih->enc_ctx);
+        mbedtls_aes_free(&_ih->enc_ctx);
     }
 
     if (auth_started) {
-        mbedtls_cipher_free(&ih->auth_ctx);
+        mbedtls_cipher_free(&_ih->auth_ctx);
     }
 
     return ret;
@@ -770,10 +756,10 @@ int SecureStore::init()
 #endif /* MBEDTLS_PLATFORM_C */
 
     _entropy = new mbedtls_entropy_context;
-    mbedtls_entropy_init(static_cast<mbedtls_entropy_context *>(_entropy));
+    mbedtls_entropy_init(_entropy);
 
     _scratch_buf = new uint8_t[scratch_buf_size];
-    _inc_set_handle = new inc_set_handle_t;
+    _ih = new inc_set_handle_t;
 
     ret = _underlying_kv->init();
     if (ret) {
@@ -800,9 +786,9 @@ int SecureStore::deinit()
     int ret;
     if (_is_initialized) {
         if (_entropy) {
-            mbedtls_entropy_free(static_cast<mbedtls_entropy_context *>(_entropy));
-            delete static_cast<mbedtls_entropy_context *>(_entropy);
-            delete static_cast<inc_set_handle_t *>(_inc_set_handle);
+            mbedtls_entropy_free(_entropy);
+            delete _entropy;
+            delete _ih;
             delete _scratch_buf;
             _entropy = nullptr;
         }
