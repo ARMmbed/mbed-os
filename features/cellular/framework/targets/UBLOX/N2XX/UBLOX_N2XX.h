@@ -33,6 +33,7 @@
 #include "AT_CellularNetwork.h"
 #include "UBLOX_N2XX_CellularSMS.h"
 #include "UBLOX_N2XX_CellularContext.h"
+#include "UBLOX_N2XX_CellularNetwork.h"
 
 namespace mbed {
 
@@ -50,6 +51,7 @@ public:
 
 protected: // AT_CellularDevice
 
+    virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
     virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, bool cp_req = false, bool nonip_req = false);
 #if MBED_CONF_CELLULAR_USE_SMS
     virtual AT_CellularSMS *open_sms_impl(ATHandler &at);

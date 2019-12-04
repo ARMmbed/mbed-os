@@ -34,6 +34,8 @@ static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     1,  // PROPERTY_IPV4_STACK
     0,  // PROPERTY_IPV6_STACK
     0,  // PROPERTY_IPV4V6_STACK
+    1,  // PROPERTY_NON_IP_PDP_TYPE
+    0,  // PROPERTY_AT_CGEREP
     1,  // PROPERTY_AT_COPS_FALLBACK_AUTO
 };
 
@@ -57,6 +59,11 @@ UBLOX_N2XX::~UBLOX_N2XX()
 void UBLOX_N2XX::NPIN_URC()
 {
     _at->read_string(simstr, sizeof(simstr));
+}
+
+AT_CellularNetwork *UBLOX_N2XX::open_network_impl(ATHandler &at)
+{
+    return new UBLOX_N2XX_CellularNetwork(at, *this);
 }
 
 AT_CellularContext *UBLOX_N2XX::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
@@ -94,8 +101,8 @@ nsapi_error_t UBLOX_N2XX::get_sim_state(SimState &state)
     _at->lock();
     _at->flush();
     //Special case: Command put in cmd_chr to make a 1 liner
-    _at->at_cmd_str("", "+CFUN=1", simstr, sizeof(simstr));
-    error = _at->unlock_return_error();
+    error = _at->at_cmd_str("", "+CFUN=1", simstr, sizeof(simstr));
+    _at->unlock();
 
     int len = strlen(simstr);
     if (len > 0 || error == NSAPI_ERROR_OK) {

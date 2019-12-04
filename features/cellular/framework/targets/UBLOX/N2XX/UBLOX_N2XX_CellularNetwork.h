@@ -14,29 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef UBLOX_N2XX_CELLULARCONTEXT_H_
-#define UBLOX_N2XX_CELLULARCONTEXT_H_
 
-#include "AT_CellularContext.h"
+#ifndef UBLOX_N2XX_CELLULAR_NETWORK_H_
+#define UBLOX_N2XX_CELLULAR_NETWORK_H_
+
+#include "AT_CellularNetwork.h"
 
 namespace mbed {
 
-class UBLOX_N2XX_CellularContext: public AT_CellularContext {
-
+class UBLOX_N2XX_CellularNetwork : public AT_CellularNetwork {
 public:
-
-    UBLOX_N2XX_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, bool cp_req = false, bool nonip_req = false);
-    virtual ~UBLOX_N2XX_CellularContext();
-
-protected:
-
-#if !NSAPI_PPP_AVAILABLE
-    virtual NetworkStack *get_stack();
-#endif
-
-    virtual const char* get_nonip_context_type_str();
+    UBLOX_N2XX_CellularNetwork(ATHandler &atHandler, AT_CellularDevice &device);
+    virtual nsapi_error_t clear();
+    virtual nsapi_error_t set_ciot_optimization_config(CIoT_Supported_Opt supported_opt,
+                                                       CIoT_Preferred_UE_Opt preferred_opt,
+                                                       Callback<void(CIoT_Supported_Opt)> network_support_cb);
 };
 
-} /* namespace mbed */
+} // namespace mbed
 
-#endif // UBLOX_N2XX_CELLULARCONTEXT_H_
+#endif // UBLOX_N2XX_CELLULAR_NETWORK_H_
