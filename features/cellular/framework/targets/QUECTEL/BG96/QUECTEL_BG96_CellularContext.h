@@ -37,7 +37,6 @@ protected:
     virtual void deactivate_non_ip_context();
     virtual void deactivate_context();
     virtual void activate_context();
-    rtos::Semaphore _semaphore;
 
 private:
     void urc_nidd();

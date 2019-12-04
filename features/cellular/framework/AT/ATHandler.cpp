@@ -1637,7 +1637,7 @@ void ATHandler::set_send_delay(uint16_t send_delay)
     _at_send_delay = send_delay;
 }
 
-void ATHandler::write_hex_string(char *str, size_t size)
+void ATHandler::write_hex_string(const char *str, size_t size)
 {
     // do common checks before sending subparameter
     if (check_cmd_send() == false) {
