@@ -63,7 +63,7 @@
        defined(TARGET_STM32L0x2xZ))
 #define INITIAL_SP              (0x20005000UL)
 
-#elif (defined(TARGET_STM32F091RC) ||\
+#elif (defined(TARGET_STM32F091xC) ||\
        defined(TARGET_STM32F410RB) ||\
        defined(TARGET_STM32L151CBA)||\
        defined(TARGET_STM32L151CC) ||\
