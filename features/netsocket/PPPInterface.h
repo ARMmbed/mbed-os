@@ -51,7 +51,7 @@ public:
     virtual ~PPPInterface();
 
     /** @copydoc NetworkInterface::set_network */
-    virtual nsapi_error_t set_network(const char *ip_address, const char *netmask, const char *gateway);
+    virtual nsapi_error_t set_network(const SocketAddress &ip_address, const SocketAddress &netmask, const SocketAddress &gateway);
 
     /** @copydoc NetworkInterface::connect */
     virtual nsapi_error_t connect();

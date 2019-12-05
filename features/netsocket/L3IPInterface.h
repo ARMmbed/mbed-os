@@ -56,12 +56,12 @@ public:
      *  Implicitly disables DHCP, which can be enabled in set_dhcp.
      *  Requires that the network is disconnected.
      *
-     *  @param ip_address  Null-terminated representation of the local IP address
-     *  @param netmask     Null-terminated representation of the local network mask
-     *  @param gateway     Null-terminated representation of the local gateway
+     *  @param ip_address  SocketAddress representation of the local IP address
+     *  @param netmask     SocketAddress representation of the local network mask
+     *  @param gateway     SocketAddress representation of the local gateway
      *  @return            0 on success, negative error code on failure
      */
-    virtual nsapi_error_t set_network(const char *ip_address, const char *netmask, const char *gateway);
+    virtual nsapi_error_t set_network(const SocketAddress &ip_address, const SocketAddress &netmask, const SocketAddress &gateway);
 
     /** Enable or disable DHCP on the network
      *
@@ -82,26 +82,14 @@ public:
      */
     virtual nsapi_error_t disconnect();
 
-    /** Get the local IP address
-     *
-     *  @return         Null-terminated representation of the local IP address
-     *                  or null if no IP address has been received
-     */
-    virtual const char *get_ip_address();
+    /** @copydoc NetworkInterface::get_ip_address */
+    virtual nsapi_error_t get_ip_address(SocketAddress *address);
 
-    /** Get the local network mask
-     *
-     *  @return         Null-terminated representation of the local network mask
-     *                  or null if no network mask has been received
-     */
-    virtual const char *get_netmask();
+    /** @copydoc NetworkInterface::get_netmask */
+    virtual nsapi_error_t get_netmask(SocketAddress *address);
 
-    /** Get the local gateways
-     *
-     *  @return         Null-terminated representation of the local gateway
-     *                  or null if no network mask has been received
-     */
-    virtual const char *get_gateway();
+    /** @copydoc NetworkInterface::get_gateway */
+    virtual nsapi_error_t get_gateway(SocketAddress *address);
 
     /** Get the network interface name
      *

@@ -77,7 +77,7 @@ nsapi_value_or_error_t NetworkStack::getaddrinfo(const char *hostname, SocketAdd
     // ip address of the underlying stack
     if (version == NSAPI_UNSPEC) {
         SocketAddress testaddress;
-        if (testaddress.set_ip_address(this->get_ip_address())) {
+        if (this->get_ip_address(&testaddress) == NSAPI_ERROR_OK) {
             version = testaddress.get_ip_version();
         }
     }
@@ -144,7 +144,7 @@ nsapi_value_or_error_t NetworkStack::getaddrinfo_async(const char *hostname, Soc
     // ip address of the underlying stack
     if (version == NSAPI_UNSPEC) {
         SocketAddress testaddress;
-        if (testaddress.set_ip_address(this->get_ip_address())) {
+        if (this->get_ip_address(&testaddress) == NSAPI_ERROR_OK) {
             version = testaddress.get_ip_version();
         }
     }

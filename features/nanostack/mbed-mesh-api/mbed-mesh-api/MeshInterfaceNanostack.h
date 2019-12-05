@@ -26,15 +26,9 @@
 class Nanostack::Interface : public OnboardNetworkStack::Interface, private mbed::NonCopyable<Nanostack::Interface> {
 public:
     virtual nsapi_error_t get_ip_address(SocketAddress *address);
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual char *get_ip_address(char *buf, nsapi_size_t buflen);
     virtual char *get_mac_address(char *buf, nsapi_size_t buflen);
     virtual nsapi_error_t get_netmask(SocketAddress *address);
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual char *get_netmask(char *buf, nsapi_size_t buflen);
     virtual nsapi_error_t get_gateway(SocketAddress *address);
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual char *get_gateway(char *buf, nsapi_size_t buflen);
     virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
     virtual nsapi_connection_status_t get_connection_status() const;
 
@@ -107,9 +101,6 @@ public:
 
     /** @copydoc NetworkInterface::get_ip_address */
     virtual nsapi_error_t get_ip_address(SocketAddress *address);
-
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual const char *get_ip_address();
 
     /** Get the internally stored MAC address
     /return     MAC address of the interface

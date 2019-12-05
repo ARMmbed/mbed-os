@@ -398,15 +398,6 @@ void UBLOX_AT_CellularStack::clear_socket(CellularSocket *socket)
 }
 
 #ifndef UBX_MDM_SARA_R41XM
-const char *UBLOX_AT_CellularStack::get_ip_address()
-{
-    SocketAddress address;
-
-    get_ip_address(&address);
-
-    return (address.get_ip_version()) ? (address.get_ip_address()) : NULL;
-}
-
 nsapi_error_t UBLOX_AT_CellularStack::get_ip_address(SocketAddress *address)
 {
     if (!address) {

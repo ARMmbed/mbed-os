@@ -119,7 +119,6 @@ nsapi_error_t EMACInterface::get_gateway(SocketAddress *address)
 {
     if (_interface && _interface->get_gateway(address) == NSAPI_ERROR_OK) {
         strncpy(_gateway, address->get_ip_address(), sizeof(_gateway));
-        address->set_ip_address(_gateway);
         return NSAPI_ERROR_OK;
     }
 

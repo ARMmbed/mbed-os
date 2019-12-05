@@ -56,12 +56,8 @@ protected:
 
     Nanostack();
 
-    /** Get the local IP address
-     *
-     *  @return         Null-terminated representation of the local IP address
-     *                  or null if not yet connected
-     */
-    virtual const char *get_ip_address();
+    /** @copydoc NetworkStack::get_ip_address */
+    virtual nsapi_error_t get_ip_address(SocketAddress *sockAddr);
 
     /** Opens a socket
      *
