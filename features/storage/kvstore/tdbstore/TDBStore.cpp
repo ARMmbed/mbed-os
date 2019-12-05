@@ -860,7 +860,6 @@ int TDBStore::garbage_collection()
 {
     ram_table_entry_t *ram_table = (ram_table_entry_t *) _ram_table;
     uint32_t to_offset, to_next_offset;
-    uint32_t chunk_size, reserved_size;
     int ret;
     size_t ind;
 
@@ -996,7 +995,7 @@ int TDBStore::init()
     uint32_t next_offset;
     uint32_t flags, hash;
     uint32_t actual_data_size;
-    int os_ret, ret = MBED_SUCCESS;
+    int ret = MBED_SUCCESS;
     uint16_t versions[_num_areas];
 
     _mutex.lock();
