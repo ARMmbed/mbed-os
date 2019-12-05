@@ -123,7 +123,6 @@ TEST_F(TestEthernetInterface, constructor_default)
     EXPECT_NE(nullptr, iface->emacInterface());
 
     EXPECT_EQ(nullptr, iface->wifiInterface());
-    EXPECT_EQ(nullptr, iface->cellularBase());
     EXPECT_EQ(nullptr, iface->cellularInterface());
     EXPECT_EQ(nullptr, iface->meshInterface());
 }
