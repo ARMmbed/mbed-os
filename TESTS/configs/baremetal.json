@@ -32,8 +32,7 @@
         "events",
         "kv-global-api",
         "sd",
-        "qspif",
-        "nvstore"
+        "qspif"
     ],
     "target_overrides": {
         "*": {
