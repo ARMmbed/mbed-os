@@ -1,5 +1,7 @@
 /* mbed Microcontroller Library
- * Copyright(C) Toshiba Electronic Device Solutions Corporation 2019
+ *
+ * Copyright (C) 2019, Toshiba Electronic Device Solutions Corporation
+ *
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
