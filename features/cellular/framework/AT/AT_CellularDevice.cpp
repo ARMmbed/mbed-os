@@ -43,7 +43,7 @@ AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh),
     _sms(0),
 #endif // MBED_CONF_CELLULAR_USE_SMS
     _network(0), _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT),
-    _modem_debug_on(false)
+    _modem_debug_on(false), _property_array(NULL)
 {
     MBED_ASSERT(fh);
     _at = get_at_handler(fh);
