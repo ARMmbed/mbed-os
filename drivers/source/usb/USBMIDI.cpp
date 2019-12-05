@@ -15,7 +15,8 @@
  * limitations under the License.
  */
 
-#include "stdint.h"
+#include <stdint.h>
+#include <string.h>
 #include "USBMIDI.h"
 #include "EndpointResolver.h"
 #include "usb_phy_api.h"
