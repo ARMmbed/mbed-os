@@ -330,6 +330,9 @@ protected:
     /** Initialize serial port
      */
     void _init();
+    void _init_direct();
+    /* Pointer to serial init function */
+    void (SerialBase::*_init_func)();
 
     /** Deinitialize serial port
      */
@@ -345,18 +348,20 @@ protected:
     bool _rx_asynch_set = false;
 #endif
 
-    serial_t         _serial {};
-    Callback<void()> _irq[IrqCnt];
-    int              _baud;
-    bool             _rx_enabled = true;
-    bool             _tx_enabled = true;
-    const PinName    _tx_pin;
-    const PinName    _rx_pin;
+    serial_t              _serial {};
+    Callback<void()>      _irq[IrqCnt];
+    int                   _baud;
+    bool                  _rx_enabled = true;
+    bool                  _tx_enabled = true;
+    const PinName         _tx_pin;
+    const PinName         _rx_pin;
+    const serial_pinmap_t *_static_pinmap = NULL;
 
 #if DEVICE_SERIAL_FC
-    Flow             _flow_type = Disabled;
-    PinName          _flow1 = NC;
-    PinName          _flow2 = NC;
+    Flow                           _flow_type = Disabled;
+    PinName                        _flow1 = NC;
+    PinName                        _flow2 = NC;
+    const serial_fc_pinmap_t       *_static_pinmap_fc = NULL;
 #endif
 
 #endif

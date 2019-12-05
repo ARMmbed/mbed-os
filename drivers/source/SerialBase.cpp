@@ -29,7 +29,8 @@ SerialBase::SerialBase(PinName tx, PinName rx, int baud) :
 #endif
     _baud(baud),
     _tx_pin(tx),
-    _rx_pin(rx)
+    _rx_pin(rx),
+    _init_func(&SerialBase::_init)
 {
     // No lock needed in the constructor
 
@@ -37,7 +38,7 @@ SerialBase::SerialBase(PinName tx, PinName rx, int baud) :
         _irq[i] = NULL;
     }
 
-    _init();
+    (this->*_init_func)();
 }
 
 SerialBase::SerialBase(const serial_pinmap_t &static_pinmap, int baud) :
@@ -50,7 +51,9 @@ SerialBase::SerialBase(const serial_pinmap_t &static_pinmap, int baud) :
     _serial(),
     _baud(baud),
     _tx_pin(static_pinmap.tx_pin),
-    _rx_pin(static_pinmap.rx_pin)
+    _rx_pin(static_pinmap.rx_pin),
+    _static_pinmap(&static_pinmap),
+    _init_func(&SerialBase::_init_direct)
 {
     // No lock needed in the constructor
 
@@ -58,9 +61,7 @@ SerialBase::SerialBase(const serial_pinmap_t &static_pinmap, int baud) :
         _irq[i] = NULL;
     }
 
-    serial_init_direct(&_serial, &static_pinmap);
-    serial_baud(&_serial, _baud);
-    serial_irq_handler(&_serial, SerialBase::_irq_handler, (uint32_t)this);
+    (this->*_init_func)();
 }
 
 void SerialBase::baud(int baudrate)
@@ -156,6 +157,18 @@ void SerialBase::_init()
     serial_irq_handler(&_serial, SerialBase::_irq_handler, (uint32_t)this);
 }
 
+void SerialBase::_init_direct()
+{
+    serial_init_direct(&_serial, _static_pinmap);
+#if DEVICE_SERIAL_FC
+    if (_static_pinmap_fc) {
+        set_flow_control(_flow_type, *_static_pinmap_fc);
+    }
+#endif
+    serial_baud(&_serial, _baud);
+    serial_irq_handler(&_serial, SerialBase::_irq_handler, (uint32_t)this);
+}
+
 void SerialBase::_deinit()
 {
     serial_free(&_serial);
@@ -166,7 +179,7 @@ void SerialBase::enable_input(bool enable)
     lock();
     if (_rx_enabled != enable) {
         if (enable && !_tx_enabled) {
-            _init();
+            (this->*_init_func)();
         }
 
         core_util_critical_section_enter();
@@ -203,7 +216,7 @@ void SerialBase::enable_output(bool enable)
     lock();
     if (_tx_enabled != enable) {
         if (enable && !_rx_enabled) {
-            _init();
+            (this->*_init_func)();
         }
 
         core_util_critical_section_enter();
@@ -289,6 +302,7 @@ SerialBase::~SerialBase()
 #if DEVICE_SERIAL_FC
 void SerialBase::set_flow_control(Flow type, PinName flow1, PinName flow2)
 {
+    MBED_ASSERT(_static_pinmap == NULL); // this function must be used when serial object has been created using dynamic pin-map constructor
     lock();
 
     _flow_type = type;
@@ -318,9 +332,12 @@ void SerialBase::set_flow_control(Flow type, PinName flow1, PinName flow2)
 
 void SerialBase::set_flow_control(Flow type, const serial_fc_pinmap_t &static_pinmap)
 {
+    MBED_ASSERT(_static_pinmap != NULL); // this function must be used when serial object has been created using static pin-map constructor
     lock();
+    _static_pinmap_fc = &static_pinmap;
+    _flow_type = type;
     FlowControl flow_type = (FlowControl)type;
-    serial_set_flow_control_direct(&_serial, flow_type, &static_pinmap);
+    serial_set_flow_control_direct(&_serial, flow_type, _static_pinmap_fc);
     unlock();
 }
 #endif
