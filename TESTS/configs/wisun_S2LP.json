@@ -1,0 +1,51 @@
+{
+    "config": {
+         "echo-server-addr" : {
+            "help" : "IP address of echo server",
+            "value" : "\"echo.mbedcloudtesting.com\""
+        },
+        "echo-server-port" : {
+            "help" : "Port of echo server",
+            "value" : "7"
+        },
+        "echo-server-discard-port" : {
+            "help" : "Discard port of echo server",
+            "value" : "9"
+        },
+        "echo-server-port-tls" : {
+            "help" : "Port of echo server for TLS",
+            "value" : "2007"
+        },
+        "echo-server-discard-port-tls" : {
+            "help" : "Discard port of echo server for TLS",
+            "value" : "2009"
+        } 
+    },
+    "macros":["MBEDTLS_USER_CONFIG_FILE=\"TESTS\\configs\\mbedtls_wisun_config.h\""],
+    "target_overrides": {
+        "*": {
+            "target.network-default-interface-type": "MESH",
+            "nsapi.default-mesh-type": "WISUN",
+            "mbed-mesh-api.wisun-network-name": "\"Wi-SUN Network\"",
+            "nanostack.configuration": "ws_router",
+            "mbed-mesh-api.certificate-header": "\"wisun_certificates.h\"",
+            "mbed-mesh-api.root-certificate": "WISUN_ROOT_CERTIFICATE",
+            "mbed-mesh-api.own-certificate": "WISUN_CLIENT_CERTIFICATE",
+            "mbed-mesh-api.own-certificate-key": "WISUN_CLIENT_KEY",
+            "mbed-trace.enable": false,
+            "platform.stdio-baud-rate": 115200,
+            "s2lp.provide-default": true,
+            "target.device_has_add": ["802_15_4_PHY"]
+        },
+        "K64F": {
+          
+        },
+        "K66F": {
+
+        },
+        "NUCLEO_F429ZI":  {
+
+        }
+    }
+}
+

@@ -43,7 +43,13 @@ namespace udp_global {
 #ifdef MBED_GREENTEA_TEST_UDPSOCKET_TIMEOUT_S
 static const int TESTS_TIMEOUT = MBED_GREENTEA_TEST_UDPSOCKET_TIMEOUT_S;
 #else
-static const int TESTS_TIMEOUT = 480;
+#define MESH 3
+#define WISUN 0x2345
+#if MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == MESH && MBED_CONF_NSAPI_DEFAULT_MESH_TYPE == WISUN
+static const int TESTS_TIMEOUT = (25 * 60);
+#else
+static const int TESTS_TIMEOUT = (10 * 60);
+#endif
 #endif
 
 static const int MAX_SEND_SIZE_IPV4 = 536;
