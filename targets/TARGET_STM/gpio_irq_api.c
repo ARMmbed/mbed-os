@@ -311,10 +311,18 @@ void gpio_irq_enable(gpio_irq_t *obj)
     uint32_t pin_index  = STM_PIN(obj->pin);
 
     /*  Select Source  */
+
+#if defined(STM32G0)
+    temp = EXTI->EXTICR[pin_index >> 2];
+    CLEAR_BIT(temp, (0x0FU) << (8U * (pin_index & 0x03U)));
+    SET_BIT(temp, port_index << (8U * (pin_index & 0x03U)));
+    EXTI->EXTICR[pin_index >> 2] = temp;
+#else
     temp = SYSCFG->EXTICR[pin_index >> 2];
     CLEAR_BIT(temp, (0x0FU) << (4U * (pin_index & 0x03U)));
     SET_BIT(temp, port_index << (4U * (pin_index & 0x03U)));
     SYSCFG->EXTICR[pin_index >> 2] = temp;
+#endif
 
     LL_EXTI_EnableIT_0_31(1 << pin_index);
 

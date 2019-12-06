@@ -9861,6 +9861,56 @@
         },
         "forced_reset_timeout": 3
     },
+    "NUCLEO_G071RB": {
+        "inherits": ["FAMILY_STM32"],
+        "supported_form_factors": ["ARDUINO", "MORPHO"],
+        "core": "Cortex-M0+",
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
+                "value": 1
+            },
+            "hse_value": {
+                "help": "HSE default value is 25MHz in HAL",
+                "value": "8000000",
+                "macro_name": "HSE_VALUE"
+            }
+        },
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size" : "0x20000",
+        "mbed_ram_start": "0x20000000",
+        "mbed_ram_size" : "0x9000",
+        "extra_labels_add": [
+            "STM32G0",
+            "STM32G071xx",
+            "STM32G071RB"
+        ],
+        "components_add": ["FLASHIAP"],
+        "macros_add": [
+            "STM32G071xx",
+            "STM32G071RB",
+            "EXTRA_IDLE_STACK_REQUIRED",
+            "MBED_TICKLESS"
+        ],
+        "overrides": {
+            "lpticker_delay_ticks": 0
+        },
+        "device_has_add": [
+            "ANALOGOUT",
+            "SERIAL_ASYNCH",
+            "FLASH",
+            "MPU"
+        ],
+        "detect_code": ["0221"],
+        "release_versions": ["5"],
+        "device_name": "STM32G071xx",
+        "bootloader_supported": true
+    },
     "__build_tools_metadata__": {
         "version": "1",
         "public": false
