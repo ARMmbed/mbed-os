@@ -46,7 +46,11 @@
 #undef QSPI_CMD_WRITE_QPI
 
 #elif defined(TARGET_NRF52840)
+#if TARGET_EP_AGORA
+#include "NORDIC/EP_AGORA/flash_config.h"
+#else
 #include "NORDIC/NRF52840_DK/flash_config.h"
+#endif
 
 #elif defined(TARGET_EFM32GG11_STK3701)
 #include "SiliconLabs/EFM32GG11_STK3701/flash_config.h"

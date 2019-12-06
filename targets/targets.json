@@ -9638,8 +9638,6 @@
                 "macro_name": "MODEM_ON_BOARD_UART"
             }
         },
-        "components_add": ["SPIF"],
-        "components_remove": ["QSPIF"],
         "macros_add": [
             "CONFIG_GPIO_AS_PINRESET"
         ]
