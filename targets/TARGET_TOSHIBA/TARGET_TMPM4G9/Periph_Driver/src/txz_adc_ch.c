@@ -43,7 +43,7 @@
 #include "txz_adc_include.h"
 #include "txz_adc_ch.h"
 
-#if defined(__ADC_CH_H)
+#if defined(__TXZ_ADC_CH_H)
 /**
  *  @addtogroup Periph_Driver Peripheral Driver
  *  @{
