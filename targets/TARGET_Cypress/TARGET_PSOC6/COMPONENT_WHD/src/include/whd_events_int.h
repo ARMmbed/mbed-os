@@ -166,9 +166,10 @@ typedef enum
     WLC_E_PFN_SCAN_COMPLETE = 138,     /* PFN completed scan of network list */
     WLC_E_RMC_EVENT = 139,     /* RMC Event */
     WLC_E_DPSTA_INTF_IND = 140,     /* DPSTA interface indication */
-    WLC_E_RRM = 141,     /* RRM Event */
-    WLC_E_ULP = 146,     /* ULP entry event */
-    WLC_E_LAST = 147,     /** highest val + 1 for range checking */
+    WLC_E_RRM = 141,                /* RRM Event */
+    WLC_E_ULP = 146,                /* ULP entry event */
+    WLC_E_TKO = 151,                /* TCP Keep Alive Offload Event */
+    WLC_E_LAST = 152,               /* highest val + 1 for range checking */
 } whd_event_num_t;
 
 #define WLC_SUP_STATUS_OFFSET      (256)
