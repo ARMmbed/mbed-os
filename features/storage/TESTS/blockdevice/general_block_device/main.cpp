@@ -809,7 +809,7 @@ int main()
 
 
     Specification specification(greentea_test_setup, cases, total_num_cases,
-                                greentea_test_teardown_handler, (test_failure_handler_t)greentea_failure_handler);
+                                greentea_test_teardown_handler, default_handler);
 
     return !Harness::run(specification);
 }

@@ -21,6 +21,7 @@
 #include <string.h>
 
 #include "device.h"
+#include "mbed_atomic.h"
 #include "mbed_error.h"
 #include "mbed_interface.h"
 #include "mbed_crash_data_offsets.h"
@@ -39,41 +40,49 @@ mbed_fault_context_t fault_context;
 mbed_fault_context_t *const mbed_fault_context = &fault_context;
 #endif
 
+extern bool mbed_error_in_progress;
+
 //This is a handler function called from Fault handler to print the error information out.
 //This runs in fault context and uses special functions(defined in mbed_rtx_fault_handler.c) to print the information without using C-lib support.
 void mbed_fault_handler(uint32_t fault_type, const mbed_fault_context_t *mbed_fault_context_in)
 {
     mbed_error_status_t faultStatus = MBED_SUCCESS;
 
-    mbed_error_printf("\n++ MbedOS Fault Handler ++\n\nFaultType: ");
+    /* Need to set the flag to ensure prints do not trigger a "mutex in ISR" trap
+     * if they're first prints since boot and we have to init the I/O system.
+     */
+    if (!core_util_atomic_exchange_bool(&mbed_error_in_progress, true)) {
+        mbed_error_printf("\n++ MbedOS Fault Handler ++\n\nFaultType: ");
 
-    switch (fault_type) {
-        case MEMMANAGE_FAULT_EXCEPTION:
-            mbed_error_printf("MemManageFault");
-            faultStatus = MBED_ERROR_MEMMANAGE_EXCEPTION;
-            break;
+        switch (fault_type) {
+            case MEMMANAGE_FAULT_EXCEPTION:
+                mbed_error_printf("MemManageFault");
+                faultStatus = MBED_ERROR_MEMMANAGE_EXCEPTION;
+                break;
 
-        case BUS_FAULT_EXCEPTION:
-            mbed_error_printf("BusFault");
-            faultStatus = MBED_ERROR_BUSFAULT_EXCEPTION;
-            break;
+            case BUS_FAULT_EXCEPTION:
+                mbed_error_printf("BusFault");
+                faultStatus = MBED_ERROR_BUSFAULT_EXCEPTION;
+                break;
 
-        case USAGE_FAULT_EXCEPTION:
-            mbed_error_printf("UsageFault");
-            faultStatus = MBED_ERROR_USAGEFAULT_EXCEPTION;
-            break;
+            case USAGE_FAULT_EXCEPTION:
+                mbed_error_printf("UsageFault");
+                faultStatus = MBED_ERROR_USAGEFAULT_EXCEPTION;
+                break;
 
-        //There is no way we can hit this code without getting an exception, so we have the default treated like hardfault
-        case HARD_FAULT_EXCEPTION:
-        default:
-            mbed_error_printf("HardFault");
-            faultStatus = MBED_ERROR_HARDFAULT_EXCEPTION;
-            break;
+            //There is no way we can hit this code without getting an exception, so we have the default treated like hardfault
+            case HARD_FAULT_EXCEPTION:
+            default:
+                mbed_error_printf("HardFault");
+                faultStatus = MBED_ERROR_HARDFAULT_EXCEPTION;
+                break;
+        }
+        mbed_error_printf("\n\nContext:");
+        print_context_info();
+
+        mbed_error_printf("\n\n-- MbedOS Fault Handler --\n\n");
+        core_util_atomic_store_bool(&mbed_error_in_progress, false);
     }
-    mbed_error_printf("\n\nContext:");
-    print_context_info();
-
-    mbed_error_printf("\n\n-- MbedOS Fault Handler --\n\n");
 
     //Now call mbed_error, to log the error and halt the system
     mbed_error(faultStatus, "Fault exception", (unsigned int)mbed_fault_context_in, NULL, 0);

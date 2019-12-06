@@ -160,6 +160,8 @@ public:
     /** Copy address from another SocketAddress
      *
      * @param addr  SocketAddress to copy
+     *
+     * @retval SocketAddress reference to this address
      */
     SocketAddress &operator=(const SocketAddress &addr);
 

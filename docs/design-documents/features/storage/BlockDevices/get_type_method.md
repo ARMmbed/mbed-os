@@ -20,8 +20,6 @@ Below there is a list of some examples to explain the motivation and the need fo
 examples:
 - TDBStore needs to know if there are flash characteristics for the block device and if there aren�t it should use
   FlashSimBlockDevice to simulate a flash BlockDevice.
-- TDBStore should not co-exists with NVStore, but this is true only if TDBStore is running on internal memory. Therefore if TDBStore running on 
-  internal memory and NVStore is also there an error should be raised. 
 - When creating a file system you would prefer working with FAT on top of SD while LITTLEFS on top of any flash block device. 
   Those preference in favor of better performance.
 

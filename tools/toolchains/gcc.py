@@ -58,6 +58,26 @@ class GCC(mbedToolchain):
             self.flags["common"].append("-DMBED_RTOS_SINGLE_THREAD")
             self.flags["ld"].append("--specs=nano.specs")
 
+        self.check_and_add_minimal_printf(target)
+
+        if getattr(target, "printf_lib", "std") == "minimal-printf":
+            minimal_printf_wraps = [
+                "-Wl,--wrap,printf",
+                "-Wl,--wrap,sprintf",
+                "-Wl,--wrap,snprintf",
+                "-Wl,--wrap,vprintf",
+                "-Wl,--wrap,vsprintf",
+                "-Wl,--wrap,vsnprintf",
+                "-Wl,--wrap,fprintf",
+                "-Wl,--wrap,vfprintf",
+            ]
+
+            # Add the linker option to wrap the f\v\s\printf functions if not
+            # already added.
+            for minimal_printf_wrap in minimal_printf_wraps:
+                if minimal_printf_wrap not in self.flags["ld"]:
+                    self.flags["ld"].append(minimal_printf_wrap)
+
         self.cpu = []
         if target.is_TrustZone_secure_target:
             # Enable compiler security extensions

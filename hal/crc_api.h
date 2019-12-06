@@ -28,17 +28,15 @@
  * Different polynomial values supported
  */
 typedef enum crc_polynomial {
-    POLY_OTHER       = 0,            ///< Custom polynomial
+    POLY_7BIT_SD     = 0x09,         ///< x7+x3+1
     POLY_8BIT_CCITT  = 0x07,         ///< x8+x2+x+1
-    POLY_7BIT_SD     = 0x9,          ///< x7+x3+1
     POLY_16BIT_CCITT = 0x1021,       ///< x16+x12+x5+1
     POLY_16BIT_IBM   = 0x8005,       ///< x16+x15+x2+1
-    POLY_32BIT_ANSI  = 0x04C11DB7,   ///< x32+x26+x23+x22+x16+x12+x11+x10+x8+x7+x5+x4+x2+x+1
-    POLY_32BIT_REV_ANSI = 0xEDB88320 ///< x31+x30+x29+x27+x26+x24+x23+x21+x20+x19+x15+x9+x8+x5
+    POLY_32BIT_ANSI  = 0x04C11DB7    ///< x32+x26+x23+x22+x16+x12+x11+x10+x8+x7+x5+x4+x2+x+1
 } crc_polynomial_t;
 
 typedef struct crc_mbed_config {
-    /** CRC Polynomial. Example polynomial: 0x21 = 0010_0011 = x^5+x+1 */
+    /** CRC Polynomial. Example polynomial: x^8+x^5+x+1 -> width = 8, polynomial = 0010_0011 = 0x21 */
     uint32_t polynomial;
     /** CRC Bit Width */
     uint32_t width;
@@ -66,14 +64,12 @@ extern "C" {
  *
  * # Defined behaviour
  *
- * * Function hal_crc_is_supported() returns true if platform supports hardware
+ * * Macro HAL_CRC_IS_SUPPORTED() evaluates true if platform supports hardware
  *   CRC for the given polynomial/width - verified by test ::crc_is_supported_test.
- * * Function hal_crc_is_supported() returns false if platform does not support hardware
+ * * Macro HAL_CRC_IS_SUPPORTED() evaluates false if platform does not support hardware
  *   CRC for the given polynomial/width - verified by test ::crc_is_supported_test.
- * * Function hal_crc_is_supported() returns false if given pointer to configuration
- *   structure is undefined (NULL) - verified by test ::crc_is_supported_invalid_param_test.
- * * If CRC module does not support one of the following settings: initial_xor, final_xor
- *   reflect_in, reflect_out, then these operations should be handled by the driver
+ * * If CRC module does not support any of the following settings: initial_xor, final_xor
+ *   reflect_in, reflect_out, then these operations must be handled by the driver
  *   - Verified by test ::crc_calc_single_test.
  * * Platform which supports hardware CRC must be able to handle at least one of the predefined
  *   polynomial/width configurations that can be constructed in the MbedCRC class: POLY_8BIT_CCITT,
@@ -109,6 +105,24 @@ extern "C" {
  *
  * # Potential bugs
  *
+ * # Macros
+ *
+ * Platform support for particular CRC polynomials is indicated by the
+ * macro HAL_CRC_IS_SUPPORTED(polynomial, width), which must be defined
+ * in device.h, or a file included from there.
+ *
+ * The macro must evaluate to a constant boolean expression when given
+ * constant parameters.
+ *
+ * The current platform must support the given polynomial with all possible
+ * other config parameters if the macro evaluates to true. These are:
+ * reflect in, reflect out, initial xor and final xor. If any of these settings
+ * of these settings cannot be configured, the polynomial is not supported.
+ *
+ * Example:
+ *
+ *    #define HAL_CRC_IS_SUPPORTED(polynomial, width) \
+ *         ((width) == 16 || ((width) == 32 && (polynomial) == POLY_32BIT_ANSI)
  * @{
  */
 
@@ -121,33 +135,6 @@ extern "C" {
  *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal-crc*
  *
  */
-
-/** Determine if the current platform supports hardware CRC for given polynomial
- *
- * The purpose of this function is to inform the CRC Platform API whether the
- * current platform has a hardware CRC module and that it can support the
- * requested polynomial.
- *
- * Supported polynomials are restricted to the named polynomials that can be
- * constructed in the MbedCRC class, POLY_8BIT_CCITT, POLY_7BIT_SD,
- * POLY_16BIT_CCITT, POLY_16BIT_IBM and POLY_32BIT_ANSI.
- *
- * The current platform must support the given polynomials default parameters
- * in order to return a true response. These include: reflect in, reflect out,
- * initial xor and final xor. For example, POLY_32BIT_ANSI requires an initial
- * and final xor of 0xFFFFFFFF, and reflection of both input and output. If any
- * of these settings cannot be configured, the polynomial is not supported.
- *
- * This function is thread safe; it safe to call from multiple contexts if
- * required.
- *
- * \param config Contains CRC configuration parameters for initializing the
- *               hardware CRC module. For example, polynomial and initial seed
- *               values.
- *
- * \return  True if running if the polynomial is supported, false if not.
- */
-bool hal_crc_is_supported(const crc_mbed_config_t *config);
 
 /** Initialize the hardware CRC module with the given polynomial
  *
@@ -163,7 +150,7 @@ bool hal_crc_is_supported(const crc_mbed_config_t *config);
  *
  * This function must be called with a valid polynomial supported by the
  * platform. The polynomial must be checked for support using the
- * hal_crc_is_supported() function.
+ * HAL_CRC_IS_SUPPORTED() macro.
  *
  * Calling hal_crc_compute_partial_start() multiple times without finalizing the
  * CRC calculation with hal_crc_get_result() overrides the current

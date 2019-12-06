@@ -42,7 +42,6 @@
 
 #define MSG_VALUE_LEN 24
 #define MSG_KEY_LEN 24
-#define MSG_KEY_DEVICE_READY "ready"
 #define MSG_KEY_DEVICE_READY "dev_ready"
 #define MSG_KEY_HOST_READY "host_ready"
 #define MSG_KEY_SERIAL_NUMBER "usb_dev_sn"

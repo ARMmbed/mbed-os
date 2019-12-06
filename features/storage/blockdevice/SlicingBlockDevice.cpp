@@ -27,6 +27,11 @@ SlicingBlockDevice::SlicingBlockDevice(BlockDevice *bd, bd_addr_t start, bd_addr
     , _start_from_end(false), _start(start)
     , _stop_from_end(false), _stop(stop)
 {
+    MBED_ASSERT(bd);
+    // SlicingBlockDevice(bd, 0,0) would use the full block, which does not make sense, it must be a programming eror.
+    // SlicingBlockDevice(bd, 100,100) would have no size, which is also a programming error.
+    MBED_ASSERT(start != stop);
+
     if ((int64_t)_start < 0) {
         _start_from_end = true;
         _start = -_start;
@@ -147,12 +152,7 @@ bd_size_t SlicingBlockDevice::size() const
 
 const char *SlicingBlockDevice::get_type() const
 {
-    if (_bd != NULL) {
-        return _bd->get_type();
-    }
-
-    return NULL;
+    return _bd->get_type();
 }
 
 } // namespace mbed
-

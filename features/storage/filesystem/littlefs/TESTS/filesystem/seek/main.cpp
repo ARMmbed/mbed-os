@@ -535,7 +535,7 @@ void test_boundary_seek_and_write()
         size = strlen("hedgehoghog");
         const off_t offsets[] = {512, 1020, 513, 1021, 511, 1019};
 
-        for (int i = 0; i < sizeof(offsets) / sizeof(offsets[0]); i++) {
+        for (size_t i = 0; i < sizeof(offsets) / sizeof(offsets[0]); i++) {
             off_t off = offsets[i];
             memcpy(buffer, "hedgehoghog", size);
             res = file[0].seek(off, SEEK_SET);

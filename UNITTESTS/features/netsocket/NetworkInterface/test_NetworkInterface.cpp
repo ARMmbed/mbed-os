@@ -148,6 +148,12 @@ TEST_F(TestNetworkInterface, set_blocking)
     EXPECT_EQ(iface->set_blocking(true), NSAPI_ERROR_UNSUPPORTED);
 }
 
+TEST_F(TestNetworkInterface, get_ipv6_link_local_address)
+{
+    SocketAddress a;
+    EXPECT_EQ(iface->get_ipv6_link_local_address(&a), NSAPI_ERROR_UNSUPPORTED);
+}
+
 void my_iface_callback(nsapi_event_t e, intptr_t i)
 {
     (void)e;

@@ -26,6 +26,22 @@ Floating point limitations:
 * All floating points are treated as %f.
 * No support for inf, infinity or nan
 
+## Usage
+
+
+To replace the standard implementation of the printf functions with the ones in this library:
+
+Modify your application configuration file to override the parameter `target.printf` with the value `minimal-printf` as shown below:
+
+```json
+    "target_overrides": {
+        "*": {
+            "target.printf": "minimal-printf",
+        }
+    }
+```
+
+
 ## Configuration
 
 
@@ -60,22 +76,12 @@ In mbed_app.json:
 ```json
     "target_overrides": {
         "*": {
+            "target.printf": "minimal-printf",
             "platform.minimal-printf-enable-floating-point": false,
             "platform.minimal-printf-set-floating-point-max-decimals": 6,
             "platform.minimal-printf-enable-64-bit": false
         }
     }
-```
-
-## Usage
-
-
-To replace the standard implementation of the printf functions with the ones in this library:
-
-Compile with mbed-cli using the custom `minimal-printf` profile. For example, to compile in release mode:
-
-```
-$ mbed compile -t <toolchain> -m <target> --profile release --profile mbed-os/tools/profiles/extensions/minimal-printf.json
 ```
 
 ## Size comparison

@@ -174,11 +174,11 @@ void sys_mbox_post(sys_mbox_t *mbox, void *msg) {
 
     int state = osKernelLock();
 
-    mbox->queue[mbox->post_idx % MB_SIZE] = msg;
-    mbox->post_idx += 1;
+    mbox->queue[mbox->post_idx] = msg;
+    mbox->post_idx = (mbox->post_idx + 1) % MB_SIZE;
 
     osEventFlagsSet(mbox->id, SYS_MBOX_FETCH_EVENT);
-    if (mbox->post_idx - mbox->fetch_idx == MB_SIZE-1)
+    if ((mbox->post_idx + 1) % MB_SIZE == mbox->fetch_idx)
         osEventFlagsClear(mbox->id, SYS_MBOX_POST_EVENT);
 
     osKernelRestoreLock(state);
@@ -207,11 +207,11 @@ err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg) {
 
     int state = osKernelLock();
 
-    mbox->queue[mbox->post_idx % MB_SIZE] = msg;
-    mbox->post_idx += 1;
+    mbox->queue[mbox->post_idx] = msg;
+    mbox->post_idx = (mbox->post_idx + 1) % MB_SIZE;
 
     osEventFlagsSet(mbox->id, SYS_MBOX_FETCH_EVENT);
-    if (mbox->post_idx - mbox->fetch_idx == MB_SIZE-1)
+    if ((mbox->post_idx + 1) % MB_SIZE == mbox->fetch_idx)
         osEventFlagsClear(mbox->id, SYS_MBOX_POST_EVENT);
 
     osKernelRestoreLock(state);
@@ -261,8 +261,8 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout) {
     int state = osKernelLock();
 
     if (msg)
-        *msg = mbox->queue[mbox->fetch_idx % MB_SIZE];
-    mbox->fetch_idx += 1;
+        *msg = mbox->queue[mbox->fetch_idx];
+    mbox->fetch_idx = (mbox->fetch_idx + 1) % MB_SIZE;
 
     osEventFlagsSet(mbox->id, SYS_MBOX_POST_EVENT);
     if (mbox->post_idx == mbox->fetch_idx)
@@ -297,8 +297,8 @@ u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg) {
     int state = osKernelLock();
 
     if (msg)
-        *msg = mbox->queue[mbox->fetch_idx % MB_SIZE];
-    mbox->fetch_idx += 1;
+        *msg = mbox->queue[mbox->fetch_idx];
+    mbox->fetch_idx = (mbox->fetch_idx + 1) % MB_SIZE;
 
     osEventFlagsSet(mbox->id, SYS_MBOX_POST_EVENT);
     if (mbox->post_idx == mbox->fetch_idx)

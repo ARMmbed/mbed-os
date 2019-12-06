@@ -168,7 +168,7 @@ void mbed_error_vprintf(const char *format, va_list arg) MBED_PRINTF(1, 0);
  *       FileHandle::write of the stderr device is. The default
  *       serial console is safe, either buffered or not. If the
  *       console has not previously been initialized, an attempt
- *       to use this from interrupt may during console initialization.
+ *       to use this from interrupt may crash during console initialization.
  *       Special handling of `mbed_error` relaxes various system traps
  *       to increase the chance of initialization working.
  *

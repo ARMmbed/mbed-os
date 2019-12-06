@@ -39,7 +39,7 @@ cb_uint32 handleWlanTargetGetDataFrameSize(cbWLANTARGET_dataFrame* frame);
 cb_uint8 handleWlanTargetGetDataFrameTID(cbWLANTARGET_dataFrame* frame);
 void handleWlanStatusIndication(void *dummy, cbWLAN_StatusIndicationInfo status, void *data);
 void handleWlanPacketIndication(void *dummy, cbWLAN_PacketIndicationInfo *packetInfo);
-void send_wlan_packet(void *buf);
+void send_wlan_packet(OdinWiFiEMAC *ptr, void *buf);
 
 static const cbWLANTARGET_Callback _wlanTargetCallback =
 {
@@ -202,9 +202,19 @@ OdinWiFiEMAC::OdinWiFiEMAC()
     cbWLANTARGET_registerCallbacks((cbWLANTARGET_Callback*)&_wlanTargetCallback);
 }
 
-void send_wlan_packet(void *buf)
+cbWLAN_Handle OdinWiFiEMAC::get_wifi_emac_handle()
 {
-    cbWLAN_sendPacket(cbWLAN_DEFAULT_HANDLE, buf);
+	return this->handle;
+}
+
+void OdinWiFiEMAC::set_wifi_emac_handle(cbWLAN_Handle _handle)
+{
+	this->handle = _handle;
+}
+
+void send_wlan_packet(OdinWiFiEMAC *ptr, void *buf)
+{
+	cbWLAN_sendPacket(ptr->handle, buf);
 }
 
 bool OdinWiFiEMAC::link_out(emac_mem_buf_t *buf)
@@ -215,7 +225,7 @@ bool OdinWiFiEMAC::link_out(emac_mem_buf_t *buf)
     emac_mem_buf_t *new_buf = mem->alloc_pool(mem->get_total_len(buf), 0);
     if (new_buf != NULL) {
         mem->copy(new_buf, buf);
-        int id = cbMAIN_getEventQueue()->call(send_wlan_packet, new_buf);
+        int id = cbMAIN_getEventQueue()->call(send_wlan_packet, this, new_buf);
         if (id != 0) {
             cbMAIN_dispatchEventQueue();
         } else {
@@ -262,9 +272,8 @@ void OdinWiFiEMAC::set_hwaddr(const uint8_t *addr)
 void OdinWiFiEMAC::set_link_input_cb(emac_link_input_cb_t input_cb)
 {
     emac_link_input_cb = input_cb;
-
     cbMAIN_driverLock();
-    cbWLAN_registerPacketIndicationCallback(cbWLAN_DEFAULT_HANDLE, handleWlanPacketIndication, NULL);
+    cbWLAN_registerPacketIndicationCallback(get_wifi_emac_handle(), handleWlanPacketIndication, NULL);
     cbMAIN_driverUnlock();
 }
 

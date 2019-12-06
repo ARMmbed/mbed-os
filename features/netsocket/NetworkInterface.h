@@ -162,7 +162,8 @@ public:
      *  @param ip_address SocketAddress object containing the local IP address
      *  @param netmask    SocketAddress object containing the local network mask
      *  @param gateway    SocketAddress object containing the local gateway
-     *  @return           NSAPI_ERROR_OK on success, negative error code on failure
+     *  @retval           NSAPI_ERROR_OK on success
+     *  @retval           NSAPI_ERROR_UNSUPPORTED if this function is unsupported
      */
     virtual nsapi_error_t set_network(const SocketAddress &ip_address, const SocketAddress &netmask, const SocketAddress &gateway);
 
@@ -175,7 +176,8 @@ public:
      *  that the network is disconnected.
      *
      *  @param dhcp     True to enable DHCP.
-     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
+     *  @retval         NSAPI_ERROR_OK on success.
+     *  @retval         NSAPI_ERROR_UNSUPPORTED if operation is not supported.
      */
     virtual nsapi_error_t set_dhcp(bool dhcp);
 
@@ -228,7 +230,9 @@ public:
      *  @param version  IP version of address to resolve, NSAPI_UNSPEC indicates
      *                  version is chosen by the stack (defaults to NSAPI_UNSPEC).
      *  @param interface_name  Network interface name
-     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
+     *  @retval         NSAPI_ERROR_OK on success
+     *  @retval         int Negative error code on failure.
+     *                  See @ref NetworkStack::gethostbyname
      */
     virtual nsapi_error_t gethostbyname(const char *host,
                                         SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC, const char *interface_name = NULL);

@@ -110,10 +110,11 @@ TEST_F(TestTCPSocket, connect_with_timeout)
 TEST_F(TestTCPSocket, connect_error_is_connected)
 {
     socket->open((NetworkStack *)&stack);
-    stack.return_values.push_back(NSAPI_ERROR_ALREADY);
     stack.return_values.push_back(NSAPI_ERROR_IS_CONNECTED);
+    stack.return_values.push_back(NSAPI_ERROR_ALREADY);
     const SocketAddress a("127.0.0.1", 1024);
     socket->set_timeout(1);
+    EXPECT_EQ(socket->connect(a), NSAPI_ERROR_IS_CONNECTED);
     EXPECT_EQ(socket->connect(a), NSAPI_ERROR_OK);
 }
 
@@ -277,4 +278,10 @@ TEST_F(TestTCPSocket, accept_would_block)
     eventFlagsStubNextRetval.push_back(osFlagsError); // Break the wait loop
     EXPECT_EQ(socket->accept(&error), static_cast<TCPSocket *>(NULL));
     EXPECT_EQ(error, NSAPI_ERROR_WOULD_BLOCK);
+}
+
+TEST_F(TestTCPSocket, unsupported_api)
+{
+    SocketAddress addr;
+    EXPECT_EQ(socket->join_multicast_group(addr), NSAPI_ERROR_UNSUPPORTED);
 }

@@ -92,6 +92,9 @@ public:
      * @note Must be called before calling connect()
      *
      * @param root_ca_pem Root CA Certificate in PEM format.
+     * @retval NSAPI_ERROR_OK on success.
+     * @retval NSAPI_ERROR_NO_MEMORY in case there is not enough memory to allocate certificate.
+     * @retval NSAPI_ERROR_PARAMETER in case the provided root_ca parameter failed parsing.
      */
     nsapi_error_t set_root_ca_cert(const char *root_ca_pem);
 

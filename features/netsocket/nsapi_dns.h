@@ -85,8 +85,7 @@ nsapi_error_t nsapi_dns_query(NetworkStack *stack, const char *host,
  *  @param addr     Destination for the host address
  *  @param interface_name Network interface name
  *  @param version  IP version to resolve (defaults to NSAPI_IPv4)
- *  @return         0 on success, negative error code on failure
- *                  NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
+ *  @return         See @ref nsapi_dns_query_multiple
  */
 nsapi_error_t nsapi_dns_query(NetworkStack *stack, const char *host,
                               SocketAddress *addr, const char *interface_name, nsapi_version_t version = NSAPI_IPv4);
@@ -156,8 +155,12 @@ nsapi_error_t nsapi_dns_query(S *stack, const char *host,
  *  @param addr       Array for the host addresses
  *  @param addr_count Number of addresses allocated in the array
  *  @param version    IP version to resolve (defaults to NSAPI_IPv4)
- *  @return           Number of addresses found on success, negative error code on failure
- *                    NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
+ *  @return           Positive number of addresses found on success
+ *  @retval           NSAPI_ERROR_PARAMETER if provided parameters are invalid
+ *  @retval           NSAPI_ERROR_NO_MEMORY if allocation fails due to lack of memory
+ *  @retval           NSAPI_ERROR_DNS_FAILURE if DNS resolution fails
+ *  @retval           NSAPI_ERROR_WOULD_BLOCK in case non-blocking mode is enabled and
+ *                    DNS cannot be resolved immediately.
  */
 nsapi_size_or_error_t nsapi_dns_query_multiple(NetworkStack *stack, const char *host,
                                                SocketAddress *addr, nsapi_size_t addr_count,  const char *interface_name, nsapi_version_t version = NSAPI_IPv4);
