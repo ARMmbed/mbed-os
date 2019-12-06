@@ -4,10 +4,32 @@
  * @brief   This file provides all the functions prototypes for FUART driver.
  * @version V1.0.0.0
  * $Date:: 2017-08-06 10:43:01 #$
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Copyright(C) 2019, Toshiba Electronic Device Solutions Corporation
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *   1. Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *   3. Neither the name of Nuvoton Technology Corp. nor the names of its contributors
+ *      may be used to endorse or promote products derived from this software
+ *      without specific prior written permission.
  * 
- * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LICENSE AGREEMENT.
- * 
- * (C)Copyright TOSHIBA MICROELECTRONICS CORPORATION 2017 All rights reserved
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
 /*------------------------------------------------------------------------------*/
@@ -56,7 +78,7 @@ extern "C" {
 
 /** 
  *  @defgroup FUART_CTSHandshake  CTS Handshake
- *  @brief    Available CTS Handshake Macro Definisiton.
+ *  @brief    Available CTS Handshake Macro Definition.
  *  @{
  */
 #define FUART_CTS_DISABLE                ((uint32_t)0x00000000)    /*!< Not Available. */
@@ -68,7 +90,7 @@ extern "C" {
 
 /**
  *  @defgroup FUART_RTSHandshake  RTS Handshake
- *  @brief    Available RTS Handshake Macro Definisiton.
+ *  @brief    Available RTS Handshake Macro Definition.
  *  @{
  */
 #define FUART_RTS_DISABLE                ((uint32_t)0x00000000)    /*!< Not Available. */
@@ -79,7 +101,7 @@ extern "C" {
 
 /** 
  *  @defgroup FUART_FIFO  FIFO Enable
- *  @brief    FIFO Enable Bit Macro Definisiton.
+ *  @brief    FIFO Enable Bit Macro Definition.
  *  @{
  */
 #define FUART_FIFO_DISABLE               ((uint32_t)0x00000000)    /*!< Disable. */
@@ -91,7 +113,7 @@ extern "C" {
 
 /** 
  *  @defgroup FUART_StopBit  Stop Bit
- *  @brief    Stop Bit Macro Definisiton.
+ *  @brief    Stop Bit Macro Definition.
  *  @{
  */
 #define FUART_STOP_BIT_1                 ((uint32_t)0x00000000)    /*!< 1 bit */
@@ -103,7 +125,7 @@ extern "C" {
 
 /** 
  *  @defgroup FUART_ParityBit  Parity Bit
- *  @brief    Parity Bit Macro Definisiton.
+ *  @brief    Parity Bit Macro Definition.
  *  @{
  */
 #define FUART_PARITY_BIT_ODD             ((uint32_t)0x00000000)    /*!< Odd Parity  */
@@ -115,7 +137,7 @@ extern "C" {
 
 /** 
  *  @defgroup FUART_ParityEnable  Parity Enable
- *  @brief    Enable/Disable Parity Macro Definisiton.
+ *  @brief    Enable/Disable Parity Macro Definition.
  *  @{
  */
 #define FUART_PARITY_DISABLE             ((uint32_t)0x00000000)    /*!< Disable */
@@ -126,7 +148,7 @@ extern "C" {
 
 /** 
  *  @defgroup FUART_StaticParityEnable  Static Parity Enable
- *  @brief    Enable/Disable Static Parity Macro Definisiton.
+ *  @brief    Enable/Disable Static Parity Macro Definition.
  *  @{
  */
 #define FUART_STATIC_PARITY_DISABLE      ((uint32_t)0x00000000)    /*!< Disable */
@@ -137,7 +159,7 @@ extern "C" {
 
 /** 
  *  @defgroup FUART_DataLength  Data Length
- *  @brief    Data Length Macro Definisiton.
+ *  @brief    Data Length Macro Definition.
  *  @{
  */
 #define FUART_DATA_LENGTH_5              ((uint32_t)0x00000000)    /*!< 5 bit */
@@ -150,7 +172,7 @@ extern "C" {
 
 /** 
  *  @defgroup FUART_FIFO_Level  FIFO Level
- *  @brief    FIFO Level Macro Definisiton.
+ *  @brief    FIFO Level Macro Definition.
  *  @{
  */
 #define FUART_FIFO_LEVEL_4              ((uint32_t)0x00000000)    /*!< 4 level */
@@ -164,8 +186,8 @@ extern "C" {
  */ /* End of group FUART_DataLength */
 
 /** 
- *  @defgroup FUART_TxInterrupt  Tx Interrpt
- *  @brief    Available Transmit Interrupt Macro Definisiton.
+ *  @defgroup FUART_TxInterrupt  Tx Interrupt
+ *  @brief    Available Transmit Interrupt Macro Definition.
  *  @{
  */
 #define FUART_TX_INT_DISABLE             ((uint32_t)0x00000000)    /*!< Not Available. */
@@ -176,8 +198,8 @@ extern "C" {
 
 
 /** 
- *  @defgroup FUART_RxInterrupt  Rx Interrpt
- *  @brief    Available Receive Interrupt Macro Definisiton.
+ *  @defgroup FUART_RxInterrupt  Rx Interrupt
+ *  @brief    Available Receive Interrupt Macro Definition.
  *  @{
  */
 #define FUART_RX_INT_DISABLE             ((uint32_t)0x00000000)    /*!< Not Available. */
@@ -189,12 +211,12 @@ extern "C" {
 
 /** 
  *  @defgroup FUART_ErrorInterrupt  Error Interrupt
- *  @brief    Enable/Disable Error Interrupt Macro Definisiton.
+ *  @brief    Enable/Disable Error Interrupt Macro Definition.
  *  @{
  */
 /** 
  *  @defgroup FUART_OVER_RUN_ErrorInterrupt  Over Run Error Interrupt
- *  @brief    Enable/Disable Error Interrupt Macro Definisiton.
+ *  @brief    Enable/Disable Error Interrupt Macro Definition.
  *  @{
  */
 #define FUART_OV_ERR_INT_DISABLE            ((uint32_t)0x00000000)    /*!< Disable */
@@ -205,7 +227,7 @@ extern "C" {
 
 /** 
  *  @defgroup FUART_BREAK_ErrorInterrupt  Break Error Interrupt
- *  @brief    Enable/Disable Error Interrupt Macro Definisiton.
+ *  @brief    Enable/Disable Error Interrupt Macro Definition.
  *  @{
  */
 #define FUART_BK_ERR_INT_DISABLE            ((uint32_t)0x00000000)    /*!< Disable */
@@ -216,7 +238,7 @@ extern "C" {
 
 /** 
  *  @defgroup FUART_PARITY_ErrorInterrupt  Parity Error Interrupt
- *  @brief    Enable/Disable Error Interrupt Macro Definisiton.
+ *  @brief    Enable/Disable Error Interrupt Macro Definition.
  *  @{
  */
 #define FUART_PA_ERR_INT_DISABLE            ((uint32_t)0x00000000)    /*!< Disable */
@@ -227,7 +249,7 @@ extern "C" {
 
 /** 
  *  @defgroup FUART_FRAMING_ErrorInterrupt  Framing Error Interrupt
- *  @brief    Enable/Disable Error Interrupt Macro Definisiton.
+ *  @brief    Enable/Disable Error Interrupt Macro Definition.
  *  @{
  */
 #define FUART_FR_ERR_INT_DISABLE            ((uint32_t)0x00000000)    /*!< Disable */
@@ -238,7 +260,7 @@ extern "C" {
 
 /** 
  *  @defgroup FUART_RX_TIMEOUT_ErrorInterrupt  Rx Timeout Error Interrupt
- *  @brief    Enable/Disable Error Interrupt Macro Definisiton.
+ *  @brief    Enable/Disable Error Interrupt Macro Definition.
  *  @{
  */
 #define FUART_TO_ERR_INT_DISABLE            ((uint32_t)0x00000000)    /*!< Disable */
@@ -253,7 +275,7 @@ extern "C" {
 
 /** 
  *  @defgroup FUART_RangeK  Range K
- *  @brief    Range of K Macro Definisiton.
+ *  @brief    Range of K Macro Definition.
  *  @brief    Range of K be set "(UART_RANGE_K_MIN <= Value <= FUART_RANGE_K_MAX)".
  *  @{
  */
@@ -266,7 +288,7 @@ extern "C" {
 
 /** 
  *  @defgroup FUART_RangeN  Range N
- *  @brief    Range of N Macro Definisiton.
+ *  @brief    Range of N Macro Definition.
  *  @brief    Range of N be set "(UART_RANGE_N_MIN <= Value <= FUART_RANGE_N_MAX)".
  *  @{
  */
@@ -279,7 +301,7 @@ extern "C" {
 
 /** 
  *  @defgroup FUART_OverrunErr  Overrun Error
- *  @brief    Overrun Error Macro Definisiton.
+ *  @brief    Overrun Error Macro Definition.
  *  @{
  */
 #define FUART_OVERRUN_NO_ERR             ((uint32_t)0x00000000)    /*!< No Error */
@@ -291,7 +313,7 @@ extern "C" {
 
 /** 
  *  @defgroup FUART_BreakErr  Break Error
- *  @brief    Break Error Macro Definisiton.
+ *  @brief    Break Error Macro Definition.
  *  @{
  */
 #define FUART_BREAK_NO_ERR               ((uint32_t)0x00000000)    /*!< No Error */
@@ -303,7 +325,7 @@ extern "C" {
 
 /** 
  *  @defgroup FUART_ParityErr  Parity Error
- *  @brief    Parity Error Macro Definisiton.
+ *  @brief    Parity Error Macro Definition.
  *  @{
  */
 #define FUART_PARITY_NO_ERR              ((uint32_t)0x00000000)    /*!< No Error */
@@ -315,7 +337,7 @@ extern "C" {
 
 /** 
  *  @defgroup FUART_FramingErr  Framing Error
- *  @brief    Framing Error Macro Definisiton.
+ *  @brief    Framing Error Macro Definition.
  *  @{
  */
 #define FUART_FRAMING_NO_ERR             ((uint32_t)0x00000000)    /*!< No Error */
@@ -382,7 +404,7 @@ extern "C" {
 
 /*----------------------------------*/
 /** 
- * @brief  Receive event information structure definenition.
+ * @brief  Receive event information structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -393,7 +415,7 @@ typedef struct
 
 /*----------------------------------*/
 /** 
- * @brief  Transmit data information structure definenition.
+ * @brief  Transmit data information structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -404,7 +426,7 @@ typedef struct
 
 /*----------------------------------*/
 /** 
- * @brief  Boudrate setting structure definenition.
+ * @brief  Boudrate setting structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -443,7 +465,7 @@ typedef struct
 
 /*----------------------------------*/
 /** 
- * @brief  Initial setting structure definenition.
+ * @brief  Initial setting structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -477,7 +499,7 @@ typedef struct
 
 /*----------------------------------*/
 /** 
- * @brief  FUART handle structure definenition.
+ * @brief  FUART handle structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -486,18 +508,18 @@ typedef struct
     fuart_initial_setting_t init;           /*!< Initial setting.                  */
     /*------------------------------------------*/
     /*!
-        @brief Transmit Informatin.
+        @brief Transmit Information.
     */
     /*------------------------------------------*/
     struct
     {
-        uint32_t        rp;                 /*!< Num of transmited data.            */
+        uint32_t        rp;                 /*!< Num of transmitted data.           */
         fuart_transmit_t info;              /*!< Transmit Data Information.         */
         void (*handler)(uint32_t id, TXZ_Result result); /*!< Transmit Event handler.            */
     } transmit;
     /*------------------------------------------*/
     /*!
-        @brief Receive Informatin.
+        @brief Receive Information.
     */
     /*------------------------------------------*/
     struct

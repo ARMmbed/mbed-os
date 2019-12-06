@@ -1,5 +1,8 @@
 /* mbed Microcontroller Library
- * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2018 All rights reserved
+ *
+ * Copyright (C) 2019, Toshiba Electronic Device Solutions Corporation
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +30,7 @@
 #include "txz_t32a.h"
 #include "txz_cg.h"
 #include "txz_driver_def.h"
-#include "adc.h"
+#include "txz_adc.h"
 #include "txz_i2c_api.h"
 #include "txz_i2c.h"
 #include "txz_fuart_include.h"
