@@ -6953,6 +6953,7 @@
             "I2CSLAVE",
             "I2C_ASYNCH",
             "INTERRUPTIN",
+            "ITM",
             "LPTICKER",
             "PORTIN",
             "PORTINOUT",
@@ -6971,7 +6972,7 @@
             "TRNG",
             "FLASH",
             "MPU",
-            "ITM"
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 5,
         "config": {
