@@ -356,12 +356,14 @@ protected:
     const PinName         _tx_pin;
     const PinName         _rx_pin;
     const serial_pinmap_t *_static_pinmap = NULL;
+    void (SerialBase::*_set_flow_control_dp_func)(Flow, PinName, PinName) = NULL;
 
 #if DEVICE_SERIAL_FC
     Flow                           _flow_type = Disabled;
     PinName                        _flow1 = NC;
     PinName                        _flow2 = NC;
     const serial_fc_pinmap_t       *_static_pinmap_fc = NULL;
+    void (SerialBase::*_set_flow_control_sp_func)(Flow, const serial_fc_pinmap_t &) = NULL;
 #endif
 
 #endif
