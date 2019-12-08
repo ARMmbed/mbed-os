@@ -151,7 +151,9 @@ void SerialBase::_init()
 {
     serial_init(&_serial, _tx_pin, _rx_pin);
 #if DEVICE_SERIAL_FC
-    set_flow_control(_flow_type, _flow1, _flow2);
+    if (_set_flow_control_dp_func) {
+        (this->*_set_flow_control_dp_func)(_flow_type, _flow1, _flow2);
+    }
 #endif
     serial_baud(&_serial, _baud);
     serial_irq_handler(&_serial, SerialBase::_irq_handler, (uint32_t)this);
@@ -161,8 +163,8 @@ void SerialBase::_init_direct()
 {
     serial_init_direct(&_serial, _static_pinmap);
 #if DEVICE_SERIAL_FC
-    if (_static_pinmap_fc) {
-        set_flow_control(_flow_type, *_static_pinmap_fc);
+    if (_static_pinmap_fc && _set_flow_control_dp_func) {
+        (this->*_set_flow_control_sp_func)(_flow_type, *_static_pinmap_fc);
     }
 #endif
     serial_baud(&_serial, _baud);
@@ -303,6 +305,7 @@ SerialBase::~SerialBase()
 void SerialBase::set_flow_control(Flow type, PinName flow1, PinName flow2)
 {
     MBED_ASSERT(_static_pinmap == NULL); // this function must be used when serial object has been created using dynamic pin-map constructor
+    _set_flow_control_dp_func = &SerialBase::set_flow_control;
     lock();
 
     _flow_type = type;
@@ -333,6 +336,7 @@ void SerialBase::set_flow_control(Flow type, PinName flow1, PinName flow2)
 void SerialBase::set_flow_control(Flow type, const serial_fc_pinmap_t &static_pinmap)
 {
     MBED_ASSERT(_static_pinmap != NULL); // this function must be used when serial object has been created using static pin-map constructor
+    _set_flow_control_sp_func = &SerialBase::set_flow_control;
     lock();
     _static_pinmap_fc = &static_pinmap;
     _flow_type = type;
