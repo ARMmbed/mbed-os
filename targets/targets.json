@@ -5878,7 +5878,7 @@
         "device_has_add": ["USBDEVICE", "EMAC", "FLASH", "LPTICKER"],
         "release_versions": ["2", "5"],
         "device_name": "R7S72100",
-        "bootloader_supported": true
+        "bootloader_supported": false
     },
     "VK_RZ_A1H": {
         "inherits": ["RZ_A1XX"],
