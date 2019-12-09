@@ -213,80 +213,82 @@ Test case priorities
 
 Please refer to the following table for priorities of test cases. Priorities are labeled as MUST and SHOULD. MUST means this is a requirement and therefore mandatory to pass the test. SHOULD means it is recommended to pass the test if the driver implements the feature in question.
 
-|     | Test case                               | Priority |
-|-----|-----------------------------------------|----------|
-| 1   | UDPSOCKET_OPEN_DESTRUCT                 | MUST     |
-| 2   | UDPSOCKET_OPEN_LIMIT                    | MUST     |
-| 3   | UDPSOCKET_OPEN_TWICE                    | MUST     |
-| 4   | UDPSOCKET_OPEN_CLOSE_REPEAT             | MUST     |
-| 5   | UDPSOCKET_BIND_PORT                     | SHOULD   |
-| 6   | UDPSOCKET_BIND_PORT_FAIL                | SHOULD   |
-| 9   | UDPSOCKET_BIND_ADDRESS_INVALID          | SHOULD   |
-| 10  | UDPSOCKET_BIND_WRONG_TYPE               | SHOULD   |
-| 11  | UDPSOCKET_BIND_ADDRESS                  | SHOULD   |
-| 12  | UDPSOCKET_BIND_UNOPENED                 | SHOULD   |
-| 13  | UDPSOCKET_SENDTO_INVALID                | MUST     |
-| 14  | UDPSOCKET_SENDTO_REPEAT                 | MUST     |
-| 15  | UDPSOCKET_ECHOTEST                      | MUST     |
-| 16  | UDPSOCKET_ECHOTEST_NONBLOCK             | MUST     |
-| 17  | UDPSOCKET_RECV_TIMEOUT                  | SHOULD   |
-| 18  | UDPSOCKET_SENDTO_TIMEOUT                | SHOULD   |
-| 19  | TCPSOCKET_OPEN_DESTRUCT                 | MUST     |
-| 20  | TCPSOCKET_OPEN_LIMIT                    | MUST     |
-| 21  | TCPSOCKET_OPEN_TWICE                    | MUST     |
-| 22  | TCPSOCKET_OPEN_CLOSE_REPEAT             | MUST     |
-| 23  | TCPSOCKET_BIND_PORT                     | SHOULD   |
-| 24  | TCPSOCKET_BIND_PORT_FAIL                | SHOULD   |
-| 27  | TCPSOCKET_BIND_ADDRESS_INVALID          | SHOULD   |
-| 28  | TCPSOCKET_BIND_WRONG_TYPE               | SHOULD   |
-| 29  | TCPSOCKET_BIND_ADDRESS                  | SHOULD   |
-| 30  | TCPSOCKET_BIND_UNOPENED                 | SHOULD   |
-| 31  | TCPSOCKET_CONNECT_INVALID               | MUST     |
-| 32  | TCPSOCKET_SEND_REPEAT                   | MUST     |
-| 33  | TCPSOCKET_ECHOTEST                      | MUST     |
-| 34  | TCPSOCKET_ECHOTEST_NONBLOCK             | MUST     |
-| 35  | TCPSOCKET_RECV_TIMEOUT                  | SHOULD   |
-| 36  | TCPSOCKET_SEND_TIMEOUT                  | SHOULD   |
-| 37  | TCPSOCKET_ENDPOINT_CLOSE                | MUST     |
-| 38  | UDPSOCKET_ECHOTEST_BURST                | MUST     |
-| 39  | UDPSOCKET_ECHOTEST_BURST_NONBLOCK       | MUST     |
-| 40  | TCPSOCKET_ECHOTEST_BURST                | MUST     |
-| 41  | TCPSOCKET_ECHOTEST_BURST_NONBLOCK       | MUST     |
-| 42  | TCPSOCKET_RECV_100K                     | MUST     |
-| 43  | TCPSOCKET_RECV_100K_NONBLOCK            | MUST     |
-| 44  | TCPSOCKET_THREAD_PER_SOCKET_SAFETY      | MUST     |
-| 45  | TCPSOCKET_SETSOCKOPT_KEEPALIVE_VALID    | SHOULD   |
-| 46  | TLSSOCKET_OPEN_DESTRUCT                 | SHOULD   |
-| 47  | TLSSOCKET_OPEN_LIMIT                    | SHOULD   |
-| 48  | TLSSOCKET_OPEN_TWICE                    | SHOULD   |
-| 49  | TLSSOCKET_CONNECT_INVALID               | SHOULD   |
-| 50  | TLSSOCKET_HANDSHAKE_INVALID             | SHOULD   |
-| 51  | TLSSOCKET_SEND_CLOSED                   | SHOULD   |
-| 52  | TLSSOCKET_SEND_UNCONNECTED              | SHOULD   |
-| 53  | TLSSOCKET_SEND_REPEAT                   | SHOULD   |
-| 54  | TLSSOCKET_SEND_TIMEOUT                  | SHOULD   |
-| 55  | TLSSOCKET_ECHOTEST                      | SHOULD   |
-| 56  | TLSSOCKET_ECHOTEST_NONBLOCK             | SHOULD   |
-| 57  | TLSSOCKET_ENDPOINT_CLOSE                | SHOULD   |
-| 58  | TLSSOCKET_NO_CERT                       | SHOULD   |
-| 59  | TLSSOCKET_RECV_TIMEOUT                  | SHOULD   |
-| 60  | TLSSOCKET_SIMULTANEOUS_TEST             | SHOULD   |
-| 61  | TLSSOCKET_ECHOTEST_BURST                | SHOULD   |
-| 62  | TLSSOCKET_ECHOTEST_BURST_NONBLOCK       | SHOULD   |
-| 63  | ASYNCHRONOUS_DNS                        | MUST     |
-| 64  | ASYNCHRONOUS_DNS_CACHE                  | MUST     |
-| 65  | ASYNCHRONOUS_DNS_CANCEL                 | MUST     |
-| 66  | ASYNCHRONOUS_DNS_EXTERNAL_EVENT_QUEUE   | MUST     |
-| 67  | ASYNCHRONOUS_DNS_INVALID_HOST           | MUST     |
-| 68  | ASYNCHRONOUS_DNS_NON_ASYNC_AND_ASYNC    | MUST     |
-| 69  | ASYNCHRONOUS_DNS_SIMULTANEOUS_CACHE     | MUST     |
-| 70  | ASYNCHRONOUS_DNS_SIMULTANEOUS_REPEAT    | MUST     |
-| 71  | ASYNCHRONOUS_DNS_SIMULTANEOUS           | MUST     |
-| 72  | ASYNCHRONOUS_DNS_TIMEOUTS               | MUST     |
-| 73  | SYNCHRONOUS_DNS                         | MUST     |
-| 74  | SYNCHRONOUS_DNS_CACHE                   | MUST     |
-| 75  | SYNCHRONOUS_DNS_INVALID_HOST            | MUST     |
-| 76  | SYNCHRONOUS_DNS_MULTIPLE                | MUST     |
+|     | Test case                                     | Priority |
+|-----|-----------------------------------------------|----------|
+| 1   | UDPSOCKET_OPEN_DESTRUCT                       | MUST     |
+| 2   | UDPSOCKET_OPEN_LIMIT                          | MUST     |
+| 3   | UDPSOCKET_OPEN_TWICE                          | MUST     |
+| 4   | UDPSOCKET_OPEN_CLOSE_REPEAT                   | MUST     |
+| 5   | UDPSOCKET_BIND_PORT                           | SHOULD   |
+| 6   | UDPSOCKET_BIND_PORT_FAIL                      | SHOULD   |
+| 9   | UDPSOCKET_BIND_ADDRESS_INVALID                | SHOULD   |
+| 10  | UDPSOCKET_BIND_WRONG_TYPE                     | SHOULD   |
+| 11  | UDPSOCKET_BIND_ADDRESS                        | SHOULD   |
+| 12  | UDPSOCKET_BIND_UNOPENED                       | SHOULD   |
+| 13  | UDPSOCKET_SENDTO_INVALID                      | MUST     |
+| 14  | UDPSOCKET_SENDTO_REPEAT                       | MUST     |
+| 15  | UDPSOCKET_ECHOTEST                            | MUST     |
+| 16  | UDPSOCKET_ECHOTEST_NONBLOCK                   | MUST     |
+| 17  | UDPSOCKET_RECV_TIMEOUT                        | SHOULD   |
+| 18  | UDPSOCKET_SENDTO_TIMEOUT                      | SHOULD   |
+| 19  | TCPSOCKET_OPEN_DESTRUCT                       | MUST     |
+| 20  | TCPSOCKET_OPEN_LIMIT                          | MUST     |
+| 21  | TCPSOCKET_OPEN_TWICE                          | MUST     |
+| 22  | TCPSOCKET_OPEN_CLOSE_REPEAT                   | MUST     |
+| 23  | TCPSOCKET_BIND_PORT                           | SHOULD   |
+| 24  | TCPSOCKET_BIND_PORT_FAIL                      | SHOULD   |
+| 27  | TCPSOCKET_BIND_ADDRESS_INVALID                | SHOULD   |
+| 28  | TCPSOCKET_BIND_WRONG_TYPE                     | SHOULD   |
+| 29  | TCPSOCKET_BIND_ADDRESS                        | SHOULD   |
+| 30  | TCPSOCKET_BIND_UNOPENED                       | SHOULD   |
+| 31  | TCPSOCKET_CONNECT_INVALID                     | MUST     |
+| 32  | TCPSOCKET_SEND_REPEAT                         | MUST     |
+| 33  | TCPSOCKET_ECHOTEST                            | MUST     |
+| 34  | TCPSOCKET_ECHOTEST_NONBLOCK                   | MUST     |
+| 35  | TCPSOCKET_RECV_TIMEOUT                        | SHOULD   |
+| 36  | TCPSOCKET_SEND_TIMEOUT                        | SHOULD   |
+| 37  | TCPSOCKET_ENDPOINT_CLOSE                      | MUST     |
+| 38  | UDPSOCKET_ECHOTEST_BURST                      | MUST     |
+| 39  | UDPSOCKET_ECHOTEST_BURST_NONBLOCK             | MUST     |
+| 40  | TCPSOCKET_ECHOTEST_BURST                      | MUST     |
+| 41  | TCPSOCKET_ECHOTEST_BURST_NONBLOCK             | MUST     |
+| 42  | TCPSOCKET_RECV_100K                           | MUST     |
+| 43  | TCPSOCKET_RECV_100K_NONBLOCK                  | MUST     |
+| 44  | TCPSOCKET_THREAD_PER_SOCKET_SAFETY            | MUST     |
+| 45  | TCPSOCKET_SETSOCKOPT_KEEPALIVE_VALID          | SHOULD   |
+| 46  | TLSSOCKET_OPEN_DESTRUCT                       | SHOULD   |
+| 47  | TLSSOCKET_OPEN_LIMIT                          | SHOULD   |
+| 48  | TLSSOCKET_OPEN_TWICE                          | SHOULD   |
+| 49  | TLSSOCKET_CONNECT_INVALID                     | SHOULD   |
+| 50  | TLSSOCKET_HANDSHAKE_INVALID                   | SHOULD   |
+| 51  | TLSSOCKET_SEND_CLOSED                         | SHOULD   |
+| 52  | TLSSOCKET_SEND_UNCONNECTED                    | SHOULD   |
+| 53  | TLSSOCKET_SEND_REPEAT                         | SHOULD   |
+| 54  | TLSSOCKET_SEND_TIMEOUT                        | SHOULD   |
+| 55  | TLSSOCKET_ECHOTEST                            | SHOULD   |
+| 56  | TLSSOCKET_ECHOTEST_NONBLOCK                   | SHOULD   |
+| 57  | TLSSOCKET_ENDPOINT_CLOSE                      | SHOULD   |
+| 58  | TLSSOCKET_NO_CERT                             | SHOULD   |
+| 59  | TLSSOCKET_RECV_TIMEOUT                        | SHOULD   |
+| 60  | TLSSOCKET_SIMULTANEOUS_TEST                   | SHOULD   |
+| 61  | TLSSOCKET_ECHOTEST_BURST                      | SHOULD   |
+| 62  | TLSSOCKET_ECHOTEST_BURST_NONBLOCK             | SHOULD   |
+| 63  | ASYNCHRONOUS_DNS                              | MUST     |
+| 64  | ASYNCHRONOUS_DNS_CACHE                        | MUST     |
+| 65  | ASYNCHRONOUS_DNS_CANCEL                       | MUST     |
+| 66  | ASYNCHRONOUS_DNS_EXTERNAL_EVENT_QUEUE         | MUST     |
+| 67  | ASYNCHRONOUS_DNS_INVALID_HOST                 | MUST     |
+| 68  | ASYNCHRONOUS_DNS_NON_ASYNC_AND_ASYNC          | MUST     |
+| 69  | ASYNCHRONOUS_DNS_SIMULTANEOUS_CACHE           | MUST     |
+| 70  | ASYNCHRONOUS_DNS_SIMULTANEOUS_REPEAT          | MUST     |
+| 71  | ASYNCHRONOUS_DNS_SIMULTANEOUS                 | MUST     |
+| 72  | ASYNCHRONOUS_DNS_TIMEOUTS                     | MUST     |
+| 73  | SYNCHRONOUS_DNS                               | MUST     |
+| 74  | SYNCHRONOUS_DNS_CACHE                         | MUST     |
+| 75  | SYNCHRONOUS_DNS_INVALID_HOST                  | MUST     |
+| 76  | SYNCHRONOUS_DNS_MULTIPLE                      | MUST     |
+| 77  | UDPSOCKET_ECHOTEST_CONNECT_SEND_RECV          | MUST     |
+| 78  | UDPSOCKET_ECHOTEST_NONBLOCK_CONNECT_SEND_RECV | MUST     |
 
 
 
@@ -832,6 +834,18 @@ mode.
 - At least one `sendto()` call of every size returns the packet size.
 - Errors returned from `recvfrom()` calls are tolerated. 
 - Calculate packet loss rate. The maximum tolerated packet loss rate is 30%.
+
+### UDPSOCKET_ECHOTEST_CONNECT_SEND_RECV
+
+**Description:**
+
+This test is exactly the same test as UDPSOCKET_ECHOTEST, except instead of using `sendto()` and `recvfrom()` methods, this uses TCPSocket-like `connect()`, `send()` and `recv()` methods.
+
+### UDPSOCKET_ECHOTEST_NONBLOCK_CONNECT_SEND_RECV
+
+**Description:**
+
+This test is exactly the same test as UDPSOCKET_ECHOTEST_NONBLOCK_CONNECT_SEND_RECV, except instead of using `sendto()` and `recvfrom()` methods, this uses TCPSocket-like `connect()`, `send()` and `recv()` methods.
 
 ### UDPSOCKET_RECV_TIMEOUT
 
