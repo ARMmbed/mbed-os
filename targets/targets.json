@@ -9280,7 +9280,7 @@
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         },
-        "bootloader_supported": true,
+        "bootloader_supported": false,
         "sectors": [[268435456, 512]],
         "overrides": {
             "network-default-interface-type": "WIFI"
