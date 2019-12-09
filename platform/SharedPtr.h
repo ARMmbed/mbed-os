@@ -76,6 +76,13 @@ public:
     }
 
     /**
+     * @brief Create empty SharedPtr not pointing to anything.
+     */
+    constexpr SharedPtr(std::nullptr_t) : SharedPtr()
+    {
+    }
+
+    /**
      * @brief Create new SharedPtr
      * @param ptr Pointer to take control over
      */
