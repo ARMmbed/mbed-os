@@ -133,6 +133,9 @@ static void uart_test_common(int baudrate, int data_bits, SerialParity parity, i
             serial_set_flow_control_direct(&serial, FlowControlRTSCTS, &pinmap);
 #else
             //skip this test case if static pinmap is not supported
+            // Cleanup uart to be able execute next test case
+            serial_free(&serial);
+            tester.reset();
             return;
 #endif
         } else {
