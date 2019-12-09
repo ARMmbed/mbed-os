@@ -35,5 +35,6 @@ set(unittest-test-sources
   stubs/LoRaPHY_stub.cpp
 )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMBED_CONF_LORA_TX_MAX_SIZE=255")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMBED_CONF_LORA_TX_MAX_SIZE=255")
+set(unittest-test-flags
+  -DMBED_CONF_LORA_TX_MAX_SIZE=255
+)

@@ -45,3 +45,10 @@ set(unittest-test-sources
   stubs/ConditionVariable_stub.cpp
   stubs/Mutex_stub.cpp
 )
+
+set(unittest-test-flags
+  -DDEVICE_SERIAL=1
+  -DDEVICE_INTERRUPTIN=1
+  -DMBED_CONF_CELLULAR_USE_SMS=1
+  -DMBED_CONF_NSAPI_DEFAULT_CELLULAR_APN=NULL
+)

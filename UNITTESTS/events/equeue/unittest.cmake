@@ -20,5 +20,8 @@ set(unittest-test-sources
   stubs/EqueuePosix_stub.c
 )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread -DEQUEUE_PLATFORM_POSIX")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -DEQUEUE_PLATFORM_POSIX")
+set(unittest-test-flags
+  -pthread
+  -DEQUEUE_PLATFORM_POSIX
+)
+

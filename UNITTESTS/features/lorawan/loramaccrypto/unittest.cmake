@@ -40,3 +40,6 @@ set(unittest-test-sources
 
 )
 
+set(unittest-test-flags
+  -DMBED_CONF_LORA_TX_MAX_SIZE=255
+  )

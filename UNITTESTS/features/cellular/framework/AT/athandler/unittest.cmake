@@ -10,7 +10,7 @@ set(unittest-includes ${unittest-includes}
   ../features/cellular/framework/common
   ../features/cellular/framework/AT
   ../features/frameworks/mbed-client-randlib/mbed-client-randlib
-  
+
 )
 
 # Source files
@@ -41,5 +41,9 @@ set(unittest-test-sources
   stubs/rtx_mutex_stub.c
 )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMBED_CONF_CELLULAR_DEBUG_AT=true -DOS_STACK_SIZE=2048")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMBED_CONF_CELLULAR_DEBUG_AT=true -DOS_STACK_SIZE=2048")
+set(unittest-test-flags
+  -DMBED_CONF_CELLULAR_DEBUG_AT=true
+  -DOS_STACK_SIZE=2048
+  -DDEVICE_SERIAL=1
+  -DDEVICE_INTERRUPTIN=1
+)

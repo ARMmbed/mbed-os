@@ -44,9 +44,10 @@ set(unittest-test-sources
   stubs/Mutex_stub.cpp
 )
 
-# defines
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMBED_CONF_LORA_PHY=\"EU868\"")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMBED_CONF_LORA_PHY=\"EU868\"")
+set(unittest-test-flags
+  -DMBED_CONF_LORA_PHY=EU868
+  -DMBED_CONF_LORA_TX_MAX_SIZE=255
+)
 
 
 

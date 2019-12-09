@@ -13,7 +13,7 @@ set(unittest-sources
   ../features/frameworks/nanostack-libservice/source/libip6string/ip6tos.c
   ../features/frameworks/nanostack-libservice/source/libip4string/stoip4.c
   ../features/frameworks/nanostack-libservice/source/libip6string/stoip6.c
-  ../features/frameworks/nanostack-libservice/source/libBits/common_functions.c  
+  ../features/frameworks/nanostack-libservice/source/libBits/common_functions.c
   ../features/frameworks/nanostack-libservice/source/libList/ns_list.c
 )
 
@@ -38,5 +38,9 @@ set(unittest-test-sources
   ../features/netsocket/UDPSocket.cpp
 )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMBED_CONF_NSAPI_DNS_RESPONSE_WAIT_TIME=10000 -DMBED_CONF_NSAPI_DNS_RETRIES=1 -DMBED_CONF_NSAPI_DNS_TOTAL_ATTEMPTS=10 -DMBED_CONF_NSAPI_DNS_CACHE_SIZE=5")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMBED_CONF_NSAPI_DNS_RESPONSE_WAIT_TIME=10000 -DMBED_CONF_NSAPI_DNS_RETRIES=1 -DMBED_CONF_NSAPI_DNS_TOTAL_ATTEMPTS=10 -DMBED_CONF_NSAPI_DNS_CACHE_SIZE=5")
+set(unittest-test-flags
+  -DMBED_CONF_NSAPI_DNS_RESPONSE_WAIT_TIME=10000
+  -DMBED_CONF_NSAPI_DNS_RETRIES=1
+  -DMBED_CONF_NSAPI_DNS_TOTAL_ATTEMPTS=10
+  -DMBED_CONF_NSAPI_DNS_CACHE_SIZE=5
+)

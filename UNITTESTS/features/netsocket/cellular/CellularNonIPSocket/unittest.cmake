@@ -22,3 +22,8 @@ set(unittest-test-sources
   stubs/CellularContext_stub.cpp
   stubs/mbed_assert_stub.cpp
 )
+
+set(unittest-test-flags
+  -DDEVICE_SERIAL=1
+  -DDEVICE_INTERRUPTIN=1
+)

@@ -23,6 +23,7 @@ set(unittest-test-sources
   stubs/pwmout_api_stub.c
 )
 
-# defines
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DDEVICE_PWMOUT")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEVICE_PWMOUT")
+set(unittest-test-flags
+  -DDEVICE_PWMOUT
+)
+

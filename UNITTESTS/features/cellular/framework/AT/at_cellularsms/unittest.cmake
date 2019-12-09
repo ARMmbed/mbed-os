@@ -32,7 +32,6 @@ set(unittest-test-sources
   stubs/Mutex_stub.cpp
 )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMBED_CONF_CELLULAR_USE_SMS=1")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMBED_CONF_CELLULAR_USE_SMS=1")
-
-
+set(unittest-test-flags
+  -DMBED_CONF_CELLULAR_USE_SMS=1
+)
