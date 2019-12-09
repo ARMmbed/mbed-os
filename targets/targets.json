@@ -9246,7 +9246,7 @@
             "function": "PSOC6Code.complete"
         },
         "sectors": [[268443648, 512]],
-        "bootloader_supported": true
+        "bootloader_supported": false
     },
     "CY8CPROTO_064_SB": {
         "inherits": ["MCU_PSOC6_M4"],
