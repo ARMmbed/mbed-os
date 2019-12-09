@@ -8476,7 +8476,7 @@
             "MPU"
         ],
         "release_versions": ["2", "5"],
-        "bootloader_supported": true
+        "bootloader_supported": false
     },
     "NUCLEO_WB55RG": {
         "inherits": ["FAMILY_STM32"],
