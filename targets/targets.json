@@ -9230,7 +9230,7 @@
             "function": "PSOC6Code.complete"
         },
         "sectors": [[268443648, 512]],
-        "bootloader_supported": true
+        "bootloader_supported": false
     },
     "CY8CPROTO_063_BLE": {
         "inherits": ["MCU_PSOC6_M4"],
