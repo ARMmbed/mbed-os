@@ -9461,7 +9461,6 @@
         "inherits": ["RDA5981X"],
         "detect_code": ["8001"],
         "components_add": ["FLASHIAP"],
-        "bootloader_supported": true,
         "mbed_ram_start": "0x00100080",
         "mbed_ram_size": "0x1ff80",
         "mbed_rom_start": "0x18001000",
@@ -9469,7 +9468,8 @@
         "sectors": [[0,4096]],
         "overrides": {
             "network-default-interface-type" : "WIFI"
-        }
+        },
+        "bootloader_supported": false
     },
     "GD32_Target": {
         "inherits": ["Target"],
