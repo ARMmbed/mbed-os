@@ -378,6 +378,8 @@ pdp_type_t string_to_pdp_type(const char *pdp_type_str)
         pdp_type = IPV4_PDP_TYPE;
     } else if (len == 6 && memcmp(pdp_type_str, "Non-IP", len) == 0) {
         pdp_type = NON_IP_PDP_TYPE;
+    } else if (len == 5 && memcmp(pdp_type_str, "NONIP", len) == 0) {
+        pdp_type = NON_IP_PDP_TYPE;
     }
     return pdp_type;
 }

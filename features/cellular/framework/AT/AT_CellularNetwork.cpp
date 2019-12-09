@@ -375,7 +375,11 @@ nsapi_error_t AT_CellularNetwork::set_ciot_optimization_config(CIoT_Supported_Op
                                                                Callback<void(CIoT_Supported_Opt)> network_support_cb)
 {
     _ciotopt_network_support_cb = network_support_cb;
-    return _at.at_cmd_discard("+CCIOTOPT", "=1,", "%d%d", supported_opt, preferred_opt);
+    nsapi_error_t err = _at.at_cmd_discard("+CRTDCP", "=", "%d", 1);
+    if (!err) {
+        err = _at.at_cmd_discard("+CCIOTOPT", "=1,", "%d%d", supported_opt, preferred_opt);
+    }
+    return err;
 }
 
 void AT_CellularNetwork::urc_cciotopti()
@@ -690,7 +694,7 @@ nsapi_error_t AT_CellularNetwork::clear()
             }
             context = context->next;
         }
-#ifdef MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN
+#if defined(MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN) && !MBED_CONF_CELLULAR_CONTROL_PLANE_OPT
         char pdp_type_str[sizeof("IPV4V6")];
         if (_device.get_property(AT_CellularDevice::PROPERTY_IPV4V6_PDP_TYPE) ||
                 (_device.get_property(AT_CellularDevice::PROPERTY_IPV4_PDP_TYPE) && _device.get_property(AT_CellularDevice::PROPERTY_IPV6_PDP_TYPE))) {

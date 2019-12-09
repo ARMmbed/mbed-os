@@ -198,6 +198,10 @@ bool AT_CellularContext::get_context()
     return true;
 }
 
+const char* AT_CellularContext::get_nonip_context_type_str() {
+    return "Non-IP";
+}
+
 bool AT_CellularContext::set_new_context(int cid)
 {
     return true;
