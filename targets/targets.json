@@ -5895,7 +5895,7 @@
         "device_has_remove": ["ETHERNET"],
         "release_versions": ["2", "5"],
         "device_name": "R7S72103",
-        "bootloader_supported": true,
+        "bootloader_supported": false,
         "overrides": {
             "network-default-interface-type": null
         }
