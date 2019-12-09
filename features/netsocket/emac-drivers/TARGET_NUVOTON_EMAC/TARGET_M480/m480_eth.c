@@ -262,6 +262,8 @@ void numaker_eth_init(uint8_t *mac_addr)
                     EMAC_CAMCTL_ABP_Msk;
     EMAC->CAMEN = 1;    // Enable CAM entry 0    
 
+    /* Limit the max receive frame length to 1514 + 4 */
+    EMAC->MRFL = 1518;    
     reset_phy();                    
                     
     EMAC_ENABLE_RX();
