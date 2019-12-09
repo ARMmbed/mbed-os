@@ -947,32 +947,6 @@ TEST_F(TestATHandler, test_ATHandler_read_int)
 
     ret = at.read_int();
     EXPECT_TRUE(2 == ret);
-    at.resp_stop();
-    at.clear_error();
-
-    char table3[] = "\"9223372036854775808,\"OK\r\n\0";
-    filehandle_stub_table = table3;
-    filehandle_stub_table_pos = 0;
-    mbed_poll_stub::revents_value = POLLIN;
-    mbed_poll_stub::int_value = strlen(table3);
-
-    at.resp_start();
-    ret = at.read_int();
-    EXPECT_TRUE(-1 == ret);
-    at.resp_stop();
-    at.clear_error();
-
-    char table4[] = "\"-9223372036854775809,\"OK\r\n\0";
-    filehandle_stub_table = table4;
-    filehandle_stub_table_pos = 0;
-    mbed_poll_stub::revents_value = POLLIN;
-    mbed_poll_stub::int_value = strlen(table4);
-
-    at.resp_start();
-    ret = at.read_int();
-    EXPECT_TRUE(-1 == ret);
-    at.resp_stop();
-    at.clear_error();
 }
 
 TEST_F(TestATHandler, test_ATHandler_resp_start)
