@@ -8510,7 +8510,7 @@
 		],
         "features": ["BLE"],
         "release_versions": ["2", "5"],
-        "bootloader_supported": true
+        "bootloader_supported": false
     },
     "VBLUNO52": {
         "supported_form_factors": ["ARDUINO"],
