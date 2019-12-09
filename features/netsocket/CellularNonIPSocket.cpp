@@ -145,13 +145,12 @@ nsapi_size_or_error_t CellularNonIPSocket::send(const void *data, nsapi_size_t s
 nsapi_size_or_error_t CellularNonIPSocket::recv(void *buffer, nsapi_size_t size)
 {
     _lock.lock();
-    nsapi_size_or_error_t ret;
+    nsapi_size_or_error_t ret = NSAPI_ERROR_NO_SOCKET;
 
     _readers++;
 
     while (true) {
         if (!_opened) {
-            ret = NSAPI_ERROR_NO_SOCKET;
             break;
         }
 
@@ -173,6 +172,8 @@ nsapi_size_or_error_t CellularNonIPSocket::recv(void *buffer, nsapi_size_t size)
 
             if (flag & osFlagsError) {
                 // Timeout break
+                // Poll once more for a possibly missed data received indication
+                ret = _cp_netif->recv(buffer, size);
                 break;
             }
         }
