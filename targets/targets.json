@@ -6753,7 +6753,8 @@
         },
         "overrides": {
             "network-default-interface-type": "MESH"
-        }
+        },
+        "bootloader_supported": false
     },
     "EFM32PG12B500F1024GL125": {
         "inherits": ["EFM32"],
