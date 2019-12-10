@@ -42,7 +42,7 @@
 #define NU_BUFF_ALIGNMENT       4
 #define PHY_LINKED_STATE        1
 #define PHY_UNLINKED_STATE      0
-#define PACKET_BUFFER_SIZE      NU_ETH_MAX_FLEN
+#define PACKET_BUFFER_SIZE      ( NU_ETH_MAX_FLEN + ((NU_ETH_MAX_FLEN%4) ? (4 - (NU_ETH_MAX_FLEN%4)) : 0) ) //For DMA 4 bytes alignment
 
 extern "C" void numaker_eth_rx_next(void);
 /* \brief Flags for worker thread */

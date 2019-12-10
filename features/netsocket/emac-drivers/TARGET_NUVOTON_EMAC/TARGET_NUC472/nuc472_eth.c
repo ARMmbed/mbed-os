@@ -230,7 +230,7 @@ void numaker_eth_init(uint8_t *mac_addr)
     numaker_set_mac_addr(mac_addr);  // need to reconfigure hardware address 'cos we just RESET emc...
 
     /* Limit the max receive frame length to 1514 + 4 */
-    EMAC->MRFL = 1518;
+    EMAC->MRFL = NU_ETH_MAX_FLEN;
     reset_phy();
 
     EMAC->CTL |= EMAC_CTL_STRIPCRC_Msk | EMAC_CTL_RXON_Msk | EMAC_CTL_TXON_Msk | EMAC_CTL_RMIIEN_Msk | EMAC_CTL_RMIIRXCTL_Msk;
