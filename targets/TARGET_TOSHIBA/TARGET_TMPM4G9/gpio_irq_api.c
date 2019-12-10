@@ -1,5 +1,8 @@
 /* mbed Microcontroller Library
- * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2018 All rights reserved
+ *
+ * Copyright (C) 2019, Toshiba Electronic Device Solutions Corporation
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -284,5 +287,6 @@ static void CG_SetSTBYReleaseINTSrc(CG_INTSrc INTSource, CG_INTActiveState Activ
     *ptr = (ActiveState | NewState);
     {
         uint8_t regval = *ptr;
+        (void)regval;
     }
 }

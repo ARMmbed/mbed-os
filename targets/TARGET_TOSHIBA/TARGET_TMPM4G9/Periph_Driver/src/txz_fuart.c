@@ -4,13 +4,34 @@
  * @brief   This file provides API functions for FUART driver.
  * @version V1.0.0.0
  * $Date:: 2017-08-06 10:43:01 #$
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Copyright(C) 2019, Toshiba Electronic Device Solutions Corporation
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *   1. Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *   3. Neither the name of Nuvoton Technology Corp. nor the names of its contributors
+ *      may be used to endorse or promote products derived from this software
+ *      without specific prior written permission.
  * 
- * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LICENSE AGREEMENT.
- * 
- * (C)Copyright TOSHIBA MICROELECTRONICS CORPORATION 2017 All rights reserved
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-
 #ifdef __cplusplus
  extern "C" {
 #endif
@@ -895,6 +916,7 @@ TXZ_Result fuart_receiveIt(fuart_t *p_obj, fuart_receive_t *p_info)
     while((fr_reg & FUARTxFR_RXFE_MASK) == FUARTxFR_RXFE_FLAG_CLR)
     {
         dummy  =  (uint8_t)(p_obj->p_instance->DR & FUARTxDR_DR_8BIT_MASK);
+        (void)dummy;
         if(p_obj->init.fifo == 1)
         {
             if(++rx_count > FUART_RX_FIFO_MAX)
@@ -1122,6 +1144,7 @@ void fuart_error_irq_handler(fuart_t *p_obj)
             icr_reg |= FUARTxICR_OEIC_CLR;
             ecr_reg |= FUARTxECR_OE_CLR;
             dummy  =  (uint8_t)(p_obj->p_instance->DR & FUARTxDR_DR_8BIT_MASK);
+            (void)dummy;
             err = TXZ_ERROR;
         }
         /* BREAK */

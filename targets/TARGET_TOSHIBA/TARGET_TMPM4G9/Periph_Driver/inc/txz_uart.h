@@ -4,10 +4,32 @@
  * @brief   This file provides all the functions prototypes for UART driver.
  * @version V1.0.0.0
  * $Date:: 2017-07-21 15:39:36 #$
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Copyright(C) 2019, Toshiba Electronic Device Solutions Corporation
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *   1. Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *   3. Neither the name of Nuvoton Technology Corp. nor the names of its contributors
+ *      may be used to endorse or promote products derived from this software
+ *      without specific prior written permission.
  * 
- * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LICENSE AGREEMENT.
- * 
- * (C)Copyright TOSHIBA MICROELECTRONICS CORPORATION 2017 All rights reserved
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
 /*------------------------------------------------------------------------------*/
@@ -119,7 +141,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_CTSHandshake  CTS Handshake
- *  @brief    Available CTS Handshake Macro Definisiton.
+ *  @brief    Available CTS Handshake Macro Definition.
  *  @{
  */
 #define UART_CTS_DISABLE                ((uint32_t)0x00000000)    /*!< Not Available. */
@@ -131,7 +153,7 @@ extern "C" {
 
 /**
  *  @defgroup UART_RTSHandshake  RTS Handshake
- *  @brief    Available RTS Handshake Macro Definisiton.
+ *  @brief    Available RTS Handshake Macro Definition.
  *  @{
  */
 #define UART_RTS_DISABLE                ((uint32_t)0x00000000)    /*!< Not Available. */
@@ -143,7 +165,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_DataComplementation  Data Complementation
- *  @brief    Enable/Disable Data Signal Complementation Macro Definisiton.
+ *  @brief    Enable/Disable Data Signal Complementation Macro Definition.
  *  @{
  */
 #define UART_DATA_COMPLEMENTION_DISABLE ((uint32_t)0x00000000)    /*!< Disable */
@@ -155,7 +177,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_DataDirection  Data Direction
- *  @brief    Data Direction Macro Definisiton.
+ *  @brief    Data Direction Macro Definition.
  *  @{
  */
 #define UART_DATA_DIRECTION_LSB         ((uint32_t)0x00000000)    /*!< LSB first */
@@ -167,7 +189,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_StopBit  Stop Bit
- *  @brief    Stop Bit Macro Definisiton.
+ *  @brief    Stop Bit Macro Definition.
  *  @{
  */
 #define UART_STOP_BIT_1                 ((uint32_t)0x00000000)    /*!< 1 bit */
@@ -179,7 +201,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_ParityBit  Parity Bit
- *  @brief    Parity Bit Macro Definisiton.
+ *  @brief    Parity Bit Macro Definition.
  *  @{
  */
 #define UART_PARITY_BIT_ODD             ((uint32_t)0x00000000)    /*!< Odd Parity  */
@@ -191,7 +213,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_ParityEnable  Parity Enable
- *  @brief    Enable/Disable Parity Macro Definisiton.
+ *  @brief    Enable/Disable Parity Macro Definition.
  *  @{
  */
 #define UART_PARITY_DISABLE             ((uint32_t)0x00000000)    /*!< Disable */
@@ -203,7 +225,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_DataLength  Data Length
- *  @brief    Data Length Macro Definisiton.
+ *  @brief    Data Length Macro Definition.
  *  @{
  */
 #define UART_DATA_LENGTH_7              ((uint32_t)0x00000000)    /*!< 7 bit */
@@ -216,7 +238,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_TxFillLevelRange  Tx Fill Level Range
- *  @brief    Transmit Fill Level Range Macro Definisiton.
+ *  @brief    Transmit Fill Level Range Macro Definition.
  *  @brief    Range of Value be set "(UART_TX_FILL_LEVEL_MIN <= Value <= UART_TX_FILL_LEVEL_MAX)".
  *  @{
  */
@@ -229,7 +251,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_RxFillLevelRange  Rx Fill Level Range
- *  @brief    Receive Fill Level Range Macro Definisiton.
+ *  @brief    Receive Fill Level Range Macro Definition.
  *  @brief    Range of Value be set "(UART_RX_FILL_LEVEL_MIN <= Value <= UART_RX_FILL_LEVEL_MAX)".
  *  @{
  */
@@ -241,8 +263,8 @@ extern "C" {
 
 
 /** 
- *  @defgroup UART_TxFIFOInterrupt  Tx FIFO Interrpt
- *  @brief    Available Transmit FIFO Interrupt Macro Definisiton.
+ *  @defgroup UART_TxFIFOInterrupt  Tx FIFO Interrupt
+ *  @brief    Available Transmit FIFO Interrupt Macro Definition.
  *  @{
  */
 #define UART_TX_FIFO_INT_DISABLE        ((uint32_t)0x00000000)    /*!< Not Available. */
@@ -253,8 +275,8 @@ extern "C" {
 
 
 /** 
- *  @defgroup UART_TxInterrupt  Tx Interrpt
- *  @brief    Available Transmit Interrupt Macro Definisiton.
+ *  @defgroup UART_TxInterrupt  Tx Interrupt
+ *  @brief    Available Transmit Interrupt Macro Definition.
  *  @{
  */
 #define UART_TX_INT_DISABLE             ((uint32_t)0x00000000)    /*!< Not Available. */
@@ -265,8 +287,8 @@ extern "C" {
 
 
 /** 
- *  @defgroup UART_RxFIFOInterrupt  Rx FIFO Interrpt
- *  @brief    Available Receive FIFO Interrupt Macro Definisiton.
+ *  @defgroup UART_RxFIFOInterrupt  Rx FIFO Interrupt
+ *  @brief    Available Receive FIFO Interrupt Macro Definition.
  *  @{
  */
 #define UART_RX_FIFO_INT_DISABLE        ((uint32_t)0x00000000)    /*!< Not Available. */
@@ -277,8 +299,8 @@ extern "C" {
 
 
 /** 
- *  @defgroup UART_RxInterrupt  Rx Interrpt
- *  @brief    Available Receive Interrupt Macro Definisiton.
+ *  @defgroup UART_RxInterrupt  Rx Interrupt
+ *  @brief    Available Receive Interrupt Macro Definition.
  *  @{
  */
 #define UART_RX_INT_DISABLE             ((uint32_t)0x00000000)    /*!< Not Available. */
@@ -290,7 +312,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_ErrorInterrupt  Error Interrupt
- *  @brief    Enable/Disable Error Interrupt Macro Definisiton.
+ *  @brief    Enable/Disable Error Interrupt Macro Definition.
  *  @{
  */
 #define UART_ERR_INT_DISABLE            ((uint32_t)0x00000000)    /*!< Disable */
@@ -302,7 +324,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_Prescaler  Prescaler
- *  @brief    Prescaler Macro Definisiton.
+ *  @brief    Prescaler Macro Definition.
  *  @{
  */
 #define UART_PLESCALER_1                ((uint32_t)0x00000000)    /*!< 1/1   */
@@ -322,7 +344,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_Clock_Mask  Clock Mask
- *  @brief    Clock Mask Macro Definisiton.
+ *  @brief    Clock Mask Macro Definition.
  *  @{
  */
 #define UART_UARTxCLK_MASK              ((uint32_t)0x00000000)    /*!< [1:0] is always 0 */
@@ -333,7 +355,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_Division  Division
- *  @brief    Enable/Disable Division Macro Definisiton.
+ *  @brief    Enable/Disable Division Macro Definition.
  *  @{
  */
 #define UART_DIVISION_DISABLE           ((uint32_t)0x00000000)    /*!< Disable */
@@ -345,7 +367,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_RangeK  Range K
- *  @brief    Range of K Macro Definisiton.
+ *  @brief    Range of K Macro Definition.
  *  @brief    Range of K be set "(UART_RANGE_K_MIN <= Value <= UART_RANGE_K_MAX)".
  *  @{
  */
@@ -358,7 +380,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_RangeN  Range N
- *  @brief    Range of N Macro Definisiton.
+ *  @brief    Range of N Macro Definition.
  *  @brief    Range of N be set "(UART_RANGE_N_MIN <= Value <= UART_RANGE_N_MAX)".
  *  @{
  */
@@ -371,7 +393,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_SettingEnable  Setting Enable
- *  @brief    Enable/Disable Setting Macro Definisiton.
+ *  @brief    Enable/Disable Setting Macro Definition.
  *  @{
  */
 #define UART_SETTING_MASK               ((uint32_t)0x80000000)    /*!< for Mask        */
@@ -384,7 +406,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_TxState  Tx State
- *  @brief    Transmitting State Macro Definisiton.
+ *  @brief    Transmitting State Macro Definition.
  *  @{
  */
 #define UART_TX_STATE_MASK              ((uint32_t)0x00008000)    /*!< for Mask  */
@@ -397,7 +419,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_TxDone   Transmitting Done
- *  @brief    Transmitting Done Macro Definisiton.
+ *  @brief    Transmitting Done Macro Definition.
  *  @{
  */
 #define UART_TX_MASK                    ((uint32_t)0x00004000)    /*!< for Mask          */
@@ -409,7 +431,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_TxReachFillLevel  Tx Reach Fill Level
- *  @brief    Reach Transmitting Fill Level Macro Definisiton.
+ *  @brief    Reach Transmitting Fill Level Macro Definition.
  *  @{
  */
 #define UART_TX_REACH_FILL_MASK         ((uint32_t)0x00002000)    /*!< for Mask                      */
@@ -421,7 +443,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_TxFifoLevel  Tx FIFO Fill Level
- *  @brief    Transmitting FIFO Fill Level Macro Definisiton.
+ *  @brief    Transmitting FIFO Fill Level Macro Definition.
  *  @{
  */
 #define UART_TX_FIFO_LEVEL_MASK         ((uint32_t)0x00000F00)    /*!< for Mask */
@@ -432,7 +454,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_RxState  Rx State
- *  @brief    Receive State Macro Definisiton.
+ *  @brief    Receive State Macro Definition.
  *  @{
  */
 #define UART_RX_STATE_MASK              ((uint32_t)0x00000080)    /*!< for Mask */
@@ -445,7 +467,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_RxDone  Rx Done
- *  @brief    Receive Done Macro Definisiton.
+ *  @brief    Receive Done Macro Definition.
  *  @{
  */
 #define UART_RX_MASK                    ((uint32_t)0x00000040)    /*!< for Mask     */
@@ -457,7 +479,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_RxReachFillLevel  Rx Reach Fill Level
- *  @brief    Reach Receive Fill Level Macro Definisiton.
+ *  @brief    Reach Receive Fill Level Macro Definition.
  *  @{
  */
 #define UART_RX_REACH_FILL_MASK         ((uint32_t)0x00000020)    /*!< for Mask                 */
@@ -469,7 +491,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_RxFifoLevel  Rx FIFO Fill Level
- *  @brief    Receive FIFO Fill Level Macro Definisiton.
+ *  @brief    Receive FIFO Fill Level Macro Definition.
  *  @{
  */
 #define UART_RX_FIFO_LEVEL_MASK         ((uint32_t)0x0000000F)    /*!< for Mask */
@@ -480,7 +502,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_TriggerErr  Trigger Error
- *  @brief    Trigger Error Macro Definisiton.
+ *  @brief    Trigger Error Macro Definition.
  *  @{
  */
 #define UART_TRIGGER_NO_ERR             ((uint32_t)0x00000000)    /*!< No Error */
@@ -492,7 +514,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_OverrunErr  Overrun Error
- *  @brief    Overrun Error Macro Definisiton.
+ *  @brief    Overrun Error Macro Definition.
  *  @{
  */
 #define UART_OVERRUN_NO_ERR             ((uint32_t)0x00000000)    /*!< No Error */
@@ -504,7 +526,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_ParityErr  Parity Error
- *  @brief    Parity Error Macro Definisiton.
+ *  @brief    Parity Error Macro Definition.
  *  @{
  */
 #define UART_PARITY_NO_ERR              ((uint32_t)0x00000000)    /*!< No Error */
@@ -516,7 +538,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_FramingErr  Framing Error
- *  @brief    Framing Error Macro Definisiton.
+ *  @brief    Framing Error Macro Definition.
  *  @{
  */
 #define UART_FRAMING_NO_ERR             ((uint32_t)0x00000000)    /*!< No Error */
@@ -528,7 +550,7 @@ extern "C" {
 
 /** 
  *  @defgroup UART_BreakErr  Break Error
- *  @brief    Break Error Macro Definisiton.
+ *  @brief    Break Error Macro Definition.
  *  @{
  */
 #define UART_BREAK_NO_ERR               ((uint32_t)0x00000000)    /*!< No Error */
@@ -565,8 +587,8 @@ extern "C" {
 
 /*----------------------------------*/
 /** 
- * @brief  Receive event information structure definenition.
- * @brief  When data length definenition is "7 or 8bit"( @ref UART_DataLength ), use this.
+ * @brief  Receive event information structure definition.
+ * @brief  When data length definition is "7 or 8bit"( @ref UART_DataLength ), use this.
  * @attention  "num" must be over FIFO max num.
 */
 /*----------------------------------*/
@@ -578,8 +600,8 @@ typedef struct
 
 /*----------------------------------*/
 /** 
- * @brief  Receive event information structure definenition.
- * @brief  When data length definenition is "9bit"( @ref UART_DataLength ), use this.
+ * @brief  Receive event information structure definition.
+ * @brief  When data length definition is "9bit"( @ref UART_DataLength ), use this.
 */
 /*----------------------------------*/
 typedef struct
@@ -590,7 +612,7 @@ typedef struct
 
 /*----------------------------------*/
 /** 
- * @brief  Receive event information structure definenition.
+ * @brief  Receive event information structure definition.
 */
 /*----------------------------------*/
 typedef union
@@ -601,8 +623,8 @@ typedef union
 
 /*----------------------------------*/
 /** 
- * @brief  Transmit data information structure definenition.
- * @brief  When data length definenition is "7 or 8bit"( @ref UART_DataLength ), use this.
+ * @brief  Transmit data information structure definition.
+ * @brief  When data length definition is "7 or 8bit"( @ref UART_DataLength ), use this.
 */
 /*----------------------------------*/
 typedef struct
@@ -613,8 +635,8 @@ typedef struct
 
 /*----------------------------------*/
 /** 
- * @brief  Transmit data information structure definenition.
- * @brief  When data length definenition is "9bit"( @ref UART_DataLength ), use this.
+ * @brief  Transmit data information structure definition.
+ * @brief  When data length definition is "9bit"( @ref UART_DataLength ), use this.
 */
 /*----------------------------------*/
 typedef struct
@@ -626,7 +648,7 @@ typedef struct
 
 /*----------------------------------*/
 /** 
- * @brief  Transmit data information structure definenition.
+ * @brief  Transmit data information structure definition.
 */
 /*----------------------------------*/
 typedef union
@@ -637,7 +659,7 @@ typedef union
 
 /*----------------------------------*/
 /** 
- * @brief  Clock setting structure definenition.
+ * @brief  Clock setting structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -648,12 +670,12 @@ typedef struct
 
 /*----------------------------------*/
 /** 
- * @brief  Boudrate setting structure definenition.
+ * @brief  Boudrate setting structure definition.
 */
 /*----------------------------------*/
 typedef struct
 {
-    uint32_t ken;        /*!< Enable/Disable Division Definisiton.
+    uint32_t ken;        /*!< Enable/Disable Division Definition.
                                 : Use @ref UART_Division */
     uint32_t brk;        /*!< Division Value K.
                                 : K Range ( UART_RANGE_K_MIN <= K =< UART_RANGE_K_MAX )   @ref UART_RangeK */
@@ -689,7 +711,7 @@ typedef struct
 
 /*----------------------------------*/
 /** 
- * @brief  Initial setting structure definenition.
+ * @brief  Initial setting structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -739,7 +761,7 @@ typedef struct
 
 /*----------------------------------*/
 /** 
- * @brief  UART handle structure definenition.
+ * @brief  UART handle structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -748,18 +770,18 @@ typedef struct
     uart_initial_setting_t init;            /*!< Initial setting.                  */
     /*------------------------------------------*/
     /*!
-        @brief Transmit Informatin.
+        @brief Transmit Information.
     */
     /*------------------------------------------*/
     struct
     {
-        uint32_t        rp;                 /*!< Num of transmited data.            */
+        uint32_t        rp;                 /*!< Num of transmitted data.            */
         uart_transmit_t info;               /*!< Transmit Data Information.         */
         void (*handler)(uint32_t id, TXZ_Result result); /*!< Transmit Event handler.            */
     } transmit;
     /*------------------------------------------*/
     /*!
-        @brief Receive Informatin.
+        @brief Receive Information.
     */
     /*------------------------------------------*/
     struct

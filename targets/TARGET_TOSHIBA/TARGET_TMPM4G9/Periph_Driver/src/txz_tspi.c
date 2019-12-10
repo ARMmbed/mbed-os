@@ -4,13 +4,34 @@
  * @brief   This file provides API functions for TSPI driver.
  * @version V1.0.0.0
  * $Date:: 2018-01-25 17:07:20 #$
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Copyright(C) 2019, Toshiba Electronic Device Solutions Corporation
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *   1. Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *   3. Neither the name of Nuvoton Technology Corp. nor the names of its contributors
+ *      may be used to endorse or promote products derived from this software
+ *      without specific prior written permission.
  * 
- * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LISENCE AGREEMENT.
- * 
- * (C)Copyright TOSHIBA MICROELECTRONICS CORPORATION 2017 All rights reserved
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-
 #ifdef __cplusplus
  extern "C" {
 #endif
@@ -315,7 +336,7 @@ __INLINE static int32_t check_param_transmit_master(uint32_t param)
 
     switch (param) 
     {
-        case TSPI_MASTER_OPEARTION:
+        case TSPI_MASTER_OPERATION:
         case TSPI_SLAVE_OPERATION:
             result = PARAM_OK;
             break;
@@ -398,7 +419,7 @@ __INLINE static int32_t check_param_frame_range(uint32_t param)
 {
     int32_t result = PARAM_NG;
 
-    if ((TSPI_TRANS_RANGE_SINGLE == param) || (param <= TSPI_TRANS_RANGE_MAX)){
+    if ((TSPI_TRANS_RANGE_CONTINUE == param) || (TSPI_TRANS_RANGE_SINGLE == param) || (param <= TSPI_TRANS_RANGE_MAX)){
         result = PARAM_OK;
     }
 
@@ -510,7 +531,6 @@ __INLINE static int32_t check_param_rx_fill_level(uint32_t param)
 
     switch (param) 
     {
-    case TSPI_RX_FILL_LEVEL_0:
     case TSPI_RX_FILL_LEVEL_1:
     case TSPI_RX_FILL_LEVEL_2:
     case TSPI_RX_FILL_LEVEL_3:
@@ -518,6 +538,7 @@ __INLINE static int32_t check_param_rx_fill_level(uint32_t param)
     case TSPI_RX_FILL_LEVEL_5:
     case TSPI_RX_FILL_LEVEL_6:
     case TSPI_RX_FILL_LEVEL_7:
+    case TSPI_RX_FILL_LEVEL_8:
         result = PARAM_OK;
         break;
     default:

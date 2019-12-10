@@ -4,10 +4,32 @@
  * @brief   This file provides all the functions prototypes for TSPI driver.
  * @version V1.0.0.3
  * $Date:: 2018-02-28 13:37:55 #$
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Copyright(C) 2019, Toshiba Electronic Device Solutions Corporation
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *   1. Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *   3. Neither the name of Nuvoton Technology Corp. nor the names of its contributors
+ *      may be used to endorse or promote products derived from this software
+ *      without specific prior written permission.
  * 
- * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LISENCE AGREEMENT.
- * 
- * (C)Copyright TOSHIBA MICROELECTRONICS CORPORATION 2017 All rights reserved
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
 /*------------------------------------------------------------------------------*/
@@ -81,8 +103,8 @@ extern "C" {
  *  @brief    Software Rest Macro Definition.
  *  @{
  */
-#define TSPI_RESET10                      ((uint32_t)0x00000080)    /*!< RESET Pattarn 10 */
-#define TSPI_RESET01                      ((uint32_t)0x00000040)    /*!< RESET Pattarn 01 */
+#define TSPI_RESET10                      ((uint32_t)0x00000080)    /*!< RESET Pattern 10 */
+#define TSPI_RESET01                      ((uint32_t)0x00000040)    /*!< RESET Pattern 01 */
 /**
  *  @}
  */ /* End of group TSPI_SW_Reset */
@@ -100,7 +122,7 @@ extern "C" {
  */ /* End of group TSPI_Enable */
 
 /** 
- *  @defgroup TSPI_Triger_Control Triger Control
+ *  @defgroup TSPI_Trigger_Control Trigger Control
  *  @brief    Enable/Disable TRGEN Macro Definition.
  *  @{
  */
@@ -124,7 +146,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_Transmission_Mode Transmission Mode
- *  @brief    TSPIIMS Mode Macro Definisiton.
+ *  @brief    TSPIIMS Mode Macro Definition.
  *  @{
  */
 #define TSPI_SPI_MODE                    ((uint32_t)0x00000000)    /*!< TSPI MODE  */
@@ -136,10 +158,10 @@ extern "C" {
 
 /**
  *  @defgroup TSPI_Operation_Select Operation Select
- *  @brief    Master/Slave MSTR Operation Macro Definisiton.
+ *  @brief    Master/Slave MSTR Operation Macro Definition.
  *  @{
  */
-#define TSPI_MASTER_OPEARTION            ((uint32_t)0x00001000)    /*!< MASTER MODE */
+#define TSPI_MASTER_OPERATION            ((uint32_t)0x00001000)    /*!< MASTER MODE */
 #define TSPI_SLAVE_OPERATION             ((uint32_t)0x00000000)    /*!< SLAVE MODE  */
 /**
  *  @}
@@ -148,7 +170,7 @@ extern "C" {
 
 /**
  *  @defgroup TSPI_Transfer_Mode Transfer Mode
- *  @brief    Transfer Mode TMMD Macro Definisiton.
+ *  @brief    Transfer Mode TMMD Macro Definition.
  *  @{
  */
 #define TSPI_TX_ONLY                     ((uint32_t)0x00000400)    /*!< SEND ONLY      */
@@ -162,7 +184,7 @@ extern "C" {
 
 /**
  *  @defgroup TSPI_CSSEL_Select CSSEL Select
- *  @brief    TSPIIxCS0/1/2/3 Select Macro Definisiton.
+ *  @brief    TSPIIxCS0/1/2/3 Select Macro Definition.
  *  @{
  */
 #define TSPI_TSPIxCS0_ENABLE             ((uint32_t)0x00000000)    /*!< TSPIIxCS0       */
@@ -175,17 +197,18 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_Transfer_Frame_Range  Transfer Frame Range
- *  @brief    Transfer Frame Range Macro Definisiton.
+ *  @brief    Transfer Frame Range Macro Definition.
  *  @{
  */
-#define TSPI_TRANS_RANGE_SINGLE          ((uint32_t)0x00000000)    /*!< Single Transfer Frame :0  */
+#define TSPI_TRANS_RANGE_CONTINUE        ((uint32_t)0x00000000)    /*!< Continue Transfer Frame :0  */
+#define TSPI_TRANS_RANGE_SINGLE          ((uint32_t)0x00000001)    /*!< Single Transfer Frame :1  */
 #define TSPI_TRANS_RANGE_MAX             ((uint32_t)0x000000FF)    /*!< Maximum Transfer Frame Value :=255 */
 /**
  *  @}
  */ /* End of group TSPI_Transfer_Frame_Range */
 /**
  *  @defgroup TSPI_IDLE_Output_value IDLE Output Value
- *  @brief    IDLE time Output Value TIDLE Macro Definisiton.
+ *  @brief    IDLE time Output Value TIDLE Macro Definition.
  *  @{
  */
 #define TSPI_TIDLE_Hiz                   ((uint32_t)0x00000000)    /*!< Hi-z           */
@@ -198,7 +221,7 @@ extern "C" {
 
 /**
  *  @defgroup TSPI_RXDLY_value RXDLY Value
- *  @brief    IDLE time Output Value TIDLE Macro Definisiton.
+ *  @brief    IDLE time Output Value TIDLE Macro Definition.
  *  @{
  */
 #define TSPI_RXDLY_SET		                 ((uint32_t)0x00010000)    /*!< RXDLY SET    	       */
@@ -209,7 +232,7 @@ extern "C" {
 
  /**
  *  @defgroup TSPI_Underrun_Output_value Underrun Occur Output Value
- *  @brief    In case of Under Run Output Value TXDEMP Macro Definisiton.
+ *  @brief    In case of Under Run Output Value TXDEMP Macro Definition.
  *  @{
  */
 #define TSPI_TXDEMP_LOW                   ((uint32_t)0x00000000)    /*!< Low            */
@@ -221,7 +244,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_TxFillLevel  Tx Fill Level
- *  @brief    Transmit Fill Level Macro Definisiton.
+ *  @brief    Transmit Fill Level Macro Definition.
  *  @{
  */
 #define TSPI_TX_FILL_LEVEL_0            ((uint32_t)0x00000000)    /*!< 0 */
@@ -240,10 +263,9 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_RxFillLevel  Rx Fill Level
- *  @brief    Receive Fill Level Macro Definisiton.
+ *  @brief    Receive Fill Level Macro Definition.
  *  @{
  */
-#define TSPI_RX_FILL_LEVEL_0            ((uint32_t)0x00000000)    /*!< 8 */
 #define TSPI_RX_FILL_LEVEL_1            ((uint32_t)0x00000100)    /*!< 1 */
 #define TSPI_RX_FILL_LEVEL_2            ((uint32_t)0x00000200)    /*!< 2 */
 #define TSPI_RX_FILL_LEVEL_3            ((uint32_t)0x00000300)    /*!< 3 */
@@ -251,15 +273,16 @@ extern "C" {
 #define TSPI_RX_FILL_LEVEL_5            ((uint32_t)0x00000500)    /*!< 5 */
 #define TSPI_RX_FILL_LEVEL_6            ((uint32_t)0x00000600)    /*!< 6 */
 #define TSPI_RX_FILL_LEVEL_7            ((uint32_t)0x00000700)    /*!< 7 */
-#define TSPI_RX_FILL_LEVEL_MASK         ((uint32_t)0x00000700)    /*!< MASK */
+#define TSPI_RX_FILL_LEVEL_8            ((uint32_t)0x00000800)    /*!< 8 */
+#define TSPI_RX_FILL_LEVEL_MASK         ((uint32_t)0x00000F00)    /*!< MASK */
 /**
  *  @}
  */ /* End of group TSPI_RxFillLevel */
 
 
 /** 
- *  @defgroup TSPI_TxFIFOInterrupt  Tx FIFO Interrpt
- *  @brief    Enable/Disable Transmit FIFO Interrupt Macro Definisiton.
+ *  @defgroup TSPI_TxFIFOInterrupt  Tx FIFO Interrupt
+ *  @brief    Enable/Disable Transmit FIFO Interrupt Macro Definition.
  *  @{
  */
 #define TSPI_TX_FIFO_INT_DISABLE        ((uint32_t)0x00000000)    /*!< Disable */
@@ -270,8 +293,8 @@ extern "C" {
 
 
 /** 
- *  @defgroup TSPI_TxInterrupt  Tx Interrpt
- *  @brief    Enable/Disable Transmit Interrupt Macro Definisiton.
+ *  @defgroup TSPI_TxInterrupt  Tx Interrupt
+ *  @brief    Enable/Disable Transmit Interrupt Macro Definition.
  *  @{
  */
 #define TSPI_TX_INT_DISABLE             ((uint32_t)0x00000000)    /*!< Disable */
@@ -282,8 +305,8 @@ extern "C" {
 
 
 /** 
- *  @defgroup TSPI_RxFIFOInterrupt  Rx FIFO Interrpt
- *  @brief    Enable/Disable Receive FIFO Interrupt Macro Definisiton.
+ *  @defgroup TSPI_RxFIFOInterrupt  Rx FIFO Interrupt
+ *  @brief    Enable/Disable Receive FIFO Interrupt Macro Definition.
  *  @{
  */
 #define TSPI_RX_FIFO_INT_DISABLE        ((uint32_t)0x00000000)    /*!< Disable */
@@ -294,8 +317,8 @@ extern "C" {
 
 
 /** 
- *  @defgroup TSPI_RxInterrupt  Rx Interrpt
- *  @brief    Enable/Disable Receive Interrupt Macro Definisiton.
+ *  @defgroup TSPI_RxInterrupt  Rx Interrupt
+ *  @brief    Enable/Disable Receive Interrupt Macro Definition.
  *  @{
  */
 #define TSPI_RX_INT_DISABLE             ((uint32_t)0x00000000)    /*!< Disable */
@@ -307,7 +330,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_ErrorInterrupt  Error Interrupt
- *  @brief    Enable/Disable Error Interrupt Macro Definisiton.
+ *  @brief    Enable/Disable Error Interrupt Macro Definition.
  *  @{
  */
 #define TSPI_ERR_INT_DISABLE            ((uint32_t)0x00000000)    /*!< Disable */
@@ -319,7 +342,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_TxDMAInterrupt  Tx DMA Interrupt
- *  @brief    Enable/Disable Transmit DMA Interrupt Macro Definisiton.
+ *  @brief    Enable/Disable Transmit DMA Interrupt Macro Definition.
  *  @{
  */
 #define TSPI_TX_DMA_INT_MASK            ((uint32_t)0x00000002)    /*!< Mask Data */
@@ -332,7 +355,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_RxDMAInterrupt  Rx DMA Interrupt
- *  @brief    Enable/Disable Receive DMA Interrupt Macro Definisiton.
+ *  @brief    Enable/Disable Receive DMA Interrupt Macro Definition.
  *  @{
  */
 #define TSPI_RX_DMA_INT_MASK            ((uint32_t)0x00000001)    /*!< Mask Data */
@@ -345,7 +368,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_Tx_Buffer_Clear  Tx Buffer Clear
- *  @brief    Tx Buffer Clear Macro Definisiton.
+ *  @brief    Tx Buffer Clear Macro Definition.
  *  @{
  */
 #define TSPI_TX_BUFF_CLR_DISABLE         ((uint32_t)0x00000000)    /*!< Disable */
@@ -357,7 +380,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_Rx_Buffer_Clear  Rx Buffer Clear
- *  @brief    Rx Buffer Clear Macro Definisiton.
+ *  @brief    Rx Buffer Clear Macro Definition.
  *  @{
  */
 #define TSPI_RX_BUFF_CLR_DISABLE         ((uint32_t)0x00000000)    /*!< Disable */
@@ -369,7 +392,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_Baudrate_Clock  Baudrate Input Clock
- *  @brief    Baudrate Input Clock Macro Definisiton.
+ *  @brief    Baudrate Input Clock Macro Definition.
  *  @{
  */
 #define TSPI_BR_CLOCK_0                 ((uint32_t)0x00000000)    /*!< T0    */
@@ -389,7 +412,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_Baudrate_Divider Baudrate Divider
- *  @brief    Baudrate IDivider Macro Definisiton.
+ *  @brief    Baudrate IDivider Macro Definition.
  *  @{
  */
 #define TSPI_BR_DIVIDER_16              ((uint32_t)0x00000000)    /*!< 1/16  */
@@ -415,7 +438,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_DataDirection  Data Direction
- *  @brief    Data Direction Macro Definisiton.
+ *  @brief    Data Direction Macro Definition.
  *  @{
  */
 #define TSPI_DATA_DIRECTION_LSB         ((uint32_t)0x00000000)    /*!< LSB first */
@@ -427,7 +450,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_DataLength  Data Length
- *  @brief    Data Length Macro Definisiton.
+ *  @brief    Data Length Macro Definition.
  *  @{
  */
 #define TSPI_DATA_LENGTH_8              ((uint32_t)0x08000000)    /*!< 8 bit  */
@@ -463,7 +486,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_Frame_Interval_Time  Frame Interval time
- *  @brief    Frame Interval time Macro Definisiton.
+ *  @brief    Frame Interval time Macro Definition.
  *  @{
  */
 #define TSPI_INTERVAL_TIME_0             ((uint32_t)0x00000000)    /*!< 0             */
@@ -489,7 +512,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_TSPIxCS3_Polarity  TSPIxCS3 Polarity
- *  @brief    TSPIxCS3 Polarity Macro Definisiton.
+ *  @brief    TSPIxCS3 Polarity Macro Definition.
  *  @{
  */
 #define TSPI_TSPIxCS3_NEGATIVE           ((uint32_t)0x00000000)    /*!< negative logic */
@@ -501,7 +524,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_TSPIxCS2_Polarity  TSPIxCS2 Polarity
- *  @brief    TSPIxCS2 Polarity Macro Definisiton.
+ *  @brief    TSPIxCS2 Polarity Macro Definition.
  *  @{
  */
 #define TSPI_TSPIxCS2_NEGATIVE           ((uint32_t)0x00000000)    /*!< negative logic */
@@ -513,7 +536,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_TSPIxCS1_Polarity  TSPIxCS1 Polarity
- *  @brief    TSPIxCS1 Polarity Macro Definisiton.
+ *  @brief    TSPIxCS1 Polarity Macro Definition.
  *  @{
  */
 #define TSPI_TSPIxCS1_NEGATIVE           ((uint32_t)0x00000000)    /*!< negative logic */
@@ -525,7 +548,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_TSPIxCS0_Polarity  TSPIxCS0 Polarity
- *  @brief    TSPIxCS0 Polarity Macro Definisiton.
+ *  @brief    TSPIxCS0 Polarity Macro Definition.
  *  @{
  */
 #define TSPI_TSPIxCS0_NEGATIVE           ((uint32_t)0x00000000)    /*!< negative logic */
@@ -537,7 +560,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_Serial_Clock_Polarity  Serial Clock Polarity
- *  @brief    Serial Clock Polarity Macro Definisiton.
+ *  @brief    Serial Clock Polarity Macro Definition.
  *  @{
  */
 #define TSPI_SERIAL_CK_1ST_EDGE          ((uint32_t)0x00000000)    /*!< 1st Edge Sampling */
@@ -549,7 +572,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_Serial_Clock_IDLE_Polarity  Serial Clock IDLE Polarity
- *  @brief    Serial Clock IDLE Polarity Macro Definisiton.
+ *  @brief    Serial Clock IDLE Polarity Macro Definition.
  *  @{
  */
 #define TSPI_SERIAL_CK_IDLE_LOW          ((uint32_t)0x00000000)    /*!< IDLE Term TSPII??SCK LOW */
@@ -561,7 +584,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_Minimum_IDLE_Time  Minimum IDLE Time
- *  @brief    Minimum IDLE Time Macro Definisiton.
+ *  @brief    Minimum IDLE Time Macro Definition.
  *  @{
  */
 #define TSPI_MIN_IDLE_TIME_1             ((uint32_t)0x00000400)    /*!< 1 x TSPIIxSCK  */
@@ -586,7 +609,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_Serial_Clock_Delay  Serial Clock Delay
- *  @brief    Serial Clock Delay Macro Definisiton.
+ *  @brief    Serial Clock Delay Macro Definition.
  *  @{
  */
 #define TSPI_SERIAL_CK_DELAY_1           ((uint32_t)0x00000000)    /*!< 1 x TSPIIxSCK  */
@@ -612,7 +635,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_Negate_Delay  Negate Delay
- *  @brief    Negate Delay Macro Definisiton.
+ *  @brief    Negate Delay Macro Definition.
  *  @{
  */
 #define TSPI_NEGATE_1                    ((uint32_t)0x00000000)    /*!< 1 x TSPIIxSCK  */
@@ -638,7 +661,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_ParityEnable  Parity Enable
- *  @brief    Enable/Disable Parity Macro Definisiton.
+ *  @brief    Enable/Disable Parity Macro Definition.
  *  @{
  */
 #define TSPI_PARITY_DISABLE             ((uint32_t)0x00000000)    /*!< Disable */
@@ -650,7 +673,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_ParityBit  Parity Bit
- *  @brief    Parity Bit Macro Definisiton.
+ *  @brief    Parity Bit Macro Definition.
  *  @{
  */
 #define TSPI_PARITY_BIT_ODD             ((uint32_t)0x00000000)    /*!< Odd Parity  */
@@ -662,7 +685,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_Status_Setting_flag  Status Setting Flag
- *  @brief    Enable/Disable Status Setting Flag Macro Definisiton.
+ *  @brief    Enable/Disable Status Setting Flag Macro Definition.
  *  @{
  */
 #define TSPI_STATUS_SETTING_ENABLE       ((uint32_t)0x00000000)    /*!< Setting Enable  */
@@ -674,7 +697,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_TxState  Transmitting State Flag
- *  @brief    Transmitting State Flag Macro Definisiton.
+ *  @brief    Transmitting State Flag Macro Definition.
  *  @{
  */
 #define TSPI_TX_FLAG_STOP                ((uint32_t)0x00000000)    /*!< Not Sending Data    */
@@ -687,7 +710,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_TxDone  Transmitting Complete Flag
- *  @brief    Transmitting Complete Flag Macro Definisiton.
+ *  @brief    Transmitting Complete Flag Macro Definition.
  *  @{
  */
 #define TSPI_TX_DONE_FLAG       ((uint32_t)0x00400000)    /*!< Send Data Complete Flag */
@@ -699,8 +722,8 @@ extern "C" {
 
 
 /** 
- *  @defgroup TSPI_TxFIFOInterruptFlag  Transmitting FIFO Interrpt Flag
- *  @brief    Transmitting FIFO Interrpt Flag Macro Definisiton.
+ *  @defgroup TSPI_TxFIFOInterruptFlag  Transmitting FIFO Interrupt Flag
+ *  @brief    Transmitting FIFO Interrupt Flag Macro Definition.
  *  @{
  */
 #define TSPI_TX_FIFO_INT_STOP            ((uint32_t)0x00000000)    /*!< Not active Interrupt */
@@ -712,7 +735,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_TxFIFOEmptyFlag  Transmitting FIFO Empty Flag
- *  @brief    Transmitting FIFO Empty Flag Macro Definisiton.
+ *  @brief    Transmitting FIFO Empty Flag Macro Definition.
  *  @{
  */
 #define TSPI_TX_FIFO_NOT_EMP            ((uint32_t)0x00000000)    /*!< Remain Data in FIFO  */
@@ -723,7 +746,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_TxReachFillLevel  Current Transmitting FIFO Level
- *  @brief    Current Transmitting FIFO Level Macro Definisiton.
+ *  @brief    Current Transmitting FIFO Level Macro Definition.
  *  @{
  */
 #define TSPI_TX_REACH_FILL_LEVEL_0       ((uint32_t)0x00000000)    /*!< 0 */
@@ -742,7 +765,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_RxState  Receive State Flag
- *  @brief    Receive State Flag Macro Definisiton.
+ *  @brief    Receive State Flag Macro Definition.
  *  @{
  */
 #define TSPI_RX_FLAG_STOP               ((uint32_t)0x00000000)    /*!< Not Sending Data    */
@@ -755,7 +778,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_RxDone  Receive Complete Flag
- *  @brief    Receive Complete Flag Macro Definisiton.
+ *  @brief    Receive Complete Flag Macro Definition.
  *  @{
  */
 #define TSPI_RX_DONE_FLAG       ((uint32_t)0x00000040)    /*!< Receive Data Complete Flag */
@@ -767,8 +790,8 @@ extern "C" {
 
 
 /** 
- *  @defgroup TSPI_RxFIFOInterruptFlag  Receiving FIFO Interrpt Flag
- *  @brief    Rx FIFO Interrpt Flag Macro Definisiton.
+ *  @defgroup TSPI_RxFIFOInterruptFlag  Receiving FIFO Interrupt Flag
+ *  @brief    Rx FIFO Interrupt Flag Macro Definition.
  *  @{
  */
 #define TSPI_RX_FIFO_INT_STOP            ((uint32_t)0x00000000)    /*!< Not active Interrupt */
@@ -780,7 +803,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_RxFIFOFullFlag  Receiving FIFO Full Flag
- *  @brief    Receiving FIFO Full Flag Macro Definisiton.
+ *  @brief    Receiving FIFO Full Flag Macro Definition.
  *  @{
  */
 #define TSPI_RX_FIFO_NOT_FULL           ((uint32_t)0x00000000)    /*!< Remain Data in FIFO  */
@@ -792,7 +815,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_RxReachFillLevel  Current Receive FIFO Level
- *  @brief    Current Receive FIFO Level Macro Definisiton.
+ *  @brief    Current Receive FIFO Level Macro Definition.
  *  @{
  */
 #define TSPI_RX_REACH_FILL_LEVEL_0       ((uint32_t)0x00000000)    /*!< 0 */
@@ -810,8 +833,8 @@ extern "C" {
 
 
 /** 
- *  @defgroup TSPI_TRGErr  Triger Error
- *  @brief    Triger Error Macro Definisiton.
+ *  @defgroup TSPI_TRGErr  Trigger Error
+ *  @brief    Trigger Error Macro Definition.
  *  @{
  */
 #define TSPI_TRGERR_NO_ERR             ((uint32_t)0x00000000)    /*!< No Error */
@@ -823,7 +846,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_UnderrunErr  Underrun Error
- *  @brief    Underrun Error Macro Definisiton.
+ *  @brief    Underrun Error Macro Definition.
  *  @{
  */
 #define TSPI_UNDERRUN_NO_ERR             ((uint32_t)0x00000000)    /*!< No Error */
@@ -835,7 +858,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_OverrunErr  Overrun Error
- *  @brief    Overrun Error Macro Definisiton.
+ *  @brief    Overrun Error Macro Definition.
  *  @{
  */
 #define TSPI_OVERRUN_NO_ERR             ((uint32_t)0x00000000)    /*!< No Error */
@@ -848,7 +871,7 @@ extern "C" {
 
 /** 
  *  @defgroup TSPI_ParityErr  Parity Error
- *  @brief    Parity Error Macro Definisiton.
+ *  @brief    Parity Error Macro Definition.
  *  @{
  */
 #define TSPI_PARITY_NO_ERR              ((uint32_t)0x00000000)    /*!< No Error */
@@ -860,7 +883,7 @@ extern "C" {
  
  /** 
  *  @defgroup TSPI_Data_allign  Data allign
- *  @brief   Data allign Macro Definisiton.
+ *  @brief   Data allign Macro Definition.
  *  @{
  */
 #define TSPI_DATA_ALLIGN_8            ((uint32_t)0x00000000)    /*!< Data length byte */
@@ -882,7 +905,7 @@ extern "C" {
 
  /** 
  *  @defgroup TSPI_ErrCode  Error Code
- *  @brief    Error Code  Macro Definisiton.
+ *  @brief    Error Code  Macro Definition.
  *  @{
  */
 #define NOERROR        ((uint32_t)0x00000000)              /*!< no error */
@@ -902,7 +925,7 @@ extern "C" {
  
  /** 
  *  @defgroup TSPI_Buffer_Size  Receive Buffer size
- *  @brief    Error Code  Macro Definisiton.
+ *  @brief    Error Code  Macro Definition.
  *  @{
  */
 #define BUFFSIZE        ((uint32_t)0x000000010   /*!< Buffer Size */
@@ -934,8 +957,8 @@ extern "C" {
 /*----------------------------------*/
 /** 
  * @struct tspi_receive8_t
- * @brief  Receive event information structure definenition.
- * @brief  When data length definenition is "8bit"( @ref TSPI_DataLength ), use this.
+ * @brief  Receive event information structure definition.
+ * @brief  When data length definition is "8bit"( @ref TSPI_DataLength ), use this.
 */
 /*----------------------------------*/
 typedef struct
@@ -947,8 +970,8 @@ typedef struct
 /*----------------------------------*/
 /** 
  * @struct tspi_receive16_t
- * @brief  Receive event information structure definenition.
- * @brief  When data length definenition is "9 - 16 bit"( @ref TSPI_DataLength ), use this.
+ * @brief  Receive event information structure definition.
+ * @brief  When data length definition is "9 - 16 bit"( @ref TSPI_DataLength ), use this.
 */
 /*----------------------------------*/
 typedef struct
@@ -959,8 +982,8 @@ typedef struct
 
 /** 
  * @struct tspi_receive32_t
- * @brief  Receive event information structure definenition.
- * @brief  When data length definenition is "17 - 32 bit"( @ref TSPI_DataLength ), use this.
+ * @brief  Receive event information structure definition.
+ * @brief  When data length definition is "17 - 32 bit"( @ref TSPI_DataLength ), use this.
 */
 /*----------------------------------*/
 typedef struct
@@ -972,7 +995,7 @@ typedef struct
 /*----------------------------------*/
 /** 
  * @struct tspi_receive_t
- * @brief  Receive event information structure definenition.
+ * @brief  Receive event information structure definition.
 */
 /*----------------------------------*/
 typedef union
@@ -985,8 +1008,8 @@ typedef union
 /*----------------------------------*/
 /** 
  * @struct tspi_transmit8_t
- * @brief  Transmit data information structure definenition.
- * @brief  When data length definenition is "8bit"( @ref TSPI_DataLength ), use this.
+ * @brief  Transmit data information structure definition.
+ * @brief  When data length definition is "8bit"( @ref TSPI_DataLength ), use this.
 */
 /*----------------------------------*/
 typedef struct
@@ -998,8 +1021,8 @@ typedef struct
 /*----------------------------------*/
 /** 
  * @struct tspi_transmit16_t
- * @brief  Transmit data information structure definenition.
- * @brief  When data length definenition is "9 - 16 bit"( @ref TSPI_DataLength ), use this.
+ * @brief  Transmit data information structure definition.
+ * @brief  When data length definition is "9 - 16 bit"( @ref TSPI_DataLength ), use this.
 */
 /*----------------------------------*/
 typedef struct
@@ -1010,8 +1033,8 @@ typedef struct
 /*----------------------------------*/
 /** 
  * @struct tspi_transmit32_t
- * @brief  Transmit data information structure definenition.
- * @brief  When data length definenition is "17 - 32 bit"( @ref TSPI_DataLength ), use this.
+ * @brief  Transmit data information structure definition.
+ * @brief  When data length definition is "17 - 32 bit"( @ref TSPI_DataLength ), use this.
 */
 /*----------------------------------*/
 typedef struct
@@ -1023,7 +1046,7 @@ typedef struct
 /*----------------------------------*/
 /** 
  * @struct tspi_transmit_t
- * @brief  Transmit data information structure definenition.
+ * @brief  Transmit data information structure definition.
 */
 /*----------------------------------*/
 typedef union
@@ -1036,13 +1059,13 @@ typedef union
 /*----------------------------------*/
 /** 
  * @struct tspi_control1_t
- * @brief  Control Setting structure definenition.
+ * @brief  Control Setting structure definition.
 */
 /*----------------------------------*/
 typedef struct
 {
-    uint32_t trgen;     /*!< TRGEN Transmission Triger Control.
-                                : Use @ref TSPI_Triger_Control */
+    uint32_t trgen;     /*!< TRGEN Transmission Trigger Control.
+                                : Use @ref TSPI_Trigger_Control */
     uint32_t trxe;      /*!< TRXE Transmission Control.
                                 : Use @ref TSPI_Transmission_Control */
     uint32_t tspims;    /*!< TSPI/SIO Transmission Mode. 
@@ -1054,13 +1077,13 @@ typedef struct
     uint32_t cssel;     /*!< CSSEL Select. 
                                 : Use @ref TSPI_CSSEL_Select         */
     uint32_t fc;        /*!< Transfer Frame Value.
-                                : Range ( TSPI_TRANS_RANGE_SINGLE <= N =< TSPI_TRANS_RANGE_MAX )   @ref TSPI_Transfer_Frame_Range */
+                                : Range ( TSPI_TRANS_RANGE_CONTINUE <= N =< TSPI_TRANS_RANGE_MAX )   @ref TSPI_Transfer_Frame_Range */
 } tspi_control1_t;
 
 /*----------------------------------*/
 /** 
  * @struct tspi_control2_t
- * @brief  Control Setting structure definenition.
+ * @brief  Control Setting structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -1094,7 +1117,7 @@ typedef struct
 /*----------------------------------*/
 /** 
  * @struct tspi_control3_t
- * @brief  Control Setting structure definenition.
+ * @brief  Control Setting structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -1108,7 +1131,7 @@ typedef struct
 /*----------------------------------*/
 /** 
  * @struct tspi_baudrate_t
- * @brief  Clock setting structure definenition.
+ * @brief  Clock setting structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -1161,7 +1184,7 @@ typedef struct
 /*----------------------------------*/
 typedef struct
 {
-    uint32_t reserved;   /*!< SIO Slave MOde.
+    uint32_t reserved;   /*!< SIO Slave Mode.
                                 :               */
     uint32_t vpe;        /*!< Enable/Disable Parity Function.
                                 : Use @ref TSPI_ParityEnable */
@@ -1183,7 +1206,7 @@ typedef struct
                                 : Use @ref TSPI_TxState                     */
     uint32_t txend;     /*!< Tx Data Send Complete Flag.
                                 : Use @ref TSPI_TxDone                      */
-    uint32_t inttxwf;   /*!< Tx FIFO Interrpt Flag.
+    uint32_t inttxwf;   /*!< Tx FIFO Interrupt Flag.
                                 : Use @ref TSPI_TxFIFOInterruptFlag         */
     uint32_t tfemp;     /*!< Tx FIFO Empty Flag.
                                 : Use @ref TSPI_TxFIFOEmptyFlag             */
@@ -1193,7 +1216,7 @@ typedef struct
                                 : Use @ref TSPI_RxState                     */
     uint32_t rxend;     /*!< Rx Data Receive Complete Flag.
                                 : Use @ref TSPI_RxDone                      */
-    uint32_t intrxff;   /*!< Rx FIFO Interrpt Flag
+    uint32_t intrxff;   /*!< Rx FIFO Interrupt Flag
                                 : Use @ref TSPI_RxFIFOInterruptFlag         */
     uint32_t rffll;     /*!< Rx FIFO Full Flag
                                 : Use @ref TSPI_RxFIFOFullFlag              */
@@ -1221,7 +1244,7 @@ typedef struct
 /*----------------------------------*/
 /** 
  * @struct tspi_initial_setting_t
- * @brief  Initial setting structure definenition.
+ * @brief  Initial setting structure definition.
 */
 /*----------------------------------*/
 typedef struct
@@ -1243,7 +1266,7 @@ typedef struct
 
 /*----------------------------------*/
 /** 
- * @brief  TSPI handle structure definenition.
+ * @brief  TSPI handle structure definition.
 */
 /*----------------------------------*/
 typedef struct tspi_handle
@@ -1253,19 +1276,19 @@ typedef struct tspi_handle
     uint32_t errcode;                       /*!< ErrorCode                         */
     /*------------------------------------------*/
     /*!
-        @brief Transmit Informatin.
+        @brief Transmit Information.
     */
     /*------------------------------------------*/
     struct
     {
-        uint32_t        rp;                                         /*!< Num of transmited data.            */
+        uint32_t        rp;                                         /*!< Num of transmitted data.            */
         tspi_transmit_t info;                                       /*!< Transmit Data Information.         */
         uint8_t tx_allign;                                          /*!< Transmit Data length Information.  */
         void (*handler)(uint32_t id, TXZ_Result result); /*!< Transmit Event handler.            */
     } transmit;
     /*------------------------------------------*/
     /*!
-        @brief Receive Informatin.
+        @brief Receive Information.
     */
     /*------------------------------------------*/
     struct

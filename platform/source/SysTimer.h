@@ -57,7 +57,7 @@ public:
 
     SysTimer(const ticker_data_t *data);
 
-    ~SysTimer();
+    virtual ~SysTimer();
 
     /**
      * Get the interrupt number for the tick
