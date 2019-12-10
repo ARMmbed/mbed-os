@@ -34,12 +34,12 @@
 // and Watchdog_counter_reload_value bits (RL) of Reload_register (IWDG_RLR)
 // to a timeout value [ms].
 #define PR_RL2UINT64_TIMEOUT_MS(PR_BITS, RL_BITS) \
-	((PR2PRESCALER_DIV(PR_BITS)) * (RL_BITS) * 1000ULL / (LSI_VALUE))
+    ((PR2PRESCALER_DIV(PR_BITS)) * (RL_BITS) * 1000ULL / (LSI_VALUE))
 
 // Convert Prescaler_divider bits (PR) of Prescaler_register (IWDG_PR) and a timeout value [ms]
 // to Watchdog_counter_reload_value bits (RL) of Reload_register (IWDG_RLR)
 #define PR_TIMEOUT_MS2RL(PR_BITS, TIMEOUT_MS) \
-	(((TIMEOUT_MS) * (LSI_VALUE) / (PR2PRESCALER_DIV(PR_BITS)) + 999UL) / 1000UL)
+    (((TIMEOUT_MS) * (LSI_VALUE) / (PR2PRESCALER_DIV(PR_BITS)) + 999UL) / 1000UL)
 
 #define MAX_TIMEOUT_MS_UINT64 PR_RL2UINT64_TIMEOUT_MS(MAX_IWDG_PR, MAX_IWDG_RL)
 #if (MAX_TIMEOUT_MS_UINT64 > UINT32_MAX)
@@ -51,7 +51,8 @@
 #define INVALID_IWDG_PR ((MAX_IWDG_PR) + 1) // Arbitrary value used to mark an invalid PR bits value.
 
 // Pick a minimal Prescaler_divider bits (PR) value suitable for given timeout.
-static uint8_t pick_min_iwdg_pr(const uint32_t timeout_ms) {
+static uint8_t pick_min_iwdg_pr(const uint32_t timeout_ms)
+{
     for (uint8_t pr = 0; pr <= MAX_IWDG_PR; pr++) {
         // Check that max timeout for given pr is greater than
         // or equal to timeout_ms.
@@ -72,16 +73,15 @@ watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
     }
     const uint32_t rl = PR_TIMEOUT_MS2RL(pr, config->timeout_ms);
 
-  IwdgHandle.Instance = IWDG;
+    IwdgHandle.Instance = IWDG;
 
-  IwdgHandle.Init.Prescaler = pr;
-  IwdgHandle.Init.Reload    = rl;
+    IwdgHandle.Init.Prescaler = pr;
+    IwdgHandle.Init.Reload    = rl;
 #if defined IWDG_WINR_WIN
-  IwdgHandle.Init.Window = IWDG_WINDOW_DISABLE;
+    IwdgHandle.Init.Window = IWDG_WINDOW_DISABLE;
 #endif
 
-    if (HAL_IWDG_Init(&IwdgHandle) != HAL_OK)
-    {
+    if (HAL_IWDG_Init(&IwdgHandle) != HAL_OK) {
         error("HAL_IWDG_Init error\n");
     }
 
@@ -123,7 +123,7 @@ watchdog_features_t hal_watchdog_get_platform_features(void)
     features.max_timeout = MAX_TIMEOUT_MS;
     features.update_config = true;
     features.disable_watchdog = false;
-    
+
     /*  STM32 IWDG (Independent Watchdog) is clocked by its own dedicated low-speed clock (LSI) */
     features.clock_typical_frequency = LSI_VALUE;
 
@@ -139,7 +139,7 @@ watchdog_features_t hal_watchdog_get_platform_features(void)
 #elif defined(STM32H7) || defined(STM32L4) || defined(STM32WB)
     features.clock_max_frequency = 33600;
 #else
-#error "unsupported target"    
+#error "unsupported target"
 #endif
 
     return features;

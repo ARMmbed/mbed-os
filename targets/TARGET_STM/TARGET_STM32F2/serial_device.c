@@ -254,7 +254,7 @@ void serial_clear(serial_t *obj)
     UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
 
     /* Clear RXNE and error flags */
-    volatile uint32_t tmpval __attribute__((unused)) = huart->Instance->DR; 
+    volatile uint32_t tmpval __attribute__((unused)) = huart->Instance->DR;
     HAL_UART_ErrorCallback(huart);
 }
 
