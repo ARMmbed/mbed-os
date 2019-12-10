@@ -38,3 +38,9 @@ set(unittest-test-sources
 
 )
 
+set(unittest-test-flags
+  -DMBED_CONF_LORA_TX_MAX_SIZE=255
+  -DMBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH=5
+  -DMBED_CONF_LORA_UPLINK_PREAMBLE_LENGTH=8
+)
+

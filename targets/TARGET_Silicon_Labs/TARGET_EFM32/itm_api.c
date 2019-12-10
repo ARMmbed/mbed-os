@@ -19,6 +19,7 @@
 #include "hal/itm_api.h"
 #include "cmsis.h"
 #include "em_cmu.h"
+#include "device_peripherals.h"
 
 #include <stdbool.h>
 
@@ -40,26 +41,18 @@ static void setupSWOForPrint(void)
     GPIO->ROUTEPEN |= GPIO_ROUTEPEN_SWVPEN;
 #endif
 #endif
-  
-#if defined(_EFM32_GIANT_FAMILY) || defined(_EFM32_LEOPARD_FAMILY) || defined(_EFM32_WONDER_FAMILY) || defined(_EFM32_PEARL_FAMILY)
-    // Set location 0
-#if defined( _GPIO_ROUTE_SWOPEN_MASK )
-    GPIO->ROUTE = (GPIO->ROUTE & ~(_GPIO_ROUTE_SWLOCATION_MASK)) | GPIO_ROUTE_SWLOCATION_LOC0;
-#elif defined( _GPIO_ROUTEPEN_SWVPEN_MASK )
-    GPIO->ROUTELOC0 = (GPIO->ROUTELOC0 & ~(_GPIO_ROUTELOC0_SWVLOC_MASK)) | GPIO_ROUTELOC0_SWVLOC_LOC0;
+
+#if defined(_GPIO_ROUTE_MASK)
+    #define SWO_ROUTE ROUTE
+#endif
+#if defined(_GPIO_ROUTELOC0_MASK)
+    #define SWO_ROUTE ROUTELOC0
 #endif
 
-    // Enable output on pin - GPIO Port F, Pin 2
-    GPIO->P[5].MODEL &= ~(_GPIO_P_MODEL_MODE2_MASK);
-    GPIO->P[5].MODEL |= GPIO_P_MODEL_MODE2_PUSHPULL;
-#else
-    // Set location 1
-    GPIO->ROUTE = (GPIO->ROUTE & ~(_GPIO_ROUTE_SWLOCATION_MASK)) | GPIO_ROUTE_SWLOCATION_LOC1;
-
+    // Set SWO location
+    GPIO->SWO_ROUTE = SWO_LOCATION;
     // Enable output on pin
-    GPIO->P[2].MODEH &= ~(_GPIO_P_MODEH_MODE15_MASK);
-    GPIO->P[2].MODEH |= GPIO_P_MODEH_MODE15_PUSHPULL;
-#endif
+    GPIO->P[GPIO_PORT].SWO_MODE = SWO_ENABLE_OUTPUT_PIN;
   
     // Enable debug clock AUXHFRCO
     CMU->OSCENCMD = CMU_OSCENCMD_AUXHFRCOEN;

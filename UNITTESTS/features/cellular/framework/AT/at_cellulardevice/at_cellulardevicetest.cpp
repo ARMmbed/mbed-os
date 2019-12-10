@@ -18,7 +18,7 @@
 #include <string.h>
 #include "AT_CellularDevice.h"
 #include "ATHandler_stub.h"
-#include "AT_CellularBase_stub.h"
+#include "AT_CellularDevice_stub.h"
 
 using namespace mbed;
 using namespace events;
@@ -70,7 +70,6 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_get_at_handler)
     EXPECT_TRUE(dev.open_network(&fh1)); // AT fh1 ref count 2
     dev.modem_debug_on(true);
     EXPECT_TRUE(dev.open_sms(&fh2));
-    AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
     EXPECT_TRUE(dev.open_information(&fh3));
     ATHandler_stub::fh_value = &fh1;
 
@@ -132,7 +131,6 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_network)
     AT_CellularDevice dev(&fh1);
 
     EXPECT_TRUE(dev.open_network(&fh1));
-    AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
     EXPECT_EQ(ATHandler_stub::ref_count, 1);
 
     dev.close_network();
@@ -144,7 +142,6 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_sms)
     AT_CellularDevice dev(&fh1);
 
     EXPECT_TRUE(dev.open_sms(&fh1));
-    AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
     EXPECT_EQ(ATHandler_stub::ref_count, 1);
 
     dev.close_sms();
@@ -159,16 +156,11 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_information)
     EXPECT_TRUE(dev.open_information(&fh1));
 
     ATHandler_stub::fh_value = NULL;
-    AT_CellularBase_stub::handler_value = NULL;
     dev.close_information();
 
-    EventQueue que;
     ATHandler_stub::fh_value = &fh1;
-    ATHandler at(&fh1, que, 0, ",");
-    AT_CellularBase_stub::handler_value = &at;
 
     EXPECT_TRUE(dev.open_information(&fh1));
-    AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
 
     dev.close_information();
 

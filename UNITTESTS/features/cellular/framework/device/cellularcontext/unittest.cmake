@@ -33,8 +33,8 @@ set(unittest-test-sources
   stubs/SerialBase_stub.cpp
   stubs/ATHandler_stub.cpp
   stubs/AT_CellularNetwork_stub.cpp
-  stubs/AT_CellularBase_stub.cpp
   stubs/AT_CellularContext_stub.cpp
+  stubs/AT_CellularDevice_stub.cpp
   stubs/Semaphore_stub.cpp
   stubs/NetworkInterface_stub.cpp
   stubs/NetworkInterfaceDefaults_stub.cpp
@@ -45,6 +45,16 @@ set(unittest-test-sources
   stubs/Mutex_stub.cpp
 )
 
-# defines
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMDMRTS=PTC0 -DMDMCTS=PTC1 -DMDMTXD=NC -DMDMRXD=NC -DMBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE=115200 -DCELLULAR_DEVICE=myCellularDevice -DDEVICE_SERIAL_FC=1 -DMBED_CONF_CELLULAR_CONTROL_PLANE_OPT=0")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMDMRTS=PTC0 -DMDMCTS=PTC1 -DMDMTXD=NC -DMDMRXD=NC -DMBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE=115200 -DCELLULAR_DEVICE=myCellularDevice -DDEVICE_SERIAL_FC=1 -DMBED_CONF_CELLULAR_CONTROL_PLANE_OPT=0")
+set(unittest-test-flags
+  -DMDMRTS=PTC0
+  -DMDMCTS=PTC1
+  -DMDMTXD=NC
+  -DMDMRXD=NC
+  -DMBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE=115200
+  -DCELLULAR_DEVICE=myCellularDevice
+  -DDEVICE_SERIAL_FC=1
+  -DMBED_CONF_CELLULAR_CONTROL_PLANE_OPT=0
+  -DDEVICE_SERIAL=1
+  -DDEVICE_INTERRUPTIN=1
+  -DMBED_CONF_CELLULAR_USE_SMS=1
+)

@@ -22,7 +22,7 @@ using namespace mbed;
 using namespace events;
 
 #ifdef UBX_MDM_SARA_R41XM
-static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     AT_CellularNetwork::RegistrationModeDisable,// C_EREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_REG
@@ -40,7 +40,7 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
     1,  // PROPERTY_AT_CGEREP
 };
 #elif defined(UBX_MDM_SARA_U2XX) || defined(UBX_MDM_SARA_G3XX)
-static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     AT_CellularNetwork::RegistrationModeDisable,// C_EREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_REG
@@ -62,7 +62,7 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
     1,  // PROPERTY_AT_CGEREP
 };
 #else
-static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     0,  // C_EREG
     0,  // C_GREG
     0,  // C_REG
@@ -83,7 +83,7 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
 
 UBLOX_PPP::UBLOX_PPP(FileHandle *fh) : AT_CellularDevice(fh)
 {
-    AT_CellularBase::set_cellular_properties(cellular_properties);
+    set_cellular_properties(cellular_properties);
 }
 
 #if MBED_CONF_UBLOX_PPP_PROVIDE_DEFAULT

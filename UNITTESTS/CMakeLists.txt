@@ -158,6 +158,7 @@ foreach(testfile ${unittest-file-list})
   set(unittest-includes ${unittest-includes-base})
   set(unittest-sources)
   set(unittest-test-sources)
+  set(unittest-test-flags)
 
   # Get source files
   include("${testfile}")
@@ -184,6 +185,8 @@ foreach(testfile ${unittest-file-list})
     add_library("${TEST_SUITE_NAME}.${LIB_NAME}" STATIC ${unittest-sources})
     target_include_directories("${TEST_SUITE_NAME}.${LIB_NAME}" PRIVATE
       ${unittest-includes})
+    target_compile_options("${TEST_SUITE_NAME}.${LIB_NAME}" PRIVATE
+      ${unittest-test-flags})
     set(LIBS_TO_BE_LINKED ${LIBS_TO_BE_LINKED} "${TEST_SUITE_NAME}.${LIB_NAME}")
 
     # Append lib build directory to list
@@ -195,6 +198,8 @@ foreach(testfile ${unittest-file-list})
     add_executable(${TEST_SUITE_NAME} ${unittest-test-sources})
     target_include_directories(${TEST_SUITE_NAME} PRIVATE
       ${unittest-includes})
+    target_compile_options(${TEST_SUITE_NAME} PRIVATE
+      ${unittest-test-flags})
 
     # Link the executable with the libraries.
     target_link_libraries(${TEST_SUITE_NAME} ${LIBS_TO_BE_LINKED})

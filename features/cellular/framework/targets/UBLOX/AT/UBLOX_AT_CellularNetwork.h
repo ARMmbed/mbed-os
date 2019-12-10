@@ -28,7 +28,7 @@ namespace mbed {
 
 class UBLOX_AT_CellularNetwork : public AT_CellularNetwork {
 public:
-    UBLOX_AT_CellularNetwork(ATHandler &atHandler);
+    UBLOX_AT_CellularNetwork(ATHandler &atHandler, AT_CellularDevice &device);
     virtual ~UBLOX_AT_CellularNetwork();
 
     nsapi_error_t ubx_reboot();

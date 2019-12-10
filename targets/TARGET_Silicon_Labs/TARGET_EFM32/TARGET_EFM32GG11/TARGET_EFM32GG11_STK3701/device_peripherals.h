@@ -33,6 +33,25 @@
 #define PWM_TIMER_CLOCK  cmuClock_TIMER1
 #define PWM_ROUTE        TIMER_ROUTE_LOCATION_LOC1
 
+/* Set SWO location */
+#if DEVICE_ITM
+/* Set location 0 */
+    #define SWO_LOCATION (GPIO->SWO_ROUTE & ~_GPIO_ROUTELOC0_SWVLOC_MASK) | GPIO_ROUTELOC0_SWVLOC_LOC0
+/* Enable output on pin */
+    #define GPIO_PORT 5 // GPIO port number (A = 0, B = 1, ...)
+    #define SWO_MODE MODEL
+    #define SWO_ENABLE_OUTPUT_PIN (GPIO->P[GPIO_PORT].SWO_MODE & ~_GPIO_P_MODEL_MODE2_MASK) | GPIO_P_MODEL_MODE2_PUSHPULL
+
+/* Set location 1 */
+/*
+    #define SWO_LOCATION (GPIO->SWO_ROUTE & ~_GPIO_ROUTELOC0_SWVLOC_MASK) | GPIO_ROUTELOC0_SWVLOC_LOC1
+// Enable output on pin 
+    #define GPIO_PORT 2 // GPIO port number (A = 0, B = 1, ...)
+    #define SWO_MODE MODEH
+    #define SWO_ENABLE_OUTPUT_PIN (GPIO->P[GPIO_PORT].SWO_MODE & ~_GPIO_P_MODEH_MODE15_MASK) | GPIO_P_MODEH_MODE15_PUSHPULL
+*/
+#endif
+
 /* Crystal calibration */
 #if !defined(CMU_HFXOINIT_STK_DEFAULT)
 #define CMU_HFXOINIT_STK_DEFAULT                   \

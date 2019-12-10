@@ -21,7 +21,6 @@ set(unittest-sources
 set(unittest-test-sources
   features/cellular/framework/AT/at_cellularcontext/at_cellularcontexttest.cpp
   stubs/ATHandler_stub.cpp
-  stubs/AT_CellularBase_stub.cpp
   stubs/AT_CellularDevice_stub.cpp
   stubs/AT_CellularStack_stub.cpp
   stubs/AT_CellularNetwork_stub.cpp
@@ -44,4 +43,11 @@ set(unittest-test-sources
   stubs/SocketAddress_stub.cpp
   stubs/ConditionVariable_stub.cpp
   stubs/Mutex_stub.cpp
+)
+
+set(unittest-test-flags
+  -DDEVICE_SERIAL=1
+  -DDEVICE_INTERRUPTIN=1
+  -DMBED_CONF_CELLULAR_USE_SMS=1
+  -DMBED_CONF_NSAPI_DEFAULT_CELLULAR_APN=NULL
 )

@@ -17,12 +17,13 @@ set(unittest-sources
 
 # Test files
 set(unittest-test-sources
-  drivers/Watchdog/test_watchdog.cpp  
-  stubs/mbed_critical_stub.c  
+  drivers/Watchdog/test_watchdog.cpp
+  stubs/mbed_critical_stub.c
   stubs/mbed_assert_stub.cpp
   stubs/watchdog_api_stub.c
 )
 
-# defines
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DDEVICE_WATCHDOG -DMBED_WDOG_ASSERT=1")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEVICE_WATCHDOG -DMBED_WDOG_ASSERT=1")
+set(unittest-test-flags
+  -DDEVICE_WATCHDOG
+  -DMBED_WDOG_ASSERT=1
+)

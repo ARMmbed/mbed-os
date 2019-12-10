@@ -19,7 +19,7 @@
 
 namespace mbed {
 
-GEMALTO_CINTERION_CellularInformation::GEMALTO_CINTERION_CellularInformation(ATHandler &at) : AT_CellularInformation(at)
+GEMALTO_CINTERION_CellularInformation::GEMALTO_CINTERION_CellularInformation(ATHandler &at, AT_CellularDevice &device) : AT_CellularInformation(at, device)
 {
 }
 

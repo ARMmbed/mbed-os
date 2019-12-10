@@ -61,7 +61,7 @@ static void _sigio_handler()
     signals.set(SIGNAL_SIGIO_RX | SIGNAL_SIGIO_TX);
 }
 
-void UDPSOCKET_ECHOTEST()
+void UDPSOCKET_ECHOTEST_impl(bool use_sendto)
 {
     SocketAddress udp_addr;
     SocketAddress recv_addr;
@@ -70,6 +70,10 @@ void UDPSOCKET_ECHOTEST()
 
     UDPSocket sock;
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(NetworkInterface::get_default_instance()));
+
+    if (!use_sendto) {
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.connect(udp_addr));
+    }
 
     sock.set_timeout(SOCKET_TIMEOUT);
     int recvd;
@@ -85,7 +89,11 @@ void UDPSOCKET_ECHOTEST()
 
         for (int retry_cnt = 0; retry_cnt <= 2; retry_cnt++) {
             memset(rx_buffer, 0, BUFF_SIZE);
-            sent = sock.sendto(udp_addr, tx_buffer, pkt_s);
+            if (use_sendto) {
+                sent = sock.sendto(udp_addr, tx_buffer, pkt_s);
+            } else {
+                sent = sock.send(tx_buffer, pkt_s);
+            }
             if (check_oversized_packets(sent, pkt_s)) {
                 TEST_IGNORE_MESSAGE("This device does not handle oversized packets");
             } else if (sent == pkt_s) {
@@ -97,7 +105,11 @@ void UDPSOCKET_ECHOTEST()
 
             do {
                 received_duplicate_packet = false;
-                recvd = sock.recvfrom(&recv_addr, rx_buffer, pkt_s);
+                if (use_sendto) {
+                    recvd = sock.recvfrom(&recv_addr, rx_buffer, pkt_s);
+                } else {
+                    recvd = sock.recv(rx_buffer, pkt_s);
+                }
                 //Check if received duplicated packet
                 for (unsigned int d_idx = 0; d_idx < PKTS; ++d_idx) {
                     if (pkt_received[d_idx] && d_idx != s_idx && recvd == pkt_sizes[d_idx]) {
@@ -114,9 +126,12 @@ void UDPSOCKET_ECHOTEST()
                 tr_error("[Round#%02d - Receiver] error, returned %d", s_idx, recvd);
             }
         }
-        // Verify received address is correct
-        TEST_ASSERT(udp_addr == recv_addr);
-        TEST_ASSERT_EQUAL(udp_addr.get_port(), recv_addr.get_port());
+
+        if (use_sendto) {
+            // Verify received address is correct
+            TEST_ASSERT(udp_addr == recv_addr);
+            TEST_ASSERT_EQUAL(udp_addr.get_port(), recv_addr.get_port());
+        }
 
         if (memcmp(tx_buffer, rx_buffer, pkt_s) == 0) {
             packets_recv++;
@@ -135,7 +150,18 @@ void UDPSOCKET_ECHOTEST()
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
 
-void UDPSOCKET_ECHOTEST_NONBLOCK()
+void UDPSOCKET_ECHOTEST()
+{
+    UDPSOCKET_ECHOTEST_impl(true);
+}
+
+void UDPSOCKET_ECHOTEST_CONNECT_SEND_RECV()
+{
+    UDPSOCKET_ECHOTEST_impl(false);
+}
+
+
+void UDPSOCKET_ECHOTEST_NONBLOCK_impl(bool use_sendto)
 {
     tc_exec_time.start();
     time_allotted = split2half_rmng_udp_test_time(); // [s]
@@ -149,6 +175,11 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
         return;
     }
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->open(NetworkInterface::get_default_instance()));
+
+    if (!use_sendto) {
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->connect(udp_addr));
+    }
+
     sock->set_blocking(false);
     sock->sigio(callback(_sigio_handler));
     int sent;
@@ -160,7 +191,12 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
         for (int retry_cnt = 0; retry_cnt <= RETRIES; retry_cnt++) {
             fill_tx_buffer_ascii(tx_buffer, pkt_s);
 
-            sent = sock->sendto(udp_addr, tx_buffer, pkt_s);
+            if (use_sendto) {
+                sent = sock->sendto(udp_addr, tx_buffer, pkt_s);
+            } else {
+                sent = sock->send(tx_buffer, pkt_s);
+            }
+
             if (sent == pkt_s) {
                 packets_sent++;
             } else if (sent == NSAPI_ERROR_WOULD_BLOCK) {
@@ -176,7 +212,13 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
 
             int recvd;
             for (int retry_recv = 0; retry_recv <= RETRIES; retry_recv++) {
-                recvd = sock->recvfrom(NULL, rx_buffer, pkt_s);
+
+                if (use_sendto) {
+                    recvd = sock->recvfrom(NULL, rx_buffer, pkt_s);
+                } else {
+                    recvd = sock->recv(rx_buffer, pkt_s);
+                }
+
                 if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
                     if (tc_exec_time.read() >= time_allotted) {
                         break;
@@ -229,4 +271,14 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->close());
     delete sock;
     tc_exec_time.stop();
+}
+
+void UDPSOCKET_ECHOTEST_NONBLOCK()
+{
+    UDPSOCKET_ECHOTEST_NONBLOCK_impl(true);
+}
+
+void UDPSOCKET_ECHOTEST_NONBLOCK_CONNECT_SEND_RECV()
+{
+    UDPSOCKET_ECHOTEST_NONBLOCK_impl(false);
 }

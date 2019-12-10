@@ -27,7 +27,8 @@
 using namespace mbed;
 using namespace mbed_cellular_util;
 
-RM1000_AT_CellularStack::RM1000_AT_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type) : AT_CellularStack(atHandler, cid, stack_type)
+RM1000_AT_CellularStack::RM1000_AT_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
+    AT_CellularStack(atHandler, cid, stack_type, device)
 {
     tr_debug("RM1000_AT_CellularStack::RM1000_AT_CellularStack");
 

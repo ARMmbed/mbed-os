@@ -24,7 +24,7 @@ namespace mbed {
 
 class QUECTEL_M26_CellularInformation : public AT_CellularInformation {
 public:
-    QUECTEL_M26_CellularInformation(ATHandler &atHandler);
+    QUECTEL_M26_CellularInformation(ATHandler &atHandler, AT_CellularDevice &device);
 
 public: //from CellularInformation
     virtual nsapi_error_t get_iccid(char *buf, size_t buf_size);
