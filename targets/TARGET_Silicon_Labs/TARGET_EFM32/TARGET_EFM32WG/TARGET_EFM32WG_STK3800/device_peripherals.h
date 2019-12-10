@@ -33,6 +33,16 @@
 #define PWM_TIMER_CLOCK cmuClock_TIMER2
 #define PWM_ROUTE TIMER_ROUTE_LOCATION_LOC1
 
+/* Set SWO location */
+#if DEVICE_ITM
+/* Set location 0 */
+    #define SWO_LOCATION (GPIO->SWO_ROUTE & ~_GPIO_ROUTE_SWLOCATION_MASK) | GPIO_ROUTE_SWLOCATION_LOC0
+/* Enable output on pin */
+    #define GPIO_PORT 5 // GPIO port number (A = 0, B = 1, ...)
+    #define SWO_MODE MODEL
+    #define SWO_ENABLE_OUTPUT_PIN (GPIO->P[GPIO_PORT].SWO_MODE & ~_GPIO_P_MODEL_MODE2_MASK) | GPIO_P_MODEL_MODE2_PUSHPULL
+#endif
+
 /* USB */
 #define USB_TIMER USB_TIMER1
 
