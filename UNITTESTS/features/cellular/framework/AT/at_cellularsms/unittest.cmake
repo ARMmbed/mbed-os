@@ -37,8 +37,11 @@ set(unittest-test-sources
   stubs/NetworkInterface_stub.cpp
   stubs/NetworkInterfaceDefaults_stub.cpp
   stubs/Mutex_stub.cpp
+  stubs/Semaphore_stub.cpp
 )
 
 set(unittest-test-flags
   -DMBED_CONF_CELLULAR_USE_SMS=1
+  -DDEVICE_SERIAL=1
+  -DDEVICE_INTERRUPTIN=1
 )

@@ -43,4 +43,11 @@ set(unittest-test-sources
   stubs/ThisThread_stub.cpp
   stubs/ConditionVariable_stub.cpp
   stubs/Mutex_stub.cpp
+  stubs/Semaphore_stub.cpp
 )
+
+set(unittest-test-flags
+  -DDEVICE_SERIAL=1
+  -DDEVICE_INTERRUPTIN=1
+)
+
