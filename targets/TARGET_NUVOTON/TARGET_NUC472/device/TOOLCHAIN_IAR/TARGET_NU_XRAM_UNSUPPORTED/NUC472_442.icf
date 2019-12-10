@@ -15,7 +15,7 @@ define symbol __region_CRASH_DATA_RAM_start__   = 0x2000FF00;
 define symbol __region_CRASH_DATA_RAM_end__     = 0x20010000 - 1;
 /*-Sizes-*/
 define symbol __ICFEDIT_size_cstack__ = MBED_BOOT_STACK_SIZE;
-define symbol __ICFEDIT_size_heap__   = 0x8000;
+define symbol __ICFEDIT_size_heap__   = 0x400;
 /**** End of ICF editor section. ###ICF###*/
 
 
@@ -28,8 +28,8 @@ define region CRASH_DATA_RAM_region = mem:[from __region_CRASH_DATA_RAM_start__ 
 define exported symbol __CRASH_DATA_RAM_START__ = __region_CRASH_DATA_RAM_start__;
 define exported symbol __CRASH_DATA_RAM_END__   = __region_CRASH_DATA_RAM_end__;
 
-define block CSTACK    with alignment = 8, size = __ICFEDIT_size_cstack__   { };
-define block HEAP      with alignment = 8, size = __ICFEDIT_size_heap__     { };
+define block CSTACK     with alignment = 8, size = __ICFEDIT_size_cstack__   { };
+define block HEAP       with expanding size, alignment = 8, minimum size = __ICFEDIT_size_heap__    { };
 /* NOTE: Vector table base requires to be aligned to the power of vector table size. Give a safe value here. */
 define block IRAMVEC   with alignment = 1024, size = 4 * (16 + 142)         { };
 
