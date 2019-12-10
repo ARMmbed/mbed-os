@@ -207,7 +207,7 @@ python3 tools/psa/build_tfm.py
 Supported options:
 ```console
 usage: build_tfm.py [-h] [-m {CY8CPROTO_064_SB_S}] [-t {ARMCLANG,GNUARM}] [-d]
-                    [-l] [--commit] [--develop] [--clean-build] [-v]
+                    [-l] [--commit]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -219,10 +219,6 @@ optional arguments:
   -d, --debug           Set build profile to debug
   -l, --list            Print supported TF-M secure targets
   --commit              Create a git commit for each platform
-  --develop             Use this option for development. A new folder
-                        (tfm_build_dir) under the parent folder of Mbed OS is
-                        used as tf-m build folder. By default, temporary
-                        folder provided by tempfile.mkdtemp() is used.
 ```
 
 If the python script is invoked without any options then TF-M will be built for all the supported targets and the binary will be copied to predefined location defined by attribute `delivery_dir`.
