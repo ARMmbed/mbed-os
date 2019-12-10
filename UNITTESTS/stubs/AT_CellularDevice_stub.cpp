@@ -30,6 +30,7 @@ int AT_CellularDevice_stub::init_module_failure_count = 0;
 int AT_CellularDevice_stub::set_pin_failure_count = 0;
 int AT_CellularDevice_stub::get_sim_failure_count = 0;
 bool AT_CellularDevice_stub::pin_needed = false;
+bool AT_CellularDevice_stub::supported_bool = false;
 
 AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _network(0), _sms(0),
     _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT), _modem_debug_on(false)
@@ -83,7 +84,7 @@ CellularNetwork *AT_CellularDevice::open_network(FileHandle *fh)
                                                                _default_timeout,
                                                                "\r",
                                                                get_send_delay(),
-                                                               _modem_debug_on));
+                                                               _modem_debug_on), *this);
     return _network;
 }
 
@@ -136,7 +137,7 @@ void AT_CellularDevice::delete_context(CellularContext *context)
 
 AT_CellularNetwork *AT_CellularDevice::open_network_impl(ATHandler &at)
 {
-    _network = new AT_CellularNetwork(at);
+    _network = new AT_CellularNetwork(at, *this);
 
     return _network;
 }
@@ -270,4 +271,23 @@ nsapi_error_t AT_CellularDevice::set_baud_rate(int baud_rate)
 nsapi_error_t AT_CellularDevice::set_baud_rate_impl(int baud_rate)
 {
     return NSAPI_ERROR_OK;
+}
+
+void AT_CellularDevice::set_cellular_properties(const intptr_t *property_array)
+{
+}
+
+intptr_t AT_CellularDevice::get_property(CellularProperty key)
+{
+    if (key == PROPERTY_C_GREG) {
+        return AT_CellularNetwork::RegistrationModeDisable;
+    } else if (key == PROPERTY_C_REG || key == PROPERTY_C_EREG) {
+        return AT_CellularNetwork::RegistrationModeEnable;
+    } else if (key == PROPERTY_AT_CGAUTH) {
+        return true;
+    } else if (key == PROPERTY_IPV4_PDP_TYPE) {
+        return true;
+    }
+
+    return AT_CellularDevice_stub::supported_bool;
 }

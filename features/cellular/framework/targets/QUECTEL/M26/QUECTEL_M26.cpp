@@ -24,7 +24,7 @@
 
 using namespace mbed;
 
-static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     AT_CellularNetwork::RegistrationModeDisable,// C_EREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
     AT_CellularNetwork::RegistrationModeDisable,// C_REG
@@ -44,7 +44,7 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
 
 QUECTEL_M26::QUECTEL_M26(FileHandle *fh) : AT_CellularDevice(fh)
 {
-    AT_CellularBase::set_cellular_properties(cellular_properties);
+    set_cellular_properties(cellular_properties);
 }
 
 nsapi_error_t QUECTEL_M26::get_sim_state(SimState &state)

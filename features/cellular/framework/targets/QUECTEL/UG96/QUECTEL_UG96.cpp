@@ -27,7 +27,7 @@ using namespace events;
 #define CONNECT_BUFFER_SIZE   (1280 + 80 + 80) // AT response + sscanf format
 #define CONNECT_TIMEOUT       8000
 
-static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     AT_CellularNetwork::RegistrationModeDisable,// C_EREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_REG
@@ -47,7 +47,7 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
 
 QUECTEL_UG96::QUECTEL_UG96(FileHandle *fh) : AT_CellularDevice(fh)
 {
-    AT_CellularBase::set_cellular_properties(cellular_properties);
+    set_cellular_properties(cellular_properties);
 }
 
 AT_CellularContext *QUECTEL_UG96::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)

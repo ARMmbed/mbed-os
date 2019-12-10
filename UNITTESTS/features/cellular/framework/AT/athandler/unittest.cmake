@@ -21,7 +21,6 @@ set(unittest-sources
 # Test files
 set(unittest-test-sources
   features/cellular/framework/AT/athandler/athandlertest.cpp
-  stubs/AT_CellularBase_stub.cpp
   stubs/EventQueue_stub.cpp
   stubs/FileHandle_stub.cpp
   stubs/us_ticker_stub.cpp

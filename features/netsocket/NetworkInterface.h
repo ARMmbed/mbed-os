@@ -373,20 +373,18 @@ public:
         return 0;
     }
 
-    /** Return pointer to a CellularInterface.
-     * @return Pointer to requested interface type or NULL if this class doesn't implement the interface.
-     * @deprecated CellularBase migrated to CellularInterface - use cellularInterface()
-     */
-    MBED_DEPRECATED_SINCE("mbed-os-5.12", "CellularBase migrated to CellularInterface - use cellularInterface()")
-    virtual CellularInterface *cellularBase() // virtual retained for binary compatibility
-    {
-        return 0;
-    }
-
     /** Return pointer to an EMACInterface.
      * @return Pointer to requested interface type or NULL if this class doesn't implement the interface.
      */
     virtual EMACInterface *emacInterface()
+    {
+        return 0;
+    }
+
+    /** Return pointer to a CellularInterface.
+     * @return Pointer to requested interface type or NULL if this class doesn't implement the interface.
+     */
+    virtual CellularInterface *cellularInterface()
     {
         return 0;
     }
@@ -451,14 +449,6 @@ public:
      * configuration).
      */
     virtual void set_default_parameters();
-
-    /** Return pointer to a CellularInterface.
-     * @return Pointer to requested interface type or NULL if this class doesn't implement the interface.
-     */
-    virtual CellularInterface *cellularInterface()
-    {
-        return 0;
-    }
 };
 
 #endif

@@ -20,6 +20,7 @@
 #include "CellularCommon.h"
 #include "RM1000_AT_CellularNetwork.h"
 #include "platform/mbed_wait_api.h"
+#include "AT_CellularDevice.h"
 
 #include "mbed-trace/mbed_trace.h"
 #ifndef TRACE_GROUP
@@ -37,7 +38,7 @@ void RM1000_AT_CellularNetwork::MODEM_FAULT_URC()
     }
 }
 
-RM1000_AT_CellularNetwork::RM1000_AT_CellularNetwork(ATHandler &atHandler) : AT_CellularNetwork(atHandler)
+RM1000_AT_CellularNetwork::RM1000_AT_CellularNetwork(ATHandler &atHandler, AT_CellularDevice &device) : AT_CellularNetwork(atHandler, device)
 {
     tr_debug("RM1000_AT_CellularNetwork::RM1000_B0_CellularNetwork");
     _op_act = RAT_UNKNOWN;
@@ -80,7 +81,7 @@ nsapi_error_t RM1000_AT_CellularNetwork::set_registration_urc(RegistrationType t
     int index = (int)type;
     MBED_ASSERT(index >= 0 && index < C_MAX);
 
-    RegistrationMode mode = (RegistrationMode)get_property((AT_CellularBase::CellularProperty)type);
+    RegistrationMode mode = (RegistrationMode)_device.get_property((AT_CellularDevice::CellularProperty)type);
     if (mode == RegistrationModeDisable) {
         return NSAPI_ERROR_UNSUPPORTED;
     } else {

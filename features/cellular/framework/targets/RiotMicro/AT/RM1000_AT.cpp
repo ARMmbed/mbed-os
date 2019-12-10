@@ -28,7 +28,7 @@
 using namespace mbed;
 using namespace events;
 static const uint16_t retry_timeout[] = {1, 2, 4};
-static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     AT_CellularNetwork::RegistrationModeLAC,// C_EREG
     AT_CellularNetwork::RegistrationModeDisable,// C_GREG
     AT_CellularNetwork::RegistrationModeDisable,// C_REG
@@ -49,14 +49,14 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
 RM1000_AT::RM1000_AT(FileHandle *fh) : AT_CellularDevice(fh)
 {
     tr_debug("RM1000_AT::RM1000_AT");
-    AT_CellularBase::set_cellular_properties(cellular_properties);
+    set_cellular_properties(cellular_properties);
     set_retry_timeout_array(retry_timeout, sizeof(retry_timeout) / sizeof(retry_timeout[0]));
 }
 
 AT_CellularNetwork *RM1000_AT::open_network_impl(ATHandler &at)
 {
     tr_debug("RM1000_AT::open_network_impl");
-    return new RM1000_AT_CellularNetwork(at);
+    return new RM1000_AT_CellularNetwork(at, *this);
 }
 
 AT_CellularContext *RM1000_AT::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)

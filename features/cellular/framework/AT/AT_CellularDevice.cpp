@@ -43,7 +43,7 @@ AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh),
     _sms(0),
 #endif // MBED_CONF_CELLULAR_USE_SMS
     _network(0), _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT),
-    _modem_debug_on(false)
+    _modem_debug_on(false), _property_array(NULL)
 {
     MBED_ASSERT(fh);
     _at = get_at_handler(fh);
@@ -52,7 +52,7 @@ AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh),
 
 AT_CellularDevice::~AT_CellularDevice()
 {
-    if (AT_CellularBase::get_property(AT_CellularBase::PROPERTY_AT_CGEREP)) {
+    if (get_property(PROPERTY_AT_CGEREP)) {
         _at->set_urc_handler("+CGEV: NW DEACT", 0);
         _at->set_urc_handler("+CGEV: ME DEACT", 0);
         _at->set_urc_handler("+CGEV: NW PDN D", 0);
@@ -93,7 +93,7 @@ void AT_CellularDevice::set_at_urcs_impl()
 
 void AT_CellularDevice::set_at_urcs()
 {
-    if (AT_CellularBase::get_property(AT_CellularBase::PROPERTY_AT_CGEREP)) {
+    if (get_property(PROPERTY_AT_CGEREP)) {
         _at->set_urc_handler("+CGEV: NW DEACT", callback(this, &AT_CellularDevice::urc_nw_deact));
         _at->set_urc_handler("+CGEV: ME DEACT", callback(this, &AT_CellularDevice::urc_nw_deact));
         _at->set_urc_handler("+CGEV: NW PDN D", callback(this, &AT_CellularDevice::urc_pdn_deact));
@@ -370,7 +370,7 @@ CellularInformation *AT_CellularDevice::open_information(FileHandle *fh)
 
 AT_CellularNetwork *AT_CellularDevice::open_network_impl(ATHandler &at)
 {
-    return new AT_CellularNetwork(at);
+    return new AT_CellularNetwork(at, *this);
 }
 
 #if MBED_CONF_CELLULAR_USE_SMS
@@ -399,13 +399,13 @@ void AT_CellularDevice::close_sms()
 
 AT_CellularSMS *AT_CellularDevice::open_sms_impl(ATHandler &at)
 {
-    return new AT_CellularSMS(at);
+    return new AT_CellularSMS(at, *this);
 }
 #endif // MBED_CONF_CELLULAR_USE_SMS
 
 AT_CellularInformation *AT_CellularDevice::open_information_impl(ATHandler &at)
 {
-    return new AT_CellularInformation(at);
+    return new AT_CellularInformation(at, *this);
 }
 
 void AT_CellularDevice::close_network()
@@ -670,4 +670,23 @@ nsapi_error_t AT_CellularDevice::set_baud_rate(int baud_rate)
 nsapi_error_t AT_CellularDevice::set_baud_rate_impl(int baud_rate)
 {
     return _at->at_cmd_discard("+IPR", "=", "%d", baud_rate);
+}
+
+void AT_CellularDevice::set_cellular_properties(const intptr_t *property_array)
+{
+    if (!property_array) {
+        tr_warning("trying to set an empty cellular property array");
+        return;
+    }
+
+    _property_array = property_array;
+}
+
+intptr_t AT_CellularDevice::get_property(CellularProperty key)
+{
+    if (_property_array) {
+        return _property_array[key];
+    } else {
+        return 0;
+    }
 }
