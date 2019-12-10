@@ -18,6 +18,8 @@
 #include "gtest/gtest.h"
 #include "LoRaWANTimer.h"
 
+#include "equeue_stub.h"
+
 using namespace events;
 
 class Test_LoRaWANTimer : public testing::Test {
@@ -69,6 +71,7 @@ TEST_F(Test_LoRaWANTimer, init)
 
 TEST_F(Test_LoRaWANTimer, start)
 {
+    equeue_stub.void_ptr = NULL;
     timer_event_t ev;
     memset(&ev, 0, sizeof(ev));
     object->start(ev, 10);
