@@ -2136,12 +2136,7 @@
             "init-us-ticker-at-boot": true
         },
         "OUTPUT_EXT": "hex",
-        "bootloader_supported": true,
-        "supported_c_libs": {
-            "arm": ["std", "small"],
-            "gcc_arm": ["std", "small"],
-            "iar": ["std"]
-        }
+        "bootloader_supported": true
     },
     "LPC55S69_S": {
         "inherits": ["SPE_Target", "LPC55S69"],
@@ -3569,12 +3564,7 @@
         ],
         "release_versions": ["2", "5"],
         "bootloader_supported": true,
-        "device_name": "STM32L073RZ",
-        "supported_c_libs": {
-            "arm": ["std", "small"],
-            "gcc_arm": ["std", "small"],
-            "iar": ["std"]
-        }
+        "device_name": "STM32L073RZ"
     },
     "NUCLEO_L152RE": {
         "inherits": ["FAMILY_STM32"],

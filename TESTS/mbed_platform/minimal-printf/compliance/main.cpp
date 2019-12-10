@@ -52,6 +52,7 @@ static control_t test_printf_d(const size_t call_count)
     /*************************************************************************/
     /*************************************************************************/
 #if !defined(__NEWLIB_NANO)
+    // The format specifier %hhd is not supported by Newlib-Nano
     result_minimal = mbed_printf("hhd: %hhd\r\n", SCHAR_MIN);
     result_file = mbed_fprintf(stderr, "hhd: %hhd\r\n", SCHAR_MIN);
     result_baseline = printf("hhd: %hhd\r\n", SCHAR_MIN);
@@ -102,6 +103,7 @@ static control_t test_printf_d(const size_t call_count)
     TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
 #if !defined(__NEWLIB_NANO)
+    // The format specifier %lld is not supported by Newlib-Nano
     result_minimal = mbed_printf("lld: %lld\r\n", LLONG_MIN);
     result_file = mbed_fprintf(stderr, "lld: %lld\r\n", LLONG_MIN);
     result_baseline = printf("lld: %lld\r\n", LLONG_MIN);
@@ -175,6 +177,7 @@ static control_t test_printf_u(const size_t call_count)
     /*************************************************************************/
     /*************************************************************************/
 #if !defined(__NEWLIB_NANO)
+    // The format specifier %hhu is not supported by Newlib-Nano
     result_minimal = mbed_printf("hhu: %hhu\r\n", 0);
     result_file = mbed_fprintf(stderr, "hhu: %hhu\r\n", 0);
     result_baseline = printf("hhu: %hhu\r\n", 0);
@@ -224,6 +227,7 @@ static control_t test_printf_u(const size_t call_count)
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 #if !defined(__NEWLIB_NANO)
+    // The format specifier %llu is not supported by Newlib-Nano
     result_minimal = mbed_printf("llu: %llu\r\n", 0ULL);
     result_file = mbed_fprintf(stderr, "llu: %llu\r\n", 0ULL);
     result_baseline = printf("llu: %llu\r\n", 0ULL);
@@ -297,6 +301,7 @@ static control_t test_printf_x(const size_t call_count)
     /*************************************************************************/
     /*************************************************************************/
 #if !defined(__NEWLIB_NANO)
+    // The format specifier %hhX is not supported by Newlib-Nano
     result_minimal = mbed_printf("hhX: %hhX\r\n", 0);
     result_file = mbed_fprintf(stderr, "hhX: %hhX\r\n", 0);
     result_baseline = printf("hhX: %hhX\r\n", 0);
@@ -346,6 +351,7 @@ static control_t test_printf_x(const size_t call_count)
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 #if !defined(__NEWLIB_NANO)
+    // The format specifier %llX is not supported by Newlib-Nano
     result_minimal = mbed_printf("llX: %llX\r\n", 0ULL);
     result_file = mbed_fprintf(stderr, "llX: %llX\r\n", 0ULL);
     result_baseline = printf("llX: %llX\r\n", 0ULL);
@@ -445,6 +451,7 @@ static control_t test_snprintf_d(const size_t call_count)
     /*************************************************************************/
     /*************************************************************************/
 #if !defined(__NEWLIB_NANO)
+    // The format specifier %hhd is not supported by Newlib-Nano
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "hhd: %hhd\r\n", SCHAR_MIN);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "hhd: %hhd\r\n", SCHAR_MIN);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
@@ -487,6 +494,7 @@ static control_t test_snprintf_d(const size_t call_count)
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
 #if !defined(__NEWLIB_NANO)
+    // The format specifier %lld is not supported by Newlib-Nano
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "lld: %lld\r\n", LLONG_MIN);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "lld: %lld\r\n", LLONG_MIN);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
@@ -553,6 +561,7 @@ static control_t test_snprintf_u(const size_t call_count)
     /*************************************************************************/
     /*************************************************************************/
 #if !defined(__NEWLIB_NANO)
+    // The format specifier %hhu is not supported by Newlib-Nano
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "hhu: %hhu\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "hhu: %hhu\r\n", 0);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
@@ -594,6 +603,7 @@ static control_t test_snprintf_u(const size_t call_count)
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 #if !defined(__NEWLIB_NANO)
+    // The format specifier %llu is not supported by Newlib-Nano
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "llu: %llu\r\n", 0ULL);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "llu: %llu\r\n", 0ULL);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
@@ -660,6 +670,7 @@ static control_t test_snprintf_x(const size_t call_count)
     /*************************************************************************/
     /*************************************************************************/
 #if !defined(__NEWLIB_NANO)
+    // The format specifier %hhX is not supported by Newlib-Nano
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "hhX: %hhX\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "hhX: %hhX\r\n", 0);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
@@ -700,6 +711,7 @@ static control_t test_snprintf_x(const size_t call_count)
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 #if !defined(__NEWLIB_NANO)
+    // The format specifier %llX is not supported by Newlib-Nano
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "llX: %llX\r\n", 0ULL);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "llX: %llX\r\n", 0ULL);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
@@ -923,6 +935,7 @@ static control_t test_snprintf_buffer_overflow_ld(const size_t call_count)
 }
 
 #if !defined(__NEWLIB_NANO)
+// The format specifier %lld is not supported by Newlib-Nano
 static control_t test_snprintf_buffer_overflow_lld(const size_t call_count)
 {
     return test_snprintf_buffer_overflow_generic<long long, sizeof("lld: -1099511627776")>("lld: %lld", -1099511627776LL);
@@ -940,6 +953,7 @@ static control_t test_snprintf_buffer_overflow_lu(const size_t call_count)
 }
 
 #if !defined(__NEWLIB_NANO)
+// The format specifier %llu is not supported by Newlib-Nano
 static control_t test_snprintf_buffer_overflow_llu(const size_t call_count)
 {
     return test_snprintf_buffer_overflow_generic<unsigned long long, sizeof("llu: 1099511627776")>("llu: %llu", 1099511627776ULL);
@@ -957,6 +971,7 @@ static control_t test_snprintf_buffer_overflow_lx(const size_t call_count)
 }
 
 #if !defined(__NEWLIB_NANO)
+// The format specifier %llx is not supported by Newlib-Nano
 static control_t test_snprintf_buffer_overflow_llx(const size_t call_count)
 {
     return test_snprintf_buffer_overflow_generic<unsigned long long, sizeof("llx: 0x10000000000")>("llx: 0x%llx", 0x10000000000ULL);
@@ -990,6 +1005,7 @@ Case cases[] = {
     Case("snprintf buffer overflow %x", test_snprintf_buffer_overflow_x),
     Case("snprintf buffer overflow %lx", test_snprintf_buffer_overflow_lx),
 #if !defined(__NEWLIB_NANO)
+    // The format specifiers %lld,%llu,%llx are not supported by Newlib-Nano
     Case("snprintf buffer overflow %lld", test_snprintf_buffer_overflow_lld),
     Case("snprintf buffer overflow %llu", test_snprintf_buffer_overflow_llu),
     Case("snprintf buffer overflow %llx", test_snprintf_buffer_overflow_llx),

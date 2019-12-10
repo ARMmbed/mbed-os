@@ -116,6 +116,8 @@ Case cases[] = {
     Case("C strings: %u %d integer formatting", test_case_c_string_u_d, greentea_failure_handler),
     Case("C strings: %x %E integer formatting", test_case_c_string_x_X, greentea_failure_handler),
 #if !defined(__NEWLIB_NANO)
+    //In build tools, GCC with Newlib-nano linker option "-u _printf_float" is not configured
+    //to enable printf floating format. So disabling floating format test case.
     Case("C strings: %f %f float formatting", test_case_c_string_f_f, greentea_failure_handler),
 #ifndef MBED_MINIMAL_PRINTF
     Case("C strings: %e %E float formatting", test_case_c_string_e_E, greentea_failure_handler),

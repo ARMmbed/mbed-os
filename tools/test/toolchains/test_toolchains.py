@@ -20,7 +20,7 @@ sys.path.insert(0, ROOT)
 from tools.toolchains.arm import ARM_STD, ARM_MICRO, ARMC6
 from tools.toolchains.gcc import GCC_ARM
 from tools.toolchains.iar import IAR
-from tools.toolchains.mbed_toolchain import UNSUPPORTED_C_LIB_EXECPTION_STRING
+from tools.toolchains.mbed_toolchain import UNSUPPORTED_C_LIB_EXCEPTION_STRING
 from tools.utils import NotSupportedException
 
 class TestArmToolchain(TestCase):
@@ -69,31 +69,31 @@ class TestArmToolchain(TestCase):
         self.assertIn("--library_type=microlib", arm_c6_obj.flags["asm"])
 
     def test_arm_default_lib_std_exception(self):
-        """Test that exception raised when default_lib is std but supported_c_libs parameter arm is not suppoted std lib."""
+        """Test that an exception is raised if the std C library is not supported for a target on the ARM toolchain."""
         mock_target = mock.MagicMock()
         mock_target.core = "Cortex-M4"
         mock_target.supported_toolchains = ["ARM", "uARM", "ARMC5"]
         mock_target.default_toolchain = "ARM"
         mock_target.default_lib = "std"
         mock_target.supported_c_libs = {"arm": ["small"]}
-        with self.assertRaisesRegexp(NotSupportedException, UNSUPPORTED_C_LIB_EXECPTION_STRING.format(mock_target.default_lib)):
+        with self.assertRaisesRegexp(NotSupportedException, UNSUPPORTED_C_LIB_EXCEPTION_STRING.format(mock_target.default_lib)):
             ARM_STD(mock_target)
-        with self.assertRaisesRegexp(NotSupportedException, UNSUPPORTED_C_LIB_EXECPTION_STRING.format(mock_target.default_lib)):
+        with self.assertRaisesRegexp(NotSupportedException, UNSUPPORTED_C_LIB_EXCEPTION_STRING.format(mock_target.default_lib)):
             ARMC6(mock_target)
 
 
     def test_arm_default_lib_small_exception(self):
-        """Test that exception raised when default_lib is small but supported_c_libs parameter arm is not suppoted small lib."""
+        """Test that an exception is raised if the small C library is not supported for a target on the ARM toolchain."""
         mock_target = mock.MagicMock()
         mock_target.core = "Cortex-M4"
         mock_target.default_lib = "small"
         mock_target.supported_c_libs = {"arm": ["std"]}
         mock_target.default_toolchain = "ARM"
         mock_target.supported_toolchains = ["ARM", "uARM", "ARMC5"]
-        with self.assertRaisesRegexp(NotSupportedException, UNSUPPORTED_C_LIB_EXECPTION_STRING.format(mock_target.default_lib)):
+        with self.assertRaisesRegexp(NotSupportedException, UNSUPPORTED_C_LIB_EXCEPTION_STRING.format(mock_target.default_lib)):
             ARM_STD(mock_target)
         mock_target.default_toolchain = "ARMC6"
-        with self.assertRaisesRegexp(NotSupportedException, UNSUPPORTED_C_LIB_EXECPTION_STRING.format(mock_target.default_lib)):
+        with self.assertRaisesRegexp(NotSupportedException, UNSUPPORTED_C_LIB_EXCEPTION_STRING.format(mock_target.default_lib)):
             ARMC6(mock_target)
 
 class TestGccToolchain(TestCase):
@@ -141,24 +141,24 @@ class TestGccToolchain(TestCase):
         self.assertIn("--specs=nano.specs", gcc_arm_obj.flags["ld"])
 
     def test_gcc_arm_default_lib_std_exception(self):
-        """Test that exception raised when default_lib is std but supported_c_libs parameter arm is not suppoted std lib."""
+        """Test that an exception is raised if the std C library is not supported for a target on the GCC_ARM toolchain."""
         mock_target = mock.MagicMock()
         mock_target.core = "Cortex-M4"
         mock_target.default_toolchain = "ARM"
         mock_target.default_lib = "std"
         mock_target.supported_c_libs = {"arm": ["small"]}
-        with self.assertRaisesRegexp(NotSupportedException, UNSUPPORTED_C_LIB_EXECPTION_STRING.format(mock_target.default_lib)):
+        with self.assertRaisesRegexp(NotSupportedException, UNSUPPORTED_C_LIB_EXCEPTION_STRING.format(mock_target.default_lib)):
             GCC_ARM(mock_target)
 
     def test_gcc_arm_default_lib_small_exception(self):
-        """Test that exception raised when default_lib is small but supported_c_libs parameter arm is not suppoted small lib."""
+        """Test that an exception is raised if the small C library is not supported for a target on the GCC_ARM toolchain."""
         mock_target = mock.MagicMock()
         mock_target.core = "Cortex-M4"
         mock_target.default_lib = "small"
         mock_target.supported_c_libs = {"arm": ["std"]}
         mock_target.default_toolchain = "ARM"
         mock_target.supported_toolchains = ["ARM", "uARM", "ARMC5"]
-        with self.assertRaisesRegexp(NotSupportedException, UNSUPPORTED_C_LIB_EXECPTION_STRING.format(mock_target.default_lib)):
+        with self.assertRaisesRegexp(NotSupportedException, UNSUPPORTED_C_LIB_EXCEPTION_STRING.format(mock_target.default_lib)):
             GCC_ARM(mock_target)
 
 class TestIarToolchain(TestCase):
@@ -179,7 +179,7 @@ class TestIarToolchain(TestCase):
         self.assertIn("-DMBED_MINIMAL_PRINTF", iar_obj.flags["common"])
 
     def test_iar_default_lib(self):
-        """Test that linker flags are correctly added to an instance of IAR."""
+        """Test that no exception is raised when a supported c library is specified."""
         mock_target = mock.MagicMock()
         mock_target.core = "Cortex-M4"
         mock_target.supported_c_libs = {"iar": ["std"]}
@@ -189,26 +189,26 @@ class TestIarToolchain(TestCase):
         try:
             IAR(mock_target)
         except NotSupportedException:
-            self.fail(UNSUPPORTED_C_LIB_EXECPTION_STRING.format(mock_target.default_lib))
+            self.fail(UNSUPPORTED_C_LIB_EXCEPTION_STRING.format(mock_target.default_lib))
 
     def test_iar_default_lib_std_exception(self):
-        """Test that exception raised when default_lib is small but supported_c_libs parameter iar is not supported small lib."""
+        """Test that an exception is raised if the std C library is not supported for a target on the IAR toolchain."""
         mock_target = mock.MagicMock()
         mock_target.core = "Cortex-M4"
         mock_target.microlib_supported = False
         mock_target.default_lib = "std"
         mock_target.supported_c_libs = {"iar": ["small"]}
         mock_target.supported_toolchains = ["IAR"]
-        with self.assertRaisesRegexp(NotSupportedException, UNSUPPORTED_C_LIB_EXECPTION_STRING.format(mock_target.default_lib)):
+        with self.assertRaisesRegexp(NotSupportedException, UNSUPPORTED_C_LIB_EXCEPTION_STRING.format(mock_target.default_lib)):
             IAR(mock_target)
 
     def test_iar_default_lib_small_exception(self):
-        """Test that exception raised when default_lib is small but supported_c_libs parameter iar is not supported small lib."""
+        """Test that an exception is raised if the small C library is not supported for a target on the IAR toolchain."""
         mock_target = mock.MagicMock()
         mock_target.core = "Cortex-M4"
         mock_target.microlib_supported = False
         mock_target.default_lib = "small"
         mock_target.supported_c_libs = {"iar": ["std"]}
         mock_target.supported_toolchains = ["IAR"]
-        with self.assertRaisesRegexp(NotSupportedException, UNSUPPORTED_C_LIB_EXECPTION_STRING.format(mock_target.default_lib)):
+        with self.assertRaisesRegexp(NotSupportedException, UNSUPPORTED_C_LIB_EXCEPTION_STRING.format(mock_target.default_lib)):
             IAR(mock_target)

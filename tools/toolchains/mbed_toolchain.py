@@ -109,7 +109,7 @@ CORTEX_SYMBOLS = {
                         "__MBED_CMSIS_RTOS_CM", "__DSP_PRESENT=1U"],
 }
 
-UNSUPPORTED_C_LIB_EXECPTION_STRING = "{} C library option not supported for this target."
+UNSUPPORTED_C_LIB_EXCEPTION_STRING = "{} C library option not supported for this target."
 
 class mbedToolchain(with_metaclass(ABCMeta, object)):
     OFFICIALLY_SUPPORTED = False
@@ -1104,7 +1104,7 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
         Check and raise an exception if the requested C library is not supported,
 
         target.default_lib is modified to have the lowercased string of its original string.
-        This is done to be case insensitvie when validating.
+        This is done to be case insensitive when validating.
         """
         if  hasattr(target, "default_lib"):
             target.default_lib = target.default_lib.lower()
@@ -1114,7 +1114,7 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
                 or target.default_lib not in target.supported_c_libs[toolchain]
             ):
                 raise NotSupportedException(
-                   UNSUPPORTED_C_LIB_EXECPTION_STRING.format(target.default_lib)
+                   UNSUPPORTED_C_LIB_EXCEPTION_STRING.format(target.default_lib)
                 )
 
     @staticmethod

@@ -48,7 +48,7 @@ class GCC(mbedToolchain):
 
         tool_path = TOOLCHAIN_PATHS['GCC_ARM']
         # Add flags for current size setting
-        default_lib = ""
+        default_lib = "std"
         if hasattr(target, "default_lib"):
             self.check_c_lib_supported(target, "gcc_arm")
             default_lib = target.default_lib

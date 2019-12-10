@@ -103,6 +103,11 @@ def test_modify_existing_target():
             "detect_code": [],
             "public": false,
             "default_lib": "std",
+            "supported_c_libs": {
+                "arm": ["std"],
+                "gcc_arm": ["std", "small"],
+                "iar": ["std"]
+            },
             "bootloader_supported": false
         },
         "Test_Target": {
@@ -113,7 +118,7 @@ def test_modify_existing_target():
     }"""
 
     test_target_json = """
-    { 
+    {
         "Target": {
             "core": "Cortex-M0",
             "default_toolchain": "GCC_ARM",
@@ -126,6 +131,11 @@ def test_modify_existing_target():
             "detect_code": [],
             "public": false,
             "default_lib": "std",
+            "supported_c_libs": {
+                "arm": ["std"],
+                "gcc_arm": ["std", "small"],
+                "iar": ["std"]
+            },
             "bootloader_supported": true
         }
     }

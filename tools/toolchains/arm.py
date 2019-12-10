@@ -39,7 +39,7 @@ ARMC5_MIGRATION_WARNING = (
 
 UARM_TOOLCHAIN_WARNING = (
     "Warning: We noticed that you are using uARM Toolchain. "
-    "We are deprecating the uARM Toolchain. "
+    "We are deprecating the use of uARM Toolchain. "
     "For more information on how to use the ARM toolchain with small C libraries, "
     "please visit https://os.mbed.com/docs/mbed-os/latest/reference/using-small-c-libraries.html"
 )
@@ -79,7 +79,10 @@ class ARM(mbedToolchain):
 
         self.check_c_lib_supported(target, "arm")
 
-        if getattr(target, "default_toolchain", "ARM") == "uARM" or getattr(target, "default_lib", "std") == "small":
+        if (
+            getattr(target, "default_toolchain", "ARM") == "uARM"
+            or getattr(target, "default_lib", "std") == "small"
+        ):
             if "-DMBED_RTOS_SINGLE_THREAD" not in self.flags['common']:
                 self.flags['common'].append("-DMBED_RTOS_SINGLE_THREAD")
             if "-D__MICROLIB" not in self.flags['common']:
@@ -566,7 +569,10 @@ class ARMC6(ARM_STD):
 
         self.check_c_lib_supported(target, "arm")
 
-        if getattr(target, "default_toolchain", "ARMC6") == "uARM" or getattr(target, "default_lib", "std") == "small":
+        if (
+            getattr(target, "default_toolchain", "ARMC6") == "uARM"
+            or getattr(target, "default_lib", "std") == "small"
+        ):
             if "-DMBED_RTOS_SINGLE_THREAD" not in self.flags['common']:
                 self.flags['common'].append("-DMBED_RTOS_SINGLE_THREAD")
             if "-D__MICROLIB" not in self.flags['common']:
