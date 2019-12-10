@@ -37,9 +37,8 @@ logging.basicConfig(level=logging.INFO,
                     datefmt='%H:%M:%S')
 logger = logging.getLogger('Build-TF-M')
 
-TF_M_BUILD_DIR = None
-USING_TEMP_DIR = None
 POPEN_INSTANCE = None
+TF_M_BUILD_DIR = join(ROOT, 'features/FEATURE_PSA/TARGET_TFM/TARGET_IGNORE')
 VERSION_FILE_PATH = join(ROOT, 'features/FEATURE_PSA/TARGET_TFM')
 
 dependencies = {
@@ -115,21 +114,17 @@ def _run_cmd_and_return(command, output=False):
     """
 
     global POPEN_INSTANCE
-    if output:
+    with open(os.devnull, 'w') as fnull:
         POPEN_INSTANCE = subprocess.Popen(command, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+                                stderr=fnull)
 
-        std_out, std_err = POPEN_INSTANCE.communicate()
-
+        std_out, __ = POPEN_INSTANCE.communicate()
+        retcode = POPEN_INSTANCE.returncode
         POPEN_INSTANCE = None
-        return std_out.decode("utf-8")
-    else:
-        with open(os.devnull, 'w') as fnull:
-            POPEN_INSTANCE = subprocess.Popen(command, stdout=subprocess.PIPE,
-                                            stderr=fnull)
-            POPEN_INSTANCE.communicate()
-            retcode = POPEN_INSTANCE.returncode
-            POPEN_INSTANCE = None
+
+        if output:
+            return std_out.decode("utf-8")
+        else:
             return retcode
 
 def _detect_and_write_tfm_version(tfm_dir, commit):
@@ -370,34 +365,45 @@ def _build_tfm(args):
                            'cmake_build')
     if not isdir(cmake_build_dir):
         os.mkdir(cmake_build_dir)
+    else:
+        shutil.rmtree(cmake_build_dir)
+        os.mkdir(cmake_build_dir)
 
     if args.mcu:
         tgt = None
         if args.toolchain:
-            msg = "Building TF-M for target %s using toolchain %s" % (
-                                            args.mcu, args.toolchain)
+            if args.debug:
+                msg = "Building TF-M for target %s using toolchain %s in DEBUG mode" % (
+                                                    args.mcu, args.toolchain)
+            else:
+                msg = "Building TF-M for target %s using toolchain %s" % (
+                                                args.mcu, args.toolchain)
             logger.info(msg)
             tgt = _get_target_info(args.mcu, args.toolchain)
         else:
             tgt = _get_target_info(args.mcu)
-            msg = "Building TF-M for target %s using default toolchain %s" % (
+            if args.debug:
+                msg = "Building TF-M for target %s using default toolchain %s in DEBUG mode " % (
                                                             args.mcu, tgt[2])
+            else:
+                msg = "Building TF-M for target %s using default toolchain %s" % (
+                                                    args.mcu, args.toolchain)
             logger.info(msg)
 
         retcode = _run_cmake_build(True, cmake_build_dir, tgt[4],
                                     tgt[1], tgt[2], args.debug)
         if retcode:
             msg = "Cmake configure failed for target %s using toolchain %s" % (
-                                                    tgt[0],  tgt[2])
+                                                            tgt[0],  tgt[2])
             logger.critical(msg)
-            _cleanup(cmake_build_dir, True)
+            sys.exit(1)
 
         retcode = _run_cmake_build(False, cmake_build_dir)
         if retcode:
             msg = "Cmake build failed for target %s using toolchain %s" % (
-                                                    tgt[0],  tgt[2])
+                                                            tgt[0],  tgt[2])
             logger.critical(msg)
-            _cleanup(cmake_build_dir, True)
+            sys.exit(1)
 
         _copy_binaries(tgt[1], cmake_build_dir, tgt[3])
 
@@ -405,46 +411,41 @@ def _build_tfm(args):
             _commit_changes(tgt[3], tgt[0], tgt[2])
     else:
         for tgt in _get_mbed_supported_tfm_targets():
-            msg = "Building TF-M for target %s using default toolchain %s" % (
-                                                        tgt[0], tgt[2])
+            if args.debug:
+                msg = "Building TF-M for target %s using default toolchain %s in DEBUG mode" % (
+                                                                tgt[0], tgt[2])
+            else:
+                msg = "Building TF-M for target %s using default toolchain %s" % (
+                                                            tgt[0], tgt[2])
             logger.info(msg)
 
             retcode = _run_cmake_build(True, cmake_build_dir, tgt[4],
                                         tgt[1], tgt[2], args.debug)
             if retcode:
                 msg = "Cmake configure failed for target %s with toolchain %s" % (
-                                                        tgt[0], tgt[2])
+                                                                tgt[0], tgt[2])
                 logger.critical(msg)
-                _cleanup(cmake_build_dir, True)
+                sys.exit(1)
 
             retcode = _run_cmake_build(False, cmake_build_dir)
             if retcode:
                 msg = "Cmake build failed for target %s using toolchain %s" % (
-                                                    tgt[0],  tgt[2])
+                                                            tgt[0],  tgt[2])
                 logger.critical(msg)
-                _cleanup(cmake_build_dir, True)
+                sys.exit(1)
 
             _copy_binaries(tgt[1], cmake_build_dir, tgt[3])
 
         if args.commit:
             _commit_changes(tgt[3], tgt[0], tgt[2])
 
-def _cleanup(path, build_dir=False):
+def _exit_gracefully(signum, frame):
     """
-    Clean up in case of cloning errors or keyboard interrupt
-    :param path: The path that should be removed
-    :build_dir: Set to true if only cmake build folder should be removed
+    Crtl+C signal handler to exit gracefully
+    :param signum: Signal number
+    :param frame:  Current stack frame object
     """
-    def handle_readonly_folders(function, path, excinfo):
-        os.chmod(path, stat.S_IWRITE)
-        try:
-            function(path)
-        except OSError as e:
-            msg = 'Unable to cleanup folder "%s", %s error occurred' % (
-                                            os.path.realpath(path), e.strerror)
-            logger.error(msg)
-            sys.exit(1)
-
+    logger.info("Received signal %s, exiting..." % signum)
     global POPEN_INSTANCE
     try:
         if POPEN_INSTANCE:
@@ -454,26 +455,7 @@ def _cleanup(path, build_dir=False):
     except:
         pass
 
-    if isdir(path):
-        shutil.rmtree(os.path.realpath(path), onerror=handle_readonly_folders)
-        if build_dir:
-            logger.info("Removed Cmake build folder %s" % relpath(path))
-        else:
-            logger.info("Removed folder %s" % os.path.realpath(path))
-
     sys.exit(0)
-
-def _exit_gracefully(signum, frame):
-    """
-    Crtl+C signal handler to exit gracefully
-    :param signum: Signal number
-    :param frame:  Current stack frame object
-    """
-    logger.info("Received signal %s, cleaning up and then exiting..." % signum)
-    if USING_TEMP_DIR and TF_M_BUILD_DIR is not None:
-        _cleanup(TF_M_BUILD_DIR)
-    else:
-        sys.exit(0)
 
 def _get_parser():
     parser = argparse.ArgumentParser()
@@ -503,16 +485,6 @@ def _get_parser():
                         action="store_true",
                         default=False)
 
-    parser.add_argument("--develop",
-                        help="""Use this option for development. A new folder
-                        (tfm_build_dir) under the parent folder of Mbed OS is
-                        used as tf-m build folder.
-                        By default, temporary folder provided by
-                        tempfile.mkdtemp() is used.
-                        """,
-                        action="store_true",
-                        default=False)
-
     return parser
 
 def _main():
@@ -521,7 +493,6 @@ def _main():
     """
 
     global TF_M_BUILD_DIR
-    global USING_TEMP_DIR
     signal.signal(signal.SIGINT, _exit_gracefully)
     parser = _get_parser()
     args = parser.parse_args()
@@ -531,26 +502,11 @@ def _main():
                             ', '.join([t for t in _get_tfm_secure_targets()])))
         return
 
-    if not args.develop:
-        TF_M_BUILD_DIR = tempfile.mkdtemp()
-        USING_TEMP_DIR = True
-        logger.info("Using temporary folder %s" % TF_M_BUILD_DIR)
-        _build_tfm(args)
-        logger.info("Removing temporary folder %s" %
-                    os.path.realpath(TF_M_BUILD_DIR))
-        _cleanup(TF_M_BUILD_DIR)
-    else:
-        TF_M_BUILD_DIR = abspath(join(ROOT, os.pardir, 'tfm_build_dir'))
-        if not isdir(TF_M_BUILD_DIR):
-            os.mkdir(TF_M_BUILD_DIR)
+    if not isdir(TF_M_BUILD_DIR):
+        os.mkdir(TF_M_BUILD_DIR)
 
-        if TF_M_BUILD_DIR is not None:
-            cmake_build_dir = join(TF_M_BUILD_DIR, 'trusted-firmware-m',
-                                    'cmake_build')
-            if isdir(cmake_build_dir):
-                shutil.rmtree(cmake_build_dir)
-
-        _build_tfm(args)
+    logger.info("Using folder %s" % TF_M_BUILD_DIR)
+    _build_tfm(args)
 
 if __name__ == '__main__':
     if _are_dependencies_installed() != 0:
