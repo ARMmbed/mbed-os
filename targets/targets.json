@@ -5878,7 +5878,7 @@
         "device_has_add": ["USBDEVICE", "EMAC", "FLASH", "LPTICKER"],
         "release_versions": ["2", "5"],
         "device_name": "R7S72100",
-        "bootloader_supported": true
+        "bootloader_supported": false
     },
     "VK_RZ_A1H": {
         "inherits": ["RZ_A1XX"],
@@ -5895,7 +5895,7 @@
         "device_has_remove": ["ETHERNET"],
         "release_versions": ["2", "5"],
         "device_name": "R7S72103",
-        "bootloader_supported": true,
+        "bootloader_supported": false,
         "overrides": {
             "network-default-interface-type": null
         }
@@ -6753,7 +6753,8 @@
         },
         "overrides": {
             "network-default-interface-type": "MESH"
-        }
+        },
+        "bootloader_supported": false
     },
     "EFM32PG12B500F1024GL125": {
         "inherits": ["EFM32"],
@@ -8475,7 +8476,7 @@
             "MPU"
         ],
         "release_versions": ["2", "5"],
-        "bootloader_supported": true
+        "bootloader_supported": false
     },
     "NUCLEO_WB55RG": {
         "inherits": ["FAMILY_STM32"],
@@ -8509,7 +8510,7 @@
 		],
         "features": ["BLE"],
         "release_versions": ["2", "5"],
-        "bootloader_supported": true
+        "bootloader_supported": false
     },
     "VBLUNO52": {
         "supported_form_factors": ["ARDUINO"],
@@ -9184,7 +9185,7 @@
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         },
-        "bootloader_supported": true,
+        "bootloader_supported": false,
         "sectors": [[268435456, 512]],
         "overrides": {
             "network-default-interface-type": "WIFI"
@@ -9197,7 +9198,7 @@
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         },
-        "bootloader_supported": true,
+        "bootloader_supported": false,
         "sectors": [[268435456, 512]]
     },
     "CY8CPROTO_062S3_4343W": {
@@ -9229,7 +9230,7 @@
             "function": "PSOC6Code.complete"
         },
         "sectors": [[268443648, 512]],
-        "bootloader_supported": true
+        "bootloader_supported": false
     },
     "CY8CPROTO_063_BLE": {
         "inherits": ["MCU_PSOC6_M4"],
@@ -9245,7 +9246,7 @@
             "function": "PSOC6Code.complete"
         },
         "sectors": [[268443648, 512]],
-        "bootloader_supported": true
+        "bootloader_supported": false
     },
     "CY8CPROTO_064_SB": {
         "inherits": ["MCU_PSOC6_M4"],
@@ -9279,7 +9280,7 @@
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         },
-        "bootloader_supported": true,
+        "bootloader_supported": false,
         "sectors": [[268435456, 512]],
         "overrides": {
             "network-default-interface-type": "WIFI"
@@ -9461,15 +9462,10 @@
         "inherits": ["RDA5981X"],
         "detect_code": ["8001"],
         "components_add": ["FLASHIAP"],
-        "bootloader_supported": true,
-        "mbed_ram_start": "0x00100080",
-        "mbed_ram_size": "0x1ff80",
-        "mbed_rom_start": "0x18001000",
-        "mbed_rom_size": "0x1F4000",
-        "sectors": [[0,4096]],
         "overrides": {
             "network-default-interface-type" : "WIFI"
-        }
+        },
+        "bootloader_supported": false
     },
     "GD32_Target": {
         "inherits": ["Target"],
