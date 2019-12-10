@@ -430,7 +430,8 @@ bool AT_CellularContext::get_context()
     return true;
 }
 
-const char* AT_CellularContext::get_nonip_context_type_str() {
+const char *AT_CellularContext::get_nonip_context_type_str()
+{
     return "Non-IP";
 }
 

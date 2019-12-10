@@ -42,8 +42,8 @@ nsapi_error_t UBLOX_N2XX_CellularNetwork::clear()
 }
 
 nsapi_error_t UBLOX_N2XX_CellularNetwork::set_ciot_optimization_config(CIoT_Supported_Opt supported_opt,
-                                                               CIoT_Preferred_UE_Opt preferred_opt,
-                                                               Callback<void(CIoT_Supported_Opt)> network_support_cb)
+                                                                       CIoT_Preferred_UE_Opt preferred_opt,
+                                                                       Callback<void(CIoT_Supported_Opt)> network_support_cb)
 {
     _ciotopt_network_support_cb = network_support_cb;
     nsapi_error_t err = _at.at_cmd_discard("+CRTDCP", "=", "%d", 1);

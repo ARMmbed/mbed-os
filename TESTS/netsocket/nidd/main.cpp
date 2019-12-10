@@ -72,7 +72,7 @@ void poll_pending_messages(CellularNonIPSocket &sock, int count)
 {
     uint8_t buf[100] = {0};
     sock.set_timeout(1000);
-    for (int i=0; i < count; i++) {
+    for (int i = 0; i < count; i++) {
         if (i == 0 || i == 2) {
             (void) sock.send("", 0); // poll to clear any remaining MT messages
         }

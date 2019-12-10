@@ -44,7 +44,7 @@ NetworkStack *UBLOX_N2XX_CellularContext::get_stack()
 }
 #endif
 
-const char* UBLOX_N2XX_CellularContext::get_nonip_context_type_str()
+const char *UBLOX_N2XX_CellularContext::get_nonip_context_type_str()
 {
     return "NONIP";
 }

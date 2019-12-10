@@ -60,7 +60,7 @@ void AT_ControlPlane_netif::urc_cp_recv()
 
 nsapi_size_or_error_t AT_ControlPlane_netif::send(const void *cpdata, nsapi_size_t cpdata_length)
 {
-    if (cpdata_length > MAX_CP_DATA_RECV_LEN) {
+    if (cpdata_length > MBED_CONF_CELLULAR_MAX_CP_DATA_RECV_LEN) {
         return NSAPI_ERROR_PARAMETER;
     }
 
@@ -79,7 +79,7 @@ nsapi_size_or_error_t AT_ControlPlane_netif::recv(void *cpdata, nsapi_size_t cpd
 {
     _at.lock();
     if (_packet_list.count() <= 0) {
-       (void) send("", 0); // poll for missing +CRTDCP indications
+        (void) send("", 0); // poll for missing +CRTDCP indications
         if (_packet_list.count() <= 0) {
             return NSAPI_ERROR_WOULD_BLOCK;
         }

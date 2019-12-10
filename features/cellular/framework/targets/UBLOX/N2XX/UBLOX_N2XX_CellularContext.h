@@ -34,7 +34,7 @@ protected:
     virtual NetworkStack *get_stack();
 #endif
 
-    virtual const char* get_nonip_context_type_str();
+    virtual const char *get_nonip_context_type_str();
 };
 
 } /* namespace mbed */
