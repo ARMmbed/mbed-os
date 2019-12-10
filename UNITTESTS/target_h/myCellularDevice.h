@@ -23,6 +23,7 @@
 #include "ATHandler_stub.h"
 #include "AT_CellularContext.h"
 #include "gtest/gtest.h"
+#include "UARTSerial.h"
 
 using namespace events;
 
