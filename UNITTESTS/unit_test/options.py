@@ -103,6 +103,11 @@ def get_options_parser():
                         help="Build directory. Default: UNITTESTS/build/",
                         dest="build")
 
+    parser.add_argument("--valgrind",
+                        help="Use Valgrind when running executables",
+                        action="store_true",
+                        dest="valgrind")
+
     parser.add_argument("--new",
                         action="append",
                         help="Source file from which to generate test files. E.g. rtos/Semaphore.cpp",

@@ -76,13 +76,15 @@ def _mbed_unittest_test(options, cwd, pwd):
         tool.create_makefiles(path_to_src=src_path,
                               generator=options.cmake_generator,
                               coverage_output_type=options.coverage,
-                              debug=options.debug_build)
+                              debug=options.debug_build,
+                              valgrind=options.valgrind)
 
         # Build tests
         tool.build_tests()
 
     if options.run_only:
-        tool.run_tests(filter_regex=options.test_regex)
+        tool.run_tests(filter_regex=options.test_regex,
+                       valgrind=options.valgrind)
 
         # If code coverage generation:
         if options.coverage:
