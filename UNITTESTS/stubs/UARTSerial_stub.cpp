@@ -130,9 +130,11 @@ int UARTSerial::enable_output(bool enabled)
     return 0;
 }
 
+#if DEVICE_SERIAL_FC
 void UARTSerial::set_flow_control(mbed::SerialBase::Flow, PinName, PinName)
 {
 
 }
+#endif
 
 }

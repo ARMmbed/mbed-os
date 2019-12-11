@@ -49,5 +49,6 @@ set(unittest-test-sources
 set(unittest-test-flags
   -DDEVICE_SERIAL=1
   -DDEVICE_INTERRUPTIN=1
+  -DMBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE=115200
 )
 
