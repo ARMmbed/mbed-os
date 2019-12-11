@@ -33,6 +33,14 @@
                 "help": "Time in ms required to go to and wake up from deep sleep (max 10)",
                 "value": 0
             },
+            "app_offset": {
+                "help": "Application start offset in ROM",
+                "value": null
+            },
+            "header_offset": {
+                "help": "Application header offset in ROM",
+                "value": null
+            },
             "boot-stack-size": {
                 "help": "Define the boot stack size in bytes. This value must be a multiple of 8",
                 "value": "0x1000"
