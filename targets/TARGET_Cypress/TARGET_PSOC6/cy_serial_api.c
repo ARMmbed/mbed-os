@@ -125,7 +125,6 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
             break;
         default:
             MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SERIAL, MBED_ERROR_CODE_UNSUPPORTED), "Unsupported parity");
-            return;
     }
     cyhal_uart_cfg_t cfg = {
         .data_bits = data_bits,
