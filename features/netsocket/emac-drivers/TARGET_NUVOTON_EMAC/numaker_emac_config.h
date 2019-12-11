@@ -22,7 +22,7 @@
 #define NU_RX_RING_LEN              (8)
 #define NU_TX_RING_LEN              (4)
 
-#define NU_ETH_MAX_FLEN             (1520) 
+#define NU_ETH_MAX_FLEN             (1518) 
 
 #define NU_HWADDR_SIZE              (6)
 
