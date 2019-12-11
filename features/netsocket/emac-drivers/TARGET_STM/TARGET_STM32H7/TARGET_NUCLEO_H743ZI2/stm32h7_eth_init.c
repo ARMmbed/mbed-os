@@ -61,8 +61,7 @@
 void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
 {
     GPIO_InitTypeDef GPIO_InitStruct;
-    if(heth->Instance == ETH)
-    {
+    if (heth->Instance == ETH) {
         /* Disable DCache for STM32H7 family */
         SCB_DisableDCache();
 
@@ -96,14 +95,14 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
         GPIO_InitStruct.Alternate = GPIO_AF11_ETH;
         HAL_GPIO_Init(RMII_MDC_GPIO_Port, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin = RMII_REF_CLK_Pin|RMII_MDIO_Pin|RMII_CRS_DV_Pin;
+        GPIO_InitStruct.Pin = RMII_REF_CLK_Pin | RMII_MDIO_Pin | RMII_CRS_DV_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
         GPIO_InitStruct.Alternate = GPIO_AF11_ETH;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin = RMII_RXD0_Pin|RMII_RXD1_Pin;
+        GPIO_InitStruct.Pin = RMII_RXD0_Pin | RMII_RXD1_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
@@ -117,7 +116,7 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
         GPIO_InitStruct.Alternate = GPIO_AF11_ETH;
         HAL_GPIO_Init(RMII_TXD1_GPIO_Port, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin = RMII_TX_EN_Pin|RMII_TXD0_Pin;
+        GPIO_InitStruct.Pin = RMII_TX_EN_Pin | RMII_TXD0_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
@@ -131,8 +130,7 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
  */
 void HAL_ETH_MspDeInit(ETH_HandleTypeDef *heth)
 {
-    if(heth->Instance == ETH)
-    {
+    if (heth->Instance == ETH) {
         /* Disable Peripheral clock */
         __HAL_RCC_ETH1MAC_CLK_DISABLE();
         __HAL_RCC_ETH1TX_CLK_DISABLE();
@@ -149,13 +147,13 @@ void HAL_ETH_MspDeInit(ETH_HandleTypeDef *heth)
             PG11     ------> ETH_TX_EN
             PG13     ------> ETH_TXD0
         */
-        HAL_GPIO_DeInit(GPIOC, RMII_MDC_Pin|RMII_RXD0_Pin|RMII_RXD1_Pin);
+        HAL_GPIO_DeInit(GPIOC, RMII_MDC_Pin | RMII_RXD0_Pin | RMII_RXD1_Pin);
 
-        HAL_GPIO_DeInit(GPIOA, RMII_REF_CLK_Pin|RMII_MDIO_Pin|RMII_CRS_DV_Pin);
+        HAL_GPIO_DeInit(GPIOA, RMII_REF_CLK_Pin | RMII_MDIO_Pin | RMII_CRS_DV_Pin);
 
         HAL_GPIO_DeInit(RMII_TXD1_GPIO_Port, RMII_TXD1_Pin);
 
-        HAL_GPIO_DeInit(GPIOG, RMII_TX_EN_Pin|RMII_TXD0_Pin);
+        HAL_GPIO_DeInit(GPIOG, RMII_TX_EN_Pin | RMII_TXD0_Pin);
     }
 }
 

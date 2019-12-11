@@ -57,5 +57,5 @@ extern const pwm_apb_map_t pwm_apb_map_table[];
 #ifdef __cplusplus
 }
 #endif
-    
+
 #endif
