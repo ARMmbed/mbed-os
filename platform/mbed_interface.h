@@ -1,12 +1,3 @@
-
-/** \ingroup mbed-os-public */
-/** \addtogroup platform-public-api */
-/** @{*/
-/**
- * \defgroup platform_interface Network interface and other utility functions
- * @{
- */
-
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
@@ -30,6 +21,14 @@
 
 #include "platform/mbed_toolchain.h"
 #include "device.h"
+
+/** \addtogroup platform-public-api */
+/** @{*/
+
+/**
+ * \defgroup platform_interface Network interface and other utility functions
+ * @{
+ */
 
 /* Mbed interface mac address
  * if MBED_MAC_ADD_x are zero, interface uid sets mac address,
@@ -169,7 +168,7 @@ void mbed_error_vprintf(const char *format, va_list arg) MBED_PRINTF(1, 0);
  *       FileHandle::write of the stderr device is. The default
  *       serial console is safe, either buffered or not. If the
  *       console has not previously been initialized, an attempt
- *       to use this from interrupt may during console initialization.
+ *       to use this from interrupt may crash during console initialization.
  *       Special handling of `mbed_error` relaxes various system traps
  *       to increase the chance of initialization working.
  *

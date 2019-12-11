@@ -28,7 +28,7 @@ reset_reason_t hal_reset_reason_get(void)
 #endif
 
 #ifdef RCC_FLAG_LPWR1RST
-    if ((__HAL_RCC_GET_FLAG(RCC_FLAG_LPWR1RST))||(__HAL_RCC_GET_FLAG(RCC_FLAG_LPWR2RST))) {
+    if ((__HAL_RCC_GET_FLAG(RCC_FLAG_LPWR1RST)) || (__HAL_RCC_GET_FLAG(RCC_FLAG_LPWR2RST))) {
         return RESET_REASON_WAKE_LOW_POWER;
     }
 #endif

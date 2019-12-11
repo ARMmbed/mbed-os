@@ -18,23 +18,23 @@
 #define AT_CELLULARCONTEXT_H_
 
 #include "CellularContext.h"
-#include "AT_CellularBase.h"
+#include "ATHandler.h"
 #include "Semaphore.h"
+#include "AT_CellularDevice.h"
 
 const int MAX_APN_LENGTH = 63 + 1;
 
 namespace mbed {
 
-class AT_CellularDevice;
-
-class AT_CellularContext : public CellularContext, public AT_CellularBase {
+class AT_CellularContext : public CellularContext {
 public:
     AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn = 0, bool cp_req = false, bool nonip_req = false);
     virtual ~AT_CellularContext();
 
-// from CellularBase/NetworkInterface
+// from CellularInterface/NetworkInterface
     virtual nsapi_error_t set_blocking(bool blocking);
     virtual NetworkStack *get_stack();
+    virtual nsapi_error_t get_ip_address(SocketAddress *address);
     virtual const char *get_ip_address();
     virtual char *get_interface_name(char *interface_name);
     virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
@@ -42,13 +42,15 @@ public:
     virtual nsapi_error_t disconnect();
     virtual nsapi_connection_status_t get_connection_status() const;
     virtual bool is_connected();
-    // from CellularBase
+    // from CellularInterface
     virtual void set_plmn(const char *plmn);
     virtual void set_sim_pin(const char *sim_pin);
     virtual nsapi_error_t connect(const char *sim_pin, const char *apn = 0, const char *uname = 0,
                                   const char *pwd = 0);
     virtual void set_credentials(const char *apn, const char *uname = 0, const char *pwd = 0);
+    virtual nsapi_error_t get_netmask(SocketAddress *address);
     virtual const char *get_netmask();
+    virtual nsapi_error_t get_gateway(SocketAddress *address);
     virtual const char *get_gateway();
 
 // from CellularContext
@@ -69,6 +71,8 @@ public:
     virtual ControlPlane_netif *get_cp_netif();
 
     AT_CellularDevice *get_device() const;
+
+    ATHandler &get_at_handler();
 protected:
     virtual void cellular_callback(nsapi_event_t ev, intptr_t ptr);
 
@@ -101,7 +105,7 @@ protected:
     virtual void set_disconnect();
     virtual void deactivate_context();
     virtual bool get_context();
-    AT_CellularBase::CellularProperty pdp_type_t_to_cellular_property(pdp_type_t pdp_type);
+    AT_CellularDevice::CellularProperty pdp_type_t_to_cellular_property(pdp_type_t pdp_type);
     bool set_new_context(int cid);
 private:
 #if NSAPI_PPP_AVAILABLE
@@ -119,8 +123,8 @@ private:
     void ciot_opt_cb(mbed::CellularNetwork::CIoT_Supported_Opt ciot_opt);
     virtual void do_connect_with_retry();
     void do_disconnect();
+    void set_cid(int cid);
 private:
-    bool _is_connected;
     ContextOperation  _current_op;
     FileHandle *_fh;
     rtos::Semaphore _semaphore;
@@ -130,6 +134,10 @@ protected:
     char _found_apn[MAX_APN_LENGTH];
     // flag indicating if CP was requested to be setup
     bool _cp_req;
+    bool _is_connected;
+
+protected:
+    ATHandler &_at;
 };
 
 } // namespace mbed

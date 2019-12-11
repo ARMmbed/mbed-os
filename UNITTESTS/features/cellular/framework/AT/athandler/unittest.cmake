@@ -10,7 +10,7 @@ set(unittest-includes ${unittest-includes}
   ../features/cellular/framework/common
   ../features/cellular/framework/AT
   ../features/frameworks/mbed-client-randlib/mbed-client-randlib
-  
+
 )
 
 # Source files
@@ -21,11 +21,12 @@ set(unittest-sources
 # Test files
 set(unittest-test-sources
   features/cellular/framework/AT/athandler/athandlertest.cpp
-  stubs/AT_CellularBase_stub.cpp
   stubs/EventQueue_stub.cpp
   stubs/FileHandle_stub.cpp
   stubs/us_ticker_stub.cpp
-  stubs/mbed_assert_stub.c
+  stubs/UARTSerial_stub.cpp
+  stubs/SerialBase_stub.cpp
+  stubs/mbed_assert_stub.cpp
   stubs/mbed_poll_stub.cpp
   stubs/Timer_stub.cpp
   stubs/equeue_stub.c
@@ -39,5 +40,10 @@ set(unittest-test-sources
   stubs/rtx_mutex_stub.c
 )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMBED_CONF_CELLULAR_DEBUG_AT=true -DOS_STACK_SIZE=2048")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMBED_CONF_CELLULAR_DEBUG_AT=true -DOS_STACK_SIZE=2048")
+set(unittest-test-flags
+  -DMBED_CONF_CELLULAR_DEBUG_AT=true
+  -DOS_STACK_SIZE=2048
+  -DDEVICE_SERIAL=1
+  -DDEVICE_INTERRUPTIN=1
+  -DMBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE=115200
+)

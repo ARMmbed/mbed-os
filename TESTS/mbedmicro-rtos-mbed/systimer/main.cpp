@@ -20,10 +20,7 @@
 #include "utest.h"
 #include "ticker_api.h"
 
-extern "C" {
-#include "rtx_lib.h"
-}
-#include "platform/SysTimer.h"
+#include "platform/source/SysTimer.h"
 
 #define TEST_TICKS 42
 #define TEST_TICK_US (TEST_TICKS * 1000)

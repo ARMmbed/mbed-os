@@ -18,6 +18,11 @@
 #ifndef DNS_TESTS_H
 #define DNS_TESTS_H
 
+#include "nsapi_dns.h"
+#include "mbed_trace.h"
+
+#define TRACE_GROUP "GRNT"
+
 #ifndef MBED_CONF_APP_DNS_SIMULT_QUERIES
 #ifdef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
 #define MBED_CONF_APP_DNS_SIMULT_QUERIES   MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
@@ -69,7 +74,7 @@ namespace dns_global {
 #ifdef MBED_GREENTEA_TEST_DNSSOCKET_TIMEOUT_S
 static const int TESTS_TIMEOUT = MBED_GREENTEA_TEST_DNSSOCKET_TIMEOUT_S;
 #else
-static const int TESTS_TIMEOUT = 10 * 60;
+static const int TESTS_TIMEOUT = 14 * 60;
 #endif
 }
 

@@ -48,6 +48,10 @@ static nsapi_error_t _tlssocket_connect_to_daytime_srv(TLSSocket &sock)
         return err;
     }
 
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.set_root_ca_cert(tls_global::cert));
+
+    sock.set_timeout(10000); // Set timeout for case TLSSocket does not support peer closed indication
+
     return sock.connect(tls_addr);
 }
 
@@ -62,7 +66,6 @@ void TLSSOCKET_ENDPOINT_CLOSE()
     tc_exec_time.start();
 
     TLSSocket sock;
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.set_root_ca_cert(tls_global::cert));
     if (_tlssocket_connect_to_daytime_srv(sock) != NSAPI_ERROR_OK) {
         TEST_FAIL();
         return;

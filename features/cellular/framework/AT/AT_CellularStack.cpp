@@ -19,11 +19,14 @@
 #include "CellularUtil.h"
 #include "CellularLog.h"
 #include "ThisThread.h"
+#include "AT_CellularDevice.h"
 
 using namespace mbed_cellular_util;
 using namespace mbed;
 
-AT_CellularStack::AT_CellularStack(ATHandler &at, int cid, nsapi_ip_stack_t stack_type) : AT_CellularBase(at), _socket(NULL), _socket_count(0), _cid(cid), _stack_type(stack_type)
+AT_CellularStack::AT_CellularStack(ATHandler &at, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
+    _socket(NULL), _socket_count(0), _cid(cid),
+    _stack_type(stack_type), _ip_ver_sendto(NSAPI_UNSPEC), _at(at), _device(device)
 {
     memset(_ip, 0, PDP_IPV6_SIZE);
 }
@@ -55,31 +58,97 @@ int AT_CellularStack::find_socket_index(nsapi_socket_t handle)
 
 /** NetworkStack
  */
-const char *AT_CellularStack::get_ip_address()
+nsapi_error_t AT_CellularStack::get_ip_address(SocketAddress *address)
 {
+    if (!address) {
+        return NSAPI_ERROR_PARAMETER;
+    }
     _at.lock();
+
+    bool ipv4 = false, ipv6 = false;
 
     _at.cmd_start_stop("+CGPADDR", "=", "%d", _cid);
     _at.resp_start("+CGPADDR:");
 
-    int len = -1;
     if (_at.info_resp()) {
         _at.skip_param();
 
-        len = _at.read_string(_ip, PDP_IPV6_SIZE);
+        if (_at.read_string(_ip, PDP_IPV6_SIZE) != -1) {
+            convert_ipv6(_ip);
+            address->set_ip_address(_ip);
 
-        if (len != -1 && _stack_type != IPV4_STACK) {
-            // in case stack type is not IPV4 only, try to look also for IPV6 address
-            (void)_at.read_string(_ip, PDP_IPV6_SIZE);
+            ipv4 = (address->get_ip_version() == NSAPI_IPv4);
+            ipv6 = (address->get_ip_version() == NSAPI_IPv6);
+
+            // Try to look for second address ONLY if modem has support for dual stack(can handle both IPv4 and IPv6 simultaneously).
+            // Otherwise assumption is that second address is not reliable, even if network provides one.
+            if ((_device.get_property(AT_CellularDevice::PROPERTY_IPV4V6_PDP_TYPE) && (_at.read_string(_ip, PDP_IPV6_SIZE) != -1))) {
+                convert_ipv6(_ip);
+                address->set_ip_address(_ip);
+                ipv6 = (address->get_ip_version() == NSAPI_IPv6);
+            }
         }
     }
     _at.resp_stop();
     _at.unlock();
 
-    // we have at least IPV4 address
-    convert_ipv6(_ip);
+    if (ipv4 && ipv6) {
+        _stack_type = IPV4V6_STACK;
+    } else if (ipv4) {
+        _stack_type = IPV4_STACK;
+    } else if (ipv6) {
+        _stack_type = IPV6_STACK;
+    }
 
-    return len != -1 ? _ip : NULL;
+    return (ipv4 || ipv6) ? NSAPI_ERROR_OK : NSAPI_ERROR_NO_ADDRESS;
+}
+
+const char *AT_CellularStack::get_ip_address()
+{
+    _at.lock();
+
+    bool ipv4 = false, ipv6 = false;
+
+    _at.cmd_start_stop("+CGPADDR", "=", "%d", _cid);
+    _at.resp_start("+CGPADDR:");
+
+    if (_at.info_resp()) {
+        _at.skip_param();
+
+        if (_at.read_string(_ip, PDP_IPV6_SIZE) != -1) {
+            convert_ipv6(_ip);
+            SocketAddress address;
+            address.set_ip_address(_ip);
+
+            ipv4 = (address.get_ip_version() == NSAPI_IPv4);
+            ipv6 = (address.get_ip_version() == NSAPI_IPv6);
+
+            // Try to look for second address ONLY if modem has support for dual stack(can handle both IPv4 and IPv6 simultaneously).
+            // Otherwise assumption is that second address is not reliable, even if network provides one.
+            if ((_device.get_property(AT_CellularDevice::PROPERTY_IPV4V6_PDP_TYPE) && (_at.read_string(_ip, PDP_IPV6_SIZE) != -1))) {
+                convert_ipv6(_ip);
+                address.set_ip_address(_ip);
+                ipv6 = (address.get_ip_version() == NSAPI_IPv6);
+            }
+        }
+    }
+    _at.resp_stop();
+    _at.unlock();
+
+    if (ipv4 && ipv6) {
+        _stack_type = IPV4V6_STACK;
+    } else if (ipv4) {
+        _stack_type = IPV4_STACK;
+    } else if (ipv6) {
+        _stack_type = IPV6_STACK;
+    }
+
+    return (ipv4 || ipv6) ? _ip : NULL;
+}
+
+void AT_CellularStack::set_cid(int cid)
+{
+    _cid = cid;
 }
 
 nsapi_error_t AT_CellularStack::socket_stack_init()
@@ -140,7 +209,7 @@ nsapi_error_t AT_CellularStack::socket_close(nsapi_socket_t handle)
 
     struct CellularSocket *socket = (struct CellularSocket *)handle;
     if (!socket) {
-        return err;
+        return NSAPI_ERROR_NO_SOCKET;
     }
     int sock_id = socket->id;
 
@@ -176,7 +245,7 @@ nsapi_error_t AT_CellularStack::socket_bind(nsapi_socket_t handle, const SocketA
 {
     struct CellularSocket *socket = (CellularSocket *)handle;
     if (!socket) {
-        return NSAPI_ERROR_DEVICE_ERROR;
+        return NSAPI_ERROR_NO_SOCKET;
     }
 
     if (addr) {
@@ -204,14 +273,14 @@ nsapi_error_t AT_CellularStack::socket_bind(nsapi_socket_t handle, const SocketA
 
 nsapi_error_t AT_CellularStack::socket_listen(nsapi_socket_t handle, int backlog)
 {
-    return NSAPI_ERROR_UNSUPPORTED;;
+    return NSAPI_ERROR_UNSUPPORTED;
 }
 
 nsapi_error_t AT_CellularStack::socket_connect(nsapi_socket_t handle, const SocketAddress &addr)
 {
     CellularSocket *socket = (CellularSocket *)handle;
     if (!socket) {
-        return NSAPI_ERROR_DEVICE_ERROR;
+        return NSAPI_ERROR_NO_SOCKET;
     }
     socket->remoteAddress = addr;
     socket->connected = true;
@@ -221,14 +290,17 @@ nsapi_error_t AT_CellularStack::socket_connect(nsapi_socket_t handle, const Sock
 
 nsapi_error_t AT_CellularStack::socket_accept(void *server, void **socket, SocketAddress *addr)
 {
-    return NSAPI_ERROR_UNSUPPORTED;;
+    return NSAPI_ERROR_UNSUPPORTED;
 }
 
 nsapi_size_or_error_t AT_CellularStack::socket_send(nsapi_socket_t handle, const void *data, unsigned size)
 {
     CellularSocket *socket = (CellularSocket *)handle;
-    if (!socket || !socket->connected) {
-        return NSAPI_ERROR_DEVICE_ERROR;
+    if (!socket) {
+        return NSAPI_ERROR_NO_SOCKET;
+    }
+    if (!socket->connected) {
+        return NSAPI_ERROR_NO_CONNECTION;
     }
     return socket_sendto(handle, socket->remoteAddress, data, size);
 }
@@ -237,10 +309,10 @@ nsapi_size_or_error_t AT_CellularStack::socket_sendto(nsapi_socket_t handle, con
 {
     CellularSocket *socket = (CellularSocket *)handle;
     if (!socket) {
-        return NSAPI_ERROR_DEVICE_ERROR;
+        return NSAPI_ERROR_NO_SOCKET;
     }
 
-    if (socket->closed && !socket->rx_avail) {
+    if (socket->closed && !socket->pending_bytes) {
         tr_info("sendto socket %d closed", socket->id);
         return NSAPI_ERROR_NO_CONNECTION;
     }
@@ -256,6 +328,13 @@ nsapi_size_or_error_t AT_CellularStack::socket_sendto(nsapi_socket_t handle, con
     nsapi_size_or_error_t ret_val = NSAPI_ERROR_OK;
 
     if (socket->id == -1) {
+
+        /* Check that stack type supports sendto address type*/
+        if (!is_addr_stack_compatible(addr)) {
+            return NSAPI_ERROR_PARAMETER;
+        }
+
+        _ip_ver_sendto = addr.get_ip_version();
         _at.lock();
 
         ret_val = create_socket_impl(socket);
@@ -267,9 +346,9 @@ nsapi_size_or_error_t AT_CellularStack::socket_sendto(nsapi_socket_t handle, con
         }
     }
 
-    /* Check parameters */
-    if (addr.get_ip_version() == NSAPI_UNSPEC) {
-        return NSAPI_ERROR_DEVICE_ERROR;
+    /* Check parameters - sendto address is valid and stack type supports sending to that address type*/
+    if (!is_addr_stack_compatible(addr)) {
+        return NSAPI_ERROR_PARAMETER;
     }
 
     _at.lock();
@@ -296,7 +375,7 @@ nsapi_size_or_error_t AT_CellularStack::socket_recvfrom(nsapi_socket_t handle, S
 {
     CellularSocket *socket = (CellularSocket *)handle;
     if (!socket) {
-        return NSAPI_ERROR_DEVICE_ERROR;
+        return NSAPI_ERROR_NO_SOCKET;
     }
 
     if (socket->closed) {
@@ -377,3 +456,14 @@ AT_CellularStack::CellularSocket *AT_CellularStack::find_socket(int sock_id)
     }
     return sock;
 }
+
+bool AT_CellularStack::is_addr_stack_compatible(const SocketAddress &addr)
+{
+    if ((addr.get_ip_version() == NSAPI_UNSPEC) ||
+            (addr.get_ip_version() == NSAPI_IPv4 && _stack_type == IPV6_STACK) ||
+            (addr.get_ip_version() == NSAPI_IPv6 && _stack_type == IPV4_STACK)) {
+        return false;
+    }
+    return true;
+}
+

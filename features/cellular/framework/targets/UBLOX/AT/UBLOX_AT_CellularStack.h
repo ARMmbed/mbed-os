@@ -27,7 +27,7 @@ namespace mbed {
 
 class UBLOX_AT_CellularStack : public AT_CellularStack {
 public:
-    UBLOX_AT_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type);
+    UBLOX_AT_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device);
     virtual ~UBLOX_AT_CellularStack();
 
     virtual const char *get_ip_address();

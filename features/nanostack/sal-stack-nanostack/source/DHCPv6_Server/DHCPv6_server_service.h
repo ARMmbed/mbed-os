@@ -45,6 +45,7 @@ int DHCPv6_server_service_init(int8_t interface, uint8_t guaPrefix[static 16], u
 
 void DHCPv6_server_service_callback_set(int8_t interface, uint8_t guaPrefix[static 16], dhcp_address_prefer_remove_cb *remove_cb, dhcp_address_add_notify_cb *add_cb);
 
+int DHCPv6_server_service_duid_update(int8_t interface, uint8_t guaPrefix[static 16],  uint8_t *duid_ptr, uint16_t duid_type, uint8_t duid_length);
 
 /* Delete dhcp thread dhcp router ID server.
  *

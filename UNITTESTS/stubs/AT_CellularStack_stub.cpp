@@ -22,7 +22,8 @@
 using namespace mbed;
 using namespace mbed_cellular_util;
 
-AT_CellularStack::AT_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type) : AT_CellularBase(atHandler), _socket(NULL), _cid(cid), _stack_type(stack_type)
+AT_CellularStack::AT_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
+    _socket(NULL), _cid(cid), _stack_type(stack_type), _at(atHandler), _device(device)
 {
 }
 
@@ -33,6 +34,11 @@ AT_CellularStack::~AT_CellularStack()
 nsapi_error_t AT_CellularStack::socket_stack_init()
 {
     return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t AT_CellularStack::get_ip_address(SocketAddress* address)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
 }
 
 const char *AT_CellularStack::get_ip_address()
@@ -94,3 +100,6 @@ void AT_CellularStack::socket_attach(nsapi_socket_t handle, void (*callback)(voi
 {
 }
 
+void AT_CellularStack::set_cid(int cid)
+{
+}

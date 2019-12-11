@@ -626,19 +626,14 @@ int mbed_minimal_formatted_string(char *buffer, size_t length, const char *forma
 
                     mbed_minimal_formatted_string_void_pointer(buffer, length, &result, value, stream);
                 } else {
-                    /* write all characters between format beginning and unrecognied modifier */
-                    while (index < next_index) {
-                        mbed_minimal_formatted_string_character(buffer, length, &result, format[index], stream);
-                        index++;
+                    // Unrecognised, or `%%`. Print the `%` that led us in.
+                    mbed_minimal_formatted_string_character(buffer, length, &result, '%', stream);
+                    if (next == '%') {
+                        // Continue printing loop after `%%`
+                        index = next_index;
                     }
-
-                    /* if this is not the end of the string, write unrecognized modifier */
-                    if (next != '\0') {
-                        mbed_minimal_formatted_string_character(buffer, length, &result, format[index], stream);
-                    } else {
-                        /* break out of for loop */
-                        break;
-                    }
+                    // Otherwise we continue the printing loop after the leading `%`, so an
+                    // unrecognised thing like "Blah = %a" will just come out as "Blah = %a"
                 }
             } else
                 /* not a format specifier */

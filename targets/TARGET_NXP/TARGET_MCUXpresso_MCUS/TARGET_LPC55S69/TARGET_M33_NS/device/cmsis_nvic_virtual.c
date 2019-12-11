@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+#if MBED_CONF_PSA_PRESENT
+
 #include "cmsis_nvic_virtual.h"
 #include "mbed_toolchain.h"
 
@@ -25,3 +27,5 @@ void __NVIC_TFMSystemReset(void)
 {
     mbed_psa_system_reset();
 }
+
+#endif // MBED_CONF_PSA_PRESENT

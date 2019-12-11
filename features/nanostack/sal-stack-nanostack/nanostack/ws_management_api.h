@@ -79,6 +79,7 @@ extern "C" {
 #define NETWORK_SIZE_SMALL 0x01
 #define NETWORK_SIZE_MEDIUM 0x08
 #define NETWORK_SIZE_LARGE 0x10
+#define NETWORK_SIZE_CERTIFICATE 0xFF
 
 
 /** Temporary API change flag. this will be removed when new version of API is implemented on applications
@@ -246,9 +247,10 @@ int ws_management_fhss_timing_configure(
  * Change the default configuration for Wi-SUN FHSS operation.
  * if application defined is used the behaviour is undefined
  *
+ *
  * \param interface_id Network interface ID.
  * \param channel_function Unicast channel function.
- * \param fixed_channel Used channel when channel function is fixed channel. If 0xFFFF, randomly chosen channel is used.
+ * \param fixed_channel Used channel when channel function is fixed channel.
  * \param dwell_interval Used dwell interval when channel function is TR51 or DH1.
  *
  * \return 0, Init OK.
@@ -266,9 +268,10 @@ int ws_management_fhss_unicast_channel_function_configure(
  * Change the default configuration for Wi-SUN FHSS operation.
  * if application defined is used the behaviour is undefined
  *
+ *
  * \param interface_id Network interface ID.
  * \param channel_function Broadcast channel function.
- * \param fixed_channel Used channel when channel function is fixed channel. If 0xFFFF, randomly chosen channel is used.
+ * \param fixed_channel Used channel when channel function is fixed channel.
  * \param dwell_interval Broadcast channel dwell interval.
  * \param broadcast_interval Broadcast interval.
  *

@@ -37,15 +37,22 @@ extern "C" {
 #define NVIC_GetActive              __NVIC_GetActive
 #define NVIC_SetPriority            __NVIC_SetPriority
 #define NVIC_GetPriority            __NVIC_GetPriority
+#if MBED_CONF_PSA_PRESENT
 #define NVIC_SystemReset            __NVIC_TFMSystemReset
+#else
+#define NVIC_SystemReset            __NVIC_SystemReset
+#endif // MBED_CONF_PSA_PRESENT
 
 
+#if MBED_CONF_PSA_PRESENT
 /**
  * \brief Overriding the default CMSIS system reset implementation by calling
  *        secure TFM service.
  *
  */
 void __NVIC_TFMSystemReset(void);
+
+#endif // MBED_CONF_PSA_PRESENT
 
 #ifdef __cplusplus
 }

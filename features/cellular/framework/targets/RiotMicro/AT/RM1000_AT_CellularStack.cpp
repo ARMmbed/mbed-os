@@ -27,7 +27,8 @@
 using namespace mbed;
 using namespace mbed_cellular_util;
 
-RM1000_AT_CellularStack::RM1000_AT_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type) : AT_CellularStack(atHandler, cid, stack_type)
+RM1000_AT_CellularStack::RM1000_AT_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
+    AT_CellularStack(atHandler, cid, stack_type, device)
 {
     tr_debug("RM1000_AT_CellularStack::RM1000_AT_CellularStack");
 
@@ -281,10 +282,9 @@ nsapi_size_or_error_t RM1000_AT_CellularStack::socket_recvfrom_impl(CellularSock
         } else {
             if (count == 0) {
                 // Timeout with nothing received
-                nsapi_error_size = NSAPI_ERROR_WOULD_BLOCK;
                 success = false;
             }
-            size = 0; // This simply to cause an exit
+            break;
         }
     }
     timer.stop();

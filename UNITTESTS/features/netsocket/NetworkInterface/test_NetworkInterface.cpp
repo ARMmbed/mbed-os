@@ -64,6 +64,7 @@ protected:
 TEST_F(TestNetworkInterface, constructor)
 {
     EXPECT_TRUE(iface);
+    iface->set_as_default(); //Empty function. Just trigger it, so it doesn't obscure coverage reports.
 }
 
 // get_default_instance is tested along with the implementations of NetworkInterface.
@@ -76,20 +77,26 @@ TEST_F(TestNetworkInterface, get_mac_address)
 
 TEST_F(TestNetworkInterface, get_ip_address)
 {
-    char *n = 0;
-    EXPECT_EQ(iface->get_ip_address(), n);
+    SocketAddress addr;
+    EXPECT_EQ(iface->get_ip_address(&addr), NSAPI_ERROR_UNSUPPORTED);
 }
 
 TEST_F(TestNetworkInterface, get_netmask)
 {
-    char *n = 0;
-    EXPECT_EQ(iface->get_netmask(), n);
+    SocketAddress addr;
+    EXPECT_EQ(iface->get_netmask(&addr), NSAPI_ERROR_UNSUPPORTED);
 }
 
 TEST_F(TestNetworkInterface, get_gateway)
 {
+    SocketAddress addr;
+    EXPECT_EQ(iface->get_gateway(&addr), NSAPI_ERROR_UNSUPPORTED);
+}
+
+TEST_F(TestNetworkInterface, get_interface_name)
+{
     char *n = 0;
-    EXPECT_EQ(iface->get_gateway(), n);
+    EXPECT_EQ(iface->get_interface_name(n), n);
 }
 
 TEST_F(TestNetworkInterface, set_network)
@@ -141,6 +148,12 @@ TEST_F(TestNetworkInterface, set_blocking)
     EXPECT_EQ(iface->set_blocking(true), NSAPI_ERROR_UNSUPPORTED);
 }
 
+TEST_F(TestNetworkInterface, get_ipv6_link_local_address)
+{
+    SocketAddress a;
+    EXPECT_EQ(iface->get_ipv6_link_local_address(&a), NSAPI_ERROR_UNSUPPORTED);
+}
+
 void my_iface_callback(nsapi_event_t e, intptr_t i)
 {
     (void)e;
@@ -168,7 +181,7 @@ TEST_F(TestNetworkInterface, add_event_listener)
 
 TEST_F(TestNetworkInterface, remove_event_listener)
 {
-    // Add two callback and check that both are called
+    // Add two callbacks and check that both are called
     callback_is_called = false;
     second_callback_called = false;
     iface->add_event_listener(my_iface_callback);
@@ -215,7 +228,6 @@ TEST_F(TestNetworkInterface, correct_event_listener_per_interface)
     EXPECT_EQ(second_callback_called, true);
 
     iface->remove_event_listener(my_iface_callback);
-    iface2->remove_event_listener(my_iface_callback2);
-
+    // Do not call iface2->remove_event_listener, so the destructor can take care of this.
     delete iface2;
 }

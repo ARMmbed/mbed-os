@@ -19,6 +19,9 @@
 #define UDP_TESTS_H
 
 #include "../test_params.h"
+#include "mbed_trace.h"
+
+#define TRACE_GROUP "GRNT"
 
 NetworkInterface *get_interface();
 void drop_bad_packets(UDPSocket &sock, int orig_timeout);
@@ -51,7 +54,9 @@ static const int MAX_SEND_SIZE_IPV6 = 1220;
  * Test cases
  */
 void UDPSOCKET_ECHOTEST();
+void UDPSOCKET_ECHOTEST_CONNECT_SEND_RECV();
 void UDPSOCKET_ECHOTEST_NONBLOCK();
+void UDPSOCKET_ECHOTEST_NONBLOCK_CONNECT_SEND_RECV();
 void UDPSOCKET_ECHOTEST_BURST();
 void UDPSOCKET_ECHOTEST_BURST_NONBLOCK();
 void UDPSOCKET_OPEN_CLOSE_REPEAT();

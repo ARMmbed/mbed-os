@@ -21,7 +21,6 @@ set(unittest-sources
 set(unittest-test-sources
   features/cellular/framework/AT/at_cellularcontext/at_cellularcontexttest.cpp
   stubs/ATHandler_stub.cpp
-  stubs/AT_CellularBase_stub.cpp
   stubs/AT_CellularDevice_stub.cpp
   stubs/AT_CellularStack_stub.cpp
   stubs/AT_CellularNetwork_stub.cpp
@@ -30,7 +29,7 @@ set(unittest-test-sources
   stubs/equeue_stub.c
   stubs/EventQueue_stub.cpp
   stubs/FileHandle_stub.cpp
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
   stubs/NetworkInterface_stub.cpp
   stubs/NetworkInterfaceDefaults_stub.cpp
   stubs/NetworkStack_stub.cpp
@@ -44,4 +43,12 @@ set(unittest-test-sources
   stubs/SocketAddress_stub.cpp
   stubs/ConditionVariable_stub.cpp
   stubs/Mutex_stub.cpp
+)
+
+set(unittest-test-flags
+  -DDEVICE_SERIAL=1
+  -DDEVICE_INTERRUPTIN=1
+  -DMBED_CONF_CELLULAR_USE_SMS=1
+  -DMBED_CONF_NSAPI_DEFAULT_CELLULAR_APN=NULL
+  -DMBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE=115200
 )

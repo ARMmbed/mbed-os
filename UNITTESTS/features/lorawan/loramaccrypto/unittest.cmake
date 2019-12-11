@@ -35,8 +35,11 @@ set(unittest-test-sources
   stubs/cipher_stub.c
   stubs/aes_stub.c
   stubs/cmac_stub.c
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
   ../features/nanostack/coap-service/test/coap-service/unittest/stub/mbedtls_stub.c
 
 )
 
+set(unittest-test-flags
+  -DMBED_CONF_LORA_TX_MAX_SIZE=255
+  )

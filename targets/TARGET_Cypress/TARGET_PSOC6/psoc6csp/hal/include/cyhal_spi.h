@@ -30,11 +30,6 @@
 * \ingroup group_hal
 * \{
 * High level interface for interacting with the Cypress SPI.
-*
-* \defgroup group_hal_spi_macros Macros
-* \defgroup group_hal_spi_functions Functions
-* \defgroup group_hal_spi_data_structures Data Structures
-* \defgroup group_hal_spi_enums Enumerated Types
 */
 
 #pragma once
@@ -50,11 +45,6 @@ extern "C" {
 #endif
 
 
-/**
-* \addtogroup group_hal_spi_macros
-* \{
-*/
-
 /** Bad argument */
 #define CYHAL_SPI_RSLT_BAD_ARGUMENT                    (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SPI, 0))
 /** Failed to initialize SPI clock */
@@ -69,8 +59,6 @@ extern "C" {
 #define CYHAL_SPI_RSLT_INVALID_PIN_API_NOT_SUPPORTED   (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SPI, 6))
 /** The requested resource type is invalid */
 #define CYHAL_SPI_RSLT_ERR_INVALID_PIN                 (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SPI, 7))
-
-/** \} group_hal_spi_macros */
 
 /** Compatibility define for cyhal_spi_set_frequency. */
 #define cyhal_spi_frequency cyhal_spi_set_frequency
@@ -109,7 +97,7 @@ typedef enum
     CYHAL_SPI_MODE_11_LSB,
 } cyhal_spi_mode_t;
 
-/** Initial SPI configuration. */
+/** @brief Initial SPI configuration. */
 typedef struct
 {
     cyhal_spi_mode_t mode; //!< The operating mode
@@ -250,8 +238,6 @@ void cyhal_spi_enable_event(cyhal_spi_t *obj, cyhal_spi_event_t event, uint8_t i
 /** \cond INTERNAL */
 typedef cyhal_spi_event_t             cyhal_spi_irq_event_t;
 /** \endcond */
-
-/** \} group_hal_spi_functions */
 
 #if defined(__cplusplus)
 }

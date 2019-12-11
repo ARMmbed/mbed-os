@@ -275,12 +275,14 @@ typedef enum {
     SPI_CS      = D10,
     PWM_OUT     = D9,
 
-    /**** USB pins ****/
+    /**** USB FS pins ****/
     USB_OTG_FS_DM = PA_11,
     USB_OTG_FS_DP = PA_12,
     USB_OTG_FS_ID = PA_10,
     USB_OTG_FS_SOF = PA_8,
     USB_OTG_FS_VBUS = PA_9,
+
+    /**** USB HS pins ****/
     USB_OTG_HS_DM = PB_14,
     USB_OTG_HS_DP = PB_15,
     USB_OTG_HS_ID = PB_12,

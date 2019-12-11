@@ -43,12 +43,18 @@ typedef enum {
     IEEE_802_11_GKH_KEY = 17
 } kmp_type_e;
 
+typedef enum {
+    KMP_RESULT_OK = 0,                    // Successful
+    KMP_RESULT_ERR_NO_MEM = -1,           // No memory
+    KMP_RESULT_ERR_TX_NO_ACK = -2,        // No acknowledge was received
+    KMP_RESULT_ERR_UNSPEC = -3            // Other reason
+} kmp_result_e;
 
 typedef enum {
-    KMP_RESULT_OK = 0,
-    KMP_RESULT_ERR_NO_MEM = -1,
-    KMP_RESULT_ERR_UNSPEC = -2
-} kmp_result_e;
+    KMP_TX_OK = 0,                         // Successful
+    KMP_TX_ERR_TX_NO_ACK = -1,             // No acknowledge was received
+    KMP_TX_ERR_UNSPEC = -2,                // Other reason
+} kmp_tx_status_e;
 
 typedef void kmp_sec_keys_t;
 typedef struct sec_prot_s sec_prot_t;
@@ -153,6 +159,16 @@ void kmp_api_delete(kmp_api_t *kmp);
 kmp_type_e kmp_api_type_get(kmp_api_t *kmp);
 
 /**
+ * kmp_api_type_get get receive disabled status
+ *
+ * \param kmp instance
+ *
+ * \return true/false true when receiving has been disabled
+ *
+ */
+bool kmp_api_receive_disable(kmp_api_t *kmp);
+
+/**
  * kmp_api_type_from_id_get get KMP type from KMP id
  *
  * \param kmp_id KMP identifier
@@ -190,6 +206,16 @@ void kmp_api_data_set(kmp_api_t *kmp, void *data);
  *
  */
 void *kmp_api_data_get(kmp_api_t *kmp);
+
+/**
+ * kmp_api_id_get get KMP instance identifier
+ *
+ * \param kmp instance
+ *
+ * \return instance identifier
+ *
+ */
+uint8_t kmp_api_instance_id_get(kmp_api_t *kmp);
 
 /**
  * kmp_api_addr_set set address
@@ -253,6 +279,17 @@ int8_t kmp_service_delete(kmp_service_t *service);
 typedef kmp_api_t *kmp_service_incoming_ind(kmp_service_t *service, kmp_type_e type, const kmp_addr_t *addr);
 
 /**
+ * kmp_service_tx_status_ind Notifies application about TX status
+ *
+ * \param service KMP service
+ * \param instance_id KMP instance identifier
+ *
+ * \return KMP instance or NULL
+ *
+ */
+typedef kmp_api_t *kmp_service_tx_status_ind(kmp_service_t *service, uint8_t instance_id);
+
+/**
  * kmp_service_addr_get gets addressing information related to KMP
  *
  * \param service KMP service
@@ -280,13 +317,15 @@ typedef kmp_api_t *kmp_service_api_get(kmp_service_t *service, kmp_api_t *kmp, k
  *
  * \param service KMP service
  * \param incoming_ind incoming message callback
+ * \param tx_status tx status callback
  * \param addr_get gets addressing information callback
+ * \param api_get gets KMP API from KMP service
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-int8_t kmp_service_cb_register(kmp_service_t *service, kmp_service_incoming_ind *incoming_ind, kmp_service_addr_get *addr_get, kmp_service_api_get *api_get);
+int8_t kmp_service_cb_register(kmp_service_t *service, kmp_service_incoming_ind *incoming_ind, kmp_service_tx_status_ind *tx_status_ind, kmp_service_addr_get *addr_get, kmp_service_api_get *api_get);
 
 /**
  * kmp_service_msg_if_receive receive a message
@@ -311,12 +350,13 @@ int8_t kmp_service_msg_if_receive(kmp_service_t *service, kmp_type_e kmp_id, con
  * \param addr address
  * \param pdu pdu
  * \param size pdu size
+ * \param tx_identifier TX identifier
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-typedef int8_t kmp_service_msg_if_send(kmp_service_t *service, kmp_type_e type, const kmp_addr_t *addr, void *pdu, uint16_t size);
+typedef int8_t kmp_service_msg_if_send(kmp_service_t *service, kmp_type_e type, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier);
 
 /**
  * kmp_service_msg_if_register registers message interface
@@ -330,6 +370,19 @@ typedef int8_t kmp_service_msg_if_send(kmp_service_t *service, kmp_type_e type, 
  *
  */
 int8_t kmp_service_msg_if_register(kmp_service_t *service, kmp_service_msg_if_send *send, uint8_t header_size);
+
+/**
+ * kmp_service_tx_status tx status indication
+ *
+ * \param service KMP service
+ * \param tx_status tx status
+ * \param tx_identifier tx identifier
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t kmp_service_tx_status_indication(kmp_service_t *service, kmp_tx_status_e tx_status, uint8_t tx_identifier);
 
 /**
  * kmp_sec_prot_size security protocol data size

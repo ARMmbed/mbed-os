@@ -71,7 +71,9 @@
 #define PPP_DNS                           1
 
 // Used as maximum size for output buffer, to restrict the memory manager get_pool_alloc_unit()
+#ifndef PBUF_POOL_BUFSIZE
 #define PBUF_POOL_BUFSIZE                 536 + 40
+#endif
 
 #endif // PPP_SUPPORT
 

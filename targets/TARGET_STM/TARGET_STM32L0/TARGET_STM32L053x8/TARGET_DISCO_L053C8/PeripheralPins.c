@@ -192,3 +192,12 @@ MBED_WEAK const PinMap PinMap_SPI_SSEL[] = {
     {PB_12,      SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF0_SPI2)}, // Connected to NFC_NSS
     {NC, NC, 0}
 };
+
+//*** USBDEVICE ***
+
+MBED_WEAK const PinMap PinMap_USB_FS[] = {
+    {PA_11,     USB_FS, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF_NONE)}, // USB_DM // Connected to USB1_DM
+    {PA_12,     USB_FS, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF_NONE)}, // USB_DP // Connected to USB1_DP
+//  {PA_13,     USB_FS, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_USB)}, // USB_NOE // Connected to SWDIO
+    {NC, NC, 0}
+};

@@ -53,7 +53,7 @@ static int32_t psa_sst_remove_api(psa_sst_uid_t uid, uint32_t data_len,
     return VAL_STATUS_SUCCESS;
 }
 
-int32_t psa_sst_flags_not_supported(security_t caller)
+int32_t psa_sst_flags_not_supported(caller_security_t caller)
 {
    psa_sst_create_flags_t flag = 0x80000000;
    uint32_t status = VAL_STATUS_SUCCESS;

@@ -38,9 +38,12 @@ using namespace mbed;
 #define DEFAULT_AT_TIMEOUT 1000 // at default timeout in milliseconds
 const int MAX_SIM_RESPONSE_LENGTH = 16;
 
-AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _network(0), _sms(0),
-    _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT),
-    _modem_debug_on(false)
+AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh),
+#if MBED_CONF_CELLULAR_USE_SMS
+    _sms(0),
+#endif // MBED_CONF_CELLULAR_USE_SMS
+    _network(0), _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT),
+    _modem_debug_on(false), _property_array(NULL)
 {
     MBED_ASSERT(fh);
     _at = get_at_handler(fh);
@@ -49,7 +52,7 @@ AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _netw
 
 AT_CellularDevice::~AT_CellularDevice()
 {
-    if (AT_CellularBase::get_property(AT_CellularBase::PROPERTY_AT_CGEREP)) {
+    if (get_property(PROPERTY_AT_CGEREP)) {
         _at->set_urc_handler("+CGEV: NW DEACT", 0);
         _at->set_urc_handler("+CGEV: ME DEACT", 0);
         _at->set_urc_handler("+CGEV: NW PDN D", 0);
@@ -58,11 +61,17 @@ AT_CellularDevice::~AT_CellularDevice()
 
     // make sure that all is deleted even if somewhere close was not called and reference counting is messed up.
     _network_ref_count = 1;
+#if MBED_CONF_CELLULAR_USE_SMS
     _sms_ref_count = 1;
+#endif // MBED_CONF_CELLULAR_USE_SMS
     _info_ref_count = 1;
 
     close_network();
+
+#if MBED_CONF_CELLULAR_USE_SMS
     close_sms();
+#endif //MBED_CONF_CELLULAR_USE_SMS
+
     close_information();
 
     AT_CellularContext *curr = _context_list;
@@ -84,7 +93,7 @@ void AT_CellularDevice::set_at_urcs_impl()
 
 void AT_CellularDevice::set_at_urcs()
 {
-    if (AT_CellularBase::get_property(AT_CellularBase::PROPERTY_AT_CGEREP)) {
+    if (get_property(PROPERTY_AT_CGEREP)) {
         _at->set_urc_handler("+CGEV: NW DEACT", callback(this, &AT_CellularDevice::urc_nw_deact));
         _at->set_urc_handler("+CGEV: ME DEACT", callback(this, &AT_CellularDevice::urc_nw_deact));
         _at->set_urc_handler("+CGEV: NW PDN D", callback(this, &AT_CellularDevice::urc_pdn_deact));
@@ -203,7 +212,9 @@ nsapi_error_t AT_CellularDevice::get_sim_state(SimState &state)
     _at->flush();
     nsapi_error_t error = _at->at_cmd_str("+CPIN", "?", simstr, sizeof(simstr));
     ssize_t len = strlen(simstr);
+#if MBED_CONF_MBED_TRACE_ENABLE
     device_err_t err = _at->get_last_device_error();
+#endif
     _at->unlock();
 
     if (len != -1) {
@@ -348,15 +359,6 @@ CellularNetwork *AT_CellularDevice::open_network(FileHandle *fh)
     return _network;
 }
 
-CellularSMS *AT_CellularDevice::open_sms(FileHandle *fh)
-{
-    if (!_sms) {
-        _sms = open_sms_impl(*get_at_handler(fh));
-    }
-    _sms_ref_count++;
-    return _sms;
-}
-
 CellularInformation *AT_CellularDevice::open_information(FileHandle *fh)
 {
     if (!_information) {
@@ -368,30 +370,18 @@ CellularInformation *AT_CellularDevice::open_information(FileHandle *fh)
 
 AT_CellularNetwork *AT_CellularDevice::open_network_impl(ATHandler &at)
 {
-    return new AT_CellularNetwork(at);
+    return new AT_CellularNetwork(at, *this);
 }
 
-AT_CellularSMS *AT_CellularDevice::open_sms_impl(ATHandler &at)
-{
-    return new AT_CellularSMS(at);
-}
+#if MBED_CONF_CELLULAR_USE_SMS
 
-AT_CellularInformation *AT_CellularDevice::open_information_impl(ATHandler &at)
+CellularSMS *AT_CellularDevice::open_sms(FileHandle *fh)
 {
-    return new AT_CellularInformation(at);
-}
-
-void AT_CellularDevice::close_network()
-{
-    if (_network) {
-        _network_ref_count--;
-        if (_network_ref_count == 0) {
-            ATHandler *atHandler = &_network->get_at_handler();
-            delete _network;
-            _network = NULL;
-            release_at_handler(atHandler);
-        }
+    if (!_sms) {
+        _sms = open_sms_impl(*get_at_handler(fh));
     }
+    _sms_ref_count++;
+    return _sms;
 }
 
 void AT_CellularDevice::close_sms()
@@ -402,6 +392,30 @@ void AT_CellularDevice::close_sms()
             ATHandler *atHandler = &_sms->get_at_handler();
             delete _sms;
             _sms = NULL;
+            release_at_handler(atHandler);
+        }
+    }
+}
+
+AT_CellularSMS *AT_CellularDevice::open_sms_impl(ATHandler &at)
+{
+    return new AT_CellularSMS(at, *this);
+}
+#endif // MBED_CONF_CELLULAR_USE_SMS
+
+AT_CellularInformation *AT_CellularDevice::open_information_impl(ATHandler &at)
+{
+    return new AT_CellularInformation(at, *this);
+}
+
+void AT_CellularDevice::close_network()
+{
+    if (_network) {
+        _network_ref_count--;
+        if (_network_ref_count == 0) {
+            ATHandler *atHandler = &_network->get_at_handler();
+            delete _network;
+            _network = NULL;
             release_at_handler(atHandler);
         }
     }
@@ -452,10 +466,12 @@ nsapi_error_t AT_CellularDevice::init()
         _at->clear_error();
         _at->flush();
         _at->at_cmd_discard("E0", "");
-        _at->at_cmd_discard("+CMEE", "=1");
-        _at->at_cmd_discard("+CFUN", "=1");
         if (_at->get_last_error() == NSAPI_ERROR_OK) {
-            break;
+            _at->at_cmd_discard("+CMEE", "=1");
+            _at->at_cmd_discard("+CFUN", "=1");
+            if (_at->get_last_error() == NSAPI_ERROR_OK) {
+                break;
+            }
         }
         tr_debug("Wait 100ms to init modem");
         rtos::ThisThread::sleep_for(100); // let modem have time to get ready
@@ -623,4 +639,54 @@ void AT_CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr, Cellul
         }
     }
     CellularDevice::cellular_callback(ev, ptr, ctx);
+}
+
+nsapi_error_t AT_CellularDevice::clear()
+{
+    AT_CellularNetwork *net = static_cast<AT_CellularNetwork *>(open_network());
+    nsapi_error_t err = net->clear();
+    close_network();
+
+    return err;
+}
+
+nsapi_error_t AT_CellularDevice::set_baud_rate(int baud_rate)
+{
+    nsapi_error_t error = set_baud_rate_impl(baud_rate);
+
+    if (error) {
+        tr_warning("Baudrate was not changed to desired value: %d", baud_rate);
+        return error;
+    }
+
+    _at->set_baud(baud_rate);
+
+    // Give some time before starting using the UART with the new baud rate
+    rtos::ThisThread::sleep_for(3000);
+
+    return error;
+}
+
+nsapi_error_t AT_CellularDevice::set_baud_rate_impl(int baud_rate)
+{
+    return _at->at_cmd_discard("+IPR", "=", "%d", baud_rate);
+}
+
+void AT_CellularDevice::set_cellular_properties(const intptr_t *property_array)
+{
+    if (!property_array) {
+        tr_warning("trying to set an empty cellular property array");
+        return;
+    }
+
+    _property_array = property_array;
+}
+
+intptr_t AT_CellularDevice::get_property(CellularProperty key)
+{
+    if (_property_array) {
+        return _property_array[key];
+    } else {
+        return 0;
+    }
 }

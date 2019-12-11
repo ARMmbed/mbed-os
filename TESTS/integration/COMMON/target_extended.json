@@ -226,6 +226,15 @@
             "spif-driver.SPI_CS"                        : "PC_12",
             "no_led"                                    : "1",
             "tests-fs-size"                             : "2*1024*1024"
+        },
+        "MCU_PSOC6": {
+            "tests-fs-size"                             : "8*1024*1024"
+        },
+        "CY8PROTO_062_4343W": {
+            "no_led"                                    : "1"
+        },
+        "_CY8CPROTO_062S3_4343W": {
+            "no_led"                                    : "1"
         }
     },
     "config": {

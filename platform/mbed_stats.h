@@ -1,11 +1,3 @@
-
-/** \ingroup mbed-os-public */
-/** \addtogroup platform-public-api */
-/** @{*/
-/**
- * \defgroup platform_stats stats functions
- * @{
- */
 /* mbed Microcontroller Library
  * Copyright (c) 2016-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
@@ -31,6 +23,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** \addtogroup platform-public-api */
+/** @{*/
+
+/**
+ * \defgroup platform_stats stats functions
+ * @{
+ */
 
 #ifdef MBED_ALL_STATS_ENABLED
 

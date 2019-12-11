@@ -140,4 +140,6 @@ int mcps_packet_ingress_rate_limit_by_memory(uint8_t free_heap_percentage);
 
 uint32_t mac_mcps_sap_get_phy_timestamp(struct protocol_interface_rf_mac_setup *rf_mac_setup);
 
+void mcps_pending_packet_counter_update_check(struct protocol_interface_rf_mac_setup *rf_mac_setup, mac_pre_build_frame_t *buffer);
+
 #endif /* MAC_IEEE802_15_4_MAC_MCPS_SAP_H_ */

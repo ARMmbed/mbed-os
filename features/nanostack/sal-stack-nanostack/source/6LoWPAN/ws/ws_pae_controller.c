@@ -48,17 +48,10 @@ typedef int8_t ws_pae_gtk_hash_update(protocol_interface_info_entry_t *interface
 typedef int8_t ws_pae_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
 
 typedef struct {
-    uint8_t hash[8];                                                 /**< GTK hash for the key */
+    uint8_t gtk[GTK_LEN];                                            /**< GTK key */
+    bool set : 1;                                                    /**< Key has been set */
     bool installed : 1;                                              /**< Key has been installed on MAC */
-    bool fresh : 1;                                                  /**< Key is fresh i.e. not used on sending */
 } nw_key_t;
-
-typedef struct {
-    uint8_t hash[8];                                                 /**< GTK hash for the frame counter */
-    uint32_t frame_counter;                                          /**< Frame counter */
-    uint8_t index;                                                   /**< Index */
-    bool set : 1;                                                    /**< Value has been set */
-} stored_frame_counter_t;
 
 typedef struct {
     ns_list_link_t link;                                             /**< Link */
@@ -70,10 +63,10 @@ typedef struct {
     int8_t gtk_index;                                                /**< GTK index */
     uint8_t gtkhash[32];                                             /**< GTK hashes */
     sec_prot_certs_t certs;                                          /**< Certificates */
-    nw_key_t nw_key[4];                                              /**< Currently active network keys (on MAC) */
+    nw_key_t nw_key[GTK_NUM];                                        /**< Currently active network keys (on MAC) */
     char *network_name;                                              /**< Network name for GAK generation */
     uint16_t frame_cnt_store_timer;                                  /**< Timer for storing frame counter value */
-    stored_frame_counter_t stored_frame_counter;                     /**< Stored frame counter */
+    frame_counters_t frame_counters;                                 /**< Frame counters */
     timer_settings_t timer_settings;                                 /**< Timer settings */
     protocol_interface_info_entry_t *interface_ptr;                  /**< List link entry */
     ws_pae_controller_auth_completed *auth_completed;                /**< Authentication completed callback, continue bootstrap */
@@ -100,13 +93,15 @@ typedef struct {
 typedef struct {
     uint16_t node_limit;                                             /**< Max number of stored supplicants */
     bool node_limit_set : 1;                                         /**< Node limit set */
+    bool ext_cert_valid_enabled : 1;                                 /**< Extended certificate validation enabled */
 } pae_controller_config_t;
 
 static pae_controller_t *ws_pae_controller_get(protocol_interface_info_entry_t *interface_ptr);
 static void ws_pae_controller_frame_counter_timer(uint16_t seconds, pae_controller_t *entry);
-static void ws_pae_controller_frame_counter_store(pae_controller_t *entry);
+static void ws_pae_controller_frame_counter_timer_trigger(uint16_t seconds, pae_controller_t *entry);
+static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool use_threshold);
 static void ws_pae_controller_nvm_frame_counter_write(nvm_tlv_entry_t *tlv_entry);
-static int8_t ws_pae_controller_nvm_frame_counter_read(uint8_t *index, uint8_t *hash, uint32_t *frame_counter);
+static int8_t ws_pae_controller_nvm_frame_counter_read(frame_counters_t *counters);
 static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id);
 static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash);
 static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks);
@@ -116,9 +111,7 @@ static int8_t ws_pae_controller_gak_from_gtk(uint8_t *gak, uint8_t *gtk, char *n
 static void ws_pae_controller_nw_key_index_check_and_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
 static void ws_pae_controller_data_init(pae_controller_t *controller);
 static void ws_pae_controller_frame_counter_read(pae_controller_t *controller);
-static void ws_pae_controller_frame_counter_reset(stored_frame_counter_t *counter);
-static uint32_t ws_pae_controller_frame_counter_get(stored_frame_counter_t *counter, uint8_t index, uint8_t *key_hash);
-static void ws_pae_controller_frame_counter_write(pae_controller_t *controller, uint8_t index, uint8_t *key_hash, uint32_t curr_counter);
+static void ws_pae_controller_frame_counter_reset(frame_counters_t *frame_counters);
 
 static const char *FRAME_COUNTER_FILE = FRAME_COUNTER_FILE_NAME;
 
@@ -126,7 +119,8 @@ static NS_LIST_DEFINE(pae_controller_list, pae_controller_t, link);
 
 pae_controller_config_t pae_controller_config = {
     .node_limit = 0,
-    .node_limit_set = false
+    .node_limit_set = false,
+    .ext_cert_valid_enabled = false
 };
 
 #if !defined(HAVE_PAE_SUPP) && !defined(HAVE_PAE_AUTH)
@@ -162,13 +156,14 @@ int8_t ws_pae_controller_authenticate(protocol_interface_info_entry_t *interface
         if (sec_prot_keys_gtks_are_updated(&controller->gtks)) {
             ws_pae_controller_nw_key_check_and_insert(controller->interface_ptr, &controller->gtks);
             sec_prot_keys_gtks_updated_reset(&controller->gtks);
+            ws_pae_supp_gtks_set(controller->interface_ptr, &controller->gtks);
         }
-        controller->auth_completed(interface_ptr, true);
+        controller->auth_completed(interface_ptr, AUTH_RESULT_OK, NULL);
         return 0;
     }
 
     if (ws_pae_supp_authenticate(controller->interface_ptr, controller->target_pan_id, controller->target_eui_64) < 0) {
-        controller->auth_completed(interface_ptr, false);
+        controller->auth_completed(interface_ptr, AUTH_RESULT_ERR_UNSPEC, controller->target_eui_64);
     }
 
 #else
@@ -176,7 +171,7 @@ int8_t ws_pae_controller_authenticate(protocol_interface_info_entry_t *interface
     ws_pae_controller_nw_key_check_and_insert(interface_ptr, &controller->gtks);
     ws_pae_controller_nw_key_index_check_and_set(interface_ptr, 0);
 
-    controller->auth_completed(interface_ptr, true);
+    controller->auth_completed(interface_ptr, AUTH_RESULT_OK);
 #endif
 
     return 0;
@@ -318,63 +313,86 @@ int8_t ws_pae_controller_nw_key_valid(protocol_interface_info_entry_t *interface
 
 static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks)
 {
-    int8_t ret = -1;
-
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (!controller) {
-        return ret;
+        return -1;
     }
 
-    uint8_t gtkhash[GTK_ALL_HASHES_LEN];
-    sec_prot_keys_gtks_hash_generate(gtks, gtkhash);
+    int8_t ret = -1;
 
+    // Adds, removes and updates network keys to MAC based on new GTKs
     nw_key_t *nw_key = controller->nw_key;
-
-    // Delete old keys
-    uint8_t *gtk_hash_ptr = gtkhash;
     for (uint8_t i = 0; i < GTK_NUM; i++) {
-        // If hash is not set for a key
-        if (sec_prot_keys_gtk_hash_empty(gtk_hash_ptr)) {
-            // Deletes the key if it is set
-            if (!sec_prot_keys_gtk_hash_empty(nw_key[i].hash)) {
-                tr_info("NW key remove: %i", i);
+        // Gets GTK for the index (new, modified or none)
+        uint8_t *gtk = sec_prot_keys_gtk_get(gtks, i);
+
+        // If network key is set and GTK key is not set or not the same, removes network key
+        if (nw_key[i].set && (!gtk || memcmp(nw_key[i].gtk, gtk, GTK_LEN) != 0)) {
+            // Removes key from MAC if installed
+            if (nw_key[i].installed) {
                 controller->nw_key_clear(interface_ptr, i);
-                nw_key[i].installed = false;
             }
+            nw_key[i].installed = false;
+            nw_key[i].set = false;
+            tr_info("NW key remove: %i", i);
         }
-        gtk_hash_ptr += GTK_HASH_LEN;
-    }
 
-    // Insert new keys
-    gtk_hash_ptr = gtkhash;
-    for (uint8_t i = 0; i < GTK_NUM; i++) {
-        // If hash is set for a key
-        if (!sec_prot_keys_gtk_hash_empty(gtk_hash_ptr)) {
-            int hash_matches = memcmp(gtk_hash_ptr, nw_key[i].hash, GTK_HASH_LEN);
-            // If the hash does not match (not set or modified) or not installed
-            if (hash_matches != 0 || !nw_key[i].installed) {
+        // If GTK key is not set, continues to next GTK
+        if (!gtk) {
+            continue;
+        }
 
-                memcpy(nw_key[i].hash, gtk_hash_ptr, GTK_HASH_LEN);
+        // Network key is set and installed, all done
+        if (nw_key[i].set && nw_key[i].installed) {
+            continue;
+        }
 
+        // If network key is not set, stores the new GTK key to network key
+        if (!nw_key[i].set) {
+            nw_key[i].set = true;
+            nw_key[i].installed = false;
+            memcpy(nw_key[i].gtk, gtk, GTK_LEN);
+        }
+
+        // If network key has not been installed, installs it and updates frame counter as needed
+        if (!nw_key[i].installed) {
+            uint8_t gtkhash[GTK_HASH_LEN];
+            sec_prot_keys_gtk_hash_generate(gtk, gtkhash);
+            tr_info("NW key set: %i, hash: %s", i, trace_array(gtkhash, 8));
+            uint8_t gak[GTK_LEN];
+            if (ws_pae_controller_gak_from_gtk(gak, gtk, controller->network_name) >= 0) {
+                // Install the new network key derived from GTK and network name (GAK) to MAC
+                controller->nw_key_set(interface_ptr, i, i, gak);
+                tr_info("NW: %s", controller->network_name);
+                tr_info("NW: %s", trace_array((uint8_t *)controller->network_name, 20));
+                tr_info("GTK: %s", trace_array(gtk, 16));
+                tr_info("GAK: %s", trace_array(gak, 16));
                 nw_key[i].installed = true;
-                if (hash_matches != 0) {
-                    nw_key[i].fresh = true;
-                }
+                ret = 0;
+            } else {
+                tr_error("GAK generation failed network name: %s", controller->network_name);
+                continue;
+            }
 
-                uint8_t *gtk = sec_prot_keys_gtk_get(gtks, i);
-                tr_info("NW key set: %i, hash: %s", i, trace_array(nw_key[i].hash, 8));
-                uint8_t gak[GTK_LEN];
-                if (ws_pae_controller_gak_from_gtk(gak, gtk, controller->network_name) >= 0) {
-                    controller->nw_key_set(interface_ptr, i, i, gak);
-                    ret = 0;
-                } else {
-                    tr_error("GAK generation failed network name: %s", controller->network_name);
-                    ret = -1;
+            // If frame counter value has been stored for the network key, updates the frame counter if needed
+            if (controller->frame_counters.counter[i].set &&
+                    memcmp(gtk, controller->frame_counters.counter[i].gtk, GTK_LEN) == 0) {
+                // Read current counter from MAC
+                uint32_t curr_frame_counter;
+                controller->nw_frame_counter_read(controller->interface_ptr, &curr_frame_counter, i);
+                // If stored frame counter is greater than MAC counter
+                if (controller->frame_counters.counter[i].frame_counter > curr_frame_counter) {
+                    tr_debug("Frame counter set: %i, stored %"PRIu32" current: %"PRIu32"", i, controller->frame_counters.counter[i].frame_counter, curr_frame_counter);
+                    curr_frame_counter = controller->frame_counters.counter[i].frame_counter;
+                    // Updates MAC frame counter
+                    controller->nw_frame_counter_set(controller->interface_ptr, curr_frame_counter, i);
                 }
             }
+            /* Trigger storing of frame counters; there is 5 seconds delay to give time for the
+               other keys to be inserted, so that frame counters for several keys are updated on
+               a same time. */
+            ws_pae_controller_frame_counter_timer_trigger(FRAME_COUNTER_STORE_TRIGGER, controller);
         }
-
-        gtk_hash_ptr += GTK_HASH_LEN;
     }
 
     return ret;
@@ -383,8 +401,8 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_
 static void ws_pae_controller_active_nw_key_clear(nw_key_t *nw_key)
 {
     memset(nw_key, 0, sizeof(nw_key_t));
+    nw_key->set = false;
     nw_key->installed = false;
-    nw_key->fresh = false;
 }
 
 static int8_t ws_pae_controller_gak_from_gtk(uint8_t *gak, uint8_t *gtk, char *network_name)
@@ -461,9 +479,12 @@ void ws_pae_controller_nw_keys_remove(protocol_interface_info_entry_t *interface
     nw_key_t *nw_key = controller->nw_key;
     for (uint8_t i = 0; i < GTK_NUM; i++) {
         // Deletes the key if it is set
-        if (!sec_prot_keys_gtk_hash_empty(nw_key[i].hash)) {
+        if (nw_key[i].set) {
             tr_info("NW key remove: %i", i);
-            controller->nw_key_clear(interface_ptr, i);
+            if (nw_key[i].installed) {
+                controller->nw_key_clear(interface_ptr, i);
+            }
+            nw_key[i].set = false;
             nw_key[i].installed = false;
         }
     }
@@ -480,11 +501,6 @@ static void ws_pae_controller_nw_key_index_check_and_set(protocol_interface_info
         tr_info("NW send key index set: %i", index + 1);
         controller->nw_send_key_index_set(interface_ptr, index);
         controller->gtk_index = index;
-
-        uint32_t frame_counter = ws_pae_controller_frame_counter_get(&controller->stored_frame_counter, index, controller->nw_key[index].hash);
-        controller->nw_frame_counter_set(interface_ptr, frame_counter);
-        tr_info("NW frame counter set: %"PRIu32"", frame_counter);
-        ws_pae_controller_frame_counter_write(controller, index, controller->nw_key[index].hash, frame_counter);
     }
 
     // Do not update PAN version for initial key index set
@@ -505,19 +521,13 @@ static void ws_pae_controller_active_nw_key_set(protocol_interface_info_entry_t 
     }
 
     if (controller->nw_send_key_index_set) {
+        /* Checks if frame counters needs to be stored for the new GTK that is taken into
+           use; this is the last check that stored counters are in sync before activating key */
+        ws_pae_controller_frame_counter_store(controller, true);
+        // Activates key on MAC
         controller->nw_send_key_index_set(controller->interface_ptr, index);
         tr_info("NW send key index set: %i", index + 1);
-
-        // If index has changed and the key for the index is fresh get frame counter
-        if (controller->gtk_index != index && controller->nw_key[index].fresh) {
-            uint32_t frame_counter = ws_pae_controller_frame_counter_get(&controller->stored_frame_counter, index, controller->nw_key[index].hash);
-            controller->nw_frame_counter_set(cur, frame_counter);
-            tr_info("NW frame counter set: %"PRIu32"", frame_counter);
-            ws_pae_controller_frame_counter_write(controller, index, controller->nw_key[index].hash, frame_counter);
-        }
-
         controller->gtk_index = index;
-        controller->nw_key[index].fresh = false;
     }
 }
 
@@ -582,58 +592,45 @@ static void ws_pae_controller_data_init(pae_controller_t *controller)
     controller->gtk_index = -1;
     controller->network_name = NULL;
     controller->frame_cnt_store_timer = FRAME_COUNTER_STORE_INTERVAL;
-    ws_pae_controller_frame_counter_reset(&controller->stored_frame_counter);
+    ws_pae_controller_frame_counter_reset(&controller->frame_counters);
     sec_prot_keys_gtks_init(&controller->gtks);
     sec_prot_keys_gtks_init(&controller->next_gtks);
     sec_prot_certs_init(&controller->certs);
+    sec_prot_certs_ext_certificate_validation_set(&controller->certs, pae_controller_config.ext_cert_valid_enabled);
     ws_pae_timers_settings_init(&controller->timer_settings);
 }
 
 static void ws_pae_controller_frame_counter_read(pae_controller_t *controller)
 {
-    stored_frame_counter_t *counter = &controller->stored_frame_counter;
-    // If not already, read frame counter and check if index and hash matches
-    if (!counter->set && ws_pae_controller_nvm_frame_counter_read(&counter->index, counter->hash, &counter->frame_counter) >= 0) {
-        counter->frame_counter += FRAME_COUNTER_INCREMENT;
-        counter->set = true;
-        tr_debug("Read frame counter: %"PRIu32", index %i, hash %s, system time: %"PRIu32"", counter->frame_counter, counter->index, trace_array(counter->hash, 8), protocol_core_monotonic_time / 10);
-        // Write incremented frame counter
-        ws_pae_nvm_store_frame_counter_tlv_create(controller->pae_nvm_buffer, counter->index, counter->hash, counter->frame_counter);
-        ws_pae_controller_nvm_frame_counter_write(controller->pae_nvm_buffer);
+    // Read frame counters
+    if (ws_pae_controller_nvm_frame_counter_read(&controller->frame_counters) >= 0) {
+        bool updated = false;
+        // Checks frame counters
+        for (uint8_t index = 0; index < GTK_NUM; index++) {
+            if (controller->frame_counters.counter[index].set) {
+                // Increments frame counters
+                controller->frame_counters.counter[index].frame_counter += FRAME_COUNTER_INCREMENT;
+
+                tr_info("Read frame counter: index %i value %"PRIu32"", index, controller->frame_counters.counter[index].frame_counter);
+
+                updated = true;
+            }
+        }
+        if (updated) {
+            // Writes incremented frame counters
+            ws_pae_nvm_store_frame_counter_tlv_create(controller->pae_nvm_buffer, &controller->frame_counters);
+            ws_pae_controller_nvm_frame_counter_write(controller->pae_nvm_buffer);
+            //ws_pae_controller_frame_counter_write(controller, &controller->frame_counters);
+        }
     }
 }
 
-static void ws_pae_controller_frame_counter_reset(stored_frame_counter_t *counter)
+static void ws_pae_controller_frame_counter_reset(frame_counters_t *frame_counters)
 {
-    memset(counter->hash, 0, GTK_HASH_LEN);
-    counter->frame_counter = 0;
-    counter->index = -1;
-    counter->set = false;
-}
-
-static uint32_t ws_pae_controller_frame_counter_get(stored_frame_counter_t *counter, uint8_t index, uint8_t *key_hash)
-{
-    uint32_t frame_counter = 0;
-    // If both index and hash matches uses the stored frame counter
-    if (counter->set && counter->index == index && memcmp(counter->hash, key_hash, GTK_HASH_LEN) == 0) {
-        frame_counter = counter->frame_counter;
-    }
-
-    return frame_counter;
-}
-
-static void ws_pae_controller_frame_counter_write(pae_controller_t *controller, uint8_t index, uint8_t *key_hash, uint32_t curr_frame_counter)
-{
-    stored_frame_counter_t *counter = &controller->stored_frame_counter;
-    // If index or hash changes, or frame counter has been incremented by the threshold updates frame counter
-    if (!counter->set || counter->index != index || memcmp(key_hash, counter->hash, 8) != 0 || curr_frame_counter > counter->frame_counter + FRAME_COUNTER_STORE_THRESHOLD) {
-        ws_pae_nvm_store_frame_counter_tlv_create(controller->pae_nvm_buffer, index, key_hash, curr_frame_counter);
-        ws_pae_controller_nvm_frame_counter_write(controller->pae_nvm_buffer);
-        counter->index = index;
-        counter->frame_counter = curr_frame_counter;
-        memcpy(counter->hash, key_hash, GTK_HASH_LEN);
-        counter->set = true;
-        tr_debug("Stored frame counter: %"PRIu32", index %i, hash %s, system time: %"PRIu32"", curr_frame_counter, index, trace_array(key_hash, 8), protocol_core_monotonic_time / 10);
+    for (uint8_t index = 0; index < GTK_NUM; index++) {
+        memset(frame_counters->counter[index].gtk, 0, GTK_LEN);
+        frame_counters->counter[index].frame_counter = 0;
+        frame_counters->counter[index].set = false;
     }
 }
 
@@ -693,7 +690,10 @@ int8_t ws_pae_controller_stop(protocol_interface_info_entry_t *interface_ptr)
     }
 
     // Stores frame counter
-    ws_pae_controller_frame_counter_store(controller);
+    ws_pae_controller_frame_counter_store(controller, false);
+
+    // Removes network keys from PAE controller and MAC
+    ws_pae_controller_nw_keys_remove(interface_ptr);
 
     // If PAE has been initialized, deletes it
     if (controller->pae_delete) {
@@ -764,6 +764,46 @@ int8_t ws_pae_controller_certificate_chain_set(const arm_certificate_chain_entry
                 }
             }
         }
+
+        // Updates the length of own certificates
+        entry->certs.own_cert_chain_len = sec_prot_certs_cert_chain_entry_len_get(&entry->certs.own_cert_chain);
+    }
+
+    return 0;
+}
+
+int8_t ws_pae_controller_own_certificate_add(const arm_certificate_entry_s *cert)
+{
+    if (!cert) {
+        return -1;
+    }
+
+    int8_t ret = -1;
+
+    ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
+        for (uint8_t i = 0; i < SEC_PROT_CERT_CHAIN_DEPTH; i++) {
+            if (entry->certs.own_cert_chain.cert[i] == NULL) {
+                sec_prot_certs_cert_set(&entry->certs.own_cert_chain, i, (uint8_t *) cert->cert, cert->cert_len);
+                // Set private key if set for the certificate that is added
+                if (cert->key && cert->key_len > 0) {
+                    sec_prot_certs_priv_key_set(&entry->certs.own_cert_chain, (uint8_t *) cert->key, cert->key_len);
+                }
+                ret = 0;
+                break;
+            }
+        }
+        // Updates the length of own certificates
+        entry->certs.own_cert_chain_len = sec_prot_certs_cert_chain_entry_len_get(&entry->certs.own_cert_chain);
+    }
+
+    return ret;
+}
+
+int8_t ws_pae_controller_own_certificates_remove(void)
+{
+    ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
+        sec_prot_certs_chain_entry_init(&entry->certs.own_cert_chain);
+        entry->certs.own_cert_chain_len = 0;
     }
 
     return 0;
@@ -814,6 +854,15 @@ int8_t ws_pae_controller_trusted_certificate_remove(const arm_certificate_entry_
     sec_prot_certs_chain_entry_delete(trusted_cert);
 
     return ret;
+}
+
+int8_t ws_pae_controller_trusted_certificates_remove(void)
+{
+    ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
+        sec_prot_certs_chain_list_delete(&entry->certs.trusted_cert_chain_list);
+    }
+
+    return 0;
 }
 
 int8_t ws_pae_controller_certificate_revocation_list_add(const arm_cert_revocation_list_entry_s *crl)
@@ -904,7 +953,7 @@ int8_t ws_pae_controller_border_router_addr_read(protocol_interface_info_entry_t
     return 0;
 }
 
-int8_t ws_pae_controller_gtk_update(int8_t interface_id, uint8_t *gtk[4])
+int8_t ws_pae_controller_gtk_update(int8_t interface_id, uint8_t *gtk[GTK_NUM])
 {
     if (!gtk) {
         return -1;
@@ -928,6 +977,7 @@ int8_t ws_pae_controller_gtk_update(int8_t interface_id, uint8_t *gtk[4])
             uint32_t lifetime = sec_prot_keys_gtk_install_order_last_lifetime_get(&controller->gtks);
             lifetime += controller->timer_settings.gtk_expire_offset;
             if (sec_prot_keys_gtk_set(&controller->gtks, i, gtk[i], lifetime) >= 0) {
+                controller->gtks_set = true;
                 tr_info("GTK set index: %i, lifetime %"PRIu32", system time: %"PRIu32"", i, lifetime, protocol_core_monotonic_time / 10);
             }
         }
@@ -941,7 +991,7 @@ int8_t ws_pae_controller_gtk_update(int8_t interface_id, uint8_t *gtk[4])
     return 0;
 }
 
-int8_t ws_pae_controller_next_gtk_update(int8_t interface_id, uint8_t *gtk[4])
+int8_t ws_pae_controller_next_gtk_update(int8_t interface_id, uint8_t *gtk[GTK_NUM])
 {
     if (!gtk) {
         return -1;
@@ -1051,6 +1101,26 @@ int8_t ws_pae_controller_node_limit_set(int8_t interface_id, uint16_t limit)
 #endif
 }
 
+int8_t ws_pae_controller_ext_certificate_validation_set(int8_t interface_id, bool enabled)
+{
+#ifdef HAVE_PAE_AUTH
+    pae_controller_config.ext_cert_valid_enabled = enabled;
+
+    pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
+    if (!controller) {
+        return -1;
+    }
+
+    sec_prot_certs_ext_certificate_validation_set(&controller->certs, enabled);
+
+    return 0;
+#else
+    (void) interface_id;
+    (void) enabled;
+    return -1;
+#endif
+}
+
 void ws_pae_controller_forced_gc(bool full_gc)
 {
     /* Purge only when on critical limit since node limit should handle limiting
@@ -1131,7 +1201,6 @@ void ws_pae_controller_slow_timer(uint16_t seconds)
         if (entry->pae_slow_timer) {
             entry->pae_slow_timer(seconds);
         }
-
         ws_pae_controller_frame_counter_timer(seconds, entry);
     }
 }
@@ -1142,26 +1211,63 @@ static void ws_pae_controller_frame_counter_timer(uint16_t seconds, pae_controll
         entry->frame_cnt_store_timer -= seconds;
     } else {
         entry->frame_cnt_store_timer = FRAME_COUNTER_STORE_INTERVAL;
-        ws_pae_controller_frame_counter_store(entry);
+        ws_pae_controller_frame_counter_store(entry, true);
     }
 }
 
-static void ws_pae_controller_frame_counter_store(pae_controller_t *entry)
+static void ws_pae_controller_frame_counter_timer_trigger(uint16_t seconds, pae_controller_t *entry)
 {
-    // Gets index of active GTK
-    int8_t active_index = entry->gtk_index;
-
-    if (active_index >= 0) {
-        // Gets hash of the key
-        uint8_t *hash = entry->nw_key[active_index].hash;
-
-        uint32_t curr_frame_counter;
-        entry->nw_frame_counter_read(entry->interface_ptr, &curr_frame_counter);
-        ws_pae_controller_frame_counter_write(entry, active_index, hash, curr_frame_counter);
+    if (entry->frame_cnt_store_timer > seconds) {
+        entry->frame_cnt_store_timer = seconds;
     }
 }
 
-static int8_t ws_pae_controller_nvm_frame_counter_read(uint8_t *index, uint8_t *hash, uint32_t *frame_counter)
+static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool use_threshold)
+{
+    bool update_needed = false;
+
+    for (int i = 0; i < GTK_NUM; i++) {
+        /* If network key is set, checks if frame counter needs to be updated to NVM
+         * Note! The frame counters for non-installed keys (previous frame counters) are not changed.
+         *       This is because GTKs are removed e.g. if PAN configuration is not heard/cannot be
+         *       de-crypted during a bootstrap. If BR later installs previous keys using 4WH/GKH, the
+         *       frame counters will be still valid.
+         */
+        if (entry->nw_key[i].installed) {
+            // Reads frame counter for the key
+            uint32_t curr_frame_counter;
+            entry->nw_frame_counter_read(entry->interface_ptr, &curr_frame_counter, i);
+
+            // If frame counter for the network key has already been stored
+            if (entry->frame_counters.counter[i].set &&
+                    memcmp(entry->nw_key[i].gtk, entry->frame_counters.counter[i].gtk, GTK_LEN) == 0) {
+                // If threshold check is disabled or frame counter has advanced for the threshold value, stores the new value
+                if (!use_threshold ||
+                        curr_frame_counter > entry->frame_counters.counter[i].frame_counter + FRAME_COUNTER_STORE_THRESHOLD) {
+                    entry->frame_counters.counter[i].frame_counter = curr_frame_counter;
+                    update_needed = true;
+                    tr_debug("Stored updated frame counter: index %i value %"PRIu32"", i, curr_frame_counter);
+                }
+            } else {
+                // For new or modified network keys, stores the frame counter value
+                entry->frame_counters.counter[i].set = true;
+                memcpy(entry->frame_counters.counter[i].gtk, entry->nw_key[i].gtk, GTK_LEN);
+                entry->frame_counters.counter[i].frame_counter = curr_frame_counter;
+                update_needed = true;
+                tr_debug("Stored new frame counter: index %i value %"PRIu32"", i, curr_frame_counter);
+            }
+        }
+    }
+
+    if (update_needed) {
+        tr_debug("Write frame counters: system time %"PRIu32"", protocol_core_monotonic_time / 10);
+        // Writes modified frame counters
+        ws_pae_nvm_store_frame_counter_tlv_create(entry->pae_nvm_buffer, &entry->frame_counters);
+        ws_pae_controller_nvm_frame_counter_write(entry->pae_nvm_buffer);
+    }
+}
+
+static int8_t ws_pae_controller_nvm_frame_counter_read(frame_counters_t *counters)
 {
     nvm_tlv_list_t tlv_list;
     ns_list_init(&tlv_list);
@@ -1172,7 +1278,7 @@ static int8_t ws_pae_controller_nvm_frame_counter_read(uint8_t *index, uint8_t *
 
     int8_t result = -1;
     ns_list_foreach_safe(nvm_tlv_entry_t, entry, &tlv_list) {
-        if (ws_pae_nvm_store_frame_counter_tlv_read(entry, index, hash, frame_counter) >= 0) {
+        if (ws_pae_nvm_store_frame_counter_tlv_read(entry, counters) >= 0) {
             result = 0;
         }
         ns_list_remove(&tlv_list, entry);

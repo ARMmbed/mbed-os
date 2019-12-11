@@ -387,14 +387,6 @@ static void mac_sap_no_ack_cb(protocol_interface_rf_mac_setup_s *rf_ptr)
     }
 }
 
-static bool mac_data_counter_too_small(uint32_t current_counter, uint32_t packet_counter)
-{
-    if ((current_counter - packet_counter) >= 2) {
-        return true;
-    }
-    return false;
-}
-
 
 static bool mac_data_asynch_channel_switch(protocol_interface_rf_mac_setup_s *rf_ptr, mac_pre_build_frame_t *active_buf)
 {
@@ -420,13 +412,7 @@ static void mac_data_ack_tx_finish(protocol_interface_rf_mac_setup_s *rf_ptr)
     }
     if (rf_ptr->active_pd_data_request) {
 
-        if (rf_ptr->active_pd_data_request->fcf_dsn.securityEnabled) {
-            uint32_t current_counter = mac_mlme_framecounter_get(rf_ptr);
-            if (mac_data_counter_too_small(current_counter, rf_ptr->active_pd_data_request->aux_header.frameCounter)) {
-                rf_ptr->active_pd_data_request->aux_header.frameCounter = current_counter;
-                mac_mlme_framecounter_increment(rf_ptr);
-            }
-        }
+        mcps_pending_packet_counter_update_check(rf_ptr, rf_ptr->active_pd_data_request);
         //GEN TX failure
         mac_sap_cca_fail_cb(rf_ptr);
     }
@@ -443,7 +429,7 @@ static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *r
 
         if (rf_ptr->mac_ack_tx_active) {
             //Accept direct non crypted acks and crypted only if neighbor is at list
-            if (rf_ptr->ack_tx_possible || mac_sec_mib_device_description_get(rf_ptr, rf_ptr->enhanced_ack_buffer.DstAddr, rf_ptr->enhanced_ack_buffer.fcf_dsn.DstAddrMode)) {
+            if (rf_ptr->ack_tx_possible || mac_sec_mib_device_description_get(rf_ptr, rf_ptr->enhanced_ack_buffer.DstAddr, rf_ptr->enhanced_ack_buffer.fcf_dsn.DstAddrMode, rf_ptr->enhanced_ack_buffer.DstPANId)) {
                 return PHY_TX_ALLOWED;
             }
 
@@ -786,7 +772,7 @@ static int8_t mac_pd_sap_generate_ack(protocol_interface_rf_mac_setup_s *rf_ptr,
         return -1;
     }
 
-    if (rf_ptr->enhanced_ack_buffer.aux_header.securityLevel == 0 || mac_sec_mib_device_description_get(rf_ptr, rf_ptr->enhanced_ack_buffer.DstAddr, rf_ptr->enhanced_ack_buffer.fcf_dsn.DstAddrMode)) {
+    if (rf_ptr->enhanced_ack_buffer.aux_header.securityLevel == 0 || mac_sec_mib_device_description_get(rf_ptr, rf_ptr->enhanced_ack_buffer.DstAddr, rf_ptr->enhanced_ack_buffer.fcf_dsn.DstAddrMode, rf_ptr->enhanced_ack_buffer.DstPANId)) {
         rf_ptr->ack_tx_possible = true;
     } else {
         rf_ptr->ack_tx_possible = false;

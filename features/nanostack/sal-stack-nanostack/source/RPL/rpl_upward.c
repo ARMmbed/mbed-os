@@ -81,6 +81,12 @@ uint16_t nrpl_dag_rank(const rpl_dodag_t *dodag, uint16_t rank)
     return rank == RPL_RANK_INFINITE ? rank : rank / dodag->config.min_hop_rank_increase;
 }
 
+uint16_t nrpl_rank(const rpl_dodag_t *dodag, uint16_t dag_rank)
+{
+    uint32_t rank = (uint32_t) dag_rank * dodag->config.min_hop_rank_increase;
+    return rank < RPL_RANK_INFINITE ? rank : RPL_RANK_INFINITE;
+}
+
 /* Silly function needed because RPL HbH option includes dagrank directly */
 rpl_cmp_t rpl_rank_compare_dagrank_rank(const rpl_dodag_t *dodag, uint16_t dag_rank_a, uint16_t b)
 {
@@ -635,6 +641,7 @@ rpl_dodag_t *rpl_create_dodag(rpl_instance_t *instance, const uint8_t *dodagid, 
     dodag->have_config = false;
     dodag->used = false;
     dodag->g_mop_prf = g_mop_prf;
+    dodag->new_config_advertisment_count = 0;
     // Default timer parameters and trickle start should never normally
     // be used - we would set the parameters from the DODAG Config and start
     // as we join a version. But initialising here catches odd cases where
@@ -728,6 +735,7 @@ bool rpl_dodag_update_config(rpl_dodag_t *dodag, const rpl_dodag_conf_t *conf, c
         /* They've changed the timing parameters for our currently-in-use trickle timer! */
         tr_warn("Trickle parameters changed");
         trickle_start(&dodag->instance->dio_timer, &dodag->dio_timer_params);
+        dodag->new_config_advertisment_count = 0;
     }
     dodag->instance->of = rpl_objective_lookup(conf->objective_code_point);
     /* We could be a leaf of an unknown OCP. Still need an OF to choose parents */
@@ -1355,6 +1363,11 @@ static void trace_info_print(const char *fmt, ...)
     va_end(ap);
 }
 
+static uint32_t rpl_dio_imax_time_calculate(uint16_t Imax, uint16_t fixed_point)
+{
+    return (((uint32_t)Imax * fixed_point) / 0x0100);
+}
+
 
 void rpl_instance_run_parent_selection(rpl_instance_t *instance)
 {
@@ -1438,6 +1451,15 @@ void rpl_instance_run_parent_selection(rpl_instance_t *instance)
     if (preferred_parent) {
         // Always stop repair if we find a parent
         rpl_instance_set_local_repair(instance, false);
+        //Validate time from last DIO
+
+        uint32_t time_between_parent = protocol_core_monotonic_time - preferred_parent->dio_timestamp;
+        uint32_t accepted_time = rpl_dio_imax_time_calculate(instance->current_dodag_version->dodag->dio_timer_params.Imax, rpl_policy_dio_validity_period(instance->domain));
+
+        if (accepted_time < time_between_parent) {
+            rpl_control_transmit_dis(instance->domain, NULL, RPL_SOLINFO_PRED_INSTANCEID, instance->id, NULL, 0, preferred_parent->ll_address);
+        }
+
     } else if (original_preferred) {
         // Only start repair if we just lost a parent
         rpl_instance_set_local_repair(instance, true);
@@ -1533,7 +1555,15 @@ void rpl_instance_dio_trigger(rpl_instance_t *instance, protocol_interface_info_
     }
 
     // Always send config in unicasts (as required), never in multicasts (optional)
-    rpl_dodag_conf_t *conf = addr ? &dodag->config : NULL;
+    rpl_dodag_conf_t *conf;
+    if (addr) {
+        conf = &dodag->config;
+    } else if (dodag->new_config_advertisment_count < rpl_policy_dio_multicast_config_advertisment_min_count()) {
+        conf = &dodag->config;
+        dodag->new_config_advertisment_count++;
+    } else {
+        conf = NULL;
+    }
 
     rpl_control_transmit_dio(instance->domain, cur, instance->id, dodag_version->number, rank, dodag->g_mop_prf, instance->dtsn, dodag, dodag->id, conf, addr);
 
@@ -1542,7 +1572,27 @@ void rpl_instance_dio_trigger(rpl_instance_t *instance, protocol_interface_info_
     /* When we advertise a new lowest rank, need to re-evaluate our rank limits */
     if (rank < dodag_version->lowest_advertised_rank) {
         dodag_version->lowest_advertised_rank = rank;
+#if 0
+        // Standard RFC 6550 behaviour
         dodag_version->hard_rank_limit = rpl_rank_add(rank, dodag->config.dag_max_rank_increase);
+#else
+        // Round up hard limit - DAGRank interpretation. Contrary to wording of RFC 6550 8.2.2.4.3,
+        // but needed to cope reasonably with Wi-SUN insisting on DAGMaxRankIncrease of 0.
+        // Interpret that as a request to not increase DAGRank, rather than Rank.
+        //
+        // Example, if DAGMaxRankIncrease is 0, MinHopRankIncrease is 0x80, and our advertised
+        // 0xC0, then we permit up to 0xFF, which doesn't increase DAGRank. If DAGMaxRankIncrease
+        // is 0x80, then we permit can go form 0xC0 to 0x17F, increasing DAGRank by 1, even though
+        // it's a Rank increase of 0xBF. Fractional parts of DAGMaxRankIncrease are ignored.
+        uint16_t dagrank = nrpl_dag_rank(dodag, rank);
+        uint16_t dagmaxinc = nrpl_dag_rank(dodag, dodag->config.dag_max_rank_increase);
+        uint16_t dagmax = rpl_rank_add(dagrank, dagmaxinc);
+        if (dagmax == RPL_RANK_INFINITE) {
+            dodag_version->hard_rank_limit = RPL_RANK_INFINITE;
+        } else {
+            dodag_version->hard_rank_limit = nrpl_rank(dodag, 1 + dagmax) - 1;
+        }
+#endif
     }
     rpl_dodag_version_limit_greediness(dodag_version, rank);
 
@@ -1921,7 +1971,7 @@ bool rpl_upward_accept_prefix_update(const rpl_dodag_t *dodag_info, const rpl_ne
         //Calculate Time between from last dio from parent and this neighbour
         //neighbour dio_timestamp >= pref_parent's, because it's a newly-received message
         uint32_t time_between_parent = neighbour->dio_timestamp - pref_parent->dio_timestamp;
-        uint32_t accepted_time = (uint32_t)dodag_info->dio_timer_params.Imax * 2;
+        uint32_t accepted_time = rpl_dio_imax_time_calculate(dodag_info->dio_timer_params.Imax, 0x0200);
         //Accept prefix Update If Time from last DIO is more than 2 x Max
         if (accepted_time < time_between_parent) {
             return true;

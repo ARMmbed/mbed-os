@@ -34,7 +34,7 @@ set(unittest-test-sources
   features/lorawan/lorawanstack/Test_LoRaWANStack.cpp
   stubs/LoRaPHY_stub.cpp
   stubs/LoRaMac_stub.cpp
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
   stubs/mbed_atomic_stub.c
   stubs/LoRaMacCrypto_stub.cpp
   stubs/LoRaMacChannelPlan_stub.cpp
@@ -45,13 +45,9 @@ set(unittest-test-sources
   stubs/Mutex_stub.cpp
 )
 
-# defines
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMBED_CONF_LORA_OVER_THE_AIR_ACTIVATION=true -DMBED_CONF_LORA_DEVICE_EUI=\"{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}\"")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMBED_CONF_LORA_OVER_THE_AIR_ACTIVATION=true -DMBED_CONF_LORA_DEVICE_EUI=\"{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}\"")
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMBED_CONF_LORA_AUTOMATIC_UPLINK_MESSAGE=true")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMBED_CONF_LORA_AUTOMATIC_UPLINK_MESSAGE=true")
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMBED_CONF_LORA_APPLICATION_EUI=\"{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}\" -DMBED_CONF_LORA_APPLICATION_KEY=\"{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}\"")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMBED_CONF_LORA_APPLICATION_EUI=\"{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}\" -DMBED_CONF_LORA_APPLICATION_KEY=\"{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}\"")
+set(unittest-test-flags
+  -DMBED_CONF_LORA_OVER_THE_AIR_ACTIVATION=true
+  -DMBED_CONF_LORA_AUTOMATIC_UPLINK_MESSAGE=true
+  -DMBED_CONF_LORA_TX_MAX_SIZE=255
+)
 

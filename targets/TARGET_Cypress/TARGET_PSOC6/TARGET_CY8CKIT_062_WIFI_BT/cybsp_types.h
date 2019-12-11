@@ -25,223 +25,302 @@
 
 #pragma once
 
-#include "cyhal.h"
+#if defined(CY_USING_HAL)
+#include "cyhal_pin_package.h"
+#endif
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
 /**
+* \addtogroup group_bsp_settings BSP Settings
+* \{
+*
+* <div class="category">Peripheral Default HAL Settings:</div>
+* | Resource | Parameter | Value | Remarks |
+* | :------: | :-------: | :---: | :------ |
+* | ADC      | VREF      | 1.2 V | |
+* | ^        | Measurement type | Single Ended | |
+* | ^        | Input voltage range | 0 to 2.4 V (0 to 2*VREF) | |
+* | ^        | Output range | 0x000 to 0x7FF | |
+* | DAC      | Reference source | VDDA | |
+* | ^        | Input range | 0x000 to 0xFFF | |
+* | ^        | Output range | 0 to VDDA | |
+* | ^        | Output type | Unbuffered output | |
+* | I2C      | Role | Master | Configurable to slave mode through HAL function |
+* | ^        | Data rate | 100 kbps | Configurable through HAL function |
+* | ^        | Drive mode of SCL & SDA pins | Open Drain (drives low) | External pull-up resistors are required |
+* | LpTimer  | Uses WCO (32.768 kHz) as clock source & MCWDT as counter. 1 count = 1/32768 second or 32768 counts = 1 second. |||
+* | SPI      | Data rate | 100 kpbs | Configurable through HAL function |
+* | ^        | Slave select polarity | Active low | |
+* | UART     | Flow control | No flow control | Configurable through HAL function |
+* | ^        | Data format | 8N1 | Configurable through HAL function |
+* | ^        | Baud rate | 115200 | Configurable through HAL function |
+*/
+/** \} group_bsp_settings */
+
+/**
+* \addtogroup group_bsp_pin_state Pin States
+* \{
+*/
+
+/** Pin state for the LED on. */
+#define CYBSP_LED_STATE_ON          (0U)
+/** Pin state for the LED off. */
+#define CYBSP_LED_STATE_OFF         (1U)
+
+/** Pin state for when a button is pressed. */
+#define CYBSP_BTN_PRESSED           (0U)
+/** Pin state for when a button is released. */
+#define CYBSP_BTN_OFF               (1U)
+
+/** \} group_bsp_pin_state */
+
+#if defined(CY_USING_HAL)
+
+/**
 * \addtogroup group_bsp_pins Pin Mappings
 * \{
 */
 
-// Arduino connector namings
-/** Arduino A0 */
-#define CYBSP_A0 P10_0
-/** Arduino A1 */
-#define CYBSP_A1 P10_1
-/** Arduino A2 */
-#define CYBSP_A2 P10_2
-/** Arduino A3 */
-#define CYBSP_A3 P10_3
-/** Arduino A4 */
-#define CYBSP_A4 P10_4
-/** Arduino A5 */
-#define CYBSP_A5 P10_5
-/** Arduino D0 */
-#define CYBSP_D0 P5_0
-/** Arduino D1 */
-#define CYBSP_D1 P5_1
-/** Arduino D2 */
-#define CYBSP_D2 P5_2
-/** Arduino D3 */
-#define CYBSP_D3 P5_3
-/** Arduino D4 */
-#define CYBSP_D4 P5_4
-/** Arduino D5 */
-#define CYBSP_D5 P5_5
-/** Arduino D6 */
-#define CYBSP_D6 P5_6
-/** Arduino D7 */
-#define CYBSP_D7 P0_2
-/** Arduino D8 */
-#define CYBSP_D8 P13_0
-/** Arduino D9 */
-#define CYBSP_D9 P13_1
-/** Arduino D10 */
-#define CYBSP_D10 P12_3
-/** Arduino D11 */
-#define CYBSP_D11 P12_0
-/** Arduino D12 */
-#define CYBSP_D12 P12_1
-/** Arduino D13 */
-#define CYBSP_D13 P12_2
-/** Arduino D14 */
-#define CYBSP_D14 P6_1
-/** Arduino D15 */
-#define CYBSP_D15 P6_0
-
-// Generic signal names
-/** Pin: WCO input */
-#define CYBSP_WCO_IN           P0_0
-/** Pin: WCO output */
-#define CYBSP_WCO_OUT          P0_1
-
-/** Pin: WIFI SDIO D0 */
-/* Corresponds to: ioss[0].port[2].pin[0], udb[0] */
-#define CYBSP_WIFI_SDIO_D0     P2_0
-/** Pin: WIFI SDIO D1 */
-/* Corresponds to: ioss[0].port[2].pin[1], udb[0] */
-#define CYBSP_WIFI_SDIO_D1     P2_1
-/** Pin: WIFI SDIO D2 */
-/* Corresponds to: ioss[0].port[2].pin[2], udb[0] */
-#define CYBSP_WIFI_SDIO_D2     P2_2
-/** Pin: WIFI SDIO D3 */
-/* Corresponds to: ioss[0].port[2].pin[3], udb[0] */
-#define CYBSP_WIFI_SDIO_D3     P2_3
-/** Pin: WIFI SDIO CMD */
-/* Corresponds to: ioss[0].port[2].pin[4], udb[0] */
-#define CYBSP_WIFI_SDIO_CMD    P2_4
-/** Pin: WIFI SDIO CLK */
-/* Corresponds to: ioss[0].port[2].pin[5], udb[0] */
-#define CYBSP_WIFI_SDIO_CLK    P2_5
-/** Pin: WIFI ON */
-/* Corresponds to: ioss[0].port[2].pin[6], udb[0] */
-#define CYBSP_WIFI_WL_REG_ON   P2_6
-/** Pin: WIFI Host Wakeup */
-#define CYBSP_WIFI_HOST_WAKE   P2_7
-
-/** Pin: BT UART RX */
-#define CYBSP_BT_UART_RX       P3_0
-/** Pin: BT UART TX */
-#define CYBSP_BT_UART_TX       P3_1
-/** Pin: BT UART RTS */
-#define CYBSP_BT_UART_RTS      P3_2
-/** Pin: BT UART CTS */
-#define CYBSP_BT_UART_CTS      P3_3
-
-/** Pin: BT Power */
-#define CYBSP_BT_POWER         P3_4
-/** Pin: BT Host Wakeup */
-#define CYBSP_BT_HOST_WAKE     P3_5
-/** Pin: BT Device Wakeup */
-#define CYBSP_BT_DEVICE_WAKE   P4_0
-
-/** Pin: UART RX */
-/* Corresponds to: ioss[0].port[5].pin[0], scb[5] */
-#define CYBSP_DEBUG_UART_RX    P5_0
-/** Pin: UART TX */
-/* Corresponds to: ioss[0].port[5].pin[1], scb[5] */
-#define CYBSP_DEBUG_UART_TX    P5_1
-
-/** Pin: I2C SCL */
-#define CYBSP_I2C_SCL          P6_0
-/** Pin: I2C SDA */
-#define CYBSP_I2C_SDA          P6_1
-
-/** Pin: SWO */
-#define CYBSP_SWO              P6_4
-/** Pin: SWDIO */
-#define CYBSP_SWDIO            P6_6
-/** Pin: SWDCK */
-#define CYBSP_SWDCK            P6_7
-
-/** Pin: CapSesnse TX */
-#define CYBSP_CSD_TX           P1_0
-/** Pin: CapSesnse CINA */
-#define CYBSP_CINA             P7_1
-/** Pin: CapSesnse CINB */
-#define CYBSP_CINB             P7_2
-/** Pin: CapSesnse CMOD */
-#define CYBSP_CMOD             P7_7
-/** Pin: CapSesnse Button 0 */
-#define CYBSP_CSD_BTN0         P8_1
-/** Pin: CapSesnse Button 1 */
-#define CYBSP_CSD_BTN1         P8_2
-/** Pin: CapSesnse Slider 0 */
-#define CYBSP_CSD_SLD0         P8_3
-/** Pin: CapSesnse Slider 1 */
-#define CYBSP_CSD_SLD1         P8_4
-/** Pin: CapSesnse Slider 2 */
-#define CYBSP_CSD_SLD2         P8_5
-/** Pin: CapSesnse Slider 3 */
-#define CYBSP_CSD_SLD3         P8_6
-/** Pin: CapSesnse Slider 4 */
-#define CYBSP_CSD_SLD4         P8_7
-
-/** Pin: QUAD SPI SS */
-#define CYBSP_QSPI_SS          P11_2
-/** Pin: QUAD SPI D3 */
-#define CYBSP_QSPI_D3          P11_3
-/** Pin: QUAD SPI D2 */
-#define CYBSP_QSPI_D2          P11_4
-/** Pin: QUAD SPI D1 */
-#define CYBSP_QSPI_D1          P11_5
-/** Pin: QUAD SPI D0 */
-#define CYBSP_QSPI_D0          P11_6
-/** Pin: QUAD SPI SCK */
-#define CYBSP_QSPI_SCK         P11_7
-
-/** Host-wake GPIO drive mode */
-#define CYBSP_WIFI_HOST_WAKE_GPIO_DM CYHAL_GPIO_DRIVE_ANALOG
-/** Host-wake IRQ event */
-#define CYBSP_WIFI_HOST_WAKE_IRQ_EVENT CYHAL_GPIO_IRQ_RISE
-
-/** \} group_bsp_pins */
-
 /**
-* \addtogroup group_bsp_enums Enumerated Types
+* \addtogroup group_bsp_pins_led LED Pins
 * \{
 */
 
-/** Enum defining the different states for the LED. */
-typedef enum
-{
-	CYBSP_LED_STATE_ON        	= 0,
-	CYBSP_LED_STATE_OFF        	= 1,
-} cybsp_led_state_t;
+/** LED 8; User LED1 */
+#define CYBSP_LED8                  (P1_5)
+/** LED 9; User LED2 */
+#define CYBSP_LED9                  (P13_7)
+/** LED 5: RGB LED - Red; User LED3 */
+#define CYBSP_LED_RGB_RED           (P0_3)
+/** LED 5: RGB LED - Green; User LED4 */
+#define CYBSP_LED_RGB_GREEN         (P1_1)
+/** LED 5: RGB LED - Blue; User LED5 */
+#define CYBSP_LED_RGB_BLUE          (P11_1)
 
-/** Enum defining the different states for a button. */
-typedef enum
-{
-	CYBSP_BTN_PRESSED  	      	= 0,
-	CYBSP_BTN_OFF	          	= 1,
-} cybsp_btn_state_t;
+/** LED 8; User LED1 */
+#define CYBSP_USER_LED1             (CYBSP_LED8)
+/** LED 9; User LED2 */
+#define CYBSP_USER_LED2             (CYBSP_LED9)
+/** LED 5: RGB LED - Red; User LED3 */
+#define CYBSP_USER_LED3             (CYBSP_LED_RGB_RED)
+/** LED 5: RGB LED - Green; User LED4 */
+#define CYBSP_USER_LED4             (CYBSP_LED_RGB_GREEN)
+/** LED 5: RGB LED - Blue; User LED5 */
+#define CYBSP_USER_LED5             (CYBSP_LED_RGB_BLUE)
+/** LED 8; User LED1 */
+#define CYBSP_USER_LED              (CYBSP_USER_LED1)
 
-/** Enum defining the different LED pins on the board. */
-typedef enum
-{
-    CYBSP_LED9 = P13_7,
-    CYBSP_LED8 = P1_5,
-    CYBSP_LED_RGB_RED = P0_3,
-    CYBSP_LED_RGB_GREEN = P1_1,
-    CYBSP_LED_RGB_BLUE = P11_1,
+/** \} group_bsp_pins_led */
 
-    /* Corresponds to: ioss[0].port[1].pin[5] */
-    CYBSP_USER_LED1 = CYBSP_LED8,
-    /* Corresponds to: ioss[0].port[13].pin[7] */
-    CYBSP_USER_LED2 = CYBSP_LED9,
-    /* Corresponds to: ioss[0].port[0].pin[3] */
-    CYBSP_USER_LED3 = CYBSP_LED_RGB_RED,
-    /* Corresponds to: ioss[0].port[1].pin[1] */
-    CYBSP_USER_LED4 = CYBSP_LED_RGB_GREEN,
-    /* Corresponds to: ioss[0].port[11].pin[1] */
-    CYBSP_USER_LED5 = CYBSP_LED_RGB_BLUE,
-    CYBSP_USER_LED = CYBSP_USER_LED1,
-} cybsp_led_t;
 
-/** Enum defining the different button pins on the board. */
-typedef enum
-{
-    CYBSP_SW2 = P0_4,
+/**
+* \addtogroup group_bsp_pins_btn Button Pins
+* \{
+*/
 
-    /* Corresponds to: ioss[0].port[0].pin[4] */
-    CYBSP_USER_BTN1 = CYBSP_SW2,
-    CYBSP_USER_BTN = CYBSP_USER_BTN1,
-} cybsp_btn_t;
+/** Switch 2; User Button 1 */
+#define CYBSP_SW2                   (P0_4)
 
-/** \} group_bsp_enums */
+/** Switch 2; User Button 1 */
+#define CYBSP_USER_BTN1             (CYBSP_SW2)
+/** Switch 2; User Button 1 */
+#define CYBSP_USER_BTN              (CYBSP_USER_BTN1)
+
+/** \} group_bsp_pins_btn */
+
+
+/**
+* \addtogroup group_bsp_pins_comm Communication Pins
+* \{
+*/
+
+/** Pin: WIFI SDIO D0 */
+#define CYBSP_WIFI_SDIO_D0          (P2_0)
+/** Pin: WIFI SDIO D1 */
+#define CYBSP_WIFI_SDIO_D1          (P2_1)
+/** Pin: WIFI SDIO D2 */
+#define CYBSP_WIFI_SDIO_D2          (P2_2)
+/** Pin: WIFI SDIO D3 */
+#define CYBSP_WIFI_SDIO_D3          (P2_3)
+/** Pin: WIFI SDIO CMD */
+#define CYBSP_WIFI_SDIO_CMD         (P2_4)
+/** Pin: WIFI SDIO CLK */
+#define CYBSP_WIFI_SDIO_CLK         (P2_5)
+/** Pin: WIFI ON */
+#define CYBSP_WIFI_WL_REG_ON        (P2_6)
+/** Pin: WIFI Host Wakeup */
+#define CYBSP_WIFI_HOST_WAKE        (P2_7)
+
+/** Pin: BT UART RX */
+#define CYBSP_BT_UART_RX            (P3_0)
+/** Pin: BT UART TX */
+#define CYBSP_BT_UART_TX            (P3_1)
+/** Pin: BT UART RTS */
+#define CYBSP_BT_UART_RTS           (P3_2)
+/** Pin: BT UART CTS */
+#define CYBSP_BT_UART_CTS           (P3_3)
+
+/** Pin: BT Power */
+#define CYBSP_BT_POWER              (P3_4)
+/** Pin: BT Host Wakeup */
+#define CYBSP_BT_HOST_WAKE          (P3_5)
+/** Pin: BT Device Wakeup */
+#define CYBSP_BT_DEVICE_WAKE        (P4_0)
+
+/** Pin: UART RX */
+#define CYBSP_DEBUG_UART_RX         (P5_0)
+/** Pin: UART TX */
+#define CYBSP_DEBUG_UART_TX         (P5_1)
+
+/** Pin: I2C SCL */
+#define CYBSP_I2C_SCL               (P6_0)
+/** Pin: I2C SDA */
+#define CYBSP_I2C_SDA               (P6_1)
+
+/** Pin: SWO */
+#define CYBSP_SWO                   (P6_4)
+/** Pin: SWDIO */
+#define CYBSP_SWDIO                 (P6_6)
+/** Pin: SWDCK */
+#define CYBSP_SWDCK                 (P6_7)
+
+/** Pin: QUAD SPI SS */
+#define CYBSP_QSPI_SS               (P11_2)
+/** Pin: QUAD SPI D3 */
+#define CYBSP_QSPI_D3               (P11_3)
+/** Pin: QUAD SPI D2 */
+#define CYBSP_QSPI_D2               (P11_4)
+/** Pin: QUAD SPI D1 */
+#define CYBSP_QSPI_D1               (P11_5)
+/** Pin: QUAD SPI D0 */
+#define CYBSP_QSPI_D0               (P11_6)
+/** Pin: QUAD SPI SCK */
+#define CYBSP_QSPI_SCK              (P11_7)
+
+/** Pin: SPI MOSI */
+#define CYBSP_SPI_MOSI              (P12_0)
+/** Pin: SPI MISO */
+#define CYBSP_SPI_MISO              (P12_1)
+/** Pin: SPI CLK */
+#define CYBSP_SPI_CLK               (P12_2)
+/** Pin: SPI CS */
+#define CYBSP_SPI_CS                (P12_4)
+
+/** Host-wake GPIO drive mode */
+#define CYBSP_WIFI_HOST_WAKE_GPIO_DM (CYHAL_GPIO_DRIVE_ANALOG)
+/** Host-wake IRQ event */
+#define CYBSP_WIFI_HOST_WAKE_IRQ_EVENT (CYHAL_GPIO_IRQ_RISE)
+
+/** \} group_bsp_pins_comm */
+
+
+/**
+* \addtogroup group_bsp_pins_arduino Arduino Header Pins
+* \{
+*/
+
+/** Arduino A0 */
+#define CYBSP_A0                    P10_0
+/** Arduino A1 */
+#define CYBSP_A1                    P10_1
+/** Arduino A2 */
+#define CYBSP_A2                    P10_2
+/** Arduino A3 */
+#define CYBSP_A3                    P10_3
+/** Arduino A4 */
+#define CYBSP_A4                    P10_4
+/** Arduino A5 */
+#define CYBSP_A5                    P10_5
+/** Arduino D0 */
+#define CYBSP_D0                    (P5_0)
+/** Arduino D1 */
+#define CYBSP_D1                    (P5_1)
+/** Arduino D2 */
+#define CYBSP_D2                    (P5_2)
+/** Arduino D3 */
+#define CYBSP_D3                    (P5_3)
+/** Arduino D4 */
+#define CYBSP_D4                    (P5_4)
+/** Arduino D5 */
+#define CYBSP_D5                    (P5_5)
+/** Arduino D6 */
+#define CYBSP_D6                    (P5_6)
+/** Arduino D7 */
+#define CYBSP_D7                    (P0_2)
+/** Arduino D8 */
+#define CYBSP_D8                    (P13_0)
+/** Arduino D9 */
+#define CYBSP_D9                    (P13_1)
+/** Arduino D10 */
+#define CYBSP_D10                   (P12_3)
+/** Arduino D11 */
+#define CYBSP_D11                   (P12_0)
+/** Arduino D12 */
+#define CYBSP_D12                   (P12_1)
+/** Arduino D13 */
+#define CYBSP_D13                   (P12_2)
+/** Arduino D14 */
+#define CYBSP_D14                   (P6_1)
+/** Arduino D15 */
+#define CYBSP_D15                   (P6_0)
+
+/** \} group_bsp_pins_arduino */
+
+
+/**
+* \addtogroup group_bsp_pins_j2 J2 Header Pins
+* \{
+*/
+
+/** Cypress J2 Header pin 1 */
+#define CYBSP_J2_1                  (CYBSP_A0)
+/** Cypress J2 Header pin 2 */
+#define CYBSP_J2_2                  (P9_0)
+/** Cypress J2 Header pin 3 */
+#define CYBSP_J2_3                  (CYBSP_A1)
+/** Cypress J2 Header pin 4 */
+#define CYBSP_J2_4                  (P9_1)
+/** Cypress J2 Header pin 5 */
+#define CYBSP_J2_5                  (CYBSP_A2)
+/** Cypress J2 Header pin 6 */
+#define CYBSP_J2_6                  (P9_2)
+/** Cypress J2 Header pin 7 */
+#define CYBSP_J2_7                  (CYBSP_A3)
+/** Cypress J2 Header pin 8 */
+#define CYBSP_J2_8                  (P9_3)
+/** Cypress J2 Header pin 9 */
+#define CYBSP_J2_9                  (CYBSP_A4)
+/** Cypress J2 Header pin 10 */
+#define CYBSP_J2_10                 (P9_4)
+/** Cypress J2 Header pin 11 */
+#define CYBSP_J2_11                 (CYBSP_A5)
+/** Cypress J2 Header pin 12 */
+#define CYBSP_J2_12                 (P9_5)
+/** Cypress J2 Header pin 13 */
+#define CYBSP_J2_13                 (P10_6)
+/** Cypress J2 Header pin 14 */
+#define CYBSP_J2_14                 (NC)
+/** Cypress J2 Header pin 15 */
+#define CYBSP_J2_15                 (P6_2)
+/** Cypress J2 Header pin 16 */
+#define CYBSP_J2_16                 (P9_6)
+/** Cypress J2 Header pin 17 */
+#define CYBSP_J2_17                 (P6_3)
+/** Cypress J2 Header pin 18 */
+#define CYBSP_J2_18                 (P9_7)
+/** Cypress J2 Header pin 19 */
+#define CYBSP_J2_19                 (P13_6)
+/** Cypress J2 Header pin 20 */
+#define CYBSP_J2_20                 (P13_7)
+
+/** \} group_bsp_pins_j2 */
+
+/** \} group_bsp_pins */
+
+#endif /* defined(CY_USING_HAL) */
 
 #if defined(__cplusplus)
 }

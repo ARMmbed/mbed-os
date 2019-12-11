@@ -111,21 +111,18 @@ SPIName spi_get_peripheral_name(PinName mosi, PinName miso, PinName sclk)
     return spi_per;
 }
 
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+#if STATIC_PINMAP_READY
+#define SPI_INIT_DIRECT spi_init_direct
+void spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
+#else
+#define SPI_INIT_DIRECT _spi_init_direct
+static void _spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
+#endif
 {
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
 
-    // Determine the SPI to use
-    SPIName spi_mosi = (SPIName)pinmap_peripheral(mosi, PinMap_SPI_MOSI);
-    SPIName spi_miso = (SPIName)pinmap_peripheral(miso, PinMap_SPI_MISO);
-    SPIName spi_sclk = (SPIName)pinmap_peripheral(sclk, PinMap_SPI_SCLK);
-    SPIName spi_ssel = (SPIName)pinmap_peripheral(ssel, PinMap_SPI_SSEL);
-
-    SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
-    SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
-
-    spiobj->spi = (SPIName)pinmap_merge(spi_data, spi_cntl);
+    spiobj->spi = (SPIName)pinmap->peripheral;
     MBED_ASSERT(spiobj->spi != (SPIName)NC);
 
 #if defined SPI1_BASE
@@ -172,15 +169,19 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 #endif
 
     // Configure the SPI pins
-    pinmap_pinout(mosi, PinMap_SPI_MOSI);
-    pinmap_pinout(miso, PinMap_SPI_MISO);
-    pinmap_pinout(sclk, PinMap_SPI_SCLK);
-    spiobj->pin_miso = miso;
-    spiobj->pin_mosi = mosi;
-    spiobj->pin_sclk = sclk;
-    spiobj->pin_ssel = ssel;
-    if (ssel != NC) {
-        pinmap_pinout(ssel, PinMap_SPI_SSEL);
+    pin_function(pinmap->mosi_pin, pinmap->mosi_function);
+    pin_mode(pinmap->mosi_pin, PullNone);
+    pin_function(pinmap->miso_pin, pinmap->miso_function);
+    pin_mode(pinmap->miso_pin, PullNone);
+    pin_function(pinmap->sclk_pin, pinmap->sclk_function);
+    pin_mode(pinmap->sclk_pin, PullNone);
+    spiobj->pin_miso = pinmap->miso_pin;
+    spiobj->pin_mosi = pinmap->mosi_pin;
+    spiobj->pin_sclk = pinmap->sclk_pin;
+    spiobj->pin_ssel = pinmap->ssel_pin;
+    if (pinmap->ssel_pin != NC) {
+        pin_function(pinmap->ssel_pin, pinmap->ssel_function);
+        pin_mode(pinmap->ssel_pin, PullNone);
         handle->Init.NSS = SPI_NSS_HARD_OUTPUT;
 #if defined(SPI_NSS_PULSE_ENABLE)
         handle->Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
@@ -197,7 +198,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     handle->Init.Mode              = SPI_MODE_MASTER;
     handle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
 
-    if (miso != NC) {
+    if (pinmap->miso_pin != NC) {
         handle->Init.Direction     = SPI_DIRECTION_2LINES;
     } else {
         handle->Init.Direction      = SPI_DIRECTION_1LINE;
@@ -220,9 +221,32 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     * According the STM32 Datasheet for SPI peripheral we need to PULLDOWN
     * or PULLUP the SCK pin according the polarity used.
     */
-    pin_mode(spiobj->pin_sclk, (handle->Init.CLKPolarity == SPI_POLARITY_LOW) ? PullDown: PullUp);
+    pin_mode(spiobj->pin_sclk, (handle->Init.CLKPolarity == SPI_POLARITY_LOW) ? PullDown : PullUp);
 
     init_spi(obj);
+}
+
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+{
+    // determine the SPI to use
+    uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
+    uint32_t spi_miso = pinmap_peripheral(miso, PinMap_SPI_MISO);
+    uint32_t spi_sclk = pinmap_peripheral(sclk, PinMap_SPI_SCLK);
+    uint32_t spi_ssel = pinmap_peripheral(ssel, PinMap_SPI_SSEL);
+    uint32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
+    uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
+
+    int peripheral = (int)pinmap_merge(spi_data, spi_cntl);
+
+    // pin out the spi pins
+    int mosi_function = (int)pinmap_find_function(mosi, PinMap_SPI_MOSI);
+    int miso_function = (int)pinmap_find_function(miso, PinMap_SPI_MISO);
+    int sclk_function = (int)pinmap_find_function(sclk, PinMap_SPI_SCLK);
+    int ssel_function = (int)pinmap_find_function(ssel, PinMap_SPI_SSEL);
+
+    const spi_pinmap_t explicit_spi_pinmap = {peripheral, mosi, mosi_function, miso, miso_function, sclk, sclk_function, ssel, ssel_function};
+
+    SPI_INIT_DIRECT(obj, &explicit_spi_pinmap);
 }
 
 void spi_free(spi_t *obj)
@@ -235,6 +259,10 @@ void spi_free(spi_t *obj)
     __HAL_SPI_DISABLE(handle);
     HAL_SPI_DeInit(handle);
 
+#if defined(DUAL_CORE)
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID)) {
+    }
+#endif /* DUAL_CORE */
 #if defined SPI1_BASE
     // Reset SPI and disable clock
     if (spiobj->spi == SPI_1) {
@@ -282,7 +310,9 @@ void spi_free(spi_t *obj)
         __HAL_RCC_SPI6_CLK_DISABLE();
     }
 #endif
-
+#if defined(DUAL_CORE)
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
     // Configure GPIOs
     pin_function(spiobj->pin_miso, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
     pin_function(spiobj->pin_mosi, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
@@ -296,7 +326,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
-    PinMode pull = 0;
+    PinMode pull = PullNone;
 
     DEBUG_PRINTF("spi_format, bits:%d, mode:%d, slave?:%d\r\n", bits, mode, slave);
 
@@ -342,7 +372,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     * According the STM32 Datasheet for SPI peripheral we need to PULLDOWN
     * or PULLUP the SCK pin according the polarity used.
     */
-    pull = (handle->Init.CLKPolarity == SPI_POLARITY_LOW) ? PullDown: PullUp;
+    pull = (handle->Init.CLKPolarity == SPI_POLARITY_LOW) ? PullDown : PullUp;
     pin_mode(spiobj->pin_sclk, pull);
 
     init_spi(obj);
@@ -752,7 +782,7 @@ inline uint32_t spi_irq_handler_asynch(spi_t *obj)
             // else we're done
             event = SPI_EVENT_COMPLETE | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
         }
-        // enable the interrupt
+        // disable the interrupt
         NVIC_DisableIRQ(obj->spi.spiIRQ);
         NVIC_ClearPendingIRQ(obj->spi.spiIRQ);
     }

@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#if defined(MBED_CONF_RTOS_PRESENT)
+
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
@@ -34,13 +36,15 @@ static void test_dns_query_ticker(void)
 
 void SYNCHRONOUS_DNS_CACHE()
 {
+    nsapi_dns_reset();
     Ticker ticker;
     ticker.attach_us(&test_dns_query_ticker, 100);
 
     for (unsigned int i = 0; i < 5; i++) {
         SocketAddress address;
         int started_us = ticker_us;
-        nsapi_error_t err = get_interface()->gethostbyname(dns_test_hosts_second[0], &address);
+        nsapi_error_t err = get_interface()->gethostbyname(dns_test_hosts[0], &address);
+        TEST_ASSERT_TRUE(err == NSAPI_ERROR_OK);
 
         int delay_ms = (ticker_us - started_us) / 1000;
 
@@ -48,7 +52,8 @@ void SYNCHRONOUS_DNS_CACHE()
         // Check that cached accesses are at least twice as fast as the first one
         TEST_ASSERT_TRUE(i == 0 || delay_ms <= delay_first);
 
-        printf("DNS: query \"%s\" => \"%s\", time %i ms\n",
-               dns_test_hosts_second[0], address.get_ip_address(), delay_ms);
+        tr_info("DNS: query \"%s\" => \"%s\", time %i ms",
+                dns_test_hosts[0], address.get_ip_address(), delay_ms);
     }
 }
+#endif // defined(MBED_CONF_RTOS_PRESENT)

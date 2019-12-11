@@ -155,6 +155,30 @@ public:
      */
     void send_break();
 
+    /** Enable serial input
+     *
+     * If both serial input and serial output are disabled, the
+     * peripheral is freed. If either serial input or serial
+     * output is re-enabled, the peripheral is reinitialized.
+     *
+     * On re-initialization rx interrupts will be enabled if a
+     * rx handler is attached. The rx handler is called once
+     * during re-initialization.
+     */
+    void enable_input(bool enable = true);
+
+    /** Enable serial output
+     *
+     * If both serial input and serial output are disabled, the
+     * peripheral is freed. If either serial input or serial
+     * output is re-enabled, the peripheral is reinitialized.
+     *
+     * On re-initialization tx interrupts will be enabled if a
+     * tx handler is attached. The tx handler is called once
+     * during re-initialization.
+     */
+    void enable_output(bool enable = true);
+
 #if !defined(DOXYGEN_ONLY)
 protected:
 
@@ -176,6 +200,13 @@ public:
      *  @param flow2 the second flow control pin (CTS for RTSCTS)
      */
     void set_flow_control(Flow type, PinName flow1 = NC, PinName flow2 = NC);
+
+    /** Set the flow control type on the serial port
+     *
+     *  @param type the flow control type (Disabled, RTS, CTS, RTSCTS)
+     *  @param pinmap reference to structure which holds static pinmap
+     */
+    void set_flow_control(Flow type, const serial_fc_pinmap_t &static_pinmap);
 #endif
 
     static void _irq_handler(uint32_t id, SerialIrq irq_type);
@@ -289,25 +320,52 @@ protected:
 #if !defined(DOXYGEN_ONLY)
 protected:
     SerialBase(PinName tx, PinName rx, int baud);
+    SerialBase(const serial_pinmap_t &static_pinmap, int baud);
     virtual ~SerialBase();
 
     int _base_getc();
 
     int _base_putc(int c);
 
+    /** Initialize serial port
+     */
+    void _init();
+    void _init_direct();
+    /* Pointer to serial init function */
+    void (SerialBase::*_init_func)();
+
+    /** Deinitialize serial port
+     */
+    void _deinit();
+
 #if DEVICE_SERIAL_ASYNCH
     CThunk<SerialBase> _thunk_irq;
-    DMAUsage _tx_usage;
-    DMAUsage _rx_usage;
+    DMAUsage _tx_usage = DMA_USAGE_NEVER;
+    DMAUsage _rx_usage = DMA_USAGE_NEVER;
     event_callback_t _tx_callback;
     event_callback_t _rx_callback;
-    bool _tx_asynch_set;
-    bool _rx_asynch_set;
+    bool _tx_asynch_set = false;
+    bool _rx_asynch_set = false;
 #endif
 
-    serial_t         _serial;
-    Callback<void()> _irq[IrqCnt];
-    int              _baud;
+    serial_t              _serial {};
+    Callback<void()>      _irq[IrqCnt];
+    int                   _baud;
+    bool                  _rx_enabled = true;
+    bool                  _tx_enabled = true;
+    const PinName         _tx_pin;
+    const PinName         _rx_pin;
+    const serial_pinmap_t *_static_pinmap = NULL;
+    void (SerialBase::*_set_flow_control_dp_func)(Flow, PinName, PinName) = NULL;
+
+#if DEVICE_SERIAL_FC
+    Flow                           _flow_type = Disabled;
+    PinName                        _flow1 = NC;
+    PinName                        _flow2 = NC;
+    const serial_fc_pinmap_t       *_static_pinmap_fc = NULL;
+    void (SerialBase::*_set_flow_control_sp_func)(Flow, const serial_fc_pinmap_t &) = NULL;
+#endif
+
 #endif
 };
 

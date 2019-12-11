@@ -61,11 +61,13 @@ TEST_F(TestTLSSocket, connect)
     socket->open((NetworkStack *)&stack);
 
     stack.return_value = NSAPI_ERROR_OK;
-    EXPECT_EQ(socket->connect("127.0.0.1", 1024), NSAPI_ERROR_OK);
+    SocketAddress a("127.0.0.1", 1024);
+    EXPECT_EQ(socket->connect(a), NSAPI_ERROR_OK);
 }
 
 TEST_F(TestTLSSocket, connect_no_open)
 {
     stack.return_value = NSAPI_ERROR_OK;
-    EXPECT_EQ(socket->connect("127.0.0.1", 1024), NSAPI_ERROR_NO_SOCKET);
+    SocketAddress a("127.0.0.1", 1024);
+    EXPECT_EQ(socket->connect(a), NSAPI_ERROR_NO_SOCKET);
 }

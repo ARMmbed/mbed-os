@@ -37,7 +37,7 @@ static uint8_t read_buff[TEST_BUFF_SIZE] = {0};
 static uint8_t write_buff[TEST_BUFF_SIZE] = {0x99, 0x01, 0x30, 0x50, 0x04, 0x23, 0xF6, 0x07, 0x08, \
                                   0x0D, 0x70, 0xA1, 0xFF, 0xFF, 0x14, 0x73, 0x46, 0x97, 0xE8, 0xDD};
 
-int32_t psa_sst_get_data_check(security_t caller)
+int32_t psa_sst_get_data_check(caller_security_t caller)
 {
     uint32_t status,j;
 

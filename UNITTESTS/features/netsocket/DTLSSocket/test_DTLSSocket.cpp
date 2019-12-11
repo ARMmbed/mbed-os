@@ -61,13 +61,6 @@ TEST_F(TestDTLSSocket, connect)
     socket->open((NetworkStack *)&stack);
 
     stack.return_value = NSAPI_ERROR_OK;
-    EXPECT_EQ(socket->connect("127.0.0.1", 1024), NSAPI_ERROR_OK);
-}
-
-TEST_F(TestDTLSSocket, connect_error)
-{
-    socket->open((NetworkStack *)&stack);
-
-    stack.return_value = NSAPI_ERROR_DNS_FAILURE;
-    EXPECT_EQ(socket->connect("127.0.0.1", 1024), NSAPI_ERROR_DNS_FAILURE);
+    SocketAddress a("127.0.0.1", 1024);
+    EXPECT_EQ(socket->connect(a), NSAPI_ERROR_OK);
 }

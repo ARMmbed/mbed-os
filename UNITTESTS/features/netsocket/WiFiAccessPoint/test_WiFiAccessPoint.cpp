@@ -17,6 +17,7 @@
 
 #include "gtest/gtest.h"
 #include "features/netsocket/WiFiAccessPoint.h"
+#include "features/netsocket/NetworkInterface.h"
 #include <cstring>
 
 class TestWiFiAccessPoint : public testing::Test {

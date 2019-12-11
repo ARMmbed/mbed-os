@@ -48,11 +48,9 @@ static clock_name_t const uart_clocks[] = UART_CLOCK_FREQS;
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
-void serial_init(serial_t *obj, PinName tx, PinName rx)
+void serial_init_direct(serial_t *obj, const serial_pinmap_t *pinmap)
 {
-    uint32_t uart_tx = pinmap_peripheral(tx, PinMap_UART_TX);
-    uint32_t uart_rx = pinmap_peripheral(rx, PinMap_UART_RX);
-    obj->serial.index = pinmap_merge(uart_tx, uart_rx);
+    obj->serial.index = (uint32_t)pinmap->peripheral;
     MBED_ASSERT((int)obj->serial.index != NC);
 
     uart_config_t config;
@@ -64,16 +62,16 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     UART_Init(uart_addrs[obj->serial.index], &config, CLOCK_GetFreq(uart_clocks[obj->serial.index]));
 
-    pinmap_pinout(tx, PinMap_UART_TX);
-    pinmap_pinout(rx, PinMap_UART_RX);
+    pin_function(pinmap->tx_pin, pinmap->tx_function);
+    pin_function(pinmap->rx_pin, pinmap->rx_function);
 
-    if (tx != NC) {
+    if (pinmap->tx_pin != NC) {
         UART_EnableTx(uart_addrs[obj->serial.index], true);
-        pin_mode(tx, PullUp);
+        pin_mode(pinmap->tx_pin, PullUp);
     }
-    if (rx != NC) {
+    if (pinmap->rx_pin != NC) {
         UART_EnableRx(uart_addrs[obj->serial.index], true);
-        pin_mode(rx, PullUp);
+        pin_mode(pinmap->rx_pin, PullUp);
     }
 
     if (obj->serial.index == STDIO_UART) {
@@ -87,6 +85,21 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     /* Zero the handle. */
     memset(&(obj->serial.uart_transfer_handle), 0, sizeof(obj->serial.uart_transfer_handle));
+}
+
+void serial_init(serial_t *obj, PinName tx, PinName rx)
+{
+    uint32_t uart_tx = pinmap_peripheral(tx, PinMap_UART_TX);
+    uint32_t uart_rx = pinmap_peripheral(rx, PinMap_UART_RX);
+
+    int peripheral = (int)pinmap_merge(uart_tx, uart_rx);
+
+    int tx_function = (int)pinmap_find_function(tx, PinMap_UART_TX);
+    int rx_function = (int)pinmap_find_function(rx, PinMap_UART_RX);
+
+    const serial_pinmap_t explicit_uart_pinmap = {peripheral, tx, tx_function, rx, rx_function, 0};
+
+    serial_init_direct(obj, &explicit_uart_pinmap);
 }
 
 void serial_free(serial_t *obj)
@@ -106,8 +119,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     uint8_t temp;
     /* Set bit count and parity mode. */
     temp = base->C1 & ~(UART_C1_PE_MASK | UART_C1_PT_MASK | UART_C1_M_MASK);
-    if (parity != ParityNone)
-    {
+    if (parity != ParityNone) {
         /* Enable Parity */
         temp |= (UART_C1_PE_MASK | UART_C1_M_MASK);
         if (parity == ParityOdd) {
@@ -134,18 +146,19 @@ static inline void uart_irq(uint32_t transmit_empty, uint32_t receive_full, uint
     UART_Type *base = uart_addrs[index];
 
     /* If RX overrun. */
-    if (UART_S1_OR_MASK & base->S1)
-    {
+    if (UART_S1_OR_MASK & base->S1) {
         /* Read base->D, otherwise the RX does not work. */
         (void)base->D;
     }
 
     if (serial_irq_ids[index] != 0) {
-        if (transmit_empty && (UART_GetEnabledInterrupts(uart_addrs[index]) & kUART_TxDataRegEmptyInterruptEnable))
+        if (transmit_empty && (UART_GetEnabledInterrupts(uart_addrs[index]) & kUART_TxDataRegEmptyInterruptEnable)) {
             irq_handler(serial_irq_ids[index], TxIrq);
+        }
 
-        if (receive_full && (UART_GetEnabledInterrupts(uart_addrs[index]) & kUART_RxDataRegFullInterruptEnable))
+        if (receive_full && (UART_GetEnabledInterrupts(uart_addrs[index]) & kUART_RxDataRegFullInterruptEnable)) {
             irq_handler(serial_irq_ids[index], RxIrq);
+        }
     }
 }
 
@@ -256,8 +269,9 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
             default:
                 break;
         }
-        if (all_disabled)
+        if (all_disabled) {
             NVIC_DisableIRQ(uart_irqs[obj->serial.index]);
+        }
     }
 }
 
@@ -279,16 +293,18 @@ void serial_putc(serial_t *obj, int c)
 int serial_readable(serial_t *obj)
 {
     uint32_t status_flags = UART_GetStatusFlags(uart_addrs[obj->serial.index]);
-    if (status_flags & kUART_RxOverrunFlag)
+    if (status_flags & kUART_RxOverrunFlag) {
         UART_ClearStatusFlags(uart_addrs[obj->serial.index], kUART_RxOverrunFlag);
+    }
     return (status_flags & kUART_RxDataRegFullFlag);
 }
 
 int serial_writable(serial_t *obj)
 {
     uint32_t status_flags = UART_GetStatusFlags(uart_addrs[obj->serial.index]);
-    if (status_flags & kUART_RxOverrunFlag)
+    if (status_flags & kUART_RxOverrunFlag) {
         UART_ClearStatusFlags(uart_addrs[obj->serial.index], kUART_RxOverrunFlag);
+    }
     return (status_flags & kUART_TxDataRegEmptyFlag);
 }
 
@@ -336,24 +352,28 @@ const PinMap *serial_rts_pinmap()
 /*
  * Only hardware flow control is implemented in this API.
  */
-void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
+void serial_set_flow_control_direct(serial_t *obj, FlowControl type, const serial_fc_pinmap_t *pinmap)
 {
-    switch(type) {
+    switch (type) {
         case FlowControlRTS:
-            pinmap_pinout(rxflow, PinMap_UART_RTS);
+            pin_function(pinmap->rx_flow_pin, pinmap->rx_flow_function);
+            pin_mode(pinmap->rx_flow_pin, PullNone);
             uart_addrs[obj->serial.index]->MODEM &= ~UART_MODEM_TXCTSE_MASK;
             uart_addrs[obj->serial.index]->MODEM |= UART_MODEM_RXRTSE_MASK;
             break;
 
         case FlowControlCTS:
-            pinmap_pinout(txflow, PinMap_UART_CTS);
+            pin_function(pinmap->tx_flow_pin, pinmap->tx_flow_function);
+            pin_mode(pinmap->tx_flow_pin, PullNone);
             uart_addrs[obj->serial.index]->MODEM &= ~UART_MODEM_RXRTSE_MASK;
             uart_addrs[obj->serial.index]->MODEM |= UART_MODEM_TXCTSE_MASK;
             break;
 
         case FlowControlRTSCTS:
-            pinmap_pinout(rxflow, PinMap_UART_RTS);
-            pinmap_pinout(txflow, PinMap_UART_CTS);
+            pin_function(pinmap->rx_flow_pin, pinmap->rx_flow_function);
+            pin_mode(pinmap->rx_flow_pin, PullNone);
+            pin_function(pinmap->tx_flow_pin, pinmap->tx_flow_function);
+            pin_mode(pinmap->tx_flow_pin, PullNone);
             uart_addrs[obj->serial.index]->MODEM |= UART_MODEM_TXCTSE_MASK | UART_MODEM_RXRTSE_MASK;
             break;
 
@@ -364,6 +384,16 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
         default:
             break;
     }
+}
+
+void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
+{
+    int tx_flow_function = (int)pinmap_find_function(txflow, PinMap_UART_CTS);
+    int rx_flow_function = (int)pinmap_find_function(rxflow, PinMap_UART_RTS);
+
+    const serial_fc_pinmap_t explicit_uart_fc_pinmap = {0, txflow, tx_flow_function, rxflow, rx_flow_function};
+
+    serial_set_flow_control_direct(obj, type, &explicit_uart_fc_pinmap);
 }
 
 #endif
@@ -377,7 +407,7 @@ static void serial_send_asynch(serial_t *obj)
     sendXfer.dataSize = obj->tx_buff.length;
 
     if (obj->serial.uartDmaRx.dmaUsageState == DMA_USAGE_ALLOCATED ||
-        obj->serial.uartDmaRx.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
+            obj->serial.uartDmaRx.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
         UART_SendEDMA(uart_addrs[obj->serial.index], &obj->serial.uart_dma_handle, &sendXfer);
     } else {
         UART_TransferSendNonBlocking(uart_addrs[obj->serial.index], &obj->serial.uart_transfer_handle, &sendXfer);
@@ -393,7 +423,7 @@ static void serial_receive_asynch(serial_t *obj)
     receiveXfer.dataSize = obj->rx_buff.length;
 
     if (obj->serial.uartDmaRx.dmaUsageState == DMA_USAGE_ALLOCATED ||
-        obj->serial.uartDmaRx.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
+            obj->serial.uartDmaRx.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
         UART_ReceiveEDMA(uart_addrs[obj->serial.index], &obj->serial.uart_dma_handle, &receiveXfer);
     } else {
         UART_TransferReceiveNonBlocking(uart_addrs[obj->serial.index], &obj->serial.uart_transfer_handle, &receiveXfer, NULL);
@@ -437,7 +467,7 @@ static bool serial_allocate_dma(serial_t *obj, uint32_t handler)
     EDMA_CreateHandle(&(obj->serial.uartDmaTx.handle), DMA0, obj->serial.uartDmaTx.dmaChannel);
 
     UART_TransferCreateHandleEDMA(uart_addrs[obj->serial.index], &obj->serial.uart_dma_handle, (uart_edma_transfer_callback_t)handler,
-                                        NULL, &obj->serial.uartDmaTx.handle, &obj->serial.uartDmaRx.handle);
+                                  NULL, &obj->serial.uartDmaTx.handle, &obj->serial.uartDmaRx.handle);
 
     return true;
 }
@@ -485,7 +515,8 @@ void serial_enable_event(serial_t *obj, int event, uint8_t enable)
     }
 }
 
-static void serial_tx_buffer_set(serial_t *obj, void *tx, int tx_length, uint8_t width) {
+static void serial_tx_buffer_set(serial_t *obj, void *tx, int tx_length, uint8_t width)
+{
     (void)width;
 
     // Exit if a transmit is already on-going
@@ -501,9 +532,11 @@ static void serial_tx_buffer_set(serial_t *obj, void *tx, int tx_length, uint8_t
 int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     // Check that a buffer has indeed been set up
-    MBED_ASSERT(tx != (void*)0);
+    MBED_ASSERT(tx != (void *)0);
 
-    if (tx_length == 0) return 0;
+    if (tx_length == 0) {
+        return 0;
+    }
 
     if (serial_tx_active(obj)) {
         return 0;
@@ -555,7 +588,9 @@ void serial_rx_buffer_set(serial_t *obj, void *rx, int rx_length, uint8_t width)
     // We only support byte buffers for now
     MBED_ASSERT(width == 8);
 
-    if (serial_rx_active(obj)) return;
+    if (serial_rx_active(obj)) {
+        return;
+    }
 
     obj->rx_buff.buffer = rx;
     obj->rx_buff.length = rx_length;
@@ -568,15 +603,17 @@ void serial_rx_buffer_set(serial_t *obj, void *rx, int rx_length, uint8_t width)
 void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_width, uint32_t handler, uint32_t event, uint8_t char_match, DMAUsage hint)
 {
     // Check that a buffer has indeed been set up
-    MBED_ASSERT(rx != (void*)0);
-    if (rx_length == 0) return;
+    MBED_ASSERT(rx != (void *)0);
+    if (rx_length == 0) {
+        return;
+    }
 
     if (serial_rx_active(obj)) {
         return;
     }
 
     // Set up buffer
-    serial_rx_buffer_set(obj,(void*) rx, rx_length, rx_width);
+    serial_rx_buffer_set(obj, (void *) rx, rx_length, rx_width);
 
     // Set up events
     serial_enable_event(obj, SERIAL_EVENT_RX_ALL, false);
@@ -684,7 +721,7 @@ int serial_irq_handler_asynch(serial_t *obj)
         }
     }
 #if 0
-    if (obj->char_match != SERIAL_RESERVED_CHAR_MATCH){
+    if (obj->char_match != SERIAL_RESERVED_CHAR_MATCH) {
         /* Check for character match event */
         if (buf[obj->rx_buff.length - 1] == obj->char_match) {
             status |= SERIAL_EVENT_RX_CHARACTER_MATCH;
@@ -766,14 +803,58 @@ void serial_rx_abort_asynch(serial_t *obj)
     sleep_manager_unlock_deep_sleep();
 }
 
-void serial_wait_tx_complete(uint32_t uart_index)
+static int serial_is_enabled(uint32_t uart_index)
 {
-    UART_Type *base = uart_addrs[uart_index];
-
-    /* Wait till data is flushed out of transmit buffer */
-    while (!(kUART_TransmissionCompleteFlag & UART_GetStatusFlags((UART_Type *)base)))
-    {
+    int clock_enabled = 0;
+    switch (uart_index) {
+        case 0:
+            clock_enabled = (SIM->SCGC4 & SIM_SCGC4_UART0_MASK) >> SIM_SCGC4_UART0_SHIFT;
+            break;
+        case 1:
+            clock_enabled = (SIM->SCGC4 & SIM_SCGC4_UART1_MASK) >> SIM_SCGC4_UART1_SHIFT;
+            break;
+        case 2:
+            clock_enabled = (SIM->SCGC4 & SIM_SCGC4_UART2_MASK) >> SIM_SCGC4_UART2_SHIFT;
+            break;
+        case 3:
+            clock_enabled = (SIM->SCGC4 & SIM_SCGC4_UART3_MASK) >> SIM_SCGC4_UART3_SHIFT;
+            break;
+        case 4:
+            clock_enabled = (SIM->SCGC1 & SIM_SCGC1_UART4_MASK) >> SIM_SCGC1_UART4_SHIFT;
+            break;
+        case 5:
+            clock_enabled = (SIM->SCGC1 & SIM_SCGC1_UART5_MASK) >> SIM_SCGC1_UART5_SHIFT;
+            break;
+        default:
+            break;
     }
+
+    return clock_enabled;
+}
+
+bool serial_check_tx_ongoing()
+{
+    UART_Type *base;
+    int i;
+    bool uart_tx_ongoing = false;
+
+    for (i = 0; i < FSL_FEATURE_SOC_UART_COUNT; i++) {
+        /* First check if UART is enabled */
+        if (!serial_is_enabled(i)) {
+            /* UART is not enabled, check the next instance */
+            continue;
+        }
+
+        base = uart_addrs[i];
+
+        /* Check if data is waiting to be written out of transmit buffer */
+        if (!(kUART_TransmissionCompleteFlag & UART_GetStatusFlags((UART_Type *)base))) {
+            uart_tx_ongoing = true;
+            break;
+        }
+    }
+
+    return uart_tx_ongoing;
 }
 
 #endif

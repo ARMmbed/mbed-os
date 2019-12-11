@@ -38,7 +38,7 @@ using namespace mbed;
 #if MBED_CONF_RTOS_API_PRESENT
 
 #include "rtos/Kernel.h"
-#include "platform/mbed_os_timer.h"
+#include "platform/source/mbed_os_timer.h"
 
 void equeue_tick_init()
 {

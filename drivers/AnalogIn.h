@@ -28,7 +28,7 @@
 namespace mbed {
 /** \defgroup mbed-os-public Public API */
 
-/** \addtogroup drivers-public-api Drivers
+/** \defgroup drivers-public-api Drivers
  * \ingroup mbed-os-public
  */
 
@@ -66,6 +66,13 @@ namespace mbed {
 class AnalogIn {
 
 public:
+
+    /** Create an AnalogIn, connected to the specified pin
+     *
+     * @param pinmap reference to structure which holds static pinmap.
+     */
+    AnalogIn(const PinMap &pinmap);
+    AnalogIn(const PinMap &&) = delete; // prevent passing of temporary objects
 
     /** Create an AnalogIn, connected to the specified pin
      *
@@ -135,4 +142,3 @@ protected:
 #endif
 
 #endif
-

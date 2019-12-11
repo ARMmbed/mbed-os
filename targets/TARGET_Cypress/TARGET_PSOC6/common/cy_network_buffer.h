@@ -32,14 +32,14 @@
 */
 
 #pragma once
-#if defined(TARGET_WHD)
+#if defined(CYBSP_WIFI_CAPABLE)
 
 #include <stdint.h>
 #include <stdbool.h>
 #include "cy_result.h"
 #include "whd.h"
 #include "whd_network_types.h"
-#include "pbuf.h"
+#include "lwip/pbuf.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -176,6 +176,6 @@ void cy_network_process_ethernet_data(whd_interface_t interface, whd_buffer_t bu
 }
 #endif /* __cplusplus */
 
-#endif /* defined(TARGET_WHD) */
+#endif /* defined(CYBSP_WIFI_CAPABLE) */
 
 /** \} group_bsp_network_buffer */

@@ -22,6 +22,9 @@
 extern "C" {
 #endif
 
+/* If this macro is defined, then constexpr utility functions for pin-map seach can be used. */
+#define STATIC_PINMAP_READY 1
+
 typedef enum {
     PIN_INPUT,
     PIN_OUTPUT
@@ -177,8 +180,8 @@ typedef enum {
     A1 = P0_23,
     A2 = P0_0,
     A3 = P1_31,
-    A4 = P0_14,
-    A5 = P0_13,
+    A4 = P0_13,
+    A5 = P0_14,
 
     //SPI Pins configuration
     SPI_MOSI    = D11,

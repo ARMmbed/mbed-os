@@ -210,11 +210,11 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
   /* Reset CFGR register */
   CLEAR_REG(RCC->CFGR);
 
-  /* Update the SystemCoreClock global variable */
-  SystemCoreClock = HSI_VALUE;
+  /* Update the SystemD1Clock global variable */
+  SystemD1Clock = HSI_VALUE;
 
   /* Adapt Systick interrupt period */
-  if(HAL_InitTick(TICK_INT_PRIORITY) != HAL_OK)
+  if(HAL_InitTick(uwTickPrio) != HAL_OK)
   {
     return HAL_ERROR;
   }
@@ -803,7 +803,19 @@ __weak HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruc
     }
     else
     {
-      return HAL_ERROR;
+      /* Do not return HAL_ERROR if request repeats the current configuration */
+      uint32_t temp1_pllckcfg = RCC->PLLCKSELR;
+      uint32_t temp2_pllckcfg = RCC->PLL1DIVR;
+      if(((RCC_OscInitStruct->PLL.PLLState) == RCC_PLL_OFF) ||
+	 (READ_BIT(temp1_pllckcfg, RCC_PLLCKSELR_PLLSRC) != RCC_OscInitStruct->PLL.PLLSource) ||
+         ((READ_BIT(temp1_pllckcfg, RCC_PLLCKSELR_DIVM1) >> RCC_PLLCKSELR_DIVM1_Pos) != RCC_OscInitStruct->PLL.PLLM) ||
+         (READ_BIT(temp2_pllckcfg, RCC_PLL1DIVR_N1) != (RCC_OscInitStruct->PLL.PLLN - 1U)) ||
+         ((READ_BIT(temp2_pllckcfg, RCC_PLL1DIVR_P1) >> RCC_PLL1DIVR_P1_Pos) != (RCC_OscInitStruct->PLL.PLLP - 1U)) ||
+         ((READ_BIT(temp2_pllckcfg, RCC_PLL1DIVR_Q1) >> RCC_PLL1DIVR_Q1_Pos) != (RCC_OscInitStruct->PLL.PLLQ - 1U)) ||
+         ((READ_BIT(temp2_pllckcfg, RCC_PLL1DIVR_R1) >> RCC_PLL1DIVR_R1_Pos) != (RCC_OscInitStruct->PLL.PLLR - 1U)))
+      {
+        return HAL_ERROR;
+      }
     }
   }
   return HAL_OK;
@@ -1044,11 +1056,11 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
    }
  }
 
-  /* Update the SystemCoreClock global variable */
-  SystemCoreClock = HAL_RCC_GetSysClockFreq() >> ((D1CorePrescTable[(RCC->D1CFGR & RCC_D1CFGR_D1CPRE)>> RCC_D1CFGR_D1CPRE_Pos]) & 0x1FU);
+  /* Update the SystemD1Clock global variable */
+  SystemD1Clock = HAL_RCC_GetSysClockFreq() >> ((D1CorePrescTable[(RCC->D1CFGR & RCC_D1CFGR_D1CPRE)>> RCC_D1CFGR_D1CPRE_Pos]) & 0x1FU);
 
   /* Configure the source of time base considering new system clocks settings*/
-  halstatus = HAL_InitTick (TICK_INT_PRIORITY);
+  halstatus = HAL_InitTick (uwTickPrio);
 
   return halstatus;
 }

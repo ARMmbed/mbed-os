@@ -26,9 +26,9 @@ LEN_PACKET = 127
 N_PACKETS = 5000
 TOT_BITS = float(LEN_PACKET * N_PACKETS * 8) * 2
 MEGA = float(1024 * 1024)
-UPDATE_STEP = (N_PACKETS/10)
+UPDATE_STEP = (N_PACKETS // 10)
 
-class UDP_EchoClient:
+class UDP_EchoClient(object):
     s = socket(AF_INET, SOCK_DGRAM)
 
     def __init__(self, host):
@@ -45,10 +45,10 @@ class UDP_EchoClient:
     def test(self):
         start = time()
         for i in range(N_PACKETS):
-            if (i % UPDATE_STEP) == 0: print '%.2f%%' % ((float(i)/float(N_PACKETS)) * 100.)
+            if (i % UPDATE_STEP) == 0: print('%.2f%%' % ((float(i)/float(N_PACKETS)) * 100.))
             self.__packet()
         t = time() - start
-        print 'Throughput: (%.2f)Mbits/s' % ((TOT_BITS / t)/MEGA)
+        print('Throughput: (%.2f)Mbits/s' % ((TOT_BITS / t)/MEGA))
 
 while True:
     e = UDP_EchoClient(CLIENT_ADDRESS)

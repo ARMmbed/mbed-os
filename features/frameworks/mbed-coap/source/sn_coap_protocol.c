@@ -62,7 +62,6 @@ static uint8_t                  *sn_coap_protocol_linked_list_blockwise_payload_
 static coap_blockwise_payload_s *sn_coap_protocol_linked_list_blockwise_search(struct coap_s *handle, const sn_nsdl_addr_s *src_addr_ptr, const uint8_t *token_ptr, uint8_t token_len);
 static bool                     sn_coap_protocol_linked_list_blockwise_payload_search_compare_block_number(struct coap_s *handle, const sn_nsdl_addr_s *src_addr_ptr, const uint8_t *token_ptr, uint8_t token_len, uint32_t block_number);
 static void                     sn_coap_protocol_linked_list_blockwise_payload_remove(struct coap_s *handle, coap_blockwise_payload_s *removed_payload_ptr);
-static void                     sn_coap_protocol_linked_list_blockwise_payload_remove_oldest(struct coap_s *handle, uint8_t *token_ptr, uint8_t token_len);
 static uint32_t                 sn_coap_protocol_linked_list_blockwise_payloads_get_len(struct coap_s *handle, const sn_nsdl_addr_s *src_addr_ptr, const uint8_t *token_ptr, uint8_t token_len);
 static void                     sn_coap_protocol_handle_blockwise_timout(struct coap_s *handle);
 static sn_coap_hdr_s            *sn_coap_handle_blockwise_message(struct coap_s *handle, sn_nsdl_addr_s *src_addr_ptr, sn_coap_hdr_s *received_coap_msg_ptr, void *param);
@@ -179,13 +178,7 @@ struct coap_s *sn_coap_protocol_init(void *(*used_malloc_func_ptr)(uint16_t), vo
 
 #endif /* ENABLE_RESENDINGS */
 
-    /* Randomize global message ID */
-    randLIB_seed_random();
-    message_id = randLIB_get_16bit();
-    if (message_id == 0) {
-        message_id = 1;
-    }
-
+    message_id = 0;
     return handle;
 }
 
@@ -1472,32 +1465,6 @@ static bool sn_coap_protocol_linked_list_blockwise_payload_search_compare_block_
 }
 
 /**************************************************************************//**
- * \fn static void sn_coap_protocol_linked_list_blockwise_payload_remove_oldest(struct coap_s *handle)
- *
- * \brief Removes current stored blockwise paylod from Linked list
- *****************************************************************************/
-
-static void sn_coap_protocol_linked_list_blockwise_payload_remove_oldest(struct coap_s *handle, uint8_t *token_ptr, uint8_t token_len)
-{
-    /* Remove oldest node in Linked list*/
-    if (token_ptr) {
-        ns_list_foreach(coap_blockwise_payload_s, removed_payload_ptr, &handle->linked_list_blockwise_received_payloads) {
-            if ((token_len == removed_payload_ptr->token_len) && !memcmp(removed_payload_ptr->token_ptr, token_ptr, token_len)) {
-                sn_coap_protocol_linked_list_blockwise_payload_remove(handle, removed_payload_ptr);
-                return;
-            }
-        }
-    } else {
-        ns_list_foreach(coap_blockwise_payload_s, removed_payload_ptr, &handle->linked_list_blockwise_received_payloads) {
-            if (!removed_payload_ptr->token_ptr) {
-                sn_coap_protocol_linked_list_blockwise_payload_remove(handle, removed_payload_ptr);
-                return;
-            }
-        }
-    }
-}
-
-/**************************************************************************//**
  * \fn static void sn_coap_protocol_linked_list_blockwise_payload_remove(struct coap_s *handle,
  *                                                      coap_blockwise_msg_s *removed_msg_ptr)
  *
@@ -2292,7 +2259,7 @@ static bool sn_coap_handle_last_blockwise(struct coap_s *handle, const sn_nsdl_a
     uint32_t whole_payload_len      = sn_coap_protocol_linked_list_blockwise_payloads_get_len(handle, src_addr_ptr, received_coap_msg_ptr->token_ptr, received_coap_msg_ptr->token_len);
     uint8_t *payload_ptr            = sn_coap_protocol_linked_list_blockwise_payload_search(handle, src_addr_ptr, &payload_len, received_coap_msg_ptr->token_ptr, received_coap_msg_ptr->token_len);
 
-    tr_debug("sn_coap_handle_last_blockwise - whole len %d", whole_payload_len);
+    tr_debug("sn_coap_handle_last_blockwise - whole len %" PRIu32, whole_payload_len);
     if (!whole_payload_len) {
         return false;
     }
@@ -2526,6 +2493,11 @@ static bool compare_address_and_port(const sn_nsdl_addr_s* left, const sn_nsdl_a
 
 static uint16_t get_new_message_id(void)
 {
+    if (message_id == 0) {
+        /* Randomize global message ID */
+        randLIB_seed_random();
+        message_id = randLIB_get_16bit();
+    }
     message_id++;
     if (message_id == 0) {
         message_id = 1;

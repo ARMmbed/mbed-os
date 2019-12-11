@@ -71,6 +71,15 @@ public:
      */
     SPISlave(PinName mosi, PinName miso, PinName sclk, PinName ssel);
 
+    /** Create a SPI slave connected to the specified pins.
+     *
+     *  @note Either mosi or miso can be specified as NC if not used.
+     *
+     *  @param static_pinmap reference to structure which holds static pinmap.
+     */
+    SPISlave(const spi_pinmap_t &pinmap);
+    SPISlave(const spi_pinmap_t &&) = delete; // prevent passing of temporary objects
+
     /** Configure the data transmission format.
      *
      *  @param bits Number of bits per SPI frame (4 - 16).

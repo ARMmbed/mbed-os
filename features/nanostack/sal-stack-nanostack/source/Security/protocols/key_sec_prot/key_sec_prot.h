@@ -26,13 +26,23 @@
  */
 
 /**
- * key_sec_prot_register register EAPOL-Key protocol to KMP service
+ * supp_key_sec_prot_register register supplicant EAPOL-Key protocol to KMP service
  *
  * \param service KMP service
  *
  * \return < 0 failure
  * \return >= 0 success
  */
-int8_t key_sec_prot_register(kmp_service_t *service);
+int8_t supp_key_sec_prot_register(kmp_service_t *service);
+
+/**
+ * auth_key_sec_prot_register register authenticator EAPOL-Key protocol to KMP service
+ *
+ * \param service KMP service
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ */
+int8_t auth_key_sec_prot_register(kmp_service_t *service);
 
 #endif /* KEY_SEC_PROT_H_ */

@@ -23,6 +23,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 #include "mbed_shared_queues.h"
 #include "events/EventQueue.h"
 #include "OnboardNetworkStack.h"
@@ -63,7 +64,7 @@ enum dns_state {
 };
 
 struct DNS_QUERY {
-    int unique_id;
+    intptr_t unique_id;
     nsapi_error_t status;
     NetworkStack *stack;
     char *host;
@@ -89,11 +90,12 @@ struct DNS_QUERY {
 
 static void nsapi_dns_cache_add(const char *host, nsapi_addr_t *address, uint32_t ttl);
 static nsapi_size_or_error_t nsapi_dns_cache_find(const char *host, nsapi_version_t version, nsapi_addr_t *address);
+static void nsapi_dns_cache_reset();
 
 static nsapi_error_t nsapi_dns_get_server_addr(NetworkStack *stack, uint8_t *index, uint8_t *total_attempts, uint8_t *send_success, SocketAddress *dns_addr, const char *interface_name);
 
 static void nsapi_dns_query_async_create(void *ptr);
-static nsapi_error_t nsapi_dns_query_async_delete(int unique_id);
+static nsapi_error_t nsapi_dns_query_async_delete(intptr_t unique_id);
 static void nsapi_dns_query_async_send(void *ptr);
 static void nsapi_dns_query_async_timeout(void);
 static void nsapi_dns_query_async_resp(DNS_QUERY *query, nsapi_error_t status, SocketAddress *address);
@@ -121,7 +123,7 @@ static SingletonPtr<PlatformMutex> dns_cache_mutex;
 #endif
 
 static uint16_t dns_message_id = 1;
-static int dns_unique_id = 1;
+static intptr_t dns_unique_id = 1;
 static DNS_QUERY *dns_query_queue[DNS_QUERY_QUEUE_SIZE];
 // Protects from several threads running asynchronous DNS
 static SingletonPtr<PlatformMutex> dns_mutex;
@@ -403,6 +405,22 @@ static nsapi_error_t nsapi_dns_cache_find(const char *host, nsapi_version_t vers
     return ret_val;
 }
 
+static void nsapi_dns_cache_reset()
+{
+#if (MBED_CONF_NSAPI_DNS_CACHE_SIZE > 0)
+    dns_cache_mutex->lock();
+    for (int i = 0; i < MBED_CONF_NSAPI_DNS_CACHE_SIZE; i++) {
+        if (dns_cache[i]) {
+            delete[] dns_cache[i]->host;
+            dns_cache[i]->host = NULL;
+            delete dns_cache[i];
+            dns_cache[i] = NULL;
+        }
+    }
+    dns_cache_mutex->unlock();
+#endif
+}
+
 static nsapi_error_t nsapi_dns_get_server_addr(NetworkStack *stack, uint8_t *index, uint8_t *total_attempts, uint8_t *send_success, SocketAddress *dns_addr, const char *interface_name)
 {
     bool dns_addr_set = false;
@@ -487,8 +505,13 @@ static nsapi_size_or_error_t nsapi_dns_query_multiple(NetworkStack *stack, const
             break;
         }
 
+        if (version != NSAPI_UNSPEC && (dns_addr.get_ip_version() != version)) {
+            retries = MBED_CONF_NSAPI_DNS_RETRIES;
+            index++;
+            continue;
+        }
         // send the question
-        int len = dns_append_question(packet, 1, host, version);
+        int len = dns_append_question(packet, 1, host, dns_addr.get_ip_version());
 
         err = socket.sendto(dns_addr, packet, len);
         // send may fail for various reasons, including wrong address type - move on
@@ -618,6 +641,13 @@ void nsapi_dns_call_in_set(call_in_callback_cb_t callback)
     *dns_call_in.get() = callback;
 }
 
+void nsapi_dns_reset()
+{
+    nsapi_dns_cache_reset();
+    dns_message_id = 1;
+    dns_unique_id = 1;
+}
+
 nsapi_error_t nsapi_dns_call_in(call_in_callback_cb_t cb, int delay, mbed::Callback<void()> func)
 {
     if (*dns_call_in.get()) {
@@ -743,7 +773,7 @@ nsapi_value_or_error_t nsapi_dns_query_multiple_async(NetworkStack *stack, const
 
 static void nsapi_dns_query_async_initiate_next(void)
 {
-    int id = INT32_MAX;
+    intptr_t id = INTPTR_MAX;
     DNS_QUERY *query = NULL;
 
     // Trigger next query to start, find one that has been on queue longest
@@ -820,7 +850,7 @@ static void nsapi_dns_query_async_timeout(void)
     dns_mutex->unlock();
 }
 
-nsapi_error_t nsapi_dns_query_async_cancel(int id)
+nsapi_error_t nsapi_dns_query_async_cancel(nsapi_size_or_error_t id)
 {
     dns_mutex->lock();
 
@@ -852,7 +882,7 @@ static void nsapi_dns_query_async_create(void *ptr)
 {
     dns_mutex->lock();
 
-    int unique_id = reinterpret_cast<int>(ptr);
+    intptr_t unique_id = reinterpret_cast<intptr_t>(ptr);
 
     DNS_QUERY *query = NULL;
 
@@ -918,7 +948,7 @@ static void nsapi_dns_query_async_create(void *ptr)
 
 }
 
-static nsapi_error_t nsapi_dns_query_async_delete(int unique_id)
+static nsapi_error_t nsapi_dns_query_async_delete(intptr_t unique_id)
 {
     int index = -1;
     DNS_QUERY *query = NULL;
@@ -954,7 +984,7 @@ static nsapi_error_t nsapi_dns_query_async_delete(int unique_id)
         delete[] query->addrs;
     }
 
-    delete query->host;
+    delete[] query->host;
     delete query;
     dns_query_queue[index] = NULL;
 
@@ -978,7 +1008,7 @@ static void nsapi_dns_query_async_send(void *ptr)
 {
     dns_mutex->lock();
 
-    int unique_id = reinterpret_cast<int>(ptr);
+    intptr_t unique_id = reinterpret_cast<intptr_t>(ptr);
 
     DNS_QUERY *query = NULL;
 
@@ -1014,9 +1044,6 @@ static void nsapi_dns_query_async_send(void *ptr)
         return;
     }
 
-    // send the question
-    int len = dns_append_question(packet, query->dns_message_id, query->host, query->version);
-
     while (true) {
         SocketAddress dns_addr;
         nsapi_size_or_error_t err = nsapi_dns_get_server_addr(query->stack, &(query->dns_server), &(query->total_attempts), &(query->send_success), &dns_addr, query->interface_name);
@@ -1025,6 +1052,13 @@ static void nsapi_dns_query_async_send(void *ptr)
             free(packet);
             return;
         }
+
+        if (query->version != NSAPI_UNSPEC && dns_addr.get_ip_version() != query->version) {
+            query->dns_server++;
+            continue;
+        }
+        // send the question
+        int len = dns_append_question(packet, query->dns_message_id, query->host, dns_addr.get_ip_version());
 
         err = query->socket->sendto(dns_addr, packet, len);
 
@@ -1140,7 +1174,7 @@ static void nsapi_dns_query_async_response(void *ptr)
 {
     dns_mutex->lock();
 
-    int unique_id = reinterpret_cast<int>(ptr);
+    intptr_t unique_id = reinterpret_cast<intptr_t>(ptr);
 
     DNS_QUERY *query = NULL;
 

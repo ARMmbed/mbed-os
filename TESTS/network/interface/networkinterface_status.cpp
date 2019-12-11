@@ -132,7 +132,7 @@ void NETWORKINTERFACE_STATUS_NONBLOCK()
         status = wait_status_callback();
         TEST_ASSERT_EQUAL(NSAPI_STATUS_DISCONNECTED, status);
 
-        wait(1);    // In cellular there might still come disconnected messages from the network which are sent to callback.
+        ThisThread::sleep_for(1);    // In cellular there might still come disconnected messages from the network which are sent to callback.
         // This would cause this test to fail as next connect is already ongoing. So wait here a while until (hopefully)
         // all messages also from the network have arrived.
     }
@@ -155,6 +155,17 @@ void NETWORKINTERFACE_STATUS_GET()
         while (net->get_connection_status() != NSAPI_STATUS_GLOBAL_UP) {
             ThisThread::sleep_for(500);
         }
+
+#if MBED_CONF_LWIP_IPV6_ENABLED
+        /* if IPv6 is enabled, validate ipv6_link_local_address API*/
+        SocketAddress ipv6_link_local_address(NULL);
+        err = net->get_ipv6_link_local_address(&ipv6_link_local_address);
+        if (err != NSAPI_ERROR_UNSUPPORTED) {
+            TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
+            TEST_ASSERT_NOT_NULL(ipv6_link_local_address.get_ip_address());
+            TEST_ASSERT_EQUAL(NSAPI_IPv6, ipv6_link_local_address.get_ip_version());
+        }
+#endif
 
         err = net->disconnect();
         TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);

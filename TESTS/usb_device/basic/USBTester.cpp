@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#if defined(MBED_CONF_RTOS_PRESENT)
+
 #include "stdint.h"
 #include "USBTester.h"
 #include "mbed_shared_queues.h"
@@ -37,6 +39,8 @@
 #define MAX_EP_SIZE 64
 #define MIN_EP_SIZE 8
 
+#define CTRL_BUF_SIZE (2048)
+
 #define EVENT_READY (1 << 0)
 
 
@@ -55,9 +59,8 @@ USBTester::USBTester(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint1
     int_out = resolver.endpoint_out(USB_EP_TYPE_INT, 64);
     MBED_ASSERT(resolver.valid());
     queue = mbed::mbed_highprio_event_queue();
-
     configuration_desc(0);
-
+    ctrl_buf = new uint8_t[CTRL_BUF_SIZE];
     init();
     USBDevice::connect();
     flags.wait_any(EVENT_READY, osWaitForever, false);
@@ -67,6 +70,7 @@ USBTester::USBTester(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint1
 USBTester::~USBTester()
 {
     deinit();
+    delete[] ctrl_buf;
 }
 
 
@@ -138,7 +142,7 @@ void USBTester::callback_request(const setup_packet_t *setup)
             case VENDOR_TEST_CTRL_IN:
                 result = Send;
                 data = ctrl_buf;
-                size = setup->wValue < sizeof(ctrl_buf) ? setup->wValue : sizeof(ctrl_buf);
+                size = setup->wValue < CTRL_BUF_SIZE ? setup->wValue : CTRL_BUF_SIZE;
                 break;
             case VENDOR_TEST_CTRL_OUT:
                 result = Receive;
@@ -700,3 +704,4 @@ void USBTester::epbulk_out_callback()
     read_finish(bulk_out);
     read_start(bulk_out, bulk_buf, sizeof(bulk_buf));
 }
+#endif

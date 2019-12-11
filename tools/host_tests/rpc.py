@@ -14,8 +14,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from host_test import Test
-from mbedrpc import SerialRPC, DigitalOut, DigitalIn, pin
+from .host_test import Test
+from .mbedrpc import SerialRPC, DigitalOut, DigitalIn, pin
 
 
 class RpcTest(Test):
@@ -30,7 +30,7 @@ class RpcTest(Test):
 
         if hasattr(self.mbed.options, 'micro'):
             if self.mbed.options.micro == 'M0+':
-                print "Freedom Board: PTA12 <-> PTC4"
+                print("Freedom Board: PTA12 <-> PTC4")
                 p_out = pin("PTA12")
                 p_in  = pin("PTC4")
 

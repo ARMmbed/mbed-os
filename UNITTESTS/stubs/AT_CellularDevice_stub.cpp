@@ -30,8 +30,13 @@ int AT_CellularDevice_stub::init_module_failure_count = 0;
 int AT_CellularDevice_stub::set_pin_failure_count = 0;
 int AT_CellularDevice_stub::get_sim_failure_count = 0;
 bool AT_CellularDevice_stub::pin_needed = false;
+bool AT_CellularDevice_stub::supported_bool = false;
 
-AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _network(0), _sms(0),
+AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh),
+#if MBED_CONF_CELLULAR_USE_SMS
+    _sms(0),
+#endif // MBED_CONF_CELLULAR_USE_SMS
+    _network(0),
     _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT), _modem_debug_on(false)
 {
 }
@@ -83,14 +88,25 @@ CellularNetwork *AT_CellularDevice::open_network(FileHandle *fh)
                                                                _default_timeout,
                                                                "\r",
                                                                get_send_delay(),
-                                                               _modem_debug_on));
+                                                               _modem_debug_on), *this);
     return _network;
 }
-
+#if MBED_CONF_CELLULAR_USE_SMS
 CellularSMS *AT_CellularDevice::open_sms(FileHandle *fh)
 {
     return NULL;
 }
+
+void AT_CellularDevice::close_sms()
+{
+}
+
+AT_CellularSMS *AT_CellularDevice::open_sms_impl(ATHandler &at)
+{
+    return NULL;
+}
+
+#endif // MBED_CONF_CELLULAR_USE_SMS
 
 CellularInformation *AT_CellularDevice::open_information(FileHandle *fh)
 {
@@ -105,10 +121,6 @@ void AT_CellularDevice::close_network()
         _network = NULL;
         release_at_handler(atHandler);
     }
-}
-
-void AT_CellularDevice::close_sms()
-{
 }
 
 void AT_CellularDevice::close_information()
@@ -136,14 +148,9 @@ void AT_CellularDevice::delete_context(CellularContext *context)
 
 AT_CellularNetwork *AT_CellularDevice::open_network_impl(ATHandler &at)
 {
-    _network = new AT_CellularNetwork(at);
+    _network = new AT_CellularNetwork(at, *this);
 
     return _network;
-}
-
-AT_CellularSMS *AT_CellularDevice::open_sms_impl(ATHandler &at)
-{
-    return NULL;
 }
 
 AT_CellularInformation *AT_CellularDevice::open_information_impl(ATHandler &at)
@@ -255,4 +262,38 @@ void AT_CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr, Cellul
 
 void AT_CellularDevice::set_at_urcs_impl()
 {
+}
+
+nsapi_error_t AT_CellularDevice::clear()
+{
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t AT_CellularDevice::set_baud_rate(int baud_rate)
+{
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t AT_CellularDevice::set_baud_rate_impl(int baud_rate)
+{
+    return NSAPI_ERROR_OK;
+}
+
+void AT_CellularDevice::set_cellular_properties(const intptr_t *property_array)
+{
+}
+
+intptr_t AT_CellularDevice::get_property(CellularProperty key)
+{
+    if (key == PROPERTY_C_GREG) {
+        return AT_CellularNetwork::RegistrationModeDisable;
+    } else if (key == PROPERTY_C_REG || key == PROPERTY_C_EREG) {
+        return AT_CellularNetwork::RegistrationModeEnable;
+    } else if (key == PROPERTY_AT_CGAUTH) {
+        return true;
+    } else if (key == PROPERTY_IPV4_PDP_TYPE) {
+        return true;
+    }
+
+    return AT_CellularDevice_stub::supported_bool;
 }

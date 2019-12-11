@@ -76,27 +76,22 @@ int8_t ws_pae_nvm_store_keys_tlv_read(nvm_tlv_entry_t *tlv_entry, sec_prot_keys_
  * ws_pae_nvm_store_frame_counter_tlv_create create NVM frame counter TLV
  *
  * \param tlv_entry TLV entry buffer pointer
- * \param index index
- * \param hash hash
- * \param frame_counter frame counter
- *
+ * \param counters frame counters
  *
  */
-void ws_pae_nvm_store_frame_counter_tlv_create(nvm_tlv_entry_t *tlv_entry, uint8_t index, uint8_t *hash, uint32_t frame_counter);
+void ws_pae_nvm_store_frame_counter_tlv_create(nvm_tlv_entry_t *tlv_entry, frame_counters_t *counters);
 
 /**
  * ws_pae_nvm_store_frame_counter_tlv_read read from NVM frame counter TLV
  *
  * \param tlv_entry TLV entry
- * \param index index
- * \param hash hash
- * \param frame_counter frame counter
+ * \param counters frame counters
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-int8_t ws_pae_nvm_store_frame_counter_tlv_read(nvm_tlv_entry_t *tlv_entry, uint8_t *index, uint8_t *hash, uint32_t *frame_counter);
+int8_t ws_pae_nvm_store_frame_counter_tlv_read(nvm_tlv_entry_t *tlv_entry, frame_counters_t *counters);
 
 nvm_tlv_entry_t *ws_pae_buffer_allocate(void);
 

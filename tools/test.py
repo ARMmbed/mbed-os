@@ -43,7 +43,7 @@ from tools.utils import argparse_dir_not_parent
 from tools.utils import print_end_warnings
 from tools.settings import ROOT
 from tools.targets import Target
-from tools.psa import generate_psa_sources, clean_psa_autogen
+from tools.psa import generate_psa_sources
 from tools.resources import OsAndSpeResourceFilter, SpeOnlyResourceFilter
 
 def main():
@@ -110,13 +110,21 @@ def main():
                           default=False,
                           help="Verbose diagnostic output")
 
+        parser.add_argument("--silent",
+                            action="store_true",
+                            dest="silent",
+                            default=False,
+                            help="Silent diagnostic output (no copy, compile notification)")
+
         parser.add_argument("--stats-depth",
                             type=int,
                             dest="stats_depth",
                             default=2,
                             help="Depth level for static memory report")
+
         parser.add_argument("--ignore", dest="ignore", type=argparse_many(str),
                           default=None, help="Comma separated list of patterns to add to mbedignore (eg. ./main.cpp)")
+
         parser.add_argument("--icetea",
                             action="store_true",
                             dest="icetea",
@@ -212,10 +220,6 @@ def main():
             print_tests(tests, options.format)
             sys.exit(0)
         else:
-
-            if options.clean:
-                clean_psa_autogen()
-
             # Build all tests
             if not options.build_dir:
                 args_error(parser, "argument --build is required")
@@ -235,15 +239,13 @@ def main():
                 resource_filter = None
                 if target.is_PSA_secure_target:
                     resource_filter = OsAndSpeResourceFilter()
-
-                if target.is_PSA_target:
                     generate_psa_sources(
                         source_dirs=base_source_paths,
                         ignore_paths=[options.build_dir]
                     )
 
                 # Build sources
-                notify = TerminalNotifier(options.verbose)
+                notify = TerminalNotifier(options.verbose, options.silent)
                 build_library(base_source_paths, options.build_dir, mcu,
                               toolchain_name, jobs=options.jobs,
                               clean=options.clean, report=build_report,
@@ -279,7 +281,7 @@ def main():
                     resource_filter = None
 
                 # Build all the tests
-                notify = TerminalNotifier(options.verbose)
+                notify = TerminalNotifier(options.verbose, options.silent)
                 test_build_success, test_build = build_tests(
                     tests,
                     [os.path.relpath(options.build_dir)],
@@ -310,7 +312,7 @@ def main():
 
             # Print memory map summary on screen
             if build_report:
-                print
+                print()
                 print(print_build_memory_usage(build_report))
 
             print_report_exporter = ReportExporter(ResultExporterType.PRINT, package="build")

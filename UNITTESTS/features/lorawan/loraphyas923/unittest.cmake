@@ -34,7 +34,13 @@ set(unittest-test-sources
   features/lorawan/loraphyas923/Test_LoRaPHYAS923.cpp
   stubs/LoRaPHY_stub.cpp
   stubs/LoRaWANTimer_stub.cpp
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
 
+)
+
+set(unittest-test-flags
+  -DMBED_CONF_LORA_TX_MAX_SIZE=255
+  -DMBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH=5
+  -DMBED_CONF_LORA_UPLINK_PREAMBLE_LENGTH=8
 )
 

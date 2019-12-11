@@ -22,28 +22,34 @@
 
 #include "platform/mbed_critical.h"
 #include "platform/mbed_power_mgmt.h"
+#include "platform/mbed_assert.h"
 
 namespace mbed {
 
-PwmOut::PwmOut(PinName pin) : _deep_sleep_locked(false)
+PwmOut::PwmOut(PinName pin) :
+    _pin(pin),
+    _deep_sleep_locked(false),
+    _initialized(false),
+    _duty_cycle(0)
+{
+    PwmOut::init();
+}
+
+PwmOut::PwmOut(const PinMap &pinmap) : _deep_sleep_locked(false)
 {
     core_util_critical_section_enter();
-    pwmout_init(&_pwm, pin);
+    pwmout_init_direct(&_pwm, &pinmap);
     core_util_critical_section_exit();
 }
 
 PwmOut::~PwmOut()
 {
-    core_util_critical_section_enter();
-    pwmout_free(&_pwm);
-    unlock_deep_sleep();
-    core_util_critical_section_exit();
+    PwmOut::deinit();
 }
 
 void PwmOut::write(float value)
 {
     core_util_critical_section_enter();
-    lock_deep_sleep();
     pwmout_write(&_pwm, value);
     core_util_critical_section_exit();
 }
@@ -98,6 +104,26 @@ void PwmOut::pulsewidth_us(int us)
     core_util_critical_section_exit();
 }
 
+void PwmOut::suspend()
+{
+    core_util_critical_section_enter();
+    if (_initialized) {
+        _duty_cycle = PwmOut::read();
+        PwmOut::deinit();
+    }
+    core_util_critical_section_exit();
+}
+
+void PwmOut::resume()
+{
+    core_util_critical_section_enter();
+    if (!_initialized) {
+        PwmOut::init();
+        PwmOut::write(_duty_cycle);
+    }
+    core_util_critical_section_exit();
+}
+
 void PwmOut::lock_deep_sleep()
 {
     if (_deep_sleep_locked == false) {
@@ -112,6 +138,32 @@ void PwmOut::unlock_deep_sleep()
         sleep_manager_unlock_deep_sleep();
         _deep_sleep_locked = false;
     }
+}
+
+void PwmOut::init()
+{
+    core_util_critical_section_enter();
+
+    if (!_initialized) {
+        pwmout_init(&_pwm, _pin);
+        lock_deep_sleep();
+        _initialized = true;
+    }
+
+    core_util_critical_section_exit();
+}
+
+void PwmOut::deinit()
+{
+    core_util_critical_section_enter();
+
+    if (_initialized) {
+        pwmout_free(&_pwm);
+        unlock_deep_sleep();
+        _initialized = false;
+    }
+
+    core_util_critical_section_exit();
 }
 
 } // namespace mbed

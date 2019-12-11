@@ -35,9 +35,9 @@
 #if MBED_CONF_RTOS_PRESENT || defined(DOXYGEN_ONLY) || defined(UNITTEST)
 
 namespace rtos {
-/** \ingroup mbed-os-public */
 /** \addtogroup rtos-public-api */
 /** @{*/
+
 /**
  * \defgroup rtos_Thread Thread class
  * @{

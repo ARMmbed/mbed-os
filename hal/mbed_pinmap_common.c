@@ -52,7 +52,6 @@ uint32_t pinmap_merge(uint32_t a, uint32_t b)
 
     // mis-match error case
     MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_PINMAP_INVALID), "pinmap mis-match", a);
-    return (uint32_t)NC;
 }
 
 uint32_t pinmap_find_peripheral(PinName pin, const PinMap *map)
@@ -75,7 +74,7 @@ uint32_t pinmap_peripheral(PinName pin, const PinMap *map)
     }
     peripheral = pinmap_find_peripheral(pin, map);
     if ((uint32_t)NC == peripheral) { // no mapping available
-        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_PINMAP_INVALID), "pinmap not found for peripheral", peripheral);
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_PINMAP_INVALID), "pinmap not found for peripheral", pin);
     }
     return peripheral;
 }
@@ -100,7 +99,7 @@ uint32_t pinmap_function(PinName pin, const PinMap *map)
     }
     function = pinmap_find_function(pin, map);
     if ((uint32_t)NC == function) { // no mapping available
-        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_PINMAP_INVALID), "pinmap not found for function", function);
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_PINMAP_INVALID), "pinmap not found for function", pin);
     }
     return function;
 }

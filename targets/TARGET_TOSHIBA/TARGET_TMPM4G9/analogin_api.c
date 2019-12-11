@@ -1,5 +1,8 @@
 /* mbed Microcontroller Library
- * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2018 All rights reserved
+ *
+ * Copyright (C) 2019, Toshiba Electronic Device Solutions Corporation
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +21,7 @@
 #include "pinmap.h"
 #include "mbed_wait_api.h"
 #include "mbed_error.h"
-#include "adc_include.h"
+#include "txz_adc_include.h"
 
 #define ADC_12BIT_RANGE                 0xFFF
 #define CONVERSION_FLAG                 0x4

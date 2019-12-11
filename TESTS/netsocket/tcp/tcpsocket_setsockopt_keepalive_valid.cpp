@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#if defined(MBED_CONF_RTOS_PRESENT)
 #include "mbed.h"
 #include "TCPSocket.h"
 #include "greentea-client/test_env.h"
@@ -40,7 +41,10 @@ void TCPSOCKET_SETSOCKOPT_KEEPALIVE_VALID()
     }
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, ret);
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.connect(ECHO_SERVER_ADDR, 9));
+    SocketAddress address;
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, NetworkInterface::get_default_instance()->gethostbyname(ECHO_SERVER_ADDR, &address));
+    address.set_port(9);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.connect(address));
     // LWIP stack does not support getsockopt so the part below is commented out
     //    int32_t optval;
     //    unsigned int optlen;
@@ -49,3 +53,4 @@ void TCPSOCKET_SETSOCKOPT_KEEPALIVE_VALID()
     //    TEST_ASSERT_EQUAL(optval, seconds);
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
+#endif // defined(MBED_CONF_RTOS_PRESENT)

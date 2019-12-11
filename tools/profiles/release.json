@@ -53,6 +53,6 @@
         "asm": [],
         "c": ["--vla", "--diag_suppress=Pe546"],
         "cxx": ["--guard_calls", "--no_static_destruction"],
-        "ld": ["--skip_dynamic_initialization", "--threaded_lib"]
+        "ld": ["--skip_dynamic_initialization", "--threaded_lib", "--inline"]
     }
 }

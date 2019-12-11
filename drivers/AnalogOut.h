@@ -25,8 +25,6 @@
 #include "platform/PlatformMutex.h"
 
 namespace mbed {
-/** \addtogroup drivers-public-api */
-
 /**
  * \defgroup drivers_AnalogOut AnalogOut class
  * \ingroup drivers-public-api-gpio
@@ -66,6 +64,16 @@ public:
     AnalogOut(PinName pin)
     {
         analogout_init(&_dac, pin);
+    }
+
+    /** Create an AnalogOut connected to the specified pin
+     *
+     * @param pinmap reference to structure which holds static pinmap.
+     */
+    AnalogOut(const PinMap &&) = delete; // prevent passing of temporary objects
+    AnalogOut(const PinMap &pinmap)
+    {
+        analogout_init_direct(&_dac, &pinmap);
     }
 
     /** Set the output voltage, specified as a percentage (float)
@@ -127,7 +135,9 @@ public:
 
     virtual ~AnalogOut()
     {
-        // Do nothing
+        /** Deinitialize pin configuration.
+         */
+        analogout_free(&_dac);
     }
 
 protected:

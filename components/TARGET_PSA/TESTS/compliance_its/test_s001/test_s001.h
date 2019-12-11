@@ -31,5 +31,5 @@ extern val_api_t *val;
 extern psa_api_t *psa;
 extern client_test_t test_s001_sst_list[];
 
-int32_t psa_sst_uid_not_found(security_t caller);
+int32_t psa_sst_uid_not_found(caller_security_t caller);
 #endif /* _TEST_S001_CLIENT_TESTS_H_ */

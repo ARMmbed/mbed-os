@@ -37,32 +37,8 @@ static bool revOutput = false;
 static bool enableWordInput = false;
 static uint32_t final_xor;
 
-bool hal_crc_is_supported(const crc_mbed_config_t *config)
-{
-    //GPCRC supports any 16-bit poly, but only the CCITT 32-bit poly
-    if (config == NULL) {
-        return false;
-    }
-
-    if (config->width == 16) {
-        return true;
-    } else if (config->width == 32) {
-        if (config->polynomial == POLY_32BIT_ANSI) {
-            return true;
-        } else {
-            return false;
-        }
-    } else {
-        return false;
-    }
-}
-
 void hal_crc_compute_partial_start(const crc_mbed_config_t *config)
 {
-    if (!hal_crc_is_supported(config)) {
-        return;
-    }
-
     CMU_ClockEnable(cmuClock_GPCRC, true);
     GPCRC_Reset(GPCRC);
 
@@ -85,11 +61,7 @@ void hal_crc_compute_partial_start(const crc_mbed_config_t *config)
 
     // GPCRC operates on bit-reversed inputs and outputs vs the standard
     // defined by the mbed API, so reflect_in/out needs to be negated.
-    if (config->reflect_in) {
-        crc_init.reverseBits = false;
-    } else {
-        crc_init.reverseBits = true;
-    }
+    crc_init.reverseBits = !config->reflect_in;
 
     // Input is little-endian
     crc_init.reverseByteOrder = false;

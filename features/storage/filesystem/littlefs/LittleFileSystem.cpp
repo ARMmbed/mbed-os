@@ -13,20 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "filesystem/mbed_filesystem.h"
+#include "features/storage/filesystem/mbed_filesystem.h"
 #include "LittleFileSystem.h"
 #include "errno.h"
-#include "lfs.h"
-#include "lfs_util.h"
+#include "features/storage/filesystem/littlefs/littlefs/lfs.h"
+#include "features/storage/filesystem/littlefs/littlefs/lfs_util.h"
 #include "MbedCRC.h"
 
 namespace mbed {
 
 extern "C" void lfs_crc(uint32_t *crc, const void *buffer, size_t size)
 {
-    uint32_t initial_xor = *crc;
-    MbedCRC<POLY_32BIT_REV_ANSI, 32> ct(initial_xor, 0x0, true, false);
-    ct.compute((void *)buffer, size, (uint32_t *) crc);
+    uint32_t initial_xor = lfs_rbit(*crc);
+    // lfs_cache_crc calls lfs_crc for every byte individually, so can't afford
+    // start-up overhead for hardware acceleration. Limit to table-based.
+    MbedCRC<POLY_32BIT_ANSI, 32, CrcMode::TABLE> ct(initial_xor, 0x0, true, true);
+    ct.compute(buffer, size, crc);
 }
 
 ////// Conversion functions //////

@@ -15,12 +15,14 @@
  * limitations under the License.
  */
 
+#if defined(MBED_CONF_RTOS_PRESENT)
 #include "mbed.h"
 #include "TCPSocket.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
 #include "utest.h"
 #include "tcp_tests.h"
+#include "CellularDevice.h"
 
 using namespace utest::v1;
 
@@ -113,12 +115,17 @@ void rcv_n_chk_against_rfc864_pattern(TCPSocket &sock)
         recvd_size += rd;
     }
     timer.stop();
-    printf("MBED: Time taken: %fs\n", timer.read());
+    tr_info("MBED: Time taken: %fs", timer.read());
 }
 
 void TCPSOCKET_RECV_100K()
 {
     SKIP_IF_TCP_UNSUPPORTED();
+
+#ifdef MBED_CONF_APP_BAUD_RATE
+    CellularDevice::get_default_instance()->set_baud_rate(MBED_CONF_APP_BAUD_RATE);
+#endif
+
     TCPSocket sock;
     if (_tcpsocket_connect_to_chargen_srv(sock) != NSAPI_ERROR_OK) {
         TEST_FAIL();
@@ -146,7 +153,7 @@ void rcv_n_chk_against_rfc864_pattern_nonblock(TCPSocket &sock)
         int rd = sock.recv(buff, buff_size);
         TEST_ASSERT(rd > 0 || rd == NSAPI_ERROR_WOULD_BLOCK);
         if (rd > 0) {
-            if (rd > buff_size) {
+            if ((unsigned int) rd > buff_size) {
                 TEST_FAIL_MESSAGE("sock.recv returned more than requested.");
             }
             check_RFC_864_pattern(buff, rd, recvd_size);
@@ -163,7 +170,7 @@ void rcv_n_chk_against_rfc864_pattern_nonblock(TCPSocket &sock)
         }
     }
     timer.stop();
-    printf("MBED: Time taken: %fs\n", timer.read());
+    tr_info("MBED: Time taken: %fs", timer.read());
 }
 
 static void _sigio_handler(osThreadId id)
@@ -189,3 +196,4 @@ void TCPSOCKET_RECV_100K_NONBLOCK()
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
+#endif // defined(MBED_CONF_RTOS_PRESENT)

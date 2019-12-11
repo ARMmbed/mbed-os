@@ -23,7 +23,7 @@
 #include MBEDTLS_CONFIG_FILE
 #endif
 
-#include "DeviceKey.h"
+#include "features/device_key/source/DeviceKey.h"
 
 #define SECURESTORE_ENABLED 1
 
@@ -39,6 +39,9 @@
 #include <stdio.h>
 #include "KVStore.h"
 #include "PlatformMutex.h"
+
+// Forward declarations
+struct  mbedtls_entropy_context;
 
 namespace mbed {
 
@@ -269,12 +272,14 @@ public:
 
 #if !defined(DOXYGEN_ONLY)
 private:
+    // Forward declaration
+    struct inc_set_handle_t;
 
     PlatformMutex _mutex;
     bool _is_initialized;
     KVStore *_underlying_kv, *_rbp_kv;
-    void *_entropy;
-    void *_inc_set_handle;
+    mbedtls_entropy_context *_entropy;
+    inc_set_handle_t *_ih;
     uint8_t *_scratch_buf;
 
     /**

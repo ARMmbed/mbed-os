@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#if !MBED_CONF_BLE_PRESENT
+#error [NOT_SUPPORTED] BLE cordio test cases require the BLE library.
+#else
+
 #include <stdio.h>
 #include <algorithm>
 
@@ -265,3 +269,5 @@ int main()
     return !Harness::run(specification);
 }
 #endif // CORDIO_ZERO_COPY_HCI
+
+#endif //!MBED_CONF_BLE_PRESENT

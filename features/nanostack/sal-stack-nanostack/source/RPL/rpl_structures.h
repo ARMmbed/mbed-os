@@ -90,6 +90,7 @@ struct rpl_dodag {
     bool leaf: 1;                                   /* We are a leaf in this DODAG (by policy) */
     bool have_config: 1;                            /* We have the config */
     bool used: 1;                                   /* We have ever been a member of this DODAG? */
+    uint8_t new_config_advertisment_count;      /* We have advertiment new config at multicasti DIO */
     NS_LIST_HEAD(rpl_dodag_version_t, link) versions; /* List of DODAG versions (newest first) */
     prefix_list_t prefixes;                         /* Prefixes advertised in DIO PIOs */
     rpl_dio_route_list_t routes;                    /* Routes advertised in DIO RIOs*/

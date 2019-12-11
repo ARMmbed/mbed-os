@@ -1,18 +1,4 @@
-/** \ingroup mbed-os-public */
-/** \addtogroup platform-public-api */
-/** @{*/
-/**
- * \defgroup platform_CThunk CThunk class
- * @{
- */
-/* General C++ Object Thunking class
- *
- * - allows direct callbacks to non-static C++ class functions
- * - keeps track for the corresponding class instance
- * - supports an optional context parameter for the called function
- * - ideally suited for class object receiving interrupts (NVIC_SetVector)
- *
- * Copyright (c) 2014-2019 ARM Limited
+/* Copyright (c) 2014-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,6 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ */
+
+
+/** \addtogroup platform-public-api */
+/** @{*/
+
+/**
+ * \defgroup platform_CThunk CThunk class
+ * @{
  */
 
 /* General C++ Object Thunking class

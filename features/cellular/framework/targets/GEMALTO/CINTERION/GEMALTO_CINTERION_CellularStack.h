@@ -24,7 +24,8 @@ namespace mbed {
 
 class GEMALTO_CINTERION_CellularStack : public AT_CellularStack {
 public:
-    GEMALTO_CINTERION_CellularStack(ATHandler &atHandler, const char *apn, const char *username, const char *password, int cid, nsapi_ip_stack_t stack_type);
+    GEMALTO_CINTERION_CellularStack(ATHandler &atHandler, const char *apn, const char *username,
+                                    const char *password, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device);
     virtual ~GEMALTO_CINTERION_CellularStack();
 
 protected:

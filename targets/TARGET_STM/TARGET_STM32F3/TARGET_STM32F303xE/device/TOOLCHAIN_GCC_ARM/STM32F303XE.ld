@@ -168,5 +168,12 @@ SECTIONS
     
     /* Check if data + heap + stack exceeds RAM limit */
     ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
+
+    .CCMRAM (NOLOAD):
+    {
+        Image$$RW_IRAM2$$Base = . ;
+        *(CCMRAM)
+        Image$$RW_IRAM2$$ZI$$Limit = .;
+    } > CCM
 }
 

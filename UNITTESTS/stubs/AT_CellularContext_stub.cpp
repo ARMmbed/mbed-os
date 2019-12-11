@@ -20,7 +20,7 @@
 using namespace mbed;
 
 AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn,  bool cp_req, bool nonip_req) :
-    AT_CellularBase(at), _is_connected(false),
+    _at(at), _is_connected(false),
     _current_op(OP_INVALID), _fh(0), _cp_req(cp_req)
 {
     _stack = NULL;
@@ -30,8 +30,8 @@ AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, co
     _is_context_active = false;
     _is_context_activated = false;
     _apn = apn;
-    _uname = MBED_CONF_NSAPI_DEFAULT_CELLULAR_USERNAME;
-    _pwd = MBED_CONF_NSAPI_DEFAULT_CELLULAR_PASSWORD;
+    _uname = NULL;
+    _pwd = NULL;
     _status_cb = NULL;
     _cid = -1;
     _new_context_set = false;
@@ -111,6 +111,11 @@ NetworkStack *AT_CellularContext::get_stack()
     return NULL;
 }
 
+nsapi_error_t AT_CellularContext::get_ip_address(SocketAddress *address)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
 const char *AT_CellularContext::get_ip_address()
 {
     return NULL;
@@ -144,9 +149,19 @@ void AT_CellularContext::set_credentials(const char *apn, const char *uname, con
 
 }
 
+nsapi_error_t AT_CellularContext::get_netmask(SocketAddress *address)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
 const char *AT_CellularContext::get_netmask()
 {
     return NULL;
+}
+
+nsapi_error_t AT_CellularContext::get_gateway(SocketAddress *address)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
 }
 
 const char *AT_CellularContext::get_gateway()
@@ -154,15 +169,15 @@ const char *AT_CellularContext::get_gateway()
     return NULL;
 }
 
-AT_CellularBase::CellularProperty AT_CellularContext::pdp_type_t_to_cellular_property(pdp_type_t pdp_type)
+AT_CellularDevice::CellularProperty AT_CellularContext::pdp_type_t_to_cellular_property(pdp_type_t pdp_type)
 {
-    AT_CellularBase::CellularProperty prop = PROPERTY_IPV4_PDP_TYPE;
+    AT_CellularDevice::CellularProperty prop = AT_CellularDevice::PROPERTY_IPV4_PDP_TYPE;
     if (pdp_type == IPV6_PDP_TYPE) {
-        prop = PROPERTY_IPV6_PDP_TYPE;
+        prop = AT_CellularDevice::PROPERTY_IPV6_PDP_TYPE;
     } else if (pdp_type == IPV4V6_PDP_TYPE) {
-        prop = PROPERTY_IPV4V6_PDP_TYPE;
+        prop = AT_CellularDevice::PROPERTY_IPV4V6_PDP_TYPE;
     } else if (pdp_type == NON_IP_PDP_TYPE) {
-        prop = PROPERTY_NON_IP_PDP_TYPE;
+        prop = AT_CellularDevice::PROPERTY_NON_IP_PDP_TYPE;
     }
 
     return prop;
@@ -279,6 +294,10 @@ void AT_CellularContext::set_disconnect()
 {
 }
 
+void AT_CellularContext::set_cid(int cid)
+{
+}
+
 void AT_CellularContext::do_connect_with_retry()
 {
 
@@ -287,4 +306,9 @@ void AT_CellularContext::do_connect_with_retry()
 char *AT_CellularContext::get_interface_name(char *interface_name)
 {
     return NULL;
+}
+
+ATHandler &AT_CellularContext::get_at_handler()
+{
+    return _at;
 }

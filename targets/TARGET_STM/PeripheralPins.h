@@ -89,4 +89,16 @@ extern const PinMap PinMap_QSPI_SCLK[];
 extern const PinMap PinMap_QSPI_SSEL[];
 #endif
 
+#if DEVICE_USBDEVICE
+
+#define USE_USB_NO_OTG   0
+#define USE_USB_OTG_FS   1
+#define USE_USB_OTG_HS   2
+#define USE_USB_HS_IN_FS 3
+
+extern const PinMap PinMap_USB_HS[];
+extern const PinMap PinMap_USB_FS[];
+
+#endif /* DEVICE_USBDEVICE */
+
 #endif

@@ -64,7 +64,7 @@ static int32_t psa_sst_apis_check(psa_sst_uid_t uid, uint32_t data_len,
     return VAL_STATUS_SUCCESS;
 }
 
-int32_t psa_sst_apis_check_success_case(security_t caller)
+int32_t psa_sst_apis_check_success_case(caller_security_t caller)
 {
    psa_sst_uid_t uid = UID_BASE_VALUE + 4;
    uint32_t data_len = 0, status = VAL_STATUS_SUCCESS;

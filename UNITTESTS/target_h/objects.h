@@ -18,6 +18,7 @@
 #ifndef MBED_OBJECTS_H
 #define MBED_OBJECTS_H
 
+#include <stdint.h>
 #include "PeripheralNames.h"
 #include "PinNames.h"
 
@@ -31,6 +32,42 @@ struct gpio_irq_s {
 
 struct serial_s {
     int x;
+};
+
+struct dac_s {
+    int unused;
+};
+
+struct i2c_s {
+    int unused;
+};
+
+struct qspi_s {
+    int unused;
+};
+
+struct spi_s {
+    int unused;
+};
+
+struct analogin_s {
+    int unused;
+};
+
+struct port_s {
+    int unused;
+};
+
+struct pwmout_s {
+    int unused;
+};
+
+struct flash_s {
+    int unused;
+};
+
+struct can_s {
+    int unused;
 };
 
 #include "gpio_object.h"

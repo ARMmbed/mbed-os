@@ -30,11 +30,6 @@
 * \ingroup group_hal
 * \{
 * High level interface for interacting with the Cypress LPTIMER.
-*
-* \defgroup group_hal_lptimer_macros Macros
-* \defgroup group_hal_lptimer_functions Functions
-* \defgroup group_hal_lptimer_data_structures Data Structures
-* \defgroup group_hal_lptimer_enums Enumerated Types
 */
 
 #pragma once
@@ -48,34 +43,13 @@
 extern "C" {
 #endif
 
-/**
-* \addtogroup group_hal_lptimer_enums
-* \{
-*/
-
 /** LPTIMER interrupt triggers */
 typedef enum {
     CYHAL_LPTIMER_COMPARE_MATCH,
 } cyhal_lptimer_event_t;
 
-/** \} group_hal_lptimer_enums */
-
-
-/**
-* \addtogroup group_hal_lptimer_data_structures
-* \{
-*/
-
 /** Handler for LPTIMER interrupts */
 typedef void (*cyhal_lptimer_event_callback_t)(void *callback_arg, cyhal_lptimer_event_t event);
-
-/** \} group_hal_lptimer_data_structures */
-
-
-/**
-* \addtogroup group_hal_lptimer_functions
-* \{
-*/
 
 /** Initialize the LPTIMER
  *
@@ -167,8 +141,6 @@ void cyhal_lptimer_enable_event(cyhal_lptimer_t *obj, cyhal_lptimer_event_t even
  * @param[in] obj      The LPTIMER object
  */
 void cyhal_lptimer_irq_trigger(cyhal_lptimer_t *obj);
-
-/** \} group_hal_lptimer_functions */
 
 #if defined(__cplusplus)
 }

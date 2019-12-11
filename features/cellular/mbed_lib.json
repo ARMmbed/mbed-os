@@ -3,7 +3,11 @@
     "config": {
         "use-apn-lookup": {
             "help": "Use APN database lookup",
-            "value": true
+            "value": false
+        },
+        "use-sms": {
+            "help": "Enable or disable SMS functionality in Cellular stack.",
+            "value": false
         },
         "random_max_start_delay": {
             "help": "Maximum random delay value used in start-up sequence in milliseconds",
@@ -23,6 +27,10 @@
         },
         "offload-dns-queries" : {
             "help": "Use modem IP stack for DNS queries, null or numeric simultaneous queries",
+            "value": null
+        },
+        "clear-on-connect" : {
+            "help": "Clear modem to a known default state on connect() before SIM pin is entered, null to disable",
             "value": null
         }
     }

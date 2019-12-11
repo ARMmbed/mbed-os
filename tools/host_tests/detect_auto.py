@@ -17,7 +17,7 @@ limitations under the License.
 
 import re
 
-class DetectPlatformTest():
+class DetectPlatformTest(object):
     PATTERN_MICRO_NAME = "Target '(\w+)'"
     re_detect_micro_name = re.compile(PATTERN_MICRO_NAME)
 

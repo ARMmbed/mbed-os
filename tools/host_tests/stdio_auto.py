@@ -19,7 +19,7 @@ import re
 import random
 from time import time
 
-class StdioTest():
+class StdioTest(object):
     PATTERN_INT_VALUE = "Your value was: (-?\d+)"
     re_detect_int_value = re.compile(PATTERN_INT_VALUE)
 

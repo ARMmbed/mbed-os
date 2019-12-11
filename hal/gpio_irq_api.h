@@ -45,7 +45,29 @@ typedef void (*gpio_irq_handler)(uint32_t id, gpio_irq_event event);
 
 /**
  * \defgroup hal_gpioirq GPIO IRQ HAL functions
+ *
+ * # Defined behavior
+ * * ::gpio_irq_init initializes the GPIO IRQ pin
+ * * ::gpio_irq_init attaches the interrupt handler
+ * * ::gpio_irq_free releases the GPIO IRQ pin
+ * * ::gpio_irq_set enables/disables pin IRQ event
+ * * ::gpio_irq_enable enables GPIO IRQ
+ * * ::gpio_irq_disable disables GPIO IRQ
+ *
+ * # Undefined behavior
+ * * Calling other function before ::gpio_irq_init
+ *
  * @{
+ */
+
+/**
+ * \defgroup hal_gpioirq_tests GPIO IRQ HAL tests
+ * The GPIO IRQ HAL tests ensure driver conformance to defined behaviour.
+ *
+ * To run the GPIO IRQ hal tests use the command:
+ *
+ *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal_fpga_ci_test_shield-gpio_irq
+ *
  */
 
 /** Initialize the GPIO IRQ pin

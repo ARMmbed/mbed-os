@@ -171,6 +171,12 @@
             "SPI_MISO": "D12",
             "SPI_CLK": "D13",
             "SPI_CS": "D10"
+        },
+        "ARCH_MAX": {
+            "SPI_MOSI": "PC_3",
+            "SPI_MISO": "PC_2",
+            "SPI_CLK":  "PB_10",
+            "SPI_CS":   "PE_2"
         }
     }
 }

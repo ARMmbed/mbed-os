@@ -23,10 +23,11 @@
 #include "USBDevice_Types.h"
 #include "EventQueue.h"
 #include "EventFlags.h"
+#include "platform/NonCopyable.h"
 
 #include "USBDevice.h"
 
-class USBTester: public USBDevice {
+class USBTester: public USBDevice, private mbed::NonCopyable<USBTester> {
 public:
 
     /*
@@ -138,7 +139,7 @@ protected:
     virtual void epbulk_out_callback();
     virtual void epint_out_callback();
     virtual void callback_reset();
-    uint8_t ctrl_buf[2048];
+    uint8_t *ctrl_buf;
 
 };
 

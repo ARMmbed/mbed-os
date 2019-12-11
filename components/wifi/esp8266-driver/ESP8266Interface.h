@@ -17,7 +17,7 @@
 #ifndef ESP8266_INTERFACE_H
 #define ESP8266_INTERFACE_H
 
-#if DEVICE_SERIAL && DEVICE_INTERRUPTIN && defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_PRESENT)
+#if DEVICE_SERIAL && DEVICE_INTERRUPTIN && defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_API_PRESENT)
 #include "drivers/DigitalOut.h"
 #include "drivers/Timer.h"
 #include "ESP8266/ESP8266.h"
@@ -30,7 +30,9 @@
 #include "features/netsocket/WiFiAccessPoint.h"
 #include "features/netsocket/WiFiInterface.h"
 #include "platform/Callback.h"
+#if MBED_CONF_RTOS_PRESENT
 #include "rtos/ConditionVariable.h"
+#endif
 #include "rtos/Mutex.h"
 
 #define ESP8266_SOCKET_COUNT 5
@@ -137,6 +139,9 @@ public:
     /** Get the internally stored IP address
      *  @return             IP address of the interface or null if not yet connected
      */
+    virtual nsapi_error_t get_ip_address(SocketAddress *address);
+
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual const char *get_ip_address();
 
     /** Get the internally stored MAC address
@@ -149,6 +154,9 @@ public:
     *  @return         Null-terminated representation of the local gateway
     *                  or null if no network mask has been recieved
     */
+    virtual nsapi_error_t get_gateway(SocketAddress *address);
+
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual const char *get_gateway();
 
     /** Get the local network mask
@@ -156,7 +164,17 @@ public:
      *  @return         Null-terminated representation of the local network mask
      *                  or null if no network mask has been recieved
      */
+    virtual nsapi_error_t get_netmask(SocketAddress *address);
+
+    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual const char *get_netmask();
+
+    /** Get the network interface name
+     *
+     *  @return         Null-terminated representation of the network interface name
+     *                  or null if interface not exists
+     */
+    virtual char *get_interface_name(char *interface_name);
 
     /** Gets the current radio signal strength for active connection
      *
@@ -381,6 +399,15 @@ private:
     ESP8266 _esp;
     void refresh_conn_state_cb();
 
+    /** Status of software connection
+     */
+    typedef enum esp_connection_software_status {
+        IFACE_STATUS_DISCONNECTED = 0,
+        IFACE_STATUS_CONNECTING = 1,
+        IFACE_STATUS_CONNECTED = 2,
+        IFACE_STATUS_DISCONNECTING = 3
+    } esp_connection_software_status_t;
+
     // HW reset pin
     class ResetPin {
     public:
@@ -403,6 +430,12 @@ private:
         mbed::DigitalOut  _pwr_pin;
     } _pwr_pin;
 
+    /** Assert the reset and power pins
+     *  ESP8266 has two pins serving similar purpose and this function asserts them both
+     *  if they are configured in mbed_app.json.
+     */
+    void _power_off();
+
     // Credentials
     static const int ESP8266_SSID_MAX_LENGTH = 32; /* 32 is what 802.11 defines as longest possible name */
     char ap_ssid[ESP8266_SSID_MAX_LENGTH + 1]; /* The longest possible name; +1 for the \0 */
@@ -421,7 +454,9 @@ private:
     struct _channel_info _ch_info;
 
     bool _if_blocking; // NetworkInterface, blocking or not
+#if MBED_CONF_RTOS_PRESENT
     rtos::ConditionVariable _if_connected;
+#endif
 
     // connect status reporting
     nsapi_error_t _conn_status_to_error();
@@ -437,6 +472,7 @@ private:
     // Driver's state
     int _initialized;
     nsapi_error_t _connect_retval;
+    nsapi_error_t _disconnect_retval;
     bool _get_firmware_ok();
     nsapi_error_t _init(void);
     nsapi_error_t _reset();
@@ -459,9 +495,12 @@ private:
     events::EventQueue *_global_event_queue;
     int _oob_event_id;
     int _connect_event_id;
+    int _disconnect_event_id;
     void proc_oob_evnt();
     void _connect_async();
+    void _disconnect_async();
     rtos::Mutex _cmutex; // Protect asynchronous connection logic
+    esp_connection_software_status_t _software_conn_stat ;
 
 };
 #endif

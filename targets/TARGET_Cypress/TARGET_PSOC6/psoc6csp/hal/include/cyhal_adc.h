@@ -31,11 +31,8 @@
 * \{
 * High level interface for interacting with the Cypress ADC.
 *
-* \defgroup group_hal_adc_macros Macros
 * \defgroup group_hal_adc_functions ADC Functions
 * \defgroup group_hal_adc_channel_functions ADC Channel Functions
-* \defgroup group_hal_adc_data_structures Data Structures
-* \defgroup group_hal_adc_enums Enumerated Types
 */
 
 #pragma once
@@ -50,11 +47,6 @@
 extern "C" {
 #endif
 
-/**
-* \addtogroup group_hal_adc_macros
-* \{
-*/
-
 /** Maximum value that the ADC can return */
 #define CYHAL_ADC_MAX_VALUE 0xFFFF
 
@@ -66,8 +58,6 @@ extern "C" {
 #define CYHAL_ADC_RSLT_FAILED_INIT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_ADC, 2))
 /** No channels available */
 #define CYHAL_ADC_RSLT_NO_CHANNELS (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_ADC, 3))
-
-/** \} group_hal_adc_macros */
 
 
 /**

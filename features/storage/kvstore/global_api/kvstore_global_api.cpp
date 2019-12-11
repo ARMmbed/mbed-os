@@ -15,9 +15,9 @@
  */
 #include "kvstore_global_api.h"
 
-#include "kv_config.h"
-#include "KVMap.h"
-#include "KVStore.h"
+#include "features/storage/kvstore/conf/kv_config.h"
+#include "features/storage/kvstore/kv_map/KVMap.h"
+#include "features/storage/kvstore/include/KVStore.h"
 #include "mbed_error.h"
 
 using namespace mbed;

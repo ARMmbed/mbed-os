@@ -19,7 +19,7 @@ set(unittest-sources
 # Test files
 set(unittest-test-sources
   stubs/Mutex_stub.cpp
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
   stubs/equeue_stub.c
   stubs/EventQueue_stub.cpp
   stubs/mbed_shared_queues_stub.cpp

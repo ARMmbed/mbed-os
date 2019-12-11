@@ -31,11 +31,6 @@
 * \{
 * High level interface for interacting with the Cypress power management
 * and system clock configuration.
-*
-* \defgroup group_hal_system_macros Macros
-* \defgroup group_hal_system_functions Functions
-* \defgroup group_hal_system_data_structures Data Structures
-* \defgroup group_hal_system_enums Enumerated Types
 */
 
 #pragma once
@@ -50,11 +45,6 @@
 extern "C" {
 #endif
 
-/**
-* \addtogroup group_hal_system_macros
-* \{
-*/
-
 /** An error occurred in System module */
 #define CYHAL_SYSTEM_RSLT_ERROR (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SYSTEM , 0))
 /** An error occurred in System module */
@@ -65,14 +55,6 @@ extern "C" {
 #define CYHAL_SYSTEM_RSLT_SRC_CLK_DISABLED (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SYSTEM , 3))
 /** An error occurred in System module */
 #define CYHAL_SYSTEM_RSLT_NO_VALID_DIVIDER (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SYSTEM , 4))
-
-/** \} group_hal_system_macros */
-
-
-/**
-* \addtogroup group_hal_system_functions
-* \{
-*/
 
 /** Enter a critical section
  *
@@ -155,8 +137,6 @@ cy_rslt_t cyhal_system_clock_set_frequency(uint8_t clock, uint32_t frequency_hz)
  * @return The status of the set_divider request
  */
 cy_rslt_t cyhal_system_clock_set_divider(cyhal_system_clock_t clock, cyhal_system_divider_t divider);
-
-/** \} group_hal_system_functions */
 
 #if defined(__cplusplus)
 }

@@ -192,20 +192,18 @@ static bool rpl_instance_parent_selection_ready(rpl_instance_t *instance)
 
 void rpl_downward_neighbour_gone(rpl_instance_t *instance, rpl_neighbour_t *neighbour)
 {
-    if (neighbour->dao_path_control == 0) {
-        return;
-    }
-    neighbour->old_dao_path_control = neighbour->dao_path_control;
-    neighbour->dao_path_control = 0;
-    rpl_downward_process_dao_parent_changes(instance);
+
+    // Currently don't need to do anything - caller is expected to
+    // trigger parent selection, which will do everything required.
+    (void) instance;
+    (void) neighbour;
 }
 
 void rpl_downward_process_dao_parent_changes(rpl_instance_t *instance)
 {
-    uint8_t mop = rpl_instance_mop(instance);
     bool storing;
 
-    switch (mop) {
+    switch (rpl_instance_mop(instance)) {
         case RPL_MODE_NON_STORING:
             storing = false;
             break;
@@ -219,6 +217,7 @@ void rpl_downward_process_dao_parent_changes(rpl_instance_t *instance)
 
     bool bits_removed = false;
     uint8_t bits_added = 0;
+
     ns_list_foreach(rpl_neighbour_t, neighbour, &instance->candidate_neighbours) {
         if (neighbour->old_dao_path_control != neighbour->dao_path_control) {
             if (neighbour->old_dao_path_control & ~ neighbour->dao_path_control) {
@@ -230,9 +229,19 @@ void rpl_downward_process_dao_parent_changes(rpl_instance_t *instance)
             }
         }
     }
-    tr_debug("removed=%x, added=%x", bits_removed, bits_added);
+
     if (!(bits_removed || bits_added)) {
         return;
+    }
+
+    tr_debug("removed=%x, added=%x", bits_removed, bits_added);
+
+    ns_list_foreach(rpl_neighbour_t, neighbour, &instance->candidate_neighbours) {
+        if (neighbour->dao_path_control != 0 && neighbour->old_dao_path_control == 0) {
+            //Candidate has become a DAO parent
+            rpl_control_event(instance->domain, RPL_EVENT_DAO_PARENT_ADD);
+            break;
+        }
     }
 
     if (storing) {
@@ -253,8 +262,8 @@ void rpl_downward_process_dao_parent_changes(rpl_instance_t *instance)
                 }
             }
         }
-        //GENERATE PARENT Update event
-        rpl_control_event(instance->domain, RPL_EVENT_DAO_PARENT_SWITCH);
+
+        //Trig DAO allways after change
         rpl_instance_dao_trigger(instance, 0);
     }
 }
@@ -712,6 +721,21 @@ void rpl_instance_send_dao_update(rpl_instance_t *instance)
         return;
     }
 
+    if (rpl_policy_dao_retry_count() > 0 && instance->dao_attempt >= rpl_policy_dao_retry_count()) {
+        // Check if recovery logic is started
+        // after half the retries are done we remove the primary parent
+        tr_info("DAO remove primary parent");
+        rpl_neighbour_t *neighbour = ns_list_get_first(&instance->candidate_neighbours);
+        if (neighbour) {
+            rpl_delete_neighbour(instance, neighbour);
+        }
+        // Set parameters to restart
+        instance->dao_in_transit = false;
+        instance->dao_attempt = 0;
+        instance->dao_retry_timer = 0;
+        instance->delay_dao_timer = 0;
+        return;
+    }
 
     /* Which parent this DAO will be for if storing */
     rpl_neighbour_t *parent = NULL;
@@ -845,6 +869,15 @@ void rpl_instance_send_dao_update(rpl_instance_t *instance)
     } else {
         dst = dodag->id;
         cur = NULL;
+    }
+
+    if (instance->dao_attempt > 0) {
+        // Start informing problem in routing. This will cause us to select secondary routes when sending the DAO
+        tr_info("DAO reachability problem");
+        protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_rpl_domain(instance->domain, -1);
+        if (interface) {
+            ipv6_neighbour_reachability_problem(dst, interface->id);
+        }
     }
 
     bool need_ack = rpl_control_transmit_dao(instance->domain, cur, instance, instance->id, instance->dao_sequence, dodag->id, opts, ptr - opts, dst);
@@ -1859,7 +1892,7 @@ void rpl_instance_address_registration_done(protocol_interface_info_entry_t *int
     if (status == SOCKET_TX_DONE) {
         /* State_timer is 1/10 s. Set renewal to 75-85% of lifetime */
         if_address_entry_t *address = rpl_interface_addr_get(interface, dao_target->prefix);
-        if (address) {
+        if (address && address->source != ADDR_SOURCE_DHCP) {
             address->state_timer = (address->preferred_lifetime * randLIB_get_random_in_range(75, 85) / 10);
         }
         neighbour->confirmed = true;

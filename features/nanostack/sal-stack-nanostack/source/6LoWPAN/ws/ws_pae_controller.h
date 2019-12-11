@@ -20,7 +20,15 @@
 
 #ifdef HAVE_WS
 
+typedef enum {
+    AUTH_RESULT_OK = 0,                    // Successful
+    AUTH_RESULT_ERR_NO_MEM = -1,           // No memory
+    AUTH_RESULT_ERR_TX_NO_ACK = -2,        // No acknowledge was received
+    AUTH_RESULT_ERR_UNSPEC = -3            // Other reason
+} auth_result_e;
+
 struct nvm_tlv_entry;
+
 /**
  * ws_pae_controller_set_target sets EAPOL target for PAE supplicant
  *
@@ -159,6 +167,26 @@ int8_t ws_pae_controller_timing_adjust(uint8_t timing);
 int8_t ws_pae_controller_certificate_chain_set(const arm_certificate_chain_entry_s *chain);
 
 /**
+ * ws_pae_controller_own_certificate_add add own certificate to certificate chain
+ *
+ * \param cert own certificate
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_own_certificate_add(const arm_certificate_entry_s *cert);
+
+/**
+ * ws_pae_controller_own_certificates_remove removes own certificates
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_own_certificates_remove(void);
+
+/**
  * ws_pae_controller_trusted_certificate_add add trusted certificate
  *
  * \param cert trusted certificate
@@ -179,6 +207,15 @@ int8_t ws_pae_controller_trusted_certificate_add(const arm_certificate_entry_s *
  *
  */
 int8_t ws_pae_controller_trusted_certificate_remove(const arm_certificate_entry_s *cert);
+
+/**
+ * ws_pae_controller_trusted_certificates_remove removes trusted certificates
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_trusted_certificates_remove(void);
 
 /**
  * ws_pae_controller_certificate_revocation_list_add add certification revocation list
@@ -339,6 +376,18 @@ int8_t ws_pae_controller_node_access_revoke_start(int8_t interface_id);
 int8_t ws_pae_controller_node_limit_set(int8_t interface_id, uint16_t limit);
 
 /**
+ * ws_pae_controller_ext_certificate_validation_set enable or disable extended certificate validation
+ *
+ * \param interface_ptr interface
+ * \param enabled       true to enable extended validation, false to disable
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_ext_certificate_validation_set(int8_t interface_id, bool enabled);
+
+/**
  * ws_pae_controller_active_key_update update active key (test interface)
  *
  * \param interface_id interface identifier
@@ -426,9 +475,10 @@ typedef void ws_pae_controller_nw_send_key_index_set(protocol_interface_info_ent
  *
  * \param interface_ptr interface
  * \param counter frame counter
+ * \param slot key slot (MAC key descriptor), from 0 to 4
  *
  */
-typedef void ws_pae_controller_nw_frame_counter_set(protocol_interface_info_entry_t *interface_ptr, uint32_t counter);
+typedef void ws_pae_controller_nw_frame_counter_set(protocol_interface_info_entry_t *interface_ptr, uint32_t counter, uint8_t slot);
 
 /**
  * ws_pae_controller_nw_frame_counter_read network frame counter read callback
@@ -437,16 +487,17 @@ typedef void ws_pae_controller_nw_frame_counter_set(protocol_interface_info_entr
  * \param counter frame counter
  *
  */
-typedef void ws_pae_controller_nw_frame_counter_read(protocol_interface_info_entry_t *interface_ptr, uint32_t *counter);
+typedef void ws_pae_controller_nw_frame_counter_read(protocol_interface_info_entry_t *interface_ptr, uint32_t *counter, uint8_t slot);
 
 /**
  * ws_pae_controller_auth_completed authentication completed callback
  *
  * \param interface_ptr interface
- * \param success true if authentication was successful
+ * \param result result, either ok or failure reason
+ * \param target_eui_64 EAPOL target in case of failure or NULL
  *
  */
-typedef void ws_pae_controller_auth_completed(protocol_interface_info_entry_t *interface_ptr, bool success);
+typedef void ws_pae_controller_auth_completed(protocol_interface_info_entry_t *interface_ptr, auth_result_e result, uint8_t *target_eui_64);
 
 /**
  * ws_pae_controller_pan_ver_increment PAN version increment callback

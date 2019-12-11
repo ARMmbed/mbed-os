@@ -24,7 +24,8 @@
 using namespace mbed;
 using namespace mbed_cellular_util;
 
-QUECTEL_BC95_CellularStack::QUECTEL_BC95_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type) : AT_CellularStack(atHandler, cid, stack_type)
+QUECTEL_BC95_CellularStack::QUECTEL_BC95_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
+    AT_CellularStack(atHandler, cid, stack_type, device)
 {
     _at.set_urc_handler("+NSONMI:", mbed::Callback<void()>(this, &QUECTEL_BC95_CellularStack::urc_nsonmi));
     _at.set_urc_handler("+NSOCLI:", mbed::Callback<void()>(this, &QUECTEL_BC95_CellularStack::urc_nsocli));
@@ -142,9 +143,9 @@ nsapi_error_t QUECTEL_BC95_CellularStack::create_socket_impl(CellularSocket *soc
     bool socketOpenWorking = false;
 
     if (socket->proto == NSAPI_UDP) {
-        _at.cmd_start_stop("+NSOCR", "=DGRAM,", "%d%d%d", 17, socket->localAddress.get_port(), 1);
+        _at.cmd_start_stop("+NSOCR", "=DGRAM,", "%d%d%d%s", 17, socket->localAddress.get_port(), 1, ((_ip_ver_sendto == NSAPI_IPv4) ? "AF_INET" : "AF_INET6"));
     } else if (socket->proto == NSAPI_TCP) {
-        _at.cmd_start_stop("+NSOCR", "=STREAM,", "%d%d%d", 6, socket->localAddress.get_port(), 1);
+        _at.cmd_start_stop("+NSOCR", "=STREAM,", "%d%d%d%s", 6, socket->localAddress.get_port(), 1, ((_ip_ver_sendto == NSAPI_IPv4) ? "AF_INET" : "AF_INET6"));
     } else {
         return NSAPI_ERROR_PARAMETER;
     }
@@ -173,16 +174,17 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_sendto_impl(CellularSoc
     // open already.
     MBED_ASSERT(socket->id != -1);
 
+    if (_ip_ver_sendto != address.get_ip_version()) {
+        _ip_ver_sendto =  address.get_ip_version();
+        socket_close_impl(socket->id);
+        create_socket_impl(socket);
+    }
+
     int sent_len = 0;
 
     if (size > PACKET_SIZE_MAX) {
         return NSAPI_ERROR_PARAMETER;
     }
-
-    char *hexstr = new char[size * 2 + 1];
-    int hexlen = char_str_to_hex_str((const char *)data, size, hexstr);
-    // NULL terminated for write_string
-    hexstr[hexlen] = 0;
 
     if (socket->proto == NSAPI_UDP) {
         _at.cmd_start("AT+NSOST=");
@@ -195,19 +197,16 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_sendto_impl(CellularSoc
         _at.write_int(socket->id);
         _at.write_int(size);
     } else {
-        delete [] hexstr;
         return NSAPI_ERROR_PARAMETER;
     }
 
-    _at.write_string(hexstr, false);
+    _at.write_hex_string((char *)data, size);
     _at.cmd_stop();
     _at.resp_start();
     // skip socket id
     _at.skip_param();
     sent_len = _at.read_int();
     _at.resp_stop();
-
-    delete [] hexstr;
 
     if (_at.get_last_error() == NSAPI_ERROR_OK) {
         return sent_len;

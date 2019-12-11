@@ -321,7 +321,7 @@ int serial_getc(serial_t *obj)
 
 void serial_putc(serial_t *obj, int c)
 {
-    while (serial_writable(obj));
+    while (!serial_writable(obj));
     obj->uart->THR = c;
 }
 
@@ -334,12 +334,12 @@ int serial_writable(serial_t *obj)
 {
     int isWritable = 1;
     if (obj->index == 0) {
-        return (obj->uart->FSR & TXFIFO_FULL_MASK);  // uart0 not have flow control
+        return !(obj->uart->FSR & TXFIFO_FULL_MASK);  // uart0 not have flow control
     } else {
         if (((obj->uart->MCR & AFCE_MASK) == 0x00UL) && (NC != uart_data[obj->index].sw_cts.pin))  //If flow control: writable if CTS low + UART done
-            isWritable = (gpio_read(&uart_data[obj->index].sw_cts) == 0) && (obj->uart->FSR & TXFIFO_FULL_MASK);
+            isWritable = (gpio_read(&uart_data[obj->index].sw_cts) == 0) && !(obj->uart->FSR & TXFIFO_FULL_MASK);
         else
-            isWritable = (obj->uart->FSR & TXFIFO_FULL_MASK);
+            isWritable = !(obj->uart->FSR & TXFIFO_FULL_MASK);
         return isWritable;
     }
 }

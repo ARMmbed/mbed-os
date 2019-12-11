@@ -34,10 +34,19 @@ typedef enum {
 } PinName;
 
 typedef enum {
+    PullNone = 0,
+    PullDown = 1,
+    PullUp   = 2,
+    PullDefault = PullUp
 } PinMode;
+
+typedef enum {
+    PortA = 0,
+} PortName;
 
 #ifdef __cplusplus
 }
 #endif
+#include "pinmap.h"
 
 #endif

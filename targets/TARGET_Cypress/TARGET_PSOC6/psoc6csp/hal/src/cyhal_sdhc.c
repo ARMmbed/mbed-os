@@ -157,7 +157,7 @@ static SDHC_Type * const CYHAL_SDHC_BASE_ADDRESSES[CY_IP_MXSDHC_INSTANCES] =
 };
 
 /* List of available SDHC HF clocks */
-static uint8_t const CYHAL_SDHC_HF_CLOCKS[CY_IP_MXSDHC_INSTANCES] =
+static const uint8_t CYHAL_SDHC_HF_CLOCKS[CY_IP_MXSDHC_INSTANCES] =
 {
 #ifdef SDHC0
     4,
@@ -170,7 +170,7 @@ static uint8_t const CYHAL_SDHC_HF_CLOCKS[CY_IP_MXSDHC_INSTANCES] =
 
 
 /* List of available SDHC interrupt sources */
-static IRQn_Type const CYHAL_SDHC_IRQ_N[CY_IP_MXSDHC_INSTANCES] =
+static const IRQn_Type CYHAL_SDHC_IRQ_N[CY_IP_MXSDHC_INSTANCES] =
 {
 #ifdef SDHC0
     sdhc_0_interrupt_general_IRQn,
@@ -208,7 +208,7 @@ static void *cyhal_sd_config_structs[CY_IP_MXSDHC_INSTANCES];
 
 
 /* Structure to map SDHC events on SDHC interrupts */
-const uint32_t eventMap[SDHC_EVENTS_NUM][SDHC_EVENTS_MAP_NUM] =
+static const uint32_t eventMap[SDHC_EVENTS_NUM][SDHC_EVENTS_MAP_NUM] =
 {
     { (uint32_t)CYHAL_SDHC_CMD_COMPLETE,    (uint32_t)CY_SD_HOST_CMD_COMPLETE},
     { (uint32_t)CYHAL_SDHC_XFER_COMPLETE,   (uint32_t)CY_SD_HOST_XFER_COMPLETE },
@@ -1089,16 +1089,13 @@ void cyhal_sdhc_enable_event(cyhal_sdhc_t *obj, cyhal_sdhc_event_t event, uint8_
         /* Enable specific interrupt */
         if((uint32_t) event < (uint32_t) CYHAL_SDHC_ALL_INTERRUPTS)
         {
-            obj->irq_cause |= event;
-            uint32_t event_count = SDHC_EVENTS_NUM;
-            uint8_t i;
-
-            for (i = 0; i < event_count; i++)
+            for (uint8_t i = 0; i < SDHC_EVENTS_NUM; i++)
             {
                 const uint32_t *map_entry = eventMap[i];
-                if ((map_entry[SDHC_EVENT] & obj->irq_cause) != 0)
+                if ((map_entry[SDHC_EVENT] & (uint32_t) event) != 0)
                 {
-                    interruptMask |= map_entry[SDHC_ISR];
+                    interruptMask  |= map_entry[SDHC_ISR];
+                    obj->irq_cause |= map_entry[SDHC_ISR];
                 }
             }
         }
@@ -1114,16 +1111,13 @@ void cyhal_sdhc_enable_event(cyhal_sdhc_t *obj, cyhal_sdhc_event_t event, uint8_
     {
         if((uint32_t) event < (uint32_t) CYHAL_SDHC_ALL_INTERRUPTS)
         {
-            obj->irq_cause &= ~event;
-            uint32_t event_count = SDHC_EVENTS_NUM;
-            uint8_t i;
-
-            for (i = 0; i < event_count; i++)
+            for (uint8_t i = 0; i < SDHC_EVENTS_NUM; i++)
             {
                 const uint32_t *map_entry = eventMap[i];
-                if ((map_entry[SDHC_EVENT] & obj->irq_cause) != 0)
+                if ((map_entry[SDHC_EVENT] & (uint32_t) event) != 0)
                 {
-                    interruptMask &= ~map_entry[SDHC_ISR];
+                    interruptMask  &= ~map_entry[SDHC_ISR];
+                    obj->irq_cause &= ~map_entry[SDHC_ISR];
                 }
             }
         }

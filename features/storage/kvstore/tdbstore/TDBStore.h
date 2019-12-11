@@ -19,10 +19,11 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#include "KVStore.h"
-#include "BlockDevice.h"
-#include "BufferedBlockDevice.h"
+#include "features/storage/kvstore/include/KVStore.h"
+#include "features/storage/blockdevice/BlockDevice.h"
+#include "features/storage/blockdevice/BufferedBlockDevice.h"
 #include "PlatformMutex.h"
+#include "mbed_error.h"
 
 namespace mbed {
 
@@ -61,8 +62,7 @@ public:
      *        the available data and clean corrupted and erroneous records.
      *
      * @returns MBED_SUCCESS                        Success.
-     *          MBED_ERROR_READ_FAILED              Unable to read from media.
-     *          MBED_ERROR_WRITE_FAILED             Unable to write to media.
+     * @returns Negative error code on failure.
      */
     virtual int init();
 
@@ -75,7 +75,7 @@ public:
 
 
     /**
-     * @brief Reset TDBStore contents (clear all keys)
+     * @brief Reset TDBStore contents (clear all keys) and reserved data
      *
      * @returns MBED_SUCCESS                        Success.
      *          MBED_ERROR_NOT_READY                Not initialized.
@@ -339,6 +339,8 @@ private:
 
     /**
      * @brief Reset an area (erase its start).
+     *        This erases master record, but preserves the
+     *        reserved area data.
      *
      * @param[in]  area                   Area.
      *
@@ -366,8 +368,8 @@ private:
      *
      * @param[in]  area                   Area.
      * @param[in]  offset                 Offset of record in area.
-     * @param[in]  key                    Key - must not include '*' '/' '?' ':' ';' '\' '"' '|' ' ' '<' '>' '\'.
-     * @param[in]  data_buf               Data buffer.
+     * @param[out] key                    Key - must not include '*' '/' '?' ':' ';' '\' '"' '|' ' ' '<' '>' '\'.
+     * @param[out] data_buf               Data buffer.
      * @param[in]  data_buf_size          Data buffer size.
      * @param[out] actual_data_size       Actual data size.
      * @param[in]  data_offset            Offset in data.
@@ -499,17 +501,6 @@ private:
                               uint32_t &dist_to_end);
 
     /**
-     * @brief Check whether erase unit is erased (from offset until end of unit).
-     *
-     * @param[in]  area                  Area.
-     * @param[in]  offset                Offset in area.
-     * @param[out] erased                Unit is erased.
-     *
-     * @returns 0 for success, nonzero for failure.
-     */
-    int is_erase_unit_erased(uint8_t area, uint32_t offset, bool &erased);
-
-    /**
      * @brief Before writing a record, check whether you are crossing an erase unit.
      *        If you do, check if it's erased, and erase it if not.
      *
@@ -525,16 +516,22 @@ private:
 
     /**
      * @brief Get data from reserved area - worker function.
+     *        This verifies that reserved data on both areas have
+     *        correct checksums. If given pointer is not NULL, also
+     *        write the reserved data to buffer. If checksums are not
+     *        valid, return error code, and don't write anything to any
+     *        pointers.
      *
-     * @param[in]  reserved_data        Reserved data buffer (0 to return nothing).
+     * @param[out] reserved_data        Reserved data buffer (NULL to return nothing).
      * @param[in]  reserved_data_buf_size
      *                                  Reserved data buffer size.
-     * @param[in]  actual_data_size     Return data size.
+     * @param[out] actual_data_size     If not NULL, return actual data size.
+     * @param[out] copy_trailer         If not NULL, copy the trailer content to given buffer.
      *
      * @returns 0 on success or a negative error code on failure
      */
     int do_reserved_data_get(void *reserved_data, size_t reserved_data_buf_size,
-                             size_t *actual_data_size = 0);
+                             size_t *actual_data_size = 0, void *copy_trailer = 0);
 
     /**
      * @brief Update all iterators after adding or deleting of keys.

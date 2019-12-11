@@ -1150,7 +1150,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
   uint32_t tmpisr_dma, tmpisr_bdma;
   uint32_t ccr_reg;
   __IO uint32_t count = 0U;
-  uint32_t timeout = SystemCoreClock / 9600U;
+  uint32_t timeout = SystemD1Clock / 9600U;
 
   /* calculate DMA base and stream number */
   DMA_Base_Registers  *regs_dma  = (DMA_Base_Registers *)hdma->StreamBaseAddress;

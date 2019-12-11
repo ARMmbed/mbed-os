@@ -57,6 +57,11 @@ typedef struct {
 
 static inline void gpio_write(gpio_t *obj, int value)
 {
+#if defined(DUAL_CORE)
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_GPIO_SEMID)) {
+    }
+#endif /* DUAL_CORE */
+
     if (value) {
         *obj->reg_set = obj->mask;
     } else {
@@ -66,6 +71,10 @@ static inline void gpio_write(gpio_t *obj, int value)
         *obj->reg_clr = obj->mask;
 #endif
     }
+
+#if defined(DUAL_CORE)
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_GPIO_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
 }
 
 static inline int gpio_read(gpio_t *obj)

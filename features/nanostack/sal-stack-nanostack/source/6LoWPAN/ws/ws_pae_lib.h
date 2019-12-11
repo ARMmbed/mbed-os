@@ -88,7 +88,7 @@ int8_t ws_pae_lib_kmp_list_delete(kmp_list_t *kmp_list, kmp_api_t *kmp);
 void ws_pae_lib_kmp_list_free(kmp_list_t *kmp_list);
 
 /**
- * ws_pae_lib_kmp_list_type_get gets KMP entry from KMP list based on KMP type
+ * ws_pae_lib_kmp_list_type_get gets KMP from KMP list based on KMP type
  *
  * \param kmp_list KMP list
  * \param type type
@@ -98,6 +98,18 @@ void ws_pae_lib_kmp_list_free(kmp_list_t *kmp_list);
  *
  */
 kmp_api_t *ws_pae_lib_kmp_list_type_get(kmp_list_t *kmp_list, kmp_type_e type);
+
+/**
+ * ws_pae_lib_kmp_list_instance_id_get gets KMP from KMP list based on instance identifier
+ *
+ * \param kmp_list KMP list
+ * \param instance_id instance identifier
+ *
+ * \return KMP on success
+ * \return NULL on failure
+ *
+ */
+kmp_api_t *ws_pae_lib_kmp_list_instance_id_get(kmp_list_t *kmp_list, uint8_t instance_id);
 
 /**
  * ws_pae_lib_kmp_list_entry_get gets KMP entry from KMP list based on KMP

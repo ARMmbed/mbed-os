@@ -20,13 +20,15 @@
 
 #include "AT_CellularSMS.h"
 
+#if MBED_CONF_CELLULAR_USE_SMS
+
 namespace mbed {
 
 class UBLOX_N2XX_CellularSMS : public AT_CellularSMS {
 
 public:
 
-    UBLOX_N2XX_CellularSMS(ATHandler &atHandler);
+    UBLOX_N2XX_CellularSMS(ATHandler &atHandler, AT_CellularDevice &device);
     virtual ~UBLOX_N2XX_CellularSMS();
 
     virtual nsapi_error_t set_cpms(const char *memr, const char *memw, const char *mems);
@@ -41,5 +43,7 @@ public:
 };
 
 } // namespace mbed
+
+#endif // MBED_CONF_CELLULAR_USE_SMS
 
 #endif // UBLOX_N2XX_CELLULAR_SMS_H_

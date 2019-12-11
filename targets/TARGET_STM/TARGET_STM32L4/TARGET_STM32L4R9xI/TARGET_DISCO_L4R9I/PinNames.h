@@ -314,14 +314,14 @@ typedef enum {
     SPI_CS      = D10,
     PWM_OUT     = D9,
 
-    /**** USB pins ****/
+    /**** USB FS pins ****/
     USB_OTG_FS_DM = PA_11,
     USB_OTG_FS_DP = PA_12,
     USB_OTG_FS_ID = PA_10,
     USB_OTG_FS_NOE = PA_13,
     USB_OTG_FS_NOE_ALT0 = PC_9,
-    USB_OTG_FS_SOF = PA_14,
-    USB_OTG_FS_SOF_ALT0 = PA_8,
+    USB_OTG_FS_SOF = PA_8,
+    USB_OTG_FS_SOF_ALT0 = PA_14,
     USB_OTG_FS_VBUS = PA_9,
 
     /**** OSCILLATOR pins ****/
@@ -362,8 +362,8 @@ typedef enum {
 
     /**** STMOD+ pins ****/
     STMOD_1  = PA_6,
-    STMOD_2  = PB_15,
-    STMOD_3  = PB_14,
+    STMOD_2  = PB_10,
+    STMOD_3  = PB_11,
     STMOD_4  = PB_13,
 //  STMOD_5 is connected to GND
 //  STMOD_6 is connected to +5V

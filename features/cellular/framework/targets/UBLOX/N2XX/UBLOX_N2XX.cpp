@@ -20,7 +20,7 @@
 using namespace mbed;
 using namespace events;
 
-static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     AT_CellularNetwork::RegistrationModeLAC,        // C_EREG
     AT_CellularNetwork::RegistrationModeDisable,    // C_GREG
     AT_CellularNetwork::RegistrationModeDisable,    // C_REG
@@ -38,7 +38,7 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
 
 UBLOX_N2XX::UBLOX_N2XX(FileHandle *fh): AT_CellularDevice(fh)
 {
-    AT_CellularBase::set_cellular_properties(cellular_properties);
+    set_cellular_properties(cellular_properties);
     memset(simstr, 0, sizeof(simstr));
 }
 
@@ -63,10 +63,12 @@ AT_CellularContext *UBLOX_N2XX::create_context_impl(ATHandler &at, const char *a
     return new UBLOX_N2XX_CellularContext(at, this, apn, cp_req, nonip_req);
 }
 
+#if MBED_CONF_CELLULAR_USE_SMS
 AT_CellularSMS *UBLOX_N2XX::open_sms_impl(ATHandler &at)
 {
-    return new UBLOX_N2XX_CellularSMS(at);
+    return new UBLOX_N2XX_CellularSMS(at, *this);
 }
+#endif // MBED_CONF_CELLULAR_USE_SMS
 
 nsapi_error_t UBLOX_N2XX::init()
 {

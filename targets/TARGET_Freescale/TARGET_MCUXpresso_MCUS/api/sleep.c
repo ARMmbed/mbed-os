@@ -17,11 +17,8 @@
 #include "cmsis.h"
 #include "fsl_smc.h"
 #include "fsl_clock_config.h"
-#include "pinmap.h"
-#include "fsl_port.h"
-#include "PeripheralPins.h"
 
-extern void serial_wait_tx_complete(uint32_t uart_index);
+extern bool serial_check_tx_ongoing();
 
 void hal_sleep(void)
 {
@@ -32,7 +29,6 @@ void hal_sleep(void)
 
 void hal_deepsleep(void)
 {
-    uint32_t pin_func;
 #if (defined(FSL_FEATURE_SOC_MCG_COUNT) && FSL_FEATURE_SOC_MCG_COUNT)
 #if (defined(FSL_FEATURE_MCG_HAS_PLL) && FSL_FEATURE_MCG_HAS_PLL)
     smc_power_state_t original_power_state;
@@ -41,24 +37,16 @@ void hal_deepsleep(void)
 #endif // FSL_FEATURE_MCG_HAS_PLL
 #endif // FSL_FEATURE_SOC_MCG_COUNT
 
+    /* Check if any of the UART's is transmitting data */
+    if (serial_check_tx_ongoing()) {
+        return;
+    }
+
     SMC_SetPowerModeProtection(SMC, kSMC_AllowPowerModeAll);
-
-    /* Wait till debug UART is done transmitting */
-    serial_wait_tx_complete(STDIO_UART);
-
-    /*
-     * Set pin for current leakage.
-     * Debug console RX pin: Set to pinmux to disable.
-     * Debug console TX pin: Don't need to change.
-     */
-    pin_function(STDIO_UART_RX, (int)kPORT_PinDisabledOrAnalog);
 
     SMC_PreEnterStopModes();
     SMC_SetPowerModeVlps(SMC);
     SMC_PostExitStopModes();
-
-    pin_func = pinmap_find_function(STDIO_UART_RX, PinMap_UART_RX);
-    pin_function(STDIO_UART_RX, pin_func);
 
 #if (defined(FSL_FEATURE_SOC_MCG_COUNT) && FSL_FEATURE_SOC_MCG_COUNT)
 #if (defined(FSL_FEATURE_MCG_HAS_PLL) && FSL_FEATURE_MCG_HAS_PLL)

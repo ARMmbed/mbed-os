@@ -373,8 +373,8 @@ private:
     usb_ep_t _episo_in;     // tx endpoint
 
     // channel config in the configuration descriptor: master, left, right
-    uint8_t _channel_config_rx;
-    uint8_t _channel_config_tx;
+    uint16_t _channel_config_rx;
+    uint16_t _channel_config_tx;
 
     // configuration descriptor
     uint8_t _config_descriptor[183];

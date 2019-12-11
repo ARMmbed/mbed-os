@@ -55,12 +55,22 @@ typedef enum {
     MODE_TEST_SILENT
 } CanMode;
 
+typedef struct {
+    int peripheral;
+    PinName rd_pin;
+    int rd_function;
+    PinName td_pin;
+    int td_function;
+} can_pinmap_t;
+
 typedef void (*can_irq_handler)(uint32_t id, CanIrqType type);
 
 typedef struct can_s can_t;
 
 void          can_init(can_t *obj, PinName rd, PinName td);
+void          can_init_direct(can_t *obj, const can_pinmap_t *pinmap);
 void          can_init_freq(can_t *obj, PinName rd, PinName td, int hz);
+void          can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz);
 void          can_free(can_t *obj);
 int           can_frequency(can_t *obj, int hz);
 

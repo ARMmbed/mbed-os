@@ -21,7 +21,7 @@ import time
 import string
 from sys import stdout
 
-class SerialCompleteTest():
+class SerialCompleteTest(object):
 
     def test(self, selftest):
         strip_chars = string.whitespace + "\0"

@@ -33,7 +33,7 @@ def format_number(number, width):
     # convert to string
     line = format(number, '0%dx' % (width))
     if len(line) > width:
-        print "[ERROR] 0x%s cannot fit in width %d" % (line, width)
+        print("[ERROR] 0x%s cannot fit in width %d" % (line, width))
         sys.exit(-1)
     # cut string to list & reverse
     line = [line[i:i+2] for i in range(0, len(line), 2)]
@@ -58,7 +58,7 @@ def write_padding_bytes(output_name, size):
     current_size = os.stat(output_name).st_size
     padcount = size - current_size
     if padcount < 0:
-        print "[ERROR] image is larger than expected size"
+        print("[ERROR] image is larger than expected size")
         sys.exit(-1)
     output = open(output_name, "ab")
     output.write('\377' * padcount)
@@ -96,7 +96,7 @@ def find_symbol(toolchain, mapfile, symbol):
                 ret = match.group("addr")
 
     if not ret:
-        print "[ERROR] cannot find the address of symbol " + symbol
+        print("[ERROR] cannot find the address of symbol " + symbol)
         return 0
 
     return int(ret,16) | 1

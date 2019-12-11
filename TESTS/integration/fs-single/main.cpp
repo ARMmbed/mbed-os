@@ -21,18 +21,18 @@
  * Based on mbed-stress-test by Marcus Chang @ Arm Mbed - http://github.com/ARMmbed/mbed-stress-test
 */
 
+#if !INTEGRATION_TESTS
+#error [NOT_SUPPORTED] integration tests not enabled for this target
+#else
+
 #include "mbed.h"
 #include "FATFileSystem.h"
 #include "LittleFileSystem.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
-#include "common_defines_test.h"
+#include "common_defines_fs_test.h"
 #include "file_test.h"
-
-#if !INTEGRATION_TESTS
-#error [NOT_SUPPORTED] integration tests not enabled for this target
-#endif
 
 #ifdef MBED_CONF_APP_BASICS_TEST_FILENAME
 #include MBED_CONF_APP_BASICS_TEST_FILENAME
@@ -66,11 +66,11 @@ LittleFileSystem fs("sd");
 
 static control_t test_format(const size_t call_count)
 {
+    int format_err = fs.format(&sd);
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, format_err, "could not format block device");
+
     int mount_err = fs.mount(&sd);
     TEST_ASSERT_EQUAL_INT_MESSAGE(0, mount_err, "could not mount block device");
-
-    int format_err = fs.reformat(&sd);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, format_err, "could not format block device");
 
     return CaseNext;
 }
@@ -162,3 +162,4 @@ int main()
 
     return !Harness::run(specification);
 }
+#endif // !INTEGRATION_TESTS

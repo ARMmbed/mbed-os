@@ -18,7 +18,6 @@
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"
-#include "rtos.h"
 #include "rtc_api.h"
 
 #if !DEVICE_RTC || !DEVICE_USTICKER

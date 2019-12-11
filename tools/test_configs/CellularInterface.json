@@ -1,4 +1,7 @@
 {
+    "macros": [
+        "OS_THREAD_LIBSPACE_NUM=5"
+    ],
     "config": {
         "echo-server-addr" : {
             "help" : "IP address of echo server",
@@ -31,10 +34,11 @@
             "target.network-default-interface-type": "CELLULAR",
             "nsapi.default-cellular-sim-pin": null,
             "nsapi.dns-response-wait-time": 30000,
-            "ppp-cell-iface.apn-lookup": false,
             "cellular.use-apn-lookup": false,
             "lwip.ipv4-enabled": true,
+            "ppp.ipv4-enabled": true,
             "lwip.ipv6-enabled": true,
+            "ppp.ipv6-enabled": true,
             "lwip.tcp-enabled": true,
             "lwip.ppp-enabled": true,
             "lwip.ethernet-enabled": false,

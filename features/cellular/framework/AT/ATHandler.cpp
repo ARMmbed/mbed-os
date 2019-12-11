@@ -18,6 +18,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <limits.h>
+#include <errno.h>
 #include "ATHandler.h"
 #include "mbed_poll.h"
 #include "FileHandle.h"
@@ -548,6 +549,9 @@ void ATHandler::skip_param(uint32_t count)
                 }
             } else if (match_pos) {
                 match_pos = 0;
+                if (c == _stop_tag->tag[match_pos]) {
+                    match_pos++;
+                }
             }
         }
     }
@@ -632,6 +636,9 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
             }
         } else if (match_pos) {
             match_pos = 0;
+            if (c == _stop_tag->tag[match_pos]) {
+                match_pos++;
+            }
         }
 
         buf[len] = c;
@@ -716,6 +723,9 @@ ssize_t ATHandler::read_hex_string(char *buf, size_t size)
             }
         } else if (match_pos) {
             match_pos = 0;
+            if (c == _stop_tag->tag[match_pos]) {
+                match_pos++;
+            }
         }
 
         if (match_pos) {
@@ -748,8 +758,7 @@ int32_t ATHandler::read_int()
     }
 
     errno = 0;
-    char *endptr;
-    long result = std::strtol(buff, &endptr, 10);
+    long result = std::strtol(buff, NULL, 10);
     if ((result == LONG_MIN || result == LONG_MAX) && errno == ERANGE) {
         return -1; // overflow/underflow
     }
@@ -1574,7 +1583,13 @@ bool ATHandler::sync(int timeout_ms)
         // especially a common response like OK could be response to previous request.
         clear_error();
         _start_time = rtos::Kernel::get_ms_count();
-        at_cmd_discard("+CMEE", "?");
+        cmd_start("AT+CMEE?");
+        cmd_stop();
+        resp_start();
+        set_stop_tag("+CMEE:");
+        consume_to_stop_tag();
+        set_stop_tag(OK);
+        consume_to_stop_tag();
         if (!_last_err) {
             _at_timeout = timeout;
             unlock();
@@ -1591,3 +1606,26 @@ void ATHandler::set_send_delay(uint16_t send_delay)
 {
     _at_send_delay = send_delay;
 }
+
+void ATHandler::write_hex_string(char *str, size_t size)
+{
+    // do common checks before sending subparameter
+    if (check_cmd_send() == false) {
+        return;
+    }
+
+    (void) write("\"", 1);
+    char hexbuf[2];
+    for (size_t i = 0; i < size; i++) {
+        hexbuf[0] = hex_values[((str[i]) >> 4) & 0x0F];
+        hexbuf[1] = hex_values[(str[i]) & 0x0F];
+        write(hexbuf, 2);
+    }
+    (void) write("\"", 1);
+}
+
+void ATHandler::set_baud(int baud_rate)
+{
+    static_cast<UARTSerial *>(_fileHandle)->set_baud(baud_rate);
+}
+

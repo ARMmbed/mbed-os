@@ -35,7 +35,7 @@ set(unittest-test-sources
   stubs/LoRaPHY_stub.cpp
   stubs/LoRaWANStack_stub.cpp
   stubs/LoRaMac_stub.cpp
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
   stubs/LoRaMacCrypto_stub.cpp
   stubs/LoRaMacChannelPlan_stub.cpp
   stubs/LoRaWANTimer_stub.cpp
@@ -44,9 +44,10 @@ set(unittest-test-sources
   stubs/Mutex_stub.cpp
 )
 
-# defines
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMBED_CONF_LORA_PHY=\"EU868\"")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMBED_CONF_LORA_PHY=\"EU868\"")
+set(unittest-test-flags
+  -DMBED_CONF_LORA_PHY=EU868
+  -DMBED_CONF_LORA_TX_MAX_SIZE=255
+)
 
 
 

@@ -624,6 +624,7 @@ void cyhal_hwmgr_free(const cyhal_resource_inst_t* obj)
     uint32_t state = cyhal_system_critical_section_enter();
     cy_rslt_t rslt = cyhal_clear_bit(cyhal_used, obj->type, obj->block_num, obj->channel_num);
     CY_ASSERT(CY_RSLT_SUCCESS == rslt);
+    (void)rslt; //Avoid warning about unused variable in Release builds
     cyhal_system_critical_section_exit(state);
 }
 

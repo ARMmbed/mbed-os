@@ -88,6 +88,11 @@ typedef enum {
     CAN_2 = (int)CAN2_BASE
 } CANName;
 
+typedef enum {
+    USB_FS = (int)USB_OTG_FS_PERIPH_BASE,
+    USB_HS = (int)USB_OTG_HS_PERIPH_BASE
+} USBName;
+
 #ifdef __cplusplus
 }
 #endif

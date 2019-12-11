@@ -21,7 +21,8 @@
 using namespace mbed;
 using namespace mbed_cellular_util;
 
-UBLOX_AT_CellularStack::UBLOX_AT_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type) : AT_CellularStack(atHandler, cid, stack_type)
+UBLOX_AT_CellularStack::UBLOX_AT_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
+    AT_CellularStack(atHandler, cid, stack_type, device)
 {
     // URC handlers for sockets
     _at.set_urc_handler("+UUSORD:", callback(this, &UBLOX_AT_CellularStack::UUSORD_URC));
@@ -55,7 +56,6 @@ void UBLOX_AT_CellularStack::UUSORD_URC()
 
     socket = find_socket(a);
     if (socket != NULL) {
-        socket->rx_avail = true;
         socket->pending_bytes = b;
         // No debug prints here as they can affect timing
         // and cause data loss in UARTSerial
@@ -76,7 +76,6 @@ void UBLOX_AT_CellularStack::UUSORF_URC()
 
     socket = find_socket(a);
     if (socket != NULL) {
-        socket->rx_avail = true;
         socket->pending_bytes = b;
         // No debug prints here as they can affect timing
         // and cause data loss in UARTSerial
@@ -302,10 +301,9 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
             } else {
                 if (count == 0) {
                     // Timeout with nothing received
-                    nsapi_error_size = NSAPI_ERROR_WOULD_BLOCK;
                     success = false;
                 }
-                size = 0; // This simply to cause an exit
+                break;
             }
         }
     } else if (socket->proto == NSAPI_TCP) {
@@ -346,16 +344,14 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
             } else {
                 if (count == 0) {
                     // Timeout with nothing received
-                    nsapi_error_size = NSAPI_ERROR_WOULD_BLOCK;
                     success = false;
                 }
-                size = 0; // This simply to cause an exit
+                break;
             }
         }
     }
     timer.stop();
 
-    socket->rx_avail = false;
     socket->pending_bytes = 0;
     if (!count || (_at.get_last_error() != NSAPI_ERROR_OK)) {
         return NSAPI_ERROR_WOULD_BLOCK;
@@ -400,7 +396,6 @@ void UBLOX_AT_CellularStack::clear_socket(CellularSocket *socket)
     if (socket != NULL) {
         socket->id = SOCKET_UNUSED;
         socket->started = false;
-        socket->rx_avail = false;
         socket->pending_bytes = 0;
         socket->closed = true;
         if (socket->_cb) {
@@ -449,13 +444,14 @@ nsapi_error_t UBLOX_AT_CellularStack::gethostbyname(const char *host, SocketAddr
     if (address->set_ip_address(host)) {
         err = NSAPI_ERROR_OK;
     } else {
-        // This interrogation can sometimes take longer than the usual 8 seconds
-        _at.cmd_start_stop("+UDNSRN", "=0,", "%s", host);
-#ifdef TARGET_UBLOX_C030_R41XM
+#ifdef UBX_MDM_SARA_R41XM
         _at.set_at_timeout(70000);
 #else
         _at.set_at_timeout(120000);
 #endif
+        // This interrogation can sometimes take longer than the usual 8 seconds
+        _at.cmd_start_stop("+UDNSRN", "=0,", "%s", host);
+
         _at.resp_start("+UDNSRN:");
         if (_at.info_resp()) {
             _at.read_string(ipAddress, sizeof(ipAddress));

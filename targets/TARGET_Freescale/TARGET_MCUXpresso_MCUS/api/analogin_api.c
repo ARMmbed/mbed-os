@@ -29,9 +29,15 @@ static ADC_Type *const adc_addrs[] = ADC_BASE_PTRS;
 
 #define MAX_FADC 6000000
 
-void analogin_init(analogin_t *obj, PinName pin)
+#if STATIC_PINMAP_READY
+#define ANALOGIN_INIT_DIRECT analogin_init_direct
+void analogin_init_direct(analogin_t *obj, const PinMap *pinmap)
+#else
+#define ANALOGIN_INIT_DIRECT _analogin_init_direct
+static void _analogin_init_direct(analogin_t *obj, const PinMap *pinmap)
+#endif
 {
-    obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
+    obj->adc = (ADCName)pinmap->peripheral;
     MBED_ASSERT(obj->adc != (ADCName)NC);
 
     uint32_t instance = obj->adc >> ADC_INSTANCE_SHIFT;
@@ -41,8 +47,9 @@ void analogin_init(analogin_t *obj, PinName pin)
     bus_clock = CLOCK_GetFreq(kCLOCK_BusClk);
     uint32_t clkdiv;
     for (clkdiv = 0; clkdiv < 4; clkdiv++) {
-        if ((bus_clock >> clkdiv) <= MAX_FADC)
+        if ((bus_clock >> clkdiv) <= MAX_FADC) {
             break;
+        }
     }
     if (clkdiv == 4) {
         clkdiv = 0x3; //Set max div
@@ -55,7 +62,18 @@ void analogin_init(analogin_t *obj, PinName pin)
     ADC16_Init(adc_addrs[instance], &adc16_config);
     ADC16_EnableHardwareTrigger(adc_addrs[instance], false);
     ADC16_SetHardwareAverage(adc_addrs[instance], kADC16_HardwareAverageCount4);
-    pinmap_pinout(pin, PinMap_ADC);
+    pin_function(pinmap->pin, pinmap->function);
+    pin_mode(pinmap->pin, PullNone);
+}
+
+void analogin_init(analogin_t *obj, PinName pin)
+{
+    int peripheral = (int)pinmap_peripheral(pin, PinMap_ADC);
+    int function = (int)pinmap_find_function(pin, PinMap_ADC);
+
+    const PinMap static_pinmap = {pin, peripheral, function};
+
+    ANALOGIN_INIT_DIRECT(obj, &static_pinmap);
 }
 
 uint16_t analogin_read_u16(analogin_t *obj)
@@ -71,7 +89,7 @@ uint16_t analogin_read_u16(analogin_t *obj)
 #endif
 
     ADC16_SetChannelMuxMode(adc_addrs[instance],
-        obj->adc & (1 << ADC_B_CHANNEL_SHIFT) ? kADC16_ChannelMuxB : kADC16_ChannelMuxA);
+                            obj->adc & (1 << ADC_B_CHANNEL_SHIFT) ? kADC16_ChannelMuxB : kADC16_ChannelMuxA);
 
     /*
      * When in software trigger mode, each conversion would be launched once calling the "ADC16_ChannelConfigure()"
@@ -79,8 +97,7 @@ uint16_t analogin_read_u16(analogin_t *obj)
      */
     ADC16_SetChannelConfig(adc_addrs[instance], 0, &adc16_channel_config);
     while (0U == (kADC16_ChannelConversionDoneFlag &
-                      ADC16_GetChannelStatusFlags(adc_addrs[instance], 0)))
-    {
+                  ADC16_GetChannelStatusFlags(adc_addrs[instance], 0))) {
     }
     return ADC16_GetChannelConversionValue(adc_addrs[instance], 0);
 }

@@ -105,6 +105,16 @@ static uint32_t cyhal_gpio_convert_drive_mode(cyhal_gpio_drive_mode_t drive_mode
         case CYHAL_GPIO_DRIVE_PULLUPDOWN:
             drvMode = CY_GPIO_DM_PULLUP_DOWN;
             break;
+        case CYHAL_GPIO_DRIVE_PULL_NONE:
+            if (direction == CYHAL_GPIO_DIR_OUTPUT || direction == CYHAL_GPIO_DIR_BIDIRECTIONAL)
+            {
+                drvMode = CY_GPIO_DM_STRONG;
+            }
+            else
+            {
+                drvMode = CY_GPIO_DM_HIGHZ;
+            }
+            break;
         default:
             CY_ASSERT(false);
             drvMode = CY_GPIO_DM_HIGHZ;

@@ -1,0 +1,9 @@
+/* 
+ * This file is used to set the MAC address in NVRAM.
+ * The MAC address of the Wi-Fi device may be configured in OTP and/or in NVRAM. 
+ * If both OTP and NVRAM contains the MAC address then OTP programmed MAC address will be used. 
+ * PSOC boards are usually programmed with OTP MAC address. 
+ * MAC address is printed during WHD power up
+ */
+
+#define NVRAM_GENERATED_MAC_ADDRESS        "macaddr=00:A0:50:2f:32:99"

@@ -17,11 +17,13 @@
 #ifndef MY_CELLULARDEVICE_H_
 #define MY_CELLULARDEVICE_H_
 
-#include "CellularDevice.h"
+#include "AT_CellularDevice.h"
 #include "AT_CellularNetwork.h"
 #include "FileHandle_stub.h"
 #include "ATHandler_stub.h"
 #include "AT_CellularContext.h"
+#include "gtest/gtest.h"
+#include "UARTSerial.h"
 
 using namespace events;
 
@@ -32,10 +34,10 @@ class CellularInformation;
 class CellularContext;
 class FileHandle;
 
-class myCellularDevice : public CellularDevice {
+class myCellularDevice : public AT_CellularDevice {
 public:
-    myCellularDevice(FileHandle *fh) : CellularDevice(fh), _context_list(0), _network(0) {}
-    ~myCellularDevice()
+    myCellularDevice(FileHandle *fh) : AT_CellularDevice(fh), _context_list(0), _network(0) {}
+    virtual ~myCellularDevice()
     {
         delete _context_list;
         delete _network;
@@ -88,7 +90,7 @@ public:
         EventQueue que;
         FileHandle_stub fh1;
         ATHandler at(&fh1, que, 0, ",");
-        _network = new AT_CellularNetwork(at);
+        _network = new AT_CellularNetwork(at, *this);
         return _network;
     }
 
@@ -121,11 +123,6 @@ public:
     virtual void modem_debug_on(bool on) {}
 
     virtual nsapi_error_t init()
-    {
-        return NSAPI_ERROR_OK;
-    }
-
-    virtual nsapi_error_t shutdown()
     {
         return NSAPI_ERROR_OK;
     }
@@ -180,6 +177,30 @@ public:
     {
         return NSAPI_ERROR_OK;
     }
+    nsapi_error_t set_baud_rate(int baud_rate)
+    {
+        return NSAPI_ERROR_OK;
+    }
+
+    void verify_timeout_array(const uint16_t timeout[], int array_len)
+    {
+        if (array_len > CELLULAR_RETRY_ARRAY_SIZE) {
+            FAIL();
+        }
+        uint16_t get_timeouts[CELLULAR_RETRY_ARRAY_SIZE];
+        int get_timeouts_len = 0;
+
+        get_retry_timeout_array(get_timeouts, get_timeouts_len);
+
+        EXPECT_EQ(array_len, get_timeouts_len);
+
+        for (int i = 0; i < array_len; i++) {
+            EXPECT_EQ(timeout[i], get_timeouts[i]);
+        }
+    }
+
+
+
     AT_CellularNetwork *_network;
     AT_CellularContext *_context_list;
 };

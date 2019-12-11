@@ -297,7 +297,7 @@ void pwmout_pulsewidth(pwmout_t *obj, float pulse)
     DEBUG_PRINTF("pwmout_pulsewidt: %f\r\n", pulse);
 
     /* Cap pulsewidth to period before setting it. */
-    if ((pulse * 1000000) > (float) (obj->pulse & ~SEQ_POLARITY_BIT)) {
+    if ((pulse * 1000000) > (float) obj->period) {
         obj->pulse &= SEQ_POLARITY_BIT;
         obj->pulse |= obj->period;
         pwmout_pulsewidth_us(obj, obj->pulse);
@@ -354,4 +354,3 @@ const PinMap *pwmout_pinmap()
 }
 
 #endif // DEVICE_PWMOUT
-

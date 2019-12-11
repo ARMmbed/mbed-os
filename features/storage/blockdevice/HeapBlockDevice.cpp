@@ -87,39 +87,35 @@ int HeapBlockDevice::deinit()
 
 bd_size_t HeapBlockDevice::get_read_size() const
 {
-    MBED_ASSERT(_blocks != NULL);
     return _read_size;
 }
 
 bd_size_t HeapBlockDevice::get_program_size() const
 {
-    MBED_ASSERT(_blocks != NULL);
     return _program_size;
 }
 
 bd_size_t HeapBlockDevice::get_erase_size() const
 {
-    MBED_ASSERT(_blocks != NULL);
     return _erase_size;
 }
 
 bd_size_t HeapBlockDevice::get_erase_size(bd_addr_t addr) const
 {
-    MBED_ASSERT(_blocks != NULL);
     return _erase_size;
 }
 
 bd_size_t HeapBlockDevice::size() const
 {
-    MBED_ASSERT(_blocks != NULL);
     return _count * _erase_size;
 }
 
 int HeapBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 {
-    MBED_ASSERT(_blocks != NULL);
-    MBED_ASSERT(is_valid_read(addr, size));
     if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+    if (!is_valid_read(addr, size)) {
         return BD_ERROR_DEVICE_ERROR;
     }
 
@@ -145,9 +141,10 @@ int HeapBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 
 int HeapBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 {
-    MBED_ASSERT(_blocks != NULL);
-    MBED_ASSERT(is_valid_program(addr, size));
     if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+    if (!is_valid_program(addr, size)) {
         return BD_ERROR_DEVICE_ERROR;
     }
 
@@ -176,10 +173,12 @@ int HeapBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 
 int HeapBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
-    MBED_ASSERT(_blocks != NULL);
-    MBED_ASSERT(is_valid_erase(addr, size));
-    // TODO assert on programming unerased blocks
-
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+    if (!is_valid_erase(addr, size)) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
     return 0;
 }
 
@@ -189,4 +188,3 @@ const char *HeapBlockDevice::get_type() const
 }
 
 } // namespace mbed
-

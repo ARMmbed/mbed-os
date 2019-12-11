@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#if defined(MBED_CONF_RTOS_PRESENT)
 #include "greentea-client/test_env.h"
 #include "mbed.h"
 #include "tcp_tests.h"
@@ -49,7 +50,7 @@ void TCPSOCKET_OPEN_LIMIT()
             }
             ret = sock->open(NetworkInterface::get_default_instance());
             if (ret == NSAPI_ERROR_NO_MEMORY || ret == NSAPI_ERROR_NO_SOCKET) {
-                printf("[round#%02d] unable to open new socket, error: %d\n", i, ret);
+                tr_error("[round#%02d] unable to open new socket, error: %d", i, ret);
                 delete sock;
                 break;
             }
@@ -91,8 +92,9 @@ void TCPSOCKET_OPEN_LIMIT()
             delete tmp->sock;
             delete tmp;
         }
-        printf("[round#%02d] %d sockets opened\n", i, open_sockets[i]);
+        tr_info("[round#%02d] %d sockets opened", i, open_sockets[i]);
     }
     TEST_ASSERT_EQUAL(open_sockets[0], open_sockets[1]);
     TEST_ASSERT(open_sockets[0] >= 4);
 }
+#endif // defined(MBED_CONF_RTOS_PRESENT)

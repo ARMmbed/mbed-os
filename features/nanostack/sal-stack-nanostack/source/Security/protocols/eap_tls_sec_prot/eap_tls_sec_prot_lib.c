@@ -59,6 +59,23 @@ int8_t eap_tls_sec_prot_lib_message_allocate(tls_data_t *data, uint8_t head_len,
     return 0;
 }
 
+int8_t eap_tls_sec_prot_lib_message_realloc(tls_data_t *data, uint8_t head_len, uint16_t new_len)
+{
+    tls_data_t new_tls_send;
+
+    eap_tls_sec_prot_lib_message_init(&new_tls_send);
+    if (eap_tls_sec_prot_lib_message_allocate(&new_tls_send, head_len, new_len) < 0) {
+        return -1;
+    }
+    memcpy(new_tls_send.data + head_len, data->data + head_len, data->handled_len);
+    new_tls_send.handled_len = data->handled_len;
+    eap_tls_sec_prot_lib_message_free(data);
+
+    *data = new_tls_send;
+
+    return 0;
+}
+
 void eap_tls_sec_prot_lib_message_free(tls_data_t *data)
 {
     ns_dyn_mem_free(data->data);
@@ -102,7 +119,16 @@ int8_t eap_tls_sec_prot_lib_message_handle(uint8_t *data, uint16_t length, bool 
             data += 4;
         }
         result = EAP_TLS_MSG_MORE_FRAG;
-    } else if (data[0] == 0) {
+    } else if (data[0] == 0 || data[0] == EAP_TLS_FRAGMENT_LENGTH) {
+        // Skip fragment length if present
+        if (data[0] & EAP_TLS_FRAGMENT_LENGTH) {
+            if (length < 5) {
+                tr_error("EAP-TLS: decode error");
+                return EAP_TLS_MSG_DECODE_ERROR;
+            }
+            length -= 4;
+            data += 4;
+        }
         // Last (or only) fragment or fragment acknowledge. If sending data
         // updates acknowledged fragments.
         if (new_seq_id && eap_tls_sec_prot_lib_ack_update(tls_send)) {
@@ -115,10 +141,15 @@ int8_t eap_tls_sec_prot_lib_message_handle(uint8_t *data, uint16_t length, bool 
     length -= 1;  // EAP-TLS flags
     data += 1;
 
+    // No further processing for EAP-TLS start
+    if (result == EAP_TLS_MSG_START) {
+        return EAP_TLS_MSG_START;
+    }
+
     // TLS data not included
     if (length == 0) {
         if (new_seq_id && result == EAP_TLS_MSG_CONTINUE) {
-            // If received only EAP-TLS header fails, and is not start,
+            // If received only EAP-TLS header fails, and is not
             // fragment acknowledge or last frame
             result = EAP_TLS_MSG_FAIL;
         }

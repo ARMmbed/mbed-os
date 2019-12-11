@@ -346,7 +346,7 @@ void cyhal_uart_free(cyhal_uart_t *obj)
 
 static uint32_t cyhal_uart_actual_baud(uint32_t divider, uint32_t oversample)
 {
-    return cy_PeriClkFreqHz / ((divider +  1) * oversample);
+    return Cy_SysClk_ClkPeriGetFrequency() / ((divider +  1) * oversample);
 }
 
 static uint32_t cyhal_uart_baud_perdif(uint32_t desired_baud, uint32_t actual_baud)
@@ -720,10 +720,12 @@ void cyhal_uart_enable_event(cyhal_uart_t *obj, cyhal_uart_event_t event, uint8_
         obj->irq_cause &= ~event;
         if (event & CYHAL_UART_IRQ_RX_NOT_EMPTY)
         {
+            Cy_SCB_ClearRxInterrupt(obj->base, CY_SCB_RX_INTR_NOT_EMPTY);
             Cy_SCB_SetRxInterruptMask(obj->base, Cy_SCB_GetRxInterruptMask(obj->base) & ~CY_SCB_RX_INTR_NOT_EMPTY);
         }
         if (event & CYHAL_UART_IRQ_TX_EMPTY)
         {
+            Cy_SCB_ClearTxInterrupt(obj->base, CY_SCB_UART_TX_EMPTY);
             Cy_SCB_SetTxInterruptMask(obj->base, Cy_SCB_GetTxInterruptMask(obj->base) & ~CY_SCB_UART_TX_EMPTY);
         }
     }

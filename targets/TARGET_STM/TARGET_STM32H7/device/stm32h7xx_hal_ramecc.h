@@ -136,7 +136,7 @@ typedef struct __RAMECC_HandleTypeDef
 
 
 
-#define __HAL_RAMECC_DISABLE_GLOBAL_IT(__HANDLE__, __INTERRUPT__) ((((RAMECC_TypeDef *)((uint32_t)&(__HANDLE__)->Instance & 0xFFFFFF00U))->IER) &= ~((__INTERRUPT__) & ~RAMECC_IT_GLOBAL_ID))
+#define __HAL_RAMECC_DISABLE_GLOBAL_IT(__HANDLE__, __INTERRUPT__) ((((RAMECC_TypeDef *)((uint32_t)(__HANDLE__)->Instance & 0xFFFFFF00U))->IER) &= ~((__INTERRUPT__) & ~RAMECC_IT_GLOBAL_ID))
 #define __HAL_RAMECC_DISABLE_MONITOR_IT(__HANDLE__, __INTERRUPT__) ((__HANDLE__)->Instance->CR &= ~((__INTERRUPT__) & ~RAMECC_IT_MONITOR_ID))
 
 /**

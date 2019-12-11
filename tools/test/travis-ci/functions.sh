@@ -93,6 +93,9 @@ _fetch_deps()
 {
   local pkg="${1}"
   local dep_list="${2}"
+  local pid_list=""
+
+  local PID;
 
   info "Fetching '${pkg}' archives"
 
@@ -103,9 +106,17 @@ _fetch_deps()
       || die "Download failed ('${dep}')" \
       && info "Fetched ${deps_url}/${dep}.deb" &
 
+    PID=$!
+    pid_list="${pid_list} ${PID}"
+
   done <<< "${dep_list}"
 
-  wait
+  # Ignoring shellcheck warning, since we need to allow parameter expansion to
+  #  turn the list string into parametesr.
+  # shellcheck disable=SC2086
+  wait ${pid_list}
+
+  info "Fetch completed."
 }
 
 

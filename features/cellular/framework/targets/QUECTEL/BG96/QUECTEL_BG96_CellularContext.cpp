@@ -52,7 +52,7 @@ NetworkStack *QUECTEL_BG96_CellularContext::get_stack()
     }
 
     if (!_stack) {
-        _stack = new QUECTEL_BG96_CellularStack(_at, _cid, (nsapi_ip_stack_t)_pdp_type);
+        _stack = new QUECTEL_BG96_CellularStack(_at, _cid, (nsapi_ip_stack_t)_pdp_type, *get_device());
     }
 
     return _stack;

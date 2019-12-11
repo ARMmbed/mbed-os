@@ -20,18 +20,16 @@
 #include "mbedtls/config.h"
 #include "mbedtls/cmac.h"
 #include "mbedtls/platform.h"
-#include "KVStore.h"
-#include "TDBStore.h"
-#include "KVMap.h"
-#include "kv_config.h"
+#include "features/storage/kvstore/include/KVStore.h"
+#include "features/storage/kvstore/tdbstore/TDBStore.h"
+#include "features/storage/kvstore/kv_map/KVMap.h"
+#include "features/storage/kvstore/conf/kv_config.h"
 #include "mbed_wait_api.h"
-#include "stdlib.h"
+#include <stdlib.h>
 #include "platform/mbed_error.h"
 #include <string.h>
 #include "entropy.h"
-#include "platform_mbed.h"
 #include "mbed_trace.h"
-#include "ssl_internal.h"
 
 #define TRACE_GROUP "DEVKEY"
 
@@ -271,15 +269,13 @@ int DeviceKey::generate_key_by_random(uint32_t *output, size_t size)
         return DEVICEKEY_INVALID_PARAM;
     }
 
-#if defined(DEVICE_TRNG) || defined(MBEDTLS_ENTROPY_NV_SEED)
-    uint32_t test_buff[DEVICE_KEY_32BYTE / sizeof(int)];
+#if defined(DEVICE_TRNG) || defined(MBEDTLS_ENTROPY_NV_SEED) || defined(MBEDTLS_ENTROPY_HARDWARE_ALT)
     mbedtls_entropy_context *entropy = new mbedtls_entropy_context;
     mbedtls_entropy_init(entropy);
     memset(output, 0, size);
-    memset(test_buff, 0, size);
 
     ret = mbedtls_entropy_func(entropy, (unsigned char *)output, size);
-    if (ret != MBED_SUCCESS || mbedtls_ssl_safer_memcmp(test_buff, (unsigned char *)output, size) == 0) {
+    if (ret != MBED_SUCCESS) {
         ret = DEVICEKEY_GENERATE_RANDOM_ERROR;
     } else {
         ret = DEVICEKEY_SUCCESS;

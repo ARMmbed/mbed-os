@@ -53,7 +53,6 @@ Please refer to the following table for priorities of test cases. Priorities are
 | 4   | WIFI_SET_CHANNEL                        |                            | SHOULD   |
 | 5   | WIFI_GET_RSSI                           |                            | SHOULD   |
 | 6   | WIFI_CONNECT_PARAMS_NULL                |                            | MUST     |
-| 7   | WIFI_CONNECT_PARAMS_VALID_UNSECURE      |                            | MUST     |
 | 8   | WIFI_CONNECT_PARAMS_VALID_SECURE        | With security type:        |          |
 |     |                                         | NSAPI_SECURITY_WEP         | SHOULD   |
 |     |                                         | NSAPI_SECURITY_WPA         | SHOULD   |
@@ -62,7 +61,7 @@ Please refer to the following table for priorities of test cases. Priorities are
 | 9   | WIFI_CONNECT_PARAMS_CHANNEL             |                            | SHOULD   |
 | 10  | WIFI_CONNECT_PARAMS_CHANNEL_FAIL        |                            | SHOULD   |
 | 11  | WIFI_CONNECT                            |                            | MUST     |
-| 12  | WIFI_CONNECT_NONBLOCK                   |                            | SHOULD   |
+| 12  | WIFI_CONNECT_DISCONNECT_NONBLOCK        |                            | SHOULD   |
 | 13  | WIFI_CONNECT_SECURE                     | With security type:        |          |
 |     |                                         | NSAPI_SECURITY_WEP         | SHOULD   |
 |     |                                         | NSAPI_SECURITY_WPA         | SHOULD   |
@@ -271,28 +270,6 @@ Test enviroment is set up as specified in "Test Environment" chapter.
 
 Both `connect()` calls return NSAPI_ERROR_PARAMETER.
 
-### WIFI_CONNECT_PARAMS_VALID_UNSECURE
-
-**Description:**
-
-Test `WiFiInterface::connect(ssid, pass, security)` with valid parameters for the unsecure network.
-
-**Precondition:**
-
-Test enviroment is set up as specified in the "Test Environment" chapter.
-
-**Test steps:**
-
-1.  Initialize the driver.
-2.  Call `WiFiInterface::connect( <ssid:unsecure>, NULL)`.
-3.  `disconnect()`.
-4.  Call `WiFiInterface::connect( <ssid:unsecure>, "")`.
-5.  `disconnect()`.
-
-**Expected result:**
-
-`connect()` calls return NSAPI_ERROR_OK.
-
 ### WIFI_CONNECT_PARAMS_VALID_SECURE
 
 **Description:**
@@ -350,7 +327,7 @@ Test enviroment is set up as specified in the "Test Environment" chapter.
 **Test steps:**
 
 1.  Initialize the driver.
-2.  Call `WiFiInterface::connect( <ssid:secure>, <pw:secure>, NSAPI_SECURITY_WPA2, <ch:unsecure>)`.
+2.  Call `WiFiInterface::connect( <ssid:secure>, <pw:secure>, NSAPI_SECURITY_WPA2, <ch:secure>)`.
 3.  `disconnect()`.
 
 **Expected result:**
@@ -385,7 +362,7 @@ Test `WiFiInterface::connect()` without parameters. Use `set_credentials()` for 
 
 `connect()` calls return `NSAPI_ERROR_OK`.
 
-### WIFI_CONNECT_NONBLOCK
+### WIFI_CONNECT_DISCONNECT_NONBLOCK
 
 **Description:**
 
@@ -398,19 +375,25 @@ Test `WiFiInterface::connect()` and `WiFiInterface::disconnect()` in non-blockin
 **Test steps:**
 
 1.  Initialize the driver.
-2.  `Call WiFiInterface::set_credentials( <ssid:unsecure>, NULL)`.
-3.  `Call WiFiInterface::connect()`.
-4.  `Call WiFiInterface::set_blocking(false)`
-5.  `Call WiFiInterface::get_connection_status()`
-6.  `disconnect()`
-7.  `Call WiFiInterface::get_connection_status()`
-8.  `Call WiFiInterface::set_blocking(true)`
+2.  `Call WiFiInterface::set_credentials( <ssid:secure>, NULL)`.
+3.  `Call WiFiInterface::set_blocking(false)`
+4.  `Call WiFiInterface::connect()`.
+5.  `Cal WiFiInterface::set_credentials(const char *ssid, const char *pass, nsapi_security_t security)`
+6.  `Call WiFiInterface::connect()`.
+7.  `disconnect()`
+8.  `disconnect()`
+9. `Call WiFiInterface::set_blocking(true)`
 
 **Expected result:**
 
- In case of drivers which do not support asynchronous mode `set_blocking(false)` call returns `NSAPI_ERROR_UNSUPPORTED` and skips test case, otherwise:
-`connect()` call returns  `NSAPI_ERROR_OK`. To confirm connection `get_connection_status()` calls return `NSAPI_STATUS_GLOBAL_UP` or `NSAPI_STATUS_LOCAL_UP`.
-`disconnect()` call returns `NSAPI_ERROR_OK`. To confirm disconnection `get_connection_status()` calls return `NSAPI_STATUS_DISCONNECTED`.
+1. Drivers which do not support asynchronous mode `set_blocking(false)` call returns `NSAPI_ERROR_UNSUPPORTED` and skips test case.
+2. `connect()` call returns  `NSAPI_ERROR_OK`. 
+3. `set_credentials(...)` call returns `NSAPI_ERROR_BUSY`. 
+4. Second `connect()` call returns `NSAPI_ERROR_BUSY` or `NSAPI_ERROR_IS_CONNECTED`.
+5. Attached callback informs about connection status. Callback reports status `NSAPI_STATUS_CONNECTING` and `NSAPI_STATUS_CONNECTED`. 
+6. `disconnect()` call returns `NSAPI_ERROR_OK`. 
+7. Second `disconnect()` call returns `NSAPI_ERROR_BUSY` or `NSAPI_ERROR_IS_CONNECTED`. 
+8. To confirm disconnection callback reports `NSAPI_STATUS_DISCONNECTED`.
 
 ### WIFI_CONNECT_SECURE
 
@@ -467,7 +450,7 @@ The test enviroment is set up as specified in the "Test Environment" chapter.
 **Test steps:**
 
 1.  Initialize the driver.
-2.  Call `WiFiInterface::set_credentials( <ssid:unsecure>, NULL)`.
+2.  Call `WiFiInterface::set_credentials( <ssid:secure>, NULL)`.
 3.  Repeat 10 times:
     1.  Call `WiFiInterface::connect()`.
     2.  `disconnect()`.

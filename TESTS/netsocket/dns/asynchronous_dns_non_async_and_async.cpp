@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#if defined(MBED_CONF_RTOS_PRESENT)
+
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
@@ -28,6 +30,9 @@ void ASYNCHRONOUS_DNS_NON_ASYNC_AND_ASYNC()
     rtos::Semaphore semaphore;
     dns_application_data data;
     data.semaphore = &semaphore;
+    data.result = NSAPI_ERROR_TIMEOUT;
+
+    nsapi_dns_reset();
 
     // Initiate
     nsapi_error_t err = get_interface()->gethostbyname_async(dns_test_hosts_second[0],
@@ -37,20 +42,23 @@ void ASYNCHRONOUS_DNS_NON_ASYNC_AND_ASYNC()
     for (unsigned int i = 0; i < MBED_CONF_APP_DNS_TEST_HOSTS_NUM; i++) {
         SocketAddress addr;
         int err = get_interface()->gethostbyname(dns_test_hosts[i], &addr);
-        printf("DNS: query \"%s\" => \"%s\"\n",
-               dns_test_hosts[i], addr.get_ip_address());
+        tr_info("DNS: query \"%s\" => \"%s\"",
+                dns_test_hosts[i], addr.get_ip_address());
 
         TEST_ASSERT_EQUAL(0, err);
         TEST_ASSERT((bool)addr);
         TEST_ASSERT(strlen(addr.get_ip_address()) > 1);
     }
 
-    semaphore.try_acquire_for(100);
+    if (!semaphore.try_acquire_for(1000)) {
+        get_interface()->gethostbyname_async_cancel(err);
+    }
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, data.result);
 
-    printf("DNS: query \"%s\" => \"%s\"\n",
-           dns_test_hosts_second[0], data.addr.get_ip_address());
+    tr_info("DNS: query \"%s\" => \"%s\"",
+            dns_test_hosts_second[0], data.addr.get_ip_address());
 
     TEST_ASSERT(strlen(data.addr.get_ip_address()) > 1);
 }
+#endif // defined(MBED_CONF_RTOS_PRESENT)

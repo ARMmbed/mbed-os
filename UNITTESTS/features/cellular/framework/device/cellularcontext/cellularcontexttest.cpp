@@ -72,6 +72,10 @@ public:
 		return NULL;
 	}
 
+	nsapi_error_t get_ip_address(SocketAddress *address)
+    {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
 	const char *get_ip_address()
 	{
 		return NULL;
@@ -104,10 +108,18 @@ public:
 	virtual void set_credentials(const char *apn, const char *uname = 0, const char *pwd = 0)
 	{
 	}
+	nsapi_error_t get_netmask(SocketAddress *address)
+    {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
 	virtual const char *get_netmask()
 	{
 		return NULL;
 	}
+	nsapi_error_t get_gateway(SocketAddress *address)
+    {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
 	virtual const char *get_gateway()
 	{
 		return NULL;

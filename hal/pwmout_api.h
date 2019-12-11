@@ -35,8 +35,45 @@ typedef struct pwmout_s pwmout_t;
 
 /**
  * \defgroup hal_pwmout Pwmout hal functions
+ *
+ * # Defined behavior
+ * * ::pwmout_init initializes the pwmout_t control structure
+ * * ::pwmout_free deinitializes the pwmout object
+ * * ::pwmout_write sets the output duty-cycle in range <0.0f, 1.0f>
+ * * ::pwmout_read returns the current float-point output duty-cycle in range <0.0f, 1.0f>
+ * * ::pwmout_period sets the PWM period specified in seconds, keeping the duty cycle the same
+ * * ::pwmout_period_ms sets the PWM period specified in miliseconds, keeping the duty cycle the same
+ * * ::pwmout_period_us sets the PWM period specified in microseconds, keeping the duty cycle the same
+ * * ::pwmout_pulsewidth sets the PWM pulsewidth specified in seconds, keeping the period the same
+ * * ::pwmout_pulsewidth_ms sets the PWM pulsewidth specified in miliseconds, keeping the period the same
+ * * ::pwmout_pulsewidth_us sets the PWM pulsewidth specified in microseconds, keeping the period the same
+ * * The accuracy of the PWM is +/- 10%
+ * * The PWM operations ::pwmout_write, ::pwmout_read, ::pwmout_read, ::pwmout_period_ms, ::pwmout_period_us
+ *   ::pwmout_pulsewidth, ::pwmout_pulsewidth_ms, ::pwmout_pulsewidth_us take less than 20us to complete
+ *
+ * # Undefined behavior
+ * * Calling other function before ::pwmout_init
+ * * Calling ::pwmout_init with NC as pwmout pin
+ *
  * @{
  */
+
+/**
+ * \defgroup hal_pwmout_tests GPIO IRQ HAL tests
+ * The Pwmout HAL tests ensure driver conformance to defined behaviour.
+ *
+ * To run the Pwmout hal tests use the command:
+ *
+ *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal_fpga_ci_test_shield-pwm
+ *
+ */
+
+/** Initialize the pwm out peripheral and configure the pin
+ *
+ * @param obj The pwmout object to initialize
+ * @param pinmap pointer to structure which holds static pinmap
+ */
+void pwmout_init_direct(pwmout_t *obj, const PinMap *pinmap);
 
 /** Initialize the pwm out peripheral and configure the pin
  *

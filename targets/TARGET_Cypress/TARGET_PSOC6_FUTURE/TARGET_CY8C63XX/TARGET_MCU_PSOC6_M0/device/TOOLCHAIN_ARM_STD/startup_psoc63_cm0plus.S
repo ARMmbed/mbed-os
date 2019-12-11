@@ -27,8 +27,6 @@
 ;//-------- <<< Use Configuration Wizard in Context Menu >>> ------------------
 ;*/
 
-__initial_sp    EQU     0x08010000
-
                 PRESERVE8
                 THUMB
 
@@ -39,8 +37,9 @@ __initial_sp    EQU     0x08010000
                 EXPORT  __Vectors
                 EXPORT  __Vectors_End
                 EXPORT  __Vectors_Size
+                IMPORT  |Image$$ARM_LIB_STACK$$ZI$$Limit|
 
-__Vectors       DCD     __initial_sp              ; Top of Stack
+__Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit| ; Top of Stack
                 DCD     Reset_Handler             ; Reset Handler
 
                 DCD     0x0000000D                ; NMI Handler located at ROM code

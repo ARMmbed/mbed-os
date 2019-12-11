@@ -15,6 +15,9 @@
  * limitations under the License.
  */
 
+#if !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] tls test cases require a RTOS to run
+#else
 #define WIFI 2
 #if !defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE) || \
     (MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == WIFI && !defined(MBED_CONF_NSAPI_DEFAULT_WIFI_SSID))
@@ -27,6 +30,9 @@
 #include "utest.h"
 #include "utest/utest_stack_trace.h"
 #include "tls_tests.h"
+#include "cert.h"
+#include "CellularDevice.h"
+#include "ip6string.h"
 
 #ifndef ECHO_SERVER_ADDR
 #error [NOT_SUPPORTED] Requires parameters for echo server
@@ -47,35 +53,6 @@ mbed_stats_socket_t tls_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT];
 char tls_global::rx_buffer[RX_BUFF_SIZE];
 char tls_global::tx_buffer[TX_BUFF_SIZE];
 
-const char *tls_global::cert = \
-                               "-----BEGIN CERTIFICATE-----\n"
-                               "MIIEkjCCA3qgAwIBAgIQCgFBQgAAAVOFc2oLheynCDANBgkqhkiG9w0BAQsFADA/\n"
-                               "MSQwIgYDVQQKExtEaWdpdGFsIFNpZ25hdHVyZSBUcnVzdCBDby4xFzAVBgNVBAMT\n"
-                               "DkRTVCBSb290IENBIFgzMB4XDTE2MDMxNzE2NDA0NloXDTIxMDMxNzE2NDA0Nlow\n"
-                               "SjELMAkGA1UEBhMCVVMxFjAUBgNVBAoTDUxldCdzIEVuY3J5cHQxIzAhBgNVBAMT\n"
-                               "GkxldCdzIEVuY3J5cHQgQXV0aG9yaXR5IFgzMIIBIjANBgkqhkiG9w0BAQEFAAOC\n"
-                               "AQ8AMIIBCgKCAQEAnNMM8FrlLke3cl03g7NoYzDq1zUmGSXhvb418XCSL7e4S0EF\n"
-                               "q6meNQhY7LEqxGiHC6PjdeTm86dicbp5gWAf15Gan/PQeGdxyGkOlZHP/uaZ6WA8\n"
-                               "SMx+yk13EiSdRxta67nsHjcAHJyse6cF6s5K671B5TaYucv9bTyWaN8jKkKQDIZ0\n"
-                               "Z8h/pZq4UmEUEz9l6YKHy9v6Dlb2honzhT+Xhq+w3Brvaw2VFn3EK6BlspkENnWA\n"
-                               "a6xK8xuQSXgvopZPKiAlKQTGdMDQMc2PMTiVFrqoM7hD8bEfwzB/onkxEz0tNvjj\n"
-                               "/PIzark5McWvxI0NHWQWM6r6hCm21AvA2H3DkwIDAQABo4IBfTCCAXkwEgYDVR0T\n"
-                               "AQH/BAgwBgEB/wIBADAOBgNVHQ8BAf8EBAMCAYYwfwYIKwYBBQUHAQEEczBxMDIG\n"
-                               "CCsGAQUFBzABhiZodHRwOi8vaXNyZy50cnVzdGlkLm9jc3AuaWRlbnRydXN0LmNv\n"
-                               "bTA7BggrBgEFBQcwAoYvaHR0cDovL2FwcHMuaWRlbnRydXN0LmNvbS9yb290cy9k\n"
-                               "c3Ryb290Y2F4My5wN2MwHwYDVR0jBBgwFoAUxKexpHsscfrb4UuQdf/EFWCFiRAw\n"
-                               "VAYDVR0gBE0wSzAIBgZngQwBAgEwPwYLKwYBBAGC3xMBAQEwMDAuBggrBgEFBQcC\n"
-                               "ARYiaHR0cDovL2Nwcy5yb290LXgxLmxldHNlbmNyeXB0Lm9yZzA8BgNVHR8ENTAz\n"
-                               "MDGgL6AthitodHRwOi8vY3JsLmlkZW50cnVzdC5jb20vRFNUUk9PVENBWDNDUkwu\n"
-                               "Y3JsMB0GA1UdDgQWBBSoSmpjBH3duubRObemRWXv86jsoTANBgkqhkiG9w0BAQsF\n"
-                               "AAOCAQEA3TPXEfNjWDjdGBX7CVW+dla5cEilaUcne8IkCJLxWh9KEik3JHRRHGJo\n"
-                               "uM2VcGfl96S8TihRzZvoroed6ti6WqEBmtzw3Wodatg+VyOeph4EYpr/1wXKtx8/\n"
-                               "wApIvJSwtmVi4MFU5aMqrSDE6ea73Mj2tcMyo5jMd6jmeWUHK8so/joWUoHOUgwu\n"
-                               "X4Po1QYz+3dszkDqMp4fklxBwXRsW10KXzPMTZ+sOPAveyxindmjkW8lGy+QsRlG\n"
-                               "PfZ+G6Z6h7mjem0Y+iWlkYcV4PIWL1iwBi8saCbGS5jN2p8M+X+Q7UNKEkROb3N6\n"
-                               "KOqkqm57TH2H3eDJAkSnh6/DNFu0Qg==\n"
-                               "-----END CERTIFICATE-----\n";
-
 void drop_bad_packets(TLSSocket &sock, int orig_timeout)
 {
     nsapi_error_t err;
@@ -94,13 +71,23 @@ static void _ifup()
     NetworkInterface *net = NetworkInterface::get_default_instance();
     nsapi_error_t err = net->connect();
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
-    printf("MBED: TLSClient IP address is '%s'\n", net->get_ip_address() ? net->get_ip_address() : "null");
+    SocketAddress address;
+    net->get_ip_address(&address);
+
+#define MESH 3
+#if MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == MESH
+    printf("Waiting for GLOBAL_UP\n");
+    while (net->get_connection_status() != NSAPI_STATUS_GLOBAL_UP) {
+        ThisThread::sleep_for(500);
+    }
+#endif
+    printf("MBED: TLSClient address is '%s'\n", address ? address.get_ip_address() : "null");
 }
 
 static void _ifdown()
 {
     NetworkInterface::get_default_instance()->disconnect();
-    printf("MBED: ifdown\n");
+    tr_info("MBED: ifdown\n");
 }
 
 nsapi_error_t tlssocket_connect_to_srv(TLSSocket &sock, uint16_t port)
@@ -110,23 +97,23 @@ nsapi_error_t tlssocket_connect_to_srv(TLSSocket &sock, uint16_t port)
     NetworkInterface::get_default_instance()->gethostbyname(ECHO_SERVER_ADDR, &tls_addr);
     tls_addr.set_port(port);
 
-    printf("MBED: Server '%s', port %d\n", tls_addr.get_ip_address(), tls_addr.get_port());
+    tr_info("MBED: Server '%s', port %d\n", tls_addr.get_ip_address(), tls_addr.get_port());
 
-    nsapi_error_t err = sock.set_root_ca_cert(tls_global::cert);
+    nsapi_error_t err = sock.open(NetworkInterface::get_default_instance());
     if (err != NSAPI_ERROR_OK) {
-        printf("Error from sock.set_root_ca_cert: %d\n", err);
+        tr_error("Error from sock.open: %d\n", err);
         return err;
     }
 
-    err = sock.open(NetworkInterface::get_default_instance());
+    err = sock.set_root_ca_cert(tls_global::cert);
     if (err != NSAPI_ERROR_OK) {
-        printf("Error from sock.open: %d\n", err);
+        tr_error("Error from sock.set_root_ca_cert: %d\n", err);
         return err;
     }
 
     err = sock.connect(tls_addr);
     if (err != NSAPI_ERROR_OK) {
-        printf("Error from sock.connect: %d\n", err);
+        tr_error("Error from sock.connect: %d\n", err);
         return err;
     }
 
@@ -178,6 +165,11 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(tls_global::TESTS_TIMEOUT, "default_auto");
     _ifup();
+
+#ifdef MBED_CONF_APP_BAUD_RATE
+    CellularDevice::get_default_instance()->set_baud_rate(MBED_CONF_APP_BAUD_RATE);
+#endif
+
     tc_bucket.start();
     return greentea_test_setup_handler(number_of_cases);
 }
@@ -279,3 +271,4 @@ int main()
 
 #endif // ECHO_SERVER_ADDR
 #endif // !defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE) || (MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == WIFI && !defined(MBED_CONF_NSAPI_DEFAULT_WIFI_SSID))
+#endif // !defined(MBED_CONF_RTOS_PRESENT)

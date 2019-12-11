@@ -62,7 +62,7 @@ void TLSSOCKET_ECHOTEST()
     SKIP_IF_TCP_UNSUPPORTED();
     sock = new TLSSocket;
     if (tlssocket_connect_to_echo_srv(*sock) != NSAPI_ERROR_OK) {
-        printf("Error from tlssocket_connect_to_echo_srv\n");
+        tr_error("Error from tlssocket_connect_to_echo_srv\n");
         TEST_FAIL();
         delete sock;
         return;
@@ -70,17 +70,17 @@ void TLSSOCKET_ECHOTEST()
 
     int recvd;
     int sent;
-    for (int s_idx = 0; s_idx < sizeof(pkt_sizes) / sizeof(*pkt_sizes); s_idx++) {
+    for (unsigned int s_idx = 0; s_idx < sizeof(pkt_sizes) / sizeof(*pkt_sizes); s_idx++) {
         int pkt_s = pkt_sizes[s_idx];
         fill_tx_buffer_ascii(tls_global::tx_buffer, BUFF_SIZE);
 
         sent = sock->send(tls_global::tx_buffer, pkt_s);
         if (sent < 0) {
-            printf("[Round#%02d] network error %d\n", s_idx, sent);
+            tr_error("[Round#%02d] network error %d\n", s_idx, sent);
             TEST_FAIL();
             break;
         } else if (sent != pkt_s) {
-            printf("[%02d] sock.send return size %d does not match the expectation %d\n", s_idx, sent, pkt_s);
+            tr_error("[%02d] sock.send return size %d does not match the expectation %d\n", s_idx, sent, pkt_s);
             TEST_FAIL();
             break;
         }
@@ -89,7 +89,7 @@ void TLSSOCKET_ECHOTEST()
         while (bytes2recv) {
             recvd = sock->recv(&(tls_global::rx_buffer[sent - bytes2recv]), bytes2recv);
             if (recvd < 0) {
-                printf("[Round#%02d] network error %d\n", s_idx, recvd);
+                tr_error("[Round#%02d] network error %d\n", s_idx, recvd);
                 TEST_FAIL();
                 TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->close());
                 return;
@@ -115,7 +115,7 @@ void tlssocket_echotest_nonblock_receive()
             }
             return;
         } else if (recvd < 0) {
-            printf("sock.recv returned an error %d", recvd);
+            tr_error("sock.recv returned an error %d", recvd);
             TEST_FAIL();
             receive_error = true;
         } else {
@@ -176,7 +176,7 @@ void TLSSOCKET_ECHOTEST_NONBLOCK()
                 }
                 continue;
             } else if (sent <= 0) {
-                printf("[Sender#%02d] network error %d\n", s_idx, sent);
+                tr_error("[Sender#%02d] network error %d\n", s_idx, sent);
                 TEST_FAIL();
                 goto END;
             }

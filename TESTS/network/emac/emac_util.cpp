@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if defined(MBED_CONF_RTOS_PRESENT)
 
 #include "mbed.h"
 #include "greentea-client/test_env.h"
@@ -91,7 +92,7 @@ static rtos::Semaphore link_status_semaphore;
 #if defined (__ICCARM__)
 #pragma location = ".ethusbram"
 #endif
-ETHMEM_SECTION static EventQueue worker_loop_event_queue(20 * EVENTS_EVENT_SIZE);
+ETHMEM_SECTION static EventQueue worker_loop_event_queue(50 * EVENTS_EVENT_SIZE);
 
 static void worker_loop_event_cb(int event);
 static Event<void(int)> worker_loop_event(&worker_loop_event_queue, worker_loop_event_cb);
@@ -433,7 +434,11 @@ void emac_if_link_state_change_cb(bool up)
 
 void emac_if_link_input_cb(void *buf)
 {
-    link_input_event.post(buf);
+    if (link_input_event.post(buf) == 0) {
+        if (buf) {
+            emac_m_mngr_get()->free(buf);
+        }
+    }
 }
 
 static void link_input_event_cb(void *buf)
@@ -582,3 +587,4 @@ void emac_if_set_mtu_size(int mtu_size)
 {
     eth_mtu_size = mtu_size;
 }
+#endif // defined(MBED_CONF_RTOS_PRESENT)

@@ -17,6 +17,9 @@
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+
+#include "OnboardNetworkStack_mock.h"
+
 #include "features/netsocket/EthernetInterface.h"
 #include <iostream>
 
@@ -50,58 +53,9 @@ MBED_WEAK EMAC &EMAC::get_default_instance()
     return MockEMAC::get_instance();
 }
 
-class EmacNetworkStackMock : public OnboardNetworkStack {
-public:
-    MOCK_METHOD3(gethostbyname, nsapi_error_t(const char *host, SocketAddress *address, nsapi_version_t version));
-    MOCK_METHOD1(add_dns_server, nsapi_error_t(const SocketAddress &address));
-    MOCK_METHOD2(call_in, nsapi_error_t(int delay, mbed::Callback<void()> func));
-    MOCK_METHOD2(socket_open, nsapi_error_t(nsapi_socket_t *handle, nsapi_protocol_t proto));
-    MOCK_METHOD1(socket_close, nsapi_error_t(nsapi_socket_t handle));
-    MOCK_METHOD2(socket_bind, nsapi_error_t(nsapi_socket_t handle, const SocketAddress &address));
-    MOCK_METHOD2(socket_listen, nsapi_error_t(nsapi_socket_t handle, int backlog));
-    MOCK_METHOD2(socket_connect, nsapi_error_t(nsapi_socket_t handle, const SocketAddress &address));
-    MOCK_METHOD3(socket_accept, nsapi_error_t(nsapi_socket_t server, nsapi_socket_t *handle, SocketAddress *address));
-    MOCK_METHOD3(socket_send, nsapi_error_t(nsapi_socket_t handle, const void *data, nsapi_size_t size));
-    MOCK_METHOD3(socket_recv, nsapi_error_t(nsapi_socket_t handle, void *data, nsapi_size_t size));
-    MOCK_METHOD4(socket_sendto, nsapi_error_t(nsapi_socket_t handle, const SocketAddress &address, const void *data, nsapi_size_t size));
-    MOCK_METHOD4(socket_recvfrom, nsapi_error_t(nsapi_socket_t handle, SocketAddress *address, void *data, nsapi_size_t size));
-    MOCK_METHOD5(setsockopt, nsapi_error_t(nsapi_socket_t handle, int level, int optname, const void *optval, unsigned optlen));
-    MOCK_METHOD5(getsockopt, nsapi_error_t(nsapi_socket_t handle, int level, int optname, const void *optval, unsigned *optlen));
-    MOCK_METHOD3(socket_attach, void(nsapi_socket_t handle, void (*callback)(void *), void *data));
-    MOCK_METHOD3(add_ethernet_interface, nsapi_error_t(EMAC &emac, bool default_if, OnboardNetworkStack::Interface **interface_out));
-
-    static EmacNetworkStackMock &get_instance()
-    {
-        static EmacNetworkStackMock stackMock1;
-        return stackMock1;
-    }
-
-    class InterfaceMock : public OnboardNetworkStack::Interface {
-    public:
-
-        static InterfaceMock &get_instance()
-        {
-            static InterfaceMock test_interface;
-            return test_interface;
-        }
-        MOCK_METHOD6(bringup, nsapi_error_t(bool dhcp, const char *ip,
-                                            const char *netmask, const char *gw,
-                                            nsapi_ip_stack_t stack,
-                                            bool blocking
-                                           ));
-        MOCK_METHOD0(bringdown, nsapi_error_t());
-        MOCK_METHOD1(attach, void(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb));
-        MOCK_CONST_METHOD0(get_connection_status, nsapi_connection_status_t());
-        MOCK_METHOD2(get_mac_address, char *(char *buf, nsapi_size_t buflen));
-        MOCK_METHOD2(get_ip_address, char *(char *buf, nsapi_size_t buflen));
-        MOCK_METHOD2(get_netmask, char *(char *buf, nsapi_size_t buflen));
-        MOCK_METHOD2(get_gateway, char *(char *buf, nsapi_size_t buflen));
-    };
-};
-
 OnboardNetworkStack &OnboardNetworkStack::get_default_instance()
 {
-    return EmacNetworkStackMock::get_instance();
+    return OnboardNetworkStackMock::get_instance();
 }
 
 // Implementaion in in NetworkInterfaceDefaults.cpp
@@ -122,15 +76,15 @@ using ::testing::SetArgReferee;
 class TestEthernetInterface: public testing::Test {
 protected:
     EthernetInterface *iface;
-    EmacNetworkStackMock *stackMock;
+    OnboardNetworkStackMock *stackMock;
     MockEMAC *emacMock;
-    EmacNetworkStackMock::InterfaceMock *netStackIface;
+    OnboardNetworkStackMock::InterfaceMock *netStackIface;
     virtual void SetUp()
     {
-        stackMock = &EmacNetworkStackMock::get_instance();
+        stackMock = &OnboardNetworkStackMock::get_instance();
         emacMock = &MockEMAC::get_instance();
-        netStackIface = &EmacNetworkStackMock::InterfaceMock::get_instance();
-        iface = new EthernetInterface(MockEMAC::get_instance(), EmacNetworkStackMock::get_instance());
+        netStackIface = &OnboardNetworkStackMock::InterfaceMock::get_instance();
+        iface = new EthernetInterface(MockEMAC::get_instance(), OnboardNetworkStackMock::get_instance());
     }
 
     virtual void TearDown()
@@ -163,6 +117,14 @@ protected:
 TEST_F(TestEthernetInterface, constructor_default)
 {
     EXPECT_TRUE(iface);
+
+    // Test that this clas presents itself correctly
+    EXPECT_NE(nullptr, iface->ethInterface());
+    EXPECT_NE(nullptr, iface->emacInterface());
+
+    EXPECT_EQ(nullptr, iface->wifiInterface());
+    EXPECT_EQ(nullptr, iface->cellularInterface());
+    EXPECT_EQ(nullptr, iface->meshInterface());
 }
 
 TEST_F(TestEthernetInterface, constructor_getter)
@@ -202,17 +164,21 @@ TEST_F(TestEthernetInterface, disconnect)
 
 TEST_F(TestEthernetInterface, set_network)
 {
-    char ipAddress[NSAPI_IPv4_SIZE] = "127.0.0.1";
-    char netmask[NSAPI_IPv4_SIZE] = "255.255.0.0";
-    char gateway[NSAPI_IPv4_SIZE] = "127.0.0.2";
+    SocketAddress ipAddress("127.0.0.1");
+    SocketAddress netmask("255.255.0.0");
+    SocketAddress gateway("127.0.0.2");
 
-    const char *ipAddressArg;
-    const char *netmaskArg;
-    const char *gatewayArg;
+    SocketAddress ipAddressArg;
+    SocketAddress netmaskArg;
+    SocketAddress gatewayArg;
 
-    EXPECT_EQ(0, iface->get_ip_address());
-    EXPECT_EQ(0, iface->get_netmask());
-    EXPECT_EQ(0, iface->get_gateway());
+    // Before connecting return NULL
+    EXPECT_EQ(NULL, iface->get_mac_address());
+
+    SocketAddress tmp;
+    EXPECT_EQ(NSAPI_ERROR_NO_CONNECTION, iface->get_ip_address(&tmp));
+    EXPECT_EQ(NSAPI_ERROR_NO_CONNECTION, iface->get_netmask(&tmp));
+    EXPECT_EQ(NSAPI_ERROR_NO_CONNECTION, iface->get_gateway(&tmp));
 
     // Set the network data
     EXPECT_EQ(NSAPI_ERROR_OK, iface->set_network(ipAddress, netmask, gateway));
@@ -233,25 +199,25 @@ TEST_F(TestEthernetInterface, set_network)
                     Return(NSAPI_ERROR_OK)));
     EXPECT_EQ(NSAPI_ERROR_OK, iface->connect());
     // Check the contents of the stored pointer arguments.
-    EXPECT_TRUE(0 == strcmp(ipAddress, ipAddressArg));
-    EXPECT_TRUE(0 == strcmp(netmask, netmaskArg));
-    EXPECT_TRUE(0 == strcmp(gateway, gatewayArg));
+    EXPECT_EQ(ipAddress, ipAddressArg);
+    EXPECT_EQ(netmask, netmaskArg);
+    EXPECT_EQ(gateway, gatewayArg);
 
     // Testing the getters makes sense now.
-    EXPECT_CALL(*netStackIface, get_ip_address(_, _))
+    EXPECT_CALL(*netStackIface, get_ip_address(_))
     .Times(1)
-    .WillOnce(DoAll(SetArgPointee<0>(*ipAddress), Return(ipAddress)));
-    EXPECT_EQ(std::string(ipAddress), std::string(iface->get_ip_address()));
+    .WillOnce(DoAll(SetArgPointee<0>(ipAddress), Return(NSAPI_ERROR_OK)));
+    EXPECT_EQ(NSAPI_ERROR_OK, iface->get_ip_address(&ipAddressArg));
 
-    EXPECT_CALL(*netStackIface, get_netmask(_, _))
+    EXPECT_CALL(*netStackIface, get_netmask(_))
     .Times(1)
-    .WillOnce(DoAll(SetArgPointee<0>(*netmask), Return(netmask)));
-    EXPECT_EQ(std::string(netmask), std::string(iface->get_netmask()));
+    .WillOnce(DoAll(SetArgPointee<0>(netmask), Return(NSAPI_ERROR_OK)));
+    EXPECT_EQ(NSAPI_ERROR_OK, iface->get_netmask(&netmaskArg));
 
-    EXPECT_CALL(*netStackIface, get_gateway(_, _))
+    EXPECT_CALL(*netStackIface, get_gateway(_))
     .Times(1)
-    .WillOnce(DoAll(SetArgPointee<0>(*gateway), Return(gateway)));
-    EXPECT_EQ(std::string(gateway), std::string(iface->get_gateway()));
+    .WillOnce(DoAll(SetArgPointee<0>(gateway), Return(NSAPI_ERROR_OK)));
+    EXPECT_EQ(NSAPI_ERROR_OK, iface->get_gateway(&gatewayArg));
 }
 
 TEST_F(TestEthernetInterface, get_connection_status)
@@ -273,6 +239,45 @@ TEST_F(TestEthernetInterface, attach)
     .Times(1);
     iface->attach(cb);
 }
+
+
+TEST_F(TestEthernetInterface, get_interface_name)
+{
+    char name[100] = "eth0";
+    EXPECT_EQ(NULL, iface->get_interface_name(name));
+
+    doConnect();
+
+    // The parameter will be an internal variable.
+    EXPECT_CALL(*netStackIface, get_interface_name(_))
+    .Times(1)
+    .WillOnce(Return(name));
+    EXPECT_EQ(std::string(name), std::string(iface->get_interface_name(name)));
+}
+
+TEST_F(TestEthernetInterface, get_ipv6_link_local_address)
+{
+    SocketAddress addr("4.3.2.1");
+    EXPECT_EQ(NSAPI_ERROR_NO_CONNECTION, iface->get_ipv6_link_local_address(&addr));
+    EXPECT_EQ(std::string(addr.get_ip_address()), std::string("4.3.2.1"));
+    doConnect();
+
+    // The parameter will be an internal variable.
+    EXPECT_CALL(*netStackIface, get_ipv6_link_local_address(&addr))
+    .Times(1)
+    .WillOnce(Return(NSAPI_ERROR_OK));
+    EXPECT_EQ(NSAPI_ERROR_OK, iface->get_ipv6_link_local_address(&addr));
+}
+
+TEST_F(TestEthernetInterface, set_as_default)
+{
+    doConnect();
+
+    EXPECT_CALL(*stackMock, set_default_interface(netStackIface))
+    .Times(1);
+    iface->set_as_default();
+}
+
 
 TEST_F(TestEthernetInterface, set_dhcp)
 {

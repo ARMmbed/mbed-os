@@ -61,6 +61,13 @@ public:
      */
     PwmOut(PinName pin);
 
+    /** Create a PwmOut connected to the specified pin
+     *
+     *  @param pinmap reference to structure which holds static pinmap.
+     */
+    PwmOut(const PinMap &pinmap);
+    PwmOut(const PinMap &&) = delete; // prevent passing of temporary objects
+
     ~PwmOut();
 
     /** Set the output duty-cycle, specified as a percentage (float)
@@ -118,6 +125,24 @@ public:
      */
     void pulsewidth_us(int us);
 
+    /** Suspend PWM operation
+     *
+     * Control the PWM state. This is primarily intended
+     * for temporary power-saving; This call can
+     * allow pwm to be temporarily disabled to permit power saving without
+     * losing device state. The subsequent function call must be PwmOut::resume
+     * for PWM to resume; any other calls prior to resuming are undefined behavior.
+     */
+    void suspend();
+
+    /** Resume PWM operation
+     *
+     * Control the PWM state. This is primarily intended
+     * to resume PWM operations after a previous PwmOut::suspend call;
+     * This call restores the device state prior to suspension.
+     */
+    void resume();
+
     /** A operator shorthand for write()
      *  \sa PwmOut::write()
      */
@@ -155,8 +180,17 @@ protected:
     /** Unlock deep sleep in case it is locked */
     void unlock_deep_sleep();
 
+    /** Initialize this instance */
+    void init();
+
+    /** Power down this instance */
+    void deinit();
+
     pwmout_t _pwm;
+    PinName _pin;
     bool _deep_sleep_locked;
+    bool _initialized;
+    float _duty_cycle;
 #endif
 };
 

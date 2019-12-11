@@ -32,19 +32,39 @@ const char *NetworkInterface::get_mac_address()
     return 0;
 }
 
+nsapi_error_t NetworkInterface::get_ip_address(SocketAddress *)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
 const char *NetworkInterface::get_ip_address()
 {
-    return 0;
+    return nullptr;
+}
+
+nsapi_error_t NetworkInterface::get_ipv6_link_local_address(SocketAddress *address)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+nsapi_error_t NetworkInterface::get_netmask(SocketAddress *)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
 }
 
 const char *NetworkInterface::get_netmask()
 {
-    return 0;
+    return nullptr;
+}
+
+nsapi_error_t NetworkInterface::get_gateway(SocketAddress *)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
 }
 
 const char *NetworkInterface::get_gateway()
 {
-    return 0;
+    return nullptr;
 }
 
 char *NetworkInterface::get_interface_name(char *interface_name)
@@ -53,6 +73,11 @@ char *NetworkInterface::get_interface_name(char *interface_name)
 }
 
 nsapi_error_t NetworkInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+nsapi_error_t NetworkInterface::set_network(const SocketAddress &ip_address, const SocketAddress &netmask, const SocketAddress &gateway)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
@@ -144,6 +169,7 @@ NetworkInterface::~NetworkInterface()
     ns_list_foreach_safe(iface_eventlist_entry_t, entry, event_list) {
         if (entry->iface == this) {
             ns_list_remove(event_list, entry);
+            delete entry;
         }
     }
 }

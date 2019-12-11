@@ -39,7 +39,7 @@ static uint8_t read_buff[TEST_BUFF_SIZE];
 static uint8_t write_buff[TEST_BUFF_SIZE] = {0x99, 0x01, 0x02, 0x03, 0x04, 0x23, 0xF6, 0x07, 0x08, \
                                   0x0D, 0x70, 0xA1, 0xFF, 0xFF, 0x14, 0x73, 0x46, 0x97, 0xE8, 0xDD};
 
-int32_t psa_sst_invalid_offset_failure(security_t caller)
+int32_t psa_sst_invalid_offset_failure(caller_security_t caller)
 {
     uint32_t status, j;
 
@@ -80,7 +80,7 @@ int32_t psa_sst_invalid_offset_failure(security_t caller)
     return VAL_STATUS_SUCCESS;
 }
 
-int32_t psa_sst_valid_offset_success(security_t caller)
+int32_t psa_sst_valid_offset_success(caller_security_t caller)
 {
     uint32_t status, data_len, offset = TEST_BUFF_SIZE;
 

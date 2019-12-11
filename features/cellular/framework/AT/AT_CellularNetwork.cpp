@@ -20,6 +20,7 @@
 #include "CellularUtil.h"
 #include "CellularLog.h"
 #include "CellularCommon.h"
+#include "AT_CellularDevice.h"
 
 using namespace std;
 using namespace mbed_cellular_util;
@@ -70,22 +71,22 @@ static const char *const rat_str[AT_CellularNetwork::RAT_MAX] = {
 #endif
 
 
-AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(atHandler),
+AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler, AT_CellularDevice &device) :
     _connection_status_cb(NULL), _ciotopt_network_support_cb(NULL), _op_act(RAT_UNKNOWN),
-    _connect_status(NSAPI_STATUS_DISCONNECTED), _supported_network_opt(CIOT_OPT_MAX)
+    _connect_status(NSAPI_STATUS_DISCONNECTED), _supported_network_opt(CIOT_OPT_MAX),
+    _at(atHandler), _device(device)
 {
-
     _urc_funcs[C_EREG] = callback(this, &AT_CellularNetwork::urc_cereg);
     _urc_funcs[C_GREG] = callback(this, &AT_CellularNetwork::urc_cgreg);
     _urc_funcs[C_REG] = callback(this, &AT_CellularNetwork::urc_creg);
 
     for (int type = 0; type < CellularNetwork::C_MAX; type++) {
-        if (get_property((AT_CellularBase::CellularProperty)type) != RegistrationModeDisable) {
+        if (_device.get_property((AT_CellularDevice::CellularProperty)type) != RegistrationModeDisable) {
             _at.set_urc_handler(at_reg[type].urc_prefix, _urc_funcs[type]);
         }
     }
 
-    if (get_property(AT_CellularBase::PROPERTY_AT_CGEREP)) {
+    if (_device.get_property(AT_CellularDevice::PROPERTY_AT_CGEREP)) {
         // additional urc to get better disconnect info for application. Not critical.
         _at.set_urc_handler("+CGEV: NW DET", callback(this, &AT_CellularNetwork::urc_cgev));
         _at.set_urc_handler("+CGEV: ME DET", callback(this, &AT_CellularNetwork::urc_cgev));
@@ -99,12 +100,12 @@ AT_CellularNetwork::~AT_CellularNetwork()
 {
     (void)set_packet_domain_event_reporting(false);
     for (int type = 0; type < CellularNetwork::C_MAX; type++) {
-        if (get_property((AT_CellularBase::CellularProperty)type) != RegistrationModeDisable) {
+        if (_device.get_property((AT_CellularDevice::CellularProperty)type) != RegistrationModeDisable) {
             _at.set_urc_handler(at_reg[type].urc_prefix, 0);
         }
     }
 
-    if (get_property(AT_CellularBase::PROPERTY_AT_CGEREP)) {
+    if (_device.get_property(AT_CellularDevice::PROPERTY_AT_CGEREP)) {
         _at.set_urc_handler("+CGEV: ME DET", 0);
         _at.set_urc_handler("+CGEV: NW DET", 0);
     }
@@ -185,7 +186,7 @@ nsapi_error_t AT_CellularNetwork::set_registration_urc(RegistrationType type, bo
     int index = (int)type;
     MBED_ASSERT(index >= 0 && index < C_MAX);
 
-    RegistrationMode mode = (RegistrationMode)get_property((AT_CellularBase::CellularProperty)type);
+    RegistrationMode mode = (RegistrationMode)_device.get_property((AT_CellularDevice::CellularProperty)type);
     if (mode == RegistrationModeDisable) {
         return NSAPI_ERROR_UNSUPPORTED;
     } else {
@@ -544,7 +545,7 @@ nsapi_error_t AT_CellularNetwork::get_registration_params(RegistrationType type,
     int i = (int)type;
     MBED_ASSERT(i >= 0 && i < C_MAX);
 
-    if (!get_property((AT_CellularBase::CellularProperty)at_reg[i].type)) {
+    if (!_device.get_property((AT_CellularDevice::CellularProperty)at_reg[i].type)) {
         return NSAPI_ERROR_UNSUPPORTED;
     }
 
@@ -625,9 +626,80 @@ nsapi_error_t AT_CellularNetwork::set_receive_period(int mode, EDRXAccessTechnol
 
 nsapi_error_t AT_CellularNetwork::set_packet_domain_event_reporting(bool on)
 {
-    if (!get_property(AT_CellularBase::PROPERTY_AT_CGEREP)) {
+    if (!_device.get_property(AT_CellularDevice::PROPERTY_AT_CGEREP)) {
         return NSAPI_ERROR_UNSUPPORTED;
     }
 
     return _at.at_cmd_discard("+CGEREP", "=", "%d", on ? 1 : 0);
+}
+
+nsapi_error_t AT_CellularNetwork::clear()
+{
+    tr_info("AT_CellularNetwork::clear");
+
+    _at.lock();
+    _at.cmd_start_stop("+CGDCONT", "?");
+    _at.resp_start("+CGDCONT:");
+
+    struct context_s {
+        int id;
+        context_s *next;
+    };
+    CellularList<context_s> contexts;
+    while (_at.info_resp()) {
+        int cid = _at.read_int();
+        // clear all but the default context
+        if (cid <= 0) {
+            continue;
+        } else if (cid == 1) {
+#ifndef MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN
+            continue;
+#else
+            char pdp_type_from_context[10];
+            int pdp_type_len = _at.read_string(pdp_type_from_context, sizeof(pdp_type_from_context));
+            if (pdp_type_len > 0) {
+                char apn[MAX_ACCESSPOINT_NAME_LENGTH];
+                int apn_len = _at.read_string(apn, sizeof(apn));
+                if (apn_len >= 0) {
+                    if (strcmp(apn, MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN) == 0) {
+                        continue;
+                    }
+                }
+            }
+#endif
+        }
+        contexts.add_new()->id = cid;
+    }
+    _at.resp_stop();
+
+    if (contexts.get_head()) {
+        // try to detach from network before deleting contexts
+        (void)detach();
+        context_s *context = contexts.get_head();
+        while (context) {
+            if (_at.at_cmd_discard("+CGDCONT", "=", "%d", context->id) != NSAPI_ERROR_OK) {
+                tr_warn("Clear context %d failed", context->id);
+            }
+            context = context->next;
+        }
+#ifdef MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN
+        char pdp_type_str[sizeof("IPV4V6")];
+        if (_device.get_property(AT_CellularDevice::PROPERTY_IPV4V6_PDP_TYPE) ||
+                (_device.get_property(AT_CellularDevice::PROPERTY_IPV4_PDP_TYPE) && _device.get_property(AT_CellularDevice::PROPERTY_IPV6_PDP_TYPE))) {
+            strcpy(pdp_type_str, "IPV4V6");
+        } else if (_device.get_property(AT_CellularDevice::PROPERTY_IPV6_PDP_TYPE)) {
+            strcpy(pdp_type_str, "IPV6");
+        } else {
+            strcpy(pdp_type_str, "IP");
+        }
+        _at.at_cmd_discard("+CGDCONT", "=", "%d%s%s", 1, pdp_type_str, MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN);
+#endif
+    }
+
+    return _at.unlock_return_error();
+}
+
+ATHandler &AT_CellularNetwork::get_at_handler()
+{
+    return _at;
 }

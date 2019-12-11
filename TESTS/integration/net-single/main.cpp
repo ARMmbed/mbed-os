@@ -21,17 +21,17 @@
  * Based on mbed-stress-test by Marcus Chang @ Arm Mbed - http://github.com/ARMmbed/mbed-stress-test
 */
 
+#if !INTEGRATION_TESTS
+#error [NOT_SUPPORTED] integration tests not enabled for this target
+#else
+
 #include "mbed.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
-#include "common_defines_test.h"
+#include "common_defines_net_test.h"
 #include "download_test.h"
 #include <string>
-
-#if !INTEGRATION_TESTS
-#error [NOT_SUPPORTED] integration tests not enabled for this target
-#endif
 
 #ifdef MBED_CONF_APP_BASICS_TEST_FILENAME
 #include MBED_CONF_APP_BASICS_TEST_FILENAME
@@ -68,12 +68,12 @@ static control_t setup_network(const size_t call_count)
         if (err == NSAPI_ERROR_OK) {
             break;
         } else {
-            printf("[ERROR] Connecting to network. Retrying %d of %d.\r\n", tries, MAX_RETRIES);
+            tr_error("[ERROR] Connecting to network. Retrying %d of %d.", tries, MAX_RETRIES);
         }
     }
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
-    printf("[NET] IP address is '%s'\n", interface->get_ip_address());
-    printf("[NET] MAC address is '%s'\n", interface->get_mac_address());
+    tr_info("[NET] IP address is '%s'", interface->get_ip_address());
+    tr_info("[NET] MAC address is '%s'", interface->get_mac_address());
     return CaseNext;
 }
 
@@ -139,3 +139,4 @@ int main()
 
     return !Harness::run(specification);
 }
+#endif // !INTEGRATION_TESTS

@@ -13,6 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if defined(MBED_RTOS_SINGLE_THREAD) || !defined(MBED_CONF_RTOS_PRESENT)
+#error [NOT_SUPPORTED] Threads test cases require RTOS with multithread to run
+#else
+
+#if !DEVICE_USTICKER
+#error [NOT_SUPPORTED] UsTicker need to be enabled for this test.
+#else
+
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
@@ -21,23 +29,15 @@
 #include "SynchronizedIntegral.h"
 #include "LockGuard.h"
 
-#if defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER
-#error [NOT_SUPPORTED] test not supported
-#else
-
 #define THREAD_STACK_SIZE 512
-#if defined(__CORTEX_A9)
+#if defined(__CORTEX_A9) || defined(__CORTEX_M23) || defined(__CORTEX_M33) || defined(TARGET_ARM_FM) ||  defined(TARGET_CY8CKIT_062_WIFI_BT_PSA)
 #define PARALLEL_THREAD_STACK_SIZE 512
-#elif defined(__CORTEX_M23) || defined(__CORTEX_M33)
-#define PARALLEL_THREAD_STACK_SIZE 512
-#elif defined(TARGET_ARM_FM)
-#define PARALLEL_THREAD_STACK_SIZE 512
-#elif defined(TARGET_CY8CKIT_062_WIFI_BT_PSA)
-#define PARALLEL_THREAD_STACK_SIZE   512
+#define CHILD_THREAD_STACK_SIZE 512
 #else
 #define PARALLEL_THREAD_STACK_SIZE 384
-#endif
 #define CHILD_THREAD_STACK_SIZE 384
+#endif
+
 
 using namespace utest::v1;
 
@@ -851,4 +851,5 @@ int main()
     return !Harness::run(specification);
 }
 
-#endif // defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER
+#endif // !DEVICE_USTICKER
+#endif // defined(MBED_RTOS_SINGLE_THREAD) || !defined(MBED_CONF_RTOS_PRESENT)

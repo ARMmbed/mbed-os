@@ -1,19 +1,26 @@
 ;/**
 ; *******************************************************************************
-; * @file    startup_TMPM4G9.s
+; * @file    startup_TMPM4G9.S
 ; * @brief   CMSIS Cortex-M4 Core Device Startup File for the
 ; *          TOSHIBA 'TMPM4G9' Device Series
-; * @version V1.0.6.0
-; * $Date:: 2017-10-04 #$
-; *------- <<< Use Configuration Wizard in Context Menu >>> ------------------
+; * @version V1.0.9.0
+; * $Date:: 2018-04-02 #$
 ; *
-; * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LICENSE AGREEMENT.
-; *
-; * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2017 All rights reserved
+; * SPDX-License-Identifier: Apache-2.0
+; * 
+; * Licensed under the Apache License, Version 2.0 (the "License");
+; * you may not use this file except in compliance with the License.
+; * You may obtain a copy of the License at
+; * 
+; *     http://www.apache.org/licenses/LICENSE-2.0
+; * 
+; * Unless required by applicable law or agreed to in writing, software
+; * distributed under the License is distributed on an "AS IS" BASIS,
+; * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+; * See the License for the specific language governing permissions and
+; * limitations under the License.
 ; *******************************************************************************
 ; */
-
-__initial_sp    EQU     0x20030000
 
 
                 PRESERVE8
@@ -23,8 +30,9 @@ __initial_sp    EQU     0x20030000
 
                 AREA    RESET, DATA, READONLY
                 EXPORT  __Vectors
+                IMPORT  |Image$$ARM_LIB_STACK$$ZI$$Limit|
 
-__Vectors   DCD __initial_sp                    ; Top of Stack
+__Vectors   DCD |Image$$ARM_LIB_STACK$$ZI$$Limit| ; Top of Stack
             DCD Reset_Handler                   ; Reset Handler
             DCD NMI_Handler                     ; NMI Handler
             DCD HardFault_Handler               ; Hard Fault Handler
@@ -66,7 +74,7 @@ __Vectors   DCD __initial_sp                    ; Top of Stack
             DCD INTISDC_IRQHandler              ; 21: Interval Sensing Detector Interrupt (Unit C)
             DCD INTRMC0_IRQHandler              ; 22: Remote control reception interrupt 0
             DCD INTRMC1_IRQHandler              ; 23: Remote control reception interrupt 1
-            DCD INTLTTMR_IRQHandler             ; 24: Long Term Timer Interrupt
+            DCD INTLTTMR0_IRQHandler             ; 24: Long Term Timer Interrupt
             DCD INTHDMAATC_IRQHandler           ; 25: HDMA Complete of transfer(Unit A)
             DCD INTHDMAAERR_IRQHandler          ; 26: HDMA transfer error(Unit A)
             DCD INTHDMABTC_IRQHandler           ; 27: HDMA end of transfer(Unit B)
@@ -268,7 +276,7 @@ Default_Handler PROC
                 EXPORT  INTISDC_IRQHandler        [WEAK]
                 EXPORT  INTRMC0_IRQHandler        [WEAK]
                 EXPORT  INTRMC1_IRQHandler        [WEAK]
-                EXPORT  INTLTTMR_IRQHandler       [WEAK]
+                EXPORT  INTLTTMR0_IRQHandler      [WEAK]
                 EXPORT  INTHDMAATC_IRQHandler     [WEAK]
                 EXPORT  INTHDMAAERR_IRQHandler    [WEAK]
                 EXPORT  INTHDMABTC_IRQHandler     [WEAK]
@@ -409,7 +417,7 @@ INTISDB_IRQHandler
 INTISDC_IRQHandler
 INTRMC0_IRQHandler
 INTRMC1_IRQHandler
-INTLTTMR_IRQHandler
+INTLTTMR0_IRQHandler
 INTHDMAATC_IRQHandler
 INTHDMAAERR_IRQHandler
 INTHDMABTC_IRQHandler

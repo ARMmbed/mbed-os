@@ -33,9 +33,14 @@ set(unittest-includes ${unittest-includes}
 set(unittest-test-sources
   features/lorawan/loraphy/Test_LoRaPHY.cpp
   stubs/LoRaWANTimer_stub.cpp
-  stubs/mbed_assert_stub.c
+  stubs/mbed_assert_stub.cpp
 )
 
+set(unittest-test-flags
+  -DMBED_CONF_LORA_WAKEUP_TIME=5
+  -DMBED_CONF_LORA_DUTY_CYCLE_ON_JOIN=true
+  -DMBED_CONF_LORA_UPLINK_PREAMBLE_LENGTH=8
+  -DMBED_CONF_LORA_TX_MAX_SIZE=255
+  -DMBED_CONF_LORA_NB_TRIALS=2
+)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMBED_CONF_LORA_UPLINK_PREAMBLE_LENGTH=8 -DMBED_CONF_LORA_DUTY_CYCLE_ON_JOIN=true -DMBED_CONF_LORA_WAKEUP_TIME=5")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMBED_CONF_LORA_UPLINK_PREAMBLE_LENGTH=8 -DMBED_CONF_LORA_DUTY_CYCLE_ON_JOIN=true -DMBED_CONF_LORA_WAKEUP_TIME=5")

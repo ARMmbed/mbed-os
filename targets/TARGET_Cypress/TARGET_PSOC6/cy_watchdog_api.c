@@ -67,9 +67,11 @@ uint32_t hal_watchdog_get_reload_value(void)
 watchdog_features_t hal_watchdog_get_platform_features(void)
 {
     watchdog_features_t features = {
-        /* .max_timeout =      */ cyhal_wdt_get_max_timeout_ms(),
-        /* .update_config =    */ true,
-        /* .disable_watchdog = */ true
+        /* .max_timeout =             */ cyhal_wdt_get_max_timeout_ms(),
+        /* .update_config =           */ true,
+        /* .disable_watchdog =        */ true,
+        /* .clock_typical_frequency = */ 32000,
+        /* .clock_max_frequency =     */ 36100
     };
     return features;
 }

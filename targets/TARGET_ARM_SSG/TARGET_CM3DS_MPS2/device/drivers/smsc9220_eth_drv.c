@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018 ARM Limited
+ * Copyright (c) 2016-2019 Arm Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -166,7 +166,6 @@ enum phy_reg_bctrl_reg_bits_t{
  * \brief TX Command A bit definitions
  *
  */
-
 #define TX_CMD_DATA_START_OFFSET_BYTES_POS   16U
 #define TX_CMD_DATA_START_OFFSET_BYTES_MASK  0x1FU
 
@@ -186,7 +185,19 @@ enum tx_command_a_bits_t{
  *
  */
 enum rx_fifo_status_bits_t{
-    RX_FIFO_STATUS_ERROR_INDEX = 15U
+    RX_FIFO_STATUS_CRC_ERROR_INDEX       = 1U,
+    RX_FIFO_STATUS_DRIBBLING_BIT_INDEX   = 2U,
+    RX_FIFO_STATUS_MII_ERROR_INDEX       = 3U,
+    RX_FIFO_STATUS_REC_WD_TIMEOUT_INDEX  = 4U,
+    RX_FIFO_STATUS_FRAME_TYPE_INDEX      = 5U,
+    RX_FIFO_STATUS_COLLISION_SEEN_INDEX  = 6U,
+    RX_FIFO_STATUS_FRAME_TOO_LONG_INDEX  = 7U,
+    RX_FIFO_STATUS_MULTICAST_INDEX       = 10U,
+    RX_FIFO_STATUS_RUNT_FRAME_INDEX      = 11U,
+    RX_FIFO_STATUS_LENGTH_ERROR_INDEX    = 12U,
+    RX_FIFO_STATUS_BROADCAST_FRAME_INDEX = 13U,
+    RX_FIFO_STATUS_ERROR_INDEX           = 15U,
+    RX_FIFO_STATUS_FILTERING_FAIL_INDEX  = 30U,
 };
 #define RX_FIFO_STATUS_PKT_LENGTH_POS    16U
 #define RX_FIFO_STATUS_PKT_LENGTH_MASK   0x3FFFU
@@ -299,7 +310,7 @@ static void fill_tx_fifo(const struct smsc9220_eth_dev_t* dev,
     data += remainder_bytes;
 
     while (size_bytes > 0) {
-        /* Keep the same endianness in data than in the temp variable */
+        /* Keep the same endianness in data as in the temp variable */
         tx_data_port_tmp_ptr[0] = data[0];
         tx_data_port_tmp_ptr[1] = data[1];
         tx_data_port_tmp_ptr[2] = data[2];
@@ -323,7 +334,7 @@ static void empty_rx_fifo(const struct smsc9220_eth_dev_t* dev,
     size_bytes -= remainder_bytes;
 
     while (size_bytes > 0) {
-        /* Keep the same endianness in data than in the temp variable */
+        /* Keep the same endianness in data as in the temp variable */
         rx_data_port_tmp = register_map->rx_data_port;
         data[0] = rx_data_port_tmp_ptr[0];
         data[1] = rx_data_port_tmp_ptr[1];
@@ -740,7 +751,6 @@ int smsc9220_check_id(const struct smsc9220_eth_dev_t* dev)
     return ((GET_BIT_FIELD(id, CHIP_ID_MASK, CHIP_ID_POS) == CHIP_ID) ? 0 : 1);
 }
 
-
 void smsc9220_enable_interrupt(const struct smsc9220_eth_dev_t* dev,
                                enum smsc9220_interrupt_source source)
 {
@@ -817,7 +827,6 @@ enum smsc9220_error_t smsc9220_read_mac_address(
         return SMSC9220_ERROR_PARAM;
     }
 
-    /* Read current mac address. */
     if (smsc9220_mac_regread(dev, SMSC9220_MAC_REG_OFFSET_ADDRH, &mac_high)) {
         return SMSC9220_ERROR_INTERNAL;
     }
@@ -947,10 +956,7 @@ enum smsc9220_error_t smsc9220_send_by_chunks(
 {
     struct smsc9220_eth_reg_map_t* register_map =
             (struct smsc9220_eth_reg_map_t*)dev->cfg->base;
-
-    /* signing this is the first segment of the packet to be sent */
     bool is_first_segment = false;
-    /* signing this is the last segment of the packet to be sent */
     bool is_last_segment = false;
     uint32_t txcmd_a, txcmd_b = 0;
     uint32_t tx_buffer_free_space = 0;
@@ -1029,7 +1035,6 @@ uint32_t smsc9220_get_rxfifo_data_used_space(const struct
 uint32_t smsc9220_receive_by_chunks(const struct smsc9220_eth_dev_t* dev,
                                         char *data, uint32_t dlen)
 {
-
     uint32_t rxfifo_inf = 0;
     uint32_t rxfifo_stat = 0;
     uint32_t packet_length_byte = 0;

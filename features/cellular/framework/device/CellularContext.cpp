@@ -91,16 +91,16 @@ void CellularContext::validate_ip_address()
 {
     const int IP_MAX_TRIES = 10; // maximum of 2 seconds as we wait 200ms between tries
     const int IP_WAIT_INTERVAL = 200; // 200 ms between retries
-    const char *ip = NULL;
+    SocketAddress ip;
     int i = 0;
 
     while (1) {
-        ip = get_ip_address();
+        get_ip_address(&ip);
         if (ip || i >= IP_MAX_TRIES) {
-            if (ip == NULL) {
+            if (ip.get_ip_address() == NULL) {
                 tr_warning("Connected but no local ip address");
             } else {
-                tr_info("Cellular local IP: %s", ip);
+                tr_info("Cellular local IP: %s", ip.get_ip_address());
             }
             break;
         }
@@ -119,12 +119,14 @@ void CellularContext::do_connect_with_retry()
     }
     do_connect();
     if (_cb_data.error == NSAPI_ERROR_OK) {
+#if !NSAPI_PPP_AVAILABLE
         // Some modems don't get the ip address right after connect so we must
         // validate it but even if we don't get ip we still send NSAPI_STATUS_GLOBAL_UP
         if (!_nonip_req && !_cp_in_use) { // don't validate if non-ip case
             validate_ip_address();
         }
         call_network_cb(NSAPI_STATUS_GLOBAL_UP);
+#endif
         return;
     }
 

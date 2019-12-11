@@ -1,0 +1,57 @@
+//******************************************************************************
+//* @attention
+//*
+//* Copyright (c) 2019 STMicroelectronics.
+//* All rights reserved.
+//*
+//* This software component is licensed by ST under BSD 3-Clause license,
+//* the "License"; You may not use this file except in compliance with the
+//* License. You may obtain a copy of the License at:
+//*                        opensource.org/licenses/BSD-3-Clause
+//*
+//******************************************************************************
+
+// 1MB FLASH (0x100000)
+if (!isdefinedsymbol(MBED_APP_START)) { define symbol MBED_APP_START = 0x08000000; }
+if (!isdefinedsymbol(MBED_APP_SIZE)) { define symbol MBED_APP_SIZE = 0x100000; }
+if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) { define symbol MBED_BOOT_STACK_SIZE = 0x400; }
+
+define symbol __intvec_start__     = MBED_APP_START;
+define symbol __region_ROM_start__ = MBED_APP_START;
+define symbol __region_ROM_end__   = MBED_APP_START + MBED_APP_SIZE - 1;
+
+// 512KB RAM (0x80000)
+// Vector table dynamic copy: 166 vectors = 664 bytes (0x298) reserved
+define symbol __NVIC_start__                  = 0x20000000;
+define symbol __NVIC_end__                    = 0x20000297;
+define symbol __region_RAM_start__            = 0x24000000;
+define symbol __region_RAM_end__              = 0x24000000 + 0x80000 - 1;
+
+// 64KB ITCM RAM (0x10000)
+// ITCM not currently used, but could be used for critical code to improve performances
+define symbol __region_ITCMRAM_start__ = 0x00000000;
+define symbol __region_ITCMRAM_end__   = 0x0000FFFF;
+
+// Memory regions
+define memory mem with size = 4G;
+define region ROM_region = mem:[from __region_ROM_start__ to __region_ROM_end__];
+define region RAM_region = mem:[from __region_RAM_start__ to __region_RAM_end__];
+
+// Memory region used for ethernet
+define region eth_mem_region = mem:[from 0x30044000 to 0x30048000 ];
+place in eth_mem_region	{ section .ethusbram };
+
+// Stack and Heap
+define symbol __size_cstack__ = MBED_BOOT_STACK_SIZE;
+define symbol __size_heap__   = 0x10000; // 64KB
+define block CSTACK    with alignment = 8, size = __size_cstack__   { };
+define block HEAP      with alignment = 8, size = __size_heap__     { };
+define block STACKHEAP with fixed order { block HEAP, block CSTACK };
+
+initialize by copy with packing = zeros { readwrite };
+do not initialize  { section .noinit };
+
+place at address mem:__intvec_start__ { readonly section .intvec };
+
+place in ROM_region   { readonly };
+place in RAM_region   { readwrite, block STACKHEAP };

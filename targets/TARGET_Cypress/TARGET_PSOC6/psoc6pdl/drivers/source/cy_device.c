@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_device.c
-* \version 2.0
+* \version 2.10
 *
 * This file provides the definitions for core and peripheral block HW base
 * addresses, versions, and parameters.

@@ -3,8 +3,8 @@
 
 namespace mbed {
 
-AT_ControlPlane_netif::AT_ControlPlane_netif(ATHandler &at, int cid) : AT_CellularBase(at),
-    _cid(cid), _cb(NULL), _data(NULL), _recv_len(0)
+AT_ControlPlane_netif::AT_ControlPlane_netif(ATHandler &at, int cid) :
+    _cid(cid), _cb(NULL), _data(NULL), _recv_len(0), _at(at)
 {
     _at.set_urc_handler("+CRTDCP:", mbed::Callback<void()>(this, &AT_ControlPlane_netif::urc_cp_recv));
 }

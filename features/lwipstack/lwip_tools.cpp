@@ -79,6 +79,23 @@ const ip_addr_t *LWIP::get_ipv4_addr(const struct netif *netif)
     return NULL;
 }
 
+const ip_addr_t *LWIP::get_ipv6_link_local_addr(const struct netif *netif)
+{
+#if LWIP_IPV6
+    if (!netif_is_up(netif)) {
+        return NULL;
+    }
+
+    for (int i = 0; i < LWIP_IPV6_NUM_ADDRESSES; i++) {
+        if (ip6_addr_isvalid(netif_ip6_addr_state(netif, i)) &&
+                ip6_addr_islinklocal(netif_ip6_addr(netif, i))) {
+            return netif_ip_addr6(netif, i);
+        }
+    }
+#endif
+    return NULL;
+}
+
 const ip_addr_t *LWIP::get_ipv6_addr(const struct netif *netif)
 {
 #if LWIP_IPV6
@@ -89,6 +106,12 @@ const ip_addr_t *LWIP::get_ipv6_addr(const struct netif *netif)
     for (int i = 0; i < LWIP_IPV6_NUM_ADDRESSES; i++) {
         if (ip6_addr_isvalid(netif_ip6_addr_state(netif, i)) &&
                 !ip6_addr_islinklocal(netif_ip6_addr(netif, i))) {
+            return netif_ip_addr6(netif, i);
+        }
+    }
+
+    for (int i = 0; i < LWIP_IPV6_NUM_ADDRESSES; i++) {
+        if (ip6_addr_isvalid(netif_ip6_addr_state(netif, i))) {
             return netif_ip_addr6(netif, i);
         }
     }
@@ -256,11 +279,8 @@ bool convert_mbed_addr_to_lwip(ip_addr_t *out, const nsapi_addr_t *in)
 
 #if LWIP_IPV4 && LWIP_IPV6
     if (in->version == NSAPI_UNSPEC) {
-#if IP_VERSION_PREF == PREF_IPV4
-        ip_addr_set_zero_ip4(out);
-#else
-        ip_addr_set_zero_ip6(out);
-#endif
+        ip6_addr_set_zero(ip_2_ip6(out));
+        IP_SET_TYPE(out, IPADDR_TYPE_ANY);
         return true;
     }
 #endif

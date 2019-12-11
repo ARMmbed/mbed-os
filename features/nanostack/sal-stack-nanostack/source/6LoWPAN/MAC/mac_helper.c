@@ -349,12 +349,12 @@ int8_t mac_helper_security_default_recv_key_set(protocol_interface_info_entry_t 
     return 0;
 }
 
-int8_t mac_helper_security_auto_request_key_index_set(protocol_interface_info_entry_t *interface, uint8_t id)
+int8_t mac_helper_security_auto_request_key_index_set(protocol_interface_info_entry_t *interface, uint8_t key_attibute_index, uint8_t id)
 {
     if (id == 0) {
         return -1;
     }
-
+    interface->mac_parameters->mac_default_key_attribute_id = key_attibute_index;
     mac_helper_pib_8bit_set(interface, macAutoRequestKeyIndex, id);
     return 0;
 }
@@ -442,12 +442,10 @@ void mac_helper_security_key_swap_next_to_default(protocol_interface_info_entry_
     interface->mac_parameters->mac_prev_key_index = interface->mac_parameters->mac_default_key_index;
     interface->mac_parameters->mac_prev_key_attribute_id = interface->mac_parameters->mac_default_key_attribute_id;
 
-    interface->mac_parameters->mac_default_key_index = interface->mac_parameters->mac_next_key_index;
-    interface->mac_parameters->mac_default_key_attribute_id = interface->mac_parameters->mac_next_key_attribute_id;
+    mac_helper_security_auto_request_key_index_set(interface, interface->mac_parameters->mac_next_key_attribute_id, interface->mac_parameters->mac_next_key_index);
+
     interface->mac_parameters->mac_next_key_index = 0;
     interface->mac_parameters->mac_next_key_attribute_id = prev_attribute;
-
-    mac_helper_pib_8bit_set(interface, macAutoRequestKeyIndex,  interface->mac_parameters->mac_default_key_index);
 
 }
 
@@ -839,15 +837,9 @@ int8_t mac_helper_link_frame_counter_read(int8_t interface_id, uint32_t *seq_ptr
     if (!cur || !cur->mac_api || !seq_ptr) {
         return -1;
     }
-    mlme_get_t get_req;
-    get_req.attr = macFrameCounter;
-    get_req.attr_index = 0;
-    cur->mac_api->mlme_req(cur->mac_api, MLME_GET, &get_req);
-    *seq_ptr = cur->mac_parameters->security_frame_counter;
 
-    return 0;
+    return mac_helper_key_link_frame_counter_read(interface_id, seq_ptr, cur->mac_parameters->mac_default_key_attribute_id);
 }
-
 
 int8_t mac_helper_link_frame_counter_set(int8_t interface_id, uint32_t seq_ptr)
 {
@@ -856,9 +848,36 @@ int8_t mac_helper_link_frame_counter_set(int8_t interface_id, uint32_t seq_ptr)
     if (!cur || !cur->mac_api) {
         return -1;
     }
+
+    return mac_helper_key_link_frame_counter_set(interface_id, seq_ptr, cur->mac_parameters->mac_default_key_attribute_id);
+}
+
+int8_t mac_helper_key_link_frame_counter_read(int8_t interface_id, uint32_t *seq_ptr, uint8_t descriptor)
+{
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+
+    if (!cur || !cur->mac_api || !seq_ptr) {
+        return -1;
+    }
+    mlme_get_t get_req;
+    get_req.attr = macFrameCounter;
+    get_req.attr_index = descriptor;
+    cur->mac_api->mlme_req(cur->mac_api, MLME_GET, &get_req);
+    *seq_ptr = cur->mac_parameters->security_frame_counter;
+
+    return 0;
+}
+
+int8_t mac_helper_key_link_frame_counter_set(int8_t interface_id, uint32_t seq_ptr, uint8_t descriptor)
+{
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+
+    if (!cur || !cur->mac_api) {
+        return -1;
+    }
     mlme_set_t set_req;
     set_req.attr = macFrameCounter;
-    set_req.attr_index = 0;
+    set_req.attr_index = descriptor;
     set_req.value_pointer = &seq_ptr;
     set_req.value_size = 4;
     cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
@@ -929,5 +948,22 @@ int8_t mac_helper_mac_mlme_max_retry_set(int8_t interface_id, uint8_t mac_retry_
     set_req.value_size = 1;
     cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
 
+    return 0;
+}
+
+
+int8_t mac_helper_mac_device_description_pan_id_update(int8_t interface_id, uint16_t pan_id)
+{
+    protocol_interface_info_entry_t *cur;
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur || !cur->mac_api) {
+        return -1;
+    }
+    mlme_set_t set_req;
+    set_req.attr = macDeviceDescriptionPanIDUpdate;
+    set_req.attr_index = 0;
+    set_req.value_pointer = &pan_id;
+    set_req.value_size = sizeof(pan_id);
+    cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
     return 0;
 }

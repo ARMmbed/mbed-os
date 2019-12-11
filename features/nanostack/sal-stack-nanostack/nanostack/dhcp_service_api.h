@@ -218,6 +218,16 @@ void dhcp_service_update_server_address(uint32_t msg_tr_id, uint8_t *server_addr
 void dhcp_service_req_remove(uint32_t msg_tr_id);
 
 /**
+ * \brief Stops transactions for a messages (retransmissions).
+ *
+ * Clears off sending retransmissions for a particular message transaction by finding it via its message class pointer.
+ *
+ * \param msg_class_ptr The message class pointer.
+ *
+ */
+void dhcp_service_req_remove_all(void *msg_class_ptr);
+
+/**
  * \brief Timer tick function for retransmissions.
  *
  * Retransmission timer ticks should be increased with 100ms interval, if necessary. One tick is one millisecond.

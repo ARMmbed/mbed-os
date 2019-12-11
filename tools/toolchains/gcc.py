@@ -32,7 +32,7 @@ class GCC(mbedToolchain):
     STD_LIB_NAME = "lib%s.a"
     DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(?P<col>\d+):? (?P<severity>warning|[eE]rror|fatal error): (?P<message>.+)')
 
-    GCC_RANGE = (LooseVersion("6.0.0"), LooseVersion("7.0.0"))
+    GCC_RANGE = (LooseVersion("9.0.0"), LooseVersion("10.0.0"))
     GCC_VERSION_RE = re.compile(b"\d+\.\d+\.\d+")
 
     def __init__(self, target,  notify=None, macros=None, build_profile=None,
@@ -57,6 +57,26 @@ class GCC(mbedToolchain):
         if default_lib == "small":
             self.flags["common"].append("-DMBED_RTOS_SINGLE_THREAD")
             self.flags["ld"].append("--specs=nano.specs")
+
+        self.check_and_add_minimal_printf(target)
+
+        if getattr(target, "printf_lib", "std") == "minimal-printf":
+            minimal_printf_wraps = [
+                "-Wl,--wrap,printf",
+                "-Wl,--wrap,sprintf",
+                "-Wl,--wrap,snprintf",
+                "-Wl,--wrap,vprintf",
+                "-Wl,--wrap,vsprintf",
+                "-Wl,--wrap,vsnprintf",
+                "-Wl,--wrap,fprintf",
+                "-Wl,--wrap,vfprintf",
+            ]
+
+            # Add the linker option to wrap the f\v\s\printf functions if not
+            # already added.
+            for minimal_printf_wrap in minimal_printf_wraps:
+                if minimal_printf_wrap not in self.flags["ld"]:
+                    self.flags["ld"].append(minimal_printf_wrap)
 
         self.cpu = []
         if target.is_TrustZone_secure_target:
@@ -247,7 +267,8 @@ class GCC(mbedToolchain):
         if mem_map:
             preproc_output = join(dirname(output), ".link_script.ld")
             cmd = (
-                self.preproc + [mem_map] + self.ld[1:] + ["-o", preproc_output]
+                self.preproc + [mem_map] + self.ld[1:] + ["-o", preproc_output] +
+                self.get_compile_options(self.get_symbols(), [])
             )
             self.notify.cc_verbose("Preproc: %s" % ' '.join(cmd))
             self.default_cmd(cmd)
