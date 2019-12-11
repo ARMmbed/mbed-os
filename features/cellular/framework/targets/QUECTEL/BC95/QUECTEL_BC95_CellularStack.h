@@ -58,6 +58,10 @@ private:
     // URC handlers
     void urc_nsonmi();
     void urc_nsocli();
+
+    events::EventQueue *_event_queue;
+    int _txfull_event_id;
+    void txfull_event_timeout();
 };
 } // namespace mbed
 #endif /* QUECTEL_BC95_CELLULARSTACK_H_ */
