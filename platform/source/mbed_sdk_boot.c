@@ -76,6 +76,7 @@ int $Super$$main(void);
 int $Sub$$main(void)
 {
     mbed_main();
+    mbed_error_initialize();
     return $Super$$main();
 }
 
@@ -109,6 +110,7 @@ void software_init_hook(void)
 int __wrap_main(void)
 {
     mbed_main();
+    mbed_error_initialize();
     return __real_main();
 }
 
