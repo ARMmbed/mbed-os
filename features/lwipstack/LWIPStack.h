@@ -106,9 +106,6 @@ public:
          */
         virtual nsapi_error_t get_ipv6_link_local_address(SocketAddress *address);
 
-        MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-        virtual char *get_ip_address_if(char *buf, nsapi_size_t buflen, const char *interface_name);
-
         /** Copies netmask of the network interface to user supplied buffer
          *
          * @param    buf        buffer to which netmask will be copied as "W:X:Y:Z"

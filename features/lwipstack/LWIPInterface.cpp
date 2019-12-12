@@ -349,33 +349,6 @@ char *LWIP::Interface::get_ip_address(char *buf, nsapi_size_t buflen)
 #endif
 }
 
-char *LWIP::Interface::get_ip_address_if(char *buf, nsapi_size_t buflen, const char *interface_name)
-{
-    const ip_addr_t *addr;
-
-    if (interface_name == NULL) {
-        addr = LWIP::get_ip_addr(true, &netif);
-    } else {
-        addr = LWIP::get_ip_addr(true, netif_find(interface_name));
-    }
-    if (!addr) {
-        return NULL;
-    }
-#if LWIP_IPV6
-    if (IP_IS_V6(addr)) {
-        return ip6addr_ntoa_r(ip_2_ip6(addr), buf, buflen);
-    }
-#endif
-#if LWIP_IPV4
-    if (IP_IS_V4(addr)) {
-        return ip4addr_ntoa_r(ip_2_ip4(addr), buf, buflen);
-    }
-#endif
-#if LWIP_IPV6 && LWIP_IPV4
-    return NULL;
-#endif
-}
-
 nsapi_error_t LWIP::Interface::get_netmask(SocketAddress *address)
 {
     if (!address) {
