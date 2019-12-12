@@ -36,6 +36,10 @@
         "max-cp-data-recv-len" : {
             "help": "Max length of the buffer storing data received over control plane",
             "value": 1358
+        },
+        "plmn-fallback-auto" : {
+            "help": "If manual PLMN is selected, use mode 4 manual/automatic in AT+COPS to try automatic mode if manual selection fails. Set to null to disable",
+            "value": null
         }
     }
 }

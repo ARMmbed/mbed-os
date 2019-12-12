@@ -38,6 +38,7 @@ static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     0,  // PROPERTY_IPV4V6_STACK
     0,  // PROPERTY_NON_IP_PDP_TYPE
     1,  // PROPERTY_AT_CGEREP
+    1,  // PROPERTY_AT_COPS_FALLBACK_AUTO
 };
 #elif defined(UBX_MDM_SARA_U2XX) || defined(UBX_MDM_SARA_G3XX)
 static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {

@@ -19,7 +19,7 @@
 
 using namespace mbed;
 
-TELIT_ME910_CellularNetwork::TELIT_ME910_CellularNetwork(ATHandler &atHandler) : AT_CellularNetwork(atHandler)
+TELIT_ME910_CellularNetwork::TELIT_ME910_CellularNetwork(ATHandler &atHandler, AT_CellularDevice &device) : AT_CellularNetwork(atHandler, device)
 {
 }
 

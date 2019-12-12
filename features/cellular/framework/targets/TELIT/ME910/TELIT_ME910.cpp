@@ -58,6 +58,7 @@ static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     1,  // PROPERTY_IPV4V6_STACK
     0,  // PROPERTY_NON_IP_PDP_TYPE
     1,  // PROPERTY_AT_CGEREP
+    1,  // PROPERTY_AT_COPS_FALLBACK_AUTO
 };
 
 //the delay between sending AT commands
@@ -191,5 +192,5 @@ nsapi_error_t TELIT_ME910::soft_power_off()
 
 AT_CellularNetwork *TELIT_ME910::open_network_impl(ATHandler &at)
 {
-    return new TELIT_ME910_CellularNetwork(at);
+    return new TELIT_ME910_CellularNetwork(at, *this);
 }

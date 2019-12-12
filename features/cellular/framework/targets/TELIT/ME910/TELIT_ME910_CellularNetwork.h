@@ -24,7 +24,7 @@ namespace mbed {
 
 class TELIT_ME910_CellularNetwork : public AT_CellularNetwork {
 public:
-    TELIT_ME910_CellularNetwork(ATHandler &atHandler);
+    TELIT_ME910_CellularNetwork(ATHandler &atHandler, AT_CellularDevice &device);
     virtual ~ TELIT_ME910_CellularNetwork();
 
 protected:
