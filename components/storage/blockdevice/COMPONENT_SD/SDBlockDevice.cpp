@@ -271,6 +271,28 @@ SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName c
     _erase_size = BLOCK_SIZE_HC;
 }
 
+#if MBED_CONF_SD_CRC_ENABLED
+SDBlockDevice::SDBlockDevice(const spi_pinmap_t &spi_pinmap, PinName cs, uint64_t hz, bool crc_on)
+    : _sectors(0), _spi(spi_pinmap), _cs(cs), _is_initialized(0),
+      _init_ref_count(0), _crc_on(crc_on)
+#else
+SDBlockDevice::SDBlockDevice(const spi_pinmap_t &spi_pinmap, PinName cs, uint64_t hz, bool crc_on)
+    : _sectors(0), _spi(spi_pinmap), _cs(cs), _is_initialized(0),
+      _init_ref_count(0)
+#endif
+{
+    _cs = 1;
+    _card_type = SDCARD_NONE;
+
+    // Set default to 100kHz for initialisation and 1MHz for data transfer
+    MBED_STATIC_ASSERT(((MBED_CONF_SD_INIT_FREQUENCY >= 100000) && (MBED_CONF_SD_INIT_FREQUENCY <= 400000)),
+                       "Initialization frequency should be between 100KHz to 400KHz");
+    _init_sck = MBED_CONF_SD_INIT_FREQUENCY;
+    _transfer_sck = hz;
+
+    _erase_size = BLOCK_SIZE_HC;
+}
+
 SDBlockDevice::~SDBlockDevice()
 {
     if (_is_initialized) {

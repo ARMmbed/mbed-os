@@ -746,12 +746,14 @@ uint32_t whd_wifi_stop_ap(whd_interface_t ifp)
         return result2;
     }
 
-    /* Disable AP mode */
-    data = (uint32_t *)whd_cdc_get_ioctl_buffer(whd_driver, &buffer, (uint16_t)4);
-    CHECK_IOCTL_BUFFER_WITH_SEMAPHORE(data, &ap->whd_wifi_sleep_flag);
-    *data = 0; /* Turn off AP */
-    CHECK_RETURN_WITH_SEMAPHORE(whd_cdc_send_ioctl(ifp, CDC_SET, WLC_SET_AP, buffer, 0),
-                                &ap->whd_wifi_sleep_flag);
+    /* Disable AP mode only if AP is on primary interface */
+    if (prim_ifp == ifp)
+    {
+        data = (uint32_t *)whd_cdc_get_ioctl_buffer(whd_driver, &buffer, (uint16_t)4);
+        CHECK_IOCTL_BUFFER(data);
+        *data = 0;
+        CHECK_RETURN(whd_cdc_send_ioctl(ifp, CDC_SET, WLC_SET_AP, buffer, 0) );
+    }
 
     CHECK_RETURN(whd_wifi_deregister_event_handler(ifp, ifp->event_reg_list[WHD_AP_EVENT_ENTRY]) );
     ifp->event_reg_list[WHD_AP_EVENT_ENTRY] = WHD_EVENT_NOT_REGISTERED;

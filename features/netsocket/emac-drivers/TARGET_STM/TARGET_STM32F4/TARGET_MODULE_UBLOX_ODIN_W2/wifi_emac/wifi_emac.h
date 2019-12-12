@@ -124,7 +124,12 @@ public:
     virtual void remove_multicast_group(const uint8_t *address);
     virtual void set_all_multicast(bool all);
 
+    cbWLAN_Handle get_wifi_emac_handle();
+    void set_wifi_emac_handle(cbWLAN_Handle _handle);
+
 private:
+
+    cbWLAN_Handle handle = cbWLAN_DEFAULT_HANDLE;
 
     emac_link_input_cb_t emac_link_input_cb; /**< Callback for incoming data */
     emac_link_state_change_cb_t emac_link_state_cb; /**< Link state change callback */
@@ -138,7 +143,7 @@ private:
 
     friend void handleWlanStatusIndication(void *dummy, cbWLAN_StatusIndicationInfo status, void *data);
     friend void handleWlanPacketIndication(void *dummy, cbWLAN_PacketIndicationInfo *packetInfo);
-    friend void send_wlan_packet(void *buf);
+    friend void send_wlan_packet(OdinWiFiEMAC *ptr, void *buf);
 };
 
 #endif /* WIFI_EMAC_H_ */
