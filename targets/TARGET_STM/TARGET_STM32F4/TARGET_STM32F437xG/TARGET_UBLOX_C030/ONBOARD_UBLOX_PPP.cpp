@@ -17,7 +17,7 @@
 #if MBED_CONF_NSAPI_PRESENT
 
 #include "ONBOARD_UBLOX_PPP.h"
-#include "cellular/onboard_modem_api.h"
+#include "UBLOX_onboard_modem_api.h"
 
 using namespace mbed;
 

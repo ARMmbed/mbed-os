@@ -16,13 +16,11 @@
 
 #if MBED_CONF_NSAPI_PRESENT
 
-#include "onboard_modem_api.h"
+#include "UBLOX_onboard_modem_api.h"
 #include "gpio_api.h"
 #include "platform/mbed_wait_api.h"
 #include "platform/mbed_thread.h"
 #include "PinNames.h"
-
-#if MODEM_ON_BOARD
 
 // Note microseconds not milliseconds
 static void press_power_button(int time_us)
@@ -64,10 +62,10 @@ void onboard_modem_deinit()
 void onboard_modem_power_up()
 {
 #if defined(TARGET_UBLOX_C030_R41XM)
-	/* keep the power line low for 1 seconds */
+        /* keep the power line low for 1 seconds */
     press_power_button(1000000);
 #else
-	/* keep the power line low for 50 microseconds */
+        /* keep the power line low for 50 microseconds */
     press_power_button(50);
 #endif
 
@@ -77,9 +75,8 @@ void onboard_modem_power_up()
 
 void onboard_modem_power_down()
 {
-	/* keep the power line low for 1.5 seconds */
+        /* keep the power line low for 1.5 seconds */
     press_power_button(1500000);
 }
 
-#endif //MODEM_ON_BOARD
 #endif //MBED_CONF_NSAPI_PRESENT

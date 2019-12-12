@@ -14,33 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef ONBOARD_MODEM_API_H_
-#define ONBOARD_MODEM_API_H_
-
-/** onboard_modem_api is a standardizing API for Modem type devices under Mbed OS.
- * It provides a simple hardware abstraction layer on top of the modem drivers
- * written for Mbed OS.
- *
- * It is required from the engineers porting any modem type device (e.g., Cellular)
- * to provide an implementation of this API in their respective target folder as well as
- * usage of standard PinNames (in PinNames.h) is required. For example,
- *
- *   MDMTXD = P0_15,    // Transmit Data
- *   MDMRXD = P0_16,    // Receive Data
- *   MDMCTS = P0_17,    // Clear to Send
- *   MDMDCD = P0_18,    // Data Carrier Detect
- *   MDMDSR = P0_19,    // Data Set Ready
- *   MDMDTR = P0_20,    // Data Terminal Ready (set high or use handshake)
- *   MDMRI  = P0_21,    // Ring Indicator
- *   MDMRTS = P0_22,    // Request to Send (set high or use handshake)
- *
- *   MDM_PIN_POLARITY must also be defined as 0 (active low) or 1 (active high).
- *
- *   NOTE: This API should only be used when the modem exists on-board, i.e., the modem is
- *         NOT a plugged-in component.
- */
-
-#if MODEM_ON_BOARD
+#ifndef UBLOX_ONBOARD_MODEM_API_H_
+#define UBLOX_ONBOARD_MODEM_API_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -75,5 +50,4 @@ void onboard_modem_power_down(void);
 }
 #endif
 
-#endif /* MODEM_ON_BOARD*/
-#endif /* ONBOARD_MODEM_API_H_ */
+#endif /* UBLOX_ONBOARD_MODEM_API_H_ */

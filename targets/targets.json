@@ -660,18 +660,6 @@
         "core": "Cortex-M3",
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "extra_labels": ["NXP", "LPC176X", "NXP_EMAC"],
-        "config": {
-            "modem_is_on_board": {
-                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD"
-            },
-            "modem_data_connection_type": {
-                "help": "Value: Defines how the modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART"
-            }
-        },
         "macros": ["TARGET_LPC1768", "UBX_MDM_SARA_G3XX", "UBX_MDM_SARA_G350"],
         "inherits": ["LPCTarget"],
         "device_has": [
@@ -3867,16 +3855,6 @@
                 "help": "As 48 Mhz clock is configured for USB, SYSCLK has to be reduced from 180 to 168 MHz (set 0 for the max SYSCLK value)",
                 "value": "1",
                 "macro_name": "CLOCK_SOURCE_USB"
-            },
-            "modem_is_on_board": {
-                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD"
-            },
-            "modem_data_connection_type": {
-                "help": "Value: Defines how the modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART"
             }
         },
         "extra_labels_add": [
@@ -3919,16 +3897,6 @@
                 "help": "As 48 Mhz clock is configured for USB, SYSCLK has to be reduced from 180 to 168 MHz (set 0 for the max SYSCLK value)",
                 "value": "0",
                 "macro_name": "CLOCK_SOURCE_USB"
-            },
-            "modem_is_on_board": {
-                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD"
-            },
-            "modem_data_connection_type": {
-                "help": "Value: Defines how the modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART"
             }
         },
         "extra_labels_add": ["STM32F4", "STM32F439", "STM32F439VI", "STM32F439xx", "STM32F439xI"],
@@ -4579,18 +4547,6 @@
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32F4", "STM32F411RE"],
         "components_add": ["FLASHIAP"],
-        "config": {
-            "modem_is_on_board": {
-                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD"
-            },
-            "modem_data_connection_type": {
-                "help": "Value: Defines how an on-board modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART"
-            }
-        },
         "overrides": { "lse_available": 0 },
         "macros_add": ["HSE_VALUE=26000000"],
         "post_binary_hook": {
@@ -4615,16 +4571,6 @@
             "STM32F413xH"
         ],
         "config": {
-            "modem_is_on_board": {
-                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD"
-            },
-            "modem_data_connection_type": {
-                "help": "Value: Defines how an on-board modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART"
-            },
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
@@ -4681,16 +4627,6 @@
                 "help": "Mask value : USE_PLL_HSI | USE_PLL_MSI",
                 "value": "USE_PLL_MSI",
                 "macro_name": "CLOCK_SOURCE"
-            },
-            "modem_is_on_board": {
-                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD"
-            },
-            "modem_data_connection_type": {
-                "help": "Value: Defines how an on-board modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART"
             }
         },
         "detect_code": ["0312"],
@@ -4715,18 +4651,6 @@
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32F4", "STM32F411RE"],
-        "config": {
-            "modem_is_on_board": {
-                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD"
-            },
-            "modem_data_connection_type": {
-                "help": "Value: Defines how an on-board modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART"
-            }
-        },
         "overrides": {
             "lse_available": 0
         },
@@ -4946,18 +4870,6 @@
             "STM32F437xx",
             "STM32F437xG"
         ],
-        "config": {
-            "modem_is_on_board": {
-                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD"
-            },
-            "modem_data_connection_type": {
-                "help": "Value: Defines how the modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART"
-            }
-        },
         "macros_add": [
             "MBEDTLS_CONFIG_HW_SUPPORT",
             "HSE_VALUE=12000000",
@@ -7564,18 +7476,6 @@
         "inherits": ["MCU_NRF52832"],
         "release_versions": ["5"],
         "public": false,
-        "config": {
-            "modem_is_on_board": {
-                "help": "Value: Tells the build system that the modem is on-board as opposed to a plug-in shield/module.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD"
-            },
-            "modem_data_connection_type": {
-                "help": "Value: Defines how the modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART"
-            }
-        },
         "overrides": {
             "network-default-interface-type": "CELLULAR"
         },
@@ -8506,13 +8406,13 @@
         "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0839"],
         "device_has_add": [
-			"CRC",
-			"SERIAL_ASYNCH",
-			"SERIAL_FC",
-			"TRNG",
-			"FLASH",
-			"MPU"
-		],
+            "CRC",
+            "SERIAL_ASYNCH",
+            "SERIAL_FC",
+            "TRNG",
+            "FLASH",
+            "MPU"
+        ],
         "features": ["BLE"],
         "release_versions": ["2", "5"],
         "bootloader_supported": false
@@ -9595,15 +9495,15 @@
         "detect_code": ["1703"],
         "macros_add": ["GD32E10X"],
         "release_versions": ["5"]
-	},
+    },
     "TT_M4G9": {
-		"inherits": ["Target"],
-		"core": "Cortex-M4F",
-		"is_disk_virtual": true,
-		"extra_labels": ["TT"],
-		"macros": ["__TT_M4G9__"],
-		"supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
-		"device_has": ["USTICKER",
+        "inherits": ["Target"],
+        "core": "Cortex-M4F",
+        "is_disk_virtual": true,
+        "extra_labels": ["TT"],
+        "macros": ["__TT_M4G9__"],
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "device_has": ["USTICKER",
                    "ANALOGIN",
                    "ANALOGOUT",
                    "SERIAL",
@@ -9619,27 +9519,15 @@
                    "STDIO_MESSAGES",
                    "FLASH",
                    "MPU"
-		],
-		"device_name": "TMPM4G9F15FG",
-		"detect_code": ["8013"],
-		"release_versions": ["5"],
-		"bootloader_supported": true
+        ],
+        "device_name": "TMPM4G9F15FG",
+        "detect_code": ["8013"],
+        "release_versions": ["5"],
+        "bootloader_supported": true
     },
     "EP_AGORA": {
         "inherits": ["MCU_NRF52840"],
         "supported_form_factors": [],
-        "config": {
-            "modem_is_on_board": {
-                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD"
-            },
-            "modem_data_connection_type": {
-                "help": "Value: Defines how an on-board modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART"
-            }
-        },
         "macros_add": [
             "CONFIG_GPIO_AS_PINRESET"
         ]
