@@ -19,11 +19,15 @@
 
 #if EP_AGORA_ENABLE_CELL
 
-#include "cellular/onboard_modem_api.h"
+#include "gpio_api.h"
+#include "platform/mbed_thread.h"
+#include "PinNames.h"
+
 #include "UARTSerial.h"
 #include "ONBOARD_TELIT_ME910.h"
 #include "ThisThread.h"
 #include "CellularLog.h"
+
 
 using namespace mbed;
 
@@ -33,19 +37,19 @@ ONBOARD_TELIT_ME910::ONBOARD_TELIT_ME910(FileHandle *fh) : TELIT_ME910(fh, PIN_N
 
 nsapi_error_t ONBOARD_TELIT_ME910::hard_power_on()
 {
-    ::onboard_modem_init();
+    onboard_modem_init();
     return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t ONBOARD_TELIT_ME910::hard_power_off()
 {
-    ::onboard_modem_deinit();
+    onboard_modem_deinit();
     return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t ONBOARD_TELIT_ME910::soft_power_on()
 {
-    ::onboard_modem_power_up();
+    onboard_modem_power_up();
     // From Telit_xE910 Global form factor App note: It is mandatory to avoid sending data to the serial ports during the first 200ms of the module start-up.
     rtos::ThisThread::sleep_for(200);
     return NSAPI_ERROR_OK;
@@ -53,7 +57,7 @@ nsapi_error_t ONBOARD_TELIT_ME910::soft_power_on()
 
 nsapi_error_t ONBOARD_TELIT_ME910::soft_power_off()
 {
-    ::onboard_modem_power_down();
+    onboard_modem_power_down();
     return NSAPI_ERROR_OK;
 }
 
@@ -120,6 +124,52 @@ nsapi_error_t ONBOARD_TELIT_ME910::init()
     _at->at_cmd_discard("&W&P", "");
 
     return _at->unlock_return_error();
+}
+
+void ONBOARD_TELIT_ME910::press_power_button(int time_ms)
+{
+    gpio_t gpio;
+
+    gpio_init_out_ex(&gpio, PIN_NAME_CELL_ON_OFF, 1);
+    gpio_write(&gpio, 0);
+    thread_sleep_for(time_ms);
+    gpio_write(&gpio, 1);
+}
+
+void ONBOARD_TELIT_ME910::onboard_modem_init()
+{
+    gpio_t gpio;
+
+    gpio_init_out_ex(&gpio, PIN_NAME_CELL_POWER_ENABLE, 0);
+    gpio_write(&gpio, 1);
+}
+
+void ONBOARD_TELIT_ME910::onboard_modem_deinit()
+{
+    gpio_t gpio;
+
+    gpio_init_out_ex(&gpio, PIN_NAME_CELL_POWER_ENABLE, 1);
+    gpio_write(&gpio, 0);
+}
+
+void ONBOARD_TELIT_ME910::onboard_modem_power_up()
+{
+    /* keep the power line low for 5 seconds */
+    press_power_button(5000);
+    /* give modem a little time to respond */
+    thread_sleep_for(20 * 1000);
+}
+
+void ONBOARD_TELIT_ME910::onboard_modem_power_down()
+{
+    gpio_t gpio;
+
+    gpio_init_out_ex(&gpio, PIN_NAME_CELL_ON_OFF, 0);
+    /* keep the power line low for more than 3 seconds.
+     * If 3G_ON_OFF pin is kept low for more than a second, a controlled disconnect and shutdown takes
+     * place, Due to the network disconnect, shut-off can take up to 30 seconds. However, we wait for 10
+     * seconds only   */
+    thread_sleep_for(10 * 1000);
 }
 
 CellularDevice *CellularDevice::get_target_default_instance()

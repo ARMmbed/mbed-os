@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-#include "onboard_modem_api.h"
 #include "QUECTEL_UG96.h"
 #include "QUECTEL_UG96_CellularContext.h"
 #include "AT_CellularNetwork.h"
