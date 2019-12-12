@@ -1,12 +1,12 @@
-{ 
-    "requires": [ 
-        "bare-metal", 
+{
+    "requires": [
+        "bare-metal",
         "rtos-api",
-        "greentea-client", 
-        "utest", 
+        "greentea-client",
+        "utest",
         "unity",
         "psa",
-        "mbed-crypto",        
+        "mbed-crypto",
         "mbedtls",
         "psa-compliance-framework",
         "filesystem",
@@ -37,7 +37,6 @@
     ],
     "target_overrides": {
         "*": {
-            "target.device_has_remove": ["EMAC", "USBDEVICE"],
             "mbed-trace.fea-ipv6": false
         }
      }

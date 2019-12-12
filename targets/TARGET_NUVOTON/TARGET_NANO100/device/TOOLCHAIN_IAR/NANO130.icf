@@ -11,7 +11,7 @@ define symbol __ICFEDIT_region_IRAM_start__ = 0x20000000;
 define symbol __ICFEDIT_region_IRAM_end__   = 0x20004000 - 1;
 /*-Sizes-*/
 define symbol __ICFEDIT_size_cstack__ = MBED_BOOT_STACK_SIZE;
-define symbol __ICFEDIT_size_heap__   = 0xC00;
+define symbol __ICFEDIT_size_heap__   = 0xB00;
 /**** End of ICF editor section. ###ICF###*/
 
 
@@ -24,7 +24,7 @@ define block CSTACK    with alignment = 8, size = __ICFEDIT_size_cstack__   { };
 define block HEAP      with alignment = 8, size = __ICFEDIT_size_heap__     { };
 
 
-initialize by copy { readwrite };
+initialize by copy with packing = none { readwrite };
 do not initialize  { section .noinit };
 
 place at address mem:__ICFEDIT_intvec_start__ { block ROMVEC };
