@@ -80,7 +80,7 @@ static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
 };
 #endif
 
-UBLOX_AT::UBLOX_AT(FileHandle *fh) : AT_CellularDevice(fh)
+UBLOX_AT::UBLOX_AT(FileHandle *fh) : AT_CellularDevice(fh), ubx_context(0)
 {
     set_cellular_properties(cellular_properties);
 }
@@ -117,31 +117,25 @@ nsapi_error_t UBLOX_AT::init()
     _at->lock();
     _at->flush();
     _at->at_cmd_discard("", "");
-
-    nsapi_error_t err = NSAPI_ERROR_OK;
+    int value = -1;
 
 #ifdef UBX_MDM_SARA_G3XX
-    err = _at->at_cmd_discard("+CFUN", "=0");
-
-    if (err == NSAPI_ERROR_OK) {
-        _at->at_cmd_discard("E0", ""); // echo off
-        _at->at_cmd_discard("+CMEE", "=1"); // verbose responses
-        config_authentication_parameters();
-        err = _at->at_cmd_discard("+CFUN", "=1"); // set full functionality
-    }
+    value = 0;
 #elif defined(UBX_MDM_SARA_U2XX) || defined(UBX_MDM_SARA_R41XM)
-    err = _at->at_cmd_discard("+CFUN", "=4");
-    if (err == NSAPI_ERROR_OK) {
-        _at->at_cmd_discard("E0", ""); // echo off
-        _at->at_cmd_discard("+CMEE", "=1"); // verbose responses
-        config_authentication_parameters();
-        err = _at->at_cmd_discard("+CFUN", "=1"); // set full functionality
-    }
+    value = 4;
 #else
     _at->unlock();
     return NSAPI_ERROR_UNSUPPORTED;
 #endif
 
+    nsapi_error_t err = _at->at_cmd_discard("+CFUN", "=", "%d", value);
+
+    if (err == NSAPI_ERROR_OK) {
+        _at->at_cmd_discard("E0", ""); // echo off
+        _at->at_cmd_discard("+CMEE", "=1"); // verbose responses
+        config_authentication_parameters();
+        err = _at->at_cmd_discard("+CFUN", "=1"); // set full functionality
+    }
     return _at->unlock_return_error();
 }
 
@@ -149,6 +143,10 @@ nsapi_error_t UBLOX_AT::config_authentication_parameters()
 {
     char *config = NULL;
     nsapi_error_t err;
+    const char *apn;
+    const char *uname;
+    const char *pwd;
+    CellularContext::AuthenticationType auth = CellularContext::NOAUTH;
     char imsi[MAX_IMSI_LENGTH + 1];
 
     if (ubx_context->get_apn() == NULL) {
@@ -162,9 +160,10 @@ nsapi_error_t UBLOX_AT::config_authentication_parameters()
     apn = ubx_context->get_apn();
     pwd = ubx_context->get_pwd();
     uname = ubx_context->get_uname();
-    auth = ubx_context->get_auth();
 
-    auth = (*uname && *pwd) ? auth : CellularContext::NOAUTH;
+    if (*uname && *pwd) {
+        auth = ubx_context->get_auth();
+    }
     err = set_authentication_parameters(apn, uname, pwd, auth);
 
     return err;

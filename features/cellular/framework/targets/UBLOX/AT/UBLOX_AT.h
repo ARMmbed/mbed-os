@@ -55,14 +55,6 @@ private:
      */
     static const int MAX_IMSI_LENGTH = 15;
 
-    const char *apn;
-    const char *uname;
-    const char *pwd;
-
-    /** The type of authentication to use.
-     */
-    CellularContext::AuthenticationType auth;
-
     nsapi_error_t config_authentication_parameters();
 
     nsapi_error_t set_authentication_parameters(const char *apn, const char *username, const char *password, CellularContext::AuthenticationType auth);

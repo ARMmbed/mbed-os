@@ -1339,7 +1339,7 @@ nsapi_error_t ATHandler::at_cmd_str(const char *cmd, const char *cmd_chr, char *
 
     cmd_stop();
 
-    if (cmd && strlen(cmd) > 0) {
+    if (strlen(cmd) > 0) {
         memcpy(_cmd_buffer, cmd, strlen(cmd));
         _cmd_buffer[strlen(cmd)] = ':';
         _cmd_buffer[strlen(cmd) + 1] = '\0';
