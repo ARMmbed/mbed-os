@@ -28,7 +28,8 @@ from .utils import execute_program
 from .get_tools import get_make_tool, \
                        get_cmake_tool, \
                        get_cxx_tool, \
-                       get_c_tool
+                       get_c_tool, \
+                       get_valgrind_tool
 from .settings import DEFAULT_CMAKE_GENERATORS
 
 class UnitTestTool(object):
@@ -96,6 +97,11 @@ class UnitTestTool(object):
             args.append("-DCOVERAGE:STRING=%s" % coverage_output_type)
 
         if valgrind:
+            valgrind = get_valgrind_tool()
+            if valgrind is None:
+                logging.error(
+                    "No Valgrind found in Path. Install all the required tools.\n")
+                sys.exit(1)
             args.append("-DVALGRIND=1")
             args.append("-DMEMORYCHECK_COMMAND_OPTIONS=\"--track-origins=yes\" \"--leak-check=full\" \"--show-reachable=yes\" \"--error-exitcode=1\"")
         else:
