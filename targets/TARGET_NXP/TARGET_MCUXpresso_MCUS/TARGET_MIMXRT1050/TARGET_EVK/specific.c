@@ -134,7 +134,7 @@ void ClockSetToOverDriveRun(void)
     LPM_EnterCritical();
     SwitchSystemClocks(LPM_PowerModeLowPowerRun);
     LPM_ExitCritical();
-    ClockSelectXtalOsc();
+    //ClockSelectXtalOsc();
 
     /* Init ARM PLL */
     CLOCK_SetDiv(kCLOCK_ArmDiv, 1);
@@ -428,7 +428,7 @@ void ClockSetToLowPowerIdle(void)
     LPM_EnterCritical();
     SwitchSystemClocks(LPM_PowerModeLowPowerRun);
     LPM_ExitCritical();
-    ClockSelectRcOsc();
+    //ClockSelectRcOsc();
 
     /* Deinit ARM PLL */
     CLOCK_DeinitArmPll();
