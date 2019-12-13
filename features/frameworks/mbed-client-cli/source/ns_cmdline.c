@@ -2082,7 +2082,7 @@ bool cmd_parameter_timestamp(int argc, char *argv[], const char *key, int64_t *v
                 char *token;
                 token = strtok(argv[i + 1], splitValue);
                 if (token) {
-                    *value = strtoul(token, 0, 10) << 16;
+                    *value = (int64_t)strtoul(token, 0, 10) << 16;
                 }
                 token = strtok(NULL, splitValue);
                 if (token) {
