@@ -312,6 +312,12 @@ public:
     void oob(const char *prefix, mbed::Callback<void()> func);
 
     /**
+     * @brief remove_oob Removes oob callback handler
+     * @param prefix Prefix to identify oob to be removed.
+     */
+    void remove_oob(const char *prefix);
+
+    /**
      * Flushes the underlying stream
      */
     void flush();

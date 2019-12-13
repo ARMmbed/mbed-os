@@ -362,6 +362,25 @@ void ATCmdParser::oob(const char *prefix, Callback<void()> cb)
     _oobs = oob;
 }
 
+void ATCmdParser::remove_oob(const char *prefix)
+{
+    struct oob *prev = NULL;
+    struct oob *oob = _oobs;
+    while (oob) {
+        if (memcmp(oob->prefix, prefix, strlen(prefix)) == 0) {
+            if (prev) {
+                prev->next = oob->next;
+            } else {
+                _oobs = oob->next;
+            }
+            delete oob;
+            return;
+        }
+        prev = oob;
+        oob = oob->next;
+    }
+}
+
 void ATCmdParser::abort()
 {
     _aborted = true;
