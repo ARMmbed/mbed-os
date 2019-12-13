@@ -39,7 +39,7 @@ namespace mbed {
  */
 
 /** A base class for serial port implementations
- * Can't be instantiated directly (use Serial or RawSerial)
+ * Can't be instantiated directly (use UnbufferedSerial or UARTSerial)
  *
  * @note Synchronization level: Set by subclass
  */

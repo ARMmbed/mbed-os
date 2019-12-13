@@ -70,6 +70,7 @@
 #include "drivers/Ethernet.h"
 #include "drivers/CAN.h"
 #include "drivers/RawSerial.h"
+#include "drivers/UnbufferedSerial.h"
 #include "drivers/UARTSerial.h"
 #include "drivers/FlashIAP.h"
 #include "drivers/MbedCRC.h"
