@@ -32,37 +32,37 @@ namespace mbed {
 
 // Declarations for backwards compatibility
 // To be foward compatible, code should adopt the Callback class
-template <typename R, typename A1>
-class FunctionPointerArg1 : public Callback<R(A1)> {
+template <typename R, typename ARG1>
+class FunctionPointerArg1 : public Callback<R(ARG1)> {
 public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
                           "FunctionPointerArg1<R, A> has been replaced by Callback<R(A)>")
-    FunctionPointerArg1(R(*function)(A1) = 0)
-        : Callback<R(A1)>(function) {}
+    FunctionPointerArg1(R(*function)(ARG1) = 0)
+        : Callback<R(ARG1)>(function) {}
 
     template<typename T>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
                           "FunctionPointerArg1<R, A> has been replaced by Callback<R(A)>")
-    FunctionPointerArg1(T *object, R(T::*member)(A1))
-        : Callback<R(A1)>(object, member) {}
+    FunctionPointerArg1(T *object, R(T::*member)(ARG1))
+        : Callback<R(ARG1)>(object, member) {}
 
-    R(*get_function())(A1)
+    R(*get_function())(ARG1)
     {
-        return *reinterpret_cast<R(* *)(A1)>(this);
+        return *reinterpret_cast<R(* *)(ARG1)>(this);
     }
 
-    R call(A1 a1) const
+    R call(ARG1 a1) const
     {
-        if (!Callback<R(A1)>::operator bool()) {
+        if (!Callback<R(ARG1)>::operator bool()) {
             return (R)0;
         }
 
-        return Callback<R(A1)>::call(a1);
+        return Callback<R(ARG1)>::call(a1);
     }
 
-    R operator()(A1 a1) const
+    R operator()(ARG1 a1) const
     {
-        return Callback<R(A1)>::call(a1);
+        return Callback<R(ARG1)>::call(a1);
     }
 };
 
