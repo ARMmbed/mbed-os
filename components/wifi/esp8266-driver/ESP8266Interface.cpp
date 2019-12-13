@@ -637,10 +637,10 @@ int ESP8266Interface::scan(WiFiAccessPoint *res, unsigned count, scan_mode mode,
 
     nsapi_error_t status = _init();
     if (status != NSAPI_ERROR_OK) {
-        return status;
         if (_software_conn_stat == IFACE_STATUS_DISCONNECTED) {
             _esp.uart_enable_input(false);
         }
+        return status;
     }
 
     int ret = _esp.scan(res, count, (mode == SCANMODE_ACTIVE ? ESP8266::SCANMODE_ACTIVE : ESP8266::SCANMODE_PASSIVE),
