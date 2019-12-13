@@ -9881,10 +9881,6 @@
                 "macro_name": "HSE_VALUE"
             }
         },
-        "mbed_rom_start": "0x08000000",
-        "mbed_rom_size" : "0x20000",
-        "mbed_ram_start": "0x20000000",
-        "mbed_ram_size" : "0x9000",
         "extra_labels_add": [
             "STM32G0",
             "STM32G071xx",
@@ -9908,7 +9904,7 @@
         ],
         "detect_code": ["0221"],
         "release_versions": ["5"],
-        "device_name": "STM32G071xx",
+        "device_name": "STM32G071RBTx",
         "bootloader_supported": true
     },
     "__build_tools_metadata__": {

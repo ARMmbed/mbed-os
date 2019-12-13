@@ -29,7 +29,7 @@
     "STM32F302R8": {
         "OGChipSelectEditMenu": "STM32F302x8\tST STM32F302x8"
     },
-    "STM32G071xx": {
+    "STM32G071RBTx": {
         "OGChipSelectEditMenu": "STM32G071RB\tST STM32G071RB"
     },
     "EFM32LG990F256": {
