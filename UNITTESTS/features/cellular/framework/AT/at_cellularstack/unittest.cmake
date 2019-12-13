@@ -43,4 +43,12 @@ set(unittest-test-sources
   stubs/ThisThread_stub.cpp
   stubs/ConditionVariable_stub.cpp
   stubs/Mutex_stub.cpp
+  stubs/Semaphore_stub.cpp
 )
+
+set(unittest-test-flags
+  -DDEVICE_SERIAL=1
+  -DDEVICE_INTERRUPTIN=1
+  -DMBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE=115200
+)
+

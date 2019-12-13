@@ -85,7 +85,7 @@
 #define RX_DESCRIPTOR_NUM       NU_RX_RING_LEN//4 //2    // 4: Max Number of Rx Frame Descriptors
 #define TX_DESCRIPTOR_NUM       NU_TX_RING_LEN//4 //2    // 4: Max number of Tx Frame Descriptors
 
-#define PACKET_BUFFER_SIZE      NU_ETH_MAX_FLEN//1520
+#define PACKET_BUFFER_SIZE      ( NU_ETH_MAX_FLEN + ((NU_ETH_MAX_FLEN%4) ? (4 - (NU_ETH_MAX_FLEN%4)) : 0) ) //For DMA 4 bytes alignment
 
 #define CONFIG_PHY_ADDR     1
 
