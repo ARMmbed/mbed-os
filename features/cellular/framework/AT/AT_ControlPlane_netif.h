@@ -32,7 +32,7 @@ protected:
 private:
     void (*_cb)(void *);
     void *_data;
-    char _recv_buffer[MAX_CP_DATA_RECV_LEN];
+    char _recv_buffer[MBED_CONF_CELLULAR_MAX_CP_DATA_RECV_LEN];
     size_t _recv_len;
     // Called on receiving URC: +CRTDCP
     void urc_cp_recv();
