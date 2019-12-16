@@ -9912,6 +9912,26 @@
         "device_name": "STM32G071RBTx",
         "bootloader_supported": true
     },
+    "S5JS100": {
+        "inherits": ["Target"],
+        "core": "Cortex-M7",
+        "supported_toolchains": ["GCC_ARM", "IAR", "ARMC6"],
+        "default_toolchain": "GCC_ARM",
+        "extra_labels": ["Samsung", "SIDK_S5JS100"],
+        "macros": ["CMSDK_CM7", "MBED_MPU_CUSTOM",  "CMSIS_NVIC_VIRTUAL", "MBEDTLS_CONFIG_HW_SUPPORT"],
+        "device_has": [
+            "INTERRUPTIN",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "USTICKER",
+            "SERIAL",
+            "SLEEP",
+            "TRNG"
+       ],
+        "device_name": "S5JS100",
+        "release_versions": ["5"]
+    },
     "__build_tools_metadata__": {
         "version": "1",
         "public": false
