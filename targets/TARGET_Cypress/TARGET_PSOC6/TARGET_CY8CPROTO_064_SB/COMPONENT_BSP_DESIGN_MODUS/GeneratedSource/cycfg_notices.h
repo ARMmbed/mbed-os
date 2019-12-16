@@ -5,7 +5,7 @@
 * Contains warnings and errors that occurred while generating code for the
 * design.
 * This file was automatically generated and should not be modified.
-* cfg-backend-cli: 1.2.0.1478
+* Device Configurator: 2.0.0.1483
 * Device Support Library (../../../../output/psoc6/psoc6pdl): 1.4.0.1571
 *
 ********************************************************************************
