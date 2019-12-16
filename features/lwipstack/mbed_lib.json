@@ -90,14 +90,6 @@
             "help": "TCP Maximum segment size, see LWIP opt.h for more information. Current default is 536.",
             "value": 536
         },
-        "tcpip-mbox-size": {
-            "help": "TCPIP mailbox size",
-            "value": 8
-        },
-        "default-tcp-recvmbox-size": {
-            "help": "Default TCPIP receive mailbox size",
-            "value": 8
-        },
         "mbox-size": {
             "help": "mailbox size",
             "value": 8

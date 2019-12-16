@@ -84,11 +84,6 @@
 #define LWIP_RAW                    MBED_CONF_LWIP_RAW_SOCKET_ENABLED
 
 #define MEMP_NUM_TCPIP_MSG_INPKT    MBED_CONF_LWIP_MEMP_NUM_TCPIP_MSG_INPKT
-#define TCPIP_MBOX_SIZE             MBED_CONF_LWIP_TCPIP_MBOX_SIZE
-#define DEFAULT_TCP_RECVMBOX_SIZE   MBED_CONF_LWIP_DEFAULT_TCP_RECVMBOX_SIZE
-#define DEFAULT_UDP_RECVMBOX_SIZE   8
-#define DEFAULT_RAW_RECVMBOX_SIZE   8
-#define DEFAULT_ACCEPTMBOX_SIZE     8
 
 // Thread stacks use 8-byte alignment
 #define LWIP_ALIGN_UP(pos, align) ((pos) % (align) ? (pos) +  ((align) - (pos) % (align)) : (pos))
