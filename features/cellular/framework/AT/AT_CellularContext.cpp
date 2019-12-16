@@ -486,14 +486,26 @@ nsapi_error_t AT_CellularContext::activate_ip_context()
             while (pdp) {
                 SocketAddress addr;
                 if (addr.set_ip_address(pdp->dns_secondary_addr)) {
-                    tr_info("DNS secondary %s", pdp->dns_secondary_addr);
-                    char ifn[5]; // "ce" + two digit _cid + zero
-                    add_dns_server(addr, get_interface_name(ifn));
+                    nsapi_addr_t taddr = addr.get_addr();
+                    for (int i = 0; i < ((taddr.version == NSAPI_IPv6) ? NSAPI_IPv6_BYTES : NSAPI_IPv4_BYTES); i++) {
+                        if (taddr.bytes[i] != 0) { // check the address is not all zero
+                            tr_info("DNS secondary %s", pdp->dns_secondary_addr);
+                            char ifn[5]; // "ce" + two digit _cid + zero
+                            add_dns_server(addr, get_interface_name(ifn));
+                            break;
+                        }
+                    }
                 }
                 if (addr.set_ip_address(pdp->dns_primary_addr)) {
-                    tr_info("DNS primary %s", pdp->dns_primary_addr);
-                    char ifn[5]; // "ce" + two digit _cid + zero
-                    add_dns_server(addr, get_interface_name(ifn));
+                    nsapi_addr_t taddr = addr.get_addr();
+                    for (int i = 0; i < ((taddr.version == NSAPI_IPv6) ? NSAPI_IPv6_BYTES : NSAPI_IPv4_BYTES); i++) {
+                        if (taddr.bytes[i] != 0) { // check the address is not all zero
+                            tr_info("DNS primary %s", pdp->dns_primary_addr);
+                            char ifn[5]; // "ce" + two digit _cid + zero
+                            add_dns_server(addr, get_interface_name(ifn));
+                            break;
+                        }
+                    }
                 }
                 pdp = pdp->next;
             }
