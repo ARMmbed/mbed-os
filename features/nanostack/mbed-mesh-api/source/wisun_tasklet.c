@@ -215,8 +215,8 @@ static void wisun_tasklet_parse_network_event(arm_event_s *event)
         case ARM_NWK_NWK_CONNECTION_DOWN:
             /* Connection to Access point is lost wait for Scan Result */
             tr_debug("WS/RPL scan new network");
-            wisun_tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_FAILED;
-            wisun_tasklet_network_state_changed(MESH_BOOTSTRAP_FAILED);
+            wisun_tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_STARTED;
+            wisun_tasklet_network_state_changed(MESH_BOOTSTRAP_STARTED);
             break;
         case ARM_NWK_NWK_PARENT_POLL_FAIL:
             wisun_tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_FAILED;
@@ -232,7 +232,8 @@ static void wisun_tasklet_parse_network_event(arm_event_s *event)
             break;
     }
 
-    if (wisun_tasklet_data_ptr->tasklet_state != TASKLET_STATE_BOOTSTRAP_READY &&
+    if ((wisun_tasklet_data_ptr->tasklet_state != TASKLET_STATE_BOOTSTRAP_READY &&
+            wisun_tasklet_data_ptr->tasklet_state != TASKLET_STATE_BOOTSTRAP_STARTED) &&
             wisun_tasklet_data_ptr->network_interface_id != INVALID_INTERFACE_ID) {
         // Set 5s timer for new network scan
         eventOS_event_timer_request(TIMER_EVENT_START_BOOTSTRAP,
