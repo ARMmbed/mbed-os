@@ -19,17 +19,11 @@
  ****************************************************************************
  */
 
-#if DEVICE_SERIAL
+#ifndef UTEST_PRINT_H
+#define UTEST_PRINT_H
 
-#ifndef UTEST_SERIAL_H
-#define UTEST_SERIAL_H
+extern "C" int utest_printf(const char *format, ...);
 
-#include "greentea-client/greentea_serial.h"
-
-#define utest_printf(...) greentea_serial->printf(__VA_ARGS__)
-
-#endif // UTEST_SERIAL_H
+#endif // UTEST_PRINT_H
 
 /** @}*/
-
-#endif

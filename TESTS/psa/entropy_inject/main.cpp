@@ -28,6 +28,7 @@
 #include "entropy.h"
 #include "entropy_poll.h"
 #include "psa/crypto.h"
+#include <string.h>
 
 /* MAX value support macro */
 #if !defined(MAX)

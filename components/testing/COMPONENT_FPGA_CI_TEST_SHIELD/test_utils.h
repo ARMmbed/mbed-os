@@ -540,6 +540,7 @@ typedef Port<1, AnalogoutMaps, DefaultFormFactor, TF1> AnalogoutPort;
 
 #if DEVICE_SERIAL
 #if DEVICE_SERIAL_FC
+#include "hal/serial_api.h"
 struct UARTMaps {
     static const PinMap *maps[];
     static const char *const pin_type_names[];
