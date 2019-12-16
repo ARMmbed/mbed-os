@@ -186,7 +186,7 @@ void {{partition.name|lower}}_init(spm_partition_t *partition)
 {# -------------- spm_db_entry(partition) ----------------------------------- #}
 {% macro spm_db_entry(partition) -%}
 
-    /* {{partition.name|upper}} */
+/* {{partition.name|upper}} */
     {
         .partition_id = {{partition.name|upper}}_ID,
         .thread_id = 0,
