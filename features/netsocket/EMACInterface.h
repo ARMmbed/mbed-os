@@ -106,6 +106,7 @@ public:
     /** @copydoc NetworkInterface::get_gateway */
     virtual nsapi_error_t get_gateway(SocketAddress *address);
 
+    /** @copydoc NetworkInterface::get_gateway */
     MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual const char *get_gateway();
 
