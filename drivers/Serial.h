@@ -61,6 +61,12 @@ public:
     using SerialBase::write;
 #endif
 
+    /** Resolve ambiguities in SerialBase and FileHandle
+     * (for enable_input and enable_output)
+     */
+    using SerialBase::enable_input;
+    using SerialBase::enable_output;
+
     /** Create a Serial port, connected to the specified transmit and receive pins
      *
      *  @param tx Transmit pin
