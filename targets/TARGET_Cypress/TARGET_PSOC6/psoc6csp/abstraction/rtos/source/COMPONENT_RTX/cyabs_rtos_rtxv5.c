@@ -23,7 +23,7 @@
 *******************************************************************************/
 
 #include <stdlib.h>
-#include <assert.h>
+#include "cy_utils.h"
 #include "cyabs_rtos.h"
 
 #if defined(__cplusplus)
@@ -84,6 +84,8 @@ cy_rslt_t cy_rtos_create_thread(cy_thread_t *thread, cy_thread_entry_fn_t entry_
 
     if (thread == NULL || stack_size < CY_RTOS_MIN_STACK_SIZE)
         status = CY_RTOS_BAD_PARAM;
+    else if (stack != NULL && (0 != (((uint32_t)stack) & CY_RTOS_ALIGNMENT_MASK)))
+        status = CY_RTOS_ALIGNMENT_ERROR;
     else
     {
         attr.name = name;
@@ -113,10 +115,10 @@ cy_rslt_t cy_rtos_create_thread(cy_thread_t *thread, cy_thread_entry_fn_t entry_
             status = CY_RTOS_NO_MEMORY;
         else
         {
-            assert(((uint32_t)attr.cb_mem & CY_RTOS_ALIGNMENT_MASK) == 0UL);
-            assert(((uint32_t)attr.stack_mem & CY_RTOS_ALIGNMENT_MASK) == 0UL);
-            *thread = osThreadNew((osThreadFunc_t)entry_function, (void *)arg, &attr );
-            assert((*thread == attr.cb_mem) || (*thread == NULL));
+            CY_ASSERT(((uint32_t)attr.cb_mem & CY_RTOS_ALIGNMENT_MASK) == 0UL);
+            CY_ASSERT(((uint32_t)attr.stack_mem & CY_RTOS_ALIGNMENT_MASK) == 0UL);
+            *thread = osThreadNew((osThreadFunc_t)entry_function, arg, &attr);
+            CY_ASSERT((*thread == attr.cb_mem) || (*thread == NULL));
             status = (*thread == NULL) ? CY_RTOS_GENERAL_ERROR : CY_RSLT_SUCCESS;
         }
     }
@@ -217,6 +219,18 @@ cy_rslt_t cy_rtos_join_thread(cy_thread_t *thread)
     return status;
 }
 
+cy_rslt_t cy_rtos_get_thread_handle(cy_thread_t *thread)
+{
+    cy_rslt_t status = CY_RSLT_SUCCESS;
+
+    if (thread == NULL)
+        status = CY_RTOS_BAD_PARAM;
+    else
+        *thread = osThreadGetId();
+
+    return status;
+}
+
 
 /******************************************************
 *                 Mutexes
@@ -240,9 +254,9 @@ cy_rslt_t cy_rtos_init_mutex(cy_mutex_t *mutex)
             status = CY_RTOS_NO_MEMORY;
         else
         {
-            assert(((uint32_t)attr.cb_mem & CY_RTOS_ALIGNMENT_MASK) == 0UL);
+            CY_ASSERT(((uint32_t)attr.cb_mem & CY_RTOS_ALIGNMENT_MASK) == 0UL);
             *mutex = osMutexNew(&attr);
-            assert((*mutex == attr.cb_mem) || (*mutex == NULL));
+            CY_ASSERT((*mutex == attr.cb_mem) || (*mutex == NULL));
             status = (*mutex == NULL) ? CY_RTOS_GENERAL_ERROR : CY_RSLT_SUCCESS;
         }
     }
@@ -327,9 +341,9 @@ cy_rslt_t cy_rtos_init_semaphore(cy_semaphore_t *semaphore, uint32_t maxcount, u
             status = CY_RTOS_NO_MEMORY;
         else
         {
-            assert(((uint32_t)attr.cb_mem & CY_RTOS_ALIGNMENT_MASK) == 0UL);
+            CY_ASSERT(((uint32_t)attr.cb_mem & CY_RTOS_ALIGNMENT_MASK) == 0UL);
             *semaphore = osSemaphoreNew(maxcount, initcount, &attr);
-            assert((*semaphore == attr.cb_mem) || (*semaphore == NULL));
+            CY_ASSERT((*semaphore == attr.cb_mem) || (*semaphore == NULL));
             status = (*semaphore == NULL) ? CY_RTOS_GENERAL_ERROR : CY_RSLT_SUCCESS;
         }
     }
@@ -422,9 +436,9 @@ cy_rslt_t cy_rtos_init_event(cy_event_t *event)
             status = CY_RTOS_NO_MEMORY;
         else
         {
-            assert(((uint32_t)attr.cb_mem & CY_RTOS_ALIGNMENT_MASK) == 0UL);
+            CY_ASSERT(((uint32_t)attr.cb_mem & CY_RTOS_ALIGNMENT_MASK) == 0UL);
             *event = osEventFlagsNew(&attr);
-            assert((*event == attr.cb_mem) || (*event == NULL));
+            CY_ASSERT((*event == attr.cb_mem) || (*event == NULL));
             status = (*event == NULL) ? CY_RTOS_GENERAL_ERROR : CY_RSLT_SUCCESS;
         }
     }
@@ -555,10 +569,10 @@ cy_rslt_t cy_rtos_init_queue(cy_queue_t *queue, size_t length, size_t itemsize)
             status = CY_RTOS_NO_MEMORY;
         else
         {
-            assert(((uint32_t)attr.cb_mem & CY_RTOS_ALIGNMENT_MASK) == 0UL);
-            assert(((uint32_t)attr.mq_mem & CY_RTOS_ALIGNMENT_MASK) == 0UL);
+            CY_ASSERT(((uint32_t)attr.cb_mem & CY_RTOS_ALIGNMENT_MASK) == 0UL);
+            CY_ASSERT(((uint32_t)attr.mq_mem & CY_RTOS_ALIGNMENT_MASK) == 0UL);
             *queue = osMessageQueueNew(length, itemsize, &attr);
-            assert((*queue == attr.cb_mem) || (*queue == NULL));
+            CY_ASSERT((*queue == attr.cb_mem) || (*queue == NULL));
             status = (*queue == NULL) ? CY_RTOS_GENERAL_ERROR : CY_RSLT_SUCCESS;
         }
     }
@@ -698,9 +712,9 @@ cy_rslt_t cy_rtos_init_timer(cy_timer_t *timer, cy_timer_trigger_type_t type,
                 ? osTimerPeriodic
                 : osTimerOnce;
 
-            assert(((uint32_t)attr.cb_mem & CY_RTOS_ALIGNMENT_MASK) == 0UL);
+            CY_ASSERT(((uint32_t)attr.cb_mem & CY_RTOS_ALIGNMENT_MASK) == 0UL);
             *timer = osTimerNew( (osTimerFunc_t)fun, osTriggerType, (void *)arg, &attr );
-            assert((*timer == attr.cb_mem) || (*timer == NULL));
+            CY_ASSERT((*timer == attr.cb_mem) || (*timer == NULL));
             status = (*timer == NULL) ? CY_RTOS_GENERAL_ERROR : CY_RSLT_SUCCESS;
         }
     }
