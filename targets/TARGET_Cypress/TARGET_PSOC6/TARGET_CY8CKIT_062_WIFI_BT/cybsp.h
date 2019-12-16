@@ -26,7 +26,7 @@
 
 #include "cy_result.h"
 #include "cybsp_types.h"
-#if defined(COMPONENT_BSP_DESIGN_MODUS)
+#if defined(COMPONENT_BSP_DESIGN_MODUS) || defined(COMPONENT_CUSTOM_DESIGN_MODUS)
 #include "cycfg.h"
 #endif
 #if defined(CYBSP_WIFI_CAPABLE) && defined(CY_USING_HAL)

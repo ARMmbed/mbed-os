@@ -4,7 +4,7 @@
 * Description:
 * Establishes all necessary connections between hardware elements.
 * This file was automatically generated and should not be modified.
-* cfg-backend-cli: 1.2.0.1478
+* Device Configurator: 2.0.0.1483
 * Device Support Library (../../../../output/psoc6/psoc6pdl): 1.4.0.1571
 *
 ********************************************************************************
@@ -42,12 +42,12 @@ void init_cycfg_routing(void);
 #define ioss_0_port_6_pin_7_HSIOM P6_7_CPUSS_SWJ_SWCLK_TCLK
 #define ioss_0_port_7_pin_1_HSIOM HSIOM_SEL_AMUXB
 #define ioss_0_port_7_pin_2_HSIOM HSIOM_SEL_AMUXB
-#define ioss_0_port_7_pin_7_HSIOM HSIOM_SEL_AMUXA
+#define ioss_0_port_7_pin_7_HSIOM HSIOM_SEL_AMUXB
 #define ioss_0_port_8_pin_1_HSIOM HSIOM_SEL_AMUXB
 #define ioss_0_port_8_pin_2_HSIOM HSIOM_SEL_AMUXB
 #define ioss_0_port_8_pin_3_HSIOM HSIOM_SEL_AMUXB
 #define ioss_0_port_8_pin_4_HSIOM HSIOM_SEL_AMUXB
-#define ioss_0_port_8_pin_5_HSIOM HSIOM_SEL_AMUXB
+#define ioss_0_port_8_pin_5_HSIOM HSIOM_SEL_AMUXA
 #define ioss_0_port_8_pin_6_HSIOM HSIOM_SEL_AMUXA
 #define ioss_0_port_8_pin_7_HSIOM HSIOM_SEL_AMUXB
 
