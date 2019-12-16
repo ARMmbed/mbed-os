@@ -441,7 +441,7 @@
                 </Mux>
             </Netlist>
         </Device>
-        <Device mpn="CYW43012TC0KFFBH">
+        <Device mpn="CYW43012TC0EKUBG">
             <BlockConfig/>
             <Netlist/>
         </Device>
