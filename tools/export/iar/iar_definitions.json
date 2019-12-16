@@ -395,5 +395,9 @@
         "OGChipSelectEditMenu": "TMPM4G9F15FG\tToshiba TMPM4G9F15FG",
         "GFPUCoreSlave": 21,
         "GBECoreSlave": 21
+    },
+    "S5JS100": {
+        "OGChipSelectEditMenu": "S5JS100\tSamsung S5JS100"
     }
+
 }

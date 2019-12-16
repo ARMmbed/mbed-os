@@ -235,6 +235,9 @@
         "DISCO_F413ZH": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
+        },
+        "S5JS100": {
+            "stdio-baud-rate": 115200
         }
     }
 }
