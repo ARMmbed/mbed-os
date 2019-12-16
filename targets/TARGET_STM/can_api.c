@@ -195,7 +195,7 @@ void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
 
     const can_pinmap_t static_pinmap = {peripheral, rd, function_rd, td, function_td};
 
-    CAN_INIT_FREQ_DIRECT(obj, &static_pinmap, 100000);
+    CAN_INIT_FREQ_DIRECT(obj, &static_pinmap, hz);
 }
 
 
@@ -692,7 +692,7 @@ void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
 
     const can_pinmap_t static_pinmap = {peripheral, rd, function_rd, td, function_td};
 
-    CAN_INIT_FREQ_DIRECT(obj, &static_pinmap, 100000);
+    CAN_INIT_FREQ_DIRECT(obj, &static_pinmap, hz);
 }
 
 void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id)
