@@ -40,7 +40,7 @@
 #include "components/storage/blockdevice/COMPONENT_SD/SDBlockDevice.h"
 
 #if (STATIC_PINMAP_READY)
-constexpr spi_pinmap_t static_spi_pinmap = get_spi_pinmap(MBED_CONF_SD_SPI_MOSI, MBED_CONF_SD_SPI_MISO, MBED_CONF_SD_SPI_CLK, NC);
+const spi_pinmap_t static_spi_pinmap = get_spi_pinmap(MBED_CONF_SD_SPI_MOSI, MBED_CONF_SD_SPI_MISO, MBED_CONF_SD_SPI_CLK, NC);
 #endif
 #endif
 
