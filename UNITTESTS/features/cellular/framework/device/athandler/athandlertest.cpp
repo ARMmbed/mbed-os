@@ -105,7 +105,6 @@ TEST_F(TestATHandler, test_ATHandler_list)
     ATHandler::set_debug_list(false);
 
     ATHandler *at1 = ATHandler::get_instance(&fh1, que, 0, ",", 0, 0);
-    EXPECT_TRUE(at1->get_ref_count() == 1);
 
     ATHandler::set_at_timeout_list(1000, false);
     ATHandler::set_debug_list(true);
@@ -113,14 +112,11 @@ TEST_F(TestATHandler, test_ATHandler_list)
     EXPECT_TRUE(ATHandler::get_instance(NULL, que, 0, ",", 0, 0) == NULL);
 
     ATHandler *at2 = ATHandler::get_instance(&fh1, que, 0, ",", 0, 0);
-    EXPECT_TRUE(at1->get_ref_count() == 2);
-    EXPECT_TRUE(at2->get_ref_count() == 2);
 
     ATHandler::set_at_timeout_list(2000, true);
     ATHandler::set_debug_list(false);
 
     EXPECT_TRUE(at1->close() == NSAPI_ERROR_OK);
-    EXPECT_TRUE(at2->get_ref_count() == 1);
     EXPECT_TRUE(at2->close() == NSAPI_ERROR_OK);
 
     ATHandler::set_at_timeout_list(1000, false);
@@ -202,43 +198,6 @@ TEST_F(TestATHandler, test_ATHandler_get_last_device_error)
 
     ATHandler at(&fh1, que, 0, ",");
     EXPECT_TRUE(0 == at.get_last_device_error().errCode);
-}
-
-TEST_F(TestATHandler, test_ATHandler_inc_ref_count)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-
-    ATHandler at(&fh1, que, 0, ",");
-    at.inc_ref_count();
-}
-
-TEST_F(TestATHandler, test_ATHandler_dec_ref_count)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-
-    ATHandler at(&fh1, que, 0, ",");
-    at.dec_ref_count();
-}
-
-TEST_F(TestATHandler, test_ATHandler_get_ref_count)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-
-    ATHandler at(&fh1, que, 0, ",");
-    EXPECT_TRUE(1 == at.get_ref_count());
-
-    at.inc_ref_count();
-    EXPECT_TRUE(2 == at.get_ref_count());
-
-    at.inc_ref_count();
-    EXPECT_TRUE(3 == at.get_ref_count());
-
-    at.dec_ref_count();
-    at.dec_ref_count();
-    EXPECT_TRUE(1 == at.get_ref_count());
 }
 
 TEST_F(TestATHandler, test_ATHandler_set_at_timeout)

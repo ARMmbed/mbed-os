@@ -77,7 +77,8 @@ public:
      *  @param send_delay       the minimum delay in ms between the end of last response and the beginning of a new command
      */
     ATHandler(FileHandle *fh, events::EventQueue &queue, uint32_t timeout, const char *output_delimiter, uint16_t send_delay = 0);
-    virtual ~ATHandler();
+
+    ~ATHandler();
 
     /** Return used file handle.
      *
@@ -146,24 +147,6 @@ public:
      */
     device_err_t get_last_device_error() const;
 
-    /** Increase reference count. Used for counting references to this instance.
-     *  Note that this should be used with care, if the ATHandler was taken into use
-     *  with get_instance()
-     */
-    void inc_ref_count();
-
-    /** Decrease reference count. Used for counting references to this instance.
-     *  Note that this should be used with care, if the ATHandler was taken into use
-     *  with get_instance()
-     */
-    void dec_ref_count();
-
-    /** Get the current reference count. Used for counting references to this instance.
-     *
-     *  @return current reference count
-     */
-    int get_ref_count();
-
     /** Set timeout in milliseconds for AT commands
      *
      *  @param timeout_milliseconds  Timeout in milliseconds
@@ -227,56 +210,12 @@ public:
      */
     void set_baud(int baud_rate);
 
-protected:
-    void event();
-#if defined AT_HANDLER_MUTEX && defined MBED_CONF_RTOS_PRESENT
-    rtos::Mutex _fileHandleMutex;
-    rtos::ConditionVariable _oobCv;
-#endif
-    FileHandle *_fileHandle;
-private:
-    /** Remove urc handler from linked list of urc's
-     *
-     *  @param prefix   Register urc prefix for callback. Urc could be for example "+CMTI: "
-     */
-    void remove_urc_handler(const char *prefix);
-
-    void set_error(nsapi_error_t err);
-
-    events::EventQueue &_queue;
-    nsapi_error_t _last_err;
-    int _last_3gpp_error;
-    device_err_t  _last_at_err;
-    uint16_t _oob_string_max_length;
-    char *_output_delimiter;
-
-    struct oob_t {
-        const char *prefix;
-        int prefix_len;
-        Callback<void()> cb;
-        oob_t *next;
-    };
-    oob_t *_oobs;
-    uint32_t _at_timeout;
-    uint32_t _previous_at_timeout;
-
-    uint16_t _at_send_delay;
-    uint64_t _last_response_stop;
-
-    int32_t _ref_count;
-    bool _is_fh_usable;
-
-    static ATHandler *_atHandlers;
-
-    //*************************************
-public:
-
     /** Starts the command writing by clearing the last error and writing the given command.
      *  In case of failure when writing, the last error is set to NSAPI_ERROR_DEVICE_ERROR.
      *
      *  @param cmd  AT command to be written to modem
      */
-    virtual void cmd_start(const char *cmd);
+    void cmd_start(const char *cmd);
 
     /**
      * @brief cmd_start_stop Starts an AT command, writes given variadic arguments and stops the command. Use this
@@ -322,8 +261,6 @@ public:
      * @return last error that happened when parsing AT responses
      */
     nsapi_error_t at_cmd_discard(const char *cmd, const char *cmd_chr, const char *format = "", ...);
-
-public:
 
     /** Writes integer type AT command subparameter. Starts with the delimiter if not the first param after cmd_start.
      *  In case of failure when writing, the last error is set to NSAPI_ERROR_DEVICE_ERROR.
@@ -517,64 +454,61 @@ public: // just for debugging
      */
     static void set_debug_list(bool debug_on);
 
-private:
-
-    // should fit any prefix and int
-    char _recv_buff[BUFF_SIZE];
-    // reading position
-    size_t _recv_len;
-    // reading length
-    size_t _recv_pos;
-
-    // resp_type: the part of the response that doesn't include the information response (+CMD1,+CMD2..)
-    //            ends with OK or (CME)(CMS)ERROR
-    // info_type: the information response part of the response: starts with +CMD1 and ends with CRLF
-    //            information response contains parameters or subsets of parameters (elements), both separated by comma
-    // elem_type: subsets of parameters that are part of information response, its parameters are separated by comma
-    enum ScopeType {RespType, InfoType, ElemType, NotSet};
-    void set_scope(ScopeType scope_type);
-    ScopeType _current_scope;
-
+private: //Private structs & enums
     struct tag_t {
         char tag[7];
         size_t len;
         bool found;
     };
 
-    // tag to stop response scope
-    tag_t _resp_stop;
-    // tag to stop information response scope
-    tag_t _info_stop;
-    // tag to stop element scope
-    tag_t _elem_stop;
-    // reference to the stop tag of current scope (resp/info/elem)
-    tag_t *_stop_tag;
+    struct oob_t {
+        const char *prefix;
+        int prefix_len;
+        Callback<void()> cb;
+        oob_t *next;
+    };
 
-    // delimiter between parameters and also used for delimiting elements of information response
-    char _delimiter;
-    // set true on prefix match -> indicates start of an information response or of an element
-    bool _prefix_matched;
-    // set true on urc match
-    bool _urc_matched;
-    // set true on (CME)(CMS)ERROR
-    bool _error_found;
-    // Max length of OK,(CME)(CMS)ERROR and URCs
-    size_t _max_resp_length;
+    // resp_type: the part of the response that doesn't include the information response (+CMD1,+CMD2..)
+    //            ends with OK or (CME)(CMS)ERROR
+    // info_type: the information response part of the response: starts with +CMD1 and ends with CRLF
+    //            information response contains parameters or subsets of parameters (elements), both separated by comma
+    // elem_type: subsets of parameters that are part of information response, its parameters are separated by comma
+    enum ScopeType {
+        RespType,
+        InfoType,
+        ElemType,
+        NotSet
+    };
 
-    // prefix set during resp_start and used to try matching possible information responses
-    char _info_resp_prefix[BUFF_SIZE];
-    bool _debug_on;
-    bool _cmd_start;
-    bool _use_delimiter;
+private: //Private functions
+    void event();
 
-    // time when a command or an URC processing was started
-    uint64_t _start_time;
-    // eventqueue event id
-    int _event_id;
+    /** Increase reference count. Used for counting references to this instance.
+     *  Note that this should be used with care, if the ATHandler was taken into use
+     *  with get_instance()
+     */
+    void inc_ref_count();
 
-    char _cmd_buffer[BUFF_SIZE];
+    /** Decrease reference count. Used for counting references to this instance.
+     *  Note that this should be used with care, if the ATHandler was taken into use
+     *  with get_instance()
+     */
+    void dec_ref_count();
 
-private:
+    /** Get the current reference count. Used for counting references to this instance.
+     *
+     *  @return current reference count
+     */
+    int get_ref_count();
+
+    /** Remove urc handler from linked list of urc's
+     *
+     *  @param prefix   Register urc prefix for callback. Urc could be for example "+CMTI: "
+     */
+    void remove_urc_handler(const char *prefix);
+
+    void set_error(nsapi_error_t err);
+
     //Handles the arguments from given variadic list
     void handle_args(const char *format, std::va_list list);
 
@@ -584,7 +518,6 @@ private:
     //Checks that ATHandler does not have a pending error condition and filehandle is usable
     bool ok_to_proceed();
 
-private:
     // Gets char from receiving buffer.
     // Resets and fills the buffer if all are already read (receiving position equals receiving length).
     // Returns a next char or -1 on failure (also sets error flag)
@@ -619,6 +552,7 @@ private:
     // Checks if receiving buffer contains OK, ERROR, URC or given prefix.
     void resp(const char *prefix, bool check_urc);
 
+    void set_scope(ScopeType scope_type);
 
     ScopeType get_scope();
 
@@ -659,7 +593,77 @@ private:
         AT_RX,
         AT_TX
     };
+
     void debug_print(const char *p, int len, ATType type);
+
+private: //Member variables
+
+#if defined AT_HANDLER_MUTEX && defined MBED_CONF_RTOS_PRESENT
+    rtos::Mutex _fileHandleMutex;
+    rtos::ConditionVariable _oobCv;
+#endif
+    FileHandle *_fileHandle;
+
+    events::EventQueue &_queue;
+    nsapi_error_t _last_err;
+    int _last_3gpp_error;
+    device_err_t  _last_at_err;
+    uint16_t _oob_string_max_length;
+    char *_output_delimiter;
+
+    oob_t *_oobs;
+    uint32_t _at_timeout;
+    uint32_t _previous_at_timeout;
+
+    uint16_t _at_send_delay;
+    uint64_t _last_response_stop;
+
+    int32_t _ref_count;
+    bool _is_fh_usable;
+
+    static ATHandler *_atHandlers;
+
+    // should fit any prefix and int
+    char _recv_buff[BUFF_SIZE];
+    // reading position
+    size_t _recv_len;
+    // reading length
+    size_t _recv_pos;
+
+    ScopeType _current_scope;
+
+    // tag to stop response scope
+    tag_t _resp_stop;
+    // tag to stop information response scope
+    tag_t _info_stop;
+    // tag to stop element scope
+    tag_t _elem_stop;
+    // reference to the stop tag of current scope (resp/info/elem)
+    tag_t *_stop_tag;
+
+    // delimiter between parameters and also used for delimiting elements of information response
+    char _delimiter;
+    // set true on prefix match -> indicates start of an information response or of an element
+    bool _prefix_matched;
+    // set true on urc match
+    bool _urc_matched;
+    // set true on (CME)(CMS)ERROR
+    bool _error_found;
+    // Max length of OK,(CME)(CMS)ERROR and URCs
+    size_t _max_resp_length;
+
+    // prefix set during resp_start and used to try matching possible information responses
+    char _info_resp_prefix[BUFF_SIZE];
+    bool _debug_on;
+    bool _cmd_start;
+    bool _use_delimiter;
+
+    // time when a command or an URC processing was started
+    uint64_t _start_time;
+    // eventqueue event id
+    int _event_id;
+
+    char _cmd_buffer[BUFF_SIZE];
 };
 
 } // namespace mbed
