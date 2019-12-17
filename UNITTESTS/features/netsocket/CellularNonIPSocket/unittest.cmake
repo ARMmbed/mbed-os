@@ -9,11 +9,11 @@ set(unittest-includes ${unittest-includes}
 )
 
 set(unittest-sources
-  ../features/netsocket/cellular/CellularNonIPSocket.cpp
+  ../features/netsocket/CellularNonIPSocket.cpp
 )
 
 set(unittest-test-sources
-  features/netsocket/cellular/CellularNonIPSocket/test_CellularNonIPSocket.cpp
+  features/netsocket/CellularNonIPSocket/test_CellularNonIPSocket.cpp
   stubs/NetworkInterface_stub.cpp
   stubs/NetworkInterfaceDefaults_stub.cpp
   stubs/NetworkStack_stub.cpp
