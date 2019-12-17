@@ -23,7 +23,6 @@
 ; * limitations under the License.
 ; */
 
-
                 PRESERVE8
                 THUMB
 
@@ -695,7 +694,6 @@ sdhc_1_interrupt_general_IRQHandler
                 ENDP
 
                 ALIGN
-
 
                 END
 

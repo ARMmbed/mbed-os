@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file system_psoc6.h
-* \version 2.60
+* \version 2.70
 *
 * \brief Device system header file.
 *
@@ -320,6 +320,28 @@
 *       <th>Reason for Change</th>
 *   </tr>
 *   <tr>
+*       <td rowspan="5">2.70</td>
+*       <td>Updated \ref SystemCoreClockUpdate() implementation - The SysClk API is reused.</td>
+*       <td>Code optimization.</td>
+*   </tr>
+*   <tr>
+*       <td>Updated \ref SystemInit() implementation - The IPC7 structure is initialized for both cores.</td>
+*       <td>Provided support for SysPM driver updates.</td>
+*   </tr>
+*   <tr>
+*       <td>Updated the linker scripts.</td>
+*       <td>Reserved FLASH area for the MCU boot headers.</td>
+*   </tr>
+*   <tr>
+*       <td>Added System Pipe initialization for all devices. </td>
+*       <td>Improved PDL usability according to user experience.</td>
+*   </tr>
+*   <tr>
+*       <td>Removed redundant legacy macros: CY_CLK_EXT_FREQ_HZ, CY_CLK_ECO_FREQ_HZ and CY_CLK_ALTHF_FREQ_HZ.
+*           Use \ref Cy_SysClk_ExtClkSetFrequency, \ref Cy_SysClk_EcoConfigure and \ref Cy_BLE_EcoConfigure functions instead them. </td>
+*       <td>Defect fixing.</td>
+*   </tr>
+*   <tr>
 *       <td>2.60</td>
 *       <td>Updated linker scripts.</td>
 *       <td>Provided support for new devices, updated usage of CM0p prebuilt image.</td>
@@ -439,12 +461,6 @@ extern "C" {
     #define CY_SYSTEM_CPU_CM0P          0UL
 #endif
 
-#if defined (CY_PSOC_CREATOR_USED) && (CY_PSOC_CREATOR_USED == 1U)
-    #include "cyfitter.h"
-#endif /* (CY_PSOC_CREATOR_USED) && (CY_PSOC_CREATOR_USED == 1U) */
-
-
-
 
 /*******************************************************************************
 *
@@ -459,44 +475,6 @@ extern "C" {
 * \addtogroup group_system_config_user_settings_macro
 * \{
 */
-
-#if defined (CYDEV_CLK_EXTCLK__HZ)
-    #define CY_CLK_EXT_FREQ_HZ          (CYDEV_CLK_EXTCLK__HZ)
-#else
-    /***************************************************************************//**
-    * External Clock Frequency (in Hz, [value]UL). If compiled within
-    * PSoC Creator and the clock is enabled in the DWR, the value from DWR used.
-    * Otherwise, edit the value below.
-    *        <i>(USER SETTING)</i>
-    *******************************************************************************/
-    #define CY_CLK_EXT_FREQ_HZ          (24000000UL)    /* <<< 24 MHz */
-#endif /* (CYDEV_CLK_EXTCLK__HZ) */
-
-
-#if defined (CYDEV_CLK_ECO__HZ)
-    #define CY_CLK_ECO_FREQ_HZ          (CYDEV_CLK_ECO__HZ)
-#else
-    /***************************************************************************//**
-    * \brief External crystal oscillator frequency (in Hz, [value]UL). If compiled
-    * within PSoC Creator and the clock is enabled in the DWR, the value from DWR
-    * used.
-    *       <i>(USER SETTING)</i>
-    *******************************************************************************/
-    #define CY_CLK_ECO_FREQ_HZ          (24000000UL)    /* <<< 24 MHz */
-#endif /* (CYDEV_CLK_ECO__HZ) */
-
-
-#if defined (CYDEV_CLK_ALTHF__HZ)
-    #define CY_CLK_ALTHF_FREQ_HZ        (CYDEV_CLK_ALTHF__HZ)
-#else
-    /***************************************************************************//**
-    * \brief Alternate high frequency (in Hz, [value]UL). If compiled within
-    * PSoC Creator and the clock is enabled in the DWR, the value from DWR used.
-    * Otherwise, edit the value below.
-    *        <i>(USER SETTING)</i>
-    *******************************************************************************/
-    #define CY_CLK_ALTHF_FREQ_HZ        (32000000UL)    /* <<< 32 MHz */
-#endif /* (CYDEV_CLK_ALTHF__HZ) */
 
 
 /***************************************************************************//**
@@ -581,7 +559,6 @@ void Cy_SysIpcPipeIsrCm4(void);
 extern void     Cy_SystemInit(void);
 extern void     Cy_SystemInitFpuEnable(void);
 
-extern uint32_t cy_delayFreqHz;
 extern uint32_t cy_delayFreqKhz;
 extern uint8_t  cy_delayFreqMhz;
 extern uint32_t cy_delay32kMs;
@@ -634,11 +611,11 @@ extern uint32_t cy_delay32kMs;
 #define CY_SYS_CYPIPE_INTR_MASK   ( CY_SYS_CYPIPE_CHAN_MASK_EP0 | CY_SYS_CYPIPE_CHAN_MASK_EP1 )
 
 #define CY_SYS_CYPIPE_CONFIG_EP0  ( (CY_SYS_CYPIPE_INTR_MASK << CY_IPC_PIPE_CFG_IMASK_Pos) \
-                                            | (CY_IPC_INTR_CYPIPE_EP0 << CY_IPC_PIPE_CFG_INTR_Pos) \
-                                            | CY_IPC_CHAN_CYPIPE_EP0)
+                                   | (CY_IPC_INTR_CYPIPE_EP0 << CY_IPC_PIPE_CFG_INTR_Pos) \
+                                    | CY_IPC_CHAN_CYPIPE_EP0)
 #define CY_SYS_CYPIPE_CONFIG_EP1  ( (CY_SYS_CYPIPE_INTR_MASK << CY_IPC_PIPE_CFG_IMASK_Pos) \
-                                            | (CY_IPC_INTR_CYPIPE_EP1 << CY_IPC_PIPE_CFG_INTR_Pos) \
-                                            | CY_IPC_CHAN_CYPIPE_EP1)
+                                   | (CY_IPC_INTR_CYPIPE_EP1 << CY_IPC_PIPE_CFG_INTR_Pos) \
+                                    | CY_IPC_CHAN_CYPIPE_EP1)
 
 /******************************************************************************/
 
@@ -658,7 +635,7 @@ extern uint32_t cy_PeriClkFreqHz;
 
 /** \cond INTERNAL */
 /*******************************************************************************
-* Backward compatibility macro. The following code is DEPRECATED and must
+* Backward compatibility macros. The following code is DEPRECATED and must
 * not be used in new projects
 *******************************************************************************/
 
@@ -667,6 +644,7 @@ extern uint32_t cy_PeriClkFreqHz;
 #define Cy_RestoreIRQ   Cy_SysLib_ExitCriticalSection
 #define CY_SYS_INTR_CYPIPE_EP0          (CY_IPC_INTR_CYPIPE_EP0)
 #define CY_SYS_INTR_CYPIPE_EP1          (CY_IPC_INTR_CYPIPE_EP1)
+#define cy_delayFreqHz                  (SystemCoreClock)
 
 /** \endcond */
 

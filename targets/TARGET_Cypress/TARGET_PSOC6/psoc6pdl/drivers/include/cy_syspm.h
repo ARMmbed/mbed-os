@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syspm.h
-* \version 4.40
+* \version 4.50
 *
 * Provides the function definitions for the power management API.
 *
@@ -724,6 +724,25 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td rowspan="2">4.50</td>
+*     <td>Updated the \ref Cy_SysPm_CpuEnterDeepSleep() function.</td>
+*     <td> 
+*           Updated the mechanism for saving/restoring not retained UDB and clock
+*           registers in the Cy_SysPm_CpuEnterDeepSleep() function.
+*     </td>
+*   </tr>
+*   <tr>
+*     <td>
+*           Updated the \ref Cy_SysPm_CpuEnterDeepSleep() function to use values 
+*           stored into the variable instead of reading them directly from 
+*           SFLASH memory.
+*     </td>
+*     <td>
+*           SFLASH memory can be unavailable to read the correct value after 
+*           a Deep sleep state on the CY8C6xx6 and CY8C6xx7 devices.
+*     </td>
+*   </tr>
+*   <tr>
 *     <td>4.40</td>
 *     <td>
 *           Fixed \ref Cy_SysPm_LdoSetVoltage(), \ref Cy_SysPm_BuckEnable(), and
@@ -1223,7 +1242,7 @@ extern "C" {
 #define CY_SYSPM_DRV_VERSION_MAJOR       4
 
 /** Driver minor version */
-#define CY_SYSPM_DRV_VERSION_MINOR       40
+#define CY_SYSPM_DRV_VERSION_MINOR       50
 
 /** SysPm driver identifier */
 #define CY_SYSPM_ID                      (CY_PDL_DRV_ID(0x10U))
@@ -1705,6 +1724,9 @@ typedef struct
     uint32_t CY_SYSPM_UDB_BCTL_QCLK_EN0_REG;    /**< UDB bank QCLK_EN0 register */
     uint32_t CY_SYSPM_UDB_BCTL_QCLK_EN1_REG;    /**< UDB bank QCLK_EN1 register */
     uint32_t CY_SYSPM_UDB_BCTL_QCLK_EN2_REG;    /**< UDB bank QCLK_EN2 register */
+    
+    uint32_t CY_SYSPM_CM0_CLOCK_CTL_REG;        /**< CPUSS CM0+ clock control register */
+    uint32_t CY_SYSPM_CM4_CLOCK_CTL_REG;        /**< CPUSS CM4 clock control register */    
 } cy_stc_syspm_backup_regs_t;
 /** \} group_syspm_data_structures */
 

@@ -5,7 +5,7 @@
 * CYB06445LQI-S3D42 device header
 *
 * \note
-* Generator version: 1.5.0.1292
+* Generator version: 1.5.0.1314
 *
 ********************************************************************************
 * \copyright
@@ -423,7 +423,7 @@ typedef enum {
 #define CY_SRAM_BASE                    0x08000000UL
 #define CY_SRAM_SIZE                    0x00040000UL
 #define CY_FLASH_BASE                   0x10000000UL
-#define CY_FLASH_SIZE                   0x00080000UL
+#define CY_FLASH_SIZE                   0x00070000UL
 #define CY_EM_EEPROM_BASE               0x14000000UL
 #define CY_EM_EEPROM_SIZE               0x00008000UL
 #define CY_XIP_BASE                     0x18000000UL
