@@ -70,7 +70,7 @@ void softap_test()
 }
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
-    {
+{
     // here, we specify the timeout (150) and the host runner (the name of our Python file)
     GREENTEA_SETUP(150, "softap_basic");
     return greentea_test_setup_handler(number_of_cases);
