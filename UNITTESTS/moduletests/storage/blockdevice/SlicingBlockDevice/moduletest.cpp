@@ -120,6 +120,8 @@ TEST_F(SlicingBlockModuleTest, slice_in_middle)
     EXPECT_EQ(0, memcmp(buf, magic, BLOCK_SIZE));
     bd.read(buf, BLOCK_SIZE * 3, BLOCK_SIZE);
     EXPECT_EQ(0, memcmp(buf, magic, BLOCK_SIZE));
+
+    delete[] program;
 }
 
 TEST_F(SlicingBlockModuleTest, slice_at_the_end)
@@ -143,6 +145,8 @@ TEST_F(SlicingBlockModuleTest, slice_at_the_end)
     //Verify that blocks before and after the slicing blocks are not touched
     bd.read(buf, BLOCK_SIZE * 7, BLOCK_SIZE);
     EXPECT_EQ(0, memcmp(buf, magic, BLOCK_SIZE));
+
+    delete[] program;
 }
 
 TEST_F(SlicingBlockModuleTest, over_write)
@@ -163,6 +167,8 @@ TEST_F(SlicingBlockModuleTest, over_write)
 
     //Program a test value to address that is one pass the device size
     EXPECT_EQ(slice.program(program, 2 * BLOCK_SIZE, BLOCK_SIZE), BD_ERROR_DEVICE_ERROR);
+
+    delete[] buf;
     delete[] program;
 }
 
