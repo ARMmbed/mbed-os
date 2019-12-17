@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] crash_reporting test cases require a RTOS to run.
-#else
 #include "mbed.h"
 #include "mbed_error.h"
 #include "mbed_crash_data_offsets.h"
@@ -83,4 +80,3 @@ int main(void)
 }
 
 #endif // !MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
-#endif // !defined(MBED_CONF_RTOS_PRESENT)
