@@ -48,38 +48,42 @@ using namespace utest::v1;
 static char _key[256] = { 0 };
 static char _value[128] = { 0 };
 
-void host_os_type_verification() {
+void host_os_type_verification()
+{
     greentea_send_kv("get_os_type", "host");
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
     TEST_ASSERT_EQUAL_STRING("Linux", _value);
 }
 
-void softap_test() {
+void softap_test()
+{
     WhdSoftAPInterface *softap = WhdSoftAPInterface::get_default_instance();
     TEST_ASSERT_TRUE(softap != NULL);
 
     softap->set_network(SOFTAP_IP_ADDRESS, NETMASK, GATEWAY);
     int ret = softap->start(MBED_CONF_APP_SOFTAP_SSID, MBED_CONF_APP_SOFTAP_PASSWORD, NSAPI_SECURITY_WPA_WPA2,
-              MBED_CONF_APP_SOFTAP_CHANNEL);
+                            MBED_CONF_APP_SOFTAP_CHANNEL);
     TEST_ASSERT_EQUAL_INT(0, ret);
     greentea_send_kv("softap", "up");
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
     TEST_ASSERT_EQUAL_STRING("passed", _key);
 }
 
-utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
-   // here, we specify the timeout (150) and the host runner (the name of our Python file)
-   GREENTEA_SETUP(150, "softap_basic");
-   return greentea_test_setup_handler(number_of_cases);
+utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
+    {
+    // here, we specify the timeout (150) and the host runner (the name of our Python file)
+    GREENTEA_SETUP(150, "softap_basic");
+    return greentea_test_setup_handler(number_of_cases);
 }
 
 Case cases[] = {
-   Case("Host OS Type Verification", host_os_type_verification),
-   Case("SoftAP test", softap_test)
+    Case("Host OS Type Verification", host_os_type_verification),
+    Case("SoftAP test", softap_test)
 };
 
 Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 
-int main() {
-   return Harness::run(specification);
+int main()
+{
+    return Harness::run(specification);
 }
