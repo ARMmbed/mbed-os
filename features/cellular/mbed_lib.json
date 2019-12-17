@@ -32,6 +32,10 @@
         "clear-on-connect" : {
             "help": "Clear modem to a known default state on connect() before SIM pin is entered, null to disable",
             "value": null
+        },
+        "max-cp-data-recv-len" : {
+            "help": "Max length of the buffer storing data received over control plane",
+            "value": 1358
         }
     }
 }

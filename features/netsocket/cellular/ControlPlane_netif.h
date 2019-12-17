@@ -27,9 +27,10 @@
 namespace mbed {
 
 /* Length of the buffer storing data received over control plane */
-#define MAX_CP_DATA_RECV_LEN 2048
+#ifndef MBED_CONF_CELLULAR_MAX_CP_DATA_RECV_LEN
+#define MBED_CONF_CELLULAR_MAX_CP_DATA_RECV_LEN 1358
+#endif
 
-// TODO: need to make this l3ip compatible
 
 /**
  * @addtogroup cellular
