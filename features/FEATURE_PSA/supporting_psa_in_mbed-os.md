@@ -67,7 +67,7 @@ Example:
 ```
 
 ## Naming convention for dual-core and Armv8-M target names
-As described in previous paragraphs, SPE and NSPE target names **MUST** be defined for dual-core and Armv8-M targets. This section defines the naming convention for the same.
+As described in previous paragraphs, both SPE and NSPE target names **MUST** be defined for dual-core and Armv8-M targets. This section defines the naming convention for the same.
 
 `TargetA_S`       : PSA secure target (SPE)
 `TargetA`         : PSA non-secure target (NSPE)
@@ -157,14 +157,15 @@ The following example shows a PSA enabled dual-core target, `PSoC64`,
         "inherits": [
             "PSA_DUAL_V7_M_SPE"
         ],
-        "tfm_target_name": "psoc64",
+        "tfm_target_name": "psoc64_1m",
         "tfm_bootloader_supported": false,
         "tfm_default_toolchain": "ARMCLANG",
         "tfm_supported_toolchains": [
             "ARMCLANG",
             "GNUARM"
         ],
-        "delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CPROTO_064_SB/prebuilt"
+        "delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CPROTO_064_SB",
+        "OUTPUT_EXT": "hex"
     },
     "CY8CPROTO_064_SB": {
         "inherits": [
@@ -201,6 +202,8 @@ The following example shows a PSA enabled dual-core target, `PSoC64`,
 Please pay attention to the config options `extra_labels_add` and `device_has_remove`. If needed, a PSA target definition **MUST** use [extra_labels/device_has]`_add` or [extra_labels/device_has]`_remove` (not `extra_labels` or `device_has`) to add/remove either extra_labels or target capabilities. Also, use `feature_`[add/remove] to add/remove a feature.
 Check [extra_labels](https://os.mbed.com/docs/mbed-os/v5.14/reference/adding-and-configuring-targets.html), [device_has](https://os.mbed.com/docs/mbed-os/v5.14/reference/adding-and-configuring-targets.html) and [features](https://os.mbed.com/docs/mbed-os/v5.14/reference/adding-and-configuring-targets.html) for more information.
 
+By default TF-M build generates a `bin` file. If the target requires a `hex` file then the attribute `"OUTPUT_EXT": "hex"` should be added to the target definition.
+
 ## Adding Armv8-M PSA targets
 
 #  Enabling PSA at application level
@@ -236,10 +239,11 @@ optional arguments:
                         tfm_default_toolchain)
   -d, --debug           Set build profile to debug
   -l, --list            Print supported TF-M secure targets
-  --commit              Create a git commit for each platform
+  --commit              Commit secure binaries (TF-M) and
+                        features/FEATURE_PSA/TARGET_TFM/VERSION.txt
 ```
 
-If the python script is invoked without any options then TF-M will be built for all the supported targets and the binary will be copied to predefined location defined by attribute `delivery_dir`.
+If the python script is invoked without any options then TF-M will be built for all supported targets and the secure binary (TF-M) for each target is copied to a predefined location defined by the target attribute `delivery_dir`. If `--commit` option is provided then new/modified secure binaries (TF-M) and `features/FEATURE_PSA/TARGET_TFM/VERSION.txt` will be added to version control.
 
 # PSA target directory structure
 
