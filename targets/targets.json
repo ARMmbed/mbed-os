@@ -9928,8 +9928,7 @@
             "SERIAL",
             "SLEEP",
             "TRNG"
-       ],
-        "device_name": "S5JS100",
+        ],
         "release_versions": ["5"]
     },
     "__build_tools_metadata__": {
