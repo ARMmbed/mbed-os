@@ -6,7 +6,7 @@
   <minor>1</minor>
   <mcu>CortexM0p,CortexM4</mcu>
   <vendor>Cypress</vendor>
-  <flash>524288</flash>
+  <flash>458752</flash>
   <ram>262144</ram>
   <package>68-QFN</package>
   <pins>68</pins>
