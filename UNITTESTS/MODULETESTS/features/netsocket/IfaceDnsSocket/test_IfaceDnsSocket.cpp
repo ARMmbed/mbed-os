@@ -499,7 +499,7 @@ TEST_F(Test_IfaceDnsSocket, async_cancel)
 
 TEST_F(Test_IfaceDnsSocket, add_server)
 {
-    SocketAddress server_address("1.2.3.4", 8000);
+    SocketAddress server_address("1.2.3.4", 53);
     EXPECT_EQ(NSAPI_ERROR_OK, nsapi_dns_add_server(server_address, NULL));
     EXPECT_EQ(NSAPI_ERROR_OK, nsapi_dns_add_server(server_address, NULL)); // Duplicate add - no error.
 
@@ -533,7 +533,7 @@ TEST_F(Test_IfaceDnsSocket, attempts)
     SocketAddress known_server_address[DNS_SERVER_SIZE];
     for (uint8_t i = DNS_SERVER_SIZE; i > 0; i--) {
         uint8_t bytes[NSAPI_IPv4_SIZE] = {i, i, i, i};
-        known_server_address[i - 1] = SocketAddress(bytes, NSAPI_IPv4);
+        known_server_address[i - 1] = SocketAddress(bytes, NSAPI_IPv4, 53);
         EXPECT_EQ(NSAPI_ERROR_OK, nsapi_dns_add_server(known_server_address[i - 1], NULL));
     }
 
@@ -573,7 +573,7 @@ TEST_F(Test_IfaceDnsSocket, retries_attempts)
     SocketAddress known_server_address[DNS_SERVER_SIZE];
     for (uint8_t i = DNS_SERVER_SIZE; i > 0; i--) {
         uint8_t bytes[NSAPI_IPv4_SIZE] = {i, i, i, i};
-        known_server_address[i - 1] = SocketAddress(bytes, NSAPI_IPv4);
+        known_server_address[i - 1] = SocketAddress(bytes, NSAPI_IPv4, 53);
         EXPECT_EQ(NSAPI_ERROR_OK, nsapi_dns_add_server(known_server_address[i - 1], NULL));
     }
 
