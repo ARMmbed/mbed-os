@@ -1027,9 +1027,11 @@ static void FS_fseek_beyond_empty_file_seek_set()
 
     int read_sz = fread(read_buf, sizeof(char), sizeof(read_buf), fd[0]);
     TEST_ASSERT_EQUAL(0, read_sz);
-
+#if !defined(__MICROLIB)
+    // feof() always returns 0 because the EOF indicator is not supported by Microlib
     res = feof(fd[0]);
     TEST_ASSERT_NOT_EQUAL(0, res);
+#endif
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
@@ -1062,8 +1064,11 @@ static void FS_fseek_beyond_non_empty_file_seek_set()
     int read_sz = fread(read_buf, sizeof(char), sizeof(read_buf), fd[0]);
     TEST_ASSERT_EQUAL(0, read_sz);
 
+#if !defined(__MICROLIB)
+    // feof() always returns 0 because the EOF indicator is not supported by Microlib
     res = feof(fd[0]);
     TEST_ASSERT_NOT_EQUAL(0, res);
+#endif
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
@@ -1147,8 +1152,11 @@ static void FS_fseek_beyond_empty_file_seek_cur()
     int read_sz = fread(read_buf, sizeof(char), sizeof(read_buf), fd[0]);
     TEST_ASSERT_EQUAL(0, read_sz);
 
+#if !defined(__MICROLIB)
+    // feof() always returns 0 because the EOF indicator is not supported by Microlib
     res = feof(fd[0]);
     TEST_ASSERT_NOT_EQUAL(0, res);
+#endif
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
@@ -1181,8 +1189,11 @@ static void FS_fseek_beyond_non_empty_file_seek_cur()
     int read_sz = fread(read_buf, sizeof(char), sizeof(read_buf), fd[0]);
     TEST_ASSERT_EQUAL(0, read_sz);
 
+#if !defined(__MICROLIB)
+    // feof() always returns 0 because the EOF indicator is not supported by Microlib
     res = feof(fd[0]);
     TEST_ASSERT_NOT_EQUAL(0, res);
+#endif
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
@@ -1266,8 +1277,11 @@ static void FS_fseek_beyond_empty_file_seek_end()
     int read_sz = fread(read_buf, sizeof(char), sizeof(read_buf), fd[0]);
     TEST_ASSERT_EQUAL(0, read_sz);
 
+#if !defined(__MICROLIB)
+    // feof() always returns 0 because the EOF indicator is not supported by Microlib
     res = feof(fd[0]);
     TEST_ASSERT_NOT_EQUAL(0, res);
+#endif
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
@@ -1300,8 +1314,11 @@ static void FS_fseek_beyond_non_empty_file_seek_end()
     int read_sz = fread(read_buf, sizeof(char), sizeof(read_buf), fd[0]);
     TEST_ASSERT_EQUAL(0, read_sz);
 
+#if !defined(__MICROLIB)
+    // feof() always returns 0 because the EOF indicator is not supported by Microlib
     res = feof(fd[0]);
     TEST_ASSERT_NOT_EQUAL(0, res);
+#endif
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
