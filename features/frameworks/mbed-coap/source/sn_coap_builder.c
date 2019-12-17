@@ -155,7 +155,7 @@ uint16_t sn_coap_builder_calc_needed_packet_data_size(const sn_coap_hdr_s *src_c
 uint16_t sn_coap_builder_calc_needed_packet_data_size_2(const sn_coap_hdr_s *src_coap_msg_ptr, uint16_t blockwise_payload_size)
 {
     (void)blockwise_payload_size;
-    uint16_t returned_byte_count = 0;
+    uint_fast32_t returned_byte_count = 0;
 
     if (!src_coap_msg_ptr) {
         return 0;
@@ -176,7 +176,6 @@ uint16_t sn_coap_builder_calc_needed_packet_data_size_2(const sn_coap_hdr_s *src
                 tr_error("sn_coap_builder_calc_needed_packet_data_size_2 - token too large!");
                 return 0;
             }
-
             returned_byte_count += src_coap_msg_ptr->token_len;
         }
         /* URI PATH - Repeatable option. Length of one option is 0-255 */
@@ -198,7 +197,6 @@ uint16_t sn_coap_builder_calc_needed_packet_data_size_2(const sn_coap_hdr_s *src
                 tr_error("sn_coap_builder_calc_needed_packet_data_size_2 - content format too large!");
                 return 0;
             }
-
             returned_byte_count += sn_coap_builder_options_build_add_uint_option(NULL, src_coap_msg_ptr->content_format, COAP_OPTION_CONTENT_FORMAT, &tempInt);
         }
         /* If options list pointer exists */
@@ -212,7 +210,6 @@ uint16_t sn_coap_builder_calc_needed_packet_data_size_2(const sn_coap_hdr_s *src
                     tr_error("sn_coap_builder_calc_needed_packet_data_size_2 - accept too large!");
                     return 0;
                 }
-
                 returned_byte_count += sn_coap_builder_options_build_add_uint_option(NULL, src_options_list_ptr->accept, COAP_OPTION_ACCEPT, &tempInt);
             }
             /* MAX AGE - An integer option, omitted for default. Up to 4 bytes */
@@ -266,7 +263,6 @@ uint16_t sn_coap_builder_calc_needed_packet_data_size_2(const sn_coap_hdr_s *src
                     tr_error("sn_coap_builder_calc_needed_packet_data_size_2 - uri host too large!");
                     return 0;
                 }
-
                 returned_byte_count += src_options_list_ptr->uri_host_len;
             }
             /* LOCATION PATH - Repeatable option. Length of this option is 0-255 bytes*/
@@ -359,8 +355,13 @@ uint16_t sn_coap_builder_calc_needed_packet_data_size_2(const sn_coap_hdr_s *src
         }
         returned_byte_count += sn_coap_builder_options_calculate_jump_need(src_coap_msg_ptr);
     }
-    return returned_byte_count;
+    if (returned_byte_count > UINT16_MAX) {
+        tr_error("sn_coap_builder_calc_needed_packet_data_size_2 - packet data size would overflow!");
+        return 0;
+    }
+    return (uint16_t)returned_byte_count;
 }
+
 /**
  * \fn static uint8_t sn_coap_builder_options_calculate_jump_need(sn_coap_hdr_s *src_coap_msg_ptr)
  *
