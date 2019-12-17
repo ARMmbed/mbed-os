@@ -161,7 +161,6 @@ public: // from NetworkInterface
      */
     static CellularContext *get_default_instance();
 
-
     /** Instantiates a default Non-IP cellular interface
      *
      *  This function creates a new Non-IP PDP context.

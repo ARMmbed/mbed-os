@@ -9,14 +9,12 @@ public:
     virtual ~AT_ControlPlane_netif();
 
 protected:
-
 // ControlPlane_netif
 
     /* Sends data using +CSODCP specified in
      *  3GPP 27007 10.1.43: Sending of originating data via the control plane
      */
     virtual nsapi_size_or_error_t send(const void *cpdata, nsapi_size_t cpdata_length);
-
 
     /* Receives data using +CRTDCP specified in
      *  3GPP 27007 10.1.44: Reporting of terminating data via the control plane

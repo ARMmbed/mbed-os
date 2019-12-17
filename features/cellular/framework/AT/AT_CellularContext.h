@@ -73,6 +73,7 @@ public:
     AT_CellularDevice *get_device() const;
 
     ATHandler &get_at_handler();
+
 protected:
     virtual void cellular_callback(nsapi_event_t ev, intptr_t ptr);
 
@@ -107,6 +108,7 @@ protected:
     virtual bool get_context();
     AT_CellularDevice::CellularProperty pdp_type_t_to_cellular_property(pdp_type_t pdp_type);
     bool set_new_context(int cid);
+
 private:
 #if NSAPI_PPP_AVAILABLE
     nsapi_error_t open_data_channel();
@@ -124,6 +126,7 @@ private:
     virtual void do_connect_with_retry();
     void do_disconnect();
     void set_cid(int cid);
+
 private:
     ContextOperation  _current_op;
     FileHandle *_fh;
@@ -135,8 +138,6 @@ protected:
     // flag indicating if CP was requested to be setup
     bool _cp_req;
     bool _is_connected;
-
-protected:
     ATHandler &_at;
 };
 

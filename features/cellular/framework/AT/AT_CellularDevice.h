@@ -123,6 +123,30 @@ public:
      */
     virtual nsapi_error_t release_at_handler(ATHandler *at_handler);
 
+    virtual CellularContext *get_context_list() const;
+
+    virtual nsapi_error_t set_baud_rate(int baud_rate);
+
+#if MBED_CONF_CELLULAR_USE_SMS
+    virtual CellularSMS *open_sms(FileHandle *fh = NULL);
+
+    virtual void close_sms();
+#endif
+
+    /** Get value for the given key.
+     *
+     *  @param key  key for value to be fetched
+     *  @return     property value for the given key. Value type is defined in enum CellularProperty
+     */
+    intptr_t get_property(CellularProperty key);
+
+    /** Cellular module need to define an array of cellular properties which defines module supported property values.
+     *
+     *  @param property_array array of module properties
+     */
+    void set_cellular_properties(const intptr_t *property_array);
+
+protected:
     /** Creates new instance of AT_CellularContext or if overridden, modem specific implementation.
      *
      *  @param at           ATHandler reference for communication with the modem.
@@ -148,50 +172,15 @@ public:
      */
     virtual AT_CellularInformation *open_information_impl(ATHandler &at);
 
-    virtual CellularContext *get_context_list() const;
-
-    virtual nsapi_error_t set_baud_rate(int baud_rate);
-
 #if MBED_CONF_CELLULAR_USE_SMS
-    virtual CellularSMS *open_sms(FileHandle *fh = NULL);
-
-    virtual void close_sms();
-
     /** Create new instance of AT_CellularSMS or if overridden, modem specific implementation.
      *
      *  @param at   ATHandler reference for communication with the modem.
      *  @return new instance of class AT_CellularSMS
      */
     virtual AT_CellularSMS *open_sms_impl(ATHandler &at);
-
-    AT_CellularSMS *_sms;
-
 #endif // MBED_CONF_CELLULAR_USE_SMS
 
-public:
-    /** Get value for the given key.
-     *
-     *  @param key  key for value to be fetched
-     *  @return     property value for the given key. Value type is defined in enum CellularProperty
-     */
-    intptr_t get_property(CellularProperty key);
-
-    /** Cellular module need to define an array of cellular properties which defines module supported property values.
-     *
-     *  @param property_array array of module properties
-     */
-    void set_cellular_properties(const intptr_t *property_array);
-
-public: //Member variables
-    AT_CellularNetwork *_network;
-
-    AT_CellularInformation *_information;
-    AT_CellularContext *_context_list;
-    int _default_timeout;
-    bool _modem_debug_on;
-    ATHandler *_at;
-
-protected:
     virtual void cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx = NULL);
     void send_disconnect_to_context(int cid);
     // Sets commonly used URCs
@@ -207,7 +196,20 @@ private:
     void urc_nw_deact();
     void urc_pdn_deact();
 
+protected:
+    ATHandler *_at;
+
 private:
+#if MBED_CONF_CELLULAR_USE_SMS
+    AT_CellularSMS *_sms;
+#endif // MBED_CONF_CELLULAR_USE_SMS
+
+    AT_CellularNetwork *_network;
+    AT_CellularInformation *_information;
+    AT_CellularContext *_context_list;
+
+    int _default_timeout;
+    bool _modem_debug_on;
     const intptr_t *_property_array;
 };
 

@@ -36,7 +36,6 @@ namespace mbed {
  *  Class for attaching to a network and getting information from it.
  */
 class AT_CellularNetwork : public CellularNetwork {
-
 public:
 
     AT_CellularNetwork(ATHandler &atHandler, AT_CellularDevice &device);
@@ -101,7 +100,6 @@ public:
     ATHandler &get_at_handler();
 
 protected:
-
     /** Sets access technology to be scanned. Modem specific implementation.
      *
      *  @param op_rat Access technology
@@ -140,7 +138,6 @@ private:
     void call_network_cb(nsapi_connection_status_t status);
 
 protected:
-
     Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
     Callback<void(CIoT_Supported_Opt)> _ciotopt_network_support_cb;
     RadioAccessTechnology _op_act;
@@ -150,9 +147,7 @@ protected:
     registration_params_t _reg_params;
     mbed::Callback<void()> _urc_funcs[C_MAX];
 
-protected:
     ATHandler &_at;
-
     AT_CellularDevice &_device;
 };
 

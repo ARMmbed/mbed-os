@@ -485,9 +485,7 @@ protected: //Common functions
 
 private: //Common functions
     nsapi_error_t start_state_machine(CellularStateMachine::CellularState target_state);
-
     nsapi_error_t create_state_machine();
-
     void stm_callback(nsapi_event_t ev, intptr_t ptr);
 
 protected: //Member variables
@@ -499,15 +497,13 @@ protected: //Member variables
     FileHandle *_fh;
     events::EventQueue _queue;
     CellularStateMachine *_state_machine;
+    Callback<void(nsapi_event_t, intptr_t)> _status_cb;
 
 private: //Member variables
     CellularNetwork *_nw;
     char _sim_pin[MAX_PIN_SIZE + 1];
     char _plmn[MAX_PLMN_SIZE + 1];
     PlatformMutex _mutex;
-    Callback<void(nsapi_event_t, intptr_t)> _status_cb;
-
-    const intptr_t *_property_array;
 };
 
 /**
