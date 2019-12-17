@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" release="PSoC Creator  4.2 Nightly Build 1112" xmlns="http://cypress.com/xsd/cysem">
+<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" release="PSoC Creator  4.3 Nightly Build 1365" xmlns="http://cypress.com/xsd/cysem">
   <Instances count="38">
     <Instance guid="0127f6d8-2a80-4e81-a168-694a40eb679e" name="CLK_TIMER_1" component="clock_side">
       <Parameter name="CY_COMMENT">
@@ -259,7 +259,7 @@
         <Value>1</Value>
       </Parameter>
       <Parameter name="ToolTip">
-        <Value>Precision ILO: An additional source that can provide a much more accurate 32.768kHz clock than ILO when periodically calibrated using a high-accuracy clock such as the ECO. This clock is stopped in the hibernate power mode.</Value>
+        <Value>Internal Low Speed Oscillator: This is a low accuracy fixed-frequency clock in the kilohertz range that is available in sleep, deep sleep and hibernate power modes.</Value>
       </Parameter>
     </Instance>
     <Instance guid="361ca358-26b5-4471-9011-52d5c3b43a73" name="EXTCLK_1" component="clock_side">
@@ -1200,8 +1200,8 @@ SYS_TICK</Value>
     </Signal>
     <Signal name="Net_2013" type="Digital" terminalCount="4">
       <Terminal name="CLK_HF0_1.a_14" type="Instance Digital Output" />
-      <Terminal name="CLK_FAST_1.b_17" type="Instance Digital Input" />
       <Terminal name="CLK_PERI_1.b_17" type="Instance Digital Input" />
+      <Terminal name="CLK_FAST_1.b_17" type="Instance Digital Input" />
       <Terminal name="CLK_TIMER_1.b_18" type="Instance Digital Input" />
     </Signal>
     <Signal name="Net_2023" type="Digital" terminalCount="1">
@@ -1807,16 +1807,16 @@ SYS_TICK</Value>
     </Signal>
     <Signal name="Net_4398[4:0]" type="Digital" terminalCount="11">
       <Terminal name="FLL_BYPASS.a_0" type="Instance Digital Output" />
-      <Terminal name="CLK_HF4_1.b_17" type="Instance Digital Input" />
       <Terminal name="CLK_HF1_1.b_17" type="Instance Digital Input" />
-      <Terminal name="CLK_HF0_1.b_17" type="Instance Digital Input" />
-      <Terminal name="CLK_HF3_1.b_17" type="Instance Digital Input" />
       <Terminal name="CLK_HF2_1.b_17" type="Instance Digital Input" />
       <Terminal name="CLK_PUMP_1.b_17" type="Instance Digital Input" />
+      <Terminal name="CLK_HF4_1.b_17" type="Instance Digital Input" />
+      <Terminal name="CLK_HF3_1.b_17" type="Instance Digital Input" />
+      <Terminal name="CLK_HF0_1.b_17" type="Instance Digital Input" />
+      <Terminal name="arc_bridge_7.o" type="Instance Digital Output" />
+      <Terminal name="arc_bridge_3.o" type="Instance Digital Output" />
       <Terminal name="arc_bridge_2.o" type="Instance Digital Output" />
       <Terminal name="arc_bridge_8.o" type="Instance Digital Output" />
-      <Terminal name="arc_bridge_3.o" type="Instance Digital Output" />
-      <Terminal name="arc_bridge_7.o" type="Instance Digital Output" />
     </Signal>
     <Signal name="Net_4405" type="Digital" terminalCount="2">
       <Terminal name="CLK_LF_2.a_3" type="Instance Digital Output" />

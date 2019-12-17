@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_sar.h
-* \version 1.20.1
+* \version 1.20.2
 *
 * Header file for the SAR driver.
 *
@@ -496,12 +496,24 @@
 * are connected to the SARADC as separate single-ended channels and as a differential-pair channel.
 * Note that separate function calls are needed to route the device pins to the SARMUX. The AMUXBUSes
 * are separated into multiple segments and these segments are connected/disconnected using the AMUX_SPLIT_CTL
-* registers in the HSIOM. In the following code snippet, to connect Port 1 to the SARMUX, the left and right
-* switches of AMUX_SPLIT_CTL[1] and AMUX_SPLIT_CTL[6] need to be closed.
+* registers in the HSIOM.
 *
 * \image html sar_sarmux_amuxbus.png
 *
 * \snippet sar/snippet/main.c SNIPPET_SAR_SARMUX_AMUXBUS
+*
+*
+* To connect SARMUX to any other non-dedicated port, you may need to close additional HSIOM switches to route signals 
+* through AMUXBUS.
+* For more detail, see the device TRM, AMUX splitting.
+*
+* The following code snippet is an alternative pin configuration. To connect Port 1 to AMUXBUS, close the left and
+* right switches of AMUX_SPLIT_CTL[1] and AMUX_SPLIT_CTL[6].
+*
+* \warning
+* This snippet shows how to configure pins for CY8C6347BZI-BLD53. 
+* 
+* \snippet sar/snippet/main.c SNIPPET_SAR_SARMUX_CUSTOM_PORT
 *
 * \section group_sar_low_power Low Power Support
 * This SAR driver provides a callback function to handle power mode transitions.
@@ -545,6 +557,11 @@
 * \section group_sar_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.20.2</td>
+*     <td>Code snippets update.</td>
+*     <td>PDL infrastructure update, documentation enhancement.</td>
+*   </tr>
 *   <tr>
 *     <td>1.20.1</td>
 *     <td>Code snippets update.</td>

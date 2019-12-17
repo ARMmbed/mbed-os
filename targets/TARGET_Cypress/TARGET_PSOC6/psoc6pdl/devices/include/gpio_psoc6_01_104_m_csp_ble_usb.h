@@ -5,7 +5,7 @@
 * PSoC6_01 device GPIO header for 104-M-CSP-BLE-USB package
 *
 * \note
-* Generator version: 1.5.0.1286
+* Generator version: 1.5.0.1304
 *
 ********************************************************************************
 * \copyright
@@ -63,12 +63,12 @@ typedef enum
 {
     AMUX_SPLIT_CTL_0                = 0x0000u,  /* Left = AMUXBUS_ADFT0_VDDD; Right = AMUXBUS_MAIN */
     AMUX_SPLIT_CTL_1                = 0x0001u,  /* Left = AMUXBUS_MAIN; Right = AMUXBUS_NOISY */
-    AMUX_SPLIT_CTL_7                = 0x0007u,  /* Left = AMUXBUS_ADFT1_VDDD; Right = AMUXBUS_NOISY */
     AMUX_SPLIT_CTL_2                = 0x0002u,  /* Left = AMUXBUS_CSD0; Right = AMUXBUS_NOISY */
     AMUX_SPLIT_CTL_3                = 0x0003u,  /* Left = AMUXBUS_VDDIO_1; Right = AMUXBUS_CSD0 */
     AMUX_SPLIT_CTL_4                = 0x0004u,  /* Left = AMUXBUS_CSD1; Right = AMUXBUS_CSD0 */
     AMUX_SPLIT_CTL_5                = 0x0005u,  /* Left = AMUXBUS_SAR; Right = AMUXBUS_CSD1 */
     AMUX_SPLIT_CTL_6                = 0x0006u,  /* Left = AMUXBUS_SAR; Right = AMUXBUS_MAIN */
+    AMUX_SPLIT_CTL_7                = 0x0007u,  /* Left = AMUXBUS_ADFT1_VDDD; Right = AMUXBUS_NOISY */
     AMUX_SPLIT_CTL_8                = 0x0008u   /* Left = AMUXBUS_ANALOG_VDDD; Right = AMUXBUS_ANALOG_VDDA */
 } cy_en_amux_split_t;
 

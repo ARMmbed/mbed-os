@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_sysclk.h
-* \version 1.40.2
+* \version 1.50
 *
 * Provides an API declaration of the sysclk driver.
 *
@@ -103,6 +103,11 @@
 * \section group_sysclk_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.50</td>
+*     <td>\ref Cy_SysClk_ClkHfGetFrequency is updated to reuse the \ref cy_BleEcoClockFreqHz global system variable.</td>
+*     <td>API enhancement.</td>
+*   </tr>
 *   <tr>
 *     <td>1.40.2</td>
 *     <td>Update documentation based on collateral review feedback.</td>
@@ -1831,10 +1836,8 @@ typedef struct
     cy_en_csv_loss_window_t lossWindow;
     cy_en_csv_error_actions_t lossAction;
 } cy_stc_clkhf_csv_config_t;
-/** \endcond */
 
-/** \cond INTERNAL */
-extern uint32_t altHfFreq; /* Internal storage for BLE ECO frequency user setting */
+#define altHfFreq (cy_BleEcoClockFreqHz)
 /** \endcond */
 
 /**

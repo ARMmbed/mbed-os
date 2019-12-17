@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy8c6xx7_cm4_dual.icf
-* \version 2.60
+* \version 2.70
 *
 * Linker file for the IAR compiler.
 *
@@ -41,7 +41,7 @@
 /*-Specials-*/
 define symbol __ICFEDIT_intvec_start__ = 0x00000000;
 
-/* Size of the Cortex-M0+ application image */
+/* The size of the Cortex-M0+ application image */
 define symbol FLASH_CM0P_SIZE  = 0x2000;
 
 if (!isdefinedsymbol(MBED_ROM_START)) {
@@ -108,7 +108,7 @@ define symbol __ICFEDIT_region_IROM0_end__   = (MBED_ROM_START + FLASH_CM0P_SIZE
 define symbol __ICFEDIT_region_IROM1_start__ = MBED_APP_START;
 define symbol __ICFEDIT_region_IROM1_end__   = (MBED_APP_START + MBED_APP_SIZE);
 
-/* The following symbols define a 32K flash region used for EEPROM emulation. 
+/* The following symbols define a 32K flash region used for EEPROM emulation.
  * This region can also be used as the general purpose flash.
  * You can assign sections to this memory region for only one of the cores.
  * Note some middleware (e.g. BLE, Emulated EEPROM) can place their data into this memory region.

@@ -253,10 +253,9 @@
 
   <ConfigFirmware>
     <!-- External tools -->
-    <ConfigTool value="`${cy_tools_path(&quot;capsense-configurator&quot;) . &quot;/capsense-configurator&quot;}`" include="`${CapSenseEnable}`">
+    <ConfigTool value="`${cy_tools_path(&quot;capsense-configurator&quot;) . &quot;/capsense-configurator-cli&quot;}`" include="`${CapSenseEnable}`">
       <Arg value="`${&quot;--config=&quot; . cfgFilePath}`" />
       <Arg value="`${&quot;--output-dir=&quot; . cy_codegen_path()}`" />
-      <Arg value="`${&quot;--generate&quot;}`" />
     </ConfigTool>
   
     <ConfigInclude value="cy_sysclk.h" include="`${pclkOk}`" />

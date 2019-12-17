@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ble_clk.h
-* \version 3.20
+* \version 3.30
 * 
 * The header file of the BLE ECO clock driver.
 *
@@ -69,6 +69,11 @@
 * \section group_ble_clk_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason of Change</th></tr>
+*   <tr>
+*     <td>3.30</td>
+*     <td>Updated the \ref Cy_BLE_EcoConfigure() to reuse the \ref Cy_SysClk_ClkPeriGetFrequency().</td>
+*     <td>API enhancement.</td>
+*   </tr>
 *   <tr>
 *     <td>3.20</td>
 *     <td>Updated the Cy_BLE_EcoConfigure(): it stores the ECO frequency for possible frequency calculation by the Cy_SysClk_ClkHfGetFrequency().</td>

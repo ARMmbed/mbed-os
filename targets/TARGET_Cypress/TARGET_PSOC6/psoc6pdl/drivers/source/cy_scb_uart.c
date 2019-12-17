@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_uart.c
-* \version 2.30.1
+* \version 2.40
 *
 * Provides UART API implementation of the SCB driver.
 *
@@ -34,6 +34,7 @@ extern "C" {
 static void HandleDataReceive (CySCB_Type *base, cy_stc_scb_uart_context_t *context);
 static void HandleRingBuffer  (CySCB_Type *base, cy_stc_scb_uart_context_t *context);
 static void HandleDataTransmit(CySCB_Type *base, cy_stc_scb_uart_context_t *context);
+static uint32_t SelectRxFifoLevel(CySCB_Type const *base);
 
 
 /*******************************************************************************
@@ -453,12 +454,14 @@ cy_en_syspm_status_t Cy_SCB_UART_HibernateCallback(cy_stc_syspm_callback_params_
 void Cy_SCB_UART_StartRingBuffer(CySCB_Type *base, void *buffer, uint32_t size, cy_stc_scb_uart_context_t *context)
 {
     CY_ASSERT_L1(NULL != context);
+    #if !defined(NDEBUG)
     CY_ASSERT_L1(CY_SCB_UART_INIT_KEY == context->initKey);
+    #endif
     CY_ASSERT_L1(CY_SCB_IS_BUFFER_VALID(buffer, size));
 
     if ((NULL != buffer) && (size > 0UL))
     {
-        uint32_t halfFifoSize =  (Cy_SCB_GetFifoSize(base) / 2UL);
+        uint32_t irqRxLevel =  SelectRxFifoLevel(base);
 
         context->rxRingBuf     = buffer;
         context->rxRingBufSize = size;
@@ -466,10 +469,29 @@ void Cy_SCB_UART_StartRingBuffer(CySCB_Type *base, void *buffer, uint32_t size, 
         context->rxRingBufTail = 0UL;
 
         /* Set up an RX interrupt to handle the ring buffer */
-        Cy_SCB_SetRxFifoLevel(base, (size >= halfFifoSize) ? (halfFifoSize - 1UL) : (size - 1UL));
+        Cy_SCB_SetRxFifoLevel(base, (size >= irqRxLevel) ? (irqRxLevel - 1UL) : (size - 1UL));
 
         Cy_SCB_SetRxInterruptMask(base, CY_SCB_RX_INTR_LEVEL);
     }
+}
+
+
+/*******************************************************************************
+* Function Name: SelectRxFifoLevel
+****************************************************************************//**
+* Select RX FIFO level as RTS level if it is valid (>0) or half of RX FIFO size
+* in other case.
+*
+* \return
+* The RX FIFO level.
+*
+*******************************************************************************/
+static uint32_t SelectRxFifoLevel(CySCB_Type const *base)
+{
+    uint32_t halfFifoSize = Cy_SCB_GetFifoSize(base) / 2UL;
+    uint32_t rtsFifoLevel = Cy_SCB_UART_GetRtsFifoLevel(base);
+
+    return ((rtsFifoLevel != 0UL ) ? (rtsFifoLevel) : (halfFifoSize));
 }
 
 
@@ -615,7 +637,9 @@ void Cy_SCB_UART_ClearRingBuffer(CySCB_Type const *base, cy_stc_scb_uart_context
 cy_en_scb_uart_status_t Cy_SCB_UART_Receive(CySCB_Type *base, void *buffer, uint32_t size, cy_stc_scb_uart_context_t *context)
 {
     CY_ASSERT_L1(NULL != context);
+    #if !defined(NDEBUG)
     CY_ASSERT_L1(CY_SCB_UART_INIT_KEY == context->initKey);
+    #endif
     CY_ASSERT_L1(CY_SCB_IS_BUFFER_VALID(buffer, size));
 
     cy_en_scb_uart_status_t retStatus = CY_SCB_UART_RECEIVE_BUSY;
@@ -705,7 +729,7 @@ cy_en_scb_uart_status_t Cy_SCB_UART_Receive(CySCB_Type *base, void *buffer, uint
         /* Set up a direct RX FIFO receive */
         if (size > 0UL)
         {
-            uint32_t halfFifoSize = Cy_SCB_GetFifoSize(base) / 2UL;
+            uint32_t irqRxLevel = SelectRxFifoLevel(base);
 
             /* Set up context */
             context->rxStatus  = CY_SCB_UART_RECEIVE_ACTIVE;
@@ -715,7 +739,7 @@ cy_en_scb_uart_status_t Cy_SCB_UART_Receive(CySCB_Type *base, void *buffer, uint
             context->rxBufIdx =  numToCopy;
 
             /* Set the RX FIFO level to the trigger interrupt */
-            Cy_SCB_SetRxFifoLevel(base, (size > halfFifoSize) ? (halfFifoSize - 1UL) : (size - 1UL));
+            Cy_SCB_SetRxFifoLevel(base, (size > irqRxLevel) ? (irqRxLevel - 1UL) : (size - 1UL));
 
             /* Enable the RX interrupt sources to continue data reading */
             Cy_SCB_SetRxInterruptMask(base, CY_SCB_UART_RX_INTR);
@@ -873,7 +897,9 @@ uint32_t Cy_SCB_UART_GetReceiveStatus(CySCB_Type const *base, cy_stc_scb_uart_co
 cy_en_scb_uart_status_t Cy_SCB_UART_Transmit(CySCB_Type *base, void *buffer, uint32_t size, cy_stc_scb_uart_context_t *context)
 {
     CY_ASSERT_L1(NULL != context);
+    #if !defined(NDEBUG)
     CY_ASSERT_L1(CY_SCB_UART_INIT_KEY == context->initKey);
+    #endif
     CY_ASSERT_L1(CY_SCB_IS_BUFFER_VALID(buffer, size));
 
     cy_en_scb_uart_status_t retStatus = CY_SCB_UART_TRANSMIT_BUSY;
@@ -1218,7 +1244,7 @@ void Cy_SCB_UART_Interrupt(CySCB_Type *base, cy_stc_scb_uart_context_t *context)
 static void HandleDataReceive(CySCB_Type *base, cy_stc_scb_uart_context_t *context)
 {
     uint32_t numCopied;
-    uint32_t halfFifoSize = Cy_SCB_GetFifoSize(base) / 2UL;
+    uint32_t irqRxLevel = SelectRxFifoLevel(base);
 
     /* Get data from RX FIFO */
     numCopied = Cy_SCB_UART_GetArray(base, context->rxBuf, context->rxBufSize);
@@ -1232,8 +1258,8 @@ static void HandleDataReceive(CySCB_Type *base, cy_stc_scb_uart_context_t *conte
         if (NULL != context->rxRingBuf)
         {
             /* Adjust the level to proceed with the ring buffer */
-            Cy_SCB_SetRxFifoLevel(base, (context->rxRingBufSize >= halfFifoSize) ?
-                                            (halfFifoSize - 1UL) : (context->rxRingBufSize - 1UL));
+            Cy_SCB_SetRxFifoLevel(base, (context->rxRingBufSize >= irqRxLevel) ?
+                                            (irqRxLevel - 1UL) : (context->rxRingBufSize - 1UL));
 
             Cy_SCB_SetRxInterruptMask(base, CY_SCB_RX_INTR_LEVEL);
         }
@@ -1258,7 +1284,7 @@ static void HandleDataReceive(CySCB_Type *base, cy_stc_scb_uart_context_t *conte
         buf = &buf[(Cy_SCB_IsRxDataWidthByte(base) ? (numCopied) : (2UL * numCopied))];
         context->rxBuf = (void *) buf;
 
-        if (context->rxBufSize < halfFifoSize)
+        if (context->rxBufSize < irqRxLevel)
         {
             /* Set the RX FIFO level to trigger an interrupt */
             Cy_SCB_SetRxFifoLevel(base, (context->rxBufSize - 1UL));
@@ -1285,7 +1311,7 @@ static void HandleDataReceive(CySCB_Type *base, cy_stc_scb_uart_context_t *conte
 *******************************************************************************/
 static void HandleRingBuffer(CySCB_Type *base, cy_stc_scb_uart_context_t *context)
 {
-    uint32_t halfFifoSize = Cy_SCB_GetFifoSize(base) / 2UL;
+    uint32_t irqRxLevel = SelectRxFifoLevel(base);
     uint32_t numToCopy = Cy_SCB_GetNumInRxFifo(base);
     uint32_t locHead = context->rxRingBufHead;
     uint32_t rxData;
@@ -1342,7 +1368,7 @@ static void HandleRingBuffer(CySCB_Type *base, cy_stc_scb_uart_context_t *contex
     /* Get free entries in the ring buffer */
     numToCopy = context->rxRingBufSize - Cy_SCB_UART_GetNumInRingBuffer(base, context);
 
-    if (numToCopy < halfFifoSize)
+    if (numToCopy < irqRxLevel)
     {
         /* Adjust the level to copy to the ring buffer */
         uint32_t level = (numToCopy > 0UL) ? (numToCopy - 1UL) : 0UL;

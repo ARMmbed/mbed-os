@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy8c6xx7_cm0plus.ld
-* \version 2.50
+* \version 2.70
 *
 * Linker file for the GNU C compiler.
 *
@@ -76,7 +76,7 @@ ENTRY(Reset_Handler)
   #define MBED_PUBLIC_RAM_SIZE     0x200
 #endif
 
-/* Size of the stack section at the end of CM0+ SRAM */
+/* The size of the stack section at the end of CM0+ SRAM */
 #if !defined(MBED_BOOT_STACK_SIZE)
     #define MBED_BOOT_STACK_SIZE 0x400
 #endif

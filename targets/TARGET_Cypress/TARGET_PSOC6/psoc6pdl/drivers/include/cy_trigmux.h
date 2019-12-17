@@ -1,6 +1,6 @@
 /*******************************************************************************
 * \file cy_trigmux.h
-* \version 1.20
+* \version 1.20.1
 *
 *  This file provides constants and parameter values for the Trigger multiplexer driver.
 *
@@ -115,53 +115,51 @@
 *
 * For PERI_ver1:
 * Step 1. Find the trigger group number in the Trigger Group Inputs section of the device 
-* configuration header file that corresponds to the output of the first peripheral block. 
-* For example, TRIG11_IN_TCPWM0_TR_OVERFLOW0 input of the reduction multiplexers belongs 
-* to Trigger Group 11.
+* configuration header file that corresponds to the output of the source peripheral block. 
+* For example, TRIG11_IN_TCPWM0_TR_OVERFLOW0 (see \ref group_trigmux_red_in_enums and the diagram
+* at the top of this section) input of the Reduction multiplexers belongs to Trigger Group 11.
 *
 * Step 2. Find the trigger group number in the Trigger Group Outputs section of the device
-* configuration header file that corresponds to the input of the second peripheral block. 
-* For example, TRIG0_OUT_CPUSS_DW0_TR_IN0 output of the distribution multiplexer belongs to 
-* Trigger Group 0.
+* configuration header file that corresponds to the input of the destination peripheral block. 
+* For example, TRIG0_OUT_CPUSS_DW0_TR_IN0 (see \ref group_trigmux_dst_out_enums) output of the 
+* Distribution multiplexer belongs to Trigger Group 0.
 *
 * Step 3. Find the same trigger group number in the Trigger Group Inputs section of the 
 * device configuration header file that corresponds to the trigger group number found in 
-* Step 1. Select the reduction multiplexer output that can be connected to the trigger group 
-* found in Step 2. For example, TRIG0_IN_TR_GROUP11_OUTPUT0 means that Reduction Multiplexer
-* Output 15 of Trigger Group 13 can be connected to Trigger Group 0.
+* Step 1. Select the Reduction multiplexer output that can be connected to the trigger group 
+* found in Step 2. For example, TRIG0_IN_TR_GROUP11_OUTPUT0 (see \ref group_trigmux_dst_in_enums) 
+* means that Reduction Multiplexer Output 0 of Trigger Group 11 can be connected to 
+* Trigger Group 0.
 *
 * Step 4. Find the same trigger group number in the Trigger Group Outputs section of the 
 * device configuration header file that corresponds to the trigger group number found in Step 2.
 * Select the distribution multiplexer input that can be connected to the trigger group found
-* in Step 1. For example, TRIG11_OUT_TR_GROUP0_INPUT9 means that the Distribution Multiplexer
-* Input 42 of Trigger Group 0 can be connected to the output of the reduction multiplexer 
-* in Trigger Group 13 found in Step 3.
+* in Step 1. For example, TRIG11_OUT_TR_GROUP0_INPUT9 (see \ref group_trigmux_red_out_enums) 
+* means that the Distribution Multiplexer Input 9 of Trigger Group 0 can be connected to the 
+* output of the Reduction multiplexer in Trigger Group 11 found in Step 3.
 *
 * Step 5. Call Cy_TrigMux_Connect() API twice: the first call - with the constants for the 
 * inTrig and outTrig parameters found in Steps 1 and Step 4, the second call - with the 
 * constants for the inTrig and outTrig parameters found in Steps 2 and Step 3. 
-* For example, 
-* Cy_TrigMux_Connect(TRIG11_IN_TCPWM0_TR_OVERFLOW0, TRIG11_OUT_TR_GROUP0_INPUT9, 
-* false, TRIGGER_TYPE_LEVEL); 
-* Cy_TrigMux_Connect(TRIG0_IN_TR_GROUP11_OUTPUT0, TRIG0_OUT_CPUSS_DW0_TR_IN0, 
-* false, TRIGGER_TYPE_EDGE);
+* For example:
+* \snippet trigmux/snippet/main.c snippet_Cy_TrigMux_PERI_ver1 
 *
 * For PERI_ver2:
 * Step 1. Find the trigger group number in the Trigger Group Inputs section of the device 
-* configuration header file that corresponds to the output of the first peripheral block.
-* For example, TRIG_IN_MUX_0_TCPWM0_TR_OVERFLOW0 TrigMux input belongs to Trigger Group 0. 
-* It is the same TCPWM0 counter 0 overflow output (as in the example for PERI_ver1). 
+* configuration header file that corresponds to the output of the source peripheral block.
+* For example, TRIG_IN_MUX_0_TCPWM0_TR_OVERFLOW0 (see \ref group_trigmux_in_enums) TrigMux 
+* input belongs to Trigger Group 0. It is the same TCPWM0 counter 0 overflow output 
+* (as in the example for PERI_ver1).
 *
 * Step 2. Find the same trigger group number in the Trigger Group Outputs section of the 
 * device configuration header file that corresponds to the trigger group number found in 
-* Step 1. Select the TrigMux output that can be connected to the second peripheral block.
-* For example, TRIG_OUT_MUX_0_PDMA0_TR_IN0 means that the trigger multiplexer
-* Output 0 of Trigger Group 0 can be connected to the DW0 channel 0 trigger input 
-* (the same DMA channel as mentioned in the example for PERI_ver1).
+* Step 1. Select the TrigMux output that can be connected to the destination peripheral block.
+* For example, TRIG_OUT_MUX_0_PDMA0_TR_IN0 (see \ref group_trigmux_out_enums) means that the 
+* trigger multiplexer Output 0 of Trigger Group 0 can be connected to the DW0 channel 0 trigger 
+* input (the same DMA channel as mentioned in the example for PERI_ver1).
 *
 * Step 3. Call Cy_TrigMux_Connect() API once:
-* Cy_TrigMux_Connect(TRIG_IN_MUX_0_TCPWM0_TR_OVERFLOW0, TRIG_OUT_MUX_0_PDMA0_TR_IN0, 
-* false, TRIGGER_TYPE_EDGE);
+* \snippet trigmux/snippet/main.c snippet_Cy_TrigMux_PERI_ver2
 *
 * \section group_trigmux_more_information More Information
 * For more information on the TrigMux peripheral, refer to the technical reference manual (TRM).
@@ -172,6 +170,11 @@
 * \section group_trigmux_Changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.20.1</td>
+*     <td>Documentation is extended/improved.</td>
+*     <td>Enhancement based on usability feedback.</td>
+*   </tr>   
 *   <tr>
 *     <td rowspan="3">1.20</td>
 *     <td>Flattened the organization of the driver source code into the single source directory and the single include directory.</td>
@@ -217,6 +220,21 @@
 * \defgroup group_trigmux_macros Macros
 * \defgroup group_trigmux_functions Functions
 * \defgroup group_trigmux_enums Enumerated Types
+* \{
+*  \defgroup group_trigmux_red_enums Reduction Trigger Mutiplexers
+*  \{
+*   \defgroup group_trigmux_red_in_enums Reduction Trigger Mutiplexer Inputs
+*   \defgroup group_trigmux_red_out_enums Reduction Trigger Mutiplexer Outputs
+*  \}
+*  \defgroup group_trigmux_dst_enums Distribution Trigger Mutiplexers
+*  \{
+*   \defgroup group_trigmux_dst_in_enums Distribution Trigger Mutiplexer Inputs
+*   \defgroup group_trigmux_dst_out_enums Distribution Trigger Mutiplexer Outputs
+*  \}
+*  \defgroup group_trigmux_in_enums Trigger Mutiplexer Inputs
+*  \defgroup group_trigmux_out_enums Trigger Mutiplexer Outputs
+*  \defgroup group_trigmux_1to1_enums One-To-One Trigger Lines
+* \}
 */
 
 #if !defined(CY_TRIGMUX_H)

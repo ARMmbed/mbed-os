@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_smif.c
-* \version 1.40
+* \version 1.40.1
 *
 * \brief
 *  This file provides the source code for the SMIF driver APIs.
@@ -281,7 +281,7 @@ void Cy_SMIF_SetDataSelect(SMIF_Type *base, cy_en_smif_slave_select_t slaveSelec
 * \param slaveSelect
 * Denotes the number of the slave device to which the transfer is made.
 * (0, 1, 2 or 4 - the bit defines which slave to enable) Two-bit enable is
-* possible only for the Double Quad SPI mode.
+* possible only for the double quad SPI mode.
 *
 * \param completeTxfr
 * Specifies if the slave select line must be de-asserted after transferring

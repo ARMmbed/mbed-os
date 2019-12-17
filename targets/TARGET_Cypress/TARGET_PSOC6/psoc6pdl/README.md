@@ -6,6 +6,10 @@ The PDL integrates device header files, startup code, and
 peripheral drivers into a single package. The drivers abstract the hardware functions into a set of 
 easy-to-use APIs. These are fully documented in the [PDL API Reference Manual](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/index.html). 
 
+This version of the PDL is compatible with ModusToolbox. It is not compatible 
+with PSoC Creator. The most recent PSoC Creator-compatible version of the PDL 
+is [available here](https://www.cypress.com/documentation/software-and-drivers/peripheral-driver-library-pdl).
+
 ### Features
 * Includes all the updates made to the peripheral drivers for ModusToolbox™ software
 * Contains standard set of PSoC® 6 digital and analog peripheral drivers that enable rapid peripheral software development in third-party IDEs

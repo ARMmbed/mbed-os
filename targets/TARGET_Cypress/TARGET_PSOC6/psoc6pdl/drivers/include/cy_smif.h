@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_smif.h
-* \version 1.40
+* \version 1.40.1
 *
 * Provides an API declaration of the Cypress SMIF driver.
 *
@@ -25,20 +25,21 @@
 /**
 * \addtogroup group_smif
 * \{
-* The SPI-based communication interface for external memory devices.
+* The SPI-based communication interface to the external quad SPI (QSPI) 
+* high-speed memory devices.
 *
 * The functions and other declarations used in this driver are in cy_smif.h and 
 * cy_smif_memslot.h (if used). If you are using the ModusToolbox QSPI Configurator, 
 * also include cycfg_qspi_memslot.h. 
 *
-* SMIF: Serial Memory Interface: This IP block implements an SPI-based
-* communication interface for interfacing external memory devices to PSoC. The SMIF
-* supports Octal-SPI, Dual Quad-SPI, Quad-SPI, Dual-SPI, and SPI.
-*
+* **SMIF: Serial Memory Interface**: This IP block implements an SPI-based
+* communication interface for interfacing external memory devices to PSoC.
+* The SMIF supports SPI, dual SPI (DSPI), quad SPI (QSPI), dual QSPI and octal SPI.
+* 
 * Features
 *   - Standard SPI Master interface
-*   - Supports Single/Dual/Quad/Octal SPI Memories
-*   - Supports Dual-Quad SPI mode
+*   - Supports single/dual/quad/octal SPI memory devices
+*   - Supports dual quad SPI mode
 *   - Design-time configurable support for multiple (up to 4) external serial
 *   memory devices
 *   - eXecute-In-Place (XIP) operation mode for both read and write accesses
@@ -122,12 +123,12 @@
 * See the documentation for Cy_SMIF_Init() and Cy_SMIF_MemInit() for details
 * on the required configuration structures and other initialization topics. 
 *
-* The normal (MMIO) mode is used for implementing a generic SPI/DSPI/QSPI/Dual
-* Quad-SPI/Octal-SPI communication interface using the SMIF block. This
+* The normal (MMIO) mode is used for implementing a generic SPI/DSPI/QSPI/dual
+* QSPI/octal SPI communication interface using the SMIF block. This
 * interface can be used to implement special commands like Program/Erase of
 * flash, memory device configuration, sleep mode entry for memory devices or
 * other special commands specific to the memory device. The transfer width
-* (SPI/DSP/Quad-SPI/Octal-SPI) of a transmission is a parameter set for each
+* (SPI/DSPI/QSPI/octal SPI) of a transmission is a parameter set for each
 * transmit/receive operation. So these can be changed at run time.
 *
 * In a typical memory interface with flash memory, the SMIF is used in the
@@ -212,6 +213,15 @@
 * \section group_smif_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td rowspan="2">1.40.1</td>
+*     <td>The \ref Cy_SMIF_MemInit is changed. </td>
+*     <td>Corrected a false assertion during initialization in SFDP mode.</td>
+*   </tr>
+*   <tr>
+*     <td>Minor documentation updates. </td>
+*     <td></td>
+*   </tr>
 *   <tr>
 *     <td rowspan="5">1.40</td>
 *     <td>The following functions are renamed:\n
@@ -591,7 +601,7 @@ extern "C" {
 /** The Transfer width options for the command, data, the address and the mode. */
 typedef enum
 {
-    CY_SMIF_WIDTH_SINGLE   = 0U,    /**< Normal SPI mode. */
+    CY_SMIF_WIDTH_SINGLE   = 0U,    /**< Single SPI mode. */
     CY_SMIF_WIDTH_DUAL     = 1U,    /**< Dual SPI mode. */
     CY_SMIF_WIDTH_QUAD     = 2U,    /**< Quad SPI mode. */
     CY_SMIF_WIDTH_OCTAL    = 3U,    /**< Octal SPI mode. */
@@ -614,7 +624,7 @@ typedef enum
 {
     /**
     * smif.spi_data[0] = DATA0, smif.spi_data[1] = DATA1, ..., smif.spi_data[7] = DATA7.
-    * This value is allowed for the SPI, DSPI, quad-SPI, dual quad-SPI, and octal-SPI modes.
+    * This value is allowed for the SPI, DSPI, QSPI, dual QSPI, and octal SPI modes.
     */
     CY_SMIF_DATA_SEL0      = 0,
     /**
@@ -624,7 +634,7 @@ typedef enum
     CY_SMIF_DATA_SEL1      = 1,
     /**
     * smif.spi_data[4] = DATA0, smif.spi_data[5] = DATA1, ..., smif.spi_data[7] = DATA3.
-    * This value is only allowed for the SPI, DSPI, quad-SPI and dual quad-SPI modes.
+    * This value is only allowed for the SPI, DSPI, QSPI and dual QSPI modes.
     */
     CY_SMIF_DATA_SEL2      = 2,
     /**

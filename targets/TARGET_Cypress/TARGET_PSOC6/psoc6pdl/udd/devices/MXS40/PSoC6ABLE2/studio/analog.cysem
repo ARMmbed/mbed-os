@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" release="PSoC Creator  4.2 Nightly Build 1127" xmlns="http://cypress.com/xsd/cysem">
+<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" release="PSoC Creator  4.3 Nightly Build 1365" xmlns="http://cypress.com/xsd/cysem">
   <Instances count="422">
     <Instance guid="0059d279-0f97-495b-b327-b94d761d7471" name="IOSS0_PORT12_P12_P41" component="swhv">
       <Parameter name="CY_COMMENT">
@@ -4716,7 +4716,7 @@
         <Value>false</Value>
       </Parameter>
       <Parameter name="FFBType">
-        <Value>VBGR</Value>
+        <Value>AREF</Value>
       </Parameter>
       <Parameter name="Index">
         <Value>0</Value>
@@ -4725,7 +4725,7 @@
         <Value>AREF_VBGR</Value>
       </Parameter>
       <Parameter name="RefName">
-        <Value>VBGR</Value>
+        <Value>VREF</Value>
       </Parameter>
     </Instance>
     <Instance guid="941454e6-2f77-4dac-9bc7-61b2f093dad0" name="PASS0_SARMUX0_sw11" component="swhv">
@@ -8445,7 +8445,7 @@
       </Parameter>
     </Instance>
   </Instances>
-  <Signals count="136">
+  <Signals count="137">
     <Signal name="AmuxA3_bridge" type="" terminalCount="0" />
     <Signal name="AmuxB3_bridge" type="" terminalCount="0" />
     <Signal name="amuxbus_a_csd0" type="" terminalCount="0" />
@@ -8615,6 +8615,9 @@
     </Signal>
     <Signal name="pass0_ctdvout0" type="Analog" terminalCount="1">
       <Terminal name="PASS0_CTDAC0.ctdvout" type="Instance Analog InOut" />
+    </Signal>
+    <Signal name="pass0_sar_vminus0" type="Analog" terminalCount="1">
+      <Terminal name="PASS0_SARADC0_SAR.vminus" type="Instance Analog InOut" />
     </Signal>
     <Signal name="pass0_sar_vplus0" type="Analog" terminalCount="2">
       <Terminal name="cy_shapetag_disconnect_1.a" type="Instance Analog InOut" />

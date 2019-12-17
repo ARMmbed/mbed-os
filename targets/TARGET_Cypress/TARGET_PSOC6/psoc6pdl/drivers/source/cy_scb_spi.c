@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_spi.c
-* \version 2.30.1
+* \version 2.40
 *
 * Provides SPI API implementation of the SCB driver.
 *
@@ -605,7 +605,9 @@ cy_en_scb_spi_status_t Cy_SCB_SPI_Transfer(CySCB_Type *base, void *txBuffer, voi
                                            cy_stc_scb_spi_context_t *context)
 {
     CY_ASSERT_L1(NULL != context);
+    #if !defined(NDEBUG)
     CY_ASSERT_L1(CY_SCB_SPI_INIT_KEY == context->initKey);
+    #endif
     CY_ASSERT_L1(CY_SCB_SPI_IS_BUFFER_VALID(txBuffer, rxBuffer, size));
 
     cy_en_scb_spi_status_t retStatus = CY_SCB_SPI_TRANSFER_BUSY;

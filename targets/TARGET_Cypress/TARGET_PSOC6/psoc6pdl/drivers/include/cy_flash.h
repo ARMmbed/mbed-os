@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_flash.h
-* \version 3.30.2
+* \version 3.30.3
 *
 * Provides the API declarations of the Flash driver.
 *
@@ -66,7 +66,7 @@
 *
 * \subsection group_flash_config_intro Introduction:
 * The PSoC 6 MCU user-programmable Flash consists of:
-* - Four User Flash sectors (0 through 3) - 256KB each.
+* - User Flash sectors (from 4 to 8) - 256KB each.
 * - EEPROM emulation sector - 32KB.
 *
 * Write operations are performed on a per-sector basis and may be done as
@@ -97,9 +97,10 @@
 * -# Flash write cannot be performed in ULP (core voltage 0.9V) mode.
 * -# Interrupts must be enabled on both active cores. Do not enter a critical
 *    section during flash operation.
-* -# User must guarantee that system pipe interrupts (IPC interrupts 3 and 4)
-*    have the highest priority, or at least that pipe interrupts are not
-*    interrupted or in a pending state for more than 700 &micro;s.
+* -# For the CY8C6xx6, CY8C6xx7 devices user must guarantee that system pipe 
+*    interrupts (IPC interrupts 3 and 4) have the highest priority, or 
+*    at least that pipe interrupts are not interrupted or in a pending state 
+*    for more than 700 &micro;s.
 * -# User must guarantee that during flash write operation no flash read
 *    operations are performed by bus masters other than CM0+ and CM4 (DMA and
 *    Crypto).
@@ -119,7 +120,8 @@
 *
 * <center>
 * <table class="doxtable">
-* <caption>Table 1 - Block-out periods</caption>
+* <caption>Table 1 - Block-out periods (timing values are valid just for the 
+* CY8C6xx6, CY8C6xx7 devices) </caption>
 *   <tr>
 *     <th>Block-out</th>
 *     <th>Phase</th>
@@ -196,7 +198,8 @@
 *    read of any bus master: CM0+, CM4, DMA, Crypto, etc.)
 *     -# Do not write to and read/execute from the same flash sector at the same
 *        time. This is true for all sectors.
-*     -# Writing rules in User Flash:
+*     -# Writing rules in User Flash (this restriction is applicable just for the 
+* CY8C6xx6, CY8C6xx7 devices):
 *         -# Any bus master can read/execute from UFLASH S0 and/or S1, during
 *            flash write to UFLASH S2 or S3.
 *         -# Any bus master can read/execute from UFLASH S2 and/or S3, during
@@ -209,9 +212,10 @@
 * -# Flash write cannot be performed in ULP mode (core voltage 0.9V).
 * -# Interrupts must be enabled on both active cores. Do not enter a critical
 *    section during flash operation.
-* -# User must guarantee that system pipe interrupts (IPC interrupts 3 and 4)
-*    have the highest priority, or at least that pipe interrupts are not
-*    interrupted or in a pending state for more than 700 &micro;s.
+* -# For the CY8C6xx6, CY8C6xx7 devices user must guarantee that system pipe 
+*    interrupts (IPC interrupts 3 and 4) have the highest priority, or at 
+*    least that pipe interrupts are not interrupted or in a pending state 
+*    for more than 700 &micro;s.
 * -# User must guarantee that during flash write operation no flash read
 *    operations are performed by bus masters other than CM0+ and CM4
 *    (DMA and Crypto).
@@ -255,6 +259,11 @@
 *
 * <table class="doxtable">
 *   <tr><th>Version</th><th style="width: 52%;">Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td rowspan="1">3.30.3</td>
+*     <td>Updated documentation to limit devices with the restrictions. Improved calculation of the CY_FLASH_DELAY_CORRECTIVE macro.</td>
+*     <td>User experience enhancement.</td>
+*   </tr>
 *   <tr>
 *     <td rowspan="1">3.30.2</td>
 *     <td>Updated documentation to limit devices with the neighboring restriction.</td>

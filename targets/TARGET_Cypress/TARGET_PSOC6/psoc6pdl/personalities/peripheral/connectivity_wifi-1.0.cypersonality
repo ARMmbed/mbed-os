@@ -168,10 +168,24 @@
       <ParamRange id="filter$idx_end_port" name="Range" group="Packet Filter Configuration $idx" default="1023" min="0" max="65535" resolution="1" visible="`${config$idx &amp;&amp; (filter$idx_type eq CY_PF_PORT_BLOCK_FILTER)}`" editable="`${config$idx_editable}`" desc="Indicates the size of the block of port numbers, must be of the (2^y - 1) form and less than Port Number." />
     </Repeat>
 
+   <!-- TCPKA Offload settings -->
+    <ParamBool id="tcpkaOffload" name="Enable" group="TCP Keep Alive Offload" default="false" visible="true" editable="true" desc="Enable TCP Keep Alive offload feature." />
+    <ParamRange id="tcpkaInterval" name="Interval" group="TCP Keep Alive Offload" default="20" min="0" max="65535" resolution="1" visible="`${tcpkaOffload}`" editable="`${tcpkaOffload}`" desc="Interval in seconds between keep alive transmissions." />
+    <ParamRange id="tcpkaRetryInterval" name="Retry Interval" group="TCP Keep Alive Offload" default="3" min="0" max="65535" resolution="1" visible="`${tcpkaOffload}`" editable="`${tcpkaOffload}`" desc="Interval in seconds to retry a transmission if no keep alive ACK is received." />
+    <ParamRange id="tcpkaRetryCount" name="Retry Count" group="TCP Keep Alive Offload" default="3" min="0" max="65535" resolution="1" visible="`${tcpkaOffload}`" editable="`${tcpkaOffload}`" desc="Number of retries to send a keep alive if no ACK is received." />
+    <!-- Up to 4 simultaneous connections -->
+    <Repeat count="4">
+      <ParamRange id="tcpkaSrcPort$idx" name="Source Port" group="Connection $idx Configuration" default="0" min="0" max="65535" resolution="1" visible="`${tcpkaOffload}`" editable="`${tcpkaOffload}`" desc="Source port." />
+      <ParamRange id="tcpkaDstPort$idx" name="Destination Port" group="Connection $idx Configuration" default="0" min="0" max="65535" resolution="1" visible="`${tcpkaOffload}`" editable="`${tcpkaOffload}`" desc="Destination port." />
+      <ParamString id="tcpkaDstIpAddr$idx" name="Destination IP Address" group="Connection $idx Configuration" default="0.0.0.0" visible="`${tcpkaOffload}`" editable="`${tcpkaOffload}`" desc="Destination IP address." />
+    </Repeat>
+
     <ParamString id="numOfActiveFilters" name="NumOfContexts" group="Internal" default="`${(config0 ? 1 : 0) + (config1 ? 1 : 0) + (config2 ? 1 : 0) + (config3 ? 1 : 0) + (config4 ? 1 : 0) + (config5 ? 1 : 0) + (config6 ? 1 : 0) + (config7 ? 1 : 0) + (config8 ? 1 : 0) + (config9 ? 1 : 0) + (config10 ? 1 : 0) + (config11 ? 1 : 0) + (config12 ? 1 : 0) + (config13 ? 1 : 0) + (config14 ? 1 : 0) + (config15 ? 1 : 0) + (config16 ? 1 : 0) + (config17 ? 1 : 0) + (config18 ? 1 : 0) + (config19 ? 1 : 0) + (configTLS ? 1 : 0) + (configNonTLS ? 1 : 0)}`" visible="false" editable="false" desc="Number of active filter configurations." />
     <ParamBool id="pktFilterEn" name="Packet filters Enabled" group="Internal" default="`${numOfActiveFilters != 0}`" visible="false" editable="false" desc="Are there any filters enabled flag." />
     <ParamString id="longIndent" name="Long Indent" group="Internal" default="&#9;&#9;&#9;" visible="false" editable="false" desc="Long indent for structure generation." />
-    <ParamBool id="arpAgentEn" name="ARP Agent Enabled" group="Internal" default="`${(arpResponse ne &quot;0u&quot;) || arpSnoopHostIp}`" visible="false" editable="false" desc="Long indent for structure generation." />
+    <ParamBool id="arpAgentEn" name="ARP Agent Enabled" group="Internal" default="`${(arpResponse ne &quot;0u&quot;) || arpSnoopHostIp}`" visible="false" editable="false" desc="" />
+    <ParamString id="arpOflIdx" name="Index of arp_ol in the ol_list" group="Internal" default="`${pktFilterEn ? 1 : 0}`" visible="false" editable="false" desc="" />
+    <ParamString id="tcpkaOflIdx" name="Index of tcpka_ol in the ol_list" group="Internal" default="`${arpOflIdx + (arpOffload ? 1 : 0)}`" visible="false" editable="false" desc="" />
   </Parameters>
 
   <DRCs>
@@ -192,11 +206,13 @@
     <ConfigInclude value="cy_lpa_wifi_ol_common.h" include="true" />
     <ConfigInclude value="cy_lpa_wifi_arp_ol.h" include="`${arpOffload}`" />
     <ConfigInclude value="cy_lpa_wifi_pf_ol.h" include="true" />
+    <ConfigInclude value="cy_lpa_wifi_tko_ol.h" include="`${tcpkaOffload}`" />
     <ConfigInclude value="cycfg_pins.h" include="`${hostWake}`" />
 
     <ConfigDefine name="CYCFG_WIFI_HOST_WAKE_ENABLED" public="true" value="(`${hostIRQConnected ? 1 : 0}`u)" include="`${hostWake}`" preventOverride="false" />
     <ConfigDefine name="CYCFG_ARP_OL_ENABLED" public="false" value="(1u)" include="`${arpOffload}`" preventOverride="false" />
     <ConfigDefine name="CYCFG_PF_OL_ENABLED" public="false" value="(1u)" include="`${pktFilterEn}`" preventOverride="false" />
+    <ConfigDefine name="CYCFG_TKO_OL_ENABLED" public="false" value="(1u)" include="`${pktFilterEn}`" preventOverride="false" />
 
     <!-- HOST_WAKE Pin Configuration -->
     <ConfigDefine name="CYCFG_WIFI_HOST_WAKE_GPIO" public="true" value="`${hostIRQConnected ? hostIRQ . &quot;_HAL_PORT_PIN&quot; : &quot;CYHAL_NC_PIN_VALUE&quot;}`" include="`${hostWake}`" preventOverride="false" />
@@ -209,6 +225,7 @@
 
     <ConfigVariable const="false" type="arp_ol_t" name="arp_ol_0_ctxt" public="false" include="`${arpOffload}`" />
     <ConfigVariable const="false" type="pf_ol_t" name="pf_ol_0" public="false" include="`${pktFilterEn}`" />
+    <ConfigVariable const="false" type="tko_ol_t" name="tko_ol_0_ctxt" public="false" include="`${tcpkaOffload}`" />
 
     <ConfigStruct name="arp_ol_cfg_0" type="arp_ol_cfg_t" const="true" public="false" include="`${arpOffload}`" isArray="false" >
       <Member name="awake_enable_mask" value="CY_ARP_OL_FEATURE_AWAKE_ENABLE_MASK_0" />
@@ -227,10 +244,23 @@
       <Member name="`${numOfActiveFilters}`u" value="{.feature = CY_PF_OL_FEAT_LAST}" include="true"/>      
     </ConfigStruct>
 
-    <ConfigStruct name="ol_list_0" type="ol_desc_t" const="true" isArray="true" public="false" include="`${pktFilterEn || arpOffload}`">
+    <!-- TCP Keep Alive (TKA) Offload Configuration -->
+    <ConfigStruct name="cy_tko_ol_cfg_0" type="cy_tko_ol_cfg_t" const="true" isArray="false" public="false" include="`${tcpkaOffload}`">
+      <Member name="interval" value="`${tcpkaInterval}`" include="true" />
+      <Member name="retry_interval" value="`${tcpkaRetryInterval}`" include="true" />
+      <Member name="retry_count" value="`${tcpkaRetryCount}`" include="true" />
+      <Member name="`${&quot;ports[##]&quot;}`" value="{
+                              &#xA;`${longIndent}`.local_port = `${tcpkaSrcPort##}`,
+                              &#xA;`${longIndent}`.remote_port = `${tcpkaDstPort##}`,
+                              &#xA;`${longIndent}`&quot;`${tcpkaDstIpAddr##}`&quot;
+          &#xA;&#9;&#9;&#9;}" include="true" count="4"/>
+    </ConfigStruct>
+
+    <ConfigStruct name="ol_list_0" type="ol_desc_t" const="true" isArray="true" public="false" include="`${pktFilterEn || arpOffload || tcpkaOffload}`">
       <Member name="`${0}`u" value="{&quot;Pkt_Filter&quot;, &amp;cy_pf_ol_cfg_0, &amp;pf_ol_fns, &amp;pf_ol_0}" include="`${pktFilterEn}`" />
-      <Member name="`${pktFilterEn ? 1u : 0u}`u" value="{&quot;ARP&quot;, &amp;arp_ol_cfg_0, &amp;arp_ol_fns, &amp;arp_ol_0_ctxt}" include="`${arpOffload}`" />
-      <Member name="`${(pktFilterEn ? 1 : 0) + (arpOffload ? 1 : 0)}`u" value="{NULL, NULL, NULL, NULL}" include="`${pktFilterEn || arpOffload}`" />
+      <Member name="`${arpOflIdx}`u" value="{&quot;ARP&quot;, &amp;arp_ol_cfg_0, &amp;arp_ol_fns, &amp;arp_ol_0_ctxt}" include="`${arpOffload}`" />
+      <Member name="`${tcpkaOflIdx}`u" value="{&quot;TKO&quot;, &amp;cy_tko_ol_cfg_0, &amp;tko_ol_fns, &amp;tko_ol_0_ctxt}" include="`${tcpkaOffload}`" />
+      <Member name="`${tcpkaOflIdx + 1}`u" value="{NULL, NULL, NULL, NULL}" include="`${pktFilterEn || arpOffload || tcpkaOffload}`" />
     </ConfigStruct>
 
     <ConfigFunction signature="const ol_desc_t *cycfg_get_default_ol_list(void)" body="&#9;return &amp;ol_list_0[0];" public="false" include="`${pktFilterEn || arpOffload}`" />

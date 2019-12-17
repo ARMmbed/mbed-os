@@ -199,14 +199,14 @@
     <ConfigFunction signature="__STATIC_INLINE void init_cycfg_power(void)" body="
     /* Reset the Backup domain on POR, XRES, BOD only if Backup domain is supplied by VDDD */&#xA;
     #if (CY_CFG_PWR_VBACKUP_USING_VDDD)&#xA;
+    #ifdef CY_CFG_SYSCLK_ILO_ENABLED&#xA;
     if (0u == Cy_SysLib_GetResetReason() /* POR, XRES, or BOD */)&#xA;
     {&#xA;
         Cy_SysLib_ResetBackupDomain();&#xA;
         Cy_SysClk_IloDisable();&#xA;
         Cy_SysClk_IloInit();&#xA;
     }&#xA;
-    #else /* Dedicated Supply */&#xA;
-    Cy_SysPm_BackupSetSupply(CY_SYSPM_VDDBACKUP_VBACKUP);&#xA;
+    #endif /* CY_CFG_SYSCLK_ILO_ENABLED */&#xA;
     #endif /* CY_CFG_PWR_VBACKUP_USING_VDDD */&#xA;&#xA;
     /* Configure core regulator */&#xA;
     #if CY_CFG_PWR_USING_LDO&#xA;

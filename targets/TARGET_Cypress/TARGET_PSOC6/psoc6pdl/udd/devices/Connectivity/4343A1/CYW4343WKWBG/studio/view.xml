@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Parameters xml_version="1" xmlns="http://cypress.com/xsd/cydatawounding_v1">
+  <Param name="PartNumber" value="CYW4343WKWBG" />
+  <Param name="PartAvailability" value="Active" />
+  <Param name="DeviceDie" value="4343A1" />
+  <Param name="Silicon_Revision" value="PRODUCTION" />
+  <Param name="Package" value="153-WLCSP" />
+  <Param name="DeviceSeries" value="4343W" />
+  <Param name="Speed_MHz" value="0" />
+  <Param name="Flash_KB" value="0" />
+  <Param name="ROM_KB" value="640" />
+  <Param name="SRAM_KB" value="512" />
+  <Param name="Bluetooth" value="5" />
+  <Param name="Vddmin_volts" value="3" />
+  <Param name="Vddmax_volts" value="4.8" />
+  <Param name="TempMin_Celsius" value="-30" />
+  <Param name="TempMax_Celsius" value="70" />
+  <Param name="SiliconID" value="0x00000000" />
+  <Param name="Module" value="No" />
+  <Param name="REQUIRED_KITS" value="None" />
+  <Param name="Next_Best_Alt_Part" value="None" />
+  <Param name="DATASHEET" value="https://community.cypress.com/community/wiced-wifi/wiced-wifi-documentation" />
+</Parameters>

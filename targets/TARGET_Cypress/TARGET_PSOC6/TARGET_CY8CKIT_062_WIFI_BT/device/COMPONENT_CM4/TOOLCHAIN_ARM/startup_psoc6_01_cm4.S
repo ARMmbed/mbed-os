@@ -23,7 +23,6 @@
 ; * limitations under the License.
 ; */
 
-
                 PRESERVE8
                 THUMB
 
@@ -632,7 +631,6 @@ pass_interrupt_dacs_IRQHandler
                 ENDP
 
                 ALIGN
-
 
                 END
 

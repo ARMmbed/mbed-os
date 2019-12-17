@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_common.h
-* \version 2.30.1
+* \version 2.40
 *
 * Provides common API declarations of the SCB driver.
 *
@@ -136,6 +136,15 @@
 *******************************************************************************
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td rowspan="2">2.40</td>
+*     <td>Update level selection logic of RX FIFO trigger in the Cy_SCB_UART_Receive().</td>
+*     <td>Fix possible stuck if the RTS level is less than the RX FIFO level.</td>
+*   </tr>
+*   <tr>
+*     <td>Exclude self-test assertion macros under release build profile.</td>
+*     <td>Avoid dependency on CY_ASSERT macro implementation.</td>
+*   </tr>
 *   <tr>
 *     <td>2.30.1</td>
 *     <td>Added header guards CY_IP_MXSCB.</td>

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" release="PSoC Creator  4.2 Nightly Build 1127" template="Empty (17&quot; x 11&quot;)" xmlns="http://cypress.com/xsd/cyvis">
+<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" release="PSoC Creator  4.3 Nightly Build 1365" template="Empty (17&quot; x 11&quot;)" xmlns="http://cypress.com/xsd/cyvis">
   <Page index="0" name="Page 1" enabled="true" shapeCount="779">
     <Instance shapeName="Shape_3" zorder="152" guid="2c52e5dc-5689-4025-975d-dc107b21e990" name="CSD0_CSD" component="cy_mxs40_csd">
       <Location x="252" y="318" />
@@ -663,6 +663,12 @@
       <Point1 x="816" y="474" />
       <Point2 x="864" y="474" />
       <ShapeTags>w:PASS0_SARADC0_SAR</ShapeTags>
+      <Annotation zorder="450">
+        <Location x="876" y="738" />
+        <Text>pass0_sar_vminus0</Text>
+        <Vertical value="false" />
+        <TextAlignment value="TopLeft" />
+      </Annotation>
     </Wire>
     <Instance shapeName="Shape_134" zorder="644" guid="72a121eb-58a5-433f-9635-65d782d9a773" name="P1_Pin5" component="cy_mxs40_pin">
       <Location x="810" y="606" />
@@ -839,7 +845,7 @@
         </Terminal>
         <Annotation>
           <Location x="450" y="213" />
-          <Text>VBGR</Text>
+          <Text>VREF</Text>
           <Vertical value="true" />
           <Expression>`=$RefName`</Expression>
           <Fill>

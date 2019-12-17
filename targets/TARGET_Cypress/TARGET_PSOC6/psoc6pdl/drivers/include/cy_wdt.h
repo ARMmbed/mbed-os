@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_wdt.h
-* \version 1.10.1
+* \version 1.20
 *
 *  This file provides constants and parameter values for the WDT driver.
 *
@@ -191,6 +191,11 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>1.20</td>
+*     <td>Added a new API function \ref Cy_WDT_IsEnabled() </td>
+*     <td>Enhancement based on usability feedback.</td>
+*   </tr>
+*   <tr>
 *     <td>1.10.1</td>
 *     <td>Added info that the WDT lock state is not retained during
 *        system Deep Sleep power mode.
@@ -251,6 +256,7 @@
 #include <stdbool.h>
 #include "cy_device_headers.h"
 #include "cy_device.h"
+#include "cy_syslib.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -270,7 +276,7 @@ extern "C" {
 #define CY_WDT_DRV_VERSION_MAJOR                       1
 
 /** The driver minor version */
-#define CY_WDT_DRV_VERSION_MINOR                       10
+#define CY_WDT_DRV_VERSION_MINOR                       20
 
 /** The internal define for the first iteration of WDT unlocking */
 #define CY_SRSS_WDT_LOCK_BIT0                           ((uint32_t)0x01U << 30U)
@@ -361,6 +367,23 @@ __STATIC_INLINE void Cy_WDT_Enable(void)
 __STATIC_INLINE void Cy_WDT_Disable(void)
 {
     SRSS_WDT_CTL &= ((uint32_t) ~(_VAL2FLD(SRSS_WDT_CTL_WDT_EN, 1U)));
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_WDT_IsEnabled
+****************************************************************************//**
+*
+* Reports an enable/disable state of the Watchdog timer.
+*
+* \return 
+* - true - if the timer is enabled
+* - false - if the timer is disabled
+*
+*******************************************************************************/
+__STATIC_INLINE bool Cy_WDT_IsEnabled(void)
+{
+    return _FLD2BOOL(SRSS_WDT_CTL_WDT_EN, SRSS_WDT_CTL);
 }
 
 

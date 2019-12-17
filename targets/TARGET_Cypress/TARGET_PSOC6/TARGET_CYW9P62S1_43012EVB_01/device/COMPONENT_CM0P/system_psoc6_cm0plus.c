@@ -54,8 +54,6 @@
 /** Default SlowClk system core frequency in Hz */
 #define CY_CLK_SYSTEM_FREQ_HZ_DEFAULT       (4000000UL)
 
-/** ALTLF frequency in Hz */
-#define CY_CLK_ALTLF_FREQ_HZ                (32768UL)
 
 /**
 * Holds the SlowClk (Cortex-M0+) or FastClk (Cortex-M4) system core clock,
@@ -80,11 +78,7 @@ uint32_t cy_Hfclk0FreqHz  = CY_CLK_HFCLK0_FREQ_HZ_DEFAULT;
 uint32_t cy_PeriClkFreqHz = CY_CLK_PERICLK_FREQ_HZ_DEFAULT;
 
 /** Holds the Alternate high frequency clock in Hz. Updated by \ref Cy_BLE_EcoConfigure(). */
-#if (defined (CY_IP_MXBLESS) && (CY_IP_MXBLESS == 1UL)) || defined (CY_DOXYGEN)
-    uint32_t cy_BleEcoClockFreqHz = CY_CLK_ALTHF_FREQ_HZ;
-#else
-    uint32_t cy_BleEcoClockFreqHz = 0UL;
-#endif /* (defined (CY_IP_MXBLESS) && (CY_IP_MXBLESS == 1UL)) || defined (CY_DOXYGEN) */
+uint32_t cy_BleEcoClockFreqHz = 0UL;
 
 
 /*******************************************************************************
@@ -160,15 +154,11 @@ void SystemInit(void)
     Cy_SystemInit();
     SystemCoreClockUpdate();
 
-#if defined(CY_DEVICE_PSOC6ABLE2) && !defined(CY_PSOC6ABLE2_REV_0A_SUPPORT_DISABLE)
-    if (CY_SYSLIB_DEVICE_REV_0A == Cy_SysLib_GetDeviceRevision())
-    {
-        /* Clear data register of IPC structure #7, reserved for the Deep-Sleep operations. */
-        IPC_STRUCT7->DATA = 0UL;
-        /* Release IPC structure #7 to avoid deadlocks in case of SW or WDT reset during Deep-Sleep entering. */
-        IPC_STRUCT7->RELEASE = 0UL;
-    }
-#endif /* defined(CY_DEVICE_PSOC6ABLE2) && !defined(CY_PSOC6ABLE2_REV_0A_SUPPORT_DISABLE) */
+    /* Clear data register of IPC structure #7, reserved for the Deep-Sleep operations. */
+    REG_IPC_STRUCT_DATA(CY_IPC_STRUCT_PTR(CY_IPC_CHAN_DDFT)) = 0UL;
+
+    /* Release IPC structure #7 to avoid deadlocks in case of SW or WDT reset during Deep-Sleep entering. */
+    REG_IPC_STRUCT_RELEASE(CY_IPC_STRUCT_PTR(CY_IPC_CHAN_DDFT)) = 0UL;
 
 #if !defined(CY_IPC_DEFAULT_CFG_DISABLE)
     /* Allocate and initialize semaphores for the system operations. */
@@ -222,10 +212,7 @@ void SystemInit(void)
     /* .userPipeIsrHandler       */  &Cy_SysIpcPipeIsrCm0
     };
 
-    if (cy_device->flashPipeRequired != 0u)
-    {
-        Cy_IPC_Pipe_Init(&systemIpcPipeConfigCm0);
-    }
+    Cy_IPC_Pipe_Init(&systemIpcPipeConfigCm0);
 
 #if defined(CY_DEVICE_PSOC6ABLE2)
     Cy_Flash_Init();

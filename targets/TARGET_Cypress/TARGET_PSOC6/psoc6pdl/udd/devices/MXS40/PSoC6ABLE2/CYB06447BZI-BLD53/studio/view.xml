@@ -5,7 +5,7 @@
   <Param name="DeviceDie" value="PSoC6ABLE2" />
   <Param name="Silicon_Revision" value="PRODUCTION" />
   <Param name="Package" value="116-BGA-BLE" />
-  <Param name="DeviceSeries" value="PSoC 63" />
+  <Param name="DeviceSeries" value="PSoC 64" />
   <Param name="Cores_REMOVED" value="NA" />
   <Param name="Speed_MHz" value="150" />
   <Param name="Flash_KB" value="832" />
@@ -48,7 +48,7 @@
   <Param name="Automotive_qualified" value="No (Industrial Grade Only)" />
   <Param name="SiliconID" value="0xE2612100" />
   <Param name="Module" value="No" />
-  <Param name="REQUIRED_KITS" value="None" />
+  <Param name="REQUIRED_KITS" value="B0" />
   <Param name="Next_Best_Alt_Part" value="None" />
   <Param name="DATASHEET" value="http://www.cypress.com/documentation/datasheets/psoc-6-mcu-psoc-63-ble-datasheet-programmable-system-chip-psoc?source=search&amp;cat=technical_documents" />
   <Param name="EDITING_SUPPORT" value="Schematic" />

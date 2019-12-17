@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_sysclk.c
-* \version 1.40.2
+* \version 1.50
 *
 * Provides an API implementation of the sysclk driver.
 *
@@ -1789,10 +1789,6 @@ cy_en_syspm_status_t Cy_SysClk_DeepSleepCallback(cy_stc_syspm_callback_params_t 
 /* =========================    clkHf[n] SECTION    ========================= */
 /* ========================================================================== */
 
-/** \cond INTERNAL */
-uint32_t altHfFreq = 0UL; /* Internal storage for BLE ECO frequency user setting */
-/** \endcond */
-
 /**
 * \addtogroup group_sysclk_clk_hf_funcs
 * \{
@@ -1844,9 +1840,11 @@ uint32_t Cy_SysClk_ClkHfGetFrequency(uint32_t clkHf)
             freq = (CY_SYSCLK_ECOSTAT_STABLE == Cy_SysClk_EcoGetStatus()) ? ecoFreq : 0UL;
             break;
 
+    #if defined(CY_IP_MXBLESS)
         case CY_SYSCLK_CLKPATH_IN_ALTHF:
-            freq = altHfFreq;
+            freq = cy_BleEcoClockFreqHz;
             break;
+    #endif /* CY_IP_MXBLESS */
 
         case CY_SYSCLK_CLKPATH_IN_ILO:
             freq = (0UL != (SRSS_CLK_ILO_CONFIG & SRSS_CLK_ILO_CONFIG_ENABLE_Msk)) ? CY_SYSCLK_ILO_FREQ : 0UL;
