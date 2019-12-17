@@ -65,7 +65,7 @@ void test_single_sharedptr_lifetime()
  */
 void test_instance_sharing()
 {
-    SharedPtr<TestStruct> s_ptr1(NULL);
+    SharedPtr<TestStruct> s_ptr1(nullptr);
 
     // Sanity-check value of counter
     TEST_ASSERT_EQUAL(0, TestStruct::s_count);
@@ -80,7 +80,7 @@ void test_instance_sharing()
 
     TEST_ASSERT_EQUAL(1, TestStruct::s_count);
 
-    s_ptr1 = NULL;
+    s_ptr1 = nullptr;
 
     // Destroy shared pointer
     TEST_ASSERT_EQUAL(0, TestStruct::s_count);
