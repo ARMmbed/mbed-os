@@ -16,7 +16,7 @@
  */
 
 #include "gtest/gtest.h"
-#include "features/netsocket/cellular/CellularNonIPSocket.h"
+#include "CellularNonIPSocket.h"
 #include "myCellularContext.h"
 
 using namespace mbed;
