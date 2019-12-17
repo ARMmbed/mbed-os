@@ -9048,11 +9048,12 @@
     },
     "CY8CPROTO_064_SB_S": {
         "inherits": ["PSA_DUAL_V7_M_SPE"],
-        "tfm_target_name": "psoc64",
+        "tfm_target_name": "psoc64_1m",
         "tfm_bootloader_supported": false,
         "tfm_default_toolchain": "ARMCLANG",
         "tfm_supported_toolchains": ["ARMCLANG", "GNUARM"],
-        "delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CPROTO_064_SB"
+        "delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CPROTO_064_SB",
+        "OUTPUT_EXT": "hex"
     },
     "CY8CPROTO_064_SB_NS": {
         "inherits": ["PSA_DUAL_V7_M_NSPE", "MCU_PSOC6_M4"],
