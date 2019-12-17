@@ -145,6 +145,24 @@ int testNoReturn()
 }
 
 
+int testFallthrough1(int i)
+{
+    switch (i) {
+        case 1:
+        case 2:
+            i *= 2;
+            MBED_FALLTHROUGH;
+        default:
+            return i;
+    }
+}
+
+int testFallthrough()
+{
+    return testFallthrough1(0);
+}
+
+
 int testUnreachable1(int i)
 {
     switch (i) {

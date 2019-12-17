@@ -340,6 +340,44 @@
 #endif
 #endif
 
+/** MBED_FALLTHROUGH
+ *  Marks a point in a switch statement where fallthrough can occur.
+ *  Should be placed as the last statement before a label.
+ *
+ *  @code
+ *  #include "mbed_toolchain.h"
+ *
+ *  int foo(int arg) {
+ *      switch (arg) {
+ *          case 1:
+ *          case 2:
+ *          case 3:
+ *              arg *= 2;
+ *              MBED_FALLTHROUGH;
+ *          default:
+ *              return arg;
+ *      }
+ *  }
+ *  @endcode
+ */
+#ifndef MBED_FALLTHROUGH
+#if __cplusplus >= 201703
+#define MBED_FALLTHROUGH [[fallthrough]]
+#elif defined(__clang__)
+#if __cplusplus >= 201103
+#define MBED_FALLTHROUGH [[clang::fallthrough]]
+#elif __has_attribute(fallthrough)
+#define MBED_FALLTHROUGH __attribute__((fallthrough))
+#else
+#define MBED_FALLTHROUGH
+#endif
+#elif defined (__GNUC__) && !defined(__CC_ARM)
+#define MBED_FALLTHROUGH __attribute__((fallthrough))
+#else
+#define MBED_FALLTHROUGH
+#endif
+#endif
+
 /** MBED_DEPRECATED("message string")
  *  Mark a function declaration as deprecated, if it used then a warning will be
  *  issued by the compiler possibly including the provided message. Note that not
