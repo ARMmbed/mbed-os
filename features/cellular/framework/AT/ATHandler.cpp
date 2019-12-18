@@ -585,6 +585,12 @@ ssize_t ATHandler::read_bytes(uint8_t *buf, size_t len)
     }
 
     bool debug_on = _debug_on;
+    bool disabled_debug = false;
+    if (len > DEBUG_MAXLEN) {
+        _debug_on = false;
+        disabled_debug = true;
+    }
+
     size_t read_len = 0;
     for (; read_len < len; read_len++) {
         int c = get_char();
@@ -594,10 +600,16 @@ ssize_t ATHandler::read_bytes(uint8_t *buf, size_t len)
             return -1;
         }
         buf[read_len] = c;
-        if (_debug_on && read_len >= DEBUG_MAXLEN) {
-            _debug_on = false;
-        }
     }
+
+#if MBED_CONF_CELLULAR_DEBUG_AT
+    if (debug_on && disabled_debug) {
+        tr_info("read_bytes trace suppressed (total length %d)", read_len);
+    }
+#else
+    (void)disabled_debug; // Remove compiler warning
+#endif
+
     _debug_on = debug_on;
     return read_len;
 }
@@ -690,12 +702,14 @@ ssize_t ATHandler::read_hex_string(char *buf, size_t size)
     char hexbuf[2];
 
     bool debug_on = _debug_on;
+    bool disabled_debug = false;
+    if (size > DEBUG_MAXLEN) {
+        _debug_on = false;
+        disabled_debug = true;
+    }
+
     for (; read_idx < size * 2 + match_pos; read_idx++) {
         int c = get_char();
-
-        if (_debug_on && read_idx >= DEBUG_MAXLEN) {
-            _debug_on = false;
-        }
 
         if (match_pos) {
             buf_idx++;
@@ -737,11 +751,20 @@ ssize_t ATHandler::read_hex_string(char *buf, size_t size)
             }
         }
     }
-    _debug_on = debug_on;
 
     if (read_idx && (read_idx == size * 2 + match_pos)) {
         buf_idx++;
     }
+
+#if MBED_CONF_CELLULAR_DEBUG_AT
+    if (debug_on && disabled_debug) {
+        tr_info("read_hex_string trace suppressed (total length %d)", buf_idx);
+    }
+#else
+    (void)disabled_debug; // Remove compiler warning
+#endif
+
+    _debug_on = debug_on;
 
     return buf_idx;
 }
@@ -1460,30 +1483,37 @@ size_t ATHandler::write(const void *data, size_t len)
     fhs.fh = _fileHandle;
     fhs.events = POLLOUT;
     size_t write_len = 0;
-    bool debug_on = _debug_on;
+
+#if MBED_CONF_CELLULAR_DEBUG_AT
+    bool suppress_traced = false;
+#endif
+
     for (; write_len < len;) {
         int count = poll(&fhs, 1, poll_timeout());
         if (count <= 0 || !(fhs.revents & POLLOUT)) {
             set_error(NSAPI_ERROR_DEVICE_ERROR);
-            _debug_on = debug_on;
             return 0;
         }
         ssize_t ret = _fileHandle->write((uint8_t *)data + write_len, len - write_len);
         if (ret < 0) {
             set_error(NSAPI_ERROR_DEVICE_ERROR);
-            _debug_on = debug_on;
             return 0;
         }
-        if (_debug_on && write_len < DEBUG_MAXLEN) {
-            if (write_len + ret < DEBUG_MAXLEN) {
-                debug_print((char *)data + write_len, ret, AT_TX);
-            } else {
-                _debug_on = false;
+
+#if MBED_CONF_CELLULAR_DEBUG_AT
+        if (write_len + ret > DEBUG_MAXLEN) {
+            if (_debug_on && !suppress_traced) {
+                debug_print((char *)data + write_len, DEBUG_MAXLEN, AT_TX);
+                tr_debug("write trace suppressed (total length %d)", len);
             }
+            suppress_traced = true;
+        } else {
+            debug_print((char *)data + write_len, ret, AT_TX);
         }
+#endif
+
         write_len += (size_t)ret;
     }
-    _debug_on = debug_on;
 
     return write_len;
 }
