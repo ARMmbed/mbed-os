@@ -120,12 +120,7 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
         MBED_CONF_SD_SPI_CS
     );
 #else
-    static SDBlockDevice default_bd(
-        MBED_CONF_SD_SPI_MOSI,
-        MBED_CONF_SD_SPI_MISO,
-        MBED_CONF_SD_SPI_CLK,
-        MBED_CONF_SD_SPI_CS
-    );
+    static SDBlockDevice default_bd;
 #endif
 
     return &default_bd;
