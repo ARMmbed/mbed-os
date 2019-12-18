@@ -155,13 +155,7 @@ static void _can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz
     can_internal_init(obj);
 }
 
-#if STATIC_PINMAP_READY
-#define CAN_INIT_DIRECT can_init_direct
 void can_init_direct(can_t *obj, const can_pinmap_t *pinmap)
-#else
-#define CAN_INIT_DIRECT _can_init_direct
-static void _can_init_direct(can_t *obj, const can_pinmap_t *pinmap)
-#endif
 {
     /* default frequency is 100 kHz */
     CAN_INIT_FREQ_DIRECT(obj, pinmap, 100000);
@@ -641,13 +635,7 @@ static void _can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz
     can_filter(obj, 0, 0, CANStandard, filter_number);
 }
 
-#if STATIC_PINMAP_READY
-#define CAN_INIT_DIRECT can_init_direct
 void can_init_direct(can_t *obj, const can_pinmap_t *pinmap)
-#else
-#define CAN_INIT_DIRECT _can_init_direct
-static void _can_init_direct(can_t *obj, const can_pinmap_t *pinmap)
-#endif
 {
     /* default frequency is 100 kHz */
     CAN_INIT_FREQ_DIRECT(obj, pinmap, 100000);
