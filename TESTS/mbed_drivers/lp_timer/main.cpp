@@ -66,6 +66,50 @@ void busy_wait_ms(int ms)
     busy_wait_us(ms * US_PER_MSEC);
 }
 
+/* Frequency of low power timer may be unstable and different than the frequency provided in ticker information structure (e.g. STM targets with lp-tickers driven by RTC/LSI).
+   This function can be used in such cases to calibrate the lp-ticker frequency using us-ticker and update frequency in the ticker data structure. */
+#if (defined(TARGET_STM) && !defined(MBED_CONF_TARGET_LPTICKER_LPTIM))
+void calibrate_lp_ticker_freq()
+{
+    Timer ref_timer;
+    uint32_t total = 0;
+
+    for (int i = 0; i < 5; i++) {
+        ref_timer.reset();
+
+        const uint32_t start_tick = lp_ticker_read();
+
+        /* Wait for the new lp-ticker tick. */
+        while (lp_ticker_read() == start_tick);
+
+        ref_timer.start();
+
+        /* wait 1 sec */
+        while (ref_timer.read_us() < 1000000);
+
+        const uint32_t stop_tick = lp_ticker_read();
+
+        ref_timer.stop();
+
+        /* Calculate number of lp-ticker ticks during 1 sec period (handle possible rollover)  */
+        const uint32_t measured_lp_ticker_freq = ((stop_tick - start_tick) & ((1 << lp_ticker_get_info()->bits) - 1));
+
+        total += measured_lp_ticker_freq;
+    }
+
+#if defined(MBED_CONF_RTOS_PRESENT)
+    osKernelSuspend();
+#endif
+
+    ticker_update_freq(get_lp_ticker_data(), total / 5);
+
+#if defined(MBED_CONF_RTOS_PRESENT)
+    osKernelResume(0);
+#endif
+}
+#endif
+
+
 /* This test verifies if low power timer is stopped after
  * creation.
  *
@@ -328,6 +372,11 @@ void test_lptimer_time_measurement()
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(15, "default_auto");
+
+#if (defined(TARGET_STM) && !defined(MBED_CONF_TARGET_LPTICKER_LPTIM))
+    calibrate_lp_ticker_freq();
+#endif
+
     return verbose_test_setup_handler(number_of_cases);
 }
 

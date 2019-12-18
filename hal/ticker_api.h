@@ -208,6 +208,15 @@ void ticker_suspend(const ticker_data_t *const ticker);
  */
 void ticker_resume(const ticker_data_t *const ticker);
 
+/** Update ticker frequency
+ *
+ * Update ticker frequency.
+ *
+ * @param ticker        The ticker object.
+ * @param frequency     The new frequency
+ */
+void ticker_update_freq(const ticker_data_t *const ticker, uint32_t frequency);
+
 /* Private functions
  *
  * @cond PRIVATE

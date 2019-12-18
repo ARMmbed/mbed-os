@@ -490,3 +490,29 @@ void ticker_resume(const ticker_data_t *const ticker)
 
     core_util_critical_section_exit();
 }
+
+void ticker_update_freq(const ticker_data_t *const ticker, uint32_t frequency)
+{
+    uint8_t frequency_shifts = 0;
+    for (uint8_t i = 31; i > 0; --i) {
+        if ((1U << i) == frequency) {
+            frequency_shifts = i;
+            break;
+        }
+    }
+
+    core_util_critical_section_enter();
+
+    if (!ticker->queue->initialized) {
+        initialize(ticker);
+    }
+
+    ticker->queue->frequency = frequency;
+    ticker->queue->frequency_shifts = frequency_shifts;
+    ticker->queue->tick_last_read = ticker->interface->read();
+
+    update_present_time(ticker);
+    schedule_interrupt(ticker);
+
+    core_util_critical_section_exit();
+}
