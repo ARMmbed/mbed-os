@@ -25,13 +25,11 @@
 #include "mbed.h"
 
 #if DEVICE_WATCHDOG
-#include "hal/watchdog_api.h"
-
-#define MSG_VALUE_WATCHDOG_STATUS "wdg_present"
-#define WDG_TIMEOUT_MS 50UL
-
+#   include "hal/watchdog_api.h"
+#   define MSG_VALUE_WATCHDOG_STATUS 1
+#   define WDG_TIMEOUT_MS 50UL
 #else
-#define MSG_VALUE_WATCHDOG_STATUS "no_wdg"
+#   define MSG_VALUE_WATCHDOG_STATUS 0
 #endif
 
 #define MSG_VALUE_DUMMY "0"
@@ -119,8 +117,18 @@ static cmd_status_t handle_command(const char *key, const char *value)
 
 void test_reset_reason()
 {
-    // Report readiness and watchdog status.
-    greentea_send_kv(MSG_KEY_DEVICE_READY, MSG_VALUE_WATCHDOG_STATUS);
+    reset_reason_capabilities_t rrcap = {};
+    hal_reset_reason_get_capabilities(&rrcap);
+    char msg_value[11];
+    int str_len = snprintf(msg_value, sizeof msg_value, "%08lx,%01x", rrcap.reasons, MSG_VALUE_WATCHDOG_STATUS);
+    if (str_len != (sizeof msg_value) - 1) {
+        printf("Failed to compose a value string to be sent to host.");
+        GREENTEA_TESTSUITE_RESULT(0);
+        return;
+    }
+
+    // Report readiness, capabilities and watchdog status.
+    greentea_send_kv(MSG_KEY_DEVICE_READY, msg_value);
 
     cmd_status_t cmd_status = CMD_STATUS_CONTINUE;
     static char _key[MSG_KEY_LEN + 1] = { };
