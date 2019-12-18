@@ -19,6 +19,7 @@
 #include "i2c_api.h"
 #include "spi_api.h"
 #include "gpio_api.h"
+#include "reset_reason_api.h"
 #include "mbed_toolchain.h"
 
 // To be re-implemented in the target layer if required
@@ -90,4 +91,15 @@ MBED_WEAK void spi_get_capabilities(PinName ssel, bool slave, spi_capabilities_t
     }
 }
 
+#endif
+
+#if DEVICE_RESET_REASON
+// To be re-implemented in the target layer if required
+MBED_WEAK void hal_reset_reason_get_capabilities(reset_reason_capabilities_t *cap)
+{
+    cap->reasons = (1 << RESET_REASON_PIN_RESET) | (1 << RESET_REASON_SOFTWARE);
+#if DEVICE_WATCHDOG
+    cap->reasons |= 1 << RESET_REASON_WATCHDOG;
+#endif
+}
 #endif
