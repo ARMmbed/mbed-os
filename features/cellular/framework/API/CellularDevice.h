@@ -21,9 +21,14 @@
 #include "CellularStateMachine.h"
 #include "Callback.h"
 #include "ATHandler.h"
+
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
 #include "UARTSerial.h"
 #endif // #if DEVICE_SERIAL
+
+#ifdef MBED_CONF_RTOS_PRESENT
+#include "Thread.h"
+#endif // MBED_CONF_RTOS_PRESENT
 
 /** @file CellularDevice.h
  * @brief Class CellularDevice
@@ -504,6 +509,10 @@ private: //Member variables
     char _sim_pin[MAX_PIN_SIZE + 1];
     char _plmn[MAX_PLMN_SIZE + 1];
     PlatformMutex _mutex;
+
+#ifdef MBED_CONF_RTOS_PRESENT
+    rtos::Thread _queue_thread;
+#endif
 };
 
 /**

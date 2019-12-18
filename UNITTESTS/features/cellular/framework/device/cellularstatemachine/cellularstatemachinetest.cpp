@@ -222,13 +222,6 @@ TEST_F(TestCellularStateMachine, test_start_dispatch)
     ASSERT_EQ(NSAPI_ERROR_OK, err);
     ut.delete_state_machine();
 
-    Thread_stub::osStatus_value = osErrorNoMemory;
-    stm = ut.create_state_machine(*dev, *dev->get_queue(), *dev->open_network());
-    EXPECT_TRUE(stm);
-    err = ut.start_dispatch();
-    ASSERT_EQ(NSAPI_ERROR_NO_MEMORY, err);
-    ut.delete_state_machine();
-
     delete dev;
     dev = NULL;
 }

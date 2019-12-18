@@ -22,12 +22,6 @@
 #include "CellularCommon.h"
 #include "PlatformMutex.h"
 
-#ifdef MBED_CONF_RTOS_PRESENT
-namespace rtos {
-class Thread;
-}
-#endif
-
 namespace mbed {
 
 class CellularDevice;
@@ -162,11 +156,6 @@ private:
     void change_timeout(const int &timeout);
 
 private:
-
-#ifdef MBED_CONF_RTOS_PRESENT
-    rtos::Thread *_queue_thread;
-#endif
-
     CellularDevice &_cellularDevice;
     CellularState _state;
     CellularState _next_state;

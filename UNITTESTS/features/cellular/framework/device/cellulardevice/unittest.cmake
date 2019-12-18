@@ -35,6 +35,7 @@ set(unittest-test-sources
   stubs/CellularContext_stub.cpp
   stubs/ConditionVariable_stub.cpp
   stubs/Mutex_stub.cpp
+  stubs/mbed_shared_queues_stub.cpp
 )
 
 set(unittest-test-flags
