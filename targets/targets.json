@@ -102,7 +102,7 @@
         "inherits": ["PSA_Target"],
         "public": false
     },
-    "PSA_DUAL_V7_M_NSPE": {
+    "PSA_DUAL_CORE_NSPE": {
         "inherits": [
             "PSA_Target"
         ],
@@ -115,7 +115,7 @@
         ],
         "public": false
     },
-    "PSA_DUAL_V7_M_SPE": {
+    "PSA_DUAL_CORE_SPE": {
         "inherits": [
             "PSA_Target"
         ],
@@ -12873,7 +12873,7 @@
     },
     "CY8CPROTO_064_SB_S": {
         "inherits": [
-            "PSA_DUAL_V7_M_SPE"
+            "PSA_DUAL_CORE_SPE"
         ],
         "tfm_target_name": "psoc64_1m",
         "tfm_bootloader_supported": false,
@@ -12887,7 +12887,7 @@
     },
     "CY8CPROTO_064_SB": {
         "inherits": [
-            "PSA_DUAL_V7_M_NSPE",
+            "PSA_DUAL_CORE_NSPE",
             "MCU_PSOC6_M4"
         ],
         "components_remove": [
