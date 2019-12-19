@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if !defined(MBED_RTOS_CONF_PRESENT)
+#if !defined(MBED_CONF_RTOS_PRESENT)
 #error [NOT_SUPPORTED] usticker test cases require a RTOS to run
 #else
 
@@ -611,4 +611,4 @@ int main()
     return !Harness::run(specification);
 }
 #endif // !DEVICE_USTICKER
-#endif // !defined(MBED_RTOS_CONF_PRESENT)
+#endif // !defined(MBED_CONF_RTOS_PRESENT)
