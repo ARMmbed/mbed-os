@@ -82,12 +82,7 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
 
 #elif COMPONENT_DATAFLASH
 
-    static DataFlashBlockDevice default_bd(
-        MBED_CONF_DATAFLASH_SPI_MOSI,
-        MBED_CONF_DATAFLASH_SPI_MISO,
-        MBED_CONF_DATAFLASH_SPI_CLK,
-        MBED_CONF_DATAFLASH_SPI_CS
-    );
+    static DataFlashBlockDevice default_bd;
 
     return &default_bd;
 
