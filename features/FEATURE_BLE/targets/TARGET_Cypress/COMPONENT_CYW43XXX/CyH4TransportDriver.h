@@ -78,15 +78,17 @@ public:
     uint8_t get_dev_wake_irq_event();
 
 private:
-    void on_controller_irq();
     void assert_bt_dev_wake();
     void deassert_bt_dev_wake();
 
-    // Use RawSerial as opposed to Serial as we don't require the locking primitives
-    // provided by the Serial class (access to the UART should be exclusive to this driver)
-    // Furthermore, we access the peripheral in interrupt context which would clash
-    // with Serial's locking facilities
-    RawSerial uart;
+    // Use HAL serial because Cypress UART is buffered.
+    // The PUTC function does not actually blocks until data is fully transmitted,
+    // it only blocks until data gets into HW buffer.
+    // The UART APIs prevents sleep while there are data in the HW buffer.
+    // However UART APIs does not prevent the BT radio from going to sleep.
+    // Use the HAL APIs to prevent the radio from going to sleep until UART transmition is complete.
+    
+    cyhal_uart_t uart;
     PinName cts;
     PinName rts;
     PinName bt_host_wake_name;

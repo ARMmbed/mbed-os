@@ -634,7 +634,7 @@ cy_rslt_t cyhal_uart_read_async(cyhal_uart_t *obj, void *rx, size_t length)
 
 bool cyhal_uart_is_tx_active(cyhal_uart_t *obj)
 {
-    return (0UL != (obj->context.txStatus & CY_SCB_UART_TRANSMIT_ACTIVE));
+    return (0UL != (obj->context.txStatus & CY_SCB_UART_TRANSMIT_ACTIVE)) || !Cy_SCB_IsTxComplete(obj->base);
 }
 
 bool cyhal_uart_is_rx_active(cyhal_uart_t *obj)
