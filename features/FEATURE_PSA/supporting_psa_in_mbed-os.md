@@ -135,7 +135,7 @@ Mbed OS's PSA service emulation provides PSA compatibility for single-core PSA t
     }
 ```
 
-Please pay attention to config options `extra_labels_add` and `device_has_add`. If needed then a PSA target definition **MUST** use [extra_labels/device_has]`_add` or [extra_labels/device_has]`_remove` (not `extra_labels` or `device_has`) to add/remove either extra_labels or target capabilities. Also, use `feature_`[add/remove] to add/remove a feature.
+Please pay attention to the config options `extra_labels_add` and `device_has_add`. If needed, a PSA target definition **MUST** use [extra_labels/device_has]`_add` or [extra_labels/device_has]`_remove` (not `extra_labels` or `device_has`) to add/remove either `extra_labels` or target capabilities. Also, use `feature_`[add/remove] to add/remove a feature.
 Check [extra_labels](https://os.mbed.com/docs/mbed-os/v5.14/reference/adding-and-configuring-targets.html), [device_has](https://os.mbed.com/docs/mbed-os/v5.14/reference/adding-and-configuring-targets.html) and [features](https://os.mbed.com/docs/mbed-os/v5.14/reference/adding-and-configuring-targets.html) for more information.
 
 ## Adding dual-core PSA targets
@@ -199,7 +199,7 @@ The following example shows a PSA enabled dual-core target, `PSoC64`,
     },
 ```
 
-Please pay attention to the config options `extra_labels_add` and `device_has_remove`. If needed, a PSA target definition **MUST** use [extra_labels/device_has]`_add` or [extra_labels/device_has]`_remove` (not `extra_labels` or `device_has`) to add/remove either extra_labels or target capabilities. Also, use `feature_`[add/remove] to add/remove a feature.
+Please pay attention to the config options `extra_labels_add` and `device_has_remove`. If needed, a PSA target definition **MUST** use [extra_labels/device_has]`_add` or [extra_labels/device_has]`_remove` (not `extra_labels` or `device_has`) to add/remove either `extra_labels` or target capabilities. Also, use `feature_`[add/remove] to add/remove a feature.
 Check [extra_labels](https://os.mbed.com/docs/mbed-os/v5.14/reference/adding-and-configuring-targets.html), [device_has](https://os.mbed.com/docs/mbed-os/v5.14/reference/adding-and-configuring-targets.html) and [features](https://os.mbed.com/docs/mbed-os/v5.14/reference/adding-and-configuring-targets.html) for more information.
 
 By default TF-M build generates a `bin` file. If the target requires a `hex` file then the attribute `"OUTPUT_EXT": "hex"` should be added to the target definition.
