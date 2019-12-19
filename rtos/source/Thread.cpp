@@ -69,25 +69,6 @@ void Thread::constructor(osPriority priority,
     constructor(MBED_TZ_DEFAULT_ACCESS, priority, stack_size, stack_mem, name);
 }
 
-void Thread::constructor(mbed::Callback<void()> task,
-                         osPriority priority, uint32_t stack_size, unsigned char *stack_mem, const char *name)
-{
-    constructor(MBED_TZ_DEFAULT_ACCESS, priority, stack_size, stack_mem, name);
-
-    switch (start(task)) {
-        case osErrorResource:
-            MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_RESOURCES), "OS ran out of threads!\n", task);
-            break;
-        case osErrorParameter:
-            MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_ALREADY_IN_USE), "Thread already running!\n", task);
-            break;
-        case osErrorNoMemory:
-            MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Error allocating the stack memory\n", task);
-        default:
-            break;
-    }
-}
-
 osStatus Thread::start(mbed::Callback<void()> task)
 {
     _mutex.lock();
