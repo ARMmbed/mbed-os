@@ -22,6 +22,7 @@
 #include "PinNames.h"
 #include "UARTSerial.h"
 #include "CellularLog.h"
+#include "mbed_wait_api.h"
 
 using namespace mbed;
 

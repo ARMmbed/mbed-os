@@ -23,6 +23,8 @@
 #include "PinNames.h"
 #include "UARTSerial.h"
 
+#define WAIT_AFTER_POWR_CHANGED	(1000)	// [msec.]
+
 using namespace mbed;
 
 ONBOARD_QUECTEL_UG96::ONBOARD_QUECTEL_UG96(FileHandle *fh) : QUECTEL_UG96(fh)
