@@ -205,9 +205,10 @@ void chap_auth_with_peer(ppp_pcb *pcb, const char *our_name, int digest_code) {
 		if (dp->code == digest_code)
 			break;
 
-	if (dp == NULL)
+	if (dp == NULL) {
 		ppp_fatal("CHAP digest 0x%x requested but not available",
 		      digest_code);
+	}
 
 	pcb->chap_client.digest = dp;
 	pcb->chap_client.name = our_name;
@@ -519,10 +520,11 @@ static void chap_handle_status(ppp_pcb *pcb, int code, int id,
 			msg = "CHAP authentication failed";
 	}
 	if (msg) {
-		if (len > 0)
+		if (len > 0) {
 			ppp_info("%s: %.*v", msg, len, pkt);
-		else
+		} else {
 			ppp_info("%s", msg);
+		}
 	}
 	if (code == CHAP_SUCCESS)
 		auth_withpeer_success(pcb, PPP_CHAP, pcb->chap_client.digest->code);

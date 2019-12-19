@@ -2087,13 +2087,16 @@ static void ipcp_up(fsm *f) {
 	wo->ouraddr = go->ouraddr;
 
 	ppp_notice("local  IP address %I", go->ouraddr);
-	if (ho->hisaddr != 0)
+	if (ho->hisaddr != 0) {
 	    ppp_notice("remote IP address %I", ho->hisaddr);
+	}
 #if PPP_DNS
-	if (go->dnsaddr[0])
+	if (go->dnsaddr[0]) {
 	    ppp_notice("primary   DNS address %I", go->dnsaddr[0]);
-	if (go->dnsaddr[1])
+	}
+	if (go->dnsaddr[1]) {
 	    ppp_notice("secondary DNS address %I", go->dnsaddr[1]);
+	}
 #endif /* PPP_DNS */
     }
 

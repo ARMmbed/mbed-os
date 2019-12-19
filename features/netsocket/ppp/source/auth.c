@@ -630,12 +630,13 @@ void link_terminated(ppp_pcb *pcb) {
 #endif /* UNUSED */
 
     if (!doing_multilink) {
-	ppp_notice("Connection terminated.");
+        ppp_notice("Connection terminated.");
 #if PPP_STATS_SUPPORT
-	print_link_stats();
+        print_link_stats();
 #endif /* PPP_STATS_SUPPORT */
-    } else
-	ppp_notice("Link terminated.");
+    } else {
+        ppp_notice("Link terminated.");
+    }
 
     lcp_lowerdown(pcb);
 
@@ -1131,13 +1132,17 @@ void auth_withpeer_fail(ppp_pcb *pcb, int protocol) {
  */
 void auth_withpeer_success(ppp_pcb *pcb, int protocol, int prot_flavor) {
     int bit;
+#if PPP_DEBUG
     const char *prot = "";
+#endif
 
     switch (protocol) {
 #if CHAP_SUPPORT
     case PPP_CHAP:
 	bit = CHAP_WITHPEER;
+#if PPP_DEBUG
 	prot = "CHAP";
+#endif
 	switch (prot_flavor) {
 	case CHAP_MD5:
 	    bit |= CHAP_MD5_WITHPEER;
@@ -1158,13 +1163,17 @@ void auth_withpeer_success(ppp_pcb *pcb, int protocol, int prot_flavor) {
 #if PAP_SUPPORT
     case PPP_PAP:
 	bit = PAP_WITHPEER;
+#if PPP_DEBUG
 	prot = "PAP";
+#endif
 	break;
 #endif /* PAP_SUPPORT */
 #if EAP_SUPPORT
     case PPP_EAP:
 	bit = EAP_WITHPEER;
+#if PPP_DEBUG
 	prot = "EAP";
+#endif
 	break;
 #endif /* EAP_SUPPORT */
     default:
