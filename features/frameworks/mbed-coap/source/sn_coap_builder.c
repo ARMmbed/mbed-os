@@ -48,7 +48,6 @@ static uint16_t sn_coap_builder_options_get_option_part_length_from_whole_option
 static int16_t  sn_coap_builder_options_get_option_part_position(uint16_t query_len, const uint8_t *query_ptr, uint8_t query_index, sn_coap_option_numbers_e option);
 static void     sn_coap_builder_payload_build(uint8_t **dst_packet_data_pptr, const sn_coap_hdr_s *src_coap_msg_ptr);
 static uint8_t  sn_coap_builder_options_calculate_jump_need(const sn_coap_hdr_s *src_coap_msg_ptr);
-static bool     sn_coap_builder_check_uint16_overflow(uint16_t param_a, uint16_t param_b);
 
 sn_coap_hdr_s *sn_coap_build_response(struct coap_s *handle, const sn_coap_hdr_s *coap_packet_ptr, uint8_t msg_code)
 {
@@ -156,7 +155,7 @@ uint16_t sn_coap_builder_calc_needed_packet_data_size(const sn_coap_hdr_s *src_c
 uint16_t sn_coap_builder_calc_needed_packet_data_size_2(const sn_coap_hdr_s *src_coap_msg_ptr, uint16_t blockwise_payload_size)
 {
     (void)blockwise_payload_size;
-    uint16_t returned_byte_count = 0;
+    uint_fast32_t returned_byte_count = 0;
 
     if (!src_coap_msg_ptr) {
         return 0;
@@ -349,37 +348,19 @@ uint16_t sn_coap_builder_calc_needed_packet_data_size_2(const sn_coap_hdr_s *src
             returned_byte_count += src_coap_msg_ptr->payload_len;
         }
 #else
-        if ( sn_coap_builder_check_uint16_overflow(returned_byte_count,src_coap_msg_ptr->payload_len)){
-            returned_byte_count += src_coap_msg_ptr->payload_len;
-        } else {
-            tr_error("sn_coap_builder_calc_needed_packet_data_size_2 - packet data size would overflow!");
-            return 0;
-        }
+        returned_byte_count += src_coap_msg_ptr->payload_len;
 #endif
         if (src_coap_msg_ptr->payload_len) {
             returned_byte_count ++;    /* For payload marker */
         }
         returned_byte_count += sn_coap_builder_options_calculate_jump_need(src_coap_msg_ptr);
     }
-    return returned_byte_count;
+    if (returned_byte_count > UINT16_MAX) {
+        tr_error("sn_coap_builder_calc_needed_packet_data_size_2 - packet data size would overflow!");
+        return 0;
+    }
+    return (uint16_t)returned_byte_count;
 }
-
-/**
- * \fn static bool sn_coap_builder_check_uint16_overflow(uint16_t param_a, uint16_t param_b))
- *
- * \brief Check that can param_a and param_b addition can be performed without overflow
- *
- * \param  param_a some uint16_t value
- *
- * \param  param_b some uint16_t value
- *
- * \return Returns true is would not overflow
- */
-static bool sn_coap_builder_check_uint16_overflow(uint16_t param_a, uint16_t param_b)
-{
-    return param_a + param_b <= UINT16_MAX;
-}
-
 
 /**
  * \fn static uint8_t sn_coap_builder_options_calculate_jump_need(sn_coap_hdr_s *src_coap_msg_ptr)
