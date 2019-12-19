@@ -175,11 +175,6 @@ uint32_t Thread::flags_set(uint32_t flags)
     return flags;
 }
 
-int32_t Thread::signal_set(int32_t flags)
-{
-    return osThreadFlagsSet(_tid, flags);
-}
-
 Thread::State Thread::get_state() const
 {
     uint8_t state = osThreadTerminated;
@@ -321,77 +316,6 @@ const char *Thread::get_name() const
 osThreadId_t Thread::get_id() const
 {
     return _tid;
-}
-
-int32_t Thread::signal_clr(int32_t flags)
-{
-    return osThreadFlagsClear(flags);
-}
-
-osEvent Thread::signal_wait(int32_t signals, uint32_t millisec)
-{
-    uint32_t res;
-    osEvent evt;
-    uint32_t options = osFlagsWaitAll;
-    if (signals == 0) {
-        options = osFlagsWaitAny;
-        signals = 0x7FFFFFFF;
-    }
-    res = osThreadFlagsWait(signals, options, millisec);
-    if (res & osFlagsError) {
-        switch (res) {
-            case osFlagsErrorISR:
-                evt.status = osErrorISR;
-                break;
-            case osFlagsErrorResource:
-                evt.status = osOK;
-                break;
-            case osFlagsErrorTimeout:
-                evt.status = (osStatus)osEventTimeout;
-                break;
-            case osFlagsErrorParameter:
-            default:
-                evt.status = (osStatus)osErrorValue;
-                break;
-        }
-    } else {
-        evt.status = (osStatus)osEventSignal;
-        evt.value.signals = res;
-    }
-
-    return evt;
-}
-
-osStatus Thread::wait(uint32_t millisec)
-{
-    ThisThread::sleep_for(millisec);
-    return osOK;
-}
-
-osStatus Thread::wait_until(uint64_t millisec)
-{
-    ThisThread::sleep_until(millisec);
-    return osOK;
-}
-
-osStatus Thread::yield()
-{
-    return osThreadYield();
-}
-
-osThreadId Thread::gettid()
-{
-    return osThreadGetId();
-}
-
-void Thread::attach_idle_hook(void (*fptr)(void))
-{
-    rtos_attach_idle_hook(fptr);
-}
-
-void Thread::attach_terminate_hook(void (*fptr)(osThreadId_t id))
-{
-    rtos_attach_thread_terminate_hook(fptr);
 }
 
 Thread::~Thread()
