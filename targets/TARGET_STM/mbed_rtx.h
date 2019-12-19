@@ -19,13 +19,6 @@
 
 #include <stdint.h>
 
-#if (defined(TARGET_STM32F070RB) || defined(TARGET_STM32F072RB))
-#ifdef MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE
-#undef MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE
-#endif
-#define MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE 3072
-#endif
-
 #if (defined(TARGET_STM32L475VG) || defined(TARGET_STM32L443RC))
 #if defined(__ARMCC_VERSION)
 extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Base[];
