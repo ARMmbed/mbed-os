@@ -31,7 +31,7 @@
 
 #### What version of Mbed-os are you using (tag or sha) ?
 <!--
-    FOR A RELEASED VERSION PLEASE PROVIDE THE RELEASE TAG (THIS CAN BE FOUND AS PER THE INSTRUCTIONS BELOW)
+    For a released version please provide the release tag (this can be found as per the instructions below)
 
     mbed-os version can be found in /platform/mbed_version.h. The tag can be reconstructed as follows:
     mbed-os-MBED_MAJOR_VERSION.MBED_MINOR_VERSION.MBED_PATCH_VERSION
