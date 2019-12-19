@@ -23,7 +23,6 @@ import argparse
 import sys
 import signal
 import shutil
-import stat
 import subprocess
 import logging
 import tempfile
