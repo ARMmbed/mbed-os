@@ -152,6 +152,7 @@ void PalTimerDeInit(void)
 
   /* stop timer */
   NRF_TIMER2->TASKS_STOP  = 1;
+  NRF_TIMER2->TASKS_SHUTDOWN  = 1;
 
   palTimerCb.state = PAL_TIMER_STATE_UNINIT;
 }
