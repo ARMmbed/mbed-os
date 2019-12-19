@@ -209,4 +209,4 @@ int main()
 }
 
 #endif // defined(SKIP_TIME_DRIFT_TESTS) || !DEVICE_USTICKER
-#endif // !defined(MBED_RTOS_CONF_PRESENT)
+#endif // !defined(MBED_CONF_RTOS_PRESENT)
