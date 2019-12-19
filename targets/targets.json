@@ -76,13 +76,13 @@
         "inherits": ["PSA_Target"],
         "public": false
     },
-    "PSA_DUAL_V7_M_NSPE": {
+    "PSA_DUAL_CORE_NSPE": {
         "inherits": ["PSA_Target"],
         "extra_labels": ["TFM", "TARGET_TFM_TWINCPU"],
         "device_has_add": ["TRNG"],
         "public": false
     },
-    "PSA_DUAL_V7_M_SPE": {
+    "PSA_DUAL_CORE_SPE": {
         "inherits": ["PSA_Target"],
         "tfm_target_name": "",
         "tfm_bootloader_supported": "",
@@ -9047,7 +9047,7 @@
         "bootloader_supported": false
     },
     "CY8CPROTO_064_SB_S": {
-        "inherits": ["PSA_DUAL_V7_M_SPE"],
+        "inherits": ["PSA_DUAL_CORE_SPE"],
         "tfm_target_name": "psoc64_1m",
         "tfm_bootloader_supported": false,
         "tfm_default_toolchain": "ARMCLANG",
@@ -9056,7 +9056,7 @@
         "OUTPUT_EXT": "hex"
     },
     "CY8CPROTO_064_SB_NS": {
-        "inherits": ["PSA_DUAL_V7_M_NSPE", "MCU_PSOC6_M4"],
+        "inherits": ["PSA_DUAL_CORE_NSPE", "MCU_PSOC6_M4"],
         "components_remove": ["QSPIF"],
         "device_has_remove": ["QSPI"],
         "extra_labels_add": ["PSOC6_01", "MXCRYPTO_01"],

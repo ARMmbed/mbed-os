@@ -20,8 +20,8 @@ To help with the creation of PSA targets, a couple of generic targets have been 
 * `PSA_Target` (Root level PSA target)
 * `PSA_V7_M_NSPE` (Single v7-M NSPE generic target)
 * `PSA_V7_M_SPE` (Single v7-M SPE generic target)
-* `PSA_DUAL_V7_M_NSPE` (Dual-core NSPE generic target)
-* `PSA_DUAL_V7_M_SPE` (Dual-core SPE generic target)
+* `PSA_DUAL_CORE_NSPE` (Dual-core NSPE generic target)
+* `PSA_DUAL_CORE_SPE` (Dual-core SPE generic target)
 * `PSA_V8_M_NSPE` (v8-M NSPE generic target)
 * `PSA_V8_M_SPE` (v8-M SPE generic target)
 
@@ -46,10 +46,10 @@ Example single-core PSA target:
 Example dual-core PSA target:
 ```json
     "CY8CPROTO_064_SB_S": {
-        "inherits": ["PSA_DUAL_V7_M_SPE"],
+        "inherits": ["PSA_DUAL_CORE_SPE"],
     },
     "CY8CPROTO_064_SB_NS": {
-        "inherits": ["PSA_DUAL_V7_M_NSPE", "MCU_PSOC6_M4"],
+        "inherits": ["PSA_DUAL_CORE_NSPE", "MCU_PSOC6_M4"],
     }
 ```
 
@@ -143,7 +143,7 @@ A target can be categorized as a dual-core target if it has at least two cores t
 
 The SPE target **MUST** contain the following attributes:
 
-* `inherits`: PSA generic target PSA_DUAL_V7_M_SPE
+* `inherits`: PSA generic target PSA_DUAL_CORE_SPE
 * `tfm_target_name`: Target name in TF-M
 * `tfm_bootloader_supported`: If TF-M bootloader is supported by the target. Values supported are "true" and "false"
 * `tfm_default_toolchain`: Default TF-M toolchain supported. Values supported are `ARMCLANG` and `GNUARM`
@@ -154,7 +154,7 @@ The following example shows a PSA enabled dual-core target, `PSoC64`,
 
 ```json
     "CY8CPROTO_064_SB_S": {
-        "inherits": ["PSA_DUAL_V7_M_SPE"],
+        "inherits": ["PSA_DUAL_CORE_SPE"],
         "tfm_target_name": "psoc64_1m",
         "tfm_bootloader_supported": false,
         "tfm_default_toolchain": "ARMCLANG",
@@ -163,7 +163,7 @@ The following example shows a PSA enabled dual-core target, `PSoC64`,
         "OUTPUT_EXT": "hex"
     },
     "CY8CPROTO_064_SB_NS": {
-        "inherits": ["PSA_DUAL_V7_M_NSPE", "MCU_PSOC6_M4"],
+        "inherits": ["PSA_DUAL_CORE_NSPE", "MCU_PSOC6_M4"],
         "components_remove": ["QSPIF"],
         "device_has_remove": ["QSPI"],
         "supported_form_factors": ["ARDUINO"],
