@@ -137,8 +137,11 @@ ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::setData
 
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::reset_(void) {
-    delete _db;
-    _pal.reset();
+
+	delete _db; // Close the database
+	_db = NULL;
+
+	_pal.reset();
     SecurityManager::reset_();
 
     return BLE_ERROR_NONE;
@@ -833,7 +836,11 @@ template<template<class> class TPalSecurityManager, template<class> class Signin
 ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::init_database(
     const char *db_path
 ) {
-    delete _db;
+	// Close the old database if it still exists
+	if(_db != NULL) {
+		delete _db;
+		_db = NULL;
+	}
 
     FILE* db_file = FileSecurityDb::open_db_file(db_path);
 
