@@ -88,16 +88,7 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
 
 #elif COMPONENT_QSPIF
 
-    static QSPIFBlockDevice default_bd(
-        MBED_CONF_QSPIF_QSPI_IO0,
-        MBED_CONF_QSPIF_QSPI_IO1,
-        MBED_CONF_QSPIF_QSPI_IO2,
-        MBED_CONF_QSPIF_QSPI_IO3,
-        MBED_CONF_QSPIF_QSPI_SCK,
-        MBED_CONF_QSPIF_QSPI_CSN,
-        MBED_CONF_QSPIF_QSPI_POLARITY_MODE,
-        MBED_CONF_QSPIF_QSPI_FREQ
-    );
+    static QSPIFBlockDevice default_bd;
 
     return &default_bd;
 
