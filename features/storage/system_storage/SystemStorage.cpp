@@ -70,13 +70,7 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
 
 #elif COMPONENT_RSPIF
 
-    static SPIFReducedBlockDevice default_bd(
-        MBED_CONF_RSPIF_DRIVER_SPI_MOSI,
-        MBED_CONF_RSPIF_DRIVER_SPI_MISO,
-        MBED_CONF_RSPIF_DRIVER_SPI_CLK,
-        MBED_CONF_RSPIF_DRIVER_SPI_CS,
-        MBED_CONF_RSPIF_DRIVER_SPI_FREQ
-    );
+    static SPIFReducedBlockDevice default_bd;
 
     return &default_bd;
 

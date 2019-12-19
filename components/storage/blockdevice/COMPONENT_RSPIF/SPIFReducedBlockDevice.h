@@ -20,6 +20,22 @@
 #include "drivers/DigitalOut.h"
 #include "features/storage/blockdevice/BlockDevice.h"
 
+#ifndef MBED_CONF_RSPIF_DRIVER_SPI_MOSI
+#define MBED_CONF_RSPIF_DRIVER_SPI_MOSI NC
+#endif
+#ifndef MBED_CONF_RSPIF_DRIVER_SPI_MISO
+#define MBED_CONF_RSPIF_DRIVER_SPI_MISO NC
+#endif
+#ifndef MBED_CONF_RSPIF_DRIVER_SPI_CLK
+#define MBED_CONF_RSPIF_DRIVER_SPI_CLK NC
+#endif
+#ifndef MBED_CONF_RSPIF_DRIVER_SPI_CS
+#define MBED_CONF_RSPIF_DRIVER_SPI_CS NC
+#endif
+#ifndef MBED_CONF_RSPIF_DRIVER_SPI_FREQ
+#define MBED_CONF_RSPIF_DRIVER_SPI_FREQ 40000000
+#endif
+
 /** Reduced BlockDevice for SPI based flash devices
  *  *Should only be used by Boot Loader*
  *
@@ -66,7 +82,11 @@ public:
      *  @param csel     SPI chip select pin
      *  @param freq     Clock speed of the SPI bus (defaults to 40MHz)
      */
-    SPIFReducedBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName csel, int freq = 40000000);
+    SPIFReducedBlockDevice(PinName mosi = MBED_CONF_RSPIF_DRIVER_SPI_MOSI,
+                           PinName miso = MBED_CONF_RSPIF_DRIVER_SPI_MISO,
+                           PinName sclk = MBED_CONF_RSPIF_DRIVER_SPI_CLK,
+                           PinName csel = MBED_CONF_RSPIF_DRIVER_SPI_CS,
+                           int freq = MBED_CONF_RSPIF_DRIVER_SPI_FREQ);
 
     /** Initialize a block device
      *
