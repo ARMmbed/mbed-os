@@ -69,10 +69,10 @@ Example:
 ## Naming convention for dual-core and Armv8-M target names
 As described in previous paragraphs, both SPE and NSPE target names **MUST** be defined for dual-core and Armv8-M targets. This section defines the naming convention for the same.
 
-`TargetA_S`       : PSA secure target (SPE)
-`TargetA`         : PSA non-secure target (NSPE)
-`TargetA_NPSA_S`  : Non-PSA secure target
-`TargetA_NPSA`    : Non-PSA non-secure target
+`TargetName_S`       : PSA secure target (SPE)
+`TargetName`         : PSA non-secure target (NSPE)
+`TargetName_NPSA_S`  : Non-PSA secure target
+`TargetName_NPSA`    : Non-PSA non-secure target
 
 ## Adding single-core PSA targets
 Mbed OS's PSA service emulation provides PSA compatibility for single-core PSA targets. The following example shows a PSA-enabled single-core target, `K64F`.
