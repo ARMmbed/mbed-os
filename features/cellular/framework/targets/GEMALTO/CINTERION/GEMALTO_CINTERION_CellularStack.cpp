@@ -25,11 +25,6 @@
 #define UDP_PACKET_SIZE 1460
 #define FAILURE_TIMEOUT (30*1000) // failure timeout in milliseconds on modem side
 
-/*
- * Use connection profile 0 and Internet service profiles starting from 0 for sockets.
- */
-#define CONNECTION_PROFILE_ID 0
-
 using namespace mbed;
 
 GEMALTO_CINTERION_CellularStack::GEMALTO_CINTERION_CellularStack(ATHandler &atHandler, const char *apn, const char *user, const char *password,
@@ -58,6 +53,17 @@ void GEMALTO_CINTERION_CellularStack::urc_sis()
                 sock->started = true;
                 sock->tx_ready = true;
                 sock->_cb(sock->_data);
+            }
+        }
+        if (urc_code == 0) {
+            int urc_info_id = _at.read_int();
+            if (urc_info_id == 48) {
+                tr_info("Socket closed %d", sock_id);
+                sock->closed = true;
+                if (sock->_cb) {
+                    sock->_cb(sock->_data);
+                }
+
             }
         }
     }
@@ -109,8 +115,7 @@ void GEMALTO_CINTERION_CellularStack::sisr_urc_handler(int sock_id, int urc_code
 nsapi_error_t GEMALTO_CINTERION_CellularStack::socket_stack_init()
 {
     _at.lock();
-    int connection_profile_id = CONNECTION_PROFILE_ID;
-    nsapi_error_t err = create_connection_profile(connection_profile_id);
+    nsapi_error_t err = create_connection_profile(_cid);
     if (!err) {
         _at.set_urc_handler("^SIS:", mbed::Callback<void()>(this, &GEMALTO_CINTERION_CellularStack::urc_sis));
         _at.set_urc_handler("^SISW:", mbed::Callback<void()>(this, &GEMALTO_CINTERION_CellularStack::urc_sisw));
@@ -122,7 +127,7 @@ nsapi_error_t GEMALTO_CINTERION_CellularStack::socket_stack_init()
             socket_close_impl(i);
         }
         _at.clear_error();
-        close_connection_profile(connection_profile_id);
+        close_connection_profile(_cid);
     }
     _at.unlock();
     return err;
@@ -157,8 +162,6 @@ nsapi_error_t GEMALTO_CINTERION_CellularStack::socket_close_impl(int sock_id)
 
 nsapi_error_t GEMALTO_CINTERION_CellularStack::socket_open_defer(CellularSocket *socket, const SocketAddress *address)
 {
-    int connection_profile_id = CONNECTION_PROFILE_ID;
-
     int retry_open = 1;
 retry_open:
     // setup internet session profile
@@ -193,7 +196,7 @@ retry_open:
                     }
                     if (strcmp(paramTag, "conId") == 0) {
                         char buf[10];
-                        std::sprintf(buf, "%d", connection_profile_id);
+                        std::sprintf(buf, "%d", _cid);
                         if (strcmp(paramValue, buf) == 0) {
                             foundConIdType = true;
                         }
@@ -209,7 +212,7 @@ retry_open:
     }
 
     if (!foundConIdType) {
-        _at.at_cmd_discard("^SISS", "=", "%d%s%d", internet_service_id, "conId", connection_profile_id);
+        _at.at_cmd_discard("^SISS", "=", "%d%s%d", internet_service_id, "conId", _cid);
     }
 
     // host address (IPv4) and local+remote port is needed only for BGS2 which does not support UDP server socket
@@ -238,7 +241,7 @@ retry_open:
     _at.at_cmd_discard("^SISO", "=", "%d", internet_service_id);
 
     if (_at.get_last_error()) {
-        tr_error("Socket %d open failed!", socket->id);
+        tr_error("Socket %d open failed!", internet_service_id);
         _at.clear_error();
         socket_close_impl(internet_service_id); // socket may already be open on modem if app and modem are not in sync, as a recovery, try to close the socket so open succeeds the next time
         if (retry_open--) {
@@ -390,7 +393,7 @@ nsapi_size_or_error_t GEMALTO_CINTERION_CellularStack::socket_recvfrom_impl(Cell
     if (!socket->pending_bytes) {
         _at.process_oob(); // check for ^SISR URC
         if (!socket->pending_bytes) {
-            tr_debug("Socekt %d recv would block", socket->id);
+            tr_debug("Socket %d recv would block", socket->id);
             return NSAPI_ERROR_WOULD_BLOCK;
         }
     }

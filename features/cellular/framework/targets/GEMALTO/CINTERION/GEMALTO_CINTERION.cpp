@@ -127,6 +127,10 @@ void GEMALTO_CINTERION::init_module_els61()
         0,  // AT_CGSN_WITH_TYPE
         1,  // AT_CGDATA
         1,  // AT_CGAUTH
+        1,  // AT_CNMI
+        1,  // AT_CSMP
+        1,  // AT_CMGF
+        1,  // AT_CSDH
         1,  // PROPERTY_IPV4_STACK
         1,  // PROPERTY_IPV6_STACK
         0,  // PROPERTY_IPV4V6_STACK
@@ -147,6 +151,10 @@ void GEMALTO_CINTERION::init_module_ems31()
         1,  // AT_CGSN_WITH_TYPE
         1,  // AT_CGDATA
         1,  // AT_CGAUTH
+        1,  // AT_CNMI
+        1,  // AT_CSMP
+        1,  // AT_CMGF
+        1,  // AT_CSDH
         1,  // PROPERTY_IPV4_STACK
         1,  // PROPERTY_IPV6_STACK
         1,  // PROPERTY_IPV4V6_STACK
