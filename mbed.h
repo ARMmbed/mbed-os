@@ -106,7 +106,6 @@
 
 // mbed Non-hardware components
 #include "platform/Callback.h"
-#include "platform/FunctionPointer.h"
 #include "platform/ScopedLock.h"
 
 #ifndef MBED_NO_GLOBAL_USING_DIRECTIVE
