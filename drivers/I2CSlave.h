@@ -47,6 +47,8 @@ namespace mbed {
  *
  * #if BUILD_I2C_SLAVE
  *
+ * // Slave side of the example
+ *
  * #if !DEVICE_I2CSLAVE
  * #error [NOT_SUPPORTED] I2C Slave is not supported
  * #endif
@@ -55,68 +57,68 @@ namespace mbed {
  *
  * int main() {
  *
- * 	char buf[BUFFER_SIZE] = "ABCDE";
+ *     char buf[BUFFER_SIZE] = "ABCDE";
  *
- * 	slave.address(SLAVE_ADDR);
- * 	while (1) {
- * 		int i = slave.receive();
- * 		switch (i) {
- * 			case I2CSlave::ReadAddressed:
- * 			// Write back the buffer from the master
- * 			slave.write(buf, BUFFER_SIZE);
- * 			printf("Written to master (addressed): %s\n", buf);
- * 			break;
- * 			case I2CSlave::WriteGeneral:
- * 			slave.read(buf, BUFFER_SIZE);
- * 			printf("Read from master (general): %s\n", buf);
- * 			break;
- * 			case I2CSlave::WriteAddressed:
- * 			slave.read(buf, BUFFER_SIZE);
- * 			printf("Read from master (addressed): %s\n", buf);
- * 			break;
- * 		}
- * 	 }
+ *     slave.address(SLAVE_ADDR);
+ *     while (1) {
+ *         int i = slave.receive();
+ *         switch (i) {
+ *             case I2CSlave::ReadAddressed:
+ *                 // Write back the buffer from the master
+ *                 slave.write(buf, BUFFER_SIZE);
+ *                 printf("Written to master (addressed): %s\n", buf);
+ *                 break;
+ *
+ *             case I2CSlave::WriteGeneral:
+ *                 slave.read(buf, BUFFER_SIZE);
+ *                 printf("Read from master (general): %s\n", buf);
+ *                 break;
+ *
+ *             case I2CSlave::WriteAddressed:
+ *                 slave.read(buf, BUFFER_SIZE);
+ *                 printf("Read from master (addressed): %s\n", buf);
+ *                 break;
+ *         }
+ *     }
  * }
  *
  * #else
  *
- *
+ * // Master side of the example
  *
  * I2C master(p3, p4);
  *
  * static const char* to_send[] = { "abcde", "12345", "EFGHI" };
  *
  * int main() {
+ *     char buf[BUFFER_SIZE];
+ *     int send_index = 0;
  *
- * 	char buf[BUFFER_SIZE];
- * 	int send_index = 0;
-
- * 	while (1) {
- * 		strcpy(buf, to_send[send_index]);
+ *     while (1) {
+ *         strcpy(buf, to_send[send_index]);
  *
- * 		// Write the new message to the buffer
- * 		if (master.write(SLAVE_ADDR, buf, BUFFER_SIZE)) {
- * 			printf("Failed to write to slave!\n");
- * 		} else {
- * 			printf("Written to slave: %s\n", buf);
- * 		}
+ *         // Write the new message to the slave
+ *         if (master.write(SLAVE_ADDR, buf, BUFFER_SIZE)) {
+ *             printf("Failed to write to slave!\n");
+ *         } else {
+ *             printf("Written to slave: %s\n", buf);
+ *         }
  *
- * 		// Read what the slave has (should be identical)
- * 		if (master.read(SLAVE_ADDR, buf, BUFFER_SIZE)) {
- * 			printf("Failed to read from slave!\n");
- * 		} else {
- * 			printf("Read from slave: %s\n", buf);
- * 		}
+ *         // Read what the slave has (should be identical)
+ *         if (master.read(SLAVE_ADDR, buf, BUFFER_SIZE)) {
+ *             printf("Failed to read from slave!\n");
+ *         } else {
+ *             printf("Read from slave: %s\n", buf);
+ *         }
  *
- * 		// Change the message we're writing to the slave
- * 		send_index++;
- * 		if (send_index > 2) {
- * 			send_index = 0;
- * 		}
+ *         // Change the message we're writing to the slave
+ *         send_index++;
+ *         if (send_index > 2) {
+ *             send_index = 0;
+ *         }
  *
- * 		wait_us(500000); // Wait 0.5s
- *
- * 	}
+ *         wait_us(500000); // Wait 0.5s
+ *     }
  * }
  *
  * #endif
