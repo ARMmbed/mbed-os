@@ -1216,16 +1216,16 @@ psa_status_t psa_aead_abort(psa_aead_operation_t *operation)
     return ipc_call(&operation->handle, &in_vec, 1, NULL, 0, true);
 }
 
-psa_status_t psa_asymmetric_sign(psa_key_handle_t handle,
-                                 psa_algorithm_t alg,
-                                 const uint8_t *hash,
-                                 size_t hash_length,
-                                 uint8_t *signature,
-                                 size_t signature_size,
-                                 size_t *signature_length)
+psa_status_t psa_sign_hash(psa_key_handle_t handle,
+                           psa_algorithm_t alg,
+                           const uint8_t *hash,
+                           size_t hash_length,
+                           uint8_t *signature,
+                           size_t signature_size,
+                           size_t *signature_length)
 {
     psa_crypto_ipc_asymmetric_t psa_crypto_ipc = {
-        .func           = PSA_ASYMMETRIC_SIGN,
+        .func           = PSA_SIGN_HASH,
         .handle         = handle,
         .alg            = alg,
         .input_length   = 0,
@@ -1246,15 +1246,15 @@ psa_status_t psa_asymmetric_sign(psa_key_handle_t handle,
     return (status);
 }
 
-psa_status_t psa_asymmetric_verify(psa_key_handle_t handle,
-                                   psa_algorithm_t alg,
-                                   const uint8_t *hash,
-                                   size_t hash_length,
-                                   const uint8_t *signature,
-                                   size_t signature_size)
+psa_status_t psa_verify_hash(psa_key_handle_t handle,
+                             psa_algorithm_t alg,
+                             const uint8_t *hash,
+                             size_t hash_length,
+                             const uint8_t *signature,
+                             size_t signature_size)
 {
     psa_crypto_ipc_asymmetric_t psa_crypto_ipc = {
-        .func           = PSA_ASYMMETRIC_VERIFY,
+        .func           = PSA_VERIFY_HASH,
         .handle         = handle,
         .alg            = alg,
         .input_length   = 0,
