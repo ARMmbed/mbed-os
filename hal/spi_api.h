@@ -84,7 +84,7 @@ typedef struct {
     bool        support_slave_mode; /**< If true, the device can handle SPI slave mode using hardware management on the specified ssel pin. */
     bool        hw_cs_handle; /**< If true, in SPI master mode Chip Select can be handled by hardware. */
     bool        async_mode; /**< If true, in async mode is supported. */
-
+    bool        tx_rx_buffers_equal_length; /**< If true, rx and tx buffers must have the same length. */
 } spi_capabilities_t;
 
 #ifdef __cplusplus
@@ -96,11 +96,11 @@ extern "C" {
  *
  * # Defined behavior
  * * ::spi_init initializes the spi_t control structure
- * * ::spi_init configures the pins used by SPI
+ * * ::spi_init configures the pins used by SPI - Verified by ::fpga_spi_test_init_free, ::fpga_spi_test_common_no_ss and ::fpga_spi_test_common
  * * ::spi_get_capabilities() fills the given `spi_capabilities_t` instance
  * * ::spi_get_capabilities() should consider the `ssel` pin when evaluation the `support_slave_mode` and `hw_cs_handle` capability
  * * ::spi_get_capabilities(): if the given `ssel` pin cannot be managed by hardware, `support_slave_mode` and `hw_cs_handle` should be false
- * * At least a symbol width of 8bit must be supported
+ * * At least a symbol width of 8bit must be supported - Verified by ::fpga_spi_test_common_no_ss and ::fpga_spi_test_common
  * * The supported frequency range must include the range [0.2..2] MHz
  * * ::spi_free returns the pins owned by the SPI object to their reset state
  * * ::spi_format sets the number of bits per frame

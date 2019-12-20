@@ -55,6 +55,7 @@ MBED_WEAK void spi_get_capabilities(PinName ssel, bool slave, spi_capabilities_t
         cap->hw_cs_handle = false;                  // irrelevant in slave mode
         cap->slave_delay_between_symbols_ns = 2500; // 2.5 us
         cap->clk_modes = 0x0f;                      // all clock modes
+        cap->tx_rx_buffers_equal_length = true;     // rx buffer size must be equal tx buffer size
 #if DEVICE_SPI_ASYNCH
         cap->async_mode = true;
 #else
@@ -68,6 +69,7 @@ MBED_WEAK void spi_get_capabilities(PinName ssel, bool slave, spi_capabilities_t
         cap->hw_cs_handle = false;                // to be determined later based on ssel
         cap->slave_delay_between_symbols_ns = 0;  // irrelevant in master mode
         cap->clk_modes = 0x0f;                    // all clock modes
+        cap->tx_rx_buffers_equal_length = true;   // rx buffer size must be equal tx buffer size
 #if DEVICE_SPI_ASYNCH
         cap->async_mode = true;
 #else
