@@ -5043,8 +5043,13 @@
             "SERIAL",
             "SLEEP",
             "SPI",
-            "SPISLAVE"
-        ]
+            "SPISLAVE",
+            "USTICKER"
+        ],
+        "overrides": {
+            "tickless-from-us-ticker"   : true,
+            "boot-stack-size"           : "0x400"
+        }
     },
     "MCU_NRF51_16K_BASE": {
         "inherits": ["MCU_NRF51"],
