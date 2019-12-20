@@ -230,9 +230,11 @@ static inline int mbedtls_psa_get_ecc_oid_from_id(
             *oid_len = MBEDTLS_OID_SIZE( MBEDTLS_OID_EC_GRP_BP512R1 );
             return( 0 );
 #endif /* MBEDTLS_ECP_DP_BP512R1_ENABLED */
+        default:
+            (void) oid;
+            (void) oid_len;
+            return( -1 );
     }
-
-     return( -1 );
 }
 
 #define MBEDTLS_PSA_MAX_EC_PUBKEY_LENGTH 1
@@ -375,24 +377,6 @@ static inline psa_ecc_curve_t mbedtls_psa_translate_ecc_group( mbedtls_ecp_group
             return( 0 );
     }
 }
-
-
-#define MBEDTLS_PSA_ECC_KEY_BITS_OF_CURVE( curve )                \
-    ( curve == PSA_ECC_CURVE_SECP192R1        ? 192 :             \
-      curve == PSA_ECC_CURVE_SECP224R1        ? 224 :             \
-      curve == PSA_ECC_CURVE_SECP256R1        ? 256 :             \
-      curve == PSA_ECC_CURVE_SECP384R1        ? 384 :             \
-      curve == PSA_ECC_CURVE_SECP521R1        ? 521 :             \
-      curve == PSA_ECC_CURVE_SECP192K1        ? 192 :             \
-      curve == PSA_ECC_CURVE_SECP224K1        ? 224 :             \
-      curve == PSA_ECC_CURVE_SECP256K1        ? 256 :             \
-      curve == PSA_ECC_CURVE_BRAINPOOL_P256R1 ? 256 :             \
-      curve == PSA_ECC_CURVE_BRAINPOOL_P384R1 ? 384 :             \
-      curve == PSA_ECC_CURVE_BRAINPOOL_P512R1 ? 512 :             \
-      0 )
-
-#define MBEDTLS_PSA_ECC_KEY_BYTES_OF_CURVE( curve )                \
-    ( ( MBEDTLS_PSA_ECC_KEY_BITS_OF_CURVE( curve ) + 7 ) / 8 )
 
 /* Translations for PK layer */
 
