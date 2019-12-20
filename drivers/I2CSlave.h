@@ -34,39 +34,93 @@ namespace mbed {
  *
  * @note Synchronization level: Not protected
  *
- * Example Simple I2C responder:
+ * Example Simple I2C slave and master (requires two Mbed-boards):
  * @code
  * #include <mbed.h>
+ * #include <mbed_wait_api.h>
+ * #include <string.h>
  *
- * const int SLAVE_ADDRESS = 0xA0;
- * const char message[] = "Slave!";
+ * #define BUILD_I2C_SLAVE 1 // Build for slave or master of this example
  *
- * I2CSlave slave(I2C_SDA, I2C_SCL);
+ * #define SLAVE_ADDR 0xA0
+ * #define BUFFER_SIZE 6
+ *
+ * #if BUILD_I2C_SLAVE
+ *
+ * #if !DEVICE_I2CSLAVE
+ * #error [NOT_SUPPORTED] I2C Slave is not supported
+ * #endif
+ *
+ * I2CSlave slave(p3, p4);
  *
  * int main() {
- *     slave.address(SLAVE_ADDRESS);
- *     while (1) {
- *         int operation = slave.receive();
- *         switch (operation) {
- *             case I2CSlave::ReadAddressed:
- *                 int status = slave.write(message, sizeof(message));
- *                 if (status == 0) {
- *                     printf("Written message: %s\n", message);
- *                 } else {
- *                     printf("Failed to write message.\n");
- *                 }
- *                 break;
- *             case I2CSlave::WriteGeneral:
- *                 int byte_read = slave.read();
- *                 printf("Read General: %c (%d)\n", byte_read, byte_read);
- *                 break;
- *             case I2CSlave::WriteAddressed:
- *                 int byte_read = slave.read();
- *                 printf("Read Addressed: %c (%d)\n", byte_read, byte_read);
- *                 break;
- *         }
- *     }
+ *
+ * 	char buf[BUFFER_SIZE] = "ABCDE";
+ *
+ * 	slave.address(SLAVE_ADDR);
+ * 	while (1) {
+ * 		int i = slave.receive();
+ * 		switch (i) {
+ * 			case I2CSlave::ReadAddressed:
+ * 			// Write back the buffer from the master
+ * 			slave.write(buf, BUFFER_SIZE);
+ * 			printf("Written to master (addressed): %s\n", buf);
+ * 			break;
+ * 			case I2CSlave::WriteGeneral:
+ * 			slave.read(buf, BUFFER_SIZE);
+ * 			printf("Read from master (general): %s\n", buf);
+ * 			break;
+ * 			case I2CSlave::WriteAddressed:
+ * 			slave.read(buf, BUFFER_SIZE);
+ * 			printf("Read from master (addressed): %s\n", buf);
+ * 			break;
+ * 		}
+ * 	 }
  * }
+ *
+ * #else
+ *
+ *
+ *
+ * I2C master(p3, p4);
+ *
+ * static const char* to_send[] = { "abcde", "12345", "EFGHI" };
+ *
+ * int main() {
+ *
+ * 	char buf[BUFFER_SIZE];
+ * 	int send_index = 0;
+
+ * 	while (1) {
+ * 		strcpy(buf, to_send[send_index]);
+ *
+ * 		// Write the new message to the buffer
+ * 		if (master.write(SLAVE_ADDR, buf, BUFFER_SIZE)) {
+ * 			printf("Failed to write to slave!\n");
+ * 		} else {
+ * 			printf("Written to slave: %s\n", buf);
+ * 		}
+ *
+ * 		// Read what the slave has (should be identical)
+ * 		if (master.read(SLAVE_ADDR, buf, BUFFER_SIZE)) {
+ * 			printf("Failed to read from slave!\n");
+ * 		} else {
+ * 			printf("Read from slave: %s\n", buf);
+ * 		}
+ *
+ * 		// Change the message we're writing to the slave
+ * 		send_index++;
+ * 		if (send_index > 2) {
+ * 			send_index = 0;
+ * 		}
+ *
+ * 		wait_us(500000); // Wait 0.5s
+ *
+ * 	}
+ * }
+ *
+ * #endif
+ *
  * @endcode
  */
 class I2CSlave {
