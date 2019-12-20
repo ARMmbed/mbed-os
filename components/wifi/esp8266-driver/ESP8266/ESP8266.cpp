@@ -58,6 +58,8 @@ ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
       _error(false),
       _busy(false),
       _reset_done(false),
+      _prev_send_ok_pending(false),
+      _send_fail_received(false),
       _conn_status(NSAPI_STATUS_DISCONNECTED)
 {
     _serial.set_baud(MBED_CONF_ESP8266_SERIAL_BAUDRATE);
@@ -614,7 +616,16 @@ bool ESP8266::dns_lookup(const char *name, char *ip)
 
 nsapi_error_t ESP8266::send(int id, const void *data, uint32_t amount)
 {
+    if (_prev_send_ok_pending && _sock_i[id].proto == NSAPI_TCP) {
+        tr_debug("send(): Previous packet was not ACK-ed with SEND OK.");
+        return NSAPI_ERROR_WOULD_BLOCK;
+    }
+
     nsapi_error_t ret = NSAPI_ERROR_DEVICE_ERROR;
+    _send_fail_received = false;
+    int bytes_confirmed = 0;
+    constexpr unsigned int send_ack_retries = 3;
+
     // +CIPSEND supports up to 2048 bytes at a time
     // Data stream can be truncated
     if (amount > 2048 && _sock_i[id].proto == NSAPI_TCP) {
@@ -635,14 +646,58 @@ nsapi_error_t ESP8266::send(int id, const void *data, uint32_t amount)
     }
 
     if (!_parser.recv(">")) {
+        // This means ESP8266 hasn't even started to receive data
         tr_debug("send(): Didn't get \">\"");
-        ret = NSAPI_ERROR_WOULD_BLOCK;
+        if (_sock_i[id].proto == NSAPI_TCP) {
+            ret = NSAPI_ERROR_WOULD_BLOCK; // Not neccesarily critical error.
+        } else if (_sock_i[id].proto == NSAPI_UDP) {
+            ret = NSAPI_ERROR_NO_MEMORY;
+        }
         goto END;
     }
 
-    if (_parser.write((char *)data, (int)amount) >= 0 && _parser.recv("SEND OK")) {
-        ret = NSAPI_ERROR_OK;
+    if (_parser.write((char *)data, (int)amount) < 0) {
+        tr_debug("send(): Failed to write serial data");
+        // Serial is not working, serious error, reset needed.
+        ret = NSAPI_ERROR_DEVICE_ERROR;
+        goto END;
     }
+
+    // The "Recv X bytes" is not documented.
+    if (!_parser.recv("Recv %d bytes", &bytes_confirmed)) {
+        tr_debug("send(): Bytes not confirmed.");
+        ret = NSAPI_ERROR_DEVICE_ERROR;
+        goto END;
+    } else if (bytes_confirmed != amount) {
+        tr_debug("send(): Error: confirmed %d bytes, but expected %d.", bytes_confirmed, amount);
+        ret = NSAPI_ERROR_DEVICE_ERROR;
+        goto END;
+    }
+
+    //We might receive "busy s/p...", "SEND OK" or "SEND FAIL" from modem, so we need to check that also
+    _parser.oob("SEND FAIL", callback(this, &ESP8266::_oob_send_fail_received));
+    for (unsigned int i = send_ack_retries; i > 0; i--) {
+        if (!_parser.recv("SEND OK")) {
+            if (_error || _send_fail_received) {
+                _parser.remove_oob("SEND FAIL");
+                goto END;
+            }
+            if (_busy) {
+                _busy = false;
+                tr_debug("send(): Busy, %d retries left...", i - 1);
+            } else {
+                tr_debug("send(): Not busy, but no SEND OK. %d retries left...", i - 1);
+            }
+        } else {
+            ret = amount; // Got "SEND OK" - return number of bytes.
+            goto END;
+        }
+    }
+
+    // ESP8266 ACKed data over serial, but did not ACK over TCP or report any error.
+    _prev_send_ok_pending = true;
+    _parser.oob("SEND OK", callback(this, &ESP8266::_oob_send_ok_received));
+    ret = amount;
 
 END:
     _process_oob(ESP8266_RECV_TIMEOUT, true); // Drain USART receive register to avoid data overrun
@@ -650,12 +705,7 @@ END:
     // error hierarchy, from low to high
     if (_busy) {
         ret = NSAPI_ERROR_WOULD_BLOCK;
-        tr_debug("send(): Modem busy. ");
-    }
-
-    if (ret == NSAPI_ERROR_DEVICE_ERROR) {
-        ret = NSAPI_ERROR_WOULD_BLOCK;
-        tr_debug("send(): Send failed.");
+        tr_debug("send(): Modem busy.");
     }
 
     if (_error) {
@@ -663,7 +713,16 @@ END:
         tr_debug("send(): Connection disrupted.");
     }
 
-    if (!_sock_i[id].open && ret != NSAPI_ERROR_OK) {
+    if (_send_fail_received) {
+        if (_sock_i[id].proto == NSAPI_TCP) {
+            ret = NSAPI_ERROR_DEVICE_ERROR;
+        } else {
+            ret = NSAPI_ERROR_NO_MEMORY;
+        }
+        tr_debug("send(): SEND FAIL received.");
+    }
+
+    if (!_sock_i[id].open && ret < 0) {
         ret = NSAPI_ERROR_CONNECTION_LOST;
         tr_debug("send(): Socket closed abruptly.");
     }
@@ -1203,6 +1262,18 @@ void ESP8266::_oob_connection_status()
 
     MBED_ASSERT(_conn_stat_cb);
     _conn_stat_cb();
+}
+
+void ESP8266::_oob_send_ok_received()
+{
+    tr_debug("_oob_send_ok_received called");
+    _prev_send_ok_pending = false;
+}
+
+void ESP8266::_oob_send_fail_received()
+{
+    tr_debug("_oob_send_fail_received called");
+    _send_fail_received = true;
 }
 
 int8_t ESP8266::default_wifi_mode()

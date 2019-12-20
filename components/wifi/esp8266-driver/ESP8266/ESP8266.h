@@ -469,6 +469,8 @@ private:
     void _oob_tcp_data_hdlr();
     void _oob_ready();
     void _oob_scan_results();
+    void _oob_send_ok_received();
+    void _oob_send_fail_received();
 
     // OOB state variables
     int _connect_error;
@@ -479,6 +481,8 @@ private:
     bool _error;
     bool _busy;
     bool _reset_done;
+    bool _prev_send_ok_pending;
+    bool _send_fail_received;
 
     // Modem's address info
     char _ip_buffer[16];
