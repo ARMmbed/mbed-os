@@ -40,7 +40,8 @@
 #include "app_error.h"
 #include "nordic_common.h"
 
-#if defined(DEBUG_NRF)
+#if !MBED_CONF_BLE_PRESENT
+#if defined(DEBUG_NRF) || defined(DEBUG_NRF_USER)
 void assert_nrf_callback(uint16_t line_num, const uint8_t * file_name)
 {
     assert_info_t assert_info =
@@ -52,4 +53,5 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t * file_name)
 
     UNUSED_VARIABLE(assert_info);
 }
-#endif /* DEBUG_NRF */
+#endif /* defined(DEBUG_NRF) || defined(DEBUG_NRF_USER) */
+#endif // !MBED_CONF_BLE_PRESENT
