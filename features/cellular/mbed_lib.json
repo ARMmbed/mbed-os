@@ -14,7 +14,7 @@
             "value": 0
         },
         "debug-at": {
-            "help": "Enable AT debug prints",
+            "help": "Enable AT debug prints. Note! This can have impact on UART performance and might need increasing of drivers.uart-serial-rxbuf-size",
             "value": false
         },
         "radio-access-technology": {
