@@ -263,7 +263,7 @@ def _get_target_info(target, toolchain=None):
         raise Exception(msg)
 
     delivery_dir = join(ROOT, 'targets',
-                        TARGET_MAP[target].delivery_dir)
+                        TARGET_MAP[target].tfm_delivery_dir)
 
     if not os.path.exists(delivery_dir):
         msg = "Delivery directory (delivery_dir) missing for %s" % target
@@ -393,7 +393,7 @@ def _copy_binaries(source, destination, toolchain, target):
     shutil.copy2(tfm_secure_axf, output_dir)
 
     try:
-        out_ext = TARGET_MAP[target].OUTPUT_EXT
+        out_ext = TARGET_MAP[target].TFM_OUTPUT_EXT
     except AttributeError:
         tfm_secure_bin = join(source, 'tfm_s.bin')
         logger.info("Copying %s to %s" % (relpath(tfm_secure_bin, ROOT),
