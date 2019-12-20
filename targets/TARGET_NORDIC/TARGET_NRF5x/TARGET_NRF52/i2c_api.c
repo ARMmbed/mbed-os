@@ -95,18 +95,6 @@ typedef enum {
     NORDIC_TWI_STATE_BUSY
 } nordic_nrf5_twi_state_t;
 
-#if DEVICE_I2CSLAVE
-
-/* To properly uninitialize the last-used driver, we need to know if
- * it was a master (nrfx_twi_...) or a slave (nrfx_twis_...)
- */
-typedef enum {
-	NORDIC_TWI_INITIALIZED_AS_MASTER,
-	NORDIC_TWI_INITIALIZED_AS_SLAVE,
-	NORDIC_TWI_UNINITIALIZED
-} nordic_nrf5_twi_slave_state_t;
-#endif
-
 /* Forward declaration. These functions are implemented in the driver but not
  * set up in the NVIC due to it being relocated.
  */
