@@ -55,14 +55,6 @@ class IAR(mbedToolchain):
 
         self.check_c_lib_supported(target, "iar")
 
-        if target.is_TrustZone_secure_target:
-            # Enable compiler security extensions
-            self.flags["asm"] += ["--cmse"]
-            self.flags["common"] += ["--cmse"]
-            # Output secure import library
-            secure_file = join(build_dir, "cmse_lib.o")
-            self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
-
         if target.is_TrustZone_non_secure_target:
             # Add linking time preprocessor macro DOMAIN_NS
             # (DOMAIN_NS is passed to compiler and assembler via CORTEX_SYMBOLS

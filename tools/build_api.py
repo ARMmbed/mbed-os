@@ -603,11 +603,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
         into_dir, extra_artifacts = toolchain.config.deliver_into()
         if into_dir:
             copy_when_different(res[0], into_dir)
-            if not extra_artifacts:
-                if toolchain.target.is_TrustZone_secure_target:
-                    cmse_lib = join(dirname(res[0]), "cmse_lib.o")
-                    copy_when_different(cmse_lib, into_dir)
-            else:
+            if extra_artifacts:
                 for tc, art in extra_artifacts:
                     if toolchain_name == tc:
                         copy_when_different(join(build_path, art), into_dir)
