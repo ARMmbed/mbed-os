@@ -942,7 +942,7 @@ error:
 
 /* Limitations of the current implementation:
  *  - Token is not signed yet properly, just a fake signature is added to the
- *    token due to lack of psa_asymmetric_sign() implementation in crypto
+ *    token due to lack of psa_sign_hash() implementation in crypto
  *    service.
  */
 enum psa_attest_err_t
