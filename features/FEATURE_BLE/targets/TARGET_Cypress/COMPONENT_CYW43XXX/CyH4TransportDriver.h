@@ -87,6 +87,7 @@ private:
     // The UART APIs prevents sleep while there are data in the HW buffer.
     // However UART APIs does not prevent the BT radio from going to sleep.
     // Use the HAL APIs to prevent the radio from going to sleep until UART transmition is complete.
+    // Mbed layer has no API that distinguish between data in HW buffer v.s. data already transmitted.
     
     cyhal_uart_t uart;
     PinName cts;
