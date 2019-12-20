@@ -72,18 +72,10 @@
         "device_has": ["TRNG"],
         "public": false
     },
-    "PSA_V7_M_SPE": {
-        "inherits": ["PSA_Target"],
-        "public": false
-    },
     "PSA_DUAL_CORE_NSPE": {
         "inherits": ["PSA_Target"],
         "extra_labels": ["TFM", "TARGET_TFM_TWINCPU"],
         "device_has_add": ["TRNG"],
-        "public": false
-    },
-    "PSA_DUAL_CORE_SPE": {
-        "inherits": ["PSA_Target"],
         "tfm_target_name": "",
         "tfm_bootloader_supported": "",
         "tfm_default_toolchain": "ARMCLANG",
@@ -95,10 +87,6 @@
         "inherits": ["PSA_Target"],
         "extra_labels": ["TFM", "TARGET_TFM_V8M"],
         "device_has_add": ["TRNG"],
-        "public": false
-    },
-    "PSA_V8_M_SPE": {
-        "inherits": ["PSA_Target"],
         "tfm_target_name": "",
         "tfm_bootloader_supported": "",
         "tfm_default_toolchain": "ARMCLANG",
@@ -8841,7 +8829,7 @@
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "core": "Cortex-M4F",
         "OUTPUT_EXT": "hex",
-        "device_has": [
+        "device_has_add": [
             "ANALOGIN",
             "ANALOGOUT",
             "CRC",
@@ -8871,7 +8859,7 @@
             "WATCHDOG"
         ],
         "release_versions": ["5"],
-        "extra_labels": ["Cypress", "PSOC6", "MXCRYPTO"],
+        "extra_labels_add": ["Cypress", "PSOC6", "MXCRYPTO"],
         "components_add": ["SOFTFP", "RTX"],
         "public": false,
         "overrides" : {
@@ -9046,16 +9034,7 @@
         "sectors": [[268443648, 512]],
         "bootloader_supported": false
     },
-    "CY8CPROTO_064_SB_S": {
-        "inherits": ["PSA_DUAL_CORE_SPE"],
-        "tfm_target_name": "psoc64_1m",
-        "tfm_bootloader_supported": false,
-        "tfm_default_toolchain": "ARMCLANG",
-        "tfm_supported_toolchains": ["ARMCLANG", "GNUARM"],
-        "delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CPROTO_064_SB",
-        "OUTPUT_EXT": "hex"
-    },
-    "CY8CPROTO_064_SB_NS": {
+    "CY8CPROTO_064_SB": {
         "inherits": ["PSA_DUAL_CORE_NSPE", "MCU_PSOC6_M4"],
         "components_remove": ["QSPIF"],
         "device_has_remove": ["QSPI"],
@@ -9069,7 +9048,13 @@
         "reset_method": "default",
         "post_binary_hook": {
             "function": "PSOC6Code.sign_image"
-        }
+        },
+        "tfm_target_name": "psoc64_1m",
+        "tfm_bootloader_supported": false,
+        "tfm_default_toolchain": "ARMCLANG",
+        "tfm_supported_toolchains": ["ARMCLANG", "GNUARM"],
+        "tfm_delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CPROTO_064_SB",
+        "TFM_OUTPUT_EXT": "hex"
     },
     "CYW9P62S1_43438EVB_01": {
         "inherits": ["MCU_PSOC6_M4"],
