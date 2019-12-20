@@ -264,8 +264,13 @@
             "SLEEP",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES"
+            "STDIO_MESSAGES",
+            "USTICKER"
         ],
+        "overrides": {
+            "tickless-from-us-ticker"   : true,
+            "boot-stack-size"           : "0x400"
+        },
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "LPC11U24FBD48/401"
