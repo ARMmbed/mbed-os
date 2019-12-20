@@ -22,7 +22,7 @@ To help with the creation of PSA targets, a couple of generic targets have been 
 * `PSA_DUAL_CORE_NSPE` (Dual-core NSPE generic target)
 * `PSA_V8_M_NSPE` (v8-M NSPE generic target)
 
-A single-core PSA target doesn't employ hardware isolation between the NSPE and the SPE. PSA secure service emulation enables PSA API compatibility.
+A single-core Armv7-M PSA target doesn't employ hardware isolation between the NSPE and the SPE. PSA secure service emulation enables PSA API compatibility.
 
 A dual-core PSA target will have at least two cores that are either Armv7-M or Armv6-M. One core will be used for the SPE and another for the NSPE. Hardware isolation between the cores enables PSA compliance. On dual-core targets, TF-M runs on the SPE and provides PSA services and Mbed OS runs on the NSPE.
 
@@ -35,7 +35,7 @@ Only PSA NSPE generic targets have been defined for dual-core and Armv7-M target
 *Note*  
 The examples in this document are taken from `targets/targets.json`.
 
-Example single-core PSA target:
+Example single-core Armv7-M PSA target:
 ```json
     "K64F": {
         "inherits": ["PSA_V7_M_NSPE", "Target"],
@@ -62,8 +62,8 @@ Example:
     }
 ```
 
-## Adding single-core PSA targets
-Mbed OS's PSA service emulation provides PSA compatibility for single-core PSA targets. The following example shows a PSA-enabled single-core target, `K64F`.
+## Adding single-core Armv7-M PSA targets
+Mbed OS's PSA service emulation provides PSA compatibility for single-core Armv7-M PSA targets. The following example shows a PSA-enabled single-core Armv7-M target, `K64F`.
 
 ```json
     "K64F": {
