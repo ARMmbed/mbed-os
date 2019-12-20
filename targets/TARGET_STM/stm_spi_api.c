@@ -71,6 +71,53 @@
 extern HAL_StatusTypeDef HAL_SPIEx_FlushRxFifo(SPI_HandleTypeDef *hspi);
 #endif
 
+void spi_get_capabilities(PinName ssel, bool slave, spi_capabilities_t *cap)
+{
+    if (slave) {
+        cap->minimum_frequency = 200000;            // 200 kHz
+        cap->maximum_frequency = 2000000;           // 2 MHz
+        cap->word_length = 0x00008080;              // 8 and 16 bit symbols
+        cap->support_slave_mode = false;            // to be determined later based on ssel
+        cap->hw_cs_handle = false;                  // irrelevant in slave mode
+        cap->slave_delay_between_symbols_ns = 2500; // 2.5 us
+        cap->clk_modes = 0x0f;                      // all clock modes
+        cap->tx_rx_buffers_equal_length = false;    // rx/tx buffers can have different sizes
+#if DEVICE_SPI_ASYNCH
+        cap->async_mode = true;
+#else
+        cap->async_mode = false;
+#endif
+    } else {
+        cap->minimum_frequency = 200000;          // 200 kHz
+        cap->maximum_frequency = 2000000;         // 2 MHz
+        cap->word_length = 0x00008080;            // 8 and 16 bit symbols
+        cap->support_slave_mode = false;          // to be determined later based on ssel
+        cap->hw_cs_handle = false;                // to be determined later based on ssel
+        cap->slave_delay_between_symbols_ns = 0;  // irrelevant in master mode
+        cap->clk_modes = 0x0f;                    // all clock modes
+        cap->tx_rx_buffers_equal_length = false;  // rx/tx buffers can have different sizes
+#if DEVICE_SPI_ASYNCH
+        cap->async_mode = true;
+#else
+        cap->async_mode = false;
+#endif
+    }
+
+    // check if given ssel pin is in the cs pinmap
+    const PinMap *cs_pins = spi_master_cs_pinmap();
+    PinName pin = NC;
+    while (cs_pins->pin != NC) {
+        if (cs_pins->pin == ssel) {
+#if DEVICE_SPISLAVE
+            cap->support_slave_mode = true;
+#endif
+            cap->hw_cs_handle = true;
+            break;
+        }
+        cs_pins++;
+    }
+}
+
 void init_spi(spi_t *obj)
 {
     struct spi_s *spiobj = SPI_S(obj);
