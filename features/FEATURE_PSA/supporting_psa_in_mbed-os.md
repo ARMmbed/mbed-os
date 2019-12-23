@@ -19,19 +19,18 @@ Please note that Mbed OS exporters are currently **NOT** supported for PSA dual-
 To help with the creation of PSA targets, a couple of generic targets have been added to `targets/targets.json`.
 * `PSA_Target` (Root level PSA target)
 * `PSA_V7_M_NSPE` (Single v7-M NSPE generic target)
-* `PSA_V7_M_SPE` (Single v7-M SPE generic target)
 * `PSA_DUAL_CORE_NSPE` (Dual-core NSPE generic target)
-* `PSA_DUAL_CORE_SPE` (Dual-core SPE generic target)
 * `PSA_V8_M_NSPE` (v8-M NSPE generic target)
-* `PSA_V8_M_SPE` (v8-M SPE generic target)
 
-A single-core PSA target doesn't employ hardware isolation between the NSPE and the SPE. Therefore for single-core PSA targets only NSPE target is defined. PSA secure service emulation enables PSA API compatibility.
+A single-core PSA target doesn't employ hardware isolation between the NSPE and the SPE. PSA secure service emulation enables PSA API compatibility.
 
-A dual-core PSA target will have at least two cores that are either Armv7-M or Armv6-M. One core will be used for the SPE and another for the NSPE. Hardware isolation between the cores enables PSA compliance. On dual-core targets, TF-M runs on the SPE and provides PSA services. Therefore, it is **MANDATORY** to define both the SPE and the NSPE target for dual-core PSA targets.
+A dual-core PSA target will have at least two cores that are either Armv7-M or Armv6-M. One core will be used for the SPE and another for the NSPE. Hardware isolation between the cores enables PSA compliance. On dual-core targets, TF-M runs on the SPE and provides PSA services and Mbed OS runs on the NSPE.
 
-An Armv8-M PSA target employs hardware to isolate the NSPE from the SPE. On Armv8-M targets, TF-M runs on the SPE and provides PSA services. Therefore, it is **MANDATORY** to define both the SPE and the NSPE target for Armv8-M PSA targets.
+An Armv8-M PSA target employs hardware to isolate the NSPE from the SPE. On Armv8-M targets, TF-M runs on the SPE and provides PSA services and Mbed OS runs on the NSPE.
 
-PSA targets **MUST** inherit from the generic PSA target that corresponds to that target's architecture. Also, in case of dual-core and v8-M targets, SPE and NSPE targets **MUST** inherit from the respective SPE and NSPE PSA generic targets.
+PSA targets **MUST** inherit from the generic PSA target that corresponds to that target's architecture.
+
+Only PSA NSPE generic targets have been defined for dual-core and Armv7-M targets because TF-M build tools are used to generate SPE binary instead of Mbed OS build tools. Therefore, it is not necessary to define SPE target while adding a new PSA target to Mbed OS, only defining NSPE target is sufficient.
 
 *Note*  
 The examples in this document are taken from `targets/targets.json`.
@@ -45,10 +44,7 @@ Example single-core PSA target:
 
 Example dual-core PSA target:
 ```json
-    "CY8CPROTO_064_SB_S": {
-        "inherits": ["PSA_DUAL_CORE_SPE"],
-    },
-    "CY8CPROTO_064_SB_NS": {
+    "CY8CPROTO_064_SB": {
         "inherits": ["PSA_DUAL_CORE_NSPE", "MCU_PSOC6_M4"],
     }
 ```
@@ -65,14 +61,6 @@ Example:
         "inherits": ["PSA_V7_M_NSPE", "FAMILY_STM32"],
     }
 ```
-
-## Naming convention for dual-core and Armv8-M target names
-As described in previous paragraphs, both SPE and NSPE target names **MUST** be defined for dual-core and Armv8-M targets. This section defines the naming convention for the same.
-
-`TargetName_S`       : PSA secure target (SPE)  
-`TargetName_NS`      : PSA non-secure target (NSPE)  
-`TargetName_NPSA_S`  : Non-PSA secure target  
-`TargetName_NPSA_NS` : Non-PSA non-secure target  
 
 ## Adding single-core PSA targets
 Mbed OS's PSA service emulation provides PSA compatibility for single-core PSA targets. The following example shows a PSA-enabled single-core target, `K64F`.
@@ -139,34 +127,23 @@ Please pay attention to the config options `extra_labels_add` and `device_has_ad
 Check [extra_labels](https://os.mbed.com/docs/mbed-os/v5.14/reference/adding-and-configuring-targets.html), [device_has](https://os.mbed.com/docs/mbed-os/v5.14/reference/adding-and-configuring-targets.html) and [features](https://os.mbed.com/docs/mbed-os/v5.14/reference/adding-and-configuring-targets.html) for more information.
 
 ## Adding dual-core PSA targets
-A target can be categorized as a dual-core target if it has at least two cores that are either Armv7-M or Armv6-M. On dual-core PSA targets, TF-M runs on the SPE and provides PSA services. Therefore, it is **MANDATORY** to define both the SPE and the NSPE target for dual-core PSA targets.
+A target can be categorized as a dual-core target if it has at least two cores that are either Armv7-M or Armv6-M. On dual-core PSA targets, TF-M runs on the SPE and provides PSA services.
 
-The SPE target **MUST** contain the following attributes:
+The NSPE target **MUST** contain the following attributes along with Mbed OS specific attributes:
 
-* `inherits`: PSA generic target PSA_DUAL_CORE_SPE
 * `tfm_target_name`: Target name in TF-M
 * `tfm_bootloader_supported`: If TF-M bootloader is supported by the target. Values supported are "true" and "false"
 * `tfm_default_toolchain`: Default TF-M toolchain supported. Values supported are `ARMCLANG` and `GNUARM`
 * `tfm_supported_toolchains`: Supported TF-M toolchains. Values supported are `ARMCLANG` and `GNUARM`
-* `delivery_dir`: The directory to which TF-M binary will be copied to
+* `tfm_delivery_dir`: The directory to which TF-M binary will be copied to
 
 The following example shows a PSA enabled dual-core target, `PSoC64`,
 
 ```json
-    "CY8CPROTO_064_SB_S": {
-        "inherits": ["PSA_DUAL_CORE_SPE"],
-        "tfm_target_name": "psoc64_1m",
-        "tfm_bootloader_supported": false,
-        "tfm_default_toolchain": "ARMCLANG",
-        "tfm_supported_toolchains": ["ARMCLANG", "GNUARM"],
-        "delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CPROTO_064_SB",
-        "OUTPUT_EXT": "hex"
-    },
-    "CY8CPROTO_064_SB_NS": {
+    "CY8CPROTO_064_SB": {
         "inherits": ["PSA_DUAL_CORE_NSPE", "MCU_PSOC6_M4"],
         "components_remove": ["QSPIF"],
         "device_has_remove": ["QSPI"],
-        "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["PSOC6_01", "MXCRYPTO_01"],
         "macros_add": ["CYB06447BZI_D54",
                        "PSOC6_DYNSRM_DISABLE=1",
@@ -177,14 +154,20 @@ The following example shows a PSA enabled dual-core target, `PSoC64`,
         "reset_method": "default",
         "post_binary_hook": {
             "function": "PSOC6Code.sign_image"
-        }
-    },
+        },
+        "tfm_target_name": "psoc64_1m",
+        "tfm_bootloader_supported": false,
+        "tfm_default_toolchain": "ARMCLANG",
+        "tfm_supported_toolchains": ["ARMCLANG", "GNUARM"],
+        "tfm_delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CPROTO_064_SB",
+        "TFM_OUTPUT_EXT": "hex"
+    }
 ```
 
 Please pay attention to the config options `extra_labels_add` and `device_has_remove`. If needed, a PSA target definition **MUST** use [extra_labels/device_has]`_add` or [extra_labels/device_has]`_remove` (not `extra_labels` or `device_has`) to add/remove either `extra_labels` or target capabilities. Also, use `feature_`[add/remove] to add/remove a feature.
 Check [extra_labels](https://os.mbed.com/docs/mbed-os/v5.14/reference/adding-and-configuring-targets.html), [device_has](https://os.mbed.com/docs/mbed-os/v5.14/reference/adding-and-configuring-targets.html) and [features](https://os.mbed.com/docs/mbed-os/v5.14/reference/adding-and-configuring-targets.html) for more information.
 
-By default TF-M build generates a `bin` file. If the target requires a `hex` file then the attribute `"OUTPUT_EXT": "hex"` should be added to the target definition.
+By default TF-M build generates a `bin` file. If the target requires a `hex` file then the attribute `"TFM_OUTPUT_EXT": "hex"` should be added to the target definition.
 
 ## Adding Armv8-M PSA targets
 
