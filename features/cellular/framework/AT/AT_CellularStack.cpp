@@ -233,8 +233,10 @@ nsapi_error_t AT_CellularStack::socket_close(nsapi_socket_t handle)
         tr_info("Socket %d close (id %d, started %d, error %d)", index, sock_id, socket->started, err);
     }
 
+    _socket_mutex.lock();
     _socket[index] = NULL;
     delete socket;
+    _socket_mutex.unlock();
 
     _at.unlock();
 

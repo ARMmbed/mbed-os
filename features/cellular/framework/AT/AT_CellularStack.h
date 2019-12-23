@@ -114,7 +114,8 @@ protected:
             started(false),
             tx_ready(false),
             tls_socket(false),
-            pending_bytes(0)
+            pending_bytes(0),
+            txfull_event(false)
         {
         }
         // Socket identifier, generally it will be the socket ID assigned by the
@@ -132,6 +133,7 @@ protected:
         bool tx_ready; // socket is ready for sending on modem stack
         bool tls_socket; // socket uses modem's internal TLS socket functionality
         nsapi_size_t pending_bytes; // The number of received bytes pending
+        bool txfull_event; // socket event after wouldblock
     };
 
     /**
@@ -231,10 +233,10 @@ private:
 
     int get_socket_index_by_port(uint16_t port);
 
-    // mutex for write/read to a _socket array, needed when multiple threads may open sockets simultaneously
+protected:
+    // mutex for write/read to a _socket array, needed when multiple threads may use sockets simultaneously
     PlatformMutex _socket_mutex;
 
-protected:
     ATHandler &_at;
 
     AT_CellularDevice &_device;
