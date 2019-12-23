@@ -59,7 +59,7 @@ if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
 }
 
 define symbol __stack_size__ = MBED_BOOT_STACK_SIZE;
-define symbol __heap_size__  = 0x4000;
+define symbol __heap_size__  = 0x8000;
 
 define symbol __ram_vector_table_size__   =  isdefinedsymbol(__ram_vector_table__) ? 0x00000200 : 0;
 define symbol __ram_vector_table_offset__ =  isdefinedsymbol(__ram_vector_table__) ? 0x000001FF : 0;
