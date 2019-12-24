@@ -73,11 +73,11 @@ typedef int qspi_inst_t;
  *
  *     qspi_status_t result = qspi_device.write(CMD_WRITE, 0, ADDRESS, tx_buf, &buf_len);
  *     if (result != QSPI_STATUS_OK) {
- *        printf("Write failed");
+ *        mbed_printf("Write failed");
  *     }
  *     result = qspi_device.read(CMD_READ, 0, ADDRESS, rx_buf, &buf_len);
  *     if (result != QSPI_STATUS_OK) {
- *        printf("Read failed");
+ *        mbed_printf("Read failed");
  *     }
  *
  * }

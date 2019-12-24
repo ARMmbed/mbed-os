@@ -22,6 +22,7 @@
 #include "platform/mbed_interface.h"
 #include "platform/mbed_retarget.h"
 #include "platform/mbed_critical.h"
+#include "platform/mbed_printf.h"
 
 WEAK MBED_NORETURN void mbed_die(void)
 {
@@ -59,7 +60,7 @@ void mbed_error_printf(const char *format, ...)
 void mbed_error_vprintf(const char *format, va_list arg)
 {
     char buffer[132];
-    int size = vsnprintf(buffer, sizeof buffer, format, arg);
+    int size = mbed_vsnprintf(buffer, sizeof buffer, format, arg);
     if ((unsigned int)size >= sizeof buffer) {
         /* Output was truncated - indicate by overwriting tail of buffer
          * with ellipsis, newline and null terminator.

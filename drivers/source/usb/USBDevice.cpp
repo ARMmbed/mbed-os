@@ -23,6 +23,7 @@
 #include "usb_phy_api.h"
 #include "mbed_assert.h"
 #include "platform/mbed_error.h"
+#include "platform/mbed_printf.h"
 
 //#define DEBUG
 
@@ -64,7 +65,7 @@ bool USBDevice::_request_get_descriptor()
 
     bool success = false;
 #ifdef DEBUG
-    printf("get descr: type: %d\r\n", DESCRIPTOR_TYPE(_transfer.setup.wValue));
+    mbed_printf("get descr: type: %d\r\n", DESCRIPTOR_TYPE(_transfer.setup.wValue));
 #endif
     switch (DESCRIPTOR_TYPE(_transfer.setup.wValue)) {
         case DEVICE_DESCRIPTOR: {
@@ -72,7 +73,7 @@ bool USBDevice::_request_get_descriptor()
                 if ((device_desc()[0] == DEVICE_DESCRIPTOR_LENGTH) \
                         && (device_desc()[1] == DEVICE_DESCRIPTOR)) {
 #ifdef DEBUG
-                    printf("device descr\r\n");
+                    mbed_printf("device descr\r\n");
 #endif
                     _transfer.remaining = DEVICE_DESCRIPTOR_LENGTH;
                     _transfer.ptr = (uint8_t *)device_desc();
@@ -88,7 +89,7 @@ bool USBDevice::_request_get_descriptor()
                 if ((configuration_desc(idx)[0] == CONFIGURATION_DESCRIPTOR_LENGTH) \
                         && (configuration_desc(idx)[1] == CONFIGURATION_DESCRIPTOR)) {
 #ifdef DEBUG
-                    printf("conf descr request\r\n");
+                    mbed_printf("conf descr request\r\n");
 #endif
                     /* Get wTotalLength */
                     _transfer.remaining = configuration_desc(idx)[2] \
@@ -103,12 +104,12 @@ bool USBDevice::_request_get_descriptor()
         }
         case STRING_DESCRIPTOR: {
 #ifdef DEBUG
-            printf("str descriptor\r\n");
+            mbed_printf("str descriptor\r\n");
 #endif
             switch (DESCRIPTOR_INDEX(_transfer.setup.wValue)) {
                 case STRING_OFFSET_LANGID:
 #ifdef DEBUG
-                    printf("1\r\n");
+                    mbed_printf("1\r\n");
 #endif
                     _transfer.remaining = string_langid_desc()[0];
                     _transfer.ptr = (uint8_t *)string_langid_desc();
@@ -117,7 +118,7 @@ bool USBDevice::_request_get_descriptor()
                     break;
                 case STRING_OFFSET_IMANUFACTURER:
 #ifdef DEBUG
-                    printf("2\r\n");
+                    mbed_printf("2\r\n");
 #endif
                     _transfer.remaining =  string_imanufacturer_desc()[0];
                     _transfer.ptr = (uint8_t *)string_imanufacturer_desc();
@@ -126,7 +127,7 @@ bool USBDevice::_request_get_descriptor()
                     break;
                 case STRING_OFFSET_IPRODUCT:
 #ifdef DEBUG
-                    printf("3\r\n");
+                    mbed_printf("3\r\n");
 #endif
                     _transfer.remaining = string_iproduct_desc()[0];
                     _transfer.ptr = (uint8_t *)string_iproduct_desc();
@@ -135,7 +136,7 @@ bool USBDevice::_request_get_descriptor()
                     break;
                 case STRING_OFFSET_ISERIAL:
 #ifdef DEBUG
-                    printf("4\r\n");
+                    mbed_printf("4\r\n");
 #endif
                     _transfer.remaining = string_iserial_desc()[0];
                     _transfer.ptr = (uint8_t *)string_iserial_desc();
@@ -144,7 +145,7 @@ bool USBDevice::_request_get_descriptor()
                     break;
                 case STRING_OFFSET_ICONFIGURATION:
 #ifdef DEBUG
-                    printf("5\r\n");
+                    mbed_printf("5\r\n");
 #endif
                     _transfer.remaining = string_iconfiguration_desc()[0];
                     _transfer.ptr = (uint8_t *)string_iconfiguration_desc();
@@ -153,7 +154,7 @@ bool USBDevice::_request_get_descriptor()
                     break;
                 case STRING_OFFSET_IINTERFACE:
 #ifdef DEBUG
-                    printf("6\r\n");
+                    mbed_printf("6\r\n");
 #endif
                     _transfer.remaining = string_iinterface_desc()[0];
                     _transfer.ptr = (uint8_t *)string_iinterface_desc();
@@ -165,20 +166,20 @@ bool USBDevice::_request_get_descriptor()
         }
         case INTERFACE_DESCRIPTOR: {
 #ifdef DEBUG
-            printf("interface descr\r\n");
+            mbed_printf("interface descr\r\n");
 #endif
             break;
         }
         case ENDPOINT_DESCRIPTOR: {
 #ifdef DEBUG
-            printf("endpoint descr\r\n");
+            mbed_printf("endpoint descr\r\n");
 #endif
             /* TODO: Support is optional, not implemented here */
             break;
         }
         default: {
 #ifdef DEBUG
-            printf("ERROR\r\n");
+            mbed_printf("ERROR\r\n");
 #endif
             break;
         }
@@ -678,7 +679,7 @@ void USBDevice::_control_setup()
     _transfer.user_callback = Request;
 
 #ifdef DEBUG
-    printf("dataTransferDirection: %d\r\nType: %d\r\nRecipient: %d\r\nbRequest: %d\r\nwValue: %d\r\nwIndex: %d\r\nwLength: %d\r\n", _transfer.setup.bmRequestType.dataTransferDirection,
+    mbed_printf("dataTransferDirection: %d\r\nType: %d\r\nRecipient: %d\r\nbRequest: %d\r\nwValue: %d\r\nwIndex: %d\r\nwLength: %d\r\n", _transfer.setup.bmRequestType.dataTransferDirection,
            _transfer.setup.bmRequestType.Type,
            _transfer.setup.bmRequestType.Recipient,
            _transfer.setup.bRequest,
@@ -945,7 +946,7 @@ void USBDevice::ep0_in()
     }
 
 #ifdef DEBUG
-    printf("ep0_in\r\n");
+    mbed_printf("ep0_in\r\n");
 #endif
     if (_transfer.stage == Status) {
         // No action needed on status stage

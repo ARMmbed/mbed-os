@@ -16,6 +16,7 @@
  */
 #include "platform/Stream.h"
 #include "platform/mbed_error.h"
+#include "platform/mbed_printf.h"
 #include <errno.h>
 
 namespace mbed {
@@ -160,7 +161,7 @@ int Stream::printf(const char *format, ...)
     std::va_list arg;
     va_start(arg, format);
     std::fseek(_file, 0, SEEK_CUR);
-    int r = vfprintf(_file, format, arg);
+    int r = mbed_vfprintf(_file, format, arg);
     va_end(arg);
     unlock();
     return r;
@@ -182,7 +183,7 @@ int Stream::vprintf(const char *format, std::va_list args)
 {
     lock();
     std::fseek(_file, 0, SEEK_CUR);
-    int r = vfprintf(_file, format, args);
+    int r = mbed_vfprintf(_file, format, args);
     unlock();
     return r;
 }

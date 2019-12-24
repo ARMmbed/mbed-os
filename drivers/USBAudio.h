@@ -55,7 +55,7 @@
 *
 *     USBAudio audio(true, 44100, 2, 44100, 2);
 *
-*     printf("Looping audio\r\n");
+*     mbed_printf("Looping audio\r\n");
 *     static uint8_t buf[128];
 *     while (true) {
 *         if (!audio.read(buf, sizeof(buf))) {

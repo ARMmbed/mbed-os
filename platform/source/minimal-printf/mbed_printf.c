@@ -59,6 +59,11 @@ int mbed_vsnprintf(char *buffer, size_t length, const char *format, va_list argu
     return mbed_minimal_formatted_string(buffer, length, format, arguments, NULL);
 }
 
+int mbed_vsprintf(char *buffer, const char *format, va_list arguments)
+{
+    return mbed_minimal_formatted_string(buffer, LONG_MAX, format, arguments, NULL);
+}
+
 int mbed_fprintf(FILE *stream, const char *format, ...)
 {
     va_list arguments;

@@ -74,7 +74,7 @@ namespace mbed {
  *         i2c.read( addr8bit, cmd, 2);
  *
  *         float tmp = (float((cmd[0]<<8)|cmd[1]) / 256.0);
- *         printf("Temp = %.2f\n", tmp);
+ *         mbed_printf("Temp = %.2f\n", tmp);
  *   }
  * }
  * @endcode

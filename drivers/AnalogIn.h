@@ -57,7 +57,7 @@ namespace mbed {
  * int main() {
  *     while(1) {
  *         if(temperature > 0.5) {
- *             printf("Too hot! (%f)", temperature.read());
+ *             mbed_printf("Too hot! (%f)", temperature.read());
  *         }
  *     }
  * }

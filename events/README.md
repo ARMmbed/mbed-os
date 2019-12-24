@@ -11,9 +11,9 @@ int main() {
     EventQueue queue;
 
     // events are simple callbacks
-    queue.call(printf, "called immediately\n");
-    queue.call_in(2000, printf, "called in 2 seconds\n");
-    queue.call_every(1000, printf, "called every 1 seconds\n");
+    queue.call(mbed_printf, "called immediately\n");
+    queue.call_in(2000, mbed_printf, "called in 2 seconds\n");
+    queue.call_every(1000, mbed_printf, "called every 1 seconds\n");
 
     // events are executed by the dispatch method
     queue.dispatch();
@@ -43,7 +43,7 @@ EventQueue queue(32*EVENTS_EVENT_SIZE);
 
 // Events can be posted to the underlying event queue with dynamic
 // context allocated from the specified buffer
-queue.call(printf, "hello %d %d %d %d\n", 1, 2, 3, 4);
+queue.call(mbed_printf, "hello %d %d %d %d\n", 1, 2, 3, 4);
 queue.call(&serial, &Serial::printf, "hi\n");
 
 // The dispatch function provides the context for the running the queue
@@ -60,17 +60,17 @@ for moving events out of interrupt contexts.
 ``` cpp
 // Simple call function registers events to be called as soon as possible
 queue.call(doit);
-queue.call(printf, "called immediately\n");
+queue.call(mbed_printf, "called immediately\n");
 
 // The call_in function registers events to be called after a delay
 // specified in milliseconds
 queue.call_in(2000, doit_in_two_seconds);
-queue.call_in(300, printf, "called in 0.3 seconds\n");
+queue.call_in(300, mbed_printf, "called in 0.3 seconds\n");
 
 // The call_every function registers events to be called repeatedly
 // with a period specified in milliseconds
 queue.call_every(2000, doit_every_two_seconds);
-queue.call_every(400, printf, "called every 0.4 seconds\n");
+queue.call_every(400, mbed_printf, "called every 0.4 seconds\n");
 ```
 
 The call functions return an ID that uniquely represents the event in the 
@@ -79,7 +79,7 @@ an in-flight event.
 
 ``` cpp
 // The event id uniquely represents the event in the queue
-int id = queue.call_in(100, printf, "will this work?\n");
+int id = queue.call_in(100, mbed_printf, "will this work?\n");
 
 // If there was not enough memory necessary to allocate the event,
 // an id of 0 is returned from the call functions
@@ -113,7 +113,7 @@ queue.dispatch();
 
 // Events can also pass arguments to the underlying callback when both
 // initially constructed and posted.
-Event<void(int, int)> event(&queue, printf, "received %d and %d\n");
+Event<void(int, int)> event(&queue, mbed_printf, "received %d and %d\n");
 
 // Events can be posted multiple times and enqueue gracefully until
 // the dispatch function is called.
@@ -132,13 +132,13 @@ use independent event queues but still be composed through the
 ``` cpp
 // Create some event queues with pending events
 EventQueue a;
-a.call(printf, "hello from a!\n");
+a.call(mbed_printf, "hello from a!\n");
 
 EventQueue b;
-b.call(printf, "hello from b!\n");
+b.call(mbed_printf, "hello from b!\n");
 
 EventQueue c;
-c.call(printf, "hello from c!\n");
+c.call(mbed_printf, "hello from c!\n");
 
 // Chain c and b onto a's event queue. Both c and b will be dispatched
 // in the context of a's dispatch function.

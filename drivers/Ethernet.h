@@ -56,9 +56,9 @@ namespace mbed {
  *         int size = eth.receive();
  *         if(size > 0) {
  *             eth.read(buf, size);
- *             printf("Destination:  %02X:%02X:%02X:%02X:%02X:%02X\n",
+ *             mbed_printf("Destination:  %02X:%02X:%02X:%02X:%02X:%02X\n",
  *                     buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
- *             printf("Source: %02X:%02X:%02X:%02X:%02X:%02X\n",
+ *             mbed_printf("Source: %02X:%02X:%02X:%02X:%02X:%02X\n",
  *                     buf[6], buf[7], buf[8], buf[9], buf[10], buf[11]);
  *         }
  *
@@ -187,9 +187,9 @@ public:
      * int main() {
      *     wait(1); // Needed after startup.
      *     if (eth.link()) {
-     *          printf("online\n");
+     *          mbed_printf("online\n");
      *     } else {
-     *          printf("offline\n");
+     *          mbed_printf("offline\n");
      *     }
      * }
      * @endcode

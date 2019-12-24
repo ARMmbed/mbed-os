@@ -51,18 +51,18 @@ namespace mbed {
  *             case I2CSlave::ReadAddressed:
  *                 int status = slave.write(message, sizeof(message));
  *                 if (status == 0) {
- *                     printf("Written message: %s\n", message);
+ *                     mbed_printf("Written message: %s\n", message);
  *                 } else {
- *                     printf("Failed to write message.\n");
+ *                     mbed_printf("Failed to write message.\n");
  *                 }
  *                 break;
  *             case I2CSlave::WriteGeneral:
  *                 int byte_read = slave.read();
- *                 printf("Read General: %c (%d)\n", byte_read, byte_read);
+ *                 mbed_printf("Read General: %c (%d)\n", byte_read, byte_read);
  *                 break;
  *             case I2CSlave::WriteAddressed:
  *                 int byte_read = slave.read();
- *                 printf("Read Addressed: %c (%d)\n", byte_read, byte_read);
+ *                 mbed_printf("Read Addressed: %c (%d)\n", byte_read, byte_read);
  *                 break;
  *         }
  *     }

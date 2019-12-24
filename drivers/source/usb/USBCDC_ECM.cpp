@@ -277,7 +277,7 @@ void USBCDC_ECM::callback_request(const setup_packet_t *setup)
     uint32_t size = 0;
 
     if (setup->bmRequestType.Type == CLASS_TYPE) {
-        //printf("In USBCallback_request: CLASS specific Request: %02x\n", setup->bRequest);
+        //mbed_printf("In USBCallback_request: CLASS specific Request: %02x\n", setup->bRequest);
         switch (setup->bRequest) {
             case SET_ETHERNET_MULTICAST_FILTERS:
                 /* TODO: Support is optional, not implemented here */

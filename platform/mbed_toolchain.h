@@ -424,7 +424,7 @@
  * @code
  * #include "mbed_toolchain.h"
  *
- * printf("This function was called from %p", MBED_CALLER_ADDR());
+ * mbed_printf("This function was called from %p", MBED_CALLER_ADDR());
  * @endcode
  *
  * @return Address of the calling function

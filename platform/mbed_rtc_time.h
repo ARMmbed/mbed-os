@@ -56,13 +56,13 @@ struct timeval {
  *     while (true) {
  *         time_t seconds = time(NULL);
  *
- *         printf("Time as seconds since January 1, 1970 = %u\n", (unsigned int)seconds);
+ *         mbed_printf("Time as seconds since January 1, 1970 = %u\n", (unsigned int)seconds);
  *
- *         printf("Time as a basic string = %s", ctime(&seconds));
+ *         mbed_printf("Time as a basic string = %s", ctime(&seconds));
  *
  *         char buffer[32];
  *         strftime(buffer, 32, "%I:%M %p\n", localtime(&seconds));
- *         printf("Time as a custom formatted string = %s", buffer);
+ *         mbed_printf("Time as a custom formatted string = %s", buffer);
  *
  *         wait(1);
  *     }

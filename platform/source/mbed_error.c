@@ -26,6 +26,7 @@
 #include "platform/mbed_interface.h"
 #include "platform/mbed_power_mgmt.h"
 #include "platform/mbed_stats.h"
+#include "platform/mbed_printf.h"
 #include "platform/source/TARGET_CORTEX_M/mbed_fault_handler.h"
 #include "drivers/MbedCRC.h"
 #include "mbed_rtx.h"
@@ -676,7 +677,7 @@ mbed_error_status_t mbed_save_error_hist(const char *path)
     }
 
     //First store the first and last errors
-    if (fprintf(error_log_file, "\nFirst Error: Status:0x%x ThreadId:0x%x Address:0x%x Value:0x%x\n",
+    if (mbed_fprintf(error_log_file, "\nFirst Error: Status:0x%x ThreadId:0x%x Address:0x%x Value:0x%x\n",
                 (unsigned int)first_error_ctx.error_status,
                 (unsigned int)first_error_ctx.thread_id,
                 (unsigned int)first_error_ctx.error_address,
@@ -685,7 +686,7 @@ mbed_error_status_t mbed_save_error_hist(const char *path)
         goto exit;
     }
 
-    if (fprintf(error_log_file, "\nLast Error: Status:0x%x ThreadId:0x%x Address:0x%x Value:0x%x\n",
+    if (mbed_fprintf(error_log_file, "\nLast Error: Status:0x%x ThreadId:0x%x Address:0x%x Value:0x%x\n",
                 (unsigned int)last_error_ctx.error_status,
                 (unsigned int)last_error_ctx.thread_id,
                 (unsigned int)last_error_ctx.error_address,
@@ -698,7 +699,7 @@ mbed_error_status_t mbed_save_error_hist(const char *path)
     while (--log_count >= 0) {
         mbed_error_hist_get(log_count, &ctx);
         //first line of file will be error log count
-        if (fprintf(error_log_file, "\n%d: Status:0x%x ThreadId:0x%x Address:0x%x Value:0x%x\n",
+        if (mbed_fprintf(error_log_file, "\n%d: Status:0x%x ThreadId:0x%x Address:0x%x Value:0x%x\n",
                     log_count,
                     (unsigned int)ctx.error_status,
                     (unsigned int)ctx.thread_id,

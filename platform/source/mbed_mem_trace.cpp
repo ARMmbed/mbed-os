@@ -21,6 +21,7 @@
 #include "platform/mbed_mem_trace.h"
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
+#include "platform/mbed_printf.h"
 
 /******************************************************************************
  * Internal variables, functions and helpers
@@ -126,28 +127,28 @@ void mbed_mem_trace_default_callback(uint8_t op, void *res, void *caller, ...)
     switch (op) {
         case MBED_MEM_TRACE_MALLOC:
             temp_s1 = va_arg(va, size_t);
-            printf(MBED_MEM_DEFAULT_TRACER_PREFIX "m:%p;%p-%u\n", res, caller, temp_s1);
+            mbed_printf(MBED_MEM_DEFAULT_TRACER_PREFIX "m:%p;%p-%u\n", res, caller, temp_s1);
             break;
 
         case MBED_MEM_TRACE_REALLOC:
             temp_ptr = va_arg(va, void *);
             temp_s1 = va_arg(va, size_t);
-            printf(MBED_MEM_DEFAULT_TRACER_PREFIX "r:%p;%p-%p;%u\n", res, caller, temp_ptr, temp_s1);
+            mbed_printf(MBED_MEM_DEFAULT_TRACER_PREFIX "r:%p;%p-%p;%u\n", res, caller, temp_ptr, temp_s1);
             break;
 
         case MBED_MEM_TRACE_CALLOC:
             temp_s1 = va_arg(va, size_t);
             temp_s2 = va_arg(va, size_t);
-            printf(MBED_MEM_DEFAULT_TRACER_PREFIX "c:%p;%p-%u;%u\n", res, caller, temp_s1, temp_s2);
+            mbed_printf(MBED_MEM_DEFAULT_TRACER_PREFIX "c:%p;%p-%u;%u\n", res, caller, temp_s1, temp_s2);
             break;
 
         case MBED_MEM_TRACE_FREE:
             temp_ptr = va_arg(va, void *);
-            printf(MBED_MEM_DEFAULT_TRACER_PREFIX "f:%p;%p-%p\n", res, caller, temp_ptr);
+            mbed_printf(MBED_MEM_DEFAULT_TRACER_PREFIX "f:%p;%p-%p\n", res, caller, temp_ptr);
             break;
 
         default:
-            printf("?\n");
+            mbed_printf("?\n");
     }
     va_end(va);
 }

@@ -47,7 +47,7 @@ public:
      *  const reset_reason_t reason = ResetReason::get();
      *
      *  if (reason == RESET_REASON_WATCHDOG) {
-     *      printf("Watchdog reset\n");
+     *      mbed_printf("Watchdog reset\n");
      *      rollback();
      *  }
      *  @endcode

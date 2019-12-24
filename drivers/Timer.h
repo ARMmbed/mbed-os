@@ -47,7 +47,7 @@ namespace mbed {
  *     begin = timer.read_us();
  *     led = !led;
  *     end = timer.read_us();
- *     printf("Toggle the led takes %d us", end - begin);
+ *     mbed_printf("Toggle the led takes %d us", end - begin);
  * }
  * @endcode
  */

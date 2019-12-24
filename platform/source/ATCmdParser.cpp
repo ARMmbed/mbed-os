@@ -22,6 +22,7 @@
 #include "ATCmdParser.h"
 #include "mbed_poll.h"
 #include "mbed_debug.h"
+#include "mbed_printf.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -111,7 +112,7 @@ int ATCmdParser::read(char *data, int size)
 int ATCmdParser::vprintf(const char *format, std::va_list args)
 {
 
-    if (vsprintf(_buffer, format, args) < 0) {
+    if (mbed_vsprintf(_buffer, format, args) < 0) {
         return false;
     }
 
@@ -128,7 +129,7 @@ int ATCmdParser::vprintf(const char *format, std::va_list args)
 bool ATCmdParser::vsend(const char *command, std::va_list args)
 {
     // Create and send command
-    if (vsprintf(_buffer, command, args) < 0) {
+    if (mbed_vsprintf(_buffer, command, args) < 0) {
         return false;
     }
 
@@ -319,7 +320,7 @@ int ATCmdParser::printf(const char *format, ...)
 {
     std::va_list args;
     va_start(args, format);
-    int res = vprintf(format, args);
+    int res = mbed_vprintf(format, args);
     va_end(args);
     return res;
 }

@@ -116,11 +116,11 @@ constexpr CrcMode choose_crc_mode(uint32_t polynomial, uint8_t width, CrcMode mo
  *      char  test[] = "123456789";
  *      uint32_t crc = 0;
  *
- *      printf("\nPolynomial = 0x%lx  Width = %d \n", ct.get_polynomial(), ct.get_width());
+ *      mbed_printf("\nPolynomial = 0x%lx  Width = %d \n", ct.get_polynomial(), ct.get_width());
  *
  *      ct.compute((void *)test, strlen((const char*)test), &crc);
  *
- *      printf("The CRC of data \"123456789\" is : 0x%lx\n", crc);
+ *      mbed_printf("The CRC of data \"123456789\" is : 0x%lx\n", crc);
  *      return 0;
  *  }
  * @endcode
@@ -134,12 +134,12 @@ constexpr CrcMode choose_crc_mode(uint32_t polynomial, uint8_t width, CrcMode mo
  *      char  test[] = "123456789";
  *      uint32_t crc = 0;
  *
- *      printf("\nPolynomial = 0x%lx  Width = %d \n", ct.get_polynomial(), ct.get_width());
+ *      mbed_printf("\nPolynomial = 0x%lx  Width = %d \n", ct.get_polynomial(), ct.get_width());
  *      ct.compute_partial_start(&crc);
  *      ct.compute_partial((void *)&test, 4, &crc);
  *      ct.compute_partial((void *)&test[4], 5, &crc);
  *      ct.compute_partial_stop(&crc);
- *      printf("The CRC of data \"123456789\" is : 0x%lx\n", crc);
+ *      mbed_printf("The CRC of data \"123456789\" is : 0x%lx\n", crc);
  *      return 0;
  *  }
  * @endcode

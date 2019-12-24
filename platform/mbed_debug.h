@@ -21,6 +21,7 @@
 #include <stdarg.h>
 #endif
 #include "platform/mbed_toolchain.h"
+#include "platform/mbed_printf.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,7 +47,7 @@ static inline void debug(const char *format, ...)
 #if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
     va_list args;
     va_start(args, format);
-    vfprintf(stderr, format, args);
+    mbed_vfprintf(stderr, format, args);
     va_end(args);
 #endif
 }
@@ -66,7 +67,7 @@ static inline void debug_if(int condition, const char *format, ...)
     if (condition) {
         va_list args;
         va_start(args, format);
-        vfprintf(stderr, format, args);
+        mbed_vfprintf(stderr, format, args);
         va_end(args);
     }
 #endif

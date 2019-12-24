@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 #include "drivers/RawSerial.h"
+#include "platform/mbed_printf.h"
 #include <stdio.h>
 
 
@@ -74,14 +75,14 @@ int RawSerial::vprintf(const char *format, std::va_list arg)
     // ARMCC microlib does not properly handle a size of 0.
     // As a workaround supply a dummy buffer with a size of 1.
     char dummy_buf[1];
-    int len = vsnprintf(dummy_buf, sizeof(dummy_buf), format, arg);
+    int len = mbed_vsnprintf(dummy_buf, sizeof(dummy_buf), format, arg);
     if (len < STRING_STACK_LIMIT) {
         char temp[STRING_STACK_LIMIT];
-        vsprintf(temp, format, arg);
+        mbed_vsprintf(temp, format, arg);
         puts(temp);
     } else {
         char *temp = new char[len + 1];
-        vsprintf(temp, format, arg);
+        mbed_vsprintf(temp, format, arg);
         puts(temp);
         delete[] temp;
     }

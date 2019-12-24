@@ -107,14 +107,14 @@ struct Waiter;
  *   mutex.lock();
  *
  *   while (done == false) {
- *     printf("Worker thread: Count: %lu\r\n", work_count);
+ *     mbed_printf("Worker thread: Count: %lu\r\n", work_count);
  *
  *     // Wait for main thread to notify the condition variable.
- *     printf("Worker thread: Waiting\r\n");
+ *     mbed_printf("Worker thread: Waiting\r\n");
  *     cv.wait();
  *   }
  *
- *   printf("Worker: Exiting\r\n");
+ *   mbed_printf("Worker: Exiting\r\n");
  *
  *   // The condition variable acquires the lock when exiting the `wait` function.
  *   // Unlock mutex when exiting the thread.
@@ -132,8 +132,8 @@ struct Waiter;
  *
  *     // Change count and notify waiters.
  *     work_count++;
- *     printf("Main thread: Set count to: %lu\r\n", work_count);
- *     printf("Main thread: Notifying worker thread\r\n");
+ *     mbed_printf("Main thread: Set count to: %lu\r\n", work_count);
+ *     mbed_printf("Main thread: Notifying worker thread\r\n");
  *     cv.notify_all();
  *
  *     // Mutex must be unlocked before the worker thread can acquire it.
@@ -150,7 +150,7 @@ struct Waiter;
  *
  *   thread.join();
  *
- *   printf("Main: Exiting\r\n");
+ *   mbed_printf("Main: Exiting\r\n");
  * }
  * @endcode
  */

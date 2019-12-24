@@ -82,14 +82,14 @@ protected:
  *
  * int main() {
  *     FILE *fp = fopen("/local/out.txt", "w");  // Open "out.txt" on the local file system for writing
- *     fprintf(fp, "Hello World!");
+ *     mbed_fprintf(fp, "Hello World!");
  *     fclose(fp);
  *     remove("/local/out.txt");                 // Removes the file "out.txt" from the local file system
  *
  *     DIR *d = opendir("/local");               // Opens the root directory of the local file system
  *     struct dirent *p;
  *     while((p = readdir(d)) != NULL) {         // Print the names of the files in the local file system
- *       printf("%s\n", p->d_name);              // to stdout.
+ *       mbed_printf("%s\n", p->d_name);         // to stdout.
  *     }
  *     closedir(d);
  * }

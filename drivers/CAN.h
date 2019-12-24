@@ -140,7 +140,7 @@ public:
      *
      * void send() {
      *     if(can1.write(CANMessage(1337U, &counter, 1))) {
-     *         printf("Message sent: %d\n", counter);
+     *         mbed_printf("Message sent: %d\n", counter);
      *         counter++;
      *     }
      *     led1 = !led1;
@@ -151,7 +151,7 @@ public:
      *     CANMessage msg;
      *     while(1) {
      *         if(can2.read(msg)) {
-     *             printf("Message received: %d\n\n", msg.data[0]);
+     *             mbed_printf("Message received: %d\n\n", msg.data[0]);
      *             led2 = !led2;
      *         }
      *         wait(0.2);

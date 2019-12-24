@@ -92,7 +92,7 @@ uint32_t pinmap_find_function(PinName pin, const PinMap *map);
  *         &ssel
  *     };
  *     if (pinmap_find_peripheral_pins(pins_ff, pins_avoid, per, maps, pins, sizeof(maps) / sizeof(maps[0]))) {
- *         printf("Found SPI pins to test instance %i with:\n"
+ *         mbed_printf("Found SPI pins to test instance %i with:\n"
  *                "  mosi=%s\n"
  *                "  miso=%s\n"
  *                "  sclk=%s\n"
@@ -102,7 +102,7 @@ uint32_t pinmap_find_function(PinName pin, const PinMap *map);
  *                pinmap_ff_default_pin_to_string(sclk),
  *                pinmap_ff_default_pin_to_string(ssel));
  *     } else {
- *         printf("Could not find SPI combination to test %i\n", per);
+ *         mbed_printf("Could not find SPI combination to test %i\n", per);
  *     }
  *     return 0;
  * }

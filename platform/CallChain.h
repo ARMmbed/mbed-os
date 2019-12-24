@@ -48,17 +48,17 @@ class CallChainLink;
  * CallChain chain;
  *
  * void first(void) {
- *     printf("'first' function.\n");
+ *     mbed_printf("'first' function.\n");
  * }
  *
  * void second(void) {
- *     printf("'second' function.\n");
+ *     mbed_printf("'second' function.\n");
  * }
  *
  * class Test {
  * public:
  *     void f(void) {
- *         printf("A::f (class member).\n");
+ *         mbed_printf("A::f (class member).\n");
  *     }
  * };
  *

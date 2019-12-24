@@ -49,7 +49,7 @@ namespace mbed {
  * DigitalOut led(LED1);
  *
  * void trigger() {
- *     printf("triggered!\n");
+ *     mbed_printf("triggered!\n");
  * }
  *
  * int main() {

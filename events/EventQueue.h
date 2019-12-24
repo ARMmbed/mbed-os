@@ -287,7 +287,7 @@ public:
      *         EventQueue queue;
      *
      *         // events are simple callbacks
-     *         queue.call(printf, "called immediately\n");
+     *         queue.call(mbed_printf, "called immediately\n");
      *
      *         // the dispatch method executes events
      *         queue.dispatch();
@@ -323,7 +323,7 @@ public:
      *         EventHandler(int id) : _id(id) { }
      *
      *         void handler(int c) {
-     *             printf("ID: %d Param: %d\r\n", _id, c);
+     *             mbed_printf("ID: %d Param: %d\r\n", _id, c);
      *         }
      *     };
      *
@@ -371,7 +371,7 @@ public:
      *         EventQueue queue;
      *
      *         // events are simple callbacks
-     *         queue.call_in(2000, printf, "called in 2 seconds\n");
+     *         queue.call_in(2000, mbed_printf, "called in 2 seconds\n");
      *
      *         // the dispatch methods executes events
      *         queue.dispatch();
@@ -406,7 +406,7 @@ public:
      *         EventHandler(int id) : _id(id) { }
      *
      *         void handler(int c) {
-     *             printf("ID: %d Param: %d\r\n", _id, c);
+     *             mbed_printf("ID: %d Param: %d\r\n", _id, c);
      *         }
      *     };
      *
@@ -459,7 +459,7 @@ public:
      *         EventHandler(int id) : _id(id) { }
      *
      *         void handler(int c) {
-     *             printf("ID: %d Param: %d\r\n", _id, c);
+     *             mbed_printf("ID: %d Param: %d\r\n", _id, c);
      *         }
      *     };
      *
@@ -468,7 +468,7 @@ public:
      *         EventQueue queue;
      *
      *         // events are simple callbacks, call every 2 seconds
-     *         queue.call_every(2000, printf, "Calling every 2 seconds\n");
+     *         queue.call_every(2000, mbed_printf, "Calling every 2 seconds\n");
      *
      *         // the dispatch method executes events
      *         queue.dispatch();
@@ -503,7 +503,7 @@ public:
      *         EventHandler(int id) : _id(id) { }
      *
      *         void handler(int c) {
-     *             printf("ID: %d Param: %d\r\n", _id, c);
+     *             mbed_printf("ID: %d Param: %d\r\n", _id, c);
      *         }
      *     };
      *
@@ -543,7 +543,7 @@ public:
      *     #include "mbed.h"
      *
      *     void handler(int c) {
-     *         printf("Param: %d\r\n", c);
+     *         mbed_printf("Param: %d\r\n", c);
      *     }
      *
      *     int main()
@@ -596,7 +596,7 @@ public:
      *         EventHandler(int id) : _id(id) { }
      *
      *         void handler(int c) {
-     *             printf("ID: %d Param: %d\r\n", _id, c);
+     *             mbed_printf("ID: %d Param: %d\r\n", _id, c);
      *         }
      *     };
      *
@@ -637,7 +637,7 @@ public:
      *     #include "mbed.h"
      *
      *     void handler(int c) {
-     *         printf("Param: %d\r\n", c);
+     *         mbed_printf("Param: %d\r\n", c);
      *     }
      *
      *     int main()

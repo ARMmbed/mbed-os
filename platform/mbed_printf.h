@@ -24,6 +24,42 @@
 extern "C" {
 #endif
 
+/** \addtogroup platform-public-api */
+/** @{*/
+
+/**
+ * \defgroup platform_printf Mbed printf family functions
+ *
+ * Library supports both printf and snprintf in 1252 bytes of flash.
+ *
+ * Prints directly to stdio/UART without using malloc. All flags and precision modifiers are ignored.
+ * There is no error handling if a writing error occurs.
+ *
+ * Supports:
+ * * %d: signed integer [h, hh, (none), l, ll, z, j, t].
+ * * %i: signed integer [h, hh, (none), l, ll, z, j, t].
+ * * %u: unsigned integer [h, hh, (none), l, ll, z, j, t].
+ * * %x: unsigned integer [h, hh, (none), l, ll, z, j, t], printed as hexadecimal number (e.g., ff).
+ * * %X: unsigned integer [h, hh, (none), l, ll, z, j, t], printed as hexadecimal number (e.g., FF).
+ * * %f: floating point (enabled by default).
+ * * %F: floating point (enabled by default, treated as %f).
+ * * %g: floating point (enabled by default, treated as %f).
+ * * %G: floating point (enabled by default, treated as %f).
+ * * %c: character.
+ * * %s: string.
+ * * %p: pointer (e.g. 0x00123456).
+ *
+ * Unrecognized format specifiers are treated as ordinary characters.
+ *
+ * Floating point limitations:
+ * * All floating points are treated as %f.
+ * * No support for inf, infinity or nan
+ *
+ * For more information have a look at mbed-os/platform/source/minimal-printf/README.md
+ *
+ * @{
+ */
+
 /**
  * Minimal printf
  *
@@ -60,6 +96,13 @@ int mbed_vprintf(const char *format, va_list arguments);
 int mbed_vsnprintf(char *buffer, size_t length, const char *format, va_list arguments);
 
 /**
+ * Minimal sprintf
+ *
+ * Prints directly to buffer without using malloc.
+ */
+int mbed_vsprintf(char *buffer, const char *format, va_list arguments);
+
+/**
  * Minimal fprintf
  *
  * Prints directly to file stream without using malloc.
@@ -72,6 +115,10 @@ int mbed_fprintf(FILE *stream, const char *format, ...);
  * Prints directly to file stream without using malloc.
  */
 int mbed_vfprintf(FILE *stream, const char *format, va_list arguments);
+
+/**@}*/
+
+/**@}*/
 
 #ifdef __cplusplus
 }
