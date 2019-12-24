@@ -1,34 +1,35 @@
-# TLSSocket - Design document
-## Overview and Background
+# TLSSocket - design document
+## Overview and background
 
-This document describes design of TLSSocket class that provides simple interface for Mbed OS
-user to create TLS connections over TCP socket.
+This document describes the design of the TLSSocket class, which provides an interface for an Mbed OS user to create TLS connections over a TCP socket.
 
-This class greatly simplifies the usage of TLS but limits itself to only one use case.
-This design limitation is accepted as other users can continue using Mbed TLS API
-directly. TLSSocket also exposes internal Mbed TLS structures allowing use of Mbed TLS API to configure the underlying library.
+Mbed OS provides two different implementations for TLS sockets; Mbed TLS based (default) or offloaded TLS socket when used network stack (for example, a cellular modem target driver) supports it.
 
-High level goal is to demonstrate Mbed OS users that secure connections are not hard to do.
+This class greatly simplifies the use of TLS but limits itself to only one use case. This design limitation is accepted as other users can continue using Mbed TLS API directly. Mbed TLS based TLSSocket also exposes internal Mbed TLS structures allowing use of Mbed TLS API to configure the underlying library.
 
-## Design Limitations
+The high-level goal is to demonstrate that secure connections are not hard to do.
 
-Following design limitations exist in the current design of TLSSocket
+## Design limitations
 
-* `TLSSocket::connect()` is always blocking
+The following design limitations exist in the current design of TLSSocket:
+
+Mbed TLS based TLSSocket:
+
+* `TLSSocket::connect()` is always blocking.
 * Can only use server and client certificates through `set_root_ca_cert()` and `set_client_cert_key()` methods. For other use cases, internal Mbed TLS structures are exposed.
-* No PSK mode
+* No PSK mode.
 
-# System Architecture and High-Level Design
+Offloaded vs. Mbed TLS based TLSSocket:
 
-Secure socket consist of two classes:
+* For offloaded TLS socket, `set_root_ca_cert()` and `set_client_cert_key()` must be called after `TLSSocket::open()` and before `TLSSocket::connect()`.
+* Offloaded TLS socket API does not support all Mbed TLS based TLSSocket methods, but common ones (in other words, `open()`, `connect()`, `close()` and setting certficates) use the same API.
 
-* `TLSocketWrapper` <br>
-    Which handles initialization of TLS library and does TLS handsake. Takes any Socket as a
-    trasport.
-* `TLSSocket` <br>
-    Which inherits TLSocketWrapper and has TCP socket as a transport.
-    Adds `connect(char *hostname)`
-    for initiating the TCP and TLS handshakes at one call.
+# System architecture and high-level design
+
+The Mbed TLS based secure socket consists of two classes:
+
+* `TLSSocketWrapper`, which handles initialization of TLS library, does the TLS handsake and takes any Socket as a transport.
+* `TLSSocket`, which inherits TLSSocketWrapper, has TCP socket as a transport and adds `connect(char *hostname)` for initiating the TCP and TLS handshakes at one call.
 
 ```
        ,--------------.
@@ -41,16 +42,16 @@ Secure socket consist of two classes:
        `--------------'
                |
                |
-,----------------------------.
-|TLSocketWrapper             |
-|----------------------------|
-|Socket *transport;          |
-|----------------------------|
-|TLSocketWrapper(*transport);|
-|int set_root_ca_cert(...);  |
-|void set_hostname(...);     |
-|int do_handshake();         |
-`----------------------------'
+,-----------------------------.
+|TLSSocketWrapper             |
+|-----------------------------|
+|Socket *transport;           |
+|-----------------------------|
+|TLSSocketWrapper(*transport);|
+|int set_root_ca_cert(...);   |
+|void set_hostname(...);      |
+|int do_handshake();          |
+`-----------------------------'
                |
 ,----------------------------.
 |TLSSocket                   |
@@ -61,65 +62,94 @@ Secure socket consist of two classes:
 `----------------------------'
 ```
 
-## High Level Design Goal 1: Abstract socket API
+Offloaded TLS socket:
 
-Secure socket both uses `Socket` interface as its transport layer and implements it. This makes it transport independent and there is no direct dependency to IP stack.
+* `TLSSocket` <br>
+    Extends the TCP socket with certicate and key setter methods and internally handles TLS socket control to network stack using offload TLS socket setsockopt() settings.
 
-When TLSSocket implements Socket API it is able to be used instead of TCP connection in
-any Mbed OS library. For example MQTT library is made secure without any code changes:
-https://github.com/coisme/Mbed-to-Azure-IoT-Hub/tree/new-TLSSocket
+```
+       ,--------------.
+       |TCPSocket     |
+       |--------------|
+       |--------------|
+       |int connect();|
+       |int recv();   |
+       |int send();   |
+       `--------------'
+               |
+               |
+,----------------------------.        ,-----------------------------.
+|TLSSocket                   |        |NetworkStack implementation  |
+|----------------------------|        |-----------------------------|
+|----------------------------| -----> |-----------------------------|
+|int set_root_ca_cert(...);  |        |nsapi_error_t setsockopt(...)|
+`----------------------------'        `-----------------------------'
+```
 
-## High Level Design Goal 2: Only certificate based authentication
+## High-level design goal 1: Abstract Socket API
 
-Aim is to first support only certificate based authentication, so we implement only `set_root_ca_cert()` and `set_client_cert_key()` functions. For later on, different types of authentication methods can be added.
+Mbed TLS based secure socket both uses `Socket` interface as its transport layer and implements it. This makes it transport independent, and there is no direct dependency to the IP stack.
 
-## High Level Design Goal 3: Support both blocking and non-blocking operations
+The offloaded secure socket shares the same API as Mbed TLS based TLSSocket as much as possible. This API has no dependency on Mbed TLS APIs.
 
-As the Mbed TLS is already work with both socket types, we are able to `TLSocketWrapper`
-that can handle both types as well.
+When TLSSocket implements the Socket API, it can be used instead of TCP connection in any Mbed OS library. For example, the MQTT library is made secure without any code changes: https://github.com/coisme/Mbed-to-Azure-IoT-Hub/tree/new-TLSSocket
 
-Functions `set_blocking()` and `set_timeout()` just pass the information for underlying
-transport socket. Extra handling on the TLS state machine is not required.
+## High-level design goal 2: Only certificate-based authentication
 
-## High Level Design Goal 4: Expose Mbed TLS structures
+The aim is to first support only certificate-based authentication, so we implement only `set_root_ca_cert()` and `set_client_cert_key()` functions. Later on, different types of authentication methods can be added.
 
-Exposing Mbed TLS configuration structures allows user to configure the underlying TLS instance using Mbed TLS API. This allows greater usability as TLSSocket is not limited to only one use case.
+## High-level design goal 3: Support both blocking and nonblocking operations
 
-Also configuration structures can be shared between sockets which leads to RAM saving then two or more TLSSockets are used with same parameters.
+Because Mbed TLS already works with both socket types, we can create `TLSSocketWrapper`, which handles both types as well.
 
-## System Architecture and Component Interaction
+Functions `set_blocking()` and `set_timeout()` just pass the information for underlying transport socket. Extra handling on the TLS state machine is not required.
+
+## High-level design goal 4: Expose Mbed TLS structures (Mbed TLS secure socket only)
+
+Exposing the Mbed TLS configuration structures allows you to configure the underlying TLS instance using Mbed TLS API. This allows greater usability because TLSSocket is not limited to only one use case.
+
+Also, configuration structures can be shared between sockets, which leads to RAM savings. Then, two or more TLSSockets are used with the same parameters.
+
+## System architecture and component interaction
+
 *Description and diagrams showing overall architecture of how the above-mentioned components/resources interface with each other.*
 
-# Detailed Design
-*This section provides detailed design on implementation of components/modules mentioned in High Level Design section.*
+# Detailed design
 
-##  Detailed Design for Abstract socket API
+*This section provides detailed design on implementation of components/modules mentioned in the high-level design section.*
 
-Mbed OS [Socket interface](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/Socket.h) is a abstract C++ inteface that follows POSIX socket API.
+##  Detailed design for abstract socket API
+
+The Mbed OS [Socket interface](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/Socket.h) is an abstract C++ inteface that follows the POSIX socket API.
 
 ### Receiving and sending data from Mbed TLS
 
-`TLSSocketWrapper` contains static wrappers `ssl_recv()` and `ssl_send()` functions which are
-registered to Mbed TLS library in `mbedtls_ssl_set_bio()` call.
+Mbed TLS based secure socket:
 
-There functions then call the transport socket's `Socket::send()` and `Socket::recv()` calls
-respectively. Error coded are passed through, except `NSAPI_ERROR_WOULD_BLOCK` which is translated to `MBEDTLS_ERR_SSL_WANT_WRITE` or `MBEDTLS_ERR_SSL_WANT_READ`.
+`TLSSocketWrapper` contains static wrappers `ssl_recv()` and `ssl_send()` functions, which are registered to the Mbed TLS library in `mbedtls_ssl_set_bio()` call.
 
-### Providing Socket API
+These functions then call the transport socket's `Socket::send()` and `Socket::recv()` calls. Error codes pass through, except `NSAPI_ERROR_WOULD_BLOCK`, which is translated to `MBEDTLS_ERR_SSL_WANT_WRITE` or `MBEDTLS_ERR_SSL_WANT_READ`.
+
+Offloaded secure socket:
+
+When `TLSSocket::connect()` marks a socket as a secure socket in the network stack, the network stack must handle `socket_send()` and `socket_recv()`. In other words, in external modem cases, these methods send secure socket specific send/receive commands to the modem.
+
+### Providing the Socket API
+
+Mbed TLS based secure socket:
 
 ```
 virtual nsapi_error_t close();
 ```
 
-Destroys the memory allocated by TLS library.
-Alternatively also closes the transport socket, unless `TLSSocketWrapper::keep_transport_open()` has been called earlier.
-
+This destroys the memory allocated by the TLS library. It also closes the transport socket, unless `TLSSocketWrapper::keep_transport_open()` has been called earlier.
 
 ```
 virtual nsapi_error_t connect(const SocketAddress &address);
 ```
 
-Initiates the TCP connection and continues to TLS hanshake.
+This initiates the TCP connection and continues to the TLS hanshake.
+
 This is currently forced to blocking mode.
 
 ```
@@ -128,13 +158,12 @@ virtual nsapi_size_or_error_t recv(void *data, nsapi_size_t size);
 virtual nsapi_size_or_error_t sendto(const SocketAddress &address, const void *data, nsapi_size_t size);
 virtual nsapi_size_or_error_t recvfrom(SocketAddress *address, void *data, nsapi_size_t size);
 ```
-These work as expected, but `SocketAddress` parameters are ignored. TLS connection cannot
-change the peer. Also `recvfrom()` call does not set the peer address.
 
-Mbed TLS error codes `MBEDTLS_ERR_SSL_WANT_READ` and `MBEDTLS_ERR_SSL_WANT_WRITE` are
-translated to `NSAPI_ERROR_WOULD_BLOCK` before passing to user.
+These work as expected, but `SocketAddress` parameters are ignored. TLS connection can't change the peer. Also, `recvfrom()` call doesn't set the peer address.
 
-`MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY` is ignored and zero is returned to user (connection closed). Other error codes are passed through.
+Mbed TLS error codes `MBEDTLS_ERR_SSL_WANT_READ` and `MBEDTLS_ERR_SSL_WANT_WRITE` are translated to `NSAPI_ERROR_WOULD_BLOCK` before passing to the user.
+
+`MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY` is ignored, and zero is returned to the user (connection closed). Other error codes pass through.
 
 ```
 virtual nsapi_error_t bind(const SocketAddress &address);
@@ -144,18 +173,19 @@ virtual void sigio(mbed::Callback<void()> func);
 virtual nsapi_error_t setsockopt(int level, int optname, const void *optval, unsigned optlen);
 virtual nsapi_error_t getsockopt(int level, int optname, void *optval, unsigned *optlen);
 ```
-These are passed through to transport socket.
 
+These are passed through to transport socket.
 
 ```
 virtual Socket *accept(nsapi_error_t *error = NULL);
 virtual nsapi_error_t listen(int backlog = 1);
 ```
-These are returning `NSAPI_ERROR_UNSUPPORTED` as TLS socket cannot be set to listening mode.
 
-##  Detailed Design for certificate based authentication
+These are returning `NSAPI_ERROR_UNSUPPORTED` because you can't set TLS socket to listening mode.
 
-`TLSSocketWrapper` provides following API to set server certificate. You can use either BASE64 formatted PEM certificate, or binary DER certificates. Later form just assumes `root_ca_pem` or `client_cert_pem` to be standard C string and counts its lenght and passes to method which takes just `void*` and `len`.
+##  Detailed design for certificate-based authentication
+
+TLSSocket API provides the following API to set server certificate. For Mbed TLS secure socket, the `TLSSocketWrapper` class implements this API. You can use either a BASE64 formatted PEM certificate, or binary DER certificates. The latter just assumes `root_ca_pem` or `client_cert_pem` to be standard C string and counts its length and passes to method, which takes just `void*` and `len`.
 
 ```
 /** Sets the certification of Root CA.
@@ -172,7 +202,7 @@ nsapi_error_t TLSSocketWrapper::set_root_ca_cert(const void *root_ca, size_t len
 nsapi_error_t TLSSocketWrapper::set_root_ca_cert(const char *root_ca_pem);
 ```
 
-If client authentication is required, following API allows you to set the client certificate and private key:
+If client authentication is required, the following API allows you to set the client certificate and private key:
 
 ```
 /** Sets client certificate, and client private key.
@@ -191,32 +221,32 @@ nsapi_error_t TLSSocketWrapper::set_client_cert_key(const void *client_cert_pem,
 nsapi_error_t TLSSocketWrapper::set_client_cert_key(const char *client_cert_pem, const char *client_private_key_pem);
 ```
 
-Certificate is then passed unmodified to `mbedtls_x509_crt_parse()` function.
+Certificate is then passed unmodified to the `mbedtls_x509_crt_parse()` function.
 
-##  Detailed Design for Support both blocking and non-blocking operations
+##  Detailed design for support of both blocking and nonblocking operations (Mbed TLS secure socket only)
 
-`send()` and `receive()` methods do not need to know whether underlying socket is in
-blocking mode as Mbed OS return values are enough to tell that.
+`send()` and `receive()` methods do not need to know whether the underlying socket is in blocking mode because Mbed OS return values are enough to tell that.
 
-Data path when application send data to TLS socket:
+Data path when the application sends data to the TLS socket:
 
-1. Application call `TLSSocketWrapper::send()` function.
-1. Which calls `mbedtls_ssl_write()` function
-1. Which calls `TLSSocketWrapper::ssl_send()`
-1. Which calls transport socket's `Socket::send()` which either blocks or returns `NSAPI_ERROR_WOULD_BLOCK`
+1. The application calls `TLSSocketWrapper::send()` function.
+1. Which calls the `mbedtls_ssl_write()` function
+1. Which calls the `TLSSocketWrapper::ssl_send()`
+1. Which calls the transport socket's `Socket::send()`, which either blocks or returns `NSAPI_ERROR_WOULD_BLOCK`.
 
 When this `NSAPI_ERROR_WOULD_BLOCK` is returned:
 
-1. `TLSSocketWrapper::ssl_send()` translates error to `MBEDTLS_ERR_SSL_WANT_WRITE`
-1. returned to `mbedtls_ssl_write()` which return the same error
-1. `TLSSocketWrapper::send()` gets the `MBEDTLS_ERR_SSL_WANT_WRITE` and translates that to `NSAPI_ERROR_WOULD_BLOCK`
-1. Application gets `NSAPI_ERROR_WOULD_BLOCK` and back off.
+1. `TLSSocketWrapper::ssl_send()` translates the error to `MBEDTLS_ERR_SSL_WANT_WRITE`.
+1. Returned to `mbedtls_ssl_write()`, which returns the same error.
+1. `TLSSocketWrapper::send()` gets the `MBEDTLS_ERR_SSL_WANT_WRITE` and translates that to `NSAPI_ERROR_WOULD_BLOCK`.
+1. Application gets `NSAPI_ERROR_WOULD_BLOCK` and turns back off.
 
-When transport socket is in blocking mode, it never returns `NSAPI_ERROR_WOULD_BLOCK` and therefore `mbedtls_ssl_write()` never gets `MBEDTLS_ERR_SSL_WANT_WRITE`, so any translation does not happen, but code path stays unchanged.
+When transport socket is in blocking mode, it never returns `NSAPI_ERROR_WOULD_BLOCK` and therefore `mbedtls_ssl_write()` never gets `MBEDTLS_ERR_SSL_WANT_WRITE`. Any translation does not happen, but code path stays unchanged.
 
-## Detailed Design for exposing Mbed TLS structures
+## Detailed design for exposing Mbed TLS structures (Mbed TLS secure socket only)
 
-TLSSocket exposes following API to provide access to internal Mbed TLS data structures:
+TLSSocket exposes the following API to provide access to internal Mbed TLS data structures:
+
 ```
 mbedtls_x509_crt *get_own_cert();
 int set_own_cert(mbedtls_x509_crt *);
@@ -226,18 +256,38 @@ mbedtls_ssl_config *get_ssl_config();
 void set_ssl_config(mbedtls_ssl_config *);
 ```
 
-This allows sockets to share same configuration and allow user to fine tune TLS configuration, for example:
+This allows sockets to share the same configuration and allow user to adjust the TLS configuration, for example:
 
 ```
 TLSSocket a;
 TLSSocket b;
+a.open(<interface>);
+b.open(<interface>);
 a.set_root_ca_cert(<cert>);
 b.set_ssl_config(a.get_ssl_config());
 ```
 
-# Usage Scenarios and Examples
+## Detailed design for communication between TLSSocket and network stack (offloaded secure socket only)
 
-## Scenario 1: Connecting to secure server:
+All TLSSocket control between TLSSocket and the network stack is handled through socket options. The network stack must implement at least the following options:
+
+```
+typedef enum nsapi_tlssocket_level {
+    NSAPI_TLSSOCKET_LEVEL   = 7099, /*!< TLSSocket option level - see nsapi_tlssocket_option_t for options*/
+} nsapi_tlssocket_level_t;
+
+typedef enum nsapi_tlssocket_option {
+    NSAPI_TLSSOCKET_SET_HOSTNAME,   /*!< Set host name */
+    NSAPI_TLSSOCKET_SET_CACERT,     /*!< Set server CA certificate */
+    NSAPI_TLSSOCKET_SET_CLCERT,     /*!< Set client certificate */
+    NSAPI_TLSSOCKET_SET_CLKEY,      /*!< Set client key */
+    NSAPI_TLSSOCKET_ENABLE          /*!< Enable TLSSocket */
+} nsapi_tlssocket_option_t;
+```
+
+# Usage scenarios and examples
+
+## Scenario 1: Connecting to a secure server
 
 ```
 NetworkInterface *net = NetworkInterface::get_default_instance();
@@ -253,23 +303,36 @@ sock.send("hello", 5);
 
 Example user: https://github.com/coisme/Mbed-to-Azure-IoT-Hub/blob/new-TLSSocket/MQTTNetwork.h
 
-# Tools and Configuration Changes
+# Tools and configuration changes
 
-No tool changes required
+No tool changes required.
 
-# Other Information
+# Other information
+
+## Selecting Mbed TLS secure socket or offloaded TLS socket
+
+By default, the system is configured to use the Mbed TLS based secure socket because only a few network stacks support offloaded TLS socket. You can enable the offloaded TLS socket in the application json configuration file by setting: `"nsapi.offload-tlssocket": true`.
 
 ## Reusability
 
-Parts of the state machine are probably relevant when implementing DTLS socket.
+Mbed TLS secure socket:
+Parts of the state machine are probably relevant when implementing DTLS socket. TLSSocketWrapper is entirely reusable when doing the TLS handshake using any socket type. It does not have tight bindings to TCP.
 
-TLSSocketWrapper is entirely reusable when doing TLS handshake using any socket type.
-It does not have tight bindings to TCP.
+Offloaded secure socket:
+The current implementation is for TLS only and does not support DTLS.
 
 ## Assumptions
 
-We are assuming that server certificate is given from the application to `TLSSocket::set_root_ca_cert()` interface in a format that is understood by Mbed TLS.
+We assume the server certificate is given from the application to `TLSSocket::set_root_ca_cert()` interface in a format that is understood by Mbed TLS or, in the case of the offloaded TLS socket, the implementation of TLS socket in the network stack.
 
 ## Deprecations
 
-No deprecations
+No deprecations.
+
+## Security
+
+The offloaded TLS socket has one major security difference compared to the Mbed TLS based secure socket. In Mbed TLS secure socket, the application processor has already encrypted the data. Therefore, all user data between MCU and network interface hardware is encrypted. But with offloaded TLS socket, encryption happens in the network stack, which can be implemented in network hardware and result in data between the MCU and network hardware being unencrypted (for example, in cellular, UART traffic between the MCU and cellular modem).
+
+## Memory consumption
+
+One of the main reasons to select the offloaded TLSSocket is memory consumption. In the offloaded TLSSocket, the TLS implementation can be in modem firmware, which results in a significantly smaller application size and RAM consumption if application does not need Mbed TLS functionality for other reasons.
