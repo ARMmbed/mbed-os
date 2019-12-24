@@ -125,135 +125,6 @@ public:
     }
 
 
-    /** Create a new thread, and start it executing the specified function.
-      @param   task           function to be executed by this thread.
-      @param   priority       initial priority of the thread function. (default: osPriorityNormal).
-      @param   stack_size     stack size (in bytes) requirements for the thread function. (default: OS_STACK_SIZE).
-      @param   stack_mem      pointer to the stack area to be used by this thread (default: nullptr).
-      @deprecated
-        Thread-spawning constructors hide errors. Replaced by thread.start(task).
-
-        @code
-        Thread thread(priority, stack_size, stack_mem);
-
-        osStatus status = thread.start(task);
-        if (status != osOK) {
-            error("oh no!");
-        }
-        @endcode
-
-      @note You cannot call this function from ISR context.
-    */
-    MBED_DEPRECATED_SINCE("mbed-os-5.1",
-                          "Thread-spawning constructors hide errors. "
-                          "Replaced by thread.start(task).")
-    Thread(mbed::Callback<void()> task,
-           osPriority priority = osPriorityNormal,
-           uint32_t stack_size = OS_STACK_SIZE,
-           unsigned char *stack_mem = nullptr)
-    {
-        constructor(task, priority, stack_size, stack_mem);
-    }
-
-    /** Create a new thread, and start it executing the specified function.
-      @param   argument       pointer that is passed to the thread function as start argument. (default: nullptr).
-      @param   task           argument to task.
-      @param   priority       initial priority of the thread function. (default: osPriorityNormal).
-      @param   stack_size     stack size (in bytes) requirements for the thread function. (default: OS_STACK_SIZE).
-      @param   stack_mem      pointer to the stack area to be used by this thread (default: nullptr).
-      @deprecated
-        Thread-spawning constructors hide errors. Replaced by thread.start(callback(task, argument)).
-
-        @code
-        Thread thread(priority, stack_size, stack_mem);
-
-        osStatus status = thread.start(callback(task, argument));
-        if (status != osOK) {
-            error("oh no!");
-        }
-        @endcode
-
-        @note You cannot call this function from ISR context.
-    */
-    template <typename T>
-    MBED_DEPRECATED_SINCE("mbed-os-5.1",
-                          "Thread-spawning constructors hide errors. "
-                          "Replaced by thread.start(callback(task, argument)).")
-    Thread(T *argument, void (T::*task)(),
-           osPriority priority = osPriorityNormal,
-           uint32_t stack_size = OS_STACK_SIZE,
-           unsigned char *stack_mem = nullptr)
-    {
-        constructor(mbed::callback(task, argument),
-                    priority, stack_size, stack_mem);
-    }
-
-    /** Create a new thread, and start it executing the specified function.
-      @param   argument       pointer that is passed to the thread function as start argument. (default: nullptr).
-      @param   task           argument to task.
-      @param   priority       initial priority of the thread function. (default: osPriorityNormal).
-      @param   stack_size     stack size (in bytes) requirements for the thread function. (default: OS_STACK_SIZE).
-      @param   stack_mem      pointer to the stack area to be used by this thread (default: nullptr).
-      @deprecated
-        Thread-spawning constructors hide errors. Replaced by thread.start(callback(task, argument)).
-
-        @code
-        Thread thread(priority, stack_size, stack_mem);
-
-        osStatus status = thread.start(callback(task, argument));
-        if (status != osOK) {
-            error("oh no!");
-        }
-        @endcode
-
-      @note You cannot call this function from ISR context.
-    */
-    template <typename T>
-    MBED_DEPRECATED_SINCE("mbed-os-5.1",
-                          "Thread-spawning constructors hide errors. "
-                          "Replaced by thread.start(callback(task, argument)).")
-    Thread(T *argument, void (*task)(T *),
-           osPriority priority = osPriorityNormal,
-           uint32_t stack_size = OS_STACK_SIZE,
-           unsigned char *stack_mem = nullptr)
-    {
-        constructor(mbed::callback(task, argument),
-                    priority, stack_size, stack_mem);
-    }
-
-    /** Create a new thread, and start it executing the specified function.
-        Provided for backwards compatibility
-      @param   task           function to be executed by this thread.
-      @param   argument       pointer that is passed to the thread function as start argument. (default: nullptr).
-      @param   priority       initial priority of the thread function. (default: osPriorityNormal).
-      @param   stack_size     stack size (in bytes) requirements for the thread function. (default: OS_STACK_SIZE).
-      @param   stack_mem      pointer to the stack area to be used by this thread (default: nullptr).
-      @deprecated
-        Thread-spawning constructors hide errors. Replaced by thread.start(callback(task, argument)).
-
-        @code
-        Thread thread(priority, stack_size, stack_mem);
-
-        osStatus status = thread.start(callback(task, argument));
-        if (status != osOK) {
-            error("oh no!");
-        }
-        @endcode
-
-        @note You cannot call this function from ISR context.
-    */
-    MBED_DEPRECATED_SINCE("mbed-os-5.1",
-                          "Thread-spawning constructors hide errors. "
-                          "Replaced by thread.start(callback(task, argument)).")
-    Thread(void (*task)(void const *argument), void *argument = nullptr,
-           osPriority priority = osPriorityNormal,
-           uint32_t stack_size = OS_STACK_SIZE,
-           unsigned char *stack_mem = nullptr)
-    {
-        constructor(mbed::callback((void (*)(void *))task, argument),
-                    priority, stack_size, stack_mem);
-    }
-
     /** Starts a thread executing the specified function.
       @param   task           function to be executed by this thread.
       @return  status code that indicates the execution status of the function.
@@ -262,24 +133,6 @@ public:
       @note You cannot call this function ISR context.
     */
     osStatus start(mbed::Callback<void()> task);
-
-    /** Starts a thread executing the specified function.
-      @param   obj            argument to task
-      @param   method         function to be executed by this thread.
-      @return  status code that indicates the execution status of the function.
-      @deprecated
-          The start function does not support cv-qualifiers. Replaced by start(callback(obj, method)).
-
-      @note You cannot call this function from ISR context.
-    */
-    template <typename T, typename M>
-    MBED_DEPRECATED_SINCE("mbed-os-5.1",
-                          "The start function does not support cv-qualifiers. "
-                          "Replaced by thread.start(callback(obj, method)).")
-    osStatus start(T *obj, M method)
-    {
-        return start(mbed::callback(obj, method));
-    }
 
     /** Wait for thread to terminate
       @return  status code that indicates the execution status of the function.
@@ -519,11 +372,6 @@ private:
     // Required to share definitions without
     // delegated constructors
     void constructor(osPriority priority = osPriorityNormal,
-                     uint32_t stack_size = OS_STACK_SIZE,
-                     unsigned char *stack_mem = nullptr,
-                     const char *name = nullptr);
-    void constructor(mbed::Callback<void()> task,
-                     osPriority priority = osPriorityNormal,
                      uint32_t stack_size = OS_STACK_SIZE,
                      unsigned char *stack_mem = nullptr,
                      const char *name = nullptr);
