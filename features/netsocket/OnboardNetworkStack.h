@@ -121,18 +121,6 @@ public:
             return NSAPI_ERROR_UNSUPPORTED;
         }
 
-        /** @copydoc NetworkStack::get_ip_address_if */
-        virtual nsapi_error_t get_ip_address_if(SocketAddress *address, const char *interface_name)
-        {
-            return NSAPI_ERROR_UNSUPPORTED;
-        }
-
-        MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-        virtual char *get_ip_address_if(char *buf, nsapi_size_t buflen, const char *interface_name)
-        {
-            return NULL;
-        };
-
         /** @copydoc NetworkStack::get_netmask */
         virtual nsapi_error_t get_netmask(SocketAddress *address) = 0;
 

@@ -217,6 +217,36 @@ const char *LWIP::get_ip_address()
 #endif
 }
 
+nsapi_error_t LWIP::get_ip_address_if(SocketAddress *address, const char *interface_name)
+{
+    if (!address) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    const ip_addr_t *addr;
+
+    if (interface_name == NULL) {
+        addr = get_ip_addr(true, &default_interface->netif);
+    } else {
+        addr = get_ip_addr(true, netif_find(interface_name));
+    }
+#if LWIP_IPV6
+    if (IP_IS_V6(addr)) {
+        char buf[NSAPI_IPv6_SIZE];
+        address->set_ip_address(ip6addr_ntoa_r(ip_2_ip6(addr), buf, NSAPI_IPv6_SIZE));
+        return NSAPI_ERROR_OK;
+    }
+#endif
+#if LWIP_IPV4
+    if (IP_IS_V4(addr)) {
+        char buf[NSAPI_IPv4_SIZE];
+        address->set_ip_address(ip4addr_ntoa_r(ip_2_ip4(addr), buf, NSAPI_IPv4_SIZE));
+        return NSAPI_ERROR_OK;
+    }
+#endif
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
 nsapi_error_t LWIP::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
 {
     // check if network is connected
