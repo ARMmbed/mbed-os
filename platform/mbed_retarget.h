@@ -592,7 +592,7 @@ extern "C" {
     int mkdir(const char *name, mode_t n);
 #endif // !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
 #if __cplusplus
-}; // extern "C"
+} // extern "C"
 
 namespace mbed {
 #if !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
