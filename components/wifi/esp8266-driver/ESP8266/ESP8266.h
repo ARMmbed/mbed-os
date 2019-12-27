@@ -255,10 +255,10 @@ public:
     *
     * @param id id of socket to send to
     * @param data data to be sent
-    * @param amount amount of data to be sent - max 1024
-    * @return NSAPI_ERROR_OK in success, negative error code in failure
+    * @param amount amount of data to be sent - max 2048
+    * @return number of bytes on success, negative error code in failure
     */
-    nsapi_error_t send(int id, const void *data, uint32_t amount);
+    nsapi_size_or_error_t send(int id, const void *data, uint32_t amount);
 
     /**
     * Receives datagram from an open UDP socket

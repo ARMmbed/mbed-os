@@ -849,7 +849,7 @@ int ESP8266Interface::socket_accept(void *server, void **socket, SocketAddress *
 
 int ESP8266Interface::socket_send(void *handle, const void *data, unsigned size)
 {
-    nsapi_error_t status;
+    nsapi_size_or_error_t status;
     struct esp8266_socket *socket = (struct esp8266_socket *)handle;
     uint8_t expect_false = false;
 
@@ -881,7 +881,7 @@ int ESP8266Interface::socket_send(void *handle, const void *data, unsigned size)
         status = NSAPI_ERROR_DEVICE_ERROR;
     }
 
-    return status != NSAPI_ERROR_OK ? status : size;
+    return status;
 }
 
 int ESP8266Interface::socket_recv(void *handle, void *data, unsigned size)
