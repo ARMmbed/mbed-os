@@ -614,7 +614,7 @@ bool ESP8266::dns_lookup(const char *name, char *ip)
     return done;
 }
 
-nsapi_error_t ESP8266::send(int id, const void *data, uint32_t amount)
+nsapi_size_or_error_t ESP8266::send(int id, const void *data, uint32_t amount)
 {
     if (_prev_send_ok_pending && _sock_i[id].proto == NSAPI_TCP) {
         tr_debug("send(): Previous packet was not ACK-ed with SEND OK.");
@@ -649,7 +649,7 @@ nsapi_error_t ESP8266::send(int id, const void *data, uint32_t amount)
         // This means ESP8266 hasn't even started to receive data
         tr_debug("send(): Didn't get \">\"");
         if (_sock_i[id].proto == NSAPI_TCP) {
-            ret = NSAPI_ERROR_WOULD_BLOCK; // Not neccesarily critical error.
+            ret = NSAPI_ERROR_WOULD_BLOCK; // Not necessarily critical error.
         } else if (_sock_i[id].proto == NSAPI_UDP) {
             ret = NSAPI_ERROR_NO_MEMORY;
         }
@@ -667,6 +667,11 @@ nsapi_error_t ESP8266::send(int id, const void *data, uint32_t amount)
     if (!_parser.recv("Recv %d bytes", &bytes_confirmed)) {
         tr_debug("send(): Bytes not confirmed.");
         ret = NSAPI_ERROR_DEVICE_ERROR;
+        if (_sock_i[id].proto == NSAPI_TCP) {
+            ret = NSAPI_ERROR_WOULD_BLOCK;
+        } else if (_sock_i[id].proto == NSAPI_UDP) {
+            ret = NSAPI_ERROR_NO_MEMORY;
+        }
         goto END;
     } else if (bytes_confirmed != amount) {
         tr_debug("send(): Error: confirmed %d bytes, but expected %d.", bytes_confirmed, amount);
@@ -724,7 +729,7 @@ END:
 
     if (!_sock_i[id].open && ret < 0) {
         ret = NSAPI_ERROR_CONNECTION_LOST;
-        tr_debug("send(): Socket closed abruptly.");
+        tr_debug("send(): Socket %d closed abruptly.", id);
     }
 
     set_timeout();
