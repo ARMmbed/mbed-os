@@ -24,10 +24,6 @@
 #include "components/storage/blockdevice/COMPONENT_SPIF/SPIFBlockDevice.h"
 #endif
 
-#if COMPONENT_RSPIF
-#include "components/storage/blockdevice/COMPONENT_RSPIF/SPIFReducedBlockDevice.h"
-#endif
-
 #if COMPONENT_QSPIF
 #include "components/storage/blockdevice/COMPONENT_QSPIF/QSPIFBlockDevice.h"
 #endif
@@ -65,12 +61,6 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
 #if COMPONENT_SPIF
 
     static SPIFBlockDevice default_bd;
-
-    return &default_bd;
-
-#elif COMPONENT_RSPIF
-
-    static SPIFReducedBlockDevice default_bd;
 
     return &default_bd;
 
