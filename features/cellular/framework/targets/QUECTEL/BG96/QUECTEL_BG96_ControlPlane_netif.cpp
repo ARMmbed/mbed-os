@@ -23,7 +23,7 @@ using namespace mbed_cellular_util;
 
 namespace mbed {
 
-QUECTEL_BG96_ControlPlane_netif::QUECTEL_BG96_ControlPlane_netif(ATHandler &at, int cid) : AT_ControlPlane_netif(at, cid)
+QUECTEL_BG96_ControlPlane_netif::QUECTEL_BG96_ControlPlane_netif(ATHandler &at, int cid, AT_CellularDevice &device) : AT_ControlPlane_netif(at, cid, device)
 {}
 
 nsapi_size_or_error_t QUECTEL_BG96_ControlPlane_netif::send(const void *data, nsapi_size_t size)

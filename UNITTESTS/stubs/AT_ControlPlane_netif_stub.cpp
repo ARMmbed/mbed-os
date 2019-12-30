@@ -24,8 +24,8 @@ using namespace mbed_cellular_util;
 
 namespace mbed {
 
-AT_ControlPlane_netif::AT_ControlPlane_netif(ATHandler &at, int cid) : AT_CellularBase(at),
-    _cid(cid), _cb(NULL), _data(NULL)
+AT_ControlPlane_netif::AT_ControlPlane_netif(ATHandler &at, int cid, AT_CellularDevice &device) :
+    _at(at), _cid(cid), _cb(NULL), _data(NULL), _device(device)
 {
 }
 

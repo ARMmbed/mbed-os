@@ -111,7 +111,7 @@ protected:
     /** Get string name for NIDD context type.
      *  @return     NIDD context text, e.g. Non-IP or NONIP
      */
-    virtual const char* get_nonip_context_type_str();
+    virtual const char *get_nonip_context_type_str();
 
 private:
 #if NSAPI_PPP_AVAILABLE

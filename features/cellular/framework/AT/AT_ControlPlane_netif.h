@@ -18,12 +18,13 @@
 #include "CellularList.h"
 #include "ControlPlane_netif.h"
 #include "ATHandler.h"
+#include "AT_CellularDevice.h"
 
 namespace mbed {
 
 class AT_ControlPlane_netif: public ControlPlane_netif {
 public:
-    AT_ControlPlane_netif(ATHandler &at, int cid);
+    AT_ControlPlane_netif(ATHandler &at, int cid, AT_CellularDevice &device);
     virtual ~AT_ControlPlane_netif();
 
 protected:
@@ -59,6 +60,7 @@ private:
 
 protected:
     ATHandler &_at;
+    AT_CellularDevice &_device;
 };
 
 } //mbed namespace

@@ -1056,7 +1056,7 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
 ControlPlane_netif *AT_CellularContext::get_cp_netif()
 {
     if (!_cp_netif) {
-        _cp_netif = new AT_ControlPlane_netif(_at, _cid);
+        _cp_netif = new AT_ControlPlane_netif(_at, _cid, *get_device());
     }
     return _cp_netif;
 }

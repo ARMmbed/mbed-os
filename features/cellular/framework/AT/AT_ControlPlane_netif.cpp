@@ -24,8 +24,8 @@ using namespace mbed_cellular_util;
 
 namespace mbed {
 
-AT_ControlPlane_netif::AT_ControlPlane_netif(ATHandler &at, int cid) :
-    _cid(cid), _cb(NULL), _data(NULL), _at(at)
+AT_ControlPlane_netif::AT_ControlPlane_netif(ATHandler &at, int cid, AT_CellularDevice &device) :
+    _cid(cid), _cb(NULL), _data(NULL), _at(at), _device(device)
 {
     _at.set_urc_handler("+CRTDCP:", mbed::Callback<void()>(this, &AT_ControlPlane_netif::urc_cp_recv));
 }

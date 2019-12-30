@@ -62,7 +62,7 @@ NetworkStack *QUECTEL_BG96_CellularContext::get_stack()
 ControlPlane_netif *QUECTEL_BG96_CellularContext::get_cp_netif()
 {
     if (!_cp_netif) {
-        _cp_netif = new QUECTEL_BG96_ControlPlane_netif(_at, _cid);
+        _cp_netif = new QUECTEL_BG96_ControlPlane_netif(_at, _cid, *get_device());
     }
     return _cp_netif;
 }
