@@ -41,7 +41,7 @@
 #define FSFAT_LOG(_fmt, ...)                          \
   do                                                    \
   {                                                     \
-        printf(_fmt, __VA_ARGS__);                      \
+        mbed_printf(_fmt, __VA_ARGS__);                      \
   }while(0);
 
 #define noFSFAT_DEBUG
@@ -64,7 +64,7 @@ extern uint32_t fsfat_optLogLevel_g;
   {                                                     \
     if(fsfat_optDebug_g && (fsfat_optLogLevel_g >= FSFAT_LOG_DEBUG))  \
     {                                                   \
-        printf(_fmt, __VA_ARGS__);                      \
+        mbed_printf(_fmt, __VA_ARGS__);                      \
     }                                                   \
   }while(0);
 
@@ -74,7 +74,7 @@ extern uint32_t fsfat_optLogLevel_g;
   {                                                     \
     if(fsfat_optDebug_g && (fsfat_optLogLevel_g >= FSFAT_LOG_ERR))  \
     {                                                   \
-        printf(_fmt, __VA_ARGS__);                      \
+        mbed_printf(_fmt, __VA_ARGS__);                      \
     }                                                   \
   }while(0);
 
@@ -84,7 +84,7 @@ extern uint32_t fsfat_optLogLevel_g;
   {                                                     \
     if(fsfat_optDebug_g && (fsfat_optLogLevel_g >= FSFAT_LOG_FENTRY))  \
     {                                                   \
-        printf(_fmt, __VA_ARGS__);                      \
+        mbed_printf(_fmt, __VA_ARGS__);                      \
     }                                                   \
   }while(0);
 

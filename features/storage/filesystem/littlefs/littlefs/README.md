@@ -81,7 +81,7 @@ int main(void) {
     lfs_unmount(&lfs);
 
     // print the boot count
-    printf("boot_count: %d\n", boot_count);
+    mbed_printf("boot_count: %d\n", boot_count);
 }
 ```
 

@@ -94,7 +94,7 @@ void test_seek_tests()
         res = fs.mkdir("hello", 0777);
         TEST_ASSERT_EQUAL(0, res);
         for (int i = 0; i < 132; i++) {
-            sprintf((char *)buffer, "hello/kitty%d", i);
+            mbed_sprintf((char *)buffer, "hello/kitty%d", i);
             res = file[0].open(&fs, (char *)buffer,
                                O_WRONLY | O_CREAT | O_APPEND);
             TEST_ASSERT_EQUAL(0, res);
@@ -137,7 +137,7 @@ void test_simple_dir_seek()
         off_t pos;
         int i;
         for (i = 0; i < 4; i++) {
-            sprintf((char *)buffer, "kitty%d", i);
+            mbed_sprintf((char *)buffer, "kitty%d", i);
             res = dir[0].read(&ent);
             TEST_ASSERT_EQUAL(1, res);
             res = strcmp(ent.d_name, (char *)buffer);
@@ -148,14 +148,14 @@ void test_simple_dir_seek()
         TEST_ASSERT_EQUAL(1, res);
 
         dir[0].seek(pos);
-        sprintf((char *)buffer, "kitty%d", i);
+        mbed_sprintf((char *)buffer, "kitty%d", i);
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
         res = strcmp(ent.d_name, (char *)buffer);
         TEST_ASSERT_EQUAL(0, res);
 
         dir[0].rewind();
-        sprintf((char *)buffer, "kitty%d", 0);
+        mbed_sprintf((char *)buffer, "kitty%d", 0);
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
         res = strcmp(ent.d_name, ".");
@@ -170,7 +170,7 @@ void test_simple_dir_seek()
         TEST_ASSERT_EQUAL(0, res);
 
         dir[0].seek(pos);
-        sprintf((char *)buffer, "kitty%d", i);
+        mbed_sprintf((char *)buffer, "kitty%d", i);
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
         res = strcmp(ent.d_name, (char *)buffer);
@@ -207,7 +207,7 @@ void test_large_dir_seek()
         off_t pos;
         int i;
         for (i = 0; i < 128; i++) {
-            sprintf((char *)buffer, "kitty%d", i);
+            mbed_sprintf((char *)buffer, "kitty%d", i);
             res = dir[0].read(&ent);
             TEST_ASSERT_EQUAL(1, res);
             res = strcmp(ent.d_name, (char *)buffer);
@@ -218,14 +218,14 @@ void test_large_dir_seek()
         TEST_ASSERT_EQUAL(1, res);
 
         dir[0].seek(pos);
-        sprintf((char *)buffer, "kitty%d", i);
+        mbed_sprintf((char *)buffer, "kitty%d", i);
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
         res = strcmp(ent.d_name, (char *)buffer);
         TEST_ASSERT_EQUAL(0, res);
 
         dir[0].rewind();
-        sprintf((char *)buffer, "kitty%d", 0);
+        mbed_sprintf((char *)buffer, "kitty%d", 0);
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
         res = strcmp(ent.d_name, ".");
@@ -240,7 +240,7 @@ void test_large_dir_seek()
         TEST_ASSERT_EQUAL(0, res);
 
         dir[0].seek(pos);
-        sprintf((char *)buffer, "kitty%d", i);
+        mbed_sprintf((char *)buffer, "kitty%d", i);
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
         res = strcmp(ent.d_name, (char *)buffer);

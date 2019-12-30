@@ -860,7 +860,7 @@ int main()
     // Don't even start if conditions aren't appropriate for test run
     uint8_t *dummy = new (std::nothrow) uint8_t[heap_alloc_threshold_size];
     if (!dummy) {
-        printf("Not enough heap memory to run test. Test skipped.\n");
+        mbed_printf("Not enough heap memory to run test. Test skipped.\n");
         GREENTEA_TESTSUITE_RESULT(1);
         return 0;
     }
@@ -868,7 +868,7 @@ int main()
 
     bd = BlockDevice::get_default_instance();
     if (!bd) {
-        printf("No default instance for this target. Test skipped.\n");
+        mbed_printf("No default instance for this target. Test skipped.\n");
         GREENTEA_TESTSUITE_RESULT(1);
         return 0;
     }
@@ -883,7 +883,7 @@ int main()
     for (int kv = 0; kv < NumKVs; kv++) {
         for (size_t i = 0; i < num_cases; i++) {
             char desc[128], *desc_ptr;
-            sprintf(desc, "%s%s", kv_prefix[kv], template_cases[i].description);
+            mbed_sprintf(desc, "%s%s", kv_prefix[kv], template_cases[i].description);
             desc_ptr = new char[strlen(desc) + 1];
             strcpy(desc_ptr, desc);
             new (&cases[total_num_cases]) Case((const char *) desc_ptr, template_cases[i].case_handler,

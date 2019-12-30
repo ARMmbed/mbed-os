@@ -258,9 +258,9 @@ static int32_t fsfat_filepath_make_dirs(char *filepath, bool do_asserts)
      * Skip creating dir for "/sd" which must be present */
     buf = (char *) malloc(strlen(filepath) + 1);
     memset(buf, 0, strlen(filepath) + 1);
-    pos = sprintf(buf, "/%s", parts[0]);
+    pos = mbed_sprintf(buf, "/%s", parts[0]);
     for (i = 1; i < num_parts - 1; i++) {
-        pos += sprintf(buf + pos, "/%s", parts[i]);
+        pos += mbed_sprintf(buf + pos, "/%s", parts[i]);
         FSFAT_DBGLOG("mkdir(%s)\n", buf);
         ret = mkdir(buf, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
         if (do_asserts == true) {
@@ -651,7 +651,7 @@ control_t fsfat_fopen_test_05(const size_t call_count)
 
             /* set the start, mid, last character of the name to the test char code */
             for (pos = (uint32_t) fsfat_fopen_kv_name_pos_start; pos < (uint32_t) fsfat_fopen_kv_name_pos_max; pos++) {
-                len = snprintf(filename, filename_len + 1, "%s/%s.%s", mnt_pt, basename, extname);
+                len = mbed_snprintf(filename, filename_len + 1, "%s/%s.%s", mnt_pt, basename, extname);
                 /* overwrite a char at the pos start, mid, end of the filename with an ascii char code (both illegal and legal)*/
                 switch (pos) {
                     case fsfat_fopen_kv_name_pos_start:
@@ -779,13 +779,13 @@ control_t fsfat_fopen_test_06(const size_t call_count)
     /* generate a number of illegal filenames */
     for (j = 0; i < FSFAT_MAX_FILE_BASENAME; j++) {
         /* generate a kv name of illegal chars*/
-        len = snprintf(filename, filename_len + 1, "%s/", mnt_pt);
+        len = mbed_snprintf(filename, filename_len + 1, "%s/", mnt_pt);
         for (i = 0; i < FSFAT_MAX_FILE_BASENAME; i++) {
             pos = rand() % (buf_data_max + 1);
-            len += snprintf(filename + len, filename_len + 1, "%c", fsfat_fopen_ascii_illegal_buf_g[pos]);
+            len += mbed_snprintf(filename + len, filename_len + 1, "%c", fsfat_fopen_ascii_illegal_buf_g[pos]);
 
         }
-        len += snprintf(filename + len, filename_len + 1, ".%s", extname);
+        len += mbed_snprintf(filename + len, filename_len + 1, ".%s", extname);
         ret = fsfat_test_create(filename, filename, len);
         FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE,
                                  "%s:Error: created file when filename contains invalid characters (filename=%s, ret=%d).\n", __func__, filename,

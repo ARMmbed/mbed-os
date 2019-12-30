@@ -32,24 +32,24 @@
  *  SPIFReducedBlockDevice rspif(PTE2, PTE4, PTE1, PTE5);
  *
  *  int main() {
- *      printf("reduced spif test\n");
+ *      mbed_printf("reduced spif test\n");
  *
  *      // Initialize the Reduced SPI flash device and print the memory layout
  *      rspif.init();
- *      printf("rspif size: %llu\n",         rspif.size());
- *      printf("rspif read size: %llu\n",    rspif.get_read_size());
- *      printf("rspif program size: %llu\n", rspif.get_program_size());
- *      printf("rspif erase size: %llu\n",   rspif.get_erase_size());
+ *      mbed_printf("rspif size: %llu\n",         rspif.size());
+ *      mbed_printf("rspif read size: %llu\n",    rspif.get_read_size());
+ *      mbed_printf("rspif program size: %llu\n", rspif.get_program_size());
+ *      mbed_printf("rspif erase size: %llu\n",   rspif.get_erase_size());
  *
  *      // Write "Hello World!" to the first block
  *      char *buffer = (char*)malloc(rspif.get_erase_size());
- *      sprintf(buffer, "Hello World!\n");
+ *      mbed_sprintf(buffer, "Hello World!\n");
  *      rspif.erase(0, rspif.get_erase_size());
  *      rspif.program(buffer, 0, rspif.get_erase_size());
  *
  *      // Read back what was stored
  *      rspif.read(buffer, 0, rspif.get_erase_size());
- *      printf("%s", buffer);
+ *      mbed_printf("%s", buffer);
  *
  *      // Deinitialize the device
  *      rspif.deinit();

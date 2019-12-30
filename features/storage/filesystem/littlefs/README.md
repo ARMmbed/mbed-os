@@ -75,7 +75,7 @@ int main() {
     fs.unmount();
 
     // Print the boot count
-    printf("boot_count: %ld\n", boot_count);
+    mbed_printf("boot_count: %ld\n", boot_count);
 }
 ```
 

@@ -59,7 +59,7 @@ extern "C"
 
 // Logging functions
 #if !defined(LFS_NO_INFO) && MBED_LFS_ENABLE_INFO
-#define LFS_INFO(fmt, ...)  printf("lfs info:%d: " fmt "\n", __LINE__, __VA_ARGS__)
+#define LFS_INFO(fmt, ...)  mbed_printf("lfs info:%d: " fmt "\n", __LINE__, __VA_ARGS__)
 #elif !defined(LFS_NO_INFO) && !defined(MBED_LFS_ENABLE_INFO)
 #define LFS_INFO(fmt, ...)  debug("lfs info:%d: " fmt "\n", __LINE__, __VA_ARGS__)
 #else
@@ -67,7 +67,7 @@ extern "C"
 #endif
 
 #if !defined(LFS_NO_DEBUG) && MBED_LFS_ENABLE_DEBUG
-#define LFS_DEBUG(fmt, ...) printf("lfs debug:%d: " fmt "\n", __LINE__, __VA_ARGS__)
+#define LFS_DEBUG(fmt, ...) mbed_printf("lfs debug:%d: " fmt "\n", __LINE__, __VA_ARGS__)
 #elif !defined(LFS_NO_DEBUG) && !defined(MBED_LFS_ENABLE_DEBUG)
 #define LFS_DEBUG(fmt, ...) debug("lfs debug:%d: " fmt "\n", __LINE__, __VA_ARGS__)
 #else
@@ -75,7 +75,7 @@ extern "C"
 #endif
 
 #if !defined(LFS_NO_WARN) && MBED_LFS_ENABLE_WARN
-#define LFS_WARN(fmt, ...)  printf("lfs warn:%d: " fmt "\n", __LINE__, __VA_ARGS__)
+#define LFS_WARN(fmt, ...)  mbed_printf("lfs warn:%d: " fmt "\n", __LINE__, __VA_ARGS__)
 #elif !defined(LFS_NO_WARN) && !defined(MBED_LFS_ENABLE_WARN)
 #define LFS_WARN(fmt, ...)  debug("lfs warn:%d: " fmt "\n", __LINE__, __VA_ARGS__)
 #else
@@ -83,7 +83,7 @@ extern "C"
 #endif
 
 #if !defined(LFS_NO_ERROR) && MBED_LFS_ENABLE_ERROR
-#define LFS_ERROR(fmt, ...) printf("lfs error:%d: " fmt "\n", __LINE__, __VA_ARGS__)
+#define LFS_ERROR(fmt, ...) mbed_printf("lfs error:%d: " fmt "\n", __LINE__, __VA_ARGS__)
 #elif !defined(LFS_NO_ERROR) && !defined(MBED_LFS_ENABLE_ERROR)
 #define LFS_ERROR(fmt, ...) debug("lfs error:%d: " fmt "\n", __LINE__, __VA_ARGS__)
 #else

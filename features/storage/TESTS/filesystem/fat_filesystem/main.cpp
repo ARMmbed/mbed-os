@@ -138,7 +138,7 @@ void test_read_dir()
     bool test_file_found = true;
 
     while ((de = readdir(&dir))) {
-        printf("d_name: %.32s, d_type: %x\n", de->d_name, de->d_type);
+        mbed_printf("d_name: %.32s, d_type: %x\n", de->d_name, de->d_type);
 
         if (strcmp(de->d_name, ".") == 0) {
             test_dir_found = true;
@@ -154,7 +154,7 @@ void test_read_dir()
             TEST_ASSERT_EQUAL(DT_REG, de->d_type);
         } else {
             char *buf = new char[NAME_MAX];
-            snprintf(buf, NAME_MAX, "Unexpected file \"%s\"", de->d_name);
+            mbed_snprintf(buf, NAME_MAX, "Unexpected file \"%s\"", de->d_name);
             TEST_ASSERT_MESSAGE(false, buf);
         }
     }

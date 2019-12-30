@@ -140,13 +140,13 @@ static void white_box_test()
         result = sec_kv->init();
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
         elapsed = timer.read_ms();
-        printf("Elapsed time for init %d ms\n", elapsed);
+        mbed_printf("Elapsed time for init %d ms\n", elapsed);
 
         timer.reset();
         result = sec_kv->reset();
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
         elapsed = timer.read_ms();
-        printf("Elapsed time for reset is %d ms\n", elapsed);
+        mbed_printf("Elapsed time for reset is %d ms\n", elapsed);
 
         result = sec_kv->set(key1, key1_val1, strlen(key1_val1), KVStore::REQUIRE_CONFIDENTIALITY_FLAG);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
@@ -165,7 +165,7 @@ static void white_box_test()
         timer.reset();
         result = sec_kv->set(key2, key2_val3, strlen(key2_val3), KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
         elapsed = timer.read_ms();
-        printf("Elapsed time for set is %d ms\n", elapsed);
+        mbed_printf("Elapsed time for set is %d ms\n", elapsed);
 
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
 
@@ -250,7 +250,7 @@ static void white_box_test()
         timer.reset();
         result = sec_kv->get(key2, get_buf, sizeof(get_buf), &actual_data_size);
         elapsed = timer.read_ms();
-        printf("Elapsed time for get is %d ms\n", elapsed);
+        mbed_printf("Elapsed time for get is %d ms\n", elapsed);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
         TEST_ASSERT_EQUAL(strlen(key2_val3), actual_data_size);
         TEST_ASSERT_EQUAL_STRING_LEN(key2_val3, get_buf, strlen(key2_val3));
@@ -303,7 +303,7 @@ static void white_box_test()
         timer.reset();
         result = sec_kv->init();
         elapsed = timer.read_ms();
-        printf("Elapsed time for init is %d ms\n", elapsed);
+        mbed_printf("Elapsed time for init is %d ms\n", elapsed);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
 
         result = sec_kv->get(key4, get_buf, sizeof(get_buf), &actual_data_size);
@@ -423,7 +423,7 @@ static void multi_set_test()
     timer.reset();
     result = kvs->init();
     elapsed = timer.read_ms();
-    printf("Elapsed time for initial init is %d ms\n", elapsed);
+    mbed_printf("Elapsed time for initial init is %d ms\n", elapsed);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
 
     key = new char[key_size + 1];
@@ -479,10 +479,10 @@ static void multi_set_test()
         total_get_time += elapsed;
     }
 
-    printf("set time: Total (%d * %d times) - %d ms, Average - %d ms, Max - %d ms\n",
+    mbed_printf("set time: Total (%d * %d times) - %d ms, Average - %d ms, Max - %d ms\n",
            set_iters, num_keys, total_set_time,
            total_set_time / (set_iters * num_keys), max_set_time);
-    printf("get time: Total (%d times)      - %d ms, Average - %d ms, Max - %d ms\n",
+    mbed_printf("get time: Total (%d times)      - %d ms, Average - %d ms, Max - %d ms\n",
            num_keys, total_get_time,
            total_get_time / num_keys, max_get_time);
 
@@ -492,7 +492,7 @@ static void multi_set_test()
     timer.reset();
     result = kvs->init();
     elapsed = timer.read_ms();
-    printf("Elapsed time for init is %d ms\n", elapsed);
+    mbed_printf("Elapsed time for init is %d ms\n", elapsed);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
 
     result = kvs->deinit();

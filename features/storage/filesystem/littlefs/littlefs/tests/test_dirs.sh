@@ -100,7 +100,7 @@ tests/test.py << TEST
     lfs_mount(&lfs, &cfg) => 0;
     lfs_mkdir(&lfs, "cactus") => 0;
     for (int i = 0; i < $LARGESIZE; i++) {
-        sprintf((char*)buffer, "cactus/test%d", i);
+        mbed_sprintf((char*)buffer, "cactus/test%d", i);
         lfs_mkdir(&lfs, (char*)buffer) => 0;
     }
     lfs_unmount(&lfs) => 0;
@@ -115,7 +115,7 @@ tests/test.py << TEST
     strcmp(info.name, "..") => 0;
     info.type => LFS_TYPE_DIR;
     for (int i = 0; i < $LARGESIZE; i++) {
-        sprintf((char*)buffer, "test%d", i);
+        mbed_sprintf((char*)buffer, "test%d", i);
         lfs_dir_read(&lfs, &dir[0], &info) => 1;
         strcmp(info.name, (char*)buffer) => 0;
         info.type => LFS_TYPE_DIR;
@@ -330,8 +330,8 @@ echo "--- Multi-block rename ---"
 tests/test.py << TEST
     lfs_mount(&lfs, &cfg) => 0;
     for (int i = 0; i < $LARGESIZE; i++) {
-        sprintf((char*)buffer, "cactus/test%d", i);
-        sprintf((char*)wbuffer, "cactus/tedd%d", i);
+        mbed_sprintf((char*)buffer, "cactus/test%d", i);
+        mbed_sprintf((char*)wbuffer, "cactus/tedd%d", i);
         lfs_rename(&lfs, (char*)buffer, (char*)wbuffer) => 0;
     }
     lfs_unmount(&lfs) => 0;
@@ -346,7 +346,7 @@ tests/test.py << TEST
     strcmp(info.name, "..") => 0;
     info.type => LFS_TYPE_DIR;
     for (int i = 0; i < $LARGESIZE; i++) {
-        sprintf((char*)buffer, "tedd%d", i);
+        mbed_sprintf((char*)buffer, "tedd%d", i);
         lfs_dir_read(&lfs, &dir[0], &info) => 1;
         strcmp(info.name, (char*)buffer) => 0;
         info.type => LFS_TYPE_DIR;
@@ -361,7 +361,7 @@ tests/test.py << TEST
     lfs_remove(&lfs, "cactus") => LFS_ERR_NOTEMPTY;
 
     for (int i = 0; i < $LARGESIZE; i++) {
-        sprintf((char*)buffer, "cactus/tedd%d", i);
+        mbed_sprintf((char*)buffer, "cactus/tedd%d", i);
         lfs_remove(&lfs, (char*)buffer) => 0;
     }
 
@@ -390,7 +390,7 @@ tests/test.py << TEST
     lfs_mount(&lfs, &cfg) => 0;
     lfs_mkdir(&lfs, "prickly-pear") => 0;
     for (int i = 0; i < $LARGESIZE; i++) {
-        sprintf((char*)buffer, "prickly-pear/test%d", i);
+        mbed_sprintf((char*)buffer, "prickly-pear/test%d", i);
         lfs_file_open(&lfs, &file[0], (char*)buffer,
                 LFS_O_WRONLY | LFS_O_CREAT) => 0;
         size = 6;
@@ -410,7 +410,7 @@ tests/test.py << TEST
     strcmp(info.name, "..") => 0;
     info.type => LFS_TYPE_DIR;
     for (int i = 0; i < $LARGESIZE; i++) {
-        sprintf((char*)buffer, "test%d", i);
+        mbed_sprintf((char*)buffer, "test%d", i);
         lfs_dir_read(&lfs, &dir[0], &info) => 1;
         strcmp(info.name, (char*)buffer) => 0;
         info.type => LFS_TYPE_REG;
@@ -424,8 +424,8 @@ echo "--- Multi-block rename with files ---"
 tests/test.py << TEST
     lfs_mount(&lfs, &cfg) => 0;
     for (int i = 0; i < $LARGESIZE; i++) {
-        sprintf((char*)buffer, "prickly-pear/test%d", i);
-        sprintf((char*)wbuffer, "prickly-pear/tedd%d", i);
+        mbed_sprintf((char*)buffer, "prickly-pear/test%d", i);
+        mbed_sprintf((char*)wbuffer, "prickly-pear/tedd%d", i);
         lfs_rename(&lfs, (char*)buffer, (char*)wbuffer) => 0;
     }
     lfs_unmount(&lfs) => 0;
@@ -440,7 +440,7 @@ tests/test.py << TEST
     strcmp(info.name, "..") => 0;
     info.type => LFS_TYPE_DIR;
     for (int i = 0; i < $LARGESIZE; i++) {
-        sprintf((char*)buffer, "tedd%d", i);
+        mbed_sprintf((char*)buffer, "tedd%d", i);
         lfs_dir_read(&lfs, &dir[0], &info) => 1;
         strcmp(info.name, (char*)buffer) => 0;
         info.type => LFS_TYPE_REG;
@@ -456,7 +456,7 @@ tests/test.py << TEST
     lfs_remove(&lfs, "prickly-pear") => LFS_ERR_NOTEMPTY;
 
     for (int i = 0; i < $LARGESIZE; i++) {
-        sprintf((char*)buffer, "prickly-pear/tedd%d", i);
+        mbed_sprintf((char*)buffer, "prickly-pear/tedd%d", i);
         lfs_remove(&lfs, (char*)buffer) => 0;
     }
 

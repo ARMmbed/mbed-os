@@ -86,14 +86,14 @@ void test_mbr_attr()
     TEST_ASSERT_EQUAL(0, err);
 
     // Test attributes on partitions
-    printf("partition 1 partition number: %d\n",        part1.get_partition_number());
-    printf("partition 1 partition start: 0x%llx\n",     part1.get_partition_start());
-    printf("partition 1 partition stop: 0x%llx\n",      part1.get_partition_stop());
-    printf("partition 1 partition type: 0x%02x\n",      part1.get_partition_type());
-    printf("partition 1 read size: %llu bytes\n",       part1.get_read_size());
-    printf("partition 1 program size: %llu bytes\n",    part1.get_program_size());
-    printf("partition 1 erase size: %llu bytes\n",      part1.get_erase_size());
-    printf("partition 1 size: %llu bytes\n",            part1.size());
+    mbed_printf("partition 1 partition number: %d\n",        part1.get_partition_number());
+    mbed_printf("partition 1 partition start: 0x%llx\n",     part1.get_partition_start());
+    mbed_printf("partition 1 partition stop: 0x%llx\n",      part1.get_partition_stop());
+    mbed_printf("partition 1 partition type: 0x%02x\n",      part1.get_partition_type());
+    mbed_printf("partition 1 read size: %llu bytes\n",       part1.get_read_size());
+    mbed_printf("partition 1 program size: %llu bytes\n",    part1.get_program_size());
+    mbed_printf("partition 1 erase size: %llu bytes\n",      part1.get_erase_size());
+    mbed_printf("partition 1 size: %llu bytes\n",            part1.size());
     TEST_ASSERT_EQUAL(1,                                part1.get_partition_number());
     TEST_ASSERT_EQUAL(1 * BLOCK_SIZE,                     part1.get_partition_start());
     TEST_ASSERT_EQUAL((BLOCK_COUNT / 2)*BLOCK_SIZE,       part1.get_partition_stop());
@@ -103,14 +103,14 @@ void test_mbr_attr()
     TEST_ASSERT_EQUAL(BLOCK_SIZE,                       part1.get_erase_size());
     TEST_ASSERT_EQUAL(((BLOCK_COUNT / 2) - 1)*BLOCK_SIZE,   part1.size());
 
-    printf("partition 2 partition number: %d\n",        part2.get_partition_number());
-    printf("partition 2 partition start: 0x%llx\n",     part2.get_partition_start());
-    printf("partition 2 partition stop: 0x%llx\n",      part2.get_partition_stop());
-    printf("partition 2 partition type: 0x%02x\n",      part2.get_partition_type());
-    printf("partition 2 read size: %llu bytes\n",       part2.get_read_size());
-    printf("partition 2 program size: %llu bytes\n",    part2.get_program_size());
-    printf("partition 2 erase size: %llu bytes\n",      part2.get_erase_size());
-    printf("partition 2 size: %llu bytes\n",            part2.size());
+    mbed_printf("partition 2 partition number: %d\n",        part2.get_partition_number());
+    mbed_printf("partition 2 partition start: 0x%llx\n",     part2.get_partition_start());
+    mbed_printf("partition 2 partition stop: 0x%llx\n",      part2.get_partition_stop());
+    mbed_printf("partition 2 partition type: 0x%02x\n",      part2.get_partition_type());
+    mbed_printf("partition 2 read size: %llu bytes\n",       part2.get_read_size());
+    mbed_printf("partition 2 program size: %llu bytes\n",    part2.get_program_size());
+    mbed_printf("partition 2 erase size: %llu bytes\n",      part2.get_erase_size());
+    mbed_printf("partition 2 size: %llu bytes\n",            part2.size());
     TEST_ASSERT_EQUAL(2,                                part2.get_partition_number());
     TEST_ASSERT_EQUAL((BLOCK_COUNT / 2)*BLOCK_SIZE,       part2.get_partition_start());
     TEST_ASSERT_EQUAL(BLOCK_COUNT * BLOCK_SIZE,           part2.get_partition_stop());
@@ -150,7 +150,7 @@ void test_mbr_read_write()
     uint8_t *write_block = new (std::nothrow) uint8_t[BLOCK_SIZE];
     uint8_t *read_block = new (std::nothrow) uint8_t[BLOCK_SIZE];
     if (!write_block || !read_block) {
-        printf("Not enough memory for test");
+        mbed_printf("Not enough memory for test");
         goto end;
     }
 

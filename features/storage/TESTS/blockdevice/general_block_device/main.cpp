@@ -54,7 +54,7 @@
 #endif
 
 #if MODE_DEBUG
-#define DEBUG_PRINTF(...) printf(__VA_ARGS__)
+#define DEBUG_PRINTF(...) mbed_printf(__VA_ARGS__)
 #else
 #define DEBUG_PRINTF(...)
 #endif
@@ -786,7 +786,7 @@ int main()
     for (int j = 0; j < bd_count; j++) {
         for (size_t i = 0; i < num_cases; i++) {
             char desc[128], *desc_ptr;
-            sprintf(desc, "%s%s", prefix[bd_arr[j]], template_cases[i].description);
+            mbed_sprintf(desc, "%s%s", prefix[bd_arr[j]], template_cases[i].description);
             desc_ptr = new char[strlen(desc) + 1];
             strcpy(desc_ptr, desc);
             new (&cases[total_num_cases]) Case((const char *) desc_ptr, template_cases[i].case_handler,
@@ -797,7 +797,7 @@ int main()
         //Add test_get_type_functionality once, runs on default blockdevice
         if (j == bd_count - 1) {
             char desc[128], *desc_ptr;
-            sprintf(desc, "%s%s", prefix[default_bd], def_template_case.description);
+            mbed_sprintf(desc, "%s%s", prefix[default_bd], def_template_case.description);
             desc_ptr = new char[strlen(desc) + 1];
             strcpy(desc_ptr, desc);
             new (&cases[total_num_cases]) Case((const char *) desc_ptr, def_template_case.case_handler,

@@ -131,7 +131,7 @@ static void white_box_test()
         if (!bdp->size) {
             break;
         }
-        printf("\n\nBD #%d: size %d, read %d, prog %d, erase %d\n",
+        mbed_printf("\n\nBD #%d: size %d, read %d, prog %d, erase %d\n",
                bd_num, bdp->size, bdp->read_size, bdp->prog_size, bdp->erase_size);
         HeapBlockDevice heap_bd(bdp->size, bdp->read_size, bdp->prog_size, bdp->erase_size);
         FlashSimBlockDevice flash_sim_bd(&heap_bd);
@@ -157,13 +157,13 @@ static void white_box_test()
         result = tdbs->init();
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
         elapsed = timer.read_ms();
-        printf("Elapsed time for init %d ms\n", elapsed);
+        mbed_printf("Elapsed time for init %d ms\n", elapsed);
 
         timer.reset();
         result = tdbs->reset();
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
         elapsed = timer.read_ms();
-        printf("Elapsed time for reset is %d ms\n", elapsed);
+        mbed_printf("Elapsed time for reset is %d ms\n", elapsed);
 
         result = tdbs->reserved_data_get(get_buf, strlen(res_val1));
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_ITEM_NOT_FOUND, result);
@@ -185,7 +185,7 @@ static void white_box_test()
         timer.reset();
         result = tdbs->set(key2, key2_val3, strlen(key2_val3), 0);
         elapsed = timer.read_ms();
-        printf("Elapsed time for set is %d ms\n", elapsed);
+        mbed_printf("Elapsed time for set is %d ms\n", elapsed);
 
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
 
@@ -255,7 +255,7 @@ static void white_box_test()
         TEST_ASSERT_EQUAL_STRING_LEN(key5_val1, get_buf, strlen(key5_val1));
 
         for (int i = 0; i < 2; i++) {
-            printf("%s deinit/init\n", i ? "After" : "Before");
+            mbed_printf("%s deinit/init\n", i ? "After" : "Before");
             result = tdbs->get(key1, get_buf, sizeof(get_buf), &actual_data_size);
             TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
             TEST_ASSERT_EQUAL(strlen(key1_val1), actual_data_size);
@@ -264,7 +264,7 @@ static void white_box_test()
             timer.reset();
             result = tdbs->get(key2, get_buf, sizeof(get_buf), &actual_data_size);
             elapsed = timer.read_ms();
-            printf("Elapsed time for get is %d ms\n", elapsed);
+            mbed_printf("Elapsed time for get is %d ms\n", elapsed);
             TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
             TEST_ASSERT_EQUAL(strlen(key2_val3), actual_data_size);
             TEST_ASSERT_EQUAL_STRING_LEN(key2_val3, get_buf, strlen(key2_val3));
@@ -319,7 +319,7 @@ static void white_box_test()
             timer.reset();
             result = tdbs->init();
             elapsed = timer.read_ms();
-            printf("Elapsed time for init is %d ms\n", elapsed);
+            mbed_printf("Elapsed time for init is %d ms\n", elapsed);
             TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
         }
 
@@ -373,7 +373,7 @@ static void multi_set_test()
     timer.reset();
     result = tdbs->init();
     elapsed = timer.read_ms();
-    printf("Elapsed time for initial init is %d ms\n", elapsed);
+    mbed_printf("Elapsed time for initial init is %d ms\n", elapsed);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
 
     key = new char[key_size + 1];
@@ -429,10 +429,10 @@ static void multi_set_test()
         total_get_time += elapsed;
     }
 
-    printf("set time: Total (%d * %d times) - %d ms, Average - %d ms, Max - %d ms\n",
+    mbed_printf("set time: Total (%d * %d times) - %d ms, Average - %d ms, Max - %d ms\n",
            set_iters, num_keys, total_set_time,
            total_set_time / (set_iters * num_keys), max_set_time);
-    printf("get time: Total (%d times)      - %d ms, Average - %d ms, Max - %d ms\n",
+    mbed_printf("get time: Total (%d times)      - %d ms, Average - %d ms, Max - %d ms\n",
            num_keys, total_get_time,
            total_get_time / num_keys, max_get_time);
 
@@ -442,7 +442,7 @@ static void multi_set_test()
     timer.reset();
     result = tdbs->init();
     elapsed = timer.read_ms();
-    printf("Elapsed time for init is %d ms\n", elapsed);
+    mbed_printf("Elapsed time for init is %d ms\n", elapsed);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
 
     result = tdbs->deinit();

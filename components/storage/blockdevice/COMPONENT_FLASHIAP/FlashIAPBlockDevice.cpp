@@ -31,7 +31,7 @@ using namespace mbed;
 #endif
 
 #if FLASHIAP_DEBUG
-#define DEBUG_PRINTF(...) printf(__VA_ARGS__)
+#define DEBUG_PRINTF(...) mbed_printf(__VA_ARGS__)
 #else
 #define DEBUG_PRINTF(...)
 #endif

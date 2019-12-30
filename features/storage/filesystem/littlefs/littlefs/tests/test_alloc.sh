@@ -33,7 +33,7 @@ tests/test.py << TEST
     const char *names[] = {"bacon", "eggs", "pancakes"};
     lfs_mount(&lfs, &cfg) => 0;
     for (unsigned n = 0; n < sizeof(names)/sizeof(names[0]); n++) {
-        sprintf((char*)buffer, "$1/%s", names[n]);
+        mbed_sprintf((char*)buffer, "$1/%s", names[n]);
         lfs_file_open(&lfs, &file[n], (char*)buffer,
                 LFS_O_WRONLY | LFS_O_CREAT | LFS_O_APPEND) => 0;
     }
@@ -245,7 +245,7 @@ tests/test.py << TEST
     lfs_file_close(&lfs, &file[0]) => 0;
 
     for (int i = 0; i < 9; i++) {
-        sprintf((char*)buffer, "dirwithanexhaustivelylongnameforpadding%d", i);
+        mbed_sprintf((char*)buffer, "dirwithanexhaustivelylongnameforpadding%d", i);
         lfs_mkdir(&lfs, (char*)buffer) => 0;
     }
 

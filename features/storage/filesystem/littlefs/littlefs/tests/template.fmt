@@ -8,7 +8,7 @@
 
 // test stuff
 static void test_log(const char *s, uintmax_t v) {{
-    printf("%s: %jd\n", s, v);
+    mbed_printf("%s: %jd\n", s, v);
 }}
 
 static void test_assert(const char *file, unsigned line,
@@ -27,7 +27,7 @@ static void test_assert(const char *file, unsigned line,
     }}
 
     if (v != e) {{
-        fprintf(stderr, "\033[31m%s:%u: assert %s failed with %jd, "
+        mbed_fprintf(stderr, "\033[31m%s:%u: assert %s failed with %jd, "
                 "expected %jd\033[0m\n", file, line, s, v, e);
         exit(-2);
     }}

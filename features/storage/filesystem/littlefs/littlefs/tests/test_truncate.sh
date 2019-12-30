@@ -24,7 +24,7 @@ tests/test.py << TEST
     lfs_mount(&lfs, &cfg) => 0;
 
     for (unsigned i = 0; i < sizeof(startsizes)/sizeof(startsizes[0]); i++) {
-        sprintf((char*)buffer, "hairyhead%d", i);
+        mbed_sprintf((char*)buffer, "hairyhead%d", i);
         lfs_file_open(&lfs, &file[0], (const char*)buffer,
                 LFS_O_WRONLY | LFS_O_CREAT | LFS_O_TRUNC) => 0;
 
@@ -56,7 +56,7 @@ tests/test.py << TEST
     lfs_mount(&lfs, &cfg) => 0;
 
     for (unsigned i = 0; i < sizeof(startsizes)/sizeof(startsizes[0]); i++) {
-        sprintf((char*)buffer, "hairyhead%d", i);
+        mbed_sprintf((char*)buffer, "hairyhead%d", i);
         lfs_file_open(&lfs, &file[0], (const char*)buffer, LFS_O_RDWR) => 0;
         lfs_file_size(&lfs, &file[0]) => hotsizes[i];
 
@@ -88,7 +88,7 @@ tests/test.py << TEST
     lfs_mount(&lfs, &cfg) => 0;
 
     for (unsigned i = 0; i < sizeof(startsizes)/sizeof(startsizes[0]); i++) {
-        sprintf((char*)buffer, "hairyhead%d", i);
+        mbed_sprintf((char*)buffer, "hairyhead%d", i);
         lfs_file_open(&lfs, &file[0], (const char*)buffer, LFS_O_RDONLY) => 0;
         lfs_file_size(&lfs, &file[0]) => coldsizes[i];
 

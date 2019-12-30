@@ -78,12 +78,12 @@ void test_resilience()
     observer.attach(check_atomic_operations);
 
     // Perform operations
-    printf("Performing %i operations on flash\n", MBED_TEST_CYCLES);
+    mbed_printf("Performing %i operations on flash\n", MBED_TEST_CYCLES);
     for (int i = 1; i <= MBED_TEST_CYCLES; i++) {
         int64_t ret = perform_atomic_operations(&observer);
         TEST_ASSERT_EQUAL(i, ret);
     }
-    printf("No errors detected\n");
+    mbed_printf("No errors detected\n");
 }
 
 Case cases[] = {

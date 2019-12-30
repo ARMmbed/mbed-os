@@ -177,7 +177,7 @@ static int file_printf(File *file, const char *format, ...)
     uint8_t buf[BUFFER_SIZE];
     va_list args;
     va_start(args, format);
-    int size = vsprintf((char *)buf, format, args);
+    int size = mbed_vsprintf((char *)buf, format, args);
     va_end(args);
     TEST_ASSERT_OR_EXIT((size >= 0) && (size <= (int)sizeof(buf)));
 
@@ -300,7 +300,7 @@ static void setup_file_rename_replace(FileSystem *fs)
     uint32_t count = 0;
     uint8_t buf[BUFFER_SIZE];
     memset(buf, 0, sizeof(buf));
-    const int length = sprintf((char *)buf, FILE_RENAME_REPLACE_FMT, count);
+    const int length = mbed_sprintf((char *)buf, FILE_RENAME_REPLACE_FMT, count);
     TEST_ASSERT_OR_EXIT(length > 0);
 
     res = file.write(buf, length);

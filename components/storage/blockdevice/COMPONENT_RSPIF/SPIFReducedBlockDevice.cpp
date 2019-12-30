@@ -157,22 +157,22 @@ void SPIFReducedBlockDevice::_cmdread(
     _cs = 1;
 
     if (SPIF_DEBUG) {
-        printf("spif <- %02x", op);
+        mbed_printf("spif <- %02x", op);
         for (uint32_t i = 0; i < addrc; i++) {
             if (i < addrc) {
-                printf("%02lx", 0xff & (addr >> 8 * (addrc - 1 - i)));
+                mbed_printf("%02lx", 0xff & (addr >> 8 * (addrc - 1 - i)));
             } else {
-                printf("  ");
+                mbed_printf("  ");
             }
         }
-        printf(" ");
+        mbed_printf(" ");
         for (uint32_t i = 0; i < 16 && i < retc; i++) {
-            printf("%02x", rets[i]);
+            mbed_printf("%02x", rets[i]);
         }
         if (retc > 16) {
-            printf("...");
+            mbed_printf("...");
         }
-        printf("\n");
+        mbed_printf("\n");
     }
 }
 
@@ -193,22 +193,22 @@ void SPIFReducedBlockDevice::_cmdwrite(
     _cs = 1;
 
     if (SPIF_DEBUG) {
-        printf("spif -> %02x", op);
+        mbed_printf("spif -> %02x", op);
         for (uint32_t i = 0; i < addrc; i++) {
             if (i < addrc) {
-                printf("%02lx", 0xff & (addr >> 8 * (addrc - 1 - i)));
+                mbed_printf("%02lx", 0xff & (addr >> 8 * (addrc - 1 - i)));
             } else {
-                printf("  ");
+                mbed_printf("  ");
             }
         }
-        printf(" ");
+        mbed_printf(" ");
         for (uint32_t i = 0; i < 16 && i < argc; i++) {
-            printf("%02x", args[i]);
+            mbed_printf("%02x", args[i]);
         }
         if (argc > 16) {
-            printf("...");
+            mbed_printf("...");
         }
-        printf("\n");
+        mbed_printf("\n");
     }
 }
 

@@ -63,10 +63,10 @@ static void parse_default_kv()
 {
     const char *def_kv_temp = STR(MBED_CONF_STORAGE_DEFAULT_KV);
     def_kv = new char[3 + strlen(def_kv_temp)];
-    sprintf(def_kv, "/%s/", def_kv_temp);
+    mbed_sprintf(def_kv, "/%s/", def_kv_temp);
 
     key = new char[4 + strlen(def_kv)];
-    sprintf(key, "%skey", def_kv);
+    mbed_sprintf(key, "%skey", def_kv);
 }
 
 /*----------------initialization------------------*/

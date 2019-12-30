@@ -107,7 +107,7 @@ void write_file_data(char count)
     uint8_t wbuffer[MBED_TEST_BUFFER];
     int res;
 
-    sprintf(filename, "%s%d", "data", count);
+    mbed_sprintf(filename, "%s%d", "data", count);
     res = file[count].open(&fs, filename, O_WRONLY | O_CREAT);
     TEST_ASSERT_EQUAL(0, res);
 
@@ -134,7 +134,7 @@ void read_file_data(char count)
     uint8_t rbuffer[MBED_TEST_BUFFER];
     int res;
 
-    sprintf(filename, "%s%d", "data", count);
+    mbed_sprintf(filename, "%s%d", "data", count);
     res = file[count].open(&fs, filename, O_RDONLY);
     TEST_ASSERT_EQUAL(0, res);
 

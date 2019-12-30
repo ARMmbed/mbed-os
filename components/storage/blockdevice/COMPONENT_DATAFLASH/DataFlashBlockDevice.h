@@ -38,24 +38,24 @@
  *  DataFlashBlockDevice dataflash2(PTE2, PTE4, PTE1, PTE5, PTE6);
  *
  *  int main() {
- *      printf("dataflash test\n");
+ *      mbed_printf("dataflash test\n");
  *
  *      // Initialize the SPI flash device and print the memory layout
  *      dataflash.init();
- *      printf("dataflash size: %llu\n", dataflash.size());
- *      printf("dataflash read size: %llu\n", dataflash.get_read_size());
- *      printf("dataflash program size: %llu\n", dataflash.get_program_size());
- *      printf("dataflash erase size: %llu\n", dataflash.get_erase_size());
+ *      mbed_printf("dataflash size: %llu\n", dataflash.size());
+ *      mbed_printf("dataflash read size: %llu\n", dataflash.get_read_size());
+ *      mbed_printf("dataflash program size: %llu\n", dataflash.get_program_size());
+ *      mbed_printf("dataflash erase size: %llu\n", dataflash.get_erase_size());
  *
  *      // Write "Hello World!" to the first block
  *      char *buffer = (char*)malloc(dataflash.get_erase_size());
- *      sprintf(buffer, "Hello World!\n");
+ *      mbed_sprintf(buffer, "Hello World!\n");
  *      dataflash.erase(0, dataflash.get_erase_size());
  *      dataflash.program(buffer, 0, dataflash.get_erase_size());
  *
  *      // Read back what was stored
  *      dataflash.read(buffer, 0, dataflash.get_erase_size());
- *      printf("%s", buffer);
+ *      mbed_printf("%s", buffer);
  *
  *      // Deinitialize the device
  *      dataflash.deinit();

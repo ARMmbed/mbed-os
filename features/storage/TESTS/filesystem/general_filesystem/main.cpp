@@ -1411,7 +1411,7 @@ static void FS_fscanf_valid_flow()
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = fprintf(fd[0], "%d %s", 123, write_buf);
+    res = mbed_fprintf(fd[0], "%d %s", 123, write_buf);
     TEST_ASSERT_EQUAL(3 + sizeof(write_buf), res);
 
     res = fclose(fd[0]);
@@ -1463,7 +1463,7 @@ static void FS_fscanf_more_fields_than_exist()
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = fprintf(fd[0], "%d %s", 123, write_buf);
+    res = mbed_fprintf(fd[0], "%d %s", 123, write_buf);
     TEST_ASSERT_EQUAL(3 + sizeof(write_buf), res);
 
     res = fclose(fd[0]);
@@ -1504,7 +1504,7 @@ static void FS_fprintf_read_mode()
     res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = fprintf(fd[0], "%d", 123);
+    res = mbed_fprintf(fd[0], "%d", 123);
     TEST_ASSERT_NOT_EQUAL(1, res);
 
     res = fclose(fd[0]);
@@ -1932,7 +1932,7 @@ static void FS_write_read_random_data()
 
     for (i = 0; i < medium_buf_size; i++) {
         write_buf[i] = rand() % 0XFF;
-        res = fprintf(fd[0], "%c", write_buf[i]);
+        res = mbed_fprintf(fd[0], "%c", write_buf[i]);
         TEST_ASSERT_EQUAL(1, res);
     }
 

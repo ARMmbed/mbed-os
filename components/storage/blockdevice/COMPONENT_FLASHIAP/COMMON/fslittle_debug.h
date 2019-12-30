@@ -41,7 +41,7 @@
 #define FSLITTLE_LOG(_fmt, ...)                          \
   do                                                    \
   {                                                     \
-        printf(_fmt, __VA_ARGS__);                      \
+        mbed_printf(_fmt, __VA_ARGS__);                      \
   }while(0);
 
 #define noFSLITTLE_DEBUG
@@ -64,7 +64,7 @@ extern uint32_t fslittle_optLogLevel_g;
   {                                                     \
     if(fslittle_optDebug_g && (fslittle_optLogLevel_g >= FSLITTLE_LOG_DEBUG))  \
     {                                                   \
-        printf(_fmt, __VA_ARGS__);                      \
+        mbed_printf(_fmt, __VA_ARGS__);                      \
     }                                                   \
   }while(0);
 
@@ -74,7 +74,7 @@ extern uint32_t fslittle_optLogLevel_g;
   {                                                     \
     if(fslittle_optDebug_g && (fslittle_optLogLevel_g >= FSLITTLE_LOG_ERR))  \
     {                                                   \
-        printf(_fmt, __VA_ARGS__);                      \
+        mbed_printf(_fmt, __VA_ARGS__);                      \
     }                                                   \
   }while(0);
 
@@ -84,7 +84,7 @@ extern uint32_t fslittle_optLogLevel_g;
   {                                                     \
     if(fslittle_optDebug_g && (fslittle_optLogLevel_g >= FSLITTLE_LOG_FENTRY))  \
     {                                                   \
-        printf(_fmt, __VA_ARGS__);                      \
+        mbed_printf(_fmt, __VA_ARGS__);                      \
     }                                                   \
   }while(0);
 

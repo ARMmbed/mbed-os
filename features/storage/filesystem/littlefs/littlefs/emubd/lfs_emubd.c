@@ -46,7 +46,7 @@ int lfs_emubd_create(const struct lfs_config *cfg, const char *path) {
     }
 
     // Load stats to continue incrementing
-    snprintf(emu->child, LFS_NAME_MAX, "stats");
+    mbed_snprintf(emu->child, LFS_NAME_MAX, "stats");
 
     FILE *f = fopen(emu->path, "r");
     if (!f && errno != ENOENT) {
@@ -91,7 +91,7 @@ int lfs_emubd_read(const struct lfs_config *cfg, lfs_block_t block,
     memset(data, 0, size);
 
     // Read data
-    snprintf(emu->child, LFS_NAME_MAX, "%" PRIx32, block);
+    mbed_snprintf(emu->child, LFS_NAME_MAX, "%" PRIx32, block);
 
     FILE *f = fopen(emu->path, "rb");
     if (!f && errno != ENOENT) {
@@ -130,7 +130,7 @@ int lfs_emubd_prog(const struct lfs_config *cfg, lfs_block_t block,
     assert(block < cfg->block_count);
 
     // Program data
-    snprintf(emu->child, LFS_NAME_MAX, "%" PRIx32, block);
+    mbed_snprintf(emu->child, LFS_NAME_MAX, "%" PRIx32, block);
 
     FILE *f = fopen(emu->path, "r+b");
     if (!f) {
@@ -177,7 +177,7 @@ int lfs_emubd_erase(const struct lfs_config *cfg, lfs_block_t block) {
     assert(block < cfg->block_count);
 
     // Erase the block
-    snprintf(emu->child, LFS_NAME_MAX, "%" PRIx32, block);
+    mbed_snprintf(emu->child, LFS_NAME_MAX, "%" PRIx32, block);
     struct stat st;
     int err = stat(emu->path, &st);
     if (err && errno != ENOENT) {
@@ -211,7 +211,7 @@ int lfs_emubd_sync(const struct lfs_config *cfg) {
     lfs_emubd_t *emu = cfg->context;
 
     // Just write out info/stats for later lookup
-    snprintf(emu->child, LFS_NAME_MAX, "config");
+    mbed_snprintf(emu->child, LFS_NAME_MAX, "config");
     FILE *f = fopen(emu->path, "w");
     if (!f) {
         return -errno;
@@ -227,7 +227,7 @@ int lfs_emubd_sync(const struct lfs_config *cfg) {
         return -errno;
     }
 
-    snprintf(emu->child, LFS_NAME_MAX, "stats");
+    mbed_snprintf(emu->child, LFS_NAME_MAX, "stats");
     f = fopen(emu->path, "w");
     if (!f) {
         return -errno;

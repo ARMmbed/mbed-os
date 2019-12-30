@@ -246,7 +246,7 @@ void test_with_other_fs()
         FileSystem *fs;
 
         if (stage == 1) {
-            printf("Stage %d: FAT FS\n", stage + 1);
+            mbed_printf("Stage %d: FAT FS\n", stage + 1);
             err = MBRBlockDevice::partition(bd, 1, 0x83, 0, BLOCK_COUNT * BLOCK_SIZE);
             TEST_ASSERT_EQUAL(0, err);
 
@@ -258,7 +258,7 @@ void test_with_other_fs()
 
             fs = new FATFileSystem("fat");
         } else {
-            printf("Stage %d: Little FS\n", stage + 1);
+            mbed_printf("Stage %d: Little FS\n", stage + 1);
             part = bd;
             fs = new LittleFileSystem("lfs");
         }

@@ -51,7 +51,7 @@ namespace mbed {
  *     bd.erase(0, BLOCK_SIZE);
  *     bd.program(block, 0, BLOCK_SIZE);
  *     bd.read(block, 0, BLOCK_SIZE);
- *     printf("%s", block);
+ *     mbed_printf("%s", block);
  *     bd.deinit();
  * }
  * @endcode

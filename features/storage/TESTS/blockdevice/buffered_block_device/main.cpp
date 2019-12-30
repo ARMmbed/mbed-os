@@ -46,7 +46,7 @@ void functionality_test()
         bd_size_t heap_read_size = sizes[i].read_size;
         bd_size_t heap_prog_size = sizes[i].prog_size;
 
-        printf("Testing read size of %lld, prog size of %lld\n", heap_read_size, heap_prog_size);
+        mbed_printf("Testing read size of %lld, prog size of %lld\n", heap_read_size, heap_prog_size);
 
         uint8_t *read_buf, *write_buf;
         read_buf = new (std::nothrow) uint8_t[heap_erase_size];

@@ -12,7 +12,7 @@ tests/test.py << TEST
     lfs_mount(&lfs, &cfg) => 0;
     lfs_mkdir(&lfs, "hello") => 0;
     for (int i = 0; i < $LARGESIZE; i++) {
-        sprintf((char*)buffer, "hello/kitty%d", i);
+        mbed_sprintf((char*)buffer, "hello/kitty%d", i);
         lfs_file_open(&lfs, &file[0], (char*)buffer,
                 LFS_O_WRONLY | LFS_O_CREAT | LFS_O_APPEND) => 0;
 
@@ -39,7 +39,7 @@ tests/test.py << TEST
     lfs_soff_t pos;
     int i;
     for (i = 0; i < $SMALLSIZE; i++) {
-        sprintf((char*)buffer, "kitty%d", i);
+        mbed_sprintf((char*)buffer, "kitty%d", i);
         lfs_dir_read(&lfs, &dir[0], &info) => 1;
         strcmp(info.name, (char*)buffer) => 0;
         pos = lfs_dir_tell(&lfs, &dir[0]);
@@ -47,12 +47,12 @@ tests/test.py << TEST
     pos >= 0 => 1;
 
     lfs_dir_seek(&lfs, &dir[0], pos) => 0;
-    sprintf((char*)buffer, "kitty%d", i);
+    mbed_sprintf((char*)buffer, "kitty%d", i);
     lfs_dir_read(&lfs, &dir[0], &info) => 1;
     strcmp(info.name, (char*)buffer) => 0;
 
     lfs_dir_rewind(&lfs, &dir[0]) => 0;
-    sprintf((char*)buffer, "kitty%d", 0);
+    mbed_sprintf((char*)buffer, "kitty%d", 0);
     lfs_dir_read(&lfs, &dir[0], &info) => 1;
     strcmp(info.name, ".") => 0;
     lfs_dir_read(&lfs, &dir[0], &info) => 1;
@@ -61,7 +61,7 @@ tests/test.py << TEST
     strcmp(info.name, (char*)buffer) => 0;
 
     lfs_dir_seek(&lfs, &dir[0], pos) => 0;
-    sprintf((char*)buffer, "kitty%d", i);
+    mbed_sprintf((char*)buffer, "kitty%d", i);
     lfs_dir_read(&lfs, &dir[0], &info) => 1;
     strcmp(info.name, (char*)buffer) => 0;
 
@@ -81,7 +81,7 @@ tests/test.py << TEST
     lfs_soff_t pos;
     int i;
     for (i = 0; i < $MEDIUMSIZE; i++) {
-        sprintf((char*)buffer, "kitty%d", i);
+        mbed_sprintf((char*)buffer, "kitty%d", i);
         lfs_dir_read(&lfs, &dir[0], &info) => 1;
         strcmp(info.name, (char*)buffer) => 0;
         pos = lfs_dir_tell(&lfs, &dir[0]);
@@ -89,12 +89,12 @@ tests/test.py << TEST
     pos >= 0 => 1;
 
     lfs_dir_seek(&lfs, &dir[0], pos) => 0;
-    sprintf((char*)buffer, "kitty%d", i);
+    mbed_sprintf((char*)buffer, "kitty%d", i);
     lfs_dir_read(&lfs, &dir[0], &info) => 1;
     strcmp(info.name, (char*)buffer) => 0;
 
     lfs_dir_rewind(&lfs, &dir[0]) => 0;
-    sprintf((char*)buffer, "kitty%d", 0);
+    mbed_sprintf((char*)buffer, "kitty%d", 0);
     lfs_dir_read(&lfs, &dir[0], &info) => 1;
     strcmp(info.name, ".") => 0;
     lfs_dir_read(&lfs, &dir[0], &info) => 1;
@@ -103,7 +103,7 @@ tests/test.py << TEST
     strcmp(info.name, (char*)buffer) => 0;
 
     lfs_dir_seek(&lfs, &dir[0], pos) => 0;
-    sprintf((char*)buffer, "kitty%d", i);
+    mbed_sprintf((char*)buffer, "kitty%d", i);
     lfs_dir_read(&lfs, &dir[0], &info) => 1;
     strcmp(info.name, (char*)buffer) => 0;
 

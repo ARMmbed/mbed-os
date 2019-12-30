@@ -144,7 +144,7 @@ tests/test.py << TEST
     lfs_mount(&lfs, &cfg) => 0;
     lfs_mkdir(&lfs, "directory") => 0;
     for (unsigned i = 0; i < 300; i++) {
-        snprintf((char*)buffer, sizeof(buffer), "file_%03d", i);
+        mbed_snprintf((char*)buffer, sizeof(buffer), "file_%03d", i);
         lfs_file_open(&lfs, &file[0], (char*)buffer, LFS_O_WRONLY | LFS_O_CREAT) => 0;
         size = 6;
         memcpy(wbuffer, "Hello", size);

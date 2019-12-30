@@ -60,7 +60,7 @@ void test_slicing()
     uint8_t *write_block = new (std::nothrow) uint8_t[BLOCK_SIZE];
     uint8_t *read_block = new (std::nothrow) uint8_t[BLOCK_SIZE];
     if (!write_block || !read_block) {
-        printf("Not enough memory for test");
+        mbed_printf("Not enough memory for test");
         goto end;
     }
 
@@ -161,7 +161,7 @@ void test_chaining()
     uint8_t *read_block = new (std::nothrow) uint8_t[BLOCK_SIZE];
 
     if (!write_block || !read_block) {
-        printf("Not enough memory for test");
+        mbed_printf("Not enough memory for test");
         goto end;
     }
 
@@ -236,7 +236,7 @@ void test_profiling()
     uint8_t *read_block = new (std::nothrow) uint8_t[BLOCK_SIZE];
 
     if (!write_block || !read_block) {
-        printf("Not enough memory for test");
+        mbed_printf("Not enough memory for test");
         goto end;
     }
 

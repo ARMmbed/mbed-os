@@ -20,24 +20,24 @@ https://en.wikipedia.org/wiki/EEPROM
 I2CEEBlockDevice i2cee(D14, D15, 0xa0, 32*1024);
 
 int main() {
-    printf("i2cee test\n");
+    mbed_printf("i2cee test\n");
 
     // Initialize the device and print the memory layout
     i2cee.init();
-    printf("i2cee size: %llu\n",         i2cee.size());
-    printf("i2cee read size: %llu\n",    i2cee.get_read_size());
-    printf("i2cee program size: %llu\n", i2cee.get_program_size());
-    printf("i2cee erase size: %llu\n",   i2cee.get_erase_size());
+    mbed_printf("i2cee size: %llu\n",         i2cee.size());
+    mbed_printf("i2cee read size: %llu\n",    i2cee.get_read_size());
+    mbed_printf("i2cee program size: %llu\n", i2cee.get_program_size());
+    mbed_printf("i2cee erase size: %llu\n",   i2cee.get_erase_size());
 
     // Write "Hello World!" to the first block
     char *buffer = (char*)malloc(i2cee.get_erase_size());
-    sprintf(buffer, "Hello World!\n");
+    mbed_sprintf(buffer, "Hello World!\n");
     i2cee.erase(0, i2cee.get_erase_size());
     i2cee.program(buffer, 0, i2cee.get_erase_size());
 
     // Read back what was stored
     i2cee.read(buffer, 0, i2cee.get_erase_size());
-    printf("%s", buffer);
+    mbed_printf("%s", buffer);
 
     // Deinitialize the device
     i2cee.deinit();
@@ -66,7 +66,7 @@ struct t_setting {
 };
 
 int main() {
-    printf("i2cee struct test\n");
+    mbed_printf("i2cee struct test\n");
 
      // No. of bytes to be stored, but topped up to be multiplied by block size
     unsigned int setting_block_size = ceil(sizeof(setting)/(double)BLOCK_SIZE)*BLOCK_SIZE;
@@ -78,7 +78,7 @@ int main() {
     i2cee.init();
 
     // Save struct to EEPROM
-    printf("\nSaving struct version: %u, name: %s\n", setting.version, setting.name);
+    mbed_printf("\nSaving struct version: %u, name: %s\n", setting.version, setting.name);
     memcpy(buffer, &setting, sizeof(setting));
     i2cee.program(buffer, 0, setting_block_size);
 
@@ -89,9 +89,9 @@ int main() {
     if (i2cee.read(buffer, 0, setting_block_size ) == 0){ // get data into buffer
         // Convert what we read into struct
         memcpy(&tmp, buffer, sizeof(tmp)); // copy only size of struct not setting_block_size
-        printf("\nTemporary struct version: %u, name: %s\n", tmp.version, tmp.name);
+        mbed_printf("\nTemporary struct version: %u, name: %s\n", tmp.version, tmp.name);
     } else {
-        printf("Error when reading\n");
+        mbed_printf("Error when reading\n");
     }
 
     // Deinitialize the device

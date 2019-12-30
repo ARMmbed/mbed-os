@@ -47,7 +47,7 @@ extern "C" {
 #define FSLITTLE_TEST_UTEST_MESSAGE(_buf, _max_len, _fmt, ...)   \
   do                                                            \
   {                                                             \
-      snprintf((_buf), (_max_len), (_fmt), __VA_ARGS__);        \
+      mbed_snprintf((_buf), (_max_len), (_fmt), __VA_ARGS__);        \
   }while(0);
 
 

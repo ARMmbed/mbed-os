@@ -60,7 +60,7 @@ static void test_set_thread_job(void *data)
     FileSystemStore *thread_fsst = (FileSystemStore *)(thread_data->fsst);
 
     utest_printf("\n Thread %d Started\n", thread_num);
-    sprintf(thread_str, "%d", thread_num);
+    mbed_sprintf(thread_str, "%d", thread_num);
     strcat(kv_value, thread_str);
     strcat(kv_key, thread_str);
     err = thread_fsst->set(kv_key, kv_value, strlen(kv_value) + 1, 0);
@@ -477,7 +477,7 @@ void test_file_system_store_multi_threads()
 
     for (i_ind = 1; i_ind < (FSST_TEST_NUM_OF_THREADS + 1); i_ind++) {
         memset(kv_buf, 0, 64);
-        sprintf(thread_str, "%d", i_ind);
+        mbed_sprintf(thread_str, "%d", i_ind);
         strcpy(&kv_value[10], thread_str);
         strcpy(&kv_key[3], thread_str);
         err = fsst->get(kv_key, kv_buf, 12, &actual_size, 0);
