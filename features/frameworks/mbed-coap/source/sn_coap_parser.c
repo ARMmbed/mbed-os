@@ -310,7 +310,7 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
             option_number = *(*packet_data_pptr + 1) + 13;
             (*packet_data_pptr)++;
         } else if (option_number == 14) {
-            if ( message_left>= 2){
+            if (message_left >= 2){
                 option_number = *(*packet_data_pptr + 2);
                 option_number += (*(*packet_data_pptr + 1) << 8) + 269;
                 (*packet_data_pptr) += 2;
@@ -342,7 +342,7 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
             option_len = *(*packet_data_pptr + 1) + 13;
             (*packet_data_pptr)++;
         } else if (option_len == 14) {
-            if ( message_left>= 2){
+            if (message_left >= 2){
                 option_len = *(*packet_data_pptr + 2);
                 option_len += (*(*packet_data_pptr + 1) << 8) + 269;
                 (*packet_data_pptr) += 2;
