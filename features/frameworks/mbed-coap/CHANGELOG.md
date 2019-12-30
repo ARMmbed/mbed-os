@@ -1,5 +1,13 @@
 # Change Log
 
+## [v5.1.3](https://github.com/ARMmbed/mbed-coap/releases/tag/v5.1.3)
+
+- Fix potential integer overflow when calculating CoAP data packet size: IOTCLT-3748 CVE-2019-17211 - mbed-coap integer overflow
+- Fix buffer overflow when parsing CoAP message: IOTCLT-3749 CVE-2019-17212 - mbed-coap Buffer overflow
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v5.1.2...v5.1.3)
+
+
 ## [v5.1.2](https://github.com/ARMmbed/mbed-coap/releases/tag/v5.1.2)
 
 - Compiler warning cleanups.
