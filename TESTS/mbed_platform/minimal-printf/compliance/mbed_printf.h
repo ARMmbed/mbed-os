@@ -39,6 +39,13 @@ int mbed_printf(const char *format, ...);
 int mbed_snprintf(char *buffer, size_t length, const char *format, ...);
 
 /**
+ * Minimal snprintf
+ *
+ * Prints directly to buffer without using malloc.
+ */
+int mbed_sprintf(char *buffer, const char *format, ...);
+
+/**
  * Minimal printf
  *
  * Prints directly to stdio/UART without using malloc.

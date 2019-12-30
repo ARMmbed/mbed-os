@@ -39,6 +39,16 @@ int mbed_snprintf(char *buffer, size_t length, const char *format, ...)
     return result;
 }
 
+int mbed_sprintf(char *buffer, const char *format, ...)
+{
+    va_list arguments;
+    va_start(arguments, format);
+    int result = mbed_minimal_formatted_string(buffer, LONG_MAX, format, arguments, NULL);
+    va_end(arguments);
+
+    return result;
+}
+
 int mbed_vprintf(const char *format, va_list arguments)
 {
     return mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, stdout);
