@@ -36,8 +36,6 @@ static USBPhyHw *instance;
 #define MBED_CONF_TARGET_USB_DEVICE_HSUSBD 1  /* USB 2.0 Only */
 #endif
 
-#undef  MBED_CONF_TARGET_USB_DEVICE_HSUSBD
-#define MBED_CONF_TARGET_USB_DEVICE_HSUSBD 0  /* USB 1.1 Only */
 
 extern "C" void USBD_IRQHandler(void);
 
