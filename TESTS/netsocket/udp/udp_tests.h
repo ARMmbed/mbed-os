@@ -48,7 +48,7 @@ static const int TESTS_TIMEOUT = MBED_GREENTEA_TEST_UDPSOCKET_TIMEOUT_S;
 #if MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == MESH && MBED_CONF_NSAPI_DEFAULT_MESH_TYPE == WISUN
 static const int TESTS_TIMEOUT = (25 * 60);
 #else
-static const int TESTS_TIMEOUT = (10 * 60);
+static const int TESTS_TIMEOUT = (20 * 60);
 #endif
 #endif
 
