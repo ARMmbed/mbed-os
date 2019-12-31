@@ -58,8 +58,7 @@ ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
       _error(false),
       _busy(false),
       _reset_done(false),
-      _prev_send_ok_pending(false),
-      _send_fail_received(false),
+      _send_status(SEND_STATUS_OK),
       _conn_status(NSAPI_STATUS_DISCONNECTED)
 {
     _serial.set_baud(MBED_CONF_ESP8266_SERIAL_BAUDRATE);
@@ -290,6 +289,9 @@ bool ESP8266::reset(void)
     tr_debug("reset(): Done: %s.", done ? "OK" : "FAIL");
 
     _clear_socket_packets(ESP8266_ALL_SOCKET_IDS);
+    _send_status = SEND_STATUS_OK;
+    _parser.remove_oob("SEND OK");
+    _parser.remove_oob("SEND FAIL");
     set_timeout();
     _smutex.unlock();
 
@@ -616,13 +618,18 @@ bool ESP8266::dns_lookup(const char *name, char *ip)
 
 nsapi_size_or_error_t ESP8266::send(int id, const void *data, uint32_t amount)
 {
-    if (_prev_send_ok_pending && _sock_i[id].proto == NSAPI_TCP) {
-        tr_debug("send(): Previous packet was not ACK-ed with SEND OK.");
-        return NSAPI_ERROR_WOULD_BLOCK;
+    if (_sock_i[id].proto == NSAPI_TCP) {
+        if (_send_status == SEND_STATUS_PENDING) {
+            tr_debug("send(): Previous packet was not yet ACK-ed with SEND OK.");
+            return NSAPI_ERROR_WOULD_BLOCK;
+        } else if (_send_status == SEND_STATUS_FAILED) {
+            tr_debug("send(): Previous packet failed.");
+            _send_status = SEND_STATUS_OK;
+            return NSAPI_ERROR_DEVICE_ERROR;
+        }
     }
 
     nsapi_error_t ret = NSAPI_ERROR_DEVICE_ERROR;
-    _send_fail_received = false;
     int bytes_confirmed = 0;
     constexpr unsigned int send_ack_retries = 3;
 
@@ -666,7 +673,6 @@ nsapi_size_or_error_t ESP8266::send(int id, const void *data, uint32_t amount)
     // The "Recv X bytes" is not documented.
     if (!_parser.recv("Recv %d bytes", &bytes_confirmed)) {
         tr_debug("send(): Bytes not confirmed.");
-        ret = NSAPI_ERROR_DEVICE_ERROR;
         if (_sock_i[id].proto == NSAPI_TCP) {
             ret = NSAPI_ERROR_WOULD_BLOCK;
         } else if (_sock_i[id].proto == NSAPI_UDP) {
@@ -683,15 +689,13 @@ nsapi_size_or_error_t ESP8266::send(int id, const void *data, uint32_t amount)
     _parser.oob("SEND FAIL", callback(this, &ESP8266::_oob_send_fail_received));
     for (unsigned int i = send_ack_retries; i > 0; i--) {
         if (!_parser.recv("SEND OK")) {
-            if (_error || _send_fail_received) {
+            if (_error || _send_status == SEND_STATUS_FAILED) {
                 _parser.remove_oob("SEND FAIL");
                 goto END;
             }
             if (_busy) {
                 _busy = false;
                 tr_debug("send(): Busy, %d retries left...", i - 1);
-            } else {
-                tr_debug("send(): Not busy, but no SEND OK. %d retries left...", i - 1);
             }
         } else {
             ret = amount; // Got "SEND OK" - return number of bytes.
@@ -699,8 +703,8 @@ nsapi_size_or_error_t ESP8266::send(int id, const void *data, uint32_t amount)
         }
     }
 
-    // ESP8266 ACKed data over serial, but did not ACK over TCP or report any error.
-    _prev_send_ok_pending = true;
+    // ESP8266 ACKed data over serial, but did not ACK with SEND OK or report any error.
+    _send_status = SEND_STATUS_PENDING;
     _parser.oob("SEND OK", callback(this, &ESP8266::_oob_send_ok_received));
     ret = amount;
 
@@ -718,7 +722,7 @@ END:
         tr_debug("send(): Connection disrupted.");
     }
 
-    if (_send_fail_received) {
+    if (_send_status == SEND_STATUS_FAILED) {
         if (_sock_i[id].proto == NSAPI_TCP) {
             ret = NSAPI_ERROR_DEVICE_ERROR;
         } else {
@@ -1001,6 +1005,14 @@ void ESP8266::_clear_socket_packets(int id)
         _sock_i[id].tcp_data_avbl = 0;
     }
 }
+void ESP8266::_clear_send_status(void)
+{
+    _smutex.lock(); // remove_oob doesn't use serial, but we don't want to race against it.
+    _send_status = SEND_STATUS_OK;
+    _parser.remove_oob("SEND OK");
+    _parser.remove_oob("SEND FAIL");
+    _smutex.unlock();
+}
 
 bool ESP8266::close(int id)
 {
@@ -1204,6 +1216,7 @@ void ESP8266::_oob_socket0_closed()
 {
     static const int id = 0;
     _sock_i[id].open = false;
+    _clear_send_status();
     tr_debug("_oob_socket0_closed(): Socket %d closed.", id);
 }
 
@@ -1211,6 +1224,7 @@ void ESP8266::_oob_socket1_closed()
 {
     static const int id = 1;
     _sock_i[id].open = false;
+    _clear_send_status();
     tr_debug("_oob_socket1_closed(): Socket %d closed.", id);
 }
 
@@ -1218,6 +1232,7 @@ void ESP8266::_oob_socket2_closed()
 {
     static const int id = 2;
     _sock_i[id].open = false;
+    _clear_send_status();
     tr_debug("_oob_socket2_closed(): Socket %d closed.", id);
 }
 
@@ -1225,6 +1240,7 @@ void ESP8266::_oob_socket3_closed()
 {
     static const int id = 3;
     _sock_i[id].open = false;
+    _clear_send_status();
     tr_debug("_oob_socket3_closed(): %d closed.", id);
 }
 
@@ -1232,6 +1248,7 @@ void ESP8266::_oob_socket4_closed()
 {
     static const int id = 4;
     _sock_i[id].open = false;
+    _clear_send_status();
     tr_debug("_oob_socket0_closed(): Socket %d closed.", id);
 }
 
@@ -1271,14 +1288,22 @@ void ESP8266::_oob_connection_status()
 
 void ESP8266::_oob_send_ok_received()
 {
-    tr_debug("_oob_send_ok_received called");
-    _prev_send_ok_pending = false;
+    tr_debug("_oob_send_ok_received called with _send_status %d", _send_status);
+    if (_send_status == SEND_STATUS_PENDING) {
+        _send_status = SEND_STATUS_OK;
+    }
+    _parser.remove_oob("SEND OK");
+    _parser.remove_oob("SEND FAIL");
 }
 
 void ESP8266::_oob_send_fail_received()
 {
-    tr_debug("_oob_send_fail_received called");
-    _send_fail_received = true;
+    tr_debug("_oob_send_fail_received called with _send_status %d", _send_status);
+    if (_send_status == SEND_STATUS_PENDING) {
+        _send_status = SEND_STATUS_FAILED;
+    }
+    _parser.remove_oob("SEND FAIL");
+    _parser.remove_oob("SEND OK");
 }
 
 int8_t ESP8266::default_wifi_mode()
