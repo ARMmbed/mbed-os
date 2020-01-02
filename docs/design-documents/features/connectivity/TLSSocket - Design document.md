@@ -1,11 +1,13 @@
 # TLSSocket - design document
 ## Overview and background
 
-This document describes the design of the TLSSocket class, which provides an interface for an Mbed OS user to create TLS connections over a TCP socket.
+This document describes the design of the TLSSocket and DTLSSocket classes, which provide an interface for an Mbed OS user to create TLS connections over a TCP socket or DTLS over a UDP socket.
 
 Mbed OS provides two different implementations for TLS sockets; Mbed TLS based (default) or offloaded TLS socket when used network stack (for example, a cellular modem target driver) supports it.
 
 This class greatly simplifies the use of TLS but limits itself to only one use case. This design limitation is accepted as other users can continue using Mbed TLS API directly. Mbed TLS based TLSSocket also exposes internal Mbed TLS structures allowing use of Mbed TLS API to configure the underlying library.
+
+DTLSSocket shares most of its functionality with TLSSocket (via `TLSSocketWrapper` class), just using UDP instead of TCP as transport socket and handling connection differently.
 
 The high-level goal is to demonstrate that secure connections are not hard to do.
 
@@ -26,10 +28,12 @@ Offloaded vs. Mbed TLS based TLSSocket:
 
 # System architecture and high-level design
 
-The Mbed TLS based secure socket consists of two classes:
+The Mbed TLS based secure socket consists of four classes:
 
 * `TLSSocketWrapper`, which handles initialization of TLS library, does the TLS handsake and takes any Socket as a transport.
 * `TLSSocket`, which inherits TLSSocketWrapper, has TCP socket as a transport and adds `connect(char *hostname)` for initiating the TCP and TLS handshakes at one call.
+* `DTLSSocketWrapper`, which inherits from TLSSocketWrapper and adds a few auxiliary functions.
+* `DTLSSocket`, which inherits DTLSSocketWrapper, has UDP socket as a transport and adds `connect(char *hostname)` for initiating the UDP and DTLS handshakes at one call.
 
 ```
        ,--------------.
@@ -52,14 +56,21 @@ The Mbed TLS based secure socket consists of two classes:
 |void set_hostname(...);      |
 |int do_handshake();          |
 `-----------------------------'
-               |
-,----------------------------.
-|TLSSocket                   |
-|----------------------------|
-|TCPSocket transport         |
-|----------------------------|
-|int connect(char *hostname);|
-`----------------------------'
+               |______________________________
+               |                              |
+               |               ,----------------------------.
+               |               |DTLSSocketWrapper           |
+               |               |----------------------------|
+               |               |timer-related functions     |
+               |               `----------------------------'
+               |                               |
+,----------------------------. ,----------------------------.
+|TLSSocket                   | |DTLSSocket                  |
+|----------------------------| |----------------------------|
+|TCPSocket transport         | |UDPSocket transport         |
+|----------------------------| |----------------------------|
+|int connect(char *hostname);| |int connect(char *hostname);|
+`----------------------------' `----------------------------'
 ```
 
 Offloaded TLS socket:
@@ -93,6 +104,8 @@ Mbed TLS based secure socket both uses `Socket` interface as its transport layer
 The offloaded secure socket shares the same API as Mbed TLS based TLSSocket as much as possible. This API has no dependency on Mbed TLS APIs.
 
 When TLSSocket implements the Socket API, it can be used instead of TCP connection in any Mbed OS library. For example, the MQTT library is made secure without any code changes: https://github.com/coisme/Mbed-to-Azure-IoT-Hub/tree/new-TLSSocket
+
+The `DTLSSocket` class implements TLS handshake for UDPSocket.
 
 ## High-level design goal 2: Only certificate-based authentication
 
@@ -148,7 +161,7 @@ This destroys the memory allocated by the TLS library. It also closes the transp
 virtual nsapi_error_t connect(const SocketAddress &address);
 ```
 
-This initiates the TCP connection and continues to the TLS hanshake.
+This initiates the TCP/UDP connection and continues to the TLS hanshake.
 
 This is currently forced to blocking mode.
 
@@ -312,14 +325,6 @@ No tool changes required.
 ## Selecting Mbed TLS secure socket or offloaded TLS socket
 
 By default, the system is configured to use the Mbed TLS based secure socket because only a few network stacks support offloaded TLS socket. You can enable the offloaded TLS socket in the application json configuration file by setting: `"nsapi.offload-tlssocket": true`.
-
-## Reusability
-
-Mbed TLS secure socket:
-Parts of the state machine are probably relevant when implementing DTLS socket. TLSSocketWrapper is entirely reusable when doing the TLS handshake using any socket type. It does not have tight bindings to TCP.
-
-Offloaded secure socket:
-The current implementation is for TLS only and does not support DTLS.
 
 ## Assumptions
 
