@@ -51,7 +51,7 @@ define symbol __ICFEDIT_region_IRAM_end__       = MBED_RAM_APP_START + MBED_RAM_
 
 /*-Sizes-*/
 define symbol __ICFEDIT_size_cstack__           = MBED_BOOT_STACK_SIZE;
-define symbol __ICFEDIT_size_heap__             = 0x4000;
+define symbol __ICFEDIT_size_heap__             = 0x400;
 
 
 /**** End of ICF editor section. ###ICF###*/
@@ -62,7 +62,7 @@ define region ROM_region    = mem:[from __ICFEDIT_region_ROM_start__   to __ICFE
 define region IRAM_region   = mem:[from __ICFEDIT_region_IRAM_start__  to __ICFEDIT_region_IRAM_end__];
 
 define block CSTACK     with alignment = 8, size = __ICFEDIT_size_cstack__   { };
-define block HEAP       with alignment = 8, size = __ICFEDIT_size_heap__     { };
+define block HEAP       with expanding size, alignment = 8, minimum size = __ICFEDIT_size_heap__    { };
 /* NOTE: Vector table base address is required to be 128-byte aligned at a minimum.
  *       A PE might impose further restrictions on it. */
 define block IRAMVEC    with alignment = 1024, size = 4 * (16 + 64)          { };
