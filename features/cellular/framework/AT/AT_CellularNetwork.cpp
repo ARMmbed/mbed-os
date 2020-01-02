@@ -209,9 +209,10 @@ nsapi_error_t AT_CellularNetwork::get_network_registering_mode(NWRegisteringMode
 nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
 {
 
+    NWRegisteringMode mode = NWModeAutomatic;
+
     if (!plmn) {
         tr_debug("Automatic network registration");
-        NWRegisteringMode mode;
         if (get_network_registering_mode(mode) != NSAPI_ERROR_OK) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }
@@ -221,10 +222,17 @@ nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
         return NSAPI_ERROR_OK;
     } else {
         tr_debug("Manual network registration to %s", plmn);
+        mode = NWModeManual;
+        OperatorNameFormat format = OperatorNameNumeric;
+#ifdef MBED_CONF_CELLULAR_PLMN_FALLBACK_AUTO
+        if (_device.get_property(AT_CellularDevice::PROPERTY_AT_COPS_FALLBACK_AUTO)) {
+            mode = NWModeManualAutomatic;
+        }
+#endif
         if (_op_act != RAT_UNKNOWN) {
-            return _at.at_cmd_discard("+COPS", "=1,2,", "%s%d", plmn, _op_act);
+            return _at.at_cmd_discard("+COPS", "=", "%d%d%s%d", mode, format, plmn, _op_act);
         } else {
-            return _at.at_cmd_discard("+COPS", "=1,2,", "%s", plmn);
+            return _at.at_cmd_discard("+COPS", "=", "%d%d%s", mode, format, plmn);
         }
     }
 }

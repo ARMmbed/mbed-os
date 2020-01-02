@@ -161,6 +161,13 @@ public:
         NWModeManualAutomatic   // if manual fails, fallback to automatic
     };
 
+    /// Operator name format
+    enum OperatorNameFormat {
+        OperatorNameAlphaLong = 0,    // alphanumeric long form
+        OperatorNameAlphaShort,       // alphanumeric short form
+        OperatorNameNumeric           // numeric digits
+    };
+
     /// Network registration information
     struct registration_params_t {
         RegistrationType _type;
