@@ -138,10 +138,10 @@ ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::setData
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::reset_(void) {
 
-	delete _db; // Close the database
-	_db = NULL;
+    delete _db; // Close the database
+    _db = NULL;
 
-	_pal.reset();
+    _pal.reset();
     SecurityManager::reset_();
 
     return BLE_ERROR_NONE;
@@ -213,8 +213,8 @@ ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::request
 
     initiator_distribution.set_signing(
         cb->signing_override_default ?
-            cb->signing_requested :
-            _default_key_distribution.get_signing()
+                cb->signing_requested :
+                _default_key_distribution.get_signing()
     );
 
     /* if requested the initiator may send all the default keys for later
@@ -836,12 +836,6 @@ template<template<class> class TPalSecurityManager, template<class> class Signin
 ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::init_database(
     const char *db_path
 ) {
-	// Close the old database if it still exists
-	if(_db != NULL) {
-		delete _db;
-		_db = NULL;
-	}
-
     FILE* db_file = FileSecurityDb::open_db_file(db_path);
 
     if (db_file) {
@@ -1139,8 +1133,8 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_connected_(
 
 #if BLE_FEATURE_SIGNING
     const bool signing = cb->signing_override_default ?
-	                         cb->signing_requested :
-	                         _default_key_distribution.get_signing();
+                    cb->signing_requested :
+                    _default_key_distribution.get_signing();
 
     if (signing && flags->csrk_stored) {
         _db->get_entry_peer_csrk(
@@ -1333,8 +1327,8 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_signed_writ
     }
 
     const bool signing = cb->signing_override_default ?
-	                         cb->signing_requested :
-	                         _default_key_distribution.get_signing();
+                    cb->signing_requested :
+                    _default_key_distribution.get_signing();
 
     if (signing) {
         cb->csrk_failures++;
