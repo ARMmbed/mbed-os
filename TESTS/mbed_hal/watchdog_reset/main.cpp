@@ -88,17 +88,7 @@ struct testcase_data {
 
 testcase_data current_case;
 
-Thread wdg_kicking_thread(osPriorityNormal, 768);
-Semaphore kick_wdg_during_test_teardown(0, 1);
-
-void wdg_kicking_thread_fun()
-{
-    kick_wdg_during_test_teardown.acquire();
-    while (true) {
-        hal_watchdog_kick();
-        wait_us(20000);
-    }
-}
+Ticker wdg_kicking_ticker;
 
 bool send_reset_notification(testcase_data *tcdata, uint32_t delay_ms)
 {
@@ -135,7 +125,8 @@ void test_simple_reset()
 
     // Watchdog reset should have occurred during a wait above.
 
-    kick_wdg_during_test_teardown.release(); // For testsuite failure handling.
+    hal_watchdog_kick();
+    wdg_kicking_ticker.attach_us(mbed::callback(hal_watchdog_kick), 20000); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 
@@ -167,7 +158,8 @@ void test_sleep_reset()
 
     // Watchdog reset should have occurred during the sleep above.
 
-    kick_wdg_during_test_teardown.release(); // For testsuite failure handling.
+    hal_watchdog_kick();
+    wdg_kicking_ticker.attach_us(mbed::callback(hal_watchdog_kick), 20000); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 
@@ -201,7 +193,8 @@ void test_deepsleep_reset()
 
     // Watchdog reset should have occurred during the deepsleep above.
 
-    kick_wdg_during_test_teardown.release(); // For testsuite failure handling.
+    hal_watchdog_kick();
+    wdg_kicking_ticker.attach_us(mbed::callback(hal_watchdog_kick), 20000); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 #endif
@@ -242,7 +235,8 @@ void test_restart_reset()
 
     // Watchdog reset should have occurred during a wait above.
 
-    kick_wdg_during_test_teardown.release(); // For testsuite failure handling.
+    hal_watchdog_kick();
+    wdg_kicking_ticker.attach_us(mbed::callback(hal_watchdog_kick), 20000); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 
@@ -273,7 +267,8 @@ void test_kick_reset()
 
     // Watchdog reset should have occurred during a wait above.
 
-    kick_wdg_during_test_teardown.release(); // For testsuite failure handling.
+    hal_watchdog_kick();
+    wdg_kicking_ticker.attach_us(mbed::callback(hal_watchdog_kick), 20000); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 
@@ -307,10 +302,6 @@ int testsuite_setup(const size_t number_of_cases)
         utest_printf("Invalid data received from host\n");
         return utest::v1::STATUS_ABORT;
     }
-
-    // The thread is started here, but feeding the watchdog will start
-    // when the semaphore is released during a test case teardown.
-    wdg_kicking_thread.start(mbed::callback(wdg_kicking_thread_fun));
 
     utest_printf("This test suite is composed of %i test cases. Starting at index %i.\n", number_of_cases,
                  current_case.start_index);
