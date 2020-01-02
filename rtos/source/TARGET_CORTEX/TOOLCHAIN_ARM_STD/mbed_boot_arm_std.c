@@ -16,13 +16,14 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include "cmsis.h"
 #include "mbed_boot.h"
 
 extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Base[];
 extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Length[];
 
 #if !defined(__MICROLIB)
-#include "cmsis.h"
+
 #include "mbed_critical.h"
 #include <rt_misc.h>
 #include "mbed_rtos_storage.h"
