@@ -8,6 +8,11 @@
             "par1": "v_par1_base",
             "par2": "v_par2_base",
             "par3": "v_par3_base"
+        },
+        "supported_c_libs": {
+                "arm": ["std"],
+                "gcc_arm": ["std", "small"],
+                "iar": ["std"]
         }
     },
     "b1": {

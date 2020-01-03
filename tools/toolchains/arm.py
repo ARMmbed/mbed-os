@@ -31,12 +31,18 @@ from tools.resources import FileRef
 
 ARMC5_MIGRATION_WARNING = (
     "Warning: We noticed that you are using Arm Compiler 5. "
-    "We are deprecating the use of Arm Compiler 5 soon. "
+    "We are deprecating the use of Arm Compiler 5. "
     "Please upgrade your environment to Arm Compiler 6 "
     "which is free to use with Mbed OS. For more information, "
     "please visit https://os.mbed.com/docs/mbed-os/latest/tools/index.html"
 )
 
+UARM_TOOLCHAIN_WARNING = (
+    "Warning: We noticed that you are using uARM Toolchain. "
+    "We are deprecating the use of uARM Toolchain. "
+    "For more information on how to use the ARM toolchain with small C libraries, "
+    "please visit https://os.mbed.com/docs/mbed-os/latest/reference/using-small-c-libraries.html"
+)
 
 class ARM(mbedToolchain):
     LINKER_EXT = '.sct'
@@ -71,7 +77,12 @@ class ARM(mbedToolchain):
             raise NotSupportedException(
                 "this compiler does not support the core %s" % target.core)
 
-        if getattr(target, "default_toolchain", "ARM") == "uARM":
+        self.check_c_lib_supported(target, "arm")
+
+        if (
+            getattr(target, "default_toolchain", "ARM") == "uARM"
+            or getattr(target, "default_lib", "std") == "small"
+        ):
             if "-DMBED_RTOS_SINGLE_THREAD" not in self.flags['common']:
                 self.flags['common'].append("-DMBED_RTOS_SINGLE_THREAD")
             if "-D__MICROLIB" not in self.flags['common']:
@@ -556,7 +567,12 @@ class ARMC6(ARM_STD):
                     "ARM/ARMC6 compiler support is required for ARMC6 build"
                 )
 
-        if getattr(target, "default_toolchain", "ARMC6") == "uARM":
+        self.check_c_lib_supported(target, "arm")
+
+        if (
+            getattr(target, "default_toolchain", "ARMC6") == "uARM"
+            or getattr(target, "default_lib", "std") == "small"
+        ):
             if "-DMBED_RTOS_SINGLE_THREAD" not in self.flags['common']:
                 self.flags['common'].append("-DMBED_RTOS_SINGLE_THREAD")
             if "-D__MICROLIB" not in self.flags['common']:

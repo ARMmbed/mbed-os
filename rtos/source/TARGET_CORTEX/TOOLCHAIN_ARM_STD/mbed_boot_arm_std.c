@@ -16,10 +16,15 @@
  */
 #include <stdlib.h>
 #include <string.h>
-
 #include "cmsis.h"
-#include "mbed_critical.h"
 #include "mbed_boot.h"
+
+extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Base[];
+extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Length[];
+
+#if !defined(__MICROLIB)
+
+#include "mbed_critical.h"
 #include <rt_misc.h>
 #include "mbed_rtos_storage.h"
 #include "cmsis_os2.h"
@@ -27,8 +32,6 @@
 __value_in_regs struct __argc_argv __rt_lib_init(unsigned heapbase, unsigned heaptop);
 void _platform_post_stackheap_init(void);
 
-extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Base[];
-extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Length[];
 
 #if !defined(HEAP_START)
 // Heap here is considered starting after ZI ends to Stack start
@@ -252,3 +255,47 @@ __USED void _mutex_free(mutex *m)
 }
 
 #endif /* RTX_NO_MULTITHREAD_CLIB */
+#else
+#include <stdint.h>
+
+extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Base[];
+extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Length[];
+
+/*
+ * mbed entry point for the MICROLIB toolchain
+ *
+ * Override the microlib function _main_init to run code earlier in
+ * the boot sequence. The function _main_init is responsible for invoking main.
+ * This function must be placed in the ".ARM.Collect" section
+ * or it won't get called.
+ */
+void _main_init(void) __attribute__((section(".ARM.Collect$$$$000000FF")));
+void _main_init(void)
+{
+    /* microlib only supports the two region memory model */
+    mbed_stack_isr_start = (unsigned char *) Image$$ARM_LIB_STACK$$ZI$$Base;
+    mbed_stack_isr_size = (uint32_t) Image$$ARM_LIB_STACK$$ZI$$Length;
+
+    mbed_heap_start = (unsigned char *) Image$$ARM_LIB_HEAP$$ZI$$Base;
+    mbed_heap_size = (uint32_t) Image$$ARM_LIB_HEAP$$ZI$$Length;
+
+    mbed_init();
+    mbed_rtos_start();
+}
+
+void $Sub$$__cpp_initialize__aeabi_(void);
+void $Super$$__cpp_initialize__aeabi_(void);
+void $Sub$$__cpp_initialize__aeabi_(void)
+{
+    /* This should invoke C++ initializers but we keep
+     * this empty and invoke them RTX is initialized.
+     */
+}
+
+void mbed_toolchain_init()
+{
+    /* Run the C++ global object constructors */
+    $Super$$__cpp_initialize__aeabi_();
+}
+
+#endif // !defined(__MICROLIB)
