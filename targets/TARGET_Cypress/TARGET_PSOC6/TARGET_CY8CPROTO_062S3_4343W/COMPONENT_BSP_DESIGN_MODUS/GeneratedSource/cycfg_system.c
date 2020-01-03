@@ -5,7 +5,7 @@
 * System configuration
 * This file was automatically generated and should not be modified.
 * Device Configurator: 2.0.0.1483
-* Device Support Library (../../../psoc6pdl): 1.3.1.1499
+* Device Support Library (../../../../output/libs/COMPONENT_PSOC6/psoc6pdl): 1.4.0.1889
 *
 ********************************************************************************
 * Copyright 2017-2019 Cypress Semiconductor Corporation
@@ -242,14 +242,14 @@ __STATIC_INLINE void init_cycfg_power(void)
 {
      /* Reset the Backup domain on POR, XRES, BOD only if Backup domain is supplied by VDDD */
      #if (CY_CFG_PWR_VBACKUP_USING_VDDD)
+     #ifdef CY_CFG_SYSCLK_ILO_ENABLED
      if (0u == Cy_SysLib_GetResetReason() /* POR, XRES, or BOD */)
      {
          Cy_SysLib_ResetBackupDomain();
          Cy_SysClk_IloDisable();
          Cy_SysClk_IloInit();
      }
-     #else /* Dedicated Supply */
-     Cy_SysPm_BackupSetSupply(CY_SYSPM_VDDBACKUP_VBACKUP);
+     #endif /* CY_CFG_SYSCLK_ILO_ENABLED */
      #endif /* CY_CFG_PWR_VBACKUP_USING_VDDD */
 
      /* Configure core regulator */

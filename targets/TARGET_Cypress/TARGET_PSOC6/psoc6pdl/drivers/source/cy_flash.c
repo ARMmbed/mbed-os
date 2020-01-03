@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_flash.c
-* \version 3.30.2
+* \version 3.30.3
 *
 * \brief
 * Provides the public functions for the API for the PSoC 6 Flash Driver.
@@ -143,9 +143,7 @@ typedef cy_en_flashdrv_status_t (*Cy_Flash_Proxy)(cy_stc_flash_context_t *contex
     /* The default delay time value */
     #define CY_FLASH_DEFAULT_DELAY                     (150UL)
     /* Calculates the time in microseconds to wait for the number of the CM0P ticks */
-    #define CY_FLASH_DELAY_CORRECTIVE(ticks)           ((((uint32)Cy_SysClk_ClkPeriGetDivider() + 1UL) * \
-                                                       (Cy_SysClk_ClkSlowGetDivider() + 1UL) * (ticks) * 1000UL)\
-                                                       / ((uint32_t)cy_Hfclk0FreqHz / 1000UL))
+    #define CY_FLASH_DELAY_CORRECTIVE(ticks)           (((ticks) * 1000UL) / (Cy_SysClk_ClkSlowGetFrequency() / 1000UL))
 
     /* Number of the CM0P ticks for StartProgram function delay corrective time */
     #define CY_FLASH_START_PROGRAM_DELAY_TICKS         (6000UL)

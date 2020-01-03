@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_wdt.c
-* \version 1.10.1
+* \version 1.20
 *
 *  This file provides the source code to the API for the WDT driver.
 *
@@ -23,7 +23,6 @@
 *******************************************************************************/
 
 #include "cy_wdt.h"
-#include "cy_syslib.h"
 
 #if defined(__cplusplus)
 extern "C" {
