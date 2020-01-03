@@ -104,6 +104,7 @@ ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::init_(
 
     if (result != BLE_ERROR_NONE) {
         delete _db;
+        _db = NULL;
         return result;
     }
 
@@ -138,6 +139,7 @@ ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::setData
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::reset_(void) {
     delete _db;
+    _db = NULL;
     _pal.reset();
     SecurityManager::reset_();
 
