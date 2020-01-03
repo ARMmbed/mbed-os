@@ -137,15 +137,18 @@ class GCC(mbedToolchain):
         self.use_distcc = (bool(getenv("DISTCC_POTENTIAL_HOSTS", False))
                            and not getenv("MBED_DISABLE_DISTCC", False))
 
+        # create copies of gcc/ld options as coverage build options, and injects extra coverage options 
         self.coverage_cc = self.cc + ["--coverage", "-DENABLE_LIBGCOV_PORT"]
         self.coverage_cppc = self.cppc + ["--coverage", "-DENABLE_LIBGCOV_PORT"]
         self.coverage_ld = self.ld + ['--coverage', '-Wl,--wrap,GREENTEA_SETUP', '-Wl,--wrap,_Z25GREENTEA_TESTSUITE_RESULTi']
 
+        # for gcc coverage options remove MBED_DEBUG macro (this is required by code coverage function)
         for flag in ["-DMBED_DEBUG"]:
             if flag in self.coverage_cc:
                 self.coverage_cc.remove(flag)
             if flag in self.coverage_cppc:
                 self.coverage_cppc.remove(flag)
+        #  for lg coverage options remove exit wrapper (this is required by code coverage function)
         for flag in ['-Wl,--wrap,exit', '-Wl,--wrap,atexit']:
             if flag in self.coverage_ld:
                 self.coverage_ld.remove(flag)
@@ -224,6 +227,7 @@ class GCC(mbedToolchain):
         return opts
 
     def match_coverage_patterns(self, source):
+        """Check whether the give source file match with coverage patterns, if so return True. """
         for pattern in self.coverage_patterns:
             if fnmatch.fnmatch(source, pattern):
                 return True
