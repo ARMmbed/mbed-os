@@ -895,10 +895,6 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
     def add_regions(self):
         """Add regions to the build profile, if there are any.
         """
-
-        if not getattr(self.target, "bootloader_supported", False):
-            return
-
         if self.config.has_regions:
             regions = list(self.config.regions)
             regions.sort(key=lambda x: x.start)
@@ -918,7 +914,6 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
 
         Region = namedtuple("Region", "name start size")
 
-
         # Add all available ROM regions to build profile
         if not getattr(self.target, "static_memory_defines", False):
             raise ConfigException()
@@ -932,6 +927,7 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
                 True,
                 suffixes=["_START", "_SIZE"]
             )
+
         # Add all available RAM regions to build profile
         if not getattr(self.target, "static_memory_defines", False):
             raise ConfigException()
@@ -945,6 +941,7 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
                 True,
                 suffixes=["_START", "_SIZE"]
             )
+
 
     STACK_PARAM = "target.boot-stack-size"
     TFM_LVL_PARAM = "tfm.level"
