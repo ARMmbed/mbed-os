@@ -261,9 +261,11 @@ def main():
                 library_build_success = True
             except ToolException as e:
                 # ToolException output is handled by the build log
+                print("ERROR: " + str(e))
                 pass
             except NotSupportedException as e:
                 # NotSupportedException is handled by the build log
+                print("ERROR: " + str(e))
                 pass
             except Exception as e:
                 if options.verbose:
