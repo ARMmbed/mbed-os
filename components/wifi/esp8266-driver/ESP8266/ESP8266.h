@@ -250,17 +250,6 @@ public:
     */
     nsapi_error_t open_tcp(int id, const char *addr, int port, int keepalive = 0);
 
-    /** ESP8266 send status.
-     *
-     * There is one send status per device, because the ACKs are just simple "SEND OK/FAIL"
-     * with no way to tell which socket is reporting back.
-     */
-    enum send_status {
-        SEND_STATUS_OK      = 0, /*!< device is able to send */
-        SEND_STATUS_PENDING = 1, /*!< previous send is pending for OK/FAIL */
-        SEND_STATUS_FAILED  = 2  /*!< previous send FAILed */
-    };
-
     /**
     * Sends data to an open socket
     *
@@ -455,7 +444,6 @@ private:
         // data follows
     } *_packets, * *_packets_end;
     void _clear_socket_packets(int id);
-    void _clear_send_status(void);
     int _sock_active_id;
 
     // Memory statistics
@@ -493,7 +481,7 @@ private:
     bool _error;
     bool _busy;
     bool _reset_done;
-    send_status _send_status;
+    int _sock_sending_id;
 
     // Modem's address info
     char _ip_buffer[16];
@@ -508,6 +496,7 @@ private:
         char *tcp_data;
         int32_t tcp_data_avbl; // Data waiting on modem
         int32_t tcp_data_rcvd;
+        bool send_fail;     // Received 'SEND FAIL'. Expect user will close the socket.
     };
     struct _sock_info _sock_i[SOCKET_COUNT];
 
