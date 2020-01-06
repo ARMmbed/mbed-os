@@ -33,7 +33,7 @@ if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
 }
 
 define symbol CSTACK_SIZE   = MBED_BOOT_STACK_SIZE;
-define symbol HEAP_SIZE     = 0x50000;
+define symbol __ICFEDIT_size_heap__   = 0x50000;
 
 /*Meory regions*/
 define memory mem with size = 4G;
@@ -42,7 +42,7 @@ define region ROM_REGION    = mem:[from S5JS100_CODE_BASE to S5JS100_CODE_END];
 define region IRAM_REGION   = mem:[from S5JS100_IRAM_BASE to S5JS100_IRAM_END];
 
 define block CSTACK with alignment = 8, size = CSTACK_SIZE { };
-define block HEAP   with alignment = 8, size = HEAP_SIZE   { };
+define block HEAP   with alignment = 8, size = __ICFEDIT_size_heap__ { };
 define block RW     { readwrite };
 define block ZI     { zi };
 
