@@ -150,6 +150,10 @@ void SystemCoreConfig()
     const uint32_t *src;
     uint32_t *dest, size;
 
+#if defined (__VTOR_PRESENT) && (__VTOR_PRESENT == 1U)
+    SCB->VTOR = (uint32_t) 0;
+#endif
+
 #if defined ( __ICCARM__ )
     src = &__vector_table;
 
