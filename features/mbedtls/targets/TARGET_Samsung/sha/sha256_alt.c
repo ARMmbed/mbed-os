@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2015-2016 Nuvoton
+ * Copyright (c) 2006-2019 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/****************************************************************************
+ *
+ * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific
+ * language governing permissions and limitations under the License.
+ *
+ ****************************************************************************/
+
 
 #include "mbedtls/sha256.h"
 #include "mbedtls/platform_util.h"
@@ -76,8 +95,8 @@ void mbedtls_sha256_clone(mbedtls_sha256_context *dst,
         return;
     }
 
-	//SHA256_VALIDATE( dst != NULL );
-	//SHA256_VALIDATE( src != NULL );
+	SHA256_VALIDATE( dst != NULL );
+	SHA256_VALIDATE( src != NULL );
 
 	memcpy(dst, src, sizeof(mbedtls_sha256_context));
 }
@@ -94,9 +113,8 @@ int mbedtls_sha256_starts_ret(mbedtls_sha256_context *ctx, int is224)
     ctx->total[1] = 0;
 
     if( is224 == 0 )
-    {  //SHA-256 by SSS H/W
+    {  
 		ctx->is224 = 0;
-	///	memset( ctx->sbuf, 0, sizeof( ctx->sbuf ) );
 		memset( ctx, 0, sizeof( mbedtls_sha256_context ) );
 	}
     else
@@ -106,14 +124,15 @@ int mbedtls_sha256_starts_ret(mbedtls_sha256_context *ctx, int is224)
         ctx->state[1] = 0x367CD507;
         ctx->state[2] = 0x3070DD17;
         ctx->state[3] = 0xF70E5939;
-        ctx->state[4] = 0xFFC00B31;
-        ctx->state[5] = 0x68581511;
-        ctx->state[6] = 0x64F98FA7;
-        ctx->state[7] = 0xBEFA4FA4;
+		ctx->state[4] = 0xFFC00B31;
+		ctx->state[5] = 0x68581511;
+		ctx->state[6] = 0x64F98FA7;
+		ctx->state[7] = 0xBEFA4FA4;
 		ctx->is224 = is224;
     }
 
-    return( 0 );
+	// No any of H/W access, always return OK
+    return 0;
 }
 
 /*
@@ -128,7 +147,6 @@ int mbedtls_sha256_update_ret(mbedtls_sha256_context *ctx, const unsigned char *
 		if(ilen > MAX_MB_HASH_BLOCK_BLEN || ctx->totals > MAX_MB_HASH_BLOCK_BLEN) {
 			// H/W SHA has limitation to seperated API with oversized message.
 			// fall back to S/W SHA-256
-			//memset( ctx, 0, sizeof( mbedtls_sha256_context ) );
 			if(ctx->totals == 0) {
 				ctx->total[0] = 0;
 				ctx->total[1] = 0;
@@ -150,6 +168,8 @@ int mbedtls_sha256_update_ret(mbedtls_sha256_context *ctx, const unsigned char *
 			ctx->pstMessage.u32DataByteLen += ilen;
 		}
 	}
+
+	// No any of H/W access, always return OK
     return 0;
 }
 
@@ -177,7 +197,7 @@ int mbedtls_sha256_finish_ret(mbedtls_sha256_context *ctx, unsigned char output[
 
 		//! assign hash_byte_len to compare returned result from sss_fw after hash operation
 		object_id = OID_SHA2_256;
-		block_byte_len = 64; /* meaningless*/
+		block_byte_len = 64;  /* dummy */
 
 		//! step 1 : set message length parameter to SSS
 		ret = mb_hash_init(&ctx->pstMessage, object_id);
