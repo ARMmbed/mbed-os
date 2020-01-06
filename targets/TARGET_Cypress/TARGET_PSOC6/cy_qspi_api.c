@@ -110,32 +110,44 @@ qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, 
 
 const PinMap *qspi_master_sclk_pinmap(void)
 {
-    return PinMap_QSPI_SCLK;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_smif_spi_clk, sizeof(cyhal_pin_map_smif_spi_clk));
+    return pin_map;
 }
 
 const PinMap *qspi_master_ssel_pinmap(void)
 {
-    return PinMap_QSPI_SSEL;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_smif_spi_select0, sizeof(cyhal_pin_map_smif_spi_select0));
+    return pin_map;
 }
 
 const PinMap *qspi_master_data0_pinmap(void)
 {
-    return PinMap_QSPI_DATA0;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_smif_spi_data0, sizeof(cyhal_pin_map_smif_spi_data0));
+    return pin_map;
 }
 
 const PinMap *qspi_master_data1_pinmap(void)
 {
-    return PinMap_QSPI_DATA1;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_smif_spi_data1, sizeof(cyhal_pin_map_smif_spi_data1));
+    return pin_map;
 }
 
 const PinMap *qspi_master_data2_pinmap(void)
 {
-    return PinMap_QSPI_DATA2;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_smif_spi_data2, sizeof(cyhal_pin_map_smif_spi_data2));
+    return pin_map;
 }
 
 const PinMap *qspi_master_data3_pinmap(void)
 {
-    return PinMap_QSPI_DATA3;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_smif_spi_data3, sizeof(cyhal_pin_map_smif_spi_data3));
+    return pin_map;
 }
 
 #ifdef __cplusplus

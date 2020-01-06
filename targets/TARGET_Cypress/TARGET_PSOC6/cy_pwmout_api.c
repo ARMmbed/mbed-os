@@ -94,7 +94,10 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 
 const PinMap *pwmout_pinmap(void)
 {
-    return PinMap_PWM_OUT;
+    static PinMap* pin_map;
+    try_create_combined_pin_map(&pin_map, cyhal_pin_map_tcpwm_line, sizeof(cyhal_pin_map_tcpwm_line), cyhal_pin_map_tcpwm_line_compl, sizeof(cyhal_pin_map_tcpwm_line_compl));
+
+    return pin_map;
 }
 
 #ifdef __cplusplus

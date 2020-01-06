@@ -61,7 +61,9 @@ uint16_t analogout_read_u16(dac_t *obj)
 
 const PinMap *analogout_pinmap(void)
 {
-    return PinMap_DAC;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_pass_ctdac_voutsw, sizeof(cyhal_pin_map_pass_ctdac_voutsw));
+    return pin_map;
 }
 
 #ifdef __cplusplus

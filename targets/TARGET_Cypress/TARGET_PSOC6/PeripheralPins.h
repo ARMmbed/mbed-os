@@ -23,52 +23,24 @@
 #include "pinmap.h"
 #include "PeripheralNames.h"
 
+/**
+ * This functions creates a PinMap[] from the cypress cyhal_resource_pin_mapping_t[] which has different format.
+ * The cypress cyhal_resource_mapping_t has use a fixed size array with no trailing NC terminating array element.
+ * @param[in,out] pin_map        the address of the static pin_map array to try to create
+ * @param[in]     resource_map   the Cypress hal resource pin mapping
+ * @param[in]     resource_size  the total size in bytes of resource_map
+ */
+void try_create_pin_map(PinMap **pin_map, const cyhal_resource_pin_mapping_t* resource_map, size_t resource_size);
 
-//*** I2C ***
-#if DEVICE_I2C
-extern const PinMap PinMap_I2C_SDA[];
-extern const PinMap PinMap_I2C_SCL[];
-#endif
-
-//*** PWM ***
-#if DEVICE_PWMOUT
-extern const PinMap PinMap_PWM_OUT[];
-#endif
-
-//*** SERIAL ***
-#if DEVICE_SERIAL
-extern const PinMap PinMap_UART_TX[];
-extern const PinMap PinMap_UART_RX[];
-extern const PinMap PinMap_UART_RTS[];
-extern const PinMap PinMap_UART_CTS[];
-#endif
-
-//*** SPI ***
-#if DEVICE_SPI
-extern const PinMap PinMap_SPI_MOSI[];
-extern const PinMap PinMap_SPI_MISO[];
-extern const PinMap PinMap_SPI_SCLK[];
-extern const PinMap PinMap_SPI_SSEL[];
-#endif
-
-//*** ADC ***
-#if DEVICE_ANALOGIN
-extern const PinMap PinMap_ADC[];
-#endif
-
-//*** DAC ***
-#if DEVICE_ANALOGOUT
-extern const PinMap PinMap_DAC[];
-#endif
-
-//*** QSPI ***
-#if DEVICE_QSPI
-extern const PinMap PinMap_QSPI_SCLK[];
-extern const PinMap PinMap_QSPI_SSEL[];
-extern const PinMap PinMap_QSPI_DATA0[];
-extern const PinMap PinMap_QSPI_DATA1[];
-extern const PinMap PinMap_QSPI_DATA2[];
-extern const PinMap PinMap_QSPI_DATA3[];
-#endif
+/**
+ * This functions creates a PinMap[] from two cypress cyhal_resource_pin_mapping_t[] which has different format.
+ * The cypress cyhal_resource_mapping_t has use a fixed size array with no trailing NC terminating array element.
+ * @param[in,out] pin_map         the address of the static pin_map array to try to create
+ * @param[in]     resource_map0   the first Cypress hal resource pin mapping
+ * @param[in]     resource_size0  the total size in bytes of in the first resource_map
+ * @param[in]     resource_map1   the second Cypress hal resource pin mapping
+ * @param[in]     resource_size1  the total size in bytes of in the second resource_map
+ */
+void try_create_combined_pin_map(PinMap **pin_map, const cyhal_resource_pin_mapping_t* resource_map0, size_t resource_size0, const cyhal_resource_pin_mapping_t* resource_map1, size_t resource_size1);
 
 #endif

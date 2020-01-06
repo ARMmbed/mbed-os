@@ -68,7 +68,9 @@ void analogin_free(analogin_t *obj)
 
 const PinMap *analogin_pinmap(void)
 {
-    return PinMap_ADC;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_pass_sarmux_pads, sizeof(cyhal_pin_map_pass_sarmux_pads));
+    return pin_map;
 }
 
 #ifdef __cplusplus

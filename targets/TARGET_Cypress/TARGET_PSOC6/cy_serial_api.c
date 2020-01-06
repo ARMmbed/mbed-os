@@ -228,22 +228,30 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
 
 const PinMap *serial_tx_pinmap(void)
 {
-    return PinMap_UART_TX;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_scb_uart_tx, sizeof(cyhal_pin_map_scb_uart_tx));
+    return pin_map;
 }
 
 const PinMap *serial_rx_pinmap(void)
 {
-    return PinMap_UART_RX;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_scb_uart_rx, sizeof(cyhal_pin_map_scb_uart_rx));
+    return pin_map;
 }
 
 const PinMap *serial_cts_pinmap(void)
 {
-    return PinMap_UART_CTS;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_scb_uart_cts, sizeof(cyhal_pin_map_scb_uart_cts));
+    return pin_map;
 }
 
 const PinMap *serial_rts_pinmap(void)
 {
-    return PinMap_UART_RTS;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_scb_uart_rts, sizeof(cyhal_pin_map_scb_uart_rts));
+    return pin_map;
 }
 
 #if DEVICE_SERIAL_ASYNCH

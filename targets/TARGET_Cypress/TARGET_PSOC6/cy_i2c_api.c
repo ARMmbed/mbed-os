@@ -220,22 +220,30 @@ int i2c_byte_write(i2c_t *obj, int data)
 
 const PinMap *i2c_master_sda_pinmap(void)
 {
-    return PinMap_I2C_SDA;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_scb_i2c_sda, sizeof(cyhal_pin_map_scb_i2c_sda));
+    return pin_map;
 }
 
 const PinMap *i2c_master_scl_pinmap(void)
 {
-    return PinMap_I2C_SCL;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_scb_i2c_scl, sizeof(cyhal_pin_map_scb_i2c_scl));
+    return pin_map;
 }
 
 const PinMap *i2c_slave_sda_pinmap(void)
 {
-    return PinMap_I2C_SDA;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_scb_i2c_sda, sizeof(cyhal_pin_map_scb_i2c_sda));
+    return pin_map;
 }
 
 const PinMap *i2c_slave_scl_pinmap(void)
 {
-    return PinMap_I2C_SCL;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_scb_i2c_scl, sizeof(cyhal_pin_map_scb_i2c_scl));
+    return pin_map;
 }
 
 #if DEVICE_I2CSLAVE

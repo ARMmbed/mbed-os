@@ -194,42 +194,58 @@ uint8_t spi_get_module(spi_t *obj)
 
 const PinMap *spi_master_mosi_pinmap(void)
 {
-    return PinMap_SPI_MOSI;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_scb_spi_m_mosi, sizeof(cyhal_pin_map_scb_spi_m_mosi));
+    return pin_map;
 }
 
 const PinMap *spi_master_miso_pinmap(void)
 {
-    return PinMap_SPI_MISO;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_scb_spi_m_miso, sizeof(cyhal_pin_map_scb_spi_m_miso));
+    return pin_map;
 }
 
 const PinMap *spi_master_clk_pinmap(void)
 {
-    return PinMap_SPI_SCLK;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_scb_spi_m_clk, sizeof(cyhal_pin_map_scb_spi_m_clk));
+    return pin_map;
 }
 
 const PinMap *spi_master_cs_pinmap(void)
 {
-    return PinMap_SPI_SSEL;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_scb_spi_m_miso, sizeof(cyhal_pin_map_scb_spi_m_select0));
+    return pin_map;
 }
 
 const PinMap *spi_slave_mosi_pinmap(void)
 {
-    return PinMap_SPI_MOSI;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_scb_spi_s_mosi, sizeof(cyhal_pin_map_scb_spi_s_mosi));
+    return pin_map;
 }
 
 const PinMap *spi_slave_miso_pinmap(void)
 {
-    return PinMap_SPI_MISO;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_scb_spi_s_miso, sizeof(cyhal_pin_map_scb_spi_s_miso));
+    return pin_map;
 }
 
 const PinMap *spi_slave_clk_pinmap(void)
 {
-    return PinMap_SPI_SCLK;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_scb_spi_s_clk, sizeof(cyhal_pin_map_scb_spi_s_clk));
+    return pin_map;
 }
 
 const PinMap *spi_slave_cs_pinmap(void)
 {
-    return PinMap_SPI_SSEL;
+    static PinMap* pin_map;
+    try_create_pin_map(&pin_map, cyhal_pin_map_scb_spi_s_select0, sizeof(cyhal_pin_map_scb_spi_s_select0));
+    return pin_map;
 }
 
 #if DEVICE_SPI_ASYNCH
