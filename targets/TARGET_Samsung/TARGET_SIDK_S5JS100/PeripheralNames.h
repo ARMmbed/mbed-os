@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2018 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,13 +107,6 @@ typedef enum {
 #define STDIO_UART _UART_NAME(UART_, UART_STDIO_PORT)
 #endif
 
-
-/* what are these ports for? */
-//#define MBED_UART0        UART_TX0, UART_RX0
-//#define MBED_UART1        UART_TX1, UART_RX1
-//#define MBED_UARTUSB      UART_TX1, UART_RX1
-
-//USB UART - what for ???
 #define USBTX   UART_TX0
 #define USBRX   UART_RX0
 
