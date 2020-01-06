@@ -33,8 +33,8 @@
 #include "HeapBlockDevice.h"
 #include "FATFileSystem.h"
 
-
-#if !defined(DEVICE_USBDEVICE) || !DEVICE_USBDEVICE
+// TARGET_NANO100 SRAM 16KB can't afford mass-storage-disk test, so skip usb_msd_test.
+#if !defined(DEVICE_USBDEVICE) || !DEVICE_USBDEVICE || TARGET_NANO100
 #error [NOT_SUPPORTED] USB Device not supported for this target
 #else
 
