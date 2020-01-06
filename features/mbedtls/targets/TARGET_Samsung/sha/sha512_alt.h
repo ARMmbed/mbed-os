@@ -26,24 +26,24 @@
 extern "C" {
 #endif
 
-#define ST_SHA512_BUF_SIZE ((size_t)  512) 
+#define ST_SHA512_BUF_SIZE ((size_t)  512)
 struct mbedtls_sha512_context_s;
 
 /**
  * \brief          SHA-512 context structure
  */
 typedef struct mbedtls_sha512_context_s {
-	/* for S/W SHA-384 */
+    /* for S/W SHA-384 */
     uint64_t total[2];          /*!< The number of Bytes processed. */
     uint64_t state[8];          /*!< The intermediate digest state. */
     unsigned char buffer[128];  /*!< The data block being processed. */
     int is384;                  /*!< Determines which function to use:
                                      0: Use SHA-512, or 1: Use SHA-384. */
-	/* for H/W SHA-512 */
-	uint32_t totals;
+    /* for H/W SHA-512 */
+    uint32_t totals;
     unsigned char sbuf[ST_SHA512_BUF_SIZE]; /*!< ST_SHA512_BLOCK_SIZE buffer to store values so that algorithm is called once the buffer is filled */
-	stOCTET_STRING pstMessage;
-	stOCTET_STRING pstDigest;
+    stOCTET_STRING pstMessage;
+    stOCTET_STRING pstDigest;
 
 }
 mbedtls_sha512_context;
@@ -53,14 +53,14 @@ mbedtls_sha512_context;
  *
  * \param ctx      SHA-512 context to be initialized
  */
-void mbedtls_sha512_init( mbedtls_sha512_context *ctx );
+void mbedtls_sha512_init(mbedtls_sha512_context *ctx);
 
 /**
  * \brief          Clear SHA-512 context
  *
  * \param ctx      SHA-512 context to be cleared
  */
-void mbedtls_sha512_free( mbedtls_sha512_context *ctx );
+void mbedtls_sha512_free(mbedtls_sha512_context *ctx);
 
 /**
  * \brief          Clone (the state of) a SHA-512 context
@@ -68,8 +68,8 @@ void mbedtls_sha512_free( mbedtls_sha512_context *ctx );
  * \param dst      The destination context
  * \param src      The context to be cloned
  */
-void mbedtls_sha512_clone( mbedtls_sha512_context *dst,
-                           const mbedtls_sha512_context *src );
+void mbedtls_sha512_clone(mbedtls_sha512_context *dst,
+                          const mbedtls_sha512_context *src);
 
 /**
  * \brief          SHA-512 context setup
@@ -79,7 +79,7 @@ void mbedtls_sha512_clone( mbedtls_sha512_context *dst,
  *
  * \returns        error code
  */
-int mbedtls_sha512_starts_ret( mbedtls_sha512_context *ctx, int is224 );
+int mbedtls_sha512_starts_ret(mbedtls_sha512_context *ctx, int is224);
 
 /**
  * \brief          SHA-512 process buffer
@@ -90,8 +90,8 @@ int mbedtls_sha512_starts_ret( mbedtls_sha512_context *ctx, int is224 );
  *
  * \returns        error code
  */
-int mbedtls_sha512_update_ret( mbedtls_sha512_context *ctx, const unsigned char *input,
-                               size_t ilen );
+int mbedtls_sha512_update_ret(mbedtls_sha512_context *ctx, const unsigned char *input,
+                              size_t ilen);
 
 /**
  * \brief          SHA-512 final digest
@@ -101,10 +101,10 @@ int mbedtls_sha512_update_ret( mbedtls_sha512_context *ctx, const unsigned char 
  *
  * \returns        error code
  */
-int mbedtls_sha512_finish_ret( mbedtls_sha512_context *ctx, unsigned char output[64] );
+int mbedtls_sha512_finish_ret(mbedtls_sha512_context *ctx, unsigned char output[64]);
 
 /* Internal use */
-int mbedtls_internal_sha512_process( mbedtls_sha512_context *ctx, const unsigned char data[128] );
+int mbedtls_internal_sha512_process(mbedtls_sha512_context *ctx, const unsigned char data[128]);
 
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
 #if defined(MBEDTLS_DEPRECATED_WARNING)
@@ -122,8 +122,8 @@ int mbedtls_internal_sha512_process( mbedtls_sha512_context *ctx, const unsigned
  *                 <ul><li>0: Use SHA-512.</li>
  *                 <li>1: Use SHA-224.</li></ul>
  */
-MBEDTLS_DEPRECATED void mbedtls_sha512_starts( mbedtls_sha512_context *ctx,
-                                               int is224 );
+MBEDTLS_DEPRECATED void mbedtls_sha512_starts(mbedtls_sha512_context *ctx,
+                                              int is224);
 
 /**
  * \brief          This function feeds an input buffer into an ongoing
@@ -135,9 +135,9 @@ MBEDTLS_DEPRECATED void mbedtls_sha512_starts( mbedtls_sha512_context *ctx,
  * \param input    The buffer holding the data.
  * \param ilen     The length of the input data.
  */
-MBEDTLS_DEPRECATED void mbedtls_sha512_update( mbedtls_sha512_context *ctx,
-                                               const unsigned char *input,
-                                               size_t ilen );
+MBEDTLS_DEPRECATED void mbedtls_sha512_update(mbedtls_sha512_context *ctx,
+                                              const unsigned char *input,
+                                              size_t ilen);
 
 /**
  * \brief          This function finishes the SHA-512 operation, and writes
@@ -148,8 +148,8 @@ MBEDTLS_DEPRECATED void mbedtls_sha512_update( mbedtls_sha512_context *ctx,
  * \param ctx      The SHA-512 context.
  * \param output   The SHA-224or SHA-512 checksum result.
  */
-MBEDTLS_DEPRECATED void mbedtls_sha512_finish( mbedtls_sha512_context *ctx,
-                                               unsigned char output[64] );
+MBEDTLS_DEPRECATED void mbedtls_sha512_finish(mbedtls_sha512_context *ctx,
+                                              unsigned char output[64]);
 
 /**
  * \brief          This function processes a single data block within
@@ -161,8 +161,8 @@ MBEDTLS_DEPRECATED void mbedtls_sha512_finish( mbedtls_sha512_context *ctx,
  * \param ctx      The SHA-512 context.
  * \param data     The buffer holding one block of data.
  */
-MBEDTLS_DEPRECATED void mbedtls_sha512_process( mbedtls_sha512_context *ctx,
-                                                const unsigned char data[128] );
+MBEDTLS_DEPRECATED void mbedtls_sha512_process(mbedtls_sha512_context *ctx,
+                                               const unsigned char data[128]);
 
 #undef MBEDTLS_DEPRECATED
 #endif /* !MBEDTLS_DEPRECATED_REMOVED */
