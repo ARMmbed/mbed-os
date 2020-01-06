@@ -121,8 +121,8 @@ void mbedtls_sha512_clone(mbedtls_sha512_context *dst,
         return;
     }
 
-	//SHA256_VALIDATE( dst != NULL );
-	//SHA256_VALIDATE( src != NULL );
+	SHA512_VALIDATE( dst != NULL );
+	SHA512_VALIDATE( src != NULL );
 
 	memcpy(dst, src, sizeof(mbedtls_sha512_context));
 }
@@ -137,7 +137,7 @@ int mbedtls_sha512_starts_ret(mbedtls_sha512_context *ctx, int is384)
 	memset( ctx, 0, sizeof( mbedtls_sha512_context ) );
 	ctx->is384 = is384;
 
-    return( 0 );
+    return 0;
 }
 
 /*
@@ -148,7 +148,6 @@ int mbedtls_sha512_update_ret(mbedtls_sha512_context *ctx, const unsigned char *
 	if(ilen > MAX_MB_HASH_BLOCK_BLEN || ctx->totals > MAX_MB_HASH_BLOCK_BLEN) {
 		// H/W SHA has limitation to seperated API with oversized message.
 		// fall back to S/W SHA-512
-		//memset( ctx, 0, sizeof( mbedtls_sha512_context ) );
 		if(ctx->totals == 0) {
 			ctx->total[0] = 0;
 			ctx->total[1] = 0;
@@ -181,6 +180,7 @@ int mbedtls_sha512_update_ret(mbedtls_sha512_context *ctx, const unsigned char *
 		memcpy(ctx->sbuf + ctx->pstMessage.u32DataByteLen, input, ilen);
 		ctx->pstMessage.u32DataByteLen += ilen;
 	}
+
     return 0;
 }
 
@@ -212,7 +212,7 @@ int mbedtls_sha512_finish_ret(mbedtls_sha512_context *ctx, unsigned char output[
 		else
 			object_id = OID_SHA2_384;
 
-		block_byte_len = 64; /* meaningless*/
+		block_byte_len = 64;
 
 		//! step 1 : set message length parameter to SSS
 		ret = mb_hash_init(&ctx->pstMessage, object_id);
@@ -234,6 +234,11 @@ int mbedtls_sha512_finish_ret(mbedtls_sha512_context *ctx, unsigned char output[
 
 		//! step 3 : get hash result from SSS
 		ret = mb_hash_final(&stHASH_Input, &ctx->pstDigest);
+
+		if (ret != SSSR_SUCCESS) {
+			return ret;
+		}
+
 	}
     return 0;
 }
@@ -366,7 +371,7 @@ int mbedtls_internal_sha512_process( mbedtls_sha512_context *ctx,
     for( i = 0; i < 8; i++ )
         ctx->state[i] += A[i];
 
-    return( 0 );
+    return 0;
 }
 
 int mbedtls_sha512_sw_finish_ret( mbedtls_sha512_context *ctx,
@@ -431,7 +436,7 @@ int mbedtls_sha512_sw_finish_ret( mbedtls_sha512_context *ctx,
         sha512_put_uint64_be( ctx->state[7], output, 56 );
     }
 
-    return( 0 );
+    return 0;
 }
 
 int mbedtls_sha512_sw_update_ret(mbedtls_sha512_context *ctx, const unsigned char *input, size_t ilen)
@@ -478,7 +483,7 @@ int mbedtls_sha512_sw_update_ret(mbedtls_sha512_context *ctx, const unsigned cha
     if( ilen > 0 )
         memcpy( (void *) (ctx->buffer + left), input, ilen );
 
-    return( 0 );
+    return 0;
 }
 	
 

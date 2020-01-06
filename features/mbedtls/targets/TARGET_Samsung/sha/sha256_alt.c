@@ -197,7 +197,7 @@ int mbedtls_sha256_finish_ret(mbedtls_sha256_context *ctx, unsigned char output[
 
 		//! assign hash_byte_len to compare returned result from sss_fw after hash operation
 		object_id = OID_SHA2_256;
-		block_byte_len = 64;  /* dummy */
+		block_byte_len = 64;  
 
 		//! step 1 : set message length parameter to SSS
 		ret = mb_hash_init(&ctx->pstMessage, object_id);
@@ -216,10 +216,13 @@ int mbedtls_sha256_finish_ret(mbedtls_sha256_context *ctx, unsigned char output[
 		if (ret != SSSR_SUCCESS) {
 			return ret;
 		}
-		
 
 		//! step 3 : get hash result from SSS
 		ret = mb_hash_final(&stHASH_Input, &ctx->pstDigest);
+		if (ret != SSSR_SUCCESS) {
+			return ret;
+		}
+	
 	}
     return 0;
 }
@@ -328,7 +331,7 @@ int mbedtls_internal_sha256_process( mbedtls_sha256_context *ctx,
     for( i = 0; i < 8; i++ )
         ctx->state[i] += A[i];
 
-    return( 0 );
+    return 0;
 }
 
 
@@ -439,10 +442,8 @@ int mbedtls_sha256_sw_update_ret(mbedtls_sha256_context *ctx, const unsigned cha
 	if( ilen > 0 )
 		memcpy( (void *) (ctx->buffer + left), input, ilen );
 
-	return( 0 );
+	return 0;
 }
-	
-
 
 #endif /* MBEDTLS_SHA256_ALT */
 #endif /* MBEDTLS_SHA256_C */
