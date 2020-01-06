@@ -138,7 +138,7 @@ int mbedtls_sha512_starts_ret(mbedtls_sha512_context *ctx, int is384)
     memset(ctx, 0, sizeof(mbedtls_sha512_context));
     ctx->is384 = is384;
 
-    return( 0 );
+    return 0;
 }
 
 /*
@@ -241,7 +241,18 @@ int mbedtls_sha512_finish_ret(mbedtls_sha512_context *ctx, unsigned char output[
             return ret;
         }
 
+<<<<<<< cd37b0cf8e0be356705b7c17c0871c8f3acc03fa
     }
+=======
+		//! step 3 : get hash result from SSS
+		ret = mb_hash_final(&stHASH_Input, &ctx->pstDigest);
+
+		if (ret != SSSR_SUCCESS) {
+			return ret;
+		}
+
+	}
+>>>>>>> tidy up PR comments #3
     return 0;
 }
 
@@ -381,7 +392,7 @@ int mbedtls_internal_sha512_process(mbedtls_sha512_context *ctx,
         ctx->state[i] += A[i];
     }
 
-    return( 0 );
+    return 0;
 }
 
 int mbedtls_sha512_sw_finish_ret(mbedtls_sha512_context *ctx,
@@ -444,7 +455,7 @@ int mbedtls_sha512_sw_finish_ret(mbedtls_sha512_context *ctx,
         sha512_put_uint64_be(ctx->state[7], output, 56);
     }
 
-    return( 0 );
+    return 0;
 }
 
 int mbedtls_sha512_sw_update_ret(mbedtls_sha512_context *ctx, const unsigned char *input, size_t ilen)
@@ -494,7 +505,7 @@ int mbedtls_sha512_sw_update_ret(mbedtls_sha512_context *ctx, const unsigned cha
         memcpy((void *)(ctx->buffer + left), input, ilen);
     }
 
-    return( 0 );
+    return 0;
 }
 
 
