@@ -334,7 +334,7 @@ int mbedtls_internal_sha256_process(mbedtls_sha256_context *ctx,
         ctx->state[i] += A[i];
     }
 
-    return( 0 );
+    return 0;
 }
 
 
@@ -450,8 +450,6 @@ int mbedtls_sha256_sw_update_ret(mbedtls_sha256_context *ctx, const unsigned cha
 
     return 0;
 }
-	
-
 
 #endif /* MBEDTLS_SHA256_ALT */
 #endif /* MBEDTLS_SHA256_C */
