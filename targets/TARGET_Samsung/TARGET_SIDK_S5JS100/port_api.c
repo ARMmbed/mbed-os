@@ -49,54 +49,17 @@ PinName port_pin(PortName port, int pin_n)
 
 void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
 {
-#if 0//revise me
-    obj->port = port;
-    obj->mask = mask;
 
-    CMSDK_GPIO_TypeDef *port_reg =
-        (CMSDK_GPIO_TypeDef *)(CMSDK_GPIO0_BASE + ((int)port * 0x10));
-
-    obj->reg_in = &port_reg->DATAOUT;
-    obj->reg_dir = &port_reg->OUTENABLESET;
-    obj->reg_dirclr = &port_reg->OUTENABLECLR;
-
-    uint32_t i;
-    // The function is set per pin: reuse gpio logic
-    for (i = 0; i < 16; i++) {
-        if (obj->mask & (1 << i)) {
-            gpio_set(port_pin(obj->port, i));
-        }
-    }
-
-    port_dir(obj, dir);
-#endif
 }
 
 void port_mode(port_t *obj, PinMode mode)
 {
-#if 0//revise me
-    uint32_t i;
-    // The mode is set per pin: reuse pinmap logic
-    for (i = 0; i < 32; i++) {
-        if (obj->mask & (1 << i)) {
-            pin_mode(port_pin(obj->port, i), mode);
-        }
-    }
-#endif
+
 }
 
 void port_dir(port_t *obj, PinDirection dir)
 {
-#if 0//revise me
-    switch (dir) {
-        case PIN_INPUT :
-            *obj->reg_dir &= ~obj->mask;
-            break;
-        case PIN_OUTPUT:
-            *obj->reg_dir |= obj->mask;
-            break;
-    }
-#endif
+
 }
 
 void port_write(port_t *obj, int value)

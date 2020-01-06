@@ -39,7 +39,6 @@
  *
  */
 
-
 /****************************************************************************
   Included Files
  ****************************************************************************/
@@ -58,18 +57,12 @@
 #include "rtx_os.h"
 #include <inttypes.h>
 #include <string.h>
+
 #ifndef NDEBUG
 #define ERROR_REPORT(ctx, error_msg, error_filename, error_line) print_error_report(ctx, error_msg, error_filename, error_line)
 static void print_error_report(const mbed_error_ctx *ctx, const char *, const char *error_filename, int error_line);
 #else
 #define ERROR_REPORT(ctx, error_msg, error_filename, error_line) ((void) 0)
-#endif
-#if MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
-//Global for populating the context in exception handler
-//mbed_fault_context_t *const mbed_fault_context = (mbed_fault_context_t *)(FAULT_CONTEXT_LOCATION);
-#else
-//mbed_fault_context_t fault_context;
-//mbed_fault_context_t *const mbed_fault_context = (mbed_fault_context_t *) &fault_context;
 #endif
 
 extern mbed_fault_context_t *mbed_fault_context;
