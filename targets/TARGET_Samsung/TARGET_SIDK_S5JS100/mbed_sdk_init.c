@@ -31,14 +31,12 @@ void mbed_sdk_init(void)
     modifyreg32(0x85026100, 0x3, 0x1);
     modifyreg32(0x85026000, 0x3, 0x0);
 
-    /* Beetle System Power Config */
     SystemPowerConfig();
 
     s5js100_pmip_initialize();
 
     /* Config EFlash Controller Clock */
     SFlash_DriverInitialize();
-//    EFlash_ClockConfig();
 
     sflash_os_env_parser();
 }
