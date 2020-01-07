@@ -33,7 +33,7 @@ if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
 }
 
 define symbol CSTACK_SIZE   = MBED_BOOT_STACK_SIZE;
-define symbol __ICFEDIT_size_heap__   = 0x50000;
+define symbol __ICFEDIT_size_heap__   = 0x0C00;
 
 /*Meory regions*/
 define memory mem with size = 4G;
