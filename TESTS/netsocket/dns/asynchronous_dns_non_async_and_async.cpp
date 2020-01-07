@@ -54,7 +54,7 @@ void ASYNCHRONOUS_DNS_NON_ASYNC_AND_ASYNC()
         get_interface()->gethostbyname_async_cancel(err);
     }
 
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, data.result);
+    TEST_ASSERT_EQUAL(1, data.result);
 
     tr_info("DNS: query \"%s\" => \"%s\"",
             dns_test_hosts_second[0], data.addr.get_ip_address());

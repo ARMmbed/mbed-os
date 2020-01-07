@@ -22,6 +22,7 @@
 #include "utest.h"
 #include "dns_tests.h"
 
+#define RESULTS_NUM 1
 using namespace utest::v1;
 
 namespace {
@@ -53,7 +54,7 @@ void ASYNCHRONOUS_DNS_CACHE()
 
         semaphore.acquire();
 
-        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, data.result);
+        TEST_ASSERT_EQUAL(RESULTS_NUM, data.result);
         TEST_ASSERT(strlen(data.addr.get_ip_address()) > 1);
 
         int delay_ms = (ticker_us - started_us) / 1000;

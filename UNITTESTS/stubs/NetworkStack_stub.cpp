@@ -27,6 +27,11 @@ nsapi_error_t NetworkStack::gethostbyname(const char *name, SocketAddress *addre
     return NSAPI_ERROR_OK;
 }
 
+nsapi_value_or_error_t NetworkStack::getaddrinfo(const char *hostname, SocketAddress *hints, SocketAddress **res, const char *interface_name)
+{
+    return NSAPI_ERROR_OK;
+}
+
 nsapi_error_t NetworkStack::add_dns_server(const SocketAddress &address, const char *interface_name)
 {
     return NSAPI_ERROR_OK;
@@ -70,6 +75,11 @@ NetworkStack *nsapi_create_stack(NetworkStack *stack)
 
 nsapi_value_or_error_t NetworkStack::gethostbyname_async(const char *host, hostbyname_cb_t callback, nsapi_version_t version,
                                                          const char *interface_name)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+nsapi_value_or_error_t NetworkStack::getaddrinfo_async(const char *hostname, SocketAddress *hints, hostbyname_cb_t callback, const char *interface_name)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }

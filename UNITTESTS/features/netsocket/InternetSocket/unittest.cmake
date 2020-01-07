@@ -3,6 +3,8 @@
 # UNIT TESTS
 ####################
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMBED_CONF_NSAPI_DNS_ADDRESSES_LIMIT=10")
+
 set(unittest-sources
   ../features/netsocket/SocketAddress.cpp
   ../features/netsocket/NetworkStack.cpp

@@ -332,11 +332,14 @@ TEST_F(Test_IfaceDnsSocket, multiple_queries)
 
     SocketAddress *addr_cache;
     // Cache will only raturn one address.
-    EXPECT_EQ(Test_IfaceDnsSocket::query_id, getaddrinfo(&stackMock(), "www.google.com", hints, &addr_cache));
+    EXPECT_EQ(3, getaddrinfo(&stackMock(), "www.google.com", hints, &addr_cache));
 
-    // This is a bug which will be fixed in
     EXPECT_EQ(addr_cache[0].get_ip_version(), NSAPI_IPv4);
     EXPECT_FALSE(strncmp(addr_cache[0].get_ip_address(), "216.58.207.238", sizeof("216.58.207.238")));
+    EXPECT_EQ(addr_cache[1].get_ip_version(), NSAPI_IPv4);
+    EXPECT_FALSE(strncmp(addr_cache[1].get_ip_address(), "222.173.190.239", sizeof("222.173.190.239")));
+    EXPECT_EQ(addr_cache[2].get_ip_version(), NSAPI_IPv4);
+    EXPECT_FALSE(strncmp(addr_cache[2].get_ip_address(), "1.2.3.4", sizeof("1.2.3.4")));
     delete[] addr_cache;
 }
 
@@ -400,7 +403,7 @@ TEST_F(Test_IfaceDnsSocket, simultaneous_query_async)
     // Run again to execute response_handler
     executeEventQueueCallbacks();
 
-    EXPECT_EQ(NSAPI_ERROR_OK, Test_IfaceDnsSocket::hostname_cb_result);
+    EXPECT_EQ(1, Test_IfaceDnsSocket::hostname_cb_result);
     EXPECT_EQ(Test_IfaceDnsSocket::hostname_cb_address[0].get_ip_version(), NSAPI_IPv4);
     EXPECT_FALSE(strncmp(Test_IfaceDnsSocket::hostname_cb_address[0].get_ip_address(), "216.58.207.238", sizeof("216.58.207.238")));
 
@@ -473,11 +476,12 @@ TEST_F(Test_IfaceDnsSocket, single_query_async_multiple)
     Test_IfaceDnsSocket::hostname_cb_result = NSAPI_ERROR_DEVICE_ERROR;
 
     // Do not set any return values. Second call should use cache.
-    // Cache will only return one address!
-    EXPECT_EQ(0, getaddrinfo_async(&stackMock(), "www.google.com", &Test_IfaceDnsSocket::hostbyname_cb));
-    EXPECT_EQ(NSAPI_ERROR_OK, Test_IfaceDnsSocket::hostname_cb_result);
+    EXPECT_EQ(3, getaddrinfo_async(&stackMock(), "www.google.com", &Test_IfaceDnsSocket::hostbyname_cb));
+    EXPECT_EQ(3, Test_IfaceDnsSocket::hostname_cb_result);
     EXPECT_EQ(Test_IfaceDnsSocket::hostname_cb_address[0].get_ip_version(), NSAPI_IPv4);
     EXPECT_FALSE(strncmp(Test_IfaceDnsSocket::hostname_cb_address[0].get_ip_address(), "216.58.207.238", sizeof("216.58.207.238")));
+    EXPECT_FALSE(strncmp(Test_IfaceDnsSocket::hostname_cb_address[1].get_ip_address(), "222.173.190.239", sizeof("222.173.190.239")));
+    EXPECT_FALSE(strncmp(Test_IfaceDnsSocket::hostname_cb_address[2].get_ip_address(), "1.2.3.4", sizeof("1.2.3.4")));
 
     delete[] Test_IfaceDnsSocket::hostname_cb_address;
 }
