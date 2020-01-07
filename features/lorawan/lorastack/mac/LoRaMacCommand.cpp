@@ -67,8 +67,9 @@ void LoRaMacCommand::parse_mac_commands_to_repeat()
     for (i = 0; i < mac_cmd_buf_idx; i++) {
         switch (mac_cmd_buffer[i]) {
             // STICKY
-            case MOTE_MAC_DL_CHANNEL_ANS:
+            case MOTE_MAC_RESET_IND:
             case MOTE_MAC_RX_PARAM_SETUP_ANS:
+            case MOTE_MAC_DL_CHANNEL_ANS:
             case MOTE_MAC_REKEY_IND: { // 1 byte payload
                 mac_cmd_buffer_to_repeat[cmd_cnt++] = mac_cmd_buffer[i++];
                 mac_cmd_buffer_to_repeat[cmd_cnt++] = mac_cmd_buffer[i];
@@ -85,13 +86,16 @@ void LoRaMacCommand::parse_mac_commands_to_repeat()
             }
             case MOTE_MAC_LINK_ADR_ANS:
             case MOTE_MAC_NEW_CHANNEL_ANS:
-            case MOTE_MAC_PING_SLOT_INFO_REQ: { // 1 byte payload
+            case MOTE_MAC_REJOIN_PARAM_SETUP_ANS:
+            case MOTE_MAC_PING_SLOT_INFO_REQ:
+            case MOTE_MAC_PING_SLOT_CHANNEL_ANS: { // 1 byte payload
                 i++;
                 break;
             }
-            case MOTE_MAC_TX_PARAM_SETUP_ANS:
-            case MOTE_MAC_DUTY_CYCLE_ANS:
             case MOTE_MAC_LINK_CHECK_REQ:
+            case MOTE_MAC_DUTY_CYCLE_ANS:
+            case MOTE_MAC_TX_PARAM_SETUP_ANS:
+            case MOTE_MAC_ADR_PARAM_SETUP_ANS:
             case MOTE_MAC_DEVICE_TIME_REQ: { // 0 byte payload
                 break;
             }
@@ -366,7 +370,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 uint32_t max_time = 1 << time;
 
                 uint8_t time_available = lora_phy.update_rejoin_params(max_time, max_count);
-                add_rejoin_param_setup_ans(time_available);
+                ret_value = add_rejoin_param_setup_ans(time_available);
             }
             break;
             case SRV_MAC_DEVICE_MODE_CONF: {
@@ -604,6 +608,7 @@ lorawan_status_t LoRaMacCommand::add_adr_param_setup_ans()
     lorawan_status_t ret = LORAWAN_STATUS_LENGTH_ERROR;
     if (cmd_buffer_remaining() > 0) {
         mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_ADR_PARAM_SETUP_ANS;
+        ret = LORAWAN_STATUS_OK;
     }
     return ret;
 }
@@ -611,9 +616,10 @@ lorawan_status_t LoRaMacCommand::add_adr_param_setup_ans()
 lorawan_status_t LoRaMacCommand::add_rejoin_param_setup_ans(uint8_t status)
 {
     lorawan_status_t ret = LORAWAN_STATUS_LENGTH_ERROR;
-    if (cmd_buffer_remaining() > 0) {
+    if (cmd_buffer_remaining() > 1) {
         mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_REJOIN_PARAM_SETUP_ANS;
         mac_cmd_buffer[mac_cmd_buf_idx++] = status & 0x01;
+        ret = LORAWAN_STATUS_OK;
     }
     return ret;
 }
@@ -623,9 +629,10 @@ lorawan_status_t LoRaMacCommand::add_ping_slot_info_req(uint8_t periodicity)
     lorawan_status_t ret = LORAWAN_STATUS_LENGTH_ERROR;
 
     if ((periodicity & 0x07) == periodicity) {
-        if (cmd_buffer_remaining() > 0) {
+        if (cmd_buffer_remaining() > 1) {
             mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_PING_SLOT_INFO_REQ;
             mac_cmd_buffer[mac_cmd_buf_idx++] = periodicity;
+            ret = LORAWAN_STATUS_OK;
         }
     } else {
         ret = LORAWAN_STATUS_PARAMETER_INVALID;
@@ -636,9 +643,10 @@ lorawan_status_t LoRaMacCommand::add_ping_slot_info_req(uint8_t periodicity)
 lorawan_status_t LoRaMacCommand::add_ping_slot_channel_ans(uint8_t status)
 {
     lorawan_status_t ret = LORAWAN_STATUS_LENGTH_ERROR;
-    if (cmd_buffer_remaining() > 0) {
+    if (cmd_buffer_remaining() > 1) {
         mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_PING_SLOT_CHANNEL_ANS;
         mac_cmd_buffer[mac_cmd_buf_idx++] = status & 0x03;
+        ret = LORAWAN_STATUS_OK;
     }
     return ret;
 }
@@ -647,9 +655,10 @@ lorawan_status_t LoRaMacCommand::add_beacon_freq_ans(uint8_t status)
 {
     lorawan_status_t ret = LORAWAN_STATUS_LENGTH_ERROR;
 
-    if (cmd_buffer_remaining() > 0) {
-        mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_PING_SLOT_CHANNEL_ANS;
+    if (cmd_buffer_remaining() > 1) {
+        mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_BEACON_FREQ_ANS;
         mac_cmd_buffer[mac_cmd_buf_idx++] = status & 0x01;
+        ret = LORAWAN_STATUS_OK;
     }
     return ret;
 }
