@@ -195,7 +195,6 @@ class TestIarToolchain(TestCase):
         """Test that an exception is raised if the std C library is not supported for a target on the IAR toolchain."""
         mock_target = mock.MagicMock()
         mock_target.core = "Cortex-M4"
-        mock_target.microlib_supported = False
         mock_target.default_lib = "std"
         mock_target.supported_c_libs = {"iar": ["small"]}
         mock_target.supported_toolchains = ["IAR"]
@@ -206,7 +205,6 @@ class TestIarToolchain(TestCase):
         """Test that an exception is raised if the small C library is not supported for a target on the IAR toolchain."""
         mock_target = mock.MagicMock()
         mock_target.core = "Cortex-M4"
-        mock_target.microlib_supported = False
         mock_target.default_lib = "small"
         mock_target.supported_c_libs = {"iar": ["std"]}
         mock_target.supported_toolchains = ["IAR"]
