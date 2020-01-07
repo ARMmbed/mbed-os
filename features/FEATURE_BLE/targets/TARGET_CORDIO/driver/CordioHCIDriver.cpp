@@ -144,14 +144,17 @@ void CordioHCIDriver::handle_reset_sequence(uint8_t *pMsg)
                 /* parse and store event parameters */
                 BdaCpy(hciCoreCb.bdAddr, pMsg);
 
-                ble::address_t static_address;
+                const ble::peripheral_privacy_configuration_t configuration = {
+                    .use_non_resolvable_random_address = false,
+                    .resolution_strategy = ble::peripheral_privacy_configuration_t::DO_NOT_RESOLVE
+                };
 
-                if (get_random_static_address(static_address)) {
+                if (
+                    cordio::BLE::deviceInstance().getGap(
+                    ).setPeripheralPrivacyConfiguration(&configuration)
+                ) {
                     // note: will send the HCI command to send the random address
-                    cordio::BLE::deviceInstance().getGap().setAddress(
-                        BLEProtocol::AddressType::RANDOM_STATIC,
-                        static_address.data()
-                    );
+                    cordio::BLE::deviceInstance().getGap().enablePrivacy(false);
                 } else {
                     /* send next command in sequence */
                     HciLeReadBufSizeCmd();

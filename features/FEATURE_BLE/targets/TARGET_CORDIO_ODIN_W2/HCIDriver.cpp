@@ -337,14 +337,17 @@ void ble::vendor::odin_w2::HCIDriver::handle_reset_sequence(uint8_t *pMsg)
                     randCnt++;
                     HciLeRandCmd();
                 } else {
-                    uint8_t addr[6] = { 0 };
-                    memcpy(addr, pMsg, sizeof(addr));
-                    DM_RAND_ADDR_SET(addr, DM_RAND_ADDR_STATIC);
-                    // note: will invoke set rand address
-                    cordio::BLE::deviceInstance().getGap().setAddress(
-                        BLEProtocol::AddressType::RANDOM_STATIC,
-                        addr
-                    );
+                    const ble::peripheral_privacy_configuration_t configuration = {
+                        .use_non_resolvable_random_address = false,
+                        .resolution_strategy = ble::peripheral_privacy_configuration_t::DO_NOT_RESOLVE
+                    };
+                    if (
+                        cordio::BLE::deviceInstance().getGap(
+                        ).setPeripheralPrivacyConfiguration(&configuration)
+                    ) {
+                        // note: will invoke set rand address
+                        cordio::BLE::deviceInstance().getGap().enablePrivacy(false);
+                    }
                 }
                 break;
 
