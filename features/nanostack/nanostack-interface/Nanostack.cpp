@@ -388,9 +388,8 @@ void NanostackSocket::event_tx_done(socket_callback_t *sock_cb)
         tr_debug("SOCKET_TX_DONE, %d bytes sent", sock_cb->d_len);
     } else if (mode == SOCKET_MODE_STREAM) {
         tr_debug("SOCKET_TX_DONE, %d bytes remaining", sock_cb->d_len);
+        signal_event();
     }
-
-    signal_event();
 }
 
 void NanostackSocket::event_connect_done(socket_callback_t *sock_cb)
