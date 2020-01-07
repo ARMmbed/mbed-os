@@ -23,7 +23,7 @@ int mbed_printf(const char *format, ...)
 {
     va_list arguments;
     va_start(arguments, format);
-    int result = mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, stdout);
+    int result = mbed_minimal_formatted_string(NULL, INT_MAX, format, arguments, stdout);
     va_end(arguments);
 
     return result;
@@ -43,7 +43,7 @@ int mbed_sprintf(char *buffer, const char *format, ...)
 {
     va_list arguments;
     va_start(arguments, format);
-    int result = mbed_minimal_formatted_string(buffer, LONG_MAX, format, arguments, NULL);
+    int result = mbed_minimal_formatted_string(buffer, INT_MAX, format, arguments, NULL);
     va_end(arguments);
 
     return result;
@@ -51,7 +51,7 @@ int mbed_sprintf(char *buffer, const char *format, ...)
 
 int mbed_vprintf(const char *format, va_list arguments)
 {
-    return mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, stdout);
+    return mbed_minimal_formatted_string(NULL, INT_MAX, format, arguments, stdout);
 }
 
 int mbed_vsnprintf(char *buffer, size_t length, const char *format, va_list arguments)
@@ -61,14 +61,14 @@ int mbed_vsnprintf(char *buffer, size_t length, const char *format, va_list argu
 
 int mbed_vsprintf(char *buffer, const char *format, va_list arguments)
 {
-    return mbed_minimal_formatted_string(buffer, LONG_MAX, format, arguments, NULL);
+    return mbed_minimal_formatted_string(buffer, INT_MAX, format, arguments, NULL);
 }
 
 int mbed_fprintf(FILE *stream, const char *format, ...)
 {
     va_list arguments;
     va_start(arguments, format);
-    int result = mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, stream);
+    int result = mbed_minimal_formatted_string(NULL, INT_MAX, format, arguments, stream);
     va_end(arguments);
 
     return result;
@@ -76,5 +76,5 @@ int mbed_fprintf(FILE *stream, const char *format, ...)
 
 int mbed_vfprintf(FILE *stream, const char *format, va_list arguments)
 {
-    return mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, stream);
+    return mbed_minimal_formatted_string(NULL, INT_MAX, format, arguments, stream);
 }
