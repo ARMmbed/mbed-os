@@ -69,6 +69,10 @@ CellularContext::CellularContext() : _next(0), _stack(0), _pdp_type(DEFAULT_PDP_
 
 void CellularContext::cp_data_received()
 {
+    if (!_cp_netif) {
+        tr_warn("Cellular Non-IP callback missing");
+        return;
+    }
     _cp_netif->data_received();
 }
 

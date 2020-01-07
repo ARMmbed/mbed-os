@@ -112,6 +112,7 @@ void GEMALTO_CINTERION::init_module_bgs2()
         0,  // PROPERTY_IPV4V6_STACK
         0,  // PROPERTY_NON_IP_PDP_TYPE
         1,  // PROPERTY_AT_CGEREP
+        1,  // PROPERTY_AT_COPS_FALLBACK_AUTO
     };
     set_cellular_properties(cellular_properties);
     _module = ModuleBGS2;
@@ -136,6 +137,7 @@ void GEMALTO_CINTERION::init_module_els61()
         0,  // PROPERTY_IPV4V6_STACK
         0,  // PROPERTY_NON_IP_PDP_TYPE
         1,  // PROPERTY_AT_CGEREP
+        1,  // PROPERTY_AT_COPS_FALLBACK_AUTO
     };
     set_cellular_properties(cellular_properties);
     _module = ModuleELS61;
@@ -160,6 +162,7 @@ void GEMALTO_CINTERION::init_module_ems31()
         1,  // PROPERTY_IPV4V6_STACK
         0,  // PROPERTY_NON_IP_PDP_TYPE
         1,  // PROPERTY_AT_CGEREP
+        1,  // PROPERTY_AT_COPS_FALLBACK_AUTO
     };
     set_cellular_properties(cellular_properties);
     _module = ModuleEMS31;
@@ -175,9 +178,16 @@ void GEMALTO_CINTERION::init_module_ehs5e()
         0,  // AT_CGSN_WITH_TYPE
         1,  // AT_CGDATA
         1,  // AT_CGAUTH
+        1,  // AT_CNMI
+        1,  // AT_CSMP
+        1,  // AT_CMGF
+        1,  // AT_CSDH
         1,  // PROPERTY_IPV4_STACK
         1,  // PROPERTY_IPV6_STACK
         0,  // PROPERTY_IPV4V6_STACK
+        0,  // PROPERTY_NON_IP_PDP_TYPE
+        1,  // PROPERTY_AT_CGEREP
+        1,  // PROPERTY_AT_COPS_FALLBACK_AUTO
     };
     set_cellular_properties(cellular_properties);
     _module = ModuleEHS5E;

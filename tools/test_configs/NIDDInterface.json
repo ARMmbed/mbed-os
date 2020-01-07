@@ -1,0 +1,59 @@
+{
+    "config": {
+        "echo-server-addr" : {
+            "help" : "IP address of echo server",
+            "value" : "\"echo.mbedcloudtesting.com\""
+        },
+        "echo-server-port" : {
+            "help" : "Port of echo server",
+            "value" : "7"
+        },
+        "echo-server-discard-port" : {
+            "help" : "Discard port of echo server",
+            "value" : "9"
+        },
+        "echo-server-port-tls" : {
+            "help" : "Port of echo server for TLS",
+            "value" : "2007"
+        },
+        "echo-server-discard-port-tls" : {
+            "help" : "Discard port of echo server for TLS",
+            "value" : "2009"
+        },
+        "trace-level": {
+            "help": "Note that excessive trace prints may mess up with Greentea parsing",
+            "macro_name": "MBED_TRACE_MAX_LEVEL",
+            "value": "TRACE_LEVEL_ERROR"
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "QUECTEL_BG96.provide-default": false,
+            "QUECTEL_BC95.provide-default": false,
+            "UBLOX_N2XX.provide-default": false,
+
+            "cellular.clear-on-connect": true,
+            "cellular.radio-access-technology": 9,
+
+            "nsapi.default-cellular-plmn": null,
+            "nsapi.default-cellular-sim-pin": null,
+            "nsapi.default-cellular-apn": "\"nonip\"",
+            "nsapi.default-cellular-username": null,
+            "nsapi.default-cellular-password": null,
+
+            "target.network-default-interface-type": "CELLULAR",
+            "cellular.control-plane-opt": true,
+            "cellular.use-apn-lookup": false,
+            "platform.stdio-buffered-serial": true,
+            "platform.stdio-baud-rate": 115200,
+            "platform.default-serial-baud-rate": 115200,
+            "mbed-trace.enable": true,
+            "cellular.debug-at": true
+        },
+        "MTB_STM_L475": {
+            "UBLOX_N2XX.tx": "TX1",
+            "UBLOX_N2XX.rx": "RX1"
+        }
+    }
+}
+

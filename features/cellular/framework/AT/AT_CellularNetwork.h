@@ -117,7 +117,7 @@ protected:
      *
      *  @return         NSAPI_ERROR_OK on success
      */
-    nsapi_error_t clear();
+    virtual nsapi_error_t clear();
 
 private:
     void urc_creg();

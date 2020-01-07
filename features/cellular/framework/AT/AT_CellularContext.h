@@ -108,6 +108,10 @@ protected:
     virtual bool get_context();
     AT_CellularDevice::CellularProperty pdp_type_t_to_cellular_property(pdp_type_t pdp_type);
     bool set_new_context(int cid);
+    /** Get string name for NIDD context type.
+     *  @return     NIDD context text, e.g. Non-IP or NONIP
+     */
+    virtual const char *get_nonip_context_type_str();
 
 private:
 #if NSAPI_PPP_AVAILABLE

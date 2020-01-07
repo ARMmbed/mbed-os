@@ -433,7 +433,7 @@ public:
      *  @param str input buffer to be converted to hex ascii
      *  @param size of the input param str
      */
-    void write_hex_string(char *str, size_t size);
+    void write_hex_string(const char *str, size_t size);
 
     /** Reads as string and converts result to integer. Supports only non-negative integers.
      *

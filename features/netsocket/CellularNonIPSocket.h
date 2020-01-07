@@ -150,7 +150,7 @@ protected:
     static const int WRITE_FLAG    = 0x2u;
     static const int FINISHED_FLAG = 0x3u;
 
-    ControlPlane_netif *_cp_netif;
+    static ControlPlane_netif *_cp_netif; // there can be only one Non-IP socket
     bool _opened;
 };
 

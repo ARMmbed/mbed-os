@@ -42,7 +42,7 @@ static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     1,  // PROPERTY_IPV4_STACK
     1,  // PROPERTY_IPV6_STACK
     0,  // PROPERTY_IPV4V6_STACK
-    0,  // PROPERTY_NON_IP_PDP_TYPE
+    1,  // PROPERTY_NON_IP_PDP_TYPE
     0,  // PROPERTY_AT_CGEREP,
     0,  // PROPERTY_AT_COPS_FALLBACK_AUTO
 };
@@ -89,11 +89,18 @@ nsapi_error_t QUECTEL_BC95::init()
 
     _at->lock();
     _at->flush();
-    _at->at_cmd_discard("", "");  //Send AT
-
-    _at->at_cmd_discard("+CMEE", "=1"); // verbose responses
-
-    return _at->unlock_return_error();
+    nsapi_error_t err = _at->at_cmd_discard("", "");  //Send AT
+    if (!err) {
+        err = _at->at_cmd_discard("+CMEE", "=1"); // verbose responses
+    }
+    if (!err) {
+        err = _at->at_cmd_discard("+CFUN", "=", "%d", 1);
+    }
+    if (!err) {
+        err = _at->get_last_error();
+    }
+    _at->unlock();
+    return err;
 }
 
 nsapi_error_t QUECTEL_BC95::set_baud_rate_impl(int baud_rate)

@@ -44,4 +44,9 @@ NetworkStack *QUECTEL_BC95_CellularContext::get_stack()
 }
 #endif // #if !NSAPI_PPP_AVAILABLE
 
+const char *QUECTEL_BC95_CellularContext::get_nonip_context_type_str()
+{
+    return "NONIP";
+}
+
 } /* namespace mbed */
