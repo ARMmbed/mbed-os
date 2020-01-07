@@ -144,7 +144,7 @@ int mbedtls_internal_sha256_process(mbedtls_sha256_context *ctx, const unsigned 
  *                 <li>1: Use SHA-224.</li></ul>
  */
 MBEDTLS_DEPRECATED void mbedtls_sha256_starts(mbedtls_sha256_context *ctx,
-        int is224);
+                                              int is224);
 
 /**
  * \brief          This function feeds an input buffer into an ongoing
@@ -157,8 +157,8 @@ MBEDTLS_DEPRECATED void mbedtls_sha256_starts(mbedtls_sha256_context *ctx,
  * \param ilen     The length of the input data.
  */
 MBEDTLS_DEPRECATED void mbedtls_sha256_update(mbedtls_sha256_context *ctx,
-        const unsigned char *input,
-        size_t ilen);
+                                              const unsigned char *input,
+                                              size_t ilen);
 
 /**
  * \brief          This function finishes the SHA-256 operation, and writes
@@ -170,7 +170,7 @@ MBEDTLS_DEPRECATED void mbedtls_sha256_update(mbedtls_sha256_context *ctx,
  * \param output   The SHA-224or SHA-256 checksum result.
  */
 MBEDTLS_DEPRECATED void mbedtls_sha256_finish(mbedtls_sha256_context *ctx,
-        unsigned char output[32]);
+                                              unsigned char output[32]);
 
 /**
  * \brief          This function processes a single data block within
@@ -183,7 +183,7 @@ MBEDTLS_DEPRECATED void mbedtls_sha256_finish(mbedtls_sha256_context *ctx,
  * \param data     The buffer holding one block of data.
  */
 MBEDTLS_DEPRECATED void mbedtls_sha256_process(mbedtls_sha256_context *ctx,
-        const unsigned char data[64]);
+                                               const unsigned char data[64]);
 
 #undef MBEDTLS_DEPRECATED
 #endif /* !MBEDTLS_DEPRECATED_REMOVED */
