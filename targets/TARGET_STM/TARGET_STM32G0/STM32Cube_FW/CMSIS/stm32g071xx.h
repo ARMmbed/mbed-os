@@ -1,5 +1,4 @@
 /**
-  * SPDX-License-Identifier: BSD-3-Clause
   ******************************************************************************
   * @file    stm32g071xx.h
   * @author  MCD Application Team
