@@ -5,6 +5,8 @@
 # Source files
 set(unittest-sources
   ../platform/source/ATCmdParser.cpp
+  ../platform/source/minimal-printf/mbed_printf.c
+  ../platform/source/minimal-printf/mbed_printf_implementation.c
 )
 
 # Test files
