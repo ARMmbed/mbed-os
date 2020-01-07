@@ -9918,7 +9918,7 @@
         "supported_toolchains": ["GCC_ARM", "IAR", "ARMC6"],
         "default_toolchain": "GCC_ARM",
         "extra_labels": ["Samsung", "SIDK_S5JS100"],
-        "macros": ["CMSDK_CM7", "MBED_MPU_CUSTOM",  "CMSIS_NVIC_VIRTUAL", "MBEDTLS_CONFIG_HW_SUPPORT"],
+        "macros": ["CMSDK_CM7", "MBED_MPU_CUSTOM", "MBEDTLS_CONFIG_HW_SUPPORT"],
         "device_has": [
             "INTERRUPTIN",
             "PORTIN",
