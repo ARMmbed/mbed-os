@@ -59,6 +59,7 @@ typedef struct mbedtls_sha512_context_s {
                                      0: Use SHA-512, or 1: Use SHA-384. */
     /* for H/W SHA-512 */
     uint32_t totals;
+    uint32_t hw;
     unsigned char sbuf[ST_SHA512_BUF_SIZE]; /*!< ST_SHA512_BLOCK_SIZE buffer to store values so that algorithm is called once the buffer is filled */
     stOCTET_STRING pstMessage;
     stOCTET_STRING pstDigest;
@@ -141,7 +142,7 @@ int mbedtls_internal_sha512_process(mbedtls_sha512_context *ctx, const unsigned 
  *                 <li>1: Use SHA-224.</li></ul>
  */
 MBEDTLS_DEPRECATED void mbedtls_sha512_starts(mbedtls_sha512_context *ctx,
-                                              int is224);
+        int is224);
 
 /**
  * \brief          This function feeds an input buffer into an ongoing
@@ -154,8 +155,8 @@ MBEDTLS_DEPRECATED void mbedtls_sha512_starts(mbedtls_sha512_context *ctx,
  * \param ilen     The length of the input data.
  */
 MBEDTLS_DEPRECATED void mbedtls_sha512_update(mbedtls_sha512_context *ctx,
-                                              const unsigned char *input,
-                                              size_t ilen);
+        const unsigned char *input,
+        size_t ilen);
 
 /**
  * \brief          This function finishes the SHA-512 operation, and writes
@@ -167,7 +168,7 @@ MBEDTLS_DEPRECATED void mbedtls_sha512_update(mbedtls_sha512_context *ctx,
  * \param output   The SHA-224or SHA-512 checksum result.
  */
 MBEDTLS_DEPRECATED void mbedtls_sha512_finish(mbedtls_sha512_context *ctx,
-                                              unsigned char output[64]);
+        unsigned char output[64]);
 
 /**
  * \brief          This function processes a single data block within
@@ -180,7 +181,7 @@ MBEDTLS_DEPRECATED void mbedtls_sha512_finish(mbedtls_sha512_context *ctx,
  * \param data     The buffer holding one block of data.
  */
 MBEDTLS_DEPRECATED void mbedtls_sha512_process(mbedtls_sha512_context *ctx,
-                                               const unsigned char data[128]);
+        const unsigned char data[128]);
 
 #undef MBEDTLS_DEPRECATED
 #endif /* !MBEDTLS_DEPRECATED_REMOVED */

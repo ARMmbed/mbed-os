@@ -18,6 +18,10 @@
         "FVP_MPS2": {
             "base-address": "0x00200000",
             "size": "0x200000"
+        },
+        "S5JS100": {
+            "base-address": "0x40EF5000",
+            "size": "0x80000"
         }
     }
 }

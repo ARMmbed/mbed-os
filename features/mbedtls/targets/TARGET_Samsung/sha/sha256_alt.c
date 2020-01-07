@@ -140,10 +140,10 @@ int mbedtls_sha256_update_ret(mbedtls_sha256_context *ctx, const unsigned char *
     if (ctx->is224) {
         mbedtls_sha256_sw_update_ret(ctx, input, ilen);
     } else {
-        if (ilen > MAX_MB_HASH_BLOCK_BLEN || ctx->totals > MAX_MB_HASH_BLOCK_BLEN) {
+        if (ilen > MAX_MB_HASH_BLOCK_BLEN || (ctx->totals + ilen) > MAX_MB_HASH_BLOCK_BLEN || ctx->totals > MAX_MB_HASH_BLOCK_BLEN) {
             // H/W SHA has limitation to seperated API with oversized message.
             // fall back to S/W SHA-256
-            if (ctx->totals == 0) {
+            if (ctx->totals == 0 || ctx->hw == 1) {
                 ctx->total[0] = 0;
                 ctx->total[1] = 0;
                 /* SHA-256 */
@@ -157,11 +157,17 @@ int mbedtls_sha256_update_ret(mbedtls_sha256_context *ctx, const unsigned char *
                 ctx->state[7] = 0x5BE0CD19;
             }
             ctx->totals += ilen;
+            //in case, H/W -> S/W fallback case
+            if ((ctx->totals + ilen) > MAX_MB_HASH_BLOCK_BLEN && ctx->hw == 1) {
+                mbedtls_sha512_sw_update_ret(ctx, ctx->sbuf, ctx->pstMessage.u32DataByteLen);
+            }
+            ctx->hw = 0;
             mbedtls_sha256_sw_update_ret(ctx, input, ilen);
-        } else {
+        } else { //less than MAX_MB_HASH_BLOCK_BLEN size will handle with H/W
             // SHA-256 handle by SSS H/W
             memcpy(ctx->sbuf + ctx->pstMessage.u32DataByteLen, input, ilen);
             ctx->pstMessage.u32DataByteLen += ilen;
+            ctx->totals += ilen; //in case the block size increased incrementally. (3, 20, 256..)
         }
     }
 
