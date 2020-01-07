@@ -17,7 +17,7 @@
  */
 
  #include "utest/utest_case.h"
- #include "utest/utest_serial.h"
+ #include "utest/utest_print.h"
 
 using namespace utest::v1;
 
