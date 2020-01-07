@@ -44,6 +44,13 @@ UARM_TOOLCHAIN_WARNING = (
     "please visit https://os.mbed.com/docs/mbed-os/latest/reference/using-small-c-libraries.html"
 )
 
+UARM_DEFAULT_TOOLCHAIN_WARNING = (
+    "Warning: We noticed that this target default_toolchain overrides --toolchain option with uARM Toolchain. "
+    "We are deprecating the use of uARM Toolchain. "
+    "For more information on how to use the ARM toolchain with small C libraries, "
+    "please visit https://os.mbed.com/docs/mbed-os/latest/reference/using-small-c-libraries.html"
+)
+
 class ARM(mbedToolchain):
     LINKER_EXT = '.sct'
     LIBRARY_EXT = '.ar'
