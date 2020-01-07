@@ -7895,7 +7895,8 @@
             "FLASH",
             "EMAC",
             "MPU",
-            "WATCHDOG"
+            "WATCHDOG",
+            "USBDEVICE"
         ],
         "release_versions": ["5"],
         "device_name": "NUC472HI8AE",
@@ -8027,7 +8028,8 @@
             "FLASH",
             "MPU",
             "WATCHDOG",
-            "RESET_REASON"
+            "RESET_REASON",
+            "USBDEVICE"
         ],
         "components_add": ["FLASHIAP"],
         "release_versions": ["2", "5"],
@@ -8097,7 +8099,8 @@
             "SPISLAVE",
             "SPI_ASYNCH",
             "WATCHDOG",
-            "RESET_REASON"
+            "RESET_REASON",
+            "USBDEVICE"
         ],
         "release_versions": ["5"],
         "device_name": "NANO130KE3BN",
@@ -8514,7 +8517,7 @@
             },
             "usb-device-hsusbd": {
                 "help": "Select high-speed USB device or not",
-                "value": 1
+                "value": 0
             }
         },
         "inherits": ["Target"],
@@ -8546,7 +8549,8 @@
             "EMAC",
             "MPU",
             "WATCHDOG",
-            "RESET_REASON"
+            "RESET_REASON",
+            "USBDEVICE"
         ],
         "release_versions": ["5"],
         "bootloader_supported": true,
@@ -8796,7 +8800,8 @@
             "SPI_ASYNCH",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "detect_code": ["1305"],
         "release_versions": ["5"],
@@ -9774,7 +9779,8 @@
             "SPI_ASYNCH",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "components_add": ["FLASHIAP"],
         "detect_code": ["1310"],
