@@ -100,7 +100,7 @@ class DirHandle;
  * to give the target a chance to specify a FileHandle for the console.
  *
  * If this is not provided or returns NULL, the console will be:
- *   - UARTSerial if configuration option "platform.stdio-buffered-serial" is
+ *   - BufferedSerial if configuration option "platform.stdio-buffered-serial" is
  *     true and the target has DEVICE_SERIAL;
  *   - Raw HAL serial via serial_getc and serial_putc if
  *     "platform.stdio-buffered-serial" is false and the target has DEVICE_SERIAL;
@@ -121,10 +121,10 @@ FileHandle *mbed_target_override_console(int fd);
  * by mbed_target_override_console, else will default to serial - see
  * mbed_target_override_console for more details.
  *
- * Example using UARTSerial:
+ * Example using BufferedSerial:
  * @code
  * FileHandle *mbed::mbed_override_console(int) {
- *     static UARTSerial my_serial(D0, D1);
+ *     static BufferedSerial my_serial(D0, D1);
  *     return &my_serial;
  * }
  * @endcode

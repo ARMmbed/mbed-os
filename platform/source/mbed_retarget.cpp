@@ -30,7 +30,7 @@
 #include "platform/mbed_atomic.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_poll.h"
-#include "drivers/UARTSerial.h"
+#include "drivers/BufferedSerial.h"
 #include "hal/us_ticker_api.h"
 #include "hal/lp_ticker_api.h"
 #include "hal/static_pinmap.h"
@@ -150,7 +150,7 @@ extern serial_t stdio_uart;
 /* Private FileHandle to implement backwards-compatible functionality of
  * direct HAL serial access for default stdin/stdout/stderr.
  * This is not a particularly well-behaved FileHandle for a stream, which
- * is why it's not public. People should be using UARTSerial.
+ * is why it's not public. People should be using BufferedSerial.
  */
 class DirectSerial : public FileHandle {
 public:
@@ -337,7 +337,7 @@ static FileHandle *default_console()
 
 #  if MBED_CONF_PLATFORM_STDIO_BUFFERED_SERIAL
     static const serial_pinmap_t console_pinmap = get_uart_pinmap(STDIO_UART_TX, STDIO_UART_RX);
-    static UARTSerial console(console_pinmap, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
+    static BufferedSerial console(console_pinmap, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
 #   if   CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
     static const serial_fc_pinmap_t fc_pinmap = get_uart_fc_pinmap(STDIO_UART_RTS, NC);
     console.serial_set_flow_control(SerialBase::RTS, fc_pinmap);

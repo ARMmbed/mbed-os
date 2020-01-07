@@ -2,11 +2,11 @@
     "name": "drivers",
     "config": {
         "uart-serial-txbuf-size": {
-            "help": "Default TX buffer size for a UARTSerial instance (unit Bytes))",
+            "help": "Default TX buffer size for a BufferedSerial instance (unit Bytes))",
             "value": 256
         },
         "uart-serial-rxbuf-size": {
-            "help": "Default RX buffer size for a UARTSerial instance (unit Bytes))",
+            "help": "Default RX buffer size for a BufferedSerial instance (unit Bytes))",
             "value": 256
         },
         "crc-table-size": {
