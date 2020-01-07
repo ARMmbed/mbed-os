@@ -78,6 +78,10 @@ TEST_F(Test_LoRaMacCommand, parse_mac_commands_to_repeat)
 
     object->parse_mac_commands_to_repeat();
 
+    buf[0] = 1;
+    buf[1] = 1;
+    EXPECT_TRUE(object->process_mac_commands(buf, 0, 2, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
+
     buf[0] = 2;
     buf[1] = 16;
     buf[2] = 32;
@@ -122,6 +126,47 @@ TEST_F(Test_LoRaMacCommand, parse_mac_commands_to_repeat)
 
     buf[0] = 10;
     buf[1] = 4;
+    EXPECT_TRUE(object->process_mac_commands(buf, 0, 4, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
+
+    buf[0] = 11;
+    buf[1] = 1;
+    EXPECT_TRUE(object->process_mac_commands(buf, 0, 2, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
+
+    buf[0] = 12;
+    buf[1] = 2;
+    EXPECT_TRUE(object->process_mac_commands(buf, 0, 2, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
+
+    buf[0] = 13;
+    buf[1] = 2;
+    buf[2] = 2;
+    buf[3] = 2;
+    buf[4] = 2;
+    buf[5] = 2;
+    EXPECT_TRUE(object->process_mac_commands(buf, 0, 6, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
+
+    buf[0] = 14;
+    buf[1] = 2;
+    buf[2] = 2;
+    EXPECT_TRUE(object->process_mac_commands(buf, 0, 3, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
+
+    buf[0] = 15;
+    buf[1] = 2;
+    EXPECT_TRUE(object->process_mac_commands(buf, 0, 2, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
+
+    buf[0] = 16;
+    EXPECT_TRUE(object->process_mac_commands(buf, 0, 1, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
+
+    buf[0] = 17;
+    buf[1] = 4;
+    buf[2] = 2;
+    buf[3] = 2;
+    buf[4] = 2;
+    EXPECT_TRUE(object->process_mac_commands(buf, 0, 5, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
+
+    buf[0] = 19;
+    buf[1] = 4;
+    buf[2] = 2;
+    buf[3] = 2;
     EXPECT_TRUE(object->process_mac_commands(buf, 0, 4, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
 
     object->parse_mac_commands_to_repeat();
@@ -215,6 +260,11 @@ TEST_F(Test_LoRaMacCommand, process_mac_commands)
     uint8_t buf[20];
     EXPECT_TRUE(object->process_mac_commands(NULL, 0, 0, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
 
+    buf[0] = 1;
+    buf[1] = 1;
+    EXPECT_TRUE(object->process_mac_commands(buf, 0, 2, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
+
+    object->clear_command_buffer();
     buf[0] = 2;
     buf[1] = 16;
     buf[2] = 32;
@@ -330,6 +380,83 @@ TEST_F(Test_LoRaMacCommand, process_mac_commands)
     for (int i = 0; i < 64; i++) {
         EXPECT_TRUE(object->process_mac_commands(buf, 0, 4, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
         LoRaPHY_stub::bool_counter = 0;
+    }
+    EXPECT_TRUE(object->process_mac_commands(buf, 0, 4, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_LENGTH_ERROR);
+
+    object->clear_command_buffer();
+    buf[0] = 11;
+    buf[1] = 1;
+    EXPECT_TRUE(object->process_mac_commands(buf, 0, 2, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
+
+    object->clear_command_buffer();
+    buf[0] = 12;
+    buf[1] = 2;
+    EXPECT_TRUE(object->process_mac_commands(buf, 0, 2, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
+
+    //overflow add_adr_param_setup_ans
+    object->clear_command_buffer();
+    for (int i = 0; i < 128; i++) {
+        EXPECT_TRUE(object->process_mac_commands(buf, 0, 2, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
+    }
+    EXPECT_TRUE(object->process_mac_commands(buf, 0, 2, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_LENGTH_ERROR);
+
+    object->clear_command_buffer();
+    buf[0] = 13;
+    buf[1] = 2;
+    buf[2] = 2;
+    buf[3] = 2;
+    buf[4] = 2;
+    buf[5] = 2;
+    EXPECT_TRUE(object->process_mac_commands(buf, 0, 6, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
+
+    object->clear_command_buffer();
+    buf[0] = 14;
+    buf[1] = 2;
+    buf[2] = 2;
+    EXPECT_TRUE(object->process_mac_commands(buf, 0, 3, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
+
+    object->clear_command_buffer();
+    buf[0] = 15;
+    buf[1] = 2;
+    EXPECT_TRUE(object->process_mac_commands(buf, 0, 2, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
+
+    //overflow add_rejoin_param_setup_ans
+    object->clear_command_buffer();
+    for (int i = 0; i < 64; i++) {
+        EXPECT_TRUE(object->process_mac_commands(buf, 0, 2, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
+    }
+    EXPECT_TRUE(object->process_mac_commands(buf, 0, 2, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_LENGTH_ERROR);
+
+    object->clear_command_buffer();
+    buf[0] = 16;
+    EXPECT_TRUE(object->process_mac_commands(buf, 0, 1, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
+
+    object->clear_command_buffer();
+    buf[0] = 17;
+    buf[1] = 4;
+    buf[2] = 2;
+    buf[3] = 2;
+    buf[4] = 2;
+    EXPECT_TRUE(object->process_mac_commands(buf, 0, 5, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
+
+    //Overflow add_ping_slot_channel_ans
+    object->clear_command_buffer();
+    for (int i = 0; i < 64; i++) {
+        EXPECT_TRUE(object->process_mac_commands(buf, 0, 5, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
+    }
+    EXPECT_TRUE(object->process_mac_commands(buf, 0, 5, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_LENGTH_ERROR);
+
+    object->clear_command_buffer();
+    buf[0] = 19;
+    buf[1] = 4;
+    buf[2] = 2;
+    buf[3] = 2;
+    EXPECT_TRUE(object->process_mac_commands(buf, 0, 4, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
+
+    //Overflow add_beacon_freq_ans
+    object->clear_command_buffer();
+    for (int i = 0; i < 64; i++) {
+        EXPECT_TRUE(object->process_mac_commands(buf, 0, 4, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_OK);
     }
     EXPECT_TRUE(object->process_mac_commands(buf, 0, 4, 0, params, phy, my_cb, RX_SLOT_WIN_1) == LORAWAN_STATUS_LENGTH_ERROR);
 
