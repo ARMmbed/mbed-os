@@ -4,7 +4,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2016 STMicroelectronics.
+ * Copyright (c) 2016-2020 STMicroelectronics.
  * All rights reserved.
  *
  * This software component is licensed by ST under BSD 3-Clause license,
@@ -14,44 +14,38 @@
  *
  ******************************************************************************
 */
+
 #include "../cmsis_nvic.h"
 
+
 #if !defined(MBED_APP_START)
-  #define MBED_APP_START MBED_ROM_START
+  #define MBED_APP_START  MBED_ROM_START
 #endif
 
 #if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE MBED_ROM_SIZE
+  #define MBED_APP_SIZE  MBED_ROM_SIZE
 #endif
-
 
 #if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE 0x400
+    /* This value is normally defined by the tools
+       to 0x1000 for bare metal and 0x400 for RTOS */
+    #define MBED_BOOT_STACK_SIZE  0x400
 #endif
-STACK_SIZE = MBED_BOOT_STACK_SIZE;
 
-#define MBED_VECTTABLE_RAM_START    (NVIC_RAM_VECTOR_ADDRESS)
-#define MBED_VECTTABLE_RAM_SIZE (((NVIC_NUM_VECTORS * 4) + 7) & 0xFFFFFFF8)
-
-#define MBED_CRASH_REPORT_RAM_START (MBED_VECTTABLE_RAM_START + MBED_VECTTABLE_RAM_SIZE)
-#define MBED_CRASH_REPORT_RAM_SIZE  0x100
-
-
-#define MBED_RAM0_START  (MBED_CRASH_REPORT_RAM_START + MBED_CRASH_REPORT_RAM_SIZE)
-#define MBED_RAM0_SIZE   (MBED_RAM_SIZE - MBED_VECTTABLE_RAM_SIZE - MBED_CRASH_REPORT_RAM_SIZE)
-
+/* Round up VECTORS_SIZE to 8 bytes */
+#define VECTORS_SIZE  (((NVIC_NUM_VECTORS * 4) + 7) & 0xFFFFFFF8)
 
 MEMORY
-{ 
-  FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
-  RAM (rwx)  : ORIGIN = MBED_RAM0_START, LENGTH = MBED_RAM0_SIZE
+{
+    FLASH (rx)   : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
+    RAM (rwx)    : ORIGIN = MBED_RAM_START + VECTORS_SIZE, LENGTH = MBED_RAM_SIZE - VECTORS_SIZE
 }
 
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.
  * It references following symbols, which must be defined in code:
  *   Reset_Handler : Entry of reset handler
- * 
+ *
  * It defines following symbols, which code can use without definition:
  *   __exidx_start
  *   __exidx_end
@@ -82,6 +76,7 @@ SECTIONS
     {
         KEEP(*(.isr_vector))
         *(.text*)
+
         KEEP(*(.init))
         KEEP(*(.fini))
 
@@ -116,21 +111,12 @@ SECTIONS
     } > FLASH
     __exidx_end = .;
 
-    __etext = .;
+    /* Location counter can end up 2byte aligned with narrow Thumb code but
+       __etext is assumed by startup code to be the LMA of a section in RAM
+       which must be 8-byte aligned */
+    __etext = ALIGN (8);
     _sidata = .;
     
-    .crash_data_ram :
-    {
-        . = ALIGN(8);
-        __CRASH_DATA_RAM__ = .;
-        __CRASH_DATA_RAM_START__ = .; /* Create a global symbol at data start */
-        KEEP(*(.keep.crash_data_ram))
-        *(.m_crash_data_ram)     /* This is a user defined section */
-        . += MBED_CRASH_REPORT_RAM_SIZE;
-        . = ALIGN(8);
-        __CRASH_DATA_RAM_END__ = .; /* Define a global symbol at data end */
-    } > RAM
-
     .data : AT (__etext)
     {
         __data_start__ = .;
@@ -151,7 +137,6 @@ SECTIONS
         KEEP(*(.init_array))
         PROVIDE_HIDDEN (__init_array_end = .);
 
-
         . = ALIGN(8);
         /* finit data */
         PROVIDE_HIDDEN (__fini_array_start = .);
@@ -167,6 +152,19 @@ SECTIONS
 
     } > RAM
 
+    /* Uninitialized data section
+     * This region is not initialized by the C/C++ library and can be used to
+     * store state across soft reboots. */
+    .uninitialized (NOLOAD):
+    {
+        . = ALIGN(32);
+        __uninitialized_start = .;
+        *(.uninitialized)
+        KEEP(*(.keep.uninitialized))
+        . = ALIGN(32);
+        __uninitialized_end = .;
+    } > RAM
+    
     .bss :
     {
         . = ALIGN(8);
@@ -182,9 +180,9 @@ SECTIONS
     .heap (COPY):
     {
         __end__ = .;
-        end = __end__;
+        PROVIDE(end = .);
         *(.heap*)
-        . = ORIGIN(RAM) + LENGTH(RAM) - STACK_SIZE;
+        . = ORIGIN(RAM) + LENGTH(RAM) - MBED_BOOT_STACK_SIZE;
         __HeapLimit = .;
     } > RAM
 
@@ -200,7 +198,7 @@ SECTIONS
      * size of stack_dummy section */
     __StackTop = ORIGIN(RAM) + LENGTH(RAM);
     _estack = __StackTop;
-    __StackLimit = __StackTop - STACK_SIZE;
+    __StackLimit = __StackTop - MBED_BOOT_STACK_SIZE;
     PROVIDE(__stack = __StackTop);
 
     /* Check if data + heap + stack exceeds RAM limit */

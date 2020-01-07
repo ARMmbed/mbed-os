@@ -17,7 +17,7 @@
   * Copyright (c) 2018 STMicroelectronics. All rights reserved.
   *
   * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
+  * the "License"; You may not use this file except in compliance with the 
   * License. You may obtain a copy of the License at:
   *                        opensource.org/licenses/BSD-3-Clause
   *
@@ -25,7 +25,7 @@
   */
 
   .syntax unified
-  .cpu cortex-m0plus
+  .cpu cortex-m0
   .fpu softvfp
   .thumb
 
@@ -83,11 +83,8 @@ LoopFillZerobss:
 
 /* Call the clock system intitialization function.*/
   bl  SystemInit
-/* Call static constructors */
-  //bl __libc_init_array
-/* Call the application's entry point.*/
-  //bl  main
-  bl _start
+	bl _start
+	bx lr
 
 LoopForever:
     b LoopForever
