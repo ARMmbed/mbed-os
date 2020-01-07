@@ -1,0 +1,66 @@
+{
+    "files": [
+        {
+            "src_file": "install/export/tfm/src/tfm_crypto_ipc_api.c",
+            "dst_file": "features/FEATURE_PSA/TARGET_TFM/src/tfm_crypto_ipc_api.c"
+        },
+        {
+            "src_file": "install/export/tfm/src/tfm_initial_attestation_ipc_api.c",
+            "dst_file": "features/FEATURE_PSA/TARGET_TFM/src/tfm_initial_attestation_ipc_api.c"
+        },
+        {
+            "src_file": "install/export/tfm/src/tfm_ns_interface.c",
+            "dst_file": "features/FEATURE_PSA/TARGET_TFM/src/tfm_ns_interface.c"
+        },
+        {
+            "src_file": "install/export/tfm/src/tfm_psa_ns_api.c",
+            "dst_file": "features/FEATURE_PSA/TARGET_TFM/src/tfm_psa_ns_api.c"
+        },
+        {
+            "src_file": "install/export/tfm/src/tfm_sst_ipc_api.c",
+            "dst_file": "features/FEATURE_PSA/TARGET_TFM/src/tfm_sst_ipc_api.c"
+        },
+        {
+            "src_file": "install/export/tfm/src/platform_multicore.c",
+            "dst_file": "features/FEATURE_PSA/TARGET_TFM/TARGET_TFM_TWINCPU/src/platform_multicore.c"
+        },
+        {
+            "src_file": "install/export/tfm/src/platform_ns_mailbox.c",
+            "dst_file": "features/FEATURE_PSA/TARGET_TFM/TARGET_TFM_TWINCPU/src/platform_ns_mailbox.c"
+        },
+        {
+            "src_file": "install/export/tfm/src/tfm_nspm_api.c",
+            "dst_file": "features/FEATURE_PSA/TARGET_TFM/TARGET_TFM_V8M/src/tfm_nspm_api.c"
+        },
+        {
+            "src_file": "install/export/tfm/src/tfm_nspm_svc_handler.c",
+            "dst_file": "features/FEATURE_PSA/TARGET_TFM/TARGET_TFM_V8M/src/tfm_nspm_svc_handler.c"
+        },
+        {
+            "src_file": "app/os_wrapper_cmsis_rtos_v2.c",
+            "dst_file": "features/FEATURE_PSA/TARGET_TFM/src/os_wrapper_cmsis_rtos_v2.c"
+        }
+    ],
+    "folders": [
+        {
+            "src_folder": "install/export/tfm/inc",
+            "dst_folder": "features/FEATURE_PSA/TARGET_TFM/TARGET_TFM_TWINCPU/inc"
+        },
+        {
+            "src_folder": "install/export/tfm/include",
+            "dst_folder": "features/FEATURE_PSA/TARGET_TFM/include"
+        },
+        {
+            "src_folder": "install/export/tfm/include/os_wrapper",
+            "dst_folder": "features/FEATURE_PSA/TARGET_TFM/include/os_wrapper"
+        },
+        {
+            "src_folder": "install/export/tfm/include/psa",
+            "dst_folder": "features/FEATURE_PSA/TARGET_TFM/include/psa"
+        },
+        {
+            "src_folder": "install/export/tfm/include/psa_manifest",
+            "dst_folder": "features/FEATURE_PSA/TARGET_TFM/include/psa_manifest"
+        }
+    ]
+}

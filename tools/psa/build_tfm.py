@@ -20,6 +20,7 @@ limitations under the License.
 import os
 from os.path import join, abspath, dirname, isdir, relpath
 import argparse
+import json
 import sys
 import signal
 import shutil
@@ -419,6 +420,41 @@ def _copy_binaries(source, destination, toolchain, target):
                                             relpath(output_dir, ROOT)))
             shutil.copy2(tfm_secure_bin, output_dir)
 
+def _copy_tfm_ns_files(source):
+    """
+    Copy TF-M NS API files into Mbed OS
+    :param source: Source directory containing TF-M NS API files
+    """
+    with open(join(dirname(__file__), "tfm_ns_import.json")) as ns_import:
+        json_data = json.load(ns_import)
+        data_files = json_data["files"]
+        data_folders = json_data["folders"]
+        logger.info("Copying NS API source from TF-M to Mbed OS")
+        for f in data_files:
+            src_file = join(source, f["src_file"])
+            dst_file = join(ROOT, f["dst_file"])
+            if not isdir(dirname(dst_file)):
+                os.makedirs(dirname(dst_file))
+            try:
+                shutil.copy2(src_file, dst_file)
+            except FileNotFoundError:
+                # Workaround: TF-M build process exports all NS API files to
+                # cmake build folder. The json file `tfm_ns_import.json` contains
+                # list of files and folder relative to cmake build folder. The
+                # only exception is the OS abstraction layer app/os_wrapper_cmsis_rtos_v2.c
+                # which is not exported by TF-M. Therefore, it is handled as an
+                # exception.
+                src_file = join(source, os.pardir, f["src_file"])
+                shutil.copy2(src_file, dst_file)
+        for folder in data_folders:
+            src_folder = join(source, folder["src_folder"])
+            dst_folder = join(ROOT, folder["dst_folder"])
+            if not isdir(dst_folder):
+                os.makedirs(dst_folder)
+            for f in os.listdir(src_folder):
+                if os.path.isfile(join(src_folder, f)):
+                    shutil.copy2(join(src_folder, f), join(dst_folder, f))
+
 def _build_tfm(args):
     """
     Build TF-M
@@ -473,6 +509,8 @@ def _build_tfm(args):
 
         if args.commit:
             _commit_changes(tgt[3], tgt_list)
+
+    _copy_tfm_ns_files(cmake_build_dir)
 
 def _exit_gracefully(signum, frame):
     """
