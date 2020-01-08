@@ -9921,9 +9921,6 @@
         "macros": ["CMSDK_CM7", "MBED_MPU_CUSTOM",  "CMSIS_NVIC_VIRTUAL", "MBEDTLS_CONFIG_HW_SUPPORT"],
         "device_has": [
             "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
             "USTICKER",
             "SERIAL",
             "SLEEP",
