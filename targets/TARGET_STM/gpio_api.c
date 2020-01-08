@@ -74,7 +74,7 @@ GPIO_TypeDef *Set_GPIO_Clock(uint32_t port_idx)
 #endif
 #if defined GPIOG_BASE
         case PortG:
-#if defined TARGET_STM32L4
+#if defined PWR_CR2_IOSV /* TARGET_STM32L4 / TARGET_STM32L5 */
             __HAL_RCC_PWR_CLK_ENABLE();
             HAL_PWREx_EnableVddIO2();
 #endif
