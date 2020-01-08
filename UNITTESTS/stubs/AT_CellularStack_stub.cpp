@@ -36,11 +36,6 @@ nsapi_error_t AT_CellularStack::get_ip_address(SocketAddress* address)
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
-const char *AT_CellularStack::get_ip_address()
-{
-    return NULL;
-}
-
 nsapi_error_t AT_CellularStack::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
 {
     return NSAPI_ERROR_OK;

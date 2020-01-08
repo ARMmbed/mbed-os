@@ -178,17 +178,21 @@ TEST_F(TestPPPInterface, disconnect)
 
 TEST_F(TestPPPInterface, set_network)
 {
-    char ipAddress[NSAPI_IPv4_SIZE] = "127.0.0.1";
-    char netmask[NSAPI_IPv4_SIZE] = "255.255.0.0";
-    char gateway[NSAPI_IPv4_SIZE] = "127.0.0.2";
+    SocketAddress ipAddress("127.0.0.1");
+    SocketAddress netmask("255.255.0.0");
+    SocketAddress gateway("127.0.0.2");
 
     const char *ipAddressArg;
     const char *netmaskArg;
     const char *gatewayArg;
 
-    EXPECT_EQ(0, iface->get_ip_address());
-    EXPECT_EQ(0, iface->get_netmask());
-    EXPECT_EQ(0, iface->get_gateway());
+    SocketAddress ipAddr;
+    SocketAddress netmaskAddr;
+    SocketAddress gatewayAddr;
+
+    EXPECT_EQ(NSAPI_ERROR_NO_CONNECTION, iface->get_ip_address(&ipAddr));
+    EXPECT_EQ(NSAPI_ERROR_NO_CONNECTION, iface->get_netmask(&netmaskAddr));
+    EXPECT_EQ(NSAPI_ERROR_NO_CONNECTION, iface->get_gateway(&gatewayAddr));
 
     EXPECT_CALL(*pppMock, set_stream(_));
     EXPECT_CALL(*pppMock, set_ip_stack(_));
@@ -213,25 +217,28 @@ TEST_F(TestPPPInterface, set_network)
                     Return(NSAPI_ERROR_OK)));
     EXPECT_EQ(NSAPI_ERROR_OK, iface->connect());
     // Check the contents of the stored pointer arguments.
-    EXPECT_TRUE(0 == strcmp(ipAddress, ipAddressArg));
-    EXPECT_TRUE(0 == strcmp(netmask, netmaskArg));
-    EXPECT_TRUE(0 == strcmp(gateway, gatewayArg));
+    EXPECT_TRUE(0 == strcmp(ipAddress.get_ip_address(), ipAddressArg));
+    EXPECT_TRUE(0 == strcmp(netmask.get_ip_address(), netmaskArg));
+    EXPECT_TRUE(0 == strcmp(gateway.get_ip_address(), gatewayArg));
 
     // Testing the getters makes sense now.
-    EXPECT_CALL(*netStackIface, get_ip_address(_, _))
+    EXPECT_CALL(*netStackIface, get_ip_address(_))
     .Times(1)
-    .WillOnce(DoAll(SetArgPointee<0>(*ipAddress), Return(ipAddress)));
-    EXPECT_EQ(std::string(ipAddress), std::string(iface->get_ip_address()));
+    .WillOnce(DoAll(SetArgPointee<0>(ipAddress), Return(NSAPI_ERROR_OK)));
+    EXPECT_EQ(NSAPI_ERROR_OK, iface->get_ip_address(&ipAddr));
+    EXPECT_EQ(ipAddress, ipAddr);
 
-    EXPECT_CALL(*netStackIface, get_netmask(_, _))
+    EXPECT_CALL(*netStackIface, get_netmask(_))
     .Times(1)
-    .WillOnce(DoAll(SetArgPointee<0>(*netmask), Return(netmask)));
-    EXPECT_EQ(std::string(netmask), std::string(iface->get_netmask()));
+    .WillOnce(DoAll(SetArgPointee<0>(netmask), Return(NSAPI_ERROR_OK)));
+    EXPECT_EQ(NSAPI_ERROR_OK, iface->get_netmask(&netmaskAddr));
+    EXPECT_EQ(netmask, netmaskAddr);
 
-    EXPECT_CALL(*netStackIface, get_gateway(_, _))
+    EXPECT_CALL(*netStackIface, get_gateway(_))
     .Times(1)
-    .WillOnce(DoAll(SetArgPointee<0>(*gateway), Return(gateway)));
-    EXPECT_EQ(std::string(gateway), std::string(iface->get_gateway()));
+    .WillOnce(DoAll(SetArgPointee<0>(gateway), Return(NSAPI_ERROR_OK)));
+    EXPECT_EQ(NSAPI_ERROR_OK, iface->get_gateway(&gatewayAddr));
+    EXPECT_EQ(gateway, gatewayAddr);
 }
 
 TEST_F(TestPPPInterface, get_connection_status)
