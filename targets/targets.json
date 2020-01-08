@@ -3546,9 +3546,8 @@
             "CAN",
             "CRC"
         ],
-        "release_versions": [
-            "2"
-        ],
+        "device_has_remove": ["LPTICKER"],
+        "release_versions": ["2"],
         "device_name": "STM32F303K8"
     },
     "NUCLEO_F303RE": {
@@ -3739,13 +3738,9 @@
             "FLASH",
             "MPU"
         ],
-        "overrides": {
-            "lse_available": 0
-        },
-        "release_versions": [
-            "2",
-            "5"
-        ],
+        "device_has_remove": ["LPTICKER"],
+        "overrides": { "lse_available": 0 },
+        "release_versions": ["2", "5"],
         "device_name": "STM32F401VE"
     },
     "NUCLEO_F410RB": {
@@ -3984,9 +3979,8 @@
         "overrides": {
             "lse_available": 0
         },
-        "inherits": [
-            "USI_WM_BN_BM_22"
-        ]
+        "device_has_remove": ["LPTICKER"],
+        "inherits": ["USI_WM_BN_BM_22"]
     },
     "MTB_ADV_WISE_1530": {
         "inherits": [
@@ -5758,6 +5752,7 @@
             "CRC",
             "MPU"
         ],
+        "device_has_remove": ["LPTICKER"],
         "device_name": "STM32F303VC"
     },
     "DISCO_F334C8": {
@@ -5788,6 +5783,7 @@
             "CRC",
             "SERIAL_ASYNCH"
         ],
+        "device_has_remove": ["LPTICKER"],
         "default_lib": "small",
         "release_versions": [
             "2"
@@ -5814,19 +5810,10 @@
                 "value": "USE_USB_OTG_FS"
             }
         },
-        "overrides": {
-            "lse_available": 0
-        },
-        "device_has_add": [
-            "ANALOGOUT",
-            "TRNG",
-            "FLASH",
-            "MPU"
-        ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
+        "overrides": { "lse_available": 0 },
+        "device_has_add": ["ANALOGOUT", "TRNG", "FLASH", "MPU"],
+        "device_has_remove": ["LPTICKER"],
+        "release_versions": ["2", "5"],
         "device_name": "STM32F407VG"
     },
     "OLIMEX_STM32E407_F407ZG": {
@@ -5861,9 +5848,8 @@
             "CAN",
             "USBDEVICE"
         ],
-        "release_versions": [
-            "5"
-        ],
+        "device_has_remove": ["LPTICKER"],
+        "release_versions": ["5"],
         "device_name": "STM32F407ZG"
     },
     "DISCO_F429ZI": {
@@ -5900,10 +5886,8 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
+        "device_has_remove": ["LPTICKER"],
+        "release_versions": ["2", "5"],
         "device_name": "STM32F429ZI",
         "bootloader_supported": true
     },
@@ -6558,17 +6542,9 @@
                 "IAR"
             ]
         },
-        "device_has_add": [
-            "MPU",
-            "FLASH"
-        ],
-        "device_has_remove": [
-            "SERIAL_FC"
-        ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
+        "device_has_add": ["MPU", "FLASH"],
+        "device_has_remove": ["SERIAL_FC", "LPTICKER"],
+        "release_versions": ["2", "5"],
         "device_name": "STM32F411RE",
         "bootloader_supported": true
     },
@@ -6701,7 +6677,8 @@
             "MPU"
         ],
         "device_has_remove": [
-            "SERIAL_FC"
+            "SERIAL_FC",
+            "LPTICKER"
         ],
         "post_binary_hook": {
             "function": "MTSCode.combine_bins_mtb_mts_dragonfly",
@@ -6996,28 +6973,16 @@
         }
     },
     "MTB_UBLOX_ODIN_W2": {
-        "inherits": [
-            "MODULE_UBLOX_ODIN_W2"
-        ],
-        "device_has_add": [],
-        "overrides": {
-            "lse_available": 0
-        },
-        "release_versions": [
-            "5"
-        ]
+        "inherits": ["MODULE_UBLOX_ODIN_W2"],
+        "device_has_remove": ["LPTICKER"],
+        "overrides": {"lse_available": 0},
+        "release_versions": ["5"]
     },
     "OKDO_ODIN_W2": {
-        "inherits": [
-            "MODULE_UBLOX_ODIN_W2"
-        ],
-        "device_has_add": [],
-        "overrides": {
-            "lse_available": 0
-        },
-        "release_versions": [
-            "5"
-        ]
+        "inherits": ["MODULE_UBLOX_ODIN_W2"],
+        "device_has_remove": ["LPTICKER"],
+        "overrides": {"lse_available": 0},
+        "release_versions": ["5"]
     },
     "UBLOX_C030": {
         "inherits": [
@@ -7051,6 +7016,7 @@
             "FLASH",
             "MPU"
         ],
+        "device_has_remove": ["LPTICKER"],
         "public": false,
         "device_name": "STM32F437VG",
         "bootloader_supported": true,
@@ -7127,22 +7093,11 @@
         "core": "Cortex-M3",
         "default_toolchain": "uARM",
         "program_cycle_s": 1.5,
-        "extra_labels_add": [
-            "STM32L1",
-            "STM32L151RC"
-        ],
-        "overrides": {
-            "lse_available": 0
-        },
-        "supported_toolchains": [
-            "ARM",
-            "uARM",
-            "GCC_ARM"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "MPU"
-        ],
+        "extra_labels_add": ["STM32L1", "STM32L151RC"],
+        "overrides": { "lse_available": 0 },
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
+        "device_has_add": ["ANALOGOUT", "MPU"],
+        "device_has_remove": ["LPTICKER"],
         "default_lib": "small",
         "device_name": "STM32L151RC"
     },
