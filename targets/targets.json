@@ -16,7 +16,6 @@
         "features": [],
         "detect_code": [],
         "public": false,
-        "default_lib": "std",
         "bootloader_supported": false,
         "static_memory_defines": true,
         "printf_lib": "std",
@@ -206,7 +205,12 @@
         "supported_toolchains": [
             "uARM"
         ],
-        "default_lib": "small"
+        "selected_c_libs": {
+            "arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["small"]
+        }
     },
     "CM4_ARM": {
         "inherits": [
@@ -228,7 +232,12 @@
         "supported_toolchains": [
             "uARM"
         ],
-        "default_lib": "small"
+        "selected_c_libs": {
+            "arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["small"]
+        }
     },
     "CM4F_ARM": {
         "inherits": [
@@ -324,10 +333,18 @@
             "SPISLAVE",
             "STDIO_MESSAGES"
         ],
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "LPC1114FN28/102"
     },
     "LPC11U24": {
@@ -376,10 +393,18 @@
             "tickless-from-us-ticker": true,
             "boot-stack-size": "0x400"
         },
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "LPC11U24FBD48/401"
     },
     "OC_MBUINO": {
@@ -485,7 +510,14 @@
             "SPI",
             "SPISLAVE"
         ],
-        "default_lib": "small",
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"]
+        },
         "device_name": "LPC11U34FBD48/311"
     },
     "MICRONFCBOARD": {
@@ -543,10 +575,18 @@
             "tickless-from-us-ticker": true,
             "boot-stack-size": "0x400"
         },
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "LPC11U35FBD48/401"
     },
     "MCU_LPC11U35_501": {
@@ -583,7 +623,15 @@
             "SPI",
             "SPISLAVE"
         ],
-        "default_lib": "small",
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "LPC11U35FHI33/501",
         "public": false
     },
@@ -639,7 +687,15 @@
             "GCC_ARM",
             "IAR"
         ],
-        "default_lib": "small",
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "LPC11U37FBD64/501"
     },
     "LPCCAPPUCCINO": {
@@ -700,10 +756,18 @@
             "SPI",
             "SPISLAVE"
         ],
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "LPC11U37FBD64/501"
     },
     "LPC11U68": {
@@ -741,10 +805,18 @@
         "macros": [
             "MBED_FAULT_HANDLER_DISABLED"
         ],
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "LPC11U68JBD100"
     },
     "LPC1347": {
@@ -814,10 +886,18 @@
             "SPI",
             "SPISLAVE"
         ],
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "LPC1549JBD64"
     },
     "LPC1768": {
@@ -1088,7 +1168,15 @@
             "SPI",
             "SPISLAVE"
         ],
-        "default_lib": "small",
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "LPC810M021FN8"
     },
     "LPC812": {
@@ -1124,10 +1212,18 @@
             "SPI",
             "SPISLAVE"
         ],
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "LPC812M101JDH20"
     },
     "LPC824": {
@@ -1160,10 +1256,18 @@
             "SPI",
             "SPISLAVE"
         ],
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "LPC824M201JDH20"
     },
     "SSCI824": {
@@ -1192,10 +1296,17 @@
             "SPI",
             "SPISLAVE"
         ],
-        "default_lib": "small",
         "release_versions": [
             "2"
-        ]
+        ],
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["small"],
+            "gcc_arm": ["std", "small"]
+        }
     },
     "MCU_LPC4088": {
         "inherits": [
@@ -1418,10 +1529,17 @@
             "SPI",
             "SPISLAVE"
         ],
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"]
+        },
         "device_name": "LPC11U37HFBD64/401"
     },
     "ELEKTOR_COCORICO": {
@@ -1443,7 +1561,15 @@
         "detect_code": [
             "C000"
         ],
-        "default_lib": "small",
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "LPC812M101JDH16"
     },
     "KL05Z": {
@@ -1484,10 +1610,18 @@
             "SPISLAVE",
             "STDIO_MESSAGES"
         ],
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "MKL05Z32xxx4"
     },
     "KL25Z": {
@@ -1826,7 +1960,6 @@
             "SPISLAVE",
             "STDIO_MESSAGES"
         ],
-        "default_lib": "std",
         "release_versions": [
             "2"
         ],
@@ -2442,7 +2575,6 @@
             "FLASH",
             "WATCHDOG"
         ],
-        "default_lib": "std",
         "release_versions": [
             "2",
             "5"
@@ -2466,7 +2598,6 @@
             "USE_EXTERNAL_RTC"
         ],
         "default_toolchain": "ARM",
-        "default_lib": "std",
         "forced_reset_timeout": 7,
         "release_versions": [
             "2",
@@ -3187,10 +3318,17 @@
         "device_has_remove": [
             "LPTICKER"
         ],
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "STM32F030R8"
     },
     "NUCLEO_F031K6": {
@@ -3226,10 +3364,18 @@
         "device_has_remove": [
             "LPTICKER"
         ],
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "STM32F031K6"
     },
     "NUCLEO_F042K6": {
@@ -3266,10 +3412,18 @@
         "device_has_remove": [
             "LPTICKER"
         ],
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "STM32F042K6"
     },
     "NUCLEO_F070RB": {
@@ -3511,10 +3665,17 @@
             "CRC",
             "SERIAL_ASYNCH"
         ],
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "STM32F302R8"
     },
     "NUCLEO_F303K8": {
@@ -3540,7 +3701,14 @@
         "detect_code": [
             "0775"
         ],
-        "default_lib": "small",
+        "selected_c_libs": {
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -3673,10 +3841,17 @@
             "CRC",
             "SERIAL_ASYNCH"
         ],
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "STM32F334R8"
     },
     "NUCLEO_F401RE": {
@@ -4132,10 +4307,17 @@
         "device_has_remove": [
             "SERIAL_FC"
         ],
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"]
+        },
         "device_name": "STM32F411RE"
     },
     "NUCLEO_F429ZI": {
@@ -4993,10 +5175,15 @@
             "CRC",
             "FLASH"
         ],
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["small"]
+        },
         "device_name": "STM32L011K4"
     },
     "NUCLEO_L031K6": {
@@ -5033,10 +5220,18 @@
             "CRC",
             "FLASH"
         ],
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "STM32L031K6"
     },
     "NUCLEO_L053R8": {
@@ -5080,10 +5275,17 @@
             "FLASH",
             "MPU"
         ],
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "STM32L053R8"
     },
     "NUCLEO_L073RZ": {
@@ -5788,10 +5990,17 @@
             "CRC",
             "SERIAL_ASYNCH"
         ],
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "STM32F334C8"
     },
     "DISCO_F407VG": {
@@ -6036,10 +6245,17 @@
             "FLASH",
             "MPU"
         ],
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "STM32L053C8"
     },
     "DISCO_L072CZ_LRWAN1": {
@@ -7143,7 +7359,14 @@
             "ANALOGOUT",
             "MPU"
         ],
-        "default_lib": "small",
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"]
+        },
         "device_name": "STM32L151RC"
     },
     "MCU_NRF51": {
@@ -7241,7 +7464,13 @@
             "TARGET_MCU_NRF51_16K"
         ],
         "public": false,
-        "default_lib": "small"
+        "selected_c_libs": {
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["std"],
+            "gcc_arm": ["std", "small"]
+        }
     },
     "MCU_NRF51_16K_BOOT_BASE": {
         "inherits": [
@@ -9324,10 +9553,18 @@
             "uARM",
             "IAR"
         ],
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "EFM32ZG222F32",
         "public": false
     },
@@ -9416,10 +9653,18 @@
             "uARM",
             "IAR"
         ],
-        "default_lib": "small",
         "release_versions": [
             "2"
         ],
+        "selected_c_libs": {
+            "arm": "small",
+            "gcc_arm": "small"
+        },
+        "supported_c_libs": {
+            "arm": ["small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "device_name": "EFM32HG322F64",
         "public": false
     },
@@ -10443,7 +10688,6 @@
             "SPI_ASYNCH",
             "MPU"
         ],
-        "default_lib": "std",
         "device_name": "ATSAMG55J19"
     },
     "MCU_NRF51_UNIFIED": {
@@ -11591,7 +11835,6 @@
             "SLEEP",
             "STDIO_MESSAGES"
         ],
-        "default_lib": "std",
         "release_versions": []
     },
     "SARA_NBIOT": {
@@ -14025,7 +14268,6 @@
             "smclk_div": "DIV2",
             "adc_auto_scan": 1
         },
-        "default_lib": "std",
         "release_versions": [
             "2",
             "5"

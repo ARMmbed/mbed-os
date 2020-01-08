@@ -102,7 +102,7 @@ def test_modify_existing_target():
             "features": [],
             "detect_code": [],
             "public": false,
-            "default_lib": "std",
+            "c_lib": "std",
             "supported_c_libs": {
                 "arm": ["std"],
                 "gcc_arm": ["std", "small"],
@@ -130,7 +130,7 @@ def test_modify_existing_target():
             "features": [],
             "detect_code": [],
             "public": false,
-            "default_lib": "std",
+            "c_lib": "std",
             "supported_c_libs": {
                 "arm": ["std"],
                 "gcc_arm": ["std", "small"],

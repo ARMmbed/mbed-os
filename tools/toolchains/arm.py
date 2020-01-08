@@ -77,11 +77,12 @@ class ARM(mbedToolchain):
             raise NotSupportedException(
                 "this compiler does not support the core %s" % target.core)
 
-        self.check_c_lib_supported(target, "arm")
+        c_lib = self.get_c_lib_config(target, "arm")
+        self.check_c_lib_supported(target, "arm", c_lib)
 
         if (
             getattr(target, "default_toolchain", "ARM") == "uARM"
-            or getattr(target, "default_lib", "std") == "small"
+            or c_lib == "small"
         ):
             if "-DMBED_RTOS_SINGLE_THREAD" not in self.flags['common']:
                 self.flags['common'].append("-DMBED_RTOS_SINGLE_THREAD")
@@ -567,11 +568,12 @@ class ARMC6(ARM_STD):
                     "ARM/ARMC6 compiler support is required for ARMC6 build"
                 )
 
-        self.check_c_lib_supported(target, "arm")
+        c_lib = self.get_c_lib_config(target, "arm")
+        self.check_c_lib_supported(target, "arm", c_lib)
 
         if (
             getattr(target, "default_toolchain", "ARMC6") == "uARM"
-            or getattr(target, "default_lib", "std") == "small"
+            or c_lib == "small"
         ):
             if "-DMBED_RTOS_SINGLE_THREAD" not in self.flags['common']:
                 self.flags['common'].append("-DMBED_RTOS_SINGLE_THREAD")

@@ -39,22 +39,40 @@
             "mbed-trace.fea-ipv6": false
         },
         "K64F": {
-            "target.default_lib": "small"
+            "target.selected_c_libs": {
+                "arm": "small",
+                "gcc_arm": "small"
+            }
         },
         "K66F": {
-            "target.default_lib": "small"
+            "target.selected_c_libs": {
+                "arm": "small",
+                "gcc_arm": "small"
+            }
         },
         "NUCLEO_F303RE": {
-            "target.default_lib": "small"
+            "target.selected_c_libs": {
+                "arm": "small",
+                "gcc_arm": "small"
+            }
         },
         "NUCLEO_F411RE": {
-            "target.default_lib": "small"
+            "target.selected_c_libs": {
+                "arm": "small",
+                "gcc_arm": "small"
+            }
         },
         "NUCLEO_F429ZI": {
-            "target.default_lib": "small"
+            "target.selected_c_libs": {
+                "arm": "small",
+                "gcc_arm": "small"
+            }
         },
         "DISCO_L475VG_IOT01A": {
-            "target.default_lib": "small"
+            "target.selected_c_libs": {
+                "arm": "small",
+                "gcc_arm": "small"
+            }
         }
      }
 }

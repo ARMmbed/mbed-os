@@ -53,7 +53,8 @@ class IAR(mbedToolchain):
             build_profile=build_profile
         )
 
-        self.check_c_lib_supported(target, "iar")
+        c_lib = self.get_c_lib_config(target, "iar")
+        self.check_c_lib_supported(target, "iar", c_lib)
 
         if target.is_TrustZone_secure_target:
             # Enable compiler security extensions

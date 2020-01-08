@@ -90,7 +90,7 @@ def check_device_has(dict):
             yield "%s is not allowed in device_has" % name
 
 MCU_REQUIRED_KEYS = ["release_versions", "supported_toolchains",
-                     "default_lib", "public", "inherits", "device_has"]
+                     "c_lib", "public", "inherits", "device_has"]
 MCU_ALLOWED_KEYS = ["device_has_add", "device_has_remove", "core",
                     "extra_labels", "features", "features_add",
                     "features_remove", "bootloader_supported", "device_name",

@@ -31,7 +31,7 @@ from intelhex import IntelHex
 Tests for build_api.py
 """
 make_mock_target = namedtuple(
-    "Target", "get_post_build_hook name features core supported_toolchains build_tools_metadata")
+    "Target", "get_post_build_hook name features core supported_toolchains build_tools_metadata supported_c_libs")
 #Add ARMC5 to the supported_toolchains list as ARMC5 actually refers ARM Compiler 5 and is needed by ARM/ARM_STD classes when it checks for supported toolchains
 TOOLCHAINS.add("ARMC5")
 #Make a mock build_tools_metadata
@@ -141,8 +141,9 @@ class BuildApiTests(unittest.TestCase):
         :return:
         """
         app_config = "app_config"
+        supported_c_libs = {"arm": ["std"]}
         mock_target = make_mock_target(lambda _ : None,
-                                       "Junk", [], "Cortex-M3", TOOLCHAINS, mock_build_tools_metadata)
+                                       "Junk", [], "Cortex-M3", TOOLCHAINS, mock_build_tools_metadata, supported_c_libs)
         mock_config_init.return_value = namedtuple(
             "Config", "target has_regions name")(mock_target, False, None)
 
@@ -160,8 +161,9 @@ class BuildApiTests(unittest.TestCase):
         :param mock_config_init: mock of Config __init__
         :return:
         """
+        supported_c_libs = {"arm": ["std"]}
         mock_target = make_mock_target(lambda _ : None,
-                                       "Junk", [], "Cortex-M3", TOOLCHAINS, mock_build_tools_metadata)
+                                       "Junk", [], "Cortex-M3", TOOLCHAINS, mock_build_tools_metadata, supported_c_libs)
         mock_config_init.return_value = namedtuple(
             "Config", "target has_regions name")(mock_target, False, None)
 

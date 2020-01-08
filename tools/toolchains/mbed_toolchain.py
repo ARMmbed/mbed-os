@@ -1099,23 +1099,43 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
         ):
             self.flags["common"].append("-DMBED_MINIMAL_PRINTF")
 
-    def check_c_lib_supported(self, target, toolchain):
-        """
-        Check and raise an exception if the requested C library is not supported,
+    def get_c_lib_config(self, target, toolchain):
+        """get the c library configuration from the target if not returns std by default."""
+        c_lib = "std"
+        if hasattr(target, "c_lib"):
+            c_lib = target.c_lib.lower()
+        elif (
+              hasattr(target, "selected_c_libs")
+              and toolchain in target.selected_c_libs
+        ):
+            c_lib = target.selected_c_libs[toolchain].lower()
+        elif (
+              hasattr(target, "default_build")
+              and toolchain == "gcc_arm"
+        ):
+            c_lib = target.default_build.lower()
+        return c_lib
 
-        target.default_lib is modified to have the lowercased string of its original string.
-        This is done to be case insensitive when validating.
-        """
-        if  hasattr(target, "default_lib"):
-            target.default_lib = target.default_lib.lower()
-            if (
-                hasattr(target, "supported_c_libs") == False
-                or toolchain not in target.supported_c_libs
-                or target.default_lib not in target.supported_c_libs[toolchain]
-            ):
-                raise NotSupportedException(
-                   UNSUPPORTED_C_LIB_EXCEPTION_STRING.format(target.default_lib)
-                )
+    def check_c_lib_supported(self, target, toolchain, c_lib):
+        """Check and raise an exception if the requested C library is not supported."""
+        if (
+            hasattr(target, "supported_c_libs") == False
+            or toolchain not in target.supported_c_libs
+            or c_lib not in target.supported_c_libs[toolchain]
+        ):
+            raise NotSupportedException(
+               UNSUPPORTED_C_LIB_EXCEPTION_STRING.format(c_lib)
+            )
+
+    def get_default_supported_c_lib(self, target, toolchain):
+        """get the default supported c library from c_lib_default and raise an exception in case of
+        non supported toolchain option."""
+        if toolchain in target.c_lib_default:
+            return target.c_lib_default[toolchain]
+        else:
+            raise NotSupportedException(
+               UNSUPPORTED_TOOLCHAIN_EXCEPTION_STRING.format(toolchain)
+            )
 
     @staticmethod
     def _overwrite_when_not_equal(filename, content):
