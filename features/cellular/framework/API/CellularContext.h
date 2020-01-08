@@ -305,6 +305,14 @@ protected: // Device specific implementations might need these so protected
         OP_MAX          = 5
     };
 
+    enum pdp_type_t {
+        DEFAULT_PDP_TYPE = DEFAULT_STACK,
+        IPV4_PDP_TYPE = IPV4_STACK,
+        IPV6_PDP_TYPE = IPV6_STACK,
+        IPV4V6_PDP_TYPE = IPV4V6_STACK,
+        NON_IP_PDP_TYPE
+    };
+
     /** The CellularDevice calls the status callback function on status changes on the network or CellularDevice.
     *
     *  @param ev   event type
@@ -320,6 +328,16 @@ protected: // Device specific implementations might need these so protected
      *  active.
      */
     virtual void enable_hup(bool enable) = 0;
+
+    /** Return PDP type string for Non-IP if modem uses other than standard "Non-IP"
+     *
+     *  Some modems uses a non-standard PDP type string for non-ip (e.g. "NONIP").
+     *  In those cases modem driver must implement this method to return the PDP type string
+     *  used by the modem.
+     *
+     *  @return PDP type string used by the modem or NULL if standard ("Non-IP")
+     */
+    virtual const char *get_nonip_context_type_str() = 0;
 
     /** Triggers control plane's operations needed when control plane data is received,
      *  like socket event, for example.
@@ -347,6 +365,14 @@ protected: // Device specific implementations might need these so protected
      */
     void validate_ip_address();
 
+    /** Converts the given pdp type in char format to enum pdp_type_t
+     *
+     *  @param pdp_type     pdp type in string format
+     *  @return             converted pdp_type_t enum
+     */
+    CellularContext::pdp_type_t string_to_pdp_type(const char *pdp_type);
+
+protected:
     // member variables needed in target override methods
     NetworkStack *_stack; // must be pointer because of PPP
     pdp_type_t _pdp_type;
