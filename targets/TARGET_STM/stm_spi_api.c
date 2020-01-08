@@ -208,6 +208,9 @@ static void _spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
     handle->Init.CLKPolarity       = SPI_POLARITY_LOW;
     handle->Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
     handle->Init.CRCPolynomial     = 7;
+#if defined(SPI_CRC_LENGTH_DATASIZE)
+    handle->Init.CRCLength         = SPI_CRC_LENGTH_DATASIZE;
+#endif
     handle->Init.DataSize          = SPI_DATASIZE_8BIT;
     handle->Init.FirstBit          = SPI_FIRSTBIT_MSB;
     handle->Init.TIMode            = SPI_TIMODE_DISABLE;

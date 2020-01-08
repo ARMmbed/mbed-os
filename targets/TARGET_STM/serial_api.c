@@ -616,6 +616,18 @@ HAL_StatusTypeDef init_uart(serial_t *obj)
     huart->TxXferSize        = 0;
     huart->RxXferCount       = 0;
     huart->RxXferSize        = 0;
+#if defined(UART_ONE_BIT_SAMPLE_DISABLE) // F0/F3/F7/G0/H7/L0/L4/L5/WB
+    huart->Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+#endif
+#if defined(UART_PRESCALER_DIV1) // G0/H7/L4/L5/WB
+    huart->Init.ClockPrescaler = UART_PRESCALER_DIV1;
+#endif
+#if defined(UART_ADVFEATURE_NO_INIT) // F0/F3/F7/G0/H7/L0/L4//5/WB
+    huart->AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+#endif
+#if defined(UART_FIFOMODE_DISABLE) // G0/H7/L4/L5/WB
+    huart->FifoMode = UART_FIFOMODE_DISABLE;
+#endif
 
     if (obj_s->pin_rx == NC) {
         huart->Init.Mode = UART_MODE_TX;
