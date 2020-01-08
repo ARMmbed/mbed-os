@@ -490,6 +490,9 @@ void i2c_frequency(i2c_t *obj, int hz)
     handle->Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
     handle->Init.OwnAddress1     = 0;
     handle->Init.OwnAddress2     = 0;
+#ifdef I2C_IP_VERSION_V2
+    handle->Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+#endif
     HAL_I2C_Init(handle);
 
     /*  store frequency for timeout computation */

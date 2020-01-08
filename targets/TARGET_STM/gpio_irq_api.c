@@ -73,7 +73,34 @@ static gpio_channel_t channels[CHANNEL_NUM] = {
     {.pin_mask = 0},
 #endif
 #ifdef EXTI_IRQ6_NUM_LINES
-    {.pin_mask = 0}
+    {.pin_mask = 0},
+#endif
+#ifdef EXTI_IRQ7_NUM_LINES
+    {.pin_mask = 0},
+#endif
+#ifdef EXTI_IRQ8_NUM_LINES
+    {.pin_mask = 0},
+#endif
+#ifdef EXTI_IRQ9_NUM_LINES
+    {.pin_mask = 0},
+#endif
+#ifdef EXTI_IRQ10_NUM_LINES
+    {.pin_mask = 0},
+#endif
+#ifdef EXTI_IRQ11_NUM_LINES
+    {.pin_mask = 0},
+#endif
+#ifdef EXTI_IRQ12_NUM_LINES
+    {.pin_mask = 0},
+#endif
+#ifdef EXTI_IRQ13_NUM_LINES
+    {.pin_mask = 0},
+#endif
+#ifdef EXTI_IRQ14_NUM_LINES
+    {.pin_mask = 0},
+#endif
+#ifdef EXTI_IRQ15_NUM_LINES
+    {.pin_mask = 0},
 #endif
 };
 
@@ -89,6 +116,36 @@ static void handle_interrupt_in(uint32_t irq_index, uint32_t max_num_pin_line)
             // Retrieve the gpio and pin that generate the irq
             GPIO_TypeDef *gpio = (GPIO_TypeDef *)(gpio_channel->channel_gpio[gpio_idx]);
             uint32_t pin = (uint32_t)(1 << (gpio_channel->channel_pin[gpio_idx]));
+
+#if defined(TARGET_STM32L5)
+            // Clear interrupt flag
+            if (LL_EXTI_IsActiveRisingFlag_0_31(pin) != RESET) {
+                LL_EXTI_ClearRisingFlag_0_31(pin);
+
+                if (gpio_channel->channel_ids[gpio_idx] == 0) {
+                    continue;
+                }
+
+                gpio_irq_event event = IRQ_RISE;
+                irq_handler(gpio_channel->channel_ids[gpio_idx], event);
+
+                return;
+            }
+
+            if (LL_EXTI_IsActiveFallingFlag_0_31(pin) != RESET) {
+                LL_EXTI_ClearFallingFlag_0_31(pin);
+
+                if (gpio_channel->channel_ids[gpio_idx] == 0) {
+                    continue;
+                }
+
+                gpio_irq_event event = IRQ_FALL;
+                irq_handler(gpio_channel->channel_ids[gpio_idx], event);
+
+                return;
+            }
+
+#else /* TARGET_STM32L5 */
 
             // Clear interrupt flag
             if (__HAL_GPIO_EXTI_GET_FLAG(pin) != RESET) {
@@ -124,6 +181,7 @@ static void handle_interrupt_in(uint32_t irq_index, uint32_t max_num_pin_line)
 
                 return;
             }
+#endif /* TARGET_STM32L5 */
         }
     }
     error("Unexpected Spurious interrupt index %" PRIu32 "\n", irq_index);
@@ -166,17 +224,80 @@ static void gpio_irq4(void)
 }
 #endif
 #ifdef EXTI_IRQ5_NUM_LINES
-// EXTI lines 5 to 9
+// EXTI lines 5 to 9, except for STM32L5 line 5 only
 static void gpio_irq5(void)
 {
     handle_interrupt_in(5, EXTI_IRQ5_NUM_LINES);
 }
 #endif
 #ifdef EXTI_IRQ6_NUM_LINES
-// EXTI lines 10 to 15
+// EXTI lines 10 to 15, except for STM32L5 line 6 only
 static void gpio_irq6(void)
 {
     handle_interrupt_in(6, EXTI_IRQ6_NUM_LINES);
+}
+#endif
+#ifdef EXTI_IRQ7_NUM_LINES
+// EXTI line 7 for STM32L5
+static void gpio_irq7(void)
+{
+    handle_interrupt_in(7, EXTI_IRQ7_NUM_LINES);
+}
+#endif
+#ifdef EXTI_IRQ8_NUM_LINES
+// EXTI line 8 for STM32L5
+static void gpio_irq8(void)
+{
+    handle_interrupt_in(8, EXTI_IRQ8_NUM_LINES);
+}
+#endif
+#ifdef EXTI_IRQ9_NUM_LINES
+// EXTI line 9 for STM32L5
+static void gpio_irq9(void)
+{
+    handle_interrupt_in(9, EXTI_IRQ9_NUM_LINES);
+}
+#endif
+#ifdef EXTI_IRQ10_NUM_LINES
+// EXTI line 10 for STM32L5
+static void gpio_irq10(void)
+{
+    handle_interrupt_in(10, EXTI_IRQ10_NUM_LINES);
+}
+#endif
+#ifdef EXTI_IRQ11_NUM_LINES
+// EXTI line 11 for STM32L5
+static void gpio_irq11(void)
+{
+    handle_interrupt_in(11, EXTI_IRQ11_NUM_LINES);
+}
+#endif
+#ifdef EXTI_IRQ12_NUM_LINES
+// EXTI line 12 for STM32L5
+static void gpio_irq12(void)
+{
+    handle_interrupt_in(12, EXTI_IRQ12_NUM_LINES);
+}
+#endif
+#ifdef EXTI_IRQ13_NUM_LINES
+// EXTI line 13 for STM32L5
+static void gpio_irq13(void)
+{
+    handle_interrupt_in(13, EXTI_IRQ13_NUM_LINES);
+}
+#endif
+#ifdef EXTI_IRQ14_NUM_LINES
+// EXTI line 14 for STM32L5
+static void gpio_irq14(void)
+{
+    handle_interrupt_in(14, EXTI_IRQ14_NUM_LINES);
+}
+#endif
+#ifdef EXTI_IRQ15_NUM_LINES
+// EXTI line 15 for STM32L5
+static void gpio_irq15(void)
+{
+    handle_interrupt_in(15, EXTI_IRQ15_NUM_LINES);
 }
 #endif
 
@@ -237,6 +358,51 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 #ifdef EXTI_IRQ6_NUM_LINES
         case 6:
             vector = (uint32_t)&gpio_irq6;
+            break;
+#endif
+#ifdef EXTI_IRQ7_NUM_LINES
+        case 7:
+            vector = (uint32_t)&gpio_irq7;
+            break;
+#endif
+#ifdef EXTI_IRQ8_NUM_LINES
+        case 8:
+            vector = (uint32_t)&gpio_irq8;
+            break;
+#endif
+#ifdef EXTI_IRQ9_NUM_LINES
+        case 9:
+            vector = (uint32_t)&gpio_irq9;
+            break;
+#endif
+#ifdef EXTI_IRQ10_NUM_LINES
+        case 10:
+            vector = (uint32_t)&gpio_irq10;
+            break;
+#endif
+#ifdef EXTI_IRQ11_NUM_LINES
+        case 11:
+            vector = (uint32_t)&gpio_irq11;
+            break;
+#endif
+#ifdef EXTI_IRQ12_NUM_LINES
+        case 12:
+            vector = (uint32_t)&gpio_irq12;
+            break;
+#endif
+#ifdef EXTI_IRQ13_NUM_LINES
+        case 13:
+            vector = (uint32_t)&gpio_irq13;
+            break;
+#endif
+#ifdef EXTI_IRQ14_NUM_LINES
+        case 14:
+            vector = (uint32_t)&gpio_irq14;
+            break;
+#endif
+#ifdef EXTI_IRQ15_NUM_LINES
+        case 15:
+            vector = (uint32_t)&gpio_irq15;
             break;
 #endif
         default:
@@ -312,7 +478,7 @@ void gpio_irq_enable(gpio_irq_t *obj)
 
     /*  Select Source  */
 
-#if defined(STM32G0)
+#if defined(STM32G0) || defined(STM32L5)
     temp = EXTI->EXTICR[pin_index >> 2];
     CLEAR_BIT(temp, (0x0FU) << (8U * (pin_index & 0x03U)));
     SET_BIT(temp, port_index << (8U * (pin_index & 0x03U)));
