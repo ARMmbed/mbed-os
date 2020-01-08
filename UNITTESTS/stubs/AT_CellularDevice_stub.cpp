@@ -65,7 +65,7 @@ nsapi_error_t AT_CellularDevice::release_at_handler(ATHandler *at_handler)
     }
 }
 
-CellularContext *AT_CellularDevice::create_context(UARTSerial *serial, const char *const apn, PinName dcd_pin,
+CellularContext *AT_CellularDevice::create_context(BufferedSerial *serial, const char *const apn, PinName dcd_pin,
                                                    bool active_high, bool cp_req, bool nonip_req)
 {
 }

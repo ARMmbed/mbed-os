@@ -26,7 +26,7 @@
 #include "CellularLog.h"
 #include "ATHandler.h"
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
-#include "UARTSerial.h"
+#include "drivers/BufferedSerial.h"
 #endif // #if DEVICE_SERIAL
 #include "FileHandle.h"
 #include <ctype.h>
@@ -286,7 +286,7 @@ CellularContext *AT_CellularDevice::get_context_list() const
 }
 
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
-CellularContext *AT_CellularDevice::create_context(UARTSerial *serial, const char *const apn, PinName dcd_pin,
+CellularContext *AT_CellularDevice::create_context(BufferedSerial *serial, const char *const apn, PinName dcd_pin,
                                                    bool active_high, bool cp_req, bool nonip_req)
 {
     // Call FileHandle base version - explict upcast to avoid recursing into ourselves

@@ -23,7 +23,7 @@
 #include "AT_CellularDevice.h"
 #include "CellularLog.h"
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
-#include "UARTSerial.h"
+#include "drivers/BufferedSerial.h"
 #endif // #if DEVICE_SERIAL
 #include "ThisThread.h"
 
@@ -79,7 +79,7 @@ void AT_CellularContext::set_file_handle(FileHandle *fh)
 }
 
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
-void AT_CellularContext::set_file_handle(UARTSerial *serial, PinName dcd_pin, bool active_high)
+void AT_CellularContext::set_file_handle(BufferedSerial *serial, PinName dcd_pin, bool active_high)
 {
     tr_info("CellularContext serial %p", serial);
     _dcd_pin = dcd_pin;
@@ -94,7 +94,7 @@ void AT_CellularContext::enable_hup(bool enable)
 {
     if (_dcd_pin != NC) {
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
-        static_cast<UARTSerial *>(_fh)->set_data_carrier_detect(enable ? _dcd_pin : NC, _active_high);
+        static_cast<BufferedSerial *>(_fh)->set_data_carrier_detect(enable ? _dcd_pin : NC, _active_high);
 #endif // #if DEVICE_SERIAL
     }
 }

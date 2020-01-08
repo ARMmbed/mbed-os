@@ -90,10 +90,10 @@ nsapi_error_t QUECTEL_M26::shutdown()
 
 
 #if MBED_CONF_QUECTEL_M26_PROVIDE_DEFAULT
-#include "UARTSerial.h"
+#include "drivers/BufferedSerial.h"
 CellularDevice *CellularDevice::get_default_instance()
 {
-    static UARTSerial serial(MBED_CONF_QUECTEL_M26_TX, MBED_CONF_QUECTEL_M26_RX, MBED_CONF_QUECTEL_M26_BAUDRATE);
+    static BufferedSerial serial(MBED_CONF_QUECTEL_M26_TX, MBED_CONF_QUECTEL_M26_RX, MBED_CONF_QUECTEL_M26_BAUDRATE);
 #if defined (MBED_CONF_QUECTEL_M26_RTS) && defined(MBED_CONF_QUECTEL_M26_CTS)
     tr_debug("QUECTEL_M26 flow control: RTS %d CTS %d", MBED_CONF_QUECTEL_M26_RTS, MBED_CONF_QUECTEL_M26_CTS);
     serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_QUECTEL_M26_RTS, MBED_CONF_QUECTEL_M26_CTS);

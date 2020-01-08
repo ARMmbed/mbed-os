@@ -144,10 +144,10 @@ nsapi_error_t TELIT_ME910::init()
 }
 
 #if MBED_CONF_TELIT_ME910_PROVIDE_DEFAULT
-#include "UARTSerial.h"
+#include "drivers/BufferedSerial.h"
 CellularDevice *CellularDevice::get_default_instance()
 {
-    static UARTSerial serial(MBED_CONF_TELIT_ME910_TX, MBED_CONF_TELIT_ME910_RX, MBED_CONF_TELIT_ME910_BAUDRATE);
+    static BufferedSerial serial(MBED_CONF_TELIT_ME910_TX, MBED_CONF_TELIT_ME910_RX, MBED_CONF_TELIT_ME910_BAUDRATE);
 #if defined (MBED_CONF_TELIT_ME910_RTS) && defined (MBED_CONF_TELIT_ME910_CTS)
     serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_TELIT_ME910_RTS, MBED_CONF_TELIT_ME910_CTS);
 #endif
