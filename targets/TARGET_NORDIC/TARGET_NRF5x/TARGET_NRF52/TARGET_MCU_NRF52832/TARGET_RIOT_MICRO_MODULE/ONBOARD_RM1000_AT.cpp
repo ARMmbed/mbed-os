@@ -17,7 +17,7 @@
 #if MBED_CONF_NSAPI_PRESENT
 
 #include "ONBOARD_RM1000_AT.h"
-#include "UARTSerial.h"
+#include "drivers/BufferedSerial.h"
 
 #include "mbed-trace/mbed_trace.h"
 #ifndef TRACE_GROUP
@@ -140,7 +140,7 @@ CellularDevice *CellularDevice::get_target_default_instance()
 {
     tr_debug("Calling CellularDevice::get_target_default_instance from ONBOARD_RM1000_AT");
 
-    static UARTSerial serial(MDM_UART3_TXD, MDM_UART3_RXD, 230400);
+    static BufferedSerial serial(MDM_UART3_TXD, MDM_UART3_RXD, 230400);
 #if DEVICE_SERIAL_FC
     if (MDM_UART3_RTS != NC && MDM_UART3_CTS != NC) {
         tr_debug("Modem flow control: RTS %d CTS %d", MDM_UART3_RTS, MDM_UART3_CTS);
