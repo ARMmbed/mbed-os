@@ -1,0 +1,64 @@
+#! armclang --target=arm-arm-none-eabi -march=armv8-m.main -E -xc
+
+/*
+ * Copyright (c) 2019-2020 Arm Limited
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "../../../partition/region_defs.h"
+#include "../cmsis_nvic.h"
+
+#if !defined(MBED_ROM_START)
+  #define MBED_ROM_START    NS_CODE_START               // 0x0A060400
+#endif
+
+#if !defined(MBED_ROM_SIZE)
+  #define MBED_ROM_SIZE     NS_CODE_SIZE                // 0x7f800
+#endif
+
+#if !defined(MBED_RAM_START)
+  #define MBED_RAM_START    NS_DATA_START               // 0x20040000
+#endif
+
+#if !defined(MBED_RAM_SIZE)
+  #define MBED_RAM_SIZE     NS_DATA_SIZE                // 0x40000
+#endif
+
+#define VECTOR_SIZE         NVIC_RAM_VECTOR_SIZE
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE      0x400
+#endif
+
+#define RAM_FIXED_SIZE    (MBED_BOOT_STACK_SIZE+VECTOR_SIZE)
+
+LR_CODE  MBED_ROM_START  MBED_ROM_SIZE  {
+    ER_CODE  MBED_ROM_START  MBED_ROM_SIZE  {
+        *.o (VECTOR +First)
+        .ANY (+RO)
+    }
+
+    RW_IRAM1  (MBED_RAM_START+VECTOR_SIZE)  (MBED_RAM_SIZE-VECTOR_SIZE)  {
+        * (+RW) ; RW data that gets copied from Flash to SRAM
+        * (+ZI) ; ZI data that gets initialised to zero in SRAM
+    }
+
+    ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (MBED_RAM_SIZE-RAM_FIXED_SIZE+MBED_RAM_START-AlignExpr(ImageLimit(RW_IRAM1), 16))  {
+    }
+
+    ARM_LIB_STACK  (MBED_RAM_START+MBED_RAM_SIZE)  EMPTY  -MBED_BOOT_STACK_SIZE { ; stack
+    }
+}
