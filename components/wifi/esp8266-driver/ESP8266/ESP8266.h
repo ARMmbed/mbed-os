@@ -20,7 +20,7 @@
 #if DEVICE_SERIAL && DEVICE_INTERRUPTIN && defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_API_PRESENT)
 #include <stdint.h>
 
-#include "drivers/UARTSerial.h"
+#include "drivers/BufferedSerial.h"
 #include "features/netsocket/nsapi_types.h"
 #include "features/netsocket/WiFiAccessPoint.h"
 #include "PinNames.h"
@@ -427,7 +427,7 @@ private:
     mbed::Callback<void()> _callback;
 
     // UART settings
-    mbed::UARTSerial _serial;
+    mbed::BufferedSerial _serial;
     PinName _serial_rts;
     PinName _serial_cts;
     rtos::Mutex _smutex; // Protect serial port access
