@@ -16,18 +16,9 @@
  * limitations under the License.
  */
 
-#ifndef MBED_CMSIS_NVIC_H
-#define MBED_CMSIS_NVIC_H
+#ifndef __PLATFORM_RETARGET_H__
+#define __PLATFORM_RETARGET_H__
 
-#define NVIC_NUM_VECTORS           (16 + 102)
+/* Dummy for Nuvoton's M2351 TFM port */
 
-#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
-#   define NVIC_RAM_VECTOR_ADDRESS  ((uint32_t) &Image$$ER_IRAMVEC$$ZI$$Base)
-#elif defined(__ICCARM__)
-#   pragma section = "IRAMVEC"
-#   define NVIC_RAM_VECTOR_ADDRESS  ((uint32_t) __section_begin("IRAMVEC"))
-#elif defined(__GNUC__)
-#   define NVIC_RAM_VECTOR_ADDRESS  ((uint32_t) &__start_vector_table__)
-#endif
-
-#endif
+#endif  /* __PLATFORM_RETARGET_H__ */

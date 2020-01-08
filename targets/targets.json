@@ -8856,6 +8856,64 @@
         "mbed_ram_start"        : "0x20000000",
         "mbed_ram_size"         : "0x2000"
     },
+    "NU_PFM_M2351_NS": {
+        "inherits": ["NSPE_Target", "NU_PFM_M2351"],
+        "core": "Cortex-M23-NS",
+        "tfm.level": 1,
+        "extra_labels_add": [
+            "M23_NS",
+            "PSA",
+            "TFM",
+            "NU_PREBUILD_SECURE"
+        ],
+        "macros_add": [
+            "MBED_TZ_DEFAULT_ACCESS=1",
+            "CMSIS_NVIC_VIRTUAL",
+            "MBEDTLS_PSA_CRYPTO_C"
+        ],
+        "components_add": ["FLASHIAP"],
+        "post_binary_hook": {"function": "M2351Code.merge_secure"},
+        "secure_image_filename": "tfm.hex",
+        "overrides": {
+            "secure-rom-start"      : "0x0",
+            "secure-rom-size"       : "0x3C000",
+            "secure-ram-start"      : "0x20000000",
+            "secure-ram-size"       : "0x10000",
+            "non-secure-rom-start"  : "0x1003C000",
+            "non-secure-rom-size"   : "0x44000",
+            "non-secure-ram-start"  : "0x30010000",
+            "non-secure-ram-size"   : "0x8000"
+        }
+    },
+    "NU_PFM_M2351_S": {
+        "inherits": ["SPE_Target", "NU_PFM_M2351"],
+        "core": "Cortex-M23",
+        "tfm.level": 1,
+        "extra_labels_add": [
+            "M23_S",
+            "PSA",
+            "TFM"
+        ],
+        "device_has_remove": ["SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES"],
+        "macros_add": [
+            "DAUTH_CHIP_DEFAULT",
+            "MBEDTLS_PSA_CRYPTO_C",
+            "MBEDTLS_PSA_CRYPTO_SPM"
+        ],
+        "components_add": ["FLASHIAP"],
+        "deliver_to_target": "NU_PFM_M2351_NS",
+        "delivery_dir": "TARGET_NUVOTON/TARGET_M2351/TARGET_M23_NS/TARGET_NU_PFM_M2351_NS/TARGET_NU_PREBUILD_SECURE",
+        "overrides": {
+            "secure-rom-start"      : "0x0",
+            "secure-rom-size"       : "0x3C000",
+            "secure-ram-start"      : "0x20000000",
+            "secure-ram-size"       : "0x10000",
+            "non-secure-rom-start"  : "0x1003C000",
+            "non-secure-rom-size"   : "0x44000",
+            "non-secure-ram-start"  : "0x30010000",
+            "non-secure-ram-size"   : "0x8000"
+        }
+    },
     "NUMAKER_M252KG": {
         "core": "Cortex-M23",
         "trustzone": false,

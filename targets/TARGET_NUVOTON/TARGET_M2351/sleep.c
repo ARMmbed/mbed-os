@@ -22,7 +22,17 @@
 #include "device.h"
 #include "objects.h"
 #include "PeripheralPins.h"
+#include "platform/mbed_toolchain.h"
 #include <stdbool.h>
+
+/* Merge SYS_UnlockReg_S()/CLK_Idle_S() or CLK_PowerDown_S()/SYS_LockReg_S()
+ * into nu_idle_s() or nu_powerdown_s()
+ *
+ * These APIs are secure calls. For performance, merge them into one when
+ * nu_idle_s() and nu_powerdown_s() are available.
+ */
+MBED_WEAK void nu_idle_s(void);
+MBED_WEAK void nu_powerdown_s(void);
 
 #if DEVICE_SERIAL
 bool serial_can_deep_sleep(void);
@@ -38,9 +48,13 @@ void hal_sleep(void)
     CLK_Idle();
     SYS_LockReg();
 #else
-    SYS_UnlockReg_S();
-    CLK_Idle_S();
-    SYS_LockReg_S();
+    if (nu_idle_s) {
+        nu_idle_s();
+    } else {
+        SYS_UnlockReg_S();
+        CLK_Idle_S();
+        SYS_LockReg_S();
+    }
 #endif
 }
 
@@ -60,9 +74,13 @@ void hal_deepsleep(void)
     CLK_PowerDown();
     SYS_LockReg();
 #else
-    SYS_UnlockReg_S();
-    CLK_PowerDown_S();
-    SYS_LockReg_S();
+    if (nu_powerdown_s) {
+        nu_powerdown_s();
+    } else {
+        SYS_UnlockReg_S();
+        CLK_PowerDown_S();
+        SYS_LockReg_S();
+    }
 #endif
 }
 

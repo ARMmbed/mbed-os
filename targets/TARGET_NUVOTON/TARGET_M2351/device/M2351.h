@@ -180,14 +180,7 @@ typedef enum IRQn
 
 
 /* --------  Configuration of the Cortex-ARMv8MBL Processor and Core Peripherals  ------- */
-#define __ARMv8MBL_REV            0x0000U   /* Core revision r0p0 */
-#define __SAU_PRESENT             1U        /* SAU present */
-#define __SAUREGION_PRESENT       1U        /* SAU present */
-#define __MPU_PRESENT             1U        /* MPU present */
-#define __VTOR_PRESENT            1U        /* VTOR present */
-#define __NVIC_PRIO_BITS          2U        /* Number of Bits used for Priority Levels */
-#define __Vendor_SysTickConfig    0U        /* Set to 1 if different SysTick Config is used */
-#define USE_ASSERT                              0U              /* Define to use Assert function or not */
+#include "system_core_M2351.h"
 
 /*@}*/ /* end of group CMSIS */
 
