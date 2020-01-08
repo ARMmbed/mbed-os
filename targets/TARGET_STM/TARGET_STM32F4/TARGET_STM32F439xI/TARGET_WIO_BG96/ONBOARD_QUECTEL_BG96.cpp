@@ -21,7 +21,7 @@
 #include "gpio_api.h"
 #include "platform/mbed_thread.h"
 #include "PinNames.h"
-#include "UARTSerial.h"
+#include "drivers/BufferedSerial.h"
 
 #define WAIT_AFTER_POWR_CHANGED	(1000)	// [msec.]
 
@@ -111,7 +111,7 @@ void ONBOARD_QUECTEL_BG96::onboard_modem_power_down()
 
 CellularDevice *CellularDevice::get_target_default_instance()
 {
-    static UARTSerial serial(MDMTXD, MDMRXD, 115200);
+    static BufferedSerial serial(MDMTXD, MDMRXD, 115200);
     static ONBOARD_QUECTEL_BG96 device(&serial);
     return &device;
 }
