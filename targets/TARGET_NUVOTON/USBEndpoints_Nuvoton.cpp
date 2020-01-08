@@ -37,6 +37,7 @@ static USBPhyHw *instance;
 #define MBED_CONF_TARGET_USB_DEVICE_HSUSBD 1  /* USB 2.0 Only */
 #endif
 
+#if defined(DEVICE_USBDEVICE) && (DEVICE_USBDEVICE == 1)
 
 extern "C" void USBD_IRQHandler(void);
 
@@ -2372,5 +2373,7 @@ extern "C" void USBD_IRQHandler(void)
     NVIC_EnableIRQ(USBD20_IRQn);
 #endif
 }
+
+#endif
 
 #endif
