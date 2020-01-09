@@ -53,7 +53,7 @@ extern "C" {
 #define TICKER_100_TICKS 100
 #define TICKER_500_TICKS 500
 
-#define MAX_FUNC_EXEC_TIME_US 30
+#define MAX_FUNC_EXEC_TIME_US 20
 #define DELTA_FUNC_EXEC_TIME_US 5
 #define NUM_OF_CALLS 100
 
@@ -61,6 +61,8 @@ extern "C" {
 
 #define US_TICKER_OV_LIMIT 35000
 #define LP_TICKER_OV_LIMIT 4000
+
+#define TICKS_TO_US(ticks, freq) ((uint32_t) ((uint64_t)ticks * US_PER_S /freq))
 
 using namespace utest::v1;
 
@@ -216,11 +218,20 @@ void ticker_info_test(void)
 /* Test that ticker interrupt fires only when the ticker counter increments to the value set by ticker_set_interrupt. */
 void ticker_interrupt_test(void)
 {
-    uint32_t ticker_timeout[] = { 100, 200, 300, 500 };
+    uint32_t ticker_timeout[] = { 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200 };
+    uint8_t run_count = 0;
+    const ticker_info_t *p_ticker_info = intf->get_info();
 
     overflow_protect();
 
     for (uint32_t i = 0; i < (sizeof(ticker_timeout) / sizeof(uint32_t)); i++) {
+
+        /* Skip timeout if less than max allowed execution time of set_interrupt() - 20 us */
+        if (TICKS_TO_US(ticker_timeout[i], p_ticker_info->frequency) < (MAX_FUNC_EXEC_TIME_US + DELTA_FUNC_EXEC_TIME_US)) {
+            continue;
+        }
+
+        run_count++;
         intFlag = 0;
         const uint32_t tick_count = intf->read();
 
@@ -251,6 +262,9 @@ void ticker_interrupt_test(void)
 
         TEST_ASSERT_EQUAL(1, intFlag);
     }
+
+    /* At least 3 sub test cases must be executed. */
+    TEST_ASSERT_MESSAGE(run_count >= 3, "At least 3 sub test cases must be executed");
 }
 
 /* Test that ticker interrupt is not triggered when ticker_set_interrupt */
