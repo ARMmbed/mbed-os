@@ -98,7 +98,11 @@ static void ForceOscOutofDeepSleep(void)
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI;
     RCC_OscInitStruct.MSIState = RCC_MSI_ON;
     RCC_OscInitStruct.MSICalibrationValue = RCC_MSICALIBRATION_DEFAULT;
-    RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_4; // Intermediate freq, 1MHz range
+#if defined RCC_MSIRANGE_11
+    RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_11; // Highest freq, 48MHz range
+#else
+    RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_6; // 4MHz range
+#endif
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
 #else /* defined RCC_SYSCLKSOURCE_MSI */
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
