@@ -36,3 +36,7 @@ set(unittest-test-sources
   stubs/SocketStats_Stub.cpp
   stubs/mbed_error.c
 )
+
+set(unittest-test-flags
+  -DMBED_CONF_NSAPI_DNS_ADDRESSES_LIMIT=10
+)

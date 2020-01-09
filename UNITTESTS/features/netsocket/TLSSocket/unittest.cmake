@@ -14,7 +14,7 @@ set(unittest-sources
   ../features/frameworks/nanostack-libservice/source/libip6string/ip6tos.c
   ../features/frameworks/nanostack-libservice/source/libip4string/stoip4.c
   ../features/frameworks/nanostack-libservice/source/libip6string/stoip6.c
-  ../features/frameworks/nanostack-libservice/source/libBits/common_functions.c  
+  ../features/frameworks/nanostack-libservice/source/libBits/common_functions.c
 )
 
 set(unittest-test-sources
@@ -32,6 +32,10 @@ set(unittest-test-sources
   stubs/stoip4_stub.c
   stubs/ip4tos_stub.c
   stubs/SocketStats_Stub.cpp
+)
+
+set(unittest-test-flags
+  -DMBED_CONF_NSAPI_DNS_ADDRESSES_LIMIT=10
 )
 
 set(MBEDTLS_USER_CONFIG_FILE_PATH "\"../UNITTESTS/features/netsocket/TLSSocket/tls_test_config.h\"")
