@@ -74,7 +74,7 @@
     },
     "PSA_DUAL_CORE_NSPE": {
         "inherits": ["PSA_Target"],
-        "extra_labels": ["TFM", "TARGET_TFM_TWINCPU"],
+        "extra_labels": ["TFM", "TFM_TWINCPU"],
         "device_has_add": ["TRNG"],
         "tfm_target_name": "",
         "tfm_bootloader_supported": "",
