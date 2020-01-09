@@ -15,12 +15,12 @@ set(unittest-includes ${unittest-includes}
 
 # Source files
 set(unittest-sources
-  ../features/cellular/framework/AT/ATHandler.cpp
+  ../features/cellular/framework/device/ATHandler.cpp
 )
 
 # Test files
 set(unittest-test-sources
-  features/cellular/framework/AT/athandler/athandlertest.cpp
+  features/cellular/framework/device/athandler/athandlertest.cpp
   stubs/EventQueue_stub.cpp
   stubs/FileHandle_stub.cpp
   stubs/us_ticker_stub.cpp

@@ -137,17 +137,6 @@ void ATHandler::set_at_timeout_list(uint32_t timeout_milliseconds, bool default_
     singleton_unlock();
 }
 
-void ATHandler::set_debug_list(bool debug_on)
-{
-    ATHandler *atHandler = _atHandlers;
-    singleton_lock();
-    while (atHandler) {
-        atHandler->set_debug(debug_on);
-        atHandler = atHandler->_nextATHandler;
-    }
-    singleton_unlock();
-}
-
 bool ATHandler::ok_to_proceed()
 {
     if (_last_err != NSAPI_ERROR_OK) {
@@ -211,6 +200,7 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const 
     set_file_handle(fh);
 }
 
+
 void ATHandler::set_debug(bool debug_on)
 {
     _debug_on = debug_on;
@@ -219,6 +209,17 @@ void ATHandler::set_debug(bool debug_on)
 bool ATHandler::get_debug() const
 {
     return _debug_on;
+}
+
+void ATHandler::set_debug_list(bool debug_on)
+{
+    ATHandler *atHandler = _atHandlers;
+    singleton_lock();
+    while (atHandler) {
+        atHandler->set_debug(debug_on);
+        atHandler = atHandler->_nextATHandler;
+    }
+    singleton_unlock();
 }
 
 ATHandler::~ATHandler()
