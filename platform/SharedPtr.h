@@ -71,7 +71,7 @@ public:
      * @brief Create empty SharedPtr not pointing to anything.
      * @details Used for variable declaration.
      */
-    SharedPtr(): _ptr(NULL), _counter(NULL)
+    constexpr SharedPtr(): _ptr(), _counter()
     {
     }
 
@@ -86,12 +86,11 @@ public:
      * @brief Create new SharedPtr
      * @param ptr Pointer to take control over
      */
-    SharedPtr(T *ptr): _ptr(ptr), _counter(NULL)
+    SharedPtr(T *ptr): _ptr(ptr), _counter()
     {
         // Allocate counter on the heap, so it can be shared
-        if (_ptr != NULL) {
-            _counter = new uint32_t;
-            *_counter = 1;
+        if (_ptr != nullptr) {
+            _counter = new uint32_t(1);
         }
     }
 
@@ -113,13 +112,25 @@ public:
     SharedPtr(const SharedPtr &source): _ptr(source._ptr), _counter(source._counter)
     {
         // Increment reference counter
-        if (_ptr != NULL) {
+        if (_ptr != nullptr) {
             core_util_atomic_incr_u32(_counter, 1);
         }
     }
 
     /**
-     * @brief Assignment operator.
+     * @brief Move constructor.
+     * @details Create new SharedPtr from other SharedPtr by
+     *          moving pointer to original object and pointer to counter.
+     * @param source Object being copied from.
+     */
+    SharedPtr(SharedPtr &&source): _ptr(source._ptr), _counter(source._counter)
+    {
+        source._ptr = nullptr;
+        source._counter = nullptr;
+    }
+
+    /**
+     * @brief Copy assignment operator.
      * @details Cleanup previous reference and assign new pointer and counter.
      * @param source Object being assigned from.
      * @return Object being assigned.
@@ -135,9 +146,32 @@ public:
             _counter = source.get_counter();
 
             // Increment new counter
-            if (_ptr != NULL) {
+            if (_ptr != nullptr) {
                 core_util_atomic_incr_u32(_counter, 1);
             }
+        }
+
+        return *this;
+    }
+
+    /**
+     * @brief Move assignment operator.
+     * @details Cleanup previous reference and assign new pointer and counter.
+     * @param source Object being assigned from.
+     * @return Object being assigned.
+     */
+    SharedPtr operator=(SharedPtr &&source)
+    {
+        if (this != &source) {
+            // Clean up by decrementing counter
+            decrement_counter();
+
+            // Assign new values
+            _ptr = source._ptr;
+            _counter = source._counter;
+
+            source._ptr = nullptr;
+            source._counter = nullptr;
         }
 
         return *this;
@@ -153,21 +187,24 @@ public:
         decrement_counter();
 
         _ptr = ptr;
-        if (ptr != NULL) {
+        if (ptr != nullptr) {
             // Allocate counter on the heap, so it can be shared
-            _counter = new uint32_t;
-            *_counter = 1;
+            _counter = new uint32_t(1);
         } else {
-            _counter = NULL;
+            _counter = nullptr;
         }
     }
 
     /**
-     * @brief Replace the managed pointer with a NULL pointer.
+     * @brief Replace the managed pointer with a null pointer.
      */
     void reset()
     {
-        reset(NULL);
+        // Clean up by decrementing counter
+        decrement_counter();
+
+        _ptr = nullptr;
+        _counter = nullptr;
     }
 
     /**
@@ -186,7 +223,7 @@ public:
      */
     uint32_t use_count() const
     {
-        if (_ptr != NULL) {
+        if (_ptr != nullptr) {
             return core_util_atomic_load_u32(_counter);
         } else {
             return 0;
@@ -213,11 +250,11 @@ public:
 
     /**
      * @brief Boolean conversion operator.
-     * @return Whether or not the pointer is NULL.
+     * @return Whether or not the pointer is null.
      */
     operator bool() const
     {
-        return (_ptr != NULL);
+        return _ptr != nullptr;
     }
 
 private:
@@ -238,7 +275,7 @@ private:
      */
     void decrement_counter()
     {
-        if (_ptr != NULL) {
+        if (_ptr != nullptr) {
             if (core_util_atomic_decr_u32(_counter, 1) == 0) {
                 delete _counter;
                 delete _ptr;
