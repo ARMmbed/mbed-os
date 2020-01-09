@@ -1892,17 +1892,17 @@ lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_
 
         lorawan_status_t ret;
         if (MBED_CONF_LORA_VERSION < LORAWAN_VERSION_1_1) {
-            ret = _lora_crypto.set_keys(NULL, NULL, nwk_skey,
-                                        app_skey,
-                                        nwk_skey,
-                                        nwk_skey);
+            ret = _lora_crypto.set_keys(NULL, NULL, const_cast<uint8_t *>(nwk_skey),
+                                        const_cast<uint8_t *>(app_skey),
+                                        const_cast<uint8_t *>(nwk_skey),
+                                        const_cast<uint8_t *>(nwk_skey));
             _params.server_type = LW1_0_2;
 
         } else {
-            ret = _lora_crypto.set_keys(NULL, NULL, nwk_skey,
-                                        app_skey,
-                                        snwk_sintkey,
-                                        nwk_senckey);
+            ret = _lora_crypto.set_keys(NULL, NULL, const_cast<uint8_t *>(nwk_skey),
+                                        const_cast<uint8_t *>(app_skey),
+                                        const_cast<uint8_t *>(snwk_sintkey),
+                                        const_cast<uint8_t *>(nwk_senckey));
             _params.server_type = LW1_1;
         }
         if (ret != LORAWAN_STATUS_OK) {
