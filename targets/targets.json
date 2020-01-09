@@ -7016,12 +7016,10 @@
             "FLASH",
             "MPU"
         ],
-        "device_has_remove": ["LPTICKER"],
         "public": false,
         "device_name": "STM32F437VG",
         "bootloader_supported": true,
         "overrides": {
-            "lse_available": 0,
             "network-default-interface-type": "ETHERNET"
         }
     },
