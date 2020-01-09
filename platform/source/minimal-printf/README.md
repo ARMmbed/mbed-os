@@ -12,10 +12,10 @@ Supports:
 * %u: unsigned integer [h, hh, (none), l, ll, z, j, t].
 * %x: unsigned integer [h, hh, (none), l, ll, z, j, t], printed as hexadecimal number (e.g., ff).
 * %X: unsigned integer [h, hh, (none), l, ll, z, j, t], printed as hexadecimal number (e.g., FF).
-* %f: floating point (disabled by default).
-* %F: floating point (disabled by default, treated as %f).
-* %g: floating point (disabled by default, treated as %f).
-* %G: floating point (disabled by default, treated as %f).
+* %f: floating point (enabled by default).
+* %F: floating point (enabled by default, treated as %f).
+* %g: floating point (enabled by default, treated as %f).
+* %G: floating point (enabled by default, treated as %f).
 * %c: character.
 * %s: string.
 * %p: pointer (e.g. 0x00123456).
@@ -28,6 +28,7 @@ Floating point limitations:
 
 ## Usage
 
+As of Mbed OS 6.0 this is enabled by default. To replace the standard implementation of the printf functions with the ones in this library for older versions of Mbed:
 
 To replace the standard implementation of the printf functions with the ones in this library:
 
@@ -43,6 +44,17 @@ Modify your application configuration file to override the parameter `target.pri
 }
 ```
 
+If your application requires more advanced functionality, you'll need to revert to using standard version of printf/snprintf. Please note that it will result in significant ROM usage increase. In case you are using minimal version of standard C library advanced functionality may not be present.
+
+Modify your application configuration in `mbed_app.json` file to override the parameter `target.printf_lib` with the value `std` as shown below:
+
+```json
+    "target_overrides": {
+        "*": {
+            "target.printf_lib": "std"
+        }
+    }
+```
 
 ## Configuration
 
@@ -59,7 +71,7 @@ Minimal printf is configured by the following parameters defined in `platform/mb
         },
         "minimal-printf-enable-floating-point": {
             "help": "Enable floating point printing when using minimal-printf profile",
-            "value": false
+            "value": true
         },
         "minimal-printf-set-floating-point-max-decimals": {
             "help": "Maximum number of decimals to be printed",
@@ -69,7 +81,7 @@ Minimal printf is configured by the following parameters defined in `platform/mb
 }
 ```
 
-By default, 64 bit integers support is enabled.
+By default, 64 bit integers and floating point support is enabled.
 
 If your target does not require some options then you can override the default configuration in your application `mbed_app.json` and achieve further memory optimisation (see next section for size comparison numbers).
 
