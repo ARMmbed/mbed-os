@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#if defined(TARGET_CORTEX_A) || !DEVICE_USTICKER || !defined(MBED_CONF_RTOS_PRESENT)
+#if defined(TARGET_CORTEX_A) || !DEVICE_USTICKER
 #error [NOT_SUPPORTED] test not supported.
 #else
 
@@ -39,9 +39,9 @@ static const int test_timeout = 30;
 // Malloc fill pattern
 #define MALLOC_FILL                 0x55
 
-extern uint32_t mbed_heap_start;
+extern unsigned char *mbed_heap_start;
 extern uint32_t mbed_heap_size;
-extern uint32_t mbed_stack_isr_start;
+extern unsigned char *mbed_stack_isr_start;
 extern uint32_t mbed_stack_isr_size;
 
 #if defined(TOOLCHAIN_GCC_ARM) && defined(MBED_SPLIT_HEAP)
@@ -57,6 +57,27 @@ struct linked_list {
 };
 
 
+// Global test variables
+#define TEST_VALUE      789
+static struct Test {
+    Test() : val(TEST_VALUE) {}
+    ~Test() {}
+    int val;
+} t;
+
+int test_function()
+{
+    return TEST_VALUE;
+}
+static int global_int = test_function();
+
+/** Test global variables initialisation
+ */
+void test_global_variables_initialisation(void)
+{
+    TEST_ASSERT_EQUAL(TEST_VALUE, global_int);
+    TEST_ASSERT_EQUAL(TEST_VALUE, t.val);
+}
 
 /* TODO: add memory layout test.
  *
@@ -122,7 +143,7 @@ static void allocate_and_fill_heap(linked_list *&head)
         if (NULL == temp) {
             break;
         }
-        bool result = rangeinrange((uint32_t) temp, sizeof(linked_list), mbed_heap_start, mbed_heap_size);
+        bool result = rangeinrange((uint32_t) temp, sizeof(linked_list), (uint32_t)mbed_heap_start, mbed_heap_size);
 #if defined(TOOLCHAIN_GCC_ARM) && defined(MBED_SPLIT_HEAP)
         if (false == result) {
             result = rangeinrange((uint32_t) temp, sizeof(linked_list), (uint32_t)mbed_heap_start_0, mbed_heap_size_0);
@@ -174,7 +195,8 @@ void test_heap_in_range(void)
     initial_heap = (char *) malloc(1);
     TEST_ASSERT_NOT_NULL(initial_heap);
 
-    bool result = inrange((uint32_t) initial_heap, mbed_heap_start, mbed_heap_size);
+    bool result = inrange((uint32_t) initial_heap, (uint32_t)mbed_heap_start, mbed_heap_size);
+
 #if defined(TOOLCHAIN_GCC_ARM) && defined(MBED_SPLIT_HEAP)
     if (false == result) {
         result = inrange((uint32_t) initial_heap, (uint32_t)mbed_heap_start_0, mbed_heap_size_0);
@@ -184,6 +206,7 @@ void test_heap_in_range(void)
     free(initial_heap);
 }
 
+#if MBED_CONF_RTOS_PRESENT
 /** Test for Main thread stack
 
     Given a Main thread and its stack
@@ -203,6 +226,7 @@ void test_main_stack_in_range(void)
 
     TEST_ASSERT_TRUE_MESSAGE(result, "Main stack in wrong location");
 }
+#endif // #if MBED_CONF_RTOS_PRESENT
 
 /** Test for Scheduler/ISR thread stack
 
@@ -214,7 +238,7 @@ void test_isr_stack_in_range(void)
 {
     // MSP stack should be very near end (test using within 128 bytes)
     uint32_t msp = __get_MSP();
-    bool result = inrange(msp, mbed_stack_isr_start + mbed_stack_isr_size - 0x400, 0x400);
+    bool result = inrange(msp, (uint32_t)mbed_stack_isr_start + mbed_stack_isr_size - 0x400, 0x400);
 
     TEST_ASSERT_TRUE_MESSAGE(result, "Interrupt stack in wrong location");
 }
@@ -244,8 +268,11 @@ void test_heap_allocation_free(void)
 
 // Test cases
 Case cases[] = {
+    Case("Test global variables initialisation", test_global_variables_initialisation),
     Case("Test heap in range", test_heap_in_range),
+#if MBED_CONF_RTOS_PRESENT
     Case("Test main stack in range", test_main_stack_in_range),
+#endif
     Case("Test isr stack in range", test_isr_stack_in_range),
     Case("Test heap allocation and free", test_heap_allocation_free)
 };
@@ -263,4 +290,4 @@ int main()
     return !utest::v1::Harness::run(specification);
 }
 
-#endif // defined(TARGET_CORTEX_A) || !DEVICE_USTICKER || !defined(MBED_CONF_RTOS_PRESENT)
+#endif // defined(TARGET_CORTEX_A) || !DEVICE_USTICKER

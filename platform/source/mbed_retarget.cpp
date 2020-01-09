@@ -561,23 +561,6 @@ std::FILE *fdopen(FileHandle *fh, const char *mode)
 extern "C" FILEHANDLE PREFIX(_open)(const char *name, int openflags)
 {
 #if defined(__MICROLIB) && (__ARMCC_VERSION>5030000)
-#if !defined(MBED_CONF_RTOS_PRESENT)
-    // valid only for mbed 2
-    // for ulib, this is invoked after RAM init, prior c++
-    // used as hook, as post stack/heap is not active there
-    extern void mbed_copy_nvic(void);
-    extern void mbed_sdk_init(void);
-
-    static int mbed_sdk_inited = 0;
-    if (!mbed_sdk_inited) {
-        mbed_copy_nvic();
-        mbed_sdk_init();
-#if DEVICE_USTICKER && MBED_CONF_TARGET_INIT_US_TICKER_AT_BOOT
-        us_ticker_init();
-#endif
-        mbed_sdk_inited = 1;
-    }
-#endif
     // Before version 5.03, we were using a patched version of microlib with proper names
     // This is the workaround that the microlib author suggested us
     static int n = 0;

@@ -21,11 +21,19 @@
 #include "cmsis.h"
 #include "hal/us_ticker_api.h"
 
-/* This startup is for mbed 2 baremetal. There is no config for RTOS for mbed 2,
- * therefore we protect this file with MBED_CONF_RTOS_PRESENT
- * Note: The new consolidated started for mbed OS is in rtos/mbed_boot code file.
+/* This startup is for baremetal. There is no RTOS in baremetal,
+ * therefore we protect this file with MBED_CONF_RTOS_PRESENT.
+ * Note: The start-up code for mbed OS is in rtos/source/TARGET_CORTEX/mbed_boot code file.
  */
 #if !defined(MBED_CONF_RTOS_PRESENT)
+
+/* Heap limits - only used if set */
+extern unsigned char *mbed_heap_start;
+extern uint32_t mbed_heap_size;
+
+/* Stack limits */
+unsigned char *mbed_stack_isr_start = 0;
+uint32_t mbed_stack_isr_size = 0;
 
 /* mbed_main is a function that is called before main()
  * mbed_sdk_init() is also a function that is called before main(), but unlike
@@ -67,20 +75,7 @@ void mbed_copy_nvic(void)
 #endif /* !defined(__CORTEX_M0) && !defined(__CORTEX_A9) */
 }
 
-/* Toolchain specific main code */
-
-#if defined (__ARMCC_VERSION)
-
-int $Super$$main(void);
-
-int $Sub$$main(void)
-{
-    mbed_main();
-    mbed_error_initialize();
-    return $Super$$main();
-}
-
-void _platform_post_stackheap_init(void)
+void mbed_init(void)
 {
     mbed_copy_nvic();
     mbed_sdk_init();
@@ -88,21 +83,78 @@ void _platform_post_stackheap_init(void)
     us_ticker_init();
 #endif
 }
+
+/* Toolchain specific main code */
+
+#if defined (__ARMCC_VERSION)
+
+void $Sub$$__cpp_initialize__aeabi_(void);
+void $Super$$__cpp_initialize__aeabi_(void);
+void $Sub$$__cpp_initialize__aeabi_(void)
+{
+    /* This should invoke C++ initializers but we keep
+     * this empty and invoke them in mbed_toolchain_init.
+     */
+}
+
+void mbed_toolchain_init()
+{
+    /* Run the C++ global object constructors */
+    $Super$$__cpp_initialize__aeabi_();
+}
+
+void _platform_post_stackheap_init(void)
+{
+    mbed_init();
+}
+
+extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Base[];
+extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Length[];
+extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Base[];
+extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Length[];
+
+int $Super$$main(void);
+int $Sub$$main(void)
+{
+    mbed_stack_isr_start = (unsigned char *) Image$$ARM_LIB_STACK$$ZI$$Base;
+    mbed_stack_isr_size = (uint32_t) Image$$ARM_LIB_STACK$$ZI$$Length;
+    mbed_heap_start = (unsigned char *) Image$$ARM_LIB_HEAP$$ZI$$Base;
+    mbed_heap_size = (uint32_t) Image$$ARM_LIB_HEAP$$ZI$$Length;
+
+#if defined(__MICROLIB)
+    // post stack/heap is not active in microlib
+    // so call the function explicitly.
+    _platform_post_stackheap_init();
+#endif
+    mbed_toolchain_init();
+    mbed_main();
+    return $Super$$main();
+}
+
+
+
+
 //Define an empty os_cb_sections to remove a RTX warning when building with no RTOS due
 //to the --keep=os_cb_sections linker option
 const uint32_t os_cb_sections[] __attribute__((section(".rodata"))) = {};
 
 #elif defined (__GNUC__)
 
+extern uint32_t             __StackLimit;
+extern uint32_t             __StackTop;
+extern uint32_t             __end__;
+extern uint32_t             __HeapLimit;
+
 extern int __real_main(void);
 
 void software_init_hook(void)
 {
-    mbed_copy_nvic();
-    mbed_sdk_init();
-#if DEVICE_USTICKER && MBED_CONF_TARGET_INIT_US_TICKER_AT_BOOT
-    us_ticker_init();
-#endif
+    mbed_stack_isr_start = (unsigned char *) &__StackLimit;
+    mbed_stack_isr_size = (uint32_t) &__StackTop - (uint32_t) &__StackLimit;
+    mbed_heap_start = (unsigned char *) &__end__;
+    mbed_heap_size = (uint32_t) &__HeapLimit - (uint32_t) &__end__;
+
+    mbed_init();
     software_init_hook_rtos();
 }
 
@@ -110,19 +162,24 @@ void software_init_hook(void)
 int __wrap_main(void)
 {
     mbed_main();
-    mbed_error_initialize();
     return __real_main();
 }
 
 #elif defined (__ICCARM__)
 
-int __low_level_init(void)
+/* Defined by linker script */
+#pragma section="CSTACK"
+#pragma section="HEAP"
+
+void __mbed_init(void)
 {
-    mbed_copy_nvic();
-#if DEVICE_USTICKER && MBED_CONF_TARGET_INIT_US_TICKER_AT_BOOT
-    us_ticker_init();
-#endif
-    return 1;
+    mbed_heap_start = (unsigned char *)__section_begin("HEAP");
+    mbed_heap_size = (uint32_t)__section_size("HEAP");
+
+    mbed_stack_isr_start = (unsigned char *)__section_begin("CSTACK");
+    mbed_stack_isr_size = (uint32_t)__section_size("CSTACK");
+
+    mbed_init();
 }
 
 #endif

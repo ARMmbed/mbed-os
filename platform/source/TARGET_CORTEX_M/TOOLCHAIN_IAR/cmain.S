@@ -46,6 +46,7 @@
         EXTERN  exit
         EXTERN  __iar_dynamic_initialization
         EXTERN mbed_sdk_init
+        EXTWEAK __mbed_init
         EXTERN mbed_main
         EXTERN SystemInit
         
@@ -68,6 +69,9 @@ __cmain:
         FUNCALL __cmain, mbed_sdk_init
         BL      mbed_sdk_init
         MOVS    r0,#0             ;  No parameters        
+        FUNCALL __cmain, __mbed_init
+        BL      __mbed_init
+        MOVS    r0,#0             ;  No parameters
           FUNCALL __cmain, __iar_dynamic_initialization
         BL      __iar_dynamic_initialization   ; C++ dynamic initialization  
 
