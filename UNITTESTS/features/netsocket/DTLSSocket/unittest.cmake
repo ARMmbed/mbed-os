@@ -37,6 +37,10 @@ set(unittest-test-sources
   stubs/SocketStats_Stub.cpp
 )
 
+set(unittest-test-flags
+  -DMBED_CONF_NSAPI_DNS_ADDRESSES_LIMIT=10
+)
+
 set(MBEDTLS_USER_CONFIG_FILE_PATH "\"../UNITTESTS/features/netsocket/DTLSSocket/dtls_test_config.h\"")
 set_source_files_properties(features/netsocket/DTLSSocket/test_DTLSSocket.cpp PROPERTIES COMPILE_DEFINITIONS MBEDTLS_USER_CONFIG_FILE=${MBEDTLS_USER_CONFIG_FILE_PATH})
 set_source_files_properties(../features/netsocket/DTLSSocket.cpp PROPERTIES COMPILE_DEFINITIONS MBEDTLS_USER_CONFIG_FILE=${MBEDTLS_USER_CONFIG_FILE_PATH})
