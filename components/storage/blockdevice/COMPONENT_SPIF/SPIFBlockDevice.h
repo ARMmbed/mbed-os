@@ -21,6 +21,22 @@
 #include "drivers/DigitalOut.h"
 #include "features/storage/blockdevice/BlockDevice.h"
 
+#ifndef MBED_CONF_SPIF_DRIVER_SPI_MOSI
+#define MBED_CONF_SPIF_DRIVER_SPI_MOSI NC
+#endif
+#ifndef MBED_CONF_SPIF_DRIVER_SPI_MISO
+#define MBED_CONF_SPIF_DRIVER_SPI_MISO NC
+#endif
+#ifndef MBED_CONF_SPIF_DRIVER_SPI_CLK
+#define MBED_CONF_SPIF_DRIVER_SPI_CLK NC
+#endif
+#ifndef MBED_CONF_SPIF_DRIVER_SPI_CS
+#define MBED_CONF_SPIF_DRIVER_SPI_CS NC
+#endif
+#ifndef MBED_CONF_SPIF_DRIVER_SPI_FREQ
+#define MBED_CONF_SPIF_DRIVER_SPI_FREQ 40000000
+#endif
+
 /** Enum spif standard error codes
  *
  *  @enum spif_bd_error
@@ -82,8 +98,14 @@ public:
      *  @param sclk     SPI clock pin
      *  @param csel     SPI chip select pin
      *  @param freq     Clock speed of the SPI bus (defaults to 40MHz)
+     *
+     *
      */
-    SPIFBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName csel, int freq = 40000000);
+    SPIFBlockDevice(PinName mosi = MBED_CONF_SPIF_DRIVER_SPI_MOSI,
+                    PinName miso = MBED_CONF_SPIF_DRIVER_SPI_MISO,
+                    PinName sclk = MBED_CONF_SPIF_DRIVER_SPI_CLK,
+                    PinName csel = MBED_CONF_SPIF_DRIVER_SPI_CS,
+                    int freq = MBED_CONF_SPIF_DRIVER_SPI_FREQ);
 
     /** Initialize a block device
      *
