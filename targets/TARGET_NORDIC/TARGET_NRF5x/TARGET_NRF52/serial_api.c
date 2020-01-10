@@ -173,7 +173,7 @@ static nordic_uart_state_t nordic_nrf5_uart_state[NRFX_UARTE_ENABLED_COUNT] = { 
  */
 static NRF_UARTE_Type *nordic_nrf5_uart_register[NRFX_UARTE_ENABLED_COUNT] = {
     NRF_UARTE0,
-#if UART1_ENABLED
+#if NRFX_UARTE1_ENABLED
     NRF_UARTE1,
 #endif
 };
@@ -184,7 +184,7 @@ static NRF_UARTE_Type *nordic_nrf5_uart_register[NRFX_UARTE_ENABLED_COUNT] = {
  */
 NRF_ATFIFO_DEF(nordic_nrf5_uart_fifo_0, uint8_t, UART0_FIFO_BUFFER_SIZE);
 
-#if UART1_ENABLED
+#if NRFX_UARTE1_ENABLED
 NRF_ATFIFO_DEF(nordic_nrf5_uart_fifo_1, uint8_t, UART1_FIFO_BUFFER_SIZE);
 #endif
 
@@ -193,7 +193,7 @@ NRF_ATFIFO_DEF(nordic_nrf5_uart_fifo_1, uint8_t, UART1_FIFO_BUFFER_SIZE);
  */
 static uint8_t nordic_nrf5_uart_swi_mask_tx_0 = 0;
 static uint8_t nordic_nrf5_uart_swi_mask_rx_0 = 0;
-#if UART1_ENABLED
+#if NRFX_UARTE1_ENABLED
 static uint8_t nordic_nrf5_uart_swi_mask_tx_1 = 0;
 static uint8_t nordic_nrf5_uart_swi_mask_rx_1 = 0;
 #endif
@@ -313,7 +313,7 @@ static void nordic_nrf5_uart_swi0(void)
     }
 
 
-#if UART1_ENABLED
+#if NRFX_UARTE1_ENABLED
     if (nordic_nrf5_uart_swi_mask_tx_1) {
 
         nordic_nrf5_uart_swi_mask_tx_1 = 0;
@@ -350,7 +350,7 @@ static void nordic_swi_tx_trigger(int instance)
         nordic_nrf5_uart_swi_mask_tx_0 = 1;
         NVIC_SetPendingIRQ(SWI0_EGU0_IRQn);
     }
-#if UART1_ENABLED
+#if NRFX_UARTE1_ENABLED
     else if (instance == 1) {
 
         nordic_nrf5_uart_swi_mask_tx_1 = 1;
@@ -371,7 +371,7 @@ static void nordic_swi_rx_trigger(int instance)
         nordic_nrf5_uart_swi_mask_rx_0 = 1;
         NVIC_SetPendingIRQ(SWI0_EGU0_IRQn);
     }
-#if UART1_ENABLED
+#if NRFX_UARTE1_ENABLED
     else if (instance == 1) {
 
         nordic_nrf5_uart_swi_mask_rx_1 = 1;
@@ -554,7 +554,7 @@ static void nordic_nrf5_uart0_handler(void)
     nordic_nrf5_uart_event_handler(0);
 }
 
-#if UART1_ENABLED
+#if NRFX_UARTE1_ENABLED
 /**
  * @brief      UARTE1 ISR.
  */
@@ -876,7 +876,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         NRFX_IRQ_PRIORITY_SET(UARTE0_UART0_IRQn, APP_IRQ_PRIORITY_HIGHEST);
         NRFX_IRQ_ENABLE(UARTE0_UART0_IRQn);
 
-#if UART1_ENABLED
+#if NRFX_UARTE1_ENABLED
         /* Initialize FIFO buffer for UARTE1. */
         NRF_ATFIFO_INIT(nordic_nrf5_uart_fifo_1);
         nordic_nrf5_uart_state[1].fifo = nordic_nrf5_uart_fifo_1;
@@ -1015,7 +1015,7 @@ void serial_free(serial_t *obj)
                 *(volatile uint32_t *)0x40002FFC;
                 *(volatile uint32_t *)0x40002FFC = 1;
             }
-#if UART1_ENABLED
+#if NRFX_UARTE1_ENABLED
             else {
                 *(volatile uint32_t *)0x40028FFC = 0;
                 *(volatile uint32_t *)0x40028FFC;
@@ -1505,7 +1505,7 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
             valid = true;
         }
     }
-#if UART1_ENABLED
+#if NRFX_UARTE1_ENABLED
     else {
         if (nrfx_is_in_ram(tx) || (tx_length <= UART1_FIFO_BUFFER_SIZE)) {
             valid = true;
