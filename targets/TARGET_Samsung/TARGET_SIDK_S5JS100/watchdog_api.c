@@ -117,7 +117,6 @@ void hal_watchdog_kick(void)
 
 watchdog_status_t hal_watchdog_stop(void)
 {
-//  printf("%s\r\n", __func__);
     s5js100_watchdog_disable();
     return WATCHDOG_STATUS_OK;
 }

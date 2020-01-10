@@ -338,7 +338,6 @@ void mcpu_init(MCPU_MODE device)
     S5JS100_PWR_DBG("\nMCPU BOOT\n");
 
     if (device == MCPU_GNSS) {
-        //printf("\nSetting FOR GNSS\n");
         putreg32(0x7004, 0x8202114C);
         putreg32(0x7004, 0x82021150);
         putreg32(0x7004, 0x82021154);

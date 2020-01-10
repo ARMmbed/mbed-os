@@ -35,7 +35,6 @@ int flash_idx = 0;
 #define CACHE_LINE_MASK 0xffffffe0
 #define CACHE_LINE_SIZE 32
 Semaphore *g_sem = new Semaphore(1);
-//int sflash_init=0;
 
 /****************************************************************************
  * Public Function Prototypes
@@ -181,8 +180,6 @@ static void local_memcpy(void *dst, void *src, size_t n)
     unsigned char *pin = (unsigned char *)src;
     while (n-- > 0) {
         *pout++ = *pin++;
-        //hw_delay_us(100 * S5JS100_FLASH_DELAYTIME);
-        //printf(".");
     }
 }
 
@@ -416,51 +413,40 @@ char *get_env(const char *name)
 /* hal/flash_api.h                                */
 int32_t flash_init(flash_t *obj)
 {
-    printf("%s\n\r", __func__);
     SFlash_DriverInitialize();
     return 0;
 }
 
 int32_t flash_free(flash_t *obj)
 {
-    printf("%s\n\r", __func__);
     return 0;
 }
 
 uint32_t flash_get_page_size(const flash_t *info)
 {
-//  printf("%s, PAGE[1B]\n\r", __func__);
-    return 4; /*S5JS100_FLASH_PAGE_SIZE*/ //byte program
+    return 4; /*S5JS100_FLASH_PAGE_SIZE*/
 }
 
 uint32_t flash_get_sector_size(const flash_t *info, uint32_t addr)
 {
-//  printf("%s addr[0x%x], size[0x%x]\n\r", __func__, addr, S5JS100_FLASH_BLOCK_SIZE);
-    return up_progmem_blocksize(); //4KB
+    return up_progmem_blocksize(); 
 }
 
 uint32_t flash_get_start_address(const flash_t *info)
 {
-//  printf("%s addr[0x%x]\n\r", __func__, S5JS100_FLASH_FS_PADDR);
     return S5JS100_FLASH_FS_PADDR;
 }
 
 uint32_t flash_get_size(const flash_t *info)
 {
-//  printf("%s size[0x%x]\n\r", __func__, S5JS100_FLASH_FS_SIZE);
     return S5JS100_FLASH_FS_SIZE;
 }
 
 int32_t flash_program_page(flash_t *obj, uint32_t addr, const uint8_t *data, uint32_t size)
 {
-//  printf("\n\rW\r\n");
     if (addr > S5JS100_FLASH_PADDR) {
-        printf("%s FLASH, addr[0x%x], size[%d]\n\r", __func__, addr, size);
         return sflash_write(addr, (unsigned char *)data, size);
     } else {
-//      printf("%s, addr[0x%x], size[%d]\n\r", __func__, addr, size);
-//      sflash_write(0x4086A000+flash_idx, (unsigned char *)data, size); //Write Test
-//      printf("\n\rWRITE[0x%x], [0x%x]", addr, 0x4086A000+flash_idx);
         local_memcpy((void *)addr, (void *)data, size);
         return 0;
     }
@@ -468,20 +454,14 @@ int32_t flash_program_page(flash_t *obj, uint32_t addr, const uint8_t *data, uin
 uint8_t flash_get_erase_value(const flash_t *obj)
 {
     (void)obj;
-//  printf("%s\n\r", __func__);
     return 0xFF;
 }
 
 int32_t flash_erase_sector(flash_t *obj, uint32_t addr)
 {
-//  printf("\n\rE\n\r");
     if (addr > S5JS100_FLASH_PADDR) {
-        printf("%s FLASH addr[0x%x]\n\r", __func__, addr);
         return sflash_erase(addr);
     } else {
-//      printf("%s addr[0x%x]\n\r", __func__, addr);
-//      printf("\n\r[[ERASE]]\n\r"); //Erase Test
-//      sflash_erase(0x4086A000);
         memset((void *)addr, 0xFFFFFFFF, 4096);
         return 0;
     }

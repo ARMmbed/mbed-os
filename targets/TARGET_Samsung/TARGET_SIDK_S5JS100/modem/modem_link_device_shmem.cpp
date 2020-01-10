@@ -175,7 +175,7 @@ int ShmemIpcDevice::xmit_ipc_msg(mio_buf *msg)
 
     if (chk_nospc) {
         /* TO DO - implement this back pressure to operate properly. */
-        printf("ERROR Not implement %s:%d\n", __func__, __LINE__);
+        mbed_error_printf("ERROR Not implement %s:%d\n", __func__, __LINE__);
         while (1);
         /* Set res_required flag for the "dev" */
         res_required = 1;
@@ -317,7 +317,7 @@ ShmemLinkDevice::ShmemLinkDevice()
 
 ShmemLinkDevice::~ShmemLinkDevice()
 {
-    printf("need to add code here ,%s\n\r", __func__);
+    mbed_error_printf("need to add code here ,%s\n\r", __func__);
 }
 
 /* To avoid race conditions start of RX/TX threads should be done
@@ -386,7 +386,7 @@ void rx_cmd_phone_start(void)
 
 void rx_cmd_cp_crash(void)
 {
-    printf("\n!!!!!CP Crash!!!!!\n");
+    mbed_error_printf("\n!!!!!CP Crash!!!!!\n");
     if (!strcmp(get_env("CRASHDUMP"), "ON")) {
         mcpu_reset();
         mcpu_init(MCPU_CP);
