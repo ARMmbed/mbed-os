@@ -24,6 +24,8 @@
 #include "utest/utest.h"
 #include "kvstore_global_api.h"
 
+#include <cstring>
+
 using namespace utest::v1;
 using namespace mbed;
 
