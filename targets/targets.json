@@ -3157,7 +3157,7 @@
             "secure-ram-start": "0x30000000",
             "secure-ram-size": "0x22000"
         }
-    },    
+    },
     "HANI_IOT": {
         "inherits": ["LPC55S69_NS"],
         "detect_code": ["0360"],
@@ -13504,16 +13504,10 @@
             "ANALOGOUT",
             "QSPI"
         ],
-        "macros_remove": [
-            "MBEDTLS_CONFIG_HW_SUPPORT"
-        ],
         "extra_labels_add": [
             "PSOC6_01",
             "MXCRYPTO_01",
             "CORDIO"
-        ],
-        "extra_labels_remove": [
-            "MXCRYPTO"
         ],
         "macros_add": [
             "CY8C6247FDI_D52",
