@@ -108,12 +108,10 @@ extern "C" {
     void dcxo_init(void)
     {
         char mio_name[32] = "dcxo";
-//  DCXO_UPDATE_DBG("%s:%d\n", __func__, __LINE__);
         ctb_tbl = (Full_set_table_t *)malloc(sizeof(Full_set_table_t) * DCXO_TEMPERATURE_RANGE);
 
         dcxo_mio = getModemIoDeviceByName(mio_name);
         dcxo_mio->register_ReadCb(dcxo_update_task, NULL);
-//  DCXO_UPDATE_DBG("%s:%d\n", __func__, __LINE__);
     }
 
 }
