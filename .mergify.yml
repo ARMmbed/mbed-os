@@ -1,0 +1,170 @@
+#
+# Copyright (c) 2020, Arm Limited and affiliates.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Mergify follow our workflow: https://os.mbed.com/docs/mbed-os/latest/contributing/workflow.html
+# Inital state (needs: review) is done by internal reviewer bot
+
+# Notes: conditions do not check if label is already there if we add or remove later, this is to limit Github API access to
+# minimum. If a label is already there and we add it again, nothing should happen (we do 1 less access to Github).
+# For instance for needs: work if CI failed, we just add a label as action, don't check if needs: works is already there
+
+pull_request_rules:
+  # From needs: review to needs: work - reviewers request
+  - name: "label needs: work when changes were requested"
+    conditions:
+      # Reviewers
+      - "#changes-requested-reviews-by>0"
+    actions:
+      label:
+        add: 
+          - "needs: work"
+        remove: 
+          - "needs: review"
+
+  # From needs: review to needs: work - CI failure
+  - name: "label needs: work when travis-ci failed"
+    conditions:
+      # Travis failing
+      - status-failure~=continuous-integration/travis-ci/pr
+    actions:
+      label:
+        add: 
+          - "needs: work"
+        remove: 
+          - "needs: review"
+
+  # From needs: review to needs: work - CI failure
+  - name: "label needs: work when Jenkins CI failed - pr head"
+    conditions:
+      # Jenkins CI failing
+      - status-failure~=continuous-integration/jenkins/pr-head
+    actions:
+      label:
+        add: 
+          - "needs: work"
+        remove: 
+          - "needs: review"
+
+  # From needs: review to needs: work - CI failure
+  - name: "label needs: work when Jenkins CI failed - any of the pipeline"
+    conditions:
+      # Jenkins CI failing - any of the pipeline
+      - status-failure~=^jenkins-ci
+    actions:
+      label:
+        add: 
+          - "needs: work"
+        remove: 
+          - "needs: review"
+
+  # From needs: review to needs: CI
+  - name: "label needs: CI when at least one reviewers approval"
+    conditions:
+      # Labels
+      - "label!=needs: work"
+      - "label!=needs: preceding PR"
+
+      # Reviewers
+      - "#changes-requested-reviews-by=0"
+      - "#approved-reviews-by>=1"
+
+      # CI green policy, at least Travis should be green
+      - status-success~=continuous-integration/travis-ci/pr
+      # new CI needs to be done
+      - status-neutral~=continuous-integration/jenkins/pr-head
+    actions:
+      label:
+        add: 
+          - "needs: CI"
+        remove: 
+          - "needs: review"
+
+  # Conflict in the PR - needs: work and a comment to notify a user
+  - name: "label needs: work when there is a conflict"
+    conditions:
+      - conflict
+    actions:
+      label:
+        add:
+          - "needs: work"
+        remove: 
+          - "needs: review"
+      comment:
+        message: This PR cannot be merged due to conflicts. Please rebase to resolve them.
+
+  - name: "add label feature branch for feature branch additions"
+    conditions:
+      - base~=^feature
+    actions:
+      label:
+        add:
+          - "release-version: feature branch"
+
+  # Ready for integration. Not yet auto merge, will be enabled once carefuly tested
+  - name: label "ready for merge" when ready
+    conditions:
+      # Labels
+      - label!=do not merge
+      - "label=needs: CI"
+
+      # Reviewers
+      - "#approved-reviews-by>=1"
+      - "#changes-requested-reviews-by=0"
+
+      # CI green policy
+      - status-success~=continuous-integration/travis-ci/pr
+      # Internal Jenkins - we rely on PR head to provide status
+      - status-success~=continuous-integration/jenkins/pr-head
+      # any of the jenkins pipeline needs to be green
+      - status-success~=^jenkins-ci
+    actions:
+      label:
+        add: 
+          - ready for merge
+        remove: 
+          - "needs: CI"
+
+  # Clean-up after merge
+  - name: remove ready for merge when merged
+    conditions:
+      - merged
+      - label=ready for merge
+    actions:
+      label:
+        remove:
+          - ready for merge
+
+  - name: add "do not merge" label when WIP is in title
+    conditions:
+       - title~=^(\[wip\]( |:) |\[WIP\]( |:) |wip( |:) |WIP( |:)).*
+    actions:
+      label:
+        add:
+          - do not merge
+
+  # Check if version label is applied
+  - name: release version is a must for merged PRs
+    conditions:
+      - merged
+      - -label~=^(release-version)
+    actions:
+      label:
+        add:
+          - Release review required
+      comment:
+        message: This PR does not contain release version label after merging.
+
+
