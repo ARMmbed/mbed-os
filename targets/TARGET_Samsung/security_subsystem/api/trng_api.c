@@ -46,7 +46,7 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
     *output_length = (size_t)stRANDOM.u32DataByteLen;
 
     if (ret) {
-        printf("Fail to get RNG value from SSS(0x%08x)\r\n", ret);
+        mbed_error_printf("Fail to get RNG value from SSS(0x%08x)\r\n", ret);
     }
 
     return ret;
