@@ -444,6 +444,7 @@ private:
         // data follows
     } *_packets, * *_packets_end;
     void _clear_socket_packets(int id);
+    void _clear_socket_sending(int id);
     int _sock_active_id;
 
     // Memory statistics

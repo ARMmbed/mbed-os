@@ -697,14 +697,13 @@ nsapi_size_or_error_t ESP8266::send(int id, const void *data, uint32_t amount)
         } else if (_sock_i[id].proto == NSAPI_UDP) {
             ret = NSAPI_ERROR_NO_MEMORY;
         }
-        goto END;
-    } else if (bytes_confirmed != amount) {
+    } else if (bytes_confirmed != amount && _sock_i[id].proto == NSAPI_UDP) {
         tr_debug("send(): Error: confirmed %d bytes, but expected %d.", bytes_confirmed, amount);
         ret = NSAPI_ERROR_DEVICE_ERROR;
-        goto END;
+    } else {
+        // TCP can accept partial writes (if they ever happen)
+        ret = bytes_confirmed;
     }
-
-    ret = amount;
 
 END:
     _process_oob(ESP8266_RECV_TIMEOUT, true); // Drain USART receive register to avoid data overrun
@@ -1009,6 +1008,14 @@ void ESP8266::_clear_socket_packets(int id)
     }
 }
 
+void ESP8266::_clear_socket_sending(int id)
+{
+    if (id == _sock_sending_id) {
+        _sock_sending_id = -1;
+    }
+    _sock_i[id].send_fail = false;
+}
+
 bool ESP8266::close(int id)
 {
     //May take a second try if device is busy
@@ -1021,10 +1028,7 @@ bool ESP8266::close(int id)
                     _sock_i[id].open = false;
                     _clear_socket_packets(id);
                     // Closed, so this socket escapes from SEND FAIL status.
-                    if (id == _sock_sending_id) {
-                        _sock_sending_id = -1;
-                    }
-                    _sock_i[id].send_fail = false;
+                    _clear_socket_sending(id);
                     _smutex.unlock();
                     // ESP8266 has a habit that it might close a socket on its own.
                     tr_debug("close(%d): socket close OK with UNLINK ERROR", id);
@@ -1034,10 +1038,7 @@ bool ESP8266::close(int id)
                 // _sock_i[id].open set to false with an OOB
                 _clear_socket_packets(id);
                 // Closed, so this socket escapes from SEND FAIL status
-                if (id == _sock_sending_id) {
-                    _sock_sending_id = -1;
-                }
-                _sock_i[id].send_fail = false;
+                _clear_socket_sending(id);
                 _smutex.unlock();
                 tr_debug("close(%d): socket close OK with AT+CIPCLOSE OK", id);
                 return true;
@@ -1225,10 +1226,7 @@ void ESP8266::_oob_socket0_closed()
     static const int id = 0;
     _sock_i[id].open = false;
     // Closed, so this socket escapes from SEND FAIL status
-    if (id == _sock_sending_id) {
-        _sock_sending_id = -1;
-    }
-    _sock_i[id].send_fail = false;
+    _clear_socket_sending(id);
     tr_debug("_oob_socket0_closed(): Socket %d closed.", id);
 }
 
@@ -1237,10 +1235,7 @@ void ESP8266::_oob_socket1_closed()
     static const int id = 1;
     _sock_i[id].open = false;
     // Closed, so this socket escapes from SEND FAIL status
-    if (id == _sock_sending_id) {
-        _sock_sending_id = -1;
-    }
-    _sock_i[id].send_fail = false;
+    _clear_socket_sending(id);
     tr_debug("_oob_socket1_closed(): Socket %d closed.", id);
 }
 
@@ -1248,11 +1243,7 @@ void ESP8266::_oob_socket2_closed()
 {
     static const int id = 2;
     _sock_i[id].open = false;
-    // Closed, so this socket escapes from SEND FAIL status
-    if (id == _sock_sending_id) {
-        _sock_sending_id = -1;
-    }
-    _sock_i[id].send_fail = false;
+    _clear_socket_sending(id);
     tr_debug("_oob_socket2_closed(): Socket %d closed.", id);
 }
 
@@ -1260,11 +1251,7 @@ void ESP8266::_oob_socket3_closed()
 {
     static const int id = 3;
     _sock_i[id].open = false;
-    // Closed, so this socket escapes from SEND FAIL status
-    if (id == _sock_sending_id) {
-        _sock_sending_id = -1;
-    }
-    _sock_i[id].send_fail = false;
+    _clear_socket_sending(id);
     tr_debug("_oob_socket3_closed(): %d closed.", id);
 }
 
@@ -1273,10 +1260,7 @@ void ESP8266::_oob_socket4_closed()
     static const int id = 4;
     _sock_i[id].open = false;
     // Closed, so this socket escapes from SEND FAIL status
-    if (id == _sock_sending_id) {
-        _sock_sending_id = -1;
-    }
-    _sock_i[id].send_fail = false;
+    _clear_socket_sending(id);
     tr_debug("_oob_socket0_closed(): Socket %d closed.", id);
 }
 
