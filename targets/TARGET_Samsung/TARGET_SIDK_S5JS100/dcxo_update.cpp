@@ -17,11 +17,10 @@
  *
  ****************************************************************************/
 
-#include "mbed.h"
 #include "modem_io_device.h"
 #include "s5js100_dcxo.h"
-
 #include "mbed_trace.h"
+#include "mbed_error.h"
 #define TRACE_GROUP "DCXO"
 
 #ifndef DCXO_UPDATE_DBG_ON

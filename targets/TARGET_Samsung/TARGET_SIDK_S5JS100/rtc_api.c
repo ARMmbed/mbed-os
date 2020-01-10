@@ -50,7 +50,6 @@ time_t rtc_read(void)
 void rtc_write(time_t t)
 {
     g_base_timeval = t;
-//  printf("base time will be %d\n", g_base_timeval);
 }
 
 static uint8_t rtc_hex8_to_dec(uint8_t hex_val)

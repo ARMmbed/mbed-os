@@ -20,7 +20,6 @@
 #include "mbed.h"
 #include "s5js100_dcxo.h"
 #include "s5js100_type.h"
-
 #include "mbed_trace.h"
 #define TRACE_GROUP "DCXO"
 
@@ -112,9 +111,6 @@ static unsigned int tsu_code_to_temperature(unsigned int tsu_code)
     ratio = ((int)(g_dcxo_tsu_table[index - 1] - tsu_code) * DCXO_TSU_TABLE_UNIT)
             / (int)(g_dcxo_tsu_table[index - 1] - g_dcxo_tsu_table[index]);
     temp_code = base + ratio;
-    //dbg("\ng_dcxo_tsu_table[index]:%d, g_dcxo_tsu_table[index-1]:%d\n", g_dcxo_tsu_table[index], g_dcxo_tsu_table[index-1]);
-    //dbg("\nbase:%d, ratio:%d\n", base, ratio);
-
     return temp_code;
 }
 
@@ -150,10 +146,7 @@ static unsigned int tsu_temperature_to_code(unsigned int temp_celcius)
  ****************************************************************************/
 int dcxo_tsu_isr(int irq, void *context, void *arg)
 {
-    //dbg("%d, %d, %d\n", irq, context, arg);
     NVIC_DisableIRQ((IRQn_Type)irq);
-
-    //dbg("tsu_code : 0x%x, 0x%x, 0x%x, 0x%x\n", (getreg32(S5JS100_DCXO_CFG + DCXO_CFG_IRQ_STA1) & 0xFFFF0000) >> 16, getreg32(S5JS100_DCXO_CFG + DCXO_CFG_IRQ_STA1) & 0xFFFF, (getreg32(S5JS100_DCXO_CFG + DCXO_CFG_IRQ_STA0) & 0xFFFF0000) >> 16, getreg32(S5JS100_DCXO_CFG + DCXO_CFG_IRQ_STA0) & 0xFFFF);
 
     tsu_interrupt_flag = 1;
 
@@ -257,23 +250,12 @@ void s5js100_dcxo_ctb_loop(void)
                 ctb_prev--;
             }
             s5js100_dcxo_set_tune_value(ctb_prev, 4096);
-            //dcxollvdbg("[ctb_cal:%d, ctb_set:%d]\n", ctb, ctb_prev);
         }
 
         if (ctb == 0) {
             S5JS100_DCXO_DBG("[ERROR]CTB was 0x0[temp:%d]!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", tsu);
-            //asm("b .");
         }
 
-#if 0
-        if ((tsu - 50000) > 0) {
-            //printf("TSU : %d.%03d 'C, CTB : %d ( %d )\n", (tsu - 50000) / 1000, (tsu) % 1000, ctb, tsu);
-        } else if ((tsu - 50000) > -1000) {
-            //printf("TSU : -%d.%03d 'C, CTB : %d ( %d )\n", (tsu - 50000) / 1000, (1000 - (tsu) % 1000) % 1000, ctb, tsu);
-        } else {
-            //printf("TSU : %d.%03d 'C, CTB : %d ( %d )\n", (tsu - 50000) / 1000, (1000 - (tsu) % 1000) % 1000, ctb, tsu);
-        }
-#endif
         loop_started = 1;
         dcxo_ctb_sem_release();
         osDelay(50);
@@ -434,17 +416,6 @@ int s5js100_dcxo_start_ctb_loop(Full_set_table_t tbl[])
     return 0;
 }
 
-int s5js100_dcxo_stop_ctb_loop(void)
-{
-//  if(!task_delete(g_dcxo_tid)){
-//      lldbg("fail to delete ctb_loop task ..\n");
-//  }
-//  else
-//      lldbg("ctb_loop stopped..\n");
-
-    return 0;
-}
-
 /****************************************************************************
  * Name: s5js100_tsu_get_temperature
  *
@@ -591,8 +562,6 @@ int s5js100_dcxo_get_coarse_tune_value(void)
 
 int s5js100_dcxo_set_tune_value(unsigned int coarse_value, unsigned int fine_value)
 {
-//  printf("%s, coarse_value : 0x%x, fine_value : 0x%x\n", __func__, coarse_value, fine_value);
-
 #if defined(DCXO_FINE_PMU_COARSE_DCXO)
     // Fine=DcxoFTune, Coarse=FTUNE2
     coarse_value <<= 6;
@@ -641,15 +610,11 @@ int s5js100_dcxo_set_tune_value(unsigned int coarse_value, unsigned int fine_val
     }
 #endif
 
-    //printf("dotsu : %d\n", s5js100_tsu_get_code());
-
     return 1;
 }
 
 int s5js100_dcxo_set_tune_value_20bit(unsigned int coarse_value, unsigned int fine_value)
 {
-    //printf("%s, coarse_value : 0x%x, fine_value : 0x%x\n", __func__, coarse_value, fine_value);
-
 #if defined(DCXO_FINE_PMU_COARSE_DCXO)
     // Coarse=DcxoFTune, Fine=FTUNE2
 
@@ -671,7 +636,6 @@ int s5js100_dcxo_set_tune_value_20bit(unsigned int coarse_value, unsigned int fi
     // Fine=FTUNE2, Coarse=FTUNE
 
     coarse_value >>= 6;
-    //printf("coarse_value changed to 14 bit (0x%x)\n", coarse_value);
 
     // Fine = FTUNE2 13bit
     // EVT0 : 0x81000528[31:17], EVT1 : 0x8100000C[28:14]
@@ -693,7 +657,6 @@ int s5js100_dcxo_set_tune_value_20bit(unsigned int coarse_value, unsigned int fi
     // Fine=DcxoFTune, Coarse=FTUNE2
 
     coarse_value >>= 6;
-    //printf("coarse_value changed to 14 bit (0x%x)\n", coarse_value);
 
     // Fine = DcxoFTune 20bit
     modifyreg32(S5JS100_DCXO_CFG + DCXO_CFG_DSM_CFG0, 0xFFFFF << 1, fine_value << 1);
@@ -738,7 +701,6 @@ int s5js100_dcxo_set_dsmdither(unsigned int dither_bit_sel)
     modifyreg32(S5JS100_DCXO_CFG + DCXO_CFG_SW_RESETN, (1 << 3), 0);
     modifyreg32(S5JS100_DCXO_CFG + DCXO_CFG_SW_RESETN, (1 << 3), (1 << 3));
 #else
-    //printf("To enable dsm dither, DCXO option should be changed to DCXO_FINE_PMU_COARSE_DCXO\n"
 #endif
     return 1;
 }
@@ -751,7 +713,6 @@ int s5js100_dcxo_set_dither_bit_sel(unsigned int dither_bit_sel)
     modifyreg32(S5JS100_DCXO_CFG + DCXO_CFG_SW_RESETN, (1 << 3), 0);
     modifyreg32(S5JS100_DCXO_CFG + DCXO_CFG_SW_RESETN, (1 << 3), (1 << 3));
 #else
-    //printf("DCXO option should be changed to DCXO_FINE_PMU_COARSE_DCXO\n"
 #endif
     return 1;
 }
@@ -764,7 +725,6 @@ int s5js100_dcxo_set_dsm_type(unsigned int dsm_type)
     modifyreg32(S5JS100_DCXO_CFG + DCXO_CFG_SW_RESETN, (1 << 3), 0);
     modifyreg32(S5JS100_DCXO_CFG + DCXO_CFG_SW_RESETN, (1 << 3), (1 << 3));
 #else
-    //printf("DCXO option should be changed to DCXO_FINE_PMU_COARSE_DCXO\n"
 #endif
     return 1;
 }
@@ -777,7 +737,6 @@ int s5js100_dcxo_set_en_dsm_dither(unsigned int en_dsm_dither)
     modifyreg32(S5JS100_DCXO_CFG + DCXO_CFG_SW_RESETN, (1 << 3), 0);
     modifyreg32(S5JS100_DCXO_CFG + DCXO_CFG_SW_RESETN, (1 << 3), (1 << 3));
 #else
-    //printf("DCXO option should be changed to DCXO_FINE_PMU_COARSE_DCXO\n"
 #endif
     return 1;
 }
@@ -790,7 +749,6 @@ int s5js100_dcxo_set_prbs_sel(unsigned int prbs_sel)
     modifyreg32(S5JS100_DCXO_CFG + DCXO_CFG_SW_RESETN, (1 << 3), 0);
     modifyreg32(S5JS100_DCXO_CFG + DCXO_CFG_SW_RESETN, (1 << 3), (1 << 3));
 #else
-    //printf("DCXO option should be changed to DCXO_FINE_PMU_COARSE_DCXO\n"
 #endif
     return 1;
 }
@@ -803,7 +761,6 @@ int s5js100_dcxo_en_dsm(unsigned int en_dsm)
     modifyreg32(S5JS100_DCXO_CFG + DCXO_CFG_SW_RESETN, (1 << 3), 0);
     modifyreg32(S5JS100_DCXO_CFG + DCXO_CFG_SW_RESETN, (1 << 3), (1 << 3));
 #else
-    //printf("DCXO option should be changed to DCXO_FINE_PMU_COARSE_DCXO\n"
 #endif
     return 1;
 }
