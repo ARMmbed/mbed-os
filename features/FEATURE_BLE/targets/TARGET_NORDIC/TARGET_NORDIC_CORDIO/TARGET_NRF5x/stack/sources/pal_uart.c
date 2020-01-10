@@ -52,7 +52,7 @@ static struct
   PalUartConfig_t       config;         /*!< PAL UART configuration. */
   PalUartState_t        state;          /*!< PAL UART state. */
   nrfx_uarte_t          uart;           /*!< NRF UART driver instance */
-} palUartCb[UART0_ENABLED + UART1_ENABLED] = {{0, {0}, 0, {NRF_UARTE0, NRFX_UARTE0_INST_IDX}}};
+} palUartCb[NRFX_UARTE0_ENABLED + NRFX_UARTE1_ENABLED] = {{0, {0}, 0, {NRF_UARTE0, NRFX_UARTE0_INST_IDX}}};
 
 /**************************************************************************************************
   Local Functions
