@@ -63,8 +63,3 @@ void mbed_toolchain_init()
     /* Run the C++ global object constructors */
     $Super$$__cpp_initialize__aeabi_();
 }
-
-MBED_WEAK void __aeabi_assert(const char *expr, const char *file, int line)
-{
-    mbed_assert_internal(expr, file, line);
-}

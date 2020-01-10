@@ -96,9 +96,19 @@ nsapi_error_t NetworkInterface::gethostbyname(const char *name, SocketAddress *a
     return get_stack()->gethostbyname(name, address, version, interface_name);
 }
 
+nsapi_value_or_error_t NetworkInterface::getaddrinfo(const char *hostname, SocketAddress *hints, SocketAddress **res, const char *interface_name)
+{
+    return get_stack()->getaddrinfo(hostname, hints, res, interface_name);
+}
+
 nsapi_value_or_error_t NetworkInterface::gethostbyname_async(const char *host, hostbyname_cb_t callback, nsapi_version_t version, const char *interface_name)
 {
     return get_stack()->gethostbyname_async(host, callback, version, interface_name);
+}
+
+nsapi_value_or_error_t NetworkInterface::getaddrinfo_async(const char *hostname, SocketAddress *hints, hostbyname_cb_t callback, const char *interface_name)
+{
+    return get_stack()->getaddrinfo_async(hostname, hints, callback, interface_name);
 }
 
 nsapi_error_t NetworkInterface::gethostbyname_async_cancel(int id)

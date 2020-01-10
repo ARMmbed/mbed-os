@@ -4,7 +4,7 @@
 * Description:
 * System configuration
 * This file was automatically generated and should not be modified.
-* cfg-backend-cli: 1.2.0.1478
+* Device Configurator: 2.0.0.1483
 * Device Support Library (../../../../output/psoc6/psoc6pdl): 1.4.0.1571
 *
 ********************************************************************************
@@ -226,7 +226,7 @@ __STATIC_INLINE void Cy_SysClk_ClkPath5Init()
 }
 __STATIC_INLINE void Cy_SysClk_ClkPeriInit()
 {
-    Cy_SysClk_ClkPeriSetDivider(1U);
+    Cy_SysClk_ClkPeriSetDivider(0U);
 }
 __STATIC_INLINE void Cy_SysClk_Pll1Init()
 {

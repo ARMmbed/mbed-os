@@ -224,7 +224,7 @@ uint32_t hal_crc_get_result(void);
 /**@}*/
 
 #ifdef __cplusplus
-};
+}
 #endif
 
 #endif // DEVICE_CRC

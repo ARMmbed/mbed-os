@@ -69,6 +69,10 @@ CellularContext::CellularContext() : _next(0), _stack(0), _pdp_type(DEFAULT_PDP_
 
 void CellularContext::cp_data_received()
 {
+    if (!_cp_netif) {
+        tr_warn("Cellular Non-IP callback missing");
+        return;
+    }
     _cp_netif->data_received();
 }
 
@@ -107,6 +111,27 @@ void CellularContext::validate_ip_address()
         rtos::ThisThread::sleep_for(IP_WAIT_INTERVAL);
         i++;
     }
+}
+
+CellularContext::pdp_type_t CellularContext::string_to_pdp_type(const char *pdp_type_str)
+{
+    pdp_type_t pdp_type = DEFAULT_PDP_TYPE;
+    int len = strlen(pdp_type_str);
+
+    if (len == 6 && memcmp(pdp_type_str, "IPV4V6", len) == 0) {
+        pdp_type = IPV4V6_PDP_TYPE;
+    } else if (len == 4 && memcmp(pdp_type_str, "IPV6", len) == 0) {
+        pdp_type = IPV6_PDP_TYPE;
+    } else if (len == 2 && memcmp(pdp_type_str, "IP", len) == 0) {
+        pdp_type = IPV4_PDP_TYPE;
+    } else if (len == 6 && memcmp(pdp_type_str, "Non-IP", len) == 0) {
+        pdp_type = NON_IP_PDP_TYPE;
+    } else if (get_nonip_context_type_str() &&
+               len == strlen(get_nonip_context_type_str()) &&
+               memcmp(pdp_type_str, get_nonip_context_type_str(), len) == 0) {
+        pdp_type = NON_IP_PDP_TYPE;
+    }
+    return pdp_type;
 }
 
 void CellularContext::do_connect_with_retry()

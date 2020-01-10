@@ -45,7 +45,6 @@ SPIName spi_get_peripheral_name(PinName mosi, PinName miso, PinName mclk)
         return (SPIName)CYHAL_SCB_BASE_ADDRESSES[map->inst->block_num];
     }
     MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "SPI not found");
-    return (SPIName)0;
 }
 
 static void cy_spi_irq_handler_internal(void *handler_arg, cyhal_spi_event_t event)

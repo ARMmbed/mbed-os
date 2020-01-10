@@ -106,7 +106,7 @@ const PinMap *can_rd_pinmap(void);
 const PinMap *can_td_pinmap(void);
 
 #ifdef __cplusplus
-};
+}
 #endif
 
 #endif    // MBED_CAN_API_H

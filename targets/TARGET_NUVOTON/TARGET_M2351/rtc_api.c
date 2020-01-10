@@ -25,6 +25,9 @@
 #include "mbed_mktime.h"
 #include "partition_M2351.h"
 #include "hal_secure.h"
+#if defined(DOMAIN_NS) && (DOMAIN_NS == 1L) && (TFM_LVL > 0)
+#include "tfm_ns_lock.h"
+#endif
 
 /* NOTE: BSP RTC driver judges secure/non-secure RTC by PC. This implementation cannot support non-secure RTC
  *       controlled by secure executable. A better way would be that secure/non-secure RTC base is passed
@@ -123,27 +126,30 @@ static void rtc_convert_datetime_hwrtc_to_tm(struct tm *datetime_tm, const S_RTC
 
 static const struct nu_modinit_s rtc_modinit = {RTC_0, RTC_MODULE, 0, 0, 0, RTC_IRQn, NULL};
 
-__NONSECURE_ENTRY
-void rtc_init_s(void)
+static void rtc_init_impl(void);
+static void rtc_free_impl(void);
+static int32_t rtc_isenabled_impl(void);
+static int64_t rtc_read_impl(void);
+static void rtc_write_impl(int64_t t);
+
+static void rtc_init_impl(void)
 {
-    if (rtc_isenabled()) {
+    if (rtc_isenabled_impl()) {
         return;
     }
 
     RTC_Open(NULL);
 
     /* POSIX time origin (00:00:00 UTC, Thursday, 1 January 1970) */
-    rtc_write(0);
+    rtc_write_impl(0);
 }
 
-__NONSECURE_ENTRY
-void rtc_free_s(void)
+static void rtc_free_impl(void)
 {
     CLK_DisableModuleClock_S(rtc_modinit.clkidx);
 }
 
-__NONSECURE_ENTRY
-int32_t rtc_isenabled_s(void)
+static int32_t rtc_isenabled_impl(void)
 {
     // NOTE: To access (RTC) registers, clock must be enabled first.
     if (! (CLK->APBCLK0 & CLK_APBCLK0_RTCCKEN_Msk)) {
@@ -157,16 +163,15 @@ int32_t rtc_isenabled_s(void)
     return !! (rtc_base->INIT & RTC_INIT_ACTIVE_Msk);
 }
 
-__NONSECURE_ENTRY
-int64_t rtc_read_s(void)
+static int64_t rtc_read_impl(void)
 {
     /* NOTE: After boot, RTC time registers are not synced immediately, about 1 sec latency.
      *       RTC time got (through RTC_GetDateAndTime()) in this sec would be last-synced and incorrect.
      *       NUC472/M453: Known issue
      *       M487: Fixed
      */
-    if (! rtc_isenabled()) {
-        rtc_init();
+    if (! rtc_isenabled_impl()) {
+        rtc_init_impl();
     }
 
     /* Used for intermediary between date time of H/W RTC and POSIX time */
@@ -206,11 +211,10 @@ int64_t rtc_read_s(void)
     return t_present;
 }
 
-__NONSECURE_ENTRY
-void rtc_write_s(int64_t t)
+static void rtc_write_impl(int64_t t)
 {
-    if (! rtc_isenabled()) {
-        rtc_init();
+    if (! rtc_isenabled_impl()) {
+        rtc_init_impl();
     }
 
     t_write = t;
@@ -254,5 +258,124 @@ static void rtc_convert_datetime_hwrtc_to_tm(struct tm *datetime_tm, const S_RTC
     datetime_tm->tm_sec  = datetime_hwrtc->u32Second;
 }
 
+
+#if (TFM_LVL > 0)
+    
+__NONSECURE_ENTRY
+int32_t rtc_init_veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
+{
+    rtc_init_impl();
+    return 0;
+}
+
+__NONSECURE_ENTRY
+int32_t rtc_free_veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
+{
+    rtc_free_impl();
+    return 0;
+}
+
+__NONSECURE_ENTRY
+int32_t rtc_isenabled_veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
+{
+    int32_t *enabled = (int32_t *) arg0;
+    *enabled = rtc_isenabled_impl();
+    return 0;
+}
+
+__NONSECURE_ENTRY
+int32_t rtc_read_veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
+{
+    int64_t *t = (int64_t *) arg0;
+    *t = rtc_read_impl();
+    return 0;
+}
+
+__NONSECURE_ENTRY
+int32_t rtc_write_veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
+{
+    int64_t *t = (int64_t *) arg0;
+    rtc_write_impl(*t);
+    return 0;
+}
+
 #endif
+
+#endif
+
+#if defined(DOMAIN_NS) && (DOMAIN_NS == 1) && (TFM_LVL > 0)
+
+void rtc_init_s(void)
+{
+    tfm_ns_lock_dispatch(rtc_init_veneer, 0, 0, 0, 0);
+}
+
+void rtc_free_s(void)
+{
+    tfm_ns_lock_dispatch(rtc_free_veneer, 0, 0, 0, 0);
+}
+
+int32_t rtc_isenabled_s(void)
+{
+    int32_t enabled = 0;
+    tfm_ns_lock_dispatch(rtc_isenabled_veneer, &enabled, 0, 0, 0);
+    return enabled;
+}
+
+int64_t rtc_read_s(void)
+{
+    int64_t t = 0;
+    tfm_ns_lock_dispatch(rtc_read_veneer, &t, 0, 0, 0);
+    return t;
+}
+
+void rtc_write_s(int64_t t)
+{
+    tfm_ns_lock_dispatch(rtc_write_veneer, &t, 0, 0, 0);
+}
+
+#elif defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+
+#if (TFM_LVL == 0)
+__NONSECURE_ENTRY
+#endif
+void rtc_init_s(void)
+{
+    rtc_init_impl();
+}
+
+#if (TFM_LVL == 0)
+__NONSECURE_ENTRY
+#endif
+void rtc_free_s(void)
+{
+    rtc_free_impl();
+}
+
+#if (TFM_LVL == 0)
+__NONSECURE_ENTRY
+#endif
+int32_t rtc_isenabled_s(void)
+{
+    return rtc_isenabled_impl();
+}
+
+#if (TFM_LVL == 0)
+__NONSECURE_ENTRY
+#endif
+int64_t rtc_read_s(void)
+{
+    return rtc_read_impl();
+}
+
+#if (TFM_LVL == 0)
+__NONSECURE_ENTRY
+#endif
+void rtc_write_s(int64_t t)
+{
+    rtc_write_impl(t);
+}
+
+#endif
+
 #endif

@@ -18,38 +18,95 @@
 
 #include "ONBOARD_QUECTEL_BG96.h"
 
-#include "cellular/onboard_modem_api.h"
+#include "gpio_api.h"
+#include "platform/mbed_thread.h"
+#include "PinNames.h"
 #include "UARTSerial.h"
+
+#define WAIT_AFTER_POWR_CHANGED	(1000)	// [msec.]
 
 using namespace mbed;
 
 ONBOARD_QUECTEL_BG96::ONBOARD_QUECTEL_BG96(FileHandle *fh) : QUECTEL_BG96(fh)
 {
-    ::onboard_modem_init();
+    onboard_modem_init();
 }
 
 nsapi_error_t ONBOARD_QUECTEL_BG96::hard_power_on()
 {
-    ::onboard_modem_init();
+    onboard_modem_init();
     return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t ONBOARD_QUECTEL_BG96::hard_power_off()
 {
-    ::onboard_modem_deinit();
+    onboard_modem_deinit();
     return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t ONBOARD_QUECTEL_BG96::soft_power_on()
 {
-    ::onboard_modem_power_up();
+    onboard_modem_power_up();
     return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t ONBOARD_QUECTEL_BG96::soft_power_off()
 {
-    ::onboard_modem_power_down();
+    onboard_modem_power_down();
     return NSAPI_ERROR_OK;
+}
+
+void ONBOARD_QUECTEL_BG96::press_power_button(int time_ms)
+{
+    gpio_t gpio;
+
+    gpio_init_out_ex(&gpio, PWRKEY, 1);
+    thread_sleep_for(time_ms);
+    gpio_write(&gpio, 0);
+}
+
+void ONBOARD_QUECTEL_BG96::onboard_modem_init()
+{
+    gpio_t gpio;
+
+    // Power Supply
+    gpio_init_out_ex(&gpio, M_POWR, 0);
+    // Turn On/Off
+    gpio_init_out_ex(&gpio, PWRKEY, 0);
+    gpio_init_out_ex(&gpio, RESET_MODULE, 0);
+    // Status Indication
+    gpio_init_in_ex(&gpio, MDMSTAT, PullUp);
+    // Main UART Interface
+    gpio_init_out_ex(&gpio, MDMDTR, 0);
+
+    thread_sleep_for(WAIT_AFTER_POWR_CHANGED);
+}
+
+void ONBOARD_QUECTEL_BG96::onboard_modem_deinit()
+{
+    onboard_modem_power_down();
+}
+
+void ONBOARD_QUECTEL_BG96::onboard_modem_power_up()
+{
+    gpio_t gpio;
+
+    // Power supply ON
+    gpio_init_out_ex(&gpio, M_POWR, 1);
+    thread_sleep_for(WAIT_AFTER_POWR_CHANGED);
+
+    // Turn on
+    thread_sleep_for(100);
+    press_power_button(200);
+}
+
+void ONBOARD_QUECTEL_BG96::onboard_modem_power_down()
+{
+    gpio_t gpio;
+
+    // Power supply OFF
+    gpio_init_out_ex(&gpio, M_POWR, 0);
+    thread_sleep_for(WAIT_AFTER_POWR_CHANGED);
 }
 
 CellularDevice *CellularDevice::get_target_default_instance()

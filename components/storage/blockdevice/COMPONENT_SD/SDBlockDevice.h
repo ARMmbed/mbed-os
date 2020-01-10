@@ -29,6 +29,28 @@
 #include "platform/PlatformMutex.h"
 #include "hal/static_pinmap.h"
 
+#ifndef MBED_CONF_SD_SPI_MOSI
+#define MBED_CONF_SD_SPI_MOSI NC
+#endif
+#ifndef MBED_CONF_SD_SPI_MISO
+#define MBED_CONF_SD_SPI_MISO NC
+#endif
+#ifndef MBED_CONF_SD_SPI_CLK
+#define MBED_CONF_SD_SPI_CLK NC
+#endif
+#ifndef MBED_CONF_SD_SPI_CS
+#define MBED_CONF_SD_SPI_CS NC
+#endif
+#ifndef MBED_CONF_SD_INIT_FREQUENCY
+#define MBED_CONF_SD_INIT_FREQUENCY 100000
+#endif
+#ifndef MBED_CONF_SD_TRX_FREQUENCY
+#define MBED_CONF_SD_TRX_FREQUENCY  1000000
+#endif
+#ifndef MBED_CONF_SD_CRC_ENABLED
+#define MBED_CONF_SD_CRC_ENABLED 0
+#endif
+
 /** SDBlockDevice class
  *
  * Access an SD Card using SPI bus
@@ -44,7 +66,12 @@ public:
      *  @param hz       Clock speed of the SPI bus (defaults to 1MHz)
      *  @param crc_on   Enable cyclic redundancy check (defaults to disabled)
      */
-    SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz = 1000000, bool crc_on = 0);
+    SDBlockDevice(PinName mosi = MBED_CONF_SD_SPI_MOSI,
+                  PinName miso = MBED_CONF_SD_SPI_MISO,
+                  PinName sclk = MBED_CONF_SD_SPI_CLK,
+                  PinName cs = MBED_CONF_SD_SPI_CS,
+                  uint64_t hz = MBED_CONF_SD_TRX_FREQUENCY,
+                  bool crc_on = MBED_CONF_SD_CRC_ENABLED);
 
     /** Creates an SDBlockDevice on a SPI bus specified by pins (using static pin-map)
      *
@@ -52,7 +79,10 @@ public:
      *  @param hz         Clock speed of the SPI bus (defaults to 1MHz)
      *  @param crc_on     Enable cyclic redundancy check (defaults to disabled)
      */
-    SDBlockDevice(const spi_pinmap_t &spi_pinmap, PinName cs, uint64_t hz = 1000000, bool crc_on = 0);
+    SDBlockDevice(const spi_pinmap_t &spi_pinmap,
+                  PinName cs = MBED_CONF_SD_SPI_CS,
+                  uint64_t hz = MBED_CONF_SD_TRX_FREQUENCY,
+                  bool crc_on = MBED_CONF_SD_CRC_ENABLED);
 
     virtual ~SDBlockDevice();
 

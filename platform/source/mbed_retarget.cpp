@@ -1572,6 +1572,14 @@ extern "C" {
 
 } // end of extern "C"
 
+#if defined(__MICROLIB)
+extern "C" {
+    MBED_WEAK void __aeabi_assert(const char *expr, const char *file, int line)
+    {
+        mbed_assert_internal(expr, file, line);
+    }
+} // end of extern "C"
+#endif
 #endif
 
 

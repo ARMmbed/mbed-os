@@ -14,7 +14,7 @@
             "value": 0
         },
         "debug-at": {
-            "help": "Enable AT debug prints",
+            "help": "Enable AT debug prints. Note! This can have impact on UART performance and might need increasing of drivers.uart-serial-rxbuf-size",
             "value": false
         },
         "radio-access-technology": {
@@ -31,6 +31,14 @@
         },
         "clear-on-connect" : {
             "help": "Clear modem to a known default state on connect() before SIM pin is entered, null to disable",
+            "value": null
+        },
+        "max-cp-data-recv-len" : {
+            "help": "Max length of the buffer storing data received over control plane",
+            "value": 1358
+        },
+        "plmn-fallback-auto" : {
+            "help": "If manual PLMN is selected, use mode 4 manual/automatic in AT+COPS to try automatic mode if manual selection fails. Set to null to disable",
             "value": null
         }
     }

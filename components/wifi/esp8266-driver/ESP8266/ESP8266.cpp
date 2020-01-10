@@ -557,6 +557,9 @@ nsapi_error_t ESP8266::open_tcp(int id, const char *addr, int port, int keepaliv
     static const char *type = "TCP";
     bool done = false;
 
+    if (!addr) {
+        return NSAPI_ERROR_PARAMETER;
+    }
     _smutex.lock();
 
     // process OOB so that _sock_i reflects the correct state of the socket

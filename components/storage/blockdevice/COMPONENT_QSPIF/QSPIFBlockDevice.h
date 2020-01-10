@@ -19,6 +19,31 @@
 #include "drivers/QSPI.h"
 #include "features/storage/blockdevice/BlockDevice.h"
 
+#ifndef MBED_CONF_QSPIF_QSPI_IO0
+#define MBED_CONF_QSPIF_QSPI_IO0 NC
+#endif
+#ifndef MBED_CONF_QSPIF_QSPI_IO1
+#define MBED_CONF_QSPIF_QSPI_IO1 NC
+#endif
+#ifndef MBED_CONF_QSPIF_QSPI_IO2
+#define MBED_CONF_QSPIF_QSPI_IO2 NC
+#endif
+#ifndef MBED_CONF_QSPIF_QSPI_IO3
+#define MBED_CONF_QSPIF_QSPI_IO3 NC
+#endif
+#ifndef MBED_CONF_QSPIF_QSPI_SCK
+#define MBED_CONF_QSPIF_QSPI_SCK NC
+#endif
+#ifndef MBED_CONF_QSPIF_QSPI_CSN
+#define MBED_CONF_QSPIF_QSPI_CSN NC
+#endif
+#ifndef MBED_CONF_QSPIF_QSPI_POLARITY_MODE
+#define MBED_CONF_QSPIF_QSPI_POLARITY_MODE 0
+#endif
+#ifndef MBED_CONF_QSPIF_QSPI_FREQ
+#define MBED_CONF_QSPIF_QSPI_FREQ 40000000
+#endif
+
 /** Enum qspif standard error codes
  *
  *  @enum qspif_bd_error
@@ -98,10 +123,15 @@ public:
      *  @param clock_mode specifies the QSPI Clock Polarity mode (QSPIF_POLARITY_MODE_0/QSPIF_POLARITY_MODE_1)
      *         default value = 0
      *  @param freq Clock frequency of the QSPI bus (defaults to 40MHz)
-     *
      */
-    QSPIFBlockDevice(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, PinName csel,
-                     int clock_mode, int freq = MBED_CONF_QSPIF_QSPI_FREQ);
+    QSPIFBlockDevice(PinName io0 = MBED_CONF_QSPIF_QSPI_IO0,
+                     PinName io1 = MBED_CONF_QSPIF_QSPI_IO1,
+                     PinName io2 = MBED_CONF_QSPIF_QSPI_IO2,
+                     PinName io3 = MBED_CONF_QSPIF_QSPI_IO3,
+                     PinName sclk = MBED_CONF_QSPIF_QSPI_SCK,
+                     PinName csel = MBED_CONF_QSPIF_QSPI_CSN,
+                     int clock_mode = MBED_CONF_QSPIF_QSPI_POLARITY_MODE,
+                     int freq = MBED_CONF_QSPIF_QSPI_FREQ);
 
     /** Initialize a block device
      *

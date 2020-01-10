@@ -117,6 +117,8 @@ void greentea_send_kv(const char * key, const char * val);
 int greentea_parse_kv(char * key, char * val,
                         const int key_len, const int val_len);
 int greentea_getc();
+void greentea_putc(int c);
+void greentea_write_string(const char *str);
 
 #ifdef __cplusplus
 }

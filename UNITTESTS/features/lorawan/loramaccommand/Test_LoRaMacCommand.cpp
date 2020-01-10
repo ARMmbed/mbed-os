@@ -116,9 +116,9 @@ TEST_F(Test_LoRaMacCommand, parse_mac_commands_to_repeat)
     EXPECT_TRUE(object->process_mac_commands(buf, 0, 2, 0, mlme, params, phy) == LORAWAN_STATUS_OK);
 
     buf[0] = 10;
-    buf[1] = 2;
-    buf[1] = 3;
     buf[1] = 4;
+    buf[2] = 2;
+    buf[3] = 2;
     EXPECT_TRUE(object->process_mac_commands(buf, 0, 4, 0, mlme, params, phy) == LORAWAN_STATUS_OK);
 
     object->parse_mac_commands_to_repeat();
@@ -319,19 +319,15 @@ TEST_F(Test_LoRaMacCommand, process_mac_commands)
 
     object->clear_command_buffer();
     buf[0] = 10;
-    buf[1] = 2;
-    buf[1] = 3;
     buf[1] = 4;
+    buf[2] = 2;
+    buf[3] = 2;
     EXPECT_TRUE(object->process_mac_commands(buf, 0, 4, 0, mlme, params, phy) == LORAWAN_STATUS_OK);
 
-    //Overflow add_tx_param_setup_ans
-    LoRaPHY_stub::bool_counter = 0;
-    LoRaPHY_stub::bool_table[0] = true;
+    //Overflow add_dl_channel_ans
     object->clear_command_buffer();
-    LoRaPHY_stub::uint8_value = 7;
     for (int i = 0; i < 64; i++) {
         EXPECT_TRUE(object->process_mac_commands(buf, 0, 4, 0, mlme, params, phy) == LORAWAN_STATUS_OK);
-        LoRaPHY_stub::bool_counter = 0;
     }
     EXPECT_TRUE(object->process_mac_commands(buf, 0, 4, 0, mlme, params, phy) == LORAWAN_STATUS_LENGTH_ERROR);
 

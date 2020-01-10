@@ -157,13 +157,12 @@ static void _serial_init_direct(serial_t *obj, const serial_pinmap_t *pinmap)
     MBED_ASSERT(obj_s->index >= 0);
 
     // Configure UART pins
-    pin_function(pinmap->tx_pin, pinmap->tx_function);
-    pin_function(pinmap->rx_pin, pinmap->rx_function);
-
     if (pinmap->tx_pin != NC) {
+        pin_function(pinmap->tx_pin, pinmap->tx_function);
         pin_mode(pinmap->tx_pin, PullUp);
     }
     if (pinmap->rx_pin != NC) {
+        pin_function(pinmap->rx_pin, pinmap->rx_function);
         pin_mode(pinmap->rx_pin, PullUp);
     }
 

@@ -80,9 +80,13 @@ void SystemInit(void)
 #endif
 
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+#if TFM_LVL == 0
     TZ_SAU_Setup();
+    SCB_Setup();
+    TZ_NVIC_Setup();
     SCU_Setup();
     FMC_NSBA_Setup();
+#endif
 #endif
     
 #ifdef INIT_SYSCLK_AT_BOOTING

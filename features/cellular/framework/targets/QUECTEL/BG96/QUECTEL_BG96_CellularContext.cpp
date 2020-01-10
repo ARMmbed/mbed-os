@@ -62,7 +62,7 @@ NetworkStack *QUECTEL_BG96_CellularContext::get_stack()
 ControlPlane_netif *QUECTEL_BG96_CellularContext::get_cp_netif()
 {
     if (!_cp_netif) {
-        _cp_netif = new QUECTEL_BG96_ControlPlane_netif(_at, _cid);
+        _cp_netif = new QUECTEL_BG96_ControlPlane_netif(_at, _cid, *get_device());
     }
     return _cp_netif;
 }
@@ -84,9 +84,13 @@ nsapi_error_t QUECTEL_BG96_CellularContext::activate_non_ip_context()
 
     // Open the NIDD connection
     nsapi_size_or_error_t ret = _at.at_cmd_discard("+QCFGEXT", "=\"nipd\",1");
-
     if (ret == NSAPI_ERROR_OK) {
-        _semaphore.try_acquire_for(NIDD_OPEN_URC_TIMEOUT);
+        _at.lock();
+        _at.set_at_timeout(NIDD_OPEN_URC_TIMEOUT);
+        _at.resp_start("+QIND:");
+        urc_nidd();
+        _at.restore_at_timeout();
+        _at.unlock();
         if (_cid == -1) {
             return NSAPI_ERROR_NO_CONNECTION;
         }
@@ -142,7 +146,6 @@ void QUECTEL_BG96_CellularContext::urc_nidd_open()
     } else {
         tr_error("NIDD connection open failed with error: %d", err);
     }
-    _semaphore.release();
 }
 
 void QUECTEL_BG96_CellularContext::urc_nidd_close()

@@ -64,6 +64,7 @@ extern "C"
 #define CLK_CLKSEL0_SDH0SEL_HCLK        (0x02UL<<CLK_CLKSEL0_SDH0SEL_Pos) /*!< Setting SDH0 clock source as HCLK */
 #define CLK_CLKSEL0_SDH0SEL_HIRC        (0x03UL<<CLK_CLKSEL0_SDH0SEL_Pos) /*!< Setting SDH0 clock source as HIRC */
 
+#define CLK_CLKSEL0_USBSEL_HIRC48       (0x00UL<<CLK_CLKSEL0_USBSEL_Pos)  /*!< Setting USB clock source as HIRC48 */
 #define CLK_CLKSEL0_USBSEL_PLL          (0x01UL<<CLK_CLKSEL0_USBSEL_Pos)  /*!< Setting USB clock source as PLL */
 
 

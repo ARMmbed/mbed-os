@@ -1,10 +1,31 @@
-/*AT_ControlPlane_netif.cpp*/
+/*
+ * Copyright (c) 2019, Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "CellularUtil.h"
+#include "ThisThread.h"
 #include "AT_ControlPlane_netif.h"
+#include "CellularLog.h"
+
+using namespace mbed_cellular_util;
 
 namespace mbed {
 
-AT_ControlPlane_netif::AT_ControlPlane_netif(ATHandler &at, int cid) :
-    _cid(cid), _cb(NULL), _data(NULL), _recv_len(0), _at(at)
+AT_ControlPlane_netif::AT_ControlPlane_netif(ATHandler &at, int cid, AT_CellularDevice &device) :
+    _cid(cid), _cb(NULL), _data(NULL), _at(at), _device(device)
 {
     _at.set_urc_handler("+CRTDCP:", mbed::Callback<void()>(this, &AT_ControlPlane_netif::urc_cp_recv));
 }
@@ -18,44 +39,58 @@ void AT_ControlPlane_netif::urc_cp_recv()
     _at.lock();
     int cid = _at.read_int();
     int cpdata_length = _at.read_int();
-    int read_len = _at.read_string(_recv_buffer, sizeof(_recv_buffer));
-
-    _at.unlock();
+    if (cpdata_length < 0) {
+        return;
+    }
+    uint8_t *cpdata = new uint8_t[cpdata_length];
+    ssize_t read_len = _at.read_hex_string((char *)cpdata, cpdata_length);
 
     // cid not expected to be different because: one context - one file handle
     // so this file handle cannot get urc from different context
     if (read_len > 0 && read_len == cpdata_length && cid == _cid) {
-        _recv_len = read_len;
+        packet_t *packet = _packet_list.add_new();
+        packet->data = cpdata;
+        packet->data_len = cpdata_length;
         data_received();
+    } else {
+        delete[] cpdata;
     }
+    _at.unlock();
 }
 
 nsapi_size_or_error_t AT_ControlPlane_netif::send(const void *cpdata, nsapi_size_t cpdata_length)
 {
-    //CSODCP
+    if (cpdata_length > MBED_CONF_CELLULAR_MAX_CP_DATA_RECV_LEN) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
     _at.lock();
+    _at.cmd_start("AT+CSODCP=");
+    _at.write_int(_cid);
+    _at.write_int(cpdata_length);
+    _at.write_hex_string((char *)cpdata, cpdata_length);
+    _at.cmd_stop_read_resp();
+    nsapi_size_or_error_t err = _at.unlock_return_error();
 
-    nsapi_size_or_error_t err = _at.at_cmd_discard("+CSODCP", "=", "%d%d%b", _cid, cpdata_length, cpdata, cpdata_length);
-
-    return (err == NSAPI_ERROR_OK) ? cpdata_length : err;
+    return err ? err : cpdata_length;
 }
 
 nsapi_size_or_error_t AT_ControlPlane_netif::recv(void *cpdata, nsapi_size_t cpdata_length)
 {
-    // If no data received through CRTDCP URC
-    if (!_recv_len) {
-        return NSAPI_ERROR_WOULD_BLOCK;
+    _at.lock();
+    if (_packet_list.count() <= 0) {
+        (void) send("", 0); // poll for missing +CRTDCP indications
+        if (_packet_list.count() <= 0) {
+            return NSAPI_ERROR_WOULD_BLOCK;
+        }
     }
-
-    // If too small buffer for data
-    if (_recv_len > cpdata_length) {
-        return NSAPI_ERROR_DEVICE_ERROR;
-    }
-
-    memcpy(cpdata, _recv_buffer, _recv_len);
-    size_t recv = _recv_len;
-    _recv_len = 0;
-    return recv;
+    packet_t *packet = _packet_list.dequeue();
+    int data_len = (cpdata_length >= packet->data_len) ? packet->data_len : cpdata_length;
+    memcpy(cpdata, packet->data, data_len);
+    delete[] packet->data;
+    delete (packet);
+    _at.unlock();
+    return data_len;
 }
 
 void AT_ControlPlane_netif::attach(void (*callback)(void *), void *data)

@@ -68,7 +68,7 @@ struct CAN_Message {
 typedef struct CAN_Message CAN_Message;
 
 #ifdef __cplusplus
-};
+}
 #endif
 
 #endif

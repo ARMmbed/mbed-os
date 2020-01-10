@@ -18,7 +18,7 @@
 
 #include "utest/utest_harness.h"
 #include "utest/utest_stack_trace.h"
-#include "utest/utest_serial.h"
+#include "utest/utest_print.h"
 
 #include <stdlib.h>
 

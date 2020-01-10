@@ -17,6 +17,7 @@
 
 #include "TELIT_ME910.h"
 #include "TELIT_ME910_CellularContext.h"
+#include "TELIT_ME910_CellularNetwork.h"
 #include "AT_CellularNetwork.h"
 #include "PinNames.h"
 #include "rtos/ThisThread.h"
@@ -57,6 +58,7 @@ static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     1,  // PROPERTY_IPV4V6_STACK
     0,  // PROPERTY_NON_IP_PDP_TYPE
     1,  // PROPERTY_AT_CGEREP
+    1,  // PROPERTY_AT_COPS_FALLBACK_AUTO
 };
 
 //the delay between sending AT commands
@@ -186,4 +188,9 @@ nsapi_error_t TELIT_ME910::hard_power_off()
 nsapi_error_t TELIT_ME910::soft_power_off()
 {
     return AT_CellularDevice::soft_power_off();
+}
+
+AT_CellularNetwork *TELIT_ME910::open_network_impl(ATHandler &at)
+{
+    return new TELIT_ME910_CellularNetwork(at, *this);
 }

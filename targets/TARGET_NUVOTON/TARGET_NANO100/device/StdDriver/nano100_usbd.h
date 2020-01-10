@@ -9,7 +9,10 @@
  ******************************************************************************/
 #ifndef __USBD_H__
 #define __USBD_H__
-
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 /** @addtogroup NANO100_Device_Driver NANO100 Device Driver
   @{
@@ -501,6 +504,9 @@ void USBD_LockEpStall(uint32_t u32EpBitmap);
 
 /*@}*/ /* end of group NANO100_Device_Driver */
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif //__USBD_H__
 

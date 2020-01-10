@@ -29,6 +29,9 @@ public:
     virtual nsapi_error_t hard_power_off();
     virtual nsapi_error_t soft_power_on();
     virtual nsapi_error_t soft_power_off();
+
+private:
+    void press_power_button(int time_ms);
 };
 
 } // namespace mbed

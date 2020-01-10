@@ -1,0 +1,60 @@
+#! armclang -E
+
+/*
+ * Copyright (c) 2018-2019, Nuvoton Technology Corporation
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "../../../device/partition_M2351_mem.h"
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+#define MBED_BOOT_STACK_SIZE    0x400
+#endif
+
+LR_IROM1    MBED_APP_START
+{
+    /* load address = execution address */
+    ER_IROM1    +0
+    {
+        *(RESET, +First)
+        *(InRoot$$Sections)
+        .ANY (+RO)
+    }
+
+    ARM_LIB_STACK   MBED_RAM_APP_START    EMPTY   MBED_BOOT_STACK_SIZE
+    {
+    }
+
+    /* Reserve for vectors
+     *
+     * Vector table base address is required to be 128-byte aligned at a minimum.
+     * A PE might impose further restrictions on it. */
+    ER_IRAMVEC  AlignExpr(+0, 128)  EMPTY   (4*(16 + 102))
+    {
+    }
+
+    RW_IRAM1                AlignExpr(+0, 16)
+    {
+        .ANY (+RW +ZI)
+    }
+
+    ARM_LIB_HEAP            AlignExpr(+0, 16)   EMPTY (MBED_RAM_APP_START + MBED_RAM_APP_SIZE - AlignExpr(ImageLimit(RW_IRAM1), 16))
+    {
+    }
+}
+
+ScatterAssert(LoadLimit(LR_IROM1) <= (MBED_APP_START + MBED_APP_SIZE))
+ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= MBED_RAM_APP_START + MBED_RAM_APP_SIZE)

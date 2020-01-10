@@ -100,7 +100,9 @@ void UDPSOCKET_ECHOTEST_BURST()
             if (check_oversized_packets(sent, tx_buffers[x].len)) {
                 TEST_IGNORE_MESSAGE("This device does not handle oversized packets");
             }
-            TEST_ASSERT_EQUAL(tx_buffers[x].len, sent);
+            if (sent != NSAPI_ERROR_NO_MEMORY) {
+                TEST_ASSERT_EQUAL(tx_buffers[x].len, sent);
+            }
         }
 
         bt_total = 0;

@@ -2664,8 +2664,9 @@ static void LcpEchoCheck(fsm *f) {
     /*
      * Start the timer for the next interval.
      */
-    if (pcb->lcp_echo_timer_running)
-	ppp_warn("assertion lcp_echo_timer_running==0 failed");
+    if (pcb->lcp_echo_timer_running) {
+        ppp_warn("assertion lcp_echo_timer_running==0 failed");
+    }
     TIMEOUT (LcpEchoTimeout, f, pcb->settings.lcp_echo_interval);
     pcb->lcp_echo_timer_running = 1;
 }

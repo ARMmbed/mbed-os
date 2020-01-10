@@ -68,4 +68,9 @@ void CellularContext::call_network_cb(nsapi_connection_status_t status)
     }
 }
 
+CellularContext::pdp_type_t CellularContext::string_to_pdp_type(const char *pdp_type)
+{
+    return IPV4V6_PDP_TYPE;
+}
+
 }

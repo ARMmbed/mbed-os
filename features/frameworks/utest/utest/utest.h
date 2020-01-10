@@ -26,7 +26,7 @@
 #include "utest/utest_case.h"
 #include "utest/utest_default_handlers.h"
 #include "utest/utest_harness.h"
-#include "utest/utest_serial.h"
+#include "utest/utest_print.h"
 
 #endif // UTEST_H
 

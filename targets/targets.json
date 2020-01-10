@@ -16,6 +16,11 @@
         "bootloader_supported": false,
         "static_memory_defines": true,
         "printf_lib": "std",
+        "supported_c_libs": {
+                "arm": ["std"],
+                "gcc_arm": ["std", "small"],
+                "iar": ["std"]
+        },
         "config": {
             "console-uart": {
                 "help": "Target has UART console on pins STDIO_UART_TX, STDIO_UART_RX. Value is only significant if target has SERIAL device.",
@@ -32,6 +37,14 @@
             "deep-sleep-latency": {
                 "help": "Time in ms required to go to and wake up from deep sleep (max 10)",
                 "value": 0
+            },
+            "app_offset": {
+                "help": "Application start offset in ROM",
+                "value": null
+            },
+            "header_offset": {
+                "help": "Application header offset in ROM",
+                "value": null
             },
             "boot-stack-size": {
                 "help": "Define the boot stack size in bytes. This value must be a multiple of 8",
@@ -259,8 +272,13 @@
             "SLEEP",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES"
+            "STDIO_MESSAGES",
+            "USTICKER"
         ],
+        "overrides": {
+            "tickless-from-us-ticker"   : true,
+            "boot-stack-size"           : "0x400"
+        },
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "LPC11U24FBD48/401"
@@ -374,8 +392,13 @@
             "SERIAL",
             "SLEEP",
             "SPI",
-            "SPISLAVE"
+            "SPISLAVE",
+            "USTICKER"
         ],
+        "overrides": {
+            "tickless-from-us-ticker"   : true,
+            "boot-stack-size"           : "0x400"
+        },
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "LPC11U35FBD48/401"
@@ -655,18 +678,6 @@
         "core": "Cortex-M3",
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "extra_labels": ["NXP", "LPC176X", "NXP_EMAC"],
-        "config": {
-            "modem_is_on_board": {
-                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD"
-            },
-            "modem_data_connection_type": {
-                "help": "Value: Defines how the modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART"
-            }
-        },
         "macros": ["TARGET_LPC1768", "UBX_MDM_SARA_G3XX", "UBX_MDM_SARA_G350"],
         "inherits": ["LPCTarget"],
         "device_has": [
@@ -1503,6 +1514,11 @@
         "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": "ETHERNET"
+        },
+	    "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
         }
     },
     "SDT64B": {
@@ -1790,6 +1806,11 @@
         "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": "ETHERNET"
+        },
+	"supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
         }
     },
     "K82F": {
@@ -1910,8 +1931,11 @@
             "XIP_BOOT_HEADER_ENABLE=1",
             "XIP_EXTERNAL_FLASH=1",
             "XIP_BOOT_HEADER_DCD_ENABLE=1",
+            "FSL_SDK_DRIVER_QUICK_ACCESS_ENABLE=1",
             "SKIP_SYSCLK_INIT",
             "FSL_FEATURE_PHYKSZ8081_USE_RMII50M_MODE",
+            "__STARTUP_INITIALIZE_RAMFUNCTION",
+            "__STARTUP_INITIALIZE_NONCACHEDATA",
             "MBED_MPU_CUSTOM",
             "MBED_TICKLESS"
         ],
@@ -1942,6 +1966,7 @@
         "features": ["LWIP"],
         "device_name": "MIMXRT1052",
         "overrides": {
+            "deep-sleep-latency": 5,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -2441,7 +2466,12 @@
         ],
         "release_versions": ["2", "5"],
         "bootloader_supported": true,
-        "device_name": "STM32F303RE"
+        "device_name": "STM32F303RE",
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        }
     },
     "NUCLEO_F303ZE": {
         "inherits": ["FAMILY_STM32"],
@@ -2579,7 +2609,12 @@
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F411RE",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        }
     },
     "NUCLEO_F412ZG": {
         "inherits": ["FAMILY_STM32"],
@@ -2831,6 +2866,11 @@
         "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": "ETHERNET"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
         }
     },
     "MTB_STM_S2LP": {
@@ -3862,16 +3902,6 @@
                 "help": "As 48 Mhz clock is configured for USB, SYSCLK has to be reduced from 180 to 168 MHz (set 0 for the max SYSCLK value)",
                 "value": "1",
                 "macro_name": "CLOCK_SOURCE_USB"
-            },
-            "modem_is_on_board": {
-                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD"
-            },
-            "modem_data_connection_type": {
-                "help": "Value: Defines how the modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART"
             }
         },
         "extra_labels_add": [
@@ -3914,16 +3944,6 @@
                 "help": "As 48 Mhz clock is configured for USB, SYSCLK has to be reduced from 180 to 168 MHz (set 0 for the max SYSCLK value)",
                 "value": "0",
                 "macro_name": "CLOCK_SOURCE_USB"
-            },
-            "modem_is_on_board": {
-                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD"
-            },
-            "modem_data_connection_type": {
-                "help": "Value: Defines how the modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART"
             }
         },
         "extra_labels_add": ["STM32F4", "STM32F439", "STM32F439VI", "STM32F439xx", "STM32F439xI"],
@@ -4425,7 +4445,12 @@
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32L475VG",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        }
     },
     "MTB_STM_L475": {
         "inherits": ["FAMILY_STM32"],
@@ -4574,18 +4599,6 @@
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32F4", "STM32F411RE"],
         "components_add": ["FLASHIAP"],
-        "config": {
-            "modem_is_on_board": {
-                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD"
-            },
-            "modem_data_connection_type": {
-                "help": "Value: Defines how an on-board modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART"
-            }
-        },
         "overrides": { "lse_available": 0 },
         "macros_add": ["HSE_VALUE=26000000"],
         "post_binary_hook": {
@@ -4610,16 +4623,6 @@
             "STM32F413xH"
         ],
         "config": {
-            "modem_is_on_board": {
-                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD"
-            },
-            "modem_data_connection_type": {
-                "help": "Value: Defines how an on-board modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART"
-            },
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
@@ -4676,16 +4679,6 @@
                 "help": "Mask value : USE_PLL_HSI | USE_PLL_MSI",
                 "value": "USE_PLL_MSI",
                 "macro_name": "CLOCK_SOURCE"
-            },
-            "modem_is_on_board": {
-                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD"
-            },
-            "modem_data_connection_type": {
-                "help": "Value: Defines how an on-board modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART"
             }
         },
         "detect_code": ["0312"],
@@ -4710,18 +4703,6 @@
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32F4", "STM32F411RE"],
-        "config": {
-            "modem_is_on_board": {
-                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD"
-            },
-            "modem_data_connection_type": {
-                "help": "Value: Defines how an on-board modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART"
-            }
-        },
         "overrides": {
             "lse_available": 0
         },
@@ -4941,18 +4922,6 @@
             "STM32F437xx",
             "STM32F437xG"
         ],
-        "config": {
-            "modem_is_on_board": {
-                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD"
-            },
-            "modem_data_connection_type": {
-                "help": "Value: Defines how the modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART"
-            }
-        },
         "macros_add": [
             "MBEDTLS_CONFIG_HW_SUPPORT",
             "HSE_VALUE=12000000",
@@ -7559,18 +7528,6 @@
         "inherits": ["MCU_NRF52832"],
         "release_versions": ["5"],
         "public": false,
-        "config": {
-            "modem_is_on_board": {
-                "help": "Value: Tells the build system that the modem is on-board as opposed to a plug-in shield/module.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD"
-            },
-            "modem_data_connection_type": {
-                "help": "Value: Defines how the modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART"
-            }
-        },
         "overrides": {
             "network-default-interface-type": "CELLULAR"
         },
@@ -7946,7 +7903,8 @@
             "FLASH",
             "EMAC",
             "MPU",
-            "WATCHDOG"
+            "WATCHDOG",
+            "USBDEVICE"
         ],
         "release_versions": ["5"],
         "device_name": "NUC472HI8AE",
@@ -8078,7 +8036,8 @@
             "FLASH",
             "MPU",
             "WATCHDOG",
-            "RESET_REASON"
+            "RESET_REASON",
+            "USBDEVICE"
         ],
         "components_add": ["FLASHIAP"],
         "release_versions": ["2", "5"],
@@ -8148,7 +8107,8 @@
             "SPISLAVE",
             "SPI_ASYNCH",
             "WATCHDOG",
-            "RESET_REASON"
+            "RESET_REASON",
+            "USBDEVICE"
         ],
         "release_versions": ["5"],
         "device_name": "NANO130KE3BN",
@@ -8501,13 +8461,13 @@
         "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0839"],
         "device_has_add": [
-			"CRC",
-			"SERIAL_ASYNCH",
-			"SERIAL_FC",
-			"TRNG",
-			"FLASH",
-			"MPU"
-		],
+            "CRC",
+            "SERIAL_ASYNCH",
+            "SERIAL_FC",
+            "TRNG",
+            "FLASH",
+            "MPU"
+        ],
         "features": ["BLE"],
         "release_versions": ["2", "5"],
         "bootloader_supported": false
@@ -8565,7 +8525,7 @@
             },
             "usb-device-hsusbd": {
                 "help": "Select high-speed USB device or not",
-                "value": 1
+                "value": 0
             }
         },
         "inherits": ["Target"],
@@ -8597,7 +8557,8 @@
             "EMAC",
             "MPU",
             "WATCHDOG",
-            "RESET_REASON"
+            "RESET_REASON",
+            "USBDEVICE"
         ],
         "release_versions": ["5"],
         "bootloader_supported": true,
@@ -8847,7 +8808,8 @@
             "SPI_ASYNCH",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "detect_code": ["1305"],
         "release_versions": ["5"],
@@ -8893,6 +8855,64 @@
         "mbed_rom_size"         : "0x10000",
         "mbed_ram_start"        : "0x20000000",
         "mbed_ram_size"         : "0x2000"
+    },
+    "NU_PFM_M2351_NS": {
+        "inherits": ["NSPE_Target", "NU_PFM_M2351"],
+        "core": "Cortex-M23-NS",
+        "tfm.level": 1,
+        "extra_labels_add": [
+            "M23_NS",
+            "PSA",
+            "TFM",
+            "NU_PREBUILD_SECURE"
+        ],
+        "macros_add": [
+            "MBED_TZ_DEFAULT_ACCESS=1",
+            "CMSIS_NVIC_VIRTUAL",
+            "MBEDTLS_PSA_CRYPTO_C"
+        ],
+        "components_add": ["FLASHIAP"],
+        "post_binary_hook": {"function": "M2351Code.merge_secure"},
+        "secure_image_filename": "tfm.hex",
+        "overrides": {
+            "secure-rom-start"      : "0x0",
+            "secure-rom-size"       : "0x3C000",
+            "secure-ram-start"      : "0x20000000",
+            "secure-ram-size"       : "0x10000",
+            "non-secure-rom-start"  : "0x1003C000",
+            "non-secure-rom-size"   : "0x44000",
+            "non-secure-ram-start"  : "0x30010000",
+            "non-secure-ram-size"   : "0x8000"
+        }
+    },
+    "NU_PFM_M2351_S": {
+        "inherits": ["SPE_Target", "NU_PFM_M2351"],
+        "core": "Cortex-M23",
+        "tfm.level": 1,
+        "extra_labels_add": [
+            "M23_S",
+            "PSA",
+            "TFM"
+        ],
+        "device_has_remove": ["SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES"],
+        "macros_add": [
+            "DAUTH_CHIP_DEFAULT",
+            "MBEDTLS_PSA_CRYPTO_C",
+            "MBEDTLS_PSA_CRYPTO_SPM"
+        ],
+        "components_add": ["FLASHIAP"],
+        "deliver_to_target": "NU_PFM_M2351_NS",
+        "delivery_dir": "TARGET_NUVOTON/TARGET_M2351/TARGET_M23_NS/TARGET_NU_PFM_M2351_NS/TARGET_NU_PREBUILD_SECURE",
+        "overrides": {
+            "secure-rom-start"      : "0x0",
+            "secure-rom-size"       : "0x3C000",
+            "secure-ram-start"      : "0x20000000",
+            "secure-ram-size"       : "0x10000",
+            "non-secure-rom-start"  : "0x1003C000",
+            "non-secure-rom-size"   : "0x44000",
+            "non-secure-ram-start"  : "0x30010000",
+            "non-secure-ram-size"   : "0x8000"
+        }
     },
     "NUMAKER_M252KG": {
         "core": "Cortex-M23",
@@ -9590,15 +9610,15 @@
         "detect_code": ["1703"],
         "macros_add": ["GD32E10X"],
         "release_versions": ["5"]
-	},
+    },
     "TT_M4G9": {
-		"inherits": ["Target"],
-		"core": "Cortex-M4F",
-		"is_disk_virtual": true,
-		"extra_labels": ["TT"],
-		"macros": ["__TT_M4G9__"],
-		"supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
-		"device_has": ["USTICKER",
+        "inherits": ["Target"],
+        "core": "Cortex-M4F",
+        "is_disk_virtual": true,
+        "extra_labels": ["TT"],
+        "macros": ["__TT_M4G9__"],
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "device_has": ["USTICKER",
                    "ANALOGIN",
                    "ANALOGOUT",
                    "SERIAL",
@@ -9614,27 +9634,15 @@
                    "STDIO_MESSAGES",
                    "FLASH",
                    "MPU"
-		],
-		"device_name": "TMPM4G9F15FG",
-		"detect_code": ["8013"],
-		"release_versions": ["5"],
-		"bootloader_supported": true
+        ],
+        "device_name": "TMPM4G9F15FG",
+        "detect_code": ["8013"],
+        "release_versions": ["5"],
+        "bootloader_supported": true
     },
     "EP_AGORA": {
         "inherits": ["MCU_NRF52840"],
         "supported_form_factors": [],
-        "config": {
-            "modem_is_on_board": {
-                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD"
-            },
-            "modem_data_connection_type": {
-                "help": "Value: Defines how an on-board modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
-                "value": 1,
-                "macro_name": "MODEM_ON_BOARD_UART"
-            }
-        },
         "macros_add": [
             "CONFIG_GPIO_AS_PINRESET"
         ]
@@ -9837,7 +9845,8 @@
             "SPI_ASYNCH",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "components_add": ["FLASHIAP"],
         "detect_code": ["1310"],
@@ -9849,6 +9858,52 @@
             "tickless-from-us-ticker": true
         },
         "forced_reset_timeout": 3
+    },
+    "NUCLEO_G071RB": {
+        "inherits": ["FAMILY_STM32"],
+        "supported_form_factors": ["ARDUINO", "MORPHO"],
+        "core": "Cortex-M0+",
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
+                "value": 1
+            },
+            "hse_value": {
+                "help": "HSE default value is 25MHz in HAL",
+                "value": "8000000",
+                "macro_name": "HSE_VALUE"
+            }
+        },
+        "extra_labels_add": [
+            "STM32G0",
+            "STM32G071xx",
+            "STM32G071RB"
+        ],
+        "components_add": ["FLASHIAP"],
+        "macros_add": [
+            "STM32G071xx",
+            "STM32G071RB",
+            "EXTRA_IDLE_STACK_REQUIRED",
+            "MBED_TICKLESS"
+        ],
+        "overrides": {
+            "lpticker_delay_ticks": 0
+        },
+        "device_has_add": [
+            "ANALOGOUT",
+            "SERIAL_ASYNCH",
+            "FLASH",
+            "MPU"
+        ],
+        "detect_code": ["0221"],
+        "release_versions": ["5"],
+        "device_name": "STM32G071RBTx",
+        "bootloader_supported": true
     },
     "__build_tools_metadata__": {
         "version": "1",

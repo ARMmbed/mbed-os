@@ -37,6 +37,7 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 #include "gpio_irq_device.h"
+#include "platform/mbed_critical.h"
 
 #define EDGE_NONE (0)
 #define EDGE_RISE (1)
@@ -194,6 +195,8 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
         return -1;
     }
 
+    core_util_critical_section_enter();
+
     /* Enable SYSCFG Clock */
 #if !defined(TARGET_STM32WB)
     __HAL_RCC_SYSCFG_CLK_ENABLE();
@@ -266,19 +269,25 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     NVIC_SetVector(obj->irq_n, vector);
     gpio_irq_enable(obj);
 
+    core_util_critical_section_exit();
     return 0;
 }
 
 void gpio_irq_free(gpio_irq_t *obj)
 {
+    core_util_critical_section_enter();
+
     uint32_t gpio_idx = pin_lines_desc[STM_PIN(obj->pin)].gpio_idx;
     gpio_channel_t *gpio_channel = &channels[obj->irq_index];
+
+    gpio_irq_disable(obj);
 
     gpio_channel->pin_mask &= ~(1 << gpio_idx);
     gpio_channel->channel_ids[gpio_idx] = 0;
     gpio_channel->channel_gpio[gpio_idx] = 0;
     gpio_channel->channel_pin[gpio_idx] = 0;
-    gpio_irq_disable(obj);
+
+    core_util_critical_section_exit();
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
@@ -311,10 +320,18 @@ void gpio_irq_enable(gpio_irq_t *obj)
     uint32_t pin_index  = STM_PIN(obj->pin);
 
     /*  Select Source  */
+
+#if defined(STM32G0)
+    temp = EXTI->EXTICR[pin_index >> 2];
+    CLEAR_BIT(temp, (0x0FU) << (8U * (pin_index & 0x03U)));
+    SET_BIT(temp, port_index << (8U * (pin_index & 0x03U)));
+    EXTI->EXTICR[pin_index >> 2] = temp;
+#else
     temp = SYSCFG->EXTICR[pin_index >> 2];
     CLEAR_BIT(temp, (0x0FU) << (4U * (pin_index & 0x03U)));
     SET_BIT(temp, port_index << (4U * (pin_index & 0x03U)));
     SYSCFG->EXTICR[pin_index >> 2] = temp;
+#endif
 
     LL_EXTI_EnableIT_0_31(1 << pin_index);
 
@@ -341,6 +358,13 @@ void gpio_irq_disable(gpio_irq_t *obj)
     LL_EXTI_DisableRisingTrig_0_31(1 << pin_index);
     LL_EXTI_DisableFallingTrig_0_31(1 << pin_index);
     LL_EXTI_DisableIT_0_31(1 << pin_index);
+
+    uint32_t pin = (uint32_t)(1 << (gpio_channel->channel_pin[gpio_idx]));
+
+    // Clear interrupt flag
+    if (__HAL_GPIO_EXTI_GET_FLAG(pin) != RESET) {
+        __HAL_GPIO_EXTI_CLEAR_FLAG(pin);
+    }
 
     const bool no_more_pins_on_vector = (gpio_channel->pin_mask & ~pin_mask) == 0;
     if (no_more_pins_on_vector) {

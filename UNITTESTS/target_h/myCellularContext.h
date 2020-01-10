@@ -160,6 +160,10 @@ public:
         return true;
     };
 
+    const char* get_nonip_context_type_str() {
+        return "Non-IP";
+    }
+
     bool set_new_context(int cid)
     {
         return true;

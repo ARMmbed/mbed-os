@@ -404,36 +404,61 @@ void UBLOX_AT_CellularStack::clear_socket(CellularSocket *socket)
     }
 }
 
+#ifndef UBX_MDM_SARA_R41XM
 const char *UBLOX_AT_CellularStack::get_ip_address()
 {
+    SocketAddress address;
+
+    get_ip_address(&address);
+
+    return (address.get_ip_version()) ? (address.get_ip_address()) : NULL;
+}
+
+nsapi_error_t UBLOX_AT_CellularStack::get_ip_address(SocketAddress *address)
+{
+    if (!address) {
+        return NSAPI_ERROR_PARAMETER;
+    }
     _at.lock();
+
+    bool ipv4 = false, ipv6 = false;
+
     _at.cmd_start_stop("+UPSND", "=", "%d%d", PROFILE, 0);
-
     _at.resp_start("+UPSND:");
-    if (_at.info_resp()) {
-        _at.skip_param();
-        _at.skip_param();
-        int len = _at.read_string(_ip, NSAPI_IPv4_SIZE);
-        if (len == -1) {
-            _ip[0] = '\0';
-            _at.unlock();
-            // no IPV4 address, return
-            return NULL;
-        }
 
-        // in case stack type is not IPV4 only, try to look also for IPV6 address
-        if (_stack_type != IPV4_STACK) {
-            len = _at.read_string(_ip, PDP_IPV6_SIZE);
+    if (_at.info_resp()) {
+        _at.skip_param(2);
+
+        if (_at.read_string(_ip, PDP_IPV6_SIZE) != -1) {
+            convert_ipv6(_ip);
+            address->set_ip_address(_ip);
+
+            ipv4 = (address->get_ip_version() == NSAPI_IPv4);
+            ipv6 = (address->get_ip_version() == NSAPI_IPv6);
+
+            // Try to look for second address ONLY if modem has support for dual stack(can handle both IPv4 and IPv6 simultaneously).
+            // Otherwise assumption is that second address is not reliable, even if network provides one.
+            if ((_device.get_property(AT_CellularDevice::PROPERTY_IPV4V6_PDP_TYPE) && (_at.read_string(_ip, PDP_IPV6_SIZE) != -1))) {
+                convert_ipv6(_ip);
+                address->set_ip_address(_ip);
+                ipv6 = (address->get_ip_version() == NSAPI_IPv6);
+            }
         }
     }
     _at.resp_stop();
     _at.unlock();
 
-    // we have at least IPV4 address
-    convert_ipv6(_ip);
+    if (ipv4 && ipv6) {
+        _stack_type = IPV4V6_STACK;
+    } else if (ipv4) {
+        _stack_type = IPV4_STACK;
+    } else if (ipv6) {
+        _stack_type = IPV6_STACK;
+    }
 
-    return _ip;
+    return (ipv4 || ipv6) ? NSAPI_ERROR_OK : NSAPI_ERROR_NO_ADDRESS;
 }
+#endif
 
 nsapi_error_t UBLOX_AT_CellularStack::gethostbyname(const char *host, SocketAddress *address, nsapi_version_t version, const char *interface_name)
 {

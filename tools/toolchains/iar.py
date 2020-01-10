@@ -22,7 +22,6 @@ from distutils.version import LooseVersion
 from tools.toolchains.mbed_toolchain import mbedToolchain, TOOLCHAIN_PATHS
 from tools.utils import run_cmd
 
-
 class IAR(mbedToolchain):
     OFFICIALLY_SUPPORTED = True
     LIBRARY_EXT = '.a'
@@ -53,6 +52,8 @@ class IAR(mbedToolchain):
             build_dir=build_dir,
             build_profile=build_profile
         )
+
+        self.check_c_lib_supported(target, "iar")
 
         if target.is_TrustZone_secure_target:
             # Enable compiler security extensions

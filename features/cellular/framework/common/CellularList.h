@@ -86,6 +86,27 @@ public:
         delete current;
     }
 
+    int count()
+    {
+        T *item = _head;
+        int n = 0;
+        while (item) {
+            item = item->next;
+            n++;
+        }
+        return n;
+    }
+
+    T *dequeue()
+    {
+        if (!_head) {
+            return NULL;
+        }
+        T *temp = _head;
+        _head = _head->next;
+        return temp;
+    }
+
     void delete_all()
     {
         T *temp = _head;

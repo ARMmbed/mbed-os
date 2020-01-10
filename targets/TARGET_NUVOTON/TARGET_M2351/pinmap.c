@@ -22,6 +22,9 @@
 #include "mbed_error.h"
 #include "partition_M2351.h"
 #include "hal_secure.h"
+#if defined(DOMAIN_NS) && (DOMAIN_NS == 1L) && (TFM_LVL > 0)
+#include "tfm_ns_lock.h"
+#endif
 
 /**
  * Configure pin multi-function
@@ -93,16 +96,16 @@ const PeripheralList *pinmap_restricted_peripherals()
     return &peripheral_list;
 }
 
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__NONSECURE_ENTRY
-void pin_function_s(int32_t pin, int32_t data)
+#if defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+
+static void pin_function_impl(int32_t pin, int32_t data, bool nonsecure_caller)
 {
     MBED_ASSERT(pin != (PinName)NC);
     uint32_t pin_index = NU_PINNAME_TO_PIN(pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(pin);
     
     /* Guard access to secure GPIO from non-secure domain */
-    if (cmse_nonsecure_caller() && 
+    if (nonsecure_caller && 
         (! (SCU_INIT_IONSSET_VAL & (1 << (port_index + 0))))) {
         error("Non-secure domain tries to control secure or undefined GPIO.");
     }
@@ -113,4 +116,35 @@ void pin_function_s(int32_t pin, int32_t data)
     // E.g.: SYS->GPA_MFPL  = (SYS->GPA_MFPL & (~SYS_GPA_MFPL_PA0MFP_Msk) ) | SYS_GPA_MFPL_PA0MFP_SC0_CD  ;
     *GPx_MFPx  = (*GPx_MFPx & (~MFP_Msk)) | data;
 }
+
+#if (TFM_LVL > 0)
+__NONSECURE_ENTRY
+int32_t pin_function_veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
+{
+    int32_t pin = (int32_t) arg0;
+    int32_t data = (int32_t) arg1;
+    pin_function_impl(pin, data, cmse_nonsecure_caller());
+    return 0;
+}
+#endif
+
+#endif
+
+#if defined(DOMAIN_NS) && (DOMAIN_NS == 1) && (TFM_LVL > 0)
+
+void pin_function_s(int32_t pin, int32_t data)
+{
+    tfm_ns_lock_dispatch(pin_function_veneer, pin, data, 0, 0);
+}
+
+#elif defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+
+#if (TFM_LVL == 0)
+__NONSECURE_ENTRY
+#endif
+void pin_function_s(int32_t pin, int32_t data)
+{
+    pin_function_impl(pin, data, cmse_nonsecure_caller());
+}
+
 #endif

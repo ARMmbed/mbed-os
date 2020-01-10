@@ -4,7 +4,7 @@
 
 ;*******************************************************************************
 ;* \file cy8c6xx7_cm4_dual.sct
-;* \version 2.60
+;* \version 2.70
 ;*
 ;* Linker file for the ARMCC.
 ;*
@@ -42,7 +42,7 @@
 ;* limitations under the License.
 ;******************************************************************************/
 
-; Size of the Cortex-M0+ application flash image
+; The size of the Cortex-M0+ application flash image
 #define FLASH_CM0P_SIZE     0x2000
 
 #if !defined(MBED_ROM_START)
@@ -82,7 +82,7 @@
   #define MBED_BOOT_STACK_SIZE 0x400
 #endif
 
-; Size of the stack section at the end of CM4 SRAM
+; The size of the stack section at the end of CM4 SRAM
 #define STACK_SIZE MBED_BOOT_STACK_SIZE
 
 ; The defines below describe the location and size of blocks of memory in the target.

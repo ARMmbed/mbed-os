@@ -106,18 +106,6 @@ public:
          */
         virtual nsapi_error_t get_ipv6_link_local_address(SocketAddress *address);
 
-        /** Copies IP address of the name based network interface to user supplied buffer
-         *
-         * @param    buf        buffer to which IP address will be copied as "W:X:Y:Z"
-         * @param    buflen     size of supplied buffer
-         * @param    interface_name     naame of the interface
-         * @return              Pointer to a buffer, or NULL if the buffer is too small
-         */
-        virtual nsapi_error_t get_ip_address_if(const char *interface_name, SocketAddress *address);
-
-        MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-        virtual char *get_ip_address_if(char *buf, nsapi_size_t buflen, const char *interface_name);
-
         /** Copies netmask of the network interface to user supplied buffer
          *
          * @param    buf        buffer to which netmask will be copied as "W:X:Y:Z"
@@ -323,6 +311,15 @@ public:
      *                  or null if not yet connected
      */
     virtual const char *get_ip_address();
+
+    /** Copies IP address of the name based network interface to user supplied buffer
+     *
+     * @param    address        SocketAddress object pointer to store the address
+     * @param    interface_name name of the interface
+     * @return                  Pointer to a buffer, or NULL if the buffer is too small
+     */
+    virtual nsapi_error_t get_ip_address_if(SocketAddress *address, const char *interface_name);
+
     /** Set the network interface as default one
       */
     virtual void set_default_interface(OnboardNetworkStack::Interface *interface);

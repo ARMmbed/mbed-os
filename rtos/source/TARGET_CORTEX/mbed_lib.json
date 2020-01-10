@@ -38,6 +38,12 @@
         "STM32L1": {
             "idle-thread-stack-size-debug-extra": 512
         },
+        "STM32F070RB": {
+            "main-thread-stack-size": 3072
+        },
+        "STM32F072RB": {
+            "main-thread-stack-size": 3072
+        },
         "MCU_NRF51": {
             "target.boot-stack-size": "0x800"
         },

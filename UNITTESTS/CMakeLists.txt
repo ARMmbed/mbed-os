@@ -82,6 +82,10 @@ if (COVERAGE)
 
 endif(COVERAGE)
 
+if (VALGRIND)
+  find_program(MEMORYCHECK_COMMAND valgrind)
+endif(VALGRIND)
+
 ####################
 # UNIT TESTS
 ####################
@@ -196,6 +200,7 @@ foreach(testfile ${unittest-file-list})
   if (unittest-test-sources)
     # Create the executable.
     add_executable(${TEST_SUITE_NAME} ${unittest-test-sources})
+
     target_include_directories(${TEST_SUITE_NAME} PRIVATE
       ${unittest-includes})
     target_compile_options(${TEST_SUITE_NAME} PRIVATE

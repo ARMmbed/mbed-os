@@ -12,10 +12,10 @@ Supports:
 * %u: unsigned integer [h, hh, (none), l, ll, z, j, t].
 * %x: unsigned integer [h, hh, (none), l, ll, z, j, t], printed as hexadecimal number (e.g., ff).
 * %X: unsigned integer [h, hh, (none), l, ll, z, j, t], printed as hexadecimal number (e.g., FF).
-* %f: floating point (enabled by default).
-* %F: floating point (enabled by default, treated as %f).
-* %g: floating point (enabled by default, treated as %f).
-* %G: floating point (enabled by default, treated as %f).
+* %f: floating point (disabled by default).
+* %F: floating point (disabled by default, treated as %f).
+* %g: floating point (disabled by default, treated as %f).
+* %G: floating point (disabled by default, treated as %f).
 * %c: character.
 * %s: string.
 * %p: pointer (e.g. 0x00123456).

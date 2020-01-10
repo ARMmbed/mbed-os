@@ -20,6 +20,9 @@
 #include "partition_M2351.h"
 #include "stddriver_secure.h"
 #include "mbed_error.h"
+#if defined(DOMAIN_NS) && (DOMAIN_NS == 1L) && (TFM_LVL > 0)
+#include "tfm_ns_lock.h"
+#endif
 
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 
@@ -133,11 +136,10 @@ static const nu_modidx_ns_t modidx_ns_tab[] = {
  */
 static bool check_mod_ns(int modclass, uint32_t modidx);
 
-__NONSECURE_ENTRY
-void SYS_ResetModule_S(uint32_t u32ModuleIndex)
+static void SYS_ResetModule_Impl(uint32_t u32ModuleIndex, bool nonsecure_caller)
 {
     /* Guard access to secure module from non-secure domain */
-    if (cmse_nonsecure_caller() &&
+    if (nonsecure_caller &&
        (! check_mod_ns(NU_MODCLASS_SYS, u32ModuleIndex))) {
         error("Non-secure domain tries to control secure or undefined module.");
     }
@@ -145,11 +147,10 @@ void SYS_ResetModule_S(uint32_t u32ModuleIndex)
     SYS_ResetModule(u32ModuleIndex);
 }
 
-__NONSECURE_ENTRY
-void CLK_SetModuleClock_S(uint32_t u32ModuleIndex, uint32_t u32ClkSrc, uint32_t u32ClkDiv)
+static void CLK_SetModuleClock_Impl(uint32_t u32ModuleIndex, uint32_t u32ClkSrc, uint32_t u32ClkDiv, bool nonsecure_caller)
 {
     /* Guard access to secure module from non-secure domain */
-    if (cmse_nonsecure_caller() &&
+    if (nonsecure_caller &&
        (! check_mod_ns(NU_MODCLASS_CLK, u32ModuleIndex))) {
         error("Non-secure domain tries to control secure or undefined module.");
     }
@@ -157,11 +158,10 @@ void CLK_SetModuleClock_S(uint32_t u32ModuleIndex, uint32_t u32ClkSrc, uint32_t 
     CLK_SetModuleClock(u32ModuleIndex, u32ClkSrc, u32ClkDiv);
 }
 
-__NONSECURE_ENTRY
-void CLK_EnableModuleClock_S(uint32_t u32ModuleIndex)
+static void CLK_EnableModuleClock_Impl(uint32_t u32ModuleIndex, bool nonsecure_caller)
 {
     /* Guard access to secure module from non-secure domain */
-    if (cmse_nonsecure_caller() &&
+    if (nonsecure_caller &&
        (! check_mod_ns(NU_MODCLASS_CLK, u32ModuleIndex))) {
         error("Non-secure domain tries to control secure or undefined module.");
     }
@@ -169,11 +169,10 @@ void CLK_EnableModuleClock_S(uint32_t u32ModuleIndex)
     CLK_EnableModuleClock(u32ModuleIndex);
 }
 
-__NONSECURE_ENTRY
-void CLK_DisableModuleClock_S(uint32_t u32ModuleIndex)
+static void CLK_DisableModuleClock_Impl(uint32_t u32ModuleIndex, bool nonsecure_caller)
 {
     /* Guard access to secure module from non-secure domain */
-    if (cmse_nonsecure_caller() &&
+    if (nonsecure_caller &&
        (! check_mod_ns(NU_MODCLASS_CLK, u32ModuleIndex))) {
         error("Non-secure domain tries to control secure or undefined module.");
     }
@@ -181,30 +180,26 @@ void CLK_DisableModuleClock_S(uint32_t u32ModuleIndex)
     CLK_DisableModuleClock(u32ModuleIndex);
 }
 
-__NONSECURE_ENTRY
-void SYS_LockReg_S(void)
+static void SYS_LockReg_Impl(void)
 {
     /* Allow non-secure domain to lock/unlock locked registers without check.
      * Guard access to locked registers is done through other related secure functions. */
     SYS_LockReg();
 }
 
-__NONSECURE_ENTRY
-void SYS_UnlockReg_S(void)
+static void SYS_UnlockReg_Impl(void)
 {
     /* Allow non-secure domain to lock/unlock locked registers without check.
      * Guard access to locked registers is done through other related secure functions. */
     SYS_UnlockReg();
 }
 
-__NONSECURE_ENTRY
-void CLK_Idle_S(void)
+static void CLK_Idle_Impl(void)
 {
     CLK_Idle();
 }
 
-__NONSECURE_ENTRY
-void CLK_PowerDown_S(void)
+static void CLK_PowerDown_Impl(void)
 {
     CLK_PowerDown();
 }
@@ -249,6 +244,229 @@ static bool check_mod_ns(int modclass, uint32_t modidx)
     }
         
     return false;
+}
+
+#if (TFM_LVL > 0)
+
+__NONSECURE_ENTRY
+int32_t SYS_ResetModule_Veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
+{
+    uint32_t u32ModuleIndex = (uint32_t) arg0;
+    SYS_ResetModule_Impl(u32ModuleIndex, cmse_nonsecure_caller());
+    return 0;
+}
+
+__NONSECURE_ENTRY
+int32_t CLK_SetModuleClock_Veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
+{
+    uint32_t u32ModuleIndex = (uint32_t) arg0;
+    uint32_t u32ClkSrc = (uint32_t) arg1;
+    uint32_t u32ClkDiv = (uint32_t) arg2;
+    CLK_SetModuleClock_Impl(u32ModuleIndex, u32ClkSrc, u32ClkDiv, cmse_nonsecure_caller());
+    return 0;
+}
+
+__NONSECURE_ENTRY
+int32_t CLK_EnableModuleClock_Veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
+{
+    uint32_t u32ModuleIndex = (uint32_t) arg0;
+    CLK_EnableModuleClock_Impl(u32ModuleIndex, cmse_nonsecure_caller());
+    return 0;
+}
+
+__NONSECURE_ENTRY
+int32_t CLK_DisableModuleClock_Veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
+{
+    uint32_t u32ModuleIndex = (uint32_t) arg0;
+    CLK_DisableModuleClock_Impl(u32ModuleIndex, cmse_nonsecure_caller());
+    return 0;
+}
+
+__NONSECURE_ENTRY
+int32_t SYS_LockReg_Veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
+{
+    SYS_LockReg_Impl();
+    return 0;
+}
+
+__NONSECURE_ENTRY
+int32_t SYS_UnlockReg_Veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
+{
+    SYS_UnlockReg_Impl();
+    return 0;
+}
+
+__NONSECURE_ENTRY
+int32_t CLK_Idle_Veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
+{
+    CLK_Idle_Impl();
+    return 0;
+}
+
+__NONSECURE_ENTRY
+int32_t CLK_PowerDown_Veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
+{
+    CLK_PowerDown_Impl();
+    return 0;
+}
+
+__NONSECURE_ENTRY
+int32_t nu_idle_veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
+{
+    SYS_UnlockReg_Impl();
+    CLK_Idle_Impl();
+    SYS_LockReg_Impl();
+    return 0;
+}
+
+__NONSECURE_ENTRY
+int32_t nu_powerdown_veneer(uint32_t arg0, uint32_t arg1, uint32_t arg2, uint32_t arg3)
+{
+    SYS_UnlockReg_Impl();
+    CLK_PowerDown_Impl();
+    SYS_LockReg_Impl();
+    return 0;
+}
+
+#endif
+#endif
+
+#if defined(DOMAIN_NS) && (DOMAIN_NS == 1) && (TFM_LVL > 0)
+
+void SYS_ResetModule_S(uint32_t u32ModuleIndex)
+{
+    tfm_ns_lock_dispatch(SYS_ResetModule_Veneer, u32ModuleIndex, 0, 0, 0);
+}
+
+void CLK_SetModuleClock_S(uint32_t u32ModuleIndex, uint32_t u32ClkSrc, uint32_t u32ClkDiv)
+{
+    tfm_ns_lock_dispatch(CLK_SetModuleClock_Veneer, u32ModuleIndex, u32ClkSrc, u32ClkDiv, 0);
+}
+
+void CLK_EnableModuleClock_S(uint32_t u32ModuleIndex)
+{
+    tfm_ns_lock_dispatch(CLK_EnableModuleClock_Veneer, u32ModuleIndex, 0, 0, 0);
+}
+
+void CLK_DisableModuleClock_S(uint32_t u32ModuleIndex)
+{
+    tfm_ns_lock_dispatch(CLK_DisableModuleClock_Veneer, u32ModuleIndex, 0, 0, 0);
+}
+
+void SYS_LockReg_S(void)
+{
+    tfm_ns_lock_dispatch(SYS_LockReg_Veneer, 0, 0, 0, 0);
+}
+
+void SYS_UnlockReg_S(void)
+{
+    tfm_ns_lock_dispatch(SYS_UnlockReg_Veneer, 0, 0, 0, 0);
+}
+
+void CLK_Idle_S(void)
+{
+    tfm_ns_lock_dispatch(CLK_Idle_Veneer, 0, 0, 0, 0);
+}
+
+void CLK_PowerDown_S(void)
+{
+    tfm_ns_lock_dispatch(CLK_PowerDown_Veneer, 0, 0, 0, 0);
+}
+
+void nu_idle_s(void)
+{
+    tfm_ns_lock_dispatch(nu_idle_veneer, 0, 0, 0, 0);
+}
+
+void nu_powerdown_s(void)
+{
+    tfm_ns_lock_dispatch(nu_powerdown_veneer, 0, 0, 0, 0);
+}
+
+#elif defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+
+#if (TFM_LVL == 0)
+__NONSECURE_ENTRY
+#endif
+void SYS_ResetModule_S(uint32_t u32ModuleIndex)
+{
+    SYS_ResetModule_Impl(u32ModuleIndex, cmse_nonsecure_caller());
+}
+
+#if (TFM_LVL == 0)
+__NONSECURE_ENTRY
+#endif
+void CLK_SetModuleClock_S(uint32_t u32ModuleIndex, uint32_t u32ClkSrc, uint32_t u32ClkDiv)
+{
+    CLK_SetModuleClock_Impl(u32ModuleIndex, u32ClkSrc, u32ClkDiv, cmse_nonsecure_caller());
+}
+
+#if (TFM_LVL == 0)
+__NONSECURE_ENTRY
+#endif
+void CLK_EnableModuleClock_S(uint32_t u32ModuleIndex)
+{
+    CLK_EnableModuleClock_Impl(u32ModuleIndex, cmse_nonsecure_caller());
+}
+
+#if (TFM_LVL == 0)
+__NONSECURE_ENTRY
+#endif
+void CLK_DisableModuleClock_S(uint32_t u32ModuleIndex)
+{
+    CLK_DisableModuleClock_Impl(u32ModuleIndex, cmse_nonsecure_caller());
+}
+
+#if (TFM_LVL == 0)
+__NONSECURE_ENTRY
+#endif
+void SYS_LockReg_S(void)
+{
+    SYS_LockReg_Impl();
+}
+
+#if (TFM_LVL == 0)
+__NONSECURE_ENTRY
+#endif
+void SYS_UnlockReg_S(void)
+{
+    SYS_UnlockReg_Impl();
+}
+
+#if (TFM_LVL == 0)
+__NONSECURE_ENTRY
+#endif
+void CLK_Idle_S(void)
+{
+    CLK_Idle_Impl();
+}
+
+#if (TFM_LVL == 0)
+__NONSECURE_ENTRY
+#endif
+void CLK_PowerDown_S(void)
+{
+    CLK_PowerDown_Impl();
+}
+
+#if (TFM_LVL == 0)
+__NONSECURE_ENTRY
+#endif
+void nu_idle_s(void)
+{
+    SYS_UnlockReg_Impl();
+    CLK_Idle_Impl();
+    SYS_LockReg_Impl();
+}
+
+#if (TFM_LVL == 0)
+__NONSECURE_ENTRY
+#endif
+void nu_powerdown_s(void)
+{
+    SYS_UnlockReg_Impl();
+    CLK_PowerDown_Impl();
+    SYS_LockReg_Impl();
 }
 
 #endif

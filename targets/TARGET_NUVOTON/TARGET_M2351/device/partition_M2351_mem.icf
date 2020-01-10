@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Nuvoton Technology Corporation
+ * Copyright (c) 2018-2019, Nuvoton Technology Corporation
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -30,36 +30,78 @@
  */
 #if defined(DOMAIN_NS) && DOMAIN_NS
 
-/* Default non-secure ROM layout */
+/* Resolve non-secure ROM start */
 if (! isdefinedsymbol(MBED_ROM_START)) {
-    define symbol MBED_ROM_START        = 0x10040000;
+    if (isdefinedsymbol(PSA_NON_SECURE_ROM_START)) {
+        define symbol MBED_ROM_START    = PSA_NON_SECURE_ROM_START;
+    } else {
+        define symbol MBED_ROM_START    = 0x10040000;
+    }
 }
+
+/* Resolve non-secure ROM size */
 if (! isdefinedsymbol(MBED_ROM_SIZE)) {
-    define symbol MBED_ROM_SIZE         = 0x40000;
+    if (isdefinedsymbol(PSA_NON_SECURE_ROM_SIZE)) {
+        define symbol MBED_ROM_SIZE     = PSA_NON_SECURE_ROM_SIZE;
+    } else {
+        define symbol MBED_ROM_SIZE     = 0x40000;
+    }
 }
-/* Default non-secure RAM layout */
+
+/* Resolve non-secure RAM start */
 if (! isdefinedsymbol(MBED_RAM_START)) {
-    define symbol MBED_RAM_START        = 0x30008000;
+    if (isdefinedsymbol(PSA_NON_SECURE_RAM_START)) {
+        define symbol MBED_RAM_START    = PSA_NON_SECURE_RAM_START;
+    } else {
+        define symbol MBED_RAM_START    = 0x30008000;
+    }
 }
+
+/* Resolve non-secure RAM size */
 if (! isdefinedsymbol(MBED_RAM_SIZE)) {
-    define symbol MBED_RAM_SIZE         = 0x10000;
+    if (isdefinedsymbol(PSA_NON_SECURE_RAM_SIZE)) {
+        define symbol MBED_RAM_SIZE     = PSA_NON_SECURE_RAM_SIZE;
+    } else {
+        define symbol MBED_RAM_SIZE     = 0x10000;
+    }
 }
 
 #else
 
-/* Default secure ROM layout */
+/* Resolve secure ROM start */
 if (! isdefinedsymbol(MBED_ROM_START)) {
-    define symbol MBED_ROM_START        = 0x0;
+    if (isdefinedsymbol(PSA_SECURE_ROM_START)) {
+        define symbol MBED_ROM_START    = PSA_SECURE_ROM_START;
+    } else {
+        define symbol MBED_ROM_START    = 0x0;
+    }
 }
+
+/* Resolve secure ROM size */
 if (! isdefinedsymbol(MBED_ROM_SIZE)) {
-    define symbol MBED_ROM_SIZE         = 0x40000;
+    if (isdefinedsymbol(PSA_SECURE_ROM_SIZE)) {
+        define symbol MBED_ROM_SIZE    = PSA_SECURE_ROM_SIZE;
+    } else {
+        define symbol MBED_ROM_SIZE    = 0x40000;
+    }
 }
-/* Default secure RAM layout */
+
+/* Resolve secure RAM start */
 if (! isdefinedsymbol(MBED_RAM_START)) {
-    define symbol MBED_RAM_START        = 0x20000000;
+    if (isdefinedsymbol(PSA_SECURE_RAM_START)) {
+        define symbol MBED_RAM_START    = PSA_SECURE_RAM_START;
+    } else {
+        define symbol MBED_RAM_START    = 0x20000000;
+    }
 }
+
+/* Resolve secure RAM size */
 if (! isdefinedsymbol(MBED_RAM_SIZE)) {
-    define symbol MBED_RAM_SIZE         = 0x8000;
+    if (isdefinedsymbol(PSA_SECURE_RAM_SIZE)) {
+        define symbol MBED_RAM_SIZE    = PSA_SECURE_RAM_SIZE;
+    } else {
+        define symbol MBED_RAM_SIZE    = 0x8000;
+    }
 }
 
 #endif
@@ -98,3 +140,41 @@ define symbol NU_RAM_START_NS           = (0x30000000 + MBED_RAM_SIZE);
 define symbol NU_RAM_SIZE_NS            = (0x18000 - MBED_RAM_SIZE);
 
 #endif
+
+if (isdefinedsymbol(DOMAIN_NS)) {
+
+    if (! isdefinedsymbol(MBED_APP_START)) {
+        define symbol MBED_APP_START                = NU_ROM_START_NS;
+    }
+
+    if (! isdefinedsymbol(MBED_APP_SIZE)) {
+        define symbol MBED_APP_SIZE                 = NU_ROM_SIZE_NS;
+    }
+
+    if (! isdefinedsymbol(MBED_RAM_APP_START)) {
+        define symbol MBED_RAM_APP_START            = NU_RAM_START_NS;
+    }
+
+    if (! isdefinedsymbol(MBED_RAM_APP_SIZE)) {
+        define symbol MBED_RAM_APP_SIZE             = NU_RAM_SIZE_NS;
+    }
+
+} else {
+
+    if (! isdefinedsymbol(MBED_APP_START)) {
+        define symbol MBED_APP_START                = NU_ROM_START_S;
+    }
+
+    if (! isdefinedsymbol(MBED_APP_SIZE)) {
+        define symbol MBED_APP_SIZE                 = NU_ROM_SIZE_S;
+    }
+
+    if (! isdefinedsymbol(MBED_RAM_APP_START)) {
+        define symbol MBED_RAM_APP_START            = NU_RAM_START_S;
+    }
+
+    if (! isdefinedsymbol(MBED_RAM_APP_SIZE)) {
+        define symbol MBED_RAM_APP_SIZE             = NU_RAM_SIZE_S;
+    }
+
+}

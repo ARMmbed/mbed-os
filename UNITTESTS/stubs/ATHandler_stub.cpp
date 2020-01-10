@@ -111,6 +111,11 @@ bool ATHandler::get_debug() const
     return ATHandler_stub::debug_on;
 }
 
+void ATHandler::set_debug_list(bool debug_on)
+{
+    ATHandler_stub::debug_on = debug_on;
+}
+
 ATHandler::~ATHandler()
 {
     ATHandler_stub::urc_handlers.clear();
@@ -407,11 +412,6 @@ void ATHandler::set_at_timeout_list(uint32_t timeout_milliseconds, bool default_
 {
     ATHandler_stub::timeout = timeout_milliseconds;
     ATHandler_stub::default_timeout = default_timeout;
-}
-
-void ATHandler::set_debug_list(bool debug_on)
-{
-    ATHandler_stub::debug_on = debug_on;
 }
 
 void ATHandler::set_send_delay(uint16_t send_delay)

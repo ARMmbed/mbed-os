@@ -20,7 +20,7 @@
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "utest/utest_stack_trace.h"
-#include "utest/utest_serial.h"
+#include "utest/utest_print.h"
 
 using namespace utest::v1;
 

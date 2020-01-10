@@ -50,8 +50,15 @@ namespace tcp_global {
 #ifdef MBED_GREENTEA_TEST_TCPSOCKET_TIMEOUT_S
 static const int TESTS_TIMEOUT = MBED_GREENTEA_TEST_TCPSOCKET_TIMEOUT_S;
 #else
+#define MESH 3
+#define WISUN 0x2345
+#if MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == MESH && MBED_CONF_NSAPI_DEFAULT_MESH_TYPE == WISUN
+static const int TESTS_TIMEOUT = (25 * 60);
+#else
 static const int TESTS_TIMEOUT = (10 * 60);
 #endif
+#endif
+
 static const int TCP_OS_STACK_SIZE = 2048;
 
 static const int RX_BUFF_SIZE = 1220;

@@ -81,6 +81,11 @@ nsapi_error_t NetworkInterface::gethostbyname(const char *name, SocketAddress *a
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
+nsapi_value_or_error_t NetworkInterface::getaddrinfo(const char *hostname, SocketAddress *hints, SocketAddress **res, const char *interface_name)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
 nsapi_error_t NetworkInterface::add_dns_server(const SocketAddress &address, const char *interface_name)
 {
     return NSAPI_ERROR_UNSUPPORTED;
@@ -102,6 +107,11 @@ nsapi_error_t NetworkInterface::set_blocking(bool blocking)
 }
 
 nsapi_value_or_error_t NetworkInterface::gethostbyname_async(char const *, mbed::Callback<void (int, SocketAddress *)>, nsapi_version, const char *interface_name)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+nsapi_value_or_error_t NetworkInterface::getaddrinfo_async(const char *hostname, SocketAddress *hints, hostbyname_cb_t callback, const char *interface_name)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }

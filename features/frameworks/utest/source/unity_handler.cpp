@@ -19,10 +19,8 @@
 #include "utest/utest_harness.h"
 #include "utest/utest_stack_trace.h"
 #include "utest/unity_handler.h"
+#include "greentea-client/test_env.h"
 
-#if DEVICE_SERIAL
-#include "greentea-client/greentea_serial.h"
-#endif
 
 void utest_unity_assert_failure(void)
 {
@@ -36,10 +34,7 @@ void utest_unity_ignore_failure(void)
     utest::v1::Harness::raise_failure(utest::v1::failure_reason_t(utest::v1::REASON_ASSERTION | utest::v1::REASON_IGNORE));
 }
 
-#if DEVICE_SERIAL
 void utest_safe_putc(int chr)
 {
-    greentea_serial->putc(chr);
-}    
-#endif
-
+    greentea_putc(chr);
+}

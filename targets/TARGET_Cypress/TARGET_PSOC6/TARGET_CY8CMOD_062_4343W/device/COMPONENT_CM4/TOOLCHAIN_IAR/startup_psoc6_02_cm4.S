@@ -331,10 +331,6 @@ intvec_copy
         STR r0, [r1]
         dsb
 
-        ; Enable the FPU if used
-        LDR     R0, =Cy_SystemInitFpuEnable
-        BLX     R0
-
         ; Initialize data sections
         LDR     R0, =__iar_data_init3
         BLX     R0
