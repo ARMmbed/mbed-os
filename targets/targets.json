@@ -3980,6 +3980,7 @@
             "lse_available": 0
         },
         "device_has_remove": ["LPTICKER"],
+        "features_remove": ["BLE"],
         "inherits": ["USI_WM_BN_BM_22"]
     },
     "MTB_ADV_WISE_1530": {
@@ -6975,12 +6976,14 @@
     "MTB_UBLOX_ODIN_W2": {
         "inherits": ["MODULE_UBLOX_ODIN_W2"],
         "device_has_remove": ["LPTICKER"],
+        "features_remove": ["BLE"],
         "overrides": {"lse_available": 0},
         "release_versions": ["5"]
     },
     "OKDO_ODIN_W2": {
         "inherits": ["MODULE_UBLOX_ODIN_W2"],
         "device_has_remove": ["LPTICKER"],
+        "features_remove": ["BLE"],
         "overrides": {"lse_available": 0},
         "release_versions": ["5"]
     },
