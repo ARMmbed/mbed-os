@@ -19,12 +19,18 @@
 #ifndef __PARTITION_M2351_MEM_H__
 #define __PARTITION_M2351_MEM_H__
 
-/* About partition_M2351_mem.h/partition_M2351_mem.icf
+/* About partition_M2351_mem.h/partition_M2351_mem.icf.h
  *
  * 1. partition_M2351_mem.h is created for centralizing memory partition configuration. It will be
  *    included by C/C++ files and linker files (except IAR linker file).
- * 2. IAR linker doesn't support preprocessor, so partition_M2351_mem.icf, duplicate of partition_M2351_mem.h
+ * 2. IAR linker doesn't support preprocessor, so partition_M2351_mem.icf.h, duplicate of partition_M2351_mem.h
  *    is created for IAR linker file.
+ * 3. To continue above, we name partition_M2351_mem.icf.h instead of partition_M2351_mem.icf because:
+ *    (1) Mbed OS build tool may mis-regard partition_M2351_mem.icf as the main linker configuration file.
+ *    (2) *.icf files may not be present in search directories for "include" directive. Per observation,
+ *        the search directories are inconsistent among normal example build and test code build. To address
+ *        it, we name partition_M2351_mem.icf.h instead because *.h files are always present in these builds
+ *       (already there or via copy).
  */
 
 /* Default flash/SRAM partition

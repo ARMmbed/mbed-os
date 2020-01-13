@@ -19,15 +19,17 @@
 #include "M2351.h"
 
 /* Suppress warning messages */
-#if defined(__CC_ARM)
+#if defined(__ARMCC_VERSION)
 // Suppress warning message: extended constant initializer used
 #pragma diag_suppress 1296
 #elif defined(__ICCARM__)
+// Suppress warning message Pe1665
+#pragma diag_suppress=Pe1665
 #elif defined(__GNUC__)
 #endif
 
 /* Macro Definitions */
-#if defined(__CC_ARM)
+#if defined(__ARMCC_VERSION)
 #define WEAK            __attribute__ ((weak))
 #define ALIAS(f)        __attribute__ ((weak, alias(#f)))
 
@@ -54,7 +56,7 @@ void FUN(void) __attribute__ ((weak, alias(#FUN_ALIAS)));
 
 
 /* Initialize segments */
-#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+#if defined(__ARMCC_VERSION)
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) && (TFM_LVL > 0)
 extern uint32_t Image$$ARM_LIB_STACK_MSP$$ZI$$Limit;
 #else
@@ -189,11 +191,16 @@ WEAK_ALIAS_FUNC(TRNG_IRQHandler, Default_Handler)       // 101:
 
 
 /* Vector table */
-#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+#if defined(__ARMCC_VERSION)
 __attribute__ ((section("RESET")))
 const uint32_t __vector_handlers[] = {
 #elif defined(__ICCARM__)
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) && (TFM_LVL > 0)
+extern uint32_t CSTACK_MSP$$Limit;
 extern uint32_t CSTACK$$Limit;
+#else
+extern uint32_t CSTACK$$Limit;
+#endif
 const uint32_t __vector_table[] @ ".intvec" = {
 #elif defined(__GNUC__)
 __attribute__ ((section(".vector_table")))
@@ -201,18 +208,22 @@ const uint32_t __vector_handlers[] = {
 #endif
 
     /* Configure Initial Stack Pointer, using linker-generated symbols */
-#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) && (TFM_LVL > 0)
+#if defined(__ARMCC_VERSION)
     (uint32_t) &Image$$ARM_LIB_STACK_MSP$$ZI$$Limit,
-#else
-    (uint32_t) &Image$$ARM_LIB_STACK$$ZI$$Limit,
-#endif
-
 #elif defined(__ICCARM__)
-    //(uint32_t) __sfe("CSTACK"),
+    (uint32_t) &CSTACK_MSP$$Limit,
+#elif defined(__GNUC__)
+    (uint32_t) &__StackTop,
+#endif
+#else
+#if defined(__ARMCC_VERSION)
+    (uint32_t) &Image$$ARM_LIB_STACK$$ZI$$Limit,
+#elif defined(__ICCARM__)
     (uint32_t) &CSTACK$$Limit,
 #elif defined(__GNUC__)
     (uint32_t) &__StackTop,
+#endif
 #endif
 
     (uint32_t) Reset_Handler,           // Reset Handler
@@ -355,14 +366,21 @@ void Reset_Handler_1(void);
  * code during stack switch. */
 __attribute__((naked)) void Reset_Handler(void)
 {
+#if !defined(__ICCARM__)
     __asm(".syntax  unified                                         \n");
     __asm(".globl   Reset_Handler_1                                 \n");
+#endif
 
     /* Secure TFM requires PSP as boot stack */
 #if TFM_LVL != 0
+#if !defined(__ICCARM__)
     __asm(".globl   Image$$ARM_LIB_STACK$$ZI$$Limit                 \n");
     __asm("movw     r0, #:lower16:Image$$ARM_LIB_STACK$$ZI$$Limit   \n"); // Initialize PSP
     __asm("movt     r0, #:upper16:Image$$ARM_LIB_STACK$$ZI$$Limit   \n");
+#else
+    __asm(".globl   Image$$ARM_LIB_STACK$$ZI$$Limit                 \n");
+    __asm("mov32    r0, Image$$ARM_LIB_STACK$$ZI$$Limit             \n");
+#endif
     __asm("msr      psp, r0                                         \n");
     __asm("mrs      r0, control                                     \n"); // Switch SP to PSP
     __asm("movs     r1, #2                                          \n");
@@ -370,8 +388,12 @@ __attribute__((naked)) void Reset_Handler(void)
     __asm("msr      control, r0                                     \n");
 #endif
 
+#if !defined(__ICCARM__)
     __asm("movw     r0, #:lower16:Reset_Handler_1                   \n");
     __asm("movt     r0, #:upper16:Reset_Handler_1                   \n");
+#else
+    __asm("mov32     r0, Reset_Handler_1                            \n");
+#endif
     __asm("bx       r0                                              \n");
 }
 
@@ -399,7 +421,7 @@ void Reset_Handler(void)
     /* SystemInit() must be called at the very start. */
     SystemInit();
     
-#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+#if defined(__ARMCC_VERSION)
     __main();
     
 #elif defined(__ICCARM__)
@@ -466,18 +488,3 @@ void Default_Handler(void)
 {
     while (1);
 }
-
-#if 0
-#if defined(__CC_ARM)
-uint32_t GetPC(void)
-{
-    uint32_t val=0;
-__asm  {
-            MOV R0, #0          // dumy
-            //MOV R0, LR        // Except R0~R12, SP/LR/PC cannot be read or directly modified in inline assembly code
-            MOV val, R0
-       }    
-    return val;
-}    
-#endif
-#endif
