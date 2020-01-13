@@ -1,8 +1,7 @@
 /****************************************************************************
  *
- *   Copyright 2019 Samsung Electronics All Rights Reserved.
- *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
