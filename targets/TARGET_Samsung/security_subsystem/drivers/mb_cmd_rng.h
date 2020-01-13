@@ -16,7 +16,6 @@
  * language governing permissions and limitations under the License.
  *
  ****************************************************************************/
-
 #ifndef MB_CMD_RNG_H
 #define MB_CMD_RNG_H
 
