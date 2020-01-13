@@ -1,6 +1,6 @@
 """
-mbed SDK
-Copyright (c) 2011-2019 ARM Limited
+Copyright (c) 2011-2020 ARM Limited
+SPDX-License-Identifier: Apache-2.0
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import subprocess
 class SoftAPBasicHostTests(BaseHostTest):
     """ Basic SoftAP test with host as STA
 
-        [Following configuration is reqired before test]
+        [Following configuration is required before test]
         1. Identify and update the host wifi device name self.wifi_dev
         2. Add user as sudoer without password to allow script to run sudo command. Restrict the sudo command pattern to enhance security
             ###  sudoer config begin ###
