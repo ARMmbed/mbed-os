@@ -66,19 +66,34 @@ int $Sub$$__2snprintf(char *buffer, size_t length, const char *format, ...)
     return result;
 }
 
-int $Sub$$__2vprintf(char *buffer, const char *format, ...)
+int $Sub$$__2vprintf(const char *format, va_list arguments)
 {
-    va_list arguments;
-    va_start(arguments, format);
-    int result = mbed_minimal_formatted_string(buffer, LONG_MAX, format, arguments, stdout);
-    va_end(arguments);
+    return mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, stdout);
+}
 
-    return result;
+int $Sub$$__2vsprintf(char *buffer, const char *format, va_list arguments)
+{
+    return mbed_minimal_formatted_string(buffer, LONG_MAX, format, arguments, NULL);
 }
 
 int $Sub$$__2vsnprintf(char *buffer, size_t length, const char *format, va_list arguments)
 {
     return mbed_minimal_formatted_string(buffer, length, format, arguments, NULL);
+}
+
+int $Sub$$__2fprintf(FILE *stream, const char *format, ...)
+{
+    va_list arguments;
+    va_start(arguments, format);
+    int result = mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, stream);
+    va_end(arguments);
+
+    return result;
+}
+
+int $Sub$$__2vfprintf(FILE *stream, const char *format, va_list arguments)
+{
+    return mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, stream);
 }
 
 /**
