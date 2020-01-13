@@ -429,7 +429,7 @@ uint32_t flash_get_page_size(const flash_t *info)
 
 uint32_t flash_get_sector_size(const flash_t *info, uint32_t addr)
 {
-    return up_progmem_blocksize(); 
+    return up_progmem_blocksize();
 }
 
 uint32_t flash_get_start_address(const flash_t *info)
