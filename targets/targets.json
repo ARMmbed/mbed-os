@@ -12060,6 +12060,7 @@
             "FLASH",
             "MPU"
         ],
+        "device_name": "STM32WB55RGVx",
         "features": [
             "BLE"
         ],
