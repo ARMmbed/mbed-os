@@ -54,13 +54,6 @@ int sss_SHA2_256(
         return ret;
     }
 
-    //! step 0 : Check validity of parameter "object_id"
-#if 0
-    if (pstMessage->u32DataByteLen == 0) {
-        return ERROR_HASH_INVALID_LEN_MSG;
-    }
-#endif
-
     //! assign hash_byte_len to compare returned result from sss_fw after hash operation
     object_id = OID_SHA2_256;
     block_byte_len = 64;
@@ -108,13 +101,6 @@ int sss_SHA2_384(
         return ret;
     }
 
-    //! step 0 : Check validity of parameter "object_id"
-#if 0
-    if (pstMessage->u32DataByteLen == 0) {
-        return ERROR_HASH_INVALID_LEN_MSG;
-    }
-#endif
-
     //! assign hash_byte_len to compare returned result from sss_fw after hash operation
     object_id = OID_SHA2_384;
     block_byte_len = 128;
@@ -161,14 +147,7 @@ int sss_SHA2_512(
     if (ret != SSSR_SUCCESS) {
         return ret;
     }
-
-    //! step 0 : Check validity of parameter "object_id"
-#if 0
-    if (pstMessage->u32DataByteLen == 0) {
-        return ERROR_HASH_INVALID_LEN_MSG;
-    }
-#endif
-
+    
     //! assign hash_byte_len to compare returned result from sss_fw after hash operation
     object_id = OID_SHA2_512;
     block_byte_len = 128;
