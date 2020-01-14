@@ -191,19 +191,6 @@ TEST_F(TestCellularDevice, test_get_context_list)
     delete dev;
 }
 
-TEST_F(TestCellularDevice, test_stop)
-{
-    FileHandle_stub fh1;
-    CellularDevice *dev = new myCellularDevice(&fh1);
-    EXPECT_TRUE(dev);
-
-    CellularStateMachine_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ASSERT_EQ(dev->attach_to_network(), NSAPI_ERROR_OK);
-
-    dev->stop();
-    delete dev;
-}
-
 TEST_F(TestCellularDevice, test_cellular_callback)
 {
     FileHandle_stub fh1;

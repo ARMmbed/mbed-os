@@ -64,12 +64,6 @@ CellularDevice::~CellularDevice()
     delete _state_machine;
 }
 
-void CellularDevice::stop()
-{
-    MBED_ASSERT(_state_machine);
-    _state_machine->stop();
-}
-
 FileHandle &CellularDevice::get_file_handle() const
 {
     return *_fh;
