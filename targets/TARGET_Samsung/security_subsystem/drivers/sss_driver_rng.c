@@ -38,7 +38,7 @@
  *  @ingroup    SECURITY_SSS
  *  @brief      rng function
  *  @version    v0.50 : 2016.8.13 Init. release version
- *  @version    v0.01 : 2018.01.13 Modifyh for S111 SRAM code
+ *  @version    v0.01 : 2018.01.13 Modified for S111 SRAM code
  *  @param[out] random             : array of random number
  *  @param[in]  wlen               : word length of random number to be generated
  *  @retval     SUCCESS            : Success
@@ -66,7 +66,7 @@ unsigned int sss_generate_random(stOCTET_STRING *pstRandom, unsigned int request
  *  @ingroup    SECURITY_SSS
  *  @brief      rng function
  *  @version    v0.50 : 2016.8.13 Init. release version
- *  @version    v0.51 : 2018.01.13 Modifyh for S111 SRAM code
+ *  @version    v0.51 : 2018.01.13 Modified for S111 SRAM code
  *  @param[out] random             : array of random number
  *  @param[in]  wlen               : word length of random number to be generated
  *  @retval     SUCCESS            : Success
@@ -95,7 +95,7 @@ unsigned int sss_generate_rawrandom(stOCTET_STRING *pstRandom, unsigned int requ
  *  @ingroup    SECURITY_SSS
  *  @brief      rng function
  *  @version    v0.50 : 2016.8.13 Init. release version
- *  @version    v0.51 : 2018.01.13 Modifyh for S111 SRAM code
+ *  @version    v0.51 : 2018.01.13 Modified for S111 SRAM code
  *  @param[out] random             : array of random number
  *  @param[in]  wlen               : word length of random number to be generated
  *  @retval     SUCCESS            : Success
