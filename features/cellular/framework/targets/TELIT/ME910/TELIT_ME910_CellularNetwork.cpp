@@ -42,4 +42,24 @@ nsapi_error_t TELIT_ME910_CellularNetwork::set_access_technology_impl(RadioAcces
     }
 }
 
+nsapi_error_t TELIT_ME910_CellularNetwork::do_user_authentication()
+{
+#if defined(MBED_CONF_NSAPI_DEFAULT_CELLULAR_USERNAME) && defined(MBED_CONF_NSAPI_DEFAULT_CELLULAR_PASSWORD)
+    if (!_device.get_property(AT_CellularDevice::PROPERTY_AT_CGAUTH)) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+    const bool stored_debug_state = _at.get_debug();
+    _at.set_debug(false);
+
+    nsapi_error_t err = _at.at_cmd_discard("+CGAUTH", "=", "%d%d%s%s", 1, CellularContext::AuthenticationType::CHAP, MBED_CONF_NSAPI_DEFAULT_CELLULAR_USERNAME, MBED_CONF_NSAPI_DEFAULT_CELLULAR_PASSWORD);
+
+    _at.set_debug(stored_debug_state);
+
+    if (err != NSAPI_ERROR_OK) {
+        return NSAPI_ERROR_AUTH_FAILURE;
+    }
+#endif // #if defined(MBED_CONF_NSAPI_DEFAULT_CELLULAR_USERNAME) && defined(MBED_CONF_NSAPI_DEFAULT_CELLULAR_PASSWORD)
+    return NSAPI_ERROR_OK;
+}
+
 

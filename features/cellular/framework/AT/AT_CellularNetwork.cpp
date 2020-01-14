@@ -21,6 +21,7 @@
 #include "CellularLog.h"
 #include "CellularCommon.h"
 #include "AT_CellularDevice.h"
+#include "CellularContext.h"
 
 using namespace std;
 using namespace mbed_cellular_util;
@@ -709,4 +710,9 @@ nsapi_error_t AT_CellularNetwork::clear()
     }
 
     return _at.unlock_return_error();
+}
+
+nsapi_error_t AT_CellularNetwork::do_user_authentication()
+{
+    return NSAPI_ERROR_OK;
 }

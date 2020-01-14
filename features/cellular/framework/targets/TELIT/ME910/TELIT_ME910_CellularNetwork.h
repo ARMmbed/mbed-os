@@ -19,6 +19,7 @@
 #define TELIT_ME910_CELLULAR_NETWORK_H_
 
 #include "AT_CellularNetwork.h"
+#include "CellularContext.h"
 
 namespace mbed {
 
@@ -29,6 +30,7 @@ public:
 
 protected:
     virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology opRat);
+    virtual nsapi_error_t do_user_authentication();
 
 };
 

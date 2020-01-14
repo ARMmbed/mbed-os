@@ -423,6 +423,8 @@ void CellularStateMachine::state_sim_pin()
         if (_network.is_active_context()) { // check if context was already activated
             tr_debug("Active context found.");
             _status |= ACTIVE_PDP_CONTEXT;
+        } else {
+            _network.do_user_authentication();
         }
         CellularNetwork::AttachStatus status = CellularNetwork::Detached; // check if modem is already attached to a network
         if (_network.get_attach(status) == NSAPI_ERROR_OK && status == CellularNetwork::Attached) {

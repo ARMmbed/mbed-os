@@ -116,6 +116,15 @@ protected:
      */
     virtual nsapi_error_t clear();
 
+    /** Sets the user authentication on the cellular device.
+     *
+     *  @return     NSAPI_ERROR_OK on success
+     *              NSAPI_ERROR_UNSUPPORTED is command is not supported by the modem
+     *              NSAPI_ERROR_AUTH_FAILURE on authentication failure
+     *              NSAPI_ERROR_DEVICE_ERROR on failure
+     */
+    virtual nsapi_error_t do_user_authentication();
+
 private:
     void urc_creg();
     void urc_cereg();
