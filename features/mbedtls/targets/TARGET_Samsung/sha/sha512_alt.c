@@ -81,15 +81,10 @@
 }
 #endif /* PUT_UINT64_BE */
 
-#if defined(MBEDTLS_SHA512_SMALLER)
 static void sha512_put_uint64_be(uint64_t n, unsigned char *b, uint8_t i)
 {
     PUT_UINT64_BE(n, b, i);
 }
-#else
-#define sha512_put_uint64_be    PUT_UINT64_BE
-#endif /* MBEDTLS_SHA512_SMALLER */
-
 
 
 #include "string.h"
@@ -309,7 +304,7 @@ static const uint64_t K[80] = {
     UL64(0x4CC5D4BECB3E42B6),  UL64(0x597F299CFC657E2A),
     UL64(0x5FCB6FAB3AD6FAEC),  UL64(0x6C44198C4A475817)
 };
-#define MBEDTLS_SHA512_SMALLER  1
+
 int mbedtls_internal_sha512_process(mbedtls_sha512_context *ctx,
                                     const unsigned char data[128])
 {
@@ -344,7 +339,6 @@ int mbedtls_internal_sha512_process(mbedtls_sha512_context *ctx,
         A[i] = ctx->state[i];
     }
 
-#if defined(MBEDTLS_SHA512_SMALLER)
     for (i = 0; i < 80; i++) {
         if (i < 16) {
             GET_UINT64_BE(W[i], data, i << 3);
@@ -365,36 +359,6 @@ int mbedtls_internal_sha512_process(mbedtls_sha512_context *ctx,
         A[1] = A[0];
         A[0] = temp1;
     }
-#else /* MBEDTLS_SHA512_SMALLER */
-    for (i = 0; i < 16; i++) {
-        GET_UINT64_BE(W[i], data, i << 3);
-    }
-
-    for (; i < 80; i++) {
-        W[i] = S1(W[i -  2]) + W[i -  7] +
-               S0(W[i - 15]) + W[i - 16];
-    }
-
-    i = 0;
-    do {
-        P(A[0], A[1], A[2], A[3], A[4], A[5], A[6], A[7], W[i], K[i]);
-        i++;
-        P(A[7], A[0], A[1], A[2], A[3], A[4], A[5], A[6], W[i], K[i]);
-        i++;
-        P(A[6], A[7], A[0], A[1], A[2], A[3], A[4], A[5], W[i], K[i]);
-        i++;
-        P(A[5], A[6], A[7], A[0], A[1], A[2], A[3], A[4], W[i], K[i]);
-        i++;
-        P(A[4], A[5], A[6], A[7], A[0], A[1], A[2], A[3], W[i], K[i]);
-        i++;
-        P(A[3], A[4], A[5], A[6], A[7], A[0], A[1], A[2], W[i], K[i]);
-        i++;
-        P(A[2], A[3], A[4], A[5], A[6], A[7], A[0], A[1], W[i], K[i]);
-        i++;
-        P(A[1], A[2], A[3], A[4], A[5], A[6], A[7], A[0], W[i], K[i]);
-        i++;
-    } while (i < 80);
-#endif /* MBEDTLS_SHA512_SMALLER */
 
     for (i = 0; i < 8; i++) {
         ctx->state[i] += A[i];
