@@ -114,7 +114,7 @@ nsapi_error_t ONBOARD_TELIT_ME910::init()
     // AT#PORTCFG=0
     // Set command allows to connect Service Access Points to the external physical ports giving a great
     // flexibility. Examples of Service Access Points: AT Parser Instance #1, #2, #3, etc..
-    _at->at_cmd_discard("#PORTCFG", "=3");
+    _at->at_cmd_discard("#PORTCFG", "=", "%d", EP_AGORA_PORT_CONFIGURATION_VARIANT);
 
     // AT&W&P
     // - AT&W: Execution command stores on profile <n> the complete configuration of the device. If

@@ -5,6 +5,11 @@
             "help"                 : "Enable the cell module on the EP_AGORA board",
             "macro_name"           : "EP_AGORA_ENABLE_CELL",
             "value"                : true
+        },
+        "port-configuration-variant" : {
+            "help"                 : "Telit ME910C1 AT#PORTCFG Variant value",
+            "macro_name"           : "EP_AGORA_PORT_CONFIGURATION_VARIANT",
+            "value"                : 0
         }
     },
     "target_overrides": {
