@@ -108,6 +108,7 @@ pull_request_rules:
           - "needs: work"
         remove: 
           - "needs: review"
+          - "needs: CI"
       comment:
         message: This PR cannot be merged due to conflicts. Please rebase to resolve them.
 
