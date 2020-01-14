@@ -189,8 +189,8 @@ TEST_F(test_ATCmdParser, test_ATCmdParser_read)
     filehandle_stub_table_pos = 0;
 
     ATCmdParser at(&fh1, ",");
-    char buf[6];
-    memset(buf, 0, 6);
+    char buf[8];
+    memset(buf, 0, 8);
 
     // TEST EMPTY BUFFER
     // Shouldn't read any byte since buffer is empty
