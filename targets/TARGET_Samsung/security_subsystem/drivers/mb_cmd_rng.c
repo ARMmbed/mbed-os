@@ -93,7 +93,7 @@ unsigned int mb_generate_random_number(stOCTET_STRING *pstRandom, unsigned int r
  *  @ingroup    SECURITY_SSS_MAILBOX
  *  @brief      mailbox api for random number generation
  *  @version    v0.50 : 2016.8.13 Init. release version
- *  @version    v0.51 : 2018.01.13 Modifyh for S111 SRAM code
+ *  @version    v0.51 : 2018.01.13 Modified for S111 SRAM code
  *  @param[out] random_number   : array of random number
  *  @param[in]  random_wlen     : word length of random number
  *  @retval     SUCCESS         : Success
