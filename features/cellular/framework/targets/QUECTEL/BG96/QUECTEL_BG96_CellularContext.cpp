@@ -69,9 +69,19 @@ ControlPlane_netif *QUECTEL_BG96_CellularContext::get_cp_netif()
 
 nsapi_error_t QUECTEL_BG96_CellularContext::do_user_authentication()
 {
+    uint8_t type = (uint8_t)_pdp_type;
+    if ((uint8_t)_pdp_type < 1) {
+        type = 1;
+    }
+
     if (_pwd && _uname) {
-        if (_at.at_cmd_discard("+QICSGP", "=", "%d%d%s%s%s%d", _cid, 1,
+        if (_at.at_cmd_discard("+QICSGP", "=", "%d%d%s%s%s%d", _cid, type,
                                _apn, _uname, _pwd, _authentication_type) != NSAPI_ERROR_OK) {
+            return NSAPI_ERROR_AUTH_FAILURE;
+        }
+    } else {
+        if (_at.at_cmd_discard("+QICSGP", "=", "%d%d%s", _cid, type,
+                               _apn) != NSAPI_ERROR_OK) {
             return NSAPI_ERROR_AUTH_FAILURE;
         }
     }
