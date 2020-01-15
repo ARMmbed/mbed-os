@@ -51,12 +51,12 @@
  * are empty. However, it is possible to determine the time required for the
  * buffers to flush.
  *
- * Take NUMAKER_PFM_NUC472 as an example:
- * The UART peripheral has 16-byte Tx FIFO. With a baud rate set to 9600,
- * flushing the Tx FIFO would take: 16 * 8 * 1000 / 9600 = 13.3 ms.
- * To be on the safe side, set the wait time to 20 ms.
+ * Assuming the biggest Tx FIFO of 128 bytes (as for CY8CPROTO_062_4343W)
+ * and a default UART config (9600, 8N1), flushing the Tx FIFO wold take:
+ * (1 start_bit + 8 data_bits + 1 stop_bit) * 128 * 1000 / 9600 = 133.3 ms.
+ * To be on the safe side, set the wait time to 150 ms.
  */
-#define SERIAL_FLUSH_TIME_MS 20
+#define SERIAL_FLUSH_TIME_MS 150
 
 int CASE_INDEX_START;
 int CASE_INDEX_CURRENT;

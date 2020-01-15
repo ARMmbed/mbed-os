@@ -61,12 +61,12 @@
  * are empty. However, it is possible to determine the time required for the
  * buffers to flush.
  *
- * Take NUMAKER_PFM_NUC472 as an example:
- * The UART peripheral has 16-byte Tx FIFO. With a baud rate set to 9600,
- * flushing the Tx FIFO would take: 16 * 8 * 1000 / 9600 = 13.3 ms.
- * To be on the safe side, set the wait time to 20 ms.
+ * Assuming the biggest Tx FIFO of 128 bytes (as for CY8CPROTO_062_4343W)
+ * and a default UART config (9600, 8N1), flushing the Tx FIFO wold take:
+ * (1 start_bit + 8 data_bits + 1 stop_bit) * 128 * 1000 / 9600 = 133.3 ms.
+ * To be on the safe side, set the wait time to 150 ms.
  */
-#define SERIAL_FLUSH_TIME_MS 20
+#define SERIAL_FLUSH_TIME_MS 150
 
 #define TIMEOUT_US (1000 * (TIMEOUT_MS))
 #define KICK_ADVANCE_US (1000 * (KICK_ADVANCE_MS))
@@ -112,10 +112,11 @@ void test_simple_reset()
 
     // Phase 1. -- run the test code.
     // Init the watchdog and wait for a device reset.
-    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS) == false) {
+    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS + SERIAL_FLUSH_TIME_MS) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
+    wait_us(SERIAL_FLUSH_TIME_US); // Wait for the serial buffers to flush.
     Watchdog &watchdog = Watchdog::get_instance();
     TEST_ASSERT_FALSE(watchdog.is_running());
     TEST_ASSERT_TRUE(watchdog.start(TIMEOUT_MS));
@@ -141,10 +142,11 @@ void test_sleep_reset()
     }
 
     // Phase 1. -- run the test code.
-    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS) == false) {
+    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS + SERIAL_FLUSH_TIME_MS) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
+    wait_us(SERIAL_FLUSH_TIME_US); // Wait for the serial buffers to flush.
     Watchdog &watchdog = Watchdog::get_instance();
     TEST_ASSERT_FALSE(watchdog.is_running());
     TEST_ASSERT_TRUE(watchdog.start(TIMEOUT_MS));
@@ -232,10 +234,11 @@ void test_restart_reset()
     // The watchdog should trigger before twice the timeout value.
     wait_us(TIMEOUT_US / 2 + TIMEOUT_US);
 
-    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS) == false) {
+    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS + SERIAL_FLUSH_TIME_MS) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
+    wait_us(SERIAL_FLUSH_TIME_US); // Wait for the serial buffers to flush.
     TEST_ASSERT_TRUE(watchdog.start(TIMEOUT_MS));
     TEST_ASSERT_TRUE(watchdog.is_running());
     // Watchdog should fire before twice the timeout value.
@@ -268,10 +271,11 @@ void test_kick_reset()
         wait_us(TIMEOUT_US - KICK_ADVANCE_US);
         watchdog.kick();
     }
-    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS) == false) {
+    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS + SERIAL_FLUSH_TIME_MS) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
+    wait_us(SERIAL_FLUSH_TIME_US); // Wait for the serial buffers to flush.
     // Watchdog should fire before twice the timeout value.
     wait_us(2 * TIMEOUT_US); // Device reset expected.
 
