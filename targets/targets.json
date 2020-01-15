@@ -12068,7 +12068,7 @@
             "2",
             "5"
         ],
-        "bootloader_supported": false
+        "bootloader_supported": true
     },
     "VBLUNO52": {
         "supported_form_factors": [
