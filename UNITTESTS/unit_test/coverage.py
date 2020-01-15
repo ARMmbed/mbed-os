@@ -83,7 +83,7 @@ class CoverageAPI(object):
             filters = filter_regex.split(",")
 
             for filt in filters:
-                regex = "(.+/)?%s" % filt.replace("-", "/")
+                regex = "(.+/)?.*%s" % filt.replace("-", "/")
                 args.extend(["-f", regex])
 
         if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
