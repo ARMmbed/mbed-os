@@ -919,6 +919,7 @@ void PalBbBleDisable(void)
 
   /* stop timer */
   NRF_TIMER0->TASKS_STOP = 1;
+  NRF_TIMER0->TASKS_SHUTDOWN = 1;
 
   /* disable PPI channels */
   NRF_PPI->CHENCLR = PPI_CHENCLR_CH14_Msk;   /* Chan 14: COMPARE[0] -> TXEN/RXEN */
