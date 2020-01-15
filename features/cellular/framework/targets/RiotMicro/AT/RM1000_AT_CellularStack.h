@@ -61,8 +61,6 @@ protected: // AT_CellularStack
      */
     static const int RM1000_MAX_PACKET_SIZE = 1024;
 
-    virtual bool is_protocol_supported(nsapi_protocol_t protocol);
-
     virtual nsapi_error_t create_socket_impl(CellularSocket *socket);
 
     virtual nsapi_error_t socket_connect(nsapi_socket_t handle, const SocketAddress &address);

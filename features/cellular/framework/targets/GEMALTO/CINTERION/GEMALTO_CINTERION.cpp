@@ -114,6 +114,8 @@ void GEMALTO_CINTERION::init_module_bgs2()
         1,  // PROPERTY_AT_CGEREP
         1,  // PROPERTY_AT_COPS_FALLBACK_AUTO
         10, // PROPERTY_SOCKET_COUNT
+        1,  // PROPERTY_IP_TCP
+        1,  // PROPERTY_IP_UDP
     };
     set_cellular_properties(cellular_properties);
     _module = ModuleBGS2;
@@ -140,6 +142,8 @@ void GEMALTO_CINTERION::init_module_els61()
         1,  // PROPERTY_AT_CGEREP
         1,  // PROPERTY_AT_COPS_FALLBACK_AUTO
         10, // PROPERTY_SOCKET_COUNT
+        1,  // PROPERTY_IP_TCP
+        1,  // PROPERTY_IP_UDP
     };
     set_cellular_properties(cellular_properties);
     _module = ModuleELS61;
@@ -166,6 +170,8 @@ void GEMALTO_CINTERION::init_module_ems31()
         1,  // PROPERTY_AT_CGEREP
         1,  // PROPERTY_AT_COPS_FALLBACK_AUTO
         10, // PROPERTY_SOCKET_COUNT
+        1,  // PROPERTY_IP_TCP
+        1,  // PROPERTY_IP_UDP
     };
     set_cellular_properties(cellular_properties);
     _module = ModuleEMS31;
@@ -192,6 +198,8 @@ void GEMALTO_CINTERION::init_module_ehs5e()
         1,  // PROPERTY_AT_CGEREP
         1,  // PROPERTY_AT_COPS_FALLBACK_AUTO
         10, // PROPERTY_SOCKET_COUNT
+        1,  // PROPERTY_IP_TCP
+        1,  // PROPERTY_IP_UDP
     };
     set_cellular_properties(cellular_properties);
     _module = ModuleEHS5E;

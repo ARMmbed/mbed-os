@@ -42,6 +42,8 @@ static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     1,  // PROPERTY_AT_CGEREP
     1,  // PROPERTY_AT_COPS_FALLBACK_AUTO
     6,  // PROPERTY_SOCKET_COUNT
+    1,  // PROPERTY_IP_TCP
+    1,  // PROPERTY_IP_UDP
 };
 
 QUECTEL_M26::QUECTEL_M26(FileHandle *fh) : AT_CellularDevice(fh)

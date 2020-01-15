@@ -128,11 +128,6 @@ void QUECTEL_BC95_CellularStack::urc_nsocli()
 }
 
 
-bool QUECTEL_BC95_CellularStack::is_protocol_supported(nsapi_protocol_t protocol)
-{
-    return (protocol == NSAPI_UDP || protocol == NSAPI_TCP);
-}
-
 nsapi_error_t QUECTEL_BC95_CellularStack::socket_close_impl(int sock_id)
 {
     CellularSocket *sock = find_socket(sock_id);

@@ -52,8 +52,6 @@ protected:
      */
     static const int N2XX_MAX_PACKET_SIZE = 512;
 
-    virtual bool is_protocol_supported(nsapi_protocol_t protocol);
-
     virtual nsapi_error_t create_socket_impl(CellularSocket *socket);
 
     virtual nsapi_size_or_error_t socket_sendto_impl(CellularSocket *socket, const SocketAddress &address,

@@ -222,11 +222,6 @@ void QUECTEL_BG96_CellularStack::urc_qiurc(urc_type_t urc_type)
     }
 }
 
-bool QUECTEL_BG96_CellularStack::is_protocol_supported(nsapi_protocol_t protocol)
-{
-    return (protocol == NSAPI_UDP || protocol == NSAPI_TCP);
-}
-
 nsapi_error_t QUECTEL_BG96_CellularStack::socket_close_impl(int sock_id)
 {
     _at.set_at_timeout(BG96_CLOSE_SOCKET_TIMEOUT);

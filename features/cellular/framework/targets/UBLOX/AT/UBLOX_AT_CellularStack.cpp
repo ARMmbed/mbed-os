@@ -107,11 +107,6 @@ void UBLOX_AT_CellularStack::UUPSDD_URC()
     clear_socket(socket);
 }
 
-bool UBLOX_AT_CellularStack::is_protocol_supported(nsapi_protocol_t protocol)
-{
-    return (protocol == NSAPI_UDP || protocol == NSAPI_TCP);
-}
-
 nsapi_error_t UBLOX_AT_CellularStack::create_socket_impl(CellularSocket *socket)
 {
     int sock_id = SOCKET_UNUSED;
@@ -121,7 +116,7 @@ nsapi_error_t UBLOX_AT_CellularStack::create_socket_impl(CellularSocket *socket)
         err = _at.at_cmd_int("+USOCR", "=17", sock_id);
     } else if (socket->proto == NSAPI_TCP) {
         err = _at.at_cmd_int("+USOCR", "=6", sock_id);
-    } // Unsupported protocol is checked in "is_protocol_supported" function
+    } // Unsupported protocol is checked in socket_open()
 
     if ((err != NSAPI_ERROR_OK) || (sock_id == -1)) {
         return NSAPI_ERROR_NO_SOCKET;

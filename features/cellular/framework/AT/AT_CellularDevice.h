@@ -59,6 +59,8 @@ public:
         PROPERTY_AT_CGEREP,             // 0 = not supported, 1 = supported. Does modem support AT command AT+CGEREP.
         PROPERTY_AT_COPS_FALLBACK_AUTO, // 0 = not supported, 1 = supported. Does modem support mode 4 of AT+COPS= ?
         PROPERTY_SOCKET_COUNT,          // The number of sockets of modem IP stack
+        PROPERTY_IP_TCP,                // 0 = not supported, 1 = supported. Modem IP stack has support for TCP
+        PROPERTY_IP_UDP,                // 0 = not supported, 1 = supported. Modem IP stack has support for TCP
         PROPERTY_MAX
     };
 

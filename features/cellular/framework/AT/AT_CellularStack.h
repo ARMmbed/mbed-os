@@ -136,13 +136,6 @@ protected:
     };
 
     /**
-    * Checks if modem supports the given protocol
-    *
-    * @param protocol   Protocol type
-    */
-    virtual bool is_protocol_supported(nsapi_protocol_t protocol) = 0;
-
-    /**
     * Implements modem specific AT command set for socket closing
     *
     * @param sock_id   Socket id

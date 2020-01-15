@@ -81,10 +81,6 @@ public:
     {
         return 200;
     }
-    virtual bool is_protocol_supported(nsapi_protocol_t protocol)
-    {
-        return true;
-    }
     virtual nsapi_error_t socket_close_impl(int sock_id)
     {
         return NSAPI_ERROR_OK;

@@ -64,11 +64,6 @@ void UBLOX_N2XX_CellularStack::NSONMI_URC()
     }
 }
 
-bool UBLOX_N2XX_CellularStack::is_protocol_supported(nsapi_protocol_t protocol)
-{
-    return (protocol == NSAPI_UDP);
-}
-
 nsapi_error_t UBLOX_N2XX_CellularStack::create_socket_impl(CellularSocket *socket)
 {
     int sock_id = -1;

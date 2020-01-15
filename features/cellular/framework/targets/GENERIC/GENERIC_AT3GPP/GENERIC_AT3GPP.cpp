@@ -39,6 +39,8 @@ static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     1,  // PROPERTY_AT_CGEREP
     1,  // PROPERTY_AT_COPS_FALLBACK_AUTO
     0,  // PROPERTY_SOCKET_COUNT
+    0,  // PROPERTY_IP_TCP
+    0,  // PROPERTY_IP_UDP
 };
 
 GENERIC_AT3GPP::GENERIC_AT3GPP(FileHandle *fh) : AT_CellularDevice(fh)

@@ -44,11 +44,6 @@ public:
         create_error = NSAPI_ERROR_OK;
     }
 
-    virtual bool is_protocol_supported(nsapi_protocol_t protocol)
-    {
-        return bool_value;
-    }
-
     virtual nsapi_error_t socket_close_impl(int sock_id)
     {
         return NSAPI_ERROR_OK;
@@ -201,10 +196,10 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_open)
     ATHandler at(&fh1, que, 0, ",");
 
     MyStack st(at, 0, IPV6_STACK, *_dev);
-    st.bool_value = false;
+    AT_CellularDevice_stub::supported_bool = 0;
     EXPECT_EQ(st.socket_open(NULL, NSAPI_TCP), NSAPI_ERROR_UNSUPPORTED);
 
-    st.bool_value = true;
+    AT_CellularDevice_stub::supported_bool = 1;
     AT_CellularDevice_stub::max_sock_value = 0;
     nsapi_socket_t sock = &st.socket;
     EXPECT_EQ(st.socket_open(&sock, NSAPI_TCP), NSAPI_ERROR_NO_SOCKET);

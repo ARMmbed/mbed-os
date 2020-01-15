@@ -59,8 +59,6 @@ protected: // NetworkStack
 
 protected: // AT_CellularStack
 
-    virtual bool is_protocol_supported(nsapi_protocol_t protocol);
-
     virtual nsapi_error_t socket_close_impl(int sock_id);
 
     virtual nsapi_error_t create_socket_impl(CellularSocket *socket);

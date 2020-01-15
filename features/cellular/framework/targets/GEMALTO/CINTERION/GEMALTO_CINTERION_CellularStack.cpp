@@ -132,11 +132,6 @@ nsapi_error_t GEMALTO_CINTERION_CellularStack::socket_stack_init()
     return err;
 }
 
-bool GEMALTO_CINTERION_CellularStack::is_protocol_supported(nsapi_protocol_t protocol)
-{
-    return (protocol == NSAPI_UDP || protocol == NSAPI_TCP);
-}
-
 nsapi_error_t GEMALTO_CINTERION_CellularStack::socket_close_impl(int sock_id)
 {
     tr_debug("Cinterion close %d", sock_id);

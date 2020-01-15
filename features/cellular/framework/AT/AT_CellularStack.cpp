@@ -157,13 +157,28 @@ nsapi_error_t AT_CellularStack::socket_stack_init()
 
 nsapi_error_t AT_CellularStack::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
 {
-    if (!is_protocol_supported(proto) || !handle) {
+    if (!handle) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+
+    if (proto == NSAPI_UDP) {
+        if (!_device.get_property(AT_CellularDevice::PROPERTY_IP_UDP)) {
+            return NSAPI_ERROR_UNSUPPORTED;
+        }
+    } else if (proto == NSAPI_TCP) {
+        if (!_device.get_property(AT_CellularDevice::PROPERTY_IP_TCP)) {
+            return NSAPI_ERROR_UNSUPPORTED;
+        }
+    } else {
         return NSAPI_ERROR_UNSUPPORTED;
     }
 
     _socket_mutex.lock();
 
     if (!_socket) {
+        if (_device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT) == 0) {
+            return NSAPI_ERROR_NO_SOCKET;
+        }
         if (socket_stack_init() != NSAPI_ERROR_OK) {
             _socket_mutex.unlock();
             return NSAPI_ERROR_NO_SOCKET;
