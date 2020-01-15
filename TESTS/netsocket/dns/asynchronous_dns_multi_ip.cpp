@@ -60,7 +60,7 @@ void do_getaddrinfo_async(const char hosts[][DNS_TEST_HOST_LEN], unsigned int op
     // Create callback semaphore and data
     rtos::Semaphore semaphore;
     dns_application_data_multi_ip *data = new dns_application_data_multi_ip[op_count];
-    SocketAddress hints{{NSAPI_IPv4}, 80};
+    SocketAddress hints{{NSAPI_UNSPEC}, 80};
 
     unsigned int count = 0;
     for (unsigned int i = 0; i < op_count; i++) {
