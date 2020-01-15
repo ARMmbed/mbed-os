@@ -355,8 +355,13 @@ void serial_free(serial_t *obj)
 #endif /* DUAL_CORE */
 
     // Configure GPIOs
-    pin_function(obj_s->pin_tx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-    pin_function(obj_s->pin_rx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    if (obj_s->pin_tx != NC) {
+        pin_function(obj_s->pin_tx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    }
+
+    if (obj_s->pin_rx != NC) {
+        pin_function(obj_s->pin_rx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    }
 
     serial_irq_ids[obj_s->index] = 0;
 }
