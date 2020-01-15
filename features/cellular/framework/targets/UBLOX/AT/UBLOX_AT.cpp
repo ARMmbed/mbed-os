@@ -129,9 +129,9 @@ nsapi_error_t UBLOX_AT::init()
 {
     setup_at_handler();
 
-    _at->lock();
-    _at->flush();
-    _at->at_cmd_discard("", "");
+    _at.lock();
+    _at.flush();
+    _at.at_cmd_discard("", "");
     int value = -1;
 
 #ifdef UBX_MDM_SARA_G3XX
@@ -139,19 +139,19 @@ nsapi_error_t UBLOX_AT::init()
 #elif defined(UBX_MDM_SARA_U2XX) || defined(UBX_MDM_SARA_R41XM)
     value = 4;
 #else
-    _at->unlock();
+    _at.unlock();
     return NSAPI_ERROR_UNSUPPORTED;
 #endif
 
-    nsapi_error_t err = _at->at_cmd_discard("+CFUN", "=", "%d", value);
+    nsapi_error_t err = _at.at_cmd_discard("+CFUN", "=", "%d", value);
 
     if (err == NSAPI_ERROR_OK) {
-        _at->at_cmd_discard("E0", ""); // echo off
-        _at->at_cmd_discard("+CMEE", "=1"); // verbose responses
+        _at.at_cmd_discard("E0", ""); // echo off
+        _at.at_cmd_discard("+CMEE", "=1"); // verbose responses
         config_authentication_parameters();
-        err = _at->at_cmd_discard("+CFUN", "=1"); // set full functionality
+        err = _at.at_cmd_discard("+CFUN", "=1"); // set full functionality
     }
-    return _at->unlock_return_error();
+    return _at.unlock_return_error();
 }
 
 nsapi_error_t UBLOX_AT::config_authentication_parameters()
@@ -191,19 +191,19 @@ nsapi_error_t UBLOX_AT::set_authentication_parameters(const char *apn,
 {
     int modem_security = ubx_context->nsapi_security_to_modem_security(auth);
 
-    nsapi_error_t err = _at->at_cmd_discard("+CGDCONT", "=", "%d%s%s", 1, "IP", apn);
+    nsapi_error_t err = _at.at_cmd_discard("+CGDCONT", "=", "%d%s%s", 1, "IP", apn);
 
     if (err == NSAPI_ERROR_OK) {
 #ifdef UBX_MDM_SARA_R41XM
         if (modem_security == CellularContext::CHAP) {
-            err = _at->at_cmd_discard("+UAUTHREQ", "=", "%d%d%s%s", 1, modem_security, password, username);
+            err = _at.at_cmd_discard("+UAUTHREQ", "=", "%d%d%s%s", 1, modem_security, password, username);
         } else if (modem_security == CellularContext::NOAUTH) {
-            err = _at->at_cmd_discard("+UAUTHREQ", "=", "%d%d", 1, modem_security);
+            err = _at.at_cmd_discard("+UAUTHREQ", "=", "%d%d", 1, modem_security);
         } else {
-            err = _at->at_cmd_discard("+UAUTHREQ", "=", "%d%d%s%s", 1, modem_security, username, password);
+            err = _at.at_cmd_discard("+UAUTHREQ", "=", "%d%d%s%s", 1, modem_security, username, password);
         }
 #else
-        err = _at->at_cmd_discard("+UAUTHREQ", "=", "%d%d%s%s", 1, modem_security, username, password);
+        err = _at.at_cmd_discard("+UAUTHREQ", "=", "%d%d%s%s", 1, modem_security, username, password);
 #endif
     }
 
@@ -213,5 +213,5 @@ nsapi_error_t UBLOX_AT::set_authentication_parameters(const char *apn,
 nsapi_error_t UBLOX_AT::get_imsi(char *imsi)
 {
     //Special case: Command put in cmd_chr to make a 1 liner
-    return _at->at_cmd_str("", "+CIMI", imsi, MAX_IMSI_LENGTH + 1);
+    return _at.at_cmd_str("", "+CIMI", imsi, MAX_IMSI_LENGTH + 1);
 }

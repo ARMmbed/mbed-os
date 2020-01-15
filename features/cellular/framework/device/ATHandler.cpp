@@ -63,99 +63,11 @@ static const uint8_t map_3gpp_errors[][2] =  {
     { 146, 46 }, { 178, 65 }, { 179, 66 }, { 180, 48 }, { 181, 83 }, { 171, 49 },
 };
 
-ATHandler *ATHandler::_atHandlers = NULL;
-
-// each parser is associated with one filehandle (that is UART)
-ATHandler *ATHandler::get_instance(FileHandle *fileHandle, events::EventQueue &queue, uint32_t timeout,
-                                   const char *delimiter, uint16_t send_delay, bool debug_on)
-{
-    if (!fileHandle) {
-        return NULL;
-    }
-
-    singleton_lock();
-    ATHandler *atHandler = _atHandlers;
-    while (atHandler) {
-        if (atHandler->get_file_handle() == fileHandle) {
-            atHandler->inc_ref_count();
-            singleton_unlock();
-            return atHandler;
-        }
-        atHandler = atHandler->_nextATHandler;
-    }
-
-    atHandler = new ATHandler(fileHandle, queue, timeout, delimiter, send_delay);
-    if (debug_on) {
-        atHandler->set_debug(debug_on);
-    }
-    atHandler->_nextATHandler = _atHandlers;
-    _atHandlers = atHandler;
-
-    singleton_unlock();
-    return atHandler;
-}
-
-nsapi_error_t ATHandler::close()
-{
-    if (get_ref_count() == 0) {
-        return NSAPI_ERROR_PARAMETER;
-    }
-
-    singleton_lock();
-    dec_ref_count();
-    if (get_ref_count() == 0) {
-        // we can delete this at_handler
-        ATHandler *atHandler = _atHandlers;
-        ATHandler *prev = NULL;
-        while (atHandler) {
-            if (atHandler == this) {
-                if (prev == NULL) {
-                    _atHandlers = _atHandlers->_nextATHandler;
-                } else {
-                    prev->_nextATHandler = atHandler->_nextATHandler;
-                }
-                delete this;
-                break;
-            } else {
-                prev = atHandler;
-                atHandler = atHandler->_nextATHandler;
-            }
-        }
-    }
-    singleton_unlock();
-    return NSAPI_ERROR_OK;
-}
-
-void ATHandler::set_at_timeout_list(uint32_t timeout_milliseconds, bool default_timeout)
-{
-    ATHandler *atHandler = _atHandlers;
-    singleton_lock();
-    while (atHandler) {
-        atHandler->set_at_timeout(timeout_milliseconds, default_timeout);
-        atHandler = atHandler->_nextATHandler;
-    }
-    singleton_unlock();
-}
-
-bool ATHandler::ok_to_proceed()
-{
-    if (_last_err != NSAPI_ERROR_OK) {
-        return false;
-    }
-
-    if (!_is_fh_usable) {
-        _last_err = NSAPI_ERROR_BUSY;
-        return false;
-    }
-    return true;
-}
-
 ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const char *output_delimiter, uint16_t send_delay) :
-    _nextATHandler(0),
 #if defined AT_HANDLER_MUTEX && defined MBED_CONF_RTOS_PRESENT
     _oobCv(_fileHandleMutex),
 #endif
-    _fileHandle(NULL), // filehandle is set by set_file_handle()
+    _fileHandle(fh),
     _queue(queue),
     _last_err(NSAPI_ERROR_OK),
     _last_3gpp_error(0),
@@ -197,35 +109,15 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const 
     set_tag(&_info_stop, CRLF);
     set_tag(&_elem_stop, ")");
 
-    set_file_handle(fh);
-}
-
-
-void ATHandler::set_debug(bool debug_on)
-{
-    _debug_on = debug_on;
-}
-
-bool ATHandler::get_debug() const
-{
-    return _debug_on;
-}
-
-void ATHandler::set_debug_list(bool debug_on)
-{
-    ATHandler *atHandler = _atHandlers;
-    singleton_lock();
-    while (atHandler) {
-        atHandler->set_debug(debug_on);
-        atHandler = atHandler->_nextATHandler;
-    }
-    singleton_unlock();
+    set_is_filehandle_usable(true);
 }
 
 ATHandler::~ATHandler()
 {
     ScopedLock <ATHandler> lock(*this);
-    set_file_handle(NULL);
+
+    set_is_filehandle_usable(false);
+    _fileHandle = NULL;
 
     if (_event_id != 0 && _queue.cancel(_event_id)) {
         _event_id = 0;
@@ -250,36 +142,32 @@ ATHandler::~ATHandler()
     }
 }
 
-void ATHandler::inc_ref_count()
+bool ATHandler::ok_to_proceed()
 {
-    _ref_count++;
+    if (_last_err != NSAPI_ERROR_OK) {
+        return false;
+    }
+
+    if (!_is_fh_usable) {
+        _last_err = NSAPI_ERROR_BUSY;
+        return false;
+    }
+    return true;
 }
 
-void ATHandler::dec_ref_count()
+void ATHandler::set_debug(bool debug_on)
 {
-    _ref_count--;
+    _debug_on = debug_on;
 }
 
-int ATHandler::get_ref_count()
+bool ATHandler::get_debug() const
 {
-    return _ref_count;
+    return _debug_on;
 }
 
 FileHandle *ATHandler::get_file_handle()
 {
     return _fileHandle;
-}
-
-void ATHandler::set_file_handle(FileHandle *fh)
-{
-    ScopedLock<ATHandler> lock(*this);
-    if (_fileHandle) {
-        set_is_filehandle_usable(false);
-    }
-    _fileHandle = fh;
-    if (_fileHandle) {
-        set_is_filehandle_usable(true);
-    }
 }
 
 void ATHandler::set_is_filehandle_usable(bool usable)

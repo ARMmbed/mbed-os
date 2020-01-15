@@ -44,7 +44,6 @@ protected:
         ATHandler_stub::nsapi_error_value = 0;
         ATHandler_stub::nsapi_error_ok_counter = 0;
         ATHandler_stub::int_value = -1;
-        ATHandler_stub::ref_count = 0;
         ATHandler_stub::timeout = 0;
         ATHandler_stub::default_timeout = 0;
         ATHandler_stub::debug_on = 0;
@@ -512,21 +511,6 @@ TEST_F(TestAT_CellularContext, get_apn_backoff_timer)
     cn.set_credentials("internet", NULL, NULL);
     ASSERT_EQ(NSAPI_ERROR_OK, cn.get_apn_backoff_timer(time));
     ASSERT_EQ(time, 55);
-}
-
-TEST_F(TestAT_CellularContext, set_file_handle)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0, ",");
-    AT_CellularDevice dev(&fh1);
-    AT_CellularContext ctx(at, &dev);
-    ctx.set_file_handle(&fh1);
-
-    BufferedSerial ss(NC, NC);
-
-    ctx.set_file_handle(&ss, PTC0, true);
-    ctx.enable_hup(true);
 }
 
 TEST_F(TestAT_CellularContext, connect_disconnect_sync)

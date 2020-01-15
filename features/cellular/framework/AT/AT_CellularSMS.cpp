@@ -1252,9 +1252,4 @@ uint16_t AT_CellularSMS::unpack_7_bit_gsm_to_str(const char *str, int len, char 
     return decodedCount;
 }
 
-ATHandler &AT_CellularSMS::get_at_handler()
-{
-    return _at;
-}
-
 #endif //MBED_CONF_CELLULAR_USE_SMS

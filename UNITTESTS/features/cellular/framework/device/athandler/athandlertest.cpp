@@ -86,43 +86,6 @@ TEST_F(TestATHandler, test_ATHandler_get_file_handle)
     EXPECT_EQ(&fh1, at.get_file_handle());
 }
 
-TEST_F(TestATHandler, test_ATHandler_set_file_handle)
-{
-    EventQueue que;
-    FileHandle_stub fh1, fh2;
-
-    ATHandler at(&fh1, que, 0, ",");
-
-    at.set_file_handle(&fh2);
-}
-
-TEST_F(TestATHandler, test_ATHandler_list)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-
-    ATHandler::set_at_timeout_list(1000, false);
-    ATHandler::set_debug_list(false);
-
-    ATHandler *at1 = ATHandler::get_instance(&fh1, que, 0, ",", 0, 0);
-
-    ATHandler::set_at_timeout_list(1000, false);
-    ATHandler::set_debug_list(true);
-
-    EXPECT_TRUE(ATHandler::get_instance(NULL, que, 0, ",", 0, 0) == NULL);
-
-    ATHandler *at2 = ATHandler::get_instance(&fh1, que, 0, ",", 0, 0);
-
-    ATHandler::set_at_timeout_list(2000, true);
-    ATHandler::set_debug_list(false);
-
-    EXPECT_TRUE(at1->close() == NSAPI_ERROR_OK);
-    EXPECT_TRUE(at2->close() == NSAPI_ERROR_OK);
-
-    ATHandler::set_at_timeout_list(1000, false);
-    ATHandler::set_debug_list(false);
-}
-
 TEST_F(TestATHandler, test_ATHandler_lock)
 {
     EventQueue que;

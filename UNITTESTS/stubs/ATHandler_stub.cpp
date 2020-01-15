@@ -28,12 +28,9 @@ using namespace events;
 const int DEFAULT_AT_TIMEOUT = 1000;
 const uint8_t MAX_RESP_LENGTH = 7;
 
-mbed::ATHandler *ATHandler_stub::handler = NULL;
-
 nsapi_error_t ATHandler_stub::nsapi_error_value = 0;
 uint8_t ATHandler_stub::nsapi_error_ok_counter = 0;
 int ATHandler_stub::int_value = -1;
-int ATHandler_stub::ref_count = 0;
 int ATHandler_stub::timeout = 0;
 bool ATHandler_stub::default_timeout = 0;
 bool ATHandler_stub::debug_on = 0;
@@ -84,7 +81,6 @@ void ATHandler_stub::debug_call_count_clear()
 }
 
 ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const char *output_delimiter, uint16_t send_delay) :
-    _nextATHandler(0),
 #if defined AT_HANDLER_MUTEX && defined MBED_CONF_RTOS_PRESENT
     _oobCv(_fileHandleMutex),
 #endif
@@ -111,39 +107,15 @@ bool ATHandler::get_debug() const
     return ATHandler_stub::debug_on;
 }
 
-void ATHandler::set_debug_list(bool debug_on)
-{
-    ATHandler_stub::debug_on = debug_on;
-}
-
 ATHandler::~ATHandler()
 {
     ATHandler_stub::urc_handlers.clear();
-}
-
-void ATHandler::inc_ref_count()
-{
-    ATHandler_stub::ref_count++;
-}
-
-void ATHandler::dec_ref_count()
-{
-    ATHandler_stub::ref_count--;
-}
-
-int ATHandler::get_ref_count()
-{
-    return ATHandler_stub::ref_count;
 }
 
 FileHandle *ATHandler::get_file_handle()
 {
     ATHandler_stub::fh_value = (FileHandle_stub *)_fileHandle;
     return _fileHandle;
-}
-
-void ATHandler::set_file_handle(FileHandle *fh)
-{
 }
 
 bool ATHandler::find_urc_handler(const char *prefix)
@@ -391,27 +363,6 @@ nsapi_error_t ATHandler::at_cmd_discard(const char *cmd, const char *cmd_chr,
                                         const char *format, ...)
 {
     return ATHandler_stub::nsapi_error_value;
-}
-
-ATHandler *ATHandler::get_instance(FileHandle *fileHandle, events::EventQueue &queue, uint32_t timeout,
-                                   const char *delimiter, uint16_t send_delay, bool debug_on)
-{
-    ATHandler_stub::ref_count++;
-    int a = ATHandler_stub::ref_count;
-    a = 0;
-    return ATHandler_stub::handler;
-}
-
-nsapi_error_t ATHandler::close()
-{
-    ATHandler_stub::ref_count--;
-    return NSAPI_ERROR_OK;
-}
-
-void ATHandler::set_at_timeout_list(uint32_t timeout_milliseconds, bool default_timeout)
-{
-    ATHandler_stub::timeout = timeout_milliseconds;
-    ATHandler_stub::default_timeout = default_timeout;
 }
 
 void ATHandler::set_send_delay(uint16_t send_delay)

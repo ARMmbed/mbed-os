@@ -47,7 +47,7 @@ using namespace mbed;
 using namespace rtos;
 
 AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, bool cp_req, bool nonip_req) :
-    _current_op(OP_INVALID), _fh(0), _cp_req(cp_req), _is_connected(false), _at(at)
+    _current_op(OP_INVALID), _dcd_pin(NC), _active_high(false), _cp_req(cp_req), _is_connected(false), _at(at)
 {
     tr_info("New CellularContext %s (%p)", apn ? apn : "", this);
     _nonip_req = nonip_req;
@@ -71,22 +71,13 @@ AT_CellularContext::~AT_CellularContext()
     }
 }
 
-void AT_CellularContext::set_file_handle(FileHandle *fh)
-{
-    tr_info("CellularContext filehandle %p", fh);
-    _fh = fh;
-    _at.set_file_handle(_fh);
-}
-
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
-void AT_CellularContext::set_file_handle(BufferedSerial *serial, PinName dcd_pin, bool active_high)
+nsapi_error_t AT_CellularContext::configure_hup(PinName dcd_pin, bool active_high)
 {
-    tr_info("CellularContext serial %p", serial);
     _dcd_pin = dcd_pin;
     _active_high = active_high;
-    _fh = serial;
-    _at.set_file_handle(static_cast<FileHandle *>(serial));
     enable_hup(false);
+    return NSAPI_ERROR_OK;
 }
 #endif // #if DEVICE_SERIAL
 
@@ -94,7 +85,7 @@ void AT_CellularContext::enable_hup(bool enable)
 {
     if (_dcd_pin != NC) {
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
-        static_cast<BufferedSerial *>(_fh)->set_data_carrier_detect(enable ? _dcd_pin : NC, _active_high);
+        static_cast<BufferedSerial *>(_at.get_file_handle())->set_data_carrier_detect(enable ? _dcd_pin : NC, _active_high);
 #endif // #if DEVICE_SERIAL
     }
 }
@@ -967,7 +958,7 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
 #endif // MBED_CONF_CELLULAR_USE_APN_LOOKUP
 
         if (!_nw && st == CellularDeviceReady && _cb_data.error == NSAPI_ERROR_OK) {
-            _nw = _device->open_network(_fh);
+            _nw = _device->open_network();
         }
 
 #if MBED_CONF_CELLULAR_CONTROL_PLANE_OPT
@@ -1112,9 +1103,4 @@ void AT_CellularContext::set_cid(int cid)
     if (_stack) {
         static_cast<AT_CellularStack *>(_stack)->set_cid(_cid);
     }
-}
-
-ATHandler &AT_CellularContext::get_at_handler()
-{
-    return _at;
 }

@@ -96,9 +96,6 @@ public: // CellularNetwork
 
     virtual nsapi_error_t set_packet_domain_event_reporting(bool on);
 
-public:
-    ATHandler &get_at_handler();
-
 protected:
     /** Sets access technology to be scanned. Modem specific implementation.
      *
