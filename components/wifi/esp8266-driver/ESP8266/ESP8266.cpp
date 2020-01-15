@@ -627,7 +627,11 @@ nsapi_error_t ESP8266::open_tcp(int id, const char *addr, int port, int keepaliv
 bool ESP8266::dns_lookup(const char *name, char *ip)
 {
     _smutex.lock();
-    bool done = _parser.send("AT+CIPDOMAIN=\"%s\"", name) && _parser.recv("+CIPDOMAIN:%s%*[\r]%*[\n]", ip);
+    set_timeout(ESP8266_DNS_TIMEOUT);
+    bool done = _parser.send("AT+CIPDOMAIN=\"%s\"", name)
+                && _parser.recv("+CIPDOMAIN:%15[^\n]\n", ip)
+                && _parser.recv("OK\n");
+    set_timeout();
     _smutex.unlock();
 
     return done;

@@ -43,6 +43,9 @@
 #ifndef ESP8266_MISC_TIMEOUT
 #define ESP8266_MISC_TIMEOUT    2000
 #endif
+#ifndef ESP8266_DNS_TIMEOUT
+#define ESP8266_DNS_TIMEOUT     15000
+#endif
 
 #define ESP8266_SCAN_TIME_MIN 0     // [ms]
 #define ESP8266_SCAN_TIME_MAX 1500  // [ms]

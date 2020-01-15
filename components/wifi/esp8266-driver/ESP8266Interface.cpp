@@ -652,6 +652,28 @@ int ESP8266Interface::scan(WiFiAccessPoint *res, unsigned count, scan_mode mode,
     return ret;
 }
 
+#if MBED_CONF_ESP8266_BUILT_IN_DNS
+nsapi_error_t ESP8266Interface::gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version, const char *interface_name)
+{
+    char ip[NSAPI_IPv4_SIZE];
+    memset(ip, 0, NSAPI_IPv4_SIZE);
+    if (!_esp.dns_lookup(name, ip)) {
+        return NSAPI_ERROR_DNS_FAILURE;
+    }
+    if (!address->set_ip_address(ip)) {
+        return NSAPI_ERROR_DNS_FAILURE;
+    }
+
+    return NSAPI_ERROR_OK;
+}
+
+
+nsapi_error_t ESP8266Interface::add_dns_server(const SocketAddress &address, const char *interface_name)
+{
+    return NSAPI_ERROR_OK;
+}
+#endif
+
 bool ESP8266Interface::_get_firmware_ok()
 {
     ESP8266::fw_at_version at_v = _esp.at_version();
