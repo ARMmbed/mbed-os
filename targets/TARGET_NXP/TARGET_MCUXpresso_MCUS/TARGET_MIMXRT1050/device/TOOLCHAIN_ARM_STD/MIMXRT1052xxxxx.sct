@@ -44,7 +44,7 @@
 #define m_interrupts_size              0x00000400
 
 #define m_text_start                   0x60002400
-#define m_text_size                    0x03FFDC00
+#define m_text_size                    0x003FDC00
 
 #define m_text2_start                  0x00000000
 #define m_text2_size                   0x00020000
