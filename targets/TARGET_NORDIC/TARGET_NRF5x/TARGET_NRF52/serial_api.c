@@ -42,7 +42,6 @@
 
 #include "nrf_uarte.h"
 #include "nrfx_uarte.h"
-#include "nrfx_uart.h"
 #include "nrf_atfifo.h"
 #include "app_util_platform.h"
 #include "pinmap_ex.h"
@@ -53,8 +52,8 @@
 #include "platform/mbed_atomic.h"
 #include "platform/mbed_critical.h"
 
-#if UART0_ENABLED == 0
-#error UART0 is disabled. DEVICE_SERIAL must also be disabled to continue.
+#if !NRFX_CHECK(NRFX_UARTE_ENABLED) || !(NRFX_CHECK(NRFX_UARTE0_ENABLED) || NRFX_CHECK(NRFX_UARTE1_ENABLED))
+#error No enabled UARTE instances, DEVICE_SERIAL must also be disabled to continue.
 #endif
 
 
@@ -174,7 +173,7 @@ static nordic_uart_state_t nordic_nrf5_uart_state[NRFX_UARTE_ENABLED_COUNT] = { 
  */
 static NRF_UARTE_Type *nordic_nrf5_uart_register[NRFX_UARTE_ENABLED_COUNT] = {
     NRF_UARTE0,
-#if UART1_ENABLED
+#if NRFX_UARTE1_ENABLED
     NRF_UARTE1,
 #endif
 };
@@ -185,7 +184,7 @@ static NRF_UARTE_Type *nordic_nrf5_uart_register[NRFX_UARTE_ENABLED_COUNT] = {
  */
 NRF_ATFIFO_DEF(nordic_nrf5_uart_fifo_0, uint8_t, UART0_FIFO_BUFFER_SIZE);
 
-#if UART1_ENABLED
+#if NRFX_UARTE1_ENABLED
 NRF_ATFIFO_DEF(nordic_nrf5_uart_fifo_1, uint8_t, UART1_FIFO_BUFFER_SIZE);
 #endif
 
@@ -194,7 +193,7 @@ NRF_ATFIFO_DEF(nordic_nrf5_uart_fifo_1, uint8_t, UART1_FIFO_BUFFER_SIZE);
  */
 static uint8_t nordic_nrf5_uart_swi_mask_tx_0 = 0;
 static uint8_t nordic_nrf5_uart_swi_mask_rx_0 = 0;
-#if UART1_ENABLED
+#if NRFX_UARTE1_ENABLED
 static uint8_t nordic_nrf5_uart_swi_mask_tx_1 = 0;
 static uint8_t nordic_nrf5_uart_swi_mask_rx_1 = 0;
 #endif
@@ -314,7 +313,7 @@ static void nordic_nrf5_uart_swi0(void)
     }
 
 
-#if UART1_ENABLED
+#if NRFX_UARTE1_ENABLED
     if (nordic_nrf5_uart_swi_mask_tx_1) {
 
         nordic_nrf5_uart_swi_mask_tx_1 = 0;
@@ -351,7 +350,7 @@ static void nordic_swi_tx_trigger(int instance)
         nordic_nrf5_uart_swi_mask_tx_0 = 1;
         NVIC_SetPendingIRQ(SWI0_EGU0_IRQn);
     }
-#if UART1_ENABLED
+#if NRFX_UARTE1_ENABLED
     else if (instance == 1) {
 
         nordic_nrf5_uart_swi_mask_tx_1 = 1;
@@ -372,7 +371,7 @@ static void nordic_swi_rx_trigger(int instance)
         nordic_nrf5_uart_swi_mask_rx_0 = 1;
         NVIC_SetPendingIRQ(SWI0_EGU0_IRQn);
     }
-#if UART1_ENABLED
+#if NRFX_UARTE1_ENABLED
     else if (instance == 1) {
 
         nordic_nrf5_uart_swi_mask_rx_1 = 1;
@@ -456,7 +455,7 @@ static void nordic_nrf5_uart_event_handler_rxstarted(int instance)
     uint8_t next_bank = nordic_nrf5_uart_state[instance].active_bank ^ 0x01;
 
     nrf_uarte_rx_buffer_set(nordic_nrf5_uart_register[instance], nordic_nrf5_uart_state[instance].buffer[next_bank], DMA_BUFFER_SIZE);
-    if (nordic_nrf5_uart_state[instance].rts != NRF_UART_PSEL_DISCONNECTED) {
+    if (nordic_nrf5_uart_state[instance].rts != NRF_UARTE_PSEL_DISCONNECTED) {
         if (nordic_nrf5_uart_state[instance].fifo_free_count > FIFO_MIN) {
             /* Clear rts since we are ready to receive the next byte */
             nrfx_gpiote_clr_task_trigger(nordic_nrf5_uart_state[instance].rts);
@@ -555,7 +554,7 @@ static void nordic_nrf5_uart0_handler(void)
     nordic_nrf5_uart_event_handler(0);
 }
 
-#if UART1_ENABLED
+#if NRFX_UARTE1_ENABLED
 /**
  * @brief      UARTE1 ISR.
  */
@@ -596,13 +595,13 @@ static void nordic_nrf5_uart_configure_object(serial_t *obj)
 #endif
 
     /* Configure Tx and Rx pins. */
-    if (uart_object->tx != NRF_UART_PSEL_DISCONNECTED) {
+    if (uart_object->tx != NRF_UARTE_PSEL_DISCONNECTED) {
 
         nrf_gpio_pin_set(uart_object->tx);
         nrf_gpio_cfg_output(uart_object->tx);
     }
 
-    if (uart_object->rx != NRF_UART_PSEL_DISCONNECTED) {
+    if (uart_object->rx != NRF_UARTE_PSEL_DISCONNECTED) {
 
         nrf_gpio_cfg_input(uart_object->rx, NRF_GPIO_PIN_NOPULL);
     }
@@ -612,17 +611,17 @@ static void nordic_nrf5_uart_configure_object(serial_t *obj)
                             uart_object->rx);
 
     /* Set hardware flow control pins. */
-    if (uart_object->hwfc == NRF_UART_HWFC_ENABLED) {
+    if (uart_object->hwfc == NRF_UARTE_HWFC_ENABLED) {
 
         /* Check if pin is set before configuring it. */
-        if (uart_object->cts != NRF_UART_PSEL_DISCONNECTED) {
+        if (uart_object->cts != NRF_UARTE_PSEL_DISCONNECTED) {
 
             nrf_gpio_cfg_input(uart_object->cts, NRF_GPIO_PIN_NOPULL);
         }
 
         /* Only let UARTE module handle CTS, RTS is handled manually due to buggy UARTE logic. */
         nrf_uarte_hwfc_pins_set(nordic_nrf5_uart_register[uart_object->instance],
-                                NRF_UART_PSEL_DISCONNECTED,
+                                NRF_UARTE_PSEL_DISCONNECTED,
                                 uart_object->cts);
     }
 
@@ -635,12 +634,12 @@ static void nordic_nrf5_uart_configure_object(serial_t *obj)
         MBED_ASSERT(ret == NRF_SUCCESS);
 
         /* Free flow control gpiote pin if it was previously set */
-        if (nordic_nrf5_uart_state[uart_object->instance].rts != NRF_UART_PSEL_DISCONNECTED) {
+        if (nordic_nrf5_uart_state[uart_object->instance].rts != NRF_UARTE_PSEL_DISCONNECTED) {
             nrfx_gpiote_out_uninit((nrfx_gpiote_pin_t)uart_object->rts);
         }
 
         /* Allocate and enable flow control gpiote pin if it is being used */
-        if (uart_object->rts != NRF_UART_PSEL_DISCONNECTED) {
+        if (uart_object->rts != NRF_UARTE_PSEL_DISCONNECTED) {
 
             static const nrfx_gpiote_out_config_t config = {
                 .init_state = NRF_GPIOTE_INITIAL_VALUE_HIGH,
@@ -868,7 +867,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         MBED_ASSERT(ret == NRF_SUCCESS);
 
         /* Clear RTS */
-        nordic_nrf5_uart_state[0].rts = NRF_UART_PSEL_DISCONNECTED;
+        nordic_nrf5_uart_state[0].rts = NRF_UARTE_PSEL_DISCONNECTED;
 
         /* Clear any old events and enable interrupts for UARTE0. */
         nrf_uarte_int_disable(nordic_nrf5_uart_register[0], 0xFFFFFFFF);
@@ -877,7 +876,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         NRFX_IRQ_PRIORITY_SET(UARTE0_UART0_IRQn, APP_IRQ_PRIORITY_HIGHEST);
         NRFX_IRQ_ENABLE(UARTE0_UART0_IRQn);
 
-#if UART1_ENABLED
+#if NRFX_UARTE1_ENABLED
         /* Initialize FIFO buffer for UARTE1. */
         NRF_ATFIFO_INIT(nordic_nrf5_uart_fifo_1);
         nordic_nrf5_uart_state[1].fifo = nordic_nrf5_uart_fifo_1;
@@ -890,7 +889,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         MBED_ASSERT(ret == NRF_SUCCESS);
 
         /* Clear RTS */
-        nordic_nrf5_uart_state[1].rts = NRF_UART_PSEL_DISCONNECTED;
+        nordic_nrf5_uart_state[1].rts = NRF_UARTE_PSEL_DISCONNECTED;
 
         /* Clear any old events and enable interrupts for UARTE1. */
         nrf_uarte_int_disable(nordic_nrf5_uart_register[1], 0xFFFFFFFF);
@@ -925,8 +924,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
         /* Ensure pins are disconnected. */
         nrf_uarte_txrx_pins_set(nordic_nrf5_uart_register[instance],
-                                NRF_UART_PSEL_DISCONNECTED,
-                                NRF_UART_PSEL_DISCONNECTED);
+                                NRF_UARTE_PSEL_DISCONNECTED,
+                                NRF_UARTE_PSEL_DISCONNECTED);
 
         /* Set maximum baud rate to minimize waiting. */
         nrf_uarte_baudrate_set(nordic_nrf5_uart_register[instance],
@@ -950,7 +949,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     /* Store pins in serial object. */
     if (tx == NC) {
 
-        uart_object->tx = NRF_UART_PSEL_DISCONNECTED;
+        uart_object->tx = NRF_UARTE_PSEL_DISCONNECTED;
     } else {
 
         uart_object->tx = tx;
@@ -958,18 +957,18 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     if (rx == NC) {
 
-        uart_object->rx = NRF_UART_PSEL_DISCONNECTED;
+        uart_object->rx = NRF_UARTE_PSEL_DISCONNECTED;
     } else {
 
         uart_object->rx = rx;
     }
 
     /* Set default parity, baud rate, and callback handler. */
-    uart_object->parity = NRF_UART_PARITY_EXCLUDED;
-    uart_object->baudrate = NRF_UART_BAUDRATE_9600;
-    uart_object->cts = NRF_UART_PSEL_DISCONNECTED;
-    uart_object->rts = NRF_UART_PSEL_DISCONNECTED;
-    uart_object->hwfc = NRF_UART_HWFC_DISABLED;
+    uart_object->parity = NRF_UARTE_PARITY_EXCLUDED;
+    uart_object->baudrate = NRF_UARTE_BAUDRATE_9600;
+    uart_object->cts = NRF_UARTE_PSEL_DISCONNECTED;
+    uart_object->rts = NRF_UARTE_PSEL_DISCONNECTED;
+    uart_object->hwfc = NRF_UARTE_HWFC_DISABLED;
     uart_object->handler = 0;
 
     /* The STDIO object is stored in this file. Set the flag once initialized. */
@@ -1016,7 +1015,7 @@ void serial_free(serial_t *obj)
                 *(volatile uint32_t *)0x40002FFC;
                 *(volatile uint32_t *)0x40002FFC = 1;
             }
-#if UART1_ENABLED
+#if NRFX_UARTE1_ENABLED
             else {
                 *(volatile uint32_t *)0x40028FFC = 0;
                 *(volatile uint32_t *)0x40028FFC;
@@ -1043,7 +1042,7 @@ void serial_baud(serial_t *obj, int baudrate)
     struct serial_s *uart_object = obj;
 #endif
 
-    nrf_uarte_baudrate_t new_rate = NRF_UART_BAUDRATE_9600;
+    nrf_uarte_baudrate_t new_rate = NRF_UARTE_BAUDRATE_9600;
 
     /* Round down to nearest supported baud rate. */
     if (baudrate < 2400) {
@@ -1115,14 +1114,14 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     /**
      * Only force change if parity has changed.
      */
-    if ((uart_object->parity != NRF_UART_PARITY_EXCLUDED) && (parity == ParityNone)) {
+    if ((uart_object->parity != NRF_UARTE_PARITY_EXCLUDED) && (parity == ParityNone)) {
 
-        uart_object->parity = NRF_UART_PARITY_EXCLUDED;
+        uart_object->parity = NRF_UARTE_PARITY_EXCLUDED;
         uart_object->update = true;
 
-    } else if ((uart_object->parity != NRF_UART_PARITY_INCLUDED) && (parity == ParityEven)) {
+    } else if ((uart_object->parity != NRF_UARTE_PARITY_INCLUDED) && (parity == ParityEven)) {
 
-        uart_object->parity = NRF_UART_PARITY_INCLUDED;
+        uart_object->parity = NRF_UARTE_PARITY_INCLUDED;
         uart_object->update = true;
     }
 }
@@ -1148,9 +1147,9 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
     /**
      * Convert Mbed pin names to Nordic pin names.
      */
-    uart_object->cts = ((txflow == NC) || (type == FlowControlRTS)) ? NRF_UART_PSEL_DISCONNECTED : (uint32_t) txflow;
-    uart_object->rts = ((rxflow == NC) || (type == FlowControlCTS)) ? NRF_UART_PSEL_DISCONNECTED : (uint32_t) rxflow;
-    uart_object->hwfc = (type == FlowControlNone) ? NRF_UART_HWFC_DISABLED : NRF_UART_HWFC_ENABLED;
+    uart_object->cts = ((txflow == NC) || (type == FlowControlRTS)) ? NRF_UARTE_PSEL_DISCONNECTED : (uint32_t) txflow;
+    uart_object->rts = ((rxflow == NC) || (type == FlowControlCTS)) ? NRF_UARTE_PSEL_DISCONNECTED : (uint32_t) rxflow;
+    uart_object->hwfc = (type == FlowControlNone) ? NRF_UARTE_HWFC_DISABLED : NRF_UARTE_HWFC_ENABLED;
 
     /* Force reconfiguration next time object is owner. */
     uart_object->update = true;
@@ -1506,7 +1505,7 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
             valid = true;
         }
     }
-#if UART1_ENABLED
+#if NRFX_UARTE1_ENABLED
     else {
         if (nrfx_is_in_ram(tx) || (tx_length <= UART1_FIFO_BUFFER_SIZE)) {
             valid = true;
