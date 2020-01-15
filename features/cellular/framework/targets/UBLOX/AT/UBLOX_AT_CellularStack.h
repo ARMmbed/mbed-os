@@ -60,16 +60,10 @@ protected:
      */
     static const int SOCKET_TIMEOUT = 1000;
 
-    /** Maximum allowed sockets.
-     */
-    static const int UBLOX_MAX_SOCKET = 7;
-
     /** The maximum number of bytes in a packet that can be write/read from
      * the AT interface in one go.
      */
     static const int UBLOX_MAX_PACKET_SIZE = 1024;
-
-    virtual int get_max_socket_count();
 
     virtual bool is_protocol_supported(nsapi_protocol_t protocol);
 

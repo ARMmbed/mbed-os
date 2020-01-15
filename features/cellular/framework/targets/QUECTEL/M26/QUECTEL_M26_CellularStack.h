@@ -22,7 +22,6 @@
 
 namespace mbed {
 
-#define M26_SOCKET_MAX 6
 #define M26_CREATE_SOCKET_TIMEOUT 75000 //75 seconds
 #define M26_SENT_BYTE_MAX 1460
 #define M26_RECV_BYTE_MAX 1024
@@ -46,8 +45,6 @@ protected: // NetworkStack
 protected: // AT_CellularStack
 
     virtual nsapi_error_t socket_stack_init();
-
-    virtual int get_max_socket_count();
 
     virtual bool is_protocol_supported(nsapi_protocol_t protocol);
 

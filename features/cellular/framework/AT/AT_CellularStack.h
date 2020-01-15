@@ -136,11 +136,6 @@ protected:
     };
 
     /**
-    * Gets maximum number of sockets modem supports
-    */
-    virtual int get_max_socket_count() = 0;
-
-    /**
     * Checks if modem supports the given protocol
     *
     * @param protocol   Protocol type
@@ -217,9 +212,6 @@ private:
 protected:
     // socket container
     CellularSocket **_socket;
-
-    // number of socket slots allocated in socket container
-    int _socket_count;
 
     // IP address
     char _ip[PDP_IPV6_SIZE];

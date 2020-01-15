@@ -116,7 +116,7 @@ void QUECTEL_M26_CellularStack::urc_qiurc()
     (void) _at.skip_param(); /*<tlen>*/
     _at.unlock();
 
-    for (int i = 0; i < get_max_socket_count(); i++) {
+    for (int i = 0; i < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT); i++) {
         CellularSocket *sock = _socket[i];
         if (sock && sock->id == sock_id) {
             if (sock->_cb) {
@@ -215,11 +215,6 @@ nsapi_error_t QUECTEL_M26_CellularStack::socket_stack_init()
 
     tr_debug("QUECTEL_M26_CellularStack:%s:%u: SUCCESS ", __FUNCTION__, __LINE__);
     return NSAPI_ERROR_OK;
-}
-
-int QUECTEL_M26_CellularStack::get_max_socket_count()
-{
-    return M26_SOCKET_MAX;
 }
 
 bool QUECTEL_M26_CellularStack::is_protocol_supported(nsapi_protocol_t protocol)
@@ -328,7 +323,7 @@ nsapi_error_t QUECTEL_M26_CellularStack::create_socket_impl(CellularSocket *sock
     int potential_sid = -1;
     int index = find_socket_index(socket);
 
-    for (int i = 0; i < get_max_socket_count(); i++) {
+    for (int i = 0; i < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT); i++) {
         CellularSocket *sock = _socket[i];
         if (sock && sock != socket && sock->id == index) {
             duplicate = true;

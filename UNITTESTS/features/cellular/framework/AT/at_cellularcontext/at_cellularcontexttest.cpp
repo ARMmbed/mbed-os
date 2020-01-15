@@ -77,10 +77,6 @@ protected:
 class my_stack : public AT_CellularStack {
 public:
     my_stack(ATHandler &atHandler, AT_CellularDevice &device) : AT_CellularStack(atHandler, 1, IPV4_STACK, device) {}
-    virtual int get_max_socket_count()
-    {
-        return 1;
-    }
     virtual int get_max_packet_size()
     {
         return 200;
