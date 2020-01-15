@@ -676,16 +676,16 @@ int QSPIFBlockDevice::_sfdp_parse_sfdp_headers(uint32_t &basic_table_addr, size_
         }
 
         if ((param_header[0] == 0) && (param_header[7] == 0xFF)) {
-            // Found Basic Params Table: LSB=0x00, MSB=0xFF
-            tr_debug("Found Basic Param Table at Table: %d", i_ind + 1);
+            tr_debug("Parameter Header %d: Basic Parameter Header", i_ind);
             basic_table_addr = ((param_header[6] << 16) | (param_header[5] << 8) | (param_header[4]));
             // Supporting up to 64 Bytes Table (16 DWORDS)
             basic_table_size = ((param_header[3] * 4) < SFDP_DEFAULT_BASIC_PARAMS_TABLE_SIZE_BYTES) ? (param_header[3] * 4) : 64;
         } else if ((param_header[0] == 0x81) && (param_header[7] == 0xFF)) {
-            // Found Sector Map Table: LSB=0x81, MSB=0xFF
-            tr_debug("Found Sector Map Table at Table: %d", i_ind + 1);
+            tr_debug("Parameter Header %d: Sector Map Parameter Header", i_ind);
             sector_map_table_addr = ((param_header[6] << 16) | (param_header[5] << 8) | (param_header[4]));
             sector_map_table_size = param_header[3] * 4;
+        } else {
+            tr_debug("Parameter Header %d: Vendor specific or unknown header", i_ind);
         }
         addr += QSPIF_PARAM_HEADER_SIZE;
     }
