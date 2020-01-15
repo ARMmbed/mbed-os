@@ -377,12 +377,6 @@ public: //Pure virtual functions
 
 public: //Common functions
 
-    /** Stop the current operation. Operations: set_device_ready, set_sim_ready, register_to_network, attach_to_network
-     *
-     */
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "Use CellularDevice::shutdown() instead.")
-    void stop();
-
     /** Get the current FileHandle item used when communicating with the modem.
      *
      *  @return reference to FileHandle
