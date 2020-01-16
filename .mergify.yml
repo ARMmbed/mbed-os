@@ -19,7 +19,9 @@
 
 # Notes: conditions do not check if label is already there if we add or remove later, this is to limit Github API access to
 # minimum. If a label is already there and we add it again, nothing should happen (we do 1 less access to Github).
-# For instance for needs: work if CI failed, we just add a label as action, don't check if needs: works is already there
+# For instance for needs: work if CI failed, we just add a label as action, don't check if needs: works is already there.
+#
+# Reviewers request needs write access to block PR, otherwise it's just a suggestion on Github, not PR block
 
 pull_request_rules:
   # From needs: review to needs: work - reviewers request
