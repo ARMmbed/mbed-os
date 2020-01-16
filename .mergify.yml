@@ -98,6 +98,28 @@ pull_request_rules:
         remove: 
           - "needs: review"
 
+  # From needs: work to needs: CI
+  - name: "label needs: CI it was approved and pr-head needs to be rerun again"
+    conditions:
+      - base~=feature-mergify
+      # Labels
+      - "label=needs: work"
+
+      # Reviewers, at least one approval and no changes requested
+      - "#changes-requested-reviews-by=0"
+      - "#approved-reviews-by>=0"
+
+      # CI green policy, at least Travis should be green
+      - status-success~=continuous-integration/travis-ci/pr
+      # new CI needs to be done
+      - status-neutral~=continuous-integration/jenkins/pr-head
+    actions:
+      label:
+        add: 
+          - "needs: CI"
+        remove: 
+          - "needs: work"
+
   # Conflict in the PR - needs: work and a comment to notify a user
   - name: "label needs: work when there is a conflict"
     conditions:
