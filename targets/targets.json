@@ -12571,7 +12571,8 @@
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
-            "STDIO_MESSAGES"
+            "STDIO_MESSAGES",
+            "LPTICKER"
         ],
         "components_add": [
             "FLASHIAP"
