@@ -75,7 +75,7 @@ void mbed_error_vprintf(const char *format, va_list arg)
 void mbed_error_puts(const char *str)
 {
     // Writing the string to the console in a critical section is
-    // potentially beneficial - for example in UARTSerial it
+    // potentially beneficial - for example in BufferedSerial it
     // forces the "unbuffered" mode that makes sure all characters
     // go out now. If we made the call not in a critical section,
     // it would go to the software buffer and we would be reliant

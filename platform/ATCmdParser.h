@@ -39,7 +39,7 @@ namespace mbed {
  *
  * Here are some examples:
  * @code
- * UARTSerial serial = UARTSerial(D1, D0);
+ * BufferedSerial serial = BufferedSerial(D1, D0);
  * ATCmdParser at = ATCmdParser(&serial, "\r\n");
  * int value;
  * char buffer[100];
