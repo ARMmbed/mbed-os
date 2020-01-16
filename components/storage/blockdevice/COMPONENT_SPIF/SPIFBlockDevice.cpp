@@ -41,11 +41,6 @@ using namespace mbed;
 #define SPIF_STATUS_BIT_WIP 0x1 //Write In Progress
 #define SPIF_STATUS_BIT_WEL 0x2 // Write Enable Latch
 
-/* SFDP Header Parsing */
-/***********************/
-#define SPIF_SFDP_HEADER_SIZE 8
-#define SPIF_PARAM_HEADER_SIZE 8
-
 /* Basic Parameters Table Parsing */
 /**********************************/
 #define SFDP_DEFAULT_BASIC_PARAMS_TABLE_SIZE_BYTES 64 /* 16 DWORDS */
@@ -726,8 +721,8 @@ int SPIFBlockDevice::_sfdp_parse_sfdp_headers(sfdp_hdr_info &hdr_info)
     size_t data_length;
 
     {
-        data_length = SPIF_SFDP_HEADER_SIZE;
-        uint8_t sfdp_header[SPIF_SFDP_HEADER_SIZE];
+        data_length = SFDP_HEADER_SIZE;
+        uint8_t sfdp_header[SFDP_HEADER_SIZE];
 
         // Set 1-1-1 bus mode for SFDP header parsing
         // Initial SFDP read tables are read with 8 dummy cycles
@@ -746,11 +741,11 @@ int SPIFBlockDevice::_sfdp_parse_sfdp_headers(sfdp_hdr_info &hdr_info)
         }
     }
 
-    addr += SPIF_SFDP_HEADER_SIZE;
+    addr += SFDP_HEADER_SIZE;
 
     {
-        data_length = SPIF_PARAM_HEADER_SIZE;
-        uint8_t param_header[SPIF_SFDP_HEADER_SIZE];
+        data_length = SFDP_HEADER_SIZE;
+        uint8_t param_header[SFDP_HEADER_SIZE];
         spif_bd_error status;
         int hdr_status;
 
@@ -768,7 +763,7 @@ int SPIFBlockDevice::_sfdp_parse_sfdp_headers(sfdp_hdr_info &hdr_info)
                 return hdr_status;
             }
 
-            addr += SPIF_PARAM_HEADER_SIZE;
+            addr += SFDP_HEADER_SIZE;
         }
     }
     return 0;

@@ -49,8 +49,6 @@ using namespace mbed;
 /* SFDP Header Parsing */
 /***********************/
 #define QSPIF_RSFDP_DUMMY_CYCLES 8
-#define QSPIF_SFDP_HEADER_SIZE 8
-#define QSPIF_PARAM_HEADER_SIZE 8
 
 /* Basic Parameters Table Parsing */
 /**********************************/
@@ -635,8 +633,8 @@ int QSPIFBlockDevice::_sfdp_parse_sfdp_headers(mbed::sfdp_hdr_info &hdr_info)
     size_t data_length;
 
     {
-        data_length = QSPIF_SFDP_HEADER_SIZE;
-        uint8_t sfdp_header[QSPIF_SFDP_HEADER_SIZE];
+        data_length = SFDP_HEADER_SIZE;
+        uint8_t sfdp_header[SFDP_HEADER_SIZE];
 
         qspi_status_t status = _qspi_send_read_sfdp_command(addr, (char *)sfdp_header, data_length);
         if (status != QSPI_STATUS_OK) {
@@ -650,11 +648,11 @@ int QSPIFBlockDevice::_sfdp_parse_sfdp_headers(mbed::sfdp_hdr_info &hdr_info)
         }
     }
 
-    addr += QSPIF_SFDP_HEADER_SIZE;
+    addr += SFDP_HEADER_SIZE;
 
     {
-        data_length = QSPIF_PARAM_HEADER_SIZE;
-        uint8_t param_header[QSPIF_PARAM_HEADER_SIZE];
+        data_length = SFDP_HEADER_SIZE;
+        uint8_t param_header[SFDP_HEADER_SIZE];
         qspi_status_t status;
         int hdr_status;
 
@@ -671,7 +669,7 @@ int QSPIFBlockDevice::_sfdp_parse_sfdp_headers(mbed::sfdp_hdr_info &hdr_info)
                 return hdr_status;
             }
 
-            addr += QSPIF_PARAM_HEADER_SIZE;
+            addr += SFDP_HEADER_SIZE;
         }
     }
 
