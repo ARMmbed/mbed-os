@@ -128,7 +128,7 @@ pull_request_rules:
     conditions:
       - base~=feature-mergify
       # Labels
-      - label!=do not merge
+      - "label!=do not merge"
       - "label=needs: CI"
 
       # Reviewers
@@ -144,7 +144,7 @@ pull_request_rules:
     actions:
       label:
         add: 
-          - ready for merge
+          - "ready for merge"
         remove: 
           - "needs: CI"
 
@@ -153,11 +153,11 @@ pull_request_rules:
     conditions:
       - base~=feature-mergify
       - merged
-      - label=ready for merge
+      - "label=ready for merge"
     actions:
       label:
         remove:
-          - ready for merge
+          - "ready for merge"
 
   - name: add "do not merge" label when WIP is in title
     conditions:
@@ -177,7 +177,7 @@ pull_request_rules:
     actions:
       label:
         add:
-          - Release review required
+          - "Release review required"
       comment:
         message: This PR does not contain release version label after merging.
 
