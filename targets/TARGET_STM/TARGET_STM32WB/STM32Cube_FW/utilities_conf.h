@@ -17,10 +17,9 @@
   ******************************************************************************
   */
 
-
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __UTILITIES_CONF_H
-#define __UTILITIES_CONF_H
+#ifndef UTILITIES_CONF_H
+#define UTILITIES_CONF_H
 
 #include "app_conf.h"
 
@@ -78,6 +77,6 @@
 #define DBG_TRACE_MSG_QUEUE_SIZE 4096
 #define MAX_DBG_TRACE_MSG_SIZE 1024
 
-#endif /*__UTILITIES_CONF_H */
+#endif /*UTILITIES_CONF_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
