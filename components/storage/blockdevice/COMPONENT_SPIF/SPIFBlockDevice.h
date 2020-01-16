@@ -19,6 +19,7 @@
 #include "platform/SingletonPtr.h"
 #include "drivers/SPI.h"
 #include "drivers/DigitalOut.h"
+#include "drivers/internal/SFDP.h"
 #include "features/storage/blockdevice/BlockDevice.h"
 
 #ifndef MBED_CONF_SPIF_DRIVER_SPI_MOSI
@@ -225,8 +226,7 @@ private:
     /* SFDP Detection and Parsing Functions */
     /****************************************/
     // Parse SFDP Headers and retrieve Basic Param and Sector Map Tables (if exist)
-    int _sfdp_parse_sfdp_headers(uint32_t &basic_table_addr, size_t &basic_table_size,
-                                 uint32_t &sector_map_table_addr, size_t &sector_map_table_size);
+    int _sfdp_parse_sfdp_headers(mbed::sfdp_hdr_info &hdr_info);
 
     // Parse and Detect required Basic Parameters from Table
     int _sfdp_parse_basic_param_table(uint32_t basic_table_addr, size_t basic_table_size);
