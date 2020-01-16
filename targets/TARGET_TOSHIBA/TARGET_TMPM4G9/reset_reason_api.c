@@ -88,6 +88,13 @@ reset_reason_t hal_reset_reason_get(void)
     return ret;
 }
 
+void hal_reset_reason_get_capabilities(reset_reason_capabilities_t *cap)
+{
+    cap->reasons = 1 << RESET_REASON_UNKNOWN;
+    cap->reasons |= 1 << RESET_REASON_POWER_ON;
+    cap->reasons |= 1 << RESET_REASON_MULTIPLE;
+}
+
 static bool bit_status(uint32_t reg, uint8_t bit_no)
 {
     bool status = false;

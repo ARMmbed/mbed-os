@@ -105,4 +105,23 @@ void hal_reset_reason_clear(void)
 #endif
 }
 
+void hal_reset_reason_get_capabilities(reset_reason_capabilities_t *cap)
+{
+    cap->reasons = 1 << RESET_REASON_UNKNOWN;
+    cap->reasons |= 1 << RESET_REASON_POWER_ON;
+    cap->reasons |= 1 << RESET_REASON_BROWN_OUT;
+    cap->reasons |= 1 << RESET_REASON_WATCHDOG;
+    cap->reasons |= 1 << RESET_REASON_PIN_RESET;
+    cap->reasons |= 1 << RESET_REASON_SOFTWARE;
+
+#if (defined(FSL_FEATURE_RCM_HAS_WAKEUP) && FSL_FEATURE_RCM_HAS_WAKEUP) || \
+    (defined(FSL_FEATURE_RCM_HAS_LOC) && FSL_FEATURE_RCM_HAS_LOC) || \
+    (defined(FSL_FEATURE_RCM_HAS_LOL) && FSL_FEATURE_RCM_HAS_LOL) || \
+    (defined(FSL_FEATURE_RCM_HAS_JTAG) && FSL_FEATURE_RCM_HAS_JTAG) || \
+    (defined(FSL_FEATURE_RCM_HAS_MDM_AP) && FSL_FEATURE_RCM_HAS_MDM_AP) || \
+    (defined(FSL_FEATURE_RCM_HAS_EZPORT) && FSL_FEATURE_RCM_HAS_EZPORT)
+    cap->reasons |= 1 << RESET_REASON_PLATFORM;
+#endif
+}
+
 #endif // DEVICE_RESET_REASON

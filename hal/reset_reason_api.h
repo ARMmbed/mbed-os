@@ -41,6 +41,8 @@ extern "C" {
  * some other part of the application may have cleared the value. Therefore,
  * though there may have been a reset reason in the registers when the system
  * started, the reason may not be available when the user comes to check it.
+ * * The function ::hal_reset_reason_get_capabilities fills the given
+ * `reset_reason_capabilities_t` instance.
  *
  * # Undefined behavior
  * * There is no guarantee that the function ::hal_reset_reason_get will
@@ -87,6 +89,12 @@ typedef enum {
     RESET_REASON_PLATFORM,       /**< Platform specific reset reason not captured in this enum */
     RESET_REASON_UNKNOWN         /**< Unknown or unreadable reset reason **/
 } reset_reason_t;
+
+/** Reset reason capabilities of the platform
+ */
+typedef struct {
+    uint32_t reasons; /**< Supported reset reasons. Each bit represents a corresponding reset_reason_t value.**/
+} reset_reason_capabilities_t;
 
 /** Fetch the reset reason for the last system reset.
  *
@@ -136,6 +144,10 @@ uint32_t hal_reset_reason_get_raw(void);
  * the cause of any subsequent system resets.
  */
 void hal_reset_reason_clear(void);
+
+/** Fill the given reset_reason_capabilities_t instance according to platform capabilities.
+ */
+void hal_reset_reason_get_capabilities(reset_reason_capabilities_t *cap);
 
 /**@}*/
 
