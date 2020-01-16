@@ -954,7 +954,6 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
                     }
                 } else {
                     tr_error("APN lookup failed");
-                    _device->stop();
                     if (_is_blocking) {
                         // operation failed, release semaphore
                         if (_current_op != OP_INVALID) {
