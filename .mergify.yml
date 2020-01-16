@@ -81,7 +81,6 @@ pull_request_rules:
     conditions:
       - base~=feature-mergify
       # Labels
-      - "label!=needs: work"
       - "label!=needs: preceding PR"
 
       # Reviewers
