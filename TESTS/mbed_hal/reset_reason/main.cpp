@@ -49,19 +49,20 @@
 #define MSG_KEY_RESET_REASON "reason"
 #define MSG_KEY_DEVICE_RESET "reset"
 
-/* To prevent loss of Greentea data, flush serial buffers before the UART peripheral shutdown. The UART shutdown happens when the
+/* To prevent a loss of Greentea data, the serial buffers have to be flushed
+ * before the UART peripheral shutdown. The UART shutdown happens when the
  * device is entering the deepsleep mode or performing a reset.
  *
  * With the current API, it is not possible to check if the hardware buffers
- * are empty. However, you can determine the amount of time required for the
+ * are empty. However, it is possible to determine the time required for the
  * buffers to flush.
  *
- * For example, NUMAKER_PFM_NUC472:
- * The UART peripheral has 16-byte Tx FIFO. With a baud rate of 9600,
- * flushing the Tx FIFO would take: 16 * 8 * 1000 / 9600 = 13.3 ms.
- * To be on the safe side, set the wait time to 20 ms.
+ * Assuming the biggest Tx FIFO of 128 bytes (as for CY8CPROTO_062_4343W)
+ * and a default UART config (9600, 8N1), flushing the Tx FIFO wold take:
+ * (1 start_bit + 8 data_bits + 1 stop_bit) * 128 * 1000 / 9600 = 133.3 ms.
+ * To be on the safe side, set the wait time to 150 ms.
  */
-#define SERIAL_FLUSH_TIME_MS    20
+#define SERIAL_FLUSH_TIME_MS 150
 
 typedef enum {
     CMD_STATUS_CONTINUE,
