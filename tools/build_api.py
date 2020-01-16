@@ -240,12 +240,14 @@ def find_valid_toolchain(target, toolchain):
                 "Could not find executable for {}.\n"
                 "Currently set search path: {}"
             ).format(toolchain_name, search_path)
-        else:
-            if toolchain_name in ["uARM", "ARMC5", "ARMC6"]:
-                if toolchain_name == "ARMC5":
-                    end_warnings.append(ARMC5_MIGRATION_WARNING)
-                if "uARM" in {toolchain_name, target.default_toolchain}:
-                    end_warnings.append(UARM_TOOLCHAIN_WARNING)
+        else:            
+            if toolchain_name == "ARMC5":
+                end_warnings.append(ARMC5_MIGRATION_WARNING)
+            if (
+                toolchain_name in ["uARM", "ARMC5", "ARMC6"] 
+                and "uARM" in {toolchain_name, target.default_toolchain}
+            ):
+                end_warnings.append(UARM_TOOLCHAIN_WARNING)
             return toolchain_name, internal_tc_name, end_warnings
     else:
         if last_error:
