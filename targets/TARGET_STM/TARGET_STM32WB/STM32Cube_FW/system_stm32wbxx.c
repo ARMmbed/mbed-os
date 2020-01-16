@@ -1,295 +1,278 @@
 /**
- ******************************************************************************
- * @file    system_stm32wbxx.c
- * @author  MCD Application Team
- * @brief   CMSIS Cortex Device Peripheral Access Layer System Source File
- *
- *   This file provides two functions and one global variable to be called from
- *   user application:
- *      - SystemInit(): This function is called at startup just after reset and
- *                      before branch to main program. This call is made inside
- *                      the "startup_stm32wbxx.s" file.
- *
- *      - SystemCoreClock variable: Contains the core clock (HCLK), it can be used
- *                                  by the user application to setup the SysTick
- *                                  timer or configure other parameters.
- *
- *      - SystemCoreClockUpdate(): Updates the variable SystemCoreClock and must
- *                                 be called whenever the core clock is changed
- *                                 during program execution.
- *
- *   After each device reset the MSI (4 MHz) is used as system clock source.
- *   Then SystemInit() function is called, in "startup_stm32wbxx.s" file, to
- *   configure the system clock before to branch to main program.
- *
- *   This file configures the system clock as follows:
- *=============================================================================
- *-----------------------------------------------------------------------------
- *        System Clock source                    | MSI
- *-----------------------------------------------------------------------------
- *        SYSCLK(Hz)                             | 4000000
- *-----------------------------------------------------------------------------
- *        HCLK(Hz)                               | 4000000
- *-----------------------------------------------------------------------------
- *        AHB Prescaler                          | 1
- *-----------------------------------------------------------------------------
- *        APB1 Prescaler                         | 1
- *-----------------------------------------------------------------------------
- *        APB2 Prescaler                         | 1
- *-----------------------------------------------------------------------------
- *        PLL_M                                  | 1
- *-----------------------------------------------------------------------------
- *        PLL_N                                  | 8
- *-----------------------------------------------------------------------------
- *        PLL_P                                  | 7
- *-----------------------------------------------------------------------------
- *        PLL_Q                                  | 2
- *-----------------------------------------------------------------------------
- *        PLL_R                                  | 2
- *-----------------------------------------------------------------------------
- *        PLLSAI1_P                              | NA
- *-----------------------------------------------------------------------------
- *        PLLSAI1_Q                              | NA
- *-----------------------------------------------------------------------------
- *        PLLSAI1_R                              | NA
- *-----------------------------------------------------------------------------
- *        Require 48MHz for USB OTG FS,          | Disabled
- *        SDIO and RNG clock                     |
- *-----------------------------------------------------------------------------
- *=============================================================================
- ******************************************************************************
- * @attention
- *
- * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
- * All rights reserved.</center></h2>
- *
- * This software component is licensed by ST under BSD 3-Clause license,
- * the "License"; You may not use this file except in compliance with the
- * License. You may obtain a copy of the License at:
- *                        opensource.org/licenses/BSD-3-Clause
- *
- ******************************************************************************
- */
-
+  ******************************************************************************
+  * @file    system_stm32wbxx.c
+  * @author  MCD Application Team
+  * @brief   CMSIS Cortex Device Peripheral Access Layer System Source File
+  *
+  *   This file provides two functions and one global variable to be called from
+  *   user application:
+  *      - SystemInit(): This function is called at startup just after reset and
+  *                      before branch to main program. This call is made inside
+  *                      the "startup_stm32wbxx.s" file.
+  *
+  *      - SystemCoreClock variable: Contains the core clock (HCLK), it can be used
+  *                                  by the user application to setup the SysTick
+  *                                  timer or configure other parameters.
+  *
+  *      - SystemCoreClockUpdate(): Updates the variable SystemCoreClock and must
+  *                                 be called whenever the core clock is changed
+  *                                 during program execution.
+  *
+  *   After each device reset the MSI (4 MHz) is used as system clock source.
+  *   Then SystemInit() function is called, in "startup_stm32wbxx.s" file, to
+  *   configure the system clock before to branch to main program.
+  *
+  *   This file configures the system clock as follows:
+  *=============================================================================
+  *-----------------------------------------------------------------------------
+  *        System Clock source                    | MSI
+  *-----------------------------------------------------------------------------
+  *        SYSCLK(Hz)                             | 4000000
+  *-----------------------------------------------------------------------------
+  *        HCLK(Hz)                               | 4000000
+  *-----------------------------------------------------------------------------
+  *        AHB Prescaler                          | 1
+  *-----------------------------------------------------------------------------
+  *        APB1 Prescaler                         | 1
+  *-----------------------------------------------------------------------------
+  *        APB2 Prescaler                         | 1
+  *-----------------------------------------------------------------------------
+  *        PLL_M                                  | 1
+  *-----------------------------------------------------------------------------
+  *        PLL_N                                  | 8
+  *-----------------------------------------------------------------------------
+  *        PLL_P                                  | 7
+  *-----------------------------------------------------------------------------
+  *        PLL_Q                                  | 2
+  *-----------------------------------------------------------------------------
+  *        PLL_R                                  | 2
+  *-----------------------------------------------------------------------------
+  *        PLLSAI1_P                              | NA
+  *-----------------------------------------------------------------------------
+  *        PLLSAI1_Q                              | NA
+  *-----------------------------------------------------------------------------
+  *        PLLSAI1_R                              | NA
+  *-----------------------------------------------------------------------------
+  *        Require 48MHz for USB OTG FS,          | Disabled
+  *        SDIO and RNG clock                     |
+  *-----------------------------------------------------------------------------
+  *=============================================================================
+  ******************************************************************************
+  * @attention
+  *
+  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics. 
+  * All rights reserved.</center></h2>
+  *
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the 
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
+  *
+  ******************************************************************************
+  */
 
 /** @addtogroup CMSIS
- * @{
- */
+  * @{
+  */
 
 /** @addtogroup stm32WBxx_system
- * @{
- */
+  * @{
+  */
 
 /** @addtogroup stm32WBxx_System_Private_Includes
- * @{
- */
+  * @{
+  */
 
-#include "app_common.h"
-#include "otp.h"
+#include "stm32wbxx.h"
 
 #if !defined  (HSE_VALUE)
-#define HSE_VALUE    ((uint32_t)32000000) /*!< Value of the External oscillator in Hz */
+  #define HSE_VALUE    (32000000UL) /*!< Value of the External oscillator in Hz */
 #endif /* HSE_VALUE */
 
 #if !defined  (MSI_VALUE)
-#define MSI_VALUE    ((uint32_t)4000000) /*!< Value of the Internal oscillator in Hz*/
+   #define MSI_VALUE    (4000000UL) /*!< Value of the Internal oscillator in Hz*/
 #endif /* MSI_VALUE */
 
 #if !defined  (HSI_VALUE)
-#define HSI_VALUE    ((uint32_t)16000000) /*!< Value of the Internal oscillator in Hz*/
+  #define HSI_VALUE    (16000000UL) /*!< Value of the Internal oscillator in Hz*/
 #endif /* HSI_VALUE */
 
 #if !defined  (LSI_VALUE) 
-#define LSI_VALUE  ((uint32_t)32000)       /*!< Value of LSI in Hz*/
+ #define LSI_VALUE  (32000UL)       /*!< Value of LSI in Hz*/
 #endif /* LSI_VALUE */ 
 
 #if !defined  (LSE_VALUE)
-#define LSE_VALUE    ((uint32_t)32768)    /*!< Value of LSE in Hz*/
+  #define LSE_VALUE    (32768UL)    /*!< Value of LSE in Hz*/
 #endif /* LSE_VALUE */
 
 /**
- * @}
- */
+  * @}
+  */
 
 /** @addtogroup STM32WBxx_System_Private_TypesDefinitions
- * @{
- */
+  * @{
+  */
 
 /**
- * @}
- */
+  * @}
+  */
 
 /** @addtogroup STM32WBxx_System_Private_Defines
- * @{
- */
+  * @{
+  */
 
 /*!< Uncomment the following line if you need to relocate your vector Table in
      Internal SRAM. */
 /* #define VECT_TAB_SRAM */
-/*!< Vector Table base offset field. This value must be a multiple of 0x200. */
-/* #define VECT_TAB_OFFSET  0x0U*/
+#define VECT_TAB_OFFSET         0x0U            /*!< Vector Table base offset field.
+                                                     This value must be a multiple of 0x200. */
 
+#define VECT_TAB_BASE_ADDRESS   SRAM1_BASE       /*!< Vector Table base offset field.
+                                                     This value must be a multiple of 0x200. */
 /**
- * @}
- */
+  * @}
+  */
 
 /** @addtogroup STM32WBxx_System_Private_Macros
- * @{
- */
+  * @{
+  */
 
 /**
- * @}
- */
+  * @}
+  */
 
 /** @addtogroup STM32WBxx_System_Private_Variables
- * @{
- */
-/* The SystemCoreClock variable is updated in three ways:
+  * @{
+  */
+  /* The SystemCoreClock variable is updated in three ways:
       1) by calling CMSIS function SystemCoreClockUpdate()
       2) by calling HAL API function HAL_RCC_GetHCLKFreq()
       3) each time HAL_RCC_ClockConfig() is called to configure the system clock frequency
          Note: If you use this function to configure the system clock; then there
                is no need to call the 2 first functions listed above, since SystemCoreClock
                variable is updated automatically.
- */
-uint32_t SystemCoreClock  = 4000000; /*CPU1: M4 on MSI clock after startup (4MHz)*/
+  */
+  uint32_t SystemCoreClock  = 4000000UL ; /*CPU1: M4 on MSI clock after startup (4MHz)*/
 
-const uint32_t AHBPrescTable[16] =   {1, 3, 5, 1, 1, 6, 10, 32, 2, 4, 8, 16, 64, 128, 256, 512};  /* eqv. division factor used for Dory*/
-/* index=[0,...15]*/
-const uint32_t APBPrescTable[8] =  {0, 0, 0, 0, 1, 2, 3, 4};
+  const uint32_t AHBPrescTable[16UL] = {1UL, 3UL, 5UL, 1UL, 1UL, 6UL, 10UL, 32UL, 2UL, 4UL, 8UL, 16UL, 64UL, 128UL, 256UL, 512UL};
 
-const uint32_t MSIRangeTable[16UL] = {100000UL, 200000UL, 400000UL, 800000UL, 1000000UL, 2000000UL, \
-		4000000UL, 8000000UL, 16000000UL, 24000000UL, 32000000UL, 48000000UL, 0UL, 0UL, 0UL, 0UL}; /* 0UL values are incorrect cases */
+  const uint32_t APBPrescTable[8UL]  = {0UL, 0UL, 0UL, 0UL, 1UL, 2UL, 3UL, 4UL};
 
-const uint32_t SmpsPrescalerTable[4][6]={{1,3,2,2,1,2}, \
-		{2,6,4,3,2,4}, \
-		{4,12,8,6,4,8}, \
-		{4,12,8,6,4,8}};
+  const uint32_t MSIRangeTable[16UL] = {100000UL, 200000UL, 400000UL, 800000UL, 1000000UL, 2000000UL, \
+                                      4000000UL, 8000000UL, 16000000UL, 24000000UL, 32000000UL, 48000000UL, 0UL, 0UL, 0UL, 0UL}; /* 0UL values are incorrect cases */
+
+  const uint32_t SmpsPrescalerTable[4UL][6UL]={{1UL,3UL,2UL,2UL,1UL,2UL}, \
+                                        {2UL,6UL,4UL,3UL,2UL,4UL}, \
+                                        {4UL,12UL,8UL,6UL,4UL,8UL}, \
+                                        {4UL,12UL,8UL,6UL,4UL,8UL}};
 
 /**
- * @}
- */
+  * @}
+  */
 
- /** @addtogroup STM32WBxx_System_Private_FunctionPrototypes
+/** @addtogroup STM32WBxx_System_Private_FunctionPrototypes
   * @{
   */
 
-  /**
-   * @}
-   */
+/**
+  * @}
+  */
 
-   /** @addtogroup STM32WBxx_System_Private_Functions
-    * @{
-    */
+/** @addtogroup STM32WBxx_System_Private_Functions
+  * @{
+  */
 
 /**
- * @brief  Setup the microcontroller system.
- * @param  None
- * @retval None
- */
+  * @brief  Setup the microcontroller system.
+  * @param  None
+  * @retval None
+  */
 void SystemInit(void)
 {
-	OTP_ID0_t * p_otp;
+  /* Configure the Vector Table location add offset address ------------------*/
+#if defined(VECT_TAB_SRAM) && defined(VECT_TAB_BASE_ADDRESS)  
+  /* program in SRAMx */
+  SCB->VTOR = VECT_TAB_BASE_ADDRESS | VECT_TAB_OFFSET;  /* Vector Table Relocation in Internal SRAMx for CPU1 */
+#else    /* program in FLASH */
+  SCB->VTOR = VECT_TAB_OFFSET;              /* Vector Table Relocation in Internal FLASH */
+#endif
 
-    /* FPU settings ------------------------------------------------------------*/
-#if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
+  /* FPU settings ------------------------------------------------------------*/
+  #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
     SCB->CPACR |= ((3UL << (10UL*2UL))|(3UL << (11UL*2UL)));  /* set CP10 and CP11 Full Access */
-#endif
+  #endif
+  
+  /* Reset the RCC clock configuration to the default reset state ------------*/
+  /* Set MSION bit */
+  RCC->CR |= RCC_CR_MSION;
 
-    /* Reset the RCC clock configuration to the default reset state ------------*/
+  /* Reset CFGR register */
+  RCC->CFGR = 0x00070000U;
 
-    /* Set MSION bit */
-    RCC->CR |= RCC_CR_MSION;
+  /* Reset PLLSAI1ON, PLLON, HSECSSON, HSEON, HSION, and MSIPLLON bits */
+  RCC->CR &= (uint32_t)0xFAF6FEFBU;
 
-    /* Reset CFGR register */
-    RCC->CFGR = 0x00070000U;
+  /*!< Reset LSI1 and LSI2 bits */
+  RCC->CSR &= (uint32_t)0xFFFFFFFAU;
+  
+  /*!< Reset HSI48ON  bit */
+  RCC->CRRCR &= (uint32_t)0xFFFFFFFEU;
+    
+  /* Reset PLLCFGR register */
+  RCC->PLLCFGR = 0x22041000U;
 
-    /* Reset PLLSAI1ON, PLLON, HSECSSON, HSEON, HSION, and MSIPLLON bits */
-    RCC->CR &= (uint32_t)0xFAF6FEFBU;
+  /* Reset PLLSAI1CFGR register */
+  RCC->PLLSAI1CFGR = 0x22041000U;
 
-    /*!< Reset LSI1 and LSI2 bits */
-    RCC->CSR &= (uint32_t)0xFFFFFFFAU;
+  /* Reset HSEBYP bit */
+  RCC->CR &= 0xFFFBFFFFU;
 
-    /*!< Reset HSI48ON  bit */
-    RCC->CRRCR &= (uint32_t)0xFFFFFFFEU;
-
-    /* Reset PLLCFGR register */
-    RCC->PLLCFGR = 0x22041000U;
-
-    /* Reset PLLSAI1CFGR register */
-    RCC->PLLSAI1CFGR = 0x22041000U;
-
-    /* Reset HSEBYP bit */
-    RCC->CR &= 0xFFFBFFFFU;
-
-    /* Disable all interrupts */
-    RCC->CIER = 0x00000000;
-
-	/* Configure the Vector Table location add offset address ------------------*/
-#ifdef CORE_CM0PLUS
-	/* program in SRAM2A */
-#if defined(VECT_TAB_SRAM)
-	SCB->VTOR = RAM2A_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM2A for CPU2 */
-#elif defined(VECT_TAB_SRAM2B)
-	/* program in SRAM2B */
-	SCB->VTOR = RAM2B_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM2B for CPU2 */
-#else
-	/*  program in FLASH */
-	SCB->VTOR = VECT_TAB_OFFSET;              /* Vector Table Relocation in Internal FLASH */
-#endif  /* Program memory type */
-#else
-#if defined(VECT_TAB_SRAM)
-	/* program in SRAM1 */
-	SCB->VTOR = RAM1_BASE | VECT_TAB_OFFSET;  /* Vector Table Relocation in Internal SRAM1 for CPU1 */
-#elif defined(VECT_TAB_OFFSET)
-	SCB->VTOR = VECT_TAB_OFFSET;              /* Vector Table Relocation in Internal FLASH */
-#endif
-#endif
-
+  /* Disable all interrupts */
+  RCC->CIER = 0x00000000;
 }
 
 /**
- * @brief  Update SystemCoreClock variable according to Clock Register Values.
- *         The SystemCoreClock variable contains the core clock (HCLK), it can
- *         be used by the user application to setup the SysTick timer or configure
- *         other parameters.
- *
- * @note   Each time the core clock (HCLK) changes, this function must be called
- *         to update SystemCoreClock variable value. Otherwise, any configuration
- *         based on this variable will be incorrect.
- *
- * @note   - The system frequency computed by this function is not the real
- *           frequency in the chip. It is calculated based on the predefined
- *           constant and the selected clock source:
- *
- *           - If SYSCLK source is MSI, SystemCoreClock will contain the MSI_VALUE(*)
- *
- *           - If SYSCLK source is HSI, SystemCoreClock will contain the HSI_VALUE(**)
- *
- *           - If SYSCLK source is HSE, SystemCoreClock will contain the HSE_VALUE(***)
- *
- *           - If SYSCLK source is PLL, SystemCoreClock will contain the HSE_VALUE(***)
- *             or HSI_VALUE(*) or MSI_VALUE(*) multiplied/divided by the PLL factors.
- *
- *         (*) MSI_VALUE is a constant defined in stm32wbxx_hal.h file (default value
- *             4 MHz) but the real value may vary depending on the variations
- *             in voltage and temperature.
- *
- *         (**) HSI_VALUE is a constant defined in stm32wbxx_hal_conf.h file (default value
- *              16 MHz) but the real value may vary depending on the variations
- *              in voltage and temperature.
- *
- *         (***) HSE_VALUE is a constant defined in stm32wbxx_hal_conf.h file (default value
- *              32 MHz), user has to ensure that HSE_VALUE is same as the real
- *              frequency of the crystal used. Otherwise, this function may
- *              have wrong result.
- *
- *         - The result of this function could be not correct when using fractional
- *           value for HSE crystal.
- *
- * @param  None
- * @retval None
- */
+  * @brief  Update SystemCoreClock variable according to Clock Register Values.
+  *         The SystemCoreClock variable contains the core clock (HCLK), it can
+  *         be used by the user application to setup the SysTick timer or configure
+  *         other parameters.
+  *
+  * @note   Each time the core clock (HCLK) changes, this function must be called
+  *         to update SystemCoreClock variable value. Otherwise, any configuration
+  *         based on this variable will be incorrect.
+  *
+  * @note   - The system frequency computed by this function is not the real
+  *           frequency in the chip. It is calculated based on the predefined
+  *           constant and the selected clock source:
+  *
+  *           - If SYSCLK source is MSI, SystemCoreClock will contain the MSI_VALUE(*)
+  *
+  *           - If SYSCLK source is HSI, SystemCoreClock will contain the HSI_VALUE(**)
+  *
+  *           - If SYSCLK source is HSE, SystemCoreClock will contain the HSE_VALUE(***)
+  *
+  *           - If SYSCLK source is PLL, SystemCoreClock will contain the HSE_VALUE(***)
+  *             or HSI_VALUE(*) or MSI_VALUE(*) multiplied/divided by the PLL factors.
+  *
+  *         (*) MSI_VALUE is a constant defined in stm32wbxx_hal.h file (default value
+  *             4 MHz) but the real value may vary depending on the variations
+  *             in voltage and temperature.
+  *
+  *         (**) HSI_VALUE is a constant defined in stm32wbxx_hal_conf.h file (default value
+  *              16 MHz) but the real value may vary depending on the variations
+  *              in voltage and temperature.
+  *
+  *         (***) HSE_VALUE is a constant defined in stm32wbxx_hal_conf.h file (default value
+  *              32 MHz), user has to ensure that HSE_VALUE is same as the real
+  *              frequency of the crystal used. Otherwise, this function may
+  *              have wrong result.
+  *
+  *         - The result of this function could be not correct when using fractional
+  *           value for HSE crystal.
+  *
+  * @param  None
+  * @retval None
+  */
 void SystemCoreClockUpdate(void)
 {
   uint32_t tmp, msirange, pllvco, pllr, pllsource , pllm;
@@ -354,16 +337,17 @@ void SystemCoreClockUpdate(void)
 
 }
 
-/**
- * @}
- */
 
 /**
- * @}
- */
+  * @}
+  */
 
 /**
- * @}
- */
+  * @}
+  */
+
+/**
+  * @}
+  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

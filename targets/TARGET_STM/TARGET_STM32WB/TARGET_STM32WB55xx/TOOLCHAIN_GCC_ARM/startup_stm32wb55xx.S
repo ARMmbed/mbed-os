@@ -14,7 +14,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2018 STMicroelectronics. 
+  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics. 
   * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under BSD 3-Clause license,
@@ -85,18 +85,11 @@ LoopFillZerobss:
 
 /* Call the clock system intitialization function.*/
   bl  SystemInit
+	bl _start
 
-/* Call static constructors */
-// MBED >>>
-//bl __libc_init_array
-/* Call the application s entry point.*/
-//bl	main
-//LoopForever:
-//  b LoopForever
-  bl _start
-  bx  lr
-// <<< MBED
-
+LoopForever:
+  b LoopForever
+    
 .size	Reset_Handler, .-Reset_Handler
 
 /**

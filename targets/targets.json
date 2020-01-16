@@ -12036,11 +12036,6 @@
             "CORDIO"
         ],
         "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC (HSE recommended for BLE usage) | USE_PLL_HSI | USE_PLL_MSI",
-                "value": "USE_PLL_HSE_EXTC",
-                "macro_name": "CLOCK_SOURCE"
-            },
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1

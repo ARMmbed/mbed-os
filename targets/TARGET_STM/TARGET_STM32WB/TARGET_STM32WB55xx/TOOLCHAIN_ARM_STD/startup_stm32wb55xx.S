@@ -14,8 +14,7 @@
 ;******************************************************************************
 ;* @attention
 ;*
-;* <h2><center>&copy; Copyright (c) 2018 STMicroelectronics. 
-;* All rights reserved.</center></h2>
+;* Copyright (c) 2019 STMicroelectronics. All rights reserved.
 ;*
 ;* This software component is licensed by ST under BSD 3-Clause license,
 ;* the "License"; You may not use this file except in compliance with the 
@@ -33,9 +32,9 @@
                 EXPORT  __Vectors
                 EXPORT  __Vectors_End
                 EXPORT  __Vectors_Size
-                IMPORT  |Image$$ARM_LIB_STACK$$ZI$$Limit|
 
-__Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit| ; Top of Stack
+                IMPORT  |Image$$ARM_LIB_STACK$$ZI$$Limit|
+__Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit|              ; Top of Stack
         DCD     Reset_Handler                     ; Reset Handler
         DCD     NMI_Handler                       ; NMI Handler
         DCD     HardFault_Handler                 ; Hard Fault Handler
@@ -314,4 +313,11 @@ DMAMUX1_OVR_IRQHandler
                 ENDP
 
                 ALIGN
-                END
+
+;*******************************************************************************
+; User Stack and Heap initialization
+;*******************************************************************************
+
+                 END
+
+;************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE*****

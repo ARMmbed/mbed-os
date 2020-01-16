@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef MBED_OBJECTS_H
 #define MBED_OBJECTS_H
 
@@ -26,6 +27,11 @@
 #include "stm32wbxx_ll_tim.h"
 #include "stm32wbxx_ll_pwr.h"
 #include "stm32wbxx_ll_rtc.h"
+#include "stm32wbxx_ll_hsem.h"
+
+#ifndef FEATURE_BLE
+#error "BLE FEATURE CANNOT BE REMOVED"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
