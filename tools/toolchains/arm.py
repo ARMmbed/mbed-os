@@ -38,8 +38,8 @@ ARMC5_MIGRATION_WARNING = (
 )
 
 UARM_TOOLCHAIN_WARNING = (
-    "Warning: We noticed that you are using uARM Toolchain. "
-    "We are deprecating the use of uARM Toolchain. "
+    "Warning: We noticed that you are using uARM Toolchain either via --toolchain command line or default_toolchain option. "
+    "We are deprecating the use of the uARM Toolchain. "
     "For more information on how to use the ARM toolchain with small C libraries, "
     "please visit https://os.mbed.com/docs/mbed-os/latest/reference/using-small-c-libraries.html"
 )

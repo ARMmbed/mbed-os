@@ -234,17 +234,20 @@ def find_valid_toolchain(target, toolchain):
     last_error = None
     for index, toolchain_name in enumerate(toolchain_names):
         internal_tc_name = get_toolchain_name(target, toolchain_name)
-        if toolchain == "ARM" and toolchain_name == "ARMC5" and index != 0:
-            end_warnings.append(ARMC5_MIGRATION_WARNING)
         if not TOOLCHAIN_CLASSES[internal_tc_name].check_executable():
             search_path = TOOLCHAIN_PATHS[internal_tc_name] or "No path set"
             last_error = (
                 "Could not find executable for {}.\n"
                 "Currently set search path: {}"
             ).format(toolchain_name, search_path)
-        else:
-            if toolchain_name == "uARM" or target.default_toolchain == "uARM":
-                 end_warnings.append(UARM_TOOLCHAIN_WARNING)
+        else:            
+            if toolchain_name == "ARMC5":
+                end_warnings.append(ARMC5_MIGRATION_WARNING)
+            if (
+                toolchain_name in ["uARM", "ARMC5", "ARMC6"] 
+                and "uARM" in {toolchain_name, target.default_toolchain}
+            ):
+                end_warnings.append(UARM_TOOLCHAIN_WARNING)
             return toolchain_name, internal_tc_name, end_warnings
     else:
         if last_error:
