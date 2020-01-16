@@ -140,8 +140,7 @@ pull_request_rules:
       - status-success~=continuous-integration/travis-ci/pr
       # Internal Jenkins - we rely on PR head to provide status
       - status-success~=continuous-integration/jenkins/pr-head
-      # any of the jenkins pipeline needs to be green or not failed (if smart tester skippes some stages, they are not there)
-      - status-success~=^jenkins-ci
+      # any of the jenkins pipeline needs to be green. We rely on not failure means all good (if skipped or executed) 
       - -status-failure~=^jenkins-ci
     actions:
       label:
