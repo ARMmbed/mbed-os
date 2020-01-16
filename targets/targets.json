@@ -12060,6 +12060,7 @@
             "FLASH",
             "MPU"
         ],
+        "device_name": "STM32WB55RGVx",
         "features": [
             "BLE"
         ],
@@ -12067,7 +12068,7 @@
             "2",
             "5"
         ],
-        "bootloader_supported": false
+        "bootloader_supported": true
     },
     "VBLUNO52": {
         "supported_form_factors": [
