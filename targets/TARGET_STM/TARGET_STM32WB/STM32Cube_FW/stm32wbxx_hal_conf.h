@@ -199,7 +199,6 @@
 /**
   * @brief Include module's header file
   */
-
 #ifdef HAL_DMA_MODULE_ENABLED
   #include "stm32wbxx_hal_dma.h"
 #endif /* HAL_DMA_MODULE_ENABLED */

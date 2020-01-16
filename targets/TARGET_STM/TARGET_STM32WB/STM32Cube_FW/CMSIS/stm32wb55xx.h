@@ -13211,7 +13211,7 @@ typedef struct
 #define USB_EPRX_DTOGMASK  (USB_EPRX_STAT|USB_EPREG_MASK)
 
 /******************  Bit definition for USB_BTABLE register  ******************/
-#define USB_BTABLE_BTABLE                    ((uint16_t)0xFFF8U)               /*!< TODO !!!! To we need this define Buffer Table */
+#define USB_BTABLE_BTABLE                    ((uint16_t)0xFFF8U)
 
 /******************************************************************************/
 /*                                                                            */

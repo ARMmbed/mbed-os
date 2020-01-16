@@ -12033,8 +12033,6 @@
         "extra_labels_add": [
             "STM32WB",
             "STM32WB55xx",
-            "STM32WB55xG",
-            "STM32WB55RG",
             "CORDIO"
         ],
         "config": {
@@ -12049,6 +12047,7 @@
             }
         },
         "macros_add": [
+            "STM32WB55xx",
             "MBED_TICKLESS",
             "EXTRA_IDLE_STACK_REQUIRED"
         ],

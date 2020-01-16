@@ -27,7 +27,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32wbxx_hal_def.h"
-#include "stm32wbxx_ll_rtc.h"
 
 /* Include low level driver */
 #include "stm32wbxx_ll_exti.h"
