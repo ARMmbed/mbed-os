@@ -97,6 +97,7 @@ pull_request_rules:
           - "needs: CI"
         remove: 
           - "needs: review"
+          - "needs: work"
 
   # From needs: work to needs: CI
   - name: "label needs: CI it was approved and pr-head needs to be rerun again"
