@@ -89,8 +89,9 @@ pull_request_rules:
 
       # CI green policy, at least Travis should be green
       - status-success~=continuous-integration/travis-ci/pr
-      # new CI needs to be done
-      - status-neutral~=continuous-integration/jenkins/pr-head
+      # new CI needs to be done (neutral does not work, lets check if it failed or passed, if none, we need to run again)
+      - -status-success~=continuous-integration/jenkins/pr-head
+      - -status-failure~=continuous-integration/jenkins/pr-head
     actions:
       label:
         add: 
