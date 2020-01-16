@@ -1114,6 +1114,130 @@ void ESP8266::attach(Callback<void()> status_cb)
     _conn_stat_cb = status_cb;
 }
 
+bool ESP8266::set_sntp_config(bool enable, int timezone, const char *server0,
+                              const char *server1, const char *server2)
+{
+    bool done = false;
+    _smutex.lock();
+    if ((server0 == nullptr || server0[0] == '\0')) {
+        done = _parser.send("AT+CIPSNTPCFG=%d,%d",
+                            enable ? 1 : 0, timezone);
+    } else if ((server0 != nullptr || server0[0] != '\0')
+               && (server1 == nullptr && server1[0] == '\0')) {
+        done = _parser.send("AT+CIPSNTPCFG=%d,%d,%s",
+                            enable ? 1 : 0, timezone, server0);
+    } else if ((server0 != nullptr || server0[0] != '\0')
+               && (server1 != nullptr && server1[0] != '\0')
+               && (server2 == nullptr && server2[0] == '\0')) {
+        done = _parser.send("AT+CIPSNTPCFG=%d,%d,%s,%s",
+                            enable ? 1 : 0, timezone, server0, server1);
+    } else {
+        done = _parser.send("AT+CIPSNTPCFG=%d,%d,%s,%s,%s",
+                            enable ? 1 : 0, timezone, server0, server1, server2);
+    }
+    done &= _parser.recv("OK\n");
+    _smutex.unlock();
+    return done;
+}
+
+bool ESP8266::get_sntp_config(bool *enable, int *timezone, char *server0,
+                              char *server1, char *server2)
+{
+    _smutex.lock();
+    unsigned int tmp;
+    bool done = _parser.send("AT+CIPSNTPCFG?")
+                && _parser.scanf("+CIPSNTPCFG:%d,%d,\"%32[^\"]\",\"%32[^\"]\",\"%32[^\"]\"",
+                                 &tmp, timezone, server0, server1, server2)
+                && _parser.recv("OK\n");
+    _smutex.unlock();
+    *enable = tmp ? true : false;
+    return done;
+}
+
+bool ESP8266::get_sntp_time(std::tm *t)
+{
+    _smutex.lock();
+    char buf[25]; // Thu Aug 04 14:48:05 2016 (always 24 chars + \0)
+    memset(buf, 0, 25);
+
+    bool done = _parser.send("AT+CIPSNTPTIME?")
+                && _parser.scanf("+CIPSNTPTIME:%24c", &buf)
+                && _parser.recv("OK\n");
+    _smutex.unlock();
+
+    if (!done) {
+        return false;
+    }
+
+    char wday[4] = "\0", mon[4] = "\0";
+    int mday = 0, hour = 0, min = 0, sec = 0, year = 0;
+    int ret = sscanf(buf, "%s %s %d %d:%d:%d %d",
+                     wday, mon, &mday, &hour, &min, &sec, &year);
+    if (ret != 7) {
+        tr_debug("get_sntp_time(): sscanf returned %d", ret);
+        return false;
+    }
+
+    t->tm_sec = sec;
+    t->tm_min = min;
+    t->tm_hour = hour;
+    t->tm_mday = mday;
+
+    t->tm_wday = 0;
+    if (strcmp(wday, "Mon") == 0) {
+        t->tm_wday = 0;
+    } else if (strcmp(wday, "Tue") == 0) {
+        t->tm_wday = 1;
+    } else if (strcmp(wday, "Wed") == 0) {
+        t->tm_wday = 2;
+    } else if (strcmp(wday, "Thu") == 0) {
+        t->tm_wday = 3;
+    } else if (strcmp(wday, "Fri") == 0) {
+        t->tm_wday = 4;
+    } else if (strcmp(wday, "Sat") == 0) {
+        t->tm_wday = 5;
+    } else if (strcmp(wday, "Sun") == 0) {
+        t->tm_wday = 6;
+    } else {
+        tr_debug("get_sntp_time(): Invalid weekday: %s", wday);
+        return false;
+    }
+
+    t->tm_mon = 0;
+    if (strcmp(mon, "Jan") == 0) {
+        t->tm_mon = 0;
+    } else if (strcmp(mon, "Feb") == 0) {
+        t->tm_mon = 1;
+    } else if (strcmp(mon, "Mar") == 0) {
+        t->tm_mon = 2;
+    } else if (strcmp(mon, "Apr") == 0) {
+        t->tm_mon = 3;
+    } else if (strcmp(mon, "May") == 0) {
+        t->tm_mon = 4;
+    } else if (strcmp(mon, "Jun") == 0) {
+        t->tm_mon = 5;
+    } else if (strcmp(mon, "Jul") == 0) {
+        t->tm_mon = 6;
+    } else if (strcmp(mon, "Aug") == 0) {
+        t->tm_mon = 7;
+    } else if (strcmp(mon, "Sep") == 0) {
+        t->tm_mon = 8;
+    } else if (strcmp(mon, "Oct") == 0) {
+        t->tm_mon = 9;
+    } else if (strcmp(mon, "Nov") == 0) {
+        t->tm_mon = 10;
+    } else if (strcmp(mon, "Dec") == 0) {
+        t->tm_mon = 11;
+    } else {
+        tr_debug("get_sntp_time(): Invalid month: %s", mon);
+        return false;
+    }
+
+    t->tm_year = (year - 1900);
+
+    return true;
+}
+
 bool ESP8266::_recv_ap(nsapi_wifi_ap_t *ap)
 {
     int sec = NSAPI_SECURITY_UNKNOWN;

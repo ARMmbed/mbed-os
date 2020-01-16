@@ -167,6 +167,15 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
     virtual const char *get_netmask();
 
+    /** Get the current time.
+     *
+     *  @retval          NSAPI_ERROR_UNSUPPORTED if the function is not supported
+     *  @retval          NSAPI_ERROR_OK on success
+     *
+     *  @note esp8266.sntp-enable must be set to true in mbed_app.json.
+     */
+    nsapi_error_t get_time(std::tm *t);
+
     /** Get the network interface name
      *
      *  @return         Null-terminated representation of the network interface name

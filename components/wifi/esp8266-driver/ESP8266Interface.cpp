@@ -583,6 +583,12 @@ const char *ESP8266Interface::get_netmask()
     return _conn_stat != NSAPI_STATUS_DISCONNECTED ? _esp.netmask() : NULL;
 }
 
+nsapi_error_t ESP8266Interface::get_time(std::tm *t)
+{
+    _init();
+    return _esp.get_sntp_time(t) ? NSAPI_ERROR_OK : NSAPI_ERROR_TIMEOUT;
+}
+
 char *ESP8266Interface::get_interface_name(char *interface_name)
 {
     memcpy(interface_name, ESP8266_WIFI_IF_NAME, sizeof(ESP8266_WIFI_IF_NAME));
@@ -709,7 +715,13 @@ nsapi_error_t ESP8266Interface::_init(void)
         if (!_esp.startup(ESP8266::WIFIMODE_STATION)) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }
-
+        if (!_esp.set_sntp_config(MBED_CONF_ESP8266_SNTP_ENABLE,
+                                  MBED_CONF_ESP8266_SNTP_TIMEZONE,
+                                  MBED_CONF_ESP8266_SNTP_SERVER0,
+                                  MBED_CONF_ESP8266_SNTP_SERVER1,
+                                  MBED_CONF_ESP8266_SNTP_SERVER2)) {
+            return NSAPI_ERROR_DEVICE_ERROR;
+        }
         _initialized = true;
     }
     return NSAPI_ERROR_OK;

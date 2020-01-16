@@ -59,16 +59,36 @@
             "value": null
         },
         "channel-start": {
-            "help": "the channel number to start at, 1 by default",
+            "help": "The channel number to start at, 1 by default",
             "value": null
         },
         "channels": {
-            "help": "channel count, 13 by default",
+            "help": "Channel count, 13 by default",
             "value": null
         },
         "built-in-dns": {
             "help": "use built-in CIPDOMAIN AT command to resolve address to IP",
             "value": false
+        },
+        "sntp-enable": {
+            "help": "Enable SNTP. This allows application to use get_sntp_time()",
+            "value": false
+        },
+        "sntp-timezone": {
+            "help": "SNTP timezone",
+            "value": 0
+        },
+        "sntp-server0": {
+            "help": "First SNTP server. Empty string will let ESP8266 use its default.",
+            "value": "\"\""
+        },
+        "sntp-server1": {
+            "help": "Second SNTP server. Empty string will let ESP8266 use its default.",
+            "value": "\"\""
+        },
+        "sntp-server2": {
+            "help": "Third SNTP server. Empty string will let ESP8266 use its default.",
+            "value": "\"\""
         }
     },
     "target_overrides": {

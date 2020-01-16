@@ -20,6 +20,7 @@
 
 #if DEVICE_SERIAL && DEVICE_INTERRUPTIN && defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_API_PRESENT)
 #include <stdint.h>
+#include <ctime>
 
 #include "drivers/BufferedSerial.h"
 #include "features/netsocket/nsapi_types.h"
@@ -353,6 +354,47 @@ public:
     * @param func A pointer to a void function, or 0 to set as none
     */
     void attach(mbed::Callback<void()> status_cb);
+
+    /**
+     * Configure SNTP (Simple Network Time Protocol)
+     *
+     * @param enable   true to enable SNTP or false to disable it
+     * @param timezone timezone offset [-11,13] (0 by default)
+     * @param server0  optional parameter indicating the first SNTP server ("cn.ntp.org.cn" by default)
+     * @param server1  optional parameter indicating the second SNTP server ("ntp.sjtu.edu.cn" by default)
+     * @param server2  optional parameter indicating the third SNTP server ("us.pool.ntp.org" by default)
+     *
+     * @retval true if successful, false otherwise
+     */
+    bool set_sntp_config(bool enable, int timezone = 0, const char *server0 = nullptr,
+                         const char *server1 = nullptr, const char *server2 = nullptr);
+
+    /**
+     * Read out the configuration of SNTP (Simple Network Time Protocol)
+     *
+     * @param enable   true if SNTP is enabled
+     * @param timezone timezone offset [-11,13]
+     * @param server0  name of the first SNTP server
+     * @param server1  name of the second SNTP server (optional, nullptr if not set)
+     * @param server2  name of the third SNTP server (optional, nullptr if not set)
+     *
+     * @retval true if successful, false otherwise
+     */
+    bool get_sntp_config(bool *enable, int *timezone, char *server0,
+                         char *server1, char *server2);
+
+    /**
+     * Read out SNTP time from ESP8266.
+     *
+     * @param t std::tm structure to be filled in
+     * @retval true on success, false otherwise
+     *
+     * @note ESP8266 must be connected and needs a couple of seconds
+     * before returning correct time. It may return 1 Jan 1970 if it is not ready.
+     *
+     * @note esp8266.sntp-enable must be set to true in mbed_app.json file.
+     */
+    bool get_sntp_time(std::tm *t);
 
     template <typename T, typename M>
     void attach(T *obj, M method)
