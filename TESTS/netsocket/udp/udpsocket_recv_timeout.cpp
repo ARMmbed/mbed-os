@@ -70,10 +70,10 @@ void UDPSOCKET_RECV_TIMEOUT()
             }
             continue;
         } else if (recvd < 0) {
-            tr_error("[bt#%02d] network error %d", i, recvd);
+            tr_warn("[bt#%02d] network error %d", i, recvd);
             continue;
         } else if (temp_addr != udp_addr) {
-            tr_info("[bt#%02d] packet from wrong address", i);
+            tr_warn("[bt#%02d] packet from wrong address", i);
             continue;
         }
         TEST_ASSERT_EQUAL(DATA_LEN, recvd);

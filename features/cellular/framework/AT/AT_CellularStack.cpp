@@ -181,7 +181,7 @@ nsapi_error_t AT_CellularStack::socket_open(nsapi_socket_t *handle, nsapi_protoc
 
     int index = find_socket_index(0);
     if (index == -1) {
-        tr_error("No free sockets!");
+        tr_warn("No free sockets!");
         _socket_mutex.unlock();
         return NSAPI_ERROR_NO_SOCKET;
     }

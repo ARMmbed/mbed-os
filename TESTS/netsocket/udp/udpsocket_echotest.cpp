@@ -99,7 +99,7 @@ void UDPSOCKET_ECHOTEST_impl(bool use_sendto)
             } else if (sent == pkt_s) {
                 packets_sent++;
             } else {
-                tr_error("[Round#%02d - Sender] error, returned %d", s_idx, sent);
+                tr_warn("[Round#%02d - Sender] error, returned %d", s_idx, sent);
                 continue;
             }
 
@@ -113,7 +113,7 @@ void UDPSOCKET_ECHOTEST_impl(bool use_sendto)
                 //Check if received duplicated packet
                 for (unsigned int d_idx = 0; d_idx < PKTS; ++d_idx) {
                     if (pkt_received[d_idx] && d_idx != s_idx && recvd == pkt_sizes[d_idx]) {
-                        printf("[Round#%02d - Receiver] info, received duplicate packet %d\n", s_idx, d_idx);
+                        tr_warn("[Round#%02d - Receiver] info, received duplicate packet %d\n", s_idx, d_idx);
                         received_duplicate_packet = true;
                         break;
                     }
@@ -123,7 +123,7 @@ void UDPSOCKET_ECHOTEST_impl(bool use_sendto)
             if (recvd == pkt_s) {
                 break;
             } else {
-                tr_error("[Round#%02d - Receiver] error, returned %d", s_idx, recvd);
+                tr_warn("[Round#%02d - Receiver] error, returned %d", s_idx, recvd);
             }
         }
 
@@ -206,7 +206,7 @@ void UDPSOCKET_ECHOTEST_NONBLOCK_impl(bool use_sendto)
                 }
                 --retry_cnt;
             } else {
-                tr_error("[Round#%02d - Sender] error, returned %d", s_idx, sent);
+                tr_warn("[Round#%02d - Sender] error, returned %d", s_idx, sent);
                 continue;
             }
 
@@ -227,7 +227,7 @@ void UDPSOCKET_ECHOTEST_NONBLOCK_impl(bool use_sendto)
                     --retry_recv;
                     continue;
                 } else if (recvd < 0) {
-                    tr_error("sock.recvfrom returned %d", recvd);
+                    tr_warn("sock.recvfrom returned %d", recvd);
                     TEST_FAIL();
                     break;
                 } else if (recvd == pkt_s) {
