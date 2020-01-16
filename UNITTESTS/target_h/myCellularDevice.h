@@ -115,11 +115,6 @@ public:
 
     virtual void set_timeout(int timeout) {}
 
-    virtual uint16_t get_send_delay() const
-    {
-        return 0;
-    }
-
     virtual void modem_debug_on(bool on) {}
 
     virtual nsapi_error_t init()

@@ -41,6 +41,7 @@ static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     7,  // PROPERTY_SOCKET_COUNT
     1,  // PROPERTY_IP_TCP
     1,  // PROPERTY_IP_UDP
+    0,  // PROPERTY_AT_SEND_DELAY
 };
 #elif defined(UBX_MDM_SARA_U2XX) || defined(UBX_MDM_SARA_G3XX)
 static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
@@ -67,6 +68,7 @@ static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     7,  // PROPERTY_SOCKET_COUNT
     1,  // PROPERTY_IP_TCP
     1,  // PROPERTY_IP_UDP
+    0,  // PROPERTY_AT_SEND_DELAY
 };
 #else
 static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
@@ -89,6 +91,7 @@ static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     0,  // PROPERTY_SOCKET_COUNT
     0,  // PROPERTY_IP_TCP
     0,  // PROPERTY_IP_UDP
+    0,  // PROPERTY_AT_SEND_DELAY
 };
 #endif
 

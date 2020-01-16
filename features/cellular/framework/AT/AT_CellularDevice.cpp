@@ -107,7 +107,7 @@ void AT_CellularDevice::setup_at_handler()
 {
     set_at_urcs();
 
-    _at->set_send_delay(get_send_delay());
+    _at->set_send_delay(get_property(AT_CellularDevice::PROPERTY_AT_SEND_DELAY));
 }
 
 void AT_CellularDevice::urc_nw_deact()
@@ -188,7 +188,7 @@ ATHandler *AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
     }
 
     return ATHandler::get_instance(fileHandle, _queue, _default_timeout,
-                                   "\r", get_send_delay(), _modem_debug_on);
+                                   "\r", get_property(AT_CellularDevice::PROPERTY_AT_SEND_DELAY), _modem_debug_on);
 }
 
 ATHandler *AT_CellularDevice::get_at_handler()
@@ -443,11 +443,6 @@ void AT_CellularDevice::set_timeout(int timeout)
     if (_state_machine) {
         _state_machine->set_timeout(_default_timeout);
     }
-}
-
-uint16_t AT_CellularDevice::get_send_delay() const
-{
-    return 0;
 }
 
 void AT_CellularDevice::modem_debug_on(bool on)

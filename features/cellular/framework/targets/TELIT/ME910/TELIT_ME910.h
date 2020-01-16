@@ -41,7 +41,6 @@ public:
     TELIT_ME910(FileHandle *fh, PinName pwr, bool active_high);
 
 protected: // AT_CellularDevice
-    virtual uint16_t get_send_delay() const;
     virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, bool cp_req = false, bool nonip_req = false);
     virtual nsapi_error_t init();
     virtual nsapi_error_t hard_power_on();

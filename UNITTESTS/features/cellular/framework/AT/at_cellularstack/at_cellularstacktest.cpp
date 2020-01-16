@@ -197,11 +197,12 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_open)
 
     MyStack st(at, 0, IPV6_STACK, *_dev);
     AT_CellularDevice_stub::supported_bool = 0;
+    AT_CellularDevice_stub::max_sock_value = 1;
     EXPECT_EQ(st.socket_open(NULL, NSAPI_TCP), NSAPI_ERROR_UNSUPPORTED);
 
     AT_CellularDevice_stub::supported_bool = 1;
-    AT_CellularDevice_stub::max_sock_value = 0;
     nsapi_socket_t sock = &st.socket;
+    AT_CellularDevice_stub::max_sock_value = 0;
     EXPECT_EQ(st.socket_open(&sock, NSAPI_TCP), NSAPI_ERROR_NO_SOCKET);
 
     MyStack st2(at, 0, IPV6_STACK, *_dev);
@@ -210,7 +211,7 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_open)
     sock = &st2.socket;
     EXPECT_EQ(st2.socket_open(&sock, NSAPI_TCP), NSAPI_ERROR_OK);
 
-    AT_CellularDevice_stub::max_sock_value = 0;
+    AT_CellularDevice_stub::max_sock_value = 1; // value must be the same as before the first open
 }
 
 TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_close)

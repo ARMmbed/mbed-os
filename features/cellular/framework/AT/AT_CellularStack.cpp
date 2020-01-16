@@ -47,6 +47,9 @@ AT_CellularStack::~AT_CellularStack()
 
 int AT_CellularStack::find_socket_index(nsapi_socket_t handle)
 {
+    if (!_socket) {
+        return -1;
+    }
     for (int i = 0; i < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT); i++) {
         if (_socket[i] == handle) {
             return i;
@@ -177,6 +180,7 @@ nsapi_error_t AT_CellularStack::socket_open(nsapi_socket_t *handle, nsapi_protoc
 
     if (!_socket) {
         if (_device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT) == 0) {
+            _socket_mutex.unlock();
             return NSAPI_ERROR_NO_SOCKET;
         }
         if (socket_stack_init() != NSAPI_ERROR_OK) {
