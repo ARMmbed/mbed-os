@@ -23,6 +23,8 @@
 #include "device.h"
 #include "pinmap.h"
 
+#error error
+
 #if DEVICE_ANALOGIN
 
 #ifdef __cplusplus
