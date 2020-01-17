@@ -565,6 +565,41 @@ nsapi_error_t LWIP::add_ethernet_interface(EMAC &emac, bool default_if, OnboardN
 #endif //LWIP_ETHERNET
 }
 
+nsapi_error_t LWIP::remove_ethernet_interface(OnboardNetworkStack::Interface **interface_out)
+{
+#if LWIP_ETHERNET
+
+    if ((interface_out != NULL) && (*interface_out != NULL)) {
+
+        Interface *lwip = static_cast<Interface *>(*interface_out);
+        Interface *node = lwip->list;
+
+        if (lwip->list != NULL) {
+            if (lwip->list == lwip) {
+                lwip->list = lwip->list->next;
+                netif_remove(&node->netif);
+                *interface_out = NULL;
+                delete node;
+            } else {
+                while (node->next != NULL && node->next != lwip) {
+                    node = node->next;
+                }
+                if (node->next != NULL && node->next == lwip) {
+                    Interface *remove = node->next;
+                    node->next = node->next->next;
+                    netif_remove(&remove->netif);
+                    *interface_out = NULL;
+                    delete remove;
+                }
+            }
+        }
+    }
+
+    return NSAPI_ERROR_OK;
+#else
+    return NSAPI_ERROR_UNSUPPORTED;
+#endif //LWIP_ETHERNET
+}
 
 nsapi_error_t LWIP::add_l3ip_interface(L3IP &l3ip, bool default_if, OnboardNetworkStack::Interface **interface_out)
 {
