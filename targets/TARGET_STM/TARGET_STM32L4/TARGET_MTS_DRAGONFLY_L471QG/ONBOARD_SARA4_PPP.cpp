@@ -20,7 +20,7 @@
 #include "gpio_api.h"
 #include "platform/mbed_thread.h"
 #include "PinNames.h"
-#include "UARTSerial.h"
+#include "drivers/BufferedSerial.h"
 #include "CellularLog.h"
 #include "mbed_wait_api.h"
 
@@ -56,7 +56,7 @@ nsapi_error_t ONBOARD_SARA4_PPP::soft_power_off()
 
 CellularDevice *CellularDevice::get_target_default_instance()
 {
-    static UARTSerial serial(MDMTXD, MDMRXD, 115200);
+    static BufferedSerial serial(MDMTXD, MDMRXD, 115200);
 #if DEVICE_SERIAL_FC
     if (MDMRTS != NC && MDMCTS != NC) {
         tr_debug("Modem flow control: RTS %d CTS %d", MDMRTS, MDMCTS);
