@@ -169,6 +169,11 @@ public:
         return NSAPI_ERROR_UNSUPPORTED;
     };
 
+    virtual nsapi_error_t remove_ethernet_interface(Interface **interface_out)
+    {
+        return NSAPI_ERROR_OK;
+    };
+
     virtual nsapi_error_t remove_l3ip_interface(Interface **interface_out)
     {
         return NSAPI_ERROR_OK;
