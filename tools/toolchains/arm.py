@@ -81,7 +81,7 @@ class ARM(mbedToolchain):
 
         if (
             getattr(target, "default_toolchain", "ARM") == "uARM"
-            or getattr(target, "default_lib", "std") == "small"
+            or getattr(target, "c_lib", "std") == "small"
         ):
             if "-DMBED_RTOS_SINGLE_THREAD" not in self.flags['common']:
                 self.flags['common'].append("-DMBED_RTOS_SINGLE_THREAD")
@@ -571,7 +571,7 @@ class ARMC6(ARM_STD):
 
         if (
             getattr(target, "default_toolchain", "ARMC6") == "uARM"
-            or getattr(target, "default_lib", "std") == "small"
+            or getattr(target, "c_lib", "std") == "small"
         ):
             if "-DMBED_RTOS_SINGLE_THREAD" not in self.flags['common']:
                 self.flags['common'].append("-DMBED_RTOS_SINGLE_THREAD")

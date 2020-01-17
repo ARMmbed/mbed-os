@@ -48,14 +48,14 @@ class GCC(mbedToolchain):
 
         tool_path = TOOLCHAIN_PATHS['GCC_ARM']
         # Add flags for current size setting
-        default_lib = "std"
-        if hasattr(target, "default_lib"):
+        c_lib = "std"
+        if hasattr(target, "c_lib"):
             self.check_c_lib_supported(target, "gcc_arm")
-            default_lib = target.default_lib
+            c_lib = target.c_lib
         elif hasattr(target, "default_build"):
-            default_lib = target.default_build
+            c_lib = target.default_build
 
-        if default_lib == "small":
+        if c_lib == "small":
             common_flags = ["-DMBED_RTOS_SINGLE_THREAD", "-D__NEWLIB_NANO"]
             self.flags["common"].extend(common_flags)
             self.flags["ld"].append("--specs=nano.specs")

@@ -16,7 +16,7 @@
         "features": [],
         "detect_code": [],
         "public": false,
-        "default_lib": "std",
+        "c_lib": "std",
         "bootloader_supported": false,
         "static_memory_defines": true,
         "printf_lib": "std",

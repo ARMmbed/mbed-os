@@ -39,22 +39,22 @@
             "mbed-trace.fea-ipv6": false
         },
         "K64F": {
-            "target.default_lib": "small"
+            "target.c_lib": "small"
         },
         "K66F": {
-            "target.default_lib": "small"
+            "target.c_lib": "small"
         },
         "NUCLEO_F303RE": {
-            "target.default_lib": "small"
+            "target.c_lib": "small"
         },
         "NUCLEO_F411RE": {
-            "target.default_lib": "small"
+            "target.c_lib": "small"
         },
         "NUCLEO_F429ZI": {
-            "target.default_lib": "small"
+            "target.c_lib": "small"
         },
         "DISCO_L475VG_IOT01A": {
-            "target.default_lib": "small"
+            "target.c_lib": "small"
         }
      }
 }

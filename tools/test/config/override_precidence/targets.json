@@ -2,7 +2,7 @@
     "base": {
         "supported_toolchains": ["GCC_ARM"],
         "extra_labels": [],
-        "default_lib": "std",
+        "c_lib": "std",
         "core": "Cortex-M0",
         "config": {
             "par1": "v_par1_base",
