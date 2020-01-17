@@ -49,7 +49,7 @@ void UDPSOCKET_OPEN_LIMIT()
             }
             ret = sock->open(NetworkInterface::get_default_instance());
             if (ret == NSAPI_ERROR_NO_MEMORY || ret == NSAPI_ERROR_NO_SOCKET) {
-                tr_error("[round#%02d] unable to open new socket, error: %d", i, ret);
+                tr_info("[round#%02d] unable to open new socket, error: %d", i, ret);
                 delete sock;
                 break;
             }

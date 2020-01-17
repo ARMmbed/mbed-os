@@ -116,7 +116,7 @@ void UDPSOCKET_ECHOTEST_BURST()
                 }
             } else if (recvd < 0) {
                 pkg_fail += BURST_PKTS - j; // Assume all the following packets of the burst to be lost
-                tr_error("[%02d] network error %d", i, recvd);
+                tr_warn("[%02d] network error %d", i, recvd);
                 ThisThread::sleep_for(recv_timeout * 1000);
                 recv_timeout *= 2; // Back off,
                 break;
@@ -141,7 +141,7 @@ void UDPSOCKET_ECHOTEST_BURST()
             ok_bursts++;
         } else {
             drop_bad_packets(sock, TIMEOUT);
-            tr_error("[%02d] burst failure, rcv %d", i, bt_total);
+            tr_warn("[%02d] burst failure, rcv %d", i, bt_total);
         }
     }
 
@@ -217,7 +217,7 @@ void UDPSOCKET_ECHOTEST_BURST_NONBLOCK()
                     goto PKT_OK;
                 }
             }
-            tr_error("[bt#%02d] corrupted packet...", i);
+            tr_warn("[bt#%02d] corrupted packet...", i);
             pkg_fail++;
             break;
 PKT_OK:
