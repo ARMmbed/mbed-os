@@ -29,6 +29,8 @@
   */
 #ifdef HAL_SAI_MODULE_ENABLED
 
+#if defined (SAI1)
+
 /** @defgroup SAIEx SAIEx
   * @brief SAI Extended HAL module driver
   * @{
@@ -122,6 +124,8 @@ HAL_StatusTypeDef HAL_SAIEx_ConfigPdmMicDelay(SAI_HandleTypeDef *hsai, SAIEx_Pdm
 /**
   * @}
   */
+
+#endif /* SAI1 */
 
 #endif /* HAL_SAI_MODULE_ENABLED */
 /**

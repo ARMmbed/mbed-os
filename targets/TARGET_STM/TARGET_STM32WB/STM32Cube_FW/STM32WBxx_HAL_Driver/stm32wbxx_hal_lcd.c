@@ -89,6 +89,8 @@
 
 #ifdef HAL_LCD_MODULE_ENABLED
 
+#if defined (LCD)
+
 /** @defgroup LCD LCD
   * @brief LCD HAL module driver
   * @{
@@ -596,6 +598,8 @@ HAL_StatusTypeDef LCD_WaitForSynchro(LCD_HandleTypeDef *hlcd)
 /**
   * @}
   */
+
+#endif /* LCD */
 
 #endif /* HAL_LCD_MODULE_ENABLED */
 

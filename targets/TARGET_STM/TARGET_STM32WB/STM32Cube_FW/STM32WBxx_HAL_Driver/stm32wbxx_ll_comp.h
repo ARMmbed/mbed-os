@@ -32,7 +32,7 @@ extern "C" {
   * @{
   */
 
-
+#if defined (COMP1) || defined (COMP2)
 
 /** @defgroup COMP_LL COMP
   * @{
@@ -53,6 +53,14 @@ extern "C" {
   */
 
 /* Private macros ------------------------------------------------------------*/
+/** @defgroup COMP_LL_Private_Macros COMP Private Macros
+  * @{
+  */
+
+/**
+  * @}
+  */
+
 /* Exported types ------------------------------------------------------------*/
 #if defined(USE_FULL_LL_DRIVER)
 /** @defgroup COMP_LL_ES_INIT COMP Exported Init structure
@@ -66,32 +74,32 @@ typedef struct
 {
   uint32_t PowerMode;                   /*!< Set comparator operating mode to adjust power and speed.
                                              This parameter can be a value of @ref COMP_LL_EC_POWERMODE
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetPowerMode(). */
 
   uint32_t InputPlus;                   /*!< Set comparator input plus (non-inverting input).
                                              This parameter can be a value of @ref COMP_LL_EC_INPUT_PLUS
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetInputPlus(). */
 
   uint32_t InputMinus;                  /*!< Set comparator input minus (inverting input).
                                              This parameter can be a value of @ref COMP_LL_EC_INPUT_MINUS
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetInputMinus(). */
 
   uint32_t InputHysteresis;             /*!< Set comparator hysteresis mode of the input minus.
                                              This parameter can be a value of @ref COMP_LL_EC_INPUT_HYSTERESIS
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetInputHysteresis(). */
 
   uint32_t OutputPolarity;              /*!< Set comparator output polarity.
                                              This parameter can be a value of @ref COMP_LL_EC_OUTPUT_POLARITY
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetOutputPolarity(). */
 
   uint32_t OutputBlankingSource;        /*!< Set comparator blanking source.
                                              This parameter can be a value of @ref COMP_LL_EC_OUTPUT_BLANKING_SOURCE
-                                             
+
                                              This feature can be modified afterwards using unitary function @ref LL_COMP_SetOutputBlankingSource(). */
 
 } LL_COMP_InitTypeDef;
@@ -371,7 +379,7 @@ __STATIC_INLINE uint32_t LL_COMP_GetPowerMode(COMP_TypeDef *COMPx)
   *         voltage scaler bridge only when required
   *         (when selecting comparator input based on VrefInt: VrefInt or
   *         subdivision of VrefInt).
-  *         - For scaler bridge power consumption values, 
+  *         - For scaler bridge power consumption values,
   *           refer to device datasheet, parameter "IDDA(SCALER)".
   *         - Voltage scaler requires a delay for voltage stabilization.
   *           Refer to device datasheet, parameter "tSTART_SCALER".
@@ -397,7 +405,7 @@ __STATIC_INLINE uint32_t LL_COMP_GetPowerMode(COMP_TypeDef *COMPx)
   *         @arg @ref LL_COMP_INPUT_PLUS_IO1
   *         @arg @ref LL_COMP_INPUT_PLUS_IO2
   *         @arg @ref LL_COMP_INPUT_PLUS_IO3 (*)
-  *         
+  *
   *         (*) Parameter not available on all devices.
   * @retval None
   */
@@ -419,7 +427,7 @@ __STATIC_INLINE void LL_COMP_ConfigInputs(COMP_TypeDef *COMPx, uint32_t InputMin
   *         @arg @ref LL_COMP_INPUT_PLUS_IO1
   *         @arg @ref LL_COMP_INPUT_PLUS_IO2
   *         @arg @ref LL_COMP_INPUT_PLUS_IO3 (*)
-  *         
+  *
   *         (*) Parameter not available on all devices.
   * @retval None
   */
@@ -439,7 +447,7 @@ __STATIC_INLINE void LL_COMP_SetInputPlus(COMP_TypeDef *COMPx, uint32_t InputPlu
   *         @arg @ref LL_COMP_INPUT_PLUS_IO1
   *         @arg @ref LL_COMP_INPUT_PLUS_IO2
   *         @arg @ref LL_COMP_INPUT_PLUS_IO3 (*)
-  *         
+  *
   *         (*) Parameter not available on all devices.
   */
 __STATIC_INLINE uint32_t LL_COMP_GetInputPlus(COMP_TypeDef *COMPx)
@@ -457,7 +465,7 @@ __STATIC_INLINE uint32_t LL_COMP_GetInputPlus(COMP_TypeDef *COMPx)
   *         voltage scaler bridge only when required
   *         (when selecting comparator input based on VrefInt: VrefInt or
   *         subdivision of VrefInt).
-  *         - For scaler bridge power consumption values, 
+  *         - For scaler bridge power consumption values,
   *           refer to device datasheet, parameter "IDDA(SCALER)".
   *         - Voltage scaler requires a delay for voltage stabilization.
   *           Refer to device datasheet, parameter "tSTART_SCALER".
@@ -588,7 +596,7 @@ __STATIC_INLINE uint32_t LL_COMP_GetOutputPolarity(COMP_TypeDef *COMPx)
   *         @arg @ref LL_COMP_BLANKINGSRC_NONE
   *         @arg @ref LL_COMP_BLANKINGSRC_TIM1_OC5  (1)
   *         @arg @ref LL_COMP_BLANKINGSRC_TIM2_OC3  (1)
-  *         
+  *
   *         (1) Parameter availability depending on timer availability
   *             on the selected device.
   * @retval None
@@ -610,7 +618,7 @@ __STATIC_INLINE void LL_COMP_SetOutputBlankingSource(COMP_TypeDef *COMPx, uint32
   *         @arg @ref LL_COMP_BLANKINGSRC_NONE
   *         @arg @ref LL_COMP_BLANKINGSRC_TIM1_OC5  (1)
   *         @arg @ref LL_COMP_BLANKINGSRC_TIM2_OC3  (1)
-  *         
+  *
   *         (1) Parameter availability depending on timer availability
   *             on the selected device.
   */
@@ -747,7 +755,7 @@ void        LL_COMP_StructInit(LL_COMP_InitTypeDef *COMP_InitStruct);
   * @}
   */
 
-
+#endif /* COMP1 || COMP2 */
 
 /**
   * @}

@@ -479,8 +479,8 @@ HAL_StatusTypeDef HAL_RTCEx_SetTamper(RTC_HandleTypeDef *hrtc, RTC_TamperTypeDef
   uint32_t tmpreg;
 
   /* Check the parameters */
-  assert_param( IS_RTC_TAMPER(sTamper->Tamper));
-  assert_param( IS_RTC_TAMPER_TRIGGER(sTamper->Trigger));
+  assert_param(IS_RTC_TAMPER(sTamper->Tamper));
+  assert_param(IS_RTC_TAMPER_TRIGGER(sTamper->Trigger));
   assert_param(IS_RTC_TAMPER_ERASE_MODE(sTamper->NoErase));
   assert_param(IS_RTC_TAMPER_MASKFLAG_STATE(sTamper->MaskFlag));
   assert_param(IS_RTC_TAMPER_FILTER(sTamper->Filter));

@@ -731,17 +731,18 @@ typedef struct
 
 /**************************************************************************************************/
         
-#if defined(RTC_TAMPER1_SUPPORT) && defined(RTC_TAMPER3_SUPPORT)
-		
 /**
   * @brief  Enable the RTC Tamper interrupt.
   * @param __HANDLE__ specifies the RTC handle.
   * @param __INTERRUPT__ specifies the RTC Tamper interrupt sources to be enabled.
   *          This parameter can be any combination of the following values:
   *             @arg  RTC_IT_TAMP: All tampers interrupts
-  *             @arg  RTC_IT_TAMP1: Tamper1 interrupt
+  *             @arg  RTC_IT_TAMP1: Tamper1 interrupt (*)
   *             @arg  RTC_IT_TAMP2: Tamper2 interrupt
-  *             @arg  RTC_IT_TAMP3: Tamper3 interrupt
+  *             @arg  RTC_IT_TAMP3: Tamper3 interrupt (*)
+  *
+  *         (*)  Value not defined in all devices. \n
+  *
   * @retval None
   */   
 #define __HAL_RTC_TAMPER_ENABLE_IT(__HANDLE__, __INTERRUPT__)        ((__HANDLE__)->Instance->TAMPCR |= (__INTERRUPT__))
@@ -751,131 +752,54 @@ typedef struct
   * @param __HANDLE__ specifies the RTC handle.
   * @param __INTERRUPT__ specifies the RTC Tamper interrupt sources to be disabled. 
   *         This parameter can be any combination of the following values:
-  *            @arg  RTC_IT_TAMP: All tampers interrupts
-  *            @arg  RTC_IT_TAMP1: Tamper1 interrupt
-  *            @arg  RTC_IT_TAMP2: Tamper2 interrupt
-  *            @arg  RTC_IT_TAMP3: Tamper3 interrupt
-  * @retval None
-  */
-#define __HAL_RTC_TAMPER_DISABLE_IT(__HANDLE__, __INTERRUPT__)       ((__HANDLE__)->Instance->TAMPCR &= ~(__INTERRUPT__))
-
-#elif defined(RTC_TAMPER1_SUPPORT)
-
-/**
-  * @brief  Enable the RTC Tamper interrupt.
-  * @param __HANDLE__ specifies the RTC handle.
-  * @param __INTERRUPT__ specifies the RTC Tamper interrupt sources to be enabled.
-  *          This parameter can be any combination of the following values:
   *             @arg  RTC_IT_TAMP: All tampers interrupts
-  *             @arg  RTC_IT_TAMP1: Tamper1 interrupt
+  *             @arg  RTC_IT_TAMP1: Tamper1 interrupt (*)
   *             @arg  RTC_IT_TAMP2: Tamper2 interrupt
-  * @retval None
-  */   
-#define __HAL_RTC_TAMPER_ENABLE_IT(__HANDLE__, __INTERRUPT__)        ((__HANDLE__)->Instance->TAMPCR |= (__INTERRUPT__))
-
-/**
-  * @brief  Disable the RTC Tamper interrupt.
-  * @param __HANDLE__ specifies the RTC handle.
-  * @param __INTERRUPT__ specifies the RTC Tamper interrupt sources to be disabled. 
-  *         This parameter can be any combination of the following values:
-  *            @arg  RTC_IT_TAMP: All tampers interrupts
-  *            @arg  RTC_IT_TAMP1: Tamper1 interrupt
-  *            @arg  RTC_IT_TAMP2: Tamper2 interrupt
+  *             @arg  RTC_IT_TAMP3: Tamper3 interrupt (*)
+  *
+  *         (*)  Value not defined in all devices. \n
+  *
   * @retval None
   */
 #define __HAL_RTC_TAMPER_DISABLE_IT(__HANDLE__, __INTERRUPT__)       ((__HANDLE__)->Instance->TAMPCR &= ~(__INTERRUPT__))
-
-#elif defined(RTC_TAMPER3_SUPPORT)
-
-
-/**
-  * @brief  Enable the RTC Tamper interrupt.
-  * @param __HANDLE__ specifies the RTC handle.
-  * @param __INTERRUPT__ specifies the RTC Tamper interrupt sources to be enabled.
-  *          This parameter can be any combination of the following values:
-  *             @arg  RTC_IT_TAMP: All tampers interrupts
-  *             @arg  RTC_IT_TAMP2: Tamper2 interrupt
-  *             @arg  RTC_IT_TAMP3: Tamper3 interrupt
-  * @retval None
-  */   
-#define __HAL_RTC_TAMPER_ENABLE_IT(__HANDLE__, __INTERRUPT__)        ((__HANDLE__)->Instance->TAMPCR |= (__INTERRUPT__))
-
-/**
-  * @brief  Disable the RTC Tamper interrupt.
-  * @param __HANDLE__ specifies the RTC handle.
-  * @param __INTERRUPT__ specifies the RTC Tamper interrupt sources to be disabled. 
-  *         This parameter can be any combination of the following values:
-  *            @arg  RTC_IT_TAMP: All tampers interrupts
-  *            @arg  RTC_IT_TAMP2: Tamper2 interrupt
-  *            @arg  RTC_IT_TAMP3: Tamper3 interrupt
-  * @retval None
-  */
-#define __HAL_RTC_TAMPER_DISABLE_IT(__HANDLE__, __INTERRUPT__)       ((__HANDLE__)->Instance->TAMPCR &= ~(__INTERRUPT__))
-
-#endif 
 
 /**************************************************************************************************/
 
-#if  defined(RTC_TAMPER1_SUPPORT) && defined(RTC_TAMPER3_SUPPORT)
-	
 /**
   * @brief  Check whether the specified RTC Tamper interrupt has occurred or not.
   * @param __HANDLE__ specifies the RTC handle.
   * @param __INTERRUPT__ specifies the RTC Tamper interrupt to check.
   *         This parameter can be:
-  *            @arg  RTC_IT_TAMP1: Tamper1 interrupt     
-  *            @arg  RTC_IT_TAMP2: Tamper2 interrupt
-  *            @arg  RTC_IT_TAMP3: Tamper3 interrupt
+  *             @arg  RTC_IT_TAMP1: Tamper1 interrupt (*)
+  *             @arg  RTC_IT_TAMP2: Tamper2 interrupt
+  *             @arg  RTC_IT_TAMP3: Tamper3 interrupt (*)
+  *
+  *         (*)  Value not defined in all devices. \n
+  *
   * @retval None
   */
+#if defined(RTC_TAMPER1_SUPPORT) && defined(RTC_TAMPER3_SUPPORT)
 #define __HAL_RTC_TAMPER_GET_IT(__HANDLE__, __INTERRUPT__)    (((__INTERRUPT__) == RTC_IT_TAMP1) ? (((((__HANDLE__)->Instance->ISR) & ((__INTERRUPT__)>> 3U)) != 0U) ? 1U : 0U) : \
                                                                ((__INTERRUPT__) == RTC_IT_TAMP2) ? (((((__HANDLE__)->Instance->ISR) & ((__INTERRUPT__)>> 5U)) != 0U) ? 1U : 0U) : \
                                                                ((__INTERRUPT__) == RTC_IT_TAMP3) ? (((((__HANDLE__)->Instance->ISR) & ((__INTERRUPT__)>> 7U)) != 0U) ? 1U : 0U))
-
-#elif defined(RTC_TAMPER1_SUPPORT)
-
-/**
-  * @brief  Check whether the specified RTC Tamper interrupt has occurred or not.
-  * @param __HANDLE__ specifies the RTC handle.
-  * @param __INTERRUPT__ specifies the RTC Tamper interrupt to check.
-  *         This parameter can be:
-  *            @arg  RTC_IT_TAMP1: Tamper1 interrupt     
-  *            @arg  RTC_IT_TAMP2: Tamper2 interrupt
-  * @retval None
-  */
-#define __HAL_RTC_TAMPER_GET_IT(__HANDLE__, __INTERRUPT__)    (((__INTERRUPT__) == RTC_IT_TAMP1) ? (((((__HANDLE__)->Instance->ISR) & ((__INTERRUPT__)>> 3U)) != 0U) ? 1U : 0U) : \
-                                                               ((__INTERRUPT__) == RTC_IT_TAMP2) ? (((((__HANDLE__)->Instance->ISR) & ((__INTERRUPT__)>> 5U)) != 0U) ? 1U : 0U))
-                                                                                                                     
-#elif defined(RTC_TAMPER3_SUPPORT)
-
-/**
-  * @brief  Check whether the specified RTC Tamper interrupt has occurred or not.
-  * @param __HANDLE__ specifies the RTC handle.
-  * @param __INTERRUPT__ specifies the RTC Tamper interrupt to check.
-  *         This parameter can be:    
-  *            @arg  RTC_IT_TAMP2: Tamper2 interrupt
-  *            @arg  RTC_IT_TAMP3: Tamper3 interrupt
-  * @retval None
-  */
-#define __HAL_RTC_TAMPER_GET_IT(__HANDLE__, __INTERRUPT__)    (((__INTERRUPT__) == RTC_IT_TAMP2) ? (((((__HANDLE__)->Instance->ISR) & ((__INTERRUPT__)>> 5U)) != 0U) ? 1U : 0U) : \
-                                                               ((__INTERRUPT__) == RTC_IT_TAMP3) ? (((((__HANDLE__)->Instance->ISR) & ((__INTERRUPT__)>> 7U)) != 0U) ? 1U : 0U))
-
-
+#else
+#define __HAL_RTC_TAMPER_GET_IT(__HANDLE__, __INTERRUPT__)    (((__INTERRUPT__) == RTC_IT_TAMP1) ? (((((__HANDLE__)->Instance->ISR) & ((__INTERRUPT__)>> 3U)) != 0U) ? 1U : 0U))
 #endif
-                                                               
+
 /**************************************************************************************************/
        
-#if defined(RTC_TAMPER1_SUPPORT) && defined(RTC_TAMPER3_SUPPORT)
-	
 /**
   * @brief  Check whether the specified RTC Tamper interrupt has been enabled or not.
   * @param __HANDLE__ specifies the RTC handle.
   * @param __INTERRUPT__ specifies the RTC Tamper interrupt source to check.
   *         This parameter can be:
   *            @arg  RTC_IT_TAMP: All tampers interrupts
-  *            @arg  RTC_IT_TAMP1: Tamper1 interrupt
-  *            @arg  RTC_IT_TAMP2: Tamper2 interrupt
-  *            @arg  RTC_IT_TAMP3: Tamper3 interrupt
+  *             @arg  RTC_IT_TAMP1: Tamper1 interrupt (*)
+  *             @arg  RTC_IT_TAMP2: Tamper2 interrupt
+  *             @arg  RTC_IT_TAMP3: Tamper3 interrupt (*)
+  *
+  *         (*)  Value not defined in all devices. \n
+  *
   * @retval None
   */
 #define __HAL_RTC_TAMPER_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__)    (((((__HANDLE__)->Instance->TAMPCR) & (__INTERRUPT__)) != 0U) ? 1U : 0U)
@@ -886,9 +810,12 @@ typedef struct
   * @param __HANDLE__ specifies the RTC handle.
   * @param __FLAG__ specifies the RTC Tamper Flag is pending or not.
   *          This parameter can be:
-  *             @arg RTC_FLAG_TAMP1F: Tamper1 flag
+  *             @arg RTC_FLAG_TAMP1F: Tamper1 flag (*)
   *             @arg RTC_FLAG_TAMP2F: Tamper2 flag
-  *             @arg RTC_FLAG_TAMP3F: Tamper3 flag
+  *             @arg RTC_FLAG_TAMP3F: Tamper3 flag (*)
+  *
+  *         (*)  Value not defined in all devices. \n
+  *
   * @retval None
   */
 #define __HAL_RTC_TAMPER_GET_FLAG(__HANDLE__, __FLAG__)        (((((__HANDLE__)->Instance->ISR) & (__FLAG__)) != 0U) ? 1U : 0U)
@@ -898,90 +825,16 @@ typedef struct
   * @param __HANDLE__ specifies the RTC handle.
   * @param __FLAG__ specifies the RTC Tamper Flag to clear.
   *          This parameter can be:
-  *             @arg RTC_FLAG_TAMP1F: Tamper1 flag
+  *             @arg RTC_FLAG_TAMP1F: Tamper1 flag (*)
   *             @arg RTC_FLAG_TAMP2F: Tamper2 flag
-  *             @arg RTC_FLAG_TAMP3F: Tamper3 flag 
+  *             @arg RTC_FLAG_TAMP3F: Tamper3 flag (*)
+  *
+  *         (*)  Value not defined in all devices. \n
+  *
   * @retval None
   */
 #define __HAL_RTC_TAMPER_CLEAR_FLAG(__HANDLE__, __FLAG__)      ((__HANDLE__)->Instance->ISR) = (~((__FLAG__) | RTC_ISR_INIT)|((__HANDLE__)->Instance->ISR & RTC_ISR_INIT))
        
-#elif defined(RTC_TAMPER1_SUPPORT)
-
-/**
-  * @brief  Check whether the specified RTC Tamper interrupt has been enabled or not.
-  * @param __HANDLE__ specifies the RTC handle.
-  * @param __INTERRUPT__ specifies the RTC Tamper interrupt source to check.
-  *         This parameter can be:
-  *            @arg  RTC_IT_TAMP: All tampers interrupts
-  *            @arg  RTC_IT_TAMP1: Tamper1 interrupt
-  *            @arg  RTC_IT_TAMP2: Tamper2 interrupt
-  * @retval None
-  */
-#define __HAL_RTC_TAMPER_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__)    (((((__HANDLE__)->Instance->TAMPCR) & (__INTERRUPT__)) != 0U) ? 1U : 0U)
-
-
-/**
-  * @brief  Get the selected RTC Tamper's flag status.
-  * @param __HANDLE__ specifies the RTC handle.
-  * @param __FLAG__ specifies the RTC Tamper Flag is pending or not.
-  *          This parameter can be:
-  *             @arg RTC_FLAG_TAMP1F: Tamper1 flag
-  *             @arg RTC_FLAG_TAMP2F: Tamper2 flag
-  * @retval None
-  */
-#define __HAL_RTC_TAMPER_GET_FLAG(__HANDLE__, __FLAG__)        (((((__HANDLE__)->Instance->ISR) & (__FLAG__)) != 0U) ? 1U : 0U)
-
-/**
-  * @brief  Clear the RTC Tamper's pending flags.
-  * @param __HANDLE__ specifies the RTC handle.
-  * @param __FLAG__ specifies the RTC Tamper Flag to clear.
-  *          This parameter can be:
-  *             @arg RTC_FLAG_TAMP1F: Tamper1 flag
-  *             @arg RTC_FLAG_TAMP2F: Tamper2 flag
-  * @retval None
-  */
-#define __HAL_RTC_TAMPER_CLEAR_FLAG(__HANDLE__, __FLAG__)      ((__HANDLE__)->Instance->ISR) = (~((__FLAG__) | RTC_ISR_INIT)|((__HANDLE__)->Instance->ISR & RTC_ISR_INIT))
-
-#elif defined(RTC_TAMPER3_SUPPORT)
-
-	
-/**
-  * @brief  Check whether the specified RTC Tamper interrupt has been enabled or not.
-  * @param __HANDLE__ specifies the RTC handle.
-  * @param __INTERRUPT__ specifies the RTC Tamper interrupt source to check.
-  *         This parameter can be:
-  *            @arg  RTC_IT_TAMP: All tampers interrupts
-  *            @arg  RTC_IT_TAMP2: Tamper2 interrupt
-  *            @arg  RTC_IT_TAMP3: Tamper3 interrupt
-  * @retval None
-  */
-#define __HAL_RTC_TAMPER_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__)    (((((__HANDLE__)->Instance->TAMPCR) & (__INTERRUPT__)) != 0U) ? 1U : 0U)
-
-
-/**
-  * @brief  Get the selected RTC Tamper's flag status.
-  * @param __HANDLE__ specifies the RTC handle.
-  * @param __FLAG__ specifies the RTC Tamper Flag is pending or not.
-  *          This parameter can be:
-  *             @arg RTC_FLAG_TAMP2F: Tamper2 flag
-  *             @arg RTC_FLAG_TAMP3F: Tamper3 flag
-  * @retval None
-  */
-#define __HAL_RTC_TAMPER_GET_FLAG(__HANDLE__, __FLAG__)        (((((__HANDLE__)->Instance->ISR) & (__FLAG__)) != 0U) ? 1U : 0U)
-
-/**
-  * @brief  Clear the RTC Tamper's pending flags.
-  * @param __HANDLE__ specifies the RTC handle.
-  * @param __FLAG__ specifies the RTC Tamper Flag to clear.
-  *          This parameter can be:
-  *             @arg RTC_FLAG_TAMP2F: Tamper2 flag
-  *             @arg RTC_FLAG_TAMP3F: Tamper3 flag 
-  * @retval None
-  */
-#define __HAL_RTC_TAMPER_CLEAR_FLAG(__HANDLE__, __FLAG__)      ((__HANDLE__)->Instance->ISR) = (~((__FLAG__) | RTC_ISR_INIT)|((__HANDLE__)->Instance->ISR & RTC_ISR_INIT))
-
-#endif
-
         
 /**************************************************************************************************/ 
  
@@ -1332,31 +1185,18 @@ HAL_StatusTypeDef HAL_RTCEx_PollForAlarmBEvent(RTC_HandleTypeDef *hrtc, uint32_t
 #define RTC_TAMPCR_TAMPXIE    ((uint32_t) (RTC_TAMPER1_INTERRUPT | RTC_TAMPER2_INTERRUPT | \
                                            RTC_TAMPER3_INTERRUPT | RTC_ALL_TAMPER_INTERRUPT))
        
-#elif defined(RTC_TAMPER1_SUPPORT)
+#else
     
-#define RTC_FLAGS_MASK          ((uint32_t) (RTC_FLAG_RECALPF | RTC_FLAG_TAMP2F | RTC_FLAG_TAMP1F| \
+#define RTC_FLAGS_MASK          ((uint32_t) (RTC_FLAG_RECALPF | RTC_FLAG_TAMP2F                  |  \
                                              RTC_FLAG_TSOVF | RTC_FLAG_TSF | RTC_FLAG_WUTF       | \
                                              RTC_FLAG_ALRBF | RTC_FLAG_ALRAF                     | \
                                              RTC_FLAG_INITF | RTC_FLAG_RSF | RTC_FLAG_INITS      | \
                                              RTC_FLAG_SHPF | RTC_FLAG_WUTWF |RTC_FLAG_ALRBWF     | \
                                              RTC_FLAG_ALRAWF))
 
-#define RTC_TAMPCR_TAMPXE     ((uint32_t) (RTC_TAMPCR_TAMP2E | RTC_TAMPCR_TAMP1E))
-#define RTC_TAMPCR_TAMPXIE    ((uint32_t) (RTC_TAMPER1_INTERRUPT | RTC_TAMPER2_INTERRUPT | \
-                                           RTC_ALL_TAMPER_INTERRUPT))
+#define RTC_TAMPCR_TAMPXE     ((uint32_t) (RTC_TAMPCR_TAMP2E))
+#define RTC_TAMPCR_TAMPXIE    ((uint32_t) (RTC_TAMPER2_INTERRUPT | RTC_ALL_TAMPER_INTERRUPT))
                                         
-#elif defined(RTC_TAMPER3_SUPPORT)
-                                          
-#define RTC_FLAGS_MASK          ((uint32_t) (RTC_FLAG_RECALPF | RTC_FLAG_TAMP3F | RTC_FLAG_TAMP2F | \
-                                             RTC_FLAG_TSOVF | RTC_FLAG_TSF                        | \
-                                             RTC_FLAG_WUTF | RTC_FLAG_ALRBF | RTC_FLAG_ALRAF      | \
-                                             RTC_FLAG_INITF | RTC_FLAG_RSF                        | \
-                                             RTC_FLAG_INITS | RTC_FLAG_SHPF | RTC_FLAG_WUTWF      | \
-                                             RTC_FLAG_ALRBWF | RTC_FLAG_ALRAWF))
-                                             
-#define RTC_TAMPCR_TAMPXE     ((uint32_t) (RTC_TAMPCR_TAMP3E | RTC_TAMPCR_TAMP2E))
-#define RTC_TAMPCR_TAMPXIE    ((uint32_t) (RTC_TAMPER2_INTERRUPT | \
-                                           RTC_TAMPER3_INTERRUPT | RTC_ALL_TAMPER_INTERRUPT))
 #endif      
 
 #define RTC_EXTI_LINE_TAMPER_TIMESTAMP_EVENT  (EXTI_IMR1_IM18)    /*!< External interrupt line 18 Connected to the RTC Tamper and Time Stamp events */

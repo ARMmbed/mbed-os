@@ -45,6 +45,8 @@ extern "C" {
 /** @defgroup PWR_LL_Private_Constants PWR Private Constants
   * @{
   */
+
+#if defined(PWR_CR5_SMPSEN)
 /** @defgroup PWR_SMPS_Calibration PWR SMPS calibration
   * @{
   */ 
@@ -57,6 +59,7 @@ extern "C" {
 /**
   * @}
   */
+#endif
 
 /**
   * @}
@@ -75,10 +78,16 @@ extern "C" {
   * @{
   */
 #define LL_PWR_SCR_CWUF                    PWR_SCR_CWUF
+#if defined(PWR_CR3_EWUP2)
 #define LL_PWR_SCR_CWUF5                   PWR_SCR_CWUF5
+#endif
 #define LL_PWR_SCR_CWUF4                   PWR_SCR_CWUF4
+#if defined(PWR_CR3_EWUP3)
 #define LL_PWR_SCR_CWUF3                   PWR_SCR_CWUF3
+#endif
+#if defined(PWR_CR3_EWUP2)
 #define LL_PWR_SCR_CWUF2                   PWR_SCR_CWUF2
+#endif
 #define LL_PWR_SCR_CWUF1                   PWR_SCR_CWUF1
 #define LL_PWR_SCR_CC2HF                   PWR_SCR_CC2HF
 #define LL_PWR_SCR_C802AF                  PWR_SCR_C802AF
@@ -86,8 +95,10 @@ extern "C" {
 #define LL_PWR_SCR_CCRPEF                  PWR_SCR_CCRPEF
 #define LL_PWR_SCR_C802WUF                 PWR_SCR_C802WUF
 #define LL_PWR_SCR_CBLEWUF                 PWR_SCR_CBLEWUF
+#if defined(PWR_CR5_SMPSEN)
 #define LL_PWR_SCR_CBORHF                  PWR_SCR_CBORHF
 #define LL_PWR_SCR_CSMPSFBF                PWR_SCR_CSMPSFBF
+#endif
 #define LL_PWR_EXTSCR_CCRPF                PWR_EXTSCR_CCRPF
 #define LL_PWR_EXTSCR_C2CSSF               PWR_EXTSCR_C2CSSF
 #define LL_PWR_EXTSCR_C1CSSF               PWR_EXTSCR_C1CSSF
@@ -100,25 +111,37 @@ extern "C" {
   * @{
   */
 #define LL_PWR_SR1_WUFI                    PWR_SR1_WUFI
+#if defined(PWR_CR3_EWUP5)
 #define LL_PWR_SR1_WUF5                    PWR_SR1_WUF5
+#endif
 #define LL_PWR_SR1_WUF4                    PWR_SR1_WUF4
+#if defined(PWR_CR3_EWUP3)
 #define LL_PWR_SR1_WUF3                    PWR_SR1_WUF3
+#endif
+#if defined(PWR_CR3_EWUP2)
 #define LL_PWR_SR1_WUF2                    PWR_SR1_WUF2
+#endif
 #define LL_PWR_SR1_WUF1                    PWR_SR1_WUF1
 #define LL_PWR_SR2_PVMO3                   PWR_SR2_PVMO3
+#if defined(PWR_CR2_PVME1)
 #define LL_PWR_SR2_PVMO1                   PWR_SR2_PVMO1
+#endif
 #define LL_PWR_SR2_PVDO                    PWR_SR2_PVDO
+#if defined(PWR_CR1_VOS)
 #define LL_PWR_SR2_VOSF                    PWR_SR2_VOSF
+#endif
 #define LL_PWR_SR2_REGLPF                  PWR_SR2_REGLPF
 #define LL_PWR_SR2_REGLPS                  PWR_SR2_REGLPS
 
 /* BOR flags */
 #define LL_PWR_FLAG_BORH                   PWR_SR1_BORHF  /* BORH interrupt flag */
 
+#if defined(PWR_CR5_SMPSEN)
 /* SMPS flags */
 #define LL_PWR_FLAG_SMPS                   PWR_SR2_SMPSF  /* SMPS step down converter ready flag */
 #define LL_PWR_FLAG_SMPSB                  PWR_SR2_SMPSBF /* SMPS step down converter in bypass mode flag */
 #define LL_PWR_FLAG_SMPSFB                 PWR_SR1_SMPSFB /* SMPS step down converter forced in bypass mode interrupt flag */
+#endif
 
 /* Radio (BLE or 802.15.4) flags */
 #define LL_PWR_FLAG_BLEWU                  PWR_SR1_BLEWUF  /* BLE wakeup interrupt flag */
@@ -140,6 +163,7 @@ extern "C" {
   * @}
   */
 
+#if defined(PWR_CR1_VOS)
 /** @defgroup PWR_LL_EC_REGU_VOLTAGE REGU VOLTAGE
   * @{
   */
@@ -148,6 +172,7 @@ extern "C" {
 /**
   * @}
   */
+#endif
 
 /** @defgroup PWR_LL_EC_MODE_PWR MODE PWR
   * @{
@@ -179,10 +204,12 @@ extern "C" {
   * @}
   */
 
-/** @defgroup PWR_LL_EC_PVM_VDDUSB_1 Peripheral voltage monitoring
+/** @defgroup PWR_LL_EC_PVM Peripheral voltage monitoring
   * @{
   */
+#if defined(PWR_CR2_PVME1)
 #define LL_PWR_PVM_VDDUSB_1_2V             (PWR_CR2_PVME1)     /* Monitoring VDDUSB vs. 1.2V */
+#endif
 #define LL_PWR_PVM_VDDA_1_62V              (PWR_CR2_PVME3)     /* Monitoring VDDA vs. 1.62V  */
 /**
   * @}
@@ -207,10 +234,16 @@ extern "C" {
   * @{
   */
 #define LL_PWR_WAKEUP_PIN1                 (PWR_CR3_EWUP1)
+#if defined(PWR_CR3_EWUP2)
 #define LL_PWR_WAKEUP_PIN2                 (PWR_CR3_EWUP2)
+#endif
+#if defined(PWR_CR3_EWUP3)
 #define LL_PWR_WAKEUP_PIN3                 (PWR_CR3_EWUP3)
+#endif
 #define LL_PWR_WAKEUP_PIN4                 (PWR_CR3_EWUP4)
+#if defined(PWR_CR3_EWUP5)
 #define LL_PWR_WAKEUP_PIN5                 (PWR_CR3_EWUP5)
+#endif
 /**
   * @}
   */
@@ -240,6 +273,7 @@ extern "C" {
 /** @defgroup PWR_LL_EC_GPIO_BIT GPIO BIT
   * @{
   */
+#if defined(PWR_PUCRC_PC0)
 /* Note: LL_PWR_GPIO_BIT_x defined from port C because all pins are available */
 /*       for PWR pull-up and pull-down.                                       */
 #define LL_PWR_GPIO_BIT_0                  (PWR_PUCRC_PC0)
@@ -258,10 +292,29 @@ extern "C" {
 #define LL_PWR_GPIO_BIT_13                 (PWR_PUCRC_PC13)
 #define LL_PWR_GPIO_BIT_14                 (PWR_PUCRC_PC14)
 #define LL_PWR_GPIO_BIT_15                 (PWR_PUCRC_PC15)
+#else
+#define LL_PWR_GPIO_BIT_0                  (PWR_PUCRA_PA0)
+#define LL_PWR_GPIO_BIT_1                  (PWR_PUCRA_PA1)
+#define LL_PWR_GPIO_BIT_2                  (PWR_PUCRA_PA2)
+#define LL_PWR_GPIO_BIT_3                  (PWR_PUCRA_PA3)
+#define LL_PWR_GPIO_BIT_4                  (PWR_PUCRA_PA4)
+#define LL_PWR_GPIO_BIT_5                  (PWR_PUCRA_PA5)
+#define LL_PWR_GPIO_BIT_6                  (PWR_PUCRA_PA6)
+#define LL_PWR_GPIO_BIT_7                  (PWR_PUCRA_PA7)
+#define LL_PWR_GPIO_BIT_8                  (PWR_PUCRA_PA8)
+#define LL_PWR_GPIO_BIT_9                  (PWR_PUCRA_PA9)
+#define LL_PWR_GPIO_BIT_10                 (PWR_PUCRA_PA10)
+#define LL_PWR_GPIO_BIT_11                 (PWR_PUCRA_PA11)
+#define LL_PWR_GPIO_BIT_12                 (PWR_PUCRA_PA12)
+#define LL_PWR_GPIO_BIT_13                 (PWR_PUCRA_PA13)
+#define LL_PWR_GPIO_BIT_14                 (PWR_PUCRC_PC14)
+#define LL_PWR_GPIO_BIT_15                 (PWR_PUCRC_PC15)
+#endif
 /**
   * @}
   */
 
+#if defined(PWR_CR5_SMPSEN)
 /** @defgroup PWR_LL_EC_BOR_CONFIGURATION BOR configuration
   * @{
   */
@@ -324,6 +377,7 @@ extern "C" {
 /**
   * @}
   */
+#endif
 
 /**
   * @}
@@ -400,6 +454,7 @@ __STATIC_INLINE uint32_t LL_PWR_IsEnabledLowPowerRunMode(void)
   return ((READ_BIT(PWR->CR1, PWR_CR1_LPR) == (PWR_CR1_LPR)) ? 1UL : 0UL);
 }
 
+#if defined(PWR_CR1_VOS)
 /**
   * @brief  Set the main internal regulator output voltage
   * @note   A delay is required for the internal regulator to be ready 
@@ -428,6 +483,7 @@ __STATIC_INLINE uint32_t LL_PWR_GetRegulVoltageScaling(void)
 {
   return (uint32_t)(READ_BIT(PWR->CR1, PWR_CR1_VOS));
 }
+#endif
 
 /**
   * @brief  Enable access to the backup domain
@@ -544,6 +600,7 @@ __STATIC_INLINE uint32_t LL_PWR_GetFlashPowerModeSleep(void)
   return (uint32_t)(READ_BIT(PWR->CR1, PWR_CR1_FPDS));
 }
 
+#if defined(PWR_CR2_PVME1)
 /**
   * @brief  Enable VDDUSB supply
   * @rmtoll CR2          USV           LL_PWR_EnableVddUSB
@@ -573,15 +630,17 @@ __STATIC_INLINE uint32_t LL_PWR_IsEnabledVddUSB(void)
 {
   return ((READ_BIT(PWR->CR2, PWR_CR2_USV) == (PWR_CR2_USV)) ? 1UL : 0UL);
 }
-
+#endif
 
 /**
   * @brief  Enable the Power Voltage Monitoring on a peripheral
   * @rmtoll CR2          PVME1         LL_PWR_EnablePVM\n
   *         CR2          PVME3         LL_PWR_EnablePVM
   * @param  PeriphVoltage This parameter can be one of the following values:
-  *         @arg @ref LL_PWR_PVM_VDDUSB_1_2V
+  *         @arg @ref LL_PWR_PVM_VDDUSB_1_2V (*)
   *         @arg @ref LL_PWR_PVM_VDDA_1_62V
+  *
+  *         (*) Not available on devices STM32WB50xx
   * @retval None
   */
 __STATIC_INLINE void LL_PWR_EnablePVM(uint32_t PeriphVoltage)
@@ -594,8 +653,10 @@ __STATIC_INLINE void LL_PWR_EnablePVM(uint32_t PeriphVoltage)
   * @rmtoll CR2          PVME1         LL_PWR_DisablePVM\n
   *         CR2          PVME3         LL_PWR_DisablePVM
   * @param  PeriphVoltage This parameter can be one of the following values:
-  *         @arg @ref LL_PWR_PVM_VDDUSB_1_2V
+  *         @arg @ref LL_PWR_PVM_VDDUSB_1_2V (*)
   *         @arg @ref LL_PWR_PVM_VDDA_1_62V
+  *
+  *         (*) Not available on devices STM32WB50xx
   * @retval None
   */
 __STATIC_INLINE void LL_PWR_DisablePVM(uint32_t PeriphVoltage)
@@ -608,8 +669,10 @@ __STATIC_INLINE void LL_PWR_DisablePVM(uint32_t PeriphVoltage)
   * @rmtoll CR2          PVME1         LL_PWR_IsEnabledPVM\n
   *         CR2          PVME3         LL_PWR_IsEnabledPVM
   * @param  PeriphVoltage This parameter can be one of the following values:
-  *         @arg @ref LL_PWR_PVM_VDDUSB_1_2V
+  *         @arg @ref LL_PWR_PVM_VDDUSB_1_2V (*)
   *         @arg @ref LL_PWR_PVM_VDDA_1_62V
+  *
+  *         (*) Not available on devices STM32WB50xx
   * @retval State of bit (1 or 0).
   */
 __STATIC_INLINE uint32_t LL_PWR_IsEnabledPVM(uint32_t PeriphVoltage)
@@ -783,10 +846,12 @@ __STATIC_INLINE uint32_t LL_PWR_IsEnabledSRAM2Retention(void)
   *         CR3          EWUP5         LL_PWR_EnableWakeUpPin\n
   * @param  WakeUpPin This parameter can be one of the following values:
   *         @arg @ref LL_PWR_WAKEUP_PIN1
-  *         @arg @ref LL_PWR_WAKEUP_PIN2
-  *         @arg @ref LL_PWR_WAKEUP_PIN3
+  *         @arg @ref LL_PWR_WAKEUP_PIN2 (*)
+  *         @arg @ref LL_PWR_WAKEUP_PIN3 (*)
   *         @arg @ref LL_PWR_WAKEUP_PIN4
-  *         @arg @ref LL_PWR_WAKEUP_PIN5
+  *         @arg @ref LL_PWR_WAKEUP_PIN5 (*)
+  *
+  *         (*) Not available on devices STM32WB50xx
   * @retval None
   */
 __STATIC_INLINE void LL_PWR_EnableWakeUpPin(uint32_t WakeUpPin)
@@ -803,10 +868,12 @@ __STATIC_INLINE void LL_PWR_EnableWakeUpPin(uint32_t WakeUpPin)
   *         CR3          EWUP5         LL_PWR_DisableWakeUpPin\n
   * @param  WakeUpPin This parameter can be one of the following values:
   *         @arg @ref LL_PWR_WAKEUP_PIN1
-  *         @arg @ref LL_PWR_WAKEUP_PIN2
-  *         @arg @ref LL_PWR_WAKEUP_PIN3
+  *         @arg @ref LL_PWR_WAKEUP_PIN2 (*)
+  *         @arg @ref LL_PWR_WAKEUP_PIN3 (*)
   *         @arg @ref LL_PWR_WAKEUP_PIN4
-  *         @arg @ref LL_PWR_WAKEUP_PIN5
+  *         @arg @ref LL_PWR_WAKEUP_PIN5 (*)
+  *
+  *         (*) Not available on devices STM32WB50xx
   * @retval None
   */
 __STATIC_INLINE void LL_PWR_DisableWakeUpPin(uint32_t WakeUpPin)
@@ -823,10 +890,12 @@ __STATIC_INLINE void LL_PWR_DisableWakeUpPin(uint32_t WakeUpPin)
   *         CR3          EWUP5         LL_PWR_IsEnabledWakeUpPin\n
   * @param  WakeUpPin This parameter can be one of the following values:
   *         @arg @ref LL_PWR_WAKEUP_PIN1
-  *         @arg @ref LL_PWR_WAKEUP_PIN2
-  *         @arg @ref LL_PWR_WAKEUP_PIN3
+  *         @arg @ref LL_PWR_WAKEUP_PIN2 (*)
+  *         @arg @ref LL_PWR_WAKEUP_PIN3 (*)
   *         @arg @ref LL_PWR_WAKEUP_PIN4
-  *         @arg @ref LL_PWR_WAKEUP_PIN5
+  *         @arg @ref LL_PWR_WAKEUP_PIN5 (*)
+  *
+  *         (*) Not available on devices STM32WB50xx
   * @retval State of bit (1 or 0).
   */
 __STATIC_INLINE uint32_t LL_PWR_IsEnabledWakeUpPin(uint32_t WakeUpPin)
@@ -898,10 +967,12 @@ __STATIC_INLINE uint32_t LL_PWR_IsEnabledBatteryCharging(void)
   *         CR4          WP5           LL_PWR_SetWakeUpPinPolarityLow
   * @param  WakeUpPin This parameter can be one of the following values:
   *         @arg @ref LL_PWR_WAKEUP_PIN1
-  *         @arg @ref LL_PWR_WAKEUP_PIN2
-  *         @arg @ref LL_PWR_WAKEUP_PIN3
+  *         @arg @ref LL_PWR_WAKEUP_PIN2 (*)
+  *         @arg @ref LL_PWR_WAKEUP_PIN3 (*)
   *         @arg @ref LL_PWR_WAKEUP_PIN4
-  *         @arg @ref LL_PWR_WAKEUP_PIN5
+  *         @arg @ref LL_PWR_WAKEUP_PIN5 (*)
+  *
+  *         (*) Not available on devices STM32WB50xx
   * @retval None
   */
 __STATIC_INLINE void LL_PWR_SetWakeUpPinPolarityLow(uint32_t WakeUpPin)
@@ -918,10 +989,12 @@ __STATIC_INLINE void LL_PWR_SetWakeUpPinPolarityLow(uint32_t WakeUpPin)
   *         CR4          WP5           LL_PWR_SetWakeUpPinPolarityHigh
   * @param  WakeUpPin This parameter can be one of the following values:
   *         @arg @ref LL_PWR_WAKEUP_PIN1
-  *         @arg @ref LL_PWR_WAKEUP_PIN2
-  *         @arg @ref LL_PWR_WAKEUP_PIN3
+  *         @arg @ref LL_PWR_WAKEUP_PIN2 (*)
+  *         @arg @ref LL_PWR_WAKEUP_PIN3 (*)
   *         @arg @ref LL_PWR_WAKEUP_PIN4
-  *         @arg @ref LL_PWR_WAKEUP_PIN5
+  *         @arg @ref LL_PWR_WAKEUP_PIN5 (*)
+  *
+  *         (*) Not available on devices STM32WB50xx
   * @retval None
   */
 __STATIC_INLINE void LL_PWR_SetWakeUpPinPolarityHigh(uint32_t WakeUpPin)
@@ -938,10 +1011,12 @@ __STATIC_INLINE void LL_PWR_SetWakeUpPinPolarityHigh(uint32_t WakeUpPin)
   *         CR4          WP5           LL_PWR_IsWakeUpPinPolarityLow
   * @param  WakeUpPin This parameter can be one of the following values:
   *         @arg @ref LL_PWR_WAKEUP_PIN1
-  *         @arg @ref LL_PWR_WAKEUP_PIN2
-  *         @arg @ref LL_PWR_WAKEUP_PIN3
+  *         @arg @ref LL_PWR_WAKEUP_PIN2 (*)
+  *         @arg @ref LL_PWR_WAKEUP_PIN3 (*)
   *         @arg @ref LL_PWR_WAKEUP_PIN4
-  *         @arg @ref LL_PWR_WAKEUP_PIN5
+  *         @arg @ref LL_PWR_WAKEUP_PIN5 (*)
+  *
+  *         (*) Not available on devices STM32WB50xx
   * @retval State of bit (1 or 0).
   */
 __STATIC_INLINE uint32_t LL_PWR_IsWakeUpPinPolarityLow(uint32_t WakeUpPin)
@@ -987,7 +1062,7 @@ __STATIC_INLINE uint32_t LL_PWR_IsWakeUpPinPolarityLow(uint32_t WakeUpPin)
   */
 __STATIC_INLINE void LL_PWR_EnableGPIOPullUp(uint32_t GPIO, uint32_t GPIONumber)
 {
-  SET_BIT(*((uint32_t *)GPIO), GPIONumber);
+  SET_BIT(*((__IO uint32_t *)GPIO), GPIONumber);
 }
 
 /**
@@ -1028,7 +1103,7 @@ __STATIC_INLINE void LL_PWR_EnableGPIOPullUp(uint32_t GPIO, uint32_t GPIONumber)
   */
 __STATIC_INLINE void LL_PWR_DisableGPIOPullUp(uint32_t GPIO, uint32_t GPIONumber)
 {
-  CLEAR_BIT(*((uint32_t *)GPIO), GPIONumber);
+  CLEAR_BIT(*((__IO uint32_t *)GPIO), GPIONumber);
 }
 
 /**
@@ -1067,7 +1142,7 @@ __STATIC_INLINE void LL_PWR_DisableGPIOPullUp(uint32_t GPIO, uint32_t GPIONumber
   */
 __STATIC_INLINE uint32_t LL_PWR_IsEnabledGPIOPullUp(uint32_t GPIO, uint32_t GPIONumber)
 {
-  return ((READ_BIT(*((uint32_t *)(GPIO)), GPIONumber) == (GPIONumber)) ? 1UL : 0UL);
+  return ((READ_BIT(*((__IO uint32_t *)GPIO), GPIONumber) == (GPIONumber)) ? 1UL : 0UL);
 }
 
 /**
@@ -1108,8 +1183,7 @@ __STATIC_INLINE uint32_t LL_PWR_IsEnabledGPIOPullUp(uint32_t GPIO, uint32_t GPIO
   */
 __STATIC_INLINE void LL_PWR_EnableGPIOPullDown(uint32_t GPIO, uint32_t GPIONumber)
 {
-  register __IO uint32_t temp = (uint32_t)(GPIO) + 4UL;
-  SET_BIT(*((uint32_t *)(temp)), GPIONumber);
+  SET_BIT(*((__IO uint32_t *)(GPIO + 4UL)), GPIONumber);
 }
 
 /**
@@ -1150,8 +1224,7 @@ __STATIC_INLINE void LL_PWR_EnableGPIOPullDown(uint32_t GPIO, uint32_t GPIONumbe
   */
 __STATIC_INLINE void LL_PWR_DisableGPIOPullDown(uint32_t GPIO, uint32_t GPIONumber)
 {
-  register __IO uint32_t temp = (uint32_t)(GPIO) + 4UL;
-  CLEAR_BIT(*((uint32_t *)(temp)), GPIONumber);
+  CLEAR_BIT(*((__IO uint32_t *)(GPIO + 4UL)), GPIONumber);
 }
 
 /**
@@ -1190,10 +1263,10 @@ __STATIC_INLINE void LL_PWR_DisableGPIOPullDown(uint32_t GPIO, uint32_t GPIONumb
   */
 __STATIC_INLINE uint32_t LL_PWR_IsEnabledGPIOPullDown(uint32_t GPIO, uint32_t GPIONumber)
 {
-  register __IO uint32_t temp = (uint32_t)(GPIO) + 4UL;
-  return ((READ_BIT(*((uint32_t *)(temp)), GPIONumber) == (GPIONumber)) ? 1UL : 0UL);
+  return ((READ_BIT(*((__IO uint32_t *)(GPIO + 4UL)), GPIONumber) == (GPIONumber)) ? 1UL : 0UL);
 }
 
+#if defined(PWR_CR5_SMPSEN)
 /**
   * @brief  Set BOR configuration
   * @rmtoll CR5          BORHC         LL_PWR_SetBORConfig
@@ -1217,11 +1290,13 @@ __STATIC_INLINE uint32_t LL_PWR_GetBORConfig(void)
 {
   return (uint32_t)(READ_BIT(PWR->CR5, PWR_CR5_BORHC));
 }
+#endif
 
 /**
   * @}
   */
 
+#if defined(PWR_CR5_SMPSEN)
 /** @defgroup PWR_LL_EF_Configuration_SMPS Configuration of SMPS
   * @{
   */
@@ -1434,12 +1509,12 @@ __STATIC_INLINE void LL_PWR_SMPS_SetOutputVoltageLevel(uint32_t OutputVoltageLev
     {
       OutputVoltageLevelTrimmed = 0;
     }
-    else if(OutputVoltageLevelTrimmed > (int32_t)PWR_CR5_SMPSVOS)
-    {
-      OutputVoltageLevelTrimmed = (int32_t)PWR_CR5_SMPSVOS;
-    }
     else
     {
+      if(OutputVoltageLevelTrimmed > (int32_t)PWR_CR5_SMPSVOS)
+      {
+        OutputVoltageLevelTrimmed = (int32_t)PWR_CR5_SMPSVOS;
+      }
     }
 
     /* Update register */
@@ -1495,12 +1570,12 @@ __STATIC_INLINE uint32_t LL_PWR_SMPS_GetOutputVoltageLevel(void)
     {
       OutputVoltageLevelTrimmed = (int32_t)LL_PWR_SMPS_OUTPUT_VOLTAGE_1V20;
     }
-    else if(OutputVoltageLevelTrimmed > (int32_t)PWR_CR5_SMPSVOS)
-    {
-      OutputVoltageLevelTrimmed = (int32_t)LL_PWR_SMPS_OUTPUT_VOLTAGE_1V90;
-    }
     else
     {
+      if(OutputVoltageLevelTrimmed > (int32_t)PWR_CR5_SMPSVOS)
+      {
+        OutputVoltageLevelTrimmed = (int32_t)LL_PWR_SMPS_OUTPUT_VOLTAGE_1V90;
+      }
     }
 
     return (uint32_t)OutputVoltageLevelTrimmed;
@@ -1510,6 +1585,7 @@ __STATIC_INLINE uint32_t LL_PWR_SMPS_GetOutputVoltageLevel(void)
 /**
   * @}
   */
+#endif
 
 /** @defgroup PWR_LL_EF_Configuration_Multicore Configuration of multicore, intended to be executed by CPU1
   * @{
@@ -1680,10 +1756,12 @@ __STATIC_INLINE uint32_t LL_C2_PWR_IsEnabledInternWU(void)
   *         C2CR3        EWUP5         LL_C2_PWR_EnableWakeUpPin
   * @param  WakeUpPin This parameter can be one of the following values:
   *         @arg @ref LL_PWR_WAKEUP_PIN1
-  *         @arg @ref LL_PWR_WAKEUP_PIN2
-  *         @arg @ref LL_PWR_WAKEUP_PIN3
+  *         @arg @ref LL_PWR_WAKEUP_PIN2 (*)
+  *         @arg @ref LL_PWR_WAKEUP_PIN3 (*)
   *         @arg @ref LL_PWR_WAKEUP_PIN4
-  *         @arg @ref LL_PWR_WAKEUP_PIN5
+  *         @arg @ref LL_PWR_WAKEUP_PIN5 (*)
+  *
+  *         (*) Not available on devices STM32WB50xx
   * @retval None
   */
 __STATIC_INLINE void LL_C2_PWR_EnableWakeUpPin(uint32_t WakeUpPin)
@@ -1700,10 +1778,12 @@ __STATIC_INLINE void LL_C2_PWR_EnableWakeUpPin(uint32_t WakeUpPin)
   *         C2CR3        EWUP5         LL_C2_PWR_DisableWakeUpPin
   * @param  WakeUpPin This parameter can be one of the following values:
   *         @arg @ref LL_PWR_WAKEUP_PIN1
-  *         @arg @ref LL_PWR_WAKEUP_PIN2
-  *         @arg @ref LL_PWR_WAKEUP_PIN3
+  *         @arg @ref LL_PWR_WAKEUP_PIN2 (*)
+  *         @arg @ref LL_PWR_WAKEUP_PIN3 (*)
   *         @arg @ref LL_PWR_WAKEUP_PIN4
-  *         @arg @ref LL_PWR_WAKEUP_PIN5
+  *         @arg @ref LL_PWR_WAKEUP_PIN5 (*)
+  *
+  *         (*) Not available on devices STM32WB50xx
   * @retval None
   */
 __STATIC_INLINE void LL_C2_PWR_DisableWakeUpPin(uint32_t WakeUpPin)
@@ -1720,10 +1800,12 @@ __STATIC_INLINE void LL_C2_PWR_DisableWakeUpPin(uint32_t WakeUpPin)
   *         C2CR3        EWUP5         LL_C2_PWR_IsEnabledWakeUpPin
   * @param  WakeUpPin This parameter can be one of the following values:
   *         @arg @ref LL_PWR_WAKEUP_PIN1
-  *         @arg @ref LL_PWR_WAKEUP_PIN2
-  *         @arg @ref LL_PWR_WAKEUP_PIN3
+  *         @arg @ref LL_PWR_WAKEUP_PIN2 (*)
+  *         @arg @ref LL_PWR_WAKEUP_PIN3 (*)
   *         @arg @ref LL_PWR_WAKEUP_PIN4
-  *         @arg @ref LL_PWR_WAKEUP_PIN5
+  *         @arg @ref LL_PWR_WAKEUP_PIN5 (*)
+  *
+  *         (*) Not available on devices STM32WB50xx
   * @retval None
   */
 __STATIC_INLINE uint32_t LL_C2_PWR_IsEnabledWakeUpPin(uint32_t WakeUpPin)
@@ -1833,6 +1915,7 @@ __STATIC_INLINE uint32_t LL_PWR_IsActiveFlag_InternWU(void)
   return ((READ_BIT(PWR->SR1, PWR_SR1_WUFI) == (PWR_SR1_WUFI)) ? 1UL : 0UL);
 }
 
+#if defined(PWR_CR3_EWUP5)
 /**
   * @brief  Get Wake-up Flag 5
   * @rmtoll SR1          WUF5          LL_PWR_IsActiveFlag_WU5
@@ -1842,6 +1925,7 @@ __STATIC_INLINE uint32_t LL_PWR_IsActiveFlag_WU5(void)
 {
   return ((READ_BIT(PWR->SR1, PWR_SR1_WUF5) == (PWR_SR1_WUF5)) ? 1UL : 0UL);
 }
+#endif
 
 /**
   * @brief  Get Wake-up Flag 4
@@ -1853,6 +1937,7 @@ __STATIC_INLINE uint32_t LL_PWR_IsActiveFlag_WU4(void)
   return ((READ_BIT(PWR->SR1, PWR_SR1_WUF4) == (PWR_SR1_WUF4)) ? 1UL : 0UL);
 }
 
+#if defined(PWR_CR3_EWUP3)
 /**
   * @brief  Get Wake-up Flag 3
   * @rmtoll SR1          WUF3          LL_PWR_IsActiveFlag_WU3
@@ -1862,7 +1947,9 @@ __STATIC_INLINE uint32_t LL_PWR_IsActiveFlag_WU3(void)
 {
   return ((READ_BIT(PWR->SR1, PWR_SR1_WUF3) == (PWR_SR1_WUF3)) ? 1UL : 0UL);
 }
+#endif
 
+#if defined(PWR_CR3_EWUP2)
 /**
   * @brief  Get Wake-up Flag 2
   * @rmtoll SR1          WUF2          LL_PWR_IsActiveFlag_WU2
@@ -1872,6 +1959,7 @@ __STATIC_INLINE uint32_t LL_PWR_IsActiveFlag_WU2(void)
 {
   return ((READ_BIT(PWR->SR1, PWR_SR1_WUF2) == (PWR_SR1_WUF2)) ? 1UL : 0UL);
 }
+#endif
 
 /**
   * @brief  Get Wake-up Flag 1
@@ -1893,6 +1981,7 @@ __STATIC_INLINE void LL_PWR_ClearFlag_WU(void)
   WRITE_REG(PWR->SCR, PWR_SCR_CWUF);
 }
 
+#if defined(PWR_CR3_EWUP5)
 /**
   * @brief  Clear Wake-up Flag 5
   * @rmtoll SCR          CWUF5         LL_PWR_ClearFlag_WU5
@@ -1902,6 +1991,7 @@ __STATIC_INLINE void LL_PWR_ClearFlag_WU5(void)
 {
   WRITE_REG(PWR->SCR, PWR_SCR_CWUF5);
 }
+#endif
 
 /**
   * @brief  Clear Wake-up Flag 4
@@ -1913,6 +2003,7 @@ __STATIC_INLINE void LL_PWR_ClearFlag_WU4(void)
   WRITE_REG(PWR->SCR, PWR_SCR_CWUF4);
 }
 
+#if defined(PWR_CR3_EWUP3)
 /**
   * @brief  Clear Wake-up Flag 3
   * @rmtoll SCR          CWUF3         LL_PWR_ClearFlag_WU3
@@ -1922,7 +2013,9 @@ __STATIC_INLINE void LL_PWR_ClearFlag_WU3(void)
 {
   WRITE_REG(PWR->SCR, PWR_SCR_CWUF3);
 }
+#endif
 
+#if defined(PWR_CR3_EWUP2)
 /**
   * @brief  Clear Wake-up Flag 2
   * @rmtoll SCR          CWUF2         LL_PWR_ClearFlag_WU2
@@ -1932,6 +2025,7 @@ __STATIC_INLINE void LL_PWR_ClearFlag_WU2(void)
 {
   WRITE_REG(PWR->SCR, PWR_SCR_CWUF2);
 }
+#endif
 
 /**
   * @brief  Clear Wake-up Flag 1
@@ -1954,7 +2048,7 @@ __STATIC_INLINE uint32_t LL_PWR_IsActiveFlag_PVMO3(void)
   return ((READ_BIT(PWR->SR2, PWR_SR2_PVMO3) == (PWR_SR2_PVMO3)) ? 1UL : 0UL);
 }
 
-
+#if defined(PWR_CR2_PVME1)
 /**
   * @brief  Indicate whether VDDUSB voltage is below or above PVM1 threshold
   * @rmtoll SR2          PVMO1         LL_PWR_IsActiveFlag_PVMO1
@@ -1964,6 +2058,7 @@ __STATIC_INLINE uint32_t LL_PWR_IsActiveFlag_PVMO1(void)
 {
   return ((READ_BIT(PWR->SR2, PWR_SR2_PVMO1) == (PWR_SR2_PVMO1)) ? 1UL : 0UL);
 }
+#endif
 
 /**
   * @brief  Indicate whether VDD voltage is below or above the selected PVD threshold
@@ -1975,6 +2070,7 @@ __STATIC_INLINE uint32_t LL_PWR_IsActiveFlag_PVDO(void)
   return ((READ_BIT(PWR->SR2, PWR_SR2_PVDO) == (PWR_SR2_PVDO)) ? 1UL : 0UL);
 }
 
+#if defined(PWR_CR1_VOS)
 /**
   * @brief  Indicate whether the regulator is ready in the selected voltage range or if its output voltage is still changing to the required voltage level
   * @rmtoll SR2          VOSF          LL_PWR_IsActiveFlag_VOS
@@ -1984,6 +2080,7 @@ __STATIC_INLINE uint32_t LL_PWR_IsActiveFlag_VOS(void)
 {
   return ((READ_BIT(PWR->SR2, PWR_SR2_VOSF) == (PWR_SR2_VOSF)) ? 1UL : 0UL);
 }
+#endif
 
 /**
   * @brief  Indicate whether the regulator is ready in main mode or is in low-power mode
@@ -2030,6 +2127,7 @@ __STATIC_INLINE void LL_PWR_ClearFlag_BORH(void)
   * @}
   */
 
+#if defined(PWR_CR5_SMPSEN)
 /** @defgroup PWR_LL_EF_FLAG_Management_SMPS FLAG management for SMPS
   * @{
   */
@@ -2065,6 +2163,7 @@ __STATIC_INLINE void LL_PWR_ClearFlag_SMPSFB(void)
 /**
   * @}
   */
+#endif
 
 /** @defgroup PWR_LL_EF_FLAG_Management_Radio FLAG management for radio (BLE or 802.15.4)
   * @{
@@ -2301,6 +2400,7 @@ __STATIC_INLINE void LL_PWR_ClearFlag_C2STOP_C2STB(void)
   * @}
   */
 
+#if defined(PWR_CR5_SMPSEN)
 /** @defgroup PWR_LL_EF_IT_Management_SMPS PWR IT management for SMPS
   * @{
   */
@@ -2345,6 +2445,7 @@ __STATIC_INLINE uint32_t LL_PWR_IsEnabledIT_BORH_SMPSFB(void)
 /**
   * @}
   */
+#endif
 
 /** @defgroup PWR_LL_EF_IT_Management_Radio PWR IT management for radio (BLE or 802.15.4)
   * @{

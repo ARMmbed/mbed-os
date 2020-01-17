@@ -128,7 +128,11 @@ typedef struct
 #define EXTI_LINE_40                        (EXTI_CONFIG   | EXTI_EVENT | EXTI_REG2 | 0x08u)
 #define EXTI_LINE_41                        (EXTI_CONFIG   | EXTI_EVENT | EXTI_REG2 | 0x09u)
 #define EXTI_LINE_42                        (EXTI_DIRECT   |              EXTI_REG2 | 0x0Au)
+#if defined (STM32WB55xx)
 #define EXTI_LINE_43                        (EXTI_DIRECT   |              EXTI_REG2 | 0x0Bu)
+#else
+#define EXTI_LINE_43                        (EXTI_RESERVED |              EXTI_REG2 | 0x0Bu)
+#endif
 #define EXTI_LINE_44                        (EXTI_DIRECT   |              EXTI_REG2 | 0x0Cu)
 #define EXTI_LINE_45                        (EXTI_DIRECT   |              EXTI_REG2 | 0x0Du)
 #define EXTI_LINE_46                        (EXTI_DIRECT   |              EXTI_REG2 | 0x0Eu)
@@ -166,7 +170,9 @@ typedef struct
 #define EXTI_GPIOA                          0x00000000u
 #define EXTI_GPIOB                          0x00000001u
 #define EXTI_GPIOC                          0x00000002u
+#if defined (STM32WB55xx)
 #define EXTI_GPIOD                          0x00000003u
+#endif
 #define EXTI_GPIOE                          0x00000004u
 #define EXTI_GPIOH                          0x00000007u
 /**
@@ -255,12 +261,20 @@ typedef struct
 
 #define IS_EXTI_CONFIG_LINE(__LINE__)   (((__LINE__) & EXTI_CONFIG) != 0x00u)
 
+#if defined (STM32WB55xx)
 #define IS_EXTI_GPIO_PORT(__PORT__)     (((__PORT__) == EXTI_GPIOA) || \
                                          ((__PORT__) == EXTI_GPIOB) || \
                                          ((__PORT__) == EXTI_GPIOC) || \
                                          ((__PORT__) == EXTI_GPIOD) || \
                                          ((__PORT__) == EXTI_GPIOE) || \
                                          ((__PORT__) == EXTI_GPIOH))
+#else
+#define IS_EXTI_GPIO_PORT(__PORT__)     (((__PORT__) == EXTI_GPIOA) || \
+                                         ((__PORT__) == EXTI_GPIOB) || \
+                                         ((__PORT__) == EXTI_GPIOC) || \
+                                         ((__PORT__) == EXTI_GPIOE) || \
+                                         ((__PORT__) == EXTI_GPIOH))
+#endif
 
 #define IS_EXTI_GPIO_PIN(__PIN__)       ((__PIN__) < 16u)
 

@@ -79,28 +79,34 @@
      *** Callback registration ***
      =============================================
 
+  [..]
      The compilation flag USE_HAL_TSC_REGISTER_CALLBACKS when set to 1
      allows the user to configure dynamically the driver callbacks.
      Use Functions @ref HAL_TSC_RegisterCallback() to register an interrupt callback.
 
+  [..]
      Function @ref HAL_TSC_RegisterCallback() allows to register following callbacks:
        (+) ConvCpltCallback   : callback for conversion complete process.
        (+) ErrorCallback      : callback for error detection.
        (+) MspInitCallback    : callback for Msp Init.
        (+) MspDeInitCallback  : callback for Msp DeInit.
+  [..]
      This function takes as parameters the HAL peripheral handle, the Callback ID
      and a pointer to the user callback function.
 
+  [..]
      Use function @ref HAL_TSC_UnRegisterCallback to reset a callback to the default
      weak function.
      @ref HAL_TSC_UnRegisterCallback takes as parameters the HAL peripheral handle,
      and the Callback ID.
+  [..]
      This function allows to reset following callbacks:
        (+) ConvCpltCallback   : callback for conversion complete process.
        (+) ErrorCallback      : callback for error detection.
        (+) MspInitCallback    : callback for Msp Init.
        (+) MspDeInitCallback  : callback for Msp DeInit.
 
+  [..]
      By default, after the @ref HAL_TSC_Init() and when the state is @ref HAL_TSC_STATE_RESET
      all callbacks are set to the corresponding weak functions:
      examples @ref HAL_TSC_ConvCpltCallback(), @ref HAL_TSC_ErrorCallback().
@@ -110,6 +116,7 @@
      If MspInit or MspDeInit are not null, the @ref HAL_TSC_Init()/ @ref HAL_TSC_DeInit()
      keep and use the user MspInit/MspDeInit callbacks (registered beforehand) whatever the state.
 
+  [..]
      Callbacks can be registered/unregistered in @ref HAL_TSC_STATE_READY state only.
      Exception done MspInit/MspDeInit functions that can be registered/unregistered
      in @ref HAL_TSC_STATE_READY or @ref HAL_TSC_STATE_RESET state,
@@ -118,6 +125,7 @@
      using @ref HAL_TSC_RegisterCallback() before calling @ref HAL_TSC_DeInit()
      or @ref HAL_TSC_Init() function.
 
+  [..]
      When the compilation flag USE_HAL_TSC_REGISTER_CALLBACKS is set to 0 or
      not defined, the callback registration feature is not available and all callbacks
      are set to the corresponding weak functions.
@@ -171,11 +179,11 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics. 
+  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the 
+  * the "License"; You may not use this file except in compliance with the
   * License. You may obtain a copy of the License at:
   *                        opensource.org/licenses/BSD-3-Clause
   *
@@ -185,6 +193,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32wbxx_hal.h"
 
+#if defined(TSC)
 /** @addtogroup STM32WBxx_HAL_Driver
   * @{
   */
@@ -1109,4 +1118,5 @@ static uint32_t TSC_extract_groups(uint32_t iomask)
   * @}
   */
 
+#endif /* TSC */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

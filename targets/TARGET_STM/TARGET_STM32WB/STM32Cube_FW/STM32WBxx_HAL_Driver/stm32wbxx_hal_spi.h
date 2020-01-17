@@ -383,7 +383,8 @@ typedef  void (*pSPI_CallbackTypeDef)(SPI_HandleTypeDef *hspi); /*!< pointer to 
 #define SPI_FLAG_FRE                    SPI_SR_FRE    /* SPI Error flag: TI mode frame format error flag */
 #define SPI_FLAG_FTLVL                  SPI_SR_FTLVL  /* SPI fifo transmission level                     */
 #define SPI_FLAG_FRLVL                  SPI_SR_FRLVL  /* SPI fifo reception level                        */
-#define SPI_FLAG_MASK                   (SPI_SR_RXNE | SPI_SR_TXE | SPI_SR_BSY | SPI_SR_CRCERR | SPI_SR_MODF | SPI_SR_OVR | SPI_SR_FRE | SPI_SR_FTLVL | SPI_SR_FRLVL)
+#define SPI_FLAG_MASK                   (SPI_SR_RXNE | SPI_SR_TXE | SPI_SR_BSY | SPI_SR_CRCERR\
+                                         | SPI_SR_MODF | SPI_SR_OVR | SPI_SR_FRE | SPI_SR_FTLVL | SPI_SR_FRLVL)
 /**
   * @}
   */
@@ -433,7 +434,7 @@ typedef  void (*pSPI_CallbackTypeDef)(SPI_HandleTypeDef *hspi); /*!< pointer to 
                                                                   } while(0)
 #else
 #define __HAL_SPI_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_SPI_STATE_RESET)
-#endif
+#endif /* USE_HAL_SPI_REGISTER_CALLBACKS */
 
 /** @brief  Enable the specified SPI interrupts.
   * @param  __HANDLE__ specifies the SPI Handle.
@@ -469,7 +470,8 @@ typedef  void (*pSPI_CallbackTypeDef)(SPI_HandleTypeDef *hspi); /*!< pointer to 
   *            @arg SPI_IT_ERR: Error interrupt enable
   * @retval The new state of __IT__ (TRUE or FALSE).
   */
-#define __HAL_SPI_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__) ((((__HANDLE__)->Instance->CR2 & (__INTERRUPT__)) == (__INTERRUPT__)) ? SET : RESET)
+#define __HAL_SPI_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__) ((((__HANDLE__)->Instance->CR2\
+                                                              & (__INTERRUPT__)) == (__INTERRUPT__)) ? SET : RESET)
 
 /** @brief  Check whether the specified SPI flag is set or not.
   * @param  __HANDLE__ specifies the SPI Handle.
@@ -529,9 +531,9 @@ typedef  void (*pSPI_CallbackTypeDef)(SPI_HandleTypeDef *hspi); /*!< pointer to 
   */
 #define __HAL_SPI_CLEAR_FREFLAG(__HANDLE__)        \
   do{                                              \
-  __IO uint32_t tmpreg_fre = 0x00U;                \
-  tmpreg_fre = (__HANDLE__)->Instance->SR;         \
-  UNUSED(tmpreg_fre);                              \
+    __IO uint32_t tmpreg_fre = 0x00U;              \
+    tmpreg_fre = (__HANDLE__)->Instance->SR;       \
+    UNUSED(tmpreg_fre);                            \
   }while(0U)
 
 /** @brief  Enable the SPI peripheral.

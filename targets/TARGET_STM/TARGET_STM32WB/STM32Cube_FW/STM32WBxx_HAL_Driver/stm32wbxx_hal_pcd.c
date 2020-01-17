@@ -1714,7 +1714,10 @@ static HAL_StatusTypeDef PCD_EP_ISR_Handler(PCD_HandleTypeDef *hpcd)
         {
           /* Get SETUP Packet*/
           ep->xfer_count = PCD_GET_EP_RX_CNT(hpcd->Instance, ep->num);
-          USB_ReadPMA(hpcd->Instance, (uint8_t *)hpcd->Setup, ep->pmaadress, (uint16_t)ep->xfer_count);
+
+          USB_ReadPMA(hpcd->Instance, (uint8_t *)hpcd->Setup,
+                      ep->pmaadress, (uint16_t)ep->xfer_count);
+
           /* SETUP bit kept frozen while CTR_RX = 1*/
           PCD_CLEAR_RX_EP_CTR(hpcd->Instance, PCD_ENDP0);
 
@@ -1729,21 +1732,24 @@ static HAL_StatusTypeDef PCD_EP_ISR_Handler(PCD_HandleTypeDef *hpcd)
         else if ((wEPVal & USB_EP_CTR_RX) != 0U)
         {
           PCD_CLEAR_RX_EP_CTR(hpcd->Instance, PCD_ENDP0);
+
           /* Get Control Data OUT Packet*/
           ep->xfer_count = PCD_GET_EP_RX_CNT(hpcd->Instance, ep->num);
 
-          if (ep->xfer_count != 0U)
+          if ((ep->xfer_count != 0U) && (ep->xfer_buff != 0U))
           {
-            USB_ReadPMA(hpcd->Instance, ep->xfer_buff, ep->pmaadress, (uint16_t)ep->xfer_count);
-            ep->xfer_buff += ep->xfer_count;
-          }
+            USB_ReadPMA(hpcd->Instance, ep->xfer_buff,
+                        ep->pmaadress, (uint16_t)ep->xfer_count);
 
-          /* Process Control Data OUT Packet*/
+            ep->xfer_buff += ep->xfer_count;
+
+            /* Process Control Data OUT Packet*/
 #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
-          hpcd->DataOutStageCallback(hpcd, 0U);
+            hpcd->DataOutStageCallback(hpcd, 0U);
 #else
-          HAL_PCD_DataOutStageCallback(hpcd, 0U);
+            HAL_PCD_DataOutStageCallback(hpcd, 0U);
 #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
+          }
 
           PCD_SET_EP_RX_CNT(hpcd->Instance, PCD_ENDP0, ep->maxpacket);
           PCD_SET_EP_RX_STATUS(hpcd->Instance, PCD_ENDP0, USB_EP_RX_VALID);

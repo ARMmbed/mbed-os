@@ -56,7 +56,7 @@
  * @brief STM32WBxx HAL Driver version number
    */
 #define __STM32WBxx_HAL_VERSION_MAIN   (0x01U) /*!< [31:24] main version */
-#define __STM32WBxx_HAL_VERSION_SUB1   (0x00U) /*!< [23:16] sub1 version */
+#define __STM32WBxx_HAL_VERSION_SUB1   (0x04U) /*!< [23:16] sub1 version */
 #define __STM32WBxx_HAL_VERSION_SUB2   (0x00U) /*!< [15:8]  sub2 version */
 #define __STM32WBxx_HAL_VERSION_RC     (0x00U) /*!< [7:0]  release candidate */
 #define __STM32WBxx_HAL_VERSION         ((__STM32WBxx_HAL_VERSION_MAIN << 24U)\
@@ -64,7 +64,9 @@
                                         |(__STM32WBxx_HAL_VERSION_SUB2 << 8U )\
                                         |(__STM32WBxx_HAL_VERSION_RC))
 
+#if defined(VREFBUF)
 #define VREFBUF_TIMEOUT_VALUE     10U   /* 10 ms */
+#endif
 
 /**
   * @}
@@ -575,6 +577,7 @@ void HAL_DBGMCU_DisableDBGStandbyMode(void)
       (+) Enable/Disable the Voltage reference buffer
       (+) Enable/Disable the I/O analog switch voltage booster
       (+) Enable/Disable the access for security IP (AES1, AES2, PKA, RNG)
+      (+) Enable/Disable the access for security IP (AES2, PKA, RNG)
 
 @endverbatim
   * @{
@@ -614,6 +617,7 @@ uint32_t HAL_SYSCFG_IsEnabledSRAMFetch(void)
   return (LL_SYSCFG_IsEnabledSRAMFetch());
 }
 
+#if defined(VREFBUF)
 /**
   * @brief Configure the internal voltage reference buffer voltage scale.
   * @param VoltageScaling  specifies the output voltage to achieve
@@ -698,6 +702,7 @@ void HAL_SYSCFG_DisableVREFBUF(void)
 {
   LL_VREFBUF_Disable();
 }
+#endif /* VREFBUF */
 
 /**
   * @brief  Enable the I/O analog switch voltage booster

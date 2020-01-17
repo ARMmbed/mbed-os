@@ -208,7 +208,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32wbxx_hal.h"
 
-#if defined(QUADSPI) || defined(QUADSPI1) || defined(QUADSPI2)
+#if defined(QUADSPI)
 
 /** @addtogroup STM32WBxx_HAL_Driver
   * @{
@@ -340,7 +340,7 @@ HAL_StatusTypeDef HAL_QSPI_Init(QSPI_HandleTypeDef *hqspi)
 #endif
 
     /* Configure the default timeout for the QSPI memory access */
-    HAL_QSPI_SetTimeout(hqspi, HAL_QPSI_TIMEOUT_DEFAULT_VALUE);
+    HAL_QSPI_SetTimeout(hqspi, HAL_QSPI_TIMEOUT_DEFAULT_VALUE);
   }
 
   /* Configure QSPI FIFO Threshold */

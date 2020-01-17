@@ -53,7 +53,9 @@
   *
   */
 
- /*     |   AF0    |   AF1    |   AF2    |   AF3    |   AF4    |   AF5    |   AF6    |   AF7    |
+#if defined (STM32WB55xx) || defined (STM32WB50xx)
+
+  /*     |   AF0    |   AF1    |   AF2    |   AF3    |   AF4    |   AF5    |   AF6    |   AF7    |
   *_____________________________________________________________________________________________
   *     |SYS_AF    |TIM       |TIM       |SPI/SAI/TI|I2C       | I2C      | RF       |  USART   |
   *_____________________________________________________________________________________________
@@ -358,6 +360,9 @@
 
 #define IS_GPIO_AF(AF)              ((AF) <= (uint8_t)0x0f)
 
+#endif
+
+
 
 /**
   * @}
@@ -375,13 +380,18 @@
 /** @defgroup GPIOEx_Get_Port_Index GPIOEx Get Port Index
 * @{
   */
-
+#if defined (STM32WB55xx)
 #define GPIO_GET_INDEX(__GPIOx__)    (((__GPIOx__) == (GPIOA))? 0uL :\
                                       ((__GPIOx__) == (GPIOB))? 1uL :\
                                       ((__GPIOx__) == (GPIOC))? 2uL :\
                                       ((__GPIOx__) == (GPIOD))? 3uL :\
                                       ((__GPIOx__) == (GPIOE))? 4uL : 7uL)
-
+#else
+#define GPIO_GET_INDEX(__GPIOx__)    (((__GPIOx__) == (GPIOA))? 0uL :\
+                                      ((__GPIOx__) == (GPIOB))? 1uL :\
+                                      ((__GPIOx__) == (GPIOC))? 2uL :\
+                                      ((__GPIOx__) == (GPIOE))? 4uL : 7uL)
+#endif
  /**
   * @}
   */

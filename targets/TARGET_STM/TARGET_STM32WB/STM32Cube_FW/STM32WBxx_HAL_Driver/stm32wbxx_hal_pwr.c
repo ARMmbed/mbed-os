@@ -114,8 +114,10 @@ void HAL_PWR_DeInit(void)
   LL_PWR_WriteReg(PDCRB, PWR_PDCRB_RESET_VALUE);
   LL_PWR_WriteReg(PUCRC, PWR_PUCRC_RESET_VALUE);
   LL_PWR_WriteReg(PDCRC, PWR_PDCRC_RESET_VALUE);
+#if defined(GPIOD)
   LL_PWR_WriteReg(PUCRD, PWR_PUCRD_RESET_VALUE);
   LL_PWR_WriteReg(PDCRD, PWR_PDCRD_RESET_VALUE);
+#endif
   LL_PWR_WriteReg(PUCRE, PWR_PUCRE_RESET_VALUE);
   LL_PWR_WriteReg(PDCRE, PWR_PDCRE_RESET_VALUE);
   LL_PWR_WriteReg(PUCRH, PWR_PUCRH_RESET_VALUE);
@@ -131,8 +133,10 @@ void HAL_PWR_DeInit(void)
                   | LL_PWR_SCR_CCRPEF
                   | LL_PWR_SCR_C802WUF
                   | LL_PWR_SCR_CBLEWUF
+#if defined(PWR_CR5_SMPSEN)
                   | LL_PWR_SCR_CBORHF
                   | LL_PWR_SCR_CSMPSFBF
+#endif
                   | LL_PWR_SCR_CWUF
                  );
   
@@ -556,6 +560,8 @@ void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
   *         startup delay is incurred when waking up.
   *         By keeping the internal regulator ON during Stop mode (Stop 0), the consumption
   *         is higher although the startup time is reduced.
+  * @note  Case of Stop0 mode with SMPS: Before entering Stop 0 mode with SMPS Step Down converter enabled,
+  *        the HSI16 must be kept on by enabling HSI kernel clock (set HSIKERON register bit).
   * @note  According to system power policy, system entering in Stop mode
   *        is depending on other CPU power mode.
   * @param Regulator Specifies the regulator state in Stop mode.

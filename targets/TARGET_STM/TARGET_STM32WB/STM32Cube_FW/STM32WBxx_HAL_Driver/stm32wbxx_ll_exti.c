@@ -90,19 +90,19 @@ ErrorStatus LL_EXTI_DeInit(void)
   LL_EXTI_WriteReg(SWIER1, 0x00000000U);
   
   /* Pending register set to default reset values */
-  LL_EXTI_WriteReg(PR1, EXTI_PR1_PIF_Msk);
+  LL_EXTI_WriteReg(PR1, 0xFFFFFFFFu);
 
   /* Rising Trigger selection register 2 set to default reset values */
-  LL_EXTI_WriteReg(RTSR2,       0x00000000U);
+  LL_EXTI_WriteReg(RTSR2, 0x00000000U);
   
   /* Falling Trigger selection register 2 set to default reset values */
-  LL_EXTI_WriteReg(FTSR2,       0x00000000U);
+  LL_EXTI_WriteReg(FTSR2, 0x00000000U);
   
   /* Software interrupt event register 2 set to default reset values */
-  LL_EXTI_WriteReg(SWIER2,      0x00000000U);
+  LL_EXTI_WriteReg(SWIER2, 0x00000000U);
   
   /* Pending register 2 set to default reset values */
-  LL_EXTI_WriteReg(PR2, EXTI_PR2_PIF_Msk);
+  LL_EXTI_WriteReg(PR2, 0xFFFFFFFFu);
   
   /* Interrupt mask register set to default reset values */
   LL_EXTI_WriteReg(IMR1, 0x00000000U);

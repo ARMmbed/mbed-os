@@ -6,11 +6,11 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics. 
+  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the 
+  * the "License"; You may not use this file except in compliance with the
   * License. You may obtain a copy of the License at:
   *                        opensource.org/licenses/BSD-3-Clause
   *
@@ -27,6 +27,8 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32wbxx_hal_def.h"
+
+#if defined(TSC)
 
 /** @addtogroup STM32WBxx_HAL_Driver
   * @{
@@ -106,13 +108,17 @@ typedef struct
 /**
   * @brief  TSC handle Structure definition
   */
+#if (USE_HAL_TSC_REGISTER_CALLBACKS == 1)
 typedef struct __TSC_HandleTypeDef
+#else
+typedef struct
+#endif  /* USE_HAL_TSC_REGISTER_CALLBACKS */
 {
   TSC_TypeDef               *Instance;  /*!< Register base address      */
   TSC_InitTypeDef           Init;       /*!< Initialization parameters  */
   __IO HAL_TSC_StateTypeDef State;      /*!< Peripheral state           */
   HAL_LockTypeDef           Lock;       /*!< Lock feature               */
-  __IO uint32_t             ErrorCode;  /*!< I2C Error code             */
+  __IO uint32_t             ErrorCode;  /*!< TSC Error code             */
 
 #if (USE_HAL_TSC_REGISTER_CALLBACKS == 1)
   void (* ConvCpltCallback)(struct __TSC_HandleTypeDef *htsc);   /*!< TSC Conversion complete callback  */
@@ -561,7 +567,7 @@ typedef  void (*pTSC_CallbackTypeDef)(TSC_HandleTypeDef *htsc); /*!< pointer to 
   * @retval SET or RESET
   */
 #define __HAL_TSC_GET_GROUP_STATUS(__HANDLE__, __GX_INDEX__) \
-((((__HANDLE__)->Instance->IOGCSR & (1UL << (((__GX_INDEX__) & ((uint32_t)TSC_NB_OF_GROUPS)) + 16UL))) == (1UL << (((__GX_INDEX__) & ((uint32_t)TSC_NB_OF_GROUPS)) + 16UL))) ? TSC_GROUP_COMPLETED : TSC_GROUP_ONGOING)
+((((__HANDLE__)->Instance->IOGCSR & (uint32_t)(1UL << (((__GX_INDEX__) & 0xFUL) + 16UL))) == (uint32_t)(1UL << (((__GX_INDEX__) & 0xFUL) + 16UL))) ? TSC_GROUP_COMPLETED : TSC_GROUP_ONGOING)
 
 /**
   * @}
@@ -640,7 +646,8 @@ typedef  void (*pTSC_CallbackTypeDef)(TSC_HandleTypeDef *htsc); /*!< pointer to 
 
 #define IS_TSC_GROUP_INDEX(__VALUE__)   (((__VALUE__) == 0UL) || (((__VALUE__) > 0UL) && ((__VALUE__) < (uint32_t)TSC_NB_OF_GROUPS)))
 
-#define IS_TSC_GROUP(__VALUE__)         ((((__VALUE__) & TSC_GROUP1_IO1) == TSC_GROUP1_IO1) ||\
+#define IS_TSC_GROUP(__VALUE__)         (((__VALUE__) == 0UL)                               ||\
+                                         (((__VALUE__) & TSC_GROUP1_IO1) == TSC_GROUP1_IO1) ||\
                                          (((__VALUE__) & TSC_GROUP1_IO2) == TSC_GROUP1_IO2) ||\
                                          (((__VALUE__) & TSC_GROUP1_IO3) == TSC_GROUP1_IO3) ||\
                                          (((__VALUE__) & TSC_GROUP1_IO4) == TSC_GROUP1_IO4) ||\
@@ -751,6 +758,7 @@ void HAL_TSC_ErrorCallback(TSC_HandleTypeDef *htsc);
 /**
   * @}
   */
+#endif /* TSC */
 
 #ifdef __cplusplus
 }

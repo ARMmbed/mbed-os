@@ -800,16 +800,16 @@ void USB_WritePMA(USB_TypeDef *USBx, uint8_t *pbUsrBuf, uint16_t wPMABufAddr, ui
   uint32_t n = ((uint32_t)wNBytes + 1U) >> 1;
   uint32_t BaseAddr = (uint32_t)USBx;
   uint32_t i, temp1, temp2;
-  uint16_t *pdwVal;
+  __IO uint16_t *pdwVal;
   uint8_t *pBuf = pbUsrBuf;
 
-  pdwVal = (uint16_t *)(BaseAddr + 0x400U + ((uint32_t)wPMABufAddr * PMA_ACCESS));
+  pdwVal = (__IO uint16_t *)(BaseAddr + 0x400U + ((uint32_t)wPMABufAddr * PMA_ACCESS));
 
   for (i = n; i != 0U; i--)
   {
-    temp1 = (uint16_t) * pBuf;
+    temp1 = *pBuf;
     pBuf++;
-    temp2 = temp1 | ((uint16_t)((uint16_t) * pBuf << 8));
+    temp2 = temp1 | ((uint16_t)((uint16_t) *pBuf << 8));
     *pdwVal = (uint16_t)temp2;
     pdwVal++;
 
@@ -834,14 +834,14 @@ void USB_ReadPMA(USB_TypeDef *USBx, uint8_t *pbUsrBuf, uint16_t wPMABufAddr, uin
   uint32_t n = (uint32_t)wNBytes >> 1;
   uint32_t BaseAddr = (uint32_t)USBx;
   uint32_t i, temp;
-  uint16_t *pdwVal;
+  __IO uint16_t *pdwVal;
   uint8_t *pBuf = pbUsrBuf;
 
-  pdwVal = (uint16_t *)(BaseAddr + 0x400U + ((uint32_t)wPMABufAddr * PMA_ACCESS));
+  pdwVal = (__IO uint16_t *)(BaseAddr + 0x400U + ((uint32_t)wPMABufAddr * PMA_ACCESS));
 
   for (i = n; i != 0U; i--)
   {
-    temp = *pdwVal;
+    temp = *(__IO uint16_t *)pdwVal;
     pdwVal++;
     *pBuf = (uint8_t)((temp >> 0) & 0xFFU);
     pBuf++;

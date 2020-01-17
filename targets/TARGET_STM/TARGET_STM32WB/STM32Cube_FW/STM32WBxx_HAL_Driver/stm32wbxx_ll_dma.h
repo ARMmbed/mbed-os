@@ -53,19 +53,31 @@ extern "C" {
   * @param  __CHANNEL_INDEX__ 0 to 6 to map DMAx_Channel1 to DMAx_Channel7
   * @retval Pointer to the DMA channel
   */
+#if defined (DMA2)
 #define __LL_DMA_INSTANCE_TO_CHANNEL(__DMA_INSTANCE__, __CHANNEL_INDEX__)   \
 (((__DMA_INSTANCE__) == DMA1) ? (DMA1_Channel1 + (__CHANNEL_INDEX__)) : (DMA2_Channel1 + (__CHANNEL_INDEX__)))
+#else
+#define __LL_DMA_INSTANCE_TO_CHANNEL(__DMA_INSTANCE__, __CHANNEL_INDEX__)   \
+(DMA1_Channel1 + (__CHANNEL_INDEX__))
+#endif
 
 /**
   * @brief  Helper macro to convert DMA Instance and index into DMAMUX channel
   * @note   DMAMUX channel 0 to 6 are mapped to DMA1 channel 1 to 7.
+#if defined (DMA2)
   *         DMAMUX channel 7 to 13 are mapped to DMA2 channel 1 to 7.
+#endif
   * @param  __DMA_INSTANCE__ DMAx
   * @param  __CHANNEL_INDEX__ 0 to 6 to map DMAx_Channel1 to DMAx_Channel7
   * @retval Pointer to the DMA channel
   */
+#if defined (DMA2)
 #define __LL_DMA_INSTANCE_TO_DMAMUX_CCR(__DMA_INSTANCE__, __CHANNEL_INDEX__)\
 (((__DMA_INSTANCE__) == DMA1) ? (DMAMUX1_Channel0 + (__CHANNEL_INDEX__)) : (DMAMUX1_Channel7 + (__CHANNEL_INDEX__)))
+#else
+#define __LL_DMA_INSTANCE_TO_DMAMUX_CCR(__DMA_INSTANCE__, __CHANNEL_INDEX__)\
+(DMAMUX1_Channel0 + (__CHANNEL_INDEX__))
+#endif
 /**
   * @}
   */
@@ -1157,7 +1169,9 @@ __STATIC_INLINE uint32_t LL_DMA_GetM2MDstAddress(DMA_TypeDef *DMAx, uint32_t Cha
 /**
   * @brief  Set DMA request for DMA Channels on DMAMUX Channel x.
   * @note   DMAMUX channel 0 to 6 are mapped to DMA1 channel 1 to 7.
+#if defined(DMA2)
   *         DMAMUX channel 7 to 13 are mapped to DMA2 channel 1 to 7.
+#endif
   * @rmtoll CxCR         DMAREQ_ID     LL_DMA_SetPeriphRequest
   * @param  DMAx DMAx Instance
   * @param  Channel This parameter can be one of the following values:
@@ -1220,7 +1234,9 @@ __STATIC_INLINE void LL_DMA_SetPeriphRequest(DMA_TypeDef *DMAx, uint32_t Channel
 /**
   * @brief  Get DMA request for DMA Channels on DMAMUX Channel x.
   * @note   DMAMUX channel 0 to 6 are mapped to DMA1 channel 1 to 7.
+#if defined(DMA2)
   *         DMAMUX channel 7 to 13 are mapped to DMA2 channel 1 to 7.
+#endif
   * @rmtoll CxCR         DMAREQ_ID     LL_DMA_GetPeriphRequest
   * @param  DMAx DMAx Instance
   * @param  Channel This parameter can be one of the following values:

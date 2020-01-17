@@ -431,13 +431,13 @@ void HAL_GPIO_TogglePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
   /* Check the parameters */
   assert_param(IS_GPIO_PIN(GPIO_Pin));
 
-  if ((GPIOx->ODR & GPIO_Pin) == GPIO_Pin)
+  if ((GPIOx->ODR & GPIO_Pin) != 0x00u)
   {
-    GPIOx->BSRR = (uint32_t)GPIO_Pin << GPIO_NUMBER;
+    GPIOx->BRR = (uint32_t)GPIO_Pin;
   }
   else
   {
-    GPIOx->BSRR = GPIO_Pin;
+    GPIOx->BSRR = (uint32_t)GPIO_Pin;
   }
 }
 
@@ -468,9 +468,10 @@ HAL_StatusTypeDef HAL_GPIO_LockPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
   GPIOx->LCKR = GPIO_Pin;
   /* Set LCKx bit(s): LCKK='1' + LCK[15-0] */
   GPIOx->LCKR = tmp;
-  /* Read LCKK bit*/
+  /* Read LCKK register. This read is mandatory to complete key lock sequence */
   tmp = GPIOx->LCKR;
 
+  /* read again in order to confirm lock is active */
   if ((GPIOx->LCKR & GPIO_LCKR_LCKK) != 0x00u)
   {
     return HAL_OK;

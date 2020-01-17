@@ -99,7 +99,11 @@ typedef enum
   * @brief  PKA handle Structure definition
   * @{
   */
+#if (USE_HAL_PKA_REGISTER_CALLBACKS == 1)
 typedef struct __PKA_HandleTypeDef
+#else
+typedef struct
+#endif  /* USE_HAL_PKA_REGISTER_CALLBACKS */
 {
   PKA_TypeDef                   *Instance;              /*!< Register base address */
   __IO HAL_PKA_StateTypeDef     State;                  /*!< PKA state */
@@ -220,6 +224,7 @@ typedef struct
   uint8_t *ptY;                        /*!< Pointer to point P coordinate yP     (Array of modulusSize elements) */
 } PKA_ECDSASignOutExtParamTypeDef, PKA_ECCMulOutTypeDef;
 
+
 typedef struct
 {
   uint32_t expSize;                    /*!< Number of element in pExp array */
@@ -228,6 +233,7 @@ typedef struct
   const uint8_t *pOp1;                 /*!< Pointer to Operand              (Array of OpSize elements) */
   const uint8_t *pMod;                 /*!< Pointer to modulus              (Array of OpSize elements) */
 } PKA_ModExpInTypeDef;
+
 
 typedef struct
 {
@@ -320,6 +326,7 @@ typedef struct
 #define PKA_IT_PROCEND                            PKA_CR_PROCENDIE
 #define PKA_IT_ADDRERR                            PKA_CR_ADDRERRIE
 #define PKA_IT_RAMERR                             PKA_CR_RAMERRIE
+
 /**
   * @}
   */
@@ -330,6 +337,7 @@ typedef struct
 #define PKA_FLAG_PROCEND                          PKA_SR_PROCENDF
 #define PKA_FLAG_ADDRERR                          PKA_SR_ADDRERRF
 #define PKA_FLAG_RAMERR                           PKA_SR_RAMERRF
+
 /**
   * @}
   */
@@ -515,6 +523,7 @@ void HAL_PKA_Arithmetic_GetResult(PKA_HandleTypeDef *hpka, uint32_t *pRes);
 HAL_StatusTypeDef HAL_PKA_MontgomeryParam(PKA_HandleTypeDef *hpka, PKA_MontgomeryParamInTypeDef *in, uint32_t Timeout);
 HAL_StatusTypeDef HAL_PKA_MontgomeryParam_IT(PKA_HandleTypeDef *hpka, PKA_MontgomeryParamInTypeDef *in);
 void HAL_PKA_MontgomeryParam_GetResult(PKA_HandleTypeDef *hpka, uint32_t *pRes);
+
 
 HAL_StatusTypeDef HAL_PKA_Abort(PKA_HandleTypeDef *hpka);
 void HAL_PKA_RAMReset(PKA_HandleTypeDef *hpka);

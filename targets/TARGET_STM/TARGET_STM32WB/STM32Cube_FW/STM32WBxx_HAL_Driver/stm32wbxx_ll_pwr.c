@@ -95,8 +95,10 @@ ErrorStatus LL_PWR_DeInit(void)
   LL_PWR_WriteReg(PDCRB, PWR_PDCRB_RESET_VALUE);
   LL_PWR_WriteReg(PUCRC, PWR_PUCRC_RESET_VALUE);
   LL_PWR_WriteReg(PDCRC, PWR_PDCRC_RESET_VALUE);
+#if defined(GPIOD)
   LL_PWR_WriteReg(PUCRD, PWR_PUCRD_RESET_VALUE);
   LL_PWR_WriteReg(PDCRD, PWR_PDCRD_RESET_VALUE);
+#endif
   LL_PWR_WriteReg(PUCRE, PWR_PUCRE_RESET_VALUE);
   LL_PWR_WriteReg(PDCRE, PWR_PDCRE_RESET_VALUE);
   LL_PWR_WriteReg(PUCRH, PWR_PUCRH_RESET_VALUE);
@@ -112,8 +114,10 @@ ErrorStatus LL_PWR_DeInit(void)
                   | LL_PWR_SCR_CCRPEF
                   | LL_PWR_SCR_C802WUF
                   | LL_PWR_SCR_CBLEWUF
+#if defined(PWR_CR5_SMPSEN)
                   | LL_PWR_SCR_CBORHF
                   | LL_PWR_SCR_CSMPSFBF
+#endif
                   | LL_PWR_SCR_CWUF
                  );
   

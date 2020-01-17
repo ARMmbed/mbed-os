@@ -65,16 +65,16 @@
           Use Functions HAL_SPI_RegisterCallback() to register an interrupt callback.
 
           Function HAL_SPI_RegisterCallback() allows to register following callbacks:
-            (+) TxCpltCallback        : SPI Tx Completed callback
-            (+) RxCpltCallback        : SPI Rx Completed callback
-            (+) TxRxCpltCallback      : SPI TxRx Completed callback
-            (+) TxHalfCpltCallback    : SPI Tx Half Completed callback
-            (+) RxHalfCpltCallback    : SPI Rx Half Completed callback
-            (+) TxRxHalfCpltCallback  : SPI TxRx Half Completed callback
-            (+) ErrorCallback         : SPI Error callback
-            (+) AbortCpltCallback     : SPI Abort callback
-            (+) MspInitCallback       : SPI Msp Init callback
-            (+) MspDeInitCallback     : SPI Msp DeInit callback
+            (++) TxCpltCallback        : SPI Tx Completed callback
+            (++) RxCpltCallback        : SPI Rx Completed callback
+            (++) TxRxCpltCallback      : SPI TxRx Completed callback
+            (++) TxHalfCpltCallback    : SPI Tx Half Completed callback
+            (++) RxHalfCpltCallback    : SPI Rx Half Completed callback
+            (++) TxRxHalfCpltCallback  : SPI TxRx Half Completed callback
+            (++) ErrorCallback         : SPI Error callback
+            (++) AbortCpltCallback     : SPI Abort callback
+            (++) MspInitCallback       : SPI Msp Init callback
+            (++) MspDeInitCallback     : SPI Msp DeInit callback
           This function takes as parameters the HAL peripheral handle, the Callback ID
           and a pointer to the user callback function.
 
@@ -84,17 +84,18 @@
           HAL_SPI_UnRegisterCallback takes as parameters the HAL peripheral handle,
           and the Callback ID.
           This function allows to reset following callbacks:
-            (+) TxCpltCallback        : SPI Tx Completed callback
-            (+) RxCpltCallback        : SPI Rx Completed callback
-            (+) TxRxCpltCallback      : SPI TxRx Completed callback
-            (+) TxHalfCpltCallback    : SPI Tx Half Completed callback
-            (+) RxHalfCpltCallback    : SPI Rx Half Completed callback
-            (+) TxRxHalfCpltCallback  : SPI TxRx Half Completed callback
-            (+) ErrorCallback         : SPI Error callback
-            (+) AbortCpltCallback     : SPI Abort callback
-            (+) MspInitCallback       : SPI Msp Init callback
-            (+) MspDeInitCallback     : SPI Msp DeInit callback
+            (++) TxCpltCallback        : SPI Tx Completed callback
+            (++) RxCpltCallback        : SPI Rx Completed callback
+            (++) TxRxCpltCallback      : SPI TxRx Completed callback
+            (++) TxHalfCpltCallback    : SPI Tx Half Completed callback
+            (++) RxHalfCpltCallback    : SPI Rx Half Completed callback
+            (++) TxRxHalfCpltCallback  : SPI TxRx Half Completed callback
+            (++) ErrorCallback         : SPI Error callback
+            (++) AbortCpltCallback     : SPI Abort callback
+            (++) MspInitCallback       : SPI Msp Init callback
+            (++) MspDeInitCallback     : SPI Msp DeInit callback
 
+       [..]
        By default, after the HAL_SPI_Init() and when the state is HAL_SPI_STATE_RESET
        all callbacks are set to the corresponding weak functions:
        examples HAL_SPI_MasterTxCpltCallback(), HAL_SPI_MasterRxCpltCallback().
@@ -104,6 +105,7 @@
        If MspInit or MspDeInit are not null, the HAL_SPI_Init()/ HAL_SPI_DeInit()
        keep and use the user MspInit/MspDeInit callbacks (registered beforehand) whatever the state.
 
+       [..]
        Callbacks can be registered/unregistered in HAL_SPI_STATE_READY state only.
        Exception done MspInit/MspDeInit functions that can be registered/unregistered
        in HAL_SPI_STATE_READY or HAL_SPI_STATE_RESET state,
@@ -112,7 +114,8 @@
        using HAL_SPI_RegisterCallback() before calling HAL_SPI_DeInit()
        or HAL_SPI_Init() function.
 
-       When The compilation define USE_HAL_PPP_REGISTER_CALLBACKS is set to 0 or
+       [..]
+       When the compilation define USE_HAL_PPP_REGISTER_CALLBACKS is set to 0 or
        not defined, the callback registering feature is not available
        and weak (surcharged) callbacks are used.
 
@@ -269,8 +272,8 @@ static HAL_StatusTypeDef SPI_EndRxTxTransaction(SPI_HandleTypeDef *hspi, uint32_
   */
 
 /** @defgroup SPI_Exported_Functions_Group1 Initialization and de-initialization functions
- *  @brief    Initialization and Configuration functions
- *
+  *  @brief    Initialization and Configuration functions
+  *
 @verbatim
  ===============================================================================
               ##### Initialization and de-initialization functions #####
@@ -535,7 +538,8 @@ __weak void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
   * @param  pCallback pointer to the Callback function
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_SPI_RegisterCallback(SPI_HandleTypeDef *hspi, HAL_SPI_CallbackIDTypeDef CallbackID, pSPI_CallbackTypeDef pCallback)
+HAL_StatusTypeDef HAL_SPI_RegisterCallback(SPI_HandleTypeDef *hspi, HAL_SPI_CallbackIDTypeDef CallbackID,
+                                           pSPI_CallbackTypeDef pCallback)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
@@ -745,8 +749,8 @@ HAL_StatusTypeDef HAL_SPI_UnRegisterCallback(SPI_HandleTypeDef *hspi, HAL_SPI_Ca
   */
 
 /** @defgroup SPI_Exported_Functions_Group2 IO operation functions
- *  @brief   Data transfers functions
- *
+  *  @brief   Data transfers functions
+  *
 @verbatim
   ==============================================================================
                       ##### IO operation functions #####
@@ -1872,7 +1876,8 @@ HAL_StatusTypeDef HAL_SPI_Transmit_DMA(SPI_HandleTypeDef *hspi, uint8_t *pData, 
   }
 
   /* Enable the Tx DMA Stream/Channel */
-  if (HAL_OK != HAL_DMA_Start_IT(hspi->hdmatx, (uint32_t)hspi->pTxBuffPtr, (uint32_t)&hspi->Instance->DR, hspi->TxXferCount))
+  if (HAL_OK != HAL_DMA_Start_IT(hspi->hdmatx, (uint32_t)hspi->pTxBuffPtr, (uint32_t)&hspi->Instance->DR,
+                                 hspi->TxXferCount))
   {
     /* Update SPI error code */
     SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_DMA);
@@ -2014,7 +2019,8 @@ HAL_StatusTypeDef HAL_SPI_Receive_DMA(SPI_HandleTypeDef *hspi, uint8_t *pData, u
   hspi->hdmarx->XferAbortCallback = NULL;
 
   /* Enable the Rx DMA Stream/Channel  */
-  if (HAL_OK != HAL_DMA_Start_IT(hspi->hdmarx, (uint32_t)&hspi->Instance->DR, (uint32_t)hspi->pRxBuffPtr, hspi->RxXferCount))
+  if (HAL_OK != HAL_DMA_Start_IT(hspi->hdmarx, (uint32_t)&hspi->Instance->DR, (uint32_t)hspi->pRxBuffPtr,
+                                 hspi->RxXferCount))
   {
     /* Update SPI error code */
     SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_DMA);
@@ -2181,7 +2187,8 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_DMA(SPI_HandleTypeDef *hspi, uint8_t *
   hspi->hdmarx->XferAbortCallback = NULL;
 
   /* Enable the Rx DMA Stream/Channel  */
-  if (HAL_OK != HAL_DMA_Start_IT(hspi->hdmarx, (uint32_t)&hspi->Instance->DR, (uint32_t)hspi->pRxBuffPtr, hspi->RxXferCount))
+  if (HAL_OK != HAL_DMA_Start_IT(hspi->hdmarx, (uint32_t)&hspi->Instance->DR, (uint32_t)hspi->pRxBuffPtr,
+                                 hspi->RxXferCount))
   {
     /* Update SPI error code */
     SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_DMA);
@@ -2202,7 +2209,8 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_DMA(SPI_HandleTypeDef *hspi, uint8_t *
   hspi->hdmatx->XferAbortCallback    = NULL;
 
   /* Enable the Tx DMA Stream/Channel  */
-  if (HAL_OK != HAL_DMA_Start_IT(hspi->hdmatx, (uint32_t)hspi->pTxBuffPtr, (uint32_t)&hspi->Instance->DR, hspi->TxXferCount))
+  if (HAL_OK != HAL_DMA_Start_IT(hspi->hdmatx, (uint32_t)hspi->pTxBuffPtr, (uint32_t)&hspi->Instance->DR,
+                                 hspi->TxXferCount))
   {
     /* Update SPI error code */
     SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_DMA);
@@ -2242,11 +2250,12 @@ error :
   *           - Set handle State to READY
   * @note   This procedure is executed in blocking mode : when exiting function, Abort is considered as completed.
   * @retval HAL status
-*/
+  */
 HAL_StatusTypeDef HAL_SPI_Abort(SPI_HandleTypeDef *hspi)
 {
   HAL_StatusTypeDef errorcode;
-  __IO uint32_t count, resetcount;
+  __IO uint32_t count;
+  __IO uint32_t resetcount;
 
   /* Initialized local variable  */
   errorcode = HAL_OK;
@@ -2269,8 +2278,7 @@ HAL_StatusTypeDef HAL_SPI_Abort(SPI_HandleTypeDef *hspi)
         break;
       }
       count--;
-    }
-    while (hspi->State != HAL_SPI_STATE_ABORT);
+    } while (hspi->State != HAL_SPI_STATE_ABORT);
     /* Reset Timeout Counter */
     count = resetcount;
   }
@@ -2287,8 +2295,7 @@ HAL_StatusTypeDef HAL_SPI_Abort(SPI_HandleTypeDef *hspi)
         break;
       }
       count--;
-    }
-    while (hspi->State != HAL_SPI_STATE_ABORT);
+    } while (hspi->State != HAL_SPI_STATE_ABORT);
     /* Reset Timeout Counter */
     count = resetcount;
   }
@@ -2403,12 +2410,13 @@ HAL_StatusTypeDef HAL_SPI_Abort(SPI_HandleTypeDef *hspi)
   * @note   This procedure is executed in Interrupt mode, meaning that abort procedure could be
   *         considered as completed only when user abort complete callback is executed (not when exiting function).
   * @retval HAL status
-*/
+  */
 HAL_StatusTypeDef HAL_SPI_Abort_IT(SPI_HandleTypeDef *hspi)
 {
   HAL_StatusTypeDef errorcode;
   uint32_t abortcplt ;
-  __IO uint32_t count, resetcount;
+  __IO uint32_t count;
+  __IO uint32_t resetcount;
 
   /* Initialized local variable  */
   errorcode = HAL_OK;
@@ -2432,8 +2440,7 @@ HAL_StatusTypeDef HAL_SPI_Abort_IT(SPI_HandleTypeDef *hspi)
         break;
       }
       count--;
-    }
-    while (hspi->State != HAL_SPI_STATE_ABORT);
+    } while (hspi->State != HAL_SPI_STATE_ABORT);
     /* Reset Timeout Counter */
     count = resetcount;
   }
@@ -2450,8 +2457,7 @@ HAL_StatusTypeDef HAL_SPI_Abort_IT(SPI_HandleTypeDef *hspi)
         break;
       }
       count--;
-    }
-    while (hspi->State != HAL_SPI_STATE_ABORT);
+    } while (hspi->State != HAL_SPI_STATE_ABORT);
     /* Reset Timeout Counter */
     count = resetcount;
   }
@@ -2667,7 +2673,8 @@ void HAL_SPI_IRQHandler(SPI_HandleTypeDef *hspi)
   }
 
   /* SPI in Error Treatment --------------------------------------------------*/
-  if (((SPI_CHECK_FLAG(itflag, SPI_FLAG_MODF) != RESET) || (SPI_CHECK_FLAG(itflag, SPI_FLAG_OVR) != RESET) || (SPI_CHECK_FLAG(itflag, SPI_FLAG_FRE) != RESET)) && (SPI_CHECK_IT_SOURCE(itsource, SPI_IT_ERR) != RESET))
+  if (((SPI_CHECK_FLAG(itflag, SPI_FLAG_MODF) != RESET) || (SPI_CHECK_FLAG(itflag, SPI_FLAG_OVR) != RESET)
+       || (SPI_CHECK_FLAG(itflag, SPI_FLAG_FRE) != RESET)) && (SPI_CHECK_IT_SOURCE(itsource, SPI_IT_ERR) != RESET))
   {
     /* SPI Overrun error interrupt occurred ----------------------------------*/
     if (SPI_CHECK_FLAG(itflag, SPI_FLAG_OVR) != RESET)
@@ -4164,8 +4171,7 @@ static void SPI_AbortRx_ISR(SPI_HandleTypeDef *hspi)
       break;
     }
     count--;
-  }
-  while (HAL_IS_BIT_SET(hspi->Instance->CR2, SPI_CR2_RXNEIE));
+  } while (HAL_IS_BIT_SET(hspi->Instance->CR2, SPI_CR2_RXNEIE));
 
   /* Control the BSY flag */
   if (SPI_WaitFlagStateUntilTimeout(hspi, SPI_FLAG_BSY, RESET, SPI_DEFAULT_TIMEOUT, HAL_GetTick()) != HAL_OK)
@@ -4206,8 +4212,7 @@ static void SPI_AbortTx_ISR(SPI_HandleTypeDef *hspi)
       break;
     }
     count--;
-  }
-  while (HAL_IS_BIT_SET(hspi->Instance->CR2, SPI_CR2_TXEIE));
+  } while (HAL_IS_BIT_SET(hspi->Instance->CR2, SPI_CR2_TXEIE));
 
   if (SPI_EndRxTxTransaction(hspi, SPI_DEFAULT_TIMEOUT, HAL_GetTick()) != HAL_OK)
   {
@@ -4238,8 +4243,7 @@ static void SPI_AbortTx_ISR(SPI_HandleTypeDef *hspi)
         break;
       }
       count--;
-    }
-    while (HAL_IS_BIT_SET(hspi->Instance->CR2, SPI_CR2_RXNEIE));
+    } while (HAL_IS_BIT_SET(hspi->Instance->CR2, SPI_CR2_RXNEIE));
 
     /* Control the BSY flag */
     if (SPI_WaitFlagStateUntilTimeout(hspi, SPI_FLAG_BSY, RESET, SPI_DEFAULT_TIMEOUT, HAL_GetTick()) != HAL_OK)

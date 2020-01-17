@@ -25,11 +25,9 @@
         (++) Falling
         (++) Both of them
 
-    (+) When set in interrupt mode, configurable Exti lines have two diffenrents
-        interrupt pending registers which allow to distinguish which transition
-        occurs:
-        (++) Rising edge pending interrupt
-        (++) Falling
+    (+) When set in interrupt mode, configurable Exti lines have one
+        interrupt pending register:
+        (++) Trigger request occurred
 
     (+) Exti lines 0 to 15 are linked to gpio pin number 0 to 15. Gpio port can
         be selected throught multiplexer.

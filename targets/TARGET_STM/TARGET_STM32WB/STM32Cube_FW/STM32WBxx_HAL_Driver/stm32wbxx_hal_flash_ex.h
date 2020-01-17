@@ -41,11 +41,11 @@ extern "C" {
 /** @defgroup FLASHEx_Exported_Constants FLASH Exported Constants
   * @{
   */
-/** @defgroup FLASHEx_Empty_Check FLASHEx Empty Check
+/** @defgroup FLASHEx_EMPTY_CHECK FLASHEx Empty Check
   * @{
   */
-#define FLASH_PROG_NOT_EMPTY                0x00000000u     /*!< 1st location in Flash is programmed */
-#define FLASH_PROG_EMPTY                    FLASH_ACR_EMPTY /*!< 1st location in Flash is empty */
+#define FLASH_PROG_NOT_EMPTY            0x00000000U     /*!< 1st location in Flash is programmed */
+#define FLASH_PROG_EMPTY                FLASH_ACR_EMPTY /*!< 1st location in Flash is empty      */
 /**
   * @}
   */

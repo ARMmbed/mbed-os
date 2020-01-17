@@ -57,9 +57,9 @@
            (++) Suspend or Allow new program or erase operation request using HAL_FLASHEx_SuspendOperation() and
                 HAL_FLASHEx_AllowOperation() functions
 
-      (#) Check is flash content is empty or not using HAL_FLASHEx_FlashEmptyCheck.
+      (#) Check is flash content is empty or not using HAL_FLASHEx_FlashEmptyCheck().
           and modify this setting (for flash loader purpose e.g.) using
-          HAL_FLASHEx_ForceFlashEmpty.
+          HAL_FLASHEx_ForceFlashEmpty().
 
  @endverbatim
   ******************************************************************************
@@ -103,7 +103,8 @@ static void              FLASH_AcknowledgePageErase(void);
 static void              FLASH_FlushCaches(void);
 static void              FLASH_OB_WRPConfig(uint32_t WRPArea, uint32_t WRPStartOffset, uint32_t WRDPEndOffset);
 static void              FLASH_OB_OptrConfig(uint32_t UserType, uint32_t UserConfig, uint32_t RDPLevel);
-static void              FLASH_OB_PCROPConfig(uint32_t PCROPConfig, uint32_t PCROP1AStartAddr, uint32_t PCROP1AEndAddr, uint32_t PCROP1BStartAddr, uint32_t PCROP1BEndAddr);
+static void              FLASH_OB_PCROP1AConfig(uint32_t PCROPConfig, uint32_t PCROP1AStartAddr, uint32_t PCROP1AEndAddr);
+static void              FLASH_OB_PCROP1BConfig(uint32_t PCROP1BStartAddr, uint32_t PCROP1BEndAddr);
 static void              FLASH_OB_IPCCBufferAddrConfig(uint32_t IPCCDataBufAddr);
 static void              FLASH_OB_SecureConfig(FLASH_OBProgramInitTypeDef *pOBParam);
 static void              FLASH_OB_GetWRP(uint32_t WRPArea, uint32_t *WRPStartOffset, uint32_t *WRDPEndOffset);
@@ -174,6 +175,8 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase(FLASH_EraseInitTypeDef *pEraseInit, uint32_t
 
       /* Wait for last operation to be completed */
       status = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
+
+      /* If operation is completed or interrupted, no need to clear the Mass Erase Bit */
     }
     else
     {
@@ -284,9 +287,7 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase_IT(FLASH_EraseInitTypeDef *pEraseInit)
   */
 HAL_StatusTypeDef HAL_FLASHEx_OBProgram(FLASH_OBProgramInitTypeDef *pOBInit)
 {
-  uint32_t optrRDPLevel;
-  uint32_t optrUserType;
-  uint32_t optrUserConfig;
+  uint32_t optr;
   HAL_StatusTypeDef status;
 
   /* Check the parameters */
@@ -304,35 +305,31 @@ HAL_StatusTypeDef HAL_FLASHEx_OBProgram(FLASH_OBProgramInitTypeDef *pOBInit)
     FLASH_OB_WRPConfig(pOBInit->WRPArea, pOBInit->WRPStartOffset, pOBInit->WRPEndOffset);
   }
 
-  /* Option register (either RDP or USER)*/
-  if ((pOBInit->OptionType & (OPTIONBYTE_RDP | OPTIONBYTE_USER)) != 0U)
+  /* Option register */
+  if ((pOBInit->OptionType & (OPTIONBYTE_RDP | OPTIONBYTE_USER)) == (OPTIONBYTE_RDP | OPTIONBYTE_USER))
   {
-    if ((pOBInit->OptionType & OPTIONBYTE_RDP) != 0U)
-    {
-      /* Modify RDP */
-      optrRDPLevel = pOBInit->RDPLevel;
-    }
-    else
-    {
-      /* Do not modify RDP */
-      optrRDPLevel = FLASH_OB_GetRDP();
-    }
-
-    if ((pOBInit->OptionType & OPTIONBYTE_USER) != 0U)
-    {
-      /* Modify User Data */
-      optrUserType = pOBInit->UserType;
-      optrUserConfig = pOBInit->UserConfig;
-    }
-    else
-    {
-      /* Do not modifiy User Data */
-      optrUserType = FLASH_OB_GetUser();
-      optrUserConfig = FLASH_OB_GetUser();
-    }
-
     /* Fully modify OPTR register with RDP & user datas */
-    FLASH_OB_OptrConfig(optrUserType, optrUserConfig, optrRDPLevel);
+    FLASH_OB_OptrConfig(pOBInit->UserType, pOBInit->UserConfig, pOBInit->RDPLevel);
+  }
+  else if ((pOBInit->OptionType & OPTIONBYTE_RDP) != 0U)
+  {
+    /* Only modify RDP so get current user data */
+    optr = FLASH_OB_GetUser();
+
+    /* Remove BOR LEVEL User Type*/
+    optr &= ~OB_USER_BOR_LEV;
+
+    FLASH_OB_OptrConfig(optr, optr, pOBInit->RDPLevel);
+  }
+  else if ((pOBInit->OptionType & OPTIONBYTE_USER) != 0U)
+  {
+    /* Only modify user so get current RDP level */
+    optr = FLASH_OB_GetRDP();
+    FLASH_OB_OptrConfig(pOBInit->UserType, pOBInit->UserConfig, optr);
+  }
+  else
+  {
+    /* Do Nothing */
   }
 
   /* PCROP Configuration */
@@ -341,10 +338,16 @@ HAL_StatusTypeDef HAL_FLASHEx_OBProgram(FLASH_OBProgramInitTypeDef *pOBInit)
     /* Check the parameters */
     assert_param(IS_OB_PCROP_CONFIG(pOBInit->PCROPConfig));
 
-    if ((pOBInit->PCROPConfig & (OB_PCROP_ZONE_A | OB_PCROP_ZONE_B | OB_PCROP_RDP_ERASE)) != 0U)
+    if ((pOBInit->PCROPConfig & (OB_PCROP_ZONE_A | OB_PCROP_RDP_ERASE)) != 0U)
     {
-      /* Configure the Zone 1A, 1B Proprietary code readout protection */
-      FLASH_OB_PCROPConfig(pOBInit->PCROPConfig, pOBInit->PCROP1AStartAddr, pOBInit->PCROP1AEndAddr, pOBInit->PCROP1BStartAddr, pOBInit->PCROP1BEndAddr);
+      /* Configure the Zone 1A Proprietary code readout protection */
+      FLASH_OB_PCROP1AConfig(pOBInit->PCROPConfig, pOBInit->PCROP1AStartAddr, pOBInit->PCROP1AEndAddr);
+    }
+
+    if ((pOBInit->PCROPConfig & OB_PCROP_ZONE_B) != 0U)
+    {
+      /* Configure the Zone 1B Proprietary code readout protection */
+      FLASH_OB_PCROP1BConfig(pOBInit->PCROP1BStartAddr, pOBInit->PCROP1BEndAddr);
     }
   }
 
@@ -387,8 +390,11 @@ void HAL_FLASHEx_OBGetConfig(FLASH_OBProgramInitTypeDef *pOBInit)
 {
   pOBInit->OptionType = OPTIONBYTE_ALL;
 
-  /* Get write protection on the selected area */
-  FLASH_OB_GetWRP(pOBInit->WRPArea, &(pOBInit->WRPStartOffset), &(pOBInit->WRPEndOffset));
+  if ((pOBInit->WRPArea == OB_WRPAREA_BANK1_AREAA) || (pOBInit->WRPArea == OB_WRPAREA_BANK1_AREAB))
+  {
+    /* Get write protection on the selected area */
+    FLASH_OB_GetWRP(pOBInit->WRPArea, &(pOBInit->WRPStartOffset), &(pOBInit->WRPEndOffset));
+  }
 
   /* Get Read protection level */
   pOBInit->RDPLevel = FLASH_OB_GetRDP();
@@ -513,10 +519,8 @@ uint32_t HAL_FLASHEx_IsOperationSuspended(void)
   */
 static void FLASH_MassErase(void)
 {
-  /* Set the Mass Erase Bit */
-  SET_BIT(FLASH->CR, FLASH_CR_MER);
-  /* Proceed to erase all sectors */
-  SET_BIT(FLASH->CR, FLASH_CR_STRT);
+  /* Set the Mass Erase Bit and start bit */
+  SET_BIT(FLASH->CR, (FLASH_CR_MER | FLASH_CR_STRT));
 }
 
 /**
@@ -531,8 +535,7 @@ void FLASH_PageErase(uint32_t Page)
   assert_param(IS_FLASH_PAGE(Page));
 
   /* Proceed to erase the page */
-  MODIFY_REG(FLASH->CR, (FLASH_CR_PNB | FLASH_CR_PER), ((Page << FLASH_CR_PNB_Pos) | FLASH_CR_PER));
-  SET_BIT(FLASH->CR, FLASH_CR_STRT);
+  MODIFY_REG(FLASH->CR, FLASH_CR_PNB, ((Page << FLASH_CR_PNB_Pos) | FLASH_CR_PER | FLASH_CR_STRT));
 }
 
 /**
@@ -617,7 +620,7 @@ static void FLASH_OB_WRPConfig(uint32_t WRPArea, uint32_t WRPStartOffset, uint32
 }
 
 /**
-  * @brief  Set user & RDP configiuration
+  * @brief  Set user & RDP configuration
   * @note   !!! Warning : When enabling OB_RDP level 2 it's no more possible
   *         to go back to level 1 or 0 !!!
   * @param  UserType The FLASH User Option Bytes to be modified
@@ -630,7 +633,7 @@ static void FLASH_OB_WRPConfig(uint32_t WRPArea, uint32_t WRPStartOffset, uint32
   * @param  UserConfig The FLASH User Option Bytes values.
   *         This parameter can be a combination of all the following values:
   *         @arg @ref OB_BOR_LEVEL_0 or @ref OB_BOR_LEVEL_1 or ... or @ref OB_BOR_LEVEL_4
-  *         @arg @ref OB_STOP_RST or @ref OB_STOP_RST
+  *         @arg @ref OB_STOP_RST or @ref OB_STOP_NORST
   *         @arg @ref OB_STANDBY_RST or @ref OB_STANDBY_NORST
   *         @arg @ref OB_SHUTDOWN_RST or @ref OB_SHUTDOWN_NORST
   *         @arg @ref OB_IWDG_SW or @ref OB_IWDG_HW
@@ -666,7 +669,7 @@ static void FLASH_OB_OptrConfig(uint32_t UserType, uint32_t UserConfig, uint32_t
 }
 
 /**
-  * @brief  Configure the Zone 1A, 1B Proprietary code readout protection of the desired addresses,
+  * @brief  Configure the Zone 1A Proprietary code readout protection of the desired addresses,
   *         and erase configuration on RDP regression.
   * @note   To configure the PCROP options, the option lock bit OPTLOCK must be
   *         cleared with the call of the @ref HAL_FLASH_OB_Unlock() function.
@@ -678,13 +681,9 @@ static void FLASH_OB_OptrConfig(uint32_t UserType, uint32_t UserConfig, uint32_t
   *         This parameter can be an address between begin and end of the flash
   * @param  PCROP1AEndAddr Specifies the Zone 1A end address of the Proprietary code readout protection
   *         This parameter can be an address between PCROP1AStartAddr and end of the flash
-  * @param  PCROP1BStartAddr Specifies the Zone 1B Start address of the Proprietary code readout protection
-  *         This parameter can be an address between begin and end of the flash
-  * @param  PCROP1BEndAddr Specifies the Zone 1B end address of the Proprietary code readout protection
-  *         This parameter can be an address between PCROP1BStartAddr and end of the flash
   * @retval None
   */
-static void FLASH_OB_PCROPConfig(uint32_t PCROPConfig, uint32_t PCROP1AStartAddr, uint32_t PCROP1AEndAddr, uint32_t PCROP1BStartAddr, uint32_t PCROP1BEndAddr)
+static void FLASH_OB_PCROP1AConfig(uint32_t PCROPConfig, uint32_t PCROP1AStartAddr, uint32_t PCROP1AEndAddr)
 {
   uint32_t startoffset;
   uint32_t endoffset;
@@ -692,55 +691,67 @@ static void FLASH_OB_PCROPConfig(uint32_t PCROPConfig, uint32_t PCROP1AStartAddr
 
   /* Check the parameters */
   assert_param(IS_OB_PCROP_CONFIG(PCROPConfig));
+  assert_param(IS_FLASH_MAIN_MEM_ADDRESS(PCROP1AStartAddr));
+  assert_param(IS_FLASH_MAIN_MEM_ADDRESS(PCROP1AEndAddr));
 
-  if ((PCROPConfig & OB_PCROP_ZONE_B) == OB_PCROP_ZONE_B)
+  /* get pcrop 1A end register */
+  pcrop1aend = FLASH->PCROP1AER;
+
+  /* Configure the Proprietary code readout protection offset */
+  if ((PCROPConfig & OB_PCROP_ZONE_A) != 0U)
   {
-    assert_param(IS_FLASH_MAIN_MEM_ADDRESS(PCROP1BStartAddr));
-    assert_param(IS_FLASH_MAIN_MEM_ADDRESS(PCROP1BEndAddr));
-
     /* Compute offset depending on pcrop granularity */
-    startoffset = ((PCROP1BStartAddr - FLASH_BASE) / FLASH_PCROP_GRANULARITY); /* 2K pages */
-    endoffset = ((PCROP1BEndAddr - FLASH_BASE) / FLASH_PCROP_GRANULARITY); /* 2K pages */
+    startoffset = ((PCROP1AStartAddr - FLASH_BASE) >> FLASH_PCROP_GRANULARITY_OFFSET); /* 2K pages */
+    endoffset = ((PCROP1AEndAddr - FLASH_BASE) >> FLASH_PCROP_GRANULARITY_OFFSET); /* 2K pages */
 
-    /* Configure the Proprietary code readout protection start address */
-    MODIFY_REG(FLASH->PCROP1BSR, FLASH_PCROP1BSR_PCROP1B_STRT, startoffset);
+    /* Set Zone A start offset */
+    WRITE_REG(FLASH->PCROP1ASR, startoffset);
 
-    /* Configure the Proprietary code readout protection end address */
-    MODIFY_REG(FLASH->PCROP1BER, FLASH_PCROP1BER_PCROP1B_END, endoffset);
+    /* Set Zone A end offset */
+    pcrop1aend &= ~FLASH_PCROP1AER_PCROP1A_END;
+    pcrop1aend |= endoffset;
   }
 
-  if ((PCROPConfig & (OB_PCROP_ZONE_A | OB_PCROP_RDP_ERASE)) != 0U)
+  /* Set RDP erase protection if needed. This bit is only set & will be reset by mass erase */
+  if ((PCROPConfig & OB_PCROP_RDP_ERASE) != 0U)
   {
-    assert_param(IS_FLASH_MAIN_MEM_ADDRESS(PCROP1AStartAddr));
-    assert_param(IS_FLASH_MAIN_MEM_ADDRESS(PCROP1AEndAddr));
-
-    /* get pcrop 1A end register */
-    pcrop1aend = FLASH->PCROP1AER;
-
-    /* Configure the Proprietary code readout protection offset */
-    if ((PCROPConfig & OB_PCROP_ZONE_A) != 0U)
-    {
-      /* Compute offset depending on pcrop granularity */
-      startoffset = ((PCROP1AStartAddr - FLASH_BASE) / FLASH_PCROP_GRANULARITY); /* 2K pages */
-      endoffset = ((PCROP1AEndAddr - FLASH_BASE) / FLASH_PCROP_GRANULARITY); /* 2K pages */
-
-      /* Set Zone A start offset */
-      MODIFY_REG(FLASH->PCROP1ASR, FLASH_PCROP1ASR_PCROP1A_STRT, startoffset);
-
-      /* Set Zone A end offset */
-      pcrop1aend &= ~FLASH_PCROP1AER_PCROP1A_END;
-      pcrop1aend |= endoffset;
-    }
-
-    /* Set RDP erase protection if needed. This bit is only set & will be reset by mass erase */
-    if ((PCROPConfig & OB_PCROP_RDP_ERASE) != 0U)
-    {
-      pcrop1aend |= FLASH_PCROP1AER_PCROP_RDP;
-    }
-
-    /* set 1A End register */
-    MODIFY_REG(FLASH->PCROP1AER, FLASH_PCROP1AER_PCROP1A_END, pcrop1aend);
+    pcrop1aend |= FLASH_PCROP1AER_PCROP_RDP;
   }
+
+  /* set 1A End register */
+  WRITE_REG(FLASH->PCROP1AER, pcrop1aend);
+}
+
+/**
+  * @brief  Configure the Zone 1B Proprietary code readout protection of the desired addresses.
+  * @note   To configure the PCROP options, the option lock bit OPTLOCK must be
+  *         cleared with the call of the @ref HAL_FLASH_OB_Unlock() function.
+  * @note   To validate the PCROP options, the option bytes must be reloaded
+  *         through the call of the @ref HAL_FLASH_OB_Launch() function.
+  * @param  PCROP1BStartAddr Specifies the Zone 1BStart address of the Proprietary code readout protection
+  *         This parameter can be an address between begin and end of the flash
+  * @param  PCROP1BEndAddr Specifies the Zone 1B end address of the Proprietary code readout protection
+  *         This parameter can be an address between PCROP1BStartAddr and end of the flash
+  * @retval None
+  */
+static void FLASH_OB_PCROP1BConfig(uint32_t PCROP1BStartAddr, uint32_t PCROP1BEndAddr)
+{
+  uint32_t startoffset;
+  uint32_t endoffset;
+
+  /* Check the parameters */
+  assert_param(IS_FLASH_MAIN_MEM_ADDRESS(PCROP1BStartAddr));
+  assert_param(IS_FLASH_MAIN_MEM_ADDRESS(PCROP1BEndAddr));
+
+  /* Compute offset depending on pcrop granularity */
+  startoffset = ((PCROP1BStartAddr - FLASH_BASE) >> FLASH_PCROP_GRANULARITY_OFFSET); /* 2K pages */
+  endoffset = ((PCROP1BEndAddr - FLASH_BASE) >> FLASH_PCROP_GRANULARITY_OFFSET); /* 2K pages */
+
+  /* Configure the Proprietary code readout protection start address */
+  WRITE_REG(FLASH->PCROP1BSR, startoffset);
+
+  /* Configure the Proprietary code readout protection end address */
+  WRITE_REG(FLASH->PCROP1BER, endoffset);
 }
 
 /**
@@ -758,12 +769,12 @@ static void FLASH_OB_IPCCBufferAddrConfig(uint32_t IPCCDataBufAddr)
   assert_param(IS_OB_IPCC_BUF_ADDR(IPCCDataBufAddr));
 
   /* Configure the option bytes register */
-  MODIFY_REG(FLASH->IPCCBR, FLASH_IPCCBR_IPCCDBA, (uint32_t)((IPCCDataBufAddr - SRAM2A_BASE) >> 4));
+  WRITE_REG(FLASH->IPCCBR, (uint32_t)((IPCCDataBufAddr - SRAM2A_BASE) >> 4));
 }
 
 /**
-  * @brief  Configure the secure start address of the different memories (FLASH and SRAM2)
-  *         , the secure mode and the CPU2 Secure Boot reset vector
+  * @brief  Configure the secure start address of the different memories (FLASH and SRAM2),
+  *         the secure mode and the CPU2 Secure Boot reset vector
   * @note   To configure the PCROP options, the option lock bit OPTLOCK must be
   *         cleared with the call of the @ref HAL_FLASH_OB_Unlock() function.
   * @param  pOBParam Pointer to an @ref FLASH_OBProgramInitTypeDef structure that
@@ -783,14 +794,14 @@ static void FLASH_OB_SecureConfig(FLASH_OBProgramInitTypeDef *pOBParam)
     assert_param(IS_OB_SECURE_MODE(pOBParam->SecureMode));
 
     /* Configure SFR register content with start PAGE index to secure */
-    MODIFY_REG(sfr_reg_val, FLASH_SFR_SFSA, (uint32_t)((pOBParam->SecureFlashStartAddr - FLASH_BASE) / FLASH_PAGE_SIZE));
+    MODIFY_REG(sfr_reg_val, FLASH_SFR_SFSA, (((pOBParam->SecureFlashStartAddr - FLASH_BASE) / FLASH_PAGE_SIZE) << FLASH_SFR_SFSA_Pos));
 
     /* Configure SRRVR register */
     MODIFY_REG(srrvr_reg_val, (FLASH_SRRVR_SBRSA | FLASH_SRRVR_SNBRSA), \
-               (((uint32_t)(((pOBParam->SecureRAM2aStartAddr - SRAM2A_BASE) / SRAM_SECURE_PAGE_GRANULARITY) << FLASH_SRRVR_SBRSA_Pos)) | \
-                ((uint32_t)(((pOBParam->SecureRAM2bStartAddr - SRAM2B_BASE) / SRAM_SECURE_PAGE_GRANULARITY) << FLASH_SRRVR_SNBRSA_Pos))));
+               (((((pOBParam->SecureRAM2aStartAddr - SRAM2A_BASE) >> SRAM_SECURE_PAGE_GRANULARITY_OFFSET) << FLASH_SRRVR_SBRSA_Pos)) | \
+                ((((pOBParam->SecureRAM2bStartAddr - SRAM2B_BASE) >> SRAM_SECURE_PAGE_GRANULARITY_OFFSET) << FLASH_SRRVR_SNBRSA_Pos))));
 
-    /* If Secure mode is requested, clear the corresponding bit */
+    /* If Full System Secure mode is requested, clear all the corresponding bit */
     /* Else set the corresponding bit */
     if (pOBParam->SecureMode == SYSTEM_IN_SECURE_MODE)
     {
@@ -817,11 +828,11 @@ static void FLASH_OB_SecureConfig(FLASH_OBProgramInitTypeDef *pOBParam)
     /* Set the boot vector */
     if (pOBParam->C2BootRegion == OB_C2_BOOT_FROM_FLASH)
     {
-      MODIFY_REG(srrvr_reg_val, (FLASH_SRRVR_SBRV | FLASH_SRRVR_C2OPT), (uint32_t)((uint32_t)((pOBParam->C2SecureBootVectAddr - FLASH_BASE) >> 2) | pOBParam->C2BootRegion));
+      MODIFY_REG(srrvr_reg_val, (FLASH_SRRVR_SBRV | FLASH_SRRVR_C2OPT), (((pOBParam->C2SecureBootVectAddr - FLASH_BASE) >> 2) | pOBParam->C2BootRegion));
     }
     else
     {
-      MODIFY_REG(srrvr_reg_val, (FLASH_SRRVR_SBRV | FLASH_SRRVR_C2OPT), (uint32_t)((uint32_t)((pOBParam->C2SecureBootVectAddr - SRAM1_BASE) >> 2) | pOBParam->C2BootRegion));
+      MODIFY_REG(srrvr_reg_val, (FLASH_SRRVR_SBRV | FLASH_SRRVR_C2OPT), (((pOBParam->C2SecureBootVectAddr - SRAM1_BASE) >> 2) | pOBParam->C2BootRegion));
     }
   }
 
@@ -902,8 +913,7 @@ static uint32_t FLASH_OB_GetRDP(void)
 static uint32_t FLASH_OB_GetUser(void)
 {
   uint32_t user_config = (READ_REG(FLASH->OPTR) & OB_USER_ALL);
-  CLEAR_BIT(user_config, FLASH_OPTR_RDP);
-  CLEAR_BIT(user_config, FLASH_OPTR_ESE);
+  CLEAR_BIT(user_config, (FLASH_OPTR_RDP | FLASH_OPTR_ESE));
 
   return user_config;
 }
@@ -926,16 +936,16 @@ static void FLASH_OB_GetPCROP(uint32_t *PCROPConfig, uint32_t *PCROP1AStartAddr,
   uint32_t pcrop;
 
   pcrop             = (READ_BIT(FLASH->PCROP1BSR, FLASH_PCROP1BSR_PCROP1B_STRT));
-  *PCROP1BStartAddr = ((pcrop * FLASH_PCROP_GRANULARITY) + FLASH_BASE);
+  *PCROP1BStartAddr = ((pcrop << FLASH_PCROP_GRANULARITY_OFFSET) + FLASH_BASE);
 
   pcrop             = (READ_BIT(FLASH->PCROP1BER, FLASH_PCROP1BER_PCROP1B_END));
-  *PCROP1BEndAddr    = ((pcrop * FLASH_PCROP_GRANULARITY) + FLASH_BASE);
+  *PCROP1BEndAddr   = ((pcrop << FLASH_PCROP_GRANULARITY_OFFSET) + FLASH_BASE);
 
   pcrop             = (READ_BIT(FLASH->PCROP1ASR, FLASH_PCROP1ASR_PCROP1A_STRT));
-  *PCROP1AStartAddr = ((pcrop * FLASH_PCROP_GRANULARITY) + FLASH_BASE);
+  *PCROP1AStartAddr = ((pcrop << FLASH_PCROP_GRANULARITY_OFFSET) + FLASH_BASE);
 
   pcrop             = (READ_BIT(FLASH->PCROP1AER, FLASH_PCROP1AER_PCROP1A_END));
-  *PCROP1AEndAddr   = ((pcrop * FLASH_PCROP_GRANULARITY) + FLASH_BASE);
+  *PCROP1AEndAddr   = ((pcrop << FLASH_PCROP_GRANULARITY_OFFSET) + FLASH_BASE);
 
   *PCROPConfig      = (READ_REG(FLASH->PCROP1AER) & FLASH_PCROP1AER_PCROP_RDP);
 }
@@ -962,18 +972,25 @@ static uint32_t FLASH_OB_GetIPCCBufferAddr(void)
   */
 static void FLASH_OB_GetSecureMemoryConfig(uint32_t *SecureFlashStartAddr, uint32_t *SecureRAM2aStartAddr, uint32_t *SecureRAM2bStartAddr, uint32_t *SecureMode)
 {
-  uint32_t user_config = (READ_BIT(FLASH->SFR, FLASH_SFR_SFSA) >> FLASH_SFR_SFSA_Pos);
+  uint32_t sfr_reg_val = READ_REG(FLASH->SFR);
+  uint32_t srrvr_reg_val = READ_REG(FLASH->SRRVR);
+
+  /* Get Secure Flash start address */
+  uint32_t user_config = (READ_BIT(sfr_reg_val, FLASH_SFR_SFSA) >> FLASH_SFR_SFSA_Pos);
 
   *SecureFlashStartAddr = ((user_config * FLASH_PAGE_SIZE) + FLASH_BASE);
 
-  user_config = (READ_BIT(FLASH->SRRVR, FLASH_SRRVR_SBRSA) >> FLASH_SRRVR_SBRSA_Pos);
+  /* Get Secure SRAM2a start address */
+  user_config = (READ_BIT(srrvr_reg_val, FLASH_SRRVR_SBRSA) >> FLASH_SRRVR_SBRSA_Pos);
 
-  *SecureRAM2aStartAddr = ((user_config * SRAM_SECURE_PAGE_GRANULARITY) + SRAM2A_BASE);
+  *SecureRAM2aStartAddr = ((user_config << SRAM_SECURE_PAGE_GRANULARITY_OFFSET) + SRAM2A_BASE);
 
-  user_config = (READ_BIT(FLASH->SRRVR, FLASH_SRRVR_SNBRSA) >> FLASH_SRRVR_SNBRSA_Pos);
+  /* Get Secure SRAM2b start address */
+  user_config = (READ_BIT(srrvr_reg_val, FLASH_SRRVR_SNBRSA) >> FLASH_SRRVR_SNBRSA_Pos);
 
-  *SecureRAM2bStartAddr = ((user_config * SRAM_SECURE_PAGE_GRANULARITY) + SRAM2B_BASE);
+  *SecureRAM2bStartAddr = ((user_config << SRAM_SECURE_PAGE_GRANULARITY_OFFSET) + SRAM2B_BASE);
 
+  /* Get Secure Area mode */
   *SecureMode = (READ_BIT(FLASH->OPTR, FLASH_OPTR_ESE));
 }
 

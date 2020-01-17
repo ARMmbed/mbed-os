@@ -27,7 +27,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32wbxx_hal_def.h"
 
-#if defined(QUADSPI) || defined(QUADSPI1) || defined(QUADSPI2)
+#if defined(QUADSPI)
 
 /** @addtogroup STM32WBxx_HAL_Driver
   * @{
@@ -408,7 +408,7 @@ typedef void (*pQSPI_CallbackTypeDef)(QSPI_HandleTypeDef *hqspi);
   * @brief QSPI Timeout definition
   * @{
   */
-#define HAL_QPSI_TIMEOUT_DEFAULT_VALUE 5000U /* 5 s */
+#define HAL_QSPI_TIMEOUT_DEFAULT_VALUE 5000U /* 5 s */
 /**
   * @}
   */

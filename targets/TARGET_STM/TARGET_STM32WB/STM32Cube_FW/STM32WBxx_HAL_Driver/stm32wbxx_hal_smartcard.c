@@ -917,7 +917,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Receive(SMARTCARD_HandleTypeDef *hsmartcard, uin
         return HAL_TIMEOUT;
       }
       *ptmpdata = (uint8_t)(hsmartcard->Instance->RDR & (uint8_t)0x00FF);
-      *ptmpdata++;
+      ptmpdata++;
     }
 
     /* At end of Rx process, restore hsmartcard->RxState to Ready */
@@ -2287,6 +2287,7 @@ static HAL_StatusTypeDef SMARTCARD_SetConfig(SMARTCARD_HandleTypeDef *hsmartcard
   SMARTCARD_ClockSourceTypeDef clocksource;
   HAL_StatusTypeDef ret                    = HAL_OK;
   const uint16_t SMARTCARDPrescTable[12] = {1U, 2U, 4U, 6U, 8U, 10U, 12U, 16U, 32U, 64U, 128U, 256U};
+  uint32_t pclk;
 
   /* Check the parameters */
   assert_param(IS_SMARTCARD_INSTANCE(hsmartcard->Instance));
@@ -2341,7 +2342,7 @@ static HAL_StatusTypeDef SMARTCARD_SetConfig(SMARTCARD_HandleTypeDef *hsmartcard
 
   /*-------------------------- USART GTPR Configuration ----------------------*/
   tmpreg = (hsmartcard->Init.Prescaler | ((uint32_t)hsmartcard->Init.GuardTime << USART_GTPR_GT_Pos));
-  MODIFY_REG(hsmartcard->Instance->GTPR, (USART_GTPR_GT | USART_GTPR_PSC), tmpreg);
+  MODIFY_REG(hsmartcard->Instance->GTPR, (uint16_t)(USART_GTPR_GT | USART_GTPR_PSC), (uint16_t)tmpreg);
 
   /*-------------------------- USART RTOR Configuration ----------------------*/
   tmpreg = ((uint32_t)hsmartcard->Init.BlockLength << USART_RTOR_BLEN_Pos);
@@ -2358,13 +2359,15 @@ static HAL_StatusTypeDef SMARTCARD_SetConfig(SMARTCARD_HandleTypeDef *hsmartcard
   switch (clocksource)
   {
     case SMARTCARD_CLOCKSOURCE_PCLK2:
-      tmpreg = (uint16_t)(((HAL_RCC_GetPCLK2Freq() / SMARTCARDPrescTable[hsmartcard->Init.ClockPrescaler]) + (hsmartcard->Init.BaudRate / 2U)) / hsmartcard->Init.BaudRate);
+      pclk = HAL_RCC_GetPCLK2Freq();
+      tmpreg = (uint16_t)(((pclk / SMARTCARDPrescTable[hsmartcard->Init.ClockPrescaler]) + (hsmartcard->Init.BaudRate / 2U)) / hsmartcard->Init.BaudRate);
       break;
     case SMARTCARD_CLOCKSOURCE_HSI:
       tmpreg = (uint16_t)(((HSI_VALUE / SMARTCARDPrescTable[hsmartcard->Init.ClockPrescaler]) + (hsmartcard->Init.BaudRate / 2U)) / hsmartcard->Init.BaudRate);
       break;
     case SMARTCARD_CLOCKSOURCE_SYSCLK:
-      tmpreg = (uint16_t)(((HAL_RCC_GetSysClockFreq() / SMARTCARDPrescTable[hsmartcard->Init.ClockPrescaler]) + (hsmartcard->Init.BaudRate / 2U)) / hsmartcard->Init.BaudRate);
+      pclk = HAL_RCC_GetSysClockFreq();
+      tmpreg = (uint16_t)(((pclk / SMARTCARDPrescTable[hsmartcard->Init.ClockPrescaler]) + (hsmartcard->Init.BaudRate / 2U)) / hsmartcard->Init.BaudRate);
       break;
     case SMARTCARD_CLOCKSOURCE_LSE:
       tmpreg = (uint16_t)(((uint16_t)(LSE_VALUE / SMARTCARDPrescTable[hsmartcard->Init.ClockPrescaler]) + (hsmartcard->Init.BaudRate / 2U)) / hsmartcard->Init.BaudRate);

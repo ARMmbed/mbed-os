@@ -23,11 +23,11 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics. 
+  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the 
+  * the "License"; You may not use this file except in compliance with the
   * License. You may obtain a copy of the License at:
   *                        opensource.org/licenses/BSD-3-Clause
   *
@@ -73,8 +73,11 @@ extern "C" {
   * @{
   */
 #define LL_AHB1_GRP1_PERIPH_ALL            (0xFFFFFFFFU)
+
 #define LL_AHB1_GRP1_PERIPH_DMA1           RCC_AHB1ENR_DMA1EN
+#if defined(DMA2)
 #define LL_AHB1_GRP1_PERIPH_DMA2           RCC_AHB1ENR_DMA2EN
+#endif
 #define LL_AHB1_GRP1_PERIPH_DMAMUX1        RCC_AHB1ENR_DMAMUX1EN
 #define LL_AHB1_GRP1_PERIPH_SRAM1          RCC_AHB1SMENR_SRAM1SMEN
 #define LL_AHB1_GRP1_PERIPH_CRC            RCC_AHB1ENR_CRCEN
@@ -87,14 +90,19 @@ extern "C" {
   * @{
   */
 #define LL_AHB2_GRP1_PERIPH_ALL            (0xFFFFFFFFU)
+
 #define LL_AHB2_GRP1_PERIPH_GPIOA          RCC_AHB2ENR_GPIOAEN
 #define LL_AHB2_GRP1_PERIPH_GPIOB          RCC_AHB2ENR_GPIOBEN
 #define LL_AHB2_GRP1_PERIPH_GPIOC          RCC_AHB2ENR_GPIOCEN
+#if defined(GPIOD)
 #define LL_AHB2_GRP1_PERIPH_GPIOD          RCC_AHB2ENR_GPIODEN
+#endif
 #define LL_AHB2_GRP1_PERIPH_GPIOE          RCC_AHB2ENR_GPIOEEN
 #define LL_AHB2_GRP1_PERIPH_GPIOH          RCC_AHB2ENR_GPIOHEN
 #define LL_AHB2_GRP1_PERIPH_ADC            RCC_AHB2ENR_ADCEN
+#if defined(AES1)
 #define LL_AHB2_GRP1_PERIPH_AES1           RCC_AHB2ENR_AES1EN
+#endif
 /**
   * @}
   */
@@ -103,7 +111,9 @@ extern "C" {
   * @{
   */
 #define LL_AHB3_GRP1_PERIPH_ALL            (0xFFFFFFFFU)
+#if defined(QUADSPI)
 #define LL_AHB3_GRP1_PERIPH_QUADSPI        RCC_AHB3ENR_QUADSPIEN
+#endif
 #define LL_AHB3_GRP1_PERIPH_PKA            RCC_AHB3ENR_PKAEN
 #define LL_AHB3_GRP1_PERIPH_AES2           RCC_AHB3ENR_AES2EN
 #define LL_AHB3_GRP1_PERIPH_RNG            RCC_AHB3ENR_RNGEN
@@ -120,14 +130,24 @@ extern "C" {
   */
 #define LL_APB1_GRP1_PERIPH_ALL            (0xFFFFFFFFU)
 #define LL_APB1_GRP1_PERIPH_TIM2           RCC_APB1ENR1_TIM2EN
+#if defined(LCD)
 #define LL_APB1_GRP1_PERIPH_LCD            RCC_APB1ENR1_LCDEN
+#endif
 #define LL_APB1_GRP1_PERIPH_RTCAPB         RCC_APB1ENR1_RTCAPBEN
 #define LL_APB1_GRP1_PERIPH_WWDG           RCC_APB1ENR1_WWDGEN
+#if defined(SPI2)
 #define LL_APB1_GRP1_PERIPH_SPI2           RCC_APB1ENR1_SPI2EN
+#endif
 #define LL_APB1_GRP1_PERIPH_I2C1           RCC_APB1ENR1_I2C1EN
+#if defined(I2C3)
 #define LL_APB1_GRP1_PERIPH_I2C3           RCC_APB1ENR1_I2C3EN
+#endif
+#if defined(CRS)
 #define LL_APB1_GRP1_PERIPH_CRS            RCC_APB1ENR1_CRSEN
+#endif
+#if defined(USB)
 #define LL_APB1_GRP1_PERIPH_USB            RCC_APB1ENR1_USBEN
+#endif
 #define LL_APB1_GRP1_PERIPH_LPTIM1         RCC_APB1ENR1_LPTIM1EN
 /**
   * @}
@@ -138,7 +158,10 @@ extern "C" {
   * @{
   */
 #define LL_APB1_GRP2_PERIPH_ALL            (0xFFFFFFFFU)
+
+#if defined(LPUART1)
 #define LL_APB1_GRP2_PERIPH_LPUART1        RCC_APB1ENR2_LPUART1EN
+#endif
 #define LL_APB1_GRP2_PERIPH_LPTIM2         RCC_APB1ENR2_LPTIM2EN
 /**
   * @}
@@ -148,12 +171,15 @@ extern "C" {
   * @{
   */
 #define LL_APB2_GRP1_PERIPH_ALL            (0xFFFFFFFFU)
+
 #define LL_APB2_GRP1_PERIPH_TIM1           RCC_APB2ENR_TIM1EN
 #define LL_APB2_GRP1_PERIPH_SPI1           RCC_APB2ENR_SPI1EN
 #define LL_APB2_GRP1_PERIPH_USART1         RCC_APB2ENR_USART1EN
 #define LL_APB2_GRP1_PERIPH_TIM16          RCC_APB2ENR_TIM16EN
 #define LL_APB2_GRP1_PERIPH_TIM17          RCC_APB2ENR_TIM17EN
+#if defined(SAI1)
 #define LL_APB2_GRP1_PERIPH_SAI1           RCC_APB2ENR_SAI1EN
+#endif
 /**
   * @}
   */
@@ -172,7 +198,9 @@ extern "C" {
   * @{
   */
 #define LL_C2_AHB1_GRP1_PERIPH_DMA1         RCC_C2AHB1ENR_DMA1EN
+#if defined(DMA2)
 #define LL_C2_AHB1_GRP1_PERIPH_DMA2         RCC_C2AHB1ENR_DMA2EN
+#endif
 #define LL_C2_AHB1_GRP1_PERIPH_DMAMUX1      RCC_C2AHB1ENR_DMAMUX1EN
 #define LL_C2_AHB1_GRP1_PERIPH_SRAM1        RCC_C2AHB1ENR_SRAM1EN
 #define LL_C2_AHB1_GRP1_PERIPH_CRC          RCC_C2AHB1ENR_CRCEN
@@ -188,11 +216,15 @@ extern "C" {
 #define LL_C2_AHB2_GRP1_PERIPH_GPIOA        RCC_C2AHB2ENR_GPIOAEN
 #define LL_C2_AHB2_GRP1_PERIPH_GPIOB        RCC_C2AHB2ENR_GPIOBEN
 #define LL_C2_AHB2_GRP1_PERIPH_GPIOC        RCC_C2AHB2ENR_GPIOCEN
+#if defined(GPIOD)
 #define LL_C2_AHB2_GRP1_PERIPH_GPIOD        RCC_C2AHB2ENR_GPIODEN
+#endif
 #define LL_C2_AHB2_GRP1_PERIPH_GPIOE        RCC_C2AHB2ENR_GPIOEEN
 #define LL_C2_AHB2_GRP1_PERIPH_GPIOH        RCC_C2AHB2ENR_GPIOHEN
 #define LL_C2_AHB2_GRP1_PERIPH_ADC          RCC_C2AHB2ENR_ADCEN
+#if defined(AES1)
 #define LL_C2_AHB2_GRP1_PERIPH_AES1         RCC_C2AHB2ENR_AES1EN
+#endif
 /**
   * @}
   */
@@ -217,13 +249,19 @@ extern "C" {
   * @{
   */
 #define LL_C2_APB1_GRP1_PERIPH_TIM2         RCC_C2APB1ENR1_TIM2EN
+#if defined(LCD)
 #define LL_C2_APB1_GRP1_PERIPH_LCD          RCC_C2APB1ENR1_LCDEN
+#endif
 #define LL_C2_APB1_GRP1_PERIPH_RTCAPB       RCC_C2APB1ENR1_RTCAPBEN
+#if defined(SPI2)
 #define LL_C2_APB1_GRP1_PERIPH_SPI2         RCC_C2APB1ENR1_SPI2EN
+#endif
 #define LL_C2_APB1_GRP1_PERIPH_I2C1         RCC_C2APB1ENR1_I2C1EN
+#if defined(I2C3)
 #define LL_C2_APB1_GRP1_PERIPH_I2C3         RCC_C2APB1ENR1_I2C3EN
 #define LL_C2_APB1_GRP1_PERIPH_CRS          RCC_C2APB1ENR1_CRSEN
 #define LL_C2_APB1_GRP1_PERIPH_USB          RCC_C2APB1ENR1_USBEN
+#endif
 #define LL_C2_APB1_GRP1_PERIPH_LPTIM1       RCC_C2APB1ENR1_LPTIM1EN
 /**
   * @}
@@ -233,7 +271,9 @@ extern "C" {
 /** @defgroup BUS_LL_EC_C2_APB1_GRP2_PERIPH  C2 APB1 GRP2 PERIPH
   * @{
   */
+#if defined(LPUART1)
 #define LL_C2_APB1_GRP2_PERIPH_LPUART1      RCC_C2APB1ENR2_LPUART1EN
+#endif
 #define LL_C2_APB1_GRP2_PERIPH_LPTIM2       RCC_C2APB1ENR2_LPTIM2EN
 /**
   * @}
@@ -248,7 +288,9 @@ extern "C" {
 #define LL_C2_APB2_GRP1_PERIPH_USART1       RCC_C2APB2ENR_USART1EN
 #define LL_C2_APB2_GRP1_PERIPH_TIM16        RCC_C2APB2ENR_TIM16EN
 #define LL_C2_APB2_GRP1_PERIPH_TIM17        RCC_C2APB2ENR_TIM17EN
+#if defined(SAI1)
 #define LL_C2_APB2_GRP1_PERIPH_SAI1         RCC_C2APB2ENR_SAI1EN
+#endif
 /**
   * @}
   */

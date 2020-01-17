@@ -151,6 +151,14 @@ typedef struct
   * @}
   */
 
+/** @defgroup USB_LL Device Speed
+  * @{
+  */
+#define USBD_FS_SPEED                          2U
+/**
+  * @}
+  */
+
 #define BTABLE_ADDRESS                         0x000U
 #define PMA_ACCESS                             1U
 

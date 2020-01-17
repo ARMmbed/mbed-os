@@ -269,7 +269,7 @@ HAL_StatusTypeDef HAL_FLASH_Program_IT(uint32_t TypeProgram, uint32_t Address, u
     pFlash.Address = Address;
 
     /* Enable End of Operation and Error interrupts */
-    __HAL_FLASH_ENABLE_IT(FLASH_IT_EOP | FLASH_IT_OPERR | FLASH_IT_ECCC);
+    __HAL_FLASH_ENABLE_IT(FLASH_IT_EOP | FLASH_IT_OPERR);
 
     if (TypeProgram == FLASH_TYPEPROGRAM_DOUBLEWORD)
     {
@@ -299,51 +299,31 @@ HAL_StatusTypeDef HAL_FLASH_Program_IT(uint32_t TypeProgram, uint32_t Address, u
   */
 void HAL_FLASH_IRQHandler(void)
 {
-  uint32_t clearbit;
-  uint32_t param;
+  uint32_t param = 0xFFFFFFFFU;
   uint32_t error;
 
-  /* save flash errors. Only ECC detection can be checked here as ECCC
-     generates NMI */
-  error = (FLASH->SR & FLASH_FLAG_SR_ERROR);
-  error |= (FLASH->ECCR & FLASH_FLAG_ECCC);
+  /* Check FLASH operation error flags */
+  error = (FLASH->SR & FLASH_FLAG_SR_ERRORS);
+
+  /* Clear Current operation */
+  CLEAR_BIT(FLASH->CR, pFlash.ProcedureOnGoing);
 
   /* A] Set parameter for user or error callbacks */
-
   /* check operation was a program or erase */
   if ((pFlash.ProcedureOnGoing & (FLASH_TYPEPROGRAM_DOUBLEWORD | FLASH_TYPEPROGRAM_FAST)) != 0U)
   {
     /* return adress being programmed */
     param = pFlash.Address;
-
-    /* set operation bit to clear */
-    clearbit = pFlash.ProcedureOnGoing;
   }
   else if ((pFlash.ProcedureOnGoing & (FLASH_TYPEERASE_MASSERASE | FLASH_TYPEERASE_PAGES)) != 0U)
   {
     /* return page number being erased (0 for mass erase) */
     param = pFlash.Page;
-
-    if (pFlash.ProcedureOnGoing != FLASH_TYPEERASE_PAGES)
-    {
-      /* set operation bit to clear */
-      clearbit = pFlash.ProcedureOnGoing;
-    }
-    else
-    {
-      clearbit = 0U;
-    }
   }
   else
   {
-    param = 0U;
-    clearbit = 0U;
-  }
-
-  /* clear operation bit if needed */
-  if (clearbit != 0U)
-  {
-    CLEAR_BIT(FLASH->CR, clearbit);
+    /* No Procedure on-going */
+    /* Nothing to do, but check error if any */
   }
 
   /* B] Check errors */
@@ -353,8 +333,7 @@ void HAL_FLASH_IRQHandler(void)
     pFlash.ErrorCode |= error;
 
     /* clear error flags */
-    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_SR_ERROR);
-    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ECCC);
+    __HAL_FLASH_CLEAR_FLAG(error);
 
     /*Stop the procedure ongoing*/
     pFlash.ProcedureOnGoing = FLASH_TYPENONE;
@@ -384,17 +363,12 @@ void HAL_FLASH_IRQHandler(void)
       else
       {
         /* No more pages to erase: stop erase pages procedure */
-        /* Reset Address and stop Erase pages procedure */
-        CLEAR_BIT(FLASH->CR, pFlash.ProcedureOnGoing);
-        pFlash.Page = 0xFFFFFFFFU;
-        param = pFlash.Page;
         pFlash.ProcedureOnGoing = FLASH_TYPENONE;
       }
     }
     else
     {
       /*Stop the ongoing procedure */
-      param = 0xFFFFFFFFU;
       pFlash.ProcedureOnGoing = FLASH_TYPENONE;
     }
 
@@ -497,22 +471,16 @@ HAL_StatusTypeDef HAL_FLASH_Unlock(void)
   */
 HAL_StatusTypeDef HAL_FLASH_Lock(void)
 {
-  HAL_StatusTypeDef status;
+  HAL_StatusTypeDef status = HAL_OK;
 
-  /* Verify that next operation can be proceed */
-  status = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
+  /* Set the LOCK Bit to lock the FLASH Registers access */
+  /* @Note  The lock and unlock procedure is done only using CR registers even from CPU2 */
+  SET_BIT(FLASH->CR, FLASH_CR_LOCK);
 
-  if (status == HAL_OK)
+  /* verify Flash is locked */
+  if (READ_BIT(FLASH->CR, FLASH_CR_LOCK) == 0U)
   {
-    /* Set the LOCK Bit to lock the FLASH Registers access */
-    /* @Note  The lock and unlock procedure is done only using CR registers even from CPU2 */
-    SET_BIT(FLASH->CR, FLASH_CR_LOCK);
-
-    /* verify Flash is locked */
-    if (READ_BIT(FLASH->CR, FLASH_CR_LOCK) == 0U)
-    {
-      status = HAL_ERROR;
-    }
+    status = HAL_ERROR;
   }
 
   return status;
@@ -549,22 +517,16 @@ HAL_StatusTypeDef HAL_FLASH_OB_Unlock(void)
   */
 HAL_StatusTypeDef HAL_FLASH_OB_Lock(void)
 {
-  HAL_StatusTypeDef status;
+  HAL_StatusTypeDef status = HAL_OK;
 
-  /* Verify that next operation can be proceed */
-  status = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
+  /* Set the OPTLOCK Bit to lock the FLASH Option Byte Registers access */
+  /* @Note The lock and unlock procedure is done only using CR registers even from CPU2 */
+  SET_BIT(FLASH->CR, FLASH_CR_OPTLOCK);
 
-  if (status == HAL_OK)
+  /* verify option bytes are lock */
+  if (READ_BIT(FLASH->CR, FLASH_CR_OPTLOCK) == 0U)
   {
-    /* Set the OPTLOCK Bit to lock the FLASH Option Byte Registers access */
-    /* @Note The lock and unlock procedure is done only using CR registers even from CPU2 */
-    SET_BIT(FLASH->CR, FLASH_CR_OPTLOCK);
-
-    /* verify option bytes are lock */
-    if (READ_BIT(FLASH->CR, FLASH_CR_OPTLOCK) == 0U)
-    {
-      status = HAL_ERROR;
-    }
+    status = HAL_ERROR;
   }
 
   return status;
@@ -576,21 +538,13 @@ HAL_StatusTypeDef HAL_FLASH_OB_Lock(void)
   */
 HAL_StatusTypeDef HAL_FLASH_OB_Launch(void)
 {
-  HAL_StatusTypeDef status;
-
-  /* Verify that next operation can be proceed */
-  status = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
-
-  if (status == HAL_OK)
-  {
-    /* Set the bit to force the option byte reloading */
-    /* The OB launch is done from the same register either from CPU1 or CPU2 */
-    SET_BIT(FLASH->CR, FLASH_CR_OBL_LAUNCH);
-  }
+  /* Set the bit to force the option byte reloading */
+  /* The OB launch is done from the same register either from CPU1 or CPU2 */
+  SET_BIT(FLASH->CR, FLASH_CR_OBL_LAUNCH);
 
   /* We should not reach here : Option byte launch generates Option byte reset
      so return error */
-  return status;
+  return HAL_ERROR;
 }
 
 /**
@@ -625,7 +579,6 @@ HAL_StatusTypeDef HAL_FLASH_OB_Launch(void)
   *            @arg @ref HAL_FLASH_ERROR_FAST FLASH Fast programming error
   *            @arg @ref HAL_FLASH_ERROR_RD FLASH Read Protection error (PCROP)
   *            @arg @ref HAL_FLASH_ERROR_OPTV FLASH Option validity error
-  *            @arg @ref HAL_FLASH_ERROR_ECCD FLASH two ECC errors have been detected
   */
 uint32_t HAL_FLASH_GetError(void)
 {
@@ -661,28 +614,43 @@ HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout)
      flag will be set */
   while (__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY))
   {
-    if (Timeout != HAL_MAX_DELAY)
+    if ((HAL_GetTick() - tickstart) >= Timeout)
     {
-      if ((HAL_GetTick() - tickstart) >= Timeout)
-      {
-        return HAL_TIMEOUT;
-      }
+      return HAL_TIMEOUT;
     }
   }
 
-  /* check flash errors. Only ECC correction can be checked here as ECCD
-      generates NMI */
-  error = (FLASH->SR & FLASH_FLAG_SR_ERROR);
+  /* Check FLASH operation error flags */
+  error = FLASH->SR;
+
+  /* Check FLASH End of Operation flag */
+  if ((error & FLASH_FLAG_EOP) != 0U)
+  {
+    /* Clear FLASH End of Operation pending bit */
+    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP);
+  }
+
+  /* Now update error variable to only error value */
+  error &= FLASH_FLAG_SR_ERRORS;
+
+  /* clear error flags */
+  __HAL_FLASH_CLEAR_FLAG(error);
+
   if (error != 0U)
   {
     /*Save the error code*/
-    pFlash.ErrorCode |= error;
-
-    /* clear error flags */
-    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_SR_ERROR);
-    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ECCC);
+    pFlash.ErrorCode = error;
 
     return HAL_ERROR;
+  }
+
+  /* Wait for control register to be written */
+  while (__HAL_FLASH_GET_FLAG(FLASH_FLAG_CFGBSY))
+  {
+    if ((HAL_GetTick() - tickstart) >= Timeout)
+    {
+      return HAL_TIMEOUT;
+    }
   }
 
   return HAL_OK;
@@ -700,14 +668,14 @@ static void FLASH_Program_DoubleWord(uint32_t Address, uint64_t Data)
   SET_BIT(FLASH->CR, FLASH_CR_PG);
 
   /* Program first word */
-  *(__IO uint32_t *)Address = (uint32_t)Data;
+  *(uint32_t *)Address = (uint32_t)Data;
 
   /* Barrier to ensure programming is performed in 2 steps, in right order
     (independently of compiler optimization behavior) */
   __ISB();
 
   /* Program second word */
-  *(__IO uint32_t *)((uint32_t)(Address + 4U)) = (uint32_t)(Data >> 32U);
+  *(uint32_t *)(Address + 4U) = (uint32_t)(Data >> 32U);
 }
 
 /**

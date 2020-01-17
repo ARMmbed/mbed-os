@@ -155,7 +155,7 @@ typedef struct
 /** @defgroup PCD_Speed PCD Speed
   * @{
   */
-#define PCD_SPEED_FULL               2U
+#define PCD_SPEED_FULL               USBD_FS_SPEED
 /**
   * @}
   */

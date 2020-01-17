@@ -234,9 +234,15 @@ typedef struct
   */
 #define LL_RTC_ISR_ITSF                    RTC_ISR_ITSF
 #define LL_RTC_ISR_RECALPF                 RTC_ISR_RECALPF
+#if defined(RTC_TAMPER3_SUPPORT)
 #define LL_RTC_ISR_TAMP3F                  RTC_ISR_TAMP3F
+#endif
+#if defined(RTC_TAMPER2_SUPPORT)
 #define LL_RTC_ISR_TAMP2F                  RTC_ISR_TAMP2F
+#endif
+#if defined(RTC_TAMPER1_SUPPORT)
 #define LL_RTC_ISR_TAMP1F                  RTC_ISR_TAMP1F
+#endif
 #define LL_RTC_ISR_TSOVF                   RTC_ISR_TSOVF
 #define LL_RTC_ISR_TSF                     RTC_ISR_TSF
 #define LL_RTC_ISR_WUTF                    RTC_ISR_WUTF
@@ -261,9 +267,15 @@ typedef struct
 #define LL_RTC_CR_WUTIE                    RTC_CR_WUTIE
 #define LL_RTC_CR_ALRBIE                   RTC_CR_ALRBIE
 #define LL_RTC_CR_ALRAIE                   RTC_CR_ALRAIE
+#if defined(RTC_TAMPER3_SUPPORT)
 #define LL_RTC_TAMPCR_TAMP3IE              RTC_TAMPCR_TAMP3IE
+#endif
+#if defined(RTC_TAMPER2_SUPPORT)
 #define LL_RTC_TAMPCR_TAMP2IE              RTC_TAMPCR_TAMP2IE
+#endif
+#if defined(RTC_TAMPER1_SUPPORT)
 #define LL_RTC_TAMPCR_TAMP1IE              RTC_TAMPCR_TAMP1IE
+#endif
 #define LL_RTC_TAMPCR_TAMPIE               RTC_TAMPCR_TAMPIE
 /**
   * @}
@@ -427,7 +439,9 @@ typedef struct
 #define LL_RTC_TAMPER_1                    RTC_TAMPCR_TAMP1E /*!< RTC_TAMP1 input detection */
 #endif /* RTC_TAMPER1_SUPPORT */
 #if defined(RTC_TAMPER2_SUPPORT)
+#if defined(RTC_TAMPER2_SUPPORT)
 #define LL_RTC_TAMPER_2                    RTC_TAMPCR_TAMP2E /*!< RTC_TAMP2 input detection */
+#endif
 #endif /* RTC_TAMPER2_SUPPORT */
 #if defined(RTC_TAMPER3_SUPPORT)
 #define LL_RTC_TAMPER_3                    RTC_TAMPCR_TAMP3E /*!< RTC_TAMP3 input detection */
@@ -2641,10 +2655,12 @@ __STATIC_INLINE void LL_RTC_TS_DisableOnTamper(RTC_TypeDef *RTCx)
   *         TAMPCR       TAMP3E        LL_RTC_TAMPER_Enable
   * @param  RTCx RTC Instance
   * @param  Tamper This parameter can be a combination of the following values:
-  *         @arg @ref LL_RTC_TAMPER_1 
+  *         @arg @ref LL_RTC_TAMPER_1 (*)
   *         @arg @ref LL_RTC_TAMPER_2 
-  *         @arg @ref LL_RTC_TAMPER_3 
-  *         
+  *         @arg @ref LL_RTC_TAMPER_3 (*)
+  *
+  *         (*)  Value not defined in all devices. \n
+  *
   * @retval None
   */
 __STATIC_INLINE void LL_RTC_TAMPER_Enable(RTC_TypeDef *RTCx, uint32_t Tamper)
@@ -2659,10 +2675,12 @@ __STATIC_INLINE void LL_RTC_TAMPER_Enable(RTC_TypeDef *RTCx, uint32_t Tamper)
   *         TAMPCR       TAMP3E        LL_RTC_TAMPER_Disable
   * @param  RTCx RTC Instance
   * @param  Tamper This parameter can be a combination of the following values:
-  *         @arg @ref LL_RTC_TAMPER_1 
+  *         @arg @ref LL_RTC_TAMPER_1 (*)
   *         @arg @ref LL_RTC_TAMPER_2 
-  *         @arg @ref LL_RTC_TAMPER_3 
-  *         
+  *         @arg @ref LL_RTC_TAMPER_3 (*)
+  *
+  *         (*)  Value not defined in all devices. \n
+  *
   * @retval None
   */
 __STATIC_INLINE void LL_RTC_TAMPER_Disable(RTC_TypeDef *RTCx, uint32_t Tamper)
@@ -2678,10 +2696,12 @@ __STATIC_INLINE void LL_RTC_TAMPER_Disable(RTC_TypeDef *RTCx, uint32_t Tamper)
   *         TAMPCR       TAMP3MF       LL_RTC_TAMPER_EnableMask
   * @param  RTCx RTC Instance
   * @param  Mask This parameter can be a combination of the following values:
-  *         @arg @ref LL_RTC_TAMPER_MASK_TAMPER1 
+  *         @arg @ref LL_RTC_TAMPER_MASK_TAMPER1 (*)
   *         @arg @ref LL_RTC_TAMPER_MASK_TAMPER2 
-  *         @arg @ref LL_RTC_TAMPER_MASK_TAMPER3 
-  *         
+  *         @arg @ref LL_RTC_TAMPER_MASK_TAMPER3 (*)
+  *
+  *         (*)  Value not defined in all devices. \n
+  *
   * @retval None
   */
 __STATIC_INLINE void LL_RTC_TAMPER_EnableMask(RTC_TypeDef *RTCx, uint32_t Mask)
@@ -2696,10 +2716,12 @@ __STATIC_INLINE void LL_RTC_TAMPER_EnableMask(RTC_TypeDef *RTCx, uint32_t Mask)
   *         TAMPCR       TAMP3MF       LL_RTC_TAMPER_DisableMask
   * @param  RTCx RTC Instance
   * @param  Mask This parameter can be a combination of the following values:
-  *         @arg @ref LL_RTC_TAMPER_MASK_TAMPER1 
+  *         @arg @ref LL_RTC_TAMPER_MASK_TAMPER1 (*)
   *         @arg @ref LL_RTC_TAMPER_MASK_TAMPER2 
-  *         @arg @ref LL_RTC_TAMPER_MASK_TAMPER3 
-  *         
+  *         @arg @ref LL_RTC_TAMPER_MASK_TAMPER3 (*)
+  *
+  *         (*)  Value not defined in all devices. \n
+  *
   * @retval None
   */
 __STATIC_INLINE void LL_RTC_TAMPER_DisableMask(RTC_TypeDef *RTCx, uint32_t Mask)
@@ -2714,10 +2736,12 @@ __STATIC_INLINE void LL_RTC_TAMPER_DisableMask(RTC_TypeDef *RTCx, uint32_t Mask)
   *         TAMPCR       TAMP3NOERASE  LL_RTC_TAMPER_EnableEraseBKP
   * @param  RTCx RTC Instance
   * @param  Tamper This parameter can be a combination of the following values:
-  *         @arg @ref LL_RTC_TAMPER_NOERASE_TAMPER1 
+  *         @arg @ref LL_RTC_TAMPER_NOERASE_TAMPER1 (*)
   *         @arg @ref LL_RTC_TAMPER_NOERASE_TAMPER2 
-  *         @arg @ref LL_RTC_TAMPER_NOERASE_TAMPER3 
-  *         
+  *         @arg @ref LL_RTC_TAMPER_NOERASE_TAMPER3 (*)
+  *
+  *         (*)  Value not defined in all devices. \n
+  *
   * @retval None
   */
 __STATIC_INLINE void LL_RTC_TAMPER_EnableEraseBKP(RTC_TypeDef *RTCx, uint32_t Tamper)
@@ -2732,10 +2756,12 @@ __STATIC_INLINE void LL_RTC_TAMPER_EnableEraseBKP(RTC_TypeDef *RTCx, uint32_t Ta
   *         TAMPCR       TAMP3NOERASE  LL_RTC_TAMPER_DisableEraseBKP
   * @param  RTCx RTC Instance
   * @param  Tamper This parameter can be a combination of the following values:
-  *         @arg @ref LL_RTC_TAMPER_NOERASE_TAMPER1 
+  *         @arg @ref LL_RTC_TAMPER_NOERASE_TAMPER1 (*)
   *         @arg @ref LL_RTC_TAMPER_NOERASE_TAMPER2 
-  *         @arg @ref LL_RTC_TAMPER_NOERASE_TAMPER3 
-  *         
+  *         @arg @ref LL_RTC_TAMPER_NOERASE_TAMPER3 (*)
+  *
+  *         (*)  Value not defined in all devices. \n
+  *
   * @retval None
   */
 __STATIC_INLINE void LL_RTC_TAMPER_DisableEraseBKP(RTC_TypeDef *RTCx, uint32_t Tamper)
