@@ -8619,7 +8619,10 @@
             "5"
         ],
         "device_name": "R7S72100",
-        "bootloader_supported": false
+        "bootloader_supported": true,
+        "mbed_rom_start"        : "0x18000000",
+        "mbed_rom_size"         : "0x800000",
+        "sectors": [[402653184,4096]]
     },
     "VK_RZ_A1H": {
         "inherits": [
@@ -8667,7 +8670,10 @@
             "5"
         ],
         "device_name": "R7S72103",
-        "bootloader_supported": false,
+        "bootloader_supported": true,
+        "mbed_rom_start"        : "0x18000000",
+        "mbed_rom_size"         : "0x800000",
+        "sectors": [[402653184,4096]],
         "overrides": {
             "network-default-interface-type": null
         }
