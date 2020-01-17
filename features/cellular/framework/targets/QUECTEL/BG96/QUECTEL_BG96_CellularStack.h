@@ -22,7 +22,6 @@
 
 namespace mbed {
 
-#define BG96_SOCKET_MAX 12
 #define BG96_CREATE_SOCKET_TIMEOUT 150000 //150 seconds
 #define BG96_CLOSE_SOCKET_TIMEOUT 20000 // TCP socket max timeout is >10sec
 #define BG96_MAX_RECV_SIZE 1500
@@ -59,10 +58,6 @@ protected: // NetworkStack
                                      int optname, const void *optval, unsigned optlen);
 
 protected: // AT_CellularStack
-
-    virtual int get_max_socket_count();
-
-    virtual bool is_protocol_supported(nsapi_protocol_t protocol);
 
     virtual nsapi_error_t socket_close_impl(int sock_id);
 

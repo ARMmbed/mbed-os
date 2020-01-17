@@ -21,7 +21,6 @@
 #include "CellularLog.h"
 
 // defines as per ELS61-E2_ATC_V01.000 and BGS2-W_ATC_V00.100
-#define SOCKET_MAX 10
 #define UDP_PACKET_SIZE 1460
 #define FAILURE_TIMEOUT (30*1000) // failure timeout in milliseconds on modem side
 
@@ -122,7 +121,7 @@ nsapi_error_t GEMALTO_CINTERION_CellularStack::socket_stack_init()
         _at.set_urc_handler("^SISR:", mbed::Callback<void()>(this, &GEMALTO_CINTERION_CellularStack::urc_sisr));
     } else { // recovery cleanup
         // close all Internet and connection profiles
-        for (int i = 0; i < SOCKET_MAX; i++) {
+        for (int i = 0; i < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT); i++) {
             _at.clear_error();
             socket_close_impl(i);
         }
@@ -131,16 +130,6 @@ nsapi_error_t GEMALTO_CINTERION_CellularStack::socket_stack_init()
     }
     _at.unlock();
     return err;
-}
-
-int GEMALTO_CINTERION_CellularStack::get_max_socket_count()
-{
-    return SOCKET_MAX;
-}
-
-bool GEMALTO_CINTERION_CellularStack::is_protocol_supported(nsapi_protocol_t protocol)
-{
-    return (protocol == NSAPI_UDP || protocol == NSAPI_TCP);
 }
 
 nsapi_error_t GEMALTO_CINTERION_CellularStack::socket_close_impl(int sock_id)

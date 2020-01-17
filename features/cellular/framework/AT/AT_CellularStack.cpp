@@ -25,7 +25,7 @@ using namespace mbed_cellular_util;
 using namespace mbed;
 
 AT_CellularStack::AT_CellularStack(ATHandler &at, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
-    _socket(NULL), _socket_count(0), _cid(cid),
+    _socket(NULL), _cid(cid),
     _stack_type(stack_type), _ip_ver_sendto(NSAPI_UNSPEC), _at(at), _device(device)
 {
     memset(_ip, 0, PDP_IPV6_SIZE);
@@ -33,22 +33,24 @@ AT_CellularStack::AT_CellularStack(ATHandler &at, int cid, nsapi_ip_stack_t stac
 
 AT_CellularStack::~AT_CellularStack()
 {
-    for (int i = 0; i < _socket_count; i++) {
-        if (_socket[i]) {
-            delete _socket[i];
-            _socket[i] = NULL;
+    if (_socket) {
+        for (int i = 0; i < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT); i++) {
+            if (_socket[i]) {
+                delete _socket[i];
+                _socket[i] = NULL;
+            }
         }
+        delete [] _socket;
+        _socket = NULL;
     }
-    _socket_count = 0;
-
-    delete [] _socket;
-    _socket = NULL;
 }
 
 int AT_CellularStack::find_socket_index(nsapi_socket_t handle)
 {
-    int max_socket_count = get_max_socket_count();
-    for (int i = 0; i < max_socket_count; i++) {
+    if (!_socket) {
+        return -1;
+    }
+    for (int i = 0; i < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT); i++) {
         if (_socket[i] == handle) {
             return i;
         }
@@ -158,23 +160,36 @@ nsapi_error_t AT_CellularStack::socket_stack_init()
 
 nsapi_error_t AT_CellularStack::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
 {
-    if (!is_protocol_supported(proto) || !handle) {
+    if (!handle) {
         return NSAPI_ERROR_UNSUPPORTED;
     }
 
-    int max_socket_count = get_max_socket_count();
+    if (proto == NSAPI_UDP) {
+        if (!_device.get_property(AT_CellularDevice::PROPERTY_IP_UDP)) {
+            return NSAPI_ERROR_UNSUPPORTED;
+        }
+    } else if (proto == NSAPI_TCP) {
+        if (!_device.get_property(AT_CellularDevice::PROPERTY_IP_TCP)) {
+            return NSAPI_ERROR_UNSUPPORTED;
+        }
+    } else {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
 
     _socket_mutex.lock();
 
     if (!_socket) {
+        if (_device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT) == 0) {
+            _socket_mutex.unlock();
+            return NSAPI_ERROR_NO_SOCKET;
+        }
         if (socket_stack_init() != NSAPI_ERROR_OK) {
             _socket_mutex.unlock();
             return NSAPI_ERROR_NO_SOCKET;
         }
 
-        _socket = new CellularSocket*[max_socket_count];
-        _socket_count = max_socket_count;
-        for (int i = 0; i < max_socket_count; i++) {
+        _socket = new CellularSocket*[_device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT)];
+        for (int i = 0; i < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT); i++) {
             _socket[i] = 0;
         }
     }
@@ -435,8 +450,7 @@ void AT_CellularStack::socket_attach(nsapi_socket_t handle, void (*callback)(voi
 
 int AT_CellularStack::get_socket_index_by_port(uint16_t port)
 {
-    int max_socket_count = get_max_socket_count();
-    for (int i = 0; i < max_socket_count; i++) {
+    for (int i = 0; i < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT); i++) {
         if (_socket[i]->localAddress.get_port() == port) {
             return i;
         }
@@ -447,7 +461,7 @@ int AT_CellularStack::get_socket_index_by_port(uint16_t port)
 AT_CellularStack::CellularSocket *AT_CellularStack::find_socket(int sock_id)
 {
     CellularSocket *sock = NULL;
-    for (int i = 0; i < _socket_count; i++) {
+    for (int i = 0; i < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT); i++) {
         if (_socket[i] && _socket[i]->id == sock_id) {
             sock = _socket[i];
             break;

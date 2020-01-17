@@ -87,17 +87,6 @@ void RM1000_AT_CellularStack::RUSOCL_URC()
     clear_socket(socket);
 }
 
-int RM1000_AT_CellularStack::get_max_socket_count()
-{
-    tr_debug("RM1000_AT_CellularStack::get_max_socket_count");
-    return RM1000_MAX_SOCKET;
-}
-
-bool RM1000_AT_CellularStack::is_protocol_supported(nsapi_protocol_t protocol)
-{
-    return (protocol == NSAPI_UDP || protocol == NSAPI_TCP);
-}
-
 nsapi_error_t RM1000_AT_CellularStack::create_socket_impl(CellularSocket *socket)
 {
     tr_debug("RM1000_AT_CellularStack::create_socket_impl");
@@ -109,7 +98,7 @@ nsapi_error_t RM1000_AT_CellularStack::create_socket_impl(CellularSocket *socket
         err = _at.at_cmd_int("+RSOCR", "=0", sock_id);
     } else if (socket->proto == NSAPI_TCP) {
         err = _at.at_cmd_int("+RSOCR", "=1", sock_id);
-    } // Unsupported protocol is checked in "is_protocol_supported" function
+    } // Unsupported protocol is checked in socket_open()
 
     if ((err != NSAPI_ERROR_OK) || (sock_id == -1)) {
         tr_error("RM1000_AT_CellularStack::create_socket_impl error sock_id=%d err=%d", sock_id, err);
@@ -117,7 +106,7 @@ nsapi_error_t RM1000_AT_CellularStack::create_socket_impl(CellularSocket *socket
     }
 
     // Check for duplicate socket id delivered by modem
-    for (int i = 0; i < RM1000_MAX_SOCKET; i++) {
+    for (int i = 0; i < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT); i++) {
         CellularSocket *sock = _socket[i];
         if (sock && sock != socket && sock->id == sock_id) {
             return NSAPI_ERROR_NO_SOCKET;

@@ -95,7 +95,7 @@ void QUECTEL_BC95_CellularStack::urc_nsonmi()
 {
     int sock_id = _at.read_int();
 
-    for (int i = 0; i < get_max_socket_count(); i++) {
+    for (int i = 0; i < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT); i++) {
         CellularSocket *sock = _socket[i];
         if (sock && sock->id == sock_id) {
             if (sock->_cb) {
@@ -127,16 +127,6 @@ void QUECTEL_BC95_CellularStack::urc_nsocli()
     }
 }
 
-
-int QUECTEL_BC95_CellularStack::get_max_socket_count()
-{
-    return BC95_SOCKET_MAX;
-}
-
-bool QUECTEL_BC95_CellularStack::is_protocol_supported(nsapi_protocol_t protocol)
-{
-    return (protocol == NSAPI_UDP || protocol == NSAPI_TCP);
-}
 
 nsapi_error_t QUECTEL_BC95_CellularStack::socket_close_impl(int sock_id)
 {
@@ -308,7 +298,7 @@ void QUECTEL_BC95_CellularStack::txfull_event_timeout()
 {
     _socket_mutex.lock();
     _txfull_event_id = 0;
-    for (int i = 0; i < get_max_socket_count(); i++) {
+    for (int i = 0; i < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT); i++) {
         CellularSocket *sock = _socket[i];
         if (sock && sock->_cb && sock->txfull_event) {
             sock->txfull_event = false;

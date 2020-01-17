@@ -107,16 +107,6 @@ void UBLOX_AT_CellularStack::UUPSDD_URC()
     clear_socket(socket);
 }
 
-int UBLOX_AT_CellularStack::get_max_socket_count()
-{
-    return UBLOX_MAX_SOCKET;
-}
-
-bool UBLOX_AT_CellularStack::is_protocol_supported(nsapi_protocol_t protocol)
-{
-    return (protocol == NSAPI_UDP || protocol == NSAPI_TCP);
-}
-
 nsapi_error_t UBLOX_AT_CellularStack::create_socket_impl(CellularSocket *socket)
 {
     int sock_id = SOCKET_UNUSED;
@@ -126,14 +116,14 @@ nsapi_error_t UBLOX_AT_CellularStack::create_socket_impl(CellularSocket *socket)
         err = _at.at_cmd_int("+USOCR", "=17", sock_id);
     } else if (socket->proto == NSAPI_TCP) {
         err = _at.at_cmd_int("+USOCR", "=6", sock_id);
-    } // Unsupported protocol is checked in "is_protocol_supported" function
+    } // Unsupported protocol is checked in socket_open()
 
     if ((err != NSAPI_ERROR_OK) || (sock_id == -1)) {
         return NSAPI_ERROR_NO_SOCKET;
     }
 
     // Check for duplicate socket id delivered by modem
-    for (int i = 0; i < UBLOX_MAX_SOCKET; i++) {
+    for (int i = 0; i < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT); i++) {
         CellularSocket *sock = _socket[i];
         if (sock && sock != socket && sock->id == sock_id) {
             return NSAPI_ERROR_NO_SOCKET;
@@ -378,7 +368,7 @@ UBLOX_AT_CellularStack::CellularSocket *UBLOX_AT_CellularStack::find_socket(int 
 {
     CellularSocket *socket = NULL;
 
-    for (unsigned int x = 0; (socket == NULL) && (x < UBLOX_MAX_SOCKET); x++) {
+    for (unsigned int x = 0; (socket == NULL) && (x < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT)); x++) {
         if (_socket) {
             if (_socket[x]->id == id) {
                 socket = (_socket[x]);

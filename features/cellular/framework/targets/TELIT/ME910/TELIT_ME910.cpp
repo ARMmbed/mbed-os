@@ -59,10 +59,11 @@ static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     0,  // PROPERTY_NON_IP_PDP_TYPE
     1,  // PROPERTY_AT_CGEREP
     1,  // PROPERTY_AT_COPS_FALLBACK_AUTO
+    0,  // PROPERTY_SOCKET_COUNT
+    0,  // PROPERTY_IP_TCP
+    0,  // PROPERTY_IP_UDP
+    20, // PROPERTY_AT_SEND_DELAY
 };
-
-//the delay between sending AT commands
-static const uint16_t DEFAULT_DELAY_BETWEEN_AT_COMMANDS = 20;
 
 TELIT_ME910::TELIT_ME910(FileHandle *fh, PinName pwr, bool active_high)
     : AT_CellularDevice(fh),
@@ -75,12 +76,6 @@ TELIT_ME910::TELIT_ME910(FileHandle *fh, PinName pwr, bool active_high)
 AT_CellularContext *TELIT_ME910::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
 {
     return new TELIT_ME910_CellularContext(at, this, apn, cp_req, nonip_req);
-}
-
-
-uint16_t TELIT_ME910::get_send_delay() const
-{
-    return DEFAULT_DELAY_BETWEEN_AT_COMMANDS;
 }
 
 nsapi_error_t TELIT_ME910::init()

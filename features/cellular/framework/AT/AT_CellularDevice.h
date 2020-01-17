@@ -58,7 +58,10 @@ public:
         PROPERTY_NON_IP_PDP_TYPE,       // 0 = not supported, 1 = supported. Does modem support Non-IP?
         PROPERTY_AT_CGEREP,             // 0 = not supported, 1 = supported. Does modem support AT command AT+CGEREP.
         PROPERTY_AT_COPS_FALLBACK_AUTO, // 0 = not supported, 1 = supported. Does modem support mode 4 of AT+COPS= ?
-
+        PROPERTY_SOCKET_COUNT,          // The number of sockets of modem IP stack
+        PROPERTY_IP_TCP,                // 0 = not supported, 1 = supported. Modem IP stack has support for TCP
+        PROPERTY_IP_UDP,                // 0 = not supported, 1 = supported. Modem IP stack has support for TCP
+        PROPERTY_AT_SEND_DELAY,         // Sending delay between AT commands in ms
         PROPERTY_MAX
     };
 
@@ -97,8 +100,6 @@ public:
     virtual void close_information();
 
     virtual void set_timeout(int timeout);
-
-    virtual uint16_t get_send_delay() const;
 
     virtual void modem_debug_on(bool on);
 

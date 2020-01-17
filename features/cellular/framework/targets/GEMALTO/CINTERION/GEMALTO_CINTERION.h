@@ -52,7 +52,6 @@ protected: // AT_CellularDevice
     virtual AT_CellularInformation *open_information_impl(ATHandler &at);
 
 protected:
-    virtual uint16_t get_send_delay() const;
     virtual nsapi_error_t init();
 
 private:

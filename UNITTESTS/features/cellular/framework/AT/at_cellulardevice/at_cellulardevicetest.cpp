@@ -257,13 +257,6 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_set_power_save_mode)
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == dev.set_power_save_mode(0));
 }
 
-TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_get_send_delay)
-{
-    FileHandle_stub fh1;
-    AT_CellularDevice dev(&fh1);
-    EXPECT_TRUE(0 == dev.get_send_delay());
-}
-
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_create_delete_context)
 {
     FileHandle_stub fh1;

@@ -31,6 +31,7 @@ int AT_CellularDevice_stub::set_pin_failure_count = 0;
 int AT_CellularDevice_stub::get_sim_failure_count = 0;
 bool AT_CellularDevice_stub::pin_needed = false;
 bool AT_CellularDevice_stub::supported_bool = false;
+int AT_CellularDevice_stub::max_sock_value = 0;
 
 AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh),
 #if MBED_CONF_CELLULAR_USE_SMS
@@ -48,7 +49,7 @@ AT_CellularDevice::~AT_CellularDevice()
 
 ATHandler *AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
 {
-    return ATHandler::get_instance(fileHandle, _queue, _default_timeout, "\r", get_send_delay(), _modem_debug_on);
+    return ATHandler::get_instance(fileHandle, _queue, _default_timeout, "\r", get_property(AT_CellularDevice::PROPERTY_AT_SEND_DELAY), _modem_debug_on);
 }
 
 ATHandler *AT_CellularDevice::get_at_handler()
@@ -87,7 +88,7 @@ CellularNetwork *AT_CellularDevice::open_network(FileHandle *fh)
                                                                _queue,
                                                                _default_timeout,
                                                                "\r",
-                                                               get_send_delay(),
+                                                               get_property(AT_CellularDevice::PROPERTY_AT_SEND_DELAY),
                                                                _modem_debug_on), *this);
     return _network;
 }
@@ -161,11 +162,6 @@ AT_CellularInformation *AT_CellularDevice::open_information_impl(ATHandler &at)
 void AT_CellularDevice::set_timeout(int timeout)
 {
     _default_timeout = timeout;
-}
-
-uint16_t AT_CellularDevice::get_send_delay() const
-{
-    return 0;
 }
 
 void AT_CellularDevice::modem_debug_on(bool on)
@@ -293,6 +289,8 @@ intptr_t AT_CellularDevice::get_property(CellularProperty key)
         return true;
     } else if (key == PROPERTY_IPV4_PDP_TYPE) {
         return true;
+    } else if (key == PROPERTY_SOCKET_COUNT) {
+        return AT_CellularDevice_stub::max_sock_value;
     }
 
     return AT_CellularDevice_stub::supported_bool;
