@@ -511,7 +511,9 @@ class Config(object):
             resolver = RefResolver(uri, schema)
             validator = Draft4Validator(schema, resolver=resolver)
 
-            errors = sorted(validator.iter_errors(self.app_config_data))
+            errors = sorted(
+                validator.iter_errors(self.app_config_data), key=str
+            )
 
             if errors:
                 raise ConfigException("; ".join(
@@ -583,7 +585,7 @@ class Config(object):
             resolver = RefResolver(uri, schema_file)
             validator = Draft4Validator(schema_file, resolver=resolver)
 
-            errors = sorted(validator.iter_errors(cfg))
+            errors = sorted(validator.iter_errors(cfg), key=str)
 
             if errors:
                 raise ConfigException("; ".join(
