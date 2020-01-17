@@ -23,7 +23,7 @@
 #include "ATHandler.h"
 
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
-#include "UARTSerial.h"
+#include "drivers/BufferedSerial.h"
 #endif // #if DEVICE_SERIAL
 
 #ifdef MBED_CONF_RTOS_PRESENT
@@ -237,9 +237,9 @@ public: //Pure virtual functions
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
     /** Creates a new CellularContext interface. This API should be used if serial is UART and PPP mode used.
      *  CellularContext created will use data carrier detect to be able to detect disconnection much faster in PPP mode.
-     *  UARTSerial usually is the same which was given for the CellularDevice.
+     *  BufferedSerial usually is the same which was given for the CellularDevice.
      *
-     *  @param serial       UARTSerial used in communication to modem. If null then the default file handle is used.
+     *  @param serial       BufferedSerial used in communication to modem. If null then the default file handle is used.
      *  @param apn          access point to use with context, can be null.
      *  @param dcd_pin      Pin used to set data carrier detect on/off for the given UART
      *  @param active_high  a boolean set to true if DCD polarity is active low
@@ -249,7 +249,7 @@ public: //Pure virtual functions
      *  @return         new instance of class CellularContext or NULL in case of failure
      *
      */
-    virtual CellularContext *create_context(UARTSerial *serial, const char *apn, PinName dcd_pin = NC,
+    virtual CellularContext *create_context(BufferedSerial *serial, const char *apn, PinName dcd_pin = NC,
                                             bool active_high = false, bool cp_req = false, bool nonip_req = false) = 0;
 #endif // #if DEVICE_SERIAL
 

@@ -35,7 +35,7 @@ MBED_WEAK CellularContext *CellularContext::get_default_instance()
     static CellularContext *context = dev->create_context(NULL, NULL, MBED_CONF_CELLULAR_CONTROL_PLANE_OPT);
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
 #if defined(MDMDCD) && defined(MDM_PIN_POLARITY)
-    context->set_file_handle(static_cast<UARTSerial *>(&dev->get_file_handle()), MDMDCD, MDM_PIN_POLARITY);
+    context->set_file_handle(static_cast<BufferedSerial *>(&dev->get_file_handle()), MDMDCD, MDM_PIN_POLARITY);
 #endif // #if defined(MDMDCD) && defined(MDM_PIN_POLARITY)
 #endif // #if DEVICE_SERIAL
     return context;
@@ -52,7 +52,7 @@ MBED_WEAK CellularContext *CellularContext::get_default_nonip_instance()
     static CellularContext *context = dev->create_context(NULL, NULL, MBED_CONF_CELLULAR_CONTROL_PLANE_OPT, true);
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
 #if defined(MDMDCD) && defined(MDM_PIN_POLARITY)
-    context->set_file_handle(static_cast<UARTSerial *>(&dev->get_file_handle()), MDMDCD, MDM_PIN_POLARITY);
+    context->set_file_handle(static_cast<BufferedSerial *>(&dev->get_file_handle()), MDMDCD, MDM_PIN_POLARITY);
 #endif // #if defined(MDMDCD) && defined(MDM_PIN_POLARITY)
 #endif // #if DEVICE_SERIAL
     return context;

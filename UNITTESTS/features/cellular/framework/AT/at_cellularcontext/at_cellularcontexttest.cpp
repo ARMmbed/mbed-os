@@ -531,7 +531,7 @@ TEST_F(TestAT_CellularContext, set_file_handle)
     AT_CellularContext ctx(at, &dev);
     ctx.set_file_handle(&fh1);
 
-    UARTSerial ss(NC, NC);
+    BufferedSerial ss(NC, NC);
 
     ctx.set_file_handle(&ss, PTC0, true);
     ctx.enable_hup(true);

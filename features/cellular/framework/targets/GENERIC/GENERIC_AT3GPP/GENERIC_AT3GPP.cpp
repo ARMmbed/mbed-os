@@ -46,10 +46,10 @@ GENERIC_AT3GPP::GENERIC_AT3GPP(FileHandle *fh) : AT_CellularDevice(fh)
 }
 
 #if MBED_CONF_GENERIC_AT3GPP_PROVIDE_DEFAULT
-#include "UARTSerial.h"
+#include "drivers/BufferedSerial.h"
 CellularDevice *CellularDevice::get_default_instance()
 {
-    static UARTSerial serial(MBED_CONF_GENERIC_AT3GPP_TX, MBED_CONF_GENERIC_AT3GPP_RX, MBED_CONF_GENERIC_AT3GPP_BAUDRATE);
+    static BufferedSerial serial(MBED_CONF_GENERIC_AT3GPP_TX, MBED_CONF_GENERIC_AT3GPP_RX, MBED_CONF_GENERIC_AT3GPP_BAUDRATE);
 #if defined (MBED_CONF_GENERIC_AT3GPP_RTS) && defined(MBED_CONF_GENERIC_AT3GPP_CTS)
     tr_debug("GENERIC_AT3GPP flow control: RTS %d CTS %d", MBED_CONF_GENERIC_AT3GPP_RTS, MBED_CONF_GENERIC_AT3GPP_CTS);
     serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_GENERIC_AT3GPP_RTS, MBED_CONF_GENERIC_AT3GPP_CTS);

@@ -39,7 +39,7 @@ public:
         }
     }
 
-    void set_file_handle(UARTSerial *serial, PinName dcd_pin, bool active_high)
+    void set_file_handle(BufferedSerial *serial, PinName dcd_pin, bool active_high)
     {
     };
 

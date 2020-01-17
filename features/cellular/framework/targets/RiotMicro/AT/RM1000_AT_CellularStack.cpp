@@ -69,7 +69,7 @@ void RM1000_AT_CellularStack::RUSORCV_URC()
     if (socket != NULL) {
         socket->pending_bytes = b;
         // No debug prints here as they can affect timing
-        // and cause data loss in UARTSerial
+        // and cause data loss in BufferedSerial
         if (socket->_cb != NULL) {
             socket->_cb(socket->_data);
         }

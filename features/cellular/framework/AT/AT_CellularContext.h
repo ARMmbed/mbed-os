@@ -64,7 +64,7 @@ public:
     virtual nsapi_error_t attach_to_network();
     virtual void set_file_handle(FileHandle *fh);
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
-    virtual void set_file_handle(UARTSerial *serial, PinName dcd_pin = NC, bool active_high = false);
+    virtual void set_file_handle(BufferedSerial *serial, PinName dcd_pin = NC, bool active_high = false);
 #endif // #if DEVICE_SERIAL
     virtual void enable_hup(bool enable);
 

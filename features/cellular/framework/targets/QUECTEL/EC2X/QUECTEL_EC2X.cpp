@@ -20,7 +20,7 @@
 #include "PinNames.h"
 #include "AT_CellularNetwork.h"
 #include "rtos/ThisThread.h"
-#include "UARTSerial.h"
+#include "drivers/BufferedSerial.h"
 
 using namespace mbed;
 using namespace rtos;
@@ -77,9 +77,9 @@ QUECTEL_EC2X::QUECTEL_EC2X(FileHandle *fh, PinName pwr, bool active_high, PinNam
 #if MBED_CONF_QUECTEL_EC2X_PROVIDE_DEFAULT
 CellularDevice *CellularDevice::get_default_instance()
 {
-    static UARTSerial serial(MBED_CONF_QUECTEL_EC2X_TX,
-                             MBED_CONF_QUECTEL_EC2X_RX,
-                             MBED_CONF_QUECTEL_EC2X_BAUDRATE);
+    static BufferedSerial serial(MBED_CONF_QUECTEL_EC2X_TX,
+                                 MBED_CONF_QUECTEL_EC2X_RX,
+                                 MBED_CONF_QUECTEL_EC2X_BAUDRATE);
 #if defined(MBED_CONF_QUECTEL_EC2X_RTS) && defined(MBED_CONF_QUECTEL_EC2X_CTS)
     serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_QUECTEL_EC2X_RTS, MBED_CONF_QUECTEL_EC2X_CTS);
 #endif

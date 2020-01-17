@@ -56,10 +56,10 @@ AT_CellularContext *QUECTEL_UG96::create_context_impl(ATHandler &at, const char 
 }
 
 #if MBED_CONF_QUECTEL_UG96_PROVIDE_DEFAULT
-#include "UARTSerial.h"
+#include "drivers/BufferedSerial.h"
 CellularDevice *CellularDevice::get_default_instance()
 {
-    static UARTSerial serial(MBED_CONF_QUECTEL_UG96_TX, MBED_CONF_QUECTEL_UG96_RX, MBED_CONF_QUECTEL_UG96_BAUDRATE);
+    static BufferedSerial serial(MBED_CONF_QUECTEL_UG96_TX, MBED_CONF_QUECTEL_UG96_RX, MBED_CONF_QUECTEL_UG96_BAUDRATE);
 #if defined (MBED_CONF_QUECTEL_UG96_RTS) && defined (MBED_CONF_QUECTEL_UG96_CTS)
     tr_debug("QUECTEL_UG96 flow control: RTS %d CTS %d", MBED_CONF_QUECTEL_UG96_RTS, MBED_CONF_QUECTEL_UG96_CTS);
     serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_QUECTEL_UG96_RTS, MBED_CONF_QUECTEL_UG96_CTS);

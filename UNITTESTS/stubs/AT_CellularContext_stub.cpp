@@ -51,7 +51,7 @@ AT_CellularContext::~AT_CellularContext()
 {
 }
 
-void AT_CellularContext::set_file_handle(UARTSerial *serial, PinName dcd_pin, bool active_high)
+void AT_CellularContext::set_file_handle(BufferedSerial *serial, PinName dcd_pin, bool active_high)
 {
 }
 
