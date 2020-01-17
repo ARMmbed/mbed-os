@@ -19,7 +19,9 @@
 
 # Notes: conditions do not check if label is already there if we add or remove later, this is to limit Github API access to
 # minimum. If a label is already there and we add it again, nothing should happen (we do 1 less access to Github).
-# For instance for needs: work if CI failed, we just add a label as action, don't check if needs: works is already there
+# For instance for needs: work if CI failed, we just add a label as action, don't check if needs: works is already there.
+#
+# Reviewers request needs write access to block PR, otherwise it's just a suggestion on Github, not PR block
 
 pull_request_rules:
   # From needs: review to needs: work - reviewers request
@@ -74,12 +76,11 @@ pull_request_rules:
         remove: 
           - "needs: review"
 
-  # From needs: review to needs: CI
+  # From needs: review or needs: work to needs: CI. One approval means we should be good to start CI
   - name: "label needs: CI when at least one reviewers approval"
     conditions:
       - base~=feature-mergify
       # Labels
-      - "label!=needs: work"
       - "label!=needs: preceding PR"
 
       # Reviewers
@@ -88,14 +89,16 @@ pull_request_rules:
 
       # CI green policy, at least Travis should be green
       - status-success~=continuous-integration/travis-ci/pr
-      # new CI needs to be done
-      - status-neutral~=continuous-integration/jenkins/pr-head
+      # new CI needs to be done (neutral does not work, lets check if it failed or passed, if none, we need to run again)
+      - -status-success~=continuous-integration/jenkins/pr-head
+      - -status-failure~=continuous-integration/jenkins/pr-head
     actions:
       label:
         add: 
           - "needs: CI"
         remove: 
           - "needs: review"
+          - "needs: work"
 
   # Conflict in the PR - needs: work and a comment to notify a user
   - name: "label needs: work when there is a conflict"
@@ -126,7 +129,7 @@ pull_request_rules:
     conditions:
       - base~=feature-mergify
       # Labels
-      - label!=do not merge
+      - "label!=do not merge"
       - "label=needs: CI"
 
       # Reviewers
@@ -137,12 +140,12 @@ pull_request_rules:
       - status-success~=continuous-integration/travis-ci/pr
       # Internal Jenkins - we rely on PR head to provide status
       - status-success~=continuous-integration/jenkins/pr-head
-      # any of the jenkins pipeline needs to be green
-      - status-success~=^jenkins-ci
+      # any of the jenkins pipeline needs to be green. We rely on not failure means all good (if skipped or executed) 
+      - -status-failure~=^jenkins-ci
     actions:
       label:
         add: 
-          - ready for merge
+          - "ready for merge"
         remove: 
           - "needs: CI"
 
@@ -151,11 +154,11 @@ pull_request_rules:
     conditions:
       - base~=feature-mergify
       - merged
-      - label=ready for merge
+      - "label=ready for merge"
     actions:
       label:
         remove:
-          - ready for merge
+          - "ready for merge"
 
   - name: add "do not merge" label when WIP is in title
     conditions:
@@ -164,7 +167,7 @@ pull_request_rules:
     actions:
       label:
         add:
-          - do not merge
+          - "do not merge"
 
   # Check if version label is applied
   - name: release version is a must for merged PRs
@@ -175,7 +178,7 @@ pull_request_rules:
     actions:
       label:
         add:
-          - Release review required
+          - "Release review required"
       comment:
         message: This PR does not contain release version label after merging.
 
