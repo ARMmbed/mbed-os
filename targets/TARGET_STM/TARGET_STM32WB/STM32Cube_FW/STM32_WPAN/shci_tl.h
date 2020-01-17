@@ -1,21 +1,21 @@
 /**
-  ******************************************************************************
-  * @file    shci_tl.h
-  * @author  MCD Application Team
-  * @brief   System HCI command header for the system channel
-  ******************************************************************************
+ ******************************************************************************
+ * @file    shci_tl.h
+ * @author  MCD Application Team
+ * @brief   System HCI command header for the system channel
+ ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
+  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics. 
   * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
+  * the "License"; You may not use this file except in compliance with the 
   * License. You may obtain a copy of the License at:
   *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
-  */
+ */
 
 
 #ifndef __SHCI_TL_H_
@@ -85,10 +85,13 @@ typedef struct
   * shci_send
   * @brief  Send an System HCI Command
   *
-  * @param : None
+  * @param : cmd_code = Opcode of the command
+  * @param : len_cmd_payload = Length of the command payload
+  * @param : p_cmd_payload = Address of the command payload
+  * @param : p_rsp_status = Address of the full buffer holding the command complete event
   * @retval : None
   */
-void shci_send( TL_CmdPacket_t * p_cmd, TL_EvtPacket_t * p_rsp );
+void shci_send( uint16_t cmd_code, uint8_t len_cmd_payload, uint8_t * p_cmd_payload, TL_EvtPacket_t * p_rsp_status );
  
 /**
  * @brief  Register IO bus services.
