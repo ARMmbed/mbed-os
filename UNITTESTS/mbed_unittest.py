@@ -104,7 +104,6 @@ def _mbed_unittest_test(options, cwd, pwd):
 
             cov_api.generate_reports(outputs=outputs,
                                      excludes=excludes,
-                                     filter_regex=options.test_regex,
                                      build_path=options.build)
 
 def _mbed_unittest_new(options, pwd):
