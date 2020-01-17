@@ -44,6 +44,48 @@ defined in linker script */
 .word	_sbss
 /* end address for the .bss section. defined in linker script */
 .word	_ebss
+/* start address for the .MB_MEM2 section. defined in linker script */
+.word _sMB_MEM2
+/* end address for the .MB_MEM2 section. defined in linker script */
+.word _eMB_MEM2
+
+/* INIT_BSS macro is used to fill the specified region [start : end] with zeros */
+.macro INIT_BSS start, end
+  ldr r0, =\start
+  ldr r1, =\end
+  movs r3, #0
+  bl LoopFillZerobss
+.endm
+
+/* INIT_DATA macro is used to copy data in the region [start : end] starting from 'src' */
+.macro INIT_DATA start, end, src
+  ldr r0, =\start
+  ldr r1, =\end
+  ldr r2, =\src
+  movs r3, #0
+  bl LoopCopyDataInit
+.endm
+
+.section  .text.data_initializers
+CopyDataInit:
+  ldr r4, [r2, r3]
+  str r4, [r0, r3]
+  adds r3, r3, #4
+
+LoopCopyDataInit:
+  adds r4, r0, r3
+  cmp r4, r1
+  bcc  CopyDataInit
+  bx lr
+
+FillZerobss:
+  str  r3, [r0]
+  adds r0, r0, #4
+
+LoopFillZerobss:
+  cmp r0, r1
+  bcc FillZerobss
+  bx lr
 
   .section .text.Reset_Handler
   .weak Reset_Handler
@@ -53,35 +95,11 @@ Reset_Handler:
   mov   sp, r0          /* set stack pointer */
 
 /* Copy the data segment initializers from flash to SRAM */
-  ldr r0, =_sdata
-  ldr r1, =_edata
-  ldr r2, =_sidata
-  movs r3, #0
-  b	LoopCopyDataInit
+  INIT_DATA _sdata, _edata, _sidata
 
-CopyDataInit:
-  ldr r4, [r2, r3]
-  str r4, [r0, r3]
-  adds r3, r3, #4
-
-LoopCopyDataInit:
-  adds r4, r0, r3
-  cmp r4, r1
-  bcc CopyDataInit
-  
-/* Zero fill the bss segment. */
-  ldr r2, =_sbss
-  ldr r4, =_ebss
-  movs r3, #0
-  b LoopFillZerobss
-
-FillZerobss:
-  str  r3, [r2]
-  adds r2, r2, #4
-
-LoopFillZerobss:
-  cmp r2, r4
-  bcc FillZerobss
+/* Zero fill the bss segments. */
+  INIT_BSS _sbss, _ebss
+  INIT_BSS _sMB_MEM2, _eMB_MEM2
 
 /* Call the clock system intitialization function.*/
   bl  SystemInit

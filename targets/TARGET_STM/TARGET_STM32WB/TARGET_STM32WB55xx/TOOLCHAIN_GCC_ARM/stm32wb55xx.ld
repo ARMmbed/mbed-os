@@ -206,7 +206,9 @@ SECTIONS
 
     .ble_shared_no_ret (NOLOAD) :
     {
+      _sMB_MEM2 = . ;
       *(MB_MEM2);
+      _eMB_MEM2 = . ;
     } >RAM2b
 
     /* Set stack top to end of RAM, and stack limit move down by
