@@ -23,7 +23,7 @@
 #include "platform/mbed_thread.h"
 #include "PinNames.h"
 
-#include "UARTSerial.h"
+#include "drivers/BufferedSerial.h"
 #include "CellularLog.h"
 
 using namespace mbed;
@@ -77,7 +77,7 @@ void ONBOARD_UBLOX_PPP::press_power_button(int time_ms)
 
 CellularDevice *CellularDevice::get_target_default_instance()
 {
-    static UARTSerial serial(MDMTXD, MDMRXD, 115200);
+    static BufferedSerial serial(MDMTXD, MDMRXD, 115200);
 #if DEVICE_SERIAL_FC
     if (MDMRTS != NC && MDMCTS != NC) {
         tr_debug("Modem flow control: RTS %d CTS %d", MDMRTS, MDMCTS);
