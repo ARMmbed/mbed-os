@@ -452,10 +452,32 @@ MBED_WEAK const PinMap PinMap_SPI_CS[] = {
 #endif
     {NC  , NC   , NC}
 };
+#endif
 
+#if DEVICE_SERIAL
 /************UART**************/
 MBED_WEAK const PinMap PinMap_UART_TX[] = {
+#ifdef UART0_BASE
+    /* UART0 */
+    {PF6,  UART_0, 0},
+    {PE0,  UART_0, 1},
+    {PA3,  UART_0, 2},
+    {PC14, UART_0, 3},
+    {PC4,  UART_0, 4},
+    {PF1,  UART_0, 5},
+    {PD7,  UART_0, 6},
+#endif
+#ifdef UART1_BASE
+    /* UART1 */
+    {PC12, UART_1, 0},
+    {PF10, UART_1, 1},
+    {PB9,  UART_1, 2},
+    {PE2,  UART_1, 3},
+    {PE12, UART_1, 4},
+    {PH11, UART_1, 5},
+#endif
 #ifdef USART0_BASE
+    /* USART0 */
     {PE10, USART_0, 0},
     {PE7,  USART_0, 1},
     {PC11, USART_0, 2},
@@ -507,13 +529,49 @@ MBED_WEAK const PinMap PinMap_UART_TX[] = {
     {PF15, USART_5, 2},
     {PH10, USART_5, 3},
 #endif
+#ifdef LEUART0_BASE
+    /* LEUART0 */
+    {PD4,  LEUART_0, 0},
+    {PB13, LEUART_0, 1},
+    {PE14, LEUART_0, 2},
+    {PF0,  LEUART_0, 3},
+    {PF2,  LEUART_0, 4},
+    {PC14, LEUART_0, 5},
+#endif
+#ifdef LEUART1_BASE
+    /* LEUART1 */
+    {PC6,  LEUART_1, 0},
+    {PA5,  LEUART_1, 1},
+    {PD2,  LEUART_1, 2},
+    {PB0,  LEUART_1, 3},
+    {PB4,  LEUART_1, 4},
+    {PH0,  LEUART_1, 5},
+#endif
     {NC  , NC   , NC}
 };
-#endif
 
-#if DEVICE_SERIAL
 MBED_WEAK const PinMap PinMap_UART_RX[] = {
+#ifdef UART0_BASE
+    /* UART0 */
+    {PF7,  UART_0, 0},
+    {PE1,  UART_0, 1},
+    {PA4,  UART_0, 2},
+    {PC15, UART_0, 3},
+    {PC5,  UART_0, 4},
+    {PF2,  UART_0, 5},
+    {PE4,  UART_0, 6},
+#endif
+#ifdef UART1_BASE
+    /* UART1 */
+    {PC13, UART_1, 0},
+    {PF11, UART_1, 1},
+    {PB10, UART_1, 2},
+    {PE3,  UART_1, 3},
+    {PE13, UART_1, 4},
+    {PH12, UART_1, 5},
+#endif
 #ifdef USART0_BASE
+    /* USART0 */
     {PE11, USART_0,  0},
     {PE6,  USART_0,  1},
     {PC10, USART_0,  2},
@@ -564,6 +622,24 @@ MBED_WEAK const PinMap PinMap_UART_RX[] = {
     {PA7,  USART_5, 1},
     {PB1,  USART_5, 2},
     {PH11, USART_5, 3},
+#endif
+#ifdef LEUART0_BASE
+    /* LEUART0 */
+    {PD5,  LEUART_0, 0},
+    {PB14, LEUART_0, 1},
+    {PE15, LEUART_0, 2},
+    {PF1,  LEUART_0, 3},
+    {PA0,  LEUART_0, 4},
+    {PC15, LEUART_0, 5},
+#endif
+#ifdef LEUART1_BASE
+    /* LEUART1 */
+    {PC7,  LEUART_1, 0},
+    {PA6,  LEUART_1, 1},
+    {PD3,  LEUART_1, 2},
+    {PB1,  LEUART_1, 3},
+    {PB5,  LEUART_1, 4},
+    {PH1,  LEUART_1, 5},
 #endif
     {NC  , NC   , NC}
 };
