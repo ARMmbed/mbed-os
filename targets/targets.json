@@ -12544,7 +12544,6 @@
         "OUTPUT_EXT": "hex",
         "macros": [
             "MBED_FAULT_HANDLER_DISABLED",
-            "MBED_TZ_DEFAULT_ACCESS=1",
             "LPTICKER_DELAY_TICKS=4"
         ],
         "is_disk_virtual": true,
@@ -12683,7 +12682,6 @@
             "NU_PREBUILD_SECURE"
         ],
         "macros_add": [
-            "MBED_TZ_DEFAULT_ACCESS=1",
             "CMSIS_NVIC_VIRTUAL",
             "MBEDTLS_PSA_CRYPTO_C"
         ],
