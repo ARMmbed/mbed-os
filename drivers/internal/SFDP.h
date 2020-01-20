@@ -28,22 +28,22 @@ static const int SFDP_BASIC_PARAMS_TBL_SIZE = 80; ///< Basic Parameter Table siz
 
 /** SFDP Parameter Table addresses and sizes */
 struct sfdp_hdr_info {
-    uint32_t basic_table_addr;
-    size_t basic_table_size;
-    uint32_t sector_map_table_addr;
-    size_t sector_map_table_size;
+    uint32_t basic_table_addr; // Basic Parameter Table address
+    size_t basic_table_size;  // Basic Parameter Table size
+    uint32_t sector_map_table_addr; // Sector Map Parameter Table address
+    size_t sector_map_table_size; // Sector Map Parameter Table size
 };
 
 /** SFDP Header */
 struct sfdp_hdr {
-    uint8_t SIG_B0;
-    uint8_t SIG_B1;
-    uint8_t SIG_B2;
-    uint8_t SIG_B3;
-    uint8_t R_MINOR;
-    uint8_t R_MAJOR;
-    uint8_t NPH;
-    uint8_t ACP;
+    uint8_t SIG_B0; // SFDP Signature, Byte 0
+    uint8_t SIG_B1; // SFDP Signature, Byte 1
+    uint8_t SIG_B2; // SFDP Signature, Byte 2
+    uint8_t SIG_B3; // SFDP Signature, Byte 3
+    uint8_t R_MINOR; // SFDP Minor Revision
+    uint8_t R_MAJOR; // SFDP Major Revision
+    uint8_t NPH; // Number of parameter headers (0-based, 0 indicates 1 parameter header)
+    uint8_t ACP; // SFDP Access Protocol
 };
 
 /** SFDP Parameter header */
@@ -51,12 +51,12 @@ struct sfdp_prm_hdr {
     uint8_t PID_LSB; // Parameter ID LSB
     uint8_t P_MINOR; // Parameter Minor Revision
     uint8_t P_MAJOR; // Parameter Major Revision
-    uint8_t P_LEN;   // Parameter length in DWORDS(64bits)
+    uint8_t P_LEN;   // Parameter length in DWORDS
     uint32_t DWORD2; // Parameter ID MSB + Parameter Table Pointer
 };
 
 /** Parse SFDP Header
- * @param Pointer to memory holding an SFDP header
+ * @param sfdp_hdr_ptr Pointer to memory holding an SFDP header
  * @return Number of Parameter Headers on success, -1 on failure
  */
 int sfdp_parse_sfdp_header(sfdp_hdr *sfdp_hdr_ptr);
