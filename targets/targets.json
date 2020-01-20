@@ -6975,8 +6975,6 @@
     },
     "MTB_UBLOX_ODIN_W2": {
         "inherits": ["MODULE_UBLOX_ODIN_W2"],
-        "device_has_remove": ["LPTICKER"],
-        "features_remove": ["BLE"],
         "overrides": {"lse_available": 0},
         "release_versions": ["5"]
     },
