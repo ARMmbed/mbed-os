@@ -99,6 +99,15 @@ pull_request_rules:
           - "needs: review"
           - "needs: work"
 
+  # Remove reviews after the branch is updated. This yet does not allow
+  # any other action like labels, etc. See mergify-engine/issues/360
+  - name: remove outdated reviews
+    conditions: []
+    actions:
+      dismiss_reviews:
+        approved: True
+        changes_requested: True
+
   # Conflict in the PR - needs: work and a comment to notify a user
   - name: "label needs: work when there is a conflict"
     conditions:
