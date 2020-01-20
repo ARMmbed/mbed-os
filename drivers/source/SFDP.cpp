@@ -25,20 +25,22 @@
 #include "mbed_trace.h"
 #define TRACE_GROUP "SFDP"
 
-namespace mbed {
+namespace {
 
 /* Extracts Parameter ID MSB from the second DWORD of a parameter header */
-static inline uint8_t sfdp_get_param_id_msb(uint32_t dword2)
+inline uint8_t sfdp_get_param_id_msb(uint32_t dword2)
 {
     return (dword2 & 0xFF000000) >> 24;
 }
 
 /* Extracts Parameter Table Pointer from the second DWORD of a parameter header */
-static inline uint32_t sfdp_get_param_tbl_ptr(uint32_t dword2)
+inline uint32_t sfdp_get_param_tbl_ptr(uint32_t dword2)
 {
     return dword2 & 0x00FFFFFF;
 }
+}
 
+namespace mbed {
 
 /* Verifies SFDP Header and return number of parameter headers */
 int sfdp_parse_sfdp_header(sfdp_hdr *sfdp_hdr_ptr)
