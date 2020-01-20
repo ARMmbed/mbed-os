@@ -1,9 +1,9 @@
 /**
-  ******************************************************************************
+ ******************************************************************************
   * File Name          : app_common.h
-  * Description        : App Common application configuration file for BLE
-  *                      middleWare.
-  ******************************************************************************
+  * Description        : App Common application configuration file for STM32WPAN Middleware.
+  *
+ ******************************************************************************
   * @attention
   *
   * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.

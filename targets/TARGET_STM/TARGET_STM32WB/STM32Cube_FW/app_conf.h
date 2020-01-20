@@ -24,6 +24,7 @@
 
 #include "hw.h"
 #include "hw_conf.h"
+#include "hw_if.h"
 
 /******************************************************************************
  * Transparent Mode Config
@@ -431,6 +432,13 @@ typedef enum
     CFG_LPM_APP,
 } CFG_LPM_Id_t;
 
-#endif /*__APP_CONFIG_H */
+/******************************************************************************
+ * OTP manager
+ ******************************************************************************/
+#define CFG_OTP_BASE_ADDRESS    OTP_AREA_BASE
+
+#define CFG_OTP_END_ADRESS      OTP_AREA_END_ADDR
+
+#endif /*APP_CONF_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
