@@ -31,6 +31,12 @@ public:
     QUECTEL_M26_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device);
     virtual ~QUECTEL_M26_CellularStack();
 
+    /** Initialize
+     *  Must be called immediately after constructor to initialize IP stack on the modem.
+     *  @return NSAPI_ERROR_OK on success
+     */
+    nsapi_error_t socket_stack_init();
+
 protected: // NetworkStack
 
     virtual nsapi_error_t socket_listen(nsapi_socket_t handle, int backlog);
@@ -43,8 +49,6 @@ protected: // NetworkStack
     virtual nsapi_error_t socket_connect(nsapi_socket_t handle, const SocketAddress &address);
 
 protected: // AT_CellularStack
-
-    virtual nsapi_error_t socket_stack_init();
 
     virtual nsapi_error_t socket_close_impl(int sock_id);
 

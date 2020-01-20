@@ -59,13 +59,6 @@ public: // NetworkStack
 protected: // NetworkStack
 
     /**
-     * Modem specific socket stack initialization
-     *
-     *  @return 0 on success
-     */
-    virtual nsapi_error_t socket_stack_init();
-
-    /**
       * Note: Socket_open does not actually open socket on all drivers, but that's deferred until calling `sendto`.
       * The reason is that IP stack implementations are very much modem specific and it's quite common that when a
       * socket is created (via AT commands) it must also be given remote IP address, and that is usually known

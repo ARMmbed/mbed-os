@@ -31,7 +31,7 @@ int AT_CellularDevice_stub::set_pin_failure_count = 0;
 int AT_CellularDevice_stub::get_sim_failure_count = 0;
 bool AT_CellularDevice_stub::pin_needed = false;
 bool AT_CellularDevice_stub::supported_bool = false;
-int AT_CellularDevice_stub::max_sock_value = 0;
+int AT_CellularDevice_stub::max_sock_value = 1;
 
 AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh),
 #if MBED_CONF_CELLULAR_USE_SMS

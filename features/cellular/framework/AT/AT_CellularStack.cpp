@@ -29,20 +29,19 @@ AT_CellularStack::AT_CellularStack(ATHandler &at, int cid, nsapi_ip_stack_t stac
     _stack_type(stack_type), _ip_ver_sendto(NSAPI_UNSPEC), _at(at), _device(device)
 {
     memset(_ip, 0, PDP_IPV6_SIZE);
+
+    MBED_ASSERT(_device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT) > 0);
+    _socket = new CellularSocket *[_device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT)]();
 }
 
 AT_CellularStack::~AT_CellularStack()
 {
-    if (_socket) {
-        for (int i = 0; i < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT); i++) {
-            if (_socket[i]) {
-                delete _socket[i];
-                _socket[i] = NULL;
-            }
+    for (int i = 0; i < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT); i++) {
+        if (_socket[i]) {
+            delete _socket[i];
         }
-        delete [] _socket;
-        _socket = NULL;
     }
+    delete [] _socket;
 }
 
 int AT_CellularStack::find_socket_index(nsapi_socket_t handle)
@@ -153,11 +152,6 @@ void AT_CellularStack::set_cid(int cid)
     _cid = cid;
 }
 
-nsapi_error_t AT_CellularStack::socket_stack_init()
-{
-    return NSAPI_ERROR_OK;
-}
-
 nsapi_error_t AT_CellularStack::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
 {
     if (!handle) {
@@ -177,22 +171,6 @@ nsapi_error_t AT_CellularStack::socket_open(nsapi_socket_t *handle, nsapi_protoc
     }
 
     _socket_mutex.lock();
-
-    if (!_socket) {
-        if (_device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT) == 0) {
-            _socket_mutex.unlock();
-            return NSAPI_ERROR_NO_SOCKET;
-        }
-        if (socket_stack_init() != NSAPI_ERROR_OK) {
-            _socket_mutex.unlock();
-            return NSAPI_ERROR_NO_SOCKET;
-        }
-
-        _socket = new CellularSocket*[_device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT)];
-        for (int i = 0; i < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT); i++) {
-            _socket[i] = 0;
-        }
-    }
 
     int index = find_socket_index(0);
     if (index == -1) {
