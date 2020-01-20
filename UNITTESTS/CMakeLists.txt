@@ -19,6 +19,13 @@ endmacro()
 
 use_cxx14()
 
+
+if (MINGW)
+  # enable PRIx formatting globally
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D__STDC_FORMAT_MACROS")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__STDC_FORMAT_MACROS")
+endif (MINGW)
+
 ####################
 # GTEST
 ####################
