@@ -19,6 +19,7 @@
 #include "drivers/QSPI.h"
 #include "drivers/internal/SFDP.h"
 #include "features/storage/blockdevice/BlockDevice.h"
+#include "platform/Callback.h"
 
 #ifndef MBED_CONF_QSPIF_QSPI_IO0
 #define MBED_CONF_QSPIF_QSPI_IO0 NC
@@ -249,6 +250,11 @@ public:
     virtual const char *get_type() const;
 
 private:
+
+    // SFDP helpers
+    friend int mbed::sfdp_parse_headers(mbed::Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader,
+                                        mbed::sfdp_hdr_info &hdr_info);
+
     // Internal functions
 
 
@@ -280,7 +286,7 @@ private:
                                              mbed::bd_size_t tx_length, const char *rx_buffer, mbed::bd_size_t rx_length);
 
     // Send command to read from the SFDP table
-    qspi_status_t _qspi_send_read_sfdp_command(mbed::bd_addr_t addr, void *rx_buffer, mbed::bd_size_t rx_length);
+    int _qspi_send_read_sfdp_command(mbed::bd_addr_t addr, void *rx_buffer, mbed::bd_size_t rx_length);
 
     // Read the contents of status registers 1 and 2 into a buffer (buffer must have a length of 2)
     qspi_status_t _qspi_read_status_registers(uint8_t *reg_buffer);

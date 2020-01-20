@@ -20,6 +20,8 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "features/storage/blockdevice/BlockDevice.h"
+#include "platform/Callback.h"
 
 namespace mbed {
 
@@ -61,12 +63,22 @@ struct sfdp_prm_hdr {
  */
 int sfdp_parse_sfdp_header(sfdp_hdr *sfdp_hdr_ptr);
 
-/** Parse Parameter Headers
+/** Parse Parameter Header
  * @param parameter_header Pointer to memory holding a single SFDP Parameter header
  * @param hdr_info Reference to a Parameter Table structure where info about the table is written
  * @return 0 on success, -1 on failure
  */
 int sfdp_parse_single_param_header(sfdp_prm_hdr *parameter_header, sfdp_hdr_info &hdr_info);
+
+/** Parse SFDP Headers
+ * Retrieves SFDP headers from a device and parses the information contained by the headers
+ *
+ * @param sfdp_reader Callback function used to read headers from a device
+ * @param hdr_info    All information parsed from the headers gets passed back on this structure
+ *
+ * @return 0 on success, negative error code on failure
+ */
+int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &hdr_info);
 
 } /* namespace mbed */
 #endif

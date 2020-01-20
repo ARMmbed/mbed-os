@@ -83,5 +83,56 @@ int sfdp_parse_single_param_header(sfdp_prm_hdr *phdr, sfdp_hdr_info &hdr_info)
 
     return 0;
 }
+
+int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &hdr_info)
+{
+    bd_addr_t addr = 0x0;
+    int number_of_param_headers = 0;
+    size_t data_length;
+
+    {
+        data_length = SFDP_HEADER_SIZE;
+        uint8_t sfdp_header[SFDP_HEADER_SIZE];
+
+        int status = sfdp_reader(addr, sfdp_header, data_length);
+        if (status < 0) {
+            tr_error("retrieving SFDP Header failed");
+            return -1;
+        }
+
+        number_of_param_headers = sfdp_parse_sfdp_header((sfdp_hdr *)sfdp_header);
+        if (number_of_param_headers < 0) {
+            return number_of_param_headers;
+        }
+    }
+
+    addr += SFDP_HEADER_SIZE;
+
+    {
+        data_length = SFDP_HEADER_SIZE;
+        uint8_t param_header[SFDP_HEADER_SIZE];
+        int status;
+        int hdr_status;
+
+        // Loop over Param Headers and parse them (currently supports Basic Param Table and Sector Region Map Table)
+        for (int i_ind = 0; i_ind < number_of_param_headers; i_ind++) {
+            status = sfdp_reader(addr, param_header, data_length);
+            if (status < 0) {
+                tr_error("retrieving Parameter Header %d failed", i_ind + 1);
+                return -1;
+            }
+
+            hdr_status = sfdp_parse_single_param_header((sfdp_prm_hdr *)param_header, hdr_info);
+            if (hdr_status < 0) {
+                return hdr_status;
+            }
+
+            addr += SFDP_HEADER_SIZE;
+        }
+    }
+
+    return 0;
+}
+
 } /* namespace mbed */
 #endif /* (DEVICE_SPI || DEVICE_QSPI) */

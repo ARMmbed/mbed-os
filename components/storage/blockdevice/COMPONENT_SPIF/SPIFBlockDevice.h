@@ -225,6 +225,9 @@ private:
     /****************************************/
     /* SFDP Detection and Parsing Functions */
     /****************************************/
+    // Send SFDP Read command to Driver
+    int _spi_send_read_sfdp_command(mbed::bd_addr_t addr, void *rx_buffer, mbed::bd_size_t rx_length);
+
     // Parse SFDP Headers and retrieve Basic Param and Sector Map Tables (if exist)
     int _sfdp_parse_sfdp_headers(mbed::sfdp_hdr_info &hdr_info);
 
@@ -300,6 +303,11 @@ private:
     int _prog_instruction;
     int _erase_instruction;
     int _erase4k_inst;  // Legacy 4K erase instruction (default 0x20h)
+
+    // SFDP helpers
+    friend int mbed::sfdp_parse_headers(mbed::Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader,
+                                        mbed::sfdp_hdr_info &hdr_info);
+
 
     // Up To 4 Erase Types are supported by SFDP (each with its own command Instruction and Size)
     int _erase_type_inst_arr[MAX_NUM_OF_ERASE_TYPES];

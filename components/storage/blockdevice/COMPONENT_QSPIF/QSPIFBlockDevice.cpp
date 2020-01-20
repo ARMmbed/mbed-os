@@ -15,6 +15,7 @@
  */
 
 #include "drivers/internal/SFDP.h"
+#include "platform/Callback.h"
 #include "QSPIFBlockDevice.h"
 #include <string.h>
 #include "rtos/ThisThread.h"
@@ -628,59 +629,14 @@ int QSPIFBlockDevice::remove_csel_instance(PinName csel)
 /*********************************************************/
 int QSPIFBlockDevice::_sfdp_parse_sfdp_headers(mbed::sfdp_hdr_info &hdr_info)
 {
-    bd_addr_t addr = 0x0;
-    int number_of_param_headers = 0;
-    size_t data_length;
-
-    {
-        data_length = SFDP_HEADER_SIZE;
-        uint8_t sfdp_header[SFDP_HEADER_SIZE];
-
-        qspi_status_t status = _qspi_send_read_sfdp_command(addr, (char *)sfdp_header, data_length);
-        if (status != QSPI_STATUS_OK) {
-            tr_error("init - Retrieving SFDP Header failed");
-            return -1;
-        }
-
-        number_of_param_headers = sfdp_parse_sfdp_header((sfdp_hdr *)sfdp_header);
-        if (number_of_param_headers < 0) {
-            return number_of_param_headers;
-        }
-    }
-
-    addr += SFDP_HEADER_SIZE;
-
-    {
-        data_length = SFDP_HEADER_SIZE;
-        uint8_t param_header[SFDP_HEADER_SIZE];
-        qspi_status_t status;
-        int hdr_status;
-
-        // Loop over Param Headers and parse them (currently supports Basic Param Table and Sector Region Map Table)
-        for (int i_ind = 0; i_ind < number_of_param_headers; i_ind++) {
-            status = _qspi_send_read_sfdp_command(addr, (char *)param_header, data_length);
-            if (status != QSPI_STATUS_OK) {
-                tr_error("init - Retrieving Parameter Header %d failed", i_ind + 1);
-                return -1;
-            }
-
-            hdr_status = sfdp_parse_single_param_header((sfdp_prm_hdr *)param_header, hdr_info);
-            if (hdr_status < 0) {
-                return hdr_status;
-            }
-
-            addr += SFDP_HEADER_SIZE;
-        }
-    }
-
-    return 0;
+    return sfdp_parse_headers(callback(this, &QSPIFBlockDevice::_qspi_send_read_sfdp_command), hdr_info);
 }
 
 int QSPIFBlockDevice::_sfdp_parse_basic_param_table(uint32_t basic_table_addr, size_t basic_table_size)
 {
     uint8_t param_table[SFDP_DEFAULT_BASIC_PARAMS_TABLE_SIZE_BYTES]; /* Up To 16 DWORDS = 64 Bytes */
 
-    qspi_status_t status = _qspi_send_read_sfdp_command(basic_table_addr, (char *) param_table, basic_table_size);
+    int status = _qspi_send_read_sfdp_command(basic_table_addr, (char *)param_table, basic_table_size);
     if (status != QSPI_STATUS_OK) {
         tr_error("Init - Read SFDP First Table Failed");
         return -1;
@@ -1161,7 +1117,7 @@ int QSPIFBlockDevice::_sfdp_parse_sector_map_table(uint32_t sector_map_table_add
     // Default set to all type bits 1-4 are common
     int min_common_erase_type_bits = ERASE_BITMASK_ALL;
 
-    qspi_status_t status = _qspi_send_read_sfdp_command(sector_map_table_addr, (char *) sector_map_table, sector_map_table_size);
+    int status = _qspi_send_read_sfdp_command(sector_map_table_addr, (char *)sector_map_table, sector_map_table_size);
     if (status != QSPI_STATUS_OK) {
         tr_error("Init - Read SFDP First Table Failed");
         return -1;
@@ -1604,7 +1560,7 @@ qspi_status_t QSPIFBlockDevice::_qspi_send_general_command(qspi_inst_t instructi
     return QSPI_STATUS_OK;
 }
 
-qspi_status_t QSPIFBlockDevice::_qspi_send_read_sfdp_command(bd_addr_t addr, void *rx_buffer, bd_size_t rx_length)
+int QSPIFBlockDevice::_qspi_send_read_sfdp_command(bd_addr_t addr, void *rx_buffer, bd_size_t rx_length)
 {
     size_t rx_len = rx_length;
 
