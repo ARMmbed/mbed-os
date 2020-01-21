@@ -42,16 +42,10 @@ typedef enum {
     A31 = D31,
 
     // LEDs
-    LED_RED     = AM_BSP_GPIO_LED_RED,
     LED_BLUE    = AM_BSP_GPIO_LED_BLUE,
-    LED_GREEN   = AM_BSP_GPIO_LED_GREEN,
-    LED_YELLOW  = AM_BSP_GPIO_LED_YELLOW,
 
     // mbed original LED naming
     LED1 = AM_BSP_GPIO_LED0,
-    LED2 = AM_BSP_GPIO_LED1,
-    LED3 = AM_BSP_GPIO_LED2,
-    LED4 = AM_BSP_GPIO_LED3,
     
     // Qwiic
     QWIIC_SCL = 39,
