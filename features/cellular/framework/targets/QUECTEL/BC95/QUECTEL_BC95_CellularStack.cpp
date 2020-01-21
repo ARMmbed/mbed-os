@@ -48,8 +48,8 @@ QUECTEL_BC95_CellularStack::~QUECTEL_BC95_CellularStack()
         _event_queue->cancel(_txfull_event_id);
     }
 
-    _at.set_urc_handler("+NSONMI:", NULL);
-    _at.set_urc_handler("+NSOCLI:", NULL);
+    _at.set_urc_handler("+NSONMI:", nullptr);
+    _at.set_urc_handler("+NSOCLI:", nullptr);
 }
 
 nsapi_error_t QUECTEL_BC95_CellularStack::socket_listen(nsapi_socket_t handle, int backlog)

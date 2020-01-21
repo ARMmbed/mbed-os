@@ -695,12 +695,28 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
+#ifdef DO_BIG_TEST
+    Case("Testing callbacks with 0 uint64s", test_dispatch0<uint64_t>),
+    Case("Testing callbacks with 1 uint64s", test_dispatch1<uint64_t>),
+    Case("Testing callbacks with 2 uint64s", test_dispatch2<uint64_t>),
+    Case("Testing callbacks with 3 uint64s", test_dispatch3<uint64_t>),
+    Case("Testing callbacks with 4 uint64s", test_dispatch4<uint64_t>),
+    Case("Testing callbacks with 5 uint64s", test_dispatch5<uint64_t>),
+#elif DO_SMALL_TEST
+    Case("Testing callbacks with 0 uchars", test_dispatch0<unsigned char>),
+    Case("Testing callbacks with 1 uchars", test_dispatch1<unsigned char>),
+    Case("Testing callbacks with 2 uchars", test_dispatch2<unsigned char>),
+    Case("Testing callbacks with 3 uchars", test_dispatch3<unsigned char>),
+    Case("Testing callbacks with 4 uchars", test_dispatch4<unsigned char>),
+    Case("Testing callbacks with 5 uchars", test_dispatch5<unsigned char>),
+#else
     Case("Testing callbacks with 0 ints", test_dispatch0<int>),
     Case("Testing callbacks with 1 ints", test_dispatch1<int>),
     Case("Testing callbacks with 2 ints", test_dispatch2<int>),
     Case("Testing callbacks with 3 ints", test_dispatch3<int>),
     Case("Testing callbacks with 4 ints", test_dispatch4<int>),
     Case("Testing callbacks with 5 ints", test_dispatch5<int>),
+#endif
 };
 
 Specification specification(test_setup, cases);

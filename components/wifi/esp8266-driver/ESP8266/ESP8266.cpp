@@ -41,7 +41,7 @@ ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
     : _sdk_v(-1, -1, -1),
       _at_v(-1, -1, -1),
       _tcp_passive(false),
-      _callback(0),
+      _callback(),
       _serial(tx, rx, MBED_CONF_ESP8266_SERIAL_BAUDRATE),
       _serial_rts(rts),
       _serial_cts(cts),

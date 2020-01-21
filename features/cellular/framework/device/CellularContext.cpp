@@ -59,12 +59,11 @@ MBED_WEAK CellularContext *CellularContext::get_default_nonip_instance()
 }
 
 CellularContext::CellularContext() : _next(0), _stack(0), _pdp_type(DEFAULT_PDP_TYPE),
-    _authentication_type(CellularContext::CHAP), _connect_status(NSAPI_STATUS_DISCONNECTED), _status_cb(0),
+    _authentication_type(CellularContext::CHAP), _connect_status(NSAPI_STATUS_DISCONNECTED), _status_cb(),
     _cid(-1), _new_context_set(false), _is_context_active(false), _is_context_activated(false),
-    _apn(0), _uname(0), _pwd(0), _dcd_pin(NC), _active_high(false), _cp_netif(0), _retry_array_length(0),
-    _retry_count(0), _device(0), _nw(0), _is_blocking(true), _nonip_req(false), _cp_in_use(false)
+    _apn(0), _uname(0), _pwd(0), _dcd_pin(NC), _active_high(false), _cp_netif(0), _retry_timeout_array(),
+    _retry_array_length(0), _retry_count(0), _device(0), _nw(0), _is_blocking(true), _nonip_req(false), _cp_in_use(false)
 {
-    memset(_retry_timeout_array, 0, sizeof(_retry_timeout_array));
 }
 
 void CellularContext::cp_data_received()

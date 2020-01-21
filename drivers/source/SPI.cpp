@@ -151,14 +151,14 @@ SPI::~SPI()
     lock();
     /* Make sure a stale pointer isn't left in peripheral's owner field */
     if (_peripheral->owner == this) {
-        _peripheral->owner = NULL;
+        _peripheral->owner = nullptr;
     }
     unlock();
 }
 
 SPI::spi_peripheral_s *SPI::_lookup(SPI::SPIName name)
 {
-    SPI::spi_peripheral_s *result = NULL;
+    SPI::spi_peripheral_s *result = nullptr;
     core_util_critical_section_enter();
     for (int idx = 0; idx < _peripherals_used; idx++) {
         if (_peripherals[idx].name == name) {

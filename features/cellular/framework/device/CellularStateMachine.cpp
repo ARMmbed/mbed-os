@@ -50,7 +50,7 @@ namespace mbed {
 
 CellularStateMachine::CellularStateMachine(CellularDevice &device, events::EventQueue &queue, CellularNetwork &nw) :
     _cellularDevice(device), _state(STATE_INIT), _next_state(_state), _target_state(_state),
-    _event_status_cb(0), _network(nw), _queue(queue), _sim_pin(0), _retry_count(0),
+    _event_status_cb(), _network(nw), _queue(queue), _sim_pin(0), _retry_count(0),
     _event_timeout(-1), _event_id(-1), _plmn(0), _command_success(false),
     _is_retry(false), _cb_data(), _current_event(CellularDeviceReady), _status(0)
 {
@@ -345,7 +345,7 @@ bool CellularStateMachine::device_ready()
 #endif // MBED_CONF_CELLULAR_DEBUG_AT
 
     send_event_cb(CellularDeviceReady);
-    _cellularDevice.set_ready_cb(0);
+    _cellularDevice.set_ready_cb(nullptr);
 
     return true;
 }

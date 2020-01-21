@@ -71,7 +71,7 @@ ESP8266Interface::ESP8266Interface()
       _connect_retval(NSAPI_ERROR_OK),
       _disconnect_retval(NSAPI_ERROR_OK),
       _conn_stat(NSAPI_STATUS_DISCONNECTED),
-      _conn_stat_cb(NULL),
+      _conn_stat_cb(),
       _global_event_queue(mbed_event_queue()), // Needs to be set before attaching event() to SIGIO
       _oob_event_id(0),
       _connect_event_id(0),
@@ -113,7 +113,7 @@ ESP8266Interface::ESP8266Interface(PinName tx, PinName rx, bool debug, PinName r
       _connect_retval(NSAPI_ERROR_OK),
       _disconnect_retval(NSAPI_ERROR_OK),
       _conn_stat(NSAPI_STATUS_DISCONNECTED),
-      _conn_stat_cb(NULL),
+      _conn_stat_cb(),
       _global_event_queue(mbed_event_queue()), // Needs to be set before attaching event() to SIGIO
       _oob_event_id(0),
       _connect_event_id(0),

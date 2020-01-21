@@ -44,9 +44,9 @@ namespace mbed {
   *     // Increase reference count
   *     SharedPtr<MyStruct> ptr2( ptr );
   *
-  *     ptr = NULL; // Reference to the struct instance is still held by ptr2
+  *     ptr = nullptr; // Reference to the struct instance is still held by ptr2
   *
-  *     ptr2 = NULL; // The raw pointer is freed
+  *     ptr2 = nullptr; // The raw pointer is freed
   * }
   * @endcode
   *

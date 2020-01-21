@@ -34,9 +34,9 @@ GEMALTO_CINTERION_CellularStack::GEMALTO_CINTERION_CellularStack(ATHandler &atHa
 
 GEMALTO_CINTERION_CellularStack::~GEMALTO_CINTERION_CellularStack()
 {
-    _at.set_urc_handler("^SIS:", 0);
-    _at.set_urc_handler("^SISW:", 0);
-    _at.set_urc_handler("^SISR:", 0);
+    _at.set_urc_handler("^SIS:", nullptr);
+    _at.set_urc_handler("^SISW:", nullptr);
+    _at.set_urc_handler("^SISR:", nullptr);
 }
 
 void GEMALTO_CINTERION_CellularStack::urc_sis()

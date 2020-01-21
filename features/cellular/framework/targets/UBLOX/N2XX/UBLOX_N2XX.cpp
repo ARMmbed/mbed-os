@@ -56,7 +56,7 @@ void UBLOX_N2XX::set_at_urcs_impl()
 
 UBLOX_N2XX::~UBLOX_N2XX()
 {
-    _at->set_urc_handler("+NPIN:", NULL);
+    _at->set_urc_handler("+NPIN:", nullptr);
 }
 
 // Callback for Sim Pin.

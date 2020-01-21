@@ -72,7 +72,7 @@ static const char *const rat_str[AT_CellularNetwork::RAT_MAX] = {
 
 
 AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler, AT_CellularDevice &device) :
-    _connection_status_cb(NULL), _ciotopt_network_support_cb(NULL), _op_act(RAT_UNKNOWN),
+    _connection_status_cb(), _ciotopt_network_support_cb(), _op_act(RAT_UNKNOWN),
     _connect_status(NSAPI_STATUS_DISCONNECTED), _supported_network_opt(CIOT_OPT_MAX),
     _at(atHandler), _device(device)
 {
@@ -101,15 +101,15 @@ AT_CellularNetwork::~AT_CellularNetwork()
     (void)set_packet_domain_event_reporting(false);
     for (int type = 0; type < CellularNetwork::C_MAX; type++) {
         if (_device.get_property((AT_CellularDevice::CellularProperty)type) != RegistrationModeDisable) {
-            _at.set_urc_handler(at_reg[type].urc_prefix, 0);
+            _at.set_urc_handler(at_reg[type].urc_prefix, nullptr);
         }
     }
 
     if (_device.get_property(AT_CellularDevice::PROPERTY_AT_CGEREP)) {
-        _at.set_urc_handler("+CGEV: ME DET", 0);
-        _at.set_urc_handler("+CGEV: NW DET", 0);
+        _at.set_urc_handler("+CGEV: ME DET", nullptr);
+        _at.set_urc_handler("+CGEV: NW DET", nullptr);
     }
-    _at.set_urc_handler("+CCIOTOPTI:", 0);
+    _at.set_urc_handler("+CCIOTOPTI:", nullptr);
 }
 
 void AT_CellularNetwork::urc_cgev()
