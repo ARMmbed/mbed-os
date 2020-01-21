@@ -3546,8 +3546,12 @@
             "CAN",
             "CRC"
         ],
-        "device_has_remove": ["LPTICKER"],
-        "release_versions": ["2"],
+        "device_has_remove": [
+            "LPTICKER"
+        ],
+        "release_versions": [
+            "2"
+        ],
         "device_name": "STM32F303K8"
     },
     "NUCLEO_F303RE": {
@@ -3738,9 +3742,16 @@
             "FLASH",
             "MPU"
         ],
-        "device_has_remove": ["LPTICKER"],
-        "overrides": { "lse_available": 0 },
-        "release_versions": ["2", "5"],
+        "device_has_remove": [
+            "LPTICKER"
+        ],
+        "overrides": {
+            "lse_available": 0
+        },
+        "release_versions": [
+            "2",
+            "5"
+        ],
         "device_name": "STM32F401VE"
     },
     "NUCLEO_F410RB": {
@@ -3979,9 +3990,15 @@
         "overrides": {
             "lse_available": 0
         },
-        "device_has_remove": ["LPTICKER"],
-        "features_remove": ["BLE"],
-        "inherits": ["USI_WM_BN_BM_22"]
+        "device_has_remove": [
+            "LPTICKER"
+        ],
+        "features_remove": [
+            "BLE"
+        ],
+        "inherits": [
+            "USI_WM_BN_BM_22"
+        ]
     },
     "MTB_ADV_WISE_1530": {
         "inherits": [
@@ -5753,7 +5770,9 @@
             "CRC",
             "MPU"
         ],
-        "device_has_remove": ["LPTICKER"],
+        "device_has_remove": [
+            "LPTICKER"
+        ],
         "device_name": "STM32F303VC"
     },
     "DISCO_F334C8": {
@@ -5784,7 +5803,9 @@
             "CRC",
             "SERIAL_ASYNCH"
         ],
-        "device_has_remove": ["LPTICKER"],
+        "device_has_remove": [
+            "LPTICKER"
+        ],
         "default_lib": "small",
         "release_versions": [
             "2"
@@ -5811,10 +5832,22 @@
                 "value": "USE_USB_OTG_FS"
             }
         },
-        "overrides": { "lse_available": 0 },
-        "device_has_add": ["ANALOGOUT", "TRNG", "FLASH", "MPU"],
-        "device_has_remove": ["LPTICKER"],
-        "release_versions": ["2", "5"],
+        "overrides": {
+            "lse_available": 0
+        },
+        "device_has_add": [
+            "ANALOGOUT",
+            "TRNG",
+            "FLASH",
+            "MPU"
+        ],
+        "device_has_remove": [
+            "LPTICKER"
+        ],
+        "release_versions": [
+            "2",
+            "5"
+        ],
         "device_name": "STM32F407VG"
     },
     "OLIMEX_STM32E407_F407ZG": {
@@ -5849,8 +5882,12 @@
             "CAN",
             "USBDEVICE"
         ],
-        "device_has_remove": ["LPTICKER"],
-        "release_versions": ["5"],
+        "device_has_remove": [
+            "LPTICKER"
+        ],
+        "release_versions": [
+            "5"
+        ],
         "device_name": "STM32F407ZG"
     },
     "DISCO_F429ZI": {
@@ -5887,8 +5924,13 @@
             "FLASH",
             "MPU"
         ],
-        "device_has_remove": ["LPTICKER"],
-        "release_versions": ["2", "5"],
+        "device_has_remove": [
+            "LPTICKER"
+        ],
+        "release_versions": [
+            "2",
+            "5"
+        ],
         "device_name": "STM32F429ZI",
         "bootloader_supported": true
     },
@@ -6543,9 +6585,18 @@
                 "IAR"
             ]
         },
-        "device_has_add": ["MPU", "FLASH"],
-        "device_has_remove": ["SERIAL_FC", "LPTICKER"],
-        "release_versions": ["2", "5"],
+        "device_has_add": [
+            "MPU",
+            "FLASH"
+        ],
+        "device_has_remove": [
+            "SERIAL_FC",
+            "LPTICKER"
+        ],
+        "release_versions": [
+            "2",
+            "5"
+        ],
         "device_name": "STM32F411RE",
         "bootloader_supported": true
     },
@@ -6974,16 +7025,32 @@
         }
     },
     "MTB_UBLOX_ODIN_W2": {
-        "inherits": ["MODULE_UBLOX_ODIN_W2"],
-        "overrides": {"lse_available": 0},
-        "release_versions": ["5"]
+        "inherits": [
+            "MODULE_UBLOX_ODIN_W2"
+        ],
+        "overrides": {
+            "lse_available": 0
+        },
+        "release_versions": [
+            "5"
+        ]
     },
     "OKDO_ODIN_W2": {
-        "inherits": ["MODULE_UBLOX_ODIN_W2"],
-        "device_has_remove": ["LPTICKER"],
-        "features_remove": ["BLE"],
-        "overrides": {"lse_available": 0},
-        "release_versions": ["5"]
+        "inherits": [
+            "MODULE_UBLOX_ODIN_W2"
+        ],
+        "device_has_remove": [
+            "LPTICKER"
+        ],
+        "features_remove": [
+            "BLE"
+        ],
+        "overrides": {
+            "lse_available": 0
+        },
+        "release_versions": [
+            "5"
+        ]
     },
     "UBLOX_C030": {
         "inherits": [
@@ -7092,11 +7159,25 @@
         "core": "Cortex-M3",
         "default_toolchain": "uARM",
         "program_cycle_s": 1.5,
-        "extra_labels_add": ["STM32L1", "STM32L151RC"],
-        "overrides": { "lse_available": 0 },
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
-        "device_has_add": ["ANALOGOUT", "MPU"],
-        "device_has_remove": ["LPTICKER"],
+        "extra_labels_add": [
+            "STM32L1",
+            "STM32L151RC"
+        ],
+        "overrides": {
+            "lse_available": 0
+        },
+        "supported_toolchains": [
+            "ARM",
+            "uARM",
+            "GCC_ARM"
+        ],
+        "device_has_add": [
+            "ANALOGOUT",
+            "MPU"
+        ],
+        "device_has_remove": [
+            "LPTICKER"
+        ],
         "default_lib": "small",
         "device_name": "STM32L151RC"
     },
@@ -12545,7 +12626,10 @@
         "mbed_ram_size": "0x2000"
     },
     "NU_PFM_M2351_NS": {
-        "inherits": ["NSPE_Target", "NU_PFM_M2351"],
+        "inherits": [
+            "NSPE_Target",
+            "NU_PFM_M2351"
+        ],
         "core": "Cortex-M23-NS",
         "tfm.level": 1,
         "extra_labels_add": [
@@ -12559,7 +12643,9 @@
             "CMSIS_NVIC_VIRTUAL",
             "MBEDTLS_PSA_CRYPTO_C"
         ],
-        "components_add": ["FLASHIAP"],
+        "components_add": [
+            "FLASHIAP"
+        ],
         "post_binary_hook": {"function": "M2351Code.merge_secure"},
         "secure_image_filename": "tfm.hex",
         "overrides": {
@@ -12574,7 +12660,10 @@
         }
     },
     "NU_PFM_M2351_S": {
-        "inherits": ["SPE_Target", "NU_PFM_M2351"],
+        "inherits": [
+            "SPE_Target",
+            "NU_PFM_M2351"
+        ],
         "core": "Cortex-M23",
         "tfm.level": 1,
         "extra_labels_add": [
@@ -12582,13 +12671,20 @@
             "PSA",
             "TFM"
         ],
-        "device_has_remove": ["SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES"],
+        "device_has_remove": [
+            "SERIAL",
+            "SERIAL_ASYNCH",
+            "SERIAL_FC",
+            "STDIO_MESSAGES"
+        ],
         "macros_add": [
             "DAUTH_CHIP_DEFAULT",
             "MBEDTLS_PSA_CRYPTO_C",
             "MBEDTLS_PSA_CRYPTO_SPM"
         ],
-        "components_add": ["FLASHIAP"],
+        "components_add": [
+            "FLASHIAP"
+        ],
         "deliver_to_target": "NU_PFM_M2351_NS",
         "delivery_dir": "TARGET_NUVOTON/TARGET_M2351/TARGET_M23_NS/TARGET_NU_PFM_M2351_NS/TARGET_NU_PREBUILD_SECURE",
         "overrides": {
