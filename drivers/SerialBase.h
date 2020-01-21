@@ -216,7 +216,7 @@ public:
     /** Begin asynchronous write using 8bit buffer.
      *
      *  The write operation ends with any of the enabled events and invokes
-     *  registered callback function (which can be NULL to not receive callback at all).
+     *  registered callback function (which can be empty to not receive callback at all).
      *  Events that are not enabled by event argument are simply ignored.
      *  Operation has to be ended explicitly by calling abort_write() when
      *  no events are enabled.
@@ -233,7 +233,7 @@ public:
     /** Begin asynchronous write using 16bit buffer.
      *
      *  The write operation ends with any of the enabled events and invokes
-     *  registered callback function (which can be NULL to not receive callback at all).
+     *  registered callback function (which can be empty to not receive callback at all).
      *  Events that are not enabled by event argument are simply ignored.
      *  Operation has to be ended explicitly by calling abort_write() when
      *  no events are enabled.
@@ -256,7 +256,7 @@ public:
     /** Begin asynchronous reading using 8bit buffer.
      *
      *  The read operation ends with any of the enabled events and invokes registered
-     *  callback function (which can be NULL to not receive callback at all).
+     *  callback function (which can be empty to not receive callback at all).
      *  Events that are not enabled by event argument are simply ignored.
      *  Operation has to be ended explicitly by calling abort_read() when
      *  no events are enabled.
@@ -274,7 +274,7 @@ public:
     /** Begin asynchronous reading using 16bit buffer.
      *
      *  The read operation ends with any of the enabled events and invokes registered
-     *  callback function (which can be NULL to not receive callback at all).
+     *  callback function (which can be empty to not receive callback at all).
      *  Events that are not enabled by event argument are simply ignored.
      *  Operation has to be ended explicitly by calling abort_read() when
      *  no events are enabled.

@@ -26,8 +26,8 @@ namespace mbed {
 //       constructor, with a default value for the PinMode.
 InterruptIn::InterruptIn(PinName pin) : gpio(),
     gpio_irq(),
-    _rise(NULL),
-    _fall(NULL)
+    _rise(),
+    _fall()
 {
     // No lock needed in the constructor
     irq_init(pin);
@@ -37,8 +37,8 @@ InterruptIn::InterruptIn(PinName pin) : gpio(),
 InterruptIn::InterruptIn(PinName pin, PinMode mode) :
     gpio(),
     gpio_irq(),
-    _rise(NULL),
-    _fall(NULL)
+    _rise(),
+    _fall()
 {
     // No lock needed in the constructor
     irq_init(pin);
@@ -76,7 +76,7 @@ void InterruptIn::rise(Callback<void()> func)
         _rise = func;
         gpio_irq_set(&gpio_irq, IRQ_RISE, 1);
     } else {
-        _rise = NULL;
+        _rise = nullptr;
         gpio_irq_set(&gpio_irq, IRQ_RISE, 0);
     }
     core_util_critical_section_exit();
@@ -89,7 +89,7 @@ void InterruptIn::fall(Callback<void()> func)
         _fall = func;
         gpio_irq_set(&gpio_irq, IRQ_FALL, 1);
     } else {
-        _fall = NULL;
+        _fall = nullptr;
         gpio_irq_set(&gpio_irq, IRQ_FALL, 0);
     }
     core_util_critical_section_exit();

@@ -41,6 +41,10 @@ static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     0,  // PROPERTY_NON_IP_PDP_TYPE
     1,  // PROPERTY_AT_CGEREP
     1,  // PROPERTY_AT_COPS_FALLBACK_AUTO
+    6,  // PROPERTY_SOCKET_COUNT
+    1,  // PROPERTY_IP_TCP
+    1,  // PROPERTY_IP_UDP
+    0,  // PROPERTY_AT_SEND_DELAY
 };
 
 QUECTEL_M26::QUECTEL_M26(FileHandle *fh) : AT_CellularDevice(fh)
@@ -90,10 +94,10 @@ nsapi_error_t QUECTEL_M26::shutdown()
 
 
 #if MBED_CONF_QUECTEL_M26_PROVIDE_DEFAULT
-#include "UARTSerial.h"
+#include "drivers/BufferedSerial.h"
 CellularDevice *CellularDevice::get_default_instance()
 {
-    static UARTSerial serial(MBED_CONF_QUECTEL_M26_TX, MBED_CONF_QUECTEL_M26_RX, MBED_CONF_QUECTEL_M26_BAUDRATE);
+    static BufferedSerial serial(MBED_CONF_QUECTEL_M26_TX, MBED_CONF_QUECTEL_M26_RX, MBED_CONF_QUECTEL_M26_BAUDRATE);
 #if defined (MBED_CONF_QUECTEL_M26_RTS) && defined(MBED_CONF_QUECTEL_M26_CTS)
     tr_debug("QUECTEL_M26 flow control: RTS %d CTS %d", MBED_CONF_QUECTEL_M26_RTS, MBED_CONF_QUECTEL_M26_CTS);
     serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_QUECTEL_M26_RTS, MBED_CONF_QUECTEL_M26_CTS);

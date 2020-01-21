@@ -23,7 +23,7 @@
 #include "ATHandler_stub.h"
 #include "AT_CellularContext.h"
 #include "gtest/gtest.h"
-#include "UARTSerial.h"
+#include "drivers/BufferedSerial.h"
 
 using namespace events;
 
@@ -53,7 +53,7 @@ public:
         return NSAPI_ERROR_OK;
     }
 
-    virtual CellularContext *create_context(UARTSerial *serial, const char *const apn, PinName dcd_pin,
+    virtual CellularContext *create_context(BufferedSerial *serial, const char *const apn, PinName dcd_pin,
                                             bool active_high, bool cp_req = false, bool nonip_req = false)
     {
         if (_context_list) {
@@ -114,11 +114,6 @@ public:
     virtual void close_information() {}
 
     virtual void set_timeout(int timeout) {}
-
-    virtual uint16_t get_send_delay() const
-    {
-        return 0;
-    }
 
     virtual void modem_debug_on(bool on) {}
 

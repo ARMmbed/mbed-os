@@ -165,7 +165,7 @@ public:
 
 	}
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
-    virtual void set_file_handle(UARTSerial *serial, PinName dcd_pin = NC, bool active_high = false)
+    virtual void set_file_handle(BufferedSerial *serial, PinName dcd_pin = NC, bool active_high = false)
     {
 
     }

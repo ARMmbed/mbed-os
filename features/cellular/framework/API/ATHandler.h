@@ -27,7 +27,7 @@
 
 #include <cstdarg>
 
-#include "UARTSerial.h"
+#include "drivers/BufferedSerial.h"
 
 /**
  * If application calls associated FileHandle only from single thread context
@@ -204,7 +204,7 @@ public:
      */
     void set_send_delay(uint16_t send_delay);
 
-    /** Sets UARTSerial filehandle to given baud rate
+    /** Sets BufferedSerial filehandle to given baud rate
      *
      *  @param baud_rate
      */

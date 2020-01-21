@@ -77,17 +77,9 @@ protected:
 class my_stack : public AT_CellularStack {
 public:
     my_stack(ATHandler &atHandler, AT_CellularDevice &device) : AT_CellularStack(atHandler, 1, IPV4_STACK, device) {}
-    virtual int get_max_socket_count()
-    {
-        return 1;
-    }
     virtual int get_max_packet_size()
     {
         return 200;
-    }
-    virtual bool is_protocol_supported(nsapi_protocol_t protocol)
-    {
-        return true;
     }
     virtual nsapi_error_t socket_close_impl(int sock_id)
     {
@@ -531,7 +523,7 @@ TEST_F(TestAT_CellularContext, set_file_handle)
     AT_CellularContext ctx(at, &dev);
     ctx.set_file_handle(&fh1);
 
-    UARTSerial ss(NC, NC);
+    BufferedSerial ss(NC, NC);
 
     ctx.set_file_handle(&ss, PTC0, true);
     ctx.enable_hup(true);

@@ -38,6 +38,10 @@ static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     0,  // PROPERTY_NON_IP_PDP_TYPE
     1,  // PROPERTY_AT_CGEREP
     1,  // PROPERTY_AT_COPS_FALLBACK_AUTO
+    0,  // PROPERTY_SOCKET_COUNT
+    0,  // PROPERTY_IP_TCP
+    0,  // PROPERTY_IP_UDP
+    0,  // PROPERTY_AT_SEND_DELAY
 };
 
 SARA4_PPP::SARA4_PPP(FileHandle *fh) : AT_CellularDevice(fh)
@@ -51,10 +55,10 @@ AT_CellularNetwork *SARA4_PPP::open_network_impl(ATHandler &at)
 }
 
 #if MBED_CONF_SARA4_PPP_PROVIDE_DEFAULT
-#include "UARTSerial.h"
+#include "drivers/BufferedSerial.h"
 CellularDevice *CellularDevice::get_default_instance()
 {
-    static UARTSerial serial(MBED_CONF_SARA4_PPP_TX, MBED_CONF_SARA4_PPP_RX, MBED_CONF_SARA4_PPP_BAUDRATE);
+    static BufferedSerial serial(MBED_CONF_SARA4_PPP_TX, MBED_CONF_SARA4_PPP_RX, MBED_CONF_SARA4_PPP_BAUDRATE);
 #if defined (MBED_CONF_SARA4_PPP_RTS) && defined (MBED_CONF_SARA4_PPP_CTS)
     tr_debug("SARA4_PPP flow control: RTS %d CTS %d", MBED_CONF_SARA4_PPP_RTS, MBED_CONF_SARA4_PPP_CTS);
     serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_SARA4_PPP_RTS, MBED_CONF_SARA4_PPP_CTS);

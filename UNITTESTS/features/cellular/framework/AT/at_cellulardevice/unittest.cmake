@@ -38,7 +38,7 @@ set(unittest-test-sources
   stubs/NetworkStack_stub.cpp
   stubs/AT_CellularContext_stub.cpp
   stubs/Semaphore_stub.cpp
-  stubs/UARTSerial_stub.cpp
+  stubs/BufferedSerial_stub.cpp
   stubs/SerialBase_stub.cpp
   stubs/CellularStateMachine_stub.cpp
   stubs/CellularContext_stub.cpp

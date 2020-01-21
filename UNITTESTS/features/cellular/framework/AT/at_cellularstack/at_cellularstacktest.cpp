@@ -26,6 +26,7 @@
 #include "ATHandler_stub.h"
 #include "SocketAddress.h"
 #include "CellularDevice_stub.h"
+#include "AT_CellularDevice_stub.h"
 #include "myCellularDevice.h"
 
 using namespace mbed;
@@ -34,25 +35,13 @@ using namespace events;
 class MyStack : public AT_CellularStack {
 public:
     bool bool_value;
-    bool max_sock_value;
     nsapi_error_t create_error;
     CellularSocket socket;
 
     MyStack(ATHandler &atr, int cid, nsapi_ip_stack_t typ, AT_CellularDevice &device) : AT_CellularStack(atr, cid, typ, device)
     {
         bool_value = false;
-        max_sock_value = 0;
         create_error = NSAPI_ERROR_OK;
-    }
-
-    virtual int get_max_socket_count()
-    {
-        return max_sock_value;
-    }
-
-    virtual bool is_protocol_supported(nsapi_protocol_t protocol)
-    {
-        return bool_value;
     }
 
     virtual nsapi_error_t socket_close_impl(int sock_id)
@@ -207,17 +196,17 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_open)
     ATHandler at(&fh1, que, 0, ",");
 
     MyStack st(at, 0, IPV6_STACK, *_dev);
-    st.bool_value = false;
+    AT_CellularDevice_stub::supported_bool = 0;
     EXPECT_EQ(st.socket_open(NULL, NSAPI_TCP), NSAPI_ERROR_UNSUPPORTED);
 
-    st.bool_value = true;
-    st.max_sock_value = 0;
+    AT_CellularDevice_stub::supported_bool = 1;
     nsapi_socket_t sock = &st.socket;
+    AT_CellularDevice_stub::max_sock_value = 0;
     EXPECT_EQ(st.socket_open(&sock, NSAPI_TCP), NSAPI_ERROR_NO_SOCKET);
+    AT_CellularDevice_stub::max_sock_value = 1;
 
     MyStack st2(at, 0, IPV6_STACK, *_dev);
     st2.bool_value = true;
-    st2.max_sock_value = 1;
     sock = &st2.socket;
     EXPECT_EQ(st2.socket_open(&sock, NSAPI_TCP), NSAPI_ERROR_OK);
 }
@@ -233,13 +222,12 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_close)
 
     nsapi_socket_t sock = &st.socket;
     st.bool_value = true;
-    st.max_sock_value = 1;
     EXPECT_EQ(st.socket_open(&sock, NSAPI_TCP), NSAPI_ERROR_OK);
-    st.max_sock_value = 0;
+    AT_CellularDevice_stub::max_sock_value = 0;
     EXPECT_EQ(st.socket_close(sock), NSAPI_ERROR_DEVICE_ERROR);
+    AT_CellularDevice_stub::max_sock_value = 1;
 
     MyStack st2(at, 0, IPV6_STACK, *_dev);
-    st2.max_sock_value = 1;
     st2.bool_value = true;
     sock = &st2.socket;
     EXPECT_EQ(st2.socket_open(&sock, NSAPI_TCP), NSAPI_ERROR_OK);
@@ -306,7 +294,6 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_send)
     EXPECT_EQ(st.socket_send(&st.socket, "addr", 4), NSAPI_ERROR_NO_CONNECTION);
 
     SocketAddress addr("fc00::", 123);
-    st.max_sock_value = 1;
     st.bool_value = true;
     nsapi_socket_t sock = &st.socket;
     st.socket_open(&sock, NSAPI_TCP);
@@ -325,7 +312,6 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_sendto)
     SocketAddress addr("fc00::", 123);
     EXPECT_EQ(st.socket_sendto(NULL, addr, "addr", 4), NSAPI_ERROR_NO_SOCKET);
 
-    st.max_sock_value = 1;
     st.bool_value = true;
     nsapi_socket_t sock = &st.socket;
     st.socket_open(&sock, NSAPI_TCP);
@@ -359,7 +345,6 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_recvfrom)
     EXPECT_EQ(st.socket_recvfrom(NULL, NULL, table, 4), NSAPI_ERROR_NO_SOCKET);
 
     SocketAddress addr;
-    st.max_sock_value = 1;
     st.bool_value = true;
     nsapi_socket_t sock = &st.socket;
     st.socket_open(&sock, NSAPI_TCP);
@@ -380,7 +365,6 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_socket_attach)
     MyStack st(at, 0, IPV6_STACK, *_dev);
 
     st.socket_attach(NULL, NULL, NULL);
-    st.max_sock_value = 1;
     st.bool_value = true;
     nsapi_socket_t sock = &st.socket;
     st.socket_open(&sock, NSAPI_TCP);

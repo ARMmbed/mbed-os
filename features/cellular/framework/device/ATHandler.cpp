@@ -291,7 +291,7 @@ void ATHandler::set_is_filehandle_usable(bool usable)
             _fileHandle->sigio(Callback<void()>(this, &ATHandler::event));
         } else {
             _fileHandle->set_blocking(true); // set back to default state
-            _fileHandle->sigio(NULL);
+            _fileHandle->sigio(nullptr);
         }
         _is_fh_usable = usable;
     }
@@ -1657,6 +1657,6 @@ void ATHandler::write_hex_string(const char *str, size_t size)
 
 void ATHandler::set_baud(int baud_rate)
 {
-    static_cast<UARTSerial *>(_fileHandle)->set_baud(baud_rate);
+    static_cast<BufferedSerial *>(_fileHandle)->set_baud(baud_rate);
 }
 

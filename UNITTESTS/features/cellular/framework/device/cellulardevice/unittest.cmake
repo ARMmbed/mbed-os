@@ -23,7 +23,7 @@ set(unittest-test-sources
   stubs/CellularStateMachine_stub.cpp
   stubs/EventQueue_stub.cpp
   stubs/mbed_assert_stub.cpp
-  stubs/UARTSerial_stub.cpp
+  stubs/BufferedSerial_stub.cpp
   stubs/SerialBase_stub.cpp
   stubs/ATHandler_stub.cpp
   stubs/AT_CellularNetwork_stub.cpp

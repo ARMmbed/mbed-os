@@ -42,7 +42,7 @@ public:
      *
      *  @param cb Callback called when dispatch needs to be called
      */
-    PolledQueue(mbed::Callback<void()> cb = NULL);
+    PolledQueue(mbed::Callback<void()> cb = nullptr);
 
     virtual ~PolledQueue();
 

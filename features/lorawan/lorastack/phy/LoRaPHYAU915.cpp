@@ -29,6 +29,7 @@
  *
  */
 
+#include <string.h>
 #include "LoRaPHYAU915.h"
 #include "lora_phy_ds.h"
 

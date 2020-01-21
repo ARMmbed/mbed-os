@@ -69,12 +69,12 @@ static void _ifup()
 
 #define MESH 3
 #if MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == MESH
-    printf("Waiting for GLOBAL_UP\n");
+    tr_info("Waiting for GLOBAL_UP\n");
     while (net->get_connection_status() != NSAPI_STATUS_GLOBAL_UP) {
         ThisThread::sleep_for(500);
     }
 #endif
-    printf("MBED: UDPClient IP address is '%s'\n", address ? address.get_ip_address() : "null");
+    tr_info("MBED: UDPClient IP address is '%s'\n", address ? address.get_ip_address() : "null");
 }
 
 static void _ifdown()

@@ -271,11 +271,11 @@ public: // from NetworkInterface
     /** Set the UART serial used to communicate with the modem. Can be used to change default file handle.
      *  File handle set with this method will use data carrier detect to be able to detect disconnection much faster in PPP mode.
      *
-     *  @param serial       UARTSerial used in communication to modem. If null then the default file handle is used.
+     *  @param serial       BufferedSerial used in communication to modem. If null then the default file handle is used.
      *  @param dcd_pin      Pin used to set data carrier detect on/off for the given UART
      *  @param active_high  a boolean set to true if DCD polarity is active low
      */
-    virtual void set_file_handle(UARTSerial *serial, PinName dcd_pin = NC, bool active_high = false) = 0;
+    virtual void set_file_handle(BufferedSerial *serial, PinName dcd_pin = NC, bool active_high = false) = 0;
 #endif // #if DEVICE_SERIAL
 
     /** Returns the control plane AT command interface

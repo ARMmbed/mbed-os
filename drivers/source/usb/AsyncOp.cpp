@@ -85,9 +85,9 @@ void AsyncOp::complete()
     core_util_critical_section_enter();
 
     mbed::Callback<void()> cb = _callback;
-    _callback = NULL;
-    _list = NULL;
-    if (_wait != NULL) {
+    _callback = nullptr;
+    _list = nullptr;
+    if (_wait != nullptr) {
         _wait->release();
     }
 
@@ -115,11 +115,11 @@ void AsyncOp::_abort(bool timeout)
     core_util_critical_section_enter();
     OperationListBase *list = _list;
     if (list) {
-        _callback = NULL;
+        _callback = nullptr;
         _aborted = true;
-        _wait = NULL;
+        _wait = nullptr;
         _timeout = timeout;
-        _list = NULL;
+        _list = nullptr;
     }
     core_util_critical_section_exit();
     if (list) {

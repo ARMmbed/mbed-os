@@ -25,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "LoRaMacCrypto.h"
 #include "system/lorawan_data_structures.h"

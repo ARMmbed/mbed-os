@@ -59,13 +59,6 @@ public: // NetworkStack
 protected: // NetworkStack
 
     /**
-     * Modem specific socket stack initialization
-     *
-     *  @return 0 on success
-     */
-    virtual nsapi_error_t socket_stack_init();
-
-    /**
       * Note: Socket_open does not actually open socket on all drivers, but that's deferred until calling `sendto`.
       * The reason is that IP stack implementations are very much modem specific and it's quite common that when a
       * socket is created (via AT commands) it must also be given remote IP address, and that is usually known
@@ -134,18 +127,6 @@ protected:
         nsapi_size_t pending_bytes; // The number of received bytes pending
         bool txfull_event; // socket event after wouldblock
     };
-
-    /**
-    * Gets maximum number of sockets modem supports
-    */
-    virtual int get_max_socket_count() = 0;
-
-    /**
-    * Checks if modem supports the given protocol
-    *
-    * @param protocol   Protocol type
-    */
-    virtual bool is_protocol_supported(nsapi_protocol_t protocol) = 0;
 
     /**
     * Implements modem specific AT command set for socket closing
@@ -217,9 +198,6 @@ private:
 protected:
     // socket container
     CellularSocket **_socket;
-
-    // number of socket slots allocated in socket container
-    int _socket_count;
 
     // IP address
     char _ip[PDP_IPV6_SIZE];

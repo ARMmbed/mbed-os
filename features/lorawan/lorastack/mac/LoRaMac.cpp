@@ -22,6 +22,7 @@ Copyright (c) 2017, Arm Limited and affiliates.
 SPDX-License-Identifier: BSD-3-Clause
 */
 #include <stdlib.h>
+#include <string.h>
 #include "LoRaMac.h"
 
 #include "mbed-trace/mbed_trace.h"

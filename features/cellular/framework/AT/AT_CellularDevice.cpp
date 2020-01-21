@@ -26,7 +26,7 @@
 #include "CellularLog.h"
 #include "ATHandler.h"
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
-#include "UARTSerial.h"
+#include "drivers/BufferedSerial.h"
 #endif // #if DEVICE_SERIAL
 #include "FileHandle.h"
 #include <ctype.h>
@@ -53,10 +53,10 @@ AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh),
 AT_CellularDevice::~AT_CellularDevice()
 {
     if (get_property(PROPERTY_AT_CGEREP)) {
-        _at->set_urc_handler("+CGEV: NW DEACT", 0);
-        _at->set_urc_handler("+CGEV: ME DEACT", 0);
-        _at->set_urc_handler("+CGEV: NW PDN D", 0);
-        _at->set_urc_handler("+CGEV: ME PDN D", 0);
+        _at->set_urc_handler("+CGEV: NW DEACT", nullptr);
+        _at->set_urc_handler("+CGEV: ME DEACT", nullptr);
+        _at->set_urc_handler("+CGEV: NW PDN D", nullptr);
+        _at->set_urc_handler("+CGEV: ME PDN D", nullptr);
     }
 
     // make sure that all is deleted even if somewhere close was not called and reference counting is messed up.
@@ -107,7 +107,7 @@ void AT_CellularDevice::setup_at_handler()
 {
     set_at_urcs();
 
-    _at->set_send_delay(get_send_delay());
+    _at->set_send_delay(get_property(AT_CellularDevice::PROPERTY_AT_SEND_DELAY));
 }
 
 void AT_CellularDevice::urc_nw_deact()
@@ -188,7 +188,7 @@ ATHandler *AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
     }
 
     return ATHandler::get_instance(fileHandle, _queue, _default_timeout,
-                                   "\r", get_send_delay(), _modem_debug_on);
+                                   "\r", get_property(AT_CellularDevice::PROPERTY_AT_SEND_DELAY), _modem_debug_on);
 }
 
 ATHandler *AT_CellularDevice::get_at_handler()
@@ -286,7 +286,7 @@ CellularContext *AT_CellularDevice::get_context_list() const
 }
 
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
-CellularContext *AT_CellularDevice::create_context(UARTSerial *serial, const char *const apn, PinName dcd_pin,
+CellularContext *AT_CellularDevice::create_context(BufferedSerial *serial, const char *const apn, PinName dcd_pin,
                                                    bool active_high, bool cp_req, bool nonip_req)
 {
     // Call FileHandle base version - explict upcast to avoid recursing into ourselves
@@ -443,11 +443,6 @@ void AT_CellularDevice::set_timeout(int timeout)
     if (_state_machine) {
         _state_machine->set_timeout(_default_timeout);
     }
-}
-
-uint16_t AT_CellularDevice::get_send_delay() const
-{
-    return 0;
 }
 
 void AT_CellularDevice::modem_debug_on(bool on)

@@ -56,7 +56,7 @@ CAN::~CAN()
 
     // Detaching interrupts releases the sleep lock if it was locked
     for (int irq = 0; irq < IrqCnt; irq++) {
-        attach(NULL, (IrqType)irq);
+        attach(nullptr, (IrqType)irq);
     }
     can_irq_free(&_can);
     can_free(&_can);
@@ -147,7 +147,7 @@ void CAN::attach(Callback<void()> func, IrqType type)
         if (_irq[(CanIrqType)type]) {
             sleep_manager_unlock_deep_sleep();
         }
-        _irq[(CanIrqType)type] = NULL;
+        _irq[(CanIrqType)type] = nullptr;
         can_irq_set(&_can, (CanIrqType)type, 0);
     }
     unlock();

@@ -27,51 +27,46 @@ pull_request_rules:
   # From needs: review to needs: work - reviewers request
   - name: "label needs: work when changes were requested"
     conditions:
-      - base~=feature-mergify
       # Reviewers
       - "#changes-requested-reviews-by>0"
     actions:
       label:
         add: ['needs: work']
-        remove: ['needs: review']
+        remove: ['needs: review', 'needs: CI']
 
   # From needs: review to needs: work - CI failure
   - name: "label needs: work when travis-ci failed"
     conditions:
-      - base~=feature-mergify
       # Travis failing
       - status-failure~=continuous-integration/travis-ci/pr
     actions:
       label:
         add: ['needs: work']
-        remove: ['needs: review']
+        remove: ['needs: review', 'needs: CI']
 
   # From needs: review to needs: work - CI failure
   - name: "label needs: work when Jenkins CI failed - pr head"
     conditions:
-      - base~=feature-mergify
       # Jenkins CI failing
       - status-failure~=continuous-integration/jenkins/pr-head
     actions:
       label:
         add: ['needs: work']
-        remove: ['needs: review']
+        remove: ['needs: review','needs: CI']
 
   # From needs: review to needs: work - CI failure
   - name: "label needs: work when Jenkins CI failed - any of the pipeline"
     conditions:
-      - base~=feature-mergify
       # Jenkins CI failing - any of the pipeline
       - status-failure~=^jenkins-ci
     actions:
       label:
         add: ['needs: work']
-        remove: ['needs: review']
+        remove: ['needs: review', 'needs: CI']
 
   # From needs: review or needs: work to needs: CI. One approval means we should be good to start CI
   - name: "label needs: CI when at least one reviewers approval"
     conditions:
-      - base~=feature-mergify
       # Labels
       - "label!=needs: preceding PR"
 
@@ -89,10 +84,18 @@ pull_request_rules:
         add: ['needs: CI']
         remove: ['needs: review', 'needs: work']
 
+  # Remove reviews after the branch is updated. This yet does not allow
+  # any other action like labels, etc. See mergify-engine/issues/360
+  - name: remove outdated reviews
+    conditions: []
+    actions:
+      dismiss_reviews:
+        approved: True
+        changes_requested: True
+
   # Conflict in the PR - needs: work and a comment to notify a user
   - name: "label needs: work when there is a conflict"
     conditions:
-      - base~=feature-mergify
       - conflict
     actions:
       label:
@@ -104,7 +107,6 @@ pull_request_rules:
 
   - name: "add label feature branch for feature branch additions"
     conditions:
-      - base~=feature-mergify
       - base~=^feature
     actions:
       label:
@@ -113,7 +115,6 @@ pull_request_rules:
   # Ready for integration. Not yet auto merge, will be enabled once carefuly tested
   - name: label "ready for merge" when ready
     conditions:
-      - base~=feature-mergify
       # Labels
       - "label!=do not merge"
       - "label=needs: CI"
@@ -136,7 +137,6 @@ pull_request_rules:
   # Clean-up after merge
   - name: remove ready for merge when merged
     conditions:
-      - base~=feature-mergify
       - merged
       - "label=ready for merge"
     actions:
@@ -145,7 +145,6 @@ pull_request_rules:
 
   - name: add "do not merge" label when WIP is in title
     conditions:
-       - base~=feature-mergify
        - title~=^(\[wip\]( |:) |\[WIP\]( |:) |wip( |:) |WIP( |:)).*
     actions:
       label:
@@ -154,7 +153,6 @@ pull_request_rules:
   # Check if version label is applied
   - name: release version is a must for merged PRs
     conditions:
-      - base~=feature-mergify
       - merged
       - -label~=^(release-version)
     actions:
