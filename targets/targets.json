@@ -16,7 +16,7 @@
         "features": [],
         "detect_code": [],
         "public": false,
-        "default_lib": "std",
+        "c_lib": "std",
         "bootloader_supported": false,
         "static_memory_defines": true,
         "printf_lib": "std",
@@ -2441,8 +2441,7 @@
             "TRNG",
             "FLASH",
             "WATCHDOG"
-        ],
-        "default_lib": "std",
+        ],        
         "release_versions": [
             "2",
             "5"
@@ -2465,8 +2464,7 @@
             "FSL_RTOS_MBED",
             "USE_EXTERNAL_RTC"
         ],
-        "default_toolchain": "ARM",
-        "default_lib": "std",
+        "default_toolchain": "ARM",        
         "forced_reset_timeout": 7,
         "release_versions": [
             "2",
@@ -14032,8 +14030,7 @@
             "smclk_select": "HFXT",
             "smclk_div": "DIV2",
             "adc_auto_scan": 1
-        },
-        "default_lib": "std",
+        },        
         "release_versions": [
             "2",
             "5"

@@ -1106,18 +1106,22 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
         """
         Check and raise an exception if the requested C library is not supported,
 
-        target.default_lib is modified to have the lowercased string of its original string.
+        target.c_lib is modified to have the lowercased string of its original string.
         This is done to be case insensitive when validating.
         """
         if  hasattr(target, "default_lib"):
-            target.default_lib = target.default_lib.lower()
+            raise NotSupportedException(
+                   "target.default_lib is no longer supported, please use target.c_lib for C library selection."
+                )
+        if  hasattr(target, "c_lib"):
+            target.c_lib = target.c_lib.lower()
             if (
                 hasattr(target, "supported_c_libs") == False
                 or toolchain not in target.supported_c_libs
-                or target.default_lib not in target.supported_c_libs[toolchain]
+                or target.c_lib not in target.supported_c_libs[toolchain]
             ):
                 raise NotSupportedException(
-                   UNSUPPORTED_C_LIB_EXCEPTION_STRING.format(target.default_lib)
+                   UNSUPPORTED_C_LIB_EXCEPTION_STRING.format(target.c_lib)
                 )
 
     @staticmethod
