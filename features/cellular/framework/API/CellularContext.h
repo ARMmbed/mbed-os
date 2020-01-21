@@ -146,12 +146,6 @@ public: // from NetworkInterface
     virtual nsapi_error_t connect(const char *sim_pin, const char *apn = 0, const char *uname = 0,
                                   const char *pwd = 0) = 0;
     virtual void set_credentials(const char *apn, const char *uname = 0, const char *pwd = 0) = 0;
-    virtual nsapi_error_t get_netmask(SocketAddress *address) = 0;
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual const char *get_netmask() = 0;
-    virtual nsapi_error_t get_gateway(SocketAddress *address) = 0;
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual const char *get_gateway() = 0;
     virtual bool is_connected() = 0;
 
     /** Same as NetworkInterface::get_default_instance()

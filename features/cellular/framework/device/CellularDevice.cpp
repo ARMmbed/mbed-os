@@ -74,11 +74,6 @@ events::EventQueue *CellularDevice::get_queue()
     return &_queue;
 }
 
-CellularContext *CellularDevice::get_context_list() const
-{
-    return NULL;
-}
-
 void CellularDevice::get_retry_timeout_array(uint16_t *timeout, int &array_len) const
 {
     if (_state_machine && timeout) {
@@ -260,11 +255,5 @@ void CellularDevice::set_retry_timeout_array(const uint16_t timeout[], int array
         _state_machine->set_retry_timeout_array(timeout, array_len);
     }
 }
-
-nsapi_error_t CellularDevice::clear()
-{
-    return NSAPI_ERROR_OK;
-}
-
 
 } // namespace mbed

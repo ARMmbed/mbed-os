@@ -135,26 +135,6 @@ public:
 
     };
 
-    nsapi_error_t get_netmask(SocketAddress *address)
-    {
-        return NSAPI_ERROR_UNSUPPORTED;
-    }
-
-    const char *get_netmask()
-    {
-        return NULL;
-    };
-
-    nsapi_error_t get_gateway(SocketAddress *address)
-    {
-        return NSAPI_ERROR_UNSUPPORTED;
-    }
-
-    const char *get_gateway()
-    {
-        return NULL;
-    };
-
     bool get_context()
     {
         return true;

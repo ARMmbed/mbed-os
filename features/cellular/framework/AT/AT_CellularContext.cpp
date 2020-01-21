@@ -213,26 +213,6 @@ NetworkStack *AT_CellularContext::get_stack()
     return _stack;
 }
 
-nsapi_error_t AT_CellularContext::get_netmask(SocketAddress *address)
-{
-    return NSAPI_ERROR_UNSUPPORTED;
-}
-
-const char *AT_CellularContext::get_netmask()
-{
-    return NULL;
-}
-
-nsapi_error_t AT_CellularContext::get_gateway(SocketAddress *address)
-{
-    return NSAPI_ERROR_UNSUPPORTED;
-}
-
-const char *AT_CellularContext::get_gateway()
-{
-    return NULL;
-}
-
 nsapi_error_t AT_CellularContext::get_ip_address(SocketAddress *address)
 {
     if (!address) {

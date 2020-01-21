@@ -149,26 +149,6 @@ void AT_CellularContext::set_credentials(const char *apn, const char *uname, con
 
 }
 
-nsapi_error_t AT_CellularContext::get_netmask(SocketAddress *address)
-{
-    return NSAPI_ERROR_UNSUPPORTED;
-}
-
-const char *AT_CellularContext::get_netmask()
-{
-    return NULL;
-}
-
-nsapi_error_t AT_CellularContext::get_gateway(SocketAddress *address)
-{
-    return NSAPI_ERROR_UNSUPPORTED;
-}
-
-const char *AT_CellularContext::get_gateway()
-{
-    return NULL;
-}
-
 AT_CellularDevice::CellularProperty AT_CellularContext::pdp_type_t_to_cellular_property(pdp_type_t pdp_type)
 {
     AT_CellularDevice::CellularProperty prop = AT_CellularDevice::PROPERTY_IPV4_PDP_TYPE;

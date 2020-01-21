@@ -64,11 +64,6 @@ void CellularDevice::set_sim_pin(char const *)
 {
 }
 
-CellularContext *CellularDevice::get_context_list() const
-{
-    return NULL;
-}
-
 void CellularDevice::get_retry_timeout_array(uint16_t *timeout, int &array_len) const
 {
     array_len = CellularDevice_stub::retry_array_length;
@@ -127,9 +122,4 @@ nsapi_error_t CellularDevice::shutdown()
 
 void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx)
 {
-}
-
-nsapi_error_t CellularDevice::clear()
-{
-    return NSAPI_ERROR_OK;
 }
