@@ -96,9 +96,7 @@ pull_request_rules:
       label:
         add: 
           - "needs: CI"
-        remove: 
-          - "needs: review"
-          - "needs: work"
+        remove: ['needs: review', 'needs: work']
 
   # Conflict in the PR - needs: work and a comment to notify a user
   - name: "label needs: work when there is a conflict"
@@ -109,9 +107,8 @@ pull_request_rules:
       label:
         add:
           - "needs: work"
-        remove: 
-          - "needs: review"
-          - "needs: CI"
+        remove: ['needs: review', 'needs: CI']
+        
       comment:
         message: This PR cannot be merged due to conflicts. Please rebase to resolve them.
 
