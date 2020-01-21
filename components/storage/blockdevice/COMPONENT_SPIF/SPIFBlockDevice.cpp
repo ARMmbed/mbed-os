@@ -189,7 +189,7 @@ int SPIFBlockDevice::init()
 
 
     /**************************** Parse Basic Parameters Table ***********************************/
-    if (0 != _sfdp_parse_basic_param_table(hdr_info.basic_table_addr, hdr_info.basic_table_size)) {
+    if (0 != _sfdp_parse_basic_param_table(hdr_info.bptbl.addr, hdr_info.bptbl.size)) {
         tr_error("init - Parse Basic Param Table Failed");
         status = SPIF_BD_ERROR_PARSING_FAILED;
         goto exit_point;
@@ -200,10 +200,10 @@ int SPIFBlockDevice::init()
         _device_size_bytes; // If there's no region map, we have a single region sized the entire device size
     _region_high_boundary[0] = _device_size_bytes - 1;
 
-    if ((hdr_info.sector_map_table_addr != 0) && (0 != hdr_info.sector_map_table_size)) {
-        tr_debug("init - Parsing Sector Map Table - addr: 0x%" PRIx32 "h, Size: %d", hdr_info.sector_map_table_addr,
-                 hdr_info.sector_map_table_size);
-        if (0 != _sfdp_parse_sector_map_table(hdr_info.sector_map_table_addr, hdr_info.sector_map_table_size)) {
+    if ((hdr_info.smtbl.addr != 0) && (0 != hdr_info.smtbl.size)) {
+        tr_debug("init - Parsing Sector Map Table - addr: 0x%" PRIx32 "h, Size: %d", hdr_info.smtbl.addr,
+                 hdr_info.smtbl.size);
+        if (0 != _sfdp_parse_sector_map_table(hdr_info.smtbl.addr, hdr_info.smtbl.size)) {
             tr_error("init - Parse Sector Map Table Failed");
             status = SPIF_BD_ERROR_PARSING_FAILED;
             goto exit_point;

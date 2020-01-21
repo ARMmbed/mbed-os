@@ -67,13 +67,13 @@ int sfdp_parse_single_param_header(sfdp_prm_hdr *phdr, sfdp_hdr_info &hdr_info)
 
     if ((phdr->PID_LSB == 0) && (sfdp_get_param_id_msb(phdr->DWORD2) == 0xFF)) {
         tr_debug("Parameter Header: Basic Parameter Header");
-        hdr_info.basic_table_addr = sfdp_get_param_tbl_ptr(phdr->DWORD2);
-        hdr_info.basic_table_size = std::min((phdr->P_LEN * 4), SFDP_BASIC_PARAMS_TBL_SIZE);
+        hdr_info.bptbl.addr = sfdp_get_param_tbl_ptr(phdr->DWORD2);
+        hdr_info.bptbl.size = std::min((phdr->P_LEN * 4), SFDP_BASIC_PARAMS_TBL_SIZE);
 
     } else if ((phdr->PID_LSB == 0x81) && (sfdp_get_param_id_msb(phdr->DWORD2) == 0xFF)) {
         tr_debug("Parameter Header: Sector Map Parameter Header");
-        hdr_info.sector_map_table_addr = sfdp_get_param_tbl_ptr(phdr->DWORD2);
-        hdr_info.sector_map_table_size = phdr->P_LEN * 4;
+        hdr_info.smtbl.addr = sfdp_get_param_tbl_ptr(phdr->DWORD2);
+        hdr_info.smtbl.size = phdr->P_LEN * 4;
 
     } else {
         tr_debug("Parameter Header vendor specific or unknown. Parameter ID LSB: 0x%" PRIX8 "; MSB: 0x%" PRIX8 "",

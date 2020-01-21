@@ -28,12 +28,22 @@ namespace mbed {
 static const int SFDP_HEADER_SIZE = 8; ///< Size of an SFDP header */
 static const int SFDP_BASIC_PARAMS_TBL_SIZE = 80; ///< Basic Parameter Table size in Bytes, 20 DWORDS  */
 
+/** SFDP Basic Parameter Table info */
+struct sfdp_bptbl_info {
+    uint32_t addr;
+    size_t size;
+};
+
+/** SFDP Sector Map Table info */
+struct sfdp_smtbl_info {
+    uint32_t addr;
+    size_t size;
+};
+
 /** SFDP Parameter Table addresses and sizes */
 struct sfdp_hdr_info {
-    uint32_t basic_table_addr; // Basic Parameter Table address
-    size_t basic_table_size;  // Basic Parameter Table size
-    uint32_t sector_map_table_addr; // Sector Map Parameter Table address
-    size_t sector_map_table_size; // Sector Map Parameter Table size
+    sfdp_bptbl_info bptbl;
+    sfdp_smtbl_info smtbl;
 };
 
 /** SFDP Header */
