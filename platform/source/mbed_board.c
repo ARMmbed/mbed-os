@@ -29,17 +29,18 @@ WEAK MBED_NORETURN void mbed_die(void)
     core_util_critical_section_enter();
 #endif
     gpio_t led_err;
+    int i = 0;
     gpio_init_out(&led_err, LED1);
 
     while (1) {
-        for (int i = 0; i < 4; ++i) {
+        for (i = 0; i < 4; ++i) {
             gpio_write(&led_err, 1);
             wait_us(150000);
             gpio_write(&led_err, 0);
             wait_us(150000);
         }
 
-        for (int i = 0; i < 4; ++i) {
+        for (i = 0; i < 4; ++i) {
             gpio_write(&led_err, 1);
             wait_us(400000);
             gpio_write(&led_err, 0);
@@ -58,7 +59,7 @@ void mbed_error_printf(const char *format, ...)
 
 void mbed_error_vprintf(const char *format, va_list arg)
 {
-    char buffer[132];
+    char buffer[132] = {0};
     int size = vsnprintf(buffer, sizeof buffer, format, arg);
     if ((unsigned int)size >= sizeof buffer) {
         /* Output was truncated - indicate by overwriting tail of buffer
