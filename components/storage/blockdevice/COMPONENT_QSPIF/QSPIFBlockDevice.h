@@ -318,9 +318,6 @@ private:
     /****************************************/
     /* SFDP Detection and Parsing Functions */
     /****************************************/
-    // Parse SFDP Headers and retrieve Basic Param and Sector Map Tables (if exist)
-    int _sfdp_parse_sfdp_headers(mbed::sfdp_hdr_info &hdr_info);
-
     // Parse and Detect required Basic Parameters from Table
     int _sfdp_parse_basic_param_table(uint32_t basic_table_addr, size_t basic_table_size);
 
