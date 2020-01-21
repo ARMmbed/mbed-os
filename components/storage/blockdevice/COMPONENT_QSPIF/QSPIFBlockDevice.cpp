@@ -53,7 +53,6 @@ using namespace mbed;
 
 /* Basic Parameters Table Parsing */
 /**********************************/
-#define SFDP_DEFAULT_BASIC_PARAMS_TABLE_SIZE_BYTES 64 /* 16 DWORDS */
 //READ Instruction support according to BUS Configuration
 #define QSPIF_BASIC_PARAM_TABLE_FAST_READ_SUPPORT_BYTE 2
 #define QSPIF_BASIC_PARAM_TABLE_QPI_READ_SUPPORT_BYTE 16
@@ -270,7 +269,8 @@ int QSPIFBlockDevice::init()
     if ((hdr_info.smtbl.addr != 0) && (0 != hdr_info.smtbl.size)) {
         tr_debug("Init - Parsing Sector Map Table - addr: 0x%lxh, Size: %d", hdr_info.smtbl.addr,
                  hdr_info.smtbl.size);
-        if (0 != _sfdp_parse_sector_map_table(hdr_info.smtbl.addr, hdr_info.smtbl.size)) {
+        if (_sfdp_parse_sector_map_table(callback(this, &QSPIFBlockDevice::_qspi_send_read_sfdp_command),
+                                         hdr_info.smtbl) < 0) {
             tr_error("Init - Parse Sector Map Table Failed");
             status = QSPIF_BD_ERROR_PARSING_FAILED;
             goto exit_point;
@@ -629,7 +629,7 @@ int QSPIFBlockDevice::remove_csel_instance(PinName csel)
 /*********************************************************/
 int QSPIFBlockDevice::_sfdp_parse_basic_param_table(uint32_t basic_table_addr, size_t basic_table_size)
 {
-    uint8_t param_table[SFDP_DEFAULT_BASIC_PARAMS_TABLE_SIZE_BYTES]; /* Up To 16 DWORDS = 64 Bytes */
+    uint8_t param_table[SFDP_BASIC_PARAMS_TBL_SIZE]; /* Up To 16 DWORDS = 64 Bytes */
 
     int status = _qspi_send_read_sfdp_command(basic_table_addr, (char *)param_table, basic_table_size);
     if (status != QSPI_STATUS_OK) {
@@ -1103,17 +1103,18 @@ int QSPIFBlockDevice::_sfdp_detect_reset_protocol_and_reset(uint8_t *basic_param
     return status;
 }
 
-int QSPIFBlockDevice::_sfdp_parse_sector_map_table(uint32_t sector_map_table_addr, size_t sector_map_table_size)
+int QSPIFBlockDevice::_sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void*, bd_size_t)> sfdp_reader,
+                                                   sfdp_smtbl_info &smtbl)
 {
-    uint8_t sector_map_table[SFDP_DEFAULT_BASIC_PARAMS_TABLE_SIZE_BYTES]; /* Up To 16 DWORDS = 64 Bytes */
+    uint8_t sector_map_table[SFDP_BASIC_PARAMS_TBL_SIZE]; /* Up To 16 DWORDS = 64 Bytes */
     uint32_t tmp_region_size = 0;
     int i_ind = 0;
     int prev_boundary = 0;
     // Default set to all type bits 1-4 are common
     int min_common_erase_type_bits = ERASE_BITMASK_ALL;
 
-    int status = _qspi_send_read_sfdp_command(sector_map_table_addr, (char *)sector_map_table, sector_map_table_size);
-    if (status != QSPI_STATUS_OK) {
+    int status = sfdp_reader(smtbl.addr, sector_map_table, smtbl.size);
+    if (status < 0) {
         tr_error("Init - Read SFDP First Table Failed");
         return -1;
     }
