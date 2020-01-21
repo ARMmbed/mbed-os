@@ -31,11 +31,8 @@ pull_request_rules:
       - "#changes-requested-reviews-by>0"
     actions:
       label:
-        add: 
-          - "needs: work"
-        remove: 
-          - "needs: review"
-          - "needs: CI"
+        add: ['needs: work']
+        remove: ['needs: review', 'needs: CI']
 
   # From needs: review to needs: work - CI failure
   - name: "label needs: work when travis-ci failed"
@@ -44,11 +41,8 @@ pull_request_rules:
       - status-failure~=continuous-integration/travis-ci/pr
     actions:
       label:
-        add: 
-          - "needs: work"
-        remove: 
-          - "needs: review"
-          - "needs: CI"
+        add: ['needs: work']
+        remove: ['needs: review', 'needs: CI']
 
   # From needs: review to needs: work - CI failure
   - name: "label needs: work when Jenkins CI failed - pr head"
@@ -57,11 +51,8 @@ pull_request_rules:
       - status-failure~=continuous-integration/jenkins/pr-head
     actions:
       label:
-        add: 
-          - "needs: work"
-        remove: 
-          - "needs: review"
-          - "needs: CI"
+        add: ['needs: work']
+        remove: ['needs: review','needs: CI']
 
   # From needs: review to needs: work - CI failure
   - name: "label needs: work when Jenkins CI failed - any of the pipeline"
@@ -70,11 +61,8 @@ pull_request_rules:
       - status-failure~=^jenkins-ci
     actions:
       label:
-        add: 
-          - "needs: work"
-        remove: 
-          - "needs: review"
-          - "needs: CI"
+        add: ['needs: work']
+        remove: ['needs: review', 'needs: CI']
 
   # From needs: review or needs: work to needs: CI. One approval means we should be good to start CI
   - name: "label needs: CI when at least one reviewers approval"
@@ -93,11 +81,8 @@ pull_request_rules:
       - -status-failure~=continuous-integration/jenkins/pr-head
     actions:
       label:
-        add: 
-          - "needs: CI"
-        remove: 
-          - "needs: review"
-          - "needs: work"
+        add: ['needs: CI']
+        remove: ['needs: review', 'needs: work']
 
   # Remove reviews after the branch is updated. This yet does not allow
   # any other action like labels, etc. See mergify-engine/issues/360
@@ -114,11 +99,9 @@ pull_request_rules:
       - conflict
     actions:
       label:
-        add:
-          - "needs: work"
-        remove: 
-          - "needs: review"
-          - "needs: CI"
+        add: ['needs: work']
+        remove: ['needs: review', 'needs: CI']
+        
       comment:
         message: This PR cannot be merged due to conflicts. Please rebase to resolve them.
 
@@ -127,8 +110,7 @@ pull_request_rules:
       - base~=^feature
     actions:
       label:
-        add:
-          - "release-version: feature branch"
+        add: ['release-version: feature branch']
 
   # Ready for integration. Not yet auto merge, will be enabled once carefuly tested
   - name: label "ready for merge" when ready
@@ -149,10 +131,8 @@ pull_request_rules:
       - -status-failure~=^jenkins-ci
     actions:
       label:
-        add: 
-          - "ready for merge"
-        remove: 
-          - "needs: CI"
+        add: ['ready for merge']
+        remove: ['needs: CI']
 
   # Clean-up after merge
   - name: remove ready for merge when merged
@@ -161,16 +141,14 @@ pull_request_rules:
       - "label=ready for merge"
     actions:
       label:
-        remove:
-          - "ready for merge"
+        remove: ['ready for merge']
 
   - name: add "do not merge" label when WIP is in title
     conditions:
        - title~=^(\[wip\]( |:) |\[WIP\]( |:) |wip( |:) |WIP( |:)).*
     actions:
       label:
-        add:
-          - "do not merge"
+        add: ['do not merge']
 
   # Check if version label is applied
   - name: release version is a must for merged PRs
@@ -179,8 +157,7 @@ pull_request_rules:
       - -label~=^(release-version)
     actions:
       label:
-        add:
-          - "Release review required"
+        add: ['Release review required']
       comment:
         message: This PR does not contain release version label after merging.
 
