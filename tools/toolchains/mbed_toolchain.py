@@ -132,7 +132,7 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
     profile_template = {'common': [], 'c': [], 'cxx': [], 'asm': [], 'ld': []}
 
     def __init__(self, target, notify=None, macros=None, build_profile=None,
-                 build_dir=None):
+                 build_dir=None, coverage_patterns=None):
         self.target = target
         self.name = self.__class__.__name__
 
@@ -189,6 +189,9 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
 
         # Used by the mbed Online Build System to build in chrooted environment
         self.CHROOT = None
+
+        self.coverage_supported = False
+        self.coverage_patterns = coverage_patterns
 
         # post-init hook used by the online compiler TODO: remove this.
         self.init()

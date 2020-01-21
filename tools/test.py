@@ -29,7 +29,7 @@ sys.path.insert(0, ROOT)
 from tools.config import ConfigException, Config
 from tools.test_configs import get_default_config
 from tools.test_api import find_tests, get_test_config, print_tests, build_tests, test_spec_from_test_builds
-from tools.options import get_default_options_parser, extract_profile, extract_mcus
+from tools.options import get_default_options_parser, extract_profile, extract_mcus, argparse_profile_filestring_type
 from tools.build_api import build_library
 from tools.build_api import print_build_memory_usage
 from tools.build_api import merge_build_data
@@ -125,6 +125,9 @@ def main():
         parser.add_argument("--ignore", dest="ignore", type=argparse_many(str),
                           default=None, help="Comma separated list of patterns to add to mbedignore (eg. ./main.cpp)")
 
+        parser.add_argument("--coverage-filters", dest="coverage_patterns", nargs='+',
+                          default=[], help="match patterns to build with debug compile and coverage linker options")
+        
         parser.add_argument("--icetea",
                             action="store_true",
                             dest="icetea",
@@ -230,6 +233,13 @@ def main():
             if not base_source_paths:
                 base_source_paths = ['.']
 
+            # Coverage requires debug profile
+            if options.coverage_patterns:
+                if toolchain != u'GCC_ARM':
+                    raise ToolException('Coverage supports only GCC_ARM toolchain')
+                options.profile.append(argparse_profile_filestring_type('debug'))
+                print("[Warning] Test building with coverage filters %s" % options.coverage_patterns)
+
             build_report = {}
             build_properties = {}
 
@@ -255,6 +265,7 @@ def main():
                               app_config=config,
                               build_profile=profile,
                               ignore=options.ignore,
+                              coverage_patterns=options.coverage_patterns,
                               resource_filter=resource_filter
                               )
 
@@ -301,6 +312,7 @@ def main():
                     build_profile=profile,
                     stats_depth=options.stats_depth,
                     ignore=options.ignore,
+                    coverage_patterns=options.coverage_patterns,
                     resource_filter=resource_filter)
 
                 # If a path to a test spec is provided, write it to a file

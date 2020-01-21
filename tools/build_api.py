@@ -443,7 +443,7 @@ def target_supports_toolchain(target, toolchain_name):
 def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
                       macros=None, clean=False, jobs=1,
                       notify=None, config=None, app_config=None,
-                      build_profile=None, ignore=None):
+                      build_profile=None, ignore=None, coverage_patterns=None):
     """ Prepares resource related objects - toolchain, target, config
 
     Positional arguments:
@@ -460,6 +460,7 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
     app_config - location of a chosen mbed_app.json file
     build_profile - a list of mergeable build profiles
     ignore - list of paths to add to mbedignore
+    coverage_patterns - list of patterns for code coverage
     """
 
     # We need to remove all paths which are repeated to avoid
@@ -483,6 +484,9 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
         target.default_toolchain = "uARM"
     toolchain_name = selected_toolchain_name
 
+    if coverage_patterns:
+        target.extra_labels.append(u'COVERAGE')
+
     try:
         cur_tc = TOOLCHAIN_CLASSES[toolchain_name]
     except KeyError:
@@ -494,7 +498,7 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
             profile[key].extend(contents[toolchain_name].get(key, []))
 
     toolchain = cur_tc(
-        target, notify, macros, build_dir=build_dir, build_profile=profile)
+        target, notify, macros, build_dir=build_dir, build_profile=profile, coverage_patterns=coverage_patterns)
 
     toolchain.config = config
     toolchain.jobs = jobs
@@ -517,7 +521,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
                   report=None, properties=None, project_id=None,
                   project_description=None, config=None,
                   app_config=None, build_profile=None, stats_depth=None,
-                  ignore=None, resource_filter=None):
+                  ignore=None, resource_filter=None, coverage_patterns=None):
     """ Build a project. A project may be a test or a user program.
 
     Positional arguments:
@@ -562,7 +566,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
     toolchain = prepare_toolchain(
         src_paths, build_path, target, toolchain_name, macros=macros,
         clean=clean, jobs=jobs, notify=notify, config=config,
-        app_config=app_config, build_profile=build_profile, ignore=ignore)
+        app_config=app_config, build_profile=build_profile, ignore=ignore, coverage_patterns=coverage_patterns)
     toolchain.version_check()
 
     # The first path will give the name to the library
@@ -668,7 +672,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
                   archive=True, notify=None, macros=None, inc_dirs=None, jobs=1,
                   report=None, properties=None, project_id=None,
                   remove_config_header_file=False, app_config=None,
-                  build_profile=None, ignore=None, resource_filter=None):
+                  build_profile=None, ignore=None, resource_filter=None, coverage_patterns=None):
     """ Build a library
 
     Positional arguments:
@@ -719,7 +723,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     toolchain = prepare_toolchain(
         src_paths, build_path, target, toolchain_name, macros=macros,
         clean=clean, jobs=jobs, notify=notify, app_config=app_config,
-        build_profile=build_profile, ignore=ignore)
+        build_profile=build_profile, ignore=ignore, coverage_patterns=coverage_patterns)
     toolchain.version_check()
 
     # The first path will give the name to the library
