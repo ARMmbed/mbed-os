@@ -2849,7 +2849,8 @@
             "SPI",
             "SPISLAVE",
             "STDIO_MESSAGES",
-            "TRNG"
+            "TRNG",
+            "WATCHDOG"
         ],
         "release_versions": [
             "2",
