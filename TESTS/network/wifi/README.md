@@ -37,6 +37,7 @@ The general test environment consists of DUTs, base stations, a network connecti
     -   Time protocol, [RFC 868](https://tools.ietf.org/html/rfc868) in both TCP and UDP. Port 37.
 -   Channels to be used must be different for both APs. For secure on channel number is later referred as `<ch:secure>` and for unsecure on `<ch:unsecure>`.
 -   MAC addresses of Wi-Fi APs must be known. These are later referred to as `<mac:secure>` and `<mac:unsecure>`.
+-   WPA3 may not be supported for all target platforms, Refer to target specifications before updating security protocol to WPA3 or WPA3/WPA2 in  `mbed_app.json`
 
 **NOTE:** This document refers to an echo server because it is a requirement for running Socket API tests. The test cases defined in this document do not directly use it.
 
@@ -58,6 +59,8 @@ Please refer to the following table for priorities of test cases. Priorities are
 |     |                                         | NSAPI_SECURITY_WPA         | SHOULD   |
 |     |                                         | NSAPI_SECURITY_WPA2        | SHOULD   |
 |     |                                         | NSAPI_SECURITY_WPA_WPA2    | MUST     |
+|     |                                         | NSAPI_SECURITY_WPA3_WPA2   | SHOULD   |
+|     |                                         | NSAPI_SECURITY_WPA3        | SHOULD   |
 | 9   | WIFI_CONNECT_PARAMS_CHANNEL             |                            | SHOULD   |
 | 10  | WIFI_CONNECT_PARAMS_CHANNEL_FAIL        |                            | SHOULD   |
 | 11  | WIFI_CONNECT                            |                            | MUST     |
@@ -67,6 +70,8 @@ Please refer to the following table for priorities of test cases. Priorities are
 |     |                                         | NSAPI_SECURITY_WPA         | SHOULD   |
 |     |                                         | NSAPI_SECURITY_WPA2        | SHOULD   |
 |     |                                         | NSAPI_SECURITY_WPA_WPA2    | MUST     |
+|     |                                         | NSAPI_SECURITY_WPA3_WPA2   | SHOULD   |
+|     |                                         | NSAPI_SECURITY_WPA3        | SHOULD   |
 | 14  | WIFI_CONNECT_SECURE_FAIL                |                            | MUST     |
 | 15  | WIFI_CONNECT_DISCONNECT_REPEAT          |                            | MUST     |
 | 16  | WIFI_SCAN_NULL                          |                            | SHOULD   |
@@ -167,15 +172,19 @@ Call `set_credentials()` with various parameters described in "Expected results"
 |------------|---------------------------|----------------------------------|-----------------------------------------------------|
 | ssid=NULL  | NULL                      | NSAPI_SECURITY_NONE              | NSAPI_ERROR_PARAMETER                               |
 | ssid="OK"  | NULL                      | NSAPI_SECURITY_WPA_WPA2          | NSAPI_ERROR_PARAMETER                               |
+| ssid="OK"  | NULL                      | NSAPI_SECURITY_WPA3_WPA2         | NSAPI_ERROR_PARAMETER                               |
 | ssid="OK"  | NULL                      | NSAPI_SECURITY_WEP               | NSAPI_ERROR_PARAMETER because password is missing.  |
 | ssid="OK"  | NULL                      | NSAPI_SECURITY_NONE              | NSAPI_ERROR_OK                                      |
 | ssid="OK"  | [any 64 character string] | NSAPI_SECURITY_WPA2              | NSAPI_ERROR_PARAMETER because password is too long  |
 | ssid="OK"  | [any 63 character string] | NSAPI_SECURITY_WPA2              | NSAPI_ERROR_OK                                      |
 | ssid="OK"  | ""                        | NSAPI_SECURITY_WPA_WPA2          | NSAPI_ERROR_PARAMETER                               |
+| ssid="OK"  | ""                        | NSAPI_SECURITY_WPA3_WPA2         | NSAPI_ERROR_PARAMETER                               |
 | ssid="OK"  | ""                        | NSAPI_SECURITY_WEP               | NSAPI_ERROR_PARAMETER because password is missing.  |
 | ssid="OK"  | ""                        | NSAPI_SECURITY_NONE              | NSAPI_ERROR_OK                                      |
 | ssid="OK"  | "12345678"                | NSAPI_SECURITY_WPA_WPA2          | NSAPI_ERROR_OK                                      |
+| ssid="OK"  | "12345678"                | NSAPI_SECURITY_WPA3_WPA2         | NSAPI_ERROR_OK                                      |
 | ssid="OK"  | "12345678"                | NSAPI_SECURITY_WPA2              | NSAPI_ERROR_OK                                      |
+| ssid="OK"  | "12345678"                | NSAPI_SECURITY_WPA3              | NSAPI_ERROR_OK                                      |
 | ssid="OK"  | "12345678"                | NSAPI_SECURITY_WPA               | NSAPI_ERROR_OK                                      |
 | ssid="OK"  | "12345678"                | NSAPI_SECURITY_WEP               | NSAPI_ERROR_OK or NSAPI_ERROR_UNSUPPORTED           |
 | ssid=""    | ""                        | NSAPI_SECURITY_NONE              | NSAPI_ERROR_PARAMETER                               |

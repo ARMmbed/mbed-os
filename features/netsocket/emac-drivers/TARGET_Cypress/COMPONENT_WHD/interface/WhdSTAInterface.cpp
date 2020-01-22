@@ -125,6 +125,10 @@ static nsapi_security_t whd_tosecurity(whd_security_t sec)
         case WHD_SECURITY_WPA2_FBT_PSK:
         case WHD_SECURITY_WPA2_FBT_ENT:
             return NSAPI_SECURITY_WPA2;
+        case WHD_SECURITY_WPA3_SAE:
+            return NSAPI_SECURITY_WPA3;
+        case WHD_SECURITY_WPA3_WPA2_PSK:
+            return NSAPI_SECURITY_WPA3_WPA2;
         default:
             return NSAPI_SECURITY_UNKNOWN;
     }
@@ -145,6 +149,10 @@ whd_security_t whd_fromsecurity(nsapi_security_t sec)
             return WHD_SECURITY_WPA2_MIXED_PSK;
         case NSAPI_SECURITY_WPA2_ENT:
             return WHD_SECURITY_WPA2_MIXED_ENT;
+        case NSAPI_SECURITY_WPA3:
+            return WHD_SECURITY_WPA3_SAE;
+        case NSAPI_SECURITY_WPA3_WPA2:
+            return WHD_SECURITY_WPA3_WPA2_PSK;
         default:
             return WHD_SECURITY_UNKNOWN;
     }
@@ -224,7 +232,8 @@ nsapi_error_t WhdSTAInterface::set_credentials(const char *ssid, const char *pas
             (strlen(ssid) == 0) ||
             (pass == NULL && (security != NSAPI_SECURITY_NONE && security != NSAPI_SECURITY_WPA2_ENT)) ||
             (strlen(pass) == 0 && (security != NSAPI_SECURITY_NONE && security != NSAPI_SECURITY_WPA2_ENT)) ||
-            (strlen(pass) > 63 && (security == NSAPI_SECURITY_WPA2 || security == NSAPI_SECURITY_WPA || security == NSAPI_SECURITY_WPA_WPA2))
+            (strlen(pass) > 63 && (security == NSAPI_SECURITY_WPA2 || security == NSAPI_SECURITY_WPA ||
+            security == NSAPI_SECURITY_WPA_WPA2 || security == NSAPI_SECURITY_WPA3 || security == NSAPI_SECURITY_WPA3_WPA2))
        ) {
         return NSAPI_ERROR_PARAMETER;
     }
@@ -292,6 +301,19 @@ nsapi_error_t WhdSTAInterface::connect()
     // choose network security
     whd_security_t security = whd_fromsecurity(_security);
 
+#if defined MBED_CONF_APP_WIFI_PASSWORD_WPA2PSK
+    /* Set PSK password for WPA3_WPA2 */
+    if (security == WHD_SECURITY_WPA3_WPA2_PSK) {
+        res = (whd_result_t)whd_wifi_enable_sup_set_passphrase( _whd_emac.ifp, (const uint8_t *)MBED_CONF_APP_WIFI_PASSWORD_WPA2PSK,
+                  strlen(MBED_CONF_APP_WIFI_PASSWORD_WPA2PSK), WHD_SECURITY_WPA3_WPA2_PSK );
+    }
+#else
+    /* Set PSK password for WPA3_WPA2 */
+    if (security == WHD_SECURITY_WPA3_WPA2_PSK) {
+        res = (whd_result_t)whd_wifi_enable_sup_set_passphrase( _whd_emac.ifp, (const uint8_t *)_pass,
+                  strlen(_pass), WHD_SECURITY_WPA3_WPA2_PSK );
+    }
+#endif
     // join the network
     for (i = 0; i < MAX_RETRY_COUNT; i++) {
         res = (whd_result_t)whd_wifi_join(_whd_emac.ifp,

@@ -26,6 +26,8 @@ nsapi_security get_security()
     static const char *SEC_WPA = "WPA";
     static const char *SEC_WPA2 = "WPA2";
     static const char *SEC_WPA_WPA2 = "WPA/WPA2";
+    static const char *SEC_WPA3 = "WPA3";
+    static const char *SEC_WPA3_WPA2 = "WPA3/WPA2";
 
     if (strcmp(MBED_CONF_APP_WIFI_SECURE_PROTOCOL, SEC_WEP) == 0) {
         return NSAPI_SECURITY_WEP;
@@ -38,6 +40,12 @@ nsapi_security get_security()
     }
     if (strcmp(MBED_CONF_APP_WIFI_SECURE_PROTOCOL, SEC_WPA_WPA2) == 0) {
         return NSAPI_SECURITY_WPA_WPA2;
+    }
+    if (strcmp(MBED_CONF_APP_WIFI_SECURE_PROTOCOL, SEC_WPA3) == 0) {
+        return NSAPI_SECURITY_WPA3;
+    }
+    if (strcmp(MBED_CONF_APP_WIFI_SECURE_PROTOCOL, SEC_WPA3_WPA2) == 0) {
+        return NSAPI_SECURITY_WPA3_WPA2;
     }
 #endif
     return NSAPI_SECURITY_NONE;
