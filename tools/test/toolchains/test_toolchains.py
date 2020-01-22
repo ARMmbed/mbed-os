@@ -64,9 +64,7 @@ class TestArmToolchain(TestCase):
 
         self.assertIn("--library_type=microlib", arm_std_obj.flags["ld"])
         self.assertIn("--library_type=microlib", arm_micro_obj.flags["ld"])
-        self.assertIn("--library_type=microlib", arm_c6_obj.flags["ld"])
-
-        self.assertIn("-Wl,--library_type=microlib", arm_c6_obj.flags["cxx"])
+        self.assertIn("--library_type=microlib", arm_c6_obj.flags["ld"])        
         self.assertIn("--library_type=microlib", arm_c6_obj.flags["asm"])
 
     def test_arm_c_lib_std_exception(self):
