@@ -134,5 +134,10 @@ int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, 
     return 0;
 }
 
+int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void*, bd_size_t)> sfdp_reader, sfdp_smtbl_info &smtbl)
+{
+    return 0;
+}
+
 } /* namespace mbed */
 #endif /* (DEVICE_SPI || DEVICE_QSPI) */

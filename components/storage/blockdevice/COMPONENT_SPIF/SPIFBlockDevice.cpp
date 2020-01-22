@@ -65,12 +65,6 @@ using namespace mbed;
 #define SPIF_BASIC_PARAM_ERASE_TYPE_4_SIZE_BYTE 34
 #define SPIF_BASIC_PARAM_4K_ERASE_TYPE_BYTE 1
 
-// Erase Types Per Region BitMask
-#define ERASE_BITMASK_TYPE4 0x08
-#define ERASE_BITMASK_TYPE1 0x01
-#define ERASE_BITMASK_NONE  0x00
-#define ERASE_BITMASK_ALL   0x0F
-
 #define IS_MEM_READY_MAX_RETRIES 10000
 
 enum spif_default_instructions {
@@ -115,7 +109,7 @@ SPIFBlockDevice::SPIFBlockDevice(
 
     _min_common_erase_size = 0;
     _regions_count = 1;
-    _region_erase_types_bitfield[0] = ERASE_BITMASK_NONE;
+    _region_erase_types_bitfield[0] = SFDP_ERASE_BITMASK_NONE;
 
     if (SPIF_BD_ERROR_OK != _spi_set_frequency(freq)) {
         tr_error("SPI Set Frequency Failed");
@@ -445,7 +439,7 @@ bd_size_t SPIFBlockDevice::get_erase_size(bd_addr_t addr) const
     int region = _utils_find_addr_region(addr);
 
     unsigned int min_region_erase_size = _min_common_erase_size;
-    int8_t type_mask = ERASE_BITMASK_TYPE1;
+    int8_t type_mask = SFDP_ERASE_BITMASK_TYPE1;
     int i_ind = 0;
 
     if (region != -1) {
@@ -631,7 +625,7 @@ int SPIFBlockDevice::_sfdp_parse_sector_map_table(uint32_t sector_map_table_addr
     int i_ind = 0;
     int prev_boundary = 0;
     // Default set to all type bits 1-4 are common
-    int min_common_erase_type_bits = ERASE_BITMASK_ALL;
+    int min_common_erase_type_bits = SFDP_ERASE_BITMASK_ALL;
 
 
     spif_bd_error status = _spi_send_read_command(SPIF_SFDP, sector_map_table, sector_map_table_addr /*address*/,
@@ -666,7 +660,7 @@ int SPIFBlockDevice::_sfdp_parse_sector_map_table(uint32_t sector_map_table_addr
     }
 
     // Calc minimum Common Erase Size from min_common_erase_type_bits
-    uint8_t type_mask = ERASE_BITMASK_TYPE1;
+    uint8_t type_mask = SFDP_ERASE_BITMASK_TYPE1;
     for (i_ind = 0; i_ind < 4; i_ind++) {
         if (min_common_erase_type_bits & type_mask) {
             _min_common_erase_size = _erase_type_size_arr[i_ind];
@@ -943,7 +937,7 @@ int SPIFBlockDevice::_utils_iterate_next_largest_erase_type(uint8_t &bitfield, i
 {
     // Iterate on all supported Erase Types of the Region to which the offset belong to.
     // Iterates from highest type to lowest
-    uint8_t type_mask = ERASE_BITMASK_TYPE4;
+    uint8_t type_mask = SFDP_ERASE_BITMASK_TYPE4;
     int i_ind  = 0;
     int largest_erase_type = 0;
     for (i_ind = 3; i_ind >= 0; i_ind--) {

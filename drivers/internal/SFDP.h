@@ -27,6 +27,15 @@ namespace mbed {
 
 static const int SFDP_HEADER_SIZE = 8; ///< Size of an SFDP header */
 static const int SFDP_BASIC_PARAMS_TBL_SIZE = 80; ///< Basic Parameter Table size in Bytes, 20 DWORDS  */
+static const int SFDP_SECTOR_MAP_MAX_REGIONS = 10;
+
+// Erase Types Per Region BitMask
+static const int SFDP_ERASE_BITMASK_TYPE4 = 0x08;
+static const int SFDP_ERASE_BITMASK_TYPE1 = 0x01;
+static const int SFDP_ERASE_BITMASK_NONE = 0x00;
+static const int SFDP_ERASE_BITMASK_ALL = 0x0F;
+
+static const int SFDP_MAX_NUM_OF_ERASE_TYPES = 4;
 
 /** SFDP Basic Parameter Table info */
 struct sfdp_bptbl_info {
@@ -38,6 +47,15 @@ struct sfdp_bptbl_info {
 struct sfdp_smtbl_info {
     uint32_t addr;
     size_t size;
+    int _regions_count;
+    int _region_size_bytes[SFDP_SECTOR_MAP_MAX_REGIONS];
+    //Each Region can support a bit combination of any of the 4 Erase Types
+    uint8_t _region_erase_types_bitfield[SFDP_SECTOR_MAP_MAX_REGIONS];
+    unsigned int _min_common_erase_size; // minimal common erase size for all regions (0 if none exists)
+    bd_size_t _region_high_boundary[SFDP_SECTOR_MAP_MAX_REGIONS]; //region high address offset boundary
+    // Up To 4 Erase Types are supported by SFDP (each with its own command Instruction and Size)
+    int _erase_type_inst_arr[SFDP_MAX_NUM_OF_ERASE_TYPES];
+    unsigned int _erase_type_size_arr[SFDP_MAX_NUM_OF_ERASE_TYPES];
 };
 
 /** SFDP Parameter Table addresses and sizes */
@@ -89,6 +107,8 @@ int sfdp_parse_single_param_header(sfdp_prm_hdr *parameter_header, sfdp_hdr_info
  * @return 0 on success, negative error code on failure
  */
 int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &hdr_info);
+
+int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void*, bd_size_t)> sfdp_reader, sfdp_smtbl_info &smtbl);
 
 } /* namespace mbed */
 #endif
