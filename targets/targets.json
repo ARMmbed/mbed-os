@@ -1943,7 +1943,8 @@
             "SPI",
             "SPISLAVE",
             "STDIO_MESSAGES",
-            "TRNG"
+            "TRNG",
+            "WATCHDOG"
         ],
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
