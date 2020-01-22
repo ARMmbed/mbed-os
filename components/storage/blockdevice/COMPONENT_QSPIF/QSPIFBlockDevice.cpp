@@ -152,9 +152,9 @@ QSPIFBlockDevice::QSPIFBlockDevice(PinName io0, PinName io1, PinName io2, PinNam
     }
 
     // Initialize parameters
-    _sfdp_info.smtbl._min_common_erase_size = 0;
-    _sfdp_info.smtbl._regions_count = 1;
-    _sfdp_info.smtbl._region_erase_types_bitfield[0] = SFDP_ERASE_BITMASK_NONE;
+    _sfdp_info.smtbl.regions_min_common_erase_size = 0;
+    _sfdp_info.smtbl.region_cnt = 1;
+    _sfdp_info.smtbl.region_erase_types_bitfld[0] = SFDP_ERASE_BITMASK_NONE;
 
     // Until proven otherwise, assume no quad enable
     _quad_enable_register_idx = QSPIF_NO_QUAD_ENABLE;
@@ -259,9 +259,9 @@ int QSPIFBlockDevice::init()
     }
 
     /**************************** Parse Sector Map Table ***********************************/
-    _sfdp_info.smtbl._region_size_bytes[0] =
+    _sfdp_info.smtbl.region_size[0] =
         _device_size_bytes; // If there's no region map, we have a single region sized the entire device size
-    _sfdp_info.smtbl._region_high_boundary[0] = _device_size_bytes - 1;
+    _sfdp_info.smtbl.region_high_boundary[0] = _device_size_bytes - 1;
 
     if ((_sfdp_info.smtbl.addr != 0) && (0 != _sfdp_info.smtbl.size)) {
         tr_debug("Init - Parsing Sector Map Table - addr: 0x%lxh, Size: %d", _sfdp_info.smtbl.addr,
@@ -411,7 +411,7 @@ int QSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
     // Find region of erased address
     int region = _utils_find_addr_region(addr, _sfdp_info.smtbl);
     // Erase Types of selected region
-    uint8_t bitfield = _sfdp_info.smtbl._region_erase_types_bitfield[region];
+    uint8_t bitfield = _sfdp_info.smtbl.region_erase_types_bitfld[region];
 
     tr_debug("Erase - addr: %llu, in_size: %llu", addr, in_size);
 
@@ -434,8 +434,8 @@ int QSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
             type = _utils_iterate_next_largest_erase_type(bitfield, size, (int)addr,
                                                           region,
                                                           _sfdp_info.smtbl);
-            cur_erase_inst = _sfdp_info.smtbl._erase_type_inst_arr[type];
-            eu_size = _sfdp_info.smtbl._erase_type_size_arr[type];
+            cur_erase_inst = _sfdp_info.smtbl.erase_type_inst_arr[type];
+            eu_size = _sfdp_info.smtbl.erase_type_size_arr[type];
         } else {
             // Must use legacy 4k erase instruction
             cur_erase_inst = _legacy_erase_instruction;
@@ -468,10 +468,10 @@ int QSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
         addr += chunk;
         size -= chunk;
 
-        if ((size > 0) && (addr > _sfdp_info.smtbl._region_high_boundary[region])) {
+        if ((size > 0) && (addr > _sfdp_info.smtbl.region_high_boundary[region])) {
             // erase crossed to next region
             region++;
-            bitfield = _sfdp_info.smtbl._region_erase_types_bitfield[region];
+            bitfield = _sfdp_info.smtbl.region_erase_types_bitfld[region];
         }
 
         if (false == _is_mem_ready()) {
@@ -507,7 +507,7 @@ bd_size_t QSPIFBlockDevice::get_program_size() const
 bd_size_t QSPIFBlockDevice::get_erase_size() const
 {
     // return minimal erase size supported by all regions (0 if none exists)
-    return _sfdp_info.smtbl._min_common_erase_size;
+    return _sfdp_info.smtbl.regions_min_common_erase_size;
 }
 
 const char *QSPIFBlockDevice::get_type() const
@@ -526,7 +526,7 @@ bd_size_t QSPIFBlockDevice::get_erase_size(bd_addr_t addr)
     // Find region of current address
     int region = _utils_find_addr_region(addr, _sfdp_info.smtbl);
 
-    int min_region_erase_size = _sfdp_info.smtbl._min_common_erase_size;
+    int min_region_erase_size = _sfdp_info.smtbl.regions_min_common_erase_size;
     int8_t type_mask = SFDP_ERASE_BITMASK_TYPE1;
     int i_ind = 0;
 
@@ -535,9 +535,9 @@ bd_size_t QSPIFBlockDevice::get_erase_size(bd_addr_t addr)
 
         for (i_ind = 0; i_ind < 4; i_ind++) {
             // loop through erase types bitfield supported by region
-            if (_sfdp_info.smtbl._region_erase_types_bitfield[region] & type_mask) {
+            if (_sfdp_info.smtbl.region_erase_types_bitfld[region] & type_mask) {
 
-                min_region_erase_size = _sfdp_info.smtbl._erase_type_size_arr[i_ind];
+                min_region_erase_size = _sfdp_info.smtbl.erase_type_size_arr[i_ind];
                 break;
             }
             type_mask = type_mask << 1;
@@ -855,26 +855,26 @@ int QSPIFBlockDevice::_sfdp_detect_erase_types_inst_and_size(uint8_t *basic_para
     if (basic_param_table_size > QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE) {
         // Loop Erase Types 1-4
         for (int i_ind = 0; i_ind < 4; i_ind++) {
-            smtbl._erase_type_inst_arr[i_ind] = QSPI_NO_INST; // Default for unsupported type
-            smtbl._erase_type_size_arr[i_ind] = 1
-                            << basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE + 2 * i_ind]; // Size is 2^N where N is the table value
-            tr_debug("Erase Type(A) %d - Inst: 0x%xh, Size: %d", (i_ind + 1), smtbl._erase_type_inst_arr[i_ind],
-                     smtbl._erase_type_size_arr[i_ind]);
-            if (smtbl._erase_type_size_arr[i_ind] > 1) {
+            smtbl.erase_type_inst_arr[i_ind] = QSPI_NO_INST; // Default for unsupported type
+            smtbl.erase_type_size_arr[i_ind] = 1
+                                               << basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE + 2 * i_ind]; // Size is 2^N where N is the table value
+            tr_debug("Erase Type(A) %d - Inst: 0x%xh, Size: %d", (i_ind + 1), smtbl.erase_type_inst_arr[i_ind],
+                     smtbl.erase_type_size_arr[i_ind]);
+            if (smtbl.erase_type_size_arr[i_ind] > 1) {
                 // if size==1 type is not supported
-                smtbl._erase_type_inst_arr[i_ind] = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_1_BYTE
-                                + 2 * i_ind];
+                smtbl.erase_type_inst_arr[i_ind] = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_1_BYTE
+                                                                         + 2 * i_ind];
 
-                if ((smtbl._erase_type_size_arr[i_ind] < smtbl._min_common_erase_size)
-                                || (smtbl._min_common_erase_size == 0)) {
+                if ((smtbl.erase_type_size_arr[i_ind] < smtbl.regions_min_common_erase_size)
+                        || (smtbl.regions_min_common_erase_size == 0)) {
                     //Set default minimal common erase for signal region
-                    smtbl._min_common_erase_size = smtbl._erase_type_size_arr[i_ind];
+                    smtbl.regions_min_common_erase_size = smtbl.erase_type_size_arr[i_ind];
                 }
-                smtbl._region_erase_types_bitfield[0] |= bitfield; // If there's no region map, set region "0" types bitfield as default
+                smtbl.region_erase_types_bitfld[0] |= bitfield; // If there's no region map, set region "0" types bitfield as default
             }
 
-            tr_debug("Erase Type %d - Inst: 0x%xh, Size: %d", (i_ind + 1), smtbl._erase_type_inst_arr[i_ind],
-                     smtbl._erase_type_size_arr[i_ind]);
+            tr_debug("Erase Type %d - Inst: 0x%xh, Size: %d", (i_ind + 1), smtbl.erase_type_inst_arr[i_ind],
+                     smtbl.erase_type_size_arr[i_ind]);
             bitfield = bitfield << 1;
         }
     } else {
@@ -1107,7 +1107,7 @@ int QSPIFBlockDevice::_sfdp_detect_reset_protocol_and_reset(uint8_t *basic_param
     return status;
 }
 
-int QSPIFBlockDevice::_sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void*, bd_size_t)> sfdp_reader,
+int QSPIFBlockDevice::_sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader,
                                                    sfdp_smtbl_info &smtbl)
 {
     uint8_t sector_map_table[SFDP_BASIC_PARAMS_TBL_SIZE]; /* Up To 20 DWORDS = 80 Bytes */
@@ -1129,8 +1129,8 @@ int QSPIFBlockDevice::_sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void*
         return -1;
     }
 
-    smtbl._regions_count = sector_map_table[2] + 1;
-    if (smtbl._regions_count > SFDP_SECTOR_MAP_MAX_REGIONS) {
+    smtbl.region_cnt = sector_map_table[2] + 1;
+    if (smtbl.region_cnt > SFDP_SECTOR_MAP_MAX_REGIONS) {
         tr_error("Supporting up to %d regions, current setup to %d regions - fail",
                  SFDP_SECTOR_MAP_MAX_REGIONS,
                  smtbl.regions_count);
@@ -1139,20 +1139,20 @@ int QSPIFBlockDevice::_sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void*
 
     // Loop through Regions and set for each one: size, supported erase types, high boundary offset
     // Calculate minimum Common Erase Type for all Regions
-    for (i_ind = 0; i_ind < smtbl._regions_count; i_ind++) {
+    for (i_ind = 0; i_ind < smtbl.region_cnt; i_ind++) {
         tmp_region_size = ((*((uint32_t *)&sector_map_table[(i_ind + 1) * 4])) >> 8) & 0x00FFFFFF; // bits 9-32
-        smtbl._region_size_bytes[i_ind] = (tmp_region_size + 1) * 256; // Region size is 0 based multiple of 256 bytes;
-        smtbl._region_erase_types_bitfield[i_ind] = sector_map_table[(i_ind + 1) * 4] & 0x0F; // bits 1-4
-        min_common_erase_type_bits &= smtbl._region_erase_types_bitfield[i_ind];
-        smtbl._region_high_boundary[i_ind] = (smtbl._region_size_bytes[i_ind] - 1) + prev_boundary;
-        prev_boundary = smtbl._region_high_boundary[i_ind] + 1;
+        smtbl.region_size[i_ind] = (tmp_region_size + 1) * 256; // Region size is 0 based multiple of 256 bytes;
+        smtbl.region_erase_types_bitfld[i_ind] = sector_map_table[(i_ind + 1) * 4] & 0x0F; // bits 1-4
+        min_common_erase_type_bits &= smtbl.region_erase_types_bitfld[i_ind];
+        smtbl.region_high_boundary[i_ind] = (smtbl.region_size[i_ind] - 1) + prev_boundary;
+        prev_boundary = smtbl.region_high_boundary[i_ind] + 1;
     }
 
     // Calc minimum Common Erase Size from min_common_erase_type_bits
     uint8_t type_mask = SFDP_ERASE_BITMASK_TYPE1;
     for (i_ind = 0; i_ind < 4; i_ind++) {
         if (min_common_erase_type_bits & type_mask) {
-            smtbl._min_common_erase_size = smtbl._erase_type_size_arr[i_ind];
+            smtbl.regions_min_common_erase_size = smtbl.erase_type_size_arr[i_ind];
             break;
         }
         type_mask = type_mask << 1;
@@ -1160,7 +1160,7 @@ int QSPIFBlockDevice::_sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void*
 
     if (i_ind == 4) {
         // No common erase type was found between regions
-        smtbl._min_common_erase_size = 0;
+        smtbl.regions_min_common_erase_size = 0;
     }
 
     return 0;
@@ -1382,17 +1382,17 @@ bool QSPIFBlockDevice::_is_mem_ready()
 int QSPIFBlockDevice::_utils_find_addr_region(bd_size_t offset, sfdp_smtbl_info &smtbl)
 {
     //Find the region to which the given offset belong to
-    if ((offset > _device_size_bytes) || (smtbl._regions_count == 0)) {
+    if ((offset > _device_size_bytes) || (smtbl.region_cnt == 0)) {
         return -1;
     }
 
-    if (smtbl._regions_count == 1) {
+    if (smtbl.region_cnt == 1) {
         return 0;
     }
 
-    for (int i_ind = smtbl._regions_count - 2; i_ind >= 0; i_ind--) {
+    for (int i_ind = smtbl.region_cnt - 2; i_ind >= 0; i_ind--) {
 
-        if (offset > smtbl._region_high_boundary[i_ind]) {
+        if (offset > smtbl.region_high_boundary[i_ind]) {
             return (i_ind + 1);
         }
     }
@@ -1414,9 +1414,9 @@ int QSPIFBlockDevice::_utils_iterate_next_largest_erase_type(uint8_t &bitfield,
     for (i_ind = 3; i_ind >= 0; i_ind--) {
         if (bitfield & type_mask) {
             largest_erase_type = i_ind;
-            if ((size > (int)(smtbl._erase_type_size_arr[largest_erase_type])) &&
-                            ((_sfdp_info.smtbl._region_high_boundary[region] - offset)
-                                            > (int)(smtbl._erase_type_size_arr[largest_erase_type]))) {
+            if ((size > (int)(smtbl.erase_type_size_arr[largest_erase_type])) &&
+                    ((_sfdp_info.smtbl.region_high_boundary[region] - offset)
+                     > (int)(smtbl.erase_type_size_arr[largest_erase_type]))) {
                 break;
             } else {
                 bitfield &= ~type_mask;

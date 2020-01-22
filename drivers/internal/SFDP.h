@@ -47,15 +47,15 @@ struct sfdp_bptbl_info {
 struct sfdp_smtbl_info {
     uint32_t addr;
     size_t size;
-    int _regions_count;
-    int _region_size_bytes[SFDP_SECTOR_MAP_MAX_REGIONS];
+    int region_cnt;
+    int region_size[SFDP_SECTOR_MAP_MAX_REGIONS]; // [Bytes]
     //Each Region can support a bit combination of any of the 4 Erase Types
-    uint8_t _region_erase_types_bitfield[SFDP_SECTOR_MAP_MAX_REGIONS];
-    unsigned int _min_common_erase_size; // minimal common erase size for all regions (0 if none exists)
-    bd_size_t _region_high_boundary[SFDP_SECTOR_MAP_MAX_REGIONS]; //region high address offset boundary
+    uint8_t region_erase_types_bitfld[SFDP_SECTOR_MAP_MAX_REGIONS];
+    unsigned int regions_min_common_erase_size; // minimal common erase size for all regions (0 if none exists)
+    bd_size_t region_high_boundary[SFDP_SECTOR_MAP_MAX_REGIONS]; //region high address offset boundary
     // Up To 4 Erase Types are supported by SFDP (each with its own command Instruction and Size)
-    int _erase_type_inst_arr[SFDP_MAX_NUM_OF_ERASE_TYPES];
-    unsigned int _erase_type_size_arr[SFDP_MAX_NUM_OF_ERASE_TYPES];
+    int erase_type_inst_arr[SFDP_MAX_NUM_OF_ERASE_TYPES];
+    unsigned int erase_type_size_arr[SFDP_MAX_NUM_OF_ERASE_TYPES];
 };
 
 /** SFDP Parameter Table addresses and sizes */
@@ -108,7 +108,15 @@ int sfdp_parse_single_param_header(sfdp_prm_hdr *parameter_header, sfdp_hdr_info
  */
 int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &hdr_info);
 
-int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void*, bd_size_t)> sfdp_reader, sfdp_smtbl_info &smtbl);
+/** Parse Sector Map Parameter Table
+ * Retrieves the table from a device and parses the information contained by the table
+ *
+ * @param sfdp_reader Callback function used to read headers from a device
+ * @param smtbl       All information parsed from the table gets passed back on this structure
+ *
+ * @return 0 on success, negative error code on failure
+ */
+int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_smtbl_info &smtbl);
 
 } /* namespace mbed */
 #endif

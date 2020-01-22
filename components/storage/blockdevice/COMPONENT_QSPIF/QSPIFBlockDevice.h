@@ -320,7 +320,7 @@ private:
     int _sfdp_parse_basic_param_table(uint32_t basic_table_addr, size_t basic_table_size);
 
     // Parse and read information required by Regions Sector Map
-    int _sfdp_parse_sector_map_table(mbed::Callback<int(mbed::bd_addr_t, void*, mbed::bd_size_t)> sfdp_reader,
+    int _sfdp_parse_sector_map_table(mbed::Callback<int(mbed::bd_addr_t, void *, mbed::bd_size_t)> sfdp_reader,
                                      mbed::sfdp_smtbl_info &smtbl);
 
     // Detect the soft reset protocol and reset - returns error if soft reset is not supported
