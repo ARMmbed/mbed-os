@@ -136,6 +136,59 @@ int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, 
 
 int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_smtbl_info &smtbl)
 {
+    uint8_t sector_map_table[SFDP_BASIC_PARAMS_TBL_SIZE]; /* Up To 20 DWORDS = 80 Bytes */
+    uint32_t tmp_region_size = 0;
+    int i_ind = 0;
+    int prev_boundary = 0;
+    // Default set to all type bits 1-4 are common
+    int min_common_erase_type_bits = SFDP_ERASE_BITMASK_ALL;
+
+    int status = sfdp_reader(smtbl.addr, sector_map_table, smtbl.size);
+    if (status < 0) {
+        tr_error("table retrieval failed");
+        return -1;
+    }
+
+    // Currently we support only Single Map Descriptor
+    if (!((sector_map_table[0] & 0x3) == 0x03) && (sector_map_table[1] == 0x0)) {
+        tr_error("Sector Map - Supporting Only Single! Map Descriptor (not map commands)");
+        return -1;
+    }
+
+    smtbl.region_cnt = sector_map_table[2] + 1;
+    if (smtbl.region_cnt > SFDP_SECTOR_MAP_MAX_REGIONS) {
+        tr_error("Supporting up to %d regions, current setup to %d regions - fail",
+                 SFDP_SECTOR_MAP_MAX_REGIONS,
+                 smtbl.region_cnt);
+        return -1;
+    }
+
+    // Loop through Regions and set for each one: size, supported erase types, high boundary offset
+    // Calculate minimum Common Erase Type for all Regions
+    for (i_ind = 0; i_ind < smtbl.region_cnt; i_ind++) {
+        tmp_region_size = ((*((uint32_t *)&sector_map_table[(i_ind + 1) * 4])) >> 8) & 0x00FFFFFF; // bits 9-32
+        smtbl.region_size[i_ind] = (tmp_region_size + 1) * 256; // Region size is 0 based multiple of 256 bytes;
+        smtbl.region_erase_types_bitfld[i_ind] = sector_map_table[(i_ind + 1) * 4] & 0x0F; // bits 1-4
+        min_common_erase_type_bits &= smtbl.region_erase_types_bitfld[i_ind];
+        smtbl.region_high_boundary[i_ind] = (smtbl.region_size[i_ind] - 1) + prev_boundary;
+        prev_boundary = smtbl.region_high_boundary[i_ind] + 1;
+    }
+
+    // Calc minimum Common Erase Size from min_common_erase_type_bits
+    uint8_t type_mask = SFDP_ERASE_BITMASK_TYPE1;
+    for (i_ind = 0; i_ind < 4; i_ind++) {
+        if (min_common_erase_type_bits & type_mask) {
+            smtbl.regions_min_common_erase_size = smtbl.erase_type_size_arr[i_ind];
+            break;
+        }
+        type_mask = type_mask << 1;
+    }
+
+    if (i_ind == 4) {
+        // No common erase type was found between regions
+        smtbl.regions_min_common_erase_size = 0;
+    }
+
     return 0;
 }
 
