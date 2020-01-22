@@ -52,9 +52,6 @@ enum spif_bd_error {
 };
 
 
-#define SPIF_MAX_REGIONS    10
-#define MAX_NUM_OF_ERASE_TYPES 4
-
 /** BlockDevice for SFDP based flash devices over SPI bus
  *
  *  @code
@@ -222,6 +219,10 @@ private:
 
     // Internal functions
 
+    // SFDP helpers
+    friend int mbed::sfdp_parse_headers(mbed::Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader,
+                                        mbed::sfdp_hdr_info &hdr_info);
+
     /****************************************/
     /* SFDP Detection and Parsing Functions */
     /****************************************/
@@ -234,9 +235,6 @@ private:
     // Parse and Detect required Basic Parameters from Table
     int _sfdp_parse_basic_param_table(uint32_t basic_table_addr, size_t basic_table_size);
 
-    // Parse and read information required by Regions Sector Map
-    int _sfdp_parse_sector_map_table(uint32_t sector_map_table_addr, size_t sector_map_table_size);
-
     // Detect fastest read Bus mode supported by device
     int _sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table_ptr, int basic_param_table_size, int &read_inst);
 
@@ -246,17 +244,21 @@ private:
     // Detect all supported erase types
     int _sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr, int basic_param_table_size,
                                                int &erase4k_inst,
-                                               int *erase_type_inst_arr, unsigned int *erase_type_size_arr);
+                                               mbed::sfdp_smtbl_info &smtbl);
 
     /***********************/
     /* Utilities Functions */
     /***********************/
     // Find the region to which the given offset belongs to
-    int _utils_find_addr_region(bd_size_t offset) const;
+    int _utils_find_addr_region(bd_size_t offset, const mbed::sfdp_smtbl_info &smtbl) const;
 
     // Iterate on all supported Erase Types of the Region to which the offset belongs to.
     // Iterates from highest type to lowest
-    int _utils_iterate_next_largest_erase_type(uint8_t &bitfield, int size, int offset, int boundry);
+    int _utils_iterate_next_largest_erase_type(uint8_t &bitfield,
+                                               int size,
+                                               int offset,
+                                               int region,
+                                               mbed::sfdp_smtbl_info &smtbl);
 
     /********************************/
     /*   Calls to SPI Driver APIs   */
@@ -304,22 +306,8 @@ private:
     int _erase_instruction;
     int _erase4k_inst;  // Legacy 4K erase instruction (default 0x20h)
 
-    // SFDP helpers
-    friend int mbed::sfdp_parse_headers(mbed::Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader,
-                                        mbed::sfdp_hdr_info &hdr_info);
-
-
-    // Up To 4 Erase Types are supported by SFDP (each with its own command Instruction and Size)
-    int _erase_type_inst_arr[MAX_NUM_OF_ERASE_TYPES];
-    unsigned int _erase_type_size_arr[MAX_NUM_OF_ERASE_TYPES];
-
-    // Sector Regions Map
-    int _regions_count; //number of regions
-    int _region_size_bytes[SPIF_MAX_REGIONS]; //regions size in bytes
-    bd_size_t _region_high_boundary[SPIF_MAX_REGIONS]; //region high address offset boundary
-    //Each Region can support a bit combination of any of the 4 Erase Types
-    uint8_t _region_erase_types_bitfield[SPIF_MAX_REGIONS];
-    unsigned int _min_common_erase_size; // minimal common erase size for all regions (0 if none exists)
+    // Data extracted from the devices SFDP structure
+    mbed::sfdp_hdr_info _sfdp_info;
 
     unsigned int _page_size_bytes; // Page size - 256 Bytes default
     bd_size_t _device_size_bytes;

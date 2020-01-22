@@ -31,6 +31,8 @@ static const int SFDP_SECTOR_MAP_MAX_REGIONS = 10;
 
 // Erase Types Per Region BitMask
 static const int SFDP_ERASE_BITMASK_TYPE4 = 0x08;
+static const int SFDP_ERASE_BITMASK_TYPE3 = 0x04;
+static const int SFDP_ERASE_BITMASK_TYPE2 = 0x02;
 static const int SFDP_ERASE_BITMASK_TYPE1 = 0x01;
 static const int SFDP_ERASE_BITMASK_NONE = 0x00;
 static const int SFDP_ERASE_BITMASK_ALL = 0x0F;
