@@ -4,7 +4,7 @@
                    "-Wno-unused-parameter", "-Wno-missing-field-initializers",
                    "-fmessage-length=0", "-fno-exceptions",
                    "-ffunction-sections", "-fdata-sections", "-funsigned-char",
-                   "-MMD", "-fno-delete-null-pointer-checks",
+                   "-MMD",
                    "-fomit-frame-pointer", "-Og", "-g3", "-DMBED_DEBUG",
                    "-DMBED_TRAP_ERRORS_ENABLED=1"],
         "asm": ["-x", "assembler-with-cpp"],
