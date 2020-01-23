@@ -247,15 +247,15 @@ Reset_Handler(void)
           "    ldr    r1, =g_am_pfnVectors\n"
           "    str    r1, [r0]");
 
-    //
-    // Set the stack pointer.
-    //
+//     //
+//     // Set the stack pointer.
+//     //
     __asm("    ldr    sp, [r1]");
 
 #ifndef NOFPU
-    //
-    // Enable the FPU.
-    //
+//     //
+//     // Enable the FPU.
+//     //
     __asm("ldr  r0, =0xE000ED88\n"
           "ldr  r1,[r0]\n"
           "orr  r1,#(0xF << 20)\n"
@@ -266,9 +266,7 @@ Reset_Handler(void)
 
     // // Start mbed boot sequence https://os.mbed.com/docs/mbed-os/v5.15/reference/bootstrap.html
     // SystemInit();
-    // // __main();
-    // // _start();
-    // mbed_init();
+    // _start();
 
 
     //
@@ -285,32 +283,11 @@ Reset_Handler(void)
           "        b     copy_loop\n"
           "copy_end:\n");
     
-    //
-    // Zero fill the bss segment.
-    //
-    __asm("    ldr     r0, =__bss_start__\n"
-          "    ldr     r1, =__bss_end__\n"
-          "    mov     r2, #0\n"
-          "zero_loop:\n"
-          "        cmp     r0, r1\n"
-          "        it      lt\n"
-          "        strlt   r2, [r0], #4\n"
-          "        blt     zero_loop");
-
     // //
-    // // Call Global Static Constructors for C++ support
+    // // Zero fill the bss segment.
     // //
-    // extern void (*__init_array_start)(void);    // symbols must be
-    // extern void (*__init_array_end)(void);      // provided by linker
-    // for (void (**p)() = &__init_array_start; p < &__init_array_end; ++p) {  
-    //     (*p)();                                 // Call each function in the list
-    // }
-
-    //
-    // Call the application's entry point.
-    //
-    main();
-
+    __asm(  "LDR     R0, =_start\n"
+            "BX      R0\n");
     //
     // If main returns then execute a break point instruction
     //

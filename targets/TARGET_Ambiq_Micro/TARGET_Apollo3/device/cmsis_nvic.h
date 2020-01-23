@@ -32,6 +32,6 @@
 #define MBED_CMSIS_NVIC_H
 
 #define NVIC_NUM_VECTORS        (16 + 32 + 16)  // CORE + MCU Peripherals + BLE Patch
-#define NVIC_RAM_VECTOR_ADDRESS 0x10010000      // Vectors positioned at start of RAM
+#define NVIC_RAM_VECTOR_ADDRESS 0x10000000      // Vectors positioned at start of RAM
 
 #endif
