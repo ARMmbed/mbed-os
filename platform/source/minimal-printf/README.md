@@ -31,14 +31,16 @@ Floating point limitations:
 
 To replace the standard implementation of the printf functions with the ones in this library:
 
-Modify your application configuration file to override the parameter `target.printf` with the value `minimal-printf` as shown below:
+Modify your application configuration file to override the parameter `target.printf_lib` with the value `minimal-printf` as shown below:
 
 ```json
+{
     "target_overrides": {
         "*": {
-            "target.printf": "minimal-printf",
+            "target.printf_lib": "minimal-printf"
         }
     }
+}
 ```
 
 
