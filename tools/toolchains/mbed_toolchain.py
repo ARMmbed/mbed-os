@@ -898,10 +898,6 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
     def add_regions(self):
         """Add regions to the build profile, if there are any.
         """
-
-        if not getattr(self.target, "bootloader_supported", False):
-            return
-
         if self.config.has_regions:
             try:
                 regions = list(self.config.regions)
