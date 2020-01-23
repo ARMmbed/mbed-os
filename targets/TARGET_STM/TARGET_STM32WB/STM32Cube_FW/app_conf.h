@@ -24,7 +24,8 @@
 
 #include "hw.h"
 #include "hw_conf.h"
-#include "hw_if.h"
+#include "stm32wbxx.h" // MBED
+// #include "hw_if.h" // MBED
 
 /******************************************************************************
  * Transparent Mode Config
