@@ -24,13 +24,13 @@
 namespace mbed {
 
 SerialBase::SerialBase(PinName tx, PinName rx, int baud) :
+    _init_func(&SerialBase::_init),
 #if DEVICE_SERIAL_ASYNCH
     _thunk_irq(this),
 #endif
     _baud(baud),
     _tx_pin(tx),
-    _rx_pin(rx),
-    _init_func(&SerialBase::_init)
+    _rx_pin(rx)
 {
     // No lock needed in the constructor
 
@@ -38,14 +38,14 @@ SerialBase::SerialBase(PinName tx, PinName rx, int baud) :
 }
 
 SerialBase::SerialBase(const serial_pinmap_t &static_pinmap, int baud) :
+    _init_func(&SerialBase::_init_direct),
 #if DEVICE_SERIAL_ASYNCH
     _thunk_irq(this),
 #endif
     _baud(baud),
     _tx_pin(static_pinmap.tx_pin),
     _rx_pin(static_pinmap.rx_pin),
-    _static_pinmap(&static_pinmap),
-    _init_func(&SerialBase::_init_direct)
+    _static_pinmap(&static_pinmap)
 {
     // No lock needed in the constructor
 
