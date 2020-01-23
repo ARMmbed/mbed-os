@@ -128,6 +128,7 @@ int $Sub$$main(void)
 #endif
     mbed_toolchain_init();
     mbed_main();
+    mbed_error_initialize();
     return $Super$$main();
 }
 
@@ -162,6 +163,7 @@ void software_init_hook(void)
 int __wrap_main(void)
 {
     mbed_main();
+    mbed_error_initialize();
     return __real_main();
 }
 
@@ -180,6 +182,7 @@ void __mbed_init(void)
     mbed_stack_isr_size = (uint32_t)__section_size("CSTACK");
 
     mbed_init();
+    mbed_error_initialize();
 }
 
 #endif
