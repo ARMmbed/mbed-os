@@ -97,7 +97,7 @@ TEST_F(test_ATCmdParser, test_ATCmdParser_process_oob)
     filehandle_stub_short_value_counter = 2;
     at.process_oob();
 
-    char buf[5];
+    char buf[5] = {0};
     char table[] = "ssssssssssssssssssssssssssssssss\0";
     filehandle_stub_table = table;
     filehandle_stub_table_pos = 0;
@@ -189,8 +189,8 @@ TEST_F(test_ATCmdParser, test_ATCmdParser_read)
     filehandle_stub_table_pos = 0;
 
     ATCmdParser at(&fh1, ",");
-    char buf[8];
-    memset(buf, 0, 8);
+    char buf[8] = {0};
+    
 
     // TEST EMPTY BUFFER
     // Shouldn't read any byte since buffer is empty
