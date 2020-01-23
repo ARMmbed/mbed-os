@@ -24,4 +24,4 @@ set(unittest-test-sources
   moduletests/storage/kvstore/TDBStore/moduletest.cpp
 )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBYPASS_NVSTORE_CHECK")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
