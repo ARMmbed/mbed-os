@@ -15,6 +15,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 """
+# How to run this test?
+#
+# Note! You  must be in the mbed-os -folder!
+#
+# python -m pytest tools/test/targets/target_test.py
+#
 import os
 import sys
 import shutil
@@ -39,6 +45,7 @@ def test_device_name():
 
 def test_bl_has_sectors():
     """Assert a bootloader supporting pack has sector information"""
+    # ToDo: validity checks for the information IN the sectors!
     cache = Cache(True, True)
     named_targets = (
         target for target in TARGETS if
@@ -48,6 +55,9 @@ def test_bl_has_sectors():
         assert target.device_name in cache.index,\
             ("Target %s contains invalid device_name %s" %
              (target.name, target.device_name))
+        assert "sectors" in cache.index[target.device_name],\
+            ("Target %s does not have sectors" %
+             (target.name))
         assert cache.index[target.device_name]["sectors"],\
             ("Device name %s is misssing sector information" %
              (target.device_name))
