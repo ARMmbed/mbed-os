@@ -243,7 +243,7 @@ public:
      */
     bool cancel()
     {
-        return equeue_cancel_user_allocated(_equeue, &_e);
+        return _post_ref > 0 ? equeue_cancel_user_allocated(_equeue, &_e) : false;
     }
 
 
