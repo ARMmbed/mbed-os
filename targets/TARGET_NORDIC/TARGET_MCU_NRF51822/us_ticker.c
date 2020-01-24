@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if DEVICE_USTICKER
 #include <stddef.h>
 #include <stdbool.h>
 #include "us_ticker_api.h"
@@ -613,3 +615,4 @@ uint32_t os_tick_val(void) {
         return clock_cycles_by_tick - ((current_counter - next_tick_cc_value) % clock_cycles_by_tick);
     }
 }
+#endif // DEVICE_USTICKER
