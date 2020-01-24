@@ -3544,6 +3544,9 @@
             "CAN",
             "CRC"
         ],
+        "device_has_remove": [
+            "LPTICKER"
+        ],
         "release_versions": [
             "2"
         ],
@@ -3736,6 +3739,9 @@
             "SERIAL_ASYNCH",
             "FLASH",
             "MPU"
+        ],
+        "device_has_remove": [
+            "LPTICKER"
         ],
         "overrides": {
             "lse_available": 0
@@ -3982,6 +3988,12 @@
         "overrides": {
             "lse_available": 0
         },
+        "device_has_remove": [
+            "LPTICKER"
+        ],
+        "features_remove": [
+            "BLE"
+        ],
         "inherits": [
             "USI_WM_BN_BM_22"
         ]
@@ -5756,6 +5768,9 @@
             "CRC",
             "MPU"
         ],
+        "device_has_remove": [
+            "LPTICKER"
+        ],
         "device_name": "STM32F303VC"
     },
     "DISCO_F334C8": {
@@ -5785,6 +5800,9 @@
             "ANALOGOUT",
             "CRC",
             "SERIAL_ASYNCH"
+        ],
+        "device_has_remove": [
+            "LPTICKER"
         ],
         "default_lib": "small",
         "release_versions": [
@@ -5820,6 +5838,9 @@
             "TRNG",
             "FLASH",
             "MPU"
+        ],
+        "device_has_remove": [
+            "LPTICKER"
         ],
         "release_versions": [
             "2",
@@ -5859,6 +5880,9 @@
             "CAN",
             "USBDEVICE"
         ],
+        "device_has_remove": [
+            "LPTICKER"
+        ],
         "release_versions": [
             "5"
         ],
@@ -5897,6 +5921,9 @@
             "TRNG",
             "FLASH",
             "MPU"
+        ],
+        "device_has_remove": [
+            "LPTICKER"
         ],
         "release_versions": [
             "2",
@@ -6561,7 +6588,8 @@
             "FLASH"
         ],
         "device_has_remove": [
-            "SERIAL_FC"
+            "SERIAL_FC",
+            "LPTICKER"
         ],
         "release_versions": [
             "2",
@@ -6699,7 +6727,8 @@
             "MPU"
         ],
         "device_has_remove": [
-            "SERIAL_FC"
+            "SERIAL_FC",
+            "LPTICKER"
         ],
         "post_binary_hook": {
             "function": "MTSCode.combine_bins_mtb_mts_dragonfly",
@@ -6997,7 +7026,6 @@
         "inherits": [
             "MODULE_UBLOX_ODIN_W2"
         ],
-        "device_has_add": [],
         "overrides": {
             "lse_available": 0
         },
@@ -7009,7 +7037,12 @@
         "inherits": [
             "MODULE_UBLOX_ODIN_W2"
         ],
-        "device_has_add": [],
+        "device_has_remove": [
+            "LPTICKER"
+        ],
+        "features_remove": [
+            "BLE"
+        ],
         "overrides": {
             "lse_available": 0
         },
@@ -7053,7 +7086,6 @@
         "device_name": "STM32F437VG",
         "bootloader_supported": true,
         "overrides": {
-            "lse_available": 0,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -7140,6 +7172,9 @@
         "device_has_add": [
             "ANALOGOUT",
             "MPU"
+        ],
+        "device_has_remove": [
+            "LPTICKER"
         ],
         "default_lib": "small",
         "device_name": "STM32L151RC"
@@ -12594,7 +12629,10 @@
         "mbed_ram_size": "0x2000"
     },
     "NU_PFM_M2351_NS": {
-        "inherits": ["NSPE_Target", "NU_PFM_M2351"],
+        "inherits": [
+            "NSPE_Target",
+            "NU_PFM_M2351"
+        ],
         "core": "Cortex-M23-NS",
         "tfm.level": 1,
         "extra_labels_add": [
@@ -12608,7 +12646,9 @@
             "CMSIS_NVIC_VIRTUAL",
             "MBEDTLS_PSA_CRYPTO_C"
         ],
-        "components_add": ["FLASHIAP"],
+        "components_add": [
+            "FLASHIAP"
+        ],
         "post_binary_hook": {"function": "M2351Code.merge_secure"},
         "secure_image_filename": "tfm.hex",
         "overrides": {
@@ -12623,7 +12663,10 @@
         }
     },
     "NU_PFM_M2351_S": {
-        "inherits": ["SPE_Target", "NU_PFM_M2351"],
+        "inherits": [
+            "SPE_Target",
+            "NU_PFM_M2351"
+        ],
         "core": "Cortex-M23",
         "tfm.level": 1,
         "extra_labels_add": [
@@ -12631,13 +12674,20 @@
             "PSA",
             "TFM"
         ],
-        "device_has_remove": ["SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES"],
+        "device_has_remove": [
+            "SERIAL",
+            "SERIAL_ASYNCH",
+            "SERIAL_FC",
+            "STDIO_MESSAGES"
+        ],
         "macros_add": [
             "DAUTH_CHIP_DEFAULT",
             "MBEDTLS_PSA_CRYPTO_C",
             "MBEDTLS_PSA_CRYPTO_SPM"
         ],
-        "components_add": ["FLASHIAP"],
+        "components_add": [
+            "FLASHIAP"
+        ],
         "deliver_to_target": "NU_PFM_M2351_NS",
         "delivery_dir": "TARGET_NUVOTON/TARGET_M2351/TARGET_M23_NS/TARGET_NU_PFM_M2351_NS/TARGET_NU_PREBUILD_SECURE",
         "overrides": {
