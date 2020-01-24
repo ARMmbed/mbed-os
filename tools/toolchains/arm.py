@@ -581,10 +581,6 @@ class ARMC6(ARM_STD):
                 self.flags['common'].append("-D__MICROLIB")
             if "--library_type=microlib" not in self.flags['ld']:
                 self.flags['ld'].append("--library_type=microlib")
-            if "-Wl,--library_type=microlib" not in self.flags['c']:
-                self.flags['c'].append("-Wl,--library_type=microlib")
-            if "-Wl,--library_type=microlib" not in self.flags['cxx']:
-                self.flags['cxx'].append("-Wl,--library_type=microlib")
             if "--library_type=microlib" not in self.flags['asm']:
                 self.flags['asm'].append("--library_type=microlib")
 
