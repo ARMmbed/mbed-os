@@ -22,7 +22,7 @@
 
 #if (DEVICE_SPI || DEVICE_QSPI)
 
-#include "mbed_trace.h"
+#include "features/frameworks/mbed-trace/mbed-trace/mbed_trace.h"
 #define TRACE_GROUP "SFDP"
 
 namespace {
