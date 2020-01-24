@@ -20,6 +20,7 @@
 ********************************************************************************
 * \copyright
 * Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2020 Arm Limited
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,8 +41,10 @@ SEARCH_DIR(.)
 GROUP(-lgcc -lc -lnosys)
 ENTRY(Reset_Handler)
 
+#include "../../../partition/region_defs.h"
+
 #if !defined(MBED_ROM_START)
-  #define MBED_ROM_START    0x10000000
+  #define MBED_ROM_START    NS_CODE_START
 #endif
 
 /* MBED_APP_START is being  used by the bootloader build script and
@@ -49,11 +52,11 @@ ENTRY(Reset_Handler)
 * is equal to MBED_ROM_START
 */
 #if !defined(MBED_APP_START)
-  #define MBED_APP_START MBED_ROM_START
+  #define MBED_APP_START    MBED_ROM_START
 #endif
 
 #if !defined(MBED_ROM_SIZE)
-  #define MBED_ROM_SIZE     0x001D0000
+  #define MBED_ROM_SIZE     NS_CODE_SIZE
 #endif
 
 /* MBED_APP_SIZE is being  used by the bootloader build script and
@@ -61,26 +64,24 @@ ENTRY(Reset_Handler)
 * is equal to MBED_ROM_SIZE
 */
 #if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE MBED_ROM_SIZE
+  #define MBED_APP_SIZE     MBED_ROM_SIZE
 #endif
 
 #if !defined(MBED_RAM_START)
-  #define MBED_RAM_START    0x08000000
+  #define MBED_RAM_START    NS_DATA_START
 #endif
 
 #if !defined(MBED_RAM_SIZE)
-  #define MBED_RAM_SIZE     0x000EA000
+  #define MBED_RAM_SIZE     NS_DATA_SIZE
 #endif
 
+/* Size of the stack section in CM4 SRAM area */
 #if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE 0x400
+  #define MBED_BOOT_STACK_SIZE NS_MSP_STACK_SIZE
 #endif
 
-/* The size of the stack section at the end of CM4 SRAM */
-STACK_SIZE = MBED_BOOT_STACK_SIZE;
-
-/* The size of the MCU boot header area at the start of FLASH */
-BOOT_HEADER_SIZE = 0x400;
+/* Shared memory area between Non-Secure and Secure */
+#define MBED_DATA_SHARED_SIZE  NS_DATA_SHARED_SIZE
 
 /* Force symbol to be entered in the output file as an undefined symbol. Doing
 * this may, for example, trigger linking of additional modules from standard
@@ -157,7 +158,7 @@ GROUP(libgcc.a libc.a libm.a libnosys.a)
 SECTIONS
 {
     /* Cortex-M4 application flash area */
-    .text ORIGIN(flash) + BOOT_HEADER_SIZE :
+    .text ORIGIN(flash) :
     {
         /* Cortex-M4 flash vector table */
         . = ALIGN(4);
@@ -330,20 +331,26 @@ SECTIONS
         __end__ = .;
         end = __end__;
         KEEP(*(.heap*))
-        . = ORIGIN(ram) + LENGTH(ram) - STACK_SIZE;
+        . = ORIGIN(ram) + LENGTH(ram) - MBED_BOOT_STACK_SIZE - MBED_DATA_SHARED_SIZE;
+        . = ALIGN(4);
+        __StackLimit = .;
         __HeapLimit = .;
     } > ram
 
 
-    /* Set stack top to end of RAM, and stack limit move down by
-     * size of stack_dummy section */
-    __StackTop = ORIGIN(ram) + LENGTH(ram);
-    __StackLimit = __StackTop - STACK_SIZE;
+    __StackTop = (__StackLimit + MBED_BOOT_STACK_SIZE + 3) & 0xFFFFFFFC;
     PROVIDE(__stack = __StackTop);
 
-    /* Check if data + heap + stack exceeds RAM limit */
-    ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
+    .shared __StackTop (NOLOAD):
+    {
+        __SharedStart = .;
+        . += MBED_DATA_SHARED_SIZE;
+        KEEP(*(.shared*))
+        __SharedLimit = .;
+    } > ram
 
+    /* Check if Shared area overflowed within RAM */
+    ASSERT(__SharedLimit == ORIGIN(ram) + LENGTH(ram), "Shared area overflowed within RAM")
 
     /* Used for the digital signature of the secure application and the Bootloader SDK application.
     * The size of the section depends on the required data size. */

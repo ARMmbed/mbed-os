@@ -27,6 +27,7 @@
 ;*******************************************************************************
 ;* \copyright
 ;* Copyright 2016-2019 Cypress Semiconductor Corporation
+;* Copyright 2020 Arm Limited
 ;* SPDX-License-Identifier: Apache-2.0
 ;*
 ;* Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,8 +43,10 @@
 ;* limitations under the License.
 ;******************************************************************************/
 
+#include "../../../partition/region_defs.h"
+
 #if !defined(MBED_ROM_START)
-  #define MBED_ROM_START    0x10000000
+  #define MBED_ROM_START    NS_CODE_START
 #endif
 
 ;* MBED_APP_START is being  used by the bootloader build script and
@@ -55,7 +58,7 @@
 #endif
 
 #if !defined(MBED_ROM_SIZE)
-  #define MBED_ROM_SIZE     0x001D0000
+  #define MBED_ROM_SIZE     NS_CODE_SIZE
 #endif
 
 ;* MBED_APP_SIZE is being  used by the bootloader build script and
@@ -67,19 +70,19 @@
 #endif
 
 #if !defined(MBED_RAM_START)
-  #define MBED_RAM_START    0x08000000
+  #define MBED_RAM_START    NS_DATA_START
 #endif
 
 #if !defined(MBED_RAM_SIZE)
-  #define MBED_RAM_SIZE     0x000EA000
+  #define MBED_RAM_SIZE     NS_DATA_SIZE
 #endif
 
 #if !defined(MBED_BOOT_STACK_SIZE)
-  #define MBED_BOOT_STACK_SIZE 0x400
+  #define MBED_BOOT_STACK_SIZE NS_MSP_STACK_SIZE
 #endif
 
-; The size of the stack section at the end of CM4 SRAM
-#define STACK_SIZE MBED_BOOT_STACK_SIZE
+; Shared memory area between Non-secure and Secure
+#define MBED_DATA_SHARED_SIZE  NS_DATA_SHARED_SIZE
 
 ; The defines below describe the location and size of blocks of memory in the target.
 ; Use these defines to specify the memory regions available for allocation.
@@ -91,9 +94,6 @@
 ; Flash
 #define FLASH_START             MBED_APP_START
 #define FLASH_SIZE              MBED_APP_SIZE
-
-; The size of the MCU boot header area at the start of FLASH
-#define BOOT_HEADER_SIZE        0x00000400
 
 ; The following defines describe a 32K flash region used for EEPROM emulation.
 ; This region can also be used as the general purpose flash.
@@ -136,7 +136,7 @@
 ; Cortex-M4 application flash area
 LR_IROM1 FLASH_START FLASH_SIZE
 {
-    ER_FLASH_VECTORS +BOOT_HEADER_SIZE
+    ER_FLASH_VECTORS +0
     {
         * (RESET, +FIRST)
     }
@@ -166,15 +166,27 @@ LR_IROM1 FLASH_START FLASH_SIZE
     }
 
     ; Application heap area (HEAP)
-    ARM_LIB_HEAP  +0 EMPTY RAM_START+RAM_SIZE-STACK_SIZE-ImageLimit(RW_IRAM1)
-    { 
-    }
-    
-    ; Stack region growing down
-    ARM_LIB_STACK RAM_START+RAM_SIZE EMPTY -STACK_SIZE 
+    ARM_LIB_HEAP  +0 ALIGN 4 EMPTY RAM_START+RAM_SIZE-MBED_BOOT_STACK_SIZE-MBED_DATA_SHARED_SIZE-ImageLimit(RW_IRAM1)
     {
-    }    
-    
+    }
+
+    ; Stack region growing down
+    ARM_LIB_STACK RAM_START+RAM_SIZE-MBED_DATA_SHARED_SIZE ALIGN 4 EMPTY -MBED_BOOT_STACK_SIZE
+    {
+    }
+
+    ; Stack area overflowed within RAM
+    ScatterAssert(ImageBase(ARM_LIB_STACK) + ImageLength(ARM_LIB_STACK) == RAM_START+RAM_SIZE-MBED_DATA_SHARED_SIZE)
+
+    ; Shared region
+    ARM_LIB_SHARED RAM_START+RAM_SIZE-MBED_DATA_SHARED_SIZE ALIGN 4 EMPTY MBED_DATA_SHARED_SIZE
+    {
+    }
+
+    ; Shared area overflowed within RAM
+    ScatterAssert(ImageBase(ARM_LIB_SHARED) + ImageLength(ARM_LIB_SHARED) == RAM_START+RAM_SIZE)
+
+
     ; Used for the digital signature of the secure application and the
     ; Bootloader SDK application. The size of the section depends on the required
     ; data size.
