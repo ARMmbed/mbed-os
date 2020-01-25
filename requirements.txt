@@ -26,5 +26,5 @@ cmsis-pack-manager>=0.2.3,<0.3.0
 pywin32==224;platform_system=='Windows'
 wmi==1.4.9;platform_system=='Windows'
 psutil==5.6.2
-cryptography>=2.4.x,<2.5
+cryptography>=2.5,<3
 Click>=7.0,<7.1
