@@ -338,7 +338,7 @@ private:
     // Detect all supported erase types
     int _sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr,
                                                int basic_param_table_size,
-                                               mbed::sfdp_smtbl_info &smtbl);
+                                               mbed::sfdp_smptbl_info &smptbl);
 
     // Detect 4-byte addressing mode and enable it if supported
     int _sfdp_detect_and_enable_4byte_addressing(uint8_t *basic_param_table_ptr, int basic_param_table_size);
@@ -350,7 +350,7 @@ private:
     /* Utilities Functions */
     /***********************/
     // Find the region to which the given offset belong to
-    int _utils_find_addr_region(mbed::bd_size_t offset, mbed::sfdp_smtbl_info &smtbl);
+    int _utils_find_addr_region(mbed::bd_size_t offset, mbed::sfdp_smptbl_info &smptbl);
 
     // Iterate on all supported Erase Types of the Region to which the offset belong to.
     // Iterates from highest type to lowest
@@ -358,7 +358,7 @@ private:
                                                int size,
                                                int offset,
                                                int region,
-                                               mbed::sfdp_smtbl_info &smtbl);
+                                               mbed::sfdp_smptbl_info &smptbl);
 
 private:
     enum qspif_clear_protection_method_t {

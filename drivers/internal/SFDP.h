@@ -46,7 +46,7 @@ struct sfdp_bptbl_info {
 };
 
 /** SFDP Sector Map Table info */
-struct sfdp_smtbl_info {
+struct sfdp_smptbl_info {
     uint32_t addr;
     size_t size;
     int region_cnt;
@@ -63,7 +63,7 @@ struct sfdp_smtbl_info {
 /** SFDP Parameter Table addresses and sizes */
 struct sfdp_hdr_info {
     sfdp_bptbl_info bptbl;
-    sfdp_smtbl_info smtbl;
+    sfdp_smptbl_info smptbl;
 };
 
 /** SFDP Header */
@@ -118,7 +118,7 @@ int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, 
  *
  * @return 0 on success, negative error code on failure
  */
-int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_smtbl_info &smtbl);
+int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_smptbl_info &smtbl);
 
 } /* namespace mbed */
 #endif
