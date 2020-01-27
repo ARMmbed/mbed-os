@@ -12566,6 +12566,58 @@
             "5"
         ]
     },
+    "DISCO_L562QE": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M33FE",
+        "extra_labels_add": [
+            "STM32L5",
+            "STM32L562xx",
+            "MX25LM51245G"
+        ],
+        "supported_form_factors": [
+            "ARDUINO",
+            "STMOD",
+            "PMOD"
+        ],
+        "components_add": [
+            "FLASHIAP"
+        ],
+        "macros_add": [
+            "STM32L562xx",
+            "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED"
+        ],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
+                "value": "USE_PLL_MSI",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
+                "value": 1
+            }
+        },
+        "overrides": {
+            "lpticker_delay_ticks": 0
+        },
+        "device_has_add": [
+            "ANALOGOUT",
+            "CRC",
+            "MPU",
+            "SERIAL_ASYNCH",
+            "TRNG",
+            "FLASH",
+            "QSPI"
+        ],
+        "detect_code": ["0854"],
+        "bootloader_supported": true,
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size": "0x80000",
+        "mbed_ram_start": "0x20000000",
+        "mbed_ram_size": "0x40000",
+        "release_versions": [ "5" ]
+    },
     "VBLUNO52": {
         "supported_form_factors": [
             "ARDUINO"
