@@ -175,7 +175,7 @@ int SPIFBlockDevice::init()
     }
 
     /**************************** Parse SFDP Header ***********************************/
-    if (0 != _sfdp_parse_sfdp_headers(hdr_info)) {
+    if (0 != sfdp_parse_headers(callback(this, &SPIFBlockDevice::_spi_send_read_sfdp_command), hdr_info)) {
         tr_error("init - Parse SFDP Headers Failed");
         status = SPIF_BD_ERROR_PARSING_FAILED;
         goto exit_point;
@@ -663,11 +663,6 @@ int SPIFBlockDevice::_sfdp_parse_basic_param_table(uint32_t basic_table_addr, si
     _sfdp_detect_best_bus_read_mode(param_table, basic_table_size, _read_instruction);
 
     return 0;
-}
-
-int SPIFBlockDevice::_sfdp_parse_sfdp_headers(sfdp_hdr_info &hdr_info)
-{
-    return sfdp_parse_headers(callback(this, &SPIFBlockDevice::_spi_send_read_sfdp_command), hdr_info);
 }
 
 unsigned int SPIFBlockDevice::_sfdp_detect_page_size(uint8_t *basic_param_table_ptr, int basic_param_table_size)
