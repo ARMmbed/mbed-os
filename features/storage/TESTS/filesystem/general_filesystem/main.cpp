@@ -1899,6 +1899,7 @@ static void FS_append_non_empty_file()
     res = !((fd[0] = fopen("/default/" "filename", "a+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 #if defined(__MICROLIB)
+    // Microlib does not support opening a file in an append mode.
     fseek(fd[0], 0L, SEEK_END);
 #endif
     write_sz = fwrite(rewrite_buf, sizeof(char), sizeof(rewrite_buf), fd[0]);
