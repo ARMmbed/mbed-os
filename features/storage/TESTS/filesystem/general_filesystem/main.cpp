@@ -317,7 +317,7 @@ static void FS_fwrite_with_fopen_r_mode()
 }
 
 /*----------------fread()------------------*/
-
+#if !defined(__MICROLIB)
 //fread with size zero
 static void FS_fread_size_zero()
 {
@@ -344,6 +344,7 @@ static void FS_fread_size_zero()
     res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
+#endif
 
 //fread with nmemb zero
 static void FS_fread_nmemb_zero()
@@ -789,13 +790,14 @@ static void FS_fgets_with_fopen_w_mode()
 
 /*----------------fflush()------------------*/
 
+#if !defined(__MICROLIB)
 //fflush with null
 static void FS_fflush_null_stream()
 {
     int res = fflush(NULL);
     TEST_ASSERT_EQUAL(0, res);
 }
-
+#endif
 
 //fflush valid flow
 static void FS_fflush_valid_flow()
@@ -1896,7 +1898,9 @@ static void FS_append_non_empty_file()
 
     res = !((fd[0] = fopen("/default/" "filename", "a+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
-
+#if defined(__MICROLIB)
+    fseek(fd[0], 0L, SEEK_END);
+#endif
     write_sz = fwrite(rewrite_buf, sizeof(char), sizeof(rewrite_buf), fd[0]);
     TEST_ASSERT_EQUAL(sizeof(write_buf), write_sz);
 
@@ -2034,8 +2038,9 @@ Case cases[] = {
     Case("FS_fwrite_nmemb_zero", FS_fwrite_nmemb_zero),
     Case("FS_fwrite_valid_flow", FS_fwrite_valid_flow),
     Case("FS_fwrite_with_fopen_r_mode", FS_fwrite_with_fopen_r_mode),
-
+#if !defined(__MICROLIB)
     Case("FS_fread_size_zero", FS_fread_size_zero),
+#endif
     Case("FS_fread_nmemb_zero", FS_fread_nmemb_zero),
     Case("FS_fread_with_fopen_w_mode", FS_fread_with_fopen_w_mode),
     Case("FS_fread_to_fwrite_file", FS_fread_to_fwrite_file),
@@ -2055,8 +2060,9 @@ Case cases[] = {
     Case("FS_fgets_valid_flow", FS_fgets_valid_flow),
     Case("FS_fgets_new_line", FS_fgets_new_line),
     Case("FS_fgets_with_fopen_w_mode", FS_fgets_with_fopen_w_mode),
-
+#if !defined(__MICROLIB)
     Case("FS_fflush_null_stream", FS_fflush_null_stream),
+#endif
     Case("FS_fflush_valid_flow", FS_fflush_valid_flow),
     Case("FS_fflush_twice", FS_fflush_twice),
 
