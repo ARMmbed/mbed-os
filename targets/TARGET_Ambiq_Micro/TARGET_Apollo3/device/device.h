@@ -33,9 +33,9 @@
 #define MBED_DEVICE_H
 
 //=======================================
-#define DEVICE_ID_LENGTH       24
+#define DEVICE_ID_LENGTH 24
 
 #include "objects.h"
-// #include "us_ticker_defines.h"
+#include "us_ticker_defines.h"
 
 #endif
