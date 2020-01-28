@@ -696,7 +696,7 @@ int SPIFBlockDevice::_sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param
         for (int i_ind = 0; i_ind < 4; i_ind++) {
             smptbl.erase_type_inst_arr[i_ind] = 0xff; //0xFF default for unsupported type
             smptbl.erase_type_size_arr[i_ind] = local_math_power(
-                                                   2, basic_param_table_ptr[SPIF_BASIC_PARAM_ERASE_TYPE_1_SIZE_BYTE + 2 * i_ind]); // Size given as 2^N
+                                                    2, basic_param_table_ptr[SPIF_BASIC_PARAM_ERASE_TYPE_1_SIZE_BYTE + 2 * i_ind]); // Size given as 2^N
             tr_debug("Erase Type(A) %d - Inst: 0x%xh, Size: %d", (i_ind + 1), smptbl.erase_type_inst_arr[i_ind],
                      smptbl.erase_type_size_arr[i_ind]);
             if (smptbl.erase_type_size_arr[i_ind] > 1) {

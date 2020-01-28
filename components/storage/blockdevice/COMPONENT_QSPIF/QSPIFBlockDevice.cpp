@@ -857,13 +857,13 @@ int QSPIFBlockDevice::_sfdp_detect_erase_types_inst_and_size(uint8_t *basic_para
         for (int i_ind = 0; i_ind < 4; i_ind++) {
             smptbl.erase_type_inst_arr[i_ind] = QSPI_NO_INST; // Default for unsupported type
             smptbl.erase_type_size_arr[i_ind] = 1
-                                               << basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE + 2 * i_ind]; // Size is 2^N where N is the table value
+                                                << basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE + 2 * i_ind]; // Size is 2^N where N is the table value
             tr_debug("Erase Type(A) %d - Inst: 0x%xh, Size: %d", (i_ind + 1), smptbl.erase_type_inst_arr[i_ind],
                      smptbl.erase_type_size_arr[i_ind]);
             if (smptbl.erase_type_size_arr[i_ind] > 1) {
                 // if size==1 type is not supported
                 smptbl.erase_type_inst_arr[i_ind] = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_1_BYTE
-                                                                         + 2 * i_ind];
+                                                                          + 2 * i_ind];
 
                 if ((smptbl.erase_type_size_arr[i_ind] < smptbl.regions_min_common_erase_size)
                         || (smptbl.regions_min_common_erase_size == 0)) {
