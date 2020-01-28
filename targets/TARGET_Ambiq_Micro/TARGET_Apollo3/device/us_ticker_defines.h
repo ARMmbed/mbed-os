@@ -1,7 +1,7 @@
 // Comment at top
 
-#ifndef MBED_US_TICKER_API_H
-#define MBED_US_TICKER_API_H
+#ifndef MBED_US_TICKER_DEFINES_H
+#define MBED_US_TICKER_DEFINES_H
 
 //  * US_TICKER_PERIOD_NUM, US_TICKER_PERIOD_DEN: These denote the ratio (numerator, denominator)
 //  * of the ticker period to a microsecond. For example, an 8MHz ticker would have NUM = 1, DEN = 8;

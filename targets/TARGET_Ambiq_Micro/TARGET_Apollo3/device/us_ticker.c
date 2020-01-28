@@ -97,7 +97,7 @@ uint32_tus_ticker_read(void)
  */
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-    ui32CmprInstance instance = 0;
+    uint32_t instance = 0;
     switch (US_TICKER_STIMER_INT_COMPARE)
     {
     default:
@@ -137,7 +137,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
  */
 void us_ticker_disable_interrupt(void)
 {
-    am_hal_stimer_int_disable(US_TICKER_COMPARE_INSTANCE);
+    am_hal_stimer_int_disable(US_TICKER_STIMER_INT_COMPARE);
 }
 
 /** Clear us ticker interrupt
@@ -145,7 +145,7 @@ void us_ticker_disable_interrupt(void)
  */
 void us_ticker_clear_interrupt(void)
 {
-    am_hal_stimer_int_clear(US_TICKER_COMPARE_INSTANCE);
+    am_hal_stimer_int_clear(US_TICKER_STIMER_INT_COMPARE);
 }
 
 /** Set pending interrupt that should be fired right away.
@@ -155,7 +155,7 @@ void us_ticker_clear_interrupt(void)
  */
 void us_ticker_fire_interrupt(void);
 {
-    am_hal_stimer_int_set(US_TICKER_COMPARE_INSTANCE);
+    am_hal_stimer_int_set(US_TICKER_STIMER_INT_COMPARE);
 }
 
 /** Get frequency and counter bits of this ticker.*/
