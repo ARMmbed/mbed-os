@@ -77,7 +77,7 @@ void us_ticker_free(void)
  * @return The current timer's counter value in ticks
  *
  */
-uint32_tus_ticker_read(void)
+uint32_t us_ticker_read(void)
 {
     return am_hal_stimer_counter_get();
 }
@@ -153,13 +153,13 @@ void us_ticker_clear_interrupt(void)
  * The ticker should be initialized prior calling this function.
  *
  */
-void us_ticker_fire_interrupt(void);
+void us_ticker_fire_interrupt(void)
 {
     am_hal_stimer_int_set(US_TICKER_STIMER_INT_COMPARE);
 }
 
 /** Get frequency and counter bits of this ticker.*/
-const ticker_info_t *us_ticker_get_info(void);
+const ticker_info_t *us_ticker_get_info(void)
 {
     static const ticker_info_t info = {
         1000000, // 1 MHz
