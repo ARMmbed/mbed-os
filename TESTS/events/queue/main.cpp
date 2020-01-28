@@ -362,14 +362,18 @@ void mixed_dynamic_static_events_queue_test()
 
         EventTest e1_test;
         Event<void()> e1 = queue.event(&e1_test, &EventTest::f0);
+        e1.delay(10);
+        e1.period(10);
         int id1 =  e1.post();
         TEST_ASSERT_NOT_EQUAL(0, id1);
         EventTest e2_test;
         Event<void()> e2 = queue.event(&e2_test, &EventTest::f1, 3);
+        e2.period(10);
         int id2 = e2.post();
         TEST_ASSERT_NOT_EQUAL(0, id2);
         EventTest e3_test;
         Event<void()> e3 = queue.event(&e3_test, &EventTest::f5, 1, 2, 3, 4, 5);
+        e3.period(10);
         int id3 = e3.post();
         TEST_ASSERT_NOT_EQUAL(0, id3);
 
@@ -390,8 +394,11 @@ void mixed_dynamic_static_events_queue_test()
         TEST_ASSERT_EQUAL(false, ue0.try_call());
         ue1.call_on(&queue);
         TEST_ASSERT_EQUAL(false, ue1.try_call());
+        ue2.period(10);
         ue2.call_on(&queue);
         TEST_ASSERT_EQUAL(false, ue2.try_call());
+        ue3.period(10);
+        ue3.delay(50);
         ue3.call_on(&queue);
         TEST_ASSERT_EQUAL(false, ue3.try_call());
         ue4.call_on(&queue);
@@ -400,21 +407,36 @@ void mixed_dynamic_static_events_queue_test()
         ue4.cancel();
         e2.cancel();
 
-        queue.dispatch(1);
+        queue.dispatch(101);
 
         TEST_ASSERT_EQUAL(true, touched);
         TEST_ASSERT_EQUAL(1, ue1_test.counter);
-        TEST_ASSERT_EQUAL(3, ue2_test.counter);
-        TEST_ASSERT_EQUAL(15, ue3_test.counter);
+        TEST_ASSERT_EQUAL(33, ue2_test.counter);
+        TEST_ASSERT_EQUAL(90, ue3_test.counter);
         TEST_ASSERT_EQUAL(0, ue4_test.counter);
-        TEST_ASSERT_EQUAL(1, e1_test.counter);
+        TEST_ASSERT_EQUAL(10, e1_test.counter);
         TEST_ASSERT_EQUAL(0, e2_test.counter);
-        TEST_ASSERT_EQUAL(15, e3_test.counter);
+        TEST_ASSERT_EQUAL(165, e3_test.counter);
+
+        // user allocated event have to be canceled(removed from the queue) before destruction
+        // cancel all periodic user events
+        ue2.cancel();
+        ue3.cancel();
     }
 }
 
 
 static EventQueue g_queue(0);
+static auto ue0 = g_queue.make_user_allocated_event(func0);
+static EventTest test1;
+static auto ue1 = make_user_allocated_event(&test1, &EventTest::f0);
+static EventTest test2;
+static auto ue2 = g_queue.make_user_allocated_event(&test2, &EventTest::f1, 3);
+static EventTest test3;
+static auto ue3 = make_user_allocated_event(&test3, &EventTest::f5, 1, 2, 3, 4, 5);
+static EventTest test4;
+static auto ue4 = g_queue.make_user_allocated_event(&test4, &EventTest::f5, 1, 2, 3, 4, 5);
+
 
 /** Test that static queue executes user allocated events.
  *
@@ -428,15 +450,20 @@ void static_events_queue_test()
     Event<void()> e0 = g_queue.event(func0);
     TEST_ASSERT_EQUAL(0, e0.post());
 
-    auto ue0 = g_queue.make_user_allocated_event(func0);
-    EventTest test1;
-    auto ue1 = make_user_allocated_event(&test1, &EventTest::f0);
-    EventTest test2;
-    auto ue2 = g_queue.make_user_allocated_event(&test2, &EventTest::f1, 3);
-    EventTest test3;
-    auto ue3 = make_user_allocated_event(&test3, &EventTest::f5, 1, 2, 3, 4, 5);
-    EventTest test4;
-    auto ue4 = g_queue.make_user_allocated_event(&test4, &EventTest::f5, 1, 2, 3, 4, 5);
+    ue0.delay(100);
+    ue0.period(200);
+
+    ue1.delay(100);
+    ue1.period(200);
+
+    ue2.delay(100);
+    ue2.period(200);
+
+    ue3.delay(100);
+    ue3.period(200);
+
+    ue4.delay(100);
+    ue4.period(200);
 
     ue0.call();
     TEST_ASSERT_EQUAL(false, ue0.try_call());
@@ -448,16 +475,26 @@ void static_events_queue_test()
     TEST_ASSERT_EQUAL(false, ue3.try_call());
     ue4.call();
     ue4.cancel();
+    ue4.cancel();
     TEST_ASSERT_EQUAL(true, ue4.try_call());
     g_queue.cancel(&ue4);
+    g_queue.cancel(&ue4);
 
-    g_queue.dispatch(1);
+    g_queue.dispatch(400);
 
-    TEST_ASSERT_EQUAL(1, test1.counter);
-    TEST_ASSERT_EQUAL(3, test2.counter);
-    TEST_ASSERT_EQUAL(15, test3.counter);
+    TEST_ASSERT_EQUAL(2, test1.counter);
+    TEST_ASSERT_EQUAL(6, test2.counter);
+    TEST_ASSERT_EQUAL(30, test3.counter);
     TEST_ASSERT_EQUAL(0, test4.counter);
 
+    ue4.delay(1);
+    TEST_ASSERT_EQUAL(true, ue4.try_call());
+    g_queue.dispatch(1);
+
+    TEST_ASSERT_EQUAL(2, test1.counter);
+    TEST_ASSERT_EQUAL(6, test2.counter);
+    TEST_ASSERT_EQUAL(30, test3.counter);
+    TEST_ASSERT_EQUAL(15, test4.counter);
 }
 
 // Test setup
