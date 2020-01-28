@@ -494,6 +494,12 @@ ble_error_t Gap<Impl>::getCentralPrivacyConfiguration(
 #endif // BLE_ROLE_OBSERVER
 #endif // BLE_FEATURE_PRIVACY
 
+template<class Impl>
+ble_error_t Gap<Impl>::setRandomStaticAddress(const ble::address_t& address)
+{
+    return impl()->setRandomStaticAddress_(address);
+}
+
 // -----------------------------------------------------------------------------
 /* ------------------------- Default implementations ------------------------ */
 // -----------------------------------------------------------------------------
@@ -857,6 +863,12 @@ template<class Impl>
 ble_error_t Gap<Impl>::getCentralPrivacyConfiguration_(
     central_privay_configuration_t *configuration
 )
+{
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+template<class Impl>
+ble_error_t Gap<Impl>::setRandomStaticAddress_(const ble::address_t& address)
 {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }

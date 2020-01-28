@@ -151,6 +151,13 @@ protected:
      */
     buf_pool_desc_t get_default_buffer_pool_description();
 
+    /**
+     * Allows the driver to set a random static address. Unlike the HCI command
+     * this function reports the random static address to the whole BLE system.
+     * @param random_static_address The random static address to set.
+     */
+    void set_random_static_address(const ble::address_t& random_static_address);
+
 private:
     /**
      * Initialize the chip.
