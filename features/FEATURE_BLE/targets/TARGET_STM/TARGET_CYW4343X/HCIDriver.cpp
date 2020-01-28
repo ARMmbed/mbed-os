@@ -265,10 +265,7 @@ public:
                         memcpy(addr, pMsg, sizeof(addr));
                         DM_RAND_ADDR_SET(addr, DM_RAND_ADDR_STATIC);
                         // note: will invoke set rand address
-                        cordio::BLE::deviceInstance().getGap().setAddress(
-                            BLEProtocol::AddressType::RANDOM_STATIC,
-                            addr
-                        );
+                        set_random_static_address(addr);
                     }
                     break;
 
