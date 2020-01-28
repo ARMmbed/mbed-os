@@ -429,8 +429,10 @@ void AT_CellularStack::socket_attach(nsapi_socket_t handle, void (*callback)(voi
 int AT_CellularStack::get_socket_index_by_port(uint16_t port)
 {
     for (int i = 0; i < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT); i++) {
-        if (_socket[i]->localAddress.get_port() == port) {
-            return i;
+        if (_socket[i] != 0) {
+            if (_socket[i]->localAddress.get_port() == port) {
+                return i;
+            }
         }
     }
     return -1;
