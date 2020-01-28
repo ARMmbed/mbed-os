@@ -121,6 +121,24 @@ Default HW configuration:
 
 BG96 expansion board can be used but without flow control.
 
+### DISCO_L562_QE
+
+https://os.mbed.com/platforms/ST-Discovery-L562QE/
+
+HW configuration:
+
+Depending on PF_11 and PF_12 GPIO configuration, STMOD pins 1, 2, 3 and 4 can be mapped to SPI3 or UART3.
+
+STModCellular default init procedure is setting the correct values in order to get full UART connectivity.
+
+See in mbed-trace:
+```
+[INFO][STMOD]: STModCellular creation
+[INFO][STMOD]: STMOD+ UART pins re-configuration
+```
+
+BG96 expansion board is then fully compatible.
+
 ### DISCO_H747I
 
 https://os.mbed.com/platforms/ST-Discovery-H747I/
