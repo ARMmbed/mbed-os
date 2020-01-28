@@ -78,7 +78,7 @@ In mbed_app.json:
 ```json
     "target_overrides": {
         "*": {
-            "target.printf": "minimal-printf",
+            "target.printf_lib": "minimal-printf",
             "platform.minimal-printf-enable-floating-point": false,
             "platform.minimal-printf-set-floating-point-max-decimals": 6,
             "platform.minimal-printf-enable-64-bit": false
