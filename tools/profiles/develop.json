@@ -15,7 +15,7 @@
                "-Wl,-n"]
     },
     "ARMC6": {
-        "common": ["-c", "--target=arm-arm-none-eabi", "-mthumb", "-Os", "-flto",
+        "common": ["-c", "--target=arm-arm-none-eabi", "-mthumb", "-Os",
                    "-Wno-armcc-pragma-push-pop", "-Wno-armcc-pragma-anon-unions",
                    "-Wno-reserved-user-defined-literal", "-Wno-deprecated-register",
                    "-DMULADDC_CANNOT_USE_R7", "-fdata-sections",
@@ -25,7 +25,7 @@
         "c": ["-D__ASSERT_MSG", "-std=gnu11"],
         "cxx": ["-fno-rtti", "-std=gnu++14"],
         "ld": ["--show_full_path", "--legacyalign", "--any_contingency",
-               "--keep=os_cb_sections", "--lto", "--lto_level=Os"]
+               "--keep=os_cb_sections"]
     },
     "ARM": {
         "common": ["-c", "--gnu", "-Ospace", "--split_sections",
