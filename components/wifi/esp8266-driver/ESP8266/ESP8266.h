@@ -29,6 +29,7 @@
 #include "platform/mbed_error.h"
 #include "rtos/Mutex.h"
 #include "rtos/ThisThread.h"
+#include "features/netsocket/SocketAddress.h"
 
 // Various timeouts for different ESP8266 operations
 #ifndef ESP8266_CONNECT_TIMEOUT
@@ -63,6 +64,15 @@
 
 #define FW_AT_LEAST_VERSION(MAJOR,MINOR,PATCH,NUSED/*Not used*/,REF) \
     (((MAJOR)*1000000+(MINOR)*10000+(PATCH)*100) >= REF ? true : false)
+
+struct esp8266_socket {
+    int id;
+    nsapi_protocol_t proto;
+    bool connected;
+    bool bound;
+    SocketAddress addr;
+    int keepalive; // TCP
+};
 
 /** ESP8266Interface class.
     This is an interface to a ESP8266 radio.
@@ -168,6 +178,14 @@ public:
     bool disconnect(void);
 
     /**
+    * Enable or disable Remote IP and Port printing with +IPD
+    *
+    * @param enable, 1 on, 0 off
+    * @return true only if ESP8266 is disconnected successfully
+    */
+    bool ip_info_print(int enable);
+
+    /**
     * Get the IP address of ESP8266
     *
     * @return null-teriminated IP address or null if no IP address is assigned
@@ -236,9 +254,10 @@ public:
     * @param addr the IP address of the destination
     * @param port the port on the destination
     * @param local_port UDP socket's local port, zero means any
+    * @param udp_mode UDP socket's mode, zero means can't change remote, 1 can change once, 2 can change multiple times
     * @return NSAPI_ERROR_OK in success, negative error code in failure
     */
-    nsapi_error_t open_udp(int id, const char *addr, int port, int local_port = 0);
+    nsapi_error_t open_udp(int id, const char *addr, int port, int local_port = 0, int udp_mode = 0);
 
     /**
     * Open a socketed connection
@@ -271,7 +290,7 @@ public:
     * @param amount number of bytes to be received
     * @return the number of bytes received
     */
-    int32_t recv_udp(int id, void *data, uint32_t amount, uint32_t timeout = ESP8266_RECV_TIMEOUT);
+    int32_t recv_udp(struct esp8266_socket *socket, void *data, uint32_t amount, uint32_t timeout = ESP8266_RECV_TIMEOUT);
 
     /**
     * Receives stream data from an open TCP socket
@@ -442,6 +461,8 @@ private:
     struct packet {
         struct packet *next;
         int id;
+        char remote_ip[16];
+        int remote_port;
         uint32_t len; // Remaining length
         uint32_t alloc_len; // Original length
         // data follows

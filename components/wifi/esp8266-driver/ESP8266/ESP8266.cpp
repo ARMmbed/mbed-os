@@ -373,6 +373,17 @@ bool ESP8266::disconnect(void)
     return done;
 }
 
+bool ESP8266::ip_info_print(int enable)
+{
+    _smutex.lock();
+    _disconnect = true;
+    bool done = _parser.send("AT+CIPDINFO=%d", enable) && _parser.recv("OK\n");
+    _smutex.unlock();
+
+    return done;
+}
+
+
 const char *ESP8266::ip_addr(void)
 {
     _smutex.lock();
@@ -508,10 +519,12 @@ int ESP8266::scan(WiFiAccessPoint *res, unsigned limit, scan_mode mode, unsigned
     return cnt;
 }
 
-nsapi_error_t ESP8266::open_udp(int id, const char *addr, int port, int local_port)
+nsapi_error_t ESP8266::open_udp(int id, const char *addr, int port, int local_port, int udp_mode)
 {
     static const char *type = "UDP";
     bool done = false;
+
+    ip_info_print(1);
 
     _smutex.lock();
 
@@ -533,7 +546,7 @@ nsapi_error_t ESP8266::open_udp(int id, const char *addr, int port, int local_po
 
     for (int i = 0; i < 2; i++) {
         if (local_port) {
-            done = _parser.send("AT+CIPSTART=%d,\"%s\",\"%s\",%d,%d", id, type, addr, port, local_port);
+            done = _parser.send("AT+CIPSTART=%d,\"%s\",\"%s\",%d,%d,%d", id, type, addr, port, local_port, udp_mode);
         } else {
             done = _parser.send("AT+CIPSTART=%d,\"%s\",\"%s\",%d", id, type, addr, port);
         }
@@ -571,6 +584,8 @@ nsapi_error_t ESP8266::open_tcp(int id, const char *addr, int port, int keepaliv
 {
     static const char *type = "TCP";
     bool done = false;
+
+    ip_info_print(1);
 
     if (!addr) {
         return NSAPI_ERROR_PARAMETER;
@@ -754,6 +769,7 @@ END:
 void ESP8266::_oob_packet_hdlr()
 {
     int id;
+    int port;
     int amount;
     int pdu_len;
 
@@ -763,6 +779,8 @@ void ESP8266::_oob_packet_hdlr()
     }
 
     if (_tcp_passive && _sock_i[id].open == true && _sock_i[id].proto == NSAPI_TCP) {
+        //For TCP +IPD return only id and amount and it is independent on AT+CIPDINFO settings
+        //Unfortunately no information about that in ESP manual but it has sense.
         if (_parser.recv("%d\n", &amount)) {
             _sock_i[id].tcp_data_avbl = amount;
 
@@ -772,8 +790,12 @@ void ESP8266::_oob_packet_hdlr()
             }
         }
         return;
-    } else if (!_parser.scanf("%d:", &amount)) {
-        return;
+    } else {
+        if (!(_parser.scanf("%d,", &amount)
+                && _parser.scanf("%15[^,],", _ip_buffer)
+                && _parser.scanf("%d:", &port))) {
+            return;
+        }
     }
 
     pdu_len = sizeof(struct packet) + amount;
@@ -791,6 +813,10 @@ void ESP8266::_oob_packet_hdlr()
     _heap_usage += pdu_len;
 
     packet->id = id;
+    if (_sock_i[id].proto == NSAPI_UDP) {
+        packet->remote_port = port;
+        memcpy(packet->remote_ip, _ip_buffer, 16);
+    }
     packet->len = amount;
     packet->alloc_len = amount;
     packet->next = 0;
@@ -943,7 +969,7 @@ int32_t ESP8266::recv_tcp(int id, void *data, uint32_t amount, uint32_t timeout)
     return NSAPI_ERROR_WOULD_BLOCK;
 }
 
-int32_t ESP8266::recv_udp(int id, void *data, uint32_t amount, uint32_t timeout)
+int32_t ESP8266::recv_udp(struct esp8266_socket *socket, void *data, uint32_t amount, uint32_t timeout)
 {
     _smutex.lock();
     set_timeout(timeout);
@@ -956,8 +982,11 @@ int32_t ESP8266::recv_udp(int id, void *data, uint32_t amount, uint32_t timeout)
 
     // check if any packets are ready for us
     for (struct packet **p = &_packets; *p; p = &(*p)->next) {
-        if ((*p)->id == id) {
+        if ((*p)->id == socket->id) {
             struct packet *q = *p;
+
+            socket->addr.set_ip_address((*p)->remote_ip);
+            socket->addr.set_port((*p)->remote_port);
 
             // Return and remove packet (truncated if necessary)
             uint32_t len = q->len < amount ? q->len : amount;
