@@ -126,24 +126,27 @@ Table is copied into this section at boot.
     __end__ = .;
     PROVIDE( end = . );
     _sheap = .;
-    . = ORIGIN(RAM) + LENGTH(RAM) - MBED_BOOT_STACK_SIZE;
+    . = ORIGIN(RAM) + LENGTH(RAM) - MBED_BOOT_STACK_SIZE-8;
     __HeapLimit = .;
   } >RAM
 
-  /* dmz: the no-mans-land between the stack and the heap */
-  /* purpose is to place padding between initial (empty) stack and heap */
-  .dmz (NOLOAD):
+    /* .stack_dummy section doesn't contains any symbols. It is only
+    * used for linker to calculate size of stack sections, and assign
+    * values to stack symbols later*/
+  .stack_dummy (NOLOAD):
   {
-    . = ORIGIN(RAM) + LENGTH(RAM) - 8; /* Automatically give the rest of the space in sram to the stack */
-    . = ALIGN(8);
-  } >RAM
+      . = ALIGN(8);
+      *(.stack*)
+  } > RAM
 
-  /* stack: RAM memory that can be dynamically allocated in the downward direction (decreasing memory addresses) */
-  /* _sstack is used to set the initial stack pointer */
-  .stack (NOLOAD):
-  {
-    . = ALIGN(8);
-    _sstack = .;
-    __stack = .;
-  } >RAM
+
+  /* Set stack top to end of RAM, and stack limit move down by
+    * size of stack_dummy section*/
+  __StackTop = ORIGIN(RAM) + LENGTH(RAM)-8;
+  __StackLimit = __StackTop - MBED_BOOT_STACK_SIZE;
+  PROVIDE(__stack = __StackTop);
+  PROVIDE(_sstack = __StackTop);
+  /* Check if data + heap + stack exceeds RAM limit*/
+  /*ASSERT(1, "region RAM overflowed with stack")*/
+  /* test test test */
 }
