@@ -1258,7 +1258,7 @@ public:
 
 #if !defined(DOXYGEN_ONLY)
     /*
-     * API reserverved for the controller driver to set the random static address.
+     * API reserved for the controller driver to set the random static address.
      * Setting a new random static address while the controller is operating is
      * forbidden by the Bluetooth specification.
      */
