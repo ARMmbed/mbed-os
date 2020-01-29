@@ -928,7 +928,7 @@ control_t fsfat_fopen_test_08(const size_t call_count)
     fclose(fp);
     return CaseNext;
 }
-#endif
+#endif // !defined(__MICROLIB)
 
 /** @brief  test for operation of ftell()
  *
