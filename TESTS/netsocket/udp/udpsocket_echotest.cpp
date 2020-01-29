@@ -100,7 +100,6 @@ void UDPSOCKET_ECHOTEST_impl(bool use_sendto)
                 packets_sent++;
             } else {
                 tr_warn("[Round#%02d - Sender] error, returned %d", s_idx, sent);
-                continue;
             }
 
             do {
@@ -207,7 +206,6 @@ void UDPSOCKET_ECHOTEST_NONBLOCK_impl(bool use_sendto)
                 --retry_cnt;
             } else {
                 tr_warn("[Round#%02d - Sender] error, returned %d", s_idx, sent);
-                continue;
             }
 
             int recvd;
