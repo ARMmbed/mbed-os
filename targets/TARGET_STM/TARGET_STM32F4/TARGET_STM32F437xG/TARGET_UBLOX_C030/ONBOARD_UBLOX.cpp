@@ -26,8 +26,13 @@ using namespace mbed;
 CellularDevice *CellularDevice::get_target_default_instance()
 {
 #if defined(TARGET_UBLOX_C030_R41XM)
+#if (NSAPI_PPP_AVAILABLE)
+    static BufferedSerial serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
+    static ONBOARD_UBLOX_PPP device(&serial);
+#else
     static BufferedSerial serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
     static ONBOARD_UBLOX_AT device(&serial);
+#endif
 #elif defined(TARGET_UBLOX_C030_N211)
     static BufferedSerial serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
     static ONBOARD_UBLOX_N2XX device(&serial);
