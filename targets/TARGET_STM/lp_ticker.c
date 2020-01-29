@@ -257,13 +257,20 @@ void lp_ticker_init(void)
     LptimHandle.Init.Trigger.SampleTime = LPTIM_TRIGSAMPLETIME_DIRECTTRANSITION;
 #endif
 
+    LptimHandle.Init.UltraLowPowerClock.SampleTime = LPTIM_TRIGSAMPLETIME_DIRECTTRANSITION; // L5 ?
+
     LptimHandle.Init.OutputPolarity = LPTIM_OUTPUTPOLARITY_HIGH;
     LptimHandle.Init.UpdateMode = LPTIM_UPDATE_IMMEDIATE;
     LptimHandle.Init.CounterSource = LPTIM_COUNTERSOURCE_INTERNAL;
-#if defined (LPTIM_INPUT1SOURCE_GPIO) /* STM32L4 */
+#if defined (LPTIM_INPUT1SOURCE_GPIO) /* STM32L4 / STM32L5 */
     LptimHandle.Init.Input1Source = LPTIM_INPUT1SOURCE_GPIO;
     LptimHandle.Init.Input2Source = LPTIM_INPUT2SOURCE_GPIO;
 #endif /* LPTIM_INPUT1SOURCE_GPIO */
+
+#if defined(LPTIM_RCR_REP) /* STM32L4 / STM32L5 */
+    LptimHandle.Init.RepetitionCounter = 0;
+#endif /* LPTIM_RCR_REP */
+
 
     if (HAL_LPTIM_Init(&LptimHandle) != HAL_OK) {
         error("HAL_LPTIM_Init ERROR\n");

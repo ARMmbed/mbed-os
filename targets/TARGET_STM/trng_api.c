@@ -86,6 +86,9 @@ void trng_init(trng_t *obj)
         }
     }
 
+#elif defined(TARGET_STM32L5)
+    /*  No need to reconfigure RngClockSelection as alreday done in SetSysClock */
+
 #else
 #error("RNG clock not configured");
 #endif
@@ -98,15 +101,22 @@ void trng_init(trng_t *obj)
     obj->handle.Instance = RNG;
     obj->handle.State = HAL_RNG_STATE_RESET;
     obj->handle.Lock = HAL_UNLOCKED;
+#if defined(RNG_CR_CED)
+    obj->handle.Init.ClockErrorDetection = RNG_CED_ENABLE;
+#endif
 
 #if defined(CFG_HW_RNG_SEMID)
     /*  In case RNG is a shared ressource, get the HW semaphore first */
     while (LL_HSEM_1StepLock(HSEM, CFG_HW_RNG_SEMID));
 #endif
-    HAL_RNG_Init(&obj->handle);
+    if (HAL_RNG_Init(&obj->handle) != HAL_OK) {
+        error("trng_init: HAL_RNG_Init\n");
+    }
 
     /* first random number generated after setting the RNGEN bit should not be used */
-    HAL_RNG_GenerateRandomNumber(&obj->handle, &dummy);
+    if (HAL_RNG_GenerateRandomNumber(&obj->handle, &dummy) != HAL_OK) {
+        error("trng_init: HAL_RNG_GenerateRandomNumber\n");
+    }
 
 #if defined(CFG_HW_RNG_SEMID)
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RNG_SEMID, 0);
