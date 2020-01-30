@@ -44,13 +44,12 @@ extern "C"
 		uint8_t funcsel;
 	} ap3_uart_pad_map_elem_t;
 
-	typedef struct serial_s
+	struct serial_s
 	{
 		ap3_uart_inst_t inst;			// UART module instance
 		void *handle;							// UART handle
 		am_hal_uart_config_t cfg; // UART configuration
-
-	} serial_t;
+	};
 
 #ifdef __cplusplus
 }
