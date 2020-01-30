@@ -46,9 +46,10 @@ extern "C"
 
 	struct serial_s
 	{
-		ap3_uart_inst_t inst;			// UART module instance
-		void *handle;							// UART handle
-		am_hal_uart_config_t cfg; // UART configuration
+		ap3_uart_inst_t inst;				// UART module instance
+		void *handle;								// UART handle
+		am_hal_uart_config_t cfg; 	// UART configuration
+		volatile uint32_t tx_idle;	// UART tx idle indication
 	};
 
 #ifdef __cplusplus
