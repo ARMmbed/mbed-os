@@ -77,6 +77,16 @@ void mbed_copy_nvic(void)
 
 void mbed_init(void)
 {
+#ifdef MBED_DEBUG
+    // Configs to make debugging easier
+#ifdef SCnSCB_ACTLR_DISDEFWBUF_Msk
+    // Disable write buffer to make BusFaults (eg write to ROM via NULL pointer) precise.
+    // Possible on Cortex-M3 and M4, not on M0, M7 or M33.
+    // Would be less necessary if ROM was write-protected in MPU to give a
+    // precise MemManage exception.
+    SCnSCB->ACTLR |= SCnSCB_ACTLR_DISDEFWBUF_Msk;
+#endif
+#endif
     mbed_copy_nvic();
     mbed_sdk_init();
 #if DEVICE_USTICKER && MBED_CONF_TARGET_INIT_US_TICKER_AT_BOOT
