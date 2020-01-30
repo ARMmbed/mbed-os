@@ -23,4 +23,6 @@
 
 /* This file is required, but doesn't actually need to do anything. */
 
-#endif  /* MBED_MBED_RTX_H */
+#define INITIAL_SP MBED_RAM1_START + MBED_RAM1_SIZE - 8
+
+#endif /* MBED_MBED_RTX_H */

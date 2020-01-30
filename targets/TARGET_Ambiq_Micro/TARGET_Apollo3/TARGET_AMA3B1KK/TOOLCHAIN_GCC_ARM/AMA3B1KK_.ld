@@ -1,5 +1,7 @@
 /* stack: dynamic */
 /* heap: dynamic */
+#define MBED_APP_START 0x00010000
+#define MBED_APP_LENGTH 960K
 #define MBED_RAM_START 0x10000000
 #define MBED_RAM_SIZE   384K
 #define MBED_BOOT_STACK_SIZE 0x400
@@ -12,7 +14,7 @@ ENTRY(Reset_Handler)
 
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x00010000, LENGTH = 960K /*Modified from 0xC000 to work with SparkFun SVL*/
+  FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_LENGTH /*Modified from 0xC000 to work with SparkFun SVL*/
   RAM_NVIC (rwx) : ORIGIN = MBED_RAM0_START, LENGTH = MBED_RAM0_SIZE
   RAM (rwx)      : ORIGIN = MBED_RAM1_START, LENGTH = MBED_RAM1_SIZE
 }
@@ -73,7 +75,7 @@ SECTIONS
   } > FLASH
   __exidx_end = .;
 
-  __etext = .;
+  __etext = ALIGN(8);
 
 /* space for nvic table is reserved above by RAM_NVIC section. Do we need this?
 Table is copied into this section at boot.
@@ -88,7 +90,7 @@ Table is copied into this section at boot.
   /* loaded into flash region, copied to sram region at startup */
   /* VMA appears in sram region, LMA is in flash region for initialization */
   /* _init_data used by startup to locate flash region copy of data */
-  .data :
+/*  .data :
   {
     . = ALIGN(4);
     _sdata = .;
@@ -98,22 +100,66 @@ Table is copied into this section at boot.
     . = ALIGN(4);
     _edata = .;
     __data_end__ = .;
-  } > RAM AT>FLASH
+  } > RAM AT>FLASH 
   _init_data = LOADADDR(.data); /* used by startup to initialize data */
 
+    .data : AT (__etext)
+    {
+        __data_start__ = .;
+        *(.data*)
+
+        . = ALIGN(8);
+        /* preinit data */
+        PROVIDE_HIDDEN (__preinit_array_start = .);
+        KEEP(*(.preinit_array))
+        PROVIDE_HIDDEN (__preinit_array_end = .);
+
+        . = ALIGN(8);
+        /* init data */
+        PROVIDE_HIDDEN (__init_array_start = .);
+        KEEP(*(SORT(.init_array.*)))
+        KEEP(*(.init_array))
+        PROVIDE_HIDDEN (__init_array_end = .);
+
+        . = ALIGN(8);
+        /* finit data */
+        PROVIDE_HIDDEN (__fini_array_start = .);
+        KEEP(*(SORT(.fini_array.*)))
+        KEEP(*(.fini_array))
+        PROVIDE_HIDDEN (__fini_array_end = .);
+
+        KEEP(*(.jcr*))
+        . = ALIGN(8);
+        /* All data end */
+        __data_end__ = .;
+
+    } > RAM
+
+        /* Uninitialized data section
+     * This region is not initialized by the C/C++ library and can be used to
+     * store state across soft reboots. */
+    .uninitialized (NOLOAD):
+    {
+        . = ALIGN(32);
+        __uninitialized_start = .;
+        *(.uninitialized)
+        KEEP(*(.keep.uninitialized))
+        . = ALIGN(32);
+        __uninitialized_end = .;
+    } > RAM
 
 
   /* bss: zero-initialized symbols */
   /* don't require flash memory to remember their value */
   .bss :
   {
-    . = ALIGN(4);
+    . = ALIGN(8);
     _sbss = .;
     __bss_start__ = .;
     *(.bss)
     *(.bss*)
     *(COMMON)
-    . = ALIGN(4);
+    . = ALIGN(8);
     _ebss = .;
     __bss_end__ = .;
   } > RAM
