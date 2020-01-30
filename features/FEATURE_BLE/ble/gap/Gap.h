@@ -1257,6 +1257,13 @@ public:
 #endif // BLE_FEATURE_PRIVACY
 
 #if !defined(DOXYGEN_ONLY)
+    /*
+     * API reserved for the controller driver to set the random static address.
+     * Setting a new random static address while the controller is operating is
+     * forbidden by the Bluetooth specification.
+     */
+    ble_error_t setRandomStaticAddress(const ble::address_t& address);
+
 protected:
     /** Can only be called if use_non_deprecated_scan_api() hasn't been called.
      *  This guards against mixed use of deprecated and nondeprecated API.
@@ -1407,6 +1414,7 @@ protected:
     ble_error_t getCentralPrivacyConfiguration_(
         central_privay_configuration_t *configuration
     );
+    ble_error_t setRandomStaticAddress_(const ble::address_t& address);
     void useVersionOneAPI_() const;
     void useVersionTwoAPI_() const;
 

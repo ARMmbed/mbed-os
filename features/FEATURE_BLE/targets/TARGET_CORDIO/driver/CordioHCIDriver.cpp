@@ -96,6 +96,13 @@ buf_pool_desc_t CordioHCIDriver::get_default_buffer_pool_description()
     return buf_pool_desc_t(buffer, pool_desc);
 }
 
+void CordioHCIDriver::set_random_static_address(const ble::address_t& address)
+{
+    ble_error_t err = cordio::BLE::deviceInstance().getGap().setRandomStaticAddress(address);
+    MBED_ASSERT(err == BLE_ERROR_NONE);
+}
+
+
 void CordioHCIDriver::start_reset_sequence()
 {
     /* send an HCI Reset command to start the sequence */
@@ -148,10 +155,7 @@ void CordioHCIDriver::handle_reset_sequence(uint8_t *pMsg)
 
                 if (get_random_static_address(static_address)) {
                     // note: will send the HCI command to send the random address
-                    cordio::BLE::deviceInstance().getGap().setAddress(
-                        BLEProtocol::AddressType::RANDOM_STATIC,
-                        static_address.data()
-                    );
+                    set_random_static_address(static_address.data());
                 } else {
                     /* send next command in sequence */
                     HciLeReadBufSizeCmd();

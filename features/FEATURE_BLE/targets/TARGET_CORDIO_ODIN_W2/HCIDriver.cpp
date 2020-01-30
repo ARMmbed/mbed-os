@@ -341,10 +341,7 @@ void ble::vendor::odin_w2::HCIDriver::handle_reset_sequence(uint8_t *pMsg)
                     memcpy(addr, pMsg, sizeof(addr));
                     DM_RAND_ADDR_SET(addr, DM_RAND_ADDR_STATIC);
                     // note: will invoke set rand address
-                    cordio::BLE::deviceInstance().getGap().setAddress(
-                        BLEProtocol::AddressType::RANDOM_STATIC,
-                        addr
-                    );
+                    set_random_static_address(addr);
                 }
                 break;
 
