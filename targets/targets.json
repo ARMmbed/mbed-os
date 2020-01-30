@@ -12014,7 +12014,8 @@
         "core": "Cortex-M4F",
         "extra_labels_add": [
             "STM32L4",
-            "STM32L4R9xI"
+            "STM32L4R9xI",
+            "MX25LM51245G"
         ],
         "config": {
             "clock_source": {
