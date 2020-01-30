@@ -31,6 +31,14 @@ static cyhal_crc_t cy_crc;
 static crc_algorithm_t cy_crc_cfg;
 static bool cy_crc_initialized = false;
 
+// Reverses width least significant bits of 32 bit input. Any bits more
+// significant than width are dropped.
+static uint32_t reverse(uint8_t width, uint32_t in)
+{
+    MBED_ASSERT(width <= 32);
+    return __RBIT(in) >> (32 - width);
+}
+
 void hal_crc_compute_partial_start(const crc_mbed_config_t *config)
 {
     if (!cy_crc_initialized) {
@@ -46,9 +54,17 @@ void hal_crc_compute_partial_start(const crc_mbed_config_t *config)
     cy_crc_cfg.polynomial = config->polynomial;
     cy_crc_cfg.lfsrInitState = config->initial_xor;
     cy_crc_cfg.dataXor = 0;
-    cy_crc_cfg.remXor = config->final_xor;
     cy_crc_cfg.dataReverse = config->reflect_in ? 1 : 0;
     cy_crc_cfg.remReverse = config->reflect_out ? 1 : 0;
+
+    // There is an incongruity between what MBeds CRC spec expects and what
+    // PSoC6 hardware actually performs when it comes to the final XOR and
+    // remainder reversal: MBed expects the final remainder to be reversed then
+    // XORed with remXor while PSoC6s CRC, however, performs the final XOR with
+    // remXor then reverses the resulting value. Since Rev(A) XOR B == Rev( A
+    // XOR Rev(B) ), a simple fix is to reverse remXor if reflect_out is true.
+    cy_crc_cfg.remXor = config->reflect_out ? reverse(config->width, config->final_xor) : config->final_xor;
+
     if (CY_RSLT_SUCCESS != cyhal_crc_start(&cy_crc, &cy_crc_cfg)) {
         MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_crc_start");
     }
