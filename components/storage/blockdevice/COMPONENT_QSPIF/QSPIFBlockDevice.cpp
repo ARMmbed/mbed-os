@@ -961,24 +961,6 @@ int QSPIFBlockDevice::_sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table
     uint8_t examined_byte;
 
     do { // compound statement is the loop body
-
-        if (basic_param_table_size > QSPIF_BASIC_PARAM_TABLE_QPI_READ_SUPPORT_BYTE) {
-            examined_byte = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_QPI_READ_SUPPORT_BYTE];
-
-            if (examined_byte & 0x10) {
-                // QPI 4-4-4 Supported
-                _read_instruction = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_444_READ_INST_BYTE];
-                set_quad_enable = true;
-                is_qpi_mode = true;
-                _dummy_cycles = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_444_READ_INST_BYTE - 1] & 0x1F;
-                uint8_t mode_cycles = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_444_READ_INST_BYTE - 1] >> 5;
-                _alt_size = mode_cycles * 4;
-                tr_debug("Read Bus Mode set to 4-4-4, Instruction: 0x%xh", _read_instruction);
-                _address_width = QSPI_CFG_BUS_QUAD;
-                _data_width = QSPI_CFG_BUS_QUAD;
-            }
-        }
-        is_qpi_mode = false;
         examined_byte = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_FAST_READ_SUPPORT_BYTE];
         if (examined_byte & 0x20) {
             //  Fast Read 1-4-4 Supported
@@ -992,7 +974,25 @@ int QSPIFBlockDevice::_sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table
             tr_debug("Read Bus Mode set to 1-4-4, Instruction: 0x%xh", _read_instruction);
             break;
         }
+        // QPI is checked as second option.
+        if (basic_param_table_size > QSPIF_BASIC_PARAM_TABLE_QPI_READ_SUPPORT_BYTE) {
+            examined_byte = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_QPI_READ_SUPPORT_BYTE];
+            if (examined_byte & 0x10) {
+                // QPI 4-4-4 Supported
+                _read_instruction = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_444_READ_INST_BYTE];
+                set_quad_enable = true;
+                is_qpi_mode = true;
+                _dummy_cycles = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_444_READ_INST_BYTE - 1] & 0x1F;
+                uint8_t mode_cycles = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_444_READ_INST_BYTE - 1] >> 5;
+                _alt_size = mode_cycles * 4;
+                tr_debug("Read Bus Mode set to 4-4-4, Instruction: 0x%xh", _read_instruction);
+                _address_width = QSPI_CFG_BUS_QUAD;
+                _data_width = QSPI_CFG_BUS_QUAD;
+                break;
+            }
+        }
 
+        examined_byte = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_FAST_READ_SUPPORT_BYTE];
         if (examined_byte & 0x40) {
             //  Fast Read 1-1-4 Supported
             _read_instruction = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_114_READ_INST_BYTE];
