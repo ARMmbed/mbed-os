@@ -70,7 +70,7 @@ ControlPlane_netif *QUECTEL_BG96_CellularContext::get_cp_netif()
 nsapi_error_t QUECTEL_BG96_CellularContext::do_user_authentication()
 {
     uint8_t type = (uint8_t)_pdp_type;
-    if ((uint8_t)_pdp_type < 1) {
+    if (((uint8_t)_pdp_type < 1) || ((uint8_t)_pdp_type > 2)) {
         type = 1;
     }
 
