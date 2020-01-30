@@ -18,6 +18,7 @@
 #include "CellularStateMachine.h"
 #include "CellularDevice.h"
 #include "CellularLog.h"
+#include "CellularInformation.h"
 
 #ifndef MBED_TRACE_MAX_LEVEL
 #define MBED_TRACE_MAX_LEVEL TRACE_LEVEL_INFO
@@ -243,8 +244,8 @@ bool CellularStateMachine::get_network_registration(CellularNetwork::Registratio
             break;
     }
 
-    if (is_roaming) {
-        tr_info("Roaming network.");
+    if (is_registered || is_roaming) {
+        tr_info("Roaming %u Registered %u", is_roaming, is_registered);
     }
 
     return true;
@@ -360,6 +361,26 @@ void CellularStateMachine::state_device_ready()
     if (_cb_data.error == NSAPI_ERROR_OK) {
         _cb_data.error = _cellularDevice.init();
         if (_cb_data.error == NSAPI_ERROR_OK) {
+
+#if MBED_CONF_MBED_TRACE_ENABLE
+            CellularInformation *info = _cellularDevice.open_information();
+
+            char *buf = new (std::nothrow) char[2048]; // size from 3GPP TS 27.007
+            if (buf) {
+                if (info->get_manufacturer(buf, 2048) == NSAPI_ERROR_OK) {
+                    tr_info("Modem manufacturer: %s", buf);
+                }
+                if (info->get_model(buf, 2048) == NSAPI_ERROR_OK) {
+                    tr_info("Modem model: %s", buf);
+                }
+                if (info->get_revision(buf, 2048) == NSAPI_ERROR_OK) {
+                    tr_info("Modem revision: %s", buf);
+                }
+                delete[] buf;
+            }
+            _cellularDevice.close_information();
+#endif // MBED_CONF_MBED_TRACE_ENABLE
+
             if (device_ready()) {
                 _status = 0;
                 enter_to_state(STATE_SIM_PIN);
@@ -373,6 +394,7 @@ void CellularStateMachine::state_device_ready()
             }
         }
     }
+
     if (_cb_data.error != NSAPI_ERROR_OK) {
         if (_retry_count == 0) {
             _cellularDevice.set_ready_cb(callback(this, &CellularStateMachine::device_ready_cb));

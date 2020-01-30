@@ -28,6 +28,7 @@ public:
 
 public: // AT_CellularInformation
     virtual nsapi_error_t get_iccid(char *buf, size_t buf_size);
+    virtual nsapi_error_t get_revision(char *buf, size_t buf_size);
 };
 
 } /* namespace mbed */
