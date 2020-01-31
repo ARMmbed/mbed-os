@@ -20,9 +20,11 @@
 using namespace mbed;
 using namespace mbed::nfc;
 
-NFCEEPROM::NFCEEPROM(NFCEEPROMDriver *driver, events::EventQueue *queue, const Span<uint8_t> &ndef_buffer) : NFCTarget(ndef_buffer),
-    _delegate(NULL), _driver(driver), _event_queue(queue), _initialized(false), _current_op(nfc_eeprom_idle), _ndef_buffer_read_sz(0), _eeprom_address(0),
-    _operation_result(NFC_ERR_UNKNOWN), _ndef_buffer_reader{nullptr, 0, nullptr}
+NFCEEPROM::NFCEEPROM(NFCEEPROMDriver *driver, events::EventQueue *queue, const Span<uint8_t> &ndef_buffer)
+    :
+    NFCTarget(ndef_buffer), _delegate(NULL), _driver(driver), _event_queue(queue), _initialized(false),
+    _current_op(nfc_eeprom_idle), _ndef_buffer_reader { nullptr, 0, nullptr }, _ndef_buffer_read_sz(0),
+    _eeprom_address(0), _operation_result(NFC_ERR_UNKNOWN)
 {
     _driver->set_delegate(this);
     _driver->set_event_queue(queue);
