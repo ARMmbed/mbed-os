@@ -37,14 +37,23 @@ extern "C" {
  */
 void fpga_spi_test_init_free(PinName mosi, PinName miso, PinName sclk, PinName ssel);
 
-/** Test that the SPI-Master transfer can be performed in various configurations.
+/** Test that the SPI-Master transfer can be performed in various configurations (SSEL handled by hardware).
  *
  * Given board provides SPI-Master support.
  * When SPI transmission is performed using different settings.
- * Then data is successfully transfered.
+ * Then data is successfully transferred.
  *
  */
 void fpga_spi_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel);
+
+/** Test that the SPI-Master transfer can be performed in various configurations (SSEL handled manually).
+ *
+ * Given board provides SPI-Master support.
+ * When SPI transmission is performed using different settings.
+ * Then data is successfully transferred.
+ *
+ */
+void fpga_spi_test_common_no_ss(PinName mosi, PinName miso, PinName sclk);
 
 /**@}*/
 
