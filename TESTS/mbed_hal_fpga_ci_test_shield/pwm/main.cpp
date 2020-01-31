@@ -220,7 +220,11 @@ Case cases[] = {
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
+#ifdef FPGA_FORCE_ALL_PORTS
+    GREENTEA_SETUP(300, "default_auto");
+#else
     GREENTEA_SETUP(120, "default_auto");
+#endif
     return greentea_test_setup_handler(number_of_cases);
 }
 
