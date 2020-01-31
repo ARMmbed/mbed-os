@@ -26,7 +26,7 @@ set(unittest-sources
 )
 
 set(unittest-test-sources
-  MODULETESTS/features/netsocket/IfaceDnsSocket/test_IfaceDnsSocket.cpp
+  moduletests/features/netsocket/IfaceDnsSocket/moduletest.cpp
   stubs/MeshInterface_stub.cpp
   stubs/CellularInterface_stub.cpp
   stubs/Mutex_stub.cpp

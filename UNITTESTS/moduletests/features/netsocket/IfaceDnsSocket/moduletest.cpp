@@ -287,19 +287,6 @@ TEST_F(Test_IfaceDnsSocket, single_query_ip6)
     EXPECT_FALSE(strncmp(addr.get_ip_address(), "102:304:506:708:90a:b0c:d0e:f10", sizeof("102:304:506:708:90a:b0c:d0e:f10")));
 }
 
-// Imitate the getaddrinfo to make the example more real-life.
-int getaddrinfo(NetworkStack *stack, const char *hostname, SocketAddress hints, SocketAddress **res)
-{
-    SocketAddress *tmp = new SocketAddress[5];
-    int num = nsapi_dns_query_multiple(stack, hostname, tmp, 5, NULL);
-    *res = new SocketAddress[num];
-    for (int i = 0; i < num; i++) {
-        (*res)[i].set_addr(tmp[i].get_addr());
-    }
-    delete[] tmp;
-    return num;
-}
-
 TEST_F(Test_IfaceDnsSocket, multiple_queries)
 {
     // Make sure socket opens successfully
@@ -320,7 +307,7 @@ TEST_F(Test_IfaceDnsSocket, multiple_queries)
 
     SocketAddress *addr;
     SocketAddress hints{{NSAPI_UNSPEC}, 443};
-    EXPECT_EQ(3, getaddrinfo(&stackMock(), "www.google.com", hints, &addr));
+    EXPECT_EQ(3, iface->getaddrinfo("www.google.com", &hints, &addr));
 
     EXPECT_EQ(addr[0].get_ip_version(), NSAPI_IPv4);
     EXPECT_FALSE(strncmp(addr[0].get_ip_address(), "216.58.207.238", sizeof("216.58.207.238")));
@@ -332,7 +319,7 @@ TEST_F(Test_IfaceDnsSocket, multiple_queries)
 
     SocketAddress *addr_cache;
     // Cache will only raturn one address.
-    EXPECT_EQ(3, getaddrinfo(&stackMock(), "www.google.com", hints, &addr_cache));
+    EXPECT_EQ(3, iface->getaddrinfo("www.google.com", &hints, &addr_cache));
 
     EXPECT_EQ(addr_cache[0].get_ip_version(), NSAPI_IPv4);
     EXPECT_FALSE(strncmp(addr_cache[0].get_ip_address(), "216.58.207.238", sizeof("216.58.207.238")));
@@ -420,6 +407,7 @@ TEST_F(Test_IfaceDnsSocket, simultaneous_query_async)
 }
 
 // Imitate the getaddrinfo to make the example more real-life.
+// No way to replace this with NetworkInterface:getaddrinfo_async, because we can't pass a call_in cb.
 int getaddrinfo_async(NetworkStack *stack, const char *hostname, NetworkStack::hostbyname_cb_t cb)
 {
     return nsapi_dns_query_multiple_async(stack, hostname, cb, 5, &Test_IfaceDnsSocket::call_in, NULL);
