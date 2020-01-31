@@ -5,14 +5,14 @@
                    "-fmessage-length=0", "-fno-exceptions",
                    "-ffunction-sections", "-fdata-sections", "-funsigned-char",
                    "-MMD",
-                   "-fomit-frame-pointer", "-Os", "-flto", "-g", "-DMBED_TRAP_ERRORS_ENABLED=1"],
+                   "-fomit-frame-pointer", "-Os", "-g", "-DMBED_TRAP_ERRORS_ENABLED=1"],
         "asm": ["-c", "-x", "assembler-with-cpp"],
         "c": ["-c", "-std=gnu11"],
         "cxx": ["-c", "-std=gnu++14", "-fno-rtti", "-Wvla"],
         "ld": ["-Wl,--gc-sections", "-Wl,--wrap,main", "-Wl,--wrap,_malloc_r",
                "-Wl,--wrap,_free_r", "-Wl,--wrap,_realloc_r", "-Wl,--wrap,_memalign_r",
                "-Wl,--wrap,_calloc_r", "-Wl,--wrap,exit", "-Wl,--wrap,atexit",
-               "-Wl,-n", "-u main"]
+               "-Wl,-n"]
     },
     "ARMC6": {
         "common": ["-c", "--target=arm-arm-none-eabi", "-mthumb", "-Os",
