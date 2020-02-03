@@ -1922,6 +1922,9 @@
             "MBED_MPU_CUSTOM",
             "MBED_TICKLESS"
         ],
+        "components_add": [
+            "FLASHIAP"
+        ],
         "inherits": ["Target"],
         "detect_code": ["0227"],
         "device_has": [
