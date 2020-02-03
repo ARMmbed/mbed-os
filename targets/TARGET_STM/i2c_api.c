@@ -369,6 +369,48 @@ void i2c_init_internal(i2c_t *obj, const i2c_pinmap_t *pinmap)
 #endif
 }
 
+void i2c_deinit_internal(i2c_t *obj)
+{
+    struct i2c_s *obj_s = I2C_S(obj);
+
+    i2c_hw_reset(obj);
+
+    HAL_I2C_DeInit(&(obj_s->handle));
+
+#if defined I2C1_BASE
+    if (obj_s->i2c == I2C_1) {
+        __HAL_RCC_I2C1_CLK_DISABLE();
+    }
+#endif
+#if defined I2C2_BASE
+    if (obj_s->i2c == I2C_2) {
+        __HAL_RCC_I2C2_CLK_DISABLE();
+    }
+#endif
+#if defined I2C3_BASE
+    if (obj_s->i2c == I2C_3) {
+        __HAL_RCC_I2C3_CLK_DISABLE();
+    }
+#endif
+#if defined I2C4_BASE
+    if (obj_s->i2c == I2C_4) {
+        __HAL_RCC_I2C4_CLK_DISABLE();
+    }
+#endif
+#if defined FMPI2C1_BASE
+    if (obj_s->i2c == FMPI2C_1) {
+        __HAL_RCC_FMPI2C1_CLK_DISABLE();
+    }
+#endif
+
+    pin_mode(obj_s->sda, PullNone);
+    pin_mode(obj_s->scl, PullNone);
+
+    obj_s->sda = NC;
+    obj_s->scl = NC;
+    obj_s->i2c = (I2CName)NC;
+}
+
 #if STATIC_PINMAP_READY
 #define I2C_INIT_DIRECT i2c_init_direct
 void i2c_init_direct(i2c_t *obj, const i2c_pinmap_t *pinmap)
@@ -394,6 +436,11 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     const i2c_pinmap_t explicit_i2c_pinmap = {peripheral, sda, sda_function, scl, scl_function};
 
     I2C_INIT_DIRECT(obj, &explicit_i2c_pinmap);
+}
+
+void i2c_free(i2c_t *obj)
+{
+    i2c_deinit_internal(obj);
 }
 
 
