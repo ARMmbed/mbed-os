@@ -5282,6 +5282,57 @@
         "device_name": "STM32L433RC",
         "bootloader_supported": true
     },
+    "NUCLEO_L452RE_P": {
+        "inherits": [
+            "FAMILY_STM32"
+        ],
+        "supported_form_factors": [
+            "ARDUINO",
+            "MORPHO"
+        ],
+        "core": "Cortex-M4F",
+        "extra_labels_add": [
+            "STM32L4",
+            "STM32L452xE"
+        ],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
+                "value": "USE_PLL_MSI",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
+                "value": 1
+            }
+        },
+        "macros_add": [
+            "STM32L452xx",
+            "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED",
+            "MBED_SPLIT_HEAP"
+        ],
+        "overrides": {
+            "lpticker_delay_ticks": 0
+        },
+        "detect_code": [
+            "0829"
+        ],
+        "device_has_add": [
+            "ANALOGOUT",
+            "CRC",
+            "SERIAL_ASYNCH",
+            "CAN",
+            "TRNG",
+            "FLASH",
+            "MPU"
+        ],
+        "release_versions": [
+            "5"
+        ],
+        "device_name": "STM32L452RETx",
+        "bootloader_supported": true
+    },
     "MTB_ADV_WISE_1510": {
         "inherits": [
             "FAMILY_STM32"

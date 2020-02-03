@@ -241,6 +241,10 @@
         },
         "S5JS100": {
             "stdio-baud-rate": 115200
+        },
+        "NUCLEO_L452RE-P": {
+            "crash-capture-enabled": true,
+            "fatal-error-auto-reboot-enabled": true
         }
     }
 }
