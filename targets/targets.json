@@ -1953,6 +1953,7 @@
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
         "device_name": "MIMXRT1052",
+        "bootloader_supported": true,
         "overrides": {
             "deep-sleep-latency": 5,
             "network-default-interface-type": "ETHERNET"
