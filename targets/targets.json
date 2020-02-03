@@ -2164,6 +2164,7 @@
     "HANI_IOT": {
         "inherits": ["LPC55S69_NS"],
         "detect_code": ["0360"],
+        "components_add": ["SPIF"],
         "extra_labels_remove": ["LPCXpresso"]
     },
     "NUCLEO_F030R8": {

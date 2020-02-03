@@ -11,6 +11,9 @@
         }
     },
     "target_overrides": {
+        "HANI_IOT": {
+            "storage_type": "TDB_INTERNAL"
+        },
         "K66F": {
             "storage_type": "TDB_INTERNAL"
         },
