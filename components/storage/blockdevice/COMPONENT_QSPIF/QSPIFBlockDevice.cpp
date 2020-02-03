@@ -252,7 +252,8 @@ int QSPIFBlockDevice::init()
     }
 
     /**************************** Parse Basic Parameters Table ***********************************/
-    if (0 != _sfdp_parse_basic_param_table(_sfdp_info.bptbl.addr, _sfdp_info.bptbl.size)) {
+    if (_sfdp_parse_basic_param_table(callback(this, &QSPIFBlockDevice::_qspi_send_read_sfdp_command),
+                                      _sfdp_info.bptbl.addr, _sfdp_info.bptbl.size) < 0) {
         tr_error("Init - Parse Basic Param Table Failed");
         status = QSPIF_BD_ERROR_PARSING_FAILED;
         goto exit_point;
@@ -626,11 +627,12 @@ int QSPIFBlockDevice::remove_csel_instance(PinName csel)
 /*********************************************************/
 /********** SFDP Parsing and Detection Functions *********/
 /*********************************************************/
-int QSPIFBlockDevice::_sfdp_parse_basic_param_table(uint32_t basic_table_addr, size_t basic_table_size)
+int QSPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader,
+                                                    uint32_t basic_table_addr, size_t basic_table_size)
 {
-    uint8_t param_table[SFDP_BASIC_PARAMS_TBL_SIZE]; /* Up To 16 DWORDS = 64 Bytes */
+    uint8_t param_table[SFDP_BASIC_PARAMS_TBL_SIZE]; /* Up To 20 DWORDS = 80 Bytes */
 
-    int status = _qspi_send_read_sfdp_command(basic_table_addr, (char *)param_table, basic_table_size);
+    int status = sfdp_reader(basic_table_addr, param_table, basic_table_size);
     if (status != QSPI_STATUS_OK) {
         tr_error("Init - Read SFDP First Table Failed");
         return -1;

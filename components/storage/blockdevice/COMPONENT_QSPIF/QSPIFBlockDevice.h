@@ -317,7 +317,8 @@ private:
     /* SFDP Detection and Parsing Functions */
     /****************************************/
     // Parse and Detect required Basic Parameters from Table
-    int _sfdp_parse_basic_param_table(uint32_t basic_table_addr, size_t basic_table_size);
+    int _sfdp_parse_basic_param_table(mbed::Callback<int(mbed::bd_addr_t, void *, mbed::bd_size_t)> sfdp_reader,
+                                      uint32_t basic_table_addr, size_t basic_table_size);
 
     // Detect the soft reset protocol and reset - returns error if soft reset is not supported
     int _sfdp_detect_reset_protocol_and_reset(uint8_t *basic_param_table_ptr);

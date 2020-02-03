@@ -43,7 +43,6 @@ using namespace mbed;
 
 /* Basic Parameters Table Parsing */
 /**********************************/
-#define SFDP_DEFAULT_BASIC_PARAMS_TABLE_SIZE_BYTES 64 /* 16 DWORDS */
 //READ Instruction support according to BUS Configuration
 #define SPIF_BASIC_PARAM_TABLE_FAST_READ_SUPPORT_BYTE 2
 #define SPIF_BASIC_PARAM_TABLE_QPI_READ_SUPPORT_BYTE 16
@@ -183,7 +182,7 @@ int SPIFBlockDevice::init()
 
 
     /**************************** Parse Basic Parameters Table ***********************************/
-    if (0 != _sfdp_parse_basic_param_table(hdr_info.bptbl.addr, hdr_info.bptbl.size)) {
+    if (0 != _sfdp_parse_basic_param_table(callback(this, &SPIFBlockDevice::_spi_send_read_sfdp_command), hdr_info.bptbl.addr, hdr_info.bptbl.size)) {
         tr_error("init - Parse Basic Param Table Failed");
         status = SPIF_BD_ERROR_PARSING_FAILED;
         goto exit_point;
@@ -620,13 +619,12 @@ spif_bd_error SPIFBlockDevice::_spi_send_general_command(int instruction, bd_add
 /*********************************************************/
 /********** SFDP Parsing and Detection Functions *********/
 /*********************************************************/
-int SPIFBlockDevice::_sfdp_parse_basic_param_table(uint32_t basic_table_addr, size_t basic_table_size)
+int SPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader,
+                                                   uint32_t basic_table_addr, size_t basic_table_size)
 {
-    uint8_t param_table[SFDP_DEFAULT_BASIC_PARAMS_TABLE_SIZE_BYTES]; /* Up To 16 DWORDS = 64 Bytes */
-    //memset(param_table, 0, SFDP_DEFAULT_BASIC_PARAMS_TABLE_SIZE_BYTES);
+    uint8_t param_table[SFDP_BASIC_PARAMS_TBL_SIZE]; /* Up To 20 DWORDS = 80 Bytes */
 
-    spif_bd_error status = _spi_send_read_command(SPIF_SFDP, param_table, basic_table_addr /*address*/,
-                                                  basic_table_size);
+    int status = sfdp_reader(basic_table_addr, param_table, basic_table_size);
     if (status != SPIF_BD_ERROR_OK) {
         tr_error("init - Read SFDP First Table Failed");
         return -1;

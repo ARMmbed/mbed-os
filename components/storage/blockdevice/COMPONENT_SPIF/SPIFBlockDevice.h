@@ -230,7 +230,8 @@ private:
     int _spi_send_read_sfdp_command(mbed::bd_addr_t addr, void *rx_buffer, mbed::bd_size_t rx_length);
 
     // Parse and Detect required Basic Parameters from Table
-    int _sfdp_parse_basic_param_table(uint32_t basic_table_addr, size_t basic_table_size);
+    int _sfdp_parse_basic_param_table(mbed::Callback<int(mbed::bd_addr_t, void *, mbed::bd_size_t)> sfdp_reader,
+                                      uint32_t basic_table_addr, size_t basic_table_size);
 
     // Detect fastest read Bus mode supported by device
     int _sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table_ptr, int basic_param_table_size, int &read_inst);
