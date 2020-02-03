@@ -22,11 +22,22 @@
 
 #include "serial_api.h"
 
+#include "mbed_assert.h"
 #include "PeripheralPins.h"
+
+// globals?
+int stdio_uart_inited = 0;
+serial_t stdio_uart;
+bool value = false;
 
 // interrupt variables
 static uart_irq_handler irq_handler;
-static uint32_t serial_irq_ids[AM_REG_UART_NUM_MODULES];
+static ap3_uart_control_t ap3_uart_control[AM_REG_UART_NUM_MODULES];
+
+// forward declarations
+extern void am_uart_isr(void);
+extern void am_uart1_isr(void);
+void uart_configure_pin_function(PinName pin, UARTName uart, const PinMap *map);
 
 /**
  * \defgroup hal_GeneralSerial Serial Configuration Functions
@@ -124,34 +135,31 @@ static uint32_t serial_irq_ids[AM_REG_UART_NUM_MODULES];
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
   // determine the UART to use
-  UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
-  UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
+  UARTName uart_tx = (UARTName)pinmap_peripheral(tx, serial_tx_pinmap());
+  UARTName uart_rx = (UARTName)pinmap_peripheral(rx, serial_rx_pinmap());
   UARTName uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
-  obj->serial.inst = (uint32_t)uart;
-  MBED_ASSERT((int)uart != NC);
+  MBED_ASSERT((uint32_t)uart != NC);
+  obj->serial.uart_control = &ap3_uart_control[uart];
+  obj->serial.uart_control->inst = uart;
 
-  // associate buffers
-  // todo: decide which buffers to use
-  obj->serial.cfg.pui8RxBuffer = NULL;
-  obj->serial.cfg.pui8TxBuffer = NULL;
-  obj->serial.cfg.ui32RxBufferSize = 0;
-  obj->serial.cfg.ui32TxBufferSize = 0;
+  // ensure that HAL queueing is disabled (we want to use the FIFOs directly)
+  obj->serial.uart_control->cfg.pui8RxBuffer = NULL;
+  obj->serial.uart_control->cfg.pui8TxBuffer = NULL;
+  obj->serial.uart_control->cfg.ui32RxBufferSize = 0;
+  obj->serial.uart_control->cfg.ui32TxBufferSize = 0;
 
-  // pinout the chosen uart
-  pinmap_pinout(tx, PinMap_UART_TX);
-  pinmap_pinout(rx, PinMap_UART_RX);
+  // memset(obj->serial.uart_control->cfg, 0x00, sizeof(am_hal_uart_config_t)); // ensure config begins zeroed
+
+  // // pinout the chosen uart // todo: better????
+  // pinmap_pinout(tx, serial_tx_pinmap());
+  // pinmap_pinout(rx, serial_rx_pinmap());
+  uart_configure_pin_function(tx, uart, serial_tx_pinmap());
+  uart_configure_pin_function(rx, uart, serial_rx_pinmap());
 
   // start UART instance
-  MBED_ASSERT(am_hal_uart_initialize(obj->serial.inst, &(obj->serial.handle)) == AM_HAL_STATUS_SUCCESS);
-  MBED_ASSERT(am_hal_uart_power_control(obj->serial.handle, AM_HAL_SYSCTRL_WAKE, false) == AM_HAL_STATUS_SUCCESS);
-  MBED_ASSERT(am_hal_uart_configure(obj->serial.handle, &(obj->serial.cfg)) == AM_HAL_STATUS_SUCCESS);
-
-  // enable UART interrupts for this instance
-  NVIC_EnableIRQ((IRQn_Type)(UART0_IRQn + obj->serial.inst));
-  am_hal_uart_interrupt_enable(obj->serial.handle, (AM_HAL_UART_INT_RX | AM_HAL_UART_INT_TX));
-
-  // service interrupts to determine idle state
-  am_hal_uart_interrupt_service(obj->serial.handle, 0, (uint32_t *)obj->serial.tx_idle);
+  MBED_ASSERT(am_hal_uart_initialize(uart, &(obj->serial.uart_control->handle)) == AM_HAL_STATUS_SUCCESS);
+  MBED_ASSERT(am_hal_uart_power_control(obj->serial.uart_control->handle, AM_HAL_SYSCTRL_WAKE, false) == AM_HAL_STATUS_SUCCESS);
+  MBED_ASSERT(am_hal_uart_configure(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg)) == AM_HAL_STATUS_SUCCESS);
 
   // set default baud rate and format
   serial_baud(obj, 9600);
@@ -176,8 +184,8 @@ void serial_free(serial_t *obj)
  */
 void serial_baud(serial_t *obj, int baudrate)
 {
-  obj->serial.cfg.ui32BaudRate = (uint32_t)baudrate;
-  MBED_ASSERT(am_hal_uart_configure(obj->serial.handle, &(obj->serial.cfg)) == AM_HAL_STATUS_SUCCESS);
+  obj->serial.uart_control->cfg.ui32BaudRate = (uint32_t)baudrate;
+  MBED_ASSERT(am_hal_uart_configure(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg)) == AM_HAL_STATUS_SUCCESS);
 }
 
 /** Configure the format. Set the number of bits, parity and the number of stop bits
@@ -189,6 +197,26 @@ void serial_baud(serial_t *obj, int baudrate)
  */
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
 {
+  uint32_t am_hal_data_bits = 0;
+  switch (data_bits)
+  {
+  case 5:
+    am_hal_data_bits = AM_HAL_UART_DATA_BITS_5;
+    break;
+  case 6:
+    am_hal_data_bits = AM_HAL_UART_DATA_BITS_6;
+    break;
+  case 7:
+    am_hal_data_bits = AM_HAL_UART_DATA_BITS_7;
+    break;
+  case 8:
+    am_hal_data_bits = AM_HAL_UART_DATA_BITS_8;
+    break;
+  default:
+    MBED_ASSERT(0);
+    break;
+  }
+
   uint32_t am_hal_parity = AM_HAL_UART_PARITY_NONE;
   switch (parity)
   {
@@ -208,10 +236,23 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     break;
   }
 
-  obj->serial.cfg.ui32DataBits = (uint32_t)data_bits;
-  obj->serial.cfg.ui32Parity = (uint32_t)am_hal_parity;
-  obj->serial.cfg.ui32StopBits = (uint32_t)stop_bits;
-  MBED_ASSERT(am_hal_uart_configure(obj->serial.handle, &(obj->serial.cfg)) == AM_HAL_STATUS_SUCCESS);
+  uint32_t am_hal_stop_bits = 0;
+  switch (stop_bits)
+  {
+  case 1:
+    am_hal_stop_bits = AM_HAL_UART_ONE_STOP_BIT;
+    break;
+  case 2:
+    am_hal_stop_bits = AM_HAL_UART_TWO_STOP_BITS;
+    break;
+  default:
+    MBED_ASSERT(0);
+  }
+
+  obj->serial.uart_control->cfg.ui32DataBits = (uint32_t)am_hal_data_bits;
+  obj->serial.uart_control->cfg.ui32Parity = (uint32_t)am_hal_parity;
+  obj->serial.uart_control->cfg.ui32StopBits = (uint32_t)am_hal_stop_bits;
+  MBED_ASSERT(am_hal_uart_configure(obj->serial.uart_control->handle, &(obj->serial.uart_control->cfg)) == AM_HAL_STATUS_SUCCESS);
 }
 
 /** The serial interrupt handler registration
@@ -223,7 +264,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
   irq_handler = handler;
-  serial_irq_ids[obj->serial.inst] = id;
+  obj->serial.uart_control->serial_irq_id = id;
   // todo: revisit with Kyle
 }
 
@@ -235,7 +276,21 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
  */
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 {
-  // todo: revisit with Kyle
+  MBED_ASSERT(obj->serial.uart_control != NULL);
+
+  am_hal_uart_interrupt_enable(obj->serial.uart_control->handle, (AM_HAL_UART_INT_RX | AM_HAL_UART_INT_TX | AM_HAL_UART_INT_TXCMP));
+
+  switch (obj->serial.uart_control->inst)
+  {
+  case 0:
+    NVIC_SetVector((IRQn_Type)UART0_IRQn, (uint32_t)am_uart_isr);
+    break;
+  case 1:
+    NVIC_SetVector((IRQn_Type)UART1_IRQn, (uint32_t)am_uart1_isr);
+    break;
+  }
+
+  NVIC_EnableIRQ((IRQn_Type)(UART0_IRQn + obj->serial.uart_control->inst));
 }
 
 /** Get character. This is a blocking call, waiting for a character
@@ -244,21 +299,22 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
  */
 int serial_getc(serial_t *obj)
 {
-  // todo: handle data_bits > 8
+  MBED_ASSERT(obj->serial.uart_control != NULL);
+
   uint8_t rx_c = 0x00;
-  uint32_t bytes_read = 0x00;
-  static am_hal_uart_transfer_t am_hal_uart_xfer_read_single =
+  volatile uint32_t bytes_read = 0x00;
+  am_hal_uart_transfer_t am_hal_uart_xfer_read_single =
       {
           .ui32Direction = AM_HAL_UART_READ,
           .pui8Data = (uint8_t *)&rx_c,
           .ui32NumBytes = 1,
           .ui32TimeoutMs = 0,
-          .pui32BytesTransferred = &bytes_read,
+          .pui32BytesTransferred = (uint32_t *)&bytes_read,
       };
 
   do
   {
-    am_hal_uart_transfer(obj->serial.handle, &am_hal_uart_xfer_read_single);
+    am_hal_uart_transfer(obj->serial.uart_control->handle, &am_hal_uart_xfer_read_single);
   } while (bytes_read == 0);
 
   return (int)rx_c;
@@ -272,24 +328,21 @@ int serial_getc(serial_t *obj)
  */
 void serial_putc(serial_t *obj, int c)
 {
-  uint32_t bytes_sent = 0;
+  MBED_ASSERT(obj->serial.uart_control != NULL);
+
+  volatile uint32_t bytes_sent = 0;
   am_hal_uart_transfer_t am_hal_uart_xfer_write_single =
       {
           .ui32Direction = AM_HAL_UART_WRITE,
           .pui8Data = (uint8_t *)(&c),
           .ui32NumBytes = 1,
           .ui32TimeoutMs = 0,
-          .pui32BytesTransferred = &bytes_sent,
+          .pui32BytesTransferred = (uint32_t *)&bytes_sent,
       };
 
   do
   {
-    while (!(obj->serial.tx_idle))
-    {
-    }; // wait for tx to become idle
-
-    am_hal_uart_transfer(_handle, &sUartWrite);
-
+    am_hal_uart_transfer(obj->serial.uart_control->handle, &am_hal_uart_xfer_write_single);
   } while (bytes_sent == 0);
 }
 
@@ -300,7 +353,8 @@ void serial_putc(serial_t *obj, int c)
  */
 int serial_readable(serial_t *obj)
 {
-  // todo:
+  MBED_ASSERT(obj->serial.uart_control != NULL);
+  return !(UARTn(obj->serial.uart_control->inst)->FR_b.RXFE);
 }
 
 /** Check if the serial peripheral is writable
@@ -310,7 +364,8 @@ int serial_readable(serial_t *obj)
  */
 int serial_writable(serial_t *obj)
 {
-  // todo:
+  MBED_ASSERT(obj->serial.uart_control != NULL);
+  return !(UARTn(obj->serial.uart_control->inst)->FR_b.TXFF);
 }
 
 /** Clear the serial peripheral
@@ -319,7 +374,7 @@ int serial_writable(serial_t *obj)
  */
 void serial_clear(serial_t *obj)
 {
-  // todo:
+  MBED_ASSERT(0); // todo: WTF is this?
 }
 
 /** Set the break
@@ -328,7 +383,8 @@ void serial_clear(serial_t *obj)
  */
 void serial_break_set(serial_t *obj)
 {
-  // todo:
+  MBED_ASSERT(obj->serial.uart_control != NULL);
+  UARTn(obj->serial.uart_control->inst)->LCRH |= UART0_LCRH_BRK_Msk;
 }
 
 /** Clear the break
@@ -337,7 +393,8 @@ void serial_break_set(serial_t *obj)
  */
 void serial_break_clear(serial_t *obj)
 {
-  // todo:
+  MBED_ASSERT(obj->serial.uart_control != NULL);
+  UARTn(obj->serial.uart_control->inst)->LCRH &= ~UART0_LCRH_BRK_Msk;
 }
 
 /** Configure the TX pin for UART function.
@@ -345,9 +402,12 @@ void serial_break_clear(serial_t *obj)
  * @param tx The pin name used for TX
  */
 void serial_pinout_tx(PinName tx)
+{
+  MBED_ASSERT(0); // todo: (this seems like a vestigial function)
+}
 
 #if DEVICE_SERIAL_FC
-    /** Configure the serial for the flow control. It sets flow control in the hardware
+/** Configure the serial for the flow control. It sets flow control in the hardware
  *  if a serial peripheral supports it, otherwise software emulation is used.
  *
  * @param obj    The serial object
@@ -355,7 +415,7 @@ void serial_pinout_tx(PinName tx)
  * @param rxflow The TX pin name
  * @param txflow The RX pin name
  */
-    void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
+void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
 {
   // todo:
 }
@@ -394,7 +454,7 @@ const PinMap *serial_tx_pinmap(void)
  */
 const PinMap *serial_rx_pinmap(void)
 {
-  return PinMap_UART_TX;
+  return PinMap_UART_RX;
 }
 
 #if DEVICE_SERIAL_FC
@@ -446,7 +506,21 @@ const PinMap *serial_rts_pinmap(void)
  */
 int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
-  // todo:
+  MBED_ASSERT(obj->serial.uart_control != NULL);
+  uint32_t bytes_written = 0;
+
+  am_hal_uart_transfer_t am_hal_uart_xfer_write =
+      {
+          .ui32Direction = AM_HAL_UART_WRITE,
+          .pui8Data = (uint8_t *)obj->tx_buff.buffer,
+          .ui32NumBytes = tx_length, // todo: consider maybe this? (uint32_t)obj->tx_buff.length,
+          .ui32TimeoutMs = 0,
+          .pui32BytesTransferred = &bytes_written,
+      };
+
+  am_hal_uart_transfer(obj->serial.uart_control->handle, &am_hal_uart_xfer_write);
+
+  return (int)bytes_written;
 }
 
 /** Begin asynchronous RX transfer (enable interrupt for data collecting)
@@ -463,7 +537,20 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
  */
 void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_width, uint32_t handler, uint32_t event, uint8_t char_match, DMAUsage hint)
 {
-  // todo:
+  // todo: revisit
+  MBED_ASSERT(obj->serial.uart_control != NULL);
+  uint32_t bytes_read = 0;
+
+  am_hal_uart_transfer_t am_hal_uart_xfer_read =
+      {
+          .ui32Direction = AM_HAL_UART_READ,
+          .pui8Data = (uint8_t *)obj->rx_buff.buffer,
+          .ui32NumBytes = rx_length, // todo: consider this (uint32_t)obj->rx_buff.length,
+          .ui32TimeoutMs = 0,
+          .pui32BytesTransferred = &bytes_read,
+      };
+
+  am_hal_uart_transfer(obj->serial.uart_control->handle, &am_hal_uart_xfer_read);
 }
 
 /** Attempts to determine if the serial peripheral is already in use for TX
@@ -519,6 +606,76 @@ void serial_rx_abort_asynch(serial_t *obj)
 /**@}*/
 
 #endif
+
+static inline void uart_irq(uint32_t instance)
+{
+  void *handle = ap3_uart_control[instance].handle;
+  MBED_ASSERT(handle != NULL);
+
+  // check flags
+  uint32_t status = 0x00;
+  MBED_ASSERT(am_hal_uart_interrupt_status_get(handle, &status, true) == AM_HAL_STATUS_SUCCESS);
+  MBED_ASSERT(am_hal_uart_interrupt_clear(handle, status) == AM_HAL_STATUS_SUCCESS);
+
+  if (ap3_uart_control[instance].serial_irq_id != 0)
+  {
+    if (status & AM_HAL_UART_INT_TXCMP)
+    { // for transmit complete
+      if (irq_handler)
+      {
+        irq_handler(ap3_uart_control[instance].serial_irq_id, TxIrq);
+      }
+    }
+    if (status & AM_HAL_UART_INT_RX)
+    { // for receive complete
+      if (irq_handler)
+      {
+        irq_handler(ap3_uart_control[instance].serial_irq_id, RxIrq);
+      }
+    }
+  }
+}
+
+extern void am_uart_isr(void)
+{
+  // void* handle = &(g_am_hal_uart_states[0]) // bad - breaks barrier between AMHAL and mbed
+  // value = !value;
+  // (value) ? am_hal_gpio_output_set(16) : am_hal_gpio_output_clear(16);
+
+  am_hal_gpio_output_set(16);
+
+  uart_irq(UART_0);
+}
+
+extern void am_uart1_isr(void)
+{
+  // void* handle = &(g_am_hal_uart_states[1]) // bad - breaks barrier between AMHAL and mbed
+  uart_irq(UART_1);
+}
+
+void uart_configure_pin_function(PinName pin, UARTName uart, const PinMap *map)
+{
+  while (map->pin != NC)
+  {
+    if (map->peripheral == uart)
+    {
+      if (map->pin == pin)
+      {
+        // pin_function(pin, map->function);
+
+        am_hal_gpio_pincfg_t cfg =
+            {
+                .uFuncSel = map->function,
+                // .eDriveStrength = (tx) ? AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA : 0,
+            };
+
+        am_hal_gpio_pinconfig(pin, cfg);
+        break;
+      }
+    }
+    map++;
+  }
+}
 
 #ifdef __cplusplus
 }

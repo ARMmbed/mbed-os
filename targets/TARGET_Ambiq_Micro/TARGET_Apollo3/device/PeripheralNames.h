@@ -19,13 +19,17 @@
 #include "cmsis.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-typedef enum {
-    UART_0 = 0,
-    UART_1,
-} UARTName;
+#define STDIO_UART UART_0
+
+    typedef enum
+    {
+        UART_0 = 0,
+        UART_1,
+    } UARTName;
 
 #ifdef __cplusplus
 }
