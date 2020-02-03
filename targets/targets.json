@@ -2160,6 +2160,11 @@
             "secure-ram-start": "0x30000000",
             "secure-ram-size": "0x22000"
         }
+    },    
+    "HANI_IOT": {
+        "inherits": ["LPC55S69_NS"],
+        "detect_code": ["0360"],
+        "extra_labels_remove": ["LPCXpresso"]
     },
     "NUCLEO_F030R8": {
         "inherits": ["FAMILY_STM32"],
