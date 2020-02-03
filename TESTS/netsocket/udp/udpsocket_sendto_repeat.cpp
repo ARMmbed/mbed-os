@@ -41,7 +41,7 @@ void UDPSOCKET_SENDTO_REPEAT()
     bool oom_earlier = false; // 2 times in a row -> time to give up
     for (i = 0; i < 100; i++) {
         sent = sock.sendto(udp_addr, tx_buffer, sizeof(tx_buffer));
-        if (sent == NSAPI_ERROR_NO_MEMORY) {
+        if (sent == NSAPI_ERROR_NO_MEMORY || sent == NSAPI_ERROR_BUSY) {
             if (oom_earlier) {
                 break;
             }
