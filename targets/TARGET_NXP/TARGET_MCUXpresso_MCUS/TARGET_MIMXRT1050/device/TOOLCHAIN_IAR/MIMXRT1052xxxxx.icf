@@ -27,6 +27,14 @@
 
 define symbol __ram_vector_table__ = 1;
 
+if (!isdefinedsymbol(MBED_APP_START)) {
+    define symbol MBED_APP_START = 0x60000000;
+}
+
+if (!isdefinedsymbol(MBED_APP_SIZE)) {
+    define symbol MBED_APP_SIZE = 0x400000;
+}
+
 /* Sizes */
 if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
     define symbol MBED_BOOT_STACK_SIZE = 0x400;
@@ -38,11 +46,11 @@ define symbol __heap_size__=0x10000;
 define symbol __ram_vector_table_size__ =  isdefinedsymbol(__ram_vector_table__) ? 0x00000400 : 0;
 define symbol __ram_vector_table_offset__ =  isdefinedsymbol(__ram_vector_table__) ? 0x000003FF : 0;
 
-define symbol m_interrupts_start       = 0x60002000;
-define symbol m_interrupts_end         = 0x600023FF;
+define symbol m_interrupts_start       = MBED_APP_START + 0x2000;
+define symbol m_interrupts_end         = MBED_APP_START + 0x23FF;
 
-define symbol m_text_start             = 0x60002400;
-define symbol m_text_end               = 0x603FFFFF;
+define symbol m_text_start             = MBED_APP_START + 0x2400;
+define symbol m_text_end               = MBED_APP_START + MBED_APP_SIZE - 1;
 
 define symbol m_text2_start            = 0x00000000;
 define symbol m_text2_end              = 0x0001FFFF;
@@ -62,10 +70,10 @@ define symbol m_data3_end              = 0x81DFFFFF;
 define symbol m_ncache_start           = 0x81E00000;
 define symbol m_ncache_end             = 0x81FFFFFF;
 
-define exported symbol m_boot_hdr_conf_start = 0x60000000;
-define symbol m_boot_hdr_ivt_start           = 0x60001000;
-define symbol m_boot_hdr_boot_data_start     = 0x60001020;
-define symbol m_boot_hdr_dcd_data_start      = 0x60001030;
+define exported symbol m_boot_hdr_conf_start = MBED_APP_START;
+define symbol m_boot_hdr_ivt_start           = MBED_APP_START + 0x1000;
+define symbol m_boot_hdr_boot_data_start     = MBED_APP_START + 0x1020;
+define symbol m_boot_hdr_dcd_data_start      = MBED_APP_START + 0x1030;
 
 /* Sizes */
 if (isdefinedsymbol(__stack_size__)) {
