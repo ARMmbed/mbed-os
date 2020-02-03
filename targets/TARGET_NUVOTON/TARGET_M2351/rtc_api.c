@@ -318,20 +318,20 @@ void rtc_free_s(void)
 int32_t rtc_isenabled_s(void)
 {
     int32_t enabled = 0;
-    tfm_ns_lock_dispatch(rtc_isenabled_veneer, &enabled, 0, 0, 0);
+    tfm_ns_lock_dispatch(rtc_isenabled_veneer, (uint32_t) &enabled, 0, 0, 0);
     return enabled;
 }
 
 int64_t rtc_read_s(void)
 {
     int64_t t = 0;
-    tfm_ns_lock_dispatch(rtc_read_veneer, &t, 0, 0, 0);
+    tfm_ns_lock_dispatch(rtc_read_veneer, (uint32_t) &t, 0, 0, 0);
     return t;
 }
 
 void rtc_write_s(int64_t t)
 {
-    tfm_ns_lock_dispatch(rtc_write_veneer, &t, 0, 0, 0);
+    tfm_ns_lock_dispatch(rtc_write_veneer, (uint32_t) &t, 0, 0, 0);
 }
 
 #elif defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
