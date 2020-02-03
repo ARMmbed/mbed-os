@@ -1239,7 +1239,7 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_IT(SPI_HandleTypeDef *hspi, uint8_t *p
     }
 
     /* Enable TXE, RXNE and ERR interrupt */
-    __HAL_SPI_ENABLE_IT(hspi, (SPI_IT_TXE | SPI_IT_RXNE | SPI_IT_ERR));
+    __HAL_SPI_ENABLE_IT(hspi, (SPI_IT_RXNE | SPI_IT_ERR));  // MBED patch: Send next byte in hardware register only after previous one is read
 
     /* Process Unlocked */
     __HAL_UNLOCK(hspi);
@@ -1250,6 +1250,11 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_IT(SPI_HandleTypeDef *hspi, uint8_t *p
       /* Enable SPI peripheral */
       __HAL_SPI_ENABLE(hspi);
     }
+
+    /* MBED patch: Send next byte in hardware register only after previous one is read
+       Start 1st byte transmission (function is the same than for ISR), further transmissions will be trigger by RX interrupt */
+    hspi->TxISR(hspi);
+
 
     return HAL_OK;
   }
@@ -1650,6 +1655,14 @@ void HAL_SPI_IRQHandler(SPI_HandleTypeDef *hspi)
   if((__HAL_SPI_GET_IT_SOURCE(hspi, SPI_IT_RXNE) != RESET) && (__HAL_SPI_GET_FLAG(hspi, SPI_FLAG_RXNE) != RESET) && (__HAL_SPI_GET_FLAG(hspi, SPI_FLAG_OVR) == RESET))
   {
     hspi->RxISR(hspi);
+    /* MBED patch Send next byte in hardware register only after previous one is read to avoid overrun */
+    if ((hspi->Init.Mode == SPI_MODE_MASTER) && (hspi->Init.Direction == SPI_DIRECTION_2LINES)) {
+      if ((__HAL_SPI_GET_FLAG(hspi, SPI_FLAG_TXE) != RESET) && (hspi->TxXferCount != 0U))
+      {
+        hspi->TxISR(hspi);
+      }
+    }
+
     return;
   }
 
