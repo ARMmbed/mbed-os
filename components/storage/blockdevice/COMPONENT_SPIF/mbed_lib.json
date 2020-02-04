@@ -13,6 +13,12 @@
         }
     },
     "target_overrides": {
+        "HANI_IOT": {
+            "SPI_MOSI": "P0_26",
+            "SPI_MISO": "P1_3",
+            "SPI_CLK":  "P1_2",
+            "SPI_CS":   "P0_20"
+        },
         "LPC54114": {
             "SPI_MOSI": "P0_20",
             "SPI_MISO": "P0_18",
