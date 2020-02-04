@@ -1008,7 +1008,7 @@ void serial_free(serial_t *obj)
         if (nordic_nrf5_uart_state[instance].usage_counter == 0) {
 
             nrf_uarte_disable(nordic_nrf5_uart_register[instance]);
-            
+
             /* Turn NRF_UARTE0_BASE or NRF_UARTE1_BASE power off and on to reset peripheral. */
             if (instance == 0) {
                 *(volatile uint32_t *)0x40002FFC = 0;
@@ -1022,7 +1022,7 @@ void serial_free(serial_t *obj)
                 *(volatile uint32_t *)0x40028FFC = 1;
             }
 #endif
-            
+
         }
     }
 }
@@ -1273,6 +1273,8 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     struct serial_s *uart_object = obj;
 #endif
 
+    int instance = uart_object->instance;
+
     /* Convert Mbed type to Nordic IRQ mask. */
     uint32_t type = (irq == TxIrq) ? NORDIC_TX_IRQ : NORDIC_RX_IRQ;
 
@@ -1282,10 +1284,20 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         uart_object->mask |= type;
         nordic_nrf5_serial_configure(obj);
 
+        /*  It is required by Mbed HAL API to generate TxIrq interrupt when TXD register is empty (also after enabling TxIrq interrupt).
+            Driver uses DMA to perform uart transfer and TxIrq is generated after the transfer is finished.
+            Trigger TxIrq interrupt manually on enabling the TxIrq. */
+        if (irq == TxIrq) {
+            if (nrf_uarte_event_check(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_TXDRDY)) {
+                nordic_swi_tx_trigger(instance);
+            }
+        }
     } else {
 
         uart_object->mask &= ~type;
     }
+
+
 }
 
 /** Get character. This is a blocking call, waiting for a character
