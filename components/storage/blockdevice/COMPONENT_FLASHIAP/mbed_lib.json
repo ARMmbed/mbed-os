@@ -22,6 +22,10 @@
         "S5JS100": {
             "base-address": "0x40EF5000",
             "size": "0x80000"
+        },
+        "MIMXRT1050_EVK": {
+            "base-address": "0x60400000",
+            "size": "0x3C00000"
         }
     }
 }
