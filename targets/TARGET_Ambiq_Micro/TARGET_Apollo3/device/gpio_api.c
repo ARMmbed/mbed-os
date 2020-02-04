@@ -102,11 +102,11 @@ void gpio_dir(gpio_t *obj, PinDirection direction){
     MBED_ASSERT(gpio_is_connected(obj));
     MBED_ASSERT(direction < (PinDirection)PIN_DIR_ELEMENTS);
 
-    if( direction & (PinDirection)PIN_INPUT ){
+    if( direction == (PinDirection)PIN_INPUT ){
         obj->cfg.eGPInput = AM_HAL_GPIO_PIN_INPUT_ENABLE;
         obj->cfg.eGPOutcfg = AM_HAL_GPIO_PIN_OUTCFG_DISABLE;
     }
-    else if ( direction & (PinDirection)PIN_OUTPUT ){
+    else if ( direction == (PinDirection)PIN_OUTPUT ){
         obj->cfg.eGPOutcfg = AM_HAL_GPIO_PIN_OUTCFG_PUSHPULL;
         obj->cfg.eDriveStrength = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA;
         obj->cfg.eGPInput = AM_HAL_GPIO_PIN_INPUT_ENABLE;
