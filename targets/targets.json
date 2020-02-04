@@ -1955,7 +1955,7 @@
         "device_name": "MIMXRT1052",
         "bootloader_supported": true,
         "overrides": {
-            "deep-sleep-latency": 5,
+            "deep-sleep-latency": 10,
             "network-default-interface-type": "ETHERNET"
         }
     },
