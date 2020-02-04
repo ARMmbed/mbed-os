@@ -132,32 +132,14 @@ void CLOCK_SET_DIV(clock_div_t divider, uint32_t value)
 
 void ClockSelectXtalOsc(void)
 {
-    /* Enable XTAL 24MHz clock source. */
-    CLOCK_InitExternalClk(0);
-    /* Wait CCM operation finishes */
-    CLOCK_CCM_HANDSHAKE_WAIT();
-    /* Take some delay */
-    SDK_DelayAtLeastUs(40);
     /* Switch clock source to external OSC. */
     CLOCK_SwitchOsc(kCLOCK_XtalOsc);
-    /* Turn off XTAL-OSC detector */
-    CCM_ANALOG->MISC0_CLR = CCM_ANALOG_MISC0_OSC_XTALOK_EN_MASK;
-    /* Power Down internal RC. */
-    CLOCK_DeinitRcOsc24M();
 }
 
 void ClockSelectRcOsc(void)
 {
-    /* Enable internal RC. */
-    XTALOSC24M->LOWPWR_CTRL |= XTALOSC24M_LOWPWR_CTRL_RC_OSC_EN_MASK;
-    /* Wait CCM operation finishes */
-    CLOCK_CCM_HANDSHAKE_WAIT();
-    /* Take some delay */
-    SDK_DelayAtLeastUs(4000);
     /* Switch clock source to internal RC. */
     XTALOSC24M->LOWPWR_CTRL_SET = XTALOSC24M_LOWPWR_CTRL_SET_OSC_SEL_MASK;
-    /* Disable XTAL 24MHz clock source. */
-    CCM_ANALOG->MISC0_SET = CCM_ANALOG_MISC0_XTAL_24M_PWD_MASK;
 }
 
 void LPM_SetRunModeConfig(void)

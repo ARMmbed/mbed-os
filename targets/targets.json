@@ -2865,7 +2865,7 @@
         ],
         "device_name": "MIMXRT1052",
         "overrides": {
-            "deep-sleep-latency": 5,
+            "deep-sleep-latency": 10,
             "network-default-interface-type": "ETHERNET"
         }
     },
