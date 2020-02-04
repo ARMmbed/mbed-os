@@ -1,7 +1,7 @@
 # Minimal printf and snprintf
 
 
-Library supports both printf and snprintf in 1252 bytes of flash.
+Library supports both printf and snprintf in around 1300 bytes of flash.
 
 Prints directly to stdio/UART without using malloc. All flags and precision modifiers are ignored.
 There is no error handling if a writing error occurs.
@@ -19,6 +19,10 @@ Supports:
 * %c: character.
 * %s: string.
 * %p: pointer (e.g. 0x00123456).
+
+Note that support for:
+* 64b modifiers is only present when `minimal-printf-enable-64-bit` config is set to `true` (default).
+* Floating point parameters is only present when `minimal-printf-enable-floating-point` config is set to `true` (default).
 
 Unrecognized format specifiers are treated as ordinary characters.
 
