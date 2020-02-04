@@ -155,9 +155,10 @@ pull_request_rules:
     conditions:
       - merged
       - -label~=^(release-version)
+      - -label~=^(Release review required)   
     actions:
       label:
-        add: ['Release review required']
+        add: ['release version missing']
       comment:
         message: This PR does not contain release version label after merging.
 
