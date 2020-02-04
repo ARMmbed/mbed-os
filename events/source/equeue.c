@@ -506,7 +506,9 @@ void equeue_dispatch(equeue_t *q, int ms)
                 e->target += e->period;
                 equeue_enqueue(q, e, equeue_tick());
             } else {
-                equeue_incid(q, e);
+                if (!EQUEUE_IS_USER_ALLOCATED_EVENT(e)) {
+                    equeue_incid(q, e);
+                }
                 equeue_dealloc(q, e + 1);
             }
         }
