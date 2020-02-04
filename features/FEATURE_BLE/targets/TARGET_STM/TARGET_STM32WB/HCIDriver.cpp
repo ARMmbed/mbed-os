@@ -459,6 +459,15 @@ public:
             init_debug();
             stm32wb_reset();
             transport_init();
+
+            WirelessFwInfo_t wireless_info_instance;
+            WirelessFwInfo_t *p_wireless_info = &wireless_info_instance;
+            if (SHCI_GetWirelessFwInfo(p_wireless_info) != SHCI_Success) {
+                tr_info("SHCI_GetWirelessFwInfo error");
+            } else {
+                tr_info("WIRELESS COPROCESSOR FW VERSION ID = %d.%d.%d", p_wireless_info->VersionMajor, p_wireless_info->VersionMinor, p_wireless_info->VersionSub);
+                tr_info("WIRELESS COPROCESSOR FW STACK TYPE = %d", p_wireless_info->StackType);
+            }
         }
     }
 
