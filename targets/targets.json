@@ -12672,6 +12672,7 @@
         "trustzone": true,
         "supported_toolchains": [
             "ARMC6",
+            "GCC_ARM",
             "IAR"
         ],
         "extra_labels_add": [
@@ -12733,6 +12734,7 @@
         "core": "Cortex-M23-NS",
         "supported_toolchains": [
             "ARMC6",
+            "GCC_ARM",
             "IAR"
         ],
         "tfm.level": 1,
