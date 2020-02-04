@@ -177,7 +177,10 @@ uint16_t adc_read(analogin_t *obj)
     if (HAL_ADC_PollForConversion(&obj->handle, 10) == HAL_OK) {
         adcValue = (uint16_t)HAL_ADC_GetValue(&obj->handle);
     }
-    LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE((&obj->handle)->Instance), LL_ADC_PATH_INTERNAL_NONE);
+
+    if (__LL_ADC_COMMON_INSTANCE(__LL_ADC_COMMON_INSTANCE((&obj->handle)->Instance)) != 0U) {
+      LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE((&obj->handle)->Instance), LL_ADC_PATH_INTERNAL_NONE);
+    }
     return adcValue;
 }
 
