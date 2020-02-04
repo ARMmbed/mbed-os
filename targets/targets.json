@@ -7099,12 +7099,7 @@
         "inherits": [
             "MODULE_UBLOX_ODIN_W2"
         ],
-        "device_has_remove": [
-            "LPTICKER"
-        ],
-        "features_remove": [
-            "BLE"
-        ],
+        "device_has_remove": [],
         "overrides": {
             "lse_available": 0
         },
