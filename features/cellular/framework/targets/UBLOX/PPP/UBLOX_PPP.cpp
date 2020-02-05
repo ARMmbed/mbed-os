@@ -111,7 +111,7 @@ UBLOX_PPP::UBLOX_PPP(FileHandle *fh) : AT_CellularDevice(fh)
 CellularDevice *CellularDevice::get_default_instance()
 {
     static BufferedSerial serial(MBED_CONF_UBLOX_PPP_TX, MBED_CONF_UBLOX_PPP_RX, MBED_CONF_UBLOX_PPP_BAUDRATE);
-#if defined (MBED_CONF_UBLOX_AT_RTS) && defined(MBED_CONF_UBLOX_AT_CTS)
+#if defined (MBED_CONF_UBLOX_PPP_RTS) && defined(MBED_CONF_UBLOX_PPP_CTS)
     tr_debug("UBLOX_PPP flow control: RTS %d CTS %d", MBED_CONF_UBLOX_PPP_RTS, MBED_CONF_UBLOX_PPP_CTS);
     serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_UBLOX_PPP_RTS, MBED_CONF_UBLOX_PPP_CTS);
 #endif

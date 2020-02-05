@@ -251,7 +251,8 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
 
     timer.start();
     if (socket->proto == NSAPI_UDP) {
-        while (success && (size > 0)) {
+        bool packet_received = false;
+        while (success && (size > 0 && !packet_received)) {
             read_blk = UBLOX_MAX_PACKET_SIZE;
             if (read_blk > size) {
                 read_blk = size;
@@ -266,6 +267,8 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
                 usorf_sz = _at.read_int();
                 if (usorf_sz > size) {
                     usorf_sz = size;
+                } else {
+                    packet_received = true;
                 }
                 _at.read_bytes(&ch, 1);
                 _at.read_bytes((uint8_t *)buffer + count, usorf_sz);
@@ -453,7 +456,7 @@ nsapi_error_t UBLOX_AT_CellularStack::get_ip_address(SocketAddress *address)
 nsapi_error_t UBLOX_AT_CellularStack::gethostbyname(const char *host, SocketAddress *address, nsapi_version_t version, const char *interface_name)
 {
     char ipAddress[NSAPI_IP_SIZE];
-    nsapi_error_t err = NSAPI_ERROR_NO_CONNECTION;
+    nsapi_error_t err = NSAPI_ERROR_DNS_FAILURE;
 
     _at.lock();
     if (address->set_ip_address(host)) {
