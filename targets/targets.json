@@ -2441,7 +2441,7 @@
             "TRNG",
             "FLASH",
             "WATCHDOG"
-        ],        
+        ],
         "release_versions": [
             "2",
             "5"
@@ -2464,7 +2464,7 @@
             "FSL_RTOS_MBED",
             "USE_EXTERNAL_RTC"
         ],
-        "default_toolchain": "ARM",        
+        "default_toolchain": "ARM",
         "forced_reset_timeout": 7,
         "release_versions": [
             "2",
@@ -11097,7 +11097,9 @@
             "WSF_MAX_HANDLERS=10",
             "MBED_MPU_CUSTOM",
             "SWI_DISABLE0",
-            "NRF52_PAN_20"
+            "NRF52_PAN_20",
+            "UART_TWO_STOP_BITS_NOT_SUPPORTED",
+            "UART_ODD_PARITY_NOT_SUPPORTED"
         ],
         "features": [
             "CRYPTOCELL310",
@@ -14128,7 +14130,7 @@
             "smclk_select": "HFXT",
             "smclk_div": "DIV2",
             "adc_auto_scan": 1
-        },        
+        },
         "release_versions": [
             "2",
             "5"
