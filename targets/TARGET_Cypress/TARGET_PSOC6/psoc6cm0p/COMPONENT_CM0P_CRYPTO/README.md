@@ -8,7 +8,7 @@ The Cortex M0+ application code is placed to internal flash by the Cortex M4 lin
 The Crypto server image executes the following steps:
 - configures IPC channel for data exchange between client and server applications;
 - configures three interrupts: an IPC notify interrupt, an IPC release interrupt, and an interrupt for error handling.
-- starts CM4 core at CY_CORTEX_M4_APPL_ADDR=0x10008000
+- starts CM4 core at CY_CORTEX_M4_APPL_ADDR=0x1000A000
 - goes to the infinite loop that processes the crypto server events and puts the CM0+ core into Deep Sleep.
 
 ### Usage
@@ -17,21 +17,21 @@ To use this image, update the FLASH_CM0P_SIZE value in the linker script for CM4
 Example for the GCC compiler:
 ...
 /* The size and start addresses of the Cortex-M0+ application image */
-FLASH_CM0P_SIZE  = 0x8000;
+FLASH_CM0P_SIZE  = 0xA000;
 ...
 ```
 ```
 Example for the IAR compiler:
 ...
 /* The size and start addresses of the Cortex-M0+ application image */
-define symbol FLASH_CM0P_SIZE  = 0x8000;
+define symbol FLASH_CM0P_SIZE  = 0xA000;
 ...
 ```
 ```
 Example for ARMC6 compiler:
 ...
 /* The size and start addresses of the Cortex-M0+ application image */
-#define FLASH_CM0P_SIZE         0x8000
+#define FLASH_CM0P_SIZE         0xA000
 ...
 ```
 
