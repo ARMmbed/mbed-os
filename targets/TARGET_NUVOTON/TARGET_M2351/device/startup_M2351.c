@@ -54,18 +54,33 @@ void FUN(void) __attribute__ ((weak, alias(#FUN_ALIAS)));
 
 #endif
 
-
 /* Initialize segments */
 #if defined(__ARMCC_VERSION)
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) && (TFM_LVL > 0)
 extern uint32_t Image$$ARM_LIB_STACK_MSP$$ZI$$Limit;
+extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Limit;
 #else
 extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Limit;
 #endif
 extern void __main(void);
 #elif defined(__ICCARM__)
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) && (TFM_LVL > 0)
+extern uint32_t Image$$ARM_LIB_STACK_MSP$$ZI$$Limit;
+extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Limit;
+extern uint32_t CSTACK_MSP$$Limit;
+extern uint32_t CSTACK$$Limit;
+#else
+extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Limit;
+extern uint32_t CSTACK$$Limit;
+#endif
 void __iar_program_start(void);
 #elif defined(__GNUC__)
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) && (TFM_LVL > 0)
+extern uint32_t Image$$ARM_LIB_STACK_MSP$$ZI$$Limit;
+extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Limit;
+#else
+extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Limit;
+#endif
 extern uint32_t __StackTop;
 extern uint32_t __copy_table_start__;
 extern uint32_t __copy_table_end__;
@@ -195,12 +210,6 @@ WEAK_ALIAS_FUNC(TRNG_IRQHandler, Default_Handler)       // 101:
 __attribute__ ((section("RESET")))
 const uint32_t __vector_handlers[] = {
 #elif defined(__ICCARM__)
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) && (TFM_LVL > 0)
-extern uint32_t CSTACK_MSP$$Limit;
-extern uint32_t CSTACK$$Limit;
-#else
-extern uint32_t CSTACK$$Limit;
-#endif
 const uint32_t __vector_table[] @ ".intvec" = {
 #elif defined(__GNUC__)
 __attribute__ ((section(".vector_table")))
@@ -347,65 +356,91 @@ const uint32_t __vector_handlers[] = {
     (uint32_t) TRNG_IRQHandler,         // 101:
 };
 
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-
 /* Some reset handler code cannot implement in pure C. Implement it in inline/embedded assembly.
  *
  * Reset_Handler:
- *   For non-secure PSA/non-secure non-PSA/secure non-PSA, do as usual
- *   For secure PSA, switch from MSP to PSP, then jump to Reset_Handler_1 for usual work
+ *   For non-secure PSA/non-secure non-PSA/secure non-PSA, jump directly to Reset_Handler_1
+ *   For secure PSA, switch from MSP to PSP, then jump to Reset_Handler_1
  * 
- * Reset_Handler_1
+ * Reset_Handler_1:
+ *   Platform initialization
  *   C/C++ runtime initialization
  */
 
+/* Forward declaration */
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) && (TFM_LVL > 0)
+/* Limited by inline assembly syntax, esp. on IAR, we cannot get stack limit
+ * for PSP just from external symbol. To avoid re-write in assembly, We make up
+ * a function here to get this value indirectly. */
+uint32_t StackLimit_PSP(void);
+#endif
 void Reset_Handler_1(void);
 
 /* Add '__attribute__((naked))' here to make sure compiler does not generate prologue and
  * epilogue sequences for Reset_Handler. We don't want MSP is updated by compiler-generated
- * code during stack switch. */
+ * code during stack switch. 
+ *
+ * Don't allow extended assembly in naked functions:
+ * The compiler only supports basic __asm statements in __attribute__((naked))
+ * functions. Using extended assembly, parameter references or mixing C code with
+ * __asm statements might not work reliably. 
+ */
 __attribute__((naked)) void Reset_Handler(void)
 {
-#if !defined(__ICCARM__)
+#if defined(__GNUC__)
     __asm(".syntax  unified                                         \n");
-    __asm(".globl   Reset_Handler_1                                 \n");
 #endif
 
     /* Secure TFM requires PSP as boot stack */
-#if TFM_LVL != 0
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) && (TFM_LVL > 0)
+    /* Get stack limit for PSP */
 #if !defined(__ICCARM__)
-    __asm(".globl   Image$$ARM_LIB_STACK$$ZI$$Limit                 \n");
-    __asm("movw     r0, #:lower16:Image$$ARM_LIB_STACK$$ZI$$Limit   \n"); // Initialize PSP
-    __asm("movt     r0, #:upper16:Image$$ARM_LIB_STACK$$ZI$$Limit   \n");
+    __asm("movw     r0, #:lower16:StackLimit_PSP                    \n");
+    __asm("movt     r0, #:upper16:StackLimit_PSP                    \n");
 #else
-    __asm(".globl   Image$$ARM_LIB_STACK$$ZI$$Limit                 \n");
-    __asm("mov32    r0, Image$$ARM_LIB_STACK$$ZI$$Limit             \n");
+    __asm("mov32    r0, StackLimit_PSP                              \n");
 #endif
+    __asm("blx      r0                                              \n");
+
+    /* Switch from MSP to PSP */
     __asm("msr      psp, r0                                         \n");
-    __asm("mrs      r0, control                                     \n"); // Switch SP to PSP
+    __asm("mrs      r0, control                                     \n");
     __asm("movs     r1, #2                                          \n");
     __asm("orrs     r0, r1                                          \n");
     __asm("msr      control, r0                                     \n");
 #endif
 
+    /* Jump to Reset_Handler_1 */
 #if !defined(__ICCARM__)
     __asm("movw     r0, #:lower16:Reset_Handler_1                   \n");
     __asm("movt     r0, #:upper16:Reset_Handler_1                   \n");
 #else
-    __asm("mov32     r0, Reset_Handler_1                            \n");
+    __asm("mov32    r0, Reset_Handler_1                             \n");
 #endif
     __asm("bx       r0                                              \n");
 }
 
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) && (TFM_LVL > 0)
+/* Return stack limit for PSP */
+uint32_t StackLimit_PSP(void)
+{
+    uint32_t stacklimit_psp;
+
+    __asm volatile (
+#if defined(__GNUC__)
+        ".syntax  unified                                           \n"
+#endif
+        "mov    %[Rd], %[Rn]                                        \n"
+        : [Rd] "=r" (stacklimit_psp)                                    /* comma-separated list of output operands */
+        : [Rn] "r" (&Image$$ARM_LIB_STACK$$ZI$$Limit)                   /* comma-separated list of input operands */
+        : "cc"                                                          /* comma-separated list of clobbered resources */
+    );
+
+    return stacklimit_psp;
+}
+#endif
+
 void Reset_Handler_1(void)
-
-#else
-
-void Reset_Handler(void)
-
-#endif  /* defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) */
-
-
 {
 #if defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
     /* Disable register write-protection function */
