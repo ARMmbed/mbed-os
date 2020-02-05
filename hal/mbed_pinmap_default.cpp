@@ -20,6 +20,7 @@
 #include "platform/mbed_toolchain.h"
 #include "platform/mbed_assert.h"
 #include "device.h"
+#include "hal/serial_api.h"
 
 //*** Common form factors ***
 #ifdef TARGET_FF_ARDUINO
@@ -78,11 +79,17 @@ MBED_WEAK const PinList *pinmap_restricted_pins()
 }
 
 //*** Default restricted peripherals ***
-MBED_WEAK const PeripheralList *pinmap_restricted_peripherals()
+MBED_WEAK const PeripheralList *pinmap_uart_restricted_peripherals()
 {
+    static const int stdio_uart = pinmap_peripheral(STDIO_UART_TX, serial_tx_pinmap());
+
+    static const int peripherals[] = {
+        stdio_uart
+    };
+
     static const PeripheralList peripheral_list = {
-        0,
-        0
+        sizeof peripherals / sizeof peripherals[0],
+        peripherals
     };
     return &peripheral_list;
 }

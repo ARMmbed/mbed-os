@@ -155,7 +155,7 @@ bool pinmap_list_has_peripheral(const PeripheralList *list, int peripheral);
 const PinList *pinmap_restricted_pins(void);
 
 /**
- * Get the pin list of peripherals to avoid during testing
+ * Get the pin list of peripherals per interface to avoid during testing
  *
  * The restricted peripheral list is used to indicate to testing
  * that a peripheral should be skipped due to some caveat about it.
@@ -166,18 +166,15 @@ const PinList *pinmap_restricted_pins(void);
  * function if they have peripherals which should be
  * skipped during testing.
  *
- * @note Some targets use the same value for multiple
- * different types of peripherals. For example SPI 0
- * and UART 0 may both be identified by the peripheral
- * value 0. If your target does this then do not
- * use this function to skip peripherals, as this will
- * unintentionally cause all peripherals with that value
- * to be skipped. Instead these entries should be removed
- * from the peripheral PinMap itself.
+ * @note Restricting peripheral is at the moment available for UART
+ *       interface only as only STDIO UART must be skipped because it is
+ *       used by Mbed.
+ *       Restricting peripherals for other interfaces should be added
+ *       in the future if required.
  *
  * @return Pointer to a peripheral list of peripheral to avoid
  */
-const PeripheralList *pinmap_restricted_peripherals(void);
+const PeripheralList *pinmap_uart_restricted_peripherals(void);
 
 #ifdef TARGET_FF_ARDUINO
 
