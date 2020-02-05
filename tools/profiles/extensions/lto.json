@@ -1,0 +1,6 @@
+{
+    "ARMC6": {
+        "common": ["-flto"],
+        "ld": ["--lto", "--lto_level=Oz"]
+    }
+}

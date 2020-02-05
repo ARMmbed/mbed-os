@@ -1141,7 +1141,7 @@ extern "C" __value_in_regs struct __argc_argv $Sub$$__rt_lib_init(unsigned heapb
 }
 #endif
 
-extern "C" __value_in_regs struct __initial_stackheap __user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3)
+MBED_USED extern "C" __value_in_regs struct __initial_stackheap __user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3)
 {
     return _mbed_user_setup_stackheap(R0, R1, R2, R3);
 }

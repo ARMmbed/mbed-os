@@ -152,7 +152,7 @@ WEAK_ALIAS_FUNC(TK_IRQHandler, Default_Handler)         // 63:
 
 /* Vector table */
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
-__attribute__ ((section("RESET")))
+__attribute__ ((section("RESET"), used))
 const uint32_t __vector_handlers[] = {
 #elif defined(__ICCARM__)
 extern uint32_t CSTACK$$Limit;
