@@ -104,7 +104,10 @@ void generate_derived_key_consistency_16_byte_key_long_consistency_test(char *ke
         int ret = inner_store->reset();
         TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
-        ret = inject_dummy_rot_key();
+        ret = DeviceKey::get_instance().generate_root_of_trust();
+        if (ret != DEVICEKEY_SUCCESS) {
+            ret = inject_dummy_rot_key();
+        }
         TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
         memset(output1, 0, sizeof(output1));
@@ -165,7 +168,10 @@ void generate_derived_key_consistency_32_byte_key_long_consistency_test(char *ke
         int ret = inner_store->reset();
         TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
-        ret = inject_dummy_rot_key();
+        ret = DeviceKey::get_instance().generate_root_of_trust();
+        if (ret != DEVICEKEY_SUCCESS) {
+            ret = inject_dummy_rot_key();
+        }
         TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
         memset(output1, 0, sizeof(output1));
@@ -318,7 +324,10 @@ void generate_derived_key_consistency_16_byte_key_test()
     int ret = inner_store->reset();
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
-    ret = inject_dummy_rot_key();
+    ret = DeviceKey::get_instance().generate_root_of_trust();
+    if (ret != DEVICEKEY_SUCCESS) {
+        ret = inject_dummy_rot_key();
+    }
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
     size_t salt_size = sizeof(salt);
@@ -355,7 +364,10 @@ void generate_derived_key_consistency_32_byte_key_test()
     int ret = inner_store->reset();
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
-    ret = inject_dummy_rot_key();
+    ret = DeviceKey::get_instance().generate_root_of_trust();
+    if (ret != DEVICEKEY_SUCCESS) {
+        ret = inject_dummy_rot_key();
+    }
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
     size_t salt_size = sizeof(salt);
@@ -392,7 +404,10 @@ void generate_derived_key_key_type_16_test()
     int ret = inner_store->reset();
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
-    ret = inject_dummy_rot_key();
+    ret = DeviceKey::get_instance().generate_root_of_trust();
+    if (ret != DEVICEKEY_SUCCESS) {
+        ret = inject_dummy_rot_key();
+    }
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
     memset(output, 0, DEVICE_KEY_16BYTE * 2);
@@ -425,7 +440,10 @@ void generate_derived_key_key_type_32_test()
     int ret = inner_store->reset();
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
-    ret = inject_dummy_rot_key();
+    ret = DeviceKey::get_instance().generate_root_of_trust();
+    if (ret != DEVICEKEY_SUCCESS) {
+        ret = inject_dummy_rot_key();
+    }
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
     memset(output, 0, DEVICE_KEY_32BYTE * 2);
@@ -456,7 +474,10 @@ void generate_derived_key_wrong_key_type_test()
     int ret = inner_store->reset();
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
-    ret = inject_dummy_rot_key();
+    ret = DeviceKey::get_instance().generate_root_of_trust();
+    if (ret != DEVICEKEY_SUCCESS) {
+        ret = inject_dummy_rot_key();
+    }
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
     memset(output, 0, DEVICE_KEY_16BYTE);

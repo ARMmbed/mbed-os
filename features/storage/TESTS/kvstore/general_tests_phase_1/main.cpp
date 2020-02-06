@@ -28,6 +28,7 @@
 #include "unity/unity.h"
 #include "utest/utest.h"
 #include "FileSystemStore.h"
+#include "DeviceKey.h"
 
 using namespace utest::v1;
 using namespace mbed;
@@ -901,7 +902,9 @@ int main()
             total_num_cases++;
         }
     }
-
+#if DEVICEKEY_ENABLED
+    DeviceKey::get_instance().generate_root_of_trust();
+#endif
     Specification specification(greentea_test_setup, cases, total_num_cases,
                                 greentea_test_teardown_handler, default_handler);
 
