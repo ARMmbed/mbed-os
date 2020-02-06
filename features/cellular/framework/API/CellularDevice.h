@@ -97,18 +97,6 @@ public:
 
 public: //Virtual functions
 
-    /** Clear modem to a default initial state
-     *
-     *  Clear persistent user data from the modem, such as PDP contexts.
-     *
-     *  @pre All open network services on modem, such as contexts and sockets, must be closed.
-     *  @post Modem power off/on may be needed to clear modem's runtime state.
-     *  @remark CellularStateMachine calls this on connect when `cellular.clear-on-connect: true`.
-     *
-     *  @return         NSAPI_ERROR_OK on success, otherwise modem may be need power cycling
-     */
-    virtual nsapi_error_t clear();
-
     /** Shutdown cellular device to minimum functionality.
      *
      *  Actual functionality is modem specific, for example UART may is not be responsive without
@@ -120,12 +108,6 @@ public: //Virtual functions
      *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t shutdown();
-
-    /** Get the linked list of CellularContext instances
-     *
-     *  @return Pointer to first item in linked list
-     */
-    virtual CellularContext *get_context_list() const;
 
     /** Get event queue that can be chained to main event queue.
      *  @return event queue
@@ -141,6 +123,25 @@ protected: //Virtual functions
     virtual void cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx = NULL);
 
 public: //Pure virtual functions
+
+    /** Clear modem to a default initial state
+     *
+     *  Clear persistent user data from the modem, such as PDP contexts.
+     *
+     *  @pre All open network services on modem, such as contexts and sockets, must be closed.
+     *  @post Modem power off/on may be needed to clear modem's runtime state.
+     *  @remark CellularStateMachine calls this on connect when `cellular.clear-on-connect: true`.
+     *
+     *  @return         NSAPI_ERROR_OK on success, otherwise modem may be need power cycling
+     */
+    virtual nsapi_error_t clear() = 0;
+
+
+    /** Get the linked list of CellularContext instances
+     *
+     *  @return Pointer to first item in linked list
+     */
+    virtual CellularContext *get_context_list() const = 0;
 
     /** Sets the modem up for powering on
      *  This is equivalent to plugging in the device, i.e., attaching power and serial port.

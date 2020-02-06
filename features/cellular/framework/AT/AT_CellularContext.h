@@ -48,10 +48,6 @@ public:
     virtual nsapi_error_t connect(const char *sim_pin, const char *apn = 0, const char *uname = 0,
                                   const char *pwd = 0);
     virtual void set_credentials(const char *apn, const char *uname = 0, const char *pwd = 0);
-    virtual nsapi_error_t get_netmask(SocketAddress *address);
-    virtual const char *get_netmask();
-    virtual nsapi_error_t get_gateway(SocketAddress *address);
-    virtual const char *get_gateway();
 
 // from CellularContext
     virtual nsapi_error_t get_pdpcontext_params(pdpContextList_t &params_list);
