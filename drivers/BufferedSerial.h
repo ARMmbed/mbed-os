@@ -248,6 +248,11 @@ public:
 
     // Expose private SerialBase::Parity as BufferedSerial::Parity
     using SerialBase::Parity;
+    using SerialBase::None;
+    using SerialBase::Odd;
+    using SerialBase::Even;
+    using SerialBase::Forced1;
+    using SerialBase::Forced0;
 
     /** Set the transmission format used by the serial port
      *
@@ -264,6 +269,10 @@ public:
     // For now use the base enum - but in future we may have extra options
     // such as XON/XOFF or manual GPIO RTSCTS.
     using SerialBase::Flow;
+    using SerialBase::Disabled;
+    using SerialBase::RTS;
+    using SerialBase::CTS;
+    using SerialBase::RTSCTS;
 
     /** Set the flow control type on the serial port
      *
