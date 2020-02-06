@@ -201,16 +201,6 @@ int WhdSoftAPInterface::stop(void)
     if (res != WHD_SUCCESS) {
         return whd_toerror(res);
     }
-
-    // remove the interface added in start
-    if (_interface) {
-        nsapi_error_t err = _stack.remove_ethernet_interface(&_interface);
-        if (err != NSAPI_ERROR_OK) {
-            return err;
-        }
-        _iface_shared.iface_softap = NULL;
-    }
-
     return NSAPI_ERROR_OK;
 }
 
