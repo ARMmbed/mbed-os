@@ -53,7 +53,6 @@ static const nu_modidx_ns_t modidx_ns_tab[] = {
 #if defined(SCU_INIT_PNSSET0_VAL) && SCU_INIT_PNSSET0_VAL
     {USBH_RST,              USBH_MODULE,            SCU_INIT_PNSSET0_VAL & (1 << 9)},
     {SDH0_RST,              SDH0_MODULE,            SCU_INIT_PNSSET0_VAL & (1 << 13)},
-    {NU_SYS_MODIDX_UNDEF,   NU_CLK_MODIDX_UNDEF,    SCU_INIT_PNSSET0_VAL & (1 << 14)},
     {EBI_RST,               EBI_MODULE,             SCU_INIT_PNSSET0_VAL & (1 << 16)},
     {PDMA1_RST,             PDMA1_MODULE,           SCU_INIT_PNSSET0_VAL & (1 << 24)},
 #endif
@@ -67,7 +66,6 @@ static const nu_modidx_ns_t modidx_ns_tab[] = {
     {NU_SYS_MODIDX_UNDEF,   RTC_MODULE,             SCU_INIT_PNSSET2_VAL & (1 << 1)},
     {EADC_RST,              EADC_MODULE,            SCU_INIT_PNSSET2_VAL & (1 << 3)},
     {ACMP01_RST,            ACMP01_MODULE,          SCU_INIT_PNSSET2_VAL & (1 << 5)},
-    {NU_SYS_MODIDX_UNDEF,   NU_CLK_MODIDX_UNDEF,    SCU_INIT_PNSSET2_VAL & (1 << 6)},
     {DAC_RST,               DAC_MODULE,             SCU_INIT_PNSSET2_VAL & (1 << 7)},
     {I2S0_RST,              I2S0_MODULE,            SCU_INIT_PNSSET2_VAL & (1 << 8)},
     {OTG_RST,               OTG_MODULE,             SCU_INIT_PNSSET2_VAL & (1 << 13)},
@@ -80,12 +78,11 @@ static const nu_modidx_ns_t modidx_ns_tab[] = {
 #endif
 
 #if defined(SCU_INIT_PNSSET3_VAL) && SCU_INIT_PNSSET3_VAL
-    {SPI0_RST,              SPI0_MODULE,            SCU_INIT_PNSSET3_VAL & (1 << 0)},
-    {SPI1_RST,              SPI1_MODULE,            SCU_INIT_PNSSET3_VAL & (1 << 1)},
-    {SPI2_RST,              SPI2_MODULE,            SCU_INIT_PNSSET3_VAL & (1 << 2)},
-    {SPI3_RST,              SPI3_MODULE,            SCU_INIT_PNSSET3_VAL & (1 << 3)},
-    {NU_SYS_MODIDX_UNDEF,   NU_CLK_MODIDX_UNDEF,    SCU_INIT_PNSSET3_VAL & (1 << 4)},
-    {SPI5_RST,              SPI5_MODULE,            SCU_INIT_PNSSET3_VAL & (1 << 5)},
+    {QSPI0_RST,             QSPI0_MODULE,           SCU_INIT_PNSSET3_VAL & (1 << 0)},
+    {SPI0_RST,              SPI0_MODULE,            SCU_INIT_PNSSET3_VAL & (1 << 1)},
+    {SPI1_RST,              SPI1_MODULE,            SCU_INIT_PNSSET3_VAL & (1 << 2)},
+    {SPI2_RST,              SPI2_MODULE,            SCU_INIT_PNSSET3_VAL & (1 << 3)},
+    {SPI3_RST,              SPI3_MODULE,            SCU_INIT_PNSSET3_VAL & (1 << 4)},
     {UART0_RST,             UART0_MODULE,           SCU_INIT_PNSSET3_VAL & (1 << 16)},
     {UART1_RST,             UART1_MODULE,           SCU_INIT_PNSSET3_VAL & (1 << 17)},
     {UART2_RST,             UART2_MODULE,           SCU_INIT_PNSSET3_VAL & (1 << 18)},
@@ -109,8 +106,6 @@ static const nu_modidx_ns_t modidx_ns_tab[] = {
     {QEI1_RST,              QEI1_MODULE,            SCU_INIT_PNSSET5_VAL & (1 << 17)},
     {ECAP0_RST,             ECAP0_MODULE,           SCU_INIT_PNSSET5_VAL & (1 << 20)},
     {ECAP1_RST,             ECAP1_MODULE,           SCU_INIT_PNSSET5_VAL & (1 << 21)},
-    {DSRC_RST,              DSRC_MODULE,            SCU_INIT_PNSSET5_VAL & (1 << 23)},
-    {NU_SYS_MODIDX_UNDEF,   NU_CLK_MODIDX_UNDEF,    SCU_INIT_PNSSET5_VAL & (1 << 24)},
     {TRNG_RST,              TRNG_MODULE,            SCU_INIT_PNSSET5_VAL & (1 << 25)},
 #endif
 
@@ -210,12 +205,6 @@ static bool check_mod_ns(int modclass, uint32_t modidx)
     const nu_modidx_ns_t *modidx_ns_end = modidx_ns_tab + sizeof (modidx_ns_tab) / sizeof (modidx_ns_tab[0]);
    
     if (modclass == NU_MODCLASS_SYS) {
-        /* The modidx_ns_tab table has 'NONE' module index.
-         * We must filter it out to avoid security issue. */
-        if (modidx == NU_SYS_MODIDX_UNDEF) {
-            return false;
-        }
-
         for (; modidx_ns != modidx_ns_end; modidx_ns ++) {
             if (modidx == modidx_ns->sys_modidx) {
                 if (modidx_ns->ns) {
@@ -226,12 +215,6 @@ static bool check_mod_ns(int modclass, uint32_t modidx)
             }
         }
     } else if (modclass == NU_MODCLASS_CLK) {
-        /* The modidx_ns_tab table has 'NONE' module index. 
-         * We must filter it out to avoid security issue. */
-        if (modidx == NU_CLK_MODIDX_UNDEF) {
-            return false;
-        }
-        
         for (; modidx_ns != modidx_ns_end; modidx_ns ++) {
             if (modidx == modidx_ns->clk_modidx) {
                 if (modidx_ns->ns) {

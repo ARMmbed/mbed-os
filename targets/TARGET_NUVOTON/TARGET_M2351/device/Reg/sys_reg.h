@@ -8,6 +8,11 @@
 #ifndef __SYS_REG_H__
 #define __SYS_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
 
 /*---------------------- System Manger Controller -------------------------*/
 /**
@@ -196,9 +201,6 @@ typedef struct
      * |[21]    |UART5RST  |UART5 Controller Reset
      * |        |          |0 = UART5 controller normal operation.
      * |        |          |1 = UART5 controller reset.
-     * |[23]    |DSRCRST   |DSRC Controller Reset
-     * |        |          |0 = DSRC controller normal operation.
-     * |        |          |1 = DSRC controller reset.
      * |[24]    |CAN0RST   |CAN0 Controller Reset
      * |        |          |0 = CAN0 controller normal operation.
      * |        |          |1 = CAN0 controller reset.
@@ -234,9 +236,6 @@ typedef struct
      * |[6]     |SPI3RST   |SPI3 Controller Reset
      * |        |          |0 = SPI3 controller normal operation.
      * |        |          |1 = SPI3 controller reset.
-     * |[7]     |SPI5RST   |SPI5 Controller Reset
-     * |        |          |0 = SPI5 controller normal operation.
-     * |        |          |1 = SPI5 controller reset.
      * |[8]     |USCI0RST  |USCI0 Controller Reset
      * |        |          |0 = USCI0 controller normal operation.
      * |        |          |1 = USCI0 controller reset.
@@ -602,7 +601,7 @@ typedef struct
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
      * |[n]     |MFOSn     |GPIOA-H Pin[n] Multiple Function Pin Output Mode Select
-     * |        |          |This bit used to select multiple function pin output mode type for Px.n pin
+     * |        |          |This bit used to select multiple function pin output mode type for Px.n pin.
      * |        |          |0 = Multiple function pin output mode type is Push-pull mode.
      * |        |          |1 = Multiple function pin output mode type is Open-drain mode.
      * |        |          |Note:
@@ -646,29 +645,29 @@ typedef struct
      * |        |          |Note: These bits are write protected. Refer to the SYS_REGLCTL register.
      * |[5:4]   |RETCNT    |SRAM Retention Count (Write Protect)
      * |        |          |This field can configure SRAM macro retention time in unit of HIRC period.
-     * |        |          |00 = one HIRC period.
-     * |        |          |01 = two HIRC periods.
-     * |        |          |10 = three HIRC periods.
-     * |        |          |11 = four HIRC periods.
+     * |        |          |00 = One HIRC period.
+     * |        |          |01 = Two HIRC periods.
+     * |        |          |10 = Three HIRC periods.
+     * |        |          |11 = Four HIRC periods.
      * |        |          |Note: These bits are write protected. Refer to the SYS_REGLCTL register.
      * |[9:8]   |SRAM0PM0  |Bank0 SRAM Power Mode Select 0 (Write Protect)
-     * |        |          |This field can control bank0 SRAM (32k) power mode in system power down mode for range 0x2000_0000 - 0x2000_1FFF
+     * |        |          |This field can control bank0 SRAM (32k) power mode in system power down mode for range 0x2000_0000 - 0x2000_1FFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note1: Bank 0 SRAM is always operating in power shut down mode for system enter Deep Power-down Mode (DPD).
+     * |        |          |Note1: Bank0 SRAM is always operating in power shut down mode for system enter Deep Power-down mode (DPD).
      * |        |          |Note2: These bits are write protected. Refer to the SYS_REGLCTL register.
      * |[11:10] |SRAM0PM1  |Bank0 SRAM Power Mode Select 1 (Write Protect)
-     * |        |          |This field can control bank0 SRAM (32k) power mode in system enter power down mode for range 0x2000_2000 - 0x2000_3FFF
+     * |        |          |This field can control bank0 SRAM (32k) power mode in system enter power down mode for range 0x2000_2000 - 0x2000_3FFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note1: Bank 0 SRAM is always operating in power shut down mode for system enter Deep Power-down Mode (DPD).
+     * |        |          |Note1: Bank0 SRAM is always operating in power shut down mode for system enter Deep Power-down mode (DPD).
      * |        |          |Note2: These bits are write protected. Refer to the SYS_REGLCTL register.
      * |[13:12] |SRAM0PM2  |Bank0 SRAM Power Mode Select 2 (Write Protect)
-     * |        |          |This field can control bank0 SRAM (32k) power mode in system enter power down mode for range 0x2004_0000 - 0x2000_5FFF
+     * |        |          |This field can control bank0 SRAM (32k) power mode in system enter power down mode for range 0x2004_0000 - 0x2000_5FFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
@@ -676,35 +675,35 @@ typedef struct
      * |        |          |Note1: Bank 0 SRAM is always operating in power shut down mode for system enter Deep Power-down Mode (DPD).
      * |        |          |Note2: These bits are write protected. Refer to the SYS_REGLCTL register.
      * |[15:14] |SRAM0PM3  |Bank0 SRAM Power Mode Select 3 (Write Protect)
-     * |        |          |This field can control bank0 SRAM (32k) power mode in system enter power down mode for range 0x2006_0000 - 0x2000_7FFF
+     * |        |          |This field can control bank0 SRAM (32k) power mode in system enter power down mode for range 0x2006_0000 - 0x2000_7FFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note1: Bank 0 SRAM is always operating in power shut down mode for system enter Deep Power-down Mode (DPD).
+     * |        |          |Note1: Bank0 SRAM is always operating in power shut down mode for system enter Deep Power-down mode (DPD).
      * |        |          |Note2: These bits are write protected. Refer to the SYS_REGLCTL register.
      * |[17:16] |SRAM1PM0  |Bank1 SRAM Power Mode Select 0 (Write Protect)
-     * |        |          |This field can control bank1 SRAM (64k) power mode in system enter power down mode for range 0x2000_8000 - 0x2000_BFFF
+     * |        |          |This field can control bank1 SRAM (64k) power mode in system enter power down mode for range 0x2000_8000 - 0x2000_BFFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note1: Bank 1 SRAM is always operating in power shut down mode for system enter StandbyPower-down Mode (SPD) and Deep Power-down Mode (DPD).
+     * |        |          |Note1: Bank1 SRAM is always operating in power shut down mode for system enter Standby Power-down mode (SPD) and Deep Power-down mode (DPD).
      * |        |          |Note2: These bits are write protected. Refer to the SYS_REGLCTL register.
      * |[19:18] |SRAM1PM1  |Bank1 SRAM Power Mode Select 1 (Write Protect)
-     * |        |          |This field can control bank1 SRAM (64k) power mode in system enter power down mode for range 0x2000_C000 - 0x2000_FFFF
+     * |        |          |This field can control bank1 SRAM (64k) power mode in system enter power down mode for range 0x2000_C000 - 0x2000_FFFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
-     * |        |          |Note1: Bank 1 SRAM is always operating in power shut down mode for system enter StandbyPower-down Mode (SPD) and Deep Power-down Mode (DPD).
+     * |        |          |Note1: Bank1 SRAM is always operating in power shut down mode for system enter Standby Power-down mode (SPD) and Deep Power-down mode (DPD).
      * |        |          |Note2: These bits are write protected. Refer to the SYS_REGLCTL register.
      * |[21:20] |SRAM1PM2  |Bank1 SRAM Power Mode Select 2 (Write Protect)
-     * |        |          |This field can control bank1 SRAM (64k) power mode in system enter power down mode for range 0x2001_0000 - 0x2001_3FFF
+     * |        |          |This field can control bank1 SRAM (64k) power mode in system enter power down mode for range 0x2001_0000 - 0x2001_3FFF.
      * |        |          |00 = Normal mode.
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note1: Bank 1 SRAM is always operating in power shut down mode for system enter StandbyPower-down Mode (SPD) and Deep Power-down Mode (DPD).
+     * |        |          |Note1: Bank1 SRAM is always operating in power shut down mode for system enter Standby Power-down mode (SPD) and Deep Power-down mode (DPD).
      * |        |          |Note2: These bits are write protected. Refer to the SYS_REGLCTL register.
      * |[23:22] |SRAM1PM3  |Bank1 SRAM Power Mode Select 3 (Write Protect)
      * |        |          |This field can control bank1 SRAM (64k) power mode in system enter power down mode for range 0x2001_4000 - 0x2001_7FFF
@@ -712,7 +711,7 @@ typedef struct
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note1: Bank 1 SRAM is always operating in power shut down mode for system enter StandbyPower-down Mode (SPD) and Deep Power-down Mode (DPD).
+     * |        |          |Note1: Bank1 SRAM is always operating in power shut down mode for system enter Standby Power-down mode (SPD) and Deep Power-down mode (DPD).
      * |        |          |Note2: These bits are write protected. Refer to the SYS_REGLCTL register.
      * @var SYS_T::SRAMPPCT
      * Offset: 0xE0  Peripheral SRAM Power Mode Control Register
@@ -725,7 +724,7 @@ typedef struct
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore)..
-     * |        |          |Note1: Peripheral SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
+     * |        |          |Note1: Peripheral SRAM is always operating in power shut down mode for system enter Standby Power-down mode (SPD) and Deep Power-down mode (DPD).
      * |        |          |Note2: These bits are write protected. Refer to the SYS_REGLCTL register.
      * |[3:2]   |USBD      |USB Device SRAM Power Mode Select (Write Protect)
      * |        |          |This field can control USB device SRAM power mode for system enter power down mode.
@@ -733,7 +732,7 @@ typedef struct
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note1: Peripheral SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
+     * |        |          |Note1: Peripheral SRAM is always operating in power shut down mode for system enter Standby Power-down mode (SPD) and Deep Power-down mode (DPD).
      * |        |          |Note2: These bits are write protected. Refer to the SYS_REGLCTL register.
      * |[5:4]   |PDMA0     |PDMA SRAM Power Mode Select (Write Protect)
      * |        |          |This field can control PDMA0 (always secure) SRAM power mode for system enter power down mode.
@@ -741,7 +740,7 @@ typedef struct
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note1: Peripheral SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
+     * |        |          |Note1: Peripheral SRAM is always operating in power shut down mode for system enter Standby Power-down mode (SPD) and Deep Power-down mode (DPD).
      * |        |          |Note2: These bits are write protected. Refer to the SYS_REGLCTL register.
      * |[7:6]   |PDMA1     |PDMA SRAM Power Mode Select (Write Protect)
      * |        |          |This field can control PDMA1 SRAM power mode for system enter power down mode.
@@ -749,7 +748,7 @@ typedef struct
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note1: Peripheral SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
+     * |        |          |Note1: Peripheral SRAM is always operating in power shut down mode for system enter Standby Power-down mode (SPD) and Deep Power-down mode (DPD).
      * |        |          |Note2: These bits are write protected. Refer to the SYS_REGLCTL register.
      * |[9:8]   |FMC       |FMC SRAM Power Mode Select (Write Protect)
      * |        |          |This field can control FMC cache SRAM power mode for system enter power down mode.
@@ -757,7 +756,7 @@ typedef struct
      * |        |          |01 = Retention mode.
      * |        |          |10 = Power shut down mode.
      * |        |          |11 = Reserved (Write Ignore).
-     * |        |          |Note1: Peripheral SRAM is always operating in power shut down mode for system enter Standby Power-down Mode (SPD) and Deep Power-down Mode (DPD).
+     * |        |          |Note1: Peripheral SRAM is always operating in power shut down mode for system enter Standby Power-down mode (SPD) and Deep Power-down mode (DPD).
      * |        |          |Note2: These bits are write protected. Refer to the SYS_REGLCTL register.
      * @var SYS_T::TCTL48M
      * Offset: 0xE4  HIRC 48M Trim Control Register
@@ -790,8 +789,8 @@ typedef struct
      * |        |          |0 = The trim operation is keep going if clock is inaccuracy.
      * |        |          |1 = The trim operation is stopped if clock is inaccuracy.
      * |[10]    |REFCKSEL  |Reference Clock Selection
-     * |        |          |0 = HIRC trim 48M reference clock is from LXT (32.768 kHz).
-     * |        |          |1 = HIRC trim 48M reference clock is from USB SOF (Start-Of-Frame) packet.
+     * |        |          |0 = HIRC trim 48M reference clock is from external 32.768 kHz crystal oscillator.
+     * |        |          |1 = HIRC trim 48M reference clock is from internal USB synchronous mode.
      * @var SYS_T::TIEN48M
      * Offset: 0xE8  HIRC 48M Trim Interrupt Enable Register
      * ---------------------------------------------------------------------------------------------------
@@ -864,8 +863,8 @@ typedef struct
      * |        |          |0 = The trim operation is keep going if clock is inaccuracy.
      * |        |          |1 = The trim operation is stopped if clock is inaccuracy.
      * |[10]    |REFCKSEL  |Reference Clock Selection
-     * |        |          |0 = HIRC trim reference clock is from LXT (32.768 kHz).
-     * |        |          |1 = HIRC trim reference clock is from USB SOF (Start-Of-Frame) packet.
+     * |        |          |0 = HIRC trim reference clock is from external 32.768 kHz crystal oscillator.
+     * |        |          |1 = HIRC trim reference clock is from internal USB synchronous mode.
      * @var SYS_T::TIEN12M
      * Offset: 0xF4  HIRC 12M Trim Interrupt Enable Register
      * ---------------------------------------------------------------------------------------------------
@@ -913,10 +912,10 @@ typedef struct
      * | :----: | :----:   | :---- |
      * |[7:0]   |REGLCTL   |Register Lock Control Code (Write Only)
      * |        |          |Some registers have write-protection function
-     * |        |          |Writing these registers have to disable the protected function by writing the sequence value 59h, 16h, 88h to this field
+     * |        |          |Writing these registers have to disable the protected function by writing the sequence value 59h, 16h, 88h to this field.
      * |        |          |After this sequence is completed, the REGLCTL bit will be set to 1 and write-protection registers can be normal write.
      * |[0]     |REGLCTL[0]|Register Lock Control Disable Index (Read Only)
-     * |        |          |0 = Write-protection Enabled for writing protected registers
+     * |        |          |0 = Write-protection Enabled for writing protected registers.
      * |        |          |Any write to the protected register is ignored.
      * |        |          |1 = Write-protection Disabled for writing protected registers.
      * @var SYS_T::PORCTL1
@@ -970,8 +969,8 @@ typedef struct
      * |        |          |0 = Main voltage regulator type change is completed.
      * |        |          |1 = Main voltage regulator type change is ongoing.
      * |[2]     |MVRCERR   |Main Voltage Regulator Type Change Error Bit (Write Protect)
-     * |        |          |This bit is set to 1 when main voltage regulator type change from LDO to DCDC error, the following conditions will cause change errors
-     * |        |          |1.System change to DC-DC mode but LDO change voltage process not finish
+     * |        |          |This bit is set to 1 when main voltage regulator type change from LDO to DCDC error, the following conditions will cause change errors:
+     * |        |          |1.System change to DC-DC mode but LDO change voltage process not finish.
      * |        |          |2.Detect inductor fail.
      * |        |          |Read:
      * |        |          |0 = No main voltage regulator type change error.
@@ -982,12 +981,12 @@ typedef struct
      * |        |          |Note: This bit is write protected. Refer to the SYS_REGLCTL register.
      * |[3]     |LCONS     |Inductor for DC-DC Connect Status (Read Only)
      * |        |          |0 = Inductor connect between Vsw and LDO_CAP pin.
-     * |        |          |This bit is valid when current main voltage regulator type is DCDC (CURMVRS (SYS_PLSTS[12])=1). If current main voltage regulator type is LDO (CURMVRS (SYS_PLSTS[12])=0) this bit is set to 1.
+     * |        |          |This bit is valid when current main voltage regulator type is DCDC (CURMVRS (SYS_PLSTS[12])=1). If current main voltage regulator type is LDO (CURMVRS (SYS_PLSTS[12])=0), this bit is set to 1.
      * |        |          |0 = Inductor connect between Vsw and LDO_CAP pin.
      * |        |          |1 = No Inductor connect between Vsw and LDO_CAP pin.
      * |        |          |Note: This bit is 1 when main viltage regulator is LDO.
      * |[4]     |PDINVTRF  |Power-down Mode Invalid Transition Flag (Write Protect)
-     * |        |          |This bit is set by hardware if the requested Active DCDC mode to Power-down mode transition is invalid.
+     * |        |          |This bit is set by hardware if the requested active DCDC mode to Power-down mode transition is invalid.
      * |        |          |This transition request will be aborted by hardware.
      * |        |          |The bit can be cleared by software.
      * |        |          |Read:
@@ -1197,9 +1196,6 @@ typedef struct
 #define SYS_IPRST1_UART5RST_Pos          (21)                                              /*!< SYS_T::IPRST1: UART5RST Position       */
 #define SYS_IPRST1_UART5RST_Msk          (0x1ul << SYS_IPRST1_UART5RST_Pos)                /*!< SYS_T::IPRST1: UART5RST Mask           */
 
-#define SYS_IPRST1_DSRCRST_Pos           (23)                                              /*!< SYS_T::IPRST1: CAN0RST Position        */
-#define SYS_IPRST1_DSRCRST_Msk           (0x1ul << SYS_IPRST1_DSRCRST_Pos)                 /*!< SYS_T::IPRST1: CAN0RST Mask            */
-
 #define SYS_IPRST1_CAN0RST_Pos           (24)                                              /*!< SYS_T::IPRST1: CAN0RST Position        */
 #define SYS_IPRST1_CAN0RST_Msk           (0x1ul << SYS_IPRST1_CAN0RST_Pos)                 /*!< SYS_T::IPRST1: CAN0RST Mask            */
 
@@ -1229,9 +1225,6 @@ typedef struct
 
 #define SYS_IPRST2_SPI3RST_Pos           (6)                                               /*!< SYS_T::IPRST2: SPI3RST Position        */
 #define SYS_IPRST2_SPI3RST_Msk           (0x1ul << SYS_IPRST2_SPI3RST_Pos)                 /*!< SYS_T::IPRST2: SPI3RST Mask            */
-
-#define SYS_IPRST2_SPI5RST_Pos           (7)                                               /*!< SYS_T::IPRST2: SPI5RST Position        */
-#define SYS_IPRST2_SPI5RST_Msk           (0x1ul << SYS_IPRST2_SPI5RST_Pos)                 /*!< SYS_T::IPRST2: SPI5RST Mask            */
 
 #define SYS_IPRST2_USCI0RST_Pos          (8)                                               /*!< SYS_T::IPRST2: USCI0RST Position       */
 #define SYS_IPRST2_USCI0RST_Msk          (0x1ul << SYS_IPRST2_USCI0RST_Pos)                /*!< SYS_T::IPRST2: USCI0RST Mask           */
@@ -2053,7 +2046,7 @@ typedef struct
 #define SYS_TCTL12M_LOOPSEL_Msk          (0x3ul << SYS_TCTL12M_LOOPSEL_Pos)                /*!< SYS_T::TCTL12M: LOOPSEL Mask           */
 
 #define SYS_TCTL12M_RETRYCNT_Pos         (6)                                               /*!< SYS_T::TCTL12M: RETRYCNT Position      */
-#define SYS_TCTL12M_RETRYCNT_Msk         (0x3ul << SYS_TCTL12MM_RETRYCNT_Pos)              /*!< SYS_T::TCTL12M: RETRYCNT Mask          */
+#define SYS_TCTL12M_RETRYCNT_Msk         (0x3ul << SYS_TCTL12M_RETRYCNT_Pos)               /*!< SYS_T::TCTL12M: RETRYCNT Mask          */
 
 #define SYS_TCTL12M_CESTOPEN_Pos         (8)                                               /*!< SYS_T::TCTL12M: CESTOPEN Position      */
 #define SYS_TCTL12M_CESTOPEN_Msk         (0x1ul << SYS_TCTL12M_CESTOPEN_Pos)               /*!< SYS_T::TCTL12M: CESTOPEN Mask          */
@@ -2369,6 +2362,7 @@ typedef struct
 
 /**@}*/ /* INT_CONST */
 /**@}*/ /* end of SYS register group */
+/**@}*/ /* end of REGISTER group */
 
 
 #endif /* __SYS_REG_H__ */

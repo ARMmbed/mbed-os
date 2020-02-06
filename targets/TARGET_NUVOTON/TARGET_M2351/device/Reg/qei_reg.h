@@ -8,6 +8,11 @@
 #ifndef __QEI_REG_H__
 #define __QEI_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
 
 /*---------------------- Quadrature Encoder Interface -------------------------*/
 /**
@@ -294,7 +299,7 @@ typedef struct
 
 /**@}*/ /* QEI_CONST */
 /**@}*/ /* end of QEI register group */
-
+/**@}*/ /* end of REGISTER group */
 
 
 #endif /* __QEI_REG_H__ */

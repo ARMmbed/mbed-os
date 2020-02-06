@@ -40,6 +40,7 @@ static void gpio_irq_3_vec(void);
 static void gpio_irq_4_vec(void);
 static void gpio_irq_5_vec(void);
 static void gpio_irq_6_vec(void);
+static void gpio_irq_7_vec(void);
 static void gpio_irq(struct nu_gpio_irq_var *var);
 
 //EINT0_IRQn
@@ -51,6 +52,7 @@ static struct nu_gpio_irq_var gpio_irq_var_arr[] = {
     {{NULL}, GPE_IRQn, gpio_irq_4_vec, 4},
     {{NULL}, GPF_IRQn, gpio_irq_5_vec, 5},
     {{NULL}, GPG_IRQn, gpio_irq_6_vec, 6},
+    {{NULL}, GPG_IRQn, gpio_irq_7_vec, 7},
 };
 
 #define NU_MAX_PORT     (sizeof (gpio_irq_var_arr) / sizeof (gpio_irq_var_arr[0]))
@@ -221,6 +223,10 @@ static void gpio_irq_5_vec(void)
 static void gpio_irq_6_vec(void)
 {
     gpio_irq(gpio_irq_var_arr + 6);
+}
+static void gpio_irq_7_vec(void)
+{
+    gpio_irq(gpio_irq_var_arr + 7);
 }
 
 static void gpio_irq(struct nu_gpio_irq_var *var)

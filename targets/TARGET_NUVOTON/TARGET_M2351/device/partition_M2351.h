@@ -83,7 +83,7 @@ extern int Image$$ER_IROM_NSC$$Base;
 */
 #define FMC_INIT_NSBA          1
 /*
-//     <o>Secure Flash ROM Size <0x800-0x7FFFF:0x800>
+//     <o>Secure Flash ROM Size <0x800-0x80000:0x800>
 */
 
 #define FMC_SECURE_ROM_SIZE      NU_ROM_SIZE_S
@@ -234,6 +234,8 @@ extern int Image$$ER_IROM_NSC$$Base;
 /*
 // </h>
 */
+
+
 
 /* ---------------------------------------------------------------------------------------------------- */
 
@@ -502,164 +504,6 @@ extern int Image$$ER_IROM_NSC$$Base;
 // </e>
 */
 
-
-/*
-// <h>Assign Interrupt to Secure or Non-secure Vector
-*/
-
-
-/*
-    Initialize ITNS 0 (Interrupts 0..31)
-*/
-#define NVIC_INIT_ITNS0    1
-/*
-// BODOUT       Always secure
-// IRC          Always secure
-// PWRWU_       Always secure
-// SRAM_PERR    Always secure
-// CLKFAIL      Always secure
-
-//   <o.6>  RTC                   <0=> Secure <1=> Non-Secure
-//   <o.7>  TAMPER                <0=> Secure <1=> Non-Secure
-// WDT  Always secure
-// WWDT Always secure
-//   <h> EINT
-//   <o.10> EINT0                 <0=> Secure <1=> Non-Secure
-//   <o.11> EINT1                 <0=> Secure <1=> Non-Secure
-//   <o.12> EINT2                 <0=> Secure <1=> Non-Secure
-//   <o.13> EINT3                 <0=> Secure <1=> Non-Secure
-//   <o.14> EINT4                 <0=> Secure <1=> Non-Secure
-//   <o.15> EINT5                 <0=> Secure <1=> Non-Secure
-//   </h>
-//   <h> GPIO
-//   <o.16> GPA                   <0=> Secure <1=> Non-Secure
-//   <o.17> GPB                   <0=> Secure <1=> Non-Secure
-//   <o.18> GPC                   <0=> Secure <1=> Non-Secure
-//   <o.19> GPD                   <0=> Secure <1=> Non-Secure
-//   <o.20> GPE                   <0=> Secure <1=> Non-Secure
-//   <o.21> GPF               <0=> Secure <1=> Non-Secure
-//   </h>
-//   <o.22> QSPI0              <0=> Secure <1=> Non-Secure
-//   <o.23> SPI0              <0=> Secure <1=> Non-Secure
-//   <h> EPWM
-//   <o.24> BRAKE0            <0=> Secure <1=> Non-Secure
-//   <o.25> EPWM0_P0          <0=> Secure <1=> Non-Secure
-//   <o.26> EPWM0_P1          <0=> Secure <1=> Non-Secure
-//   <o.27> EPWM0_P2          <0=> Secure <1=> Non-Secure
-//   <o.28> BRAKE1            <0=> Secure <1=> Non-Secure
-//   <o.29> EPWM1_P0          <0=> Secure <1=> Non-Secure
-//   <o.30> EPWM1_P1          <0=> Secure <1=> Non-Secure
-//   <o.31> EPWM1_P2          <0=> Secure <1=> Non-Secure
-//   </h>
-//
-*/
-#define NVIC_INIT_ITNS0_VAL      0xFFFFFFBF
-
-/*
-    Initialize ITNS 1 (Interrupts 0..31)
-*/
-#define NVIC_INIT_ITNS1    1
-/*
-//   <h> TIMER
-// TMR0 Always secure
-// TMR1 Always secure
-//   <o.2>  TMR2              <0=> Secure <1=> Non-Secure
-//   <o.3>  TMR3              <0=> Secure <1=> Non-Secure
-//   </h>
-//   <o.4>  UART0             <0=> Secure <1=> Non-Secure
-//   <o.5>  UART1             <0=> Secure <1=> Non-Secure
-//   <o.6>  I2C0              <0=> Secure <1=> Non-Secure
-//   <o.7>  I2C1              <0=> Secure <1=> Non-Secure
-// PDMA0 is secure only
-//   <o.9>  DAC               <0=> Secure <1=> Non-Secure
-//   <o.10> EADC0             <0=> Secure <1=> Non-Secure
-//   <o.11> EADC1             <0=> Secure <1=> Non-Secure
-//   <o.12> ACMP01            <0=> Secure <1=> Non-Secure
-
-//   <o.14> EADC2             <0=> Secure <1=> Non-Secure
-//   <o.15> EADC3             <0=> Secure <1=> Non-Secure
-//   <o.16> UART2             <0=> Secure <1=> Non-Secure
-//   <o.17> UART3             <0=> Secure <1=> Non-Secure
-
-//   <o.19> SPI1              <0=> Secure <1=> Non-Secure
-//   <o.20> SPI2              <0=> Secure <1=> Non-Secure
-//   <o.21> USBD              <0=> Secure <1=> Non-Secure
-//   <o.22> USBH              <0=> Secure <1=> Non-Secure
-//   <o.23> USBOTG            <0=> Secure <1=> Non-Secure
-//   <o.24> CAN0              <0=> Secure <1=> Non-Secure
-
-//   <h> Smart Card
-//   <o.26> SC0               <0=> Secure <1=> Non-Secure
-//   <o.27> SC1               <0=> Secure <1=> Non-Secure
-//   <o.28> SC2               <0=> Secure <1=> Non-Secure
-//   </h>
-
-//   <o.30> SPI3              <0=> Secure <1=> Non-Secure
-
-//
-*/
-#define NVIC_INIT_ITNS1_VAL      0xFFFFFEFC
-
-/*
-    Initialize ITNS 2 (Interrupts 0..31)
-*/
-#define NVIC_INIT_ITNS2    1
-/*
-//   <o.0>  SDH0              <0=> Secure <1=> Non-Secure
-
-
-
-//   <o.4>  I2S0              <0=> Secure <1=> Non-Secure
-
-//
-//   <o.7>  CRYPTO                <0=> Secure <1=> Non-Secure
-//   <o.8>  GPG               <0=> Secure <1=> Non-Secure
-//   <o.9>  EINT6             <0=> Secure <1=> Non-Secure
-//   <o.10> UART4             <0=> Secure <1=> Non-Secure
-//   <o.11> UART5             <0=> Secure <1=> Non-Secure
-//   <o.12> USCI0             <0=> Secure <1=> Non-Secure
-//   <o.13> USCI1             <0=> Secure <1=> Non-Secure
-//   <o.14> BPWM0             <0=> Secure <1=> Non-Secure
-//   <o.15> BPWM1             <0=> Secure <1=> Non-Secure
-
-
-//   <o.18> I2C2              <0=> Secure <1=> Non-Secure
-
-//   <o.20> QEI0              <0=> Secure <1=> Non-Secure
-//   <o.21> QEI1              <0=> Secure <1=> Non-Secure
-//   <o.22> ECAP0             <0=> Secure <1=> Non-Secure
-//   <o.23> ECAP1             <0=> Secure <1=> Non-Secure
-//   <o.24> GPH               <0=> Secure <1=> Non-Secure
-//   <o.25> EINT7             <0=> Secure <1=> Non-Secure
-
-
-//   <o.28> USBH              <0=> Secure <1=> Non-Secure
-
-
-
-//
-*/
-#define NVIC_INIT_ITNS2_VAL      0xFFFFFFFF
-
-
-/*
-    Initialize ITNS 3 (Interrupts 0..31)
-*/
-#define NVIC_INIT_ITNS3    1
-/*
-//   <o.2>  PDMA1             <0=> Secure <1=> Non-Secure
-// SCU  Always secure
-//
-//   <o.5>  TRNG              <0=> Secure <1=> Non-Secure
-*/
-#define NVIC_INIT_ITNS3_VAL      0xFFFFFFDF
-
-
-
-/*
-// </h>
-*/
-
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 
 /*
@@ -685,35 +529,6 @@ extern int Image$$ER_IROM_NSC$$Base;
 #if SCB_AIRCR_SYSRESETREQS_VAL == 1
 #warning ("Debugger (and other) resets fail when SCB_AIRCR_SYSRESETREQS_VAL == 1!!!")
 #endif
-
-/**
-  * \brief   Setup SAU regions
-  * \details Writes the region information contained in SAU_Region to the
-  *          registers SAU_RNR, SAU_RBAR, and SAU_RLAR
-  */
-void TZ_SAU_Setup(void);
-
-/**
-  * \brief   Setup System Control Block
-  */
-void SCB_Setup(void);
-
-/**
- * \brief   Setup NVIC interrupt target state
- */
-void TZ_NVIC_Setup(void);
-
-/**
-  *\brief   Setup SCU Configuration Unit
-  */
-void SCU_Setup(void);
-
-/**
-  * \brief  Configure Non-secure flash boundary for the first time after Mass Erase or
-  *         check if flash partition matches SCU.FNSADDR which has already configured
-  *         and fixed until next Mass Erase.
-  */
-void FMC_NSBA_Setup(void);
 
 #endif  /* #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) */
 

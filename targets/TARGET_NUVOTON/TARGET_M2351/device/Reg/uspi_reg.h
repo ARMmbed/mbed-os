@@ -8,6 +8,12 @@
 #ifndef __USPI_REG_H__
 #define __USPI_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
+
 
 /*---------------------- SPI Mode of USCI Controller -------------------------*/
 /**
@@ -652,6 +658,7 @@ typedef struct
 
 /**@}*/ /* USPI_CONST */
 /**@}*/ /* end of USPI register group */
+/**@}*/ /* end of REGISTER group */
 
 
 #endif /* __USPI_REG_H__ */

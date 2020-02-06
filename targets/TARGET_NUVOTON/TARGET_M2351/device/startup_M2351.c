@@ -94,6 +94,9 @@ extern void _start(void);
 #endif
 #endif
 
+/* SCU handler */
+void SCU_IRQHandler(void);
+
 /* Default empty handler */
 void Default_Handler(void);
 
@@ -200,7 +203,7 @@ WEAK_ALIAS_FUNC(EINT7_IRQHandler, Default_Handler)      // 89:
 WEAK_ALIAS_FUNC(SPI5_IRQHandler, Default_Handler)       // 96:
 WEAK_ALIAS_FUNC(DSRC_IRQHandler, Default_Handler)       // 97:
 WEAK_ALIAS_FUNC(PDMA1_IRQHandler, Default_Handler)      // 98:
-WEAK_ALIAS_FUNC(SCU_IRQHandler, Default_Handler)        // 99:                            
+                                                        // 99:                            
                                                         // 100:  Reserved
 WEAK_ALIAS_FUNC(TRNG_IRQHandler, Default_Handler)       // 101: 
 
@@ -324,22 +327,22 @@ const uint32_t __vector_handlers[] = {
     (uint32_t) Default_Handler,         // 69:
     (uint32_t) OPA0_IRQHandler,         // 70:
     (uint32_t) CRPT_IRQHandler,         // 71:
-    (uint32_t) GPG_IRQHandler,         // 72:
-    (uint32_t) EINT6_IRQHandler,         // 73:
-    (uint32_t) UART4_IRQHandler,         // 74:
-    (uint32_t) UART5_IRQHandler,         // 75:
-    (uint32_t) USCI0_IRQHandler,         // 76:
-    (uint32_t) USCI1_IRQHandler,         // 77:
-    (uint32_t) BPWM0_IRQHandler,         // 78:
-    (uint32_t) BPWM1_IRQHandler,         // 79:
+    (uint32_t) GPG_IRQHandler,          // 72:
+    (uint32_t) EINT6_IRQHandler,        // 73:
+    (uint32_t) UART4_IRQHandler,        // 74:
+    (uint32_t) UART5_IRQHandler,        // 75:
+    (uint32_t) USCI0_IRQHandler,        // 76:
+    (uint32_t) USCI1_IRQHandler,        // 77:
+    (uint32_t) BPWM0_IRQHandler,        // 78:
+    (uint32_t) BPWM1_IRQHandler,        // 79:
     (uint32_t) Default_Handler,         // 80:
     (uint32_t) Default_Handler,         // 81:
     (uint32_t) I2C2_IRQHandler,         // 82:
     (uint32_t) Default_Handler,         // 83:
     (uint32_t) QEI0_IRQHandler,         // 84:    
     (uint32_t) QEI1_IRQHandler,         // 85:
-    (uint32_t) ECAP0_IRQHandler,         // 86:    
-    (uint32_t) ECAP1_IRQHandler,         // 87:
+    (uint32_t) ECAP0_IRQHandler,        // 86:    
+    (uint32_t) ECAP1_IRQHandler,        // 87:
     (uint32_t) GPH_IRQHandler,          // 88:    
     (uint32_t) EINT7_IRQHandler,        // 89:
     (uint32_t) Default_Handler,         // 90:    
@@ -350,8 +353,8 @@ const uint32_t __vector_handlers[] = {
     (uint32_t) Default_Handler,         // 95:
     (uint32_t) SPI5_IRQHandler,         // 96:    
     (uint32_t) DSRC_IRQHandler,         // 97:
-    (uint32_t) PDMA1_IRQHandler,         // 98:    
-    (uint32_t) SCU_IRQHandler,         // 99:
+    (uint32_t) PDMA1_IRQHandler,        // 98:    
+    (uint32_t) SCU_IRQHandler,          // 99:
     (uint32_t) Default_Handler,         // 100:    
     (uint32_t) TRNG_IRQHandler,         // 101:
 };

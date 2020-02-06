@@ -8,6 +8,12 @@
 #ifndef __ECAP_REG_H__
 #define __ECAP_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
+
 /*---------------------- Enhanced Input Capture Timer -------------------------*/
 /**
     @addtogroup ECAP Enhanced Input Capture Timer(ECAP)
@@ -372,6 +378,7 @@ typedef struct
 
 /**@}*/ /* ECAP_CONST */
 /**@}*/ /* end of ECAP register group */
+/**@}*/ /* end of REGISTER group */
 
 
 #endif /* __ECAP_REG_H__ */

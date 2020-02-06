@@ -8,6 +8,11 @@
 #ifndef __UI2C_REG_H__
 #define __UI2C_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
 
 /*---------------------- I2C Mode of USCI Controller -------------------------*/
 /**
@@ -555,7 +560,6 @@ typedef struct
 
 /**@}*/ /* UI2C_CONST */
 /**@}*/ /* end of UI2C register group */
-
-
+/**@}*/ /* end of REGISTER group */
 
 #endif /* __UI2C_REG_H__ */

@@ -8,6 +8,11 @@
 #ifndef __SC_REG_H__
 #define __SC_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
 
 /*---------------------- Smart Card Host Interface Controller -------------------------*/
 /**
@@ -967,7 +972,6 @@ typedef struct
 
 /**@}*/ /* SC_CONST */
 /**@}*/ /* end of SC register group */
-
-
+/**@}*/ /* end of REGISTER group */
 
 #endif /* __SC_REG_H__ */
