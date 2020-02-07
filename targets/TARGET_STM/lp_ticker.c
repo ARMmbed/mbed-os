@@ -112,7 +112,11 @@
 #define RCC_LPTIMCLKSOURCE_LSE    RCC_LPTIM1CLKSOURCE_LSE
 #define RCC_LPTIMCLKSOURCE_LSI    RCC_LPTIM1CLKSOURCE_LSI
 
+#if defined(STM32G0)
+#define LPTIM_MST_IRQ             TIM6_DAC_LPTIM1_IRQn
+#else
 #define LPTIM_MST_IRQ             LPTIM1_IRQn
+#endif
 #define LPTIM_MST_RCC             __HAL_RCC_LPTIM1_CLK_ENABLE
 
 #define LPTIM_MST_RESET_ON        __HAL_RCC_LPTIM1_FORCE_RESET
@@ -253,13 +257,20 @@ void lp_ticker_init(void)
     LptimHandle.Init.Trigger.SampleTime = LPTIM_TRIGSAMPLETIME_DIRECTTRANSITION;
 #endif
 
+    LptimHandle.Init.UltraLowPowerClock.SampleTime = LPTIM_TRIGSAMPLETIME_DIRECTTRANSITION; // L5 ?
+
     LptimHandle.Init.OutputPolarity = LPTIM_OUTPUTPOLARITY_HIGH;
     LptimHandle.Init.UpdateMode = LPTIM_UPDATE_IMMEDIATE;
     LptimHandle.Init.CounterSource = LPTIM_COUNTERSOURCE_INTERNAL;
-#if defined (LPTIM_INPUT1SOURCE_GPIO) /* STM32L4 */
+#if defined (LPTIM_INPUT1SOURCE_GPIO) /* STM32L4 / STM32L5 */
     LptimHandle.Init.Input1Source = LPTIM_INPUT1SOURCE_GPIO;
     LptimHandle.Init.Input2Source = LPTIM_INPUT2SOURCE_GPIO;
 #endif /* LPTIM_INPUT1SOURCE_GPIO */
+
+#if defined(LPTIM_RCR_REP) /* STM32L4 / STM32L5 */
+    LptimHandle.Init.RepetitionCounter = 0;
+#endif /* LPTIM_RCR_REP */
+
 
     if (HAL_LPTIM_Init(&LptimHandle) != HAL_OK) {
         error("HAL_LPTIM_Init ERROR\n");

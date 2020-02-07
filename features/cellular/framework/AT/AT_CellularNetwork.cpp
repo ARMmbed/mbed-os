@@ -223,7 +223,7 @@ nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
         if (_op_act != RAT_UNKNOWN) {
             return _at.at_cmd_discard("+COPS", "=1,2,", "%s%d", plmn, _op_act);
         } else {
-            return _at.at_cmd_discard("+COPS", "=1,2", "%s", plmn);
+            return _at.at_cmd_discard("+COPS", "=1,2,", "%s", plmn);
         }
     }
 }

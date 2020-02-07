@@ -1,19 +1,37 @@
-# PSoC 6 Peripheral Driver Library v1.3.1
+# PSoC 6 Peripheral Driver Library v1.4.0
 
 Please refer to the [README.md](./README.md) and the [PDL API Reference Manual](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/index.html) for a complete description of the Peripheral Driver Library.
 
 ### New Features
+* The structure of BSP startup templates directory (devices/templates) is updated to match the BSP layout.
+* The updated core-lib is reused - see [SysLib changelog](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__syslib.html) for details.
+* Removed redundant legacy PSoC Creator-compatibility macros.
+* The startup code reuses sysclk driver API - see [Startup changelog](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__system__config.html) for details.
+
+Updated Personalities
+* CSD
+* Power
+* SegLCD
+* WiFi
+Updated the configurators launch parameters in CSD and SegLCD personalities: switched from GUI to console applications for regenerating the source code without opening the configurator itself. This improves the user experience, performance, and enables using machines without a GUI.
+The Power personality code generation is corrected due to the customer's request.
+The TCP Keepalive Offload feature support is added to the WiFi Low Power Assistant (LPA) personality.
+
 Updated Drivers
-* [SysInt 1.30](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__sysint.html)
-* [SysPm 4.40](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__syspm.html)
-* [USBFS 2.20](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__usbfs__dev__drv.html)
+* [BLE_CLK 3.30](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__ble__clk.html)
+* [SCB 2.40](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__system__scb.html)
+* [Startup 2.70](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__system__config.html)
+* [SysClk 1.50](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__sysclk.html)
+* [SysLib 2.50](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__syslib.html)
+* [SysPm 4.50](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__syspm.html)
+* [WDT 1.20](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__wdt.html)
 
 Drivers with patch version updates
-* [CAN FD 1.0.1](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__canfd.html)
-* [Flash 3.30.2](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__flash.html)
-* [Prot 1.30.1](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__prot.html)
-* [SysClk 1.40.2](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__sysclk.html)
-
+* [Flash 3.30.3](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__flash.html)
+* [SAR 1.20.2](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__sar.html)
+* [SegLCD 1.0.1](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__seglcd.html)
+* [SMIF 1.40.1](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__smif.html)
+* [TrigMux 1.20.1](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__trigmux.html)
 
 ### Known Issues
 None

@@ -4,7 +4,7 @@
 
 ;*******************************************************************************
 ;* \file cy8c6xx7_cm0plus.sct
-;* \version 2.60
+;* \version 2.70
 ;*
 ;* Linker file for the ARMCC.
 ;*
@@ -78,7 +78,7 @@
   #define MBED_PUBLIC_RAM_SIZE     0x200
 #endif
 
-; Size of the stack section at the end of CM0+ SRAM
+; The size of the stack section at the end of CM0+ SRAM
 #if !defined(MBED_BOOT_STACK_SIZE)
   #define MBED_BOOT_STACK_SIZE 0x400
 #endif
@@ -108,7 +108,7 @@
 #define FLASH_START             MBED_APP_START
 #define FLASH_SIZE              MBED_APP_SIZE
 
-; The following defines describe a 32K flash region used for EEPROM emulation. 
+; The following defines describe a 32K flash region used for EEPROM emulation.
 ; This region can also be used as the general purpose flash.
 ; You can assign sections to this memory region for only one of the cores.
 ; Note some middleware (e.g. BLE, Emulated EEPROM) can place their data into this memory region.
@@ -189,17 +189,16 @@ LR_IROM1 FLASH_START (FLASH_SIZE - 0x8000)
     }
 
     ; Application heap area (HEAP)
-    ARM_LIB_HEAP  +0
+    ARM_LIB_HEAP  +0 EMPTY RAM_START+RAM_SIZE-STACK_SIZE-ImageLimit(RW_IRAM2)
     { 
-        * (HEAP) 
     }
-
+    
     ; Stack region growing down
-    ARM_LIB_STACK RAM_START+RAM_SIZE -STACK_SIZE
+    ARM_LIB_STACK RAM_START+RAM_SIZE EMPTY -STACK_SIZE 
     {
-        * (STACK)
     }
 }
+
 
 ; Emulated EEPROM Flash area
 LR_EM_EEPROM EM_EEPROM_START EM_EEPROM_SIZE

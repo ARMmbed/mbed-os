@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_smif_memslot.c
-* \version 1.40
+* \version 1.40.1
 *
 * \brief
 *  This file provides the source code for the memory-level APIs of the SMIF driver.
@@ -306,7 +306,6 @@ cy_en_smif_status_t Cy_SMIF_MemInit(SMIF_Type *base,
                 CY_ASSERT_L3(CY_SMIF_SLAVE_SEL_VALID(memCfg->slaveSelect));
                 CY_ASSERT_L3(CY_SMIF_DATA_SEL_VALID(memCfg->dataSelect));
                 CY_ASSERT_L1(NULL != memCfg->deviceCfg);
-                CY_ASSERT_L2(MEM_ADDR_SIZE_VALID(memCfg->deviceCfg->numOfAddrBytes));
                 
                 device = Cy_SMIF_GetDeviceBySlot(base, memCfg->slaveSelect);
                 if (NULL != device)
@@ -329,6 +328,8 @@ cy_en_smif_status_t Cy_SMIF_MemInit(SMIF_Type *base,
                             sfdpRes |=  ((uint32_t)CY_SMIF_SFDP_FAIL << idx);
                         }
                     }
+                    /* Check the size of the smif memory slot address */
+                    CY_ASSERT_L2(MEM_ADDR_SIZE_VALID(memCfg->deviceCfg->numOfAddrBytes));
 
                     if (((uint32_t)CY_SMIF_SUCCESS == sfdpRet) &&
                             (0U != (memCfg->flags & CY_SMIF_FLAG_MEMORY_MAPPED)))
@@ -634,7 +635,7 @@ bool Cy_SMIF_MemIsBusy(SMIF_Type *base, cy_stc_smif_mem_config_t const *memDevic
 ****************************************************************************//**
 *
 * This function enables the memory device for the quad mode of operation.
-* This command must be executed before sending Quad SPI commands to the
+* This command must be executed before sending quad SPI commands to the
 * memory device.
 *
 * \note In the dual quad mode, this API is called for each memory.
@@ -1182,7 +1183,7 @@ cy_en_smif_status_t Cy_SMIF_MemCmdRead(SMIF_Type *base,
 * \param slaveSelect
 * Denotes the number of the slave device to which the transfer is made.
 * (0, 1, 2 or 4 - the bit defines which slave to enable). The two-bit enable
-* is possible only for the Double Quad SPI mode.
+* is possible only for the double quad SPI mode.
 *
 * \param size
 * The size of data to be received. Must be > 0 and not greater than 65536.
@@ -2579,7 +2580,7 @@ cy_en_smif_status_t Cy_SMIF_MemSfdpDetect(SMIF_Type *base,
                 /* Page Program Time */
                 device->programTime = SfdpGetPageProgramTime(sfdpBuffer);
                 
-                /* The Read command for 3-byte addressing. The preference order Quad>Dual>SPI */
+                /* The Read command for 3-byte addressing. The preference order quad > dual > single SPI */
                 cy_stc_smif_mem_cmd_t *cmdRead = device->readCmd;
                 cy_en_smif_protocol_mode_t pMode = SfdpGetReadCmdParams(sfdpBuffer, dataSelect, cmdRead);
                 
@@ -2715,7 +2716,7 @@ cy_en_smif_status_t Cy_SMIF_MemIsReady(SMIF_Type *base, cy_stc_smif_mem_config_t
 * The memory device configuration.
 *
 * \param isQuadEnabled
-* This parameter is updated to indicate whether Quad mode is enabled (true) or
+* This parameter is updated to indicate whether quad mode is enabled (true) or
 * not (false). The value is valid only when the function returns
 * CY_SMIF_SUCCESS.
 *
@@ -2743,7 +2744,7 @@ cy_en_smif_status_t Cy_SMIF_MemIsQuadEnabled(SMIF_Type *base, cy_stc_smif_mem_co
     *isQuadEnabled = false;
     if(CY_SMIF_SUCCESS == status)
     {
-        /* Check whether Quad mode is already enabled or not */
+        /* Check whether quad mode is already enabled or not */
         *isQuadEnabled = (maskQE == (readStatus & maskQE));
     }
 
@@ -2756,7 +2757,7 @@ cy_en_smif_status_t Cy_SMIF_MemIsQuadEnabled(SMIF_Type *base, cy_stc_smif_mem_co
 ****************************************************************************//**
 *
 * Sets the QE (QUAD Enable) bit in the external memory
-* configuration register to enable Quad SPI mode.
+* configuration register to enable quad SPI mode.
 * This is a blocking function, it will block the execution flow until
 * the command transmission is completed.
 *

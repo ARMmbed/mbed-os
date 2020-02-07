@@ -373,8 +373,13 @@
             "SERIAL",
             "SLEEP",
             "SPI",
-            "SPISLAVE"
+            "SPISLAVE",
+            "USTICKER"
         ],
+        "overrides": {
+            "tickless-from-us-ticker"   : true,
+            "boot-stack-size"           : "0x400"
+        },
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "LPC11U35FBD48/401"
@@ -2155,6 +2160,12 @@
             "secure-ram-start": "0x30000000",
             "secure-ram-size": "0x22000"
         }
+    },    
+    "HANI_IOT": {
+        "inherits": ["LPC55S69_NS"],
+        "detect_code": ["0360"],
+        "components_add": ["SPIF"],
+        "extra_labels_remove": ["LPCXpresso"]
     },
     "NUCLEO_F030R8": {
         "inherits": ["FAMILY_STM32"],
@@ -4928,10 +4939,16 @@
         "release_versions": ["5"]
     },
     "OKDO_ODIN_W2": {
-        "inherits": ["MODULE_UBLOX_ODIN_W2"],
-        "device_has_add": [],
-        "overrides": {"lse_available": 0},
-        "release_versions": ["5"]
+        "inherits": [
+            "MODULE_UBLOX_ODIN_W2"
+        ],
+        "device_has_remove": [],
+        "overrides": {
+            "lse_available": 0
+        },
+        "release_versions": [
+            "5"
+        ]
     },
     "UBLOX_C030": {
         "inherits": ["FAMILY_STM32"],
@@ -8522,6 +8539,53 @@
         "release_versions": ["2", "5"],
         "bootloader_supported": false
     },
+    "NUCLEO_L552ZE_Q": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M33FE",
+        "extra_labels_add": [
+            "STM32L5",
+            "STM32L552xx"
+        ],
+        "supported_form_factors": [
+            "ARDUINO",
+            "MORPHO"
+        ],
+        "components_add": [
+            "FLASHIAP"
+        ],
+        "macros_add": [
+            "STM32L552xx",
+            "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED"
+        ],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
+                "value": "USE_PLL_MSI",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
+                "value": 1
+            }
+        },
+        "overrides": { "lpticker_delay_ticks": 0 },
+        "device_has_add": [
+	          "ANALOGOUT",
+	          "CRC",
+	          "MPU",
+	          "SERIAL_ASYNCH",
+	          "TRNG",
+	          "FLASH"
+        ],
+        "detect_code": ["0854"],
+        "bootloader_supported": true,
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size": "0x80000",
+        "mbed_ram_start": "0x20000000",
+        "mbed_ram_size": "0x40000",
+        "release_versions": [ "5" ]
+    },
     "VBLUNO52": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
@@ -9860,6 +9924,68 @@
             "tickless-from-us-ticker": true
         },
         "forced_reset_timeout": 3
+    },
+    "NUCLEO_G071RB": {
+        "inherits": ["FAMILY_STM32"],
+        "supported_form_factors": ["ARDUINO", "MORPHO"],
+        "core": "Cortex-M0+",
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
+                "value": 1
+            },
+            "hse_value": {
+                "help": "HSE default value is 25MHz in HAL",
+                "value": "8000000",
+                "macro_name": "HSE_VALUE"
+            }
+        },
+        "extra_labels_add": [
+            "STM32G0",
+            "STM32G071xx",
+            "STM32G071RB"
+        ],
+        "components_add": ["FLASHIAP"],
+        "macros_add": [
+            "STM32G071xx",
+            "STM32G071RB",
+            "EXTRA_IDLE_STACK_REQUIRED",
+            "MBED_TICKLESS"
+        ],
+        "overrides": {
+            "lpticker_delay_ticks": 0
+        },
+        "device_has_add": [
+            "ANALOGOUT",
+            "SERIAL_ASYNCH",
+            "FLASH",
+            "MPU"
+        ],
+        "detect_code": ["0221"],
+        "release_versions": ["5"],
+        "device_name": "STM32G071RBTx",
+        "bootloader_supported": true
+    },
+    "S5JS100": {
+        "inherits": ["Target"],
+        "core": "Cortex-M7",
+        "supported_toolchains": ["GCC_ARM", "IAR", "ARMC6"],
+        "default_toolchain": "GCC_ARM",
+        "extra_labels": ["Samsung", "SIDK_S5JS100"],
+        "macros": ["CMSDK_CM7", "MBED_MPU_CUSTOM",  "CMSIS_NVIC_VIRTUAL", "MBEDTLS_CONFIG_HW_SUPPORT"],
+        "device_has": [
+            "INTERRUPTIN",
+            "USTICKER",
+            "SERIAL",
+            "SLEEP",
+            "TRNG"
+        ],
+        "release_versions": ["5"]
     },
     "__build_tools_metadata__": {
         "version": "1",

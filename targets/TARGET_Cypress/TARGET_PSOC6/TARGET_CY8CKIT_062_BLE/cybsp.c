@@ -85,7 +85,7 @@ cy_rslt_t cybsp_init(void)
     cy_rslt_t result = CY_RSLT_SUCCESS;
 #endif
 
-#if defined(COMPONENT_BSP_DESIGN_MODUS)
+#if defined(COMPONENT_BSP_DESIGN_MODUS) || defined(COMPONENT_CUSTOM_DESIGN_MODUS)
     init_cycfg_all();
 #endif
 

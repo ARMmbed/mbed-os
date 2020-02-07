@@ -163,11 +163,10 @@
   </DRCs>
   <ConfigFirmware>
     <!-- External tools -->
-    <ConfigTool value="`${cy_tools_path(&quot;seglcd-configurator&quot;) . &quot;/seglcd-configurator&quot;}`" include="true">
+    <ConfigTool value="`${cy_tools_path(&quot;seglcd-configurator&quot;) . &quot;/seglcd-configurator-cli&quot;}`" include="true">
       <Arg value="`${&quot;--config=&quot; . cfgFilePath}`" />
       <Arg value="`${&quot;--output-dir=&quot; . cy_codegen_path()}`" />
       <Arg value="`${&quot;--name=&quot; . INST_NAME}`" />
-      <Arg value="`${&quot;--generate&quot;}`" />
     </ConfigTool>
     
     <ConfigInclude value="cy_seglcd.h" include="true" />

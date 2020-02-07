@@ -29,6 +29,9 @@
     "STM32F302R8": {
         "OGChipSelectEditMenu": "STM32F302x8\tST STM32F302x8"
     },
+    "STM32G071RBTx": {
+        "OGChipSelectEditMenu": "STM32G071RB\tST STM32G071RB"
+    },
     "EFM32LG990F256": {
         "OGChipSelectEditMenu": "EFM32LG990F256\tSiliconLaboratories EFM32LG990F256"
     },
@@ -392,5 +395,9 @@
         "OGChipSelectEditMenu": "TMPM4G9F15FG\tToshiba TMPM4G9F15FG",
         "GFPUCoreSlave": 21,
         "GBECoreSlave": 21
+    },
+    "S5JS100": {
+        "OGChipSelectEditMenu": "S5JS100\tSamsung S5JS100"
     }
+
 }
