@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,9 +29,9 @@
 * \addtogroup group_hal_lptimer LPTIMER (Low-Power Timer)
 * \ingroup group_hal
 * \{
-* High level interface for interacting with the Cypress LPTIMER.
-* 
-* This can be used to measure timing between events, or to perform 
+* High level interface for interacting with the low-power timer (LPTIMER).
+*
+* This can be used to measure timing between events, or to perform
 * some action the ability after a set interval. It continues to operate
 * in some low power modes; see the device datasheet for details.
 */
@@ -93,12 +93,12 @@ cy_rslt_t cyhal_lptimer_reload(cyhal_lptimer_t *obj);
 #define cyhal_lptimer_set_time cyhal_lptimer_set_match
 
 /** Update the match/compare value
- * 
+ *
  * Update the match value of an already configured LPTIMER set up
  * to generate an interrupt on match. Note that this function does not
  * reinitialize the counter or the associated peripheral initialization
  * sequence.
- * 
+ *
  * @param[in] obj   The LPTIMER object
  * @param[in] value The tick value to match
  *
@@ -107,13 +107,13 @@ cy_rslt_t cyhal_lptimer_reload(cyhal_lptimer_t *obj);
 cy_rslt_t cyhal_lptimer_set_match(cyhal_lptimer_t *obj, uint32_t value);
 
 /** Update the match/compare value
- * 
+ *
  * Update the match value of an already configured LPTIMER set up
  * to generate an interrupt on match delay from the current counter value.
- * Note that this function does not reinitialize the counter or the 
+ * Note that this function does not reinitialize the counter or the
  * associated peripheral initialization
  * sequence.
- * 
+ *
  * @param[in] obj   The LPTIMER object
  * @param[in] delay The ticks to wait
  *

@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,8 +29,21 @@
 * \addtogroup group_hal_adc ADC (Analog to Digital Converter)
 * \ingroup group_hal
 * \{
-* High level interface for interacting with the Cypress ADC.
+* High level interface for interacting with the analog to digital converter (ADC).
 *
+* Each ADC instance supports one or more selectable channels, each
+* of which can perform conversions on a different pin.
+* See the device datasheet for details about which pins support ADC conversion.
+*
+* In order to use the ADC, first call cyhal_adc_init to initialize an ADC instance.
+* Then call cyhal_adc_channel_init to initialize one or more channels associated with
+* that instance.
+*
+* All channels are single-ended.
+* The values returned by the read API are relative to the ADC's voltage range, which
+* is device specific.
+*
+* \defgroup group_hal_adc_common Common
 * \defgroup group_hal_adc_functions ADC Functions
 * \defgroup group_hal_adc_channel_functions ADC Channel Functions
 */
@@ -59,12 +72,6 @@ extern "C" {
 /** No channels available */
 #define CYHAL_ADC_RSLT_NO_CHANNELS (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_ADC, 3))
 
-
-/**
-* \addtogroup group_hal_adc_functions
-* \{
-*/
-
 /** Initialize ADC peripheral
  *
  * @param[out] obj The adc object to initialize
@@ -83,13 +90,6 @@ cy_rslt_t cyhal_adc_init(cyhal_adc_t *obj, cyhal_gpio_t pin, const cyhal_clock_d
  * @param[in,out] obj The ADC object
  */
 void cyhal_adc_free(cyhal_adc_t *obj);
-
-/** \} group_hal_adc_functions */
-
-/**
-* \addtogroup group_hal_adc_channel_functions
-* \{
-*/
 
 /** Initialize a single-ended ADC channel.
  *
@@ -115,8 +115,6 @@ void cyhal_adc_channel_free(cyhal_adc_channel_t *obj);
  * @return An unsigned 16bit value representing the current input voltage
  */
 uint16_t cyhal_adc_read_u16(const cyhal_adc_channel_t *obj);
-
-/** \} group_hal_adc_channel_functions */
 
 #if defined(__cplusplus)
 }
