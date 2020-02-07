@@ -74,6 +74,9 @@ pull_request_rules:
       - "#changes-requested-reviews-by=0"
       - "#approved-reviews-by>=1"
 
+      # No conflict with the base branch
+      - -conflict
+
       # CI green policy, at least Travis should be green
       - status-success~=continuous-integration/travis-ci/pr
       # new CI needs to be done (neutral does not work, lets check if it failed or passed, if none, we need to run again)
