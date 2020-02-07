@@ -243,19 +243,8 @@ int mbedtls_sha512_finish_ret(mbedtls_sha512_context *ctx, unsigned char output[
         if (ret != SSSR_SUCCESS) {
             return ret;
         }
-
-<<<<<<< cd37b0cf8e0be356705b7c17c0871c8f3acc03fa
     }
-=======
-		//! step 3 : get hash result from SSS
-		ret = mb_hash_final(&stHASH_Input, &ctx->pstDigest);
 
-		if (ret != SSSR_SUCCESS) {
-			return ret;
-		}
-
-	}
->>>>>>> tidy up PR comments #3
     return 0;
 }
 
