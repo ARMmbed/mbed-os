@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_sysclk.h
-* \version 1.50
+* \version 1.60
 *
 * Provides an API declaration of the sysclk driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,8 +43,8 @@
 * clock system.
 *
 * The PDL defines clock system capabilities in:\n
-* devices\<family\>/<series\>/include\<series\>_config.h. (E.g.
-* devices/psoc6/include/psoc6_01_config.h).
+* devices/include/\<series\>_config.h. (E.g.
+* devices/include/psoc6_01_config.h).
 * User-configurable clock speeds are defined in the file system_<series>.h.
 *
 * As an illustration of the clocking system, the following diagram shows the
@@ -103,6 +103,15 @@
 * \section group_sysclk_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.60</td>
+*     <td>Added the following functions: \ref Cy_SysClk_ExtClkGetFrequency, \ref Cy_SysClk_EcoGetFrequency,\n
+*         \ref Cy_SysClk_ClkPathMuxGetFrequency, \ref Cy_SysClk_ClkPathGetFrequency, \ref Cy_SysClk_IloIsEnabled.\n 
+*         \ref Cy_SysClk_PiloIsEnabled, \ref Cy_SysClk_AltHfGetFrequency, \ref Cy_SysClk_ClkHfIsEnabled,\n
+*         \ref Cy_SysClk_ClkTimerIsEnabled, \ref Cy_SysClk_ClkTimerGetFrequency, \ref Cy_SysClk_ClkPumpIsEnabled and\n
+*         \ref Cy_SysClk_ClkPumpGetFrequency.</td>
+*     <td>API enhancement.</td>
+*   </tr>
 *   <tr>
 *     <td>1.50</td>
 *     <td>\ref Cy_SysClk_ClkHfGetFrequency is updated to reuse the \ref cy_BleEcoClockFreqHz global system variable.</td>
@@ -277,7 +286,7 @@
 *   - IMO: 8 MHz Internal Main Oscillator (Default)
 *   - EXTCLK: External clock (signal brought in through dedicated pins)
 *   - ECO: External Crystal Oscillator (requires external crystal on dedicated pins)
-*   - ALTHF: Select on-chip signals (e.g. BLE ECO)
+*   - ALTHF: Select on-chip signals (e.g. \ref group_ble_clk)
 *   - Digital Signal (DSI): Digital signal from a UDB source
 *
 *   Some clock paths such as path 0 and path 1 have additional resources
@@ -560,6 +569,13 @@
 *
 *   \defgroup group_sysclk_clk_slow_funcs  Functions
 * \}
+ * \defgroup group_sysclk_alt_hf Alternative High-Frequency Clock
+* \{
+*   In  the BLE-enabled PSoC6 devices, the \ref group_ble_clk clock is 
+*   connected to the system Alternative High-Frequency Clock input.
+*
+*   \defgroup group_sysclk_alt_hf_funcs    Functions
+* \}
 * \defgroup group_sysclk_clk_lf          Low-Frequency Clock
 * \{
 *   The low-frequency clock is the source clock for the \ref group_mcwdt
@@ -642,7 +658,7 @@ extern "C" {
 /** Driver major version */
 #define  CY_SYSCLK_DRV_VERSION_MAJOR   1
 /** Driver minor version */
-#define  CY_SYSCLK_DRV_VERSION_MINOR   40
+#define  CY_SYSCLK_DRV_VERSION_MINOR   60
 /** Sysclk driver identifier */
 #define CY_SYSCLK_ID   CY_PDL_DRV_ID(0x12U)
 
@@ -685,6 +701,7 @@ typedef enum
 * \{
 */
 void Cy_SysClk_ExtClkSetFrequency(uint32_t freq);
+uint32_t Cy_SysClk_ExtClkGetFrequency(void);
 /** \} group_sysclk_ext_funcs */
 
 /* ========================================================================== */
@@ -719,6 +736,7 @@ void Cy_SysClk_ExtClkSetFrequency(uint32_t freq);
 */
 cy_en_sysclk_status_t Cy_SysClk_EcoConfigure(uint32_t freq, uint32_t cLoad, uint32_t esr, uint32_t driveLevel);
 cy_en_sysclk_status_t Cy_SysClk_EcoEnable(uint32_t timeoutus);
+uint32_t Cy_SysClk_EcoGetFrequency(void);
 __STATIC_INLINE void Cy_SysClk_EcoDisable(void);
 __STATIC_INLINE uint32_t Cy_SysClk_EcoGetStatus(void);
 
@@ -802,6 +820,8 @@ typedef enum
 */
 cy_en_sysclk_status_t Cy_SysClk_ClkPathSetSource(uint32_t clkPath, cy_en_clkpath_in_sources_t source);
 cy_en_clkpath_in_sources_t Cy_SysClk_ClkPathGetSource(uint32_t clkPath);
+uint32_t Cy_SysClk_ClkPathMuxGetFrequency(uint32_t clkPath);
+uint32_t Cy_SysClk_ClkPathGetFrequency(uint32_t clkPath);
 /** \} group_sysclk_path_src_funcs */
 
 
@@ -1121,8 +1141,10 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_PllDisable(uint32_t clkPath)
 * \{
 */
 __STATIC_INLINE void Cy_SysClk_IloEnable(void);
+__STATIC_INLINE bool Cy_SysClk_IloIsEnabled(void);
 __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_IloDisable(void);
 __STATIC_INLINE void Cy_SysClk_IloHibernateOn(bool on);
+
 
 /*******************************************************************************
 * Function Name: Cy_SysClk_IloEnable
@@ -1139,6 +1161,24 @@ __STATIC_INLINE void Cy_SysClk_IloHibernateOn(bool on);
 __STATIC_INLINE void Cy_SysClk_IloEnable(void)
 {
     SRSS_CLK_ILO_CONFIG |= SRSS_CLK_ILO_CONFIG_ENABLE_Msk;
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_SysClk_IloIsEnabled
+****************************************************************************//**
+*
+* Reports the Enabled/Disabled status of the ILO.
+*
+* \return Boolean status of ILO: true - Enabled, false - Disabled.
+*
+* \funcusage
+* \snippet sysclk/snippet/main.c snippet_Cy_SysClk_IloDisable
+*
+*******************************************************************************/
+__STATIC_INLINE bool Cy_SysClk_IloIsEnabled(void)
+{
+    return (_FLD2BOOL(SRSS_CLK_ILO_CONFIG_ENABLE, SRSS_CLK_ILO_CONFIG));
 }
 
 
@@ -1204,6 +1244,7 @@ __STATIC_INLINE void Cy_SysClk_IloHibernateOn(bool on)
 * \{
 */
 __STATIC_INLINE void Cy_SysClk_PiloEnable(void);
+__STATIC_INLINE bool Cy_SysClk_PiloIsEnabled(void);
 __STATIC_INLINE void Cy_SysClk_PiloDisable(void);
 __STATIC_INLINE void Cy_SysClk_PiloSetTrim(uint32_t trimVal);
 __STATIC_INLINE uint32_t Cy_SysClk_PiloGetTrim(void);
@@ -1223,11 +1264,29 @@ __STATIC_INLINE uint32_t Cy_SysClk_PiloGetTrim(void);
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysClk_PiloEnable(void)
 {
-    SRSS_CLK_PILO_CONFIG |= _VAL2FLD(SRSS_CLK_PILO_CONFIG_PILO_EN, 1U); /* 1 = enable */
+    SRSS_CLK_PILO_CONFIG |= SRSS_CLK_PILO_CONFIG_PILO_EN_Msk; /* 1 = enable */
     Cy_SysLib_Delay(1U/*msec*/);
     /* release the reset and enable clock output */
     SRSS_CLK_PILO_CONFIG |= SRSS_CLK_PILO_CONFIG_PILO_RESET_N_Msk |
                             SRSS_CLK_PILO_CONFIG_PILO_CLK_EN_Msk;
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_SysClk_PiloIsEnabled
+****************************************************************************//**
+*
+* Reports the Enabled/Disabled status of the PILO.
+*
+* \return Boolean status of PILO: true - Enabled, false - Disabled.
+*
+* \funcusage
+* \snippet sysclk/snippet/main.c snippet_Cy_SysClk_PiloDisable
+*
+*******************************************************************************/
+__STATIC_INLINE bool Cy_SysClk_PiloIsEnabled(void)
+{
+    return (_FLD2BOOL(SRSS_CLK_PILO_CONFIG_PILO_CLK_EN, SRSS_CLK_PILO_CONFIG));
 }
 
 
@@ -1275,7 +1334,7 @@ __STATIC_INLINE void Cy_SysClk_PiloSetTrim(uint32_t trimVal)
 * Reports the current PILO trim bits value.
 *
 * \funcusage
-* Refer to the Cy_SysClk_PiloSetTrim() function usage.
+* \snippet sysclk/snippet/main.c snippet_Cy_SysClk_PiloSetTrim
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_SysClk_PiloGetTrim(void)
@@ -1283,6 +1342,53 @@ __STATIC_INLINE uint32_t Cy_SysClk_PiloGetTrim(void)
     return (_FLD2VAL(SRSS_CLK_PILO_CONFIG_PILO_FFREQ, SRSS_CLK_PILO_CONFIG));
 }
 /** \} group_sysclk_pilo_funcs */
+
+
+/* ========================================================================== */
+/* ==========================    ALTHF SECTION    =========================== */
+/* ========================================================================== */
+/**
+* \addtogroup group_sysclk_alt_hf_funcs
+* \{
+*/
+__STATIC_INLINE uint32_t Cy_SysClk_AltHfGetFrequency(void);
+
+
+/*******************************************************************************
+* Function Name: Cy_SysClk_AltHfGetFrequency
+****************************************************************************//**
+*
+* Reports the frequency of the Alternative High-Frequency Clock 
+*
+* \funcusage
+* \snippet bleclk/snippet/main.c BLE ECO clock API: Cy_BLE_EcoConfigure()
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_SysClk_AltHfGetFrequency(void)
+{
+    #if defined(CY_IP_MXBLESS)
+        return (cy_BleEcoClockFreqHz);
+    #else /* CY_IP_MXBLESS */
+        return (0UL);
+    #endif /* CY_IP_MXBLESS */
+}
+/** \} group_sysclk_alt_hf_funcs */
+
+
+/* ========================================================================== */
+/* ==========================    ALTLF SECTION    =========================== */
+/* ========================================================================== */
+/** \cond For future usage */
+__STATIC_INLINE uint32_t Cy_SysClk_AltLfGetFrequency(void)
+{
+    return (0UL);
+}
+
+__STATIC_INLINE bool Cy_SysClk_AltLfIsEnabled(void)
+{
+    return (false);
+}
+/** \endcond  */
 
 
 /* ========================================================================== */
@@ -1845,6 +1951,7 @@ typedef struct
 * \{
 */
 __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_ClkHfEnable(uint32_t clkHf);
+__STATIC_INLINE                  bool Cy_SysClk_ClkHfIsEnabled(uint32_t clkHf);
 __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_ClkHfDisable(uint32_t clkHf);
 __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_ClkHfSetSource(uint32_t clkHf, cy_en_clkhf_in_sources_t source);
 __STATIC_INLINE cy_en_clkhf_in_sources_t Cy_SysClk_ClkHfGetSource(uint32_t clkHf);
@@ -1874,6 +1981,31 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_ClkHfEnable(uint32_t clkHf)
     {
         SRSS_CLK_ROOT_SELECT[clkHf] |= SRSS_CLK_ROOT_SELECT_ENABLE_Msk;
         retVal = CY_SYSCLK_SUCCESS;
+    }
+    return (retVal);
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_SysClk_ClkHfIsEnabled
+****************************************************************************//**
+*
+* Reports the Enabled/Disabled status of clkHf.
+*
+* \param clkHf Selects which clkHf to check.
+*
+* \return Boolean status of clkHf: true - Enabled, false - Disabled.
+*
+* \funcusage
+* \snippet sysclk/snippet/main.c snippet_Cy_SysClk_ClkHfDisable
+*
+*******************************************************************************/
+__STATIC_INLINE bool Cy_SysClk_ClkHfIsEnabled(uint32_t clkHf)
+{
+    bool retVal = false;
+    if (clkHf < CY_SRSS_NUM_HFROOT)
+    {
+        retVal = _FLD2BOOL(SRSS_CLK_ROOT_SELECT_ENABLE, SRSS_CLK_ROOT_SELECT[clkHf]);
     }
     return (retVal);
 }
@@ -2853,7 +2985,9 @@ __STATIC_INLINE cy_en_clktimer_in_sources_t Cy_SysClk_ClkTimerGetSource(void);
 __STATIC_INLINE void Cy_SysClk_ClkTimerSetDivider(uint8_t divider);
 __STATIC_INLINE uint8_t Cy_SysClk_ClkTimerGetDivider(void);
 __STATIC_INLINE void Cy_SysClk_ClkTimerEnable(void);
+__STATIC_INLINE bool Cy_SysClk_ClkTimerIsEnabled(void);
 __STATIC_INLINE void Cy_SysClk_ClkTimerDisable(void);
+            uint32_t Cy_SysClk_ClkTimerGetFrequency(void);
 
 /*******************************************************************************
 * Function Name: Cy_SysClk_ClkTimerSetSource
@@ -2954,6 +3088,24 @@ __STATIC_INLINE void Cy_SysClk_ClkTimerEnable(void)
 
 
 /*******************************************************************************
+* Function Name: Cy_SysClk_ClkTimerIsEnabled
+****************************************************************************//**
+*
+* Reports the Enabled/Disabled status of the Timer.
+*
+* \return Boolean status of Timer: true - Enabled, false - Disabled.
+*
+* \funcusage
+* \snippet sysclk/snippet/main.c snippet_Cy_SysClk_ClkTimerDisable
+*
+*******************************************************************************/
+__STATIC_INLINE bool Cy_SysClk_ClkTimerIsEnabled(void)
+{
+    return (_FLD2BOOL(SRSS_CLK_TIMER_CTL_ENABLE, SRSS_CLK_TIMER_CTL));
+}
+
+
+/*******************************************************************************
 * Function Name: Cy_SysClk_ClkTimerDisable
 ****************************************************************************//**
 *
@@ -2984,22 +3136,22 @@ __STATIC_INLINE void Cy_SysClk_ClkTimerDisable(void)
 */
 typedef enum
 {
-    CY_SYSCLK_PUMP_IN_CLKPATH0,  /**< Pump clock input is clock path 0 */
-    CY_SYSCLK_PUMP_IN_CLKPATH1,  /**< Pump clock input is clock path 1 */
-    CY_SYSCLK_PUMP_IN_CLKPATH2,  /**< Pump clock input is clock path 2 */
-    CY_SYSCLK_PUMP_IN_CLKPATH3,  /**< Pump clock input is clock path 3 */
-    CY_SYSCLK_PUMP_IN_CLKPATH4,  /**< Pump clock input is clock path 4 */
-    CY_SYSCLK_PUMP_IN_CLKPATH5,  /**< Pump clock input is clock path 5 */
-    CY_SYSCLK_PUMP_IN_CLKPATH6,  /**< Pump clock input is clock path 6 */
-    CY_SYSCLK_PUMP_IN_CLKPATH7,  /**< Pump clock input is clock path 7 */
-    CY_SYSCLK_PUMP_IN_CLKPATH8,  /**< Pump clock input is clock path 8 */
-    CY_SYSCLK_PUMP_IN_CLKPATH9,  /**< Pump clock input is clock path 9 */
-    CY_SYSCLK_PUMP_IN_CLKPATH10, /**< Pump clock input is clock path 10 */
-    CY_SYSCLK_PUMP_IN_CLKPATH11, /**< Pump clock input is clock path 11 */
-    CY_SYSCLK_PUMP_IN_CLKPATH12, /**< Pump clock input is clock path 12 */
-    CY_SYSCLK_PUMP_IN_CLKPATH13, /**< Pump clock input is clock path 13 */
-    CY_SYSCLK_PUMP_IN_CLKPATH14, /**< Pump clock input is clock path 14 */
-    CY_SYSCLK_PUMP_IN_CLKPATH15  /**< Pump clock input is clock path 15 */
+    CY_SYSCLK_PUMP_IN_CLKPATH0  = 0UL,  /**< Pump clock input is clock path 0 */
+    CY_SYSCLK_PUMP_IN_CLKPATH1  = 1UL,  /**< Pump clock input is clock path 1 */
+    CY_SYSCLK_PUMP_IN_CLKPATH2  = 2UL,  /**< Pump clock input is clock path 2 */
+    CY_SYSCLK_PUMP_IN_CLKPATH3  = 3UL,  /**< Pump clock input is clock path 3 */
+    CY_SYSCLK_PUMP_IN_CLKPATH4  = 4UL,  /**< Pump clock input is clock path 4 */
+    CY_SYSCLK_PUMP_IN_CLKPATH5  = 5UL,  /**< Pump clock input is clock path 5 */
+    CY_SYSCLK_PUMP_IN_CLKPATH6  = 6UL,  /**< Pump clock input is clock path 6 */
+    CY_SYSCLK_PUMP_IN_CLKPATH7  = 7UL,  /**< Pump clock input is clock path 7 */
+    CY_SYSCLK_PUMP_IN_CLKPATH8  = 8UL,  /**< Pump clock input is clock path 8 */
+    CY_SYSCLK_PUMP_IN_CLKPATH9  = 9UL,  /**< Pump clock input is clock path 9 */
+    CY_SYSCLK_PUMP_IN_CLKPATH10 = 10UL, /**< Pump clock input is clock path 10 */
+    CY_SYSCLK_PUMP_IN_CLKPATH11 = 11UL, /**< Pump clock input is clock path 11 */
+    CY_SYSCLK_PUMP_IN_CLKPATH12 = 12UL, /**< Pump clock input is clock path 12 */
+    CY_SYSCLK_PUMP_IN_CLKPATH13 = 13UL, /**< Pump clock input is clock path 13 */
+    CY_SYSCLK_PUMP_IN_CLKPATH14 = 14UL, /**< Pump clock input is clock path 14 */
+    CY_SYSCLK_PUMP_IN_CLKPATH15 = 15UL  /**< Pump clock input is clock path 15 */
 } cy_en_clkpump_in_sources_t;
 
 
@@ -3035,7 +3187,9 @@ __STATIC_INLINE cy_en_clkpump_in_sources_t Cy_SysClk_ClkPumpGetSource(void);
 __STATIC_INLINE void Cy_SysClk_ClkPumpSetDivider(cy_en_clkpump_divide_t divider);
 __STATIC_INLINE cy_en_clkpump_divide_t Cy_SysClk_ClkPumpGetDivider(void);
 __STATIC_INLINE void Cy_SysClk_ClkPumpEnable(void);
+__STATIC_INLINE bool Cy_SysClk_ClkPumpIsEnabled(void);
 __STATIC_INLINE void Cy_SysClk_ClkPumpDisable(void);
+__STATIC_INLINE uint32_t Cy_SysClk_ClkPumpGetFrequency(void);
 
 
 /*******************************************************************************
@@ -3137,6 +3291,24 @@ __STATIC_INLINE void Cy_SysClk_ClkPumpEnable(void)
 
 
 /*******************************************************************************
+* Function Name: Cy_SysClk_ClkPumpIsEnabled
+****************************************************************************//**
+*
+* Reports the Enabled/Disabled status of the ClkPump.
+*
+* \return Boolean status of ClkPump: true - Enabled, false - Disabled.
+*
+* \funcusage
+* \snippet sysclk/snippet/main.c snippet_Cy_SysClk_ClkPumpDisable
+*
+*******************************************************************************/
+__STATIC_INLINE bool Cy_SysClk_ClkPumpIsEnabled(void)
+{
+    return (_FLD2BOOL(SRSS_CLK_SELECT_PUMP_ENABLE, SRSS_CLK_SELECT));
+}
+
+
+/*******************************************************************************
 * Function Name: Cy_SysClk_ClkPumpDisable
 ****************************************************************************//**
 *
@@ -3149,6 +3321,26 @@ __STATIC_INLINE void Cy_SysClk_ClkPumpEnable(void)
 __STATIC_INLINE void Cy_SysClk_ClkPumpDisable(void)
 {
     SRSS_CLK_SELECT &= ~SRSS_CLK_SELECT_PUMP_ENABLE_Msk;
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_SysClk_ClkPumpGetFrequency
+****************************************************************************//**
+*
+* Reports the frequency of the pump clock (clk_pump).
+* \note If the the pump clock is not enabled - a zero frequency is reported.
+*
+* \funcusage
+* \snippet sysclk/snippet/main.c snippet_Cy_SysClk_ClkPumpEnable
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t Cy_SysClk_ClkPumpGetFrequency(void)
+{
+    /* Divide the input frequency down and return the result */
+    return (Cy_SysClk_ClkPumpIsEnabled() ?
+            (Cy_SysClk_ClkPathGetFrequency((uint32_t)Cy_SysClk_ClkPumpGetSource()) /
+             (1UL << (uint32_t)Cy_SysClk_ClkPumpGetDivider())) : 0UL);
 }
 /** \} group_sysclk_clk_pump_funcs */
 

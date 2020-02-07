@@ -3,14 +3,14 @@
 
 <!--****************************************************************************
 * \file canfd.cypersonality
-* \version 1.0
+* \version 1.0.1
 *
 * \brief
 * CAN FD personality description file.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -146,6 +146,7 @@
           <Entry name="Classic Filter: SFID1 = Filter, SFID2 = Mask"  value="CY_CANFD_SFT_CLASSIC_FILTER" visible="true" />
           <Entry name="Filter Element Disabled"                       value="CY_CANFD_SFT_DISABLED" visible="true" />
         </ParamChoice>
+        <ParamString id="sftSidFilterVal$idx" name="Standard Filter Type" group="Standard ID Filter Element#$idx" default="`${sfecSidFilter$idx ne CY_CANFD_SFEC_STORE_RX_BUFFER ? sftSidFilter$idx : CY_CANFD_SFT_CLASSIC_FILTER}`" visible="false" editable="false" desc="Standard Filter Type." />
         <ParamRange id="sfid1_SidFilter$idx" name="SFID1" group="Standard ID Filter Element#$idx" default="0" min="0" max="2047" resolution="1" visible="`${numberOfSIDFilters &gt; $idx}`" editable="true" desc="First ID of standard ID filter element. When filtering for Rx Buffers or for debug messages this field defines the ID of a standard message to be stored. The received identifiers must match exactly, no masking mechanism is used." />
         <ParamRange id="sfid2_SidFilter$idx" name="SFID2" group="Standard ID Filter Element#$idx" default="0" min="0" max="2047" resolution="1" visible="`${(numberOfSIDFilters &gt; $idx) &amp;&amp; (sfecSidFilter$idx ne CY_CANFD_SFEC_STORE_RX_BUFFER) }`" editable="true" desc="Second ID of standard ID filter element." />
         <ParamChoice id="sfid2_10_9_SidFilter$idx" name="Store the Received Message" group="Standard ID Filter Element#$idx" default="0" visible="`${(numberOfSIDFilters &gt; $idx) &amp;&amp; (sfecSidFilter$idx eq CY_CANFD_SFEC_STORE_RX_BUFFER) }`" editable="true" desc="Decides whether the received message is stored into an Rx Buffer or treated as message A, B, or C of the debug message sequence.">
@@ -157,6 +158,8 @@
         <ParamRange id="sfid2_5_0_SidFilter$idx" name="RX Buffer Element" group="Standard ID Filter Element#$idx" default="0" min="0" max="63" resolution="1" visible="`${(numberOfSIDFilters &gt; $idx) &amp;&amp; (sfecSidFilter$idx eq CY_CANFD_SFEC_STORE_RX_BUFFER) }`" editable="true" desc="The offset to the Rx Buffer Start Address RXBC.RBSA for storage of a matching message." />
     </Repeat>
     
+
+
     <!-- Extended ID Filter Setting -->
     <ParamRange id="numberOfEXTIDFilters" name="Number of XID Filters" group="Extended ID Filter Setting" default="1" min="0" max="64" resolution="1" visible="true" editable="true" desc="Number of Extended Message ID Filters." />
     
@@ -378,7 +381,7 @@ treated.">
                                       ((sfid2_10_9_SidFilter$idx &lt;&lt; 9U) | sfid2_5_0_SidFilter$idx)}`U, \&#xA;
    .sfid1 = `${sfid1_SidFilter$idx}`U, \&#xA;
    .sfec = `${sfecSidFilter$idx}`, \&#xA;
-   .sft = `${sftSidFilter$idx}`, \&#xA;
+   .sft = `${sftSidFilterVal$idx}`, \&#xA;
 }" />
     <ConfigDefine name="EXT_ID_FILTER_$idx" public="false" 
     include="`${numberOfEXTIDFilters &gt; $idx}`" repeatCount="64" value="\&#xA;{\&#xA;
@@ -419,7 +422,7 @@ treated.">
                                       ((sfid2_10_9_SidFilter$idx &lt;&lt; 9U) | sfid2_5_0_SidFilter$idx)}`U" />
       <Member name="sfid1" value="`${sfid1_SidFilter$idx}`U" />
       <Member name="sfec" value="`${sfecSidFilter$idx}`" />
-      <Member name="sft" value="`${sftSidFilter$idx}`" />
+      <Member name="sft" value="`${sftSidFilterVal$idx}`" />
     </ConfigStruct>
     
     <ConfigStruct name="`${INST_NAME . &quot;_stdIdFilters&quot;}`" type="cy_stc_id_filter_t"  isArray="true" const="`${inFlash}`" public="false" include="true">

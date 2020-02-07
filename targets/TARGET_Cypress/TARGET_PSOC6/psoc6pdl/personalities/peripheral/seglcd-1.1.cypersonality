@@ -3,14 +3,14 @@
 
 <!--****************************************************************************
 * \file seglcd.cypersonality
-* \version 1.1
+* \version 1.1.1
 *
 * \brief
 * LCD personality description file.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2019 Cypress Semiconductor Corporation
+* Copyright 2019-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -114,6 +114,7 @@
               <Fixed value="CY_GPIO_DRIVE_1_8" />
             </Parameter>
           </Constraint>
+          <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
         </ParamSignal>
     </Repeat>
 
@@ -127,10 +128,11 @@
               <Fixed value="CY_GPIO_DRIVE_1_8" />
             </Parameter>
           </Constraint>
+          <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
         </ParamSignal>
     </Repeat>
 
-    <ParamString id="clkLf" name="clkLs" group="Internal" default="srss[0].clock[0].ilo[0]" visible="false" editable="false" desc="" />
+    <ParamString id="clkLf" name="clkLf" group="Internal" default="srss[0].clock[0].lfclk[0]" visible="false" editable="false" desc="" />
     <ParamString id="clkMf" name="clkMf" group="Internal" default="srss[0].clock[0].mfclk[0]" visible="false" editable="false" desc="" />
     <ParamString id="clkHsRsc" name="clkHsRsc" group="Internal" default="`${getBlockFromSignal(&quot;clock[0]&quot;)}`" visible="false" editable="false" desc="" />
     <ParamString id="clkLsRsc" name="clkLsRsc" group="Internal" default="`${(lsClk eq CY_SEGLCD_LSCLK_MF) ? clkMf : clkLf}`" visible="false" editable="false" desc="" />
@@ -156,7 +158,7 @@
     <DRC type="ERROR" text="The Sub-Frame Divider should not exceed 8-bit in Low Speed Mode, please decrease the input clock frequency or increase the contrast or frame rate or number of common lines using SegLCD Configurator" condition="`${(subfrDiv &gt; 255) &amp;&amp; (speed eq CY_SEGLCD_SPEED_LOW) &amp;&amp; ipver1}`" />
     <DRC type="ERROR" text="The Dead Divider should not exceed 8-bit in Low Speed Mode, please decrease the contrast or input clock frequency or increase the frame rate" condition="`${(deadDiv &gt; 255) &amp;&amp; (speed eq CY_SEGLCD_SPEED_LOW) &amp;&amp; ipver1}`" />
     
-    <DRC type="ERROR" text="The Low Frequency Clock Source (typically ILO) should be enabled" condition="`${(speed eq CY_SEGLCD_SPEED_LOW) &amp;&amp; (lsClk eq CY_SEGLCD_LSCLK_LF) &amp;&amp; !isBlockUsed(clkLf)}`" />
+    <DRC type="ERROR" text="The Low Frequency Clock Source (CLK_LF) should be enabled" condition="`${(speed eq CY_SEGLCD_SPEED_LOW) &amp;&amp; (lsClk eq CY_SEGLCD_LSCLK_LF) &amp;&amp; !isBlockUsed(clkLf)}`" />
     <DRC type="ERROR" text="The Meduim Frequency Clock Source (typically CLK_MF) should be enabled" condition="`${(speed eq CY_SEGLCD_SPEED_LOW) &amp;&amp; (lsClk eq CY_SEGLCD_LSCLK_MF) &amp;&amp; !isBlockUsed(clkMf)}`" />
     
     <DRC type="INFO" text="Launch the SegLCD Configurator to configure your displays" condition="`${!configured}`" />

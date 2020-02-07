@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_efuse.h
-* \version 1.10.1
+* \version 1.10.2
 *
 * Provides the API declarations of the eFuse driver.
 *
@@ -84,6 +84,11 @@
 * \section group_efuse_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.10.2</td>
+*     <td>Fix driver header path.</td>
+*     <td>Folder structure changed.</td>
+*   </tr>
 *   <tr>
 *     <td>1.10.1</td>
 *     <td>Added header guard CY_IP_MXEFUSE.</td>

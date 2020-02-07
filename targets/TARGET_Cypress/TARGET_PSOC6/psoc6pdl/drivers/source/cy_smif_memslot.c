@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_smif_memslot.c
-* \version 1.40.1
+* \version 1.50
 *
 * \brief
 *  This file provides the source code for the memory-level APIs of the SMIF driver.
@@ -66,10 +66,15 @@ extern "C" {
 #define INSTRUCTION_NOT_SUPPORTED   (0XFFU)  /* The code for the not supported instruction */
 #define BASIC_SPI_ID_LSB            (0X00UL) /* The JEDEC SFDP Basic SPI Flash Parameter ID LSB */
 #define BASIC_SPI_ID_MSB            (0XFFUL) /* The JEDEC SFDP Basic SPI Flash Parameter ID MSB */
+#define SECTOR_MAP_ID_LSB            (0x81UL) /* The JEDEC SFDP Sector Map ID LSB */
+#define SECTOR_MAP_ID_MSB            (0xFFUL) /* The JEDEC SFDP Sector Map ID MSB */
+#define SECTOR_MAP_DESCRIPTOR_MASK   (0x2U)  /* The mask for the type bit of the Sector Map descriptor */
+#define SECTOR_MAP_COMAND_DESCRIPTOR_TYPE (0U) /* Code for the command descriptor type */
+#define SECTOR_MAP_REGION_SIZE_MULTIPLIER (256UL) /* The multiplier for region size units */
 #define FOUR_BYTE_ADDR_ID_LSB       (0X84UL) /* The 4-byte Address Instruction Table is assigned the ID LSB of 84h */
 #define FOUR_BYTE_ADDR_ID_MSB       (0XFFUL) /* The 4-byte Address Instruction Table is assigned the ID MSB of FFh */
-#define FOUR_BYTE_ADDR_ERASE_TYPE_1 (0X4UL) /* The Erase Type 1 offset in 4-byte Address Instruction Table */
-#define FOUR_BYTE_ADDR_ERASE_TYPE_4 (0X7UL) /* The Erase Type 4 offset in 4-byte Address Instruction Table */
+#define FOUR_BYTE_ADDR_ERASE_TYPE_1 (0X4UL)  /* The Erase Type 1 offset in 4-byte Address Instruction Table */
+#define FOUR_BYTE_ADDR_ERASE_TYPE_4 (0X7UL)  /* The Erase Type 4 offset in 4-byte Address Instruction Table */
 #define ERASE_T_COUNT_Pos           (0UL)    /* Erase Type X Erase, Typical time: count (Bits 4:0) */
 #define ERASE_T_COUNT_Msk           (0x1FUL) /* Erase Type X Erase, Typical time: count (Bitfield-Mask) */
 #define ERASE_T_UNITS_Pos           (5UL)    /* Erase Type X Erase, Typical time: units (Bits 6:5) */
@@ -179,6 +184,21 @@ typedef enum
 
 
 /***************************************
+*     Internal Structures
+***************************************/
+
+/**
+* This internal structure is used to store data for erase types.
+*/
+typedef struct
+{
+    uint8_t eraseCmd;  /**< The instruction used for erase transaction*/
+    uint32_t eraseSize;    /**< The number of bytes to be erased at one erase transaction*/
+    uint32_t eraseTime;    /**< The maximum erase time for one erase transaction */
+} cy_stc_smif_erase_type_t;
+
+
+/***************************************
 *     Internal Function Prototypes
 ***************************************/
 static void XipRegInit(SMIF_DEVICE_Type volatile *dev,
@@ -214,7 +234,7 @@ static void SfdpGetReadFourBytesCmd(uint8_t const sfdpBuffer[],
                                     cy_en_smif_protocol_mode_t protocolMode, 
                                     cy_stc_smif_mem_cmd_t* cmdRead);                                
 static uint32_t SfdpGetPageSize(uint8_t const sfdpBuffer[]);
-static uint32_t SfdpGetEraseTime(uint32_t const eraseOffset, uint8_t const sfdpBuffer[]);
+static uint32_t SfdpGetEraseTime(uint32_t const eraseOffset, uint8_t const sfdpBuffer[], cy_stc_smif_erase_type_t eraseType[]);
 static uint32_t SfdpGetChipEraseTime(uint8_t const sfdpBuffer[]);
 static uint32_t SfdpGetPageProgramTime(uint8_t const sfdpBuffer[]);
 static void SfdpSetWriteEnableCommand(cy_stc_smif_mem_cmd_t* cmdWriteEnable);
@@ -230,11 +250,25 @@ static void SfdpGetQuadEnableParameters(cy_stc_smif_mem_device_cfg_t *device,
                                     uint8_t const sfdpBuffer[]);
 static void SfdpSetChipEraseCommand(cy_stc_smif_mem_cmd_t* cmdChipErase);
 static uint32_t SfdpGetSectorEraseCommand(cy_stc_smif_mem_device_cfg_t *device, 
-                                          uint8_t const sfdpBuffer[]);
+                                          uint8_t const sfdpBuffer[],
+                                          cy_stc_smif_erase_type_t eraseTypeStc[]);
+static cy_en_smif_status_t ReadAnyReg(SMIF_Type *base, cy_en_smif_slave_select_t slaveSelect,
+                                          uint8_t *value, uint8_t command, uint8_t const *address,
+                                          uint32_t addressSize, cy_stc_smif_context_t const *context);
+static cy_en_smif_status_t SfdpEnterFourByteAddressing(SMIF_Type *base, uint8_t entryMethodByte, 
+                                                              cy_stc_smif_mem_device_cfg_t *device,
+                                                              cy_en_smif_slave_select_t slaveSelect,
+                                                              cy_stc_smif_context_t const *context);
+static void SfdpGetEraseSizeAndCmd(uint8_t const sfdpBuffer[], cy_stc_smif_erase_type_t eraseType[]);
+static cy_en_smif_status_t SfdpPopulateRegionInfo(SMIF_Type *base, uint8_t const sectorMapBuff[],
+                                   uint32_t const buffLength, cy_stc_smif_mem_device_cfg_t *device,
+                                    cy_en_smif_slave_select_t slaveSelect, const cy_stc_smif_context_t *context,
+                                    cy_stc_smif_erase_type_t eraseType[]);
 static void SfdpSetWipStatusRegisterCommand(cy_stc_smif_mem_cmd_t* readStsRegWipCmd);
 static cy_en_smif_status_t PollTransferStatus(SMIF_Type const *base, cy_en_smif_txfr_status_t transferStatus,
                                               cy_stc_smif_context_t const *context);
 static void ValueToByteArray(uint32_t value, uint8_t *byteArray, uint32_t startPos, uint32_t size);
+static uint32_t ByteArrayToValue(uint8_t const *byteArray, uint32_t size);
 
 /*******************************************************************************
 * Function Name: Cy_SMIF_MemInit
@@ -269,7 +303,10 @@ static void ValueToByteArray(uint32_t value, uint8_t *byteArray, uint32_t startP
 * mapped into the PSoC memory map. \ref cy_stc_smif_mem_config_t
 *
 * \param context
-* The SMIF internal context structure of the block.
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
 *
 * \return The memory slot initialization status.
 *       - \ref CY_SMIF_SUCCESS
@@ -496,7 +533,10 @@ void Cy_SMIF_MemDeInit(SMIF_Type *base)
 * The device to which the command is sent.
 *
 * \param context
-* The internal SMIF context data. \ref cy_stc_smif_context_t
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
 *
 * \return A status of the command transmission.
 *       - \ref CY_SMIF_SUCCESS
@@ -523,7 +563,7 @@ cy_en_smif_status_t Cy_SMIF_MemCmdWriteEnable(SMIF_Type *base,
                                         memDevice->slaveSelect,
                                         CY_SMIF_TX_LAST_BYTE,
                                         context);
-    }  
+    }
 
     return result;
 }
@@ -546,7 +586,10 @@ cy_en_smif_status_t Cy_SMIF_MemCmdWriteEnable(SMIF_Type *base,
 * The device to which the command is sent.
 *
 * \param context
-* The internal SMIF context data. \ref cy_stc_smif_context_t
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
 *
 * \return A status of the command transmission.
 *       - \ref CY_SMIF_SUCCESS
@@ -597,7 +640,10 @@ cy_en_smif_status_t Cy_SMIF_MemCmdWriteDisable(SMIF_Type *base,
 *  The device to which the command is sent.
 *
 * \param context
-* The internal SMIF context data.
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
 *
 * \return A status of the memory device.
 *       - True - The device is busy or a timeout occurs.
@@ -647,7 +693,10 @@ bool Cy_SMIF_MemIsBusy(SMIF_Type *base, cy_stc_smif_mem_config_t const *memDevic
 * The device to which the command is sent.
 *
 * \param context
-* The internal SMIF context data.
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
 *
 * \return A status of the command.
 *   - \ref CY_SMIF_SUCCESS
@@ -750,7 +799,10 @@ cy_en_smif_status_t Cy_SMIF_MemQuadEnable(SMIF_Type *base,
 * The command required to read the status/configuration register.
 *
 * \param context
-* The internal SMIF context data.
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
 *
 * \return A status of the command reception.
 *       - \ref CY_SMIF_SUCCESS
@@ -809,7 +861,10 @@ cy_en_smif_status_t Cy_SMIF_MemCmdReadStatus(SMIF_Type *base,
 * The command to write into the status/configuration register.
 *
 * \param context
-* The internal SMIF context data. \ref cy_stc_smif_context_t              
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
 *
 * \return A status of the command transmission.
 *       - \ref CY_SMIF_SUCCESS
@@ -863,7 +918,10 @@ cy_en_smif_status_t Cy_SMIF_MemCmdWriteStatus(SMIF_Type *base,
 * The device to which the command is sent
 *
 * \param context
-* The internal SMIF context data. \ref cy_stc_smif_context_t
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
 *
 * \return A status of the command transmission.
 *       - \ref CY_SMIF_SUCCESS
@@ -911,7 +969,10 @@ cy_en_smif_status_t Cy_SMIF_MemCmdChipErase(SMIF_Type *base,
 * The sector address to erase.
 *
 * \param context
-* The internal SMIF context data. \ref cy_stc_smif_context_t
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
 *
 * \return A status of the command transmission.
 *       - \ref CY_SMIF_SUCCESS
@@ -927,15 +988,21 @@ cy_en_smif_status_t Cy_SMIF_MemCmdSectorErase(SMIF_Type *base,
 {
     cy_en_smif_status_t result = CY_SMIF_BAD_PARAM;
 
+    CY_ASSERT_L1(NULL != memDevice);
+
     if (NULL != sectorAddr)
     {
-
         cy_stc_smif_mem_device_cfg_t *device = memDevice->deviceCfg;
         cy_stc_smif_mem_cmd_t *cmdErase = device->eraseCmd;
-        
-        if ((NULL != cmdErase) && (CY_SMIF_WIDTH_NA != cmdErase->cmdWidth))
+        cy_stc_smif_hybrid_region_info_t* hybrInfo = NULL;
+
+        result = Cy_SMIF_MemLocateHybridRegion(memDevice, &hybrInfo,
+                ByteArrayToValue(sectorAddr, device->numOfAddrBytes));
+
+        if ((NULL != cmdErase) && (CY_SMIF_WIDTH_NA != cmdErase->cmdWidth) && (result != CY_SMIF_BAD_PARAM))
         {
-            result = Cy_SMIF_TransmitCommand( base, (uint8_t)cmdErase->command,
+            uint8_t eraseCommand = (uint8_t)((result == CY_SMIF_SUCCESS) ? (hybrInfo->eraseCmd) : (cmdErase->command));
+            result = Cy_SMIF_TransmitCommand( base, eraseCommand,
                     cmdErase->cmdWidth, sectorAddr, device->numOfAddrBytes,
                     cmdErase->cmdWidth, memDevice->slaveSelect,
                     CY_SMIF_TX_LAST_BYTE, context);
@@ -987,7 +1054,10 @@ cy_en_smif_status_t Cy_SMIF_MemCmdSectorErase(SMIF_Type *base,
 * as no callback.
 *
 * \param context
-* The internal SMIF context data.
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
 *
 * \return A status of a transmission.
 *       - \ref CY_SMIF_SUCCESS
@@ -1092,7 +1162,10 @@ cy_en_smif_status_t Cy_SMIF_MemCmdProgram(SMIF_Type *base,
 * as no callback.
 *
 * \param context
-* The internal SMIF context data.
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
 *
 * \return A status of the transmission.
 *       - \ref CY_SMIF_SUCCESS
@@ -1161,6 +1234,72 @@ cy_en_smif_status_t Cy_SMIF_MemCmdRead(SMIF_Type *base,
 
 
 /*******************************************************************************
+* Function Name: Cy_SMIF_MemLocateHybridRegion
+****************************************************************************//**
+*
+* This function locates the region structure by the address which belongs to it.
+*
+* \note This function is valid for the memories with hybrid sectors.
+*
+* \param memDevice
+* The memory device configuration.
+*
+* \param regionInfo
+* Places a hybrid region configuration structure that contains the region 
+* specific parameters. See \ref cy_stc_smif_hybrid_region_info_t for
+* reference.
+*
+* \param address
+* The address for which a region is searched.
+*
+* \return A status of the region location.
+*       - \ref CY_SMIF_SUCCESS
+*       - \ref CY_SMIF_NOT_HYBRID_MEM
+*       - \ref CY_SMIF_BAD_PARAM
+*
+* \funcusage 
+* \snippet smif/snippet/main.c snippet_Cy_SMIF_MemLocateHybridRegion
+*
+*******************************************************************************/
+cy_en_smif_status_t Cy_SMIF_MemLocateHybridRegion(cy_stc_smif_mem_config_t const *memDevice,
+                                               cy_stc_smif_hybrid_region_info_t** regionInfo,
+                                               uint32_t address)
+{
+    cy_en_smif_status_t result = CY_SMIF_BAD_PARAM;
+    cy_stc_smif_hybrid_region_info_t* currInfo = NULL;
+    CY_ASSERT_L1(NULL != memDevice);
+    cy_stc_smif_mem_device_cfg_t *device = memDevice->deviceCfg;
+
+    /* Check if the address exceeds the memory size */
+    if(address <= device->memSize)
+    {
+        result = CY_SMIF_NOT_HYBRID_MEM;
+        /* Check if the memory is hybrid */
+        if(NULL != device->hybridRegionInfo)
+        {
+            uint32_t idx;
+            uint32_t regionStartAddr;
+            uint32_t regionEndAddr;
+            for(idx = 0UL; idx < device->hybridRegionCount; idx++)
+            {
+                currInfo = device->hybridRegionInfo[idx];
+                regionStartAddr = currInfo->regionAddress;
+                regionEndAddr = regionStartAddr + (currInfo->sectorsCount * currInfo->eraseSize);
+                if ((address >= regionStartAddr) && (address < regionEndAddr))
+                {
+                    *regionInfo = currInfo;
+                    result = CY_SMIF_SUCCESS;
+                    break;
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+
+/*******************************************************************************
 * Function Name: SfdpReadBuffer
 ****************************************************************************//**
 *
@@ -1192,7 +1331,10 @@ cy_en_smif_status_t Cy_SMIF_MemCmdRead(SMIF_Type *base,
 * The pointer to an array with the SDFP buffer.
 *
 * \param context
-* Internal SMIF context data.
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
 *
 * \return A status of the transmission.
 *       - \ref CY_SMIF_SUCCESS
@@ -1828,48 +1970,53 @@ static uint32_t SfdpGetPageSize(uint8_t const sfdpBuffer[])
 * \param sfdpBuffer
 * The pointer to an array with the SDFP buffer.
 *
-* \return Erase time in us.
+* \param eraseTypeTime
+* The pointer to an array with the erase time in us for different erase types.
+*
+* \return Default erase time in us.
 *
 *******************************************************************************/
-static uint32_t SfdpGetEraseTime(uint32_t const eraseOffset, uint8_t const sfdpBuffer[])
+static uint32_t SfdpGetEraseTime(uint32_t const eraseOffset, uint8_t const sfdpBuffer[], cy_stc_smif_erase_type_t eraseType[])
 {
     /* Get the value of 10th DWORD from the JEDEC basic flash parameter table */
     uint32_t readEraseTime = ((uint32_t*)sfdpBuffer)[CY_SMIF_JEDEC_BFPT_10TH_DWORD];
 
-    uint32_t eraseTimeMax;
-    uint32_t eraseTimeIndex = (((eraseOffset - CY_SMIF_SFDP_BFPT_BYTE_1D) + TYPE_STEP) / TYPE_STEP);
-    uint32_t eraseUnits = _FLD2VAL(ERASE_T_UNITS, 
-                          (readEraseTime >> ((eraseTimeIndex - 1UL) * ERASE_T_LENGTH))
-                           >> ERASE_T_COUNT_OFFSET);
-    uint32_t eraseCount = _FLD2VAL(ERASE_T_COUNT, 
-                          (readEraseTime >> ((eraseTimeIndex - 1UL) * ERASE_T_LENGTH)) 
-                          >> ERASE_T_COUNT_OFFSET);
+    uint32_t eraseTimeDefaultIndex = (((eraseOffset - CY_SMIF_SFDP_BFPT_BYTE_1D) + TYPE_STEP) / TYPE_STEP);
     uint32_t eraseMul = _FLD2VAL(CY_SMIF_SFDP_ERASE_MUL_COUNT, readEraseTime);
+    uint32_t eraseUnits = 0UL;
+    uint32_t eraseCount = 0UL;
     uint32_t eraseMs = 0UL;
+    uint32_t eraseTypeTypicalTime;
 
-    switch (eraseUnits)
-    {
-        case CY_SMIF_SFDP_UNIT_0:
-            eraseMs = CY_SMIF_SFDP_ERASE_TIME_1MS;
-            break;
-        case CY_SMIF_SFDP_UNIT_1:
-            eraseMs = CY_SMIF_SFDP_ERASE_TIME_16MS;
-            break;
-        case CY_SMIF_SFDP_UNIT_2:
-            eraseMs = CY_SMIF_SFDP_ERASE_TIME_128MS;
-            break;
-        case CY_SMIF_SFDP_UNIT_3:
-            eraseMs = CY_SMIF_SFDP_ERASE_TIME_1S;
-            break;
-        default:
-            /* An unsupported SFDP value */
-            break;
+    for (uint32_t idx = 0UL; idx < ERASE_TYPE_COUNT; idx++){
+        eraseTypeTypicalTime = (readEraseTime >> (idx * ERASE_T_LENGTH))>> ERASE_T_COUNT_OFFSET;
+        eraseUnits = _FLD2VAL(ERASE_T_UNITS, eraseTypeTypicalTime);
+        eraseCount = _FLD2VAL(ERASE_T_COUNT, eraseTypeTypicalTime);
+
+        switch (eraseUnits)
+        {
+            case CY_SMIF_SFDP_UNIT_0:
+                eraseMs = CY_SMIF_SFDP_ERASE_TIME_1MS;
+                break;
+            case CY_SMIF_SFDP_UNIT_1:
+                eraseMs = CY_SMIF_SFDP_ERASE_TIME_16MS;
+                break;
+            case CY_SMIF_SFDP_UNIT_2:
+                eraseMs = CY_SMIF_SFDP_ERASE_TIME_128MS;
+                break;
+            case CY_SMIF_SFDP_UNIT_3:
+                eraseMs = CY_SMIF_SFDP_ERASE_TIME_1S;
+                break;
+            default:
+                /* An unsupported SFDP value */
+                break;
+        }
+
+        /* Convert typical time to max time */
+        eraseType[idx].eraseTime = ((eraseCount + 1UL) * eraseMs) * (2UL * (eraseMul + 1UL));
     }
 
-    /* Convert typical time to max time */
-    eraseTimeMax = ((eraseCount + 1UL) * eraseMs) * (2UL * (eraseMul + 1UL));
-                
-    return(eraseTimeMax);
+    return(eraseType[eraseTimeDefaultIndex - 1UL].eraseTime);
 }
 
 
@@ -2328,12 +2475,16 @@ static void SfdpSetChipEraseCommand(cy_stc_smif_mem_cmd_t* cmdChipErase)
 * \param sfdpBuffer
 * The pointer to an array with the SDFP buffer.
 *
+* \param eraseTypeCmd
+* The pointer to an array with the erase commands for different erase types.
+*
 * \return The offset of the Sector Erase command in the SFDP buffer. 
 *  Returns 0 when the Sector Erase command is not found.
 *
 *******************************************************************************/
 static uint32_t SfdpGetSectorEraseCommand(cy_stc_smif_mem_device_cfg_t *device, 
-                                          uint8_t const sfdpBuffer[])
+                                          uint8_t const sfdpBuffer[],
+                                          cy_stc_smif_erase_type_t eraseTypeStc[])
 {
     uint32_t eraseOffset;
     if (FOUR_BYTE_ADDRESS == device->numOfAddrBytes)
@@ -2364,6 +2515,11 @@ static uint32_t SfdpGetSectorEraseCommand(cy_stc_smif_mem_device_cfg_t *device,
             /* Calculate the offset for the sector Erase command in the 4-byte Address Instruction Table, DWORD 2 */
             eraseOffset = FOUR_BYTE_ADDR_ERASE_TYPE_1 + eraseType;  
 
+            /* Update all erase commands for 4-bytes*/
+            for(uint32_t i = 0UL; i< ERASE_TYPE_COUNT; i++)
+            {
+                eraseTypeStc[i].eraseCmd = sfdpBuffer[FOUR_BYTE_ADDR_ERASE_TYPE_1 + i];
+            }
             /* Get the sector Erase command
              * from the 4-byte Address Instruction Table, DWORD 2 
              */
@@ -2414,6 +2570,371 @@ static uint32_t SfdpGetSectorEraseCommand(cy_stc_smif_mem_device_cfg_t *device,
 
 
 /*******************************************************************************
+* Function Name: ReadAnyReg
+****************************************************************************//**
+*
+* This function reads any registers by address. This function is a blocking 
+* function, it will block the execution flow until the status register is read.
+*
+* \param base
+* Holds the base address of the SMIF block registers.
+*
+* \param slaveSelect
+* The slave select line for the device.
+*
+* \param value
+* The value of the register.
+*
+* \param command
+* The command required to read the status/configuration register.
+*
+* \param address
+* The register address array.
+*
+* \param addressSize
+* The size of the address array.
+*
+* \param context
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
+*
+* \return A status of the command reception.
+*       - \ref CY_SMIF_SUCCESS
+*       - \ref CY_SMIF_CMD_FIFO_FULL
+*       - \ref CY_SMIF_EXCEED_TIMEOUT
+*       - \ref CY_SMIF_CMD_NOT_FOUND
+*
+*******************************************************************************/
+static cy_en_smif_status_t ReadAnyReg(SMIF_Type *base,
+                                    cy_en_smif_slave_select_t  slaveSelect,
+                                    uint8_t *value,
+                                    uint8_t command,
+                                    uint8_t const *address,
+                                    uint32_t addressSize,
+                                    cy_stc_smif_context_t const *context)
+{
+    cy_en_smif_status_t result = CY_SMIF_CMD_NOT_FOUND;
+
+    /* Read the memory register */
+    result = Cy_SMIF_TransmitCommand(base, command, CY_SMIF_WIDTH_SINGLE,
+                address, addressSize,
+                CY_SMIF_WIDTH_SINGLE, slaveSelect,
+                CY_SMIF_TX_NOT_LAST_BYTE, context);
+
+    if (CY_SMIF_SUCCESS == result)
+    {
+        result = Cy_SMIF_ReceiveDataBlocking( base, value,
+                    CY_SMIF_READ_ONE_BYTE, CY_SMIF_WIDTH_SINGLE, context);
+    }
+
+    return(result);
+}
+
+
+/*******************************************************************************
+* Function Name: SfdpEnterFourByteAddressing
+****************************************************************************//**
+*
+* This function sets 4-byte address mode for a memory device as defined in 
+* 16th DWORD of JEDEC Basic Flash Parameter Table. 
+*
+* \note The entry methods which do not support the required
+* operation of writing into the register.
+*
+* \param base
+* Holds the base address of the SMIF block registers.
+*
+* \param entryMethodByte
+* The byte which defines the supported method to enter 4-byte addressing mode.
+*
+* \param device
+* The device structure instance declared by the user. This is where the detected
+* parameters are stored and returned.
+*
+* \param slaveSelect
+* The slave select line for the device.
+*
+* \param context
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
+*
+* \return A status of 4-byte addressing mode command transmit.
+*       - \ref CY_SMIF_SUCCESS
+*       - \ref CY_SMIF_EXCEED_TIMEOUT
+*       - \ref CY_SMIF_CMD_NOT_FOUND
+*******************************************************************************/
+static cy_en_smif_status_t SfdpEnterFourByteAddressing(SMIF_Type *base, uint8_t entryMethodByte, 
+                                                       cy_stc_smif_mem_device_cfg_t *device,
+                                                       cy_en_smif_slave_select_t slaveSelect,
+                                                       cy_stc_smif_context_t const *context)
+{
+    cy_en_smif_status_t result = CY_SMIF_CMD_NOT_FOUND;
+    if ((entryMethodByte & CY_SMIF_SFDP_ENTER_4_BYTE_METHOD_ALWAYS_4_BYTE) != 0U)
+    {
+        /* Memory always operates in 4-byte mode */
+        result = CY_SMIF_SUCCESS;
+    }
+    if ((entryMethodByte & CY_SMIF_SFDP_ENTER_4_BYTE_METHOD_B7) != 0U)
+    {
+        if ((entryMethodByte & CY_SMIF_SFDP_ENTER_4_BYTE_METHOD_WR_EN_B7) != 0U)
+        {
+            /* To enter a 4-byte addressing write enable is required */
+            cy_stc_smif_mem_cmd_t* writeEn = device->writeEnCmd;
+            if(NULL != writeEn)
+            {
+                result = Cy_SMIF_TransmitCommand(base,
+                                                (uint8_t) writeEn->command,
+                                                writeEn->cmdWidth,
+                                                CY_SMIF_CMD_WITHOUT_PARAM,
+                                                CY_SMIF_CMD_WITHOUT_PARAM,
+                                                CY_SMIF_WIDTH_NA,
+                                                slaveSelect,
+                                                CY_SMIF_TX_LAST_BYTE,
+                                                context);
+            }
+        }
+        if ((CY_SMIF_CMD_NOT_FOUND == result) || (CY_SMIF_SUCCESS == result))
+        {
+            /* To enter a 4-byte addressing B7 instruction is required*/
+            result = Cy_SMIF_TransmitCommand(base,
+                                             CY_SMIF_SFDP_ENTER_4_BYTE_METHOD_B7_CMD,
+                                             CY_SMIF_WIDTH_SINGLE,
+                                             CY_SMIF_CMD_WITHOUT_PARAM,
+                                             CY_SMIF_CMD_WITHOUT_PARAM,
+                                             CY_SMIF_WIDTH_NA,
+                                             slaveSelect,
+                                             CY_SMIF_TX_LAST_BYTE,
+                                             context);
+        }
+    }
+
+    return result;
+}
+
+
+/*******************************************************************************
+* Function Name: SfdpGetEraseSizeAndCmd
+****************************************************************************//**
+*
+* Fills arrays with an erase size and cmd for all erase types.
+*
+* \param sfdpBuffer
+* The pointer to an array with the Basic Flash Parameter table buffer.
+*
+* \param eraseTypeCmd
+* The pointer to an array with the erase commands for all erase types.
+*
+* \param eraseTypeSize
+* The pointer to an array with the erase size for all erase types.
+*
+*******************************************************************************/
+static void SfdpGetEraseSizeAndCmd(uint8_t const sfdpBuffer[],
+                                   cy_stc_smif_erase_type_t eraseType[])
+{
+    uint32_t idx = 0UL;
+    for (uint32_t currET = 0UL; currET < ERASE_TYPE_COUNT; currET++)
+    {
+        /* The erase size in the SFDP buffer defined as power of two */
+        eraseType[currET].eraseSize = 1UL << sfdpBuffer[CY_SMIF_SFDP_BFPT_BYTE_1C + idx];
+        eraseType[currET].eraseCmd = sfdpBuffer[CY_SMIF_SFDP_BFPT_BYTE_1D + idx];
+        idx += TYPE_STEP;
+    }
+}
+
+
+/*******************************************************************************
+* Function Name: SfdpPopulateRegionInfo
+****************************************************************************//**
+*
+* Reads the current configuration for regions and populates regionInfo
+* structures.
+*
+* \param base
+* Holds the base address of the SMIF block registers.
+*
+* \param sectorMapBuff
+* The pointer to an array with the Sector Map Parameter Table buffer.
+*
+* \param device
+* The device structure instance declared by the user. This is where the detected
+* parameters are stored and returned.
+*
+* \param slaveSelect
+* The slave select line for the device.
+*
+* \param context
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
+*
+* \param eraseTypeSize
+* The pointer to an array with the erase size for all erase types.
+*
+* \param eraseTypeCmd
+* The pointer to an array with the erase commands for all erase types.
+*
+* \param eraseTypeTime
+*  The pointer to an array with the erase time for all erase types.
+*
+* \return A status of the Sector Map Parameter Table parsing.
+*       - \ref CY_SMIF_SUCCESS
+*       - \ref CY_SMIF_SFDP_CORRUPTED_TABLE
+*       - \ref CY_SMIF_NOT_HYBRID_MEM
+*
+*******************************************************************************/
+static cy_en_smif_status_t SfdpPopulateRegionInfo(SMIF_Type *base,
+                                   uint8_t const sectorMapBuff[],
+                                   uint32_t const buffLength,
+                                   cy_stc_smif_mem_device_cfg_t *device,
+                                   cy_en_smif_slave_select_t slaveSelect,
+                                   const cy_stc_smif_context_t *context,
+                                   cy_stc_smif_erase_type_t eraseType[])
+{
+    uint8_t currCmd;
+    uint8_t regMask;
+    uint8_t regValue;
+    uint8_t currRegisterAddr[ERASE_TYPE_COUNT] = {0U};
+    uint8_t regionInfoIdx = 0U;
+    uint32_t currTableIdx = 0UL;
+    uint32_t addrBytesNum = 0UL;
+    uint32_t addrCode = 0UL;
+    cy_en_smif_status_t result = CY_SMIF_NOT_HYBRID_MEM;
+
+    /* Loop across all command descriptors to find current configuration */
+    while(SECTOR_MAP_COMAND_DESCRIPTOR_TYPE == (sectorMapBuff[currTableIdx] & SECTOR_MAP_DESCRIPTOR_MASK))
+    {
+        currCmd = sectorMapBuff[currTableIdx + CY_SMIF_SFDP_SECTOR_MAP_CMD_OFFSET];
+        regMask = sectorMapBuff[currTableIdx + CY_SMIF_SFDP_SECTOR_MAP_REG_MSK_OFFSET];
+        regValue = 0U;
+        
+        /* Get the address length for configuration detection */
+        addrCode = _FLD2VAL(CY_SMIF_SFDP_SECTOR_MAP_ADDR_BYTES, sectorMapBuff[currTableIdx + CY_SMIF_SFDP_SECTOR_MAP_ADDR_CODE_OFFSET]);
+        switch(addrCode) 
+        {
+            case CY_SMIF_SFDP_THREE_BYTES_ADDR_CODE:
+                /* No address cycle */
+                addrBytesNum = 0UL;
+                break;
+            case CY_SMIF_SFDP_THREE_OR_FOUR_BYTES_ADDR_CODE:
+                addrBytesNum = CY_SMIF_THREE_BYTES_ADDR;
+                break;
+            case CY_SMIF_SFDP_FOUR_BYTES_ADDR_CODE:
+                addrBytesNum = CY_SMIF_FOUR_BYTES_ADDR;
+                break;
+            default:
+                /* Use the current settings */
+                addrBytesNum = device->numOfAddrBytes; 
+                break;
+        }
+
+        /* Get the control register address */
+        for(uint32_t i = 0UL; i < addrBytesNum; i++)
+        {
+            /* Offset for control register in SFDP has little-endian byte order, need to swap it */
+            currRegisterAddr[i] = sectorMapBuff[(currTableIdx + CY_SMIF_SFDP_SECTOR_MAP_REG_ADDR_OFFSET + addrBytesNum) - i - 1UL];
+        }
+
+        /* Read the value of the register for the current configuration detection*/
+        result = ReadAnyReg(base, slaveSelect, &regValue, currCmd, &currRegisterAddr[0], addrBytesNum, context);
+
+        if (CY_SMIF_SUCCESS == result)
+        {
+            /* Set the bit of the region idx to 1 if the config matches */
+            regionInfoIdx = ((uint8_t)(regionInfoIdx << 1U)) | (((regValue & regMask) == 0U)?(0U):(1U));
+        }
+
+        currTableIdx += HEADER_LENGTH;
+        if (currTableIdx > buffLength)
+        {
+            result = CY_SMIF_SFDP_CORRUPTED_TABLE;
+            break;
+        }
+    }
+
+    if (CY_SMIF_SUCCESS == result)
+    {
+        /* Find the matching configuration map descriptor */
+        while(regionInfoIdx != sectorMapBuff[currTableIdx + 1UL])
+        {
+            /* Increment the table index to the next map */
+            currTableIdx += (sectorMapBuff[currTableIdx + CY_SMIF_SFDP_SECTOR_MAP_CONFIG_ID_OFFSET] + 2UL) * BYTES_IN_DWORD;
+            if (currTableIdx > buffLength)
+            {
+                result = CY_SMIF_SFDP_CORRUPTED_TABLE;
+                break;
+            }
+        }
+    }
+
+    if (CY_SMIF_SUCCESS == result)
+    {
+        /* Populate region data from the sector map */
+        uint8_t numOfRegions = sectorMapBuff[currTableIdx + CY_SMIF_SFDP_SECTOR_MAP_REGION_COUNT_OFFSET] + 1U;
+        device->hybridRegionCount = (uint32_t) numOfRegions;
+
+        if(numOfRegions <= 1U)
+        {
+            result = CY_SMIF_NOT_HYBRID_MEM;
+        }
+        else
+        {
+            uint8_t eraseTypeCode;
+            uint32_t currRegionAddr = 0UL;
+            uint32_t regionSize = 0UL;
+            uint8_t supportedEraseType;
+            uint8_t eraseTypeMask;
+            cy_stc_smif_hybrid_region_info_t *currRegionPtr;
+            for(uint8_t currRegion = 0U; currRegion< numOfRegions; currRegion++)
+            {
+                currRegionAddr = currRegionAddr + regionSize;
+                currTableIdx += BYTES_IN_DWORD;
+
+                supportedEraseType = 0U;
+                eraseTypeMask = 1U;
+                eraseTypeCode = sectorMapBuff[currTableIdx] & CY_SMIF_SFDP_SECTOR_MAP_SUPPORTED_ET_MASK;
+                while(0U == (eraseTypeCode & eraseTypeMask))
+                {
+                    /* Erase type number defined as a bit position */
+                    eraseTypeMask = eraseTypeMask << 1;
+                    supportedEraseType++;
+                    if(supportedEraseType > ERASE_TYPE_COUNT)
+                    {
+                        result = CY_SMIF_SFDP_CORRUPTED_TABLE;
+                        break;
+                    }
+                }
+
+                /* The region size as a zero-based count of 256 byte units */
+                regionSize = ((*( (uint32_t*) &sectorMapBuff[currTableIdx]) >> BITS_IN_BYTE) + 1UL) * SECTOR_MAP_REGION_SIZE_MULTIPLIER;
+                currRegionPtr = device->hybridRegionInfo[currRegion];
+
+                currRegionPtr->regionAddress = currRegionAddr;
+                currRegionPtr->eraseCmd = (uint32_t)eraseType[supportedEraseType].eraseCmd;
+                currRegionPtr->eraseTime = eraseType[supportedEraseType].eraseTime;
+                if(regionSize < eraseType[supportedEraseType].eraseSize)
+                {
+                    /* One region with a single sector */
+                    currRegionPtr->eraseSize = regionSize;
+                    currRegionPtr->sectorsCount = 1UL;
+                }
+                else
+                {
+                    currRegionPtr->eraseSize = eraseType[supportedEraseType].eraseSize;
+                    currRegionPtr->sectorsCount = regionSize / eraseType[supportedEraseType].eraseSize;
+                }
+            }
+        }
+    }
+    return result;
+}
+
+
+/*******************************************************************************
 * Function Name: Cy_SMIF_MemSfdpDetect
 ****************************************************************************//**
 *
@@ -2457,7 +2978,10 @@ static uint32_t SfdpGetSectorEraseCommand(cy_stc_smif_mem_device_cfg_t *device,
 * The data line selection options for a slave device.
 *
 * \param context
-* Internal SMIF context data.
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
 *
 * \return A status of the transmission.
 *       - \ref CY_SMIF_SUCCESS
@@ -2478,8 +3002,10 @@ cy_en_smif_status_t Cy_SMIF_MemSfdpDetect(SMIF_Type *base,
     uint8_t sfdpBuffer[CY_SMIF_SFDP_LENGTH];
     uint8_t sfdpAddress[CY_SMIF_SFDP_ADDRESS_LENGTH] = {0x00U, 0x00U, 0x00U};
     uint8_t addr4ByteAddress[CY_SMIF_SFDP_ADDRESS_LENGTH] = {0x00U, 0x00U, 0x00U};
+    uint8_t sectorMapAddr[CY_SMIF_SFDP_ADDRESS_LENGTH] = {0x00U, 0x00U, 0x00U};
     cy_en_smif_status_t result = CY_SMIF_NO_SFDP_SUPPORT;
     cy_stc_smif_mem_cmd_t *cmdSfdp = device->readSfdpCmd;
+    cy_stc_smif_erase_type_t eraseType[ERASE_TYPE_COUNT];
 
     /* Initialize the SFDP buffer */
     for (uint32_t i = 0U; i < CY_SMIF_SFDP_LENGTH; i++)
@@ -2522,11 +3048,21 @@ cy_en_smif_status_t Cy_SMIF_MemSfdpDetect(SMIF_Type *base,
             uint32_t id = (FOUR_BYTE_ADDR_ID_MSB << BITS_IN_BYTE) | FOUR_BYTE_ADDR_ID_LSB;
             uint32_t addr4ByteTableLength = 0UL;
             result = SfdpFindParameterTableAddress(id, sfdpBuffer, addr4ByteAddress, &addr4ByteTableLength);
-            
+
+            /* Find the Sector Map Parameter Header */
+            id = (SECTOR_MAP_ID_MSB << BITS_IN_BYTE) | SECTOR_MAP_ID_LSB;
+            uint32_t sectorMapTableLength = 0UL;
+            result = SfdpFindParameterTableAddress(id, sfdpBuffer, sectorMapAddr, &sectorMapTableLength);
+            if (CY_SMIF_CMD_NOT_FOUND == result)
+            {
+                device->hybridRegionCount = 0UL;
+                device->hybridRegionInfo = NULL;
+            }
+
             /* Find the JEDEC SFDP Basic SPI Flash Parameter Header */
             id = (BASIC_SPI_ID_MSB << BITS_IN_BYTE) | BASIC_SPI_ID_LSB;
             uint32_t basicSpiTableLength = 0UL;
-            result = SfdpFindParameterTableAddress(id, sfdpBuffer, sfdpAddress, &basicSpiTableLength);           
+            result = SfdpFindParameterTableAddress(id, sfdpBuffer, sfdpAddress, &basicSpiTableLength);
 
             if (CY_SMIF_SUCCESS == result)
             { 
@@ -2536,10 +3072,10 @@ cy_en_smif_status_t Cy_SMIF_MemSfdpDetect(SMIF_Type *base,
                 CY_ASSERT_L1(NULL != device->eraseCmd);
                 CY_ASSERT_L1(NULL != device->chipEraseCmd);
                 CY_ASSERT_L1(NULL != device->programCmd);
-                CY_ASSERT_L1(NULL != device->readStsRegWipCmd);           
+                CY_ASSERT_L1(NULL != device->readStsRegWipCmd);
         
                 /* Get the JEDEC basic flash parameter table content into sfdpBuffer[] */
-                result = SfdpReadBuffer(base, 
+                result = SfdpReadBuffer(base,
                                        cmdSfdp,
                                        sfdpAddress,
                                        slaveSelect,
@@ -2547,24 +3083,27 @@ cy_en_smif_status_t Cy_SMIF_MemSfdpDetect(SMIF_Type *base,
                                        sfdpBuffer,
                                        context);
 
+                /* The erase size and erase time for all 4 erase types */
+                SfdpGetEraseSizeAndCmd(sfdpBuffer, eraseType);
+
                 /* The number of address bytes used by the memory slave device */
                 device->numOfAddrBytes = SfdpGetNumOfAddrBytes(sfdpBuffer);
 
                 /* The external memory size */
                 device->memSize = SfdpGetMemoryDensity(sfdpBuffer);
-             
+
                 /* The page size */
                 device->programSize = SfdpGetPageSize(sfdpBuffer);
 
                 /* The Write Enable command */
-                SfdpSetWriteEnableCommand(device->writeEnCmd);               
+                SfdpSetWriteEnableCommand(device->writeEnCmd);
 
                 /* The Write Disable command */
                 SfdpSetWriteDisableCommand(device->writeDisCmd); 
 
                 /* The busy mask for the status registers */
                 device->stsRegBusyMask = CY_SMIF_STATUS_REG_BUSY_MASK;
-                            
+
                 /* The command to read the WIP-containing status register */
                 SfdpSetWipStatusRegisterCommand(device->readStsRegWipCmd);
 
@@ -2573,13 +3112,13 @@ cy_en_smif_status_t Cy_SMIF_MemSfdpDetect(SMIF_Type *base,
 
                 /* Chip Erase command */
                 SfdpSetChipEraseCommand(device->chipEraseCmd);
-                
+
                 /* Chip Erase Time */
                 device->chipEraseTime = SfdpGetChipEraseTime(sfdpBuffer);
 
                 /* Page Program Time */
                 device->programTime = SfdpGetPageProgramTime(sfdpBuffer);
-                
+
                 /* The Read command for 3-byte addressing. The preference order quad > dual > single SPI */
                 cy_stc_smif_mem_cmd_t *cmdRead = device->readCmd;
                 cy_en_smif_protocol_mode_t pMode = SfdpGetReadCmdParams(sfdpBuffer, dataSelect, cmdRead);
@@ -2588,11 +3127,15 @@ cy_en_smif_status_t Cy_SMIF_MemSfdpDetect(SMIF_Type *base,
                 uint32_t eraseTypeOffset = 1UL;
                 if (FOUR_BYTE_ADDRESS == device->numOfAddrBytes)
                 {
-                    /* Get the JEDEC 4-byte Address Instruction Table content into sfdpBuffer[] */
+                    /* Enter 4-byte addressing mode */
+                    result = SfdpEnterFourByteAddressing(base, sfdpBuffer[CY_SMIF_SFDP_BFPT_BYTE_3C], device, slaveSelect, context);
                     uint8_t fourByteAddressBuffer[CY_SMIF_SFDP_LENGTH];
-                    result = SfdpReadBuffer(base, cmdSfdp, addr4ByteAddress, slaveSelect, 
-                                            addr4ByteTableLength, fourByteAddressBuffer, context);   
-
+                    if (CY_SMIF_SUCCESS == result)
+                    {
+                        /* Get the JEDEC 4-byte Address Instruction Table content into sfdpBuffer[] */
+                        result = SfdpReadBuffer(base, cmdSfdp, addr4ByteAddress, slaveSelect, 
+                                                addr4ByteTableLength, fourByteAddressBuffer, context);
+                    }
                     if (CY_SMIF_SUCCESS == result)
                     {
                         /* Rewrite the Read command instruction for 4-byte addressing mode */
@@ -2601,8 +3144,8 @@ cy_en_smif_status_t Cy_SMIF_MemSfdpDetect(SMIF_Type *base,
                         /* Get the Program command instruction for 4-byte addressing mode */
                         SfdpGetProgramFourBytesCmd(fourByteAddressBuffer, pMode, device->programCmd);
                         
-                        /* Find the sector Erase command type with 4-byte addressing */    
-                        eraseTypeOffset = SfdpGetSectorEraseCommand(device, fourByteAddressBuffer);
+                        /* Find the sector Erase command type with 4-byte addressing */
+                        eraseTypeOffset = SfdpGetSectorEraseCommand(device, fourByteAddressBuffer, eraseType);
                     }
                 }
                 else
@@ -2611,7 +3154,7 @@ cy_en_smif_status_t Cy_SMIF_MemSfdpDetect(SMIF_Type *base,
                     SfdpSetProgramCommand_1_1_1(device->programCmd);
 
                     /* Find the sector Erase command type with 3-byte addressing */
-                    eraseTypeOffset = SfdpGetSectorEraseCommand(device, sfdpBuffer);
+                    eraseTypeOffset = SfdpGetSectorEraseCommand(device, sfdpBuffer, eraseType);
                 }
                 
                 if (COMMAND_IS_NOT_FOUND != eraseTypeOffset)
@@ -2620,7 +3163,24 @@ cy_en_smif_status_t Cy_SMIF_MemSfdpDetect(SMIF_Type *base,
                     device->eraseSize = 0x01UL << sfdpBuffer[eraseTypeOffset - 1UL];
 
                     /* Erase Time Type (from the JEDEC basic flash parameter table) */
-                    device->eraseTime = SfdpGetEraseTime(eraseTypeOffset, sfdpBuffer);
+                    device->eraseTime = SfdpGetEraseTime(eraseTypeOffset, sfdpBuffer, eraseType);
+                }
+
+                if (NULL != device->hybridRegionInfo)
+                {
+                    /* Get the Sector Map Parameter Table into sfdpBuffer[] */
+                    result = SfdpReadBuffer(base, cmdSfdp, sectorMapAddr, slaveSelect,
+                                            sectorMapTableLength, sfdpBuffer, context);
+                    if (CY_SMIF_SUCCESS == result)
+                    {
+                        result = SfdpPopulateRegionInfo(base, sfdpBuffer, sectorMapTableLength, device, slaveSelect, context, eraseType);
+                        if(result == CY_SMIF_NOT_HYBRID_MEM)
+                        {
+                            device->hybridRegionCount = 0UL;
+                            device->hybridRegionInfo = NULL;
+                            result = CY_SMIF_SUCCESS;
+                        }
+                    }
                 }
             }
         }
@@ -2653,8 +3213,10 @@ cy_en_smif_status_t Cy_SMIF_MemSfdpDetect(SMIF_Type *base,
 *  The timeout value in microseconds to apply while polling the memory. 
 *
 * \param context
-* Passes a configuration structure that contains the transfer parameters of the
-* SMIF block.
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
 *
 * \return The status of the operation.
 * \ref CY_SMIF_SUCCESS        - Memory is ready to accept new commands.
@@ -2721,8 +3283,10 @@ cy_en_smif_status_t Cy_SMIF_MemIsReady(SMIF_Type *base, cy_stc_smif_mem_config_t
 * CY_SMIF_SUCCESS.
 *
 * \param context
-* Passes a configuration structure that contains the transfer parameters of the
-* SMIF block.
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
 *
 * \return The status of the operation. See \ref cy_en_smif_status_t.
 *
@@ -2771,8 +3335,10 @@ cy_en_smif_status_t Cy_SMIF_MemIsQuadEnabled(SMIF_Type *base, cy_stc_smif_mem_co
 *  The timeout value in microseconds to apply while polling the memory. 
 *
 * \param context
-* Passes a configuration structure that contains the transfer parameters of the
-* SMIF block.
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
 *
 * \return The status of the operation. See \ref cy_en_smif_status_t.
 *
@@ -2821,8 +3387,10 @@ cy_en_smif_status_t Cy_SMIF_MemEnableQuadMode(SMIF_Type *base, cy_stc_smif_mem_c
 * Transfer status value to be checked.
 *
 * \param context
-* Passes a configuration structure that contains the transfer parameters of the
-* SMIF block.
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
 *
 * \return The status of the operation.
 * \ref CY_SMIF_SUCCESS           - SMIF block has completed the transfer
@@ -2882,6 +3450,36 @@ static void ValueToByteArray(uint32_t value, uint8_t *byteArray, uint32_t startP
 
 
 /*******************************************************************************
+* Function Name: ByteArrayToValue
+****************************************************************************//**
+*
+* Packs the byte array into a single value.
+*
+* \param byteArray
+* The byte array to unpack.
+*
+* \param size
+* The size of the array.
+*
+* \return
+* The 4-byte value filled from the array.
+*
+*
+*******************************************************************************/
+static uint32_t ByteArrayToValue(uint8_t const *byteArray, uint32_t size)
+{
+    uint32_t value = 0UL;
+    uint32_t idx = 0UL;
+    for (idx = 0UL; idx < size; idx++)
+    {
+        value <<= 8;
+        value |= ((uint32_t) byteArray[idx]);
+    }
+    return value;
+}
+
+
+/*******************************************************************************
 * Function Name: Cy_SMIF_MemRead
 ****************************************************************************//**
 *
@@ -2906,8 +3504,10 @@ static void ValueToByteArray(uint32_t value, uint8_t *byteArray, uint32_t startP
 * The size of data to read.
 *
 * \param context
-* Passes a configuration structure that contains the transfer parameters of the
-* SMIF block.
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
 *
 * \return The status of the operation. See \ref cy_en_smif_status_t.
 *
@@ -2986,8 +3586,10 @@ cy_en_smif_status_t Cy_SMIF_MemRead(SMIF_Type *base, cy_stc_smif_mem_config_t co
 * The size of data to write.
 *
 * \param context
-* Passes a configuration structure that contains the transfer parameters of the
-* SMIF block.
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
 *
 * \return The status of the operation. See \ref cy_en_smif_status_t.
 *
@@ -3084,67 +3686,120 @@ cy_en_smif_status_t Cy_SMIF_MemWrite(SMIF_Type *base, cy_stc_smif_mem_config_t c
 * The size of data to erase.
 *
 * \param context
-* Passes a configuration structure that contains the transfer parameters of the
-* SMIF block.
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
 *
 * \return The status of the operation. See \ref cy_en_smif_status_t.
+*
+* \note The address should be aligned with the start address of the sector. \n
+* The length should be equal to the sum of all erased sectors.
 *
 * \funcusage 
 * \snippet smif/snippet/main.c snippet_Cy_SMIF_MemEraseSector
 *
 *******************************************************************************/
-cy_en_smif_status_t Cy_SMIF_MemEraseSector(SMIF_Type *base, cy_stc_smif_mem_config_t const *memConfig, 
-                                           uint32_t address, uint32_t length, 
+cy_en_smif_status_t Cy_SMIF_MemEraseSector(SMIF_Type *base, cy_stc_smif_mem_config_t const *memConfig,
+                                           uint32_t address, uint32_t length,
                                            cy_stc_smif_context_t const *context)
 {
     cy_en_smif_status_t status = CY_SMIF_BAD_PARAM;
-    uint32_t offset = 0UL;
-    uint32_t chunk = 0UL;
+    uint32_t endAddress = address + length;
+    uint32_t eraseEnd = 0UL;
+    uint32_t hybridRegionStart = 0UL;
     uint8_t addrArray[CY_SMIF_FOUR_BYTES_ADDR] = {0U};
+    cy_stc_smif_hybrid_region_info_t* hybrInfo = NULL;
     CY_ASSERT_L1(NULL != memConfig);
-    uint32_t eraseSectorSize = memConfig->deviceCfg->eraseSize;
+    cy_stc_smif_mem_device_cfg_t *device = memConfig->deviceCfg;
+    uint32_t eraseSectorSize = device->eraseSize;
+    uint32_t maxEraseTime = device->eraseTime;
 
-    if(((address + length) <= memConfig->deviceCfg->memSize) &&  /* Check if the address exceeds the memory size */
-       (0UL == (address % eraseSectorSize))  &&        /* Check if the start address and the sector size are aligned */
-       (0UL == ((address + length) % eraseSectorSize))) /* Check if the end address and the sector size are aligned */
+    /* In case of hybrid memory - update sector size and offset for first sector */
+    status = Cy_SMIF_MemLocateHybridRegion(memConfig, &hybrInfo, address);
+    if (CY_SMIF_SUCCESS == status)
     {
-        while(length > 0UL)
+        hybridRegionStart = hybrInfo->regionAddress;
+        eraseSectorSize = hybrInfo->eraseSize;
+        eraseEnd = (hybrInfo->sectorsCount * eraseSectorSize) + hybridRegionStart;
+    }
+
+    /* Check if the end address not equal to start address */
+    if(length == 0UL)
+    {
+        status = CY_SMIF_BAD_PARAM;
+    }
+
+    /* Check if the start address and the sector size are aligned */
+    if((0UL == ((address - hybridRegionStart) % eraseSectorSize)) && (status != CY_SMIF_BAD_PARAM))
+    {
+        /* If the memory is hybrid and there is more than one region to
+         * erase - update the sector size and offset for the last sector */
+        if(endAddress < eraseEnd)
         {
-            /* Get the number of bytes which can be erase during one operation */
-            offset = address % eraseSectorSize;
-            chunk = ((offset + length) < eraseSectorSize) ? length : (eraseSectorSize - offset);
-
-            /* The Write Enable bit may be cleared by the memory after every successful
-            * operation of write/erase operations. Therefore, it must be set for
-            * every loop. 
-            */
-            status = Cy_SMIF_MemCmdWriteEnable(base, memConfig, context);
-
-            if(CY_SMIF_SUCCESS == status)
+            status = Cy_SMIF_MemLocateHybridRegion(memConfig, &hybrInfo, (endAddress - 1UL));
+            if (CY_SMIF_SUCCESS == status)
             {
-                ValueToByteArray(address, &addrArray[0], 0UL,
-                                 memConfig->deviceCfg->numOfAddrBytes);
+                hybridRegionStart = hybrInfo->regionAddress;
+                eraseSectorSize = hybrInfo->eraseSize;
+            }
+        }
 
-                /* Send the command to erase one sector */
-                status = Cy_SMIF_MemCmdSectorErase(base, (cy_stc_smif_mem_config_t* )memConfig, 
-                                                   (const uint8_t *)addrArray, context);
-
-                if(CY_SMIF_SUCCESS == status)
+        /* Check if the end address and the sector size are aligned */
+        if((0UL == ((endAddress - hybridRegionStart) % eraseSectorSize))  && (status != CY_SMIF_BAD_PARAM))
+        {
+            while(length > 0UL)
+            {
+                /* In case of hybrid memory - update erase size and time for current region */
+                status = Cy_SMIF_MemLocateHybridRegion(memConfig, &hybrInfo, address);
+                if (CY_SMIF_SUCCESS == status)
                 {
-                    /* Wait until the erase operation is completed or a timeout occurs. eraseTime is in milliseconds */
-                    status = Cy_SMIF_MemIsReady(base, memConfig, 
-                                                (memConfig->deviceCfg->eraseTime * ONE_MILLI_IN_MICRO), context);
+                    maxEraseTime =  hybrInfo->eraseTime;
+                    eraseSectorSize = hybrInfo->eraseSize;
+                    hybridRegionStart = hybrInfo->regionAddress;
+                    eraseEnd = (hybrInfo->sectorsCount * eraseSectorSize) + hybridRegionStart;
+                    if(endAddress < eraseEnd)
+                    {
+                        eraseEnd = endAddress;
+                    }
+                }
+                else
+                {
+                    eraseEnd = endAddress;
+                }
 
-                    /* Recalculate the next sector address offset */
-                    address += chunk;
-                    length -= chunk;  
+                while (address < eraseEnd)
+                {
+                    /* The Write Enable bit may be cleared by the memory after every successful
+                    * operation of write/erase operations. Therefore, it must be set for
+                    * every loop.
+                    */
+                    status = Cy_SMIF_MemCmdWriteEnable(base, memConfig, context);
+                    if(CY_SMIF_SUCCESS == status)
+                    {
+                        ValueToByteArray(address, &addrArray[0], 0UL, device->numOfAddrBytes);
+
+                        /* Send the command to erase one sector */
+                        status = Cy_SMIF_MemCmdSectorErase(base, (cy_stc_smif_mem_config_t* )memConfig,
+                                                           (const uint8_t *)addrArray, context);
+                        if(CY_SMIF_SUCCESS == status)
+                        {
+                            /* Wait until the erase operation is completed or a timeout occurs.
+                             * Note: eraseTime is in milliseconds */
+                            status = Cy_SMIF_MemIsReady(base, memConfig, (maxEraseTime * ONE_MILLI_IN_MICRO), context);
+
+                            /* Recalculate the next sector address offset */
+                            address += eraseSectorSize;
+                            length -= eraseSectorSize;
+                        }
+                    }
+
+                    if(CY_SMIF_SUCCESS != status)
+                    {
+                        break;
+                    }
                 }
             }
-            
-            if(CY_SMIF_SUCCESS != status)
-            {
-                break;  
-            } 
         }
     }
 
@@ -3167,8 +3822,10 @@ cy_en_smif_status_t Cy_SMIF_MemEraseSector(SMIF_Type *base, cy_stc_smif_mem_conf
 * The memory device configuration.
 *
 * \param context
-* Passes a configuration structure that contains the transfer parameters of the
-* SMIF block.
+* This is the pointer to the context structure \ref cy_stc_smif_context_t
+* allocated by the user. The structure is used during the SMIF
+* operation for internal configuration and data retention. The user must not
+* modify anything in this structure.
 *
 * \return The status of the operation. See \ref cy_en_smif_status_t.
 *
