@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2012 ARM Limited
+ * Copyright (c) 2006-2020 ARM Limited
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -248,6 +248,34 @@ const char *get_name()
     return osThreadGetName(id);
 #else
     return nullptr;
+#endif
+}
+
+osPriority_t ThisThread::get_priority()
+{
+#if MBED_CONF_RTOS_PRESENT
+    osThreadId_t id = osThreadGetId();
+    if (id == nullptr) {
+        return osPriorityError;
+    }
+
+    return static_cast<osPriority_t>(osThreadGetPriority(id));
+#else
+    return static_cast<osPriority_t>(osPriorityError);
+#endif
+}
+
+osStatus_t ThisThread::suspend()
+{
+#if MBED_CONF_RTOS_PRESENT
+    osThreadId_t id = osThreadGetId();
+    if (id == nullptr) {
+        return osError;
+    }
+
+    return static_cast<osStatus_t>(osThreadSuspend(id));
+#else
+    return static_cast<osStatus_t>(osError);
 #endif
 }
 

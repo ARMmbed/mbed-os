@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2019 ARM Limited
+ * Copyright (c) 2006-2020 ARM Limited
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -180,6 +180,19 @@ osThreadId_t get_id();
   @note You cannot call this function from ISR context.
 */
 const char *get_name();
+
+/** Get the priority of the current running thread.
+  @return Priority for reference by other functions or osPriorityError (-1)
+          in case of error.
+  @note You cannot call this function from ISR context.
+*/
+osPriority_t get_priority();
+
+/** Suspend the current running thread.
+  @return Returns status osOK if the operation was successful or osError types
+  @note You cannot call this function from ISR context.
+*/
+osStatus_t suspend();
 
 };
 /** @}*/
