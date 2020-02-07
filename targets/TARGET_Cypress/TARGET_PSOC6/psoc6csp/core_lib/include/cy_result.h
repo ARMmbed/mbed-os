@@ -8,7 +8,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -69,7 +69,7 @@ typedef uint32_t cy_rslt_t;
 
 /** \cond INTERNAL */
 /** Mask for the bit at position "x" */
-#define CY_BIT_MASK(x)                     ((1U << (x)) - 1U)
+#define CY_BIT_MASK(x)                     ((1UL << (x)) - 1U)
 
 /** Bit position of the result type */
 #define CY_RSLT_TYPE_POSITION              (16U)
