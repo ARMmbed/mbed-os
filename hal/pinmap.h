@@ -176,6 +176,23 @@ const PinList *pinmap_restricted_pins(void);
  */
 const PeripheralList *pinmap_uart_restricted_peripherals(void);
 
+/**
+ * Get the pin list of pins to avoid during GPIO/GPIO_IRQ testing
+ *
+ * The GPIO restricted pin list is used to indicate to testing
+ * that a pin should be skipped due to some caveat about it.
+ *
+ * Targets should override the weak implementation of this
+ * function if they have peripherals which should be
+ * skipped during testing.
+ *
+ * @note This is special case only for GPIO/GPIO_IRQ tests because
+ *       targets do not provide pin-maps for GPIO.
+ *
+ * @return Pointer to a peripheral list of peripheral to avoid
+ */
+const PinList *pinmap_gpio_restricted_pins(void);
+
 #ifdef TARGET_FF_ARDUINO
 
 /**

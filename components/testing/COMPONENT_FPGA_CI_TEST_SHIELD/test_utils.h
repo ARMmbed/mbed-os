@@ -28,6 +28,8 @@
 #define I2C_NAME          "I2C"
 #define SPI_NAME          "SPI"
 #define SPISLAVE_NAME     "SPISlave"
+#define GPIO_NAME         "GPIO"
+#define GPIO_IRQ_NAME     "GPIO_IRQ"
 
 // test function prototypes
 typedef void (*TF1)(PinName p0);
@@ -123,6 +125,15 @@ void find_ports(std::list<PortType> &matched_ports, std::list<PortType> &not_mat
                 utest_printf("Skipping %s pin %s (%i)\r\n", pin_type,
                              FormFactorType::pin_to_string(port.pins[i]), port.pins[i]);
                 continue;
+            }
+
+            if (!strcmp(PortType::PinMap::name, GPIO_IRQ_NAME) || !strcmp(PortType::PinMap::name, GPIO_NAME)) {
+                // Don't test restricted gpio pins
+                if (pinmap_list_has_pin(pinmap_gpio_restricted_pins(), port.pins[i])) {
+                    utest_printf("Skipping %s pin %s (%i)\r\n", pin_type,
+                                 FormFactorType::pin_to_string(port.pins[i]), port.pins[i]);
+                    continue;
+                }
             }
 
             if (!strcmp(PortType::PinMap::name, UART_NAME) || !strcmp(PortType::PinMap::name, UARTNOFC_NAME)) {
@@ -455,7 +466,7 @@ struct GPIOMaps {
 };
 const PinMap *GPIOMaps::maps[] = { gpio_pinmap() };
 const char *const GPIOMaps::pin_type_names[] = { "IO" };
-const char *const GPIOMaps::name = "GPIO";
+const char *const GPIOMaps::name = GPIO_NAME;
 typedef Port<1, GPIOMaps, DefaultFormFactor, TF1> GPIOPort;
 
 #if DEVICE_INTERRUPTIN
@@ -467,7 +478,7 @@ struct GPIOIRQMaps {
 };
 const PinMap *GPIOIRQMaps::maps[] = { gpio_irq_pinmap() };
 const char *const GPIOIRQMaps::pin_type_names[] = { "IRQ_IN" };
-const char *const GPIOIRQMaps::name = "GPIO_IRQ";
+const char *const GPIOIRQMaps::name = GPIO_IRQ_NAME;
 typedef Port<1, GPIOIRQMaps, DefaultFormFactor, TF1> GPIOIRQPort;
 #endif
 

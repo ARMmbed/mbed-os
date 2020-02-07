@@ -78,6 +78,17 @@ MBED_WEAK const PinList *pinmap_restricted_pins()
     return &pin_list;
 }
 
+//*** Default restricted gpio pins ***
+// GPIO pins are special case because there are no pin-maps for GPIO
+MBED_WEAK const PinList *pinmap_gpio_restricted_pins()
+{
+    static const PinList pin_list = {
+        0,
+        0
+    };
+    return &pin_list;
+}
+
 //*** Default restricted peripherals ***
 MBED_WEAK const PeripheralList *pinmap_uart_restricted_peripherals()
 {
