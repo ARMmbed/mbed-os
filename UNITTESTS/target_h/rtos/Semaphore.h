@@ -23,13 +23,13 @@
 namespace rtos {
 class Semaphore  {
 public:
-    Semaphore(int32_t count = 0) {};
-    Semaphore(int32_t count, uint16_t max_count) {};
-    void acquire() {};
-    bool try_acquire() { return false; };
-    bool try_acquire_for(uint32_t millisec) { return false; };
-    bool try_acquire_until(uint64_t millisec) { return false; };
-    osStatus release(void) {return 0;};
+    Semaphore(int32_t count = 0);
+    Semaphore(int32_t count, uint16_t max_count);
+    void acquire();
+    bool try_acquire();
+    bool try_acquire_for(uint32_t millisec);
+    bool try_acquire_until(uint64_t millisec);
+    osStatus release(void);
 };
 }
 
