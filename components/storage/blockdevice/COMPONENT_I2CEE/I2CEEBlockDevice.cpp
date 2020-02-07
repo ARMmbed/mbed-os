@@ -68,7 +68,9 @@ int I2CEEBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 
     _i2c->stop();
 
-    if (_i2c->read(_i2c_addr, static_cast<char *>(buffer), size) < 0) {
+    _sync();
+
+    if (0 != _i2c->read(_i2c_addr, static_cast<char *>(buffer), size)) {
         return BD_ERROR_DEVICE_ERROR;
     }
 
