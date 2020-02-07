@@ -41,4 +41,4 @@ See the [PDL API Reference Manual Getting Started section](https://cypresssemico
 * [Cypress Semiconductor](http://www.cypress.com)
 
 ---
-© Cypress Semiconductor Corporation, 2019.
+© Cypress Semiconductor Corporation, 2020.

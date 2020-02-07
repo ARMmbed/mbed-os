@@ -1,12 +1,13 @@
 /***************************************************************************//**
 * \file cy_rtc.c
-* \version 2.20.1
+* \version 2.30
 *
 * This file provides constants and parameter values for the APIs for the 
 * Real-Time Clock (RTC).
 *
 ********************************************************************************
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* \copyright
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -886,9 +887,10 @@ cy_en_rtc_status_t Cy_RTC_EnableDstTime(cy_stc_rtc_dst_t const *dstTime, cy_stc_
 * Function Name: Cy_RTC_SetNextDstTime
 ****************************************************************************//**
 *
-* Set the next time of the DST. This function sets the time to ALARM2 for a next
-* DST event. If Cy_RTC_GetDSTStatus() is true(=1), the next DST event should be
-* the DST stop, then this function should be called with the DST stop time. 
+* A low-level DST function sets ALARM2 for a next DST event.
+* If Cy_RTC_GetDSTStatus() is true(=1), the next DST event should be
+* the DST stop, then this function should be called with the DST stop time.
+* Used by the \ref Cy_RTC_EnableDstTime and \ref Cy_RTC_DstInterrupt functions.
 *
 * If the time format(.format) is relative option(=0), the 
 * RelativeToFixed() is called to convert to a fixed date. 
@@ -959,9 +961,11 @@ cy_en_rtc_status_t Cy_RTC_SetNextDstTime(cy_stc_rtc_dst_format_t const *nextDst)
 * Function Name: Cy_RTC_GetDstStatus
 ****************************************************************************//**
 *
-* Returns the current DST status using given time information. This function 
-* is used in the initial state of a system. If the DST is enabled, the system 
-* sets the DST start or stop as a result of this function.
+* A low-level DST function returns the current DST status using given time
+* information. This function is used in the initial state of a system.
+* If the DST is enabled, the system sets the DST start or stop as a result of 
+* this function.
+* Used by the \ref Cy_RTC_EnableDstTime and \ref Cy_RTC_DstInterrupt functions.
 *
 * \param dstTime The DST configuration structure, see \ref cy_stc_rtc_dst_t.
 *
@@ -981,6 +985,7 @@ bool Cy_RTC_GetDstStatus(cy_stc_rtc_dst_t const *dstTime, cy_stc_rtc_config_t co
     uint32_t dstStopTime; 
     uint32_t dstStartDayOfMonth;
     uint32_t dstStopDayOfMonth;
+    bool status = false;
 
     CY_ASSERT_L1(NULL != dstTime);
     CY_ASSERT_L1(NULL != timeDate);
@@ -1019,11 +1024,41 @@ bool Cy_RTC_GetDstStatus(cy_stc_rtc_dst_t const *dstTime, cy_stc_rtc_config_t co
 
     currentTime = ((uint32_t) (timeDate->month << CY_RTC_DST_MONTH_POSITION) |
     (timeDate->date << CY_RTC_DST_DAY_OF_MONTH_POSITION) | (timeDate->hour));
-    
+
     dstStopTime = ((uint32_t) (dstTime->stopDst.month << CY_RTC_DST_MONTH_POSITION) |
     (dstStopDayOfMonth << CY_RTC_DST_DAY_OF_MONTH_POSITION) | (dstTime->stopDst.hour));
 
-    return((dstStartTime <= currentTime) && (dstStopTime > currentTime));
+    if ((dstStartTime <= currentTime) && (dstStopTime > currentTime))
+    {
+        status = true;
+
+        if (1UL == (dstStopTime - currentTime)) /* Check for the 'an hour before/after stop DST event' period */
+        {
+            cy_stc_rtc_alarm_t alarm;
+            uint32_t locDate = (CY_RTC_DST_FIXED != dstTime->startDst.format) ? RelativeToFixed(&dstTime->startDst) : dstTime->startDst.dayOfMonth;
+            Cy_RTC_GetAlarmDateAndTime(&alarm, CY_RTC_ALARM_2);
+
+            /* If Alarm2 is set for the "Start DST" event - the "Stop DST" event is already passed:  */
+            if ((alarm.almEn       == CY_RTC_ALARM_ENABLE    ) &&
+                (alarm.monthEn     == CY_RTC_ALARM_ENABLE    ) &&
+                (alarm.month       == dstTime->startDst.month) &&
+                (alarm.dateEn      == CY_RTC_ALARM_ENABLE    ) &&
+                (alarm.date        == locDate                ) &&
+                (alarm.dayOfWeekEn == CY_RTC_ALARM_DISABLE   ) &&
+                (alarm.hourEn      == CY_RTC_ALARM_ENABLE    ) &&
+                (alarm.hour        == dstTime->startDst.hour ) &&
+                (alarm.minEn       == CY_RTC_ALARM_ENABLE    ) &&
+                (alarm.min         == 0UL                    ) &&
+                (alarm.secEn       == CY_RTC_ALARM_ENABLE    ) &&
+                (alarm.sec         == 0UL                    ))
+            {
+                status = false;
+            }
+            /* Otherwise, including the case when Alarm2 is not set at all (DST is not enabled yet) - return true. */
+        }
+    }
+
+    return (status);
 }
 
 

@@ -343,6 +343,7 @@
     <ConfigInstruction value="Cy_SysClk_IloInit();" include="true" />
     <ConfigInstruction value="#else" include="true" />
     <ConfigInstruction value="Cy_SysClk_IloDisable();" include="true" />
+    <ConfigInstruction value="Cy_SysClk_IloHibernateOn(false);" include="true" />
     <ConfigInstruction value="#endif" include="true" />
     <ConfigInstruction value="" include="true" />
 

@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_ble_clk.h
-* \version 3.30
+* \version 3.40
 * 
 * The header file of the BLE ECO clock driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2017-2019 Cypress Semiconductor Corporation
+* Copyright 2017-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -70,6 +70,11 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason of Change</th></tr>
 *   <tr>
+*     <td>3.40</td>
+*     <td>A new API function \ref Cy_BLE_EcoIsEnabled() is added.</td>
+*     <td>API enhancement.</td>
+*   </tr>
+*   <tr>
 *     <td>3.30</td>
 *     <td>Updated the \ref Cy_BLE_EcoConfigure() to reuse the \ref Cy_SysClk_ClkPeriGetFrequency().</td>
 *     <td>API enhancement.</td>
@@ -127,7 +132,7 @@ extern "C" {
 #define CY_BLE_CLK_DRV_VERSION_MAJOR    (3)
 
 /** Driver minor version */
-#define CY_BLE_CLK_DRV_VERSION_MINOR    (20)
+#define CY_BLE_CLK_DRV_VERSION_MINOR    (40)
 
 /** Driver ID */
 #define CY_BLE_CLK_ID                   (0x05UL << 18U)
@@ -272,10 +277,28 @@ typedef struct
  * \{
  */
 cy_en_ble_eco_status_t Cy_BLE_EcoConfigure(cy_en_ble_eco_freq_t freq,
-                                           cy_en_ble_eco_sys_clk_div_t sysClkDiv, 
-                                           uint32_t cLoad, uint32_t xtalStartUpTime,
-                                           cy_en_ble_eco_voltage_reg_t voltageReg);
+                                    cy_en_ble_eco_sys_clk_div_t sysClkDiv,
+                                                       uint32_t cLoad,
+                                                       uint32_t xtalStartUpTime,
+                                    cy_en_ble_eco_voltage_reg_t voltageReg);
 void Cy_BLE_EcoReset(void);
+__STATIC_INLINE bool Cy_BLE_EcoIsEnabled(void);
+
+
+/*******************************************************************************
+* Function Name: Cy_BLE_EcoIsEnabled
+****************************************************************************//**
+*
+*  Reports the Enabled/Disabled BLE ECO status.
+*
+*  \return Boolean status of BLE ECO: true - Enabled, false - Disabled.
+*
+*******************************************************************************/
+__STATIC_INLINE bool Cy_BLE_EcoIsEnabled(void)
+{
+    return (((BLE_BLESS_MT_CFG & BLE_BLESS_MT_CFG_ENABLE_BLERD_Msk) != 0u) &&
+            ((BLE_BLESS_MT_STATUS & BLE_BLESS_MT_STATUS_BLESS_STATE_Msk) != 0u));
+}
 /** \} */
 
 /** \cond INTERNAL */

@@ -49,7 +49,7 @@
   <Param name="TempMin_Celsius" value="-40" />
   <Param name="TempMax_Celsius" value="85" />
   <Param name="Automotive_qualified" value="No (Industrial Grade Only)" />
-  <Param name="SiliconID" value="0xE4301102" />
+  <Param name="SiliconID" value="0xE4701202" />
   <Param name="Module" value="No" />
   <Param name="REQUIRED_KITS" value="B0" />
   <Param name="Next_Best_Alt_Part" value="None" />

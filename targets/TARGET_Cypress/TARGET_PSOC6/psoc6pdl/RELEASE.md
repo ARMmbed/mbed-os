@@ -1,37 +1,35 @@
-# PSoC 6 Peripheral Driver Library v1.4.0
+# PSoC 6 Peripheral Driver Library v1.4.1
 
 Please refer to the [README.md](./README.md) and the [PDL API Reference Manual](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/index.html) for a complete description of the Peripheral Driver Library.
 
 ### New Features
-* The structure of BSP startup templates directory (devices/templates) is updated to match the BSP layout.
 * The updated core-lib is reused - see [SysLib changelog](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__syslib.html) for details.
-* Removed redundant legacy PSoC Creator-compatibility macros.
-* The startup code reuses sysclk driver API - see [Startup changelog](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__system__config.html) for details.
+
 
 Updated Personalities
-* CSD
-* Power
-* SegLCD
-* WiFi
-Updated the configurators launch parameters in CSD and SegLCD personalities: switched from GUI to console applications for regenerating the source code without opening the configurator itself. This improves the user experience, performance, and enables using machines without a GUI.
-The Power personality code generation is corrected due to the customer's request.
-The TCP Keepalive Offload feature support is added to the WiFi Low Power Assistant (LPA) personality.
+* CAN FD - Fix filter configuration issue.
+* DMA - Fixed the Trigger Input parameter behaviour.
+* WiFi - Update for LPA TCP keepalive offload.
+* I2S - Fixed the IRQn generation for all supported devices.
+* PDM-PCM - Fixed the IRQn generation for all supported devices.
+* QSPI - Data terminals UI enhancement.
+* SegLCD - Added the ability to route output signals to Smart I/O.
+* Smart I/O - GUI improvement.
+* SysClocks - Disable ILO in Hibernate.
 
 Updated Drivers
-* [BLE_CLK 3.30](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__ble__clk.html)
-* [SCB 2.40](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__system__scb.html)
-* [Startup 2.70](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__system__config.html)
-* [SysClk 1.50](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__sysclk.html)
-* [SysLib 2.50](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__syslib.html)
-* [SysPm 4.50](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__syspm.html)
-* [WDT 1.20](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__wdt.html)
+* [BLE_CLK 3.40](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__ble__clk.html)
+* [CAN FD 1.10](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__canfd.html)
+* [RTC 2.30](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__rtc.html)
+* [SMIF 1.50](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__smif.html)
+* [SysClk 1.60](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__sysclk.html)
+* [SysPm 5.0](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__syspm.html)
 
 Drivers with patch version updates
-* [Flash 3.30.3](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__flash.html)
-* [SAR 1.20.2](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__sar.html)
-* [SegLCD 1.0.1](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__seglcd.html)
-* [SMIF 1.40.1](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__smif.html)
-* [TrigMux 1.20.1](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__trigmux.html)
+* [eFuse 1.10.2](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__efuse.html)
+* [Flash 3.30.4](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__flash.html)
+* [Prot 1.30.2](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__prot.html)
+* [SysLib 2.50.1](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__syslib.html)
 
 ### Known Issues
 None
@@ -44,11 +42,12 @@ This version of PDL was validated for compatibility with the following Software 
 
 | Software and Tools                                      | Version      |
 | :---                                                    | :----        |
+| [Cypress Core Library](https://github.com/cypresssemiconductorco/core-lib)                                    | 1.1.1        |
+| [Cypress HAL](https://github.com/cypresssemiconductorco/psoc6hal)                                             | 1.1.1        |
 | CMSIS-Core(M)                                           | 5.2.1        |
-| GCC Compiler                                            | 7.2.1        |
+| GCC Compiler                                            | 9.2.1        |
 | IAR Compiler                                            | 8.32         |
-| ARM Compiler 6                                          | 6.11         |
-| MBED OS                                                 | 5.13.1       |
+| ARM Compiler 6                                          | 6.13         |
 | FreeRTOS                                                | 10.0.1       |
 
 ### More information
@@ -62,4 +61,4 @@ This version of PDL was validated for compatibility with the following Software 
 * [Cypress Semiconductor](http://www.cypress.com)
   
 ---
-© Cypress Semiconductor Corporation, 2019.
+© Cypress Semiconductor Corporation, 2020.
