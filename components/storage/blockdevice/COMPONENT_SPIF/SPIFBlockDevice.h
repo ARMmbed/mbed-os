@@ -19,7 +19,24 @@
 #include "platform/SingletonPtr.h"
 #include "drivers/SPI.h"
 #include "drivers/DigitalOut.h"
+#include "drivers/internal/SFDP.h"
 #include "features/storage/blockdevice/BlockDevice.h"
+
+#ifndef MBED_CONF_SPIF_DRIVER_SPI_MOSI
+#define MBED_CONF_SPIF_DRIVER_SPI_MOSI NC
+#endif
+#ifndef MBED_CONF_SPIF_DRIVER_SPI_MISO
+#define MBED_CONF_SPIF_DRIVER_SPI_MISO NC
+#endif
+#ifndef MBED_CONF_SPIF_DRIVER_SPI_CLK
+#define MBED_CONF_SPIF_DRIVER_SPI_CLK NC
+#endif
+#ifndef MBED_CONF_SPIF_DRIVER_SPI_CS
+#define MBED_CONF_SPIF_DRIVER_SPI_CS NC
+#endif
+#ifndef MBED_CONF_SPIF_DRIVER_SPI_FREQ
+#define MBED_CONF_SPIF_DRIVER_SPI_FREQ 40000000
+#endif
 
 /** Enum spif standard error codes
  *
@@ -82,8 +99,14 @@ public:
      *  @param sclk     SPI clock pin
      *  @param csel     SPI chip select pin
      *  @param freq     Clock speed of the SPI bus (defaults to 40MHz)
+     *
+     *
      */
-    SPIFBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName csel, int freq = 40000000);
+    SPIFBlockDevice(PinName mosi = MBED_CONF_SPIF_DRIVER_SPI_MOSI,
+                    PinName miso = MBED_CONF_SPIF_DRIVER_SPI_MISO,
+                    PinName sclk = MBED_CONF_SPIF_DRIVER_SPI_CLK,
+                    PinName csel = MBED_CONF_SPIF_DRIVER_SPI_CS,
+                    int freq = MBED_CONF_SPIF_DRIVER_SPI_FREQ);
 
     /** Initialize a block device
      *
@@ -202,9 +225,11 @@ private:
     /****************************************/
     /* SFDP Detection and Parsing Functions */
     /****************************************/
+    // Send SFDP Read command to Driver
+    int _spi_send_read_sfdp_command(mbed::bd_addr_t addr, void *rx_buffer, mbed::bd_size_t rx_length);
+
     // Parse SFDP Headers and retrieve Basic Param and Sector Map Tables (if exist)
-    int _sfdp_parse_sfdp_headers(uint32_t &basic_table_addr, size_t &basic_table_size,
-                                 uint32_t &sector_map_table_addr, size_t &sector_map_table_size);
+    int _sfdp_parse_sfdp_headers(mbed::sfdp_hdr_info &hdr_info);
 
     // Parse and Detect required Basic Parameters from Table
     int _sfdp_parse_basic_param_table(uint32_t basic_table_addr, size_t basic_table_size);
@@ -278,6 +303,11 @@ private:
     int _prog_instruction;
     int _erase_instruction;
     int _erase4k_inst;  // Legacy 4K erase instruction (default 0x20h)
+
+    // SFDP helpers
+    friend int mbed::sfdp_parse_headers(mbed::Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader,
+                                        mbed::sfdp_hdr_info &hdr_info);
+
 
     // Up To 4 Erase Types are supported by SFDP (each with its own command Instruction and Size)
     int _erase_type_inst_arr[MAX_NUM_OF_ERASE_TYPES];

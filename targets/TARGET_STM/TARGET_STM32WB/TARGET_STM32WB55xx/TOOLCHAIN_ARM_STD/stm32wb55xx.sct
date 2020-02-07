@@ -1,0 +1,66 @@
+#! armcc -E
+; Scatter-Loading Description File
+;
+; SPDX-License-Identifier: BSD-3-Clause
+;******************************************************************************
+;* @attention
+;*
+;* Copyright (c) 2016-2020 STMicroelectronics.
+;* All rights reserved.
+;*
+;* This software component is licensed by ST under BSD 3-Clause license,
+;* the "License"; You may not use this file except in compliance with the
+;* License. You may obtain a copy of the License at:
+;*                        opensource.org/licenses/BSD-3-Clause
+;*
+;******************************************************************************
+
+#include "../cmsis_nvic.h"
+
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START  MBED_ROM_START
+#endif
+
+#if !defined(MBED_APP_SIZE)
+; 768KB FLASH // BLE firmware is being flashed strating from @ 0x080C0000
+#define MBED_APP_SIZE 0xC0000
+#endif
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+/* This value is normally defined by the tools to 0x1000 for bare metal and 0x400 for RTOS */
+  #define MBED_BOOT_STACK_SIZE  0x400
+#endif
+
+/* Round up VECTORS_SIZE to 8 bytes */
+#define VECTORS_SIZE  (((NVIC_NUM_VECTORS * 4) + 7) AND ~7)
+
+; RAM_SIZE = 192KB SRAM (0x30000) + Shared mem
+LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {
+
+  ER_IROM1  MBED_APP_START  MBED_APP_SIZE  {
+    *.o (RESET, +First)
+    *(InRoot$$Sections)
+    .ANY (+RO)
+  }
+
+  RW_IRAM1  (MBED_RAM_START + VECTORS_SIZE)  {  ; RW data
+    .ANY (+RW +ZI)
+  }
+
+  ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (MBED_RAM_START + 0x30000 - MBED_BOOT_STACK_SIZE - AlignExpr(ImageLimit(RW_IRAM1), 16))  { ; Heap growing up
+  }
+
+  ARM_LIB_STACK  (MBED_RAM_START + 0x30000)  EMPTY  -MBED_BOOT_STACK_SIZE  { ; Stack region growing down
+  }
+
+  ; SRAM2 - Shared memory
+  RW_IRAM2a 0x20030000 0x00002800  {  ; RW data
+    *(MAPPING_TABLE)
+    *(MB_MEM1)
+  }
+
+  RW_IRAM2b 0x20038000 0x00005000  {  ; RW data
+   *(MB_MEM2)
+  }
+
+}

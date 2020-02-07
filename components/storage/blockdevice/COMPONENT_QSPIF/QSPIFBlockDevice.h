@@ -17,7 +17,34 @@
 #define MBED_QSPIF_BLOCK_DEVICE_H
 
 #include "drivers/QSPI.h"
+#include "drivers/internal/SFDP.h"
 #include "features/storage/blockdevice/BlockDevice.h"
+#include "platform/Callback.h"
+
+#ifndef MBED_CONF_QSPIF_QSPI_IO0
+#define MBED_CONF_QSPIF_QSPI_IO0 NC
+#endif
+#ifndef MBED_CONF_QSPIF_QSPI_IO1
+#define MBED_CONF_QSPIF_QSPI_IO1 NC
+#endif
+#ifndef MBED_CONF_QSPIF_QSPI_IO2
+#define MBED_CONF_QSPIF_QSPI_IO2 NC
+#endif
+#ifndef MBED_CONF_QSPIF_QSPI_IO3
+#define MBED_CONF_QSPIF_QSPI_IO3 NC
+#endif
+#ifndef MBED_CONF_QSPIF_QSPI_SCK
+#define MBED_CONF_QSPIF_QSPI_SCK NC
+#endif
+#ifndef MBED_CONF_QSPIF_QSPI_CSN
+#define MBED_CONF_QSPIF_QSPI_CSN NC
+#endif
+#ifndef MBED_CONF_QSPIF_QSPI_POLARITY_MODE
+#define MBED_CONF_QSPIF_QSPI_POLARITY_MODE 0
+#endif
+#ifndef MBED_CONF_QSPIF_QSPI_FREQ
+#define MBED_CONF_QSPIF_QSPI_FREQ 40000000
+#endif
 
 /** Enum qspif standard error codes
  *
@@ -98,10 +125,15 @@ public:
      *  @param clock_mode specifies the QSPI Clock Polarity mode (QSPIF_POLARITY_MODE_0/QSPIF_POLARITY_MODE_1)
      *         default value = 0
      *  @param freq Clock frequency of the QSPI bus (defaults to 40MHz)
-     *
      */
-    QSPIFBlockDevice(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, PinName csel,
-                     int clock_mode, int freq = MBED_CONF_QSPIF_QSPI_FREQ);
+    QSPIFBlockDevice(PinName io0 = MBED_CONF_QSPIF_QSPI_IO0,
+                     PinName io1 = MBED_CONF_QSPIF_QSPI_IO1,
+                     PinName io2 = MBED_CONF_QSPIF_QSPI_IO2,
+                     PinName io3 = MBED_CONF_QSPIF_QSPI_IO3,
+                     PinName sclk = MBED_CONF_QSPIF_QSPI_SCK,
+                     PinName csel = MBED_CONF_QSPIF_QSPI_CSN,
+                     int clock_mode = MBED_CONF_QSPIF_QSPI_POLARITY_MODE,
+                     int freq = MBED_CONF_QSPIF_QSPI_FREQ);
 
     /** Initialize a block device
      *
@@ -218,6 +250,11 @@ public:
     virtual const char *get_type() const;
 
 private:
+
+    // SFDP helpers
+    friend int mbed::sfdp_parse_headers(mbed::Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader,
+                                        mbed::sfdp_hdr_info &hdr_info);
+
     // Internal functions
 
 
@@ -249,7 +286,7 @@ private:
                                              mbed::bd_size_t tx_length, const char *rx_buffer, mbed::bd_size_t rx_length);
 
     // Send command to read from the SFDP table
-    qspi_status_t _qspi_send_read_sfdp_command(mbed::bd_addr_t addr, void *rx_buffer, mbed::bd_size_t rx_length);
+    int _qspi_send_read_sfdp_command(mbed::bd_addr_t addr, void *rx_buffer, mbed::bd_size_t rx_length);
 
     // Read the contents of status registers 1 and 2 into a buffer (buffer must have a length of 2)
     qspi_status_t _qspi_read_status_registers(uint8_t *reg_buffer);
@@ -282,8 +319,7 @@ private:
     /* SFDP Detection and Parsing Functions */
     /****************************************/
     // Parse SFDP Headers and retrieve Basic Param and Sector Map Tables (if exist)
-    int _sfdp_parse_sfdp_headers(uint32_t &basic_table_addr, size_t &basic_table_size,
-                                 uint32_t &sector_map_table_addr, size_t &sector_map_table_size);
+    int _sfdp_parse_sfdp_headers(mbed::sfdp_hdr_info &hdr_info);
 
     // Parse and Detect required Basic Parameters from Table
     int _sfdp_parse_basic_param_table(uint32_t basic_table_addr, size_t basic_table_size);

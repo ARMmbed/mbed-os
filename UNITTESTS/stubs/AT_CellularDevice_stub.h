@@ -28,6 +28,7 @@ extern int set_pin_failure_count;
 extern int get_sim_failure_count;
 extern bool pin_needed;
 extern bool supported_bool;
+extern int max_sock_value;
 }
 
 

@@ -34,6 +34,13 @@ static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     1,  // PROPERTY_IPV4_STACK
     0,  // PROPERTY_IPV6_STACK
     0,  // PROPERTY_IPV4V6_STACK
+    1,  // PROPERTY_NON_IP_PDP_TYPE
+    0,  // PROPERTY_AT_CGEREP
+    1,  // PROPERTY_AT_COPS_FALLBACK_AUTO
+    7,  // PROPERTY_SOCKET_COUNT
+    0,  // PROPERTY_IP_TCP
+    1,  // PROPERTY_IP_UDP
+    0,  // PROPERTY_AT_SEND_DELAY
 };
 
 UBLOX_N2XX::UBLOX_N2XX(FileHandle *fh): AT_CellularDevice(fh)
@@ -49,13 +56,18 @@ void UBLOX_N2XX::set_at_urcs_impl()
 
 UBLOX_N2XX::~UBLOX_N2XX()
 {
-    _at->set_urc_handler("+NPIN:", NULL);
+    _at->set_urc_handler("+NPIN:", nullptr);
 }
 
 // Callback for Sim Pin.
 void UBLOX_N2XX::NPIN_URC()
 {
     _at->read_string(simstr, sizeof(simstr));
+}
+
+AT_CellularNetwork *UBLOX_N2XX::open_network_impl(ATHandler &at)
+{
+    return new UBLOX_N2XX_CellularNetwork(at, *this);
 }
 
 AT_CellularContext *UBLOX_N2XX::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
@@ -93,8 +105,8 @@ nsapi_error_t UBLOX_N2XX::get_sim_state(SimState &state)
     _at->lock();
     _at->flush();
     //Special case: Command put in cmd_chr to make a 1 liner
-    _at->at_cmd_str("", "+CFUN=1", simstr, sizeof(simstr));
-    error = _at->unlock_return_error();
+    error = _at->at_cmd_str("", "+CFUN=1", simstr, sizeof(simstr));
+    _at->unlock();
 
     int len = strlen(simstr);
     if (len > 0 || error == NSAPI_ERROR_OK) {
@@ -149,10 +161,10 @@ nsapi_error_t UBLOX_N2XX::set_pin(const char *sim_pin)
 }
 
 #if MBED_CONF_UBLOX_N2XX_PROVIDE_DEFAULT
-#include "UARTSerial.h"
+#include "drivers/BufferedSerial.h"
 CellularDevice *CellularDevice::get_default_instance()
 {
-    static UARTSerial serial(MBED_CONF_UBLOX_N2XX_TX, MBED_CONF_UBLOX_N2XX_RX, MBED_CONF_UBLOX_N2XX_BAUDRATE);
+    static BufferedSerial serial(MBED_CONF_UBLOX_N2XX_TX, MBED_CONF_UBLOX_N2XX_RX, MBED_CONF_UBLOX_N2XX_BAUDRATE);
 #if defined (MBED_CONF_UBLOX_N2XX_RTS) && defined(MBED_CONF_UBLOX_N2XX_CTS)
     tr_debug("UBLOX_N2XX flow control: RTS %d CTS %d", MBED_CONF_UBLOX_N2XX_RTS, MBED_CONF_UBLOX_N2XX_CTS);
     serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_UBLOX_N2XX_RTS, MBED_CONF_UBLOX_N2XX_CTS);

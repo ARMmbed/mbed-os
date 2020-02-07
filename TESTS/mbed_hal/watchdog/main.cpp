@@ -14,10 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] Watchdog test cases require a RTOS to run.
-#else
-
 #if !DEVICE_WATCHDOG
 #error [NOT_SUPPORTED] Watchdog not supported for this target
 #else
@@ -56,12 +52,12 @@
  * are empty. However, it is possible to determine the time required for the
  * buffers to flush.
  *
- * Take NUMAKER_PFM_NUC472 as an example:
- * The UART peripheral has 16-byte Tx FIFO. With a baud rate set to 9600,
- * flushing the Tx FIFO would take: 16 * 8 * 1000 / 9600 = 13.3 ms.
- * To be on the safe side, set the wait time to 20 ms.
+ * Assuming the biggest Tx FIFO of 128 bytes (as for CY8CPROTO_062_4343W)
+ * and a default UART config (9600, 8N1), flushing the Tx FIFO wold take:
+ * (1 start_bit + 8 data_bits + 1 stop_bit) * 128 * 1000 / 9600 = 133.3 ms.
+ * To be on the safe side, set the wait time to 150 ms.
  */
-#define SERIAL_FLUSH_TIME_MS    20
+#define SERIAL_FLUSH_TIME_MS 150
 
 int CASE_INDEX_START;
 int CASE_INDEX_CURRENT;
@@ -72,18 +68,6 @@ using utest::v1::Specification;
 using utest::v1::Harness;
 
 const watchdog_config_t WDG_CONFIG_DEFAULT = { .timeout_ms = WDG_TIMEOUT_MS };
-
-Thread wdg_kicking_thread(osPriorityNormal, 768);
-Semaphore kick_wdg_during_test_teardown(0, 1);
-
-void wdg_kicking_thread_fun()
-{
-    kick_wdg_during_test_teardown.wait();
-    while (true) {
-        hal_watchdog_kick();
-        wait_ms(20);
-    }
-}
 
 void test_max_timeout_is_valid()
 {
@@ -168,8 +152,10 @@ utest::v1::status_t case_teardown_sync_on_reset(const Case *const source, const 
     if (CASE_IGNORED) {
         return utest::v1::greentea_case_teardown_handler(source, passed, failed, failure);
     }
-    // Unlock kicking the watchdog during teardown.
-    kick_wdg_during_test_teardown.release();
+    // Start kicking the watchdog during teardown.
+    hal_watchdog_kick();
+    Ticker wdg_kicking_ticker;
+    wdg_kicking_ticker.attach_us(mbed::callback(hal_watchdog_kick), 20000);
     utest::v1::status_t status = utest::v1::greentea_case_teardown_handler(source, passed, failed, failure);
     if (failed) {
         /* Return immediately and skip the device reset, if the test case failed.
@@ -256,10 +242,6 @@ int testsuite_setup_sync_on_reset(const size_t number_of_cases)
         return utest::v1::STATUS_ABORT;
     }
 
-    // The thread is started here, but feeding the watchdog will start
-    // when the semaphore is released during a test case teardown.
-    wdg_kicking_thread.start(mbed::callback(wdg_kicking_thread_fun));
-
     utest_printf("Starting with test case index %i of all %i defined test cases.\n", CASE_INDEX_START, number_of_cases);
     return CASE_INDEX_START;
 }
@@ -289,4 +271,3 @@ int main()
 }
 
 #endif // !DEVICE_WATCHDOG
-#endif // !defined(MBED_CONF_RTOS_PRESENT)

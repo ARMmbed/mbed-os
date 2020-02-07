@@ -58,6 +58,10 @@
             "help": "Number of cached host name resolutions",
             "value": 3
         },
+        "dns-addresses-limit": {
+            "help": "Max number IP addresses returned by  multiple DNS query",
+            "value": 10
+        },
         "socket-stats-enabled": {
             "help": "Enable network socket statistics",
             "value": false

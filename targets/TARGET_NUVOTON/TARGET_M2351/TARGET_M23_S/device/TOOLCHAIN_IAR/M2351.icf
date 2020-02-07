@@ -1,0 +1,123 @@
+/*
+ * Copyright (c) 2018-2019, Nuvoton Technology Corporation
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*###ICF### Section handled by ICF editor, don't touch! ****/
+/*-Editor annotation file-*/
+/* IcfEditorFile="$TOOLKIT_DIR$\config\ide\IcfEditor\cortex_v1_0.xml" */
+
+include "../../../device/partition_M2351_mem.icf.h";
+
+if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
+    define symbol MBED_BOOT_STACK_SIZE          = 0x400;
+}
+
+/* FIXME: Check NSC area requirement */
+
+/*-Specials-*/
+define symbol __ICFEDIT_intvec_start__          = MBED_APP_START;
+/*-Memory Regions-*/
+define symbol __ICFEDIT_region_ROM_start__      = MBED_APP_START;
+define symbol __ICFEDIT_region_ROM_end__        = MBED_APP_START + MBED_APP_SIZE - 1;
+define symbol __ICFEDIT_region_IRAM_start__     = MBED_RAM_APP_START;
+define symbol __ICFEDIT_region_IRAM_end__       = MBED_RAM_APP_START + MBED_RAM_APP_SIZE - 1;
+
+/*-Sizes-*/
+define symbol __ICFEDIT_size_cstack__           = MBED_BOOT_STACK_SIZE;
+if (TFM_LVL > 0) {
+    define symbol __ICFEDIT_size_cstack_msp__   = 0x800;
+}
+define symbol __ICFEDIT_size_intvec__           = 4 * (16 + 102);
+define symbol __ICFEDIT_size_heap__             = 0x400;
+
+
+/**** End of ICF editor section. ###ICF###*/
+
+
+define memory mem with size = 4G;
+define region ROM_region    = mem:[from __ICFEDIT_region_ROM_start__   to __ICFEDIT_region_ROM_end__];
+define region IRAM_region   = mem:[from __ICFEDIT_region_IRAM_start__  to __ICFEDIT_region_IRAM_end__];
+
+/* IAR has something wrong with "$$" in section/block name. So unlike other toolchains,
+ * we name "ER_IROM_NSC" instead of "Image$$ER_IROM_NSC". */
+define block ER_IROM_NSC    with alignment = 32     { readonly section Veneer$$CMSE };
+
+define block CSTACK     with alignment = 8, size = __ICFEDIT_size_cstack__      { };
+if (TFM_LVL > 0) {
+    define block CSTACK_MSP with alignment = 8, size = __ICFEDIT_size_cstack_msp__  { };
+}
+define block HEAP       with expanding size, alignment = 8, minimum size = __ICFEDIT_size_heap__    { };
+/* NOTE: Vector table base requires to be aligned to the power of vector table size. Give a safe value here. */
+define block IRAMVEC    with alignment = 1024, size = __ICFEDIT_size_intvec__   { };
+
+if (TFM_LVL == 1) {
+    define block TDB_INTERNAL_STORAGE   with size = NU_TDB_INTERNAL_STORAGE_SIZE{ };
+    define block TFM_SECURE_STACK   with alignment = 128, size = 0x1000         { };
+    define block TFM_UNPRIV_SCRATCH with alignment = 32, size = 0x400           { };
+    define block ER_TFM_DATA with alignment = 8                                 { readwrite };
+} else if (TFM_LVL > 1) {
+    error "TFM level 2/3 are not supported yet";
+}
+
+initialize by copy { readwrite };
+do not initialize  { section .noinit };
+
+place at address mem: __ICFEDIT_intvec_start__  { readonly section .intvec };
+place in ROM_region                             { readonly };
+place at address mem: NU_TZ_NSC_START           { block ER_IROM_NSC };
+
+if (TFM_LVL == 0) {
+    place at start of IRAM_region               { block CSTACK };
+} else {
+    place at start of IRAM_region               { block CSTACK_MSP };
+    place in IRAM_region                        { block CSTACK };
+}
+place in IRAM_region                            { block IRAMVEC };
+
+if (TFM_LVL == 0) {
+    place in IRAM_region                        { readwrite };
+} else if (TFM_LVL == 1) {
+    place at address mem: NU_TDB_INTERNAL_STORAGE_START { block TDB_INTERNAL_STORAGE };
+    place in IRAM_region                        { block TFM_SECURE_STACK };
+    place in IRAM_region                        { block TFM_UNPRIV_SCRATCH };
+    place in IRAM_region                        { block ER_TFM_DATA };
+} else {
+    error "TFM level 2/3 are not supported yet";
+}
+
+place in IRAM_region                            { block HEAP };
+
+define exported symbol Image$$ER_IROM_NSC$$Base         = NU_TZ_NSC_START;
+
+/* TODO: Export the following symbols to support TFM secure code */
+/*
+if (TFM_LVL > 0) {
+    define exported symbol Image$$ARM_LIB_STACK$$ZI$$Limit      = Start of CSTACK;
+}
+if (TFM_LVL == 1) {
+    define exported symbol Image$$TFM_SECURE_STACK$$ZI$$Base    = Start of TFM_SECURE_STACK;
+    define exported symbol Image$$TFM_SECURE_STACK$$ZI$$Limit   = End of TFM_SECURE_STACK;
+    define exported symbol Image$$TFM_UNPRIV_SCRATCH$$ZI$$Base  = Start of TFM_UNPRIV_SCRATCH;
+    define exported symbol Image$$TFM_UNPRIV_SCRATCH$$ZI$$Limit = End of TFM_UNPRIV_SCRATCH;
+    define exported symbol Image$$ER_TFM_DATA$$RW$$Base         = Start of ER_TFM_DATA (readwrite - zeroinit);
+    define exported symbol Image$$ER_TFM_DATA$$RW$$Limit        = End of ER_TFM_DATA (zeroinit);
+    define exported symbol Image$$ER_TFM_DATA$$ZI$$Base         = End of ER_TFM_DATA (zeroinit);
+    define exported symbol Image$$ER_TFM_DATA$$ZI$$Limit        = ADDR(.TFM_BSS) + SIZEOF(.TFM_BSS);
+    define exported symbol Image$$ARM_LIB_HEAP$$ZI$$Base        = Start of HEAP;
+    define exported symbol Image$$ARM_LIB_HEAP$$ZI$$Limit       = End of HEAP;
+}
+*/

@@ -2112,7 +2112,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                 silent=False, report=None, properties=None,
                 continue_on_build_fail=False, app_config=None,
                 build_profile=None, stats_depth=None, ignore=None,
-                resource_filter=None):
+                resource_filter=None, coverage_patterns=None):
     """Given the data structure from 'find_tests' and the typical build parameters,
     build all the tests
 
@@ -2168,6 +2168,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
             'toolchain_paths': TOOLCHAIN_PATHS,
             'stats_depth': stats_depth,
             'notify': MockNotifier(),
+            'coverage_patterns': coverage_patterns, 
             'resource_filter': resource_filter
         }
 

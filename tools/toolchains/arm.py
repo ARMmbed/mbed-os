@@ -31,12 +31,18 @@ from tools.resources import FileRef
 
 ARMC5_MIGRATION_WARNING = (
     "Warning: We noticed that you are using Arm Compiler 5. "
-    "We are deprecating the use of Arm Compiler 5 soon. "
+    "We are deprecating the use of Arm Compiler 5. "
     "Please upgrade your environment to Arm Compiler 6 "
     "which is free to use with Mbed OS. For more information, "
     "please visit https://os.mbed.com/docs/mbed-os/latest/tools/index.html"
 )
 
+UARM_TOOLCHAIN_WARNING = (
+    "Warning: We noticed that you are using uARM Toolchain either via --toolchain command line or default_toolchain option. "
+    "We are deprecating the use of the uARM Toolchain. "
+    "For more information on how to use the ARM toolchain with small C libraries, "
+    "please visit https://os.mbed.com/docs/mbed-os/latest/reference/using-small-c-libraries.html"
+)
 
 class ARM(mbedToolchain):
     LINKER_EXT = '.sct'
@@ -63,7 +69,7 @@ class ARM(mbedToolchain):
         return mbedToolchain.generic_check_executable("ARM", 'armcc', 2, 'bin')
 
     def __init__(self, target, notify=None, macros=None,
-                 build_profile=None, build_dir=None):
+                 build_profile=None, build_dir=None, coverage_patterns=None):
         mbedToolchain.__init__(
             self, target, notify, macros, build_dir=build_dir,
             build_profile=build_profile)
@@ -71,7 +77,12 @@ class ARM(mbedToolchain):
             raise NotSupportedException(
                 "this compiler does not support the core %s" % target.core)
 
-        if getattr(target, "default_toolchain", "ARM") == "uARM":
+        self.check_c_lib_supported(target, "arm")
+
+        if (
+            getattr(target, "default_toolchain", "ARM") == "uARM"
+            or getattr(target, "c_lib", "std") == "small"
+        ):
             if "-DMBED_RTOS_SINGLE_THREAD" not in self.flags['common']:
                 self.flags['common'].append("-DMBED_RTOS_SINGLE_THREAD")
             if "-D__MICROLIB" not in self.flags['common']:
@@ -442,7 +453,8 @@ class ARM_STD(ARM):
             notify=None,
             macros=None,
             build_profile=None,
-            build_dir=None
+            build_dir=None,
+            coverage_patterns=None
     ):
         ARM.__init__(
             self,
@@ -450,7 +462,8 @@ class ARM_STD(ARM):
             notify,
             macros,
             build_dir=build_dir,
-            build_profile=build_profile
+            build_profile=build_profile,
+            coverage_patterns=None
         )
         if int(target.build_tools_metadata["version"]) > 0:
             # check only for ARMC5 because ARM_STD means using ARMC5, and thus
@@ -556,17 +569,18 @@ class ARMC6(ARM_STD):
                     "ARM/ARMC6 compiler support is required for ARMC6 build"
                 )
 
-        if getattr(target, "default_toolchain", "ARMC6") == "uARM":
+        self.check_c_lib_supported(target, "arm")
+
+        if (
+            getattr(target, "default_toolchain", "ARMC6") == "uARM"
+            or getattr(target, "c_lib", "std") == "small"
+        ):
             if "-DMBED_RTOS_SINGLE_THREAD" not in self.flags['common']:
                 self.flags['common'].append("-DMBED_RTOS_SINGLE_THREAD")
             if "-D__MICROLIB" not in self.flags['common']:
                 self.flags['common'].append("-D__MICROLIB")
             if "--library_type=microlib" not in self.flags['ld']:
                 self.flags['ld'].append("--library_type=microlib")
-            if "-Wl,--library_type=microlib" not in self.flags['c']:
-                self.flags['c'].append("-Wl,--library_type=microlib")
-            if "-Wl,--library_type=microlib" not in self.flags['cxx']:
-                self.flags['cxx'].append("-Wl,--library_type=microlib")
             if "--library_type=microlib" not in self.flags['asm']:
                 self.flags['asm'].append("--library_type=microlib")
 

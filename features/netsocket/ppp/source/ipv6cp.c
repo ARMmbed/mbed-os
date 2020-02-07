@@ -328,7 +328,9 @@ static enum script_state {
 static pid_t ipv6cp_script_pid;
 #endif /* UNUSED */
 
+#if PPP_DEBUG
 static char *llv6_ntoa(eui64_t ifaceid);
+#endif
 
 #if PPP_OPTIONS
 /*
@@ -409,6 +411,7 @@ printifaceid(opt, printer, arg)
 /*
  * Make a string representation of a network address.
  */
+#if PPP_DEBUG
 static char *
 llv6_ntoa(eui64_t ifaceid)
 {
@@ -420,7 +423,7 @@ llv6_ntoa(eui64_t ifaceid)
 
     return b;
 }
-
+#endif
 
 /*
  * ipv6cp_init - Initialize IPV6CP.
@@ -1245,6 +1248,7 @@ static void ipv6cp_up(fsm *f) {
 	    ipv6cp_close(f->pcb, "Interface configuration failed");
 	    return;
 	}
+
 #if DEMAND_SUPPORT
 	sifnpmode(f->pcb, PPP_IPV6, NPMODE_PASS);
 #endif /* DEMAND_SUPPORT */

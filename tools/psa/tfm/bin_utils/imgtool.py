@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 #
 # Copyright 2017 Linaro Limited
-# Copyright (c) 2018, Arm Limited.
+# Copyright (c) 2018-2019, Arm Limited.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,6 +23,9 @@ from .imgtool_lib import keys
 from .imgtool_lib import image
 from .imgtool_lib import version
 import sys
+
+sign_bin_size_re = re.compile(r"^\s*RE_SIGN_BIN_SIZE\s*=\s*(.*)")
+image_load_address_re = re.compile(r"^\s*RE_IMAGE_LOAD_ADDRESS\s*=\s*(.*)")
 
 def find_load_address(args):
     load_address_re = re.compile(r"^#define\sIMAGE_LOAD_ADDRESS\s+(0x[0-9a-fA-F]+)")
@@ -60,6 +63,7 @@ def get_last_version(path):
 
 def next_version_number(args, defaultVersion, path):
     newVersion = None
+    versionProvided = False
     if (version.compare(args.version, defaultVersion) == 0): # Default version
         lastVersion = get_last_version(path)
         if (lastVersion is not None):
@@ -67,6 +71,7 @@ def next_version_number(args, defaultVersion, path):
         else:
             newVersion = version.increment_build_num(defaultVersion)
     else: # Version number has been explicitly provided (not using the default)
+        versionProvided = True
         newVersion = args.version
     versionString = "{a}.{b}.{c}+{d}".format(
                     a=str(newVersion.major),
@@ -74,16 +79,21 @@ def next_version_number(args, defaultVersion, path):
                     c=str(newVersion.revision),
                     d=str(newVersion.build)
     )
-    with open(path, "w") as newFile:
-        newFile.write(versionString)
+    if not versionProvided:
+        with open(path, "w") as newFile:
+            newFile.write(versionString)
     print("**[INFO]** Image version number set to " + versionString)
     return newVersion
 
 def gen_rsa2048(args):
-    keys.RSA2048.generate().export_private(args.key)
+    keys.RSAutil.generate().export_private(args.key)
+
+def gen_rsa3072(args):
+    keys.RSAutil.generate(key_size=3072).export_private(args.key)
 
 keygens = {
-        'rsa-2048': gen_rsa2048, }
+        'rsa-2048': gen_rsa2048,
+        'rsa-3072': gen_rsa3072, }
 
 def do_keygen(args):
     if args.type not in keygens:
@@ -102,18 +112,38 @@ def do_getpub(args):
 def do_sign(args):
     if args.rsa_pkcs1_15:
         keys.sign_rsa_pss = False
-    img = image.Image.load(args.infile,
-            version=next_version_number(args,
-                                        version.decode_version("0"),
-                                        "lastVerNum.txt"),
-            header_size=args.header_size,
-            included_header=args.included_header,
-            pad=args.pad)
-    key = keys.load(args.key) if args.key else None
-    img.sign(key, find_load_address(args))
 
-    if args.pad:
-        img.pad_to(args.pad, args.align)
+    version_num = next_version_number(args,
+                                      version.decode_version("0"),
+                                      "lastVerNum.txt")
+
+    if args.security_counter is None:
+        # Security counter has not been explicitly provided,
+        # generate it from the version number
+        args.security_counter = ((version_num.major << 24)
+                                 + (version_num.minor << 16)
+                                 + version_num.revision)
+
+    if "_s.c" in args.layout:
+        sw_type = "SPE"
+    elif "_ns.c" in args.layout:
+        sw_type = "NSPE"
+    else:
+        sw_type = "NSPE_SPE"
+
+    pad_size = args.pad
+    img = image.Image.load(args.infile,
+                           version=version_num,
+                           header_size=args.header_size,
+                           security_cnt=args.security_counter,
+                           included_header=args.included_header,
+                           pad=pad_size)
+    key = keys.load(args.key, args.public_key_format) if args.key else None
+    ram_load_address = find_load_address(args)
+    img.sign(sw_type, key, ram_load_address, args.dependencies)
+
+    if pad_size:
+        img.pad_to(pad_size, args.align)
 
     img.save(args.outfile)
 
@@ -121,6 +151,30 @@ subcmds = {
         'keygen': do_keygen,
         'getpub': do_getpub,
         'sign': do_sign, }
+
+
+def get_dependencies(text):
+    if text is not None:
+        versions = []
+        images = re.findall(r"\((\d+)", text)
+        if len(images) == 0:
+            msg = "Image dependency format is invalid: {}".format(text)
+            raise argparse.ArgumentTypeError(msg)
+        raw_versions = re.findall(r",\s*([0-9.+]+)\)", text)
+        if len(images) != len(raw_versions):
+            msg = '''There's a mismatch between the number of dependency images
+            and versions in: {}'''.format(text)
+            raise argparse.ArgumentTypeError(msg)
+        for raw_version in raw_versions:
+            try:
+                versions.append(version.decode_version(raw_version))
+            except ValueError as e:
+                print(e)
+        dependencies = dict()
+        dependencies[image.DEP_IMAGES_KEY] = images
+        dependencies[image.DEP_VERSIONS_KEY] = versions
+        return dependencies
+
 
 def alignment_value(text):
     value = int(text)
@@ -149,17 +203,23 @@ def args():
     getpub.add_argument('-l', '--lang', metavar='lang', default='c')
 
     sign = subs.add_parser('sign', help='Sign an image with a private key')
-    sign.add_argument('--layout', required=True,
-                      help='Location of the memory layout file')
+    sign.add_argument('-l', '--layout', required=True,
+                      help='Location of the file that contains preprocessed macros')
     sign.add_argument('-k', '--key', metavar='filename')
+    sign.add_argument("-K", "--public-key-format",
+                      help='In what format to add the public key to the image manifest: full or hash',
+                      metavar='pub_key_format', choices=['full', 'hash'], default='hash')
     sign.add_argument("--align", type=alignment_value, required=True)
     sign.add_argument("-v", "--version", type=version.decode_version,
                       default="0.0.0+0")
+    sign.add_argument("-d", "--dependencies", type=get_dependencies,
+                      required=False, help='''Add dependence on another image,
+                      format: "(<image_ID>,<image_version>), ... "''')
+    sign.add_argument("-s", "--security-counter", type=intparse,
+                      help='Specify explicitly the security counter value')
     sign.add_argument("-H", "--header-size", type=intparse, required=True)
     sign.add_argument("--included-header", default=False, action='store_true',
                       help='Image has gap for header')
-    sign.add_argument("--pad", type=intparse,
-                      help='Pad image to this many bytes, adding trailer magic')
     sign.add_argument("--rsa-pkcs1-15",
                       help='Use old PKCS#1 v1.5 signature algorithm',
                       default=False, action='store_true')

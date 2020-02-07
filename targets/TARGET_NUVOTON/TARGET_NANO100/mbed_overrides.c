@@ -64,7 +64,7 @@ void mbed_sdk_init(void)
      *    T2. <1 ms with HIRC-clocked PLL as HCLK clock source
      *    T1 will fail Greentea test which requires max 10 ms wake-up time.
      *
-     *    If we just call CLK_SetCoreClock(FREQ_42MHZ) to configure HCLK to 42 MHz,
+     *    If we just call CLK_SetCoreClock(FREQ_48MHZ) to configure HCLK to 48 MHz,
      *    it will go T1 with HXT already enabled in front. So we manually configure
      *    it to choose HXT/HIRC-clocked PLL.
      */
@@ -76,10 +76,10 @@ void mbed_sdk_init(void)
 #endif
 
 #if (NU_CLOCK_PLL == NU_HXT_PLL)
-    CLK_EnablePLL(CLK_PLLCTL_PLL_SRC_HXT, FREQ_42MHZ*2);
+    CLK_EnablePLL(CLK_PLLCTL_PLL_SRC_HXT, FREQ_48MHZ*2);
     CLK_SetHCLK(CLK_CLKSEL0_HCLK_S_PLL, CLK_HCLK_CLK_DIVIDER(2));
 #elif (NU_CLOCK_PLL == NU_HIRC_PLL)
-    CLK_EnablePLL(CLK_PLLCTL_PLL_SRC_HIRC, FREQ_42MHZ*2);
+    CLK_EnablePLL(CLK_PLLCTL_PLL_SRC_HIRC, FREQ_48MHZ*2);
     CLK_SetHCLK(CLK_CLKSEL0_HCLK_S_PLL, CLK_HCLK_CLK_DIVIDER(2));
 #endif
 

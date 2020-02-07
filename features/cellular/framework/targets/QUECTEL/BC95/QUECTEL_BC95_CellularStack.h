@@ -20,8 +20,6 @@
 
 #include "AT_CellularStack.h"
 
-#define BC95_SOCKET_MAX 7
-
 namespace mbed {
 
 class QUECTEL_BC95_CellularStack : public AT_CellularStack {
@@ -39,10 +37,6 @@ protected: // NetworkStack
     virtual nsapi_error_t socket_connect(nsapi_socket_t handle, const SocketAddress &address);
 
 protected: // AT_CellularStack
-
-    virtual int get_max_socket_count();
-
-    virtual bool is_protocol_supported(nsapi_protocol_t protocol);
 
     virtual nsapi_error_t socket_close_impl(int sock_id);
 

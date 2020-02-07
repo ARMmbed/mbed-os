@@ -54,7 +54,7 @@
 
 #define QSPI_PAGE_SIZE                          256     // 256B
 #define QSPI_SECTOR_SIZE                        4096    // 4kB
-#define QSPI_SECTOR_COUNT                       2048
+#define QSPI_SECTOR_COUNT                       131072  // 512MB / QSPI_SECTOR_SIZE
 
 // Commands for reading
 // Only single/octal mode supported with this memory
@@ -67,7 +67,7 @@
 
 // Commands for erasing
 #define QSPI_CMD_ERASE_SECTOR                   0x20    // 4kB
-//#define QSPI_CMD_ERASE_BLOCK_32   // not supported, only ersae block 64
+//#define QSPI_CMD_ERASE_BLOCK_32                       // not supported
 #define QSPI_CMD_ERASE_BLOCK_64                 0xD8    // 64kB
 #define QSPI_CMD_ERASE_CHIP                     0x60    // or 0xC7
 
@@ -76,13 +76,13 @@
 #define QSPI_ERASE_BLOCK_64_MAX_TIME            2400000     // 2s
 
 // max frequency for basic rw operation (for fast mode)
-#define QSPI_COMMON_MAX_FREQUENCY               1000000
+#define QSPI_COMMON_MAX_FREQUENCY               66000000
 
-#define QSPI_STATUS_REG_SIZE                    1 //2 ??
+#define QSPI_STATUS_REG_SIZE                    1
 #define QSPI_CONFIG_REG_0_SIZE                  1
-#define QSPI_CONFIG_REG_1_SIZE                  1
+#define QSPI_CONFIG_REG_1_SIZE                  12
 #define QSPI_SECURITY_REG_SIZE                  1
-#define QSPI_MAX_REG_SIZE                       2
+#define QSPI_MAX_REG_SIZE                       12
 
 // status register
 #define STATUS_BIT_WIP   (1 << 0)   // write in progress bit
@@ -91,11 +91,5 @@
 #define STATUS_BIT_BP1   (1 << 3)   //
 #define STATUS_BIT_BP2   (1 << 4)   //
 #define STATUS_BIT_BP3   (1 << 5)   //
-//#define STATUS_BIT_QE    (1 << 6)   // Not supported
-//#define STATUS_BIT_SRWD  (1 << 7)   // Not supported
-
-// configuration register 0
-// bit 0, 1, 2, 4, 5, 7 reserved
-#define CONFIG0_BIT_TB   (1 << 3)   // Top/Bottom area protect
 
 #endif // MBED_QSPI_FLASH_MX25LM51245G_H

@@ -29,6 +29,7 @@ public:
 
 protected:
     virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology opRat);
+    virtual nsapi_error_t clear();
 };
 } // namespace mbed
 #endif // QUECTEL_BC95_CELLULAR_NETWORK_H_

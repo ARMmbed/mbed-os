@@ -12,7 +12,7 @@
         },
 
         "stdio-buffered-serial": {
-            "help": "(Applies if target.console-uart is true and stdio-minimal-console-only is false.) Use UARTSerial driver to obtain buffered serial I/O on stdin/stdout/stderr. If false, unbuffered serial_getc and serial_putc are used directly.",
+            "help": "(Applies if target.console-uart is true and stdio-minimal-console-only is false.) Use BufferedSerial driver to obtain buffered serial I/O on stdin/stdout/stderr. If false, unbuffered serial_getc and serial_putc are used directly.",
             "value": false
         },
 
@@ -216,6 +216,9 @@
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
+        "NU_PFM_M2351": {
+            "stdio-baud-rate": 115200
+        },
         "NRF52840_DK": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
@@ -233,6 +236,13 @@
             "fatal-error-auto-reboot-enabled": true
         },
         "DISCO_F413ZH": {
+            "crash-capture-enabled": true,
+            "fatal-error-auto-reboot-enabled": true
+        },
+        "S5JS100": {
+            "stdio-baud-rate": 115200
+        },
+        "NUCLEO_L452RE-P": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         }

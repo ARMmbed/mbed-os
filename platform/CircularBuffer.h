@@ -49,7 +49,7 @@ template<>
 struct is_unsigned<unsigned long long> {
     static const bool value = true;
 };
-};
+}
 
 /** \addtogroup platform-public-api */
 /** @{*/

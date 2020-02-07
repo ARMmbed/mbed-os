@@ -291,6 +291,10 @@ void all_peripherals()
 template<typename PortType, typename FormFactorType, typename PortType::TestFunctionType f>
 void one_peripheral()
 {
+#ifdef FPGA_FORCE_ALL_PORTS
+    utest_printf("*** FPGA_FORCE_ALL_PORTS ***\n");
+    all_ports<PortType, FormFactorType, f>();
+#else
     std::list<PortType> matched_ports, not_matched_ports;
     find_ports<PortType, FormFactorType>(matched_ports, not_matched_ports);
 
@@ -300,6 +304,7 @@ void one_peripheral()
     } else {
         test_peripheral<PortType, typename PortType::TestFunctionType, f>(matched_ports.front());
     }
+#endif
 }
 
 template <uint32_t N, typename PinMapType, typename FormFactorType, typename TestFunctionType>
@@ -540,6 +545,7 @@ typedef Port<1, AnalogoutMaps, DefaultFormFactor, TF1> AnalogoutPort;
 
 #if DEVICE_SERIAL
 #if DEVICE_SERIAL_FC
+#include "hal/serial_api.h"
 struct UARTMaps {
     static const PinMap *maps[];
     static const char *const pin_type_names[];

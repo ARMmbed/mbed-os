@@ -20,6 +20,7 @@
 #include "CellularUtil.h"
 #include "CellularLog.h"
 #include "events/EventQueue.h"
+#include "mbed_shared_queues.h"
 
 namespace mbed {
 
@@ -33,28 +34,34 @@ MBED_WEAK CellularDevice *CellularDevice::get_target_default_instance()
     return NULL;
 }
 
-CellularDevice::CellularDevice(FileHandle *fh) : _network_ref_count(0),
+CellularDevice::CellularDevice(FileHandle *fh) :
+    _network_ref_count(0),
 #if MBED_CONF_CELLULAR_USE_SMS
     _sms_ref_count(0),
 #endif //MBED_CONF_CELLULAR_USE_SMS
     _info_ref_count(0), _fh(fh), _queue(10 * EVENTS_EVENT_SIZE), _state_machine(0),
-    _nw(0), _status_cb(0), _property_array(0)
+    _status_cb(), _nw(0)
+#ifdef MBED_CONF_RTOS_PRESENT
+    , _queue_thread(osPriorityNormal, 2048, NULL, "cellular_queue")
+#endif // MBED_CONF_RTOS_PRESENT
 {
     MBED_ASSERT(fh);
     set_sim_pin(NULL);
     set_plmn(NULL);
+
+#ifdef MBED_CONF_RTOS_PRESENT
+    if (_queue_thread.start(callback(&_queue, &events::EventQueue::dispatch_forever)) != osOK) {
+        tr_error("Failed to start thread");
+    }
+#else
+    _queue.chain(mbed_event_queue());
+#endif
 }
 
 CellularDevice::~CellularDevice()
 {
     tr_debug("CellularDevice destruct");
     delete _state_machine;
-}
-
-void CellularDevice::stop()
-{
-    MBED_ASSERT(_state_machine);
-    _state_machine->stop();
 }
 
 FileHandle &CellularDevice::get_file_handle() const
@@ -65,11 +72,6 @@ FileHandle &CellularDevice::get_file_handle() const
 events::EventQueue *CellularDevice::get_queue()
 {
     return &_queue;
-}
-
-CellularContext *CellularDevice::get_context_list() const
-{
-    return NULL;
 }
 
 void CellularDevice::get_retry_timeout_array(uint16_t *timeout, int &array_len) const
@@ -253,11 +255,5 @@ void CellularDevice::set_retry_timeout_array(const uint16_t timeout[], int array
         _state_machine->set_retry_timeout_array(timeout, array_len);
     }
 }
-
-nsapi_error_t CellularDevice::clear()
-{
-    return NSAPI_ERROR_OK;
-}
-
 
 } // namespace mbed

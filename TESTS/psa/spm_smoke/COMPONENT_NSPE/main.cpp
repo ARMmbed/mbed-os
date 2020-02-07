@@ -27,6 +27,7 @@
 #include "utest.h"
 #include "psa/client.h"
 #include "psa_manifest/sid.h"
+#include <string.h>
 
 #if defined(TARGET_TFM)
 #define PSA_MAX_IOVEC 4

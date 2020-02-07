@@ -10,7 +10,7 @@ These images were compiled by the following command:
 ### Repository
 https://git.trustedfirmware.org/trusted-firmware-m.git
 ### Commit SHA
-8da7f102a6a6a1a99462f7f32edbd1565096c2f3
+6c5be4a98e4d7055ee49076ca4e515fb4b172e66
 ```sh
 cmake ../ -G"Unix Makefiles" -DTARGET_PLATFORM=MUSCA_A -DCOMPILER=ARMCLANG -DCMAKE_BUILD_TYPE=Debug
 make

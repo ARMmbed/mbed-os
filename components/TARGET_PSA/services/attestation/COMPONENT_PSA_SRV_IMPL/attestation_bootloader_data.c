@@ -21,7 +21,7 @@
 /* Temporary Boodloader data - contains temp mandatory claims */
 __attribute__((aligned(4)))
 const uint8_t temp_ram_page_data[] = {
-    0x16, 0x20, 0xB0, 0x00,                         //shared_data_tlv_header
+    0x16, 0x20, 0xAC, 0x00,                         //shared_data_tlv_header
     0x83, 0x11, 0x0C, 0x00,                         // SW_TYPE
     0x4E, 0x53, 0x50, 0x45, 0x5F, 0x53, 0x50, 0x45,
     0x80, 0x11, 0x0A, 0x00,                         //SW_VERSION

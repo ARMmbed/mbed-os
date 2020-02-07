@@ -216,7 +216,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     m_channel_ids[pin] = id;
 
     gpio_apply_config(pin);
-    return 1;
+    return 0;
 }
 
 

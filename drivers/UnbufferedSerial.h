@@ -30,6 +30,9 @@
 
 
 namespace mbed {
+/** \defgroup drivers-public-api-uart UART
+ * \ingroup drivers-public-api
+ */
 
 /**
  * \defgroup drivers_UnbufferedSerial UnbufferedSerial class
@@ -151,6 +154,12 @@ public:
      * @returns             bitmask of poll events that have occurred.
      */
     virtual short poll(short events) const;
+
+    using SerialBase::readable;
+    using SerialBase::writeable;
+    using SerialBase::format;
+    using SerialBase::attach;
+    using SerialBase::baud;
 
 #if DEVICE_SERIAL_FC
     // For now use the base enum - but in future we may have extra options

@@ -1,0 +1,72 @@
+/* Linker script to configure memory regions.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2016-2020 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
+ *
+ ******************************************************************************
+*/
+/* Device specific values */
+
+if (!isdefinedsymbol(MBED_APP_START)) { define symbol MBED_APP_START = 0x08000000; }
+if (!isdefinedsymbol(MBED_APP_SIZE)) { define symbol MBED_APP_SIZE = 0xC0000; }
+
+/* [ROM = 768kb = 0xC0000] */
+define symbol __intvec_start__     = MBED_APP_START;
+define symbol __region_ROM_start__ = MBED_APP_START;
+define symbol __region_ROM_end__   = MBED_APP_START + MBED_APP_SIZE - 1;
+
+/* [RAM1 = 192kb = 0x30000] */
+/* Total: 79 vectors = 316 bytes (0x13C) to be reserved in RAM */
+define symbol __NVIC_start__          = 0x20000000;
+define symbol __NVIC_end__            = 0x2000013F;
+define symbol __region_RAM_start__    = 0x20000140; /* Aligned on 8 bytes */
+define symbol __region_RAM_end__      = 0x2002FFFF;
+/* [RAM2aRet = 10kb = 0x2800] */
+define symbol __ICFEDIT_region_RAM2aRet_SHARED_start__ = 0x20030000;
+define symbol __ICFEDIT_region_RAM2aRet_SHARED_end__   = 0x200327FF;
+/* [RAM2bRet = 20kb = 0x5000] */
+define symbol __ICFEDIT_region_RAM2b_SHARED_start__ = 0x20038000;
+define symbol __ICFEDIT_region_RAM2b_SHARED_end__   = 0x2003CFFF;
+
+/* Memory regions */
+define memory mem with size = 4G;
+define region ROM_region = mem:[from __region_ROM_start__ to __region_ROM_end__];
+define region RAM_region = mem:[from __region_RAM_start__ to __region_RAM_end__];
+define region RAM2aRet_SHARED_region   = mem:[from __ICFEDIT_region_RAM2aRet_SHARED_start__   to __ICFEDIT_region_RAM2aRet_SHARED_end__];
+define region RAM2b_SHARED_region   = mem:[from __ICFEDIT_region_RAM2b_SHARED_start__   to __ICFEDIT_region_RAM2b_SHARED_end__];
+
+if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
+    define symbol MBED_BOOT_STACK_SIZE = 0x400;
+}
+
+/* Stack and Heap */
+define symbol __size_cstack__ = MBED_BOOT_STACK_SIZE;
+define symbol __size_heap__   = 0x10000;
+define block CSTACK    with alignment = 8, size = __size_cstack__   { };
+define block HEAP      with alignment = 8, size = __size_heap__     { };
+define block STACKHEAP with fixed order { block HEAP, block CSTACK };
+
+initialize by copy with packing = zeros { readwrite };
+do not initialize  { section .noinit,
+                     section MAPPING_TABLE,
+                     section MB_MEM1,
+                     section MB_MEM2
+                    };
+
+place at address mem:__intvec_start__ { readonly section .intvec };
+
+place in ROM_region   { readonly };
+place in RAM_region   { readwrite, block STACKHEAP };
+
+place in RAM2aRet_SHARED_region   { first section MAPPING_TABLE};
+place in RAM2aRet_SHARED_region   { section MB_MEM1};
+place in RAM2b_SHARED_region      { section MB_MEM2};

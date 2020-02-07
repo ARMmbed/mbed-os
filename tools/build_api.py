@@ -47,6 +47,7 @@ from .targets import TARGET_NAMES, TARGET_MAP, CORE_ARCH, Target
 from .libraries import Library
 from .toolchains import TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
 from .toolchains.arm import ARMC5_MIGRATION_WARNING
+from .toolchains.arm import UARM_TOOLCHAIN_WARNING
 from .config import Config
 
 RELEASE_VERSIONS = ['2', '5']
@@ -233,15 +234,20 @@ def find_valid_toolchain(target, toolchain):
     last_error = None
     for index, toolchain_name in enumerate(toolchain_names):
         internal_tc_name = get_toolchain_name(target, toolchain_name)
-        if toolchain == "ARM" and toolchain_name == "ARMC5" and index != 0:
-            end_warnings.append(ARMC5_MIGRATION_WARNING)
         if not TOOLCHAIN_CLASSES[internal_tc_name].check_executable():
             search_path = TOOLCHAIN_PATHS[internal_tc_name] or "No path set"
             last_error = (
                 "Could not find executable for {}.\n"
                 "Currently set search path: {}"
             ).format(toolchain_name, search_path)
-        else:
+        else:            
+            if toolchain_name == "ARMC5":
+                end_warnings.append(ARMC5_MIGRATION_WARNING)
+            if (
+                toolchain_name in ["uARM", "ARMC5", "ARMC6"] 
+                and "uARM" in {toolchain_name, target.default_toolchain}
+            ):
+                end_warnings.append(UARM_TOOLCHAIN_WARNING)
             return toolchain_name, internal_tc_name, end_warnings
     else:
         if last_error:
@@ -329,12 +335,12 @@ def is_official_target(target_name, version):
                     ("following toolchains: %s" %
                      ", ".join(sorted(supported_toolchains)))
 
-            elif not target.default_lib == 'std':
+            elif not target.c_lib == 'std':
                 result = False
                 reason = ("Target '%s' must set the " % target.name) + \
-                    ("'default_lib' to 'std' to be included in the ") + \
+                    ("'c_lib' to 'std' to be included in the ") + \
                     ("mbed OS 5.0 official release." + linesep) + \
-                    ("Currently it is set to '%s'" % target.default_lib)
+                    ("Currently it is set to '%s'" % target.c_lib)
 
         else:
             result = False
@@ -437,7 +443,7 @@ def target_supports_toolchain(target, toolchain_name):
 def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
                       macros=None, clean=False, jobs=1,
                       notify=None, config=None, app_config=None,
-                      build_profile=None, ignore=None):
+                      build_profile=None, ignore=None, coverage_patterns=None):
     """ Prepares resource related objects - toolchain, target, config
 
     Positional arguments:
@@ -454,6 +460,7 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
     app_config - location of a chosen mbed_app.json file
     build_profile - a list of mergeable build profiles
     ignore - list of paths to add to mbedignore
+    coverage_patterns - list of patterns for code coverage
     """
 
     # We need to remove all paths which are repeated to avoid
@@ -477,6 +484,9 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
         target.default_toolchain = "uARM"
     toolchain_name = selected_toolchain_name
 
+    if coverage_patterns:
+        target.extra_labels.append(u'COVERAGE')
+
     try:
         cur_tc = TOOLCHAIN_CLASSES[toolchain_name]
     except KeyError:
@@ -488,7 +498,7 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
             profile[key].extend(contents[toolchain_name].get(key, []))
 
     toolchain = cur_tc(
-        target, notify, macros, build_dir=build_dir, build_profile=profile)
+        target, notify, macros, build_dir=build_dir, build_profile=profile, coverage_patterns=coverage_patterns)
 
     toolchain.config = config
     toolchain.jobs = jobs
@@ -511,7 +521,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
                   report=None, properties=None, project_id=None,
                   project_description=None, config=None,
                   app_config=None, build_profile=None, stats_depth=None,
-                  ignore=None, resource_filter=None):
+                  ignore=None, resource_filter=None, coverage_patterns=None):
     """ Build a project. A project may be a test or a user program.
 
     Positional arguments:
@@ -556,7 +566,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
     toolchain = prepare_toolchain(
         src_paths, build_path, target, toolchain_name, macros=macros,
         clean=clean, jobs=jobs, notify=notify, config=config,
-        app_config=app_config, build_profile=build_profile, ignore=ignore)
+        app_config=app_config, build_profile=build_profile, ignore=ignore, coverage_patterns=coverage_patterns)
     toolchain.version_check()
 
     # The first path will give the name to the library
@@ -662,7 +672,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
                   archive=True, notify=None, macros=None, inc_dirs=None, jobs=1,
                   report=None, properties=None, project_id=None,
                   remove_config_header_file=False, app_config=None,
-                  build_profile=None, ignore=None, resource_filter=None):
+                  build_profile=None, ignore=None, resource_filter=None, coverage_patterns=None):
     """ Build a library
 
     Positional arguments:
@@ -713,7 +723,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     toolchain = prepare_toolchain(
         src_paths, build_path, target, toolchain_name, macros=macros,
         clean=clean, jobs=jobs, notify=notify, app_config=app_config,
-        build_profile=build_profile, ignore=ignore)
+        build_profile=build_profile, ignore=ignore, coverage_patterns=coverage_patterns)
     toolchain.version_check()
 
     # The first path will give the name to the library

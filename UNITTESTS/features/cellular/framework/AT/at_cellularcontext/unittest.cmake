@@ -24,6 +24,7 @@ set(unittest-test-sources
   stubs/AT_CellularDevice_stub.cpp
   stubs/AT_CellularStack_stub.cpp
   stubs/AT_CellularNetwork_stub.cpp
+  stubs/AT_ControlPlane_netif_stub.cpp
   stubs/CellularDevice_stub.cpp
   stubs/CellularStateMachine_stub.cpp
   stubs/equeue_stub.c
@@ -36,7 +37,7 @@ set(unittest-test-sources
   stubs/randLIB_stub.cpp
   stubs/Semaphore_stub.cpp
   stubs/us_ticker_stub.cpp
-  stubs/UARTSerial_stub.cpp
+  stubs/BufferedSerial_stub.cpp
   stubs/SerialBase_stub.cpp
   stubs/CellularContext_stub.cpp
   stubs/CellularUtil_stub.cpp

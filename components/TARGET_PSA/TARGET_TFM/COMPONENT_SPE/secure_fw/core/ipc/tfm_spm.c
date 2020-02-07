@@ -27,6 +27,7 @@
 #include "region_defs.h"
 #include "tfm_nspm.h"
 #include "tfm_memory_utils.h"
+#include "platform/mbed_toolchain.h"
 
 /*
  * IPC partitions.
@@ -580,7 +581,7 @@ void tfm_spm_init(void)
     tfm_thrd_start_scheduler(&this_thrd);
 }
 
-void tfm_pendsv_do_schedule(struct tfm_state_context_ext *ctxb)
+MBED_USED void tfm_pendsv_do_schedule(struct tfm_state_context_ext *ctxb)
 {
 #if TFM_LVL == 2
     struct spm_partition_desc_t *p_next_partition;

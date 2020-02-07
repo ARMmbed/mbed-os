@@ -1,0 +1,19 @@
+{
+    "config": {
+        "sim-blockdevice": {
+            "help": "Simulated block device, requires sufficient heap",
+            "macro_name": "MBED_TEST_SIM_BLOCKDEVICE",
+            "value": "HeapBlockDevice"
+        },
+        "test-blockdevice": {
+            "help": "Used blockdevice",
+            "macro_name": "MBED_TEST_BLOCKDEVICE",
+            "value": "QSPIFBlockDevice"
+        },
+        "test-filesystem": {
+            "help": "Used filesystem",
+            "macro_name": "MBED_TEST_FILESYSTEM",
+            "value": "LittleFileSystem"
+        }
+    }
+}

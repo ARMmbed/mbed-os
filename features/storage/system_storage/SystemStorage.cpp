@@ -64,51 +64,25 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
 {
 #if COMPONENT_SPIF
 
-    static SPIFBlockDevice default_bd(
-        MBED_CONF_SPIF_DRIVER_SPI_MOSI,
-        MBED_CONF_SPIF_DRIVER_SPI_MISO,
-        MBED_CONF_SPIF_DRIVER_SPI_CLK,
-        MBED_CONF_SPIF_DRIVER_SPI_CS,
-        MBED_CONF_SPIF_DRIVER_SPI_FREQ
-    );
+    static SPIFBlockDevice default_bd;
 
     return &default_bd;
 
 #elif COMPONENT_RSPIF
 
-    static SPIFReducedBlockDevice default_bd(
-        MBED_CONF_RSPIF_DRIVER_SPI_MOSI,
-        MBED_CONF_RSPIF_DRIVER_SPI_MISO,
-        MBED_CONF_RSPIF_DRIVER_SPI_CLK,
-        MBED_CONF_RSPIF_DRIVER_SPI_CS,
-        MBED_CONF_RSPIF_DRIVER_SPI_FREQ
-    );
+    static SPIFReducedBlockDevice default_bd;
 
     return &default_bd;
 
 #elif COMPONENT_QSPIF
 
-    static QSPIFBlockDevice default_bd(
-        MBED_CONF_QSPIF_QSPI_IO0,
-        MBED_CONF_QSPIF_QSPI_IO1,
-        MBED_CONF_QSPIF_QSPI_IO2,
-        MBED_CONF_QSPIF_QSPI_IO3,
-        MBED_CONF_QSPIF_QSPI_SCK,
-        MBED_CONF_QSPIF_QSPI_CSN,
-        MBED_CONF_QSPIF_QSPI_POLARITY_MODE,
-        MBED_CONF_QSPIF_QSPI_FREQ
-    );
+    static QSPIFBlockDevice default_bd;
 
     return &default_bd;
 
 #elif COMPONENT_DATAFLASH
 
-    static DataFlashBlockDevice default_bd(
-        MBED_CONF_DATAFLASH_SPI_MOSI,
-        MBED_CONF_DATAFLASH_SPI_MISO,
-        MBED_CONF_DATAFLASH_SPI_CLK,
-        MBED_CONF_DATAFLASH_SPI_CS
-    );
+    static DataFlashBlockDevice default_bd;
 
     return &default_bd;
 
@@ -120,12 +94,7 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
         MBED_CONF_SD_SPI_CS
     );
 #else
-    static SDBlockDevice default_bd(
-        MBED_CONF_SD_SPI_MOSI,
-        MBED_CONF_SD_SPI_MISO,
-        MBED_CONF_SD_SPI_CLK,
-        MBED_CONF_SD_SPI_CS
-    );
+    static SDBlockDevice default_bd;
 #endif
 
     return &default_bd;

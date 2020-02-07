@@ -60,7 +60,7 @@ typedef enum
 } cy_thread_priority_t ;
 
 typedef osThreadId_t cy_thread_t;                      /** CMSIS definition of a thread handle */
-typedef uint32_t cy_thread_arg_t;                      /** Argument passed to the entry function of a thread */
+typedef void * cy_thread_arg_t;                        /** Argument passed to the entry function of a thread */
 typedef osMutexId_t cy_mutex_t;                        /** CMSIS definition of a mutex */
 typedef osSemaphoreId_t cy_semaphore_t;                /** CMSIS definition of a semaphore */
 typedef osEventFlagsId_t cy_event_t;                   /** CMSIS definition of an event */

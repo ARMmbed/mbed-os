@@ -30,6 +30,7 @@
 
 #include "ppp_opts.h"
 #if PPP_SUPPORT /* don't build if not configured for use in ppp_opts.h */
+#if PPP_DEBUG
 
 #if 0 /* UNUSED */
 #include <stdio.h>
@@ -955,4 +956,5 @@ unlock()
 
 #endif /* Unused */
 
+#endif /* PPP_DEBUG */
 #endif /* PPP_SUPPORT */

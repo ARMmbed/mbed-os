@@ -46,34 +46,34 @@ struct Sync {
     Semaphore &sem_child;
 };
 
-template <int32_t signals, uint32_t timeout, int32_t test_val>
+template <int32_t signals, uint32_t timeout, uint32_t test_val>
 void run_signal_wait(void)
 {
-    osEvent ev = Thread::signal_wait(signals, timeout);
-    TEST_ASSERT_EQUAL(test_val, ev.status);
+    uint32_t ret = ThisThread::flags_wait_all_for(signals, timeout);
+    TEST_ASSERT_EQUAL(test_val, ret);
 }
 
-template <int32_t signals, uint32_t timeout, int32_t test_val>
+template <int32_t signals, uint32_t timeout, uint32_t test_val>
 void run_release_signal_wait(Semaphore *sem)
 {
     sem->release();
-    osEvent ev = Thread::signal_wait(signals, timeout);
-    TEST_ASSERT_EQUAL(test_val, ev.status);
+    uint32_t ret = ThisThread::flags_wait_all_for(signals, timeout);
+    TEST_ASSERT_EQUAL(test_val, ret);
 }
 
-template <int32_t signals, uint32_t timeout, int32_t test_val>
+template <int32_t signals, uint32_t timeout, uint32_t test_val>
 void run_release_wait_signal_wait(Sync *sync)
 {
     sync->sem_parent.release();
     sync->sem_child.acquire();
-    osEvent ev = Thread::signal_wait(signals, timeout);
-    TEST_ASSERT_EQUAL(test_val, ev.status);
+    uint32_t ret = ThisThread::flags_wait_all_for(signals, timeout);
+    TEST_ASSERT_EQUAL(test_val, ret);
 }
 
 template <int32_t signals, int32_t test_val>
 void run_clear(void)
 {
-    int32_t ret = Thread::signal_clr(signals);
+    int32_t ret = ThisThread::flags_clear(signals);
     TEST_ASSERT_EQUAL(test_val, ret);
 }
 
@@ -129,7 +129,7 @@ void test_clear_no_signals(void)
     Thread t(osPriorityNormal, TEST_STACK_SIZE);
     t.start(callback(run_double_wait_clear<NO_SIGNALS, NO_SIGNALS, ALL_SIGNALS, ALL_SIGNALS>, &sync));
     sem_parent.acquire();
-    t.signal_set(ALL_SIGNALS);
+    t.flags_set(ALL_SIGNALS);
     sem_child.release();
     t.join();
 }
@@ -150,7 +150,7 @@ void test_init_state(void)
 /** Validate all signals set in one shot
 
     Given two threads A & B are started
-    When thread A call @a signal_set(ALL_SIGNALS) with all possible signals
+    When thread A call @a flags_set(ALL_SIGNALS) with all possible signals
     Then thread B @a signal_clr(NO_SIGNALS) status should be ALL_SIGNALS indicating all signals set correctly
  */
 void test_set_all(void)
@@ -164,17 +164,17 @@ void test_set_all(void)
     t.start(callback(run_wait_clear<NO_SIGNALS, ALL_SIGNALS>, &sync));
 
     sem_parent.acquire();
-    ret = t.signal_set(ALL_SIGNALS);
+    ret = t.flags_set(ALL_SIGNALS);
     TEST_ASSERT_EQUAL(ALL_SIGNALS, ret);
 
     sem_child.release();
     t.join();
 }
 
-/** Validate that call signal_set with prohibited signal doesn't change thread signals
+/** Validate that call flags_set with prohibited signal doesn't change thread signals
 
     Given two threads A & B are started, B with all signals set
-    When thread A executes @a signal_set(PROHIBITED_SIGNAL) with prohibited signal
+    When thread A executes @a flags_set(PROHIBITED_SIGNAL) with prohibited signal
     Then thread B @a signal_clr(NO_SIGNALS) status should be ALL_SIGNALS indicating that thread B signals are unchanged
 
     @note Each signal has up to 31 event flags 0x1, 0x2, 0x4, 0x8, ...,  0x40000000
@@ -191,10 +191,10 @@ void test_set_prohibited(void)
     t.start(callback(run_wait_clear<NO_SIGNALS, ALL_SIGNALS>, &sync));
 
     sem_parent.acquire();
-    t.signal_set(ALL_SIGNALS);
+    t.flags_set(ALL_SIGNALS);
 
 #if !MBED_TRAP_ERRORS_ENABLED
-    ret = t.signal_set(PROHIBITED_SIGNAL);
+    ret = t.flags_set(PROHIBITED_SIGNAL);
     TEST_ASSERT_EQUAL(osErrorParameter, ret);
 #endif
 
@@ -217,7 +217,7 @@ void test_clear_all(void)
     Thread t(osPriorityNormal, TEST_STACK_SIZE);
     t.start(callback(run_double_wait_clear<ALL_SIGNALS, NO_SIGNALS, ALL_SIGNALS, NO_SIGNALS>, &sync));
     sem_parent.acquire();
-    t.signal_set(ALL_SIGNALS);
+    t.flags_set(ALL_SIGNALS);
     sem_child.release();
     t.join();
 }
@@ -225,7 +225,7 @@ void test_clear_all(void)
 /** Validate all signals set one by one in loop
 
     Given two threads A & B are started
-    When thread A executes @a signal_set(signal) in loop with all possible signals
+    When thread A executes @a flags_set(signal) in loop with all possible signals
  */
 void test_set_all_loop(void)
 {
@@ -241,7 +241,7 @@ void test_set_all_loop(void)
     for (int i = 0; i <= MAX_FLAG_POS; i++) {
         int32_t signal = 1 << i;
 
-        ret = t.signal_set(signal);
+        ret = t.flags_set(signal);
         signals |= signal;
         TEST_ASSERT_EQUAL(signals, ret);
         sem_child.release();
@@ -253,11 +253,10 @@ void test_set_all_loop(void)
 /** Validate signal_wait return status if timeout specified
 
     Given the thread is running
-    When thread executes @a signal_wait(signals, timeout) with specified signals and timeout
-    Then thread @a signal_wait status should be osEventTimeout indicating a timeout
-         thread @a signal_wait status should be osOK indicating 0[ms] timeout set
+    When thread executes @a flags_wait_all_for(signals, timeout) with specified signals and timeout
+    Then thread @a flags_wait_all_for return should be 0 indicating no flags set
  */
-template <int32_t signals, uint32_t timeout, int32_t status>
+template <int32_t signals, uint32_t timeout, uint32_t status>
 void test_wait_timeout(void)
 {
     Thread t(osPriorityNormal, TEST_STACK_SIZE);
@@ -269,7 +268,7 @@ void test_wait_timeout(void)
 
     Given two threads A & B are started, B with all signals already set
     When thread B executes @a signal_wait(ALL_SIGNALS, osWaitForever),
-    Then thread B @a signal_wait return immediately with status osEventSignal indicating all wait signals was already set
+    Then thread B @a flags_wait_all_for return immediately with ALL_SIGNALS indicating all wait signals was already set
  */
 void test_wait_all_already_set(void)
 {
@@ -278,11 +277,11 @@ void test_wait_all_already_set(void)
     Sync sync(sem_parent, sem_child);
 
     Thread t(osPriorityNormal, TEST_STACK_SIZE);
-    t.start(callback(run_release_wait_signal_wait<ALL_SIGNALS, osWaitForever, osEventSignal>, &sync));
+    t.start(callback(run_release_wait_signal_wait<ALL_SIGNALS, osWaitForever, ALL_SIGNALS>, &sync));
 
     sem_parent.acquire();
     TEST_ASSERT_EQUAL(Thread::WaitingSemaphore, t.get_state());
-    t.signal_set(ALL_SIGNALS);
+    t.flags_set(ALL_SIGNALS);
     sem_child.release();
     t.join();
 }
@@ -290,28 +289,28 @@ void test_wait_all_already_set(void)
 /** Validate if signal_wait return correctly when all signals set
 
     Given two threads A & B are started and B waiting for a thread flag to be set
-    When thread A executes @a signal_set(ALL_SIGNALS) with all possible signals
-    Then thread B @a signal_wait status is osEventSignal indicating all wait signals was set
+    When thread A executes @a flags_set(ALL_SIGNALS) with all possible signals
+    Then thread B @a flags_wait_all_for return is ALL_SIGNALS indicating all wait signals was set
  */
 void test_wait_all(void)
 {
     Semaphore sem(0, 1);
 
     Thread t(osPriorityNormal, TEST_STACK_SIZE);
-    t.start(callback(run_release_signal_wait<ALL_SIGNALS, osWaitForever, osEventSignal>, &sem));
+    t.start(callback(run_release_signal_wait<ALL_SIGNALS, osWaitForever, ALL_SIGNALS>, &sem));
 
     sem.acquire();
     TEST_ASSERT_EQUAL(Thread::WaitingThreadFlag, t.get_state());
 
-    t.signal_set(ALL_SIGNALS);
+    t.flags_set(ALL_SIGNALS);
     t.join();
 }
 
 /** Validate if signal_wait accumulate signals and return correctly when all signals set
 
     Given two threads A & B are started and B waiting for a thread signals to be set
-    When thread A executes @a signal_set setting all signals in loop
-    Then thread B @a signal_wait status is osEventSignal indicating that all wait signals was set
+    When thread A executes @a flags_set setting all signals in loop
+    Then thread B @a flags_wait_all_for return is ALL_SIGNALS indicating that all wait signals was set
  */
 void test_wait_all_loop(void)
 {
@@ -319,16 +318,16 @@ void test_wait_all_loop(void)
     Semaphore sem(0, 1);
 
     Thread t(osPriorityNormal, TEST_STACK_SIZE);
-    t.start(callback(run_release_signal_wait<ALL_SIGNALS, osWaitForever, osEventSignal>, &sem));
+    t.start(callback(run_release_signal_wait<ALL_SIGNALS, osWaitForever, ALL_SIGNALS>, &sem));
 
     sem.acquire();
     TEST_ASSERT_EQUAL(Thread::WaitingThreadFlag, t.get_state());
 
     for (int i = 0; i < MAX_FLAG_POS; i++) {
         int32_t signal = 1 << i;
-        ret = t.signal_set(signal);
+        ret = t.flags_set(signal);
     }
-    ret = t.signal_set(1 << MAX_FLAG_POS);
+    ret = t.flags_set(1 << MAX_FLAG_POS);
     TEST_ASSERT_EQUAL(NO_SIGNALS, ret);
     t.join();
 }
@@ -336,9 +335,9 @@ void test_wait_all_loop(void)
 /** Validate if setting same signal twice cause any unwanted behaviour
 
     Given two threads A & B are started and B waiting for a thread signals to be set
-    When thread A executes @a signal_set twice for the same signal
-    Then thread A @a signal_set status is current signal set
-         thread B @a signal_wait status is osEventSignal indicating that all wait signals was set
+    When thread A executes @a flags_set twice for the same signal
+    Then thread A @a flags_set status is current signal set
+         thread B @a flags_wait_all_for return indicates that all wait signals was set
  */
 void test_set_double(void)
 {
@@ -346,22 +345,22 @@ void test_set_double(void)
     Semaphore sem(0, 1);
 
     Thread t(osPriorityNormal, TEST_STACK_SIZE);
-    t.start(callback(run_release_signal_wait < SIGNAL1 | SIGNAL2 | SIGNAL3, osWaitForever, osEventSignal >, &sem));
+    t.start(callback(run_release_signal_wait < SIGNAL1 | SIGNAL2 | SIGNAL3, osWaitForever, SIGNAL1 | SIGNAL2 | SIGNAL3 >, &sem));
 
     sem.acquire();
     TEST_ASSERT_EQUAL(Thread::WaitingThreadFlag, t.get_state());
 
-    ret = t.signal_set(SIGNAL1);
+    ret = t.flags_set(SIGNAL1);
     TEST_ASSERT_EQUAL(SIGNAL1, ret);
 
-    ret = t.signal_set(SIGNAL2);
+    ret = t.flags_set(SIGNAL2);
     TEST_ASSERT_EQUAL(SIGNAL1 | SIGNAL2, ret);
 
-    ret = t.signal_set(SIGNAL2);
+    ret = t.flags_set(SIGNAL2);
     TEST_ASSERT_EQUAL(SIGNAL1 | SIGNAL2, ret);
     TEST_ASSERT_EQUAL(Thread::WaitingThreadFlag, t.get_state());
 
-    ret = t.signal_set(SIGNAL3);
+    ret = t.flags_set(SIGNAL3);
     TEST_ASSERT_EQUAL(NO_SIGNALS, ret);
     t.join();
 }
@@ -374,20 +373,20 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-    Case("Validate that call signal_clr(NO_SIGNALS) doesn't change thread signals and return actual signals", test_clear_no_signals),
-    Case("Validate if any signals are set on just created thread", test_init_state),
-    Case("Validate all signals set in one shot", test_set_all),
-    Case("Validate that call signal_set with prohibited signal doesn't change thread signals", test_set_prohibited),
-    Case("Validate all signals clear in one shot", test_clear_all),
-    Case("Validate all signals set one by one in loop", test_set_all_loop),
-    Case("Validate signal_wait return status if timeout specified: 0[ms] no signals", test_wait_timeout<0, 0, osOK>),
-    Case("Validate signal_wait return status if timeout specified: 0[ms] all signals", test_wait_timeout<ALL_SIGNALS, 0, osOK>),
-    Case("Validate signal_wait return status if timeout specified: 1[ms] no signals", test_wait_timeout<0, 1, osEventTimeout>),
-    Case("Validate signal_wait return status if timeout specified: 1[ms] all signals", test_wait_timeout<ALL_SIGNALS, 1, osEventTimeout>),
-    Case("Validate that call of signal_wait return correctly when thread has all signals already set", test_wait_all_already_set),
-    Case("Validate if signal_wait return correctly when all signals set", test_wait_all),
-    Case("Validate if signal_wait accumulate signals and return correctly when all signals set", test_wait_all_loop),
-    Case("Validate if setting same signal twice cause any unwanted behaviour", test_set_double)
+    Case("Validate that call flags_clear(NO_SIGNALS) doesn't change thread flags and return actual flags", test_clear_no_signals),
+    Case("Validate if any flags are set on just created thread", test_init_state),
+    Case("Validate all flags set in one shot", test_set_all),
+    Case("Validate that call flags_set with prohibited flag doesn't change thread flags", test_set_prohibited),
+    Case("Validate all flags clear in one shot", test_clear_all),
+    Case("Validate all flags set one by one in loop", test_set_all_loop),
+    Case("Validate flags_wait return status if timeout specified: 0[ms] no flags", test_wait_timeout<0, 0, 0>),
+    Case("Validate flags_wait return status if timeout specified: 0[ms] all flags", test_wait_timeout<ALL_SIGNALS, 0, 0>),
+    Case("Validate flags_wait return status if timeout specified: 1[ms] no flags", test_wait_timeout<0, 1, 0>),
+    Case("Validate flags_wait return status if timeout specified: 1[ms] all flags", test_wait_timeout<ALL_SIGNALS, 1, 0>),
+    Case("Validate that call of flags_wait_all_for return correctly when thread has all flags already set", test_wait_all_already_set),
+    Case("Validate if flags_wait_all_for return correctly when all flags set", test_wait_all),
+    Case("Validate if flags_wait_all_for accumulate flags and return correctly when all flags set", test_wait_all_loop),
+    Case("Validate if setting same flag twice cause any unwanted behaviour", test_set_double)
 };
 
 utest::v1::Specification specification(test_setup, cases);

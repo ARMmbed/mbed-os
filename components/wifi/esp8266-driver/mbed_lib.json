@@ -65,6 +65,10 @@
         "channels": {
             "help": "channel count, 13 by default",
             "value": null
+        },
+        "built-in-dns": {
+            "help": "use built-in CIPDOMAIN AT command to resolve address to IP",
+            "value": false
         }
     },
     "target_overrides": {

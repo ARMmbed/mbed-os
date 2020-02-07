@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, Nuvoton Technology Corporation
+ * Copyright (c) 2018-2019, Nuvoton Technology Corporation
  *
  * SPDX-License-Identifier: Apache-2.0
  *

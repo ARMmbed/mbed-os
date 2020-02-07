@@ -51,7 +51,7 @@ AT_CellularContext::~AT_CellularContext()
 {
 }
 
-void AT_CellularContext::set_file_handle(UARTSerial *serial, PinName dcd_pin, bool active_high)
+void AT_CellularContext::set_file_handle(BufferedSerial *serial, PinName dcd_pin, bool active_high)
 {
 }
 
@@ -149,26 +149,6 @@ void AT_CellularContext::set_credentials(const char *apn, const char *uname, con
 
 }
 
-nsapi_error_t AT_CellularContext::get_netmask(SocketAddress *address)
-{
-    return NSAPI_ERROR_UNSUPPORTED;
-}
-
-const char *AT_CellularContext::get_netmask()
-{
-    return NULL;
-}
-
-nsapi_error_t AT_CellularContext::get_gateway(SocketAddress *address)
-{
-    return NSAPI_ERROR_UNSUPPORTED;
-}
-
-const char *AT_CellularContext::get_gateway()
-{
-    return NULL;
-}
-
 AT_CellularDevice::CellularProperty AT_CellularContext::pdp_type_t_to_cellular_property(pdp_type_t pdp_type)
 {
     AT_CellularDevice::CellularProperty prop = AT_CellularDevice::PROPERTY_IPV4_PDP_TYPE;
@@ -196,6 +176,10 @@ nsapi_error_t AT_CellularContext::do_user_authentication()
 bool AT_CellularContext::get_context()
 {
     return true;
+}
+
+const char* AT_CellularContext::get_nonip_context_type_str() {
+    return "Non-IP";
 }
 
 bool AT_CellularContext::set_new_context(int cid)

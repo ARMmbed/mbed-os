@@ -125,135 +125,6 @@ public:
     }
 
 
-    /** Create a new thread, and start it executing the specified function.
-      @param   task           function to be executed by this thread.
-      @param   priority       initial priority of the thread function. (default: osPriorityNormal).
-      @param   stack_size     stack size (in bytes) requirements for the thread function. (default: OS_STACK_SIZE).
-      @param   stack_mem      pointer to the stack area to be used by this thread (default: nullptr).
-      @deprecated
-        Thread-spawning constructors hide errors. Replaced by thread.start(task).
-
-        @code
-        Thread thread(priority, stack_size, stack_mem);
-
-        osStatus status = thread.start(task);
-        if (status != osOK) {
-            error("oh no!");
-        }
-        @endcode
-
-      @note You cannot call this function from ISR context.
-    */
-    MBED_DEPRECATED_SINCE("mbed-os-5.1",
-                          "Thread-spawning constructors hide errors. "
-                          "Replaced by thread.start(task).")
-    Thread(mbed::Callback<void()> task,
-           osPriority priority = osPriorityNormal,
-           uint32_t stack_size = OS_STACK_SIZE,
-           unsigned char *stack_mem = nullptr)
-    {
-        constructor(task, priority, stack_size, stack_mem);
-    }
-
-    /** Create a new thread, and start it executing the specified function.
-      @param   argument       pointer that is passed to the thread function as start argument. (default: nullptr).
-      @param   task           argument to task.
-      @param   priority       initial priority of the thread function. (default: osPriorityNormal).
-      @param   stack_size     stack size (in bytes) requirements for the thread function. (default: OS_STACK_SIZE).
-      @param   stack_mem      pointer to the stack area to be used by this thread (default: nullptr).
-      @deprecated
-        Thread-spawning constructors hide errors. Replaced by thread.start(callback(task, argument)).
-
-        @code
-        Thread thread(priority, stack_size, stack_mem);
-
-        osStatus status = thread.start(callback(task, argument));
-        if (status != osOK) {
-            error("oh no!");
-        }
-        @endcode
-
-        @note You cannot call this function from ISR context.
-    */
-    template <typename T>
-    MBED_DEPRECATED_SINCE("mbed-os-5.1",
-                          "Thread-spawning constructors hide errors. "
-                          "Replaced by thread.start(callback(task, argument)).")
-    Thread(T *argument, void (T::*task)(),
-           osPriority priority = osPriorityNormal,
-           uint32_t stack_size = OS_STACK_SIZE,
-           unsigned char *stack_mem = nullptr)
-    {
-        constructor(mbed::callback(task, argument),
-                    priority, stack_size, stack_mem);
-    }
-
-    /** Create a new thread, and start it executing the specified function.
-      @param   argument       pointer that is passed to the thread function as start argument. (default: nullptr).
-      @param   task           argument to task.
-      @param   priority       initial priority of the thread function. (default: osPriorityNormal).
-      @param   stack_size     stack size (in bytes) requirements for the thread function. (default: OS_STACK_SIZE).
-      @param   stack_mem      pointer to the stack area to be used by this thread (default: nullptr).
-      @deprecated
-        Thread-spawning constructors hide errors. Replaced by thread.start(callback(task, argument)).
-
-        @code
-        Thread thread(priority, stack_size, stack_mem);
-
-        osStatus status = thread.start(callback(task, argument));
-        if (status != osOK) {
-            error("oh no!");
-        }
-        @endcode
-
-      @note You cannot call this function from ISR context.
-    */
-    template <typename T>
-    MBED_DEPRECATED_SINCE("mbed-os-5.1",
-                          "Thread-spawning constructors hide errors. "
-                          "Replaced by thread.start(callback(task, argument)).")
-    Thread(T *argument, void (*task)(T *),
-           osPriority priority = osPriorityNormal,
-           uint32_t stack_size = OS_STACK_SIZE,
-           unsigned char *stack_mem = nullptr)
-    {
-        constructor(mbed::callback(task, argument),
-                    priority, stack_size, stack_mem);
-    }
-
-    /** Create a new thread, and start it executing the specified function.
-        Provided for backwards compatibility
-      @param   task           function to be executed by this thread.
-      @param   argument       pointer that is passed to the thread function as start argument. (default: nullptr).
-      @param   priority       initial priority of the thread function. (default: osPriorityNormal).
-      @param   stack_size     stack size (in bytes) requirements for the thread function. (default: OS_STACK_SIZE).
-      @param   stack_mem      pointer to the stack area to be used by this thread (default: nullptr).
-      @deprecated
-        Thread-spawning constructors hide errors. Replaced by thread.start(callback(task, argument)).
-
-        @code
-        Thread thread(priority, stack_size, stack_mem);
-
-        osStatus status = thread.start(callback(task, argument));
-        if (status != osOK) {
-            error("oh no!");
-        }
-        @endcode
-
-        @note You cannot call this function from ISR context.
-    */
-    MBED_DEPRECATED_SINCE("mbed-os-5.1",
-                          "Thread-spawning constructors hide errors. "
-                          "Replaced by thread.start(callback(task, argument)).")
-    Thread(void (*task)(void const *argument), void *argument = nullptr,
-           osPriority priority = osPriorityNormal,
-           uint32_t stack_size = OS_STACK_SIZE,
-           unsigned char *stack_mem = nullptr)
-    {
-        constructor(mbed::callback((void (*)(void *))task, argument),
-                    priority, stack_size, stack_mem);
-    }
-
     /** Starts a thread executing the specified function.
       @param   task           function to be executed by this thread.
       @return  status code that indicates the execution status of the function.
@@ -262,24 +133,6 @@ public:
       @note You cannot call this function ISR context.
     */
     osStatus start(mbed::Callback<void()> task);
-
-    /** Starts a thread executing the specified function.
-      @param   obj            argument to task
-      @param   method         function to be executed by this thread.
-      @return  status code that indicates the execution status of the function.
-      @deprecated
-          The start function does not support cv-qualifiers. Replaced by start(callback(obj, method)).
-
-      @note You cannot call this function from ISR context.
-    */
-    template <typename T, typename M>
-    MBED_DEPRECATED_SINCE("mbed-os-5.1",
-                          "The start function does not support cv-qualifiers. "
-                          "Replaced by thread.start(callback(obj, method)).")
-    osStatus start(T *obj, M method)
-    {
-        return start(mbed::callback(obj, method));
-    }
 
     /** Wait for thread to terminate
       @return  status code that indicates the execution status of the function.
@@ -317,19 +170,6 @@ public:
       @note You may call this function from ISR context.
     */
     uint32_t flags_set(uint32_t flags);
-
-    /** Set the specified Thread Flags for the thread.
-      @param   signals  specifies the signal flags of the thread that should be set.
-      @return  signal flags after setting or osFlagsError in case of incorrect parameters.
-
-      @note You may call this function from ISR context.
-      @deprecated Other signal_xxx methods have been deprecated in favour of ThisThread::flags functions.
-                  To match this naming scheme, derived from CMSIS-RTOS2, Thread::flags_set is now provided.
-    */
-    MBED_DEPRECATED_SINCE("mbed-os-5.10",
-                          "Other signal_xxx methods have been deprecated in favour of ThisThread::flags functions. "
-                          "To match this naming scheme, derived from CMSIS-RTOS2, Thread::flags_set is now provided.")
-    int32_t signal_set(int32_t signals);
 
     /** State of the Thread */
     enum State {
@@ -403,112 +243,6 @@ public:
      */
     osThreadId_t get_id() const;
 
-    /** Clears the specified Thread Flags of the currently running thread.
-      @param   signals  specifies the signal flags of the thread that should be cleared.
-      @return  signal flags before clearing or osFlagsError in case of incorrect parameters.
-
-      @note You cannot call this function from ISR context.
-      @deprecated Static methods only affecting current thread cause confusion. Replaced by ThisThread::flags_clear.
-    */
-    MBED_DEPRECATED_SINCE("mbed-os-5.10",
-                          "Static methods only affecting current thread cause confusion. "
-                          "Replaced by ThisThread::flags_clear.")
-    static int32_t signal_clr(int32_t signals);
-
-    /** Wait for one or more Thread Flags to become signaled for the current RUNNING thread.
-      @param   signals   wait until all specified signal flags are set or 0 for any single signal flag.
-      @param   millisec  timeout value. (default: osWaitForever).
-      @return  event flag information or error code. @note if @a millisec is set to 0 and flag is no set the event carries osOK value.
-
-      @note You cannot call this function from ISR context.
-      @deprecated Static methods only affecting current thread cause confusion.
-                  Replaced by ThisThread::flags_wait_all, ThisThread::flags_wait_all_for, ThisThread::flags_wait_any and ThisThread:wait_any_for.
-    */
-    MBED_DEPRECATED_SINCE("mbed-os-5.10",
-                          "Static methods only affecting current thread cause confusion. "
-                          "Replaced by ThisThread::flags_wait_all, ThisThread::flags_wait_all_for, ThisThread::flags_wait_any and ThisThread:wait_any_for.")
-    static osEvent signal_wait(int32_t signals, uint32_t millisec = osWaitForever);
-
-    /** Wait for a specified time period in milliseconds
-      Being tick-based, the delay will be up to the specified time - eg for
-      a value of 1 the system waits until the next millisecond tick occurs,
-      leading to a delay of 0-1 milliseconds.
-      @param   millisec  time delay value
-      @return  status code that indicates the execution status of the function.
-
-      @note You cannot call this function from ISR context.
-      @deprecated Static methods only affecting current thread cause confusion. Replaced by ThisThread::sleep_for.
-    */
-    MBED_DEPRECATED_SINCE("mbed-os-5.10",
-                          "Static methods only affecting current thread cause confusion. "
-                          "Replaced by ThisThread::sleep_for.")
-    static osStatus wait(uint32_t millisec);
-
-    /** Wait until a specified time in millisec
-      The specified time is according to Kernel::get_ms_count().
-      @param   millisec absolute time in millisec
-      @return  status code that indicates the execution status of the function.
-      @note not callable from interrupt
-      @note if millisec is equal to or lower than the current tick count, this
-            returns immediately, either with an error or "osOK".
-      @note the underlying RTOS may have a limit to the maximum wait time
-            due to internal 32-bit computations, but this is guaranteed to work if the
-            delay is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
-            it may return with an immediate error, or wait for the maximum delay.
-
-      @note You cannot call this function from ISR context.
-      @deprecated Static methods only affecting current thread cause confusion. Replaced by ThisThread::sleep_until.
-    */
-    MBED_DEPRECATED_SINCE("mbed-os-5.10",
-                          "Static methods only affecting current thread cause confusion. "
-                          "Replaced by ThisThread::sleep_until.")
-    static osStatus wait_until(uint64_t millisec);
-
-    /** Pass control to next thread that is in state READY.
-      @return  status code that indicates the execution status of the function.
-
-      @note You cannot call this function from ISR context.
-      @deprecated Static methods only affecting current thread cause confusion. Replaced by ThisThread::sleep_until.
-    */
-    MBED_DEPRECATED_SINCE("mbed-os-5.10",
-                          "Static methods only affecting current thread cause confusion. "
-                          "Replaced by ThisThread::yield.")
-    static osStatus yield();
-
-    /** Get the thread id of the current running thread.
-      @return  thread ID for reference by other functions or nullptr in case of error.
-
-      @note You may call this function from ISR context.
-      @deprecated Static methods only affecting current thread cause confusion. Replaced by ThisThread::get_id.
-                  Use Thread::get_id for the ID of a specific Thread.
-    */
-    MBED_DEPRECATED_SINCE("mbed-os-5.10",
-                          "Static methods only affecting current thread cause confusion. "
-                          "Replaced by ThisThread::get_id. Use Thread::get_id for the ID of a specific Thread.")
-    static osThreadId gettid();
-
-    /** Attach a function to be called by the RTOS idle task
-      @param   fptr  pointer to the function to be called
-
-      @note You may call this function from ISR context.
-      @deprecated Static methods affecting system cause confusion. Replaced by Kernel::attach_idle_hook.
-    */
-    MBED_DEPRECATED_SINCE("mbed-os-5.10",
-                          "Static methods affecting system cause confusion. "
-                          "Replaced by Kernel::attach_idle_hook.")
-    static void attach_idle_hook(void (*fptr)(void));
-
-    /** Attach a function to be called when a task is killed
-      @param   fptr  pointer to the function to be called
-
-      @note You may call this function from ISR context.
-      @deprecated Static methods affecting system cause confusion. Replaced by Kernel::attach_thread_terminate_hook.
-    */
-    MBED_DEPRECATED_SINCE("mbed-os-5.10",
-                          "Static methods affecting system cause confusion. "
-                          "Replaced by Kernel::attach_thread_terminate_hook.")
-    static void attach_terminate_hook(void (*fptr)(osThreadId id));
-
     /** Thread destructor
      *
      * @note You cannot call this function from ISR context.
@@ -519,11 +253,6 @@ private:
     // Required to share definitions without
     // delegated constructors
     void constructor(osPriority priority = osPriorityNormal,
-                     uint32_t stack_size = OS_STACK_SIZE,
-                     unsigned char *stack_mem = nullptr,
-                     const char *name = nullptr);
-    void constructor(mbed::Callback<void()> task,
-                     osPriority priority = osPriorityNormal,
                      uint32_t stack_size = OS_STACK_SIZE,
                      unsigned char *stack_mem = nullptr,
                      const char *name = nullptr);

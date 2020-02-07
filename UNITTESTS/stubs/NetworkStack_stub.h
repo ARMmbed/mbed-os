@@ -54,8 +54,16 @@ public:
     {
         return return_value;
     }
+    virtual nsapi_value_or_error_t getaddrinfo(const char *hostname, SocketAddress *hints, SocketAddress **res, const char *interface_name)
+    {
+        return return_value;
+    }
     virtual nsapi_value_or_error_t gethostbyname_async(const char *host, hostbyname_cb_t callback, nsapi_version_t version,
                                                        const char *interface_name)
+    {
+        return return_value;
+    }
+    virtual nsapi_value_or_error_t getaddrinfo_async(const char *hostname, SocketAddress *hints, hostbyname_cb_t callback, const char *interface_name)
     {
         return return_value;
     }

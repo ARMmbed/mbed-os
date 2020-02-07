@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "drivers/internal/SFDP.h"
 #include "SPIFBlockDevice.h"
 #include "rtos/ThisThread.h"
 #include "mbed_critical.h"
@@ -39,11 +40,6 @@ using namespace mbed;
 // Status Register Bits
 #define SPIF_STATUS_BIT_WIP 0x1 //Write In Progress
 #define SPIF_STATUS_BIT_WEL 0x2 // Write Enable Latch
-
-/* SFDP Header Parsing */
-/***********************/
-#define SPIF_SFDP_HEADER_SIZE 8
-#define SPIF_PARAM_HEADER_SIZE 8
 
 /* Basic Parameters Table Parsing */
 /**********************************/
@@ -133,11 +129,10 @@ int SPIFBlockDevice::init()
     uint8_t vendor_device_ids[4];
     size_t data_length = 3;
     int status = SPIF_BD_ERROR_OK;
-    uint32_t basic_table_addr = 0;
-    size_t basic_table_size = 0;
-    uint32_t sector_map_table_addr = 0;
-    size_t sector_map_table_size = 0;
+    struct sfdp_hdr_info hdr_info;
     spif_bd_error spi_status = SPIF_BD_ERROR_OK;
+
+    memset(&hdr_info, 0, sizeof hdr_info);
 
     _mutex->lock();
 
@@ -186,7 +181,7 @@ int SPIFBlockDevice::init()
     }
 
     /**************************** Parse SFDP Header ***********************************/
-    if (0 != _sfdp_parse_sfdp_headers(basic_table_addr, basic_table_size, sector_map_table_addr, sector_map_table_size)) {
+    if (0 != _sfdp_parse_sfdp_headers(hdr_info)) {
         tr_error("init - Parse SFDP Headers Failed");
         status = SPIF_BD_ERROR_PARSING_FAILED;
         goto exit_point;
@@ -194,7 +189,7 @@ int SPIFBlockDevice::init()
 
 
     /**************************** Parse Basic Parameters Table ***********************************/
-    if (0 != _sfdp_parse_basic_param_table(basic_table_addr, basic_table_size)) {
+    if (0 != _sfdp_parse_basic_param_table(hdr_info.basic_table_addr, hdr_info.basic_table_size)) {
         tr_error("init - Parse Basic Param Table Failed");
         status = SPIF_BD_ERROR_PARSING_FAILED;
         goto exit_point;
@@ -205,10 +200,10 @@ int SPIFBlockDevice::init()
         _device_size_bytes; // If there's no region map, we have a single region sized the entire device size
     _region_high_boundary[0] = _device_size_bytes - 1;
 
-    if ((sector_map_table_addr != 0) && (0 != sector_map_table_size)) {
-        tr_debug("init - Parsing Sector Map Table - addr: 0x%" PRIx32 "h, Size: %d", sector_map_table_addr,
-                 sector_map_table_size);
-        if (0 != _sfdp_parse_sector_map_table(sector_map_table_addr, sector_map_table_size)) {
+    if ((hdr_info.sector_map_table_addr != 0) && (0 != hdr_info.sector_map_table_size)) {
+        tr_debug("init - Parsing Sector Map Table - addr: 0x%" PRIx32 "h, Size: %d", hdr_info.sector_map_table_addr,
+                 hdr_info.sector_map_table_size);
+        if (0 != _sfdp_parse_sector_map_table(hdr_info.sector_map_table_addr, hdr_info.sector_map_table_size)) {
             tr_error("init - Parse Sector Map Table Failed");
             status = SPIF_BD_ERROR_PARSING_FAILED;
             goto exit_point;
@@ -533,6 +528,21 @@ spif_bd_error SPIFBlockDevice::_spi_send_read_command(int read_inst, uint8_t *bu
     return SPIF_BD_ERROR_OK;
 }
 
+int SPIFBlockDevice::_spi_send_read_sfdp_command(bd_addr_t addr, void *rx_buffer, bd_size_t rx_length)
+{
+    // Set 1-1-1 bus mode for SFDP header parsing
+    // Initial SFDP read tables are read with 8 dummy cycles
+    _read_dummy_and_mode_cycles = 8;
+    _dummy_and_mode_cycles = 8;
+
+    int status = _spi_send_read_command(SPIF_SFDP, (uint8_t *)rx_buffer, addr, rx_length);
+    if (status < 0) {
+        tr_error("_spi_send_read_sfdp_command failed");
+    }
+
+    return status;
+}
+
 spif_bd_error SPIFBlockDevice::_spi_send_program_command(int prog_inst, const void *buffer, bd_addr_t addr,
                                                          bd_size_t size)
 {
@@ -719,75 +729,9 @@ int SPIFBlockDevice::_sfdp_parse_basic_param_table(uint32_t basic_table_addr, si
     return 0;
 }
 
-int SPIFBlockDevice::_sfdp_parse_sfdp_headers(uint32_t &basic_table_addr, size_t &basic_table_size,
-                                              uint32_t &sector_map_table_addr, size_t &sector_map_table_size)
+int SPIFBlockDevice::_sfdp_parse_sfdp_headers(sfdp_hdr_info &hdr_info)
 {
-    uint8_t sfdp_header[16];
-    uint8_t param_header[SPIF_SFDP_HEADER_SIZE];
-    size_t data_length = SPIF_SFDP_HEADER_SIZE;
-    bd_addr_t addr = 0x0;
-
-    // Set 1-1-1 bus mode for SFDP header parsing
-    // Initial SFDP read tables are read with 8 dummy cycles
-    _read_dummy_and_mode_cycles = 8;
-    _dummy_and_mode_cycles = 8;
-
-    spif_bd_error status = _spi_send_read_command(SPIF_SFDP, sfdp_header, addr /*address*/, data_length);
-    if (status != SPIF_BD_ERROR_OK) {
-        tr_error("init - Read SFDP Failed");
-        return -1;
-    }
-
-    // Verify SFDP signature for sanity
-    // Also check that major/minor version is acceptable
-    if (!(memcmp(&sfdp_header[0], "SFDP", 4) == 0 && sfdp_header[5] == 1)) {
-        tr_error("init - _verify SFDP signature and version Failed");
-        return -1;
-    } else {
-        tr_debug("init - verified SFDP Signature and version Successfully");
-    }
-
-    // Discover Number of Parameter Headers
-    int number_of_param_headers = (int)(sfdp_header[6]) + 1;
-    tr_debug("number of Param Headers: %d", number_of_param_headers);
-
-    addr += SPIF_SFDP_HEADER_SIZE;
-    data_length = SPIF_PARAM_HEADER_SIZE;
-
-    // Loop over Param Headers and parse them (currently supported Basic Param Table and Sector Region Map Table)
-    for (int i_ind = 0; i_ind < number_of_param_headers; i_ind++) {
-
-        status = _spi_send_read_command(SPIF_SFDP, param_header, addr, data_length);
-        if (status != SPIF_BD_ERROR_OK) {
-            tr_error("init - Read Param Table %d Failed", i_ind + 1);
-            return -1;
-        }
-
-        // The SFDP spec indicates the standard table is always at offset 0
-        // in the parameter headers, we check just to be safe
-        if (param_header[2] != 1) {
-            tr_error("Param Table %d - Major Version should be 1!", i_ind + 1);
-            return -1;
-        }
-
-        if ((param_header[0] == 0) && (param_header[7] == 0xFF)) {
-            // Found Basic Params Table: LSB=0x00, MSB=0xFF
-            tr_debug("Found Basic Param Table at Table: %d", i_ind + 1);
-            basic_table_addr = ((param_header[6] << 16) | (param_header[5] << 8) | (param_header[4]));
-            // Supporting up to 64 Bytes Table (16 DWORDS)
-            basic_table_size = ((param_header[3] * 4) < SFDP_DEFAULT_BASIC_PARAMS_TABLE_SIZE_BYTES) ? (param_header[3] * 4) : 64;
-
-        } else if ((param_header[0] == 81) && (param_header[7] == 0xFF)) {
-            // Found Sector Map Table: LSB=0x81, MSB=0xFF
-            tr_debug("Found Sector Map Table at Table: %d", i_ind + 1);
-            sector_map_table_addr = ((param_header[6] << 16) | (param_header[5] << 8) | (param_header[4]));
-            sector_map_table_size = param_header[3] * 4;
-
-        }
-        addr += SPIF_PARAM_HEADER_SIZE;
-
-    }
-    return 0;
+    return sfdp_parse_headers(callback(this, &SPIFBlockDevice::_spi_send_read_sfdp_command), hdr_info);
 }
 
 unsigned int SPIFBlockDevice::_sfdp_detect_page_size(uint8_t *basic_param_table_ptr, int basic_param_table_size)

@@ -14,10 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] Watchdog reset test cases require a RTOS to run.
-#else
-
 #if !DEVICE_WATCHDOG
 #error [NOT_SUPPORTED] Watchdog not supported for this target
 #else
@@ -65,12 +61,12 @@
  * are empty. However, it is possible to determine the time required for the
  * buffers to flush.
  *
- * Take NUMAKER_PFM_NUC472 as an example:
- * The UART peripheral has 16-byte Tx FIFO. With a baud rate set to 9600,
- * flushing the Tx FIFO would take: 16 * 8 * 1000 / 9600 = 13.3 ms.
- * To be on the safe side, set the wait time to 20 ms.
+ * Assuming the biggest Tx FIFO of 128 bytes (as for CY8CPROTO_062_4343W)
+ * and a default UART config (9600, 8N1), flushing the Tx FIFO wold take:
+ * (1 start_bit + 8 data_bits + 1 stop_bit) * 128 * 1000 / 9600 = 133.3 ms.
+ * To be on the safe side, set the wait time to 150 ms.
  */
-#define SERIAL_FLUSH_TIME_MS 20
+#define SERIAL_FLUSH_TIME_MS 150
 
 #define TIMEOUT_US (1000 * (TIMEOUT_MS))
 #define KICK_ADVANCE_US (1000 * (KICK_ADVANCE_MS))
@@ -90,18 +86,7 @@ struct testcase_data {
 
 testcase_data current_case;
 
-Thread wdg_kicking_thread(osPriorityNormal, 768);
-Semaphore kick_wdg_during_test_teardown(0, 1);
-
-void wdg_kicking_thread_fun()
-{
-    kick_wdg_during_test_teardown.acquire();
-    Watchdog &watchdog = Watchdog::get_instance();
-    while (true) {
-        watchdog.kick();
-        wait_us(20000);
-    }
-}
+Ticker wdg_kicking_ticker;
 
 bool send_reset_notification(testcase_data *tcdata, uint32_t delay_ms)
 {
@@ -127,10 +112,11 @@ void test_simple_reset()
 
     // Phase 1. -- run the test code.
     // Init the watchdog and wait for a device reset.
-    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS) == false) {
+    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS + SERIAL_FLUSH_TIME_MS) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
+    wait_us(SERIAL_FLUSH_TIME_US); // Wait for the serial buffers to flush.
     Watchdog &watchdog = Watchdog::get_instance();
     TEST_ASSERT_FALSE(watchdog.is_running());
     TEST_ASSERT_TRUE(watchdog.start(TIMEOUT_MS));
@@ -140,7 +126,8 @@ void test_simple_reset()
 
     // Watchdog reset should have occurred during a wait above.
 
-    kick_wdg_during_test_teardown.release(); // For testsuite failure handling.
+    hal_watchdog_kick();
+    wdg_kicking_ticker.attach_us(mbed::callback(hal_watchdog_kick), 20000); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 
@@ -155,10 +142,11 @@ void test_sleep_reset()
     }
 
     // Phase 1. -- run the test code.
-    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS) == false) {
+    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS + SERIAL_FLUSH_TIME_MS) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
+    wait_us(SERIAL_FLUSH_TIME_US); // Wait for the serial buffers to flush.
     Watchdog &watchdog = Watchdog::get_instance();
     TEST_ASSERT_FALSE(watchdog.is_running());
     TEST_ASSERT_TRUE(watchdog.start(TIMEOUT_MS));
@@ -174,7 +162,8 @@ void test_sleep_reset()
 
     // Watchdog reset should have occurred during the sleep above.
 
-    kick_wdg_during_test_teardown.release(); // For testsuite failure handling.
+    hal_watchdog_kick();
+    wdg_kicking_ticker.attach_us(mbed::callback(hal_watchdog_kick), 20000); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 
@@ -210,7 +199,8 @@ void test_deepsleep_reset()
 
     // Watchdog reset should have occurred during the deepsleep above.
 
-    kick_wdg_during_test_teardown.release(); // For testsuite failure handling.
+    hal_watchdog_kick();
+    wdg_kicking_ticker.attach_us(mbed::callback(hal_watchdog_kick), 20000); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 #endif
@@ -244,10 +234,11 @@ void test_restart_reset()
     // The watchdog should trigger before twice the timeout value.
     wait_us(TIMEOUT_US / 2 + TIMEOUT_US);
 
-    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS) == false) {
+    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS + SERIAL_FLUSH_TIME_MS) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
+    wait_us(SERIAL_FLUSH_TIME_US); // Wait for the serial buffers to flush.
     TEST_ASSERT_TRUE(watchdog.start(TIMEOUT_MS));
     TEST_ASSERT_TRUE(watchdog.is_running());
     // Watchdog should fire before twice the timeout value.
@@ -255,7 +246,8 @@ void test_restart_reset()
 
     // Watchdog reset should have occurred during a wait above.
 
-    kick_wdg_during_test_teardown.release(); // For testsuite failure handling.
+    hal_watchdog_kick();
+    wdg_kicking_ticker.attach_us(mbed::callback(hal_watchdog_kick), 20000); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 
@@ -279,16 +271,18 @@ void test_kick_reset()
         wait_us(TIMEOUT_US - KICK_ADVANCE_US);
         watchdog.kick();
     }
-    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS) == false) {
+    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS + SERIAL_FLUSH_TIME_MS) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
+    wait_us(SERIAL_FLUSH_TIME_US); // Wait for the serial buffers to flush.
     // Watchdog should fire before twice the timeout value.
     wait_us(2 * TIMEOUT_US); // Device reset expected.
 
     // Watchdog reset should have occurred during a wait above.
 
-    kick_wdg_during_test_teardown.release(); // For testsuite failure handling.
+    hal_watchdog_kick();
+    wdg_kicking_ticker.attach_us(mbed::callback(hal_watchdog_kick), 20000); // For testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 
@@ -323,10 +317,6 @@ int testsuite_setup(const size_t number_of_cases)
         return utest::v1::STATUS_ABORT;
     }
 
-    // The thread is started here, but feeding the watchdog will start
-    // when the semaphore is released during a test case teardown.
-    wdg_kicking_thread.start(mbed::callback(wdg_kicking_thread_fun));
-
     utest_printf("This test suite is composed of %i test cases. Starting at index %i.\n", number_of_cases,
                  current_case.start_index);
     return current_case.start_index;
@@ -352,4 +342,3 @@ int main()
     return !Harness::run(specification);
 }
 #endif // !DEVICE_WATCHDOG
-#endif // !defined(MBED_CONF_RTOS_PRESENT)

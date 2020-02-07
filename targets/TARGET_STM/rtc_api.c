@@ -105,7 +105,7 @@ void rtc_init(void)
     // Enable RTC
     __HAL_RCC_RTC_ENABLE();
 
-#if defined __HAL_RCC_RTCAPB_CLK_ENABLE /* part of STM32L4 */
+#if defined __HAL_RCC_RTCAPB_CLK_ENABLE /* part of STM32L4 / STM32L5 */
     __HAL_RCC_RTCAPB_CLK_ENABLE();
 #endif /* __HAL_RCC_RTCAPB_CLK_ENABLE */
 
@@ -289,12 +289,12 @@ int rtc_isenabled(void)
 
 #if DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM
 
-static void RTC_IRQHandler(void);
+static void _RTC_IRQHandler(void);
 static void (*irq_handler)(void);
 
 volatile uint8_t lp_Fired = 0;
 
-static void RTC_IRQHandler(void)
+static void _RTC_IRQHandler(void)
 {
     /*  Update HAL state */
     RtcHandle.Instance = RTC;
@@ -418,11 +418,17 @@ void rtc_set_wake_up_timer(timestamp_t timestamp)
 
     RtcHandle.Instance = RTC;
     HAL_RTCEx_DeactivateWakeUpTimer(&RtcHandle);
+#if defined (RTC_WUTR_WUTOCLR) /* STM32L5 */
+    if (HAL_RTCEx_SetWakeUpTimer_IT(&RtcHandle, WakeUpCounter, RTC_WAKEUPCLOCK_RTCCLK_DIV4, 0) != HAL_OK) {
+        error("rtc_set_wake_up_timer init error\n");
+    }
+#else /* RTC_WUTR_WUTOCLR */
     if (HAL_RTCEx_SetWakeUpTimer_IT(&RtcHandle, WakeUpCounter, WakeUpClock) != HAL_OK) {
         error("rtc_set_wake_up_timer init error\n");
     }
+#endif /* RTC_WUTR_WUTOCLR */
 
-    NVIC_SetVector(RTC_WKUP_IRQn, (uint32_t)RTC_IRQHandler);
+    NVIC_SetVector(RTC_WKUP_IRQn, (uint32_t)_RTC_IRQHandler);
     irq_handler = (void (*)(void))lp_ticker_irq_handler;
     NVIC_EnableIRQ(RTC_WKUP_IRQn);
     core_util_critical_section_exit();
@@ -431,7 +437,7 @@ void rtc_set_wake_up_timer(timestamp_t timestamp)
 void rtc_fire_interrupt(void)
 {
     lp_Fired = 1;
-    NVIC_SetVector(RTC_WKUP_IRQn, (uint32_t)RTC_IRQHandler);
+    NVIC_SetVector(RTC_WKUP_IRQn, (uint32_t)_RTC_IRQHandler);
     irq_handler = (void (*)(void))lp_ticker_irq_handler;
     NVIC_SetPendingIRQ(RTC_WKUP_IRQn);
     NVIC_EnableIRQ(RTC_WKUP_IRQn);

@@ -47,6 +47,7 @@
  *   - mstd::is_invocable, mbed::is_invocable_r, etc
  *   - mstd::invoke_result
  *   - logical operator traits (mstd::conjunction, mstd::disjunction, mstd::negation)
+ *   - mstd::is_constant_evaluated
  */
 
 #include <mstd_cstddef>
@@ -1361,6 +1362,29 @@ struct is_nothrow_invocable_r : impl::is_invocable_r<R, invoke_result<F, Args...
 
 #endif // __cpp_lib_is_invocable
 
+/* C++20 is_constant_evaluated */
+constexpr bool is_constant_evaluated() noexcept
+{
+#ifdef __clang__
+#if __has_builtin(__builtin_is_constant_evaluated)
+#define MSTD_HAS_IS_CONSTANT_EVALUATED 1
+   return __builtin_is_constant_evaluated();
+#else
+   return false;
+#endif
+#elif __GNUC__ >= 9
+#define MSTD_HAS_IS_CONSTANT_EVALUATED 1
+   return __builtin_is_constant_evaluated();
+#else
+   return false;
+#endif
+}
+
+#if MSTD_HAS_IS_CONSTANT_EVALUATED
+#define MSTD_CONSTEXPR_IF_HAS_IS_CONSTANT_EVALUATED constexpr
+#else
+#define MSTD_CONSTEXPR_IF_HAS_IS_CONSTANT_EVALUATED
+#endif
 
 } // namespace mstd
 

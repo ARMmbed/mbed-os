@@ -31,7 +31,7 @@ UBLOX_N2XX_CellularStack::UBLOX_N2XX_CellularStack(ATHandler &atHandler, int cid
 
 UBLOX_N2XX_CellularStack::~UBLOX_N2XX_CellularStack()
 {
-    _at.set_urc_handler("+NSONMI:", NULL);
+    _at.set_urc_handler("+NSONMI:", nullptr);
 }
 
 nsapi_error_t UBLOX_N2XX_CellularStack::socket_listen(nsapi_socket_t handle, int backlog)
@@ -57,21 +57,11 @@ void UBLOX_N2XX_CellularStack::NSONMI_URC()
     if (socket != NULL) {
         socket->pending_bytes = b;
         // No debug prints here as they can affect timing
-        // and cause data loss in UARTSerial
+        // and cause data loss in BufferedSerial
         if (socket->_cb != NULL) {
             socket->_cb(socket->_data);
         }
     }
-}
-
-int UBLOX_N2XX_CellularStack::get_max_socket_count()
-{
-    return N2XX_MAX_SOCKET;
-}
-
-bool UBLOX_N2XX_CellularStack::is_protocol_supported(nsapi_protocol_t protocol)
-{
-    return (protocol == NSAPI_UDP);
 }
 
 nsapi_error_t UBLOX_N2XX_CellularStack::create_socket_impl(CellularSocket *socket)
@@ -97,7 +87,7 @@ nsapi_error_t UBLOX_N2XX_CellularStack::create_socket_impl(CellularSocket *socke
     _at.unlock();
 
     // Check for duplicate socket id delivered by modem
-    for (int i = 0; i < N2XX_MAX_SOCKET; i++) {
+    for (int i = 0; i < _device.get_property(AT_CellularDevice::PROPERTY_SOCKET_COUNT); i++) {
         CellularSocket *sock = _socket[i];
         if (sock && sock != socket && sock->id == sock_id) {
             return NSAPI_ERROR_NO_SOCKET;

@@ -16,8 +16,11 @@
 
 #if MBED_CONF_NSAPI_PRESENT
 
-#include "cellular/onboard_modem_api.h"
-#include "UARTSerial.h"
+#include "gpio_api.h"
+#include "platform/mbed_thread.h"
+#include "PinNames.h"
+
+#include "drivers/BufferedSerial.h"
 #include "ONBOARD_TELIT_HE910.h"
 #include "ThisThread.h"
 #include "CellularLog.h"
@@ -30,33 +33,50 @@ ONBOARD_TELIT_HE910::ONBOARD_TELIT_HE910(FileHandle *fh) : TELIT_HE910(fh)
 
 nsapi_error_t ONBOARD_TELIT_HE910::hard_power_on()
 {
-    ::onboard_modem_init();
+    //does nothing at the moment, TODO: MultiTech to add hardware initialization stuff if needed
     return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t ONBOARD_TELIT_HE910::hard_power_off()
 {
-    ::onboard_modem_deinit();
+    //does nothing at the moment, TODO: MultiTech to add hardware de-initialization stuff if needed
     return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t ONBOARD_TELIT_HE910::soft_power_on()
 {
-    ::onboard_modem_power_up();
-    // From Telit_xE910 Global form factor App note: It is mandatory to avoid sending data to the serial ports during the first 200ms of the module start-up.
-    rtos::ThisThread::sleep_for(200);
+    /* keep the power line low for 200 milisecond */
+    press_power_button(200);
+    /* give modem a little time to respond */
+    thread_sleep_for(100);
     return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t ONBOARD_TELIT_HE910::soft_power_off()
 {
-    ::onboard_modem_power_down();
+    gpio_t gpio;
+    gpio_init_out_ex(&gpio, MDMPWRON, 0);
+    /* keep the power line low for more than 10 seconds.
+     * If 3G_ON_OFF pin is kept low for more than a second, a controlled disconnect and shutdown takes
+     * place, Due to the network disconnect, shut-off can take up to 30 seconds. However, we wait for 10
+     * seconds only   */
+    thread_sleep_for(10 * 1000);
     return NSAPI_ERROR_OK;
+}
+
+void ONBOARD_TELIT_HE910::press_power_button(int time_ms)
+{
+    gpio_t gpio;
+
+    gpio_init_out_ex(&gpio, MDMPWRON, 1);
+    gpio_write(&gpio, 0);
+    thread_sleep_for(time_ms);
+    gpio_write(&gpio, 1);
 }
 
 CellularDevice *CellularDevice::get_target_default_instance()
 {
-    static UARTSerial serial(MDMTXD, MDMRXD, 115200);
+    static BufferedSerial serial(MDMTXD, MDMRXD, 115200);
 #if DEVICE_SERIAL_FC
     if (MDMRTS != NC && MDMCTS != NC) {
         tr_debug("Modem flow control: RTS %d CTS %d", MDMRTS, MDMCTS);

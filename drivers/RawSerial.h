@@ -27,9 +27,6 @@
 #include <cstdarg>
 
 namespace mbed {
-/** \defgroup drivers-public-api-uart UART
- * \ingroup drivers-public-api
- */
 
 /**
  * \defgroup drivers_RawSerial RawSerial class

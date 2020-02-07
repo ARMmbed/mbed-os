@@ -42,6 +42,7 @@ static const osMutexAttr_t ns_lock_attrib = {
 /**
  * \brief NS world, NS lock based dispatcher
  */
+__attribute__((weak))
 uint32_t tfm_ns_lock_dispatch(veneer_fn fn,
                               uint32_t arg0, uint32_t arg1,
                               uint32_t arg2, uint32_t arg3)
@@ -70,6 +71,7 @@ uint32_t tfm_ns_lock_dispatch(veneer_fn fn,
 /**
  * \brief NS world, Init NS lock
  */
+__attribute__((weak))
 enum tfm_status_e tfm_ns_lock_init()
 {
     if (ns_lock.init == false) {

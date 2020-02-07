@@ -589,8 +589,9 @@ static void fsm_rtermreq(fsm *f, int id, u_char *p, int len) {
     case PPP_FSM_OPENED:
 	if (len > 0) {
 	    ppp_info("%s terminated by peer (%0.*v)", PROTO_NAME(f), len, p);
-	} else
+	} else {
 	    ppp_info("%s terminated by peer", PROTO_NAME(f));
+	}
 	f->retransmits = 0;
 	f->state = PPP_FSM_STOPPING;
 	if (f->callbacks->down)
@@ -643,15 +644,19 @@ static void fsm_rtermack(fsm *f) {
  * fsm_rcoderej - Receive an Code-Reject.
  */
 static void fsm_rcoderej(fsm *f, u_char *inp, int len) {
+#if PPP_DEBUG
     u_char code, id;
+#endif
 
     if (len < HEADERLEN) {
 	FSMDEBUG(("fsm_rcoderej: Rcvd short Code-Reject packet!"));
 	return;
     }
+#if PPP_DEBUG
     GETCHAR(code, inp);
     GETCHAR(id, inp);
     ppp_warn("%s: Rcvd Code-Reject for code %d, id %d", PROTO_NAME(f), code, id);
+#endif
 
     if( f->state == PPP_FSM_ACKRCVD )
 	f->state = PPP_FSM_REQSENT;

@@ -336,7 +336,7 @@ void CC3220SF_LAUNCHXL_initGeneral(void)
 }
 
 #if defined TOOLCHAIN_ARM
-__attribute__((section("signature_section")))
+__attribute__((section("signature_section"), used))
 #elif defined TOOLCHAIN_IAR
 #pragma default_variable_attributes = @ ".dbghdr"
 #elif defined TOOLCHAIN_GCC_ARM

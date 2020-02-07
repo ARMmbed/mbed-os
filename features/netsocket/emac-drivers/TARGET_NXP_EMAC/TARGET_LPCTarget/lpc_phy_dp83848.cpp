@@ -106,6 +106,7 @@
 /** \brief PHY ID definitions */
 #define DP83848C_ID         0x20005C90  /**< PHY Identifier - DP83848C */
 #define LAN8720_ID          0x0007C0F0  /**< PHY Identifier - LAN8720  */
+#define KSZ8041_ID          0x00221510  /**< PHY Identifier - KSZ8041  */
 
 
 /** \brief PHY status structure used to indicate current status of PHY.
@@ -350,9 +351,11 @@ bool lpc_phy_init(LPC17_EMAC *lpc17_emac, int rmii)
 	lpc_mii_write(DP8_BMCR_REG, tmp);
 
     /* Enable RMII mode for PHY */
-    if (rmii)
-        lpc_mii_write(DP8_PHY_RBR_REG, DP8_RBR_RMII_MODE);
-
+    if (rmii) {
+        /* Mode is set with config pins on KSZ8041 */
+        if (phy_id != KSZ8041_ID)
+            lpc_mii_write(DP8_PHY_RBR_REG, DP8_RBR_RMII_MODE);
+    }
 	/* The link is not set active at this point, but will be detected
        later */
 
@@ -377,14 +380,14 @@ int32_t lpc_phy_sts_sm(LPC17_EMAC *lpc17_emac)
 				lpc_mii_read_noblock(DP8_PHY_STAT_REG);
 				phyustate = 2;
 			}
-			else if (phy_id == LAN8720_ID) {
+			else if (phy_id == LAN8720_ID || phy_id == KSZ8041_ID) {
 				lpc_mii_read_noblock(DP8_PHY_SCSR_REG);
 				phyustate = 1;        
 			}
 			break;
 
 		case 1:
-			if (phy_id == LAN8720_ID) {
+			if (phy_id == LAN8720_ID || phy_id == KSZ8041_ID) {
 				tmp = lpc_mii_read_data();
 				// we get speed and duplex here. 
 				phy_lan7420_sts_tmp =  (tmp & PHY_SCSR_DUPLEX)  ? LNK_STAT_FULLDUPLEX : 0;
@@ -408,7 +411,7 @@ int32_t lpc_phy_sts_sm(LPC17_EMAC *lpc17_emac)
 					data |= (tmp & DP8_FULLDUPLEX) ? LNK_STAT_FULLDUPLEX : 0;
 					data |= (tmp & DP8_SPEED10MBPS) ? LNK_STAT_SPEED10MPS : 0;
 				}
-				else if (phy_id == LAN8720_ID) {    
+				else if (phy_id == LAN8720_ID || phy_id == KSZ8041_ID) {
 					// we only get the link status here.
 					phy_lan7420_sts_tmp |= (tmp & DP8_LINK_STATUS) ? LNK_STAT_VALID : 0;
 					data = phy_lan7420_sts_tmp;          

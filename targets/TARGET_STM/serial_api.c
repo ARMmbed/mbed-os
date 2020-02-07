@@ -157,13 +157,12 @@ static void _serial_init_direct(serial_t *obj, const serial_pinmap_t *pinmap)
     MBED_ASSERT(obj_s->index >= 0);
 
     // Configure UART pins
-    pin_function(pinmap->tx_pin, pinmap->tx_function);
-    pin_function(pinmap->rx_pin, pinmap->rx_function);
-
     if (pinmap->tx_pin != NC) {
+        pin_function(pinmap->tx_pin, pinmap->tx_function);
         pin_mode(pinmap->tx_pin, PullUp);
     }
     if (pinmap->rx_pin != NC) {
+        pin_function(pinmap->rx_pin, pinmap->rx_function);
         pin_mode(pinmap->rx_pin, PullUp);
     }
 
@@ -356,8 +355,13 @@ void serial_free(serial_t *obj)
 #endif /* DUAL_CORE */
 
     // Configure GPIOs
-    pin_function(obj_s->pin_tx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-    pin_function(obj_s->pin_rx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    if (obj_s->pin_tx != NC) {
+        pin_function(obj_s->pin_tx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    }
+
+    if (obj_s->pin_rx != NC) {
+        pin_function(obj_s->pin_rx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    }
 
     serial_irq_ids[obj_s->index] = 0;
 }
@@ -616,6 +620,18 @@ HAL_StatusTypeDef init_uart(serial_t *obj)
     huart->TxXferSize        = 0;
     huart->RxXferCount       = 0;
     huart->RxXferSize        = 0;
+#if defined(UART_ONE_BIT_SAMPLE_DISABLE) // F0/F3/F7/G0/H7/L0/L4/L5/WB
+    huart->Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+#endif
+#if defined(UART_PRESCALER_DIV1) // G0/H7/L4/L5/WB
+    huart->Init.ClockPrescaler = UART_PRESCALER_DIV1;
+#endif
+#if defined(UART_ADVFEATURE_NO_INIT) // F0/F3/F7/G0/H7/L0/L4//5/WB
+    huart->AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+#endif
+#if defined(UART_FIFOMODE_DISABLE) // G0/H7/L4/L5/WB
+    huart->FifoMode = UART_FIFOMODE_DISABLE;
+#endif
 
     if (obj_s->pin_rx == NC) {
         huart->Init.Mode = UART_MODE_TX;

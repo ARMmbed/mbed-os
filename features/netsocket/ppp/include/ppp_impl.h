@@ -648,6 +648,8 @@ int  str_to_epdisc (struct epdisc *, char *); /* endpt disc. from str */
 #define multilink_master	0
 #endif
 
+#if PPP_DEBUG
+
 /* Procedures exported from utils.c. */
 void ppp_print_string(const u_char *p, int len, void (*printer) (void *, const char *, ...), void *arg);   /* Format a string for output */
 int ppp_slprintf(char *buf, int buflen, const char *fmt, ...);            /* sprintf++ */
@@ -664,6 +666,22 @@ void ppp_fatal(const char *fmt, ...);     /* log an error message and die(1) */
 void ppp_dump_packet(ppp_pcb *pcb, const char *tag, unsigned char *p, int len);
                                 /* dump packet to debug log if interesting */
 #endif /* PRINTPKT_SUPPORT */
+
+#else
+
+#define ppp_print_string(...)
+#define ppp_slprintf(...)
+#define ppp_vslprintf(...)
+#define ppp_strlcpy(...)
+#define ppp_strlcat(...)
+#define ppp_dbglog(...)
+#define ppp_info(...)
+#define ppp_notice(...)
+#define ppp_warn(...)
+#define ppp_error(...)
+#define ppp_fatal(...)
+
+#endif /* PPP_DEBUG */
 
 /*
  * Number of necessary timers analysis.

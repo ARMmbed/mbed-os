@@ -20,7 +20,7 @@
 #else
 
 #include "utest/utest.h"
-#include "utest/utest_serial.h"
+#include "utest/utest_print.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
 #include "FlashIAP.h"

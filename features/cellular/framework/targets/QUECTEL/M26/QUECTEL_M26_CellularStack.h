@@ -22,7 +22,6 @@
 
 namespace mbed {
 
-#define M26_SOCKET_MAX 6
 #define M26_CREATE_SOCKET_TIMEOUT 75000 //75 seconds
 #define M26_SENT_BYTE_MAX 1460
 #define M26_RECV_BYTE_MAX 1024
@@ -31,6 +30,12 @@ class QUECTEL_M26_CellularStack : public AT_CellularStack {
 public:
     QUECTEL_M26_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device);
     virtual ~QUECTEL_M26_CellularStack();
+
+    /** Initialize
+     *  Must be called immediately after constructor to initialize IP stack on the modem.
+     *  @return NSAPI_ERROR_OK on success
+     */
+    nsapi_error_t socket_stack_init();
 
 protected: // NetworkStack
 
@@ -44,12 +49,6 @@ protected: // NetworkStack
     virtual nsapi_error_t socket_connect(nsapi_socket_t handle, const SocketAddress &address);
 
 protected: // AT_CellularStack
-
-    virtual nsapi_error_t socket_stack_init();
-
-    virtual int get_max_socket_count();
-
-    virtual bool is_protocol_supported(nsapi_protocol_t protocol);
 
     virtual nsapi_error_t socket_close_impl(int sock_id);
 

@@ -47,12 +47,15 @@ public:
 	{
 		_device = dev;
 		_cp_netif = new ControlPlane_netif_stub();
+
+		nonip_pdp_string = NULL;
 	}
 
 	~testContext()
 	{
 		delete _cp_netif;
 	}
+
 	int get_retry_count()
 	{
 		return _retry_count;
@@ -108,22 +111,6 @@ public:
 	virtual void set_credentials(const char *apn, const char *uname = 0, const char *pwd = 0)
 	{
 	}
-	nsapi_error_t get_netmask(SocketAddress *address)
-    {
-        return NSAPI_ERROR_UNSUPPORTED;
-    }
-	virtual const char *get_netmask()
-	{
-		return NULL;
-	}
-	nsapi_error_t get_gateway(SocketAddress *address)
-    {
-        return NSAPI_ERROR_UNSUPPORTED;
-    }
-	virtual const char *get_gateway()
-	{
-		return NULL;
-	}
 	virtual bool is_connected()
 	{
 		return false;
@@ -162,7 +149,7 @@ public:
 
 	}
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
-    virtual void set_file_handle(UARTSerial *serial, PinName dcd_pin = NC, bool active_high = false)
+    virtual void set_file_handle(BufferedSerial *serial, PinName dcd_pin = NC, bool active_high = false)
     {
 
     }
@@ -179,6 +166,11 @@ public:
 	{
 
 	}
+
+    const char *get_nonip_context_type_str()
+    {
+        return nonip_pdp_string;
+    }
 
 	void cp_data_received()
 	{
@@ -198,6 +190,58 @@ public:
 	{
 		CellularContext::do_connect_with_retry();
 	}
+
+	void test_string_to_pdp_type()
+	{
+	    pdp_type_t type = string_to_pdp_type("IPV4V6");
+	    ASSERT_EQ(type, IPV4V6_PDP_TYPE);
+
+	    type = string_to_pdp_type("IPV6");
+	    ASSERT_EQ(type, IPV6_PDP_TYPE);
+
+	    type = string_to_pdp_type("IP");
+	    ASSERT_EQ(type, IPV4_PDP_TYPE);
+
+	    type = string_to_pdp_type("Non-IP");
+	    ASSERT_EQ(type, NON_IP_PDP_TYPE);
+
+	    nonip_pdp_string = NULL;
+	    type = string_to_pdp_type("diipadaapa");
+	    ASSERT_EQ(type, DEFAULT_PDP_TYPE);
+	}
+
+    void test_nonip_context_type_str()
+    {
+        nonip_pdp_string = "NONIP";
+
+        pdp_type_t type = string_to_pdp_type("diipadaapa");
+        ASSERT_EQ(type, DEFAULT_PDP_TYPE);
+
+        type = string_to_pdp_type("NONIP");
+        ASSERT_EQ(type, NON_IP_PDP_TYPE);
+
+        type = string_to_pdp_type("nonip");
+        ASSERT_EQ(type, DEFAULT_PDP_TYPE);
+
+        type = string_to_pdp_type("IPV6");
+        ASSERT_EQ(type, IPV6_PDP_TYPE);
+
+        nonip_pdp_string = "testnonip";
+
+        type = string_to_pdp_type("diipadaapa");
+        ASSERT_EQ(type, DEFAULT_PDP_TYPE);
+
+        type = string_to_pdp_type("testnonip");
+        ASSERT_EQ(type, NON_IP_PDP_TYPE);
+
+        type = string_to_pdp_type("nonip");
+        ASSERT_EQ(type, DEFAULT_PDP_TYPE);
+
+        type = string_to_pdp_type("IPV6");
+        ASSERT_EQ(type, IPV6_PDP_TYPE);
+    }
+
+	const char *nonip_pdp_string;
 };
 
 static int network_cb_count = 0;
@@ -314,6 +358,20 @@ TEST_F(TestCellularContext, do_connect_with_retry_async)
     delete dev;
 }
 
+TEST_F(TestCellularContext, string_to_pdp_type)
+{
+    testContext *ctx = new testContext();
+    EXPECT_TRUE(ctx != NULL);
 
+    ctx->test_string_to_pdp_type();
+    delete ctx;
+}
 
+TEST_F(TestCellularContext, nonip_context_type_str)
+{
+    testContext *ctx = new testContext();
+    EXPECT_TRUE(ctx != NULL);
 
+    ctx->test_nonip_context_type_str();
+    delete ctx;
+}

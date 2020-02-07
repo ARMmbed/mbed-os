@@ -147,7 +147,7 @@ public:
     * @param callback Method pointer to be called when a packet is transferred
     * @returns true if successful, false otherwise
     */
-    bool endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_t type, mbed::Callback<void()> callback = NULL);
+    bool endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_t type, mbed::Callback<void()> callback = nullptr);
 
     /**
     * Add an endpoint

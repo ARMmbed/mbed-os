@@ -37,9 +37,9 @@ void ASYNCHRONOUS_DNS_CANCEL()
         data[i].semaphore = &semaphore;
         data[i].req_result = get_interface()->gethostbyname_async(dns_test_hosts[i],
                                                                   mbed::Callback<void(nsapi_error_t, SocketAddress *)>(hostbyname_cb, (void *) &data[i]));
-        TEST_ASSERT(data[i].req_result >= 0 || data[i].req_result == NSAPI_ERROR_NO_MEMORY  || data[i].req_result == NSAPI_ERROR_BUSY);
+        TEST_ASSERT(data[i].req_result > 0 || data[i].req_result == NSAPI_ERROR_NO_MEMORY  || data[i].req_result == NSAPI_ERROR_BUSY);
 
-        if (data[i].req_result >= 0) {
+        if (data[i].req_result > 0) {
             // Callback will be called
             count++;
         } else {
@@ -68,10 +68,10 @@ void ASYNCHRONOUS_DNS_CANCEL()
             tr_info("DNS: query \"%s\" => cancel", dns_test_hosts[i]);
             continue;
         }
-        TEST_ASSERT(data[i].result == NSAPI_ERROR_OK || data[i].result == NSAPI_ERROR_NO_MEMORY || data[i].result == NSAPI_ERROR_BUSY || data[i].result == NSAPI_ERROR_DNS_FAILURE || data[i].result == NSAPI_ERROR_TIMEOUT);
-        if (data[i].result == NSAPI_ERROR_OK) {
-            tr_info("DNS: query \"%s\" => \"%s\"",
-                    dns_test_hosts[i], data[i].addr.get_ip_address());
+        TEST_ASSERT(data[i].result == 1 || data[i].result == NSAPI_ERROR_NO_MEMORY || data[i].result == NSAPI_ERROR_BUSY || data[i].result == NSAPI_ERROR_DNS_FAILURE || data[i].result == NSAPI_ERROR_TIMEOUT);
+        if (data[i].result == 1) {
+            printf("DNS: query \"%s\" => \"%s\"\n",
+                   dns_test_hosts[i], data[i].addr.get_ip_address());
         } else if (data[i].result == NSAPI_ERROR_DNS_FAILURE) {
             tr_error("DNS: query \"%s\" => DNS failure", dns_test_hosts[i]);
         } else if (data[i].result == NSAPI_ERROR_TIMEOUT) {

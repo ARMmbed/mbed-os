@@ -511,6 +511,26 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
+ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setRandomStaticAddress_(
+    const ble::address_t& address
+)
+{
+    if (is_random_static_address(address.data()) == false) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    ble_error_t err = _pal_gap.set_random_address(address);
+    if (err) {
+        return err;
+    }
+
+    _address_type = LegacyAddressType::RANDOM_STATIC;
+    _address = address;
+    _random_static_identity_address = address;
+    return BLE_ERROR_NONE;
+}
+
+template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getAddress_(
     LegacyAddressType_t *type,
     BLEProtocol::AddressBytes_t address

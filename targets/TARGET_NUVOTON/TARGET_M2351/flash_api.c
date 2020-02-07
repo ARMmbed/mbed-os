@@ -87,7 +87,7 @@ static const flash_algo_t flash_algo_config = {
 
 /* Secure flash */
 static const sector_info_t sectors_info[] = {
-    {NU_ROM_START_S, 0x800},                                // (start, sector size)
+    {NU_FLASHIAP_SECURE_START, 0x800},                      // (start, sector size)
 };
 
 /* Secure flash */
@@ -95,15 +95,15 @@ static const flash_target_config_t flash_target_config = {
     .page_size  = 4,                                        // 4 bytes
                                                             // Here page_size is program unit, which is different
                                                             // than FMC definition.
-    .flash_start = NU_ROM_START_S,
-    .flash_size = NU_ROM_SIZE_S,
+    .flash_start = NU_FLASHIAP_SECURE_START,
+    .flash_size = NU_FLASHIAP_SECURE_SIZE,
     .sectors = sectors_info,
     .sector_info_count = sizeof(sectors_info) / sizeof(sector_info_t)
 };
 
 /* Non-secure flash */
 static const sector_info_t sectors_info_ns[] = {
-    {NU_ROM_START_NS, 0x800},                               // (start, sector size)
+    {NU_FLASHIAP_NONSECURE_START, 0x800},                   // (start, sector size)
 };
 
 /* Non-secure flash */
@@ -111,8 +111,8 @@ static const flash_target_config_t flash_target_config_ns = {
     .page_size  = 4,                                        // 4 bytes
                                                             // Here page_size is program unit, which is different
                                                             // than FMC definition.
-    .flash_start = NU_ROM_START_NS,
-    .flash_size = NU_ROM_SIZE_NS,
+    .flash_start = NU_FLASHIAP_NONSECURE_START,
+    .flash_size = NU_FLASHIAP_NONSECURE_SIZE,
     .sectors = sectors_info_ns,
     .sector_info_count = sizeof(sectors_info_ns) / sizeof(sector_info_t)
 };

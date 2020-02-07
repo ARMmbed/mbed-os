@@ -155,7 +155,7 @@ WEAK_ALIAS_FUNC(OPA_IRQHandler, Default_Handler)        // 62: OPA Interrupt
 
 /* Vector table */
 #if defined(__ARMCC_VERSION)
-__attribute__ ((section("RESET")))
+__attribute__ ((section("RESET"), used))
 const uint32_t __vector_handlers[] = {
 #elif defined(__ICCARM__)
 extern uint32_t CSTACK$$Limit;

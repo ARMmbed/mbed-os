@@ -56,7 +56,7 @@ int main()
 
 FileHandle *mbed::mbed_override_console(int)
 {
-    static UARTSerial console(STDIO_UART_TX, STDIO_UART_RX, SERIAL_CONSOLE_BAUD_RATE);
+    static BufferedSerial console(STDIO_UART_TX, STDIO_UART_RX, SERIAL_CONSOLE_BAUD_RATE);
 #if CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
     console.set_flow_control(SerialBase::RTS, STDIO_UART_RTS, NC);
 #elif CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_CTS

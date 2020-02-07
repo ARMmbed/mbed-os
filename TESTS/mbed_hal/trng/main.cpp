@@ -43,6 +43,7 @@
 #include "base64b.h"
 #include "pithy.h"
 #include <stdio.h>
+#include <string.h>
 #include "mbedtls/config.h"
 #include "mbedtls/platform.h"
 

@@ -56,8 +56,8 @@ protected:
      * virtual Destructor
      */
     virtual ~CellularSMS() {};
-public:
 
+public:
     /* Enumeration for possible SMS modes, PDU and Text */
     enum CellularSMSMmode {
         CellularSMSMmodePDU = 0,

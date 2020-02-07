@@ -42,6 +42,7 @@ NetworkInterface *net;
 
 const char dns_test_hosts[MBED_CONF_APP_DNS_TEST_HOSTS_NUM][DNS_TEST_HOST_LEN] = MBED_CONF_APP_DNS_TEST_HOSTS;
 const char dns_test_hosts_second[MBED_CONF_APP_DNS_TEST_HOSTS_NUM][DNS_TEST_HOST_LEN] = MBED_CONF_APP_DNS_TEST_HOSTS_SECOND;
+const char dns_test_hosts_multi_ip[MBED_CONF_APP_DNS_SIMULT_QUERIES][DNS_TEST_HOST_LEN] = MBED_CONF_APP_DNS_TEST_MULTI_IP_HOSTS;
 
 // Callback used for asynchronous DNS result
 void hostbyname_cb(void *data, nsapi_error_t result, SocketAddress *address)
@@ -92,8 +93,8 @@ void do_asynchronous_gethostbyname(const char hosts[][DNS_TEST_HOST_LEN], unsign
 
     // Print result
     for (unsigned int i = 0; i < op_count; i++) {
-        TEST_ASSERT(data[i].result == NSAPI_ERROR_OK || data[i].result == NSAPI_ERROR_NO_MEMORY || data[i].result == NSAPI_ERROR_BUSY || data[i].result == NSAPI_ERROR_DNS_FAILURE || data[i].result == NSAPI_ERROR_TIMEOUT);
-        if (data[i].result == NSAPI_ERROR_OK) {
+        TEST_ASSERT(data[i].result > 0 || data[i].result == NSAPI_ERROR_NO_MEMORY || data[i].result == NSAPI_ERROR_BUSY || data[i].result == NSAPI_ERROR_DNS_FAILURE || data[i].result == NSAPI_ERROR_TIMEOUT);
+        if (data[i].result > 0) {
             (*exp_ok)++;
             tr_info("DNS: query \"%s\" => \"%s\"",
                     hosts[i], data[i].addr.get_ip_address());
@@ -203,8 +204,8 @@ Case cases[] = {
     Case("ASYNCHRONOUS_DNS", ASYNCHRONOUS_DNS),
     Case("ASYNCHRONOUS_DNS_SIMULTANEOUS", ASYNCHRONOUS_DNS_SIMULTANEOUS),
     Case("ASYNCHRONOUS_DNS_SIMULTANEOUS_CACHE", ASYNCHRONOUS_DNS_SIMULTANEOUS_CACHE),
-    Case("SYNCHRONOUS_DNS_CACHE", SYNCHRONOUS_DNS_CACHE),
 #ifndef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
+    Case("SYNCHRONOUS_DNS_CACHE", SYNCHRONOUS_DNS_CACHE),
     Case("ASYNCHRONOUS_DNS_CACHE", ASYNCHRONOUS_DNS_CACHE),
 #endif
 #if !defined MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES || MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES > MBED_CONF_APP_DNS_TEST_HOSTS_NUM
@@ -213,13 +214,15 @@ Case cases[] = {
     Case("ASYNCHRONOUS_DNS_CANCEL", ASYNCHRONOUS_DNS_CANCEL),
 #ifndef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
     Case("ASYNCHRONOUS_DNS_EXTERNAL_EVENT_QUEUE", ASYNCHRONOUS_DNS_EXTERNAL_EVENT_QUEUE),
-    Case("ASYNCHRONOUS_DNS_INVALID_HOST", ASYNCHRONOUS_DNS_INVALID_HOST),
     Case("ASYNCHRONOUS_DNS_TIMEOUTS", ASYNCHRONOUS_DNS_TIMEOUTS),
+    Case("ASYNCHRONOUS_DNS_INVALID_HOST", ASYNCHRONOUS_DNS_INVALID_HOST),
 #endif
     Case("ASYNCHRONOUS_DNS_SIMULTANEOUS_REPEAT",  ASYNCHRONOUS_DNS_SIMULTANEOUS_REPEAT),
     Case("SYNCHRONOUS_DNS", SYNCHRONOUS_DNS),
     Case("SYNCHRONOUS_DNS_MULTIPLE", SYNCHRONOUS_DNS_MULTIPLE),
     Case("SYNCHRONOUS_DNS_INVALID", SYNCHRONOUS_DNS_INVALID),
+    Case("SYNCHRONOUS_DNS_MULTI_IP", SYNCHRONOUS_DNS_MULTI_IP),
+    Case("ASYNCHRONOUS_DNS_MULTI_IP", ASYNCHRONOUS_DNS_MULTI_IP),
 };
 
 Specification specification(test_setup, cases, greentea_teardown, greentea_continue_handlers);

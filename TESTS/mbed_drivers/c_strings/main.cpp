@@ -54,6 +54,7 @@ void test_case_c_string_x_X()
     TEST_ASSERT_EQUAL_STRING("8000 C8E 3e7 64 1 0 1 1087 3e7 101B 7ff8 1869F", buffer);
 }
 
+#if !defined(__NEWLIB_NANO)
 void test_case_c_string_f_f()
 {
     CLEAN_BUFFER;
@@ -74,6 +75,7 @@ void test_case_c_string_e_E()
     sprintf(buffer, "%e %E %e %E %e %E %e %E %e %E %e", FLOATS);
     TEST_ASSERT_EQUAL_STRING("2.000000e-03 9.243000E-01 1.591320e+01 7.917737E+02 6.208200e+03 2.571950E+04 4.268160e+05 6.429271E+06 4.246802e+07 2.120065E+08 6.579048e+03", buffer);
 }
+#endif
 
 void test_case_c_string_strtok()
 {
@@ -113,10 +115,14 @@ Case cases[] = {
     Case("C strings: %i %d integer formatting", test_case_c_string_i_d, greentea_failure_handler),
     Case("C strings: %u %d integer formatting", test_case_c_string_u_d, greentea_failure_handler),
     Case("C strings: %x %E integer formatting", test_case_c_string_x_X, greentea_failure_handler),
+#if !defined(__NEWLIB_NANO)
+    //In build tools, GCC with Newlib-nano linker option "-u _printf_float" is not configured
+    //to enable printf floating format. So disabling floating format test case.
     Case("C strings: %f %f float formatting", test_case_c_string_f_f, greentea_failure_handler),
 #ifndef MBED_MINIMAL_PRINTF
     Case("C strings: %e %E float formatting", test_case_c_string_e_E, greentea_failure_handler),
     Case("C strings: %g %g float formatting", test_case_c_string_g_g, greentea_failure_handler),
+#endif
 #endif
 };
 

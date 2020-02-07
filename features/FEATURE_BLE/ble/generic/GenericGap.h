@@ -307,6 +307,11 @@ public:
     );
 
     /**
+     * @see Gap::setRandomStaticAddress
+     */
+    ble_error_t setRandomStaticAddress_(const ble::address_t& address);
+
+    /**
      * @see Gap::getAddress
      */
     ble_error_t getAddress_(

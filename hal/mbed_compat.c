@@ -19,6 +19,7 @@
 #include "i2c_api.h"
 #include "spi_api.h"
 #include "gpio_api.h"
+#include "reset_reason_api.h"
 #include "mbed_toolchain.h"
 
 // To be re-implemented in the target layer if required
@@ -55,6 +56,7 @@ MBED_WEAK void spi_get_capabilities(PinName ssel, bool slave, spi_capabilities_t
         cap->hw_cs_handle = false;                  // irrelevant in slave mode
         cap->slave_delay_between_symbols_ns = 2500; // 2.5 us
         cap->clk_modes = 0x0f;                      // all clock modes
+        cap->tx_rx_buffers_equal_length = true;     // rx buffer size must be equal tx buffer size
 #if DEVICE_SPI_ASYNCH
         cap->async_mode = true;
 #else
@@ -68,6 +70,7 @@ MBED_WEAK void spi_get_capabilities(PinName ssel, bool slave, spi_capabilities_t
         cap->hw_cs_handle = false;                // to be determined later based on ssel
         cap->slave_delay_between_symbols_ns = 0;  // irrelevant in master mode
         cap->clk_modes = 0x0f;                    // all clock modes
+        cap->tx_rx_buffers_equal_length = true;   // rx buffer size must be equal tx buffer size
 #if DEVICE_SPI_ASYNCH
         cap->async_mode = true;
 #else
@@ -77,7 +80,6 @@ MBED_WEAK void spi_get_capabilities(PinName ssel, bool slave, spi_capabilities_t
 
     // check if given ssel pin is in the cs pinmap
     const PinMap *cs_pins = spi_master_cs_pinmap();
-    PinName pin = NC;
     while (cs_pins->pin != NC) {
         if (cs_pins->pin == ssel) {
 #if DEVICE_SPISLAVE
@@ -90,4 +92,15 @@ MBED_WEAK void spi_get_capabilities(PinName ssel, bool slave, spi_capabilities_t
     }
 }
 
+#endif
+
+#if DEVICE_RESET_REASON
+// To be re-implemented in the target layer if required
+MBED_WEAK void hal_reset_reason_get_capabilities(reset_reason_capabilities_t *cap)
+{
+    cap->reasons = (1 << RESET_REASON_PIN_RESET) | (1 << RESET_REASON_SOFTWARE);
+#if DEVICE_WATCHDOG
+    cap->reasons |= 1 << RESET_REASON_WATCHDOG;
+#endif
+}
 #endif
