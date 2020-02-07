@@ -39,15 +39,12 @@ public:
         }
     }
 
-    void set_file_handle(BufferedSerial *serial, PinName dcd_pin, bool active_high)
+    nsapi_error_t configure_hup(PinName dcd_pin, bool active_high)
     {
+        return NSAPI_ERROR_OK;
     };
 
     void enable_hup(bool enable)
-    {
-    };
-
-    void set_file_handle(FileHandle *fh)
     {
     };
 

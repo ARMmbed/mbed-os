@@ -86,32 +86,6 @@ public:
      */
     FileHandle *get_file_handle();
 
-    /** Get a new ATHandler instance, and update the linked list. Once the use of the ATHandler
-     *  has finished, call to close() has to be made
-     *
-     *  @param fileHandle       filehandle used for reading AT responses and writing AT commands.
-     *                          If there is already an ATHandler with the same fileHandle pointer,
-     *                          then a pointer to that ATHandler instance will be returned with
-     *                          that ATHandler's queue, timeout, delimiter, send_delay and debug_on
-     *                          values
-     *  @param queue            Event queue used to transfer sigio events to this thread
-     *  @param timeout          Timeout when reading for AT response
-     *  @param delimiter        delimiter used when parsing at responses, "\r" should be used as output_delimiter
-     *  @param send_delay       the minimum delay in ms between the end of last response and the beginning of a new command
-     *  @param debug_on         Set true to enable debug traces
-     *  @return                 NULL, if fileHandle is not set, or a pointer to an existing ATHandler, if the fileHandle is
-     *                          already in use. Otherwise a pointer to a new ATHandler instance is returned
-     */
-    static ATHandler *get_instance(FileHandle *fileHandle, events::EventQueue &queue, uint32_t timeout,
-                                   const char *delimiter, uint16_t send_delay, bool debug_on);
-
-    /** Close and delete the current ATHandler instance, if the reference count to it is 0.
-     *  Close() can be only called, if the ATHandler was opened with get_instance()
-     *
-     *  @return NSAPI_ERROR_OK on success, NSAPI_ERROR_PARAMETER on failure
-     */
-    nsapi_error_t close();
-
     /** Locks the mutex for file handle if AT_HANDLER_MUTEX is defined.
      */
     void lock();
@@ -133,8 +107,6 @@ public:
      */
     void set_urc_handler(const char *prefix, Callback<void()> callback);
 
-    ATHandler *_nextATHandler; // linked list
-
     /** returns the last error while parsing AT responses.
      *
      *  @return last error
@@ -154,13 +126,6 @@ public:
      */
     void set_at_timeout(uint32_t timeout_milliseconds, bool default_timeout = false);
 
-    /** Set timeout in milliseconds for all ATHandlers in the _atHandlers list
-     *
-     *  @param timeout_milliseconds  Timeout in milliseconds
-     *  @param default_timeout       Store as default timeout
-     */
-    static void set_at_timeout_list(uint32_t timeout_milliseconds, bool default_timeout = false);
-
     /** Restore timeout to previous timeout. Handy if there is a need to change timeout temporarily.
      */
     void restore_at_timeout();
@@ -177,12 +142,6 @@ public:
     /** Tries to find oob's from the AT response. Call the urc callback if one is found.
      */
     void process_oob();
-
-    /** Set file handle, which is used for reading AT responses and writing AT commands
-     *
-     *  @param fh file handle used for reading AT responses and writing AT commands
-     */
-    void set_file_handle(FileHandle *fh);
 
     /** Set is file handle usable. Some situations like after going to data mode, file handle is not usable anymore.
      *  Any items in queue are not to be processed.
@@ -448,12 +407,6 @@ public: // just for debugging
      */
     bool get_debug() const;
 
-    /** Set debug_on for all ATHandlers in the _atHandlers list
-     *
-     *  @param debug_on Set true to enable debug traces
-     */
-    static void set_debug_list(bool debug_on);
-
 private: //Private structs & enums
     struct tag_t {
         char tag[7];
@@ -620,8 +573,6 @@ private: //Member variables
 
     int32_t _ref_count;
     bool _is_fh_usable;
-
-    static ATHandler *_atHandlers;
 
     // should fit any prefix and int
     char _recv_buff[BUFF_SIZE];

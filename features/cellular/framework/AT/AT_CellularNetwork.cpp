@@ -710,8 +710,3 @@ nsapi_error_t AT_CellularNetwork::clear()
 
     return _at.unlock_return_error();
 }
-
-ATHandler &AT_CellularNetwork::get_at_handler()
-{
-    return _at;
-}

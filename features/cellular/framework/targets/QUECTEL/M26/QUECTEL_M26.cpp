@@ -56,10 +56,10 @@ nsapi_error_t QUECTEL_M26::get_sim_state(SimState &state)
 {
     char buf[13];
 
-    _at->lock();
-    nsapi_error_t err = _at->at_cmd_str("+CPIN", "?", buf, 13);
+    _at.lock();
+    nsapi_error_t err = _at.at_cmd_str("+CPIN", "?", buf, 13);
     tr_debug("CPIN: %s", buf);
-    _at->unlock();
+    _at.unlock();
 
     if (memcmp(buf, "READY", 5) == 0) {
         state = SimStateReady;
@@ -89,7 +89,7 @@ AT_CellularContext *QUECTEL_M26::create_context_impl(ATHandler &at, const char *
 
 nsapi_error_t QUECTEL_M26::shutdown()
 {
-    return _at->at_cmd_discard("+QPOWD", "=0");
+    return _at.at_cmd_discard("+QPOWD", "=0");
 }
 
 

@@ -58,10 +58,10 @@ QUECTEL_BC95::QUECTEL_BC95(FileHandle *fh) : AT_CellularDevice(fh)
 
 nsapi_error_t QUECTEL_BC95::get_sim_state(SimState &state)
 {
-    _at->lock();
-    _at->flush();
-    nsapi_error_t err = _at->at_cmd_discard("+NCCID", "?");
-    _at->unlock();
+    _at.lock();
+    _at.flush();
+    nsapi_error_t err = _at.at_cmd_discard("+NCCID", "?");
+    _at.unlock();
 
     state = SimStateReady;
     if (err != NSAPI_ERROR_OK) {
@@ -91,25 +91,25 @@ nsapi_error_t QUECTEL_BC95::init()
 {
     setup_at_handler();
 
-    _at->lock();
-    _at->flush();
-    nsapi_error_t err = _at->at_cmd_discard("", "");  //Send AT
+    _at.lock();
+    _at.flush();
+    nsapi_error_t err = _at.at_cmd_discard("", "");  //Send AT
     if (!err) {
-        err = _at->at_cmd_discard("+CMEE", "=1"); // verbose responses
+        err = _at.at_cmd_discard("+CMEE", "=1"); // verbose responses
     }
     if (!err) {
-        err = _at->at_cmd_discard("+CFUN", "=", "%d", 1);
+        err = _at.at_cmd_discard("+CFUN", "=", "%d", 1);
     }
     if (!err) {
-        err = _at->get_last_error();
+        err = _at.get_last_error();
     }
-    _at->unlock();
+    _at.unlock();
     return err;
 }
 
 nsapi_error_t QUECTEL_BC95::set_baud_rate_impl(int baud_rate)
 {
-    return _at->at_cmd_discard("+NATSPEED", "=", "%d%d%d%d%d%d%d", baud_rate, 30, 0, 2, 1, 0, 0);
+    return _at.at_cmd_discard("+NATSPEED", "=", "%d%d%d%d%d%d%d", baud_rate, 30, 0, 2, 1, 0, 0);
 }
 
 #if MBED_CONF_QUECTEL_BC95_PROVIDE_DEFAULT

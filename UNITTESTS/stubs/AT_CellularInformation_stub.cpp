@@ -57,8 +57,3 @@ nsapi_error_t AT_CellularInformation::get_iccid(char *buf, size_t buf_size)
 {
     return NSAPI_ERROR_OK;
 }
-
-ATHandler &AT_CellularInformation::get_at_handler()
-{
-    return _at;
-}

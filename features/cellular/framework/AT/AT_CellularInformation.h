@@ -48,8 +48,6 @@ public:
 
     virtual nsapi_error_t get_iccid(char *buf, size_t buf_size);
 
-    ATHandler &get_at_handler();
-
 protected:
     /** Request information text from cellular device
      *

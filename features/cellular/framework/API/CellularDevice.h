@@ -21,10 +21,7 @@
 #include "CellularStateMachine.h"
 #include "Callback.h"
 #include "ATHandler.h"
-
-#if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
-#include "drivers/BufferedSerial.h"
-#endif // #if DEVICE_SERIAL
+#include "PinNames.h"
 
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "Thread.h"
@@ -40,7 +37,6 @@ class CellularSMS;
 class CellularInformation;
 class CellularNetwork;
 class CellularContext;
-class FileHandle;
 
 const int MAX_PIN_SIZE = 8;
 const int MAX_PLMN_SIZE = 16;
@@ -86,10 +82,8 @@ public:
     static CellularDevice *get_target_default_instance();
 
     /** Default constructor
-     *
-     *  @param fh   File handle used in communication with the modem.
      */
-    CellularDevice(FileHandle *fh);
+    CellularDevice();
 
     /** virtual Destructor
      */
@@ -233,26 +227,7 @@ public: //Pure virtual functions
      *  @return         new instance of class CellularContext or NULL in case of failure
      *
      */
-    virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = NULL, bool cp_req = false, bool nonip_req = false) = 0;
-
-#if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
-    /** Creates a new CellularContext interface. This API should be used if serial is UART and PPP mode used.
-     *  CellularContext created will use data carrier detect to be able to detect disconnection much faster in PPP mode.
-     *  BufferedSerial usually is the same which was given for the CellularDevice.
-     *
-     *  @param serial       BufferedSerial used in communication to modem. If null then the default file handle is used.
-     *  @param apn          access point to use with context, can be null.
-     *  @param dcd_pin      Pin used to set data carrier detect on/off for the given UART
-     *  @param active_high  a boolean set to true if DCD polarity is active low
-     *  @param cp_req       Flag indicating if EPS control plane optimization is required
-     *  @param nonip_req    Flag indicating if this context is required to be Non-IP
-     *
-     *  @return         new instance of class CellularContext or NULL in case of failure
-     *
-     */
-    virtual CellularContext *create_context(BufferedSerial *serial, const char *apn, PinName dcd_pin = NC,
-                                            bool active_high = false, bool cp_req = false, bool nonip_req = false) = 0;
-#endif // #if DEVICE_SERIAL
+    virtual CellularContext *create_context(const char *apn = NULL, bool cp_req = false, bool nonip_req = false) = 0;
 
     /** Deletes the given CellularContext instance
      *
@@ -308,18 +283,10 @@ public: //Pure virtual functions
     virtual nsapi_error_t set_power_save_mode(int periodic_time, int active_time = 0) = 0;
 
     /** Get the current ATHandler instance in use for debug purposes etc.
-     *  Once use has been finished call to release_at_handler() has to be made
      *
-     *  @return Pointer to the ATHandler in use
+     *  @return Pointer to the ATHandler in use, NULL if device is non-AT -device.
      */
     virtual ATHandler *get_at_handler() = 0;
-
-    /** Release the ATHandler taken into use with get_at_handler()
-     *
-     *  @param at_handler
-     *  @return NSAPI_ERROR_OK on success, NSAPI_ERROR_PARAMETER on failure
-     */
-    virtual nsapi_error_t release_at_handler(ATHandler *at_handler) = 0;
 
     /** Sets cellular modem to given baud rate
      *
@@ -334,7 +301,7 @@ public: //Pure virtual functions
      *               file handle is used.
      *  @return      New instance of interface CellularNetwork.
      */
-    virtual CellularNetwork *open_network(FileHandle *fh = NULL) = 0;
+    virtual CellularNetwork *open_network() = 0;
 
 #if MBED_CONF_CELLULAR_USE_SMS || defined(DOXYGEN_ONLY)
     /** Create new CellularSMS interface.
@@ -343,7 +310,7 @@ public: //Pure virtual functions
      *               file handle is used.
      *  @return      New instance of interface CellularSMS.
      */
-    virtual CellularSMS *open_sms(FileHandle *fh = NULL) = 0;
+    virtual CellularSMS *open_sms() = 0;
 
     /** Closes the opened CellularSMS by deleting the CellularSMS instance.
      */
@@ -357,7 +324,7 @@ public: //Pure virtual functions
      *               file handle is used.
      *  @return      New instance of interface CellularInformation.
      */
-    virtual CellularInformation *open_information(FileHandle *fh = NULL) = 0;
+    virtual CellularInformation *open_information() = 0;
 
     /** Closes the opened CellularNetwork by deleting the CellularNetwork instance.
      */
@@ -378,11 +345,6 @@ public: //Pure virtual functions
 
 public: //Common functions
 
-    /** Get the current FileHandle item used when communicating with the modem.
-     *
-     *  @return reference to FileHandle
-     */
-    FileHandle &get_file_handle() const;
 
     /** Set the pin code for SIM card
      *
@@ -494,7 +456,6 @@ protected: //Member variables
     int _sms_ref_count;
 #endif // MBED_CONF_CELLULAR_USE_SMS
     int _info_ref_count;
-    FileHandle *_fh;
     events::EventQueue _queue;
     CellularStateMachine *_state_machine;
     Callback<void(nsapi_event_t, intptr_t)> _status_cb;

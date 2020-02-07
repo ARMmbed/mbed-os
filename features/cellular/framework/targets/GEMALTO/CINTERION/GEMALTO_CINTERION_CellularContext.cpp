@@ -39,7 +39,7 @@ NetworkStack *GEMALTO_CINTERION_CellularContext::get_stack()
     }
 
     if (!_stack) {
-        _stack = new GEMALTO_CINTERION_CellularStack(get_at_handler(), _apn, _uname, _pwd, _cid, (nsapi_ip_stack_t)_pdp_type, *get_device());
+        _stack = new GEMALTO_CINTERION_CellularStack(_at, _apn, _uname, _pwd, _cid, (nsapi_ip_stack_t)_pdp_type, *get_device());
         if (static_cast<GEMALTO_CINTERION_CellularStack *>(_stack)->socket_stack_init() != NSAPI_ERROR_OK) {
             delete _stack;
             _stack = NULL;
