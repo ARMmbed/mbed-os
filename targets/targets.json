@@ -13488,9 +13488,6 @@
         "detect_code": [
             "1901"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "bootloader_supported": false,
         "sectors": [
             [
@@ -13532,9 +13529,6 @@
         "detect_code": [
             "190B"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "overrides": {
             "network-default-interface-type": "WIFI"
         }
@@ -13568,9 +13562,6 @@
         "detect_code": [
             "190E"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "overrides": {
             "network-default-interface-type": "WIFI",
             "xip-enable": true
@@ -13647,9 +13638,6 @@
         "detect_code": [
             "1900"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "bootloader_supported": false,
         "sectors": [
             [
@@ -13682,9 +13670,6 @@
         "detect_code": [
             "1902"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "sectors": [
             [
                 268443648,
@@ -13714,9 +13699,6 @@
         "detect_code": [
             "1904"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "sectors": [
             [
                 268443648,
@@ -13783,9 +13765,6 @@
         "detect_code": [
             "1900"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "bootloader_supported": false,
         "sectors": [
             [
@@ -13823,9 +13802,6 @@
         "detect_code": [
             "1906"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "overrides": {
             "network-default-interface-type": "WIFI"
         }
@@ -13865,9 +13841,6 @@
         "detect_code": [
             "1903"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "overrides": {
             "network-default-interface-type": "WIFI"
         }
