@@ -530,28 +530,25 @@ nsapi_error_t AT_CellularContext::find_and_activate_context()
     }
 
     if (err != NSAPI_ERROR_OK) {
-        _at.unlock();
         tr_error("Failed to activate network context! (%d)", err);
-        return err;
-    }
-
-    // do check for stack to validate that we have support for stack
-    if (!(_nonip_req && _cp_in_use) && !get_stack()) {
-        _at.unlock();
+    } else if (!(_nonip_req && _cp_in_use) && !get_stack()) {
+        // do check for stack to validate that we have support for stack
         tr_error("No cellular stack!");
-        return NSAPI_ERROR_UNSUPPORTED;
+        err = NSAPI_ERROR_UNSUPPORTED;
     }
 
     _is_context_active = false;
     _is_context_activated = false;
 
-    _is_context_active = _nw->is_active_context(NULL, _cid);
+    if (err == NSAPI_ERROR_OK) {
+        _is_context_active = _nw->is_active_context(NULL, _cid);
 
-    if (!_is_context_active) {
-        activate_context();
+        if (!_is_context_active) {
+            activate_context();
+        }
+
+        err = (_at.get_last_error() == NSAPI_ERROR_OK) ? NSAPI_ERROR_OK : NSAPI_ERROR_NO_CONNECTION;
     }
-
-    err = (_at.get_last_error() == NSAPI_ERROR_OK) ? NSAPI_ERROR_OK : NSAPI_ERROR_NO_CONNECTION;
 
     // If new PDP context was created and failed to activate, delete it
     if (err != NSAPI_ERROR_OK && _new_context_set) {
