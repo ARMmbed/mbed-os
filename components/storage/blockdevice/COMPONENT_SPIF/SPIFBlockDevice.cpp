@@ -184,9 +184,7 @@ int SPIFBlockDevice::init()
 
 
     /**************************** Parse Basic Parameters Table ***********************************/
-    if (_sfdp_parse_basic_param_table(callback(this, &SPIFBlockDevice::_spi_send_read_sfdp_command),
-                                      _sfdp_info.bptbl.addr,
-                                      _sfdp_info.bptbl.size) < 0) {
+    if (_sfdp_parse_basic_param_table(callback(this, &SPIFBlockDevice::_spi_send_read_sfdp_command), _sfdp_info) < 0) {
         tr_error("init - Parse Basic Param Table Failed");
         status = SPIF_BD_ERROR_PARSING_FAILED;
         goto exit_point;
@@ -624,11 +622,11 @@ spif_bd_error SPIFBlockDevice::_spi_send_general_command(int instruction, bd_add
 /********** SFDP Parsing and Detection Functions *********/
 /*********************************************************/
 int SPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader,
-                                                   uint32_t basic_table_addr, size_t basic_table_size)
+                                                   mbed::sfdp_hdr_info &sfdp_info)
 {
     uint8_t param_table[SFDP_BASIC_PARAMS_TBL_SIZE]; /* Up To 20 DWORDS = 80 Bytes */
 
-    int status = sfdp_reader(basic_table_addr, param_table, basic_table_size);
+    int status = sfdp_reader(sfdp_info.bptbl.addr, param_table, sfdp_info.bptbl.size);
     if (status != SPIF_BD_ERROR_OK) {
         tr_error("init - Read SFDP First Table Failed");
         return -1;
@@ -655,14 +653,14 @@ int SPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void 
     _erase_instruction = SPIF_SE;
 
     // Set Page Size (SPI write must be done on Page limits)
-    _page_size_bytes = _sfdp_detect_page_size(param_table, basic_table_size);
+    _page_size_bytes = _sfdp_detect_page_size(param_table, sfdp_info.bptbl.size);
 
     // Detect and Set Erase Types
-    _sfdp_detect_erase_types_inst_and_size(param_table, basic_table_size, _erase4k_inst, _sfdp_info.smptbl);
+    _sfdp_detect_erase_types_inst_and_size(param_table, sfdp_info.bptbl.size, _erase4k_inst, sfdp_info.smptbl);
     _erase_instruction = _erase4k_inst;
 
     // Detect and Set fastest Bus mode (default 1-1-1)
-    _sfdp_detect_best_bus_read_mode(param_table, basic_table_size, _read_instruction);
+    _sfdp_detect_best_bus_read_mode(param_table, sfdp_info.bptbl.size, _read_instruction);
 
     return 0;
 }
