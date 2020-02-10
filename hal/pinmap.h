@@ -174,7 +174,9 @@ const PinList *pinmap_restricted_pins(void);
  *
  * @return Pointer to a peripheral list of peripheral to avoid
  */
+#if DEVICE_SERIAL
 const PeripheralList *pinmap_uart_restricted_peripherals(void);
+#endif
 
 /**
  * Get the pin list of pins to avoid during GPIO/GPIO_IRQ testing

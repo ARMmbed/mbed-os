@@ -136,6 +136,7 @@ void find_ports(std::list<PortType> &matched_ports, std::list<PortType> &not_mat
                 }
             }
 
+#if DEVICE_SERIAL
             if (!strcmp(PortType::PinMap::name, UART_NAME) || !strcmp(PortType::PinMap::name, UARTNOFC_NAME)) {
                 if (pinmap_list_has_peripheral(pinmap_uart_restricted_peripherals(), port.peripheral)) {
                     utest_printf("Skipping %s peripheral %i with pin %s (%i)\r\n", pin_type,
@@ -143,6 +144,7 @@ void find_ports(std::list<PortType> &matched_ports, std::list<PortType> &not_mat
                     continue;
                 }
             }
+#endif
 
             // skipp pin searching if single pin port type
             if (PortType::pin_count > 1) {
