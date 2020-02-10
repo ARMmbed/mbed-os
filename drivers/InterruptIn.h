@@ -134,8 +134,8 @@ public:
      *  @param obj pointer to the object to call the member function on
      *  @param method pointer to the member function to be called
      *  @deprecated
-     *      The rise function does not support cv-qualifiers. Replaced by
-     *      rise(callback(obj, method)).
+     *      The fall function does not support cv-qualifiers. Replaced by
+     *      fall(callback(obj, method)).
      */
     template<typename T, typename M>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
