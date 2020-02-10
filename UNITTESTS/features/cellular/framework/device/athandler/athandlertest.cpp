@@ -482,7 +482,7 @@ TEST_F(TestATHandler, test_ATHandler_read_bytes)
     filehandle_stub_table_pos = 0;
 
     ATHandler at(&fh1, que, 0, ",");
-    uint8_t buf[5];
+    uint8_t buf[8]; // 1st part of the test reads 5 bytes and the 2nd part 8 bytes
 
     // TEST EMPTY BUFFER
     // Shouldn't read any byte since buffer is empty
