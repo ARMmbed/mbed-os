@@ -181,9 +181,12 @@ void NFCController::scheduler_process(bool hw_interrupt)
     _timeout.detach(); // Cancel timeout - if it triggers, it's ok as we'll have an "early" iteration which will likely be a no-op
 
     // Process stack events
-    uint32_t timeout = nfc_scheduler_iteration(_scheduler, hw_interrupt ? EVENT_HW_INTERRUPT : EVENT_NONE);
+    uint32_t timeout_ms = nfc_scheduler_iteration(_scheduler, hw_interrupt ? EVENT_HW_INTERRUPT : EVENT_NONE);
 
-    _timeout.attach(callback(this, &NFCController::on_timeout), timeout);
+    _timeout.attach_us(
+        callback(this, &NFCController::on_timeout),
+        timeout_ms * (us_timestamp_t) 1000
+    );
 }
 
 void NFCController::on_hw_interrupt()
