@@ -122,10 +122,12 @@ int SPIFBlockDevice::init()
     uint8_t vendor_device_ids[4];
     size_t data_length = 3;
     int status = SPIF_BD_ERROR_OK;
-    struct sfdp_hdr_info hdr_info;
     spif_bd_error spi_status = SPIF_BD_ERROR_OK;
 
-    memset(&hdr_info, 0, sizeof hdr_info);
+    _sfdp_info.bptbl.addr = 0x0;
+    _sfdp_info.bptbl.size = 0;
+    _sfdp_info.smptbl.addr = 0x0;
+    _sfdp_info.smptbl.size = 0;
 
     _mutex->lock();
 
@@ -174,7 +176,7 @@ int SPIFBlockDevice::init()
     }
 
     /**************************** Parse SFDP Header ***********************************/
-    if (0 != sfdp_parse_headers(callback(this, &SPIFBlockDevice::_spi_send_read_sfdp_command), hdr_info)) {
+    if (sfdp_parse_headers(callback(this, &SPIFBlockDevice::_spi_send_read_sfdp_command), _sfdp_info) < 0) {
         tr_error("init - Parse SFDP Headers Failed");
         status = SPIF_BD_ERROR_PARSING_FAILED;
         goto exit_point;
@@ -182,7 +184,9 @@ int SPIFBlockDevice::init()
 
 
     /**************************** Parse Basic Parameters Table ***********************************/
-    if (0 != _sfdp_parse_basic_param_table(callback(this, &SPIFBlockDevice::_spi_send_read_sfdp_command), hdr_info.bptbl.addr, hdr_info.bptbl.size)) {
+    if (_sfdp_parse_basic_param_table(callback(this, &SPIFBlockDevice::_spi_send_read_sfdp_command),
+                                      _sfdp_info.bptbl.addr,
+                                      _sfdp_info.bptbl.size) < 0) {
         tr_error("init - Parse Basic Param Table Failed");
         status = SPIF_BD_ERROR_PARSING_FAILED;
         goto exit_point;
@@ -193,9 +197,9 @@ int SPIFBlockDevice::init()
         _device_size_bytes; // If there's no region map, we have a single region sized the entire device size
     _sfdp_info.smptbl.region_high_boundary[0] = _device_size_bytes - 1;
 
-    if ((hdr_info.smptbl.addr != 0) && (0 != hdr_info.smptbl.size)) {
-        tr_debug("init - Parsing Sector Map Table - addr: 0x%" PRIx32 "h, Size: %d", hdr_info.smptbl.addr,
-                 hdr_info.smptbl.size);
+    if ((_sfdp_info.smptbl.addr != 0) && (0 != _sfdp_info.smptbl.size)) {
+        tr_debug("init - Parsing Sector Map Table - addr: 0x%" PRIx32 "h, Size: %d", _sfdp_info.smptbl.addr,
+                 _sfdp_info.smptbl.size);
         if (sfdp_parse_sector_map_table(callback(this, &SPIFBlockDevice::_spi_send_read_sfdp_command),
                                         _sfdp_info.smptbl) < 0) {
             tr_error("init - Parse Sector Map Table Failed");
