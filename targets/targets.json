@@ -13461,7 +13461,7 @@
         ],
         "public": false
     },
-    "CY8CMOD_062_4343W": {
+    "CY8CPROTO_062_4343W": {
         "inherits": [
             "MCU_PSOC6_M4"
         ],
@@ -13485,12 +13485,24 @@
             "CY8C624ABZI_D44",
             "CYBSP_WIFI_CAPABLE"
         ],
-        "public": false,
+        "detect_code": [
+            "1901"
+        ],
+        "post_binary_hook": {
+            "function": "PSOC6Code.complete"
+        },
+        "bootloader_supported": false,
+        "sectors": [
+            [
+                268435456,
+                512
+            ]
+        ],
         "overrides": {
             "network-default-interface-type": "WIFI"
         }
     },
-    "CY8CMOD_062S2_43012": {
+    "CY8CKIT_062S2_43012": {
         "inherits": [
             "MCU_PSOC6_M4"
         ],
@@ -13501,6 +13513,9 @@
             "WHD",
             "43012",
             "CYW43XXX"
+        ],
+        "supported_form_factors": [
+            "ARDUINO"
         ],
         "device_has_remove": [
             "ANALOGOUT"
@@ -13514,12 +13529,17 @@
             "CY8C624ABZI_D44",
             "CYBSP_WIFI_CAPABLE"
         ],
-        "public": false,
+        "detect_code": [
+            "190B"
+        ],
+        "post_binary_hook": {
+            "function": "PSOC6Code.complete"
+        },
         "overrides": {
             "network-default-interface-type": "WIFI"
         }
     },
-    "CY8CMOD_062S3_4343W": {
+    "CY8CPROTO_062S3_4343W": {
         "inherits": [
             "MCU_PSOC6_M4"
         ],
@@ -13545,7 +13565,12 @@
             "CY_ENABLE_XIP_PROGRAM",
             "CY_STORAGE_WIFI_DATA=\".cy_xip\""
         ],
-        "public": false,
+        "detect_code": [
+            "190E"
+        ],
+        "post_binary_hook": {
+            "function": "PSOC6Code.complete"
+        },
         "overrides": {
             "network-default-interface-type": "WIFI",
             "xip-enable": true
@@ -13636,49 +13661,6 @@
             "network-default-interface-type": "WIFI"
         },
         "program_cycle_s": 10
-    },
-    "CY8CPROTO_062_4343W": {
-        "inherits": [
-            "CY8CMOD_062_4343W"
-        ],
-        "detect_code": [
-            "1901"
-        ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
-        "bootloader_supported": false,
-        "sectors": [
-            [
-                268435456,
-                512
-            ]
-        ]
-    },
-    "CY8CPROTO_062S3_4343W": {
-        "inherits": [
-            "CY8CMOD_062S3_4343W"
-        ],
-        "detect_code": [
-            "190E"
-        ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        }
-    },
-    "CY8CKIT_062S2_43012": {
-        "inherits": [
-            "CY8CMOD_062S2_43012"
-        ],
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "detect_code": [
-            "190B"
-        ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        }
     },
     "CY8CKIT_062_BLE": {
         "inherits": [
