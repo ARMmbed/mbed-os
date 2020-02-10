@@ -231,7 +231,9 @@ void do_timed_sleep_relative_or_forever(uint32_t wake_delay, bool (*wake_predica
 {
     // Special-case 0 delay, to save multiple callers having to do it. Just call the predicate once.
     if (wake_delay == 0) {
-        wake_predicate(wake_predicate_handle);
+        if (wake_predicate) {
+            wake_predicate(wake_predicate_handle);
+        }
         return;
     }
 
