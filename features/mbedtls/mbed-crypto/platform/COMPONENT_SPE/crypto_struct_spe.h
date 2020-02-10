@@ -348,7 +348,7 @@ typedef struct
     psa_app_key_id_t id;
     psa_key_policy_t policy;
     psa_key_bits_t bits;
-    uint16_t flags;
+    psa_key_attributes_flag_t flags;
 } psa_client_core_key_attributes_t;
 
 #define PSA_CORE_KEY_ATTRIBUTES_INIT {0, 0, PSA_KEY_ID_INIT, PSA_KEY_POLICY_INIT, 0, 0}
@@ -371,6 +371,9 @@ struct psa_key_attributes_s
 typedef struct psa_client_key_attributes_s
 {
     psa_client_core_key_attributes_t core;
+#if defined(MBEDTLS_PSA_CRYPTO_SE_C)
+    psa_key_slot_number_t slot_number;
+#endif /* MBEDTLS_PSA_CRYPTO_SE_C */
     void *domain_parameters;
     size_t domain_parameters_size;
 } psa_client_key_attributes_t;
