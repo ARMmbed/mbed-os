@@ -111,48 +111,53 @@
             "value": 255
         },
         "wisun-network-name": {
-            "help": "default network name for wisun network",
+            "help": "Network name for a wisun network. Maximum network name length can be 32 ASCII characters excluding terminating 0",
             "value": "\"Wi-SUN Network\""
         },
         "wisun-regulatory-domain": {
-            "help": "Regulator domain.",
+            "help": "Regulator domain value as specified in the Wi-SUN PHY Specification. Default value 3 is for EU region.",
             "value": "3"
         },
         "wisun-operating-class": {
-            "help": "Operating class. Use 255 to use Nanostack default",
+            "help": "Operating class for the regulatory-domain as specified in the Wi-SUN PHY Specification. Wi-SUN stack uses operating-class suitable for EU-region if value 255 is used.",
             "value": "255"
         },
         "wisun-operating-mode": {
-            "help": "Operating mode. Use 255 to use Nanostack default",
+            "help": "Operating mode as specified in the Wi-SUN PHY Specification. Wi-SUN stack uses operating-mode suitable for EU-region if value 255 is used.",
             "value": "255"
         },
         "wisun-uc-channel-function": {
-            "help": "Unicast channel function.",
-            "value": "255"
+            "help": "Unicast channel function as specified in the Wi-SUN FAN specification. Wi-SUN stack will select channel function if value 255 is used.",
+            "value": 255
         },
         "wisun-bc-channel-function": {
-            "help": "Broadcast channel function.",
-            "value": "255"
+            "help": "Broadcast channel function as specified in the Wi-SUN FAN specification. Wi-SUN stack will select channel function if value 255 is used.",
+            "value": 255
         },
         "wisun-uc-fixed-channel": {
-            "help": "Default fixed channel",
-            "value": "0xffff"
+            "help": "Default 16-bit fixed channel for unicast. Used when channel hopping is not desired.",
+            "value_max": 65535‬,
+            "value": ‭65535‬
         },
         "wisun-bc-fixed-channel": {
-            "help": "Default fixed channel",
-            "value": "0xffff"
+            "help": "Default 16-bit fixed channel for multicast. Used when channel hopping is not desired.",
+            "value_max": 65535‬,
+            "value": 65535‬
         },
         "wisun-bc-interval": {
-            "help": "Broadcast interval. Duration between broadcast dwell intervals. Range: 0-16777216 milliseconds",
+            "help": "32-bit broadcast interval. Duration between broadcast dwell intervals. Wi-SUN stack default value will be used when set to 0.",
             "value": 0
         },
         "wisun-bc-dwell-interval": {
-            "help": "Broadcast dwell interval. Range: 15-255 milliseconds",
+            "help": "Broadcast dwell interval. Range: 15-255 milliseconds. Wi-SUN stack default value will be used when set to 0.",
+            "value_max": 255,
             "value": 0
         },
         "wisun-uc-dwell-interval": {
-            "help": "Unicast dwell interval. Range: 15-255 milliseconds",
-            "value": 0
+            "help": "Unicast dwell interval. Range: 15-255 milliseconds.",
+            "value_min": 15,
+            "value_max": 255,
+            "value": 255
         },
         "certificate-header": {
             "help": "File name of the certificate header file (used on include directive)",
