@@ -1276,7 +1276,6 @@
             "CAN",
             "DEBUG_AWARENESS",
             "EMAC",
-            "ETHERNET",
             "I2C",
             "I2CSLAVE",
             "INTERRUPTIN",
