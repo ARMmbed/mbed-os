@@ -3,12 +3,18 @@
     "config": {
         "eth-rxbufnb": 4,
         "eth-txbufnb": 4,
-        "eth-phyaddr": 0
+        "eth-phyaddr": {
+            "help" : "Configures actual PHY address according to pullup/down status of PHYAD pin(s)",
+            "value" : 0
+        }
     },
     "target_overrides": {
         "NUCLEO_F207ZG": {
             "eth-rxbufnb": 2,
             "eth-txbufnb": 4
+        },
+        "ARCH_MAX": {
+            "eth-phyaddr": 1
         }
     }
 }
