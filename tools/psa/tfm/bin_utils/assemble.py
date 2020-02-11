@@ -25,7 +25,7 @@ import io
 import re
 import os
 import shutil
-from . import macro_parser
+import macro_parser
 
 offset_re = re.compile(r"^\s*RE_([0-9A-Z_]+)_IMAGE_OFFSET\s*=\s*(.*)")
 size_re = re.compile(r"^\s*RE_([0-9A-Z_]+)_IMAGE_MAX_SIZE\s*=\s*(.*)")
