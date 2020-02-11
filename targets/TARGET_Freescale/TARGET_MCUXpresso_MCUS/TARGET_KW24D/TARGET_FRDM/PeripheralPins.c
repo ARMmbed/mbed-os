@@ -16,47 +16,6 @@
 
 #include "PeripheralPins.h"
 
-/************GPIO***************/
-const PinMap PinMap_GPIO[] = {
-    {PTA0, GPIO_X, 1},
-    {PTA1, GPIO_X, 1},
-    {PTA2, GPIO_X, 1},
-    {PTA3, GPIO_X, 1},
-    {PTA4, GPIO_X, 1},
-    {PTA18, GPIO_X, 1},
-    {PTA19, GPIO_X, 1},
-
-    {PTC4, GPIO_X, 1},
-    {PTC5, GPIO_X, 1},
-    {PTC6, GPIO_X, 1},
-    {PTC7, GPIO_X, 1},
-
-    {PTD1, GPIO_X, 1},
-    {PTD2, GPIO_X, 1},
-    {PTD3, GPIO_X, 1},
-    {PTD4, GPIO_X, 1},
-    {PTD5, GPIO_X, 1},
-    {PTD6, GPIO_X, 1},
-    {PTD7, GPIO_X, 1},
-
-    {PTE0, GPIO_X, 1},
-    {PTE1, GPIO_X, 1},
-    {PTE2, GPIO_X, 1},
-    {PTE3, GPIO_X, 1},
-    {PTE4, GPIO_X, 1},
-    {PTE16, GPIO_X, 1},
-    {PTE17, GPIO_X, 1},
-    {PTE18, GPIO_X, 1},
-    {PTE19, GPIO_X, 1},
-
-    {NC   , NC    , 0}
-};
-
-const PinMap *gpio_pinmap()
-{
-    return PinMap_GPIO;
-}
-
 /************RTC***************/
 const PinMap PinMap_RTC[] = {
     {NC, OSC32KCLK, 0},
@@ -75,7 +34,7 @@ const PinMap PinMap_ADC[] = {
     {PTE17, ADC0_SE5a, 0},
     {PTE18, ADC0_SE6a, 0},
     {PTE19, ADC0_SE7a, 0},
-    {NC   , NC       , 0}
+    {NC, NC, 0}
 };
 
 /************I2C***************/
@@ -83,14 +42,14 @@ const PinMap PinMap_I2C_SDA[] = {
     {PTD3,  I2C_0, 4},
     {PTE0,  I2C_1, 6},
     {PTE18, I2C_0, 4},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_I2C_SCL[] = {
     {PTD2,  I2C_0, 4},
     {PTE1,  I2C_1, 6},
     {PTE19, I2C_0, 4},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 /************UART***************/
@@ -101,7 +60,7 @@ const PinMap PinMap_UART_TX[] = {
     {PTE0,  UART_1, 3},
     {PTD3,  UART_2, 3},
     {PTE16, UART_2, 3},
-    {NC   , NC    , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_UART_RX[] = {
@@ -111,7 +70,7 @@ const PinMap PinMap_UART_RX[] = {
     {PTD2,  UART_2, 3},
     {PTE17, UART_2, 3},
 
-    {NC   , NC    , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_UART_CTS[] = {
@@ -120,15 +79,15 @@ const PinMap PinMap_UART_CTS[] = {
     {PTE2,  UART_1, 3},
     {PTE18, UART_2, 3},
     {PTA0,  UART_0, 2},
-    {NC   , NC    , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_UART_RTS[] = {
     {PTD4,  UART_0, 3},
-    {PTE3 , UART_1, 3},
+    {PTE3, UART_1, 3},
     {PTE19, UART_2, 3},
     {PTA3,  UART_0, 2},
-    {NC   , NC    , 0}
+    {NC, NC, 0}
 };
 
 /************SPI***************/
@@ -138,7 +97,7 @@ const PinMap PinMap_SPI_SCLK[] = {
     {PTD1,  SPI_0, 2},
     {PTE2,  SPI_1, 2},
     {PTE17, SPI_0, 2},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_SPI_MOSI[] = {
@@ -148,7 +107,7 @@ const PinMap PinMap_SPI_MOSI[] = {
     {PTE1,  SPI_1, 2},
     {PTE3,  SPI_1, 7},
     {PTE18, SPI_0, 2},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_SPI_MISO[] = {
@@ -158,7 +117,7 @@ const PinMap PinMap_SPI_MISO[] = {
     {PTE1,  SPI_1, 7},
     {PTE3,  SPI_1, 2},
     {PTE19, SPI_0, 2},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_SPI_SSEL[] = {
@@ -166,7 +125,7 @@ const PinMap PinMap_SPI_SSEL[] = {
     {PTC4,  SPI_0, 2},
     {PTE4,  SPI_1, 2},
     {PTE16, SPI_0, 2},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 /************PWM***************/
@@ -181,5 +140,5 @@ const PinMap PinMap_PWM[] = {
     {PTA2,  PWM_7, 3},
     {PTA3,  PWM_0, 3},
     {PTA4,  PWM_1, 3},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
