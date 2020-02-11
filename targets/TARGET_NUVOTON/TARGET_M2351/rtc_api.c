@@ -29,10 +29,13 @@
 #include "tfm_ns_lock.h"
 #endif
 
-/* NOTE: BSP RTC driver judges secure/non-secure RTC by PC. This implementation cannot support non-secure RTC
- *       controlled by secure executable. A better way would be that secure/non-secure RTC base is passed
- *       to RTC API as an argument like most other APIs. With BSP RTC driver unchanged, we must enforce 
- *       secure RTC. */
+/* Secure attribution of RTC
+ *
+ * We need RTC to be secure for security concern.
+ *
+ * On M2351, configured to secure
+ * On M2351, hard-wired to secure
+ */
 #if defined(SCU_INIT_PNSSET2_VAL) && (SCU_INIT_PNSSET2_VAL & (1 << 1))
 #error("Limited by BSP/RTC, we can only support secure RTC.")
 #endif
@@ -70,7 +73,7 @@ void rtc_write(time_t t)
  *
  * NOTE: This dependents on real hardware.
  */
-#define NU_RTCCLK_PER_SEC           ((CLK->CLKSEL3 & CLK_CLKSEL3_SC0SEL_Msk) ? __LIRC : __LXT)
+#define NU_RTCCLK_PER_SEC           (__LXT)
 
 /* Strategy for implementation of RTC HAL
  *
@@ -124,7 +127,7 @@ static time_t t_write = 0;
 /* Convert date time from H/W RTC to struct TM */
 static void rtc_convert_datetime_hwrtc_to_tm(struct tm *datetime_tm, const S_RTC_TIME_DATA_T *datetime_hwrtc);
 
-static const struct nu_modinit_s rtc_modinit = {RTC_0, RTC_MODULE, 0, 0, 0, RTC_IRQn, NULL};
+static const struct nu_modinit_s rtc_modinit = {RTC_0, RTC_MODULE, CLK_CLKSEL3_RTCSEL_LXT, 0, 0, RTC_IRQn, NULL};
 
 static void rtc_init_impl(void);
 static void rtc_free_impl(void);
@@ -151,11 +154,10 @@ static void rtc_free_impl(void)
 
 static int32_t rtc_isenabled_impl(void)
 {
-    // NOTE: To access (RTC) registers, clock must be enabled first.
-    if (! (CLK->APBCLK0 & CLK_APBCLK0_RTCCKEN_Msk)) {
-        // Enable IP clock
-        CLK_EnableModuleClock_S(rtc_modinit.clkidx);
-    }
+    // To access (RTC) registers, clock must be enabled first.
+    // For TZ, with RTC being secure, we needn't call the secure gateway versions.
+    CLK_EnableModuleClock(rtc_modinit.clkidx);
+    CLK_SetModuleClock(rtc_modinit.clkidx, rtc_modinit.clksrc, rtc_modinit.clkdiv);
 
     RTC_T *rtc_base = (RTC_T *) NU_MODBASE(rtc_modinit.modname);
     
