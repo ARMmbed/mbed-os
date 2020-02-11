@@ -8,6 +8,13 @@
 #ifndef __CAN_REG_H__
 #define __CAN_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
+
+
 /*---------------------- Controller Area Network Controller -------------------------*/
 /**
     @addtogroup CAN Controller Area Network Controller(CAN)
@@ -774,6 +781,7 @@ typedef struct
 
 /**@}*/ /* CAN_CONST */
 /**@}*/ /* end of CAN register group */
+/**@}*/ /* end of REGISTER group */
 
 
 #endif /* __CAN_REG_H__ */

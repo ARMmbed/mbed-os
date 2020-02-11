@@ -8,6 +8,12 @@
 #ifndef __USBH_REG_H__
 #define __USBH_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
+
 
 /*---------------------- USB Host Controller -------------------------*/
 /**
@@ -122,9 +128,9 @@ typedef struct
      * |        |          |0 = The bit 15 of Frame Number didn't change.
      * |        |          |1 = The bit 15 of Frame Number changes from 1 to 0 or from 0 to 1.
      * |[6]     |RHSC      |Root Hub Status Change
-     * |        |          |This bit is set when the content of HcRhStatus or the content of HcRhPortStatus1 register has changed.
-     * |        |          |0 = The content of HcRhStatus and the content of HcRhPortStatus1 register didn't change.
-     * |        |          |1 = The content of HcRhStatus or the content of HcRhPortStatus1 register has changed.
+     * |        |          |This bit is set when the content of HcRhStatus or the content of HcRhPortStatus register has changed.
+     * |        |          |0 = The content of HcRhStatus and the content of HcRhPortStatus register didn't change.
+     * |        |          |1 = The content of HcRhStatus or the content of HcRhPortStatus register has changed.
      * @var USBH_T::HcInterruptEnable
      * Offset: 0x10  Host Controller Interrupt Enable Register
      * ---------------------------------------------------------------------------------------------------
@@ -408,8 +414,8 @@ typedef struct
      * |        |          |Write Operation:
      * |        |          |0 = No effect.
      * |        |          |1 = Clear DRWE (HcRhStatus[15]).
-     * @var USBH_T::HcRhPortStatus1
-     * Offset: 0x54  Host Controller Root Hub Port Status [1]
+     * @var USBH_T::HcRhPortStatus[2]
+     * Offset: 0x54  Host Controller Root Hub Port Status
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
@@ -463,34 +469,34 @@ typedef struct
      * |        |          |1 = Port power is Enabled.
      * |[9]     |LSDA      |Low Speed Device Attached (Read) or Clear Port Power (Write)
      * |        |          |This bit defines the speed (and bud idle) of the attached device
-     * |        |          |It is only valid when CCS (HcRhPortStatus1[0]) is set.
+     * |        |          |It is only valid when CCS (HcRhPortStatus[0]) is set.
      * |        |          |This bit is also used to clear port power.
      * |        |          |Write Operation:
      * |        |          |0 = No effect.
-     * |        |          |1 = Clear PPS (HcRhPortStatus1[8]).
+     * |        |          |1 = Clear PPS (HcRhPortStatus[8]).
      * |        |          |Read Operation:
      * |        |          |0 = Full Speed device.
      * |        |          |1 = Low-speed device.
      * |[16]    |CSC       |Connect Status Change
-     * |        |          |This bit indicates connect or disconnect event has been detected (CCS (HcRhPortStatus1[0]) changed).
+     * |        |          |This bit indicates connect or disconnect event has been detected (CCS (HcRhPortStatus[0]) changed).
      * |        |          |Write 1 to clear this bit to zero.
-     * |        |          |0 = No connect/disconnect event (CCS (HcRhPortStatus1[0]) didn't change).
-     * |        |          |1 = Hardware detection of connect/disconnect event (CCS (HcRhPortStatus1[0]) changed).
+     * |        |          |0 = No connect/disconnect event (CCS (HcRhPortStatus[0]) didn't change).
+     * |        |          |1 = Hardware detection of connect/disconnect event (CCS (HcRhPortStatus[0]) changed).
      * |[17]    |PESC      |Port Enable Status Change
-     * |        |          |This bit indicates that the port has been disabled (PES (HcRhPortStatus1[1]) cleared) due to a hardware event.
+     * |        |          |This bit indicates that the port has been disabled (PES (HcRhPortStatus[1]) cleared) due to a hardware event.
      * |        |          |Write 1 to clear this bit to zero.
-     * |        |          |0 = PES (HcRhPortStatus1[1]) didn't change.
-     * |        |          |1 = PES (HcRhPortStatus1[1]) changed.
+     * |        |          |0 = PES (HcRhPortStatus[1]) didn't change.
+     * |        |          |1 = PES (HcRhPortStatus[1]) changed.
      * |[18]    |PSSC      |Port Suspend Status Change
      * |        |          |This bit indicates the completion of the selective resume sequence for the port.
      * |        |          |Write 1 to clear this bit to zero.
      * |        |          |0 = Port resume is not completed.
      * |        |          |1 = Port resume completed.
      * |[19]    |OCIC      |Port over Current Indicator Change
-     * |        |          |This bit is set when POCI (HcRhPortStatus1[3]) changes.
+     * |        |          |This bit is set when POCI (HcRhPortStatus[3]) changes.
      * |        |          |Write 1 to clear this bit to zero.
-     * |        |          |0 = POCI (HcRhPortStatus1[3]) didn't change.
-     * |        |          |1 = POCI (HcRhPortStatus1[3]) changes.
+     * |        |          |0 = POCI (HcRhPortStatus[3]) didn't change.
+     * |        |          |1 = POCI (HcRhPortStatus[3]) changes.
      * |[20]    |PRSC      |Port Reset Status Change
      * |        |          |This bit indicates that the port reset signal has completed.
      * |        |          |Write 1 to clear this bit to zero.
@@ -546,8 +552,8 @@ typedef struct
     __IO uint32_t HcRhDescriptorA;       /*!< [0x0048] Host Controller Root Hub Descriptor A Register                   */
     __IO uint32_t HcRhDescriptorB;       /*!< [0x004c] Host Controller Root Hub Descriptor B Register                   */
     __IO uint32_t HcRhStatus;            /*!< [0x0050] Host Controller Root Hub Status Register                         */
-    __IO uint32_t HcRhPortStatus1;       /*!< [0x0054] Host Controller Root Hub Port Status [1]                         */
-    __I  uint32_t RESERVE0[106];
+    __IO uint32_t HcRhPortStatus[2];     /*!< [0x0054] Host Controller Root Hub Port Status                             */
+    __I  uint32_t RESERVE0[105];
     __IO uint32_t HcPhyControl;          /*!< [0x0200] Host Controller PHY Control Register                             */
     __IO uint32_t HcMiscControl;         /*!< [0x0204] Host Controller Miscellaneous Control Register                   */
 
@@ -729,41 +735,41 @@ typedef struct
 #define USBH_HcRhStatus_CRWE_Pos         (31)                                              /*!< USBH_T::HcRhStatus: CRWE Position      */
 #define USBH_HcRhStatus_CRWE_Msk         (0x1ul << USBH_HcRhStatus_CRWE_Pos)               /*!< USBH_T::HcRhStatus: CRWE Mask          */
 
-#define USBH_HcRhPortStatus1_CCS_Pos     (0)                                               /*!< USBH_T::HcRhPortStatus1: CCS Position  */
-#define USBH_HcRhPortStatus1_CCS_Msk     (0x1ul << USBH_HcRhPortStatus1_CCS_Pos)           /*!< USBH_T::HcRhPortStatus1: CCS Mask      */
+#define USBH_HcRhPortStatus_CCS_Pos      (0)                                               /*!< USBH_T::HcRhPortStatus: CCS Position   */
+#define USBH_HcRhPortStatus_CCS_Msk      (0x1ul << USBH_HcRhPortStatus_CCS_Pos)            /*!< USBH_T::HcRhPortStatus: CCS Mask       */
 
-#define USBH_HcRhPortStatus1_PES_Pos     (1)                                               /*!< USBH_T::HcRhPortStatus1: PES Position  */
-#define USBH_HcRhPortStatus1_PES_Msk     (0x1ul << USBH_HcRhPortStatus1_PES_Pos)           /*!< USBH_T::HcRhPortStatus1: PES Mask      */
+#define USBH_HcRhPortStatus_PES_Pos      (1)                                               /*!< USBH_T::HcRhPortStatus: PES Position   */
+#define USBH_HcRhPortStatus_PES_Msk      (0x1ul << USBH_HcRhPortStatus_PES_Pos)            /*!< USBH_T::HcRhPortStatus: PES Mask       */
 
-#define USBH_HcRhPortStatus1_PSS_Pos     (2)                                               /*!< USBH_T::HcRhPortStatus1: PSS Position  */
-#define USBH_HcRhPortStatus1_PSS_Msk     (0x1ul << USBH_HcRhPortStatus1_PSS_Pos)           /*!< USBH_T::HcRhPortStatus1: PSS Mask      */
+#define USBH_HcRhPortStatus_PSS_Pos      (2)                                               /*!< USBH_T::HcRhPortStatus: PSS Position   */
+#define USBH_HcRhPortStatus_PSS_Msk      (0x1ul << USBH_HcRhPortStatus_PSS_Pos)            /*!< USBH_T::HcRhPortStatus: PSS Mask       */
 
-#define USBH_HcRhPortStatus1_POCI_Pos    (3)                                               /*!< USBH_T::HcRhPortStatus1: POCI Position */
-#define USBH_HcRhPortStatus1_POCI_Msk    (0x1ul << USBH_HcRhPortStatus1_POCI_Pos)          /*!< USBH_T::HcRhPortStatus1: POCI Mask     */
+#define USBH_HcRhPortStatus_POCI_Pos     (3)                                               /*!< USBH_T::HcRhPortStatus: POCI Position  */
+#define USBH_HcRhPortStatus_POCI_Msk     (0x1ul << USBH_HcRhPortStatus_POCI_Pos)           /*!< USBH_T::HcRhPortStatus: POCI Mask      */
 
-#define USBH_HcRhPortStatus1_PRS_Pos     (4)                                               /*!< USBH_T::HcRhPortStatus1: PRS Position  */
-#define USBH_HcRhPortStatus1_PRS_Msk     (0x1ul << USBH_HcRhPortStatus1_PRS_Pos)           /*!< USBH_T::HcRhPortStatus1: PRS Mask      */
+#define USBH_HcRhPortStatus_PRS_Pos      (4)                                               /*!< USBH_T::HcRhPortStatus: PRS Position   */
+#define USBH_HcRhPortStatus_PRS_Msk      (0x1ul << USBH_HcRhPortStatus_PRS_Pos)            /*!< USBH_T::HcRhPortStatus: PRS Mask       */
 
-#define USBH_HcRhPortStatus1_PPS_Pos     (8)                                               /*!< USBH_T::HcRhPortStatus1: PPS Position  */
-#define USBH_HcRhPortStatus1_PPS_Msk     (0x1ul << USBH_HcRhPortStatus1_PPS_Pos)           /*!< USBH_T::HcRhPortStatus1: PPS Mask      */
+#define USBH_HcRhPortStatus_PPS_Pos      (8)                                               /*!< USBH_T::HcRhPortStatus: PPS Position   */
+#define USBH_HcRhPortStatus_PPS_Msk      (0x1ul << USBH_HcRhPortStatus_PPS_Pos)            /*!< USBH_T::HcRhPortStatus: PPS Mask       */
 
-#define USBH_HcRhPortStatus1_LSDA_Pos    (9)                                               /*!< USBH_T::HcRhPortStatus1: LSDA Position */
-#define USBH_HcRhPortStatus1_LSDA_Msk    (0x1ul << USBH_HcRhPortStatus1_LSDA_Pos)          /*!< USBH_T::HcRhPortStatus1: LSDA Mask     */
+#define USBH_HcRhPortStatus_LSDA_Pos     (9)                                               /*!< USBH_T::HcRhPortStatus: LSDA Position  */
+#define USBH_HcRhPortStatus_LSDA_Msk     (0x1ul << USBH_HcRhPortStatus_LSDA_Pos)           /*!< USBH_T::HcRhPortStatus: LSDA Mask      */
 
-#define USBH_HcRhPortStatus1_CSC_Pos     (16)                                              /*!< USBH_T::HcRhPortStatus1: CSC Position  */
-#define USBH_HcRhPortStatus1_CSC_Msk     (0x1ul << USBH_HcRhPortStatus1_CSC_Pos)           /*!< USBH_T::HcRhPortStatus1: CSC Mask      */
+#define USBH_HcRhPortStatus_CSC_Pos      (16)                                              /*!< USBH_T::HcRhPortStatus: CSC Position   */
+#define USBH_HcRhPortStatus_CSC_Msk      (0x1ul << USBH_HcRhPortStatus_CSC_Pos)            /*!< USBH_T::HcRhPortStatus: CSC Mask       */
 
-#define USBH_HcRhPortStatus1_PESC_Pos    (17)                                              /*!< USBH_T::HcRhPortStatus1: PESC Position */
-#define USBH_HcRhPortStatus1_PESC_Msk    (0x1ul << USBH_HcRhPortStatus1_PESC_Pos)          /*!< USBH_T::HcRhPortStatus1: PESC Mask     */
+#define USBH_HcRhPortStatus_PESC_Pos     (17)                                              /*!< USBH_T::HcRhPortStatus: PESC Position  */
+#define USBH_HcRhPortStatus_PESC_Msk     (0x1ul << USBH_HcRhPortStatus_PESC_Pos)           /*!< USBH_T::HcRhPortStatus: PESC Mask      */
 
-#define USBH_HcRhPortStatus1_PSSC_Pos    (18)                                              /*!< USBH_T::HcRhPortStatus1: PSSC Position */
-#define USBH_HcRhPortStatus1_PSSC_Msk    (0x1ul << USBH_HcRhPortStatus1_PSSC_Pos)          /*!< USBH_T::HcRhPortStatus1: PSSC Mask     */
+#define USBH_HcRhPortStatus_PSSC_Pos     (18)                                              /*!< USBH_T::HcRhPortStatus: PSSC Position  */
+#define USBH_HcRhPortStatus_PSSC_Msk     (0x1ul << USBH_HcRhPortStatus_PSSC_Pos)           /*!< USBH_T::HcRhPortStatus: PSSC Mask      */
 
-#define USBH_HcRhPortStatus1_OCIC_Pos    (19)                                              /*!< USBH_T::HcRhPortStatus1: OCIC Position */
-#define USBH_HcRhPortStatus1_OCIC_Msk    (0x1ul << USBH_HcRhPortStatus1_OCIC_Pos)          /*!< USBH_T::HcRhPortStatus1: OCIC Mask     */
+#define USBH_HcRhPortStatus_OCIC_Pos     (19)                                              /*!< USBH_T::HcRhPortStatus: OCIC Position  */
+#define USBH_HcRhPortStatus_OCIC_Msk     (0x1ul << USBH_HcRhPortStatus_OCIC_Pos)           /*!< USBH_T::HcRhPortStatus: OCIC Mask      */
 
-#define USBH_HcRhPortStatus1_PRSC_Pos    (20)                                              /*!< USBH_T::HcRhPortStatus1: PRSC Position */
-#define USBH_HcRhPortStatus1_PRSC_Msk    (0x1ul << USBH_HcRhPortStatus1_PRSC_Pos)          /*!< USBH_T::HcRhPortStatus1: PRSC Mask     */
+#define USBH_HcRhPortStatus_PRSC_Pos     (20)                                              /*!< USBH_T::HcRhPortStatus: PRSC Position  */
+#define USBH_HcRhPortStatus_PRSC_Msk     (0x1ul << USBH_HcRhPortStatus_PRSC_Pos)           /*!< USBH_T::HcRhPortStatus: PRSC Mask      */
 
 #define USBH_HcPhyControl_STBYEN_Pos     (27)                                              /*!< USBH_T::HcPhyControl: STBYEN Position  */
 #define USBH_HcPhyControl_STBYEN_Msk     (0x1ul << USBH_HcPhyControl_STBYEN_Pos)           /*!< USBH_T::HcPhyControl: STBYEN Mask      */
@@ -779,5 +785,6 @@ typedef struct
 
 /**@}*/ /* USBH_CONST */
 /**@}*/ /* end of USBH register group */
+/**@}*/ /* end of REGISTER group */
 
 #endif /* __USBH_REG_H__ */

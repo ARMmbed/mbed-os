@@ -8,6 +8,12 @@
 #ifndef __SPI_REG_H__
 #define __SPI_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
+
 /*---------------------- Serial Peripheral Interface Controller -------------------------*/
 /**
     @addtogroup SPI Serial Peripheral Interface Controller(SPI)
@@ -776,6 +782,7 @@ typedef struct
 
 /**@}*/ /* SPI_CONST */
 /**@}*/ /* end of SPI register group */
+/**@}*/ /* end of REGISTER group */
 
 
 #endif /* __SPI_REG_H__ */

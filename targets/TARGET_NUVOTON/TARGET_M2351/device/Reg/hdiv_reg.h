@@ -8,6 +8,11 @@
 #ifndef __HDIV_REG_H__
 #define __HDIV_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
 
 /*---------------------- Hardware Divider --------------------------------*/
 /**
@@ -100,6 +105,7 @@ typedef struct
 
 /**@}*/ /* HDIV_CONST */
 /**@}*/ /* end of HDIV register group */
+/**@}*/ /* end of REGISTER group */
 
 
 #endif /* __HDIV_REG_H__ */

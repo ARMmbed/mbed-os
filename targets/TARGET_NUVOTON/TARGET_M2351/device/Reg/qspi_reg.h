@@ -8,6 +8,12 @@
 #ifndef __QSPI_REG_H__
 #define __QSPI_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
+
 /*---------------------- Quad Serial Peripheral Interface Controller -------------------------*/
 /**
     @addtogroup QSPI Quad Serial Peripheral Interface Controller(QSPI)
@@ -574,6 +580,6 @@ typedef struct
 
 /**@}*/ /* QSPI_CONST */
 /**@}*/ /* end of QSPI register group */
-
+/**@}*/ /* end of REGISTER group */
 
 #endif /* __QSPI_REG_H__ */

@@ -65,10 +65,11 @@ static struct nu_spi_var spi3_var = {
     .pdma_perp_rx       =   PDMA_SPI3_RX
 #endif
 };
-static struct nu_spi_var spi5_var = {
+/* Degrade QSPI0 to SPI_4 for standard SPI usage */
+static struct nu_spi_var spi4_var = {
 #if DEVICE_SPI_ASYNCH
-    .pdma_perp_tx       =   PDMA_SPI5_TX,
-    .pdma_perp_rx       =   PDMA_SPI5_RX
+    .pdma_perp_tx       =   PDMA_QSPI0_TX,
+    .pdma_perp_rx       =   PDMA_QSPI0_RX
 #endif
 };
 
@@ -126,7 +127,8 @@ static const struct nu_modinit_s spi_modinit_tab[] = {
     {SPI_1, SPI1_MODULE, CLK_CLKSEL2_SPI1SEL_PCLK0, MODULE_NoMsk, SPI1_RST, SPI1_IRQn, &spi1_var},
     {SPI_2, SPI2_MODULE, CLK_CLKSEL2_SPI2SEL_PCLK1, MODULE_NoMsk, SPI2_RST, SPI2_IRQn, &spi2_var},
     {SPI_3, SPI3_MODULE, CLK_CLKSEL2_SPI3SEL_PCLK0, MODULE_NoMsk, SPI3_RST, SPI3_IRQn, &spi3_var},
-    {SPI_5, SPI5_MODULE, CLK_CLKSEL2_SPI5SEL_PCLK1, MODULE_NoMsk, SPI5_RST, SPI5_IRQn, &spi5_var},
+    /* Degrade QSPI0 to SPI_4 for standard SPI usage */
+    {SPI_4, QSPI0_MODULE, CLK_CLKSEL2_QSPI0SEL_PCLK0, MODULE_NoMsk, QSPI0_RST, QSPI0_IRQn, &spi4_var},
 
     {NC, 0, 0, 0, 0, (IRQn_Type) 0, NULL}
 };

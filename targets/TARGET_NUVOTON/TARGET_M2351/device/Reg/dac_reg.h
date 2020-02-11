@@ -8,6 +8,13 @@
 #ifndef __DAC_REG_H__
 #define __DAC_REG_H__
 
+
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
+
 /*---------------------- Digital to Analog Converter -------------------------*/
 /**
     @addtogroup DAC Digital to Analog Converter(DAC)
@@ -193,5 +200,6 @@ typedef struct
 
 /**@}*/ /* DAC_CONST */
 /**@}*/ /* end of DAC register group */
+/**@}*/ /* end of REGISTER group */
 
 #endif /* __DAC_REG_H__ */

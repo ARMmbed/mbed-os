@@ -9,6 +9,11 @@
 #define __CRPT_REG_H__
 
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
 
 
 /*---------------------- Cryptographic Accelerator -------------------------*/
@@ -2177,6 +2182,7 @@ typedef struct
 
 /**@}*/ /* CRPT_CONST */
 /**@}*/ /* end of CRPT register group */
+/**@}*/ /* end of REGISTER group */
 
 
 #endif /* __CRPT_REG_H__ */

@@ -1,6 +1,6 @@
 /**************************************************************************//**
  * @file     M2351.h
- * @version  V1.0
+ * @version  V1.1
  * @brief    Peripheral Access Layer Header File
  *
  * @note
@@ -24,13 +24,89 @@
   *
   * <b>Copyright Notice</b>
   *
-  * Copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+  * Copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
   */
 
 
 #ifndef __M2351_H__
 #define __M2351_H__
 
+/*=============================================================================*/
+typedef volatile unsigned char  vu8;
+typedef volatile unsigned int   vu32;
+typedef volatile unsigned short vu16;
+#define M8(adr)  (*((vu8  *) (adr)))
+#define M16(adr) (*((vu16 *) (adr)))
+#define M32(adr) (*((vu32 *) (adr)))
+
+#define outpw(port,value)   (*((volatile unsigned int *)(port))=(value))
+#define inpw(port)          ((*((volatile unsigned int *)(port))))
+#define outpb(port,value)   (*((volatile unsigned char *)(port))=(value))
+#define inpb(port)          ((*((volatile unsigned char *)(port))))
+#define outps(port,value)   (*((volatile unsigned short *)(port))=(value))
+#define inps(port)          ((*((volatile unsigned short *)(port))))
+
+#define outp32(port,value)  (*((volatile unsigned int *)(port))=(value))
+#define inp32(port)         ((*((volatile unsigned int *)(port))))
+#define outp8(port,value)   (*((volatile unsigned char *)(port))=(value))
+#define inp8(port)          ((*((volatile unsigned char *)(port))))
+#define outp16(port,value)  (*((volatile unsigned short *)(port))=(value))
+#define inp16(port)         ((*((volatile unsigned short *)(port))))
+
+
+#define E_SUCCESS   0
+
+#define TRUE        (1L)
+#define FALSE       (0L)
+
+#define ENABLE      1
+#define DISABLE     0
+
+/* Bit Mask Definitions */
+#define BIT0    0x00000001UL
+#define BIT1    0x00000002UL
+#define BIT2    0x00000004UL
+#define BIT3    0x00000008UL
+#define BIT4    0x00000010UL
+#define BIT5    0x00000020UL
+#define BIT6    0x00000040UL
+#define BIT7    0x00000080UL
+#define BIT8    0x00000100UL
+#define BIT9    0x00000200UL
+#define BIT10   0x00000400UL
+#define BIT11   0x00000800UL
+#define BIT12   0x00001000UL
+#define BIT13   0x00002000UL
+#define BIT14   0x00004000UL
+#define BIT15   0x00008000UL
+#define BIT16   0x00010000UL
+#define BIT17   0x00020000UL
+#define BIT18   0x00040000UL
+#define BIT19   0x00080000UL
+#define BIT20   0x00100000UL
+#define BIT21   0x00200000UL
+#define BIT22   0x00400000UL
+#define BIT23   0x00800000UL
+#define BIT24   0x01000000UL
+#define BIT25   0x02000000UL
+#define BIT26   0x04000000UL
+#define BIT27   0x08000000UL
+#define BIT28   0x10000000UL
+#define BIT29   0x20000000UL
+#define BIT30   0x40000000UL
+#define BIT31   0x80000000UL
+
+
+/* Byte Mask Definitions */
+#define BYTE0_Msk               (0x000000FFUL)
+#define BYTE1_Msk               (0x0000FF00UL)
+#define BYTE2_Msk               (0x00FF0000UL)
+#define BYTE3_Msk               (0xFF000000UL)
+
+#define _GET_BYTE0(u32Param)    (((u32Param) & BYTE0_Msk)        )  /*!< Extract Byte 0 (Bit  0~ 7) from parameter u32Param */
+#define _GET_BYTE1(u32Param)    (((u32Param) & BYTE1_Msk) >>  8UL)  /*!< Extract Byte 1 (Bit  8~15) from parameter u32Param */
+#define _GET_BYTE2(u32Param)    (((u32Param) & BYTE2_Msk) >> 16UL)  /*!< Extract Byte 2 (Bit 16~23) from parameter u32Param */
+#define _GET_BYTE3(u32Param)    (((u32Param) & BYTE3_Msk) >> 24UL)  /*!< Extract Byte 3 (Bit 24~31) from parameter u32Param */
 
 #ifdef __cplusplus
 extern "C" {
@@ -142,8 +218,6 @@ typedef enum IRQn
     ECAP1_IRQn                    = 87,       /*!< ECAP1 Interrupt                                  */
     GPH_IRQn                      = 88,       /*!< GPIO Port H Interrupt                            */
     EINT7_IRQn                    = 89,       /*!< External Input 7 Interrupt                       */
-    SPI5_IRQn                     = 96,       /*!< SPI5 Interrupt                                   */
-    DSRC_IRQn                     = 97,       /*!< DSRC Interrupt                                   */
     PDMA1_IRQn                    = 98,       /*!< Peripheral DMA 1 Interrupt                       */
     SCU_IRQn                      = 99,       /*!< SCU Interrupt                                    */
     TRNG_IRQn                     = 101       /*!< TRNG interrupt                                   */
@@ -187,6 +261,7 @@ typedef enum IRQn
 
 #include "core_cm23.h"                      /* Processor and core peripherals */
 #include "system_M2351.h"                   /* System Header */
+#include "partition_M2351.h"
 
 /**
  * Initialize the system clock
@@ -204,11 +279,6 @@ extern void SystemInit(void);
 /*                Device Specific Peripheral registers structures             */
 /******************************************************************************/
 
-/** @addtogroup REGISTER Control Register
-
-  @{
-
-*/
 
 #include "acmp_reg.h"
 #include "bpwm_reg.h"
@@ -233,7 +303,6 @@ extern void SystemInit(void);
 #include "sdh_reg.h"
 #include "qspi_reg.h"
 #include "spi_reg.h"
-#include "spi5_reg.h"
 #include "sys_reg.h"
 #include "timer_reg.h"
 #include "trng_reg.h"
@@ -247,8 +316,6 @@ extern void SystemInit(void);
 #include "uuart_reg.h"
 #include "wdt_reg.h"
 #include "wwdt_reg.h"
-
-/**@}*/ /* end of REGISTER group */
 
 
 /******************************************************************************/
@@ -284,7 +351,6 @@ extern void SystemInit(void);
 #define GPIOH_BASE           (AHBPERIPH_BASE + 0x041C0UL)
 #define GPIO_DBCTL_BASE      (AHBPERIPH_BASE + 0x04440UL)
 #define GPIO_PIN_DATA_BASE   (AHBPERIPH_BASE + 0x04800UL)
-#define PDMA_BASE           (AHBPERIPH_BASE + 0x08000UL)
 #define PDMA0_BASE           (AHBPERIPH_BASE + 0x08000UL)
 #define PDMA1_BASE           (AHBPERIPH_BASE + 0x18000UL)
 #define USBH_BASE            (AHBPERIPH_BASE + 0x09000UL)
@@ -292,16 +358,15 @@ extern void SystemInit(void);
 #define SDH0_BASE            (AHBPERIPH_BASE + 0x0D000UL)
 #define SDH1_BASE            (AHBPERIPH_BASE + 0x0E000UL)
 #define EBI_BASE             (AHBPERIPH_BASE + 0x10000UL)
+#define SCU_BASE             (AHBPERIPH_BASE + 0x2F000UL)
 #define CRC_BASE             (AHBPERIPH_BASE + 0x31000UL)
 #define CRPT_BASE            (AHBPERIPH_BASE + 0x32000UL)
-#define SCU_BASE             (AHBPERIPH_BASE + 0x2F000UL)
 
 /*!< APB peripherals */
 #define WDT_BASE             (APBPERIPH_BASE + 0x00000UL)
 #define WWDT_BASE            (APBPERIPH_BASE + 0x00100UL)
 #define RTC_BASE             (APBPERIPH_BASE + 0x01000UL)
 #define EADC_BASE            (APBPERIPH_BASE + 0x03000UL)
-#define EADC0_BASE            (APBPERIPH_BASE + 0x03000UL)
 #define ACMP01_BASE          (APBPERIPH_BASE + 0x05000UL)
 #define DAC0_BASE            (APBPERIPH_BASE + 0x07000UL)
 #define DAC1_BASE            (APBPERIPH_BASE + 0x07040UL)
@@ -318,7 +383,6 @@ extern void SystemInit(void);
 #define SPI1_BASE            (APBPERIPH_BASE + 0x22000UL)
 #define SPI2_BASE            (APBPERIPH_BASE + 0x23000UL)
 #define SPI3_BASE            (APBPERIPH_BASE + 0x24000UL)
-#define SPI5_BASE            (APBPERIPH_BASE + 0x25000UL)
 #define UART0_BASE           (APBPERIPH_BASE + 0x30000UL)
 #define UART0_BASE           (APBPERIPH_BASE + 0x30000UL)
 #define UART1_BASE           (APBPERIPH_BASE + 0x31000UL)
@@ -337,7 +401,6 @@ extern void SystemInit(void);
 #define QEI1_BASE            (APBPERIPH_BASE + 0x71000UL)
 #define ECAP0_BASE           (APBPERIPH_BASE + 0x74000UL)
 #define ECAP1_BASE           (APBPERIPH_BASE + 0x75000UL)
-#define DSRC_BASE            (APBPERIPH_BASE + 0x77000UL)
 #define TRNG_BASE            (APBPERIPH_BASE + 0x79000UL)
 #define USBD_BASE            (APBPERIPH_BASE + 0x80000UL)
 #define USCI0_BASE           (APBPERIPH_BASE + 0x90000UL)
@@ -361,106 +424,105 @@ extern void SystemInit(void);
 */
 
 
-#define PA                  ((GPIO_T *) GPIOA_BASE)                     /*!< GPIO PORTA Pointer                 */
-#define PB                  ((GPIO_T *) GPIOB_BASE)                     /*!< GPIO PORTB Pointer                 */
-#define PC                  ((GPIO_T *) GPIOC_BASE)                     /*!< GPIO PORTC Pointer                 */
-#define PD                  ((GPIO_T *) GPIOD_BASE)                     /*!< GPIO PORTD Pointer                 */
-#define PE                  ((GPIO_T *) GPIOE_BASE)                     /*!< GPIO PORTE Pointer                 */
-#define PF                  ((GPIO_T *) GPIOF_BASE)                     /*!< GPIO PORTF Pointer                 */
-#define PG                  ((GPIO_T *) GPIOG_BASE)                     /*!< GPIO PORTG Pointer                 */
-#define PH                  ((GPIO_T *) GPIOH_BASE)                     /*!< GPIO PORTH Pointer                 */
+#define PA_S                ((GPIO_T *) GPIOA_BASE)                     /*!< GPIO PORTA Pointer                  */
+#define PB_S                ((GPIO_T *) GPIOB_BASE)                     /*!< GPIO PORTB Pointer                  */
+#define PC_S                ((GPIO_T *) GPIOC_BASE)                     /*!< GPIO PORTC Pointer                  */
+#define PD_S                ((GPIO_T *) GPIOD_BASE)                     /*!< GPIO PORTD Pointer                  */
+#define PE_S                ((GPIO_T *) GPIOE_BASE)                     /*!< GPIO PORTE Pointer                  */
+#define PF_S                ((GPIO_T *) GPIOF_BASE)                     /*!< GPIO PORTF Pointer                  */
+#define PG_S                ((GPIO_T *) GPIOG_BASE)                     /*!< GPIO PORTG Pointer                  */
+#define PH_S                ((GPIO_T *) GPIOH_BASE)                     /*!< GPIO PORTH Pointer                  */
+                                                                                                                 
+#define UART0_S             ((UART_T *) UART0_BASE)                     /*!< UART0 Pointer                       */
+#define UART1_S             ((UART_T *) UART1_BASE)                     /*!< UART1 Pointer                       */
+#define UART2_S             ((UART_T *) UART2_BASE)                     /*!< UART2 Pointer                       */
+#define UART3_S             ((UART_T *) UART3_BASE)                     /*!< UART3 Pointer                       */
+#define UART4_S             ((UART_T *) UART4_BASE)                     /*!< UART4 Pointer                       */
+#define UART5_S             ((UART_T *) UART5_BASE)                     /*!< UART5 Pointer                       */
 
-#define UART0               ((UART_T *) UART0_BASE)                     /*!< UART0 Pointer                      */
-#define UART1               ((UART_T *) UART1_BASE)                     /*!< UART1 Pointer                      */
-#define UART2               ((UART_T *) UART2_BASE)                     /*!< UART2 Pointer                      */
-#define UART3               ((UART_T *) UART3_BASE)                     /*!< UART3 Pointer                      */
-#define UART4               ((UART_T *) UART4_BASE)                     /*!< UART4 Pointer                      */
-#define UART5               ((UART_T *) UART5_BASE)                     /*!< UART5 Pointer                      */
 
+#define TIMER0_S            ((TIMER_T *) TMR01_BASE)                    /*!< TIMER0 Pointer                      */
+#define TIMER1_S            ((TIMER_T *) (TMR01_BASE + 0x100UL))        /*!< TIMER1 Pointer                      */
+#define TIMER2_S            ((TIMER_T *) TMR23_BASE)                    /*!< TIMER2 Pointer                      */
+#define TIMER3_S            ((TIMER_T *) (TMR23_BASE + 0x100UL))        /*!< TIMER3 Pointer                      */
 
-#define TIMER0              ((TIMER_T *) TMR01_BASE)                   /*!< TIMER0 Pointer                      */
-#define TIMER1              ((TIMER_T *) (TMR01_BASE + 0x100UL))         /*!< TIMER1 Pointer                      */
-#define TIMER2              ((TIMER_T *) TMR23_BASE)                   /*!< TIMER2 Pointer                      */
-#define TIMER3              ((TIMER_T *) (TMR23_BASE + 0x100UL))         /*!< TIMER3 Pointer                      */
+#define WDT_S               ((WDT_T *) WDT_BASE)                        /*!< Watch Dog Timer Pointer             */
+                                                                                                                 
+#define WWDT_S              ((WWDT_T *) WWDT_BASE)                      /*!< Window Watch Dog Timer Pointer      */
+                                                                                                                 
+#define QSPI0_S             ((QSPI_T *) QSPI0_BASE)                     /*!< QSPI0 Pointer                       */
+#define SPI0_S              ((SPI_T *) SPI0_BASE)                       /*!< SPI0 Pointer                        */
+#define SPI1_S              ((SPI_T *) SPI1_BASE)                       /*!< SPI1 Pointer                        */
+#define SPI2_S              ((SPI_T *) SPI2_BASE)                       /*!< SPI2 Pointer                        */
+#define SPI3_S              ((SPI_T *) SPI3_BASE)                       /*!< SPI3 Pointer                        */
+                                                                                                                 
+#define I2S0_S              ((I2S_T *) I2S0_BASE)                       /*!< I2S0 Pointer                        */
+                                                                                                                 
+#define I2C0_S              ((I2C_T *) I2C0_BASE)                       /*!< I2C0 Pointer                        */
+#define I2C1_S              ((I2C_T *) I2C1_BASE)                       /*!< I2C1 Pointer                        */
+#define I2C2_S              ((I2C_T *) I2C2_BASE)                       /*!< I2C1 Pointer                        */
+                                                                                                                 
+#define QEI0_S              ((QEI_T *) QEI0_BASE)                       /*!< QEI0 Pointer                        */
+#define QEI1_S              ((QEI_T *) QEI1_BASE)                       /*!< QEI1 Pointer                        */
+                                                                                                                 
+#define RTC_S               ((RTC_T *) RTC_BASE)                        /*!< RTC Pointer                         */
+                                                                                                                 
+#define ACMP01_S            ((ACMP_T *) ACMP01_BASE)                    /*!< ACMP01 Pointer                      */
+                                                                                                                 
+#define CLK_S               ((CLK_T *) CLK_BASE)                        /*!< System Clock Controller Pointer     */
+                                                                                                                 
+#define DAC0_S              ((DAC_T *) DAC0_BASE)                       /*!< DAC0 Pointer                        */
+#define DAC1_S              ((DAC_T *) DAC1_BASE)                       /*!< DAC1 Pointer                        */
+                                                                                                                 
+#define EADC_S              ((EADC_T *) EADC_BASE)                      /*!< EADC Pointer                        */
+                                                                                                                 
+#define SYS_S               ((SYS_T *) SYS_BASE)                        /*!< System Global Controller Pointer    */
 
-#define WDT                 ((WDT_T *) WDT_BASE)                        /*!< Watch Dog Timer Pointer             */
+#define SYSINT_S            ((SYS_INT_T *) INT_BASE)                    /*!< Interrupt Source Controller Pointer */
 
-#define WWDT                ((WWDT_T *) WWDT_BASE)                      /*!< Window Watch Dog Timer Pointer      */
+#define FMC_S               ((FMC_T *) FMC_BASE)                        /*!< Flash Memory Controller             */
 
-#define QSPI0               ((QSPI_T *) QSPI0_BASE)                     /*!< QSPI0 Pointer                       */
-#define SPI0                ((SPI_T *) SPI0_BASE)                       /*!< SPI0 Pointer                        */
-#define SPI1                ((SPI_T *) SPI1_BASE)                       /*!< SPI1 Pointer                        */
-#define SPI2                ((SPI_T *) SPI2_BASE)                       /*!< SPI2 Pointer                        */
-#define SPI3                ((SPI_T *) SPI3_BASE)                       /*!< SPI3 Pointer                        */
-#define SPI5                ((SPI5_T *) SPI5_BASE)                      /*!< SPI5 Pointer                        */
+#define SDH0_S              ((SDH_T *)   SDH0_BASE)                     /*!< SD Host Controller                  */
 
-#define I2S0                ((I2S_T *) I2S0_BASE)                       /*!< I2S0 Pointer                        */
+#define CRPT_S              ((CRPT_T *) CRPT_BASE)                      /*!< Crypto Accelerator Pointer          */
+#define TRNG_S              ((TRNG_T *)TRNG_BASE)                       /*!< True Random Number Pointer          */
 
-#define I2C0                ((I2C_T *) I2C0_BASE)                       /*!< I2C0 Pointer                        */
-#define I2C1                ((I2C_T *) I2C1_BASE)                       /*!< I2C1 Pointer                        */
-#define I2C2                ((I2C_T *) I2C2_BASE)                       /*!< I2C1 Pointer                        */
+#define BPWM0_S             ((BPWM_T *) BPWM0_BASE)                     /*!< BPWM0 Pointer                       */
+#define BPWM1_S             ((BPWM_T *) BPWM1_BASE)                     /*!< BPWM1 Pointer                       */
 
-#define QEI0                ((QEI_T *) QEI0_BASE)                       /*!< QEI0 Pointer                        */
-#define QEI1                ((QEI_T *) QEI1_BASE)                       /*!< QEI1 Pointer                        */
+#define EPWM0_S             ((EPWM_T *) EPWM0_BASE)                     /*!< EPWM0 Pointer                       */
+#define EPWM1_S             ((EPWM_T *) EPWM1_BASE)                     /*!< EPWM1 Pointer                       */
 
-#define RTC                 ((RTC_T *) RTC_BASE)                        /*!< RTC Pointer                         */
+#define SC0_S               ((SC_T *) SC0_BASE)                         /*!< SC0 Pointer                         */
+#define SC1_S               ((SC_T *) SC1_BASE)                         /*!< SC1 Pointer                         */
+#define SC2_S               ((SC_T *) SC2_BASE)                         /*!< SC2 Pointer                         */
 
-#define ACMP01              ((ACMP_T *) ACMP01_BASE)                    /*!< ACMP01 Pointer                      */
+#define EBI_S               ((EBI_T *) EBI_BASE)                        /*!< EBI Pointer                         */
 
-#define CLK                 ((CLK_T *) CLK_BASE)                        /*!< System Clock Controller Pointer     */
+#define CRC_S               ((CRC_T *) CRC_BASE)                        /*!< CRC Pointer                         */
 
-#define DAC0                ((DAC_T *) DAC0_BASE)                       /*!< DAC0 Pointer                        */
-#define DAC1                ((DAC_T *) DAC1_BASE)                       /*!< DAC1 Pointer                        */
+#define USBD_S              ((USBD_T *) USBD_BASE)                      /*!< USB Device Pointer                  */
+#define USBH_S              ((USBH_T *) USBH_BASE)                      /*!< USBH Pointer                        */
+#define OTG_S               ((OTG_T *) OTG_BASE)                        /*!< OTG Pointer                         */
 
-#define EADC                ((EADC_T *) EADC_BASE)                      /*!< EADC Pointer                        */
+#define PDMA0_S             ((PDMA_T *) PDMA0_BASE)                     /*!< PDMA0 Pointer                       */
+#define PDMA1_S             ((PDMA_T *) PDMA1_BASE)                     /*!< PDMA1 Pointer                       */
 
-#define SYS                 ((SYS_T *) SYS_BASE)                        /*!< System Global Controller Pointer    */
+#define UI2C0_S             ((UI2C_T *) USCI0_BASE)                     /*!< UI2C0 Pointer                       */
+#define UI2C1_S             ((UI2C_T *) USCI1_BASE)                     /*!< UI2C1 Pointer                       */
+#define UI2C2_S             ((UI2C_T *) USCI2_BASE)                     /*!< UI2C2 Pointer                       */
 
-#define SYSINT              ((SYS_INT_T *) INT_BASE)                    /*!< Interrupt Source Controller Pointer */
+#define USPI0_S             ((USPI_T *) USCI0_BASE)                     /*!< USPI0 Pointer                       */
+#define USPI1_S             ((USPI_T *) USCI1_BASE)                     /*!< USPI1 Pointer                       */
 
-#define FMC                 ((FMC_T *) FMC_BASE)                        /*!< Flash Memory Controller */
+#define UUART0_S            ((UUART_T *) USCI0_BASE)                    /*!< UUART0 Pointer                      */
+#define UUART1_S            ((UUART_T *) USCI1_BASE)                    /*!< UUART1 Pointer                      */
 
-#define SDH0                    ((SDH_T *)   SDH0_BASE)
+#define SCU_S               ((SCU_T *) SCU_BASE)                        /*!< SCU Pointer                         */
+#define ECAP0_S             ((ECAP_T *) ECAP0_BASE)                     /*!< ECAP0 Pointer                       */
+#define ECAP1_S             ((ECAP_T *) ECAP1_BASE)                     /*!< ECAP1 Pointer                       */
 
-#define CRPT                ((CRPT_T *) CRPT_BASE)                      /*!< Crypto Accelerator Pointer          */
-#define TRNG                ((TRNG_T *)TRNG_BASE)                       /*!< True Random Number Pointer          */
-
-#define BPWM0               ((BPWM_T *) BPWM0_BASE)                     /*!< BPWM0 Pointer                       */
-#define BPWM1               ((BPWM_T *) BPWM1_BASE)                     /*!< BPWM1 Pointer                       */
-
-#define EPWM0               ((EPWM_T *) EPWM0_BASE)                     /*!< EPWM0 Pointer                       */
-#define EPWM1               ((EPWM_T *) EPWM1_BASE)                     /*!< EPWM1 Pointer                       */
-
-#define SC0                 ((SC_T *) SC0_BASE)                         /*!< SC0 Pointer                         */
-#define SC1                 ((SC_T *) SC1_BASE)                         /*!< SC1 Pointer                         */
-#define SC2                 ((SC_T *) SC2_BASE)                         /*!< SC2 Pointer                         */
-
-#define EBI                 ((EBI_T *) EBI_BASE)                        /*!< EBI Pointer                         */
-
-#define CRC                 ((CRC_T *) CRC_BASE)                        /*!< CRC Pointer                         */
-
-#define USBD                ((USBD_T *) USBD_BASE)                      /*!< USB Device Pointer                  */
-#define USBH                ((USBH_T *) USBH_BASE)                      /*!< USBH Pointer                        */
-#define OTG                 ((OTG_T *) OTG_BASE)                        /*!< OTG Pointer                         */
-
-#define PDMA0               ((PDMA_T *) PDMA0_BASE)                     /*!< PDMA0 Pointer                        */
-#define PDMA1               ((PDMA_T *) PDMA1_BASE)                     /*!< PDMA1 Pointer                        */
-
-#define UI2C0               ((UI2C_T *) USCI0_BASE)                     /*!< UI2C0 Pointer                       */
-#define UI2C1               ((UI2C_T *) USCI1_BASE)                     /*!< UI2C1 Pointer                       */
-#define UI2C2               ((UI2C_T *) USCI2_BASE)                     /*!< UI2C2 Pointer                       */
-
-#define USPI0               ((USPI_T *) USCI0_BASE)                     /*!< USPI0 Pointer                       */
-#define USPI1               ((USPI_T *) USCI1_BASE)                     /*!< USPI1 Pointer                       */
-
-#define UUART0              ((UUART_T *) USCI0_BASE)                    /*!< UUART0 Pointer                      */
-#define UUART1              ((UUART_T *) USCI1_BASE)                    /*!< UUART1 Pointer                      */
-
-#define SCU                 ((SCU_T *) SCU_BASE)                        /*!< SCU Pointer                         */
-#define ECAP0               ((ECAP_T *) ECAP0_BASE)                     /*!< ECAP0 Pointer                       */
-#define ECAP1               ((ECAP_T *) ECAP1_BASE)                     /*!< ECAP1 Pointer                       */
-
-#define CAN0                ((CAN_T *)CAN0_BASE)                        /*!< CAN0 Pointer                        */
+#define CAN0_S              ((CAN_T *)CAN0_BASE)                        /*!< CAN0 Pointer                        */
 
 
 
@@ -473,14 +535,14 @@ extern void SystemInit(void);
 */
 
 
-#define PA_NS                  ((GPIO_T *)  (GPIOA_BASE+NS_OFFSET))                     /*!< GPIO PORTA Pointer                        */
-#define PB_NS                  ((GPIO_T *)  (GPIOB_BASE+NS_OFFSET))                     /*!< GPIO PORTB Pointer                        */
-#define PC_NS                  ((GPIO_T *)  (GPIOC_BASE+NS_OFFSET))                     /*!< GPIO PORTC Pointer                        */
-#define PD_NS                  ((GPIO_T *)  (GPIOD_BASE+NS_OFFSET))                     /*!< GPIO PORTD Pointer                        */
-#define PE_NS                  ((GPIO_T *)  (GPIOE_BASE+NS_OFFSET))                     /*!< GPIO PORTE Pointer                        */
-#define PF_NS                  ((GPIO_T *)  (GPIOF_BASE+NS_OFFSET))                     /*!< GPIO PORTF Pointer                        */
-#define PG_NS                  ((GPIO_T *)  (GPIOG_BASE+NS_OFFSET))                     /*!< GPIO PORTG Pointer                        */
-#define PH_NS                  ((GPIO_T *)  (GPIOH_BASE+NS_OFFSET))                     /*!< GPIO PORTH Pointer                        */
+#define PA_NS                  ((GPIO_T *)  (GPIOA_BASE+NS_OFFSET))                     /*!< GPIO PORTA Pointer                  */
+#define PB_NS                  ((GPIO_T *)  (GPIOB_BASE+NS_OFFSET))                     /*!< GPIO PORTB Pointer                  */
+#define PC_NS                  ((GPIO_T *)  (GPIOC_BASE+NS_OFFSET))                     /*!< GPIO PORTC Pointer                  */
+#define PD_NS                  ((GPIO_T *)  (GPIOD_BASE+NS_OFFSET))                     /*!< GPIO PORTD Pointer                  */
+#define PE_NS                  ((GPIO_T *)  (GPIOE_BASE+NS_OFFSET))                     /*!< GPIO PORTE Pointer                  */
+#define PF_NS                  ((GPIO_T *)  (GPIOF_BASE+NS_OFFSET))                     /*!< GPIO PORTF Pointer                  */
+#define PG_NS                  ((GPIO_T *)  (GPIOG_BASE+NS_OFFSET))                     /*!< GPIO PORTG Pointer                  */
+#define PH_NS                  ((GPIO_T *)  (GPIOH_BASE+NS_OFFSET))                     /*!< GPIO PORTH Pointer                  */
 #define UART0_NS               ((UART_T *)  (UART0_BASE+NS_OFFSET))                     /*!< UART0 Pointer                       */
 #define UART1_NS               ((UART_T *)  (UART1_BASE+NS_OFFSET))                     /*!< UART1 Pointer                       */
 #define UART2_NS               ((UART_T *)  (UART2_BASE+NS_OFFSET))                     /*!< UART2 Pointer                       */
@@ -489,52 +551,385 @@ extern void SystemInit(void);
 #define UART5_NS               ((UART_T *)  (UART5_BASE+NS_OFFSET))                     /*!< UART5 Pointer                       */
 #define TIMER2_NS              ((TIMER_T *) (TMR23_BASE+NS_OFFSET))                     /*!< TIMER2 Pointer                      */
 #define TIMER3_NS              ((TIMER_T *) (TMR23_BASE+NS_OFFSET+0x100UL))             /*!< TIMER3 Pointer                      */
-#define QSPI0_NS               ((QSPI_T *)  (QSPI0_BASE+NS_OFFSET))                      /*!< QSPI0 Pointer                       */
-#define SPI0_NS                ((SPI_T *)   (SPI0_BASE+NS_OFFSET))                       /*!< SPI0 Pointer                        */
-#define SPI1_NS                ((SPI_T *)   (SPI1_BASE+NS_OFFSET))                       /*!< SPI1 Pointer                        */
-#define SPI2_NS                ((SPI_T *)   (SPI2_BASE+NS_OFFSET))                       /*!< SPI2 Pointer                        */
-#define SPI3_NS                ((SPI_T *)   (SPI3_BASE+NS_OFFSET))                       /*!< SPI3 Pointer                        */
-#define SPI5_NS                ((SPI5_T *)  (SPI5_BASE+NS_OFFSET))                      /*!< SPI5 Pointer                        */
-#define I2S0_NS                ((I2S_T *)   (I2S0_BASE+NS_OFFSET))                       /*!< I2S0 Pointer                        */
-#define I2C0_NS                ((I2C_T *)   (I2C0_BASE+NS_OFFSET))                       /*!< I2C0 Pointer                        */
-#define I2C1_NS                ((I2C_T *)   (I2C1_BASE+NS_OFFSET))                       /*!< I2C1 Pointer                        */
-#define I2C2_NS                ((I2C_T *)   (I2C2_BASE+NS_OFFSET))                       /*!< I2C1 Pointer                        */
-#define QEI0_NS                ((QEI_T *)   (QEI0_BASE+NS_OFFSET))                       /*!< QEI0 Pointer                        */
-#define QEI1_NS                ((QEI_T *)   (QEI1_BASE+NS_OFFSET))                       /*!< QEI1 Pointer                        */
-#define RTC_NS                 ((RTC_T *)   (RTC_BASE +NS_OFFSET))                        /*!< RTC Pointer                         */
+#define QSPI0_NS               ((QSPI_T *)  (QSPI0_BASE+NS_OFFSET))                     /*!< QSPI0 Pointer                       */
+#define SPI0_NS                ((SPI_T *)   (SPI0_BASE+NS_OFFSET))                      /*!< SPI0 Pointer                        */
+#define SPI1_NS                ((SPI_T *)   (SPI1_BASE+NS_OFFSET))                      /*!< SPI1 Pointer                        */
+#define SPI2_NS                ((SPI_T *)   (SPI2_BASE+NS_OFFSET))                      /*!< SPI2 Pointer                        */
+#define SPI3_NS                ((SPI_T *)   (SPI3_BASE+NS_OFFSET))                      /*!< SPI3 Pointer                        */
+#define I2S0_NS                ((I2S_T *)   (I2S0_BASE+NS_OFFSET))                      /*!< I2S0 Pointer                        */
+#define I2C0_NS                ((I2C_T *)   (I2C0_BASE+NS_OFFSET))                      /*!< I2C0 Pointer                        */
+#define I2C1_NS                ((I2C_T *)   (I2C1_BASE+NS_OFFSET))                      /*!< I2C1 Pointer                        */
+#define I2C2_NS                ((I2C_T *)   (I2C2_BASE+NS_OFFSET))                      /*!< I2C1 Pointer                        */
+#define QEI0_NS                ((QEI_T *)   (QEI0_BASE+NS_OFFSET))                      /*!< QEI0 Pointer                        */
+#define QEI1_NS                ((QEI_T *)   (QEI1_BASE+NS_OFFSET))                      /*!< QEI1 Pointer                        */
+#define RTC_NS                 ((RTC_T *)   (RTC_BASE +NS_OFFSET))                      /*!< RTC Pointer                         */
 #define ACMP01_NS              ((ACMP_T *)  (ACMP01_BASE+NS_OFFSET))                    /*!< ACMP01 Pointer                      */
-#define DAC0_NS                ((DAC_T *)   (DAC0_BASE+NS_OFFSET))                       /*!< DAC0 Pointer                        */
-#define DAC1_NS                ((DAC_T *)   (DAC1_BASE+NS_OFFSET))                       /*!< DAC1 Pointer                        */
+#define DAC0_NS                ((DAC_T *)   (DAC0_BASE+NS_OFFSET))                      /*!< DAC0 Pointer                        */
+#define DAC1_NS                ((DAC_T *)   (DAC1_BASE+NS_OFFSET))                      /*!< DAC1 Pointer                        */
 #define EADC_NS                ((EADC_T *)  (EADC_BASE+NS_OFFSET))                      /*!< EADC Pointer                        */
-#define SDH0_NS                ((SDH_T *)  (SDH0_BASE +NS_OFFSET))
-#define CRPT_NS                ((CRPT_T *) (CRPT_BASE +NS_OFFSET))
-#define TRNG_NS                ((TRNG_T *) (TRNG_BASE +NS_OFFSET))                     /*!< Random Number Generator Pointer    */
-#define BPWM0_NS               ((BPWM_T *) (BPWM0_BASE+NS_OFFSET))                     /*!< BPWM0 Pointer                       */
-#define BPWM1_NS               ((BPWM_T *) (BPWM1_BASE+NS_OFFSET))                     /*!< BPWM1 Pointer                       */
-#define EPWM0_NS               ((EPWM_T *) (EPWM0_BASE+NS_OFFSET))                     /*!< EPWM0 Pointer                       */
-#define EPWM1_NS               ((EPWM_T *) (EPWM1_BASE+NS_OFFSET))                     /*!< EPWM1 Pointer                       */
-#define SC0_NS                 ((SC_T *)   (SC0_BASE  +NS_OFFSET))                     /*!< SC0 Pointer                         */
-#define SC1_NS                 ((SC_T *)   (SC1_BASE  +NS_OFFSET))                     /*!< SC1 Pointer                         */
-#define SC2_NS                 ((SC_T *)   (SC2_BASE  +NS_OFFSET))                     /*!< SC2 Pointer                         */
-#define EBI_NS                 ((EBI_T *)  (EBI_BASE  +NS_OFFSET))                     /*!< EBI Pointer                         */
-#define CRC_NS                 ((CRC_T *)  (CRC_BASE  +NS_OFFSET))                     /*!< CRC Pointer                         */
-#define USBD_NS                ((USBD_T *) (USBD_BASE +NS_OFFSET))                     /*!< USB Device Pointer                  */
-#define USBH_NS                ((USBH_T *) (USBH_BASE +NS_OFFSET))                     /*!< USBH Pointer                        */
-#define OTG_NS                 ((OTG_T *)  (OTG_BASE  +NS_OFFSET))                     /*!< OTG Pointer                         */
-#define PDMA1_NS               ((PDMA_T *)   (PDMA1_BASE +NS_OFFSET))                     /*!< PDMA1 Pointer                        */
-#define UI2C0_NS                ((UI2C_T *)  (USCI0_BASE +NS_OFFSET))                     /*!< UI2C0 Pointer                       */
-#define UI2C1_NS                ((UI2C_T *)  (USCI1_BASE +NS_OFFSET))                     /*!< UI2C1 Pointer                       */
-#define UI2C2_NS                ((UI2C_T *)  (USCI2_BASE +NS_OFFSET))                     /*!< UI2C2 Pointer                       */
-#define USPI0_NS                ((USPI_T *)  (USCI0_BASE +NS_OFFSET))                     /*!< USPI0 Pointer                       */
-#define USPI1_NS                ((USPI_T *)  (USCI1_BASE +NS_OFFSET))                     /*!< USPI1 Pointer                       */
-#define UUART0_NS               ((UUART_T *) (USCI0_BASE+NS_OFFSET))                    /*!< UUART0 Pointer                      */
-#define UUART1_NS               ((UUART_T *) (USCI1_BASE+NS_OFFSET))                    /*!< UUART1 Pointer                      */
-#define SCU_NS                 ((SCU_T *)    (SCU_BASE  +NS_OFFSET))                        /*!< SCU Pointer                         */
-#define ECAP0_NS               ((ECAP_T *)   (ECAP0_BASE+NS_OFFSET))                     /*!< ECAP0 Pointer                       */
-#define ECAP1_NS               ((ECAP_T *)   (ECAP1_BASE+NS_OFFSET))                     /*!< ECAP1 Pointer                       */
-#define CAN0_NS                ((CAN_T *)    (CAN0_BASE +NS_OFFSET))                        /*!< CAN0 Pointer                        */
+#define SDH0_NS                ((SDH_T *)   (SDH0_BASE +NS_OFFSET))
+#define CRPT_NS                ((CRPT_T *)  (CRPT_BASE +NS_OFFSET))
+#define TRNG_NS                ((TRNG_T *)  (TRNG_BASE +NS_OFFSET))                      /*!< Random Number Generator Pointer    */
+#define BPWM0_NS               ((BPWM_T *)  (BPWM0_BASE+NS_OFFSET))                      /*!< BPWM0 Pointer                      */
+#define BPWM1_NS               ((BPWM_T *)  (BPWM1_BASE+NS_OFFSET))                      /*!< BPWM1 Pointer                      */
+#define EPWM0_NS               ((EPWM_T *)  (EPWM0_BASE+NS_OFFSET))                      /*!< EPWM0 Pointer                      */
+#define EPWM1_NS               ((EPWM_T *)  (EPWM1_BASE+NS_OFFSET))                      /*!< EPWM1 Pointer                      */
+#define SC0_NS                 ((SC_T *)    (SC0_BASE  +NS_OFFSET))                      /*!< SC0 Pointer                        */
+#define SC1_NS                 ((SC_T *)    (SC1_BASE  +NS_OFFSET))                      /*!< SC1 Pointer                        */
+#define SC2_NS                 ((SC_T *)    (SC2_BASE  +NS_OFFSET))                      /*!< SC2 Pointer                        */
+#define EBI_NS                 ((EBI_T *)   (EBI_BASE  +NS_OFFSET))                      /*!< EBI Pointer                        */
+#define CRC_NS                 ((CRC_T *)   (CRC_BASE  +NS_OFFSET))                      /*!< CRC Pointer                        */
+#define USBD_NS                ((USBD_T *)  (USBD_BASE +NS_OFFSET))                      /*!< USB Device Pointer                 */
+#define USBH_NS                ((USBH_T *)  (USBH_BASE +NS_OFFSET))                      /*!< USBH Pointer                       */
+#define OTG_NS                 ((OTG_T *)   (OTG_BASE  +NS_OFFSET))                      /*!< OTG Pointer                        */
+#define PDMA1_NS               ((PDMA_T *)  (PDMA1_BASE +NS_OFFSET))                     /*!< PDMA1 Pointer                      */
+#define UI2C0_NS               ((UI2C_T *)  (USCI0_BASE +NS_OFFSET))                     /*!< UI2C0 Pointer                      */
+#define UI2C1_NS               ((UI2C_T *)  (USCI1_BASE +NS_OFFSET))                     /*!< UI2C1 Pointer                      */
+#define UI2C2_NS               ((UI2C_T *)  (USCI2_BASE +NS_OFFSET))                     /*!< UI2C2 Pointer                      */
+#define USPI0_NS               ((USPI_T *)  (USCI0_BASE +NS_OFFSET))                     /*!< USPI0 Pointer                      */
+#define USPI1_NS               ((USPI_T *)  (USCI1_BASE +NS_OFFSET))                     /*!< USPI1 Pointer                      */
+#define UUART0_NS              ((UUART_T *) (USCI0_BASE+NS_OFFSET))                      /*!< UUART0 Pointer                     */
+#define UUART1_NS              ((UUART_T *) (USCI1_BASE+NS_OFFSET))                      /*!< UUART1 Pointer                     */
+#define SCU_NS                 ((SCU_T *)   (SCU_BASE  +NS_OFFSET))                      /*!< SCU Pointer                        */
+#define ECAP0_NS               ((ECAP_T *)  (ECAP0_BASE+NS_OFFSET))                      /*!< ECAP0 Pointer                      */
+#define ECAP1_NS               ((ECAP_T *)  (ECAP1_BASE+NS_OFFSET))                      /*!< ECAP1 Pointer                      */
+#define CAN0_NS                ((CAN_T *)   (CAN0_BASE +NS_OFFSET))                      /*!< CAN0 Pointer                       */
 
 /**@}*/ /* end of group PMODULE_NS */
+
+
+/* Always Secure Modules */
+#define SYS SYS_S
+#define CLK CLK_S
+#define FMC FMC_S
+#define SCU SCU_S
+#define PDMA0 PDMA0_S
+#define WDT WDT_S
+#define WWDT WWDT_S
+#define TIMER0 TIMER0_S
+#define TIMER1 TIMER1_S
+#define RTC RTC_S
+
+#if defined (SCU_INIT_PNSSET0_VAL) && (SCU_INIT_PNSSET0_VAL & BIT9 )
+# define USBH USBH_NS
+#else
+# define USBH USBH_S
+#endif
+
+#if defined (SCU_INIT_PNSSET0_VAL) && (SCU_INIT_PNSSET0_VAL & BIT13)
+# define SDH0 SDH0_NS
+#else
+# define SDH0 SDH0_S
+#endif
+
+#if defined (SCU_INIT_PNSSET0_VAL) && (SCU_INIT_PNSSET0_VAL & BIT16)
+# define EBI EBI_NS
+#else
+# define EBI EBI_S
+#endif
+
+
+#if defined (SCU_INIT_PNSSET0_VAL) && (SCU_INIT_PNSSET0_VAL & BIT24)
+# define PDMA1 PDMA1_NS
+#else
+# define PDMA1 PDMA1_S
+#endif
+
+#if defined (SCU_INIT_PNSSET1_VAL) && (SCU_INIT_PNSSET1_VAL & BIT17)
+# define CRC CRC_NS
+#else
+# define CRC CRC_S
+#endif
+
+#if defined (SCU_INIT_PNSSET1_VAL) && (SCU_INIT_PNSSET1_VAL & BIT18)
+# define CRPT CRPT_NS
+#else
+# define CRPT CRPT_S
+#endif
+
+#if defined (SCU_INIT_PNSSET2_VAL) && (SCU_INIT_PNSSET2_VAL & BIT3 )
+# define EADC EADC_NS
+#else
+# define EADC EADC_S
+#endif
+
+#if defined (SCU_INIT_PNSSET2_VAL) && (SCU_INIT_PNSSET2_VAL & BIT5 )
+# define ACMP01 ACMP01_NS
+#else
+# define ACMP01 ACMP01_S
+#endif
+
+#if defined (SCU_INIT_PNSSET2_VAL) && (SCU_INIT_PNSSET2_VAL & BIT7 )
+# define DAC0 DAC0_NS
+# define DAC1 DAC1_NS
+#else
+# define DAC0 DAC0_S
+# define DAC1 DAC1_S
+#endif
+
+#if defined (SCU_INIT_PNSSET2_VAL) && (SCU_INIT_PNSSET2_VAL & BIT8 )
+# define I2S0 I2S0_NS
+#else
+# define I2S0 I2S0_S
+#endif
+
+#if defined (SCU_INIT_PNSSET2_VAL) && (SCU_INIT_PNSSET2_VAL & BIT13)
+# define OTG OTG_NS
+#else
+# define OTG OTG_S
+#endif
+
+#if defined (SCU_INIT_PNSSET2_VAL) && (SCU_INIT_PNSSET2_VAL & BIT17)
+# define TIMER2 TIMER2_NS
+# define TIMER3 TIMER3_NS
+#else
+# define TIMER2 TIMER2_S
+# define TIMER3 TIMER3_S
+#endif
+
+#if defined (SCU_INIT_PNSSET2_VAL) && (SCU_INIT_PNSSET2_VAL & BIT24)
+# define EPWM0 EPWM0_NS
+#else
+# define EPWM0 EPWM0_S
+#endif
+
+#if defined (SCU_INIT_PNSSET2_VAL) && (SCU_INIT_PNSSET2_VAL & BIT25)
+# define EPWM1 EPWM1_NS
+#else
+# define EPWM1 EPWM1_S
+#endif
+
+#if defined (SCU_INIT_PNSSET2_VAL) && (SCU_INIT_PNSSET2_VAL & BIT26)
+# define BPWM0 BPWM0_NS
+#else
+# define BPWM0 BPWM0_S
+#endif
+
+#if defined (SCU_INIT_PNSSET2_VAL) && (SCU_INIT_PNSSET2_VAL & BIT27)
+# define BPWM1 BPWM1_NS
+#else
+# define BPWM1 BPWM1_S
+#endif
+
+#if defined (SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & BIT0 )
+# define QSPI0 QSPI0_NS
+#else
+# define QSPI0 QSPI0_S
+#endif
+
+#if defined (SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & BIT1 )
+# define SPI0 SPI0_NS
+#else
+# define SPI0 SPI0_S
+#endif
+
+#if defined (SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & BIT2 )
+# define SPI1 SPI1_NS
+#else
+# define SPI1 SPI1_S
+#endif
+
+#if defined (SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & BIT3 )
+# define SPI2 SPI2_NS
+#else
+# define SPI2 SPI2_S
+#endif
+
+#if defined (SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & BIT4 )
+# define SPI3 SPI3_NS
+#else
+# define SPI3 SPI3_S
+#endif
+
+#if defined (SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & BIT16)
+# define UART0 UART0_NS
+#else
+# define UART0 UART0_S
+#endif
+
+#if defined (SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & BIT17)
+# define UART1 UART1_NS
+#else
+# define UART1 UART1_S
+#endif
+
+#if defined (SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & BIT18)
+# define UART2 UART2_NS
+#else
+# define UART2 UART2_S
+#endif
+
+#if defined (SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & BIT19)
+# define UART3 UART3_NS
+#else
+# define UART3 UART3_S
+#endif
+
+#if defined (SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & BIT20)
+# define UART4 UART4_NS
+#else
+# define UART4 UART4_S
+#endif
+
+#if defined (SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & BIT21)
+# define UART5 UART5_NS
+#else
+# define UART5 UART5_S
+#endif
+
+#if defined (SCU_INIT_PNSSET4_VAL) && (SCU_INIT_PNSSET4_VAL & BIT0 )
+# define I2C0 I2C0_NS
+#else
+# define I2C0 I2C0_S
+#endif
+
+#if defined (SCU_INIT_PNSSET4_VAL) && (SCU_INIT_PNSSET4_VAL & BIT1 )
+# define I2C1 I2C1_NS
+#else
+# define I2C1 I2C1_S
+#endif
+
+#if defined (SCU_INIT_PNSSET4_VAL) && (SCU_INIT_PNSSET4_VAL & BIT2 )
+# define I2C2 I2C2_NS
+#else
+# define I2C2 I2C2_S
+#endif
+
+#if defined (SCU_INIT_PNSSET4_VAL) && (SCU_INIT_PNSSET4_VAL & BIT16)
+# define SC0 SC0_NS
+#else
+# define SC0 SC0_S
+#endif
+
+#if defined (SCU_INIT_PNSSET4_VAL) && (SCU_INIT_PNSSET4_VAL & BIT17)
+# define SC1 SC1_NS
+#else
+# define SC1 SC1_S
+#endif
+
+#if defined (SCU_INIT_PNSSET4_VAL) && (SCU_INIT_PNSSET4_VAL & BIT18)
+# define SC2 SC2_NS
+#else
+# define SC2 SC2_S
+#endif
+
+#if defined (SCU_INIT_PNSSET5_VAL) && (SCU_INIT_PNSSET5_VAL & BIT0 )
+# define CAN0 CAN0_NS
+#else
+# define CAN0 CAN0_S
+#endif
+
+#if defined (SCU_INIT_PNSSET5_VAL) && (SCU_INIT_PNSSET5_VAL & BIT16)
+# define QEI0 QEI0_NS
+#else
+# define QEI0 QEI0_S
+#endif
+
+#if defined (SCU_INIT_PNSSET5_VAL) && (SCU_INIT_PNSSET5_VAL & BIT17)
+# define QEI1 QEI1_NS
+#else
+# define QEI1 QEI1_S
+#endif
+
+#if defined (SCU_INIT_PNSSET5_VAL) && (SCU_INIT_PNSSET5_VAL & BIT20)
+# define ECAP0 ECAP0_NS
+#else
+# define ECAP0 ECAP0_S
+#endif
+
+#if defined (SCU_INIT_PNSSET5_VAL) && (SCU_INIT_PNSSET5_VAL & BIT21)
+# define ECAP1 ECAP1_NS
+#else
+# define ECAP1 ECAP1_S
+#endif
+
+#if defined (SCU_INIT_PNSSET5_VAL) && (SCU_INIT_PNSSET5_VAL & BIT25)
+# define TRNG TRNG_NS
+#else
+# define TRNG TRNG_S
+#endif
+
+
+#if defined (SCU_INIT_PNSSET6_VAL) && (SCU_INIT_PNSSET6_VAL & BIT0 )
+# define USBD USBD_NS
+#else
+# define USBD USBD_S
+#endif
+
+#if defined (SCU_INIT_PNSSET6_VAL) && (SCU_INIT_PNSSET6_VAL & BIT16)
+# define USCI0  USCI0_NS
+# define UI2C0  UI2C0_NS
+# define USPI0  USPI0_NS
+# define UUART0 UUART0_NS
+#else
+# define USCI0  USCI0_S
+# define UI2C0  UI2C0_S
+# define USPI0  USPI0_S
+# define UUART0 UUART0_S
+#endif
+
+#if defined (SCU_INIT_PNSSET6_VAL) && (SCU_INIT_PNSSET6_VAL & BIT17)
+# define USCI1  USCI1_NS
+# define UI2C1  UI2C1_NS
+# define USPI1  USPI1_NS
+# define UUART1 UUART1_NS
+#else
+# define USCI1  USCI1_S
+# define UI2C1  UI2C1_S
+# define USPI1  USPI1_S
+# define UUART1 UUART1_S
+#endif
+
+#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT0 )
+# define PA PA_NS
+#else
+# define PA PA_S
+#endif
+
+#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT1 )
+# define PB PB_NS
+#else
+# define PB PB_S
+#endif
+
+#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT2 )
+# define PC PC_NS
+#else
+# define PC PC_S
+#endif
+
+#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT3 )
+# define PD PD_NS
+#else
+# define PD PD_S
+#endif
+
+#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT4 )
+# define PE PE_NS
+#else
+# define PE PE_S
+#endif
+
+#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT5 )
+# define PF PF_NS
+#else
+# define PF PF_S
+#endif
+
+#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT6 )
+# define PG PG_NS
+#else
+# define PG PG_S
+#endif
+
+#if defined (SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & BIT7 )
+# define PH PH_NS
+#else
+# define PH PH_S
+#endif
+
+
+
 /**@}*/ /* end of group PMODULE */
 
 /* --------------------  End of section using anonymous unions  ------------------- */
@@ -561,84 +956,6 @@ extern void SystemInit(void);
 #endif
 
 
-/*=============================================================================*/
-typedef volatile unsigned char  vu8;
-typedef volatile unsigned long  vu32;
-typedef volatile unsigned short vu16;
-#define M8(adr)  (*((vu8  *) (adr)))
-#define M16(adr) (*((vu16 *) (adr)))
-#define M32(adr) (*((vu32 *) (adr)))
-
-#define outpw(port,value)   (*((volatile unsigned int *)(port))=(value))
-#define inpw(port)          ((*((volatile unsigned int *)(port))))
-#define outpb(port,value)   (*((volatile unsigned char *)(port))=(value))
-#define inpb(port)          ((*((volatile unsigned char *)(port))))
-#define outps(port,value)   (*((volatile unsigned short *)(port))=(value))
-#define inps(port)          ((*((volatile unsigned short *)(port))))
-
-#define outp32(port,value)  (*((volatile unsigned int *)(port))=(value))
-#define inp32(port)         ((*((volatile unsigned int *)(port))))
-#define outp8(port,value)   (*((volatile unsigned char *)(port))=(value))
-#define inp8(port)          ((*((volatile unsigned char *)(port))))
-#define outp16(port,value)  (*((volatile unsigned short *)(port))=(value))
-#define inp16(port)         ((*((volatile unsigned short *)(port))))
-
-
-#define E_SUCCESS   0
-
-#define TRUE        (1L)
-#define FALSE       (0L)
-
-#define ENABLE      1
-#define DISABLE     0
-
-/* Bit Mask Definitions */
-#define BIT0    0x00000001UL
-#define BIT1    0x00000002UL
-#define BIT2    0x00000004UL
-#define BIT3    0x00000008UL
-#define BIT4    0x00000010UL
-#define BIT5    0x00000020UL
-#define BIT6    0x00000040UL
-#define BIT7    0x00000080UL
-#define BIT8    0x00000100UL
-#define BIT9    0x00000200UL
-#define BIT10   0x00000400UL
-#define BIT11   0x00000800UL
-#define BIT12   0x00001000UL
-#define BIT13   0x00002000UL
-#define BIT14   0x00004000UL
-#define BIT15   0x00008000UL
-#define BIT16   0x00010000UL
-#define BIT17   0x00020000UL
-#define BIT18   0x00040000UL
-#define BIT19   0x00080000UL
-#define BIT20   0x00100000UL
-#define BIT21   0x00200000UL
-#define BIT22   0x00400000UL
-#define BIT23   0x00800000UL
-#define BIT24   0x01000000UL
-#define BIT25   0x02000000UL
-#define BIT26   0x04000000UL
-#define BIT27   0x08000000UL
-#define BIT28   0x10000000UL
-#define BIT29   0x20000000UL
-#define BIT30   0x40000000UL
-#define BIT31   0x80000000UL
-
-
-/* Byte Mask Definitions */
-#define BYTE0_Msk               (0x000000FFUL)
-#define BYTE1_Msk               (0x0000FF00UL)
-#define BYTE2_Msk               (0x00FF0000UL)
-#define BYTE3_Msk               (0xFF000000UL)
-
-#define _GET_BYTE0(u32Param)    (((u32Param) & BYTE0_Msk)        )  /*!< Extract Byte 0 (Bit  0~ 7) from parameter u32Param */
-#define _GET_BYTE1(u32Param)    (((u32Param) & BYTE1_Msk) >>  8UL)  /*!< Extract Byte 1 (Bit  8~15) from parameter u32Param */
-#define _GET_BYTE2(u32Param)    (((u32Param) & BYTE2_Msk) >> 16UL)  /*!< Extract Byte 2 (Bit 16~23) from parameter u32Param */
-#define _GET_BYTE3(u32Param)    (((u32Param) & BYTE3_Msk) >> 24UL)  /*!< Extract Byte 3 (Bit 24~31) from parameter u32Param */
-
-
 /******************************************************************************/
 /*                         Peripheral header files                            */
 /******************************************************************************/
@@ -656,7 +973,6 @@ typedef volatile unsigned short vu16;
 #include "m2351_epwm.h"
 #include "m2351_qspi.h"
 #include "m2351_spi.h"
-#include "m2351_spi5.h"
 #include "m2351_timer.h"
 #include "m2351_timer_pwm.h"
 #include "m2351_wdt.h"

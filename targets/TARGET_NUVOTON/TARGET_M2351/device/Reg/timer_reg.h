@@ -8,6 +8,11 @@
 #ifndef __TIMER_REG_H__
 #define __TIMER_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
 
 /*---------------------- Timer Controller -------------------------*/
 /**
@@ -617,7 +622,7 @@ typedef struct
      * |        |          |0 = PWMx_CH1 level-detect brake state is released.
      * |        |          |1 = PWMx_CH1 at level-detect brake state.
      * |        |          |Note: If TIMERx_PWM level-detect brake source has released, both PWMx_CH0 and PWMx_CH1 will release brake state when current PWM period finished and resume PWMx_CH0 and PWMx_CH1 output waveform start from next full PWM period.
-     * @var TIMER_T::PWMADCTS
+     * @var TIMER_T::PWMEADCTS
      * Offset: 0x90  Timer PWM ADC Trigger Source Select Register
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
@@ -1053,7 +1058,6 @@ typedef struct
 
 /**@}*/ /* TIMER_CONST */
 /**@}*/ /* end of TIMER register group */
-
-
+/**@}*/ /* end of REGISTER group */
 
 #endif /* __TIMER_REG_H__ */
