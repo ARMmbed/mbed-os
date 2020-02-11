@@ -361,4 +361,6 @@ SECTIONS
     Load$$LR$$LR_SECONDARY_PARTITION$$Base = SECONDARY_PARTITION_START;
 
     PROVIDE(__stack = Image$$ARM_LIB_STACK$$ZI$$Limit);
+    PROVIDE(__StackTop = __stack);
+    PROVIDE(__StackLimit = __StackTop - SIZEOF(.psp_stack));
 }
