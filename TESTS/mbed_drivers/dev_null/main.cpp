@@ -16,6 +16,7 @@
  */
 
 #include "mbed.h"
+#include "platform/Stream.h"
 #include "greentea-client/test_env.h"
 
 class DevNull : public Stream {

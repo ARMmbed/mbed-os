@@ -79,7 +79,6 @@ static DigitalIn _rts(BT_CTS);
 static DigitalIn _cts(BT_RTS);
 static DigitalIn _clk(BT_CLK);
 static DigitalOut _shutdown(BT_RST, 0);
-static Serial _uart(BT_TX, BT_RX, 115200);
 #else
 /* Current mbed SPI API does not support HW slave selects. Configured in HCI driver. */
 static DigitalOut _csn(HCI_CSN, 1);
