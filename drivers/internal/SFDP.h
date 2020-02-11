@@ -126,6 +126,15 @@ int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, 
  */
 int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_smptbl_info &smtbl);
 
+/** Detect page size used for writing on flash
+ *
+ * @param bptbl_ptr Pointer to memory holding a Basic Parameter Table structure
+ * @param bptbl_size Size of memory holding a Basic Parameter Table
+ *
+ * @return Page size
+ */
+size_t sfdp_detect_page_size(uint8_t *bptbl_ptr, size_t bptbl_size);
+
 /** @}*/
 } /* namespace mbed */
 #endif

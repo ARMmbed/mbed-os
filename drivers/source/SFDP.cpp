@@ -192,5 +192,24 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
     return 0;
 }
 
+size_t sfdp_detect_page_size(uint8_t *basic_param_table_ptr, size_t basic_param_table_size)
+{
+    constexpr int SFDP_BASIC_PARAM_TABLE_PAGE_SIZE = 40;
+    constexpr int SFDP_DEFAULT_PAGE_SIZE = 256;
+
+    unsigned int page_size = SFDP_DEFAULT_PAGE_SIZE;
+
+    if (basic_param_table_size > SFDP_BASIC_PARAM_TABLE_PAGE_SIZE) {
+        // Page Size is specified by 4 Bits (N), calculated by 2^N
+        int page_to_power_size = ((int)basic_param_table_ptr[SFDP_BASIC_PARAM_TABLE_PAGE_SIZE]) >> 4;
+        page_size = 1 << page_to_power_size;
+        tr_debug("Detected Page Size: %d", page_size);
+    } else {
+        tr_debug("Using Default Page Size: %d", page_size);
+    }
+    return page_size;
+}
+
+
 } /* namespace mbed */
 #endif /* (DEVICE_SPI || DEVICE_QSPI) */

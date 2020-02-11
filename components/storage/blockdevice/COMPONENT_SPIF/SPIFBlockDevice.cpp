@@ -30,7 +30,6 @@ using namespace mbed;
 /****************************/
 #define SPIF_DEFAULT_READ_SIZE  1
 #define SPIF_DEFAULT_PROG_SIZE  1
-#define SPIF_DEFAULT_PAGE_SIZE  256
 #define SPIF_DEFAULT_SE_SIZE    4096
 #define SPI_MAX_STATUS_REGISTER_SIZE 2
 #ifndef UINT64_MAX
@@ -49,7 +48,6 @@ using namespace mbed;
 #define SPIF_BASIC_PARAM_TABLE_222_READ_INST_BYTE 23
 #define SPIF_BASIC_PARAM_TABLE_122_READ_INST_BYTE 15
 #define SPIF_BASIC_PARAM_TABLE_112_READ_INST_BYTE 13
-#define SPIF_BASIC_PARAM_TABLE_PAGE_SIZE_BYTE 40
 // Address Length
 #define SPIF_ADDR_SIZE_3_BYTES 3
 #define SPIF_ADDR_SIZE_4_BYTES 4
@@ -653,7 +651,7 @@ int SPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void 
     _erase_instruction = SPIF_SE;
 
     // Set Page Size (SPI write must be done on Page limits)
-    _page_size_bytes = _sfdp_detect_page_size(param_table, sfdp_info.bptbl.size);
+    _page_size_bytes = sfdp_detect_page_size(param_table, sfdp_info.bptbl.size);
 
     // Detect and Set Erase Types
     _sfdp_detect_erase_types_inst_and_size(param_table, sfdp_info.bptbl.size, _erase4k_inst, sfdp_info.smptbl);
@@ -663,21 +661,6 @@ int SPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void 
     _sfdp_detect_best_bus_read_mode(param_table, sfdp_info.bptbl.size, _read_instruction);
 
     return 0;
-}
-
-unsigned int SPIFBlockDevice::_sfdp_detect_page_size(uint8_t *basic_param_table_ptr, int basic_param_table_size)
-{
-    unsigned int page_size = SPIF_DEFAULT_PAGE_SIZE;
-
-    if (basic_param_table_size > SPIF_BASIC_PARAM_TABLE_PAGE_SIZE_BYTE) {
-        // Page Size is specified by 4 Bits (N), calculated by 2^N
-        int page_to_power_size = ((int)basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_PAGE_SIZE_BYTE]) >> 4;
-        page_size = local_math_power(2, page_to_power_size);
-        tr_debug("Detected Page Size: %d", page_size);
-    } else {
-        tr_debug("Using Default Page Size: %d", page_size);
-    }
-    return page_size;
 }
 
 int SPIFBlockDevice::_sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr, int basic_param_table_size,

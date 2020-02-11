@@ -31,7 +31,6 @@ using namespace mbed;
 
 /* Default QSPIF Parameters */
 /****************************/
-#define QSPIF_DEFAULT_PAGE_SIZE  256
 #define QSPIF_DEFAULT_SE_SIZE    4096
 // The SFDP spec only defines two status registers. But some devices,
 // have three "status-like" registers (one status, two config)
@@ -62,7 +61,6 @@ using namespace mbed;
 #define QSPIF_BASIC_PARAM_TABLE_222_READ_INST_BYTE 23
 #define QSPIF_BASIC_PARAM_TABLE_122_READ_INST_BYTE 15
 #define QSPIF_BASIC_PARAM_TABLE_112_READ_INST_BYTE 13
-#define QSPIF_BASIC_PARAM_TABLE_PAGE_SIZE_BYTE 40
 // Quad Enable Params
 #define QSPIF_BASIC_PARAM_TABLE_QER_BYTE 58
 #define QSPIF_BASIC_PARAM_TABLE_444_MODE_EN_SEQ_BYTE 56
@@ -652,7 +650,7 @@ int QSPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void
     _device_size_bytes = (density_bits + 1) / 8;
 
     // Set Page Size (QSPI write must be done on Page limits)
-    _page_size_bytes = _sfdp_detect_page_size(param_table, basic_table_size);
+    _page_size_bytes = sfdp_detect_page_size(param_table, basic_table_size);
 
     if (_sfdp_detect_reset_protocol_and_reset(param_table) != QSPIF_BD_ERROR_OK) {
         tr_error("Init - Detecting reset protocol/resetting failed");
@@ -830,21 +828,6 @@ int QSPIFBlockDevice::_sfdp_set_qpi_enabled(uint8_t *basic_param_table_ptr)
             break;
     }
     return 0;
-}
-
-int QSPIFBlockDevice::_sfdp_detect_page_size(uint8_t *basic_param_table_ptr, int basic_param_table_size)
-{
-    unsigned int page_size = QSPIF_DEFAULT_PAGE_SIZE;
-
-    if (basic_param_table_size > QSPIF_BASIC_PARAM_TABLE_PAGE_SIZE_BYTE) {
-        // Page Size is specified by 4 Bits (N), calculated by 2^N
-        int page_to_power_size = ((int)basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_PAGE_SIZE_BYTE]) >> 4;
-        page_size = 1 << page_to_power_size;
-        tr_debug("Detected Page Size: %d", page_size);
-    } else {
-        tr_debug("Using Default Page Size: %d", page_size);
-    }
-    return page_size;
 }
 
 int QSPIFBlockDevice::_sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr,
