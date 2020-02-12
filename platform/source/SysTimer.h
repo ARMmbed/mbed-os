@@ -20,6 +20,7 @@
 #include "platform/NonCopyable.h"
 #include "platform/mbed_atomic.h"
 #include "drivers/TimerEvent.h"
+#include <chrono>
 #include "cmsis.h"
 
 extern "C" {
@@ -45,9 +46,25 @@ namespace internal {
  *
  * @note SysTimer is not the part of Mbed API.
  */
-template <uint32_t US_IN_TICK, bool IRQ = true>
-class SysTimer: private mbed::TimerEvent, private mbed::NonCopyable<SysTimer<US_IN_TICK, IRQ> > {
+template <class Period, bool IRQ = true>
+class SysTimer: private mbed::TimerEvent, private mbed::NonCopyable<SysTimer<Period, IRQ> > {
 public:
+
+    /* pseudo-Clock for our ticks - see TickerDataClock for more discussion */
+    using rep = uint64_t;
+    using period = Period;
+    using duration = std::chrono::duration<uint64_t, period>;
+    using time_point = std::chrono::time_point<SysTimer>;
+    static const bool is_steady = false;
+
+    /** duration type used for underlying high-res timer */
+    using highres_duration = TickerDataClock::duration;
+    /** time_point type used for underlying high-res timer */
+    using highres_time_point = TickerDataClock::time_point;
+    /** period of underlying high-res timer */
+    using highres_period = TickerDataClock::period;
+
+    static_assert(std::ratio_divide<period, highres_period>::den == 1, "Tick period must be an exact multiple of highres time period");
 
     /**
      * Default constructor uses LPTICKER if available (so the timer will
@@ -90,7 +107,7 @@ public:
      * @param at Wake up tick
      * @warning If the ticker tick is already scheduled it needs to be cancelled first!
      */
-    void set_wake_time(uint64_t at);
+    void set_wake_time(time_point at);
 
     /**
      * Check whether the wake time has passed
@@ -170,9 +187,9 @@ public:
      *
      * @return number of unacknowledged ticks
      */
-    int unacknowledged_ticks() const
+    std::chrono::duration<int, period> unacknowledged_ticks() const
     {
-        return core_util_atomic_load_u8(&_unacknowledged_ticks);
+        return std::chrono::duration<int, period>(core_util_atomic_load_u8(&_unacknowledged_ticks));
     }
 
     /** Get the current tick count
@@ -186,7 +203,7 @@ public:
      *
      * @return The number of ticks since timer creation.
      */
-    uint64_t get_tick() const;
+    time_point get_tick() const;
 
     /** Update and get the current tick count
      *
@@ -199,14 +216,14 @@ public:
      *
      * @return The number of ticks since timer creation.
      */
-    uint64_t update_and_get_tick();
+    time_point update_and_get_tick();
 
     /**
      * Returns time since last tick
      *
      * @return Relative time in microseconds
      */
-    us_timestamp_t get_time_since_tick() const;
+    highres_duration get_time_since_tick() const;
 
     /**
      * Get the time
@@ -216,17 +233,18 @@ public:
      *
      * @return Current time in microseconds
      */
-    us_timestamp_t get_time() const;
+    highres_time_point get_time() const;
 
 protected:
+    using highres_duration_u32 = std::chrono::duration<uint32_t, highres_period>;
     virtual void handler();
     void _increment_tick();
     void _schedule_tick();
-    uint64_t _elapsed_ticks() const;
+    duration _elapsed_ticks() const;
     static void _set_irq_pending();
     static void _clear_irq_pending();
-    const us_timestamp_t _epoch;
-    us_timestamp_t _time_us;
+    const highres_time_point _epoch;
+    highres_time_point _time;
     uint64_t _tick;
     uint8_t _unacknowledged_ticks;
     bool _wake_time_set;

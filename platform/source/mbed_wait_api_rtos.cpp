@@ -29,25 +29,28 @@
 #include "platform/mbed_power_mgmt.h"
 #include "platform/mbed_error.h"
 
+using namespace std::chrono;
+
 void wait(float s)
 {
-    if ((s >= 0.01f)  && core_util_are_interrupts_enabled()) {
-        rtos::ThisThread::sleep_for(s * 1000.0f);
+    auto rel_float = duration<float>(s);
+    if (rel_float >= duration<float, std::milli>(10)  && core_util_are_interrupts_enabled()) {
+        rtos::ThisThread::sleep_for(duration_cast<rtos::Kernel::Clock::duration>(rel_float));
         return;
     }
 
-    uint32_t us = (s * 1000000.0f);
+    duration<uint32_t, std::micro> us = duration_cast<duration<uint32_t, std::micro>>(rel_float);
     const ticker_data_t *const ticker = get_us_ticker_data();
     uint32_t start = ticker_read(ticker);
-    if ((us >= 1000) && core_util_are_interrupts_enabled()) {
+    if (us >= 1ms && core_util_are_interrupts_enabled()) {
         // Use the RTOS to wait for millisecond delays if possible
         sleep_manager_lock_deep_sleep();
-        rtos::ThisThread::sleep_for((uint32_t)us / 1000);
+        rtos::ThisThread::sleep_for(duration_cast<rtos::Kernel::Clock::duration>(us));
         sleep_manager_unlock_deep_sleep();
     }
     // Use busy waiting for sub-millisecond delays, or for the whole
     // interval if interrupts are not enabled
-    while ((ticker_read(ticker) - start) < (uint32_t)us);
+    while ((ticker_read(ticker) - start) < (uint32_t)us.count());
 }
 
 /*  The actual time delay may be up to one timer tick less - 1 msec */
@@ -61,7 +64,7 @@ void wait_ms(int ms)
         wait_us(ms * 1000);
 #endif
     } else {
-        rtos::ThisThread::sleep_for(ms);
+        rtos::ThisThread::sleep_for(milliseconds(ms));
     }
 }
 

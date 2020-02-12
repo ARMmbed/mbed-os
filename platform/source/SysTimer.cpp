@@ -29,6 +29,10 @@ extern "C" {
 #endif
 }
 
+using namespace std::chrono;
+
+constexpr milliseconds deep_sleep_latency{MBED_CONF_TARGET_DEEP_SLEEP_LATENCY};
+
 #if (defined(NO_SYSTICK))
 /**
  * Return an IRQ number that can be used in the absence of SysTick
@@ -45,30 +49,21 @@ extern "C" IRQn_ID_t mbed_get_a9_tick_irqn(void);
 namespace mbed {
 namespace internal {
 
-template<uint32_t US_IN_TICK, bool IRQ>
-SysTimer<US_IN_TICK, IRQ>::SysTimer() :
+template<class Period, bool IRQ>
+SysTimer<Period, IRQ>::SysTimer() :
 #if DEVICE_LPTICKER
-    TimerEvent(get_lp_ticker_data()),
+    SysTimer(get_lp_ticker_data())
 #else
-    TimerEvent(get_us_ticker_data()),
+    SysTimer(get_us_ticker_data())
 #endif
-    _epoch(ticker_read_us(_ticker_data)),
-    _time_us(_epoch),
-    _tick(0),
-    _unacknowledged_ticks(0),
-    _wake_time_set(false),
-    _wake_time_passed(false),
-    _wake_early(false),
-    _ticking(false),
-    _deep_sleep_locked(false)
 {
 }
 
-template<uint32_t US_IN_TICK, bool IRQ>
-SysTimer<US_IN_TICK, IRQ>::SysTimer(const ticker_data_t *data) :
+template<class Period, bool IRQ>
+SysTimer<Period, IRQ>::SysTimer(const ticker_data_t *data) :
     TimerEvent(data),
-    _epoch(ticker_read_us(_ticker_data)),
-    _time_us(_epoch),
+    _epoch(_ticker_data.now()),
+    _time(_epoch),
     _tick(0),
     _unacknowledged_ticks(0),
     _wake_time_set(false),
@@ -79,15 +74,15 @@ SysTimer<US_IN_TICK, IRQ>::SysTimer(const ticker_data_t *data) :
 {
 }
 
-template<uint32_t US_IN_TICK, bool IRQ>
-SysTimer<US_IN_TICK, IRQ>::~SysTimer()
+template<class Period, bool IRQ>
+SysTimer<Period, IRQ>::~SysTimer()
 {
     cancel_tick();
     cancel_wake();
 }
 
-template<uint32_t US_IN_TICK, bool IRQ>
-void SysTimer<US_IN_TICK, IRQ>::set_wake_time(uint64_t at)
+template<class Period, bool IRQ>
+void SysTimer<Period, IRQ>::set_wake_time(time_point at)
 {
     // SysTimer must not be active - we must be in suspend state
     MBED_ASSERT(!_ticking);
@@ -105,8 +100,8 @@ void SysTimer<US_IN_TICK, IRQ>::set_wake_time(uint64_t at)
         return;
     }
 
-    uint64_t ticks_to_sleep = at - _tick;
-    uint64_t wake_time = _epoch + at * US_IN_TICK;
+    duration ticks_to_sleep = at - get_tick();
+    highres_time_point wake_time = _epoch + at.time_since_epoch();
 
     /* Set this first, before attaching the interrupt that can unset it */
     _wake_time_set = true;
@@ -117,8 +112,8 @@ void SysTimer<US_IN_TICK, IRQ>::set_wake_time(uint64_t at)
         sleep_manager_lock_deep_sleep();
     }
     /* Consider whether we will need early or precise wake-up */
-    if (MBED_CONF_TARGET_DEEP_SLEEP_LATENCY > 0 &&
-            ticks_to_sleep > MBED_CONF_TARGET_DEEP_SLEEP_LATENCY &&
+    if (deep_sleep_latency > deep_sleep_latency.zero() &&
+            ticks_to_sleep > deep_sleep_latency &&
             !_deep_sleep_locked) {
         /* If there is deep sleep latency, but we still have enough time,
          * and we haven't blocked deep sleep ourselves,
@@ -126,14 +121,14 @@ void SysTimer<US_IN_TICK, IRQ>::set_wake_time(uint64_t at)
          * Actual sleep may or may not be deep, depending on other actors.
          */
         _wake_early = true;
-        insert_absolute(wake_time - MBED_CONF_TARGET_DEEP_SLEEP_LATENCY * US_IN_TICK);
+        insert_absolute(wake_time - deep_sleep_latency);
     } else {
         /* Otherwise, set up to wake at the precise time.
          * If there is a deep sleep latency, ensure that we're holding the lock so the sleep
          * is shallow. (If there is no deep sleep latency, we're fine with it being deep).
          */
         _wake_early = false;
-        if (MBED_CONF_TARGET_DEEP_SLEEP_LATENCY > 0 && !_deep_sleep_locked) {
+        if (deep_sleep_latency > deep_sleep_latency.zero() && !_deep_sleep_locked) {
             _deep_sleep_locked = true;
             sleep_manager_lock_deep_sleep();
         }
@@ -141,8 +136,8 @@ void SysTimer<US_IN_TICK, IRQ>::set_wake_time(uint64_t at)
     }
 }
 
-template<uint32_t US_IN_TICK, bool IRQ>
-void SysTimer<US_IN_TICK, IRQ>::cancel_wake()
+template<class Period, bool IRQ>
+void SysTimer<Period, IRQ>::cancel_wake()
 {
     MBED_ASSERT(!_ticking);
     // Remove ensures serialized access to SysTimer by stopping timer interrupt
@@ -157,24 +152,26 @@ void SysTimer<US_IN_TICK, IRQ>::cancel_wake()
     }
 }
 
-template<uint32_t US_IN_TICK, bool IRQ>
-uint64_t SysTimer<US_IN_TICK, IRQ>::_elapsed_ticks() const
+template<class Period, bool IRQ>
+auto SysTimer<Period, IRQ>::_elapsed_ticks() const -> duration
 {
-    uint64_t elapsed_us = ticker_read_us(_ticker_data) - _time_us;
-    if (elapsed_us < US_IN_TICK) {
-        return 0;
-    } else if (elapsed_us < 2 * US_IN_TICK) {
-        return 1;
-    } else if (elapsed_us <= 0xFFFFFFFF) {
+    highres_duration elapsed_us = _ticker_data.now() - _time;
+    // Fastest common cases avoiding any division for 0 or 1 ticks
+    if (elapsed_us < duration(1)) {
+        return duration(0);
+    } else if (elapsed_us < duration(2)) {
+        return duration(1);
+    } else if (elapsed_us.count() <= 0xFFFFFFFF) {
         // Fast common case avoiding 64-bit division
-        return (uint32_t) elapsed_us / US_IN_TICK;
+        return duration_cast<duration>(highres_duration_u32(elapsed_us));
     } else {
-        return elapsed_us / US_IN_TICK;
+        // Worst case will require 64-bit division to convert highres to ticks
+        return duration_cast<duration>(elapsed_us);
     }
 }
 
-template<uint32_t US_IN_TICK, bool IRQ>
-void SysTimer<US_IN_TICK, IRQ>::start_tick()
+template<class Period, bool IRQ>
+void SysTimer<Period, IRQ>::start_tick()
 {
     _ticking = true;
     if (_unacknowledged_ticks > 0) {
@@ -183,14 +180,14 @@ void SysTimer<US_IN_TICK, IRQ>::start_tick()
     _schedule_tick();
 }
 
-template<uint32_t US_IN_TICK, bool IRQ>
-void SysTimer<US_IN_TICK, IRQ>::_schedule_tick()
+template<class Period, bool IRQ>
+void SysTimer<Period, IRQ>::_schedule_tick()
 {
-    insert_absolute(_time_us + US_IN_TICK);
+    insert_absolute(_time + duration(1));
 }
 
-template<uint32_t US_IN_TICK, bool IRQ>
-void SysTimer<US_IN_TICK, IRQ>::acknowledge_tick()
+template<class Period, bool IRQ>
+void SysTimer<Period, IRQ>::acknowledge_tick()
 {
     // Try to avoid missed ticks if OS's IRQ level is not keeping
     // up with our handler.
@@ -202,8 +199,8 @@ void SysTimer<US_IN_TICK, IRQ>::acknowledge_tick()
     }
 }
 
-template<uint32_t US_IN_TICK, bool IRQ>
-void SysTimer<US_IN_TICK, IRQ>::cancel_tick()
+template<class Period, bool IRQ>
+void SysTimer<Period, IRQ>::cancel_tick()
 {
     // Underlying call is interrupt safe
 
@@ -213,66 +210,66 @@ void SysTimer<US_IN_TICK, IRQ>::cancel_tick()
     _clear_irq_pending();
 }
 
-template<uint32_t US_IN_TICK, bool IRQ>
-uint64_t SysTimer<US_IN_TICK, IRQ>::get_tick() const
+template<class Period, bool IRQ>
+auto SysTimer<Period, IRQ>::get_tick() const -> time_point
 {
     // Atomic is necessary as this can be called from any foreground context,
     // while IRQ can update it.
-    return core_util_atomic_load_u64(&_tick);
+    return time_point(duration(core_util_atomic_load_u64(&_tick)));
 }
 
-template<uint32_t US_IN_TICK, bool IRQ>
-uint64_t SysTimer<US_IN_TICK, IRQ>::update_and_get_tick()
+template<class Period, bool IRQ>
+auto SysTimer<Period, IRQ>::update_and_get_tick() -> time_point
 {
     MBED_ASSERT(!_ticking && !_wake_time_set);
     // Can only be used when no interrupts are scheduled
     // Update counters to reflect elapsed time
-    uint64_t elapsed_ticks = _elapsed_ticks();
+    duration elapsed_ticks = _elapsed_ticks();
     _unacknowledged_ticks = 0;
-    _time_us += elapsed_ticks * US_IN_TICK;
-    _tick += elapsed_ticks;
+    _time += elapsed_ticks;
+    _tick += elapsed_ticks.count();
 
-    return _tick;
+    return time_point(duration(_tick));
 }
 
-template<uint32_t US_IN_TICK, bool IRQ>
-us_timestamp_t SysTimer<US_IN_TICK, IRQ>::get_time() const
+template<class Period, bool IRQ>
+auto SysTimer<Period, IRQ>::get_time() const -> highres_time_point
 {
     // Underlying call is interrupt safe
 
-    return ticker_read_us(_ticker_data);
+    return _ticker_data.now();
 }
 
-template<uint32_t US_IN_TICK, bool IRQ>
-us_timestamp_t SysTimer<US_IN_TICK, IRQ>::get_time_since_tick() const
+template<class Period, bool IRQ>
+auto SysTimer<Period, IRQ>::get_time_since_tick() const -> highres_duration
 {
-    // Underlying call is interrupt safe, and _time_us is not updated by IRQ
+    // Underlying call is interrupt safe, and _time is not updated by IRQ
 
-    return get_time() - _time_us;
+    return get_time() - _time;
 }
 
 #if (defined(NO_SYSTICK))
-template<uint32_t US_IN_TICK, bool IRQ>
-IRQn_Type SysTimer<US_IN_TICK, IRQ>::get_irq_number()
+template<class Period, bool IRQ>
+IRQn_Type SysTimer<Period, IRQ>::get_irq_number()
 {
     return mbed_get_m0_tick_irqn();
 }
 #elif (TARGET_CORTEX_M)
-template<uint32_t US_IN_TICK, bool IRQ>
-IRQn_Type SysTimer<US_IN_TICK, IRQ>::get_irq_number()
+template<class Period, bool IRQ>
+IRQn_Type SysTimer<Period, IRQ>::get_irq_number()
 {
     return SysTick_IRQn;
 }
 #elif (TARGET_CORTEX_A)
-template<uint32_t US_IN_TICK, bool IRQ>
-IRQn_ID_t SysTimer<US_IN_TICK, IRQ>::get_irq_number()
+template<class Period, bool IRQ>
+IRQn_ID_t SysTimer<Period, IRQ>::get_irq_number()
 {
     return mbed_get_a9_tick_irqn();
 }
 #endif
 
-template<uint32_t US_IN_TICK, bool IRQ>
-void SysTimer<US_IN_TICK, IRQ>::_set_irq_pending()
+template<class Period, bool IRQ>
+void SysTimer<Period, IRQ>::_set_irq_pending()
 {
     // Protected function synchronized externally
     if (!IRQ) {
@@ -287,8 +284,8 @@ void SysTimer<US_IN_TICK, IRQ>::_set_irq_pending()
 #endif
 }
 
-template<uint32_t US_IN_TICK, bool IRQ>
-void SysTimer<US_IN_TICK, IRQ>::_clear_irq_pending()
+template<class Period, bool IRQ>
+void SysTimer<Period, IRQ>::_clear_irq_pending()
 {
     // Protected function synchronized externally
     if (!IRQ) {
@@ -303,17 +300,17 @@ void SysTimer<US_IN_TICK, IRQ>::_clear_irq_pending()
 #endif
 }
 
-template<uint32_t US_IN_TICK, bool IRQ>
-void SysTimer<US_IN_TICK, IRQ>::_increment_tick()
+template<class Period, bool IRQ>
+void SysTimer<Period, IRQ>::_increment_tick()
 {
     // Protected function synchronized externally
 
     _tick++;
-    _time_us += US_IN_TICK;
+    _time += duration(1);
 }
 
-template<uint32_t US_IN_TICK, bool IRQ>
-void SysTimer<US_IN_TICK, IRQ>::handler()
+template<class Period, bool IRQ>
+void SysTimer<Period, IRQ>::handler()
 {
     /* To reduce IRQ latency problems, we do not re-arm in the interrupt handler */
     if (_wake_time_set) {
@@ -343,18 +340,18 @@ void SysTimer<US_IN_TICK, IRQ>::handler()
 MBED_STATIC_ASSERT(1000000 % OS_TICK_FREQ == 0, "OS_TICK_FREQ must be a divisor of 1000000 for correct tick calculations");
 #define OS_TICK_US (1000000 / OS_TICK_FREQ)
 #if OS_TICK_US != 1000
-template class SysTimer<OS_TICK_US>;
+template class SysTimer<std::ratio_multiply<std::ratio<OS_TICK_US>, std::micro>>;
 #endif
 #endif
 
 /* Standard 1ms SysTimer */
-template class SysTimer<1000>;
+template class SysTimer<std::milli>;
 
 /* Standard 1ms SysTimer that doesn't set interrupts, used for Greentea tests */
-template class SysTimer<1000, false>;
+template class SysTimer<std::milli, false>;
 
 /* Slowed-down SysTimer that doesn't set interrupts, used for Greentea tests */
-template class SysTimer<42000, false>;
+template class SysTimer<std::ratio_multiply<std::ratio<42>, std::milli>, false>;
 
 } // namespace internal
 } // namespace mbed

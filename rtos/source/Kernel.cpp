@@ -35,7 +35,14 @@
 
 namespace rtos {
 
+constexpr bool Kernel::Clock::is_steady;
+
 uint64_t Kernel::get_ms_count()
+{
+    return impl::get_tick_count();
+
+}
+uint64_t Kernel::impl::get_tick_count()
 {
 #if MBED_CONF_RTOS_PRESENT
     // CMSIS-RTOS 2.1.0 and 2.1.1 differ in the time type. We assume
