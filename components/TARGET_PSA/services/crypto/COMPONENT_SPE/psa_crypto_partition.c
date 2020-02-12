@@ -1822,7 +1822,7 @@ static void psa_key_management_operation(void)
 
             switch (psa_key_mng.func) {
                 case PSA_GET_KEY_ATTRIBUTES: {
-                    psa_key_attributes_t attributes;
+                    psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
                     psa_client_key_attributes_t client;
 
                     if (!psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle,
@@ -1882,7 +1882,7 @@ static void psa_key_management_operation(void)
 
                 case PSA_IMPORT_KEY: {
                     size_t attributes_length = msg.in_size[1];
-                    psa_key_attributes_t attributes;
+                    psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
                     size_t data_length = msg.in_size[2];
                     uint8_t *data = NULL;
                     psa_key_handle_t handle;
