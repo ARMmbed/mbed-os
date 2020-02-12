@@ -44,8 +44,6 @@ from tools.utils import argparse_filestring_type, args_error, argparse_many
 from tools.utils import argparse_dir_not_parent
 from tools.utils import NoValidToolchainException
 from tools.utils import print_end_warnings
-from tools.psa import generate_psa_sources
-from tools.resources import OsAndSpeResourceFilter
 
 def main():
     start = time()
@@ -189,12 +187,6 @@ def main():
 
                     if options.source_dir:
                         resource_filter = None
-                        if target.is_PSA_secure_target:
-                            generate_psa_sources(
-                                source_dirs=options.source_dir,
-                                ignore_paths=[options.build_dir]
-                            )
-                            resource_filter = OsAndSpeResourceFilter()
 
                         lib_build_res = build_library(
                             options.source_dir, options.build_dir, target, toolchain_name,

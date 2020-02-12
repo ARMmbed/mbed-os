@@ -53,8 +53,6 @@ from tools.utils import print_large_string
 from tools.utils import NotSupportedException
 from tools.options import extract_profile, list_profiles, extract_mcus
 from tools.notifier.term import TerminalNotifier
-from tools.psa import generate_psa_sources
-from tools.resources import OsAndSpeResourceFilter
 
 """ The CLI entry point for exporting projects from the mbed tools to any of the
 supported IDEs or project structures.
@@ -389,14 +387,7 @@ def main():
             args_error(parser, "%s not supported by %s" % (mcu, ide))
 
         try:
-            target = Target.get_target(mcu)
             resource_filter = None
-            if target.is_PSA_secure_target:
-                generate_psa_sources(source_dirs=options.source_dir,
-                                     ignore_paths=[]
-                )
-                resource_filter = OsAndSpeResourceFilter()
-
             export(
                 mcu,
                 ide,

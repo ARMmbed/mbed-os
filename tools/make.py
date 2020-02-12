@@ -55,8 +55,6 @@ from tools.utils import print_end_warnings
 from tools.utils import print_large_string
 from tools.settings import ROOT
 from tools.targets import Target
-from tools.psa import generate_psa_sources
-from tools.resources import OsAndSpeResourceFilter
 
 def default_args_dict(options):
     return dict(
@@ -336,13 +334,6 @@ def main():
 
         if options.source_dir is not None:
             resource_filter = None
-            if target.is_PSA_secure_target:
-                generate_psa_sources(
-                    source_dirs=options.source_dir,
-                    ignore_paths=[options.build_dir]
-                )
-                resource_filter = OsAndSpeResourceFilter()
-
             wrapped_build_project(
                 options.source_dir,
                 options.build_dir,

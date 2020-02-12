@@ -591,17 +591,6 @@ class ARMC6(ARM_STD):
 
         self.check_and_add_minimal_printf(target)
 
-        if target.is_TrustZone_secure_target:
-            if kwargs.get('build_dir', False):
-                # Output secure import library
-                build_dir = kwargs['build_dir']
-                secure_file = join(build_dir, "cmse_lib.o")
-                self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
-
-            # Enable compiler security extensions
-            self.flags['cxx'].append("-mcmse")
-            self.flags['c'].append("-mcmse")
-
         if target.is_TrustZone_non_secure_target:
             # Add linking time preprocessor macro DOMAIN_NS
             # (DOMAIN_NS is passed to compiler and assembler via CORTEX_SYMBOLS
