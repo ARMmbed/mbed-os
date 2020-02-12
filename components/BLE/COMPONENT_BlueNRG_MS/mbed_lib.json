@@ -1,0 +1,24 @@
+{
+    "name": "cordio_bluenrg",
+    "config": {
+        "valid-public-bd-address": {
+            "help": "Read the BD public address at startup",
+            "value": false
+        }
+    },
+    "target_overrides": {
+        "K64F": {
+            "target.macros_add": ["BLUENRG_PIN_SPI_SCK=D13"]
+        },
+        "DISCO_L475VG_IOT01A": {
+            "target.macros_add": [
+                "BLUENRG_PIN_SPI_MOSI=PC_12",
+                "BLUENRG_PIN_SPI_MISO=PC_11",
+                "BLUENRG_PIN_SPI_nCS=PD_13",
+                "BLUENRG_PIN_SPI_RESET=PA_8",
+                "BLUENRG_PIN_SPI_IRQ=PE_6",
+                "BLUENRG_PIN_SPI_SCK=PC_10"
+            ]
+        }
+    }
+}
