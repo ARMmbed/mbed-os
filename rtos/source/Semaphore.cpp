@@ -29,6 +29,10 @@
 
 #include <string.h>
 
+using namespace std::chrono_literals;
+using std::chrono::duration;
+using std::milli;
+
 namespace rtos {
 
 Semaphore::Semaphore(int32_t count)
@@ -105,14 +109,19 @@ void Semaphore::acquire()
 
 bool Semaphore::try_acquire_for(uint32_t millisec)
 {
+    return try_acquire_for(duration<uint32_t, milli>(millisec));
+}
+
+bool Semaphore::try_acquire_for(Kernel::Clock::duration_u32 rel_time)
+{
 #if MBED_CONF_RTOS_PRESENT
-    osStatus_t status = osSemaphoreAcquire(_id, millisec);
+    osStatus_t status = osSemaphoreAcquire(_id, rel_time.count());
     if (status == osOK) {
         return true;
     }
 
-    bool success = (status == osErrorResource && millisec == 0) ||
-                   (status == osErrorTimeout && millisec != osWaitForever);
+    bool success = (status == osErrorResource && rel_time == rel_time.zero()) ||
+                   (status == osErrorTimeout);
 
     if (!success) {
         MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_KERNEL, MBED_ERROR_CODE_SEMAPHORE_LOCK_FAILED), "Semaphore acquire failed", status);
@@ -120,27 +129,32 @@ bool Semaphore::try_acquire_for(uint32_t millisec)
     return false;
 #else
     sem_wait_capture capture = { this, false };
-    mbed::internal::do_timed_sleep_relative_or_forever(millisec, semaphore_available, &capture);
+    mbed::internal::do_timed_sleep_relative_or_forever(rel_time, semaphore_available, &capture);
     return capture.acquired;
 #endif
 }
 
 bool Semaphore::try_acquire_until(uint64_t millisec)
 {
-#if MBED_CONF_RTOS_PRESENT
-    uint64_t now = Kernel::get_ms_count();
+    return try_acquire_until(Kernel::Clock::time_point(duration<uint64_t, milli>(millisec)));
+}
 
-    if (now >= millisec) {
+bool Semaphore::try_acquire_until(Kernel::Clock::time_point abs_time)
+{
+#if MBED_CONF_RTOS_PRESENT
+    Kernel::Clock::time_point now = Kernel::Clock::now();
+
+    if (now >= abs_time) {
         return try_acquire();
-    } else if (millisec - now >= osWaitForever) {
+    } else if (abs_time - now > Kernel::wait_for_u32_max) {
         // API permits early return
-        return try_acquire_for(osWaitForever - 1);
+        return try_acquire_for(Kernel::wait_for_u32_max);
     } else {
-        return try_acquire_for(millisec - now);
+        return try_acquire_for(abs_time - now);
     }
 #else
     sem_wait_capture capture = { this, false };
-    mbed::internal::do_timed_sleep_absolute(millisec, semaphore_available, &capture);
+    mbed::internal::do_timed_sleep_absolute(abs_time, semaphore_available, &capture);
     return capture.acquired;
 #endif
 }
