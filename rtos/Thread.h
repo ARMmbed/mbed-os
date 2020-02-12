@@ -271,10 +271,10 @@ private:
     osThreadId_t               _tid;
     osThreadAttr_t             _attr;
     bool                       _dynamic_stack;
+    bool                       _finished;
     Semaphore                  _join_sem;
     mutable Mutex              _mutex;
     mbed_rtos_storage_thread_t _obj_mem;
-    bool                       _finished;
 };
 /** @}*/
 /** @}*/
