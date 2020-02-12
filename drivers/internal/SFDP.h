@@ -45,6 +45,17 @@ static const int SFDP_ERASE_BITMASK_TYPE1 = 0x01; ///< Erase type 1 (erase granu
 static const int SFDP_ERASE_BITMASK_NONE = 0x00;  ///< Erase type None
 static const int SFDP_ERASE_BITMASK_ALL = 0x0F;   ///< Erase type All
 
+// Erase Types Params
+#define SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_BYTE 29
+#define SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_2_BYTE 31
+#define SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_3_BYTE 33
+#define SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_4_BYTE 35
+#define SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE 28
+#define SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_2_SIZE_BYTE 30
+#define SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_3_SIZE_BYTE 32
+#define SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_4_SIZE_BYTE 34
+#define SFDP_BASIC_PARAM_TABLE_4K_ERASE_TYPE_BYTE 1
+
 static const int SFDP_MAX_NUM_OF_ERASE_TYPES = 4;  ///< Maximum number of different erase types (erase granularity)
 
 /** SFDP Basic Parameter Table info */

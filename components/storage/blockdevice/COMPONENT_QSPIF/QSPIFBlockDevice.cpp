@@ -64,16 +64,6 @@ using namespace mbed;
 // Quad Enable Params
 #define QSPIF_BASIC_PARAM_TABLE_QER_BYTE 58
 #define QSPIF_BASIC_PARAM_TABLE_444_MODE_EN_SEQ_BYTE 56
-// Erase Types Params
-#define QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_1_BYTE 29
-#define QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_2_BYTE 31
-#define QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_3_BYTE 33
-#define QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_4_BYTE 35
-#define QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE 28
-#define QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_2_SIZE_BYTE 30
-#define QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_3_SIZE_BYTE 32
-#define QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_4_SIZE_BYTE 34
-#define QSPIF_BASIC_PARAM_4K_ERASE_TYPE_BYTE 1
 
 #define QSPIF_BASIC_PARAM_TABLE_SOFT_RESET_BYTE 61
 #define QSPIF_BASIC_PARAM_TABLE_4BYTE_ADDR_BYTE 63
@@ -109,7 +99,7 @@ using namespace mbed;
 
 // Default read/legacy erase instructions
 #define QSPIF_INST_READ_DEFAULT          0x03
-#define QSPIF_INST_LEGACY_ERASE_DEFAULT  QSPI_NO_INST
+#define QSPIF_INST_LEGACY_ERASE_DEFAULT  (-1)
 
 // Default status register 2 read/write instructions
 #define QSPIF_INST_WSR2_DEFAULT    QSPI_NO_INST
@@ -837,17 +827,17 @@ int QSPIFBlockDevice::_sfdp_detect_erase_types_inst_and_size(uint8_t *basic_para
     uint8_t bitfield = 0x01;
 
     // Erase 4K Inst is taken either from param table legacy 4K erase or superseded by erase Instruction for type of size 4K
-    if (basic_param_table_size > QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE) {
+    if (basic_param_table_size > SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE) {
         // Loop Erase Types 1-4
         for (int i_ind = 0; i_ind < 4; i_ind++) {
             smptbl.erase_type_inst_arr[i_ind] = QSPI_NO_INST; // Default for unsupported type
             smptbl.erase_type_size_arr[i_ind] = 1
-                                                << basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE + 2 * i_ind]; // Size is 2^N where N is the table value
+                                                << basic_param_table_ptr[SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE + 2 * i_ind]; // Size is 2^N where N is the table value
             tr_debug("Erase Type(A) %d - Inst: 0x%xh, Size: %d", (i_ind + 1), smptbl.erase_type_inst_arr[i_ind],
                      smptbl.erase_type_size_arr[i_ind]);
             if (smptbl.erase_type_size_arr[i_ind] > 1) {
                 // if size==1 type is not supported
-                smptbl.erase_type_inst_arr[i_ind] = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_1_BYTE
+                smptbl.erase_type_inst_arr[i_ind] = basic_param_table_ptr[SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_BYTE
                                                                           + 2 * i_ind];
 
                 if ((smptbl.erase_type_size_arr[i_ind] < smptbl.regions_min_common_erase_size)
@@ -866,7 +856,7 @@ int QSPIFBlockDevice::_sfdp_detect_erase_types_inst_and_size(uint8_t *basic_para
         tr_debug("SFDP erase types are not available - falling back to legacy 4k erase instruction");
 
         // 0xFF indicates that the legacy 4k erase instruction is not supported
-        _legacy_erase_instruction = basic_param_table_ptr[QSPIF_BASIC_PARAM_4K_ERASE_TYPE_BYTE];
+        _legacy_erase_instruction = basic_param_table_ptr[SFDP_BASIC_PARAM_TABLE_4K_ERASE_TYPE_BYTE];
         if (_legacy_erase_instruction == 0xFF) {
             tr_error("_detectEraseTypesInstAndSize - Legacy 4k erase instruction not supported");
             return -1;

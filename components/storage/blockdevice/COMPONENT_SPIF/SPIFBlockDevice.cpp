@@ -51,16 +51,11 @@ using namespace mbed;
 // Address Length
 #define SPIF_ADDR_SIZE_3_BYTES 3
 #define SPIF_ADDR_SIZE_4_BYTES 4
-// Erase Types Params
-#define SPIF_BASIC_PARAM_ERASE_TYPE_1_BYTE 29
-#define SPIF_BASIC_PARAM_ERASE_TYPE_2_BYTE 31
-#define SPIF_BASIC_PARAM_ERASE_TYPE_3_BYTE 33
-#define SPIF_BASIC_PARAM_ERASE_TYPE_4_BYTE 35
-#define SPIF_BASIC_PARAM_ERASE_TYPE_1_SIZE_BYTE 28
-#define SPIF_BASIC_PARAM_ERASE_TYPE_2_SIZE_BYTE 30
-#define SPIF_BASIC_PARAM_ERASE_TYPE_3_SIZE_BYTE 32
-#define SPIF_BASIC_PARAM_ERASE_TYPE_4_SIZE_BYTE 34
-#define SPIF_BASIC_PARAM_4K_ERASE_TYPE_BYTE 1
+
+// Default read/legacy erase instructions
+#define SPIF_INST_READ_DEFAULT          0x03
+#define SPIF_INST_LEGACY_ERASE_DEFAULT  (-1)
+
 
 #define IS_MEM_READY_MAX_RETRIES 10000
 
@@ -86,16 +81,15 @@ enum spif_default_instructions {
 // e.g. (1)Set Write Enable, (2)Program, (3)Wait Memory Ready
 SingletonPtr<PlatformMutex> SPIFBlockDevice::_mutex;
 
-// Local Function
-static unsigned int local_math_power(int base, int exp);
-
 //***********************
 // SPIF Block Device APIs
 //***********************
 SPIFBlockDevice::SPIFBlockDevice(
     PinName mosi, PinName miso, PinName sclk, PinName csel, int freq)
-    : _spi(mosi, miso, sclk), _cs(csel), _read_instruction(0), _prog_instruction(0), _erase_instruction(0),
-      _erase4k_inst(0), _page_size_bytes(0), _device_size_bytes(0), _init_ref_count(0), _is_initialized(false)
+    :
+    _spi(mosi, miso, sclk), _cs(csel), _prog_instruction(0), _erase_instruction(0),
+    _page_size_bytes(0),
+    _device_size_bytes(0), _init_ref_count(0), _is_initialized(false)
 {
     _address_size = SPIF_ADDR_SIZE_3_BYTES;
     // Initial SFDP read tables are read with 8 dummy cycles
@@ -107,6 +101,11 @@ SPIFBlockDevice::SPIFBlockDevice(
     _sfdp_info.smptbl.regions_min_common_erase_size = 0;
     _sfdp_info.smptbl.region_cnt = 1;
     _sfdp_info.smptbl.region_erase_types_bitfld[0] = SFDP_ERASE_BITMASK_NONE;
+
+    // Set default read/erase instructions
+    _read_instruction = SPIF_INST_READ_DEFAULT;
+    _legacy_erase_instruction = SPIF_INST_LEGACY_ERASE_DEFAULT;
+
 
     if (SPIF_BD_ERROR_OK != _spi_set_frequency(freq)) {
         tr_error("SPI Set Frequency Failed");
@@ -654,8 +653,8 @@ int SPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void 
     _page_size_bytes = sfdp_detect_page_size(param_table, sfdp_info.bptbl.size);
 
     // Detect and Set Erase Types
-    _sfdp_detect_erase_types_inst_and_size(param_table, sfdp_info.bptbl.size, _erase4k_inst, sfdp_info.smptbl);
-    _erase_instruction = _erase4k_inst;
+    _sfdp_detect_erase_types_inst_and_size(param_table, sfdp_info.bptbl.size, sfdp_info.smptbl);
+    _erase_instruction = _legacy_erase_instruction;
 
     // Detect and Set fastest Bus mode (default 1-1-1)
     _sfdp_detect_best_bus_read_mode(param_table, sfdp_info.bptbl.size, _read_instruction);
@@ -663,45 +662,30 @@ int SPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void 
     return 0;
 }
 
-int SPIFBlockDevice::_sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr, int basic_param_table_size,
-                                                            int &erase4k_inst,
+int SPIFBlockDevice::_sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr,
+                                                            int basic_param_table_size,
                                                             sfdp_smptbl_info &smptbl)
 {
-    erase4k_inst = 0xff;
-    bool found_4Kerase_type = false;
     uint8_t bitfield = 0x01;
 
     // Erase 4K Inst is taken either from param table legacy 4K erase or superseded by erase Instruction for type of size 4K
-    erase4k_inst = basic_param_table_ptr[SPIF_BASIC_PARAM_4K_ERASE_TYPE_BYTE];
-
-    if (basic_param_table_size > SPIF_BASIC_PARAM_ERASE_TYPE_1_SIZE_BYTE) {
+    if (basic_param_table_size > SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE) {
         // Loop Erase Types 1-4
         for (int i_ind = 0; i_ind < 4; i_ind++) {
             smptbl.erase_type_inst_arr[i_ind] = 0xff; //0xFF default for unsupported type
-            smptbl.erase_type_size_arr[i_ind] = local_math_power(
-                                                    2, basic_param_table_ptr[SPIF_BASIC_PARAM_ERASE_TYPE_1_SIZE_BYTE + 2 * i_ind]); // Size given as 2^N
+            smptbl.erase_type_size_arr[i_ind] = 1
+                                                << basic_param_table_ptr[SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE + 2 * i_ind]; // Size given as 2^N
             tr_debug("Erase Type(A) %d - Inst: 0x%xh, Size: %d", (i_ind + 1), smptbl.erase_type_inst_arr[i_ind],
                      smptbl.erase_type_size_arr[i_ind]);
             if (smptbl.erase_type_size_arr[i_ind] > 1) {
                 // if size==1 type is not supported
                 smptbl.erase_type_inst_arr[i_ind] =
-                    basic_param_table_ptr[SPIF_BASIC_PARAM_ERASE_TYPE_1_BYTE + 2 * i_ind];
+                    basic_param_table_ptr[SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_BYTE + 2 * i_ind];
 
                 if ((smptbl.erase_type_size_arr[i_ind] < smptbl.regions_min_common_erase_size)
                         || (smptbl.regions_min_common_erase_size == 0)) {
                     //Set default minimal common erase for singal region
                     smptbl.regions_min_common_erase_size = smptbl.erase_type_size_arr[i_ind];
-                }
-
-                // SFDP standard requires 4K Erase type to exist and its instruction to be identical to legacy field erase instruction
-                if (smptbl.erase_type_size_arr[i_ind] == 4096) {
-                    found_4Kerase_type = true;
-                    if (erase4k_inst != smptbl.erase_type_inst_arr[i_ind]) {
-                        //Verify 4KErase Type is identical to Legacy 4K erase type specified in Byte 1 of Param Table
-                        erase4k_inst = smptbl.erase_type_inst_arr[i_ind];
-                        tr_warning("_detectEraseTypesInstAndSize - Default 4K erase Inst is different than erase type Inst for 4K");
-
-                    }
                 }
                 smptbl.region_erase_types_bitfld[0] |= bitfield; // no region map, set region "0" types bitfield as default
             }
@@ -709,10 +693,15 @@ int SPIFBlockDevice::_sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param
                     smptbl.erase_type_inst_arr[i_ind], smptbl.erase_type_size_arr[i_ind]);
             bitfield = bitfield << 1;
         }
-    }
+    } else {
+        tr_debug("SFDP erase types are not available - falling back to legacy 4k erase instruction");
 
-    if (false == found_4Kerase_type) {
-        tr_warning("Couldn't find Erase Type for 4KB size");
+        // 0xFF indicates that the legacy 4k erase instruction is not supported
+        _legacy_erase_instruction = basic_param_table_ptr[SFDP_BASIC_PARAM_TABLE_4K_ERASE_TYPE_BYTE];
+        if (_legacy_erase_instruction == 0xFF) {
+            tr_error("sfdp_detect_erase_types_inst_and_size - Legacy 4k erase instruction not supported");
+            return -1;
+        }
     }
     return 0;
 }
@@ -885,19 +874,4 @@ int SPIFBlockDevice::_utils_iterate_next_largest_erase_type(uint8_t &bitfield,
     }
     return largest_erase_type;
 }
-
-/*********************************************/
-/************** Local Functions **************/
-/*********************************************/
-static unsigned int local_math_power(int base, int exp)
-{
-    // Integer X^Y function, used to calculate size fields given in 2^N format
-    int result = 1;
-    while (exp) {
-        result *= base;
-        exp--;
-    }
-    return result;
-}
-
 

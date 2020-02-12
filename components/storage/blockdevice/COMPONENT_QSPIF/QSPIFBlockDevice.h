@@ -386,7 +386,7 @@ private:
 
     // Command Instructions
     mbed::qspi_inst_t _read_instruction;
-    mbed::qspi_inst_t _legacy_erase_instruction;
+    int _legacy_erase_instruction;
 
     // Status register write/read instructions
     unsigned int _num_status_registers;
