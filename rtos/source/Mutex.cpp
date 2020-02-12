@@ -29,6 +29,10 @@
 
 #if MBED_CONF_RTOS_PRESENT
 
+using namespace std::chrono_literals;
+using std::milli;
+using std::chrono::duration;
+
 namespace rtos {
 
 Mutex::Mutex()
@@ -71,20 +75,25 @@ void Mutex::lock(void)
 
 bool Mutex::trylock()
 {
-    return trylock_for(0);
+    return trylock_for(0s);
 }
 
 bool Mutex::trylock_for(uint32_t millisec)
 {
-    osStatus status = osMutexAcquire(_id, millisec);
+    return trylock_for(duration<uint32_t, milli>(millisec));
+}
+
+bool Mutex::trylock_for(Kernel::Clock::duration_u32 rel_time)
+{
+    osStatus status = osMutexAcquire(_id, rel_time.count());
     if (status == osOK) {
         _count++;
         return true;
     }
 
     bool success = (status == osOK ||
-                    (status == osErrorResource && millisec == 0) ||
-                    (status == osErrorTimeout && millisec != osWaitForever));
+                    (status == osErrorResource && rel_time == rel_time.zero()) ||
+                    (status == osErrorTimeout && rel_time <= Kernel::wait_for_u32_max));
 
     if (!success && !mbed_get_error_in_progress()) {
         MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_KERNEL, MBED_ERROR_CODE_MUTEX_LOCK_FAILED), "Mutex lock failed", status);
@@ -95,15 +104,20 @@ bool Mutex::trylock_for(uint32_t millisec)
 
 bool Mutex::trylock_until(uint64_t millisec)
 {
-    uint64_t now = Kernel::get_ms_count();
+    return trylock_until(Kernel::Clock::time_point(duration<uint64_t, milli>(millisec)));
+}
 
-    if (now >= millisec) {
+bool Mutex::trylock_until(Kernel::Clock::time_point abs_time)
+{
+    Kernel::Clock::time_point now = Kernel::Clock::now();
+
+    if (now >= abs_time) {
         return trylock();
-    } else if (millisec - now >= osWaitForever) {
+    } else if (abs_time - now > Kernel::wait_for_u32_max) {
         // API permits early return
-        return trylock_for(osWaitForever - 1);
+        return trylock_for(Kernel::wait_for_u32_max);
     } else {
-        return trylock_for(millisec - now);
+        return trylock_for(abs_time - now);
     }
 }
 
