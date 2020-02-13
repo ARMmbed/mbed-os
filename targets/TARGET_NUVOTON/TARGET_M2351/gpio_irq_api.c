@@ -182,7 +182,13 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
         obj->irq_types &= ~irq_type;
     }
 
-    /* Update irq types */
+    /* Update irq types:
+     *
+     * Implementations of GPIO_EnableInt(...) are inconsistent: disable or not irq type not enabled.
+     * For consistency, disable GPIO_INT_BOTH_EDGE and then enable OR'ed irq types, GPIO_INT_RISING,
+     * GPIO_INT_FALLING, or both.
+     */
+    GPIO_DisableInt(gpio_base, pin_index);
     GPIO_EnableInt(gpio_base, pin_index, obj->irq_types);
 }
 

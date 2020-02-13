@@ -52,7 +52,7 @@ __STATIC_INLINE CRPT_T *CRYPTO_MODBASE(void)
 #if defined(SCU_INIT_PNSSET1_VAL) && (SCU_INIT_PNSSET1_VAL & (1<<18))
     return CRPT_NS;
 #else
-    return CRPT;
+    return CRPT_S;
 #endif
 }
 

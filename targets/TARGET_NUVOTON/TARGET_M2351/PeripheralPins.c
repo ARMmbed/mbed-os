@@ -138,7 +138,7 @@ const PinMap PinMap_GPIO[] = {
     {PG_14, GPIO_G, SYS_GPG_MFPH_PG14MFP_GPIO},
     {PG_15, GPIO_G, SYS_GPG_MFPH_PG15MFP_GPIO},
 
-     // GPIO H MFP
+    // GPIO H MFP
     {PH_4, GPIO_H, SYS_GPH_MFPL_PH4MFP_GPIO},
     {PH_5, GPIO_H, SYS_GPH_MFPL_PH5MFP_GPIO},
     {PH_6, GPIO_H, SYS_GPH_MFPL_PH6MFP_GPIO},
@@ -646,4 +646,3 @@ const PinMap PinMap_CAN_RD[] = {
 
     {NC,    NC,    0}
 };
-

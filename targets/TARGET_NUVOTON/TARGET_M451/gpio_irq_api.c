@@ -23,6 +23,7 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 #include "nu_bitutil.h"
+#include "mbed_assert.h"
 
 #define NU_MAX_PIN_PER_PORT     16
 
@@ -76,14 +77,15 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     if (pin == NC) {
         return -1;
     }
-    
+
     uint32_t pin_index = NU_PINNAME_TO_PIN(pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(pin);
     if (pin_index >= NU_MAX_PIN_PER_PORT || port_index >= NU_MAX_PORT) {
         return -1;
     }
-    
+
     obj->pin = pin;
+    obj->irq_types = 0;
     obj->irq_handler = (uint32_t) handler;
     obj->irq_id = id;
 
@@ -101,16 +103,16 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
         GPIO_ENABLE_DEBOUNCE(gpio_base, 1 << pin_index);
 #else
         // Enable de-bounce if the pin is in the de-bounce enable list
-    
+
         // De-bounce defaults to disabled.
         GPIO_DISABLE_DEBOUNCE(gpio_base, 1 << pin_index);
-        
+
         PinName *debounce_pos = gpio_irq_debounce_arr;
         PinName *debounce_end = gpio_irq_debounce_arr + sizeof (gpio_irq_debounce_arr) / sizeof (gpio_irq_debounce_arr[0]);
         for (; debounce_pos != debounce_end && *debounce_pos != NC; debounce_pos ++) {
             uint32_t pin_index_debunce = NU_PINNAME_TO_PIN(*debounce_pos);
             uint32_t port_index_debounce = NU_PINNAME_TO_PORT(*debounce_pos);
-            
+
             if (pin_index == pin_index_debunce &&
                 port_index == port_index_debounce) {
                 // Configure de-bounce clock source and sampling cycle time
@@ -121,14 +123,14 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
         }
 #endif
     }
-    
+
     struct nu_gpio_irq_var *var = gpio_irq_var_arr + port_index;
     
     var->obj_arr[pin_index] = obj;
-    
+
     // NOTE: InterruptIn requires IRQ enabled by default.
     gpio_irq_enable(obj);
-    
+
     return 0;
 }
 
@@ -137,10 +139,10 @@ void gpio_irq_free(gpio_irq_t *obj)
     uint32_t pin_index = NU_PINNAME_TO_PIN(obj->pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(obj->pin);
     struct nu_gpio_irq_var *var = gpio_irq_var_arr + port_index;
-    
+
     NVIC_DisableIRQ(var->irq_n);
     NU_PORT_BASE(port_index)->INTEN = 0;
-    
+
     MBED_ASSERT(pin_index < NU_MAX_PIN_PER_PORT);
     var->obj_arr[pin_index] = NULL;
 }
@@ -150,26 +152,39 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
     uint32_t pin_index = NU_PINNAME_TO_PIN(obj->pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(obj->pin);
     GPIO_T *gpio_base = NU_PORT_BASE(port_index);
-    
+
+    /* We assume BSP has such coding so that we can easily add/remove either irq type. */
+    MBED_STATIC_ASSERT(GPIO_INT_BOTH_EDGE == (GPIO_INT_RISING | GPIO_INT_FALLING),
+        "GPIO_INT_BOTH_EDGE must be bitwise OR of GPIO_INT_RISING and GPIO_INT_FALLING");
+    uint32_t irq_type;
     switch (event) {
         case IRQ_RISE:
-            if (enable) {
-                GPIO_EnableInt(gpio_base, pin_index, GPIO_INT_RISING);
-            }
-            else {
-                gpio_base->INTEN &= ~(GPIO_INT_RISING << pin_index);
-            }
+            irq_type = GPIO_INT_RISING;
             break;
-        
+
         case IRQ_FALL:
-            if (enable) {
-                GPIO_EnableInt(gpio_base, pin_index, GPIO_INT_FALLING);
-            }
-            else {
-                gpio_base->INTEN &= ~(GPIO_INT_FALLING << pin_index);
-            }
+            irq_type = GPIO_INT_FALLING;
             break;
+
+        default:
+            irq_type = 0;
     }
+
+    /* We can handle invalid/null irq type. */
+    if (enable) {
+        obj->irq_types |= irq_type;
+    } else {
+        obj->irq_types &= ~irq_type;
+    }
+
+    /* Update irq types:
+     *
+     * Implementations of GPIO_EnableInt(...) are inconsistent: disable or not irq type not enabled.
+     * For consistency, disable GPIO_INT_BOTH_EDGE and then enable OR'ed irq types, GPIO_INT_RISING,
+     * GPIO_INT_FALLING, or both.
+     */
+    GPIO_DisableInt(gpio_base, pin_index);
+    GPIO_EnableInt(gpio_base, pin_index, obj->irq_types);
 }
 
 void gpio_irq_enable(gpio_irq_t *obj)
@@ -177,7 +192,7 @@ void gpio_irq_enable(gpio_irq_t *obj)
     //uint32_t pin_index = NU_PINNAME_TO_PIN(obj->pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(obj->pin);
     struct nu_gpio_irq_var *var = gpio_irq_var_arr + port_index;
-    
+
     NVIC_SetVector(var->irq_n, (uint32_t) var->vec);
     NVIC_EnableIRQ(var->irq_n);
 }
@@ -187,7 +202,7 @@ void gpio_irq_disable(gpio_irq_t *obj)
     //uint32_t pin_index = NU_PINNAME_TO_PIN(obj->pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(obj->pin);
     struct nu_gpio_irq_var *var = gpio_irq_var_arr + port_index;
-    
+
     NVIC_DisableIRQ(var->irq_n);
 }
 
@@ -220,7 +235,7 @@ static void gpio_irq(struct nu_gpio_irq_var *var)
 {
     uint32_t port_index = var->irq_n - GPA_IRQn;
     GPIO_T *gpio_base = NU_PORT_BASE(port_index);
-    
+
     uint32_t intsrc = gpio_base->INTSRC;
     uint32_t inten = gpio_base->INTEN;
     while (intsrc) {
@@ -233,7 +248,7 @@ static void gpio_irq(struct nu_gpio_irq_var *var)
                 }
             }
         }
-        
+
         if (inten & (GPIO_INT_FALLING << pin_index)) {   
             if (! GPIO_PIN_DATA(port_index, pin_index)) {
                 if (obj->irq_handler) {
@@ -241,7 +256,7 @@ static void gpio_irq(struct nu_gpio_irq_var *var)
                 }
             }
         }
-        
+
         intsrc &= ~(1 << pin_index);
     }
     // Clear all interrupt flags
