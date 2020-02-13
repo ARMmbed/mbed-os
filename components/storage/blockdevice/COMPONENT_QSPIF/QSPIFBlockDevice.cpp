@@ -241,7 +241,7 @@ int QSPIFBlockDevice::init()
 
     /**************************** Parse Basic Parameters Table ***********************************/
     if (_sfdp_parse_basic_param_table(callback(this, &QSPIFBlockDevice::_qspi_send_read_sfdp_command),
-                                      _sfdp_info.bptbl.addr, _sfdp_info.bptbl.size) < 0) {
+                                      _sfdp_info) < 0) {
         tr_error("Init - Parse Basic Param Table Failed");
         status = QSPIF_BD_ERROR_PARSING_FAILED;
         goto exit_point;
@@ -616,11 +616,11 @@ int QSPIFBlockDevice::remove_csel_instance(PinName csel)
 /********** SFDP Parsing and Detection Functions *********/
 /*********************************************************/
 int QSPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader,
-                                                    uint32_t basic_table_addr, size_t basic_table_size)
+                                                    sfdp_hdr_info &sfdp_info)
 {
     uint8_t param_table[SFDP_BASIC_PARAMS_TBL_SIZE]; /* Up To 20 DWORDS = 80 Bytes */
 
-    int status = sfdp_reader(basic_table_addr, param_table, basic_table_size);
+    int status = sfdp_reader(sfdp_info.bptbl.addr, param_table, sfdp_info.bptbl.size);
     if (status != QSPI_STATUS_OK) {
         tr_error("Init - Read SFDP First Table Failed");
         return -1;
@@ -640,7 +640,7 @@ int QSPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void
     _device_size_bytes = (density_bits + 1) / 8;
 
     // Set Page Size (QSPI write must be done on Page limits)
-    _page_size_bytes = sfdp_detect_page_size(param_table, basic_table_size);
+    _page_size_bytes = sfdp_detect_page_size(param_table, sfdp_info.bptbl.size);
 
     if (_sfdp_detect_reset_protocol_and_reset(param_table) != QSPIF_BD_ERROR_OK) {
         tr_error("Init - Detecting reset protocol/resetting failed");
@@ -657,7 +657,7 @@ int QSPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void
     }
 
     // Detect and Set fastest Bus mode (default 1-1-1)
-    _sfdp_detect_best_bus_read_mode(param_table, basic_table_size, shouldSetQuadEnable, is_qpi_mode);
+    _sfdp_detect_best_bus_read_mode(param_table, sfdp_info.bptbl.size, shouldSetQuadEnable, is_qpi_mode);
     if (true == shouldSetQuadEnable) {
         if (_needs_fast_mode) {
             _enable_fast_mode();
@@ -677,7 +677,7 @@ int QSPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void
 #ifndef TARGET_NORDIC
     // 4 byte addressing is not currently supported with the Nordic QSPI controller
     if (_attempt_4_byte_addressing) {
-        if (_sfdp_detect_and_enable_4byte_addressing(param_table, basic_table_size) != QSPIF_BD_ERROR_OK) {
+        if (_sfdp_detect_and_enable_4byte_addressing(param_table, sfdp_info.bptbl.size) != QSPIF_BD_ERROR_OK) {
             tr_error("Init - Detecting/enabling 4-byte addressing failed");
             return -1;
         }
