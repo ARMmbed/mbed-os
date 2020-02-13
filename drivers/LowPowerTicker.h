@@ -40,14 +40,10 @@ namespace mbed {
  *
  * @note Synchronization level: Interrupt safe
  */
-class LowPowerTicker : public Ticker, private NonCopyable<LowPowerTicker> {
+class LowPowerTicker : public TickerBase {
 
 public:
-    LowPowerTicker() : Ticker(get_lp_ticker_data())
-    {
-    }
-
-    virtual ~LowPowerTicker()
+    LowPowerTicker() : TickerBase(get_lp_ticker_data())
     {
     }
 };

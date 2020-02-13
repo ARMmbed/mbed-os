@@ -465,6 +465,21 @@ int ticker_get_next_timestamp(const ticker_data_t *const data, timestamp_t *time
     return ret;
 }
 
+int ticker_get_next_timestamp_us(const ticker_data_t *const data, us_timestamp_t *timestamp)
+{
+    int ret = 0;
+
+    /* if head is NULL, there are no pending events */
+    core_util_critical_section_enter();
+    if (data->queue->head != NULL) {
+        *timestamp = data->queue->head->timestamp;
+        ret = 1;
+    }
+    core_util_critical_section_exit();
+
+    return ret;
+}
+
 void ticker_suspend(const ticker_data_t *const ticker)
 {
     core_util_critical_section_enter();

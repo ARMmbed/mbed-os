@@ -19,8 +19,10 @@
 
 #include "hal/ticker_api.h"
 #include "platform/NonCopyable.h"
+#include "drivers/TickerDataClock.h"
 
 namespace mbed {
+
 /**
  * \defgroup drivers_TimerEvent TimerEvent class
  * \ingroup drivers-public-api-ticker
@@ -32,8 +34,8 @@ namespace mbed {
  * @note Synchronization level: Interrupt safe
  */
 class TimerEvent : private NonCopyable<TimerEvent> {
-public:
-    TimerEvent();
+#if !defined(DOXYGEN_ONLY)
+protected:
     TimerEvent(const ticker_data_t *data);
 
     /** The handler registered with the underlying timer interrupt
@@ -44,10 +46,8 @@ public:
 
     /** Destruction removes it...
      */
-    virtual ~TimerEvent();
+    ~TimerEvent();
 
-#if !defined(DOXYGEN_ONLY)
-protected:
     // The handler called to service the timer event of the derived class
     virtual void handler() = 0;
 
@@ -62,8 +62,37 @@ protected:
      * Ticker's present timestamp is used for reference. For timestamps
      * from the past the event is scheduled after ticker's overflow.
      * For reference @see convert_timestamp
+     *
+     * @deprecated use `insert(std::chrono::microseconds timestamp)`
      */
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer microsecond count. For example use `5ms` rather than `5000`.")
     void insert(timestamp_t timestamp);
+
+    /** Set relative timestamp of the internal event.
+     * @param   timestamp   event's us timestamp
+     *
+     * @warning
+     * Do not insert more than one timestamp.
+     * The same @a event object is used for every @a insert/insert_absolute call.
+     *
+     * @warning
+     * Ticker's present timestamp is used for reference. For timestamps
+     * from the past the event is scheduled after ticker's overflow.
+     * For reference @see convert_timestamp
+     */
+    void insert(std::chrono::microseconds timestamp);
+
+    /** Set absolute timestamp of the internal event.
+     * @param   timestamp   event's us timestamp
+     *
+     * @warning
+     * Do not insert more than one timestamp.
+     * The same @a event object is used for every @a insert/insert_absolute call.
+     *
+     * @deprecated use `insert_absolute(TickerDataClock::time_point timestamp)`
+     */
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono time_point, not an integer microsecond count. For example use `_ticker_data.now() + 5ms` rather than `ticker_read_us(_ticker_data) + 5000`.")
+    void insert_absolute(us_timestamp_t timestamp);
 
     /** Set absolute timestamp of the internal event.
      * @param   timestamp   event's us timestamp
@@ -72,7 +101,7 @@ protected:
      * Do not insert more than one timestamp.
      * The same @a event object is used for every @a insert/insert_absolute call.
      */
-    void insert_absolute(us_timestamp_t timestamp);
+    void insert_absolute(TickerDataClock::time_point timestamp);
 
     /** Remove timestamp.
      */
@@ -80,7 +109,7 @@ protected:
 
     ticker_event_t event;
 
-    const ticker_data_t *_ticker_data;
+    TickerDataClock _ticker_data;
 #endif
 };
 

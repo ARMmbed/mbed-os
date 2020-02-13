@@ -17,8 +17,8 @@
 #ifndef MBED_TIMEOUT_H
 #define MBED_TIMEOUT_H
 
+#include "drivers/HighResClock.h"
 #include "drivers/Ticker.h"
-#include "platform/NonCopyable.h"
 
 namespace mbed {
 /**
@@ -57,12 +57,70 @@ namespace mbed {
  * }
  * @endcode
  */
-class Timeout : public Ticker, private NonCopyable<Timeout> {
+class TimeoutBase : public TickerBase {
+public:
+    /** Return time remaining until callback
+     *
+     * @return time remaining until callback is due
+     *
+     * @note if the callback is overdue, or has already run, the returned value will be negative
+     */
+    std::chrono::microseconds remaining_time() const
+    {
+        return scheduled_time() - _ticker_data.now();
+    }
 
 #if !defined(DOXYGEN_ONLY)
 protected:
-    virtual void handler();
+    using TickerBase::TickerBase;
+    ~TimeoutBase() = default;
+
+    void handler() final;
+
+    /** Return scheduled callback time
+     *
+     * @return scheduled callback time
+     *
+     * @note if the callback is overdue, or has already run, the returned value will be in the past
+     */
+    TickerDataClock::time_point scheduled_time() const
+    {
+        return get_time_point(event);
+    }
 #endif
+};
+
+class Timeout : public TimeoutBase {
+public:
+    Timeout();
+
+    /** Clock to use with attach_absolute, guaranteeing running only while attached or manually locked */
+    using clock = HighResClock;
+
+    /** Clock to use with attach_absolute, running always */
+    using steady_clock = SteadyHighResClock;
+
+    /** @copydoc TimeoutBase::scheduled_time() */
+    HighResClock::time_point scheduled_time() const
+    {
+        /* Massage from virtual TickerDataClock::time_point used internally to true HighResClock::time_point */
+        return HighResClock::time_point{TimeoutBase::scheduled_time().time_since_epoch()};
+    }
+
+    /** Attach a function to be called by the Timeout, specifying the absolute time
+     *
+     *  @param func pointer to the function to be called
+     *  @param abs_time the absolute time for the call, referenced to HighResClock
+     *
+     *  @note setting @a abs_time to a time in the past means the event will be scheduled immediately
+     *  resulting in an instant call to the function.
+     */
+    template <class F>
+    void attach_absolute(F &&func, HighResClock::time_point abs_time)
+    {
+        /* Massage from true HighResClock::time_point to virtual TickerDataClock::time_point used internally */
+        TimeoutBase::attach_absolute(std::forward<F>(func), TickerDataClock::time_point{abs_time.time_since_epoch()});
+    }
 };
 
 /** @}*/

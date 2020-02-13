@@ -17,7 +17,9 @@
 #ifndef MBED_TICKER_H
 #define MBED_TICKER_H
 
+#include <chrono>
 #include <mstd_utility>
+#include "drivers/TickerDataClock.h"
 #include "drivers/TimerEvent.h"
 #include "platform/Callback.h"
 #include "platform/mbed_toolchain.h"
@@ -25,6 +27,7 @@
 #include "hal/lp_ticker_api.h"
 
 namespace mbed {
+
 /**
  * \defgroup drivers_Ticker Ticker class
  * \ingroup drivers-public-api-ticker
@@ -42,6 +45,7 @@ namespace mbed {
  * // Toggle the blinking LED after 5 seconds
  *
  * #include "mbed.h"
+ * using namespace std::chrono;
  *
  * Ticker timer;
  * DigitalOut led1(LED1);
@@ -54,26 +58,20 @@ namespace mbed {
  * }
  *
  * int main() {
- *     timer.attach(&attime, 5);
+ *     timer.attach(&attime, 5us);
  *     while(1) {
  *         if(flip == 0) {
  *             led1 = !led1;
  *         } else {
  *             led2 = !led2;
  *         }
- *         wait(0.2);
+ *         ThisThread::sleep_for(200ms);
  *     }
  * }
  * @endcode
  */
-class Ticker : public TimerEvent, private NonCopyable<Ticker> {
-
+class TickerBase : public TimerEvent, private NonCopyable<TickerBase> {
 public:
-    Ticker();
-
-    // When low power ticker is in use, then do not disable deep sleep.
-    Ticker(const ticker_data_t *data);
-
     /** Attach a function to be called by the Ticker, specifying the interval in seconds
      *
      *  The method forwards its arguments to attach_us() rather than copying them which
@@ -82,17 +80,34 @@ public:
      *  possible given attach_us() expects an integer value for the callback interval.
      *  @param func pointer to the function to be called
      *  @param t the time between calls in seconds
+     *  @deprecated Pass a chrono duration, not a float second count. For example use `10ms` rather than `0.01f`.
      */
 #if defined(__ICCARM__)
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not a float second count. For example use `10ms` rather than `0.01f`.")
     MBED_FORCEINLINE template <typename F>
 #else
     template <typename F> MBED_FORCEINLINE
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not a float second count. For example use `10ms` rather than `0.01f`.")
 #endif
     void attach(F &&func, float t)
     {
-        attach_us(std::forward<F>(func), t * 1000000.0f);
+        auto float_interval = std::chrono::duration<float>(t);
+        attach(std::forward<F>(func), std::chrono::duration_cast<std::chrono::microseconds>(float_interval));
     }
 
+    /** Attach a function to be called by the Ticker, specifying the interval in microseconds
+     *
+     *  @param func pointer to the function to be called
+     *  @param t the time between calls in micro-seconds
+     *
+     *  @note setting @a t to a value shorter than it takes to process the ticker callback
+     *  causes the system to hang. Ticker callback is called constantly with no time
+     *  for threads scheduling.
+     *  @deprecated Pass a chrono duration, not an integer microsecond count. For example use `10ms` rather than `10000`.
+     *
+     */
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer microsecond count. For example use `10ms` rather than `10000`.")
+    void attach_us(Callback<void()> func, us_timestamp_t t);
 
     /** Attach a function to be called by the Ticker, specifying the interval in microseconds
      *
@@ -104,13 +119,7 @@ public:
      *  for threads scheduling.
      *
      */
-    void attach_us(Callback<void()> func, us_timestamp_t t);
-
-
-    virtual ~Ticker()
-    {
-        detach();
-    }
+    void attach(Callback<void()> func, std::chrono::microseconds t);
 
     /** Detach the function
      */
@@ -118,16 +127,41 @@ public:
 
 #if !defined(DOXYGEN_ONLY)
 protected:
-    void setup(us_timestamp_t t);
-    virtual void handler();
+    TickerBase(const ticker_data_t *data);
+    TickerBase(const ticker_data_t *data, bool lock_deepsleep);
 
-protected:
-    us_timestamp_t         _delay;  /**< Time delay (in microseconds) for resetting the multishot callback. */
+    ~TickerBase()
+    {
+        detach();
+    }
+
+    /** Attach a function to be called by the Ticker, specifying the absolute call time
+     *
+     *  If used, handler must be overridden, as TickerBase::handler would attempt
+     *  to reschedule. This is done by `TimeoutBase` (used by `Timeout` and `LowPowerTimeout`).
+     *
+     *  @param func pointer to the function to be called
+     *  @param abs_time the time for the call
+     *
+     *  @note setting @a abs_time to a time in the past means the event will be scheduled immediately
+     *  resulting in an instant call to the function.
+     */
+    void attach_absolute(Callback<void()> func, TickerDataClock::time_point abs_time);
+
+    void handler() override;
+    std::chrono::microseconds  _delay;  /**< Time delay (in microseconds) for resetting the multishot callback. */
     Callback<void()>    _function;  /**< Callback. */
     bool          _lock_deepsleep;  /**< Flag which indicates if deep sleep should be disabled. */
 #endif
+private:
+    void setup(std::chrono::microseconds t);
+    void setup_absolute(TickerDataClock::time_point t);
 };
 
+class Ticker : public TickerBase {
+public:
+    Ticker();
+};
 /** @}*/
 
 } // namespace mbed
