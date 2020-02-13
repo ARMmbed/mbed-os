@@ -197,7 +197,7 @@ private:
     AT_CellularInformation *_information;
     AT_CellularContext *_context_list;
 
-    int _default_timeout;
+    std::chrono::duration<int, std::milli> _default_timeout;
     bool _modem_debug_on;
     const intptr_t *_property_array;
 };

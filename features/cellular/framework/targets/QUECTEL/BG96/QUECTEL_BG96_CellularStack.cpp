@@ -32,6 +32,7 @@ static const int sslctxID = 0;
 static const int BG96_ASYNC_DNS_QUERY_ID = 1; // BG96 driver only supports one request, so using id 1
 
 using namespace mbed;
+using namespace std::chrono_literals;
 
 QUECTEL_BG96_CellularStack::QUECTEL_BG96_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
     AT_CellularStack(atHandler, cid, stack_type, device)
@@ -465,7 +466,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::gethostbyname(const char *host, Socket
     }
 
     if (!address->set_ip_address(host)) {
-        _at.set_at_timeout(60 * 1000); // from BG96_TCP/IP_AT_Commands_Manual_V1.0
+        _at.set_at_timeout(1min); // from BG96_TCP/IP_AT_Commands_Manual_V1.0
         _at.at_cmd_discard("+QIDNSGIP", "=", "%d%s", _cid, host);
         _at.resp_start("+QIURC: \"dnsgip\",");
         _at.restore_at_timeout();

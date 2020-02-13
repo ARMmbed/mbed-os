@@ -31,7 +31,7 @@ const uint8_t MAX_RESP_LENGTH = 7;
 nsapi_error_t ATHandler_stub::nsapi_error_value = 0;
 uint8_t ATHandler_stub::nsapi_error_ok_counter = 0;
 int ATHandler_stub::int_value = -1;
-int ATHandler_stub::timeout = 0;
+mbed::chrono::milliseconds_u32 ATHandler_stub::timeout{};
 bool ATHandler_stub::default_timeout = 0;
 bool ATHandler_stub::debug_on = 0;
 ssize_t ATHandler_stub::ssize_value = 0;
@@ -81,6 +81,11 @@ void ATHandler_stub::debug_call_count_clear()
 }
 
 ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const char *output_delimiter, uint16_t send_delay) :
+    ATHandler(fh, queue, mbed::chrono::milliseconds_u32(timeout), output_delimiter, std::chrono::duration<uint16_t, std::milli>(send_delay))
+{
+}
+
+ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, mbed::chrono::milliseconds_u32 timeout, const char *output_delimiter, std::chrono::duration<uint16_t, std::milli> send_delay) :
 #if defined AT_HANDLER_MUTEX && defined MBED_CONF_RTOS_PRESENT
     _oobCv(_fileHandleMutex),
 #endif
@@ -165,7 +170,12 @@ nsapi_error_t ATHandler::unlock_return_error()
 
 void ATHandler::set_at_timeout(uint32_t timeout_milliseconds, bool default_timeout)
 {
-    ATHandler_stub::timeout = timeout_milliseconds;
+    set_at_timeout(mbed::chrono::milliseconds_u32(timeout_milliseconds), default_timeout);
+}
+
+void ATHandler::set_at_timeout(mbed::chrono::milliseconds_u32 timeout, bool default_timeout)
+{
+    ATHandler_stub::timeout = timeout;
     ATHandler_stub::default_timeout = default_timeout;
 }
 

@@ -22,6 +22,7 @@
 #include "rtos/ThisThread.h"
 #include "drivers/BufferedSerial.h"
 
+using namespace std::chrono;
 using namespace mbed;
 using namespace rtos;
 using namespace events;
@@ -100,13 +101,13 @@ CellularDevice *CellularDevice::get_default_instance()
 }
 #endif
 
-nsapi_error_t QUECTEL_EC2X::press_power_button(uint32_t timeout)
+nsapi_error_t QUECTEL_EC2X::press_power_button(duration<uint32_t, std::milli> timeout)
 {
     if (_pwr_key.is_connected()) {
         _pwr_key = _active_high;
         ThisThread::sleep_for(timeout);
         _pwr_key = !_active_high;
-        ThisThread::sleep_for(100);
+        ThisThread::sleep_for(100ms);
     }
 
     return NSAPI_ERROR_OK;
@@ -114,26 +115,26 @@ nsapi_error_t QUECTEL_EC2X::press_power_button(uint32_t timeout)
 
 nsapi_error_t QUECTEL_EC2X::hard_power_on()
 {
-    return press_power_button(600);
+    return press_power_button(600ms);
 }
 
 nsapi_error_t QUECTEL_EC2X::hard_power_off()
 
 {
-    return press_power_button(750);
+    return press_power_button(750ms);
 }
 
 nsapi_error_t QUECTEL_EC2X::soft_power_on()
 {
     if (_rst.is_connected()) {
         _rst = _active_high;
-        ThisThread::sleep_for(460);
+        ThisThread::sleep_for(460ms);
         _rst = !_active_high;
-        ThisThread::sleep_for(100);
+        ThisThread::sleep_for(100ms);
 
         _at.lock();
 
-        _at.set_at_timeout(MBED_CONF_QUECTEL_EC2X_START_TIMEOUT);
+        _at.set_at_timeout(milliseconds(MBED_CONF_QUECTEL_EC2X_START_TIMEOUT));
         _at.resp_start();
         _at.set_stop_tag("RDY");
         bool rdy = _at.consume_to_stop_tag();

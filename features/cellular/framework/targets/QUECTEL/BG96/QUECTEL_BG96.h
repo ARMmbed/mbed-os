@@ -27,6 +27,7 @@
 #endif
 #endif /* TARGET_FF_ARDUINO */
 
+#include <chrono>
 #include "DigitalOut.h"
 #include "AT_CellularDevice.h"
 
@@ -49,7 +50,7 @@ public:
     void handle_urc(FileHandle *fh);
 
 private:
-    void press_button(DigitalOut &button, uint32_t timeout);
+    void press_button(DigitalOut &button, std::chrono::duration<uint32_t, std::milli> timeout);
     bool wake_up(bool reset = false);
     bool _active_high;
     DigitalOut _pwr;
