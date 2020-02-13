@@ -17,6 +17,7 @@
 #ifndef EVENT_H
 #define EVENT_H
 
+#include <utility>
 #include "events/EventQueue.h"
 #include "platform/mbed_assert.h"
 
@@ -45,6 +46,8 @@ class Event;
 template <typename... ArgTs>
 class Event<void(ArgTs...)> {
 public:
+    using duration = std::chrono::duration<int, std::milli>;
+
     /** Create an event
      *
      *  Constructs an event bound to the specified event queue. The specified
@@ -63,13 +66,13 @@ public:
         if (_event) {
             _event->equeue = &q->_equeue;
             _event->id = 0;
-            _event->delay = 0;
-            _event->period = -1;
+            _event->delay = duration(0);
+            _event->period = duration(-1);
 
             _event->post = &Event::event_post<F>;
             _event->dtor = &Event::event_dtor<F>;
 
-            new (_event + 1) F(f);
+            new (_event + 1) F(std::move(f));
 
             _event->ref = 1;
         }
@@ -113,24 +116,46 @@ public:
 
     /** Configure the delay of an event
      *
-     *  @param delay    Millisecond delay before dispatching the event
+     *  @param d    Millisecond delay before dispatching the event
      */
-    void delay(int delay)
+    void delay(duration d)
     {
         if (_event) {
-            _event->delay = delay;
+            _event->delay = d;
         }
+    }
+
+    /** Configure the delay of an event
+     *  @deprecated Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.
+     *
+     *  @param d    Millisecond delay before dispatching the event
+     */
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
+    void delay(int d)
+    {
+        delay(duration(d));
     }
 
     /** Configure the period of an event
      *
-     *  @param period   Millisecond period for repeatedly dispatching an event
+     *  @param p   Millisecond period for repeatedly dispatching an event
      */
-    void period(int period)
+    void period(duration p)
     {
         if (_event) {
-            _event->period = period;
+            _event->period = p;
         }
+    }
+
+    /** Configure the period of an event
+     *  @deprecated Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.
+     *
+     *  @param p   Millisecond period for repeatedly dispatching an event
+     */
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
+    void period(int p)
+    {
+        period(duration(p));
     }
 
     /** Posts an event onto the underlying event queue
@@ -209,8 +234,8 @@ private:
         equeue_t *equeue;
         int id;
 
-        int delay;
-        int period;
+        duration delay;
+        duration period;
 
         int (*post)(struct event *, ArgTs... args);
         void (*dtor)(struct event *);
@@ -229,8 +254,8 @@ private:
         }
 
         new (p) C(*(F *)(e + 1), args...);
-        equeue_event_delay(p, e->delay);
-        equeue_event_period(p, e->period);
+        equeue_event_delay(p, e->delay.count());
+        equeue_event_period(p, e->period.count());
         equeue_event_dtor(p, &EventQueue::function_dtor<C>);
         return equeue_post(e->equeue, &EventQueue::function_call<C>, p);
     }

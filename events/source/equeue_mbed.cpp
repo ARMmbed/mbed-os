@@ -49,6 +49,9 @@ void equeue_tick_init()
 
 unsigned equeue_tick()
 {
+    using unsigned_ms_t = std::chrono::duration<unsigned, std::milli>;
+
+    unsigned_ms_t d;
 #if defined MBED_TICKLESS || !MBED_CONF_RTOS_PRESENT
     // It is not safe to call get_ms_count from ISRs, both
     // because documentation says so, and because it will give
@@ -60,9 +63,9 @@ unsigned equeue_tick()
         // should not be called from critical sections, for
         // performance reasons, but I don't have a good
         // current alternative!
-        return mbed::internal::os_timer->get_time() / 1000;
+        d = std::chrono::duration_cast<unsigned_ms_t>(mbed::internal::os_timer->get_time().time_since_epoch());
     } else {
-        return rtos::Kernel::get_ms_count();
+        d = rtos::Kernel::Clock::now().time_since_epoch();
     }
 #else
     // And this is the legacy behaviour - if running in
@@ -70,8 +73,9 @@ unsigned equeue_tick()
     // documentation saying no. (Most recent CMSIS-RTOS
     // permits `ososKernelGetTickCount` from IRQ, and our
     // `rtos::Kernel` wrapper copes too).
-    return rtos::Kernel::get_ms_count();
+    d = rtos::Kernel::Clock::now().time_since_epoch();
 #endif
+    return d.count();
 }
 
 #else
