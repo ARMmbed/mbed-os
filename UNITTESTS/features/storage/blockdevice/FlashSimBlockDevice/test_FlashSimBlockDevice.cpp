@@ -68,6 +68,7 @@ protected:
         ASSERT_EQ(bd.deinit(), 0);
         delete[] magic;
         delete[] magic2;
+        delete[] erased_mem;
         delete[] buf;
     }
 };
