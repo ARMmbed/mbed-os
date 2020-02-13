@@ -19,6 +19,7 @@
 #include "gpio_irq_api.h"
 #include "pinmap.h"
 #include "nrfx_gpiote.h"
+#include <string.h>
 
 
 #if defined(TARGET_MCU_NRF51822)
@@ -125,6 +126,7 @@ static void gpio_apply_config(uint8_t pin)
                 || (m_gpio_cfg[pin].used_as_irq)) {
             //Configure as input.
             nrfx_gpiote_in_config_t cfg;
+            memset(&cfg, 0, sizeof(cfg));
 
             cfg.hi_accuracy = false;
             cfg.is_watcher = false;
