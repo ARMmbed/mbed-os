@@ -43,7 +43,7 @@
 #define THREAD_PRIORITY         (osPriorityHigh)
 
 #define PHY_TASK_PERIOD_MS      200
-#define ETH_ARCH_PHY_ADDRESS    (0x00)
+#define ETH_PHY_ADDRESS         MBED_CONF_STM32_EMAC_ETH_PHYADDR
 
 #define STM_HWADDR_SIZE         (6)
 #define STM_ETH_MTU_SIZE        1500
@@ -282,7 +282,7 @@ bool STM32_EMAC::low_level_init_successful()
     EthHandle.Init.AutoNegotiation = ETH_AUTONEGOTIATION_ENABLE;
     EthHandle.Init.Speed = ETH_SPEED_100M;
     EthHandle.Init.DuplexMode = ETH_MODE_FULLDUPLEX;
-    EthHandle.Init.PhyAddress = ETH_ARCH_PHY_ADDRESS;
+    EthHandle.Init.PhyAddress = ETH_PHY_ADDRESS;
 #if (MBED_MAC_ADDRESS_SUM != MBED_MAC_ADDR_INTERFACE)
     MACAddr[0] = MBED_MAC_ADDR_0;
     MACAddr[1] = MBED_MAC_ADDR_1;
