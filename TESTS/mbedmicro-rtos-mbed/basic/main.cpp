@@ -28,22 +28,24 @@
 #else
 
 using utest::v1::Case;
+using std::milli;
+using std::micro;
+using namespace std::chrono;
 
 #if defined(__CORTEX_M23) || defined(__CORTEX_M33)
 #define TEST_STACK_SIZE 512
 #else
 #define TEST_STACK_SIZE 256
 #endif
-#define ONE_MILLI_SEC 1000
 
-volatile uint32_t elapsed_time_ms = 0;
+static duration<uint32_t, milli> elapsed_time_ms;
 static const int test_timeout = 40;
 
 
 void update_tick_thread(Mutex *mutex)
 {
     while (true) {
-        ThisThread::sleep_for(1);
+        ThisThread::sleep_for(1ms);
         mutex->lock();
         ++elapsed_time_ms;
         mutex->unlock();
@@ -69,7 +71,7 @@ void test(void)
     char _value[128] = { };
     int expected_key = 1;
     Mutex mutex;
-    uint32_t elapsed_time;
+    duration<uint32_t, micro> elapsed_time;
 
     Thread tick_thread(osPriorityHigh, TEST_STACK_SIZE);
     tick_thread.start(callback(update_tick_thread, &mutex));
@@ -86,7 +88,7 @@ void test(void)
     elapsed_time = elapsed_time_ms;
     mutex.unlock();
     // send base_time
-    greentea_send_kv(_key, elapsed_time * ONE_MILLI_SEC);
+    greentea_send_kv(_key, elapsed_time.count());
 
     // wait for 2nd signal from host
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
@@ -95,7 +97,7 @@ void test(void)
     elapsed_time = elapsed_time_ms;
     mutex.unlock();
     // send final_time
-    greentea_send_kv(_key, elapsed_time * ONE_MILLI_SEC);
+    greentea_send_kv(_key, elapsed_time.count());
 
     //get the results from host
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));

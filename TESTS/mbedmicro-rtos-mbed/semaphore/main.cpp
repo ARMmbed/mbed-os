@@ -25,17 +25,24 @@
 #include "rtos.h"
 
 using namespace utest::v1;
+using namespace std::chrono;
 
 struct test_data {
     Semaphore *sem;
     uint32_t data;
 };
 
+#define TEST_ASSERT_DURATION_WITHIN(delta, expected, actual) \
+    do { \
+        using ct = std::common_type_t<decltype(delta), decltype(expected), decltype(actual)>; \
+        TEST_ASSERT_INT_WITHIN(ct(delta).count(), ct(expected).count(), ct(actual).count()); \
+    } while (0)
+
 #if defined(MBED_CONF_RTOS_PRESENT)
-#define THREAD_DELAY     30
+#define THREAD_DELAY     30ms
 #define SEMAPHORE_SLOTS  2
 #define SEM_CHANGES      100
-#define SHORT_WAIT       5
+#define SHORT_WAIT       5ms
 
 #define THREAD_STACK_SIZE 320 /* larger stack cause out of heap memory on some 16kB RAM boards in multi thread test*/
 
@@ -45,9 +52,9 @@ volatile int change_counter = 0;
 volatile int sem_counter = 0;
 volatile bool sem_defect = false;
 
-void test_thread(int const *delay)
+void test_thread(rtos::Kernel::Clock::duration const *delay)
 {
-    const int thread_delay = *delay;
+    const auto thread_delay = *delay;
     while (true) {
         two_slots.acquire();
         sem_counter++;
@@ -70,9 +77,9 @@ void test_thread(int const *delay)
 */
 void test_multi()
 {
-    const int t1_delay = THREAD_DELAY * 1;
-    const int t2_delay = THREAD_DELAY * 2;
-    const int t3_delay = THREAD_DELAY * 3;
+    const rtos::Kernel::Clock::duration t1_delay = THREAD_DELAY * 1;
+    const rtos::Kernel::Clock::duration t2_delay = THREAD_DELAY * 2;
+    const rtos::Kernel::Clock::duration t3_delay = THREAD_DELAY * 3;
 
     Thread t1(osPriorityNormal, THREAD_STACK_SIZE);
     Thread t2(osPriorityNormal, THREAD_STACK_SIZE);
@@ -137,7 +144,7 @@ void test_single_thread()
 
 void timeout_thread(Semaphore *sem)
 {
-    bool acquired = sem->try_acquire_for(30);
+    bool acquired = sem->try_acquire_for(30ms);
     TEST_ASSERT_FALSE(acquired);
 }
 
@@ -162,7 +169,7 @@ void test_timeout()
     TEST_ASSERT_EQUAL(Thread::WaitingSemaphore, t.get_state());
 
     t.join();
-    TEST_ASSERT_UINT32_WITHIN(5000, 30000, timer.read_us());
+    TEST_ASSERT_DURATION_WITHIN(5ms, 30ms, timer.elapsed_time());
 }
 #endif
 
@@ -190,7 +197,7 @@ void test_semaphore_acquire()
     data.sem = &sem;
     data.data = 0;
     Ticker t1;
-    t1.attach_us(callback(test_ticker_release, &data), 3000);
+    t1.attach(callback(test_ticker_release, &data), 3ms);
     sem.acquire();
     t1.detach();
 
@@ -213,8 +220,8 @@ void test_semaphore_try_acquire()
 {
     Semaphore sem(0);
     Ticker t1;
-    t1.attach_us(callback(test_ticker_try_acquire, &sem), 3000);
-    ThisThread::sleep_for(4);
+    t1.attach(callback(test_ticker_try_acquire, &sem), 3ms);
+    ThisThread::sleep_for(4ms);
     t1.detach();
 }
 
@@ -229,7 +236,7 @@ void test_semaphore_try_timeout()
 {
     Semaphore sem(0);
     bool res;
-    res = sem.try_acquire_for(3);
+    res = sem.try_acquire_for(3ms);
     TEST_ASSERT_FALSE(res);
 }
 
@@ -254,8 +261,8 @@ void test_semaphore_try_acquire_timeout()
     Semaphore sem(0);
     bool res;
     Ticker t1;
-    t1.attach_us(callback(test_ticker_semaphore_release, &sem), 3000);
-    res = sem.try_acquire_for(10);
+    t1.attach(callback(test_ticker_semaphore_release, &sem), 3ms);
+    res = sem.try_acquire_for(10ms);
     t1.detach();
     TEST_ASSERT_TRUE(res);
 }
@@ -283,7 +290,7 @@ void test_no_timeout()
     bool acquired = sem.try_acquire();
     TEST_ASSERT_EQUAL(T > 0, acquired);
 
-    TEST_ASSERT_UINT32_WITHIN(5000, 0, timer.read_us());
+    TEST_ASSERT_DURATION_WITHIN(5ms, 0ms, timer.elapsed_time());
 }
 
 /** Test multiple tokens wait

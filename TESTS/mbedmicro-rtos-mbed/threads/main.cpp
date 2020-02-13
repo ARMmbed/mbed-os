@@ -28,7 +28,7 @@
 #include "utest.h"
 #include "rtos.h"
 #include "SynchronizedIntegral.h"
-#include "LockGuard.h"
+#include <mstd_mutex>
 
 #define THREAD_STACK_SIZE 512
 #if defined(__CORTEX_A9) || defined(__CORTEX_M23) || defined(__CORTEX_M33) || defined(TARGET_ARM_FM) ||  defined(TARGET_CY8CKIT_062_WIFI_BT_PSA)
@@ -41,6 +41,7 @@
 
 
 using namespace utest::v1;
+using mstd::lock_guard;
 
 // The counter type used accross all the tests
 // It is internall ysynchronized so read
@@ -92,7 +93,7 @@ void increment_with_murder(counter_t *counter)
     {
         // take ownership of the counter mutex so it prevent the child to
         // modify counter.
-        LockGuard lock(counter->internal_mutex());
+        lock_guard lock(counter->internal_mutex());
         Thread *child = new (std::nothrow) Thread(osPriorityNormal, CHILD_THREAD_STACK_SIZE);
         char *dummy = new (std::nothrow) char[CHILD_THREAD_STACK_SIZE];
         delete[] dummy;
@@ -293,7 +294,7 @@ void flags_wait()
 
 void flags_wait_tout()
 {
-    uint32_t flags = ThisThread::flags_wait_all_for(0x2, 50);
+    uint32_t flags = ThisThread::flags_wait_all_for(0x2, 50ms);
     TEST_ASSERT_EQUAL(0x1, flags);
 }
 
@@ -311,7 +312,7 @@ void flags_wait_multibit_any()
 
 void flags_wait_multibit_tout()
 {
-    uint32_t flags = ThisThread::flags_wait_all_for(0x1 | 0x2, 50);
+    uint32_t flags = ThisThread::flags_wait_all_for(0x1 | 0x2, 50ms);
     TEST_ASSERT_NOT_EQUAL(0x3, flags);
 }
 
@@ -375,7 +376,7 @@ void flags_clear()
     TEST_ASSERT_EQUAL(0x1, sig);
 
     /* Flags cleared we should get timeout */
-    uint32_t flags = ThisThread::flags_wait_all_for(0x1, 0);
+    uint32_t flags = ThisThread::flags_wait_all_for(0x1, 0s);
     TEST_ASSERT_EQUAL(0, flags);
 }
 
@@ -473,7 +474,7 @@ void test_thread_wait()
     Timer timer;
     timer.start();
 
-    ThisThread::sleep_for(150);
+    ThisThread::sleep_for(150ms);
 
     TEST_ASSERT_UINT32_WITHIN(50000, 150000, timer.read_us());
 }
@@ -527,7 +528,7 @@ void test_deleted()
 
 void test_delay_thread()
 {
-    ThisThread::sleep_for(50);
+    ThisThread::sleep_for(50ms);
 }
 
 /** Testing thread states: wait delay
