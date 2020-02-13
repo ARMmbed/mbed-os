@@ -367,11 +367,13 @@ bool AT_CellularContext::get_context()
             apn_len = _at.read_string(apn, sizeof(apn));
             if (apn_len >= 0) {
                 if (_apn && (strcmp(apn, _apn) != 0)) {
+                    tr_debug("CID %d APN \"%s\"", cid, apn);
                     continue;
                 }
 
                 // APN matched -> Check PDP type
                 pdp_type_t pdp_type = string_to_pdp_type(pdp_type_from_context);
+                tr_debug("CID %d APN \"%s\" pdp_type %u", cid, apn, pdp_type);
 
                 // Accept exact matching PDP context type or dual PDP context for modems that support both IPv4 and IPv6 stacks
                 if (get_device()->get_property(pdp_type_t_to_cellular_property(pdp_type)) ||
