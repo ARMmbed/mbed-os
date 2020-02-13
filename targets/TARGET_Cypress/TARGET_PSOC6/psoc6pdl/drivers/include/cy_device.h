@@ -7,7 +7,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -200,6 +200,7 @@ typedef struct
 extern const cy_stc_device_t   cy_deviceIpBlockCfgPSoC6_01;
 extern const cy_stc_device_t   cy_deviceIpBlockCfgPSoC6_02;
 extern const cy_stc_device_t   cy_deviceIpBlockCfgPSoC6_03;
+extern const cy_stc_device_t   cy_deviceIpBlockCfgPSoC6_04;
 extern const cy_stc_device_t * cy_device;
 
 
@@ -1084,26 +1085,26 @@ void Cy_PDL_Init(const cy_stc_device_t * device);
 *                BLE
 *******************************************************************************/
 
-#define BLE_RCB_INTR                        (((BLE_V1_Type *) BLE)->RCB.INTR)
-#define BLE_RCB_TX_FIFO_WR                  (((BLE_V1_Type *) BLE)->RCB.TX_FIFO_WR)
-#define BLE_RCB_RX_FIFO_RD                  (((BLE_V1_Type *) BLE)->RCB.RX_FIFO_RD)
-#define BLE_RCB_CTRL                        (((BLE_V1_Type *) BLE)->RCB.CTRL)
-#define BLE_RCB_RCBLL_CTRL                  (((BLE_V1_Type *) BLE)->RCB.RCBLL.CTRL)
-#define BLE_BLESS_XTAL_CLK_DIV_CONFIG       (((BLE_V1_Type *) BLE)->BLESS.XTAL_CLK_DIV_CONFIG)
-#define BLE_BLESS_MT_CFG                    (((BLE_V1_Type *) BLE)->BLESS.MT_CFG)
-#define BLE_BLESS_MT_STATUS                 (((BLE_V1_Type *) BLE)->BLESS.MT_STATUS)
-#define BLE_BLESS_MT_DELAY_CFG              (((BLE_V1_Type *) BLE)->BLESS.MT_DELAY_CFG)
-#define BLE_BLESS_MT_DELAY_CFG2             (((BLE_V1_Type *) BLE)->BLESS.MT_DELAY_CFG2)
-#define BLE_BLESS_MT_DELAY_CFG3             (((BLE_V1_Type *) BLE)->BLESS.MT_DELAY_CFG3)
-#define BLE_BLESS_MT_VIO_CTRL               (((BLE_V1_Type *) BLE)->BLESS.MT_VIO_CTRL)
-#define BLE_BLESS_LL_CLK_EN                 (((BLE_V1_Type *) BLE)->BLESS.LL_CLK_EN)
-#define BLE_BLESS_MISC_EN_CTRL              (((BLE_V1_Type *) BLE)->BLESS.MISC_EN_CTRL)
-#define BLE_BLESS_INTR_STAT                 (((BLE_V1_Type *) BLE)->BLESS.INTR_STAT)
-#define BLE_BLELL_EVENT_INTR                (((BLE_V1_Type *) BLE)->BLELL.EVENT_INTR)
-#define BLE_BLELL_CONN_INTR                 (((BLE_V1_Type *) BLE)->BLELL.CONN_INTR)
-#define BLE_BLELL_CONN_EXT_INTR             (((BLE_V1_Type *) BLE)->BLELL.CONN_EXT_INTR)
-#define BLE_BLELL_SCAN_INTR                 (((BLE_V1_Type *) BLE)->BLELL.SCAN_INTR)
-#define BLE_BLELL_ADV_INTR                  (((BLE_V1_Type *) BLE)->BLELL.ADV_INTR)
+#define BLE_RCB_INTR                        (((BLE_V1_Type *) BLE_BASE)->RCB.INTR)
+#define BLE_RCB_TX_FIFO_WR                  (((BLE_V1_Type *) BLE_BASE)->RCB.TX_FIFO_WR)
+#define BLE_RCB_RX_FIFO_RD                  (((BLE_V1_Type *) BLE_BASE)->RCB.RX_FIFO_RD)
+#define BLE_RCB_CTRL                        (((BLE_V1_Type *) BLE_BASE)->RCB.CTRL)
+#define BLE_RCB_RCBLL_CTRL                  (((BLE_V1_Type *) BLE_BASE)->RCB.RCBLL.CTRL)
+#define BLE_BLESS_XTAL_CLK_DIV_CONFIG       (((BLE_V1_Type *) BLE_BASE)->BLESS.XTAL_CLK_DIV_CONFIG)
+#define BLE_BLESS_MT_CFG                    (((BLE_V1_Type *) BLE_BASE)->BLESS.MT_CFG)
+#define BLE_BLESS_MT_STATUS                 (((BLE_V1_Type *) BLE_BASE)->BLESS.MT_STATUS)
+#define BLE_BLESS_MT_DELAY_CFG              (((BLE_V1_Type *) BLE_BASE)->BLESS.MT_DELAY_CFG)
+#define BLE_BLESS_MT_DELAY_CFG2             (((BLE_V1_Type *) BLE_BASE)->BLESS.MT_DELAY_CFG2)
+#define BLE_BLESS_MT_DELAY_CFG3             (((BLE_V1_Type *) BLE_BASE)->BLESS.MT_DELAY_CFG3)
+#define BLE_BLESS_MT_VIO_CTRL               (((BLE_V1_Type *) BLE_BASE)->BLESS.MT_VIO_CTRL)
+#define BLE_BLESS_LL_CLK_EN                 (((BLE_V1_Type *) BLE_BASE)->BLESS.LL_CLK_EN)
+#define BLE_BLESS_MISC_EN_CTRL              (((BLE_V1_Type *) BLE_BASE)->BLESS.MISC_EN_CTRL)
+#define BLE_BLESS_INTR_STAT                 (((BLE_V1_Type *) BLE_BASE)->BLESS.INTR_STAT)
+#define BLE_BLELL_EVENT_INTR                (((BLE_V1_Type *) BLE_BASE)->BLELL.EVENT_INTR)
+#define BLE_BLELL_CONN_INTR                 (((BLE_V1_Type *) BLE_BASE)->BLELL.CONN_INTR)
+#define BLE_BLELL_CONN_EXT_INTR             (((BLE_V1_Type *) BLE_BASE)->BLELL.CONN_EXT_INTR)
+#define BLE_BLELL_SCAN_INTR                 (((BLE_V1_Type *) BLE_BASE)->BLELL.SCAN_INTR)
+#define BLE_BLELL_ADV_INTR                  (((BLE_V1_Type *) BLE_BASE)->BLELL.ADV_INTR)
 
 
 /*******************************************************************************

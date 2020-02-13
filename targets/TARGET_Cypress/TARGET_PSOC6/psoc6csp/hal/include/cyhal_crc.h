@@ -2,14 +2,14 @@
 * \file cyhal_crc.h
 *
 * \brief
-* Provides a high level interface for interacting with the Cypress CRC accelerator. 
+* Provides a high level interface for interacting with the Cypress CRC accelerator.
 * This interface abstracts out the chip specific details. If any chip specific
 * functionality is necessary, or performance is critical the low level functions
 * can be used directly.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,8 +29,15 @@
 * \addtogroup group_hal_crc CRC (Cyclic Redundancy Check)
 * \ingroup group_hal
 * \{
-* High level interface for interacting with the Cypress CRC.
+* High level interface for interacting with the cyclic redundancy check (CRC), which provides hardware
+* accelerated CRC computations.
+* The CRC APIs are structured to enable usage in situations where the entire input data
+* set is not available in memory at one time. Therefore, each conversion consists of three steps:
+* * A single call to cyhal_crc_start, to initialize data structures for this computation
+* * One or more calls to cyhal_crc_compute, to provide chunks of data.
+* * A single call to cyhal_crc_finish, to finalize the computation and retrieve the result.
 *
+* Many of the algorithm parameters can be customized; see crc_algorithm_t for more details.
 */
 
 #pragma once

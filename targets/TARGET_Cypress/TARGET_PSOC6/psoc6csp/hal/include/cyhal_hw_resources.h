@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,7 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_hal_psoc6_hw_types 
+* \addtogroup group_hal_psoc6_hw_types
 * \ingroup group_hal_psoc6
 * \{
 */
@@ -46,6 +46,7 @@ typedef enum
     CYHAL_RSC_CRYPTO,    /*!< Crypto hardware accelerator */
     CYHAL_RSC_DAC,       /*!< Digital to analog converter */
     CYHAL_RSC_DMA,       /*!< DMA controller */
+    CYHAL_RSC_DW,        /*!< Datawire DMA controller */
     CYHAL_RSC_GPIO,      /*!< General purpose I/O pin */
     CYHAL_RSC_I2S,       /*!< I2S communications block */
     CYHAL_RSC_LCD,       /*!< Segment LCD controller */
@@ -63,8 +64,8 @@ typedef enum
     CYHAL_RSC_INVALID,   /*!< Placeholder for invalid type */
 } cyhal_resource_t;
 
-/** 
-  * @brief Represents a particular instance of a resource on the chip 
+/**
+  * @brief Represents a particular instance of a resource on the chip
   */
 typedef struct
 {
@@ -74,7 +75,7 @@ typedef struct
       * The channel number, if the resource type defines multiple channels
       * per block instance. Otherwise, 0 */
     uint8_t          channel_num;
-} cyhal_resource_inst_t; 
+} cyhal_resource_inst_t;
 
 #if defined(__cplusplus)
 }

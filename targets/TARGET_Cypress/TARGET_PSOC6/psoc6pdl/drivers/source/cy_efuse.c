@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_efuse.c
-* \version 1.10.1
+* \version 1.10.2
 *
 * \brief
 * Provides API implementation of the eFuse driver.
@@ -62,7 +62,7 @@ static cy_en_efuse_status_t ProcessOpcode(void);
 * - 8 is a number of fuse bits in the byte.
 *
 * The EFUSE_EFUSE_NR macro is defined in the series-specific header file, e.g
-* \e \<PDL_DIR\>/devices/psoc6/include/psoc6_01_config.\e h
+* \e \<PDL_DIR\>/devices/include/psoc6_01_config.\e h
 * 
 * \param bitVal 
 * The pointer to the location to store the bit value.
@@ -119,7 +119,7 @@ cy_en_efuse_status_t Cy_EFUSE_GetEfuseBit(uint32_t bitNum, bool *bitVal)
 * - 32 is a number of fuse bytes in one efuse macro.
 *
 * The EFUSE_EFUSE_NR macro is defined in the series-specific header file, e.g
-* \e \<PDL_DIR\>/devices/psoc6/include/psoc6_01_config.\e h
+* \e \<PDL_DIR\>/devices/include/psoc6_01_config.\e h
 *
 * \param byteVal
 * The pointer to the location to store eFuse data.

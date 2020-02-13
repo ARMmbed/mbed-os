@@ -61,7 +61,7 @@
   <Source id="mxs40extclk-1.0">
     <Destination id="mxs40extclk-1.1" valid="true" message="Migration is successful" defaultMapping="true"/>
   </Source>
-    <Source id="mxs40usbfsdevice-1.0">
+  <Source id="mxs40usbfsdevice-1.0">
     <Destination id="mxs40usbfsdevice-1.1" valid="true" message="Migration is successful" defaultMapping="true"/>
   </Source>
 </Migration>

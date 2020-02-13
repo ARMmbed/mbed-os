@@ -468,7 +468,7 @@
         <Value>2</Value>
       </Parameter>
       <Parameter name="ToolTip">
-        <Value>Watch Crystal Oscillator: This source is driven from an off-chip watch crystal that provides an extremely accurate source. This clock is stopped in the hibernate power mode.</Value>
+        <Value>Watch Crystal Oscillator: This source is driven from an off-chip watch crystal that provides an extremely accurate source. This clock runs in hibernate power mode.</Value>
       </Parameter>
     </Instance>
     <Instance guid="5e549607-2a6d-4fa1-affe-dffbbcaaa851" name="arc_bridge_3" component="arc_bridge">
