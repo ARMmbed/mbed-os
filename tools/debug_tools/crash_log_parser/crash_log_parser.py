@@ -32,8 +32,8 @@ _PTN = re.compile("([0-9a-f]*) ([Tt]) ([^\t\n]*)(?:\t(.*):([0-9]*))?")
 
 class ElfHelper(object):
     def __init__(self, elf_file, map_file):
-    
-        op = check_output([_NM_EXEC, _OPT, elf_file.name])
+
+        op = check_output([_NM_EXEC, _OPT, elf_file.name]).decode('utf-8')
         self.maplines = map_file.readlines()
         self.matches = _PTN.findall(op)
         self.addrs = [int(x[0], 16) for x in self.matches]
@@ -115,8 +115,8 @@ def parse_line_for_register(line):
 def main(crash_log, elfhelper):
     mmfar_val = 0
     bfar_val = 0
-    lines = iter(crash_log.read().splitlines())
-    
+    lines = iter(crash_log.read().decode('utf-8').splitlines())
+
     for eachline in lines:
         if "++ MbedOS Fault Handler ++" in eachline:
             break
