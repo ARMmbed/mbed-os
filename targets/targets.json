@@ -12236,7 +12236,8 @@
             "STM32L496xG"
         ],
         "components_add": [
-            "QSPIF"
+            "QSPIF",
+            "FLASHIAP"
         ],
         "config": {
             "clock_source": {
