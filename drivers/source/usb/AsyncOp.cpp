@@ -38,7 +38,7 @@ AsyncOp::~AsyncOp()
     MBED_ASSERT(_list == NULL);
 }
 
-void AsyncOp::wait(rtos::Mutex *host_mutex, uint32_t milliseconds)
+void AsyncOp::wait(rtos::Mutex *host_mutex, rtos::Kernel::Clock::duration_u32 rel_time)
 {
     // Optimization so semaphore is only created if necessary
     core_util_critical_section_enter();
@@ -63,7 +63,7 @@ void AsyncOp::wait(rtos::Mutex *host_mutex, uint32_t milliseconds)
         return;
     }
 
-    if (sem.try_acquire_for(milliseconds)) {
+    if (sem.try_acquire_for(rel_time)) {
         // Operation completion signaled semaphore
         return;
     }
