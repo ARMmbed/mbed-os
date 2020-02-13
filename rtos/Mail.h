@@ -67,7 +67,7 @@ public:
      *
      * @note You cannot call this function from ISR context.
      */
-    Mail() { };
+    Mail() = default;
 
     /** Check if the mail queue is empty.
      *
@@ -111,15 +111,47 @@ public:
 
     /** Allocate a memory block of type T, optionally blocking.
      *
-     * @param   millisec  Timeout value, or osWaitForever.
+     * @param   rel_time  Timeout value, or Kernel::wait_for_u32_forever.
      *
      * @return  Pointer to memory block that you can fill with mail or nullptr in case error.
      *
      * @note You may call this function from ISR context if the millisec parameter is set to 0.
      */
+    T *alloc_for(Kernel::Clock::duration_u32 rel_time)
+    {
+        return _pool.alloc_for(rel_time);
+    }
+
+    /** Allocate a memory block of type T, optionally blocking.
+     *
+     * @param   millisec  Timeout value, or osWaitForever.
+     *
+     * @return  Pointer to memory block that you can fill with mail or nullptr in case error.
+     *
+     * @note You may call this function from ISR context if the millisec parameter is set to 0.
+     * @deprecated Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.
+     */
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
     T *alloc_for(uint32_t millisec)
     {
-        return _pool.alloc_for(millisec);
+        return alloc_for(std::chrono::duration<uint32_t, std::milli>(millisec));
+    }
+
+    /** Allocate a memory block of type T, blocking.
+     *
+     * @param   abs_time  Absolute timeout time, referenced to Kernel::Clock.
+     *
+     * @return  Pointer to memory block that you can fill with mail or nullptr in case error.
+     *
+     * @note You cannot call this function from ISR context.
+     * @note the underlying RTOS may have a limit to the maximum wait time
+     *   due to internal 32-bit computations, but this is guaranteed to work if the
+     *   wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
+     *   the wait will time out earlier than specified.
+     */
+    T *alloc_until(Kernel::Clock::time_point abs_time)
+    {
+        return _pool.alloc_until(abs_time);
     }
 
     /** Allocate a memory block of type T, blocking.
@@ -133,10 +165,13 @@ public:
      *   due to internal 32-bit computations, but this is guaranteed to work if the
      *   wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
      *   the wait will time out earlier than specified.
+     * @deprecated Pass a chrono time_point, not an integer millisecond count. For example use `Kernel::Clock::now() + 5s`
+     *             rather than `Kernel::get_ms_count() + 5000`.
      */
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono time_point, not an integer millisecond count. For example use `Kernel::Clock::now() + 5s` rather than `Kernel::get_ms_count() + 5000`.")
     T *alloc_until(uint64_t millisec)
     {
-        return _pool.alloc_until(millisec);
+        return alloc_until(Kernel::Clock::time_point(std::chrono::duration<uint64_t, std::milli>(millisec)));
     }
 
     /** Allocate a memory block of type T, and set memory block to zero.
@@ -155,15 +190,47 @@ public:
 
     /** Allocate a memory block of type T, optionally blocking, and set memory block to zero.
      *
+     * @param   rel_time  Timeout value, or Kernel::wait_for_u32_forever.
+     *
+     * @return  Pointer to memory block that you can fill with mail or nullptr in case error.
+     *
+     * @note You may call this function from ISR context if the rel_time parameter is set to 0.
+     */
+    T *calloc_for(Kernel::Clock::duration_u32 rel_time)
+    {
+        return _pool.alloc_for(rel_time);
+    }
+
+    /** Allocate a memory block of type T, optionally blocking, and set memory block to zero.
+     *
      * @param   millisec  Timeout value, or osWaitForever.
      *
      * @return  Pointer to memory block that you can fill with mail or nullptr in case error.
      *
      * @note You may call this function from ISR context if the millisec parameter is set to 0.
+     * @deprecated Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.
      */
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
     T *calloc_for(uint32_t millisec)
     {
-        return _pool.calloc_for(millisec);
+        return calloc_for(std::chrono::duration<uint32_t, std::milli>(millisec));
+    }
+
+    /** Allocate a memory block of type T, blocking, and set memory block to zero.
+     *
+     * @param   abs_time  Absolute timeout time, referenced to Kernel::Clock.
+     *
+     * @return  Pointer to memory block that you can fill with mail or nullptr in case error.
+     *
+     * @note You cannot call this function from ISR context.
+     * @note the underlying RTOS may have a limit to the maximum wait time
+     *   due to internal 32-bit computations, but this is guaranteed to work if the
+     *   wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
+     *   the wait will time out earlier than specified.
+     */
+    T *calloc_until(Kernel::Clock::time_point abs_time)
+    {
+        return _pool.calloc_until(abs_time);
     }
 
     /** Allocate a memory block of type T, blocking, and set memory block to zero.
@@ -177,10 +244,13 @@ public:
      *   due to internal 32-bit computations, but this is guaranteed to work if the
      *   wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
      *   the wait will time out earlier than specified.
+     * @deprecated Pass a chrono time_point, not an integer millisecond count. For example use `Kernel::Clock::now() + 5s`
+     *             rather than `Kernel::get_ms_count() + 5000`.
      */
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono time_point, not an integer millisecond count. For example use `Kernel::Clock::now() + 5s` rather than `Kernel::get_ms_count() + 5000`.")
     T *calloc_until(uint64_t millisec)
     {
-        return _pool.calloc_until(millisec);
+        return calloc_until(Kernel::Clock::time_point(std::chrono::duration<uint64_t, std::milli>(millisec)));
     }
 
     /** Put a mail in the queue.
@@ -198,7 +268,26 @@ public:
 
     /** Get a mail from the queue.
      *
-     * @param millisec Timeout value (default: osWaitForever).
+     * @param millisec Timeout value.
+     *
+     * @return Event that contains mail information or error code.
+     * @retval osEventMessage   Message received.
+     * @retval osOK             No mail is available (and no timeout was specified).
+     * @retval osEventTimeout   No mail has arrived during the given timeout period.
+     * @retval osErrorParameter A parameter is invalid or outside of a permitted range.
+     *
+     * @note You may call this function from ISR context if the millisec parameter is set to 0.
+     * @deprecated Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.
+     */
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
+    osEvent get(uint32_t millisec)
+    {
+        return get(std::chrono::duration<uint32_t, std::milli>(millisec));
+    }
+
+    /** Get a mail from the queue.
+     *
+     * @param rel_time Timeout value (default: Kernel::wait_for_u32_forever).
      *
      * @return Event that contains mail information or error code.
      * @retval osEventMessage   Message received.
@@ -208,9 +297,9 @@ public:
      *
      * @note You may call this function from ISR context if the millisec parameter is set to 0.
      */
-    osEvent get(uint32_t millisec = osWaitForever)
+    osEvent get(Kernel::Clock::duration_u32 rel_time = Kernel::wait_for_u32_forever)
     {
-        osEvent evt = _queue.get(millisec);
+        osEvent evt = _queue.get(rel_time);
         if (evt.status == osEventMessage) {
             evt.status = osEventMail;
         }

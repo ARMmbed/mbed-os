@@ -91,15 +91,38 @@ public:
         return (T *)osMemoryPoolAlloc(_id, 0);
     }
 
+    /** Allocate a memory block from a memory pool, without blocking.
+      @return  address of the allocated memory block or nullptr in case of no memory available.
+
+      @note You may call this function from ISR context.
+    */
+    T *try_alloc(void)
+    {
+        return (T *)osMemoryPoolAlloc(_id, 0);
+    }
+
     /** Allocate a memory block from a memory pool, optionally blocking.
       @param   millisec  timeout value (osWaitForever to wait forever)
       @return  address of the allocated memory block or nullptr in case of no memory available.
 
       @note You may call this function from ISR context if the millisec parameter is set to 0.
+      @deprecated Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.
     */
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
     T *alloc_for(uint32_t millisec)
     {
-        return (T *)osMemoryPoolAlloc(_id, millisec);
+        return alloc_for(std::chrono::duration<uint32_t, std::milli>(millisec));
+    }
+
+    /** Allocate a memory block from a memory pool, optionally blocking.
+      @param   rel_time  timeout value (Kernel::wait_for_u32_forever to wait forever)
+      @return  address of the allocated memory block or nullptr in case of no memory available.
+
+      @note You may call this function from ISR context if the rel_time parameter is set to 0.
+    */
+    T *alloc_for(Kernel::Clock::duration_u32 rel_time)
+    {
+        return (T *)osMemoryPoolAlloc(_id, rel_time.count());
     }
 
     /** Allocate a memory block from a memory pool, blocking.
@@ -111,21 +134,38 @@ public:
         due to internal 32-bit computations, but this is guaranteed to work if the
         wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
         the wait will time out earlier than specified.
+      @deprecated Pass a chrono time_point, not an integer millisecond count. For example use `Kernel::Clock::now() + 5s`
+                  rather than `Kernel::get_ms_count() + 5000`.
     */
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono time_point, not an integer millisecond count. For example use `Kernel::Clock::now() + 5s` rather than `Kernel::get_ms_count() + 5000`.")
     T *alloc_until(uint64_t millisec)
     {
-        uint64_t now = Kernel::get_ms_count();
-        uint32_t delay;
-        if (now >= millisec) {
-            delay = 0;
-        } else if (millisec - now >= osWaitForever) {
-            delay = osWaitForever - 1;
-        } else {
-            delay = millisec - now;
-        }
-        return alloc_for(delay);
+        return alloc_until(Kernel::Clock::time_point(std::chrono::duration<uint64_t, std::milli>(millisec)));
     }
 
+    /** Allocate a memory block from a memory pool, blocking.
+      @param   abs_time absolute timeout time, referenced to Kernel::Clock.
+      @return  address of the allocated memory block or nullptr in case of no memory available.
+
+      @note You cannot call this function from ISR context.
+      @note the underlying RTOS may have a limit to the maximum wait time
+        due to internal 32-bit computations, but this is guaranteed to work if the
+        wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
+        the wait will time out earlier than specified.
+    */
+    T *alloc_until(Kernel::Clock::time_point abs_time)
+    {
+        Kernel::Clock::time_point now = Kernel::Clock::now();
+        Kernel::Clock::duration_u32 rel_time;
+        if (now >= abs_time) {
+            rel_time = rel_time.zero();
+        } else if (abs_time - now > Kernel::wait_for_u32_max) {
+            rel_time = Kernel::wait_for_u32_max;
+        } else {
+            rel_time = abs_time - now;
+        }
+        return alloc_for(rel_time);
+    }
     /** Allocate a memory block from a memory pool, without blocking, and set memory block to zero.
       @return  address of the allocated memory block or nullptr in case of no memory available.
 
@@ -145,10 +185,23 @@ public:
       @return  address of the allocated memory block or nullptr in case of no memory available.
 
       @note You may call this function from ISR context if the millisec parameter is set to 0.
+      @deprecated Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.
     */
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
     T *calloc_for(uint32_t millisec)
     {
-        T *item = alloc_for(millisec);
+        return calloc_for(std::chrono::duration<uint32_t, std::milli>(millisec));
+    }
+
+    /** Allocate a memory block from a memory pool, optionally blocking, and set memory block to zero.
+      @param   rel_time  timeout value (Kernel::wait_for_u32_forever to wait forever)
+      @return  address of the allocated memory block or nullptr in case of no memory available.
+
+      @note You may call this function from ISR context if the rel_time parameter is set to 0.
+    */
+    T *calloc_for(Kernel::Clock::duration_u32 rel_time)
+    {
+        T *item = alloc_for(rel_time);
         if (item != nullptr) {
             memset(item, 0, sizeof(T));
         }
@@ -164,10 +217,28 @@ public:
         due to internal 32-bit computations, but this is guaranteed to work if the
         wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
         the wait will time out earlier than specified.
+      @deprecated Pass a chrono time_point, not an integer millisecond count. For example use `Kernel::Clock::now() + 5s`
+                  rather than `Kernel::get_ms_count() + 5000`.
     */
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono time_point, not an integer millisecond count. For example use `Kernel::Clock::now() + 5s` rather than `Kernel::get_ms_count() + 5000`.")
     T *calloc_until(uint64_t millisec)
     {
-        T *item = alloc_until(millisec);
+        return alloc_until(Kernel::Clock::time_point(std::chrono::duration<uint64_t, std::milli>(millisec)));
+    }
+
+    /** Allocate a memory block from a memory pool, blocking, and set memory block to zero.
+      @param   abs_time absolute timeout time, referenced to Kernel::Clock.
+      @return  address of the allocated memory block or nullptr in case of no memory available.
+
+      @note You cannot call this function from ISR context.
+      @note the underlying RTOS may have a limit to the maximum wait time
+        due to internal 32-bit computations, but this is guaranteed to work if the
+        wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
+        the wait will time out earlier than specified.
+    */
+    T *calloc_until(Kernel::Clock::time_point abs_time)
+    {
+        T *item = alloc_until(abs_time);
         if (item != nullptr) {
             memset(item, 0, sizeof(T));
         }
