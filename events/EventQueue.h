@@ -22,6 +22,8 @@
 #include "platform/Callback.h"
 #include "platform/NonCopyable.h"
 #include <cstddef>
+#include <utility>
+#include <chrono>
 #include <new>
 
 namespace events {
@@ -59,6 +61,8 @@ class UserAllocatedEvent;
  */
 class EventQueue : private mbed::NonCopyable<EventQueue> {
 public:
+    using duration = std::chrono::duration<int, std::milli>;
+
     /** Create an EventQueue
      *
      *  Create an event queue. The event queue either allocates a buffer of
@@ -358,6 +362,7 @@ public:
      *  events out of IRQ contexts.
      *
      *  @param ms       Time to delay in milliseconds
+     *  @param f        Function to execute in the context of the dispatch loop
      *  @param args     Arguments to pass to the callback
      *  @return         A unique ID that represents the posted event and can
      *                  be passed to cancel, or an ID of 0 if there is not
@@ -365,21 +370,22 @@ public:
      *
      * @code
      *     #include "mbed.h"
+     *     using namespace std::chrono_literals;
      *
      *     int main() {
      *         // creates a queue with the default size
      *         EventQueue queue;
      *
      *         // events are simple callbacks
-     *         queue.call_in(2000, printf, "called in 2 seconds\n");
+     *         queue.call_in(2s, printf, "called in 2 seconds\n");
      *
      *         // the dispatch methods executes events
      *         queue.dispatch();
      *     }
      * @endcode
      */
-    template <typename F, typename ...Args>
-    int call_in(int ms, Args ...args);
+    template <typename F, typename ...ArgTs>
+    int call_in(duration ms, F f, ArgTs ...args);
 
     /** Calls an event on the queue after a specified delay
      *
@@ -399,6 +405,7 @@ public:
      *
      * @code
      *     #include "mbed.h"
+     *     using namespace std::chrono_literals;
      *
      *     class EventHandler {
      *         int _id;
@@ -419,7 +426,7 @@ public:
      *
      *         // events are simple callbacks, call object method in 2 seconds
      *         // with provided parameter
-     *         queue.call_in(2000, &handler_cb, &EventHandler::handler, 4);
+     *         queue.call_in(2s, &handler_cb, &EventHandler::handler, 4);
      *
      *         // the dispatch method executes events
      *         queue.dispatch();
@@ -428,8 +435,8 @@ public:
      */
     // AStyle ignore, not handling correctly below
     // *INDENT-OFF*
-    template <typename T, typename R, typename ...Args>
-    int call_in(int ms, T *obj, R (T::*method)(Args ...args), Args ...args);
+    template <typename T, typename R, typename ...ArgTs>
+    int call_in(duration ms, T *obj, R (T::*method)(ArgTs ...args), ArgTs ...args);
     // *INDENT-ON*
 
     /** Calls an event on the queue periodically
@@ -452,6 +459,7 @@ public:
      *
      * @code
      *     #include "mbed.h"
+     *     using namespace std::chrono_literals;
      *
      *     class EventHandler {
      *         int _id;
@@ -468,15 +476,15 @@ public:
      *         EventQueue queue;
      *
      *         // events are simple callbacks, call every 2 seconds
-     *         queue.call_every(2000, printf, "Calling every 2 seconds\n");
+     *         queue.call_every(2s, printf, "Calling every 2 seconds\n");
      *
      *         // the dispatch method executes events
      *         queue.dispatch();
      *     }
      * @endcode
      */
-    template <typename F, typename ...Args>
-    int call_every(int ms, F f, Args ...args);
+    template <typename F, typename ...ArgTs>
+    int call_every(duration ms, F f, ArgTs ...args);
 
     /** Calls an event on the queue periodically
      *
@@ -496,6 +504,7 @@ public:
      *
      * @code
      *     #include "mbed.h"
+     *     using namespace std::chrono_literals;
      *
      *     class EventHandler {
      *         int _id;
@@ -516,7 +525,7 @@ public:
      *
      *         // events are simple callbacks, call object method every 2 seconds
      *         // with provided parameter
-     *         queue.call_every(2000, &handler_cb, &EventHandler::handler, 6);
+     *         queue.call_every(2s, &handler_cb, &EventHandler::handler, 6);
      *
      *         // the dispatch method executes events
      *         queue.dispatch();
@@ -525,8 +534,8 @@ public:
      */
     // AStyle ignore, not handling correctly below
     // *INDENT-OFF*
-    template <typename T, typename R, typename ...Args>
-    int call_every(int ms, T *obj, R (T::*method)(Args ...args), Args ...args);
+    template <typename T, typename R, typename ...ArgTs>
+    int call_every(duration ms, T *obj, R (T::*method)(ArgTs ...args), ArgTs ...args);
     // *INDENT-ON*
 
     /** Creates an event bound to the event queue
@@ -571,8 +580,8 @@ public:
      */
     // AStyle ignore, not handling correctly below
     // *INDENT-OFF*
-    template <typename R, typename ...BoundArgs, typename ...ContextArgs, typename ...Args>
-    Event<void(Args...)> event(R (*func)(BoundArgs..., Args...), ContextArgs ...context_args);
+    template <typename R, typename ...BoundArgTs, typename ...ContextArgTs, typename ...ArgTs>
+    Event<void(ArgTs...)> event(R (*func)(BoundArgTs..., ArgTs...), ContextArgTs ...context_args);
     // *INDENT-ON*
 
     /** Creates an event bound to the event queue
@@ -619,8 +628,8 @@ public:
      */
     // AStyle ignore, not handling correctly below
     // *INDENT-OFF*
-    template <typename T, typename R, typename ...BoundArgs, typename ...ContextArgs, typename ...Args>
-    Event<void(Args...)> event(T *obj, R (T::*method)(BoundArgs..., Args...), ContextArgs ...context_args);
+    template <typename T, typename R, typename ...BoundArgTs, typename ...ContextArgTs, typename ...ArgTs>
+    Event<void(ArgTs...)> event(T *obj, R (T::*method)(BoundArgTs..., ArgTs...), ContextArgTs ...context_args);
     // *INDENT-ON*
 
     /** Creates an event bound to the event queue
@@ -658,8 +667,8 @@ public:
      *     }
      *  @endcode
      */
-    template <typename R, typename ...BoundArgs, typename ...ContextArgs, typename ...Args>
-    Event<void(Args...)> event(mbed::Callback<R(BoundArgs..., Args...)> cb, ContextArgs ...context_args);
+    template <typename R, typename ...BoundArgTs, typename ...ContextArgTs, typename ...ArgTs>
+    Event<void(ArgTs...)> event(mbed::Callback<R(BoundArgTs..., ArgTs...)> cb, ContextArgTs ...context_args);
 
     /** Creates an user allocated event bound to the event queue
      *
@@ -749,7 +758,7 @@ public:
             return 0;
         }
 
-        F *e = new (p) F(f);
+        F *e = new (p) F(std::move(f));
         equeue_event_dtor(e, &EventQueue::function_dtor<F>);
         return equeue_post(&_equeue, &EventQueue::function_call<F>, e);
     }
@@ -763,7 +772,7 @@ public:
     template <typename F, typename... ArgTs>
     int call(F f, ArgTs... args)
     {
-        return call(context<F, ArgTs...>(f, args...));
+        return call(context<F, ArgTs...>(std::move(f), args...));
     }
 
     /** Calls an event on the queue
@@ -817,15 +826,15 @@ public:
      *                  enough memory to allocate the event.
      */
     template <typename F>
-    int call_in(int ms, F f)
+    int call_in(duration ms, F f)
     {
         void *p = equeue_alloc(&_equeue, sizeof(F));
         if (!p) {
             return 0;
         }
 
-        F *e = new (p) F(f);
-        equeue_event_delay(e, ms);
+        F *e = new (p) F(std::move(f));
+        equeue_event_delay(e, ms.count());
         equeue_event_dtor(e, &EventQueue::function_dtor<F>);
         return equeue_post(&_equeue, &EventQueue::function_call<F>, e);
     }
@@ -837,45 +846,119 @@ public:
      *  @param args                 Arguments to pass to the callback
      */
     template <typename F, typename... ArgTs>
+    int call_in(duration ms, F f, ArgTs... args)
+    {
+        return call_in(ms, context<F, ArgTs...>(std::move(f), args...));
+    }
+
+    /** Calls an event on the queue after a specified delay
+     *  @see EventQueue::call_in
+     */
+    template <typename T, typename R, typename... ArgTs>
+    int call_in(duration ms, T *obj, R(T::*method)(ArgTs...), ArgTs... args)
+    {
+        return call_in(ms, mbed::callback(obj, method), args...);
+    }
+
+    /** Calls an event on the queue after a specified delay
+     *  @see EventQueue::call_in
+     */
+    template <typename T, typename R, typename... ArgTs>
+    int call_in(duration ms, const T *obj, R(T::*method)(ArgTs...) const, ArgTs... args)
+    {
+        return call_in(ms, mbed::callback(obj, method), args...);
+    }
+
+    /** Calls an event on the queue after a specified delay
+     *  @see EventQueue::call_in
+     */
+    template <typename T, typename R, typename... ArgTs>
+    int call_in(duration ms, volatile T *obj, R(T::*method)(ArgTs...) volatile, ArgTs... args)
+    {
+        return call_in(ms, mbed::callback(obj, method), args...);
+    }
+
+    /** Calls an event on the queue after a specified delay
+     *  @see EventQueue::call_in
+     */
+    template <typename T, typename R, typename... ArgTs>
+    int call_in(duration ms, const volatile T *obj, R(T::*method)(ArgTs...) const volatile, ArgTs... args)
+    {
+        return call_in(ms, mbed::callback(obj, method), args...);
+    }
+
+    /** Calls an event on the queue after a specified delay
+     *
+     *  The specified callback will be executed in the context of the event
+     *  queue's dispatch loop.
+     *
+     *  The call_in function is IRQ safe and can act as a mechanism for moving
+     *  events out of IRQ contexts.
+     *
+     *  @param ms       Time to delay in milliseconds
+     *  @param f        Function to execute in the context of the dispatch loop
+     *  @return         A unique id that represents the posted event and can
+     *                  be passed to cancel, or an id of 0 if there is not
+     *                  enough memory to allocate the event.
+     */
+    template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
+    int call_in(int ms, F f)
+    {
+        return call_in(duration(ms), std::move(f));
+    }
+
+    /** Calls an event on the queue after a specified delay
+     *  @see                        EventQueue::call_in
+     *  @param ms                   Time to delay in milliseconds
+     *  @param f                    Function to execute in the context of the dispatch loop
+     *  @param args                 Arguments to pass to the callback
+     */
+    template <typename F, typename... ArgTs>
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
     int call_in(int ms, F f, ArgTs... args)
     {
-        return call_in(ms, context<F, ArgTs...>(f, args...));
+        return call_in(duration(ms), std::move(f), args...);
     }
 
     /** Calls an event on the queue after a specified delay
      *  @see EventQueue::call_in
      */
     template <typename T, typename R, typename... ArgTs>
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
     int call_in(int ms, T *obj, R(T::*method)(ArgTs...), ArgTs... args)
     {
-        return call_in(ms, mbed::callback(obj, method), args...);
+        return call_in(duration(ms), obj, method, args...);
     }
 
     /** Calls an event on the queue after a specified delay
      *  @see EventQueue::call_in
      */
     template <typename T, typename R, typename... ArgTs>
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
     int call_in(int ms, const T *obj, R(T::*method)(ArgTs...) const, ArgTs... args)
     {
-        return call_in(ms, mbed::callback(obj, method), args...);
+        return call_in(duration(ms), obj, method, args...);
     }
 
     /** Calls an event on the queue after a specified delay
      *  @see EventQueue::call_in
      */
     template <typename T, typename R, typename... ArgTs>
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
     int call_in(int ms, volatile T *obj, R(T::*method)(ArgTs...) volatile, ArgTs... args)
     {
-        return call_in(ms, mbed::callback(obj, method), args...);
+        return call_in(duration(ms), obj, method, args...);
     }
 
     /** Calls an event on the queue after a specified delay
      *  @see EventQueue::call_in
      */
     template <typename T, typename R, typename... ArgTs>
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
     int call_in(int ms, const volatile T *obj, R(T::*method)(ArgTs...) const volatile, ArgTs... args)
     {
-        return call_in(ms, mbed::callback(obj, method), args...);
+        return call_in(duration(ms), obj, method, args...);
     }
 
     /** Calls an event on the queue periodically
@@ -896,16 +979,16 @@ public:
      *                  enough memory to allocate the event.
      */
     template <typename F>
-    int call_every(int ms, F f)
+    int call_every(duration ms, F f)
     {
         void *p = equeue_alloc(&_equeue, sizeof(F));
         if (!p) {
             return 0;
         }
 
-        F *e = new (p) F(f);
-        equeue_event_delay(e, ms);
-        equeue_event_period(e, ms);
+        F *e = new (p) F(std::move(f));
+        equeue_event_delay(e, ms.count());
+        equeue_event_period(e, ms.count());
         equeue_event_dtor(e, &EventQueue::function_dtor<F>);
         return equeue_post(&_equeue, &EventQueue::function_call<F>, e);
     }
@@ -917,45 +1000,122 @@ public:
      *  @param ms               Period of the event in milliseconds
      */
     template <typename F, typename... ArgTs>
+    int call_every(duration ms, F f, ArgTs... args)
+    {
+        return call_every(ms, context<F, ArgTs...>(std::move(f), args...));
+    }
+
+    /** Calls an event on the queue periodically
+     *  @see EventQueue::call_every
+     */
+    template <typename T, typename R, typename... ArgTs>
+    int call_every(duration ms, T *obj, R(T::*method)(ArgTs...), ArgTs... args)
+    {
+        return call_every(ms, mbed::callback(obj, method), args...);
+    }
+
+    /** Calls an event on the queue periodically
+     *  @see EventQueue::call_every
+     */
+    template <typename T, typename R, typename... ArgTs>
+    int call_every(duration ms, const T *obj, R(T::*method)(ArgTs...) const, ArgTs... args)
+    {
+        return call_every(ms, mbed::callback(obj, method), args...);
+    }
+
+    /** Calls an event on the queue periodically
+     *  @see EventQueue::call_every
+     */
+    template <typename T, typename R, typename... ArgTs>
+    int call_every(duration ms, volatile T *obj, R(T::*method)(ArgTs...) volatile, ArgTs... args)
+    {
+        return call_every(ms, mbed::callback(obj, method), args...);
+    }
+
+    /** Calls an event on the queue periodically
+     *  @see EventQueue::call_every
+     */
+    template <typename T, typename R, typename... ArgTs>
+    int call_every(duration ms, const volatile T *obj, R(T::*method)(ArgTs...) const volatile, ArgTs... args)
+    {
+        return call_every(ms, mbed::callback(obj, method), args...);
+    }
+
+    /** Calls an event on the queue periodically
+     *
+     *  @note The first call_every event occurs after the specified delay.
+     *  To create a periodic event that fires immediately, @see Event.
+     *
+     *  The specified callback will be executed in the context of the event
+     *  queue's dispatch loop.
+     *
+     *  The call_every function is IRQ safe and can act as a mechanism for
+     *  moving events out of IRQ contexts.
+     *
+     *  @param f        Function to execute in the context of the dispatch loop
+     *  @param ms       Period of the event in milliseconds
+     *  @return         A unique id that represents the posted event and can
+     *                  be passed to cancel, or an id of 0 if there is not
+     *                  enough memory to allocate the event.
+     */
+    template <typename F>
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
+    int call_every(int ms, F f)
+    {
+        return call_every(duration(ms), std::move(f));
+    }
+
+    /** Calls an event on the queue periodically
+     *  @see                    EventQueue::call_every
+     *  @param f                Function to execute in the context of the dispatch loop
+     *  @param args             Arguments to pass to the callback
+     *  @param ms               Period of the event in milliseconds
+     */
+    template <typename F, typename... ArgTs>
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
     int call_every(int ms, F f, ArgTs... args)
     {
-        return call_every(ms, context<F, ArgTs...>(f, args...));
+        return call_every(duration(ms), std::move(f), args...);
     }
 
     /** Calls an event on the queue periodically
      *  @see EventQueue::call_every
      */
     template <typename T, typename R, typename... ArgTs>
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
     int call_every(int ms, T *obj, R(T::*method)(ArgTs...), ArgTs... args)
     {
-        return call_every(ms, mbed::callback(obj, method), args...);
+        return call_every(duration(ms), obj, method, args...);
     }
 
     /** Calls an event on the queue periodically
      *  @see EventQueue::call_every
      */
     template <typename T, typename R, typename... ArgTs>
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
     int call_every(int ms, const T *obj, R(T::*method)(ArgTs...) const, ArgTs... args)
     {
-        return call_every(ms, mbed::callback(obj, method), args...);
+        return call_every(duration(ms), obj, method, args...);
     }
 
     /** Calls an event on the queue periodically
      *  @see EventQueue::call_every
      */
     template <typename T, typename R, typename... ArgTs>
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
     int call_every(int ms, volatile T *obj, R(T::*method)(ArgTs...) volatile, ArgTs... args)
     {
-        return call_every(ms, mbed::callback(obj, method), args...);
+        return call_every(duration(ms), obj, method, args...);
     }
 
     /** Calls an event on the queue periodically
      *  @see EventQueue::call_every
      */
     template <typename T, typename R, typename... ArgTs>
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
     int call_every(int ms, const volatile T *obj, R(T::*method)(ArgTs...) const volatile, ArgTs... args)
     {
-        return call_every(ms, mbed::callback(obj, method), args...);
+        return call_every(duration(ms), obj, method, args...);
     }
 
     /** Creates an event bound to the event queue
