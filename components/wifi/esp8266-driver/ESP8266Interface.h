@@ -31,6 +31,7 @@
 #include "features/netsocket/WiFiAccessPoint.h"
 #include "features/netsocket/WiFiInterface.h"
 #include "platform/Callback.h"
+#include "platform/mbed_chrono.h"
 #if MBED_CONF_RTOS_PRESENT
 #include "rtos/ConditionVariable.h"
 #endif
@@ -38,8 +39,8 @@
 
 #define ESP8266_SOCKET_COUNT 5
 
-#define ESP8266_INTERFACE_CONNECT_INTERVAL_MS (5000)
-#define ESP8266_INTERFACE_CONNECT_TIMEOUT_MS (2 * ESP8266_CONNECT_TIMEOUT + ESP8266_INTERFACE_CONNECT_INTERVAL_MS)
+#define ESP8266_INTERFACE_CONNECT_INTERVAL 5s
+#define ESP8266_INTERFACE_CONNECT_TIMEOUT (2 * ESP8266_CONNECT_TIMEOUT + ESP8266_INTERFACE_CONNECT_INTERVAL)
 
 #ifdef TARGET_FF_ARDUINO
 #ifndef MBED_CONF_ESP8266_TX
@@ -219,7 +220,8 @@ public:
      *               see @a nsapi_error
      */
     virtual int scan(WiFiAccessPoint *res, unsigned count, scan_mode mode = SCANMODE_PASSIVE,
-                     unsigned t_max = 0, unsigned t_min = 0);
+                     mbed::chrono::milliseconds_u32 t_max = mbed::chrono::milliseconds_u32(0),
+                     mbed::chrono::milliseconds_u32 t_min = mbed::chrono::milliseconds_u32(0));
 
     /** Translates a hostname to an IP address with specific version
      *
