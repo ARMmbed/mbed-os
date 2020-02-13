@@ -53,7 +53,31 @@ constexpr int SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_3_SIZE_BYTE = 32; ///< Erase Typ
 constexpr int SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_4_SIZE_BYTE = 34; ///< Erase Type 4 Size
 constexpr int SFDP_BASIC_PARAM_TABLE_4K_ERASE_TYPE_BYTE = 1; ///< 4 Kilobyte Erase Instruction
 
-/* Verifies SFDP Header and return number of parameter headers */
+/** SFDP Header */
+struct sfdp_hdr {
+    uint8_t SIG_B0; ///< SFDP Signature, Byte 0
+    uint8_t SIG_B1; ///< SFDP Signature, Byte 1
+    uint8_t SIG_B2; ///< SFDP Signature, Byte 2
+    uint8_t SIG_B3; ///< SFDP Signature, Byte 3
+    uint8_t R_MINOR; ///< SFDP Minor Revision
+    uint8_t R_MAJOR; ///< SFDP Major Revision
+    uint8_t NPH; ///< Number of parameter headers (0-based, 0 indicates 1 parameter header)
+    uint8_t ACP; ///< SFDP Access Protocol
+};
+
+/** SFDP Parameter header */
+struct sfdp_prm_hdr {
+    uint8_t PID_LSB; ///< Parameter ID LSB
+    uint8_t P_MINOR; ///< Parameter Minor Revision
+    uint8_t P_MAJOR; ///< Parameter Major Revision
+    uint8_t P_LEN;   ///< Parameter length in DWORDS
+    uint32_t DWORD2; ///< Parameter ID MSB + Parameter Table Pointer
+};
+
+/** Parse SFDP Header
+ * @param sfdp_hdr_ptr Pointer to memory holding an SFDP header
+ * @return Number of Parameter Headers on success, -1 on failure
+ */
 int sfdp_parse_sfdp_header(sfdp_hdr *sfdp_hdr_ptr)
 {
     if (!(memcmp(sfdp_hdr_ptr, "SFDP", 4) == 0 && sfdp_hdr_ptr->R_MAJOR == 1)) {
@@ -69,27 +93,32 @@ int sfdp_parse_sfdp_header(sfdp_hdr *sfdp_hdr_ptr)
     return hdr_cnt;
 }
 
-int sfdp_parse_single_param_header(sfdp_prm_hdr *phdr, sfdp_hdr_info &hdr_info)
+/** Parse Parameter Header
+ * @param phdr_ptr Pointer to memory holding a single SFDP Parameter header
+ * @param hdr_info Reference to a Parameter Table structure where info about the table is written
+ * @return 0 on success, -1 on failure
+ */
+int sfdp_parse_single_param_header(sfdp_prm_hdr *phdr_ptr, sfdp_hdr_info &hdr_info)
 {
-    if (phdr->P_MAJOR != 1) {
+    if (phdr_ptr->P_MAJOR != 1) {
         tr_error("Param Header: - Major Version should be 1!");
         return -1;
     }
 
-    if ((phdr->PID_LSB == 0) && (sfdp_get_param_id_msb(phdr->DWORD2) == 0xFF)) {
+    if ((phdr_ptr->PID_LSB == 0) && (sfdp_get_param_id_msb(phdr_ptr->DWORD2) == 0xFF)) {
         tr_debug("Parameter Header: Basic Parameter Header");
-        hdr_info.bptbl.addr = sfdp_get_param_tbl_ptr(phdr->DWORD2);
-        hdr_info.bptbl.size = std::min((phdr->P_LEN * 4), SFDP_BASIC_PARAMS_TBL_SIZE);
+        hdr_info.bptbl.addr = sfdp_get_param_tbl_ptr(phdr_ptr->DWORD2);
+        hdr_info.bptbl.size = std::min((phdr_ptr->P_LEN * 4), SFDP_BASIC_PARAMS_TBL_SIZE);
 
-    } else if ((phdr->PID_LSB == 0x81) && (sfdp_get_param_id_msb(phdr->DWORD2) == 0xFF)) {
+    } else if ((phdr_ptr->PID_LSB == 0x81) && (sfdp_get_param_id_msb(phdr_ptr->DWORD2) == 0xFF)) {
         tr_debug("Parameter Header: Sector Map Parameter Header");
-        hdr_info.smptbl.addr = sfdp_get_param_tbl_ptr(phdr->DWORD2);
-        hdr_info.smptbl.size = phdr->P_LEN * 4;
+        hdr_info.smptbl.addr = sfdp_get_param_tbl_ptr(phdr_ptr->DWORD2);
+        hdr_info.smptbl.size = phdr_ptr->P_LEN * 4;
 
     } else {
         tr_debug("Parameter Header vendor specific or unknown. Parameter ID LSB: 0x%" PRIX8 "; MSB: 0x%" PRIX8 "",
-                 phdr->PID_LSB,
-                 sfdp_get_param_id_msb(phdr->DWORD2));
+                 phdr_ptr->PID_LSB,
+                 sfdp_get_param_id_msb(phdr_ptr->DWORD2));
     }
 
     return 0;
