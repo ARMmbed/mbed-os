@@ -18,7 +18,7 @@
 #define MBED_TIMER_H
 
 #include "platform/platform.h"
-#include "hal/ticker_api.h"
+#include "drivers/TickerDataClock.h"
 #include "platform/NonCopyable.h"
 
 namespace mbed {
@@ -51,13 +51,9 @@ namespace mbed {
  * }
  * @endcode
  */
-class Timer : private NonCopyable<Timer> {
+class TimerBase : private NonCopyable<TimerBase> {
 
 public:
-    Timer();
-    Timer(const ticker_data_t *data);
-    ~Timer();
-
     /** Start the timer
      */
     void start();
@@ -76,40 +72,57 @@ public:
      *
      *  @returns    Time passed in seconds
      */
-    float read();
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Floating point operators should normally be avoided for code size. If really needed, you can use `duration<float>{elapsed_time()}.count()`")
+    float read() const;
 
     /** Get the time passed in milliseconds
      *
      *  @returns    Time passed in milliseconds
      */
-    int read_ms();
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Use the Chrono-based elapsed_time method.  If integer milliseconds are needed, you can use `duration_cast<milliseconds>(elapsed_time()).count()`")
+    int read_ms() const;
 
     /** Get the time passed in microseconds
      *
      *  @returns    Time passed in microseconds
      */
-    int read_us();
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Use the Chrono-based elapsed_time method.  If integer microseconds are needed, you can use `elapsed_time().count()`")
+    int read_us() const;
 
     /** An operator shorthand for read()
      */
-    operator float();
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Floating point operators should normally be avoided for code size. If really needed, you can use `duration<float>{elapsed_time()}.count()`")
+    operator float() const;
 
     /** Get in a high resolution type the time passed in microseconds.
      *  Returns a 64 bit integer.
      */
-    us_timestamp_t read_high_resolution_us();
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Use the Chrono-based elapsed_time method.  If integer microseconds are needed, you can use `elapsed_time().count()`")
+    us_timestamp_t read_high_resolution_us() const;
+
+    /** Get in a high resolution type the time passed in microseconds.
+     *  Returns a 64 bit integer chrono duration.
+     */
+    std::chrono::microseconds elapsed_time() const;
 
 #if !defined(DOXYGEN_ONLY)
 protected:
-    us_timestamp_t slicetime();
-    int _running;            // whether the timer is running
-    us_timestamp_t _start;   // the start time of the latest slice
-    us_timestamp_t _time;    // any accumulated time from previous slices
-    const ticker_data_t *_ticker_data;
+    TimerBase(const ticker_data_t *data);
+    TimerBase(const ticker_data_t *data, bool lock_deepsleep);
+    ~TimerBase();
+    std::chrono::microseconds slicetime() const;
+    TickerDataClock::time_point _start;   // the start time of the latest slice
+    std::chrono::microseconds _time;    // any accumulated time from previous slices
+    TickerDataClock _ticker_data;
     bool _lock_deepsleep;    // flag that indicates if deep sleep should be disabled
+    bool _running = false;   // whether the timer is running
 };
 #endif
 
+class Timer : public TimerBase {
+public:
+    Timer();
+};
 /** @}*/
 
 } // namespace mbed
