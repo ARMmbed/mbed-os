@@ -54,7 +54,7 @@ void send_thread(EventFlags *ef)
         const uint32_t flag = flags & (1 << i);
         if (flag) {
             ef->set(flag);
-            ThisThread::sleep_for(wait_ms);
+            ThisThread::sleep_for(std::chrono::milliseconds(wait_ms));
         }
     }
 }
@@ -67,7 +67,7 @@ void send_thread_sync(EventFlags *ef)
         if (flag) {
             sync_sem.acquire();
             ef->set(flag);
-            ThisThread::sleep_for(wait_ms);
+            ThisThread::sleep_for(std::chrono::milliseconds(wait_ms));
         }
     }
 }
@@ -267,11 +267,11 @@ void test_multi_thread_any_timeout(void)
     for (int i = 0; i <= MAX_FLAG_POS; i++) {
         uint32_t flag = 1 << i;
 
-        ret = ef.wait_any(flag, 10);
+        ret = ef.wait_any_for(flag, 10ms);
         TEST_ASSERT_EQUAL(osFlagsErrorTimeout, ret);
 
         sync_sem.release();
-        ret = ef.wait_any(flag, 10);
+        ret = ef.wait_any_for(flag, 10ms);
         TEST_ASSERT_EQUAL(flag, ret);
     }
     ret = ef.get();
@@ -297,7 +297,7 @@ void test_multi_thread_any_no_clear(void)
 
     for (int i = 0; i <= MAX_FLAG_POS; i++) {
         uint32_t flag = 1 << i;
-        ret = ef.wait_any(flag, osWaitForever, false);
+        ret = ef.wait_any(flag, Kernel::wait_for_u32_forever, false);
         TEST_ASSERT(flag | ret);
         ret = ef.clear(flag);
         TEST_ASSERT(ret < osFlagsError);

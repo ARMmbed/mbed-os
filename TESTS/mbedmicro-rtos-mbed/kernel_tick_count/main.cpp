@@ -25,16 +25,16 @@
 #include "rtos/Kernel.h"
 #include "mbed.h"
 
+using namespace std::chrono_literals;
 
 using utest::v1::Case;
 
 #define TEST_REPEAT_COUNT   1000
-#define NUM_WAIT_TICKS      1000
+#define NUM_WAIT_TICKS      rtos::Kernel::Clock::duration(1s)
 
-// all in [us]
-#define ONE_SECOND          1000000
-#define SMALL_DELTA         1500        // 0.15%
-#define BIG_DELTA           15000       // 1.5%
+#define ONE_SECOND          Timer::duration(1s)
+#define SMALL_DELTA         Timer::duration(1500us)        // 0.15%
+#define BIG_DELTA           Timer::duration(15000us)       // 1.5%
 
 /** Test if kernel ticker frequency is 1kHz
 
@@ -46,22 +46,23 @@ void test_frequency()
 {
     uint32_t freq = osKernelGetTickFreq();
     TEST_ASSERT_EQUAL_UINT32_MESSAGE(1000, freq, "Expected SysTick frequency is 1kHz");
+    TEST_ASSERT_TRUE_MESSAGE((std::ratio_equal<rtos::Kernel::Clock::period, std::milli>::value), "Expected Kernel::Clock frequency is 1kHz");
 }
 
 /** Test if kernel ticker increments by one
 
     Given a RTOS kernel ticker
-    When perform subsequent calls of @a rtos::Kernel::get_ms_count
+    When perform subsequent calls of @a rtos::Kernel::Clock::now
     Then subsequent reads should not differ by more than one
  */
 void test_increment(void)
 {
     for (uint32_t i = 0; i < TEST_REPEAT_COUNT; i++) {
-        const uint64_t start = rtos::Kernel::get_ms_count();
+        auto start = rtos::Kernel::Clock::now();
         while (true) {
-            uint64_t diff = rtos::Kernel::get_ms_count() - start;
-            if (diff != 0) {
-                TEST_ASSERT_EQUAL_UINT64(1, diff);
+            rtos::Kernel::Clock::duration diff = rtos::Kernel::Clock::now() - start;
+            if (diff.count() != 0) {
+                TEST_ASSERT_EQUAL_INT64(1, diff.count());
                 break;
             }
         }
@@ -71,35 +72,35 @@ void test_increment(void)
 /** Test if kernel ticker interval is 1ms
 
     Given a RTOS kernel ticker
-    When perform subsequent calls of @a rtos::Kernel::get_ms_count
+    When perform subsequent calls of @a rtos::Kernel::Clock::now
     Then the ticker interval should be 1ms
  */
 void test_interval()
 {
-    uint64_t start, stop;
+    Kernel::Clock::time_point start, stop;
     Timer timer;
 
-    start = rtos::Kernel::get_ms_count();
+    start = rtos::Kernel::Clock::now();
     // wait for tick
     do {
-        stop = rtos::Kernel::get_ms_count();
-    } while ((stop - start) == 0);
+        stop = rtos::Kernel::Clock::now();
+    } while (stop == start);
     timer.start();
     start = stop;
 
     // wait for NUM_WAIT_TICKS ticks
     do {
-        stop = rtos::Kernel::get_ms_count();
+        stop = rtos::Kernel::Clock::now();
     } while ((stop - start) != NUM_WAIT_TICKS);
     timer.stop();
-    TEST_ASSERT_EQUAL_UINT64(NUM_WAIT_TICKS, (stop - start));
+    TEST_ASSERT_EQUAL_INT64(NUM_WAIT_TICKS.count(), (stop - start).count());
 
 #if defined(NO_SYSTICK) || defined(MBED_TICKLESS)
     // On targets with NO_SYSTICK/MBED_TICKLESS enabled, systick is emulated by lp_ticker what makes it less accurate
     // for more details https://os.mbed.com/docs/latest/reference/tickless.html
-    TEST_ASSERT_UINT64_WITHIN(BIG_DELTA, ONE_SECOND, timer.read_high_resolution_us());
+    TEST_ASSERT_INT64_WITHIN(BIG_DELTA.count(), ONE_SECOND.count(), timer.read_duration().count());
 #else
-    TEST_ASSERT_UINT64_WITHIN(SMALL_DELTA, ONE_SECOND, timer.read_high_resolution_us());
+    TEST_ASSERT_INT64_WITHIN(SMALL_DELTA.count(), ONE_SECOND.count(), timer.read_duration().count());
 #endif
 }
 

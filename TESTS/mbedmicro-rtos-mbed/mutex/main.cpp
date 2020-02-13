@@ -29,6 +29,7 @@
 #include "rtos.h"
 
 using namespace utest::v1;
+using namespace std::chrono;
 
 #if defined(__CORTEX_M23) || defined(__CORTEX_M33)
 #define TEST_STACK_SIZE 768
@@ -36,8 +37,8 @@ using namespace utest::v1;
 #define TEST_STACK_SIZE 512
 #endif
 
-#define TEST_LONG_DELAY 20
-#define TEST_DELAY 10
+#define TEST_LONG_DELAY 20ms
+#define TEST_DELAY 10ms
 #define SIGNALS_TO_EMIT 100
 
 Mutex stdio_mutex;
@@ -89,9 +90,9 @@ void test_thread(int const *thread_delay)
 */
 void test_multiple_threads(void)
 {
-    const int t1_delay = TEST_DELAY * 1;
-    const int t2_delay = TEST_DELAY * 2;
-    const int t3_delay = TEST_DELAY * 3;
+    const Kernel::Clock::duration t1_delay = TEST_DELAY * 1;
+    const Kernel::Clock::duration t2_delay = TEST_DELAY * 2;
+    const Kernel::Clock::duration t3_delay = TEST_DELAY * 3;
 
     Thread t2(osPriorityNormal, TEST_STACK_SIZE);
     Thread t3(osPriorityNormal, TEST_STACK_SIZE);
@@ -155,7 +156,7 @@ void test_dual_thread_nolock(void)
 
     thread.start(callback(F, &mutex));
 
-    wait_ms(TEST_DELAY);
+    ThisThread::sleep_for(TEST_DELAY);
 }
 
 void test_dual_thread_lock_unlock_thread(Mutex *mutex)
@@ -184,7 +185,7 @@ void test_dual_thread_lock_unlock(void)
 
     mutex.unlock();
 
-    wait_ms(TEST_DELAY);
+    ThisThread::sleep_for(TEST_DELAY);
 }
 
 void test_dual_thread_lock_trylock_thread(Mutex *mutex)
@@ -228,7 +229,7 @@ void test_dual_thread_lock(void)
 
     thread.start(callback(F, &mutex));
 
-    wait_ms(TEST_LONG_DELAY);
+    ThisThread::sleep_for(TEST_LONG_DELAY);
 
     mutex.unlock();
 }

@@ -29,11 +29,12 @@
 #include "rtos.h"
 
 using namespace utest::v1;
+using namespace std::chrono;
 
-#define THREAD_DELAY     30
+#define THREAD_DELAY     30ms
 #define SEMAPHORE_SLOTS  2
 #define SEM_CHANGES      100
-#define SHORT_WAIT       5
+#define SHORT_WAIT       5ms
 
 #define THREAD_STACK_SIZE 320 /* larger stack cause out of heap memory on some 16kB RAM boards in multi thread test*/
 
@@ -43,9 +44,9 @@ volatile int change_counter = 0;
 volatile int sem_counter = 0;
 volatile bool sem_defect = false;
 
-void test_thread(int const *delay)
+void test_thread(rtos::Kernel::Clock::duration const *delay)
 {
-    const int thread_delay = *delay;
+    const auto thread_delay = *delay;
     while (true) {
         two_slots.acquire();
         sem_counter++;
@@ -68,9 +69,9 @@ void test_thread(int const *delay)
 */
 void test_multi()
 {
-    const int t1_delay = THREAD_DELAY * 1;
-    const int t2_delay = THREAD_DELAY * 2;
-    const int t3_delay = THREAD_DELAY * 3;
+    const rtos::Kernel::Clock::duration t1_delay = THREAD_DELAY * 1;
+    const rtos::Kernel::Clock::duration t2_delay = THREAD_DELAY * 2;
+    const rtos::Kernel::Clock::duration t3_delay = THREAD_DELAY * 3;
 
     Thread t1(osPriorityNormal, THREAD_STACK_SIZE);
     Thread t2(osPriorityNormal, THREAD_STACK_SIZE);
@@ -140,7 +141,7 @@ void test_single_thread()
 
 void timeout_thread(Semaphore *sem)
 {
-    bool acquired = sem->try_acquire_for(30);
+    bool acquired = sem->try_acquire_for(30ms);
     TEST_ASSERT_FALSE(acquired);
 }
 

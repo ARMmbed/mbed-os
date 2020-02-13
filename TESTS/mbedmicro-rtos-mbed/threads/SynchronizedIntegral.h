@@ -19,7 +19,9 @@
 #define MBEDMICRO_RTOS_MBED_THREADS_SYNCHRONIZED_INTEGRAL
 
 #include <rtos.h>
-#include "LockGuard.h"
+#include <mstd_mutex>
+
+using mstd::lock_guard;
 
 /**
  * Thread safe wrapper for integral types.
@@ -33,35 +35,35 @@ public:
     // preincrement operator
     T operator++()
     {
-        LockGuard lock(_mutex);
+        lock_guard lock(_mutex);
         return ++_value;
     }
 
     // predecrement operator
     T operator--()
     {
-        LockGuard lock(_mutex);
+        lock_guard lock(_mutex);
         return --_value;
     }
 
     // post increment operator
     T operator++(int)
     {
-        LockGuard lock(_mutex);
+        lock_guard lock(_mutex);
         return _value++;
     }
 
     // post decrement operator
     T operator--(int)
     {
-        LockGuard lock(_mutex);
+        lock_guard lock(_mutex);
         return _value--;
     }
 
     // conversion operator, used also for <,>,<=,>=,== and !=
     operator T()  const
     {
-        LockGuard lock(_mutex);
+        lock_guard lock(_mutex);
         return _value;
     }
 
