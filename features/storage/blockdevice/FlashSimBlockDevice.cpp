@@ -60,6 +60,7 @@ int FlashSimBlockDevice::init()
     _blank_buf_size = align_up(min_blank_buf_size, _bd->get_program_size());
     if (!_blank_buf) {
         _blank_buf = new uint8_t[_blank_buf_size];
+        memset(_blank_buf, 0, _blank_buf_size);
         MBED_ASSERT(_blank_buf);
     }
 
