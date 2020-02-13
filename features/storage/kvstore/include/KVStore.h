@@ -64,9 +64,17 @@ public:
     /**
      * @brief Initialize KVStore
      *
-     * @returns MBED_SUCCESS on success or an error code on failure
+     *  If the underlying device has data but is not valid for the specific variant,
+     *  the KVStore variant will attempt to initialize a new KVStore implementation
+     *  erasing if necessary. If this is undesired, set the no_overwrite parameter
+     *  to true.
+     *
+     * @param[in]   no_overwrite    If true, KVStore will not modify the underlying storage.
+     * 
+     * @returns MBED_ERROR_INITIALIZATION_FAILED    No valid KVStore in the storage.
+     *          MBED_SUCCESS on success or an error code on other failure
      */
-    virtual int init() = 0;
+    virtual int init(bool no_overwrite = false) = 0;
 
     /**
      * @brief Deinitialize KVStore

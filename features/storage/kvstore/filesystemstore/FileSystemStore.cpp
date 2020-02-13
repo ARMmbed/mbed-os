@@ -70,7 +70,7 @@ FileSystemStore::FileSystemStore(FileSystem *fs) : _fs(fs),
 
 }
 
-int FileSystemStore::init()
+int FileSystemStore::init(bool no_overwrite)
 {
     int status = MBED_SUCCESS;
 
@@ -93,6 +93,10 @@ int FileSystemStore::init()
     Dir kv_dir;
 
     if (kv_dir.open(_fs, _cfg_fs_path) != 0) {
+        if (no_overwrite) {
+            status = MBED_ERROR_INITIALIZATION_FAILED;
+            goto exit_point;
+        }
         tr_info("KV Dir: %s, doesnt exist - creating new.. ", _cfg_fs_path); //TBD verify ERRNO NOEXIST
         if (_fs->mkdir(_cfg_fs_path,/* which flags ? */0777) != 0) {
             tr_error("KV Dir: %s, mkdir failed.. ", _cfg_fs_path); //TBD verify ERRNO NOEXIST

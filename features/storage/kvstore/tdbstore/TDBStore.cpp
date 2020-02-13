@@ -1009,7 +1009,7 @@ int TDBStore::increment_max_keys(void **ram_table)
 }
 
 
-int TDBStore::init()
+int TDBStore::init(bool no_overwrite)
 {
     ram_table_entry_t *ram_table;
     area_state_e area_state[_num_areas];
@@ -1089,7 +1089,11 @@ int TDBStore::init()
     }
 
     // In case we have two empty areas, arbitrarily use area 0 as the active one.
-    if ((area_state[0] == TDBSTORE_AREA_STATE_INVALID) && (area_state[1] == TDBSTORE_AREA_STATE_INVALID)) {
+    if (std::all_of(area_state, area_state + _num_areas, [area_state](area_state_e area) { return area == TDBSTORE_AREA_STATE_INVALID; })) {
+        if (no_overwrite) {
+            ret = MBED_ERROR_INITIALIZATION_FAILED;
+            goto fail;
+        }
         reset_area(0);
         _active_area = 0;
         _active_area_version = 1;

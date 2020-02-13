@@ -47,12 +47,16 @@ public:
 
     /**
       * @brief Initialize FileSystemStore, checking validity of
-      *        KVStore writing folder and if it doesn't exist, creating it.
+      *        KVStore writing folder and if it doesn't exist, creating it. If the folder does
+      *        not exist and its creation is unwanted, set the no_overwrite parameter to true.
       *
+      * @param[in]  no_overwrite    If no valid FileSystemStore is found, do not create one.
+      * 
       * @returns MBED_SUCCESS                        Success.
+      *          MBED_ERROR_INITIALIZATION_FAILED    No valid FileSystemStore found on the device. 
       *          MBED_ERROR_FAILED_OPERATION         Underlying file system failed operation.
       */
-    virtual int init();
+    virtual int init(bool no_overwrite);
 
     /**
       * @brief Deinitialize FileSystemStore, release and free resources.

@@ -77,7 +77,7 @@ public:
      * @returns MBED_SUCCESS                        Success.
      *          or any other error from underlying KVStore instances.
      */
-    virtual int init();
+    virtual int init(bool no_overwrite = false);
 
     /**
      * @brief Deinitialize SecureStore class, free handles and memory allocations.
