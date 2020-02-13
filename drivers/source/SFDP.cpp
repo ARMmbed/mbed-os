@@ -42,6 +42,17 @@ inline uint32_t sfdp_get_param_tbl_ptr(uint32_t dword2)
 
 namespace mbed {
 
+// Erase Types Params
+constexpr int SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_BYTE = 29; ///< Erase Type 1 Instruction
+constexpr int SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_2_BYTE = 31; ///< Erase Type 2 Instruction
+constexpr int SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_3_BYTE = 33; ///< Erase Type 3 Instruction
+constexpr int SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_4_BYTE = 35; ///< Erase Type 4 Instruction
+constexpr int SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE = 28; ///< Erase Type 1 Size
+constexpr int SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_2_SIZE_BYTE = 30; ///< Erase Type 2 Size
+constexpr int SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_3_SIZE_BYTE = 32; ///< Erase Type 3 Size
+constexpr int SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_4_SIZE_BYTE = 34; ///< Erase Type 4 Size
+constexpr int SFDP_BASIC_PARAM_TABLE_4K_ERASE_TYPE_BYTE = 1; ///< 4 Kilobyte Erase Instruction
+
 /* Verifies SFDP Header and return number of parameter headers */
 int sfdp_parse_sfdp_header(sfdp_hdr *sfdp_hdr_ptr)
 {
@@ -209,6 +220,51 @@ size_t sfdp_detect_page_size(uint8_t *basic_param_table_ptr, size_t basic_param_
     }
     return page_size;
 }
+
+int sfdp_detect_erase_types_inst_and_size(uint8_t *bptbl_ptr, sfdp_hdr_info &sfdp_info)
+{
+    uint8_t bitfield = 0x01;
+
+    // Erase 4K Inst is taken either from param table legacy 4K erase or superseded by erase Instruction for type of size 4K
+    if (sfdp_info.bptbl.size > SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE) {
+        // Loop Erase Types 1-4
+        for (int i_ind = 0; i_ind < 4; i_ind++) {
+            sfdp_info.smptbl.erase_type_inst_arr[i_ind] = -1; // Default for unsupported type
+            sfdp_info.smptbl.erase_type_size_arr[i_ind] = 1
+                                                          << bptbl_ptr[SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE + 2 * i_ind]; // Size is 2^N where N is the table value
+            tr_debug("Erase Type(A) %d - Inst: 0x%xh, Size: %d", (i_ind + 1), sfdp_info.smptbl.erase_type_inst_arr[i_ind],
+                     sfdp_info.smptbl.erase_type_size_arr[i_ind]);
+            if (sfdp_info.smptbl.erase_type_size_arr[i_ind] > 1) {
+                // if size==1 type is not supported
+                sfdp_info.smptbl.erase_type_inst_arr[i_ind] = bptbl_ptr[SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_BYTE
+                                                                        + 2 * i_ind];
+
+                if ((sfdp_info.smptbl.erase_type_size_arr[i_ind] < sfdp_info.smptbl.regions_min_common_erase_size)
+                        || (sfdp_info.smptbl.regions_min_common_erase_size == 0)) {
+                    //Set default minimal common erase for signal region
+                    sfdp_info.smptbl.regions_min_common_erase_size = sfdp_info.smptbl.erase_type_size_arr[i_ind];
+                }
+                sfdp_info.smptbl.region_erase_types_bitfld[0] |= bitfield; // If there's no region map, set region "0" types bitfield as default
+            }
+
+            tr_debug("Erase Type %d - Inst: 0x%xh, Size: %d", (i_ind + 1), sfdp_info.smptbl.erase_type_inst_arr[i_ind],
+                     sfdp_info.smptbl.erase_type_size_arr[i_ind]);
+            bitfield = bitfield << 1;
+        }
+    } else {
+        tr_debug("SFDP erase types are not available - falling back to legacy 4k erase instruction");
+
+        // 0xFF indicates that the legacy 4k erase instruction is not supported
+        sfdp_info.bptbl.legacy_erase_instruction = bptbl_ptr[SFDP_BASIC_PARAM_TABLE_4K_ERASE_TYPE_BYTE];
+        if (sfdp_info.bptbl.legacy_erase_instruction == 0xFF) {
+            tr_error("_detectEraseTypesInstAndSize - Legacy 4k erase instruction not supported");
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
 
 
 } /* namespace mbed */

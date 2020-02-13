@@ -239,10 +239,6 @@ private:
     // Set Page size for program
     unsigned int _sfdp_detect_page_size(uint8_t *basic_param_table_ptr, int basic_param_table_size);
 
-    // Detect all supported erase types
-    int _sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr, int basic_param_table_size,
-                                               mbed::sfdp_smptbl_info &smptbl);
-
     /***********************/
     /* Utilities Functions */
     /***********************/
@@ -301,7 +297,6 @@ private:
     int _read_instruction;
     int _prog_instruction;
     int _erase_instruction;
-    int _legacy_erase_instruction;  // Legacy 4K erase instruction (default 0x20h)
 
     // Data extracted from the devices SFDP structure
     mbed::sfdp_hdr_info _sfdp_info;

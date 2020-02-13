@@ -38,30 +38,20 @@ static const int SFDP_BASIC_PARAMS_TBL_SIZE = 80; ///< Basic Parameter Table siz
 static const int SFDP_SECTOR_MAP_MAX_REGIONS = 10; ///< Maximum number of regions with different erase granularity
 
 // Erase Types Per Region BitMask
-static const int SFDP_ERASE_BITMASK_TYPE4 = 0x08; ///< Erase type 4 (erase granularity) identifier
-static const int SFDP_ERASE_BITMASK_TYPE3 = 0x04; ///< Erase type 3 (erase granularity) identifier
-static const int SFDP_ERASE_BITMASK_TYPE2 = 0x02; ///< Erase type 2 (erase granularity) identifier
-static const int SFDP_ERASE_BITMASK_TYPE1 = 0x01; ///< Erase type 1 (erase granularity) identifier
-static const int SFDP_ERASE_BITMASK_NONE = 0x00;  ///< Erase type None
-static const int SFDP_ERASE_BITMASK_ALL = 0x0F;   ///< Erase type All
+constexpr int SFDP_ERASE_BITMASK_TYPE4 = 0x08; ///< Erase type 4 (erase granularity) identifier
+constexpr int SFDP_ERASE_BITMASK_TYPE3 = 0x04; ///< Erase type 3 (erase granularity) identifier
+constexpr int SFDP_ERASE_BITMASK_TYPE2 = 0x02; ///< Erase type 2 (erase granularity) identifier
+constexpr int SFDP_ERASE_BITMASK_TYPE1 = 0x01; ///< Erase type 1 (erase granularity) identifier
+constexpr int SFDP_ERASE_BITMASK_NONE = 0x00;  ///< Erase type None
+constexpr int SFDP_ERASE_BITMASK_ALL = 0x0F;   ///< Erase type All
 
-// Erase Types Params
-#define SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_BYTE 29
-#define SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_2_BYTE 31
-#define SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_3_BYTE 33
-#define SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_4_BYTE 35
-#define SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE 28
-#define SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_2_SIZE_BYTE 30
-#define SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_3_SIZE_BYTE 32
-#define SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_4_SIZE_BYTE 34
-#define SFDP_BASIC_PARAM_TABLE_4K_ERASE_TYPE_BYTE 1
-
-static const int SFDP_MAX_NUM_OF_ERASE_TYPES = 4;  ///< Maximum number of different erase types (erase granularity)
+constexpr int SFDP_MAX_NUM_OF_ERASE_TYPES = 4;  ///< Maximum number of different erase types (erase granularity)
 
 /** SFDP Basic Parameter Table info */
 struct sfdp_bptbl_info {
     uint32_t addr; ///< Address
     size_t size; ///< Size
+    int legacy_erase_instruction; ///< Legacy 4K erase instruction
 };
 
 /** SFDP Sector Map Table info */
@@ -145,6 +135,15 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
  * @return Page size
  */
 size_t sfdp_detect_page_size(uint8_t *bptbl_ptr, size_t bptbl_size);
+
+/** Detect all supported erase types
+ *
+ * @param bptbl_ptr Pointer to memory holding a Basic Parameter Table structure
+ * @param smtbl     All information parsed from the table gets passed back on this structure
+ *
+ * @return 0 on success, negative error code on failure
+ */
+int sfdp_detect_erase_types_inst_and_size(uint8_t *bptbl_ptr, sfdp_hdr_info &sfdp_info);
 
 /** @}*/
 } /* namespace mbed */

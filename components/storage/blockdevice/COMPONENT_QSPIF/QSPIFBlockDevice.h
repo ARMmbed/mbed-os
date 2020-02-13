@@ -336,11 +336,6 @@ private:
     // Set Page size for program
     int _sfdp_detect_page_size(uint8_t *basic_param_table_ptr, int basic_param_table_size);
 
-    // Detect all supported erase types
-    int _sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr,
-                                               int basic_param_table_size,
-                                               mbed::sfdp_smptbl_info &smptbl);
-
     // Detect 4-byte addressing mode and enable it if supported
     int _sfdp_detect_and_enable_4byte_addressing(uint8_t *basic_param_table_ptr, int basic_param_table_size);
 
@@ -386,7 +381,6 @@ private:
 
     // Command Instructions
     mbed::qspi_inst_t _read_instruction;
-    int _legacy_erase_instruction;
 
     // Status register write/read instructions
     unsigned int _num_status_registers;
