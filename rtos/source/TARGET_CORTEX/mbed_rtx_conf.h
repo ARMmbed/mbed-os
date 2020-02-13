@@ -60,6 +60,62 @@
 #define OS_IDLE_THREAD_STACK_SIZE   (MBED_CONF_RTOS_IDLE_THREAD_STACK_SIZE + EXTRA_IDLE_STACK + EXTRA_IDLE_STACK_DEBUG)
 #endif
 
+// The number of threads available to applications that need to use
+// CMSIS-RTOSv2 Object-specific Memory Pools
+#if MBED_CONF_RTOS_THREAD_NUM > 0
+#define OS_THREAD_OBJ_MEM 1
+#define OS_THREAD_NUM     MBED_CONF_RTOS_THREAD_NUM
+#endif
+
+// The total amount of memory for all thread stacks combined available to
+// applications that need to use CMSIS-RTOSv2 Object-specific Memory Pools for
+// threads
+#if MBED_CONF_RTOS_THREAD_USER_STACK_SIZE > 0
+#define OS_THREAD_USER_STACK_SIZE MBED_CONF_RTOS_THREAD_USER_STACK_SIZE
+#endif
+
+// The number of timers available to applications that need to use CMSIS-RTOSv2
+// Object-specific Memory Pools
+#if MBED_CONF_RTOS_TIMER_NUM > 0
+#define OS_TIMER_OBJ_MEM 1
+#define OS_TIMER_NUM     MBED_CONF_RTOS_TIMER_NUM
+#endif
+
+// The number of event flag objects available to applications that need to use
+// CMSIS-RTOSv2 Object-specific Memory Pools
+#if MBED_CONF_RTOS_EVFLAGS_NUM > 0
+#define OS_EVFLAGS_OBJ_MEM 1
+#define OS_EVFLAGS_NUM     MBED_CONF_RTOS_EVFLAGS_NUM
+#endif
+
+// The number of mutexes available to applications that need to use
+// CMSIS-RTOSv2 Object-specific Memory Pools
+#if MBED_CONF_RTOS_MUTEX_NUM > 0
+#define OS_MUTEX_OBJ_MEM 1
+#define OS_MUTEX_NUM     MBED_CONF_RTOS_MUTEX_NUM
+#endif
+
+// The number of semaphores available to applications that need to use
+// CMSIS-RTOSv2 Object-specific Memory Pools
+#if MBED_CONF_RTOS_SEMAPHORE_NUM > 0
+#define OS_SEMAPHORE_OBJ_MEM 1
+#define OS_SEMAPHORE_NUM     MBED_CONF_RTOS_SEMAPHORE_NUM
+#endif
+
+// The number of message queues available to applications that need to use
+// CMSIS-RTOSv2 Object-specific Memory Pools
+#if MBED_CONF_RTOS_MSGQUEUE_NUM > 0
+#define OS_MSGQUEUE_OBJ_MEM 1
+#define OS_MSGQUEUE_NUM     MBED_CONF_RTOS_MSGQUEUE_NUM
+#endif
+
+// The total amount of memory for all message queues combined available to
+// applications that need to use CMSIS-RTOSv2 Object-specific Memory Pools for
+// message queues
+#if MBED_CONF_RTOS_MSGQUEUE_DATA_SIZE > 0
+#define OS_MSGQUEUE_DATA_SIZE MBED_CONF_RTOS_MSGQUEUE_DATA_SIZE
+#endif
+
 #define OS_DYNAMIC_MEM_SIZE         0
 
 #if defined(OS_TICK_FREQ) && (OS_TICK_FREQ != 1000)
