@@ -55,10 +55,24 @@ matrix:
     - <<: *basic-vm
       name: "license check"
       env: NAME=licence_check
+      language: python
+      python: 3.6.8 # scancode-toolkit v3.1.1 requires v3.6.8
+      install:
+        - pip install scancode-toolkit==3.1.1
+      before_script:
+        - mkdir -p SCANCODE
+        # Fetch remaining information needed for branch comparison
+        - git fetch --all --unshallow --tags
+        - git fetch origin "${TRAVIS_BRANCH}"
       script:
-        - |
-          ! grep --recursive --max-count=100 --ignore-case --exclude .travis.yml \
-          "gnu general\|gnu lesser\|lesser general\|public license"
+        # scancode does not support list of files, only one file or directory
+        # we use SCANCODE directory for all changed files (their copies with full tree)
+        - >-
+            git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
+              | ( grep '.\(c\|cpp\|h\|hpp\|py\)$' || true ) \
+              | while read file; do cp --parents "${file}" SCANCODE; done
+        - scancode -l --json-pp scancode.json SCANCODE
+        - python ./tools/test/travis-ci/scancode-evaluate.py -f scancode.json
 
     - <<: *basic-vm
       name: "include check"
