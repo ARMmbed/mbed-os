@@ -9,7 +9,6 @@ extern "C"
 #endif
 
     uint32_t ap3_gpio_enable_interrupts(uint32_t ui32Pin, am_hal_gpio_intdir_e eIntDir);
-
     /** GPIO IRQ HAL structure. gpio_irq_s is declared in the target's HAL
  */
     typedef struct gpio_irq_s gpio_irq_t;
@@ -46,21 +45,22 @@ extern "C"
     int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
     {
         //grab the correct irq control object
-        ap3_gpio_irq_control_t control = gpio_irq_control[pin];
+        ap3_gpio_irq_control_t *control = &gpio_irq_control[pin];
 
         //Register locally
-        control.pad = pin;
-        control.handler = handler;
-        control.id = id;
-        control.events = IRQ_NONE;
+        control->pad = pin;
+        control->handler = handler;
+        control->id = id;
+        control->events = IRQ_NONE;
 
         //Attach to object
-        obj->control = &control;
+        obj->control = control;
 
         //Make sure the interrupt is set to none to reflect the new events value
-        ap3_gpio_enable_interrupts(control.pad, AM_HAL_GPIO_PIN_INTDIR_NONE);
+        ap3_gpio_enable_interrupts(control->pad, AM_HAL_GPIO_PIN_INTDIR_NONE);
 
         //Enable GPIO IRQ's in the NVIC
+        gpio_irq_enable(obj);
         NVIC_SetVector((IRQn_Type)GPIO_IRQn, (uint32_t)am_gpio_isr);
         NVIC_EnableIRQ((IRQn_Type)GPIO_IRQn);
         return 0;
@@ -74,7 +74,7 @@ extern "C"
         uint32_t pinNum = 0;
         while (gpio_int_mask)
         {
-            if (gpio_int_mask |= 0x0000000000000001)
+            if (gpio_int_mask & 0x0000000000000001)
             {
                 am_hal_gpio_interrupt_clear(AM_HAL_GPIO_BIT(pinNum));
                 ap3_gpio_irq_control_t irq_ctrl = gpio_irq_control[pinNum];
@@ -155,6 +155,8 @@ extern "C"
     /**@}*/
     uint32_t ap3_gpio_enable_interrupts(uint32_t ui32Pin, am_hal_gpio_intdir_e eIntDir)
     {
+        //GPConfigReg_t GPCfgMask = {.bit.INCFG = 1, .bit.INTD = 1};
+        // uint32_t ap3_hal_gpio_pinconfig_partial(ui32Pin, bfGpioCfg, 0, uint8_t GPCfgMask, 0);
         uint32_t ui32Padreg, ui32AltPadCfg, ui32GPCfg;
         uint32_t ui32Funcsel, ui32PowerSw;
         bool bClearEnable = false;

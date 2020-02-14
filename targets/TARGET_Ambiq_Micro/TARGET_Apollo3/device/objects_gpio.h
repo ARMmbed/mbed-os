@@ -122,6 +122,8 @@ extern "C"
         ap3_gpio_irq_control_t *control;
     } gpio_irq_s;
 
+#define AP3_PINCFG_FUNCSEL_GPIO 3
+
 #define AP3_GPIO_MAX_PADS (50)
 #define PADREG_FLD_76_S 6
 #define PADREG_FLD_FNSEL_S 3

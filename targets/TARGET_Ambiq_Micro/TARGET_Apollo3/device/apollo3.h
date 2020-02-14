@@ -147,10 +147,6 @@ typedef enum {
   #define __IOM  __IO
 #endif
 
-#ifdef OVERFLOW
-#undef OVERFLOW
-#endif
-
 /* ========================================  Start of section using anonymous unions  ======================================== */
 #if defined (__CC_ARM)
   #pragma push

@@ -133,7 +133,7 @@ void uart_configure_pin_function(PinName pin, UARTName uart, const PinMap *map);
  * @param rx  The RX pin name
  */
 void serial_init(serial_t *obj, PinName tx, PinName rx)
-{
+{ //TODO: we should be able to call this multiple times
   // determine the UART to use
   UARTName uart_tx = (UARTName)pinmap_peripheral(tx, serial_tx_pinmap());
   UARTName uart_rx = (UARTName)pinmap_peripheral(rx, serial_rx_pinmap());

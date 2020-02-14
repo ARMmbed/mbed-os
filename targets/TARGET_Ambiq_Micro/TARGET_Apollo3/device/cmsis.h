@@ -7,7 +7,7 @@
 #ifndef MBED_CMSIS_H
 #define MBED_CMSIS_H
 
-#include "apollo3.h"
+#include "am_mcu_apollo.h"
 #include "cmsis_nvic.h"
 
 #endif
