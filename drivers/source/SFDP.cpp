@@ -53,6 +53,8 @@ constexpr int SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_3_SIZE_BYTE = 32; ///< Erase Typ
 constexpr int SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_4_SIZE_BYTE = 34; ///< Erase Type 4 Size
 constexpr int SFDP_BASIC_PARAM_TABLE_4K_ERASE_TYPE_BYTE = 1; ///< 4 Kilobyte Erase Instruction
 
+constexpr int SFDP_ERASE_BITMASK_TYPE_4K_ERASE_UNSUPPORTED = 0xFF;
+
 /** SFDP Header */
 struct sfdp_hdr {
     uint8_t SIG_B0; ///< SFDP Signature, Byte 0
@@ -81,14 +83,14 @@ struct sfdp_prm_hdr {
 int sfdp_parse_sfdp_header(sfdp_hdr *sfdp_hdr_ptr)
 {
     if (!(memcmp(sfdp_hdr_ptr, "SFDP", 4) == 0 && sfdp_hdr_ptr->R_MAJOR == 1)) {
-        tr_error("verify SFDP signature and version Failed");
+        tr_error("Verify SFDP signature and version Failed");
         return -1;
     }
 
-    tr_debug("init - verified SFDP Signature and version Successfully");
+    tr_debug("Verified SFDP Signature and version successfully");
 
     int hdr_cnt = sfdp_hdr_ptr->NPH + 1;
-    tr_debug("number of Param Headers: %d", hdr_cnt);
+    tr_debug("Number of parameter headers: %d", hdr_cnt);
 
     return hdr_cnt;
 }
@@ -101,22 +103,22 @@ int sfdp_parse_sfdp_header(sfdp_hdr *sfdp_hdr_ptr)
 int sfdp_parse_single_param_header(sfdp_prm_hdr *phdr_ptr, sfdp_hdr_info &hdr_info)
 {
     if (phdr_ptr->P_MAJOR != 1) {
-        tr_error("Param Header: - Major Version should be 1!");
+        tr_error("Parameter header: Major Version must be 1!");
         return -1;
     }
 
     if ((phdr_ptr->PID_LSB == 0) && (sfdp_get_param_id_msb(phdr_ptr->DWORD2) == 0xFF)) {
-        tr_debug("Parameter Header: Basic Parameter Header");
+        tr_debug("Parameter header: Basic Parameter Header");
         hdr_info.bptbl.addr = sfdp_get_param_tbl_ptr(phdr_ptr->DWORD2);
         hdr_info.bptbl.size = std::min((phdr_ptr->P_LEN * 4), SFDP_BASIC_PARAMS_TBL_SIZE);
 
     } else if ((phdr_ptr->PID_LSB == 0x81) && (sfdp_get_param_id_msb(phdr_ptr->DWORD2) == 0xFF)) {
-        tr_debug("Parameter Header: Sector Map Parameter Header");
+        tr_debug("Parameter header: Sector Map Parameter Header");
         hdr_info.smptbl.addr = sfdp_get_param_tbl_ptr(phdr_ptr->DWORD2);
         hdr_info.smptbl.size = phdr_ptr->P_LEN * 4;
 
     } else {
-        tr_debug("Parameter Header vendor specific or unknown. Parameter ID LSB: 0x%" PRIX8 "; MSB: 0x%" PRIX8 "",
+        tr_debug("Parameter header: header vendor specific or unknown. Parameter ID LSB: 0x%" PRIX8 "; MSB: 0x%" PRIX8 "",
                  phdr_ptr->PID_LSB,
                  sfdp_get_param_id_msb(phdr_ptr->DWORD2));
     }
@@ -136,7 +138,7 @@ int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, 
 
         int status = sfdp_reader(addr, sfdp_header, data_length);
         if (status < 0) {
-            tr_error("retrieving SFDP Header failed");
+            tr_error("Retrieving SFDP Header failed");
             return -1;
         }
 
@@ -158,7 +160,7 @@ int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, 
         for (int i_ind = 0; i_ind < number_of_param_headers; i_ind++) {
             status = sfdp_reader(addr, param_header, data_length);
             if (status < 0) {
-                tr_error("retrieving Parameter Header %d failed", i_ind + 1);
+                tr_error("Retrieving a parameter header %d failed", i_ind + 1);
                 return -1;
             }
 
@@ -185,19 +187,19 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
 
     int status = sfdp_reader(smptbl.addr, sector_map_table, smptbl.size);
     if (status < 0) {
-        tr_error("table retrieval failed");
+        tr_error("Sector Map: Table retrieval failed");
         return -1;
     }
 
     // Currently we support only Single Map Descriptor
     if (!((sector_map_table[0] & 0x3) == 0x03) && (sector_map_table[1] == 0x0)) {
-        tr_error("Sector Map - Supporting Only Single! Map Descriptor (not map commands)");
+        tr_error("Sector Map: Supporting Only Single Map Descriptor (not map commands)");
         return -1;
     }
 
     smptbl.region_cnt = sector_map_table[2] + 1;
     if (smptbl.region_cnt > SFDP_SECTOR_MAP_MAX_REGIONS) {
-        tr_error("Supporting up to %d regions, current setup to %d regions - fail",
+        tr_error("Sector Map: Supporting up to %d regions, current setup to %d regions - fail",
                  SFDP_SECTOR_MAP_MAX_REGIONS,
                  smptbl.region_cnt);
         return -1;
@@ -281,12 +283,11 @@ int sfdp_detect_erase_types_inst_and_size(uint8_t *bptbl_ptr, sfdp_hdr_info &sfd
             bitfield = bitfield << 1;
         }
     } else {
-        tr_debug("SFDP erase types are not available - falling back to legacy 4k erase instruction");
+        tr_debug("Erase types are not available - falling back to legacy 4k erase instruction");
 
-        // 0xFF indicates that the legacy 4k erase instruction is not supported
         sfdp_info.bptbl.legacy_erase_instruction = bptbl_ptr[SFDP_BASIC_PARAM_TABLE_4K_ERASE_TYPE_BYTE];
-        if (sfdp_info.bptbl.legacy_erase_instruction == 0xFF) {
-            tr_error("_detectEraseTypesInstAndSize - Legacy 4k erase instruction not supported");
+        if (sfdp_info.bptbl.legacy_erase_instruction == SFDP_ERASE_BITMASK_TYPE_4K_ERASE_UNSUPPORTED) {
+            tr_error("Legacy 4k erase instruction not supported");
             return -1;
         }
     }
