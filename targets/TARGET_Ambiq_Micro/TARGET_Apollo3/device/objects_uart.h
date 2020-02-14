@@ -23,34 +23,51 @@ SOFTWARE.
 #define MBED_OBJECTS_UART_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-typedef uint32_t ap3_uart_pad_t;
-typedef uint32_t ap3_uart_inst_t;
+	typedef uint32_t ap3_uart_pad_t;
+	typedef uint32_t ap3_uart_inst_t;
 
-typedef enum{
-	AP3_UART_TX = 0x00,
-	AP3_UART_RX,
-	AP3_UART_RTS,
-	AP3_UART_CTS,
-} ap3_uart_pad_type_e;
+	typedef enum
+	{
+		AP3_UART_TX = 0x00,
+		AP3_UART_RX,
+		AP3_UART_RTS,
+		AP3_UART_CTS,
+	} ap3_uart_pad_type_e;
 
-typedef struct _ap3_uart_pad_map_elem_t{
-	ap3_uart_pad_t  pad;
-	uint8_t         funcsel;
-} ap3_uart_pad_map_elem_t;
+	typedef struct _ap3_uart_pad_map_elem_t
+	{
+		ap3_uart_pad_t pad;
+		uint8_t funcsel;
+	} ap3_uart_pad_map_elem_t;
 
+	typedef struct _ap3_uart_control_t
+	{
+		ap3_uart_inst_t inst;	 // UART module instance
+		void *handle;			  // UART handle
+		am_hal_uart_config_t cfg; // UART configuration
+		uint32_t serial_irq_id;   //
+	} ap3_uart_control_t;
 
+#if DEVICE_SERIAL_ASYNCH
+	struct serial_s
+	{
+		ap3_uart_control_t *uart_control;
+	};
+#else
+struct serial_u
+{
+	ap3_uart_control_t *uart_control;
+};
 
-
-typedef struct serial_s {
-    ap3_uart_inst_t         inst;   // UART module instance
-	void*					handle;	// UART handle
-    am_hal_uart_config_t    cfg;    // UART configuration
-
-} serial_t;
-
+struct serial_s
+{
+	struct serial_u serial;
+};
+#endif // DEVICE_SERIAL_ASYNCH
 
 #ifdef __cplusplus
 }

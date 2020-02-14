@@ -25,41 +25,46 @@ SOFTWARE.
 #include "device.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-#define NC_VAL (int)0xFFFFFFFF
+#define NC_VAL (uint32_t)0xFFFFFFFF
 
-typedef enum {
-    // Digital naming
-    D16 = 16,
-    D31 = 31,
-    D45 = 45,
-    D44 = 44,
+    typedef enum
+    {
+        // Digital naming
+        D16 = 16,
+        D31 = 31,
+        D45 = 45,
+        D44 = 44,
 
-    // Analog naming
-    A16 = D16,
-    A31 = D31,
+        // Analog naming
+        A16 = D16,
+        A31 = D31,
 
-    // LEDs
-    LED_BLUE    = AM_BSP_GPIO_LED_BLUE,
+        // LEDs
+        LED_BLUE = AM_BSP_GPIO_LED_BLUE,
 
-    // mbed original LED naming
-    LED1 = AM_BSP_GPIO_LED0,
-    
-    // Qwiic
-    QWIIC_SCL = 39,
-    QWIIC_SDA = 40,
-    
-    // UART
-    SERIAL_TX = 48,
-    SERIAL_RX = 49,
-    USBTX = SERIAL_TX,
-    USBRX = SERIAL_RX,
-        
-    // Not connected
-    NC = NC_VAL
-} PinName;
+        // mbed original LED naming
+        LED1 = AM_BSP_GPIO_LED0,
+
+        // Qwiic
+        QWIIC_SCL = 39,
+        QWIIC_SDA = 40,
+
+        // UART
+        SERIAL_TX = 48,
+        SERIAL_RX = 49,
+        USBTX = SERIAL_TX,
+        USBRX = SERIAL_RX,
+
+        // Not connected
+        NC = NC_VAL
+    } PinName;
+
+#define STDIO_UART_TX USBTX
+#define STDIO_UART_RX USBRX
 
 #ifdef __cplusplus
 }

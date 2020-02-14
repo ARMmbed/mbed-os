@@ -23,85 +23,117 @@ SOFTWARE.
 #define MBED_OBJECTS_GPIO_H
 
 #include "am_hal_gpio.h"
+#include "PinNames.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-typedef uint32_t ap3_gpio_pad_t;
+    typedef uint32_t ap3_gpio_pad_t;
 
-typedef enum {
-    PIN_INPUT = 0x00,
-    PIN_OUTPUT,
+    typedef enum
+    {
+        PIN_INPUT = 0x00,
+        PIN_OUTPUT,
 
-    PIN_DIR_ELEMENTS
-} PinDirection;
+        PIN_DIR_ELEMENTS
+    } PinDirection;
 
-enum sPinMode {
-    sPowerSwNone = 0x00,
-    sPowerSwVDD,
-    sPowerSwVSS,
-    sPullNone,
-    sPullUp,
-    sPullDown,
-    sDriveStrength2mA,
-    sDriveStrength4mA,
-    sDriveStrength8mA,
-    sDriveStrength12mA,
-    sOutDisable,
-    sOutPushPull,
-    sOutOpenDrain,
-    sOutTristate,
-    sInAuto,
-    sInNone,
-    sInEnable,
-    sReadPin,
-    sReadZero,
+    enum sPinMode
+    {
+        sPowerSwNone = 0x00,
+        sPowerSwVDD,
+        sPowerSwVSS,
+        sPullNone,
+        sPullUp,
+        sPullDown,
+        sDriveStrength2mA,
+        sDriveStrength4mA,
+        sDriveStrength8mA,
+        sDriveStrength12mA,
+        sOutDisable,
+        sOutPushPull,
+        sOutOpenDrain,
+        sOutTristate,
+        sInAuto,
+        sInNone,
+        sInEnable,
+        sReadPin,
+        sReadZero,
 
-    sPinModeElements
-};
+        sPinModeElements
+    };
 
-#define PinModeEntry(e) e = (1 << s ## e)
+#define PinModeEntry(e) e = (1 << s##e)
 
-typedef enum {
-    PinModeEntry(PowerSwNone),
-    PinModeEntry(PowerSwVDD),
-    PinModeEntry(PowerSwVSS),
-    PowerSwDefault = PowerSwNone,
+    typedef enum
+    {
+        PinModeEntry(PowerSwNone),
+        PinModeEntry(PowerSwVDD),
+        PinModeEntry(PowerSwVSS),
+        PowerSwDefault = PowerSwNone,
 
-    PinModeEntry(PullNone),
-    PinModeEntry(PullUp),
-    PinModeEntry(PullDown),
-    PullDefault = PullNone,
+        PinModeEntry(PullNone),
+        PinModeEntry(PullUp),
+        PinModeEntry(PullDown),
+        PullDefault = PullNone,
 
-    PinModeEntry(DriveStrength2mA),
-    PinModeEntry(DriveStrength4mA),
-    PinModeEntry(DriveStrength8mA),
-    PinModeEntry(DriveStrength12mA),
-    DriveStrengthDefault = DriveStrength12mA,
+        PinModeEntry(DriveStrength2mA),
+        PinModeEntry(DriveStrength4mA),
+        PinModeEntry(DriveStrength8mA),
+        PinModeEntry(DriveStrength12mA),
+        DriveStrengthDefault = DriveStrength12mA,
 
-    PinModeEntry(OutDisable),
-    PinModeEntry(OutPushPull),
-    PinModeEntry(OutOpenDrain),
-    PinModeEntry(OutTristate),
-    OutDefault = OutPushPull,
+        PinModeEntry(OutDisable),
+        PinModeEntry(OutPushPull),
+        PinModeEntry(OutOpenDrain),
+        PinModeEntry(OutTristate),
+        OutDefault = OutPushPull,
 
-    PinModeEntry(InAuto),
-    PinModeEntry(InNone),
-    PinModeEntry(InEnable),
-    InDefault = InEnable,
+        PinModeEntry(InAuto),
+        PinModeEntry(InNone),
+        PinModeEntry(InEnable),
+        InDefault = InEnable,
 
-    PinModeEntry(ReadPin),
-    PinModeEntry(ReadZero),
-    ReadDefault = ReadPin,
+        PinModeEntry(ReadPin),
+        PinModeEntry(ReadZero),
+        ReadDefault = ReadPin,
 
-    PinModeEntry(PinModeElements)
-} PinMode;
+        PinModeEntry(PinModeElements)
+    } PinMode;
 
-typedef struct _gpio_t {
-    ap3_gpio_pad_t          pad;
-    am_hal_gpio_pincfg_t    cfg;
-} gpio_t;
+    typedef struct _gpio_t
+    {
+        ap3_gpio_pad_t pad;
+        am_hal_gpio_pincfg_t cfg;
+    } gpio_t;
+
+    typedef struct ap3_gpio_irq_control_t
+    {
+        ap3_gpio_pad_t pad;
+        uint32_t id;
+        void *handler;
+        uint8_t events;
+    } ap3_gpio_irq_control_t;
+
+    typedef struct gpio_irq_s
+    {
+        ap3_gpio_irq_control_t *control;
+    } gpio_irq_s;
+
+#define AP3_PINCFG_FUNCSEL_GPIO 3
+
+#define AP3_GPIO_MAX_PADS (50)
+#define PADREG_FLD_76_S 6
+#define PADREG_FLD_FNSEL_S 3
+#define PADREG_FLD_DRVSTR_S 2
+#define PADREG_FLD_INPEN_S 1
+#define PADREG_FLD_PULLUP_S 0
+
+#define GPIOCFG_FLD_INTD_S 3
+#define GPIOCFG_FLD_OUTCFG_S 1
+#define GPIOCFG_FLD_INCFG_S 0
 
 #ifdef __cplusplus
 }
