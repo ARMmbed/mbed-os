@@ -677,7 +677,7 @@ void STM32_EMAC::phy_task()
     uint32_t status;
 
     if (HAL_ETH_ReadPHYRegister(&EthHandle, PHY_BSR, &status) == HAL_OK) {
-        if (emac_link_state_cb) {
+        if ((emac_link_state_cb) && (status != 0xFFFF)) {
             if ((status & PHY_LINKED_STATUS) && !(phy_status & PHY_LINKED_STATUS)) {
                 emac_link_state_cb(true);
             } else if (!(status & PHY_LINKED_STATUS) && (phy_status & PHY_LINKED_STATUS)) {
