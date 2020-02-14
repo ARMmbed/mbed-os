@@ -9842,11 +9842,12 @@
     "FAMILY_Apollo3": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
+        "features": ["BLE"],
         "default_toolchain": "GCC_ARM",
         "supported_toolchains": ["GCC_ARM"],
         "public": false,
-        "extra_labels": ["Ambiq_Micro", "Apollo3"],
-        "device_has": ["MPU", "USTICKER", "SERIAL", "INTERRUPTIN"],
+        "extra_labels": ["Ambiq_Micro", "Apollo3", "CORDIO"],
+        "device_has": ["MPU", "USTICKER", "SERIAL", "INTERRUPTIN", "LPTICKER", "STDIO_MESSAGES"],
         "macros": []
     },
     "AMA3B1KK": {
