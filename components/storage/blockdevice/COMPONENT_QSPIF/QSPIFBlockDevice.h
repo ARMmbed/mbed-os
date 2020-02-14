@@ -249,14 +249,6 @@ public:
     virtual const char *get_type() const;
 
 private:
-
-    // SFDP helpers
-    friend int mbed::sfdp_parse_headers(mbed::Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader,
-                                        mbed::sfdp_hdr_info &hdr_info);
-
-    // Internal functions
-
-
     /********************************/
     /*   Different Device Csel Mgmt */
     /********************************/
@@ -333,9 +325,6 @@ private:
 
     // Enable QPI mode (4-4-4)
     int _sfdp_set_qpi_enabled(uint8_t *basic_param_table_ptr);
-
-    // Set Page size for program
-    int _sfdp_detect_page_size(uint8_t *basic_param_table_ptr, int basic_param_table_size);
 
     // Detect 4-byte addressing mode and enable it if supported
     int _sfdp_detect_and_enable_4byte_addressing(uint8_t *basic_param_table_ptr, int basic_param_table_size);
