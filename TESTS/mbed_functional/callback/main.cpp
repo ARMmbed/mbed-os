@@ -884,7 +884,10 @@ Case cases[] = {
     Case("Testing callbacks with 2 uint64s", test_dispatch2<uint64_t>),
     Case("Testing callbacks with 3 uint64s", test_dispatch3<uint64_t>),
     Case("Testing callbacks with 4 uint64s", test_dispatch4<uint64_t>),
+// IAR currently crashes at link time with this test - skip it as it's well beyond anything needed by real code
+#ifndef __ICCARM__
     Case("Testing callbacks with 5 uint64s", test_dispatch5<uint64_t>),
+#endif
 #elif DO_SMALL_TEST
     Case("Testing callbacks with 0 uchars", test_dispatch0<unsigned char>),
     Case("Testing callbacks with 1 uchars", test_dispatch1<unsigned char>),
