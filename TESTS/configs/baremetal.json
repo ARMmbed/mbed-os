@@ -32,7 +32,8 @@
         "events",
         "kv-global-api",
         "sd",
-        "qspif"
+        "qspif",
+        "cryptocell310"
     ],
     "target_overrides": {
         "*": {

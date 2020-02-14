@@ -54,7 +54,7 @@ extern "C" {
 
 #include "nrf_uarte.h"
 
-#if defined(FEATURE_CRYPTOCELL310)
+#if MBED_CONF_CRYPTOCELL310_PRESENT
 #include "objects_cryptocell.h"
 #else
 struct trng_s {
