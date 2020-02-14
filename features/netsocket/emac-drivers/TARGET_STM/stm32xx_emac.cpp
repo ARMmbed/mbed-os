@@ -296,19 +296,27 @@ bool STM32_EMAC::low_level_init_successful()
     EthHandle.Init.RxMode = ETH_RXINTERRUPT_MODE;
     EthHandle.Init.ChecksumMode = ETH_CHECKSUM_BY_SOFTWARE;
     EthHandle.Init.MediaInterface = ETH_MEDIA_INTERFACE_RMII;
-    HAL_ETH_Init(&EthHandle);
+    if (HAL_ETH_Init(&EthHandle) != HAL_OK) {
+        return false;
+    }
 
     /* Initialize Tx Descriptors list: Chain Mode */
-    HAL_ETH_DMATxDescListInit(&EthHandle, DMATxDscrTab, &Tx_Buff[0][0], ETH_TXBUFNB);
+    if (HAL_ETH_DMATxDescListInit(&EthHandle, DMATxDscrTab, &Tx_Buff[0][0], ETH_TXBUFNB) != HAL_OK) {
+        return false;
+    }
 
     /* Initialize Rx Descriptors list: Chain Mode  */
-    HAL_ETH_DMARxDescListInit(&EthHandle, DMARxDscrTab, &Rx_Buff[0][0], ETH_RXBUFNB);
+    if (HAL_ETH_DMARxDescListInit(&EthHandle, DMARxDscrTab, &Rx_Buff[0][0], ETH_RXBUFNB) != HAL_OK) {
+        return false;
+    }
 
     /* Configure MAC */
     _eth_config_mac(&EthHandle);
 
     /* Enable MAC and DMA transmission and reception */
-    HAL_ETH_Start(&EthHandle);
+    if (HAL_ETH_Start(&EthHandle) != HAL_OK) {
+        return false;
+    }
 
     return true;
 }
@@ -370,7 +378,7 @@ bool STM32_EMAC::low_level_init_successful()
 bool STM32_EMAC::link_out(emac_mem_buf_t *buf)
 #ifndef ETH_IP_VERSION_V2
 {
-    bool success;
+    bool success = true;
     emac_mem_buf_t *q;
     uint8_t *buffer = reinterpret_cast<uint8_t *>(EthHandle.TxDesc->Buffer1Addr);
     __IO ETH_DMADescTypeDef *DmaTxDesc;
@@ -424,9 +432,10 @@ bool STM32_EMAC::link_out(emac_mem_buf_t *buf)
     }
 
     /* Prepare transmit descriptors to give to DMA */
-    HAL_ETH_TransmitFrame(&EthHandle, framelength);
+    if (HAL_ETH_TransmitFrame(&EthHandle, framelength) != HAL_OK) {
 
-    success = true;
+        success = false;
+    }
 
 error:
 
