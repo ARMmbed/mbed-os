@@ -67,7 +67,7 @@ MSTD_CONSTEXPR_OBJ_11 PinMap PinMap_I2C_SDA[] = {
     {PTB3, I2C_0, 2},
     {PTC11, I2C_1, 2},
     {PTA13, I2C_2, 5},
-    {PTD3, I2C_0, 7},
+//    {PTD3, I2C_0, 7}, // Fails FPGA testing
     {PTE0, I2C_1, 6},
     {NC, NC, 0}
 };
