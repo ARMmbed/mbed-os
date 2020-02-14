@@ -1,0 +1,6 @@
+{
+    "name": "cy_psoc6_common_network",
+    "config": {
+          "present": 1
+    }
+}

@@ -1,0 +1,6 @@
+{
+    "name": "cy_psoc6csp_rtos",
+    "config": {
+          "present": 1
+    }
+}
