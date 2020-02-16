@@ -22,8 +22,10 @@ using namespace mbed;
 
 I2CEEBlockDevice::I2CEEBlockDevice(
     PinName sda, PinName scl, uint8_t addr,
-    bd_size_t size, bd_size_t block, int freq)
-    : _i2c_addr(addr), _size(size), _block(block)
+    bd_size_t size, bd_size_t block, int freq,
+    bool address_is_eight_bit)
+    : _i2c_addr(addr), _size(size), _block(block),
+      _address_is_eight_bit(address_is_eight_bit)
 {
     _i2c = new (_i2c_buffer) I2C(sda, scl);
     _i2c->frequency(freq);
@@ -31,8 +33,10 @@ I2CEEBlockDevice::I2CEEBlockDevice(
 
 I2CEEBlockDevice::I2CEEBlockDevice(
     I2C *i2c_obj, uint8_t addr,
-    bd_size_t size, bd_size_t block)
-    : _i2c_addr(addr), _size(size), _block(block)
+    bd_size_t size, bd_size_t block,
+    bool address_is_eight_bit)
+    : _i2c_addr(addr), _size(size), _block(block),
+      _address_is_eight_bit(address_is_eight_bit)
 {
     _i2c = i2c_obj;
 }
@@ -60,9 +64,15 @@ int I2CEEBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 
     _i2c->start();
 
-    if (!_i2c->write(_i2c_addr | 0) ||
-            !_i2c->write((char)(addr >> 8)) ||
-            !_i2c->write((char)(addr & 0xff))) {
+    if (!_i2c->write(_i2c_addr | 0)) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
+    if (!_address_is_eight_bit && !_i2c->write((char)(addr >> 8))) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
+    if (!_i2c->write((char)(addr & 0xff))) {
         return BD_ERROR_DEVICE_ERROR;
     }
 
@@ -92,9 +102,15 @@ int I2CEEBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size
 
         _i2c->start();
 
-        if (!_i2c->write(_i2c_addr | 0) ||
-                !_i2c->write((char)(addr >> 8)) ||
-                !_i2c->write((char)(addr & 0xff))) {
+        if (!_i2c->write(_i2c_addr | 0)) {
+            return BD_ERROR_DEVICE_ERROR;
+        }
+
+        if (!_address_is_eight_bit && !_i2c->write((char)(addr >> 8))) {
+            return BD_ERROR_DEVICE_ERROR;
+        }
+
+        if (!_i2c->write((char)(addr & 0xff))) {
             return BD_ERROR_DEVICE_ERROR;
         }
 

@@ -59,29 +59,37 @@ class I2CEEBlockDevice : public BlockDevice {
 public:
     /** Constructor to create an I2CEEBlockDevice on I2C pins
      *
-     *  @param sda      The pin name for the sda line of the I2C bus.
-     *  @param scl      The pin name for the scl line of the I2C bus.
-     *  @param addr     The 8bit I2C address of the chip, common range 0xa0 - 0xae.
-     *  @param size     The size of the device in bytes
-     *  @param block    The page size of the device in bytes, defaults to 32bytes
-     *  @param freq     The frequency of the I2C bus, defaults to 400K.
+     *  @param sda                  The pin name for the sda line of the I2C bus.
+     *  @param scl                  The pin name for the scl line of the I2C bus.
+     *  @param addr                 The 8bit I2C address of the chip, common range 0xa0 - 0xae.
+     *  @param size                 The size of the device in bytes
+     *  @param block                The page size of the device in bytes, defaults to 32bytes
+     *  @param freq                 The frequency of the I2C bus, defaults to 400K.
+     *  @param address_is_eight_bit Specifies whether the EEPROM device is using eight bit
+     *                              addresses instead of 16 bit addresses. This should not be needed
+     *                              unless dealing with very cheap devices.
      */
     I2CEEBlockDevice(
         PinName sda, PinName scl, uint8_t address,
         bd_size_t size, bd_size_t block = 32,
-        int bus_speed = 400000);
+        int bus_speed = 400000,
+        bool address_is_eight_bit = false);
 
     /** Constructor to create an I2CEEBlockDevice on I2C pins
-    *
-    *  @param i2c      The I2C instance pointer
-    *  @param addr     The 8bit I2C address of the chip, common range 0xa0 - 0xae.
-    *  @param size     The size of the device in bytes
-    *  @param block    The page size of the device in bytes, defaults to 32bytes
-    *  @param freq     The frequency of the I2C bus, defaults to 400K.
-    */
+     *
+     *  @param i2c                  The I2C instance pointer
+     *  @param addr                 The 8bit I2C address of the chip, common range 0xa0 - 0xae.
+     *  @param size                 The size of the device in bytes
+     *  @param block                The page size of the device in bytes, defaults to 32bytes
+     *  @param freq                 The frequency of the I2C bus, defaults to 400K.
+     *  @param address_is_eight_bit Specifies whether the EEPROM device is using eight bit
+     *                              addresses instead of 16 bit addresses. This should not be needed
+     *                              unless dealing with very cheap devices.
+     */
     I2CEEBlockDevice(
         mbed::I2C *i2c_obj, uint8_t address,
-        bd_size_t size, bd_size_t block = 32);
+        bd_size_t size, bd_size_t block = 32,
+        bool address_is_eight_bit = false);
 
     /** Destructor of I2CEEBlockDevice
      */
@@ -168,6 +176,8 @@ private:
     uint8_t _i2c_addr;
     uint32_t _size;
     uint32_t _block;
+
+    bool _address_is_eight_bit;
 
     int _sync();
 };
