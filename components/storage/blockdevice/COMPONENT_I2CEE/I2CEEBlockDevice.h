@@ -181,8 +181,7 @@ private:
 
     int _sync();
 
-    using paged_handler = std::function<
-            int(const bd_addr_t &address, const bd_size_t &length, const uint8_t &deviceAddress)>;
+    using paged_handler = std::function<int(const bd_addr_t &address, const bd_size_t &length, const uint8_t &deviceAddress)>;
 
     /**
      * Executes a handler across page boundaries for eight bit mode.
