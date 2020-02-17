@@ -62,32 +62,43 @@ int I2CEEBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
     // Check the address and size fit onto the chip.
     MBED_ASSERT(is_valid_read(addr, size));
 
-    _i2c->start();
+    auto *charBuffer = reinterpret_cast<char *>(buffer);
 
-    if (!_i2c->write(_i2c_addr | 0)) {
-        return BD_ERROR_DEVICE_ERROR;
-    }
+    auto const handler = [&](const bd_addr_t &pagedStart, const bd_size_t &pagedLength, const uint8_t &page) -> int
+    {
+        _i2c->start();
 
-    if (!_address_is_eight_bit && !_i2c->write((char)(addr >> 8))) {
-        return BD_ERROR_DEVICE_ERROR;
-    }
+        auto const pagedDeviceAddress = get_paged_device_address(page);
 
-    if (!_i2c->write((char)(addr & 0xff))) {
-        return BD_ERROR_DEVICE_ERROR;
-    }
+        if (!_i2c->write(pagedDeviceAddress)) {
+            return BD_ERROR_DEVICE_ERROR;
+        }
 
-    _i2c->stop();
+        if (!_address_is_eight_bit && !_i2c->write((char)(pagedStart >> 8u))) {
+            return BD_ERROR_DEVICE_ERROR;
+        }
 
-    auto err = _sync();
-    if (err) {
-        return err;
-    }
+        if (!_i2c->write((char)(pagedStart & 0xffu))) {
+            return BD_ERROR_DEVICE_ERROR;
+        }
 
-    if (0 != _i2c->read(_i2c_addr, static_cast<char *>(buffer), size)) {
-        return BD_ERROR_DEVICE_ERROR;
-    }
+        _i2c->stop();
 
-    return 0;
+        auto err = _sync();
+        if (err) {
+            return err;
+        }
+
+        if (0 != _i2c->read(_i2c_addr, charBuffer, pagedLength)) {
+            return BD_ERROR_DEVICE_ERROR;
+        }
+
+        charBuffer += size;
+
+        return BD_ERROR_OK;
+    };
+
+    return do_paged(addr, size, handler);
 }
 
 int I2CEEBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
@@ -95,43 +106,52 @@ int I2CEEBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size
     // Check the addr and size fit onto the chip.
     MBED_ASSERT(is_valid_program(addr, size));
 
-    // While we have some more data to write.
-    while (size > 0) {
-        uint32_t off = addr % _block;
-        uint32_t chunk = (off + size < _block) ? size : (_block - off);
+    auto const *charBuffer = reinterpret_cast<char const *>(buffer);
 
-        _i2c->start();
+    auto const handler = [&](const bd_addr_t &pagedStart, const bd_size_t &pagedLength, const uint8_t &page) -> int
+    {
+        // While we have some more data to write.
+        while (size > 0) {
+            uint32_t off = addr % _block;
+            uint32_t chunk = (off + size < _block) ? size : (_block - off);
 
-        if (!_i2c->write(_i2c_addr | 0)) {
-            return BD_ERROR_DEVICE_ERROR;
+            _i2c->start();
+
+            auto const pagedDeviceAddress = get_paged_device_address(page);
+
+            if (!_i2c->write(pagedDeviceAddress)) {
+                return BD_ERROR_DEVICE_ERROR;
+            }
+
+            if (!_address_is_eight_bit && !_i2c->write((char)(pagedStart >> 8u))) {
+                return BD_ERROR_DEVICE_ERROR;
+            }
+
+            if (!_i2c->write((char)(addr & 0xffu))) {
+                return BD_ERROR_DEVICE_ERROR;
+            }
+
+            for (unsigned i = 0; i < chunk; i++) {
+                _i2c->write(charBuffer[i]);
+            }
+
+            _i2c->stop();
+
+            int err = _sync();
+
+            if (err) {
+                return err;
+            }
+
+            addr += chunk;
+            size -= chunk;
+            charBuffer += chunk;
         }
 
-        if (!_address_is_eight_bit && !_i2c->write((char)(addr >> 8))) {
-            return BD_ERROR_DEVICE_ERROR;
-        }
+        return BD_ERROR_OK;
+    };
 
-        if (!_i2c->write((char)(addr & 0xff))) {
-            return BD_ERROR_DEVICE_ERROR;
-        }
-
-        for (unsigned i = 0; i < chunk; i++) {
-            _i2c->write(static_cast<const char *>(buffer)[i]);
-        }
-
-        _i2c->stop();
-
-        int err = _sync();
-
-        if (err) {
-            return err;
-        }
-
-        addr += chunk;
-        size -= chunk;
-        buffer = static_cast<const char *>(buffer) + chunk;
-    }
-
-    return 0;
+    return do_paged(addr, size, handler);
 }
 
 int I2CEEBlockDevice::erase(bd_addr_t addr, bd_size_t size)
@@ -179,4 +199,75 @@ bd_size_t I2CEEBlockDevice::size() const
 const char *I2CEEBlockDevice::get_type() const
 {
     return "I2CEE";
+}
+
+int I2CEEBlockDevice::do_paged(const bd_addr_t &startAddress,
+                               const bd_size_t &length,
+                               const paged_handler &handler)
+{
+    // This helper is only used for eight bit mode.
+    if (!this->_address_is_eight_bit) {
+        return handler(startAddress, length, 0);
+    }
+
+    auto currentStartAddress = startAddress;
+
+    auto const pageSize = 256;
+    bd_size_t lengthDone = 0;
+    while (lengthDone != length)
+    {
+        /* Integer division => Round down */
+        uint8_t const currentPage = currentStartAddress / 256;
+        bd_addr_t const nextPageBegin = (currentPage + 1) * pageSize;
+        bd_addr_t const currentReadEndAddressExclusive = std::min(nextPageBegin, startAddress + length);
+        bd_size_t const currentLength = currentReadEndAddressExclusive - currentStartAddress;
+        bd_addr_t const pagedBegin = currentStartAddress - (currentPage * pageSize);
+
+        auto const handlerReturn = handler(pagedBegin, currentLength, currentPage);
+        if (handlerReturn != BD_ERROR_OK)
+        {
+            return handlerReturn;
+        }
+
+        currentStartAddress = currentReadEndAddressExclusive;
+        lengthDone += currentLength;
+    }
+
+    return BD_ERROR_OK;
+}
+
+uint8_t I2CEEBlockDevice::get_paged_device_address(const uint8_t &page)
+{
+    if (!this->_address_is_eight_bit)
+    {
+        return this->_i2c_addr;
+    }
+    else
+    {
+        // This method uses a dynamically created bit mask for the page given.
+        // This ensures compatibility with all sizes of ICs.
+        // E. g. the 512K variants have two user address bits and one page bit.
+        // We don't want to forcefully override the two user address bits.
+
+        // Create a mask to cover all bits required to set page
+        // i starts at one because the LSB is used for R/W in I2C
+        uint8_t i = 1;
+        uint8_t addressMask = 0;
+        auto p = page;
+        while (p != 0u)
+        {
+            addressMask |= (1u << i);
+            p >>= 1u;
+            i++;
+        }
+
+        uint8_t pagedDeviceAddress = this->_i2c_addr & static_cast<uint8_t>(~addressMask);
+        // Assert page < 0b111, because we don't have
+        // more bits for page encoding
+        // Don't actually write 0b111, this is a nonstandard extension.
+        MBED_ASSERT(page < 0x7);
+        pagedDeviceAddress |= static_cast<uint8_t>(page << 1u);
+
+        return pagedDeviceAddress;
+    }
 }

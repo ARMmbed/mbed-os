@@ -66,8 +66,8 @@ public:
      *  @param block                The page size of the device in bytes, defaults to 32bytes
      *  @param freq                 The frequency of the I2C bus, defaults to 400K.
      *  @param address_is_eight_bit Specifies whether the EEPROM device is using eight bit
-     *                              addresses instead of 16 bit addresses. This should not be needed
-     *                              unless dealing with very cheap devices.
+     *                              addresses instead of 16 bit addresses. This is used for example
+     *                              in AT24C series chips.
      */
     I2CEEBlockDevice(
         PinName sda, PinName scl, uint8_t address,
@@ -83,8 +83,8 @@ public:
      *  @param block                The page size of the device in bytes, defaults to 32bytes
      *  @param freq                 The frequency of the I2C bus, defaults to 400K.
      *  @param address_is_eight_bit Specifies whether the EEPROM device is using eight bit
-     *                              addresses instead of 16 bit addresses. This should not be needed
-     *                              unless dealing with very cheap devices.
+     *                              addresses instead of 16 bit addresses. This is used for example
+     *                              in AT24C series chips.
      */
     I2CEEBlockDevice(
         mbed::I2C *i2c_obj, uint8_t address,
@@ -180,6 +180,33 @@ private:
     bool _address_is_eight_bit;
 
     int _sync();
+
+    using paged_handler = std::function<int(const bd_addr_t &address, const bd_size_t &length, const uint8_t &page)>;
+
+    /**
+     * Executes a handler across page boundaries for eight bit mode.
+     * When eight bit mode is disabled, the function does not do paging at all.
+     * When eight bit mode is enabled, this function splits the requested
+     * address space into multiple pages when needed.
+     * This is required when a read or write must be done across multiple pages.
+     *
+     * @param startAddress The address to start
+     * @param length The requested length of the operation
+     * @param handler The handler to execute
+     * @return Returns 0 when all calls to handler() return 0. Otherwise the
+     *         error code from the first non-zero handler() call.
+     */
+    int do_paged(const bd_addr_t &startAddress, const bd_size_t &length, const paged_handler &handler);
+
+    /**
+     * Gets the device's I2C address with respect to the requested page.
+     * When eight bit mode is disabled, this function is a noop.
+     * When eight bit mode is enabled, it sets the bits required for this bit
+     * in the devices address. Other bits remain unchained.
+     * @param page The requested page
+     * @return The device's I2C address for that page
+     */
+    uint8_t get_paged_device_address(const uint8_t &page);
 };
 
 
