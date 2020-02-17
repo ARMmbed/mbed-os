@@ -69,17 +69,18 @@ int I2CEEBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
     {
         _i2c->start();
 
-        auto const pagedDeviceAddress = get_paged_device_address(page);
-
-        if (!_i2c->write(pagedDeviceAddress)) {
+        if (1 != _i2c->write(pagedDeviceAddress))
+        {
             return BD_ERROR_DEVICE_ERROR;
         }
 
-        if (!_address_is_eight_bit && !_i2c->write((char)(pagedStart >> 8u))) {
+        if (!_address_is_eight_bit && 1 != _i2c->write((char) (pagedStart >> 8u)))
+        {
             return BD_ERROR_DEVICE_ERROR;
         }
 
-        if (!_i2c->write((char)(pagedStart & 0xffu))) {
+        if (1 != _i2c->write((char) (pagedStart & 0xffu)))
+        {
             return BD_ERROR_DEVICE_ERROR;
         }
 
@@ -113,28 +114,34 @@ int I2CEEBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size
                              const uint8_t &pagedDeviceAddress) -> int
     {
         // While we have some more data to write.
-        while (size > 0) {
+        while (size > 0)
+        {
             uint32_t off = addr % _block;
             uint32_t chunk = (off + size < _block) ? size : (_block - off);
 
             _i2c->start();
 
-            auto const pagedDeviceAddress = get_paged_device_address(page);
-
-            if (!_i2c->write(pagedDeviceAddress)) {
+            if (1 != _i2c->write(pagedDeviceAddress))
+            {
                 return BD_ERROR_DEVICE_ERROR;
             }
 
-            if (!_address_is_eight_bit && !_i2c->write((char)(pagedStart >> 8u))) {
+            if (!_address_is_eight_bit && 1 != _i2c->write((char) (pagedStart >> 8u)))
+            {
                 return BD_ERROR_DEVICE_ERROR;
             }
 
-            if (!_i2c->write((char)(addr & 0xffu))) {
+            if (1 != _i2c->write((char) (addr & 0xffu)))
+            {
                 return BD_ERROR_DEVICE_ERROR;
             }
 
-            for (unsigned i = 0; i < chunk; i++) {
-                _i2c->write(charBuffer[i]);
+            for (unsigned i = 0; i < chunk; i++)
+            {
+                if (1 != _i2c->write(charBuffer[i]))
+                {
+                    return BD_ERROR_DEVICE_ERROR;
+                }
             }
 
             _i2c->stop();
