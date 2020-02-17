@@ -232,7 +232,7 @@ const PinMap *i2c_slave_scl_pinmap()
 /*****************************************************************************/
 
 /* Global array for easy register selection for each instance. */
-static NRF_TWI_Type * nordic_nrf5_twi_register[2] = { NRF_TWI0, NRF_TWI1 };
+static NRF_TWI_Type *nordic_nrf5_twi_register[2] = { NRF_TWI0, NRF_TWI1 };
 
 /**
  * @brief      Reconfigure TWI register.
@@ -254,14 +254,14 @@ void i2c_configure_twi_instance(i2c_t *obj)
     struct i2c_s *config = obj;
 #endif
 
-	static nrfx_irq_handler_t const irq_handlers[NRFX_TWI_ENABLED_COUNT] = {
-			#if NRFX_CHECK(NRFX_TWI0_ENABLED)
-			nrfx_twi_0_irq_handler,
-			#endif
-			#if NRFX_CHECK(NRFX_TWI1_ENABLED)
-			nrfx_twi_1_irq_handler,
-			#endif
-		};
+    static nrfx_irq_handler_t const irq_handlers[NRFX_TWI_ENABLED_COUNT] = {
+#if NRFX_CHECK(NRFX_TWI0_ENABLED)
+        nrfx_twi_0_irq_handler,
+#endif
+#if NRFX_CHECK(NRFX_TWI1_ENABLED)
+        nrfx_twi_1_irq_handler,
+#endif
+    };
 
     int instance = config->instance;
 
@@ -287,22 +287,21 @@ void i2c_configure_twi_instance(i2c_t *obj)
         /* Force resource release. This is necessary because mbed drivers don't
          * deinitialize on object destruction.
          */
-        NRFX_IRQ_DISABLE((nrfx_get_irq_number((void const*)nordic_nrf5_twi_register[instance])));
-		/* Release and re-initialize the irq handlers.
-		 * observation: based on call flow, this is called only during i2c_reset and i2c_byte_write
-		 * The nrfx_prs_acquire is normally called in nrfx_twi_init which is part of the i2c_configure_driver_instance,
-		 * not i2c_configure_twi_intance. Hence I think the release and acquire is not doing any useful work here.
-		 * Keeping for reference and should clean up after testing if found not useful.
-		*/
+        NRFX_IRQ_DISABLE((nrfx_get_irq_number((void const *)nordic_nrf5_twi_register[instance])));
+        /* Release and re-initialize the irq handlers.
+         * observation: based on call flow, this is called only during i2c_reset and i2c_byte_write
+         * The nrfx_prs_acquire is normally called in nrfx_twi_init which is part of the i2c_configure_driver_instance,
+         * not i2c_configure_twi_intance. Hence I think the release and acquire is not doing any useful work here.
+         * Keeping for reference and should clean up after testing if found not useful.
+        */
 
-		nrfx_prs_release(nordic_nrf5_twi_register[instance]);
-		if (nrfx_prs_acquire(nordic_nrf5_twi_register[instance],
-				irq_handlers[instance]) != NRFX_SUCCESS)
-		{
-			DEBUG_PRINTF("Function: %s, nrfx_prs_acquire error code: %s.",
+        nrfx_prs_release(nordic_nrf5_twi_register[instance]);
+        if (nrfx_prs_acquire(nordic_nrf5_twi_register[instance],
+                             irq_handlers[instance]) != NRFX_SUCCESS) {
+            DEBUG_PRINTF("Function: %s, nrfx_prs_acquire error code: %s.",
                          __func__,
                          err_code);
-		}
+        }
 
         /* Reset shorts register. */
         nrf_twi_shorts_set(nordic_nrf5_twi_register[instance], 0);
@@ -505,7 +504,7 @@ int i2c_byte_read(i2c_t *obj, int last)
 
         /* Block until timeout or data ready event has been signaled. */
         while (((now_us - start_us) < timeout) &&
-               !(nrf_twi_event_check(nordic_nrf5_twi_register[instance], NRF_TWI_EVENT_RXDREADY))) {
+                !(nrf_twi_event_check(nordic_nrf5_twi_register[instance], NRF_TWI_EVENT_RXDREADY))) {
             now_us = tick2us * lp_ticker_read();
         }
 
@@ -544,7 +543,7 @@ int i2c_stop(i2c_t *obj)
     uint32_t now_us = start_us;
 
     while (((now_us - start_us) < MAXIMUM_TIMEOUT_US) &&
-           !(nrf_twi_event_check(nordic_nrf5_twi_register[instance], NRF_TWI_EVENT_STOPPED))) {
+            !(nrf_twi_event_check(nordic_nrf5_twi_register[instance], NRF_TWI_EVENT_STOPPED))) {
         now_us = tick2us * lp_ticker_read();
     }
 
@@ -640,7 +639,7 @@ static void i2c_configure_driver_instance(i2c_t *obj)
         /* Force resource release. This is necessary because mbed drivers don't
          * deinitialize on object destruction.
          */
-        NRFX_IRQ_DISABLE((nrfx_get_irq_number((void const*)nordic_nrf5_twi_register[instance])));
+        NRFX_IRQ_DISABLE((nrfx_get_irq_number((void const *)nordic_nrf5_twi_register[instance])));
 
         /* Configure driver with new settings. */
         nrfx_twi_config_t twi_config = {
@@ -709,9 +708,9 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
 
     /* Initialize transaction. */
     ret_code_t retval = nrfx_twi_rx(&nordic_nrf5_instance[instance],
-                                       address >> 1,
-                                       (uint8_t *) data,
-                                       length);
+                                    address >> 1,
+                                    (uint8_t *) data,
+                                    length);
 
     /* Set return value on success. */
     if (retval == NRF_SUCCESS) {
@@ -753,10 +752,10 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 
     /* Initialize transaction. */
     ret_code_t retval = nrfx_twi_tx(&nordic_nrf5_instance[instance],
-                                       address >> 1,
-                                       (const uint8_t *) data,
-                                       length,
-                                       !stop);
+                                    address >> 1,
+                                    (const uint8_t *) data,
+                                    length,
+                                    !stop);
 
     /* Set return value on success. */
     if (retval == NRF_SUCCESS) {
@@ -792,8 +791,7 @@ static void nordic_nrf5_twi_event_handler(nrfx_twi_evt_t const *p_event, void *p
     struct i2c_s *config = &obj->i2c;
 
     /* Translate event type from NRF driver values to mbed HAL values. */
-    switch (p_event->type)
-    {
+    switch (p_event->type) {
         /* Transfer completed event. */
         case NRFX_TWI_EVT_DONE:
             config->event = I2C_EVENT_TRANSFER_COMPLETE;
@@ -874,17 +872,17 @@ void i2c_transfer_asynch(i2c_t *obj,
 
     /* Configure TWI transfer. */
     const nrfx_twi_xfer_desc_t twi_config = NRFX_TWI_XFER_DESC_TXRX(address >> 1,
-                                                                          (uint8_t*) tx,
-                                                                          tx_length,
-                                                                          rx,
-                                                                          rx_length);
+                                                                    (uint8_t *) tx,
+                                                                    tx_length,
+                                                                    rx,
+                                                                    rx_length);
 
     uint32_t flags = (stop) ? 0 : NRFX_TWI_FLAG_TX_NO_STOP;
 
     /* Initiate TWI transfer using NRF driver. */
     ret_code_t result = nrfx_twi_xfer(&nordic_nrf5_instance[instance],
-                                         &twi_config,
-                                         flags);
+                                      &twi_config,
+                                      flags);
 
     /* Signal error if event mask matches and event handler is set. */
     if ((result != NRF_SUCCESS) && (mask & I2C_EVENT_ERROR) && handler) {
