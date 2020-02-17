@@ -64,7 +64,8 @@ int I2CEEBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 
     auto *charBuffer = reinterpret_cast<char *>(buffer);
 
-    auto const handler = [&](const bd_addr_t &pagedStart, const bd_size_t &pagedLength, const uint8_t &page) -> int
+    auto const handler = [&](const bd_addr_t &pagedStart, const bd_size_t &pagedLength,
+                             const uint8_t &pagedDeviceAddress) -> int
     {
         _i2c->start();
 
@@ -108,7 +109,8 @@ int I2CEEBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size
 
     auto const *charBuffer = reinterpret_cast<char const *>(buffer);
 
-    auto const handler = [&](const bd_addr_t &pagedStart, const bd_size_t &pagedLength, const uint8_t &page) -> int
+    auto const handler = [&](const bd_addr_t &pagedStart, const bd_size_t &pagedLength,
+                             const uint8_t &pagedDeviceAddress) -> int
     {
         // While we have some more data to write.
         while (size > 0) {
@@ -207,7 +209,7 @@ int I2CEEBlockDevice::do_paged(const bd_addr_t &startAddress,
 {
     // This helper is only used for eight bit mode.
     if (!this->_address_is_eight_bit) {
-        return handler(startAddress, length, 0);
+        return handler(startAddress, length, get_paged_device_address(0));
     }
 
     auto currentStartAddress = startAddress;
@@ -222,8 +224,9 @@ int I2CEEBlockDevice::do_paged(const bd_addr_t &startAddress,
         bd_addr_t const currentReadEndAddressExclusive = std::min(nextPageBegin, startAddress + length);
         bd_size_t const currentLength = currentReadEndAddressExclusive - currentStartAddress;
         bd_addr_t const pagedBegin = currentStartAddress - (currentPage * pageSize);
+        uint8_t const pagedDeviceAddress = get_paged_device_address(currentPage);
 
-        auto const handlerReturn = handler(pagedBegin, currentLength, currentPage);
+        auto const handlerReturn = handler(pagedBegin, currentLength, pagedDeviceAddress);
         if (handlerReturn != BD_ERROR_OK)
         {
             return handlerReturn;
