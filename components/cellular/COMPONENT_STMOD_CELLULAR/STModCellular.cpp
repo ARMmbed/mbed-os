@@ -24,6 +24,10 @@
 using namespace mbed;
 
 STModCellular::STModCellular(FileHandle *fh) : STMOD_CELLULAR_MODEM(fh),
+#if defined(TARGET_DISCO_L562QE)
+    STMOD_SEL_12(PF_11),
+    STMOD_SEL_34(PF_12),
+#endif
     m_powerkey(MBED_CONF_STMOD_CELLULAR_POWER),
     m_reset(MBED_CONF_STMOD_CELLULAR_RESET),
     m_simsel0(MBED_CONF_STMOD_CELLULAR_SIMSEL0),
@@ -34,6 +38,13 @@ STModCellular::STModCellular(FileHandle *fh) : STMOD_CELLULAR_MODEM(fh),
     m_sim_data(MBED_CONF_STMOD_CELLULAR_SIM_DATA)
 {
     tr_info("STModCellular creation");
+
+#if defined(TARGET_DISCO_L562QE)
+    /* See PinNames.h file, STMOD+ pins are configurable */
+    STMOD_SEL_12 = 1;
+    STMOD_SEL_34 = 1;
+    tr_info("STMOD+ UART pins re-configuration");
+#endif
 
     // start with modem disabled
     m_powerkey.write(0);

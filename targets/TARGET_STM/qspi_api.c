@@ -389,7 +389,6 @@ qspi_status_t qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap, uint32_
 static qspi_status_t _qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap, uint32_t hz, uint8_t mode)
 #endif
 {
-    OSPIM_CfgTypeDef OSPIM_Cfg_Struct = {0};
     debug_if(qspi_api_c_debug, "qspi_init mode %u\n", mode);
 
     // Reset handle internal state
@@ -397,7 +396,11 @@ static qspi_status_t _qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap,
 
     // Set default OCTOSPI handle values
     obj->handle.Init.DualQuad = HAL_OSPI_DUALQUAD_DISABLE;
-    obj->handle.Init.MemoryType = HAL_OSPI_MEMTYPE_MICRON;
+#if defined(TARGET_MX25LM51245G)
+    obj->handle.Init.MemoryType = HAL_OSPI_MEMTYPE_MACRONIX; // Read sequence in DTR mode: D1-D0-D3-D2
+#else
+    obj->handle.Init.MemoryType = HAL_OSPI_MEMTYPE_MICRON;   // Read sequence in DTR mode: D0-D1-D2-D3
+#endif
     obj->handle.Init.ClockPrescaler = 4; // default value, will be overwritten in qspi_frequency
     obj->handle.Init.FifoThreshold = 4;
     obj->handle.Init.SampleShifting = HAL_OSPI_SAMPLE_SHIFTING_NONE;
@@ -408,6 +411,9 @@ static qspi_status_t _qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap,
     obj->handle.Init.ClockMode = mode == 0 ? HAL_OSPI_CLOCK_MODE_0 : HAL_OSPI_CLOCK_MODE_3;
     obj->handle.Init.DelayHoldQuarterCycle = HAL_OSPI_DHQC_ENABLE;
     obj->handle.Init.ChipSelectBoundary = 0;
+#if defined(HAL_OSPI_DELAY_BLOCK_USED) // STM32L5
+    obj->handle.Init.DelayBlockBypass = HAL_OSPI_DELAY_BLOCK_USED;
+#endif
 
     // tested all combinations, take first
     obj->qspi = pinmap->peripheral;
@@ -426,7 +432,6 @@ static qspi_status_t _qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap,
 #if defined(OCTOSPI1)
     if (obj->qspi == QSPI_1) {
         __HAL_RCC_OSPI1_CLK_ENABLE();
-        __HAL_RCC_OSPIM_CLK_ENABLE();
         __HAL_RCC_OSPI1_FORCE_RESET();
         __HAL_RCC_OSPI1_RELEASE_RESET();
     }
@@ -434,7 +439,6 @@ static qspi_status_t _qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap,
 #if defined(OCTOSPI2)
     if (obj->qspi == QSPI_2) {
         __HAL_RCC_OSPI2_CLK_ENABLE();
-        __HAL_RCC_OSPIM_CLK_ENABLE();
         __HAL_RCC_OSPI2_FORCE_RESET();
         __HAL_RCC_OSPI2_RELEASE_RESET();
     }
@@ -461,6 +465,11 @@ static qspi_status_t _qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap,
     pin_function(pinmap->ssel_pin, pinmap->ssel_function);
     pin_mode(pinmap->ssel_pin, PullNone);
 
+#if defined(OCTOSPI2)
+    __HAL_RCC_OSPIM_CLK_ENABLE();
+
+    OSPIM_CfgTypeDef OSPIM_Cfg_Struct = {0};
+
     /* The OctoSPI IO Manager OCTOSPIM configuration is supported in a simplified mode in mbed-os
      * QSPI1 signals are mapped to port 1 and QSPI2 signals are mapped to port 2.
      * This  is coded in this way in PeripheralPins.c */
@@ -482,6 +491,7 @@ static qspi_status_t _qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap,
         debug_if(qspi_api_c_debug, "HAL_OSPIM_Config error\n");
         return QSPI_STATUS_ERROR;
     }
+#endif
 
     return qspi_frequency(obj, hz);
 }
