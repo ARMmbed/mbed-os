@@ -8020,7 +8020,7 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "nRF51822_xxAA",
+        "device_name": "nRF51822_xxAC",
         "detect_code": [
             "4500"
         ]
@@ -8162,7 +8162,7 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "nRF51822_xxAA"
+        "device_name": "nRF51822_xxAC"
     },
     "NRF51_DONGLE_BOOT": {
         "inherits": [
@@ -8275,7 +8275,7 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "nRF51822_xxAA",
+        "device_name": "nRF51822_xxAC",
         "detect_code": [
             "C005"
         ]
@@ -8325,7 +8325,7 @@
             "SPI_ASYNCH",
             "SPISLAVE"
         ],
-        "device_name": "nRF51822_xxAA",
+        "device_name": "nRF51822_xxAC",
         "release_versions": [
             "5"
         ],
@@ -8389,7 +8389,7 @@
         "overrides": {
             "uart_hwfc": 0
         },
-        "device_name": "nRF51822_xxAA"
+        "device_name": "nRF51822_xxAC"
     },
     "TY51822R3_BOOT": {
         "inherits": [
@@ -10995,7 +10995,7 @@
             "2",
             "5"
         ],
-        "device_name": "nRF51822_xxAA",
+        "device_name": "nRF51822_xxAC",
         "detect_code": [
             "1100"
         ]
@@ -11030,7 +11030,7 @@
             "2",
             "5"
         ],
-        "device_name": "nRF51822_xxAA"
+        "device_name": "nRF51822_xxAC"
     },
     "NRF51_DONGLE": {
         "inherits": [
@@ -11062,7 +11062,8 @@
         ],
         "detect_code": [
             "1120"
-        ]
+        ],
+        "device_name": "nRF51822_xxAC"
     },
     "OSHCHIP": {
         "inherits": [
