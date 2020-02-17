@@ -227,7 +227,7 @@ int I2CEEBlockDevice::do_paged(const bd_addr_t &startAddress,
     while (lengthDone != length)
     {
         /* Integer division => Round down */
-        uint8_t const currentPage = currentStartAddress / 256;
+        uint8_t const currentPage = currentStartAddress / pageSize;
         bd_addr_t const nextPageBegin = (currentPage + 1) * pageSize;
         bd_addr_t const currentReadEndAddressExclusive = std::min(nextPageBegin, startAddress + length);
         bd_size_t const currentLength = currentReadEndAddressExclusive - currentStartAddress;
