@@ -51,6 +51,7 @@ constexpr int SFDP_MAX_NUM_OF_ERASE_TYPES = 4;  ///< Maximum number of different
 struct sfdp_bptbl_info {
     uint32_t addr; ///< Address
     size_t size; ///< Size
+    bd_size_t device_size_bytes;
     int legacy_erase_instruction; ///< Legacy 4K erase instruction
 };
 
@@ -77,7 +78,7 @@ struct sfdp_hdr_info {
  * Retrieves SFDP headers from a device and parses the information contained by the headers
  *
  * @param sfdp_reader Callback function used to read headers from a device
- * @param hdr_info    All information parsed from the headers gets passed back on this structure
+ * @param hdr_info    SFDP information structure
  *
  * @return 0 on success, negative error code on failure
  */
@@ -87,7 +88,7 @@ int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, 
  * Retrieves the table from a device and parses the information contained by the table
  *
  * @param sfdp_reader Callback function used to read headers from a device
- * @param smtbl       All information parsed from the table gets passed back on this structure
+ * @param smtbl       Sector Map Table information structure
  *
  * @return 0 on success, negative error code on failure
  */
@@ -105,11 +106,35 @@ size_t sfdp_detect_page_size(uint8_t *bptbl_ptr, size_t bptbl_size);
 /** Detect all supported erase types
  *
  * @param bptbl_ptr Pointer to memory holding a Basic Parameter Table structure
- * @param smtbl     All information parsed from the table gets passed back on this structure
+ * @param smtbl Sector Map Table information structure
  *
  * @return 0 on success, negative error code on failure
  */
 int sfdp_detect_erase_types_inst_and_size(uint8_t *bptbl_ptr, sfdp_hdr_info &sfdp_info);
+
+/** Find the region to which the given offset belongs to
+ *
+ * @param offset Offset value
+ * @param smtbl  Sector Map Table information structure
+ */
+int sfdp_find_addr_region(bd_size_t offset, const sfdp_hdr_info &sfdp_info);
+
+/** Iterate on all supported Erase Types of the Region to which the offset belongs to
+ *
+ * Iterates from highest type to lowest.
+ *
+ * @param bitfield
+ * @param size
+ * @param region
+ * @param smtbl Sector Map Table information structure
+ *
+ * @return
+ */
+int sfdp_iterate_next_largest_erase_type(uint8_t &bitfield,
+                                         int size,
+                                         int offset,
+                                         int region,
+                                         const sfdp_smptbl_info &smptbl);
 
 /** @}*/
 } /* namespace mbed */

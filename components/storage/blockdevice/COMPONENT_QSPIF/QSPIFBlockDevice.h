@@ -396,7 +396,6 @@ private:
 
     unsigned int _page_size_bytes; // Page size - 256 Bytes default
     int _freq;
-    bd_size_t _device_size_bytes;
 
     // Bus speed configuration
     qspi_bus_width_t _inst_width; //Bus width for Instruction phase
