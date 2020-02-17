@@ -59,6 +59,13 @@
 #include "app_util_platform.h"
 #include "prs/nrfx_prs.h"
 
+#define TWI_PIN_INIT(_pin) nrf_gpio_cfg((_pin),                     \
+                                        NRF_GPIO_PIN_DIR_INPUT,     \
+                                        NRF_GPIO_PIN_INPUT_CONNECT, \
+                                        NRF_GPIO_PIN_PULLUP,        \
+                                        NRF_GPIO_PIN_S0D1,          \
+                                        NRF_GPIO_PIN_NOSENSE)
+
 #if 0
 #define DEBUG_PRINTF(...) printf(__VA_ARGS__)
 #else
@@ -329,6 +336,13 @@ void i2c_configure_twi_instance(i2c_t *obj)
         /* Set frequency. */
         nrf_twi_frequency_set(nordic_nrf5_twi_register[instance],
                               config->frequency);
+
+        /* To secure correct signal levels on the pins used by the TWI
+        master when the system is in OFF mode, and when the TWI master is
+        disabled, these pins must be configured in the GPIO peripheral.
+        */
+        TWI_PIN_INIT(config->scl);
+        TWI_PIN_INIT(config->sda);
 
         /* Enable TWI peripheral with new settings. */
         nrf_twi_enable(nordic_nrf5_twi_register[instance]);
