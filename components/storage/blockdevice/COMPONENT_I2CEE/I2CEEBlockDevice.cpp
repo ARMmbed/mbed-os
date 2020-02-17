@@ -160,7 +160,8 @@ int I2CEEBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size
         return BD_ERROR_OK;
     };
 
-    return do_paged(addr, size, handler);
+    auto const originalSize = size;
+    return do_paged(addr, originalSize, handler);
 }
 
 int I2CEEBlockDevice::erase(bd_addr_t addr, bd_size_t size)
