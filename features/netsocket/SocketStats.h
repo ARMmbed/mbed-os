@@ -93,7 +93,7 @@ public:
      *         the socket creation count exceeds `MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT`.
      *
      */
-    void stats_new_socket_entry(const Socket *reference_id);
+    void stats_new_socket_entry(Socket *reference_id);
 
     /** Updates the state of the socket and records `tick_last_change`.
      *  API used by socket (TCP or UDP) layers only, not to be used by application.
@@ -162,7 +162,7 @@ inline size_t SocketStats::mbed_stats_socket_get_each(mbed_stats_socket_t *, siz
     return 0;
 }
 
-inline void SocketStats::stats_new_socket_entry(const Socket *)
+inline void SocketStats::stats_new_socket_entry(Socket *)
 {
 }
 
