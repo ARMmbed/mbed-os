@@ -546,7 +546,7 @@ int STM32_EMAC::low_level_input(emac_mem_buf_t **buf)
 
     dmarxdesc = EthHandle.RxFrameInfos.FSRxDesc;
 
-    if (len > 0) {
+    if (len > 0 && EthHandle.RxFrameInfos.length <= 1500) {
         /* Allocate a memory buffer chain from buffer pool */
         *buf = memory_manager->alloc_pool(len, 0);
     }
