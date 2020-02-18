@@ -90,10 +90,14 @@ static void _spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
     }
 
     // pin out the spi pins
-    pin_function(pinmap->mosi_pin, pinmap->mosi_function);
-    pin_mode(pinmap->mosi_pin, PullNone);
-    pin_function(pinmap->miso_pin, pinmap->miso_function);
-    pin_mode(pinmap->miso_pin, PullNone);
+    if (pinmap->mosi_pin != NC) {
+        pin_function(pinmap->mosi_pin, pinmap->mosi_function);
+        pin_mode(pinmap->mosi_pin, PullNone);
+    }
+    if (pinmap->miso_pin != NC) {
+        pin_function(pinmap->miso_pin, pinmap->miso_function);
+        pin_mode(pinmap->miso_pin, PullNone);
+    }
     pin_function(pinmap->sclk_pin, pinmap->sclk_function);
     pin_mode(pinmap->sclk_pin, PullNone);
     if (pinmap->ssel_pin != NC) {
