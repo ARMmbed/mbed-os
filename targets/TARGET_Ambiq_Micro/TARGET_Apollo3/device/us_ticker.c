@@ -162,7 +162,7 @@ void us_ticker_fire_interrupt(void)
 const ticker_info_t *us_ticker_get_info(void)
 {
     static const ticker_info_t info = {
-        1000000, // 1 MHz
+        3000000, // 3 MHz
         32       // 32 bit counter
     };
     return &info;
