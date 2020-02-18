@@ -4153,7 +4153,8 @@
             "EVK",
             "MIMXRT1050",
             "IMX",
-            "NXP_EMAC"
+            "NXP_EMAC",
+	    "USB"
         ],
         "is_disk_virtual": true,
         "macros": [
@@ -4169,7 +4170,8 @@
             "__STARTUP_INITIALIZE_RAMFUNCTION",
             "__STARTUP_INITIALIZE_NONCACHEDATA",
             "MBED_MPU_CUSTOM",
-            "MBED_TICKLESS"
+            "MBED_TICKLESS",
+            "DATA_SECTION_IS_CACHEABLE=1"
         ],
         "components_add": [
             "FLASHIAP"
@@ -4201,7 +4203,8 @@
             "STDIO_MESSAGES",
             "TRNG",
             "WATCHDOG",
-            "FLASH"
+            "FLASH",
+            "USBDEVICE"
         ],
         "release_versions": [
             "5"
