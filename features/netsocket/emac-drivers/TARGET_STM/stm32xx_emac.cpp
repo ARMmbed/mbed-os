@@ -876,13 +876,13 @@ bool STM32_EMAC::power_up()
     }
 
     /* Worker thread */
-    thread = create_new_thread("stm32_emac_thread", &STM32_EMAC::thread_function, this, THREAD_STACKSIZE, THREAD_PRIORITY, &thread_cb);
+    thread = create_new_thread("stm32_emac_thread", &STM32_EMAC::thread_function, this, MBED_CONF_STM32_EMAC_THREAD_STACKSIZE, THREAD_PRIORITY, &thread_cb);
 
     phy_task_handle = mbed::mbed_event_queue()->call_every(PHY_TASK_PERIOD_MS, mbed::callback(this, &STM32_EMAC::phy_task));
 
 #if defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx)\
       || defined (STM32F779xx)
-    rmii_watchdog_thread = create_new_thread("stm32_rmii_watchdog", &STM32_EMAC::rmii_watchdog_thread_function, this, THREAD_STACKSIZE, THREAD_PRIORITY, &rmii_watchdog_thread_cb);
+    rmii_watchdog_thread = create_new_thread("stm32_rmii_watchdog", &STM32_EMAC::rmii_watchdog_thread_function, this, 128, THREAD_PRIORITY, &rmii_watchdog_thread_cb);
 #endif
 
     /* Allow the PHY task to detect the initial link state and set up the proper flags */

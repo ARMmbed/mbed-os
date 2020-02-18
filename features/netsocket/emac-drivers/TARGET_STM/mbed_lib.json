@@ -3,6 +3,10 @@
     "config": {
         "eth-rxbufnb": 4,
         "eth-txbufnb": 4,
+        "thread-stacksize": {
+            "help": "Stack size for stm32_emac_thread",
+            "value": 512
+        },
         "eth-phy-address": {
             "help" : "Configures actual PHY address according to pullup/down status of PHYAD pin(s)",
             "value" : 0
