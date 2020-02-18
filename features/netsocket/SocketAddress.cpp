@@ -24,49 +24,27 @@
 
 
 
-SocketAddress::SocketAddress(nsapi_addr_t addr, uint16_t port)
+SocketAddress::SocketAddress(const nsapi_addr_t &addr, uint16_t port) : _addr(addr), _port(port)
 {
-    mem_init();
-    _ip_address = NULL;
-    set_addr(addr);
-    set_port(port);
 }
 
-SocketAddress::SocketAddress(const char *addr, uint16_t port)
+SocketAddress::SocketAddress(const char *addr, uint16_t port) : _port(port)
 {
-    mem_init();
-    _ip_address = NULL;
     set_ip_address(addr);
-    set_port(port);
 }
 
-SocketAddress::SocketAddress(const void *bytes, nsapi_version_t version, uint16_t port)
+SocketAddress::SocketAddress(const void *bytes, nsapi_version_t version, uint16_t port) : _port(port)
 {
-    mem_init();
-    _ip_address = NULL;
     set_ip_bytes(bytes, version);
-    set_port(port);
 }
 
-SocketAddress::SocketAddress(const SocketAddress &addr)
+SocketAddress::SocketAddress(const SocketAddress &addr) : _addr(addr._addr), _port(addr._port)
 {
-    mem_init();
-    _ip_address = NULL;
-    set_addr(addr.get_addr());
-    set_port(addr.get_port());
-}
-
-void SocketAddress::mem_init(void)
-{
-    _addr.version = NSAPI_UNSPEC;
-    memset(_addr.bytes, 0, NSAPI_IP_BYTES);
-    _port = 0;
 }
 
 bool SocketAddress::set_ip_address(const char *addr)
 {
-    delete[] _ip_address;
-    _ip_address = NULL;
+    _ip_address.reset();
 
     if (addr && stoip4(addr, strlen(addr), _addr.bytes)) {
         _addr.version = NSAPI_IPv4;
@@ -82,9 +60,8 @@ bool SocketAddress::set_ip_address(const char *addr)
 
 void SocketAddress::set_ip_bytes(const void *bytes, nsapi_version_t version)
 {
-    nsapi_addr_t addr;
+    nsapi_addr_t addr{};
 
-    addr = nsapi_addr_t();
     addr.version = version;
     if (version == NSAPI_IPv6) {
         memcpy(addr.bytes, bytes, NSAPI_IPv6_BYTES);
@@ -94,54 +71,28 @@ void SocketAddress::set_ip_bytes(const void *bytes, nsapi_version_t version)
     set_addr(addr);
 }
 
-void SocketAddress::set_addr(nsapi_addr_t addr)
+void SocketAddress::set_addr(const nsapi_addr_t &addr)
 {
-    delete[] _ip_address;
-    _ip_address = NULL;
+    _ip_address.reset();
     _addr = addr;
-}
-
-void SocketAddress::set_port(uint16_t port)
-{
-    _port = port;
 }
 
 const char *SocketAddress::get_ip_address() const
 {
     if (_addr.version == NSAPI_UNSPEC) {
-        return NULL;
+        return nullptr;
     }
 
     if (!_ip_address) {
-        _ip_address = new char[NSAPI_IP_SIZE];
+        _ip_address.reset(new char[NSAPI_IP_SIZE]);
         if (_addr.version == NSAPI_IPv4) {
-            ip4tos(_addr.bytes, _ip_address);
+            ip4tos(_addr.bytes, _ip_address.get());
         } else if (_addr.version == NSAPI_IPv6) {
-            ip6tos(_addr.bytes, _ip_address);
+            ip6tos(_addr.bytes, _ip_address.get());
         }
     }
 
-    return _ip_address;
-}
-
-const void *SocketAddress::get_ip_bytes() const
-{
-    return _addr.bytes;
-}
-
-nsapi_version_t SocketAddress::get_ip_version() const
-{
-    return _addr.version;
-}
-
-nsapi_addr_t SocketAddress::get_addr() const
-{
-    return _addr;
-}
-
-uint16_t SocketAddress::get_port() const
-{
-    return _port;
+    return _ip_address.get();
 }
 
 SocketAddress::operator bool() const
@@ -169,10 +120,8 @@ SocketAddress::operator bool() const
 
 SocketAddress &SocketAddress::operator=(const SocketAddress &addr)
 {
-    delete[] _ip_address;
-    _ip_address = NULL;
-    set_addr(addr.get_addr());
-    set_port(addr.get_port());
+    set_addr(addr._addr);
+    set_port(addr._port);
     return *this;
 }
 
@@ -196,22 +145,4 @@ bool operator==(const SocketAddress &a, const SocketAddress &b)
 bool operator!=(const SocketAddress &a, const SocketAddress &b)
 {
     return !(a == b);
-}
-
-void SocketAddress::_SocketAddress(NetworkStack *iface, const char *host, uint16_t port)
-{
-    _ip_address = NULL;
-
-    // gethostbyname must check for literals, so can call it directly
-    int err = iface->gethostbyname(host, this);
-    _port = port;
-    if (err) {
-        _addr = nsapi_addr_t();
-        _port = 0;
-    }
-}
-
-SocketAddress::~SocketAddress()
-{
-    delete[] _ip_address;
 }
