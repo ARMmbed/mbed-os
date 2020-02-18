@@ -630,8 +630,8 @@ int QSPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void
     }
 
     // Check that density is not greater than 4 gigabits (i.e. that addressing beyond 4 bytes is not required)
-    if ((param_table[7] & 0x80) != 0) {
-        tr_error("Init - verify flash density failed");
+    if (sfdp_detect_addressability(param_table, _sfdp_info.bptbl) < 0) {
+        tr_error("Verify 4byte addressing failed");
         return -1;
     }
 

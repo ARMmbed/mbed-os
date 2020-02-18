@@ -629,8 +629,8 @@ int SPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void 
     }
 
     // Check address size, currently only supports 3byte addresses
-    if ((param_table[2] & 0x4) != 0 || (param_table[7] & 0x80) != 0) {
-        tr_error("init - verify 3byte addressing Failed");
+    if (sfdp_detect_addressability(param_table, _sfdp_info.bptbl) < 0) {
+        tr_error("Verify 3byte addressing failed");
         return -1;
     }
 

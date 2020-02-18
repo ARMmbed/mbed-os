@@ -150,6 +150,15 @@ int sfdp_iterate_next_largest_erase_type(uint8_t &bitfield,
  */
 int sfdp_detect_device_density(uint8_t *bptbl_ptr, sfdp_bptbl_info &bptbl_info);
 
+/** Detect is it possible to access the whole memory region
+ *
+ * @param bptbl_ptr Pointer to memory holding a Basic Parameter Table structure
+ * @param bptbl_info Basic Parameter Table information structure
+ *
+ * @return 0 on success, negative error code on failure
+ */
+int sfdp_detect_addressability(uint8_t *bptbl_ptr, sfdp_bptbl_info &bptbl_info);
+
 /** @}*/
 } /* namespace mbed */
 #endif

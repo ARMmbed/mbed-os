@@ -360,5 +360,27 @@ int sfdp_detect_device_density(uint8_t *bptbl_ptr, sfdp_bptbl_info &bptbl_info)
     return 0;
 }
 
+#if DEVICE_QSPI
+int sfdp_detect_addressability(uint8_t *bptbl_ptr, sfdp_bptbl_info &bptbl_info)
+{
+    // Check that density is not greater than 4 gigabits (i.e. that addressing beyond 4 bytes is not required)
+    if ((bptbl_ptr[7] & 0x80) != 0) {
+        return -1;
+    }
+
+    return 0;
+}
+#elif DEVICE_SPI
+int sfdp_detect_addressability(uint8_t *bptbl_ptr, sfdp_bptbl_info &bptbl_info)
+{
+    // Check address size, currently only supports 3byte addresses
+    if ((bptbl_ptr[2] & 0x4) != 0 || (bptbl_ptr[7] & 0x80) != 0) {
+        return -1;
+    }
+
+    return 0;
+}
+#endif
+
 } /* namespace mbed */
 #endif /* (DEVICE_SPI || DEVICE_QSPI) */
