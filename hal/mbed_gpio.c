@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2020 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -66,6 +66,15 @@ void gpio_init_inout(gpio_t *gpio, PinName pin, PinDirection direction, PinMode 
     } else {
         _gpio_init_out(gpio, pin, mode, value);
     }
+}
+
+// To be re-implemented in the target layer if required.
+MBED_WEAK void gpio_get_capabilities(gpio_t *gpio, gpio_capabilities_t *cap)
+{
+    (void)gpio; // By default, every pin supports all basic input pull modes.
+    cap->pull_none = 1;
+    cap->pull_down = 1;
+    cap->pull_up = 1;
 }
 
 #ifdef TARGET_FF_ARDUINO
