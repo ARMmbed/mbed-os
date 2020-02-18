@@ -344,5 +344,21 @@ int sfdp_iterate_next_largest_erase_type(uint8_t &bitfield,
     return largest_erase_type;
 }
 
+int sfdp_detect_device_density(uint8_t *bptbl_ptr, sfdp_bptbl_info &bptbl_info)
+{
+    // stored in bits - 1
+    uint32_t density_bits = (
+                                (bptbl_ptr[7] << 24) |
+                                (bptbl_ptr[6] << 16) |
+                                (bptbl_ptr[5] << 8) |
+                                bptbl_ptr[4]);
+
+    bptbl_info.device_size_bytes = (density_bits + 1) / 8;
+
+    tr_info("Density bits: %" PRIu32 " , device size: %llu bytes", density_bits, bptbl_info.device_size_bytes);
+
+    return 0;
+}
+
 } /* namespace mbed */
 #endif /* (DEVICE_SPI || DEVICE_QSPI) */

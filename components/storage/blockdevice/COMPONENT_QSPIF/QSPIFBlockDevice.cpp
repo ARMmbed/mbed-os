@@ -635,12 +635,10 @@ int QSPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void
         return -1;
     }
 
-    // Get device density (stored in bits - 1)
-    uint32_t density_bits = ((param_table[7] << 24) |
-                             (param_table[6] << 16) |
-                             (param_table[5] << 8)  |
-                             param_table[4]);
-    sfdp_info.bptbl.device_size_bytes = (density_bits + 1) / 8;
+    if (sfdp_detect_device_density(param_table, _sfdp_info.bptbl) < 0) {
+        tr_error("Detecting device density failed");
+        return -1;
+    }
 
     // Set Page Size (QSPI write must be done on Page limits)
     _page_size_bytes = sfdp_detect_page_size(param_table, sfdp_info.bptbl.size);

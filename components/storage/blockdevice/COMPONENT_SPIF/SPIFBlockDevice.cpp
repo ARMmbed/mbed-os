@@ -634,14 +634,10 @@ int SPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void 
         return -1;
     }
 
-    // Get device density (stored in bits - 1)
-    uint32_t density_bits = (
-                                (param_table[7] << 24) |
-                                (param_table[6] << 16) |
-                                (param_table[5] << 8) |
-                                param_table[4]);
-    sfdp_info.bptbl.device_size_bytes = (density_bits + 1) / 8;
-    tr_debug("Density bits: %" PRIu32 " , device size: %llu bytes", density_bits, sfdp_info.bptbl.device_size_bytes);
+    if (sfdp_detect_device_density(param_table, _sfdp_info.bptbl) < 0) {
+        tr_error("Detecting device density failed");
+        return -1;
+    }
 
     // Set Default read/program/erase Instructions
     _read_instruction = SPIF_READ;
