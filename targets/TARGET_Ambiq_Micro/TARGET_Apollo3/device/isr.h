@@ -1,0 +1,1 @@
+extern volatile bool someFlagThatGetSetinISR;

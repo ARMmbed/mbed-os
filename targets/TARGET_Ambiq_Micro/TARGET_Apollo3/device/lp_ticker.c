@@ -30,34 +30,45 @@ const ticker_info_t *lp_ticker_get_info()
 
 void lp_ticker_init(void)
 {
-    am_hal_ctimer_config_single(LP_TICKER_AM_HAL_CTIMER_NUMBER,
-                                LP_TICKER_AM_HAL_CTIMER_SEGMENT,
-                                (AM_HAL_CTIMER_FN_CONTINUOUS | LP_TICKER_AM_HAL_CTIMER_SRC | AM_HAL_CTIMER_INT_ENABLE));
-
     am_hal_ctimer_int_register(LP_TICKER_AM_HAL_CTIMER_CMPR_INT, lp_ticker_irq_handler);
+    am_hal_ctimer_config_single(LP_TICKER_AM_HAL_CTIMER_NUMBER,
+                                LP_TICKER_AM_HAL_CTIMER_SEGMENT_TIME_KEEPER,
+                                (LP_TICKER_AM_HAL_CTIMER_TIME_KEEPER_FN | LP_TICKER_AM_HAL_CTIMER_SRC));
+    am_hal_ctimer_config_single(LP_TICKER_AM_HAL_CTIMER_NUMBER,
+                                LP_TICKER_AM_HAL_CTIMER_SEGMENT_INT_COUNTER,
+                                (LP_TICKER_AM_HAL_CTIMER_INT_COUNTER_FN | LP_TICKER_AM_HAL_CTIMER_SRC | AM_HAL_CTIMER_INT_ENABLE));
+    am_hal_ctimer_int_enable(LP_TICKER_AM_HAL_CTIMER_CMPR_INT);
+    NVIC_EnableIRQ(CTIMER_IRQn);
+    am_hal_ctimer_start(LP_TICKER_AM_HAL_CTIMER_NUMBER, LP_TICKER_AM_HAL_CTIMER_SEGMENT_TIME_KEEPER);
 }
 
 void lp_ticker_free(void)
 {
     am_hal_ctimer_stop(LP_TICKER_AM_HAL_CTIMER_NUMBER,
-                       LP_TICKER_AM_HAL_CTIMER_SEGMENT);
+                       LP_TICKER_AM_HAL_CTIMER_SEGMENT_TIME_KEEPER);
 
     am_hal_ctimer_clear(LP_TICKER_AM_HAL_CTIMER_NUMBER,
-                        LP_TICKER_AM_HAL_CTIMER_SEGMENT);
+                        LP_TICKER_AM_HAL_CTIMER_SEGMENT_TIME_KEEPER);
 }
 
 uint32_t lp_ticker_read()
 {
     return am_hal_ctimer_read(LP_TICKER_AM_HAL_CTIMER_NUMBER,
-                              LP_TICKER_AM_HAL_CTIMER_SEGMENT);
+                              LP_TICKER_AM_HAL_CTIMER_SEGMENT_TIME_KEEPER);
 }
 
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
+    uint32_t delta = (uint32_t)timestamp - lp_ticker_read();
+    am_hal_ctimer_clear(LP_TICKER_AM_HAL_CTIMER_NUMBER, LP_TICKER_AM_HAL_CTIMER_SEGMENT_INT_COUNTER);
+    am_hal_ctimer_config_single(LP_TICKER_AM_HAL_CTIMER_NUMBER,
+                                LP_TICKER_AM_HAL_CTIMER_SEGMENT_INT_COUNTER,
+                                (LP_TICKER_AM_HAL_CTIMER_INT_COUNTER_FN | LP_TICKER_AM_HAL_CTIMER_SRC | AM_HAL_CTIMER_INT_ENABLE | CTIMER_CTRL0_TMRA0IE1_Msk));
+    am_hal_ctimer_start(LP_TICKER_AM_HAL_CTIMER_NUMBER, LP_TICKER_AM_HAL_CTIMER_SEGMENT_INT_COUNTER);
     am_hal_ctimer_compare_set(LP_TICKER_AM_HAL_CTIMER_NUMBER,
-                              LP_TICKER_AM_HAL_CTIMER_SEGMENT,
+                              LP_TICKER_AM_HAL_CTIMER_SEGMENT_INT_COUNTER,
                               LP_TICKER_AM_HAL_CTIMER_CMPR_REG,
-                              (uint32_t)timestamp);
+                              (uint32_t)delta);
 }
 
 void lp_ticker_fire_interrupt(void)
