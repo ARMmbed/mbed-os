@@ -38,13 +38,11 @@ int SocketStats::get_entry_position(const Socket *const reference_id)
     }
     return -1;
 }
-#endif
 
 size_t SocketStats::mbed_stats_socket_get_each(mbed_stats_socket_t *stats, size_t count)
 {
     MBED_ASSERT(stats != NULL);
     size_t i = 0;
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
     memset(stats, 0, count * sizeof(mbed_stats_socket_t));
     _mutex->lock();
     for (uint32_t j = 0; j < count; j++) {
@@ -54,17 +52,11 @@ size_t SocketStats::mbed_stats_socket_get_each(mbed_stats_socket_t *stats, size_
         }
     }
     _mutex->unlock();
-#endif
     return i;
-}
-
-SocketStats::SocketStats()
-{
 }
 
 void SocketStats::stats_new_socket_entry(const Socket *const reference_id)
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
     _mutex->lock();
     if (get_entry_position(reference_id) >= 0) {
         // Duplicate entry
@@ -92,13 +84,10 @@ void SocketStats::stats_new_socket_entry(const Socket *const reference_id)
         _stats[position].reference_id = (Socket *)reference_id;
     }
     _mutex->unlock();
-#endif
-    return;
 }
 
 void SocketStats::stats_update_socket_state(const Socket *const reference_id, socket_state state)
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
     _mutex->lock();
     int position = get_entry_position(reference_id);
     if (position >= 0) {
@@ -108,53 +97,45 @@ void SocketStats::stats_update_socket_state(const Socket *const reference_id, so
 #endif
     }
     _mutex->unlock();
-#endif
 }
 
 void SocketStats::stats_update_peer(const Socket *const reference_id, const SocketAddress &peer)
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
     _mutex->lock();
     int position = get_entry_position(reference_id);
     if ((position >= 0) && (!_stats[position].peer)) {
         _stats[position].peer = peer;
     }
     _mutex->unlock();
-#endif
 }
 
 void SocketStats::stats_update_proto(const Socket *const reference_id, nsapi_protocol_t proto)
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
     _mutex->lock();
     int position = get_entry_position(reference_id);
     if (position >= 0) {
         _stats[position].proto = proto;
     }
     _mutex->unlock();
-#endif
 }
 
 void SocketStats::stats_update_sent_bytes(const Socket *const reference_id, size_t sent_bytes)
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
     _mutex->lock();
     int position = get_entry_position(reference_id);
     if ((position >= 0) && ((int32_t)sent_bytes > 0)) {
         _stats[position].sent_bytes += sent_bytes;
     }
     _mutex->unlock();
-#endif
 }
 
 void SocketStats::stats_update_recv_bytes(const Socket *const reference_id, size_t recv_bytes)
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
     _mutex->lock();
     int position = get_entry_position(reference_id);
     if ((position >= 0) && ((int32_t)recv_bytes > 0)) {
         _stats[position].recv_bytes += recv_bytes;
     }
     _mutex->unlock();
-#endif
 }
+#endif // MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
