@@ -12,7 +12,6 @@ void am_ctimer_isr(void)
   //
   ui32Status = am_hal_ctimer_int_status_get(true);
   am_hal_ctimer_int_clear(ui32Status);
-  someFlagThatGetSetinISR = true;
   // //
   // // Run handlers for the various possible timer events.
   // //
