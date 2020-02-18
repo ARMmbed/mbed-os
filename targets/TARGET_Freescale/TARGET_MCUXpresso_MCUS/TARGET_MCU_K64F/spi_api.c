@@ -47,8 +47,7 @@ SPIName spi_get_peripheral_name(PinName mosi, PinName miso, PinName sclk)
         spi_per = (SPIName)pinmap_merge(spi_mosi, spi_sclk);
     } else if (mosi == NC) {
         spi_per = (SPIName)pinmap_merge(spi_miso, spi_sclk);
-    }
-    else {
+    } else {
         SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
         spi_per = (SPIName)pinmap_merge(spi_data, spi_sclk);
     }
