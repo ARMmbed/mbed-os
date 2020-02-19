@@ -145,7 +145,7 @@
         },
         "minimal-printf-enable-floating-point": {
             "help": "Enable floating point printing when using minimal printf library",
-            "value": true
+            "value": false
         },
         "minimal-printf-set-floating-point-max-decimals": {
             "help": "Maximum number of decimals to be printed when using minimal printf library",
