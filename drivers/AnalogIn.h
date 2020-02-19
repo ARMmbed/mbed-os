@@ -93,6 +93,16 @@ public:
      */
     unsigned short read_u16();
 
+    /** Read the input voltage in volts. The output depends on the target board's
+     * ADC reference voltage (typically equal to supply voltage). The ADC reference voltage
+     * sets the maximum voltage the ADC can quantify (ie: Vin == Vref when ADC output == ADC_MAX_VALUE)
+     *
+     * The target's ADC reference voltage can be configured by overriding "drivers.adc_vref"
+     *
+     * @returns A floating-point value representing the current input voltage, measured in volts.
+     */
+    float read_volts();
+
     /** An operator shorthand for read()
      *
      * The float() operator can be used as a shorthand for read() to simplify common code sequences

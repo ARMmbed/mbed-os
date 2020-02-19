@@ -41,6 +41,9 @@
         "qspi_csn": {
             "help": "QSPI chip select pin",
             "value": "QSPI_FLASH1_CSN"
-        }
+        },
+        "adc_vref": {
+            "help": "Reference voltage for ADC (float)",
+            "value": 3.3f
     }
 }

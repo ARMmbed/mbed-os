@@ -54,6 +54,11 @@ unsigned short AnalogIn::read_u16()
     return ret;
 }
 
+float AnalogIn::read_volts() {
+    float ret = this->read();
+    return (ret*MBED_CONF_DRIVERS_ADC_VREF);
+}
+
 } // namespace mbed
 
 #endif
