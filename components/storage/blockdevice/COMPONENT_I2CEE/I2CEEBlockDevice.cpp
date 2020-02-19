@@ -62,7 +62,7 @@ int I2CEEBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
     // Check the address and size fit onto the chip.
     MBED_ASSERT(is_valid_read(addr, size));
 
-    auto *pBuffer = reinterpret_cast<char *>(buffer);
+    auto *pBuffer = static_cast<char *>(buffer);
 
     while (size > 0) {
         uint32_t off = addr % _block;
@@ -107,7 +107,7 @@ int I2CEEBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size
     // Check the addr and size fit onto the chip.
     MBED_ASSERT(is_valid_program(addr, size));
 
-    auto const *pBuffer = reinterpret_cast<char const *>(buffer);
+    const auto *pBuffer = static_cast<const char *>(buffer);
 
     // While we have some more data to write.
     while (size > 0) {
@@ -197,13 +197,14 @@ const char *I2CEEBlockDevice::get_type() const
     return "I2CEE";
 }
 
-uint8_t I2CEEBlockDevice::get_paged_device_address(const bd_addr_t &address)
+uint8_t I2CEEBlockDevice::get_paged_device_address(bd_addr_t address)
 {
-    if (!this->_address_is_eight_bit) {
-        return this->_i2c_addr;
+    if (!_address_is_eight_bit) {
+        return _i2c_addr;
     } else {
         // Use the three least significant bits of the 2nd byte as the page
         // The page will be bits 2-4 of the user defined addresses.
-        return this->_i2c_addr | ((address & 0x0700u) >> 7u);
+        return _i2c_addr | ((address & 0x0700u) >> 7u);
     }
 }
+

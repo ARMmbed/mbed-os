@@ -174,22 +174,21 @@ private:
     mbed::I2C *_i2c;
     uint32_t _i2c_buffer[sizeof(mbed::I2C) / sizeof(uint32_t)];
     uint8_t _i2c_addr;
+    bool _address_is_eight_bit;
     uint32_t _size;
     uint32_t _block;
-
-    bool _address_is_eight_bit;
 
     int _sync();
 
     /**
      * Gets the device's I2C address with respect to the requested page.
-     * When eight bit mode is disabled, this function is a noop.
-     * When eight bit mode is enabled, it sets the bits required
+     * When eight-bit mode is disabled, this function is a noop.
+     * When eight-bit mode is enabled, it sets the bits required
      * in the devices address. Other bits remain unchanged.
      * @param address An address in the requested page.
      * @return The device's I2C address for that page
      */
-    uint8_t get_paged_device_address(const bd_addr_t &address);
+    uint8_t get_paged_device_address(bd_addr_t address);
 };
 
 
