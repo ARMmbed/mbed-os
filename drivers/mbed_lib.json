@@ -42,7 +42,7 @@
             "help": "QSPI chip select pin",
             "value": "QSPI_FLASH1_CSN"
         },
-        "default_adc_vref": {
+        "default-adc-vref": {
             "help": "Default reference voltage for ADC (float)",
             "value": 3.3f
     }
