@@ -3094,7 +3094,7 @@
             "5"
         ]
     },
-    "LPC55S69": {
+    "MCU_LPC55S69": {
         "public": false,
         "inherits": [
             "Target"
@@ -3109,7 +3109,6 @@
         "extra_labels": [
             "NXP",
             "MCUXpresso_MCUS",
-            "LPCXpresso",
             "LPC"
         ],
         "detect_code": [
@@ -3127,10 +3126,11 @@
             ]
         ]
     },
-    "LPC55S69_NS": {
+    "LPC55S69": {
+        "public": false,
         "inherits": [
             "NSPE_Target",
-            "LPC55S69"
+            "MCU_LPC55S69"
         ],
         "core": "Cortex-M33FE-NS",
         "supported_toolchains": [
@@ -3189,15 +3189,12 @@
             "init-us-ticker-at-boot": true
         },
         "OUTPUT_EXT": "hex",
-        "bootloader_supported": true,
-        "detect_code": [
-            "0236"
-        ]
+        "bootloader_supported": true
     },
     "LPC55S69_S": {
         "inherits": [
             "SPE_Target",
-            "LPC55S69"
+            "MCU_LPC55S69"
         ],
         "core": "Cortex-M33FE",
         "supported_toolchains": [
@@ -3235,18 +3232,26 @@
             "secure-ram-size": "0x22000"
         }
     },
+    "LPC55S69_NS": {
+        "inherits": [
+            "LPC55S69"
+        ],
+        "detect_code": [
+            "0236"
+        ],
+        "extra_labels_add": [
+            "LPCXpresso"
+        ]
+    },
     "HANI_IOT": {
         "inherits": [
-            "LPC55S69_NS"
+            "LPC55S69"
         ],
         "detect_code": [
             "0360"
         ],
         "components_add": [
             "SPIF"
-        ],
-        "extra_labels_remove": [
-            "LPCXpresso"
         ]
     },
     "NUCLEO_F030R8": {
