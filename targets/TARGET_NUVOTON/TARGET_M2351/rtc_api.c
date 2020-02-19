@@ -34,7 +34,7 @@
  * We need RTC to be secure for security concern.
  *
  * On M2351, configured to secure
- * On M2351, hard-wired to secure
+ * On M2354, hard-wired to secure
  */
 #if defined(SCU_INIT_PNSSET2_VAL) && (SCU_INIT_PNSSET2_VAL & (1 << 1))
 #error("Limited by BSP/RTC, we can only support secure RTC.")
