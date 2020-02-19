@@ -64,39 +64,24 @@ int I2CEEBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 
     auto *pBuffer = static_cast<char *>(buffer);
 
-    while (size > 0) {
-        uint32_t off = addr % _block;
-        uint32_t chunk = (off + size < _block) ? size : (_block - off);
+    _i2c->start();
 
-        _i2c->start();
+    if (1 != _i2c->write(get_paged_device_address(addr))) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
 
-        if (1 != _i2c->write(get_paged_device_address(addr))) {
-            return BD_ERROR_DEVICE_ERROR;
-        }
+    if (!_address_is_eight_bit && 1 != _i2c->write((char)(addr >> 8u))) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
 
-        if (!_address_is_eight_bit && 1 != _i2c->write((char)(addr >> 8u))) {
-            return BD_ERROR_DEVICE_ERROR;
-        }
+    if (1 != _i2c->write((char)(addr & 0xffu))) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
 
-        if (1 != _i2c->write((char)(addr & 0xffu))) {
-            return BD_ERROR_DEVICE_ERROR;
-        }
+    _i2c->stop();
 
-        _i2c->stop();
-
-        auto err = _sync();
-
-        if (err) {
-            return err;
-        }
-
-        if (0 != _i2c->read(_i2c_addr, pBuffer, chunk)) {
-            return BD_ERROR_DEVICE_ERROR;
-        }
-
-        addr += chunk;
-        size -= chunk;
-        pBuffer += chunk;
+    if (0 != _i2c->read(_i2c_addr, pBuffer, size)) {
+        return BD_ERROR_DEVICE_ERROR;
     }
 
     return BD_ERROR_OK;
