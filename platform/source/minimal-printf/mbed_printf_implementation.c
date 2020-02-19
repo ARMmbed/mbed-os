@@ -508,7 +508,7 @@ int mbed_minimal_formatted_string(char *buffer, size_t length, const char *forma
                         value = va_arg(arguments, MBED_SIGNED_NATIVE_TYPE);
                     }
 
-                    /* constrict value based on lenght modifier */
+                    /* constrict value based on length modifier */
                     switch (length_modifier) {
                         case LENGTH_NONE:
                             value = (int) value;
@@ -557,7 +557,7 @@ int mbed_minimal_formatted_string(char *buffer, size_t length, const char *forma
                         value = va_arg(arguments, MBED_UNSIGNED_NATIVE_TYPE);
                     }
 
-                    /* constrict value based on lenght modifier */
+                    /* constrict value based on length modifier */
                     switch (length_modifier) {
                         case LENGTH_NONE:
                             value = (unsigned int) value;
