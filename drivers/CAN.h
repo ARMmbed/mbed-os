@@ -65,11 +65,11 @@ public:
      */
     CANMessage(unsigned int _id, const unsigned char *_data, unsigned char _len = 8, CANType _type = CANData, CANFormat _format = CANStandard)
     {
-        len    = _len & 0xF;
+        len    = (_len > 8) ? 8 : _len;
         type   = _type;
         format = _format;
         id     = _id;
-        memcpy(data, _data, _len);
+        memcpy(data, _data, len);
     }
 
 
@@ -83,11 +83,11 @@ public:
      */
     CANMessage(unsigned int _id, const char *_data, unsigned char _len = 8, CANType _type = CANData, CANFormat _format = CANStandard)
     {
-        len    = _len & 0xF;
+        len    = (_len > 8) ? 8 : _len;
         type   = _type;
         format = _format;
         id     = _id;
-        memcpy(data, _data, _len);
+        memcpy(data, _data, len);
     }
 
     /** Creates CAN remote message.
