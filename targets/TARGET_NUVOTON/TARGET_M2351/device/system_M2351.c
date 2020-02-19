@@ -259,8 +259,6 @@ void NSC_Init(int32_t i32Region)
     u32Base = NU_TZ_NSC_REGION_START;
     u32Limit = (NU_TZ_NSC_REGION_START + NU_TZ_NSC_REGION_SIZE - 1);
 
-    /* SAU region 3 is dedicated for NSC */
-    i32Region = 3;
     SAU->RNR  =  (i32Region & SAU_RNR_REGION_Msk);
     SAU->RBAR =  (u32Base & SAU_RBAR_BADDR_Msk);
     SAU->RLAR =  (u32Limit & SAU_RLAR_LADDR_Msk) | 
