@@ -218,14 +218,12 @@ static void _spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
 #endif
 
     // Configure the SPI pins
-    if (pinmap->mosi_pin != NC) {
-        pin_function(pinmap->mosi_pin, pinmap->mosi_function);
-        pin_mode(pinmap->mosi_pin, PullNone);
-    }
-    if (pinmap->miso_pin != NC) {
-        pin_function(pinmap->miso_pin, pinmap->miso_function);
-        pin_mode(pinmap->miso_pin, PullNone);
-    }
+    pin_function(pinmap->mosi_pin, pinmap->mosi_function);
+    pin_mode(pinmap->mosi_pin, PullNone);
+
+    pin_function(pinmap->miso_pin, pinmap->miso_function);
+    pin_mode(pinmap->miso_pin, PullNone);
+
     pin_function(pinmap->sclk_pin, pinmap->sclk_function);
     pin_mode(pinmap->sclk_pin, PullNone);
     spiobj->pin_miso = pinmap->miso_pin;
@@ -370,12 +368,8 @@ void spi_free(spi_t *obj)
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
 #endif /* DUAL_CORE */
     // Configure GPIOs
-    if (spiobj->pin_miso != NC) {
-        pin_function(spiobj->pin_miso, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-    }
-    if (spiobj->pin_mosi != NC) {
-        pin_function(spiobj->pin_mosi, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-    }
+    pin_function(spiobj->pin_miso, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    pin_function(spiobj->pin_mosi, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
     pin_function(spiobj->pin_sclk, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
     if (handle->Init.NSS != SPI_NSS_SOFT) {
         pin_function(spiobj->pin_ssel, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
