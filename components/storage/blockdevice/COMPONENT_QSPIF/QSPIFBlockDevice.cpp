@@ -179,6 +179,8 @@ QSPIFBlockDevice::QSPIFBlockDevice(PinName io0, PinName io1, PinName io2, PinNam
 
 int QSPIFBlockDevice::init()
 {
+    int status = QSPIF_BD_ERROR_OK;
+
     if (_unique_device_status == 0) {
         tr_debug("QSPIFBlockDevice csel: %d", (int)_csel);
     } else if (_unique_device_status == -1) {
@@ -188,12 +190,6 @@ int QSPIFBlockDevice::init()
         tr_error("Too many different QSPIFBlockDevice devices - max allowed: %d", QSPIF_MAX_ACTIVE_FLASH_DEVICES);
         return QSPIF_BD_ERROR_DEVICE_MAX_EXCEED;
     }
-
-    int status = QSPIF_BD_ERROR_OK;
-    _sfdp_info.bptbl.addr = 0x0;
-    _sfdp_info.bptbl.size = 0;
-    _sfdp_info.smptbl.addr = 0x0;
-    _sfdp_info.smptbl.size = 0;
 
     _mutex.lock();
 
@@ -235,6 +231,11 @@ int QSPIFBlockDevice::init()
         status = QSPIF_BD_ERROR_DEVICE_ERROR;
         goto exit_point;
     }
+
+    _sfdp_info.bptbl.addr = 0x0;
+    _sfdp_info.bptbl.size = 0;
+    _sfdp_info.smptbl.addr = 0x0;
+    _sfdp_info.smptbl.size = 0;
 
     /**************************** Parse SFDP Header ***********************************/
     if (sfdp_parse_headers(callback(this, &QSPIFBlockDevice::_qspi_send_read_sfdp_command), _sfdp_info) < 0) {

@@ -120,11 +120,6 @@ int SPIFBlockDevice::init()
     int status = SPIF_BD_ERROR_OK;
     spif_bd_error spi_status = SPIF_BD_ERROR_OK;
 
-    _sfdp_info.bptbl.addr = 0x0;
-    _sfdp_info.bptbl.size = 0;
-    _sfdp_info.smptbl.addr = 0x0;
-    _sfdp_info.smptbl.size = 0;
-
     _mutex->lock();
 
     if (!_is_initialized) {
@@ -170,6 +165,11 @@ int SPIFBlockDevice::init()
         status = SPIF_BD_ERROR_READY_FAILED;
         goto exit_point;
     }
+
+    _sfdp_info.bptbl.addr = 0x0;
+    _sfdp_info.bptbl.size = 0;
+    _sfdp_info.smptbl.addr = 0x0;
+    _sfdp_info.smptbl.size = 0;
 
     /**************************** Parse SFDP Header ***********************************/
     if (sfdp_parse_headers(callback(this, &SPIFBlockDevice::_spi_send_read_sfdp_command), _sfdp_info) < 0) {
