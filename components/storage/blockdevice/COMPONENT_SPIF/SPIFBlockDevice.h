@@ -260,6 +260,9 @@ private:
     // Wait on status register until write not-in-progress
     bool _is_mem_ready();
 
+    // Query vendor ID and handle special behavior that isn't covered by SFDP data
+    int _handle_vendor_quirks();
+
 private:
     // Master side hardware
     mbed::SPI _spi;

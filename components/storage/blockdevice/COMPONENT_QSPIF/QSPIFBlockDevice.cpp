@@ -226,7 +226,7 @@ int QSPIFBlockDevice::init()
         goto exit_point;
     }
 
-    if (0 != _handle_vendor_quirks()) {
+    if (_handle_vendor_quirks() < 0) {
         tr_error("Init - Could not read vendor id");
         status = QSPIF_BD_ERROR_DEVICE_ERROR;
         goto exit_point;

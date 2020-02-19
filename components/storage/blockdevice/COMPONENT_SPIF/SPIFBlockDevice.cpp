@@ -115,10 +115,7 @@ SPIFBlockDevice::SPIFBlockDevice(PinName mosi, PinName miso, PinName sclk, PinNa
 
 int SPIFBlockDevice::init()
 {
-    uint8_t vendor_device_ids[4];
-    size_t data_length = 3;
     int status = SPIF_BD_ERROR_OK;
-    spif_bd_error spi_status = SPIF_BD_ERROR_OK;
 
     _mutex->lock();
 
@@ -141,22 +138,10 @@ int SPIFBlockDevice::init()
         tr_debug("Initialize flash memory OK");
     }
 
-    /* Read Manufacturer ID (1byte), and Device ID (2bytes)*/
-    spi_status = _spi_send_general_command(SPIF_RDID, SPI_NO_ADDRESS_COMMAND, NULL, 0, (char *)vendor_device_ids,
-                                           data_length);
-    if (spi_status != SPIF_BD_ERROR_OK) {
-        tr_error("init - Read Vendor ID Failed");
+    if (_handle_vendor_quirks() < 0) {
+        tr_error("Init - Could not read vendor id");
         status = SPIF_BD_ERROR_DEVICE_ERROR;
         goto exit_point;
-    }
-
-    switch (vendor_device_ids[0]) {
-        case 0xbf:
-            // SST devices come preset with block protection
-            // enabled for some regions, issue global protection unlock to clear
-            _set_write_enable();
-            _spi_send_general_command(SPIF_ULBPR, SPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0);
-            break;
     }
 
     //Synchronize Device
@@ -763,4 +748,33 @@ int SPIFBlockDevice::_set_write_enable()
         status = 0;
     } while (false);
     return status;
+}
+
+int SPIFBlockDevice::_handle_vendor_quirks()
+{
+    uint8_t vendor_device_ids[4];
+    size_t data_length = 3;
+
+    /* Read Manufacturer ID (1byte), and Device ID (2bytes)*/
+    spif_bd_error spi_status = _spi_send_general_command(SPIF_RDID, SPI_NO_ADDRESS_COMMAND, NULL, 0,
+                                                         (char *)vendor_device_ids,
+                                                         data_length);
+
+    if (spi_status != SPIF_BD_ERROR_OK) {
+        tr_error("Read Vendor ID Failed");
+        return -1;
+    }
+
+    tr_debug("Vendor device ID = 0x%x 0x%x 0x%x", vendor_device_ids[0], vendor_device_ids[1], vendor_device_ids[2]);
+
+    switch (vendor_device_ids[0]) {
+        case 0xbf:
+            // SST devices come preset with block protection
+            // enabled for some regions, issue global protection unlock to clear
+            _set_write_enable();
+            _spi_send_general_command(SPIF_ULBPR, SPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0);
+            break;
+    }
+
+    return 0;
 }

@@ -306,6 +306,9 @@ private:
     // Enable Fast Mode - for flash chips with low power default
     int _enable_fast_mode();
 
+    // Query vendor ID and handle special behavior that isn't covered by SFDP data
+    int _handle_vendor_quirks();
+
     /****************************************/
     /* SFDP Detection and Parsing Functions */
     /****************************************/
@@ -328,9 +331,6 @@ private:
 
     // Detect 4-byte addressing mode and enable it if supported
     int _sfdp_detect_and_enable_4byte_addressing(uint8_t *basic_param_table_ptr, int basic_param_table_size);
-
-    // Query vendor ID and handle special behavior that isn't covered by SFDP data
-    int _handle_vendor_quirks();
 
     /***********************/
     /* Utilities Functions */
