@@ -502,6 +502,16 @@ int mbed_minimal_formatted_string(char *buffer, size_t length, const char *forma
                         /* use 64 bit storage type for readout */
                         value = va_arg(arguments, MBED_SIGNED_STORAGE);
                     } else
+#else
+                    /* If 64 bit is not enabled, print %ll[di] rather than truncated value */
+                    if (length_modifier == LENGTH_LL) {
+                        mbed_minimal_formatted_string_character(buffer, length, &result, '%', stream);
+                        if (next == '%') {
+                            // Continue printing loop after `%`
+                            index = next_index;
+                        }
+                        continue;
+                    }
 #endif
                     {
                         /* use native storage type (which can be 32 or 64 bit) */
@@ -551,6 +561,16 @@ int mbed_minimal_formatted_string(char *buffer, size_t length, const char *forma
                         /* use 64 bit storage type for readout */
                         value = va_arg(arguments, MBED_UNSIGNED_STORAGE);
                     } else
+#else
+                    /* If 64 bit is not enabled, print %ll[uxX] rather than truncated value */
+                    if (length_modifier == LENGTH_LL) {
+                        mbed_minimal_formatted_string_character(buffer, length, &result, '%', stream);
+                        if (next == '%') {
+                            // Continue printing loop after `%`
+                            index = next_index;
+                        }
+                        continue;
+                    }
 #endif
                     {
                         /* use native storage type (which can be 32 or 64 bit) */
