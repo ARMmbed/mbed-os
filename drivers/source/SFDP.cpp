@@ -176,7 +176,7 @@ int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, 
     return 0;
 }
 
-int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_smptbl_info &smptbl)
+int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &sfdp_info)
 {
     uint8_t sector_map_table[SFDP_BASIC_PARAMS_TBL_SIZE]; /* Up To 20 DWORDS = 80 Bytes */
     uint32_t tmp_region_size = 0;
@@ -185,7 +185,19 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
     // Default set to all type bits 1-4 are common
     int min_common_erase_type_bits = SFDP_ERASE_BITMASK_ALL;
 
-    int status = sfdp_reader(smptbl.addr, sector_map_table, smptbl.size);
+    // If there's no region map, we have a single region sized the entire device size
+    sfdp_info.smptbl.region_size[0] = sfdp_info.bptbl.device_size_bytes;
+    sfdp_info.smptbl.region_high_boundary[0] = sfdp_info.bptbl.device_size_bytes - 1;
+
+    if (!sfdp_info.smptbl.addr || !sfdp_info.smptbl.size) {
+        tr_debug("No Sector Map Table");
+        return 0;
+    }
+
+    tr_debug("Parsing Sector Map Table - addr: 0x%" PRIx32 ", Size: %d", sfdp_info.smptbl.addr, sfdp_info.smptbl.size);
+
+
+    int status = sfdp_reader(sfdp_info.smptbl.addr, sector_map_table, sfdp_info.smptbl.size);
     if (status < 0) {
         tr_error("Sector Map: Table retrieval failed");
         return -1;
@@ -197,30 +209,34 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
         return -1;
     }
 
-    smptbl.region_cnt = sector_map_table[2] + 1;
-    if (smptbl.region_cnt > SFDP_SECTOR_MAP_MAX_REGIONS) {
+    sfdp_info.smptbl.region_cnt = sector_map_table[2] + 1;
+    if (sfdp_info.smptbl.region_cnt > SFDP_SECTOR_MAP_MAX_REGIONS) {
         tr_error("Sector Map: Supporting up to %d regions, current setup to %d regions - fail",
                  SFDP_SECTOR_MAP_MAX_REGIONS,
-                 smptbl.region_cnt);
+                 sfdp_info.smptbl.region_cnt);
         return -1;
     }
 
     // Loop through Regions and set for each one: size, supported erase types, high boundary offset
     // Calculate minimum Common Erase Type for all Regions
-    for (i_ind = 0; i_ind < smptbl.region_cnt; i_ind++) {
+    for (i_ind = 0; i_ind < sfdp_info.smptbl.region_cnt; i_ind++) {
         tmp_region_size = ((*((uint32_t *)&sector_map_table[(i_ind + 1) * 4])) >> 8) & 0x00FFFFFF; // bits 9-32
-        smptbl.region_size[i_ind] = (tmp_region_size + 1) * 256; // Region size is 0 based multiple of 256 bytes;
-        smptbl.region_erase_types_bitfld[i_ind] = sector_map_table[(i_ind + 1) * 4] & 0x0F; // bits 1-4
-        min_common_erase_type_bits &= smptbl.region_erase_types_bitfld[i_ind];
-        smptbl.region_high_boundary[i_ind] = (smptbl.region_size[i_ind] - 1) + prev_boundary;
-        prev_boundary = smptbl.region_high_boundary[i_ind] + 1;
+        sfdp_info.smptbl.region_size[i_ind] = (tmp_region_size + 1) * 256; // Region size is 0 based multiple of 256 bytes;
+
+        sfdp_info.smptbl.region_erase_types_bitfld[i_ind] = sector_map_table[(i_ind + 1) * 4] & 0x0F; // bits 1-4
+
+        min_common_erase_type_bits &= sfdp_info.smptbl.region_erase_types_bitfld[i_ind];
+
+        sfdp_info.smptbl.region_high_boundary[i_ind] = (sfdp_info.smptbl.region_size[i_ind] - 1) + prev_boundary;
+
+        prev_boundary = sfdp_info.smptbl.region_high_boundary[i_ind] + 1;
     }
 
     // Calc minimum Common Erase Size from min_common_erase_type_bits
     uint8_t type_mask = SFDP_ERASE_BITMASK_TYPE1;
     for (i_ind = 0; i_ind < 4; i_ind++) {
         if (min_common_erase_type_bits & type_mask) {
-            smptbl.regions_min_common_erase_size = smptbl.erase_type_size_arr[i_ind];
+            sfdp_info.smptbl.regions_min_common_erase_size = sfdp_info.smptbl.erase_type_size_arr[i_ind];
             break;
         }
         type_mask = type_mask << 1;
@@ -228,7 +244,7 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
 
     if (i_ind == 4) {
         // No common erase type was found between regions
-        smptbl.regions_min_common_erase_size = 0;
+        sfdp_info.smptbl.regions_min_common_erase_size = 0;
     }
 
     return 0;
