@@ -19,7 +19,7 @@
 #include "rtos/ThisThread.h"
 #include "mbed_trace.h"
 
-#define TRACE_GROUP "STMOD"
+#define TRACE_GROUP "STMD"
 
 using namespace mbed;
 
