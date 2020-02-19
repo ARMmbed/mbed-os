@@ -184,8 +184,8 @@ private:
     /**
      * Gets the device's I2C address with respect to the requested page.
      * When eight bit mode is disabled, this function is a noop.
-     * When eight bit mode is enabled, it sets the bits required for this bit
-     * in the devices address. Other bits remain unchained.
+     * When eight bit mode is enabled, it sets the bits required
+     * in the devices address. Other bits remain unchanged.
      * @param address An address in the requested page.
      * @return The device's I2C address for that page
      */
