@@ -17,7 +17,7 @@ limitations under the License.
 import re
 import fnmatch
 from os.path import join, basename, splitext, dirname, exists
-from os import getenv
+from os import getcwd, getenv
 from distutils.spawn import find_executable
 from distutils.version import LooseVersion
 
@@ -35,6 +35,7 @@ class GCC(mbedToolchain):
 
     GCC_RANGE = (LooseVersion("9.0.0"), LooseVersion("10.0.0"))
     GCC_VERSION_RE = re.compile(b"\d+\.\d+\.\d+")
+    DWARF_PRODUCER_RE = re.compile(r'(DW_AT_producer)(.*:\s*)(?P<producer>.*)')
 
     def __init__(self, target,  notify=None, macros=None, build_profile=None,
                  build_dir=None, coverage_patterns=None):
@@ -149,12 +150,14 @@ class GCC(mbedToolchain):
         self.cppc += self.flags['cxx'] + self.flags['common']
 
         self.flags['ld'] += self.cpu
-        self.ld = [join(tool_path, "arm-none-eabi-gcc")] + self.flags['ld']
+        self.ld = [join(tool_path, "arm-none-eabi-gcc")]
+        self.ld += self.flags['ld'] + self.flags['common']
         self.sys_libs = ["stdc++", "supc++", "m", "c", "gcc", "nosys"]
         self.preproc = [join(tool_path, "arm-none-eabi-cpp"), "-E", "-P"]
 
         self.ar = join(tool_path, "arm-none-eabi-ar")
         self.elf2bin = join(tool_path, "arm-none-eabi-objcopy")
+        self.objdump = join(tool_path, "arm-none-eabi-objdump")
 
         self.use_distcc = (bool(getenv("DISTCC_POTENTIAL_HOSTS", False))
                            and not getenv("MBED_DISABLE_DISTCC", False))
@@ -305,12 +308,31 @@ class GCC(mbedToolchain):
             self.default_cmd(cmd)
             mem_map = preproc_output
 
+        # NOTE: GCC_ARM_LTO_WORKAROUND
+        # This is a workaround for the GCC not using the strong symbols from
+        # C files to override the weak symbols from ASM files. This GCC bug is only
+        # present when building with the link-time optimizer (LTO) enabled. For
+        # more details please see:
+        #   https://gcc.gnu.org/bugzilla/show_bug.cgi?id=83967
+        #
+        # This can be fixed by changing the order of object files in the linker
+        # command; objects providing the weak symbols and compiled from assembly
+        # must be listed before the objects providing the strong symbols.
+        # To keep things simple, ALL object files from ASM are listed before
+        # other object files.
+        asm_objects = []
+        if '-flto' in self.ld:
+            asm_objects = self.get_asm_objects(objects)
+        reorg_objects = (
+            [o for o in objects if o in asm_objects] +
+            [o for o in objects if o not in asm_objects]
+        )
         # Build linker command
         map_file = splitext(output)[0] + ".map"
         cmd = (
             (self.coverage_ld if self.coverage_patterns else self.ld) +
             ["-o", output, "-Wl,-Map=%s" % map_file] +
-            objects +
+            reorg_objects +
             ["-Wl,--start-group"] +
             libs +
             ["-Wl,--end-group"]
@@ -382,6 +404,21 @@ class GCC(mbedToolchain):
             exec_name = join(TOOLCHAIN_PATHS['GCC_ARM'], 'arm-none-eabi-gcc')
             return exists(exec_name) or exists(exec_name + '.exe')
 
+    def check_if_obj_from_asm(self, obj_file):
+        """Check if obj_file was build by the GNU Assembler."""
+        dw_producer = ''
+        cmd = [self.objdump, '--dwarf=info', obj_file]
+        stdout, stderr, rc = run_cmd(cmd, work_dir=getcwd(), chroot=self.CHROOT)
+        if rc != 0:
+            return False
+        match = self.DWARF_PRODUCER_RE.search(stdout.encode('utf-8'))
+        if match:
+            dw_producer = match.group('producer')
+        return 'GNU AS' in dw_producer
+
+    def get_asm_objects(self, objects):
+        """Return a list of object files built from ASM."""
+        return [o for o in objects if self.check_if_obj_from_asm(o)]
 
 class GCC_ARM(GCC):
     pass
