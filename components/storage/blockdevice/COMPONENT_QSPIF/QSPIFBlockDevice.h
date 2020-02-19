@@ -70,8 +70,6 @@ enum qspif_polarity_mode {
     QSPIF_POLARITY_MODE_1      /* CPOL=1, CPHA=1 */
 };
 
-#define QSPIF_MAX_REGIONS   10
-#define MAX_NUM_OF_ERASE_TYPES 4
 #define QSPIF_MAX_ACTIVE_FLASH_DEVICES 10
 
 /** BlockDevice for SFDP based flash devices over QSPI bus
@@ -318,14 +316,8 @@ private:
     /****************************************/
     /* SFDP Detection and Parsing Functions */
     /****************************************/
-    // Parse SFDP Headers and retrieve Basic Param and Sector Map Tables (if exist)
-    int _sfdp_parse_sfdp_headers(mbed::sfdp_hdr_info &hdr_info);
-
     // Parse and Detect required Basic Parameters from Table
     int _sfdp_parse_basic_param_table(uint32_t basic_table_addr, size_t basic_table_size);
-
-    // Parse and read information required by Regions Sector Map
-    int _sfdp_parse_sector_map_table(uint32_t sector_map_table_addr, size_t sector_map_table_size);
 
     // Detect the soft reset protocol and reset - returns error if soft reset is not supported
     int _sfdp_detect_reset_protocol_and_reset(uint8_t *basic_param_table_ptr);
@@ -344,7 +336,9 @@ private:
     int _sfdp_detect_page_size(uint8_t *basic_param_table_ptr, int basic_param_table_size);
 
     // Detect all supported erase types
-    int _sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr, int basic_param_table_size);
+    int _sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr,
+                                               int basic_param_table_size,
+                                               mbed::sfdp_smptbl_info &smptbl);
 
     // Detect 4-byte addressing mode and enable it if supported
     int _sfdp_detect_and_enable_4byte_addressing(uint8_t *basic_param_table_ptr, int basic_param_table_size);
@@ -356,11 +350,15 @@ private:
     /* Utilities Functions */
     /***********************/
     // Find the region to which the given offset belong to
-    int _utils_find_addr_region(mbed::bd_size_t offset);
+    int _utils_find_addr_region(mbed::bd_size_t offset, mbed::sfdp_smptbl_info &smptbl);
 
     // Iterate on all supported Erase Types of the Region to which the offset belong to.
     // Iterates from highest type to lowest
-    int _utils_iterate_next_largest_erase_type(uint8_t &bitfield, int size, int offset, int boundry);
+    int _utils_iterate_next_largest_erase_type(uint8_t &bitfield,
+                                               int size,
+                                               int offset,
+                                               int region,
+                                               mbed::sfdp_smptbl_info &smptbl);
 
 private:
     enum qspif_clear_protection_method_t {
@@ -399,10 +397,6 @@ private:
     // 4-byte addressing extension register write instruction
     mbed::qspi_inst_t _4byte_msb_reg_write_inst;
 
-    // Up To 4 Erase Types are supported by SFDP (each with its own command Instruction and Size)
-    mbed::qspi_inst_t _erase_type_inst_arr[MAX_NUM_OF_ERASE_TYPES];
-    unsigned int _erase_type_size_arr[MAX_NUM_OF_ERASE_TYPES];
-
     // Quad mode enable status register and bit
     int _quad_enable_register_idx;
     int _quad_enable_bit;
@@ -412,13 +406,8 @@ private:
     // Clear block protection
     qspif_clear_protection_method_t _clear_protection_method;
 
-    // Sector Regions Map
-    int _regions_count; //number of regions
-    int _region_size_bytes[QSPIF_MAX_REGIONS]; //regions size in bytes
-    bd_size_t _region_high_boundary[QSPIF_MAX_REGIONS]; //region high address offset boundary
-    //Each Region can support a bit combination of any of the 4 Erase Types
-    uint8_t _region_erase_types_bitfield[QSPIF_MAX_REGIONS];
-    unsigned int _min_common_erase_size; // minimal common erase size for all regions (0 if none exists)
+    // Data extracted from the devices SFDP structure
+    mbed::sfdp_hdr_info _sfdp_info;
 
     unsigned int _page_size_bytes; // Page size - 256 Bytes default
     int _freq;
