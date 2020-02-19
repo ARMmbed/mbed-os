@@ -103,6 +103,17 @@ public:
      */
     float read_volts();
 
+    /**
+     * Sets this ADC instance's reference voltage.
+     *
+     * Defaults to the configurable MBED_CONF_DRIVERS_DEFAULT_ADC_VREF setting.
+     *
+     * The ADC's reference voltage is used to scale the output when calling AnalogIn::read_volts
+     *
+     * @param[in] vref New ADC reference voltage for this ADC instance.
+     */
+    void set_reference_voltage(float vref);
+
     /** An operator shorthand for read()
      *
      * The float() operator can be used as a shorthand for read() to simplify common code sequences
@@ -141,6 +152,9 @@ protected:
 
     analogin_t _adc;
     static SingletonPtr<PlatformMutex> _mutex;
+
+    float vref;
+
 #endif //!defined(DOXYGEN_ONLY)
 
 };
