@@ -63,6 +63,10 @@ void AnalogIn::set_reference_voltage(float vref) {
     this->vref = vref;
 }
 
+float AnalogIn::get_reference_voltage(void) {
+    return this->vref;
+}
+
 } // namespace mbed
 
 #endif

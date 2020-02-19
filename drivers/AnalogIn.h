@@ -93,7 +93,8 @@ public:
      */
     unsigned short read_u16();
 
-    /** Read the input voltage in volts. The output depends on the target board's
+    /**
+     * Read the input voltage in volts. The output depends on the target board's
      * ADC reference voltage (typically equal to supply voltage). The ADC reference voltage
      * sets the maximum voltage the ADC can quantify (ie: Vin == Vref when ADC output == ADC_MAX_VALUE)
      *
@@ -104,15 +105,22 @@ public:
     float read_volts();
 
     /**
-     * Sets this ADC instance's reference voltage.
+     * Sets this AnalogIn instance's reference voltage.
      *
      * Defaults to the configurable MBED_CONF_DRIVERS_DEFAULT_ADC_VREF setting.
      *
-     * The ADC's reference voltage is used to scale the output when calling AnalogIn::read_volts
+     * The AnalogIn's reference voltage is used to scale the output when calling AnalogIn::read_volts
      *
-     * @param[in] vref New ADC reference voltage for this ADC instance.
+     * @param[in] vref New ADC reference voltage for this AnalogIn instance.
      */
     void set_reference_voltage(float vref);
+
+    /**
+     * Gets this AnalogIn instance's reference voltage.
+     *
+     * @returns A floating-point value representing this AnalogIn's reference voltage, measured in volts.
+     */
+    float get_reference_voltage(void);
 
     /** An operator shorthand for read()
      *
