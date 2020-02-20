@@ -1,7 +1,6 @@
 
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2012 ARM Limited
- *
  * SPDX-License-Identifier: MIT
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
