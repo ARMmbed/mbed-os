@@ -190,7 +190,9 @@ nsapi_error_t TLSSocketWrapper::start_handshake(bool first_call)
         return NSAPI_ERROR_AUTH_FAILURE;
     }
 
+#if !defined(MBEDTLS_SSL_CONF_RNG)
     mbedtls_ssl_conf_rng(get_ssl_config(), mbedtls_ctr_drbg_random, &_ctr_drbg);
+#endif
 
 
 #if MBED_CONF_TLS_SOCKET_DEBUG_LEVEL > 0

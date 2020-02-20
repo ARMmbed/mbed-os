@@ -599,8 +599,15 @@ altcp_mbedtls_setup(void *conf, struct altcp_pcb *conn, struct altcp_pcb *inner_
     altcp_mbedtls_free(conf, state);
     return ERR_MEM;
   }
+  // Defines MBEDTLS_SSL_CONF_RECV/SEND/RECV_TIMEOUT define global functions which should be the same for all
+  // callers of mbedtls_ssl_set_bio_ctx and there should be only one ssl context. If these rules don't apply,
+  // these defines can't be used.
+#if !defined(MBEDTLS_SSL_CONF_RECV) && !defined(MBEDTLS_SSL_CONF_SEND) && !defined(MBEDTLS_SSL_CONF_RECV_TIMEOUT)
   /* tell mbedtls about our I/O functions */
   mbedtls_ssl_set_bio(&state->ssl_context, conn, altcp_mbedtls_bio_send, altcp_mbedtls_bio_recv, NULL);
+#else
+  mbedtls_ssl_set_bio_ctx(&state->ssl_context, conn);
+#endif /* !defined(MBEDTLS_SSL_CONF_RECV) && !defined(MBEDTLS_SSL_CONF_SEND) && !defined(MBEDTLS_SSL_CONF_RECV_TIMEOUT) */
 
   altcp_mbedtls_setup_callbacks(conn, inner_conn);
   conn->inner_conn = inner_conn;
@@ -734,7 +741,10 @@ altcp_tls_create_config(int is_server, int have_cert, int have_pkey, int have_ca
   }
   mbedtls_ssl_conf_authmode(&conf->conf, MBEDTLS_SSL_VERIFY_OPTIONAL);
 
+#if !defined(MBEDTLS_SSL_CONF_RNG)
   mbedtls_ssl_conf_rng(&conf->conf, mbedtls_ctr_drbg_random, &conf->ctr_drbg);
+#endif
+
 #if ALTCP_MBEDTLS_DEBUG != LWIP_DBG_OFF
   mbedtls_ssl_conf_dbg(&conf->conf, altcp_mbedtls_debug, stdout);
 #endif
