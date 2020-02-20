@@ -7562,8 +7562,6 @@
             "MPU"
         ],
         "device_has_remove": [
-            "I2CSLAVE",
-            "I2C_ASYNCH",
             "INTERRUPTIN",
             "PORTIN",
             "PORTINOUT",
