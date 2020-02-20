@@ -189,7 +189,6 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
     int status = 0;
     uint32_t tmp_region_size = 0;
     uint8_t type_mask;
-    int i_ind = 0;
     int prev_boundary = 0;
     // Default set to all type bits 1-4 are common
     int min_common_erase_type_bits = SFDP_ERASE_BITMASK_ALL;
@@ -235,32 +234,29 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
 
     // Loop through Regions and set for each one: size, supported erase types, high boundary offset
     // Calculate minimum Common Erase Type for all Regions
-    for (i_ind = 0; i_ind < sfdp_info.smptbl.region_cnt; i_ind++) {
-        tmp_region_size = ((*((uint32_t *)&smptbl_buff[(i_ind + 1) * 4])) >> 8) & 0x00FFFFFF; // bits 9-32
-        sfdp_info.smptbl.region_size[i_ind] = (tmp_region_size + 1) * 256; // Region size is 0 based multiple of 256 bytes;
+    for (auto idx = 0; idx < sfdp_info.smptbl.region_cnt; idx++) {
+        tmp_region_size = ((*((uint32_t *)&smptbl_buff[(idx + 1) * 4])) >> 8) & 0x00FFFFFF; // bits 9-32
+        sfdp_info.smptbl.region_size[idx] = (tmp_region_size + 1) * 256; // Region size is 0 based multiple of 256 bytes;
 
-        sfdp_info.smptbl.region_erase_types_bitfld[i_ind] = smptbl_buff[(i_ind + 1) * 4] & 0x0F; // bits 1-4
+        sfdp_info.smptbl.region_erase_types_bitfld[idx] = smptbl_buff[(idx + 1) * 4] & 0x0F; // bits 1-4
 
-        min_common_erase_type_bits &= sfdp_info.smptbl.region_erase_types_bitfld[i_ind];
+        min_common_erase_type_bits &= sfdp_info.smptbl.region_erase_types_bitfld[idx];
 
-        sfdp_info.smptbl.region_high_boundary[i_ind] = (sfdp_info.smptbl.region_size[i_ind] - 1) + prev_boundary;
+        sfdp_info.smptbl.region_high_boundary[idx] = (sfdp_info.smptbl.region_size[idx] - 1) + prev_boundary;
 
-        prev_boundary = sfdp_info.smptbl.region_high_boundary[i_ind] + 1;
+        prev_boundary = sfdp_info.smptbl.region_high_boundary[idx] + 1;
     }
 
     // Calc minimum Common Erase Size from min_common_erase_type_bits
     type_mask = SFDP_ERASE_BITMASK_TYPE1;
-    for (i_ind = 0; i_ind < 4; i_ind++) {
+    // If no common erase type is found between regions
+    sfdp_info.smptbl.regions_min_common_erase_size = 0;
+    for (auto idx = 0; idx < 4; idx++) {
         if (min_common_erase_type_bits & type_mask) {
-            sfdp_info.smptbl.regions_min_common_erase_size = sfdp_info.smptbl.erase_type_size_arr[i_ind];
+            sfdp_info.smptbl.regions_min_common_erase_size = sfdp_info.smptbl.erase_type_size_arr[idx];
             break;
         }
         type_mask = type_mask << 1;
-    }
-
-    if (i_ind == 4) {
-        // No common erase type was found between regions
-        sfdp_info.smptbl.regions_min_common_erase_size = 0;
     }
 
 EXIT:
