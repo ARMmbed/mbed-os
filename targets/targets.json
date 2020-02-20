@@ -7573,7 +7573,6 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
-            "SERIAL",
             "SERIAL_FC",
             "SLEEP",
             "SPI",
