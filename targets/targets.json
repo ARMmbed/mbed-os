@@ -7562,7 +7562,6 @@
             "MPU"
         ],
         "device_has_remove": [
-            "ANALOGIN",
             "I2C",
             "I2CSLAVE",
             "I2C_ASYNCH",

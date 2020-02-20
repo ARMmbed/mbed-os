@@ -63,6 +63,12 @@ struct serial_s {
 #endif
 };
 
+struct analogin_s {
+    ADC_HandleTypeDef handle;
+    PinName pin;
+    uint8_t channel;
+};
+
 struct trng_s {
     RNG_HandleTypeDef handle;
 };
