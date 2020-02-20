@@ -7575,8 +7575,7 @@
             "PWMOUT",
             "SPI",
             "SPISLAVE",
-            "SPI_ASYNCH",
-            "RESET_REASON"
+            "SPI_ASYNCH"
         ],
         "detect_code": [
             "0221"
