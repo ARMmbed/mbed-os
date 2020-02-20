@@ -67,6 +67,9 @@ public:
 
     /** Set hostname.
      *
+     * @note Implementation is inside following defines:
+     * #if defined(MBEDTLS_X509_CRT_PARSE_C) && !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
+     *
      * TLSSocket requires hostname used to verify the certificate.
      * If hostname is not given in constructor, this function must be used before
      * starting the TLS handshake.

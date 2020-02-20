@@ -340,9 +340,22 @@ int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_p
         return -1;
     }
 
+    // Defines MBEDTLS_SSL_CONF_RECV/SEND/RECV_TIMEOUT define global functions which should be the same for all
+    // callers of mbedtls_ssl_set_bio_ctx and there should be only one ssl context. If these rules don't apply,
+    // these defines can't be used.
+#if !defined(MBEDTLS_SSL_CONF_RECV) && !defined(MBEDTLS_SSL_CONF_SEND) && !defined(MBEDTLS_SSL_CONF_RECV_TIMEOUT)
     // Set calbacks
     mbedtls_ssl_set_bio(&sec->ssl, sec, tls_sec_prot_lib_ssl_send, tls_sec_prot_lib_ssl_recv, NULL);
+#else
+    mbedtls_ssl_set_bio_ctx(&sec->ssl, sec);
+#endif /* !defined(MBEDTLS_SSL_CONF_RECV) && !defined(MBEDTLS_SSL_CONF_SEND) && !defined(MBEDTLS_SSL_CONF_RECV_TIMEOUT) */
+
+// Defines MBEDTLS_SSL_CONF_SET_TIMER/GET_TIMER define global functions which should be the same for all
+// callers of mbedtls_ssl_set_timer_cb and there should be only one ssl context. If these rules don't apply,
+// these defines can't be used.
+#if !defined(MBEDTLS_SSL_CONF_SET_TIMER) && !defined(MBEDTLS_SSL_CONF_GET_TIMER)
     mbedtls_ssl_set_timer_cb(&sec->ssl, sec, tls_sec_prot_lib_ssl_set_timer, tls_sec_prot_lib_ssl_get_timer);
+#endif /* !defined(MBEDTLS_SSL_CONF_SET_TIMER) && !defined(MBEDTLS_SSL_CONF_GET_TIMER) */
 
     // Configure certificates, keys and certificate revocation list
     if (tls_sec_prot_lib_configure_certificates(sec, certs) != 0) {
@@ -350,6 +363,7 @@ int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_p
         return -1;
     }
 
+#if !defined(MBEDTLS_SSL_CONF_SINGLE_CIPHERSUITE)
     // Configure ciphersuites
     static const int sec_suites[] = {
         MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8,
@@ -358,6 +372,7 @@ int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_p
         0
     };
     mbedtls_ssl_conf_ciphersuites(&sec->conf, sec_suites);
+#endif /* !defined(MBEDTLS_SSL_CONF_SINGLE_CIPHERSUITE) */
 
 #ifdef TLS_SEC_PROT_LIB_TLS_DEBUG
     mbedtls_ssl_conf_dbg(&sec->conf, tls_sec_prot_lib_debug, sec);
@@ -367,8 +382,13 @@ int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_p
     // Export keys callback
     mbedtls_ssl_conf_export_keys_ext_cb(&sec->conf, tls_sec_prot_lib_ssl_export_keys, sec);
 
+#if !defined(MBEDTLS_SSL_CONF_MIN_MINOR_VER) || !defined(MBEDTLS_SSL_CONF_MIN_MAJOR_VER)
     mbedtls_ssl_conf_min_version(&sec->conf, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MAJOR_VERSION_3);
+#endif /* !defined(MBEDTLS_SSL_CONF_MIN_MINOR_VER) || !defined(MBEDTLS_SSL_CONF_MIN_MAJOR_VER) */
+
+#if !defined(MBEDTLS_SSL_CONF_MAX_MINOR_VER) || !defined(MBEDTLS_SSL_CONF_MAX_MAJOR_VER)
     mbedtls_ssl_conf_max_version(&sec->conf, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MAJOR_VERSION_3);
+#endif /* !defined(MBEDTLS_SSL_CONF_MAX_MINOR_VER) || !defined(MBEDTLS_SSL_CONF_MAX_MAJOR_VER) */
 
     // Set certificate verify callback
     mbedtls_ssl_set_verify(&sec->ssl, tls_sec_prot_lib_x509_crt_verify, sec);
