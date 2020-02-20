@@ -7573,7 +7573,6 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
-            "SLEEP",
             "SPI",
             "SPISLAVE",
             "SPI_ASYNCH",
