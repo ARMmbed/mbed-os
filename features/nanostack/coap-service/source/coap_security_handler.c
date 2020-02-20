@@ -396,7 +396,9 @@ int coap_security_handler_connect_non_blocking(coap_security_t *sec, bool is_ser
         mbedtls_ssl_conf_handshake_timeout(&sec->_conf, timeout_min, timeout_max);
     }
 
+#if !defined(MBEDTLS_SSL_CONF_RNG)
     mbedtls_ssl_conf_rng(&sec->_conf, mbedtls_ctr_drbg_random, &sec->_ctr_drbg);
+#endif
 
     if ((mbedtls_ssl_setup(&sec->_ssl, &sec->_conf)) != 0) {
         return -1;

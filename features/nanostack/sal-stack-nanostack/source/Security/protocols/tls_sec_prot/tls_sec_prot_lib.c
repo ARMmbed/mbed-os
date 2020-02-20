@@ -327,8 +327,10 @@ int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_p
         return -1;
     }
 
+#if !defined(MBEDTLS_SSL_CONF_RNG)
     // Configure random number generator
     mbedtls_ssl_conf_rng(&sec->conf, mbedtls_ctr_drbg_random, &sec->ctr_drbg);
+#endif
 
 #ifdef MBEDTLS_ECP_RESTARTABLE
     // Set ECC calculation maximum operations (affects only client)
