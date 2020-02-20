@@ -783,6 +783,7 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
             rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_RF_CONFIGURATION, (uint8_t *) set_req->value_pointer);
             mac_mlme_set_symbol_rate(rf_mac_setup);
             phy_rf_channel_configuration_s *config_params = (phy_rf_channel_configuration_s *)set_req->value_pointer;
+            rf_mac_setup->datarate = config_params->datarate;
             tr_info("RF config update:");
             tr_info("Frequency(ch0): %"PRIu32"Hz", config_params->channel_0_center_frequency);
             tr_info("Channel spacing: %"PRIu32"Hz", config_params->channel_spacing);
@@ -1090,6 +1091,7 @@ protocol_interface_rf_mac_setup_s *mac_mlme_data_base_allocate(uint8_t *mac64, a
     entry->aUnitBackoffPeriod = 20; //This can be different in some Platform 20 comes from 12-symbol turnaround and 8 symbol CCA read
     entry->number_of_csma_ca_periods = MAC_DEFAULT_NUMBER_OF_CSMA_PERIODS;
     entry->multi_cca_interval = MAC_DEFAULT_CSMA_MULTI_CCA_INTERVAL;
+    entry->mac_channel_list.channel_page = CHANNEL_PAGE_UNDEFINED;
 
     if (mac_sec_mib_init(entry, storage_sizes) != 0) {
         mac_mlme_data_base_deallocate(entry);

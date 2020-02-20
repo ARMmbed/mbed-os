@@ -39,7 +39,7 @@ static int8_t rpl_policy_dao_retry_count_conf = 0;
 static int16_t rpl_policy_dao_initial_timeout_conf = 20; // Default is 2 seconds 100ms ticks
 static uint16_t rpl_policy_dio_validity_period_hysteresis = 0x0180; //Fixed Point 1.5
 static uint8_t rpl_policy_multicast_config_min_advertisment_count = 0;
-
+static uint8_t rpl_policy_mrhof_parent_set_size_conf = 3; // default parent set size
 
 /* TODO - application API to control when to join new instances / DODAGs
  *
@@ -147,7 +147,7 @@ int8_t rpl_policy_dao_retry_count()
 /* Given the next-hop address from a source routing header, which interface,
  * if any, should we assume that next hop is on?
  */
-#define ETX_SRH_THRESHOLD 0x800 /* 8.8 fixed-point, so 4 */
+#define ETX_SRH_THRESHOLD 0x400 /* 8.8 fixed-point, so 4 */
 int8_t rpl_policy_srh_next_hop_interface(rpl_domain_t *domain, int8_t if_id, const uint8_t *next_hop)
 {
     if (domain->non_storing_downstream_interface != -1) {
@@ -326,11 +326,16 @@ uint_fast8_t rpl_policy_of0_max_backup_successors(const rpl_domain_t *domain)
     return 1;
 }
 
+void rpl_policy_set_mrhof_parent_set_size(uint8_t parent_set_size)
+{
+    rpl_policy_mrhof_parent_set_size_conf = parent_set_size;
+}
+
 uint_fast8_t rpl_policy_mrhof_parent_set_size(const rpl_domain_t *domain)
 {
     (void)domain;
 
-    return 3;
+    return rpl_policy_mrhof_parent_set_size_conf;
 }
 
 uint16_t rpl_policy_mrhof_max_rank_stretch_for_extra_parents(const rpl_domain_t *domain)

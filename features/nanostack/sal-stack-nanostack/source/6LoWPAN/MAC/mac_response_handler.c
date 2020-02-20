@@ -120,6 +120,7 @@ void mcps_data_indication_handler(const mac_api_t *api, const mcps_data_ind_t *d
 void mcps_purge_confirm_handler(const mac_api_t *api, mcps_purge_conf_t *data)
 {
     (void)api;
+    (void)data;
     tr_info("MCPS Data Purge confirm status %u, for handle %u", data->status, data->msduHandle);
 }
 

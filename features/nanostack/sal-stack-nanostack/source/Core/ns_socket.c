@@ -287,14 +287,16 @@ void socket_release(socket_t *socket)
         if (tcp_info(socket->inet_pcb)) {
             /* This may trigger a reset if pending data. Do it first so you
              * get just the reset, rather than a FIN. */
-            tcp_session_shutdown_read(tcp_info(socket->inet_pcb));
+            tcp_error sock_status = tcp_session_shutdown_read(tcp_info(socket->inet_pcb));
             /* This can also cause TCP deletion */
             if (tcp_info(socket->inet_pcb)) {
-                tcp_session_close(tcp_info(socket->inet_pcb));
+                sock_status = tcp_session_close(tcp_info(socket->inet_pcb));
             }
             if (tcp_info(socket->inet_pcb)) {
                 tcp_socket_released(tcp_info(socket->inet_pcb));
             }
+            // prevent warning "statement with no effect" when TCP is disabled
+            (void) sock_status;
         } else {
             /* Unbind the internet control block - ensures users are not prevented
              * from binding a new socket to the same port if the socket lingers
@@ -1362,8 +1364,10 @@ int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct ns_msghdr 
 
     protocol_push(buf);
 
+#ifndef NO_TCP
     /* TCP jumps back to here */
 success:
+#endif
     if (flags & NS_MSG_LEGACY0) {
         return 0;
     } else {

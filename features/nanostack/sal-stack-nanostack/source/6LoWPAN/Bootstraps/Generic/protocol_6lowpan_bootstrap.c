@@ -1379,6 +1379,8 @@ static int8_t arm_6lowpan_bootstrap_down(protocol_interface_info_entry_t *cur)
     }
     cur->if_lowpan_security_params->mle_security_frame_counter = mle_service_security_get_frame_counter(cur->id);
     mle_service_interface_receiver_handler_update(cur->id, mle_6lowpan_message_handler);
+    // Reset MAC for safe upper layer memory free
+    protocol_mac_reset(cur);
     return nwk_6lowpan_down(cur);
 }
 #ifdef HAVE_6LOWPAN_ND
@@ -1593,7 +1595,7 @@ static void lowpan_neighbor_entry_remove_notify(mac_neighbor_table_entry_t *entr
 {
 
     protocol_interface_info_entry_t *cur_interface = user_data;
-    lowpan_adaptation_remove_free_indirect_table(cur_interface, entry_ptr);
+    lowpan_adaptation_neigh_remove_free_tx_tables(cur_interface, entry_ptr);
     // Sleepy host
     if (cur_interface->lowpan_info & INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE) {
         mac_data_poll_protocol_poll_mode_decrement(cur_interface);

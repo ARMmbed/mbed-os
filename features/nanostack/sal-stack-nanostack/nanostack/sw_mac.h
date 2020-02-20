@@ -68,6 +68,13 @@ extern int8_t ns_sw_mac_virtual_client_unregister(struct mac_api_s *api);
 extern int ns_sw_mac_fhss_register(struct mac_api_s *mac_api, struct fhss_api *fhss_api);
 
 /**
+ * @brief Unregister FHSS API instance from given software MAC instance.
+ * @param mac_api MAC instance.
+ * @return 0 on success, -1 on fail.
+ */
+extern int ns_sw_mac_fhss_unregister(struct mac_api_s *mac_api);
+
+/**
  * @brief Request registered FHSS API instance from software MAC instance.
  * @param mac_api MAC instance.
  * @return FHSS api.
