@@ -70,6 +70,7 @@ matrix:
         - >-
             git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
               | ( grep '.\(c\|cpp\|h\|hpp\|py\)$' || true ) \
+              | ( grep -v '^tools/test/toolchains/api_test.py') \
               | while read file; do cp --parents "${file}" SCANCODE; done
         - scancode -l --json-pp scancode.json SCANCODE
         - python ./tools/test/travis-ci/scancode-evaluate.py -f scancode.json
