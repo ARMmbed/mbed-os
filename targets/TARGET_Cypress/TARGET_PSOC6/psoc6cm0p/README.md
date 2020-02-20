@@ -6,6 +6,11 @@ Prebuilt application images are executed on the Cortex M0+ core of the PSoC 6 du
 The images are provided as C arrays ready to be compiled as part of the Cortex M4 application.
 The Cortex M0+ application code is placed to internal flash by the Cortex M4 linker script.
 
+Note: Each application image has a variant based on the hardware die (e.g.
+psoc6_01, psoc6_02, psoc6_03, ...) it is supported on. An #ifdef at the top of
+each .c file automatically controls which version is used so there is no need
+to specify a particular image.
+
 ### Images
 
 * [COMPONENT_CM0P_SLEEP](./COMPONENT_CM0P_SLEEP/README.md)
