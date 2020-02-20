@@ -53,7 +53,12 @@ TLSSocketWrapper::TLSSocketWrapper(Socket *transport, const char *hostname, cont
     }
 #endif /* MBEDTLS_PLATFORM_C */
     mbedtls_entropy_init(&_entropy);
-    mbedtls_ctr_drbg_init(&_ctr_drbg);
+#if defined(MBEDTLS_CTR_DRBG_C)
+    mbedtls_ctr_drbg_init(&_drbg);
+#elif defined(MBEDTLS_HMAC_DRBG_C)
+    mbedtls_hmac_drbg_init(&_drbg);
+#endif
+
     mbedtls_ssl_init(&_ssl);
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
     mbedtls_pk_init(&_pkctx);
@@ -70,7 +75,11 @@ TLSSocketWrapper::~TLSSocketWrapper()
         close();
     }
     mbedtls_entropy_free(&_entropy);
-    mbedtls_ctr_drbg_free(&_ctr_drbg);
+#if defined(MBEDTLS_CTR_DRBG_C)
+    mbedtls_ctr_drbg_free(&_drbg);
+#elif defined(MBEDTLS_HMAC_DRBG_C)
+    mbedtls_hmac_drbg_free(&_drbg);
+#endif
     mbedtls_ssl_free(&_ssl);
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
     mbedtls_pk_free(&_pkctx);
@@ -183,15 +192,29 @@ nsapi_error_t TLSSocketWrapper::start_handshake(bool first_call)
     /*
      * Initialize TLS-related stuf.
      */
-    if ((ret = mbedtls_ctr_drbg_seed(&_ctr_drbg, mbedtls_entropy_func, &_entropy,
+#if defined(MBEDTLS_CTR_DRBG_C)
+    if ((ret = mbedtls_ctr_drbg_seed(&_drbg, mbedtls_entropy_func, &_entropy,
                                      (const unsigned char *) DRBG_PERS,
                                      sizeof(DRBG_PERS))) != 0) {
         print_mbedtls_error("mbedtls_crt_drbg_init", ret);
         return NSAPI_ERROR_AUTH_FAILURE;
     }
+#elif defined(MBEDTLS_HMAC_DRBG_C)
+    if ((ret = mbedtls_hmac_drbg_seed(&_drbg, mbedtls_md_info_from_type(MBEDTLS_MD_SHA256),
+                                      mbedtls_entropy_func, &_entropy,
+                                      (const unsigned char *) DRBG_PERS,
+                                      sizeof(DRBG_PERS))) != 0) {
+        print_mbedtls_error("mbedtls_hmac_drbg_seed", ret);
+        return NSAPI_ERROR_AUTH_FAILURE;
+    }
+#endif
 
 #if !defined(MBEDTLS_SSL_CONF_RNG)
-    mbedtls_ssl_conf_rng(get_ssl_config(), mbedtls_ctr_drbg_random, &_ctr_drbg);
+#if defined(MBEDTLS_CTR_DRBG_C)
+    mbedtls_ssl_conf_rng(get_ssl_config(), mbedtls_ctr_drbg_random, &_drbg);
+#elif defined(MBEDTLS_HMAC_DRBG_C)
+    mbedtls_ssl_conf_rng(get_ssl_config(), mbedtls_hmac_drbg_random, &_drbg);
+#endif
 #endif
 
 
@@ -274,7 +297,7 @@ nsapi_error_t TLSSocketWrapper::continue_handshake()
     tr_info("TLS connection established");
 #endif
 
-#if defined(MBEDTLS_X509_CRT_PARSE_C) && defined(FEA_TRACE_SUPPORT)
+#if defined(MBEDTLS_X509_CRT_PARSE_C) && defined(FEA_TRACE_SUPPORT) && !defined(MBEDTLS_X509_REMOVE_INFO)
     /* Prints the server certificate and verify it. */
     const size_t buf_size = 1024;
     char *buf = new char[buf_size];

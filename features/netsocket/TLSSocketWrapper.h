@@ -29,6 +29,7 @@
 #include "mbedtls/ssl.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
+#include "mbedtls/hmac_drbg.h"
 #include "mbedtls/error.h"
 
 // This class requires Mbed TLS SSL/TLS client code
@@ -241,7 +242,7 @@ protected:
      *  @retval       NSAPI_ERROR_IN_PROGRESS if the first call did not complete the request.
      *  @retval       NSAPI_ERROR_NO_SOCKET in case the transport socket was not created correctly.
      *  @retval       NSAPI_ERROR_AUTH_FAILURE in case of tls-related authentication errors.
-     *                See @ref mbedtls_ctr_drbg_seed, @ref mbedtls_ssl_setup. @ref mbedtls_ssl_handshake.
+     *                See @ref mbedtls_ctr_drbg_seed or @ref mbedtls_hmac_drbg_seed, @ref mbedtls_ssl_setup. @ref mbedtls_ssl_handshake.
      */
     nsapi_error_t start_handshake(bool first_call);
 
@@ -290,7 +291,13 @@ private:
 #ifdef MBEDTLS_X509_CRT_PARSE_C
     mbedtls_pk_context _pkctx;
 #endif
-    mbedtls_ctr_drbg_context _ctr_drbg;
+
+#if defined(MBEDTLS_CTR_DRBG_C)
+    mbedtls_ctr_drbg_context _drbg;
+#elif defined(MBEDTLS_HMAC_DRBG_C)
+    mbedtls_hmac_drbg_context _drbg;
+#endif
+
     mbedtls_entropy_context _entropy;
 
     rtos::EventFlags _event_flag;
