@@ -85,7 +85,7 @@ TLSSocketWrapper::~TLSSocketWrapper()
 
 void TLSSocketWrapper::set_hostname(const char *hostname)
 {
-#ifdef MBEDTLS_X509_CRT_PARSE_C
+#if defined(MBEDTLS_X509_CRT_PARSE_C) && !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
     mbedtls_ssl_set_hostname(&_ssl, hostname);
 #endif
 }
@@ -207,7 +207,15 @@ nsapi_error_t TLSSocketWrapper::start_handshake(bool first_call)
 
     _transport->set_blocking(false);
     _transport->sigio(mbed::callback(this, &TLSSocketWrapper::event));
-    mbedtls_ssl_set_bio(&_ssl, this, ssl_send, ssl_recv, NULL);
+
+    // Defines MBEDTLS_SSL_CONF_RECV/SEND/RECV_TIMEOUT define global functions which should be the same for all
+    // callers of mbedtls_ssl_set_bio_ctx and there should be only one ssl context. If these rules don't apply,
+    // these defines can't be used.
+#if !defined(MBEDTLS_SSL_CONF_RECV) && !defined(MBEDTLS_SSL_CONF_SEND) && !defined(MBEDTLS_SSL_CONF_RECV_TIMEOUT)
+    mbedtls_ssl_set_bio(&_ssl, this, ssl_send, ssl_recv, nullptr);
+#else
+    mbedtls_ssl_set_bio_ctx(&_ssl, this);
+#endif /* !defined(MBEDTLS_SSL_CONF_RECV) && !defined(MBEDTLS_SSL_CONF_SEND) && !defined(MBEDTLS_SSL_CONF_RECV_TIMEOUT) */
 
     _tls_initialized = true;
 

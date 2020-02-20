@@ -30,7 +30,13 @@ DTLSSocketWrapper::DTLSSocketWrapper(Socket *transport, const char *hostname, co
     _timer_expired(false)
 {
     mbedtls_ssl_conf_transport(get_ssl_config(), MBEDTLS_SSL_TRANSPORT_DATAGRAM);
+
+    // Defines MBEDTLS_SSL_CONF_SET_TIMER/GET_TIMER define global functions which should be the same for all
+    // callers of mbedtls_ssl_set_timer_cb and there should be only one ssl context. If these rules don't apply,
+    // these defines can't be used
+#if !defined(MBEDTLS_SSL_CONF_SET_TIMER) && !defined(MBEDTLS_SSL_CONF_GET_TIMER)
     mbedtls_ssl_set_timer_cb(get_ssl_context(), this, timing_set_delay, timing_get_delay);
+#endif /* !defined(MBEDTLS_SSL_CONF_SET_TIMER) && !defined(MBEDTLS_SSL_CONF_GET_TIMER) */
 }
 
 void DTLSSocketWrapper::timing_set_delay(void *ctx, uint32_t int_ms, uint32_t fin_ms)

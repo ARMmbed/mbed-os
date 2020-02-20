@@ -68,6 +68,7 @@ struct coap_security_s {
 
 };
 
+#if !defined(MBEDTLS_SSL_CONF_SINGLE_CIPHERSUITE)
 #if defined(MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED)
 const int ECJPAKE_SUITES[] = {
     MBEDTLS_TLS_ECJPAKE_WITH_AES_128_CCM_8,
@@ -75,12 +76,15 @@ const int ECJPAKE_SUITES[] = {
 };
 #endif
 
+#if defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED)
 static const int PSK_SUITES[] = {
     MBEDTLS_TLS_PSK_WITH_AES_128_CBC_SHA256,
     MBEDTLS_TLS_PSK_WITH_AES_256_CCM_8,
     MBEDTLS_TLS_PSK_WITH_AES_128_CCM_8,
     0
 };
+#endif /* defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED) */
+#endif /* !defined(MBEDTLS_SSL_CONF_SINGLE_CIPHERSUITE) */
 
 #define TRACE_GROUP "CsSh"
 
@@ -332,7 +336,9 @@ static int coap_security_handler_configure_keys(coap_security_t *sec, coap_secur
             if (0 != mbedtls_ssl_conf_psk(&sec->_conf, keys._priv_key, keys._priv_key_len, keys._cert, keys._cert_len)) {
                 break;
             }
+#if !defined(MBEDTLS_SSL_CONF_SINGLE_CIPHERSUITE)
             mbedtls_ssl_conf_ciphersuites(&sec->_conf, PSK_SUITES);
+#endif /* !defined(MBEDTLS_SSL_CONF_SINGLE_CIPHERSUITE) */
             ret = 0;
 #endif
             break;
@@ -342,7 +348,9 @@ static int coap_security_handler_configure_keys(coap_security_t *sec, coap_secur
             if (mbedtls_ssl_set_hs_ecjpake_password(&sec->_ssl, keys._key, keys._key_len) != 0) {
                 return -1;
             }
+#if !defined(MBEDTLS_SSL_CONF_SINGLE_CIPHERSUITE)
             mbedtls_ssl_conf_ciphersuites(&sec->_conf, ECJPAKE_SUITES);
+#endif /* !defined(MBEDTLS_SSL_CONF_SINGLE_CIPHERSUITE) */
 
             //NOTE: If thread starts supporting PSK in other modes, then this will be needed!
             mbedtls_ssl_conf_export_keys_cb(&sec->_conf,
@@ -394,11 +402,23 @@ int coap_security_handler_connect_non_blocking(coap_security_t *sec, bool is_ser
         return -1;
     }
 
+    // Defines MBEDTLS_SSL_CONF_RECV/SEND/RECV_TIMEOUT define global functions which should be the same for all
+    // callers of mbedtls_ssl_set_bio_ctx and there should be only one ssl context. If these rules don't apply,
+    // these defines can't be used.
+#if !defined(MBEDTLS_SSL_CONF_RECV) && !defined(MBEDTLS_SSL_CONF_SEND) && !defined(MBEDTLS_SSL_CONF_RECV_TIMEOUT)
     mbedtls_ssl_set_bio(&sec->_ssl, sec,
                         f_send, f_recv, NULL);
+#else
+    mbedtls_ssl_set_bio_ctx(&sec->_ssl, sec);
+#endif /* !defined(MBEDTLS_SSL_CONF_RECV) && !defined(MBEDTLS_SSL_CONF_SEND) && !defined(MBEDTLS_SSL_CONF_RECV_TIMEOUT) */
 
+    // Defines MBEDTLS_SSL_CONF_SET_TIMER/GET_TIMER define global functions which should be the same for all
+    // callers of mbedtls_ssl_set_timer_cb and there should be only one ssl context. If these rules don't apply,
+    // these defines can't be used.
+#if !defined(MBEDTLS_SSL_CONF_SET_TIMER) && !defined(MBEDTLS_SSL_CONF_GET_TIMER)
     mbedtls_ssl_set_timer_cb(&sec->_ssl, sec, set_timer,
                              get_timer);
+#endif /* !defined(MBEDTLS_SSL_CONF_SET_TIMER) && !defined(MBEDTLS_SSL_CONF_GET_TIMER) */
 
 #if defined(MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED)
     //TODO: Figure out better way!!!
@@ -420,8 +440,13 @@ int coap_security_handler_connect_non_blocking(coap_security_t *sec, bool is_ser
                                   &sec->_cookie);
 #endif
 
+#if !defined(MBEDTLS_SSL_CONF_MIN_MINOR_VER) || !defined(MBEDTLS_SSL_CONF_MIN_MAJOR_VER)
     mbedtls_ssl_conf_min_version(&sec->_conf, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MAJOR_VERSION_3);
+#endif /* !defined(MBEDTLS_SSL_CONF_MIN_MINOR_VER) || !defined(MBEDTLS_SSL_CONF_MIN_MAJOR_VER) */
+
+#if !defined(MBEDTLS_SSL_CONF_MAX_MINOR_VER) || !defined(MBEDTLS_SSL_CONF_MAX_MAJOR_VER)
     mbedtls_ssl_conf_max_version(&sec->_conf, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MAJOR_VERSION_3);
+#endif /* !defined(MBEDTLS_SSL_CONF_MAX_MINOR_VER) || !defined(MBEDTLS_SSL_CONF_MAX_MAJOR_VER) */
 
     sec->_is_started = true;
 
