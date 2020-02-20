@@ -69,6 +69,7 @@
 /* @todo: which includes are really needed? */
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
+#include "mbedtls/hmac_drbg.h"
 #include "mbedtls/certs.h"
 #include "mbedtls/x509.h"
 #include "mbedtls/ssl.h"
@@ -98,7 +99,21 @@ extern const struct altcp_functions altcp_mbedtls_functions;
 struct altcp_tls_config {
   mbedtls_ssl_config conf;
   mbedtls_entropy_context entropy;
-  mbedtls_ctr_drbg_context ctr_drbg;
+#if defined(MBEDTLS_CTR_DRBG_C)
+    mbedtls_ctr_drbg_context    _drbg;
+#define DRBG_INIT mbedtls_ctr_drbg_init
+#define DRBG_SEED mbedtls_ctr_drbg_seed
+#define DRBG_SEED_ERROR "mbedtls_ctr_drbg_seed failed: %d\n"
+#define DRBG_RANDOM mbedtls_ctr_drbg_random
+#elif defined(MBEDTLS_HMAC_DRBG_C)
+    mbedtls_hmac_drbg_context   _drbg;
+#define DRBG_INIT mbedtls_hmac_drbg_init
+#define DRBG_SEED mbedtls_hmac_drbg_seed
+#define DRBG_SEED_ERROR "mbedtls_hmac_drbg_seed failed: %d\n"
+#define DRBG_RANDOM mbedtls_hmac_drbg_random
+#else
+#error "CTR or HMAC must be defined for coap_security_handler!"
+#endif
   mbedtls_x509_crt *cert;
   mbedtls_pk_context *pkey;
   mbedtls_x509_crt *ca;
@@ -721,12 +736,15 @@ altcp_tls_create_config(int is_server, int have_cert, int have_pkey, int have_ca
 
   mbedtls_ssl_config_init(&conf->conf);
   mbedtls_entropy_init(&conf->entropy);
-  mbedtls_ctr_drbg_init(&conf->ctr_drbg);
+
+  DRBG_INIT(&conf->_drbg);
 
   /* Seed the RNG */
-  ret = mbedtls_ctr_drbg_seed(&conf->ctr_drbg, ALTCP_MBEDTLS_RNG_FN, &conf->entropy, ALTCP_MBEDTLS_ENTROPY_PTR, ALTCP_MBEDTLS_ENTROPY_LEN);
+  ret = DRBG_SEED(&conf->_drbg, ALTCP_MBEDTLS_RNG_FN, &conf->entropy, ALTCP_MBEDTLS_ENTROPY_PTR, ALTCP_MBEDTLS_ENTROPY_LEN);
+
   if (ret != 0) {
-    LWIP_DEBUGF(ALTCP_MBEDTLS_DEBUG, ("mbedtls_ctr_drbg_seed failed: %d\n", ret));
+    LWIP_DEBUGF(ALTCP_MBEDTLS_DEBUG, (DRBG_SEED_ERROR, ret));
+
     altcp_mbedtls_free_config(conf);
     return NULL;
   }
@@ -742,7 +760,7 @@ altcp_tls_create_config(int is_server, int have_cert, int have_pkey, int have_ca
   mbedtls_ssl_conf_authmode(&conf->conf, MBEDTLS_SSL_VERIFY_OPTIONAL);
 
 #if !defined(MBEDTLS_SSL_CONF_RNG)
-  mbedtls_ssl_conf_rng(&conf->conf, mbedtls_ctr_drbg_random, &conf->ctr_drbg);
+  mbedtls_ssl_conf_rng(&conf->conf, DRBG_RANDOM, &conf->ctr_drbg);
 #endif
 
 #if ALTCP_MBEDTLS_DEBUG != LWIP_DBG_OFF

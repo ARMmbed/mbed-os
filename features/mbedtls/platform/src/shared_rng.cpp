@@ -33,8 +33,9 @@ int init_global_rng()
     mbedtls_entropy_init(&global_entropy);
     mbedtls_hmac_drbg_init(&global_hmac_drbg);
 
-    int ret = mbedtls_hmac_drbg_seed(&global_hmac_drbg, mbedtls_md_info_from_type(MBEDTLS_MD_SHA256),
-                                 mbedtls_entropy_func, &global_entropy, NULL, 0);
+    int ret = mbedtls_hmac_drbg_seed(&global_hmac_drbg,
+                                     mbedtls_md_info_from_type(MBEDTLS_MD_SHA256),
+                                     mbedtls_entropy_func, &global_entropy, NULL, 0);
 
     if (ret != 0) {
         tr_error(" init_global_rng failed! mbedtls_hmac_drbg_seed returned -0x%x", -ret);
@@ -44,7 +45,6 @@ int init_global_rng()
     }
 
     return ret;
-This conversation was marked as resolved by jarvte
 }
 
 void free_global_rng()

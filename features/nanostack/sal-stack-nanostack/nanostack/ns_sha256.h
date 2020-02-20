@@ -61,23 +61,23 @@ static inline void ns_sha256_clone(ns_sha256_context *dst,
 
 static inline void ns_sha256_starts(ns_sha256_context *ctx)
 {
-    mbedtls_sha256_starts(ctx, 0);
+    (void)mbedtls_sha256_starts_ret(ctx, 0);
 }
 
 static inline void ns_sha256_update(ns_sha256_context *ctx, const void *input,
                                     size_t ilen)
 {
-    mbedtls_sha256_update(ctx, input, ilen);
+    (void)mbedtls_sha256_update_ret(ctx, input, ilen);
 }
 
 static inline void ns_sha256_finish(ns_sha256_context *ctx, void *output)
 {
-    mbedtls_sha256_finish(ctx, output);
+    (void)mbedtls_sha256_finish_ret(ctx, output);
 }
 
 static inline void ns_sha256(const void *input, size_t ilen, void *output)
 {
-    mbedtls_sha256(input, ilen, output, 0);
+    (void)mbedtls_sha256_ret(input, ilen, output, 0);
 }
 
 /* Extensions to standard mbed TLS - output the first bits of a hash only */
@@ -85,10 +85,10 @@ static inline void ns_sha256(const void *input, size_t ilen, void *output)
 static inline void ns_sha256_finish_nbits(ns_sha256_context *ctx, void *output, unsigned obits)
 {
     if (obits == 256) {
-        mbedtls_sha256_finish(ctx, output);
+        (void)mbedtls_sha256_finish_ret(ctx, output);
     } else {
         uint8_t sha256[32];
-        mbedtls_sha256_finish(ctx, sha256);
+        (void)mbedtls_sha256_finish_ret(ctx, sha256);
         memcpy(output, sha256, obits / 8);
     }
 }
@@ -96,10 +96,10 @@ static inline void ns_sha256_finish_nbits(ns_sha256_context *ctx, void *output, 
 static inline void ns_sha256_nbits(const void *input, size_t ilen, void *output, unsigned obits)
 {
     if (obits == 256) {
-        mbedtls_sha256(input, ilen, output, 0);
+        (void)mbedtls_sha256_ret(input, ilen, output, 0);
     } else {
         uint8_t sha256[32];
-        mbedtls_sha256(input, ilen, sha256, 0);
+        (void)mbedtls_sha256_ret(input, ilen, sha256, 0);
         memcpy(output, sha256, obits / 8);
     }
 }
