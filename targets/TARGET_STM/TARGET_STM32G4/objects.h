@@ -54,6 +54,20 @@ struct pwmout_s {
     uint8_t inverted;
 };
 
+struct spi_s {
+    SPI_HandleTypeDef handle;
+    IRQn_Type spiIRQ;
+    SPIName spi;
+    PinName pin_miso;
+    PinName pin_mosi;
+    PinName pin_sclk;
+    PinName pin_ssel;
+#if DEVICE_SPI_ASYNCH
+    uint32_t event;
+    uint8_t transfer_type;
+#endif
+};
+
 struct serial_s {
     UARTName uart;
     int index; // Used by irq

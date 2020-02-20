@@ -7561,11 +7561,6 @@
         "device_has_add": [
             "MPU"
         ],
-        "device_has_remove": [
-            "SPI",
-            "SPISLAVE",
-            "SPI_ASYNCH"
-        ],
         "detect_code": [
             "0221"
         ],
