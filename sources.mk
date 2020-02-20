@@ -136,6 +136,7 @@ SRCS += \
 	source/Service_Libs/fhss/fhss_common.c \
 	source/Service_Libs/fhss/channel_functions.c \
 	source/Service_Libs/fhss/channel_list.c \
+	source/Service_Libs/fhss/fhss_test_api.c \
 	source/Service_Libs/fnv_hash/fnv_hash.c \
 	source/Service_Libs/hmac/hmac_sha1.c \
 	source/Service_Libs/ieee_802_11/ieee_802_11.c \

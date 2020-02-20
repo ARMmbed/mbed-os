@@ -240,6 +240,8 @@ int8_t thread_bootstrap_down(protocol_interface_info_entry_t *cur)
     tr_debug("SET thread Idle");
     //stop polling
     mac_data_poll_disable(cur);
+    // Reset MAC for safe upper layer memory free
+    protocol_mac_reset(cur);
     //Clean mle table
     thread_neighbor_list_clean(cur);
     // store frame counters

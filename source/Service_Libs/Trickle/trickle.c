@@ -49,6 +49,26 @@ void trickle_start(trickle_t *t, const trickle_params_t *params)
     trickle_begin_interval(t);
 }
 
+uint32_t trickle_timer_max(const trickle_params_t *params, uint8_t trickle_timer_expiration)
+{
+    trickle_time_t time_I = params->Imin - 1;
+    uint32_t total_time = time_I;
+    while (trickle_timer_expiration) {
+        if (time_I <= TRICKLE_TIME_MAX / 2) {
+            time_I *= 2;
+        } else {
+            time_I = TRICKLE_TIME_MAX;
+        }
+
+        if (time_I > params->Imax) {
+            time_I = params->Imax;
+        }
+        total_time += time_I;
+        trickle_timer_expiration--;
+    }
+    return total_time;
+}
+
 /* We don't expose the raw reset as API; users should use "inconsistent_heard".
  * This avoids repeated resets stopping transmission by restarting the interval.
  */
