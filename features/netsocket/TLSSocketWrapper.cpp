@@ -175,7 +175,7 @@ nsapi_error_t TLSSocketWrapper::start_handshake(bool first_call)
         return continue_handshake();
     }
 
-#ifdef MBEDTLS_X509_CRT_PARSE_C
+#if defined(MBEDTLS_X509_CRT_PARSE_C) && !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
     tr_info("Starting TLS handshake with %s", _ssl.hostname);
 #else
     tr_info("Starting TLS handshake");
@@ -267,7 +267,7 @@ nsapi_error_t TLSSocketWrapper::continue_handshake()
         }
     }
 
-#ifdef MBEDTLS_X509_CRT_PARSE_C
+#if defined(MBEDTLS_X509_CRT_PARSE_C) && !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
     /* It also means the handshake is done, time to print info */
     tr_info("TLS connection to %s established", _ssl.hostname);
 #else
