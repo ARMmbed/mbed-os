@@ -1,0 +1,1 @@
+Still to be added: CAN, USBDEVICE, ANALOGOUT, QSPI, CRC(?), TRNG
