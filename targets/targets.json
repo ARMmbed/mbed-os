@@ -7562,7 +7562,6 @@
             "MPU"
         ],
         "device_has_remove": [
-            "USTICKER",
             "RTC",
             "ANALOGIN",
             "I2C",
