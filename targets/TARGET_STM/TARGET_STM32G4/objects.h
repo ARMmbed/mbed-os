@@ -44,6 +44,16 @@ struct port_s {
     __IO uint32_t *reg_out;
 };
 
+struct pwmout_s {
+    PWMName pwm;
+    PinName pin;
+    uint32_t prescaler;
+    uint32_t period;
+    uint32_t pulse;
+    uint8_t channel;
+    uint8_t inverted;
+};
+
 struct serial_s {
     UARTName uart;
     int index; // Used by irq
