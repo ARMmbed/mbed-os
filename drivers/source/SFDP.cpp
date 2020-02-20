@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
 #include "drivers/internal/SFDP.h"
 
@@ -178,8 +179,16 @@ int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, 
 
 int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &sfdp_info)
 {
-    uint8_t sector_map_table[SFDP_BASIC_PARAMS_TBL_SIZE]; /* Up To 20 DWORDS = 80 Bytes */
+    /* The number of
+     * - sector map configuration detection commands
+     * - configurations
+     * - regions in each configuration
+     *  is variable -> the size of this table is variable
+     */
+    uint8_t *smptbl_buff;
+    int status = 0;
     uint32_t tmp_region_size = 0;
+    uint8_t type_mask;
     int i_ind = 0;
     int prev_boundary = 0;
     // Default set to all type bits 1-4 are common
@@ -194,35 +203,43 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
         return 0;
     }
 
+    smptbl_buff = (uint8_t *)malloc(sfdp_info.smptbl.size);
+    if (!smptbl_buff) {
+        tr_error("Failed to allocate memory");
+        return -1;
+    }
+
     tr_debug("Parsing Sector Map Table - addr: 0x%" PRIx32 ", Size: %d", sfdp_info.smptbl.addr, sfdp_info.smptbl.size);
 
-    int status = sfdp_reader(sfdp_info.smptbl.addr, sector_map_table, sfdp_info.smptbl.size);
+    status = sfdp_reader(sfdp_info.smptbl.addr, smptbl_buff, sfdp_info.smptbl.size);
     if (status < 0) {
         tr_error("Sector Map: Table retrieval failed");
-        return -1;
+        goto EXIT;
     }
 
     // Currently we support only Single Map Descriptor
-    if (!((sector_map_table[0] & 0x3) == 0x03) && (sector_map_table[1] == 0x0)) {
+    if (!((smptbl_buff[0] & 0x3) == 0x03) && (smptbl_buff[1] == 0x0)) {
         tr_error("Sector Map: Supporting Only Single Map Descriptor (not map commands)");
-        return -1;
+        status = -1;
+        goto EXIT;
     }
 
-    sfdp_info.smptbl.region_cnt = sector_map_table[2] + 1;
+    sfdp_info.smptbl.region_cnt = smptbl_buff[2] + 1;
     if (sfdp_info.smptbl.region_cnt > SFDP_SECTOR_MAP_MAX_REGIONS) {
         tr_error("Sector Map: Supporting up to %d regions, current setup to %d regions - fail",
                  SFDP_SECTOR_MAP_MAX_REGIONS,
                  sfdp_info.smptbl.region_cnt);
-        return -1;
+        status = -1;
+        goto EXIT;
     }
 
     // Loop through Regions and set for each one: size, supported erase types, high boundary offset
     // Calculate minimum Common Erase Type for all Regions
     for (i_ind = 0; i_ind < sfdp_info.smptbl.region_cnt; i_ind++) {
-        tmp_region_size = ((*((uint32_t *)&sector_map_table[(i_ind + 1) * 4])) >> 8) & 0x00FFFFFF; // bits 9-32
+        tmp_region_size = ((*((uint32_t *)&smptbl_buff[(i_ind + 1) * 4])) >> 8) & 0x00FFFFFF; // bits 9-32
         sfdp_info.smptbl.region_size[i_ind] = (tmp_region_size + 1) * 256; // Region size is 0 based multiple of 256 bytes;
 
-        sfdp_info.smptbl.region_erase_types_bitfld[i_ind] = sector_map_table[(i_ind + 1) * 4] & 0x0F; // bits 1-4
+        sfdp_info.smptbl.region_erase_types_bitfld[i_ind] = smptbl_buff[(i_ind + 1) * 4] & 0x0F; // bits 1-4
 
         min_common_erase_type_bits &= sfdp_info.smptbl.region_erase_types_bitfld[i_ind];
 
@@ -232,7 +249,7 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
     }
 
     // Calc minimum Common Erase Size from min_common_erase_type_bits
-    uint8_t type_mask = SFDP_ERASE_BITMASK_TYPE1;
+    type_mask = SFDP_ERASE_BITMASK_TYPE1;
     for (i_ind = 0; i_ind < 4; i_ind++) {
         if (min_common_erase_type_bits & type_mask) {
             sfdp_info.smptbl.regions_min_common_erase_size = sfdp_info.smptbl.erase_type_size_arr[i_ind];
@@ -246,7 +263,10 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
         sfdp_info.smptbl.regions_min_common_erase_size = 0;
     }
 
-    return 0;
+EXIT:
+    free(smptbl_buff);
+
+    return status;
 }
 
 size_t sfdp_detect_page_size(uint8_t *basic_param_table_ptr, size_t basic_param_table_size)
