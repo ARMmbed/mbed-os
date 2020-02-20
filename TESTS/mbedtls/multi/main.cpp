@@ -33,7 +33,7 @@
 using namespace utest::v1;
 
 #if defined(MBEDTLS_SHA256_C)
-/* Tests several call to mbedtls_sha256_update function that are not modulo 64 bytes */
+/* Tests several call to mbedtls_sha256_update_ret function that are not modulo 64 bytes */
 void test_case_sha256_split()
 {
     const unsigned char test_buf[] = {"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopqabcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopqabcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"};
@@ -50,18 +50,18 @@ void test_case_sha256_split()
     mbedtls_sha256_context ctx;
     printf("test sha256\n");
     mbedtls_sha256_init(&ctx);
-    mbedtls_sha256_starts(&ctx, 0);
+    (void)mbedtls_sha256_starts_ret(&ctx, 0);
 #if 0
     printf("test not splitted\n");
-    mbedtls_sha256_update(&ctx, test_buf, 168);
+    (void)mbedtls_sha256_update_ret(&ctx, test_buf, 168);
 #else
     printf("test splitted into 3 pieces\n");
-    mbedtls_sha256_update(&ctx, test_buf, 2);
-    mbedtls_sha256_update(&ctx, test_buf + 2, 66);
-    mbedtls_sha256_update(&ctx, test_buf + 68, 100);
+    (void)mbedtls_sha256_update_ret(&ctx, test_buf, 2);
+    (void)mbedtls_sha256_update_ret(&ctx, test_buf + 2, 66);
+    (void)mbedtls_sha256_update_ret(&ctx, test_buf + 68, 100);
 #endif
 
-    mbedtls_sha256_finish(&ctx, outsum);
+    (void)mbedtls_sha256_finish_ret(&ctx, outsum);
     mbedtls_sha256_free(&ctx);
 
     printf("\nreceived result : ");
@@ -113,29 +113,29 @@ void test_case_sha256_multi()
     mbedtls_sha256_init(&ctx2);
     mbedtls_sha256_init(&ctx3);
     //Start both contexts
-    mbedtls_sha256_starts(&ctx1, 0);
-    mbedtls_sha256_starts(&ctx2, 0);
+    (void)mbedtls_sha256_starts_ret(&ctx1, 0);
+    (void)mbedtls_sha256_starts_ret(&ctx2, 0);
 
     printf("upd ctx1\n");
-    mbedtls_sha256_update(&ctx1, test_buf, 56);
+    (void)mbedtls_sha256_update_ret(&ctx1, test_buf, 56);
     printf("upd ctx2\n");
-    mbedtls_sha256_update(&ctx2, test_buf, 66);
+    (void)mbedtls_sha256_update_ret(&ctx2, test_buf, 66);
     printf("finish ctx1\n");
-    mbedtls_sha256_finish(&ctx1, outsum1);
+    (void)mbedtls_sha256_finish_ret(&ctx1, outsum1);
     printf("upd ctx2\n");
-    mbedtls_sha256_update(&ctx2, test_buf + 66, 46);
+    (void)mbedtls_sha256_update_ret(&ctx2, test_buf + 66, 46);
     printf("clone ctx2 in ctx3\n");
     mbedtls_sha256_clone(&ctx3, (const mbedtls_sha256_context *)&ctx2);
     printf("free ctx1\n");
     mbedtls_sha256_free(&ctx1);
     printf("upd ctx2\n");
-    mbedtls_sha256_update(&ctx2, test_buf + 112, 56);
+    (void)mbedtls_sha256_update_ret(&ctx2, test_buf + 112, 56);
     printf("upd ctx3 with different values than ctx2\n");
-    mbedtls_sha256_update(&ctx3, test_buf2, 56);
+    (void)mbedtls_sha256_update_ret(&ctx3, test_buf2, 56);
     printf("finish ctx2\n");
-    mbedtls_sha256_finish(&ctx2, outsum2);
+    (void)mbedtls_sha256_finish_ret(&ctx2, outsum2);
     printf("finish ctx3\n");
-    mbedtls_sha256_finish(&ctx3, outsum3);
+    (void)mbedtls_sha256_finish_ret(&ctx3, outsum3);
     printf("free ctx2\n");
     mbedtls_sha256_free(&ctx2);
     printf("free ctx3\n");

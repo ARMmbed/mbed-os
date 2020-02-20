@@ -30,6 +30,7 @@
 #include "mbedtls/entropy.h"
 #include "mbedtls/entropy_poll.h"
 #include "mbedtls/ctr_drbg.h"
+#include "mbedtls/hmac_drbg.h"
 #include "mbedtls/ssl_ciphersuites.h"
 
 #include "ns_trace.h"
@@ -41,7 +42,14 @@ struct coap_security_s {
     mbedtls_ssl_config          _conf;
     mbedtls_ssl_context         _ssl;
 
-    mbedtls_ctr_drbg_context    _ctr_drbg;
+#if defined(MBEDTLS_CTR_DRBG_C)
+    mbedtls_ctr_drbg_context    _drbg;
+#elif defined(MBEDTLS_HMAC_DRBG_C)
+    mbedtls_hmac_drbg_context   _drbg;
+#else
+#error "CTR or HMAC must be defined for coap_security_handler!"
+#endif
+
     mbedtls_entropy_context     _entropy;
     bool                        _is_started;
     simple_cookie_t             _cookie;
@@ -114,7 +122,11 @@ static int coap_security_handler_init(coap_security_t *sec)
 
     mbedtls_ssl_init(&sec->_ssl);
     mbedtls_ssl_config_init(&sec->_conf);
-    mbedtls_ctr_drbg_init(&sec->_ctr_drbg);
+#if defined(MBEDTLS_CTR_DRBG_C)
+    mbedtls_ctr_drbg_init(&sec->_drbg);
+#elif defined(MBEDTLS_HMAC_DRBG_C)
+    mbedtls_hmac_drbg_init(&sec->_drbg);
+#endif
     mbedtls_entropy_init(&sec->_entropy);
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
@@ -132,12 +144,20 @@ static int coap_security_handler_init(coap_security_t *sec)
                                    128, entropy_source_type) < 0) {
         return -1;
     }
-
-    if ((mbedtls_ctr_drbg_seed(&sec->_ctr_drbg, mbedtls_entropy_func, &sec->_entropy,
+#if defined(MBEDTLS_CTR_DRBG_C)
+    if ((mbedtls_ctr_drbg_seed(&sec->_drbg, mbedtls_entropy_func, &sec->_entropy,
                                (const unsigned char *) pers,
                                strlen(pers))) != 0) {
         return -1;
     }
+#elif defined(MBEDTLS_HMAC_DRBG_C)
+    if ((mbedtls_hmac_drbg_seed(&sec->_drbg, mbedtls_md_info_from_type(MBEDTLS_MD_SHA256),
+                                mbedtls_entropy_func, &sec->_entropy,
+                               (const unsigned char *) pers,
+                               strlen(pers))) != 0) {
+        return -1;
+    }
+#endif
     return 0;
 }
 
@@ -160,7 +180,11 @@ static void coap_security_handler_reset(coap_security_t *sec)
 #endif
 
     mbedtls_entropy_free(&sec->_entropy);
-    mbedtls_ctr_drbg_free(&sec->_ctr_drbg);
+#if defined(MBEDTLS_CTR_DRBG_C)
+    mbedtls_ctr_drbg_free(&sec->_drbg);
+#elif defined(MBEDTLS_HMAC_DRBG_C)
+    mbedtls_hmac_drbg_free(&sec->_drbg);
+#endif
     mbedtls_ssl_config_free(&sec->_conf);
     mbedtls_ssl_free(&sec->_ssl);
 #if defined(MBEDTLS_PLATFORM_C)
@@ -397,7 +421,11 @@ int coap_security_handler_connect_non_blocking(coap_security_t *sec, bool is_ser
     }
 
 #if !defined(MBEDTLS_SSL_CONF_RNG)
-    mbedtls_ssl_conf_rng(&sec->_conf, mbedtls_ctr_drbg_random, &sec->_ctr_drbg);
+#if defined(MBEDTLS_CTR_DRBG_C)
+    mbedtls_ssl_conf_rng(&sec->_conf, mbedtls_ctr_drbg_random, &sec->_drbg);
+#elif defined(MBEDTLS_HMAC_DRBG_C)
+    mbedtls_ssl_conf_rng(&sec->_conf, mbedtls_hmac_drbg_random, &sec->_drbg);
+#endif
 #endif
 
     if ((mbedtls_ssl_setup(&sec->_ssl, &sec->_conf)) != 0) {
