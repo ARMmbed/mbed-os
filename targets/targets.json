@@ -7576,7 +7576,6 @@
             "SPI",
             "SPISLAVE",
             "SPI_ASYNCH",
-            "WATCHDOG",
             "RESET_REASON"
         ],
         "detect_code": [
