@@ -291,6 +291,8 @@ static osThreadId_t create_new_thread(const char *threadName, void (*thread)(voi
 bool STM32_EMAC::low_level_init_successful()
 #ifndef ETH_IP_VERSION_V2
 {
+    uint32_t PHY_ID;
+
     /* Init ETH */
     uint8_t MACAddr[6];
     EthHandle.Instance = ETH;
@@ -320,6 +322,17 @@ bool STM32_EMAC::low_level_init_successful()
         tr_error("HAL_ETH_Init issue");
         return false;
     }
+
+    uint32_t TempRegisterValue;
+    if (HAL_ETH_ReadPHYRegister(&EthHandle, 2, &TempRegisterValue) != HAL_OK) {
+        tr_error("HAL_ETH_ReadPHYRegister 2 issue");
+    }
+    PHY_ID = (TempRegisterValue << 16);
+    if (HAL_ETH_ReadPHYRegister(&EthHandle, 3, &TempRegisterValue) != HAL_OK) {
+        tr_error("HAL_ETH_ReadPHYRegister 3 issue");
+    }
+    PHY_ID |= (TempRegisterValue & 0XFFF0);
+    tr_info("PHY ID %#X", PHY_ID);
 
     /* Initialize Tx Descriptors list: Chain Mode */
     if (HAL_ETH_DMATxDescListInit(&EthHandle, DMATxDscrTab, &Tx_Buff[0][0], ETH_TXBUFNB) != HAL_OK) {
