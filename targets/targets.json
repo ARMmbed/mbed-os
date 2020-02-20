@@ -7559,6 +7559,7 @@
             "lpticker_delay_ticks": 0
         },
         "device_has_add": [
+            "ANALOGOUT",
             "FLASH",
             "MPU"
         ],
