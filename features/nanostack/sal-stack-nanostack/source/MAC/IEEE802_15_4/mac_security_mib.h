@@ -27,7 +27,7 @@ typedef struct mlme_key_descriptor_s {
     mlme_key_id_lookup_descriptor_t *KeyIdLookupList;
     mlme_key_device_descriptor_t *KeyDeviceList;
     mlme_key_usage_descriptor_t *KeyUsageList;
-    uint32_t *KeyDeviceFrameCouterList;
+    uint32_t *KeyDeviceFrameCounterList;
     uint32_t KeyFrameCounter;
     uint8_t Key[16];
     uint8_t KeyDeviceListSize;
