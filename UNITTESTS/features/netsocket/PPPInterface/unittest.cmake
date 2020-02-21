@@ -32,8 +32,6 @@ set(unittest-test-sources
   stubs/mbed_shared_queues_stub.cpp
   stubs/nsapi_dns_stub.cpp
   stubs/EventFlags_stub.cpp
-  stubs/stoip4_stub.c
-  stubs/ip4tos_stub.c
   stubs/NetworkStack_stub.cpp
   stubs/NetworkInterfaceDefaults_stub.cpp
   stubs/SocketStats_Stub.cpp

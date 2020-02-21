@@ -36,19 +36,6 @@ nsapi_error_t Nanostack::Interface::get_ip_address(SocketAddress *address)
     }
 }
 
-char *Nanostack::Interface::get_ip_address(char *buf, nsapi_size_t buflen)
-{
-    NanostackLockGuard lock;
-    uint8_t binary_ipv6[16];
-
-    if (buflen >= 40 && arm_net_address_get(interface_id, ADDR_IPV6_GP, binary_ipv6) == 0) {
-        ip6tos(binary_ipv6, buf);
-        return buf;
-    } else {
-        return NULL;
-    }
-}
-
 char *Nanostack::Interface::get_mac_address(char *buf, nsapi_size_t buflen)
 {
     NanostackLockGuard lock;
@@ -69,16 +56,6 @@ nsapi_error_t Nanostack::Interface::get_netmask(SocketAddress *address)
 nsapi_error_t Nanostack::Interface::get_gateway(SocketAddress *address)
 {
     return NSAPI_ERROR_UNSUPPORTED;
-}
-
-char *Nanostack::Interface::get_netmask(char *, nsapi_size_t)
-{
-    return NULL;
-}
-
-char *Nanostack::Interface::get_gateway(char *, nsapi_size_t)
-{
-    return NULL;
 }
 
 nsapi_connection_status_t Nanostack::Interface::get_connection_status() const
@@ -208,14 +185,6 @@ nsapi_error_t InterfaceNanostack::get_ip_address(SocketAddress *address)
     }
 
     return NSAPI_ERROR_NO_ADDRESS;
-}
-
-const char *InterfaceNanostack::get_ip_address()
-{
-    if (_interface->get_ip_address(&ip_addr) == NSAPI_ERROR_OK) {
-        return ip_addr.get_ip_address();
-    }
-    return NULL;
 }
 
 const char *InterfaceNanostack::get_mac_address()

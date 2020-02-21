@@ -31,7 +31,7 @@ public:
                                   nsapi_ip_stack_t stack = IPV6_STACK,
                                   bool blocking = true);
     virtual nsapi_error_t bringdown();
-    virtual char *get_gateway(char *buf, nsapi_size_t buflen);
+    virtual nsapi_error_t get_gateway(SocketAddress *sockAddr);
 
     friend class Nanostack;
     friend class ::LoWPANNDInterface;
@@ -156,13 +156,15 @@ mesh_error_t Nanostack::LoWPANNDInterface::mesh_disconnect()
     return MESH_ERROR_UNKNOWN;
 }
 
-char *Nanostack::LoWPANNDInterface::get_gateway(char *buf, nsapi_size_t buflen)
+nsapi_error_t Nanostack::LoWPANNDInterface::get_gateway(SocketAddress *sockAddr)
 {
     NanostackLockGuard lock;
-    if (nd_tasklet_get_router_ip_address(buf, buflen) == 0) {
-        return buf;
+    char buf[NSAPI_IPv6_SIZE];
+    if (nd_tasklet_get_router_ip_address(buf, NSAPI_IPv6_SIZE) == 0) {
+        sockAddr->set_ip_address(buf);
+        return NSAPI_ERROR_OK;
     }
-    return NULL;
+    return NSAPI_ERROR_NO_ADDRESS;
 }
 
 bool LoWPANNDInterface::getRouterIpAddress(char *address, int8_t len)

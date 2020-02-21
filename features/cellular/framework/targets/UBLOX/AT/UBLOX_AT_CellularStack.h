@@ -31,8 +31,6 @@ public:
     virtual ~UBLOX_AT_CellularStack();
 
 #ifndef UBX_MDM_SARA_R41XM
-    virtual const char *get_ip_address();
-
     virtual nsapi_error_t get_ip_address(SocketAddress *address);
 #endif
 

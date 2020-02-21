@@ -507,22 +507,6 @@ int ESP8266Interface::disconnect()
     }
 }
 
-const char *ESP8266Interface::get_ip_address()
-{
-    if (_software_conn_stat == IFACE_STATUS_DISCONNECTED) {
-        _esp.uart_enable_input(true);
-    }
-
-    const char *ip_buff = _esp.ip_addr();
-    if (!ip_buff || strcmp(ip_buff, "0.0.0.0") == 0) {
-        ip_buff = NULL;
-    }
-    if (_software_conn_stat == IFACE_STATUS_DISCONNECTED) {
-        _esp.uart_enable_input(false);
-    }
-    return ip_buff;
-}
-
 nsapi_error_t ESP8266Interface::get_ip_address(SocketAddress *address)
 {
     if (_software_conn_stat == IFACE_STATUS_DISCONNECTED) {

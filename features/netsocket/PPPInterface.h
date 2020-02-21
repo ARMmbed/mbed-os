@@ -51,16 +51,13 @@ public:
     virtual ~PPPInterface();
 
     /** @copydoc NetworkInterface::set_network */
-    virtual nsapi_error_t set_network(const char *ip_address, const char *netmask, const char *gateway);
+    virtual nsapi_error_t set_network(const SocketAddress &ip_address, const SocketAddress &netmask, const SocketAddress &gateway);
 
     /** @copydoc NetworkInterface::connect */
     virtual nsapi_error_t connect();
 
     /** @copydoc NetworkInterface::disconnect */
     virtual nsapi_error_t disconnect();
-
-    /** @copydoc NetworkInterface::get_ip_address */
-    virtual const char *get_ip_address();
 
     /** @copydoc NetworkInterface::get_ip_address */
     virtual nsapi_error_t get_ip_address(SocketAddress *address);
@@ -70,12 +67,6 @@ public:
 
     /** @copydoc NetworkInterface::get_gateway */
     virtual nsapi_error_t get_gateway(SocketAddress *address);
-
-    /** @copydoc NetworkInterface::get_netmask */
-    virtual const char *get_netmask();
-
-    /** @copydoc NetworkInterface::get_gateway */
-    virtual const char *get_gateway();
 
     /** @copydoc NetworkInterface::get_interface_name */
     virtual char *get_interface_name(char *interface_name);

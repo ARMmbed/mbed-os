@@ -32,7 +32,7 @@ public:
                                   nsapi_ip_stack_t stack = IPV6_STACK,
                                   bool blocking = true);
     virtual nsapi_error_t bringdown();
-    virtual char *get_gateway(char *buf, nsapi_size_t buflen);
+    virtual nsapi_error_t get_gateway(SocketAddress *address);
 
     friend class Nanostack;
     friend class ::WisunInterface;
@@ -157,13 +157,15 @@ mesh_error_t Nanostack::WisunInterface::mesh_disconnect()
     return MESH_ERROR_UNKNOWN;
 }
 
-char *Nanostack::WisunInterface::get_gateway(char *buf, nsapi_size_t buflen)
+nsapi_error_t Nanostack::WisunInterface::get_gateway(SocketAddress *addr)
 {
     NanostackLockGuard lock;
-    if (wisun_tasklet_get_router_ip_address(buf, buflen) == 0) {
-        return buf;
+    char buf[NSAPI_IPv6_SIZE];
+    if (wisun_tasklet_get_router_ip_address(buf, NSAPI_IPv6_SIZE) == 0) {
+        addr->set_ip_address(buf);
+        return NSAPI_ERROR_OK;
     }
-    return NULL;
+    return NSAPI_ERROR_NO_ADDRESS;
 }
 
 bool WisunInterface::getRouterIpAddress(char *address, int8_t len)

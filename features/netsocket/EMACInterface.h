@@ -59,15 +59,12 @@ public:
      *  Implicitly disables DHCP, which can be enabled in set_dhcp.
      *  Requires that the network is disconnected.
      *
-     *  @param ip_address  Null-terminated representation of the local IP address
-     *  @param netmask     Null-terminated representation of the local network mask
-     *  @param gateway     Null-terminated representation of the local gateway
+     *  @param ip_address  SocketAddress representation of the local IP address
+     *  @param netmask     SocketAddress representation of the local network mask
+     *  @param gateway     SocketAddress representation of the local gateway
      *  @return            0 on success, negative error code on failure
      */
     virtual nsapi_error_t set_network(const SocketAddress &ip_address, const SocketAddress &netmask, const SocketAddress &gateway);
-
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual nsapi_error_t set_network(const char *ip_address, const char *netmask, const char *gateway);
 
     /** Enable or disable DHCP on the network
      *
@@ -91,24 +88,14 @@ public:
     /** @copydoc NetworkInterface::get_ip_address */
     virtual nsapi_error_t get_ip_address(SocketAddress *address);
 
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual const char *get_ip_address();
-
     /** @copydoc NetworkInterface::get_ipv6_link_local_address */
     virtual nsapi_error_t get_ipv6_link_local_address(SocketAddress *address);
 
     /** @copydoc NetworkInterface::get_netmask */
     virtual nsapi_error_t get_netmask(SocketAddress *address);
 
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual const char *get_netmask();
-
     /** @copydoc NetworkInterface::get_gateway */
     virtual nsapi_error_t get_gateway(SocketAddress *address);
-
-    /** @copydoc NetworkInterface::get_gateway */
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual const char *get_gateway();
 
     /** @copydoc NetworkInterface::get_interface_name */
     virtual char *get_interface_name(char *interface_name);
