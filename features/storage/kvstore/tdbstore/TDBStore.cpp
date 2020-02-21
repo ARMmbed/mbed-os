@@ -22,9 +22,12 @@
 #include <string.h>
 #include <stdio.h>
 #include "mbed_error.h"
-#include "mbed_assert.h"
 #include "mbed_wait_api.h"
 #include "MbedCRC.h"
+//Bypass the check of NVStore co existance if compiled for TARGET_TFM
+#if !(BYPASS_NVSTORE_CHECK)
+#include "features/storage/system_storage/SystemStorage.h"
+#endif
 
 using namespace mbed;
 
@@ -54,7 +57,7 @@ typedef struct {
 } ram_table_entry_t;
 
 static const char *master_rec_key = "TDBS";
-static const uint32_t tdbstore_magic = 0x54686683; // "TDBS" in ASCII
+static const uint32_t tdbstore_magic = 0x54686683;
 static const uint32_t tdbstore_revision = 1;
 
 typedef struct {
@@ -65,8 +68,7 @@ typedef struct {
 
 typedef enum {
     TDBSTORE_AREA_STATE_NONE = 0,
-    TDBSTORE_AREA_STATE_ERASED,
-    TDBSTORE_AREA_STATE_INVALID,
+    TDBSTORE_AREA_STATE_EMPTY,
     TDBSTORE_AREA_STATE_VALID,
 } area_state_e;
 
@@ -115,7 +117,7 @@ static uint32_t calc_crc(uint32_t init_crc, uint32_t data_size, const void *data
 {
     uint32_t crc;
     MbedCRC<POLY_32BIT_ANSI, 32> ct(init_crc, 0x0, true, false);
-    ct.compute(data_buf, data_size, &crc);
+    ct.compute(const_cast<void *>(data_buf), data_size, &crc);
     return crc;
 }
 
@@ -132,6 +134,11 @@ TDBStore::TDBStore(BlockDevice *bd) : _ram_table(0), _max_keys(0),
     for (int i = 0; i < _max_open_iterators; i++) {
         _iterator_table[i] = { 0 };
     }
+
+    /* Minimum space required by Reserved area and master record */
+    MBED_ASSERT(bd->size()
+                >= (align_up(RESERVED_AREA_SIZE + sizeof(reserved_trailer_t), _prog_size)
+                    + record_size(master_rec_key, sizeof(master_record_data_t))));
 }
 
 TDBStore::~TDBStore()
@@ -169,22 +176,7 @@ int TDBStore::erase_erase_unit(uint8_t area, uint32_t offset)
     uint32_t bd_offset = _area_params[area].address + offset;
     uint32_t eu_size = _buff_bd->get_erase_size(bd_offset);
 
-    if (_buff_bd->get_erase_value() != -1) {
-        return _buff_bd->erase(bd_offset, eu_size);
-    } else {
-        // We need to simulate erase, as our block device
-        // does not do it. We can do this one byte at a time
-        // because we use BufferedBlockDevice that has page buffers
-        uint8_t val = 0xff;
-        int ret;
-        for (; eu_size; --eu_size) {
-            ret = _buff_bd->program(&val, bd_offset++, 1);
-            if (ret) {
-                return ret;
-            }
-        }
-    }
-    return MBED_SUCCESS;
+    return _buff_bd->erase(bd_offset, eu_size);
 }
 
 void TDBStore::calc_area_params()
@@ -812,10 +804,6 @@ int TDBStore::copy_record(uint8_t from_area, uint32_t from_offset, uint32_t to_o
                  align_up(header.key_size + header.data_size, _prog_size);;
 
 
-    if (to_offset + total_size > _size) {
-        // We are trying to copy more that the are can hold
-        return MBED_ERROR_MEDIA_FULL;
-    }
     ret = check_erase_before_write(1 - from_area, to_offset, total_size);
     if (ret) {
         return ret;
@@ -856,13 +844,35 @@ int TDBStore::garbage_collection()
 {
     ram_table_entry_t *ram_table = (ram_table_entry_t *) _ram_table;
     uint32_t to_offset, to_next_offset;
+    uint32_t chunk_size, reserved_size;
     int ret;
     size_t ind;
 
-    // Reset the standby area
-    ret = reset_area(1 - _active_area);
+    ret = check_erase_before_write(1 - _active_area, 0, _master_record_offset + _master_record_size);
     if (ret) {
         return ret;
+    }
+
+    ret = do_reserved_data_get(0, RESERVED_AREA_SIZE);
+
+    if (!ret) {
+        // Copy reserved data
+        to_offset = 0;
+        reserved_size = _master_record_offset;
+
+        while (reserved_size) {
+            chunk_size = std::min(work_buf_size, reserved_size);
+            ret = read_area(_active_area, to_offset, chunk_size, _work_buf);
+            if (ret) {
+                return ret;
+            }
+            ret = write_area(1 - _active_area, to_offset, chunk_size, _work_buf);
+            if (ret) {
+                return ret;
+            }
+            to_offset += chunk_size;
+            reserved_size -= chunk_size;
+        }
     }
 
     to_offset = _master_record_offset + _master_record_size;
@@ -891,6 +901,12 @@ int TDBStore::garbage_collection()
     // Now write master record, with version incremented by 1.
     _active_area_version++;
     ret = write_master_record(_active_area, _active_area_version, to_offset);
+    if (ret) {
+        return ret;
+    }
+
+    // Now reset standby area
+    ret = reset_area(1 - _active_area);
     if (ret) {
         return ret;
     }
@@ -991,7 +1007,7 @@ int TDBStore::init()
     uint32_t next_offset;
     uint32_t flags, hash;
     uint32_t actual_data_size;
-    int ret = MBED_SUCCESS;
+    int os_ret, ret = MBED_SUCCESS, reserved_ret;
     uint16_t versions[_num_areas];
 
     _mutex.lock();
@@ -999,6 +1015,18 @@ int TDBStore::init()
     if (_is_initialized) {
         goto end;
     }
+
+//Bypass the check of NVStore co existance if compiled for TARGET_TFM
+#if !(BYPASS_NVSTORE_CHECK)
+
+    //Check if we are on internal memory && try to set the internal memory for TDBStore use.
+    if (strcmp(_bd->get_type(), "FLASHIAP") == 0 &&
+            avoid_conflict_nvstore_tdbstore(TDBSTORE) == MBED_ERROR_ALREADY_INITIALIZED) {
+
+        MBED_ERROR(MBED_ERROR_ALREADY_INITIALIZED, "TDBStore in internal memory can not be initialize when NVStore is in use");
+    }
+
+#endif
 
     _max_keys = initial_max_keys;
 
@@ -1015,6 +1043,11 @@ int TDBStore::init()
         goto fail;
     }
 
+    // Underlying BD must have flash attributes, i.e. have an erase value
+    if (_bd->get_erase_value() == -1) {
+        MBED_ERROR(MBED_ERROR_INVALID_ARGUMENT, "Underlying BD must have flash attributes");
+    }
+
     _prog_size = _bd->get_program_size();
     _work_buf = new uint8_t[work_buf_size];
     _key_buf = new char[MAX_KEY_SIZE];
@@ -1026,11 +1059,6 @@ int TDBStore::init()
     _master_record_size = record_size(master_rec_key, sizeof(master_record_data_t));
 
     calc_area_params();
-
-    /* Minimum space required by Reserved area and master record */
-    MBED_ASSERT(_bd->size()
-                >= (align_up(RESERVED_AREA_SIZE + sizeof(reserved_trailer_t), _prog_size)
-                    + record_size(master_rec_key, sizeof(master_record_data_t))));
 
     for (uint8_t area = 0; area < _num_areas; area++) {
         area_state[area] = TDBSTORE_AREA_STATE_NONE;
@@ -1047,9 +1075,13 @@ int TDBStore::init()
             MBED_ERROR(ret, "TDBSTORE: Unable to read record at init");
         }
 
-        // Master record may be either corrupt or erased
+        // Master record may be either corrupt or erased - either way erase it
+        // (this will do nothing if already erased)
         if (ret == MBED_ERROR_INVALID_DATA_DETECTED) {
-            area_state[area] = TDBSTORE_AREA_STATE_INVALID;
+            if (check_erase_before_write(area, _master_record_offset, _master_record_size, true)) {
+                MBED_ERROR(MBED_ERROR_READ_FAILED, "TDBSTORE: Unable to reset area at init");
+            }
+            area_state[area] = TDBSTORE_AREA_STATE_EMPTY;
             continue;
         }
 
@@ -1064,11 +1096,9 @@ int TDBStore::init()
     }
 
     // In case we have two empty areas, arbitrarily use area 0 as the active one.
-    if ((area_state[0] == TDBSTORE_AREA_STATE_INVALID) && (area_state[1] == TDBSTORE_AREA_STATE_INVALID)) {
-        reset_area(0);
+    if ((area_state[0] == TDBSTORE_AREA_STATE_EMPTY) && (area_state[1] == TDBSTORE_AREA_STATE_EMPTY)) {
         _active_area = 0;
         _active_area_version = 1;
-        area_state[0] = TDBSTORE_AREA_STATE_ERASED;
         ret = write_master_record(_active_area, _active_area_version, _free_space_offset);
         if (ret) {
             MBED_ERROR(ret, "TDBSTORE: Unable to write master record at init");
@@ -1078,7 +1108,7 @@ int TDBStore::init()
     }
 
     // In case we have two valid areas, choose the one having the higher version (or 0
-    // in case of wrap around).
+    // in case of wrap around). Reset the other one.
     if ((area_state[0] == TDBSTORE_AREA_STATE_VALID) && (area_state[1] == TDBSTORE_AREA_STATE_VALID)) {
         if ((versions[0] > versions[1]) || (!versions[0])) {
             _active_area = 0;
@@ -1086,6 +1116,10 @@ int TDBStore::init()
             _active_area = 1;
         }
         _active_area_version = versions[_active_area];
+        ret = reset_area(1 - _active_area);
+        if (ret) {
+            MBED_ERROR(ret, "TDBSTORE: Unable to reset area at init");
+        }
     }
 
     // Currently set free space offset pointer to the end of free space.
@@ -1093,16 +1127,41 @@ int TDBStore::init()
     _free_space_offset = _size;
     ret = build_ram_table();
 
-    // build_ram_table() scans all keys, until invalid data found.
-    // Therefore INVALID_DATA is not considered error.
     if ((ret != MBED_SUCCESS) && (ret != MBED_ERROR_INVALID_DATA_DETECTED)) {
-        goto fail;
+        MBED_ERROR(ret, "TDBSTORE: Unable to build RAM table at init");
+    }
+
+    if ((ret == MBED_ERROR_INVALID_DATA_DETECTED) && (_free_space_offset < _size)) {
+        // Space after last valid record may be erased, hence "corrupt". Now check if it really is erased.
+        bool erased;
+        if (is_erase_unit_erased(_active_area, _free_space_offset, erased)) {
+            MBED_ERROR(MBED_ERROR_READ_FAILED, "TDBSTORE: Unable to check whether erase unit is erased at init");
+        }
+        if (erased) {
+            // Erased - all good
+            ret = MBED_SUCCESS;
+        }
+    }
+
+    reserved_ret = do_reserved_data_get(0, RESERVED_AREA_SIZE);
+
+    // If we either have a corrupt record somewhere, or the reserved area is corrupt,
+    // perform garbage collection to salvage all preceding records and/or clean reserved area.
+    if ((ret == MBED_ERROR_INVALID_DATA_DETECTED) || (reserved_ret == MBED_ERROR_INVALID_DATA_DETECTED)) {
+        ret = garbage_collection();
+        if (ret) {
+            MBED_ERROR(ret, "TDBSTORE: Unable to perform GC at init");
+        }
+        os_ret = _buff_bd->sync();
+        if (os_ret) {
+            MBED_ERROR(MBED_ERROR_WRITE_FAILED, "TDBSTORE: Unable to sync BD at init");
+        }
     }
 
 end:
     _is_initialized = true;
     _mutex.unlock();
-    return MBED_SUCCESS;
+    return ret;
 fail:
     delete[] ram_table;
     delete _buff_bd;
@@ -1139,19 +1198,8 @@ int TDBStore::deinit()
 
 int TDBStore::reset_area(uint8_t area)
 {
-    uint8_t buf[RESERVED_AREA_SIZE + sizeof(reserved_trailer_t)];
-    int ret;
-    bool copy_reserved_data = do_reserved_data_get(buf, sizeof(buf), 0, buf + RESERVED_AREA_SIZE) == MBED_SUCCESS;
-
     // Erase reserved area and master record
-    ret = check_erase_before_write(area, 0, _master_record_offset + _master_record_size + _prog_size, true);
-    if (ret) {
-        return ret;
-    }
-    if (copy_reserved_data) {
-        ret = write_area(area, 0, sizeof(buf), buf);
-    }
-    return ret;
+    return check_erase_before_write(area, 0, _master_record_offset + _master_record_size, true);
 }
 
 int TDBStore::reset()
@@ -1167,7 +1215,7 @@ int TDBStore::reset()
 
     // Reset both areas
     for (area = 0; area < _num_areas; area++) {
-        ret = check_erase_before_write(area, 0, _master_record_offset + _master_record_size + _prog_size, true);
+        ret = reset_area(area);
         if (ret) {
             goto end;
         }
@@ -1314,7 +1362,7 @@ void TDBStore::update_all_iterators(bool added, uint32_t ram_table_ind)
 int TDBStore::reserved_data_set(const void *reserved_data, size_t reserved_data_buf_size)
 {
     reserved_trailer_t trailer;
-    int ret;
+    int os_ret, ret = MBED_SUCCESS;
 
     if (reserved_data_buf_size > RESERVED_AREA_SIZE) {
         return MBED_ERROR_INVALID_SIZE;
@@ -1322,9 +1370,16 @@ int TDBStore::reserved_data_set(const void *reserved_data, size_t reserved_data_
 
     _mutex.lock();
 
-    ret = do_reserved_data_get(0, 0);
-    if (ret == MBED_SUCCESS) {
+    ret = do_reserved_data_get(0, RESERVED_AREA_SIZE);
+    if ((ret == MBED_SUCCESS) || (ret == MBED_ERROR_INVALID_DATA_DETECTED)) {
         ret = MBED_ERROR_WRITE_FAILED;
+        goto end;
+    } else if (ret != MBED_ERROR_ITEM_NOT_FOUND) {
+        goto end;
+    }
+
+    ret = write_area(_active_area, 0, reserved_data_buf_size, reserved_data);
+    if (ret) {
         goto end;
     }
 
@@ -1332,86 +1387,91 @@ int TDBStore::reserved_data_set(const void *reserved_data, size_t reserved_data_
     trailer.data_size = reserved_data_buf_size;
     trailer.crc = calc_crc(initial_crc, reserved_data_buf_size, reserved_data);
 
-    // Erase the header of non-active area, just to make sure that we can write to it
-    // In case garbage collection has not yet been run, the area can be un-erased
-    ret = reset_area(1 - _active_area);
+    ret = write_area(_active_area, RESERVED_AREA_SIZE, sizeof(trailer), &trailer);
     if (ret) {
         goto end;
     }
 
-    /*
-     * Write to both areas
-     * Both must success, as they are required to be erased when TDBStore initializes
-     * its area
-     */
-    for (int i = 0; i < _num_areas; ++i) {
-        ret = write_area(i, 0, reserved_data_buf_size, reserved_data);
-        if (ret) {
-            goto end;
-        }
-        ret = write_area(i, RESERVED_AREA_SIZE, sizeof(trailer), &trailer);
-        if (ret) {
-            goto end;
-        }
-        ret = _buff_bd->sync();
-        if (ret) {
-            goto end;
-        }
+    os_ret = _buff_bd->sync();
+    if (os_ret) {
+        ret = MBED_ERROR_WRITE_FAILED;
+        goto end;
     }
-    ret = MBED_SUCCESS;
+
 end:
     _mutex.unlock();
     return ret;
 }
 
-int TDBStore::do_reserved_data_get(void *reserved_data, size_t reserved_data_buf_size, size_t *actual_data_size, void *copy_trailer)
+int TDBStore::do_reserved_data_get(void *reserved_data, size_t reserved_data_buf_size, size_t *actual_data_size)
 {
     reserved_trailer_t trailer;
-    uint8_t buf[RESERVED_AREA_SIZE];
+    uint8_t *buf;
     int ret;
-    uint32_t crc;
+    bool erased = true;
+    size_t actual_size;
+    uint32_t crc = initial_crc;
+    uint32_t offset;
+    uint8_t blank = _buff_bd->get_erase_value();
 
-    /*
-     * Try to keep reserved data identical on both areas, therefore
-     * we can return any of these data, if the checmsum is correct.
-     */
-    for (int i = 0; i < _num_areas; ++i) {
-        ret = read_area(i, RESERVED_AREA_SIZE, sizeof(trailer), &trailer);
-        if (ret) {
-            return ret;
-        }
+    ret = read_area(_active_area, RESERVED_AREA_SIZE, sizeof(trailer), &trailer);
+    if (ret) {
+        return ret;
+    }
 
-        // First validy check: is the trailer header size correct
-        if (trailer.trailer_size != sizeof(trailer)) {
-            continue;
-        }
-        // Second validy check: Is the data too big (corrupt header)
-        if (trailer.data_size > RESERVED_AREA_SIZE) {
-            continue;
-        }
-
-        // Next, verify the checksum
-        ret = read_area(i, 0, trailer.data_size, buf);
-        if (ret) {
-            return ret;
-        }
-        crc = calc_crc(initial_crc, trailer.data_size, buf);
-        if (crc == trailer.crc) {
-            // Correct data, copy it and return to caller
-            if (reserved_data) {
-                memcpy(reserved_data, buf, trailer.data_size);
-            }
-            if (actual_data_size) {
-                *actual_data_size = trailer.data_size;
-            }
-            if (copy_trailer) {
-                memcpy(copy_trailer, &trailer, sizeof(trailer));
-            }
-            return MBED_SUCCESS;
+    buf = reinterpret_cast <uint8_t *>(&trailer);
+    for (uint32_t i = 0; i < sizeof(trailer); i++) {
+        if (buf[i] != blank) {
+            erased = false;
+            break;
         }
     }
 
-    return MBED_ERROR_ITEM_NOT_FOUND;
+    if (!erased) {
+        actual_size = trailer.data_size;
+        if (actual_data_size) {
+            *actual_data_size = actual_size;
+        }
+        if (reserved_data_buf_size < actual_size) {
+            return MBED_ERROR_INVALID_SIZE;
+        }
+    } else {
+        actual_size = std::min((size_t) RESERVED_AREA_SIZE, reserved_data_buf_size);
+    }
+
+    if (reserved_data) {
+        buf = reinterpret_cast <uint8_t *>(reserved_data);
+    } else {
+        buf = _work_buf;
+    }
+
+    offset = 0;
+
+    while (actual_size) {
+        uint32_t chunk = std::min(work_buf_size, (uint32_t) actual_size);
+        ret = read_area(_active_area, offset, chunk, buf + offset);
+        if (ret) {
+            return ret;
+        }
+        for (uint32_t i = 0; i < chunk; i++) {
+            if (buf[i] != blank) {
+                erased = false;
+                break;
+            }
+        }
+
+        crc = calc_crc(crc, chunk, buf + offset);
+        offset += chunk;
+        actual_size -= chunk;
+    }
+
+    if (erased) {
+        return MBED_ERROR_ITEM_NOT_FOUND;
+    } else if (crc != trailer.crc) {
+        return MBED_ERROR_INVALID_DATA_DETECTED;
+    }
+
+    return MBED_SUCCESS;
 }
 
 int TDBStore::reserved_data_get(void *reserved_data, size_t reserved_data_buf_size, size_t *actual_data_size)
@@ -1442,10 +1502,35 @@ void TDBStore::offset_in_erase_unit(uint8_t area, uint32_t offset,
     dist_to_end = _buff_bd->get_erase_size(agg_offset) - offset_from_start;
 }
 
+int TDBStore::is_erase_unit_erased(uint8_t area, uint32_t offset, bool &erased)
+{
+    uint32_t offset_from_start, dist;
+    offset_in_erase_unit(area, offset, offset_from_start, dist);
+    uint8_t buf[sizeof(record_header_t)], blanks[sizeof(record_header_t)];
+    memset(blanks, _buff_bd->get_erase_value(), sizeof(blanks));
+
+    while (dist) {
+        uint32_t chunk = std::min(dist, (uint32_t) sizeof(buf));
+        int ret = read_area(area, offset, chunk, buf);
+        if (ret) {
+            return MBED_ERROR_READ_FAILED;
+        }
+        if (memcmp(buf, blanks, chunk)) {
+            erased = false;
+            return MBED_SUCCESS;
+        }
+        offset += chunk;
+        dist -= chunk;
+    }
+    erased = true;
+    return MBED_SUCCESS;
+}
+
 int TDBStore::check_erase_before_write(uint8_t area, uint32_t offset, uint32_t size, bool force_check)
 {
     // In order to save init time, we don't check that the entire area is erased.
     // Instead, whenever reaching an erase unit start erase it.
+
     while (size) {
         uint32_t dist, offset_from_start;
         int ret;
@@ -1463,3 +1548,4 @@ int TDBStore::check_erase_before_write(uint8_t area, uint32_t offset, uint32_t s
     }
     return MBED_SUCCESS;
 }
+
