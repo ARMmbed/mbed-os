@@ -49,7 +49,7 @@ public:
      */
     L3IPInterface(L3IP &l3ip = L3IP::get_default_instance(),
                   OnboardNetworkStack &stack = OnboardNetworkStack::get_default_instance());
-    virtual ~L3IPInterface();
+    ~L3IPInterface() override;
     /** Set a static IP address
      *
      *  Configures this network interface to use a static IP address.
@@ -61,7 +61,7 @@ public:
      *  @param gateway     SocketAddress representation of the local gateway
      *  @return            0 on success, negative error code on failure
      */
-    virtual nsapi_error_t set_network(const SocketAddress &ip_address, const SocketAddress &netmask, const SocketAddress &gateway);
+    nsapi_error_t set_network(const SocketAddress &ip_address, const SocketAddress &netmask, const SocketAddress &gateway) override;
 
     /** Enable or disable DHCP on the network
      *
@@ -70,56 +70,56 @@ public:
      *  @param dhcp     False to disable dhcp (defaults to enabled)
      *  @return         0 on success, negative error code on failure
      */
-    virtual nsapi_error_t set_dhcp(bool dhcp);
+    nsapi_error_t set_dhcp(bool dhcp) override;
 
     /** Start the interface
      *  @return             0 on success, negative on failure
      */
-    virtual nsapi_error_t connect();
+    nsapi_error_t connect() override;
 
     /** Stop the interface
      *  @return             0 on success, negative on failure
      */
-    virtual nsapi_error_t disconnect();
+    nsapi_error_t disconnect() override;
 
     /** @copydoc NetworkInterface::get_ip_address */
-    virtual nsapi_error_t get_ip_address(SocketAddress *address);
+    nsapi_error_t get_ip_address(SocketAddress *address) override;
 
     /** @copydoc NetworkInterface::get_netmask */
-    virtual nsapi_error_t get_netmask(SocketAddress *address);
+    nsapi_error_t get_netmask(SocketAddress *address) override;
 
     /** @copydoc NetworkInterface::get_gateway */
-    virtual nsapi_error_t get_gateway(SocketAddress *address);
+    nsapi_error_t get_gateway(SocketAddress *address) override;
 
     /** Get the network interface name
      *
      *  @return         Null-terminated representation of the network interface name
      *                  or null if  interface not exists
      */
-    virtual char *get_interface_name(char *interface_name);
+    char *get_interface_name(char *interface_name) override;
 
     /** Set the network interface as default one
       */
-    virtual void set_as_default();
+    void set_as_default() override;
 
     /** Register callback for status reporting
      *
      *  @param status_cb The callback for status changes
      */
-    virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
+    void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb) override;
 
     /** Get the connection status
      *
      *  @return         The connection status according to nsapi_connection_status_t
      */
-    virtual nsapi_connection_status_t get_connection_status() const;
+    nsapi_connection_status_t get_connection_status() const override;
 
     /** Set blocking status of connect() which by default should be blocking
      *
      *  @param blocking true if connect is blocking
      *  @return         0 on success, negative error code on failure
      */
-    virtual nsapi_error_t set_blocking(bool blocking);
+    nsapi_error_t set_blocking(bool blocking) override;
 
     /** Provide access to the L3IP
      *
@@ -134,26 +134,31 @@ public:
         return _l3ip;
     }
 
-    virtual L3IPInterface *l3ipInterface()
+#if 0
+    /* NetworkInterface does not currently have l3ipInterface, so this
+     * "dynamic cast" is non-functional.
+     */
+    L3IPInterface *l3ipInterface() final
     {
         return this;
     }
+#endif
 
 protected:
     /** Provide access to the underlying stack
      *
      *  @return The underlying network stack
      */
-    virtual NetworkStack *get_stack();
+    NetworkStack *get_stack() override;
 
     L3IP &_l3ip;
     OnboardNetworkStack &_stack;
-    OnboardNetworkStack::Interface *_interface;
-    bool _dhcp;
-    bool _blocking;
-    char _ip_address[NSAPI_IPv6_SIZE];
-    char _netmask[NSAPI_IPv4_SIZE];
-    char _gateway[NSAPI_IPv4_SIZE];
+    OnboardNetworkStack::Interface *_interface = nullptr;
+    bool _dhcp = true;
+    bool _blocking = true;
+    char _ip_address[NSAPI_IPv6_SIZE] {};
+    char _netmask[NSAPI_IPv4_SIZE] {};
+    char _gateway[NSAPI_IPv4_SIZE] {};
     mbed::Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
 };
 

@@ -16,15 +16,9 @@
 
 #include "TCPServer.h"
 
-using mbed::Callback;
-
 TCPServer::TCPServer()
 {
     _socket_stats.stats_update_proto(this, NSAPI_TCP);
-}
-
-TCPServer::~TCPServer()
-{
 }
 
 nsapi_error_t TCPServer::accept(TCPSocket *connection, SocketAddress *address)
@@ -51,8 +45,8 @@ nsapi_error_t TCPServer::accept(TCPSocket *connection, SocketAddress *address)
 
             connection->_stack = _stack;
             connection->_socket = socket;
-            connection->_event = Callback<void()>(connection, &TCPSocket::event);
-            _stack->socket_attach(socket, &Callback<void()>::thunk, &connection->_event);
+            connection->_event = { connection, &TCPSocket::event };
+            _stack->socket_attach(socket, connection->_event.thunk, &connection->_event);
             _socket_stats.stats_update_peer(connection, *address);
             _socket_stats.stats_update_socket_state(connection, SOCK_CONNECTED);
             connection->_lock.unlock();

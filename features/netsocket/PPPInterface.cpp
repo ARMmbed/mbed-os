@@ -22,16 +22,7 @@ using namespace mbed;
 /* Interface implementation */
 PPPInterface::PPPInterface(PPP &ppp, OnboardNetworkStack &stack) :
     _ppp(ppp),
-    _stack(stack),
-    _interface(NULL),
-    _blocking(true),
-    _ip_address(),
-    _netmask(),
-    _gateway(),
-    _stream(NULL),
-    _ip_stack(DEFAULT_STACK),
-    _uname(NULL),
-    _password(NULL)
+    _stack(stack)
 {
 }
 

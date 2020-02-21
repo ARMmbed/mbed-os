@@ -63,7 +63,7 @@ public:
      *
      *  Closes socket wrapper if the socket wrapper is still open.
      */
-    virtual ~TLSSocketWrapper();
+    ~TLSSocketWrapper() override;
 
     /** Set hostname.
      *
@@ -133,7 +133,7 @@ public:
      *  @retval         NSAPI_ERROR_DEVICE_ERROR in case of tls-related errors.
      *                  See @ref mbedtls_ssl_write.
      */
-    virtual nsapi_error_t send(const void *data, nsapi_size_t size);
+    nsapi_error_t send(const void *data, nsapi_size_t size) override;
 
     /** Receive data over a TLS socket.
      *
@@ -151,10 +151,10 @@ public:
      *  @return         0 if no data is available to be received
      *                  and the peer has performed an orderly shutdown.
      */
-    virtual nsapi_size_or_error_t recv(void *data, nsapi_size_t size);
+    nsapi_size_or_error_t recv(void *data, nsapi_size_t size) override;
 
     /* = Functions inherited from Socket = */
-    virtual nsapi_error_t close();
+    nsapi_error_t close() override;
     /**
      *  Connect the transport socket and start handshake.
      *
@@ -163,19 +163,19 @@ public:
      *
      *  See @ref Socket::connect and @ref start_handshake
      */
-    virtual nsapi_error_t connect(const SocketAddress &address = SocketAddress());
-    virtual nsapi_size_or_error_t sendto(const SocketAddress &address, const void *data, nsapi_size_t size);
-    virtual nsapi_size_or_error_t recvfrom(SocketAddress *address,
-                                           void *data, nsapi_size_t size);
-    virtual nsapi_error_t bind(const SocketAddress &address);
-    virtual void set_blocking(bool blocking);
-    virtual void set_timeout(int timeout);
-    virtual void sigio(mbed::Callback<void()> func);
-    virtual nsapi_error_t setsockopt(int level, int optname, const void *optval, unsigned optlen);
-    virtual nsapi_error_t getsockopt(int level, int optname, void *optval, unsigned *optlen);
-    virtual Socket *accept(nsapi_error_t *error = NULL);
-    virtual nsapi_error_t listen(int backlog = 1);
-    virtual nsapi_error_t getpeername(SocketAddress *address);
+    nsapi_error_t connect(const SocketAddress &address = SocketAddress()) override;
+    nsapi_size_or_error_t sendto(const SocketAddress &address, const void *data, nsapi_size_t size) override;
+    nsapi_size_or_error_t recvfrom(SocketAddress *address,
+                                   void *data, nsapi_size_t size) override;
+    nsapi_error_t bind(const SocketAddress &address) override;
+    void set_blocking(bool blocking) override;
+    void set_timeout(int timeout) override;
+    void sigio(mbed::Callback<void()> func) override;
+    nsapi_error_t setsockopt(int level, int optname, const void *optval, unsigned optlen) override;
+    nsapi_error_t getsockopt(int level, int optname, void *optval, unsigned *optlen) override;
+    Socket *accept(nsapi_error_t *error = NULL) override;
+    nsapi_error_t listen(int backlog = 1) override;
+    nsapi_error_t getpeername(SocketAddress *address) override;
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C) || defined(DOXYGEN_ONLY)
     /** Get own certificate directly from Mbed TLS.
@@ -296,13 +296,13 @@ private:
     rtos::EventFlags _event_flag;
     mbed::Callback<void()> _sigio;
     Socket *_transport;
-    int _timeout;
+    int _timeout = -1;
 
 #ifdef MBEDTLS_X509_CRT_PARSE_C
-    mbedtls_x509_crt *_cacert;
-    mbedtls_x509_crt *_clicert;
+    mbedtls_x509_crt *_cacert = nullptr;
+    mbedtls_x509_crt *_clicert = nullptr;
 #endif
-    mbedtls_ssl_config *_ssl_conf;
+    mbedtls_ssl_config *_ssl_conf = nullptr;
 
     bool _connect_transport: 1;
     bool _close_transport: 1;

@@ -21,13 +21,7 @@ using namespace mbed;
 /* Interface implementation */
 EMACInterface::EMACInterface(EMAC &emac, OnboardNetworkStack &stack) :
     _emac(emac),
-    _stack(stack),
-    _interface(NULL),
-    _dhcp(true),
-    _blocking(true),
-    _ip_address(),
-    _netmask(),
-    _gateway()
+    _stack(stack)
 {
 }
 

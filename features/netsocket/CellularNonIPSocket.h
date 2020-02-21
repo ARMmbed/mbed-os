@@ -21,6 +21,7 @@
 #include "rtos/Mutex.h"
 #include "rtos/EventFlags.h"
 #include "Callback.h"
+#include "mbed_atomic.h"
 #include "mbed_toolchain.h"
 #include "ControlPlane_netif.h"
 #include "CellularContext.h"
@@ -40,7 +41,7 @@ public:
     *
     *  @note Closes socket if it's still open.
     */
-    virtual ~CellularNonIPSocket();
+    ~CellularNonIPSocket() override;
 
     /** Creates a socket.
     */
@@ -54,7 +55,7 @@ public:
     *  @return                     NSAPI_ERROR_OK on success
     *                              NSAPI_ERROR_PARAMETER otherwise
     */
-    virtual nsapi_error_t open(mbed::CellularContext *cellular_context);
+    nsapi_error_t open(mbed::CellularContext *cellular_context);
 
     /** Opens a socket that will use the given control plane interface for data delivery.
     *   Attaches the event as callback to the control plane interface.
@@ -64,7 +65,7 @@ public:
     *                      NSAPI_ERROR_PARAMETER otherwise
     *
     */
-    virtual nsapi_error_t open(mbed::ControlPlane_netif *cp_netif);
+    nsapi_error_t open(mbed::ControlPlane_netif *cp_netif);
 
     /** Closes socket
     *
@@ -72,7 +73,7 @@ public:
     *                  NSAPI_ERROR_NO_SOCKET otherwise
     */
 
-    virtual nsapi_error_t close();
+    nsapi_error_t close() override;
 
     /** Send data over a control plane cellular context.
     *
@@ -85,7 +86,7 @@ public:
     *  @return         Number of sent bytes on success, negative error
     *                  code on failure.
     */
-    virtual nsapi_size_or_error_t send(const void *data, nsapi_size_t size);
+    nsapi_size_or_error_t send(const void *data, nsapi_size_t size) override;
 
     /** Receive data from a socket.
     *
@@ -98,52 +99,52 @@ public:
     *  @return         Number of received bytes on success, negative error
     *                  code on failure.
     */
-    virtual nsapi_size_or_error_t recv(void *data, nsapi_size_t size);
+    nsapi_size_or_error_t recv(void *data, nsapi_size_t size) override;
 
     /** @copydoc Socket::set_blocking
      */
-    virtual void set_blocking(bool blocking);
+    void set_blocking(bool blocking) override;
 
     /** @copydoc Socket::set_timeout
      */
-    virtual void set_timeout(int timeout);
+    void set_timeout(int timeout) override;
 
     /** @copydoc Socket::sigio
      */
-    virtual void sigio(mbed::Callback<void()> func);
+    void sigio(mbed::Callback<void()> func) override;
 
     /// NOT APPLICABLE
-    virtual nsapi_error_t connect(const SocketAddress &address);
+    nsapi_error_t connect(const SocketAddress &address) override;
     /// NOT APPLICABLE
-    virtual Socket *accept(nsapi_error_t *error = NULL);
+    Socket *accept(nsapi_error_t *error = NULL) override;
     /// NOT APPLICABLE
-    virtual nsapi_error_t listen(int backlog = 1);
+    nsapi_error_t listen(int backlog = 1) override;
     /// NOT APPLICABLE
-    virtual nsapi_error_t setsockopt(int level, int optname, const void *optval, unsigned optlen);
+    nsapi_error_t setsockopt(int level, int optname, const void *optval, unsigned optlen) override;
     /// NOT APPLICABLE
-    virtual nsapi_error_t getsockopt(int level, int optname, void *optval, unsigned *optlen);
+    nsapi_error_t getsockopt(int level, int optname, void *optval, unsigned *optlen) override;
     /// NOT APPLICABLE
-    virtual nsapi_error_t getpeername(SocketAddress *address);
+    nsapi_error_t getpeername(SocketAddress *address) override;
     /// NOT APPLICABLE
-    virtual nsapi_size_or_error_t sendto(const SocketAddress &address,
-                                         const void *data, nsapi_size_t size);
+    nsapi_size_or_error_t sendto(const SocketAddress &address,
+                                 const void *data, nsapi_size_t size) override;
     /// NOT APPLICABLE
-    virtual nsapi_size_or_error_t recvfrom(SocketAddress *address,
-                                           void *data, nsapi_size_t size);
+    nsapi_size_or_error_t recvfrom(SocketAddress *address,
+                                   void *data, nsapi_size_t size) override;
     /// NOT APPLICABLE
-    virtual nsapi_error_t bind(const SocketAddress &address);
+    nsapi_error_t bind(const SocketAddress &address) override;
 
 protected:
-    virtual void event();
+    void event();
 
-    uint32_t _timeout;
+    uint32_t _timeout = osWaitForever;
     mbed::Callback<void()> _event;
     mbed::Callback<void()> _callback;
     rtos::EventFlags _event_flag;
     rtos::Mutex _lock;
-    uint8_t _readers;
-    uint8_t _writers;
-    volatile unsigned _pending;
+    uint8_t _readers = 0;
+    uint8_t _writers = 0;
+    core_util_atomic_flag _pending = CORE_UTIL_ATOMIC_FLAG_INIT;
 
     // Event flags
     static const int READ_FLAG     = 0x1u;
@@ -151,7 +152,7 @@ protected:
     static const int FINISHED_FLAG = 0x3u;
 
     static ControlPlane_netif *_cp_netif; // there can be only one Non-IP socket
-    bool _opened;
+    bool _opened = false;
 };
 
 /** @}*/

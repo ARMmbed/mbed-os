@@ -21,6 +21,7 @@ set(unittest-test-sources
   stubs/Mutex_stub.cpp
   stubs/CellularContext_stub.cpp
   stubs/mbed_assert_stub.cpp
+  stubs/mbed_atomic_stub.c
 )
 
 set(unittest-test-flags

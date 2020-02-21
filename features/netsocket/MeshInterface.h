@@ -30,7 +30,7 @@ class MeshInterface : public virtual NetworkInterface {
 public:
     /** @copydoc NetworkInterface::meshInterface
      */
-    virtual MeshInterface *meshInterface()
+    MeshInterface *meshInterface() final
     {
         return this;
     }

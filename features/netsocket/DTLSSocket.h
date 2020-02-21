@@ -46,7 +46,7 @@ public:
 
     /** Destroy the DTLSSocket and closes the transport.
      */
-    virtual ~DTLSSocket();
+    ~DTLSSocket() override;
 
     /** Create a socket on a network interface.
      *
@@ -74,7 +74,7 @@ public:
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      *                  See @ref UDPSocket::open.
      */
-    virtual nsapi_error_t open(NetworkStack *stack)
+    nsapi_error_t open(NetworkStack *stack)
     {
         return _udp_socket.open(stack);
     }

@@ -54,7 +54,7 @@ public:
 
     /** Destroy the TLSSocket and closes the transport.
      */
-    virtual ~TLSSocket();
+    ~TLSSocket() override;
 
     /** Opens a socket.
      *
@@ -67,7 +67,7 @@ public:
      *  @param stack    Network stack as target for socket.
      *  @return         NSAPI_ERROR_OK on success. See @ref TCPSocket::open
      */
-    virtual nsapi_error_t open(NetworkStack *stack)
+    nsapi_error_t open(NetworkStack *stack)
     {
         return tcp_socket.open(stack);
     }
@@ -89,8 +89,7 @@ private:
 
 class TLSSocket : public TCPSocket {
 public:
-    TLSSocket();
-    virtual ~TLSSocket();
+    TLSSocket() = default;
 
     /** Set hostname.
      *
@@ -110,7 +109,7 @@ public:
      * @param len     Length of certificate (including terminating 0 for PEM).
      * @return        NSAPI_ERROR_OK on success, negative error code on failure.
      */
-    virtual nsapi_error_t set_root_ca_cert(const void *root_ca, size_t len);
+    nsapi_error_t set_root_ca_cert(const void *root_ca, size_t len);
 
     /** Sets the certification of Root CA.
      *
@@ -118,7 +117,7 @@ public:
      *
      * @param root_ca_pem Root CA Certificate in PEM format.
      */
-    virtual nsapi_error_t set_root_ca_cert(const char *root_ca_pem);
+    nsapi_error_t set_root_ca_cert(const char *root_ca_pem);
 
 
     /** Sets client certificate, and client private key.
@@ -129,8 +128,8 @@ public:
      * @param client_private_key_len Key size including the terminating null byte for PEM data
      * @return   NSAPI_ERROR_OK on success, negative error code on failure.
      */
-    virtual nsapi_error_t set_client_cert_key(const void *client_cert, size_t client_cert_len,
-                                              const void *client_private_key_pem, size_t client_private_key_len);
+    nsapi_error_t set_client_cert_key(const void *client_cert, size_t client_cert_len,
+                                      const void *client_private_key_pem, size_t client_private_key_len);
 
     /** Sets client certificate, and client private key.
      *
@@ -138,14 +137,14 @@ public:
      * @param client_private_key_pem Client private key in PEM format.
      * @return   NSAPI_ERROR_OK on success, negative error code on failure.
      */
-    virtual nsapi_error_t set_client_cert_key(const char *client_cert_pem, const char *client_private_key_pem);
+    nsapi_error_t set_client_cert_key(const char *client_cert_pem, const char *client_private_key_pem);
 
     // From TCPSocket
-    virtual nsapi_error_t connect(const char *host, uint16_t port);
-    virtual nsapi_error_t connect(const SocketAddress &address);
+    nsapi_error_t connect(const char *host, uint16_t port) override;
+    nsapi_error_t connect(const SocketAddress &address) override;
 
 protected:
-    virtual nsapi_error_t enable_tlssocket();
+    nsapi_error_t enable_tlssocket();
 };
 
 #endif // MBED_CONF_NSAPI_OFFLOAD_TLSSOCKET

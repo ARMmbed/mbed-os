@@ -140,6 +140,9 @@ public:
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t add_dns_server(const SocketAddress &address, const char *interface_name = NULL) = 0;
+
+protected:
+    ~DNS() = default;
 };
 
 #endif

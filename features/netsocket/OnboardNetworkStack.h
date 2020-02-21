@@ -47,9 +47,10 @@ public:
      * NetworkInterface API.
      */
     class Interface {
-    public:
-        virtual ~Interface() {}
+    protected:
+        ~Interface() = default;
 
+    public:
         /** Connect the interface to the network
          *
          * Sets up a connection on specified network interface, using DHCP or provided network details. If the @a dhcp is set to
@@ -167,6 +168,10 @@ public:
     {
     }
 
+    OnboardNetworkStack *onboardNetworkStack() final
+    {
+        return this;
+    }
 };
 
 #endif /* MBED_IPSTACK_H */

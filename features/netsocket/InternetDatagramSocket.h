@@ -44,8 +44,8 @@ public:
      *  @retval         int Other negative error codes for stack-related failures.
      *                  See \ref NetworkStack::socket_send.
      */
-    virtual nsapi_size_or_error_t sendto(const SocketAddress &address,
-                                         const void *data, nsapi_size_t size);
+    nsapi_size_or_error_t sendto(const SocketAddress &address,
+                                 const void *data, nsapi_size_t size) override;
 
     /** Receive a datagram and store the source address in address if it's not NULL.
      *
@@ -70,8 +70,8 @@ public:
      *  @retval         int Other negative error codes for stack-related failures.
      *                  See \ref NetworkStack::socket_recv.
      */
-    virtual nsapi_size_or_error_t recvfrom(SocketAddress *address,
-                                           void *data, nsapi_size_t size);
+    nsapi_size_or_error_t recvfrom(SocketAddress *address,
+                                   void *data, nsapi_size_t size) override;
 
     /** Set the remote address for next send() call and filtering
      *  of incoming packets. To reset the address, zero initialized
@@ -80,7 +80,7 @@ public:
      *  @param address  The SocketAddress of the remote host.
      *  @return         NSAPI_ERROR_OK on success.
      */
-    virtual nsapi_error_t connect(const SocketAddress &address);
+    nsapi_error_t connect(const SocketAddress &address) override;
 
     /** Send a raw data to connected remote address.
      *
@@ -100,7 +100,7 @@ public:
      *  @retval         int Other negative error codes for stack-related failures.
      *                  See \ref NetworkStack::socket_send.
      */
-    virtual nsapi_size_or_error_t send(const void *data, nsapi_size_t size);
+    nsapi_size_or_error_t send(const void *data, nsapi_size_t size) override;
 
     /** Receive data from a socket.
      *
@@ -121,21 +121,21 @@ public:
      *  @retval         int Other negative error codes for stack-related failures.
      *                  See \ref NetworkStack::socket_recv.
      */
-    virtual nsapi_size_or_error_t recv(void *data, nsapi_size_t size);
+    nsapi_size_or_error_t recv(void *data, nsapi_size_t size) override;
 
     /** Not implemented for InternetDatagramSocket.
      *
      *  @param error      Not used.
      *  @return           NSAPI_ERROR_UNSUPPORTED
      */
-    virtual Socket *accept(nsapi_error_t *error = NULL);
+    Socket *accept(nsapi_error_t *error = nullptr) override;
 
     /** Not implemented for InternetDatagramSocket.
      *
      *  @param backlog    Not used.
      *  @return           NSAPI_ERROR_UNSUPPORTED
      */
-    virtual nsapi_error_t listen(int backlog = 1);
+    nsapi_error_t listen(int backlog = 1) override;
 #if !defined(DOXYGEN_ONLY)
 
 protected:

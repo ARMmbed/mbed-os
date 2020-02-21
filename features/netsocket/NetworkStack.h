@@ -37,9 +37,9 @@ class OnboardNetworkStack;
  *  NetworkStack, a network stack can be used as a target
  *  for instantiating network sockets.
  */
-class NetworkStack: public DNS {
+class NetworkStack : public DNS {
 public:
-    virtual ~NetworkStack() {};
+    virtual ~NetworkStack() = default;
 
     /** Get the local IP address
      *

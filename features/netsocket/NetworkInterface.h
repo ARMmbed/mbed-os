@@ -383,7 +383,7 @@ public:
      */
     virtual EthInterface *ethInterface()
     {
-        return 0;
+        return nullptr;
     }
 
     /** Return pointer to a WiFiInterface.
@@ -391,7 +391,7 @@ public:
      */
     virtual WiFiInterface *wifiInterface()
     {
-        return 0;
+        return nullptr;
     }
 
     /** Return pointer to a MeshInterface.
@@ -399,7 +399,7 @@ public:
      */
     virtual MeshInterface *meshInterface()
     {
-        return 0;
+        return nullptr;
     }
 
     /** Return pointer to an EMACInterface.
@@ -407,7 +407,7 @@ public:
      */
     virtual EMACInterface *emacInterface()
     {
-        return 0;
+        return nullptr;
     }
 
     /** Return pointer to a CellularInterface.
@@ -415,7 +415,7 @@ public:
      */
     virtual CellularInterface *cellularInterface()
     {
-        return 0;
+        return nullptr;
     }
 
 #if !defined(DOXYGEN_ONLY)
