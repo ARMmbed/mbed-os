@@ -81,17 +81,20 @@ def license_check(directory_name, file):
                     found_spdx = True
 
             if not found_spdx:
-                # Issue reported reported here https://github.com/nexB/scancode-toolkit/issues/1913
-                # We verify here if SPDX is not really there as SDPX is part of the license text
-                # scancode has some problems detecting it properly
-                with open(os.path.join(os.path.abspath(license_offender['file']['path'])), 'r') as spdx_file_check:
-                    filetext = spdx_file_check.read()
-                matches = re.findall("SPDX-License-Identifier:?", filetext)
-                if matches:
+                try:
+                    # Issue reported here https://github.com/nexB/scancode-toolkit/issues/1913
+                    # We verify here if SPDX is not really there as SDPX is part of the license text
+                    # scancode has some problems detecting it properly
+                    with open(os.path.join(os.path.abspath(license_offender['file']['path'])), 'r') as spdx_file_check:
+                        filetext = spdx_file_check.read()
+                    matches = re.findall("SPDX-License-Identifier:?", filetext)
+                    if matches:
+                        continue
+                    license_offender['reason'] = MISSING_SPDX_TEXT
+                    offenders.append(license_offender)
+                except UnicodeDecodeError:
+                    # not valid file for license check
                     continue
-                license_offender['reason'] = MISSING_SPDX_TEXT
-                offenders.append(license_offender)
-
     except KeyError:
         userlog.warning("Invalid scancode json file")
         return -1
