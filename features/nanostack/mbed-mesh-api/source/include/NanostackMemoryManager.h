@@ -18,7 +18,7 @@
 
 #include "EMACMemoryManager.h"
 
-class NanostackMemoryManager : public EMACMemoryManager {
+class NanostackMemoryManager final : public EMACMemoryManager {
 public:
 
     /**
@@ -30,7 +30,7 @@ public:
      * @param align    Memory alignment requirement in bytes
      * @return         Allocated memory buffer, or NULL in case of error
      */
-    virtual emac_mem_buf_t *alloc_heap(uint32_t size, uint32_t align);
+    emac_mem_buf_t *alloc_heap(uint32_t size, uint32_t align) override;
 
     /**
      * Allocates memory buffer chain from a pool
@@ -43,7 +43,7 @@ public:
      * @param  align   Memory alignment requirement for each buffer in bytes
      * @return         Allocated memory buffer chain, or NULL in case of error
      */
-    virtual emac_mem_buf_t *alloc_pool(uint32_t size, uint32_t align);
+    emac_mem_buf_t *alloc_pool(uint32_t size, uint32_t align) override;
 
     /**
      * Get memory buffer pool allocation unit
@@ -53,7 +53,7 @@ public:
      * @param align    Memory alignment requirement in bytes
      * @return         Contiguous memory size
      */
-    virtual uint32_t get_pool_alloc_unit(uint32_t align) const;
+    uint32_t get_pool_alloc_unit(uint32_t align) const override;
 
     /**
      * Free memory buffer chain
@@ -63,7 +63,7 @@ public:
      *
      * @param buf      Memory buffer chain to be freed.
      */
-    virtual void free(emac_mem_buf_t *buf);
+    void free(emac_mem_buf_t *buf) override;
 
     /**
      * Return total length of a memory buffer chain
@@ -73,9 +73,7 @@ public:
      * @param buf      Memory buffer chain
      * @return         Total length in bytes
      */
-    virtual uint32_t get_total_len(const emac_mem_buf_t *buf) const;
-
-    virtual void set_align_preference(uint32_t align) { }
+    uint32_t get_total_len(const emac_mem_buf_t *buf) const override;
 
     /**
      * Copy a memory buffer chain
@@ -86,7 +84,7 @@ public:
      * @param to_buf    Memory buffer chain to copy to
      * @param from_buf  Memory buffer chain to copy from
      */
-    virtual void copy(emac_mem_buf_t *to_buf, const emac_mem_buf_t *from_buf);
+    void copy(emac_mem_buf_t *to_buf, const emac_mem_buf_t *from_buf) override;
 
 
 
@@ -100,7 +98,7 @@ public:
      * @param to_buf   Memory buffer chain to concatenate to
      * @param cat_buf  Memory buffer chain to concatenate
      */
-    virtual void cat(emac_mem_buf_t *to_buf, emac_mem_buf_t *cat_buf);
+    void cat(emac_mem_buf_t *to_buf, emac_mem_buf_t *cat_buf) override;
 
     /**
      * Returns the next buffer
@@ -110,7 +108,7 @@ public:
      * @param buf      Memory buffer
      * @return         The next memory buffer, or NULL if last
      */
-    virtual emac_mem_buf_t *get_next(const emac_mem_buf_t *buf) const;
+    emac_mem_buf_t *get_next(const emac_mem_buf_t *buf) const override;
 
     /**
      * Return pointer to the payload of the buffer
@@ -118,7 +116,7 @@ public:
      * @param buf      Memory buffer
      * @return         Pointer to the payload
      */
-    virtual void *get_ptr(const emac_mem_buf_t *buf) const;
+    void *get_ptr(const emac_mem_buf_t *buf) const override;
 
     /**
      * Return payload size of the buffer
@@ -126,7 +124,7 @@ public:
      * @param buf      Memory buffer
      * @return         Size in bytes
      */
-    virtual uint32_t get_len(const emac_mem_buf_t *buf) const;
+    uint32_t get_len(const emac_mem_buf_t *buf) const override;
 
     /**
      * Sets the payload size of the buffer
@@ -137,7 +135,7 @@ public:
      * @param buf      Memory buffer
      * @param len      Payload size, must be less or equal allocated size
      */
-    virtual void set_len(emac_mem_buf_t *buf, uint32_t len);
+    void set_len(emac_mem_buf_t *buf, uint32_t len) override;
 };
 
 #endif /* NANOSTACK_MEMORY_MANAGER_H */

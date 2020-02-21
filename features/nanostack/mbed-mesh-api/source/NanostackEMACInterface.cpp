@@ -13,9 +13,9 @@
 class EMACPhy : public NanostackEthernetPhy {
 public:
     EMACPhy(NanostackMemoryManager &mem, EMAC &m);
-    virtual int8_t phy_register();
-    virtual void get_mac_address(uint8_t *mac);
-    virtual void set_mac_address(uint8_t *mac);
+    int8_t phy_register() override;
+    void get_mac_address(uint8_t *mac) override;
+    void set_mac_address(uint8_t *mac) override;
 
     int8_t address_write(phy_address_type_e, uint8_t *);
     int8_t tx(uint8_t *data_ptr, uint16_t data_len, uint8_t tx_handle, data_protocol_e data_flow);
@@ -26,7 +26,7 @@ private:
     NanostackMemoryManager &memory_manager;
     EMAC &emac;
     uint8_t mac_addr[6];
-    int8_t device_id;
+    int8_t device_id = -1;
     phy_device_driver_s phy;
 };
 
@@ -50,7 +50,7 @@ extern "C"
         return single_phy->tx(data_ptr, data_len, tx_handle, data_flow);
     }
 
-    EMACPhy::EMACPhy(NanostackMemoryManager &mem, EMAC &m) : memory_manager(mem), emac(m), device_id(-1)
+    EMACPhy::EMACPhy(NanostackMemoryManager &mem, EMAC &m) : memory_manager(mem), emac(m)
     {
         /* Same default address logic as lwIP glue uses */
 #if (MBED_MAC_ADDRESS_SUM != MBED_MAC_ADDR_INTERFACE)

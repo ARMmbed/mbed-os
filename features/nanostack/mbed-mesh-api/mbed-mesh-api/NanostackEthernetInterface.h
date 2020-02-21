@@ -21,13 +21,13 @@
 #include "MeshInterfaceNanostack.h"
 #include "NanostackEthernetPhy.h"
 
-class Nanostack::EthernetInterface : public Nanostack::Interface {
+class Nanostack::EthernetInterface final : public Nanostack::Interface {
 public:
-    virtual nsapi_error_t bringup(bool dhcp, const char *ip,
-                                  const char *netmask, const char *gw,
-                                  nsapi_ip_stack_t stack = DEFAULT_STACK,
-                                  bool blocking = true);
-    virtual nsapi_error_t bringdown();
+    nsapi_error_t bringup(bool dhcp, const char *ip,
+                          const char *netmask, const char *gw,
+                          nsapi_ip_stack_t stack = DEFAULT_STACK,
+                          bool blocking = true) override;
+    nsapi_error_t bringdown() override;
 
 private:
     friend class Nanostack;
@@ -47,8 +47,7 @@ protected:
  */
 class NanostackEthernetInterface : public InterfaceNanostack, public EthInterface, private mbed::NonCopyable<NanostackEthernetInterface> {
 public:
-    NanostackEthernetInterface() { }
-    //NanostackEthernetInterface(NanostackEthernetPhy *phy);
+    NanostackEthernetInterface() = default;
 
     nsapi_error_t initialize(NanostackEthernetPhy *phy);
 
@@ -57,7 +56,7 @@ protected:
     {
         return static_cast<Nanostack::EthernetInterface *>(_interface);
     }
-    virtual nsapi_error_t do_initialize();
+    nsapi_error_t do_initialize() override;
 
 };
 

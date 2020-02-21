@@ -42,7 +42,7 @@ public:
      *
      *  @return          NanostackMACPhy
      */
-    virtual NanostackMACPhy *nanostack_mac_phy()
+    NanostackMACPhy *nanostack_mac_phy() final
     {
         return this;
     }

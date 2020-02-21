@@ -50,7 +50,7 @@ public:
      *
      * @return          NanostackPPPPhy
      */
-    virtual NanostackPPPPhy *nanostack_ppp_phy()
+    NanostackPPPPhy *nanostack_ppp_phy() final
     {
         return this;
     }

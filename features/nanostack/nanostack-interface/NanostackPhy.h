@@ -39,7 +39,7 @@ public:
      */
     virtual NanostackMACPhy *nanostack_mac_phy()
     {
-        return 0;
+        return nullptr;
     }
 
     /** Return pointer to a NanostackPPPPhy.
@@ -49,12 +49,12 @@ public:
      */
     virtual NanostackPPPPhy *nanostack_ppp_phy()
     {
-        return 0;
+        return nullptr;
     }
 
 protected:
-    NanostackPhy() {}
-    virtual ~NanostackPhy() {}
+    NanostackPhy() = default;
+    virtual ~NanostackPhy() = default;
 };
 
 #endif /* NANOSTACK_INTERFACE_H_ */

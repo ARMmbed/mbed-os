@@ -40,12 +40,12 @@ public:
     class PPPInterface;
 
     /* Implement OnboardNetworkStack method */
-    virtual nsapi_error_t add_ethernet_interface(EMAC &emac, bool default_if, OnboardNetworkStack::Interface **interface_out);
+    nsapi_error_t add_ethernet_interface(EMAC &emac, bool default_if, OnboardNetworkStack::Interface **interface_out) override;
 
     /* Local variant with stronger typing and manual address specification */
     nsapi_error_t add_ethernet_interface(EMAC &emac, bool default_if, Nanostack::EthernetInterface **interface_out, const uint8_t *mac_addr = NULL);
 
-    virtual nsapi_error_t add_ppp_interface(PPP &ppp, bool default_if, OnboardNetworkStack::Interface **interface_out);
+    nsapi_error_t add_ppp_interface(PPP &ppp, bool default_if, OnboardNetworkStack::Interface **interface_out) override;
 
     /* Local variant with stronger typing and manual address specification */
     nsapi_error_t add_ppp_interface(PPP &ppp, bool default_if, Nanostack::PPPInterface **interface_out);
@@ -57,7 +57,7 @@ protected:
     Nanostack();
 
     /** @copydoc NetworkStack::get_ip_address */
-    virtual nsapi_error_t get_ip_address(SocketAddress *sockAddr);
+    nsapi_error_t get_ip_address(SocketAddress *sockAddr) override;
 
     /** Opens a socket
      *
@@ -71,7 +71,7 @@ protected:
      *  @param proto    Protocol of socket to open, NSAPI_TCP or NSAPI_UDP
      *  @return         0 on success, negative error code on failure
      */
-    virtual nsapi_error_t socket_open(void **handle, nsapi_protocol_t proto);
+    nsapi_error_t socket_open(void **handle, nsapi_protocol_t proto) override;
 
     /** Close the socket
      *
@@ -81,7 +81,7 @@ protected:
      *  @param handle   Socket handle
      *  @return         0 on success, negative error code on failure
      */
-    virtual nsapi_error_t socket_close(void *handle);
+    nsapi_error_t socket_close(void *handle) override;
 
     /** Bind a specific address to a socket
      *
@@ -92,7 +92,7 @@ protected:
      *  @param address  Local address to bind
      *  @return         0 on success, negative error code on failure.
      */
-    virtual nsapi_error_t socket_bind(void *handle, const SocketAddress &address);
+    nsapi_error_t socket_bind(void *handle, const SocketAddress &address) override;
 
     /** Listen for connections on a TCP socket
      *
@@ -104,7 +104,7 @@ protected:
      *                  simultaneously
      *  @return         0 on success, negative error code on failure
      */
-    virtual nsapi_error_t socket_listen(void *handle, int backlog);
+    nsapi_error_t socket_listen(void *handle, int backlog) override;
 
     /** Connects TCP socket to a remote host
      *
@@ -115,7 +115,7 @@ protected:
      *  @param address  The SocketAddress of the remote host
      *  @return         0 on success, negative error code on failure
      */
-    virtual nsapi_error_t socket_connect(void *handle, const SocketAddress &address);
+    nsapi_error_t socket_connect(void *handle, const SocketAddress &address) override;
 
     /** Accepts a connection on a TCP socket
      *
@@ -135,7 +135,7 @@ protected:
      *  @param address  Destination for the remote address or NULL
      *  @return         0 on success, negative error code on failure
      */
-    virtual nsapi_error_t socket_accept(void *handle, void **server, SocketAddress *address);
+    nsapi_error_t socket_accept(void *handle, void **server, SocketAddress *address) override;
 
     /** Send data over a TCP socket
      *
@@ -151,7 +151,7 @@ protected:
      *  @return         Number of sent bytes on success, negative error
      *                  code on failure
      */
-    virtual nsapi_size_or_error_t socket_send(void *handle, const void *data, nsapi_size_t size);
+    nsapi_size_or_error_t socket_send(void *handle, const void *data, nsapi_size_t size) override;
 
     /** Receive data over a TCP socket
      *
@@ -167,7 +167,7 @@ protected:
      *  @return         Number of received bytes on success, negative error
      *                  code on failure
      */
-    virtual nsapi_size_or_error_t socket_recv(void *handle, void *data, nsapi_size_t size);
+    nsapi_size_or_error_t socket_recv(void *handle, void *data, nsapi_size_t size) override;
 
     /** Send a packet over a UDP socket
      *
@@ -184,7 +184,7 @@ protected:
      *  @return         Number of sent bytes on success, negative error
      *                  code on failure
      */
-    virtual nsapi_size_or_error_t socket_sendto(void *handle, const SocketAddress &address, const void *data, nsapi_size_t size);
+    nsapi_size_or_error_t socket_sendto(void *handle, const SocketAddress &address, const void *data, nsapi_size_t size) override;
 
     /** Receive a packet over a UDP socket
      *
@@ -201,7 +201,7 @@ protected:
      *  @return         Number of received bytes on success, negative error
      *                  code on failure
      */
-    virtual nsapi_size_or_error_t socket_recvfrom(void *handle, SocketAddress *address, void *buffer, nsapi_size_t size);
+    nsapi_size_or_error_t socket_recvfrom(void *handle, SocketAddress *address, void *buffer, nsapi_size_t size) override;
 
     /** Register a callback on state change of the socket
      *
@@ -216,7 +216,7 @@ protected:
      *  @param callback Function to call on state change
      *  @param data     Argument to pass to callback
      */
-    virtual void socket_attach(void *handle, void (*callback)(void *), void *data);
+    void socket_attach(void *handle, void (*callback)(void *), void *data) override;
 
     /*  Set stack-specific socket options
      *
@@ -231,7 +231,7 @@ protected:
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative error code on failure
      */
-    virtual nsapi_error_t setsockopt(void *handle, int level, int optname, const void *optval, unsigned optlen);
+    nsapi_error_t setsockopt(void *handle, int level, int optname, const void *optval, unsigned optlen) override;
 
     /*  Get stack-specific socket options
      *
@@ -246,7 +246,7 @@ protected:
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative error code on failure
      */
-    virtual nsapi_error_t getsockopt(void *handle, int level, int optname, void *optval, unsigned *optlen);
+    nsapi_error_t getsockopt(void *handle, int level, int optname, void *optval, unsigned *optlen) override;
 
 private:
 
@@ -268,7 +268,7 @@ private:
      *
      *  @return         Call in callback
      */
-    virtual call_in_callback_cb_t get_call_in_callback();
+    call_in_callback_cb_t get_call_in_callback() override;
 
     /** Call a callback after a delay
      *
@@ -279,7 +279,7 @@ private:
      *  @param func     Callback to be called
      *  @return         0 on success, negative error code on failure
      */
-    virtual nsapi_error_t call_in(int delay, mbed::Callback<void()> func);
+    nsapi_error_t call_in(int delay, mbed::Callback<void()> func) override;
 
     struct nanostack_callback {
         mbed::Callback<void()> callback;
