@@ -1,5 +1,6 @@
 /* Simple access class for I2C EEPROM chips like Microchip 24LC
  * Copyright (c) 2015 Robin Hourahane
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

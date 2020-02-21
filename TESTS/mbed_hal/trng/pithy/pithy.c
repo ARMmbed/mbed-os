@@ -3,6 +3,7 @@
 //  http://github.com/johnezang/pithy
 //  Licensed under the terms of the BSD License, as specified below.
 //
+// SPDX-License-Identifier: BSD-3-Clause
 
 /*
  Copyright (c) 2011, John Engelhart
