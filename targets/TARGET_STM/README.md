@@ -24,4 +24,4 @@ This table summarizes the STM32Cube versions currently used :
 | L1          |    1.8.1     | https://github.com/STMicroelectronics/STM32CubeL1 |
 | L4          |    1.11.0    | https://github.com/STMicroelectronics/STM32CubeL4 |
 | L5          |    1.1.0     | https://github.com/STMicroelectronics/STM32CubeL5 |
-| WB          |    1.0.0     | https://github.com/STMicroelectronics/STM32CubeWB |
+| WB          |    1.4.0     | https://github.com/STMicroelectronics/STM32CubeWB |
