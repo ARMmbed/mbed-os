@@ -51,9 +51,9 @@ struct buffer *lowpan_adaptation_reassembly(struct protocol_interface_info_entry
 
 bool lowpan_adaptation_tx_active(int8_t interface_id);
 
-void lowpan_adaptation_remove_free_indirect_table(struct protocol_interface_info_entry *cur_interface, struct mac_neighbor_table_entry *entry_ptr);
+void lowpan_adaptation_neigh_remove_free_tx_tables(struct protocol_interface_info_entry *cur_interface, struct mac_neighbor_table_entry *entry_ptr);
 
-int8_t lowpan_adaptation_indirect_free_messages_from_queues_by_address(struct protocol_interface_info_entry *cur, uint8_t *address_ptr, addrtype_t adr_type);
+int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct protocol_interface_info_entry *cur, uint8_t *address_ptr, addrtype_t adr_type);
 
 int8_t lowpan_adaptation_indirect_queue_params_set(struct protocol_interface_info_entry *cur, uint16_t indirect_big_packet_threshold, uint16_t max_indirect_big_packets_total, uint16_t max_indirect_small_packets_per_child);
 

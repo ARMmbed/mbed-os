@@ -414,7 +414,8 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
                 if (auth_fwh_sec_prot_mic_validate(prot) < 0) {
                     return;
                 }
-
+                // PTK is fresh for installing any GTKs
+                sec_prot_keys_ptk_installed_gtk_hash_clear_all(prot->sec_keys);
                 // If GTK was inserted set it valid
                 sec_prot_keys_gtkl_from_gtk_insert_index_set(prot->sec_keys);
                 // Reset PTK mismatch

@@ -88,6 +88,7 @@ typedef struct {
     bool gtks_set : 1;                                               /**< GTKs are set */
     bool gtkhash_set : 1;                                            /**< GTK hashes are set */
     bool key_index_set : 1;                                          /**< NW key index is set */
+    bool frame_counter_read : 1;                                     /**< Frame counters has been read */
 } pae_controller_t;
 
 typedef struct {
@@ -108,6 +109,7 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_
 static void ws_pae_controller_active_nw_key_clear(nw_key_t *nw_key);
 static void ws_pae_controller_active_nw_key_set(protocol_interface_info_entry_t *cur, uint8_t index);
 static int8_t ws_pae_controller_gak_from_gtk(uint8_t *gak, uint8_t *gtk, char *network_name);
+static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr, pae_controller_t *controller, bool use_threshold);
 static void ws_pae_controller_nw_key_index_check_and_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
 static void ws_pae_controller_data_init(pae_controller_t *controller);
 static void ws_pae_controller_frame_counter_read(pae_controller_t *controller);
@@ -363,12 +365,16 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_
             if (ws_pae_controller_gak_from_gtk(gak, gtk, controller->network_name) >= 0) {
                 // Install the new network key derived from GTK and network name (GAK) to MAC
                 controller->nw_key_set(interface_ptr, i, i, gak);
-                tr_info("NW: %s", controller->network_name);
-                tr_info("NW: %s", trace_array((uint8_t *)controller->network_name, 20));
-                tr_info("GTK: %s", trace_array(gtk, 16));
-                tr_info("GAK: %s", trace_array(gak, 16));
                 nw_key[i].installed = true;
                 ret = 0;
+#ifdef EXTRA_DEBUG_INFO
+                tr_info("NW name: %s", controller->network_name);
+                size_t nw_name_len = strlen(controller->network_name);
+                tr_info("NW name: %s", trace_array((uint8_t *)controller->network_name, nw_name_len));
+                tr_info("GTK: %s", trace_array(gtk, 16));
+                tr_info("GAK: %s", trace_array(gak, 16));
+#endif
+
             } else {
                 tr_error("GAK generation failed network name: %s", controller->network_name);
                 continue;
@@ -380,9 +386,11 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_
                 // Read current counter from MAC
                 uint32_t curr_frame_counter;
                 controller->nw_frame_counter_read(controller->interface_ptr, &curr_frame_counter, i);
+
                 // If stored frame counter is greater than MAC counter
                 if (controller->frame_counters.counter[i].frame_counter > curr_frame_counter) {
-                    tr_debug("Frame counter set: %i, stored %"PRIu32" current: %"PRIu32"", i, controller->frame_counters.counter[i].frame_counter, curr_frame_counter);
+                    tr_debug("Frame counter set: %i, stored %"PRIu32" current: %"PRIu32"", i,
+                             controller->frame_counters.counter[i].frame_counter, curr_frame_counter);
                     curr_frame_counter = controller->frame_counters.counter[i].frame_counter;
                     // Updates MAC frame counter
                     controller->nw_frame_counter_set(controller->interface_ptr, curr_frame_counter, i);
@@ -473,6 +481,16 @@ void ws_pae_controller_nw_keys_remove(protocol_interface_info_entry_t *interface
     if (!controller) {
         return;
     }
+
+    /* Stores frame counters if incremented by threshold and removes network keys from PAE
+       controller and MAC */
+    ws_pae_controller_frame_counter_store_and_nw_keys_remove(interface_ptr, controller, true);
+}
+
+static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr, pae_controller_t *controller, bool use_threshold)
+{
+    /* Checks if frame counters needs to be stored when keys are removed */
+    ws_pae_controller_frame_counter_store(controller, use_threshold);
 
     tr_info("NW keys remove");
 
@@ -589,6 +607,7 @@ static void ws_pae_controller_data_init(pae_controller_t *controller)
     controller->gtks_set = false;
     controller->gtkhash_set = false;
     controller->key_index_set = false;
+    controller->frame_counter_read = false;
     controller->gtk_index = -1;
     controller->network_name = NULL;
     controller->frame_cnt_store_timer = FRAME_COUNTER_STORE_INTERVAL;
@@ -602,6 +621,11 @@ static void ws_pae_controller_data_init(pae_controller_t *controller)
 
 static void ws_pae_controller_frame_counter_read(pae_controller_t *controller)
 {
+    if (controller->frame_counter_read) {
+        return;
+    }
+    controller->frame_counter_read = true;
+
     // Read frame counters
     if (ws_pae_controller_nvm_frame_counter_read(&controller->frame_counters) >= 0) {
         bool updated = false;
@@ -610,6 +634,8 @@ static void ws_pae_controller_frame_counter_read(pae_controller_t *controller)
             if (controller->frame_counters.counter[index].set) {
                 // Increments frame counters
                 controller->frame_counters.counter[index].frame_counter += FRAME_COUNTER_INCREMENT;
+                controller->frame_counters.counter[index].stored_frame_counter =
+                    controller->frame_counters.counter[index].frame_counter;
 
                 tr_info("Read frame counter: index %i value %"PRIu32"", index, controller->frame_counters.counter[index].frame_counter);
 
@@ -620,7 +646,6 @@ static void ws_pae_controller_frame_counter_read(pae_controller_t *controller)
             // Writes incremented frame counters
             ws_pae_nvm_store_frame_counter_tlv_create(controller->pae_nvm_buffer, &controller->frame_counters);
             ws_pae_controller_nvm_frame_counter_write(controller->pae_nvm_buffer);
-            //ws_pae_controller_frame_counter_write(controller, &controller->frame_counters);
         }
     }
 }
@@ -630,6 +655,7 @@ static void ws_pae_controller_frame_counter_reset(frame_counters_t *frame_counte
     for (uint8_t index = 0; index < GTK_NUM; index++) {
         memset(frame_counters->counter[index].gtk, 0, GTK_LEN);
         frame_counters->counter[index].frame_counter = 0;
+        frame_counters->counter[index].stored_frame_counter = 0;
         frame_counters->counter[index].set = false;
     }
 }
@@ -653,7 +679,7 @@ int8_t ws_pae_controller_supp_init(protocol_interface_info_entry_t *interface_pt
     controller->pae_gtk_hash_update = ws_pae_supp_gtk_hash_update;
     controller->pae_nw_key_index_update = ws_pae_supp_nw_key_index_update;
 
-    ws_pae_supp_cb_register(controller->interface_ptr, controller->auth_completed, ws_pae_controller_nw_key_check_and_insert, ws_pae_controller_active_nw_key_set);
+    ws_pae_supp_cb_register(controller->interface_ptr, controller->auth_completed, ws_pae_controller_nw_key_check_and_insert, ws_pae_controller_active_nw_key_set, ws_pae_controller_gtk_hash_ptr_get);
 
     ws_pae_controller_frame_counter_read(controller);
 
@@ -689,11 +715,8 @@ int8_t ws_pae_controller_stop(protocol_interface_info_entry_t *interface_ptr)
         return -1;
     }
 
-    // Stores frame counter
-    ws_pae_controller_frame_counter_store(controller, false);
-
-    // Removes network keys from PAE controller and MAC
-    ws_pae_controller_nw_keys_remove(interface_ptr);
+    // Stores frame counters and removes network keys from PAE controller and MAC
+    ws_pae_controller_frame_counter_store_and_nw_keys_remove(interface_ptr, controller, false);
 
     // If PAE has been initialized, deletes it
     if (controller->pae_delete) {
@@ -1180,7 +1203,7 @@ int8_t ws_pae_controller_gtk_hash_update(protocol_interface_info_entry_t *interf
     memcpy(controller->gtkhash, gtkhash, 32);
 
     if (controller->pae_gtk_hash_update) {
-        return controller->pae_gtk_hash_update(interface_ptr, gtkhash);
+        return controller->pae_gtk_hash_update(interface_ptr, controller->gtkhash);
     }
 
     return 0;
@@ -1241,18 +1264,25 @@ static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool 
             // If frame counter for the network key has already been stored
             if (entry->frame_counters.counter[i].set &&
                     memcmp(entry->nw_key[i].gtk, entry->frame_counters.counter[i].gtk, GTK_LEN) == 0) {
+
+                if (curr_frame_counter > entry->frame_counters.counter[i].frame_counter) {
+                    entry->frame_counters.counter[i].frame_counter = curr_frame_counter;
+                }
+                uint32_t frame_counter = entry->frame_counters.counter[i].frame_counter;
+
                 // If threshold check is disabled or frame counter has advanced for the threshold value, stores the new value
                 if (!use_threshold ||
-                        curr_frame_counter > entry->frame_counters.counter[i].frame_counter + FRAME_COUNTER_STORE_THRESHOLD) {
-                    entry->frame_counters.counter[i].frame_counter = curr_frame_counter;
+                        frame_counter > entry->frame_counters.counter[i].stored_frame_counter + FRAME_COUNTER_STORE_THRESHOLD) {
+                    entry->frame_counters.counter[i].stored_frame_counter = frame_counter;
                     update_needed = true;
-                    tr_debug("Stored updated frame counter: index %i value %"PRIu32"", i, curr_frame_counter);
+                    tr_debug("Stored updated frame counter: index %i value %"PRIu32"", i, frame_counter);
                 }
             } else {
                 // For new or modified network keys, stores the frame counter value
                 entry->frame_counters.counter[i].set = true;
                 memcpy(entry->frame_counters.counter[i].gtk, entry->nw_key[i].gtk, GTK_LEN);
                 entry->frame_counters.counter[i].frame_counter = curr_frame_counter;
+                entry->frame_counters.counter[i].stored_frame_counter = curr_frame_counter;
                 update_needed = true;
                 tr_debug("Stored new frame counter: index %i value %"PRIu32"", i, curr_frame_counter);
             }

@@ -33,10 +33,6 @@ struct rpl_objective;
 
 /* Descriptor for a RPL neighbour within a DODAG
  *
- * The neighbour is normally associated with a DODAG Version, but may not be,
- * if the version has been retired, and we haven't since heard from that
- * neighbour. In that case dodag_version is NULL.
- *
  * Note that global address is only needed with downward routes, but I don't
  * think it's worth optimising for an "upward-only" build. (Unless to be a RPL
  * leaf?)
@@ -45,7 +41,7 @@ struct rpl_objective;
  * first in the instance candidate_neighbour list, in order of preference.
  */
 struct rpl_neighbour {
-    rpl_dodag_version_t *dodag_version;     // Back pointer to DODAG Version (may be NULL, if not dodag_parent)
+    rpl_dodag_version_t *dodag_version;     // Back pointer to DODAG Version
     uint8_t ll_address[16];                 // Link-local address (source of DIO)
     uint8_t global_address[16];             // Global address (from DIO RIO)
     bool dodag_parent: 1;                   // This is a DODAG parent (if true, dodag_version may not be NULL)
@@ -87,10 +83,11 @@ struct rpl_dodag {
     rpl_dodag_conf_t config;                        /* Configuration from DIO */
     uint8_t info_version;                           /* Version for g_mop_prf and config */
     bool root: 1;                                   /* We are the root of this DODAG */
+    bool was_root: 1;                               /* If we have ever been a root in this DODAG */
     bool leaf: 1;                                   /* We are a leaf in this DODAG (by policy) */
     bool have_config: 1;                            /* We have the config */
     bool used: 1;                                   /* We have ever been a member of this DODAG? */
-    uint8_t new_config_advertisment_count;      /* We have advertiment new config at multicasti DIO */
+    uint8_t new_config_advertisment_count;          /* We have advertiment new config at multicasti DIO  max updated value is 0xfe*/
     NS_LIST_HEAD(rpl_dodag_version_t, link) versions; /* List of DODAG versions (newest first) */
     prefix_list_t prefixes;                         /* Prefixes advertised in DIO PIOs */
     rpl_dio_route_list_t routes;                    /* Routes advertised in DIO RIOs*/

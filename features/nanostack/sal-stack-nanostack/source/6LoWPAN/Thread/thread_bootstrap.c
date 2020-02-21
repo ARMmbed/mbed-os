@@ -137,7 +137,7 @@ static void thread_bootstrap_pbbr_update_done(struct protocol_interface_info_ent
 static void thread_neighbor_remove(mac_neighbor_table_entry_t *entry_ptr, void *user_data)
 {
     protocol_interface_info_entry_t *cur = user_data;
-    lowpan_adaptation_remove_free_indirect_table(cur, entry_ptr);
+    lowpan_adaptation_neigh_remove_free_tx_tables(cur, entry_ptr);
 
     thread_reset_neighbour_info(cur, entry_ptr);
     //Removes ETX neighbor

@@ -560,7 +560,7 @@ static void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t
 
         if (!base->ws_neighbor_info_request_cb(interface, data->SrcAddr, &neighbor_info, request_new_entry)) {
             if (!multicast || ws_utt.message_type == WS_FT_EAPOL) {
-                tr_debug("Drop message no neighbor");
+                //tr_debug("Drop message no neighbor");
                 return;
             } else {
                 //Allocate temporary entry

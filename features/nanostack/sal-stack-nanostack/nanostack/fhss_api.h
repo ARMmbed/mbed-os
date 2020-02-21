@@ -122,9 +122,10 @@ typedef void fhss_data_tx_done(const fhss_api_t *api, bool waiting_ack, bool tx_
  * @param api FHSS instance.
  * @param handle Handle of the data request.
  * @param frame_type Frame type of packet (Frames types are defined by FHSS api).
+ * @param channel Channel wanted to black list temporarily.
  * @return true if frame has to be queued for retransmission, false otherwise.
  */
-typedef bool fhss_data_tx_fail(const fhss_api_t *api, uint8_t handle, int frame_type);
+typedef bool fhss_data_tx_fail(const fhss_api_t *api, uint8_t handle, int frame_type, uint8_t channel);
 
 /**
  * @brief Change synchronization state.

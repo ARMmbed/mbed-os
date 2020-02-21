@@ -161,7 +161,8 @@ typedef enum {
     CHANNEL_PAGE_5 = 5,     ///< Page 5
     CHANNEL_PAGE_6 = 6,     ///< Page 6
     CHANNEL_PAGE_9 = 9,     ///< Page 9
-    CHANNEL_PAGE_10 = 10    ///< Page 10
+    CHANNEL_PAGE_10 = 10,   ///< Page 10
+    CHANNEL_PAGE_UNDEFINED  ///< Undefined
 } channel_page_e;
 
 /** Modulation index */
@@ -192,6 +193,10 @@ typedef struct phy_rf_statistics_s {
     uint32_t crc_fails;        ///< CRC failures
     uint32_t tx_timeouts;      ///< transmission timeouts
     uint32_t rx_timeouts;      ///< reception timeouts
+    uint64_t tx_active_time;   ///< transmission active time
+    uint64_t rx_active_time;   ///< reception active time
+    uint32_t tx_bytes;         ///< transmitted bytes
+    uint32_t rx_bytes;         ///< received bytes
 } phy_rf_statistics_s;
 
 /** Virtual data request */

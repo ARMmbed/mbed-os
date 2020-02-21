@@ -48,14 +48,10 @@ int ws_bbr_start(int8_t interface_id, int8_t backbone_interface_id);
 /**
  * Border router configuration options
  */
-#define BBR_ULA_C           0x0001 /**< Static ULA prefix created automatically */
-#define BBR_GUA_ROUTE       0x0002 /**< More specific route is added for GUA prefix */
-#define BBR_BB_WAIT         0x0004 /**< Wait backbone availability before starting Wi-SUN network */
-
-/*Deprecated configuration values */
-#define BBR_GUA_C           0x0000 /**< Routable prefix is learned from the backbone */
-#define BBR_GUA_SLAAC       0x0000 /**< Use SLAAC addressing in routable prefix */
-#define BBR_GUA_WAIT        0x0000 /**< Wait backbone availability before startingRPL dodag */
+#define BBR_ULA_C                 0x0001 /**< Static ULA prefix created automatically */
+#define BBR_GUA_ROUTE             0x0002 /**< More specific route is added for GUA prefix */
+#define BBR_BB_WAIT               0x0004 /**< Wait backbone availability before starting Wi-SUN network */
+#define BBR_DEFAULT_ROUTE         0x0008 /**< Add default route parameter to DIO */
 
 /**
  * Configure border router features.

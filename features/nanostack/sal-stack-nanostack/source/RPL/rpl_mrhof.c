@@ -45,12 +45,14 @@
 static void rpl_mrhof_parent_selection(rpl_instance_t *instance);
 static uint16_t rpl_mrhof_path_cost_through_neighbour(const rpl_neighbour_t *neighbour);
 static bool rpl_mrhof_neighbour_acceptable(const rpl_instance_t *instance, const rpl_neighbour_t *neighbour);
+static bool rpl_mrhof_possible_better_candidate(const rpl_instance_t *instance, const rpl_neighbour_t *existing, uint16_t rank, uint16_t etx);
 
 static rpl_objective_t rpl_mrhof = {
     .ocp = RPL_OCP_MRHOF,
     .parent_selection = rpl_mrhof_parent_selection,
     .path_cost = rpl_mrhof_path_cost_through_neighbour,
     .neighbour_acceptable = rpl_mrhof_neighbour_acceptable,
+    .possible_better_candidate = rpl_mrhof_possible_better_candidate,
 };
 
 typedef struct rpl_of0_params {
@@ -94,6 +96,26 @@ static bool rpl_mrhof_neighbour_acceptable(const rpl_instance_t *instance, const
     return rpl_mrhof_link_metric_to_neighbour(neighbour) <= rpl_policy_mrhof_max_link_metric(instance->domain);
 }
 
+static bool rpl_mrhof_possible_better_candidate(const rpl_instance_t *instance, const rpl_neighbour_t *existing, uint16_t rank, uint16_t etx)
+{
+    uint16_t existing_path = rpl_mrhof_path_cost_through_neighbour(existing);
+    // Optimistically assume we could get a perfect link to this new person
+    // But add hysteresis to avoid switching unless potentially worthwhile
+    // (Compare rpl_mrhof_etx which assumes poor for unknown as a sort of hysteresis)
+    // Think: could actually use rpl_mrhof_etx here to get an existing ETX estimate
+    // (except that gives infinite if no current link, would want a variant that checks
+    // blacklist records for remembered poor ETX)
+    uint16_t threshold = rpl_policy_mrhof_parent_switch_threshold(instance->domain);
+    if (etx == 0) {
+        etx = 128;
+    } else if (etx >= (0xffff - threshold)) {
+        return false;
+    }
+
+    etx += threshold;
+    uint16_t potential_path_with_hysteresis = rpl_rank_add(rank, etx);
+    return potential_path_with_hysteresis <= existing_path;
+}
 
 /* Given a preferred parent, we are only permitted to stretch our above the
  * path cost through that parent by a certain (policy) amount to accommodate a
