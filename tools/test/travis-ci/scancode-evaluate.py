@@ -32,6 +32,9 @@ import re
 
 userlog = logging.getLogger("scancode-evaluate")
 userlog.setLevel(logging.INFO)
+logfile = os.path.join(os.getcwd(), 'scancode-evaluate.log')
+log_file_handler = logging.FileHandler(logfile, mode='w')
+userlog.addHandler(log_file_handler)
 
 MISSING_LICENSE_TEXT = "Missing license header"
 MISSING_PERMISIVE_LICENSE_TEXT = "Non-permissive license"
@@ -120,7 +123,11 @@ if __name__ == "__main__":
 
     args = parse_args()
     if args.file and os.path.isfile(args.file):
-        sys.exit(license_check(args.directory_name, args.file))
+        count = license_check(args.directory_name, args.file)
+        if count == 0:
+            sys.exit(0)
+        else:
+            sys.exit(-1)
     else:
         userlog.warning("Could not find the scancode json file")
         sys.exit(-1)

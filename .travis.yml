@@ -82,7 +82,8 @@ matrix:
               echo "License check OK";
             else
               echo "License check failed, please review license issues found";
-              STATUSM="Needs review, ${retval} license issues found";
+              COUNT=$(cat scancode-evaluate.log | grep File: | wc -l)
+              STATUSM="Needs review, ${COUNT} license issues found";
               set_status "success" "$STATUSM";
           fi
 
