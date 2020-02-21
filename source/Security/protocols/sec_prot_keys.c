@@ -38,6 +38,8 @@
 
 #define TRACE_GROUP "spke"
 
+static const uint8_t empty_hash[GTK_HASH_LEN] = {0};
+
 sec_prot_keys_t *sec_prot_keys_create(sec_prot_gtk_keys_t *gtks, const sec_prot_certs_t *certs)
 {
     sec_prot_keys_t *sec_keys = ns_dyn_mem_alloc(sizeof(sec_prot_keys_t));
@@ -67,6 +69,7 @@ void sec_prot_keys_init(sec_prot_keys_t *sec_keys, sec_prot_gtk_keys_t *gtks, co
     sec_keys->ptk_eui_64_set = false;
     sec_keys->pmk_mismatch = false;
     sec_keys->ptk_mismatch = false;
+    sec_prot_keys_ptk_installed_gtk_hash_clear_all(sec_keys);
 }
 
 void sec_prot_keys_delete(sec_prot_keys_t *sec_keys)
@@ -581,9 +584,22 @@ void sec_prot_keys_gtks_hash_generate(sec_prot_gtk_keys_t *gtks, uint8_t *gtkhas
     }
 }
 
-void sec_prot_keys_gtk_hash_generate(uint8_t *gtk, uint8_t *gtk_hash)
+int8_t sec_prot_keys_gtk_hash_generate(uint8_t *gtk, uint8_t *gtk_hash)
 {
+    return sec_prot_lib_gtkhash_generate(gtk, gtk_hash);
+}
+
+int8_t sec_prot_keys_gtk_valid_check(uint8_t *gtk)
+{
+    uint8_t gtk_hash[8];
     sec_prot_lib_gtkhash_generate(gtk, gtk_hash);
+
+    // Checks if GTK hash for the GTK would be all zero
+    if (memcmp(gtk_hash, empty_hash, GTK_HASH_LEN) == 0) {
+        return -1;
+    }
+
+    return 0;
 }
 
 gtk_mismatch_e sec_prot_keys_gtks_hash_update(sec_prot_gtk_keys_t *gtks, uint8_t *gtkhash)
@@ -639,7 +655,6 @@ gtk_mismatch_e sec_prot_keys_gtks_hash_update(sec_prot_gtk_keys_t *gtks, uint8_t
 
 bool sec_prot_keys_gtk_hash_empty(uint8_t *gtkhash)
 {
-    const uint8_t empty_hash[GTK_HASH_LEN] = {0};
     if (memcmp(gtkhash, empty_hash, GTK_HASH_LEN) == 0) {
         return true;
     } else {
@@ -781,6 +796,59 @@ uint8_t sec_prot_keys_gtk_count(sec_prot_gtk_keys_t *gtks)
     }
 
     return count;
+}
+
+void sec_prot_keys_ptk_installed_gtk_hash_clear_all(sec_prot_keys_t *sec_keys)
+{
+    for (uint8_t index = 0; index < GTK_NUM; index++) {
+        memset(sec_keys->ins_gtk_hash[sec_keys->gtk_set_index].hash, 0, INS_GTK_HASH_LEN);
+    }
+    sec_keys->ins_gtk_hash_set = 0;
+}
+
+void sec_prot_keys_ptk_installed_gtk_hash_set(sec_prot_keys_t *sec_keys)
+{
+    if (sec_keys->gtk_set_index >= 0) {
+        uint8_t *gtk = sec_prot_keys_gtk_get(sec_keys->gtks, sec_keys->gtk_set_index);
+        if (!gtk) {
+            return;
+        }
+        uint8_t gtk_hash[GTK_HASH_LEN];
+        if (sec_prot_keys_gtk_hash_generate(gtk, gtk_hash) < 0) {
+            return;
+        }
+        /* Store two byte hash. This is long enough for the GTK installed check, since
+         * possible conflict between hashes causes only that 4WH is initiated/is not
+         * initiated instead of GKH.
+         */
+        memcpy(sec_keys->ins_gtk_hash[sec_keys->gtk_set_index].hash, gtk_hash, INS_GTK_HASH_LEN);
+        sec_keys->ins_gtk_hash_set |= (1 << sec_keys->gtk_set_index);
+    }
+}
+
+bool sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(sec_prot_keys_t *sec_keys, uint8_t gtk_index)
+{
+    if ((sec_keys->ins_gtk_hash_set & (1 << sec_keys->gtk_set_index)) == 0) {
+        return false;
+    }
+
+    uint8_t *gtk = sec_prot_keys_gtk_get(sec_keys->gtks, gtk_index);
+    if (!gtk) {
+        return false;
+    }
+
+    // Calculated GTK hash for the current GTK on the defined index
+    uint8_t gtk_hash[GTK_HASH_LEN];
+    if (sec_prot_keys_gtk_hash_generate(gtk, gtk_hash) < 0) {
+        return false;
+    }
+
+    // If PTK has been used to install different GTK to index than the current one, trigger mismatch
+    if (memcmp(sec_keys->ins_gtk_hash[sec_keys->gtk_set_index].hash, gtk_hash, INS_GTK_HASH_LEN) != 0) {
+        return true;
+    }
+
+    return false;
 }
 
 #endif /* HAVE_WS */

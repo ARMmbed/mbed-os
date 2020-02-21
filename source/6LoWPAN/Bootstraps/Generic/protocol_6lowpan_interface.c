@@ -72,6 +72,15 @@
 #include "6LoWPAN/Fragmentation/cipv6_fragmenter.h"
 #include "libNET/src/net_load_balance_internal.h"
 
+void protocol_mac_reset(protocol_interface_info_entry_t *cur)
+{
+    if (cur->mac_api) {
+        mlme_reset_t reset;
+        reset.SetDefaultPIB = true;
+        cur->mac_api->mlme_req(cur->mac_api, MLME_RESET, &reset);
+    }
+}
+
 
 
 static int8_t set_6lowpan_nwk_down(protocol_interface_info_entry_t *cur)
@@ -96,15 +105,11 @@ static int8_t set_6lowpan_nwk_down(protocol_interface_info_entry_t *cur)
         }
 
         if (cur->interface_mode == INTERFACE_UP) {
-            if (cur->mac_api) {
-                mlme_reset_t reset;
-                reset.SetDefaultPIB = true;
-                cur->mac_parameters->pan_id = 0xffff;
-                cur->mac_parameters->SecurityEnabled = false;
-                cur->mac_parameters->security_frame_counter = 0;
-                cur->mac_parameters->mac_security_level = 0;
-                cur->mac_api->mlme_req(cur->mac_api, MLME_RESET, &reset);
-            }
+            cur->mac_parameters->pan_id = 0xffff;
+            cur->mac_parameters->SecurityEnabled = false;
+            cur->mac_parameters->security_frame_counter = 0;
+            cur->mac_parameters->mac_security_level = 0;
+            protocol_mac_reset(cur);
             cur->interface_mode = INTERFACE_IDLE;
             net_load_balance_internal_state_activate(cur, false);
         }
