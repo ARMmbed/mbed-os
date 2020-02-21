@@ -47,7 +47,9 @@ def license_check(directory_name, file):
     file - scancode json output file (output from scancode --license --json-pp)
 
     Returns:    
-    0 if success, -1 if any error in file licenses found
+    0 if nothing found
+    >0 - count how many license isses found
+    -1 if any error in file licenses found
     """
 
     offenders = []
@@ -103,9 +105,7 @@ def license_check(directory_name, file):
         userlog.warning("Found files with missing license details, please review and fix")
         for offender in offenders:
             userlog.warning("File: " + offender['file']['path'][len(directory_name):] + " " + "reason: " + offender['reason'])
-        return -1
-    else:
-        return 0
+    return len(offenders)
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -119,7 +119,6 @@ def parse_args():
 if __name__ == "__main__":
 
     args = parse_args()
-
     if args.file and os.path.isfile(args.file):
         sys.exit(license_check(args.directory_name, args.file))
     else:

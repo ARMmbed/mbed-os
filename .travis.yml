@@ -73,7 +73,20 @@ matrix:
               | ( grep -v '^tools/test/toolchains/api_test.py') \
               | while read file; do cp --parents "${file}" SCANCODE; done
         - scancode -l --json-pp scancode.json SCANCODE
+        - python ./tools/test/travis-ci/scancode-evaluate.py -f scancode.json || true
+      after_success:
         - python ./tools/test/travis-ci/scancode-evaluate.py -f scancode.json
+        - retval=$?
+        - |
+          if [ $retval == 0 ]; then
+              echo "License check OK";
+            else
+              echo "License check failed, please review license issues found";
+              STATUSM="Needs review, ${retval} license issues found";
+              set_status "success" "$STATUSM";
+          fi
+
+
 
     - <<: *basic-vm
       name: "include check"
