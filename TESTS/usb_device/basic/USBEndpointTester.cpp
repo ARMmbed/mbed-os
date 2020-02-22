@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#if USB_DEVICE_TESTS
+
 #if defined(MBED_CONF_RTOS_PRESENT)
 
 #include "stdint.h"
@@ -863,3 +865,4 @@ void USBEndpointTester::start_ep_in_abort_test()
     write_start(_endpoints[EP_INT_IN], _endpoint_buffs[EP_INT_IN], (*_endpoint_configs)[EP_INT_IN].max_packet);
 }
 #endif
+#endif //USB_DEVICE_TESTS

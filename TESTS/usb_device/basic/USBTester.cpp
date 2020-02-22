@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#if USB_DEVICE_TESTS
+
 #if defined(MBED_CONF_RTOS_PRESENT)
 
 #include "stdint.h"
@@ -705,3 +707,4 @@ void USBTester::epbulk_out_callback()
     read_start(bulk_out, bulk_buf, sizeof(bulk_buf));
 }
 #endif
+#endif //USB_DEVICE_TESTS
