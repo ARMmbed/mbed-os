@@ -36,7 +36,7 @@ extern const unsigned char eth_mac_broadcast_addr[];
 // Message validation flags
 #define BROADCAST               0x01
 #define RESPONSE_RECEIVED       0x02
-#define INVALID_LENGHT          0x04
+#define INVALID_LENGTH          0x04
 #define INVALID_DATA            0x08
 #define PRINTED                 0x10
 // Validates outgoing messages for replies, sets error flags on error
