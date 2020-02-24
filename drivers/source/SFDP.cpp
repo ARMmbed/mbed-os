@@ -16,9 +16,12 @@
  */
 
 #include <algorithm>
-#include <cstdint>
-#include <cstdlib>
-#include <cstring>
+#include <memory>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "platform/mbed_error.h"
 #include "drivers/internal/SFDP.h"
 
 #if (DEVICE_SPI || DEVICE_QSPI)
@@ -179,14 +182,6 @@ int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, 
 
 int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &sfdp_info)
 {
-    /* The number of
-     * - sector map configuration detection commands
-     * - configurations
-     * - regions in each configuration
-     *  is variable -> the size of this table is variable
-     */
-    uint8_t *smptbl_buff;
-    int status = 0;
     uint32_t tmp_region_size = 0;
     uint8_t type_mask;
     int prev_boundary = 0;
@@ -199,10 +194,16 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
 
     if (!sfdp_info.smptbl.addr || !sfdp_info.smptbl.size) {
         tr_debug("No Sector Map Table");
-        return 0;
+        return MBED_SUCCESS;
     }
 
-    smptbl_buff = (uint8_t *)malloc(sfdp_info.smptbl.size);
+    /* The number of
+     * - sector map configuration detection commands
+     * - configurations
+     * - regions in each configuration
+     *  is variable -> the size of this table is variable
+     */
+    auto smptbl_buff = std::make_unique<uint8_t[]>(sfdp_info.smptbl.size);
     if (!smptbl_buff) {
         tr_error("Failed to allocate memory");
         return -1;
@@ -210,17 +211,16 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
 
     tr_debug("Parsing Sector Map Table - addr: 0x%" PRIx32 ", Size: %d", sfdp_info.smptbl.addr, sfdp_info.smptbl.size);
 
-    status = sfdp_reader(sfdp_info.smptbl.addr, smptbl_buff, sfdp_info.smptbl.size);
+    int status = sfdp_reader(sfdp_info.smptbl.addr, smptbl_buff.get(), sfdp_info.smptbl.size);
     if (status < 0) {
         tr_error("Sector Map: Table retrieval failed");
-        goto EXIT;
+        return -1;
     }
 
     // Currently we support only Single Map Descriptor
     if (!((smptbl_buff[0] & 0x3) == 0x03) && (smptbl_buff[1] == 0x0)) {
         tr_error("Sector Map: Supporting Only Single Map Descriptor (not map commands)");
-        status = -1;
-        goto EXIT;
+        return -1;
     }
 
     sfdp_info.smptbl.region_cnt = smptbl_buff[2] + 1;
@@ -228,8 +228,7 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
         tr_error("Sector Map: Supporting up to %d regions, current setup to %d regions - fail",
                  SFDP_SECTOR_MAP_MAX_REGIONS,
                  sfdp_info.smptbl.region_cnt);
-        status = -1;
-        goto EXIT;
+        return -1;
     }
 
     // Loop through Regions and set for each one: size, supported erase types, high boundary offset
@@ -259,10 +258,7 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
         type_mask = type_mask << 1;
     }
 
-EXIT:
-    free(smptbl_buff);
-
-    return status;
+    return 0;
 }
 
 size_t sfdp_detect_page_size(uint8_t *basic_param_table_ptr, size_t basic_param_table_size)
