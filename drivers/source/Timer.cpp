@@ -38,6 +38,26 @@ TimerBase::TimerBase(const ticker_data_t *data, bool lock_deepsleep) : _ticker_d
     reset();
 }
 
+// This creates a temporary CriticalSectionLock while we delegate to the
+// constructor that does the copy, thus holding critical section during the copy,
+// ensuring locking on the source. Then continue our own initialization
+// outside the critical section
+TimerBase::TimerBase(const TimerBase &t) : TimerBase(t, CriticalSectionLock{})
+{
+    // If running, new copy needs an extra lock
+    if (_running && _lock_deepsleep) {
+        sleep_manager_lock_deep_sleep();
+    }
+}
+
+// Unlike copy constructor, no need for lock on move - we must be only person
+// accessing source.
+TimerBase::TimerBase(TimerBase &&t) : TimerBase(t, false)
+{
+    // Original is marked as no longer running - we adopt any lock it had
+    t._running = false;
+}
+
 TimerBase::~TimerBase()
 {
     if (_running) {
