@@ -55,10 +55,40 @@ matrix:
     - <<: *basic-vm
       name: "license check"
       env: NAME=licence_check
+      language: python
+      python: 3.6.8 # scancode-toolkit v3.1.1 requires v3.6.8
+      install:
+        - pip install scancode-toolkit==3.1.1
+      before_script:
+        - mkdir -p SCANCODE
+        # Fetch remaining information needed for branch comparison
+        - git fetch --all --unshallow --tags
+        - git fetch origin "${TRAVIS_BRANCH}"
       script:
+        # scancode does not support list of files, only one file or directory
+        # we use SCANCODE directory for all changed files (their copies with full tree)
+        - >-
+            git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
+              | ( grep '.\(c\|cpp\|h\|hpp\|py\)$' || true ) \
+              | ( grep -v '^tools/test/toolchains/api_test.py') \
+              | while read file; do cp --parents "${file}" SCANCODE; done
+        - scancode -l --json-pp scancode.json SCANCODE
+        - python ./tools/test/travis-ci/scancode-evaluate.py -f scancode.json || true
+      after_success:
+        - python ./tools/test/travis-ci/scancode-evaluate.py -f scancode.json
+        - cat scancode-evaluate.log
+        - retval=$?
         - |
-          ! grep --recursive --max-count=100 --ignore-case --exclude .travis.yml \
-          "gnu general\|gnu lesser\|lesser general\|public license"
+          if [ $retval == 0 ]; then
+              echo "License check OK";
+            else
+              echo "License check failed, please review license issues found";
+              COUNT=$(cat scancode-evaluate.log | grep File: | wc -l)
+              STATUSM="Needs review, ${COUNT} license issues found";
+              set_status "success" "$STATUSM";
+          fi
+
+
 
     - <<: *basic-vm
       name: "include check"
