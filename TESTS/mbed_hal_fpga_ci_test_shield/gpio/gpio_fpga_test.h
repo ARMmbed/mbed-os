@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2019 ARM Limited
+ * Copyright (c) 2019-2020 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,6 +32,14 @@ extern "C" {
  * then all operations succeed.
  */
 void fpga_test_basic_input_output(PinName pin);
+
+/* Test input pull modes.
+ *
+ * Given a GPIO instance configured with an input pull mode,
+ * when basic input operations are performed,
+ * then all operations succeed.
+ */
+void fpga_test_input_pull_modes(PinName pin);
 
 /* Test explicit input initialization.
  *

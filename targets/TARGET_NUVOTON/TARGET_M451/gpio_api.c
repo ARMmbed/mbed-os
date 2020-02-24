@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2015-2016 Nuvoton
+ * Copyright (c) 2015-2020 Nuvoton
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,4 +139,12 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
     }
 
     pin_mode(obj->pin, obj->mode);
+}
+
+void gpio_get_capabilities(gpio_t *obj, gpio_capabilities_t *cap)
+{
+    // Pull modes not supported.
+    cap->pull_none = 0;
+    cap->pull_down = 0;
+    cap->pull_up = 0;
 }
