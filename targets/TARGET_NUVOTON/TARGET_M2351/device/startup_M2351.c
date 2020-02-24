@@ -134,16 +134,16 @@ WEAK_ALIAS_FUNC(GPC_IRQHandler, Default_Handler)        // 18: GPIO Port C
 WEAK_ALIAS_FUNC(GPD_IRQHandler, Default_Handler)        // 19: GPIO Port D
 WEAK_ALIAS_FUNC(GPE_IRQHandler, Default_Handler)        // 20: GPIO Port E
 WEAK_ALIAS_FUNC(GPF_IRQHandler, Default_Handler)        // 21: GPIO Port F
-WEAK_ALIAS_FUNC(QSPI0_IRQHandler, Default_Handler)      // 22: SPI0
-WEAK_ALIAS_FUNC(SPI0_IRQHandler, Default_Handler)       // 23: SPI1
-WEAK_ALIAS_FUNC(BRAKE0_IRQHandler, Default_Handler)     // 24: 
-WEAK_ALIAS_FUNC(EPWM0_P0_IRQHandler, Default_Handler)   // 25: 
-WEAK_ALIAS_FUNC(EPWM0_P1_IRQHandler, Default_Handler)   // 26: 
-WEAK_ALIAS_FUNC(EPWM0_P2_IRQHandler, Default_Handler)   // 27: 
-WEAK_ALIAS_FUNC(BRAKE1_IRQHandler, Default_Handler)     // 28: 
-WEAK_ALIAS_FUNC(EPWM1_P0_IRQHandler, Default_Handler)   // 29: 
-WEAK_ALIAS_FUNC(EPWM1_P1_IRQHandler, Default_Handler)   // 30: 
-WEAK_ALIAS_FUNC(EPWM1_P2_IRQHandler, Default_Handler)   // 31: 
+WEAK_ALIAS_FUNC(QSPI0_IRQHandler, Default_Handler)      // 22: QSPI0
+WEAK_ALIAS_FUNC(SPI0_IRQHandler, Default_Handler)       // 23: SPI0
+WEAK_ALIAS_FUNC(BRAKE0_IRQHandler, Default_Handler)     // 24: BRAKE0
+WEAK_ALIAS_FUNC(EPWM0_P0_IRQHandler, Default_Handler)   // 25: EPWM0P0
+WEAK_ALIAS_FUNC(EPWM0_P1_IRQHandler, Default_Handler)   // 26: EPWM0P1
+WEAK_ALIAS_FUNC(EPWM0_P2_IRQHandler, Default_Handler)   // 27: EPWM0P2
+WEAK_ALIAS_FUNC(BRAKE1_IRQHandler, Default_Handler)     // 28: BRAKE1
+WEAK_ALIAS_FUNC(EPWM1_P0_IRQHandler, Default_Handler)   // 29: EPWM1P0
+WEAK_ALIAS_FUNC(EPWM1_P1_IRQHandler, Default_Handler)   // 30: EPWM1P1
+WEAK_ALIAS_FUNC(EPWM1_P2_IRQHandler, Default_Handler)   // 31: EPWM1P2
 WEAK_ALIAS_FUNC(TMR0_IRQHandler, Default_Handler)       // 32: Timer 0
 WEAK_ALIAS_FUNC(TMR1_IRQHandler, Default_Handler)       // 33: Timer 1
 WEAK_ALIAS_FUNC(TMR2_IRQHandler, Default_Handler)       // 34: Timer 2
@@ -152,14 +152,14 @@ WEAK_ALIAS_FUNC(UART0_IRQHandler, Default_Handler)      // 36: UART0
 WEAK_ALIAS_FUNC(UART1_IRQHandler, Default_Handler)      // 37: UART1
 WEAK_ALIAS_FUNC(I2C0_IRQHandler, Default_Handler)       // 38: I2C0
 WEAK_ALIAS_FUNC(I2C1_IRQHandler, Default_Handler)       // 39: I2C1
-WEAK_ALIAS_FUNC(PDMA0_IRQHandler, Default_Handler)      // 40: Peripheral DMA
+WEAK_ALIAS_FUNC(PDMA0_IRQHandler, Default_Handler)      // 40: Peripheral DMA 0
 WEAK_ALIAS_FUNC(DAC_IRQHandler, Default_Handler)        // 41: DAC
-WEAK_ALIAS_FUNC(EADC0_IRQHandler, Default_Handler)      // 42: ADC0 interrupt source 0
-WEAK_ALIAS_FUNC(EADC1_IRQHandler, Default_Handler)      // 43: ADC0 interrupt source 1
+WEAK_ALIAS_FUNC(EADC0_IRQHandler, Default_Handler)      // 42: EADC Source 0
+WEAK_ALIAS_FUNC(EADC1_IRQHandler, Default_Handler)      // 43: EADC Source 1
 WEAK_ALIAS_FUNC(ACMP01_IRQHandler, Default_Handler)     // 44: ACMP0 and ACMP1
                                                         // 45: Reserved
-WEAK_ALIAS_FUNC(EADC2_IRQHandler, Default_Handler)      // 46: ADC0 interrupt source 2
-WEAK_ALIAS_FUNC(EADC3_IRQHandler, Default_Handler)      // 47: ADC0 interrupt source 3
+WEAK_ALIAS_FUNC(EADC2_IRQHandler, Default_Handler)      // 46: EADC Source 2
+WEAK_ALIAS_FUNC(EADC3_IRQHandler, Default_Handler)      // 47: EADC Source 3
 WEAK_ALIAS_FUNC(UART2_IRQHandler, Default_Handler)      // 48: UART2
 WEAK_ALIAS_FUNC(UART3_IRQHandler, Default_Handler)      // 49: UART3
                                                         // 50: Reserved
@@ -199,10 +199,8 @@ WEAK_ALIAS_FUNC(ECAP0_IRQHandler, Default_Handler)      // 86:
 WEAK_ALIAS_FUNC(ECAP1_IRQHandler, Default_Handler)      // 87:
 WEAK_ALIAS_FUNC(GPH_IRQHandler, Default_Handler)        // 88:
 WEAK_ALIAS_FUNC(EINT7_IRQHandler, Default_Handler)      // 89:
-                                                        // 90~95: Reserved
-WEAK_ALIAS_FUNC(SPI5_IRQHandler, Default_Handler)       // 96:
-WEAK_ALIAS_FUNC(DSRC_IRQHandler, Default_Handler)       // 97:
-WEAK_ALIAS_FUNC(PDMA1_IRQHandler, Default_Handler)      // 98:
+                                                        // 90~97: Reserved
+WEAK_ALIAS_FUNC(PDMA1_IRQHandler, Default_Handler)      // 98: Peripheral DMA 1
                                                         // 99:                            
                                                         // 100:  Reserved
 WEAK_ALIAS_FUNC(TRNG_IRQHandler, Default_Handler)       // 101: 
@@ -280,13 +278,13 @@ const uint32_t __vector_handlers[] = {
     (uint32_t) QSPI0_IRQHandler,        // 22: QSPI0
     (uint32_t) SPI0_IRQHandler,         // 23: SPI0
     (uint32_t) BRAKE0_IRQHandler,       // 24: 
-    (uint32_t) EPWM0_P0_IRQHandler,      // 25: 
-    (uint32_t) EPWM0_P1_IRQHandler,       // 26: 
-    (uint32_t) EPWM0_P2_IRQHandler,       // 27: 
+    (uint32_t) EPWM0_P0_IRQHandler,     // 25: 
+    (uint32_t) EPWM0_P1_IRQHandler,     // 26: 
+    (uint32_t) EPWM0_P2_IRQHandler,     // 27: 
     (uint32_t) BRAKE1_IRQHandler,       // 28: 
-    (uint32_t) EPWM1_P0_IRQHandler,       // 29: 
-    (uint32_t) EPWM1_P1_IRQHandler,       // 30: 
-    (uint32_t) EPWM1_P2_IRQHandler,       // 31: 
+    (uint32_t) EPWM1_P0_IRQHandler,     // 29: 
+    (uint32_t) EPWM1_P1_IRQHandler,     // 30: 
+    (uint32_t) EPWM1_P2_IRQHandler,     // 31: 
     (uint32_t) TMR0_IRQHandler,         // 32: Timer 0
     (uint32_t) TMR1_IRQHandler,         // 33: Timer 1
     (uint32_t) TMR2_IRQHandler,         // 34: Timer 2
@@ -295,14 +293,14 @@ const uint32_t __vector_handlers[] = {
     (uint32_t) UART1_IRQHandler,        // 37: UART1
     (uint32_t) I2C0_IRQHandler,         // 38: I2C0
     (uint32_t) I2C1_IRQHandler,         // 39: I2C1
-    (uint32_t) PDMA0_IRQHandler,         // 40: Peripheral DMA
+    (uint32_t) PDMA0_IRQHandler,        // 40: Peripheral DMA 0
     (uint32_t) DAC_IRQHandler,          // 41: DAC
-    (uint32_t) EADC0_IRQHandler,        // 42: ADC0 interrupt source 0
-    (uint32_t) EADC1_IRQHandler,        // 43: ADC0 interrupt source 1
+    (uint32_t) EADC0_IRQHandler,        // 42: EADC source 0
+    (uint32_t) EADC1_IRQHandler,        // 43: EADC source 1
     (uint32_t) ACMP01_IRQHandler,       // 44: ACMP0 and ACMP1
     (uint32_t) Default_Handler,         // 45: Reserved
-    (uint32_t) EADC2_IRQHandler,        // 46: ADC0 interrupt source 2
-    (uint32_t) EADC3_IRQHandler,        // 47: ADC0 interrupt source 3
+    (uint32_t) EADC2_IRQHandler,        // 46: EADC source 2
+    (uint32_t) EADC3_IRQHandler,        // 47: EADC source 3
     (uint32_t) UART2_IRQHandler,        // 48: UART2
     (uint32_t) UART3_IRQHandler,        // 49: UART3
     (uint32_t) Default_Handler,         // 50: Reserved
@@ -351,9 +349,9 @@ const uint32_t __vector_handlers[] = {
     (uint32_t) Default_Handler,         // 93:
     (uint32_t) Default_Handler,         // 94:    
     (uint32_t) Default_Handler,         // 95:
-    (uint32_t) SPI5_IRQHandler,         // 96:    
-    (uint32_t) DSRC_IRQHandler,         // 97:
-    (uint32_t) PDMA1_IRQHandler,        // 98:    
+    (uint32_t) Default_Handler,         // 96:    
+    (uint32_t) Default_Handler,         // 97:
+    (uint32_t) PDMA1_IRQHandler,        // 98: Peripheral DMA 1
     (uint32_t) SCU_IRQHandler,          // 99:
     (uint32_t) Default_Handler,         // 100:    
     (uint32_t) TRNG_IRQHandler,         // 101:
