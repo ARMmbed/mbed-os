@@ -35,35 +35,35 @@ class SerialWireOutput : public FileHandle {
 
 public:
 
-    SerialWireOutput(void);
+    SerialWireOutput();
 
-    virtual ssize_t write(const void *buffer, size_t size);
+    ssize_t write(const void *buffer, size_t size) override;
 
-    virtual ssize_t read(void *buffer, size_t size)
+    ssize_t read(void *buffer, size_t size) override
     {
         /* Reading is not supported by this file handle */
         return -EBADF;
     }
 
-    virtual off_t seek(off_t offset, int whence = SEEK_SET)
+    off_t seek(off_t offset, int whence = SEEK_SET) override
     {
         /* Seeking is not support by this file handler */
         return -ESPIPE;
     }
 
-    virtual off_t size()
+    off_t size() override
     {
         /* Size is not defined for this file handle */
         return -EINVAL;
     }
 
-    virtual int isatty()
+    int isatty() override
     {
         /* File handle is used for terminal output */
         return true;
     }
 
-    virtual int close()
+    int close() override
     {
         return 0;
     }

@@ -85,7 +85,7 @@ public:
      *  @param size     The number of bytes to write
      *  @return         The number of bytes written
      */
-    virtual ssize_t write(const void *buffer, size_t size);
+    ssize_t write(const void *buffer, size_t size) override;
 
     /** Read the contents of a file into a buffer
      *
@@ -95,7 +95,7 @@ public:
      *  @param size     The number of bytes to read
      *  @return         The number of bytes read
      */
-    virtual ssize_t read(void *buffer, size_t size);
+    ssize_t read(void *buffer, size_t size) override;
 
     /** Move the file position to a given offset from from a given location
      *
@@ -109,7 +109,7 @@ public:
      *      SEEK_END to start from end of file
      *  @return         The new offset of the file, negative error code on failure
      */
-    virtual off_t seek(off_t offset, int whence = SEEK_SET)
+    off_t seek(off_t offset, int whence = SEEK_SET) override
     {
         return -ESPIPE;
     }
@@ -118,7 +118,7 @@ public:
      *
      *  @return         Size of the file in bytes
      */
-    virtual off_t size()
+    off_t size() override
     {
         return -EINVAL;
     }
@@ -129,7 +129,7 @@ public:
      *  @return         False if the file is not a terminal
      *  @return         Negative error code on failure
      */
-    virtual int isatty()
+    int isatty() override
     {
         return true;
     }
@@ -138,7 +138,7 @@ public:
      *
      *  @return         0 on success, negative error code on failure
      */
-    virtual int close()
+    int close() override
     {
         return 0;
     }
@@ -153,7 +153,7 @@ public:
      *
      * @returns             bitmask of poll events that have occurred.
      */
-    virtual short poll(short events) const;
+    short poll(short events) const override;
 
     using SerialBase::readable;
     using SerialBase::writeable;
