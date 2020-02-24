@@ -90,7 +90,7 @@ static int mac_sec_mib_frame_counter_key_buffer_allocate(protocol_interface_rf_m
     mlme_key_descriptor_t *key_descriptor_list = rf_mac_setup->key_description_table;
     uint32_t *frame_counter_pointer = rf_mac_setup->key_device_frame_counter_list_buffer;
     for (uint8_t i = 0; i < rf_mac_setup->key_description_table_size; i++) {
-        key_descriptor_list->KeyDeviceFrameCouterList = frame_counter_pointer;
+        key_descriptor_list->KeyDeviceFrameCounterList = frame_counter_pointer;
         key_descriptor_list->KeyFrameCounterPerKey = true;
         key_descriptor_list->KeyFrameCounter = 0;
         //Update Pointers
@@ -105,7 +105,7 @@ static void mac_sec_mib_frame_counter_key_buffer_free(protocol_interface_rf_mac_
 {
     mlme_key_descriptor_t *key_descriptor_list = rf_mac_setup->key_description_table;
     for (uint8_t i = 0; i < rf_mac_setup->key_description_table_size; i++) {
-        key_descriptor_list->KeyDeviceFrameCouterList = NULL;
+        key_descriptor_list->KeyDeviceFrameCounterList = NULL;
         key_descriptor_list->KeyFrameCounterPerKey = false;
         //Update Pointers
         key_descriptor_list++;
@@ -349,7 +349,7 @@ int8_t mac_sec_mib_key_description_set(uint8_t atribute_index, mlme_key_descript
         key_ptr->KeyFrameCounter = 0;
         if (key_ptr->KeyDeviceListEntries == 0) {
             //Clear all frame counters from old possible user's
-            uint32_t *counter_ptr = key_ptr->KeyDeviceFrameCouterList;
+            uint32_t *counter_ptr = key_ptr->KeyDeviceFrameCounterList;
             for (int i = 0; i < rf_mac_setup->device_description_table_size; i++) {
                 *counter_ptr++ = 0;
             }
@@ -594,7 +594,7 @@ void mac_sec_mib_key_outgoing_frame_counter_decrement(struct protocol_interface_
 void mac_sec_mib_key_device_frame_counter_set(mlme_key_descriptor_t *key_descpription_table, mlme_device_descriptor_t *device_info, uint32_t frame_counter, uint8_t attribute_index)
 {
     if (key_descpription_table->KeyFrameCounterPerKey) {
-        uint32_t *counter_ptr = key_descpription_table->KeyDeviceFrameCouterList + attribute_index;
+        uint32_t *counter_ptr = key_descpription_table->KeyDeviceFrameCounterList + attribute_index;
         *counter_ptr = frame_counter;
     } else {
         device_info->FrameCounter = frame_counter;
@@ -604,7 +604,7 @@ void mac_sec_mib_key_device_frame_counter_set(mlme_key_descriptor_t *key_descpri
 uint32_t mac_mib_key_device_frame_counter_get(mlme_key_descriptor_t *key_descpription_table, mlme_device_descriptor_t *device_info, uint8_t attribute_index)
 {
     if (key_descpription_table->KeyFrameCounterPerKey) {
-        uint32_t *counter_ptr = key_descpription_table->KeyDeviceFrameCouterList + attribute_index;
+        uint32_t *counter_ptr = key_descpription_table->KeyDeviceFrameCounterList + attribute_index;
         return *counter_ptr;
     }
     return device_info->FrameCounter;
