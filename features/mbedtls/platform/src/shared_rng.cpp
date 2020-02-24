@@ -24,6 +24,8 @@
 
 #include "mbed_trace.h"
 
+#define TRACE_GROUP "SRNG"
+
 mbedtls_hmac_drbg_context global_hmac_drbg;
 mbedtls_entropy_context global_entropy;
 static bool is_initialized = false;
