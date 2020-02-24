@@ -76,6 +76,7 @@ matrix:
         - python ./tools/test/travis-ci/scancode-evaluate.py -f scancode.json || true
       after_success:
         - python ./tools/test/travis-ci/scancode-evaluate.py -f scancode.json
+        - cat scancode-evaluate.log
         - retval=$?
         - |
           if [ $retval == 0 ]; then
