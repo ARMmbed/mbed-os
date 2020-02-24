@@ -13514,7 +13514,7 @@
         ],
         "public": false
     },
-    "CY8CMOD_062_4343W": {
+    "CY8CPROTO_062_4343W": {
         "inherits": [
             "MCU_PSOC6_M4"
         ],
@@ -13538,12 +13538,21 @@
             "CY8C624ABZI_D44",
             "CYBSP_WIFI_CAPABLE"
         ],
-        "public": false,
+        "detect_code": [
+            "1901"
+        ],
+        "bootloader_supported": false,
+        "sectors": [
+            [
+                268435456,
+                512
+            ]
+        ],
         "overrides": {
             "network-default-interface-type": "WIFI"
         }
     },
-    "CY8CMOD_062S2_43012": {
+    "CY8CKIT_062S2_43012": {
         "inherits": [
             "MCU_PSOC6_M4"
         ],
@@ -13554,6 +13563,9 @@
             "WHD",
             "43012",
             "CYW43XXX"
+        ],
+        "supported_form_factors": [
+            "ARDUINO"
         ],
         "device_has_remove": [
             "ANALOGOUT"
@@ -13567,12 +13579,14 @@
             "CY8C624ABZI_D44",
             "CYBSP_WIFI_CAPABLE"
         ],
-        "public": false,
+        "detect_code": [
+            "190B"
+        ],
         "overrides": {
             "network-default-interface-type": "WIFI"
         }
     },
-    "CY8CMOD_062S3_4343W": {
+    "CY8CPROTO_062S3_4343W": {
         "inherits": [
             "MCU_PSOC6_M4"
         ],
@@ -13598,7 +13612,9 @@
             "CY_ENABLE_XIP_PROGRAM",
             "CY_STORAGE_WIFI_DATA=\".cy_xip\""
         ],
-        "public": false,
+        "detect_code": [
+            "190E"
+        ],
         "overrides": {
             "network-default-interface-type": "WIFI",
             "xip-enable": true
@@ -13675,9 +13691,6 @@
         "detect_code": [
             "1900"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "bootloader_supported": false,
         "sectors": [
             [
@@ -13689,49 +13702,6 @@
             "network-default-interface-type": "WIFI"
         },
         "program_cycle_s": 10
-    },
-    "CY8CPROTO_062_4343W": {
-        "inherits": [
-            "CY8CMOD_062_4343W"
-        ],
-        "detect_code": [
-            "1901"
-        ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
-        "bootloader_supported": false,
-        "sectors": [
-            [
-                268435456,
-                512
-            ]
-        ]
-    },
-    "CY8CPROTO_062S3_4343W": {
-        "inherits": [
-            "CY8CMOD_062S3_4343W"
-        ],
-        "detect_code": [
-            "190E"
-        ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        }
-    },
-    "CY8CKIT_062S2_43012": {
-        "inherits": [
-            "CY8CMOD_062S2_43012"
-        ],
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "detect_code": [
-            "190B"
-        ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        }
     },
     "CY8CKIT_062_BLE": {
         "inherits": [
@@ -13753,9 +13723,6 @@
         "detect_code": [
             "1902"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "sectors": [
             [
                 268443648,
@@ -13785,9 +13752,6 @@
         "detect_code": [
             "1904"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "sectors": [
             [
                 268443648,
@@ -13854,9 +13818,6 @@
         "detect_code": [
             "1900"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "bootloader_supported": false,
         "sectors": [
             [
@@ -13894,9 +13855,6 @@
         "detect_code": [
             "1906"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "overrides": {
             "network-default-interface-type": "WIFI"
         }
@@ -13936,9 +13894,6 @@
         "detect_code": [
             "1903"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "overrides": {
             "network-default-interface-type": "WIFI"
         }
