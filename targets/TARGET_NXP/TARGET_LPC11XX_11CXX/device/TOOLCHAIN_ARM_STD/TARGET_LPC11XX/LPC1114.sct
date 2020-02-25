@@ -20,4 +20,3 @@ LR_IROM1 0x00000000 0x8000  {    ; load region size_region (32k)
   ARM_LIB_STACK (0x100000C0+0xF40) EMPTY -Stack_Size { ; stack
   }
 }
-

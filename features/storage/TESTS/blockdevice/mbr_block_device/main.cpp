@@ -24,6 +24,11 @@
 
 using namespace utest::v1;
 
+// TODO HACK, replace with available ram/heap property
+#if defined(TARGET_LPC1114)
+#error [NOT_SUPPORTED] Insufficient heap for heap block device tests
+#else
+
 #define BLOCK_COUNT 16
 #define BLOCK_SIZE 512
 

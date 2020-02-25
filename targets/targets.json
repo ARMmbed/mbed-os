@@ -266,7 +266,7 @@
             "LPCTarget"
         ],
         "core": "Cortex-M0",
-        "default_toolchain": "uARM",
+        "default_toolchain": "ARM",
         "extra_labels": [
             "NXP",
             "LPC11XX_11CXX",
@@ -278,7 +278,6 @@
         ],
         "supported_toolchains": [
             "ARM",
-            "uARM",
             "GCC_ARM",
             "IAR"
         ],
@@ -295,11 +294,27 @@
             "SLEEP",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES"
+            "STDIO_MESSAGES",
+            "USTICKER"
         ],
-        "default_lib": "small",
+        "overrides": {
+            "tickless-from-us-ticker": true,
+            "boot-stack-size": "0x300"
+        },
+        "supported_c_libs": {
+            "arm": [
+                "std", "small"
+            ],
+            "gcc_arm": [
+                "std", "small"
+            ],
+            "iar": [
+                "std"
+            ]
+        },
+        "c_lib": "small",
         "release_versions": [
-            "2"
+            "2", "5"
         ],
         "device_name": "LPC1114FN28/102",
         "detect_code": [
