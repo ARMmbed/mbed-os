@@ -67,7 +67,7 @@ TEST_F(TestUDPSocket, sendto_addr_port)
     const SocketAddress a("127.0.0.1", 1024);
     EXPECT_EQ(socket->sendto(a, 0, 0), NSAPI_ERROR_NO_SOCKET);
 
-    socket->open((NetworkStack *)&stack);
+    socket->open(&stack);
 
     stack.return_value = NSAPI_ERROR_PARAMETER;
     EXPECT_EQ(socket->sendto(a, 0, 0), NSAPI_ERROR_PARAMETER);
@@ -85,7 +85,7 @@ TEST_F(TestUDPSocket, connect)
     const nsapi_addr_t addr = {NSAPI_IPv4, {127, 0, 0, 1} };
     const SocketAddress a(addr, 1024);
 
-    socket->open((NetworkStack *)&stack);
+    socket->open(&stack);
     EXPECT_EQ(socket->send(dataBuf, dataSize), NSAPI_ERROR_NO_ADDRESS);
 
     EXPECT_EQ(socket->connect(a), NSAPI_ERROR_OK);
@@ -99,7 +99,7 @@ TEST_F(TestUDPSocket, sendto_timeout)
     const nsapi_addr_t saddr = {NSAPI_IPv4, {127, 0, 0, 1} };
     const SocketAddress addr(saddr, 1024);
 
-    socket->open((NetworkStack *)&stack);
+    socket->open(&stack);
 
     stack.return_value = NSAPI_ERROR_WOULD_BLOCK;
     eventFlagsStubNextRetval.push_back(0);
@@ -116,7 +116,7 @@ TEST_F(TestUDPSocket, recv)
 {
     EXPECT_EQ(socket->recv(&dataBuf, dataSize), NSAPI_ERROR_NO_SOCKET);
 
-    socket->open((NetworkStack *)&stack);
+    socket->open(&stack);
 
     stack.return_value = 100;
     EXPECT_EQ(socket->recv(&dataBuf, dataSize), 100);
@@ -129,7 +129,7 @@ TEST_F(TestUDPSocket, recv)
 
 TEST_F(TestUDPSocket, recv_address_filtering)
 {
-    socket->open((NetworkStack *)&stack);
+    socket->open(&stack);
     const nsapi_addr_t addr1 = {NSAPI_IPv4, {127, 0, 0, 1} };
     const nsapi_addr_t addr2 = {NSAPI_IPv4, {127, 0, 0, 2} };
     SocketAddress a1(addr1, 1024);

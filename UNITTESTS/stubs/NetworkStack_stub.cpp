@@ -65,7 +65,7 @@ nsapi_error_t NetworkStack::getsockopt(void *handle, int level, int optname, voi
 // Conversion function for network stacks
 NetworkStack *nsapi_create_stack(nsapi_stack_t *stack)
 {
-    return reinterpret_cast<NetworkStack *>(stack);
+    return nullptr;
 }
 
 nsapi_value_or_error_t NetworkStack::gethostbyname_async(const char *host, hostbyname_cb_t callback, nsapi_version_t version,

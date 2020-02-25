@@ -111,7 +111,7 @@ TEST_F(TestDTLSSocketWrapper, constructor_hostname)
 
 TEST_F(TestDTLSSocketWrapper, connect)
 {
-    transport->open((NetworkStack *)&stack);
+    transport->open(&stack);
     const SocketAddress a("127.0.0.1", 1024);
     stack.return_socketAddress = a;
     EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_OK);
@@ -129,7 +129,7 @@ TEST_F(TestDTLSSocketWrapper, connect_no_open)
 
 TEST_F(TestDTLSSocketWrapper, connect_handshake_fail_ssl_handshake)
 {
-    transport->open((NetworkStack *)&stack);
+    transport->open(&stack);
     mbedtls_stub.useCounter = true;
     mbedtls_stub.retArray[1] = -1; // mbedtls_ssl_handshake error
     const SocketAddress a("127.0.0.1", 1024);
@@ -139,7 +139,7 @@ TEST_F(TestDTLSSocketWrapper, connect_handshake_fail_ssl_handshake)
 
 TEST_F(TestDTLSSocketWrapper, connect_handshake_fail_ssl_handshake_in_progress)
 {
-    EXPECT_EQ(transport->open((NetworkStack *)&stack), NSAPI_ERROR_OK);
+    EXPECT_EQ(transport->open(&stack), NSAPI_ERROR_OK);
     mbedtls_stub.useCounter = true;
     wrapper->set_timeout(1);
     eventFlagsStubNextRetval.push_back(osFlagsError); // Break the wait loop
@@ -151,7 +151,7 @@ TEST_F(TestDTLSSocketWrapper, connect_handshake_fail_ssl_handshake_in_progress)
 
 TEST_F(TestDTLSSocketWrapper, connect_handshake_fail_ssl_get_verify_result)
 {
-    transport->open((NetworkStack *)&stack);
+    transport->open(&stack);
     mbedtls_stub.uint32_value = 1; // mbedtls_ssl_get_verify_result error
     const SocketAddress a("127.0.0.1", 1024);
     stack.return_socketAddress = a;
@@ -160,7 +160,7 @@ TEST_F(TestDTLSSocketWrapper, connect_handshake_fail_ssl_get_verify_result)
 
 TEST_F(TestDTLSSocketWrapper, connect_fail_ctr_drbg_seed)
 {
-    transport->open((NetworkStack *)&stack);
+    transport->open(&stack);
     mbedtls_stub.crt_expected_int = 1; // mbedtls_ctr_drbg_seed error
     stack.return_value = NSAPI_ERROR_OK;
     const SocketAddress a("127.0.0.1", 1024);
@@ -171,7 +171,7 @@ TEST_F(TestDTLSSocketWrapper, connect_fail_ctr_drbg_seed)
 
 TEST_F(TestDTLSSocketWrapper, connect_fail_ssl_setup)
 {
-    transport->open((NetworkStack *)&stack);
+    transport->open(&stack);
     mbedtls_stub.useCounter = true;
     mbedtls_stub.retArray[0] = 2; // mbedtls_ssl_setup           error
     stack.return_value = NSAPI_ERROR_OK;
@@ -192,7 +192,7 @@ TEST_F(TestDTLSSocketWrapper, send_in_one_chunk)
 {
     mbedtls_stub.useCounter = true;
     mbedtls_stub.retArray[2] = dataSize; // mbedtls_ssl_write
-    transport->open((NetworkStack *)&stack);
+    transport->open(&stack);
     const SocketAddress a("127.0.0.1", 1024);
     stack.return_socketAddress = a;
     EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_OK);
@@ -203,7 +203,7 @@ TEST_F(TestDTLSSocketWrapper, send_in_two_chunks)
 {
     mbedtls_stub.useCounter = true;
     mbedtls_stub.retArray[2] = dataSize; // mbedtls_ssl_write
-    transport->open((NetworkStack *)&stack);
+    transport->open(&stack);
     const SocketAddress a("127.0.0.1", 1024);
     stack.return_socketAddress = a;
     EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_OK);
@@ -212,7 +212,7 @@ TEST_F(TestDTLSSocketWrapper, send_in_two_chunks)
 
 TEST_F(TestDTLSSocketWrapper, send_error_would_block)
 {
-    transport->open((NetworkStack *)&stack);
+    transport->open(&stack);
     mbedtls_stub.useCounter = true;
     mbedtls_stub.retArray[2] = MBEDTLS_ERR_SSL_WANT_WRITE; // mbedtls_ssl_write
     eventFlagsStubNextRetval.push_back(osFlagsError); // Break the wait loop
@@ -224,7 +224,7 @@ TEST_F(TestDTLSSocketWrapper, send_error_would_block)
 
 TEST_F(TestDTLSSocketWrapper, send_to)
 {
-    transport->open((NetworkStack *)&stack);
+    transport->open(&stack);
     mbedtls_stub.useCounter = true;
 
     mbedtls_stub.retArray[2] = dataSize; // mbedtls_ssl_write
@@ -244,7 +244,7 @@ TEST_F(TestDTLSSocketWrapper, recv_no_open)
 
 TEST_F(TestDTLSSocketWrapper, recv_all_data)
 {
-    transport->open((NetworkStack *)&stack);
+    transport->open(&stack);
     mbedtls_stub.useCounter = true;
     mbedtls_stub.retArray[2] = dataSize; // mbedtls_ssl_write
     const SocketAddress a("127.0.0.1", 1024);
@@ -255,7 +255,7 @@ TEST_F(TestDTLSSocketWrapper, recv_all_data)
 
 TEST_F(TestDTLSSocketWrapper, recv_less_than_expected)
 {
-    transport->open((NetworkStack *)&stack);
+    transport->open(&stack);
     unsigned int lessThanDataSize = dataSize - 1;
     mbedtls_stub.useCounter = true;
     mbedtls_stub.retArray[2] = lessThanDataSize; // mbedtls_ssl_write
@@ -267,7 +267,7 @@ TEST_F(TestDTLSSocketWrapper, recv_less_than_expected)
 
 TEST_F(TestDTLSSocketWrapper, recv_would_block)
 {
-    transport->open((NetworkStack *)&stack);
+    transport->open(&stack);
     mbedtls_stub.useCounter = true;
     mbedtls_stub.retArray[2] = MBEDTLS_ERR_SSL_WANT_WRITE; // mbedtls_ssl_write
     const SocketAddress a("127.0.0.1", 1024);
@@ -286,7 +286,7 @@ TEST_F(TestDTLSSocketWrapper, recv_from_no_socket)
 TEST_F(TestDTLSSocketWrapper, recv_from)
 {
     SocketAddress a("127.0.0.1", 1024);
-    EXPECT_EQ(transport->open((NetworkStack *)&stack), NSAPI_ERROR_OK);
+    EXPECT_EQ(transport->open(&stack), NSAPI_ERROR_OK);
     stack.return_socketAddress = a;
     EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_OK);
     SocketAddress b;
@@ -296,7 +296,7 @@ TEST_F(TestDTLSSocketWrapper, recv_from)
 TEST_F(TestDTLSSocketWrapper, recv_from_null)
 {
     SocketAddress a("127.0.0.1", 1024);
-    EXPECT_EQ(transport->open((NetworkStack *)&stack), NSAPI_ERROR_OK);
+    EXPECT_EQ(transport->open(&stack), NSAPI_ERROR_OK);
     stack.return_socketAddress = a;
     EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_OK);
     EXPECT_EQ(wrapper->recvfrom(NULL, dataBuf, dataSize), NSAPI_ERROR_OK);
@@ -307,20 +307,20 @@ TEST_F(TestDTLSSocketWrapper, recv_from_null)
 TEST_F(TestDTLSSocketWrapper, set_root_ca_cert)
 {
     EXPECT_EQ(wrapper->get_ca_chain(), static_cast<mbedtls_x509_crt *>(NULL));
-    EXPECT_EQ(transport->open((NetworkStack *)&stack), NSAPI_ERROR_OK);
+    EXPECT_EQ(transport->open(&stack), NSAPI_ERROR_OK);
     EXPECT_EQ(wrapper->set_root_ca_cert(cert, strlen(cert)), NSAPI_ERROR_OK);
     EXPECT_NE(wrapper->get_ca_chain(), static_cast<mbedtls_x509_crt *>(NULL));
 }
 
 TEST_F(TestDTLSSocketWrapper, set_root_ca_cert_nolen)
 {
-    EXPECT_EQ(transport->open((NetworkStack *)&stack), NSAPI_ERROR_OK);
+    EXPECT_EQ(transport->open(&stack), NSAPI_ERROR_OK);
     EXPECT_EQ(wrapper->set_root_ca_cert(cert), NSAPI_ERROR_OK);
 }
 
 TEST_F(TestDTLSSocketWrapper, set_root_ca_cert_invalid)
 {
-    EXPECT_EQ(transport->open((NetworkStack *)&stack), NSAPI_ERROR_OK);
+    EXPECT_EQ(transport->open(&stack), NSAPI_ERROR_OK);
     mbedtls_stub.useCounter = true;
     mbedtls_stub.counter = 0;
     mbedtls_stub.retArray[0] = 1; // mbedtls_x509_crt_parse error
@@ -332,14 +332,14 @@ TEST_F(TestDTLSSocketWrapper, set_root_ca_cert_invalid)
 TEST_F(TestDTLSSocketWrapper, set_client_cert_key)
 {
     EXPECT_EQ(wrapper->get_own_cert(), static_cast<mbedtls_x509_crt *>(NULL));
-    EXPECT_EQ(transport->open((NetworkStack *)&stack), NSAPI_ERROR_OK);
+    EXPECT_EQ(transport->open(&stack), NSAPI_ERROR_OK);
     EXPECT_EQ(wrapper->set_client_cert_key(cert, cert), NSAPI_ERROR_OK);
     EXPECT_NE(wrapper->get_own_cert(), static_cast<mbedtls_x509_crt *>(NULL));
 }
 
 TEST_F(TestDTLSSocketWrapper, set_client_cert_key_invalid)
 {
-    EXPECT_EQ(transport->open((NetworkStack *)&stack), NSAPI_ERROR_OK);
+    EXPECT_EQ(transport->open(&stack), NSAPI_ERROR_OK);
     mbedtls_stub.useCounter = true;
     mbedtls_stub.retArray[0] = 1; // mbedtls_x509_crt_parse error
     EXPECT_EQ(wrapper->set_client_cert_key(cert, cert), NSAPI_ERROR_PARAMETER);
@@ -347,7 +347,7 @@ TEST_F(TestDTLSSocketWrapper, set_client_cert_key_invalid)
 
 TEST_F(TestDTLSSocketWrapper, set_client_cert_key_invalid_pem)
 {
-    EXPECT_EQ(transport->open((NetworkStack *)&stack), NSAPI_ERROR_OK);
+    EXPECT_EQ(transport->open(&stack), NSAPI_ERROR_OK);
     mbedtls_stub.useCounter = true;
     mbedtls_stub.retArray[0] = 0; // mbedtls_x509_crt_parse ok
     mbedtls_stub.retArray[1] = 1; // mbedtls_pk_parse_key error
@@ -356,7 +356,7 @@ TEST_F(TestDTLSSocketWrapper, set_client_cert_key_invalid_pem)
 
 TEST_F(TestDTLSSocketWrapper, bind)
 {
-    transport->open((NetworkStack *)&stack);
+    transport->open(&stack);
     SocketAddress a("127.0.0.1", 1024);
     EXPECT_EQ(wrapper->bind(a), NSAPI_ERROR_OK);
 }
@@ -369,7 +369,7 @@ TEST_F(TestDTLSSocketWrapper, bind_no_open)
 
 TEST_F(TestDTLSSocketWrapper, sigio)
 {
-    transport->open((NetworkStack *)&stack);
+    transport->open(&stack);
     callback_is_called = false;
     wrapper->sigio(mbed::callback(my_callback));
     SocketAddress a("127.0.0.1", 1024);
@@ -379,7 +379,7 @@ TEST_F(TestDTLSSocketWrapper, sigio)
 
 TEST_F(TestDTLSSocketWrapper, setsockopt)
 {
-    transport->open((NetworkStack *)&stack);
+    transport->open(&stack);
     EXPECT_EQ(wrapper->setsockopt(0, 0, 0, 0), NSAPI_ERROR_UNSUPPORTED);
 }
 
@@ -390,7 +390,7 @@ TEST_F(TestDTLSSocketWrapper, getsockopt_no_stack)
 
 TEST_F(TestDTLSSocketWrapper, getsockopt)
 {
-    transport->open((NetworkStack *)&stack);
+    transport->open(&stack);
     EXPECT_EQ(wrapper->getsockopt(0, 0, 0, 0), NSAPI_ERROR_UNSUPPORTED);
 }
 
