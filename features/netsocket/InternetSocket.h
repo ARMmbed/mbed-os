@@ -86,6 +86,35 @@ public:
      */
     int leave_multicast_group(const SocketAddress &address);
 
+    /** Get estimated round trip time to destination address.
+     *
+     * Use estimated round trip time to adjust application retry timers to work in networks
+     * that have low data rate and high latency.
+     *
+     * @param address   Destination address to use in rtt estimate.
+     * @param rtt_estimate   Returned round trip time value in milliseconds.
+     *  @return         NSAPI_ERROR_OK on success.
+     *  @return         NSAPI_ERROR_PARAMETER if the provided pointer is invalid.
+     *  @return         negative error code on other failures (@see InternetSocket::getsockopt).
+     */
+    int get_rtt_estimate_to_address(const SocketAddress &address, uint32_t *rtt_estimate);
+
+    /** Get estimated stagger value.
+     *
+     * Stagger value is a time that application should wait before using heavy network operations after connecting to network.
+     * Purpose of staggering is to avoid network congestion that may happen in low bandwith networks if multiple
+     * applications simultaneously start heavy network usage after joining to the network.
+     *
+     * @param address       Destination added used to estimate stagger value.
+     * @param data_amount   Amount of bytes to transfer in kilobytes.
+     * @param stagger_min   Minimum stagger value in seconds.
+     * @param stagger_max   Maximum stagger value in seconds.
+     * @param stagger_rand  Randomized stagger value between stagger_min and stagger_max in seconds.
+     * @return              NSAPI_ERROR_OK on success.
+     * @return              negative error code on other failures (@see InternetSocket::getsockopt).
+     */
+    int get_stagger_estimate_to_address(const SocketAddress &address, uint16_t data_amount, uint16_t *stagger_min, uint16_t *stagger_max, uint16_t *stagger_rand);
+
     /** Bind the socket to a port on which to receive data.
      *
      *  @param port     Local port to bind.
