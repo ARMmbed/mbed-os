@@ -93,7 +93,7 @@ public:
          */
         virtual char *get_mac_address(char *buf, nsapi_size_t buflen);
 
-        /** @copydoc NetworkStack::get_ip_address */
+        /** @copydoc OnboardNetworkStack::Interface::get_ip_address */
         virtual nsapi_error_t get_ip_address(SocketAddress *address);
 
         /** Get the IPv6 link local address in SocketAddress representation
@@ -304,19 +304,10 @@ public:
      */
     virtual nsapi_error_t add_dns_server(const SocketAddress &address, const char *interface_name);
 
-    /** Get the local IP address
-     *
-     *  @return         Null-terminated representation of the local IP address
-     *                  or null if not yet connected
-     */
-    virtual const char *get_ip_address();
+    /** @copydoc NetworkStack::get_ip_address */
+    virtual nsapi_error_t get_ip_address(SocketAddress *address);
 
-    /** Copies IP address of the name based network interface to user supplied buffer
-     *
-     * @param    address        SocketAddress object pointer to store the address
-     * @param    interface_name name of the interface
-     * @return                  Pointer to a buffer, or NULL if the buffer is too small
-     */
+    /** @copydoc NetworkStack::get_ip_address_if */
     virtual nsapi_error_t get_ip_address_if(SocketAddress *address, const char *interface_name);
 
     /** Set the network interface as default one
