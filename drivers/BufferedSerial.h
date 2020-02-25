@@ -80,14 +80,14 @@ public:
         int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE
     );
 
-    virtual ~BufferedSerial();
+    ~BufferedSerial() override;
 
     /** Equivalent to POSIX poll(). Derived from FileHandle.
      *  Provides a mechanism to multiplex input/output over a set of file
      *  handles.
      *  The events that can be reported are POLLIN, POLLOUT, POLLHUP.
      */
-    virtual short poll(short events) const;
+    short poll(short events) const final;
 
     /* Resolve ambiguities versus our private SerialBase
      * (for writable, spelling differs, but just in case)
@@ -107,7 +107,7 @@ public:
      *  @param length   The number of bytes to write
      *  @return         The number of bytes written, negative error on failure
      */
-    virtual ssize_t write(const void *buffer, size_t length);
+    ssize_t write(const void *buffer, size_t length) override;
 
     /** Read the contents of a file into a buffer
      *
@@ -123,13 +123,13 @@ public:
      *  @return         The number of bytes read, 0 at end of file, negative
      *                  error on failure
      */
-    virtual ssize_t read(void *buffer, size_t length);
+    ssize_t read(void *buffer, size_t length) override;
 
     /** Close a file
      *
      *  @return         0 on success, negative error code on failure
      */
-    virtual int close();
+    int close() override;
 
     /** Check if the file in an interactive terminal device
      *
@@ -137,7 +137,7 @@ public:
      *  @return         False if the file is not a terminal
      *  @return         Negative error code on failure
      */
-    virtual int isatty();
+    int isatty() override;
 
     /** Move the file position to a given offset from from a given location
      *
@@ -152,20 +152,20 @@ public:
      *  @return         The new offset of the file, negative error code on
      *                  failure
      */
-    virtual off_t seek(off_t offset, int whence);
+    off_t seek(off_t offset, int whence) override;
 
     /** Flush any buffers associated with the file
      *
      *  @return         0 on success, negative error code on failure
      */
-    virtual int sync();
+    int sync() override;
 
     /** Set blocking or non-blocking mode
      *  The default is blocking.
      *
      *  @param blocking true for blocking mode, false for non-blocking mode.
      */
-    virtual int set_blocking(bool blocking)
+    int set_blocking(bool blocking) override
     {
         _blocking = blocking;
         return 0;
@@ -175,7 +175,7 @@ public:
      *
      *  @return true for blocking mode, false for non-blocking mode.
      */
-    virtual bool is_blocking() const
+    bool is_blocking() const override
     {
         return _blocking;
     }
@@ -193,7 +193,7 @@ public:
      *  @return             0 on success
      *  @return             Negative error code on failure
      */
-    virtual int enable_input(bool enabled);
+    int enable_input(bool enabled) override;
 
     /** Enable or disable output
      *
@@ -208,7 +208,7 @@ public:
      *  @return             0 on success
      *  @return             Negative error code on failure
      */
-    virtual int enable_output(bool enabled);
+    int enable_output(bool enabled) override;
 
     /** Register a callback on state change of the file.
      *
@@ -227,7 +227,7 @@ public:
      *
      *  @param func     Function to call on state change
      */
-    virtual void sigio(Callback<void()> func);
+    void sigio(Callback<void()> func) override;
 
     /** Setup interrupt handler for DCD line
      *
@@ -288,11 +288,11 @@ private:
 
     /** Acquire mutex
      */
-    virtual void api_lock(void);
+    void api_lock(void);
 
     /** Release mutex
      */
-    virtual void api_unlock(void);
+    void api_unlock(void);
 
     /** Unbuffered write - invoked when write called from critical section
      *  @param buf_ptr   The buffer to write from
