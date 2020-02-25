@@ -87,6 +87,7 @@
 #include "drivers/LowPowerTimeout.h"
 #include "drivers/LowPowerTicker.h"
 #include "drivers/LowPowerTimer.h"
+#include "drivers/RealTimeClock.h"
 #include "platform/LocalFileSystem.h"
 #include "drivers/InterruptIn.h"
 #include "platform/mbed_wait_api.h"

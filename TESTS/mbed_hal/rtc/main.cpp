@@ -25,23 +25,20 @@
 #include "rtc_test.h"
 
 #include "mbed.h"
+#include "drivers/RealTimeClock.h"
 #include "rtc_api.h"
 
 using namespace utest::v1;
+using namespace std::chrono;
 
-static const uint32_t WAIT_TIME = 4;
-static const uint32_t WAIT_TOLERANCE = 1;
-
-#define US_PER_SEC 1000000
-#define ACCURACY_FACTOR 10
-
-static const uint32_t DELAY_4S = 4;
-static const uint32_t DELAY_10S = 10;
-static const uint32_t RTC_TOLERANCE = 1;
-static const uint32_t TOLERANCE_ACCURACY_US = (DELAY_10S *US_PER_SEC / ACCURACY_FACTOR);
+static constexpr auto WAIT_TIME = 4s;
+static constexpr auto WAIT_TOLERANCE = 1s;
 
 #if DEVICE_LPTICKER
-volatile bool expired;
+mstd::atomic_bool expired;
+
+#define TEST_ASSERT_DURATION_WITHIN(delta, expected, actual) \
+    TEST_ASSERT_INT64_WITHIN(microseconds(delta).count(), microseconds(expected).count(), microseconds(actual).count())
 
 void set_flag_true(void)
 {
@@ -53,7 +50,7 @@ void set_flag_true(void)
 void rtc_sleep_test_support(bool deepsleep_mode)
 {
     LowPowerTimeout timeout;
-    const uint32_t start = 100;
+    const auto start = RealTimeClock::time_point(100s);
     expired = false;
 
     /*
@@ -63,17 +60,17 @@ void rtc_sleep_test_support(bool deepsleep_mode)
      * hardware buffers are empty. However, such an API does not exist now,
      * so we'll use the wait_ms() function for now.
      */
-    wait_ms(10);
+    ThisThread::sleep_for(10ms);
 
-    rtc_init();
+    RealTimeClock::init();
 
     if (deepsleep_mode == false) {
         sleep_manager_lock_deep_sleep();
     }
 
-    rtc_write(start);
+    RealTimeClock::write(start);
 
-    timeout.attach(set_flag_true, DELAY_4S);
+    timeout.attach(set_flag_true, 4s);
 
     TEST_ASSERT(sleep_manager_can_deep_sleep_test_check() == deepsleep_mode);
 
@@ -81,9 +78,9 @@ void rtc_sleep_test_support(bool deepsleep_mode)
         sleep();
     }
 
-    const uint32_t stop = rtc_read();
+    const auto stop = RealTimeClock::now();
 
-    TEST_ASSERT_UINT32_WITHIN(RTC_TOLERANCE, DELAY_4S, stop - start);
+    TEST_ASSERT_DURATION_WITHIN(1s, 4s, stop - start);
 
     timeout.detach();
 
@@ -91,7 +88,7 @@ void rtc_sleep_test_support(bool deepsleep_mode)
         sleep_manager_unlock_deep_sleep();
     }
 
-    rtc_free();
+    RealTimeClock::free();
 }
 #endif
 
@@ -99,10 +96,10 @@ void rtc_sleep_test_support(bool deepsleep_mode)
 void rtc_init_test()
 {
     for (int i = 0; i < 10; i++) {
-        rtc_init();
+        RealTimeClock::init();
     }
 
-    rtc_free();
+    RealTimeClock::free();
 }
 
 #if DEVICE_LPTICKER
@@ -121,58 +118,57 @@ void rtc_sleep_test()
 /* Test that the RTC keeps counting even after ::rtc_free has been called. */
 void rtc_persist_test()
 {
-    const uint32_t start = 100;
-    rtc_init();
-    rtc_write(start);
-    rtc_free();
+    const auto start = RealTimeClock::time_point(100s);
+    RealTimeClock::init();
+    RealTimeClock::write(start);
+    RealTimeClock::free();
 
-    ThisThread::sleep_for(WAIT_TIME * 1000);
+    ThisThread::sleep_for(WAIT_TIME);
 
-    rtc_init();
-    const uint32_t stop = rtc_read();
-    const int enabled = rtc_isenabled();
-    rtc_free();
+    RealTimeClock::init();
+    const auto stop = RealTimeClock::now();
+    const bool enabled = RealTimeClock::isenabled();
+    RealTimeClock::free();
 
     TEST_ASSERT_TRUE(enabled);
-    TEST_ASSERT_UINT32_WITHIN(WAIT_TOLERANCE, WAIT_TIME, stop - start);
+    TEST_ASSERT_DURATION_WITHIN(WAIT_TOLERANCE, WAIT_TIME, stop - start);
 }
 
 /* Test time does not glitch backwards due to an incorrectly implemented ripple counter driver. */
 void rtc_glitch_test()
 {
-    const uint32_t start = 0xffffe;
-    rtc_init();
+    const auto start = RealTimeClock::time_point(0xffffes);
+    RealTimeClock::init();
 
-    rtc_write(start);
-    uint32_t last = start;
-    while (last < start + 4) {
-        const uint32_t cur = rtc_read();
+    RealTimeClock::write(start);
+    auto last = start;
+    while (last < start + 4s) {
+        const auto cur = RealTimeClock::now();
         TEST_ASSERT(cur >= last);
         last = cur;
     }
 
-    rtc_free();
+    RealTimeClock::free();
 }
 
 /* Test that the RTC correctly handles different time values. */
 void rtc_range_test()
 {
-    static const uint32_t starts[] = {
-        0x00000000,
-        0xEFFFFFFF,
-        0x00001000,
-        0x00010000,
+    static const RealTimeClock::time_point starts[] {
+        0x00000000s,
+        0xEFFFFFFFs,
+        0x00001000s,
+        0x00010000s,
     };
 
-    rtc_init();
-    for (uint32_t i = 0; i < sizeof(starts) / sizeof(starts[0]); i++) {
-        const uint32_t start = starts[i];
-        rtc_write(start);
-        ThisThread::sleep_for(WAIT_TIME * 1000);
-        const uint32_t stop = rtc_read();
-        TEST_ASSERT_UINT32_WITHIN(WAIT_TOLERANCE, WAIT_TIME, stop - start);
+    RealTimeClock::init();
+    for (const auto &start : starts) {
+        RealTimeClock::write(start);
+        ThisThread::sleep_for(WAIT_TIME);
+        const auto stop = RealTimeClock::now();
+        TEST_ASSERT_DURATION_WITHIN(WAIT_TOLERANCE, WAIT_TIME, stop - start);
     }
-    rtc_free();
+    RealTimeClock::free();
 }
 
 /* Test that the RTC accuracy is at least 10%. */
@@ -180,44 +176,40 @@ void rtc_accuracy_test()
 {
     Timer timer1;
 
-    const uint32_t start = 100;
-    rtc_init();
-    rtc_write(start);
+    const auto start = RealTimeClock::time_point(100s);
+    RealTimeClock::init();
+    RealTimeClock::write(start);
 
     timer1.start();
-    while (rtc_read() < (start + DELAY_10S)) {
+    while (RealTimeClock::now() < (start + 10s)) {
         /* Just wait. */
     }
     timer1.stop();
 
     /* RTC accuracy is at least 10%. */
-    TEST_ASSERT_INT32_WITHIN(TOLERANCE_ACCURACY_US, DELAY_10S * US_PER_SEC, timer1.read_us());
+    TEST_ASSERT_DURATION_WITHIN(1s, 10s, timer1.read_duration());
 }
 
 /* Test that ::rtc_write/::rtc_read functions provides availability to set/get RTC time. */
 void rtc_write_read_test()
 {
-    static const uint32_t rtc_init_val = 100;
+    RealTimeClock::init();
 
-    rtc_init();
-
-    for (int i = 0; i < 3; i++) {
-        const uint32_t init_val = (rtc_init_val + i * rtc_init_val);
-
+    for (auto init_val = RealTimeClock::time_point(100s); init_val < RealTimeClock::time_point(400s); init_val += 100s) {
         core_util_critical_section_enter();
 
-        rtc_write(init_val);
-        const uint32_t read_val = rtc_read();
+        RealTimeClock::write(init_val);
+        const auto read_val = RealTimeClock::now();
 
         core_util_critical_section_exit();
 
         /* No tolerance is provided since we should have 1 second to
          * execute this case after the RTC time is set.
          */
-        TEST_ASSERT_EQUAL_UINT32(init_val, read_val);
+        TEST_ASSERT(init_val == read_val);
     }
 
-    rtc_free();
+    RealTimeClock::free();
 }
 
 /* Test that ::is_enabled function returns 1 if the RTC is counting and the time has been set. */
@@ -228,10 +220,10 @@ void rtc_enabled_test()
      * and RTC time is set.
      */
 
-    rtc_init();
-    rtc_write(0);
-    TEST_ASSERT_EQUAL_INT(1, rtc_isenabled());
-    rtc_free();
+    RealTimeClock::init();
+    RealTimeClock::write(RealTimeClock::time_point(0));
+    TEST_ASSERT_TRUE(RealTimeClock::isenabled());
+    RealTimeClock::free();
 }
 
 Case cases[] = {
