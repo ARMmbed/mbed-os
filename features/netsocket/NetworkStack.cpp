@@ -235,17 +235,15 @@ private:
     }
 
 public:
-    using NetworkStack::get_ip_address;
-    using NetworkStack::gethostbyname;
-    virtual const char *get_ip_address()
+    virtual nsapi_error_t get_ip_address(SocketAddress *address)
     {
         if (!_stack_api()->get_ip_address) {
-            return 0;
+            return NSAPI_ERROR_UNSUPPORTED;
         }
 
-        static uint8_t buffer[sizeof(SocketAddress)];
-        SocketAddress *address = new (buffer) SocketAddress(_stack_api()->get_ip_address(_stack()));
-        return address->get_ip_address();
+        *address = SocketAddress(_stack_api()->get_ip_address(_stack()));
+
+        return *address ? NSAPI_ERROR_OK : NSAPI_ERROR_NO_ADDRESS;
     }
 
     virtual nsapi_error_t gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version, const char *interface_name)
