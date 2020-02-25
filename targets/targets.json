@@ -2735,13 +2735,15 @@
             "Freescale",
             "MCUXpresso_MCUS",
             "KSDK2_MCUS",
-            "FRDM"
+            "FRDM",
+            "NXP"
         ],
         "is_disk_virtual": true,
         "macros": [
             "CPU_MK82FN256VDC15",
             "FSL_RTOS_MBED",
-            "MBED_TICKLESS"
+            "MBED_TICKLESS",
+            "MBEDTLS_CONFIG_HW_SUPPORT"
         ],
         "inherits": [
             "Target"
@@ -2896,7 +2898,8 @@
             "__STARTUP_INITIALIZE_RAMFUNCTION",
             "__STARTUP_INITIALIZE_NONCACHEDATA",
             "MBED_MPU_CUSTOM",
-            "MBED_TICKLESS"
+            "MBED_TICKLESS",
+            "MBEDTLS_CONFIG_HW_SUPPORT"
         ],
         "components_add": [
             "FLASHIAP"
