@@ -886,11 +886,7 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
         cellular_connection_status_t st = (cellular_connection_status_t)ev;
         _cb_data.error = data->error;
         _cb_data.final_try = data->final_try;
-        if (data->final_try) {
-            if (_current_op != OP_INVALID) {
-                _semaphore.release();
-            }
-        }
+
 #if MBED_CONF_CELLULAR_USE_APN_LOOKUP
         if (st == CellularSIMStatusChanged && data->status_data == CellularDevice::SimStateReady &&
                 _cb_data.error == NSAPI_ERROR_OK) {
@@ -937,7 +933,7 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
 #endif
 
         if (_is_blocking) {
-            if (_cb_data.error != NSAPI_ERROR_OK) {
+            if ((data->final_try) || (_cb_data.error != NSAPI_ERROR_OK)) {
                 // operation failed, release semaphore
                 if (_current_op != OP_INVALID) {
                     _current_op = OP_INVALID;
