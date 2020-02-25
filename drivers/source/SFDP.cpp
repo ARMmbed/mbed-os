@@ -42,43 +42,85 @@ inline uint32_t sfdp_get_param_tbl_ptr(uint32_t dword2)
 
 namespace mbed {
 
-/* Verifies SFDP Header and return number of parameter headers */
+// Erase Types Params
+constexpr int SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_BYTE = 29; ///< Erase Type 1 Instruction
+constexpr int SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_2_BYTE = 31; ///< Erase Type 2 Instruction
+constexpr int SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_3_BYTE = 33; ///< Erase Type 3 Instruction
+constexpr int SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_4_BYTE = 35; ///< Erase Type 4 Instruction
+constexpr int SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE = 28; ///< Erase Type 1 Size
+constexpr int SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_2_SIZE_BYTE = 30; ///< Erase Type 2 Size
+constexpr int SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_3_SIZE_BYTE = 32; ///< Erase Type 3 Size
+constexpr int SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_4_SIZE_BYTE = 34; ///< Erase Type 4 Size
+constexpr int SFDP_BASIC_PARAM_TABLE_4K_ERASE_TYPE_BYTE = 1; ///< 4 Kilobyte Erase Instruction
+
+constexpr int SFDP_ERASE_BITMASK_TYPE_4K_ERASE_UNSUPPORTED = 0xFF;
+
+/** SFDP Header */
+struct sfdp_hdr {
+    uint8_t SIG_B0; ///< SFDP Signature, Byte 0
+    uint8_t SIG_B1; ///< SFDP Signature, Byte 1
+    uint8_t SIG_B2; ///< SFDP Signature, Byte 2
+    uint8_t SIG_B3; ///< SFDP Signature, Byte 3
+    uint8_t R_MINOR; ///< SFDP Minor Revision
+    uint8_t R_MAJOR; ///< SFDP Major Revision
+    uint8_t NPH; ///< Number of parameter headers (0-based, 0 indicates 1 parameter header)
+    uint8_t ACP; ///< SFDP Access Protocol
+};
+
+/** SFDP Parameter header */
+struct sfdp_prm_hdr {
+    uint8_t PID_LSB; ///< Parameter ID LSB
+    uint8_t P_MINOR; ///< Parameter Minor Revision
+    uint8_t P_MAJOR; ///< Parameter Major Revision
+    uint8_t P_LEN;   ///< Parameter length in DWORDS
+    uint32_t DWORD2; ///< Parameter ID MSB + Parameter Table Pointer
+};
+
+/** Parse SFDP Header
+ * @param sfdp_hdr_ptr Pointer to memory holding an SFDP header
+ * @return Number of Parameter Headers on success, -1 on failure
+ */
 int sfdp_parse_sfdp_header(sfdp_hdr *sfdp_hdr_ptr)
 {
     if (!(memcmp(sfdp_hdr_ptr, "SFDP", 4) == 0 && sfdp_hdr_ptr->R_MAJOR == 1)) {
-        tr_error("verify SFDP signature and version Failed");
+        tr_error("Verify SFDP signature and version Failed");
         return -1;
     }
 
-    tr_debug("init - verified SFDP Signature and version Successfully");
+    tr_debug("Verified SFDP Signature and version successfully");
 
     int hdr_cnt = sfdp_hdr_ptr->NPH + 1;
-    tr_debug("number of Param Headers: %d", hdr_cnt);
+    tr_debug("Number of parameter headers: %d", hdr_cnt);
 
     return hdr_cnt;
 }
 
-int sfdp_parse_single_param_header(sfdp_prm_hdr *phdr, sfdp_hdr_info &hdr_info)
+/** Parse Parameter Header
+ * @param phdr_ptr Pointer to memory holding a single SFDP Parameter header
+ * @param hdr_info Reference to a Parameter Table structure where info about the table is written
+ * @return 0 on success, -1 on failure
+ */
+int sfdp_parse_single_param_header(sfdp_prm_hdr *phdr_ptr, sfdp_hdr_info &hdr_info)
 {
-    if (phdr->P_MAJOR != 1) {
-        tr_error("Param Header: - Major Version should be 1!");
+    if (phdr_ptr->P_MAJOR != 1) {
+        tr_error("Parameter header: Major Version must be 1!");
         return -1;
     }
 
-    if ((phdr->PID_LSB == 0) && (sfdp_get_param_id_msb(phdr->DWORD2) == 0xFF)) {
-        tr_debug("Parameter Header: Basic Parameter Header");
-        hdr_info.bptbl.addr = sfdp_get_param_tbl_ptr(phdr->DWORD2);
-        hdr_info.bptbl.size = std::min((phdr->P_LEN * 4), SFDP_BASIC_PARAMS_TBL_SIZE);
+    if ((phdr_ptr->PID_LSB == 0) && (sfdp_get_param_id_msb(phdr_ptr->DWORD2) == 0xFF)) {
+        tr_debug("Parameter header: Basic Parameter Header");
+        hdr_info.bptbl.addr = sfdp_get_param_tbl_ptr(phdr_ptr->DWORD2);
+        hdr_info.bptbl.size = std::min((phdr_ptr->P_LEN * 4), SFDP_BASIC_PARAMS_TBL_SIZE);
 
-    } else if ((phdr->PID_LSB == 0x81) && (sfdp_get_param_id_msb(phdr->DWORD2) == 0xFF)) {
-        tr_debug("Parameter Header: Sector Map Parameter Header");
-        hdr_info.smptbl.addr = sfdp_get_param_tbl_ptr(phdr->DWORD2);
-        hdr_info.smptbl.size = phdr->P_LEN * 4;
+    } else if ((phdr_ptr->PID_LSB == 0x81) && (sfdp_get_param_id_msb(phdr_ptr->DWORD2) == 0xFF)) {
+        tr_debug("Parameter header: Sector Map Parameter Header");
+        hdr_info.smptbl.addr = sfdp_get_param_tbl_ptr(phdr_ptr->DWORD2);
+        hdr_info.smptbl.size = phdr_ptr->P_LEN * 4;
 
     } else {
-        tr_debug("Parameter Header vendor specific or unknown. Parameter ID LSB: 0x%" PRIX8 "; MSB: 0x%" PRIX8 "",
-                 phdr->PID_LSB,
-                 sfdp_get_param_id_msb(phdr->DWORD2));
+        tr_debug("Parameter header: header vendor specific or unknown. Parameter ID LSB: 0x%" PRIX8 "; MSB: 0x%" PRIX8 "",
+                 phdr_ptr->PID_LSB,
+                 sfdp_get_param_id_msb(phdr_ptr->DWORD2));
     }
 
     return 0;
@@ -96,7 +138,7 @@ int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, 
 
         int status = sfdp_reader(addr, sfdp_header, data_length);
         if (status < 0) {
-            tr_error("retrieving SFDP Header failed");
+            tr_error("Retrieving SFDP Header failed");
             return -1;
         }
 
@@ -118,7 +160,7 @@ int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, 
         for (int i_ind = 0; i_ind < number_of_param_headers; i_ind++) {
             status = sfdp_reader(addr, param_header, data_length);
             if (status < 0) {
-                tr_error("retrieving Parameter Header %d failed", i_ind + 1);
+                tr_error("Retrieving a parameter header %d failed", i_ind + 1);
                 return -1;
             }
 
@@ -145,19 +187,19 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
 
     int status = sfdp_reader(smptbl.addr, sector_map_table, smptbl.size);
     if (status < 0) {
-        tr_error("table retrieval failed");
+        tr_error("Sector Map: Table retrieval failed");
         return -1;
     }
 
     // Currently we support only Single Map Descriptor
     if (!((sector_map_table[0] & 0x3) == 0x03) && (sector_map_table[1] == 0x0)) {
-        tr_error("Sector Map - Supporting Only Single! Map Descriptor (not map commands)");
+        tr_error("Sector Map: Supporting Only Single Map Descriptor (not map commands)");
         return -1;
     }
 
     smptbl.region_cnt = sector_map_table[2] + 1;
     if (smptbl.region_cnt > SFDP_SECTOR_MAP_MAX_REGIONS) {
-        tr_error("Supporting up to %d regions, current setup to %d regions - fail",
+        tr_error("Sector Map: Supporting up to %d regions, current setup to %d regions - fail",
                  SFDP_SECTOR_MAP_MAX_REGIONS,
                  smptbl.region_cnt);
         return -1;
@@ -191,6 +233,69 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
 
     return 0;
 }
+
+size_t sfdp_detect_page_size(uint8_t *basic_param_table_ptr, size_t basic_param_table_size)
+{
+    constexpr int SFDP_BASIC_PARAM_TABLE_PAGE_SIZE = 40;
+    constexpr int SFDP_DEFAULT_PAGE_SIZE = 256;
+
+    unsigned int page_size = SFDP_DEFAULT_PAGE_SIZE;
+
+    if (basic_param_table_size > SFDP_BASIC_PARAM_TABLE_PAGE_SIZE) {
+        // Page Size is specified by 4 Bits (N), calculated by 2^N
+        int page_to_power_size = ((int)basic_param_table_ptr[SFDP_BASIC_PARAM_TABLE_PAGE_SIZE]) >> 4;
+        page_size = 1 << page_to_power_size;
+        tr_debug("Detected Page Size: %d", page_size);
+    } else {
+        tr_debug("Using Default Page Size: %d", page_size);
+    }
+    return page_size;
+}
+
+int sfdp_detect_erase_types_inst_and_size(uint8_t *bptbl_ptr, sfdp_hdr_info &sfdp_info)
+{
+    uint8_t bitfield = 0x01;
+
+    // Erase 4K Inst is taken either from param table legacy 4K erase or superseded by erase Instruction for type of size 4K
+    if (sfdp_info.bptbl.size > SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE) {
+        // Loop Erase Types 1-4
+        for (int i_ind = 0; i_ind < 4; i_ind++) {
+            sfdp_info.smptbl.erase_type_inst_arr[i_ind] = -1; // Default for unsupported type
+            sfdp_info.smptbl.erase_type_size_arr[i_ind] = 1
+                                                          << bptbl_ptr[SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE + 2 * i_ind]; // Size is 2^N where N is the table value
+            tr_debug("Erase Type(A) %d - Inst: 0x%xh, Size: %d", (i_ind + 1), sfdp_info.smptbl.erase_type_inst_arr[i_ind],
+                     sfdp_info.smptbl.erase_type_size_arr[i_ind]);
+            if (sfdp_info.smptbl.erase_type_size_arr[i_ind] > 1) {
+                // if size==1 type is not supported
+                sfdp_info.smptbl.erase_type_inst_arr[i_ind] = bptbl_ptr[SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_BYTE
+                                                                        + 2 * i_ind];
+
+                if ((sfdp_info.smptbl.erase_type_size_arr[i_ind] < sfdp_info.smptbl.regions_min_common_erase_size)
+                        || (sfdp_info.smptbl.regions_min_common_erase_size == 0)) {
+                    //Set default minimal common erase for signal region
+                    sfdp_info.smptbl.regions_min_common_erase_size = sfdp_info.smptbl.erase_type_size_arr[i_ind];
+                }
+                sfdp_info.smptbl.region_erase_types_bitfld[0] |= bitfield; // If there's no region map, set region "0" types bitfield as default
+            }
+
+            tr_debug("Erase Type %d - Inst: 0x%xh, Size: %d", (i_ind + 1), sfdp_info.smptbl.erase_type_inst_arr[i_ind],
+                     sfdp_info.smptbl.erase_type_size_arr[i_ind]);
+            bitfield = bitfield << 1;
+        }
+    } else {
+        tr_debug("Erase types are not available - falling back to legacy 4k erase instruction");
+
+        sfdp_info.bptbl.legacy_erase_instruction = bptbl_ptr[SFDP_BASIC_PARAM_TABLE_4K_ERASE_TYPE_BYTE];
+        if (sfdp_info.bptbl.legacy_erase_instruction == SFDP_ERASE_BITMASK_TYPE_4K_ERASE_UNSUPPORTED) {
+            tr_error("Legacy 4k erase instruction not supported");
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+
 
 } /* namespace mbed */
 #endif /* (DEVICE_SPI || DEVICE_QSPI) */

@@ -32,7 +32,6 @@ using namespace mbed;
 
 /* Default QSPIF Parameters */
 /****************************/
-#define QSPIF_DEFAULT_PAGE_SIZE  256
 #define QSPIF_DEFAULT_SE_SIZE    4096
 // The SFDP spec only defines two status registers. But some devices,
 // have three "status-like" registers (one status, two config)
@@ -63,20 +62,9 @@ using namespace mbed;
 #define QSPIF_BASIC_PARAM_TABLE_222_READ_INST_BYTE 23
 #define QSPIF_BASIC_PARAM_TABLE_122_READ_INST_BYTE 15
 #define QSPIF_BASIC_PARAM_TABLE_112_READ_INST_BYTE 13
-#define QSPIF_BASIC_PARAM_TABLE_PAGE_SIZE_BYTE 40
 // Quad Enable Params
 #define QSPIF_BASIC_PARAM_TABLE_QER_BYTE 58
 #define QSPIF_BASIC_PARAM_TABLE_444_MODE_EN_SEQ_BYTE 56
-// Erase Types Params
-#define QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_1_BYTE 29
-#define QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_2_BYTE 31
-#define QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_3_BYTE 33
-#define QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_4_BYTE 35
-#define QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE 28
-#define QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_2_SIZE_BYTE 30
-#define QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_3_SIZE_BYTE 32
-#define QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_4_SIZE_BYTE 34
-#define QSPIF_BASIC_PARAM_4K_ERASE_TYPE_BYTE 1
 
 #define QSPIF_BASIC_PARAM_TABLE_SOFT_RESET_BYTE 61
 #define QSPIF_BASIC_PARAM_TABLE_4BYTE_ADDR_BYTE 63
@@ -112,7 +100,7 @@ using namespace mbed;
 
 // Default read/legacy erase instructions
 #define QSPIF_INST_READ_DEFAULT          0x03
-#define QSPIF_INST_LEGACY_ERASE_DEFAULT  QSPI_NO_INST
+#define QSPIF_INST_LEGACY_ERASE_DEFAULT  (-1)
 
 // Default status register 2 read/write instructions
 #define QSPIF_INST_WSR2_DEFAULT    QSPI_NO_INST
@@ -153,6 +141,7 @@ QSPIFBlockDevice::QSPIFBlockDevice(PinName io0, PinName io1, PinName io2, PinNam
     }
 
     // Initialize parameters
+    _sfdp_info.bptbl.legacy_erase_instruction = QSPIF_INST_LEGACY_ERASE_DEFAULT;
     _sfdp_info.smptbl.regions_min_common_erase_size = 0;
     _sfdp_info.smptbl.region_cnt = 1;
     _sfdp_info.smptbl.region_erase_types_bitfld[0] = SFDP_ERASE_BITMASK_NONE;
@@ -172,7 +161,6 @@ QSPIFBlockDevice::QSPIFBlockDevice(PinName io0, PinName io1, PinName io2, PinNam
 
     // Set default read/erase instructions
     _read_instruction = QSPIF_INST_READ_DEFAULT;
-    _legacy_erase_instruction = QSPIF_INST_LEGACY_ERASE_DEFAULT;
 
     _num_status_registers = QSPI_DEFAULT_STATUS_REGISTERS;
     // Set default status register 2 write/read instructions
@@ -253,7 +241,8 @@ int QSPIFBlockDevice::init()
     }
 
     /**************************** Parse Basic Parameters Table ***********************************/
-    if (0 != _sfdp_parse_basic_param_table(_sfdp_info.bptbl.addr, _sfdp_info.bptbl.size)) {
+    if (_sfdp_parse_basic_param_table(callback(this, &QSPIFBlockDevice::_qspi_send_read_sfdp_command),
+                                      _sfdp_info) < 0) {
         tr_error("Init - Parse Basic Param Table Failed");
         status = QSPIF_BD_ERROR_PARSING_FAILED;
         goto exit_point;
@@ -429,7 +418,7 @@ int QSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
     // For each iteration erase the largest section supported by current region
     while (size > 0) {
         unsigned int eu_size;
-        if (_legacy_erase_instruction == QSPI_NO_INST) {
+        if (_sfdp_info.bptbl.legacy_erase_instruction == QSPI_NO_INST) {
             // Iterate to find next largest erase type that is a) supported by region, and b) smaller than size.
             // Find the matching instruction and erase size chunk for that type.
             type = _utils_iterate_next_largest_erase_type(bitfield, size, (int)addr,
@@ -439,7 +428,7 @@ int QSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
             eu_size = _sfdp_info.smptbl.erase_type_size_arr[type];
         } else {
             // Must use legacy 4k erase instruction
-            cur_erase_inst = _legacy_erase_instruction;
+            cur_erase_inst = _sfdp_info.bptbl.legacy_erase_instruction;
             eu_size = QSPIF_DEFAULT_SE_SIZE;
         }
         offset = addr % eu_size;
@@ -520,7 +509,7 @@ const char *QSPIFBlockDevice::get_type() const
 bd_size_t QSPIFBlockDevice::get_erase_size(bd_addr_t addr)
 {
     // If the legacy erase instruction is in use, the erase size is uniformly 4k
-    if (_legacy_erase_instruction != QSPI_NO_INST) {
+    if (_sfdp_info.bptbl.legacy_erase_instruction != QSPI_NO_INST) {
         return QSPIF_DEFAULT_SE_SIZE;
     }
 
@@ -627,11 +616,12 @@ int QSPIFBlockDevice::remove_csel_instance(PinName csel)
 /*********************************************************/
 /********** SFDP Parsing and Detection Functions *********/
 /*********************************************************/
-int QSPIFBlockDevice::_sfdp_parse_basic_param_table(uint32_t basic_table_addr, size_t basic_table_size)
+int QSPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader,
+                                                    sfdp_hdr_info &sfdp_info)
 {
-    uint8_t param_table[SFDP_BASIC_PARAMS_TBL_SIZE]; /* Up To 16 DWORDS = 64 Bytes */
+    uint8_t param_table[SFDP_BASIC_PARAMS_TBL_SIZE]; /* Up To 20 DWORDS = 80 Bytes */
 
-    int status = _qspi_send_read_sfdp_command(basic_table_addr, (char *)param_table, basic_table_size);
+    int status = sfdp_reader(sfdp_info.bptbl.addr, param_table, sfdp_info.bptbl.size);
     if (status != QSPI_STATUS_OK) {
         tr_error("Init - Read SFDP First Table Failed");
         return -1;
@@ -651,7 +641,7 @@ int QSPIFBlockDevice::_sfdp_parse_basic_param_table(uint32_t basic_table_addr, s
     _device_size_bytes = (density_bits + 1) / 8;
 
     // Set Page Size (QSPI write must be done on Page limits)
-    _page_size_bytes = _sfdp_detect_page_size(param_table, basic_table_size);
+    _page_size_bytes = sfdp_detect_page_size(param_table, sfdp_info.bptbl.size);
 
     if (_sfdp_detect_reset_protocol_and_reset(param_table) != QSPIF_BD_ERROR_OK) {
         tr_error("Init - Detecting reset protocol/resetting failed");
@@ -662,13 +652,13 @@ int QSPIFBlockDevice::_sfdp_parse_basic_param_table(uint32_t basic_table_addr, s
     bool shouldSetQuadEnable = false;
     bool is_qpi_mode = false;
 
-    if (_sfdp_detect_erase_types_inst_and_size(param_table, basic_table_size, _sfdp_info.smptbl) != 0) {
+    if (sfdp_detect_erase_types_inst_and_size(param_table, _sfdp_info) < 0) {
         tr_error("Init - Detecting erase types instructions/sizes failed");
         return -1;
     }
 
     // Detect and Set fastest Bus mode (default 1-1-1)
-    _sfdp_detect_best_bus_read_mode(param_table, basic_table_size, shouldSetQuadEnable, is_qpi_mode);
+    _sfdp_detect_best_bus_read_mode(param_table, sfdp_info.bptbl.size, shouldSetQuadEnable, is_qpi_mode);
     if (true == shouldSetQuadEnable) {
         if (_needs_fast_mode) {
             _enable_fast_mode();
@@ -688,7 +678,7 @@ int QSPIFBlockDevice::_sfdp_parse_basic_param_table(uint32_t basic_table_addr, s
 #ifndef TARGET_NORDIC
     // 4 byte addressing is not currently supported with the Nordic QSPI controller
     if (_attempt_4_byte_addressing) {
-        if (_sfdp_detect_and_enable_4byte_addressing(param_table, basic_table_size) != QSPIF_BD_ERROR_OK) {
+        if (_sfdp_detect_and_enable_4byte_addressing(param_table, sfdp_info.bptbl.size) != QSPIF_BD_ERROR_OK) {
             tr_error("Init - Detecting/enabling 4-byte addressing failed");
             return -1;
         }
@@ -828,67 +818,6 @@ int QSPIFBlockDevice::_sfdp_set_qpi_enabled(uint8_t *basic_param_table_ptr)
             tr_warning("_sfdp_set_qpi_enabled - Unsupported En Seq 444 configuration");
             break;
     }
-    return 0;
-}
-
-int QSPIFBlockDevice::_sfdp_detect_page_size(uint8_t *basic_param_table_ptr, int basic_param_table_size)
-{
-    unsigned int page_size = QSPIF_DEFAULT_PAGE_SIZE;
-
-    if (basic_param_table_size > QSPIF_BASIC_PARAM_TABLE_PAGE_SIZE_BYTE) {
-        // Page Size is specified by 4 Bits (N), calculated by 2^N
-        int page_to_power_size = ((int)basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_PAGE_SIZE_BYTE]) >> 4;
-        page_size = 1 << page_to_power_size;
-        tr_debug("Detected Page Size: %d", page_size);
-    } else {
-        tr_debug("Using Default Page Size: %d", page_size);
-    }
-    return page_size;
-}
-
-int QSPIFBlockDevice::_sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr,
-                                                             int basic_param_table_size,
-                                                             sfdp_smptbl_info &smptbl)
-{
-    uint8_t bitfield = 0x01;
-
-    // Erase 4K Inst is taken either from param table legacy 4K erase or superseded by erase Instruction for type of size 4K
-    if (basic_param_table_size > QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE) {
-        // Loop Erase Types 1-4
-        for (int i_ind = 0; i_ind < 4; i_ind++) {
-            smptbl.erase_type_inst_arr[i_ind] = QSPI_NO_INST; // Default for unsupported type
-            smptbl.erase_type_size_arr[i_ind] = 1
-                                                << basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE + 2 * i_ind]; // Size is 2^N where N is the table value
-            tr_debug("Erase Type(A) %d - Inst: 0x%xh, Size: %d", (i_ind + 1), smptbl.erase_type_inst_arr[i_ind],
-                     smptbl.erase_type_size_arr[i_ind]);
-            if (smptbl.erase_type_size_arr[i_ind] > 1) {
-                // if size==1 type is not supported
-                smptbl.erase_type_inst_arr[i_ind] = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_1_BYTE
-                                                                          + 2 * i_ind];
-
-                if ((smptbl.erase_type_size_arr[i_ind] < smptbl.regions_min_common_erase_size)
-                        || (smptbl.regions_min_common_erase_size == 0)) {
-                    //Set default minimal common erase for signal region
-                    smptbl.regions_min_common_erase_size = smptbl.erase_type_size_arr[i_ind];
-                }
-                smptbl.region_erase_types_bitfld[0] |= bitfield; // If there's no region map, set region "0" types bitfield as default
-            }
-
-            tr_debug("Erase Type %d - Inst: 0x%xh, Size: %d", (i_ind + 1), smptbl.erase_type_inst_arr[i_ind],
-                     smptbl.erase_type_size_arr[i_ind]);
-            bitfield = bitfield << 1;
-        }
-    } else {
-        tr_debug("SFDP erase types are not available - falling back to legacy 4k erase instruction");
-
-        // 0xFF indicates that the legacy 4k erase instruction is not supported
-        _legacy_erase_instruction = basic_param_table_ptr[QSPIF_BASIC_PARAM_4K_ERASE_TYPE_BYTE];
-        if (_legacy_erase_instruction == 0xFF) {
-            tr_error("_detectEraseTypesInstAndSize - Legacy 4k erase instruction not supported");
-            return -1;
-        }
-    }
-
     return 0;
 }
 

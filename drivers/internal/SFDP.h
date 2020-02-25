@@ -33,24 +33,25 @@ namespace mbed {
  * @{
  */
 
-static const int SFDP_HEADER_SIZE = 8; ///< Size of an SFDP header in bytes, 2 DWORDS
-static const int SFDP_BASIC_PARAMS_TBL_SIZE = 80; ///< Basic Parameter Table size in bytes, 20 DWORDS
-static const int SFDP_SECTOR_MAP_MAX_REGIONS = 10; ///< Maximum number of regions with different erase granularity
+constexpr int SFDP_HEADER_SIZE = 8; ///< Size of an SFDP header in bytes, 2 DWORDS
+constexpr int SFDP_BASIC_PARAMS_TBL_SIZE = 80; ///< Basic Parameter Table size in bytes, 20 DWORDS
+constexpr int SFDP_SECTOR_MAP_MAX_REGIONS = 10; ///< Maximum number of regions with different erase granularity
 
 // Erase Types Per Region BitMask
-static const int SFDP_ERASE_BITMASK_TYPE4 = 0x08; ///< Erase type 4 (erase granularity) identifier
-static const int SFDP_ERASE_BITMASK_TYPE3 = 0x04; ///< Erase type 3 (erase granularity) identifier
-static const int SFDP_ERASE_BITMASK_TYPE2 = 0x02; ///< Erase type 2 (erase granularity) identifier
-static const int SFDP_ERASE_BITMASK_TYPE1 = 0x01; ///< Erase type 1 (erase granularity) identifier
-static const int SFDP_ERASE_BITMASK_NONE = 0x00;  ///< Erase type None
-static const int SFDP_ERASE_BITMASK_ALL = 0x0F;   ///< Erase type All
+constexpr int SFDP_ERASE_BITMASK_TYPE4 = 0x08; ///< Erase type 4 (erase granularity) identifier
+constexpr int SFDP_ERASE_BITMASK_TYPE3 = 0x04; ///< Erase type 3 (erase granularity) identifier
+constexpr int SFDP_ERASE_BITMASK_TYPE2 = 0x02; ///< Erase type 2 (erase granularity) identifier
+constexpr int SFDP_ERASE_BITMASK_TYPE1 = 0x01; ///< Erase type 1 (erase granularity) identifier
+constexpr int SFDP_ERASE_BITMASK_NONE = 0x00;  ///< Erase type None
+constexpr int SFDP_ERASE_BITMASK_ALL = 0x0F;   ///< Erase type All
 
-static const int SFDP_MAX_NUM_OF_ERASE_TYPES = 4;  ///< Maximum number of different erase types (erase granularity)
+constexpr int SFDP_MAX_NUM_OF_ERASE_TYPES = 4;  ///< Maximum number of different erase types (erase granularity)
 
 /** SFDP Basic Parameter Table info */
 struct sfdp_bptbl_info {
     uint32_t addr; ///< Address
     size_t size; ///< Size
+    int legacy_erase_instruction; ///< Legacy 4K erase instruction
 };
 
 /** SFDP Sector Map Table info */
@@ -72,40 +73,6 @@ struct sfdp_hdr_info {
     sfdp_smptbl_info smptbl;
 };
 
-/** SFDP Header */
-struct sfdp_hdr {
-    uint8_t SIG_B0; ///< SFDP Signature, Byte 0
-    uint8_t SIG_B1; ///< SFDP Signature, Byte 1
-    uint8_t SIG_B2; ///< SFDP Signature, Byte 2
-    uint8_t SIG_B3; ///< SFDP Signature, Byte 3
-    uint8_t R_MINOR; ///< SFDP Minor Revision
-    uint8_t R_MAJOR; ///< SFDP Major Revision
-    uint8_t NPH; ///< Number of parameter headers (0-based, 0 indicates 1 parameter header)
-    uint8_t ACP; ///< SFDP Access Protocol
-};
-
-/** SFDP Parameter header */
-struct sfdp_prm_hdr {
-    uint8_t PID_LSB; ///< Parameter ID LSB
-    uint8_t P_MINOR; ///< Parameter Minor Revision
-    uint8_t P_MAJOR; ///< Parameter Major Revision
-    uint8_t P_LEN;   ///< Parameter length in DWORDS
-    uint32_t DWORD2; ///< Parameter ID MSB + Parameter Table Pointer
-};
-
-/** Parse SFDP Header
- * @param sfdp_hdr_ptr Pointer to memory holding an SFDP header
- * @return Number of Parameter Headers on success, -1 on failure
- */
-int sfdp_parse_sfdp_header(sfdp_hdr *sfdp_hdr_ptr);
-
-/** Parse Parameter Header
- * @param parameter_header Pointer to memory holding a single SFDP Parameter header
- * @param hdr_info Reference to a Parameter Table structure where info about the table is written
- * @return 0 on success, -1 on failure
- */
-int sfdp_parse_single_param_header(sfdp_prm_hdr *parameter_header, sfdp_hdr_info &hdr_info);
-
 /** Parse SFDP Headers
  * Retrieves SFDP headers from a device and parses the information contained by the headers
  *
@@ -125,6 +92,24 @@ int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, 
  * @return 0 on success, negative error code on failure
  */
 int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_smptbl_info &smtbl);
+
+/** Detect page size used for writing on flash
+ *
+ * @param bptbl_ptr Pointer to memory holding a Basic Parameter Table structure
+ * @param bptbl_size Size of memory holding a Basic Parameter Table
+ *
+ * @return Page size
+ */
+size_t sfdp_detect_page_size(uint8_t *bptbl_ptr, size_t bptbl_size);
+
+/** Detect all supported erase types
+ *
+ * @param bptbl_ptr Pointer to memory holding a Basic Parameter Table structure
+ * @param smtbl     All information parsed from the table gets passed back on this structure
+ *
+ * @return 0 on success, negative error code on failure
+ */
+int sfdp_detect_erase_types_inst_and_size(uint8_t *bptbl_ptr, sfdp_hdr_info &sfdp_info);
 
 /** @}*/
 } /* namespace mbed */

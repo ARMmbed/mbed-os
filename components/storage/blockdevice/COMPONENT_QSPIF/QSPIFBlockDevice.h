@@ -318,7 +318,8 @@ private:
     /* SFDP Detection and Parsing Functions */
     /****************************************/
     // Parse and Detect required Basic Parameters from Table
-    int _sfdp_parse_basic_param_table(uint32_t basic_table_addr, size_t basic_table_size);
+    int _sfdp_parse_basic_param_table(mbed::Callback<int(mbed::bd_addr_t, void *, mbed::bd_size_t)> sfdp_reader,
+                                      mbed::sfdp_hdr_info &sfdp_info);
 
     // Detect the soft reset protocol and reset - returns error if soft reset is not supported
     int _sfdp_detect_reset_protocol_and_reset(uint8_t *basic_param_table_ptr);
@@ -335,11 +336,6 @@ private:
 
     // Set Page size for program
     int _sfdp_detect_page_size(uint8_t *basic_param_table_ptr, int basic_param_table_size);
-
-    // Detect all supported erase types
-    int _sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr,
-                                               int basic_param_table_size,
-                                               mbed::sfdp_smptbl_info &smptbl);
 
     // Detect 4-byte addressing mode and enable it if supported
     int _sfdp_detect_and_enable_4byte_addressing(uint8_t *basic_param_table_ptr, int basic_param_table_size);
@@ -386,7 +382,6 @@ private:
 
     // Command Instructions
     mbed::qspi_inst_t _read_instruction;
-    mbed::qspi_inst_t _legacy_erase_instruction;
 
     // Status register write/read instructions
     unsigned int _num_status_registers;
