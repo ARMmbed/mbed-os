@@ -203,7 +203,7 @@ void emac_if_validate_outgoing_msg(void)
 
             if (outgoing_msgs[i].flags & RESPONSE_RECEIVED) {
 
-                int failure = outgoing_msgs[i].flags & (INVALID_LENGHT | INVALID_DATA);
+                int failure = outgoing_msgs[i].flags & (INVALID_LENGTH | INVALID_DATA);
 
                 if (failure) {
                     SET_ERROR_FLAGS(MSG_VALID_ERROR);
@@ -212,7 +212,7 @@ void emac_if_validate_outgoing_msg(void)
                 if (!(outgoing_msgs[i].flags & PRINTED)) {
                     if ((trace_level & TRACE_SUCCESS) || ((trace_level & TRACE_FAILURE) && failure)) {
                         printf("response: receipt number %i %s %s %s\r\n\r\n", outgoing_msgs[i].receipt_number,
-                               outgoing_msgs[i].flags & INVALID_LENGHT ? "LENGTH INVALID" : "LENGTH OK",
+                               outgoing_msgs[i].flags & INVALID_LENGTH ? "LENGTH INVALID" : "LENGTH OK",
                                outgoing_msgs[i].flags & INVALID_DATA ? "DATA INVALID" : "DATA OK",
                                outgoing_msgs[i].flags & BROADCAST ? "BROADCAST" : "UNICAST");
                         outgoing_msgs[i].flags |= PRINTED;
@@ -252,11 +252,11 @@ bool emac_if_update_reply_to_outgoing_msg(int receipt_number, int length, int in
                minimum frame length or sent length (in case frame has been converted to be longer than minimum
                length does not validate length)  */
             if (length != ETH_FRAME_MIN_LEN && length != ETH_FRAME_PADD_LEN && outgoing_msgs[outgoing_msg_index].length != length && length < ETH_FRAME_MIN_LEN) {
-                outgoing_msgs[outgoing_msg_index].flags |= INVALID_LENGHT;
+                outgoing_msgs[outgoing_msg_index].flags |= INVALID_LENGTH;
             }
         } else {
             if (outgoing_msgs[outgoing_msg_index].length != length) {
-                outgoing_msgs[outgoing_msg_index].flags |= INVALID_LENGHT;
+                outgoing_msgs[outgoing_msg_index].flags |= INVALID_LENGTH;
             }
         }
         if (invalid_data_index && invalid_data_index < outgoing_msgs[outgoing_msg_index].length) {
