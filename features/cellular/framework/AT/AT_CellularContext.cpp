@@ -985,7 +985,9 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
 #if NSAPI_PPP_AVAILABLE
         if (_is_blocking) {
             if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_GLOBAL_UP) {
-                tr_info("CellularContext IP %s", get_ip_address());
+                SocketAddress addr;
+                get_ip_address(&addr);
+                tr_info("CellularContext IP %s", addr.get_ip_address());
                 _cb_data.error = NSAPI_ERROR_OK;
             } else if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_DISCONNECTED) {
                 tr_info("cellular_callback: PPP mode and NSAPI_STATUS_DISCONNECTED");
