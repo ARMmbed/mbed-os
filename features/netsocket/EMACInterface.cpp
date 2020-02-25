@@ -35,12 +35,10 @@ nsapi_error_t EMACInterface::set_network(const SocketAddress &ip_address, const 
 {
     _dhcp = false;
 
-    strncpy(_ip_address, ip_address.get_ip_address() ? ip_address.get_ip_address() : "", sizeof(_ip_address));
-    _ip_address[sizeof(_ip_address) - 1] = '\0';
-    strncpy(_netmask, netmask.get_ip_address() ? netmask.get_ip_address() : "", sizeof(_netmask));
-    _netmask[sizeof(_netmask) - 1] = '\0';
-    strncpy(_gateway, gateway.get_ip_address() ? gateway.get_ip_address() : "", sizeof(_gateway));
-    _gateway[sizeof(_gateway) - 1] = '\0';
+    // Don't check return values, so user can clear the addresses by passing empty strings.
+    _ip_address = ip_address;
+    _netmask = netmask;
+    _gateway = gateway;
 
     return NSAPI_ERROR_OK;
 }
@@ -63,9 +61,9 @@ nsapi_error_t EMACInterface::connect()
     }
 
     return _interface->bringup(_dhcp,
-                               _ip_address[0] ? _ip_address : 0,
-                               _netmask[0] ? _netmask : 0,
-                               _gateway[0] ? _gateway : 0,
+                               _ip_address.get_ip_address() ? _ip_address.get_ip_address() : 0,
+                               _netmask.get_ip_address() ? _netmask.get_ip_address() : 0,
+                               _gateway.get_ip_address() ? _gateway.get_ip_address() : 0,
                                DEFAULT_STACK,
                                _blocking);
 }
@@ -89,7 +87,7 @@ const char *EMACInterface::get_mac_address()
 nsapi_error_t EMACInterface::get_ip_address(SocketAddress *address)
 {
     if (_interface && _interface->get_ip_address(address) == NSAPI_ERROR_OK) {
-        strncpy(_ip_address, address->get_ip_address(), sizeof(_ip_address));
+        _ip_address = *address;
         return NSAPI_ERROR_OK;
     }
 
@@ -108,7 +106,7 @@ nsapi_error_t EMACInterface::get_ipv6_link_local_address(SocketAddress *address)
 nsapi_error_t EMACInterface::get_netmask(SocketAddress *address)
 {
     if (_interface && _interface->get_netmask(address) == NSAPI_ERROR_OK) {
-        strncpy(_netmask, address->get_ip_address(), sizeof(_netmask));
+        _netmask = *address;
         return NSAPI_ERROR_OK;
     }
 
@@ -118,7 +116,7 @@ nsapi_error_t EMACInterface::get_netmask(SocketAddress *address)
 nsapi_error_t EMACInterface::get_gateway(SocketAddress *address)
 {
     if (_interface && _interface->get_gateway(address) == NSAPI_ERROR_OK) {
-        strncpy(_gateway, address->get_ip_address(), sizeof(_gateway));
+        _gateway = *address;
         return NSAPI_ERROR_OK;
     }
 

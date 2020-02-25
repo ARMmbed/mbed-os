@@ -315,9 +315,9 @@ nsapi_error_t WhdSTAInterface::connect()
 
     // bring up
     return _interface->bringup(_dhcp,
-                               _ip_address[0] ? _ip_address : 0,
-                               _netmask[0] ? _netmask : 0,
-                               _gateway[0] ? _gateway : 0,
+                               _ip_address.get_ip_address() ? _ip_address.get_ip_address() : 0,
+                               _netmask.get_ip_address() ? _netmask.get_ip_address() : 0,
+                               _gateway.get_ip_address() ? _gateway.get_ip_address() : 0,
                                DEFAULT_STACK);
 }
 

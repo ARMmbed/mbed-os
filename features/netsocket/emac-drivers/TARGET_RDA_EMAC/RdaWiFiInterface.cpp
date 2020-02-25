@@ -189,11 +189,11 @@ nsapi_error_t RDAWiFiInterface::connect(const char *ssid, const char *pass,
 	wifi_state = WIFI_CONNECTED;
 
     ret = _interface->bringup(_dhcp,
-          _ip_address[0] ? _ip_address : 0,
-          _netmask[0] ? _netmask : 0,
-          _gateway[0] ? _gateway : 0,
-          DEFAULT_STACK,
-          _blocking);
+                              _ip_address.get_ip_address() ? _ip_address.get_ip_address() : 0,
+                              _netmask.get_ip_address() ? _netmask.get_ip_address() : 0,
+                              _gateway.get_ip_address() ? _gateway.get_ip_address() : 0,
+                              DEFAULT_STACK,
+                              _blocking);
     LWIP_DEBUGF(NETIF_DEBUG,("Interface bringup up status:%d\r\n",ret));
 
     if( ret == NSAPI_ERROR_OK || ret == NSAPI_ERROR_IS_CONNECTED ) {
@@ -284,17 +284,17 @@ nsapi_error_t RDAWiFiInterface::reconnect()
     }
 
     if(_dhcp) {
-        memset(_ip_address, 0, sizeof(_ip_address));
-        memset(_netmask, 0, sizeof(_netmask));
-        memset(_gateway, 0, sizeof(_gateway));
+        _ip_address.set_ip_address("");
+        _netmask.set_ip_address("");
+        _gateway.set_ip_address("");
     }
 
     ret = _interface->bringup(_dhcp,
-          _ip_address[0] ? _ip_address : 0,
-          _netmask[0] ? _netmask : 0,
-          _gateway[0] ? _gateway : 0,
-          DEFAULT_STACK,
-          _blocking);
+                              _ip_address.get_ip_address() ? _ip_address.get_ip_address() : 0,
+                              _netmask.get_ip_address() ? _netmask.get_ip_address() : 0,
+                              _gateway.get_ip_address() ? _gateway.get_ip_address() : 0,
+                              DEFAULT_STACK,
+                              _blocking);
     LWIP_DEBUGF(NETIF_DEBUG,("Interface bringup up status:%d\r\n",ret));
 
     if( ret == NSAPI_ERROR_OK || ret == NSAPI_ERROR_IS_CONNECTED ) {

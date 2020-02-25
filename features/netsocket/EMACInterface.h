@@ -143,9 +143,9 @@ protected:
     bool _dhcp;
     bool _blocking;
     char _mac_address[NSAPI_MAC_SIZE];
-    char _ip_address[NSAPI_IPv6_SIZE];
-    char _netmask[NSAPI_IPv4_SIZE];
-    char _gateway[NSAPI_IPv4_SIZE];
+    SocketAddress _ip_address;
+    SocketAddress _netmask;
+    SocketAddress _gateway;
     mbed::Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
 };
 
