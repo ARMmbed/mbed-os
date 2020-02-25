@@ -315,6 +315,9 @@ static void auth_gkh_sec_prot_state_machine(sec_prot_t *prot)
             sec_prot_timer_trickle_start(&data->common, &gkh_trickle_params);
 
             sec_prot_state_set(prot, &data->common, GKH_STATE_MESSAGE_2);
+
+            // Store the hash for to-be installed GTK as used for the PTK
+            sec_prot_keys_ptk_installed_gtk_hash_set(prot->sec_keys);
             break;
 
         // Wait GKH message 2

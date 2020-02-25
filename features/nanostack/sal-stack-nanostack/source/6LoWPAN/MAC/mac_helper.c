@@ -887,6 +887,7 @@ int8_t mac_helper_key_link_frame_counter_set(int8_t interface_id, uint32_t seq_p
 
 void mac_helper_devicetable_remove(mac_api_t *mac_api, uint8_t attribute_index, uint8_t *mac64)
 {
+    (void) mac64;
     if (!mac_api) {
         return;
     }

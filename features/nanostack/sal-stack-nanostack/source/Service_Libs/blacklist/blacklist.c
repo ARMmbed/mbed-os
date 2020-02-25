@@ -87,7 +87,7 @@ bool blacklist_reject(const uint8_t *ll64_address)
     if (blacklist_entry) {
         // If address is blacklisted rejects
         if (blacklist_entry->ttl > blacklist_data->blacklist_entry_lifetime) {
-            tr_debug("blacklist reject: %s", trace_array(ll64_address + 8, 8));
+            tr_info("blacklist reject: %s", trace_array(ll64_address + 8, 8));
             return true;
             // Neighbor heard; updates blacklist entry TTL to full lifetime
         } else {
@@ -131,7 +131,7 @@ void blacklist_update(const uint8_t *ll64_address, bool success)
     // On successful link establishment remove address from blacklist
     if (success) {
         if (blacklist_entry) {
-            tr_debug("Blacklist removed");
+            tr_info("Blacklist removed");
             blacklist_entry_free(blacklist_entry);
         }
         // On failure add address to blacklist or update timeout
@@ -144,7 +144,7 @@ void blacklist_update(const uint8_t *ll64_address, bool success)
             /* TTL is blacklist entry lifetime + from 1.0 to 1.5 * interval */
             blacklist_entry->ttl = blacklist_data->blacklist_entry_lifetime + randLIB_randomise_base(blacklist_entry->interval, 0x8000, 0xC000);
         } else {
-            tr_debug("Blacklist add");
+            tr_info("Blacklist add");
             blacklist_entry_add(ll64_address + 8);
         }
     }
@@ -209,7 +209,7 @@ void blacklist_ttl_update(uint16_t ticks)
         if (blacklist_entry->ttl > ticks) {
             blacklist_entry->ttl -= ticks;
         } else {
-            tr_debug("Blacklist remove entry: %s", trace_array(blacklist_entry->eui64, 8));
+            tr_info("Blacklist remove entry: %s", trace_array(blacklist_entry->eui64, 8));
             blacklist_entry_free(blacklist_entry);
         }
     }

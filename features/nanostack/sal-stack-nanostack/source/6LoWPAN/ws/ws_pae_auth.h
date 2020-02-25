@@ -232,7 +232,7 @@ void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_
 #else
 
 #define ws_pae_auth_init(interface_ptr, gtks, next_gtks, certs, timer_settings) 1
-#define ws_pae_auth_timing_adjust(timing) 1
+#define ws_pae_auth_timing_adjust(timing)
 #define ws_pae_auth_addresses_set(interface_ptr, local_port, remote_addr, remote_port) 1
 #define ws_pae_auth_delete NULL
 #define ws_pae_auth_cb_register(interface_ptr, hash_set, nw_key_insert, nw_key_index_set) {(void) hash_set;}

@@ -76,8 +76,6 @@ bool ws_eapol_relay_state_active(protocol_interface_info_entry_t *cur);
 
 void ws_bootstrap_eapol_parent_synch(struct protocol_interface_info_entry *cur, struct llc_neighbour_req *neighbor_info);
 
-void ws_bootstrap_etx_accelerate(struct protocol_interface_info_entry *cur, mac_neighbor_table_entry_t *neigh);
-
 #else
 
 #define ws_bootstrap_init(interface_id, bootstrap_mode) (-1)
@@ -87,7 +85,6 @@ void ws_bootstrap_etx_accelerate(struct protocol_interface_info_entry *cur, mac_
 #define ws_bootstrap_aro_failure(cur, ll_address)
 #define ws_primary_parent_update(interface, neighbor)
 #define ws_secondary_parent_update(interface)
-#define ws_bootstrap_etx_accelerate(cur, neigh) ((void) 0)
 
 #endif //HAVE_WS
 
