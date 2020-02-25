@@ -111,20 +111,69 @@ int sfdp_parse_single_param_header(sfdp_prm_hdr *phdr_ptr, sfdp_hdr_info &hdr_in
         return -1;
     }
 
-    if ((phdr_ptr->PID_LSB == 0) && (sfdp_get_param_id_msb(phdr_ptr->DWORD2) == 0xFF)) {
-        tr_debug("Parameter header: Basic Parameter Header");
-        hdr_info.bptbl.addr = sfdp_get_param_tbl_ptr(phdr_ptr->DWORD2);
-        hdr_info.bptbl.size = std::min((phdr_ptr->P_LEN * 4), SFDP_BASIC_PARAMS_TBL_SIZE);
+    int param_id_msb = sfdp_get_param_id_msb(phdr_ptr->DWORD2);
 
-    } else if ((phdr_ptr->PID_LSB == 0x81) && (sfdp_get_param_id_msb(phdr_ptr->DWORD2) == 0xFF)) {
-        tr_debug("Parameter header: Sector Map Parameter Header");
-        hdr_info.smptbl.addr = sfdp_get_param_tbl_ptr(phdr_ptr->DWORD2);
-        hdr_info.smptbl.size = phdr_ptr->P_LEN * 4;
+    /* MSB JEDEC ID */
+    if (param_id_msb == 0xFF) {
 
-    } else {
-        tr_debug("Parameter header: header vendor specific or unknown. Parameter ID LSB: 0x%" PRIX8 "; MSB: 0x%" PRIX8 "",
+        /* LSB JEDEC ID */
+        switch (phdr_ptr->PID_LSB) {
+            case 0x0:
+                tr_debug("Parameter header: JEDEC Basic Flash - Revision %" PRIX8 ".%" PRIX8 "",
+                         phdr_ptr->P_MAJOR,
+                         phdr_ptr->P_MINOR);
+                hdr_info.bptbl.addr = sfdp_get_param_tbl_ptr(phdr_ptr->DWORD2);
+                hdr_info.bptbl.size = std::min((phdr_ptr->P_LEN * 4), SFDP_BASIC_PARAMS_TBL_SIZE);
+                break;
+            case 0x81:
+                tr_info("Parameter header: Sector Map");
+                hdr_info.smptbl.addr = sfdp_get_param_tbl_ptr(phdr_ptr->DWORD2);
+                hdr_info.smptbl.size = phdr_ptr->P_LEN * 4;
+                break;
+            /* Unsupported */
+            case 0x03:
+                tr_info("UNSUPPORTED:Parameter header: Replay Protected Monotonic Counters");
+                break;
+            case 0x84:
+                tr_info("UNSUPPORTED:Parameter header: 4-byte Address Instruction");
+                break;
+            case 0x05:
+                tr_info("UNSUPPORTED:Parameter header: eXtended Serial Peripheral Interface (xSPI) Profile 1.0");
+                break;
+            case 0x06:
+                tr_info("UNSUPPORTED:Parameter header: eXtended Serial Peripheral Interface (xSPI) Profile 2.0");
+                break;
+            case 0x87:
+                tr_info("UNSUPPORTED:Parameter header: SCCR Map for SPI Memory Devices");
+                break;
+            case 0x88:
+                tr_info("UNSUPPORTED:Parameter header: SCCR Map Offsets for Multi-Chip SPI Memory Devices");
+                break;
+            case 0x09:
+                tr_info("UNSUPPORTED:Parameter header: SCCR Map for xSPI Profile 2.0 Memory Devices");
+                break;
+            case 0x0A:
+                tr_info("UNSUPPORTED:Parameter header: Command Sequences to Change to Octal DDR (8D-8D-8D) mode");
+                break;
+            case 0x0C:
+                tr_info("UNSUPPORTED:Parameter header: x4 Quad IO with DS");
+                break;
+            case 0x8D:
+                tr_info("UNSUPPORTED:Parameter header: Command Sequences to Change to Quad DDR (4S-4D-4D) mode");
+                break;
+            default:
+                tr_debug("Parameter header: unknown JEDEC header. Parameter ID LSB: 0x%" PRIX8 "; MSB: 0x%" PRIX8 "",
+                         phdr_ptr->PID_LSB,
+                         sfdp_get_param_id_msb(phdr_ptr->DWORD2));
+        }
+    } else if (param_id_msb >= 0x80) { // MSB JEDEC ID
+        tr_debug("Parameter header: unknown JEDEC header. Parameter ID LSB: 0x%" PRIX8 "; MSB: 0x%" PRIX8 "",
                  phdr_ptr->PID_LSB,
                  sfdp_get_param_id_msb(phdr_ptr->DWORD2));
+    } else { // MSB Vendor ID
+        tr_info("Parameter header: vendor specific header. Parameter ID LSB: 0x%" PRIX8 "; MSB: 0x%" PRIX8 "",
+                phdr_ptr->PID_LSB,
+                sfdp_get_param_id_msb(phdr_ptr->DWORD2));
     }
 
     return 0;
