@@ -114,6 +114,44 @@ int InternetSocket::leave_multicast_group(const SocketAddress &address)
     return modify_multicast_group(address, NSAPI_DROP_MEMBERSHIP);
 }
 
+int InternetSocket::get_latency_estimate_to_address(const SocketAddress &address, uint32_t *latency)
+{
+    nsapi_error_t ret;
+    nsapi_latency_req_t ns_api_latency_req;
+    unsigned opt_len = sizeof(nsapi_latency_req_t);
+
+    // Set up address
+    memcpy(ns_api_latency_req.addr, address.get_ip_bytes(), 16);
+
+    ret = this->getsockopt(NSAPI_SOCKET, NSAPI_LATENCY, (void *)&ns_api_latency_req, &opt_len);
+    if (ret == NSAPI_ERROR_OK) {
+        // success, latency found
+        *latency = ns_api_latency_req.latency;
+    }
+
+    return ret;
+}
+
+int InternetSocket::get_stagger_estimate_to_address(const SocketAddress &address, uint32_t data_amount, uint16_t *stagger_min, uint16_t *stagger_max, uint16_t *stagger_rand)
+{
+    nsapi_error_t ret;
+    nsapi_stagger_req_t nsapi_stagger;
+    unsigned opt_len = sizeof(nsapi_stagger_req_t);
+
+    // Set up address
+    memcpy(nsapi_stagger.addr, address.get_ip_bytes(), 16);
+    nsapi_stagger.data_amount = data_amount;
+
+    ret = this->getsockopt(NSAPI_SOCKET, NSAPI_STAGGER, (void *)&nsapi_stagger, &opt_len);
+    if (ret == NSAPI_ERROR_OK) {
+        // success, stagger found
+        *stagger_min = nsapi_stagger.stagger_min;
+        *stagger_max = nsapi_stagger.stagger_max;
+        *stagger_rand = nsapi_stagger.stagger_rand;
+    }
+
+    return ret;
+}
 
 nsapi_error_t InternetSocket::bind(uint16_t port)
 {

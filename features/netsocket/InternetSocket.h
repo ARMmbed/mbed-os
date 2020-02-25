@@ -86,6 +86,25 @@ public:
      */
     int leave_multicast_group(const SocketAddress &address);
 
+    /** Get estimated latency to reach destination address.
+     *
+     * @param address   Destination address to estimate latency.
+     * @param latency   Returned latency value in milliseconds.
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure (@see InternetSocket::getsockopt).
+     */
+    int get_latency_estimate_to_address(const SocketAddress &address, uint32_t *latency);
+
+    /** Get estimated stagger value to reach destination address.
+     *
+     * @param address       Address to estimate stagger values.
+     * @param data_amount   Amount of bytes to transfer in kilobytes.
+     * @param stagger_min   Minimum stagger value in seconds.
+     * @param stagger_max   Maximum stagger value in seconds.
+     * @param stagger_rand  Randomized stagger value in seconds.
+     * @return              NSAPI_ERROR_OK on success, negative error code on failure (@see InternetSocket::getsockopt).
+     */
+    int get_stagger_estimate_to_address(const SocketAddress &address, uint32_t data_amount, uint16_t *stagger_min, uint16_t *stagger_max, uint16_t *stagger_rand);
+
     /** Bind the socket to a port on which to receive data.
      *
      *  @param port     Local port to bind.

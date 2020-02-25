@@ -838,18 +838,58 @@ nsapi_error_t Nanostack::setsockopt(void *handle, int level, int optname, const 
 nsapi_error_t Nanostack::getsockopt(void *handle, int level, int optname, void *optval, unsigned *optlen)
 {
     NanostackSocket *socket = static_cast<NanostackSocket *>(handle);
+
     if (handle == NULL) {
         MBED_ASSERT(false);
         return NSAPI_ERROR_NO_SOCKET;
     }
 
     NanostackLockGuard lock;
+    // pointers to Mbed OS structures
+    nsapi_latency_req_t *ns_latency_r = static_cast<nsapi_latency_req_t *>(optval);
+    nsapi_stagger_req_t *ns_stagger_r = static_cast<nsapi_stagger_req_t *>(optval);
+    // Nanostack internal structures
+    ns_ipv6_latency_t nanostack_latency;
+    ns_ipv6_stagger_t nanostack_stagger;
+    int nanostack_optname = optname;
+
+    void *ns_option_value = optval;
+
+    if (level == NSAPI_SOCKET) {
+        if (optname == NSAPI_LATENCY) {
+            if (*optlen < sizeof(nsapi_latency_req_t)) {
+                return NSAPI_ERROR_PARAMETER;
+            }
+            // Adjust to Nanostack namespace
+            level = SOCKET_IPPROTO_IPV6;
+            nanostack_optname = SOCKET_LATENCY;
+            memcpy(nanostack_latency.dest_addr, ns_latency_r->addr, 16);
+            ns_option_value = &nanostack_latency;
+        } else if (optname == NSAPI_STAGGER) {
+            if (*optlen < sizeof(nsapi_stagger_req_t)) {
+                return NSAPI_ERROR_PARAMETER;
+            }
+            // Adjust to Nanostack namespace
+            level = SOCKET_IPPROTO_IPV6;
+            nanostack_optname = SOCKET_STAGGER;
+            memcpy(nanostack_stagger.dest_addr, ns_stagger_r->addr, 16);
+            nanostack_stagger.data_amount = ns_stagger_r->data_amount;
+            ns_option_value = &nanostack_stagger;
+        }
+    }
 
     uint16_t optlen16 = *optlen;
 
-    int retcode = ::socket_getsockopt(socket->socket_id, level, optname, optval, &optlen16);
+    int retcode = ::socket_getsockopt(socket->socket_id, level, nanostack_optname, ns_option_value, &optlen16);
     if (retcode == 0) {
         *optlen = optlen16;
+        if (optname == NSAPI_LATENCY) {
+            ns_latency_r->latency = nanostack_latency.latency;
+        } else if (optname == NSAPI_STAGGER) {
+            ns_stagger_r->stagger_min = nanostack_stagger.stagger_min;
+            ns_stagger_r->stagger_max = nanostack_stagger.stagger_max;
+            ns_stagger_r->stagger_rand = nanostack_stagger.stagger_rand;
+        }
         return NSAPI_ERROR_OK;
     } else if (retcode == -2) {
         return NSAPI_ERROR_UNSUPPORTED;
