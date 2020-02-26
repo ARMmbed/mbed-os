@@ -229,6 +229,7 @@ uint8_t tls_parse_client_hello(uint8_t *ptr, uint16_t len, sec_suite_t *tls_suit
                     case TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8:
                         thep->client_knows_standard_ecc_ciphersuite = true;
                     /* no break */
+                    /* fall through */
                     case TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8_COMPAT:
                         tr_debug("Client Sup ECC");
                         ret_val |= SEC_CIPHERSUITE_ECC;

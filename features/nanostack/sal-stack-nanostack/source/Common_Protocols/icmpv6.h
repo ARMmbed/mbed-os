@@ -117,6 +117,7 @@ typedef enum slaac_src {
 #define ARO_SUCCESS     0
 #define ARO_DUPLICATE   1
 #define ARO_FULL        2
+#define ARO_TOPOLOGICALLY_INCORRECT 8
 
 extern void icmpv6_init(void);
 extern struct buffer *icmpv6_down(struct buffer *buf);
