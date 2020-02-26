@@ -126,7 +126,7 @@ int sfdp_parse_single_param_header(sfdp_prm_hdr *phdr_ptr, sfdp_hdr_info &hdr_in
     return 0;
 }
 
-int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &hdr_info)
+int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &sfdp_info)
 {
     bd_addr_t addr = 0x0;
     int number_of_param_headers = 0;
@@ -164,7 +164,7 @@ int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, 
                 return -1;
             }
 
-            hdr_status = sfdp_parse_single_param_header((sfdp_prm_hdr *)param_header, hdr_info);
+            hdr_status = sfdp_parse_single_param_header((sfdp_prm_hdr *)param_header, sfdp_info);
             if (hdr_status < 0) {
                 return hdr_status;
             }
