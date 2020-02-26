@@ -23,7 +23,7 @@
 #include "unity/unity.h"
 #include "utest/utest.h"
 #include "kvstore_global_api.h"
-
+#include "DeviceKey.h"
 #include <cstring>
 
 using namespace utest::v1;
@@ -85,6 +85,9 @@ static void kvstore_init()
     init_res = kv_reset(def_kv);
     TEST_SKIP_UNLESS_MESSAGE(init_res != MBED_ERROR_UNSUPPORTED, "Unsupported configuration. Test skipped.");
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, init_res);
+#if DEVICEKEY_ENABLED
+    DeviceKey::get_instance().generate_root_of_trust();
+#endif
 }
 
 /*----------------set()------------------*/
@@ -207,6 +210,9 @@ static void set_write_once_flag_try_remove()
 
     res = kv_reset(def_kv);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+#if DEVICEKEY_ENABLED
+    DeviceKey::get_instance().generate_root_of_trust();
+#endif
 }
 
 //set key value one byte size
@@ -622,6 +628,9 @@ static void get_info_existed_key()
 
     res = kv_reset(def_kv);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+#if DEVICEKEY_ENABLED
+    DeviceKey::get_instance().generate_root_of_trust();
+#endif
 }
 
 //get_info of overwritten key

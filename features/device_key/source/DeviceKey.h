@@ -106,6 +106,16 @@ public:
      * @return 0 on success, negative error code on failure
      */
     int device_inject_root_of_trust(uint32_t *value, size_t isize);
+    /** Generate Root of Trust.
+     * Uses TRNG or various other entropy sources to generate random device key and
+     * inject it into device's KVStore. Device Key can only be generated once.
+     *
+     * \return DEVICEKEY_SUCCESS, when device key successfully generated and injected.
+     * \return DEVICEKEY_ALREADY_EXIST, if the key has already been written.
+     * \return DEVICEKEY_GENERATE_RANDOM_ERROR if this device does not contain entropy sources and cannot generate a key.
+     * \return error codes on other failures.
+     */
+    int generate_root_of_trust();
 
 private:
     // Private constructor, as class is a singleton
@@ -138,17 +148,6 @@ private:
      */
     int get_derived_key(uint32_t *ikey_buff, size_t ikey_size, const unsigned char *isalt, size_t isalt_size,
                         unsigned char *output, uint32_t ikey_type);
-
-    /** Generate a random ROT key by using entropy
-     * @param output Output buffer for the generated key.
-     * @param size Input: The size of the buffer. If size is less
-     *                    than 16 bytes, the method generates an
-     *                    error. 16-31 bytes creates a 16-byte key.
-     *                    32 or higher generates a 32-byte key
-     *             Output: The actual written size to the buffer
-     * @return 0 on success, negative error code on failure
-     */
-    int generate_key_by_random(uint32_t *output, size_t size);
 
 };
 

@@ -36,8 +36,10 @@
 #include "KVStore.h"
 #include "kv_config.h"
 #include "psa_storage_common_impl.h"
+#include "DeviceKey.h"
 
 using namespace utest::v1;
+using namespace mbed;
 
 #define TEST_BUFF_SIZE 16
 #define STR_EXPAND(tok)                 #tok
@@ -217,6 +219,9 @@ utest::v1::status_t case_its_setup_handler(const Case *const source, const size_
         status = psa_ps_reset();
         TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
     }
+#if DEVICEKEY_ENABLED
+    DeviceKey::get_instance().generate_root_of_trust();
+#endif
     return greentea_case_setup_handler(source, index_of_case);
 }
 

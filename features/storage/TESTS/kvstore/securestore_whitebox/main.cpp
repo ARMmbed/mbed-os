@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <algorithm>
+#include "DeviceKey.h"
 
 #if (!defined(TARGET_K64F) && !defined(TARGET_ARM_FM)) && !defined(TARGET_MCU_PSOC6) || !SECURESTORE_ENABLED
 #error [NOT_SUPPORTED] Kvstore API tests run only on K64F devices, Fastmodels, and PSoC 6. KVStore & SecureStore need to be enabled for this test
@@ -145,6 +146,9 @@ static void white_box_test()
         timer.reset();
         result = sec_kv->reset();
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
+#if DEVICEKEY_ENABLED
+        DeviceKey::get_instance().generate_root_of_trust();
+#endif
         elapsed = timer.read_ms();
         printf("Elapsed time for reset is %d ms\n", elapsed);
 
