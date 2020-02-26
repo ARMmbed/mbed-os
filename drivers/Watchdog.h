@@ -98,8 +98,8 @@ public:
      * @param timeout Watchdog timeout in milliseconds.
      *
      * @return true if the Watchdog timer was started successfully;
-     *         false if Watchdog timer was not started or if the Watchdog
-     *         timer is already running.
+     *         false if Watchdog timer was not started or if setting
+     *         a new watchdog timeout was not possible.
      */
     bool start(uint32_t timeout);
 
