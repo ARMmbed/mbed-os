@@ -28,6 +28,7 @@
 #define FEA_TRACE_SUPPORT
 #endif
 
+#include "ns_types.h"
 #include "mbed-trace/mbed_trace.h"
 
 #endif /* NS_TRACE_H_ */
