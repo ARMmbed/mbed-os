@@ -196,7 +196,6 @@ int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp
 
     tr_debug("Parsing Sector Map Table - addr: 0x%" PRIx32 ", Size: %d", sfdp_info.smptbl.addr, sfdp_info.smptbl.size);
 
-
     int status = sfdp_reader(sfdp_info.smptbl.addr, sector_map_table, sfdp_info.smptbl.size);
     if (status < 0) {
         tr_error("Sector Map: Table retrieval failed");
