@@ -41,6 +41,4 @@ private:
 } // namespace vendor
 } // namespace ble
 
-extern "C" void am_ble_isr(void);
-
 #endif /* APOLLO3_CORDIO_HCI_TRANSPORT_DRIVER_H_ */

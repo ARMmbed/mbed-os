@@ -3,6 +3,8 @@
 
 #include "CordioHCITransportDriver.h"
 
+#define AP3_STUPID_DEF_OF_BLECIRQ_BIT 0x00000080 // AM_BLEIF_INT_BLECIRQ
+
 namespace ble
 {
 namespace vendor
