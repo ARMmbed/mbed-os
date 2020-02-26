@@ -39,6 +39,7 @@ pull_request_rules:
     conditions:
       # Travis failing
       - status-failure~=continuous-integration/travis-ci/pr
+      - "label!=mergify skip"
     actions:
       label:
         add: ['needs: work']
@@ -49,6 +50,7 @@ pull_request_rules:
     conditions:
       # Jenkins CI failing
       - status-failure~=continuous-integration/jenkins/pr-head
+      - "label!=mergify skip"
     actions:
       label:
         add: ['needs: work']
@@ -59,6 +61,7 @@ pull_request_rules:
     conditions:
       # Jenkins CI failing - any of the pipeline
       - status-failure~=^jenkins-ci
+      - "label!=mergify skip"
     actions:
       label:
         add: ['needs: work']
@@ -120,6 +123,7 @@ pull_request_rules:
     conditions:
       # Labels
       - "label!=do not merge"
+      - "label!=mergify skip"
       - "label=needs: CI"
 
       # Reviewers
