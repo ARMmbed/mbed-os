@@ -87,7 +87,7 @@ static void DHCP_server_service_timer_stop(void)
 
 int DHCPv6_server_respond_client(dhcpv6_gua_server_entry_s *serverBase, dhcpv6_reply_packet_s *replyPacket, dhcp_ia_non_temporal_params_t *dhcp_ia_non_temporal_params, dhcpv6_gua_response_t *response, bool allocateNew)
 {
-    dhcpv6_alloacted_address_entry_t *dhcp_allocated_address;
+    dhcpv6_allocated_address_t *dhcp_allocated_address = NULL;
     dhcpv6_ia_non_temporal_address_s nonTemporalAddress;
     bool address_allocated = false;
     //Validate Client DUID
@@ -279,12 +279,15 @@ void DHCPv6_server_service_delete(int8_t interface, uint8_t guaPrefix[static 8],
 {
     dhcpv6_gua_server_entry_s *serverInfo = libdhcpv6_server_data_get_by_prefix_and_interfaceid(interface, guaPrefix);
     if (serverInfo) {
-        ns_list_foreach_safe(dhcpv6_alloacted_address_entry_t, cur, &serverInfo->allocatedAddressList) {
+        ns_list_foreach_safe(dhcpv6_allocated_address_entry_t, cur, &serverInfo->allocatedAddressList) {
             //Delete Server data base
             if (serverInfo->removeCb) {
-                serverInfo->removeCb(interface, cur->nonTemporalAddress, NULL);
+                uint8_t allocated_address[16];
+                libdhcpv6_allocated_address_write(allocated_address, cur, serverInfo);
+                serverInfo->removeCb(interface, allocated_address, NULL);
             }
         }
+
         if (serverInfo->removeCb) {
             // Clean all /128 'Thread Proxy' routes to self and others added when acting as a DHCP server
             serverInfo->removeCb(interface, NULL, serverInfo->guaPrefix);
@@ -312,18 +315,22 @@ void DHCPv6_server_service_delete(int8_t interface, uint8_t guaPrefix[static 8],
  *  /param guaPrefix Prefix which will be removed
  *  /param mode true trig autonous mode, false define address by default suffics + client id
  */
-int DHCPv6_server_service_set_address_autonous_flag(int8_t interface, uint8_t guaPrefix[static 16], bool mode)
+int DHCPv6_server_service_set_address_autonous_flag(int8_t interface, uint8_t guaPrefix[static 16], bool mode, bool autonomous_skip_list)
 {
-    int retVal = -1;
-    dhcpv6_gua_server_entry_s *serverInfo;
+    dhcpv6_gua_server_entry_s *serverInfo = libdhcpv6_server_data_get_by_prefix_and_interfaceid(interface, guaPrefix);
+    if (!serverInfo) {
+        return -1;
 
-    serverInfo = libdhcpv6_server_data_get_by_prefix_and_interfaceid(interface, guaPrefix);
-    if (serverInfo) {
-        serverInfo->enableAddressAutonous = mode;
-        retVal = 0;
     }
 
-    return retVal;
+    serverInfo->enableAddressAutonous = mode;
+    if (mode) {
+        serverInfo->disableAddressListAllocation = autonomous_skip_list;
+    } else {
+        serverInfo->disableAddressListAllocation = false;
+    }
+
+    return 0;
 }
 
 void DHCPv6_server_service_callback_set(int8_t interface, uint8_t guaPrefix[static 16], dhcp_address_prefer_remove_cb *remove_cb, dhcp_address_add_notify_cb *add_cb)
@@ -365,18 +372,18 @@ int DHCPv6_server_service_duid_update(int8_t interface, uint8_t guaPrefix[static
  */
 int DHCPv6_server_service_set_max_clients_accepts_count(int8_t interface, uint8_t guaPrefix[static 16], uint32_t maxClientCount)
 {
-    int retVal = -1;
     dhcpv6_gua_server_entry_s *serverInfo;
-    if (maxClientCount == 0) {
+    if (maxClientCount == 0 || maxClientCount > MAX_SUPPORTED_ADDRESS_LIST_SIZE) {
         return -2;
-    } else {
-        serverInfo = libdhcpv6_server_data_get_by_prefix_and_interfaceid(interface, guaPrefix);
-        if (serverInfo) {
-            serverInfo->maxSuppertedClients = maxClientCount;
-            retVal = 0;
-        }
     }
-    return retVal;
+    serverInfo = libdhcpv6_server_data_get_by_prefix_and_interfaceid(interface, guaPrefix);
+    if (!serverInfo) {
+        return -1;
+    }
+
+    serverInfo->maxSupportedClients = maxClientCount;
+
+    return 0;
 }
 
 /** SET Address Valid Lifetime parameter for allocated address, Default is 7200 seconds
@@ -388,18 +395,17 @@ int DHCPv6_server_service_set_max_clients_accepts_count(int8_t interface, uint8_
  */
 int DHCPv6_server_service_set_address_validlifetime(int8_t interface, uint8_t guaPrefix[static 16], uint32_t validLifeTimne)
 {
-    int retVal = -1;
     dhcpv6_gua_server_entry_s *serverInfo;
     if (validLifeTimne < 120) {
-        retVal = -2;
-    } else {
-        serverInfo = libdhcpv6_server_data_get_by_prefix_and_interfaceid(interface, guaPrefix);
-        if (serverInfo) {
-            serverInfo->validLifetime = validLifeTimne;
-            retVal = 0;
-        }
+        return -2;
     }
-    return retVal;
+    serverInfo = libdhcpv6_server_data_get_by_prefix_and_interfaceid(interface, guaPrefix);
+    if (!serverInfo) {
+        return -1;
+    }
+    serverInfo->validLifetime = validLifeTimne;
+
+    return 0;
 }
 #else
 
@@ -422,11 +428,12 @@ void DHCPv6_server_service_timeout_cb(uint32_t timeUpdateInSeconds)
 {
     (void) timeUpdateInSeconds;
 }
-int DHCPv6_server_service_set_address_autonous_flag(int8_t interface, uint8_t guaPrefix[static 16], bool mode)
+int DHCPv6_server_service_set_address_autonous_flag(int8_t interface, uint8_t guaPrefix[static 16], bool mode, bool autonomous_skip_list)
 {
     (void) interface;
     (void) guaPrefix;
     (void) mode;
+    (void) autonomous_skip_list;
 
     return -1;
 }

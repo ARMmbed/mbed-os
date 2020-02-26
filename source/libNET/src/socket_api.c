@@ -108,6 +108,8 @@ int8_t socket_close(int8_t sid)
 int8_t socket_listen(int8_t socket, uint8_t backlog)
 {
 #ifdef NO_TCP
+    (void) socket;
+    (void) backlog;
     return -1;
 #else
     socket_t *socket_ptr = socket_pointer_get(socket);
@@ -141,6 +143,9 @@ int8_t socket_listen(int8_t socket, uint8_t backlog)
 int8_t socket_accept(int8_t listen_socket_id, ns_address_t *addr, void (*passed_fptr)(void *))
 {
 #ifdef NO_TCP
+    (void) listen_socket_id;
+    (void) addr;
+    (void) passed_fptr;
     return -1;
 #else
     socket_t *socket_ptr = socket_pointer_get(listen_socket_id);
@@ -189,6 +194,8 @@ int8_t socket_accept(int8_t listen_socket_id, ns_address_t *addr, void (*passed_
 int8_t socket_shutdown(int8_t socket, uint8_t how)
 {
 #ifdef NO_TCP
+    (void) socket;
+    (void) how;
     return -1;
 #else
     socket_t *socket_ptr = socket_pointer_get(socket);
@@ -608,8 +615,8 @@ int8_t socket_connect(int8_t socket, ns_address_t *address, uint8_t randomly_tak
 
         socket_ptr->flags |= SOCKET_FLAG_CONNECTING;
     }
-#endif
 exit:
+#endif
     if (status != 0) {
         memcpy(inet_pcb->remote_address, ns_in6addr_any, 16);
         inet_pcb->remote_port = 0;

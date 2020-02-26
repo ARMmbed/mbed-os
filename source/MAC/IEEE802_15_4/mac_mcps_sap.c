@@ -1321,7 +1321,7 @@ static void mac_common_data_confirmation_handle(protocol_interface_rf_mac_setup_
     timer_mac_stop(rf_mac_setup);
     if (m_event == MAC_CCA_FAIL) {
         sw_mac_stats_update(rf_mac_setup, STAT_MAC_TX_CCA_FAIL, 0);
-        tr_debug("MAC CCA fail");
+        tr_info("MAC CCA fail");
         /* CCA fail */
         //rf_mac_setup->cca_failure++;
         buf->status = MLME_BUSY_CHAN;
@@ -1329,7 +1329,7 @@ static void mac_common_data_confirmation_handle(protocol_interface_rf_mac_setup_
         sw_mac_stats_update(rf_mac_setup, STAT_MAC_TX_COUNT, buf->mac_payload_length);
         if (m_event == MAC_TX_FAIL) {
             sw_mac_stats_update(rf_mac_setup, STAT_MAC_TX_FAIL, 0);
-            tr_debug("MAC tx fail");
+            tr_info("MAC tx fail");
             buf->status = MLME_TX_NO_ACK;
         } else if (m_event == MAC_TX_DONE) {
             if (mac_is_ack_request_set(buf) == false) {
@@ -1430,7 +1430,7 @@ static void mcps_data_confirm_handle(protocol_interface_rf_mac_setup_s *rf_ptr, 
     if (rf_ptr->fhss_api && !buffer->asynch_request) {
         // FHSS checks if this failed buffer needs to be pushed back to TX queue and retransmitted
         if ((rf_ptr->mac_tx_result == MAC_TX_FAIL) || (rf_ptr->mac_tx_result == MAC_CCA_FAIL)) {
-            if (rf_ptr->fhss_api->data_tx_fail(rf_ptr->fhss_api, buffer->msduHandle, mac_convert_frame_type_to_fhss(buffer->fcf_dsn.frametype)) == true) {
+            if (rf_ptr->fhss_api->data_tx_fail(rf_ptr->fhss_api, buffer->msduHandle, mac_convert_frame_type_to_fhss(buffer->fcf_dsn.frametype), rf_ptr->mac_tx_start_channel) == true) {
 
                 if (rf_ptr->mac_tx_result == MAC_TX_FAIL) {
                     buffer->fhss_retry_count += 1 + rf_ptr->mac_tx_status.retry;
@@ -1543,7 +1543,7 @@ static int8_t mcps_generic_packet_build(protocol_interface_rf_mac_setup_s *rf_pt
     mac_header_information_elements_preparation(buffer);
 
     mcps_generic_sequence_number_allocate(rf_ptr, buffer);
-    mlme_key_descriptor_t *key_desc;
+    mlme_key_descriptor_t *key_desc = NULL;
     if (buffer->fcf_dsn.securityEnabled) {
         bool increment_framecounter = false;
         //Remember to update security counter here!
@@ -1600,7 +1600,7 @@ static int8_t mcps_generic_packet_build(protocol_interface_rf_mac_setup_s *rf_pt
         tr_debug("Too Long %u, %u pa %u header %u mic %u", frame_length, mac_payload_length, buffer->mac_header_length_with_security,  buffer->security_mic_len, dev_driver->phy_MTU);
         buffer->status = MLME_FRAME_TOO_LONG;
         //decrement security counter
-        if (buffer->fcf_dsn.securityEnabled) {
+        if (key_desc) {
             mac_sec_mib_key_outgoing_frame_counter_decrement(rf_ptr, key_desc);
         }
         return -1;
@@ -1716,7 +1716,7 @@ int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, bool in
 
     ccm_globals_t ccm_ptr;
     mac_pre_build_frame_t *buffer = &rf_ptr->enhanced_ack_buffer;
-    mlme_key_descriptor_t *key_desc;
+    mlme_key_descriptor_t *key_desc = NULL;
 
     if (buffer->fcf_dsn.securityEnabled) {
         //Remember to update security counter here!
@@ -1755,7 +1755,7 @@ int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, bool in
     if ((frame_length) > ack_mtu_size - 2) {
         buffer->status = MLME_FRAME_TOO_LONG;
 
-        if (buffer->fcf_dsn.securityEnabled) {
+        if (key_desc) {
             //decrement security counter
             mac_sec_mib_key_outgoing_frame_counter_decrement(rf_ptr, key_desc);
             ccm_free(&ccm_ptr);
@@ -1921,6 +1921,7 @@ static int8_t mcps_pd_data_request(protocol_interface_rf_mac_setup_s *rf_ptr, ma
     memset(&(rf_ptr->mac_tx_status), 0, sizeof(mac_tx_status_t));
     rf_ptr->mac_cca_retry = 0;
     rf_ptr->mac_tx_retry = 0;
+    rf_ptr->mac_tx_start_channel = rf_ptr->mac_channel;
     mac_csma_param_init(rf_ptr);
     if (mcps_generic_packet_build(rf_ptr, buffer) != 0) {
         return -1;

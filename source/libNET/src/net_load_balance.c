@@ -146,12 +146,14 @@ int8_t net_load_balance_network_switch_cb_set(int8_t interface_id, net_load_bala
 
     return load_balance_network_switch_cb_set(interface_ptr->lb_api, network_switch_notify);
 #else
+    (void) interface_id;
+    (void) network_switch_notify;
     return -1;
 #endif
 }
 
 
-int8_t net_load_balance_create(int8_t interface_id, bool  enable_periodic_beacon_interval)
+int8_t net_load_balance_create(int8_t interface_id, bool enable_periodic_beacon_interval)
 {
 #ifdef HAVE_6LOWPAN_ND
     protocol_interface_info_entry_t *interface_ptr = protocol_stack_interface_info_get_by_id(interface_id);
@@ -188,6 +190,8 @@ int8_t net_load_balance_create(int8_t interface_id, bool  enable_periodic_beacon
 
     return 0;
 #else
+    (void) interface_id;
+    (void) enable_periodic_beacon_interval;
     return -1;
 #endif
 }
@@ -205,6 +209,7 @@ int8_t net_load_balance_delete(int8_t interface_id)
 
     return load_balance_delete(lb_api);
 #else
+    (void) interface_id;
     return -1;
 #endif
 }
@@ -223,6 +228,9 @@ int8_t net_load_balance_threshold_set(int8_t interface_id, uint8_t threshold_min
 
     return load_balance_network_threshold_set(interface_ptr->lb_api, threshold_min, threshold_max);
 #else
+    (void) interface_id;
+    (void) threshold_min;
+    (void) threshold_max;
     return -1;
 #endif
 }
@@ -259,8 +267,10 @@ void net_load_balance_internal_state_activate(protocol_interface_info_entry_t *i
     set_req.value_pointer = &state;
     set_req.value_size = sizeof(bool);
     interface_ptr->mac_api->mlme_req(interface_ptr->mac_api, MLME_SET, &set_req);
+#else
+    (void) interface_ptr;
+    (void) state;
 #endif
-
 }
 
 #ifdef HAVE_RPL
@@ -361,6 +371,8 @@ int8_t net_load_balance_set_max_probability(int8_t interface_id, uint8_t max_p)
 
     return load_balance_set_max_probability(interface_ptr->lb_api, max_p);
 #else
+    (void) interface_id;
+    (void) max_p;
     return -1;
 #endif
 }

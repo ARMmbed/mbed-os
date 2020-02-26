@@ -773,6 +773,9 @@ drop:
 static buffer_t *ipv6_handle_options(buffer_t *buf, protocol_interface_info_entry_t *cur, uint8_t *ptr, uint8_t nh, uint16_t payload_length, uint16_t *hdrlen_out, const sockaddr_t *ll_src, bool pre_fragment)
 {
     (void) nh;
+#ifndef HAVE_RPL
+    (void) ll_src;
+#endif
     if (payload_length < 2) {
         return icmpv6_error(buf, cur, ICMPV6_TYPE_ERROR_PARAMETER_PROBLEM, ICMPV6_CODE_PARAM_PRB_HDR_ERR, 4);
     }
@@ -853,6 +856,9 @@ len_err:
 
 static buffer_t *ipv6_handle_routing_header(buffer_t *buf, protocol_interface_info_entry_t *cur, uint8_t *ptr, uint16_t payload_length, uint16_t *hdrlen_out, bool *forward_out, bool pre_fragment)
 {
+#ifndef HAVE_RPL
+    (void) forward_out;
+#endif
     if (buf->options.ll_security_bypass_rx) {
         tr_warn("Routing header: Security check fail");
         protocol_stats_update(STATS_IP_RX_DROP, 1);
