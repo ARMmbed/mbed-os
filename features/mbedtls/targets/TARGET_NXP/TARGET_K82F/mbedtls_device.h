@@ -18,5 +18,6 @@
 #define MBEDTLS_AES_CRYPT_CTR_ALT
 
 #define MBEDTLS_CCM_ALT
+#define MBEDTLS_GCM_ALT
 
 #endif /* MBEDTLS_DEVICE_H */
