@@ -30,7 +30,6 @@ SPDX-License-Identifier: BSD-3-Clause
 #ifndef MBED_LORAWAN_MAC_LORAMAC_CRYPTO_H__
 #define MBED_LORAWAN_MAC_LORAMAC_CRYPTO_H__
 
-#include "mbedtls/config.h"
 #include "mbedtls/aes.h"
 #include "mbedtls/cmac.h"
 
