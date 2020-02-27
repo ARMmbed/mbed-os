@@ -25,8 +25,10 @@ I2CEEBlockDevice::I2CEEBlockDevice(
     PinName sda, PinName scl, uint8_t addr,
     bd_size_t size, bd_size_t block, int freq,
     bool address_is_eight_bit)
-    : _i2c_addr(addr), _size(size), _block(block),
-      _address_is_eight_bit(address_is_eight_bit)
+    : _i2c_addr(addr)
+    , _address_is_eight_bit(address_is_eight_bit)
+    , _size(size)
+    , _block(block)
 {
     _i2c = new (_i2c_buffer) I2C(sda, scl);
     _i2c->frequency(freq);
@@ -36,8 +38,10 @@ I2CEEBlockDevice::I2CEEBlockDevice(
     I2C *i2c_obj, uint8_t addr,
     bd_size_t size, bd_size_t block,
     bool address_is_eight_bit)
-    : _i2c_addr(addr), _size(size), _block(block),
-      _address_is_eight_bit(address_is_eight_bit)
+    : _i2c_addr(addr)
+    , _address_is_eight_bit(address_is_eight_bit)
+    , _size(size)
+    , _block(block)
 {
     _i2c = i2c_obj;
 }
