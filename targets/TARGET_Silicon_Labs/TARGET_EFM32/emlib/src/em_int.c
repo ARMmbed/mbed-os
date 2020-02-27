@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief Assert API
+ * @brief Interrupt enable/disable unit API
  *******************************************************************************
  * # License
  * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
@@ -28,8 +28,8 @@
  *
  ******************************************************************************/
 
-#include "em_assert.h"
-#include <stdbool.h>
+#include <stdint.h>
+#include "em_int.h"
 
 /***************************************************************************//**
  * @addtogroup emlib
@@ -37,46 +37,40 @@
  ******************************************************************************/
 
 /***************************************************************************//**
- * @addtogroup ASSERT
- * @details
- *  This module contains functions to control the ASSERT peripheral of Silicon
- *  Labs 32-bit MCUs and SoCs.
+ * @addtogroup INT
+ * @brief Safe nesting of interrupt disable/enable API
  * @{
+ * @deprecated
+ *   These functions are deprecated and marked for removal in a later release.
+ *   Use the @ref CORE module instead. See @ref core_porting for
+ *   information on how to convert existing code bases to use @ref CORE.
+ *
+ * @details
+ *  This module contains functions to safely disable and enable interrupts
+ *  at the CPU level. INT_Disable() disables interrupts globally and increments a lock
+ *  level counter (counting semaphore). INT_Enable() decrements the lock level
+ *  counter and enables interrupts if the counter reaches zero.
+ *
+ *  These functions would normally be used to secure critical regions and
+ *  to make sure that a critical section that calls into another critical
+ *  section does not unintentionally terminate the callee critical section.
+ *
+ *  These functions should also be used inside interrupt handlers:
+ *  @verbatim
+ *  void SysTick_Handler(void)
+ *  {
+ *    INT_Disable();
+ *      .
+ *      .
+ *      .
+ *    INT_Enable();
+ *  }
+ * @endverbatim
  ******************************************************************************/
 
-#if defined(DEBUG_EFM)
-/***************************************************************************//**
- * @brief
- *   EFM internal assert handling.
- *
- *   This function is invoked through EFM_ASSERT() macro usage only and should
- *   not be used explicitly.
- *
- *   This implementation enters an indefinite loop, allowing
- *   the use of a debugger to determine a cause of failure. By defining
- *   DEBUG_EFM_USER to the preprocessor for all files, a user-defined version
- *   of this function must be defined and will be invoked instead, possibly
- *   providing output of assertion location.
- *
- * @note
- *   This function is not used unless @ref DEBUG_EFM is defined
- *   during preprocessing of EFM_ASSERT() usage.
- *
- * @param[in] file
- *   Name of the source file where assertion failed.
- *
- * @param[in] line
- *   A line number in the source file where assertion failed.
- ******************************************************************************/
-void assertEFM(const char *file, int line)
-{
-  (void)file;  /* Unused parameter */
-  (void)line;  /* Unused parameter */
+/** An interrupt lock level counter. Set to zero initially because main is
+ *  normally entered with interrupts enabled.  */
+uint32_t INT_LockCnt = 0;
 
-  while (true) {
-  }
-}
-#endif /* DEBUG_EFM */
-
-/** @} (end addtogroup ASSERT) */
+/** @} (end addtogroup INT) */
 /** @} (end addtogroup emlib) */

@@ -1,32 +1,30 @@
 /***************************************************************************//**
- * @file em_assert.h
+ * @file
  * @brief Emlib peripheral API "assert" implementation.
- * @version 5.3.3
  *******************************************************************************
  * # License
- * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
- *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
- * obligation to support this Software. Silicon Labs is providing the
- * Software "AS IS", with no express or implied warranties of any kind,
- * including, but not limited to, any implied warranties of merchantability
- * or fitness for any particular purpose or warranties against infringement
- * of any proprietary rights of a third party.
- *
- * Silicon Labs will not be liable for any consequential, incidental, or
- * special damages, or any other relief, or for any claim by any third party,
- * arising from your use of this Software.
  *
  ******************************************************************************/
 
@@ -55,26 +53,26 @@ extern "C" {
  * @addtogroup ASSERT
  * @brief Error checking module.
  * @details
- * By default, EMLIB library assert usage is not included in order to reduce
+ * By default, EMLIB library assert usage is not included to reduce
  * footprint and processing overhead. Further, EMLIB assert usage is decoupled
- * from ISO C assert handling (NDEBUG usage), to allow a user to use ISO C
+ * from ISO C assert handling (NDEBUG usage) to allow using ISO C
  * assert without including EMLIB assert statements.
  *
  * Below are available defines for controlling EMLIB assert inclusion. The defines
- * are typically defined for a project to be used by the preprocessor.
+ * are typically for a project to be used by the preprocessor.
  *
  * @li If @ref DEBUG_EFM is defined, the internal EMLIB library assert handling will
  * be used. This is implemented as a simple while(true) loop. @ref DEBUG_EFM is not
  * defined by default.
  *
- * @li If DEBUG_EFM_USER is defined instead, the user must provide their own
+ * @li If DEBUG_EFM_USER is defined, the user must provide custom
  * implementation of the assertEFM() function.
  *
- * @li If both @ref DEBUG_EFM and DEBUG_EFM_USER are undefined then all EFM_ASSERT()
- * statements are no operation.
+ * @li If both @ref DEBUG_EFM and DEBUG_EFM_USER are undefined, all EFM_ASSERT()
+ * statements are not operational.
  *
  * @note
- * The internal EMLIB assert is documented here because @ref DEBUG_EFM is defined in
+ * The internal EMLIB assert is documented because @ref DEBUG_EFM is defined in
  * the doxygen configuration.
  * @{
  ******************************************************************************/
@@ -85,7 +83,7 @@ void assertEFM(const char *file, int line);
 
 #else
 
-/** Default assertion is no operation */
+/** Default assertion is not operational */
 #define EFM_ASSERT(expr)    ((void)(expr))
 
 #endif /* defined(DEBUG_EFM) || defined(DEBUG_EFM_USER) */

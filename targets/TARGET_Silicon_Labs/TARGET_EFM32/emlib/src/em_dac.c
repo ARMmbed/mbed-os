@@ -1,32 +1,30 @@
 /***************************************************************************//**
- * @file em_dac.c
+ * @file
  * @brief Digital to Analog Converter (DAC) Peripheral API
- * @version 5.3.3
  *******************************************************************************
  * # License
- * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
- *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
- * obligation to support this Software. Silicon Labs is providing the
- * Software "AS IS", with no express or implied warranties of any kind,
- * including, but not limited to, any implied warranties of merchantability
- * or fitness for any particular purpose or warranties against infringement
- * of any proprietary rights of a third party.
- *
- * Silicon Labs will not be liable for any consequential, incidental, or
- * special damages, or any other relief, or for any claim by any third party,
- * arising from your use of this Software.
  *
  ******************************************************************************/
 
@@ -47,8 +45,8 @@
  * @details
  *  This module contains functions to control the DAC peripheral of Silicon
  *  Labs 32-bit MCUs and SoCs. The DAC converts digital values to analog signals
- *  at up to 500 ksps with 12-bit accuracy. The DAC is designed for low energy
- *  consumption, but can also provide very good performance.
+ *  at up to 500 ksps with 12-bit accuracy. The DAC is designed for low-energy
+ *  consumption and can also provide very good performance.
  * @{
  ******************************************************************************/
 
@@ -72,13 +70,13 @@
 
 /***************************************************************************//**
  * @brief
- *   Enable/disable DAC channel.
+ *   Enable/disable the DAC channel.
  *
  * @param[in] dac
- *   Pointer to DAC peripheral register block.
+ *   A pointer to the DAC peripheral register block.
  *
  * @param[in] ch
- *   Channel to enable/disable.
+ *   A channel to enable/disable.
  *
  * @param[in] enable
  *   true to enable DAC channel, false to disable.
@@ -105,16 +103,16 @@ void DAC_Enable(DAC_TypeDef *dac, unsigned int ch, bool enable)
  *
  * @details
  *   Initializes common parts for both channels. In addition, channel control
- *   configuration must be done, please refer to DAC_InitChannel().
+ *   configuration must be done. See DAC_InitChannel().
  *
  * @note
  *   This function will disable both channels prior to configuration.
  *
  * @param[in] dac
- *   Pointer to DAC peripheral register block.
+ *   A pointer to the DAC peripheral register block.
  *
  * @param[in] init
- *   Pointer to DAC initialization structure.
+ *   A pointer to the DAC initialization structure.
  ******************************************************************************/
 void DAC_Init(DAC_TypeDef *dac, const DAC_Init_TypeDef *init)
 {
@@ -126,7 +124,7 @@ void DAC_Init(DAC_TypeDef *dac, const DAC_Init_TypeDef *init)
   BUS_RegBitWrite(&(dac->CH0CTRL), _DAC_CH0CTRL_EN_SHIFT, 0);
   BUS_RegBitWrite(&(dac->CH1CTRL), _DAC_CH0CTRL_EN_SHIFT, 0);
 
-  /* Load proper calibration data depending on selected reference */
+  /* Load proper calibration data depending on the selected reference. */
   switch (init->reference) {
     case dacRef2V5:
       dac->CAL = DEVINFO->DAC0CAL1;
@@ -172,13 +170,13 @@ void DAC_Init(DAC_TypeDef *dac, const DAC_Init_TypeDef *init)
  *   Initialize DAC channel.
  *
  * @param[in] dac
- *   Pointer to DAC peripheral register block.
+ *   A pointer to the DAC peripheral register block.
  *
  * @param[in] init
- *   Pointer to DAC initialization structure.
+ *   A pointer to the DAC initialization structure.
  *
  * @param[in] ch
- *   Channel number to initialize.
+ *   A channel number to initialize.
  ******************************************************************************/
 void DAC_InitChannel(DAC_TypeDef *dac,
                      const DAC_InitChannel_TypeDef *init,
@@ -219,13 +217,13 @@ void DAC_InitChannel(DAC_TypeDef *dac,
  *   to the corresponding CHnDATA register.
  *
  * @param[in] dac
- *   Pointer to DAC peripheral register block.
+ *   A pointer to the DAC peripheral register block.
  *
  * @param[in] channel
- *   Channel number to set output of.
+ *   A channel number to set the output.
  *
  * @param[in] value
- *   Value to write to the channel output register CHnDATA.
+ *   A value to write to the channel output register CHnDATA.
  ******************************************************************************/
 void DAC_ChannelOutputSet(DAC_TypeDef *dac,
                           unsigned int channel,
@@ -246,41 +244,41 @@ void DAC_ChannelOutputSet(DAC_TypeDef *dac,
 
 /***************************************************************************//**
  * @brief
- *   Calculate prescaler value used to determine DAC clock.
+ *   Calculate prescaler value used to determine the DAC clock.
  *
  * @details
  *   The DAC clock is given by: HFPERCLK / (prescale ^ 2). If the requested
- *   DAC frequency is low and the max prescaler value can not adjust the
- *   actual DAC frequency lower than the requested DAC frequency, then the
- *   max prescaler value is returned, resulting in a higher DAC frequency
+ *   DAC frequency is low and the maximum prescaler value can't adjust the
+ *   actual DAC frequency lower than the requested DAC frequency, the
+ *   maximum prescaler value is returned resulting in a higher DAC frequency
  *   than requested.
  *
  * @param[in] dacFreq DAC frequency wanted. The frequency will automatically
- *   be adjusted to be below max allowed DAC clock.
+ *   be adjusted to be below the maximum allowed DAC clock.
  *
- * @param[in] hfperFreq Frequency in Hz of reference HFPER clock. Set to 0 to
- *   use currently defined HFPER clock setting.
+ * @param[in] hfperFreq Frequency in Hz of the reference HFPER clock. Set to 0 to
+ *   use the currently defined HFPER clock setting.
  *
  * @return
- *   Prescaler value to use for DAC in order to achieve a clock value
+ *   Prescaler value to use for DAC to achieve a clock value
  *   <= @p dacFreq.
  ******************************************************************************/
 uint8_t DAC_PrescaleCalc(uint32_t dacFreq, uint32_t hfperFreq)
 {
   uint32_t ret;
 
-  /* Make sure selected DAC clock is below max value */
+  /* Make sure the selected DAC clock is below maximum value. */
   if (dacFreq > DAC_MAX_CLOCK) {
     dacFreq = DAC_MAX_CLOCK;
   }
 
-  /* Use current HFPER frequency? */
+  /* Use the current HFPER frequency. */
   if (!hfperFreq) {
     hfperFreq = CMU_ClockFreqGet(cmuClock_HFPER);
   }
 
-  /* Iterate in order to determine best prescale value. Only a few possible */
-  /* values. We start with lowest prescaler value in order to get first */
+  /* Iterate to determine the best prescale value. Only a few possible */
+  /* values. Lowest prescaler value is started with to get the first */
   /* equal or below wanted DAC frequency value. */
   for (ret = 0; ret <= (_DAC_CTRL_PRESC_MASK >> _DAC_CTRL_PRESC_SHIFT); ret++) {
     if ((hfperFreq >> ret) <= dacFreq) {
@@ -288,7 +286,7 @@ uint8_t DAC_PrescaleCalc(uint32_t dacFreq, uint32_t hfperFreq)
     }
   }
 
-  /* If ret is higher than the max prescaler value, make sure to return
+  /* If return is higher than the maximum prescaler value, make sure to return
      the max value. */
   if (ret > (_DAC_CTRL_PRESC_MASK >> _DAC_CTRL_PRESC_SHIFT)) {
     ret = _DAC_CTRL_PRESC_MASK >> _DAC_CTRL_PRESC_SHIFT;
@@ -299,10 +297,10 @@ uint8_t DAC_PrescaleCalc(uint32_t dacFreq, uint32_t hfperFreq)
 
 /***************************************************************************//**
  * @brief
- *   Reset DAC to same state as after a HW reset.
+ *   Reset DAC to the same state that it was in after a hardware reset.
  *
  * @param[in] dac
- *   Pointer to ADC peripheral register block.
+ *   A pointer to the ADC peripheral register block.
  ******************************************************************************/
 void DAC_Reset(DAC_TypeDef *dac)
 {

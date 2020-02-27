@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief Assert API
+ * @brief Interrupt enable/disable unit API
  *******************************************************************************
  * # License
  * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
@@ -28,8 +28,25 @@
  *
  ******************************************************************************/
 
-#include "em_assert.h"
-#include <stdbool.h>
+#ifndef EM_INT_H
+#define EM_INT_H
+
+#include "em_device.h"
+
+extern uint32_t INT_LockCnt;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+#ifndef UINT32_MAX
+#define UINT32_MAX ((uint32_t)(0xFFFFFFFF))
+#endif
+
+#warning "The INT module is deprecated and marked for removal in a later release. Please use the new CORE module instead. See \"Porting from em_int\" in the CORE documentation for instructions."
+
+/** @endcond */
 
 /***************************************************************************//**
  * @addtogroup emlib
@@ -37,46 +54,72 @@
  ******************************************************************************/
 
 /***************************************************************************//**
- * @addtogroup ASSERT
- * @details
- *  This module contains functions to control the ASSERT peripheral of Silicon
- *  Labs 32-bit MCUs and SoCs.
+ * @addtogroup INT
  * @{
  ******************************************************************************/
 
-#if defined(DEBUG_EFM)
 /***************************************************************************//**
  * @brief
- *   EFM internal assert handling.
+ *   Disable interrupts.
  *
- *   This function is invoked through EFM_ASSERT() macro usage only and should
- *   not be used explicitly.
+ * @deprecated
+ *   Deprecated and marked for removal in a later release.
+ *   Use new CORE module instead.
  *
- *   This implementation enters an indefinite loop, allowing
- *   the use of a debugger to determine a cause of failure. By defining
- *   DEBUG_EFM_USER to the preprocessor for all files, a user-defined version
- *   of this function must be defined and will be invoked instead, possibly
- *   providing output of assertion location.
+ * @details
+ *   Disable interrupts and increment lock level counter.
  *
- * @note
- *   This function is not used unless @ref DEBUG_EFM is defined
- *   during preprocessing of EFM_ASSERT() usage.
+ * @return
+ *   Resulting interrupt disable nesting level.
  *
- * @param[in] file
- *   Name of the source file where assertion failed.
- *
- * @param[in] line
- *   A line number in the source file where assertion failed.
  ******************************************************************************/
-void assertEFM(const char *file, int line)
+__STATIC_INLINE uint32_t INT_Disable(void)
 {
-  (void)file;  /* Unused parameter */
-  (void)line;  /* Unused parameter */
+  __disable_irq();
+  if (INT_LockCnt < UINT32_MAX) {
+    INT_LockCnt++;
+  }
 
-  while (true) {
+  return INT_LockCnt;
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Enable interrupts.
+ *
+ * @deprecated
+ *   Deprecated and marked for removal in a later release.
+ *   Use the new CORE module instead.
+ *
+ * @return
+ *   Resulting interrupt disable nesting level.
+ *
+ * @details
+ *   Decrement interrupt lock level counter and enable interrupts if counter
+ *   reached zero.
+ *
+ ******************************************************************************/
+__STATIC_INLINE uint32_t INT_Enable(void)
+{
+  uint32_t retVal;
+
+  if (INT_LockCnt > 0) {
+    INT_LockCnt--;
+    retVal = INT_LockCnt;
+    if (retVal == 0) {
+      __enable_irq();
+    }
+    return retVal;
+  } else {
+    return 0;
   }
 }
-#endif /* DEBUG_EFM */
 
-/** @} (end addtogroup ASSERT) */
+/** @} (end addtogroup INT) */
 /** @} (end addtogroup emlib) */
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* EM_INT_H */
