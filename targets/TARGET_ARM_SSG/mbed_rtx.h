@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2016-2018 Arm Limited
+ * Copyright (c) 2016-2020 Arm Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -43,7 +43,7 @@
 #define INITIAL_SP              (ZBT_SSRAM23_START + ZBT_SSRAM23_SIZE)
 #endif
 
-#elif defined(TARGET_MUSCA_A1)
+#elif defined(TARGET_MUSCA_A1) || defined(TARGET_MUSCA_B1)
 
 #if defined(__ARMCC_VERSION)
     extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Base[];
@@ -58,6 +58,6 @@
     #error "no toolchain defined"
 #endif
 
-#endif  /* TARGET_MUSCA_A1 */
+#endif  /* defined(TARGET_MUSCA_A1) || defined(TARGET_MUSCA_B1) */
 
 #endif  /* MBED_MBED_RTX_H */

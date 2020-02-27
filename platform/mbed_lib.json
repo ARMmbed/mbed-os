@@ -159,6 +159,12 @@
         "ARM_MUSCA_A1_S": {
             "stdio-baud-rate": 115200
         },
+        "ARM_MUSCA_B1_NS": {
+            "stdio-baud-rate": 115200
+        },
+        "ARM_MUSCA_B1_S": {
+            "stdio-baud-rate": 115200
+        },
         "EFM32": {
             "stdio-baud-rate": 115200
         },

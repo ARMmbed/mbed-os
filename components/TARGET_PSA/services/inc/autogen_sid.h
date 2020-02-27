@@ -56,6 +56,7 @@
 #define PSA_PLATFORM_LC_GET 0x00011000
 #define PSA_PLATFORM_LC_SET 0x00011001
 #define PSA_PLATFORM_SYSTEM_RESET 0x00011002
+#define PSA_PLATFORM_IOCTL 0x00011003
 
 /* -----------------------------------------------------------------------------
  * ITS Service IDs

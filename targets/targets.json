@@ -8854,6 +8854,99 @@
             "secure-ram-size": "0x11000"
         }
     },
+    "ARM_MUSCA_B1": {
+        "public": false,
+        "inherits": [
+            "Target"
+        ],
+        "default_toolchain": "ARMC6",
+        "extra_labels": [
+            "ARM_SSG",
+            "MUSCA_B1"
+        ],
+        "forced_reset_timeout": 20,
+        "release_versions": [
+            "5"
+        ]
+    },
+    "ARM_MUSCA_B1_NS": {
+        "inherits": [
+            "NSPE_Target",
+            "ARM_MUSCA_B1"
+        ],
+        "core": "Cortex-M33-NS",
+        "supported_toolchains": [
+            "ARMC6",
+            "GCC_ARM"
+        ],
+        "device_has_add": [
+            "INTERRUPTIN",
+            "LPTICKER",
+            "SERIAL",
+            "SLEEP",
+            "USTICKER"
+        ],
+        "macros": [
+            "__STARTUP_CLEAR_BSS",
+            "MBED_FAULT_HANDLER_DISABLED",
+            "CMSIS_NVIC_VIRTUAL",
+            "LPTICKER_DELAY_TICKS=3",
+            "MBED_MPU_CUSTOM"
+        ],
+        "extra_labels_add": [
+            "MUSCA_B1_NS",
+            "PSA",
+            "TFM"
+        ],
+        "post_binary_hook": {
+            "function": "ArmMuscaB1Code.binary_hook"
+        },
+        "secure_image_filename": "tfm.bin",
+        "overrides": {
+            "non-secure-rom-start": "0x0A070400",
+            "non-secure-rom-size": "0x7f800",
+            "non-secure-ram-start": "0x20040000",
+            "non-secure-ram-size": "0x40000"
+        }
+    },
+    "ARM_MUSCA_B1_S": {
+        "inherits": [
+            "SPE_Target",
+            "ARM_MUSCA_B1"
+        ],
+        "core": "Cortex-M33",
+        "supported_toolchains": [
+            "ARMC6",
+            "GCC_ARM"
+        ],
+        "device_has_add": [
+            "FLASH"
+        ],
+        "macros": [
+            "__STARTUP_CLEAR_BSS_MULTIPLE",
+            "__STARTUP_COPY_MULTIPLE",
+            "MBED_MPU_CUSTOM",
+            "DAUTH_CHIP_DEFAULT",
+            "MBEDTLS_PSA_CRYPTO_SPM",
+            "MBEDTLS_ENTROPY_NV_SEED"
+        ],
+        "components_add": [
+            "FLASHIAP"
+        ],
+        "extra_labels_add": [
+            "MUSCA_B1_S",
+            "PSA",
+            "TFM"
+        ],
+        "deliver_to_target": "ARM_MUSCA_B1_NS",
+        "delivery_dir": "TARGET_ARM_SSG/TARGET_MUSCA_B1/TARGET_MUSCA_B1_NS/prebuilt",
+        "overrides": {
+            "secure-rom-start": "0x1A020400",
+            "secure-rom-size": "0x4f800",
+            "secure-ram-start": "0x30000000",
+            "secure-ram-size": "0x40000"
+        }
+    },
     "RZ_A1XX": {
         "inherits": [
             "Target"
