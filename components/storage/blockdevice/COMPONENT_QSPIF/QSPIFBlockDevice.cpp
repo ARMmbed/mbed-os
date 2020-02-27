@@ -125,10 +125,12 @@ PinName *QSPIFBlockDevice::_active_qspif_flash_csel_arr = generate_initialized_a
 /********* Public API Functions *********/
 /****************************************/
 QSPIFBlockDevice::QSPIFBlockDevice(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, PinName csel,
-                                   int clock_mode, int freq)
-    : _qspi(io0, io1, io2, io3, sclk, csel, clock_mode), _csel(csel), _freq(freq), _device_size_bytes(0),
-      _init_ref_count(0),
-      _is_initialized(false)
+                                   int clock_mode,
+                                   int freq)
+    :
+    _qspi(io0, io1, io2, io3, sclk, csel, clock_mode), _csel(csel), _freq(freq),
+    _init_ref_count(0),
+    _is_initialized(false)
 {
     _unique_device_status = add_new_csel_instance(csel);
 
@@ -142,6 +144,7 @@ QSPIFBlockDevice::QSPIFBlockDevice(PinName io0, PinName io1, PinName io2, PinNam
 
     // Initialize parameters
     _sfdp_info.bptbl.legacy_erase_instruction = QSPIF_INST_LEGACY_ERASE_DEFAULT;
+    _sfdp_info.bptbl.device_size_bytes = 0;
     _sfdp_info.smptbl.regions_min_common_erase_size = 0;
     _sfdp_info.smptbl.region_cnt = 1;
     _sfdp_info.smptbl.region_erase_types_bitfld[0] = SFDP_ERASE_BITMASK_NONE;
@@ -249,9 +252,8 @@ int QSPIFBlockDevice::init()
     }
 
     /**************************** Parse Sector Map Table ***********************************/
-    _sfdp_info.smptbl.region_size[0] =
-        _device_size_bytes; // If there's no region map, we have a single region sized the entire device size
-    _sfdp_info.smptbl.region_high_boundary[0] = _device_size_bytes - 1;
+    _sfdp_info.smptbl.region_size[0] = _sfdp_info.bptbl.device_size_bytes; // If there's no region map, we have a single region sized the entire device size
+    _sfdp_info.smptbl.region_high_boundary[0] = _sfdp_info.bptbl.device_size_bytes - 1;
 
     if ((_sfdp_info.smptbl.addr != 0) && (0 != _sfdp_info.smptbl.size)) {
         tr_debug("Init - Parsing Sector Map Table - addr: 0x%lxh, Size: %d", _sfdp_info.smptbl.addr,
@@ -399,13 +401,13 @@ int QSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
     bool erase_failed = false;
     int status = QSPIF_BD_ERROR_OK;
     // Find region of erased address
-    int region = _utils_find_addr_region(addr, _sfdp_info.smptbl);
+    int region = sfdp_find_addr_region(addr, _sfdp_info);
     // Erase Types of selected region
     uint8_t bitfield = _sfdp_info.smptbl.region_erase_types_bitfld[region];
 
     tr_debug("Erase - addr: %llu, in_size: %llu", addr, in_size);
 
-    if ((addr + in_size) > _device_size_bytes) {
+    if ((addr + in_size) > _sfdp_info.bptbl.device_size_bytes) {
         tr_error("Erase exceeds flash device size");
         return QSPIF_BD_ERROR_INVALID_ERASE_PARAMS;
     }
@@ -421,9 +423,9 @@ int QSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
         if (_sfdp_info.bptbl.legacy_erase_instruction == QSPI_NO_INST) {
             // Iterate to find next largest erase type that is a) supported by region, and b) smaller than size.
             // Find the matching instruction and erase size chunk for that type.
-            type = _utils_iterate_next_largest_erase_type(bitfield, size, (int)addr,
-                                                          region,
-                                                          _sfdp_info.smptbl);
+            type = sfdp_iterate_next_largest_erase_type(bitfield, size, (int)addr,
+                                                        region,
+                                                        _sfdp_info.smptbl);
             cur_erase_inst = _sfdp_info.smptbl.erase_type_inst_arr[type];
             eu_size = _sfdp_info.smptbl.erase_type_size_arr[type];
         } else {
@@ -514,7 +516,7 @@ bd_size_t QSPIFBlockDevice::get_erase_size(bd_addr_t addr)
     }
 
     // Find region of current address
-    int region = _utils_find_addr_region(addr, _sfdp_info.smptbl);
+    int region = sfdp_find_addr_region(addr, _sfdp_info);
 
     int min_region_erase_size = _sfdp_info.smptbl.regions_min_common_erase_size;
     int8_t type_mask = SFDP_ERASE_BITMASK_TYPE1;
@@ -543,7 +545,7 @@ bd_size_t QSPIFBlockDevice::get_erase_size(bd_addr_t addr)
 
 bd_size_t QSPIFBlockDevice::size() const
 {
-    return _device_size_bytes;
+    return _sfdp_info.bptbl.device_size_bytes;
 }
 
 int QSPIFBlockDevice::get_erase_value() const
@@ -638,7 +640,7 @@ int QSPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void
                              (param_table[6] << 16) |
                              (param_table[5] << 8)  |
                              param_table[4]);
-    _device_size_bytes = (density_bits + 1) / 8;
+    sfdp_info.bptbl.device_size_bytes = (density_bits + 1) / 8;
 
     // Set Page Size (QSPI write must be done on Page limits)
     _page_size_bytes = sfdp_detect_page_size(param_table, sfdp_info.bptbl.size);
@@ -1245,61 +1247,6 @@ bool QSPIFBlockDevice::_is_mem_ready()
         mem_ready = false;
     }
     return mem_ready;
-}
-
-/*********************************************/
-/************* Utility Functions *************/
-/*********************************************/
-int QSPIFBlockDevice::_utils_find_addr_region(bd_size_t offset, sfdp_smptbl_info &smptbl)
-{
-    //Find the region to which the given offset belong to
-    if ((offset > _device_size_bytes) || (smptbl.region_cnt == 0)) {
-        return -1;
-    }
-
-    if (smptbl.region_cnt == 1) {
-        return 0;
-    }
-
-    for (int i_ind = smptbl.region_cnt - 2; i_ind >= 0; i_ind--) {
-
-        if (offset > smptbl.region_high_boundary[i_ind]) {
-            return (i_ind + 1);
-        }
-    }
-    return -1;
-
-}
-
-int QSPIFBlockDevice::_utils_iterate_next_largest_erase_type(uint8_t &bitfield,
-                                                             int size,
-                                                             int offset,
-                                                             int region,
-                                                             sfdp_smptbl_info &smptbl)
-{
-    // Iterate on all supported Erase Types of the Region to which the offset belong to.
-    // Iterates from highest type to lowest
-    uint8_t type_mask = SFDP_ERASE_BITMASK_TYPE4;
-    int i_ind  = 0;
-    int largest_erase_type = 0;
-    for (i_ind = 3; i_ind >= 0; i_ind--) {
-        if (bitfield & type_mask) {
-            largest_erase_type = i_ind;
-            if ((size > (int)(smptbl.erase_type_size_arr[largest_erase_type])) &&
-                    ((_sfdp_info.smptbl.region_high_boundary[region] - offset)
-                     > (int)(smptbl.erase_type_size_arr[largest_erase_type]))) {
-                break;
-            } else {
-                bitfield &= ~type_mask;
-            }
-        }
-        type_mask = type_mask >> 1;
-    }
-
-    if (i_ind == 4) {
-        tr_error("No erase type was found for current region addr");
-    }
-    return largest_erase_type;
 }
 
 /***************************************************/

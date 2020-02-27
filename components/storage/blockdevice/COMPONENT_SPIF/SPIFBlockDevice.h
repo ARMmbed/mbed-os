@@ -217,13 +217,6 @@ public:
     virtual const char *get_type() const;
 
 private:
-
-    // Internal functions
-
-    // SFDP helpers
-    friend int mbed::sfdp_parse_headers(mbed::Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader,
-                                        mbed::sfdp_hdr_info &hdr_info);
-
     /****************************************/
     /* SFDP Detection and Parsing Functions */
     /****************************************/
@@ -236,23 +229,6 @@ private:
 
     // Detect fastest read Bus mode supported by device
     int _sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table_ptr, int basic_param_table_size, int &read_inst);
-
-    // Set Page size for program
-    unsigned int _sfdp_detect_page_size(uint8_t *basic_param_table_ptr, int basic_param_table_size);
-
-    /***********************/
-    /* Utilities Functions */
-    /***********************/
-    // Find the region to which the given offset belongs to
-    int _utils_find_addr_region(bd_size_t offset, const mbed::sfdp_smptbl_info &smptbl) const;
-
-    // Iterate on all supported Erase Types of the Region to which the offset belongs to.
-    // Iterates from highest type to lowest
-    int _utils_iterate_next_largest_erase_type(uint8_t &bitfield,
-                                               int size,
-                                               int offset,
-                                               int region,
-                                               mbed::sfdp_smptbl_info &smptbl);
 
     /********************************/
     /*   Calls to SPI Driver APIs   */

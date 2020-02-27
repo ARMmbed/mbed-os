@@ -47,14 +47,15 @@ constexpr int SFDP_ERASE_BITMASK_ALL = 0x0F;   ///< Erase type All
 
 constexpr int SFDP_MAX_NUM_OF_ERASE_TYPES = 4;  ///< Maximum number of different erase types (erase granularity)
 
-/** SFDP Basic Parameter Table info */
+/** JEDEC Basic Flash Parameter Table info */
 struct sfdp_bptbl_info {
     uint32_t addr; ///< Address
     size_t size; ///< Size
+    bd_size_t device_size_bytes;
     int legacy_erase_instruction; ///< Legacy 4K erase instruction
 };
 
-/** SFDP Sector Map Table info */
+/** JEDEC Sector Map Table info */
 struct sfdp_smptbl_info {
     uint32_t addr; ///< Address
     size_t size; ///< Size
@@ -67,36 +68,38 @@ struct sfdp_smptbl_info {
     unsigned int erase_type_size_arr[SFDP_MAX_NUM_OF_ERASE_TYPES]; ///< Erase sizes for all different erase types
 };
 
-/** SFDP Parameter Table addresses and sizes */
+/** SFDP JEDEC Parameter Table info */
 struct sfdp_hdr_info {
     sfdp_bptbl_info bptbl;
     sfdp_smptbl_info smptbl;
 };
 
-/** Parse SFDP Headers
- * Retrieves SFDP headers from a device and parses the information contained by the headers
+/** Parse SFDP Database
+ * Retrieves all headers from within a memory device and parses the information contained by the headers
  *
- * @param sfdp_reader Callback function used to read headers from a device
- * @param hdr_info    All information parsed from the headers gets passed back on this structure
+ * Only JEDEC headers are parsed, not vendor specific ones.
  *
- * @return 0 on success, negative error code on failure
+ * @param      sfdp_reader Callback function used to read headers from within a device
+ * @param[out] sfdp_info   Contains the results of parsing the SFDP Database JEDEC headers
+ *
+ * @return MBED_SUCCESS on success, negative error code on failure
  */
-int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &hdr_info);
+int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &sfdp_info);
 
 /** Parse Sector Map Parameter Table
  * Retrieves the table from a device and parses the information contained by the table
  *
- * @param sfdp_reader Callback function used to read headers from a device
- * @param smtbl       All information parsed from the table gets passed back on this structure
+ * @param      sfdp_reader Callback function used to read headers from within a device
+ * @param[out] smtbl       Contains the results of parsing the JEDEC Sector Map Table
  *
- * @return 0 on success, negative error code on failure
+ * @return MBED_SUCCESS on success, negative error code on failure
  */
 int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_smptbl_info &smtbl);
 
 /** Detect page size used for writing on flash
  *
- * @param bptbl_ptr Pointer to memory holding a Basic Parameter Table structure
- * @param bptbl_size Size of memory holding a Basic Parameter Table
+ * @param bptbl_ptr  Pointer to memory holding a Basic Parameter Table structure
+ * @param bptbl_size Size of memory holding the Basic Parameter Table
  *
  * @return Page size
  */
@@ -104,12 +107,39 @@ size_t sfdp_detect_page_size(uint8_t *bptbl_ptr, size_t bptbl_size);
 
 /** Detect all supported erase types
  *
- * @param bptbl_ptr Pointer to memory holding a Basic Parameter Table structure
- * @param smtbl     All information parsed from the table gets passed back on this structure
+ * @param         bptbl_ptr Pointer to memory holding a JEDEC Basic Flash Parameter Table
+ * @param[in,out] sfdp_info Contains the results of parsing erase type instructions and sizes
  *
- * @return 0 on success, negative error code on failure
+ * @return MBED_SUCCESS on success, negative error code on failure
  */
 int sfdp_detect_erase_types_inst_and_size(uint8_t *bptbl_ptr, sfdp_hdr_info &sfdp_info);
+
+/** Find the region to which the given offset belongs to
+ *
+ * @param offset    Offset value
+ * @param sfdp_info Region information
+ *
+ * @return Region number
+ */
+int sfdp_find_addr_region(bd_size_t offset, const sfdp_hdr_info &sfdp_info);
+
+/** Finds the largest Erase Type of the Region to which the offset belongs to
+ *
+ * Iterates from highest type to lowest.
+ *
+ * @param bitfield Erase types bit field
+ * @param size     Upper limit for region size
+ * @param offset   Offset value
+ * @param region   Region number
+ * @param smtbl    Information about different erase types
+ *
+ * @return Largest erase type
+ */
+int sfdp_iterate_next_largest_erase_type(uint8_t &bitfield,
+                                         int size,
+                                         int offset,
+                                         int region,
+                                         const sfdp_smptbl_info &smptbl);
 
 /** @}*/
 } /* namespace mbed */

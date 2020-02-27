@@ -126,7 +126,7 @@ int sfdp_parse_single_param_header(sfdp_prm_hdr *phdr_ptr, sfdp_hdr_info &hdr_in
     return 0;
 }
 
-int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &hdr_info)
+int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &sfdp_info)
 {
     bd_addr_t addr = 0x0;
     int number_of_param_headers = 0;
@@ -164,7 +164,7 @@ int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, 
                 return -1;
             }
 
-            hdr_status = sfdp_parse_single_param_header((sfdp_prm_hdr *)param_header, hdr_info);
+            hdr_status = sfdp_parse_single_param_header((sfdp_prm_hdr *)param_header, sfdp_info);
             if (hdr_status < 0) {
                 return hdr_status;
             }
@@ -295,7 +295,54 @@ int sfdp_detect_erase_types_inst_and_size(uint8_t *bptbl_ptr, sfdp_hdr_info &sfd
     return 0;
 }
 
+int sfdp_find_addr_region(bd_size_t offset, const sfdp_hdr_info &sfdp_info)
+{
+    if ((offset > sfdp_info.bptbl.device_size_bytes) || (sfdp_info.smptbl.region_cnt == 0)) {
+        return -1;
+    }
 
+    if (sfdp_info.smptbl.region_cnt == 1) {
+        return 0;
+    }
+
+    for (int i_ind = sfdp_info.smptbl.region_cnt - 2; i_ind >= 0; i_ind--) {
+
+        if (offset > sfdp_info.smptbl.region_high_boundary[i_ind]) {
+            return (i_ind + 1);
+        }
+    }
+    return -1;
+
+}
+
+int sfdp_iterate_next_largest_erase_type(uint8_t &bitfield,
+                                         int size,
+                                         int offset,
+                                         int region,
+                                         const sfdp_smptbl_info &smptbl)
+{
+    uint8_t type_mask = SFDP_ERASE_BITMASK_TYPE4;
+    int i_ind = 0;
+    int largest_erase_type = 0;
+    for (i_ind = 3; i_ind >= 0; i_ind--) {
+        if (bitfield & type_mask) {
+            largest_erase_type = i_ind;
+            if ((size > (int)(smptbl.erase_type_size_arr[largest_erase_type])) &&
+                    ((smptbl.region_high_boundary[region] - offset)
+                     > (int)(smptbl.erase_type_size_arr[largest_erase_type]))) {
+                break;
+            } else {
+                bitfield &= ~type_mask;
+            }
+        }
+        type_mask = type_mask >> 1;
+    }
+
+    if (i_ind == 4) {
+        tr_error("No erase type was found for current region addr");
+    }
+    return largest_erase_type;
+}
 
 } /* namespace mbed */
 #endif /* (DEVICE_SPI || DEVICE_QSPI) */

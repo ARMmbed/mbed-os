@@ -85,12 +85,10 @@ SingletonPtr<PlatformMutex> SPIFBlockDevice::_mutex;
 //***********************
 // SPIF Block Device APIs
 //***********************
-SPIFBlockDevice::SPIFBlockDevice(
-    PinName mosi, PinName miso, PinName sclk, PinName csel, int freq)
+SPIFBlockDevice::SPIFBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName csel, int freq)
     :
     _spi(mosi, miso, sclk), _cs(csel), _prog_instruction(0), _erase_instruction(0),
-    _page_size_bytes(0),
-    _device_size_bytes(0), _init_ref_count(0), _is_initialized(false)
+    _page_size_bytes(0), _init_ref_count(0), _is_initialized(false)
 {
     _address_size = SPIF_ADDR_SIZE_3_BYTES;
     // Initial SFDP read tables are read with 8 dummy cycles
@@ -99,6 +97,7 @@ SPIFBlockDevice::SPIFBlockDevice(
     _write_dummy_and_mode_cycles = 0;
     _dummy_and_mode_cycles = _read_dummy_and_mode_cycles;
 
+    _sfdp_info.bptbl.device_size_bytes = 0;
     _sfdp_info.bptbl.legacy_erase_instruction = SPIF_INST_LEGACY_ERASE_DEFAULT;
     _sfdp_info.smptbl.regions_min_common_erase_size = 0;
     _sfdp_info.smptbl.region_cnt = 1;
@@ -188,9 +187,9 @@ int SPIFBlockDevice::init()
     }
 
     /**************************** Parse Sector Map Table ***********************************/
-    _sfdp_info.smptbl.region_size[0] =
-        _device_size_bytes; // If there's no region map, we have a single region sized the entire device size
-    _sfdp_info.smptbl.region_high_boundary[0] = _device_size_bytes - 1;
+    _sfdp_info.smptbl.region_size[0] = _sfdp_info.bptbl.device_size_bytes;
+    // If there's no region map, we have a single region sized the entire device size
+    _sfdp_info.smptbl.region_high_boundary[0] = _sfdp_info.bptbl.device_size_bytes - 1;
 
     if ((_sfdp_info.smptbl.addr != 0) && (0 != _sfdp_info.smptbl.size)) {
         tr_debug("init - Parsing Sector Map Table - addr: 0x%" PRIx32 "h, Size: %d", _sfdp_info.smptbl.addr,
@@ -207,9 +206,9 @@ int SPIFBlockDevice::init()
     // Dummy And Mode Cycles Back default 0
     _dummy_and_mode_cycles = _write_dummy_and_mode_cycles;
     _is_initialized = true;
-    tr_debug("Device size: %llu Kbytes", _device_size_bytes / 1024);
+    tr_debug("Device size: %llu Kbytes", _sfdp_info.bptbl.device_size_bytes / 1024);
 
-    if (_device_size_bytes > (1 << 24)) {
+    if (_sfdp_info.bptbl.device_size_bytes > (1 << 24)) {
         tr_debug("Size is bigger than 16MB and thus address does not fit in 3 byte, switch to 4 byte address mode");
         _spi_send_general_command(SPIF_4BEN, SPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0);
         _address_size = SPIF_ADDR_SIZE_4_BYTES;
@@ -340,7 +339,7 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
     bool erase_failed = false;
     int status = SPIF_BD_ERROR_OK;
     // Find region of erased address
-    int region = _utils_find_addr_region(addr, _sfdp_info.smptbl);
+    int region = sfdp_find_addr_region(addr, _sfdp_info);
     if (region < 0) {
         tr_error("no region found for address %llu", addr);
         return SPIF_BD_ERROR_INVALID_ERASE_PARAMS;
@@ -350,7 +349,7 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
 
     tr_debug("erase - addr: %llu, in_size: %llu", addr, in_size);
 
-    if ((addr + in_size) > _device_size_bytes) {
+    if ((addr + in_size) > _sfdp_info.bptbl.device_size_bytes) {
         tr_error("erase exceeds flash device size");
         return SPIF_BD_ERROR_INVALID_ERASE_PARAMS;
     }
@@ -365,7 +364,7 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
 
         // iterate to find next Largest erase type ( a. supported by region, b. smaller than size)
         // find the matching instruction and erase size chunk for that type.
-        type = _utils_iterate_next_largest_erase_type(bitfield, size, (unsigned int)addr, region, _sfdp_info.smptbl);
+        type = sfdp_iterate_next_largest_erase_type(bitfield, size, (unsigned int)addr, region, _sfdp_info.smptbl);
         cur_erase_inst = _sfdp_info.smptbl.erase_type_inst_arr[type];
         offset = addr % _sfdp_info.smptbl.erase_type_size_arr[type];
         chunk = ((offset + size) < _sfdp_info.smptbl.erase_type_size_arr[type]) ?
@@ -436,7 +435,7 @@ bd_size_t SPIFBlockDevice::get_erase_size() const
 bd_size_t SPIFBlockDevice::get_erase_size(bd_addr_t addr) const
 {
     // Find region of current address
-    int region = _utils_find_addr_region(addr, _sfdp_info.smptbl);
+    int region = sfdp_find_addr_region(addr, _sfdp_info);
 
     unsigned int min_region_erase_size = _sfdp_info.smptbl.regions_min_common_erase_size;
     int8_t type_mask = SFDP_ERASE_BITMASK_TYPE1;
@@ -469,7 +468,7 @@ bd_size_t SPIFBlockDevice::size() const
         return 0;
     }
 
-    return _device_size_bytes;
+    return _sfdp_info.bptbl.device_size_bytes;
 }
 
 int SPIFBlockDevice::get_erase_value() const
@@ -641,8 +640,8 @@ int SPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void 
                                 (param_table[6] << 16) |
                                 (param_table[5] << 8) |
                                 param_table[4]);
-    _device_size_bytes = (density_bits + 1) / 8;
-    tr_debug("Density bits: %" PRIu32 " , device size: %llu bytes", density_bits, _device_size_bytes);
+    sfdp_info.bptbl.device_size_bytes = (density_bits + 1) / 8;
+    tr_debug("Density bits: %" PRIu32 " , device size: %llu bytes", density_bits, sfdp_info.bptbl.device_size_bytes);
 
     // Set Default read/program/erase Instructions
     _read_instruction = SPIF_READ;
@@ -779,59 +778,3 @@ int SPIFBlockDevice::_set_write_enable()
     } while (false);
     return status;
 }
-
-/*********************************************/
-/************* Utility Functions *************/
-/*********************************************/
-int SPIFBlockDevice::_utils_find_addr_region(bd_size_t offset, const sfdp_smptbl_info &smptbl) const
-{
-    //Find the region to which the given offset belong to
-    if ((offset > _device_size_bytes) || (smptbl.region_cnt == 0)) {
-        return -1;
-    }
-
-    if (smptbl.region_cnt == 1) {
-        return 0;
-    }
-
-    for (int i_ind = smptbl.region_cnt - 2; i_ind >= 0; i_ind--) {
-
-        if (offset > smptbl.region_high_boundary[i_ind]) {
-            return (i_ind + 1);
-        }
-    }
-    return -1;
-
-}
-
-int SPIFBlockDevice::_utils_iterate_next_largest_erase_type(uint8_t &bitfield,
-                                                            int size,
-                                                            int offset,
-                                                            int region,
-                                                            sfdp_smptbl_info &smptbl)
-{
-    // Iterate on all supported Erase Types of the Region to which the offset belong to.
-    // Iterates from highest type to lowest
-    uint8_t type_mask = SFDP_ERASE_BITMASK_TYPE4;
-    int i_ind  = 0;
-    int largest_erase_type = 0;
-    for (i_ind = 3; i_ind >= 0; i_ind--) {
-        if (bitfield & type_mask) {
-            largest_erase_type = i_ind;
-            if ((size > (int)(smptbl.erase_type_size_arr[largest_erase_type])) &&
-                    ((_sfdp_info.smptbl.region_high_boundary[region] - offset)
-                     > (int)(smptbl.erase_type_size_arr[largest_erase_type]))) {
-                break;
-            } else {
-                bitfield &= ~type_mask;
-            }
-        }
-        type_mask = type_mask >> 1;
-    }
-
-    if (i_ind == 4) {
-        tr_error("No erase type was found for current region addr");
-    }
-    return largest_erase_type;
-}
-
