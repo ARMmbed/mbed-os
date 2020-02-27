@@ -77,13 +77,12 @@ matrix:
       after_success:
         - python ./tools/test/travis-ci/scancode-evaluate.py -f scancode.json
         - cat scancode-evaluate.log
-        - retval=$?
+        - COUNT=$(cat scancode-evaluate.log | grep 'File:' | wc -l)
         - |
-          if [ $retval == 0 ]; then
+          if [ $COUNT == 0 ]; then
               echo "License check OK";
             else
               echo "License check failed, please review license issues found";
-              COUNT=$(cat scancode-evaluate.log | grep File: | wc -l)
               STATUSM="Needs review, ${COUNT} license issues found";
               set_status "success" "$STATUSM";
           fi
