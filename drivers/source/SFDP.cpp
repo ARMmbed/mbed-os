@@ -210,10 +210,10 @@ int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, 
         int hdr_status;
 
         // Loop over Param Headers and parse them (currently supports Basic Param Table and Sector Region Map Table)
-        for (int i_ind = 0; i_ind < number_of_param_headers; i_ind++) {
+        for (int idx = 0; idx < number_of_param_headers; idx++) {
             status = sfdp_reader(addr, param_header, data_length);
             if (status < 0) {
-                tr_error("Retrieving a parameter header %d failed", i_ind + 1);
+                tr_error("Retrieving a parameter header %d failed", idx + 1);
                 return -1;
             }
 
@@ -335,27 +335,27 @@ int sfdp_detect_erase_types_inst_and_size(uint8_t *bptbl_ptr, sfdp_hdr_info &sfd
     // Erase 4K Inst is taken either from param table legacy 4K erase or superseded by erase Instruction for type of size 4K
     if (sfdp_info.bptbl.size > SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE) {
         // Loop Erase Types 1-4
-        for (int i_ind = 0; i_ind < 4; i_ind++) {
-            sfdp_info.smptbl.erase_type_inst_arr[i_ind] = -1; // Default for unsupported type
-            sfdp_info.smptbl.erase_type_size_arr[i_ind] = 1
-                                                          << bptbl_ptr[SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE + 2 * i_ind]; // Size is 2^N where N is the table value
-            tr_debug("Erase Type(A) %d - Inst: 0x%xh, Size: %d", (i_ind + 1), sfdp_info.smptbl.erase_type_inst_arr[i_ind],
-                     sfdp_info.smptbl.erase_type_size_arr[i_ind]);
-            if (sfdp_info.smptbl.erase_type_size_arr[i_ind] > 1) {
+        for (int idx = 0; idx < 4; idx++) {
+            sfdp_info.smptbl.erase_type_inst_arr[idx] = -1; // Default for unsupported type
+            sfdp_info.smptbl.erase_type_size_arr[idx] = 1
+                                                        << bptbl_ptr[SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE + 2 * idx]; // Size is 2^N where N is the table value
+            tr_debug("Erase Type(A) %d - Inst: 0x%xh, Size: %d", (idx + 1), sfdp_info.smptbl.erase_type_inst_arr[idx],
+                     sfdp_info.smptbl.erase_type_size_arr[idx]);
+            if (sfdp_info.smptbl.erase_type_size_arr[idx] > 1) {
                 // if size==1 type is not supported
-                sfdp_info.smptbl.erase_type_inst_arr[i_ind] = bptbl_ptr[SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_BYTE
-                                                                        + 2 * i_ind];
+                sfdp_info.smptbl.erase_type_inst_arr[idx] = bptbl_ptr[SFDP_BASIC_PARAM_TABLE_ERASE_TYPE_1_BYTE
+                                                                      + 2 * idx];
 
-                if ((sfdp_info.smptbl.erase_type_size_arr[i_ind] < sfdp_info.smptbl.regions_min_common_erase_size)
+                if ((sfdp_info.smptbl.erase_type_size_arr[idx] < sfdp_info.smptbl.regions_min_common_erase_size)
                         || (sfdp_info.smptbl.regions_min_common_erase_size == 0)) {
                     //Set default minimal common erase for signal region
-                    sfdp_info.smptbl.regions_min_common_erase_size = sfdp_info.smptbl.erase_type_size_arr[i_ind];
+                    sfdp_info.smptbl.regions_min_common_erase_size = sfdp_info.smptbl.erase_type_size_arr[idx];
                 }
                 sfdp_info.smptbl.region_erase_types_bitfld[0] |= bitfield; // If there's no region map, set region "0" types bitfield as default
             }
 
-            tr_debug("Erase Type %d - Inst: 0x%xh, Size: %d", (i_ind + 1), sfdp_info.smptbl.erase_type_inst_arr[i_ind],
-                     sfdp_info.smptbl.erase_type_size_arr[i_ind]);
+            tr_debug("Erase Type %d - Inst: 0x%xh, Size: %d", (idx + 1), sfdp_info.smptbl.erase_type_inst_arr[idx],
+                     sfdp_info.smptbl.erase_type_size_arr[idx]);
             bitfield = bitfield << 1;
         }
     } else {
@@ -381,10 +381,10 @@ int sfdp_find_addr_region(bd_size_t offset, const sfdp_hdr_info &sfdp_info)
         return 0;
     }
 
-    for (int i_ind = sfdp_info.smptbl.region_cnt - 2; i_ind >= 0; i_ind--) {
+    for (int idx = sfdp_info.smptbl.region_cnt - 2; idx >= 0; idx--) {
 
-        if (offset > sfdp_info.smptbl.region_high_boundary[i_ind]) {
-            return (i_ind + 1);
+        if (offset > sfdp_info.smptbl.region_high_boundary[idx]) {
+            return (idx + 1);
         }
     }
     return -1;
@@ -400,10 +400,10 @@ int sfdp_iterate_next_largest_erase_type(uint8_t &bitfield,
     uint8_t type_mask = SFDP_ERASE_BITMASK_TYPE4;
     int largest_erase_type = 0;
 
-    int i_ind;
-    for (i_ind = 3; i_ind >= 0; i_ind--) {
+    int idx;
+    for (idx = 3; idx >= 0; idx--) {
         if (bitfield & type_mask) {
-            largest_erase_type = i_ind;
+            largest_erase_type = idx;
             if ((size > (int)(smptbl.erase_type_size_arr[largest_erase_type])) &&
                     ((smptbl.region_high_boundary[region] - offset)
                      > (int)(smptbl.erase_type_size_arr[largest_erase_type]))) {
@@ -415,7 +415,7 @@ int sfdp_iterate_next_largest_erase_type(uint8_t &bitfield,
         type_mask = type_mask >> 1;
     }
 
-    if (i_ind == -1) {
+    if (idx == -1) {
         tr_error("No erase type was found for current region addr");
     }
     return largest_erase_type;
