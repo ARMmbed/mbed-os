@@ -1,34 +1,32 @@
-/**************************************************************************//**
- * @file efm32gg11b_acmp.h
+/***************************************************************************//**
+ * @file
  * @brief EFM32GG11B_ACMP register and bit field definitions
- * @version 5.3.2
- ******************************************************************************
+ *******************************************************************************
  * # License
- * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
- ******************************************************************************
+ * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.@n
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.@n
+ *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Laboratories, Inc.
- * has no obligation to support this Software. Silicon Laboratories, Inc. is
- * providing the Software "AS IS", with no express or implied warranties of any
- * kind, including, but not limited to, any implied warranties of
- * merchantability or fitness for any particular purpose or warranties against
- * infringement of any proprietary rights of a third party.
- *
- * Silicon Laboratories, Inc. will not be liable for any consequential,
- * incidental, or special damages, or any other relief, or for any claim by
- * any third party, arising from your use of this Software.
- *
- *****************************************************************************/
+ ******************************************************************************/
 
 #if defined(__ICCARM__)
 #pragma system_include       /* Treat file as system include file. */
@@ -36,15 +34,15 @@
 #pragma clang system_header  /* Treat file as system include file. */
 #endif
 
-/**************************************************************************//**
-* @addtogroup Parts
-* @{
-******************************************************************************/
-/**************************************************************************//**
+/***************************************************************************//**
+ * @addtogroup Parts
+ * @{
+ ******************************************************************************/
+/***************************************************************************//**
  * @defgroup EFM32GG11B_ACMP ACMP
  * @{
  * @brief EFM32GG11B_ACMP Register Declaration
- *****************************************************************************/
+ ******************************************************************************/
 /** ACMP Register Declaration */
 typedef struct {
   __IOM uint32_t CTRL;          /**< Control Register  */
@@ -54,24 +52,24 @@ typedef struct {
   __IOM uint32_t IFS;           /**< Interrupt Flag Set Register  */
   __IOM uint32_t IFC;           /**< Interrupt Flag Clear Register  */
   __IOM uint32_t IEN;           /**< Interrupt Enable Register  */
-  uint32_t       RESERVED0[1];  /**< Reserved for future use **/
+  uint32_t       RESERVED0[1U]; /**< Reserved for future use **/
   __IM uint32_t  APORTREQ;      /**< APORT Request Status Register  */
   __IM uint32_t  APORTCONFLICT; /**< APORT Conflict Status Register  */
   __IOM uint32_t HYSTERESIS0;   /**< Hysteresis 0 Register  */
   __IOM uint32_t HYSTERESIS1;   /**< Hysteresis 1 Register  */
 
-  uint32_t       RESERVED1[4];  /**< Reserved for future use **/
+  uint32_t       RESERVED1[4U]; /**< Reserved for future use **/
   __IOM uint32_t ROUTEPEN;      /**< I/O Routing Pine Enable Register  */
   __IOM uint32_t ROUTELOC0;     /**< I/O Routing Location Register  */
-  __IOM uint32_t EXTIFCTRL;     /**< External override interface control  */
+  __IOM uint32_t EXTIFCTRL;     /**< External Override Interface Control  */
 } ACMP_TypeDef;                 /** @} */
 
-/**************************************************************************//**
+/***************************************************************************//**
  * @addtogroup EFM32GG11B_ACMP
  * @{
  * @defgroup EFM32GG11B_ACMP_BitFields  ACMP Bit Fields
  * @{
- *****************************************************************************/
+ ******************************************************************************/
 
 /* Bit fields for ACMP CTRL */
 #define _ACMP_CTRL_RESETVALUE                          0x07000000UL                               /**< Default value for ACMP_CTRL */
@@ -109,7 +107,7 @@ typedef struct {
 #define _ACMP_CTRL_APORTYMASTERDIS_MASK                0x200UL                                    /**< Bit mask for ACMP_APORTYMASTERDIS */
 #define _ACMP_CTRL_APORTYMASTERDIS_DEFAULT             0x00000000UL                               /**< Mode DEFAULT for ACMP_CTRL */
 #define ACMP_CTRL_APORTYMASTERDIS_DEFAULT              (_ACMP_CTRL_APORTYMASTERDIS_DEFAULT << 9)  /**< Shifted mode DEFAULT for ACMP_CTRL */
-#define ACMP_CTRL_APORTVMASTERDIS                      (0x1UL << 10)                              /**< APORT Bus Master Disable for Bus selected by VASEL */
+#define ACMP_CTRL_APORTVMASTERDIS                      (0x1UL << 10)                              /**< APORT Bus Master Disable for Bus Selected By VASEL */
 #define _ACMP_CTRL_APORTVMASTERDIS_SHIFT               10                                         /**< Shift value for ACMP_APORTVMASTERDIS */
 #define _ACMP_CTRL_APORTVMASTERDIS_MASK                0x400UL                                    /**< Bit mask for ACMP_APORTVMASTERDIS */
 #define _ACMP_CTRL_APORTVMASTERDIS_DEFAULT             0x00000000UL                               /**< Mode DEFAULT for ACMP_CTRL */
@@ -118,15 +116,15 @@ typedef struct {
 #define _ACMP_CTRL_PWRSEL_MASK                         0x7000UL                                   /**< Bit mask for ACMP_PWRSEL */
 #define _ACMP_CTRL_PWRSEL_DEFAULT                      0x00000000UL                               /**< Mode DEFAULT for ACMP_CTRL */
 #define _ACMP_CTRL_PWRSEL_AVDD                         0x00000000UL                               /**< Mode AVDD for ACMP_CTRL */
-#define _ACMP_CTRL_PWRSEL_VREGVDD                      0x00000001UL                               /**< Mode VREGVDD for ACMP_CTRL */
+#define _ACMP_CTRL_PWRSEL_DVDD                         0x00000001UL                               /**< Mode DVDD for ACMP_CTRL */
 #define _ACMP_CTRL_PWRSEL_IOVDD0                       0x00000002UL                               /**< Mode IOVDD0 for ACMP_CTRL */
 #define _ACMP_CTRL_PWRSEL_IOVDD1                       0x00000004UL                               /**< Mode IOVDD1 for ACMP_CTRL */
 #define ACMP_CTRL_PWRSEL_DEFAULT                       (_ACMP_CTRL_PWRSEL_DEFAULT << 12)          /**< Shifted mode DEFAULT for ACMP_CTRL */
 #define ACMP_CTRL_PWRSEL_AVDD                          (_ACMP_CTRL_PWRSEL_AVDD << 12)             /**< Shifted mode AVDD for ACMP_CTRL */
-#define ACMP_CTRL_PWRSEL_VREGVDD                       (_ACMP_CTRL_PWRSEL_VREGVDD << 12)          /**< Shifted mode VREGVDD for ACMP_CTRL */
+#define ACMP_CTRL_PWRSEL_DVDD                          (_ACMP_CTRL_PWRSEL_DVDD << 12)             /**< Shifted mode DVDD for ACMP_CTRL */
 #define ACMP_CTRL_PWRSEL_IOVDD0                        (_ACMP_CTRL_PWRSEL_IOVDD0 << 12)           /**< Shifted mode IOVDD0 for ACMP_CTRL */
 #define ACMP_CTRL_PWRSEL_IOVDD1                        (_ACMP_CTRL_PWRSEL_IOVDD1 << 12)           /**< Shifted mode IOVDD1 for ACMP_CTRL */
-#define ACMP_CTRL_ACCURACY                             (0x1UL << 15)                              /**< ACMP accuracy mode */
+#define ACMP_CTRL_ACCURACY                             (0x1UL << 15)                              /**< ACMP Accuracy Mode */
 #define _ACMP_CTRL_ACCURACY_SHIFT                      15                                         /**< Shift value for ACMP_ACCURACY */
 #define _ACMP_CTRL_ACCURACY_MASK                       0x8000UL                                   /**< Bit mask for ACMP_ACCURACY */
 #define _ACMP_CTRL_ACCURACY_DEFAULT                    0x00000000UL                               /**< Mode DEFAULT for ACMP_CTRL */
@@ -321,6 +319,8 @@ typedef struct {
 #define _ACMP_INPUTSEL_POSSEL_APORT4XCH11              0x0000008BUL                             /**< Mode APORT4XCH11 for ACMP_INPUTSEL */
 #define _ACMP_INPUTSEL_POSSEL_APORT4YCH12              0x0000008CUL                             /**< Mode APORT4YCH12 for ACMP_INPUTSEL */
 #define _ACMP_INPUTSEL_POSSEL_APORT4XCH13              0x0000008DUL                             /**< Mode APORT4XCH13 for ACMP_INPUTSEL */
+#define _ACMP_INPUTSEL_POSSEL_APORT4YCH14              0x0000008EUL                             /**< Mode APORT4YCH14 for ACMP_INPUTSEL */
+#define _ACMP_INPUTSEL_POSSEL_APORT4XCH15              0x0000008FUL                             /**< Mode APORT4XCH15 for ACMP_INPUTSEL */
 #define _ACMP_INPUTSEL_POSSEL_APORT4YCH16              0x00000090UL                             /**< Mode APORT4YCH16 for ACMP_INPUTSEL */
 #define _ACMP_INPUTSEL_POSSEL_APORT4XCH17              0x00000091UL                             /**< Mode APORT4XCH17 for ACMP_INPUTSEL */
 #define _ACMP_INPUTSEL_POSSEL_APORT4YCH18              0x00000092UL                             /**< Mode APORT4YCH18 for ACMP_INPUTSEL */
@@ -336,8 +336,6 @@ typedef struct {
 #define _ACMP_INPUTSEL_POSSEL_APORT4YCH28              0x0000009CUL                             /**< Mode APORT4YCH28 for ACMP_INPUTSEL */
 #define _ACMP_INPUTSEL_POSSEL_APORT4XCH29              0x0000009DUL                             /**< Mode APORT4XCH29 for ACMP_INPUTSEL */
 #define _ACMP_INPUTSEL_POSSEL_APORT4YCH30              0x0000009EUL                             /**< Mode APORT4YCH30 for ACMP_INPUTSEL */
-#define _ACMP_INPUTSEL_POSSEL_APORT4YCH14              0x0000009EUL                             /**< Mode APORT4YCH14 for ACMP_INPUTSEL */
-#define _ACMP_INPUTSEL_POSSEL_APORT4XCH15              0x0000009FUL                             /**< Mode APORT4XCH15 for ACMP_INPUTSEL */
 #define _ACMP_INPUTSEL_POSSEL_APORT4XCH31              0x0000009FUL                             /**< Mode APORT4XCH31 for ACMP_INPUTSEL */
 #define _ACMP_INPUTSEL_POSSEL_DACOUT0                  0x000000F2UL                             /**< Mode DACOUT0 for ACMP_INPUTSEL */
 #define _ACMP_INPUTSEL_POSSEL_DACOUT1                  0x000000F3UL                             /**< Mode DACOUT1 for ACMP_INPUTSEL */
@@ -490,6 +488,8 @@ typedef struct {
 #define ACMP_INPUTSEL_POSSEL_APORT4XCH11               (_ACMP_INPUTSEL_POSSEL_APORT4XCH11 << 0) /**< Shifted mode APORT4XCH11 for ACMP_INPUTSEL */
 #define ACMP_INPUTSEL_POSSEL_APORT4YCH12               (_ACMP_INPUTSEL_POSSEL_APORT4YCH12 << 0) /**< Shifted mode APORT4YCH12 for ACMP_INPUTSEL */
 #define ACMP_INPUTSEL_POSSEL_APORT4XCH13               (_ACMP_INPUTSEL_POSSEL_APORT4XCH13 << 0) /**< Shifted mode APORT4XCH13 for ACMP_INPUTSEL */
+#define ACMP_INPUTSEL_POSSEL_APORT4YCH14               (_ACMP_INPUTSEL_POSSEL_APORT4YCH14 << 0) /**< Shifted mode APORT4YCH14 for ACMP_INPUTSEL */
+#define ACMP_INPUTSEL_POSSEL_APORT4XCH15               (_ACMP_INPUTSEL_POSSEL_APORT4XCH15 << 0) /**< Shifted mode APORT4XCH15 for ACMP_INPUTSEL */
 #define ACMP_INPUTSEL_POSSEL_APORT4YCH16               (_ACMP_INPUTSEL_POSSEL_APORT4YCH16 << 0) /**< Shifted mode APORT4YCH16 for ACMP_INPUTSEL */
 #define ACMP_INPUTSEL_POSSEL_APORT4XCH17               (_ACMP_INPUTSEL_POSSEL_APORT4XCH17 << 0) /**< Shifted mode APORT4XCH17 for ACMP_INPUTSEL */
 #define ACMP_INPUTSEL_POSSEL_APORT4YCH18               (_ACMP_INPUTSEL_POSSEL_APORT4YCH18 << 0) /**< Shifted mode APORT4YCH18 for ACMP_INPUTSEL */
@@ -505,8 +505,6 @@ typedef struct {
 #define ACMP_INPUTSEL_POSSEL_APORT4YCH28               (_ACMP_INPUTSEL_POSSEL_APORT4YCH28 << 0) /**< Shifted mode APORT4YCH28 for ACMP_INPUTSEL */
 #define ACMP_INPUTSEL_POSSEL_APORT4XCH29               (_ACMP_INPUTSEL_POSSEL_APORT4XCH29 << 0) /**< Shifted mode APORT4XCH29 for ACMP_INPUTSEL */
 #define ACMP_INPUTSEL_POSSEL_APORT4YCH30               (_ACMP_INPUTSEL_POSSEL_APORT4YCH30 << 0) /**< Shifted mode APORT4YCH30 for ACMP_INPUTSEL */
-#define ACMP_INPUTSEL_POSSEL_APORT4YCH14               (_ACMP_INPUTSEL_POSSEL_APORT4YCH14 << 0) /**< Shifted mode APORT4YCH14 for ACMP_INPUTSEL */
-#define ACMP_INPUTSEL_POSSEL_APORT4XCH15               (_ACMP_INPUTSEL_POSSEL_APORT4XCH15 << 0) /**< Shifted mode APORT4XCH15 for ACMP_INPUTSEL */
 #define ACMP_INPUTSEL_POSSEL_APORT4XCH31               (_ACMP_INPUTSEL_POSSEL_APORT4XCH31 << 0) /**< Shifted mode APORT4XCH31 for ACMP_INPUTSEL */
 #define ACMP_INPUTSEL_POSSEL_DACOUT0                   (_ACMP_INPUTSEL_POSSEL_DACOUT0 << 0)     /**< Shifted mode DACOUT0 for ACMP_INPUTSEL */
 #define ACMP_INPUTSEL_POSSEL_DACOUT1                   (_ACMP_INPUTSEL_POSSEL_DACOUT1 << 0)     /**< Shifted mode DACOUT1 for ACMP_INPUTSEL */
@@ -661,6 +659,8 @@ typedef struct {
 #define _ACMP_INPUTSEL_NEGSEL_APORT4XCH11              0x0000008BUL                             /**< Mode APORT4XCH11 for ACMP_INPUTSEL */
 #define _ACMP_INPUTSEL_NEGSEL_APORT4YCH12              0x0000008CUL                             /**< Mode APORT4YCH12 for ACMP_INPUTSEL */
 #define _ACMP_INPUTSEL_NEGSEL_APORT4XCH13              0x0000008DUL                             /**< Mode APORT4XCH13 for ACMP_INPUTSEL */
+#define _ACMP_INPUTSEL_NEGSEL_APORT4YCH14              0x0000008EUL                             /**< Mode APORT4YCH14 for ACMP_INPUTSEL */
+#define _ACMP_INPUTSEL_NEGSEL_APORT4XCH15              0x0000008FUL                             /**< Mode APORT4XCH15 for ACMP_INPUTSEL */
 #define _ACMP_INPUTSEL_NEGSEL_APORT4YCH16              0x00000090UL                             /**< Mode APORT4YCH16 for ACMP_INPUTSEL */
 #define _ACMP_INPUTSEL_NEGSEL_APORT4XCH17              0x00000091UL                             /**< Mode APORT4XCH17 for ACMP_INPUTSEL */
 #define _ACMP_INPUTSEL_NEGSEL_APORT4YCH18              0x00000092UL                             /**< Mode APORT4YCH18 for ACMP_INPUTSEL */
@@ -676,8 +676,6 @@ typedef struct {
 #define _ACMP_INPUTSEL_NEGSEL_APORT4YCH28              0x0000009CUL                             /**< Mode APORT4YCH28 for ACMP_INPUTSEL */
 #define _ACMP_INPUTSEL_NEGSEL_APORT4XCH29              0x0000009DUL                             /**< Mode APORT4XCH29 for ACMP_INPUTSEL */
 #define _ACMP_INPUTSEL_NEGSEL_APORT4YCH30              0x0000009EUL                             /**< Mode APORT4YCH30 for ACMP_INPUTSEL */
-#define _ACMP_INPUTSEL_NEGSEL_APORT4YCH14              0x0000009EUL                             /**< Mode APORT4YCH14 for ACMP_INPUTSEL */
-#define _ACMP_INPUTSEL_NEGSEL_APORT4XCH15              0x0000009FUL                             /**< Mode APORT4XCH15 for ACMP_INPUTSEL */
 #define _ACMP_INPUTSEL_NEGSEL_APORT4XCH31              0x0000009FUL                             /**< Mode APORT4XCH31 for ACMP_INPUTSEL */
 #define _ACMP_INPUTSEL_NEGSEL_DACOUT0                  0x000000F2UL                             /**< Mode DACOUT0 for ACMP_INPUTSEL */
 #define _ACMP_INPUTSEL_NEGSEL_DACOUT1                  0x000000F3UL                             /**< Mode DACOUT1 for ACMP_INPUTSEL */
@@ -829,6 +827,8 @@ typedef struct {
 #define ACMP_INPUTSEL_NEGSEL_APORT4XCH11               (_ACMP_INPUTSEL_NEGSEL_APORT4XCH11 << 8) /**< Shifted mode APORT4XCH11 for ACMP_INPUTSEL */
 #define ACMP_INPUTSEL_NEGSEL_APORT4YCH12               (_ACMP_INPUTSEL_NEGSEL_APORT4YCH12 << 8) /**< Shifted mode APORT4YCH12 for ACMP_INPUTSEL */
 #define ACMP_INPUTSEL_NEGSEL_APORT4XCH13               (_ACMP_INPUTSEL_NEGSEL_APORT4XCH13 << 8) /**< Shifted mode APORT4XCH13 for ACMP_INPUTSEL */
+#define ACMP_INPUTSEL_NEGSEL_APORT4YCH14               (_ACMP_INPUTSEL_NEGSEL_APORT4YCH14 << 8) /**< Shifted mode APORT4YCH14 for ACMP_INPUTSEL */
+#define ACMP_INPUTSEL_NEGSEL_APORT4XCH15               (_ACMP_INPUTSEL_NEGSEL_APORT4XCH15 << 8) /**< Shifted mode APORT4XCH15 for ACMP_INPUTSEL */
 #define ACMP_INPUTSEL_NEGSEL_APORT4YCH16               (_ACMP_INPUTSEL_NEGSEL_APORT4YCH16 << 8) /**< Shifted mode APORT4YCH16 for ACMP_INPUTSEL */
 #define ACMP_INPUTSEL_NEGSEL_APORT4XCH17               (_ACMP_INPUTSEL_NEGSEL_APORT4XCH17 << 8) /**< Shifted mode APORT4XCH17 for ACMP_INPUTSEL */
 #define ACMP_INPUTSEL_NEGSEL_APORT4YCH18               (_ACMP_INPUTSEL_NEGSEL_APORT4YCH18 << 8) /**< Shifted mode APORT4YCH18 for ACMP_INPUTSEL */
@@ -844,8 +844,6 @@ typedef struct {
 #define ACMP_INPUTSEL_NEGSEL_APORT4YCH28               (_ACMP_INPUTSEL_NEGSEL_APORT4YCH28 << 8) /**< Shifted mode APORT4YCH28 for ACMP_INPUTSEL */
 #define ACMP_INPUTSEL_NEGSEL_APORT4XCH29               (_ACMP_INPUTSEL_NEGSEL_APORT4XCH29 << 8) /**< Shifted mode APORT4XCH29 for ACMP_INPUTSEL */
 #define ACMP_INPUTSEL_NEGSEL_APORT4YCH30               (_ACMP_INPUTSEL_NEGSEL_APORT4YCH30 << 8) /**< Shifted mode APORT4YCH30 for ACMP_INPUTSEL */
-#define ACMP_INPUTSEL_NEGSEL_APORT4YCH14               (_ACMP_INPUTSEL_NEGSEL_APORT4YCH14 << 8) /**< Shifted mode APORT4YCH14 for ACMP_INPUTSEL */
-#define ACMP_INPUTSEL_NEGSEL_APORT4XCH15               (_ACMP_INPUTSEL_NEGSEL_APORT4XCH15 << 8) /**< Shifted mode APORT4XCH15 for ACMP_INPUTSEL */
 #define ACMP_INPUTSEL_NEGSEL_APORT4XCH31               (_ACMP_INPUTSEL_NEGSEL_APORT4XCH31 << 8) /**< Shifted mode APORT4XCH31 for ACMP_INPUTSEL */
 #define ACMP_INPUTSEL_NEGSEL_DACOUT0                   (_ACMP_INPUTSEL_NEGSEL_DACOUT0 << 8)     /**< Shifted mode DACOUT0 for ACMP_INPUTSEL */
 #define ACMP_INPUTSEL_NEGSEL_DACOUT1                   (_ACMP_INPUTSEL_NEGSEL_DACOUT1 << 8)     /**< Shifted mode DACOUT1 for ACMP_INPUTSEL */
@@ -1018,7 +1016,7 @@ typedef struct {
 #define _ACMP_STATUS_APORTCONFLICT_MASK                0x4UL                                     /**< Bit mask for ACMP_APORTCONFLICT */
 #define _ACMP_STATUS_APORTCONFLICT_DEFAULT             0x00000000UL                              /**< Mode DEFAULT for ACMP_STATUS */
 #define ACMP_STATUS_APORTCONFLICT_DEFAULT              (_ACMP_STATUS_APORTCONFLICT_DEFAULT << 2) /**< Shifted mode DEFAULT for ACMP_STATUS */
-#define ACMP_STATUS_EXTIFACT                           (0x1UL << 3)                              /**< External override interface active. */
+#define ACMP_STATUS_EXTIFACT                           (0x1UL << 3)                              /**< External Override Interface Active */
 #define _ACMP_STATUS_EXTIFACT_SHIFT                    3                                         /**< Shift value for ACMP_EXTIFACT */
 #define _ACMP_STATUS_EXTIFACT_MASK                     0x8UL                                     /**< Bit mask for ACMP_EXTIFACT */
 #define _ACMP_STATUS_EXTIFACT_DEFAULT                  0x00000000UL                              /**< Mode DEFAULT for ACMP_STATUS */
@@ -1103,52 +1101,52 @@ typedef struct {
 /* Bit fields for ACMP APORTREQ */
 #define _ACMP_APORTREQ_RESETVALUE                      0x00000000UL                             /**< Default value for ACMP_APORTREQ */
 #define _ACMP_APORTREQ_MASK                            0x000003FFUL                             /**< Mask for ACMP_APORTREQ */
-#define ACMP_APORTREQ_APORT0XREQ                       (0x1UL << 0)                             /**< 1 if the bus connected to APORT0X is requested */
+#define ACMP_APORTREQ_APORT0XREQ                       (0x1UL << 0)                             /**< 1 If the Bus Connected to APORT0X is Requested */
 #define _ACMP_APORTREQ_APORT0XREQ_SHIFT                0                                        /**< Shift value for ACMP_APORT0XREQ */
 #define _ACMP_APORTREQ_APORT0XREQ_MASK                 0x1UL                                    /**< Bit mask for ACMP_APORT0XREQ */
 #define _ACMP_APORTREQ_APORT0XREQ_DEFAULT              0x00000000UL                             /**< Mode DEFAULT for ACMP_APORTREQ */
 #define ACMP_APORTREQ_APORT0XREQ_DEFAULT               (_ACMP_APORTREQ_APORT0XREQ_DEFAULT << 0) /**< Shifted mode DEFAULT for ACMP_APORTREQ */
-#define ACMP_APORTREQ_APORT0YREQ                       (0x1UL << 1)                             /**< 1 if the bus connected to APORT0Y is requested */
+#define ACMP_APORTREQ_APORT0YREQ                       (0x1UL << 1)                             /**< 1 If the Bus Connected to APORT0Y is Requested */
 #define _ACMP_APORTREQ_APORT0YREQ_SHIFT                1                                        /**< Shift value for ACMP_APORT0YREQ */
 #define _ACMP_APORTREQ_APORT0YREQ_MASK                 0x2UL                                    /**< Bit mask for ACMP_APORT0YREQ */
 #define _ACMP_APORTREQ_APORT0YREQ_DEFAULT              0x00000000UL                             /**< Mode DEFAULT for ACMP_APORTREQ */
 #define ACMP_APORTREQ_APORT0YREQ_DEFAULT               (_ACMP_APORTREQ_APORT0YREQ_DEFAULT << 1) /**< Shifted mode DEFAULT for ACMP_APORTREQ */
-#define ACMP_APORTREQ_APORT1XREQ                       (0x1UL << 2)                             /**< 1 if the bus connected to APORT2X is requested */
+#define ACMP_APORTREQ_APORT1XREQ                       (0x1UL << 2)                             /**< 1 If the Bus Connected to APORT2X is Requested */
 #define _ACMP_APORTREQ_APORT1XREQ_SHIFT                2                                        /**< Shift value for ACMP_APORT1XREQ */
 #define _ACMP_APORTREQ_APORT1XREQ_MASK                 0x4UL                                    /**< Bit mask for ACMP_APORT1XREQ */
 #define _ACMP_APORTREQ_APORT1XREQ_DEFAULT              0x00000000UL                             /**< Mode DEFAULT for ACMP_APORTREQ */
 #define ACMP_APORTREQ_APORT1XREQ_DEFAULT               (_ACMP_APORTREQ_APORT1XREQ_DEFAULT << 2) /**< Shifted mode DEFAULT for ACMP_APORTREQ */
-#define ACMP_APORTREQ_APORT1YREQ                       (0x1UL << 3)                             /**< 1 if the bus connected to APORT1X is requested */
+#define ACMP_APORTREQ_APORT1YREQ                       (0x1UL << 3)                             /**< 1 If the Bus Connected to APORT1X is Requested */
 #define _ACMP_APORTREQ_APORT1YREQ_SHIFT                3                                        /**< Shift value for ACMP_APORT1YREQ */
 #define _ACMP_APORTREQ_APORT1YREQ_MASK                 0x8UL                                    /**< Bit mask for ACMP_APORT1YREQ */
 #define _ACMP_APORTREQ_APORT1YREQ_DEFAULT              0x00000000UL                             /**< Mode DEFAULT for ACMP_APORTREQ */
 #define ACMP_APORTREQ_APORT1YREQ_DEFAULT               (_ACMP_APORTREQ_APORT1YREQ_DEFAULT << 3) /**< Shifted mode DEFAULT for ACMP_APORTREQ */
-#define ACMP_APORTREQ_APORT2XREQ                       (0x1UL << 4)                             /**< 1 if the bus connected to APORT2X is requested */
+#define ACMP_APORTREQ_APORT2XREQ                       (0x1UL << 4)                             /**< 1 If the Bus Connected to APORT2X is Requested */
 #define _ACMP_APORTREQ_APORT2XREQ_SHIFT                4                                        /**< Shift value for ACMP_APORT2XREQ */
 #define _ACMP_APORTREQ_APORT2XREQ_MASK                 0x10UL                                   /**< Bit mask for ACMP_APORT2XREQ */
 #define _ACMP_APORTREQ_APORT2XREQ_DEFAULT              0x00000000UL                             /**< Mode DEFAULT for ACMP_APORTREQ */
 #define ACMP_APORTREQ_APORT2XREQ_DEFAULT               (_ACMP_APORTREQ_APORT2XREQ_DEFAULT << 4) /**< Shifted mode DEFAULT for ACMP_APORTREQ */
-#define ACMP_APORTREQ_APORT2YREQ                       (0x1UL << 5)                             /**< 1 if the bus connected to APORT2Y is requested */
+#define ACMP_APORTREQ_APORT2YREQ                       (0x1UL << 5)                             /**< 1 If the Bus Connected to APORT2Y is Requested */
 #define _ACMP_APORTREQ_APORT2YREQ_SHIFT                5                                        /**< Shift value for ACMP_APORT2YREQ */
 #define _ACMP_APORTREQ_APORT2YREQ_MASK                 0x20UL                                   /**< Bit mask for ACMP_APORT2YREQ */
 #define _ACMP_APORTREQ_APORT2YREQ_DEFAULT              0x00000000UL                             /**< Mode DEFAULT for ACMP_APORTREQ */
 #define ACMP_APORTREQ_APORT2YREQ_DEFAULT               (_ACMP_APORTREQ_APORT2YREQ_DEFAULT << 5) /**< Shifted mode DEFAULT for ACMP_APORTREQ */
-#define ACMP_APORTREQ_APORT3XREQ                       (0x1UL << 6)                             /**< 1 if the bus connected to APORT3X is requested */
+#define ACMP_APORTREQ_APORT3XREQ                       (0x1UL << 6)                             /**< 1 If the Bus Connected to APORT3X is Requested */
 #define _ACMP_APORTREQ_APORT3XREQ_SHIFT                6                                        /**< Shift value for ACMP_APORT3XREQ */
 #define _ACMP_APORTREQ_APORT3XREQ_MASK                 0x40UL                                   /**< Bit mask for ACMP_APORT3XREQ */
 #define _ACMP_APORTREQ_APORT3XREQ_DEFAULT              0x00000000UL                             /**< Mode DEFAULT for ACMP_APORTREQ */
 #define ACMP_APORTREQ_APORT3XREQ_DEFAULT               (_ACMP_APORTREQ_APORT3XREQ_DEFAULT << 6) /**< Shifted mode DEFAULT for ACMP_APORTREQ */
-#define ACMP_APORTREQ_APORT3YREQ                       (0x1UL << 7)                             /**< 1 if the bus connected to APORT3Y is requested */
+#define ACMP_APORTREQ_APORT3YREQ                       (0x1UL << 7)                             /**< 1 If the Bus Connected to APORT3Y is Requested */
 #define _ACMP_APORTREQ_APORT3YREQ_SHIFT                7                                        /**< Shift value for ACMP_APORT3YREQ */
 #define _ACMP_APORTREQ_APORT3YREQ_MASK                 0x80UL                                   /**< Bit mask for ACMP_APORT3YREQ */
 #define _ACMP_APORTREQ_APORT3YREQ_DEFAULT              0x00000000UL                             /**< Mode DEFAULT for ACMP_APORTREQ */
 #define ACMP_APORTREQ_APORT3YREQ_DEFAULT               (_ACMP_APORTREQ_APORT3YREQ_DEFAULT << 7) /**< Shifted mode DEFAULT for ACMP_APORTREQ */
-#define ACMP_APORTREQ_APORT4XREQ                       (0x1UL << 8)                             /**< 1 if the bus connected to APORT4X is requested */
+#define ACMP_APORTREQ_APORT4XREQ                       (0x1UL << 8)                             /**< 1 If the Bus Connected to APORT4X is Requested */
 #define _ACMP_APORTREQ_APORT4XREQ_SHIFT                8                                        /**< Shift value for ACMP_APORT4XREQ */
 #define _ACMP_APORTREQ_APORT4XREQ_MASK                 0x100UL                                  /**< Bit mask for ACMP_APORT4XREQ */
 #define _ACMP_APORTREQ_APORT4XREQ_DEFAULT              0x00000000UL                             /**< Mode DEFAULT for ACMP_APORTREQ */
 #define ACMP_APORTREQ_APORT4XREQ_DEFAULT               (_ACMP_APORTREQ_APORT4XREQ_DEFAULT << 8) /**< Shifted mode DEFAULT for ACMP_APORTREQ */
-#define ACMP_APORTREQ_APORT4YREQ                       (0x1UL << 9)                             /**< 1 if the bus connected to APORT4Y is requested */
+#define ACMP_APORTREQ_APORT4YREQ                       (0x1UL << 9)                             /**< 1 If the Bus Connected to APORT4Y is Requested */
 #define _ACMP_APORTREQ_APORT4YREQ_SHIFT                9                                        /**< Shift value for ACMP_APORT4YREQ */
 #define _ACMP_APORTREQ_APORT4YREQ_MASK                 0x200UL                                  /**< Bit mask for ACMP_APORT4YREQ */
 #define _ACMP_APORTREQ_APORT4YREQ_DEFAULT              0x00000000UL                             /**< Mode DEFAULT for ACMP_APORTREQ */
@@ -1157,52 +1155,52 @@ typedef struct {
 /* Bit fields for ACMP APORTCONFLICT */
 #define _ACMP_APORTCONFLICT_RESETVALUE                 0x00000000UL                                       /**< Default value for ACMP_APORTCONFLICT */
 #define _ACMP_APORTCONFLICT_MASK                       0x000003FFUL                                       /**< Mask for ACMP_APORTCONFLICT */
-#define ACMP_APORTCONFLICT_APORT0XCONFLICT             (0x1UL << 0)                                       /**< 1 if the bus connected to APORT0X is in conflict with another peripheral */
+#define ACMP_APORTCONFLICT_APORT0XCONFLICT             (0x1UL << 0)                                       /**< 1 If the Bus Connected to APORT0X is in Conflict With Another Peripheral */
 #define _ACMP_APORTCONFLICT_APORT0XCONFLICT_SHIFT      0                                                  /**< Shift value for ACMP_APORT0XCONFLICT */
 #define _ACMP_APORTCONFLICT_APORT0XCONFLICT_MASK       0x1UL                                              /**< Bit mask for ACMP_APORT0XCONFLICT */
 #define _ACMP_APORTCONFLICT_APORT0XCONFLICT_DEFAULT    0x00000000UL                                       /**< Mode DEFAULT for ACMP_APORTCONFLICT */
 #define ACMP_APORTCONFLICT_APORT0XCONFLICT_DEFAULT     (_ACMP_APORTCONFLICT_APORT0XCONFLICT_DEFAULT << 0) /**< Shifted mode DEFAULT for ACMP_APORTCONFLICT */
-#define ACMP_APORTCONFLICT_APORT0YCONFLICT             (0x1UL << 1)                                       /**< 1 if the bus connected to APORT0Y is in conflict with another peripheral */
+#define ACMP_APORTCONFLICT_APORT0YCONFLICT             (0x1UL << 1)                                       /**< 1 If the Bus Connected to APORT0Y is in Conflict With Another Peripheral */
 #define _ACMP_APORTCONFLICT_APORT0YCONFLICT_SHIFT      1                                                  /**< Shift value for ACMP_APORT0YCONFLICT */
 #define _ACMP_APORTCONFLICT_APORT0YCONFLICT_MASK       0x2UL                                              /**< Bit mask for ACMP_APORT0YCONFLICT */
 #define _ACMP_APORTCONFLICT_APORT0YCONFLICT_DEFAULT    0x00000000UL                                       /**< Mode DEFAULT for ACMP_APORTCONFLICT */
 #define ACMP_APORTCONFLICT_APORT0YCONFLICT_DEFAULT     (_ACMP_APORTCONFLICT_APORT0YCONFLICT_DEFAULT << 1) /**< Shifted mode DEFAULT for ACMP_APORTCONFLICT */
-#define ACMP_APORTCONFLICT_APORT1XCONFLICT             (0x1UL << 2)                                       /**< 1 if the bus connected to APORT1X is in conflict with another peripheral */
+#define ACMP_APORTCONFLICT_APORT1XCONFLICT             (0x1UL << 2)                                       /**< 1 If the Bus Connected to APORT1X is in Conflict With Another Peripheral */
 #define _ACMP_APORTCONFLICT_APORT1XCONFLICT_SHIFT      2                                                  /**< Shift value for ACMP_APORT1XCONFLICT */
 #define _ACMP_APORTCONFLICT_APORT1XCONFLICT_MASK       0x4UL                                              /**< Bit mask for ACMP_APORT1XCONFLICT */
 #define _ACMP_APORTCONFLICT_APORT1XCONFLICT_DEFAULT    0x00000000UL                                       /**< Mode DEFAULT for ACMP_APORTCONFLICT */
 #define ACMP_APORTCONFLICT_APORT1XCONFLICT_DEFAULT     (_ACMP_APORTCONFLICT_APORT1XCONFLICT_DEFAULT << 2) /**< Shifted mode DEFAULT for ACMP_APORTCONFLICT */
-#define ACMP_APORTCONFLICT_APORT1YCONFLICT             (0x1UL << 3)                                       /**< 1 if the bus connected to APORT1X is in conflict with another peripheral */
+#define ACMP_APORTCONFLICT_APORT1YCONFLICT             (0x1UL << 3)                                       /**< 1 If the Bus Connected to APORT1X is in Conflict With Another Peripheral */
 #define _ACMP_APORTCONFLICT_APORT1YCONFLICT_SHIFT      3                                                  /**< Shift value for ACMP_APORT1YCONFLICT */
 #define _ACMP_APORTCONFLICT_APORT1YCONFLICT_MASK       0x8UL                                              /**< Bit mask for ACMP_APORT1YCONFLICT */
 #define _ACMP_APORTCONFLICT_APORT1YCONFLICT_DEFAULT    0x00000000UL                                       /**< Mode DEFAULT for ACMP_APORTCONFLICT */
 #define ACMP_APORTCONFLICT_APORT1YCONFLICT_DEFAULT     (_ACMP_APORTCONFLICT_APORT1YCONFLICT_DEFAULT << 3) /**< Shifted mode DEFAULT for ACMP_APORTCONFLICT */
-#define ACMP_APORTCONFLICT_APORT2XCONFLICT             (0x1UL << 4)                                       /**< 1 if the bus connected to APORT2X is in conflict with another peripheral */
+#define ACMP_APORTCONFLICT_APORT2XCONFLICT             (0x1UL << 4)                                       /**< 1 If the Bus Connected to APORT2X is in Conflict With Another Peripheral */
 #define _ACMP_APORTCONFLICT_APORT2XCONFLICT_SHIFT      4                                                  /**< Shift value for ACMP_APORT2XCONFLICT */
 #define _ACMP_APORTCONFLICT_APORT2XCONFLICT_MASK       0x10UL                                             /**< Bit mask for ACMP_APORT2XCONFLICT */
 #define _ACMP_APORTCONFLICT_APORT2XCONFLICT_DEFAULT    0x00000000UL                                       /**< Mode DEFAULT for ACMP_APORTCONFLICT */
 #define ACMP_APORTCONFLICT_APORT2XCONFLICT_DEFAULT     (_ACMP_APORTCONFLICT_APORT2XCONFLICT_DEFAULT << 4) /**< Shifted mode DEFAULT for ACMP_APORTCONFLICT */
-#define ACMP_APORTCONFLICT_APORT2YCONFLICT             (0x1UL << 5)                                       /**< 1 if the bus connected to APORT2Y is in conflict with another peripheral */
+#define ACMP_APORTCONFLICT_APORT2YCONFLICT             (0x1UL << 5)                                       /**< 1 If the Bus Connected to APORT2Y is in Conflict With Another Peripheral */
 #define _ACMP_APORTCONFLICT_APORT2YCONFLICT_SHIFT      5                                                  /**< Shift value for ACMP_APORT2YCONFLICT */
 #define _ACMP_APORTCONFLICT_APORT2YCONFLICT_MASK       0x20UL                                             /**< Bit mask for ACMP_APORT2YCONFLICT */
 #define _ACMP_APORTCONFLICT_APORT2YCONFLICT_DEFAULT    0x00000000UL                                       /**< Mode DEFAULT for ACMP_APORTCONFLICT */
 #define ACMP_APORTCONFLICT_APORT2YCONFLICT_DEFAULT     (_ACMP_APORTCONFLICT_APORT2YCONFLICT_DEFAULT << 5) /**< Shifted mode DEFAULT for ACMP_APORTCONFLICT */
-#define ACMP_APORTCONFLICT_APORT3XCONFLICT             (0x1UL << 6)                                       /**< 1 if the bus connected to APORT3X is in conflict with another peripheral */
+#define ACMP_APORTCONFLICT_APORT3XCONFLICT             (0x1UL << 6)                                       /**< 1 If the Bus Connected to APORT3X is in Conflict With Another Peripheral */
 #define _ACMP_APORTCONFLICT_APORT3XCONFLICT_SHIFT      6                                                  /**< Shift value for ACMP_APORT3XCONFLICT */
 #define _ACMP_APORTCONFLICT_APORT3XCONFLICT_MASK       0x40UL                                             /**< Bit mask for ACMP_APORT3XCONFLICT */
 #define _ACMP_APORTCONFLICT_APORT3XCONFLICT_DEFAULT    0x00000000UL                                       /**< Mode DEFAULT for ACMP_APORTCONFLICT */
 #define ACMP_APORTCONFLICT_APORT3XCONFLICT_DEFAULT     (_ACMP_APORTCONFLICT_APORT3XCONFLICT_DEFAULT << 6) /**< Shifted mode DEFAULT for ACMP_APORTCONFLICT */
-#define ACMP_APORTCONFLICT_APORT3YCONFLICT             (0x1UL << 7)                                       /**< 1 if the bus connected to APORT3Y is in conflict with another peripheral */
+#define ACMP_APORTCONFLICT_APORT3YCONFLICT             (0x1UL << 7)                                       /**< 1 If the Bus Connected to APORT3Y is in Conflict With Another Peripheral */
 #define _ACMP_APORTCONFLICT_APORT3YCONFLICT_SHIFT      7                                                  /**< Shift value for ACMP_APORT3YCONFLICT */
 #define _ACMP_APORTCONFLICT_APORT3YCONFLICT_MASK       0x80UL                                             /**< Bit mask for ACMP_APORT3YCONFLICT */
 #define _ACMP_APORTCONFLICT_APORT3YCONFLICT_DEFAULT    0x00000000UL                                       /**< Mode DEFAULT for ACMP_APORTCONFLICT */
 #define ACMP_APORTCONFLICT_APORT3YCONFLICT_DEFAULT     (_ACMP_APORTCONFLICT_APORT3YCONFLICT_DEFAULT << 7) /**< Shifted mode DEFAULT for ACMP_APORTCONFLICT */
-#define ACMP_APORTCONFLICT_APORT4XCONFLICT             (0x1UL << 8)                                       /**< 1 if the bus connected to APORT4X is in conflict with another peripheral */
+#define ACMP_APORTCONFLICT_APORT4XCONFLICT             (0x1UL << 8)                                       /**< 1 If the Bus Connected to APORT4X is in Conflict With Another Peripheral */
 #define _ACMP_APORTCONFLICT_APORT4XCONFLICT_SHIFT      8                                                  /**< Shift value for ACMP_APORT4XCONFLICT */
 #define _ACMP_APORTCONFLICT_APORT4XCONFLICT_MASK       0x100UL                                            /**< Bit mask for ACMP_APORT4XCONFLICT */
 #define _ACMP_APORTCONFLICT_APORT4XCONFLICT_DEFAULT    0x00000000UL                                       /**< Mode DEFAULT for ACMP_APORTCONFLICT */
 #define ACMP_APORTCONFLICT_APORT4XCONFLICT_DEFAULT     (_ACMP_APORTCONFLICT_APORT4XCONFLICT_DEFAULT << 8) /**< Shifted mode DEFAULT for ACMP_APORTCONFLICT */
-#define ACMP_APORTCONFLICT_APORT4YCONFLICT             (0x1UL << 9)                                       /**< 1 if the bus connected to APORT4Y is in conflict with another peripheral */
+#define ACMP_APORTCONFLICT_APORT4YCONFLICT             (0x1UL << 9)                                       /**< 1 If the Bus Connected to APORT4Y is in Conflict With Another Peripheral */
 #define _ACMP_APORTCONFLICT_APORT4YCONFLICT_SHIFT      9                                                  /**< Shift value for ACMP_APORT4YCONFLICT */
 #define _ACMP_APORTCONFLICT_APORT4YCONFLICT_MASK       0x200UL                                            /**< Bit mask for ACMP_APORT4YCONFLICT */
 #define _ACMP_APORTCONFLICT_APORT4YCONFLICT_DEFAULT    0x00000000UL                                       /**< Mode DEFAULT for ACMP_APORTCONFLICT */
@@ -1340,7 +1338,7 @@ typedef struct {
 /* Bit fields for ACMP EXTIFCTRL */
 #define _ACMP_EXTIFCTRL_RESETVALUE                     0x00000000UL                             /**< Default value for ACMP_EXTIFCTRL */
 #define _ACMP_EXTIFCTRL_MASK                           0x000000F1UL                             /**< Mask for ACMP_EXTIFCTRL */
-#define ACMP_EXTIFCTRL_EN                              (0x1UL << 0)                             /**< Enable external interface. */
+#define ACMP_EXTIFCTRL_EN                              (0x1UL << 0)                             /**< Enable External Interface */
 #define _ACMP_EXTIFCTRL_EN_SHIFT                       0                                        /**< Shift value for ACMP_EN */
 #define _ACMP_EXTIFCTRL_EN_MASK                        0x1UL                                    /**< Bit mask for ACMP_EN */
 #define _ACMP_EXTIFCTRL_EN_DEFAULT                     0x00000000UL                             /**< Mode DEFAULT for ACMP_EXTIFCTRL */

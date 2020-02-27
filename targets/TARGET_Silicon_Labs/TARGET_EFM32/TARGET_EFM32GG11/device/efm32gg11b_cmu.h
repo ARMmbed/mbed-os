@@ -1,34 +1,32 @@
-/**************************************************************************//**
- * @file efm32gg11b_cmu.h
+/***************************************************************************//**
+ * @file
  * @brief EFM32GG11B_CMU register and bit field definitions
- * @version 5.3.2
- ******************************************************************************
+ *******************************************************************************
  * # License
- * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
- ******************************************************************************
+ * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.@n
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.@n
+ *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Laboratories, Inc.
- * has no obligation to support this Software. Silicon Laboratories, Inc. is
- * providing the Software "AS IS", with no express or implied warranties of any
- * kind, including, but not limited to, any implied warranties of
- * merchantability or fitness for any particular purpose or warranties against
- * infringement of any proprietary rights of a third party.
- *
- * Silicon Laboratories, Inc. will not be liable for any consequential,
- * incidental, or special damages, or any other relief, or for any claim by
- * any third party, arising from your use of this Software.
- *
- *****************************************************************************/
+ ******************************************************************************/
 
 #if defined(__ICCARM__)
 #pragma system_include       /* Treat file as system include file. */
@@ -36,57 +34,56 @@
 #pragma clang system_header  /* Treat file as system include file. */
 #endif
 
-/**************************************************************************//**
-* @addtogroup Parts
-* @{
-******************************************************************************/
-/**************************************************************************//**
+/***************************************************************************//**
+ * @addtogroup Parts
+ * @{
+ ******************************************************************************/
+/***************************************************************************//**
  * @defgroup EFM32GG11B_CMU CMU
  * @{
  * @brief EFM32GG11B_CMU Register Declaration
- *****************************************************************************/
+ ******************************************************************************/
 /** CMU Register Declaration */
 typedef struct {
   __IOM uint32_t CTRL;                /**< CMU Control Register  */
-  uint32_t       RESERVED0[1];        /**< Reserved for future use **/
+  uint32_t       RESERVED0[1U];       /**< Reserved for future use **/
   __IOM uint32_t USHFRCOCTRL;         /**< USHFRCO Control Register  */
 
-  uint32_t       RESERVED1[1];        /**< Reserved for future use **/
+  uint32_t       RESERVED1[1U];       /**< Reserved for future use **/
   __IOM uint32_t HFRCOCTRL;           /**< HFRCO Control Register  */
 
-  uint32_t       RESERVED2[1];        /**< Reserved for future use **/
+  uint32_t       RESERVED2[1U];       /**< Reserved for future use **/
   __IOM uint32_t AUXHFRCOCTRL;        /**< AUXHFRCO Control Register  */
 
-  uint32_t       RESERVED3[1];        /**< Reserved for future use **/
+  uint32_t       RESERVED3[1U];       /**< Reserved for future use **/
   __IOM uint32_t LFRCOCTRL;           /**< LFRCO Control Register  */
   __IOM uint32_t HFXOCTRL;            /**< HFXO Control Register  */
-
-  uint32_t       RESERVED4[1];        /**< Reserved for future use **/
+  __IOM uint32_t HFXOCTRL1;           /**< HFXO Control 1  */
   __IOM uint32_t HFXOSTARTUPCTRL;     /**< HFXO Startup Control  */
-  __IOM uint32_t HFXOSTEADYSTATECTRL; /**< HFXO Steady State control  */
+  __IOM uint32_t HFXOSTEADYSTATECTRL; /**< HFXO Steady State Control  */
   __IOM uint32_t HFXOTIMEOUTCTRL;     /**< HFXO Timeout Control  */
   __IOM uint32_t LFXOCTRL;            /**< LFXO Control Register  */
 
-  uint32_t       RESERVED5[1];        /**< Reserved for future use **/
+  uint32_t       RESERVED4[1U];       /**< Reserved for future use **/
   __IOM uint32_t DPLLCTRL;            /**< DPLL Control Register  */
   __IOM uint32_t DPLLCTRL1;           /**< DPLL Control Register  */
-  uint32_t       RESERVED6[2];        /**< Reserved for future use **/
+  uint32_t       RESERVED5[2U];       /**< Reserved for future use **/
   __IOM uint32_t CALCTRL;             /**< Calibration Control Register  */
   __IOM uint32_t CALCNT;              /**< Calibration Counter Register  */
-  uint32_t       RESERVED7[2];        /**< Reserved for future use **/
+  uint32_t       RESERVED6[2U];       /**< Reserved for future use **/
   __IOM uint32_t OSCENCMD;            /**< Oscillator Enable/Disable Command Register  */
   __IOM uint32_t CMD;                 /**< Command Register  */
-  uint32_t       RESERVED8[2];        /**< Reserved for future use **/
+  uint32_t       RESERVED7[2U];       /**< Reserved for future use **/
   __IOM uint32_t DBGCLKSEL;           /**< Debug Trace Clock Select  */
   __IOM uint32_t HFCLKSEL;            /**< High Frequency Clock Select Command Register  */
-  uint32_t       RESERVED9[2];        /**< Reserved for future use **/
+  uint32_t       RESERVED8[2U];       /**< Reserved for future use **/
   __IOM uint32_t LFACLKSEL;           /**< Low Frequency A Clock Select Register  */
   __IOM uint32_t LFBCLKSEL;           /**< Low Frequency B Clock Select Register  */
   __IOM uint32_t LFECLKSEL;           /**< Low Frequency E Clock Select Register  */
   __IOM uint32_t LFCCLKSEL;           /**< Low Frequency C Clock Select Register  */
   __IM uint32_t  STATUS;              /**< Status Register  */
   __IM uint32_t  HFCLKSTATUS;         /**< HFCLK Status Register  */
-  uint32_t       RESERVED10[1];       /**< Reserved for future use **/
+  uint32_t       RESERVED9[1U];       /**< Reserved for future use **/
   __IM uint32_t  HFXOTRIMSTATUS;      /**< HFXO Trim Status  */
   __IM uint32_t  IF;                  /**< Interrupt Flag Register  */
   __IOM uint32_t IFS;                 /**< Interrupt Flag Set Register  */
@@ -94,61 +91,62 @@ typedef struct {
   __IOM uint32_t IEN;                 /**< Interrupt Enable Register  */
   __IOM uint32_t HFBUSCLKEN0;         /**< High Frequency Bus Clock Enable Register 0  */
 
-  uint32_t       RESERVED11[3];       /**< Reserved for future use **/
+  uint32_t       RESERVED10[3U];      /**< Reserved for future use **/
   __IOM uint32_t HFPERCLKEN0;         /**< High Frequency Peripheral Clock Enable Register 0  */
   __IOM uint32_t HFPERCLKEN1;         /**< High Frequency Peripheral Clock Enable Register 1  */
 
-  uint32_t       RESERVED12[6];       /**< Reserved for future use **/
-  __IOM uint32_t LFACLKEN0;           /**< Low Frequency A Clock Enable Register 0  (Async Reg)  */
-  uint32_t       RESERVED13[1];       /**< Reserved for future use **/
+  uint32_t       RESERVED11[6U];      /**< Reserved for future use **/
+  __IOM uint32_t LFACLKEN0;           /**< Low Frequency a Clock Enable Register 0  (Async Reg)  */
+  uint32_t       RESERVED12[1U];      /**< Reserved for future use **/
   __IOM uint32_t LFBCLKEN0;           /**< Low Frequency B Clock Enable Register 0 (Async Reg)  */
   __IOM uint32_t LFCCLKEN0;           /**< Low Frequency C Clock Enable Register 0 (Async Reg)  */
   __IOM uint32_t LFECLKEN0;           /**< Low Frequency E Clock Enable Register 0 (Async Reg)  */
-  uint32_t       RESERVED14[3];       /**< Reserved for future use **/
+  uint32_t       RESERVED13[3U];      /**< Reserved for future use **/
   __IOM uint32_t HFPRESC;             /**< High Frequency Clock Prescaler Register  */
   __IOM uint32_t HFBUSPRESC;          /**< High Frequency Bus Clock Prescaler Register  */
   __IOM uint32_t HFCOREPRESC;         /**< High Frequency Core Clock Prescaler Register  */
   __IOM uint32_t HFPERPRESC;          /**< High Frequency Peripheral Clock Prescaler Register  */
 
-  uint32_t       RESERVED15[1];       /**< Reserved for future use **/
+  uint32_t       RESERVED14[1U];      /**< Reserved for future use **/
   __IOM uint32_t HFEXPPRESC;          /**< High Frequency Export Clock Prescaler Register  */
   __IOM uint32_t HFPERPRESCB;         /**< High Frequency Peripheral Clock Prescaler B Register  */
   __IOM uint32_t HFPERPRESCC;         /**< High Frequency Peripheral Clock Prescaler C Register  */
-  __IOM uint32_t LFAPRESC0;           /**< Low Frequency A Prescaler Register 0 (Async Reg)  */
-  uint32_t       RESERVED16[1];       /**< Reserved for future use **/
+  __IOM uint32_t LFAPRESC0;           /**< Low Frequency a Prescaler Register 0 (Async Reg)  */
+  uint32_t       RESERVED15[1U];      /**< Reserved for future use **/
   __IOM uint32_t LFBPRESC0;           /**< Low Frequency B Prescaler Register 0  (Async Reg)  */
-  uint32_t       RESERVED17[1];       /**< Reserved for future use **/
-  __IOM uint32_t LFEPRESC0;           /**< Low Frequency E Prescaler Register 0  (Async Reg).  When waking up from EM4 make sure EM4UNLATCH in EMU_CMD is set for this to take effect  */
+  uint32_t       RESERVED16[1U];      /**< Reserved for future use **/
+  __IOM uint32_t LFEPRESC0;           /**< Low Frequency E Prescaler Register 0  (Async Reg)  */
 
-  uint32_t       RESERVED18[3];       /**< Reserved for future use **/
+  uint32_t       RESERVED17[3U];      /**< Reserved for future use **/
   __IM uint32_t  SYNCBUSY;            /**< Synchronization Busy Register  */
   __IOM uint32_t FREEZE;              /**< Freeze Register  */
-  uint32_t       RESERVED19[2];       /**< Reserved for future use **/
+  uint32_t       RESERVED18[2U];      /**< Reserved for future use **/
   __IOM uint32_t PCNTCTRL;            /**< PCNT Control Register  */
 
-  uint32_t       RESERVED20[2];       /**< Reserved for future use **/
+  uint32_t       RESERVED19[2U];      /**< Reserved for future use **/
   __IOM uint32_t ADCCTRL;             /**< ADC Control Register  */
   __IOM uint32_t SDIOCTRL;            /**< SDIO Control Register  */
   __IOM uint32_t QSPICTRL;            /**< QSPI Control Register  */
-  uint32_t       RESERVED21[2];       /**< Reserved for future use **/
+
+  uint32_t       RESERVED20[2U];      /**< Reserved for future use **/
   __IOM uint32_t ROUTEPEN;            /**< I/O Routing Pin Enable Register  */
   __IOM uint32_t ROUTELOC0;           /**< I/O Routing Location Register  */
   __IOM uint32_t ROUTELOC1;           /**< I/O Routing Location Register  */
-  uint32_t       RESERVED22[1];       /**< Reserved for future use **/
+  uint32_t       RESERVED21[1U];      /**< Reserved for future use **/
   __IOM uint32_t LOCK;                /**< Configuration Lock Register  */
   __IOM uint32_t HFRCOSS;             /**< HFRCO Spread Spectrum Register  */
 
-  uint32_t       RESERVED23[26];      /**< Reserved for future use **/
+  uint32_t       RESERVED22[26U];     /**< Reserved for future use **/
   __IOM uint32_t USBCTRL;             /**< USB Control Register  */
   __IOM uint32_t USBCRCTRL;           /**< USB Clock Recovery Control  */
 } CMU_TypeDef;                        /** @} */
 
-/**************************************************************************//**
+/***************************************************************************//**
  * @addtogroup EFM32GG11B_CMU
  * @{
  * @defgroup EFM32GG11B_CMU_BitFields  CMU Bit Fields
  * @{
- *****************************************************************************/
+ ******************************************************************************/
 
 /* Bit fields for CMU CTRL */
 #define _CMU_CTRL_RESETVALUE                              0x00100000UL                           /**< Default value for CMU_CTRL */
@@ -298,7 +296,7 @@ typedef struct {
 #define CMU_USHFRCOCTRL_CLKDIV_DIV1                       (_CMU_USHFRCOCTRL_CLKDIV_DIV1 << 25)          /**< Shifted mode DIV1 for CMU_USHFRCOCTRL */
 #define CMU_USHFRCOCTRL_CLKDIV_DIV2                       (_CMU_USHFRCOCTRL_CLKDIV_DIV2 << 25)          /**< Shifted mode DIV2 for CMU_USHFRCOCTRL */
 #define CMU_USHFRCOCTRL_CLKDIV_DIV4                       (_CMU_USHFRCOCTRL_CLKDIV_DIV4 << 25)          /**< Shifted mode DIV4 for CMU_USHFRCOCTRL */
-#define CMU_USHFRCOCTRL_FINETUNINGEN                      (0x1UL << 27)                                 /**< Enable reference for fine tuning */
+#define CMU_USHFRCOCTRL_FINETUNINGEN                      (0x1UL << 27)                                 /**< Enable Reference for Fine Tuning */
 #define _CMU_USHFRCOCTRL_FINETUNINGEN_SHIFT               27                                            /**< Shift value for CMU_FINETUNINGEN */
 #define _CMU_USHFRCOCTRL_FINETUNINGEN_MASK                0x8000000UL                                   /**< Bit mask for CMU_FINETUNINGEN */
 #define _CMU_USHFRCOCTRL_FINETUNINGEN_DEFAULT             0x00000000UL                                  /**< Mode DEFAULT for CMU_USHFRCOCTRL */
@@ -342,7 +340,7 @@ typedef struct {
 #define CMU_HFRCOCTRL_CLKDIV_DIV1                         (_CMU_HFRCOCTRL_CLKDIV_DIV1 << 25)          /**< Shifted mode DIV1 for CMU_HFRCOCTRL */
 #define CMU_HFRCOCTRL_CLKDIV_DIV2                         (_CMU_HFRCOCTRL_CLKDIV_DIV2 << 25)          /**< Shifted mode DIV2 for CMU_HFRCOCTRL */
 #define CMU_HFRCOCTRL_CLKDIV_DIV4                         (_CMU_HFRCOCTRL_CLKDIV_DIV4 << 25)          /**< Shifted mode DIV4 for CMU_HFRCOCTRL */
-#define CMU_HFRCOCTRL_FINETUNINGEN                        (0x1UL << 27)                               /**< Enable reference for fine tuning */
+#define CMU_HFRCOCTRL_FINETUNINGEN                        (0x1UL << 27)                               /**< Enable Reference for Fine Tuning */
 #define _CMU_HFRCOCTRL_FINETUNINGEN_SHIFT                 27                                          /**< Shift value for CMU_FINETUNINGEN */
 #define _CMU_HFRCOCTRL_FINETUNINGEN_MASK                  0x8000000UL                                 /**< Bit mask for CMU_FINETUNINGEN */
 #define _CMU_HFRCOCTRL_FINETUNINGEN_DEFAULT               0x00000000UL                                /**< Mode DEFAULT for CMU_HFRCOCTRL */
@@ -386,7 +384,7 @@ typedef struct {
 #define CMU_AUXHFRCOCTRL_CLKDIV_DIV1                      (_CMU_AUXHFRCOCTRL_CLKDIV_DIV1 << 25)          /**< Shifted mode DIV1 for CMU_AUXHFRCOCTRL */
 #define CMU_AUXHFRCOCTRL_CLKDIV_DIV2                      (_CMU_AUXHFRCOCTRL_CLKDIV_DIV2 << 25)          /**< Shifted mode DIV2 for CMU_AUXHFRCOCTRL */
 #define CMU_AUXHFRCOCTRL_CLKDIV_DIV4                      (_CMU_AUXHFRCOCTRL_CLKDIV_DIV4 << 25)          /**< Shifted mode DIV4 for CMU_AUXHFRCOCTRL */
-#define CMU_AUXHFRCOCTRL_FINETUNINGEN                     (0x1UL << 27)                                  /**< Enable reference for fine tuning */
+#define CMU_AUXHFRCOCTRL_FINETUNINGEN                     (0x1UL << 27)                                  /**< Enable Reference for Fine Tuning */
 #define _CMU_AUXHFRCOCTRL_FINETUNINGEN_SHIFT              27                                             /**< Shift value for CMU_FINETUNINGEN */
 #define _CMU_AUXHFRCOCTRL_FINETUNINGEN_MASK               0x8000000UL                                    /**< Bit mask for CMU_FINETUNINGEN */
 #define _CMU_AUXHFRCOCTRL_FINETUNINGEN_DEFAULT            0x00000000UL                                   /**< Mode DEFAULT for CMU_AUXHFRCOCTRL */
@@ -403,17 +401,17 @@ typedef struct {
 #define _CMU_LFRCOCTRL_TUNING_MASK                        0x1FFUL                                     /**< Bit mask for CMU_TUNING */
 #define _CMU_LFRCOCTRL_TUNING_DEFAULT                     0x00000100UL                                /**< Mode DEFAULT for CMU_LFRCOCTRL */
 #define CMU_LFRCOCTRL_TUNING_DEFAULT                      (_CMU_LFRCOCTRL_TUNING_DEFAULT << 0)        /**< Shifted mode DEFAULT for CMU_LFRCOCTRL */
-#define CMU_LFRCOCTRL_ENVREF                              (0x1UL << 16)                               /**< Enable duty cycling of vref */
+#define CMU_LFRCOCTRL_ENVREF                              (0x1UL << 16)                               /**< Enable Duty Cycling of Vref */
 #define _CMU_LFRCOCTRL_ENVREF_SHIFT                       16                                          /**< Shift value for CMU_ENVREF */
 #define _CMU_LFRCOCTRL_ENVREF_MASK                        0x10000UL                                   /**< Bit mask for CMU_ENVREF */
 #define _CMU_LFRCOCTRL_ENVREF_DEFAULT                     0x00000000UL                                /**< Mode DEFAULT for CMU_LFRCOCTRL */
 #define CMU_LFRCOCTRL_ENVREF_DEFAULT                      (_CMU_LFRCOCTRL_ENVREF_DEFAULT << 16)       /**< Shifted mode DEFAULT for CMU_LFRCOCTRL */
-#define CMU_LFRCOCTRL_ENCHOP                              (0x1UL << 17)                               /**< Enable comparator chopping */
+#define CMU_LFRCOCTRL_ENCHOP                              (0x1UL << 17)                               /**< Enable Comparator Chopping */
 #define _CMU_LFRCOCTRL_ENCHOP_SHIFT                       17                                          /**< Shift value for CMU_ENCHOP */
 #define _CMU_LFRCOCTRL_ENCHOP_MASK                        0x20000UL                                   /**< Bit mask for CMU_ENCHOP */
 #define _CMU_LFRCOCTRL_ENCHOP_DEFAULT                     0x00000001UL                                /**< Mode DEFAULT for CMU_LFRCOCTRL */
 #define CMU_LFRCOCTRL_ENCHOP_DEFAULT                      (_CMU_LFRCOCTRL_ENCHOP_DEFAULT << 17)       /**< Shifted mode DEFAULT for CMU_LFRCOCTRL */
-#define CMU_LFRCOCTRL_ENDEM                               (0x1UL << 18)                               /**< Enable dynamic element matching */
+#define CMU_LFRCOCTRL_ENDEM                               (0x1UL << 18)                               /**< Enable Dynamic Element Matching */
 #define _CMU_LFRCOCTRL_ENDEM_SHIFT                        18                                          /**< Shift value for CMU_ENDEM */
 #define _CMU_LFRCOCTRL_ENDEM_MASK                         0x40000UL                                   /**< Bit mask for CMU_ENDEM */
 #define _CMU_LFRCOCTRL_ENDEM_DEFAULT                      0x00000001UL                                /**< Mode DEFAULT for CMU_LFRCOCTRL */
@@ -460,7 +458,7 @@ typedef struct {
 #define CMU_HFXOCTRL_MODE_ACBUFEXTCLK                     (_CMU_HFXOCTRL_MODE_ACBUFEXTCLK << 0)            /**< Shifted mode ACBUFEXTCLK for CMU_HFXOCTRL */
 #define CMU_HFXOCTRL_MODE_DCBUFEXTCLK                     (_CMU_HFXOCTRL_MODE_DCBUFEXTCLK << 0)            /**< Shifted mode DCBUFEXTCLK for CMU_HFXOCTRL */
 #define CMU_HFXOCTRL_MODE_DIGEXTCLK                       (_CMU_HFXOCTRL_MODE_DIGEXTCLK << 0)              /**< Shifted mode DIGEXTCLK for CMU_HFXOCTRL */
-#define CMU_HFXOCTRL_HFXOX2EN                             (0x1UL << 3)                                     /**< Enable double frequency on HFXOX2 clock (compared to HFXO clock). */
+#define CMU_HFXOCTRL_HFXOX2EN                             (0x1UL << 3)                                     /**< Enable Double Frequency on HFXOX2 Clock (compared to HFXO Clock) */
 #define _CMU_HFXOCTRL_HFXOX2EN_SHIFT                      3                                                /**< Shift value for CMU_HFXOX2EN */
 #define _CMU_HFXOCTRL_HFXOX2EN_MASK                       0x8UL                                            /**< Bit mask for CMU_HFXOX2EN */
 #define _CMU_HFXOCTRL_HFXOX2EN_DEFAULT                    0x00000001UL                                     /**< Mode DEFAULT for CMU_HFXOCTRL */
@@ -497,16 +495,40 @@ typedef struct {
 #define CMU_HFXOCTRL_LFTIMEOUT_64CYCLES                   (_CMU_HFXOCTRL_LFTIMEOUT_64CYCLES << 24)         /**< Shifted mode 64CYCLES for CMU_HFXOCTRL */
 #define CMU_HFXOCTRL_LFTIMEOUT_1KCYCLES                   (_CMU_HFXOCTRL_LFTIMEOUT_1KCYCLES << 24)         /**< Shifted mode 1KCYCLES for CMU_HFXOCTRL */
 #define CMU_HFXOCTRL_LFTIMEOUT_4KCYCLES                   (_CMU_HFXOCTRL_LFTIMEOUT_4KCYCLES << 24)         /**< Shifted mode 4KCYCLES for CMU_HFXOCTRL */
-#define CMU_HFXOCTRL_AUTOSTARTEM0EM1                      (0x1UL << 28)                                    /**< Automatically start of HFXO upon EM0/EM1 entry from EM2/EM3 */
+#define CMU_HFXOCTRL_AUTOSTARTEM0EM1                      (0x1UL << 28)                                    /**< Automatically Start of HFXO Upon EM0/EM1 Entry From EM2/EM3 */
 #define _CMU_HFXOCTRL_AUTOSTARTEM0EM1_SHIFT               28                                               /**< Shift value for CMU_AUTOSTARTEM0EM1 */
 #define _CMU_HFXOCTRL_AUTOSTARTEM0EM1_MASK                0x10000000UL                                     /**< Bit mask for CMU_AUTOSTARTEM0EM1 */
 #define _CMU_HFXOCTRL_AUTOSTARTEM0EM1_DEFAULT             0x00000000UL                                     /**< Mode DEFAULT for CMU_HFXOCTRL */
 #define CMU_HFXOCTRL_AUTOSTARTEM0EM1_DEFAULT              (_CMU_HFXOCTRL_AUTOSTARTEM0EM1_DEFAULT << 28)    /**< Shifted mode DEFAULT for CMU_HFXOCTRL */
-#define CMU_HFXOCTRL_AUTOSTARTSELEM0EM1                   (0x1UL << 29)                                    /**< Automatically start and select of HFXO upon EM0/EM1 entry from EM2/EM3 */
+#define CMU_HFXOCTRL_AUTOSTARTSELEM0EM1                   (0x1UL << 29)                                    /**< Automatically Start and Select of HFXO Upon EM0/EM1 Entry From EM2/EM3 */
 #define _CMU_HFXOCTRL_AUTOSTARTSELEM0EM1_SHIFT            29                                               /**< Shift value for CMU_AUTOSTARTSELEM0EM1 */
 #define _CMU_HFXOCTRL_AUTOSTARTSELEM0EM1_MASK             0x20000000UL                                     /**< Bit mask for CMU_AUTOSTARTSELEM0EM1 */
 #define _CMU_HFXOCTRL_AUTOSTARTSELEM0EM1_DEFAULT          0x00000000UL                                     /**< Mode DEFAULT for CMU_HFXOCTRL */
 #define CMU_HFXOCTRL_AUTOSTARTSELEM0EM1_DEFAULT           (_CMU_HFXOCTRL_AUTOSTARTSELEM0EM1_DEFAULT << 29) /**< Shifted mode DEFAULT for CMU_HFXOCTRL */
+
+/* Bit fields for CMU HFXOCTRL1 */
+#define _CMU_HFXOCTRL1_RESETVALUE                         0x00002000UL                              /**< Default value for CMU_HFXOCTRL1 */
+#define _CMU_HFXOCTRL1_MASK                               0x00007000UL                              /**< Mask for CMU_HFXOCTRL1 */
+#define _CMU_HFXOCTRL1_PEAKDETTHR_SHIFT                   12                                        /**< Shift value for CMU_PEAKDETTHR */
+#define _CMU_HFXOCTRL1_PEAKDETTHR_MASK                    0x7000UL                                  /**< Bit mask for CMU_PEAKDETTHR */
+#define _CMU_HFXOCTRL1_PEAKDETTHR_THR0                    0x00000000UL                              /**< Mode THR0 for CMU_HFXOCTRL1 */
+#define _CMU_HFXOCTRL1_PEAKDETTHR_THR1                    0x00000001UL                              /**< Mode THR1 for CMU_HFXOCTRL1 */
+#define _CMU_HFXOCTRL1_PEAKDETTHR_DEFAULT                 0x00000002UL                              /**< Mode DEFAULT for CMU_HFXOCTRL1 */
+#define _CMU_HFXOCTRL1_PEAKDETTHR_THR2                    0x00000002UL                              /**< Mode THR2 for CMU_HFXOCTRL1 */
+#define _CMU_HFXOCTRL1_PEAKDETTHR_THR3                    0x00000003UL                              /**< Mode THR3 for CMU_HFXOCTRL1 */
+#define _CMU_HFXOCTRL1_PEAKDETTHR_THR4                    0x00000004UL                              /**< Mode THR4 for CMU_HFXOCTRL1 */
+#define _CMU_HFXOCTRL1_PEAKDETTHR_THR5                    0x00000005UL                              /**< Mode THR5 for CMU_HFXOCTRL1 */
+#define _CMU_HFXOCTRL1_PEAKDETTHR_THR6                    0x00000006UL                              /**< Mode THR6 for CMU_HFXOCTRL1 */
+#define _CMU_HFXOCTRL1_PEAKDETTHR_THR7                    0x00000007UL                              /**< Mode THR7 for CMU_HFXOCTRL1 */
+#define CMU_HFXOCTRL1_PEAKDETTHR_THR0                     (_CMU_HFXOCTRL1_PEAKDETTHR_THR0 << 12)    /**< Shifted mode THR0 for CMU_HFXOCTRL1 */
+#define CMU_HFXOCTRL1_PEAKDETTHR_THR1                     (_CMU_HFXOCTRL1_PEAKDETTHR_THR1 << 12)    /**< Shifted mode THR1 for CMU_HFXOCTRL1 */
+#define CMU_HFXOCTRL1_PEAKDETTHR_DEFAULT                  (_CMU_HFXOCTRL1_PEAKDETTHR_DEFAULT << 12) /**< Shifted mode DEFAULT for CMU_HFXOCTRL1 */
+#define CMU_HFXOCTRL1_PEAKDETTHR_THR2                     (_CMU_HFXOCTRL1_PEAKDETTHR_THR2 << 12)    /**< Shifted mode THR2 for CMU_HFXOCTRL1 */
+#define CMU_HFXOCTRL1_PEAKDETTHR_THR3                     (_CMU_HFXOCTRL1_PEAKDETTHR_THR3 << 12)    /**< Shifted mode THR3 for CMU_HFXOCTRL1 */
+#define CMU_HFXOCTRL1_PEAKDETTHR_THR4                     (_CMU_HFXOCTRL1_PEAKDETTHR_THR4 << 12)    /**< Shifted mode THR4 for CMU_HFXOCTRL1 */
+#define CMU_HFXOCTRL1_PEAKDETTHR_THR5                     (_CMU_HFXOCTRL1_PEAKDETTHR_THR5 << 12)    /**< Shifted mode THR5 for CMU_HFXOCTRL1 */
+#define CMU_HFXOCTRL1_PEAKDETTHR_THR6                     (_CMU_HFXOCTRL1_PEAKDETTHR_THR6 << 12)    /**< Shifted mode THR6 for CMU_HFXOCTRL1 */
+#define CMU_HFXOCTRL1_PEAKDETTHR_THR7                     (_CMU_HFXOCTRL1_PEAKDETTHR_THR7 << 12)    /**< Shifted mode THR7 for CMU_HFXOCTRL1 */
 
 /* Bit fields for CMU HFXOSTARTUPCTRL */
 #define _CMU_HFXOSTARTUPCTRL_RESETVALUE                   0x00000600UL                                     /**< Default value for CMU_HFXOSTARTUPCTRL */
@@ -531,19 +553,19 @@ typedef struct {
 #define _CMU_HFXOSTEADYSTATECTRL_CTUNE_MASK               0xFF800UL                                            /**< Bit mask for CMU_CTUNE */
 #define _CMU_HFXOSTEADYSTATECTRL_CTUNE_DEFAULT            0x00000000UL                                         /**< Mode DEFAULT for CMU_HFXOSTEADYSTATECTRL */
 #define CMU_HFXOSTEADYSTATECTRL_CTUNE_DEFAULT             (_CMU_HFXOSTEADYSTATECTRL_CTUNE_DEFAULT << 11)       /**< Shifted mode DEFAULT for CMU_HFXOSTEADYSTATECTRL */
-#define CMU_HFXOSTEADYSTATECTRL_PEAKDETEN                 (0x1UL << 26)                                        /**< Enables oscillator peak detectors */
+#define CMU_HFXOSTEADYSTATECTRL_PEAKDETEN                 (0x1UL << 26)                                        /**< Enables Oscillator Peak Detectors */
 #define _CMU_HFXOSTEADYSTATECTRL_PEAKDETEN_SHIFT          26                                                   /**< Shift value for CMU_PEAKDETEN */
 #define _CMU_HFXOSTEADYSTATECTRL_PEAKDETEN_MASK           0x4000000UL                                          /**< Bit mask for CMU_PEAKDETEN */
 #define _CMU_HFXOSTEADYSTATECTRL_PEAKDETEN_DEFAULT        0x00000000UL                                         /**< Mode DEFAULT for CMU_HFXOSTEADYSTATECTRL */
 #define CMU_HFXOSTEADYSTATECTRL_PEAKDETEN_DEFAULT         (_CMU_HFXOSTEADYSTATECTRL_PEAKDETEN_DEFAULT << 26)   /**< Shifted mode DEFAULT for CMU_HFXOSTEADYSTATECTRL */
-#define CMU_HFXOSTEADYSTATECTRL_PEAKMONEN                 (0x1UL << 27)                                        /**< Automatically perform Peak Monitoring Algorithm on every rising edge of ULFRCO */
+#define CMU_HFXOSTEADYSTATECTRL_PEAKMONEN                 (0x1UL << 27)                                        /**< Automatically Perform Peak Monitoring Algorithm on Every Rising Edge of ULFRCO */
 #define _CMU_HFXOSTEADYSTATECTRL_PEAKMONEN_SHIFT          27                                                   /**< Shift value for CMU_PEAKMONEN */
 #define _CMU_HFXOSTEADYSTATECTRL_PEAKMONEN_MASK           0x8000000UL                                          /**< Bit mask for CMU_PEAKMONEN */
 #define _CMU_HFXOSTEADYSTATECTRL_PEAKMONEN_DEFAULT        0x00000001UL                                         /**< Mode DEFAULT for CMU_HFXOSTEADYSTATECTRL */
 #define CMU_HFXOSTEADYSTATECTRL_PEAKMONEN_DEFAULT         (_CMU_HFXOSTEADYSTATECTRL_PEAKMONEN_DEFAULT << 27)   /**< Shifted mode DEFAULT for CMU_HFXOSTEADYSTATECTRL */
 
 /* Bit fields for CMU HFXOTIMEOUTCTRL */
-#define _CMU_HFXOTIMEOUTCTRL_RESETVALUE                   0x0000D04EUL                                           /**< Default value for CMU_HFXOTIMEOUTCTRL */
+#define _CMU_HFXOTIMEOUTCTRL_RESETVALUE                   0x0000D08EUL                                           /**< Default value for CMU_HFXOTIMEOUTCTRL */
 #define _CMU_HFXOTIMEOUTCTRL_MASK                         0x0000F0FFUL                                           /**< Mask for CMU_HFXOTIMEOUTCTRL */
 #define _CMU_HFXOTIMEOUTCTRL_STARTUPTIMEOUT_SHIFT         0                                                      /**< Shift value for CMU_STARTUPTIMEOUT */
 #define _CMU_HFXOTIMEOUTCTRL_STARTUPTIMEOUT_MASK          0xFUL                                                  /**< Bit mask for CMU_STARTUPTIMEOUT */
@@ -585,11 +607,11 @@ typedef struct {
 #define _CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_4CYCLES        0x00000001UL                                           /**< Mode 4CYCLES for CMU_HFXOTIMEOUTCTRL */
 #define _CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_16CYCLES       0x00000002UL                                           /**< Mode 16CYCLES for CMU_HFXOTIMEOUTCTRL */
 #define _CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_32CYCLES       0x00000003UL                                           /**< Mode 32CYCLES for CMU_HFXOTIMEOUTCTRL */
-#define _CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_DEFAULT        0x00000004UL                                           /**< Mode DEFAULT for CMU_HFXOTIMEOUTCTRL */
 #define _CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_64CYCLES       0x00000004UL                                           /**< Mode 64CYCLES for CMU_HFXOTIMEOUTCTRL */
 #define _CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_128CYCLES      0x00000005UL                                           /**< Mode 128CYCLES for CMU_HFXOTIMEOUTCTRL */
 #define _CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_256CYCLES      0x00000006UL                                           /**< Mode 256CYCLES for CMU_HFXOTIMEOUTCTRL */
 #define _CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_1KCYCLES       0x00000007UL                                           /**< Mode 1KCYCLES for CMU_HFXOTIMEOUTCTRL */
+#define _CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_DEFAULT        0x00000008UL                                           /**< Mode DEFAULT for CMU_HFXOTIMEOUTCTRL */
 #define _CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_2KCYCLES       0x00000008UL                                           /**< Mode 2KCYCLES for CMU_HFXOTIMEOUTCTRL */
 #define _CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_4KCYCLES       0x00000009UL                                           /**< Mode 4KCYCLES for CMU_HFXOTIMEOUTCTRL */
 #define _CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_8KCYCLES       0x0000000AUL                                           /**< Mode 8KCYCLES for CMU_HFXOTIMEOUTCTRL */
@@ -601,11 +623,11 @@ typedef struct {
 #define CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_4CYCLES         (_CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_4CYCLES << 4)      /**< Shifted mode 4CYCLES for CMU_HFXOTIMEOUTCTRL */
 #define CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_16CYCLES        (_CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_16CYCLES << 4)     /**< Shifted mode 16CYCLES for CMU_HFXOTIMEOUTCTRL */
 #define CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_32CYCLES        (_CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_32CYCLES << 4)     /**< Shifted mode 32CYCLES for CMU_HFXOTIMEOUTCTRL */
-#define CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_DEFAULT         (_CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_DEFAULT << 4)      /**< Shifted mode DEFAULT for CMU_HFXOTIMEOUTCTRL */
 #define CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_64CYCLES        (_CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_64CYCLES << 4)     /**< Shifted mode 64CYCLES for CMU_HFXOTIMEOUTCTRL */
 #define CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_128CYCLES       (_CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_128CYCLES << 4)    /**< Shifted mode 128CYCLES for CMU_HFXOTIMEOUTCTRL */
 #define CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_256CYCLES       (_CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_256CYCLES << 4)    /**< Shifted mode 256CYCLES for CMU_HFXOTIMEOUTCTRL */
 #define CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_1KCYCLES        (_CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_1KCYCLES << 4)     /**< Shifted mode 1KCYCLES for CMU_HFXOTIMEOUTCTRL */
+#define CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_DEFAULT         (_CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_DEFAULT << 4)      /**< Shifted mode DEFAULT for CMU_HFXOTIMEOUTCTRL */
 #define CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_2KCYCLES        (_CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_2KCYCLES << 4)     /**< Shifted mode 2KCYCLES for CMU_HFXOTIMEOUTCTRL */
 #define CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_4KCYCLES        (_CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_4KCYCLES << 4)     /**< Shifted mode 4KCYCLES for CMU_HFXOTIMEOUTCTRL */
 #define CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_8KCYCLES        (_CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_8KCYCLES << 4)     /**< Shifted mode 8KCYCLES for CMU_HFXOTIMEOUTCTRL */
@@ -730,7 +752,7 @@ typedef struct {
 #define CMU_DPLLCTRL_EDGESEL_DEFAULT                      (_CMU_DPLLCTRL_EDGESEL_DEFAULT << 1)     /**< Shifted mode DEFAULT for CMU_DPLLCTRL */
 #define CMU_DPLLCTRL_EDGESEL_FALL                         (_CMU_DPLLCTRL_EDGESEL_FALL << 1)        /**< Shifted mode FALL for CMU_DPLLCTRL */
 #define CMU_DPLLCTRL_EDGESEL_RISE                         (_CMU_DPLLCTRL_EDGESEL_RISE << 1)        /**< Shifted mode RISE for CMU_DPLLCTRL */
-#define CMU_DPLLCTRL_AUTORECOVER                          (0x1UL << 2)                             /**< automatic recovery ctrl */
+#define CMU_DPLLCTRL_AUTORECOVER                          (0x1UL << 2)                             /**< Automatic Recovery Ctrl */
 #define _CMU_DPLLCTRL_AUTORECOVER_SHIFT                   2                                        /**< Shift value for CMU_AUTORECOVER */
 #define _CMU_DPLLCTRL_AUTORECOVER_MASK                    0x4UL                                    /**< Bit mask for CMU_AUTORECOVER */
 #define _CMU_DPLLCTRL_AUTORECOVER_DEFAULT                 0x00000000UL                             /**< Mode DEFAULT for CMU_DPLLCTRL */
@@ -1212,22 +1234,22 @@ typedef struct {
 #define _CMU_STATUS_HFXOPEAKDETRDY_MASK                   0x400000UL                                 /**< Bit mask for CMU_HFXOPEAKDETRDY */
 #define _CMU_STATUS_HFXOPEAKDETRDY_DEFAULT                0x00000000UL                               /**< Mode DEFAULT for CMU_STATUS */
 #define CMU_STATUS_HFXOPEAKDETRDY_DEFAULT                 (_CMU_STATUS_HFXOPEAKDETRDY_DEFAULT << 22) /**< Shifted mode DEFAULT for CMU_STATUS */
-#define CMU_STATUS_HFXOAMPLOW                             (0x1UL << 25)                              /**< HFXO amplitude tuning value too low */
+#define CMU_STATUS_HFXOAMPLOW                             (0x1UL << 25)                              /**< HFXO Amplitude Tuning Value Too Low */
 #define _CMU_STATUS_HFXOAMPLOW_SHIFT                      25                                         /**< Shift value for CMU_HFXOAMPLOW */
 #define _CMU_STATUS_HFXOAMPLOW_MASK                       0x2000000UL                                /**< Bit mask for CMU_HFXOAMPLOW */
 #define _CMU_STATUS_HFXOAMPLOW_DEFAULT                    0x00000000UL                               /**< Mode DEFAULT for CMU_STATUS */
 #define CMU_STATUS_HFXOAMPLOW_DEFAULT                     (_CMU_STATUS_HFXOAMPLOW_DEFAULT << 25)     /**< Shifted mode DEFAULT for CMU_STATUS */
-#define CMU_STATUS_LFXOPHASE                              (0x1UL << 27)                              /**< LFXO clock phase */
+#define CMU_STATUS_LFXOPHASE                              (0x1UL << 27)                              /**< LFXO Clock Phase */
 #define _CMU_STATUS_LFXOPHASE_SHIFT                       27                                         /**< Shift value for CMU_LFXOPHASE */
 #define _CMU_STATUS_LFXOPHASE_MASK                        0x8000000UL                                /**< Bit mask for CMU_LFXOPHASE */
 #define _CMU_STATUS_LFXOPHASE_DEFAULT                     0x00000000UL                               /**< Mode DEFAULT for CMU_STATUS */
 #define CMU_STATUS_LFXOPHASE_DEFAULT                      (_CMU_STATUS_LFXOPHASE_DEFAULT << 27)      /**< Shifted mode DEFAULT for CMU_STATUS */
-#define CMU_STATUS_LFRCOPHASE                             (0x1UL << 28)                              /**< LFRCO clock phase */
+#define CMU_STATUS_LFRCOPHASE                             (0x1UL << 28)                              /**< LFRCO Clock Phase */
 #define _CMU_STATUS_LFRCOPHASE_SHIFT                      28                                         /**< Shift value for CMU_LFRCOPHASE */
 #define _CMU_STATUS_LFRCOPHASE_MASK                       0x10000000UL                               /**< Bit mask for CMU_LFRCOPHASE */
 #define _CMU_STATUS_LFRCOPHASE_DEFAULT                    0x00000000UL                               /**< Mode DEFAULT for CMU_STATUS */
 #define CMU_STATUS_LFRCOPHASE_DEFAULT                     (_CMU_STATUS_LFRCOPHASE_DEFAULT << 28)     /**< Shifted mode DEFAULT for CMU_STATUS */
-#define CMU_STATUS_ULFRCOPHASE                            (0x1UL << 29)                              /**< ULFRCO clock phase */
+#define CMU_STATUS_ULFRCOPHASE                            (0x1UL << 29)                              /**< ULFRCO Clock Phase */
 #define _CMU_STATUS_ULFRCOPHASE_SHIFT                     29                                         /**< Shift value for CMU_ULFRCOPHASE */
 #define _CMU_STATUS_ULFRCOPHASE_MASK                      0x20000000UL                               /**< Bit mask for CMU_ULFRCOPHASE */
 #define _CMU_STATUS_ULFRCOPHASE_DEFAULT                   0x00000000UL                               /**< Mode DEFAULT for CMU_STATUS */
@@ -1266,12 +1288,12 @@ typedef struct {
 #define _CMU_HFXOTRIMSTATUS_IBTRIMXOCOREMON_MASK          0x7FF0000UL                                         /**< Bit mask for CMU_IBTRIMXOCOREMON */
 #define _CMU_HFXOTRIMSTATUS_IBTRIMXOCOREMON_DEFAULT       0x00000000UL                                        /**< Mode DEFAULT for CMU_HFXOTRIMSTATUS */
 #define CMU_HFXOTRIMSTATUS_IBTRIMXOCOREMON_DEFAULT        (_CMU_HFXOTRIMSTATUS_IBTRIMXOCOREMON_DEFAULT << 16) /**< Shifted mode DEFAULT for CMU_HFXOTRIMSTATUS */
-#define CMU_HFXOTRIMSTATUS_VALID                          (0x1UL << 30)                                       /**< Peak Detection Algorithm found a value for IBTRIMXOCORE. If HFXO is started again with PEAKDETTMODE=ONCECMD the IBTRIMXOCORE value from CMU_HFXOTRIMSTATUS will be used and Peak Detection algorithm will be skipped. */
+#define CMU_HFXOTRIMSTATUS_VALID                          (0x1UL << 30)                                       /**< Peak Detection Algorithm Found a Value for IBTRIMXOCORE */
 #define _CMU_HFXOTRIMSTATUS_VALID_SHIFT                   30                                                  /**< Shift value for CMU_VALID */
 #define _CMU_HFXOTRIMSTATUS_VALID_MASK                    0x40000000UL                                        /**< Bit mask for CMU_VALID */
 #define _CMU_HFXOTRIMSTATUS_VALID_DEFAULT                 0x00000000UL                                        /**< Mode DEFAULT for CMU_HFXOTRIMSTATUS */
 #define CMU_HFXOTRIMSTATUS_VALID_DEFAULT                  (_CMU_HFXOTRIMSTATUS_VALID_DEFAULT << 30)           /**< Shifted mode DEFAULT for CMU_HFXOTRIMSTATUS */
-#define CMU_HFXOTRIMSTATUS_MONVALID                       (0x1UL << 31)                                       /**< Peak Detection Algorithm or Peak Monitoring Algorithm found a value for IBTRIMXOCOREMON. */
+#define CMU_HFXOTRIMSTATUS_MONVALID                       (0x1UL << 31)                                       /**< Peak Detection Algorithm or Peak Monitoring Algorithm Found a Value for IBTRIMXOCOREMON */
 #define _CMU_HFXOTRIMSTATUS_MONVALID_SHIFT                31                                                  /**< Shift value for CMU_MONVALID */
 #define _CMU_HFXOTRIMSTATUS_MONVALID_MASK                 0x80000000UL                                        /**< Bit mask for CMU_MONVALID */
 #define _CMU_HFXOTRIMSTATUS_MONVALID_DEFAULT              0x00000000UL                                        /**< Mode DEFAULT for CMU_HFXOTRIMSTATUS */
@@ -1865,7 +1887,7 @@ typedef struct {
 #define _CMU_HFPERCLKEN0_ADC1_MASK                        0x200000UL                                 /**< Bit mask for CMU_ADC1 */
 #define _CMU_HFPERCLKEN0_ADC1_DEFAULT                     0x00000000UL                               /**< Mode DEFAULT for CMU_HFPERCLKEN0 */
 #define CMU_HFPERCLKEN0_ADC1_DEFAULT                      (_CMU_HFPERCLKEN0_ADC1_DEFAULT << 21)      /**< Shifted mode DEFAULT for CMU_HFPERCLKEN0 */
-#define CMU_HFPERCLKEN0_CRYOTIMER                         (0x1UL << 22)                              /**< CryoTimer Clock Enable */
+#define CMU_HFPERCLKEN0_CRYOTIMER                         (0x1UL << 22)                              /**< CRYOTIMER Clock Enable */
 #define _CMU_HFPERCLKEN0_CRYOTIMER_SHIFT                  22                                         /**< Shift value for CMU_CRYOTIMER */
 #define _CMU_HFPERCLKEN0_CRYOTIMER_MASK                   0x400000UL                                 /**< Bit mask for CMU_CRYOTIMER */
 #define _CMU_HFPERCLKEN0_CRYOTIMER_DEFAULT                0x00000000UL                               /**< Mode DEFAULT for CMU_HFPERCLKEN0 */
@@ -2273,12 +2295,12 @@ typedef struct {
 /* Bit fields for CMU SYNCBUSY */
 #define _CMU_SYNCBUSY_RESETVALUE                          0x00000000UL                               /**< Default value for CMU_SYNCBUSY */
 #define _CMU_SYNCBUSY_MASK                                0x7F050155UL                               /**< Mask for CMU_SYNCBUSY */
-#define CMU_SYNCBUSY_LFACLKEN0                            (0x1UL << 0)                               /**< Low Frequency A Clock Enable 0 Busy */
+#define CMU_SYNCBUSY_LFACLKEN0                            (0x1UL << 0)                               /**< Low Frequency a Clock Enable 0 Busy */
 #define _CMU_SYNCBUSY_LFACLKEN0_SHIFT                     0                                          /**< Shift value for CMU_LFACLKEN0 */
 #define _CMU_SYNCBUSY_LFACLKEN0_MASK                      0x1UL                                      /**< Bit mask for CMU_LFACLKEN0 */
 #define _CMU_SYNCBUSY_LFACLKEN0_DEFAULT                   0x00000000UL                               /**< Mode DEFAULT for CMU_SYNCBUSY */
 #define CMU_SYNCBUSY_LFACLKEN0_DEFAULT                    (_CMU_SYNCBUSY_LFACLKEN0_DEFAULT << 0)     /**< Shifted mode DEFAULT for CMU_SYNCBUSY */
-#define CMU_SYNCBUSY_LFAPRESC0                            (0x1UL << 2)                               /**< Low Frequency A Prescaler 0 Busy */
+#define CMU_SYNCBUSY_LFAPRESC0                            (0x1UL << 2)                               /**< Low Frequency a Prescaler 0 Busy */
 #define _CMU_SYNCBUSY_LFAPRESC0_SHIFT                     2                                          /**< Shift value for CMU_LFAPRESC0 */
 #define _CMU_SYNCBUSY_LFAPRESC0_MASK                      0x4UL                                      /**< Bit mask for CMU_LFAPRESC0 */
 #define _CMU_SYNCBUSY_LFAPRESC0_DEFAULT                   0x00000000UL                               /**< Mode DEFAULT for CMU_SYNCBUSY */
@@ -2424,7 +2446,7 @@ typedef struct {
 #define CMU_ADCCTRL_ADC0CLKSEL_AUXHFRCO                   (_CMU_ADCCTRL_ADC0CLKSEL_AUXHFRCO << 4)    /**< Shifted mode AUXHFRCO for CMU_ADCCTRL */
 #define CMU_ADCCTRL_ADC0CLKSEL_HFXO                       (_CMU_ADCCTRL_ADC0CLKSEL_HFXO << 4)        /**< Shifted mode HFXO for CMU_ADCCTRL */
 #define CMU_ADCCTRL_ADC0CLKSEL_HFSRCCLK                   (_CMU_ADCCTRL_ADC0CLKSEL_HFSRCCLK << 4)    /**< Shifted mode HFSRCCLK for CMU_ADCCTRL */
-#define CMU_ADCCTRL_ADC0CLKINV                            (0x1UL << 8)                               /**< Invert clock selected by ADC0CLKSEL */
+#define CMU_ADCCTRL_ADC0CLKINV                            (0x1UL << 8)                               /**< Invert Clock Selected By ADC0CLKSEL */
 #define _CMU_ADCCTRL_ADC0CLKINV_SHIFT                     8                                          /**< Shift value for CMU_ADC0CLKINV */
 #define _CMU_ADCCTRL_ADC0CLKINV_MASK                      0x100UL                                    /**< Bit mask for CMU_ADC0CLKINV */
 #define _CMU_ADCCTRL_ADC0CLKINV_DEFAULT                   0x00000000UL                               /**< Mode DEFAULT for CMU_ADCCTRL */
@@ -2447,7 +2469,7 @@ typedef struct {
 #define CMU_ADCCTRL_ADC1CLKSEL_AUXHFRCO                   (_CMU_ADCCTRL_ADC1CLKSEL_AUXHFRCO << 20)   /**< Shifted mode AUXHFRCO for CMU_ADCCTRL */
 #define CMU_ADCCTRL_ADC1CLKSEL_HFXO                       (_CMU_ADCCTRL_ADC1CLKSEL_HFXO << 20)       /**< Shifted mode HFXO for CMU_ADCCTRL */
 #define CMU_ADCCTRL_ADC1CLKSEL_HFSRCCLK                   (_CMU_ADCCTRL_ADC1CLKSEL_HFSRCCLK << 20)   /**< Shifted mode HFSRCCLK for CMU_ADCCTRL */
-#define CMU_ADCCTRL_ADC1CLKINV                            (0x1UL << 24)                              /**< Invert clock selected by ADC1CLKSEL */
+#define CMU_ADCCTRL_ADC1CLKINV                            (0x1UL << 24)                              /**< Invert Clock Selected By ADC1CLKSEL */
 #define _CMU_ADCCTRL_ADC1CLKINV_SHIFT                     24                                         /**< Shift value for CMU_ADC1CLKINV */
 #define _CMU_ADCCTRL_ADC1CLKINV_MASK                      0x1000000UL                                /**< Bit mask for CMU_ADC1CLKINV */
 #define _CMU_ADCCTRL_ADC1CLKINV_DEFAULT                   0x00000000UL                               /**< Mode DEFAULT for CMU_ADCCTRL */

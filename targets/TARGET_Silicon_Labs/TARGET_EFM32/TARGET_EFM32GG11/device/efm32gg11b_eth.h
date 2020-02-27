@@ -1,34 +1,32 @@
-/**************************************************************************//**
- * @file efm32gg11b_eth.h
+/***************************************************************************//**
+ * @file
  * @brief EFM32GG11B_ETH register and bit field definitions
- * @version 5.3.2
- ******************************************************************************
+ *******************************************************************************
  * # License
- * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
- ******************************************************************************
+ * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.@n
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.@n
+ *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Laboratories, Inc.
- * has no obligation to support this Software. Silicon Laboratories, Inc. is
- * providing the Software "AS IS", with no express or implied warranties of any
- * kind, including, but not limited to, any implied warranties of
- * merchantability or fitness for any particular purpose or warranties against
- * infringement of any proprietary rights of a third party.
- *
- * Silicon Laboratories, Inc. will not be liable for any consequential,
- * incidental, or special damages, or any other relief, or for any claim by
- * any third party, arising from your use of this Software.
- *
- *****************************************************************************/
+ ******************************************************************************/
 
 #if defined(__ICCARM__)
 #pragma system_include       /* Treat file as system include file. */
@@ -36,22 +34,22 @@
 #pragma clang system_header  /* Treat file as system include file. */
 #endif
 
-/**************************************************************************//**
-* @addtogroup Parts
-* @{
-******************************************************************************/
-/**************************************************************************//**
+/***************************************************************************//**
+ * @addtogroup Parts
+ * @{
+ ******************************************************************************/
+/***************************************************************************//**
  * @defgroup EFM32GG11B_ETH ETH
  * @{
  * @brief EFM32GG11B_ETH Register Declaration
- *****************************************************************************/
+ ******************************************************************************/
 /** ETH Register Declaration */
 typedef struct {
   __IOM uint32_t NETWORKCTRL;         /**< Network control register  */
   __IOM uint32_t NETWORKCFG;          /**< Network configuration register  */
   __IM uint32_t  NETWORKSTATUS;       /**< Network status register   */
 
-  uint32_t       RESERVED0[1];        /**< Reserved for future use **/
+  uint32_t       RESERVED0[1U];       /**< Reserved for future use **/
   __IOM uint32_t DMACFG;              /**< DMA Configuration Register  */
   __IOM uint32_t TXSTATUS;            /**< Transmit status register  */
   __IOM uint32_t RXQPTR;              /**< Start address of the receive buffer queue  */
@@ -68,10 +66,10 @@ typedef struct {
   __IOM uint32_t PBUFRXCUTTHRU;       /**< RX Partial Store and Forward  */
   __IOM uint32_t JUMBOMAXLEN;         /**< Maximum Jumbo Frame Size.  */
 
-  uint32_t       RESERVED1[4];        /**< Reserved for future use **/
+  uint32_t       RESERVED1[4U];       /**< Reserved for future use **/
   __IOM uint32_t IMOD;                /**< Interrupt moderation register  */
   __IOM uint32_t SYSWAKETIME;         /**< System wake time  */
-  uint32_t       RESERVED2[7];        /**< Reserved for future use **/
+  uint32_t       RESERVED2[7U];       /**< Reserved for future use **/
   __IOM uint32_t HASHBOTTOM;          /**< Hash Register Bottom [31:0]  */
   __IOM uint32_t HASHTOP;             /**< Hash Register Top [63:32]  */
   __IOM uint32_t SPECADDR1BOTTOM;     /**< Specific Address 1 Bottom  */
@@ -93,7 +91,7 @@ typedef struct {
   __IOM uint32_t MASKADD1BOTTOM;      /**< Specific Address Mask 1 Bottom 31:0  */
   __IOM uint32_t MASKADD1TOP;         /**< Specific Address Mask 1 Top 47:32  */
 
-  uint32_t       RESERVED3[1];        /**< Reserved for future use **/
+  uint32_t       RESERVED3[1U];       /**< Reserved for future use **/
   __IOM uint32_t RXPTPUNICAST;        /**< PTP RX unicast IP destination address   */
   __IOM uint32_t TXPTPUNICAST;        /**< PTP TX unicast IP destination address   */
   __IOM uint32_t TSUNSECCMP;          /**< TSU timer comparison value nanoseconds   */
@@ -104,7 +102,7 @@ typedef struct {
   __IM uint32_t  TSUPEERTXMSBSEC;     /**< PTP Peer Event Frame Transmitted Seconds Register 47:32  */
   __IM uint32_t  TSUPEERRXMSBSEC;     /**< PTP Peer Event Frame Received Seconds Register 47:32  */
 
-  uint32_t       RESERVED4[2];        /**< Reserved for future use **/
+  uint32_t       RESERVED4[2U];       /**< Reserved for future use **/
   __IOM uint32_t OCTETSTXEDBOTTOM;    /**< Octets transmitted 31:0  */
   __IOM uint32_t OCTETSTXEDTOP;       /**< Octets Transmitted 47:32  */
   __IOM uint32_t FRAMESTXEDOK;        /**< Frames Transmitted  */
@@ -151,11 +149,11 @@ typedef struct {
   __IOM uint32_t RXTCPCKERRS;         /**< TCP Checksum Errors  */
   __IOM uint32_t RXUDPCKERRS;         /**< UDP Checksum Errors  */
   __IOM uint32_t AUTOFLUSHEDPKTS;     /**< Receive DMA Flushed Packets  */
-  uint32_t       RESERVED5[1];        /**< Reserved for future use **/
+  uint32_t       RESERVED5[1U];       /**< Reserved for future use **/
   __IOM uint32_t TSUTIMERINCRSUBNSEC; /**< 1588 Timer Increment Register subscript nsec  */
   __IOM uint32_t TSUTIMERMSBSEC;      /**< 1588 Timer Seconds Register 47:32  */
 
-  uint32_t       RESERVED6[3];        /**< Reserved for future use **/
+  uint32_t       RESERVED6[3U];       /**< Reserved for future use **/
   __IOM uint32_t TSUTIMERSEC;         /**< 1588 Timer Seconds Register 31:0  */
   __IOM uint32_t TSUTIMERNSEC;        /**< 1588 Timer Nanoseconds Register  */
   __IOM uint32_t TSUTIMERADJUST;      /**< This register returns all zeroes when read.  */
@@ -169,34 +167,34 @@ typedef struct {
   __IM uint32_t  TSUPEERRXSEC;        /**< PTP Peer Event Frame Received Seconds Register 31:0  */
   __IM uint32_t  TSUPEERRXNSEC;       /**< PTP Peer Event Frame Received Nanoseconds Register  */
 
-  uint32_t       RESERVED7[24];       /**< Reserved for future use **/
+  uint32_t       RESERVED7[24U];      /**< Reserved for future use **/
   __IOM uint32_t TXPAUSEQUANT1;       /**< Transmit Pause Quantum Register 1  */
   __IOM uint32_t TXPAUSEQUANT2;       /**< Transmit Pause Quantum Register 2  */
   __IOM uint32_t TXPAUSEQUANT3;       /**< Transmit Pause Quantum Register 3  */
-  uint32_t       RESERVED8[1];        /**< Reserved for future use **/
+  uint32_t       RESERVED8[1U];       /**< Reserved for future use **/
   __IOM uint32_t RXLPI;               /**< Received LPI transitions  */
   __IOM uint32_t RXLPITIME;           /**< Received LPI time  */
   __IOM uint32_t TXLPI;               /**< Transmit LPI transitions  */
   __IOM uint32_t TXLPITIME;           /**< Transmit LPI time  */
 
-  uint32_t       RESERVED9[147];      /**< Reserved for future use **/
+  uint32_t       RESERVED9[147U];     /**< Reserved for future use **/
   __IOM uint32_t TXBDCTRL;            /**< TX BD control register  */
   __IOM uint32_t RXBDCTRL;            /**< RX BD control register  */
 
-  uint32_t       RESERVED10[459];     /**< Reserved for future use **/
+  uint32_t       RESERVED10[459U];    /**< Reserved for future use **/
   __IOM uint32_t ROUTEPEN;            /**< I/O Route Enable Register   */
   __IOM uint32_t ROUTELOC0;           /**< I/O Route Location Register 0  */
-  uint32_t       RESERVED11[1];       /**< Reserved for future use **/
+  uint32_t       RESERVED11[1U];      /**< Reserved for future use **/
   __IOM uint32_t ROUTELOC1;           /**< I/O Route Location Register 1  */
   __IOM uint32_t CTRL;                /**< Ethernet control register  */
 } ETH_TypeDef;                        /** @} */
 
-/**************************************************************************//**
+/***************************************************************************//**
  * @addtogroup EFM32GG11B_ETH
  * @{
  * @defgroup EFM32GG11B_ETH_BitFields  ETH Bit Fields
  * @{
- *****************************************************************************/
+ ******************************************************************************/
 
 /* Bit fields for ETH NETWORKCTRL */
 #define _ETH_NETWORKCTRL_RESETVALUE                      0x00000000UL                                     /**< Default value for ETH_NETWORKCTRL */
@@ -2208,7 +2206,7 @@ typedef struct {
 #define ETH_ROUTEPEN_RMIIPEN_DEFAULT                     (_ETH_ROUTEPEN_RMIIPEN_DEFAULT << 4)      /**< Shifted mode DEFAULT for ETH_ROUTEPEN */
 #define ETH_ROUTEPEN_RMIIPEN_DISABLE                     (_ETH_ROUTEPEN_RMIIPEN_DISABLE << 4)      /**< Shifted mode DISABLE for ETH_ROUTEPEN */
 #define ETH_ROUTEPEN_RMIIPEN_ENABLE                      (_ETH_ROUTEPEN_RMIIPEN_ENABLE << 4)       /**< Shifted mode ENABLE for ETH_ROUTEPEN */
-#define ETH_ROUTEPEN_TSUTMRTOGPEN                        (0x1UL << 5)                              /**< TSU_TMR_TOG Output Enable */
+#define ETH_ROUTEPEN_TSUTMRTOGPEN                        (0x1UL << 5)                              /**< TSU_TMR_CNT_SEC Output Enable */
 #define _ETH_ROUTEPEN_TSUTMRTOGPEN_SHIFT                 5                                         /**< Shift value for ETH_TSUTMRTOGPEN */
 #define _ETH_ROUTEPEN_TSUTMRTOGPEN_MASK                  0x20UL                                    /**< Bit mask for ETH_TSUTMRTOGPEN */
 #define _ETH_ROUTEPEN_TSUTMRTOGPEN_DEFAULT               0x00000000UL                              /**< Mode DEFAULT for ETH_ROUTEPEN */
