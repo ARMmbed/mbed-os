@@ -398,8 +398,9 @@ int sfdp_iterate_next_largest_erase_type(uint8_t &bitfield,
                                          const sfdp_smptbl_info &smptbl)
 {
     uint8_t type_mask = SFDP_ERASE_BITMASK_TYPE4;
-    int i_ind = 0;
     int largest_erase_type = 0;
+
+    int i_ind;
     for (i_ind = 3; i_ind >= 0; i_ind--) {
         if (bitfield & type_mask) {
             largest_erase_type = i_ind;
@@ -414,7 +415,7 @@ int sfdp_iterate_next_largest_erase_type(uint8_t &bitfield,
         type_mask = type_mask >> 1;
     }
 
-    if (i_ind == 4) {
+    if (i_ind == -1) {
         tr_error("No erase type was found for current region addr");
     }
     return largest_erase_type;
