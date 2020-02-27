@@ -25,14 +25,14 @@
 #include "ns_trace.h"
 #define TRACE_GROUP "WSIn"
 
-class Nanostack::WisunInterface : public Nanostack::MeshInterface {
+class Nanostack::WisunInterface final : public Nanostack::MeshInterface {
 public:
-    virtual nsapi_error_t bringup(bool dhcp, const char *ip,
-                                  const char *netmask, const char *gw,
-                                  nsapi_ip_stack_t stack = IPV6_STACK,
-                                  bool blocking = true);
-    virtual nsapi_error_t bringdown();
-    virtual nsapi_error_t get_gateway(SocketAddress *address);
+    nsapi_error_t bringup(bool dhcp, const char *ip,
+                          const char *netmask, const char *gw,
+                          nsapi_ip_stack_t stack = IPV6_STACK,
+                          bool blocking = true) override;
+    nsapi_error_t bringdown() override;
+    nsapi_error_t get_gateway(SocketAddress *address) override;
 
     friend class Nanostack;
     friend class ::WisunInterface;

@@ -21,26 +21,26 @@
 #include "PPPInterface.h"
 #include "NanostackPPPPhy.h"
 
-class Nanostack::PPPInterface : public Nanostack::Interface {
+class Nanostack::PPPInterface final : public Nanostack::Interface {
 public:
-    virtual nsapi_error_t bringup(bool dhcp, const char *ip,
-                                  const char *netmask, const char *gw,
-                                  nsapi_ip_stack_t stack = DEFAULT_STACK,
-                                  bool blocking = true);
-    virtual nsapi_error_t bringdown();
+    nsapi_error_t bringup(bool dhcp, const char *ip,
+                          const char *netmask, const char *gw,
+                          nsapi_ip_stack_t stack = DEFAULT_STACK,
+                          bool blocking = true) override;
+    nsapi_error_t bringdown() override;
 
     typedef mbed::Callback<void (uint8_t up, int8_t device_id)> link_state_cb_t;
-    virtual void set_link_state_changed_callback(link_state_cb_t link_state_cb);
+    void set_link_state_changed_callback(link_state_cb_t link_state_cb);
 
 private:
     friend class Nanostack;
-    PPPInterface(NanostackPhy &phy) : Interface(phy), link_state_up(false), enet_tasklet_connected(false) {}
+    PPPInterface(NanostackPPPPhy &phy) : Interface(phy) {}
     nsapi_error_t initialize();
     void link_state_changed(bool up);
     nsapi_error_t connect_enet_tasklet();
-    link_state_cb_t link_state_cb;
-    bool link_state_up;
-    bool enet_tasklet_connected;
+    link_state_cb_t link_state_cb = nullptr;
+    bool link_state_up = false;
+    bool enet_tasklet_connected = false;
 };
 
 #endif

@@ -48,7 +48,7 @@ public:
      *  @return         Device driver ID or a negative error
      *                  code on failure
      */
-    virtual int8_t phy_register()
+    int8_t phy_register() override
     {
         return rf_register();
     }

@@ -25,11 +25,11 @@
 
 class Nanostack::ThreadInterface : public Nanostack::MeshInterface {
 public:
-    virtual nsapi_error_t bringup(bool dhcp, const char *ip,
-                                  const char *netmask, const char *gw,
-                                  nsapi_ip_stack_t stack = IPV6_STACK,
-                                  bool blocking = true);
-    virtual nsapi_error_t bringdown();
+    nsapi_error_t bringup(bool dhcp, const char *ip,
+                          const char *netmask, const char *gw,
+                          nsapi_ip_stack_t stack = IPV6_STACK,
+                          bool blocking = true) override;
+    nsapi_error_t bringdown() override;
     friend class Nanostack;
     friend class ::ThreadInterface;
 private:

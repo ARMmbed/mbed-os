@@ -69,18 +69,9 @@ void Nanostack::Interface::attach(
     _connection_status_cb = status_cb;
 }
 
-Nanostack::Interface::Interface(NanostackPhy &phy) : interface_phy(phy), interface_id(-1), _device_id(-1),
-    _connect_status(NSAPI_STATUS_DISCONNECTED), _previous_connection_status(NSAPI_STATUS_DISCONNECTED), _blocking(true)
+Nanostack::Interface::Interface(NanostackPhy &phy) : interface_phy(phy)
 {
     mesh_system_init();
-}
-
-
-InterfaceNanostack::InterfaceNanostack()
-    : _interface(NULL),
-      ip_addr(), mac_addr_str(), _blocking(true)
-{
-    // Nothing to do
 }
 
 int InterfaceNanostack::connect()

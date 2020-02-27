@@ -23,19 +23,10 @@
  *
  * Configure Nanostack to use Wi-SUN protocol.
  */
-class WisunInterface : public MeshInterfaceNanostack {
+class WisunInterface final : public MeshInterfaceNanostack {
 public:
-
-    /** Create an uninitialized WisunInterface
-     *
-     *  Must initialize to initialize the mesh on a phy.
-     */
-    WisunInterface() { }
-
-    /** Create an initialized WisunInterface
-     *
-     */
-    WisunInterface(NanostackRfPhy *phy) : MeshInterfaceNanostack(phy) { }
+    /** Inherit MeshInterfaceNanostack constructors */
+    using MeshInterfaceNanostack::MeshInterfaceNanostack;
 
     /**
      * \brief Set Wi-SUN network name.
@@ -133,7 +124,7 @@ public:
     bool getRouterIpAddress(char *address, int8_t len);
 protected:
     Nanostack::WisunInterface *get_interface() const;
-    virtual nsapi_error_t do_initialize();
+    nsapi_error_t do_initialize() override;
 };
 
 #endif
