@@ -118,7 +118,7 @@ control_t await_case(const size_t call_count)
     TEST_ASSERT_EQUAL(1, call_count);
     TEST_ASSERT_EQUAL(6, call_counter++);
     
-    utest_to.attach_us(&validate1, &Utest_func_bind::callback, (1372*1000)); // Fire after 1372 ms 
+    utest_to.attach_us(callback(&validate1, &Utest_func_bind::callback), (1372*1000)); // Fire after 1372 ms
                 
     return CaseAwait;
 }
@@ -146,7 +146,7 @@ control_t repeat_all_on_timeout_case(const size_t call_count)
     TEST_ASSERT(call_count <= 10);
     TEST_ASSERT_EQUAL((call_count-1)*3 + 9, call_counter++);
     if (call_count == 10) {
-        utest_to.attach_us(&validate2, &Utest_func_bind::callback, (50*1000)); // Fire after 50ms
+        utest_to.attach_us(callback(&validate2, &Utest_func_bind::callback), (50*1000)); // Fire after 50ms
     }
     return CaseRepeatAllOnTimeout(100);
 }
@@ -181,7 +181,7 @@ control_t repeat_handler_on_timeout_case(const size_t call_count)
     TEST_ASSERT(call_count <= 10);
     TEST_ASSERT_EQUAL(call_count-1 + 40, call_counter++);
     if (call_count == 10) {
-        utest_to.attach_us(&validate3, &Utest_func_bind::callback, (50*1000)); // Fire after 50ms
+        utest_to.attach_us(callback(&validate3, &Utest_func_bind::callback), (50*1000)); // Fire after 50ms
     }
     return CaseRepeatHandlerOnTimeout(100);
 }
