@@ -54,6 +54,7 @@
 
 #define GTK_HASH_LEN              8
 #define GTK_ALL_HASHES_LEN        GTK_HASH_LEN * GTK_NUM
+#define INS_GTK_HASH_LEN          2
 
 #define PMK_LIFETIME_INSTALL      0xFFFFF
 #define PTK_LIFETIME_INSTALL      0xFFFFF
@@ -71,18 +72,24 @@ typedef struct {
     bool                   updated: 1;                /**< Group Transient Keys has been updated */
 } sec_prot_gtk_keys_t;
 
+typedef struct {
+    uint8_t                hash[INS_GTK_HASH_LEN];    /**< Inserted GTKs for a PTK hash */
+} sec_prot_gtk_hash_t;
+
 // Security key data
 typedef struct {
     uint64_t               pmk_key_replay_cnt;        /**< Pairwise Master Key replay counter */
     uint8_t                pmk[PMK_LEN];              /**< Pairwise Master Key (256 bits) */
     uint8_t                ptk[PTK_LEN];              /**< Pairwise Transient Key (384 bits) */
     uint8_t                ptk_eui_64[8];             /**< Remote EUI-64 used to derive PTK or NULL */
+    sec_prot_gtk_hash_t    ins_gtk_hash[GTK_NUM];     /**< Hashes for inserted GTKs for a PTK */
     sec_prot_gtk_keys_t    *gtks;                     /**< Group Transient Keys */
     const sec_prot_certs_t *certs;                    /**< Certificates */
     uint32_t               pmk_lifetime;              /**< PMK lifetime in seconds */
     uint32_t               ptk_lifetime;              /**< PTK lifetime in seconds */
     uint8_t                gtkl;                      /**< Remote GTKL information */
     int8_t                 gtk_set_index;             /**< Index of GTK to set */
+    unsigned               ins_gtk_hash_set: 4;       /**< Hash for inserted GTKs for a PTK set */
     bool                   pmk_set: 1;                /**< Pairwise Master Key set */
     bool                   ptk_set: 1;                /**< Pairwise Transient Key set */
     bool                   pmk_key_replay_cnt_set: 1; /**< Pairwise Master Key replay counter set */
@@ -95,7 +102,8 @@ typedef struct {
 // Frame counter data
 typedef struct {
     uint8_t gtk[GTK_LEN];                             /**< GTK of the frame counter */
-    uint32_t frame_counter;                           /**< Frame counter */
+    uint32_t frame_counter;                           /**< Current frame counter */
+    uint32_t stored_frame_counter;                    /**< Stored Frame counter */
     bool set : 1;                                     /**< Value has been set */
 } frame_counter_t;
 
@@ -649,8 +657,20 @@ void sec_prot_keys_gtks_hash_generate(sec_prot_gtk_keys_t *gtks, uint8_t *gtk_ha
  * \param gtk GTK key
  * \param gtk_hash GTK hash for a GTK
  *
+ * \return < 0 failure
+ * \return >= 0 success
  */
-void sec_prot_keys_gtk_hash_generate(uint8_t *gtk, uint8_t *gtk_hash);
+int8_t sec_prot_keys_gtk_hash_generate(uint8_t *gtk, uint8_t *gtk_hash);
+
+/**
+ * sec_prot_keys_gtk_valid_check check if GTK is valid
+ *
+ * \param gtk GTK key
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ */
+int8_t sec_prot_keys_gtk_valid_check(uint8_t *gtk);
 
 /**
  * sec_prot_keys_gtks_hash_update update GTKs based on GTK hash
@@ -750,5 +770,31 @@ int8_t sec_prot_keys_gtk_install_index_get(sec_prot_gtk_keys_t *gtks);
  *
  */
 uint8_t sec_prot_keys_gtk_count(sec_prot_gtk_keys_t *gtks);
+
+/**
+ * sec_prot_keys_ptk_installed_gtk_hash_clear_all clear GTK hashes of the GTKs that has been installed
+ *                                                to supplicant using the PTK
+ * \param sec_keys security keys
+ *
+ */
+void sec_prot_keys_ptk_installed_gtk_hash_clear_all(sec_prot_keys_t *sec_keys);
+
+/**
+ * sec_prot_keys_ptk_installed_gtk_hash_set set GTK hash of the GTK that has been installed
+ *                                          to supplicant using the current PTK
+ *
+ * \param sec_keys security keys
+ *
+ */
+void sec_prot_keys_ptk_installed_gtk_hash_set(sec_prot_keys_t *sec_keys);
+
+/**
+ * sec_prot_keys_ptk_installed_gtk_hash_set check if PTK is being used to store new GTK for the index
+ *                                          for the supplicant i.e. GTK hash would change
+ *
+ * \param sec_keys security keys
+ *
+ */
+bool sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(sec_prot_keys_t *sec_keys, uint8_t gtk_index);
 
 #endif /* SEC_PROT_KEYS_H_ */

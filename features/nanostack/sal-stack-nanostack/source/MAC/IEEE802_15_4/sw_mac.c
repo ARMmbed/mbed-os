@@ -197,6 +197,20 @@ int ns_sw_mac_fhss_register(mac_api_t *mac_api, fhss_api_t *fhss_api)
     return 0;
 }
 
+int ns_sw_mac_fhss_unregister(mac_api_t *mac_api)
+{
+    if (!mac_api) {
+        return -1;
+    }
+    // Get a pointer to MAC setup structure
+    protocol_interface_rf_mac_setup_s *mac_setup = get_sw_mac_ptr_by_mac_api(mac_api);
+    if (!mac_setup) {
+        return -1;
+    }
+    mac_setup->fhss_api = NULL;
+    return 0;
+}
+
 struct fhss_api *ns_sw_mac_get_fhss_api(struct mac_api_s *mac_api)
 {
     if (!mac_api) {

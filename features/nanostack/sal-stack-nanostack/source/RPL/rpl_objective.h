@@ -28,9 +28,12 @@ typedef struct rpl_objective {
     uint16_t ocp;
     /* Run the parent selection algorithm - see rpl_of0.c for detailed info */
     void (*parent_selection)(struct rpl_instance *);
-    /* Return the path cost of a neighbour (for debug prints only) */
+    /* Return the path cost of a neighbour */
     uint16_t (*path_cost)(const struct rpl_neighbour *);
     bool (*neighbour_acceptable)(const struct rpl_instance *, const struct rpl_neighbour *);
+    /* Could someone with specified rank be a significantly better candidate than the existing one? */
+    /* (In future, this API could be extended to pass a metric pointer as well as rank) */
+    bool (*possible_better_candidate)(const struct rpl_instance *, const struct rpl_neighbour *existing, uint16_t rank, uint16_t etx);
     ns_list_link_t link;
 } rpl_objective_t;
 

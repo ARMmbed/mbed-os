@@ -400,6 +400,10 @@ int8_t arm_nwk_6lowpan_gp_address_mode(int8_t interface_id, net_6lowpan_gp_addre
 
     return 0;
 #else
+    (void) interface_id;
+    (void) mode;
+    (void) short_address_base;
+    (void) define_new_short_address_at_DAD;
     return -2;
 #endif
 }
@@ -895,7 +899,7 @@ int8_t arm_pana_client_key_pull(int8_t interface_id)
     return pana_client_key_pull(interface_id);
 }
 
-int8_t arm_nwk_link_layer_security_mode(int8_t interface_id, net_6lowpan_link_layer_sec_mode_e  mode, uint8_t sec_level, const net_link_layer_psk_security_info_s *psk_key_info)
+int8_t arm_nwk_link_layer_security_mode(int8_t interface_id, net_6lowpan_link_layer_sec_mode_e mode, uint8_t sec_level, const net_link_layer_psk_security_info_s *psk_key_info)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || thread_info(cur) || !cur->mac_parameters || (cur->configure_flags & INTERFACE_BOOTSTRAP_DEFINED) == 0) {
@@ -903,6 +907,9 @@ int8_t arm_nwk_link_layer_security_mode(int8_t interface_id, net_6lowpan_link_la
     }
 
 #ifndef HAVE_6LOWPAN_ND
+    (void) mode;
+    (void) sec_level;
+    (void) psk_key_info;
     return -1;
 #else
     if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
