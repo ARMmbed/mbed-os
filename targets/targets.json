@@ -14014,7 +14014,8 @@
             "I2CSLAVE",
             "USBDEVICE",
             "QSPI",
-            "WATCHDOG"
+            "WATCHDOG",
+            "RESET_REASON"
         ],
         "macros_add": [
             "CY8C6347BZI_BLD53"
@@ -14074,7 +14075,8 @@
             "I2CSLAVE",
             "USBDEVICE",
             "QSPI",
-            "WATCHDOG"
+            "WATCHDOG",
+            "RESET_REASON"
         ],
         "macros_add": [
             "CY8C6347BZI_BLD53"
