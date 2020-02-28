@@ -38,6 +38,7 @@ typedef struct {
     uint32_t entry;
     uint32_t stack_size;
     uint32_t max_stack;
+    const char *stack_name;
 } thread_info_t;
 
 // Mutex to protect "buf"
@@ -60,6 +61,7 @@ static void enqeue_thread_info(osThreadId_t id);
 static void deque_and_print_thread_info(void);
 
 // sprintf uses a lot of stack so use these instead
+static uint32_t print_str(char *buf, const char *value);
 static uint32_t print_hex(char *buf, uint32_t value);
 static uint32_t print_dec(char *buf, uint32_t value);
 #endif
@@ -160,6 +162,7 @@ static void enqeue_thread_info(osThreadId_t id)
     thread_info.entry = (uint32_t)id;
     thread_info.stack_size = osThreadGetStackSize(id);
     thread_info.max_stack = thread_info.stack_size - osThreadGetStackSpace(id);
+    thread_info.stack_name = osThreadGetName(id);
     queue->push(thread_info);
 }
 
@@ -170,6 +173,10 @@ static void deque_and_print_thread_info()
     MBED_ASSERT(ret);
     uint32_t pos = 0;
     buf[pos++] = '\"';
+    pos += print_str(buf + pos, thread_info.stack_name);
+    buf[pos++] = '\"';
+    buf[pos++] = ',';
+    buf[pos++] = '\"';
     pos += print_hex(buf + pos, thread_info.entry);
     buf[pos++] = '\"';
     buf[pos++] = ',';
@@ -179,6 +186,16 @@ static void deque_and_print_thread_info()
     buf[pos++] = 0;
     greentea_send_kv("__thread_info", buf);
 }
+
+static uint32_t print_str(char *buf, const char *value)
+{
+    uint32_t pos = 0;
+    for (pos = 0; pos < strlen(value); pos++) {
+        buf[pos] = value[pos];
+    }
+    return pos;
+}
+
 
 static uint32_t print_hex(char *buf, uint32_t value)
 {
