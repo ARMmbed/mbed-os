@@ -1398,7 +1398,7 @@ static void thread_address_registration_tlv_parse(uint8_t *ptr, uint16_t data_le
         ctxId = *ptr++;
         if (ctxId & 0x80) {
             ctxId &= 0x0f;
-            ctx = lowpan_contex_get_by_id(&cur->lowpan_contexts, ctxId);
+            ctx = lowpan_context_get_by_id(&cur->lowpan_contexts, ctxId);
             if (ctx) {
                 memcpy(tempIPv6Address, ctx->prefix, 8);
                 memcpy(&tempIPv6Address[8], ptr, 8);
