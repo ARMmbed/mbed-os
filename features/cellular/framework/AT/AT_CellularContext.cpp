@@ -224,21 +224,6 @@ nsapi_error_t AT_CellularContext::get_ip_address(SocketAddress *address)
 #endif
 }
 
-const char *AT_CellularContext::get_ip_address()
-{
-#if NSAPI_PPP_AVAILABLE
-    return nsapi_ppp_get_ip_addr(_at.get_file_handle());
-#else
-    if (!_stack) {
-        _stack = get_stack();
-    }
-    if (_stack) {
-        return _stack->get_ip_address();
-    }
-    return NULL;
-#endif
-}
-
 char *AT_CellularContext::get_interface_name(char *interface_name)
 {
     if (_cid < 0) {

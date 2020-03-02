@@ -114,11 +114,6 @@ nsapi_error_t AT_CellularContext::get_ip_address(SocketAddress *address)
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
-const char *AT_CellularContext::get_ip_address()
-{
-    return NULL;
-}
-
 void AT_CellularContext::attach(Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
 }

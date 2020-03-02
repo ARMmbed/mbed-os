@@ -21,7 +21,9 @@
 #include "cyhal_hwmgr.h"
 #include "cybsp.h"
 #include "mbed_power_mgmt.h"
+#if MBED_CONF_RTOS_PRESENT
 #include "rtos_idle.h"
+#endif // MBED_CONF_RTOS_PRESENT
 #include "us_ticker_api.h"
 
 #if defined(CY_ENABLE_XIP_PROGRAM)

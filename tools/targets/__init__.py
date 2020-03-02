@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2011-2016 ARM Limited
+Copyright (c) 2011-2020 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -709,6 +709,20 @@ class ArmMuscaA1Code(object):
         )
         musca_tfm_bin(t_self, binf, secure_bin)
 
+class ArmMuscaB1Code(object):
+    """Musca-B1 Hooks"""
+    @staticmethod
+    def binary_hook(t_self, resources, elf, binf):
+        from tools.targets.ARM_MUSCA_B1 import musca_tfm_bin
+        configured_secure_image_filename = t_self.target.secure_image_filename
+        secure_bin = find_secure_image(
+            t_self.notify,
+            resources,
+            binf,
+            configured_secure_image_filename,
+            FileType.BIN
+        )
+        musca_tfm_bin(t_self, binf, secure_bin)
 
 class LPC55S69Code(object):
     """LPC55S69 Hooks"""

@@ -56,6 +56,7 @@ void rtc_init(void)
     rtcc_init.presc = rtccCntPresc_32768;
     RTCC_Init(&rtcc_init);
     RTCC_Enable(true);
+    RTCC->RET[0].REG = 0;
 }
 
 void rtc_free(void)
@@ -71,20 +72,13 @@ int rtc_isenabled(void)
 
 time_t rtc_read(void)
 {
-    return RTCC_CounterGet();
+    return RTCC_CounterGet() + RTCC->RET[0].REG;
 }
 
 void rtc_write(time_t t)
 {
     core_util_critical_section_enter();
-    uint32_t diff = t - RTCC_CounterGet();
-    lptick_offset += diff;
-
-    if(RTCC_IntGetEnabled() & RTCC_IF_CC0) {
-        RTCC->CC[0].CCV += diff << 15;
-    }
-
-    RTCC_CounterSet(t);
+    RTCC->RET[0].REG = t - RTCC_CounterGet();
     core_util_critical_section_exit();
 }
 

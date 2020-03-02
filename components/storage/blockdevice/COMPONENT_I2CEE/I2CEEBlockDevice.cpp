@@ -1,5 +1,6 @@
 /* Simple access class for I2C EEPROM chips like Microchip 24LC
  * Copyright (c) 2015 Robin Hourahane
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +23,12 @@ using namespace mbed;
 
 I2CEEBlockDevice::I2CEEBlockDevice(
     PinName sda, PinName scl, uint8_t addr,
-    bd_size_t size, bd_size_t block, int freq)
-    : _i2c_addr(addr), _size(size), _block(block)
+    bd_size_t size, bd_size_t block, int freq,
+    bool address_is_eight_bit)
+    : _i2c_addr(addr)
+    , _address_is_eight_bit(address_is_eight_bit)
+    , _size(size)
+    , _block(block)
 {
     _i2c = new (_i2c_buffer) I2C(sda, scl);
     _i2c->frequency(freq);
@@ -31,8 +36,12 @@ I2CEEBlockDevice::I2CEEBlockDevice(
 
 I2CEEBlockDevice::I2CEEBlockDevice(
     I2C *i2c_obj, uint8_t addr,
-    bd_size_t size, bd_size_t block)
-    : _i2c_addr(addr), _size(size), _block(block)
+    bd_size_t size, bd_size_t block,
+    bool address_is_eight_bit)
+    : _i2c_addr(addr)
+    , _address_is_eight_bit(address_is_eight_bit)
+    , _size(size)
+    , _block(block)
 {
     _i2c = i2c_obj;
 }
@@ -58,32 +67,37 @@ int I2CEEBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
     // Check the address and size fit onto the chip.
     MBED_ASSERT(is_valid_read(addr, size));
 
+    auto *pBuffer = static_cast<char *>(buffer);
+
     _i2c->start();
 
-    if (!_i2c->write(_i2c_addr | 0) ||
-            !_i2c->write((char)(addr >> 8)) ||
-            !_i2c->write((char)(addr & 0xff))) {
+    if (1 != _i2c->write(get_paged_device_address(addr))) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
+    if (!_address_is_eight_bit && 1 != _i2c->write((char)(addr >> 8u))) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
+    if (1 != _i2c->write((char)(addr & 0xffu))) {
         return BD_ERROR_DEVICE_ERROR;
     }
 
     _i2c->stop();
 
-    auto err = _sync();
-    if (err) {
-        return err;
-    }
-
-    if (0 != _i2c->read(_i2c_addr, static_cast<char *>(buffer), size)) {
+    if (0 != _i2c->read(_i2c_addr, pBuffer, size)) {
         return BD_ERROR_DEVICE_ERROR;
     }
 
-    return 0;
+    return BD_ERROR_OK;
 }
 
 int I2CEEBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
 {
     // Check the addr and size fit onto the chip.
     MBED_ASSERT(is_valid_program(addr, size));
+
+    const auto *pBuffer = static_cast<const char *>(buffer);
 
     // While we have some more data to write.
     while (size > 0) {
@@ -92,14 +106,22 @@ int I2CEEBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size
 
         _i2c->start();
 
-        if (!_i2c->write(_i2c_addr | 0) ||
-                !_i2c->write((char)(addr >> 8)) ||
-                !_i2c->write((char)(addr & 0xff))) {
+        if (1 != _i2c->write(get_paged_device_address(addr))) {
+            return BD_ERROR_DEVICE_ERROR;
+        }
+
+        if (!_address_is_eight_bit && 1 != _i2c->write((char)(addr >> 8u))) {
+            return BD_ERROR_DEVICE_ERROR;
+        }
+
+        if (1 != _i2c->write((char)(addr & 0xffu))) {
             return BD_ERROR_DEVICE_ERROR;
         }
 
         for (unsigned i = 0; i < chunk; i++) {
-            _i2c->write(static_cast<const char *>(buffer)[i]);
+            if (1 != _i2c->write(pBuffer[i])) {
+                return BD_ERROR_DEVICE_ERROR;
+            }
         }
 
         _i2c->stop();
@@ -112,10 +134,10 @@ int I2CEEBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size
 
         addr += chunk;
         size -= chunk;
-        buffer = static_cast<const char *>(buffer) + chunk;
+        pBuffer += chunk;
     }
 
-    return 0;
+    return BD_ERROR_OK;
 }
 
 int I2CEEBlockDevice::erase(bd_addr_t addr, bd_size_t size)
@@ -164,3 +186,15 @@ const char *I2CEEBlockDevice::get_type() const
 {
     return "I2CEE";
 }
+
+uint8_t I2CEEBlockDevice::get_paged_device_address(bd_addr_t address)
+{
+    if (!_address_is_eight_bit) {
+        return _i2c_addr;
+    } else {
+        // Use the three least significant bits of the 2nd byte as the page
+        // The page will be bits 2-4 of the user defined addresses.
+        return _i2c_addr | ((address & 0x0700u) >> 7u);
+    }
+}
+

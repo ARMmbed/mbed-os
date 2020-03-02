@@ -54,7 +54,7 @@ typedef struct {
 } ram_table_entry_t;
 
 static const char *master_rec_key = "TDBS";
-static const uint32_t tdbstore_magic = 0x54686683; // "TDBS" in ASCII
+static const uint32_t tdbstore_magic = 0x54686683;
 static const uint32_t tdbstore_revision = 1;
 
 typedef struct {

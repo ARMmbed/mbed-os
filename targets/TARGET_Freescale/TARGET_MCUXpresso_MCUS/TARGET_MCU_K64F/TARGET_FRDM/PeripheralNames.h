@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2020 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef enum {
-    GPIO_X = 0, // dummy peripheral used instead of GPIO_A..GPIO_E
-} GPIOName;
 
 typedef enum {
     OSC32KCLK = 0,

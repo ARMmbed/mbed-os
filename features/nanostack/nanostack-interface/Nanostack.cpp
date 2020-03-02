@@ -516,21 +516,20 @@ Nanostack::call_in_callback_cb_t Nanostack::get_call_in_callback()
     return cb;
 }
 
-const char *Nanostack::get_ip_address()
+nsapi_error_t Nanostack::get_ip_address(SocketAddress *sockAddr)
 {
     NanostackLockGuard lock;
 
     for (int if_id = 1; if_id <= 127; if_id++) {
-        uint8_t address[16];
+        uint8_t address[NSAPI_IP_BYTES];
         int ret = arm_net_address_get(if_id, ADDR_IPV6_GP, address);
         if (ret == 0) {
+            sockAddr->set_ip_bytes(address, NSAPI_IPv6);
             ip6tos(address, text_ip_address);
-            return text_ip_address;
+            return NSAPI_ERROR_OK;
         }
     }
-    // Must result a valid IPv6 address
-    // For gethostbyname() to detect IP version.
-    return "::";
+    return NSAPI_ERROR_NO_ADDRESS;
 }
 
 nsapi_error_t Nanostack::socket_open(void **handle, nsapi_protocol_t protocol)

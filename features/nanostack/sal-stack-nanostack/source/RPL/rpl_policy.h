@@ -59,6 +59,7 @@ uint_fast8_t rpl_policy_of0_rank_factor(const rpl_domain_t *domain);
 bool rpl_policy_of0_dodag_preference_supersedes_grounded(const rpl_domain_t *domain);
 uint_fast8_t rpl_policy_of0_max_backup_successors(const rpl_domain_t *domain);
 
+void rpl_policy_set_mrhof_parent_set_size(uint8_t parent_set_size);
 uint_fast8_t rpl_policy_mrhof_parent_set_size(const rpl_domain_t *domain);
 uint16_t rpl_policy_mrhof_max_link_metric(const rpl_domain_t *domain);
 uint16_t rpl_policy_mrhof_parent_switch_threshold(const rpl_domain_t *domain);

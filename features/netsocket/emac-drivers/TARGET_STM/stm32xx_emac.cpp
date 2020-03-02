@@ -520,7 +520,7 @@ error:
 int STM32_EMAC::low_level_input(emac_mem_buf_t **buf)
 #ifndef ETH_IP_VERSION_V2
 {
-    uint16_t len = 0;
+    uint32_t len = 0;
     uint8_t *buffer;
     __IO ETH_DMADescTypeDef *dmarxdesc;
     uint32_t bufferoffset = 0;
@@ -540,7 +540,7 @@ int STM32_EMAC::low_level_input(emac_mem_buf_t **buf)
 
     dmarxdesc = EthHandle.RxFrameInfos.FSRxDesc;
 
-    if (len > 0) {
+    if (len > 0 && len <= ETH_RX_BUF_SIZE) {
         /* Allocate a memory buffer chain from buffer pool */
         *buf = memory_manager->alloc_pool(len, 0);
     }

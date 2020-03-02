@@ -1,29 +1,19 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2017, ARM Limited
- * All rights reserved.
+/*
+ * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2017, STMicroelectronics.
+ * SPDX-License-Identifier: Apache-2.0
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- * 3. Neither the name of STMicroelectronics nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #if DEVICE_QSPI
@@ -35,7 +25,15 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 
-// activate / de-activate debug
+#include "mbed-trace/mbed_trace.h"
+
+#if defined(OCTOSPI1)
+#define TRACE_GROUP "STOS"
+#else
+#define TRACE_GROUP "STQS"
+#endif /* OCTOSPI1 */
+
+// activate / de-activate extra debug
 #define qspi_api_c_debug 0
 
 /* Max amount of flash size is 4Gbytes */
@@ -389,7 +387,7 @@ qspi_status_t qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap, uint32_
 static qspi_status_t _qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap, uint32_t hz, uint8_t mode)
 #endif
 {
-    debug_if(qspi_api_c_debug, "qspi_init mode %u\n", mode);
+    tr_info("qspi_init mode %u", mode);
 
     // Reset handle internal state
     obj->handle.State = HAL_OSPI_STATE_RESET;
@@ -488,7 +486,7 @@ static qspi_status_t _qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap,
     }
 
     if (HAL_OSPIM_Config(&obj->handle, &OSPIM_Cfg_Struct, HAL_OSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
-        debug_if(qspi_api_c_debug, "HAL_OSPIM_Config error\n");
+        tr_error("HAL_OSPIM_Config error");
         return QSPI_STATUS_ERROR;
     }
 #endif
@@ -535,7 +533,7 @@ qspi_status_t qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap, uint32_
 static qspi_status_t _qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap, uint32_t hz, uint8_t mode)
 #endif
 {
-    debug_if(qspi_api_c_debug, "qspi_init mode %u\n", mode);
+    tr_info("qspi_init mode %u", mode);
     // Enable interface clock for QSPI
     __HAL_RCC_QSPI_CLK_ENABLE();
 
@@ -632,7 +630,7 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
 #if defined(OCTOSPI1)
 qspi_status_t qspi_free(qspi_t *obj)
 {
-    debug_if(qspi_api_c_debug, "qspi_free\n");
+    tr_info("qspi_free");
     if (HAL_OSPI_DeInit(&obj->handle) != HAL_OK) {
         return QSPI_STATUS_ERROR;
     }
@@ -664,6 +662,8 @@ qspi_status_t qspi_free(qspi_t *obj)
 #else /* OCTOSPI */
 qspi_status_t qspi_free(qspi_t *obj)
 {
+    tr_info("qspi_free");
+
     if (HAL_QSPI_DeInit(&obj->handle) != HAL_OK) {
         return QSPI_STATUS_ERROR;
     }
@@ -699,7 +699,7 @@ qspi_status_t qspi_free(qspi_t *obj)
 #if defined(OCTOSPI1)
 qspi_status_t qspi_frequency(qspi_t *obj, int hz)
 {
-    debug_if(qspi_api_c_debug, "qspi_frequency hz %d\n", hz);
+    tr_info("qspi_frequency hz %d", hz);
     qspi_status_t status = QSPI_STATUS_OK;
 
     /* HCLK drives QSPI. QSPI clock depends on prescaler value:
@@ -721,7 +721,7 @@ qspi_status_t qspi_frequency(qspi_t *obj, int hz)
     obj->handle.Init.ClockPrescaler = div;
 
     if (HAL_OSPI_Init(&obj->handle) != HAL_OK) {
-        debug_if(qspi_api_c_debug, "HAL_OSPI_Init error\n");
+        tr_error("HAL_OSPI_Init error");
         status = QSPI_STATUS_ERROR;
     }
 
@@ -730,7 +730,7 @@ qspi_status_t qspi_frequency(qspi_t *obj, int hz)
 #else /* OCTOSPI */
 qspi_status_t qspi_frequency(qspi_t *obj, int hz)
 {
-    debug_if(qspi_api_c_debug, "qspi_frequency hz %d\n", hz);
+    tr_info("qspi_frequency hz %d", hz);
     qspi_status_t status = QSPI_STATUS_OK;
 
     /* HCLK drives QSPI. QSPI clock depends on prescaler value:
@@ -774,11 +774,11 @@ qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void 
     st_command.NbData = *length;
 
     if (HAL_OSPI_Command(&obj->handle, &st_command, HAL_OSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
-        debug_if(qspi_api_c_debug, "HAL_OSPI_Command error\n");
+        tr_error("HAL_OSPI_Command error");
         status = QSPI_STATUS_ERROR;
     } else {
         if (HAL_OSPI_Transmit(&obj->handle, (uint8_t *)data, HAL_OSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
-            debug_if(qspi_api_c_debug, "HAL_OSPI_Transmit error\n");
+            tr_error("HAL_OSPI_Transmit error");
             status = QSPI_STATUS_ERROR;
         }
     }
@@ -788,6 +788,8 @@ qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void 
 #else /* OCTOSPI */
 qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void *data, size_t *length)
 {
+    debug_if(qspi_api_c_debug, "qspi_write size %u\n", *length);
+
     QSPI_CommandTypeDef st_command;
     qspi_status_t status = qspi_prepare_command(command, &st_command);
     if (status != QSPI_STATUS_OK) {
@@ -803,8 +805,6 @@ qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void 
             status = QSPI_STATUS_ERROR;
         }
     }
-
-    debug_if(qspi_api_c_debug, "qspi_write size %u\n", *length);
 
     return status;
 }
@@ -823,11 +823,11 @@ qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, 
     st_command.NbData = *length;
 
     if (HAL_OSPI_Command(&obj->handle, &st_command, HAL_OSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
-        debug_if(qspi_api_c_debug, "HAL_OSPI_Command error\n");
+        tr_error("HAL_OSPI_Command error");
         status = QSPI_STATUS_ERROR;
     } else {
         if (HAL_OSPI_Receive(&obj->handle, data, HAL_OSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
-            debug_if(qspi_api_c_debug, "HAL_OSPI_Receive error\n");
+            tr_error("HAL_OSPI_Receive error %d", obj->handle.ErrorCode);
             status = QSPI_STATUS_ERROR;
         }
     }
@@ -865,7 +865,8 @@ qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, 
 #if defined(OCTOSPI1)
 qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, const void *tx_data, size_t tx_size, void *rx_data, size_t rx_size)
 {
-    debug_if(qspi_api_c_debug, "qspi_command_transfer tx %u rx %u command %x\n", tx_size, rx_size, command->instruction.value);
+    tr_info("qspi_command_transfer tx %u rx %u command %#04x", tx_size, rx_size, command->instruction.value);
+
     qspi_status_t status = QSPI_STATUS_OK;
 
     if ((tx_data == NULL || tx_size == 0) && (rx_data == NULL || rx_size == 0)) {
@@ -880,7 +881,7 @@ qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, 
         st_command.DataMode = HAL_OSPI_DATA_NONE; /* Instruction only */
         if (HAL_OSPI_Command(&obj->handle, &st_command, HAL_OSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
             status = QSPI_STATUS_ERROR;
-            debug_if(qspi_api_c_debug, "HAL_OSPI_Command error\n");
+            tr_error("HAL_OSPI_Command error");
             return status;
         }
     } else {
@@ -889,7 +890,7 @@ qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, 
             size_t tx_length = tx_size;
             status = qspi_write(obj, command, tx_data, &tx_length);
             if (status != QSPI_STATUS_OK) {
-                debug_if(qspi_api_c_debug, "qspi_write error\n");
+                tr_error("qspi_write error");
                 return status;
             }
         }
@@ -897,7 +898,6 @@ qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, 
         if (rx_data != NULL && rx_size) {
             size_t rx_length = rx_size;
             status = qspi_read(obj, command, rx_data, &rx_length);
-            // debug_if(qspi_api_c_debug, "qspi_read %d\n", status);
         }
     }
     return status;
@@ -905,7 +905,7 @@ qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, 
 #else /* OCTOSPI */
 qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, const void *tx_data, size_t tx_size, void *rx_data, size_t rx_size)
 {
-    debug_if(qspi_api_c_debug, "qspi_command_transfer tx %u rx %u command %x\n", tx_size, rx_size, command->instruction.value);
+    tr_info("qspi_command_transfer tx %u rx %u command %#04x", tx_size, rx_size, command->instruction.value);
     qspi_status_t status = QSPI_STATUS_OK;
 
     if ((tx_data == NULL || tx_size == 0) && (rx_data == NULL || rx_size == 0)) {

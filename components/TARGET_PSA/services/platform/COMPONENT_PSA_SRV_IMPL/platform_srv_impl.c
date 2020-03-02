@@ -1,4 +1,4 @@
-/* Copyright (c) 2019 ARM Limited
+/* Copyright (c) 2019-2020 Arm Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -44,4 +44,13 @@ MBED_WEAK void mbed_psa_system_reset_impl(void)
 {
     /* Reset the system */
     NVIC_SystemReset();
+}
+
+MBED_WEAK enum tfm_platform_err_t tfm_platform_hal_ioctl(tfm_platform_ioctl_req_t request,
+                                                         psa_invec  *in_vec,
+                                                         psa_outvec *out_vec)
+{
+    (void)in_vec;
+    (void)out_vec;
+    return TFM_PLATFORM_ERR_NOT_SUPPORTED;
 }

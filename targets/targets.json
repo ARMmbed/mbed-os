@@ -8854,6 +8854,99 @@
             "secure-ram-size": "0x11000"
         }
     },
+    "ARM_MUSCA_B1": {
+        "public": false,
+        "inherits": [
+            "Target"
+        ],
+        "default_toolchain": "ARMC6",
+        "extra_labels": [
+            "ARM_SSG",
+            "MUSCA_B1"
+        ],
+        "forced_reset_timeout": 20,
+        "release_versions": [
+            "5"
+        ]
+    },
+    "ARM_MUSCA_B1_NS": {
+        "inherits": [
+            "NSPE_Target",
+            "ARM_MUSCA_B1"
+        ],
+        "core": "Cortex-M33-NS",
+        "supported_toolchains": [
+            "ARMC6",
+            "GCC_ARM"
+        ],
+        "device_has_add": [
+            "INTERRUPTIN",
+            "LPTICKER",
+            "SERIAL",
+            "SLEEP",
+            "USTICKER"
+        ],
+        "macros": [
+            "__STARTUP_CLEAR_BSS",
+            "MBED_FAULT_HANDLER_DISABLED",
+            "CMSIS_NVIC_VIRTUAL",
+            "LPTICKER_DELAY_TICKS=3",
+            "MBED_MPU_CUSTOM"
+        ],
+        "extra_labels_add": [
+            "MUSCA_B1_NS",
+            "PSA",
+            "TFM"
+        ],
+        "post_binary_hook": {
+            "function": "ArmMuscaB1Code.binary_hook"
+        },
+        "secure_image_filename": "tfm.bin",
+        "overrides": {
+            "non-secure-rom-start": "0x0A070400",
+            "non-secure-rom-size": "0x7f800",
+            "non-secure-ram-start": "0x20040000",
+            "non-secure-ram-size": "0x40000"
+        }
+    },
+    "ARM_MUSCA_B1_S": {
+        "inherits": [
+            "SPE_Target",
+            "ARM_MUSCA_B1"
+        ],
+        "core": "Cortex-M33",
+        "supported_toolchains": [
+            "ARMC6",
+            "GCC_ARM"
+        ],
+        "device_has_add": [
+            "FLASH"
+        ],
+        "macros": [
+            "__STARTUP_CLEAR_BSS_MULTIPLE",
+            "__STARTUP_COPY_MULTIPLE",
+            "MBED_MPU_CUSTOM",
+            "DAUTH_CHIP_DEFAULT",
+            "MBEDTLS_PSA_CRYPTO_SPM",
+            "MBEDTLS_ENTROPY_NV_SEED"
+        ],
+        "components_add": [
+            "FLASHIAP"
+        ],
+        "extra_labels_add": [
+            "MUSCA_B1_S",
+            "PSA",
+            "TFM"
+        ],
+        "deliver_to_target": "ARM_MUSCA_B1_NS",
+        "delivery_dir": "TARGET_ARM_SSG/TARGET_MUSCA_B1/TARGET_MUSCA_B1_NS/prebuilt",
+        "overrides": {
+            "secure-rom-start": "0x1A020400",
+            "secure-rom-size": "0x4f800",
+            "secure-ram-start": "0x30000000",
+            "secure-ram-size": "0x40000"
+        }
+    },
     "RZ_A1XX": {
         "inherits": [
             "Target"
@@ -13451,6 +13544,7 @@
             "PORTINOUT",
             "PWMOUT",
             "QSPI",
+            "RESET_REASON",
             "RTC",
             "SERIAL",
             "SERIAL_FC",
@@ -13514,7 +13608,7 @@
         ],
         "public": false
     },
-    "CY8CMOD_062_4343W": {
+    "CY8CPROTO_062_4343W": {
         "inherits": [
             "MCU_PSOC6_M4"
         ],
@@ -13538,12 +13632,21 @@
             "CY8C624ABZI_D44",
             "CYBSP_WIFI_CAPABLE"
         ],
-        "public": false,
+        "detect_code": [
+            "1901"
+        ],
+        "bootloader_supported": false,
+        "sectors": [
+            [
+                268435456,
+                512
+            ]
+        ],
         "overrides": {
             "network-default-interface-type": "WIFI"
         }
     },
-    "CY8CMOD_062S2_43012": {
+    "CY8CKIT_062S2_43012": {
         "inherits": [
             "MCU_PSOC6_M4"
         ],
@@ -13554,6 +13657,9 @@
             "WHD",
             "43012",
             "CYW43XXX"
+        ],
+        "supported_form_factors": [
+            "ARDUINO"
         ],
         "device_has_remove": [
             "ANALOGOUT"
@@ -13567,12 +13673,14 @@
             "CY8C624ABZI_D44",
             "CYBSP_WIFI_CAPABLE"
         ],
-        "public": false,
+        "detect_code": [
+            "190B"
+        ],
         "overrides": {
             "network-default-interface-type": "WIFI"
         }
     },
-    "CY8CMOD_062S3_4343W": {
+    "CY8CPROTO_062S3_4343W": {
         "inherits": [
             "MCU_PSOC6_M4"
         ],
@@ -13598,7 +13706,9 @@
             "CY_ENABLE_XIP_PROGRAM",
             "CY_STORAGE_WIFI_DATA=\".cy_xip\""
         ],
-        "public": false,
+        "detect_code": [
+            "190E"
+        ],
         "overrides": {
             "network-default-interface-type": "WIFI",
             "xip-enable": true
@@ -13675,9 +13785,6 @@
         "detect_code": [
             "1900"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "bootloader_supported": false,
         "sectors": [
             [
@@ -13689,49 +13796,6 @@
             "network-default-interface-type": "WIFI"
         },
         "program_cycle_s": 10
-    },
-    "CY8CPROTO_062_4343W": {
-        "inherits": [
-            "CY8CMOD_062_4343W"
-        ],
-        "detect_code": [
-            "1901"
-        ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
-        "bootloader_supported": false,
-        "sectors": [
-            [
-                268435456,
-                512
-            ]
-        ]
-    },
-    "CY8CPROTO_062S3_4343W": {
-        "inherits": [
-            "CY8CMOD_062S3_4343W"
-        ],
-        "detect_code": [
-            "190E"
-        ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        }
-    },
-    "CY8CKIT_062S2_43012": {
-        "inherits": [
-            "CY8CMOD_062S2_43012"
-        ],
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "detect_code": [
-            "190B"
-        ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        }
     },
     "CY8CKIT_062_BLE": {
         "inherits": [
@@ -13753,9 +13817,6 @@
         "detect_code": [
             "1902"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "sectors": [
             [
                 268443648,
@@ -13785,9 +13846,6 @@
         "detect_code": [
             "1904"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "sectors": [
             [
                 268443648,
@@ -13854,9 +13912,6 @@
         "detect_code": [
             "1900"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "bootloader_supported": false,
         "sectors": [
             [
@@ -13894,9 +13949,6 @@
         "detect_code": [
             "1906"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "overrides": {
             "network-default-interface-type": "WIFI"
         }
@@ -13936,9 +13988,6 @@
         "detect_code": [
             "1903"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "overrides": {
             "network-default-interface-type": "WIFI"
         }
@@ -13965,7 +14014,8 @@
             "I2CSLAVE",
             "USBDEVICE",
             "QSPI",
-            "WATCHDOG"
+            "WATCHDOG",
+            "RESET_REASON"
         ],
         "macros_add": [
             "CY8C6347BZI_BLD53"
@@ -14025,7 +14075,8 @@
             "I2CSLAVE",
             "USBDEVICE",
             "QSPI",
-            "WATCHDOG"
+            "WATCHDOG",
+            "RESET_REASON"
         ],
         "macros_add": [
             "CY8C6347BZI_BLD53"

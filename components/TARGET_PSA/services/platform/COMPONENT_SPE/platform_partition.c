@@ -1,4 +1,4 @@
-/* Copyright (c) 2019 ARM Limited
+/* Copyright (c) 2019-2020 Arm Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -17,8 +17,12 @@
 
 #include "mbed_spm_partitions.h"
 #include "platform_srv_impl.h"
+#include "psa/lifecycle.h"
 #include "psa/internal_trusted_storage.h"
 #include "psa/service.h"
+
+#define INPUT_BUFFER_SIZE  64
+#define OUTPUT_BUFFER_SIZE 64
 
 typedef psa_status_t (*SignalHandler)(psa_msg_t *);
 
@@ -56,6 +60,92 @@ static MBED_NORETURN psa_status_t system_reset_request(psa_msg_t *msg)
 {
     (void)msg;
     mbed_psa_system_reset_impl();
+}
+
+static enum tfm_platform_err_t
+platform_sp_ioctl_ipc(const psa_msg_t *msg) {
+    void *input = NULL;
+    void *output = NULL;
+    psa_invec invec = {0};
+    psa_outvec outvec = {0};
+    uint8_t input_buffer[INPUT_BUFFER_SIZE] = {0};
+    uint8_t output_buffer[OUTPUT_BUFFER_SIZE] = {0};
+    tfm_platform_ioctl_req_t request = 0;
+    enum tfm_platform_err_t ret = TFM_PLATFORM_ERR_SYSTEM_ERROR;
+    size_t num = 0;
+    uint32_t in_len = PSA_MAX_IOVEC;
+    uint32_t out_len = PSA_MAX_IOVEC;
+
+    while ((in_len > 0) && (msg->in_size[in_len - 1] == 0))
+    {
+        in_len--;
+    }
+
+    while ((out_len > 0) && (msg->out_size[out_len - 1] == 0))
+    {
+        out_len--;
+    }
+
+    if ((in_len < 1) || (in_len > 2) ||
+            (out_len > 1))
+    {
+        return TFM_PLATFORM_ERR_SYSTEM_ERROR;
+    }
+
+    num = psa_read(msg->handle, 0, &request, sizeof(request));
+    if (num != sizeof(request))
+    {
+        return PSA_ERROR_PROGRAMMER_ERROR;
+    }
+
+    if (in_len > 1)
+    {
+        if (msg->in_size[1] > INPUT_BUFFER_SIZE) {
+            return PSA_ERROR_PROGRAMMER_ERROR;
+        }
+        num = psa_read(msg->handle, 1, &input_buffer, msg->in_size[1]);
+        if (num != msg->in_size[1]) {
+            return PSA_ERROR_PROGRAMMER_ERROR;
+        }
+        invec.base = input_buffer;
+        invec.len = msg->in_size[1];
+        input = &invec;
+    }
+
+    if (out_len > 0)
+    {
+        if (msg->out_size[0] > OUTPUT_BUFFER_SIZE) {
+            return PSA_ERROR_PROGRAMMER_ERROR;
+        }
+        outvec.base = output_buffer;
+        outvec.len = msg->out_size[0];
+        output = &outvec;
+    }
+
+    ret = tfm_platform_hal_ioctl(request, input, output);
+
+    if (output != NULL)
+    {
+        psa_write(msg->handle, 0, outvec.base, outvec.len);
+    }
+
+    return ret;
+}
+
+static psa_status_t platform_ioctl(psa_msg_t *msg)
+{
+    /*  platform_sp_ioctl_ipc returns either psa_status_t or one of the
+     *  following errorcodes:
+     *  enum tfm_platform_err_t {
+     *      TFM_PLATFORM_ERR_SUCCESS = 0,
+     *      TFM_PLATFORM_ERR_SYSTEM_ERROR,
+     *      TFM_PLATFORM_ERR_INVALID_PARAM,
+     *      TFM_PLATFORM_ERR_NOT_SUPPORTED,
+     *
+     *      TFM_PLATFORM_ERR_FORCE_INT_SIZE = INT_MAX
+     *  };
+     */
+    return platform_sp_ioctl_ipc(msg);
 }
 
 static void message_handler(psa_msg_t *msg, SignalHandler handler)
@@ -101,6 +191,12 @@ void platform_partition_entry(void *ptr)
                 continue;
             }
             message_handler(&msg, system_reset_request);
+        }
+        if ((signals & PSA_PLATFORM_IOCTL_MSK)  != 0) {
+            if (PSA_SUCCESS != psa_get(PSA_PLATFORM_IOCTL_MSK, &msg)) {
+                continue;
+            }
+            message_handler(&msg, platform_ioctl);
         }
     }
 }

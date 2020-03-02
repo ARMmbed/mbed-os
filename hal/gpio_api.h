@@ -2,7 +2,7 @@
 /** \addtogroup hal */
 /** @{*/
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2020 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,6 +46,8 @@ extern "C" {
  * * ::gpio_init_out_ex inits the pin as an output and sets the output value
  * * ::gpio_init_inout inits the pin to be input/output and set pin mode and value
  * * The GPIO operations ::gpio_write, ::gpio_read take less than 20us to complete
+ * * The function ::gpio_get_capabilities fills the given
+ * `gpio_capabilities_t` instance according to pin capabilities.
  *
  * # Undefined behavior
  * * Calling any ::gpio_mode, ::gpio_dir, ::gpio_write or ::gpio_read on a gpio_t object that was initialized
@@ -64,6 +66,14 @@ extern "C" {
  *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal_fpga_ci_test_shield-gpio,tests-mbed_hal-gpio
  *
  */
+
+/** GPIO capabilities for a given pin
+ */
+typedef struct {
+    uint8_t pull_none : 1;
+    uint8_t pull_down : 1;
+    uint8_t pull_up : 1;
+} gpio_capabilities_t;
 
 /** Set the given pin as GPIO
  *
@@ -163,6 +173,10 @@ void gpio_init_out_ex(gpio_t *gpio, PinName pin, int value);
  * @param value     The value to be set for an output pin
  */
 void gpio_init_inout(gpio_t *gpio, PinName pin, PinDirection direction, PinMode mode, int value);
+
+/** Fill the given gpio_capabilities_t instance according to pin capabilities.
+ */
+void gpio_get_capabilities(gpio_t *gpio, gpio_capabilities_t *cap);
 
 /** Get the pins that support all GPIO tests
  *

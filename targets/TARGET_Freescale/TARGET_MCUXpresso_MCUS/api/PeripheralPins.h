@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2020 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,6 @@
 
 #include "pinmap.h"
 #include "PeripheralNames.h"
-
-/************GPIO***************/
-extern const PinMap PinMap_GPIO[];
 
 /************RTC***************/
 extern const PinMap PinMap_RTC[];

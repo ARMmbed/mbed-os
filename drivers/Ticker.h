@@ -93,23 +93,6 @@ public:
         attach_us(std::forward<F>(func), t * 1000000.0f);
     }
 
-    /** Attach a member function to be called by the Ticker, specifying the interval in seconds
-     *
-     *  @param obj pointer to the object to call the member function on
-     *  @param method pointer to the member function to be called
-     *  @param t the time between calls in seconds
-     *  @deprecated
-     *      The attach function does not support cv-qualifiers. Replaced by
-     *      attach(callback(obj, method), t).
-     */
-    template<typename T, typename M>
-    MBED_DEPRECATED_SINCE("mbed-os-5.1",
-                          "The attach function does not support cv-qualifiers. Replaced by "
-                          "attach(callback(obj, method), t).")
-    void attach(T *obj, M method, float t)
-    {
-        attach(callback(obj, method), t);
-    }
 
     /** Attach a function to be called by the Ticker, specifying the interval in microseconds
      *
@@ -123,23 +106,6 @@ public:
      */
     void attach_us(Callback<void()> func, us_timestamp_t t);
 
-    /** Attach a member function to be called by the Ticker, specifying the interval in microseconds
-     *
-     *  @param obj pointer to the object to call the member function on
-     *  @param method pointer to the member function to be called
-     *  @param t the time between calls in microseconds
-     *  @deprecated
-     *      The attach_us function does not support cv-qualifiers. Replaced by
-     *      attach_us(callback(obj, method), t).
-     */
-    template<typename T, typename M>
-    MBED_DEPRECATED_SINCE("mbed-os-5.1",
-                          "The attach_us function does not support cv-qualifiers. Replaced by "
-                          "attach_us(callback(obj, method), t).")
-    void attach_us(T *obj, M method, us_timestamp_t t)
-    {
-        attach_us(Callback<void()>(obj, method), t);
-    }
 
     virtual ~Ticker()
     {

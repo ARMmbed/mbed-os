@@ -643,11 +643,10 @@ int thread_test_version_set(int8_t interface_id, uint8_t version)
 
 int thread_test_pbbr_response_override_set(int8_t interface_id, uint8_t dua_status, uint8_t dua_count, uint8_t ba_failure_count)
 {
-#ifdef HAVE_THREAD
+#if defined(HAVE_THREAD) && defined(HAVE_THREAD_V2) && defined(HAVE_THREAD_BORDER_ROUTER)
     (void)interface_id;
     thread_bbr_commercial_status_override_set(dua_status, dua_count, ba_failure_count);
     return 0;
-
 #else
     (void)interface_id;
     (void)dua_status;

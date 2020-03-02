@@ -1,5 +1,6 @@
 /* ESP8266 implementation of NetworkInterfaceAPI
  * Copyright (c) 2015 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -140,9 +141,6 @@ public:
      *  @return             IP address of the interface or null if not yet connected
      */
     virtual nsapi_error_t get_ip_address(SocketAddress *address);
-
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual const char *get_ip_address();
 
     /** Get the internally stored MAC address
      *  @return             MAC address of the interface

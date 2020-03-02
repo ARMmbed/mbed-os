@@ -1,5 +1,6 @@
 /* ESP8266 implementation of NetworkInterfaceAPI
  * Copyright (c) 2015 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -505,22 +506,6 @@ int ESP8266Interface::disconnect()
     } else {
         return _disconnect_retval;
     }
-}
-
-const char *ESP8266Interface::get_ip_address()
-{
-    if (_software_conn_stat == IFACE_STATUS_DISCONNECTED) {
-        _esp.uart_enable_input(true);
-    }
-
-    const char *ip_buff = _esp.ip_addr();
-    if (!ip_buff || strcmp(ip_buff, "0.0.0.0") == 0) {
-        ip_buff = NULL;
-    }
-    if (_software_conn_stat == IFACE_STATUS_DISCONNECTED) {
-        _esp.uart_enable_input(false);
-    }
-    return ip_buff;
 }
 
 nsapi_error_t ESP8266Interface::get_ip_address(SocketAddress *address)

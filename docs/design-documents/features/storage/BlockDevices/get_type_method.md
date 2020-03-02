@@ -71,7 +71,6 @@ The below table describes physical BlockDevice and its tyep names
 |-----------------------------|--------------------|
 | HeapBlockDevice             | "HEAP"             |
 | SPIFBlockDevice             | "SPIF"             |
-| SPIFReducedBlockDevice      | "SPIFR"            |
 | QSPIFBlockDevice            | "QSPIF"            |
 | SDBlockDevice               | "SD"               |
 | FlashIAPBlockDevice         | "FLASHIAP"         |

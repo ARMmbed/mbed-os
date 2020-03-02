@@ -72,10 +72,10 @@ typedef struct {
     bool                          send_pending: 1;  /**< TLS data is not yet send to network */
 } eap_tls_sec_prot_int_t;
 
-#define FWH_RETRY_TIMEOUT_SMALL 330*10 // retry timeout for small network additional 30 seconds for authenticator delay
-#define FWH_RETRY_TIMEOUT_LARGE 750*10 // retry timeout for large network additional 30 seconds for authenticator delay
+#define EAP_TLS_RETRY_TIMEOUT_SMALL 330*10 // retry timeout for small network additional 30 seconds for authenticator delay
+#define EAP_TLS_RETRY_TIMEOUT_LARGE 750*10 // retry timeout for large network additional 30 seconds for authenticator delay
 
-static uint16_t retry_timeout = FWH_RETRY_TIMEOUT_SMALL;
+static uint16_t retry_timeout = EAP_TLS_RETRY_TIMEOUT_SMALL;
 
 static uint16_t supp_eap_tls_sec_prot_size(void);
 static int8_t supp_eap_tls_sec_prot_init(sec_prot_t *prot);
@@ -93,7 +93,7 @@ static void supp_eap_tls_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks
 static int8_t supp_eap_tls_sec_prot_init_tls(sec_prot_t *prot);
 static void supp_eap_tls_sec_prot_delete_tls(sec_prot_t *prot);
 
-static void supp_eap_tls_sec_prot_seq_id_update(sec_prot_t *prot);
+static bool supp_eap_tls_sec_prot_seq_id_update(sec_prot_t *prot);
 
 #define eap_tls_sec_prot_get(prot) (eap_tls_sec_prot_int_t *) &prot->data
 
@@ -113,9 +113,9 @@ int8_t supp_eap_tls_sec_prot_register(kmp_service_t *service)
 int8_t supp_eap_sec_prot_timing_adjust(uint8_t timing)
 {
     if (timing < 16) {
-        retry_timeout = FWH_RETRY_TIMEOUT_SMALL;
+        retry_timeout = EAP_TLS_RETRY_TIMEOUT_SMALL;
     } else {
-        retry_timeout = FWH_RETRY_TIMEOUT_LARGE;
+        retry_timeout = EAP_TLS_RETRY_TIMEOUT_LARGE;
     }
     return 0;
 }
@@ -493,7 +493,10 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
                 }
 
                 // Store sequence ID
-                supp_eap_tls_sec_prot_seq_id_update(prot);
+                if (supp_eap_tls_sec_prot_seq_id_update(prot)) {
+                    // When receiving a new sequence number, adds more time for re-send if no response
+                    data->common.ticks = retry_timeout;
+                }
 
                 // All fragments received for a message
                 if (result == EAP_TLS_MSG_RECEIVE_DONE && data->tls_ongoing) {
@@ -524,10 +527,6 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             // Send EAP response
             supp_eap_tls_sec_prot_message_send(prot, EAP_RESPONSE, EAP_TLS, EAP_TLS_EXCHANGE_ONGOING);
             data->send_pending = false;
-
-            // Add more time for re-send if no response
-            data->common.ticks = retry_timeout;
-
             break;
 
         case EAP_TLS_STATE_FINISH:
@@ -550,10 +549,16 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
     }
 }
 
-static void supp_eap_tls_sec_prot_seq_id_update(sec_prot_t *prot)
+static bool supp_eap_tls_sec_prot_seq_id_update(sec_prot_t *prot)
 {
     eap_tls_sec_prot_int_t *data = eap_tls_sec_prot_get(prot);
+    bool new_seq_id = false;
+
+    if (data->recv_eapol_pdu.msg.eap.id_seq > data->eap_id_seq) {
+        new_seq_id = true;
+    }
     data->eap_id_seq = data->recv_eapol_pdu.msg.eap.id_seq;
+    return new_seq_id;
 }
 
 #endif /* HAVE_WS */

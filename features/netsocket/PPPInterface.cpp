@@ -40,13 +40,13 @@ PPPInterface::~PPPInterface()
     _stack.remove_ppp_interface(&_interface);
 }
 
-nsapi_error_t PPPInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
+nsapi_error_t PPPInterface::set_network(const SocketAddress &ip_address, const SocketAddress &netmask, const SocketAddress &gateway)
 {
-    strncpy(_ip_address, ip_address ? ip_address : "", sizeof(_ip_address));
+    strncpy(_ip_address, ip_address.get_ip_address() ? ip_address.get_ip_address() : "", sizeof(_ip_address));
     _ip_address[sizeof(_ip_address) - 1] = '\0';
-    strncpy(_netmask, netmask ? netmask : "", sizeof(_netmask));
+    strncpy(_netmask, netmask.get_ip_address() ? netmask.get_ip_address() : "", sizeof(_netmask));
     _netmask[sizeof(_netmask) - 1] = '\0';
-    strncpy(_gateway, gateway ? gateway : "", sizeof(_gateway));
+    strncpy(_gateway, gateway.get_ip_address() ? gateway.get_ip_address() : "", sizeof(_gateway));
     _gateway[sizeof(_gateway) - 1] = '\0';
 
     return NSAPI_ERROR_OK;
@@ -83,15 +83,6 @@ nsapi_error_t PPPInterface::disconnect()
     return NSAPI_ERROR_NO_CONNECTION;
 }
 
-const char *PPPInterface::get_ip_address()
-{
-    if (_interface && _interface->get_ip_address(_ip_address, sizeof(_ip_address))) {
-        return _ip_address;
-    }
-
-    return NULL;
-}
-
 nsapi_error_t PPPInterface::get_ip_address(SocketAddress *address)
 {
     if (_interface && _interface->get_ip_address(address) == NSAPI_ERROR_OK) {
@@ -121,24 +112,6 @@ nsapi_error_t PPPInterface::get_gateway(SocketAddress *address)
     }
 
     return NSAPI_ERROR_NO_CONNECTION;
-}
-
-const char *PPPInterface::get_netmask()
-{
-    if (_interface && _interface->get_netmask(_netmask, sizeof(_netmask))) {
-        return _netmask;
-    }
-
-    return 0;
-}
-
-const char *PPPInterface::get_gateway()
-{
-    if (_interface && _interface->get_gateway(_gateway, sizeof(_gateway))) {
-        return _gateway;
-    }
-
-    return 0;
 }
 
 char *PPPInterface::get_interface_name(char *interface_name)

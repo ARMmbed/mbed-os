@@ -31,5 +31,7 @@ extern int8_t nwk_6lowpan_up(struct protocol_interface_info_entry *cur);
  */
 extern int8_t nwk_6lowpan_down(struct protocol_interface_info_entry *cur);
 
+extern void protocol_mac_reset(struct protocol_interface_info_entry *cur);
+
 
 #endif /* PROTOCOL_6LOWPAN_INTERFACE_H_ */

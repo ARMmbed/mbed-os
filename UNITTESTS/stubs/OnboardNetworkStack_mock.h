@@ -82,7 +82,6 @@ public:
         MOCK_CONST_METHOD0(get_connection_status, nsapi_connection_status_t());
         MOCK_METHOD1(get_interface_name, char *(char *buf));
         MOCK_METHOD2(get_mac_address, char *(char *buf, nsapi_size_t buflen));
-        MOCK_METHOD2(get_ip_address, char *(char *buf, nsapi_size_t buflen));
         MOCK_METHOD1(get_ip_address, nsapi_error_t (SocketAddress *address));
         MOCK_METHOD1(get_ipv6_link_local_address, nsapi_error_t(SocketAddress *address));
         MOCK_METHOD2(get_netmask, char *(char *buf, nsapi_size_t buflen));

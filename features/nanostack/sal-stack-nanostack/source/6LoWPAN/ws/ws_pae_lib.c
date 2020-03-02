@@ -291,6 +291,20 @@ void ws_pae_lib_supp_timer_ticks_set(supp_entry_t *entry, uint32_t ticks)
     entry->ticks = ticks;
 }
 
+void ws_pae_lib_supp_timer_ticks_add(supp_entry_t *entry, uint32_t ticks)
+{
+    entry->ticks += ticks;
+}
+
+bool ws_pae_lib_supp_timer_is_running(supp_entry_t *entry)
+{
+    if (entry->ticks == 0) {
+        return false;
+    }
+
+    return true;
+}
+
 void ws_pae_lib_supp_list_to_active(supp_list_t *active_supp_list, supp_list_t *inactive_supp_list, supp_entry_t *entry)
 {
     if (entry->active) {

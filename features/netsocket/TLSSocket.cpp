@@ -25,21 +25,6 @@
 // This class requires Mbed TLS SSL/TLS client code
 #if defined(MBEDTLS_SSL_CLI_C)
 
-nsapi_error_t TLSSocket::connect(const char *host, uint16_t port)
-{
-    nsapi_error_t ret = NSAPI_ERROR_OK;
-    if (!is_handshake_started()) {
-        ret = tcp_socket.connect(host, port);
-        if (ret == NSAPI_ERROR_OK || ret == NSAPI_ERROR_IN_PROGRESS) {
-            set_hostname(host);
-        }
-        if (ret != NSAPI_ERROR_OK && ret != NSAPI_ERROR_IS_CONNECTED) {
-            return ret;
-        }
-    }
-    return TLSSocketWrapper::start_handshake(ret == NSAPI_ERROR_OK);
-}
-
 TLSSocket::~TLSSocket()
 {
     /* Transport is a member of TLSSocket which is derived from TLSSocketWrapper.
@@ -89,15 +74,6 @@ nsapi_error_t TLSSocket::set_client_cert_key(const void *client_cert, size_t cli
 nsapi_error_t TLSSocket::set_client_cert_key(const char *client_cert_pem, const char *client_private_key_pem)
 {
     return set_client_cert_key(client_cert_pem, strlen(client_cert_pem), client_private_key_pem, strlen(client_private_key_pem));
-}
-
-nsapi_error_t TLSSocket::connect(const char *host, uint16_t port)
-{
-    nsapi_error_t ret = enable_tlssocket();
-    if (ret == NSAPI_ERROR_OK) {
-        ret = TCPSocket::connect(host, port);
-    }
-    return ret;
 }
 
 nsapi_error_t TLSSocket::connect(const SocketAddress &address)

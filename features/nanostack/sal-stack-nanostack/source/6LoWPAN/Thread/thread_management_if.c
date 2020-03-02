@@ -699,7 +699,7 @@ int thread_dhcpv6_server_set_anonymous_addressing(int8_t interface_id, uint8_t *
         return -1;
     }
 
-    return DHCPv6_server_service_set_address_autonous_flag(interface_id, prefix_ptr, anonymous);
+    return DHCPv6_server_service_set_address_autonous_flag(interface_id, prefix_ptr, anonymous, false);
 #else
     (void) interface_id;
     (void) prefix_ptr;

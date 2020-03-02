@@ -60,6 +60,15 @@ typedef struct ws_nud_table_entry {
     ns_list_link_t  link;
 } ws_nud_table_entry_t;
 
+#define NO_PENDING_PROCESS 0
+#define PENDING_KEY_INDEX_ADVERTISMENT 1
+#define PENDING_KEY_INDEX_ACTIVATE 2
+
+typedef struct {
+    unsigned state: 2;
+    uint8_t index;
+} ws_pending_key_index_t;
+
 typedef NS_LIST_HEAD(ws_nud_table_entry_t, link) ws_nud_table_list_t;
 
 typedef struct ws_info_s {
@@ -79,15 +88,17 @@ typedef struct ws_info_s {
     parent_info_t parent_info[WS_PARENT_LIST_SIZE];
     parent_info_list_t parent_list_free;
     parent_info_list_t parent_list_reserved;
-    uint32_t pan_version_timer;            /**< border router version udate timeout */
+    uint16_t rpl_version_timer;            /**< RPL version update timeout */
+    uint32_t pan_version_timer;            /**< border router version update timeout */
     uint32_t pan_version_timeout_timer;    /**< routers will fallback to previous state after this */
+    uint32_t pan_config_sol_max_timeout;
     uint8_t gtkhash[32];
     bool configuration_learned: 1;
     bool trickle_pas_running: 1;
     bool trickle_pa_running: 1;
     bool trickle_pcs_running: 1;
     bool trickle_pc_running: 1;
-    bool fhss_owner: 1;
+    ws_pending_key_index_t pending_key_index_info;
     // default fhss parameters for this device
     uint8_t fhss_uc_dwell_interval;
     uint8_t fhss_bc_dwell_interval;
@@ -126,13 +137,11 @@ void ws_common_fast_timer(protocol_interface_info_entry_t *cur, uint16_t ticks);
 
 void ws_common_neighbor_update(protocol_interface_info_entry_t *cur, const uint8_t *ll_address);
 
-void ws_common_aro_failure(protocol_interface_info_entry_t *cur, const uint8_t *ll_address, bool cache_full);
+void ws_common_aro_failure(protocol_interface_info_entry_t *cur, const uint8_t *ll_address);
 
 void ws_common_neighbor_remove(protocol_interface_info_entry_t *cur, const uint8_t *ll_address);
 
-bool ws_common_allow_child_registration(protocol_interface_info_entry_t *cur, const uint8_t *eui64);
-
-void ws_common_etx_validate(protocol_interface_info_entry_t *interface, mac_neighbor_table_entry_t *neigh);
+uint8_t ws_common_allow_child_registration(protocol_interface_info_entry_t *cur, const uint8_t *eui64);
 
 bool ws_common_negative_aro_mark(protocol_interface_info_entry_t *interface, const uint8_t *eui64);
 
@@ -146,11 +155,10 @@ uint32_t ws_common_version_timeout_get(uint8_t config);
 #define ws_info(cur) ((ws_info_t *) NULL)
 #define ws_common_seconds_timer(cur, seconds)
 #define ws_common_neighbor_update(cur, ll_address) ((void) 0)
-#define ws_common_aro_failure(cur, ll_address, cache_full)
+#define ws_common_aro_failure(cur, ll_address)
 #define ws_common_neighbor_remove(cur, ll_address)
 #define ws_common_fast_timer(cur, ticks) ((void) 0)
-#define ws_common_allow_child_registration(cur, eui64) (false)
-#define ws_common_etx_validate(interface, neigh) ((void) 0)
+#define ws_common_allow_child_registration(cur, eui64) (2)
 #define ws_common_negative_aro_mark(interface, eui64)(false)
 
 #endif //HAVE_WS
