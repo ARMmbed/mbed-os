@@ -124,7 +124,7 @@ static uint32_t calc_crc(uint32_t init_crc, uint32_t data_size, const void *data
 TDBStore::TDBStore(BlockDevice *bd) : _ram_table(0), _max_keys(0),
     _num_keys(0), _bd(bd), _buff_bd(0),  _free_space_offset(0), _master_record_offset(0),
     _master_record_size(0), _is_initialized(false), _active_area(0), _active_area_version(0), _size(0),
-    _area_params{}, _prog_size(0), _work_buf(0), _key_buf(0), _variant_bd_erase_unit_size(false), _inc_set_handle(0)
+    _area_params{}, _prog_size(0), _work_buf(0), _key_buf(0), _inc_set_handle(0)
 {
     for (int i = 0; i < _num_areas; i++) {
         _area_params[i] = { 0 };
@@ -194,12 +194,9 @@ void TDBStore::calc_area_params()
 
     memset(_area_params, 0, sizeof(_area_params));
     size_t area_0_size = 0;
-    bd_size_t prev_erase_unit_size = _bd->get_erase_size(area_0_size);
-    _variant_bd_erase_unit_size = 0;
 
     while (area_0_size < bd_size / 2) {
         bd_size_t erase_unit_size = _bd->get_erase_size(area_0_size);
-        _variant_bd_erase_unit_size |= (erase_unit_size != prev_erase_unit_size);
         area_0_size += erase_unit_size;
     }
 
@@ -207,6 +204,9 @@ void TDBStore::calc_area_params()
     _area_params[0].size = area_0_size;
     _area_params[1].address = area_0_size;
     _area_params[1].size = bd_size - area_0_size;
+
+    // The areas must be of same size
+    MBED_ASSERT(_area_params[0].size == _area_params[1].size);
 }
 
 
@@ -1427,14 +1427,8 @@ void TDBStore::offset_in_erase_unit(uint8_t area, uint32_t offset,
                                     uint32_t &offset_from_start, uint32_t &dist_to_end)
 {
     uint32_t bd_offset = _area_params[area].address + offset;
-    if (!_variant_bd_erase_unit_size) {
-        uint32_t eu_size = _buff_bd->get_erase_size();
-        offset_from_start = bd_offset % eu_size;
-        dist_to_end = eu_size - offset_from_start;
-        return;
-    }
-
     uint32_t agg_offset = 0;
+
     while (bd_offset >= agg_offset + _buff_bd->get_erase_size(agg_offset)) {
         agg_offset += _buff_bd->get_erase_size(agg_offset);
     }
