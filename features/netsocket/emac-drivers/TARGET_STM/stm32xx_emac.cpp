@@ -30,6 +30,22 @@
 #include "stm32xx_emac_config.h"
 #include "stm32xx_emac.h"
 
+#include "mbed-trace/mbed_trace.h"
+
+#if defined(ETH_IP_VERSION_V2)
+#define TRACE_GROUP "STE2"
+#else
+#define TRACE_GROUP "STE1"
+#endif
+
+/* mbed trace feature is supported */
+/* ex in mbed_app.json */
+/*   "mbed-trace.enable": "1" */
+
+/* mbed_trace: debug traces (tr_debug) can be disabled here with no change in mbed_app.json */
+// #undef TRACE_LEVEL_DEBUG
+// #define TRACE_LEVEL_DEBUG 0
+
 #if defined(ETH_IP_VERSION_V2)
 #include "lan8742/lan8742.h"
 #include "lwip/memp.h"
@@ -296,17 +312,24 @@ bool STM32_EMAC::low_level_init_successful()
     EthHandle.Init.RxMode = ETH_RXINTERRUPT_MODE;
     EthHandle.Init.ChecksumMode = ETH_CHECKSUM_BY_SOFTWARE;
     EthHandle.Init.MediaInterface = ETH_MEDIA_INTERFACE_RMII;
+    tr_info("PHY Addr %u AutoNegotiation %u", EthHandle.Init.PhyAddress, EthHandle.Init.AutoNegotiation);
+    tr_debug("MAC Addr %02x:%02x:%02x:%02x:%02x:%02x", MACAddr[0], MACAddr[1], MACAddr[2], MACAddr[3], MACAddr[4], MACAddr[5]);
+    tr_info("ETH buffers : %u Rx %u Tx", ETH_RXBUFNB, ETH_TXBUFNB);
+
     if (HAL_ETH_Init(&EthHandle) != HAL_OK) {
+        tr_error("HAL_ETH_Init issue");
         return false;
     }
 
     /* Initialize Tx Descriptors list: Chain Mode */
     if (HAL_ETH_DMATxDescListInit(&EthHandle, DMATxDscrTab, &Tx_Buff[0][0], ETH_TXBUFNB) != HAL_OK) {
+        tr_error("HAL_ETH_DMATxDescListInit issue");
         return false;
     }
 
     /* Initialize Rx Descriptors list: Chain Mode  */
     if (HAL_ETH_DMARxDescListInit(&EthHandle, DMARxDscrTab, &Rx_Buff[0][0], ETH_RXBUFNB) != HAL_OK) {
+        tr_error("HAL_ETH_DMARxDescListInit issue");
         return false;
     }
 
@@ -315,9 +338,11 @@ bool STM32_EMAC::low_level_init_successful()
 
     /* Enable MAC and DMA transmission and reception */
     if (HAL_ETH_Start(&EthHandle) != HAL_OK) {
+        tr_error("HAL_ETH_Start issue");
         return false;
     }
 
+    tr_info("low_level_init_successful");
     return true;
 }
 #else // ETH_IP_VERSION_V2
@@ -345,6 +370,9 @@ bool STM32_EMAC::low_level_init_successful()
     EthHandle.Init.TxDesc = DMATxDscrTab;
     EthHandle.Init.RxBuffLen = 1524;
 
+    tr_debug("MAC Addr %02x:%02x:%02x:%02x:%02x:%02x", MACAddr[0], MACAddr[1], MACAddr[2], MACAddr[3], MACAddr[4], MACAddr[5]);
+    tr_info("ETH buffers : %u Rx %u Tx", ETH_RX_DESC_CNT, ETH_TX_DESC_CNT);
+
     if (HAL_ETH_Init(&EthHandle) != HAL_OK) {
         return false;
     }
@@ -358,6 +386,7 @@ bool STM32_EMAC::low_level_init_successful()
         HAL_ETH_DescAssignMemory(&EthHandle, idx, Rx_Buff[idx], NULL);
     }
 
+    tr_info("low_level_init_successful");
     return _phy_init();
 }
 #endif // ETH_IP_VERSION_V2
@@ -433,7 +462,7 @@ bool STM32_EMAC::link_out(emac_mem_buf_t *buf)
 
     /* Prepare transmit descriptors to give to DMA */
     if (HAL_ETH_TransmitFrame(&EthHandle, framelength) != HAL_OK) {
-
+        tr_error("HAL_ETH_TransmitFrame issue");
         success = false;
     }
 
@@ -473,7 +502,7 @@ error:
     /* copy frame from pbufs to driver buffers */
     for (q = p; q != NULL; q = q->next) {
         if (i >= ETH_TX_DESC_CNT) {
-            printf("Error : ETH_TX_DESC_CNT not sufficient\n");
+            tr_error("Error : ETH_TX_DESC_CNT not sufficient");
             goto error;
         }
 
@@ -499,7 +528,7 @@ error:
     if (status == HAL_OK) {
         success = 1;
     } else {
-        printf("Error returned by HAL_ETH_Transmit (%d)\n", status);
+        tr_error("Error returned by HAL_ETH_Transmit (%d)", status);
         success = 0;
     }
 
@@ -538,6 +567,7 @@ int STM32_EMAC::low_level_input(emac_mem_buf_t **buf)
 
     /* get received frame */
     if (HAL_ETH_GetReceivedFrame_IT(&EthHandle) != HAL_OK) {
+        tr_debug("low_level_input no frame");
         return -1;
     }
 
@@ -549,6 +579,7 @@ int STM32_EMAC::low_level_input(emac_mem_buf_t **buf)
     dmarxdesc = EthHandle.RxFrameInfos.FSRxDesc;
 
     if (len > 0 && len <= ETH_RX_BUF_SIZE) {
+        tr_debug("low_level_input len %u", len);
         /* Allocate a memory buffer chain from buffer pool */
         *buf = memory_manager->alloc_pool(len, 0);
     }
@@ -607,7 +638,7 @@ int STM32_EMAC::low_level_input(emac_mem_buf_t **buf)
 
     if (HAL_ETH_GetRxDataBuffer(&EthHandle, &RxBuff) == HAL_OK) {
         if (HAL_ETH_GetRxDataLength(&EthHandle, &frameLength) != HAL_OK) {
-            printf("Error: returned by HAL_ETH_GetRxDataLength\n");
+            tr_error("Error: returned by HAL_ETH_GetRxDataLength");
             return -1;
         }
 
@@ -679,12 +710,16 @@ void STM32_EMAC::phy_task()
     if (HAL_ETH_ReadPHYRegister(&EthHandle, PHY_BSR, &status) == HAL_OK) {
         if ((emac_link_state_cb) && (status != 0xFFFF)) {
             if ((status & PHY_LINKED_STATUS) && !(phy_status & PHY_LINKED_STATUS)) {
+                tr_info("emac_link_state_cb set to true");
                 emac_link_state_cb(true);
             } else if (!(status & PHY_LINKED_STATUS) && (phy_status & PHY_LINKED_STATUS)) {
+                tr_info("emac_link_state_cb set to false");
                 emac_link_state_cb(false);
             }
         }
         phy_status = status;
+    } else {
+        tr_error("HAL_ETH_ReadPHYRegister issue");
     }
 
 }
@@ -721,8 +756,10 @@ void STM32_EMAC::phy_task()
     if (emac_link_state_cb) {
         if (is_up && !was_up) {
             emac_link_state_cb(true);
+            tr_info("emac_link_state_cb set to true");
         } else if (!is_up && was_up) {
             emac_link_state_cb(false);
+            tr_info("emac_link_state_cb set to false");
         }
     }
 
@@ -829,6 +866,8 @@ void mbed_default_mac_address(char *mac)
 
 bool STM32_EMAC::power_up()
 {
+    tr_info("power_up");
+
     sleep_manager_lock_deep_sleep();
 
     /* Initialize the hardware */
@@ -912,6 +951,8 @@ void STM32_EMAC::set_all_multicast(bool all)
 
 void STM32_EMAC::power_down()
 {
+    tr_info("power_down");
+
     /* No-op at this stage */
     sleep_manager_unlock_deep_sleep();
 }
