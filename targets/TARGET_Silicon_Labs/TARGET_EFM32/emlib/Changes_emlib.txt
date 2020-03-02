@@ -46,17 +46,6 @@ Gecko Platform 2.6.0.0 (32-bit MCU SDK 5.8.0.0)
  - Added LETIMER_CounterGet() and LETIMER_CounterSet() functions to
    em_letimer.
  - Added TIMER_SyncWait() function to em_timer.
- * Changed
- - Added AES PCBC mode to em_crypto.
- - Added support for PLFRCO on EFR32xG13 Rev D devices using the
-   em_cmu API. This oscillator is supported on some Rev D devices.
-   Note that using PLFRCO on previous revisions will result in an
-   assertion error, and code trying to enable this oscillator will
-   block and not return.
- - Added support for LFRCO precision configuration for Series 2.
- - Added LETIMER_CounterGet() and LETIMER_CounterSet() functions to
-   em_letimer.
- - Added TIMER_SyncWait() function to em_timer.
  * Fixed
  - Corrected GPIO port D pin count for EFR32xG13, EFR32xG14 and xGM13
    devices.
@@ -160,7 +149,7 @@ Gecko Platform 2.6.0.0 (32-bit MCU SDK 5.8.0.0)
  - Added EMURamPowerUp() function for series 1 devices to power up all
    SRAM blocks.
  - Adding restoring of HFRCO frequency when calling EMUEnterEM2(true)
-   and voltage scaling isenable in EM2/EM3.
+   and voltage scaling is enabled in EM2/EM3.
  - Added support for opamp OPA3.
  * Fixed
  - Fixed issue where TX data could be lost when calling
