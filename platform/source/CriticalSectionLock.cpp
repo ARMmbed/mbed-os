@@ -30,16 +30,6 @@ CriticalSectionLock::~CriticalSectionLock()
     core_util_critical_section_exit();
 }
 
-void CriticalSectionLock::lock()
-{
-    core_util_critical_section_enter();
-}
-
-void CriticalSectionLock::unlock()
-{
-    core_util_critical_section_exit();
-}
-
 void CriticalSectionLock::enable()
 {
     core_util_critical_section_enter();
