@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file
  * @brief CMSIS Cortex-M Peripheral Access Layer Header File
- *        for EFR32MG12P232F1024GL125
+ *        for EFR32MG12P231F1024GM48
  *******************************************************************************
  * # License
  * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
@@ -35,8 +35,8 @@
 #pragma clang system_header  /* Treat file as system include file. */
 #endif
 
-#ifndef EFR32MG12P232F1024GL125_H
-#define EFR32MG12P232F1024GL125_H
+#ifndef EFR32MG12P231F1024GM48_H
+#define EFR32MG12P231F1024GM48_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,7 +48,7 @@ extern "C" {
  ******************************************************************************/
 
 /***************************************************************************//**
- * @defgroup EFR32MG12P232F1024GL125 EFR32MG12P232F1024GL125
+ * @defgroup EFR32MG12P231F1024GM48 EFR32MG12P231F1024GM48
  * @{
  ******************************************************************************/
 
@@ -122,7 +122,7 @@ typedef enum IRQn{
 #define CRYPTO_IRQn               CRYPTO0_IRQn /*!< Alias for CRYPTO0_IRQn */
 
 /***************************************************************************//**
- * @defgroup EFR32MG12P232F1024GL125_Core Core
+ * @defgroup EFR32MG12P231F1024GM48_Core Core
  * @{
  * @brief Processor and Core Peripheral Section
  ******************************************************************************/
@@ -132,38 +132,38 @@ typedef enum IRQn{
 #define __NVIC_PRIO_BITS          3U /**< NVIC interrupt priority bits */
 #define __Vendor_SysTickConfig    0U /**< Is 1 if different SysTick counter is used */
 
-/** @} End of group EFR32MG12P232F1024GL125_Core */
+/** @} End of group EFR32MG12P231F1024GM48_Core */
 
 /***************************************************************************//**
- * @defgroup EFR32MG12P232F1024GL125_Part Part
+ * @defgroup EFR32MG12P231F1024GM48_Part Part
  * @{
  ******************************************************************************/
 
 /** Part family */
-#define _EFR32_MIGHTY_FAMILY                    1                               /**< MIGHTY Gecko RF SoC Family  */
-#define _EFR_DEVICE                                                             /**< Silicon Labs EFR-type RF SoC */
-#define _SILICON_LABS_32B_SERIES_1                                              /**< Silicon Labs series number */
-#define _SILICON_LABS_32B_SERIES                1                               /**< Silicon Labs series number */
-#define _SILICON_LABS_32B_SERIES_1_CONFIG_2                                     /**< Series 1, Configuration 2 */
-#define _SILICON_LABS_32B_SERIES_1_CONFIG       2                               /**< Series 1, Configuration 2 */
-#define _SILICON_LABS_GECKO_INTERNAL_SDID       84                              /**< Silicon Labs internal use only, may change any time */
-#define _SILICON_LABS_GECKO_INTERNAL_SDID_84                                    /**< Silicon Labs internal use only, may change any time */
-#define _SILICON_LABS_EFR32_RADIO_SUBGHZ        1                               /**< Radio supports Sub-GHz */
-#define _SILICON_LABS_EFR32_RADIO_2G4HZ         2                               /**< Radio supports 2.4 GHz */
-#define _SILICON_LABS_EFR32_RADIO_DUALBAND      3                               /**< Radio supports dual band */
-#define _SILICON_LABS_EFR32_RADIO_TYPE          _SILICON_LABS_EFR32_RADIO_2G4HZ /**< Radio type */
-#define _SILICON_LABS_32B_PLATFORM_2                                            /**< @deprecated Silicon Labs platform name */
-#define _SILICON_LABS_32B_PLATFORM              2                               /**< @deprecated Silicon Labs platform name */
-#define _SILICON_LABS_32B_PLATFORM_2_GEN_2                                      /**< @deprecated Platform 2, generation 2 */
-#define _SILICON_LABS_32B_PLATFORM_2_GEN        2                               /**< @deprecated Platform 2, generation 2 */
+#define _EFR32_MIGHTY_FAMILY                    1                                /**< MIGHTY Gecko RF SoC Family  */
+#define _EFR_DEVICE                                                              /**< Silicon Labs EFR-type RF SoC */
+#define _SILICON_LABS_32B_SERIES_1                                               /**< Silicon Labs series number */
+#define _SILICON_LABS_32B_SERIES                1                                /**< Silicon Labs series number */
+#define _SILICON_LABS_32B_SERIES_1_CONFIG_2                                      /**< Series 1, Configuration 2 */
+#define _SILICON_LABS_32B_SERIES_1_CONFIG       2                                /**< Series 1, Configuration 2 */
+#define _SILICON_LABS_GECKO_INTERNAL_SDID       84                               /**< Silicon Labs internal use only, may change any time */
+#define _SILICON_LABS_GECKO_INTERNAL_SDID_84                                     /**< Silicon Labs internal use only, may change any time */
+#define _SILICON_LABS_EFR32_RADIO_SUBGHZ        1                                /**< Radio supports Sub-GHz */
+#define _SILICON_LABS_EFR32_RADIO_2G4HZ         2                                /**< Radio supports 2.4 GHz */
+#define _SILICON_LABS_EFR32_RADIO_DUALBAND      3                                /**< Radio supports dual band */
+#define _SILICON_LABS_EFR32_RADIO_TYPE          _SILICON_LABS_EFR32_RADIO_SUBGHZ /**< Radio type */
+#define _SILICON_LABS_32B_PLATFORM_2                                             /**< @deprecated Silicon Labs platform name */
+#define _SILICON_LABS_32B_PLATFORM              2                                /**< @deprecated Silicon Labs platform name */
+#define _SILICON_LABS_32B_PLATFORM_2_GEN_2                                       /**< @deprecated Platform 2, generation 2 */
+#define _SILICON_LABS_32B_PLATFORM_2_GEN        2                                /**< @deprecated Platform 2, generation 2 */
 
 /* If part number is not defined as compiler option, define it */
-#if !defined(EFR32MG12P232F1024GL125)
-#define EFR32MG12P232F1024GL125    1 /**< MIGHTY Gecko Part */
+#if !defined(EFR32MG12P231F1024GM48)
+#define EFR32MG12P231F1024GM48    1 /**< MIGHTY Gecko Part */
 #endif
 
 /** Configure part number */
-#define PART_NUMBER                "EFR32MG12P232F1024GL125" /**< Part Number */
+#define PART_NUMBER                "EFR32MG12P231F1024GM48" /**< Part Number */
 
 /** Memory Base addresses and limits */
 #define RAM0_CODE_MEM_BASE         (0x10000000UL)          /**< RAM0_CODE base address  */
@@ -247,7 +247,7 @@ typedef enum IRQn{
 #define BITBAND_PER_BASE           (0x42000000UL) /**< Peripheral Address Space bit-band area */
 #define BITBAND_RAM_BASE           (0x22000000UL) /**< SRAM Address Space bit-band area */
 
-/** Flash and SRAM limits for EFR32MG12P232F1024GL125 */
+/** Flash and SRAM limits for EFR32MG12P231F1024GM48 */
 #define FLASH_BASE                 (0x00000000UL) /**< Flash Base Address */
 #define FLASH_SIZE                 (0x00100000UL) /**< Available Flash Memory */
 #define FLASH_PAGE_SIZE            2048U          /**< Flash Memory page size (interleaving off) */
@@ -333,10 +333,10 @@ typedef enum IRQn{
 #include "core_cm4.h"           /* Cortex-M4 processor and core peripherals */
 #include "system_efr32mg12p.h"  /* System Header File */
 
-/** @} End of group EFR32MG12P232F1024GL125_Part */
+/** @} End of group EFR32MG12P231F1024GM48_Part */
 
 /***************************************************************************//**
- * @defgroup EFR32MG12P232F1024GL125_Peripheral_TypeDefs Peripheral TypeDefs
+ * @defgroup EFR32MG12P231F1024GM48_Peripheral_TypeDefs Peripheral TypeDefs
  * @{
  * @brief Device Specific Peripheral Register Structures
  ******************************************************************************/
@@ -384,10 +384,10 @@ typedef enum IRQn{
 #include "efr32mg12p_devinfo.h"
 #include "efr32mg12p_romtable.h"
 
-/** @} End of group EFR32MG12P232F1024GL125_Peripheral_TypeDefs  */
+/** @} End of group EFR32MG12P231F1024GM48_Peripheral_TypeDefs  */
 
 /***************************************************************************//**
- * @defgroup EFR32MG12P232F1024GL125_Peripheral_Base Peripheral Memory Map
+ * @defgroup EFR32MG12P231F1024GM48_Peripheral_Base Peripheral Memory Map
  * @{
  ******************************************************************************/
 
@@ -437,10 +437,10 @@ typedef enum IRQn{
 #define LOCKBITS_BASE     (0x0FE04000UL) /**< Lock-bits page base address */
 #define USERDATA_BASE     (0x0FE00000UL) /**< User data page base address */
 
-/** @} End of group EFR32MG12P232F1024GL125_Peripheral_Base */
+/** @} End of group EFR32MG12P231F1024GM48_Peripheral_Base */
 
 /***************************************************************************//**
- * @defgroup EFR32MG12P232F1024GL125_Peripheral_Declaration Peripheral Declarations
+ * @defgroup EFR32MG12P231F1024GM48_Peripheral_Declaration Peripheral Declarations
  * @{
  ******************************************************************************/
 
@@ -488,10 +488,10 @@ typedef enum IRQn{
 #define DEVINFO      ((DEVINFO_TypeDef *) DEVINFO_BASE)     /**< DEVINFO base pointer */
 #define ROMTABLE     ((ROMTABLE_TypeDef *) ROMTABLE_BASE)   /**< ROMTABLE base pointer */
 
-/** @} End of group EFR32MG12P232F1024GL125_Peripheral_Declaration */
+/** @} End of group EFR32MG12P231F1024GM48_Peripheral_Declaration */
 
 /***************************************************************************//**
- * @defgroup EFR32MG12P232F1024GL125_Peripheral_Offsets Peripheral Offsets
+ * @defgroup EFR32MG12P231F1024GM48_Peripheral_Offsets Peripheral Offsets
  * @{
  ******************************************************************************/
 
@@ -510,10 +510,10 @@ typedef enum IRQn{
 #define WDOG_OFFSET       0x400 /**< Offset in bytes between WDOG instances */
 #define TRNG_OFFSET       0x400 /**< Offset in bytes between TRNG instances */
 
-/** @} End of group EFR32MG12P232F1024GL125_Peripheral_Offsets */
+/** @} End of group EFR32MG12P231F1024GM48_Peripheral_Offsets */
 
 /***************************************************************************//**
- * @defgroup EFR32MG12P232F1024GL125_BitFields Bit Fields
+ * @defgroup EFR32MG12P231F1024GM48_BitFields Bit Fields
  * @{
  ******************************************************************************/
 
@@ -521,9 +521,9 @@ typedef enum IRQn{
 #include "efr32mg12p_dmareq.h"
 
 /***************************************************************************//**
- * @addtogroup EFR32MG12P232F1024GL125_WTIMER
+ * @addtogroup EFR32MG12P231F1024GM48_WTIMER
  * @{
- * @defgroup EFR32MG12P232F1024GL125_WTIMER_BitFields  WTIMER Bit Fields
+ * @defgroup EFR32MG12P231F1024GM48_WTIMER_BitFields  WTIMER Bit Fields
  * @{
  ******************************************************************************/
 
@@ -2024,10 +2024,10 @@ typedef enum IRQn{
 #define WTIMER_DTLOCK_LOCKKEY_UNLOCK                (_WTIMER_DTLOCK_LOCKKEY_UNLOCK << 0)   /**< Shifted mode UNLOCK for WTIMER_DTLOCK */
 
 /** @} */
-/** @} End of group EFR32MG12P232F1024GL125_WTIMER */
+/** @} End of group EFR32MG12P231F1024GM48_WTIMER */
 
 /***************************************************************************//**
- * @defgroup EFR32MG12P232F1024GL125_UNLOCK Unlock Codes
+ * @defgroup EFR32MG12P231F1024GM48_UNLOCK Unlock Codes
  * @{
  ******************************************************************************/
 #define MSC_UNLOCK_CODE      0x1B71 /**< MSC unlock code */
@@ -2038,18 +2038,18 @@ typedef enum IRQn{
 #define TIMER_UNLOCK_CODE    0xCE80 /**< TIMER unlock code */
 #define RTCC_UNLOCK_CODE     0xAEE8 /**< RTCC unlock code */
 
-/** @} End of group EFR32MG12P232F1024GL125_UNLOCK */
+/** @} End of group EFR32MG12P231F1024GM48_UNLOCK */
 
-/** @} End of group EFR32MG12P232F1024GL125_BitFields */
+/** @} End of group EFR32MG12P231F1024GM48_BitFields */
 
 #include "efr32mg12p_af_ports.h"
 #include "efr32mg12p_af_pins.h"
 
-/** @} End of group EFR32MG12P232F1024GL125 */
+/** @} End of group EFR32MG12P231F1024GM48 */
 
 /** @} End of group Parts */
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* EFR32MG12P232F1024GL125_H */
+#endif /* EFR32MG12P231F1024GM48_H */

@@ -1,68 +1,75 @@
-/**************************************************************************//**
- * @file efr32mg12p_prs.h
+/***************************************************************************//**
+ * @file
  * @brief EFR32MG12P_PRS register and bit field definitions
- * @version 5.1.2
- ******************************************************************************
- * @section License
- * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
- ******************************************************************************
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.@n
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.@n
+ *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Laboratories, Inc.
- * has no obligation to support this Software. Silicon Laboratories, Inc. is
- * providing the Software "AS IS", with no express or implied warranties of any
- * kind, including, but not limited to, any implied warranties of
- * merchantability or fitness for any particular purpose or warranties against
- * infringement of any proprietary rights of a third party.
- *
- * Silicon Laboratories, Inc. will not be liable for any consequential,
- * incidental, or special damages, or any other relief, or for any claim by
- * any third party, arising from your use of this Software.
- *
- *****************************************************************************/
-/**************************************************************************//**
-* @addtogroup Parts
-* @{
-******************************************************************************/
-/**************************************************************************//**
- * @defgroup EFR32MG12P_PRS
+ ******************************************************************************/
+
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
+/***************************************************************************//**
+ * @addtogroup Parts
+ * @{
+ ******************************************************************************/
+/***************************************************************************//**
+ * @defgroup EFR32MG12P_PRS PRS
  * @{
  * @brief EFR32MG12P_PRS Register Declaration
- *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t SWPULSE;      /**< Software Pulse Register  */
-  __IOM uint32_t SWLEVEL;      /**< Software Level Register  */
-  __IOM uint32_t ROUTEPEN;     /**< I/O Routing Pin Enable Register  */
-  uint32_t       RESERVED0[1]; /**< Reserved for future use **/
-  __IOM uint32_t ROUTELOC0;    /**< I/O Routing Location Register  */
-  __IOM uint32_t ROUTELOC1;    /**< I/O Routing Location Register  */
-  __IOM uint32_t ROUTELOC2;    /**< I/O Routing Location Register  */
+ ******************************************************************************/
+/** PRS Register Declaration */
+typedef struct {
+  __IOM uint32_t SWPULSE;       /**< Software Pulse Register  */
+  __IOM uint32_t SWLEVEL;       /**< Software Level Register  */
+  __IOM uint32_t ROUTEPEN;      /**< I/O Routing Pin Enable Register  */
+  uint32_t       RESERVED0[1U]; /**< Reserved for future use **/
+  __IOM uint32_t ROUTELOC0;     /**< I/O Routing Location Register  */
+  __IOM uint32_t ROUTELOC1;     /**< I/O Routing Location Register  */
+  __IOM uint32_t ROUTELOC2;     /**< I/O Routing Location Register  */
 
-  uint32_t       RESERVED1[5]; /**< Reserved for future use **/
-  __IOM uint32_t CTRL;         /**< Control Register  */
-  __IOM uint32_t DMAREQ0;      /**< DMA Request 0 Register  */
-  __IOM uint32_t DMAREQ1;      /**< DMA Request 1 Register  */
-  uint32_t       RESERVED2[1]; /**< Reserved for future use **/
-  __IM uint32_t  PEEK;         /**< PRS Channel Values  */
+  uint32_t       RESERVED1[5U]; /**< Reserved for future use **/
+  __IOM uint32_t CTRL;          /**< Control Register  */
+  __IOM uint32_t DMAREQ0;       /**< DMA Request 0 Register  */
+  __IOM uint32_t DMAREQ1;       /**< DMA Request 1 Register  */
+  uint32_t       RESERVED2[1U]; /**< Reserved for future use **/
+  __IM uint32_t  PEEK;          /**< PRS Channel Values  */
 
-  uint32_t       RESERVED3[3]; /**< Reserved registers */
-  PRS_CH_TypeDef CH[12];       /**< Channel registers */
-} PRS_TypeDef;                 /** @} */
+  uint32_t       RESERVED3[3U]; /**< Reserved registers */
+  PRS_CH_TypeDef CH[12U];       /**< Channel registers */
+} PRS_TypeDef;                  /** @} */
 
-/**************************************************************************//**
- * @defgroup EFR32MG12P_PRS_BitFields
+/***************************************************************************//**
+ * @addtogroup EFR32MG12P_PRS
  * @{
- *****************************************************************************/
+ * @defgroup EFR32MG12P_PRS_BitFields  PRS Bit Fields
+ * @{
+ ******************************************************************************/
 
 /* Bit fields for PRS SWPULSE */
 #define _PRS_SWPULSE_RESETVALUE                    0x00000000UL                           /**< Default value for PRS_SWPULSE */
@@ -1078,12 +1085,12 @@ typedef struct
 #define _PRS_CH_CTRL_ANDNEXT_MASK                  0x10000000UL                                   /**< Bit mask for PRS_ANDNEXT */
 #define _PRS_CH_CTRL_ANDNEXT_DEFAULT               0x00000000UL                                   /**< Mode DEFAULT for PRS_CH_CTRL */
 #define PRS_CH_CTRL_ANDNEXT_DEFAULT                (_PRS_CH_CTRL_ANDNEXT_DEFAULT << 28)           /**< Shifted mode DEFAULT for PRS_CH_CTRL */
-#define PRS_CH_CTRL_ASYNC                          (0x1UL << 30)                                  /**< Asynchronous reflex */
+#define PRS_CH_CTRL_ASYNC                          (0x1UL << 30)                                  /**< Asynchronous Reflex */
 #define _PRS_CH_CTRL_ASYNC_SHIFT                   30                                             /**< Shift value for PRS_ASYNC */
 #define _PRS_CH_CTRL_ASYNC_MASK                    0x40000000UL                                   /**< Bit mask for PRS_ASYNC */
 #define _PRS_CH_CTRL_ASYNC_DEFAULT                 0x00000000UL                                   /**< Mode DEFAULT for PRS_CH_CTRL */
 #define PRS_CH_CTRL_ASYNC_DEFAULT                  (_PRS_CH_CTRL_ASYNC_DEFAULT << 30)             /**< Shifted mode DEFAULT for PRS_CH_CTRL */
 
+/** @} */
 /** @} End of group EFR32MG12P_PRS */
 /** @} End of group Parts */
-
