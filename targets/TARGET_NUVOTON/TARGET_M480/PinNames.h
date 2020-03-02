@@ -132,12 +132,14 @@ typedef enum {
 #if TARGET_NUMAKER_PFM_M487
     SW2 = PG_15,
     SW3 = PF_11,
+    BUTTON1 = SW2,
+    BUTTON2 = SW3,
 #elif TARGET_NUMAKER_IOT_M487
     SW2 = PF_11,
     SW3 = PG_5,
-#endif
     BUTTON1 = SW2,
     BUTTON2 = SW3,
+#endif
 
     // Force PinName to 32-bit required by NU_PINNAME_BIND(...)
     FORCE_ENUM_PINNAME_32BIT = 0x7FFFFFFF,
