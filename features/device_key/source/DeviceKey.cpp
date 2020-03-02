@@ -17,7 +17,6 @@
 #include "DeviceKey.h"
 
 #if DEVICEKEY_ENABLED
-#include "mbedtls/config.h"
 #include "mbedtls/cmac.h"
 #include "mbedtls/platform.h"
 #include "features/storage/kvstore/include/KVStore.h"
