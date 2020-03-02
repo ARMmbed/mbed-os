@@ -13992,6 +13992,35 @@
             "network-default-interface-type": "WIFI"
         }
     },
+    "CYSBSYSKIT_01": {
+        "inherits": ["MCU_PSOC6_M4"],
+        "components_add": ["SCL", "43012", "CYW43XXX"],
+        "device_has_remove": ["ANALOGOUT"],
+        "components_remove": ["CM0P_SLEEP"],
+        "extra_labels_add": [
+            "PSOC6_02",
+            "MXCRYPTO_02"
+        ],
+        "macros_add": ["CY8C624AFNI_D43", "CYBSP_WIFI_CAPABLE"],
+        "overrides": {
+            "network-default-interface-type": "WIFI"
+        },
+        "detect_code": ["1912"],
+        "macros_remove": ["CYBSP_WIFI_CAPABLE"],
+        "config": {
+            "np_cloud_disable": {
+                "help": "Value: Tells the np to connect to cloud or not",
+                "value": null
+            },
+            "np_wifi_enable": {
+                "help": "Value: Tells the np to connect to wifi with its network credentials or wait till cp provides network credentials to it",
+                "value": null
+            }
+        },
+        "post_binary_hook": {
+            "function": "PSOC6Code.complete"
+        }
+    },
     "FUTURE_SEQUANA_M0": {
         "inherits": [
             "MCU_PSOC6_M0"
