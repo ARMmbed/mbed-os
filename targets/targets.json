@@ -14010,11 +14010,11 @@
         "config": {
             "np_cloud_disable": {
                 "help": "Value: Tells the np to connect to cloud or not",
-                "value": null
+                "value": false
             },
             "np_wifi_enable": {
                 "help": "Value: Tells the np to connect to wifi with its network credentials or wait till cp provides network credentials to it",
-                "value": null
+                "value": false
             }
         },
         "post_binary_hook": {
