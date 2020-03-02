@@ -1,0 +1,99 @@
+[Device=CY8C624AFNI-D43]
+
+[Blocks]
+# WIFI
+# CYBSP_WIFI_SDIO
+sdhc[0]
+# CYBSP_WIFI_SDIO_D0
+ioss[0].port[2].pin[0]
+# CYBSP_WIFI_SDIO_D1
+ioss[0].port[2].pin[1]
+# CYBSP_WIFI_SDIO_D2
+ioss[0].port[2].pin[2]
+# CYBSP_WIFI_SDIO_D3
+ioss[0].port[2].pin[3]
+# CYBSP_WIFI_SDIO_CMD
+ioss[0].port[2].pin[4]
+# CYBSP_WIFI_SDIO_CLK
+ioss[0].port[2].pin[5]
+# CYBSP_WIFI_WL_REG_ON
+ioss[0].port[2].pin[6]
+# CYBSP_WIFI_DEVICE_WAKE
+ioss[0].port[2].pin[7]
+# CYBSP_WIFI_HOST_WAKE
+ioss[0].port[1].pin[4]
+
+# BT UART
+# CYBSP_BT_UART
+scb[12]
+# CYBSP_BT_POWER
+ioss[0].port[12].pin[0]
+# CYBSP_BT_DEVICE_WAKE
+ioss[0].port[12].pin[2]
+# CYBSP_BT_HOST_WAKE
+ioss[0].port[12].pin[3]
+# CYBSP_BT_UART_RX
+ioss[0].port[13].pin[4]
+# CYBSP_BT_UART_TX
+ioss[0].port[13].pin[5]
+# CYBSP_BT_UART_RTS
+ioss[0].port[13].pin[6]
+# CYBSP_BT_UART_CTS
+ioss[0].port[13].pin[7]
+# CYBSP_BT_UART_CLK_DIV
+peri[0].div_16[1]
+
+# UART
+# CYBSP_DEBUG_UART
+scb[10]
+# CYBSP_DEBUG_UART_RX
+ioss[0].port[5].pin[4]
+# CYBSP_DEBUG_UART_TX
+ioss[0].port[5].pin[5]
+# CYBSP_DEBUG_UART_CLK_DIV
+peri[0].div_16[0]
+
+# POWER
+srss[0].power[0]
+
+# SYSTEM CLOCK
+srss[0].clock[0]
+# CLK_ALT_SYS_TICK
+srss[0].clock[0].altsystickclk[0]
+# CLK_BAK
+srss[0].clock[0].bakclk[0]
+# CLK_FAST
+srss[0].clock[0].fastclk[0]
+# CLK_HF0
+srss[0].clock[0].hfclk[0]
+# CLK_HF2
+srss[0].clock[0].hfclk[2]
+# CLK_HF4
+srss[0].clock[0].hfclk[4]
+# CLK_ILO
+srss[0].clock[0].ilo[0]
+# CLK_IMO
+srss[0].clock[0].imo[0]
+# CLK_LF
+srss[0].clock[0].lfclk[0]
+# PATH_MUX0
+srss[0].clock[0].pathmux[0]
+# PATH_MUX1
+srss[0].clock[0].pathmux[1]
+# CLK_PERI
+srss[0].clock[0].periclk[0]
+# CLK_PLL0
+srss[0].clock[0].pll[0]
+# CLK_SLOW
+srss[0].clock[0].slowclk[0]
+# CLK_TIMER
+srss[0].clock[0].timerclk[0]
+
+# RTC
+srss[0].rtc[0]
+
+# CM0(NP) I2C
+# CYBSP_I2C_SCL
+ioss[0].port[8].pin[0]
+# CYBSP_I2C_SDA
+ioss[0].port[8].pin[1]
