@@ -9,8 +9,7 @@ All what can be defined should be in CMake files and configuration (app/mbed .js
 
 To stay backward compatible, we create common rules as follows.
 
-We replace current `TOOLCHAIN_`, `FEATURE_`, `TARGET_` by providing `add_subdirectory` macros. There would be `if_target()`, `if_feature()`, `_if_toolchain()` macros for better readability. This way we should be able to select what should be included in the final image.
-
+We replace current `TOOLCHAIN_`, `FEATURE_`, `TARGET_` by providing `add_subdirectory` macros. There would be `if_target()`, `if_feature()`, `_if_toolchain()` macros for better readability.
 
 Example, to add stm_directory only for STM targets (current rule TARGET_STM):
 
@@ -18,8 +17,6 @@ Example, to add stm_directory only for STM targets (current rule TARGET_STM):
 add_subdirectory_if_target(STM stm_directory)
 
 ```
-
-As we generate CMakes in the application, we would scan all paths and would add this macro to all CMakes that have TARGET_STM in them.
 
 Application example:
 
@@ -70,19 +67,32 @@ This file statically defines the structure of the module within Mbed OS. It's co
 add_subdirectory(drivers)
 ```
 
-Conditionally directories addition:
+Conditionally directories addition based on the config:
 
 ```
-add_subdirectory_if_def(CONFIG_REQUIRES_RTOS rtos)
+add_subdirectory_if_config(CONFIG_REQUIRES_RTOS rtos)
 ```
+
+Conditionally directories addition based on the target/toolchain/feature.
 
 
 ```
-add_subdirectory_if_target(TARGET_STM targets\TARGET_STM)
+add_subdirectory_if_target(STM targets\TARGET_STM)
+add_subdirectory_if_toolchain(GCC_ARM cmsis\TARGET_GCC_ARM)
+add_subdirectory_if_feature(BLE ble\FEATURE_BLE)
 ```
+
 
 ## Application CMake
 
-We should provide application CMake functionality along with a config.
+We should provide application CMake functionality with  our own configuration. There are couple of approaches we could take. Statically defined CMake but then this disconnectes config and CMake - as CMake contains configuration for a project (like includes, sources, etc). Our build tool would need to parse CMake to get all paths used in the project or Mbed OS to find out where to look for configuration file.
 
-TODO: describe here how application would work and could be staticly defined or dynamically
+A user create own CMake file to configure an application, also with `mbed_app.json` configuration file. The building of an app would look like:
+
+1. Parse the arguments provided to build command
+2. Parse the application configuration
+3. Get the target configuration
+4. Get the Mbed OS configuration
+5. Create the toolchain.cmake file
+6. Inject all previous steps to the Mbed OS Core CMake
+7. Build an application
