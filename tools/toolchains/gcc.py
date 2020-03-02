@@ -412,7 +412,7 @@ class GCC(mbedToolchain):
         stdout, stderr, rc = run_cmd(cmd, work_dir=getcwd(), chroot=self.CHROOT)
         if rc != 0:
             return False
-        match = self.DWARF_PRODUCER_RE.search(stdout.encode('utf-8'))
+        match = self.DWARF_PRODUCER_RE.search(stdout)
         if match:
             dw_producer = match.group('producer')
         return 'GNU AS' in dw_producer
