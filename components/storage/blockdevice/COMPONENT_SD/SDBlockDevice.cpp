@@ -149,6 +149,7 @@
 #include <errno.h>
 
 using namespace mbed;
+using namespace std::chrono;
 
 #ifndef MBED_CONF_SD_CMD_TIMEOUT
 #define MBED_CONF_SD_CMD_TIMEOUT                 5000   /*!< Timeout in ms for response */
@@ -163,7 +164,7 @@ using namespace mbed;
 #endif
 
 
-#define SD_COMMAND_TIMEOUT                       MBED_CONF_SD_CMD_TIMEOUT
+#define SD_COMMAND_TIMEOUT                       milliseconds{MBED_CONF_SD_CMD_TIMEOUT}
 #define SD_CMD0_GO_IDLE_STATE_RETRIES            MBED_CONF_SD_CMD0_IDLE_STATE_RETRIES
 #define SD_DBG                                   0      /*!< 1 - Enable debugging */
 #define SD_CMD_TRACE                             0      /*!< 1 - Enable SD command tracing */
@@ -355,7 +356,7 @@ int SDBlockDevice::_initialise_card()
     _spi_timer.start();
     do {
         status = _cmd(ACMD41_SD_SEND_OP_COND, arg, 1, &response);
-    } while ((response & R1_IDLE_STATE) && (_spi_timer.read_ms() < SD_COMMAND_TIMEOUT));
+    } while ((response & R1_IDLE_STATE) && (_spi_timer.elapsed_time() < SD_COMMAND_TIMEOUT));
     _spi_timer.stop();
 
     // Initialization complete: ACMD41 successful
@@ -894,7 +895,7 @@ uint32_t SDBlockDevice::_go_idle_state()
         if (R1_IDLE_STATE == response) {
             break;
         }
-        rtos::ThisThread::sleep_for(1);
+        rtos::ThisThread::sleep_for(1ms);
     }
     return response;
 }
@@ -1093,7 +1094,7 @@ bool SDBlockDevice::_wait_token(uint8_t token)
             _spi_timer.stop();
             return true;
         }
-    } while (_spi_timer.read_ms() < 300);       // Wait for 300 msec for start token
+    } while (_spi_timer.elapsed_time() < 300ms);       // Wait for 300 msec for start token
     _spi_timer.stop();
     debug_if(SD_DBG, "_wait_token: timeout\n");
     return false;
@@ -1101,7 +1102,7 @@ bool SDBlockDevice::_wait_token(uint8_t token)
 
 // SPI function to wait till chip is ready
 // The host controller should wait for end of the process until DO goes high (a 0xFF is received).
-bool SDBlockDevice::_wait_ready(uint16_t ms)
+bool SDBlockDevice::_wait_ready(std::chrono::duration<uint32_t, std::milli> timeout)
 {
     uint8_t response;
     _spi_timer.reset();
@@ -1112,7 +1113,7 @@ bool SDBlockDevice::_wait_ready(uint16_t ms)
             _spi_timer.stop();
             return true;
         }
-    } while (_spi_timer.read_ms() < ms);
+    } while (_spi_timer.elapsed_time() < timeout);
     _spi_timer.stop();
     return false;
 }
