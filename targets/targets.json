@@ -13993,20 +13993,37 @@
         }
     },
     "CYSBSYSKIT_01": {
-        "inherits": ["MCU_PSOC6_M4"],
-        "components_add": ["SCL", "43012", "CYW43XXX"],
-        "device_has_remove": ["ANALOGOUT"],
-        "components_remove": ["CM0P_SLEEP"],
+        "inherits": [
+            "MCU_PSOC6_M4"
+        ],
+        "components_add": [
+            "SCL",
+            "43012",
+            "CYW43XXX"
+        ],
+        "device_has_remove": [
+            "ANALOGOUT"
+        ],
+        "components_remove": [
+            "CM0P_SLEEP"
+        ],
         "extra_labels_add": [
             "PSOC6_02",
             "MXCRYPTO_02"
         ],
-        "macros_add": ["CY8C624AFNI_D43", "CYBSP_WIFI_CAPABLE"],
+        "macros_add": [
+            "CY8C624AFNI_D43",
+            "CYBSP_WIFI_CAPABLE"
+        ],
         "overrides": {
             "network-default-interface-type": "WIFI"
         },
-        "detect_code": ["1912"],
-        "macros_remove": ["CYBSP_WIFI_CAPABLE"],
+        "detect_code": [
+            "1912"
+        ],
+        "macros_remove": [
+            "CYBSP_WIFI_CAPABLE"
+        ],
         "config": {
             "np_cloud_disable": {
                 "help": "Value: Tells the np to connect to cloud or not",
