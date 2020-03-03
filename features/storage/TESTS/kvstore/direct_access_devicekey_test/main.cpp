@@ -94,7 +94,7 @@ int  get_virtual_TDBStore_position(uint32_t conf_start_address, uint32_t conf_si
     } else {
         bd_addr_t default_start;
         bd_size_t default_size;
-        TDBStore::get_default_flash_addresses(&default_start, &default_size);
+        kv_get_default_flash_addresses(&default_start, &default_size);
         aligned_start_address = (uint32_t)default_start;
         bd_final_size = (uint32_t)default_size;
     }

@@ -24,6 +24,7 @@
 #include "MbedCRC.h"
 #include "mbed_trace.h"
 #include "TDBStore.h"
+#include "kv_config.h"
 #define TRACE_GROUP "DADK"
 
 using namespace mbed;
@@ -145,13 +146,13 @@ int get_expected_internal_TDBStore_position(uint32_t *out_tdb_start_offset, uint
 
     int ret;
     if ((tdb_start_address == 0) && (tdb_size == 0)) {
-        ret = TDBStore::get_default_flash_addresses(&tdb_start_address, &tdb_size);
+        ret = kv_get_default_flash_addresses(&tdb_start_address, &tdb_size);
         if (ret != MBED_SUCCESS) {
             return MBED_ERROR_FAILED_OPERATION;
         }
     }
 
-    ret = TDBStore::get_flash_bounds_from_config(&tdb_start_address, &tdb_size);
+    ret = kv_get_flash_bounds_from_config(&tdb_start_address, &tdb_size);
     if (ret != MBED_SUCCESS) {
         return MBED_ERROR_FAILED_OPERATION;
     }
