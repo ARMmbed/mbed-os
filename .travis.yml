@@ -81,6 +81,8 @@ matrix:
         - |
           if [ $COUNT == 0 ]; then
               echo "License check OK";
+              STATUSM="All licenses OK";
+              set_status "success" "$STATUSM";
             else
               echo "License check failed, please review license issues found";
               STATUSM="Needs review, ${COUNT} license issues found";
