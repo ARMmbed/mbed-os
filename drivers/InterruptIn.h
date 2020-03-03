@@ -57,7 +57,7 @@ namespace mbed {
  *     event.rise(&trigger);
  *     while(1) {
  *         led = !led;
- *         wait(0.25);
+ *         thread_sleep_for(250);
  *     }
  * }
  * @endcode

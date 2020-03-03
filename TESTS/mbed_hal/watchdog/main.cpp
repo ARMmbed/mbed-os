@@ -100,7 +100,7 @@ void test_stop()
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&WDG_CONFIG_DEFAULT));
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_stop());
     // Make sure that a disabled watchdog does not reset the core.
-    wait_ms(2 * WDG_TIMEOUT_MS); // Watchdog should fire before twice the timeout value.
+    thread_sleep_for(2 * WDG_TIMEOUT_MS); // Watchdog should fire before twice the timeout value.
 
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_stop());
 }
@@ -170,7 +170,7 @@ utest::v1::status_t case_teardown_sync_on_reset(const Case *const source, const 
     }
     greentea_send_kv(MSG_KEY_DEVICE_RESET, CASE_INDEX_START + CASE_INDEX_CURRENT);
     utest_printf("The device will now restart.\n");
-    wait_ms(SERIAL_FLUSH_TIME_MS); // Wait for the serial buffers to flush.
+    thread_sleep_for(SERIAL_FLUSH_TIME_MS); // Wait for the serial buffers to flush.
     NVIC_SystemReset();
     return status; // Reset is instant so this line won't be reached.
 }

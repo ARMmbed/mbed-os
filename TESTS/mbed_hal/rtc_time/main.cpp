@@ -187,7 +187,7 @@ void test_set_time_twice()
     TEST_ASSERT_EQUAL(true, (current_time == NEW_TIME));
 
     /* Wait 2 seconds */
-    wait_ms(2000);
+    thread_sleep_for(2000);
 
     /* set the time to NEW_TIME again and check it */
     set_time(NEW_TIME);

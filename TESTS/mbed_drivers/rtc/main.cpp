@@ -451,7 +451,7 @@ void test_functional_count()
     set_time(CUSTOM_TIME_2);
 
     /* Wait 10 sec. */
-    wait_ms(DELAY_10_SEC * MS_PER_SEC);
+    thread_sleep_for(DELAY_10_SEC * MS_PER_SEC);
 
     /* Get time. */
     seconds = time(NULL);

@@ -155,7 +155,7 @@ void test_dual_thread_nolock(void)
 
     thread.start(callback(F, &mutex));
 
-    wait_ms(TEST_DELAY);
+    ThisThread::sleep_for(TEST_DELAY);
 }
 
 void test_dual_thread_lock_unlock_thread(Mutex *mutex)
@@ -184,7 +184,7 @@ void test_dual_thread_lock_unlock(void)
 
     mutex.unlock();
 
-    wait_ms(TEST_DELAY);
+    ThisThread::sleep_for(TEST_DELAY);
 }
 
 void test_dual_thread_lock_trylock_thread(Mutex *mutex)
@@ -228,7 +228,7 @@ void test_dual_thread_lock(void)
 
     thread.start(callback(F, &mutex));
 
-    wait_ms(TEST_LONG_DELAY);
+    ThisThread::sleep_for(TEST_LONG_DELAY);
 
     mutex.unlock();
 }

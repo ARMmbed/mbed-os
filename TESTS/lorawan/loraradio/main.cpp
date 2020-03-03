@@ -61,7 +61,7 @@ static volatile event_t received_event;
 
 static void tx_done()
 {
-    wait_ms(2);
+    thread_sleep_for(2);
     TEST_ASSERT_EQUAL(EV_NONE, received_event);
     received_event = EV_TX_DONE;
     TEST_ASSERT_EQUAL(osOK, event_sem.release());
@@ -69,7 +69,7 @@ static void tx_done()
 
 static void tx_timeout()
 {
-    wait_ms(2);
+    thread_sleep_for(2);
     TEST_ASSERT_EQUAL(EV_NONE, received_event);
     received_event = EV_TX_TIMEOUT;
     TEST_ASSERT_EQUAL(osOK, event_sem.release());
@@ -77,7 +77,7 @@ static void tx_timeout()
 
 static void rx_done(const uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr)
 {
-    wait_ms(2);
+    thread_sleep_for(2);
     TEST_ASSERT_EQUAL(EV_NONE, received_event);
     received_event = EV_RX_DONE;
     TEST_ASSERT_EQUAL(osOK, event_sem.release());
@@ -85,7 +85,7 @@ static void rx_done(const uint8_t *payload, uint16_t size, int16_t rssi, int8_t 
 
 static void rx_timeout()
 {
-    wait_ms(2);
+    thread_sleep_for(2);
     TEST_ASSERT_EQUAL(EV_NONE, received_event);
     received_event = EV_RX_TIMEOUT;
     TEST_ASSERT_EQUAL(osOK, event_sem.release());
@@ -93,7 +93,7 @@ static void rx_timeout()
 
 static void rx_error()
 {
-    wait_ms(2);
+    thread_sleep_for(2);
     TEST_ASSERT_EQUAL(EV_NONE, received_event);
     received_event = EV_RX_ERROR;
     TEST_ASSERT_EQUAL(osOK, event_sem.release());
