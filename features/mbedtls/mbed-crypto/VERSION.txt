@@ -1,1 +1,1 @@
-mbedcrypto-3.0.0d0
+mbedcrypto-3.0.1
