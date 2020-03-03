@@ -14017,6 +14017,7 @@
                 "value": false
             }
         },
+        "forced_reset_timeout": 5,
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         }
