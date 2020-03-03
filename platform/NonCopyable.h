@@ -91,18 +91,16 @@ namespace mbed {
  * in the base declaration.
  *
  * To solve that problem, the copy constructor and assignment operator have to
- * be declared (but don't need to be defined) in the private section of the
- * Connection class:
+ * be defined as deleted:
  *
  * @code
  * struct Connection {
- * private:
- *     Connection(const Connection&);
- *     Connection& operator=(const Connection&);
+ *     Connection(const Connection &) = delete;
+ *     Connection &operator=(const Connection &) = delete;
  * }
  * @endcode
  *
- * Although manually declaring private copy constructor and assignment functions
+ * Although manually defining deleted copy constructor and assignment functions
  * works, it is not ideal. These declarations are usually easy to forget,
  * not immediately visible, and may be obscure to uninformed programmers.
  *
@@ -211,18 +209,18 @@ protected:
     }
 
 #else
-private:
+public:
     /**
-     * Declare copy constructor as private. Any attempt to copy construct
+     * Define copy constructor as deleted. Any attempt to copy construct
      * a NonCopyable will fail at compile time.
      */
-    NonCopyable(const NonCopyable &);
+    NonCopyable(const NonCopyable &) = delete;
 
     /**
-     * Declare copy assignment operator as private. Any attempt to copy assign
+     * Define copy assignment operator as deleted. Any attempt to copy assign
      * a NonCopyable will fail at compile time.
      */
-    NonCopyable &operator=(const NonCopyable &);
+    NonCopyable &operator=(const NonCopyable &) = delete;
 #endif
 #endif
 };
