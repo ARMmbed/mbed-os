@@ -12791,7 +12791,6 @@
             "Target"
         ],
         "macros_add": [
-            "MBEDTLS_CONFIG_HW_SUPPORT",
             "LPTICKER_DELAY_TICKS=4"
         ],
         "device_has": [
@@ -12841,6 +12840,9 @@
         "components_add": [
             "FLASHIAP"
         ],
+        "macros_add": [
+            "MBEDTLS_CONFIG_HW_SUPPORT"
+        ],
         "device_name": "M487JIDAE",
         "detect_code": [
             "1304"
@@ -12855,6 +12857,9 @@
         ],
         "components_add": [
             "FLASHIAP"
+        ],
+        "macros_add": [
+            "MBEDTLS_CONFIG_HW_SUPPORT"
         ],
         "device_name": "M487JIDAE",
         "detect_code": [
