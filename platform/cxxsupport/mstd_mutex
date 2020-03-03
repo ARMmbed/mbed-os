@@ -46,6 +46,8 @@
 
 #include <mstd_utility>
 #include <mstd_functional>
+#include <mstd_tuple>
+#include <chrono>
 
 #include "mbed_atomic.h"
 #include "mbed_assert.h"
@@ -105,12 +107,10 @@ public:
     unique_lock(mutex_type &m, defer_lock_t) noexcept : pm(&m), owns(false) { }
     unique_lock(mutex_type &m, try_to_lock_t) : pm(&m), owns(m.try_lock()) { }
     unique_lock(mutex_type &m, adopt_lock_t) : pm(&m), owns(true)  { }
-#if 0 // disabled until we have functional mstd::chrono for all toolchains
     template <class Clock, class Duration>
-    unique_lock(mutex_type &m, const chrono::time_point<Clock, Duration> &abs_time) : pm(&m), owns(m.try_lock_until(abs_time)) { }
+    unique_lock(mutex_type &m, const std::chrono::time_point<Clock, Duration> &abs_time) : pm(&m), owns(m.try_lock_until(abs_time)) { }
     template <class Rep, class Period>
-    unique_lock(mutex_type &m, const chrono::duration<Rep, Period> &rel_time) : pm(&m), owns(m.try_lock_for(rel_time)) { }
-#endif
+    unique_lock(mutex_type &m, const std::chrono::duration<Rep, Period> &rel_time) : pm(&m), owns(m.try_lock_for(rel_time)) { }
     ~unique_lock() { if (owns) pm->unlock(); }
 
     unique_lock(const unique_lock &) = delete;
@@ -141,19 +141,17 @@ public:
         return owns = pm->try_lock();
     }
 
-#if 0 // disabled until we have functional mstd::chrono for all toolchains
     template <class Clock, class Duration>
-    bool try_lock_until(const chrono::time_point<Clock, Duration> &abs_time) {
+    bool try_lock_until(const std::chrono::time_point<Clock, Duration> &abs_time) {
         MBED_ASSERT(!owns);
         return owns = pm->try_lock_until(abs_time);
     }
 
     template <class Rep, class Period>
-    bool try_lock_for(const chrono::duration<Rep, Period> &rel_time) {
+    bool try_lock_for(const std::chrono::duration<Rep, Period> &rel_time) {
         MBED_ASSERT(!owns);
         return owns = pm->try_lock_for(rel_time);
     }
-#endif
 
     void unlock() {
         MBED_ASSERT(owns);
@@ -313,9 +311,8 @@ using std::scoped_lock;
 // [thread.lock.scoped]
 // 2+ locks - use std::lock
 template <class... MutexTypes>
-class scoped_lock
-#if 0 // no definition yet - needs tuple
-    tuple<MutexTypes &...> pm;
+class scoped_lock {
+    mstd::tuple<MutexTypes &...> pm;
     static void ignore(...) { }
 public:
     explicit scoped_lock(MutexTypes &... m) : pm(tie(m...)) { mstd::lock(m...); }
@@ -324,10 +321,7 @@ public:
 
     scoped_lock(const scoped_lock &) = delete;
     scoped_lock &operator=(const scoped_lock &) = delete;
-}
-#else
-;
-#endif
+};
 
 // 0 locks - no-op
 template <>
