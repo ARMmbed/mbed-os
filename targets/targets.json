@@ -12828,7 +12828,6 @@
         ],
         "bootloader_supported": true,
         "overrides": {
-            "network-default-interface-type": "ETHERNET",
             "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
         }
@@ -12848,7 +12847,8 @@
             "1304"
         ],
         "overrides": {
-            "spim-ccm-enable": 1
+            "spim-ccm-enable": 1,
+            "network-default-interface-type": "ETHERNET"
         }
     },
     "NUMAKER_IOT_M487": {
@@ -12866,7 +12866,8 @@
             "1308"
         ],
         "overrides": {
-            "spim-ccm-enable": 1
+            "spim-ccm-enable": 1,
+            "network-default-interface-type": "WIFI"
         }
     },
     "TMPM066": {
