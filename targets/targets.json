@@ -12762,6 +12762,10 @@
             "IAR"
         ],
         "config": {
+            "spim-ccm-enable": {
+                "help": "Enable SPIM CCM mode to spare 32KiB SRAM for normal use",
+                "value": 0
+            },
             "gpio-irq-debounce-enable": {
                 "help": "Enable GPIO IRQ debounce",
                 "value": 0
@@ -12840,7 +12844,10 @@
         "device_name": "M487JIDAE",
         "detect_code": [
             "1304"
-        ]
+        ],
+        "overrides": {
+            "spim-ccm-enable": 1
+        }
     },
     "NUMAKER_IOT_M487": {
         "inherits": [
@@ -12852,7 +12859,10 @@
         "device_name": "M487JIDAE",
         "detect_code": [
             "1308"
-        ]
+        ],
+        "overrides": {
+            "spim-ccm-enable": 1
+        }
     },
     "TMPM066": {
         "inherits": [
