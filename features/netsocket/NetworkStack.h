@@ -477,14 +477,18 @@ private:
 
 /** Convert a raw nsapi_stack_t object into a C++ NetworkStack object
  *
- *  @param stack    Reference to an object that can be converted to a stack
+ *  @param stack    Pointer to an object that can be converted to a stack
  *                  - A raw nsapi_stack_t object
- *                  - A reference to a network stack
- *                  - A reference to a network interface
- *  @return         Reference to the underlying network stack
+ *                  - A pointer to a network stack
+ *                  - A pointer to a network interface
+ *  @return         Pointer to the underlying network stack
  */
 NetworkStack *nsapi_create_stack(nsapi_stack_t *stack);
-NetworkStack *nsapi_create_stack(NetworkStack *stack);
+
+inline NetworkStack *nsapi_create_stack(NetworkStack *stack)
+{
+    return stack;
+}
 
 template <typename IF>
 NetworkStack *nsapi_create_stack(IF *iface)
