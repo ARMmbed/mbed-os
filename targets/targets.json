@@ -14022,7 +14022,8 @@
             "1912"
         ],
         "macros_remove": [
-            "CYBSP_WIFI_CAPABLE"
+            "CYBSP_WIFI_CAPABLE",
+            "MBED_TICKLESS"
         ],
         "config": {
             "np_cloud_disable": {
