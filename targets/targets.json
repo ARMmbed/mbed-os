@@ -12823,6 +12823,9 @@
             "RESET_REASON",
             "USBDEVICE"
         ],
+        "components_add": [
+            "FLASHIAP"
+        ],
         "release_versions": [
             "5"
         ],
@@ -12835,9 +12838,6 @@
     "NUMAKER_PFM_M487": {
         "inherits": [
             "MCU_M480"
-        ],
-        "components_add": [
-            "FLASHIAP"
         ],
         "macros_add": [
             "MBEDTLS_CONFIG_HW_SUPPORT"
@@ -12854,9 +12854,6 @@
     "NUMAKER_IOT_M487": {
         "inherits": [
             "MCU_M480"
-        ],
-        "components_add": [
-            "FLASHIAP"
         ],
         "macros_add": [
             "MBEDTLS_CONFIG_HW_SUPPORT"
