@@ -194,12 +194,6 @@ int _calculate_blocksize_match_tdbstore(BlockDevice *bd)
         return -1;
     }
 
-    if (number_of_page < STORE_PAGES) {
-        tr_error("KV Config: There are less than %d pages - TDBStore will not work.", STORE_PAGES);
-        return -1;
-    }
-
-
     if (number_of_sector % 2 != 0) {
         tr_warning("KV Config: Number of sectors is not an even number. Consider changing the BlockDevice size");
     }
@@ -600,7 +594,7 @@ int _create_internal_tdb(BlockDevice **internal_bd, KVStore **internal_tdb, bd_s
 
     //Check if TDBStore has at least 2 sectors or 14 pages.
     if (_calculate_blocksize_match_tdbstore(*internal_bd) != MBED_SUCCESS) {
-        tr_error("KV Config: Can not create TDBStore with less then %d sectors or %d pages.", STORE_SECTORS, STORE_PAGES);
+        tr_error("KV Config: Can not create TDBStore with less then %d sectors.", STORE_SECTORS);
         return MBED_ERROR_INVALID_ARGUMENT;
     }
 
