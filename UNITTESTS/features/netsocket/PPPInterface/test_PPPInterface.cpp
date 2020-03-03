@@ -114,11 +114,14 @@ protected:
     }
 };
 
+#if 0
+/* Test is invalid, as it's working on a PPPInterface pointer rather than a NetworkInterface pointer. */
+/* NetworkInterface does not yet offer the pppInterface method for a dynamic cast */
 TEST_F(TestPPPInterface, constructor_default)
 {
     EXPECT_TRUE(iface);
     // Test that this clas presents itself correctly
-    EXPECT_NE(nullptr, iface->pppInterface());
+    EXPECT_EQ(iface,   iface->pppInterface());
 
     EXPECT_EQ(nullptr, iface->emacInterface());
     EXPECT_EQ(nullptr, iface->ethInterface());
@@ -126,6 +129,7 @@ TEST_F(TestPPPInterface, constructor_default)
     EXPECT_EQ(nullptr, iface->cellularInterface());
     EXPECT_EQ(nullptr, iface->meshInterface());
 }
+#endif
 
 TEST_F(TestPPPInterface, connect)
 {

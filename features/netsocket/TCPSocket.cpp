@@ -23,19 +23,14 @@ TCPSocket::TCPSocket()
     _socket_stats.stats_update_proto(this, NSAPI_TCP);
 }
 
-TCPSocket::TCPSocket(TCPSocket *parent, nsapi_socket_t socket, SocketAddress address)
+TCPSocket::TCPSocket(TCPSocket *parent, nsapi_socket_t socket, SocketAddress address) : TCPSocket()
 {
     _socket = socket;
     _stack = parent->_stack;
     _factory_allocated = true;
     _remote_peer = address;
-    _socket_stats.stats_new_socket_entry(this);
     _event = mbed::Callback<void()>(this, &TCPSocket::event);
-    _stack->socket_attach(socket, &mbed::Callback<void()>::thunk, &_event);
-}
-
-TCPSocket::~TCPSocket()
-{
+    _stack->socket_attach(socket, _event.thunk, &_event);
 }
 
 nsapi_protocol_t TCPSocket::get_proto()

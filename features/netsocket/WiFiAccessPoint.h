@@ -64,7 +64,7 @@ public:
     uint8_t get_channel() const;
 
 private:
-    nsapi_wifi_ap_t _ap;
+    nsapi_wifi_ap_t _ap {};
 };
 
 #endif

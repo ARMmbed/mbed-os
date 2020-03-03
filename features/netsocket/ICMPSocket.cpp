@@ -15,8 +15,6 @@
  */
 
 #include "ICMPSocket.h"
-#include "Timer.h"
-#include "mbed_assert.h"
 
 ICMPSocket::ICMPSocket()
 {

@@ -37,15 +37,6 @@ TLSSocket::~TLSSocket()
 
 #else // MBED_CONF_NSAPI_OFFLOAD_TLSSOCKET
 
-TLSSocket::TLSSocket()
-{
-}
-
-TLSSocket::~TLSSocket()
-{
-}
-
-
 nsapi_error_t TLSSocket::set_hostname(const char *hostname)
 {
     return setsockopt(NSAPI_TLSSOCKET_LEVEL, NSAPI_TLSSOCKET_SET_HOSTNAME, hostname, strlen(hostname));

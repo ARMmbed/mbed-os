@@ -21,12 +21,7 @@
 using namespace mbed;
 
 InternetSocket::InternetSocket()
-    : _stack(0), _socket(0), _timeout(osWaitForever),
-      _remote_peer(),
-      _readers(0), _writers(0),
-      _factory_allocated(false)
 {
-    core_util_atomic_flag_clear(&_pending);
     _socket_stats.stats_new_socket_entry(this);
 }
 
@@ -55,7 +50,7 @@ nsapi_error_t InternetSocket::open(NetworkStack *stack)
     _socket_stats.stats_update_socket_state(this, SOCK_OPEN);
     _socket = socket;
     _event = callback(this, &InternetSocket::event);
-    _stack->socket_attach(_socket, Callback<void()>::thunk, &_event);
+    _stack->socket_attach(_socket, _event.thunk, &_event);
     _interface_name[0] = '\0';
     _lock.unlock();
     return NSAPI_ERROR_OK;

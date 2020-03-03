@@ -182,6 +182,9 @@ public:
      * @param len      Payload size, must be less or equal to the allocated size
      */
     virtual void set_len(net_stack_mem_buf_t *buf, uint32_t len) = 0;
+
+protected:
+    ~NetStackMemoryManager() = default;
 };
 
 #endif /* NET_STACK_MEMORY_MANAGER_H */

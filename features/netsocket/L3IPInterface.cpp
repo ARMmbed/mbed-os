@@ -24,13 +24,7 @@ using namespace mbed;
 /* Interface implementation */
 L3IPInterface::L3IPInterface(L3IP &l3ip, OnboardNetworkStack &stack) :
     _l3ip(l3ip),
-    _stack(stack),
-    _interface(NULL),
-    _dhcp(true),
-    _blocking(true),
-    _ip_address(),
-    _netmask(),
-    _gateway()
+    _stack(stack)
 {
 }
 

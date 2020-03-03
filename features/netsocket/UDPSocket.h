@@ -50,7 +50,7 @@ public:
                           "The UDPSocket(S *stack) constructor is deprecated"
                           "It discards the open() call return value."
                           "Use another constructor and call open() explicitly, instead.")
-    UDPSocket(S *stack)
+    UDPSocket(S *stack) : UDPSocket()
     {
         open(stack);
     }
@@ -58,7 +58,7 @@ public:
 #if !defined(DOXYGEN_ONLY)
 
 protected:
-    virtual nsapi_protocol_t get_proto();
+    nsapi_protocol_t get_proto() override;
 
 #endif //!defined(DOXYGEN_ONLY)
 

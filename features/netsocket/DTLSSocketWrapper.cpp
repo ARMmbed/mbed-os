@@ -24,10 +24,7 @@
 #if defined(MBEDTLS_SSL_CLI_C)
 
 DTLSSocketWrapper::DTLSSocketWrapper(Socket *transport, const char *hostname, control_transport control) :
-    TLSSocketWrapper(transport, hostname, control),
-    _int_ms_tick(0),
-    _timer_event_id(0),
-    _timer_expired(false)
+    TLSSocketWrapper(transport, hostname, control)
 {
     mbedtls_ssl_conf_transport(get_ssl_config(), MBEDTLS_SSL_TRANSPORT_DATAGRAM);
     mbedtls_ssl_set_timer_cb(get_ssl_context(), this, timing_set_delay, timing_get_delay);

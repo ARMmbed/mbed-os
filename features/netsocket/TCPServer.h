@@ -54,12 +54,6 @@ public:
         open(stack);
     }
 
-    /** Destroy a socket
-     *
-     *  Closes socket if the socket is still open
-     */
-    virtual ~TCPServer();
-
     // Allow legacy TCPServer::accept() to override inherited Socket::accept()
     using TCPSocket::accept;
 

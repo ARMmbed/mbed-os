@@ -81,13 +81,13 @@ public:
      *
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
-    virtual nsapi_error_t connect() = 0;
+    nsapi_error_t connect() override = 0;
 
     /** Stop the interface.
      *
      *  @return         NSAPI_ERROR_OK on success, or error code on failure.
      */
-    virtual nsapi_error_t disconnect() = 0;
+    nsapi_error_t disconnect() override = 0;
 
     /** Scan for available networks.
      *
@@ -106,7 +106,7 @@ public:
 
     /** @copydoc NetworkInterface::wifiInterface
      */
-    virtual WiFiInterface *wifiInterface()
+    WiFiInterface *wifiInterface() final
     {
         return this;
     }
@@ -134,7 +134,7 @@ public:
      * NetworkInterface::get_default_instance() (see nsapi JSON
      * configuration).
      */
-    virtual void set_default_parameters();
+    void set_default_parameters() override;
 };
 
 #endif
