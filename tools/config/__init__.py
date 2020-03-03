@@ -798,12 +798,12 @@ class Config(object):
             start, size = self._get_primary_memory_override(
                 active_memory.lower()
             )
-            if not start:
+            if start is None:
                 raise ConfigException(
                     "Bootloader not supported on this target. {} "
                     "start not found in targets.json.".format(active_memory)
                 )
-            if not size:
+            if size is None:
                 raise ConfigException(
                     "Bootloader not supported on this target. {} "
                     "size not found in targets.json.".format(active_memory)
