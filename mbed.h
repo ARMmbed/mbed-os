@@ -79,9 +79,11 @@
 
 // mbed Internal components
 #include "drivers/ResetReason.h"
+#include "drivers/HighResClock.h"
 #include "drivers/Timer.h"
 #include "drivers/Ticker.h"
 #include "drivers/Timeout.h"
+#include "drivers/LowPowerClock.h"
 #include "drivers/LowPowerTimeout.h"
 #include "drivers/LowPowerTicker.h"
 #include "drivers/LowPowerTimer.h"
