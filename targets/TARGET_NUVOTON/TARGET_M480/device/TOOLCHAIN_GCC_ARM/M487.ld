@@ -2,13 +2,7 @@
  * Nuvoton M487 GCC linker script file
  */
 
-#if !defined(MBED_APP_START)
-  #define MBED_APP_START 0x00000000
-#endif
-
-#if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE 0x00080000
-#endif 
+#include "../M480_mem.h"
 
 #if !defined(MBED_BOOT_STACK_SIZE)
   #define MBED_BOOT_STACK_SIZE      0x400
@@ -16,14 +10,12 @@
 
 M_CRASH_DATA_RAM_SIZE = 0x100;
 StackSize = MBED_BOOT_STACK_SIZE;
-SPIM_CCM_START = 0x20020000;
-SPIM_CCM_END = 0x20028000;
 
 MEMORY
 {
   VECTORS (rx)          : ORIGIN = MBED_APP_START, LENGTH = 0x00000400
   FLASH (rx)            : ORIGIN = MBED_APP_START + 0x400, LENGTH = MBED_APP_SIZE - 0x00000400
-  RAM_INTERN (rwx)      : ORIGIN = 0x20000000, LENGTH = 0x00028000 - 0x00000000
+  RAM_INTERN (rwx)      : ORIGIN = MBED_RAM_APP_START, LENGTH = MBED_RAM_APP_SIZE
 }
 
 /**
