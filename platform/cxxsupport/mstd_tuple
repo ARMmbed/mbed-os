@@ -41,6 +41,10 @@ using std::make_tuple;
 using std::forward_as_tuple;
 using std::tie;
 using std::tuple_cat;
+using std::tuple_size;
+using std::tuple_element;
+using std::tuple_element_t;
+using std::get;
 
 // [tuple.apply]
 #if __cpp_lib_apply >= 201603
@@ -83,11 +87,6 @@ T make_from_tuple(Tuple&& t)
                        std::make_index_sequence<std::tuple_size<std::remove_reference_t<Tuple>>::value>{});
 }
 #endif
-
-using std::tuple_size;
-using std::tuple_element;
-using std::tuple_element_t;
-using std::get;
 
 } // namespace mstd
 
