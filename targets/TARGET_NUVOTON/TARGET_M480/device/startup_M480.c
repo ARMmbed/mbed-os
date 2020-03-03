@@ -360,18 +360,12 @@ __asm void Reset_Handler_Cascade(void *sp, void *pc)
 
 #elif defined (__GNUC__) || defined (__ICCARM__)
 
-void Reset_Handler(void)
+__attribute__((naked)) void Reset_Handler(void)
 {
-    /* NOTE: In debugger disassembly view, check initial stack cannot be accessed until initial stack pointer has changed to 0x20000200 */
-    __asm volatile (
-        "mov    sp, %0                  \n"
-        "mov    r0, sp                  \n"
-        "mov    r1, %1                  \n"
-        "b     Reset_Handler_Cascade    \n"
-        :                                           /* output operands */
-        : "l"(0x20000200), "l"(&Reset_Handler_1)    /* input operands */
-        : "r0", "r1", "cc"                          /* list of clobbered registers */
-    );
+    __asm("ldr      sp, =0x20000200                                 \n");
+    __asm("mov      r0, sp                                          \n");
+    __asm("ldr      r1, =Reset_Handler_1                            \n");
+    __asm("b        Reset_Handler_Cascade                           \n");
 }
 
 void Reset_Handler_Cascade(void *sp, void *pc)
