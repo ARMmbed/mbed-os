@@ -113,6 +113,6 @@ target_sources(mbed_os PUBLIC device/system_MK64F12.c)
 target_sources(mbed_os PUBLIC device/system_MK64F12.h)
 
 # TODO: only GCC toolchain here
-target_sources(mbed_os PUBLIC device/TARGET_GCC_ARM/startup_MK64F12.S)
+target_sources(mbed_os PUBLIC device/TOOLCHAIN_GCC_ARM/startup_MK64F12.S)
 
 
