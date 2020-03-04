@@ -111,18 +111,22 @@ void find_ports(std::list<PortType> &matched_ports, std::list<PortType> &not_mat
         const char *pin_type = PortType::PinMap::pin_type_names[i];
 
         // Loop through each pin of a given type
-        for (; map->pin != NC; map++) {
+        for (uint32_t j = 0; j <  FormFactorType::pins()->count; j++) {
             PortType port;
-            // Set pin being tested
-            port.pins[i] = map->pin;
-            port.peripheral = map->peripheral;
-            // Only form factor pins can be tested
-            if (!pinmap_list_has_pin(FormFactorType::pins(), port.pins[i])) {
+
+            if (FormFactorType::pins()->pins[j] == NC) {
+                utest_printf("Skipping (NC pin) %s pin %s (%i)\r\n", pin_type,
+                             FormFactorType::pin_to_string(port.pins[i]), port.pins[i]);
                 continue;
             }
+
+            // Set pin being tested
+            port.pins[i] = FormFactorType::pins()->pins[j];
+            port.peripheral = pinmap_find_peripheral(port.pins[i], map);
+
             // Don't test restricted pins
             if (pinmap_list_has_pin(FormFactorType::restricted_pins(), port.pins[i])) {
-                utest_printf("Skipping %s pin %s (%i)\r\n", pin_type,
+                utest_printf("Skipping (restricted pin) %s pin %s (%i)\r\n", pin_type,
                              FormFactorType::pin_to_string(port.pins[i]), port.pins[i]);
                 continue;
             }
@@ -130,7 +134,7 @@ void find_ports(std::list<PortType> &matched_ports, std::list<PortType> &not_mat
             if (!strcmp(PortType::PinMap::name, GPIO_IRQ_NAME) || !strcmp(PortType::PinMap::name, GPIO_NAME)) {
                 // Don't test restricted gpio pins
                 if (pinmap_list_has_pin(pinmap_gpio_restricted_pins(), port.pins[i])) {
-                    utest_printf("Skipping %s pin %s (%i)\r\n", pin_type,
+                    utest_printf("Skipping (restricted gpio pin) %s pin %s (%i)\r\n", pin_type,
                                  FormFactorType::pin_to_string(port.pins[i]), port.pins[i]);
                     continue;
                 }
@@ -139,7 +143,7 @@ void find_ports(std::list<PortType> &matched_ports, std::list<PortType> &not_mat
 #if DEVICE_SERIAL
             if (!strcmp(PortType::PinMap::name, UART_NAME) || !strcmp(PortType::PinMap::name, UARTNOFC_NAME)) {
                 if (pinmap_list_has_peripheral(pinmap_uart_restricted_peripherals(), port.peripheral)) {
-                    utest_printf("Skipping %s peripheral %i with pin %s (%i)\r\n", pin_type,
+                    utest_printf("Skipping (restricted uart peripheral) %s peripheral %i with pin %s (%i)\r\n", pin_type,
                                  port.peripheral, FormFactorType::pin_to_string(port.pins[i]), port.pins[i]);
                     continue;
                 }
