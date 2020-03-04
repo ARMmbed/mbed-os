@@ -16,7 +16,7 @@
  */
 
 #include "UBLOX_AT_CellularStack.h"
-#include "mbed_poll.h"
+#include "rtos/ThisThread.h"
 
 using namespace mbed;
 using namespace mbed_cellular_util;
@@ -168,17 +168,16 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
     MBED_ASSERT(socket->id != -1);
 
     int sent_len = 0;
-    pollfh fhs;
-    fhs.fh = _at.get_file_handle();
-    fhs.events = POLLIN;
+    uint8_t ch = 0;
 
     if (socket->proto == NSAPI_UDP) {
         if (size > UBLOX_MAX_PACKET_SIZE) {
             return NSAPI_ERROR_PARAMETER;
         }
         _at.cmd_start_stop("+USOST", "=", "%d%s%d%d", socket->id, address.get_ip_address(), address.get_port(), size);
+        _at.resp_start("@", true);
+        rtos::ThisThread::sleep_for(50); //wait for 50ms before sending data
 
-        (void)poll(&fhs, 1, 50);
         _at.write_bytes((uint8_t *)data, size);
 
         _at.resp_start("+USOST:");
@@ -200,8 +199,9 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
                 blk = count;
             }
             _at.cmd_start_stop("+USOWR", "=", "%d%d", socket->id, blk);
+            _at.resp_start("@", true);
+            rtos::ThisThread::sleep_for(50); //wait for 50ms before sending data
 
-            (void)poll(&fhs, 1, 50);
             _at.write_bytes((uint8_t *)buf, blk);
 
             _at.resp_start("+USOWR:");
