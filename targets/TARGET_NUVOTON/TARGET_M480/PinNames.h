@@ -118,8 +118,8 @@ typedef enum {
     USBRX = PB_12,
     STDIO_UART_TX   = USBTX,
     STDIO_UART_RX   = USBRX,
-    SERIAL_TX = USBTX,
-    SERIAL_RX = USBRX,    
+    SERIAL_TX = D10,
+    SERIAL_RX = D13,    
     // LED naming
     LED_RED = PH_0,
     LED_YELLOW = PH_1,
