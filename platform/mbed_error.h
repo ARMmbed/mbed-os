@@ -941,14 +941,14 @@ MBED_NORETURN void error(const char *format, ...) MBED_PRINTF(1, 2);
 #define MBED_MAKE_ERROR(module, error_code)                          MBED_MAKE_SYSTEM_ERROR(module, error_code)
 
 /**
- * Callback/Error hook function prototype. Applications needing a callback when an error is reported can use mbed_set_error_hook function
- * to register a callback/error hook function using the following prototype. When an error happens in the system error handling
+ * Callback/Error hook function. If application implementation needs to receive this callback when an error is reported, 
+ * mbed_error_hook function should be overridden with custom implementation. When an error happens in the system error handling
  * implementation will invoke this callback with the mbed_error_status_t reported and the error context at the time of error.
  * @param  error_ctx        Error context structure associated with this error.
  * @return                  void
  *
  */
-typedef void (*mbed_error_hook_t)(const mbed_error_ctx *error_ctx);
+void mbed_error_hook(const mbed_error_ctx *error_context);
 
 
 /**
@@ -1069,28 +1069,6 @@ bool mbed_get_error_in_progress(void);
  * @note See MBED_WARNING/MBED_ERROR macros which provides a wrapper on this API
  */
 MBED_NORETURN mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number);
-
-/**
- * Registers an application defined error callback with the error handling system.
- * This function will be called with error context info whenever system handles a mbed_error/mbed_warning call
- * NOTE: This function should be implemented for re-entrancy as multiple threads may invoke mbed_error which may cause error hook to be called.
- * @param  custom_error_hook    mbed_error_status_t status to be set(See mbed_error_status_t enum above for available error status values).
- * @return                      0 or MBED_SUCCESS on success.
- *                              MBED_ERROR_INVALID_ARGUMENT in case of NULL for custom_error_hook
- *
- * @code
- *
- * mbed_error_status_t my_custom_error_hook(mbed_error_status_t error_status, const mbed_error_ctx *error_ctx) {
- *    //Do something with the error_status or error_ctx
- * }
- *
- * mbed_set_error_hook( my_custom_error_hook )
- *
- * @endcode
- * @note The erro hook function implementation should be re-entrant.
- *
- */
-mbed_error_status_t mbed_set_error_hook(mbed_error_hook_t custom_error_hook);
 
 /**
  * Reads the first error context information captured.
