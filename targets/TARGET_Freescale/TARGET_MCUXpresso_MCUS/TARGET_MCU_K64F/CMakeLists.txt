@@ -115,4 +115,8 @@ target_sources(mbed_os PUBLIC device/system_MK64F12.h)
 # TODO: only GCC toolchain here
 target_sources(mbed_os PUBLIC device/TOOLCHAIN_GCC_ARM/startup_MK64F12.S)
 
+target_include_directories(mbed_os PUBLIC TARGET_FRDM)
+target_include_directories(mbed_os PUBLIC device)
+target_include_directories(mbed_os PUBLIC drivers)
+target_include_directories(mbed_os PRIVATE .)
 
