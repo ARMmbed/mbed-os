@@ -5,7 +5,7 @@
 * USBFS IP definitions
 *
 * \note
-* Generator version: 1.5.0.1286
+* Generator version: 1.5.1.36
 *
 ********************************************************************************
 * \copyright
@@ -99,10 +99,10 @@ typedef struct {
   __IOM uint32_t ARB_EP1_INT_EN;                /*!< 0x00000204 Endpoint Interrupt Enable Register  *1 */
   __IOM uint32_t ARB_EP1_SR;                    /*!< 0x00000208 Endpoint Interrupt Enable Register  *1 */
    __IM uint32_t RESERVED13;
-  __IOM uint32_t ARB_RW1_WA;                    /*!< 0x00000210 Endpoint Write Address value  *1 */
-  __IOM uint32_t ARB_RW1_WA_MSB;                /*!< 0x00000214 Endpoint Write Address value  *1 */
-  __IOM uint32_t ARB_RW1_RA;                    /*!< 0x00000218 Endpoint Read Address value  *1 */
-  __IOM uint32_t ARB_RW1_RA_MSB;                /*!< 0x0000021C Endpoint Read Address value  *1 */
+  __IOM uint32_t ARB_RW1_WA;                    /*!< 0x00000210 Endpoint Write Address value  *1, *2 */
+  __IOM uint32_t ARB_RW1_WA_MSB;                /*!< 0x00000214 Endpoint Write Address value  *1, *2 */
+  __IOM uint32_t ARB_RW1_RA;                    /*!< 0x00000218 Endpoint Read Address value  *1, *2 */
+  __IOM uint32_t ARB_RW1_RA_MSB;                /*!< 0x0000021C Endpoint Read Address value  *1, *2 */
   __IOM uint32_t ARB_RW1_DR;                    /*!< 0x00000220 Endpoint Data Register */
    __IM uint32_t RESERVED14[3];
   __IOM uint32_t BUF_SIZE;                      /*!< 0x00000230 Dedicated Endpoint Buffer Size Register  *1 */
@@ -113,10 +113,10 @@ typedef struct {
   __IOM uint32_t ARB_EP2_INT_EN;                /*!< 0x00000244 Endpoint Interrupt Enable Register  *1 */
   __IOM uint32_t ARB_EP2_SR;                    /*!< 0x00000248 Endpoint Interrupt Enable Register  *1 */
    __IM uint32_t RESERVED16;
-  __IOM uint32_t ARB_RW2_WA;                    /*!< 0x00000250 Endpoint Write Address value  *1 */
-  __IOM uint32_t ARB_RW2_WA_MSB;                /*!< 0x00000254 Endpoint Write Address value  *1 */
-  __IOM uint32_t ARB_RW2_RA;                    /*!< 0x00000258 Endpoint Read Address value  *1 */
-  __IOM uint32_t ARB_RW2_RA_MSB;                /*!< 0x0000025C Endpoint Read Address value  *1 */
+  __IOM uint32_t ARB_RW2_WA;                    /*!< 0x00000250 Endpoint Write Address value  *1, *2 */
+  __IOM uint32_t ARB_RW2_WA_MSB;                /*!< 0x00000254 Endpoint Write Address value  *1, *2 */
+  __IOM uint32_t ARB_RW2_RA;                    /*!< 0x00000258 Endpoint Read Address value  *1, *2 */
+  __IOM uint32_t ARB_RW2_RA_MSB;                /*!< 0x0000025C Endpoint Read Address value  *1, *2 */
   __IOM uint32_t ARB_RW2_DR;                    /*!< 0x00000260 Endpoint Data Register */
    __IM uint32_t RESERVED17[3];
   __IOM uint32_t ARB_CFG;                       /*!< 0x00000270 Arbiter Configuration Register  *1 */
@@ -127,10 +127,10 @@ typedef struct {
   __IOM uint32_t ARB_EP3_INT_EN;                /*!< 0x00000284 Endpoint Interrupt Enable Register  *1 */
   __IOM uint32_t ARB_EP3_SR;                    /*!< 0x00000288 Endpoint Interrupt Enable Register  *1 */
    __IM uint32_t RESERVED18;
-  __IOM uint32_t ARB_RW3_WA;                    /*!< 0x00000290 Endpoint Write Address value  *1 */
-  __IOM uint32_t ARB_RW3_WA_MSB;                /*!< 0x00000294 Endpoint Write Address value  *1 */
-  __IOM uint32_t ARB_RW3_RA;                    /*!< 0x00000298 Endpoint Read Address value  *1 */
-  __IOM uint32_t ARB_RW3_RA_MSB;                /*!< 0x0000029C Endpoint Read Address value  *1 */
+  __IOM uint32_t ARB_RW3_WA;                    /*!< 0x00000290 Endpoint Write Address value  *1, *2 */
+  __IOM uint32_t ARB_RW3_WA_MSB;                /*!< 0x00000294 Endpoint Write Address value  *1, *2 */
+  __IOM uint32_t ARB_RW3_RA;                    /*!< 0x00000298 Endpoint Read Address value  *1, *2 */
+  __IOM uint32_t ARB_RW3_RA_MSB;                /*!< 0x0000029C Endpoint Read Address value  *1, *2 */
   __IOM uint32_t ARB_RW3_DR;                    /*!< 0x000002A0 Endpoint Data Register */
    __IM uint32_t RESERVED19[3];
   __IOM uint32_t CWA;                           /*!< 0x000002B0 Common Area Write Address  *1 */
@@ -140,10 +140,10 @@ typedef struct {
   __IOM uint32_t ARB_EP4_INT_EN;                /*!< 0x000002C4 Endpoint Interrupt Enable Register  *1 */
   __IOM uint32_t ARB_EP4_SR;                    /*!< 0x000002C8 Endpoint Interrupt Enable Register  *1 */
    __IM uint32_t RESERVED21;
-  __IOM uint32_t ARB_RW4_WA;                    /*!< 0x000002D0 Endpoint Write Address value  *1 */
-  __IOM uint32_t ARB_RW4_WA_MSB;                /*!< 0x000002D4 Endpoint Write Address value  *1 */
-  __IOM uint32_t ARB_RW4_RA;                    /*!< 0x000002D8 Endpoint Read Address value  *1 */
-  __IOM uint32_t ARB_RW4_RA_MSB;                /*!< 0x000002DC Endpoint Read Address value  *1 */
+  __IOM uint32_t ARB_RW4_WA;                    /*!< 0x000002D0 Endpoint Write Address value  *1, *2 */
+  __IOM uint32_t ARB_RW4_WA_MSB;                /*!< 0x000002D4 Endpoint Write Address value  *1, *2 */
+  __IOM uint32_t ARB_RW4_RA;                    /*!< 0x000002D8 Endpoint Read Address value  *1, *2 */
+  __IOM uint32_t ARB_RW4_RA_MSB;                /*!< 0x000002DC Endpoint Read Address value  *1, *2 */
   __IOM uint32_t ARB_RW4_DR;                    /*!< 0x000002E0 Endpoint Data Register */
    __IM uint32_t RESERVED22[3];
   __IOM uint32_t DMA_THRES;                     /*!< 0x000002F0 DMA Burst / Threshold Configuration */
@@ -153,10 +153,10 @@ typedef struct {
   __IOM uint32_t ARB_EP5_INT_EN;                /*!< 0x00000304 Endpoint Interrupt Enable Register  *1 */
   __IOM uint32_t ARB_EP5_SR;                    /*!< 0x00000308 Endpoint Interrupt Enable Register  *1 */
    __IM uint32_t RESERVED24;
-  __IOM uint32_t ARB_RW5_WA;                    /*!< 0x00000310 Endpoint Write Address value  *1 */
-  __IOM uint32_t ARB_RW5_WA_MSB;                /*!< 0x00000314 Endpoint Write Address value  *1 */
-  __IOM uint32_t ARB_RW5_RA;                    /*!< 0x00000318 Endpoint Read Address value  *1 */
-  __IOM uint32_t ARB_RW5_RA_MSB;                /*!< 0x0000031C Endpoint Read Address value  *1 */
+  __IOM uint32_t ARB_RW5_WA;                    /*!< 0x00000310 Endpoint Write Address value  *1, *2 */
+  __IOM uint32_t ARB_RW5_WA_MSB;                /*!< 0x00000314 Endpoint Write Address value  *1, *2 */
+  __IOM uint32_t ARB_RW5_RA;                    /*!< 0x00000318 Endpoint Read Address value  *1, *2 */
+  __IOM uint32_t ARB_RW5_RA_MSB;                /*!< 0x0000031C Endpoint Read Address value  *1, *2 */
   __IOM uint32_t ARB_RW5_DR;                    /*!< 0x00000320 Endpoint Data Register */
    __IM uint32_t RESERVED25[3];
   __IOM uint32_t BUS_RST_CNT;                   /*!< 0x00000330 Bus Reset Count Register */
@@ -165,30 +165,30 @@ typedef struct {
   __IOM uint32_t ARB_EP6_INT_EN;                /*!< 0x00000344 Endpoint Interrupt Enable Register  *1 */
   __IOM uint32_t ARB_EP6_SR;                    /*!< 0x00000348 Endpoint Interrupt Enable Register  *1 */
    __IM uint32_t RESERVED27;
-  __IOM uint32_t ARB_RW6_WA;                    /*!< 0x00000350 Endpoint Write Address value  *1 */
-  __IOM uint32_t ARB_RW6_WA_MSB;                /*!< 0x00000354 Endpoint Write Address value  *1 */
-  __IOM uint32_t ARB_RW6_RA;                    /*!< 0x00000358 Endpoint Read Address value  *1 */
-  __IOM uint32_t ARB_RW6_RA_MSB;                /*!< 0x0000035C Endpoint Read Address value  *1 */
+  __IOM uint32_t ARB_RW6_WA;                    /*!< 0x00000350 Endpoint Write Address value  *1, *2 */
+  __IOM uint32_t ARB_RW6_WA_MSB;                /*!< 0x00000354 Endpoint Write Address value  *1, *2 */
+  __IOM uint32_t ARB_RW6_RA;                    /*!< 0x00000358 Endpoint Read Address value  *1, *2 */
+  __IOM uint32_t ARB_RW6_RA_MSB;                /*!< 0x0000035C Endpoint Read Address value  *1, *2 */
   __IOM uint32_t ARB_RW6_DR;                    /*!< 0x00000360 Endpoint Data Register */
    __IM uint32_t RESERVED28[7];
   __IOM uint32_t ARB_EP7_CFG;                   /*!< 0x00000380 Endpoint Configuration Register  *1 */
   __IOM uint32_t ARB_EP7_INT_EN;                /*!< 0x00000384 Endpoint Interrupt Enable Register  *1 */
   __IOM uint32_t ARB_EP7_SR;                    /*!< 0x00000388 Endpoint Interrupt Enable Register  *1 */
    __IM uint32_t RESERVED29;
-  __IOM uint32_t ARB_RW7_WA;                    /*!< 0x00000390 Endpoint Write Address value  *1 */
-  __IOM uint32_t ARB_RW7_WA_MSB;                /*!< 0x00000394 Endpoint Write Address value  *1 */
-  __IOM uint32_t ARB_RW7_RA;                    /*!< 0x00000398 Endpoint Read Address value  *1 */
-  __IOM uint32_t ARB_RW7_RA_MSB;                /*!< 0x0000039C Endpoint Read Address value  *1 */
+  __IOM uint32_t ARB_RW7_WA;                    /*!< 0x00000390 Endpoint Write Address value  *1, *2 */
+  __IOM uint32_t ARB_RW7_WA_MSB;                /*!< 0x00000394 Endpoint Write Address value  *1, *2 */
+  __IOM uint32_t ARB_RW7_RA;                    /*!< 0x00000398 Endpoint Read Address value  *1, *2 */
+  __IOM uint32_t ARB_RW7_RA_MSB;                /*!< 0x0000039C Endpoint Read Address value  *1, *2 */
   __IOM uint32_t ARB_RW7_DR;                    /*!< 0x000003A0 Endpoint Data Register */
    __IM uint32_t RESERVED30[7];
   __IOM uint32_t ARB_EP8_CFG;                   /*!< 0x000003C0 Endpoint Configuration Register  *1 */
   __IOM uint32_t ARB_EP8_INT_EN;                /*!< 0x000003C4 Endpoint Interrupt Enable Register  *1 */
   __IOM uint32_t ARB_EP8_SR;                    /*!< 0x000003C8 Endpoint Interrupt Enable Register  *1 */
    __IM uint32_t RESERVED31;
-  __IOM uint32_t ARB_RW8_WA;                    /*!< 0x000003D0 Endpoint Write Address value  *1 */
-  __IOM uint32_t ARB_RW8_WA_MSB;                /*!< 0x000003D4 Endpoint Write Address value  *1 */
-  __IOM uint32_t ARB_RW8_RA;                    /*!< 0x000003D8 Endpoint Read Address value  *1 */
-  __IOM uint32_t ARB_RW8_RA_MSB;                /*!< 0x000003DC Endpoint Read Address value  *1 */
+  __IOM uint32_t ARB_RW8_WA;                    /*!< 0x000003D0 Endpoint Write Address value  *1, *2 */
+  __IOM uint32_t ARB_RW8_WA_MSB;                /*!< 0x000003D4 Endpoint Write Address value  *1, *2 */
+  __IOM uint32_t ARB_RW8_RA;                    /*!< 0x000003D8 Endpoint Read Address value  *1, *2 */
+  __IOM uint32_t ARB_RW8_RA_MSB;                /*!< 0x000003DC Endpoint Read Address value  *1, *2 */
   __IOM uint32_t ARB_RW8_DR;                    /*!< 0x000003E0 Endpoint Data Register */
    __IM uint32_t RESERVED32[7];
   __IOM uint32_t MEM_DATA[512];                 /*!< 0x00000400 DATA */
@@ -197,55 +197,55 @@ typedef struct {
    __IM uint32_t RESERVED34[7];
    __IM uint32_t OSCLK_DR16;                    /*!< 0x00001080 Oscillator lock data register */
    __IM uint32_t RESERVED35[99];
-  __IOM uint32_t ARB_RW1_WA16;                  /*!< 0x00001210 Endpoint Write Address value */
+  __IOM uint32_t ARB_RW1_WA16;                  /*!< 0x00001210 Endpoint Write Address value  *3 */
    __IM uint32_t RESERVED36;
-  __IOM uint32_t ARB_RW1_RA16;                  /*!< 0x00001218 Endpoint Read Address value */
+  __IOM uint32_t ARB_RW1_RA16;                  /*!< 0x00001218 Endpoint Read Address value  *3 */
    __IM uint32_t RESERVED37;
   __IOM uint32_t ARB_RW1_DR16;                  /*!< 0x00001220 Endpoint Data Register */
    __IM uint32_t RESERVED38[11];
-  __IOM uint32_t ARB_RW2_WA16;                  /*!< 0x00001250 Endpoint Write Address value */
+  __IOM uint32_t ARB_RW2_WA16;                  /*!< 0x00001250 Endpoint Write Address value  *3 */
    __IM uint32_t RESERVED39;
-  __IOM uint32_t ARB_RW2_RA16;                  /*!< 0x00001258 Endpoint Read Address value */
+  __IOM uint32_t ARB_RW2_RA16;                  /*!< 0x00001258 Endpoint Read Address value  *3 */
    __IM uint32_t RESERVED40;
   __IOM uint32_t ARB_RW2_DR16;                  /*!< 0x00001260 Endpoint Data Register */
    __IM uint32_t RESERVED41[11];
-  __IOM uint32_t ARB_RW3_WA16;                  /*!< 0x00001290 Endpoint Write Address value */
+  __IOM uint32_t ARB_RW3_WA16;                  /*!< 0x00001290 Endpoint Write Address value  *3 */
    __IM uint32_t RESERVED42;
-  __IOM uint32_t ARB_RW3_RA16;                  /*!< 0x00001298 Endpoint Read Address value */
+  __IOM uint32_t ARB_RW3_RA16;                  /*!< 0x00001298 Endpoint Read Address value  *3 */
    __IM uint32_t RESERVED43;
   __IOM uint32_t ARB_RW3_DR16;                  /*!< 0x000012A0 Endpoint Data Register */
    __IM uint32_t RESERVED44[3];
   __IOM uint32_t CWA16;                         /*!< 0x000012B0 Common Area Write Address */
    __IM uint32_t RESERVED45[7];
-  __IOM uint32_t ARB_RW4_WA16;                  /*!< 0x000012D0 Endpoint Write Address value */
+  __IOM uint32_t ARB_RW4_WA16;                  /*!< 0x000012D0 Endpoint Write Address value  *3 */
    __IM uint32_t RESERVED46;
-  __IOM uint32_t ARB_RW4_RA16;                  /*!< 0x000012D8 Endpoint Read Address value */
+  __IOM uint32_t ARB_RW4_RA16;                  /*!< 0x000012D8 Endpoint Read Address value  *3 */
    __IM uint32_t RESERVED47;
   __IOM uint32_t ARB_RW4_DR16;                  /*!< 0x000012E0 Endpoint Data Register */
    __IM uint32_t RESERVED48[3];
   __IOM uint32_t DMA_THRES16;                   /*!< 0x000012F0 DMA Burst / Threshold Configuration */
    __IM uint32_t RESERVED49[7];
-  __IOM uint32_t ARB_RW5_WA16;                  /*!< 0x00001310 Endpoint Write Address value */
+  __IOM uint32_t ARB_RW5_WA16;                  /*!< 0x00001310 Endpoint Write Address value  *3 */
    __IM uint32_t RESERVED50;
-  __IOM uint32_t ARB_RW5_RA16;                  /*!< 0x00001318 Endpoint Read Address value */
+  __IOM uint32_t ARB_RW5_RA16;                  /*!< 0x00001318 Endpoint Read Address value  *3 */
    __IM uint32_t RESERVED51;
   __IOM uint32_t ARB_RW5_DR16;                  /*!< 0x00001320 Endpoint Data Register */
    __IM uint32_t RESERVED52[11];
-  __IOM uint32_t ARB_RW6_WA16;                  /*!< 0x00001350 Endpoint Write Address value */
+  __IOM uint32_t ARB_RW6_WA16;                  /*!< 0x00001350 Endpoint Write Address value  *3 */
    __IM uint32_t RESERVED53;
-  __IOM uint32_t ARB_RW6_RA16;                  /*!< 0x00001358 Endpoint Read Address value */
+  __IOM uint32_t ARB_RW6_RA16;                  /*!< 0x00001358 Endpoint Read Address value  *3 */
    __IM uint32_t RESERVED54;
   __IOM uint32_t ARB_RW6_DR16;                  /*!< 0x00001360 Endpoint Data Register */
    __IM uint32_t RESERVED55[11];
-  __IOM uint32_t ARB_RW7_WA16;                  /*!< 0x00001390 Endpoint Write Address value */
+  __IOM uint32_t ARB_RW7_WA16;                  /*!< 0x00001390 Endpoint Write Address value  *3 */
    __IM uint32_t RESERVED56;
-  __IOM uint32_t ARB_RW7_RA16;                  /*!< 0x00001398 Endpoint Read Address value */
+  __IOM uint32_t ARB_RW7_RA16;                  /*!< 0x00001398 Endpoint Read Address value  *3 */
    __IM uint32_t RESERVED57;
   __IOM uint32_t ARB_RW7_DR16;                  /*!< 0x000013A0 Endpoint Data Register */
    __IM uint32_t RESERVED58[11];
-  __IOM uint32_t ARB_RW8_WA16;                  /*!< 0x000013D0 Endpoint Write Address value */
+  __IOM uint32_t ARB_RW8_WA16;                  /*!< 0x000013D0 Endpoint Write Address value  *3 */
    __IM uint32_t RESERVED59;
-  __IOM uint32_t ARB_RW8_RA16;                  /*!< 0x000013D8 Endpoint Read Address value */
+  __IOM uint32_t ARB_RW8_RA16;                  /*!< 0x000013D8 Endpoint Read Address value  *3 */
    __IM uint32_t RESERVED60;
   __IOM uint32_t ARB_RW8_DR16;                  /*!< 0x000013E0 Endpoint Data Register */
    __IM uint32_t RESERVED61[775];

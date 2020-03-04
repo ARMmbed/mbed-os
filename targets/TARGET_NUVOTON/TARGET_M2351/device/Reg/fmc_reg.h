@@ -8,6 +8,13 @@
 #ifndef __FMC_REG_H__
 #define __FMC_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
+
+
 /*---------------------- Flash Memory Controller -------------------------*/
 /**
     @addtogroup FMC Flash Memory Controller(FMC)
@@ -212,25 +219,13 @@ typedef struct
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
      * |[3:0]   |CYCLE     |Flash Access Cycle Control (Write Protect)
-     * |        |          |This register is updated automatically by hardware while FCYCDIS (FMC_ISPSTS[4]) is 0, and updated by software while auto-tuning function disabled ( FADIS (FMC_CYCTL[8]) is 1)
-     * |        |          |0000 = CPU access with zero wait cycle ; flash access cycle is 1;.
-     * |        |          |The HCLK working frequency range is <27MHz; Cache is disabled by hardware.
-     * |        |          |0001 = CPU access with one wait cycle if cache miss; flash access cycle is 1;.
-     * |        |          |The HCLK working frequency range range is<27MHz
-     * |        |          |0010 = CPU access with two wait cycles if cache miss; flash access cycle is 2;.
-     * |        |          | The optimized HCLK working frequency range is 27~54 MHz
-     * |        |          |0011 = CPU access with three wait cycles if cache miss; flash access cycle is 3;.
-     * |        |          |The optimized HCLK working frequency range is 54~81MHz
-     * |        |          |0100 = CPU access with four wait cycles if cache miss; flash access cycle is 4;.
-     * |        |          | The optimized HCLK working frequency range is81~108MHz
-     * |        |          |0101 = CPU access with five wait cycles if cache miss; flash access cycle is 5;.
-     * |        |          |The optimized HCLK working frequency range is 108~135MHz
-     * |        |          |0110 = CPU access with six wait cycles if cache miss; flash access cycle is 6;.
-     * |        |          | The optimized HCLK working frequency range is 135~162MHz
-     * |        |          |0111 = CPU access with seven wait cycles if cache miss; flash access cycle is 7;.
-     * |        |          | The optimized HCLK working frequency range is 162~192MHz
-     * |        |          |1000 = CPU access with eight wait cycles if cache miss; flash access cycle is 8;.
-     * |        |          |The optimized HCLK working frequency range is >192MHz
+     * |        |          |This register is updated automatically by hardware while FCYCDIS (FMC_ISPSTS[4]) is 0, and updated by software while auto-tuning function disabled ( FADIS (FMC_CYCTL[8]) is 1).
+     * |        |          |When auto-tuning function disabled, user needs to check the speed of HCLK and set the cycle >0.
+     * |        |          |0000 = CPU access with zero wait cycle ; Flash access cycle is 1. The HCLK working frequency range is <27MHz; Cache is disabled by hardware.
+     * |        |          |0001 = CPU access with one wait cycle if cache miss; Flash access cycle is 1. The HCLK working frequency range range is<27MHz.
+     * |        |          |0010 = CPU access with two wait cycles if cache miss; Flash access cycle is 2. The optimized HCLK working frequency range is 25~52 MHz.
+     * |        |          |0011 = CPU access with three wait cycles if cache miss; Flash access cycle is 3. The optimized HCLK working frequency range is 49~79MHz.
+     * |        |          |Others = Reserved.
      * |        |          |Note: This bit is write protected. Refer to the SYS_REGLCTL register.
      * |[8]     |FADIS     |Flash Access Cycle Auto-tuning Disabled Control (Write Protect)
      * |        |          |Set this bit to disable flash access cycle auto-tuning function
@@ -728,5 +723,6 @@ typedef struct
 
 /**@}*/ /* FMC_CONST */
 /**@}*/ /* end of FMC register group */
+/**@}*/ /* end of REGISTER group */
 
 #endif /* __FMC_REG_H__ */

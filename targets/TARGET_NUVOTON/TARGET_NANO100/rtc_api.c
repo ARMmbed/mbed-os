@@ -105,11 +105,10 @@ void rtc_free(void)
 
 int rtc_isenabled(void)
 {
-    // NOTE: To access (RTC) registers, clock must be enabled first.
-    if (! (CLK->APBCLK & CLK_APBCLK_RTC_EN_Msk)) {
-        // Enable IP clock
-        CLK_EnableModuleClock(rtc_modinit.clkidx);
-    }
+    // To access (RTC) registers, clock must be enabled first.
+    // For TZ, with RTC being secure, we needn't call the secure gateway versions.
+    CLK_EnableModuleClock(rtc_modinit.clkidx);
+    CLK_SetModuleClock(rtc_modinit.clkidx, rtc_modinit.clksrc, rtc_modinit.clkdiv);
 
     // NOTE: Check RTC Init Active flag to support crossing reset cycle.
     return !! (RTC->INIR & RTC_INIR_ACTIVE_Msk);

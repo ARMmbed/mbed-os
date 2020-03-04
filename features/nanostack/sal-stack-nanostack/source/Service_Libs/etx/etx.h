@@ -64,7 +64,6 @@ typedef struct etx_sample_storage_s {
     uint16_t           attempts_count;         /*!< TX attempt count */
     uint8_t            etx_timer;              /*!< Count down from configured value 0 means that ETX Update is possible done again*/
     uint8_t            received_acks;          /*!< Received ACK's */
-    uint8_t            sample_count;           /*!< Finished TX count */
 } etx_sample_storage_t;
 
 /**
@@ -238,17 +237,6 @@ uint8_t etx_accum_failures_callback_register(nwk_interface_id nwk_id, int8_t int
 void etx_neighbor_remove(int8_t interface_id, uint8_t attribute_index);
 
 /**
- * \brief A function to add ETX neighbor
- *
- *  Notifies ETX module that neighbor has been added. Calls ETX value change callback
- *  if that is set.
- *
- * \param attribute_index Neighbour attribute index
- *
- */
-void etx_neighbor_add(int8_t interface_id, uint8_t attribute_index);
-
-/**
  * \brief A function for update cached ETX calculation
  *
  *  Shuold be call second intevall
@@ -266,13 +254,14 @@ void etx_cache_timer(int8_t interface_id, uint16_t seconds_update);
  *  ETX update will happen when min wait time is reached and also reached min etx sample count.
  *
  * \param min_wait_time how many seconds must wait before do new ETX
- * \param etx_min_sample_count define how many completed TX process must be done for new ETX. Min accepted value is 4.
+ * \param etx_min_attempts_count define how many TX attempts process must be done for new ETX. Min accepted value is 4.
+ * \param init_etx_sample_count How Many sample is need to init etx calculate
  *
  * \return true Enable is OK
  * \return false Memory allocation fail
  *
  */
-bool etx_cached_etx_parameter_set(uint8_t min_wait_time, uint8_t etx_min_sample_count);
+bool etx_cached_etx_parameter_set(uint8_t min_wait_time, uint8_t etx_min_attempts_count, uint8_t init_etx_sample_count);
 
 
 /**
@@ -284,5 +273,15 @@ bool etx_cached_etx_parameter_set(uint8_t min_wait_time, uint8_t etx_min_sample_
  *
  */
 void etx_max_update_set(uint16_t etx_max_update);
+
+/**
+ * \brief A function for set Maxium ETX value
+ *
+ * ETX RFC define that that Max value is 0xffff but this API cuold make that Poor link start go down slowly.
+ *
+ * \param etx_max 0 No limit for higher value means. This pameter will change normal ETX which could be 0xffff.
+ *
+ */
+void etx_max_set(uint16_t etx_max);
 
 #endif /* ETX_H_ */

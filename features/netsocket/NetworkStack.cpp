@@ -29,11 +29,6 @@ nsapi_error_t NetworkStack::get_ip_address(SocketAddress *address)
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
-const char *NetworkStack::get_ip_address()
-{
-    return nullptr;
-}
-
 nsapi_error_t NetworkStack::get_ipv6_link_local_address(SocketAddress *address)
 {
     return NSAPI_ERROR_UNSUPPORTED;
@@ -42,11 +37,6 @@ nsapi_error_t NetworkStack::get_ipv6_link_local_address(SocketAddress *address)
 nsapi_error_t NetworkStack::get_ip_address_if(SocketAddress *address, const char *interface_name)
 {
     return NSAPI_ERROR_UNSUPPORTED;
-}
-
-const char *NetworkStack::get_ip_address_if(const char *interface_name)
-{
-    return nullptr;
 }
 
 nsapi_error_t NetworkStack::gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version, const char *interface_name)
@@ -87,7 +77,7 @@ nsapi_value_or_error_t NetworkStack::getaddrinfo(const char *hostname, SocketAdd
     // ip address of the underlying stack
     if (version == NSAPI_UNSPEC) {
         SocketAddress testaddress;
-        if (testaddress.set_ip_address(this->get_ip_address())) {
+        if (this->get_ip_address(&testaddress) == NSAPI_ERROR_OK) {
             version = testaddress.get_ip_version();
         }
     }
@@ -154,7 +144,7 @@ nsapi_value_or_error_t NetworkStack::getaddrinfo_async(const char *hostname, Soc
     // ip address of the underlying stack
     if (version == NSAPI_UNSPEC) {
         SocketAddress testaddress;
-        if (testaddress.set_ip_address(this->get_ip_address())) {
+        if (this->get_ip_address(&testaddress) == NSAPI_ERROR_OK) {
             version = testaddress.get_ip_version();
         }
     }
@@ -245,20 +235,18 @@ private:
     }
 
 public:
-    using NetworkStack::get_ip_address;
-    using NetworkStack::gethostbyname;
-    virtual const char *get_ip_address()
+    nsapi_error_t get_ip_address(SocketAddress *address) override
     {
         if (!_stack_api()->get_ip_address) {
-            return 0;
+            return NSAPI_ERROR_UNSUPPORTED;
         }
 
-        static uint8_t buffer[sizeof(SocketAddress)];
-        SocketAddress *address = new (buffer) SocketAddress(_stack_api()->get_ip_address(_stack()));
-        return address->get_ip_address();
+        *address = SocketAddress(_stack_api()->get_ip_address(_stack()));
+
+        return *address ? NSAPI_ERROR_OK : NSAPI_ERROR_NO_ADDRESS;
     }
 
-    virtual nsapi_error_t gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version, const char *interface_name)
+    nsapi_error_t gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version, const char *interface_name) override
     {
         if (!_stack_api()->gethostbyname) {
             return NetworkStack::gethostbyname(name, address, version, interface_name);
@@ -270,7 +258,7 @@ public:
         return err;
     }
 
-    virtual nsapi_error_t add_dns_server(const SocketAddress &address, const char *interface_name)
+    nsapi_error_t add_dns_server(const SocketAddress &address, const char *interface_name) override
     {
         if (!_stack_api()->add_dns_server) {
             return NetworkStack::add_dns_server(address, interface_name);
@@ -279,7 +267,7 @@ public:
         return _stack_api()->add_dns_server(_stack(), address.get_addr());
     }
 
-    virtual nsapi_error_t setstackopt(int level, int optname, const void *optval, unsigned optlen)
+    nsapi_error_t setstackopt(int level, int optname, const void *optval, unsigned optlen) override
     {
         if (!_stack_api()->setstackopt) {
             return NSAPI_ERROR_UNSUPPORTED;
@@ -288,7 +276,7 @@ public:
         return _stack_api()->setstackopt(_stack(), level, optname, optval, optlen);
     }
 
-    virtual nsapi_error_t getstackopt(int level, int optname, void *optval, unsigned *optlen)
+    nsapi_error_t getstackopt(int level, int optname, void *optval, unsigned *optlen) override
     {
         if (!_stack_api()->getstackopt) {
             return NSAPI_ERROR_UNSUPPORTED;
@@ -298,7 +286,7 @@ public:
     }
 
 protected:
-    virtual nsapi_error_t socket_open(nsapi_socket_t *socket, nsapi_protocol_t proto)
+    nsapi_error_t socket_open(nsapi_socket_t *socket, nsapi_protocol_t proto) override
     {
         if (!_stack_api()->socket_open) {
             return NSAPI_ERROR_UNSUPPORTED;
@@ -307,7 +295,7 @@ protected:
         return _stack_api()->socket_open(_stack(), socket, proto);
     }
 
-    virtual nsapi_error_t socket_close(nsapi_socket_t socket)
+    nsapi_error_t socket_close(nsapi_socket_t socket) override
     {
         if (!_stack_api()->socket_close) {
             return NSAPI_ERROR_UNSUPPORTED;
@@ -316,7 +304,7 @@ protected:
         return _stack_api()->socket_close(_stack(), socket);
     }
 
-    virtual nsapi_error_t socket_bind(nsapi_socket_t socket, const SocketAddress &address)
+    nsapi_error_t socket_bind(nsapi_socket_t socket, const SocketAddress &address) override
     {
         if (!_stack_api()->socket_bind) {
             return NSAPI_ERROR_UNSUPPORTED;
@@ -325,7 +313,7 @@ protected:
         return _stack_api()->socket_bind(_stack(), socket, address.get_addr(), address.get_port());
     }
 
-    virtual nsapi_error_t socket_listen(nsapi_socket_t socket, int backlog)
+    nsapi_error_t socket_listen(nsapi_socket_t socket, int backlog) override
     {
         if (!_stack_api()->socket_listen) {
             return NSAPI_ERROR_UNSUPPORTED;
@@ -334,7 +322,7 @@ protected:
         return _stack_api()->socket_listen(_stack(), socket, backlog);
     }
 
-    virtual nsapi_error_t socket_connect(nsapi_socket_t socket, const SocketAddress &address)
+    nsapi_error_t socket_connect(nsapi_socket_t socket, const SocketAddress &address) override
     {
         if (!_stack_api()->socket_connect) {
             return NSAPI_ERROR_UNSUPPORTED;
@@ -343,7 +331,7 @@ protected:
         return _stack_api()->socket_connect(_stack(), socket, address.get_addr(), address.get_port());
     }
 
-    virtual nsapi_error_t socket_accept(nsapi_socket_t server, nsapi_socket_t *socket, SocketAddress *address)
+    nsapi_error_t socket_accept(nsapi_socket_t server, nsapi_socket_t *socket, SocketAddress *address) override
     {
         if (!_stack_api()->socket_accept) {
             return NSAPI_ERROR_UNSUPPORTED;
@@ -362,7 +350,7 @@ protected:
         return err;
     }
 
-    virtual nsapi_size_or_error_t socket_send(nsapi_socket_t socket, const void *data, nsapi_size_t size)
+    nsapi_size_or_error_t socket_send(nsapi_socket_t socket, const void *data, nsapi_size_t size) override
     {
         if (!_stack_api()->socket_send) {
             return NSAPI_ERROR_UNSUPPORTED;
@@ -371,7 +359,7 @@ protected:
         return _stack_api()->socket_send(_stack(), socket, data, size);
     }
 
-    virtual nsapi_size_or_error_t socket_recv(nsapi_socket_t socket, void *data, nsapi_size_t size)
+    nsapi_size_or_error_t socket_recv(nsapi_socket_t socket, void *data, nsapi_size_t size) override
     {
         if (!_stack_api()->socket_recv) {
             return NSAPI_ERROR_UNSUPPORTED;
@@ -380,7 +368,7 @@ protected:
         return _stack_api()->socket_recv(_stack(), socket, data, size);
     }
 
-    virtual nsapi_size_or_error_t socket_sendto(nsapi_socket_t socket, const SocketAddress &address, const void *data, nsapi_size_t size)
+    nsapi_size_or_error_t socket_sendto(nsapi_socket_t socket, const SocketAddress &address, const void *data, nsapi_size_t size) override
     {
         if (!_stack_api()->socket_sendto) {
             return NSAPI_ERROR_UNSUPPORTED;
@@ -389,7 +377,7 @@ protected:
         return _stack_api()->socket_sendto(_stack(), socket, address.get_addr(), address.get_port(), data, size);
     }
 
-    virtual nsapi_size_or_error_t socket_recvfrom(nsapi_socket_t socket, SocketAddress *address, void *data, nsapi_size_t size)
+    nsapi_size_or_error_t socket_recvfrom(nsapi_socket_t socket, SocketAddress *address, void *data, nsapi_size_t size) override
     {
         if (!_stack_api()->socket_recvfrom) {
             return NSAPI_ERROR_UNSUPPORTED;
@@ -408,7 +396,7 @@ protected:
         return err;
     }
 
-    virtual void socket_attach(nsapi_socket_t socket, void (*callback)(void *), void *data)
+    void socket_attach(nsapi_socket_t socket, void (*callback)(void *), void *data) override
     {
         if (!_stack_api()->socket_attach) {
             return;
@@ -417,7 +405,7 @@ protected:
         return _stack_api()->socket_attach(_stack(), socket, callback, data);
     }
 
-    virtual nsapi_error_t setsockopt(nsapi_socket_t socket, int level, int optname, const void *optval, unsigned optlen)
+    nsapi_error_t setsockopt(nsapi_socket_t socket, int level, int optname, const void *optval, unsigned optlen) override
     {
         if (!_stack_api()->setsockopt) {
             return NSAPI_ERROR_UNSUPPORTED;
@@ -426,7 +414,7 @@ protected:
         return _stack_api()->setsockopt(_stack(), socket, level, optname, optval, optlen);
     }
 
-    virtual nsapi_error_t getsockopt(nsapi_socket_t socket, int level, int optname, void *optval, unsigned *optlen)
+    nsapi_error_t getsockopt(nsapi_socket_t socket, int level, int optname, void *optval, unsigned *optlen) override
     {
         if (!_stack_api()->getsockopt) {
             return NSAPI_ERROR_UNSUPPORTED;
@@ -443,10 +431,5 @@ NetworkStack *nsapi_create_stack(nsapi_stack_t *stack)
     MBED_STATIC_ASSERT(sizeof stack->_stack_buffer >= sizeof(NetworkStackWrapper),
                        "The nsapi_stack_t stack buffer must fit a NetworkStackWrapper");
     return new (stack->_stack_buffer) NetworkStackWrapper;
-}
-
-NetworkStack *nsapi_create_stack(NetworkStack *stack)
-{
-    return stack;
 }
 

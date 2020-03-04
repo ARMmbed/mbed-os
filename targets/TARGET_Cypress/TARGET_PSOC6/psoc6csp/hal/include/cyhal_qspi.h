@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,10 @@
 * \addtogroup group_hal_qspi QSPI (Quad Serial Peripheral Interface)
 * \ingroup group_hal
 * \{
-* High level interface for interacting with the Cypress Quad-SPI.
+* High level interface for interacting with the Quad Serial Peripheral Interface (QSPI) interface.
+*
+* The QSPI block supports sending commands to and receiving commands from an
+* another device (often an external memory) via single, dual, quad, or octal SPI.
 */
 
 #pragma once
@@ -71,12 +74,10 @@ typedef enum {
 } cyhal_qspi_event_t;
 
 #define CYHAL_QSPI_RSLT_ERR_BUS_WIDTH (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_QSPI, 0)) /**< Bus width Error. >*/
-#define CYHAL_QSPI_RSLT_ERR_SIZE (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_QSPI, 1)) /**< Size Error. >*/
-#define CYHAL_QSPI_RSLT_ERR_PIN (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_QSPI, 2)) /**< Pin related Error. >*/
-#define CYHAL_QSPI_RSLT_ERR_DATA_SEL (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_QSPI, 3)) /**< Data select Error. >*/
-#define CYHAL_QSPI_RSLT_ERR_INSTANCE (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_QSPI, 4)) /**< QSPI instance related Error. >*/
-#define CYHAL_QSPI_RSLT_ERR_ALT_SIZE_WIDTH_MISMATCH (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_QSPI, 5)) /**< Provided alt size is incompatible with provided alt width. >*/
-#define CYHAL_QSPI_RSLT_ERR_ALT_SIZE_DUMMY_CYCLES_MISMATCH (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_QSPI, 6)) /**< Provided alt size is incompatible with provided number of dummy cycles (due to device-specific restrictions). >*/
+#define CYHAL_QSPI_RSLT_ERR_PIN (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_QSPI, 1)) /**< Pin related Error. >*/
+#define CYHAL_QSPI_RSLT_ERR_DATA_SEL (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_QSPI, 2)) /**< Data select Error. >*/
+#define CYHAL_QSPI_RSLT_ERR_INSTANCE (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_QSPI, 3)) /**< QSPI instance related Error. >*/
+#define CYHAL_QSPI_RSLT_ERR_FREQUENCY (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_QSPI, 4)) /**< Clock frequency error. >*/
 
 /** @brief QSPI command settings */
 typedef struct cyhal_qspi_command {
@@ -93,7 +94,7 @@ typedef struct cyhal_qspi_command {
     }  address;
     struct {
         cyhal_qspi_bus_width_t bus_width;               /**< Bus width for mode bits  >*/
-        uint8_t size;                                   /**< Mode bits size >*/
+        cyhal_qspi_size_t size;                         /**< Mode bits size >*/
         uint32_t value;                                 /**< Mode bits value >*/
         bool disabled;                                  /**< Mode bits phase skipped if disabled is set to true >*/
     } mode_bits;

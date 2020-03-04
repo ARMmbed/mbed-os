@@ -62,9 +62,6 @@ public:
 
     virtual void set_extra_sim_wait_time(int sim_wait_time);
 
-public:
-    ATHandler &get_at_handler();
-
 private:
     struct sms_info_t {
         char date[SMS_MAX_TIME_STAMP_SIZE];

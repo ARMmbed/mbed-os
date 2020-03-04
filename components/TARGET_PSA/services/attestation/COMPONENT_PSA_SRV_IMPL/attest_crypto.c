@@ -58,13 +58,13 @@ t_cose_crypto_pub_key_sign(int32_t cose_alg_id,
         return T_COSE_ERR_NO_KID;
     }
 
-    crypto_ret = psa_asymmetric_sign(handle,
-                                     PSA_ALG_DETERMINISTIC_ECDSA(PSA_ALG_SHA_256),
-                                     hash_to_sign.ptr,
-                                     hash_to_sign.len,
-                                     signature_buffer.ptr,
-                                     signature_buffer.len,
-                                     &(signature->len));
+    crypto_ret = psa_sign_hash(handle,
+                               PSA_ALG_DETERMINISTIC_ECDSA(PSA_ALG_SHA_256),
+                               hash_to_sign.ptr,
+                               hash_to_sign.len,
+                               signature_buffer.ptr,
+                               signature_buffer.len,
+                               &(signature->len));
 
 
     if (crypto_ret != PSA_SUCCESS)

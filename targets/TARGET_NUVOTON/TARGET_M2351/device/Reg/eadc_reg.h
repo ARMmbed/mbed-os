@@ -8,6 +8,12 @@
 #ifndef __EADC_REG_H__
 #define __EADC_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
+
 /*---------------------- Enhanced Analog to Digital Converter -------------------------*/
 /**
     @addtogroup EADC Enhanced Analog to Digital Converter(EADC)
@@ -1691,6 +1697,7 @@ typedef struct
 
 /**@}*/ /* EADC_CONST */
 /**@}*/ /* end of EADC register group */
+/**@}*/ /* end of REGISTER group */
 
 
 

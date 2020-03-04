@@ -338,7 +338,9 @@ Case cases[] = {
     Case("38400, 8N1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, fpga_uart_test_common_no_fc<38400, 8, ParityNone, 1, false> >),
     Case("115200, 8N1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, fpga_uart_test_common_no_fc<115200, 8, ParityNone, 1, false> >),
     // stop bits
+#if !defined(UART_TWO_STOP_BITS_NOT_SUPPORTED)
     Case("9600, 8N2, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, fpga_uart_test_common_no_fc<9600, 8, ParityNone, 2, false> >),
+#endif
 
 #if DEVICE_SERIAL_FC
     // Every set of pins from every peripheral.
@@ -355,11 +357,16 @@ Case cases[] = {
     Case("115200, 8N1, FC on", one_peripheral<UARTPort, DefaultFormFactor, fpga_uart_test_common<115200, 8, ParityNone, 1, false> >),
     // data bits: not tested (some platforms support 8 bits only)
     // parity
+#if !defined(UART_ODD_PARITY_NOT_SUPPORTED)
     Case("9600, 8O1, FC on", one_peripheral<UARTPort, DefaultFormFactor, fpga_uart_test_common<9600, 8, ParityOdd, 1, false> >),
+#endif
     Case("9600, 8E1, FC on", one_peripheral<UARTPort, DefaultFormFactor, fpga_uart_test_common<9600, 8, ParityEven, 1, false> >),
     // stop bits
+#if !defined(UART_TWO_STOP_BITS_NOT_SUPPORTED)
     Case("9600, 8N2, FC on", one_peripheral<UARTPort, DefaultFormFactor, fpga_uart_test_common<9600, 8, ParityNone, 2, false> >),
 #endif
+#endif
+
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

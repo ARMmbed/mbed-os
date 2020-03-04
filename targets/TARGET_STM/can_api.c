@@ -100,12 +100,8 @@ static void _can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz
     pin_function(pinmap->rd_pin, pinmap->rd_function);
     pin_function(pinmap->td_pin, pinmap->td_function);
     // Add pull-ups
-    if (pinmap->rd_pin != NC) {
-        pin_mode(pinmap->rd_pin, PullUp);
-    }
-    if (pinmap->td_pin != NC) {
-        pin_mode(pinmap->td_pin, PullUp);
-    }
+    pin_mode(pinmap->rd_pin, PullUp);
+    pin_mode(pinmap->td_pin, PullUp);
 
     // Default values
     obj->CanHandle.Instance = (FDCAN_GlobalTypeDef *)pinmap->peripheral;
@@ -599,12 +595,8 @@ static void _can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz
     pin_function(pinmap->rd_pin, pinmap->rd_function);
     pin_function(pinmap->td_pin, pinmap->td_function);
     // Add pull-ups
-    if (pinmap->rd_pin != NC) {
-        pin_mode(pinmap->rd_pin, PullUp);
-    }
-    if (pinmap->td_pin != NC) {
-        pin_mode(pinmap->td_pin, PullUp);
-    }
+    pin_mode(pinmap->rd_pin, PullUp);
+    pin_mode(pinmap->td_pin, PullUp);
 
     /*  Use default values for rist init */
     obj->CanHandle.Instance = (CAN_TypeDef *)pinmap->peripheral;

@@ -19,6 +19,4 @@
 
 #define ETH_IP_VERSION_V2
 
-#define THREAD_STACKSIZE              512
-
 #endif // #define STM32XX_EMAC_CONFIG_H__

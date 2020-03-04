@@ -65,10 +65,11 @@ static struct nu_spi_var spi3_var = {
     .pdma_perp_rx       =   PDMA_SPI3_RX
 #endif
 };
-static struct nu_spi_var spi5_var = {
+/* Degrade QSPI0 to SPI_4 for standard SPI usage */
+static struct nu_spi_var spi4_var = {
 #if DEVICE_SPI_ASYNCH
-    .pdma_perp_tx       =   PDMA_SPI5_TX,
-    .pdma_perp_rx       =   PDMA_SPI5_RX
+    .pdma_perp_tx       =   PDMA_QSPI0_TX,
+    .pdma_perp_rx       =   PDMA_QSPI0_RX
 #endif
 };
 
@@ -126,7 +127,8 @@ static const struct nu_modinit_s spi_modinit_tab[] = {
     {SPI_1, SPI1_MODULE, CLK_CLKSEL2_SPI1SEL_PCLK0, MODULE_NoMsk, SPI1_RST, SPI1_IRQn, &spi1_var},
     {SPI_2, SPI2_MODULE, CLK_CLKSEL2_SPI2SEL_PCLK1, MODULE_NoMsk, SPI2_RST, SPI2_IRQn, &spi2_var},
     {SPI_3, SPI3_MODULE, CLK_CLKSEL2_SPI3SEL_PCLK0, MODULE_NoMsk, SPI3_RST, SPI3_IRQn, &spi3_var},
-    {SPI_5, SPI5_MODULE, CLK_CLKSEL2_SPI5SEL_PCLK1, MODULE_NoMsk, SPI5_RST, SPI5_IRQn, &spi5_var},
+    /* Degrade QSPI0 to SPI_4 for standard SPI usage */
+    {SPI_4, QSPI0_MODULE, CLK_CLKSEL2_QSPI0SEL_PCLK0, MODULE_NoMsk, QSPI0_RST, QSPI0_IRQn, &spi4_var},
 
     {NC, 0, 0, 0, 0, (IRQn_Type) 0, NULL}
 };
@@ -283,17 +285,36 @@ void spi_frequency(spi_t *obj, int hz)
 int spi_master_write(spi_t *obj, int value)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
+    PinName spi_miso = obj->spi.pin_miso;
 
-    // NOTE: Data in receive FIFO can be read out via ICE.
     SPI_ENABLE_SYNC(spi_base);
 
-    // Wait for tx buffer empty
+    /* Wait for TX FIFO not full */
     while(! spi_writeable(obj));
     SPI_WRITE_TX(spi_base, value);
 
-    // Wait for rx buffer full
-    while (! spi_readable(obj));
-    int value2 = SPI_READ_RX(spi_base);
+    /* Make inter-frame (SPI data frame) delay match configured suspend interval
+     * in no MISO case
+     *
+     * This API requires data write/read simultaneously. However, it can enlarge
+     * the inter-frame delay. The data flow for one call of this API would be:
+     * 1. Write data to TX FIFO when it is not full
+     * 2. Write delay consisting of TX FIFO to TX Shift Register...
+     * 3. Actual data transfer on SPI bus
+     * 4. Read delay consisting of RX FIFO from RX Shift Register...
+     * 5. Read data from RX FIFO when it is not empty
+     * Among above, S2&S4 contribute to the inter-frame delay.
+     *
+     * To favor no MISO case, we skip S4&S5. Thus, S2 can overlap with S3 and doesn't
+     * contribute to the inter-frame delay when data is written successively. The solution
+     * can cause RX FIFO overrun. Ignore it.
+     */
+    int value2 = -1;
+    if (spi_miso != NC) {
+        /* Wait for RX FIFO not empty */
+        while (! spi_readable(obj));
+        value2 = SPI_READ_RX(spi_base);
+    }
 
     /* We don't call SPI_DISABLE_SYNC here for performance. */
 

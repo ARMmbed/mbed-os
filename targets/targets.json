@@ -206,7 +206,10 @@
         "supported_toolchains": [
             "uARM"
         ],
-        "default_lib": "small"
+        "default_lib": "small",
+        "detect_code": [
+            "9992"
+        ]
     },
     "CM4_ARM": {
         "inherits": [
@@ -216,6 +219,9 @@
         "public": false,
         "supported_toolchains": [
             "ARM"
+        ],
+        "detect_code": [
+            "9993"
         ]
     },
     "CM4F_UARM": {
@@ -228,7 +234,10 @@
         "supported_toolchains": [
             "uARM"
         ],
-        "default_lib": "small"
+        "default_lib": "small",
+        "detect_code": [
+            "9990"
+        ]
     },
     "CM4F_ARM": {
         "inherits": [
@@ -238,6 +247,9 @@
         "public": false,
         "supported_toolchains": [
             "ARM"
+        ],
+        "detect_code": [
+            "9991"
         ]
     },
     "LPCTarget": {
@@ -328,7 +340,10 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "LPC1114FN28/102"
+        "device_name": "LPC1114FN28/102",
+        "detect_code": [
+            "1114"
+        ]
     },
     "LPC11U24": {
         "inherits": [
@@ -412,6 +427,9 @@
         ],
         "release_versions": [
             "2"
+        ],
+        "detect_code": [
+            "1080"
         ]
     },
     "LPC11U24_301": {
@@ -502,7 +520,10 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "LPC11U34FBD48/311"
+        "device_name": "LPC11U34FBD48/311",
+        "detect_code": [
+            "1034"
+        ]
     },
     "LPC11U35_401": {
         "inherits": [
@@ -547,7 +568,10 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "LPC11U35FBD48/401"
+        "device_name": "LPC11U35FBD48/401",
+        "detect_code": [
+            "1061"
+        ]
     },
     "MCU_LPC11U35_501": {
         "inherits": [
@@ -593,6 +617,9 @@
         ],
         "release_versions": [
             "2"
+        ],
+        "detect_code": [
+            "9007"
         ]
     },
     "LPC11U35_501_IBDAP": {
@@ -609,6 +636,9 @@
         ],
         "release_versions": [
             "2"
+        ],
+        "detect_code": [
+            "9008"
         ]
     },
     "LPC11U35_Y5_MBUG": {
@@ -617,6 +647,9 @@
         ],
         "release_versions": [
             "2"
+        ],
+        "detect_code": [
+            "4000"
         ]
     },
     "LPC11U37_501": {
@@ -704,7 +737,10 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "LPC11U37FBD64/501"
+        "device_name": "LPC11U37FBD64/501",
+        "detect_code": [
+            "9010"
+        ]
     },
     "LPC11U68": {
         "supported_form_factors": [
@@ -779,7 +815,10 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "LPC1347FBD48"
+        "device_name": "LPC1347FBD48",
+        "detect_code": [
+            "9003"
+        ]
     },
     "LPC1549": {
         "supported_form_factors": [
@@ -949,7 +988,10 @@
         "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": "ETHERNET"
-        }
+        },
+        "detect_code": [
+            "9004"
+        ]
     },
     "UBLOX_C027": {
         "supported_form_factors": [
@@ -1009,7 +1051,10 @@
         "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": "CELLULAR"
-        }
+        },
+        "detect_code": [
+            "1235"
+        ]
     },
     "XBED_LPC1768": {
         "inherits": [
@@ -1089,7 +1134,10 @@
             "SPISLAVE"
         ],
         "default_lib": "small",
-        "device_name": "LPC810M021FN8"
+        "device_name": "LPC810M021FN8",
+        "detect_code": [
+            "1020"
+        ]
     },
     "LPC812": {
         "supported_form_factors": [
@@ -1164,7 +1212,10 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "LPC824M201JDH20"
+        "device_name": "LPC824M201JDH20",
+        "detect_code": [
+            "0824"
+        ]
     },
     "SSCI824": {
         "inherits": [
@@ -1195,6 +1246,9 @@
         "default_lib": "small",
         "release_versions": [
             "2"
+        ],
+        "detect_code": [
+            "1018"
         ]
     },
     "MCU_LPC4088": {
@@ -1222,7 +1276,6 @@
             "CAN",
             "DEBUG_AWARENESS",
             "EMAC",
-            "ETHERNET",
             "I2C",
             "I2CSLAVE",
             "INTERRUPTIN",
@@ -1250,6 +1303,9 @@
         "release_versions": [
             "2",
             "5"
+        ],
+        "detect_code": [
+            "1060"
         ]
     },
     "LPC4088_DM": {
@@ -1259,6 +1315,9 @@
         "release_versions": [
             "2",
             "5"
+        ],
+        "detect_code": [
+            "1062"
         ]
     },
     "LPC4330_M4": {
@@ -1295,7 +1354,10 @@
             "STDIO_MESSAGES",
             "MPU"
         ],
-        "device_name": "LPC4330"
+        "device_name": "LPC4330",
+        "detect_code": [
+            "1605"
+        ]
     },
     "LPC4330_M0": {
         "inherits": [
@@ -1365,7 +1427,10 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "LPC4337"
+        "device_name": "LPC4337",
+        "detect_code": [
+            "4337"
+        ]
     },
     "LPC1800": {
         "inherits": [
@@ -1488,7 +1553,10 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "MKL05Z32xxx4"
+        "device_name": "MKL05Z32xxx4",
+        "detect_code": [
+            "0210"
+        ]
     },
     "KL25Z": {
         "supported_form_factors": [
@@ -1779,6 +1847,9 @@
         ],
         "extra_labels_add": [
             "FRDM"
+        ],
+        "detect_code": [
+            "0231"
         ]
     },
     "KL27Z": {
@@ -2387,7 +2458,10 @@
             "STDIO_MESSAGES",
             "FLASH"
         ],
-        "device_name": "MK64FN1M0xxx12"
+        "device_name": "MK64FN1M0xxx12",
+        "detect_code": [
+            "0300"
+        ]
     },
     "HEXIWEAR": {
         "inherits": [
@@ -2866,7 +2940,7 @@
         "device_name": "MIMXRT1052",
         "bootloader_supported": true,
         "overrides": {
-            "deep-sleep-latency": 5,
+            "deep-sleep-latency": 10,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -3115,7 +3189,10 @@
             "init-us-ticker-at-boot": true
         },
         "OUTPUT_EXT": "hex",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "detect_code": [
+            "0236"
+        ]
     },
     "LPC55S69_S": {
         "inherits": [
@@ -3157,12 +3234,20 @@
             "secure-ram-start": "0x30000000",
             "secure-ram-size": "0x22000"
         }
-    },    
+    },
     "HANI_IOT": {
-        "inherits": ["LPC55S69_NS"],
-        "detect_code": ["0360"],
-        "components_add": ["SPIF"],
-        "extra_labels_remove": ["LPCXpresso"]
+        "inherits": [
+            "LPC55S69_NS"
+        ],
+        "detect_code": [
+            "0360"
+        ],
+        "components_add": [
+            "SPIF"
+        ],
+        "extra_labels_remove": [
+            "LPCXpresso"
+        ]
     },
     "NUCLEO_F030R8": {
         "inherits": [
@@ -3942,7 +4027,10 @@
         },
         "overrides": {
             "network-default-interface-type": "WIFI"
-        }
+        },
+        "detect_code": [
+            "0451"
+        ]
     },
     "USI_WM_BN_BM_22": {
         "inherits": [
@@ -4008,6 +4096,9 @@
         ],
         "inherits": [
             "USI_WM_BN_BM_22"
+        ],
+        "detect_code": [
+            "0462"
         ]
     },
     "MTB_ADV_WISE_1530": {
@@ -4022,7 +4113,10 @@
         "overrides": {
             "stdio_uart_tx": "PB_10",
             "stdio_uart_rx": "PC_11"
-        }
+        },
+        "detect_code": [
+            "0459"
+        ]
     },
     "DISCO_F413ZH": {
         "components_add": [
@@ -5642,7 +5736,10 @@
         "overrides": {
             "lse_available": 0,
             "network-default-interface-type": "ETHERNET"
-        }
+        },
+        "detect_code": [
+            "9011"
+        ]
     },
     "WIO_3G": {
         "inherits": [
@@ -5834,7 +5931,10 @@
         "device_has_remove": [
             "LPTICKER"
         ],
-        "device_name": "STM32F303VC"
+        "device_name": "STM32F303VC",
+        "detect_code": [
+            "0746"
+        ]
     },
     "DISCO_F334C8": {
         "inherits": [
@@ -5909,7 +6009,10 @@
             "2",
             "5"
         ],
-        "device_name": "STM32F407VG"
+        "device_name": "STM32F407VG",
+        "detect_code": [
+            "0830"
+        ]
     },
     "OLIMEX_STM32E407_F407ZG": {
         "inherits": [
@@ -5993,7 +6096,10 @@
             "5"
         ],
         "device_name": "STM32F429ZI",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "detect_code": [
+            "0795"
+        ]
     },
     "DISCO_F469NI": {
         "components_add": [
@@ -6128,7 +6234,10 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "STM32L053C8"
+        "device_name": "STM32L053C8",
+        "detect_code": [
+            "0805"
+        ]
     },
     "DISCO_L072CZ_LRWAN1": {
         "inherits": [
@@ -6582,7 +6691,10 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "STM32F405RG"
+        "device_name": "STM32F405RG",
+        "detect_code": [
+            "0305"
+        ]
     },
     "MTS_MDOT_F411RE": {
         "inherits": [
@@ -6617,7 +6729,10 @@
             "2",
             "5"
         ],
-        "device_name": "STM32F411RE"
+        "device_name": "STM32F411RE",
+        "detect_code": [
+            "0320"
+        ]
     },
     "MTS_DRAGONFLY_F411RE": {
         "inherits": [
@@ -6659,7 +6774,10 @@
             "5"
         ],
         "device_name": "STM32F411RE",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "detect_code": [
+            "0454"
+        ]
     },
     "MTS_DRAGONFLY_F413RH": {
         "inherits": [
@@ -6807,7 +6925,10 @@
             "5"
         ],
         "device_name": "STM32F411RE",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "detect_code": [
+            "0454"
+        ]
     },
     "XDOT_L151CC": {
         "inherits": [
@@ -6842,7 +6963,10 @@
             "5"
         ],
         "device_name": "STM32L151CC",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "detect_code": [
+            "0350"
+        ]
     },
     "FF1705_L151CC": {
         "inherits": [
@@ -6889,7 +7013,10 @@
             "5"
         ],
         "device_name": "STM32L151CC",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "detect_code": [
+            "0453"
+        ]
     },
     "MTB_RAK811": {
         "inherits": [
@@ -6918,7 +7045,10 @@
             "5"
         ],
         "device_name": "STM32L151CBxxA",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "detect_code": [
+            "0457"
+        ]
     },
     "MOTE_L152RC": {
         "inherits": [
@@ -7063,7 +7193,10 @@
         "overrides": {
             "stdio_uart_tx": "D8",
             "stdio_uart_rx": "D2"
-        }
+        },
+        "detect_code": [
+            "1236"
+        ]
     },
     "MBED_CONNECT_ODIN": {
         "inherits": [
@@ -7083,7 +7216,10 @@
         "overrides": {
             "stdio_uart_tx": "PA_9",
             "stdio_uart_rx": "PA_10"
-        }
+        },
+        "detect_code": [
+            "2410"
+        ]
     },
     "MTB_UBLOX_ODIN_W2": {
         "inherits": [
@@ -7094,6 +7230,9 @@
         },
         "release_versions": [
             "5"
+        ],
+        "detect_code": [
+            "0450"
         ]
     },
     "OKDO_ODIN_W2": {
@@ -7106,6 +7245,9 @@
         },
         "release_versions": [
             "5"
+        ],
+        "detect_code": [
+            "1280"
         ]
     },
     "UBLOX_C030": {
@@ -7161,6 +7303,9 @@
         "macros_add": [
             "UBX_MDM_SARA_U2XX",
             "UBX_MDM_SARA_U201"
+        ],
+        "detect_code": [
+            "C030"
         ]
     },
     "UBLOX_C030_N211": {
@@ -7173,6 +7318,9 @@
         "macros_add": [
             "UBX_MDM_SARA_N2XX",
             "UBX_MDM_SARA_N211"
+        ],
+        "detect_code": [
+            "C031"
         ]
     },
     "UBLOX_C030_R41XM": {
@@ -7206,6 +7354,9 @@
         "macros_add": [
             "UBX_MDM_SARA_R41XM",
             "UBX_MDM_SARA_R412M"
+        ],
+        "detect_code": [
+            "C036"
         ]
     },
     "NZ32_SC151": {
@@ -7320,8 +7471,8 @@
             "USTICKER"
         ],
         "overrides": {
-            "tickless-from-us-ticker"   : true,
-            "boot-stack-size"           : "0x400"
+            "tickless-from-us-ticker": true,
+            "boot-stack-size": "0x400"
         }
     },
     "MCU_NRF51_16K_BASE": {
@@ -7501,7 +7652,10 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "nRF51822_xxAA"
+        "device_name": "nRF51822_xxAA",
+        "detect_code": [
+            "1070"
+        ]
     },
     "NRF51822_BOOT": {
         "inherits": [
@@ -7525,6 +7679,9 @@
         ],
         "macros_add": [
             "TARGET_NRF51822_MKIT"
+        ],
+        "detect_code": [
+            "1075"
         ]
     },
     "ARCH_BLE": {
@@ -7537,7 +7694,10 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "nRF51822_xxAA"
+        "device_name": "nRF51822_xxAA",
+        "detect_code": [
+            "9009"
+        ]
     },
     "ARCH_BLE_BOOT": {
         "supported_form_factors": [
@@ -7579,6 +7739,9 @@
         ],
         "macros_add": [
             "TARGET_ARCH_BLE"
+        ],
+        "detect_code": [
+            "9013"
         ]
     },
     "ARCH_LINK_BOOT": {
@@ -7620,7 +7783,10 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "nRF51822_xxAA"
+        "device_name": "nRF51822_xxAA",
+        "detect_code": [
+            "9012"
+        ]
     },
     "SEEED_TINY_BLE_BOOT": {
         "inherits": [
@@ -7654,7 +7820,10 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "nRF51822_xxAA"
+        "device_name": "nRF51822_xxAA",
+        "detect_code": [
+            "1017"
+        ]
     },
     "HRM1017_BOOT": {
         "inherits": [
@@ -7690,7 +7859,10 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "nRF51822_xxAA"
+        "device_name": "nRF51822_xxAA",
+        "detect_code": [
+            "1090"
+        ]
     },
     "RBLAB_NRF51822_BOOT": {
         "supported_form_factors": [
@@ -7726,6 +7898,9 @@
         ],
         "release_versions": [
             "2"
+        ],
+        "detect_code": [
+            "1095"
         ]
     },
     "RBLAB_BLENANO_BOOT": {
@@ -7774,11 +7949,17 @@
             "NRF52_PAN_62",
             "NRF52_PAN_63",
             "NRF52_PAN_64"
+        ],
+        "detect_code": [
+            "1093"
         ]
     },
     "NRF51822_Y5_MBUG": {
         "inherits": [
             "MCU_NRF51_16K"
+        ],
+        "detect_code": [
+            "4005"
         ]
     },
     "WALLBOT_BLE": {
@@ -7787,6 +7968,9 @@
         ],
         "release_versions": [
             "2"
+        ],
+        "detect_code": [
+            "1140"
         ]
     },
     "WALLBOT_BLE_BOOT": {
@@ -7836,7 +8020,10 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "nRF51822_xxAA"
+        "device_name": "nRF51822_xxAC",
+        "detect_code": [
+            "4500"
+        ]
     },
     "DELTA_DFCM_NNN40_BOOT": {
         "inherits": [
@@ -7890,7 +8077,10 @@
             "SPI_ASYNCH",
             "SPISLAVE"
         ],
-        "device_name": "nRF51822_xxAC"
+        "device_name": "nRF51822_xxAC",
+        "detect_code": [
+            "4502"
+        ]
     },
     "DELTA_DFCM_NNN50_BOOT": {
         "supported_form_factors": [
@@ -7957,6 +8147,9 @@
         ],
         "macros_add": [
             "TARGET_NRF51_DK"
+        ],
+        "detect_code": [
+            "1105"
         ]
     },
     "NRF51_DONGLE_LEGACY": {
@@ -7969,7 +8162,7 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "nRF51822_xxAA"
+        "device_name": "nRF51822_xxAC"
     },
     "NRF51_DONGLE_BOOT": {
         "inherits": [
@@ -8007,6 +8200,9 @@
         "supported_toolchains": [
             "ARMC5",
             "GCC_ARM"
+        ],
+        "detect_code": [
+            "9900"
         ]
     },
     "NRF51_MICROBIT_BOOT": {
@@ -8079,7 +8275,10 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "nRF51822_xxAA"
+        "device_name": "nRF51822_xxAC",
+        "detect_code": [
+            "C005"
+        ]
     },
     "MTM_MTCONNECT04S_BOOT": {
         "inherits": [
@@ -8126,7 +8325,7 @@
             "SPI_ASYNCH",
             "SPISLAVE"
         ],
-        "device_name": "nRF51822_xxAA",
+        "device_name": "nRF51822_xxAC",
         "release_versions": [
             "5"
         ],
@@ -8150,7 +8349,10 @@
         },
         "overrides": {
             "uart_hwfc": 0
-        }
+        },
+        "detect_code": [
+            "0452"
+        ]
     },
     "TY51822R3": {
         "inherits": [
@@ -8187,7 +8389,7 @@
         "overrides": {
             "uart_hwfc": 0
         },
-        "device_name": "nRF51822_xxAA"
+        "device_name": "nRF51822_xxAC"
     },
     "TY51822R3_BOOT": {
         "inherits": [
@@ -8501,6 +8703,9 @@
         ],
         "release_versions": [
             "2"
+        ],
+        "detect_code": [
+            "5001"
         ]
     },
     "ARM_CM3DS_MPS2": {
@@ -8550,7 +8755,10 @@
         "reset_method": "reboot.txt",
         "overrides": {
             "target.network-default-interface-type": "ETHERNET"
-        }
+        },
+        "detect_code": [
+            "5004"
+        ]
     },
     "ARM_MUSCA_A1": {
         "public": false,
@@ -8646,6 +8854,99 @@
             "secure-ram-size": "0x11000"
         }
     },
+    "ARM_MUSCA_B1": {
+        "public": false,
+        "inherits": [
+            "Target"
+        ],
+        "default_toolchain": "ARMC6",
+        "extra_labels": [
+            "ARM_SSG",
+            "MUSCA_B1"
+        ],
+        "forced_reset_timeout": 20,
+        "release_versions": [
+            "5"
+        ]
+    },
+    "ARM_MUSCA_B1_NS": {
+        "inherits": [
+            "NSPE_Target",
+            "ARM_MUSCA_B1"
+        ],
+        "core": "Cortex-M33-NS",
+        "supported_toolchains": [
+            "ARMC6",
+            "GCC_ARM"
+        ],
+        "device_has_add": [
+            "INTERRUPTIN",
+            "LPTICKER",
+            "SERIAL",
+            "SLEEP",
+            "USTICKER"
+        ],
+        "macros": [
+            "__STARTUP_CLEAR_BSS",
+            "MBED_FAULT_HANDLER_DISABLED",
+            "CMSIS_NVIC_VIRTUAL",
+            "LPTICKER_DELAY_TICKS=3",
+            "MBED_MPU_CUSTOM"
+        ],
+        "extra_labels_add": [
+            "MUSCA_B1_NS",
+            "PSA",
+            "TFM"
+        ],
+        "post_binary_hook": {
+            "function": "ArmMuscaB1Code.binary_hook"
+        },
+        "secure_image_filename": "tfm.bin",
+        "overrides": {
+            "non-secure-rom-start": "0x0A070400",
+            "non-secure-rom-size": "0x7f800",
+            "non-secure-ram-start": "0x20040000",
+            "non-secure-ram-size": "0x40000"
+        }
+    },
+    "ARM_MUSCA_B1_S": {
+        "inherits": [
+            "SPE_Target",
+            "ARM_MUSCA_B1"
+        ],
+        "core": "Cortex-M33",
+        "supported_toolchains": [
+            "ARMC6",
+            "GCC_ARM"
+        ],
+        "device_has_add": [
+            "FLASH"
+        ],
+        "macros": [
+            "__STARTUP_CLEAR_BSS_MULTIPLE",
+            "__STARTUP_COPY_MULTIPLE",
+            "MBED_MPU_CUSTOM",
+            "DAUTH_CHIP_DEFAULT",
+            "MBEDTLS_PSA_CRYPTO_SPM",
+            "MBEDTLS_ENTROPY_NV_SEED"
+        ],
+        "components_add": [
+            "FLASHIAP"
+        ],
+        "extra_labels_add": [
+            "MUSCA_B1_S",
+            "PSA",
+            "TFM"
+        ],
+        "deliver_to_target": "ARM_MUSCA_B1_NS",
+        "delivery_dir": "TARGET_ARM_SSG/TARGET_MUSCA_B1/TARGET_MUSCA_B1_NS/prebuilt",
+        "overrides": {
+            "secure-rom-start": "0x1A020400",
+            "secure-rom-size": "0x4f800",
+            "secure-ram-start": "0x30000000",
+            "secure-ram-size": "0x40000"
+        }
+    },
     "RZ_A1XX": {
         "inherits": [
             "Target"
@@ -8716,9 +9017,17 @@
         ],
         "device_name": "R7S72100",
         "bootloader_supported": true,
-        "mbed_rom_start"        : "0x18000000",
-        "mbed_rom_size"         : "0x800000",
-        "sectors": [[402653184,4096]]
+        "mbed_rom_start": "0x18000000",
+        "mbed_rom_size": "0x800000",
+        "sectors": [
+            [
+                402653184,
+                4096
+            ]
+        ],
+        "detect_code": [
+            "5500"
+        ]
     },
     "VK_RZ_A1H": {
         "inherits": [
@@ -8735,6 +9044,9 @@
         "release_versions": [
             "2",
             "5"
+        ],
+        "detect_code": [
+            "C002"
         ]
     },
     "GR_LYCHEE": {
@@ -8767,12 +9079,20 @@
         ],
         "device_name": "R7S72103",
         "bootloader_supported": true,
-        "mbed_rom_start"        : "0x18000000",
-        "mbed_rom_size"         : "0x800000",
-        "sectors": [[402653184,4096]],
+        "mbed_rom_start": "0x18000000",
+        "mbed_rom_size": "0x800000",
+        "sectors": [
+            [
+                402653184,
+                4096
+            ]
+        ],
         "overrides": {
             "network-default-interface-type": null
-        }
+        },
+        "detect_code": [
+            "5501"
+        ]
     },
     "MAXWSNENV": {
         "inherits": [
@@ -8809,7 +9129,10 @@
         "features": [
             "BLE"
         ],
-        "release_versions": []
+        "release_versions": [],
+        "detect_code": [
+            "0400"
+        ]
     },
     "MAX32600MBED": {
         "inherits": [
@@ -8847,6 +9170,9 @@
         "release_versions": [
             "2",
             "5"
+        ],
+        "detect_code": [
+            "0405"
         ]
     },
     "MAX32620HSP": {
@@ -8881,7 +9207,10 @@
         "features": [
             "BLE"
         ],
-        "release_versions": []
+        "release_versions": [],
+        "detect_code": [
+            "0407"
+        ]
     },
     "MAX32620FTHR": {
         "inherits": [
@@ -8923,6 +9252,9 @@
         "release_versions": [
             "2",
             "5"
+        ],
+        "detect_code": [
+            "0418"
         ]
     },
     "SDT32620B": {
@@ -9019,6 +9351,9 @@
         ],
         "extra_labels_add": [
             "MAX32625_NO_BOOT"
+        ],
+        "detect_code": [
+            "0415"
         ]
     },
     "SDT32625B": {
@@ -9039,11 +9374,17 @@
         "extra_labels_add": [
             "MAX32625_BOOT"
         ],
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "detect_code": [
+            "0444"
+        ]
     },
     "MAX32625NEXPAQ": {
         "inherits": [
             "MAX32625_BASE"
+        ],
+        "detect_code": [
+            "0408"
         ]
     },
     "MAX32630FTHR": {
@@ -9090,6 +9431,9 @@
         "release_versions": [
             "2",
             "5"
+        ],
+        "detect_code": [
+            "0409"
         ]
     },
     "EFM32": {
@@ -9206,7 +9550,10 @@
                 "value": "PF7",
                 "macro_name": "EFM_BC_EN"
             }
-        }
+        },
+        "detect_code": [
+            "2015"
+        ]
     },
     "EFM32LG990F256": {
         "inherits": [
@@ -9304,7 +9651,10 @@
                 "value": "PF7",
                 "macro_name": "EFM_BC_EN"
             }
-        }
+        },
+        "detect_code": [
+            "2020"
+        ]
     },
     "EFM32WG990F256": {
         "inherits": [
@@ -9404,7 +9754,10 @@
                 "value": "PF7",
                 "macro_name": "EFM_BC_EN"
             }
-        }
+        },
+        "detect_code": [
+            "2010"
+        ]
     },
     "EFM32ZG222F32": {
         "inherits": [
@@ -9496,7 +9849,10 @@
                 "value": "PA9",
                 "macro_name": "EFM_BC_EN"
             }
-        }
+        },
+        "detect_code": [
+            "2030"
+        ]
     },
     "EFM32HG322F64": {
         "inherits": [
@@ -9588,7 +9944,10 @@
                 "value": "PA9",
                 "macro_name": "EFM_BC_EN"
             }
-        }
+        },
+        "detect_code": [
+            "2005"
+        ]
     },
     "EFM32PG1B100F256GM32": {
         "inherits": [
@@ -9685,7 +10044,10 @@
                 "value": "PA5",
                 "macro_name": "EFM_BC_EN"
             }
-        }
+        },
+        "detect_code": [
+            "2035"
+        ]
     },
     "EFR32MG1P132F256GM48": {
         "inherits": [
@@ -9985,7 +10347,10 @@
                 "value": "PA5",
                 "macro_name": "EFM_BC_EN"
             }
-        }
+        },
+        "detect_code": [
+            "2040"
+        ]
     },
     "EFR32MG12P332F1024GL125": {
         "inherits": [
@@ -10085,7 +10450,10 @@
         },
         "overrides": {
             "network-default-interface-type": "MESH"
-        }
+        },
+        "detect_code": [
+            "2041"
+        ]
     },
     "EFM32GG11B820F2048GL192": {
         "inherits": [
@@ -10196,7 +10564,10 @@
         },
         "overrides": {
             "network-default-interface-type": "ETHERNET"
-        }
+        },
+        "detect_code": [
+            "2042"
+        ]
     },
     "WIZWIKI_W7500": {
         "supported_form_factors": [
@@ -10238,6 +10609,9 @@
         "release_versions": [
             "2",
             "5"
+        ],
+        "detect_code": [
+            "2201"
         ]
     },
     "WIZWIKI_W7500P": {
@@ -10280,6 +10654,9 @@
         "release_versions": [
             "2",
             "5"
+        ],
+        "detect_code": [
+            "2203"
         ]
     },
     "WIZWIKI_W7500ECO": {
@@ -10319,6 +10696,9 @@
         "release_versions": [
             "2",
             "5"
+        ],
+        "detect_code": [
+            "2202"
         ]
     },
     "SAMR21G18A": {
@@ -10365,7 +10745,10 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "ATSAMR21G18A"
+        "device_name": "ATSAMR21G18A",
+        "detect_code": [
+            "0900"
+        ]
     },
     "SAMD21J18A": {
         "inherits": [
@@ -10411,7 +10794,10 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "ATSAMD21J18A"
+        "device_name": "ATSAMD21J18A",
+        "detect_code": [
+            "0915"
+        ]
     },
     "SAMD21G18A": {
         "inherits": [
@@ -10457,7 +10843,10 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "ATSAMD21G18A"
+        "device_name": "ATSAMD21G18A",
+        "detect_code": [
+            "0905"
+        ]
     },
     "SAML21J18A": {
         "inherits": [
@@ -10500,7 +10889,10 @@
             "SPISLAVE",
             "SPI_ASYNCH"
         ],
-        "device_name": "ATSAML21J18A"
+        "device_name": "ATSAML21J18A",
+        "detect_code": [
+            "0910"
+        ]
     },
     "SAMG55J19": {
         "inherits": [
@@ -10546,7 +10938,10 @@
             "MPU"
         ],
         "default_lib": "std",
-        "device_name": "ATSAMG55J19"
+        "device_name": "ATSAMG55J19",
+        "detect_code": [
+            "0920"
+        ]
     },
     "MCU_NRF51_UNIFIED": {
         "inherits": [
@@ -10693,7 +11088,10 @@
             "2",
             "5"
         ],
-        "device_name": "nRF51822_xxAA"
+        "device_name": "nRF51822_xxAC",
+        "detect_code": [
+            "1100"
+        ]
     },
     "SDT51822B": {
         "inherits": [
@@ -10725,7 +11123,7 @@
             "2",
             "5"
         ],
-        "device_name": "nRF51822_xxAA"
+        "device_name": "nRF51822_xxAC"
     },
     "NRF51_DONGLE": {
         "inherits": [
@@ -10754,7 +11152,11 @@
         "release_versions": [
             "2",
             "5"
-        ]
+        ],
+        "detect_code": [
+            "1120"
+        ],
+        "device_name": "nRF51822_xxAC"
     },
     "OSHCHIP": {
         "inherits": [
@@ -10899,6 +11301,9 @@
             "NRF52_PAN_62",
             "NRF52_PAN_63",
             "NRF52_PAN_64"
+        ],
+        "detect_code": [
+            "1101"
         ]
     },
     "RIOT_MICRO_MODULE": {
@@ -10965,6 +11370,9 @@
             "NRF52_PAN_62",
             "NRF52_PAN_63",
             "NRF52_PAN_64"
+        ],
+        "detect_code": [
+            "1238"
         ]
     },
     "UBLOX_EVK_NINA_B1": {
@@ -10997,7 +11405,10 @@
         ],
         "overrides": {
             "console-uart-flow-control": "RTSCTS"
-        }
+        },
+        "detect_code": [
+            "1237"
+        ]
     },
     "MTB_UBLOX_NINA_B1": {
         "inherits": [
@@ -11023,6 +11434,9 @@
             "NRF52_PAN_62",
             "NRF52_PAN_63",
             "NRF52_PAN_64"
+        ],
+        "detect_code": [
+            "0455"
         ]
     },
     "MTB_LAIRD_BL652": {
@@ -11053,7 +11467,10 @@
         "overrides": {
             "lf_clock_src": "NRF_LF_SRC_RC",
             "console-uart-flow-control": null
-        }
+        },
+        "detect_code": [
+            "0461"
+        ]
     },
     "MTB_MURATA_WSM_BL241": {
         "inherits": [
@@ -11095,7 +11512,10 @@
         "release_versions": [
             "5"
         ],
-        "device_name": "nRF52832_xxAA"
+        "device_name": "nRF52832_xxAA",
+        "detect_code": [
+            "0472"
+        ]
     },
     "DELTA_DFBM_NQ620": {
         "supported_form_factors": [
@@ -11132,7 +11552,10 @@
             "lf_clock_src": "NRF_LF_SRC_RC",
             "lf_clock_rc_calib_timer_interval": 16,
             "lf_clock_rc_calib_mode_config": 0
-        }
+        },
+        "detect_code": [
+            "4501"
+        ]
     },
     "MCU_NRF52840": {
         "inherits": [
@@ -11154,7 +11577,9 @@
             "WSF_MAX_HANDLERS=10",
             "MBED_MPU_CUSTOM",
             "SWI_DISABLE0",
-            "NRF52_PAN_20"
+            "NRF52_PAN_20",
+            "UART_TWO_STOP_BITS_NOT_SUPPORTED",
+            "UART_ODD_PARITY_NOT_SUPPORTED"
         ],
         "features": [
             "CRYPTOCELL310",
@@ -11413,7 +11838,10 @@
             "network-default-interface-type": "ETHERNET",
             "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
-        }
+        },
+        "detect_code": [
+            "1302"
+        ]
     },
     "NCS36510": {
         "inherits": [
@@ -11486,6 +11914,9 @@
         "release_versions": [
             "2",
             "5"
+        ],
+        "detect_code": [
+            "1200"
         ]
     },
     "NUMAKER_PFM_M453": {
@@ -11573,7 +12004,10 @@
         "overrides": {
             "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
-        }
+        },
+        "detect_code": [
+            "1303"
+        ]
     },
     "NUMAKER_PFM_NANO130": {
         "core": "Cortex-M0",
@@ -11655,7 +12089,10 @@
         "overrides": {
             "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
-        }
+        },
+        "detect_code": [
+            "1306"
+        ]
     },
     "HI2110": {
         "inherits": [
@@ -11893,7 +12330,8 @@
             "STM32L496xG"
         ],
         "components_add": [
-            "QSPIF"
+            "QSPIF",
+            "FLASHIAP"
         ],
         "config": {
             "clock_source": {
@@ -12168,7 +12606,9 @@
         "bootloader_supported": true
     },
     "NUCLEO_L552ZE_Q": {
-        "inherits": ["FAMILY_STM32"],
+        "inherits": [
+            "FAMILY_STM32"
+        ],
         "core": "Cortex-M33FE",
         "extra_labels_add": [
             "STM32L5",
@@ -12197,14 +12637,72 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 0 },
+        "overrides": {
+            "lpticker_delay_ticks": 0
+        },
         "device_has_add": [
-	          "ANALOGOUT",
-	          "CRC",
-	          "MPU",
-	          "SERIAL_ASYNCH",
-	          "TRNG",
-	          "FLASH"
+            "ANALOGOUT",
+            "CRC",
+            "MPU",
+            "SERIAL_ASYNCH",
+            "TRNG",
+            "FLASH"
+        ],
+        "detect_code": [
+            "0854"
+        ],
+        "bootloader_supported": true,
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size": "0x80000",
+        "mbed_ram_start": "0x20000000",
+        "mbed_ram_size": "0x40000",
+        "release_versions": [
+            "5"
+        ]
+    },
+    "DISCO_L562QE": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M33FE",
+        "extra_labels_add": [
+            "STM32L5",
+            "STM32L562xx",
+            "MX25LM51245G"
+        ],
+        "supported_form_factors": [
+            "ARDUINO",
+            "STMOD",
+            "PMOD"
+        ],
+        "components_add": [
+            "FLASHIAP"
+        ],
+        "macros_add": [
+            "STM32L562xx",
+            "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED"
+        ],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
+                "value": "USE_PLL_MSI",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
+                "value": 1
+            }
+        },
+        "overrides": {
+            "lpticker_delay_ticks": 0
+        },
+        "device_has_add": [
+            "ANALOGOUT",
+            "CRC",
+            "MPU",
+            "SERIAL_ASYNCH",
+            "TRNG",
+            "FLASH",
+            "QSPI"
         ],
         "detect_code": ["0854"],
         "bootloader_supported": true,
@@ -12339,7 +12837,10 @@
         "components_add": [
             "FLASHIAP"
         ],
-        "device_name": "M487JIDAE"
+        "device_name": "M487JIDAE",
+        "detect_code": [
+            "1304"
+        ]
     },
     "NUMAKER_IOT_M487": {
         "inherits": [
@@ -12348,7 +12849,10 @@
         "components_add": [
             "FLASHIAP"
         ],
-        "device_name": "M487JIDAE"
+        "device_name": "M487JIDAE",
+        "detect_code": [
+            "1308"
+        ]
     },
     "TMPM066": {
         "inherits": [
@@ -12435,7 +12939,10 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "STM32F411RE"
+        "device_name": "STM32F411RE",
+        "detect_code": [
+            "C008"
+        ]
     },
     "TMPM46B": {
         "inherits": [
@@ -12698,7 +13205,10 @@
         "mbed_rom_start": "0x10010000",
         "mbed_rom_size": "0x70000",
         "mbed_ram_start": "0x30002000",
-        "mbed_ram_size": "0x16000"
+        "mbed_ram_size": "0x16000",
+        "detect_code": [
+            "1305"
+        ]
     },
     "NU_PFM_M2351_NPSA_S": {
         "overrides": {
@@ -12757,17 +13267,19 @@
         "components_add": [
             "FLASHIAP"
         ],
-        "post_binary_hook": {"function": "M2351Code.merge_secure"},
+        "post_binary_hook": {
+            "function": "M2351Code.merge_secure"
+        },
         "secure_image_filename": "tfm.hex",
         "overrides": {
-            "secure-rom-start"      : "0x0",
-            "secure-rom-size"       : "0x3C000",
-            "secure-ram-start"      : "0x20000000",
-            "secure-ram-size"       : "0x10000",
-            "non-secure-rom-start"  : "0x1003C000",
-            "non-secure-rom-size"   : "0x44000",
-            "non-secure-ram-start"  : "0x30010000",
-            "non-secure-ram-size"   : "0x8000"
+            "secure-rom-start": "0x0",
+            "secure-rom-size": "0x3C000",
+            "secure-ram-start": "0x20000000",
+            "secure-ram-size": "0x10000",
+            "non-secure-rom-start": "0x1003C000",
+            "non-secure-rom-size": "0x44000",
+            "non-secure-ram-start": "0x30010000",
+            "non-secure-ram-size": "0x8000"
         }
     },
     "NU_PFM_M2351_S": {
@@ -12802,14 +13314,14 @@
         "deliver_to_target": "NU_PFM_M2351_NS",
         "delivery_dir": "TARGET_NUVOTON/TARGET_M2351/TARGET_M23_NS/TARGET_NU_PFM_M2351_NS/TARGET_NU_PREBUILD_SECURE",
         "overrides": {
-            "secure-rom-start"      : "0x0",
-            "secure-rom-size"       : "0x3C000",
-            "secure-ram-start"      : "0x20000000",
-            "secure-ram-size"       : "0x10000",
-            "non-secure-rom-start"  : "0x1003C000",
-            "non-secure-rom-size"   : "0x44000",
-            "non-secure-ram-start"  : "0x30010000",
-            "non-secure-ram-size"   : "0x8000"
+            "secure-rom-start": "0x0",
+            "secure-rom-size": "0x3C000",
+            "secure-ram-start": "0x20000000",
+            "secure-ram-size": "0x10000",
+            "non-secure-rom-start": "0x1003C000",
+            "non-secure-rom-size": "0x44000",
+            "non-secure-ram-start": "0x30010000",
+            "non-secure-ram-size": "0x8000"
         }
     },
     "NUMAKER_M252KG": {
@@ -13032,6 +13544,7 @@
             "PORTINOUT",
             "PWMOUT",
             "QSPI",
+            "RESET_REASON",
             "RTC",
             "SERIAL",
             "SERIAL_FC",
@@ -13095,7 +13608,7 @@
         ],
         "public": false
     },
-    "CY8CMOD_062_4343W": {
+    "CY8CPROTO_062_4343W": {
         "inherits": [
             "MCU_PSOC6_M4"
         ],
@@ -13119,12 +13632,21 @@
             "CY8C624ABZI_D44",
             "CYBSP_WIFI_CAPABLE"
         ],
-        "public": false,
+        "detect_code": [
+            "1901"
+        ],
+        "bootloader_supported": false,
+        "sectors": [
+            [
+                268435456,
+                512
+            ]
+        ],
         "overrides": {
             "network-default-interface-type": "WIFI"
         }
     },
-    "CY8CMOD_062S2_43012": {
+    "CY8CKIT_062S2_43012": {
         "inherits": [
             "MCU_PSOC6_M4"
         ],
@@ -13135,6 +13657,9 @@
             "WHD",
             "43012",
             "CYW43XXX"
+        ],
+        "supported_form_factors": [
+            "ARDUINO"
         ],
         "device_has_remove": [
             "ANALOGOUT"
@@ -13148,12 +13673,14 @@
             "CY8C624ABZI_D44",
             "CYBSP_WIFI_CAPABLE"
         ],
-        "public": false,
+        "detect_code": [
+            "190B"
+        ],
         "overrides": {
             "network-default-interface-type": "WIFI"
         }
     },
-    "CY8CMOD_062S3_4343W": {
+    "CY8CPROTO_062S3_4343W": {
         "inherits": [
             "MCU_PSOC6_M4"
         ],
@@ -13179,7 +13706,9 @@
             "CY_ENABLE_XIP_PROGRAM",
             "CY_STORAGE_WIFI_DATA=\".cy_xip\""
         ],
-        "public": false,
+        "detect_code": [
+            "190E"
+        ],
         "overrides": {
             "network-default-interface-type": "WIFI",
             "xip-enable": true
@@ -13256,9 +13785,6 @@
         "detect_code": [
             "1900"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "bootloader_supported": false,
         "sectors": [
             [
@@ -13270,49 +13796,6 @@
             "network-default-interface-type": "WIFI"
         },
         "program_cycle_s": 10
-    },
-    "CY8CPROTO_062_4343W": {
-        "inherits": [
-            "CY8CMOD_062_4343W"
-        ],
-        "detect_code": [
-            "1901"
-        ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
-        "bootloader_supported": false,
-        "sectors": [
-            [
-                268435456,
-                512
-            ]
-        ]
-    },
-    "CY8CPROTO_062S3_4343W": {
-        "inherits": [
-            "CY8CMOD_062S3_4343W"
-        ],
-        "detect_code": [
-            "190E"
-        ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        }
-    },
-    "CY8CKIT_062S2_43012": {
-        "inherits": [
-            "CY8CMOD_062S2_43012"
-        ],
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "detect_code": [
-            "190B"
-        ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        }
     },
     "CY8CKIT_062_BLE": {
         "inherits": [
@@ -13334,9 +13817,6 @@
         "detect_code": [
             "1902"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "sectors": [
             [
                 268443648,
@@ -13366,9 +13846,6 @@
         "detect_code": [
             "1904"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "sectors": [
             [
                 268443648,
@@ -13435,9 +13912,6 @@
         "detect_code": [
             "1900"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "bootloader_supported": false,
         "sectors": [
             [
@@ -13475,9 +13949,6 @@
         "detect_code": [
             "1906"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "overrides": {
             "network-default-interface-type": "WIFI"
         }
@@ -13504,16 +13975,10 @@
             "ANALOGOUT",
             "QSPI"
         ],
-        "macros_remove": [
-            "MBEDTLS_CONFIG_HW_SUPPORT"
-        ],
         "extra_labels_add": [
             "PSOC6_01",
             "MXCRYPTO_01",
             "CORDIO"
-        ],
-        "extra_labels_remove": [
-            "MXCRYPTO"
         ],
         "macros_add": [
             "CY8C6247FDI_D52",
@@ -13523,9 +13988,6 @@
         "detect_code": [
             "1903"
         ],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "overrides": {
             "network-default-interface-type": "WIFI"
         }
@@ -13552,7 +14014,8 @@
             "I2CSLAVE",
             "USBDEVICE",
             "QSPI",
-            "WATCHDOG"
+            "WATCHDOG",
+            "RESET_REASON"
         ],
         "macros_add": [
             "CY8C6347BZI_BLD53"
@@ -13612,7 +14075,8 @@
             "I2CSLAVE",
             "USBDEVICE",
             "QSPI",
-            "WATCHDOG"
+            "WATCHDOG",
+            "RESET_REASON"
         ],
         "macros_add": [
             "CY8C6347BZI_BLD53"
@@ -13998,6 +14462,9 @@
         "supported_form_factors": [],
         "macros_add": [
             "CONFIG_GPIO_AS_PINRESET"
+        ],
+        "detect_code": [
+            "2600"
         ]
     },
     "IM880B": {
@@ -14344,12 +14811,26 @@
         "bootloader_supported": true
     },
     "S5JS100": {
-        "inherits": ["Target"],
+        "inherits": [
+            "Target"
+        ],
         "core": "Cortex-M7",
-        "supported_toolchains": ["GCC_ARM", "IAR", "ARMC6"],
+        "supported_toolchains": [
+            "GCC_ARM",
+            "IAR",
+            "ARMC6"
+        ],
         "default_toolchain": "GCC_ARM",
-        "extra_labels": ["Samsung", "SIDK_S5JS100"],
-        "macros": ["CMSDK_CM7", "MBED_MPU_CUSTOM",  "CMSIS_NVIC_VIRTUAL", "MBEDTLS_CONFIG_HW_SUPPORT"],
+        "extra_labels": [
+            "Samsung",
+            "SIDK_S5JS100"
+        ],
+        "macros": [
+            "CMSDK_CM7",
+            "MBED_MPU_CUSTOM",
+            "CMSIS_NVIC_VIRTUAL",
+            "MBEDTLS_CONFIG_HW_SUPPORT"
+        ],
         "device_has": [
             "INTERRUPTIN",
             "USTICKER",
@@ -14357,7 +14838,12 @@
             "SLEEP",
             "TRNG"
         ],
-        "release_versions": ["5"]
+        "release_versions": [
+            "5"
+        ],
+        "detect_code": [
+            "3701"
+        ]
     },
     "__build_tools_metadata__": {
         "version": "1",

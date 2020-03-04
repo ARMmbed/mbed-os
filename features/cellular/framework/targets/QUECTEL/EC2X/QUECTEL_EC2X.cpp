@@ -124,15 +124,15 @@ nsapi_error_t QUECTEL_EC2X::soft_power_on()
         _rst = !_active_high;
         ThisThread::sleep_for(100);
 
-        _at->lock();
+        _at.lock();
 
-        _at->set_at_timeout(5000);
-        _at->resp_start();
-        _at->set_stop_tag("RDY");
-        bool rdy = _at->consume_to_stop_tag();
-        _at->set_stop_tag(OK);
+        _at.set_at_timeout(5000);
+        _at.resp_start();
+        _at.set_stop_tag("RDY");
+        bool rdy = _at.consume_to_stop_tag();
+        _at.set_stop_tag(OK);
 
-        _at->unlock();
+        _at.unlock();
 
         if (!rdy) {
             return NSAPI_ERROR_DEVICE_ERROR;

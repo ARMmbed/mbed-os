@@ -8,6 +8,12 @@
 #ifndef __BPWM_REG_H__
 #define __BPWM_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
+
 
 /*---------------------- Basic Pulse Width Modulation Controller -------------------------*/
 /**
@@ -979,90 +985,6 @@ typedef struct
      * |        |          |This flag indicates if falling latch happened when the corresponding CAPFIF is 1
      * |        |          |Each bit n controls the corresponding BPWM channel n.
      * |        |          |Note: This bit will be cleared automatically when user clear corresponding CAPFIF.
-     * @var BPWM_T::RCAPDAT0
-     * Offset: 0x20C  BPWM Rising Capture Data Register 0
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[15:0]  |RCAPDAT   |BPWM Rising Capture Data Register (Read Only)
-     * |        |          |When rising capture condition happened, the BPWM counter value will be saved in this register.
-     * @var BPWM_T::FCAPDAT0
-     * Offset: 0x210  BPWM Falling Capture Data Register 0
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[15:0]  |FCAPDAT   |BPWM Falling Capture Data Register (Read Only)
-     * |        |          |When falling capture condition happened, the BPWM counter value will be saved in this register.
-     * @var BPWM_T::RCAPDAT1
-     * Offset: 0x214  BPWM Rising Capture Data Register 1
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[15:0]  |RCAPDAT   |BPWM Rising Capture Data Register (Read Only)
-     * |        |          |When rising capture condition happened, the BPWM counter value will be saved in this register.
-     * @var BPWM_T::FCAPDAT1
-     * Offset: 0x218  BPWM Falling Capture Data Register 1
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[15:0]  |FCAPDAT   |BPWM Falling Capture Data Register (Read Only)
-     * |        |          |When falling capture condition happened, the BPWM counter value will be saved in this register.
-     * @var BPWM_T::RCAPDAT2
-     * Offset: 0x21C  BPWM Rising Capture Data Register 2
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[15:0]  |RCAPDAT   |BPWM Rising Capture Data Register (Read Only)
-     * |        |          |When rising capture condition happened, the BPWM counter value will be saved in this register.
-     * @var BPWM_T::FCAPDAT2
-     * Offset: 0x220  BPWM Falling Capture Data Register 2
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[15:0]  |FCAPDAT   |BPWM Falling Capture Data Register (Read Only)
-     * |        |          |When falling capture condition happened, the BPWM counter value will be saved in this register.
-     * @var BPWM_T::RCAPDAT3
-     * Offset: 0x224  BPWM Rising Capture Data Register 3
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[15:0]  |RCAPDAT   |BPWM Rising Capture Data Register (Read Only)
-     * |        |          |When rising capture condition happened, the BPWM counter value will be saved in this register.
-     * @var BPWM_T::FCAPDAT3
-     * Offset: 0x228  BPWM Falling Capture Data Register 3
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[15:0]  |FCAPDAT   |BPWM Falling Capture Data Register (Read Only)
-     * |        |          |When falling capture condition happened, the BPWM counter value will be saved in this register.
-     * @var BPWM_T::RCAPDAT4
-     * Offset: 0x22C  BPWM Rising Capture Data Register 4
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[15:0]  |RCAPDAT   |BPWM Rising Capture Data Register (Read Only)
-     * |        |          |When rising capture condition happened, the BPWM counter value will be saved in this register.
-     * @var BPWM_T::FCAPDAT4
-     * Offset: 0x230  BPWM Falling Capture Data Register 4
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[15:0]  |FCAPDAT   |BPWM Falling Capture Data Register (Read Only)
-     * |        |          |When falling capture condition happened, the BPWM counter value will be saved in this register.
-     * @var BPWM_T::RCAPDAT5
-     * Offset: 0x234  BPWM Rising Capture Data Register 5
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[15:0]  |RCAPDAT   |BPWM Rising Capture Data Register (Read Only)
-     * |        |          |When rising capture condition happened, the BPWM counter value will be saved in this register.
-     * @var BPWM_T::FCAPDAT5
-     * Offset: 0x238  BPWM Falling Capture Data Register 5
-     * ---------------------------------------------------------------------------------------------------
-     * |Bits    |Field     |Descriptions
-     * | :----: | :----:   | :---- |
-     * |[15:0]  |FCAPDAT   |BPWM Falling Capture Data Register (Read Only)
-     * |        |          |When falling capture condition happened, the BPWM counter value will be saved in this register.
      * @var BPWM_T::CAPIEN
      * Offset: 0x250  BPWM Capture Interrupt Enable Register
      * ---------------------------------------------------------------------------------------------------
@@ -1869,6 +1791,7 @@ typedef struct
 
 /**@}*/ /* BPWM_CONST */
 /**@}*/ /* end of BPWM register group */
+/**@}*/ /* end of REGISTER group */
 
 
 #endif /* __BPWM_REG_H__ */

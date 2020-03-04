@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_syspm.c
-* \version 4.50
+* \version 5.0
 *
 * This driver provides the source code for API power management.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -188,6 +188,9 @@ typedef void (*cy_cb_syspm_deep_sleep_t)(cy_en_syspm_waitfor_t waitFor, bool *wa
 
 /* Mask for the RAM read assist bits */
 #define CPUSS_TRIM_RAM_CTL_RA_MASK                   ((uint32_t) 0x3U << 8U)
+
+/* Mask for the RAM write check bits */
+#define CPUSS_TRIM_RAM_CTL_WC_MASK                   (0x3UL << 10U)
 
 /* The define for SROM opcode to set the flash voltage bit */
 #define FLASH_VOLTAGE_BIT_ULP_OPCODE                 (0x0C000003U)
@@ -1057,7 +1060,7 @@ he LP mode
 * are registered.
 *
 * \return
-* - CY_SYSPM_SUCCESS - Entered the system LP mode.
+* - CY_SYSPM_SUCCESS - Entered the system LP mode or the device is already in LP mode.
 * - CY_SYSPM_INVALID_STATE - The system LP mode was not set. The system LP mode 
 *   was not set because the protection context value is higher than zero 
 *   (PC > 0) or the device revision does not support modifying registers 
@@ -1199,7 +1202,7 @@ cy_en_syspm_status_t Cy_SysPm_SystemEnterLp(void)
 * are registered.
 *
 * \return
-* - CY_SYSPM_SUCCESS - Entered system ULP mode.
+* - CY_SYSPM_SUCCESS - Entered the system ULP mode or the device is already in ULP mode.
 * - CY_SYSPM_INVALID_STATE - System ULP mode was not set. The ULP mode was not 
 *   set because the protection context value is higher than zero (PC > 0) or the 
 *   device revision does not support modifying registers (to enter system 
@@ -1687,7 +1690,8 @@ void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
 * See \ref cy_en_syspm_buck_voltage1_t.
 * 
 * \return
-* - CY_SYSPM_SUCCESS - The voltage is set.
+* - CY_SYSPM_SUCCESS - The voltage is set as requested. 
+*   (There is no change if the new voltage is the same as the previous voltage.)
 * - CY_SYSPM_INVALID_STATE - The voltage was not set. The voltage cannot be set 
 *   because the protection context value is higher than zero (PC > 0) or the 
 *   device revision does not support modifying registers via syscall.
@@ -3143,13 +3147,22 @@ static void SetWriteAssistTrimLp(void)
 *******************************************************************************/
 static bool IsVoltageChangePossible(void)
 {
-    bool retVal = true;
+    bool retVal = false;
+    uint32_t trimRamCheckVal = (CPUSS_TRIM_RAM_CTL & CPUSS_TRIM_RAM_CTL_WC_MASK);
+    
 
     if (Cy_SysLib_GetDevice() == CY_SYSLIB_DEVICE_PSOC6ABLE2)
     {
         uint32_t curProtContext = Cy_Prot_GetActivePC(ACTIVE_BUS_MASTER);
 
         retVal = ((Cy_SysLib_GetDeviceRevision() > SYSPM_DEVICE_PSOC6ABLE2_REV_0B) || (curProtContext == 0U));
+    }
+    else
+    {
+        CPUSS_TRIM_RAM_CTL &= ~CPUSS_TRIM_RAM_CTL_WC_MASK;
+        CPUSS_TRIM_RAM_CTL |= ((~trimRamCheckVal) & CPUSS_TRIM_RAM_CTL_WC_MASK);
+        
+        retVal = (trimRamCheckVal != (CPUSS_TRIM_RAM_CTL & CPUSS_TRIM_RAM_CTL_WC_MASK));
     }
 
     return retVal;

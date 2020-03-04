@@ -1,5 +1,7 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2017-2020 ARM Limited
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mbed.h"
 #include "greentea-client/test_env.h"
+#include "utest/utest.h"
+#include "unity/unity.h"
+
+using utest::v1::Case;
+
+static const int test_timeout = 10;
 
 #define PATTERN_CHECK_VALUE  0xF0F0ADAD
 
@@ -76,30 +85,43 @@ Heap::init
 Heap::hello
 Heap::destroy
 *******************/
-int main(void)
+void test_static(void)
 {
-    GREENTEA_SETUP(10, "default_auto");
 
-    bool result = true;
-    for (;;) {
-        s.print("init");
-        // Global stack object simple test
-        s.stack_test();
-        if (s.check_init() == false) {
-            result = false;
-            break;
-        }
-
-        // Heap test object simple test
-        Test *m = new Test("Heap");
-        m->hello();
-
-        if (m->check_init() == false) {
-            result = false;
-        }
-        delete m;
-        break;
+    s.print("init");
+    // Global stack object simple test
+    s.stack_test();
+    if (s.check_init() == false) {
+        TEST_ASSERT_MESSAGE(false, "Global stack initialization check failed");
     }
 
-    GREENTEA_TESTSUITE_RESULT(result);
+}
+
+void test_heap(void)
+{
+    // Heap test object simple test
+    Test *m = new Test("Heap");
+    m->hello();
+    if (m->check_init() == false) {
+        TEST_ASSERT_MESSAGE(false, "Heap object initialization check failed");
+    }
+}
+
+// Test cases
+Case cases[] = {
+    Case("Test stack object", test_static),
+    Case("Test heap object", test_heap),
+};
+
+utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
+{
+    GREENTEA_SETUP(test_timeout, "default_auto");
+    return utest::v1::greentea_test_setup_handler(number_of_cases);
+}
+
+utest::v1::Specification specification(greentea_test_setup, cases);
+
+int main()
+{
+    return !utest::v1::Harness::run(specification);
 }

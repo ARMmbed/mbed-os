@@ -122,8 +122,6 @@ public: // from NetworkInterface
     virtual nsapi_error_t set_blocking(bool blocking) = 0;
     virtual NetworkStack *get_stack() = 0;
     virtual nsapi_error_t get_ip_address(SocketAddress *address) = 0;
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual const char *get_ip_address() = 0;
 
     /** Register callback for status reporting.
      *
@@ -255,21 +253,23 @@ public: // from NetworkInterface
      */
     virtual nsapi_error_t get_apn_backoff_timer(int &backoff_timer) = 0;
 
-    /** Set the file handle used to communicate with the modem. You can use this to change the default file handle.
-     *
-     *  @param fh   file handle for communicating with the modem
-     */
-    virtual void set_file_handle(FileHandle *fh) = 0;
-
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
-    /** Set the UART serial used to communicate with the modem. Can be used to change default file handle.
-     *  File handle set with this method will use data carrier detect to be able to detect disconnection much faster in PPP mode.
+
+    /** Enable or disable hang-up detection.
      *
-     *  @param serial       BufferedSerial used in communication to modem. If null then the default file handle is used.
-     *  @param dcd_pin      Pin used to set data carrier detect on/off for the given UART
+     *  This method will use data carrier detect to be able to detect disconnection much faster in PPP mode.
+     *
+     *  When in PPP data pump mode, it is helpful if the FileHandle will signal hang-up via
+     *  POLLHUP, e.g., if the DCD line is deasserted on a UART. During command mode, this
+     *  signaling is not desired.
+     *
+     *  @param dcd_pin      Pin used to set data carrier detect on/off for the given UART. NC if feature is disabled.
      *  @param active_high  a boolean set to true if DCD polarity is active low
+     *
+     *  @return             NSAPI_ERROR_OK if success,
+     *                      NSAPI_ERROR_UNSUPPORTED if modem does not support this feature
      */
-    virtual void set_file_handle(BufferedSerial *serial, PinName dcd_pin = NC, bool active_high = false) = 0;
+    virtual nsapi_error_t configure_hup(PinName dcd_pin = NC, bool active_high = false) = 0;
 #endif // #if DEVICE_SERIAL
 
     /** Returns the control plane AT command interface
@@ -313,15 +313,6 @@ protected: // Device specific implementations might need these so protected
     *  @param ptr  event-type dependent reason parameter
     */
     virtual void cellular_callback(nsapi_event_t ev, intptr_t ptr) = 0;
-
-    /** Enable or disable hang-up detection
-     *
-     *  When in PPP data pump mode, it is helpful if the FileHandle will signal hang-up via
-     *  POLLHUP, e.g., if the DCD line is deasserted on a UART. During command mode, this
-     *  signaling is not desired. enable_hup() controls whether this function should be
-     *  active.
-     */
-    virtual void enable_hup(bool enable) = 0;
 
     /** Return PDP type string for Non-IP if modem uses other than standard "Non-IP"
      *
@@ -381,8 +372,6 @@ protected:
     const char *_apn;
     const char *_uname;
     const char *_pwd;
-    PinName _dcd_pin;
-    bool _active_high;
 
     ControlPlane_netif *_cp_netif;
     uint16_t _retry_timeout_array[CELLULAR_RETRY_ARRAY_SIZE];

@@ -57,7 +57,7 @@ nvm_tlv_entry_t *ws_pae_buffer_allocate(void)
 
 void ws_pae_nvm_store_nw_info_tlv_create(nvm_tlv_entry_t *tlv_entry, uint16_t pan_id, char *nw_name, sec_prot_gtk_keys_t *gtks)
 {
-
+    int len;
     tlv_entry->tag = PAE_NVM_NW_INFO_TAG;
     tlv_entry->len = PAE_NVM_NW_INFO_LEN;
 
@@ -66,7 +66,13 @@ void ws_pae_nvm_store_nw_info_tlv_create(nvm_tlv_entry_t *tlv_entry, uint16_t pa
     tlv = common_write_16_bit(pan_id, tlv);
 
     memset(tlv, 0, 33);
-    strncpy((char *)tlv, nw_name, 32);
+    // use strnlen & memset instead of strncpy to avoid gcc warning:
+    // call to __builtin___strncpy_chk will always overflow destination buffer [-Werror]
+    len = strlen(nw_name);
+    if (len > 32) {
+        len = 32;
+    }
+    memcpy((char *)tlv, nw_name, len);
     tlv += 33;
 
     for (uint8_t i = 0; i < GTK_NUM; i++) {

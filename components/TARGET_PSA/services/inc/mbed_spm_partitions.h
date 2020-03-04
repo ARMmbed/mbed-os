@@ -115,7 +115,7 @@
  * -------------------------------------------------------------------------- */
 #define PLATFORM_ID 8
 
-#define PLATFORM_ROT_SRV_COUNT (3UL)
+#define PLATFORM_ROT_SRV_COUNT (4UL)
 #define PLATFORM_EXT_ROT_SRV_COUNT (1UL)
 
 
@@ -127,11 +127,14 @@
 #define PSA_PLATFORM_LC_SET_MSK (1UL << PSA_PLATFORM_LC_SET_MSK_POS)
 #define PSA_PLATFORM_SYSTEM_RESET_MSK_POS (6UL)
 #define PSA_PLATFORM_SYSTEM_RESET_MSK (1UL << PSA_PLATFORM_SYSTEM_RESET_MSK_POS)
+#define PSA_PLATFORM_IOCTL_MSK_POS (7UL)
+#define PSA_PLATFORM_IOCTL_MSK (1UL << PSA_PLATFORM_IOCTL_MSK_POS)
 
 #define PLATFORM_WAIT_ANY_SID_MSK (\
     PSA_PLATFORM_LC_GET_MSK | \
     PSA_PLATFORM_LC_SET_MSK | \
-    PSA_PLATFORM_SYSTEM_RESET_MSK)
+    PSA_PLATFORM_SYSTEM_RESET_MSK | \
+    PSA_PLATFORM_IOCTL_MSK)
 
 
 /* -----------------------------------------------------------------------------

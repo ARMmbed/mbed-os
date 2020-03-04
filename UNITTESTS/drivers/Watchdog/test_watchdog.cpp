@@ -38,7 +38,6 @@ protected:
 TEST_F(TestWatchdog, test_watchdog_start_stop_get_timeout)
 {
     EXPECT_TRUE(Watchdog::get_instance().start(500));
-    EXPECT_FALSE(Watchdog::get_instance().start(2000));
     EXPECT_TRUE(Watchdog::get_instance().stop());
     EXPECT_FALSE(Watchdog::get_instance().stop());
     EXPECT_EQ(500, Watchdog::get_instance().get_timeout());

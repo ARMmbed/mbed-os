@@ -177,13 +177,6 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // No PLL update
     HAL_RCC_OscConfig(&RCC_OscInitStruct);
 
-    /* Select HSI as clock source for LPUART1 */
-    RCC_PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
-    RCC_PeriphClkInit.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_HSI;
-    if (HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphClkInit) != HAL_OK) {
-        return 0; // FAIL
-    }
-
     // Output clock on MCO1 pin(PA8) for debugging purpose
 #if DEBUG_MCO == 2
     if (bypass == 0) {
@@ -259,13 +252,6 @@ uint8_t SetSysClock_PLL_HSI(void)
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // No PLL update
     HAL_RCC_OscConfig(&RCC_OscInitStruct);
 
-    /* Select HSI as clock source for LPUART1 */
-    RCC_PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
-    RCC_PeriphClkInit.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_HSI;
-    if (HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphClkInit) != HAL_OK) {
-        return 0; // FAIL
-    }
-
     // Output clock on MCO1 pin(PA8) for debugging purpose
 #if DEBUG_MCO == 3
     HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSI, RCC_MCODIV_1); // 16 MHz
@@ -328,13 +314,6 @@ uint8_t SetSysClock_PLL_MSI(void)
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;           /* 120 MHz */
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;           /* 120 MHz */
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK) {
-        return 0; // FAIL
-    }
-
-    /* Select LSE as clock source for LPUART1 */
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
-    PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;
-    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
         return 0; // FAIL
     }
 

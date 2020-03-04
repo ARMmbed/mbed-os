@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2020, Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /**
  * \file psa/crypto_spe.h
  * \brief Platform Security Architecture cryptography module
@@ -59,8 +75,8 @@ extern "C" {
 #define psa_aead_finish  psa_sec_aead_finish
 #define psa_aead_verify  psa_sec_aead_verify
 #define psa_aead_abort  psa_sec_aead_abort
-#define psa_asymmetric_sign  psa_sec_asymmetric_sign
-#define psa_asymmetric_verify  psa_sec_asymmetric_verify
+#define psa_sign_hash  psa_sec_sign_hash
+#define psa_verify_hash  psa_sec_verify_hash
 #define psa_asymmetric_encrypt  psa_sec_asymmetric_encrypt
 #define psa_asymmetric_decrypt  psa_sec_asymmetric_decrypt
 #define psa_key_derivation_setup  psa_sec_key_derivation_setup

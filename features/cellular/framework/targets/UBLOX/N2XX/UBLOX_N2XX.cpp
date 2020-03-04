@@ -51,18 +51,18 @@ UBLOX_N2XX::UBLOX_N2XX(FileHandle *fh): AT_CellularDevice(fh)
 
 void UBLOX_N2XX::set_at_urcs_impl()
 {
-    _at->set_urc_handler("+NPIN:", mbed::Callback<void()>(this, &UBLOX_N2XX::NPIN_URC));
+    _at.set_urc_handler("+NPIN:", mbed::Callback<void()>(this, &UBLOX_N2XX::NPIN_URC));
 }
 
 UBLOX_N2XX::~UBLOX_N2XX()
 {
-    _at->set_urc_handler("+NPIN:", nullptr);
+    _at.set_urc_handler("+NPIN:", nullptr);
 }
 
 // Callback for Sim Pin.
 void UBLOX_N2XX::NPIN_URC()
 {
-    _at->read_string(simstr, sizeof(simstr));
+    _at.read_string(simstr, sizeof(simstr));
 }
 
 AT_CellularNetwork *UBLOX_N2XX::open_network_impl(ATHandler &at)
@@ -86,27 +86,27 @@ nsapi_error_t UBLOX_N2XX::init()
 {
     setup_at_handler();
 
-    _at->lock();
-    _at->flush();
-    _at->at_cmd_discard("", "");
+    _at.lock();
+    _at.flush();
+    _at.at_cmd_discard("", "");
 
-    _at->at_cmd_discard("+CMEE", "=1"); // verbose responses
+    _at.at_cmd_discard("+CMEE", "=1"); // verbose responses
 
 #ifdef MBED_CONF_NSAPI_DEFAULT_CELLULAR_SIM_PIN
     set_pin(MBED_CONF_NSAPI_DEFAULT_CELLULAR_SIM_PIN);
 #endif
-    return _at->unlock_return_error();
+    return _at.unlock_return_error();
 }
 
 nsapi_error_t UBLOX_N2XX::get_sim_state(SimState &state)
 {
     nsapi_error_t error = NSAPI_ERROR_DEVICE_ERROR;
 
-    _at->lock();
-    _at->flush();
+    _at.lock();
+    _at.flush();
     //Special case: Command put in cmd_chr to make a 1 liner
-    error = _at->at_cmd_str("", "+CFUN=1", simstr, sizeof(simstr));
-    _at->unlock();
+    error = _at.at_cmd_str("", "+CFUN=1", simstr, sizeof(simstr));
+    _at.unlock();
 
     int len = strlen(simstr);
     if (len > 0 || error == NSAPI_ERROR_OK) {
@@ -157,7 +157,7 @@ nsapi_error_t UBLOX_N2XX::set_pin(const char *sim_pin)
         return NSAPI_ERROR_PARAMETER;
     }
 
-    return _at->at_cmd_discard("+NPIN", "=", "%d%s", 0, sim_pin);
+    return _at.at_cmd_discard("+NPIN", "=", "%d%s", 0, sim_pin);
 }
 
 #if MBED_CONF_UBLOX_N2XX_PROVIDE_DEFAULT

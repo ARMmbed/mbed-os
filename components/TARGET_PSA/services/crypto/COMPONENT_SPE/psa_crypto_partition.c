@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2020, Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // ---------------------------------- Includes ---------------------------------
 #include <stdint.h>
 #include <string.h>
@@ -989,7 +1005,7 @@ static void psa_asymmetric_operation(void)
             }
 
             switch (psa_crypto.func) {
-                case PSA_ASYMMETRIC_SIGN: {
+                case PSA_SIGN_HASH: {
                     uint8_t *signature = NULL;
                     uint8_t *hash = NULL;
                     size_t signature_length = 0,
@@ -1015,9 +1031,9 @@ static void psa_asymmetric_operation(void)
                     }
 
                     if (status == PSA_SUCCESS) {
-                        status = psa_asymmetric_sign(psa_crypto.handle, psa_crypto.alg,
-                                                     hash, hash_size,
-                                                     signature, signature_size, &signature_length);
+                        status = psa_sign_hash(psa_crypto.handle, psa_crypto.alg,
+                                               hash, hash_size,
+                                               signature, signature_size, &signature_length);
 
                         if (status == PSA_SUCCESS) {
                             psa_write(msg.handle, 0, signature, signature_length);
@@ -1030,7 +1046,7 @@ static void psa_asymmetric_operation(void)
                     break;
                 }
 
-                case PSA_ASYMMETRIC_VERIFY: {
+                case PSA_VERIFY_HASH: {
                     uint8_t *signature = NULL;
                     uint8_t *hash = NULL;
                     size_t signature_size = msg.in_size[1],
@@ -1060,9 +1076,9 @@ static void psa_asymmetric_operation(void)
                     }
 
                     if (status == PSA_SUCCESS) {
-                        status = psa_asymmetric_verify(psa_crypto.handle, psa_crypto.alg,
-                                                       hash, hash_size,
-                                                       signature, signature_size);
+                        status = psa_verify_hash(psa_crypto.handle, psa_crypto.alg,
+                                                 hash, hash_size,
+                                                 signature, signature_size);
                     }
 
                     mbedtls_free(signature);
@@ -1822,7 +1838,7 @@ static void psa_key_management_operation(void)
 
             switch (psa_key_mng.func) {
                 case PSA_GET_KEY_ATTRIBUTES: {
-                    psa_key_attributes_t attributes;
+                    psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
                     psa_client_key_attributes_t client;
 
                     if (!psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle,
@@ -1882,7 +1898,7 @@ static void psa_key_management_operation(void)
 
                 case PSA_IMPORT_KEY: {
                     size_t attributes_length = msg.in_size[1];
-                    psa_key_attributes_t attributes;
+                    psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
                     size_t data_length = msg.in_size[2];
                     uint8_t *data = NULL;
                     psa_key_handle_t handle;

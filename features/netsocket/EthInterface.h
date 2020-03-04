@@ -31,7 +31,7 @@ public:
 
     /** @copydoc NetworkInterface::ethInterface
      */
-    virtual EthInterface *ethInterface()
+    EthInterface *ethInterface() final
     {
         return this;
     }

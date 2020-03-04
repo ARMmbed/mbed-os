@@ -84,10 +84,17 @@ size_t download_test(NetworkInterface *interface, const unsigned char *data, siz
     TEST_ASSERT_MESSAGE((MAX_THREADS * RECV_BUF_SIZE) >= buff_size, "Cannot test with the requested buffer size");
 
     /* setup TCP socket */
-    TCPSocket tcpsocket(interface);
+    TCPSocket tcpsocket;
+    SocketAddress tcp_addr;
+
+    interface->gethostbyname(dl_host, &tcp_addr);
+    tcp_addr.set_port(80);
+
+    nsapi_error_t err = tcpsocket.open(interface);
+    TEST_ASSERT_EQUAL_INT_MESSAGE(NSAPI_ERROR_OK, err, "unable to open socket");
 
     for (int tries = 0; tries < MAX_RETRIES; tries++) {
-        result = tcpsocket.connect(dl_host, 80);
+        result = tcpsocket.connect(tcp_addr);
         TEST_ASSERT_MESSAGE(result != NSAPI_ERROR_NO_SOCKET, "out of sockets");
 
         if (result == 0) {

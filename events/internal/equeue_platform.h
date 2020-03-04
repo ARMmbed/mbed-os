@@ -35,7 +35,7 @@ extern "C" {
 // Try to infer a platform if none was manually selected
 #if !defined(EQUEUE_PLATFORM_POSIX)     \
  && !defined(EQUEUE_PLATFORM_MBED)
-#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
+#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__)) || defined(__MINGW32__) || defined(__MINGW64__)
 #define EQUEUE_PLATFORM_POSIX
 #elif defined(__MBED__)
 #define EQUEUE_PLATFORM_MBED

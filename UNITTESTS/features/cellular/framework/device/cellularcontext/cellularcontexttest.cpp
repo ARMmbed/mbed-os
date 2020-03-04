@@ -149,9 +149,9 @@ public:
 
 	}
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
-    virtual void set_file_handle(BufferedSerial *serial, PinName dcd_pin = NC, bool active_high = false)
+    virtual nsapi_error_t configure_hup(PinName dcd_pin = NC, bool active_high = false)
     {
-
+        return NSAPI_ERROR_OK;
     }
 #endif
 	ControlPlane_netif *get_cp_netif()

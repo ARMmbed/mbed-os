@@ -155,7 +155,7 @@ bool pinmap_list_has_peripheral(const PeripheralList *list, int peripheral);
 const PinList *pinmap_restricted_pins(void);
 
 /**
- * Get the pin list of peripherals to avoid during testing
+ * Get the pin list of peripherals per interface to avoid during testing
  *
  * The restricted peripheral list is used to indicate to testing
  * that a peripheral should be skipped due to some caveat about it.
@@ -166,18 +166,34 @@ const PinList *pinmap_restricted_pins(void);
  * function if they have peripherals which should be
  * skipped during testing.
  *
- * @note Some targets use the same value for multiple
- * different types of peripherals. For example SPI 0
- * and UART 0 may both be identified by the peripheral
- * value 0. If your target does this then do not
- * use this function to skip peripherals, as this will
- * unintentionally cause all peripherals with that value
- * to be skipped. Instead these entries should be removed
- * from the peripheral PinMap itself.
+ * @note Restricting peripheral is at the moment available for UART
+ *       interface only as only STDIO UART must be skipped because it is
+ *       used by Mbed.
+ *       Restricting peripherals for other interfaces should be added
+ *       in the future if required.
  *
  * @return Pointer to a peripheral list of peripheral to avoid
  */
-const PeripheralList *pinmap_restricted_peripherals(void);
+#if DEVICE_SERIAL
+const PeripheralList *pinmap_uart_restricted_peripherals(void);
+#endif
+
+/**
+ * Get the pin list of pins to avoid during GPIO/GPIO_IRQ testing
+ *
+ * The GPIO restricted pin list is used to indicate to testing
+ * that a pin should be skipped due to some caveat about it.
+ *
+ * Targets should override the weak implementation of this
+ * function if they have peripherals which should be
+ * skipped during testing.
+ *
+ * @note This is special case only for GPIO/GPIO_IRQ tests because
+ *       targets do not provide pin-maps for GPIO.
+ *
+ * @return Pointer to a peripheral list of peripheral to avoid
+ */
+const PinList *pinmap_gpio_restricted_pins(void);
 
 #ifdef TARGET_FF_ARDUINO
 

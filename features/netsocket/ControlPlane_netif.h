@@ -42,8 +42,7 @@ namespace mbed {
  */
 class ControlPlane_netif {
 public:
-    ControlPlane_netif() {}
-    virtual ~ControlPlane_netif() {}
+    virtual ~ControlPlane_netif() = default;
 
 protected:
     friend class CellularNonIPSocket;

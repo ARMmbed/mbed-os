@@ -135,12 +135,22 @@ typedef enum {
     p45 = P1_13,
     p46 = P1_14,
     p47 = P1_15,
-
-    RX_PIN_NUMBER  = p42,
-    TX_PIN_NUMBER  = p35,
-
-    LED1 = p13,
-
+ 
+    RX_PIN_NUMBER  = P1_10,
+    TX_PIN_NUMBER  = P1_3,
+    
+    LED_BUILTIN = P0_13,
+    LED_POWER   = P1_9,
+    
+    LED_RED   = p24,
+    LED_GREEN = p16,
+    LED_BLUE  = p6,
+    
+    LED1 = LED_BUILTIN,
+    LED2 = LED_RED,
+    LED3 = LED_GREEN,
+    LED4 = LED_BLUE,
+    
     // mBed interface Pins
     USBTX = TX_PIN_NUMBER,
     USBRX = RX_PIN_NUMBER,
@@ -149,26 +159,65 @@ typedef enum {
 
     SPI_PSELMOSI0 = P1_1,
     SPI_PSELMISO0 = P1_8,
+    SPI_PSELSS0   = P1_2,
     SPI_PSELSCK0  = P0_13,
 
     SPIS_PSELMOSI = P1_1,
     SPIS_PSELMISO = P1_8,
+    SPIS_PSELSS   = P1_2,
     SPIS_PSELSCK  = P0_13,
 
-    I2C_SDA0 = p26,
-    I2C_SCL0 = p27,
+    I2C_SDA0 = p31,
+    I2C_SCL0 = p2,
+    
+    // Digital Pins
+    D2  = P1_11,
+    D3  = P1_12,
+    D4  = P1_15,
+    D5  = P1_13,
+    D6  = P1_14,
+    D7  = P0_23,
+    D8  = P0_21,
+    D9  = P0_27,
+    D10 = P1_2,
+    D11 = P1_1,
+    D12 = P1_8,
+    D13 = P0_13,
+  
+    // Analog Pins
+    A0 = p4,
+    A1 = p5,
+    A2 = p30,
+    A3 = p29,
+    A4 = p31,
+    A5 = p2,
+    A6 = p28,
+    A7 = p3,
+    
+    AIN0 = p4,
+    AIN1 = p5,
+    AIN2 = p30,
+    AIN3 = p29,
+    AIN6 = p28,
+    AIN7 = p3,
+    
+    // Arduino Nano 33 BLE Sense Pins
+    VDD_ENV  = p22,
+    INT_APDS = p19,
+    
+    I2C_SDA1 = p14,
+    I2C_SCL1 = p15,
+   
+    MIC_PWR = p17, 
+    PDM_CLK = p26,
+    PDM_DIN = p25,
 
     // Not connected
     NC = (int)0xFFFFFFFF,
 
     STDIO_UART_RTS = NC,
     STDIO_UART_CTS = NC,
-    SPI_PSELSS0   = NC,
-    SPIS_PSELSS   = NC,
 
-    LED2 = NC,
-    LED3 = NC,
-    LED4 = NC,
 } PinName;
 
 typedef enum {

@@ -31,10 +31,10 @@ void pin_function(PinName pin, int data)
     __IO uint32_t *GPx_MFPx = ((__IO uint32_t *) &SYS->GPA_MFPL) + port_index * 2 + (pin_index / 8);
     //uint32_t MFP_Pos = NU_MFP_POS(pin_index);
     uint32_t MFP_Msk = NU_MFP_MSK(pin_index);
-    
+
     // E.g.: SYS->GPA_MFPL  = (SYS->GPA_MFPL & (~SYS_GPA_MFPL_PA0MFP_Msk) ) | SYS_GPA_MFPL_PA0MFP_SC0_CD  ;
     *GPx_MFPx  = (*GPx_MFPx & (~MFP_Msk)) | data;
-    
+
     // [TODO] Disconnect JTAG-DP + SW-DP signals.
     // Warning: Need to reconnect under reset
     //if ((pin == PA_13) || (pin == PA_14)) {
@@ -54,7 +54,7 @@ void pin_mode(PinName pin, PinMode mode)
     uint32_t pin_index = NU_PINNAME_TO_PIN(pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(pin);
     GPIO_T *gpio_base = NU_PORT_BASE(port_index);
-    
+
     uint32_t mode_intern = GPIO_MODE_INPUT;
 
     switch (mode) {
@@ -90,19 +90,4 @@ void pin_mode(PinName pin, PinMode mode)
      * 1. InputOnly/PIN_OUTPUT
      * 2. PushPullOutput/PIN_INPUT
      */
-}
-
-/* List of peripherals excluded from testing */
-const PeripheralList *pinmap_restricted_peripherals()
-{
-    static const int perifs[] = {
-        STDIO_UART          // Dedicated to USB VCOM
-    };
-
-    static const PeripheralList peripheral_list = {
-        sizeof(perifs) / sizeof(perifs[0]),
-        perifs
-    };
-
-    return &peripheral_list;
 }

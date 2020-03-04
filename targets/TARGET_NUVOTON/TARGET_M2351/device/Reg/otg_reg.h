@@ -8,6 +8,11 @@
 #ifndef __OTG_REG_H__
 #define __OTG_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
 
 
 /*---------------------- USB On-The-Go Controller -------------------------*/
@@ -382,6 +387,7 @@ typedef struct
 
 /**@}*/ /* OTG_CONST */
 /**@}*/ /* end of OTG register group */
+/**@}*/ /* end of REGISTER group */
 
 
 

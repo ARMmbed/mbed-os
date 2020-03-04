@@ -303,3 +303,14 @@ const PinMap PinMap_QSPI_testing[] = {
 
     {NC, NC, 0}
 };
+
+/* On NRF we have just dummy pin-maps for testing (no peripherals are specified).
+   Disable restriction for STDIO uart peripheral. */
+const PeripheralList *pinmap_uart_restricted_peripherals()
+{
+    static const PeripheralList peripheral_list = {
+        0,
+        0
+    };
+    return &peripheral_list;
+}

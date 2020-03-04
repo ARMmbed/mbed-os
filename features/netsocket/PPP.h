@@ -33,7 +33,7 @@ public:
      */
     static PPP &get_default_instance();
 
-    virtual ~PPP() {};
+    virtual ~PPP() = default;
 
     /**
      * Callback to be registered with PPP interface and to be called for received packets

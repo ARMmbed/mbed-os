@@ -271,8 +271,11 @@ int BufferedBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 
 int BufferedBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
-    MBED_ASSERT(is_valid_erase(addr, size));
     if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
+    if (!is_valid_erase(addr, size)) {
         return BD_ERROR_DEVICE_ERROR;
     }
 
@@ -284,8 +287,11 @@ int BufferedBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 
 int BufferedBlockDevice::trim(bd_addr_t addr, bd_size_t size)
 {
-    MBED_ASSERT(is_valid_erase(addr, size));
     if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
+    if (!is_valid_erase(addr, size)) {
         return BD_ERROR_DEVICE_ERROR;
     }
 

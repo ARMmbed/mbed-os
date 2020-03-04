@@ -55,7 +55,7 @@ nsapi_error_t TELIT_HE910::init()
     if (err != NSAPI_ERROR_OK) {
         return err;
     }
-    return _at->at_cmd_discard("&K0;&C1;&D0", "");
+    return _at.at_cmd_discard("&K0;&C1;&D0", "");
 }
 
 #if MBED_CONF_TELIT_HE910_PROVIDE_DEFAULT

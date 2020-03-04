@@ -34,18 +34,17 @@ MBED_WEAK CellularDevice *CellularDevice::get_target_default_instance()
     return NULL;
 }
 
-CellularDevice::CellularDevice(FileHandle *fh) :
+CellularDevice::CellularDevice() :
     _network_ref_count(0),
 #if MBED_CONF_CELLULAR_USE_SMS
     _sms_ref_count(0),
 #endif //MBED_CONF_CELLULAR_USE_SMS
-    _info_ref_count(0), _fh(fh), _queue(10 * EVENTS_EVENT_SIZE), _state_machine(0),
+    _info_ref_count(0), _queue(10 * EVENTS_EVENT_SIZE), _state_machine(0),
     _status_cb(), _nw(0)
 #ifdef MBED_CONF_RTOS_PRESENT
     , _queue_thread(osPriorityNormal, 2048, NULL, "cellular_queue")
 #endif // MBED_CONF_RTOS_PRESENT
 {
-    MBED_ASSERT(fh);
     set_sim_pin(NULL);
     set_plmn(NULL);
 
@@ -62,11 +61,6 @@ CellularDevice::~CellularDevice()
 {
     tr_debug("CellularDevice destruct");
     delete _state_machine;
-}
-
-FileHandle &CellularDevice::get_file_handle() const
-{
-    return *_fh;
 }
 
 events::EventQueue *CellularDevice::get_queue()
@@ -125,7 +119,7 @@ nsapi_error_t CellularDevice::create_state_machine()
 {
     nsapi_error_t err = NSAPI_ERROR_OK;
     if (!_state_machine) {
-        _nw = open_network(_fh);
+        _nw = open_network();
         // Attach to network so we can get update status from the network
         _nw->attach(callback(this, &CellularDevice::stm_callback));
         _state_machine = new CellularStateMachine(*this, *get_queue(), *_nw);

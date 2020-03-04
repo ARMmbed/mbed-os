@@ -48,6 +48,10 @@ private:
     DigitalIn m_sim_reset;
     DigitalIn m_sim_clk;
     DigitalIn m_sim_data;
+#if defined(TARGET_DISCO_L562QE)
+    DigitalOut STMOD_SEL_12;
+    DigitalOut STMOD_SEL_34;
+#endif
 public:
     STModCellular(FileHandle *fh);
     virtual nsapi_error_t soft_power_on();

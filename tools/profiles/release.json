@@ -1,14 +1,14 @@
 {
     "GCC_ARM": {
-        "common": ["-c", "-Wall", "-Wextra",
+        "common": ["-Wall", "-Wextra",
                    "-Wno-unused-parameter", "-Wno-missing-field-initializers",
                    "-fmessage-length=0", "-fno-exceptions",
                    "-ffunction-sections", "-fdata-sections", "-funsigned-char",
                    "-MMD",
                    "-fomit-frame-pointer", "-Os", "-DNDEBUG", "-g"],
-        "asm": ["-x", "assembler-with-cpp"],
-        "c": ["-std=gnu11"],
-        "cxx": ["-std=gnu++14", "-fno-rtti", "-Wvla"],
+        "asm": ["-c", "-x", "assembler-with-cpp"],
+        "c": ["-c", "-std=gnu11"],
+        "cxx": ["-c", "-std=gnu++14", "-fno-rtti", "-Wvla"],
         "ld": ["-Wl,--gc-sections", "-Wl,--wrap,main", "-Wl,--wrap,_malloc_r",
                "-Wl,--wrap,_free_r", "-Wl,--wrap,_realloc_r", "-Wl,--wrap,_memalign_r",
                "-Wl,--wrap,_calloc_r", "-Wl,--wrap,exit", "-Wl,--wrap,atexit",

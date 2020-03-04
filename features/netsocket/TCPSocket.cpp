@@ -23,19 +23,14 @@ TCPSocket::TCPSocket()
     _socket_stats.stats_update_proto(this, NSAPI_TCP);
 }
 
-TCPSocket::TCPSocket(TCPSocket *parent, nsapi_socket_t socket, SocketAddress address)
+TCPSocket::TCPSocket(TCPSocket *parent, nsapi_socket_t socket, SocketAddress address) : TCPSocket()
 {
     _socket = socket;
     _stack = parent->_stack;
     _factory_allocated = true;
     _remote_peer = address;
-    _socket_stats.stats_new_socket_entry(this);
     _event = mbed::Callback<void()>(this, &TCPSocket::event);
-    _stack->socket_attach(socket, &mbed::Callback<void()>::thunk, &_event);
-}
-
-TCPSocket::~TCPSocket()
-{
+    _stack->socket_attach(socket, _event.thunk, &_event);
 }
 
 nsapi_protocol_t TCPSocket::get_proto()
@@ -102,28 +97,6 @@ nsapi_error_t TCPSocket::connect(const SocketAddress &address)
 
     _lock.unlock();
     return ret;
-}
-
-nsapi_error_t TCPSocket::connect(const char *host, uint16_t port)
-{
-    SocketAddress address;
-    if (!_socket) {
-        return NSAPI_ERROR_NO_SOCKET;
-    }
-    nsapi_error_t err;
-    if (!strcmp(_interface_name, "")) {
-        err = _stack->gethostbyname(host, &address);
-    } else {
-        err = _stack->gethostbyname(host, &address, NSAPI_UNSPEC, _interface_name);
-    }
-    if (err) {
-        return NSAPI_ERROR_DNS_FAILURE;
-    }
-
-    address.set_port(port);
-
-    // connect is thread safe
-    return connect(address);
 }
 
 nsapi_size_or_error_t TCPSocket::send(const void *data, nsapi_size_t size)

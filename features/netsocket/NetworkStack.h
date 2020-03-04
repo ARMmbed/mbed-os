@@ -37,9 +37,9 @@ class OnboardNetworkStack;
  *  NetworkStack, a network stack can be used as a target
  *  for instantiating network sockets.
  */
-class NetworkStack: public DNS {
+class NetworkStack : public DNS {
 public:
-    virtual ~NetworkStack() {};
+    virtual ~NetworkStack() = default;
 
     /** Get the local IP address
      *
@@ -50,9 +50,6 @@ public:
      *  @retval         NSAPI_ERROR_NO_ADDRESS if the address cannot be obtained from stack
      */
     virtual nsapi_error_t get_ip_address(SocketAddress *address);
-
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual const char *get_ip_address();
 
     /** Get the IPv6 link local address
      *
@@ -73,9 +70,6 @@ public:
      *  @retval         NSAPI_ERROR_NO_ADDRESS if the address cannot be obtained from stack
      */
     virtual nsapi_error_t get_ip_address_if(SocketAddress *address, const char *interface_name);
-
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual const char *get_ip_address_if(const char *interface_name);
 
     /** Translates a hostname to an IP address with specific version
      *
@@ -483,14 +477,18 @@ private:
 
 /** Convert a raw nsapi_stack_t object into a C++ NetworkStack object
  *
- *  @param stack    Reference to an object that can be converted to a stack
+ *  @param stack    Pointer to an object that can be converted to a stack
  *                  - A raw nsapi_stack_t object
- *                  - A reference to a network stack
- *                  - A reference to a network interface
- *  @return         Reference to the underlying network stack
+ *                  - A pointer to a network stack
+ *                  - A pointer to a network interface
+ *  @return         Pointer to the underlying network stack
  */
 NetworkStack *nsapi_create_stack(nsapi_stack_t *stack);
-NetworkStack *nsapi_create_stack(NetworkStack *stack);
+
+inline NetworkStack *nsapi_create_stack(NetworkStack *stack)
+{
+    return stack;
+}
 
 template <typename IF>
 NetworkStack *nsapi_create_stack(IF *iface)

@@ -17,7 +17,6 @@ set(unittest-sources
     ../components/storage/blockdevice/COMPONENT_I2CEE/I2CEEBlockDevice.cpp
     ../components/storage/blockdevice/COMPONENT_DATAFLASH/DataFlashBlockDevice.cpp
     ../components/storage/blockdevice/COMPONENT_FLASHIAP/FlashIAPBlockDevice.cpp
-    ../components/storage/blockdevice/COMPONENT_RSPIF/SPIFReducedBlockDevice.cpp
     ../components/storage/blockdevice/COMPONENT_SD/SDBlockDevice.cpp
     ../components/storage/blockdevice/COMPONENT_QSPIF/QSPIFBlockDevice.cpp
     ../features/storage/filesystem/Dir.cpp

@@ -8,6 +8,11 @@
 #ifndef __EPWM_REG_H__
 #define __EPWM_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
 
 
 /*---------------------- Enhanced Pulse Width Modulation Controller -------------------------*/
@@ -3720,6 +3725,7 @@ typedef struct
 
 /**@}*/ /* EPWM_CONST */
 /**@}*/ /* end of EPWM register group */
+/**@}*/ /* end of REGISTER group */
 
 
 

@@ -8,6 +8,11 @@
 #ifndef __I2C_REG_H__
 #define __I2C_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
 
 /*---------------------- Inter-IC Bus Controller -------------------------*/
 /**
@@ -703,6 +708,7 @@ typedef struct
 
 /**@}*/ /* I2C_CONST */
 /**@}*/ /* end of I2C register group */
+/**@}*/ /* end of REGISTER group */
 
 
 #endif /* __I2C_REG_H__ */

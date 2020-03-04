@@ -188,9 +188,3 @@ bool AT_CellularSMS::create_time(const char *time_string, time_t *time)
 {
     return 0;
 }
-
-ATHandler &AT_CellularSMS::get_at_handler()
-{
-    return _at;
-}
-

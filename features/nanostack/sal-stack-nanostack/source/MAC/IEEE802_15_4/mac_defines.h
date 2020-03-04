@@ -202,6 +202,7 @@ typedef struct protocol_interface_rf_mac_setup {
     mac_scan_type_t scan_type;
 
     uint8_t mac_channel;
+    uint8_t mac_tx_start_channel;
     //uint8_t cca_failure;
 
     /* MAC TX Queue */
@@ -244,6 +245,7 @@ typedef struct protocol_interface_rf_mac_setup {
     uint32_t mlme_tick_count;
     uint32_t symbol_rate;
     uint32_t symbol_time_us;
+    uint32_t datarate;
     uint8_t max_ED;
     uint16_t mlme_ED_counter;
     mac_tx_status_t mac_tx_status;

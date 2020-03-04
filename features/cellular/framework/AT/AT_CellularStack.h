@@ -46,9 +46,6 @@ public: // NetworkStack
 
     virtual nsapi_error_t get_ip_address(SocketAddress *address);
 
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual const char *get_ip_address();
-
     /**
      * Set PDP context ID for this stack
      *

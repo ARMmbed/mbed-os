@@ -43,7 +43,7 @@ void pin_mode(PinName pin, PinMode mode)
     uint32_t pin_index = NU_PINNAME_TO_PIN(pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(pin);
     GPIO_T *gpio_base = NU_PORT_BASE(port_index);
-    
+
     uint32_t mode_intern = GPIO_MODE_INPUT;
 
     switch (mode) {
@@ -81,21 +81,6 @@ void pin_mode(PinName pin, PinMode mode)
      */
 }
 
-/* List of peripherals excluded from testing */
-const PeripheralList *pinmap_restricted_peripherals()
-{
-    static const int perifs[] = {
-        STDIO_UART          // Dedicated to USB VCOM
-    };
-
-    static const PeripheralList peripheral_list = {
-        sizeof(perifs) / sizeof(perifs[0]),
-        perifs
-    };
-
-    return &peripheral_list;
-}
-
 #if defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 
 static void pin_function_impl(int32_t pin, int32_t data, bool nonsecure_caller)
@@ -103,16 +88,16 @@ static void pin_function_impl(int32_t pin, int32_t data, bool nonsecure_caller)
     MBED_ASSERT(pin != (PinName)NC);
     uint32_t pin_index = NU_PINNAME_TO_PIN(pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(pin);
-    
+
     /* Guard access to secure GPIO from non-secure domain */
-    if (nonsecure_caller && 
+    if (nonsecure_caller &&
         (! (SCU_INIT_IONSSET_VAL & (1 << (port_index + 0))))) {
         error("Non-secure domain tries to control secure or undefined GPIO.");
     }
 
     __IO uint32_t *GPx_MFPx = ((__IO uint32_t *) &SYS->GPA_MFPL) + port_index * 2 + (pin_index / 8);
     uint32_t MFP_Msk = NU_MFP_MSK(pin_index);
-    
+
     // E.g.: SYS->GPA_MFPL  = (SYS->GPA_MFPL & (~SYS_GPA_MFPL_PA0MFP_Msk) ) | SYS_GPA_MFPL_PA0MFP_SC0_CD  ;
     *GPx_MFPx  = (*GPx_MFPx & (~MFP_Msk)) | data;
 }

@@ -1,6 +1,7 @@
 """
 mbed SDK
 Copyright (c) 2011-2016 ARM Limited
+SPDX-License-Identifier: Apache-2.0
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -46,7 +47,6 @@ from .notifier.mock import MockNotifier
 from .targets import TARGET_NAMES, TARGET_MAP, CORE_ARCH, Target
 from .libraries import Library
 from .toolchains import TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
-from .toolchains.arm import ARMC5_MIGRATION_WARNING
 from .toolchains.arm import UARM_TOOLCHAIN_WARNING
 from .config import Config
 
@@ -242,9 +242,11 @@ def find_valid_toolchain(target, toolchain):
             ).format(toolchain_name, search_path)
         else:            
             if toolchain_name == "ARMC5":
-                end_warnings.append(ARMC5_MIGRATION_WARNING)
+                raise NotSupportedException(
+                    "Arm Compiler 5 is no longer supported, please upgrade to Arm Compiler 6."
+                )                
             if (
-                toolchain_name in ["uARM", "ARMC5", "ARMC6"] 
+                toolchain_name in ["uARM", "ARMC6"] 
                 and "uARM" in {toolchain_name, target.default_toolchain}
             ):
                 end_warnings.append(UARM_TOOLCHAIN_WARNING)

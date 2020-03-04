@@ -96,9 +96,6 @@ public:
         /** @copydoc NetworkStack::get_ip_address */
         virtual nsapi_error_t get_ip_address(SocketAddress *address);
 
-        MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-        virtual char *get_ip_address(char *buf, nsapi_size_t buflen);
-
         /** Get the IPv6 link local address in SocketAddress representation
          *
          *  @address        SocketAddress representation of the link local IPv6 address
@@ -114,9 +111,6 @@ public:
          */
         virtual nsapi_error_t get_netmask(SocketAddress *address);
 
-        MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-        virtual char *get_netmask(char *buf, nsapi_size_t buflen);
-
         /** Copies gateway address of the network interface to user supplied buffer
          *
          * @param    buf        buffer to which gateway address will be copied as "W:X:Y:Z"
@@ -124,9 +118,6 @@ public:
          * @return              Pointer to a buffer, or NULL if the buffer is too small
          */
         virtual nsapi_error_t get_gateway(SocketAddress *address);
-
-        MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-        virtual char *get_gateway(char *buf, nsapi_size_t buflen);
 
     private:
         friend class LWIP;

@@ -305,8 +305,7 @@ private:
 
     pFunctionPointerWithContext_t _next;                /**< Optional link to make a chain out of functionPointers. This
                                                          *   allows chaining function pointers without requiring
-                                                         *   external memory to manage the chain. Refer to
-                                                         *   'CallChain' as an alternative. */
+                                                         *   external memory to manage the chain.*/
 };
 
 /**

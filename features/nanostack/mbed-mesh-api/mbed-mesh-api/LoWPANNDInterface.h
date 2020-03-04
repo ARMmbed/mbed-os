@@ -23,24 +23,15 @@
  *
  * Configure Nanostack to use 6LoWPAN-ND protocol.
  */
-class LoWPANNDInterface : public MeshInterfaceNanostack {
+class LoWPANNDInterface final : public MeshInterfaceNanostack {
 public:
-
-    /** Create an uninitialized LoWPANNDInterface
-     *
-     *  Must initialize to initialize the mesh on a phy.
-     */
-    LoWPANNDInterface() { }
-
-    /** Create an initialized LoWPANNDInterface
-     *
-     */
-    LoWPANNDInterface(NanostackRfPhy *phy) : MeshInterfaceNanostack(phy) { }
+    /** Inherit MeshInterfaceNanostack constructors */
+    using MeshInterfaceNanostack::MeshInterfaceNanostack;
 
     bool getRouterIpAddress(char *address, int8_t len);
 protected:
     Nanostack::LoWPANNDInterface *get_interface() const;
-    virtual nsapi_error_t do_initialize();
+    nsapi_error_t do_initialize() override;
 };
 
 #endif

@@ -25,60 +25,122 @@
 
 namespace mbed {
 
-static const int SFDP_HEADER_SIZE = 8; ///< Size of an SFDP header */
-static const int SFDP_BASIC_PARAMS_TBL_SIZE = 80; ///< Basic Parameter Table size in Bytes, 20 DWORDS  */
+/** \defgroup drivers-internal-api-sfdp SFDP
+ * \ingroup drivers-internal-api
+ * Serial Flash Discoverable Parameters.
+ *
+ * Based on <a href="https://www.jedec.org/standards-documents/docs/jesd216b">JESD216D.01 Standard</a>.
+ * @{
+ */
 
-/** SFDP Parameter Table addresses and sizes */
+constexpr int SFDP_HEADER_SIZE = 8; ///< Size of an SFDP header in bytes, 2 DWORDS
+constexpr int SFDP_BASIC_PARAMS_TBL_SIZE = 80; ///< Basic Parameter Table size in bytes, 20 DWORDS
+constexpr int SFDP_SECTOR_MAP_MAX_REGIONS = 10; ///< Maximum number of regions with different erase granularity
+
+// Erase Types Per Region BitMask
+constexpr int SFDP_ERASE_BITMASK_TYPE4 = 0x08; ///< Erase type 4 (erase granularity) identifier
+constexpr int SFDP_ERASE_BITMASK_TYPE3 = 0x04; ///< Erase type 3 (erase granularity) identifier
+constexpr int SFDP_ERASE_BITMASK_TYPE2 = 0x02; ///< Erase type 2 (erase granularity) identifier
+constexpr int SFDP_ERASE_BITMASK_TYPE1 = 0x01; ///< Erase type 1 (erase granularity) identifier
+constexpr int SFDP_ERASE_BITMASK_NONE = 0x00;  ///< Erase type None
+constexpr int SFDP_ERASE_BITMASK_ALL = 0x0F;   ///< Erase type All
+
+constexpr int SFDP_MAX_NUM_OF_ERASE_TYPES = 4;  ///< Maximum number of different erase types (erase granularity)
+
+/** JEDEC Basic Flash Parameter Table info */
+struct sfdp_bptbl_info {
+    uint32_t addr; ///< Address
+    size_t size; ///< Size
+    bd_size_t device_size_bytes;
+    int legacy_erase_instruction; ///< Legacy 4K erase instruction
+};
+
+/** JEDEC Sector Map Table info */
+struct sfdp_smptbl_info {
+    uint32_t addr; ///< Address
+    size_t size; ///< Size
+    int region_cnt; ///< Number of erase regions
+    int region_size[SFDP_SECTOR_MAP_MAX_REGIONS]; ///< Erase region size in bytes
+    uint8_t region_erase_types_bitfld[SFDP_SECTOR_MAP_MAX_REGIONS]; ///< Each Region can support a bit combination of any of the 4 Erase Types
+    unsigned int regions_min_common_erase_size; ///< Minimal common erase size for all regions (0 if none exists)
+    bd_size_t region_high_boundary[SFDP_SECTOR_MAP_MAX_REGIONS]; ///< Region high address offset boundary
+    int erase_type_inst_arr[SFDP_MAX_NUM_OF_ERASE_TYPES]; ///< // Up To 4 Erase Types are supported by SFDP (each with its own command Instruction and Size)
+    unsigned int erase_type_size_arr[SFDP_MAX_NUM_OF_ERASE_TYPES]; ///< Erase sizes for all different erase types
+};
+
+/** SFDP JEDEC Parameter Table info */
 struct sfdp_hdr_info {
-    uint32_t basic_table_addr; // Basic Parameter Table address
-    size_t basic_table_size;  // Basic Parameter Table size
-    uint32_t sector_map_table_addr; // Sector Map Parameter Table address
-    size_t sector_map_table_size; // Sector Map Parameter Table size
+    sfdp_bptbl_info bptbl;
+    sfdp_smptbl_info smptbl;
 };
 
-/** SFDP Header */
-struct sfdp_hdr {
-    uint8_t SIG_B0; // SFDP Signature, Byte 0
-    uint8_t SIG_B1; // SFDP Signature, Byte 1
-    uint8_t SIG_B2; // SFDP Signature, Byte 2
-    uint8_t SIG_B3; // SFDP Signature, Byte 3
-    uint8_t R_MINOR; // SFDP Minor Revision
-    uint8_t R_MAJOR; // SFDP Major Revision
-    uint8_t NPH; // Number of parameter headers (0-based, 0 indicates 1 parameter header)
-    uint8_t ACP; // SFDP Access Protocol
-};
-
-/** SFDP Parameter header */
-struct sfdp_prm_hdr {
-    uint8_t PID_LSB; // Parameter ID LSB
-    uint8_t P_MINOR; // Parameter Minor Revision
-    uint8_t P_MAJOR; // Parameter Major Revision
-    uint8_t P_LEN;   // Parameter length in DWORDS
-    uint32_t DWORD2; // Parameter ID MSB + Parameter Table Pointer
-};
-
-/** Parse SFDP Header
- * @param sfdp_hdr_ptr Pointer to memory holding an SFDP header
- * @return Number of Parameter Headers on success, -1 on failure
- */
-int sfdp_parse_sfdp_header(sfdp_hdr *sfdp_hdr_ptr);
-
-/** Parse Parameter Header
- * @param parameter_header Pointer to memory holding a single SFDP Parameter header
- * @param hdr_info Reference to a Parameter Table structure where info about the table is written
- * @return 0 on success, -1 on failure
- */
-int sfdp_parse_single_param_header(sfdp_prm_hdr *parameter_header, sfdp_hdr_info &hdr_info);
-
-/** Parse SFDP Headers
- * Retrieves SFDP headers from a device and parses the information contained by the headers
+/** Parse SFDP Database
+ * Retrieves all headers from within a memory device and parses the information contained by the headers
  *
- * @param sfdp_reader Callback function used to read headers from a device
- * @param hdr_info    All information parsed from the headers gets passed back on this structure
+ * Only JEDEC headers are parsed, not vendor specific ones.
  *
- * @return 0 on success, negative error code on failure
+ * @param      sfdp_reader Callback function used to read headers from within a device
+ * @param[out] sfdp_info   Contains the results of parsing the SFDP Database JEDEC headers
+ *
+ * @return MBED_SUCCESS on success, negative error code on failure
  */
-int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &hdr_info);
+int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &sfdp_info);
 
+/** Parse Sector Map Parameter Table
+ * Retrieves the table from a device and parses the information contained by the table
+ *
+ * @param      sfdp_reader Callback function used to read headers from within a device
+ * @param[out] smtbl       Contains the results of parsing the JEDEC Sector Map Table
+ *
+ * @return MBED_SUCCESS on success, negative error code on failure
+ */
+int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_smptbl_info &smtbl);
+
+/** Detect page size used for writing on flash
+ *
+ * @param bptbl_ptr  Pointer to memory holding a Basic Parameter Table structure
+ * @param bptbl_size Size of memory holding the Basic Parameter Table
+ *
+ * @return Page size
+ */
+size_t sfdp_detect_page_size(uint8_t *bptbl_ptr, size_t bptbl_size);
+
+/** Detect all supported erase types
+ *
+ * @param         bptbl_ptr Pointer to memory holding a JEDEC Basic Flash Parameter Table
+ * @param[in,out] sfdp_info Contains the results of parsing erase type instructions and sizes
+ *
+ * @return MBED_SUCCESS on success, negative error code on failure
+ */
+int sfdp_detect_erase_types_inst_and_size(uint8_t *bptbl_ptr, sfdp_hdr_info &sfdp_info);
+
+/** Find the region to which the given offset belongs to
+ *
+ * @param offset    Offset value
+ * @param sfdp_info Region information
+ *
+ * @return Region number
+ */
+int sfdp_find_addr_region(bd_size_t offset, const sfdp_hdr_info &sfdp_info);
+
+/** Finds the largest Erase Type of the Region to which the offset belongs to
+ *
+ * Iterates from highest type to lowest.
+ *
+ * @param bitfield Erase types bit field
+ * @param size     Upper limit for region size
+ * @param offset   Offset value
+ * @param region   Region number
+ * @param smtbl    Information about different erase types
+ *
+ * @return Largest erase type
+ */
+int sfdp_iterate_next_largest_erase_type(uint8_t &bitfield,
+                                         int size,
+                                         int offset,
+                                         int region,
+                                         const sfdp_smptbl_info &smptbl);
+
+/** @}*/
 } /* namespace mbed */
 #endif

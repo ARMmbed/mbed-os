@@ -8,6 +8,12 @@
 #ifndef __RTC_REG_H__
 #define __RTC_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
+
 /*---------------------- Real Time Clock Controller -------------------------*/
 /**
     @addtogroup RTC Real Time Clock Controller(RTC)
@@ -1314,7 +1320,6 @@ typedef struct
 
 /**@}*/ /* RTC_CONST */
 /**@}*/ /* end of RTC register group */
-
-
+/**@}*/ /* end of REGISTER group */
 
 #endif /* __RTC_REG_H__ */

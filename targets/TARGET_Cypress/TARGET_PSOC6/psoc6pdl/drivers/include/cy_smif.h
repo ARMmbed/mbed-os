@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_smif.h
-* \version 1.40.1
+* \version 1.50
 *
 * Provides an API declaration of the Cypress SMIF driver.
 *
@@ -213,6 +213,15 @@
 * \section group_smif_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.50</td>
+*     <td>Added a new function: \ref Cy_SMIF_MemLocateHybridRegion.\n
+*     Added a new structure \ref cy_stc_smif_hybrid_region_info_t.\n
+*     Updated the \ref Cy_SMIF_MemEraseSector and \ref Cy_SMIF_MemCmdSectorErase functions.\n
+*     Updated the \ref Cy_SMIF_MemSfdpDetect function. \n
+*     Updated the \ref cy_stc_smif_mem_device_cfg_t structure.</td>
+*     <td>Support for memories with hybrid regions.</td>
+*   </tr>
 *   <tr>
 *     <td rowspan="2">1.40.1</td>
 *     <td>The \ref Cy_SMIF_MemInit is changed. </td>
@@ -450,7 +459,7 @@ extern "C" {
 #define CY_SMIF_DRV_VERSION_MAJOR       1
 
 /** The driver minor version */
-#define CY_SMIF_DRV_VERSION_MINOR       40
+#define CY_SMIF_DRV_VERSION_MINOR       50
 
 /** One microsecond timeout for Cy_SMIF_TimeoutRun() */
 #define CY_SMIF_WAIT_1_UNIT             (1U)
@@ -679,6 +688,8 @@ typedef enum
     CY_SMIF_NO_QE_BIT       = CY_SMIF_ID |CY_PDL_STATUS_ERROR | 0x03U,
     CY_SMIF_BAD_PARAM       = CY_SMIF_ID |CY_PDL_STATUS_ERROR | 0x04U,   /**< The SMIF API received the wrong parameter */
     CY_SMIF_NO_SFDP_SUPPORT = CY_SMIF_ID |CY_PDL_STATUS_ERROR | 0x05U,   /**< The external memory does not support SFDP (JESD216B). */
+    CY_SMIF_NOT_HYBRID_MEM  = CY_SMIF_ID |CY_PDL_STATUS_ERROR | 0x06U,   /**< The external memory is not hybrid */
+    CY_SMIF_SFDP_CORRUPTED_TABLE = CY_SMIF_ID |CY_PDL_STATUS_ERROR | 0x07U, /**< The SFDP table is corrupted */
     /** Failed to initialize the slave select 0 external memory by auto detection (SFDP). */
     CY_SMIF_SFDP_SS0_FAILED = CY_SMIF_ID |CY_PDL_STATUS_ERROR |
                             ((uint32_t)CY_SMIF_SFDP_FAIL << CY_SMIF_SFDP_FAIL_SS0_POS),

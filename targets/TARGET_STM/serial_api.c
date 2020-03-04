@@ -157,14 +157,10 @@ static void _serial_init_direct(serial_t *obj, const serial_pinmap_t *pinmap)
     MBED_ASSERT(obj_s->index >= 0);
 
     // Configure UART pins
-    if (pinmap->tx_pin != NC) {
-        pin_function(pinmap->tx_pin, pinmap->tx_function);
-        pin_mode(pinmap->tx_pin, PullUp);
-    }
-    if (pinmap->rx_pin != NC) {
-        pin_function(pinmap->rx_pin, pinmap->rx_function);
-        pin_mode(pinmap->rx_pin, PullUp);
-    }
+    pin_function(pinmap->tx_pin, pinmap->tx_function);
+    pin_mode(pinmap->tx_pin, PullUp);
+    pin_function(pinmap->rx_pin, pinmap->rx_function);
+    pin_mode(pinmap->rx_pin, PullUp);
 
     // Configure UART
     obj_s->baudrate = 9600; // baudrate default value
@@ -355,13 +351,9 @@ void serial_free(serial_t *obj)
 #endif /* DUAL_CORE */
 
     // Configure GPIOs
-    if (obj_s->pin_tx != NC) {
-        pin_function(obj_s->pin_tx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-    }
+    pin_function(obj_s->pin_tx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
 
-    if (obj_s->pin_rx != NC) {
-        pin_function(obj_s->pin_rx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-    }
+    pin_function(obj_s->pin_rx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
 
     serial_irq_ids[obj_s->index] = 0;
 }

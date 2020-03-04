@@ -19,11 +19,15 @@
 #include "rtos/ThisThread.h"
 #include "mbed_trace.h"
 
-#define TRACE_GROUP "STMOD"
+#define TRACE_GROUP "STMD"
 
 using namespace mbed;
 
 STModCellular::STModCellular(FileHandle *fh) : STMOD_CELLULAR_MODEM(fh),
+#if defined(TARGET_DISCO_L562QE)
+    STMOD_SEL_12(PF_11),
+    STMOD_SEL_34(PF_12),
+#endif
     m_powerkey(MBED_CONF_STMOD_CELLULAR_POWER),
     m_reset(MBED_CONF_STMOD_CELLULAR_RESET),
     m_simsel0(MBED_CONF_STMOD_CELLULAR_SIMSEL0),
@@ -34,6 +38,13 @@ STModCellular::STModCellular(FileHandle *fh) : STMOD_CELLULAR_MODEM(fh),
     m_sim_data(MBED_CONF_STMOD_CELLULAR_SIM_DATA)
 {
     tr_info("STModCellular creation");
+
+#if defined(TARGET_DISCO_L562QE)
+    /* See PinNames.h file, STMOD+ pins are configurable */
+    STMOD_SEL_12 = 1;
+    STMOD_SEL_34 = 1;
+    tr_info("STMOD+ UART pins re-configuration");
+#endif
 
     // start with modem disabled
     m_powerkey.write(0);
@@ -88,23 +99,23 @@ nsapi_error_t STModCellular::soft_power_on()
     }
 
     // wait for RDY
-    _at->lock();
-    _at->set_at_timeout(5000);
-    _at->set_stop_tag("RDY");
-    bool rdy = _at->consume_to_stop_tag();
+    _at.lock();
+    _at.set_at_timeout(5000);
+    _at.set_stop_tag("RDY");
+    bool rdy = _at.consume_to_stop_tag();
     (void)rdy;
 
     /*  Modem may send more bytes are RDY flag */
-    _at->flush();
+    _at.flush();
 
     /* Turn OFF ECHO before anything else */
-    _at->set_stop_tag(mbed::OK);
-    _at->cmd_start("ATE0");
-    _at->cmd_stop();
-    _at->consume_to_stop_tag();
+    _at.set_stop_tag(mbed::OK);
+    _at.cmd_start("ATE0");
+    _at.cmd_stop();
+    _at.consume_to_stop_tag();
 
-    _at->restore_at_timeout();
-    _at->unlock();
+    _at.restore_at_timeout();
+    _at.unlock();
 
     tr_info("Modem %sready to receive AT commands", rdy ? "" : "NOT ");
 
@@ -113,17 +124,17 @@ nsapi_error_t STModCellular::soft_power_on()
 
         pin_mode(MBED_CONF_STMOD_CELLULAR_CTS, PullDown);
 
-        _at->lock();
+        _at.lock();
         // enable CTS/RTS flowcontrol
-        _at->set_stop_tag(mbed::OK);
-        _at->set_at_timeout(400);
-        _at->cmd_start("AT+IFC=");
-        _at->write_int(2);
-        _at->write_int(2);
-        _at->cmd_stop_read_resp();
-        err = _at->get_last_error();
-        _at->restore_at_timeout();
-        _at->unlock();
+        _at.set_stop_tag(mbed::OK);
+        _at.set_at_timeout(400);
+        _at.cmd_start("AT+IFC=");
+        _at.write_int(2);
+        _at.write_int(2);
+        _at.cmd_stop_read_resp();
+        err = _at.get_last_error();
+        _at.restore_at_timeout();
+        _at.unlock();
 
         if (err == NSAPI_ERROR_OK) {
             tr_debug("Flow control turned ON");
@@ -135,11 +146,11 @@ nsapi_error_t STModCellular::soft_power_on()
     rtos::ThisThread::sleep_for(500);
 
 #if MBED_CONF_CELLULAR_DEBUG_AT
-    _at->lock();
+    _at.lock();
     /*  Verify Flow Control settings */
-    _at->cmd_start("AT+IFC?");
-    _at->cmd_stop_read_resp();
-    _at->unlock();
+    _at.cmd_start("AT+IFC?");
+    _at.cmd_stop_read_resp();
+    _at.unlock();
 #endif // MBED_CONF_CELLULAR_DEBUG_AT
 
     return err;
@@ -147,8 +158,8 @@ nsapi_error_t STModCellular::soft_power_on()
 
 nsapi_error_t STModCellular::soft_power_off()
 {
-    _at->cmd_start("AT+QPOWD");
-    _at->cmd_stop();
+    _at.cmd_start("AT+QPOWD");
+    _at.cmd_stop();
     rtos::ThisThread::sleep_for(1000);
     // should wait for POWERED DOWN with a time out up to 65 second according to the manual.
     // we cannot afford such a long wait though.

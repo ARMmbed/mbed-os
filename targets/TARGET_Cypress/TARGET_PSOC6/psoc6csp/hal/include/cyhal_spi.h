@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,59 @@
 * \addtogroup group_hal_spi SPI (Serial Peripheral Interface)
 * \ingroup group_hal
 * \{
-* High level interface for interacting with the Cypress SPI.
+* High level interface for interacting with the Serial Peripheral Interface (SPI).
+*
+* The SPI protocol is a synchronous serial interface protocol. Devices operate
+* in either master or slave mode. The master initiates the data transfer.
+*
+* Motorola SPI modes 0, 1, 2, and 3 are supported, with either MSB or LSB first.
+* The operating mode and data frame size can be configured via \ref cyhal_spi_cfg_t.
+*
+* \section section_spi_features Features
+* * Supports master and slave functionality.
+* * Supports Motorola modes - 0, 1, 2 and 3 - \ref cyhal_spi_mode_t
+* * MSb or LSb first shift direction - \ref cyhal_spi_mode_t
+* * Master supports up to four slave select lines
+* * Supports data frame size of 8 or 16 bits
+* * Configurable interrupt and callback assignment on SPI events:
+* Data transfer to FIFO complete, Transfer complete and Transmission error - \ref cyhal_spi_event_t
+* * Supports changing baud rate of the transaction in run time.
+* * Provides functions to send/receive a single byte or block of data.
+*
+* \section section_spi_quickstart Quick Start
+*
+* Initialise a SPI master or slave interface using \ref cyhal_spi_init() and provide the SPI pins (<b>mosi</b>, <b>miso</b>, <b>sclk</b>, <b>ssel</b>),
+* number of bits per frame (<b>data_bits</b>) and SPI Motorola <b>mode</b>. The data rate can be set using \ref cyhal_spi_set_frequency(). <br>
+* See \ref section_spi_snippets for code snippets to send or receive the data.
+*
+* \section section_spi_snippets Code snippets
+*
+* \subsection subsection_spi_snippet_1 Snippet 1: SPI Master - Single byte transfer operation (Read and Write)
+* The following code snippet initialises an SPI Master interface using the \ref cyhal_spi_init(). The data rate of transfer is set using \ref cyhal_spi_set_frequency().
+* The code snippet shows how to transfer a single byte of data using \ref cyhal_spi_send() and \ref cyhal_spi_recv().
+* \snippet spi.c snippet_cyhal_spi_master_byte_operation
+*
+* \subsection subsection_spi_snippet_2 Snippet 2: SPI Slave - Single byte transfer operation (Read and Write)
+* The following code snippet initialises an SPI Slave interface using the \ref cyhal_spi_init(). The data rate of transfer is set using \ref cyhal_spi_set_frequency.
+* The code snippet shows how to transfer a single byte of data using \ref cyhal_spi_send() and \ref cyhal_spi_recv.
+* \snippet spi.c snippet_cyhal_spi_slave_byte_operation
+*
+* \subsection subsection_spi_snippet_3 Snippet 3: SPI Block Data transfer
+* The following snippet sends and receives an array of data in a single SPI transaction using \ref cyhal_spi_transfer(). The example
+* uses SPI master to transmit 5 bytes of data and receive 5 bytes of data in a single transaction.
+* \snippet spi.c snippet_cyhal_spi_block_data_transfer
+*
+* \subsection subsection_spi_snippet_4 Snippet 4: Interrupts on SPI events
+* SPI interrupt events ( \ref cyhal_spi_event_t) can be mapped to an interrupt and assigned to a callback function.
+* The callback function needs to be first registered and then the event needs to be enabled.
+* The following snippet initialises a SPI master to perform a block transfer using \ref cyhal_spi_transfer_async(). This is a non-blocking function.
+*  A callback function is registered using \ref cyhal_spi_register_callback to notify whenever the SPI transfer is complete.
+* \snippet spi.c snippet_cyhal_spi_interrupt_callback_events
+
+* \section subsection_spi_moreinfor More Information
+*
+* * <a href="https://github.com/cypresssemiconductorco/mtb-example-psoc6-spi-master"><b>mtb-example-psoc6-spi-master</b></a>: This example project demonstrates
+* use of SPI (HAL) resource in PSoC® 6 MCU in Master mode to write data to an SPI slave.
 */
 
 #pragma once
@@ -43,7 +95,6 @@
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
 
 /** Bad argument */
 #define CYHAL_SPI_RSLT_BAD_ARGUMENT                    (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SPI, 0))
@@ -104,7 +155,6 @@ typedef struct
     uint8_t data_bits; //!< The number of bits per transfer
     bool is_slave; //!< Whether the peripheral is operating as slave or master
 } cyhal_spi_cfg_t;
-
 
 /** Initialize the SPI peripheral
  *
@@ -232,7 +282,7 @@ void cyhal_spi_register_callback(cyhal_spi_t *obj, cyhal_spi_event_callback_t ca
 void cyhal_spi_enable_event(cyhal_spi_t *obj, cyhal_spi_event_t event, uint8_t intrPriority, bool enable);
 
 /*******************************************************************************
-* Backward compatibility macro. The following code is DEPRECATED and must 
+* Backward compatibility macro. The following code is DEPRECATED and must
 * not be used in new projects
 *******************************************************************************/
 /** \cond INTERNAL */

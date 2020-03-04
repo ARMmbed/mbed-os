@@ -19,14 +19,15 @@
 #define AT_CELLULAR_DEVICE_H_
 
 #include "CellularDevice.h"
+#include "ATHandler.h"
 
 namespace mbed {
 
-class ATHandler;
 class AT_CellularInformation;
 class AT_CellularNetwork;
 class AT_CellularSMS;
 class AT_CellularContext;
+class FileHandle;
 
 /**
  *  Class AT_CellularDevice
@@ -83,17 +84,13 @@ public:
 
     virtual nsapi_error_t get_sim_state(SimState &state);
 
-    virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = NULL, bool cp_req = false, bool nonip_req = false);
-
-#if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
-    virtual CellularContext *create_context(BufferedSerial *serial, const char *const apn, PinName dcd_pin = NC, bool active_high = false, bool cp_req = false, bool nonip_req = false);
-#endif // #if DEVICE_SERIAL
+    virtual CellularContext *create_context(const char *apn = NULL, bool cp_req = false, bool nonip_req = false);
 
     virtual void delete_context(CellularContext *context);
 
-    virtual CellularNetwork *open_network(FileHandle *fh = NULL);
+    virtual CellularNetwork *open_network();
 
-    virtual CellularInformation *open_information(FileHandle *fh = NULL);
+    virtual CellularInformation *open_information();
 
     virtual void close_network();
 
@@ -113,24 +110,14 @@ public:
 
     virtual nsapi_error_t set_power_save_mode(int periodic_time, int active_time = 0);
 
-
-    virtual ATHandler *get_at_handler(FileHandle *fh);
-
     virtual ATHandler *get_at_handler();
-
-    /** Releases the given at_handler. If last reference to at_hander then it's deleted.
-     *
-     *  @param at_handler
-     *  @return NSAPI_ERROR_OK on success, NSAPI_ERROR_PARAMETER on failure
-     */
-    virtual nsapi_error_t release_at_handler(ATHandler *at_handler);
 
     virtual CellularContext *get_context_list() const;
 
     virtual nsapi_error_t set_baud_rate(int baud_rate);
 
 #if MBED_CONF_CELLULAR_USE_SMS
-    virtual CellularSMS *open_sms(FileHandle *fh = NULL);
+    virtual CellularSMS *open_sms();
 
     virtual void close_sms();
 #endif
@@ -199,7 +186,7 @@ private:
     void urc_pdn_deact();
 
 protected:
-    ATHandler *_at;
+    ATHandler _at;
 
 private:
 #if MBED_CONF_CELLULAR_USE_SMS

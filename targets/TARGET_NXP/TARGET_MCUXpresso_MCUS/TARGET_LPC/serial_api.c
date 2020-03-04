@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2020 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -189,10 +189,10 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 static inline void uart_irq(uint32_t transmit_empty, uint32_t receive_not_empty, uint32_t index)
 {
     if (serial_irq_ids[index] != 0) {
-        if (transmit_empty)
+        if (transmit_empty && (uart_addrs[index]->FIFOINTENSET & kUSART_TxLevelInterruptEnable))
             irq_handler(serial_irq_ids[index], TxIrq);
 
-        if (receive_not_empty)
+        if (receive_not_empty && (uart_addrs[index]->FIFOINTENSET & kUSART_RxLevelInterruptEnable))
             irq_handler(serial_irq_ids[index], RxIrq);
     }
 }

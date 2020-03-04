@@ -34,11 +34,9 @@ static const int kATHandler_urc_table_max_size = 10;
 static const int kATHandler_urc_string_max_size = 16;
 
 namespace ATHandler_stub {
-extern mbed::ATHandler *handler;
 extern nsapi_error_t nsapi_error_value;
 extern uint8_t nsapi_error_ok_counter;
 extern int int_value;
-extern int ref_count;
 extern int timeout;
 extern bool default_timeout;
 extern bool debug_on;

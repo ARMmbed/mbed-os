@@ -202,12 +202,15 @@ int serial_getc(serial_t *obj)
     struct serial_s *obj_s = SERIAL_S(obj);
     UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
 
+    /* Computation of UART mask to apply to RDR register */
+    UART_MASK_COMPUTATION(huart);
+    uint16_t uhMask = huart->Mask;
+
     while (!serial_readable(obj));
-    if (obj_s->databits == UART_WORDLENGTH_8B) {
-        return (int)(huart->Instance->RDR & (uint8_t)0xFF);
-    } else {
-        return (int)(huart->Instance->RDR & (uint16_t)0x1FF);
-    }
+    /* When receiving with the parity enabled, the value read in the MSB bit
+     * is the received parity bit.
+     */
+    return (int)(huart->Instance->RDR & uhMask);
 }
 
 void serial_putc(serial_t *obj, int c)
@@ -216,11 +219,12 @@ void serial_putc(serial_t *obj, int c)
     UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
 
     while (!serial_writable(obj));
-    if (obj_s->databits == UART_WORDLENGTH_8B) {
-        huart->Instance->TDR = (uint8_t)(c & (uint8_t)0xFF);
-    } else {
-        huart->Instance->TDR = (uint16_t)(c & (uint16_t)0x1FF);
-    }
+    /* When transmitting with the parity enabled (PCE bit set to 1 in the
+     * USART_CR1 register), the value written in the MSB (bit 7 or bit 8
+     * depending on the data length) has no effect because it is replaced
+     * by the parity.
+     */
+    huart->Instance->TDR = (uint16_t)(c & 0x1FFU);
 }
 
 void serial_clear(serial_t *obj)

@@ -23,15 +23,11 @@ using namespace mbed;
 
 ControlPlane_netif *CellularNonIPSocket::_cp_netif;
 
-CellularNonIPSocket::CellularNonIPSocket()
-    : _timeout(osWaitForever),
-      _readers(0), _writers(0), _pending(0),
-      _opened(false)
-{}
+CellularNonIPSocket::CellularNonIPSocket() = default;
 
 nsapi_error_t CellularNonIPSocket::open(CellularContext *cellular_context)
 {
-    if (cellular_context == NULL) {
+    if (cellular_context == nullptr) {
         return NSAPI_ERROR_PARAMETER;
     }
 
@@ -47,7 +43,7 @@ nsapi_error_t CellularNonIPSocket::open(ControlPlane_netif *cp_netif)
 {
     _lock.lock();
 
-    if (cp_netif == NULL || _opened) {
+    if (cp_netif == nullptr || _opened) {
         _lock.unlock();
         return NSAPI_ERROR_PARAMETER;
     }
@@ -76,9 +72,9 @@ nsapi_error_t CellularNonIPSocket::close()
     }
 
     // Just in case - tell the stack not to callback any more, then remove this socket.
-    _cp_netif->attach(0, 0);
+    _cp_netif->attach(nullptr, nullptr);
     _opened = false;
-    _cp_netif = 0; // Invalidate the cp_netif pointer - otherwise open() fails.
+    _cp_netif = nullptr; // Invalidate the cp_netif pointer - otherwise open() fails.
 
     // Wakeup anything in a blocking operation
     // on this socket
@@ -112,7 +108,7 @@ nsapi_size_or_error_t CellularNonIPSocket::send(const void *data, nsapi_size_t s
             break;
         }
 
-        _pending = 0;
+        core_util_atomic_flag_clear(&_pending);
         nsapi_size_or_error_t sent = _cp_netif->send(data, size);
         if ((0 == _timeout) || (NSAPI_ERROR_WOULD_BLOCK != sent)) {
             ret = sent;
@@ -154,7 +150,7 @@ nsapi_size_or_error_t CellularNonIPSocket::recv(void *buffer, nsapi_size_t size)
             break;
         }
 
-        _pending = 0;
+        core_util_atomic_flag_clear(&_pending);
         nsapi_size_or_error_t recv = _cp_netif->recv(buffer, size);
 
         // Non-blocking sockets always return. Blocking only returns when success or errors other than WOULD_BLOCK
@@ -210,8 +206,7 @@ void CellularNonIPSocket::event()
 {
     _event_flag.set(READ_FLAG | WRITE_FLAG);
 
-    _pending += 1;
-    if (_callback && _pending == 1) {
+    if (_callback && !core_util_atomic_flag_test_and_set(&_pending)) {
         _callback();
     }
 }
@@ -233,7 +228,7 @@ Socket *CellularNonIPSocket::accept(nsapi_error_t *error)
     if (error) {
         *error = NSAPI_ERROR_UNSUPPORTED;
     }
-    return NULL;
+    return nullptr;
 }
 
 nsapi_error_t CellularNonIPSocket::listen(int backlog)

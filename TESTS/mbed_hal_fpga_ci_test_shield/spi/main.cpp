@@ -162,13 +162,39 @@ static bool check_capabilities(const spi_capabilities_t *capabilities, SPITester
     return true;
 }
 
-void fpga_spi_test_init_free(PinName mosi, PinName miso, PinName sclk)
+void fpga_spi_test_init_free(PinName mosi, PinName miso, PinName sclk, PinName ssel)
+{
+    spi_init(&spi, mosi, miso, sclk, ssel);
+    spi_format(&spi, 8, 0, 0);
+    spi_frequency(&spi, 1000000);
+    spi_free(&spi);
+}
+
+void fpga_spi_test_init_free_cs_nc(PinName mosi, PinName miso, PinName sclk)
 {
     spi_init(&spi, mosi, miso, sclk, NC);
     spi_format(&spi, 8, 0, 0);
     spi_frequency(&spi, 1000000);
     spi_free(&spi);
 }
+
+void fpga_spi_test_init_free_cs_nc_miso_nc_mosi_nc(PinName mosi, PinName miso, PinName sclk)
+{
+    utest_printf("\nTesting: MOSI = NC. ");
+
+    spi_init(&spi, NC, miso, sclk, NC);
+    spi_format(&spi, 8, 0, 0);
+    spi_frequency(&spi, 1000000);
+    spi_free(&spi);
+
+    utest_printf("Testing: MISO = NC. ");
+
+    spi_init(&spi, mosi, NC, sclk, NC);
+    spi_format(&spi, 8, 0, 0);
+    spi_frequency(&spi, 1000000);
+    spi_free(&spi);
+}
+
 
 void fpga_spi_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel, SPITester::SpiMode spi_mode, uint32_t sym_size, transfer_type_t transfer_type, uint32_t frequency, test_buffers_t test_buffers, bool auto_ss, bool init_direct)
 {
@@ -361,7 +387,9 @@ void fpga_spi_test_common_no_ss(PinName mosi, PinName miso, PinName sclk)
 
 Case cases[] = {
     // This will be run for all pins
-    Case("SPI - init/free test all pins", all_ports<SPINoCSPort, DefaultFormFactor, fpga_spi_test_init_free>),
+    Case("SPI - init/free test all pins", all_ports<SPIPort, DefaultFormFactor, fpga_spi_test_init_free>),
+    Case("SPI - init/free test all pins (CS == NC)", all_ports<SPINoCSPort, DefaultFormFactor, fpga_spi_test_init_free_cs_nc>),
+    Case("SPI - init/free test all pins (CS == NC, MISO/MOSI == NC)", one_peripheral<SPINoCSPort, DefaultFormFactor, fpga_spi_test_init_free_cs_nc_miso_nc_mosi_nc>),
 
     // This will be run for all peripherals
     Case("SPI - basic test", all_peripherals<SPINoCSPort, DefaultFormFactor, fpga_spi_test_common_no_ss<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ, BUFFERS_COMMON, false, false> >),

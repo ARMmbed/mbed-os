@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2017 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -219,12 +220,12 @@ static void mbed_minimal_formatted_string_hexadecimal(char *buffer, size_t lengt
             unsigned int nibble_one = (output >> 4);
             unsigned int nibble_two = (output & 0x0F);
 
-            const char int2hex_lower[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
-                                             '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
-                                           };
-            const char int2hex_upper[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
-                                             '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
-                                           };
+            static const char int2hex_lower[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
+                                                    '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+                                                  };
+            static const char int2hex_upper[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
+                                                    '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+                                                  };
             const char *int2hex = upper ? int2hex_upper : int2hex_lower;
 
             if (print_leading_zero || nibble_one != 0) {
@@ -508,7 +509,7 @@ int mbed_minimal_formatted_string(char *buffer, size_t length, const char *forma
                         value = va_arg(arguments, MBED_SIGNED_NATIVE_TYPE);
                     }
 
-                    /* constrict value based on lenght modifier */
+                    /* constrict value based on length modifier */
                     switch (length_modifier) {
                         case LENGTH_NONE:
                             value = (int) value;
@@ -557,7 +558,7 @@ int mbed_minimal_formatted_string(char *buffer, size_t length, const char *forma
                         value = va_arg(arguments, MBED_UNSIGNED_NATIVE_TYPE);
                     }
 
-                    /* constrict value based on lenght modifier */
+                    /* constrict value based on length modifier */
                     switch (length_modifier) {
                         case LENGTH_NONE:
                             value = (unsigned int) value;

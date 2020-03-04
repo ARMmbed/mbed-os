@@ -45,7 +45,7 @@ namespace mbed {
  */
 class FileHandle : private NonCopyable<FileHandle> {
 public:
-    virtual ~FileHandle() {}
+    virtual ~FileHandle() = default;
 
     /** Read the contents of a file into a buffer
      *

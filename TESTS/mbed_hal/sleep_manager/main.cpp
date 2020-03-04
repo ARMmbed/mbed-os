@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2017 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -140,7 +141,7 @@ void test_sleep_auto()
     const ticker_info_t *lp_ticker_info = get_lp_ticker_data()->interface->get_info();
     const unsigned lp_ticker_mask = ((1 << lp_ticker_info->bits) - 1);
     const ticker_irq_handler_type lp_ticker_irq_handler_org = set_lp_ticker_irq_handler(lp_ticker_isr);
-    us_timestamp_t us_ts1, us_ts2, lp_ts1, lp_ts2, us_diff1, us_diff2, lp_diff1, lp_diff2;
+    uint32_t us_ts1, us_ts2, lp_ts1, lp_ts2, us_diff1, us_diff2, lp_diff1, lp_diff2;
 
     /*  Let's avoid the Lp ticker wrap-around case */
     wraparound_lp_protect();
@@ -154,14 +155,16 @@ void test_sleep_auto()
 
     sleep_manager_lock_deep_sleep();
 
-    us_ts1 = ticks_to_us(us_ticker_read(), us_ticker_info->frequency);
-    lp_ts1 = ticks_to_us(lp_ticker_read(), lp_ticker_info->frequency);
+    us_ts1 = us_ticker_read();
+    lp_ts1 = lp_ticker_read();
 
     sleep_manager_sleep_auto();
-    us_ts2 = ticks_to_us(us_ticker_read(), us_ticker_info->frequency);
-    us_diff1 = (us_ts1 <= us_ts2) ? (us_ts2 - us_ts1) : (us_ticker_mask - us_ts1 + us_ts2 + 1);
-    lp_ts2 = ticks_to_us(lp_ticker_read(), lp_ticker_info->frequency);
-    lp_diff1 = (lp_ts1 <= lp_ts2) ? (lp_ts2 - lp_ts1) : (lp_ticker_mask - lp_ts1 + lp_ts2 + 1);
+
+    us_ts2 = us_ticker_read();
+    lp_ts2 = lp_ticker_read();
+
+    us_diff1 = ticks_to_us((us_ts1 <= us_ts2) ? (us_ts2 - us_ts1) : (us_ticker_mask - us_ts1 + us_ts2 + 1), us_ticker_info->frequency);
+    lp_diff1 = ticks_to_us((lp_ts1 <= lp_ts2) ? (lp_ts2 - lp_ts1) : (lp_ticker_mask - lp_ts1 + lp_ts2 + 1), lp_ticker_info->frequency);
 
     // Deep sleep locked -- ordinary sleep mode used:
     // * us_ticker powered ON,
@@ -189,15 +192,16 @@ void test_sleep_auto()
      * set and forbid deep_sleep during that period. Let this period pass  */
     TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep_test_check());
 
-    us_ts1 = ticks_to_us(us_ticker_read(), us_ticker_info->frequency);
-    lp_ts1 = ticks_to_us(lp_ticker_read(), lp_ticker_info->frequency);
+    us_ts1 = us_ticker_read();
+    lp_ts1 = lp_ticker_read();
 
     sleep_manager_sleep_auto();
 
-    us_ts2 = ticks_to_us(us_ticker_read(), us_ticker_info->frequency);
-    us_diff2 = (us_ts1 <= us_ts2) ? (us_ts2 - us_ts1) : (us_ticker_mask - us_ts1 + us_ts2 + 1);
-    lp_ts2 = ticks_to_us(lp_ticker_read(), lp_ticker_info->frequency);
-    lp_diff2 = (lp_ts1 <= lp_ts2) ? (lp_ts2 - lp_ts1) : (lp_ticker_mask - lp_ts1 + lp_ts2 + 1);
+    us_ts2 = us_ticker_read();
+    lp_ts2 = lp_ticker_read();
+
+    us_diff2 = ticks_to_us((us_ts1 <= us_ts2) ? (us_ts2 - us_ts1) : (us_ticker_mask - us_ts1 + us_ts2 + 1), us_ticker_info->frequency);
+    lp_diff2 = ticks_to_us((lp_ts1 <= lp_ts2) ? (lp_ts2 - lp_ts1) : (lp_ticker_mask - lp_ts1 + lp_ts2 + 1), lp_ticker_info->frequency);
 
     // Deep sleep unlocked -- deep sleep mode used:
     // * us_ticker powered OFF,

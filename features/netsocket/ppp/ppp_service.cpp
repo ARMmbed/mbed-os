@@ -75,16 +75,16 @@ bool ppp_service::prepare_event_queue()
 
     return true;
 #else
-    static events::EventQueue *event_queue = NULL;
-    static rtos::Thread *event_thread = NULL;
+    static events::EventQueue *event_queue = nullptr;
+    static rtos::Thread *event_thread = nullptr;
     // Already prepared
     if (event_queue && event_thread) {
         return true;
     }
 
     // Used for incoming data, timers, link status callback, power up callback
-    event_queue = new events::EventQueue(10 * EVENTS_EVENT_SIZE, NULL);
-    event_thread = new rtos::Thread(osPriorityNormal, PPP_THREAD_STACKSIZE, NULL, "ppp");
+    event_queue = new events::EventQueue(10 * EVENTS_EVENT_SIZE, nullptr);
+    event_thread = new rtos::Thread(osPriorityNormal, PPP_THREAD_STACKSIZE, nullptr, "ppp");
 
     if (event_thread->start(callback(event_queue, &events::EventQueue::dispatch_forever)) != osOK) {
         delete event_thread;
@@ -179,7 +179,7 @@ void ppp_service::ppp_input()
         ppp_trace_to_ascii_hex_dump(INPUT_BUFFER, len, reinterpret_cast<char *>(buffer));
 #endif
 
-        pppos_input(static_cast<ppp_pcb *>(ppp_service_pcb), buffer, len);
+        pppos_input(ppp_service_pcb, buffer, len);
     }
 }
 
@@ -195,10 +195,8 @@ void ppp_service::ppp_stream_sigio_callback()
 
 void ppp_service::ppp_handle_modem_hangup()
 {
-    ppp_pcb *pcb = static_cast<ppp_pcb *>(ppp_service_pcb);
-
-    if (pcb->phase != PPP_PHASE_DEAD) {
-        ppp_close(pcb, 1);
+    if (ppp_service_pcb->phase != PPP_PHASE_DEAD) {
+        ppp_close(ppp_service_pcb, 1);
     }
 }
 
@@ -303,15 +301,15 @@ nsapi_error_t ppp_service::ppp_stack_if_init()
     ppp_init();
 
     if (!ppp_service_pcb) {
-        ppp_service_pcb = pppos_create(static_cast<netif *>(ppp_service_netif),
-                                       ppp_output, ppp_link_status, NULL);
+        ppp_service_pcb = pppos_create(ppp_service_netif,
+                                       ppp_output, ppp_link_status, nullptr);
         if (!ppp_service_pcb) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }
     }
 
 #if PPP_IPV4_SUPPORT
-    ppp_pcb *pcb = static_cast<ppp_pcb *>(ppp_service_pcb);
+    ppp_pcb *pcb = ppp_service_pcb;
 
 #if PPP_IPV6_SUPPORT
     if (ppp_service_stack != IPV6_STACK) {
@@ -334,7 +332,7 @@ nsapi_error_t ppp_service::ppp_stack_if_init()
 
 nsapi_error_t ppp_service::ppp_if_connect()
 {
-    ppp_pcb *pcb = static_cast<ppp_pcb *>(ppp_service_pcb);
+    ppp_pcb *pcb = ppp_service_pcb;
 
 #if PPP_AUTH_SUPPORT
     ppp_set_auth(pcb, PPPAUTHTYPE_ANY, ppp_service_uname, ppp_service_password);
@@ -354,12 +352,10 @@ nsapi_error_t ppp_service::ppp_if_connect()
 
 nsapi_error_t ppp_service::ppp_if_disconnect()
 {
-    ppp_pcb *pcb = static_cast<ppp_pcb *>(ppp_service_pcb);
-
     err_t ret = ERR_OK;
     if (ppp_service_active) {
         ppp_service_terminating = true;
-        ret = ppp_close(pcb, 0);
+        ret = ppp_close(ppp_service_pcb, 0);
         if (ret == ERR_OK) {
             /* close call made, now let's catch the response in the status callback */
             ppp_service_close_sem.try_acquire_for(PPP_TERMINATION_TIMEOUT);
@@ -371,20 +367,10 @@ nsapi_error_t ppp_service::ppp_if_disconnect()
 
 ppp_service::ppp_service()
 {
-    ppp_service_stream = NULL;
-    ppp_service_event_queue = NULL;
-
-    ppp_service_netif = static_cast<netif *>(malloc(sizeof(netif)));
+    ppp_service_netif = new (std::nothrow) netif{};
     if (ppp_service_netif) {
-        memset(ppp_service_netif, 0, sizeof(netif));
-        ppp_service_netif->service_ptr = static_cast<void *>(this);
+        ppp_service_netif->service_ptr = this;
     }
-
-    ppp_service_pcb = NULL;
-    ppp_service_stack = IPV4_STACK;
-    ppp_service_uname = NULL;
-    ppp_service_password = NULL;
-    memory_manager = NULL;
     ppp_service_active = false;
     ppp_service_event_queued = false;
     ppp_service_terminating = false;
@@ -393,14 +379,12 @@ ppp_service::ppp_service()
 
 bool ppp_service::link_out(net_stack_mem_buf_t *buf, nsapi_ip_stack_t ip_stack)
 {
-    netif *serv_netif = static_cast<netif *>(ppp_service_netif);
-
     if (ppp_service_terminating) {
         memory_manager->free(buf);
         return true;
     }
 
-    struct pbuf *p = static_cast<struct pbuf *>(ppp_memory_buffer_convert_to(memory_manager, buf));
+    struct pbuf *p = ppp_memory_buffer_convert_to(memory_manager, buf);
     if (!p) {
         memory_manager->free(buf);
         return true;
@@ -408,14 +392,14 @@ bool ppp_service::link_out(net_stack_mem_buf_t *buf, nsapi_ip_stack_t ip_stack)
 
 #if PPP_IPV4_SUPPORT && PPP_IPV6_SUPPORT
     if (ip_stack == IPV4_STACK) {
-        serv_netif->output(serv_netif, p, NULL);
+        ppp_service_netif->output(ppp_service_netif, p, nullptr);
     } else {
-        serv_netif->output_ip6(serv_netif, p, NULL);
+        ppp_service_netif->output_ip6(ppp_service_netif, p, nullptr);
     }
 #elif PPP_IPV4_SUPPORT
-    serv_netif->output(serv_netif, p, NULL);
+    ppp_service_netif->output(ppp_service_netif, p, nullptr);
 #elif PPP_IPV6_SUPPORT
-    serv_netif->output_ip6(serv_netif, p, NULL);
+    ppp_service_netif->output_ip6(ppp_service_netif, p, nullptr);
 #endif
 
     ppp_memory_buffer_free(p); // Not done on PPP lower layers
@@ -460,8 +444,7 @@ uint32_t ppp_service::get_mtu_size()
         return 0;
     }
 
-    netif *serv_netif = static_cast<netif *>(ppp_service_netif);
-    return serv_netif->mtu;
+    return ppp_service_netif->mtu;
 }
 
 uint32_t ppp_service::get_align_preference() const
@@ -518,34 +501,30 @@ void ppp_service::set_credentials(const char *uname, const char *password)
     if (strlen(uname) > 0) {
         ppp_service_uname = uname;
     } else {
-        ppp_service_uname = NULL;
+        ppp_service_uname = nullptr;
     }
     if (strlen(password) > 0) {
         ppp_service_password = password;
     } else {
-        password = NULL;
+        password = nullptr;
     }
 }
 
 const nsapi_addr_t *ppp_service::get_ip_address(nsapi_version_t version)
 {
-#if PPP_IPV6_SUPPORT || PPP_IPV4_SUPPORT
-    netif *serv_netif = static_cast<netif *>(ppp_service_netif);
-#endif
-
 #if PPP_IPV6_SUPPORT
-    if (version == NSAPI_IPv6 && serv_netif->ipv6_addr.version == NSAPI_IPv6) {
-        return &serv_netif->ipv6_addr;
+    if (version == NSAPI_IPv6 && ppp_service_netif->ipv6_addr.version == NSAPI_IPv6) {
+        return &ppp_service_netif->ipv6_addr;
     }
 #endif
 
 #if PPP_IPV4_SUPPORT
-    if (version == NSAPI_IPv4 && serv_netif->ipv4_addr.version == NSAPI_IPv4) {
-        return &serv_netif->ipv4_addr;
+    if (version == NSAPI_IPv4 && ppp_service_netif->ipv4_addr.version == NSAPI_IPv4) {
+        return &ppp_service_netif->ipv4_addr;
     }
 #endif
 
-    return NULL;
+    return nullptr;
 }
 
 const nsapi_addr_t *ppp_service::get_netmask()
@@ -556,7 +535,7 @@ const nsapi_addr_t *ppp_service::get_netmask()
     }
 #endif
 
-    return NULL;
+    return nullptr;
 }
 
 const nsapi_addr_t *ppp_service::get_gateway()
@@ -567,21 +546,21 @@ const nsapi_addr_t *ppp_service::get_gateway()
     }
 #endif
 
-    return NULL;
+    return nullptr;
 }
 
 const nsapi_addr_t *ppp_service::get_dns_server(uint8_t index)
 {
 #if PPP_IPV4_SUPPORT
     if (index > 1) {
-        return NULL;
+        return nullptr;
     }
     if (ppp_service_netif->ipv4_dns_server[index].version == NSAPI_IPv4) {
         return &ppp_service_netif->ipv4_dns_server[index];
     }
 #endif
 
-    return NULL;
+    return nullptr;
 }
 
 void ppp_service::link_state(bool up)

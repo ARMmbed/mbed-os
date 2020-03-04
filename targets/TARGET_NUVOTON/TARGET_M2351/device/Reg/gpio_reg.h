@@ -8,6 +8,11 @@
 #ifndef __GPIO_REG_H__
 #define __GPIO_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
 
 /*---------------------- General Purpose Input/Output Controller -------------------------*/
 /**
@@ -80,8 +85,8 @@ typedef struct
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
      * |[n]     |DATMSKn   |Port A-H Pin[n] Data Output Write Mask
-     * |        |          |These bits are used to protect the corresponding DOUT (Px_DOUT[n]) bit
-     * |        |          |When the DATMSK (Px_DATMSK[n]) bit is set to 1, the corresponding DOUT (Px_DOUT[n]) bit is protected
+     * |        |          |These bits are used to protect the corresponding DOUT (Px_DOUT[n]) bit.
+     * |        |          |When the DATMSK (Px_DATMSK[n]) bit is set to 1, the corresponding DOUT (Px_DOUT[n]) bit is protected.
      * |        |          |If the write signal is masked, writing data to the protect bit is ignored.
      * |        |          |0 = Corresponding DOUT (Px_DOUT[n]) bit can be updated.
      * |        |          |1 = Corresponding DOUT (Px_DOUT[n]) bit protected.
@@ -99,7 +104,7 @@ typedef struct
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
      * |[n]     |PINn      |Port A-H Pin[n] Pin Value
-     * |        |          |Each bit of the register reflects the actual status of the respective Px.n pin
+     * |        |          |Each bit of the register reflects the actual status of the respective Px.n pin.
      * |        |          |If the bit is 1, it indicates the corresponding pin status is high; else the pin status is low.
      * |        |          |Note:
      * |        |          |Max. n=15 for port A/B/E.
@@ -114,12 +119,12 @@ typedef struct
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
      * |[n]     |DBENn     |Port A-H Pin[n] Input Signal De-bounce Enable Bit
-     * |        |          |The DBEN[n] bit is used to enable the de-bounce function for each corresponding bit
-     * |        |          |If the input signal pulse width cannot be sampled by continuous two de-bounce sample cycle, the input signal transition is seen as the signal bounce and will not trigger the interrupt
+     * |        |          |The DBEN[n] bit is used to enable the de-bounce function for each corresponding bit.
+     * |        |          |If the input signal pulse width cannot be sampled by continuous two de-bounce sample cycle, the input signal transition is seen as the signal bounce and will not trigger the interrupt.
      * |        |          |The de-bounce clock source is controlled by DBCLKSRC (Px_DBCTL [4]), one de-bounce sample cycle period is controlled by DBCLKSEL (Px_DBCTL [3:0]).
      * |        |          |0 = Px.n de-bounce function Disabled.
      * |        |          |1 = Px.n de-bounce function Enabled.
-     * |        |          |The de-bounce function is valid only for edge triggered interrupt
+     * |        |          |The de-bounce function is valid only for edge triggered interrupt.
      * |        |          |If the interrupt mode is level triggered, the de-bounce enable bit is ignored.
      * |        |          |Note:
      * |        |          |Max. n=15 for port A/B/E.
@@ -134,14 +139,14 @@ typedef struct
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
      * |[n]     |TYPEn     |Port A-H Pin[n] Edge or Level Detection Interrupt Trigger Type Control
-     * |        |          |TYPE (Px_INTTYPE[n]) bit is used to control the triggered interrupt is by level trigger or by edge trigger
-     * |        |          |If the interrupt is by edge trigger, the trigger source can be controlled by de-bounce
+     * |        |          |TYPE (Px_INTTYPE[n]) bit is used to control the triggered interrupt is by level trigger or by edge trigger.
+     * |        |          |If the interrupt is by edge trigger, the trigger source can be controlled by de-bounce.
      * |        |          |If the interrupt is by level trigger, the input source is sampled by one HCLK clock and generates the interrupt.
      * |        |          |0 = Edge trigger interrupt.
      * |        |          |1 = Level trigger interrupt.
-     * |        |          |If the pin is set as the level trigger interrupt, only one level can be set on the registers RHIEN (Px_INTEN[n+16])/FLIEN (Px_INTEN[n])
+     * |        |          |If the pin is set as the level trigger interrupt, only one level can be set on the registers RHIEN (Px_INTEN[n+16])/FLIEN (Px_INTEN[n]).
      * |        |          |If both levels to trigger interrupt are set, the setting is ignored and no interrupt will occur.
-     * |        |          |The de-bounce function is valid only for edge triggered interrupt
+     * |        |          |The de-bounce function is valid only for edge triggered interrupt.
      * |        |          |If the interrupt mode is level triggered, the de-bounce enable bit is ignored.
      * |        |          |Note:
      * |        |          |Max. n=15 for port A/B/E.
@@ -156,7 +161,7 @@ typedef struct
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
      * |[n]     |FLIENn    |Port A-H Pin[n] Falling Edge or Low Level Interrupt Trigger Type Enable Bit
-     * |        |          |The FLIEN (Px_INTEN[n]) bit is used to enable the interrupt for each of the corresponding input Px.n pin
+     * |        |          |The FLIEN (Px_INTEN[n]) bit is used to enable the interrupt for each of the corresponding input Px.n pin.
      * |        |          |Set bit to 1 also enable the pin wake-up function.
      * |        |          |When setting the FLIEN (Px_INTEN[n]) bit to 1 :
      * |        |          |If the interrupt is level trigger (TYPE (Px_INTTYPE[n]) bit is set to 1), the input Px.n pin will generate the interrupt while this pin state is at low level.
@@ -170,8 +175,8 @@ typedef struct
      * |        |          |Max. n=12 for port F. The PF.12/ PF.13/ PF.14/ PF.15 is ignored.
      * |        |          |Max. n=15 for port G. The PG.0/ PG.1/ PG.5/ PG.6/ PG.7/ PG.8 is ignored.
      * |        |          |Max. n=11 for port H. The PH.0/ PH.1/ PH.2/ PH.3/ PH.12/ PH.13/ PH.14/ PH.15 is ignored.
-     * |[n+16]  |RHIENn    |Port A-G Pin[n] Rising Edge or High Level Interrupt Trigger Type Enable Bit
-     * |        |          |The RHIEN (Px_INTEN[n+16]) bit is used to enable the interrupt for each of the corresponding input Px.n pin
+     * |[n+16]  |RHIENn    |Port A-H Pin[n] Rising Edge or High Level Interrupt Trigger Type Enable Bit
+     * |        |          |The RHIEN (Px_INTEN[n+16]) bit is used to enable the interrupt for each of the corresponding input Px.n pin.
      * |        |          |Set bit to 1 also enable the pin wake-up function.
      * |        |          |When setting the RHIEN (Px_INTEN[n+16]) bit to 1 :
      * |        |          |If the interrupt is level trigger (TYPE (Px_INTTYPE[n]) bit is set to 1), the input Px.n pin will generate the interrupt while this pin state is at high level.
@@ -241,18 +246,18 @@ typedef struct
      * ---------------------------------------------------------------------------------------------------
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
-     * |[2n+1:2n]|PUSEL0   |Port A-H Pin[n] Pull-up and Pull-down Enable Register
+     * |[2n+1:2n]|PUSELn   |Port A-H Pin[n] Pull-up and Pull-down Enable Register
      * |        |          |Determine each I/O Pull-up/pull-down of Px.n pins.
      * |        |          |00 = Px.n pull-up and pull-down disable.
      * |        |          |01 = Px.n pull-up enable.
      * |        |          |10 = Px.n pull-down enable.
      * |        |          |11 = Px.n pull-up and pull-down disable.
      * |        |          |Note1:
-     * |        |          |Basically, the pull-up control and pull-down control has following behavior limitation
-     * |        |          |The independent pull-up control register only valid when MODEn (Px_MODE[2n+1:2n]) set as tri-state and open-drain mode
-     * |        |          |The independent pull-down control register only valid when MODEn (Px_MODE[2n+1:2n]) set as tri-state mode
-     * |        |          |When both pull-up pull-down is set as 1 at tri-state mode, keep I/O in tri-state mode
-     * |        |          |Note:
+     * |        |          |Basically, the pull-up control and pull-down control has following behavior limitation.
+     * |        |          |The independent pull-up control register only valid when MODEn (Px_MODE[2n+1:2n]) set as tri-state and open-drain mode.
+     * |        |          |The independent pull-down control register only valid when MODEn (Px_MODE[2n+1:2n]) set as tri-state mode.
+     * |        |          |When both pull-up pull-down is set as 1 at tri-state mode, keep I/O in tri-state mode.
+     * |        |          |Note:2
      * |        |          |Max. n=15 for port A/B/E.
      * |        |          |Max. n=13 for port C. The PC.14/ PC.15 is ignored.
      * |        |          |Max. n=14 for port D. The PD.15 is ignored.
@@ -951,6 +956,7 @@ typedef struct
 
 /**@}*/ /* GPIO_CONST */
 /**@}*/ /* end of GPIO register group */
+/**@}*/ /* end of REGISTER group */
 
 
 #endif /* __GPIO_REG_H__ */

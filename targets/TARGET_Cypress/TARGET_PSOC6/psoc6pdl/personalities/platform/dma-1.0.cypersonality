@@ -3,14 +3,14 @@
 
 <!--****************************************************************************
 * \file dma.cypersonality
-* \version 1.0
+* \version 1.0.1
 *
 * \brief
 * DMA personality description file.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -58,7 +58,7 @@
     
     
     <!--Channel-->
-    <ParamSignal port="tr_in[0]" name="Trigger Input" group="Channel"  visible="true" desc="Sets up the trigger input signal for the DMA start." canBeEmpty="true" />
+    <ParamSignal port="tr_in[0]" name="Trigger Input" group="Channel"  visible="`${hasVisibleOption(&quot;tr_in[0]&quot;)}`" desc="Sets up the trigger input signal for the DMA start." canBeEmpty="true" />
     <ParamSignal port="tr_out[0]" name="Trigger Output" group="Channel"  visible="true" desc="Sets up the trigger output signal for the DMA completion." canBeEmpty="true" />   
     <ParamRange id="CHANNEL_PRIORITY" name="Channel Priority" group="Channel" default="3" min="0" max="3" resolution="1" visible="true" editable="true" desc="Priority of the channel in the DMA block. Lower number takes precedence." />
     <ParamRange id="NUM_OF_DESCRIPTORS" name="Number of Descriptors" group="Channel" default="4" min="1" max="256" resolution="1" visible="true" editable="true" desc="The number of descriptors sets up rest of the customizer. Based on the number set in this parameter as many instances of Descriptors are created in the customizer." />

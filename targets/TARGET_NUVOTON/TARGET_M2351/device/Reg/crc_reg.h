@@ -8,6 +8,13 @@
 #ifndef __CRC_REG_H__
 #define __CRC_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
+
+
 /*---------------------- Cyclic Redundancy Check Controller -------------------------*/
 /**
     @addtogroup CRC Cyclic Redundancy Check Controller(CRC)
@@ -138,5 +145,6 @@ typedef struct
 
 /**@}*/ /* CRC_CONST */
 /**@}*/ /* end of CRC register group */
+/**@}*/ /* end of REGISTER group */
 
 #endif /* __CLK_REG_H__ */

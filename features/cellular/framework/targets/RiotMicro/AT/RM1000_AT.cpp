@@ -74,18 +74,18 @@ nsapi_error_t RM1000_AT::init()
 {
     tr_debug("RM1000_AT::init");
 
-    _at->lock();
-    _at->flush();
-    _at->at_cmd_discard("E0", ""); // echo off
+    _at.lock();
+    _at.flush();
+    _at.at_cmd_discard("E0", ""); // echo off
 
-    _at->at_cmd_discard("+SIM", "=physical");
+    _at.at_cmd_discard("+SIM", "=physical");
 
-    _at->set_at_timeout(5000);
-    _at->at_cmd_discard("+CFUN", "=1"); // set full functionality
+    _at.set_at_timeout(5000);
+    _at.at_cmd_discard("+CFUN", "=1"); // set full functionality
 
-    _at->at_cmd_discard("+VERBOSE", "=0"); // verbose responses
+    _at.at_cmd_discard("+VERBOSE", "=0"); // verbose responses
 
-    return _at->unlock_return_error();
+    return _at.unlock_return_error();
 }
 
 #if MBED_CONF_RM1000_AT_PROVIDE_DEFAULT

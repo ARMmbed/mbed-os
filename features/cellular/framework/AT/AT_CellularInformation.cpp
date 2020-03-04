@@ -98,8 +98,3 @@ nsapi_error_t AT_CellularInformation::get_iccid(char *buf, size_t buf_size)
     }
     return _at.at_cmd_str("+CCID", "?", buf, buf_size);
 }
-
-ATHandler &AT_CellularInformation::get_at_handler()
-{
-    return _at;
-}

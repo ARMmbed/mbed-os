@@ -8,6 +8,13 @@
 #ifndef __ACMP_REG_H__
 #define __ACMP_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
+
+
 /*---------------------- Analog Comparator Controller -------------------------*/
 /**
     @addtogroup ACMP Analog Comparator Controller(ACMP)
@@ -251,5 +258,6 @@ typedef struct
 
 /**@}*/ /* ACMP_CONST */
 /**@}*/ /* end of ACMP register group */
+/**@}*/ /* end of REGISTER group */
 
 #endif /* __ACMP_REG_H__ */

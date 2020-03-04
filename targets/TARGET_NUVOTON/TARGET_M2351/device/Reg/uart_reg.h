@@ -8,6 +8,12 @@
 #ifndef __UART_REG_H__
 #define __UART_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
+
 
 /*---------------------- Universal Asynchronous Receiver/Transmitter Controller -------------------------*/
 /**
@@ -87,8 +93,8 @@ typedef struct
      * |        |          |This bit can enable or disable RX PDMA service.
      * |        |          |0 = RX PDMA Disabled.
      * |        |          |1 = RX PDMA Enabled.
-     * |        |          |Note: If RLSIEN (UART_INTEN[2]) is enabled and HWRLSINT (UART_INTSTS[26]) is set to 1, the RLS (Receive Line Status) Interrupt is caused
-     * |        |          |If RLS interrupt is caused by Break Error Flag BIF(UART_FIFOSTS[6]), Frame Error Flag FEF(UART_FIFO[5]) or Parity Error Flag PEF(UART_FIFOSTS[4]) , UART PDMA receive request operation is stop.
+     * |        |          |Note: If RLSIEN (UART_INTEN[2]) is enabled and HWRLSINT (UART_INTSTS[26]) is set to 1, the RLS (Receive Line Status) Interrupt is caused.
+     * |        |          |If RLS interrupt is caused by Break Error Flag BIF(UART_FIFOSTS[6]), Frame Error Flag FEF(UART_FIFO[5]) or Parity Error Flag PEF(UART_FIFOSTS[4]), UART PDMA receive request operation is stop.
      * |        |          |Clear Break Error Flag BIF or Frame Error Flag FEF or Parity Error Flag PEF by writing 1 to corresponding BIF, FEF and PEF to make UART PDMA receive request operation continue.
      * |[18]    |ABRIEN    |Auto-baud Rate Interrupt Enable Bit
      * |        |          |0 = Auto-baud rate interrupt Disabled.
@@ -201,9 +207,7 @@ typedef struct
      * |        |          |This bit defines the active level state of nRTS pin output.
      * |        |          |0 = nRTS pin output is high level active.
      * |        |          |1 = nRTS pin output is low level active. (Default)
-     * |        |          |Note1: Refer to Figure 6.16-13 and Figure 6.16-14 for UART function mode.
-     * |        |          |Note2: Refer to Figure 6.16-24 and Figure 6.16-25 for RS-485 function mode.
-     * |        |          |Note3: Before setting this bit, TXRXDIS (UART_FUNCSEL[3]) should be set then waited for TXRXACT (UART_FIFOSTS[31]) is cleared.
+     * |        |          |Note: Before setting this bit, TXRXDIS (UART_FUNCSEL[3]) should be set then waited for TXRXACT (UART_FIFOSTS[31]) is cleared.
      * |        |          |When the configuration is done, cleared TXRXDIS (UART_FUNCSEL[3]) to activate UART controller.
      * |[13]    |RTSSTS    |nRTS Pin Status (Read Only)
      * |        |          |This bit mirror from nRTS pin output of voltage logic status.
@@ -379,11 +383,11 @@ typedef struct
      * |        |          |1 = UART wake-up interrupt flag is generated.
      * |        |          |Note: This bit is cleared if all of TOUTWKF, RS485WKF, RFRTWKF, DATWKF and CTSWKF are cleared to 0 by writing 1 to the corresponding interrupt flag.
      * |[7]     |LINIF     |LIN Bus Interrupt Flag
-     * |        |          |This bit is set when LIN slave header detect (SLVHDETF (UART_LINSTS[0] =1)), LIN break detect (BRKDETF(UART_LINSTS[8]=1)), bit error detect (BITEF(UART_LINSTS[9]=1)), LIN slave ID parity error (SLVIDPEF(UART_LINSTS[2] = 1)) or LIN slave header error detect (SLVHEF (UART_LINSTS[1]))
+     * |        |          |This bit is set when LIN slave header detect (SLVHDETF (UART_LINSTS[0]=1)), LIN break detect (BRKDETF(UART_LINSTS[8]=1)), bit error detect (BITEF(UART_LINSTS[9]=1)), LIN slave ID parity error (SLVIDPEF(UART_LINSTS[2] = 1)) or LIN slave header error detect (SLVHEF (UART_LINSTS[1]))
      * |        |          |If LINIEN (UART_INTEN [8]) is enabled the LIN interrupt will be generated.
      * |        |          |0 = None of SLVHDETF, BRKDETF, BITEF, SLVIDPEF and SLVHEF is generated.
      * |        |          |1 = At least one of SLVHDETF, BRKDETF, BITEF, SLVIDPEF and SLVHEF is generated.
-     * |        |          |Note: This bit is cleared when SLVHDETF(UART_LINSTS[0]), BRKDETF(UART_LINSTS[8]), BITEF(UART_LINSTS[9]), SLVIDPEF (UART_LINSTS[2]) and SLVHEF(UART_LINSTS[1]) all are cleared and software writing u20181' to LINIF(UART_INTSTS[7]).
+     * |        |          |Note: This bit is cleared when SLVHDETF(UART_LINSTS[0]), BRKDETF(UART_LINSTS[8]), BITEF(UART_LINSTS[9]), SLVIDPEF (UART_LINSTS[2]) and SLVHEF(UART_LINSTS[1]) all are cleared and software writing 1 to LINIF(UART_INTSTS[7]).
      * |[8]     |RDAINT    |Receive Data Available Interrupt Indicator (Read Only)
      * |        |          |This bit is set if RDAIEN (UART_INTEN[0]) and RDAIF (UART_INTSTS[0]) are both set to 1.
      * |        |          |0 = No RDA interrupt is generated.
@@ -425,7 +429,7 @@ typedef struct
      * |        |          |Note2: In UART function mode, this bit is read only and reset to 0 when all bits of BIF(UART_FIFOSTS[6]) , FEF(UART_FIFOSTS[5]) and PEF(UART_FIFOSTS[4]) are cleared.
      * |        |          |Note3: In RS-485 function mode, this bit is read only and reset to 0 when all bits of BIF(UART_FIFOSTS[6]), FEF(UART_FIFOSTS[5]), PEF(UART_FIFOSTS[4]) and ADDRDETF (UART_FIFOSTS[3]) are cleared.
      * |[19]    |HWMODIF   |PDMA Mode MODEM Interrupt Flag (Read Only)
-     * |        |          |This bit is set when the nCTS pin has state change (CTSDETF (UART_MODEMSTS [0] =1)).
+     * |        |          |This bit is set when the nCTS pin has state change (CTSDETF (UART_MODEMSTS[0]=1)).
      * |        |          |If MODEMIEN (UART_INTEN [3]) is enabled, the Modem interrupt will be generated.
      * |        |          |0 = No Modem interrupt flag is generated in PDMA mode.
      * |        |          |1 = Modem interrupt flag is generated in PDMA mode.
@@ -563,7 +567,7 @@ typedef struct
      * |        |          |This bit is set when auto-baud rate detection function finished or the auto-baud rate counter was overflow and if ABRIEN(UART_INTEN [18]) is set then the auto-baud rate interrupt will be generated.
      * |        |          |0 = No auto-baud rate interrupt flag is generated.
      * |        |          |1 = Auto-baud rate interrupt flag is generated.
-     * |        |          |Note: This bit is read only, but it can be cleared by writing 1 to ABRDTOIF (UART_FIFOSTS[2]) and ABRDIF(UART_FIFOSTS[1])
+     * |        |          |Note: This bit is read only, but it can be cleared by writing 1 to ABRDTOIF (UART_FIFOSTS[2]) and ABRDIF(UART_FIFOSTS[1]).
      * |[18]    |ABRDEN    |Auto-baud Rate Detect Enable Bit
      * |        |          |0 = Auto-baud rate detect function Disabled.
      * |        |          |1 = Auto-baud rate detect function Enabled.
@@ -695,7 +699,7 @@ typedef struct
      * |        |          |0 = No active.
      * |        |          |1 = Receipted frame ID parity is not correct.
      * |        |          |Note1: This bit can be cleared by writing 1 to it.
-     * |        |          |Note2: This bit is only valid when in LIN slave mode (SLVEN (UART_LINCTL [0])= 1) and enable LIN frame ID parity check function IDPEN (UART_LINCTL [9]).
+     * |        |          |Note2: This bit is only valid when in LIN slave mode (SLVEN (UART_LINCTL [0]) = 1) and enable LIN frame ID parity check function IDPEN (UART_LINCTL [9]).
      * |[3]     |SLVSYNCF  |LIN Slave Sync Field
      * |        |          |This bit indicates that the LIN sync field is being analyzed in Automatic Resynchronization mode.
      * |        |          |When the receiver header have some error been detect, user must reset the internal circuit to re-search new frame header by writing 1 to this bit.
@@ -709,7 +713,7 @@ typedef struct
      * |        |          |0 = LIN break not detected.
      * |        |          |1 = LIN break detected.
      * |        |          |Note1: This bit can be cleared by writing 1 to it.
-     * |        |          |Note2: This bit is only valid when LIN break detection function is enabled (BRKDETEN (UART_LINCTL[10]) =1).
+     * |        |          |Note2: This bit is only valid when LIN break detection function is enabled (BRKDETEN (UART_LINCTL[10]) = 1).
      * |[9]     |BITEF     |Bit Error Detect Status Flag
      * |        |          |At TX transfer state, hardware will monitor the bus state, if the input pin (UART_RXD) state not equals to the output pin (UART_TXD) state, BITEF (UART_LINSTS[9]) will be set.
      * |        |          |When occur bit error, if the LINIEN (UART_INTEN[8]) = 1, an interrupt will be generated.
@@ -724,7 +728,7 @@ typedef struct
      * | :----: | :----:   | :---- |
      * |[8:0]   |BRCOMP    |Baud Rate Compensation Patten
      * |        |          |These 9-bits are used to define the relative bit is compensated or not.
-     * |        |          |BRCOMP[7:0] is used to define the compensation of UART_DAT[7:0] and BRCOM[8] is used to define the parity bit.
+     * |        |          |BRCOMP[7:0] is used to define the compensation of UART_DAT[7:0] and BRCOMP[8] is used to define the parity bit.
      * |[31]    |BRCOMPDEC |Baud Rate Compensation Decrease
      * |        |          |0 = Positive (increase one module clock) compensation for each compensated bit.
      * |        |          |1 = Negative (decrease one module clock) compensation for each compensated bit.
@@ -1238,7 +1242,6 @@ typedef struct
 
 /**@}*/ /* UART_CONST */
 /**@}*/ /* end of UART register group */
-
-
+/**@}*/ /* end of REGISTER group */
 
 #endif /* __UART_REG_H__ */

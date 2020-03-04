@@ -8,6 +8,12 @@
 #ifndef __SDH_REG_H__
 #define __SDH_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
+
 /*---------------------- SD Card Host Interface -------------------------*/
 /**
     @addtogroup SDH SD Card Host Interface(SDH)
@@ -513,6 +519,7 @@ typedef struct
 
 /**@}*/ /* SDH_CONST */
 /**@}*/ /* end of SDH register group */
+/**@}*/ /* end of REGISTER group */
 
 
 #endif /* __SDH_REG_H__ */

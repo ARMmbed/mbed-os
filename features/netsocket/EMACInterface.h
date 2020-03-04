@@ -59,15 +59,12 @@ public:
      *  Implicitly disables DHCP, which can be enabled in set_dhcp.
      *  Requires that the network is disconnected.
      *
-     *  @param ip_address  Null-terminated representation of the local IP address
-     *  @param netmask     Null-terminated representation of the local network mask
-     *  @param gateway     Null-terminated representation of the local gateway
+     *  @param ip_address  SocketAddress representation of the local IP address
+     *  @param netmask     SocketAddress representation of the local network mask
+     *  @param gateway     SocketAddress representation of the local gateway
      *  @return            0 on success, negative error code on failure
      */
-    virtual nsapi_error_t set_network(const SocketAddress &ip_address, const SocketAddress &netmask, const SocketAddress &gateway);
-
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual nsapi_error_t set_network(const char *ip_address, const char *netmask, const char *gateway);
+    nsapi_error_t set_network(const SocketAddress &ip_address, const SocketAddress &netmask, const SocketAddress &gateway) override;
 
     /** Enable or disable DHCP on the network
      *
@@ -77,53 +74,43 @@ public:
      *  @retval         NSAPI_ERROR_OK on success.
      *  @retval         NSAPI_ERROR_UNSUPPORTED if operation is not supported.
      */
-    virtual nsapi_error_t set_dhcp(bool dhcp);
+    nsapi_error_t set_dhcp(bool dhcp) override;
 
     /** @copydoc NetworkInterface::connect */
-    virtual nsapi_error_t connect();
+    nsapi_error_t connect() override;
 
     /** @copydoc NetworkInterface::disconnect */
-    virtual nsapi_error_t disconnect();
+    nsapi_error_t disconnect() override;
 
     /** @copydoc NetworkInterface::get_mac_address */
-    virtual const char *get_mac_address();
+    const char *get_mac_address() override;
 
     /** @copydoc NetworkInterface::get_ip_address */
-    virtual nsapi_error_t get_ip_address(SocketAddress *address);
-
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual const char *get_ip_address();
+    nsapi_error_t get_ip_address(SocketAddress *address) override;
 
     /** @copydoc NetworkInterface::get_ipv6_link_local_address */
-    virtual nsapi_error_t get_ipv6_link_local_address(SocketAddress *address);
+    nsapi_error_t get_ipv6_link_local_address(SocketAddress *address) override;
 
     /** @copydoc NetworkInterface::get_netmask */
-    virtual nsapi_error_t get_netmask(SocketAddress *address);
-
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual const char *get_netmask();
+    nsapi_error_t get_netmask(SocketAddress *address) override;
 
     /** @copydoc NetworkInterface::get_gateway */
-    virtual nsapi_error_t get_gateway(SocketAddress *address);
-
-    /** @copydoc NetworkInterface::get_gateway */
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual const char *get_gateway();
+    nsapi_error_t get_gateway(SocketAddress *address) override;
 
     /** @copydoc NetworkInterface::get_interface_name */
-    virtual char *get_interface_name(char *interface_name);
+    char *get_interface_name(char *interface_name) override;
 
     /** @copydoc NetworkInterface::set_as_default */
-    virtual void set_as_default();
+    void set_as_default() override;
 
     /** @copydoc NetworkInterface::attach */
-    virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
+    void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb) override;
 
     /** @copydoc NetworkInterface::get_connection_status */
-    virtual nsapi_connection_status_t get_connection_status() const;
+    nsapi_connection_status_t get_connection_status() const override;
 
     /** @copydoc NetworkInterface::set_blocking */
-    virtual nsapi_error_t set_blocking(bool blocking);
+    nsapi_error_t set_blocking(bool blocking) override;
 
     /** Provide access to the EMAC
      *
@@ -138,7 +125,7 @@ public:
         return _emac;
     }
 
-    virtual EMACInterface *emacInterface()
+    EMACInterface *emacInterface() final
     {
         return this;
     }
@@ -148,17 +135,17 @@ protected:
      *
      *  @return The underlying network stack
      */
-    virtual NetworkStack *get_stack();
+    NetworkStack *get_stack() final;
 
     EMAC &_emac;
     OnboardNetworkStack &_stack;
-    OnboardNetworkStack::Interface *_interface;
-    bool _dhcp;
-    bool _blocking;
+    OnboardNetworkStack::Interface *_interface = nullptr;
+    bool _dhcp = true;
+    bool _blocking = true;
     char _mac_address[NSAPI_MAC_SIZE];
-    char _ip_address[NSAPI_IPv6_SIZE];
-    char _netmask[NSAPI_IPv4_SIZE];
-    char _gateway[NSAPI_IPv4_SIZE];
+    char _ip_address[NSAPI_IPv6_SIZE] {};
+    char _netmask[NSAPI_IPv4_SIZE] {};
+    char _gateway[NSAPI_IPv4_SIZE] {};
     mbed::Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
 };
 

@@ -8,6 +8,11 @@
 #ifndef __TRNG_REG_H__
 #define __TRNG_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
 
 /*---------------------- True Random Number Generator -------------------------*/
 /**
@@ -124,6 +129,7 @@ typedef struct
 
 /**@}*/ /* TRNG_CONST */
 /**@}*/ /* end of TRNG register group */
+/**@}*/ /* end of REGISTER group */
 
 
 #endif /* __TRNG_REG_H__ */

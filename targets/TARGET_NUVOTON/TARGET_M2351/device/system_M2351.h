@@ -1,8 +1,6 @@
 /**************************************************************************//**
  * @file     system_M2351.h
  * @version  V3.00
- * $Revision: 3 $
- * $Date: 16/07/26 11:17a $
  * @brief    System Setting Header File
  *
  * @note
@@ -64,7 +62,7 @@ extern "C" {
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3L)
 # if defined (__ICCARM__)
 #  define __NONSECURE_ENTRY       __cmse_nonsecure_entry
-#  define __NONSECURE_ENTRY_WEAK  __cmse_nonsecure_entry __weak
+#  define __NONSECURE_ENTRY_WEAK  __cmse_nonsecure_entry //__weak
 #  define __NONSECURE_CALL        __cmse_nonsecure_call
 # else
 #  define __NONSECURE_ENTRY       __attribute__((cmse_nonsecure_entry))
@@ -129,6 +127,50 @@ extern void SystemInit(void);
  */
 extern void SystemCoreClockUpdate(void);
 
+
+
+
+#if (defined(__ICCARM__) && (__VER__ >= 7080000) && (__VER__ < 8020000))
+uint32_t __TZ_get_PSP_NS(void);
+void __TZ_set_PSP_NS(uint32_t topOfProcStack);
+int32_t __TZ_get_MSP_NS(void);
+void __TZ_set_MSP_NS(uint32_t topOfMainStack);
+uint32_t __TZ_get_PRIMASK_NS(void);
+void __TZ_set_PRIMASK_NS(uint32_t priMask);
+#endif
+
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+
+/**
+  * \brief   Setup SAU regions
+  * \details Writes the region information contained in SAU_Region to the
+  *          registers SAU_RNR, SAU_RBAR, and SAU_RLAR
+  */
+void TZ_SAU_Setup(void);
+
+/**
+  * \brief   Setup System Control Block
+  */
+void SCB_Setup(void);
+
+/**
+ * \brief   Setup NVIC interrupt target state
+ */
+void TZ_NVIC_Setup(void);
+
+/**
+  *\brief   Setup SCU Configuration Unit
+  */
+void SCU_Setup(void);
+
+/**
+  * \brief  Configure Non-secure flash boundary for the first time after Mass Erase or
+  *         check if flash partition matches SCU.FNSADDR which has already configured
+  *         and fixed until next Mass Erase.
+  */
+void FMC_NSBA_Setup(void);
+
+#endif  /* #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) */
 
 #ifdef __cplusplus
 }

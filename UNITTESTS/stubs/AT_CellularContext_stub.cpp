@@ -21,7 +21,7 @@ using namespace mbed;
 
 AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn,  bool cp_req, bool nonip_req) :
     _at(at), _is_connected(false),
-    _current_op(OP_INVALID), _fh(0), _cp_req(cp_req)
+    _current_op(OP_INVALID), _dcd_pin(NC), _active_high(false), _cp_req(cp_req)
 {
     _stack = NULL;
     _pdp_type = DEFAULT_PDP_TYPE;
@@ -51,17 +51,15 @@ AT_CellularContext::~AT_CellularContext()
 {
 }
 
-void AT_CellularContext::set_file_handle(BufferedSerial *serial, PinName dcd_pin, bool active_high)
+nsapi_error_t AT_CellularContext::configure_hup(PinName dcd_pin, bool active_high)
 {
+    return NSAPI_ERROR_OK;
 }
 
 void AT_CellularContext::enable_hup(bool enable)
 {
 }
 
-void AT_CellularContext::set_file_handle(FileHandle *fh)
-{
-}
 
 nsapi_error_t AT_CellularContext::connect()
 {
@@ -114,11 +112,6 @@ NetworkStack *AT_CellularContext::get_stack()
 nsapi_error_t AT_CellularContext::get_ip_address(SocketAddress *address)
 {
     return NSAPI_ERROR_UNSUPPORTED;
-}
-
-const char *AT_CellularContext::get_ip_address()
-{
-    return NULL;
 }
 
 void AT_CellularContext::attach(Callback<void(nsapi_event_t, intptr_t)> status_cb)
@@ -290,9 +283,4 @@ void AT_CellularContext::do_connect_with_retry()
 char *AT_CellularContext::get_interface_name(char *interface_name)
 {
     return NULL;
-}
-
-ATHandler &AT_CellularContext::get_at_handler()
-{
-    return _at;
 }

@@ -66,7 +66,7 @@ __STATIC_INLINE uint32_t NU_GET_GPIO_PIN_DATA(uint32_t PORT, uint32_t PIN)
     } 
 #endif
     
-    return GPIO_PIN_DATA(PORT, PIN);
+    return GPIO_PIN_DATA_S(PORT, PIN);
 }
 
 /* TrustZone-aware version of GPIO_PIN_DATA to set GPIO pin data */
@@ -79,7 +79,7 @@ __STATIC_INLINE void NU_SET_GPIO_PIN_DATA(uint32_t PORT, uint32_t PIN, uint32_t 
     }
 #endif
     
-    GPIO_PIN_DATA(PORT, PIN) = VALUE;
+    GPIO_PIN_DATA_S(PORT, PIN) = VALUE;
 }
 
 // LEGACY

@@ -155,6 +155,17 @@ struct can_s {
 };
 #endif
 
+struct qspi_s {
+    OSPI_HandleTypeDef handle;
+    QSPIName qspi;
+    PinName io0;
+    PinName io1;
+    PinName io2;
+    PinName io3;
+    PinName sclk;
+    PinName ssel;
+};
+
 #ifdef __cplusplus
 }
 #endif

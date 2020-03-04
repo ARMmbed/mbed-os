@@ -345,7 +345,7 @@ TEST_F(test_ATCmdParser, test_ATCmdParser_recv)
 
     expected_oob_callback = true;
     at1.oob("s", &urc_callback);
-    EXPECT_TRUE(at1.recv("%c %d %x %s\r\n%c %d %x %s\r\n", &c, &intval, &hexval, &text));
+    EXPECT_TRUE(at1.recv("%c %d %x %s\r\n%c %d %x %s\r\n", &c, &intval, &hexval, &text, &c, &intval, &hexval, &text));
     expected_oob_callback = false;
     EXPECT_EQ(c, 't');
     EXPECT_EQ(intval, 2);

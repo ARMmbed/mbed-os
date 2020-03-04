@@ -104,49 +104,11 @@ public:
      */
     void rise(Callback<void()> func);
 
-    /** Attach a member function to call when a rising edge occurs on the input
-     *
-     *  @param obj pointer to the object to call the member function on
-     *  @param method pointer to the member function to be called
-     *  @deprecated
-     *      The rise function does not support cv-qualifiers. Replaced by
-     *      rise(callback(obj, method)).
-     */
-    template<typename T, typename M>
-    MBED_DEPRECATED_SINCE("mbed-os-5.1",
-                          "The rise function does not support cv-qualifiers. Replaced by "
-                          "rise(callback(obj, method)).")
-    void rise(T *obj, M method)
-    {
-        core_util_critical_section_enter();
-        rise(callback(obj, method));
-        core_util_critical_section_exit();
-    }
-
     /** Attach a function to call when a falling edge occurs on the input
      *
      *  @param func A pointer to a void function, or 0 to set as none
      */
     void fall(Callback<void()> func);
-
-    /** Attach a member function to call when a falling edge occurs on the input
-     *
-     *  @param obj pointer to the object to call the member function on
-     *  @param method pointer to the member function to be called
-     *  @deprecated
-     *      The rise function does not support cv-qualifiers. Replaced by
-     *      rise(callback(obj, method)).
-     */
-    template<typename T, typename M>
-    MBED_DEPRECATED_SINCE("mbed-os-5.1",
-                          "The fall function does not support cv-qualifiers. Replaced by "
-                          "fall(callback(obj, method)).")
-    void fall(T *obj, M method)
-    {
-        core_util_critical_section_enter();
-        fall(callback(obj, method));
-        core_util_critical_section_exit();
-    }
 
     /** Set the input pin mode
      *

@@ -83,18 +83,3 @@ void pin_mode(PinName pin, PinMode mode)
      * 2. PushPullOutput/PIN_INPUT
      */
 }
-
-/* List of peripherals excluded from testing */
-const PeripheralList *pinmap_restricted_peripherals()
-{
-    static const int perifs[] = {
-        STDIO_UART          // Dedicated to USB VCOM
-    };
-
-    static const PeripheralList peripheral_list = {
-        sizeof(perifs) / sizeof(perifs[0]),
-        perifs
-    };
-
-    return &peripheral_list;
-}

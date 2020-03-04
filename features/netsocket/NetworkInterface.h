@@ -110,9 +110,6 @@ public:
      */
     virtual nsapi_error_t get_ip_address(SocketAddress *address);
 
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual const char *get_ip_address();
-
     /** Get the IPv6 link local address
      *
      *  @param          address SocketAddress representation of the link local IPv6 address
@@ -132,9 +129,6 @@ public:
      */
     virtual nsapi_error_t get_netmask(SocketAddress *address);
 
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual const char *get_netmask();
-
     /** Get the local gateway.
      *
      *  @param          address SocketAddress representation of gateway address
@@ -144,9 +138,6 @@ public:
      *  @retval         NSAPI_ERROR_NO_ADDRESS if the address cannot be obtained from stack
      */
     virtual nsapi_error_t get_gateway(SocketAddress *address);
-
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual const char *get_gateway();
 
     /** Get the network interface name
      *
@@ -166,9 +157,6 @@ public:
      *  @retval           NSAPI_ERROR_UNSUPPORTED if this function is unsupported
      */
     virtual nsapi_error_t set_network(const SocketAddress &ip_address, const SocketAddress &netmask, const SocketAddress &gateway);
-
-    MBED_DEPRECATED_SINCE("mbed-os-5.15", "String-based APIs are deprecated")
-    virtual nsapi_error_t set_network(const char *ip_address, const char *netmask, const char *gateway);
 
     /** Enable or disable DHCP on connecting the network.
      *
@@ -395,7 +383,7 @@ public:
      */
     virtual EthInterface *ethInterface()
     {
-        return 0;
+        return nullptr;
     }
 
     /** Return pointer to a WiFiInterface.
@@ -403,7 +391,7 @@ public:
      */
     virtual WiFiInterface *wifiInterface()
     {
-        return 0;
+        return nullptr;
     }
 
     /** Return pointer to a MeshInterface.
@@ -411,7 +399,7 @@ public:
      */
     virtual MeshInterface *meshInterface()
     {
-        return 0;
+        return nullptr;
     }
 
     /** Return pointer to an EMACInterface.
@@ -419,7 +407,7 @@ public:
      */
     virtual EMACInterface *emacInterface()
     {
-        return 0;
+        return nullptr;
     }
 
     /** Return pointer to a CellularInterface.
@@ -427,7 +415,7 @@ public:
      */
     virtual CellularInterface *cellularInterface()
     {
-        return 0;
+        return nullptr;
     }
 
 #if !defined(DOXYGEN_ONLY)

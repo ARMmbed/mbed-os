@@ -35,7 +35,6 @@ public:
     virtual nsapi_error_t set_blocking(bool blocking);
     virtual NetworkStack *get_stack();
     virtual nsapi_error_t get_ip_address(SocketAddress *address);
-    virtual const char *get_ip_address();
     virtual char *get_interface_name(char *interface_name);
     virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
     virtual nsapi_error_t connect();
@@ -58,19 +57,17 @@ public:
     virtual nsapi_error_t set_sim_ready();
     virtual nsapi_error_t register_to_network();
     virtual nsapi_error_t attach_to_network();
-    virtual void set_file_handle(FileHandle *fh);
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
-    virtual void set_file_handle(BufferedSerial *serial, PinName dcd_pin = NC, bool active_high = false);
+    virtual nsapi_error_t configure_hup(PinName dcd_pin = NC, bool active_high = false);
 #endif // #if DEVICE_SERIAL
-    virtual void enable_hup(bool enable);
 
     virtual ControlPlane_netif *get_cp_netif();
 
     AT_CellularDevice *get_device() const;
 
-    ATHandler &get_at_handler();
-
 protected:
+    virtual void enable_hup(bool enable);
+
     virtual void cellular_callback(nsapi_event_t ev, intptr_t ptr);
 
     /** Does the authentication for the PDP Context if user name and password are provided.
@@ -128,10 +125,12 @@ private:
     void set_cid(int cid);
 
 private:
-    ContextOperation  _current_op;
-    FileHandle *_fh;
+    ContextOperation _current_op;
     rtos::Semaphore _semaphore;
     rtos::Semaphore _cp_opt_semaphore;
+
+    PinName _dcd_pin;
+    bool _active_high;
 
 protected:
     char _found_apn[MAX_APN_LENGTH];

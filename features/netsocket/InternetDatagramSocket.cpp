@@ -26,27 +26,6 @@ nsapi_error_t InternetDatagramSocket::connect(const SocketAddress &address)
     return NSAPI_ERROR_OK;
 }
 
-nsapi_size_or_error_t InternetDatagramSocket::sendto(const char *host, uint16_t port, const void *data, nsapi_size_t size)
-{
-    SocketAddress address;
-    nsapi_size_or_error_t err;
-
-    if (!strcmp(_interface_name, "")) {
-        err = _stack->gethostbyname(host, &address);
-    } else {
-        err = _stack->gethostbyname(host, &address, NSAPI_UNSPEC, _interface_name);
-    }
-
-    if (err) {
-        return NSAPI_ERROR_DNS_FAILURE;
-    }
-
-    address.set_port(port);
-
-    // sendto is thread safe
-    return sendto(address, data, size);
-}
-
 nsapi_size_or_error_t InternetDatagramSocket::sendto(const SocketAddress &address, const void *data, nsapi_size_t size)
 {
     _lock.lock();

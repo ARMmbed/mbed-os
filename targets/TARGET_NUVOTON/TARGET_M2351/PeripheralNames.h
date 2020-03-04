@@ -38,7 +38,7 @@ extern "C" {
 
 #if 0
 typedef enum {
-    
+
 #if defined(SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & (1 << 0))
     GPIO_A = (int) NU_MODNAME(GPIOA_BASE + NS_OFFSET, 0, 0),
 #else
@@ -76,143 +76,152 @@ typedef enum {
 #endif
 
 #if defined(SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & (1 << 6))
-    GPIO_G = (int) NU_MODNAME(GPIOF_BASE + NS_OFFSET, 6, 0)
+    GPIO_G = (int) NU_MODNAME(GPIOG_BASE + NS_OFFSET, 6, 0),
 #else
-    GPIO_G = (int) NU_MODNAME(GPIOF_BASE, 6, 0)
+    GPIO_G = (int) NU_MODNAME(GPIOG_BASE, 6, 0),
+#endif
+
+#if defined(SCU_INIT_IONSSET_VAL) && (SCU_INIT_IONSSET_VAL & (1 << 7))
+    GPIO_H = (int) NU_MODNAME(GPIOH_BASE + NS_OFFSET, 7, 0),
+#else
+    GPIO_H = (int) NU_MODNAME(GPIOH_BASE, 7, 0),
 #endif
 
 } GPIOName;
 #endif
 
 typedef enum {
-    
+
 #if defined(SCU_INIT_PNSSET2_VAL) && (SCU_INIT_PNSSET2_VAL & (1 << 3))
-    ADC_0_0 = (int) NU_MODNAME(EADC0_BASE + NS_OFFSET, 0, 0),
-    ADC_0_1 = (int) NU_MODNAME(EADC0_BASE + NS_OFFSET, 0, 1),
-    ADC_0_2 = (int) NU_MODNAME(EADC0_BASE + NS_OFFSET, 0, 2),
-    ADC_0_3 = (int) NU_MODNAME(EADC0_BASE + NS_OFFSET, 0, 3),
-    ADC_0_4 = (int) NU_MODNAME(EADC0_BASE + NS_OFFSET, 0, 4),
-    ADC_0_5 = (int) NU_MODNAME(EADC0_BASE + NS_OFFSET, 0, 5),
-    ADC_0_6 = (int) NU_MODNAME(EADC0_BASE + NS_OFFSET, 0, 6),
-    ADC_0_7 = (int) NU_MODNAME(EADC0_BASE + NS_OFFSET, 0, 7),
-    ADC_0_8 = (int) NU_MODNAME(EADC0_BASE + NS_OFFSET, 0, 8),
-    ADC_0_9 = (int) NU_MODNAME(EADC0_BASE + NS_OFFSET, 0, 9),
-    ADC_0_10 = (int) NU_MODNAME(EADC0_BASE + NS_OFFSET, 0, 10),
-    ADC_0_11 = (int) NU_MODNAME(EADC0_BASE + NS_OFFSET, 0, 11),
-    ADC_0_12 = (int) NU_MODNAME(EADC0_BASE + NS_OFFSET, 0, 12),
-    ADC_0_13 = (int) NU_MODNAME(EADC0_BASE + NS_OFFSET, 0, 13),
-    ADC_0_14 = (int) NU_MODNAME(EADC0_BASE + NS_OFFSET, 0, 14),
-    ADC_0_15 = (int) NU_MODNAME(EADC0_BASE + NS_OFFSET, 0, 15)
+    ADC_0_0 = (int) NU_MODNAME(EADC_BASE + NS_OFFSET, 0, 0),
+    ADC_0_1 = (int) NU_MODNAME(EADC_BASE + NS_OFFSET, 0, 1),
+    ADC_0_2 = (int) NU_MODNAME(EADC_BASE + NS_OFFSET, 0, 2),
+    ADC_0_3 = (int) NU_MODNAME(EADC_BASE + NS_OFFSET, 0, 3),
+    ADC_0_4 = (int) NU_MODNAME(EADC_BASE + NS_OFFSET, 0, 4),
+    ADC_0_5 = (int) NU_MODNAME(EADC_BASE + NS_OFFSET, 0, 5),
+    ADC_0_6 = (int) NU_MODNAME(EADC_BASE + NS_OFFSET, 0, 6),
+    ADC_0_7 = (int) NU_MODNAME(EADC_BASE + NS_OFFSET, 0, 7),
+    ADC_0_8 = (int) NU_MODNAME(EADC_BASE + NS_OFFSET, 0, 8),
+    ADC_0_9 = (int) NU_MODNAME(EADC_BASE + NS_OFFSET, 0, 9),
+    ADC_0_10 = (int) NU_MODNAME(EADC_BASE + NS_OFFSET, 0, 10),
+    ADC_0_11 = (int) NU_MODNAME(EADC_BASE + NS_OFFSET, 0, 11),
+    ADC_0_12 = (int) NU_MODNAME(EADC_BASE + NS_OFFSET, 0, 12),
+    ADC_0_13 = (int) NU_MODNAME(EADC_BASE + NS_OFFSET, 0, 13),
+    ADC_0_14 = (int) NU_MODNAME(EADC_BASE + NS_OFFSET, 0, 14),
+    ADC_0_15 = (int) NU_MODNAME(EADC_BASE + NS_OFFSET, 0, 15),
 #else
-    ADC_0_0 = (int) NU_MODNAME(EADC0_BASE, 0, 0),
-    ADC_0_1 = (int) NU_MODNAME(EADC0_BASE, 0, 1),
-    ADC_0_2 = (int) NU_MODNAME(EADC0_BASE, 0, 2),
-    ADC_0_3 = (int) NU_MODNAME(EADC0_BASE, 0, 3),
-    ADC_0_4 = (int) NU_MODNAME(EADC0_BASE, 0, 4),
-    ADC_0_5 = (int) NU_MODNAME(EADC0_BASE, 0, 5),
-    ADC_0_6 = (int) NU_MODNAME(EADC0_BASE, 0, 6),
-    ADC_0_7 = (int) NU_MODNAME(EADC0_BASE, 0, 7),
-    ADC_0_8 = (int) NU_MODNAME(EADC0_BASE, 0, 8),
-    ADC_0_9 = (int) NU_MODNAME(EADC0_BASE, 0, 9),
-    ADC_0_10 = (int) NU_MODNAME(EADC0_BASE, 0, 10),
-    ADC_0_11 = (int) NU_MODNAME(EADC0_BASE, 0, 11),
-    ADC_0_12 = (int) NU_MODNAME(EADC0_BASE, 0, 12),
-    ADC_0_13 = (int) NU_MODNAME(EADC0_BASE, 0, 13),
-    ADC_0_14 = (int) NU_MODNAME(EADC0_BASE, 0, 14),
-    ADC_0_15 = (int) NU_MODNAME(EADC0_BASE, 0, 15)
+    ADC_0_0 = (int) NU_MODNAME(EADC_BASE, 0, 0),
+    ADC_0_1 = (int) NU_MODNAME(EADC_BASE, 0, 1),
+    ADC_0_2 = (int) NU_MODNAME(EADC_BASE, 0, 2),
+    ADC_0_3 = (int) NU_MODNAME(EADC_BASE, 0, 3),
+    ADC_0_4 = (int) NU_MODNAME(EADC_BASE, 0, 4),
+    ADC_0_5 = (int) NU_MODNAME(EADC_BASE, 0, 5),
+    ADC_0_6 = (int) NU_MODNAME(EADC_BASE, 0, 6),
+    ADC_0_7 = (int) NU_MODNAME(EADC_BASE, 0, 7),
+    ADC_0_8 = (int) NU_MODNAME(EADC_BASE, 0, 8),
+    ADC_0_9 = (int) NU_MODNAME(EADC_BASE, 0, 9),
+    ADC_0_10 = (int) NU_MODNAME(EADC_BASE, 0, 10),
+    ADC_0_11 = (int) NU_MODNAME(EADC_BASE, 0, 11),
+    ADC_0_12 = (int) NU_MODNAME(EADC_BASE, 0, 12),
+    ADC_0_13 = (int) NU_MODNAME(EADC_BASE, 0, 13),
+    ADC_0_14 = (int) NU_MODNAME(EADC_BASE, 0, 14),
+    ADC_0_15 = (int) NU_MODNAME(EADC_BASE, 0, 15),
 #endif
 
 } ADCName;
 
 typedef enum {
+
 #if defined(SCU_INIT_PNSSET2_VAL) && (SCU_INIT_PNSSET2_VAL & (1 << 7))
     DAC_0_0 = (int) NU_MODNAME(DAC0_BASE + NS_OFFSET, 0, 0),
-    DAC_1_0 = (int) NU_MODNAME(DAC1_BASE + NS_OFFSET, 1, 0)
+    DAC_1_0 = (int) NU_MODNAME(DAC1_BASE + NS_OFFSET, 1, 0),
 #else
     DAC_0_0 = (int) NU_MODNAME(DAC0_BASE, 0, 0),
-    DAC_1_0 = (int) NU_MODNAME(DAC1_BASE, 1, 0)
+    DAC_1_0 = (int) NU_MODNAME(DAC1_BASE, 1, 0),
 #endif
+
 } DACName;
 
 typedef enum {
 
-#if defined(SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (1<<16))
+#if defined(SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (1 << 16))
     UART_0 = (int) NU_MODNAME(UART0_BASE + NS_OFFSET, 0, 0),
 #else
     UART_0 = (int) NU_MODNAME(UART0_BASE, 0, 0),
 #endif
 
-#if defined(SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (1<<17))
+#if defined(SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (1 << 17))
     UART_1 = (int) NU_MODNAME(UART1_BASE + NS_OFFSET, 1, 0),
 #else
     UART_1 = (int) NU_MODNAME(UART1_BASE, 1, 0),
 #endif
 
-#if defined(SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (1<<18))
+#if defined(SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (1 << 18))
     UART_2 = (int) NU_MODNAME(UART2_BASE + NS_OFFSET, 2, 0),
 #else
     UART_2 = (int) NU_MODNAME(UART2_BASE, 2, 0),
 #endif
 
-#if defined(SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (0x01<<19))
+#if defined(SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (1 << 19))
     UART_3 = (int) NU_MODNAME(UART3_BASE + NS_OFFSET, 3, 0),
 #else
     UART_3 = (int) NU_MODNAME(UART3_BASE, 3, 0),
 #endif
 
-#if defined(SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (0x01<<20))
+#if defined(SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (1 << 20))
     UART_4 = (int) NU_MODNAME(UART4_BASE + NS_OFFSET, 4, 0),
 #else
     UART_4 = (int) NU_MODNAME(UART4_BASE, 4, 0),
 #endif
 
-#if defined(SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (0x01<<21))
+#if defined(SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (1 << 21))
     UART_5 = (int) NU_MODNAME(UART5_BASE + NS_OFFSET, 5, 0),
 #else
     UART_5 = (int) NU_MODNAME(UART5_BASE, 5, 0),
 #endif
 
     // NOTE: board-specific
-    STDIO_UART  = UART_0
+    STDIO_UART  = UART_0,
 
 } UARTName;
 
 typedef enum {
 
-#if defined(SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (1 << 0))
+#if defined(SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (1 << 1))
     SPI_0 = (int) NU_MODNAME(SPI0_BASE + NS_OFFSET, 0, 0),
 #else
     SPI_0 = (int) NU_MODNAME(SPI0_BASE, 0, 0),
 #endif
 
-#if defined(SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (1 << 1))
+#if defined(SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (1 << 2))
     SPI_1 = (int) NU_MODNAME(SPI1_BASE + NS_OFFSET, 1, 0),
 #else
     SPI_1 = (int) NU_MODNAME(SPI1_BASE, 1, 0),
 #endif
 
-#if defined(SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (1 << 2))
+#if defined(SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (1 << 3))
     SPI_2 = (int) NU_MODNAME(SPI2_BASE + NS_OFFSET, 2, 0),
 #else
     SPI_2 = (int) NU_MODNAME(SPI2_BASE, 2, 0),
 #endif
 
-#if defined(SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (1 << 3))
+#if defined(SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (1 << 4))
     SPI_3 = (int) NU_MODNAME(SPI3_BASE + NS_OFFSET, 3, 0),
 #else
     SPI_3 = (int) NU_MODNAME(SPI3_BASE, 3, 0),
 #endif
 
-#if defined(SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (1 << 5))
-    SPI_5 = (int) NU_MODNAME(SPI5_BASE + NS_OFFSET, 5, 0)
+    /* No SPI4 H/W, degrade QSPI0 H/W to SPI_4 for standard SPI usage */
+#if defined(SCU_INIT_PNSSET3_VAL) && (SCU_INIT_PNSSET3_VAL & (1 << 0))
+    SPI_4 = (int) NU_MODNAME(QSPI0_BASE + NS_OFFSET, 4, 0),
 #else
-    SPI_5 = (int) NU_MODNAME(SPI5_BASE, 5, 0)
+    SPI_4 = (int) NU_MODNAME(QSPI0_BASE, 4, 0),
 #endif
 
 } SPIName;
 
 typedef enum {
-    
+
 #if defined(SCU_INIT_PNSSET4_VAL) && (SCU_INIT_PNSSET4_VAL & (1 << 0))
     I2C_0 = (int) NU_MODNAME(I2C0_BASE + NS_OFFSET, 0, 0),
 #else
@@ -226,9 +235,9 @@ typedef enum {
 #endif
 
 #if defined(SCU_INIT_PNSSET4_VAL) && (SCU_INIT_PNSSET4_VAL & (1 << 2))
-    I2C_2 = (int) NU_MODNAME(I2C2_BASE + NS_OFFSET, 2, 0)
+    I2C_2 = (int) NU_MODNAME(I2C2_BASE + NS_OFFSET, 2, 0),
 #else
-    I2C_2 = (int) NU_MODNAME(I2C2_BASE, 2, 0)
+    I2C_2 = (int) NU_MODNAME(I2C2_BASE, 2, 0),
 #endif
 
 } I2CName;
@@ -274,7 +283,7 @@ typedef enum {
     /* TMR0/1 are hard-wired to Secure mode */
     TIMER_0  = (int) NU_MODNAME(TMR01_BASE, 0, 0),
     TIMER_1  = (int) NU_MODNAME(TMR01_BASE + 0x100, 1, 0),
-    
+
 #if defined(SCU_INIT_PNSSET2_VAL) && (SCU_INIT_PNSSET2_VAL & (1 << 17))
     TIMER_2  = (int) NU_MODNAME(TMR23_BASE + NS_OFFSET, 2, 0),
     TIMER_3  = (int) NU_MODNAME(TMR23_BASE + NS_OFFSET + 0x100, 3, 0),
@@ -286,11 +295,11 @@ typedef enum {
 } TIMERName;
 
 typedef enum {
-    
+
 #if defined(SCU_INIT_PNSSET2_VAL) && (SCU_INIT_PNSSET2_VAL & (1 << 1))
-    RTC_0 = (int) NU_MODNAME(RTC_BASE + NS_OFFSET, 0, 0)
+    RTC_0 = (int) NU_MODNAME(RTC_BASE + NS_OFFSET, 0, 0),
 #else
-    RTC_0 = (int) NU_MODNAME(RTC_BASE, 0, 0)
+    RTC_0 = (int) NU_MODNAME(RTC_BASE, 0, 0),
 #endif
 
 } RTCName;
@@ -301,9 +310,9 @@ typedef enum {
     DMA_0 = (int) NU_MODNAME(PDMA0_BASE, 0, 0),
 
 #if defined(SCU_INIT_PNSSET0_VAL) && (SCU_INIT_PNSSET0_VAL & (1 << 24))
-    DMA_1 = (int) NU_MODNAME(PDMA1_BASE + NS_OFFSET, 1, 0)
+    DMA_1 = (int) NU_MODNAME(PDMA1_BASE + NS_OFFSET, 1, 0),
 #else
-    DMA_1 = (int) NU_MODNAME(PDMA1_BASE, 1, 0)
+    DMA_1 = (int) NU_MODNAME(PDMA1_BASE, 1, 0),
 #endif
 
 } DMAName;
@@ -311,28 +320,29 @@ typedef enum {
 typedef enum {
 
 #if defined(SCU_INIT_PNSSET0_VAL) && (SCU_INIT_PNSSET0_VAL & (1 << 13))
-    SD_0 = (int) NU_MODNAME(SDH0_BASE + NS_OFFSET, 0, 0)
+    SD_0 = (int) NU_MODNAME(SDH0_BASE + NS_OFFSET, 0, 0),
 #else
-    SD_0 = (int) NU_MODNAME(SDH0_BASE, 0, 0)
+    SD_0 = (int) NU_MODNAME(SDH0_BASE, 0, 0),
 #endif
 
 } SDName;
 
 typedef enum {
-    
+
 #if defined(SCU_INIT_PNSSET5_VAL) && (SCU_INIT_PNSSET5_VAL & (1 << 0))
-    CAN_0 = (int) NU_MODNAME(CAN0_BASE + NS_OFFSET, 0, 0)
+    CAN_0 = (int) NU_MODNAME(CAN0_BASE + NS_OFFSET, 0, 0),
 #else
-    CAN_0 = (int) NU_MODNAME(CAN0_BASE, 0, 0)
+    CAN_0 = (int) NU_MODNAME(CAN0_BASE, 0, 0),
 #endif
 
 } CANName;
 
 typedef enum {
+
 #if defined(SCU_INIT_PNSSET5_VAL) && (SCU_INIT_PNSSET5_VAL & (1 << 25))
-    TRNG_0 = (int) NU_MODNAME(TRNG_BASE + NS_OFFSET, 0, 0)
+    TRNG_0 = (int) NU_MODNAME(TRNG_BASE + NS_OFFSET, 0, 0),
 #else
-    TRNG_0 = (int) NU_MODNAME(TRNG_BASE, 0, 0)
+    TRNG_0 = (int) NU_MODNAME(TRNG_BASE, 0, 0),
 #endif
 
 } TRNGName;

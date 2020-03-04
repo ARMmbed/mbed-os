@@ -1,6 +1,7 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2017 ARM Limited
  *
+ * SPDX-License-Identifier: Apache-2.0
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -788,7 +789,7 @@ void test_thread_prio()
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(20, "default_auto");
+    GREENTEA_SETUP(25, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 

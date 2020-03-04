@@ -8,6 +8,11 @@
 #ifndef __I2S_REG_H__
 #define __I2S_REG_H__
 
+/** @addtogroup REGISTER Control Register
+
+  @{
+
+*/
 
 /*---------------------- I2S Interface Controller -------------------------*/
 /**
@@ -688,6 +693,7 @@ typedef struct
 
 /**@}*/ /* I2S_CONST */
 /**@}*/ /* end of I2S register group */
+/**@}*/ /* end of REGISTER group */
 
 
 

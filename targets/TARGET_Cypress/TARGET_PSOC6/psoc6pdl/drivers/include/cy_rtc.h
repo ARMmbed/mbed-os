@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_rtc.h
-* \version 2.20.1
+* \version 2.30
 *
 * This file provides constants and parameter values for the APIs for the 
 * Real-Time Clock (RTC).
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -228,6 +228,18 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>2.30</td>
+*     <td> 
+*          * Corrected the Cy_RTC_GetDstStatus() and Cy_RTC_SetNextDstTime()
+*            documentation.
+*          * Fixed the Cy_RTC_GetDstStatus() behaviour in the 'an hour before/after the DST stop event' period.
+*     </td>
+*     <td> 
+*          * Collateral Review: user experience enhancement.
+*          * Bug fix.
+*     </td>
+*   </tr>
+*   <tr>
 *     <td>2.20.1</td>
 *     <td>Modified header guard CY_IP_MXS40SRSS_RTC.</td>
 *     <td>To enable the PDL compilation with wounded out IP blocks.</td>
@@ -326,7 +338,7 @@ extern "C" {
 #define CY_RTC_DRV_VERSION_MAJOR                    2
 
 /** Driver minor version */
-#define CY_RTC_DRV_VERSION_MINOR                    20
+#define CY_RTC_DRV_VERSION_MINOR                    30
 /** \} group_rtc_macros */
 
 /*******************************************************************************
@@ -548,8 +560,6 @@ cy_en_rtc_status_t Cy_RTC_SetAlarmDateAndTimeDirect(uint32_t sec, uint32_t min, 
 * \{
 */
 cy_en_rtc_status_t Cy_RTC_EnableDstTime(cy_stc_rtc_dst_t const *dstTime, cy_stc_rtc_config_t const *timeDate);
-cy_en_rtc_status_t Cy_RTC_SetNextDstTime(cy_stc_rtc_dst_format_t const *nextDst);
-bool Cy_RTC_GetDstStatus(cy_stc_rtc_dst_t const *dstTime, cy_stc_rtc_config_t const *timeDate);
 /** \} group_rtc_dst_functions */
 
 /**
@@ -594,6 +604,9 @@ __STATIC_INLINE bool Cy_RTC_IsExternalResetOccurred(void);
 
 __STATIC_INLINE void Cy_RTC_SyncToRtcAhbDateAndTime(uint32_t timeBcd, uint32_t dateBcd);
 __STATIC_INLINE void Cy_RTC_SyncToRtcAhbAlarm(uint32_t alarmTimeBcd, uint32_t alarmDateBcd, cy_en_rtc_alarm_t alarmIndex);
+
+cy_en_rtc_status_t Cy_RTC_SetNextDstTime(cy_stc_rtc_dst_format_t const *nextDst);
+bool Cy_RTC_GetDstStatus(cy_stc_rtc_dst_t const *dstTime, cy_stc_rtc_config_t const *timeDate);
 /** \} group_rtc_low_level_functions */
 
 /** \} group_rtc_functions */

@@ -62,6 +62,8 @@
 #define PSA_PLATFORM_LC_SET_MSK (1UL << PSA_PLATFORM_LC_SET_MSK_POS)
 #define PSA_PLATFORM_SYSTEM_RESET_MSK_POS (6UL)
 #define PSA_PLATFORM_SYSTEM_RESET_MSK (1UL << PSA_PLATFORM_SYSTEM_RESET_MSK_POS)
+#define PSA_PLATFORM_IOCTL_MSK_POS (7UL)
+#define PSA_PLATFORM_IOCTL_MSK (1UL << PSA_PLATFORM_IOCTL_MSK_POS)
 
 /* -----------------------------------------------------------------------------
  * ITS Signals

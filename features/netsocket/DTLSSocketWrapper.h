@@ -43,9 +43,9 @@ private:
     static void timing_set_delay(void *ctx, uint32_t int_ms, uint32_t fin_ms);
     static int timing_get_delay(void *ctx);
     void timer_event();
-    uint64_t _int_ms_tick;
-    int _timer_event_id;
-    bool _timer_expired : 1;
+    uint64_t _int_ms_tick = 0;
+    int _timer_event_id = 0;
+    bool _timer_expired = false;
 };
 
 #endif

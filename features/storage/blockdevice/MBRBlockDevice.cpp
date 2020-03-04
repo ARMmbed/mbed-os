@@ -174,14 +174,14 @@ int MBRBlockDevice::partition(BlockDevice *bd, int part, uint8_t type, bd_addr_t
     }
 
     // Calculate dimensions
-    bd_size_t offset = ((int64_t)start < 0) ? -start : start;
-    bd_size_t size = bd->size();
+    bd_size_t size = ((int64_t)start < 0) ? -start : start;
+    bd_size_t offset = bd->size();
 
-    if (offset < 512) {
-        offset += std::max<uint32_t>(bd->get_erase_size(), 512);
+    if (size < 512) {
+        size += std::max<uint32_t>(bd->get_erase_size(), 512);
     }
 
-    size -= offset;
+    offset -= size;
 
     err = partition_absolute(bd, part, type, offset, size);
     if (err) {
@@ -336,8 +336,11 @@ int MBRBlockDevice::sync()
 
 int MBRBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 {
-    MBED_ASSERT(is_valid_read(addr, size));
     if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
+    if (!is_valid_read(addr, size)) {
         return BD_ERROR_DEVICE_ERROR;
     }
 
@@ -346,8 +349,11 @@ int MBRBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 
 int MBRBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 {
-    MBED_ASSERT(is_valid_program(addr, size));
     if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
+    if (!is_valid_program(addr, size)) {
         return BD_ERROR_DEVICE_ERROR;
     }
 
@@ -356,8 +362,11 @@ int MBRBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 
 int MBRBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
-    MBED_ASSERT(is_valid_erase(addr, size));
     if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
+    if (!is_valid_erase(addr, size)) {
         return BD_ERROR_DEVICE_ERROR;
     }
 
@@ -403,7 +412,7 @@ bd_size_t MBRBlockDevice::get_erase_size(bd_addr_t addr) const
 int MBRBlockDevice::get_erase_value() const
 {
     if (!_is_initialized) {
-        return 0;
+        return BD_ERROR_DEVICE_ERROR;
     }
 
     return _bd->get_erase_value();
