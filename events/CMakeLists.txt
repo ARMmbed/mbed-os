@@ -15,3 +15,4 @@ target_sources(mbed_os PUBLIC source/mbed_shared_queues.cpp)
 
 target_sources(mbed_os PRIVATE internal/equeue_platform.h)
 
+target_include_directories(mbed_os PUBLIC .)
