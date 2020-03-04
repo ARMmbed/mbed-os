@@ -199,10 +199,17 @@ scl_result_t scl_init(void)
 {
     scl_result_t retval = SCL_SUCCESS;
     uint32_t configuration_parameters = 0;
-    
+#ifdef MBED_CONF_TARGET_NP_CLOUD_DISABLE
     configuration_parameters = MBED_CONF_TARGET_NP_CLOUD_DISABLE;
+#else
+    configuration_parameters = false;
+#endif
     configuration_parameters = configuration_parameters << 1;
+#ifdef MBED_CONF_TARGET_NP_WIFI_ENABLE
     configuration_parameters |= MBED_CONF_TARGET_NP_WIFI_ENABLE;
+#else
+    configuration_parameters |= false;
+#endif
     //SCL_LOG("configuration_parameters = %lu\n", configuration_parameters);
     scl_config();
     if (g_scl_thread_info.scl_inited != SCL_TRUE) {
