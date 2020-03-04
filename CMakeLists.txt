@@ -72,8 +72,3 @@ add_subdirectory(rtos)
 # add_subdirectory(features/nfc)
 # add_subdirectory(features/storage)
 # add_subdirectory(features/device_key)
-
-target_include_directories (mbed_os
-    PUBLIC
-      .
-)
