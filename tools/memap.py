@@ -51,10 +51,13 @@ class _Parser(with_metaclass(ABCMeta, object)):
     """Internal interface for parsing"""
     SECTIONS = ('.text', '.data', '.bss', '.heap', '.stack')
     MISC_FLASH_SECTIONS = ('.interrupts', '.flash_config')
-    OTHER_SECTIONS = ('.interrupts_ram', '.init', '.ARM.extab',
+    OTHER_SECTIONS = ('.rodata',
+                      '.interrupts_ram', '.ARM.extab',
                       '.ARM.exidx', '.ARM.attributes', '.eh_frame',
-                      '.init_array', '.fini_array', '.jcr', '.stab',
-                      '.stabstr', '.ARM.exidx', '.ARM')
+                      '.init_array', '.fini_array', 
+                      '.init', '.fini',
+                      '.jcr', '.stabstr', '.stab',
+                      '.ARM')
 
     def __init__(self):
         self.modules = dict()
@@ -839,18 +842,47 @@ class MemapParser(object):
             for k in self.sections:
                 self.subtotal[k] += mod[k]
                 self.subtotal[k + '-delta'] += mod[k]
+            for k in self.other_sections:
+                self.subtotal[k] += mod[k]
+                self.subtotal[k + '-delta'] += mod[k]
         if self.old_modules:
             for mod in self.old_modules.values():
                 for k in self.sections:
                     self.subtotal[k + '-delta'] -= mod[k]
+                for k in self.other_sections:
+                    self.subtotal[k + '-delta'] -= mod[k]
 
+        # summary depends on linker sections
+            static_ram = (self.subtotal['.data'] + 
+                          self.subtotal['.bss'] +
+                          self.subtotal['.init_array'] +
+                          self.subtotal['.fini_array'])
+
+            static_ram_delta = (self.subtotal['.data-delta'] + 
+                               self.subtotal['.bss-delta'] +
+                               self.subtotal['.init_array-delta'] +
+                               self.subtotal['.fini_array-delta'])
+
+            total_flash = (static_ram - self.subtotal['.bss'] +
+                           self.subtotal['.text'] + 
+                           self.subtotal['.rodata'] +
+                           self.subtotal['.eh_frame'] +
+                           self.subtotal['.init'] +
+                           self.subtotal['.fini'] +
+                           self.subtotal['.ARM.exidx'])
+
+            total_flash_delta = (self.subtotal['.text-delta'] + 
+                                 self.subtotal['.rodata-delta'] +
+                                 self.subtotal['.eh_frame-delta'] +
+                                 self.subtotal['.init-delta'] +
+                                 self.subtotal['.fini-delta'] +
+                                 self.subtotal['.ARM.exidx-delta'])
+        
         self.mem_summary = {
-            'static_ram': self.subtotal['.data'] + self.subtotal['.bss'],
-            'static_ram_delta':
-            self.subtotal['.data-delta'] + self.subtotal['.bss-delta'],
-            'total_flash': (self.subtotal['.text'] + self.subtotal['.data']),
-            'total_flash_delta':
-            self.subtotal['.text-delta'] + self.subtotal['.data-delta'],
+            'static_ram' : static_ram,
+            'static_ram_delta' : static_ram_delta,
+            'total_flash': total_flash,
+            'total_flash_delta': total_flash_delta
         }
 
         self.mem_report = []
