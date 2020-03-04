@@ -2,3 +2,5 @@
 
 # TODO: fix to get CORTEX_M or CORTEX_A here
 add_subdirectory(TARGET_CORTEX_M)
+
+target_include_directories(mbed_os PUBLIC .)

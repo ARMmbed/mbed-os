@@ -23,3 +23,6 @@ target_sources(mbed_os PUBLIC api/sleep.c)
 
 # TODO: select target in Freescale conditionally
 add_subdirectory(TARGET_MCU_K64F)
+
+target_include_directories(mbed_os PUBLIC api)
+target_include_directories(mbed_os PUBLIC TARGET_MCU_K64F)
