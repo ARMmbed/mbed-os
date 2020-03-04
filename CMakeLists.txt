@@ -5,7 +5,10 @@
 # TODO: what version should we require?
 cmake_minimum_required(VERSION 3.9)
 
-project("Mbed OS")
+# we rely on this
+if(POLICY CMP0076)
+    cmake_policy(SET CMP0076 NEW)
+endif()
 
 # System settings
 
