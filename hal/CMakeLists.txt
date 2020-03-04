@@ -53,7 +53,7 @@ target_sources(mbed_os PUBLIC mpu/mbed_mpu_v8m.c)
 
 # TODO: ifdef here
 target_sources(mbed_os PUBLIC TARGET_FLASH_CMSIS_ALGO/flash_common_algo.c)
-target_sources(mbed_os PUBLIC TARGET_FLASH_CMSIS_ALGO/flash_data.c)
+target_sources(mbed_os PUBLIC TARGET_FLASH_CMSIS_ALGO/flash_data.h)
 
 target_sources(mbed_os PUBLIC TARGET_FLASH_CMSIS_ALGO/USBPhy.h)
 target_sources(mbed_os PUBLIC TARGET_FLASH_CMSIS_ALGO/USBPhyEvents.h)
