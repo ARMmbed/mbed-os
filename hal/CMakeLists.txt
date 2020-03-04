@@ -55,10 +55,10 @@ target_sources(mbed_os PUBLIC mpu/mbed_mpu_v8m.c)
 target_sources(mbed_os PUBLIC TARGET_FLASH_CMSIS_ALGO/flash_common_algo.c)
 target_sources(mbed_os PUBLIC TARGET_FLASH_CMSIS_ALGO/flash_data.h)
 
-target_sources(mbed_os PUBLIC TARGET_FLASH_CMSIS_ALGO/USBPhy.h)
-target_sources(mbed_os PUBLIC TARGET_FLASH_CMSIS_ALGO/USBPhyEvents.h)
-target_sources(mbed_os PUBLIC TARGET_FLASH_CMSIS_ALGO/USBPhyTypes.h)
-target_sources(mbed_os PUBLIC TARGET_FLASH_CMSIS_ALGO/usb_phy_api.h)
+target_sources(mbed_os PUBLIC usb/USBPhy.h)
+target_sources(mbed_os PUBLIC usb/USBPhyEvents.h)
+target_sources(mbed_os PUBLIC usb/USBPhyTypes.h)
+target_sources(mbed_os PUBLIC usb/usb_phy_api.h)
 
 
 
