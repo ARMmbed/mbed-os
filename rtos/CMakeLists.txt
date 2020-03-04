@@ -29,3 +29,7 @@ target_sources(mbed_os PUBLIC source/Thread.cpp)
 
 
 add_subdirectory(source/TARGET_CORTEX)
+
+target_include_directories(mbed_os PUBLIC .)
+
+target_include_directories(mbed_os PRIVATE source)
