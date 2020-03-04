@@ -73,7 +73,7 @@ typedef enum {
 typedef enum {
     // Not connected
     NC = (int)0xFFFFFFFF,
-    
+
     // Generic naming
     PA_0    = NU_PORT_N_PIN_TO_PINNAME(0, 0), PA_1, PA_2, PA_3, PA_4, PA_5, PA_6, PA_7, PA_8, PA_9, PA_10, PA_11, PA_12, PA_13, PA_14, PA_15,
     PB_0    = NU_PORT_N_PIN_TO_PINNAME(1, 0), PB_1, PB_2, PB_3, PB_4, PB_5, PB_6, PB_7, PB_8, PB_9, PB_10, PB_11, PB_12, PB_13, PB_14, PB_15,
@@ -83,7 +83,7 @@ typedef enum {
     PF_0    = NU_PORT_N_PIN_TO_PINNAME(5, 0), PF_1, PF_2, PF_3, PF_4, PF_5, PF_6, PF_7, PF_8, PF_9, PF_10, PF_11,
     PG_0    = NU_PORT_N_PIN_TO_PINNAME(6, 0), PG_1, PG_2, PG_3, PG_4, PG_5, PG_6, PG_7, PG_8, PG_9, PG_10, PG_11, PG_12, PG_13, PG_14, PG_15,
     PH_0    = NU_PORT_N_PIN_TO_PINNAME(7, 0), PH_1, PH_2, PH_3, PH_4, PH_5, PH_6, PH_7, PH_8, PH_9, PH_10, PH_11,
-    
+
     // Arduino UNO naming
     A0 = PB_6,
     A1 = PB_7,
@@ -111,15 +111,32 @@ typedef enum {
 
     I2C_SCL = D15,
     I2C_SDA = D14,
-    
+
     // Note: board-specific
     // UART naming
-    USBTX = PB_13,
-    USBRX = PB_12,
+#if defined(MBED_CONF_TARGET_USB_UART_TX)
+    USBTX           = MBED_CONF_TARGET_USB_UART_TX,
+#else
+    USBTX           = NC,
+#endif
+#if defined(MBED_CONF_TARGET_USB_UART_RX)
+    USBRX           = MBED_CONF_TARGET_USB_UART_RX,
+#else
+    USBRX           = NC,
+#endif
+#if defined(MBED_CONF_TARGET_STDIO_UART_TX)
+    STDIO_UART_TX   = MBED_CONF_TARGET_STDIO_UART_TX,
+#else
     STDIO_UART_TX   = USBTX,
+#endif
+#if defined(MBED_CONF_TARGET_STDIO_UART_RX)
+    STDIO_UART_RX   = MBED_CONF_TARGET_STDIO_UART_RX,
+#else
     STDIO_UART_RX   = USBRX,
+#endif
     SERIAL_TX = D10,
-    SERIAL_RX = D13,    
+    SERIAL_RX = D13,
+
     // LED naming
     LED_RED = PH_0,
     LED_YELLOW = PH_1,
@@ -128,6 +145,7 @@ typedef enum {
     LED2 = LED_YELLOW,
     LED3 = LED_GREEN,
     LED4 = LED1,    // No real LED. Just for passing ATS.
+
     // Button naming
 #if TARGET_NUMAKER_PFM_M487
     SW2 = PG_15,
