@@ -44,4 +44,4 @@ target_sources(mbed_os PUBLIC rtx5/Source/os_systick.c)
 target_sources(mbed_os PUBLIC rtx5/Source/os_tick_ptim.c)
 
 # TODO: toolchain selection
-target_sources(mbed_os PUBLIC TOOLCHAIN_GCC_ARM mbed_boot_gcc_arm.c)
+target_sources(mbed_os PUBLIC TOOLCHAIN_GCC_ARM/mbed_boot_gcc_arm.c)
