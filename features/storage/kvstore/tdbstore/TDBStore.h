@@ -309,7 +309,6 @@ private:
     uint32_t _prog_size;
     uint8_t *_work_buf;
     char *_key_buf;
-    bool _variant_bd_erase_unit_size;
     void *_inc_set_handle;
     void *_iterator_table[_max_open_iterators];
 
