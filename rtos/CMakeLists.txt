@@ -28,4 +28,4 @@ target_sources(mbed-os PUBLIC source/ThisThread.cpp)
 target_sources(mbed-os PUBLIC source/Thread.cpp)
 
 
-add_subdirectory(TARGET_CORTEX)
+add_subdirectory(source/TARGET_CORTEX)
