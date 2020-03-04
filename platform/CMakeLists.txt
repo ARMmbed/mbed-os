@@ -97,8 +97,8 @@ target_sources(mbed_os PUBLIC source/SysTimer.cpp)
 target_sources(mbed_os PUBLIC source/SysTimer.h)
 
 target_sources(mbed_os PUBLIC source/TARGET_CORTEX_M/TOOLCHAIN_GCC/except.S)
-target_sources(mbed_os PUBLIC source/TARGET_CORTEX_M/TOOLCHAIN_GCC/mbed_fault_handler.c)
-target_sources(mbed_os PUBLIC source/TARGET_CORTEX_M/TOOLCHAIN_GCC/mbed_fault_handler.h)
+target_sources(mbed_os PUBLIC source/TARGET_CORTEX_M/mbed_fault_handler.c)
+target_sources(mbed_os PUBLIC source/TARGET_CORTEX_M/mbed_fault_handler.h)
 
 target_sources(mbed_os PUBLIC source/minimal-printf/mbed_printf_armlink_overrides.c)
 target_sources(mbed_os PUBLIC source/minimal-printf/mbed_printf_implementation.c)
