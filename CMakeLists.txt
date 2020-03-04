@@ -5,6 +5,8 @@
 # TODO: what version should we require?
 cmake_minimum_required(VERSION 3.9)
 
+project("Mbed OS")
+
 # System settings
 
 enable_language(C CXX ASM)
