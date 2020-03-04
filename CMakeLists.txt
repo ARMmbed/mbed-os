@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+
 # This is not the application cmake, only boilerplate for Mbed OS
 
 # TODO: what version should we require?
@@ -50,12 +52,12 @@ add_subdirectory(events)
 add_subdirectory(hal)
 add_subdirectory(platform)
 add_subdirectory(targets)
+add_subdirectory(rtos)
 
 # Selectable components
 
 # TODO: use subdirectory_ifdef or similar own function based on config
 
-# add_subdirectory(rtos)
 # add_subdirectory(components)
 # add_subdirectory(features/mbedtls)
 # add_subdirectory(features/cellular)
