@@ -104,3 +104,9 @@ target_sources(mbed_os PUBLIC source/minimal-printf/mbed_printf_armlink_override
 target_sources(mbed_os PUBLIC source/minimal-printf/mbed_printf_implementation.c)
 target_sources(mbed_os PUBLIC source/minimal-printf/mbed_printf_implementation.h)
 target_sources(mbed_os PUBLIC source/minimal-printf/mbed_printf_wrapper.c)
+
+target_sources(mbed_os PUBLIC cxxsupport)
+
+target_include_directories(mbed_os PUBLIC .)
+target_include_directories(mbed_os PUBLIC cxxsupport)
+target_include_directories(mbed_os PUBLIC source)
