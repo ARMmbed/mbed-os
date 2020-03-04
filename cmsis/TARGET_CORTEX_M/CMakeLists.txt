@@ -26,3 +26,5 @@ target_sources(mbed_os PUBLIC mbed_tz_context.c)
 target_sources(mbed_os PUBLIC mpu_armv7.h)
 target_sources(mbed_os PUBLIC mpu_armv8.h)
 target_sources(mbed_os PUBLIC tz_context.h)
+
+target_include_directories(mbed_os PUBLIC .)
