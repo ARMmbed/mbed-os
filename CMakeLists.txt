@@ -42,10 +42,10 @@ set(ELF2BIN               "arm-none-eabi-objcopy")
 # Add mbed.h file
 set(MBED_HEADER_FILE mbed.h)
 add_library(mbed_os ${MBED_HEADER_FILE})
-target_include_directories (mbed_os
-    PUBLIC
-      .
-)
+target_include_directories (mbed_os PUBLIC .)
+
+# link config from generate folder
+target_link_libraries(mbed_os gen_config)
 
 # Baremetal build as default, if we want more, app needs to request it
 
