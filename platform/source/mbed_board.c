@@ -112,8 +112,3 @@ void mbed_error_puts(const char *str)
 #endif
     core_util_critical_section_exit();
 }
-
-void mbed_error_vfprintf(const char *format, va_list arg)
-{
-    mbed_error_vprintf(format, arg);
-}
