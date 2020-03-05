@@ -153,7 +153,7 @@ static control_t stress_2_threads(const size_t call_count)
     Thread t1;
     Thread t2;
     t1.start(file_1kb_fn);
-    wait(1);
+    ThisThread::sleep_for(1);
     t2.start(download_fn);
     t2.join();
     t1.join();
@@ -170,29 +170,8 @@ static control_t stress_3_threads(const size_t call_count)
     Thread t3;
     t1.start(file_256b_fn);
     t2.start(file_1kb_fn);
-    wait(1);
+    ThisThread::sleep_for(1);
     t3.start(download_fn);
-    t3.join();
-    t2.join();
-    t1.join();
-
-    return CaseNext;
-}
-
-static control_t stress_4_threads(const size_t call_count)
-{
-    thread_counter = 0;
-
-    Thread t1;
-    Thread t2;
-    Thread t3;
-    Thread t4;
-    t1.start(file_256b_fn);
-    t2.start(file_256b_fn);
-    t3.start(file_256b_fn);
-    wait(1);
-    t4.start(download_fn);
-    t4.join();
     t3.join();
     t2.join();
     t1.join();

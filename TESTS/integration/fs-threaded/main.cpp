@@ -77,43 +77,25 @@ static control_t test_format(const size_t call_count)
 
 static uint32_t thread_counter = 0;
 
-void file_fn(size_t buffer)
+void file_fn(size_t *block_size)
 {
     uint32_t thread_id = core_util_atomic_incr_u32(&thread_counter, 1);
     char filename[255] = { 0 };
-    snprintf(filename, 255, "mbed-file-test-%d.txt", thread_id);
-    file_test_write(filename, 0, story, sizeof(story), buffer);
-    file_test_read(filename, 0, story, sizeof(story), buffer);
-}
-void file_4b_fn()
-{
-    return file_fn(4);
-}
-void file_256b_fn()
-{
-    return file_fn(256);
-}
-void file_1kb_fn()
-{
-    return file_fn(1024);
-}
-void file_2kb_fn()
-{
-    return file_fn(2048);
-}
-void file_4kb_fn()
-{
-    return file_fn(4096);
+    snprintf(filename, 255, "mbed-file-test-%" PRIu32 ".txt", thread_id);
+    file_test_write(filename, 0, story, sizeof(story), *block_size);
+    file_test_read(filename, 0, story, sizeof(story), *block_size);
 }
 
 static control_t file_2_threads(const size_t call_count)
 {
     thread_counter = 0;
+    size_t block_size1 = 4;
+    size_t block_size2 = 256;
 
     Thread t1;
     Thread t2;
-    t1.start(file_4b_fn);
-    t2.start(file_256b_fn);
+    t1.start(callback(file_fn, &block_size1));
+    t2.start(callback(file_fn, &block_size2));
     t1.join();
     t2.join();
 
@@ -123,36 +105,19 @@ static control_t file_2_threads(const size_t call_count)
 static control_t file_3_threads(const size_t call_count)
 {
     thread_counter = 0;
+    size_t block_size1 = 256;
+    size_t block_size2 = 1024;
+    size_t block_size3 = 4096;
 
     Thread t1;
     Thread t2;
     Thread t3;
-    t1.start(file_256b_fn);
-    t2.start(file_1kb_fn);
-    t3.start(file_4kb_fn);
+    t1.start(callback(file_fn, &block_size1));
+    t2.start(callback(file_fn, &block_size2));
+    t3.start(callback(file_fn, &block_size3));
     t1.join();
     t2.join();
     t3.join();
-
-    return CaseNext;
-}
-
-static control_t file_4_threads(const size_t call_count)
-{
-    thread_counter = 0;
-
-    Thread t1;
-    Thread t2;
-    Thread t3;
-    Thread t4;
-    t1.start(file_256b_fn);
-    t2.start(file_256b_fn);
-    t3.start(file_1kb_fn);
-    t4.start(file_2kb_fn);
-    t1.join();
-    t2.join();
-    t3.join();
-    t4.join();
 
     return CaseNext;
 }

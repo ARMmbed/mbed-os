@@ -101,7 +101,7 @@ static control_t download_2_threads(const size_t call_count)
     Thread t1;
     Thread t2;
     t1.start(download_fn);
-    wait(0.5);
+    ThisThread::sleep_for(1);
     t2.start(download_fn);
     t2.join();
     t1.join();
@@ -122,26 +122,6 @@ static control_t download_3_threads(const size_t call_count)
     t1.join();
     t2.join();
     t3.join();
-
-    return CaseNext;
-}
-
-static control_t download_4_threads(const size_t call_count)
-{
-    thread_counter = 0;
-
-    Thread t1;
-    Thread t2;
-    Thread t3;
-    Thread t4;
-    t1.start(download_fn);
-    t2.start(download_fn);
-    t3.start(download_fn);
-    t4.start(download_fn);
-    t1.join();
-    t2.join();
-    t3.join();
-    t4.join();
 
     return CaseNext;
 }
