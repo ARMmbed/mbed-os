@@ -10,44 +10,17 @@ if(POLICY CMP0076)
     cmake_policy(SET CMP0076 NEW)
 endif()
 
-# System settings
-
-enable_language(C CXX ASM)
-
-set(CMAKE_SYSTEM_NAME MbedOS)
-set(CMAKE_SYSTEM_VERSION 1)
-set(CMAKE_CROSSCOMPILING TRUE)
-
-# if the environment does not specify build type, set to Debug
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "Release"
-        CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
-        FORCE)
-endif()
-
 # TODO: Verbose build, should also be under condition
 # set(CMAKE_VERBOSE_MAKEFILE ON)
 
-# force compiler settings
-set(CMAKE_C_COMPILER_WORKS TRUE)
-set(CMAKE_CXX_COMPILER_WORKS TRUE)
-
-# Compiler setup
-set(CMAKE_ASM_COMPILER    "arm-none-eabi-gcc")
-set(CMAKE_C_COMPILER      "arm-none-eabi-gcc")
-set(CMAKE_CXX_COMPILER    "arm-none-eabi-g++")
-set(ELF2BIN               "arm-none-eabi-objcopy")
-
-
-# Add mbed.h file
+# Create mbed_os library
 add_library(mbed_os STATIC)
 
 # Include mbed.h and config from generate folder
 target_include_directories(mbed_os PUBLIC .)
 
-# link config from generate folder
+# Link config from generate folder
 target_link_libraries(mbed_os PRIVATE gen_config)
-
 
 # Baremetal build with RTOS and events
 add_subdirectory(cmsis)
@@ -59,7 +32,6 @@ add_subdirectory(targets)
 add_subdirectory(rtos)
 
 # Selectable components
-
 # TODO: use subdirectory_ifdef or similar own function based on config
 
 # add_subdirectory(components)
