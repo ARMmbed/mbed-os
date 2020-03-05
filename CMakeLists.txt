@@ -47,8 +47,7 @@ target_include_directories (mbed_os PUBLIC .)
 # link config from generate folder
 target_link_libraries(mbed_os gen_config)
 
-# Baremetal build as default, if we want more, app needs to request it
-
+# Baremetal build with RTOS and events
 add_subdirectory(cmsis)
 add_subdirectory(drivers)
 add_subdirectory(events)
