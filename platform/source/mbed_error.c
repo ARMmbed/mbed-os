@@ -330,7 +330,7 @@ WEAK MBED_NORETURN mbed_error_status_t mbed_error(mbed_error_status_t error_stat
 }
 
 //Register an application defined callback with error handling
-MBED_DEPRECATED("Use an overridden mbed_error_hook() function")
+MBED_DEPRECATED("Use an overridden mbed_error_hook() function instead")
 mbed_error_status_t mbed_set_error_hook(mbed_error_hook_t error_hook_in)
 {
     //register the new hook/callback
