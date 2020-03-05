@@ -14,7 +14,7 @@ endif()
 # set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Create mbed_os library
-add_library(mbed_os STATIC)
+add_library(mbed_os OBJECT)
 
 # Include mbed.h and config from generate folder
 target_include_directories(mbed_os PUBLIC .)
