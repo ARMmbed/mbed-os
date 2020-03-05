@@ -58,6 +58,7 @@ static int error_count = 0;
 static mbed_error_ctx first_error_ctx = {0};
 
 static mbed_error_ctx last_error_ctx = {0};
+static mbed_error_hook_t error_hook = NULL;
 static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsigned int error_value, const char *filename, int line_number, void *caller);
 
 #if MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
@@ -193,8 +194,12 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
     mbed_error_hist_put(&current_error_ctx);
 #endif
 
-     //Call the error hook
-    mbed_error_hook(&last_error_ctx);
+    //Call the error hook if available
+    if (error_hook != NULL) {
+        error_hook(&last_error_ctx);
+    } else { 
+        mbed_error_hook(&last_error_ctx);
+    }
 
     core_util_critical_section_exit();
 
@@ -322,6 +327,19 @@ WEAK MBED_NORETURN mbed_error_status_t mbed_error(mbed_error_status_t error_stat
 #endif
 #endif
     mbed_halt_system();
+}
+
+//Register an application defined callback with error handling
+MBED_DEPRECATED("Use an overridden mbed_error_hook() function")
+mbed_error_status_t mbed_set_error_hook(mbed_error_hook_t error_hook_in)
+{
+    //register the new hook/callback
+    if (error_hook_in != NULL) {
+        error_hook = error_hook_in;
+        return MBED_SUCCESS;
+    }
+
+    return MBED_ERROR_INVALID_ARGUMENT;
 }
 
 //Reset the reboot error context
