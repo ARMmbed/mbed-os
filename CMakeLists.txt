@@ -2,16 +2,12 @@
 
 # This is not the application cmake, only boilerplate for Mbed OS
 
-# TODO: what version should we require?
 cmake_minimum_required(VERSION 3.13)
 
-# we rely on this
+# Using relative paths behavior
 if(POLICY CMP0076)
     cmake_policy(SET CMP0076 NEW)
 endif()
-
-# TODO: Verbose build, should also be under condition
-# set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Create mbed_os library
 add_library(mbed_os OBJECT)
