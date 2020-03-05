@@ -267,14 +267,6 @@ public:
      * @param[out] interface_out    pointer to stack interface object controlling the L3IP
      * @return                      NSAPI_ERROR_OK on success, or error code
      */
-    virtual nsapi_error_t remove_ethernet_interface(OnboardNetworkStack::Interface **interface_out);
-
-    /** Remove a network interface from IP stack
-     *
-     * Removes PPP objects,network interface from stack list, and shutdown device driver.
-     * @param[out] interface_out    pointer to stack interface object controlling the PPP
-     * @return                      NSAPI_ERROR_OK on success, or error code
-     */
     virtual nsapi_error_t remove_l3ip_interface(OnboardNetworkStack::Interface **interface_out);
 
     /** Remove a network interface from IP stack
