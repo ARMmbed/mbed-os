@@ -78,8 +78,7 @@ static control_t setup_network(const size_t call_count)
         }
     }
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
-    tr_info("[NET] IP address is '%s'", interface->get_ip_address());
-    tr_info("[NET] MAC address is '%s'", interface->get_mac_address());
+
     return CaseNext;
 }
 
@@ -113,7 +112,7 @@ void file_fn(size_t buffer)
 {
     uint32_t thread_id = core_util_atomic_incr_u32(&thread_counter, 1);
     char filename[255] = { 0 };
-    snprintf(filename, 255, "mbed-file-test-%d.txt", thread_id);
+    snprintf(filename, 255, "mbed-file-test-%" PRIu32 ".txt", thread_id);
     file_test_write(filename, 0, story, sizeof(story), buffer);
     file_test_read(filename, 0, story, sizeof(story), buffer);
 }

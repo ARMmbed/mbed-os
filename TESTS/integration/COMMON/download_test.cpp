@@ -101,7 +101,7 @@ size_t download_test(NetworkInterface *interface, const unsigned char *data, siz
             break;
         }
         ThisThread::sleep_for(1000);
-        tr_info("[NET-%d] Connection failed. Retry %d of %d", thread_id, tries, MAX_RETRIES);
+        tr_info("[NET-%" PRIu32 "] Connection failed. Retry %d of %d", thread_id, tries, MAX_RETRIES);
     }
     TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "failed to connect");
 
@@ -119,7 +119,7 @@ size_t download_test(NetworkInterface *interface, const unsigned char *data, siz
     } else {
         TEST_ASSERT_MESSAGE(0, "wrong thread id");
     }
-    tr_info("[NET-%d] Registered socket callback function", thread_id);
+    tr_info("[NET-%" PRIu32 "] Registered socket callback function", thread_id);
     event_fired[thread_id] = false;
 
     /* setup request */
@@ -128,7 +128,7 @@ size_t download_test(NetworkInterface *interface, const unsigned char *data, siz
     /* construct request */
     size_t req_len = snprintf(request, REQ_BUF_SIZE - 1, req_template, dl_path, dl_host);
     request[req_len] = 0;
-    tr_info("[NET-%d] Request header (%u): %s", thread_id, req_len, request);
+    tr_info("[NET-%" PRIu32 "] Request header (%u): %s", thread_id, req_len, request);
 
     /* send request to server */
     result = tcpsocket.send(request, req_len);
@@ -138,7 +138,7 @@ size_t download_test(NetworkInterface *interface, const unsigned char *data, siz
     char *receive_buffer = &g_receive_buffer[thread_id * RECV_BUF_SIZE];
 
     tcpsocket.set_blocking(false);
-    tr_info("[NET-%d] Non-blocking socket mode set", thread_id);
+    tr_info("[NET-%" PRIu32 "] Non-blocking socket mode set", thread_id);
 
     size_t received_bytes = 0;
     int body_index = -1;
@@ -174,7 +174,7 @@ size_t download_test(NetworkInterface *interface, const unsigned char *data, siz
                     if (body_index < 0) {
                         continue;
                     } else {
-                        tr_info("[NET-%d] Found body index: %d", thread_id, body_index);
+                        tr_info("[NET-%" PRIu32 "] Found body index: %d", thread_id, body_index);
 
                         /* remove header before comparison */
                         memmove(receive_buffer, &receive_buffer[body_index + 4], result - body_index - 4);
@@ -194,7 +194,7 @@ size_t download_test(NetworkInterface *interface, const unsigned char *data, siz
                 speed = float(received_bytes) / timer.read();
                 percent = float(received_bytes) * 100 / float(data_length);
                 time_left = (data_length - received_bytes) / speed;
-                tr_info("[NET-%d] Received bytes: %u, (%.2f%%, %.2fKB/s, ETA: %02d:%02d:%02d)",
+                tr_info("[NET-%" PRIu32 "] Received bytes: %u, (%.2f%%, %.2fKB/s, ETA: %02" PRIu32 ":%02" PRIu32 ":%02" PRIu32 ")",
                         thread_id, received_bytes, percent, speed / 1024,
                         time_left / 3600, (time_left / 60) % 60, time_left % 60);
             }
@@ -205,7 +205,7 @@ size_t download_test(NetworkInterface *interface, const unsigned char *data, siz
 
     timer.stop();
     float f_received_bytes = float(received_bytes);
-    tr_info("[NET-%d] Downloaded: %.2fKB (%.2fKB/s, %.2f secs)", thread_id,
+    tr_info("[NET-%" PRIu32 "] Downloaded: %.2fKB (%.2fKB/s, %.2f secs)", thread_id,
             f_received_bytes / 1024.,
             f_received_bytes / (timer.read() * 1024.),
             timer.read());

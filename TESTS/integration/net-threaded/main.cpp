@@ -72,8 +72,7 @@ static control_t setup_network(const size_t call_count)
         }
     }
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
-    tr_info("[NET] IP address is '%s'", net->get_ip_address());
-    tr_info("[NET] MAC address is '%s'", net->get_mac_address());
+
     return CaseNext;
 }
 
