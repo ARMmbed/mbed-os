@@ -11,7 +11,7 @@
  *
  * If no EULA applies, Cypress hereby grants you a personal, non-exclusive,
  * non-transferable license to copy, modify, and compile the Software source
- * code solely for use in connection with Cypress's integrated circuit products.
+ * code solely for use in connection with Cypress' integrated circuit products.
  * Any reproduction, modification, translation, compilation, or representation
  * of this Software except as specified above is prohibited without the express
  * written permission of Cypress.
@@ -25,7 +25,7 @@
  * not authorize its products for use in any products where a malfunction or
  * failure of the Cypress product may reasonably be expected to result in
  * significant property damage, injury or death ("High Risk Product"). By
- * including Cypress's product in a High Risk Product, the manufacturer of such
+ * including Cypress' product in a High Risk Product, the manufacturer of such
  * system or application assumes all risk of such use and in doing so agrees to
  * indemnify Cypress against all liability.
  */
@@ -59,7 +59,7 @@ extern "C"
 #define MODULE_BASE_CODE        (0x0080U)
 /* scl_result_t error code format
  * |31-18 (14 bit) for module id|17-16 (2 bit) for result type|15-0 for scl error code|
- * eg:- for error code 1026, the result of SCL_RESULT_CREATE is 33555458
+ * for example, for error code 1026, the result of SCL_RESULT_CREATE is 33555458.
  */
 #define SCL_RESULT_TYPE 0   /**< SCL Result type */
 #define SCL_RESULT_CREATE(x) CY_RSLT_CREATE(SCL_RESULT_TYPE, MODULE_BASE_CODE, (x) ) /**< Create a result value from the specified type, module, and result code */
@@ -138,12 +138,12 @@ extern "C"
 #define SCL_HAL_ERROR                     SCL_RESULT_CREATE(1069)   /**< SCL HAL Error */
 #define SCL_RTOS_STATIC_MEM_LIMIT         SCL_RESULT_CREATE(1070)   /**< Exceeding the RTOS static objects memory */
 
-/* Below constants are used to allocate the buffer pool by the application */
+/* Application uses the following constants to allocate the buffer pool: */
 
 #define BDC_HEADER_WITH_PAD 6  /**< BDC Header with padding 4 + 2 */
 
 /**
- * The maximum size in bytes of the data part of an Ethernet frame
+ * The maximum size, in bytes, of the data part of an Ethernet frame.
  */
 #define SCL_PAYLOAD_MTU           (1500)
 

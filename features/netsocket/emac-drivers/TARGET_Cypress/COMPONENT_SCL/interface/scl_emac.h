@@ -11,7 +11,7 @@
  *
  * If no EULA applies, Cypress hereby grants you a personal, non-exclusive,
  * non-transferable license to copy, modify, and compile the Software source
- * code solely for use in connection with Cypress's integrated circuit products.
+ * code solely for use in connection with Cypress' integrated circuit products.
  * Any reproduction, modification, translation, compilation, or representation
  * of this Software except as specified above is prohibited without the express
  * written permission of Cypress.
@@ -25,7 +25,7 @@
  * not authorize its products for use in any products where a malfunction or
  * failure of the Cypress product may reasonably be expected to result in
  * significant property damage, injury or death ("High Risk Product"). By
- * including Cypress's product in a High Risk Product, the manufacturer of such
+ * including Cypress' product in a High Risk Product, the manufacturer of such
  * system or application assumes all risk of such use and in doing so agrees to
  * indemnify Cypress against all liability.
  */
@@ -34,7 +34,7 @@
 #define SCL_EMAC_H_
 
 /** @file
- *  Provides EMAC interface functions to be used with SCL_EMAC Object
+ *  Provides EMAC interface functions to be used with the SCL_EMAC object
  */
 #include "EMAC.h"
 #include "EMACInterface.h"
@@ -53,72 +53,72 @@ public:
     static SCL_EMAC &get_instance(scl_interface_role_t role);
 
     /**
-     * Return maximum transmission unit
+     * Returns the maximum transmission unit
      *
-     * @return     MTU in bytes
+     * @return     MTU in bytes.
      */
     virtual uint32_t get_mtu_size() const;
 
     /**
-     * Gets memory buffer alignment preference
+     * Gets the memory buffer alignment preference
      *
-     * Gets preferred memory buffer alignment of the Emac device. IP stack may or may not
-     * align link out memory buffer chains using the alignment.
+     * Gets the preferred memory buffer alignment of the EMAC device. IP stack may or may not
+     * align with the link out memory buffer chains using the alignment.
      *
-     * @return         Memory alignment requirement in bytes
+     * @return         Memory alignment requirement in bytes.
      */
     virtual uint32_t get_align_preference() const;
 
     /**
-     * Return interface name
+     * Returns the interface name
      *
-     * @param name Pointer to where the name should be written
-     * @param size Maximum number of character to copy
+     * @param name		Pointer to the location where the name should be written.
+     * @param size 		Maximum number of characters to copy.
      */
     virtual void get_ifname(char *name, uint8_t size) const;
 
     /**
-     * Returns size of the underlying interface HW address size.
+     * Returns the size of the underlying interface HW address size.
      *
-     * @return     HW address size in bytes
+     * @return		HW address size in bytes.
      */
     virtual uint8_t get_hwaddr_size() const;
 
     /**
-     * Return interface-supplied HW address
-     * Copies HW address to provided memory
-     * @param addr HW address for underlying interface, it has to be of correct size see @a get_hwaddr_size
-     * @return     true if HW address is available
+     * Returns the interface-supplied HW address
+     * Copies the HW address to provided memory
+     * @param addr		HW address of the underlying interface. Tt has to be of correct size. See @a get_hwaddr_size.
+     * @return     		True if HW address is available.
      */
     virtual bool get_hwaddr(uint8_t *addr) const;
 
     /**
-     * Set HW address for interface
+     * Set HW address for the interface
      *
-     * Provided address has to be of correct size, see @a get_hwaddr_size
+     * Provided address has to be of correct size. See @a get_hwaddr_size.
      *
-     * Called to set the MAC address to actually use - if @a get_hwaddr is provided
-     * the stack would normally use that, but it could be overridden, eg for test
+     * Called to set the MAC address to be actually used - if @a get_hwaddr is provided
+     * the stack would normally use that, but it could be overridden for test
      * purposes.
      *
-     * @param addr Address to be set
+     * @param addr		Address to be set
      */
     virtual void set_hwaddr(const uint8_t *addr);
 
     /**
      * Sends the packet over the link
      *
-     * That can not be called from an interrupt context.
+     * This cannot be called from an interrupt context.
      *
-     * @param buf  Packet to be send
-     * @return     True if the packet was send successfully, False otherwise
+     * @param buf		Packet to be send
+     * @return     		True if the packet was send successfully. False otherwise.
      */
     virtual bool link_out(emac_mem_buf_t *buf);
 
     /**
      * Initializes the HW
      *
-     * @return True on success, False in case of an error.
+     * @return True on success. False in case of an error.
      */
     virtual bool power_up();
 
@@ -131,45 +131,45 @@ public:
     /**
      * Sets a callback that needs to be called for packets received for that interface
      *
-     * @param input_cb Function to be register as a callback
+     * @param input_cb		Function to be registered as a callback.
      */
     virtual void set_link_input_cb(emac_link_input_cb_t input_cb);
 
     /**
-     * Sets a callback that needs to be called on link status changes for given interface
+     * Sets a callback that needs to be called on the link status changes for a given interface
      *
-     * @param state_cb Function to be register as a callback
+     * @param state_cb		Function to be registered as a callback.
      */
     virtual void set_link_state_cb(emac_link_state_change_cb_t state_cb);
 
-    /** Add device to a multicast group
+    /** Adds a device to a multicast group
      *
-     * @param address  A multicast group hardware address
+     * @param address		A multicast group hardware address.
      */
     virtual void add_multicast_group(const uint8_t *address);
 
-    /** Remove device from a multicast group
+    /** Removes a device from a multicast group
      *
-     * @param address  A multicast group hardware address
+     * @param address		A multicast group hardware address.
      */
     virtual void remove_multicast_group(const uint8_t *address);
 
-    /** Request reception of all multicast packets
+    /** Requests reception of all multicast packets
      *
-     * @param all True to receive all multicasts
-     *            False to receive only multicasts addressed to specified groups
+     * @param all		True to receive all multicasts
+     *            		False to receive only multicasts addressed to specified groups
      */
     virtual void set_all_multicast(bool all);
 
-    /** Sets memory manager that is used to handle memory buffers
+    /** Sets memory manager used to handle memory buffers
      *
-     * @param mem_mngr Pointer to memory manager
+     * @param mem_mngr	Pointer to memory manager.
      */
     virtual void set_memory_manager(EMACMemoryManager &mem_mngr);
 
-    /** Set callback to receive EMAC activity events
+    /** Sets callback to receive EMAC activity events
      *
-     * @param activity_cb The callback for activity events
+     * @param activity_cb	The callback for activity events.
      */
     virtual void set_activity_cb(mbed::Callback<void(bool is_tx_activity)> activity_cb);
 

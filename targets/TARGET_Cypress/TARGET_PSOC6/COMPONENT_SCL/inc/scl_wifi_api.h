@@ -11,7 +11,7 @@
  *
  * If no EULA applies, Cypress hereby grants you a personal, non-exclusive,
  * non-transferable license to copy, modify, and compile the Software source
- * code solely for use in connection with Cypress's integrated circuit products.
+ * code solely for use in connection with Cypress' integrated circuit products.
  * Any reproduction, modification, translation, compilation, or representation
  * of this Software except as specified above is prohibited without the express
  * written permission of Cypress.
@@ -25,17 +25,17 @@
  * not authorize its products for use in any products where a malfunction or
  * failure of the Cypress product may reasonably be expected to result in
  * significant property damage, injury or death ("High Risk Product"). By
- * including Cypress's product in a High Risk Product, the manufacturer of such
+ * including Cypress' product in a High Risk Product, the manufacturer of such
  * system or application assumes all risk of such use and in doing so agrees to
  * indemnify Cypress against all liability.
  */
 
 /** @file
- *  Prototypes of functions for controlling the Wi-Fi system
+ *  Prototypes of functions for controlling the WiFi system
  *
- *  This file provides prototypes for end-user functions which allow
- *  actions such as scanning for Wi-Fi networks, joining Wi-Fi
- *  networks, getting the MAC address, etc
+ *  This file provides prototypes for end-user functions, which allow
+ *  actions such as scanning for Wi-Fi networks, joining WiFi
+ *  networks, getting the MAC address, and so on.
  *
  */
 
@@ -55,31 +55,31 @@ typedef struct scl_tx_buf{
 }scl_tx_buf_t;
 
 /******************************************************
-*             Function declarations
+*             Function Declarations
 ******************************************************/
 
-/** @addtogroup wifi SCL Wi-Fi API
+/** @addtogroup wifi SCL WiFi API
  *  APIs for controlling the Wi-Fi system
  *  @{
  */
 
-/** @addtogroup wifimanagement SCL Wi-Fi Management API
+/** @addtogroup wifimanagement SCL WiFi Management API
  *  @ingroup wifi
- *  Initialisation and other management functions for SCL system
+ *  Initialization and other management functions for SCL system
  *  @{
  */
 
 /**
- * Turn on the Wi-Fi device
+ * Turn ON the WiFi device
  *
- *  Initialise Wi-Fi platform
+ *  Initialize WiFi platform
  *  Program various WiFi parameters and modes
- *  This API should be called before using any scl_wifi_api's
+ *  This API should be called before using any scl_wifi_api
  *  @return true if initialization is successful, false otherwise
  */
 extern bool scl_wifi_on(void);
 
-/** Brings up the Wi-Fi core
+/** Brings up the WiFi core
  *  
  *  @return SCL_SUCCESS or Error code
  */
@@ -88,15 +88,15 @@ extern scl_result_t scl_wifi_set_up(void);
 /** Retrieves the current Media Access Control (MAC) address
  *  (or Ethernet hardware address) of the 802.11 device
  *
- *  @param   mac           Pointer to a variable that the current MAC address will be written to
+ *  @param   mac           Pointer to a variable to which the current MAC address will be written.
  *
  *  @return  SCL_SUCCESS or Error code
  */
 extern scl_result_t scl_wifi_get_mac_address(scl_mac_t *mac);
 
-/** Get the BSSID of the interface
- *  This API should be used after the device is connected to a network
- *  @param  bssid         Returns the BSSID address (mac address) if associated
+/** Gets the BSSID of the interface
+ *  This API should be used after the device is connected to a network.
+ *  @param  bssid         Returns the BSSID address (mac address), if associated.
  *
  *  @return SCL_SUCCESS or Error code
  */
@@ -106,33 +106,33 @@ extern scl_result_t scl_wifi_get_bssid(scl_mac_t *bssid);
  *
  *  Once a multicast address has been registered, all packets detected on the
  *  medium destined for that address are forwarded to the host.
- *  Otherwise they are ignored.
+ *  Otherwise, the packets are ignored.
  *
- *  @param  mac              Ethernet MAC address
+ *  @param  mac              Ethernet MAC address.
  *
- *  @return SCL_SUCCESS      if the address was registered successfully
- *          Error code       if the address was not registered
+ *  @return SCL_SUCCESS      If the address was registered successfully.
+ *          Error code       If the address was not registered.
  */
 extern scl_result_t scl_wifi_register_multicast_address(scl_mac_t *mac);
 
-/** Determines if a particular interface is ready to transceive ethernet packets
- *  This function has to be called after the connection is established otherwise it returns error code
+/** Determines if a particular interface is ready to transceive ethernet packets.
+ *  This function has to be called after the connection is established; otherwise, it returns error code.
  *
- *  @return    SCL_SUCCESS            if the interface is ready to transceive ethernet packets
- *             SCL_NOTFOUND           no AP with a matching SSID was found
- *             SCL_NOT_AUTHENTICATED  Matching AP was found but it won't let you authenticate.
- *                                    This can occur if this device is in the block list on the AP.
- *             SCL_NOT_KEYED          Device has authenticated and associated but has not completed the key exchange.
+ *  @return    SCL_SUCCESS            If the interface is ready to transceive ethernet packets.
+ *             SCL_NOTFOUND           If no AP with a matching SSID was found.
+ *             SCL_NOT_AUTHENTICATED  If matching AP was found, but it does not let you authenticate.
+ *                                    This can occur if the device is in the blocklist of the AP.
+ *             SCL_NOT_KEYED          If the device has authenticated and associated, but has not completed the key exchange.
  *                                    This can occur if the passphrase is incorrect.
- *             Error code             if the interface is not ready to transceive ethernet packets
+ *             Error code             If the interface is not ready to transceive ethernet packets.
  */
 extern scl_result_t scl_wifi_is_ready_to_transceive(void);
 
-/** To send an ethernet frame to SCL (called by the Network Stack)
+/** Sends an ethernet frame to SCL (called by the Network Stack)
  *
  *  This function takes ethernet data from the network stack and transmits over the wireless network.
- *  This function returns immediately after the packet has been queued for transmit,
- *  NOT after it has been transmitted.  Packet buffers passed to the SCL
+ *  This function returns immediately after the packet has been queued for transmission,
+ *  NOT after it has been transmitted. Packet buffers passed to the SCL
  *  are released inside the SCL once they have been transmitted.
  *
  *  @param buffer        Handle of the packet buffer to be sent.
@@ -142,18 +142,18 @@ extern scl_result_t scl_wifi_is_ready_to_transceive(void);
  */
 extern scl_result_t scl_network_send_ethernet_data(scl_tx_buf_t buffer);
 
-/** Retrieve the latest RSSI value
- *  This API has to be called after the device is connected to a network
- *  @param   rssi          The location where the RSSI value will be stored
+/** Retrieves the latest RSSI value
+ *  This API has to be called after the device is connected to a network.
+ *  @param   rssi          Location where the RSSI value will be stored.
  *
- *  @return  SCL_SUCCESS   if the RSSI was successfully retrieved
- *           Error code    if the RSSI was not retrieved
+ *  @return  SCL_SUCCESS   If the RSSI was successfully retrieved.
+ *           Error code    If the RSSI was not retrieved.
  */
 extern scl_result_t scl_wifi_get_rssi(int32_t *rssi);
 
-/** Retrieve the RX data packet
+/** Retrieves the RX data packet
  *
- *  @param   pointer to rx buffer
+ *  @param   Pointer to RX buffer.
  *
  *  @return  void  
  *           

@@ -11,7 +11,7 @@
  *
  * If no EULA applies, Cypress hereby grants you a personal, non-exclusive,
  * non-transferable license to copy, modify, and compile the Software source
- * code solely for use in connection with Cypress's integrated circuit products.
+ * code solely for use in connection with Cypress' integrated circuit products.
  * Any reproduction, modification, translation, compilation, or representation
  * of this Software except as specified above is prohibited without the express
  * written permission of Cypress.
@@ -25,7 +25,7 @@
  * not authorize its products for use in any products where a malfunction or
  * failure of the Cypress product may reasonably be expected to result in
  * significant property damage, injury or death ("High Risk Product"). By
- * including Cypress's product in a High Risk Product, the manufacturer of such
+ * including Cypress' product in a High Risk Product, the manufacturer of such
  * system or application assumes all risk of such use and in doing so agrees to
  * indemnify Cypress against all liability.
  */
@@ -63,7 +63,7 @@ extern "C"
 ******************************************************/
 extern struct network_params_t network_params;
 /******************************************************
-*             Function declarations
+*             Function Declarations
 ******************************************************/
 
 /** @addtogroup communication SCL communication API
@@ -72,7 +72,7 @@ extern struct network_params_t network_params;
  */
 
 /**
- * Initializes the SCL Thread and necessary artifacts
+ * Initializes the SCL thread and necessary artifacts
  *
  *  @return SCL_SUCCESS on successful intialization
  *          SCL_ERROR otherwise
@@ -80,10 +80,10 @@ extern struct network_params_t network_params;
 extern scl_result_t scl_init(void);
 
 /**
- * Send the SCL data and respective command to NP
- *  @param index    Index of the command
- *  @param buffer   Data to be sent
- *	@param timeout  Wait time for IPC to be released by NP
+ * Sends the SCL data and respective command to NP
+ *  @param index           Index of the command.
+ *  @param buffer          Data to be sent.
+ *	@param timeout(in ms)  Time to wait for IPC channel to be released.
  *
  *  @return SCL_SUCCESS on successful communication within given time
  *          SCL_ERROR on Timeout
@@ -91,7 +91,7 @@ extern scl_result_t scl_init(void);
 extern scl_result_t scl_send_data(int index, char *buffer, uint32_t timeout);
 
 /**
- * Terminate the SCL Thread and disable the interrupts
+ * Terminates the SCL thread and disables the interrupts
  *
  *  @return SCL_SUCCESS on successful communication within given time
  *          SCL_ERROR on Timeout
@@ -99,7 +99,7 @@ extern scl_result_t scl_send_data(int index, char *buffer, uint32_t timeout);
 extern scl_result_t scl_end(void);
 
 /**
- * Get the network parameters like IP Address, Netmask and Gateway from NP
+ * Gets the network parameters like IP Address, Netmask, and Gateway from NP
  *  @param network_params_t structure pointer
  *  @return SCL_SUCCESS on successful communication within given time
  *          SCL_ERROR on Timeout

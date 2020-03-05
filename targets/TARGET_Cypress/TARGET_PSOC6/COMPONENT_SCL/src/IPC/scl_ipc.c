@@ -11,7 +11,7 @@
  *
  * If no EULA applies, Cypress hereby grants you a personal, non-exclusive,
  * non-transferable license to copy, modify, and compile the Software source
- * code solely for use in connection with Cypress's integrated circuit products.
+ * code solely for use in connection with Cypress' integrated circuit products.
  * Any reproduction, modification, translation, compilation, or representation
  * of this Software except as specified above is prohibited without the express
  * written permission of Cypress.
@@ -25,14 +25,14 @@
  * not authorize its products for use in any products where a malfunction or
  * failure of the Cypress product may reasonably be expected to result in
  * significant property damage, injury or death ("High Risk Product"). By
- * including Cypress's product in a High Risk Product, the manufacturer of such
+ * including Cypress' product in a High Risk Product, the manufacturer of such
  * system or application assumes all risk of such use and in doing so agrees to
  * indemnify Cypress against all liability.
  */
 
 
 /** @file
- *  Provides SCL Functionality to communicate with WiFi Chip
+ *  Provides SCL functionality to communicate with WiFi chip
  */
 #include "scl_ipc.h"
 #include "scl_buffer_api.h"
@@ -147,13 +147,13 @@ static void scl_config(void)
  * Function Name: scl_thread_init
  ********************************************************************************
  * Summary:
- * 1. Intialises the scl_rx_handler thread and semaphores
+ * 1. Intializes the scl_rx_handler thread and semaphores
  *
  * Parameters: 
  *
  * Return:
- *    SCL_SUCCESS - On successful initialization of thread
- *    SCL_ERROR - An error occurred during intialization of thread
+ *    SCL_SUCCESS   On successful initialization of thread
+ *    SCL_ERROR     An error occurred during intialization of thread
  *******************************************************************************/
 static scl_result_t scl_thread_init(void)
 {
@@ -187,24 +187,23 @@ static scl_result_t scl_thread_init(void)
  * Function Name: scl_init
  ********************************************************************************
  * Summary:
- * 1. Intializing the scl thread and interrupts
+ * 1. Intializing the SCL thread and interrupts
  *
  * Parameters: 
  *
  * Return:
- *    SCL_SUCCESS - On successful initialization
- *    SCL_ERROR - An error occured during intialization
+ *    SCL_SUCCESS    On successful initialization
+ *    SCL_ERROR      An error occured during intialization
  *******************************************************************************/
 scl_result_t scl_init(void)
 {
     scl_result_t retval = SCL_SUCCESS;
     uint32_t configuration_parameters = 0;
 #ifdef MBED_CONF_TARGET_NP_CLOUD_DISABLE
-    configuration_parameters = MBED_CONF_TARGET_NP_CLOUD_DISABLE;
+    configuration_parameters = (MBED_CONF_TARGET_NP_CLOUD_DISABLE << 1);
 #else
-    configuration_parameters = false;
+    configuration_parameters = (false << 1);
 #endif
-    configuration_parameters = configuration_parameters << 1;
 #ifdef MBED_CONF_TARGET_NP_WIFI_ENABLE
     configuration_parameters |= MBED_CONF_TARGET_NP_WIFI_ENABLE;
 #else
@@ -230,15 +229,15 @@ scl_result_t scl_init(void)
  * Function Name: scl_send_data
  ********************************************************************************
  * Summary:
- * 1. send the data
+ * 1. Sends the data
  *
  * Parameters: 
- *    index - integer value to indicate which API is using scl 
- *    buffer - pointer to buffer to be transferred
- *    timeout (in ms) - The time to wait for the IPC to be released
+ *    index         Integer value to indicate which API is using SCL
+ *    buffer        Pointer to buffer to be transferred
+ *    timeout       The time to wait for the receiving core to release
  * Return: 
- *    SCL_SUCCESS - On successful transfer of data
- *    SCL_ERROR - An error occured while transmitting data
+ *    SCL_SUCCESS   On successful transfer of data
+ *    SCL_ERROR     An error occured while transmitting data
  *******************************************************************************/
 scl_result_t scl_send_data(int index, char* buffer, uint32_t timeout)
 {
@@ -287,12 +286,12 @@ scl_result_t scl_send_data(int index, char* buffer, uint32_t timeout)
  * Parameters: 
  *
  * Return: 
- *    SCL_SUCCESS - If channel is not locked
- *    SCL_ERROR - If the channel is locked
+ *    SCL_SUCCESS  If channel is not locked
+ *    SCL_ERROR    If the channel is locked
  *******************************************************************************/
 scl_result_t scl_end(void)
 {
-    scl_result_t retval = SCL_ERROR;
+    scl_result_t retval = SCL_SUCCESS;
     if (g_scl_thread_info.scl_inited == SCL_TRUE) {
         retval = (scl_result_t) cy_rtos_terminate_thread(&g_scl_thread_info.scl_thread);
         if (retval == SCL_SUCCESS) {

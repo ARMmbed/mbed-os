@@ -11,7 +11,7 @@
  *
  * If no EULA applies, Cypress hereby grants you a personal, non-exclusive,
  * non-transferable license to copy, modify, and compile the Software source
- * code solely for use in connection with Cypress's integrated circuit products.
+ * code solely for use in connection with Cypress' integrated circuit products.
  * Any reproduction, modification, translation, compilation, or representation
  * of this Software except as specified above is prohibited without the express
  * written permission of Cypress.
@@ -25,7 +25,7 @@
  * not authorize its products for use in any products where a malfunction or
  * failure of the Cypress product may reasonably be expected to result in
  * significant property damage, injury or death ("High Risk Product"). By
- * including Cypress's product in a High Risk Product, the manufacturer of such
+ * including Cypress' product in a High Risk Product, the manufacturer of such
  * system or application assumes all risk of such use and in doing so agrees to
  * indemnify Cypress against all liability.
  */
@@ -53,10 +53,10 @@
 ******************************************************/
 /** Allocates a packet buffer
  *
- *  Implemented in the port layer interface which is specific to the
+ *  Implemented in the port layer interface, which is specific to the
  *  buffering scheme in use.
- *  Attempts to allocate a packet buffer of the size requested. It can do this
- *  by allocating a pre-existing packet from a pool, using a static buffer,
+ *  Attempts to allocate a packet buffer of the requested size. This is done
+ *  by allocating a pre-existing packet from a pool using a static buffer
  *  or by dynamically allocating memory. The method of allocation does not
  *  concern SCL, however it must match the way the network stack expects packet
  *  buffers to be allocated.
@@ -106,13 +106,13 @@ scl_result_t scl_host_buffer_get(scl_buffer_t *buffer, scl_buffer_dir_t directio
  *  buffering scheme in use.
  *  This function is used by SCL to indicate that it no longer requires
  *  a packet buffer. The buffer can then be released back into a pool for
- *  reuse, or the dynamically allocated memory can be freed, according to
+ *  reuse or the dynamically allocated memory can be freed, according to
  *  how the packet was allocated.
  *  Returns void since SCL cannot do anything about failures
  *
- *  @param buffer    : The handle of the packet buffer to be released
- *  @param direction : Indicates transmit/receive direction that the packet buffer has
- *                     been used for. This might be needed if tx/rx pools are separate.
+ *  @param buffer    : The handle of the packet buffer to be released.
+ *  @param direction : Indicates the Transmit/Receive direction that the packet buffer has
+ *                     been used for. This might be needed if TX/RX pools are separate.
  *
  */
 void scl_buffer_release(scl_buffer_t buffer, scl_buffer_dir_t direction)
@@ -123,13 +123,13 @@ void scl_buffer_release(scl_buffer_t buffer, scl_buffer_dir_t direction)
 
 /** Retrieves the current pointer of a packet buffer
  *
- *  Implemented in the port layer interface which is specific to the
+ *  Implemented in the port layer interface, which is specific to the
  *  buffering scheme in use.
  *  Since packet buffers usually need to be created with space at the
- *  front for additional headers, this function allows SCL to get
+ *  beginning for additional headers, this function allows SCL to get
  *  the current 'front' location pointer.
  *
- *  @param buffer : The handle of the packet buffer whose pointer is to be retrieved
+ *  @param buffer : The handle of the packet buffer whose pointer is to be retrieved.
  *
  *  @return       : The packet buffer's current pointer.
  */
@@ -142,14 +142,14 @@ uint8_t *scl_buffer_get_current_piece_data_pointer(scl_buffer_t buffer)
 
 /** Retrieves the size of a packet buffer
  *
- *  Implemented in the port layer interface which is specific to the
+ *  Implemented in the port layer interface, which is specific to the
  *  buffering scheme in use.
  *  Since packet buffers usually need to be created with space at the
- *  front for additional headers, the memory block used to contain a packet buffer
+ *  beginning for additional headers, the memory block used to contain a packet buffer
  *  will often be larger than the current size of the packet buffer data.
  *  This function allows SCL to retrieve the current size of a packet buffer's data.
  *
- *  @param buffer : The handle of the packet buffer whose size is to be retrieved
+ *  @param buffer : The handle of the packet buffer whose size is to be retrieved.
  *
  *  @return       :  The size of the packet buffer.
  */

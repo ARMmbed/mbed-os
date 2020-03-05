@@ -11,7 +11,7 @@
  *
  * If no EULA applies, Cypress hereby grants you a personal, non-exclusive,
  * non-transferable license to copy, modify, and compile the Software source
- * code solely for use in connection with Cypress's integrated circuit products.
+ * code solely for use in connection with Cypress' integrated circuit products.
  * Any reproduction, modification, translation, compilation, or representation
  * of this Software except as specified above is prohibited without the express
  * written permission of Cypress.
@@ -25,7 +25,7 @@
  * not authorize its products for use in any products where a malfunction or
  * failure of the Cypress product may reasonably be expected to result in
  * significant property damage, injury or death ("High Risk Product"). By
- * including Cypress's product in a High Risk Product, the manufacturer of such
+ * including Cypress' product in a High Risk Product, the manufacturer of such
  * system or application assumes all risk of such use and in doing so agrees to
  * indemnify Cypress against all liability.
  */
@@ -68,17 +68,17 @@ extern "C"
 #define PM2_POWERSAVE_MODE          (2) /**< Powersave mode on specified interface with High throughput */
 
 /**
- * Suppress unused parameter warning
+ * Suppresses unused parameter warning
  */
 #define UNUSED_PARAMETER(x) ( (void)(x) )
 
 /**
- * Suppress unused variable warning
+ * Suppresses unused variable warning
  */
 #define UNUSED_VARIABLE(x) ( (void)(x) )
 
 /**
- * Suppress unused variable warning occurring due to an assert which is disabled in release mode
+ * Suppresses unused variable warning that occurs due to an assert being disabled in release mode
  */
 #define REFERENCE_DEBUG_ONLY_VARIABLE(x) ( (void)(x) )
 
@@ -91,7 +91,7 @@ extern "C"
 ******************************************************/
 
 /**
- * Enumeration of Wi-Fi security modes
+ * Enumeration of WiFi security modes
  */
 typedef enum
 {
