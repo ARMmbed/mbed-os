@@ -359,15 +359,6 @@ nsapi_error_t WhdSTAInterface::disconnect()
     }
     whd_emac_wifi_link_state_changed(_whd_emac.ifp, WHD_FALSE);
 
-    // remove the interface added in connect
-    if (_interface) {
-        nsapi_error_t err = _stack.remove_ethernet_interface(&_interface);
-        if (err != NSAPI_ERROR_OK) {
-            return err;
-        }
-        _iface_shared.iface_sta = NULL;
-    }
-
     res = whd_wifi_deregister_event_handler(_whd_emac.ifp, sta_link_update_entry);
     if (res != WHD_SUCCESS) {
         return whd_toerror(res);
