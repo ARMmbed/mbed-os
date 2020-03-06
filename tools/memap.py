@@ -871,7 +871,7 @@ class MemapParser(object):
                         self.subtotal['.fini'] +
                         self.subtotal['.ARM.exidx'])
 
-        total_flash_delta = (static_ram - self.subtotal['.bss'] +
+        total_flash_delta = (static_ram_delta - self.subtotal['.bss-delta'] +
                              self.subtotal['.text-delta'] + 
                              self.subtotal['.rodata-delta'] +
                              self.subtotal['.eh_frame-delta'] +
