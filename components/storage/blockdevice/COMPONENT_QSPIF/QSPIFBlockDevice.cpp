@@ -179,6 +179,8 @@ QSPIFBlockDevice::QSPIFBlockDevice(PinName io0, PinName io1, PinName io2, PinNam
 
 int QSPIFBlockDevice::init()
 {
+    int status = QSPIF_BD_ERROR_OK;
+
     if (_unique_device_status == 0) {
         tr_debug("QSPIFBlockDevice csel: %d", (int)_csel);
     } else if (_unique_device_status == -1) {
@@ -188,12 +190,6 @@ int QSPIFBlockDevice::init()
         tr_error("Too many different QSPIFBlockDevice devices - max allowed: %d", QSPIF_MAX_ACTIVE_FLASH_DEVICES);
         return QSPIF_BD_ERROR_DEVICE_MAX_EXCEED;
     }
-
-    int status = QSPIF_BD_ERROR_OK;
-    _sfdp_info.bptbl.addr = 0x0;
-    _sfdp_info.bptbl.size = 0;
-    _sfdp_info.smptbl.addr = 0x0;
-    _sfdp_info.smptbl.size = 0;
 
     _mutex.lock();
 
@@ -230,36 +226,33 @@ int QSPIFBlockDevice::init()
         goto exit_point;
     }
 
-    if (0 != _handle_vendor_quirks()) {
+    if (_handle_vendor_quirks() < 0) {
         tr_error("Init - Could not read vendor id");
         status = QSPIF_BD_ERROR_DEVICE_ERROR;
         goto exit_point;
     }
 
-    /**************************** Parse SFDP Header ***********************************/
-    if (sfdp_parse_headers(callback(this, &QSPIFBlockDevice::_qspi_send_read_sfdp_command), _sfdp_info) < 0) {
-        tr_error("Init - Parse SFDP Headers Failed");
-        status = QSPIF_BD_ERROR_PARSING_FAILED;
-        goto exit_point;
-    }
+    /**************************** Parse SFDP data ***********************************/
+    {
+        _sfdp_info.bptbl.addr = 0x0;
+        _sfdp_info.bptbl.size = 0;
+        _sfdp_info.smptbl.addr = 0x0;
+        _sfdp_info.smptbl.size = 0;
 
-    /**************************** Parse Basic Parameters Table ***********************************/
-    if (_sfdp_parse_basic_param_table(callback(this, &QSPIFBlockDevice::_qspi_send_read_sfdp_command),
-                                      _sfdp_info) < 0) {
-        tr_error("Init - Parse Basic Param Table Failed");
-        status = QSPIF_BD_ERROR_PARSING_FAILED;
-        goto exit_point;
-    }
+        if (sfdp_parse_headers(callback(this, &QSPIFBlockDevice::_qspi_send_read_sfdp_command), _sfdp_info) < 0) {
+            tr_error("Init - Parse SFDP Headers Failed");
+            status = QSPIF_BD_ERROR_PARSING_FAILED;
+            goto exit_point;
+        }
 
-    /**************************** Parse Sector Map Table ***********************************/
-    _sfdp_info.smptbl.region_size[0] = _sfdp_info.bptbl.device_size_bytes; // If there's no region map, we have a single region sized the entire device size
-    _sfdp_info.smptbl.region_high_boundary[0] = _sfdp_info.bptbl.device_size_bytes - 1;
+        if (_sfdp_parse_basic_param_table(callback(this, &QSPIFBlockDevice::_qspi_send_read_sfdp_command),
+                                          _sfdp_info) < 0) {
+            tr_error("Init - Parse Basic Param Table Failed");
+            status = QSPIF_BD_ERROR_PARSING_FAILED;
+            goto exit_point;
+        }
 
-    if ((_sfdp_info.smptbl.addr != 0) && (0 != _sfdp_info.smptbl.size)) {
-        tr_debug("Init - Parsing Sector Map Table - addr: 0x%lxh, Size: %d", _sfdp_info.smptbl.addr,
-                 _sfdp_info.smptbl.size);
-        if (sfdp_parse_sector_map_table(callback(this, &QSPIFBlockDevice::_qspi_send_read_sfdp_command),
-                                        _sfdp_info.smptbl) < 0) {
+        if (sfdp_parse_sector_map_table(callback(this, &QSPIFBlockDevice::_qspi_send_read_sfdp_command), _sfdp_info) < 0) {
             tr_error("Init - Parse Sector Map Table Failed");
             status = QSPIF_BD_ERROR_PARSING_FAILED;
             goto exit_point;
@@ -630,17 +623,15 @@ int QSPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void
     }
 
     // Check that density is not greater than 4 gigabits (i.e. that addressing beyond 4 bytes is not required)
-    if ((param_table[7] & 0x80) != 0) {
-        tr_error("Init - verify flash density failed");
+    if (sfdp_detect_addressability(param_table, _sfdp_info.bptbl) < 0) {
+        tr_error("Verify 4byte addressing failed");
         return -1;
     }
 
-    // Get device density (stored in bits - 1)
-    uint32_t density_bits = ((param_table[7] << 24) |
-                             (param_table[6] << 16) |
-                             (param_table[5] << 8)  |
-                             param_table[4]);
-    sfdp_info.bptbl.device_size_bytes = (density_bits + 1) / 8;
+    if (sfdp_detect_device_density(param_table, _sfdp_info.bptbl) < 0) {
+        tr_error("Detecting device density failed");
+        return -1;
+    }
 
     // Set Page Size (QSPI write must be done on Page limits)
     _page_size_bytes = sfdp_detect_page_size(param_table, sfdp_info.bptbl.size);

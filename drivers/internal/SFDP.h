@@ -90,11 +90,11 @@ int sfdp_parse_headers(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, 
  * Retrieves the table from a device and parses the information contained by the table
  *
  * @param      sfdp_reader Callback function used to read headers from within a device
- * @param[out] smtbl       Contains the results of parsing the JEDEC Sector Map Table
+ * @param[out] sfdp_info   Contains the results of parsing the JEDEC Sector Map Table
  *
  * @return MBED_SUCCESS on success, negative error code on failure
  */
-int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_smptbl_info &smtbl);
+int sfdp_parse_sector_map_table(Callback<int(bd_addr_t, void *, bd_size_t)> sfdp_reader, sfdp_hdr_info &sfdp_info);
 
 /** Detect page size used for writing on flash
  *
@@ -131,7 +131,7 @@ int sfdp_find_addr_region(bd_size_t offset, const sfdp_hdr_info &sfdp_info);
  * @param size     Upper limit for region size
  * @param offset   Offset value
  * @param region   Region number
- * @param smtbl    Information about different erase types
+ * @param smptbl    Information about different erase types
  *
  * @return Largest erase type
  */
@@ -140,6 +140,24 @@ int sfdp_iterate_next_largest_erase_type(uint8_t &bitfield,
                                          int offset,
                                          int region,
                                          const sfdp_smptbl_info &smptbl);
+
+/** Detect device density
+ *
+ * @param bptbl_ptr Pointer to memory holding a Basic Parameter Table structure
+ * @param bptbl_info Basic Parameter Table information structure
+ *
+ * @return 0 on success, negative error code on failure
+ */
+int sfdp_detect_device_density(uint8_t *bptbl_ptr, sfdp_bptbl_info &bptbl_info);
+
+/** Detect is it possible to access the whole memory region
+ *
+ * @param bptbl_ptr Pointer to memory holding a Basic Parameter Table structure
+ * @param bptbl_info Basic Parameter Table information structure
+ *
+ * @return 0 on success, negative error code on failure
+ */
+int sfdp_detect_addressability(uint8_t *bptbl_ptr, sfdp_bptbl_info &bptbl_info);
 
 /** @}*/
 } /* namespace mbed */
