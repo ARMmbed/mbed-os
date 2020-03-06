@@ -206,7 +206,7 @@
         "supported_toolchains": [
             "uARM"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "detect_code": [
             "9992"
         ]
@@ -234,7 +234,7 @@
         "supported_toolchains": [
             "uARM"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "detect_code": [
             "9990"
         ]
@@ -336,7 +336,7 @@
             "SPISLAVE",
             "STDIO_MESSAGES"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -391,7 +391,7 @@
             "tickless-from-us-ticker": true,
             "boot-stack-size": "0x400"
         },
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -503,7 +503,7 @@
             "SPI",
             "SPISLAVE"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "device_name": "LPC11U34FBD48/311"
     },
     "MICRONFCBOARD": {
@@ -564,7 +564,7 @@
             "tickless-from-us-ticker": true,
             "boot-stack-size": "0x400"
         },
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -607,7 +607,7 @@
             "SPI",
             "SPISLAVE"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "device_name": "LPC11U35FHI33/501",
         "public": false
     },
@@ -672,7 +672,7 @@
             "GCC_ARM",
             "IAR"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "device_name": "LPC11U37FBD64/501"
     },
     "LPCCAPPUCCINO": {
@@ -733,7 +733,7 @@
             "SPI",
             "SPISLAVE"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -777,7 +777,7 @@
         "macros": [
             "MBED_FAULT_HANDLER_DISABLED"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -853,7 +853,7 @@
             "SPI",
             "SPISLAVE"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -1133,7 +1133,7 @@
             "SPI",
             "SPISLAVE"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "device_name": "LPC810M021FN8",
         "detect_code": [
             "1020"
@@ -1172,7 +1172,7 @@
             "SPI",
             "SPISLAVE"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -1208,7 +1208,7 @@
             "SPI",
             "SPISLAVE"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -1243,7 +1243,7 @@
             "SPI",
             "SPISLAVE"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -1483,7 +1483,7 @@
             "SPI",
             "SPISLAVE"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -1508,7 +1508,7 @@
         "detect_code": [
             "C000"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "device_name": "LPC812M101JDH16"
     },
     "KL05Z": {
@@ -1549,7 +1549,7 @@
             "SPISLAVE",
             "STDIO_MESSAGES"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -1897,7 +1897,7 @@
             "SPISLAVE",
             "STDIO_MESSAGES"
         ],
-        "default_lib": "std",
+        "c_lib": "std",
         "release_versions": [
             "2"
         ],
@@ -3282,7 +3282,7 @@
         "device_has_remove": [
             "LPTICKER"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -3321,7 +3321,7 @@
         "device_has_remove": [
             "LPTICKER"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -3361,7 +3361,7 @@
         "device_has_remove": [
             "LPTICKER"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -3606,7 +3606,7 @@
             "CRC",
             "SERIAL_ASYNCH"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -3635,7 +3635,7 @@
         "detect_code": [
             "0775"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -3771,7 +3771,7 @@
             "CRC",
             "SERIAL_ASYNCH"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -4248,7 +4248,7 @@
         "device_has_remove": [
             "SERIAL_FC"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -5109,7 +5109,7 @@
             "CRC",
             "FLASH"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -5149,7 +5149,7 @@
             "CRC",
             "FLASH"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -5196,7 +5196,7 @@
             "FLASH",
             "MPU"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -5967,7 +5967,7 @@
         "device_has_remove": [
             "LPTICKER"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -6230,7 +6230,7 @@
             "FLASH",
             "MPU"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -7385,7 +7385,7 @@
         "device_has_remove": [
             "LPTICKER"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "device_name": "STM32L151RC"
     },
     "MCU_NRF51": {
@@ -7488,7 +7488,7 @@
             "TARGET_MCU_NRF51_16K"
         ],
         "public": false,
-        "default_lib": "small"
+        "c_lib": "small"
     },
     "MCU_NRF51_16K_BOOT_BASE": {
         "inherits": [
@@ -9779,7 +9779,7 @@
             "uARM",
             "IAR"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -9874,7 +9874,7 @@
             "uARM",
             "IAR"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "release_versions": [
             "2"
         ],
@@ -10937,7 +10937,7 @@
             "SPI_ASYNCH",
             "MPU"
         ],
-        "default_lib": "std",
+        "c_lib": "std",
         "device_name": "ATSAMG55J19",
         "detect_code": [
             "0920"
@@ -12130,7 +12130,7 @@
             "SLEEP",
             "STDIO_MESSAGES"
         ],
-        "default_lib": "std",
+        "c_lib": "std",
         "release_versions": []
     },
     "SARA_NBIOT": {
