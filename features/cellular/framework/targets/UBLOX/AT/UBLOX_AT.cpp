@@ -128,22 +128,19 @@ CellularDevice *CellularDevice::get_default_instance()
 nsapi_error_t UBLOX_AT::init()
 {
     setup_at_handler();
-
     _at.lock();
     _at.flush();
     _at.at_cmd_discard("", "");
-    int value = -1;
 
-#ifdef UBX_MDM_SARA_G3XX
-    value = 0;
-#elif defined(UBX_MDM_SARA_U2XX) || defined(UBX_MDM_SARA_R41XM)
-    value = 4;
-#else
-    _at.unlock();
-    return NSAPI_ERROR_UNSUPPORTED;
-#endif
+#if defined(UBX_MDM_SARA_U2XX) || defined(UBX_MDM_SARA_G3XX)
+    nsapi_error_t err = _at.at_cmd_discard("E0", ""); // echo off
 
-    nsapi_error_t err = _at.at_cmd_discard("+CFUN", "=", "%d", value);
+    if (err == NSAPI_ERROR_OK) {
+        _at.at_cmd_discard("+CMEE", "=1"); // verbose responses
+        err = _at.at_cmd_discard("+CFUN", "=1"); // set full functionality
+    }
+#elif defined(UBX_MDM_SARA_R41XM)
+    nsapi_error_t err = _at.at_cmd_discard("+CFUN", "=", "%d", 4);
 
     if (err == NSAPI_ERROR_OK) {
         _at.at_cmd_discard("E0", ""); // echo off
@@ -151,6 +148,11 @@ nsapi_error_t UBLOX_AT::init()
         config_authentication_parameters();
         err = _at.at_cmd_discard("+CFUN", "=1"); // set full functionality
     }
+#else
+    _at.unlock();
+    return NSAPI_ERROR_UNSUPPORTED;
+#endif
+
     return _at.unlock_return_error();
 }
 

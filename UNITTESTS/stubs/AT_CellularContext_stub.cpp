@@ -199,6 +199,10 @@ void AT_CellularContext::do_connect()
 {
 }
 
+void AT_CellularContext::do_disconnect()
+{
+}
+
 #if NSAPI_PPP_AVAILABLE
 nsapi_error_t AT_CellularContext::open_data_channel()
 {
