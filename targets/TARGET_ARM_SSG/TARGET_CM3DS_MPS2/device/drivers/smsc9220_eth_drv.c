@@ -859,7 +859,7 @@ uint32_t smsc9220_get_tx_data_fifo_size(
 
 enum smsc9220_error_t smsc9220_init(
         const struct smsc9220_eth_dev_t* dev,
-        void(* wait_ms_function)(int))
+        void(* wait_ms_function)(uint32_t))
 {
     uint32_t phyreset = 0;
     enum smsc9220_error_t error = SMSC9220_ERROR_NONE;

@@ -127,6 +127,7 @@ void fpga_pwm_period_fill_test(PinName pin, uint32_t period_ms, uint32_t fill_pr
             break;
     }
 
+    // wait_us is safe to call as this test disable the IRQs on execution.
     wait_us(PERIOD_US(period_ms));
 
     tester.io_metrics_start();

@@ -49,7 +49,7 @@ nsapi_error_t ONBOARD_TELIT_HE910::soft_power_on()
     /* keep the power line low for 200 milisecond */
     press_power_button(200);
     /* give modem a little time to respond */
-    ThisThread::sleep_for(100);
+    rtos::ThisThread::sleep_for(100);
     // From Telit_xE910 Global form factor App note: It is mandatory to avoid sending data to the serial ports during the first 200ms of the module start-up.
     rtos::ThisThread::sleep_for(200);
     return NSAPI_ERROR_OK;
@@ -64,7 +64,7 @@ nsapi_error_t ONBOARD_TELIT_HE910::soft_power_off()
      * If 3G_ON_OFF pin is kept low for more than a second, a controlled disconnect and shutdown takes
      * place, Due to the network disconnect, shut-off can take up to 30 seconds. However, we wait for 10
      * seconds only   */
-    ThisThread::sleep_for(10 * 1000);
+    rtos::ThisThread::sleep_for(10 * 1000);
     return NSAPI_ERROR_OK;
 }
 
@@ -74,7 +74,7 @@ void ONBOARD_TELIT_HE910::press_power_button(int time_ms)
 
     gpio_init_out_ex(&gpio, MDMPWRON, 1);
     gpio_write(&gpio, 0);
-    ThisThread::sleep_for(time_ms);
+    rtos::ThisThread::sleep_for(time_ms);
     gpio_write(&gpio, 1);
 }
 

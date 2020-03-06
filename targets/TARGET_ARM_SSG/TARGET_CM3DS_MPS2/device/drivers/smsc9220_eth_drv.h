@@ -38,7 +38,7 @@ struct smsc9220_eth_dev_cfg_t {
 struct smsc9220_eth_dev_data_t {
     uint32_t state;       /*!< Indicates if the SMSC9220 driver
                                is initialized and enabled */
-    void (*wait_ms) (int);/*!< function pointer to system's millisec delay
+    void (*wait_ms) (uint32_t);/*!< function pointer to system's millisec delay
                                function, will be used for delays */
     uint32_t ongoing_packet_length;/*!< size in bytes of the packet
                                             is being sent */
@@ -195,7 +195,7 @@ enum smsc9220_fifo_level_irq_pos_t{
  * \return error code /ref smsc9220_error_t
  */
 enum smsc9220_error_t smsc9220_init(const struct smsc9220_eth_dev_t* dev,
-                               void(* wait_ms_function)(int));
+                               void(* wait_ms_function)(uint32_t));
 
 /**
  * \brief Reads the MAC register.
