@@ -41,7 +41,7 @@ namespace mbed {
  * int main() {
  *     while(1) {
  *         led = !led;
- *         thread_sleep_for(200);
+ *         ThisThread::sleep_for(200);
  *     }
  * }
  * @endcode

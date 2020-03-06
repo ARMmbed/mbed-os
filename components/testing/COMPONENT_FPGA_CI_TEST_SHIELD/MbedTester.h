@@ -59,7 +59,7 @@
  *     int toggle = 0;
  *     while (1) {
  *         tester.gpio_write(MbedTester::LogicalPinGPIO0, toggle, true);
- *         thread_sleep_for(500);
+ *         ThisThread::sleep_for(500);
  *         toggle = !toggle;
  *     }
  * }

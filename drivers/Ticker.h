@@ -61,7 +61,7 @@ namespace mbed {
  *         } else {
  *             led2 = !led2;
  *         }
- *         thread_sleep_for(200);
+ *         ThisThread::sleep_for(200);
  *     }
  * }
  * @endcode

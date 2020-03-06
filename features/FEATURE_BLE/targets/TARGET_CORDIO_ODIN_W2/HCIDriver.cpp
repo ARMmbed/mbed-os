@@ -150,9 +150,9 @@ void ble::vendor::odin_w2::HCIDriver::do_initialize()
     hci_rts = 1;            // Flow Control is OFF
 
     shutdown = 0;           // BT Power is OFF
-    thread_sleep_for(20);
+    ThisThread::sleep_for(20);
     shutdown = 1;           // BT Power is ON
-    thread_sleep_for(500);
+    ThisThread::sleep_for(500);
 
     hci_rts = 0;            // Flow Control is ON
 

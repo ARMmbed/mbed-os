@@ -233,7 +233,7 @@ void ep_test_data_correctness()
         // Wait for host before terminating
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
 #if EP_DBG
-        thread_sleep_for(100);
+        ThisThread::sleep_for(100);
         printf("cnt_cb_set_conf = %lu\r\n", serial.get_cnt_cb_set_conf());
         printf("cnt_cb_set_intf = %lu\r\n", serial.get_cnt_cb_set_intf());
         printf("cnt_cb_bulk_out = %lu\r\n", serial.get_cnt_cb_bulk_out());
@@ -270,7 +270,7 @@ void ep_test_halt()
         // Wait for host before terminating
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
 #if EP_DBG
-        thread_sleep_for(100);
+        ThisThread::sleep_for(100);
         printf("cnt_cb_set_conf = %lu\r\n", serial.get_cnt_cb_set_conf());
         printf("cnt_cb_set_intf = %lu\r\n", serial.get_cnt_cb_set_intf());
         printf("cnt_cb_bulk_out = %lu\r\n", serial.get_cnt_cb_bulk_out());
@@ -307,7 +307,7 @@ void ep_test_parallel_transfers()
         // Wait for host before terminating
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
 #if EP_DBG
-        thread_sleep_for(100);
+        ThisThread::sleep_for(100);
         printf("cnt_cb_set_conf = %lu\r\n", serial.get_cnt_cb_set_conf());
         printf("cnt_cb_set_intf = %lu\r\n", serial.get_cnt_cb_set_intf());
         printf("cnt_cb_bulk_out = %lu\r\n", serial.get_cnt_cb_bulk_out());
@@ -345,7 +345,7 @@ void ep_test_parallel_transfers_ctrl()
         // Wait for host before terminating
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
 #if EP_DBG
-        thread_sleep_for(100);
+        ThisThread::sleep_for(100);
         printf("cnt_cb_set_conf = %lu\r\n", serial.get_cnt_cb_set_conf());
         printf("cnt_cb_set_intf = %lu\r\n", serial.get_cnt_cb_set_intf());
         printf("cnt_cb_bulk_out = %lu\r\n", serial.get_cnt_cb_bulk_out());
@@ -381,7 +381,7 @@ void ep_test_abort()
         greentea_send_kv("ep_test_abort", serial.get_serial_desc_string());
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
 #if EP_DBG
-        thread_sleep_for(100);
+        ThisThread::sleep_for(100);
         printf("cnt_cb_set_conf = %lu\r\n", serial.get_cnt_cb_set_conf());
         printf("cnt_cb_set_intf = %lu\r\n", serial.get_cnt_cb_set_intf());
         printf("cnt_cb_bulk_out = %lu\r\n", serial.get_cnt_cb_bulk_out());
@@ -420,7 +420,7 @@ void ep_test_data_toggle()
         greentea_send_kv("ep_test_data_toggle", serial.get_serial_desc_string());
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
 #if EP_DBG
-        thread_sleep_for(100);
+        ThisThread::sleep_for(100);
         printf("cnt_cb_set_conf = %lu\r\n", serial.get_cnt_cb_set_conf());
         printf("cnt_cb_set_intf = %lu\r\n", serial.get_cnt_cb_set_intf());
         printf("cnt_cb_bulk_out = %lu\r\n", serial.get_cnt_cb_bulk_out());
@@ -566,7 +566,7 @@ void device_suspend_resume_test()
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
         printf("[2] suspend_count: %d  resume_count: %d\n", serial.get_suspend_count(), serial.get_resume_count());
         TEST_ASSERT_EQUAL_STRING("pass", _key);
-        thread_sleep_for(5000);
+        ThisThread::sleep_for(5000);
         printf("[3] suspend_count: %d  resume_count: %d\n", serial.get_suspend_count(), serial.get_resume_count());
     }
 }

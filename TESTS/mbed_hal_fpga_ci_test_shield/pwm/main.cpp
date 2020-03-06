@@ -127,11 +127,11 @@ void fpga_pwm_period_fill_test(PinName pin, uint32_t period_ms, uint32_t fill_pr
             break;
     }
 
-    thread_sleep_for(period_ms);
+    ThisThread::sleep_for(period_ms);
 
     tester.io_metrics_start();
 
-    thread_sleep_for(NUM_OF_PERIODS * period_ms);
+    ThisThread::sleep_for(NUM_OF_PERIODS * period_ms);
 
     tester.io_metrics_stop();
     core_util_critical_section_exit();

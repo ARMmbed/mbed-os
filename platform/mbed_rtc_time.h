@@ -64,7 +64,7 @@ struct timeval {
  *         strftime(buffer, 32, "%I:%M %p\n", localtime(&seconds));
  *         printf("Time as a custom formatted string = %s", buffer);
  *
- *         thread_sleep_for(1000);
+ *         ThisThread::sleep_for(1000);
  *     }
  * }
  * @endcode

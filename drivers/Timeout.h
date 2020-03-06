@@ -52,7 +52,7 @@ namespace mbed {
  *     timeout.attach(&attimeout, 5);
  *     while(on) {
  *         led = !led;
- *         thread_sleep_for(200);
+ *         ThisThread::sleep_for(200);
  *     }
  * }
  * @endcode

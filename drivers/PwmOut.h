@@ -43,7 +43,7 @@ namespace mbed {
  * int main() {
  *     while(1) {
  *         led = led + 0.01;
- *         thread_sleep_for(200);
+ *         ThisThread::sleep_for(200);
  *         if(led == 1.0) {
  *             led = 0;
  *         }

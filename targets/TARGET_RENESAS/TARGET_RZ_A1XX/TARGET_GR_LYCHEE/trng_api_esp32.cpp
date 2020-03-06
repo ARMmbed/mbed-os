@@ -47,7 +47,7 @@ extern "C" void trng_init_esp32(void)
         GPIOPM3  &= ~0x4000;         /* Output mode */
 
         GPIOP3   |=  0x4000;         /* Outputs hi level */
-        wait_ms(5);
+        ThisThread::sleep_for(5);
         GPIOP5   |=  0x0008;         /* Outputs hi level */
     }
 }
@@ -84,7 +84,7 @@ extern "C" int trng_get_bytes_esp32(uint8_t *output, size_t length, size_t *outp
         }
         if (ret != 0) {
             retry_cnt++;
-            wait_ms(100);
+            ThisThread::sleep_for(100);
         }
     }
     if (retry_cnt >= RETRY_CNT_MAX) {

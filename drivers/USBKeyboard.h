@@ -93,7 +93,7 @@ enum FUNCTION_KEY {
  * {
  *   while (1) {
  *       key.printf("Hello World\r\n");
- *       thread_sleep_for(1000);
+ *       ThisThread::sleep_for(1000);
  *   }
  * }
  *
