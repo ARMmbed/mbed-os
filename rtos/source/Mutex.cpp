@@ -71,24 +71,6 @@ osStatus Mutex::lock(void)
     return osOK;
 }
 
-osStatus Mutex::lock(uint32_t millisec)
-{
-    osStatus status = osMutexAcquire(_id, millisec);
-    if (osOK == status) {
-        _count++;
-    }
-
-    bool success = (status == osOK ||
-                    (status == osErrorResource && millisec == 0) ||
-                    (status == osErrorTimeout && millisec != osWaitForever));
-
-    if (!success && !mbed_get_error_in_progress()) {
-        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_KERNEL, MBED_ERROR_CODE_MUTEX_LOCK_FAILED), "Mutex lock failed", status);
-    }
-
-    return status;
-}
-
 bool Mutex::trylock()
 {
     return trylock_for(0);
