@@ -58,10 +58,8 @@ namespace mbed {
  * @endcode
  */
 class
-    MBED_DEPRECATED_SINCE(
-        "mbed-os-6.0.0",
-        "Use UnbufferedSerial instead."
-    ) RawSerial: public SerialBase, private NonCopyable<RawSerial> {
+    MBED_DEPRECATED("The class has been deprecated and will be removed in the future. Use UnbufferedSerial instead.")
+    RawSerial: public SerialBase, private NonCopyable<RawSerial> {
 
 public:
     /** @deprecated
@@ -74,7 +72,7 @@ public:
      *  @note
      *    Either tx or rx may be specified as NC if unused
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
+    MBED_DEPRECATED("The class has been deprecated and will be removed in the future. Use UnbufferedSerial instead.")
     RawSerial(PinName tx, PinName rx, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
 
     /** @deprecated
@@ -84,7 +82,6 @@ public:
      *
      * @returns The written char or -1 if an error occurred
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     int putc(int c);
 
     /** @deprecated
@@ -92,7 +89,6 @@ public:
      *
      * @returns The char read from the serial port
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     int getc();
 
     /** @deprecated
@@ -102,13 +98,10 @@ public:
      *
      * @returns 0 if the write succeeds, EOF for error
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     int puts(const char *str);
 
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     int printf(const char *format, ...) MBED_PRINTF_METHOD(1, 2);
 
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     int vprintf(const char *format, std::va_list arg);
 
 #if !(DOXYGEN_ONLY)

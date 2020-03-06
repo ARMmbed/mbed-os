@@ -55,10 +55,10 @@ namespace mbed {
  * @endcode
  */
 class
-    MBED_DEPRECATED_SINCE(
-        "mbed-os-6.0.0",
-        "Use printf and puts instead to access the console, BufferedSerial for blocking applications or UnbufferedSerial if bypassing locks in IRQ or short of RAM."
-    ) Serial : public SerialBase, public Stream, private NonCopyable<Serial> {
+    MBED_DEPRECATED("The class has been deprecated and will be removed in the future. " \
+                    "Use printf and puts instead to access the console, " \
+                    "BufferedSerial for blocking applications or UnbufferedSerial if bypassing locks in IRQ or short of RAM."
+                   ) Serial : public SerialBase, public Stream, private NonCopyable<Serial> {
 
 public:
 #if DEVICE_SERIAL_ASYNCH
@@ -132,17 +132,16 @@ public:
      * the calls from the SerialBase instead for backwards compatibility. This problem is
      * part of why Stream and Serial should be deprecated.
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     bool readable()
     {
         return SerialBase::readable();
     }
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
+
     bool writable()
     {
         return SerialBase::writeable();
     }
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
+
     bool writeable()
     {
         return SerialBase::writeable();

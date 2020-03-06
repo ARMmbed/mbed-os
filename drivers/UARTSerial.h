@@ -49,10 +49,8 @@ namespace mbed {
  */
 
 class
-    MBED_DEPRECATED_SINCE(
-        "mbed-os-6.0.0",
-        "Use BufferedSerial instead."
-    ) UARTSerial : private SerialBase, public FileHandle, private NonCopyable<UARTSerial> {
+    MBED_DEPRECATED("The class has been deprecated and will be removed in the future. Use BufferedSerial instead.")
+    UARTSerial : private SerialBase, public FileHandle, private NonCopyable<UARTSerial> {
 
 public:
 
@@ -62,7 +60,7 @@ public:
      *  @param rx Receive pin
      *  @param baud The baud rate of the serial port (optional, defaults to MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE)
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
+    MBED_DEPRECATED("The class has been deprecated and will be removed in the future. Use BufferedSerial instead.")
     UARTSerial(PinName tx, PinName rx, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
 
     /** @deprecated
@@ -70,17 +68,15 @@ public:
      *  @param static_pinmap reference to structure which holds static pinmap
      *  @param baud The baud rate of the serial port (optional, defaults to MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE)
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
+    MBED_DEPRECATED("The class has been deprecated and will be removed in the future. Use BufferedSerial instead.")
     UARTSerial(const serial_pinmap_t &static_pinmap, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
 
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     virtual ~UARTSerial();
 
     /** @deprecated
      *  Equivalent to POSIX poll(). Derived from FileHandle.
      *  Provides a mechanism to multiplex input/output over a set of file handles.
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     virtual short poll(short events) const;
 
     /* Resolve ambiguities versus our private SerialBase
@@ -102,7 +98,6 @@ public:
      *  @param length   The number of bytes to write
      *  @return         The number of bytes written, negative error on failure
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     virtual ssize_t write(const void *buffer, size_t length);
 
     /** @deprecated
@@ -118,7 +113,6 @@ public:
      *  @param length   The number of bytes to read
      *  @return         The number of bytes read, 0 at end of file, negative error on failure
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     virtual ssize_t read(void *buffer, size_t length);
 
     /** @deprecated
@@ -126,7 +120,6 @@ public:
      *
      *  @return         0 on success, negative error code on failure
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     virtual int close();
 
     /** @deprecated
@@ -136,7 +129,6 @@ public:
      *  @return         False if the file is not a terminal
      *  @return         Negative error code on failure
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     virtual int isatty();
 
     /** @deprecated
@@ -152,7 +144,6 @@ public:
      *      SEEK_END to start from end of file
      *  @return         The new offset of the file, negative error code on failure
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     virtual off_t seek(off_t offset, int whence);
 
     /** @deprecated
@@ -160,7 +151,6 @@ public:
      *
      *  @return         0 on success, negative error code on failure
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     virtual int sync();
 
     /** @deprecated
@@ -169,7 +159,6 @@ public:
      *
      *  @param blocking true for blocking mode, false for non-blocking mode.
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     virtual int set_blocking(bool blocking)
     {
         _blocking = blocking;
@@ -181,7 +170,6 @@ public:
      *
      *  @return             true for blocking mode, false for non-blocking mode.
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     virtual bool is_blocking() const
     {
         return _blocking;
@@ -201,7 +189,6 @@ public:
      *  @return             0 on success
      *  @return             Negative error code on failure
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     virtual int enable_input(bool enabled);
 
     /** @deprecated
@@ -218,7 +205,6 @@ public:
      *  @return             0 on success
      *  @return             Negative error code on failure
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     virtual int enable_output(bool enabled);
 
     /** @deprecated
@@ -239,7 +225,6 @@ public:
      *
      *  @param func     Function to call on state change
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     virtual void sigio(Callback<void()> func);
 
     /** @deprecated
@@ -251,7 +236,6 @@ public:
      *  @param dcd_pin         Pin-name for DCD
      *  @param active_high     a boolean set to true if DCD polarity is active low
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     void set_data_carrier_detect(PinName dcd_pin, bool active_high = false);
 
     /** @deprecated
@@ -259,7 +243,6 @@ public:
      *
      *  @param baud   The baud rate
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     void set_baud(int baud);
 
     // Expose private SerialBase::Parity as UARTSerial::Parity
@@ -278,7 +261,6 @@ public:
      *  @param parity The parity used (None, Odd, Even, Forced1, Forced0; default = None)
      *  @param stop_bits The number of stop bits (1 or 2; default = 1)
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     void set_format(int bits = 8, Parity parity = UARTSerial::None, int stop_bits = 1);
 
 #if DEVICE_SERIAL_FC
@@ -298,7 +280,6 @@ public:
      *  @param flow1 the first flow control pin (RTS for RTS or RTSCTS, CTS for CTS)
      *  @param flow2 the second flow control pin (CTS for RTSCTS)
      */
-    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     void set_flow_control(Flow type, PinName flow1 = NC, PinName flow2 = NC);
 #endif
 
