@@ -43,9 +43,9 @@ void test_timing();
 /** Test Watchdog timeout
  *
  * Given a device with a Watchdog started,
- * when the Watchdog timout doesn't expire,
+ * when the Watchdog timeout doesn't expire,
  * then the device restart is not performed.
- * When the Watchdog timout does expire,
+ * When the Watchdog timeout does expire,
  * then the device is restarted after the timeout and before twice the timeout value.
  */
 void test_timeout_lower_limit();
