@@ -25,6 +25,9 @@ add_subdirectory(events)
 add_subdirectory(hal)
 add_subdirectory(platform)
 add_subdirectory(targets)
+
+# TODO: this is the default, but what if baremetal is selected, this needs to be under
+# the condition
 add_subdirectory(rtos)
 
 # Selectable components
