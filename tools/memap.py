@@ -853,30 +853,30 @@ class MemapParser(object):
                     self.subtotal[k + '-delta'] -= mod[k]
 
         # summary depends on linker sections
-            static_ram = (self.subtotal['.data'] + 
-                          self.subtotal['.bss'] +
-                          self.subtotal['.init_array'] +
-                          self.subtotal['.fini_array'])
+        static_ram = (self.subtotal['.data'] + 
+                        self.subtotal['.bss'] +
+                        self.subtotal['.init_array'] +
+                        self.subtotal['.fini_array'])
 
-            static_ram_delta = (self.subtotal['.data-delta'] + 
-                               self.subtotal['.bss-delta'] +
-                               self.subtotal['.init_array-delta'] +
-                               self.subtotal['.fini_array-delta'])
+        static_ram_delta = (self.subtotal['.data-delta'] + 
+                            self.subtotal['.bss-delta'] +
+                            self.subtotal['.init_array-delta'] +
+                            self.subtotal['.fini_array-delta'])
 
-            total_flash = (static_ram - self.subtotal['.bss'] +
-                           self.subtotal['.text'] + 
-                           self.subtotal['.rodata'] +
-                           self.subtotal['.eh_frame'] +
-                           self.subtotal['.init'] +
-                           self.subtotal['.fini'] +
-                           self.subtotal['.ARM.exidx'])
+        total_flash = (static_ram - self.subtotal['.bss'] +
+                        self.subtotal['.text'] + 
+                        self.subtotal['.rodata'] +
+                        self.subtotal['.eh_frame'] +
+                        self.subtotal['.init'] +
+                        self.subtotal['.fini'] +
+                        self.subtotal['.ARM.exidx'])
 
-            total_flash_delta = (self.subtotal['.text-delta'] + 
-                                 self.subtotal['.rodata-delta'] +
-                                 self.subtotal['.eh_frame-delta'] +
-                                 self.subtotal['.init-delta'] +
-                                 self.subtotal['.fini-delta'] +
-                                 self.subtotal['.ARM.exidx-delta'])
+        total_flash_delta = (self.subtotal['.text-delta'] + 
+                                self.subtotal['.rodata-delta'] +
+                                self.subtotal['.eh_frame-delta'] +
+                                self.subtotal['.init-delta'] +
+                                self.subtotal['.fini-delta'] +
+                                self.subtotal['.ARM.exidx-delta'])
         
         self.mem_summary = {
             'static_ram' : static_ram,
