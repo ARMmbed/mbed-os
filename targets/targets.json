@@ -957,7 +957,8 @@
             "KPSDK_CODE",
             "MCU_K64F",
             "Freescale_EMAC",
-            "PSA"
+            "PSA",
+            "MBED_PSA_SRV"
         ],
         "is_disk_virtual": true,
         "macros": [
@@ -1213,7 +1214,8 @@
             "KSDK2_MCUS",
             "FRDM",
             "Freescale_EMAC",
-            "PSA"
+            "PSA",
+            "MBED_PSA_SRV"
         ],
         "is_disk_virtual": true,
         "macros": [
@@ -2560,7 +2562,8 @@
         "extra_labels_add": [
             "STM32F4",
             "STM32F429xI",
-            "PSA"
+            "PSA",
+            "MBED_PSA_SRV"
         ],
         "macros_add": [
             "STM32F429xx"
@@ -8076,7 +8079,8 @@
         "public": false,
         "extra_labels": [
             "ARM_FM",
-            "PSA"
+            "PSA",
+            "MBED_PSA_SRV"
         ]
     },
     "FVP_MPS2": {
@@ -9168,7 +9172,8 @@
             "GD32F4XX",
             "GD32F450ZI",
             "GD_EMAC",
-            "PSA"
+            "PSA",
+            "MBED_PSA_SRV"
         ],
         "device_has_add": [
             "RTC",
