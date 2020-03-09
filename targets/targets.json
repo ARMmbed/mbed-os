@@ -1914,10 +1914,16 @@
             "XIP_BOOT_HEADER_ENABLE=1",
             "XIP_EXTERNAL_FLASH=1",
             "XIP_BOOT_HEADER_DCD_ENABLE=1",
+            "FSL_SDK_DRIVER_QUICK_ACCESS_ENABLE=1",
             "SKIP_SYSCLK_INIT",
             "FSL_FEATURE_PHYKSZ8081_USE_RMII50M_MODE",
+            "__STARTUP_INITIALIZE_RAMFUNCTION",
+            "__STARTUP_INITIALIZE_NONCACHEDATA",
             "MBED_MPU_CUSTOM",
             "MBED_TICKLESS"
+        ],
+        "components_add": [
+            "FLASHIAP"
         ],
         "inherits": ["Target"],
         "detect_code": ["0227"],
@@ -1940,12 +1946,16 @@
             "SPI",
             "SPISLAVE",
             "STDIO_MESSAGES",
-            "TRNG"
+            "TRNG",
+            "WATCHDOG",
+            "FLASH"
         ],
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
         "device_name": "MIMXRT1052",
+        "bootloader_supported": true,
         "overrides": {
+            "deep-sleep-latency": 10,
             "network-default-interface-type": "ETHERNET"
         }
     },

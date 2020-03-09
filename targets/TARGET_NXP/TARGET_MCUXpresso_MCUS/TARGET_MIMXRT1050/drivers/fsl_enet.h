@@ -1,35 +1,9 @@
 /*
- * The Clear BSD License
  * Copyright (c) 2015 - 2016, Freescale Semiconductor, Inc.
- * Copyright 2016-2017 NXP
+ * Copyright 2016-2019 NXP
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided
- * that the following conditions are met:
- *
- * o Redistributions of source code must retain the above copyright notice, this list
- *   of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice, this
- *   list of conditions and the following disclaimer in the documentation and/or
- *   other materials provided with the distribution.
- *
- * o Neither the name of the copyright holder nor the names of its
- *   contributors may be used to endorse or promote products derived from this
- *   software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 #ifndef _FSL_ENET_H_
 #define _FSL_ENET_H_
@@ -50,7 +24,7 @@
 /*! @name Driver version */
 /*@{*/
 /*! @brief Defines the driver version. */
-#define FSL_ENET_DRIVER_VERSION (MAKE_VERSION(2, 2, 3)) /*!< Version 2.2.3. */
+#define FSL_ENET_DRIVER_VERSION (MAKE_VERSION(2, 2, 4)) /*!< Version 2.2.4. */
 /*@}*/
 
 /*! @name ENET DESCRIPTOR QUEUE */
@@ -445,7 +419,7 @@ typedef struct _enet_tx_bd_struct
 #endif /* ENET_ENHANCEDBUFFERDESCRIPTOR_MODE */
 } enet_tx_bd_struct_t;
 
-/*! @brief Defines the ENET data error statistic structure. */
+/*! @brief Defines the ENET data error statistics structure. */
 typedef struct _enet_data_error_stats
 {
     uint32_t statsRxLenGreaterErr; /*!< Receive length greater than RCR[MAX_FL]. */
@@ -619,9 +593,8 @@ typedef struct _enet_config
     uint8_t txFifoWatermark;          /*!< For store and forward disable case, the data required in TX FIFO
                                       before a frame transmit start. */
 #if defined(FSL_FEATURE_ENET_HAS_INTERRUPT_COALESCE) && FSL_FEATURE_ENET_HAS_INTERRUPT_COALESCE
-    enet_intcoalesce_config_t
-        *intCoalesceCfg; /* If the interrupt coalsecence is not required in the ring n(0,1,2), please set
-                   to NULL. */
+    enet_intcoalesce_config_t *intCoalesceCfg; /* If the interrupt coalsecence is not required in the ring n(0,1,2),
+                                         please set to NULL. */
 #endif                   /* FSL_FEATURE_ENET_HAS_INTERRUPT_COALESCE */
     uint8_t ringNum;     /*!< Number of used rings. default with 1 -- single ring. */
 } enet_config_t;
@@ -1169,21 +1142,21 @@ status_t ENET_GetTxErrAfterSendFrame(enet_handle_t *handle, enet_data_error_stat
 #endif /* ENET_ENHANCEDBUFFERDESCRIPTOR_MODE */
 
 /*!
-* @brief Gets the size of the read frame for single ring.
-*
-* This function gets a received frame size from the ENET buffer descriptors.
-* @note The FCS of the frame is automatically removed by MAC and the size is the length without the FCS.
-* After calling ENET_GetRxFrameSize, ENET_ReadFrame() should be called to update the
-* receive buffers If the result is not "kStatus_ENET_RxFrameEmpty".
-*
-* @param handle The ENET handler structure. This is the same handler pointer used in the ENET_Init.
-* @param length The length of the valid frame received.
-* @retval kStatus_ENET_RxFrameEmpty No frame received. Should not call ENET_ReadFrame to read frame.
-* @retval kStatus_ENET_RxFrameError Data error happens. ENET_ReadFrame should be called with NULL data
-*         and NULL length to update the receive buffers.
-* @retval kStatus_Success Receive a frame Successfully then the ENET_ReadFrame
-*         should be called with the right data buffer and the captured data length input.
-*/
+ * @brief Gets the size of the read frame for single ring.
+ *
+ * This function gets a received frame size from the ENET buffer descriptors.
+ * @note The FCS of the frame is automatically removed by MAC and the size is the length without the FCS.
+ * After calling ENET_GetRxFrameSize, ENET_ReadFrame() should be called to update the
+ * receive buffers If the result is not "kStatus_ENET_RxFrameEmpty".
+ *
+ * @param handle The ENET handler structure. This is the same handler pointer used in the ENET_Init.
+ * @param length The length of the valid frame received.
+ * @retval kStatus_ENET_RxFrameEmpty No frame received. Should not call ENET_ReadFrame to read frame.
+ * @retval kStatus_ENET_RxFrameError Data error happens. ENET_ReadFrame should be called with NULL data
+ *         and NULL length to update the receive buffers.
+ * @retval kStatus_Success Receive a frame Successfully then the ENET_ReadFrame
+ *         should be called with the right data buffer and the captured data length input.
+ */
 status_t ENET_GetRxFrameSize(enet_handle_t *handle, uint32_t *length);
 
 /*!
@@ -1303,23 +1276,23 @@ status_t ENET_GetTxErrAfterSendFrameMultiRing(enet_handle_t *handle,
 #endif /* ENET_ENHANCEDBUFFERDESCRIPTOR_MODE */
 
 /*!
-* @brief Gets the size of the read frame for extended mutli-ring.
-*
-* This function gets a received frame size from the ENET buffer descriptors.
-* @note The FCS of the frame is automatically removed by MAC and the size is the length without the FCS.
-* After calling ENET_GetRxFrameSizeMultiRing, ENET_ReadFrameMultiRing() should be called to update the
-* receive buffers If the result is not "kStatus_ENET_RxFrameEmpty". The usage is
-* the same to the single ring, refer to ENET_GetRxFrameSize.
-*
-* @param handle The ENET handler structure. This is the same handler pointer used in the ENET_Init.
-* @param length The length of the valid frame received.
-* @param ringId The ring index or ring number;
-* @retval kStatus_ENET_RxFrameEmpty No frame received. Should not call ENET_ReadFrameMultiRing to read frame.
-* @retval kStatus_ENET_RxFrameError Data error happens. ENET_ReadFrameMultiRing should be called with NULL data
-*         and NULL length to update the receive buffers.
-* @retval kStatus_Success Receive a frame Successfully then the ENET_ReadFrame
-*         should be called with the right data buffer and the captured data length input.
-*/
+ * @brief Gets the size of the read frame for extended mutli-ring.
+ *
+ * This function gets a received frame size from the ENET buffer descriptors.
+ * @note The FCS of the frame is automatically removed by MAC and the size is the length without the FCS.
+ * After calling ENET_GetRxFrameSizeMultiRing, ENET_ReadFrameMultiRing() should be called to update the
+ * receive buffers If the result is not "kStatus_ENET_RxFrameEmpty". The usage is
+ * the same to the single ring, refer to ENET_GetRxFrameSize.
+ *
+ * @param handle The ENET handler structure. This is the same handler pointer used in the ENET_Init.
+ * @param length The length of the valid frame received.
+ * @param ringId The ring index or ring number;
+ * @retval kStatus_ENET_RxFrameEmpty No frame received. Should not call ENET_ReadFrameMultiRing to read frame.
+ * @retval kStatus_ENET_RxFrameError Data error happens. ENET_ReadFrameMultiRing should be called with NULL data
+ *         and NULL length to update the receive buffers.
+ * @retval kStatus_Success Receive a frame Successfully then the ENET_ReadFrame
+ *         should be called with the right data buffer and the captured data length input.
+ */
 status_t ENET_GetRxFrameSizeMultiRing(enet_handle_t *handle, uint32_t *length, uint32_t ringId);
 
 /*!

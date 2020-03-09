@@ -1,35 +1,9 @@
 /*
- * The Clear BSD License
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * Copyright 2016-2017 NXP
+ * Copyright 2016-2019 NXP
  * All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided
- *  that the following conditions are met:
  *
- * o Redistributions of source code must retain the above copyright notice, this list
- *   of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice, this
- *   list of conditions and the following disclaimer in the documentation and/or
- *   other materials provided with the distribution.
- *
- * o Neither the name of the copyright holder nor the names of its
- *   contributors may be used to endorse or promote products derived from this
- *   software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 #ifndef _FSL_FLEXIO_I2C_MASTER_H_
 #define _FSL_FLEXIO_I2C_MASTER_H_
@@ -48,8 +22,8 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief FlexIO I2C master driver version 2.1.5. */
-#define FSL_FLEXIO_I2C_MASTER_DRIVER_VERSION (MAKE_VERSION(2, 1, 5))
+/*! @brief FlexIO I2C master driver version 2.1.7. */
+#define FSL_FLEXIO_I2C_MASTER_DRIVER_VERSION (MAKE_VERSION(2, 1, 7))
 /*@}*/
 
 /*! @brief  FlexIO I2C transfer status*/
@@ -57,21 +31,21 @@ enum _flexio_i2c_status
 {
     kStatus_FLEXIO_I2C_Busy = MAKE_STATUS(kStatusGroup_FLEXIO_I2C, 0), /*!< I2C is busy doing transfer. */
     kStatus_FLEXIO_I2C_Idle = MAKE_STATUS(kStatusGroup_FLEXIO_I2C, 1), /*!< I2C is busy doing transfer. */
-    kStatus_FLEXIO_I2C_Nak = MAKE_STATUS(kStatusGroup_FLEXIO_I2C, 2),  /*!< NAK received during transfer. */
+    kStatus_FLEXIO_I2C_Nak  = MAKE_STATUS(kStatusGroup_FLEXIO_I2C, 2), /*!< NAK received during transfer. */
 };
 
 /*! @brief Define FlexIO I2C master interrupt mask. */
 enum _flexio_i2c_master_interrupt
 {
     kFLEXIO_I2C_TxEmptyInterruptEnable = 0x1U, /*!< Tx buffer empty interrupt enable. */
-    kFLEXIO_I2C_RxFullInterruptEnable = 0x2U,  /*!< Rx buffer full interrupt enable. */
+    kFLEXIO_I2C_RxFullInterruptEnable  = 0x2U, /*!< Rx buffer full interrupt enable. */
 };
 
 /*! @brief Define FlexIO I2C master status mask. */
 enum _flexio_i2c_master_status_flags
 {
-    kFLEXIO_I2C_TxEmptyFlag = 0x1U,    /*!< Tx shifter empty flag. */
-    kFLEXIO_I2C_RxFullFlag = 0x2U,     /*!< Rx shifter full/Transfer complete flag. */
+    kFLEXIO_I2C_TxEmptyFlag    = 0x1U, /*!< Tx shifter empty flag. */
+    kFLEXIO_I2C_RxFullFlag     = 0x2U, /*!< Rx shifter full/Transfer complete flag. */
     kFLEXIO_I2C_ReceiveNakFlag = 0x4U, /*!< Receive NAK flag. */
 };
 
@@ -79,7 +53,7 @@ enum _flexio_i2c_master_status_flags
 typedef enum _flexio_i2c_direction
 {
     kFLEXIO_I2C_Write = 0x0U, /*!< Master send to slave. */
-    kFLEXIO_I2C_Read = 0x1U,  /*!< Master receive from slave. */
+    kFLEXIO_I2C_Read  = 0x1U, /*!< Master receive from slave. */
 } flexio_i2c_direction_t;
 
 /*! @brief Define FlexIO I2C master access structure typedef. */
@@ -204,7 +178,7 @@ void FLEXIO_I2C_MasterGetDefaultConfig(flexio_i2c_master_config_t *masterConfig)
  *
  * @param base Pointer to FLEXIO_I2C_Type structure.
  * @param enable Pass true to enable module, false does not have any effect.
-*/
+ */
 static inline void FLEXIO_I2C_MasterEnable(FLEXIO_I2C_Type *base, bool enable)
 {
     if (enable)
@@ -225,7 +199,7 @@ static inline void FLEXIO_I2C_MasterEnable(FLEXIO_I2C_Type *base, bool enable)
  *
  * @param base Pointer to FLEXIO_I2C_Type structure
  * @return Status flag, use status flag to AND #_flexio_i2c_master_status_flags can get the related status.
-*/
+ */
 
 uint32_t FLEXIO_I2C_MasterGetStatusFlags(FLEXIO_I2C_Type *base);
 
@@ -237,7 +211,7 @@ uint32_t FLEXIO_I2C_MasterGetStatusFlags(FLEXIO_I2C_Type *base);
  *      The parameter can be any combination of the following values:
  *          @arg kFLEXIO_I2C_RxFullFlag
  *          @arg kFLEXIO_I2C_ReceiveNakFlag
-*/
+ */
 
 void FLEXIO_I2C_MasterClearStatusFlags(FLEXIO_I2C_Type *base, uint32_t mask);
 
@@ -338,7 +312,7 @@ void FLEXIO_I2C_MasterEnableAck(FLEXIO_I2C_Type *base, bool enable);
  * @param count Number of bytes need to be transferred from a start signal to a re-start/stop signal
  * @retval kStatus_Success Successfully configured the count.
  * @retval kStatus_InvalidArgument Input argument is invalid.
-*/
+ */
 status_t FLEXIO_I2C_MasterSetTransferCount(FLEXIO_I2C_Type *base, uint8_t count);
 
 /*!

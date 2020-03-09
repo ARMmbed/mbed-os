@@ -1,35 +1,9 @@
 /*
- * The Clear BSD License
- * Copyright 2017 NXP
+ * Copyright 2017-2019 NXP
  * All rights reserved.
  *
- * 
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided
- *  that the following conditions are met:
  *
- * o Redistributions of source code must retain the above copyright notice, this list
- *   of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice, this
- *   list of conditions and the following disclaimer in the documentation and/or
- *   other materials provided with the distribution.
- *
- * o Neither the name of the copyright holder nor the names of its
- *   contributors may be used to endorse or promote products derived from this
- *   software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "fsl_dcp.h"
@@ -42,7 +16,6 @@
 #ifndef FSL_COMPONENT_ID
 #define FSL_COMPONENT_ID "platform.drivers.dcp"
 #endif
-
 
 /*! Compile time sizeof() check */
 #define BUILD_ASSURE(condition, msg) extern int msg[1 - 2 * (!(condition))] __attribute__((unused))
@@ -79,20 +52,20 @@ typedef struct _dcp_hash_ctx_internal
 /*!< SHA-1/SHA-2 digest length in bytes  */
 enum _dcp_hash_digest_len
 {
-    kDCP_OutLenSha1 = 20u,
+    kDCP_OutLenSha1   = 20u,
     kDCP_OutLenSha256 = 32u,
-    kDCP_OutLenCrc32 = 4u,
+    kDCP_OutLenCrc32  = 4u,
 };
 
 enum _dcp_work_packet_bit_definitions
 {
-    kDCP_CONTROL0_DECR_SEMAPHOR = 1u << 1, /* DECR_SEMAPHOR */
-    kDCP_CONTROL0_ENABLE_HASH = 1u << 6,   /* ENABLE_HASH */
-    kDCP_CONTROL0_HASH_INIT = 1u << 12,    /* HASH_INIT */
-    kDCP_CONTROL0_HASH_TERM = 1u << 13,    /* HASH_TERM */
+    kDCP_CONTROL0_DECR_SEMAPHOR      = 1u << 1,  /* DECR_SEMAPHOR */
+    kDCP_CONTROL0_ENABLE_HASH        = 1u << 6,  /* ENABLE_HASH */
+    kDCP_CONTROL0_HASH_INIT          = 1u << 12, /* HASH_INIT */
+    kDCP_CONTROL0_HASH_TERM          = 1u << 13, /* HASH_TERM */
     kDCP_CONTROL1_HASH_SELECT_SHA256 = 2u << 16,
-    kDCP_CONTROL1_HASH_SELECT_SHA1 = 0u << 16,
-    kDCP_CONTROL1_HASH_SELECT_CRC32 = 1u << 16,
+    kDCP_CONTROL1_HASH_SELECT_SHA1   = 0u << 16,
+    kDCP_CONTROL1_HASH_SELECT_CRC32  = 1u << 16,
 };
 
 /*! 64-byte block represented as byte array of 16 32-bit words */
@@ -133,7 +106,7 @@ static status_t dcp_get_channel_status(DCP_Type *base, dcp_channel_t channel)
 {
     uint32_t statReg = 0;
     uint32_t semaReg = 0;
-    status_t status = kStatus_Fail;
+    status_t status  = kStatus_Fail;
 
     switch (channel)
     {
@@ -172,7 +145,11 @@ static status_t dcp_get_channel_status(DCP_Type *base, dcp_channel_t channel)
 static void dcp_clear_status(DCP_Type *base)
 {
     volatile uint32_t *dcpStatClrPtr = &base->STAT + 2u;
-    *dcpStatClrPtr = 0xFFu;
+    *dcpStatClrPtr                   = 0xFFu;
+
+    while(base->STAT & 0xffu)
+    {
+    }
 }
 
 static void dcp_clear_channel_status(DCP_Type *base, uint32_t mask)
@@ -181,22 +158,22 @@ static void dcp_clear_channel_status(DCP_Type *base, uint32_t mask)
 
     if (mask & kDCP_Channel0)
     {
-        chStatClrPtr = &base->CH0STAT + 2u;
+        chStatClrPtr  = &base->CH0STAT + 2u;
         *chStatClrPtr = 0xFFu;
     }
     if (mask & kDCP_Channel1)
     {
-        chStatClrPtr = &base->CH1STAT + 2u;
+        chStatClrPtr  = &base->CH1STAT + 2u;
         *chStatClrPtr = 0xFFu;
     }
     if (mask & kDCP_Channel2)
     {
-        chStatClrPtr = &base->CH2STAT + 2u;
+        chStatClrPtr  = &base->CH2STAT + 2u;
         *chStatClrPtr = 0xFFu;
     }
     if (mask & kDCP_Channel3)
     {
-        chStatClrPtr = &base->CH3STAT + 2u;
+        chStatClrPtr  = &base->CH3STAT + 2u;
         *chStatClrPtr = 0xFFu;
     }
 }
@@ -205,7 +182,7 @@ static status_t dcp_aes_set_sram_based_key(DCP_Type *base, dcp_handle_t *handle,
 {
     base->KEY = DCP_KEY_INDEX(handle->keySlot) | DCP_KEY_SUBWORD(0);
     /* move the key by 32-bit words */
-    int i = 0;
+    int i          = 0;
     size_t keySize = 16u;
     while (keySize)
     {
@@ -216,6 +193,11 @@ static status_t dcp_aes_set_sram_based_key(DCP_Type *base, dcp_handle_t *handle,
     return kStatus_Success;
 }
 
+/* Disable optimizations for GCC to prevent instruction reordering */
+#if defined(__GNUC__)
+#pragma GCC push_options
+#pragma GCC optimize ("O0")
+#endif
 static status_t dcp_schedule_work(DCP_Type *base, dcp_handle_t *handle, dcp_work_packet_t *dcpPacket)
 {
     status_t status;
@@ -263,7 +245,11 @@ static status_t dcp_schedule_work(DCP_Type *base, dcp_handle_t *handle, dcp_work
                 /* set out packet to DCP CMDPTR */
                 *cmdptr = (uint32_t)dcpPacket;
 
-                /* set the channel semaphore */
+                /* Make sure that all data memory accesses are completed before starting of the job */
+                __DSB();
+                __ISB();
+
+                /* set the channel semaphore to start the job */
                 *chsema = 1u;
             }
 
@@ -285,7 +271,28 @@ static status_t dcp_schedule_work(DCP_Type *base, dcp_handle_t *handle, dcp_work
 
     return status;
 }
+#if defined(__GNUC__)
+#pragma GCC pop_options
+#endif
 
+/*!
+ * brief Set AES key to dcp_handle_t struct and optionally to DCP.
+ *
+ * Sets the AES key for encryption/decryption with the dcp_handle_t structure.
+ * The dcp_handle_t input argument specifies keySlot.
+ * If the keySlot is kDCP_OtpKey, the function will check the OTP_KEY_READY bit and will return it's ready to use
+ * status.
+ * For other keySlot selections, the function will copy and hold the key in dcp_handle_t struct.
+ * If the keySlot is one of the four DCP SRAM-based keys (one of kDCP_KeySlot0, kDCP_KeySlot1, kDCP_KeySlot2,
+ * kDCP_KeySlot3),
+ * this function will also load the supplied key to the specified keySlot in DCP.
+ *
+ * param   base DCP peripheral base address.
+ * param   handle Handle used for the request.
+ * param   key 0-mod-4 aligned pointer to AES key.
+ * param   keySize AES key size in bytes. Shall equal 16.
+ * return  status from set key operation
+ */
 status_t DCP_AES_SetKey(DCP_Type *base, dcp_handle_t *handle, const uint8_t *key, size_t keySize)
 {
     status_t status = kStatus_Fail;
@@ -336,6 +343,19 @@ status_t DCP_AES_SetKey(DCP_Type *base, dcp_handle_t *handle, const uint8_t *key
     return status;
 }
 
+/*!
+ * brief Encrypts AES on one or multiple 128-bit block(s).
+ *
+ * Encrypts AES.
+ * The source plaintext and destination ciphertext can overlap in system memory.
+ *
+ * param base DCP peripheral base address
+ * param handle Handle used for this request.
+ * param plaintext Input plain text to encrypt
+ * param[out] ciphertext Output cipher text
+ * param size Size of input and output data in bytes. Must be multiple of 16 bytes.
+ * return Status from encrypt operation
+ */
 status_t DCP_AES_EncryptEcb(
     DCP_Type *base, dcp_handle_t *handle, const uint8_t *plaintext, uint8_t *ciphertext, size_t size)
 {
@@ -355,6 +375,20 @@ status_t DCP_AES_EncryptEcb(
     return DCP_WaitForChannelComplete(base, handle);
 }
 
+/*!
+ * brief Encrypts AES using the ECB block mode.
+ *
+ * Puts AES ECB encrypt work packet to DCP channel.
+ *
+ * param base DCP peripheral base address
+ * param handle Handle used for this request.
+ * param[out] dcpPacket Memory for the DCP work packet.
+ * param plaintext Input plain text to encrypt.
+ * param[out] ciphertext Output cipher text
+ * param size Size of input and output data in bytes. Must be multiple of 16 bytes.
+ * return kStatus_Success The work packet has been scheduled at DCP channel.
+ * return kStatus_DCP_Again The DCP channel is busy processing previous request.
+ */
 status_t DCP_AES_EncryptEcbNonBlocking(DCP_Type *base,
                                        dcp_handle_t *handle,
                                        dcp_work_packet_t *dcpPacket,
@@ -368,10 +402,11 @@ status_t DCP_AES_EncryptEcbNonBlocking(DCP_Type *base,
         return kStatus_InvalidArgument;
     }
 
-    dcpPacket->control0 = 0x122u; /* CIPHER_ENCRYPT | ENABLE_CIPHER | DECR_SEMAPHORE */
-    dcpPacket->sourceBufferAddress = (uint32_t)plaintext;
+    dcpPacket->control0 =
+        0x122u | (handle->swapConfig & 0xFC0000u); /* CIPHER_ENCRYPT | ENABLE_CIPHER | DECR_SEMAPHORE */
+    dcpPacket->sourceBufferAddress      = (uint32_t)plaintext;
     dcpPacket->destinationBufferAddress = (uint32_t)ciphertext;
-    dcpPacket->bufferSize = (uint32_t)size;
+    dcpPacket->bufferSize               = (uint32_t)size;
 
     if (handle->keySlot == kDCP_OtpKey)
     {
@@ -397,6 +432,19 @@ status_t DCP_AES_EncryptEcbNonBlocking(DCP_Type *base,
     return dcp_schedule_work(base, handle, dcpPacket);
 }
 
+/*!
+ * brief Decrypts AES on one or multiple 128-bit block(s).
+ *
+ * Decrypts AES.
+ * The source ciphertext and destination plaintext can overlap in system memory.
+ *
+ * param base DCP peripheral base address
+ * param handle Handle used for this request.
+ * param ciphertext Input plain text to encrypt
+ * param[out] plaintext Output cipher text
+ * param size Size of input and output data in bytes. Must be multiple of 16 bytes.
+ * return Status from decrypt operation
+ */
 status_t DCP_AES_DecryptEcb(
     DCP_Type *base, dcp_handle_t *handle, const uint8_t *ciphertext, uint8_t *plaintext, size_t size)
 {
@@ -416,6 +464,20 @@ status_t DCP_AES_DecryptEcb(
     return DCP_WaitForChannelComplete(base, handle);
 }
 
+/*!
+ * brief Decrypts AES using ECB block mode.
+ *
+ * Puts AES ECB decrypt dcpPacket to DCP input job ring.
+ *
+ * param base DCP peripheral base address
+ * param handle Handle used for this request.
+ * param[out] dcpPacket Memory for the DCP work packet.
+ * param ciphertext Input cipher text to decrypt
+ * param[out] plaintext Output plain text
+ * param size Size of input and output data in bytes. Must be multiple of 16 bytes.
+ * return kStatus_Success The work packet has been scheduled at DCP channel.
+ * return kStatus_DCP_Again The DCP channel is busy processing previous request.
+ */
 status_t DCP_AES_DecryptEcbNonBlocking(DCP_Type *base,
                                        dcp_handle_t *handle,
                                        dcp_work_packet_t *dcpPacket,
@@ -429,10 +491,10 @@ status_t DCP_AES_DecryptEcbNonBlocking(DCP_Type *base,
         return kStatus_InvalidArgument;
     }
 
-    dcpPacket->control0 = 0x22u; /* ENABLE_CIPHER | DECR_SEMAPHORE */
-    dcpPacket->sourceBufferAddress = (uint32_t)ciphertext;
+    dcpPacket->control0                 = 0x22u | (handle->swapConfig & 0xFC0000u); /* ENABLE_CIPHER | DECR_SEMAPHORE */
+    dcpPacket->sourceBufferAddress      = (uint32_t)ciphertext;
     dcpPacket->destinationBufferAddress = (uint32_t)plaintext;
-    dcpPacket->bufferSize = (uint32_t)size;
+    dcpPacket->bufferSize               = (uint32_t)size;
 
     if (handle->keySlot == kDCP_OtpKey)
     {
@@ -458,6 +520,20 @@ status_t DCP_AES_DecryptEcbNonBlocking(DCP_Type *base,
     return dcp_schedule_work(base, handle, dcpPacket);
 }
 
+/*!
+ * brief Encrypts AES using CBC block mode.
+ *
+ * Encrypts AES using CBC block mode.
+ * The source plaintext and destination ciphertext can overlap in system memory.
+ *
+ * param base DCP peripheral base address
+ * param handle Handle used for this request.
+ * param plaintext Input plain text to encrypt
+ * param[out] ciphertext Output cipher text
+ * param size Size of input and output data in bytes. Must be multiple of 16 bytes.
+ * param iv Input initial vector to combine with the first input block.
+ * return Status from encrypt operation
+ */
 status_t DCP_AES_EncryptCbc(DCP_Type *base,
                             dcp_handle_t *handle,
                             const uint8_t *plaintext,
@@ -481,6 +557,21 @@ status_t DCP_AES_EncryptCbc(DCP_Type *base,
     return DCP_WaitForChannelComplete(base, handle);
 }
 
+/*!
+ * brief Encrypts AES using CBC block mode.
+ *
+ * Puts AES CBC encrypt dcpPacket to DCP input job ring.
+ *
+ * param base DCP peripheral base address
+ * param handle Handle used for this request. Specifies jobRing.
+ * param[out] dcpPacket Memory for the DCP work packet.
+ * param plaintext Input plain text to encrypt
+ * param[out] ciphertext Output cipher text
+ * param size Size of input and output data in bytes. Must be multiple of 16 bytes.
+ * param iv Input initial vector to combine with the first input block.
+ * return kStatus_Success The work packet has been scheduled at DCP channel.
+ * return kStatus_DCP_Again The DCP channel is busy processing previous request.
+ */
 status_t DCP_AES_EncryptCbcNonBlocking(DCP_Type *base,
                                        dcp_handle_t *handle,
                                        dcp_work_packet_t *dcpPacket,
@@ -495,11 +586,12 @@ status_t DCP_AES_EncryptCbcNonBlocking(DCP_Type *base,
         return kStatus_InvalidArgument;
     }
 
-    dcpPacket->control0 = 0x322u; /* CIPHER_INIT | CIPHER_ENCRYPT | ENABLE_CIPHER | DECR_SEMAPHORE */
-    dcpPacket->control1 = 0x10u;  /* CBC */
-    dcpPacket->sourceBufferAddress = (uint32_t)plaintext;
+    dcpPacket->control0 =
+        0x322u | (handle->swapConfig & 0xFC0000u); /* CIPHER_INIT | CIPHER_ENCRYPT | ENABLE_CIPHER | DECR_SEMAPHORE */
+    dcpPacket->control1                 = 0x10u;   /* CBC */
+    dcpPacket->sourceBufferAddress      = (uint32_t)plaintext;
     dcpPacket->destinationBufferAddress = (uint32_t)ciphertext;
-    dcpPacket->bufferSize = (uint32_t)size;
+    dcpPacket->bufferSize               = (uint32_t)size;
 
     if (handle->keySlot == kDCP_OtpKey)
     {
@@ -530,6 +622,20 @@ status_t DCP_AES_EncryptCbcNonBlocking(DCP_Type *base,
     return dcp_schedule_work(base, handle, dcpPacket);
 }
 
+/*!
+ * brief Decrypts AES using CBC block mode.
+ *
+ * Decrypts AES using CBC block mode.
+ * The source ciphertext and destination plaintext can overlap in system memory.
+ *
+ * param base DCP peripheral base address
+ * param handle Handle used for this request.
+ * param ciphertext Input cipher text to decrypt
+ * param[out] plaintext Output plain text
+ * param size Size of input and output data in bytes. Must be multiple of 16 bytes.
+ * param iv Input initial vector to combine with the first input block.
+ * return Status from decrypt operation
+ */
 status_t DCP_AES_DecryptCbc(DCP_Type *base,
                             dcp_handle_t *handle,
                             const uint8_t *ciphertext,
@@ -553,6 +659,21 @@ status_t DCP_AES_DecryptCbc(DCP_Type *base,
     return DCP_WaitForChannelComplete(base, handle);
 }
 
+/*!
+ * brief Decrypts AES using CBC block mode.
+ *
+ * Puts AES CBC decrypt dcpPacket to DCP input job ring.
+ *
+ * param base DCP peripheral base address
+ * param handle Handle used for this request. Specifies jobRing.
+ * param[out] dcpPacket Memory for the DCP work packet.
+ * param ciphertext Input cipher text to decrypt
+ * param[out] plaintext Output plain text
+ * param size Size of input and output data in bytes. Must be multiple of 16 bytes.
+ * param iv Input initial vector to combine with the first input block.
+ * return kStatus_Success The work packet has been scheduled at DCP channel.
+ * return kStatus_DCP_Again The DCP channel is busy processing previous request.
+ */
 status_t DCP_AES_DecryptCbcNonBlocking(DCP_Type *base,
                                        dcp_handle_t *handle,
                                        dcp_work_packet_t *dcpPacket,
@@ -567,11 +688,11 @@ status_t DCP_AES_DecryptCbcNonBlocking(DCP_Type *base,
         return kStatus_InvalidArgument;
     }
 
-    dcpPacket->control0 = 0x222u; /* CIPHER_INIT | ENABLE_CIPHER | DECR_SEMAPHORE */
-    dcpPacket->control1 = 0x10u;  /* CBC */
-    dcpPacket->sourceBufferAddress = (uint32_t)ciphertext;
+    dcpPacket->control0 = 0x222u | (handle->swapConfig & 0xFC0000u); /* CIPHER_INIT | ENABLE_CIPHER | DECR_SEMAPHORE */
+    dcpPacket->control1 = 0x10u;                                     /* CBC */
+    dcpPacket->sourceBufferAddress      = (uint32_t)ciphertext;
     dcpPacket->destinationBufferAddress = (uint32_t)plaintext;
-    dcpPacket->bufferSize = (uint32_t)size;
+    dcpPacket->bufferSize               = (uint32_t)size;
 
     if (handle->keySlot == kDCP_OtpKey)
     {
@@ -602,12 +723,29 @@ status_t DCP_AES_DecryptCbcNonBlocking(DCP_Type *base,
     return dcp_schedule_work(base, handle, dcpPacket);
 }
 
+/*!
+ * brief Gets the default configuration structure.
+ *
+ * This function initializes the DCP configuration structure to a default value. The default
+ * values are as follows.
+ *   dcpConfig->gatherResidualWrites = true;
+ *   dcpConfig->enableContextCaching = true;
+ *   dcpConfig->enableContextSwitching = true;
+ *   dcpConfig->enableChannnel = kDCP_chEnableAll;
+ *   dcpConfig->enableChannelInterrupt = kDCP_chIntDisable;
+ *
+ * param[out] config Pointer to configuration structure.
+ */
 void DCP_GetDefaultConfig(dcp_config_t *config)
 {
     /* ENABLE_CONTEXT_CACHING is disabled by default as the DCP Hash driver uses
      * dcp_hash_save_running_hash() and dcp_hash_restore_running_hash() to support
      * Hash context switch (different messages interleaved) on the same channel.
      */
+
+    /* Initializes the configure structure to zero. */
+    memset(config, 0, sizeof(*config));
+
     dcp_config_t userConfig = {
         true, false, true, kDCP_chEnableAll, kDCP_chIntDisable,
     };
@@ -615,6 +753,14 @@ void DCP_GetDefaultConfig(dcp_config_t *config)
     *config = userConfig;
 }
 
+/*!
+ * brief   Enables clock to and enables DCP
+ *
+ * Enable DCP clock and configure DCP.
+ *
+ * param base DCP base address
+ * param config Pointer to configuration structure.
+ */
 void DCP_Init(DCP_Type *base, const dcp_config_t *config)
 {
 #if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
@@ -639,6 +785,13 @@ void DCP_Init(DCP_Type *base, const dcp_config_t *config)
     base->CONTEXT = (uint32_t)&s_dcpContextSwitchingBuffer;
 }
 
+/*!
+ * brief   Disable DCP clock
+ *
+ * Reset DCP and Disable DCP clock.
+ *
+ * param base DCP base address
+ */
 void DCP_Deinit(DCP_Type *base)
 {
     base->CTRL = 0xF0800000u; /* reset value */
@@ -649,6 +802,16 @@ void DCP_Deinit(DCP_Type *base)
 #endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 }
 
+/*!
+ * brief Poll and wait on DCP channel.
+ *
+ * Polls the specified DCP channel until current it completes activity.
+ *
+ * param   base DCP peripheral base address.
+ * param   handle Specifies DCP channel.
+ * return  kStatus_Success When data processing completes without error.
+ * return  kStatus_Fail When error occurs.
+ */
 status_t DCP_WaitForChannelComplete(DCP_Type *base, dcp_handle_t *handle)
 {
     /* wait if our channel is still active */
@@ -663,6 +826,7 @@ status_t DCP_WaitForChannelComplete(DCP_Type *base, dcp_handle_t *handle)
         return kStatus_Fail;
     }
 
+    dcp_clear_status(base);
     return kStatus_Success;
 }
 
@@ -745,7 +909,7 @@ static status_t dcp_hash_engine_init(DCP_Type *base, dcp_hash_ctx_internal_t *ct
     if ((kDCP_Sha256 == ctxInternal->algo) || (kDCP_Sha1 == ctxInternal->algo) || (kDCP_Crc32 == ctxInternal->algo))
     {
         ctxInternal->ctrl0 = kDCP_CONTROL0_HASH_INIT;
-        status = kStatus_Success;
+        status             = kStatus_Success;
     }
 
     return status;
@@ -754,7 +918,8 @@ static status_t dcp_hash_engine_init(DCP_Type *base, dcp_hash_ctx_internal_t *ct
 static status_t dcp_hash_update_non_blocking(
     DCP_Type *base, dcp_hash_ctx_internal_t *ctxInternal, dcp_work_packet_t *dcpPacket, const uint8_t *msg, size_t size)
 {
-    dcpPacket->control0 = ctxInternal->ctrl0 | kDCP_CONTROL0_ENABLE_HASH | kDCP_CONTROL0_DECR_SEMAPHOR;
+    dcpPacket->control0 = ctxInternal->ctrl0 | (ctxInternal->handle->swapConfig & 0xFC0000u) |
+                          kDCP_CONTROL0_ENABLE_HASH | kDCP_CONTROL0_DECR_SEMAPHOR;
     if (ctxInternal->algo == kDCP_Sha256)
     {
         dcpPacket->control1 = kDCP_CONTROL1_HASH_SELECT_SHA256;
@@ -771,10 +936,10 @@ static status_t dcp_hash_update_non_blocking(
     {
         return kStatus_Fail;
     }
-    dcpPacket->sourceBufferAddress = (uint32_t)msg;
+    dcpPacket->sourceBufferAddress      = (uint32_t)msg;
     dcpPacket->destinationBufferAddress = 0;
-    dcpPacket->bufferSize = size;
-    dcpPacket->payloadPointer = (uint32_t)ctxInternal->runningHash;
+    dcpPacket->bufferSize               = size;
+    dcpPacket->payloadPointer           = (uint32_t)ctxInternal->runningHash;
 
     return dcp_schedule_work(base, ctxInternal->handle, dcpPacket);
 }
@@ -932,6 +1097,17 @@ static void dcp_hash_restore_running_hash(dcp_hash_ctx_internal_t *ctxInternal)
     }
 }
 
+/*!
+ * brief Initialize HASH context
+ *
+ * This function initializes the HASH.
+ *
+ * param base DCP peripheral base address
+ * param handle Specifies the DCP channel used for hashing.
+ * param[out] ctx Output hash context
+ * param algo Underlaying algorithm to use for hash computation.
+ * return Status of initialization
+ */
 status_t DCP_HASH_Init(DCP_Type *base, dcp_handle_t *handle, dcp_hash_ctx_t *ctx, dcp_hash_algo_t algo)
 {
     status_t status;
@@ -948,19 +1124,34 @@ status_t DCP_HASH_Init(DCP_Type *base, dcp_handle_t *handle, dcp_hash_ctx_t *ctx
     }
 
     /* set algorithm in context struct for later use */
-    ctxInternal = (dcp_hash_ctx_internal_t *)ctx;
-    ctxInternal->algo = algo;
+    ctxInternal        = (dcp_hash_ctx_internal_t *)ctx;
+    ctxInternal->algo  = algo;
     ctxInternal->blksz = 0u;
     for (i = 0; i < sizeof(ctxInternal->blk.w) / sizeof(ctxInternal->blk.w[0]); i++)
     {
         ctxInternal->blk.w[0] = 0u;
     }
-    ctxInternal->state = kDCP_StateHashInit;
+    ctxInternal->state           = kDCP_StateHashInit;
     ctxInternal->fullMessageSize = 0;
-    ctxInternal->handle = handle;
+    ctxInternal->handle          = handle;
     return status;
 }
 
+/*!
+ * brief Add data to current HASH
+ *
+ * Add data to current HASH. This can be called repeatedly with an arbitrary amount of data to be
+ * hashed. The functions blocks. If it returns kStatus_Success, the running hash
+ * has been updated (DCP has processed the input data), so the memory at ref input pointer
+ * can be released back to system. The DCP context buffer is updated with the running hash
+ * and with all necessary information to support possible context switch.
+ *
+ * param base DCP peripheral base address
+ * param[in,out] ctx HASH context
+ * param input Input data
+ * param inputSize Size of input data in bytes
+ * return Status of the hash update operation
+ */
 status_t DCP_HASH_Update(DCP_Type *base, dcp_hash_ctx_t *ctx, const uint8_t *input, size_t inputSize)
 {
     bool isUpdateState;
@@ -974,7 +1165,7 @@ status_t DCP_HASH_Update(DCP_Type *base, dcp_hash_ctx_t *ctx, const uint8_t *inp
     }
 
     ctxInternal = (dcp_hash_ctx_internal_t *)ctx;
-    status = dcp_hash_check_context(ctxInternal, input);
+    status      = dcp_hash_check_context(ctxInternal, input);
     if (kStatus_Success != status)
     {
         return status;
@@ -1014,6 +1205,17 @@ status_t DCP_HASH_Update(DCP_Type *base, dcp_hash_ctx_t *ctx, const uint8_t *inp
     return status;
 }
 
+/*!
+ * brief Finalize hashing
+ *
+ * Outputs the final hash (computed by DCP_HASH_Update()) and erases the context.
+ *
+ * param[in,out] ctx Input hash context
+ * param[out] output Output hash data
+ * param[in,out] outputSize Optional parameter (can be passed as NULL). On function entry, it specifies the size of
+ * output[] buffer. On function return, it stores the number of updated output bytes.
+ * return Status of the hash finish operation
+ */
 status_t DCP_HASH_Finish(DCP_Type *base, dcp_hash_ctx_t *ctx, uint8_t *output, size_t *outputSize)
 {
     size_t algOutSize = 0;
@@ -1021,7 +1223,7 @@ status_t DCP_HASH_Finish(DCP_Type *base, dcp_hash_ctx_t *ctx, uint8_t *output, s
     dcp_hash_ctx_internal_t *ctxInternal;
 
     ctxInternal = (dcp_hash_ctx_internal_t *)ctx;
-    status = dcp_hash_check_context(ctxInternal, output);
+    status      = dcp_hash_check_context(ctxInternal, output);
     if (kStatus_Success != status)
     {
         return status;
@@ -1100,6 +1302,20 @@ status_t DCP_HASH_Finish(DCP_Type *base, dcp_hash_ctx_t *ctx, uint8_t *output, s
     return status;
 }
 
+/*!
+ * brief Create HASH on given data
+ *
+ * Perform the full SHA or CRC32 in one function call. The function is blocking.
+ *
+ * param base DCP peripheral base address
+ * param handle Handle used for the request.
+ * param algo Underlaying algorithm to use for hash computation.
+ * param input Input data
+ * param inputSize Size of input data in bytes
+ * param[out] output Output hash data
+ * param[out] outputSize Output parameter storing the size of the output hash in bytes
+ * return Status of the one call hash operation.
+ */
 status_t DCP_HASH(DCP_Type *base,
                   dcp_handle_t *handle,
                   dcp_hash_algo_t algo,

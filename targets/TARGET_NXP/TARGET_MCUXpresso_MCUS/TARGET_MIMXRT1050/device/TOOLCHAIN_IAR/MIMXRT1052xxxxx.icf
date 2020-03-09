@@ -7,45 +7,17 @@
 **
 **     Compiler:            IAR ANSI C/C++ Compiler for ARM
 **     Reference manual:    IMXRT1050RM Rev.1, 03/2018
-**     Version:             rev. 0.1, 2017-01-10
-**     Build:               b180509
+**     Version:             rev. 1.0, 2018-09-21
+**     Build:               b180921
 **
 **     Abstract:
 **         Linker file for the IAR ANSI C/C++ Compiler for ARM
 **
-**     The Clear BSD License
 **     Copyright 2016 Freescale Semiconductor, Inc.
 **     Copyright 2016-2018 NXP
 **     All rights reserved.
 **
-**     Redistribution and use in source and binary forms, with or without
-**     modification, are permitted (subject to the limitations in the
-**     disclaimer below) provided that the following conditions are met:
-**
-**     * Redistributions of source code must retain the above copyright
-**       notice, this list of conditions and the following disclaimer.
-**
-**     * Redistributions in binary form must reproduce the above copyright
-**       notice, this list of conditions and the following disclaimer in the
-**       documentation and/or other materials provided with the distribution.
-**
-**     * Neither the name of the copyright holder nor the names of its
-**       contributors may be used to endorse or promote products derived from
-**       this software without specific prior written permission.
-**
-**     NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE
-**     GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT
-**     HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
-**     WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-**     MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-**     DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-**     LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-**     CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-**     SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-**     BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-**     WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-**     OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
-**     IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+**     SPDX-License-Identifier: BSD-3-Clause
 **
 **     http:                 www.nxp.com
 **     mail:                 support@nxp.com
@@ -54,6 +26,14 @@
 */
 
 define symbol __ram_vector_table__ = 1;
+
+if (!isdefinedsymbol(MBED_APP_START)) {
+    define symbol MBED_APP_START = 0x60000000;
+}
+
+if (!isdefinedsymbol(MBED_APP_SIZE)) {
+    define symbol MBED_APP_SIZE = 0x400000;
+}
 
 /* Sizes */
 if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
@@ -66,11 +46,11 @@ define symbol __heap_size__=0x10000;
 define symbol __ram_vector_table_size__ =  isdefinedsymbol(__ram_vector_table__) ? 0x00000400 : 0;
 define symbol __ram_vector_table_offset__ =  isdefinedsymbol(__ram_vector_table__) ? 0x000003FF : 0;
 
-define symbol m_interrupts_start       = 0x60002000;
-define symbol m_interrupts_end         = 0x600023FF;
+define symbol m_interrupts_start       = MBED_APP_START + 0x2000;
+define symbol m_interrupts_end         = MBED_APP_START + 0x23FF;
 
-define symbol m_text_start             = 0x60002400;
-define symbol m_text_end               = 0x63FFFFFF;
+define symbol m_text_start             = MBED_APP_START + 0x2400;
+define symbol m_text_end               = MBED_APP_START + MBED_APP_SIZE - 1;
 
 define symbol m_text2_start            = 0x00000000;
 define symbol m_text2_end              = 0x0001FFFF;
@@ -90,11 +70,12 @@ define symbol m_data3_end              = 0x81DFFFFF;
 define symbol m_ncache_start           = 0x81E00000;
 define symbol m_ncache_end             = 0x81FFFFFF;
 
-define exported symbol m_boot_hdr_conf_start = 0x60000000;
-define symbol m_boot_hdr_ivt_start           = 0x60001000;
-define symbol m_boot_hdr_boot_data_start     = 0x60001020;
-define symbol m_boot_hdr_dcd_data_start      = 0x60001030;
+define exported symbol m_boot_hdr_conf_start = MBED_APP_START;
+define symbol m_boot_hdr_ivt_start           = MBED_APP_START + 0x1000;
+define symbol m_boot_hdr_boot_data_start     = MBED_APP_START + 0x1020;
+define symbol m_boot_hdr_dcd_data_start      = MBED_APP_START + 0x1030;
 
+/* Sizes */
 if (isdefinedsymbol(__stack_size__)) {
   define symbol __size_cstack__        = __stack_size__;
 } else {
@@ -129,8 +110,9 @@ define block HEAP      with alignment = 8, size = __size_heap__     { };
 define block RW        { first readwrite, section m_usb_dma_init_data  };
 define block ZI        with alignment = 32  { first  zi, section m_usb_dma_noninit_data };
 define block NCACHE_VAR with size = 0x200000 , alignment = 0x100000  { section NonCacheable , section NonCacheable.init };
+define block QACCESS_FUNC {section .textrw};
 
-initialize by copy { readwrite, section .textrw };
+initialize by copy { readwrite };
 do not initialize  { section .noinit };
 
 place at address mem: m_interrupts_start    { readonly section .intvec };
@@ -143,10 +125,10 @@ place at address mem:m_boot_hdr_dcd_data_start { readonly section .boot_hdr.dcd_
 keep{ section .boot_hdr.conf, section .boot_hdr.ivt, section .boot_hdr.boot_data, section .boot_hdr.dcd_data };
 
 place in TEXT_region                        { readonly };
-place in DATA3_region                        { block RW };
-place in DATA3_region                        { block ZI };
-place in DATA3_region                        { last block HEAP };
+place in DATA3_region                       { block RW };
+place in DATA3_region                       { block ZI };
+place in DATA3_region                       { last block HEAP };
 place in CSTACK_region                      { block CSTACK };
 place in NCACHE_region                      { block NCACHE_VAR };
-place in TEXT2_region                       { section .textrw};
+place in TEXT2_region                       { block QACCESS_FUNC };
 place in m_interrupts_ram_region            { section m_interrupts_ram };

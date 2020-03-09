@@ -1,35 +1,9 @@
 /*
- * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided
- * that the following conditions are met:
- *
- * o Redistributions of source code must retain the above copyright notice, this list
- *   of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice, this
- *   list of conditions and the following disclaimer in the documentation and/or
- *   other materials provided with the distribution.
- *
- * o Neither the name of the copyright holder nor the names of its
- *   contributors may be used to endorse or promote products derived from this
- *   software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "fsl_adc_etc.h"
@@ -55,16 +29,17 @@ static uint32_t ADC_ETC_GetInstance(ADC_ETC_Type *base);
  ******************************************************************************/
 /*! @brief Pointers to ADC_ETC bases for each instance. */
 static ADC_ETC_Type *const s_adcetcBases[] = ADC_ETC_BASE_PTRS;
-
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
 /*! @brief Pointers to ADC_ETC clocks for each instance. */
 static const clock_ip_name_t s_adcetcClocks[] = ADC_ETC_CLOCKS;
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
 /*******************************************************************************
  * Code
  ******************************************************************************/
 static uint32_t ADC_ETC_GetInstance(ADC_ETC_Type *base)
 {
-    uint32_t instance = 0U;
+    uint32_t instance         = 0U;
     uint32_t adcetcArrayCount = (sizeof(s_adcetcBases) / sizeof(s_adcetcBases[0]));
 
     /* Find the instance index from base address mappings. */
@@ -80,6 +55,12 @@ static uint32_t ADC_ETC_GetInstance(ADC_ETC_Type *base)
 }
 #endif /* ADC_ETC_CLOCKS */
 
+/*!
+ * brief Initialize the ADC_ETC module.
+ *
+ * param base ADC_ETC peripheral base address.
+ * param config Pointer to "adc_etc_config_t" structure.
+ */
 void ADC_ETC_Init(ADC_ETC_Type *base, const adc_etc_config_t *config)
 {
     assert(NULL != config);
@@ -119,6 +100,11 @@ void ADC_ETC_Init(ADC_ETC_Type *base, const adc_etc_config_t *config)
     base->CTRL = tmp32;
 }
 
+/*!
+ * brief De-Initialize the ADC_ETC module.
+ *
+ * param base ADC_ETC peripheral base address.
+ */
 void ADC_ETC_Deinit(ADC_ETC_Type *base)
 {
     /* Do software reset to clear all logical. */
@@ -132,9 +118,27 @@ void ADC_ETC_Deinit(ADC_ETC_Type *base)
 #endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 }
 
+/*!
+ * brief Gets an available pre-defined settings for the ADC_ETC's configuration.
+ * This function initializes the ADC_ETC's configuration structure with available settings. The default values are:
+ * code
+ *   config->enableTSCBypass = true;
+ *   config->enableTSC0Trigger = false;
+ *   config->enableTSC1Trigger = false;
+ *   config->TSC0triggerPriority = 0U;
+ *   config->TSC1triggerPriority = 0U;
+ *   config->clockPreDivider = 0U;
+ *   config->XBARtriggerMask = 0U;
+ * endCode
+ *
+ * param config Pointer to "adc_etc_config_t" structure.
+ */
 void ADC_ETC_GetDefaultConfig(adc_etc_config_t *config)
 {
-    config->enableTSCBypass = true;
+    /* Initializes the configure structure to zero. */
+    memset(config, 0, sizeof(*config));
+
+    config->enableTSCBypass   = true;
     config->enableTSC0Trigger = false;
     config->enableTSC1Trigger = false;
 #if defined(FSL_FEATURE_ADC_ETC_HAS_CTRL_DMA_MODE_SEL) && FSL_FEATURE_ADC_ETC_HAS_CTRL_DMA_MODE_SEL
@@ -142,10 +146,17 @@ void ADC_ETC_GetDefaultConfig(adc_etc_config_t *config)
 #endif /*FSL_FEATURE_ADC_ETC_HAS_CTRL_DMA_MODE_SEL*/
     config->TSC0triggerPriority = 0U;
     config->TSC1triggerPriority = 0U;
-    config->clockPreDivider = 0U;
-    config->XBARtriggerMask = 0U;
+    config->clockPreDivider     = 0U;
+    config->XBARtriggerMask     = 0U;
 }
 
+/*!
+ * brief Set the external XBAR trigger configuration.
+ *
+ * param base ADC_ETC peripheral base address.
+ * param triggerGroup Trigger group index.
+ * param config Pointer to "adc_etc_trigger_config_t" structure.
+ */
 void ADC_ETC_SetTriggerConfig(ADC_ETC_Type *base, uint32_t triggerGroup, const adc_etc_trigger_config_t *config)
 {
     assert(triggerGroup < ADC_ETC_TRIGn_CTRL_COUNT);
@@ -172,6 +183,16 @@ void ADC_ETC_SetTriggerConfig(ADC_ETC_Type *base, uint32_t triggerGroup, const a
     base->TRIG[triggerGroup].TRIGn_COUNTER = tmp32;
 }
 
+/*!
+ * brief Set the external XBAR trigger chain configuration.
+ * For example, if triggerGroup is set to 0U and chainGroup is set to 1U, which means Trigger0 source's chain1 would be
+ * configurated.
+ *
+ * param base ADC_ETC peripheral base address.
+ * param triggerGroup Trigger group index. Available number is 0~7.
+ * param chainGroup Trigger chain group index. Available number is 0~7.
+ * param config Pointer to "adc_etc_trigger_chain_config_t" structure.
+ */
 void ADC_ETC_SetTriggerChainConfig(ADC_ETC_Type *base,
                                    uint32_t triggerGroup,
                                    uint32_t chainGroup,
@@ -262,6 +283,14 @@ void ADC_ETC_SetTriggerChainConfig(ADC_ETC_Type *base,
     }
 }
 
+/*!
+ * brief Gets the interrupt status flags of external XBAR and TSC triggers.
+ *
+ * param base ADC_ETC peripheral base address.
+ * param sourceIndex trigger source index.
+ *
+ * return Status flags mask of trigger. Refer to "_adc_etc_status_flag_mask".
+ */
 uint32_t ADC_ETC_GetInterruptStatusFlags(ADC_ETC_Type *base, adc_etc_external_trigger_source_t sourceIndex)
 {
     uint32_t tmp32 = 0U;
@@ -289,6 +318,13 @@ uint32_t ADC_ETC_GetInterruptStatusFlags(ADC_ETC_Type *base, adc_etc_external_tr
     return tmp32;
 }
 
+/*!
+ * brief Clears the ADC_ETC's interrupt status falgs.
+ *
+ * param base ADC_ETC peripheral base address.
+ * param sourceIndex trigger source index.
+ * param mask Status flags mask of trigger. Refer to "_adc_etc_status_flag_mask".
+ */
 void ADC_ETC_ClearInterruptStatusFlags(ADC_ETC_Type *base, adc_etc_external_trigger_source_t sourceIndex, uint32_t mask)
 {
     if (0U != (mask & kADC_ETC_Done0StatusFlagMask)) /* Write 1 to clear DONE0 status flags. */
@@ -309,6 +345,16 @@ void ADC_ETC_ClearInterruptStatusFlags(ADC_ETC_Type *base, adc_etc_external_trig
     }
 }
 
+/*!
+ * brief Get ADC conversion result from external XBAR sources.
+ * For example, if triggerGroup is set to 0U and chainGroup is set to 1U, which means the API would
+ * return Trigger0 source's chain1 conversion result.
+ *
+ * param base ADC_ETC peripheral base address.
+ * param triggerGroup Trigger group index. Available number is 0~7.
+ * param chainGroup Trigger chain group index. Available number is 0~7.
+ * return ADC conversion result value.
+ */
 uint32_t ADC_ETC_GetADCConversionValue(ADC_ETC_Type *base, uint32_t triggerGroup, uint32_t chainGroup)
 {
     assert(triggerGroup < ADC_ETC_TRIGn_RESULT_1_0_COUNT);
