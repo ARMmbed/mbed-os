@@ -5,7 +5,7 @@ target_sources(mbed_os PRIVATE USBEndpoints_Kinetis.h)
 target_sources(mbed_os PRIVATE USBPhyHw.h)
 target_sources(mbed_os PRIVATE USBPhy_Kinetis.cpp)
 
-# TODO: select proper target conditionally
-add_subdirectory(TARGET_MCUXpresso_MCUS)
+mbed_os_add_cmake_directory("TARGET"
+"${MBED_OS_TARGET_KEYS}")
 
 target_include_directories(mbed_os PUBLIC .)
