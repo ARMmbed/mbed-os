@@ -21,7 +21,7 @@ target_link_libraries(mbed_os PRIVATE gen_config)
 # TODO: Get this from build system
 # Build system provides "target" list.
 # Note: This must be placed before subdirectories
-set(MBED_OS_TARGET_KEYS Freescale MCUXpresso_MCUS KSDK2_MCUS FRDM KPSDK_MCUS KPSDK_CODE MCU_K64F Freescale_EMAC PSA CACHE INTERNAL "")
+set(MBED_OS_TARGET_KEYS Freescale;MCUXpresso_MCUS;KSDK2_MCUS;FRDM;KPSDK_MCUS;KPSDK_CODE;MCU_K64F;Freescale_EMAC;PSA CACHE INTERNAL "")
 
 # Mbed OS system root path
 set(MBED_OS_BASE ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "")
