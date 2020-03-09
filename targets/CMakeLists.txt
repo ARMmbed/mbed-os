@@ -1,4 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# TODO: fix to get target conditionally
-add_subdirectory(TARGET_Freescale)
+foreach(key ${TARGET_KEYS})
+    string(PREPEND key "TARGET_")
+    if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${key})
+        add_subdirectory(${key})
+    endif()
+endforeach()
