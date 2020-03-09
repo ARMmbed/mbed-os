@@ -118,5 +118,5 @@ target_sources(mbed_os PRIVATE device/TOOLCHAIN_GCC_ARM/startup_MK64F12.S)
 target_include_directories(mbed_os PUBLIC TARGET_FRDM)
 target_include_directories(mbed_os PUBLIC device)
 target_include_directories(mbed_os PUBLIC drivers)
-target_include_directories(mbed_os PRIVATE .)
+target_include_directories(mbed_os PUBLIC .)
 
