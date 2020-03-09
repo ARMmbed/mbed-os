@@ -29,6 +29,11 @@ set(MBED_OS_TOOLCHAIN GCC_ARM CACHE INTERNAL "")
 # Mbed OS system root path
 set(MBED_OS_BASE ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "")
 
+# TODO: here feature. Follow what is for targets above, get somehow from tools what features are enabled
+set(MBED_OS_FEATURES_KEYS CACHE INTERNAL "")
+
+# TODO: here components, same as features
+set(MBED_OS_COMPONENTS_KEYS CACHE INTERNAL "")
 
 # Baremetal build with RTOS and events
 add_subdirectory(cmsis)
