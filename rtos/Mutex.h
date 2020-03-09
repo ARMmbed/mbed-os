@@ -97,24 +97,6 @@ public:
     void lock(); // Value return backwards compatibility not required for non-RTOS
 #endif
 
-    /**
-      Wait until a Mutex becomes available.
-
-      @deprecated Do not use this function. This function has been replaced with lock(), trylock() and trylock_for() functions.
-
-      @param   millisec  timeout value.
-      @return  status code that indicates the execution status of the function:
-               @a osOK the mutex has been obtained.
-               @a osErrorTimeout the mutex could not be obtained in the given time.
-               @a osErrorResource the mutex could not be obtained when no timeout was specified.
-
-      @note You cannot call this function from ISR context.
-      @note This function treats RTOS errors as fatal system errors, so it can only return osOK or
-            osErrorResource in case when millisec is 0 or osErrorTimeout if millisec is not osWaitForever.
-     */
-    MBED_DEPRECATED_SINCE("mbed-os-5.10.0", "Replaced with lock(), trylock() and trylock_for() functions")
-    osStatus lock(uint32_t millisec);
-
     /** Try to lock the mutex, and return immediately
       @return true if the mutex was acquired, false otherwise.
       @note equivalent to trylock_for(0)
