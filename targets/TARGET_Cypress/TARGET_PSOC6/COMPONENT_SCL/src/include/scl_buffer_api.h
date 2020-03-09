@@ -31,7 +31,7 @@
  */
 
 /** @file
- *  Provides prototypes and declarations for common APSTA functionalities
+ *  Provides declarations for buffer management functionality
  */
 #ifndef _SCL_INTERNAL_BUFFER_API_H_
 #define _SCL_INTERNAL_BUFFER_API_H_
@@ -51,6 +51,9 @@ extern "C"
 /******************************************************
 *                  Constants
 ******************************************************/
+/**
+ * Size of the SDIO block
+ */
 #define  SDIO_BLOCK_SIZE (64U)
 
 /******************************************************
@@ -61,83 +64,66 @@ extern "C"
 *             Structures and Enumerations
 ******************************************************/
 /**
- * Indicates the transmit/receive direction that the packet buffer has
- * been used for. This is needed if TX/RX pools are separate.
+ * Indicates the transmit/receive direction that the buffer has
+ * been used for. This is needed if transmit/receive pools are separate.
  */
 typedef enum
 {
     SCL_NETWORK_TX = 0, /**< Transmit direction */
-    SCL_NETWORK_RX = 1 /**< Recieve direction */
+    SCL_NETWORK_RX = 1 /**< Receive direction */
 } scl_buffer_dir_t;
 
 /******************************************************
 *             Function Prototypes
 ******************************************************/
-/** Allocates a packet buffer
- *  Attempts to allocate a packet buffer of the requested size. This is done
- *  by allocating a pre-existing packet from a pool using a static buffer
- *  or by dynamically allocating memory. 
- *  
- *  @param   buffer    A pointer which receives the allocated packet buffer handle
- *  @param   direction Indicates transmit/receive direction that the packet buffer is
- *                      used for. This may be needed if tx/rx pools are separate.
- *  @param   size      The number of bytes to allocate.
- *  @param   wait      Whether to wait for a packet buffer to be available
+/** Allocates the SCL buffer.
  *
- *  @return            SCL_SUCCESS or error code
+ *  Attempts to allocate a buffer of the requested size. A buffer
+ *  is either allocated from a static pool of memory or allocated dynamically.
+ *  
+ *  @param   buffer    A pointer which receives the allocated buffer.
+ *  @param   direction Indicates transmit/receive direction that the buffer is
+ *                      used for. This may be needed if transmit/receive pools are separate.
+ *  @param   size      The number of bytes to allocate.
+ *  @param   wait      Time to wait for a buffer to be available in milli-seconds.
+ *
+ *  @return  SCL_SUCCESS or Error code
  *
  */
 scl_result_t scl_host_buffer_get(scl_buffer_t *buffer, scl_buffer_dir_t direction,
                                  uint16_t size, uint32_t wait);
 
-/** Releases a packet buffer
+/** Releases the SCL buffer.
  *
- *  Implemented in the port layer interface, which will be specific to the
- *  buffering scheme in use.
  *  This function is used by SCL to indicate that it no longer requires
- *  a packet buffer. The buffer can then be released back into a pool for
- *  reuse or the dynamically allocated memory can be freed, according to
- *  how the packet was allocated.
- *  Returns void since SCL cannot do anything about failures.
+ *  the buffer. The buffer can then be released back into a pool for
+ *  reuse or the dynamically allocated memory can be freed.
  *
- *  @param   buffer    The handle of the packet buffer to be released.
- *  @param   direction Indicates the transmit/receive direction that the packet buffer has
- *                     been used for. This might be needed if TX/RX pools are separate.
+ *  @param   buffer    The buffer to be released.
+ *  @param   direction Indicates the transmit/receive direction that the buffer has
+ *                     been used for. This might be needed if transmit/receive pools are separate.
  *
  */
 void scl_buffer_release(scl_buffer_t buffer, scl_buffer_dir_t direction);
 
-/** Retrieves the current pointer of a packet buffer
+/** Retrieves the pointer to the payload of the buffer.
  *
- *  Implemented in the port layer interface which is specific to the
- *  buffering scheme in use.
- *  Since packet buffers usually need to be created with space at the
- *  beginning for additional headers, this function allows SCL to get
- *  the current 'front' location pointer.
+ *  @param   buffer   The buffer whose payload pointer is to be retrieved.
  *
- *  @param   buffer   The handle of the packet buffer whose pointer is to be retrieved.
- *
- *  @return           The packet buffer's current pointer.
+ *  @return  Pointer to the payload.
  */
 uint8_t *scl_buffer_get_current_piece_data_pointer(scl_buffer_t buffer);
 
-/** Retrieves the size of a packet buffer
+/** Retrieves the size of the buffer.
  *
- *  Implemented in the port layer interface, which is specific to the
- *  buffering scheme in use.
- *  Since packet buffers usually need to be created with space at the
- *  beginning for additional headers, the memory block used to contain a packet buffer
- *  will often be larger than the current size of the packet buffer data.
- *  This function allows SCL to retrieve the current size of a packet buffer's data.
+ *  @param   buffer   The buffer whose size is to be retrieved.
  *
- *  @param   buffer   The handle of the packet buffer whose size is to be retrieved.
- *
- *  @return           The size of the packet buffer.
+ *  @return  The size of the buffer.
  */
 uint16_t scl_buffer_get_current_piece_size(scl_buffer_t buffer);
+
 #ifdef __cplusplus
 } /*extern "C" */
 #endif
 
 #endif /* ifndef _SCL_INTERNAL_BUFFER_API_H_ */
-

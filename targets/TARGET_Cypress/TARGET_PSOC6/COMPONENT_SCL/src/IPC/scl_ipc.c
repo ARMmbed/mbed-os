@@ -32,7 +32,7 @@
 
 
 /** @file
- *  Provides SCL functionality to communicate with WiFi chip
+ *  Provides SCL functionality to communicate with Network Processor
  */
 #include "scl_ipc.h"
 #include "scl_buffer_api.h"
@@ -63,14 +63,14 @@ static void scl_isr(void);
 static void scl_config(void);
 static void scl_rx_handler(void);
 static scl_result_t scl_thread_init(void);
-scl_result_t scl_get_nw_parameters(struct network_params_t *nw_param);
+scl_result_t scl_get_nw_parameters(network_params_t *nw_param);
 scl_result_t scl_send_data(int index, char *buffer, uint32_t timeout);
 scl_result_t scl_end(void);
 scl_result_t scl_init(void);
 /******************************************************
  *        Variables Definitions
  *****************************************************/
-/* Structure of scl thread info
+/* Structure of SCL thread info
  *   scl_thread_quit_flag:      flag used to determine if thread is to be quit
  *   scl_inited:                flag used to determine if thread is started
  *   scl_thread:                variable for thread handle
@@ -93,17 +93,9 @@ struct scl_thread_info_t g_scl_thread_info;
 /******************************************************
  *               Function Definitions
  ******************************************************/
-/*******************************************************************************
- * Function Name: scl_isr
- ********************************************************************************
- * Summary:
- * 1. ISR for the recevier channel interrupt
- *
- * Parameters: 
- *
- * Return:
- *
- *******************************************************************************/
+
+/** ISR for the IPC receiver channel interrupt
+ */
 static void scl_isr(void)
 {
     IPC_INTR_STRUCT_Type *scl_rx_intr = NULL;
@@ -116,18 +108,8 @@ static void scl_isr(void)
         }
     }
 }
-
-/*******************************************************************************
- * Function Name: scl_config
- ********************************************************************************
- * Summary:
- * 1. Configuring the interrupt channel
- *
- * Parameters: 
- *
- * Return:
- *
- *******************************************************************************/
+/** Configures the IPC interrupt channel
+ */
 static void scl_config(void)
 {
     IPC_INTR_STRUCT_Type *scl_rx_intr = NULL;
@@ -142,19 +124,10 @@ static void scl_config(void)
     Cy_SysInt_Init(&intrCfg, &scl_isr);
     NVIC_EnableIRQ(intrCfg.intrSrc);
 }
-
-/*******************************************************************************
- * Function Name: scl_thread_init
- ********************************************************************************
- * Summary:
- * 1. Intializes the scl_rx_handler thread and semaphores
+/** Create the SCL thread and initialize the semaphore for handling the events from Network Processor
  *
- * Parameters: 
- *
- * Return:
- *    SCL_SUCCESS   On successful initialization of thread
- *    SCL_ERROR     An error occurred during intialization of thread
- *******************************************************************************/
+ *  @return  SCL_SUCCESS on successful initialization of thread or SCL_ERROR on failure
+ */
 static scl_result_t scl_thread_init(void)
 {
     cy_rslt_t retval,tmp = 0;
@@ -183,18 +156,6 @@ static scl_result_t scl_thread_init(void)
     return SCL_SUCCESS;
 }
 
-/*******************************************************************************
- * Function Name: scl_init
- ********************************************************************************
- * Summary:
- * 1. Intializing the SCL thread and interrupts
- *
- * Parameters: 
- *
- * Return:
- *    SCL_SUCCESS    On successful initialization
- *    SCL_ERROR      An error occured during intialization
- *******************************************************************************/
 scl_result_t scl_init(void)
 {
     scl_result_t retval = SCL_SUCCESS;
@@ -225,20 +186,6 @@ scl_result_t scl_init(void)
     return SCL_SUCCESS;
 }
 
-/*******************************************************************************
- * Function Name: scl_send_data
- ********************************************************************************
- * Summary:
- * 1. Sends the data
- *
- * Parameters: 
- *    index         Integer value to indicate which API is using SCL
- *    buffer        Pointer to buffer to be transferred
- *    timeout       The time to wait for the receiving core to release
- * Return: 
- *    SCL_SUCCESS   On successful transfer of data
- *    SCL_ERROR     An error occured while transmitting data
- *******************************************************************************/
 scl_result_t scl_send_data(int index, char* buffer, uint32_t timeout)
 {
     uint32_t acquire_state;
@@ -277,18 +224,6 @@ scl_result_t scl_send_data(int index, char* buffer, uint32_t timeout)
     }    
 }
 
-/*******************************************************************************
- * Function Name: scl_end
- ********************************************************************************
- * Summary:
- * 1. API to stop the SCL
- *
- * Parameters: 
- *
- * Return: 
- *    SCL_SUCCESS  If channel is not locked
- *    SCL_ERROR    If the channel is locked
- *******************************************************************************/
 scl_result_t scl_end(void)
 {
     scl_result_t retval = SCL_SUCCESS;
@@ -307,17 +242,8 @@ scl_result_t scl_end(void)
     return retval;
 }
 
-/*******************************************************************************
- * Function Name: scl_rx_handler
- ********************************************************************************
- * Summary:
- * 1. Thread to handle recevied buffer
- *
- * Parameters: 
- *
- * Return:
- *
- *******************************************************************************/
+/** Thread to handle the received buffer
+ */
 static void scl_rx_handler(void)
 {
     char *buffer = NULL;
@@ -378,7 +304,7 @@ static void scl_rx_handler(void)
             }
             default:
             {
-                SCL_LOG(("incorrect IPC from NP\n"));
+                SCL_LOG(("incorrect IPC from Network Processor\n"));
                 REG_IPC_STRUCT_RELEASE(scl_receive) = SCL_RELEASE;
                 break;
             }
@@ -386,20 +312,9 @@ static void scl_rx_handler(void)
     }
 }
 
-/*******************************************************************************
- * Function Name: scl_get_nw_parameters
- ********************************************************************************
- * Summary:
- * Function to get the network parameter from NP
- *
- * Parameters: 
- *
- * Return:
- *
- *******************************************************************************/
-scl_result_t scl_get_nw_parameters(struct network_params_t *nw_param)
+scl_result_t scl_get_nw_parameters(network_params_t *nw_param)
 {
-    scl_result_t status;
+    scl_result_t status = SCL_ERROR;
     status = scl_send_data(SCL_TX_WIFI_NW_PARAM, (char*)nw_param, TIMER_DEFAULT_VALUE);
     return status;
 }

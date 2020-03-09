@@ -31,7 +31,7 @@
  */
 
 /** @file scl_types.h
- *  Defines common data types used with SCL
+ *  Defines common data types used in SCL
  *
  */
 
@@ -63,9 +63,9 @@ extern "C"
 #define IBSS_ENABLED       0x20000000  /**< Flag to enable IBSS mode           */
 #define FBT_ENABLED        0x40000000  /**< Flag to enable FBT                 */
 
-#define NO_POWERSAVE_MODE           (0) /**< No Powersave mode */
-#define PM1_POWERSAVE_MODE          (1) /**< Powersave mode on specified interface without regard for throughput reduction */
-#define PM2_POWERSAVE_MODE          (2) /**< Powersave mode on specified interface with High throughput */
+#define NO_POWERSAVE_MODE           (0) /**< No Power save mode */
+#define PM1_POWERSAVE_MODE          (1) /**< Power save mode on specified interface without regard for throughput reduction */
+#define PM2_POWERSAVE_MODE          (2) /**< Power save mode on specified interface with High throughput */
 
 /**
  * Suppresses unused parameter warning
@@ -87,11 +87,11 @@ extern "C"
 ******************************************************/
 
 /******************************************************
-*               Structures and  Enumerations
+*               Structures and Enumerations
 ******************************************************/
 
 /**
- * Enumeration of WiFi security modes
+ * Enumeration of Wi-Fi security modes
  */
 typedef enum
 {
@@ -120,7 +120,7 @@ typedef enum
     SCL_SECURITY_WPS_OPEN         = (WPS_ENABLED),                                                     /**< WPS with open security                                */
     SCL_SECURITY_WPS_SECURE       = (WPS_ENABLED | AES_ENABLED),                                       /**< WPS with AES security                                 */
     
-    SCL_SECURITY_UNKNOWN          = -1,                                                                /**< May be returned by scan function if security is unknown. Do not pass this to the join function! */
+    SCL_SECURITY_UNKNOWN          = -1,                                                                /**< Returned by scan function if security is unknown. Do not pass this to the join function! */
     
     SCL_SECURITY_FORCE_32_BIT     = 0x7fffffff                                                         /**< Exists only to force scl_security_t type to 32 bits */
 } scl_security_t;
@@ -129,4 +129,3 @@ typedef enum
 }     /* extern "C" */
 #endif
 #endif /* ifndef INCLUDED_SCL_TYPES_H_ */
-

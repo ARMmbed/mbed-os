@@ -41,15 +41,13 @@
 #include "lwip/ethip6.h"
 #include "mbed_shared_queues.h"
 #include "scl_buffer_api.h"
-#include "emac_eapol.h"
 #include "cy_result.h"
 #include "cy_pdl.h"
 #include "scl_ipc.h"
 
-extern "C"
-{
-    eapol_packet_handler_t emac_eapol_packet_handler = NULL;
-} // extern "C"
+/** @file
+ *  Provides EMAC interface functions to be used with the SCL_EMAC object
+ */
 
 SCL_EMAC::SCL_EMAC(scl_interface_role_t role)
     : interface_type(role)
@@ -107,7 +105,7 @@ bool SCL_EMAC::power_up()
 {
     if (!powered_up) {      
         if (scl_wifi_on() != true) {
-            SCL_LOG(("returning false in scl_wifi_on()\n"));
+            SCL_LOG(("returning False in scl_wifi_on()\n"));
             return false;
         }
         powered_up = true;
@@ -127,7 +125,7 @@ bool SCL_EMAC::get_hwaddr(uint8_t *addr) const
 		return true;
 	}
 	else {
-		SCL_LOG(("return false in SCL_EMAC::gethwaddr\n"));
+		SCL_LOG(("return False in SCL_EMAC::gethwaddr\n"));
 	    return false;
 	}
     
@@ -190,34 +188,6 @@ void SCL_EMAC::set_activity_cb(mbed::Callback<void(bool)> cb)
 
 extern "C"
 {
-
-    void emac_receive_eapol_packet(scl_buffer_t buffer)
-    {
-        if (buffer != NULL) {
-            if (emac_eapol_packet_handler != NULL) {
-                emac_eapol_packet_handler(buffer);
-            } else {
-                scl_buffer_release(buffer, SCL_NETWORK_RX);
-            }
-        }
-    }
-
-    scl_result_t emac_register_eapol_packet_handler(eapol_packet_handler_t eapol_packet_handler)
-    {
-
-        if (emac_eapol_packet_handler == NULL) {
-            emac_eapol_packet_handler = eapol_packet_handler;
-            return SCL_SUCCESS;
-        }
-
-        return SCL_HANDLER_ALREADY_REGISTERED;
-    }
-
-    void emac_unregister_eapol_packet_handler(void)
-    {
-        emac_eapol_packet_handler = NULL;
-    }
-
     void scl_network_process_ethernet_data(scl_buffer_t buffer)
     {
         emac_mem_buf_t *mem_buf = NULL;

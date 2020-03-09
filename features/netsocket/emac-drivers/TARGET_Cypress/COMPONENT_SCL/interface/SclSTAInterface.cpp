@@ -43,14 +43,10 @@
 #include "scl_ipc.h"
 #include "mbed_wait_api.h"
 
-#define PARAM_LEN                             (20)
 
-struct network_params_t {
-    char ip_address[PARAM_LEN];
-    char netmask[PARAM_LEN];
-    char gateway[PARAM_LEN];
-    int  connection_status;
-};
+/** @file
+ *  Provides SCL interface functions to be used with WiFiInterface or NetworkInterface Objects
+ */
 
 struct scl_tx_nw_credentials {
     nsapi_security_t network_security_type;
@@ -59,7 +55,8 @@ struct scl_tx_nw_credentials {
     const char* network_ssid;
     const char* network_passphrase;
 } scl_tx_nw_credentials_t;
-struct network_params_t network_parameter;
+
+network_params_t network_parameter;
 
 int scl_toerror(scl_result_t res)
 {
@@ -217,7 +214,7 @@ nsapi_error_t SclSTAInterface::connect()
     //Get the network parameter from NP
     while ((network_parameter.connection_status != NSAPI_STATUS_GLOBAL_UP) && delay_timeout < NW_CONNECT_TIMEOUT) {
         ret_val = scl_get_nw_parameters(&network_parameter);
-        wait_us(NW_DELAY_TIME);
+        wait_us(NW_DELAY_TIME_US);
         delay_timeout++;
     }
     

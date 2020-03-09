@@ -44,11 +44,11 @@
 #include "scl_emac.h"
 #include "scl_wifi_api.h"
 #include "scl_types.h"
-#define MAX_SSID_LENGTH                       (33)
-#define MAX_PASSWORD_LENGTH                   (64)
+#define MAX_SSID_LENGTH                       (33) /**< Maximum ssid length */
+#define MAX_PASSWORD_LENGTH                   (64) /**< Maximum password length */
 
 /** SclSTAInterface class
- *  Implementation of the NetworkStack for the SCL
+ *  Implementation of the Network Stack for the SCL
  */
 class SclSTAInterface : public WiFiInterface, public EMACInterface {
 public:
@@ -63,16 +63,15 @@ public:
      */
 	static SclSTAInterface *get_default_instance();
     
-	/** Turn ON the WiFi device
+	/** Turns on the Wi-Fi device
     *
     *  @return         void
     */
-    /* Turns ON the WiFi device*/
     void wifi_on();
 
     /** Starts the interface
      *
-     *  Attempts to connect to a WiFi network. Requires ssid and passphrase to be set.
+     *  Attempts to connect to a Wi-Fi network. Requires ssid and passphrase to be set.
      *  If passphrase is invalid, NSAPI_ERROR_AUTH_ERROR is returned.
      *
      *  @return         0 on success, negative error code on failure.
@@ -81,34 +80,35 @@ public:
 
     /** Starts the interface
      *
-     *  Attempts to connect to a WiFi network.
+     *  Attempts to connect to a Wi-Fi network.
      *
      *  @param ssid      Name of the network to connect to.
      *  @param pass      Security passphrase to connect to the network.
      *  @param security  Type of encryption for connection (Default: NSAPI_SECURITY_NONE).
      *  @param channel   This parameter is not supported, setting it to a value other than 0 will result in NSAPI_ERROR_UNSUPPORTED.
-     *  @return          0 on success, or error code on failure.
+     *  @return          0 on success, negative error code on failure.
      */
     nsapi_error_t connect(const char *ssid, const char *pass, nsapi_security_t security = NSAPI_SECURITY_NONE, uint8_t channel = 0);
 
-    /** Stops the interface
-     *  @return             0 on success, negative on failure.
+    /** Disconnects the interface
+     *
+     *  @return             0 on success, negative error code on failure.
      */
     nsapi_error_t disconnect();
 
-    /** Set the WiFi network credentials
+    /** Set the Wi-Fi network credentials
      *
      *  @param ssid      Name of the network to connect to.
      *  @param pass      Security passphrase to connect to the network.
      *  @param security  Type of encryption for connection.
      *                   (defaults to NSAPI_SECURITY_NONE)
-     *  @return          0 on success, or error code on failure.
+     *  @return          0 on success, negative error code on failure.
      */
     nsapi_error_t set_credentials(const char *ssid, const char *pass, nsapi_security_t security = NSAPI_SECURITY_NONE);
 
-    /** Sets the WiFi network channel - NOT SUPPORTED
+    /** Sets the Wi-Fi network channel - NOT SUPPORTED
      *
-     * This function is not supported and will return NSAPI_ERROR_UNSUPPORTED.
+     *  This function is not supported and will return NSAPI_ERROR_UNSUPPORTED.
      *
      *  @param channel   Channel on which the connection is to be made (Default: 0).
      *  @return          Not supported, returns NSAPI_ERROR_UNSUPPORTED.
@@ -149,11 +149,12 @@ public:
     int scan(WiFiAccessPoint *res, unsigned count);
 
     /** This function is used to indicate if the device is connected to the network.
+     *
      *  @return          SCL_SUCCESS if device is connected.
      */
     int is_interface_connected();
 
-    /** Gets the BSSID (MAC address of device connected to)
+    /** Gets the BSSID (MAC address of device connected to).
      *
      *  @param bssid   Pointer to the BSSID value.
      *  @return        SCL_SUCCESS if BSSID is obtained successfully.
@@ -162,16 +163,18 @@ public:
      */
     int get_bssid(uint8_t *bssid);
 
-    /** This function is used to set up the WiFi interface after the WiFi on
-     * @return          SCL_SUCCESS if the WiFi interface is up successfully.
+    /** This function is used to set up the Wi-Fi interface.
+     *  This function should be used after the wifi_on.
+     *
+     * @return          SCL_SUCCESS if the Wi-Fi interface is set up successfully.
      */
     int wifi_set_up(void);
 
 private:
 
-    char _ssid[MAX_SSID_LENGTH]; /* The longest possible name (defined in 802.11) +1 for the \0 */
-    char _pass[MAX_PASSWORD_LENGTH]; /* The longest allowed passphrase + 1 */
-    nsapi_security_t _security;
-    SCL_EMAC &_scl_emac;
+    char _ssid[MAX_SSID_LENGTH]; /**< The longest possible name (defined in 802.11) +1 for the \0 */
+    char _pass[MAX_PASSWORD_LENGTH]; /**< The longest allowed passphrase + 1 */
+    nsapi_security_t _security; /**< Security type */
+    SCL_EMAC &_scl_emac; /**< SCL_EMAC object */
 };
-#endif
+#endif /* ifndef SCL_STA_INTERFACE_H */

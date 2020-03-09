@@ -32,8 +32,7 @@
 
 
 /** @file scl_common.h
- *  Defines common data types used with SCL
- *
+ *  Defines common data types used in SCL
  */
 
 #include <stdint.h>
@@ -50,23 +49,27 @@ extern "C"
 /******************************************************
 *                    Constants
 ******************************************************/
-#define SCL_LOG_ENABLE          false
+
+#define SCL_LOG_ENABLE          false /**< Flag to enable SCL debug logs */
 #define SCL_LOG(x)              if (SCL_LOG_ENABLE) \
-                                    { printf x; }
+                                    { printf x; } /**< SCL log interface */
 #define CHECK_BUFFER_NULL(buf)  if (buf == NULL)\
                                     { SCL_LOG(("Buffer pointer is null\n")); \
-                                      return SCL_BADARG; }
-#define MODULE_BASE_CODE        (0x0080U)
-/* scl_result_t error code format
- * |31-18 (14 bit) for module id|17-16 (2 bit) for result type|15-0 for scl error code|
- * for example, for error code 1026, the result of SCL_RESULT_CREATE is 33555458.
+                                      return SCL_BADARG; }  /**< Helper macro to check if the input buffer pointer is null */
+
+#define MODULE_BASE_CODE        (0x0080U) /**< Base code for the SCL error status */
+#define SCL_RESULT_TYPE         (0)   /**< SCL Result type */
+
+/*
+ * scl_result_t Error code format
+ * |31-18 (14 bit) for module id|17-16 (2 bit) for result type|15-0 for SCL Error code|
+ * for example, for Error code 1026, the result of SCL_RESULT_CREATE is 33555458.
  */
-#define SCL_RESULT_TYPE 0   /**< SCL Result type */
 #define SCL_RESULT_CREATE(x) CY_RSLT_CREATE(SCL_RESULT_TYPE, MODULE_BASE_CODE, (x) ) /**< Create a result value from the specified type, module, and result code */
 
-#define SCL_SUCCESS                       (0) 
-#define SCL_ERROR                         (100)
-#define SCL_PENDING                       SCL_RESULT_CREATE(1)
+#define SCL_SUCCESS                       (0)                       /**< IPC success */
+#define SCL_ERROR                         (100)                     /**< IPC error */
+#define SCL_PENDING                       SCL_RESULT_CREATE(1)      /**< IPC Pending */
 #define SCL_TIMEOUT                       SCL_RESULT_CREATE(2)      /**< Timeout */
 #define SCL_BADARG                        SCL_RESULT_CREATE(5)      /**< Bad Arguments */
 #define SCL_UNFINISHED                    SCL_RESULT_CREATE(10)     /**< Operation not finished yet  (maybe aborted) */
@@ -101,7 +104,7 @@ extern "C"
 #define SCL_QUEUE_ERROR                   SCL_RESULT_CREATE(1032)   /**< Error manipulating a queue */
 #define SCL_BUFFER_POINTER_MOVE_ERROR     SCL_RESULT_CREATE(1033)   /**< Error moving the current pointer of a packet buffer  */
 #define SCL_BUFFER_SIZE_SET_ERROR         SCL_RESULT_CREATE(1034)   /**< Error setting size of packet buffer */
-#define SCL_THREAD_STACK_NULL             SCL_RESULT_CREATE(1035)   /**< Null stack pointer passed when non null was reqired */
+#define SCL_THREAD_STACK_NULL             SCL_RESULT_CREATE(1035)   /**< Null stack pointer passed when non null was required */
 #define SCL_THREAD_DELETE_FAIL            SCL_RESULT_CREATE(1036)   /**< Error deleting a thread */
 #define SCL_SLEEP_ERROR                   SCL_RESULT_CREATE(1037)   /**< Error sleeping a thread */
 #define SCL_BUFFER_ALLOC_FAIL             SCL_RESULT_CREATE(1038)   /**< Failed to allocate a packet buffer */
@@ -128,7 +131,7 @@ extern "C"
 #define SCL_HANDLER_ALREADY_REGISTERED    SCL_RESULT_CREATE(1059)   /**< EAPOL handler already registered */
 #define SCL_AP_ALREADY_UP                 SCL_RESULT_CREATE(1060)   /**< Soft AP or P2P group owner already up */
 #define SCL_EAPOL_KEY_PACKET_M1_TIMEOUT   SCL_RESULT_CREATE(1061)   /**< Timeout occurred while waiting for EAPOL packet M1 from AP */
-#define SCL_EAPOL_KEY_PACKET_M3_TIMEOUT   SCL_RESULT_CREATE(1062)   /**< Timeout occurred while waiting for EAPOL packet M3 from APwhich may indicate incorrect WPA2/WPA passphrase */
+#define SCL_EAPOL_KEY_PACKET_M3_TIMEOUT   SCL_RESULT_CREATE(1062)   /**< Timeout occurred while waiting for EAPOL packet M3 from AP which may indicate incorrect WPA2/WPA passphrase */
 #define SCL_EAPOL_KEY_PACKET_G1_TIMEOUT   SCL_RESULT_CREATE(1063)   /**< Timeout occurred while waiting for EAPOL packet G1 from AP */
 #define SCL_EAPOL_KEY_FAILURE             SCL_RESULT_CREATE(1064)   /**< Unknown failure occurred during the EAPOL key handshake */
 #define SCL_MALLOC_FAILURE                SCL_RESULT_CREATE(1065)   /**< Memory allocation failure */
@@ -142,64 +145,76 @@ extern "C"
 
 #define BDC_HEADER_WITH_PAD 6  /**< BDC Header with padding 4 + 2 */
 
-/**
- * The maximum size, in bytes, of the data part of an Ethernet frame.
- */
-#define SCL_PAYLOAD_MTU           (1500)
+#define SCL_PAYLOAD_MTU           (1500) /**< The maximum size, in bytes, of the data part of an Ethernet frame */
 
 /******************************************************
 *                   Type Definitions
 ******************************************************/
-
+/**
+ * Typedef for SCL buffer pointer
+ */
 typedef void *scl_buffer_t;
 
+/**
+ * Typedef for SCL result
+ */
 typedef uint32_t scl_result_t;
 
 /******************************************************
-*               Structures and  Enumerations
+*               Structures and Enumerations
 ******************************************************/
 
-
-
+/**
+ * Typedef for SCL boolean flags
+ */
 typedef enum
 {
-    SCL_FALSE = 0, 
-    SCL_TRUE  = 1
+    SCL_FALSE = 0, /**< Boolean False */
+    SCL_TRUE  = 1 /**< Boolean True */
 } scl_bool_t;
 
+/**
+ * Typedef for SCL interface roles
+ */
 typedef enum
 {
-    SCL_INVALID_ROLE           = 0,
-    SCL_STA_ROLE               = 1,         /**< STA or Client Interface     */
-    SCL_AP_ROLE                = 2,         /**< softAP Interface  */
-    SCL_P2P_ROLE               = 3          /**< P2P Interface  */
+    SCL_INVALID_ROLE           = 0,         /**< Invalid role */
+    SCL_STA_ROLE               = 1,         /**< STA or Client Interface */
+    SCL_AP_ROLE                = 2,         /**< softAP Interface */
+    SCL_P2P_ROLE               = 3          /**< P2P Interface */
 } scl_interface_role_t;
 
+/**
+ * Typedef for SCL IPC receive index
+ */
 typedef enum
 {
-    SCL_RX_DATA                  = 0,
-    SCL_RX_TEST_MSG              = 1,
-    SCL_RX_GET_BUFFER            = 2,
-    SCL_RX_GET_CONNECTION_STATUS = 3
+    SCL_RX_DATA                  = 0,      /**< Received buffer */
+    SCL_RX_TEST_MSG              = 1,      /**< Test message */
+    SCL_RX_GET_BUFFER            = 2,      /**< Get the buffer */
+    SCL_RX_GET_CONNECTION_STATUS = 3       /**< Get the connection status */
 } scl_ipc_rx_t;
 
+/**
+ * Typedef for SCL IPC transmit index
+ */
 typedef enum
 {
-    SCL_TX_TEST_MSG                    = 1,
-    SCL_TX_WIFI_INIT                   = 2,
-    SCL_TX_CONFIG_PARAMETERS           = 3,
-    SCL_TX_GET_MAC                     = 4,
-    SCL_TX_REGISTER_MULTICAST_ADDRESS  = 5,
-    SCL_TX_SEND_OUT                    = 6,
-    SCL_TX_TRANSCEIVE_READY            = 7,
-    SCL_TX_WIFI_ON                     = 8,
-    SCL_TX_WIFI_SET_UP                 = 9,
-    SCL_TX_WIFI_NW_PARAM               = 10,
-    SCL_TX_WIFI_GET_RSSI               = 11,
-    SCL_TX_WIFI_GET_BSSID              = 12,
-    SCL_TX_CONNECT                     = 13,
-    SCL_TX_DISCONNECT                  = 14,
-    SCL_TX_CONNECTION_STATUS           = 15
+    SCL_TX_TEST_MSG                    = 1,  /**< Test Message */
+    SCL_TX_WIFI_INIT                   = 2,  /**< Initialize Wi-Fi */
+    SCL_TX_CONFIG_PARAMETERS           = 3,  /**< Configuration parameters */
+    SCL_TX_GET_MAC                     = 4,  /**< Get MAC address */
+    SCL_TX_REGISTER_MULTICAST_ADDRESS  = 5,  /**< Register multicast address */
+    SCL_TX_SEND_OUT                    = 6,  /**< Transmit buffer */
+    SCL_TX_TRANSCEIVE_READY            = 7,  /**< Wi-Fi transmit/receive ready */
+    SCL_TX_WIFI_ON                     = 8,  /**< Wi-Fi on */
+    SCL_TX_WIFI_SET_UP                 = 9,  /**< Wi-Fi setup */
+    SCL_TX_WIFI_NW_PARAM               = 10, /**< Get network parameters */
+    SCL_TX_WIFI_GET_RSSI               = 11, /**< Get RSSI */
+    SCL_TX_WIFI_GET_BSSID              = 12, /**< Get BSSID */
+    SCL_TX_CONNECT                     = 13, /**< Wi-Fi connect */
+    SCL_TX_DISCONNECT                  = 14, /**< Wi-Fi disconnect */
+    SCL_TX_CONNECTION_STATUS           = 15  /**< Transmit connection status */
 } scl_ipc_tx_t;
 
 
