@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
+add_subdirectory(device)
+
+mbed_os_add_cmake_directory("TARGET"
+"${MBED_OS_TARGET_KEYS}")
+
 target_sources(mbed_os PRIVATE dma_reqs.h)
 target_sources(mbed_os PRIVATE mbed_crc_api.c)
 target_sources(mbed_os PRIVATE peripheral_clock_defines.h)
@@ -11,9 +16,6 @@ target_sources(mbed_os PRIVATE trng_api.c)
 target_sources(mbed_os PRIVATE us_ticker.c)
 target_sources(mbed_os PRIVATE us_ticker_defines.h)
 target_sources(mbed_os PRIVATE watchdog_api.c)
-
-mbed_os_add_cmake_directory("TARGET"
-"${MBED_OS_TARGET_KEYS}")
 
 target_sources(mbed_os PRIVATE drivers/fsl_adc16.c)
 target_sources(mbed_os PRIVATE drivers/fsl_adc16.h)
@@ -92,18 +94,6 @@ target_sources(mbed_os PRIVATE drivers/fsl_vref.h)
 target_sources(mbed_os PRIVATE drivers/fsl_wdog.c)
 target_sources(mbed_os PRIVATE drivers/fsl_wdog.h)
 
-target_sources(mbed_os PRIVATE device/cmsis.h)
-target_sources(mbed_os PRIVATE device/cmsis_nvic.h)
-target_sources(mbed_os PRIVATE device/fsl_device_registers.h)
-target_sources(mbed_os PRIVATE device/MK64F12.h)
-target_sources(mbed_os PRIVATE device/MK64F12_features.h)
-target_sources(mbed_os PRIVATE device/system_MK64F12.c)
-target_sources(mbed_os PRIVATE device/system_MK64F12.h)
-
-# TODO: only GCC toolchain here
-target_sources(mbed_os PRIVATE device/TOOLCHAIN_GCC_ARM/startup_MK64F12.S)
-
-target_include_directories(mbed_os PUBLIC device)
 target_include_directories(mbed_os PUBLIC drivers)
 target_include_directories(mbed_os PUBLIC .)
 
