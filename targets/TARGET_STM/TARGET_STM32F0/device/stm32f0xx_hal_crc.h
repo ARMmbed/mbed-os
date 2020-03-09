@@ -164,7 +164,7 @@ typedef struct
 /** @defgroup CRC_Default_Polynomial Indicates whether or not default polynomial is used
   * @{
   */
-#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F091xx) || defined(STM32F098xx)
 #define DEFAULT_POLYNOMIAL_ENABLE       ((uint8_t)0x00U)
 #define DEFAULT_POLYNOMIAL_DISABLE      ((uint8_t)0x01U)
 
@@ -174,7 +174,7 @@ typedef struct
 #define DEFAULT_POLYNOMIAL_ENABLE       ((uint8_t)0x00U)
 
 #define IS_DEFAULT_POLYNOMIAL(DEFAULT)  ((DEFAULT) == DEFAULT_POLYNOMIAL_ENABLE)
-#endif /* defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F091xC) || defined(STM32F098xx) */
+#endif /* defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F091xx) || defined(STM32F098xx) */
 
 /**
   * @}

@@ -99,7 +99,7 @@
   */             
 HAL_StatusTypeDef HAL_CRCEx_Init(CRC_HandleTypeDef *hcrc)
 {
-#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F091xC) || defined (STM32F098xx)
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F091xx) || defined (STM32F098xx)
   /* check whether or not non-default generating polynomial has been 
    * picked up by user */
   assert_param(IS_DEFAULT_POLYNOMIAL(hcrc->Init.DefaultPolynomialUse)); 
@@ -117,7 +117,7 @@ HAL_StatusTypeDef HAL_CRCEx_Init(CRC_HandleTypeDef *hcrc)
       return HAL_ERROR;
     }
   }
-#endif /* defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F091xC) || defined (STM32F098xx) */    
+#endif /* defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F091xx) || defined (STM32F098xx) */
 
    return HAL_OK;
 }
@@ -177,7 +177,7 @@ HAL_StatusTypeDef HAL_CRCEx_Output_Data_Reverse(CRC_HandleTypeDef *hcrc, uint32_
   return HAL_OK;
 }
 
-#if defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F091xC) || defined (STM32F098xx)
+#if defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F091xx) || defined (STM32F098xx)
 /**
   * @brief  Initializes the CRC polynomial if different from default one.
   * @param  hcrc CRC handle
@@ -246,7 +246,7 @@ HAL_StatusTypeDef HAL_CRCEx_Polynomial_Set(CRC_HandleTypeDef *hcrc, uint32_t Pol
   /* Return function status */
   return HAL_OK;
 }
-#endif /* #if defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F091xC) || defined (STM32F098xx) */
+#endif /* #if defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F091xx) || defined (STM32F098xx) */
 
 /**
   * @}

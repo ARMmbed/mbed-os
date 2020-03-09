@@ -182,7 +182,7 @@
       (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_UNDEFINED;         \
     }                                                              \
   } while(0) 
-#elif defined(STM32F091xC) || defined(STM32F098xx) 
+#elif defined(STM32F091xx) || defined(STM32F098xx)
 #define SMARTCARD_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__)       \
   do {                                                             \
     if((__HANDLE__)->Instance == USART1)                           \

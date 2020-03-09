@@ -43,7 +43,7 @@
 
 #if defined(STM32F051x8) || defined(STM32F058xx) || \
     defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined(STM32F098xx)
+    defined(STM32F091xx) || defined(STM32F098xx)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal_def.h"
@@ -650,7 +650,7 @@ uint32_t HAL_COMP_GetState(COMP_HandleTypeDef *hcomp);
   
 #endif /* STM32F051x8 || STM32F058xx || */
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+       /* STM32F091xx || STM32F098xx */
 
 #ifdef __cplusplus
 }

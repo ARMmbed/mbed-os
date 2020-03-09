@@ -47,7 +47,7 @@
 
 #if defined(STM32F051x8) || defined(STM32F058xx) || \
     defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined(STM32F098xx)
+    defined(STM32F091xx) || defined(STM32F098xx)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal_def.h"
@@ -125,7 +125,7 @@
 #endif /* STM32F051x8 || STM32F058xx */
 
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined(STM32F098xx)
+    defined(STM32F091xx) || defined(STM32F098xx)
 
 #define DAC_TRIGGER_NONE                   (0x00000000U) /*!< Conversion is automatic once the DAC1_DHRxxxx register 
                                                                        has been loaded, and not by external trigger */
@@ -138,7 +138,7 @@
 #define DAC_TRIGGER_SOFTWARE               ((uint32_t)(DAC_CR_TSEL1 | DAC_CR_TEN1)) /*!< Conversion started by software trigger for DAC channel */
 
 #endif /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+       /* STM32F091xx || STM32F098xx */
 
 /**
   * @}
@@ -149,13 +149,13 @@
   */
   
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined(STM32F098xx)
+    defined(STM32F091xx) || defined(STM32F098xx)
 
 #define DAC_CHANNEL_1                      (0x00000000U)
 #define DAC_CHANNEL_2                      (0x00000010U)
 
 #endif /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+       /* STM32F091xx || STM32F098xx */
 
 #if defined(STM32F051x8) || defined(STM32F058xx)
 
@@ -178,7 +178,7 @@
   */
 
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined(STM32F098xx)
+    defined(STM32F091xx) || defined(STM32F098xx)
       
 #define IS_DAC_TRIGGER(TRIGGER) (((TRIGGER) == DAC_TRIGGER_NONE) || \
                                  ((TRIGGER) == DAC_TRIGGER_T2_TRGO) || \
@@ -190,7 +190,7 @@
                                  ((TRIGGER) == DAC_TRIGGER_SOFTWARE))      
 
 #endif /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+       /* STM32F091xx || STM32F098xx */
 
 #if defined(STM32F051x8) || defined(STM32F058xx)
 
@@ -205,7 +205,7 @@
 #endif /* STM32F051x8 || STM32F058xx */
 
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined(STM32F098xx)
+    defined(STM32F091xx) || defined(STM32F098xx)
       
 #define IS_DAC_TRIGGER(TRIGGER) (((TRIGGER) == DAC_TRIGGER_NONE) || \
                                  ((TRIGGER) == DAC_TRIGGER_T2_TRGO) || \
@@ -217,7 +217,7 @@
                                  ((TRIGGER) == DAC_TRIGGER_SOFTWARE))      
 
 #endif /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+       /* STM32F091xx || STM32F098xx */
 
 #define IS_DAC_LFSR_UNMASK_TRIANGLE_AMPLITUDE(VALUE) (((VALUE) == DAC_LFSRUNMASK_BIT0) || \
                                                       ((VALUE) == DAC_LFSRUNMASK_BITS1_0) || \
@@ -293,7 +293,7 @@ uint32_t          HAL_DACEx_DualGetValue(DAC_HandleTypeDef* hdac);
 
 #endif   /* STM32F051x8 || STM32F058xx ||                */
          /* STM32F071xB || STM32F072xB || STM32F078xx || */
-         /* STM32F091xC || STM32F098xx */
+         /* STM32F091xx || STM32F098xx */
 
 /**
   * @}

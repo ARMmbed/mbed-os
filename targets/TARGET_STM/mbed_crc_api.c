@@ -30,7 +30,7 @@ static uint32_t result;
      STM32F071xB
      STM32F072xB
      STM32F078xx
-     STM32F091xC
+     STM32F091xx
      STM32F098xx
 */
 

@@ -205,7 +205,7 @@
 
 #if defined(STM32F051x8) || defined(STM32F058xx) || \
     defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined (STM32F098xx)
+    defined(STM32F091xx) || defined (STM32F098xx)
 
 /** @defgroup DAC DAC
   * @brief DAC driver modules
@@ -497,7 +497,7 @@ HAL_StatusTypeDef HAL_DAC_Stop_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel)
   }
 
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined (STM32F098xx)
+    defined(STM32F091xx) || defined (STM32F098xx)
   /* Does not apply to STM32F051x8 & STM32F058xx */
   
   else /* Channel2 is used for */
@@ -509,7 +509,7 @@ HAL_StatusTypeDef HAL_DAC_Stop_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel)
     __HAL_DAC_DISABLE_IT(hdac, DAC_IT_DMAUDR2);
   }
 #endif /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */ 
+       /* STM32F091xx || STM32F098xx */
   
   /* Check if DMA Channel effectively disabled */
   if (status != HAL_OK)
@@ -773,7 +773,7 @@ uint32_t HAL_DAC_GetError(DAC_HandleTypeDef *hdac)
   */
 #endif /* STM32F051x8 || STM32F058xx ||                */
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+       /* STM32F091xx || STM32F098xx */
 
 #endif /* HAL_DAC_MODULE_ENABLED */
 

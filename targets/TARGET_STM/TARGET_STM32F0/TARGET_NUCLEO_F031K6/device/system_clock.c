@@ -82,7 +82,7 @@ void SystemInit(void)
 #elif defined (STM32F071xB)
     /* Reset USART2SW[1:0], USART1SW[1:0], I2C1SW, CECSW and ADCSW bits */
     RCC->CFGR3 &= (uint32_t)0xFFFFCEACU;
-#elif defined (STM32F091xC) || defined (STM32F098xx)
+#elif defined (STM32F091xx) || defined (STM32F098xx)
     /* Reset USART3SW[1:0], USART2SW[1:0], USART1SW[1:0], I2C1SW, CECSW and ADCSW bits */
     RCC->CFGR3 &= (uint32_t)0xFFF0FEACU;
 #elif defined (STM32F030x6) || defined (STM32F030x8) || defined (STM32F031x6) || defined (STM32F038xx) || defined (STM32F030xC)

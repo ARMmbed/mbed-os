@@ -3456,6 +3456,7 @@
         "core": "Cortex-M0",
         "extra_labels_add": [
             "STM32F0",
+            "STM32F091xx",
             "STM32F091xC"
         ],
         "config": {

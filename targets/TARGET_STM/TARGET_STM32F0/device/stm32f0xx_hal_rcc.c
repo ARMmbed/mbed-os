@@ -927,7 +927,7 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
   @elseif STM32F078xx
   *            @arg @ref RCC_MCO1SOURCE_HSI48       HSI48 selected as MCO clock
   *            @arg @ref RCC_MCO1SOURCE_PLLCLK      PLLCLK selected as MCO clock
-  @elseif STM32F091xC
+  @elseif STM32F091xx
   *            @arg @ref RCC_MCO1SOURCE_HSI48       HSI48 selected as MCO clock
   *            @arg @ref RCC_MCO1SOURCE_PLLCLK      PLLCLK selected as MCO clock
   @elseif STM32F098xx
@@ -1099,7 +1099,7 @@ uint32_t HAL_RCC_GetSysClockFreq(void)
 #endif /* RCC_CFGR_PLLSRC_HSI48_PREDIV */
       else
       {
-#if  (defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F070x6) || defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB) || defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC))
+#if  (defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F070x6) || defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB) || defined(STM32F091xx) || defined(STM32F098xx) || defined(STM32F030xC))
         /* HSI used as PLL clock source : PLLCLK = HSI/PREDIV * PLLMUL */
         pllclk = (HSI_VALUE / prediv) * pllmul;
 #else

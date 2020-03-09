@@ -110,7 +110,7 @@
   */
 
 #if defined (STM32F031x6) || defined (STM32F051x8) || \
-    defined (STM32F071xB) || defined (STM32F091xC) || \
+    defined (STM32F071xB) || defined (STM32F091xx) || \
     defined (STM32F042x6) || defined (STM32F072xB)
 /**
   * @brief Configures the voltage threshold detected by the Power Voltage Detector(PVD).
@@ -207,12 +207,12 @@ __weak void HAL_PWR_PVDCallback(void)
 }
 
 #endif /* defined (STM32F031x6) || defined (STM32F051x8) || */
-       /* defined (STM32F071xB) || defined (STM32F091xC) || */
+       /* defined (STM32F071xB) || defined (STM32F091xx) || */
        /* defined (STM32F042x6) || defined (STM32F072xB)    */
 
 #if defined (STM32F042x6) || defined (STM32F048xx) || \
     defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
-    defined (STM32F091xC) || defined (STM32F098xx)
+    defined (STM32F091xx) || defined (STM32F098xx)
 /**
   * @brief Enable VDDIO2 monitor: enable Exti 31 and falling edge detection.
   * @note If Exti 31 is enable correlty and VDDIO2 voltage goes below Vrefint,
@@ -268,7 +268,7 @@ __weak void HAL_PWREx_Vddio2MonitorCallback(void)
 
 #endif /* defined (STM32F042x6) || defined (STM32F048xx) || \
           defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
-          defined (STM32F091xC) || defined (STM32F098xx) */
+          defined (STM32F091xx) || defined (STM32F098xx) */
 
 /**
   * @}

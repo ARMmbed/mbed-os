@@ -177,7 +177,7 @@ void SystemInit(void)
 #elif defined (STM32F071xB)
   /* Reset USART2SW[1:0], USART1SW[1:0], I2C1SW, CECSW and ADCSW bits */
   RCC->CFGR3 &= (uint32_t)0xFFFFCEACU;
-#elif defined (STM32F091xC) || defined (STM32F098xx)
+#elif defined (STM32F091xx) || defined (STM32F098xx)
   /* Reset USART3SW[1:0], USART2SW[1:0], USART1SW[1:0], I2C1SW, CECSW and ADCSW bits */
   RCC->CFGR3 &= (uint32_t)0xFFF0FEACU;
 #elif defined (STM32F030x6) || defined (STM32F030x8) || defined (STM32F031x6) || defined (STM32F038xx) || defined (STM32F030xC)
@@ -273,18 +273,18 @@ void SystemCoreClockUpdate (void)
         /* HSE used as PLL clock source : SystemCoreClock = HSE/PREDIV * PLLMUL */
         SystemCoreClock = (HSE_VALUE/predivfactor) * pllmull;
       }
-#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F091xx) || defined(STM32F098xx)
       else if (pllsource == RCC_CFGR_PLLSRC_HSI48_PREDIV)
       {
         /* HSI48 used as PLL clock source : SystemCoreClock = HSI48/PREDIV * PLLMUL */
         SystemCoreClock = (HSI48_VALUE/predivfactor) * pllmull;
       }
-#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx || STM32F091xC || STM32F098xx */
+#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx || STM32F091xx || STM32F098xx */
       else
       {
 #if defined(STM32F042x6) || defined(STM32F048xx)  || defined(STM32F070x6) \
  || defined(STM32F078xx) || defined(STM32F071xB)  || defined(STM32F072xB) \
- || defined(STM32F070xB) || defined(STM32F091xC) || defined(STM32F098xx)  || defined(STM32F030xC)
+ || defined(STM32F070xB) || defined(STM32F091xx) || defined(STM32F098xx)  || defined(STM32F030xC)
         /* HSI used as PLL clock source : SystemCoreClock = HSI/PREDIV * PLLMUL */
         SystemCoreClock = (HSI_VALUE/predivfactor) * pllmull;
 #else
@@ -292,7 +292,7 @@ void SystemCoreClockUpdate (void)
         SystemCoreClock = (HSI_VALUE >> 1) * pllmull;
 #endif /* STM32F042x6 || STM32F048xx || STM32F070x6 || 
           STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB ||
-          STM32F091xC || STM32F098xx || STM32F030xC */
+          STM32F091xx || STM32F098xx || STM32F030xC */
       }
       break;
     default: /* HSI used as system clock */

@@ -163,7 +163,7 @@
 
 #if defined(STM32F051x8) || defined(STM32F058xx) || \
     defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined (STM32F098xx)
+    defined(STM32F091xx) || defined (STM32F098xx)
 
 /** @addtogroup STM32F0xx_HAL_Driver
   * @{
@@ -737,7 +737,7 @@ uint32_t HAL_COMP_GetState(COMP_HandleTypeDef *hcomp)
 
 #endif /* STM32F051x8 || STM32F058xx || */
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || defined (STM32F098xx) */
+       /* STM32F091xx || defined (STM32F098xx) */
 
 #endif /* HAL_COMP_MODULE_ENABLED */
 

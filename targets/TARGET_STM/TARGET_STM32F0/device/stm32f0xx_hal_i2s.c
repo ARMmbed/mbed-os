@@ -142,7 +142,7 @@
     defined(STM32F051x8) || defined(STM32F058xx) || \
     defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
     defined(STM32F042x6) || defined(STM32F048xx) || \
-    defined(STM32F091xC) || defined(STM32F098xx)
+    defined(STM32F091xx) || defined(STM32F098xx)
 
 /** @addtogroup STM32F0xx_HAL_Driver
   * @{
@@ -1404,7 +1404,7 @@ static HAL_StatusTypeDef I2S_WaitFlagStateUntilTimeout(I2S_HandleTypeDef *hi2s, 
        /* defined(STM32F051x8) || defined(STM32F058xx) || */
        /* defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || */
        /* defined(STM32F042x6) || defined(STM32F048xx) || */
-       /* defined(STM32F091xC) || defined(STM32F098xx) */
+       /* defined(STM32F091xx) || defined(STM32F098xx) */
 
 #endif /* HAL_I2S_MODULE_ENABLED */
 

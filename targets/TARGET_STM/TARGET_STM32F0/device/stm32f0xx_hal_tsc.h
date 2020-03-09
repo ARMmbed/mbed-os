@@ -42,7 +42,7 @@
  extern "C" {
 #endif
 
-#if defined(STM32F051x8) || defined(STM32F071xB) || defined(STM32F091xC) || \
+#if defined(STM32F051x8) || defined(STM32F071xB) || defined(STM32F091xx) || \
     defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) ||                         \
     defined(STM32F058xx) || defined(STM32F078xx) || defined(STM32F098xx)
 
@@ -707,7 +707,7 @@ void HAL_TSC_ErrorCallback(TSC_HandleTypeDef* htsc);
   * @}
   */
 
-#endif /* defined(STM32F051x8) || defined(STM32F071xB) || defined(STM32F091xC) || */
+#endif /* defined(STM32F051x8) || defined(STM32F071xB) || defined(STM32F091xx) || */
        /* defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || */
        /* defined(STM32F058xx) || defined(STM32F078xx) || defined(STM32F098xx)    */
 

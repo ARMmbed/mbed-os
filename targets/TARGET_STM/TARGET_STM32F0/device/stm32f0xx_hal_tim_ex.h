@@ -136,11 +136,11 @@ typedef struct
 #define TIM_CLEARINPUTSOURCE_ETR            (0x00000001U)
 #if defined(STM32F051x8) || defined(STM32F058xx) || \
     defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined (STM32F098xx)
+    defined(STM32F091xx) || defined (STM32F098xx)
 #define TIM_CLEARINPUTSOURCE_OCREFCLR       (0x00000002U)
 #endif /* STM32F051x8 || STM32F058xx || */
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || defined (STM32F098xx) */
+       /* STM32F091xx || defined (STM32F098xx) */
 /**
   * @}
   */
@@ -163,7 +163,7 @@ typedef struct
 
 #if defined(STM32F051x8) || defined(STM32F058xx) || \
     defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
-    defined(STM32F091xC) || defined (STM32F098xx)
+    defined(STM32F091xx) || defined (STM32F098xx)
 #define IS_TIM_CLEARINPUT_SOURCE(SOURCE) (((SOURCE) == TIM_CLEARINPUTSOURCE_NONE)      || \
                                           ((SOURCE) == TIM_CLEARINPUTSOURCE_ETR)       || \
                                           ((SOURCE) == TIM_CLEARINPUTSOURCE_OCREFCLR))
@@ -172,7 +172,7 @@ typedef struct
                                           ((SOURCE) == TIM_CLEARINPUTSOURCE_ETR))
 #endif /* STM32F051x8 || STM32F058xx || */
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || defined (STM32F098xx) */
+       /* STM32F091xx || defined (STM32F098xx) */
 /**
   * @}
   */

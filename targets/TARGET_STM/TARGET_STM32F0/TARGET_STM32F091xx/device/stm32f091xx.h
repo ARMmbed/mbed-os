@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    stm32f091xc.h
+  * @file    stm32f091xx.h
   * @author  MCD Application Team
   * @brief   CMSIS Cortex-M0 Device Peripheral Access Layer Header File. 
   *          This file contains all the peripheral register's definitions, bits 
@@ -45,12 +45,12 @@
   * @{
   */
 
-/** @addtogroup stm32f091xc
+/** @addtogroup stm32f091xx
   * @{
   */
-    
-#ifndef __STM32F091xC_H
-#define __STM32F091xC_H
+
+#ifndef __STM32F091xx_H
+#define __STM32F091xx_H
 
 #ifdef __cplusplus
  extern "C" {
@@ -616,7 +616,11 @@ typedef struct
   */
 
 #define FLASH_BASE            ((uint32_t)0x08000000U)              /*!< FLASH base address in the alias region */
-#define FLASH_BANK1_END       ((uint32_t)0x0803FFFFU) /*!< FLASH END address of bank1 */
+#if defined(STM32F091xC)
+  #define FLASH_BANK1_END       ((uint32_t)0x0803FFFFU) /*!< FLASH END address of bank1 */
+#else
+  #define FLASH_BANK1_END       ((uint32_t)0x0801FFFFU) /*!< FLASH END address of bank1 */
+#endif
 #define SRAM_BASE             ((uint32_t)0x20000000U)              /*!< SRAM base address in the alias region */
 #define PERIPH_BASE           ((uint32_t)0x40000000U)              /*!< Peripheral base address in the alias region */
 
@@ -11855,7 +11859,7 @@ typedef struct
 }
 #endif /* __cplusplus */
 
-#endif /* __STM32F091xC_H */
+#endif /* __STM32F091xx_H */
 
 /**
   * @}

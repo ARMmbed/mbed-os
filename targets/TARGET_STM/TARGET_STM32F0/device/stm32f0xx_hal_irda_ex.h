@@ -65,7 +65,7 @@
   */
 #if defined (STM32F042x6) || defined (STM32F048xx) || \
     defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
-    defined (STM32F091xC) || defined (STM32F098xx)
+    defined (STM32F091xx) || defined (STM32F098xx)
 #define IRDA_WORDLENGTH_7B                  ((uint32_t)USART_CR1_M1)   /*!< 7-bit long frame */
 #define IRDA_WORDLENGTH_8B                  (0x00000000U)              /*!< 8-bit long frame */
 #define IRDA_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M0)   /*!< 9-bit long frame */
@@ -74,7 +74,7 @@
 #define IRDA_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M)    /*!< 9-bit long frame */
 #endif /* defined (STM32F042x6) || defined (STM32F048xx) || \
           defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
-          defined (STM32F091xC) || defined (STM32F098xx)*/
+          defined (STM32F091xx) || defined (STM32F098xx)*/
 /**
   * @}
   */
@@ -212,7 +212,7 @@
       (__CLOCKSOURCE__) = IRDA_CLOCKSOURCE_UNDEFINED;         \
     }                                                         \
   } while(0)
-#elif defined(STM32F091xC) || defined(STM32F098xx)
+#elif defined(STM32F091xx) || defined(STM32F098xx)
 #define IRDA_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__)       \
   do {                                                        \
     if((__HANDLE__)->Instance == USART1)                      \
@@ -318,7 +318,7 @@
   */
 #if defined (STM32F042x6) || defined (STM32F048xx) || \
     defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
-    defined (STM32F091xC) || defined (STM32F098xx)
+    defined (STM32F091xx) || defined (STM32F098xx)
 #define IRDA_MASK_COMPUTATION(__HANDLE__)                             \
   do {                                                                \
   if ((__HANDLE__)->Init.WordLength == IRDA_WORDLENGTH_9B)            \
@@ -383,7 +383,7 @@
 } while(0)
 #endif /* defined (STM32F042x6) || defined (STM32F048xx) || \
           defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
-          defined (STM32F091xC) || defined(STM32F098xx) */
+          defined (STM32F091xx) || defined(STM32F098xx) */
 
 /**
   * @brief Ensure that IRDA frame length is valid.
@@ -392,7 +392,7 @@
   */ 
 #if defined (STM32F042x6) || defined (STM32F048xx) || \
     defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
-    defined (STM32F091xC) || defined (STM32F098xx)
+    defined (STM32F091xx) || defined (STM32F098xx)
 #define IS_IRDA_WORD_LENGTH(__LENGTH__) (((__LENGTH__) == IRDA_WORDLENGTH_7B) || \
                                          ((__LENGTH__) == IRDA_WORDLENGTH_8B) || \
                                          ((__LENGTH__) == IRDA_WORDLENGTH_9B))
@@ -401,7 +401,7 @@
                                          ((__LENGTH__) == IRDA_WORDLENGTH_9B))
 #endif /* defined (STM32F042x6) || defined (STM32F048xx) || \
           defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
-          defined (STM32F091xC) || defined (STM32F098xx)*/
+          defined (STM32F091xx) || defined (STM32F098xx)*/
 
 /**
   * @}

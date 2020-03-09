@@ -55,7 +55,7 @@
 
 /* Exported types ------------------------------------------------------------*/ 
 /* Exported constants --------------------------------------------------------*/
-#if defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
+#if defined(STM32F091xx) || defined(STM32F098xx) || defined(STM32F030xC)
 /** @defgroup DMAEx_Exported_Constants DMAEx Exported Constants
   * @{
   */ 
@@ -276,7 +276,7 @@
 #define HAL_DMA2_CH5_USART8_TX    (uint32_t) (DMA2_CHANNEL5_RMP | DMA2_CSELR_CH5_USART8_TX) /*!< Remap USART8 Tx on DMA2 channel 5 */ 
 #endif /* !defined(STM32F030xC) */
 
-#if defined(STM32F091xC) || defined(STM32F098xx) 
+#if defined(STM32F091xx) || defined(STM32F098xx)
 #define IS_HAL_DMA1_REMAP(REQUEST)  (((REQUEST) == HAL_DMA1_CH1_DEFAULT)  ||\
                                     ((REQUEST) == HAL_DMA1_CH1_ADC)       ||\
                                     ((REQUEST) == HAL_DMA1_CH1_TIM17_CH1) ||\
@@ -440,7 +440,7 @@
                                     ((REQUEST) == HAL_DMA2_CH5_USART6_TX) ||\
                                     ((REQUEST) == HAL_DMA2_CH5_USART7_TX) ||\
                                     ((REQUEST) == HAL_DMA2_CH5_USART8_TX ))
-#endif /* STM32F091xC || STM32F098xx */
+#endif /* STM32F091xx || STM32F098xx */
 
 #if defined(STM32F030xC)
 #define IS_HAL_DMA1_REMAP(REQUEST)  (((REQUEST) == HAL_DMA1_CH1_DEFAULT)  ||\
@@ -509,7 +509,7 @@
 /**
   * @}
   */ 
-#endif /* STM32F091xC  || STM32F098xx || STM32F030xC */
+#endif /* STM32F091xx  || STM32F098xx || STM32F030xC */
 
 /* Exported macros -----------------------------------------------------------*/
 
@@ -602,7 +602,7 @@
   */
 #define __HAL_DMA_CLEAR_FLAG(__HANDLE__, __FLAG__) (DMA1->IFCR = (__FLAG__))
 
-#elif defined(STM32F091xC) || defined(STM32F098xx)
+#elif defined(STM32F091xx) || defined(STM32F098xx)
 /**
   * @brief  Returns the current DMA Channel transfer complete flag.
   * @param  __HANDLE__ DMA handle
@@ -789,22 +789,22 @@
 #endif
 
 
-#if defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
+#if defined(STM32F091xx) || defined(STM32F098xx) || defined(STM32F030xC)
 #define __HAL_DMA1_REMAP(__REQUEST__)                                                              \
          do { assert_param(IS_HAL_DMA1_REMAP(__REQUEST__));                                             \
               DMA1->CSELR &= ~(0x0FU << (uint32_t)(((__REQUEST__) >> 28U) * 4U)); \
               DMA1->CSELR |= (uint32_t)((__REQUEST__) & 0x0FFFFFFFU);                                     \
   }while(0)
 
-#if defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(STM32F091xx) || defined(STM32F098xx)
 #define __HAL_DMA2_REMAP(__REQUEST__)                                                              \
          do { assert_param(IS_HAL_DMA2_REMAP(__REQUEST__));                                             \
               DMA2->CSELR &= ~(0x0FU << (uint32_t)(((__REQUEST__) >> 28U) * 4U)); \
               DMA2->CSELR |= (uint32_t)((__REQUEST__) & 0x0FFFFFFFU);                                     \
          }while(0)
-#endif /* STM32F091xC || STM32F098xx */
+#endif /* STM32F091xx || STM32F098xx */
 
-#endif /* STM32F091xC || STM32F098xx || STM32F030xC */
+#endif /* STM32F091xx || STM32F098xx || STM32F030xC */
 
 /**
   * @}

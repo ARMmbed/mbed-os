@@ -78,7 +78,7 @@
     !defined (STM32F042x6) && !defined (STM32F048xx) && !defined (STM32F070x6) && \
     !defined (STM32F051x8) && !defined (STM32F058xx) &&                           \
     !defined (STM32F071xB) && !defined (STM32F072xB) && !defined (STM32F078xx) && !defined (STM32F070xB) && \
-    !defined (STM32F091xC) && !defined (STM32F098xx) && !defined (STM32F030xC)
+    !defined (STM32F091xx) && !defined (STM32F098xx) && !defined (STM32F030xC)
   /* #define STM32F030x6 */  /*!< STM32F030x4, STM32F030x6 Devices (STM32F030xx microcontrollers where the Flash memory ranges between 16 and 32 Kbytes)              */
 #define STM32F030x8          /*!< STM32F030x8 Devices (STM32F030xx microcontrollers where the Flash memory is 64 Kbytes)                                              */
   /* #define STM32F031x6 */  /*!< STM32F031x4, STM32F031x6 Devices (STM32F031xx microcontrollers where the Flash memory ranges between 16 and 32 Kbytes)              */
@@ -93,7 +93,7 @@
   /* #define STM32F072xB */  /*!< STM32F072x8, STM32F072xB Devices (STM32F072xx microcontrollers where the Flash memory ranges between 64 and 128 Kbytes)             */
   /* #define STM32F078xx */  /*!< STM32F078xx Devices (STM32F078xx microcontrollers where the Flash memory is 128 Kbytes)                                             */
   /* #define STM32F030xC */  /*!< STM32F030xC Devices (STM32F030xC microcontrollers where the Flash memory is 256 Kbytes)                                             */  
-  /* #define STM32F091xC */  /*!< STM32F091xB, STM32F091xC Devices (STM32F091xx microcontrollers where the Flash memory ranges between 128 and 256 Kbytes)            */
+  /* #define STM32F091xx */  /*!< STM32F091xB, STM32F091xC Devices (STM32F091xx microcontrollers where the Flash memory ranges between 128 and 256 Kbytes)            */
   /* #define STM32F098xx */  /*!< STM32F098xx Devices (STM32F098xx microcontrollers where the Flash memory is 256 Kbytes)                                             */
 #endif
    
@@ -155,8 +155,8 @@
   #include "stm32f072xb.h"
 #elif defined(STM32F078xx)
   #include "stm32f078xx.h"
-#elif defined(STM32F091xC)
-  #include "stm32f091xc.h"
+#elif defined(STM32F091xx)
+  #include "stm32f091xx.h"
 #elif defined(STM32F098xx)
   #include "stm32f098xx.h"
 #elif defined(STM32F030xC)

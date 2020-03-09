@@ -241,11 +241,11 @@ HAL_StatusTypeDef HAL_RTC_DeInit(RTC_HandleTypeDef *hrtc)
 {
 #if defined (STM32F030xC) || defined (STM32F070xB) || \
     defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
-    defined (STM32F091xC) || defined (STM32F098xx)
+    defined (STM32F091xx) || defined (STM32F098xx)
   uint32_t tickstart = 0;
 #endif /* defined (STM32F030xC) || defined (STM32F070xB) ||\
           defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
-          defined (STM32F091xC) || defined (STM32F098xx) ||*/
+          defined (STM32F091xx) || defined (STM32F098xx) ||*/
 
   /* Check the parameters */
   assert_param(IS_RTC_ALL_INSTANCE(hrtc->Instance));
@@ -275,7 +275,7 @@ HAL_StatusTypeDef HAL_RTC_DeInit(RTC_HandleTypeDef *hrtc)
     
 #if defined (STM32F030xC) || defined (STM32F070xB) || \
     defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
-    defined (STM32F091xC) || defined (STM32F098xx)    
+    defined (STM32F091xx) || defined (STM32F098xx)
     /* Reset All CR bits except CR[2:0] */
     hrtc->Instance->CR &= 0x00000007U;
     
@@ -297,17 +297,17 @@ HAL_StatusTypeDef HAL_RTC_DeInit(RTC_HandleTypeDef *hrtc)
     }
 #endif /* defined (STM32F030xC) || defined (STM32F070xB) ||\
           defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
-          defined (STM32F091xC) || defined (STM32F098xx) ||*/
+          defined (STM32F091xx) || defined (STM32F098xx) ||*/
           
     /* Reset all RTC CR register bits */
     hrtc->Instance->CR &= 0x00000000U;
 #if defined (STM32F030xC) || defined (STM32F070xB) || \
     defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
-    defined (STM32F091xC) || defined (STM32F098xx)    
+    defined (STM32F091xx) || defined (STM32F098xx)
     hrtc->Instance->WUTR = 0x0000FFFFU;
 #endif /* defined (STM32F030xC) || defined (STM32F070xB) ||\
           defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
-          defined (STM32F091xC) || defined (STM32F098xx) ||*/    
+          defined (STM32F091xx) || defined (STM32F098xx) ||*/
     hrtc->Instance->PRER = 0x007F00FFU;
     hrtc->Instance->ALRMAR = 0x00000000U;        
     hrtc->Instance->SHIFTR = 0x00000000U;

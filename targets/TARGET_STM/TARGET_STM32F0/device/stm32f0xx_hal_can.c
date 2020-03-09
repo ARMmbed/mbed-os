@@ -105,7 +105,7 @@
 
 #ifdef HAL_CAN_MODULE_ENABLED  
   
-#if defined(STM32F072xB) || defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F091xC) || defined(STM32F098xx) 
+#if defined(STM32F072xB) || defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F091xx) || defined(STM32F098xx)
 
 /** @addtogroup STM32F0xx_HAL_Driver
   * @{
@@ -1690,7 +1690,7 @@ static HAL_StatusTypeDef CAN_Receive_IT(CAN_HandleTypeDef* hcan, uint8_t FIFONum
   * @}
   */
  
-#endif /* defined(STM32F072xB) || defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F091xC) || defined(STM32F098xx) */
+#endif /* defined(STM32F072xB) || defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F091xx) || defined(STM32F098xx) */
 
 #endif /* HAL_CAN_MODULE_ENABLED */
 

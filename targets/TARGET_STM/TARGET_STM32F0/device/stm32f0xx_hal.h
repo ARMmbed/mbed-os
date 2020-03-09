@@ -57,7 +57,7 @@
 /** @addtogroup HAL_Private_Macros
   * @{
   */
-#if defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F042x6) || defined(STM32F048xx) || \
+#if defined(STM32F091xx) || defined(STM32F098xx) || defined(STM32F042x6) || defined(STM32F048xx) || \
     defined(STM32F030x6) || defined(STM32F031x6) || defined(STM32F038xx) || defined(STM32F070x6) || \
     defined(STM32F070xB) || defined(STM32F030x6)
 #define IS_SYSCFG_FASTMODEPLUS(__PIN__) ((((__PIN__) & SYSCFG_FASTMODEPLUS_PA9)  == SYSCFG_FASTMODEPLUS_PA9)  || \
@@ -75,11 +75,11 @@
 #if defined(SYSCFG_CFGR1_PA11_PA12_RMP)
 #define IS_HAL_REMAP_PIN(RMP) ((RMP) == HAL_REMAP_PA11_PA12)
 #endif /* SYSCFG_CFGR1_PA11_PA12_RMP */
-#if defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(STM32F091xx) || defined(STM32F098xx)
 #define IS_HAL_SYSCFG_IRDA_ENV_SEL(SEL)   (((SEL) == HAL_SYSCFG_IRDA_ENV_SEL_TIM16)   || \
                                            ((SEL) == HAL_SYSCFG_IRDA_ENV_SEL_USART1)   || \
                                            ((SEL) == HAL_SYSCFG_IRDA_ENV_SEL_USART4))
-#endif /* STM32F091xC || STM32F098xx */
+#endif /* STM32F091xx || STM32F098xx */
 /**
   * @}
   */
@@ -103,7 +103,7 @@
   */
 #endif /* SYSCFG_CFGR1_PA11_PA12_RMP */
 
-#if defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(STM32F091xx) || defined(STM32F098xx)
 /** @defgroup HAL_IRDA_ENV_SEL HAL IRDA Enveloppe Selection
   * @note Applicable on STM32F09x
   * @{
@@ -115,7 +115,7 @@
 /**
   * @}
   */
-#endif /* STM32F091xC || STM32F098xx */
+#endif /* STM32F091xx || STM32F098xx */
 
 
 /** @defgroup SYSCFG_FastModePlus_GPIO Fast-mode Plus on GPIO
@@ -124,7 +124,7 @@
 
 /** @brief  Fast-mode Plus driving capability on a specific GPIO
   */  
-#if defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F042x6) || defined(STM32F048xx) || \
+#if defined(STM32F091xx) || defined(STM32F098xx) || defined(STM32F042x6) || defined(STM32F048xx) || \
     defined(STM32F030x6) || defined(STM32F031x6) || defined(STM32F038xx) || defined(STM32F070x6) || \
     defined(STM32F070xB) || defined(STM32F030x6)
 #define SYSCFG_FASTMODEPLUS_PA9        SYSCFG_CFGR1_I2C_FMP_PA9  /*!< Enable Fast-mode Plus on PA9  */
@@ -140,7 +140,7 @@
  */
 
 
-#if defined(STM32F091xC) || defined (STM32F098xx)
+#if defined(STM32F091xx) || defined (STM32F098xx)
 /** @defgroup HAL_ISR_Wrapper HAL ISR Wrapper
   * @brief ISR Wrapper
   * @note applicable on STM32F09x
@@ -180,7 +180,7 @@
 #define HAL_SYSCFG_ITLINE31                          ( 0x0000001FU) /*!< Internal define for macro handling */
 
 #define HAL_ITLINE_EWDG           ((uint32_t) ((HAL_SYSCFG_ITLINE0 << 0x18U) | SYSCFG_ITLINE0_SR_EWDG)) /*!< EWDG has expired .... */
-#if defined(STM32F091xC)
+#if defined(STM32F091xx)
 #define HAL_ITLINE_PVDOUT         ((uint32_t) ((HAL_SYSCFG_ITLINE1 << 0x18U) | SYSCFG_ITLINE1_SR_PVDOUT)) /*!< Power voltage detection Interrupt .... */
 #endif
 #define HAL_ITLINE_VDDIO2         ((uint32_t) ((HAL_SYSCFG_ITLINE1 << 0x18U) | SYSCFG_ITLINE1_SR_VDDIO2)) /*!< VDDIO2 Interrupt .... */
@@ -254,7 +254,7 @@
 /**
   * @}
   */
-#endif /* STM32F091xC || STM32F098xx */
+#endif /* STM32F091xx || STM32F098xx */
 
 /**
   * @}
@@ -463,7 +463,7 @@
 #endif /* SYSCFG_CFGR2_SRAM_PEF */
 
 
-#if defined(STM32F091xC) || defined (STM32F098xx)
+#if defined(STM32F091xx) || defined (STM32F098xx)
 /** @defgroup HAL_ISR_wrapper_check HAL ISR wrapper check
   * @brief  ISR wrapper check
   * @note This feature is applicable on STM32F09x  
@@ -474,9 +474,9 @@
 /**
   * @}
   */
-#endif /* (STM32F091xC) || defined (STM32F098xx)*/
+#endif /* (STM32F091xx) || defined (STM32F098xx)*/
 
-#if defined(STM32F091xC) || defined (STM32F098xx)
+#if defined(STM32F091xx) || defined (STM32F098xx)
 /** @defgroup HAL_SYSCFG_IRDA_modulation_envelope_selection HAL SYSCFG IRDA modulation envelope selection
   * @brief  selection of the modulation envelope signal macro, using bits [7:6] of SYS_CTRL(CFGR1) register
   * @note This feature is applicable on STM32F09x
@@ -492,7 +492,7 @@
 /**
   * @}
   */
-#endif /* (STM32F091xC) || defined (STM32F098xx)*/
+#endif /* (STM32F091xx) || defined (STM32F098xx)*/
 
 /**
   * @}

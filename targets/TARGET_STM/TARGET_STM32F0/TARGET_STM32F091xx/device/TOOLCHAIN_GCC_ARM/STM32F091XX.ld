@@ -6,11 +6,19 @@
 
 StackSize = MBED_BOOT_STACK_SIZE;
 
-MEMORY
-{ 
-  FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 256k
-  RAM (xrw)       : ORIGIN = 0x200000C0, LENGTH = 32k - 0x0C0
-}
+#if defined(STM32F091xC)
+    MEMORY
+    {
+        FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 256k
+        RAM (xrw)       : ORIGIN = 0x200000C0, LENGTH = 32k - 0x0C0
+    }
+#else
+    MEMORY
+    {
+        FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 128k
+        RAM (xrw)       : ORIGIN = 0x200000C0, LENGTH = 32k - 0x0C0
+    }
+#endif
 
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.

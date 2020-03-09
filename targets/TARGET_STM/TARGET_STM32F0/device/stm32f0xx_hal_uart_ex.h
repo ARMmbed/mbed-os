@@ -89,7 +89,7 @@ typedef struct
   */
 #if defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6) || \
     defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F070xB) || \
-    defined (STM32F091xC) || defined (STM32F098xx) || defined (STM32F030xC)
+    defined (STM32F091xx) || defined (STM32F098xx) || defined (STM32F030xC)
 #define UART_WORDLENGTH_7B                  ((uint32_t)USART_CR1_M1)   /*!< 7-bit long UART frame */
 #define UART_WORDLENGTH_8B                  (0x00000000U)              /*!< 8-bit long UART frame */
 #define UART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M0)   /*!< 9-bit long UART frame */
@@ -98,7 +98,7 @@ typedef struct
 #define UART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M)    /*!< 9-bit long UART frame */
 #endif /* defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6) || \
           defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F070xB) || \
-          defined (STM32F091xC) || defined (STM32F098xx) || defined (STM32F030xC) */
+          defined (STM32F091xx) || defined (STM32F098xx) || defined (STM32F030xC) */
 /**
   * @}
   */
@@ -108,7 +108,7 @@ typedef struct
   */
 #if defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6) || \
     defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F070xB) || \
-    defined (STM32F091xC) || defined (STM32F098xx) || defined (STM32F030xC)
+    defined (STM32F091xx) || defined (STM32F098xx) || defined (STM32F030xC)
 #define UART_ADVFEATURE_AUTOBAUDRATE_ONSTARTBIT    (0x00000000U)                     /*!< Auto Baud rate detection on start bit            */
 #define UART_ADVFEATURE_AUTOBAUDRATE_ONFALLINGEDGE ((uint32_t)USART_CR2_ABRMODE_0)   /*!< Auto Baud rate detection on falling edge         */
 #define UART_ADVFEATURE_AUTOBAUDRATE_ON0X7FFRAME   ((uint32_t)USART_CR2_ABRMODE_1)   /*!< Auto Baud rate detection on 0x7F frame detection */
@@ -118,7 +118,7 @@ typedef struct
 #define UART_ADVFEATURE_AUTOBAUDRATE_ONFALLINGEDGE ((uint32_t)USART_CR2_ABRMODE_0)   /*!< Auto Baud rate detection on falling edge         */
 #endif /* defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6) || \
           defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F070xB) || \
-          defined (STM32F091xC) || defined (STM32F098xx) || defined (STM32F030xC) */
+          defined (STM32F091xx) || defined (STM32F098xx) || defined (STM32F030xC) */
 /**
   * @}
   */
@@ -467,7 +467,7 @@ typedef struct
       (__CLOCKSOURCE__) = UART_CLOCKSOURCE_UNDEFINED;         \
     }                                                         \
   } while(0)   
-#elif defined(STM32F091xC) || defined (STM32F098xx)
+#elif defined(STM32F091xx) || defined (STM32F098xx)
 #define UART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
   do {                                                        \
     if((__HANDLE__)->Instance == USART1)                      \
@@ -622,7 +622,7 @@ typedef struct
   */
 #if defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6) || \
     defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F070xB) || \
-    defined (STM32F091xC) || defined (STM32F098xx) || defined (STM32F030xC)
+    defined (STM32F091xx) || defined (STM32F098xx) || defined (STM32F030xC)
 #define UART_MASK_COMPUTATION(__HANDLE__)                             \
   do {                                                                \
   if ((__HANDLE__)->Init.WordLength == UART_WORDLENGTH_9B)            \
@@ -687,7 +687,7 @@ typedef struct
 } while(0) 
 #endif /* defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6) || \
           defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F070xB) || \
-          defined (STM32F091xC) || defined (STM32F098xx) || defined (STM32F030xC)  */
+          defined (STM32F091xx) || defined (STM32F098xx) || defined (STM32F030xC)  */
 
 /**
   * @brief Ensure that UART frame length is valid.
@@ -696,7 +696,7 @@ typedef struct
   */
 #if defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6) || \
     defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F070xB) || \
-    defined (STM32F091xC) || defined (STM32F098xx) || defined (STM32F030xC)
+    defined (STM32F091xx) || defined (STM32F098xx) || defined (STM32F030xC)
 #define IS_UART_WORD_LENGTH(__LENGTH__) (((__LENGTH__) == UART_WORDLENGTH_7B) || \
                                          ((__LENGTH__) == UART_WORDLENGTH_8B) || \
                                          ((__LENGTH__) == UART_WORDLENGTH_9B))
@@ -705,7 +705,7 @@ typedef struct
                                          ((__LENGTH__) == UART_WORDLENGTH_9B))
 #endif /* defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6) || \
           defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F070xB) || \
-          defined (STM32F091xC) || defined (STM32F098xx) || defined (STM32F030xC) */
+          defined (STM32F091xx) || defined (STM32F098xx) || defined (STM32F030xC) */
 
 /**
   * @brief Ensure that UART auto Baud rate detection mode is valid.
@@ -714,7 +714,7 @@ typedef struct
   */
 #if defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6) || \
     defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F070xB) || \
-    defined (STM32F091xC) || defined (STM32F098xx) || defined (STM32F030xC)
+    defined (STM32F091xx) || defined (STM32F098xx) || defined (STM32F030xC)
 #define IS_UART_ADVFEATURE_AUTOBAUDRATEMODE(__MODE__)  (((__MODE__) == UART_ADVFEATURE_AUTOBAUDRATE_ONSTARTBIT)    || \
                                                         ((__MODE__) == UART_ADVFEATURE_AUTOBAUDRATE_ONFALLINGEDGE) || \
                                                         ((__MODE__) == UART_ADVFEATURE_AUTOBAUDRATE_ON0X7FFRAME)   || \
@@ -724,7 +724,7 @@ typedef struct
                                                         ((__MODE__) == UART_ADVFEATURE_AUTOBAUDRATE_ONFALLINGEDGE))
 #endif /* defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6) || \
           defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F070xB) || \
-          defined (STM32F091xC) || defined (STM32F098xx) || defined (STM32F030xC) */
+          defined (STM32F091xx) || defined (STM32F098xx) || defined (STM32F030xC) */
 
 
 #if !defined(STM32F030x6) && !defined(STM32F030x8) && !defined(STM32F070x6)  && !defined(STM32F070xB)  && !defined(STM32F030xC)

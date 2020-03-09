@@ -164,9 +164,9 @@ typedef struct
 #endif /* STM32F030x6 || STM32F030x8 || STM32F031x6 || STM32F051x8 || STM32F042x6 || STM32F048xx || STM32F058xx || STM32F070x6 */
 
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB) \
- || defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
+ || defined(STM32F091xx) || defined(STM32F098xx) || defined(STM32F030xC)
 #define FLASH_PAGE_SIZE          0x800U
-#endif /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F091xC || STM32F098xx || STM32F030xC */
+#endif /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F091xx || STM32F098xx || STM32F030xC */
 /**
   * @}
   */
@@ -250,7 +250,7 @@ typedef struct
 #endif /* STM32F030x6 || STM32F030x8 || STM32F031x6 || STM32F051x8 || STM32F042x6 || STM32F048xx || STM32F038xx || STM32F058xx || STM32F070x6 */
       
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB) \
- || defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
+ || defined(STM32F091xx) || defined(STM32F098xx) || defined(STM32F030xC)
 #define OB_WRP_PAGES0TO1               (0x00000001U) /* Write protection of page 0 to 1 */
 #define OB_WRP_PAGES2TO3               (0x00000002U) /* Write protection of page 2 to 3 */
 #define OB_WRP_PAGES4TO5               (0x00000004U) /* Write protection of page 4 to 5 */
@@ -285,26 +285,26 @@ typedef struct
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB)
 #define OB_WRP_PAGES62TO63             (0x80000000U) /* Write protection of page 62 to 63 */
 #endif /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB */
-#if defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
+#if defined(STM32F091xx) || defined(STM32F098xx) || defined(STM32F030xC)
 #define OB_WRP_PAGES62TO127            (0x80000000U) /* Write protection of page 62 to 127 */
-#endif /* STM32F091xC || STM32F098xx || STM32F030xC */
+#endif /* STM32F091xx || STM32F098xx || STM32F030xC */
 
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB) \
- || defined(STM32F091xC) || defined(STM32F098xx)|| defined(STM32F030xC)
+ || defined(STM32F091xx) || defined(STM32F098xx)|| defined(STM32F030xC)
 #define OB_WRP_PAGES0TO15MASK          (0x000000FFU)
 #define OB_WRP_PAGES16TO31MASK         (0x0000FF00U)
 #define OB_WRP_PAGES32TO47MASK         (0x00FF0000U)
-#endif /* STM32F071xB || STM32F072xB || STM32F078xx  || STM32F091xC || STM32F098xx || STM32F070xB || STM32F030xC */
+#endif /* STM32F071xB || STM32F072xB || STM32F078xx  || STM32F091xx || STM32F098xx || STM32F070xB || STM32F030xC */
 
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB)
 #define OB_WRP_PAGES48TO63MASK         (0xFF000000U)
 #endif /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB */
-#if defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
+#if defined(STM32F091xx) || defined(STM32F098xx) || defined(STM32F030xC)
 #define OB_WRP_PAGES48TO127MASK        (0xFF000000U)
-#endif /* STM32F091xC || STM32F098xx || STM32F030xC */
+#endif /* STM32F091xx || STM32F098xx || STM32F030xC */
 
 #define OB_WRP_ALLPAGES                (0xFFFFFFFFU) /*!< Write protection of all pages */
-#endif /* STM32F071xB || STM32F072xB || STM32F078xx  || STM32F091xC || STM32F098xx || STM32F030xC || STM32F070xB */
+#endif /* STM32F071xB || STM32F072xB || STM32F078xx  || STM32F091xx || STM32F098xx || STM32F030xC || STM32F070xB */
 
 /**
   * @}

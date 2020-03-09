@@ -63,7 +63,7 @@
   */
 #if defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6) || \
     defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F070xB) || \
-    defined (STM32F091xC) || defined (STM32F098xx) || defined (STM32F030xC)
+    defined (STM32F091xx) || defined (STM32F098xx) || defined (STM32F030xC)
 #define USART_WORDLENGTH_7B                  ((uint32_t)USART_CR1_M1)   /*!< 7-bit long USART frame */ 
 #define USART_WORDLENGTH_8B                  (0x00000000U)              /*!< 8-bit long USART frame */ 
 #define USART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M0)   /*!< 9-bit long USART frame */ 
@@ -72,7 +72,7 @@
 #define USART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M)    /*!< 9-bit long USART frame */ 
 #endif /* defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6) || defined (STM32F070xB) || \
           defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
-          defined (STM32F091xC) || defined (STM32F098xx) || defined (STM32F030xC) */
+          defined (STM32F091xx) || defined (STM32F098xx) || defined (STM32F030xC) */
 /**
   * @}
   */
@@ -309,7 +309,7 @@
       (__CLOCKSOURCE__) = USART_CLOCKSOURCE_UNDEFINED;         \
     }                                                          \
   } while(0)
-#elif defined(STM32F091xC) || defined (STM32F098xx)
+#elif defined(STM32F091xx) || defined (STM32F098xx)
 #define USART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
   do {                                                         \
     if((__HANDLE__)->Instance == USART1)                       \
@@ -463,7 +463,7 @@
   */
 #if defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6) || \
     defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F070xB) || \
-    defined (STM32F091xC) || defined (STM32F098xx) || defined (STM32F030xC)
+    defined (STM32F091xx) || defined (STM32F098xx) || defined (STM32F030xC)
 #define USART_MASK_COMPUTATION(__HANDLE__)                            \
   do {                                                                \
   if ((__HANDLE__)->Init.WordLength == USART_WORDLENGTH_9B)           \
@@ -528,7 +528,7 @@
 } while(0)
 #endif /* defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6) || \
           defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F070xB) || \
-          defined (STM32F091xC) || defined (STM32F098xx) || defined (STM32F030xC) */
+          defined (STM32F091xx) || defined (STM32F098xx) || defined (STM32F030xC) */
 
 
 /**
@@ -538,7 +538,7 @@
   */
 #if defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6) || \
     defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || defined (STM32F070xB) || \
-    defined (STM32F091xC) || defined (STM32F098xx) || defined (STM32F030xC)
+    defined (STM32F091xx) || defined (STM32F098xx) || defined (STM32F030xC)
 #define IS_USART_WORD_LENGTH(__LENGTH__) (((__LENGTH__) == USART_WORDLENGTH_7B) || \
                                           ((__LENGTH__) == USART_WORDLENGTH_8B) || \
                                           ((__LENGTH__) == USART_WORDLENGTH_9B))
@@ -547,7 +547,7 @@
                                           ((__LENGTH__) == USART_WORDLENGTH_9B))
 #endif /* defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6) || defined (STM32F070xB) || \
           defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
-          defined (STM32F091xC) || defined (STM32F098xx) || defined (STM32F030xC) */
+          defined (STM32F091xx) || defined (STM32F098xx) || defined (STM32F030xC) */
 
 /**
   * @brief Ensure that USART request parameter is valid.

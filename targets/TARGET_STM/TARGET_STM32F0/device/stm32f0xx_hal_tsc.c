@@ -109,7 +109,7 @@
 
 #ifdef HAL_TSC_MODULE_ENABLED
 
-#if defined(STM32F051x8) || defined(STM32F071xB) || defined(STM32F091xC) || \
+#if defined(STM32F051x8) || defined(STM32F071xB) || defined(STM32F091xx) || \
     defined(STM32F042x6) || defined(STM32F072xB) ||                         \
     defined(STM32F048xx) || defined(STM32F058xx) || defined(STM32F078xx) || defined(STM32F098xx)
 
@@ -815,7 +815,7 @@ static uint32_t TSC_extract_groups(uint32_t iomask)
   * @}
   */ 
 
-#endif /* defined(STM32F051x8) || defined(STM32F071xB) || defined(STM32F091xC) || */
+#endif /* defined(STM32F051x8) || defined(STM32F071xB) || defined(STM32F091xx) || */
        /* defined(STM32F042x6) || defined(STM32F072xB) ||                         */
        /* defined(STM32F048xx) || defined(STM32F058xx) || defined(STM32F078xx) || defined(STM32F098xx) */
 

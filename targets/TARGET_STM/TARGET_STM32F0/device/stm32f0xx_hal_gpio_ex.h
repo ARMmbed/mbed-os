@@ -340,8 +340,8 @@
 #endif /* STM32F071xB */
 
 
-#if defined(STM32F091xC) || defined(STM32F098xx)
-/*--------------------------- STM32F091xC || STM32F098xx ------------------------------*/
+#if defined(STM32F091xx) || defined(STM32F098xx)
+/*--------------------------- STM32F091xx || STM32F098xx ------------------------------*/
 /* AF 0 */
 #define GPIO_AF0_EVENTOUT     ((uint8_t)0x00U)  /*!< AF0: EVENTOUT Alternate Function mapping  */
 #define GPIO_AF0_SWDIO        ((uint8_t)0x00U)  /*!< AF0: SWDIO Alternate Function mapping     */
@@ -430,7 +430,7 @@
 
 #define IS_GPIO_AF(AF)        ((AF) <= (uint8_t)0x07U)
 
-#endif /* STM32F091xC  || STM32F098xx */
+#endif /* STM32F091xx  || STM32F098xx */
 
 #if defined(STM32F030xC)
 /*--------------------------- STM32F030xC ----------------------------------------------------*/

@@ -207,7 +207,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
   }
   
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)\
- || defined(STM32F091xC) || defined(STM32F098xx)
+ || defined(STM32F091xx) || defined(STM32F098xx)
   /*----------------------------- USART2 Configuration --------------------------*/ 
   if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_USART2) == RCC_PERIPHCLK_USART2)
   {
@@ -218,9 +218,9 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
     __HAL_RCC_USART2_CONFIG(PeriphClkInit->Usart2ClockSelection);
   }
 #endif /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+       /* STM32F091xx || STM32F098xx */
 
-#if defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(STM32F091xx) || defined(STM32F098xx)
   /*----------------------------- USART3 Configuration --------------------------*/ 
   if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_USART3) == RCC_PERIPHCLK_USART3)
   {
@@ -230,7 +230,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
     /* Configure the USART3 clock source */
     __HAL_RCC_USART3_CONFIG(PeriphClkInit->Usart3ClockSelection);
   }
-#endif /* STM32F091xC || STM32F098xx */  
+#endif /* STM32F091xx || STM32F098xx */
 
   /*------------------------------ I2C1 Configuration ------------------------*/ 
   if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_I2C1) == RCC_PERIPHCLK_I2C1)
@@ -257,7 +257,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
 #if defined(STM32F042x6) || defined(STM32F048xx)\
  || defined(STM32F051x8) || defined(STM32F058xx)\
  || defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)\
- || defined(STM32F091xC) || defined(STM32F098xx)
+ || defined(STM32F091xx) || defined(STM32F098xx)
   /*------------------------------ CEC clock Configuration -------------------*/ 
   if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_CEC) == RCC_PERIPHCLK_CEC)
   {
@@ -270,7 +270,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
 #endif /* STM32F042x6 || STM32F048xx ||                */
        /* STM32F051x8 || STM32F058xx ||                */
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+       /* STM32F091xx || STM32F098xx */
   
   return HAL_OK;
 }
@@ -296,18 +296,18 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
   PeriphClkInit->I2c1ClockSelection = __HAL_RCC_GET_I2C1_SOURCE();
 
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)\
- || defined(STM32F091xC) || defined(STM32F098xx)
+ || defined(STM32F091xx) || defined(STM32F098xx)
   PeriphClkInit->PeriphClockSelection |= RCC_PERIPHCLK_USART2;
   /* Get the USART2 clock source ---------------------------------------------*/
   PeriphClkInit->Usart2ClockSelection = __HAL_RCC_GET_USART2_SOURCE();
 #endif /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+       /* STM32F091xx || STM32F098xx */
 
-#if defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(STM32F091xx) || defined(STM32F098xx)
   PeriphClkInit->PeriphClockSelection |= RCC_PERIPHCLK_USART3;
   /* Get the USART3 clock source ---------------------------------------------*/
   PeriphClkInit->Usart3ClockSelection = __HAL_RCC_GET_USART3_SOURCE();
-#endif /* STM32F091xC || STM32F098xx */
+#endif /* STM32F091xx || STM32F098xx */
 
 #if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB) || defined(STM32F070x6)
   PeriphClkInit->PeriphClockSelection |= RCC_PERIPHCLK_USB;
@@ -318,14 +318,14 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
 #if defined(STM32F042x6) || defined(STM32F048xx)\
  || defined(STM32F051x8) || defined(STM32F058xx)\
  || defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)\
- || defined(STM32F091xC) || defined(STM32F098xx)
+ || defined(STM32F091xx) || defined(STM32F098xx)
   PeriphClkInit->PeriphClockSelection |= RCC_PERIPHCLK_CEC;
   /* Get the CEC clock source ------------------------------------------------*/
   PeriphClkInit->CecClockSelection = __HAL_RCC_GET_CEC_SOURCE();
 #endif /* STM32F042x6 || STM32F048xx ||                */
        /* STM32F051x8 || STM32F058xx ||                */
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+       /* STM32F091xx || STM32F098xx */
 
 }
 
@@ -371,7 +371,7 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
   *            @arg @ref RCC_PERIPHCLK_USB     USB peripheral clock
   *            @arg @ref RCC_PERIPHCLK_CEC     CEC peripheral clock
   @endif
-  @if STM32F091xC
+  @if STM32F091xx
   *            @arg @ref RCC_PERIPHCLK_USART2  USART2 peripheral clock
   *            @arg @ref RCC_PERIPHCLK_USART3  USART2 peripheral clock
   *            @arg @ref RCC_PERIPHCLK_CEC     CEC peripheral clock

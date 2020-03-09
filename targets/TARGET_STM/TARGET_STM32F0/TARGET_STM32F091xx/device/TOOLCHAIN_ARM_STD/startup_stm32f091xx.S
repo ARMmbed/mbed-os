@@ -1,7 +1,7 @@
 ;******************** (C) COPYRIGHT 2014 STMicroelectronics ********************
-;* File Name          : startup_stm32f091xc.s
+;* File Name          : startup_stm32f091xx.s
 ;* Author             : MCD Application Team
-;* Description        : STM32F091xc/STM32F098xc devices vector table for MDK-ARM_MICRO toolchain.
+;* Description        : STM32F091xx/STM32F098xx devices vector table for MDK-ARM_STD toolchain.
 ;*                      This module performs:
 ;*                      - Set the initial SP
 ;*                      - Set the initial PC == Reset_Handler

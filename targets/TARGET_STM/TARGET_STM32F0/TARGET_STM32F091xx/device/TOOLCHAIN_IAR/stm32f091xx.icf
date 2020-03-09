@@ -5,7 +5,11 @@
 define symbol __ICFEDIT_intvec_start__ = 0x08000000;
 /*-Memory Regions-*/
 define symbol __ICFEDIT_region_ROM_start__ = 0x08000000;
-define symbol __ICFEDIT_region_ROM_end__   = 0x0803FFFF;
+if (isdefinedsymbol(STM32F091xC)) {
+	define symbol __ICFEDIT_region_ROM_end__   = 0x0803FFFF;
+} else {
+	define symbol __ICFEDIT_region_ROM_end__   = 0x0801FFFF;
+}
 define symbol __ICFEDIT_region_RAM_start__ = 0x200000C0;
 define symbol __ICFEDIT_region_RAM_end__   = 0x20007FFF;
 /*-Sizes-*/

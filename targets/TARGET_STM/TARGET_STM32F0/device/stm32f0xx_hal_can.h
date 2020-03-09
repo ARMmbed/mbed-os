@@ -41,7 +41,7 @@
  extern "C" {
 #endif
 
-#if defined(STM32F072xB) || defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F078xx) || defined(STM32F091xC) || defined(STM32F098xx) 
+#if defined(STM32F072xB) || defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F078xx) || defined(STM32F091xx) || defined(STM32F098xx)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal_def.h"
@@ -798,7 +798,7 @@ HAL_CAN_StateTypeDef HAL_CAN_GetState(CAN_HandleTypeDef* hcan);
   * @}
   */
 
-#endif /* STM32F072xB || STM32F042x6 || STM32F048xx  || STM32F078xx || STM32F091xC || STM32F098xx */
+#endif /* STM32F072xB || STM32F042x6 || STM32F048xx  || STM32F078xx || STM32F091xx || STM32F098xx */
 
 #ifdef __cplusplus
 }

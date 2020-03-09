@@ -1339,7 +1339,7 @@ typedef struct
   @elseif STM32F078xx
   *            @arg @ref RCC_MCO1SOURCE_HSI48       HSI48 selected as MCO clock
   *            @arg @ref RCC_MCO1SOURCE_PLLCLK      PLLCLK selected as MCO clock
-  @elseif STM32F091xC
+  @elseif STM32F091xx
   *            @arg @ref RCC_MCO1SOURCE_HSI48       HSI48 selected as MCO clock
   *            @arg @ref RCC_MCO1SOURCE_PLLCLK      PLLCLK selected as MCO clock
   @elseif STM32F098xx
@@ -1486,7 +1486,7 @@ typedef struct
   *            @arg @ref RCC_IT_HSI48RDY HSI48 ready interrupt
   @elseif STM32F078xx
   *            @arg @ref RCC_IT_HSI48RDY HSI48 ready interrupt
-  @elseif STM32F091xC
+  @elseif STM32F091xx
   *            @arg @ref RCC_IT_HSI48RDY HSI48 ready interrupt
   @elseif STM32F098xx
   *            @arg @ref RCC_IT_HSI48RDY HSI48 ready interrupt
@@ -1513,7 +1513,7 @@ typedef struct
   *            @arg @ref RCC_IT_HSI48RDY HSI48 ready interrupt
   @elseif STM32F078xx
   *            @arg @ref RCC_IT_HSI48RDY HSI48 ready interrupt
-  @elseif STM32F091xC
+  @elseif STM32F091xx
   *            @arg @ref RCC_IT_HSI48RDY HSI48 ready interrupt
   @elseif STM32F098xx
   *            @arg @ref RCC_IT_HSI48RDY HSI48 ready interrupt
@@ -1541,7 +1541,7 @@ typedef struct
   *            @arg @ref RCC_IT_HSI48RDY HSI48 ready interrupt
   @elseif STM32F078xx
   *            @arg @ref RCC_IT_HSI48RDY HSI48 ready interrupt
-  @elseif STM32F091xC
+  @elseif STM32F091xx
   *            @arg @ref RCC_IT_HSI48RDY HSI48 ready interrupt
   @elseif STM32F098xx
   *            @arg @ref RCC_IT_HSI48RDY HSI48 ready interrupt
@@ -1569,7 +1569,7 @@ typedef struct
   *            @arg @ref RCC_IT_HSI48RDY HSI48 ready interrupt
   @elseif STM32F078xx
   *            @arg @ref RCC_IT_HSI48RDY HSI48 ready interrupt
-  @elseif STM32F091xC
+  @elseif STM32F091xx
   *            @arg @ref RCC_IT_HSI48RDY HSI48 ready interrupt
   @elseif STM32F098xx
   *            @arg @ref RCC_IT_HSI48RDY HSI48 ready interrupt
@@ -1607,7 +1607,7 @@ typedef struct
   @elseif STM32F078xx
   *            @arg @ref RCC_FLAG_HSI48RDY HSI48 oscillator clock ready
   *            @arg @ref RCC_FLAG_V18PWRRST Reset flag of the 1.8 V domain
-  @elseif STM32F091xC
+  @elseif STM32F091xx
   *            @arg @ref RCC_FLAG_HSI48RDY HSI48 oscillator clock ready
   @elseif STM32F098xx
   *            @arg @ref RCC_FLAG_HSI48RDY HSI48 oscillator clock ready
