@@ -23,6 +23,7 @@ target_sources(mbed_os PRIVATE api/qspi_api.c)
 target_sources(mbed_os PRIVATE api/rtc_api.c)
 target_sources(mbed_os PRIVATE api/sleep.c)
 
-mbed_os_add_target_directory(${MBED_OS_TARGET_KEYS})
+mbed_os_add_cmake_directory("TARGET"
+"${MBED_OS_TARGET_KEYS}")
 
 target_include_directories(mbed_os PUBLIC api)
