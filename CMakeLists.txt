@@ -18,6 +18,11 @@ target_include_directories(mbed_os PUBLIC .)
 # Link config from generate folder
 target_link_libraries(mbed_os PRIVATE gen_config)
 
+# TODO: Get this from build system
+# Build system provides "target" list.
+# Note: This must be placed before subdirectories
+set(TARGET_KEYS Freescale MCUXpresso_MCUS KSDK2_MCUS FRDM KPSDK_MCUS KPSDK_CODE MCU_K64F Freescale_EMAC PSA CACHE INTERNAL "")
+
 # Baremetal build with RTOS and events
 add_subdirectory(cmsis)
 add_subdirectory(drivers)
@@ -29,6 +34,8 @@ add_subdirectory(targets)
 # TODO: this is the default, but what if baremetal is selected, this needs to be under
 # the condition
 add_subdirectory(rtos)
+
+
 
 # Selectable components
 # TODO: use subdirectory_ifdef or similar own function based on config
