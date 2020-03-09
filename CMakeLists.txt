@@ -45,21 +45,5 @@ add_subdirectory(targets)
 
 # TODO: this is the default, but what if baremetal is selected, this needs to be under
 # the condition
+# cc @mbed-os-tools Also how to get this in from tools, to be defined
 add_subdirectory(rtos)
-
-
-
-# Selectable components
-# TODO: use subdirectory_ifdef or similar own function based on config
-
-# add_subdirectory(components)
-# add_subdirectory(features/mbedtls)
-# add_subdirectory(features/cellular)
-# add_subdirectory(features/frameworks)
-# add_subdirectory(features/lorawan)
-# add_subdirectory(features/lwipstack)
-# add_subdirectory(features/nanostack)
-# add_subdirectory(features/netsocket)
-# add_subdirectory(features/nfc)
-# add_subdirectory(features/storage)
-# add_subdirectory(features/device_key)
