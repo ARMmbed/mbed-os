@@ -1,8 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-foreach(key ${TARGET_KEYS})
-    string(PREPEND key "TARGET_")
-    if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${key})
-        add_subdirectory(${key})
-    endif()
-endforeach()
+include(${MBED_OS_BASE}/util.cmake)
+
+mbed_os_add_target_directory(${MBED_OS_TARGET_KEYS})
