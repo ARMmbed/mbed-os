@@ -12,20 +12,8 @@ target_sources(mbed_os PRIVATE us_ticker.c)
 target_sources(mbed_os PRIVATE us_ticker_defines.h)
 target_sources(mbed_os PRIVATE watchdog_api.c)
 
-# TODO: FRDM selection
-
-target_sources(mbed_os PRIVATE TARGET_FRDM/crc.c)
-target_sources(mbed_os PRIVATE TARGET_FRDM/crc.h)
-target_sources(mbed_os PRIVATE TARGET_FRDM/device.h)
-target_sources(mbed_os PRIVATE TARGET_FRDM/fsl_clock_config.c)
-target_sources(mbed_os PRIVATE TARGET_FRDM/fsl_clock_config.h)
-target_sources(mbed_os PRIVATE TARGET_FRDM/fsl_phy.c)
-target_sources(mbed_os PRIVATE TARGET_FRDM/fsl_phy.h)
-target_sources(mbed_os PRIVATE TARGET_FRDM/mbed_overrides.c)
-target_sources(mbed_os PRIVATE TARGET_FRDM/PeripheralNames.h)
-target_sources(mbed_os PRIVATE TARGET_FRDM/PeripheralPinMaps.h)
-target_sources(mbed_os PRIVATE TARGET_FRDM/PeripheralPins.c)
-target_sources(mbed_os PRIVATE TARGET_FRDM/PinNames.h)
+mbed_os_add_cmake_directory("TARGET"
+"${MBED_OS_TARGET_KEYS}")
 
 target_sources(mbed_os PRIVATE drivers/fsl_adc16.c)
 target_sources(mbed_os PRIVATE drivers/fsl_adc16.h)
@@ -115,7 +103,6 @@ target_sources(mbed_os PRIVATE device/system_MK64F12.h)
 # TODO: only GCC toolchain here
 target_sources(mbed_os PRIVATE device/TOOLCHAIN_GCC_ARM/startup_MK64F12.S)
 
-target_include_directories(mbed_os PUBLIC TARGET_FRDM)
 target_include_directories(mbed_os PUBLIC device)
 target_include_directories(mbed_os PUBLIC drivers)
 target_include_directories(mbed_os PUBLIC .)
