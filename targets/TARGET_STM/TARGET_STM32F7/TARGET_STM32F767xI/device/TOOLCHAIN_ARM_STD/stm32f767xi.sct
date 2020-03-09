@@ -68,6 +68,9 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
    .ANY (+RW +ZI)
   }
 
+  ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (MBED_RAM0_START + MBED_RAM0_SIZE - Stack_Size - AlignExpr(ImageLimit(RW_IRAM1), 16))  { ; Heap growing up
+  }
+
   ARM_LIB_STACK (MBED_RAM0_START+MBED_RAM0_SIZE) EMPTY -Stack_Size { ; stack
   }
 }
