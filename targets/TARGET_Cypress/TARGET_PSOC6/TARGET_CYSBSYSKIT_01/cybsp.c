@@ -31,6 +31,10 @@
 #include "cyhal_hwmgr.h"
 #endif
 
+#if !defined (CY_CFG_PWR_SYS_IDLE_MODE)
+#include "mbed_power_mgmt.h"
+#endif
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -93,6 +97,11 @@ cy_rslt_t cybsp_init(void)
     {
         result = cybsp_register_sysclk_pm_callback();
     }
+
+#if !defined(CY_CFG_PWR_SYS_IDLE_MODE)
+    /* Disable deep-sleep. */
+    sleep_manager_lock_deep_sleep();
+#endif
 
     /* CYHAL_HWMGR_RSLT_ERR_INUSE error code could be returned if any needed for BSP resource was reserved by
      * user previously. Please review the Device Configurator (design.modus) and the BSP reservation list

@@ -14016,7 +14016,8 @@
             "CYBSP_WIFI_CAPABLE"
         ],
         "overrides": {
-            "network-default-interface-type": "WIFI"
+            "network-default-interface-type": "WIFI",
+            "deep-sleep-latency": 0
         },
         "detect_code": [
             "1912"

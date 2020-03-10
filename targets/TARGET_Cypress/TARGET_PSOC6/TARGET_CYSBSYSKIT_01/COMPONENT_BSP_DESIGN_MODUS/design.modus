@@ -84,23 +84,6 @@
                 <Block location="ioss[0].port[8].pin[7]">
                     <Alias value="CYBSP_CSD_SLD4"/>
                 </Block>
-                <Block location="srss[0].power[0]">
-                    <Personality template="mxs40power" version="1.2">
-                        <Param id="pwrMode" value="LDO_1_1"/>
-                        <Param id="actPwrMode" value="LP"/>
-                        <Param id="coreRegulator" value="CY_SYSPM_LDO_MODE_NORMAL"/>
-                        <Param id="pmicEnable" value="false"/>
-                        <Param id="backupSrc" value="DEDICATED"/>
-                        <Param id="idlePwrMode" value="CY_CFG_PWR_MODE_SLEEP"/>
-                        <Param id="deepsleepLatency" value="0"/>
-                        <Param id="vddaMv" value="3300"/>
-                        <Param id="vdddMv" value="1800"/>
-                        <Param id="vBackupMv" value="1800"/>
-                        <Param id="vddNsMv" value="1800"/>
-                        <Param id="vddio0Mv" value="1800"/>
-                        <Param id="vddio1Mv" value="3300"/>
-                    </Personality>
-                </Block>
             </BlockConfig>
             <Netlist>
                 <Net>
@@ -116,10 +99,6 @@
                     <Port name="ioss[0].port[6].pin[4].digital_out[0]"/>
                 </Net>
             </Netlist>
-        </Device>
-        <Device mpn="CYW43012TC0KFFBH">
-            <BlockConfig/>
-            <Netlist/>
         </Device>
     </Devices>
     <Libraries/>
