@@ -324,6 +324,18 @@ public:
      */
     virtual nsapi_error_t add_dns_server(const SocketAddress &address, const char *interface_name);
 
+    /** Get a domain name server from a list of servers to query
+     *
+     *  Returns a DNS server address for a index. If returns error no more
+     *  DNS servers to read.
+     *
+     *  @param index    Index of the DNS server, starts from zero
+     *  @param address  Destination for the host address
+     *  @param interface_name  Network interface name
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure
+     */
+    virtual nsapi_error_t get_dns_server(int index, SocketAddress *address, const char *interface_name = NULL);
+
     /** Register callback for status reporting.
      *
      *  The specified status callback function will be called on status changes
