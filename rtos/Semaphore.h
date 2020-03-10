@@ -64,34 +64,6 @@ public:
 
     /** Wait until a Semaphore resource becomes available.
 
-      @deprecated Do not use this function. This function has been replaced with acquire(), try_acquire() and try_acquire_for() functions.
-
-      @param   millisec  timeout value. (default: osWaitForever).
-      @return  number of available tokens, before taking one; or -1 in case of incorrect parameters
-
-      @note You may call this function from ISR context if the millisec parameter is set to 0.
-    */
-    MBED_DEPRECATED_SINCE("mbed-os-5.13", "Replaced with acquire, try_acquire() and try_acquire_for() functions")
-    int32_t wait(uint32_t millisec = osWaitForever);
-
-    /** Wait until a Semaphore resource becomes available.
-
-      @deprecated Do not use this function. This function has been replaced with try_acquire_until().
-
-      @param   millisec  absolute timeout time, referenced to Kernel::get_ms_count()
-      @return  number of available tokens, before taking one; or -1 in case of incorrect parameters
-      @note the underlying RTOS may have a limit to the maximum wait time
-            due to internal 32-bit computations, but this is guaranteed to work if the
-            wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
-            the acquire attempt will time out earlier than specified.
-
-      @note You cannot call this function from ISR context.
-    */
-    MBED_DEPRECATED_SINCE("mbed-os-5.13", "Replaced with try_acquire_until()")
-    int32_t wait_until(uint64_t millisec);
-
-    /** Wait until a Semaphore resource becomes available.
-
       @note You cannot call this function from ISR context.
     */
     void acquire();

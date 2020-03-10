@@ -201,8 +201,8 @@ void test_no_wait(void)
         Semaphore sem(0, 1);
         T timeout;
         timeout.attach_callback(mbed::callback(sem_callback, &sem), 0ULL);
-        int32_t sem_slots = sem.wait(0);
-        TEST_ASSERT_EQUAL(1, sem_slots);
+        bool sem_acquired = sem.try_acquire();
+        TEST_ASSERT_EQUAL(true, sem_acquired);
         timeout.detach();
     }
 }

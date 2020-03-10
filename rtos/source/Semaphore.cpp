@@ -87,63 +87,6 @@ bool Semaphore::try_acquire()
 #endif
 }
 
-#if MBED_CONF_RTOS_PRESENT
-/* To sidestep deprecation warnings */
-int32_t Semaphore::_wait(uint32_t millisec)
-{
-    osStatus_t stat = osSemaphoreAcquire(_id, millisec);
-    switch (stat) {
-        case osOK:
-            return osSemaphoreGetCount(_id) + 1;
-        case osErrorTimeout:
-        case osErrorResource:
-            return 0;
-        case osErrorParameter:
-        default:
-            return -1;
-    }
-}
-#endif
-
-int32_t Semaphore::wait(uint32_t millisec)
-{
-#if MBED_CONF_RTOS_PRESENT
-    return _wait(millisec);
-#else
-    sem_wait_capture capture = { this, false };
-    mbed::internal::do_timed_sleep_relative_or_forever(millisec, semaphore_available, &capture);
-    if (capture.acquired) {
-        return core_util_atomic_load_s32(&_count) + 1;
-    } else {
-        return 0;
-    }
-#endif
-}
-
-int32_t Semaphore::wait_until(uint64_t millisec)
-{
-#if MBED_CONF_RTOS_PRESENT
-    uint64_t now = Kernel::get_ms_count();
-
-    if (now >= millisec) {
-        return _wait(0);
-    } else if (millisec - now >= osWaitForever) {
-        // API permits early return
-        return _wait(osWaitForever - 1);
-    } else {
-        return _wait(millisec - now);
-    }
-#else
-    sem_wait_capture capture = { this, false };
-    mbed::internal::do_timed_sleep_absolute(millisec, semaphore_available, &capture);
-    if (capture.acquired) {
-        return core_util_atomic_load_s32(&_count) + 1;
-    } else {
-        return 0;
-    }
-#endif
-}
-
 void Semaphore::acquire()
 {
 #if MBED_CONF_RTOS_PRESENT
