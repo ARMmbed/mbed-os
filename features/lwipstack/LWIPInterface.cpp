@@ -680,23 +680,13 @@ nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *ne
     }
 #endif /* LWIP_IPV6 */
 
-#if LWIP_IPV4
-    if (stack != IPV6_STACK) {
-        if (!dhcp && !ppp_enabled) {
-            ip4_addr_t ip_addr;
-            ip4_addr_t netmask_addr;
-            ip4_addr_t gw_addr;
-
-            if (!inet_aton(ip, &ip_addr) ||
-                    !inet_aton(netmask, &netmask_addr) ||
-                    !inet_aton(gw, &gw_addr)) {
-                return NSAPI_ERROR_PARAMETER;
-            }
-
-            netif_set_addr(&netif, &ip_addr, &netmask_addr, &gw_addr);
+    nsapi_error_t ret_add_ip = NSAPI_ERROR_OK;
+    if (!dhcp && !ppp_enabled) {
+        ret_add_ip = set_ip_address(ip, netmask, gw);
+        if (ret_add_ip != NSAPI_ERROR_OK) {
+            return ret_add_ip;
         }
     }
-#endif
 
     if (client_callback) {
         client_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_CONNECTING);
@@ -751,6 +741,58 @@ nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *ne
     add_dns_addr(&netif, get_interface_name(_interface_name));
 
     return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t LWIP::Interface::set_ip_address(const char *ip,
+                                              const char *netmask,
+                                              const char *gw,
+                                              uint8_t ipv6_flag)
+{
+    if (!ip) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    int conv_ip = 1;
+
+#if LWIP_IPV4
+    ip4_addr_t ip_addr;
+    ip4_addr_t netmask_addr;
+    ip4_addr_t gw_addr;
+    IP4_ADDR(&netmask_addr, 255, 255, 255, 255);
+    ip4_addr_set_zero(&gw_addr);
+    int conv_netmask = 1;
+    int conv_gw = 1;
+
+    conv_ip = inet_aton(ip, &ip_addr);
+    if (netmask) {
+        conv_netmask = inet_aton(netmask, &netmask_addr);
+    }
+    if (gw) {
+        conv_gw = inet_aton(gw, &gw_addr);
+    }
+    if (conv_ip && conv_netmask && conv_gw) {
+        netif_set_addr(&netif, &ip_addr, &netmask_addr, &gw_addr);
+        return NSAPI_ERROR_OK;
+    }
+#endif /* LWIP_IPV4 */
+
+#if LWIP_IPV6
+    ip6_addr_t ip_addr6;
+
+    conv_ip = inet6_aton(ip, &ip_addr6);
+    if (conv_ip) {
+        s8_t chosen_idx;
+        err_t ret = netif_add_ip6_address(&netif, &ip_addr6, &chosen_idx);
+        // If failed here, consider increasing LWIP_IPV6_NUM_ADDRESSES.
+        MBED_ASSERT(chosen_idx >= 0);
+        if (!ret) {
+            netif_ip6_addr_set_state(&netif, chosen_idx, ipv6_flag);
+            return NSAPI_ERROR_OK;
+        }
+    }
+#endif /* LWIP_IPV6 */
+
+    return NSAPI_ERROR_PARAMETER;
 }
 
 nsapi_error_t LWIP::Interface::bringdown()
