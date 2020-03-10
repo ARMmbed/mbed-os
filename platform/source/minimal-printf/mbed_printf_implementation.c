@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2017-2020 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -122,17 +122,22 @@ static void mbed_minimal_putchar(char *buffer, size_t length, int *result, char 
 {
     /* only continue if 'result' doesn't overflow */
     if ((*result >= 0) && (*result <= INT_MAX - 1)) {
-        /* write data only if there's enough space */
-        if ((size_t)*result < length) {
-            if (buffer) {
+        if (buffer) {
+            /* write data only if there's enough space */
+            if ((size_t)*result < length) {
                 buffer[*result] = data;
+            }
+
+            /* increment 'result' even if data was not written. This ensures that
+               'mbed_minimal_formatted_string' returns the correct value. */
+            *result += 1;
+        } else {
+            if (fputc(data, stream) == EOF) {
+                *result = EOF;
             } else {
-                fputc(data, stream);
+                *result += 1;
             }
         }
-        /* increment 'result' even if data was not written. This ensures that
-           'mbed_minimal_formatted_string' returns the correct value. */
-        *result += 1;
     }
 }
 
@@ -503,6 +508,16 @@ int mbed_minimal_formatted_string(char *buffer, size_t length, const char *forma
                         /* use 64 bit storage type for readout */
                         value = va_arg(arguments, MBED_SIGNED_STORAGE);
                     } else
+#else
+                    /* If 64 bit is not enabled, print %ll[di] rather than truncated value */
+                    if (length_modifier == LENGTH_LL) {
+                        mbed_minimal_formatted_string_character(buffer, length, &result, '%', stream);
+                        if (next == '%') {
+                            // Continue printing loop after `%`
+                            index = next_index;
+                        }
+                        continue;
+                    }
 #endif
                     {
                         /* use native storage type (which can be 32 or 64 bit) */
@@ -552,6 +567,16 @@ int mbed_minimal_formatted_string(char *buffer, size_t length, const char *forma
                         /* use 64 bit storage type for readout */
                         value = va_arg(arguments, MBED_UNSIGNED_STORAGE);
                     } else
+#else
+                    /* If 64 bit is not enabled, print %ll[uxX] rather than truncated value */
+                    if (length_modifier == LENGTH_LL) {
+                        mbed_minimal_formatted_string_character(buffer, length, &result, '%', stream);
+                        if (next == '%') {
+                            // Continue printing loop after `%`
+                            index = next_index;
+                        }
+                        continue;
+                    }
 #endif
                     {
                         /* use native storage type (which can be 32 or 64 bit) */
