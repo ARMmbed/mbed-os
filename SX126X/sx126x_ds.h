@@ -1,8 +1,28 @@
-/*
- * sx126x_ds.h
+/*!
+ * \file      sx126x.h
  *
- *  Created on: Feb 20, 2019
- *      Author: hasnain
+ * \brief     SX126x driver implementation
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ * 
+ * Copyright (c) 2019, Arm Limited and affiliates.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef MBED_LORA_RADIO_DRV_SX126X_SX126X_DS_H_
