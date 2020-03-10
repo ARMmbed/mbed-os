@@ -152,6 +152,9 @@ static void kvstore_init()
 
     res = kvstore->init();
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+#if DEVICEKEY_ENABLED
+    DeviceKey::get_instance().generate_root_of_trust();
+#endif
 }
 
 //deinit the blockdevice
@@ -885,9 +888,6 @@ int main()
         }
     }
 
-#if DEVICEKEY_ENABLED
-    DeviceKey::get_instance().generate_root_of_trust();
-#endif
     Specification specification(greentea_test_setup, cases, total_num_cases,
                                 greentea_test_teardown_handler, default_handler);
 
