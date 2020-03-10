@@ -214,6 +214,9 @@
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
+        "NUVOTON": {
+            "stdio-baud-rate": 115200
+        },
         "NUMAKER_PFM_M487": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
@@ -221,9 +224,6 @@
         "NUMAKER_PFM_NUC472": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
-        },
-        "NU_PFM_M2351": {
-            "stdio-baud-rate": 115200
         },
         "NRF52840_DK": {
             "crash-capture-enabled": true,
