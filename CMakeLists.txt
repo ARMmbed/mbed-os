@@ -9,31 +9,14 @@ if(POLICY CMP0076)
     cmake_policy(SET CMP0076 NEW)
 endif()
 
-# Create mbed_os library
-add_library(mbed_os OBJECT)
+# Create Mbed OS library
+add_library(mbed-os OBJECT)
 
 # Include mbed.h and config from generate folder
-target_include_directories(mbed_os PUBLIC .)
+target_include_directories(mbed-os PUBLIC .)
 
 # Link config from generate folder
-target_link_libraries(mbed_os PRIVATE gen_config)
-
-# TODO: @mbed-os-tools This needs to come from tools
-# Build system provides "target" list.
-# Note: This must be placed before subdirectories
-set(MBED_OS_TARGET_KEYS Freescale;MCUXpresso_MCUS;KSDK2_MCUS;FRDM;KPSDK_MCUS;KPSDK_CODE;MCU_K64F;Freescale_EMAC;PSA CACHE INTERNAL "")
-
-# TODO: @mbed-os-tools This needs to come from tools
-set(MBED_OS_TOOLCHAIN GCC_ARM CACHE INTERNAL "")
-
-# Mbed OS system root path
-set(MBED_OS_BASE ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "")
-
-# TODO: here feature. Follow what is for targets above, get somehow from tools what features are enabled
-set(MBED_OS_FEATURES_KEYS CACHE INTERNAL "")
-
-# TODO: here components, same as features
-set(MBED_OS_COMPONENTS_KEYS CACHE INTERNAL "")
+target_link_libraries(mbed-os PRIVATE gen_config)
 
 # Baremetal build with RTOS and events
 add_subdirectory(cmsis)
