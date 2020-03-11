@@ -24,6 +24,12 @@
 // check if the event is allocaded by user - event address is outside queues internal buffer address range
 #define EQUEUE_IS_USER_ALLOCATED_EVENT(e) ((q->buffer == NULL) || ((uintptr_t)(e) < (uintptr_t)q->buffer) || ((uintptr_t)(e) > ((uintptr_t)q->slab.data)))
 
+// for user allocated events use event id to track event state
+enum {
+    EQUEUE_USER_ALLOCATED_EVENT_STATE_INPROGRESS = 1,
+    EQUEUE_USER_ALLOCATED_EVENT_STATE_DONE = 0          // event canceled or dispatching done
+};
+
 // calculate the relative-difference between absolute times while
 // correctly handling overflow conditions
 static inline int equeue_tickdiff(unsigned a, unsigned b)
@@ -229,7 +235,9 @@ void equeue_dealloc(equeue_t *q, void *p)
         e->dtor(e + 1);
     }
 
-    if (!EQUEUE_IS_USER_ALLOCATED_EVENT(e)) {
+    if (EQUEUE_IS_USER_ALLOCATED_EVENT(e)) {
+        e->id = EQUEUE_USER_ALLOCATED_EVENT_STATE_DONE;
+    } else {
         equeue_mem_dealloc(q, e);
     }
 }
@@ -402,6 +410,7 @@ void equeue_post_user_allocated(equeue_t *q, void (*cb)(void *), void *p)
     unsigned tick = equeue_tick();
     e->cb = cb;
     e->target = tick + e->target;
+    e->id = EQUEUE_USER_ALLOCATED_EVENT_STATE_INPROGRESS;
 
     equeue_enqueue(q, e, tick);
     equeue_sema_signal(&q->eventsema);
@@ -424,7 +433,7 @@ bool equeue_cancel(equeue_t *q, int id)
 
 bool equeue_cancel_user_allocated(equeue_t *q, void *e)
 {
-    if (!e) {
+    if (!e || ((struct equeue_event *)e)->id == EQUEUE_USER_ALLOCATED_EVENT_STATE_DONE) {
         return false;
     }
 
@@ -506,7 +515,9 @@ void equeue_dispatch(equeue_t *q, int ms)
                 e->target += e->period;
                 equeue_enqueue(q, e, equeue_tick());
             } else {
-                equeue_incid(q, e);
+                if (!EQUEUE_IS_USER_ALLOCATED_EVENT(e)) {
+                    equeue_incid(q, e);
+                }
                 equeue_dealloc(q, e + 1);
             }
         }
