@@ -196,7 +196,10 @@ public:
      *
      * @return the private variable _init_ref_count if it was bigger than 0
      */
-    virtual bool IsInitialized(){return (_init_ref_count>0);}
+    virtual bool IsInitialized()
+    {
+        return (_init_ref_count>0);
+    }
     
 private:
     /* Commands : Listed below are commands supported
