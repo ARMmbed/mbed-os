@@ -111,8 +111,8 @@ typedef enum {
     USBRX = PB_12,
     STDIO_UART_TX   = USBTX,
     STDIO_UART_RX   = USBRX,
-    SERIAL_TX       = USBTX,
-    SERIAL_RX       = USBRX,
+    SERIAL_TX       = D10,
+    SERIAL_RX       = D13,
 
     /* I2C naming */
     I2C_SCL = D15,
