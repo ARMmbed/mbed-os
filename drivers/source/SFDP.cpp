@@ -20,7 +20,7 @@
 #include <cstring>
 #include "drivers/internal/SFDP.h"
 
-#if (DEVICE_SPI || DEVICE_QSPI)
+#if (DEVICE_SPI || DEVICE_QSPI || DEVICE_OSPI)
 
 #include "features/frameworks/mbed-trace/mbed-trace/mbed_trace.h"
 #define TRACE_GROUP "SFDP"
@@ -116,6 +116,11 @@ int sfdp_parse_single_param_header(sfdp_prm_hdr *phdr_ptr, sfdp_hdr_info &hdr_in
         tr_debug("Parameter header: Sector Map Parameter Header");
         hdr_info.smptbl.addr = sfdp_get_param_tbl_ptr(phdr_ptr->DWORD2);
         hdr_info.smptbl.size = phdr_ptr->P_LEN * 4;
+
+    } else if ((phdr_ptr->PID_LSB == 0x84) && (sfdp_get_param_id_msb(phdr_ptr->DWORD2) == 0xFF)) {
+        tr_debug("Parameter header: 4-byte Address Instruction Parameter Header");
+        hdr_info.fbatbl.addr = sfdp_get_param_tbl_ptr(phdr_ptr->DWORD2);
+        hdr_info.fbatbl.size = phdr_ptr->P_LEN * 4;
 
     } else {
         tr_debug("Parameter header: header vendor specific or unknown. Parameter ID LSB: 0x%" PRIX8 "; MSB: 0x%" PRIX8 "",
@@ -345,4 +350,4 @@ int sfdp_iterate_next_largest_erase_type(uint8_t &bitfield,
 }
 
 } /* namespace mbed */
-#endif /* (DEVICE_SPI || DEVICE_QSPI) */
+#endif /* (DEVICE_SPI || DEVICE_QSPI || DEVICE_OSPI) */

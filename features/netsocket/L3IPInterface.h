@@ -21,7 +21,7 @@
 #include "nsapi.h"
 #include "L3IP.h"
 #include "OnboardNetworkStack.h"
-
+#include "SocketAddress.h"
 
 /** L3IPInterface class
  *  Implementation of the NetworkInterface for an IP-based driver
@@ -156,9 +156,9 @@ protected:
     OnboardNetworkStack::Interface *_interface = nullptr;
     bool _dhcp = true;
     bool _blocking = true;
-    char _ip_address[NSAPI_IPv6_SIZE] {};
-    char _netmask[NSAPI_IPv4_SIZE] {};
-    char _gateway[NSAPI_IPv4_SIZE] {};
+    SocketAddress _ip_address;
+    SocketAddress _netmask;
+    SocketAddress _gateway;
     mbed::Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
 };
 

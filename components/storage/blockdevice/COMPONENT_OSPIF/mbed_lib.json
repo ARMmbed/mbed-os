@@ -1,0 +1,44 @@
+{
+"name": "ospif",
+    "config": {
+        "OSPI_IO0": "MBED_CONF_DRIVERS_OSPI_IO0",
+        "OSPI_IO1": "MBED_CONF_DRIVERS_OSPI_IO1",
+        "OSPI_IO2": "MBED_CONF_DRIVERS_OSPI_IO2",
+        "OSPI_IO3": "MBED_CONF_DRIVERS_OSPI_IO3",
+        "OSPI_IO4": "MBED_CONF_DRIVERS_OSPI_IO4",
+        "OSPI_IO5": "MBED_CONF_DRIVERS_OSPI_IO5",
+        "OSPI_IO6": "MBED_CONF_DRIVERS_OSPI_IO6",
+        "OSPI_IO7": "MBED_CONF_DRIVERS_OSPI_IO7",
+        "OSPI_SCK": "MBED_CONF_DRIVERS_OSPI_SCK",
+        "OSPI_CSN": "MBED_CONF_DRIVERS_OSPI_CSN",
+	"OSPI_DQS": "MBED_CONF_DRIVERS_OSPI_DQS",
+        "OSPI_POLARITY_MODE": 0,
+        "OSPI_FREQ": "2000000",
+        "OSPI_MIN_READ_SIZE": "1",
+        "OSPI_MIN_PROG_SIZE": "1"
+    },
+    "target_overrides": {
+        "MX25R6435F": {
+            "OSPI_FREQ": "8000000"
+        },
+        "MX25L51245G": {
+            "OSPI_FREQ": "8000000"
+        },
+        "N25Q128A": {
+            "OSPI_FREQ": "80000000"
+        },
+        "MCU_NRF52840": {
+            "OSPI_FREQ": "32000000",
+            "OSPI_MIN_READ_SIZE": "4",
+            "OSPI_MIN_PROG_SIZE": "4"
+        }, 
+        "MCU_PSOC6": {
+            "OSPI_FREQ": "50000000",
+            "OSPI_MIN_PROG_SIZE": "512"
+        },
+        "EFM32GG11_STK3701": {
+            "OSPI_MIN_READ_SIZE": "4",
+            "OSPI_MIN_PROG_SIZE": "4"
+        }
+    }
+}

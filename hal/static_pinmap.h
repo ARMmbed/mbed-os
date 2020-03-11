@@ -25,6 +25,7 @@
 #include "i2c_api.h"
 #include "serial_api.h"
 #include "qspi_api.h"
+#include "ospi_api.h"
 #include "can_api.h"
 #include <mstd_cstddef>
 

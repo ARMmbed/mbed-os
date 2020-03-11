@@ -12525,7 +12525,7 @@
             }
         },
         "components_add": [
-            "FLASHIAP"
+            "OSPIF"
         ],
         "macros_add": [
             "HSE_VALUE=16000000",
@@ -12547,6 +12547,7 @@
             "TRNG",
             "FLASH",
             "QSPI",
+	    "OSPI",
             "USBDEVICE",
             "MPU"
         ],

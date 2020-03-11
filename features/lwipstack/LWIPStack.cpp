@@ -191,30 +191,13 @@ LWIP::call_in_callback_cb_t LWIP::get_call_in_callback()
     return cb;
 }
 
-const char *LWIP::get_ip_address()
+nsapi_error_t LWIP::get_ip_address(SocketAddress *address)
 {
     if (!default_interface) {
-        return NULL;
+        return NSAPI_ERROR_NO_ADDRESS;
     }
 
-    const ip_addr_t *addr = get_ip_addr(true, &default_interface->netif);
-
-    if (!addr) {
-        return NULL;
-    }
-#if LWIP_IPV6
-    if (IP_IS_V6(addr)) {
-        return ip6addr_ntoa_r(ip_2_ip6(addr), ip_address, sizeof(ip_address));
-    }
-#endif
-#if LWIP_IPV4
-    if (IP_IS_V4(addr)) {
-        return ip4addr_ntoa_r(ip_2_ip4(addr), ip_address, sizeof(ip_address));
-    }
-#endif
-#if LWIP_IPV6 && LWIP_IPV4
-    return NULL;
-#endif
+    return get_ip_address_if(address, nullptr);
 }
 
 nsapi_error_t LWIP::get_ip_address_if(SocketAddress *address, const char *interface_name)

@@ -36,6 +36,10 @@
 #include "QSPIFBlockDevice.h"
 #endif
 
+#if COMPONENT_OSPIF
+#include "OSPIFBlockDevice.h"
+#endif
+
 #if COMPONENT_DATAFLASH
 #include "DataFlashBlockDevice.h"
 #endif
@@ -85,10 +89,11 @@ enum bd_type {
     dataflash,
     sd,
     flashiap,
+    ospif,
     default_bd
 };
 
-uint8_t bd_arr[5] = {0};
+uint8_t bd_arr[6] = {0};
 
 static uint8_t test_iteration = 0;
 
@@ -130,6 +135,27 @@ static BlockDevice *get_bd_instance(uint8_t bd_type)
                 MBED_CONF_QSPIF_QSPI_CSN,
                 MBED_CONF_QSPIF_QSPI_POLARITY_MODE,
                 MBED_CONF_QSPIF_QSPI_FREQ
+            );
+            return &default_bd;
+#endif
+            break;
+        }
+        case ospif: {
+#if COMPONENT_OSPIF
+            static OSPIFBlockDevice default_bd(
+                MBED_CONF_OSPIF_OSPI_IO0,
+                MBED_CONF_OSPIF_OSPI_IO1,
+                MBED_CONF_OSPIF_OSPI_IO2,
+                MBED_CONF_OSPIF_OSPI_IO3,
+                MBED_CONF_OSPIF_OSPI_IO4,
+                MBED_CONF_OSPIF_OSPI_IO5,
+                MBED_CONF_OSPIF_OSPI_IO6,
+                MBED_CONF_OSPIF_OSPI_IO7,
+                MBED_CONF_OSPIF_OSPI_SCK,
+                MBED_CONF_OSPIF_OSPI_CSN,
+                MBED_CONF_OSPIF_OSPI_DQS,
+                MBED_CONF_OSPIF_OSPI_POLARITY_MODE,
+                MBED_CONF_OSPIF_OSPI_FREQ
             );
             return &default_bd;
 #endif
@@ -736,6 +762,8 @@ void test_get_type_functionality()
 
 #if COMPONENT_QSPIF
     TEST_ASSERT_EQUAL(0, strcmp(bd_type, "QSPIF"));
+#elif COMPONENT_OSPIF
+    TEST_ASSERT_EQUAL(0, strcmp(bd_type, "OSPIF"));
 #elif COMPONENT_SPIF
     TEST_ASSERT_EQUAL(0, strcmp(bd_type, "SPIF"));
 #elif COMPONENT_DATAFLASH
@@ -799,11 +827,14 @@ int get_bd_count()
 #if COMPONENT_FLASHIAP
     bd_arr[count++] = flashiap;       //4
 #endif
+#if COMPONENT_OSPIF
+    bd_arr[count++] = ospif;          //5
+#endif
 
     return count;
 }
 
-static const char *prefix[] = {"SPIF ", "QSPIF ", "DATAFLASH ", "SD ", "FLASHIAP ", "DEFAULT "};
+static const char *prefix[] = {"SPIF ", "QSPIF ", "DATAFLASH ", "SD ", "FLASHIAP ", "OSPIF ", "DEFAULT "};
 
 int main()
 {
