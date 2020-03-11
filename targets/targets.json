@@ -5635,15 +5635,15 @@
             "MPU"
         ]
     },
-    "NUMAKER_IOT_M252": {
+    "MCU_M251": {
         "core": "Cortex-M23",
+        "public": false,
         "trustzone": false,
         "is_disk_virtual": true,
         "default_toolchain": "ARMC6",
         "extra_labels": [
             "NUVOTON",
             "M251",
-            "M252KG6AE",
             "FLASH_CMSIS_ALGO"
         ],
         "macros_add": [
@@ -5714,13 +5714,6 @@
         "components_add": [
             "FLASHIAP"
         ],
-        "detect_code": [
-            "1309"
-        ],
-        "release_versions": [
-            "5"
-        ],
-        "device_name": "M252KG6AE",
         "sectors": [
             [
                 0,
@@ -5728,6 +5721,19 @@
             ]
         ],
         "bootloader_supported": true
+    },
+    "NUMAKER_IOT_M252": {
+        "inherits": [
+            "MCU_M251"
+        ],
+        "detect_code": [
+            "1309"
+        ],
+        "release_versions": [
+            "2",
+            "5"
+        ],
+        "device_name": "M252KG6AE"
     },
     "TMPM4G9": {
         "inherits": [
