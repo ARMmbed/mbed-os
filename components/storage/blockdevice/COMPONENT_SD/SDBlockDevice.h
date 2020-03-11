@@ -200,7 +200,7 @@ public:
     {
         return (_init_ref_count > 0);
     }
-    
+
 private:
     /* Commands : Listed below are commands supported
      * in SPI mode for SD card : Only Mandatory ones
