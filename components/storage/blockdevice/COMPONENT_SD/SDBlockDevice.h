@@ -198,7 +198,7 @@ public:
      */
     virtual bool IsInitialized()
     {
-        return (_init_ref_count>0);
+        return (_init_ref_count > 0);
     }
     
 private:
