@@ -22,7 +22,7 @@
 /* Linker script to configure memory regions. */
 /* This file will be run trough the pre-processor. */
 
-#include "../../../partition/region_defs.h"
+#include "../../partition/region_defs.h"
 #include "../cmsis_nvic.h"
 
 /* Stack size is 1K for Mbed-OS */

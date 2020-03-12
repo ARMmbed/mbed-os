@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2020 Arm Limited
+ * Copyright (c) 2019 Arm Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -24,9 +24,9 @@
 #ifndef MBED_CMSIS_NVIC_H
 #define MBED_CMSIS_NVIC_H
 
-#include "../../partition/region_defs.h"
+#include "../partition/region_defs.h"
 
-#define NVIC_NUM_VECTORS        (16 + 128)
+#define NVIC_NUM_VECTORS        (16 + 76)
 /** Location of vectors to move in RAM */
 #define NVIC_RAM_VECTOR_ADDRESS NS_DATA_START
 #define NVIC_RAM_VECTOR_SIZE    (NVIC_NUM_VECTORS * 4)

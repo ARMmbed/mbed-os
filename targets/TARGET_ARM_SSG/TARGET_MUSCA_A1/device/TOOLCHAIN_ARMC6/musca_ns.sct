@@ -1,7 +1,7 @@
 #! armclang --target=arm-arm-none-eabi -march=armv8-m.main -E -xc
 
 /*
- * Copyright (c) 2019-2020 Arm Limited
+ * Copyright (c) 2019 ARM Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -18,23 +18,23 @@
  * limitations under the License.
  */
 
-#include "../../../partition/region_defs.h"
+#include "../../partition/region_defs.h"
 #include "../cmsis_nvic.h"
 
 #if !defined(MBED_ROM_START)
-  #define MBED_ROM_START    NS_CODE_START               // 0x0A060400
+  #define MBED_ROM_START    NS_CODE_START                           // 0x000a0400
 #endif
 
 #if !defined(MBED_ROM_SIZE)
-  #define MBED_ROM_SIZE     NS_CODE_SIZE                // 0x7f800
+  #define MBED_ROM_SIZE     NS_CODE_SIZE                            // 0x5f800
 #endif
 
 #if !defined(MBED_RAM_START)
-  #define MBED_RAM_START    NS_DATA_START               // 0x20040000
+  #define MBED_RAM_START    NS_DATA_START
 #endif
 
 #if !defined(MBED_RAM_SIZE)
-  #define MBED_RAM_SIZE     NS_DATA_SIZE                // 0x40000
+  #define MBED_RAM_SIZE     NS_DATA_SIZE
 #endif
 
 #define VECTOR_SIZE         NVIC_RAM_VECTOR_SIZE
