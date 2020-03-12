@@ -869,23 +869,25 @@ void USBMSD::memoryRead(void)
 
     n = (_length > MAX_PACKET) ? MAX_PACKET : _length;
 
-    if ((_addr + n) > _memory_size) {
-        n = _memory_size - _addr;
+    if (_addr > (_memory_size - n)) {
+        n = _addr < _memory_size ? _memory_size - _addr : 0;
         _stage = ERROR;
     }
 
-    // we read an entire block
-    if (!(_addr % _block_size)) {
-        disk_read(_page, _addr / _block_size, 1);
+    if (n > 0) {
+        // we read an entire block
+        if (!(_addr % _block_size)) {
+            disk_read(_page, _addr / _block_size, 1);
+        }
+
+        // write data which are in RAM
+        _write_next(&_page[_addr % _block_size], MAX_PACKET);
+
+        _addr += n;
+        _length -= n;
+
+        _csw.DataResidue -= n;
     }
-
-    // write data which are in RAM
-    _write_next(&_page[_addr % _block_size], MAX_PACKET);
-
-    _addr += n;
-    _length -= n;
-
-    _csw.DataResidue -= n;
 
     if (!_length || (_stage != PROCESS_CBW)) {
         _csw.Status = (_stage == PROCESS_CBW) ? CSW_PASSED : CSW_FAILED;
