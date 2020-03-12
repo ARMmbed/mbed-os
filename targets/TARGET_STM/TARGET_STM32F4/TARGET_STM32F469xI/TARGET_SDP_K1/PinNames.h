@@ -262,7 +262,7 @@ typedef enum {
     PK_7  = 0xA7,
 
     // ADC internal channels
-    ADC_TEMP = 0xF0, 
+    ADC_TEMP = 0xF0,
     ADC_VREF = 0xF1,
     ADC_VBAT = 0xF2,
 
@@ -304,7 +304,7 @@ typedef enum {
 #endif
 
     // Debug pins
-    DEBUG_GPIO0	= PG_6,
+    DEBUG_GPIO0 = PG_6,
     // Generic signals namings
     LED1        = PK_7, // Red LED
     LED2        = PK_6, // Orange LED
@@ -324,8 +324,8 @@ typedef enum {
     SDP_SPI_CS_C = PC_7,
     SDP_I2C_SDA  = PC_9,  // SDP Connector I2C lines
     SDP_I2C_SCL  = PH_7,
-    SDP_GPIO_0   = PJ_0,  // SDP connector GPIO 0-7  
-    SDP_GPIO_1   = PJ_1, 
+    SDP_GPIO_0   = PJ_0,  // SDP connector GPIO 0-7
+    SDP_GPIO_1   = PJ_1,
     SDP_GPIO_2   = PJ_3,
     SDP_GPIO_3   = PJ_4,
     SDP_GPIO_4   = PJ_5,
@@ -338,7 +338,7 @@ typedef enum {
     SDP_TMR_B    = PE_6,
     SDP_TMR_D    = PC_8,
 
-    /**** USB pins ****/  
+    /**** USB pins ****/
     USB_OTG_HS_ULPI_CK = PA_5,
     USB_OTG_HS_ULPI_D0 = PA_3,
     USB_OTG_HS_ULPI_D1 = PB_0,

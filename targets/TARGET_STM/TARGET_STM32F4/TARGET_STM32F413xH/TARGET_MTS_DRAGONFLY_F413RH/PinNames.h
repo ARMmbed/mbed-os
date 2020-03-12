@@ -142,9 +142,9 @@ typedef enum {
     SERIAL_RI   = D8,
     USBTX       = PB_6,
     USBRX       = PB_7,
-// STDIO for console print    
+// STDIO for console print
     STDIO_UART_TX = USBTX,
-    STDIO_UART_RX = USBRX,    
+    STDIO_UART_RX = USBRX,
     RADIO_TX    = PC_6,
     RADIO_RX    = PC_7,
     RADIO_RTS   = PB_10,

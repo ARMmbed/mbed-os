@@ -20,7 +20,7 @@
 #include "hal/i2c_api.h"
 
 #ifdef __cplusplus
-extern"C"{
+extern"C" {
 #endif
 
 #define BQ24295_I2C_ADDRESS (0x6B)
@@ -32,11 +32,11 @@ extern"C"{
  */
 
 void set_minimum_battery_voltage(void);
-char read_from_i2c(int slave_addr, int reg_addr, int* data_read, i2c_t i2c_obj);
-char write_to_i2c(int slave_addr, int reg_addr,int data_write, i2c_t i2c_obj);
+char read_from_i2c(int slave_addr, int reg_addr, int *data_read, i2c_t i2c_obj);
+char write_to_i2c(int slave_addr, int reg_addr, int data_write, i2c_t i2c_obj);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif	// MIN_BATTERY_VOLTAGE_H
+#endif  // MIN_BATTERY_VOLTAGE_H

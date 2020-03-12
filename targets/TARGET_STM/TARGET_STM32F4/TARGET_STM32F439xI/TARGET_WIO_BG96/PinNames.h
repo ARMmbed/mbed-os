@@ -29,7 +29,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
- 
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -41,7 +41,7 @@ extern "C" {
 #endif
 
 typedef enum {
-	PA_0  = 0x00,
+    PA_0  = 0x00,
     PA_1  = 0x01,
     PA_2  = 0x02,
     PA_3  = 0x03,
