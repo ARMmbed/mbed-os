@@ -20,52 +20,11 @@
 #define MBED_PINNAMES_H
 
 #include "cmsis.h"
+#include "PinNamesCommon.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define NU_PININDEX_Pos                             0
-#define NU_PININDEX_Msk                             (0xFFul << NU_PININDEX_Pos)
-#define NU_PINPORT_Pos                              8
-#define NU_PINPORT_Msk                              (0xFul << NU_PINPORT_Pos)
-#define NU_PIN_MODINDEX_Pos                         12
-#define NU_PIN_MODINDEX_Msk                         (0xFul << NU_PIN_MODINDEX_Pos)
-#define NU_PIN_BIND_Pos                             16
-#define NU_PIN_BIND_Msk                             (0x1ul << NU_PIN_BIND_Pos)
-
-#define NU_PININDEX(PINNAME)                        (((unsigned int)(PINNAME) & NU_PININDEX_Msk) >> NU_PININDEX_Pos)
-#define NU_PINPORT(PINNAME)                         (((unsigned int)(PINNAME) & NU_PINPORT_Msk) >> NU_PINPORT_Pos)
-#define NU_PIN_BIND(PINNAME)                        (((unsigned int)(PINNAME) & NU_PIN_BIND_Msk) >> NU_PIN_BIND_Pos)
-#define NU_PIN_MODINDEX(PINNAME)                    (((unsigned int)(PINNAME) & NU_PIN_MODINDEX_Msk) >> NU_PIN_MODINDEX_Pos)
-#define NU_PINNAME(PORT, PIN)                       ((((unsigned int) (PORT)) << (NU_PINPORT_Pos)) | (((unsigned int) (PIN)) << NU_PININDEX_Pos))
-#define NU_PINNAME_BIND(PINNAME, modname)           ((PinName) NU_PINNAME_BIND_(NU_PINPORT(PINNAME), NU_PININDEX(PINNAME), modname))
-#define NU_PINNAME_BIND_(PORT, PIN, modname)        ((((unsigned int)(PORT)) << NU_PINPORT_Pos) | (((unsigned int)(PIN)) << NU_PININDEX_Pos) | (NU_MODINDEX(modname) << NU_PIN_MODINDEX_Pos) | NU_PIN_BIND_Msk)
-
-#define NU_PORT_BASE(PORT)                          ((GPIO_T *)(((uint32_t) GPIOA_BASE) + 0x40 * PORT))
-#define NU_MFP_POS(pin)                             ((pin % 8) * 4)
-#define NU_MFP_MSK(pin)                             (0xful << NU_MFP_POS(pin))
-
-typedef enum {
-    PIN_INPUT,
-    PIN_OUTPUT
-} PinDirection;
-
-typedef enum {
-    /* Input pull mode */
-    PullNone = 0,
-    PullDown,
-    PullUp,
-    
-    /* I/O mode */
-    InputOnly,
-    PushPullOutput,
-    OpenDrain,
-    QuasiBidirectional,
-    
-    /* Default input pull mode */
-    PullDefault = PullUp
-} PinMode;
 
 typedef enum {
     /* Not connected */
