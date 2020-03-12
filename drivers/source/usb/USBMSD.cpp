@@ -896,30 +896,37 @@ void USBMSD::memoryRead(void)
 
 bool USBMSD::infoTransfer(void)
 {
-    uint32_t n;
+    uint32_t addr_block;
 
     // Logical Block Address of First Block
-    n = (_cbw.CB[2] << 24) | (_cbw.CB[3] << 16) | (_cbw.CB[4] <<  8) | (_cbw.CB[5] <<  0);
+    addr_block = (_cbw.CB[2] << 24) | (_cbw.CB[3] << 16) | (_cbw.CB[4] <<  8) | (_cbw.CB[5] <<  0);
 
-    _addr = n * _block_size;
+    _addr = addr_block * _block_size;
 
+    if ((addr_block >= _block_count) || (_addr >= _memory_size)) {
+        _csw.Status = CSW_FAILED;
+        sendCSW();
+        return false;
+    }
+
+    uint32_t length_blocks = 0;
     // Number of Blocks to transfer
     switch (_cbw.CB[0]) {
         case READ10:
         case WRITE10:
         case VERIFY10:
-            n = (_cbw.CB[7] <<  8) | (_cbw.CB[8] <<  0);
+            length_blocks = (_cbw.CB[7] <<  8) | (_cbw.CB[8] <<  0);
             break;
 
         case READ12:
         case WRITE12:
-            n = (_cbw.CB[6] << 24) | (_cbw.CB[7] << 16) | (_cbw.CB[8] <<  8) | (_cbw.CB[9] <<  0);
+            length_blocks = (_cbw.CB[6] << 24) | (_cbw.CB[7] << 16) | (_cbw.CB[8] <<  8) | (_cbw.CB[9] <<  0);
             break;
     }
 
-    _length = n * _block_size;
+    _length = length_blocks * _block_size;
 
-    if (!_cbw.DataLength) {              // host requests no data
+    if (!_cbw.DataLength || !length_blocks || (length_blocks > _block_count - addr_block) || (_length > _memory_size - _addr)) { // host requests no data or wrong length
         _csw.Status = CSW_FAILED;
         sendCSW();
         return false;
