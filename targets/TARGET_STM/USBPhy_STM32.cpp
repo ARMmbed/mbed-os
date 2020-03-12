@@ -477,7 +477,7 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 
 void USBPhyHw::endpoint_abort(usb_ep_t endpoint)
 {
-#if (TARGET_STM32F4) || (TARGET_STM32F2)
+#if (TARGET_STM32F2)
     HAL_StatusTypeDef ret = HAL_PCD_EP_Abort(&hpcd, endpoint); // fix me: ST driver should not be modified
 #else
     HAL_StatusTypeDef ret = HAL_PCD_EP_Close(&hpcd, endpoint); // fix me: implementation not correct

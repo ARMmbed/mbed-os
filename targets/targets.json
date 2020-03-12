@@ -6894,8 +6894,7 @@
         },
         "macros_add": [
             "STM32F411xE",
-            "HSE_VALUE=26000000",
-            "VECT_TAB_OFFSET=0x08010000"
+            "HSE_VALUE=26000000"
         ],
         "device_has_add": [
             "MPU"
@@ -7111,7 +7110,7 @@
             "CORDIO",
             "CORDIO_ODIN_W2"
         ],
-        "macros": [
+        "macros_add": [
             "STM32F439xx",
             "MBEDTLS_CONFIG_HW_SUPPORT",
             "HSE_VALUE=24000000",

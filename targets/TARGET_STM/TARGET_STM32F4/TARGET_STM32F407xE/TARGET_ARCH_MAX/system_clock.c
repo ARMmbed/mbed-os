@@ -39,12 +39,6 @@
 #include "stm32f4xx.h"
 #include "nvic_addr.h"
 
-/*!< Uncomment the following line if you need to relocate your vector Table in
-     Internal SRAM. */
-/* #define VECT_TAB_SRAM */
-#define VECT_TAB_OFFSET  0x00 /*!< Vector Table base offset field.
-                                   This value must be a multiple of 0x200. */
-
 /* Select the clock sources (other than HSI) to start with (0=OFF, 1=ON) */
 #define USE_PLL_HSE_EXTC (1) /* Use external clock */
 #define USE_PLL_HSE_XTAL (1) /* Use external xtal */
@@ -56,50 +50,6 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass);
 
 uint8_t SetSysClock_PLL_HSI(void);
 
-/**
-  * @brief  Setup the microcontroller system
-  *         Initialize the FPU setting, vector table location and External memory
-  *         configuration.
-  * @param  None
-  * @retval None
-  */
-void SystemInit(void)
-{
-    /* FPU settings ------------------------------------------------------------*/
-#if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
-    SCB->CPACR |= ((3UL << 10 * 2) | (3UL << 11 * 2)); /* set CP10 and CP11 Full Access */
-#endif
-    /* Reset the RCC clock configuration to the default reset state ------------*/
-    /* Set HSION bit */
-    RCC->CR |= (uint32_t)0x00000001;
-
-    /* Reset CFGR register */
-    RCC->CFGR = 0x00000000;
-
-    /* Reset HSEON, CSSON and PLLON bits */
-    RCC->CR &= (uint32_t)0xFEF6FFFF;
-
-    /* Reset PLLCFGR register */
-    RCC->PLLCFGR = 0x24003010;
-
-    /* Reset HSEBYP bit */
-    RCC->CR &= (uint32_t)0xFFFBFFFF;
-
-    /* Disable all interrupts */
-    RCC->CIR = 0x00000000;
-
-#if defined (DATA_IN_ExtSRAM) || defined (DATA_IN_ExtSDRAM)
-    SystemInit_ExtMemCtl();
-#endif /* DATA_IN_ExtSRAM || DATA_IN_ExtSDRAM */
-
-    /* Configure the Vector Table location add offset address ------------------*/
-#ifdef VECT_TAB_SRAM
-    SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
-#else
-    SCB->VTOR = NVIC_FLASH_VECTOR_ADDRESS; /* Vector Table Relocation in Internal FLASH */
-#endif
-
-}
 
 /**
   * @brief  Configures the System clock source, PLL Multiplier and Divider factors,

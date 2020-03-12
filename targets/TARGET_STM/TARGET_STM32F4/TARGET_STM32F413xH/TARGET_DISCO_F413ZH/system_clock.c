@@ -31,13 +31,6 @@
 
 #include "stm32f4xx.h"
 #include "mbed_error.h"
-#include "nvic_addr.h"
-
-/*!< Uncomment the following line if you need to relocate your vector Table in
-     Internal SRAM. */
-/* #define VECT_TAB_SRAM */
-#define VECT_TAB_OFFSET  0x00 /*!< Vector Table base offset field.
-                                   This value must be a multiple of 0x200. */
 
 
 // clock source is selected with CLOCK_SOURCE in json config
@@ -52,63 +45,6 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass);
 #if ((CLOCK_SOURCE) & USE_PLL_HSI)
 uint8_t SetSysClock_PLL_HSI(void);
 #endif /* ((CLOCK_SOURCE) & USE_PLL_HSI) */
-
-
-/**
-  * @brief  Setup the microcontroller system
-  *         Initialize the FPU setting, vector table location and External memory
-  *         configuration.
-  * @param  None
-  * @retval None
-  */
-void SystemInit(void)
-{
-    /* FPU settings ------------------------------------------------------------*/
-#if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
-    SCB->CPACR |= ((3UL << 10 * 2) | (3UL << 11 * 2)); /* set CP10 and CP11 Full Access */
-#endif
-    /* Reset the RCC clock configuration to the default reset state ------------*/
-    /* Set HSION bit */
-    RCC->CR |= (uint32_t)0x00000001;
-
-    /* Reset CFGR register */
-    RCC->CFGR = 0x00000000;
-
-    /* Reset HSEON, CSSON and PLLON bits */
-    RCC->CR &= (uint32_t)0xFEF6FFFF;
-
-    /* Reset PLLCFGR register */
-    RCC->PLLCFGR = 0x24003010;
-
-    /* Reset HSEBYP bit */
-    RCC->CR &= (uint32_t)0xFFFBFFFF;
-
-    /* Disable all interrupts */
-    RCC->CIR = 0x00000000;
-
-#if defined (DATA_IN_ExtSRAM) || defined (DATA_IN_ExtSDRAM)
-    SystemInit_ExtMemCtl();
-#endif /* DATA_IN_ExtSRAM || DATA_IN_ExtSDRAM */
-
-    /* Configure the Vector Table location add offset address ------------------*/
-#ifdef VECT_TAB_SRAM
-    SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
-#else
-    SCB->VTOR = NVIC_FLASH_VECTOR_ADDRESS; /* Vector Table Relocation in Internal FLASH */
-#endif
-
-    /* In DISCO_F413ZH board, Arduino connector and Wifi embeded module are sharing the same SPI pins */
-    /* We need to set the default SPI SS pin for the Wifi module to the inactive state i.e. 1 */
-    /* See board User Manual: WIFI_SPI_CS = PG_11*/
-    __HAL_RCC_GPIOG_CLK_ENABLE();
-    GPIO_InitTypeDef  GPIO_InitStruct;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
-    GPIO_InitStruct.Pin = GPIO_PIN_11;
-    HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
-    HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_SET);
-}
 
 
 /**
@@ -143,6 +79,18 @@ void SetSysClock(void)
             }
         }
     }
+
+    /* In DISCO_F413ZH board, Arduino connector and Wifi embeded module are sharing the same SPI pins */
+    /* We need to set the default SPI SS pin for the Wifi module to the inactive state i.e. 1 */
+    /* See board User Manual: WIFI_SPI_CS = PG_11*/
+    __HAL_RCC_GPIOG_CLK_ENABLE();
+    GPIO_InitTypeDef  GPIO_InitStruct;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
+    GPIO_InitStruct.Pin = GPIO_PIN_11;
+    HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+    HAL_GPIO_WritePin(GPIOG, GPIO_PIN_11, GPIO_PIN_SET);
 
     /* Output clock on MCO2 pin(PC9) for debugging purpose */
     //HAL_RCC_MCOConfig(RCC_MCO2, RCC_MCO2SOURCE_SYSCLK, RCC_MCODIV_4);
