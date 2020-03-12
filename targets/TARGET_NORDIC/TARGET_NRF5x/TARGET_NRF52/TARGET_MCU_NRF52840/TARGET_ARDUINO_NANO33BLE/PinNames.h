@@ -169,7 +169,8 @@ typedef enum {
 
     I2C_SDA0 = p31,
     I2C_SCL0 = p2,
-    
+
+#ifndef ARDUINO_ARCH_MBED
     // Digital Pins
     D2  = P1_11,
     D3  = P1_12,
@@ -193,7 +194,8 @@ typedef enum {
     A5 = p2,
     A6 = p28,
     A7 = p3,
-    
+#endif
+
     AIN0 = p4,
     AIN1 = p5,
     AIN2 = p30,
