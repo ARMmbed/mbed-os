@@ -60,13 +60,13 @@ typedef enum {
     PullNone = 0,
     PullDown,
     PullUp,
-    
+
     /* I/O mode */
     InputOnly,
     PushPullOutput,
     OpenDrain,
     QuasiBidirectional,
-    
+
     /* Default input pull mode */
     PullDefault = PullUp
 } PinMode;
@@ -74,7 +74,7 @@ typedef enum {
 typedef enum {
     // Not connected
     NC = (int)0xFFFFFFFF,
-    
+
     // Generic naming
     PA_0    = NU_PORT_N_PIN_TO_PINNAME(0, 0), PA_1, PA_2, PA_3, PA_4, PA_5, PA_6, PA_7, PA_8, PA_9, PA_10, PA_11, PA_12, PA_13, PA_14, PA_15,
     PB_0    = NU_PORT_N_PIN_TO_PINNAME(1, 0), PB_1, PB_2, PB_3, PB_4, PB_5, PB_6, PB_7, PB_8, PB_9, PB_10, PB_11, PB_12, PB_13, PB_14, PB_15,
@@ -84,7 +84,7 @@ typedef enum {
     PF_0    = NU_PORT_N_PIN_TO_PINNAME(5, 0), PF_1, PF_2, PF_3, PF_4, PF_5, PF_6, PF_7, PF_8, PF_9, PF_10, PF_11,
     PG_0    = NU_PORT_N_PIN_TO_PINNAME(6, 0), PG_1, PG_2, PG_3, PG_4, PG_5, PG_6, PG_7, PG_8, PG_9, PG_10, PG_11, PG_12, PG_13, PG_14, PG_15,
     PH_0    = NU_PORT_N_PIN_TO_PINNAME(7, 0), PH_1, PH_2, PH_3, PH_4, PH_5, PH_6, PH_7, PH_8, PH_9, PH_10, PH_11,
-   
+
     // Arduino UNO naming
     A0 = PB_7,
     A1 = PB_6,
@@ -109,26 +109,28 @@ typedef enum {
     D13 = PA_2,
     D14 = PC_0,
     D15 = PC_1,
-    
+
     // Other board-specific naming
-    
+
     // UART naming
     USBTX = PB_13,
     USBRX = PB_12,
     STDIO_UART_TX   = USBTX,
     STDIO_UART_RX   = USBRX,
-    
+    SERIAL_TX = D1,
+    SERIAL_RX = D0,
+
     // I2C naming
     I2C_SCL = D15,
     I2C_SDA = D14,
-    
+
     // LED naming
     LED1 = PB_10,
     LED2 = PB_10,
     LED3 = PB_10,  // No real LED. Just for passing ATS.
     LED4 = PB_10,  // No real LED. Just for passing ATS.
     LED_RED = LED1,
-    
+
     // Button naming
     SW2 = PB_11,
     SW3 = PB_11,
