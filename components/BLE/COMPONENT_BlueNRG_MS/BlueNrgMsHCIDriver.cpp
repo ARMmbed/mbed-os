@@ -1,15 +1,43 @@
+/*
+ * Copyright (c) 2017-2020 ARM Limited
+ * Copyright (c) 2017-2020 STMicroelectronics
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <stdio.h>
+
+// drivers
+#include "drivers/DigitalOut.h"
+#include "drivers/SPI.h"
+#include "drivers/InterruptIn.h"
+
+// platform
+#include "platform/mbed_wait_api.h"
+
+// FEATURE_BLE/targets/TARGET_CORDIO
 #include "CordioBLE.h"
 #include "CordioHCIDriver.h"
 #include "CordioHCITransportDriver.h"
-#include "mbed.h"
 #include "hci_api.h"
 #include "hci_cmd.h"
 #include "hci_core.h"
 #include "dm_api.h"
 #include "bstream.h"
 #include "hci_mbed_os_adaptation.h"
-#include "bluenrg_targets.h"
+
+// rtos
 #include "Thread.h"
 #include "Semaphore.h"
 #include "Mutex.h"
@@ -38,21 +66,21 @@ namespace bluenrg {
  * BlueNRG HCI driver implementation.
  * @see cordio::CordioHCIDriver
  */
-class HCIDriver : public cordio::CordioHCIDriver
-{
+class HCIDriver : public cordio::CordioHCIDriver {
 public:
     /**
      * Construction of the BlueNRG HCIDriver.
      * @param transport: Transport of the HCI commands.
      * @param rst: Name of the reset pin
      */
-    HCIDriver(cordio::CordioHCITransportDriver& transport_driver, PinName rst) :
+    HCIDriver(cordio::CordioHCITransportDriver &transport_driver, PinName rst) :
         cordio::CordioHCIDriver(transport_driver), rst(rst) { }
 
     /**
      * @see CordioHCIDriver::do_initialize
      */
-    virtual void do_initialize() {
+    virtual void do_initialize()
+    {
         bluenrg_reset();
     }
 
@@ -68,7 +96,8 @@ public:
     /**
      * @see CordioHCIDriver::start_reset_sequence
      */
-    virtual void start_reset_sequence() {
+    virtual void start_reset_sequence()
+    {
         reset_received = false;
         bluenrg_initialized = false;
         enable_link_layer_mode_ongoing = false;
@@ -79,21 +108,21 @@ public:
     /**
      * @see CordioHCIDriver::do_terminate
      */
-    virtual void do_terminate() {
+    virtual void do_terminate()
+    {
 
     }
 
     /**
      * @see CordioHCIDriver::handle_reset_sequence
      */
-    virtual void handle_reset_sequence(uint8_t *pMsg) {
+    virtual void handle_reset_sequence(uint8_t *pMsg)
+    {
         uint16_t       opcode;
         static uint8_t randCnt;
-        //wait_ms(5);
 
         /* if event is a command complete event */
-        if (*pMsg == HCI_CMD_CMPL_EVT)
-        {
+        if (*pMsg == HCI_CMD_CMPL_EVT) {
             /* parse parameters */
             pMsg += HCI_EVT_HDR_LEN;
             pMsg++;                   /* skip num packets */
@@ -101,113 +130,110 @@ public:
             pMsg++;                   /* skip status */
 
             /* decode opcode */
-            switch (opcode)
-            {
-            case HCI_OPCODE_RESET: {
-                /* initialize rand command count */
-                randCnt = 0;
-                reset_received = true;
-                // important, the bluenrg_initialized event come after the
-                // hci reset event (not documented)
-                bluenrg_initialized = false;
-            } break;
-
-            // ACL packet ...
-            case ACI_WRITE_CONFIG_DATA_OPCODE:
-                if (enable_link_layer_mode_ongoing) {
-                    enable_link_layer_mode_ongoing = false;
-                    aciSetRole();
-                } else {
-                    aciGattInit();
+            switch (opcode) {
+                case HCI_OPCODE_RESET: {
+                    /* initialize rand command count */
+                    randCnt = 0;
+                    reset_received = true;
+                    // bluenrg_initialized event has to come after the hci reset event
+                    bluenrg_initialized = false;
                 }
                 break;
 
-            case ACI_GATT_INIT_OPCODE:
-                aciGapInit();
-                break;
+                // ACL packet
+                case ACI_WRITE_CONFIG_DATA_OPCODE:
+                    if (enable_link_layer_mode_ongoing) {
+                        enable_link_layer_mode_ongoing = false;
+                        aciSetRole();
+                    } else {
+                        aciGattInit();
+                    }
+                    break;
 
-            case ACI_GAP_INIT_OPCODE:
-                aciReadConfigParameter(RANDOM_STATIC_ADDRESS_OFFSET);
-                break;
+                case ACI_GATT_INIT_OPCODE:
+                    aciGapInit();
+                    break;
 
-            case ACI_READ_CONFIG_DATA_OPCODE:
-                // note: will send the HCI command to send the random address
-                set_random_static_address(pMsg);
-                break;
+                case ACI_GAP_INIT_OPCODE:
+                    aciReadConfigParameter(RANDOM_STATIC_ADDRESS_OFFSET);
+                    break;
 
-            case HCI_OPCODE_LE_SET_RAND_ADDR:
-                HciSetEventMaskCmd((uint8_t *) hciEventMask);
-                break;
+                case ACI_READ_CONFIG_DATA_OPCODE:
+                    // note: will send the HCI command to send the random address
+                    set_random_static_address(pMsg);
+                    break;
 
-            case HCI_OPCODE_SET_EVENT_MASK:
-                /* send next command in sequence */
-                HciLeSetEventMaskCmd((uint8_t *) hciLeEventMask);
-                break;
+                case HCI_OPCODE_LE_SET_RAND_ADDR:
+                    HciSetEventMaskCmd((uint8_t *) hciEventMask);
+                    break;
 
-            case HCI_OPCODE_LE_SET_EVENT_MASK:
-// Note: the public address is not read because there is no valid public address
-// provisioned by default on the target
-// Enable if the
-#if MBED_CONF_CORDIO_BLUENRG_VALID_PUBLIC_BD_ADDRESS == 1
-                /* send next command in sequence */
-                HciReadBdAddrCmd();
-                break;
+                case HCI_OPCODE_SET_EVENT_MASK:
+                    /* send next command in sequence */
+                    HciLeSetEventMaskCmd((uint8_t *) hciLeEventMask);
+                    break;
 
-            case HCI_OPCODE_READ_BD_ADDR:
-                /* parse and store event parameters */
-                BdaCpy(hciCoreCb.bdAddr, pMsg);
+                case HCI_OPCODE_LE_SET_EVENT_MASK:
+// Note: the public address is not read because there is no valid public address provisioned by default on the target
+// You can enable it thanks to json "valid-public-bd-address" config value
+#if MBED_CONF_BLUENRG_MS_VALID_PUBLIC_BD_ADDRESS == 1
+                    /* send next command in sequence */
+                    HciReadBdAddrCmd();
+                    break;
 
-                /* send next command in sequence */
+                case HCI_OPCODE_READ_BD_ADDR:
+                    /* parse and store event parameters */
+                    BdaCpy(hciCoreCb.bdAddr, pMsg);
+
+                    /* send next command in sequence */
 #endif
-                HciLeReadBufSizeCmd();
-                break;
+                    HciLeReadBufSizeCmd();
+                    break;
 
-            case HCI_OPCODE_LE_READ_BUF_SIZE:
-                /* parse and store event parameters */
-                BSTREAM_TO_UINT16(hciCoreCb.bufSize, pMsg);
-                BSTREAM_TO_UINT8(hciCoreCb.numBufs, pMsg);
+                case HCI_OPCODE_LE_READ_BUF_SIZE:
+                    /* parse and store event parameters */
+                    BSTREAM_TO_UINT16(hciCoreCb.bufSize, pMsg);
+                    BSTREAM_TO_UINT8(hciCoreCb.numBufs, pMsg);
 
-                /* initialize ACL buffer accounting */
-                hciCoreCb.availBufs = hciCoreCb.numBufs;
+                    /* initialize ACL buffer accounting */
+                    hciCoreCb.availBufs = hciCoreCb.numBufs;
 
-                /* send next command in sequence */
-                HciLeReadSupStatesCmd();
-                break;
+                    /* send next command in sequence */
+                    HciLeReadSupStatesCmd();
+                    break;
 
-            case HCI_OPCODE_LE_READ_SUP_STATES:
-                /* parse and store event parameters */
-                memcpy(hciCoreCb.leStates, pMsg, HCI_LE_STATES_LEN);
+                case HCI_OPCODE_LE_READ_SUP_STATES:
+                    /* parse and store event parameters */
+                    memcpy(hciCoreCb.leStates, pMsg, HCI_LE_STATES_LEN);
 
-                /* send next command in sequence */
-                HciLeReadWhiteListSizeCmd();
-                break;
+                    /* send next command in sequence */
+                    HciLeReadWhiteListSizeCmd();
+                    break;
 
-            case HCI_OPCODE_LE_READ_WHITE_LIST_SIZE:
-                /* parse and store event parameters */
-                BSTREAM_TO_UINT8(hciCoreCb.whiteListSize, pMsg);
+                case HCI_OPCODE_LE_READ_WHITE_LIST_SIZE:
+                    /* parse and store event parameters */
+                    BSTREAM_TO_UINT8(hciCoreCb.whiteListSize, pMsg);
 
-                /* send next command in sequence */
-                HciLeReadLocalSupFeatCmd();
-                break;
+                    /* send next command in sequence */
+                    HciLeReadLocalSupFeatCmd();
+                    break;
 
-            case HCI_OPCODE_LE_READ_LOCAL_SUP_FEAT:
-                /* parse and store event parameters */
-                BSTREAM_TO_UINT16(hciCoreCb.leSupFeat, pMsg);
+                case HCI_OPCODE_LE_READ_LOCAL_SUP_FEAT:
+                    /* parse and store event parameters */
+                    BSTREAM_TO_UINT16(hciCoreCb.leSupFeat, pMsg);
 
-                /* send next command in sequence */
-                hciCoreReadResolvingListSize();
-                break;
+                    /* send next command in sequence */
+                    hciCoreReadResolvingListSize();
+                    break;
 
-            case HCI_OPCODE_LE_READ_RES_LIST_SIZE:
-                /* parse and store event parameters */
-                BSTREAM_TO_UINT8(hciCoreCb.resListSize, pMsg);
+                case HCI_OPCODE_LE_READ_RES_LIST_SIZE:
+                    /* parse and store event parameters */
+                    BSTREAM_TO_UINT8(hciCoreCb.resListSize, pMsg);
 
-                /* send next command in sequence */
-                hciCoreReadMaxDataLen();
-                break;
+                    /* send next command in sequence */
+                    hciCoreReadMaxDataLen();
+                    break;
 
-            case HCI_OPCODE_LE_READ_MAX_DATA_LEN:
-                {
+                case HCI_OPCODE_LE_READ_MAX_DATA_LEN: {
                     uint16_t maxTxOctets;
                     uint16_t maxTxTime;
 
@@ -222,49 +248,42 @@ public:
                 }
                 break;
 
-            case HCI_OPCODE_LE_WRITE_DEF_DATA_LEN:
-                if (hciCoreCb.extResetSeq)
-                {
-                    /* send first extended command */
-                    (*hciCoreCb.extResetSeq)(pMsg, opcode);
-                }
-                else
-                {
-                    /* initialize extended parameters */
-                    hciCoreCb.maxAdvDataLen = 0;
-                    hciCoreCb.numSupAdvSets = 0;
-                    hciCoreCb.perAdvListSize = 0;
+                case HCI_OPCODE_LE_WRITE_DEF_DATA_LEN:
+                    if (hciCoreCb.extResetSeq) {
+                        /* send first extended command */
+                        (*hciCoreCb.extResetSeq)(pMsg, opcode);
+                    } else {
+                        /* initialize extended parameters */
+                        hciCoreCb.maxAdvDataLen = 0;
+                        hciCoreCb.numSupAdvSets = 0;
+                        hciCoreCb.perAdvListSize = 0;
 
-                    /* send next command in sequence */
-                    HciLeRandCmd();
-                }
-                break;
+                        /* send next command in sequence */
+                        HciLeRandCmd();
+                    }
+                    break;
 
-            case HCI_OPCODE_LE_READ_MAX_ADV_DATA_LEN:
-            case HCI_OPCODE_LE_READ_NUM_SUP_ADV_SETS:
-            case HCI_OPCODE_LE_READ_PER_ADV_LIST_SIZE:
-                if (hciCoreCb.extResetSeq)
-                {
-                    /* send next extended command in sequence */
-                    (*hciCoreCb.extResetSeq)(pMsg, opcode);
-                }
-                break;
+                case HCI_OPCODE_LE_READ_MAX_ADV_DATA_LEN:
+                case HCI_OPCODE_LE_READ_NUM_SUP_ADV_SETS:
+                case HCI_OPCODE_LE_READ_PER_ADV_LIST_SIZE:
+                    if (hciCoreCb.extResetSeq) {
+                        /* send next extended command in sequence */
+                        (*hciCoreCb.extResetSeq)(pMsg, opcode);
+                    }
+                    break;
 
-            case HCI_OPCODE_LE_RAND:
-                /* check if need to send second rand command */
-                if (randCnt < (HCI_RESET_RAND_CNT-1))
-                {
-                    randCnt++;
-                    HciLeRandCmd();
-                }
-                else
-                {
-                    signal_reset_sequence_done();
-                }
-                break;
+                case HCI_OPCODE_LE_RAND:
+                    /* check if need to send second rand command */
+                    if (randCnt < (HCI_RESET_RAND_CNT - 1)) {
+                        randCnt++;
+                        HciLeRandCmd();
+                    } else {
+                        signal_reset_sequence_done();
+                    }
+                    break;
 
-            default:
-                break;
+                default:
+                    break;
             }
         } else {
             /**
@@ -290,20 +309,23 @@ public:
     }
 
 private:
-    void aciEnableLinkLayerModeOnly() {
+    void aciEnableLinkLayerModeOnly()
+    {
         uint8_t data[1] = { 0x01 };
         enable_link_layer_mode_ongoing = true;
         aciWriteConfigData(LL_WITHOUT_HOST_OFFSET, data);
     }
 
-    void aciSetRole() {
+    void aciSetRole()
+    {
         // master and slave, simultaneous advertising and scanning
         // (up to 4 connections)
         uint8_t data[1] = { 0x04 };
         aciWriteConfigData(ROLE_OFFSET, data);
     }
 
-    void aciGattInit() {
+    void aciGattInit()
+    {
         uint8_t *pBuf = hciCmdAlloc(ACI_GATT_INIT_OPCODE, 0);
         if (!pBuf) {
             return;
@@ -311,7 +333,8 @@ private:
         hciCmdSend(pBuf);
     }
 
-    void aciGapInit() {
+    void aciGapInit()
+    {
         uint8_t *pBuf = hciCmdAlloc(ACI_GAP_INIT_OPCODE, 3);
         if (!pBuf) {
             return;
@@ -322,7 +345,8 @@ private:
         hciCmdSend(pBuf);
     }
 
-    void aciReadConfigParameter(uint8_t offset) {
+    void aciReadConfigParameter(uint8_t offset)
+    {
         uint8_t *pBuf = hciCmdAlloc(ACI_READ_CONFIG_DATA_OPCODE, 1);
         if (!pBuf) {
             return;
@@ -333,7 +357,8 @@ private:
     }
 
     template<size_t N>
-    void aciWriteConfigData(uint8_t offset, uint8_t (&buf)[N]) {
+    void aciWriteConfigData(uint8_t offset, uint8_t (&buf)[N])
+    {
         uint8_t *pBuf = hciCmdAlloc(ACI_WRITE_CONFIG_DATA_OPCODE, 2 + N);
         if (!pBuf) {
             return;
@@ -349,13 +374,10 @@ private:
     {
         /* if LL Privacy is supported by Controller and included */
         if ((hciCoreCb.leSupFeat & HCI_LE_SUP_FEAT_PRIVACY) &&
-            (hciLeSupFeatCfg & HCI_LE_SUP_FEAT_PRIVACY))
-        {
+                (hciLeSupFeatCfg & HCI_LE_SUP_FEAT_PRIVACY)) {
             /* send next command in sequence */
             HciLeReadResolvingListSize();
-        }
-        else
-        {
+        } else {
             hciCoreCb.resListSize = 0;
 
             /* send next command in sequence */
@@ -365,21 +387,19 @@ private:
 
     void hciCoreReadMaxDataLen(void)
     {
-    /* if LE Data Packet Length Extensions is supported by Controller and included */
+        /* if LE Data Packet Length Extensions is supported by Controller and included */
         if ((hciCoreCb.leSupFeat & HCI_LE_SUP_FEAT_DATA_LEN_EXT) &&
-            (hciLeSupFeatCfg & HCI_LE_SUP_FEAT_DATA_LEN_EXT))
-        {
+                (hciLeSupFeatCfg & HCI_LE_SUP_FEAT_DATA_LEN_EXT)) {
             /* send next command in sequence */
             HciLeReadMaxDataLen();
-        }
-        else
-        {
+        } else {
             /* send next command in sequence */
             HciLeRandCmd();
         }
     }
 
-    void bluenrg_reset() {
+    void bluenrg_reset()
+    {
         /* Reset BlueNRG SPI interface. Hold reset line to 0 for 1500ms */
         rst = 0;
         wait_us(1500);
@@ -389,7 +409,7 @@ private:
         wait_us(100000);
     }
 
-    DigitalOut rst;
+    mbed::DigitalOut rst;
     bool reset_received;
     bool bluenrg_initialized;
     bool enable_link_layer_mode_ongoing;
@@ -425,8 +445,9 @@ public:
      * @param irq Pin used by the module to signal data are available.
      */
     TransportDriver(PinName mosi, PinName miso, PinName sclk, PinName ncs, PinName irq)
-        : spi(mosi, miso, sclk), nCS(ncs), irq(irq), _spi_thread(osPriorityNormal, SPI_STACK_SIZE, _spi_thread_stack) {
-        _spi_thread.start(callback(this, &TransportDriver::spi_read_cb));
+        : spi(mosi, miso, sclk), nCS(ncs), irq(irq), _spi_thread(osPriorityNormal, SPI_STACK_SIZE, _spi_thread_stack)
+    {
+        _spi_thread.start(mbed::callback(this, &TransportDriver::spi_read_cb));
     }
 
     virtual ~TransportDriver() { }
@@ -434,7 +455,8 @@ public:
     /**
      * @see CordioHCITransportDriver::initialize
      */
-    virtual void initialize() {
+    virtual void initialize()
+    {
         // Setup the spi for 8 bit data, low clock polarity,
         // 1-edge phase, with an 8MHz clock rate
         spi.format(8, 0);
@@ -447,7 +469,7 @@ public:
 
         // Set the interrupt handler for the device
         irq.mode(PullDown); // set irq mode
-        irq.rise(callback(this, &TransportDriver::HCI_Isr));
+        irq.rise(mbed::callback(this, &TransportDriver::HCI_Isr));
     }
 
     /**
@@ -458,7 +480,8 @@ public:
     /**
      * @see CordioHCITransportDriver::write
      */
-    virtual uint16_t write(uint8_t type, uint16_t len, uint8_t *pData) {
+    virtual uint16_t write(uint8_t type, uint16_t len, uint8_t *pData)
+    {
         // repeat write until successfull. A number of attempt or timeout might
         // be useful
         while (spiWrite(type, pData, len) == 0) { }
@@ -466,7 +489,8 @@ public:
     }
 
 private:
-    uint16_t spiWrite(uint8_t type, const uint8_t* data, uint16_t data_length) {
+    uint16_t spiWrite(uint8_t type, const uint8_t *data, uint16_t data_length)
+    {
         static const uint8_t header_master[] = {
             0x0A, 0x00, 0x00, 0x00, 0x00
         };
@@ -501,7 +525,7 @@ private:
             spi.write(data[i]);
         }
 
-    exit:
+exit:
         nCS = 1;
 
         _spi_mutex.unlock();
@@ -509,7 +533,7 @@ private:
         return data_written;
     }
 
-    uint16_t spiRead(uint8_t* data_buffer, const uint16_t buffer_size)
+    uint16_t spiRead(uint8_t *data_buffer, const uint16_t buffer_size)
     {
         static const uint8_t header_master[] = {0x0b, 0x00, 0x00, 0x00, 0x00};
         uint8_t header_slave[5] = { 0xaa, 0x00, 0x00, 0x00, 0x00};
@@ -534,7 +558,7 @@ private:
             data_buffer[i] = spi.write(0xFF);
         }
 
-    exit:
+exit:
         nCS = 1;
 
         return read_length;
@@ -549,13 +573,14 @@ private:
         _spi_read_sem.release();
     }
 
-    void spi_read_cb() {
+    void spi_read_cb()
+    {
         uint8_t data_buffer[256];
-        while(true) {
+        while (true) {
             _spi_read_sem.acquire();
 
             _spi_mutex.lock();
-            while(irq == 1) {
+            while (irq == 1) {
                 uint16_t data_read = spiRead(data_buffer, sizeof(data_buffer));
                 on_data_received(data_buffer, data_read);
             }
@@ -567,8 +592,8 @@ private:
      * Unsafe SPI, does not lock when SPI access happens.
      */
     ::mbed::SPI spi;
-    DigitalOut nCS;
-    InterruptIn irq;
+    mbed::DigitalOut nCS;
+    mbed::InterruptIn irq;
     rtos::Thread _spi_thread;
     uint8_t _spi_thread_stack[SPI_STACK_SIZE];
     rtos::Semaphore _spi_read_sem;
@@ -582,17 +607,18 @@ private:
 /**
  * Cordio HCI driver factory
  */
-ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver() {
+ble::vendor::cordio::CordioHCIDriver &ble_cordio_get_hci_driver()
+{
     static ble::vendor::bluenrg::TransportDriver transport_driver(
-        BLUENRG_PIN_SPI_MOSI,
-        BLUENRG_PIN_SPI_MISO,
-        BLUENRG_PIN_SPI_SCK,
-        BLUENRG_PIN_SPI_nCS,
-        BLUENRG_PIN_SPI_IRQ
+        MBED_CONF_BLUENRG_MS_SPI_MOSI,
+        MBED_CONF_BLUENRG_MS_SPI_MISO,
+        MBED_CONF_BLUENRG_MS_SPI_SCK,
+        MBED_CONF_BLUENRG_MS_SPI_NCS,
+        MBED_CONF_BLUENRG_MS_SPI_IRQ
     );
     static ble::vendor::bluenrg::HCIDriver hci_driver(
         transport_driver,
-        BLUENRG_PIN_SPI_RESET
+        MBED_CONF_BLUENRG_MS_SPI_RESET
     );
     return hci_driver;
 }
