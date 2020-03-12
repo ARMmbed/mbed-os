@@ -14712,13 +14712,13 @@
             "5"
         ]
     },
-    "NUMAKER_IOT_M263A": {
+    "MCU_M261": {
         "core": "Cortex-M23",
         "default_toolchain": "ARMC6",
+        "public": false,
         "extra_labels": [
             "NUVOTON",
             "M261",
-            "M263KIAAE",
             "FLASH_CMSIS_ALGO"
         ],
         "macros": [
@@ -14782,19 +14782,24 @@
         "components_add": [
             "FLASHIAP"
         ],
-        "detect_code": [
-            "1310"
-        ],
         "release_versions": [
             "5"
         ],
-        "device_name": "M263KIAAE",
         "bootloader_supported": true,
         "overrides": {
             "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
         },
         "forced_reset_timeout": 3
+    },
+    "NUMAKER_IOT_M263A": {
+        "inherits": [
+            "MCU_M261"
+        ],
+        "device_name": "M263KIAAE",
+        "detect_code": [
+            "1310"
+        ]
     },
     "NUCLEO_G071RB": {
         "inherits": [
