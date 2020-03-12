@@ -20,6 +20,7 @@
 #define MBED_PERIPHERALNAMES_H
 
 #include "cmsis.h"
+#include "PinNames.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,7 +78,16 @@ typedef enum {
     UART_2 = (int) NU_MODNAME(UART2_BASE, 2, 0),
 
     /* NOTE: board-specific */
-    STDIO_UART  = UART_0
+#if defined(MBED_CONF_TARGET_USB_UART)
+    USB_UART    = MBED_CONF_TARGET_USB_UART,
+#else
+    USB_UART    = NC,
+#endif
+#if defined(MBED_CONF_TARGET_STDIO_UART)
+    STDIO_UART  = MBED_CONF_TARGET_STDIO_UART
+#else
+    STDIO_UART  = USB_UART
+#endif
 } UARTName;
 
 typedef enum {

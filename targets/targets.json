@@ -5656,6 +5656,30 @@
             "IAR"
         ],
         "config": {
+            "usb-uart": {
+                "help": "Configure USB_UART. USB_UART and USB_UART_TX/USB_UART_RX must be consistent.",
+                "value": null
+            },
+            "usb-uart-tx": {
+                "help": "Configure USBTX. USB_UART and USBTX/USBRX must be consistent.",
+                "value": null
+            },
+            "usb-uart-rx": {
+                "help": "Configure USBRX. USB_UART and USBTX/USBRX must be consistent.",
+                "value": null
+            },
+            "stdio-uart": {
+                "help": "Configure STDIO_UART. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART defaults to USB_UART.",
+                "value": null
+            },
+            "stdio-uart-tx": {
+                "help": "Configure STDIO_UART_TX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_TX defaults to USBTX.",
+                "value": null
+            },
+            "stdio-uart-rx": {
+                "help": "Configure STDIO_UART_RX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_RX defaults to USBRX.",
+                "value": null
+            },
             "gpio-irq-debounce-enable": {
                 "help": "Enable GPIO IRQ debounce",
                 "value": 0
@@ -5733,7 +5757,12 @@
             "2",
             "5"
         ],
-        "device_name": "M252KG6AE"
+        "device_name": "M252KG6AE",
+        "overrides": {
+            "usb-uart": "UART_0",
+            "usb-uart-tx": "PB_13",
+            "usb-uart-rx": "PB_12"
+        }
     },
     "TMPM4G9": {
         "inherits": [
