@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * @file    stm32f446xx.h
+  * @file    stm32f427xx.h
   * @author  MCD Application Team
-  * @brief   CMSIS STM32F446xx Device Peripheral Access Layer Header File.
+  * @brief   CMSIS STM32F427xx Device Peripheral Access Layer Header File.
   *
   *          This file contains:
   *           - Data structures and the address mapping for all peripherals
@@ -27,12 +27,12 @@
   * @{
   */
 
-/** @addtogroup stm32f446xx
+/** @addtogroup stm32f427xx
   * @{
   */
     
-#ifndef __STM32F446xx_H
-#define __STM32F446xx_H
+#ifndef __STM32F427xx_H
+#define __STM32F427xx_H
 
 #ifdef __cplusplus
  extern "C" {
@@ -136,6 +136,8 @@ typedef enum
   DMA2_Stream2_IRQn           = 58,     /*!< DMA2 Stream 2 global Interrupt                                    */
   DMA2_Stream3_IRQn           = 59,     /*!< DMA2 Stream 3 global Interrupt                                    */
   DMA2_Stream4_IRQn           = 60,     /*!< DMA2 Stream 4 global Interrupt                                    */
+  ETH_IRQn                    = 61,     /*!< Ethernet global Interrupt                                         */
+  ETH_WKUP_IRQn               = 62,     /*!< Ethernet Wakeup through EXTI line Interrupt                       */
   CAN2_TX_IRQn                = 63,     /*!< CAN2 TX Interrupt                                                 */
   CAN2_RX0_IRQn               = 64,     /*!< CAN2 RX0 Interrupt                                                */
   CAN2_RX1_IRQn               = 65,     /*!< CAN2 RX1 Interrupt                                                */
@@ -152,15 +154,15 @@ typedef enum
   OTG_HS_WKUP_IRQn            = 76,     /*!< USB OTG HS Wakeup through EXTI interrupt                          */
   OTG_HS_IRQn                 = 77,     /*!< USB OTG HS global interrupt                                       */
   DCMI_IRQn                   = 78,     /*!< DCMI global interrupt                                             */
+  HASH_RNG_IRQn               = 80,     /*!< Hash and Rng global interrupt                                     */
   FPU_IRQn                    = 81,     /*!< FPU global interrupt                                              */
+  UART7_IRQn                  = 82,     /*!< UART7 global interrupt                                            */
+  UART8_IRQn                  = 83,     /*!< UART8 global interrupt                                            */
   SPI4_IRQn                   = 84,     /*!< SPI4 global Interrupt                                             */
+  SPI5_IRQn                   = 85,     /*!< SPI5 global Interrupt                                             */
+  SPI6_IRQn                   = 86,     /*!< SPI6 global Interrupt                                             */
   SAI1_IRQn                   = 87,     /*!< SAI1 global Interrupt                                             */
-  SAI2_IRQn                   = 91,     /*!< SAI2 global Interrupt                                             */
-  QUADSPI_IRQn                = 92,     /*!< QuadSPI global Interrupt                                          */
-  CEC_IRQn                    = 93,     /*!< CEC global Interrupt                                              */
-  SPDIF_RX_IRQn               = 94,     /*!< SPDIF-RX global Interrupt                                          */
-  FMPI2C1_EV_IRQn             = 95,     /*!< FMPI2C1 Event Interrupt                                           */
-  FMPI2C1_ER_IRQn             = 96      /*!< FMPI2C1 Error Interrupt                                           */  
+  DMA2D_IRQn                  = 90      /*!< DMA2D global Interrupt                                            */
 } IRQn_Type;
 
 /**
@@ -276,20 +278,6 @@ typedef struct
   CAN_FilterRegister_TypeDef sFilterRegister[28]; /*!< CAN Filter Register,                 Address offset: 0x240-0x31C   */
 } CAN_TypeDef;
 
-
-/**
-  * @brief Consumer Electronics Control
-  */
-
-typedef struct
-{
-  __IO uint32_t CR;           /*!< CEC control register,              Address offset:0x00 */
-  __IO uint32_t CFGR;         /*!< CEC configuration register,        Address offset:0x04 */
-  __IO uint32_t TXDR;         /*!< CEC Tx data register ,             Address offset:0x08 */
-  __IO uint32_t RXDR;         /*!< CEC Rx Data Register,              Address offset:0x0C */
-  __IO uint32_t ISR;          /*!< CEC Interrupt and Status Register, Address offset:0x10 */
-  __IO uint32_t IER;          /*!< CEC interrupt enable register,     Address offset:0x14 */
-}CEC_TypeDef;
 /** 
   * @brief CRC calculation unit 
   */
@@ -379,6 +367,112 @@ typedef struct
 } DMA_TypeDef;
 
 /** 
+  * @brief DMA2D Controller
+  */
+
+typedef struct
+{
+  __IO uint32_t CR;            /*!< DMA2D Control Register,                         Address offset: 0x00 */
+  __IO uint32_t ISR;           /*!< DMA2D Interrupt Status Register,                Address offset: 0x04 */
+  __IO uint32_t IFCR;          /*!< DMA2D Interrupt Flag Clear Register,            Address offset: 0x08 */
+  __IO uint32_t FGMAR;         /*!< DMA2D Foreground Memory Address Register,       Address offset: 0x0C */
+  __IO uint32_t FGOR;          /*!< DMA2D Foreground Offset Register,               Address offset: 0x10 */
+  __IO uint32_t BGMAR;         /*!< DMA2D Background Memory Address Register,       Address offset: 0x14 */
+  __IO uint32_t BGOR;          /*!< DMA2D Background Offset Register,               Address offset: 0x18 */
+  __IO uint32_t FGPFCCR;       /*!< DMA2D Foreground PFC Control Register,          Address offset: 0x1C */
+  __IO uint32_t FGCOLR;        /*!< DMA2D Foreground Color Register,                Address offset: 0x20 */
+  __IO uint32_t BGPFCCR;       /*!< DMA2D Background PFC Control Register,          Address offset: 0x24 */
+  __IO uint32_t BGCOLR;        /*!< DMA2D Background Color Register,                Address offset: 0x28 */
+  __IO uint32_t FGCMAR;        /*!< DMA2D Foreground CLUT Memory Address Register,  Address offset: 0x2C */
+  __IO uint32_t BGCMAR;        /*!< DMA2D Background CLUT Memory Address Register,  Address offset: 0x30 */
+  __IO uint32_t OPFCCR;        /*!< DMA2D Output PFC Control Register,              Address offset: 0x34 */
+  __IO uint32_t OCOLR;         /*!< DMA2D Output Color Register,                    Address offset: 0x38 */
+  __IO uint32_t OMAR;          /*!< DMA2D Output Memory Address Register,           Address offset: 0x3C */
+  __IO uint32_t OOR;           /*!< DMA2D Output Offset Register,                   Address offset: 0x40 */
+  __IO uint32_t NLR;           /*!< DMA2D Number of Line Register,                  Address offset: 0x44 */
+  __IO uint32_t LWR;           /*!< DMA2D Line Watermark Register,                  Address offset: 0x48 */
+  __IO uint32_t AMTCR;         /*!< DMA2D AHB Master Timer Configuration Register,  Address offset: 0x4C */
+  uint32_t      RESERVED[236]; /*!< Reserved, 0x50-0x3FF */
+  __IO uint32_t FGCLUT[256];   /*!< DMA2D Foreground CLUT,                          Address offset:400-7FF */
+  __IO uint32_t BGCLUT[256];   /*!< DMA2D Background CLUT,                          Address offset:800-BFF */
+} DMA2D_TypeDef;
+
+/** 
+  * @brief Ethernet MAC
+  */
+
+typedef struct
+{
+  __IO uint32_t MACCR;
+  __IO uint32_t MACFFR;
+  __IO uint32_t MACHTHR;
+  __IO uint32_t MACHTLR;
+  __IO uint32_t MACMIIAR;
+  __IO uint32_t MACMIIDR;
+  __IO uint32_t MACFCR;
+  __IO uint32_t MACVLANTR;             /*    8 */
+  uint32_t      RESERVED0[2];
+  __IO uint32_t MACRWUFFR;             /*   11 */
+  __IO uint32_t MACPMTCSR;
+  uint32_t      RESERVED1;
+  __IO uint32_t MACDBGR;
+  __IO uint32_t MACSR;                 /*   15 */
+  __IO uint32_t MACIMR;
+  __IO uint32_t MACA0HR;
+  __IO uint32_t MACA0LR;
+  __IO uint32_t MACA1HR;
+  __IO uint32_t MACA1LR;
+  __IO uint32_t MACA2HR;
+  __IO uint32_t MACA2LR;
+  __IO uint32_t MACA3HR;
+  __IO uint32_t MACA3LR;               /*   24 */
+  uint32_t      RESERVED2[40];
+  __IO uint32_t MMCCR;                 /*   65 */
+  __IO uint32_t MMCRIR;
+  __IO uint32_t MMCTIR;
+  __IO uint32_t MMCRIMR;
+  __IO uint32_t MMCTIMR;               /*   69 */
+  uint32_t      RESERVED3[14];
+  __IO uint32_t MMCTGFSCCR;            /*   84 */
+  __IO uint32_t MMCTGFMSCCR;
+  uint32_t      RESERVED4[5];
+  __IO uint32_t MMCTGFCR;
+  uint32_t      RESERVED5[10];
+  __IO uint32_t MMCRFCECR;
+  __IO uint32_t MMCRFAECR;
+  uint32_t      RESERVED6[10];
+  __IO uint32_t MMCRGUFCR;
+  uint32_t      RESERVED7[334];
+  __IO uint32_t PTPTSCR;
+  __IO uint32_t PTPSSIR;
+  __IO uint32_t PTPTSHR;
+  __IO uint32_t PTPTSLR;
+  __IO uint32_t PTPTSHUR;
+  __IO uint32_t PTPTSLUR;
+  __IO uint32_t PTPTSAR;
+  __IO uint32_t PTPTTHR;
+  __IO uint32_t PTPTTLR;
+  __IO uint32_t RESERVED8;
+  __IO uint32_t PTPTSSR;
+  uint32_t      RESERVED9[565];
+  __IO uint32_t DMABMR;
+  __IO uint32_t DMATPDR;
+  __IO uint32_t DMARPDR;
+  __IO uint32_t DMARDLAR;
+  __IO uint32_t DMATDLAR;
+  __IO uint32_t DMASR;
+  __IO uint32_t DMAOMR;
+  __IO uint32_t DMAIER;
+  __IO uint32_t DMAMFBOCR;
+  __IO uint32_t DMARSWTR;
+  uint32_t      RESERVED10[8];
+  __IO uint32_t DMACHTDR;
+  __IO uint32_t DMACHRDR;
+  __IO uint32_t DMACHTBAR;
+  __IO uint32_t DMACHRBAR;
+} ETH_TypeDef;
+
+/** 
   * @brief External Interrupt/Event Controller
   */
 
@@ -424,20 +518,40 @@ typedef struct
 {
   __IO uint32_t BWTR[7];    /*!< NOR/PSRAM write timing registers, Address offset: 0x104-0x11C */
 } FMC_Bank1E_TypeDef;
-
 /** 
-  * @brief Flexible Memory Controller Bank3
+  * @brief Flexible Memory Controller Bank2
   */
- 
+  
 typedef struct
 {
-  __IO uint32_t PCR;       /*!< NAND Flash control register,                       Address offset: 0x80 */
-  __IO uint32_t SR;        /*!< NAND Flash FIFO status and interrupt register,     Address offset: 0x84 */
-  __IO uint32_t PMEM;      /*!< NAND Flash Common memory space timing register,    Address offset: 0x88 */
-  __IO uint32_t PATT;      /*!< NAND Flash Attribute memory space timing register, Address offset: 0x8C */
-  uint32_t      RESERVED;  /*!< Reserved, 0x90                                                          */
-  __IO uint32_t ECCR;      /*!< NAND Flash ECC result registers,                   Address offset: 0x94 */
-} FMC_Bank3_TypeDef;
+  __IO uint32_t PCR2;       /*!< NAND Flash control register 2,                       Address offset: 0x60 */
+  __IO uint32_t SR2;        /*!< NAND Flash FIFO status and interrupt register 2,     Address offset: 0x64 */
+  __IO uint32_t PMEM2;      /*!< NAND Flash Common memory space timing register 2,    Address offset: 0x68 */
+  __IO uint32_t PATT2;      /*!< NAND Flash Attribute memory space timing register 2, Address offset: 0x6C */
+  uint32_t      RESERVED0;  /*!< Reserved, 0x70                                                            */
+  __IO uint32_t ECCR2;      /*!< NAND Flash ECC result registers 2,                   Address offset: 0x74 */
+  uint32_t      RESERVED1;  /*!< Reserved, 0x78                                                            */
+  uint32_t      RESERVED2;  /*!< Reserved, 0x7C                                                            */
+  __IO uint32_t PCR3;       /*!< NAND Flash control register 3,                       Address offset: 0x80 */
+  __IO uint32_t SR3;        /*!< NAND Flash FIFO status and interrupt register 3,     Address offset: 0x84 */
+  __IO uint32_t PMEM3;      /*!< NAND Flash Common memory space timing register 3,    Address offset: 0x88 */
+  __IO uint32_t PATT3;      /*!< NAND Flash Attribute memory space timing register 3, Address offset: 0x8C */
+  uint32_t      RESERVED3;  /*!< Reserved, 0x90                                                            */
+  __IO uint32_t ECCR3;      /*!< NAND Flash ECC result registers 3,                   Address offset: 0x94 */
+} FMC_Bank2_3_TypeDef;
+
+/** 
+  * @brief Flexible Memory Controller Bank4
+  */
+  
+typedef struct
+{
+  __IO uint32_t PCR4;       /*!< PC Card  control register 4,                       Address offset: 0xA0 */
+  __IO uint32_t SR4;        /*!< PC Card  FIFO status and interrupt register 4,     Address offset: 0xA4 */
+  __IO uint32_t PMEM4;      /*!< PC Card  Common memory space timing register 4,    Address offset: 0xA8 */
+  __IO uint32_t PATT4;      /*!< PC Card  Attribute memory space timing register 4, Address offset: 0xAC */
+  __IO uint32_t PIO4;       /*!< PC Card  I/O space timing register 4,              Address offset: 0xB0 */
+} FMC_Bank4_TypeDef;
 
 /** 
   * @brief Flexible Memory Controller Bank5_6
@@ -480,8 +594,6 @@ typedef struct
   __IO uint32_t EXTICR[4];    /*!< SYSCFG external interrupt configuration registers, Address offset: 0x08-0x14 */
   uint32_t      RESERVED[2];  /*!< Reserved, 0x18-0x1C                                                          */
   __IO uint32_t CMPCR;        /*!< SYSCFG Compensation cell control register,         Address offset: 0x20      */
-  uint32_t      RESERVED1[2]; /*!< Reserved, 0x24-0x28                                                          */
-  __IO uint32_t CFGR;         /*!< SYSCFG Configuration register,                     Address offset: 0x2C      */
 } SYSCFG_TypeDef;
 
 /** 
@@ -501,25 +613,6 @@ typedef struct
   __IO uint32_t TRISE;      /*!< I2C TRISE register,         Address offset: 0x20 */
   __IO uint32_t FLTR;       /*!< I2C FLTR register,          Address offset: 0x24 */
 } I2C_TypeDef;
-
-/**
-  * @brief Inter-integrated Circuit Interface
-  */
-
-typedef struct
-{
-  __IO uint32_t CR1;         /*!< FMPI2C Control register 1,            Address offset: 0x00 */
-  __IO uint32_t CR2;         /*!< FMPI2C Control register 2,            Address offset: 0x04 */
-  __IO uint32_t OAR1;        /*!< FMPI2C Own address 1 register,        Address offset: 0x08 */
-  __IO uint32_t OAR2;        /*!< FMPI2C Own address 2 register,        Address offset: 0x0C */
-  __IO uint32_t TIMINGR;     /*!< FMPI2C Timing register,               Address offset: 0x10 */
-  __IO uint32_t TIMEOUTR;    /*!< FMPI2C Timeout register,              Address offset: 0x14 */
-  __IO uint32_t ISR;         /*!< FMPI2C Interrupt and status register, Address offset: 0x18 */
-  __IO uint32_t ICR;         /*!< FMPI2C Interrupt clear register,      Address offset: 0x1C */
-  __IO uint32_t PECR;        /*!< FMPI2C PEC register,                  Address offset: 0x20 */
-  __IO uint32_t RXDR;        /*!< FMPI2C Receive data register,         Address offset: 0x24 */
-  __IO uint32_t TXDR;        /*!< FMPI2C Transmit data register,        Address offset: 0x28 */
-} FMPI2C_TypeDef;
 
 /** 
   * @brief Independent WATCHDOG
@@ -582,8 +675,6 @@ typedef struct
   __IO uint32_t PLLI2SCFGR;    /*!< RCC PLLI2S configuration register,                           Address offset: 0x84 */
   __IO uint32_t PLLSAICFGR;    /*!< RCC PLLSAI configuration register,                           Address offset: 0x88 */
   __IO uint32_t DCKCFGR;       /*!< RCC Dedicated Clocks configuration register,                 Address offset: 0x8C */
-  __IO uint32_t CKGATENR;      /*!< RCC Clocks Gated ENable Register,                            Address offset: 0x90 */
-  __IO uint32_t DCKCFGR2;      /*!< RCC Dedicated Clocks configuration register 2,               Address offset: 0x94 */
 } RCC_TypeDef;
 
 /** 
@@ -700,44 +791,6 @@ typedef struct
   __IO uint32_t I2SPR;      /*!< SPI_I2S prescaler register,                         Address offset: 0x20 */
 } SPI_TypeDef;
 
-/** 
-  * @brief QUAD Serial Peripheral Interface
-  */
-
-typedef struct
-{
-  __IO uint32_t CR;       /*!< QUADSPI Control register,                           Address offset: 0x00 */
-  __IO uint32_t DCR;      /*!< QUADSPI Device Configuration register,              Address offset: 0x04 */
-  __IO uint32_t SR;       /*!< QUADSPI Status register,                            Address offset: 0x08 */
-  __IO uint32_t FCR;      /*!< QUADSPI Flag Clear register,                        Address offset: 0x0C */
-  __IO uint32_t DLR;      /*!< QUADSPI Data Length register,                       Address offset: 0x10 */
-  __IO uint32_t CCR;      /*!< QUADSPI Communication Configuration register,       Address offset: 0x14 */
-  __IO uint32_t AR;       /*!< QUADSPI Address register,                           Address offset: 0x18 */
-  __IO uint32_t ABR;      /*!< QUADSPI Alternate Bytes register,                   Address offset: 0x1C */
-  __IO uint32_t DR;       /*!< QUADSPI Data register,                              Address offset: 0x20 */
-  __IO uint32_t PSMKR;    /*!< QUADSPI Polling Status Mask register,               Address offset: 0x24 */
-  __IO uint32_t PSMAR;    /*!< QUADSPI Polling Status Match register,              Address offset: 0x28 */
-  __IO uint32_t PIR;      /*!< QUADSPI Polling Interval register,                  Address offset: 0x2C */
-  __IO uint32_t LPTR;     /*!< QUADSPI Low Power Timeout register,                 Address offset: 0x30 */
-} QUADSPI_TypeDef;
-
-/** 
-  * @brief SPDIFRX Interface
-  */
-
-typedef struct
-{
-  __IO uint32_t   CR;           /*!< Control register,                   Address offset: 0x00 */
-  __IO uint16_t   IMR;          /*!< Interrupt mask register,            Address offset: 0x04 */
-  uint16_t        RESERVED0;    /*!< Reserved,  0x06                                          */
-  __IO uint32_t   SR;           /*!< Status register,                    Address offset: 0x08 */
-  __IO uint16_t   IFCR;         /*!< Interrupt Flag Clear register,      Address offset: 0x0C */
-  uint16_t        RESERVED1;    /*!< Reserved,  0x0E                                          */
-  __IO uint32_t   DR;           /*!< Data input register,                Address offset: 0x10 */
-  __IO uint32_t   CSR;          /*!< Channel Status register,            Address offset: 0x14 */
-   __IO uint32_t  DIR;          /*!< Debug Information register,         Address offset: 0x18 */
-  uint16_t        RESERVED2;    /*!< Reserved,  0x1A                                          */
-} SPDIFRX_TypeDef;
 
 /** 
   * @brief TIM
@@ -793,6 +846,18 @@ typedef struct
   __IO uint32_t CFR;  /*!< WWDG Configuration register, Address offset: 0x04 */
   __IO uint32_t SR;   /*!< WWDG Status register,        Address offset: 0x08 */
 } WWDG_TypeDef;
+
+/** 
+  * @brief RNG
+  */
+  
+typedef struct 
+{
+  __IO uint32_t CR;  /*!< RNG control register, Address offset: 0x00 */
+  __IO uint32_t SR;  /*!< RNG status register,  Address offset: 0x04 */
+  __IO uint32_t DR;  /*!< RNG data register,    Address offset: 0x08 */
+} RNG_TypeDef;
+
 /** 
   * @brief USB_OTG_Core_Registers
   */
@@ -813,13 +878,7 @@ typedef struct
   uint32_t Reserved30[2];             /*!< Reserved                                     030h */
   __IO uint32_t GCCFG;                /*!< General Purpose IO Register                  038h */
   __IO uint32_t CID;                  /*!< User ID Register                             03Ch */
-  uint32_t  Reserved5[3];             /*!< Reserved                                040h-048h */
-  __IO uint32_t GHWCFG3;              /*!< User HW config3                              04Ch */
-  uint32_t  Reserved6;                /*!< Reserved                                     050h */
-  __IO uint32_t GLPMCFG;              /*!< LPM Register                                 054h */
-  uint32_t  Reserved;                 /*!< Reserved                                     058h */
-  __IO uint32_t GDFIFOCFG;            /*!< DFIFO Software Config Register               05Ch */
-  uint32_t  Reserved43[40];           /*!< Reserved                                058h-0FFh */
+  uint32_t  Reserved40[48];           /*!< Reserved                                0x40-0xFF */
   __IO uint32_t HPTXFSIZ;             /*!< Host Periodic Tx FIFO Size Reg               100h */
   __IO uint32_t DIEPTXF[0x0F];        /*!< dev Periodic Transmit FIFO                        */
 } USB_OTG_GlobalTypeDef;
@@ -915,20 +974,21 @@ typedef struct
 /** @addtogroup Peripheral_memory_map
   * @{
   */
-#define FLASH_BASE            0x08000000UL /*!< FLASH(up to 1 MB) base address in the alias region                         */
+#define FLASH_BASE            0x08000000UL /*!< FLASH(up to 2 MB) base address in the alias region                         */
+#define CCMDATARAM_BASE       0x10000000UL /*!< CCM(core coupled memory) data RAM(64 KB) base address in the alias region  */
 #define SRAM1_BASE            0x20000000UL /*!< SRAM1(112 KB) base address in the alias region                              */
 #define SRAM2_BASE            0x2001C000UL /*!< SRAM2(16 KB) base address in the alias region                              */
 #define PERIPH_BASE           0x40000000UL /*!< Peripheral base address in the alias region                                */
 #define BKPSRAM_BASE          0x40024000UL /*!< Backup SRAM(4 KB) base address in the alias region                         */
 #define FMC_R_BASE            0xA0000000UL /*!< FMC registers base address                                                 */
-#define QSPI_R_BASE           0xA0001000UL /*!< QuadSPI registers base address                                             */
 #define SRAM1_BB_BASE         0x22000000UL /*!< SRAM1(112 KB) base address in the bit-band region                          */
 #define SRAM2_BB_BASE         0x22380000UL /*!< SRAM2(16 KB) base address in the bit-band region                           */
 #define PERIPH_BB_BASE        0x42000000UL /*!< Peripheral base address in the bit-band region                             */
 #define BKPSRAM_BB_BASE       0x42480000UL /*!< Backup SRAM(4 KB) base address in the bit-band region                      */
-#define FLASH_END             0x0807FFFFUL /*!< FLASH end address                                                          */
+#define FLASH_END             0x081FFFFFUL /*!< FLASH end address                                                          */
 #define FLASH_OTP_BASE        0x1FFF7800UL /*!< Base address of : (up to 528 Bytes) embedded FLASH OTP Area                */
 #define FLASH_OTP_END         0x1FFF7A0FUL /*!< End address of : (up to 528 Bytes) embedded FLASH OTP Area                 */
+#define CCMDATARAM_END        0x1000FFFFUL /*!< CCM data RAM end address                                                   */
 
 /* Legacy defines */
 #define SRAM_BASE             SRAM1_BASE
@@ -953,9 +1013,10 @@ typedef struct
 #define RTC_BASE              (APB1PERIPH_BASE + 0x2800UL)
 #define WWDG_BASE             (APB1PERIPH_BASE + 0x2C00UL)
 #define IWDG_BASE             (APB1PERIPH_BASE + 0x3000UL)
+#define I2S2ext_BASE          (APB1PERIPH_BASE + 0x3400UL)
 #define SPI2_BASE             (APB1PERIPH_BASE + 0x3800UL)
 #define SPI3_BASE             (APB1PERIPH_BASE + 0x3C00UL)
-#define SPDIFRX_BASE          (APB1PERIPH_BASE + 0x4000UL)
+#define I2S3ext_BASE          (APB1PERIPH_BASE + 0x4000UL)
 #define USART2_BASE           (APB1PERIPH_BASE + 0x4400UL)
 #define USART3_BASE           (APB1PERIPH_BASE + 0x4800UL)
 #define UART4_BASE            (APB1PERIPH_BASE + 0x4C00UL)
@@ -963,12 +1024,12 @@ typedef struct
 #define I2C1_BASE             (APB1PERIPH_BASE + 0x5400UL)
 #define I2C2_BASE             (APB1PERIPH_BASE + 0x5800UL)
 #define I2C3_BASE             (APB1PERIPH_BASE + 0x5C00UL)
-#define FMPI2C1_BASE          (APB1PERIPH_BASE + 0x6000UL)
 #define CAN1_BASE             (APB1PERIPH_BASE + 0x6400UL)
 #define CAN2_BASE             (APB1PERIPH_BASE + 0x6800UL)
-#define CEC_BASE              (APB1PERIPH_BASE + 0x6C00UL)
 #define PWR_BASE              (APB1PERIPH_BASE + 0x7000UL)
 #define DAC_BASE              (APB1PERIPH_BASE + 0x7400UL)
+#define UART7_BASE            (APB1PERIPH_BASE + 0x7800UL)
+#define UART8_BASE            (APB1PERIPH_BASE + 0x7C00UL)
 
 /*!< APB2 peripherals */
 #define TIM1_BASE             (APB2PERIPH_BASE + 0x0000UL)
@@ -989,12 +1050,11 @@ typedef struct
 #define TIM9_BASE             (APB2PERIPH_BASE + 0x4000UL)
 #define TIM10_BASE            (APB2PERIPH_BASE + 0x4400UL)
 #define TIM11_BASE            (APB2PERIPH_BASE + 0x4800UL)
+#define SPI5_BASE             (APB2PERIPH_BASE + 0x5000UL)
+#define SPI6_BASE             (APB2PERIPH_BASE + 0x5400UL)
 #define SAI1_BASE             (APB2PERIPH_BASE + 0x5800UL)
 #define SAI1_Block_A_BASE     (SAI1_BASE + 0x004UL)
 #define SAI1_Block_B_BASE     (SAI1_BASE + 0x024UL)
-#define SAI2_BASE             (APB2PERIPH_BASE + 0x5C00UL)
-#define SAI2_Block_A_BASE     (SAI2_BASE + 0x004UL)
-#define SAI2_Block_B_BASE     (SAI2_BASE + 0x024UL)
 
 /*!< AHB1 peripherals */
 #define GPIOA_BASE            (AHB1PERIPH_BASE + 0x0000UL)
@@ -1005,6 +1065,9 @@ typedef struct
 #define GPIOF_BASE            (AHB1PERIPH_BASE + 0x1400UL)
 #define GPIOG_BASE            (AHB1PERIPH_BASE + 0x1800UL)
 #define GPIOH_BASE            (AHB1PERIPH_BASE + 0x1C00UL)
+#define GPIOI_BASE            (AHB1PERIPH_BASE + 0x2000UL)
+#define GPIOJ_BASE            (AHB1PERIPH_BASE + 0x2400UL)
+#define GPIOK_BASE            (AHB1PERIPH_BASE + 0x2800UL)
 #define CRC_BASE              (AHB1PERIPH_BASE + 0x3000UL)
 #define RCC_BASE              (AHB1PERIPH_BASE + 0x3800UL)
 #define FLASH_R_BASE          (AHB1PERIPH_BASE + 0x3C00UL)
@@ -1026,14 +1089,22 @@ typedef struct
 #define DMA2_Stream5_BASE     (DMA2_BASE + 0x088UL)
 #define DMA2_Stream6_BASE     (DMA2_BASE + 0x0A0UL)
 #define DMA2_Stream7_BASE     (DMA2_BASE + 0x0B8UL)
+#define ETH_BASE              (AHB1PERIPH_BASE + 0x8000UL)
+#define ETH_MAC_BASE          (ETH_BASE)
+#define ETH_MMC_BASE          (ETH_BASE + 0x0100UL)
+#define ETH_PTP_BASE          (ETH_BASE + 0x0700UL)
+#define ETH_DMA_BASE          (ETH_BASE + 0x1000UL)
+#define DMA2D_BASE            (AHB1PERIPH_BASE + 0xB000UL)
 
 /*!< AHB2 peripherals */
 #define DCMI_BASE             (AHB2PERIPH_BASE + 0x50000UL)
+#define RNG_BASE              (AHB2PERIPH_BASE + 0x60800UL)
 
 /*!< FMC Bankx registers base address */
 #define FMC_Bank1_R_BASE      (FMC_R_BASE + 0x0000UL)
 #define FMC_Bank1E_R_BASE     (FMC_R_BASE + 0x0104UL)
-#define FMC_Bank3_R_BASE      (FMC_R_BASE + 0x0080UL)
+#define FMC_Bank2_3_R_BASE    (FMC_R_BASE + 0x0060UL)
+#define FMC_Bank4_R_BASE      (FMC_R_BASE + 0x00A0UL)
 #define FMC_Bank5_6_R_BASE    (FMC_R_BASE + 0x0140UL)
 
 
@@ -1078,9 +1149,10 @@ typedef struct
 #define RTC                 ((RTC_TypeDef *) RTC_BASE)
 #define WWDG                ((WWDG_TypeDef *) WWDG_BASE)
 #define IWDG                ((IWDG_TypeDef *) IWDG_BASE)
+#define I2S2ext             ((SPI_TypeDef *) I2S2ext_BASE)
 #define SPI2                ((SPI_TypeDef *) SPI2_BASE)
 #define SPI3                ((SPI_TypeDef *) SPI3_BASE)
-#define SPDIFRX             ((SPDIFRX_TypeDef *) SPDIFRX_BASE)
+#define I2S3ext             ((SPI_TypeDef *) I2S3ext_BASE)
 #define USART2              ((USART_TypeDef *) USART2_BASE)
 #define USART3              ((USART_TypeDef *) USART3_BASE)
 #define UART4               ((USART_TypeDef *) UART4_BASE)
@@ -1088,13 +1160,13 @@ typedef struct
 #define I2C1                ((I2C_TypeDef *) I2C1_BASE)
 #define I2C2                ((I2C_TypeDef *) I2C2_BASE)
 #define I2C3                ((I2C_TypeDef *) I2C3_BASE)
-#define FMPI2C1             ((FMPI2C_TypeDef *) FMPI2C1_BASE)
 #define CAN1                ((CAN_TypeDef *) CAN1_BASE)
 #define CAN2                ((CAN_TypeDef *) CAN2_BASE)
-#define CEC                 ((CEC_TypeDef *) CEC_BASE)
 #define PWR                 ((PWR_TypeDef *) PWR_BASE)
 #define DAC1                ((DAC_TypeDef *) DAC_BASE)
 #define DAC                 ((DAC_TypeDef *) DAC_BASE) /* Kept for legacy purpose */
+#define UART7               ((USART_TypeDef *) UART7_BASE)
+#define UART8               ((USART_TypeDef *) UART8_BASE)
 #define TIM1                ((TIM_TypeDef *) TIM1_BASE)
 #define TIM8                ((TIM_TypeDef *) TIM8_BASE)
 #define USART1              ((USART_TypeDef *) USART1_BASE)
@@ -1113,12 +1185,11 @@ typedef struct
 #define TIM9                ((TIM_TypeDef *) TIM9_BASE)
 #define TIM10               ((TIM_TypeDef *) TIM10_BASE)
 #define TIM11               ((TIM_TypeDef *) TIM11_BASE)
+#define SPI5                ((SPI_TypeDef *) SPI5_BASE)
+#define SPI6                ((SPI_TypeDef *) SPI6_BASE)
 #define SAI1                ((SAI_TypeDef *) SAI1_BASE)
 #define SAI1_Block_A        ((SAI_Block_TypeDef *)SAI1_Block_A_BASE)
 #define SAI1_Block_B        ((SAI_Block_TypeDef *)SAI1_Block_B_BASE)
-#define SAI2                ((SAI_TypeDef *) SAI2_BASE)
-#define SAI2_Block_A        ((SAI_Block_TypeDef *)SAI2_Block_A_BASE)
-#define SAI2_Block_B        ((SAI_Block_TypeDef *)SAI2_Block_B_BASE)
 #define GPIOA               ((GPIO_TypeDef *) GPIOA_BASE)
 #define GPIOB               ((GPIO_TypeDef *) GPIOB_BASE)
 #define GPIOC               ((GPIO_TypeDef *) GPIOC_BASE)
@@ -1127,6 +1198,9 @@ typedef struct
 #define GPIOF               ((GPIO_TypeDef *) GPIOF_BASE)
 #define GPIOG               ((GPIO_TypeDef *) GPIOG_BASE)
 #define GPIOH               ((GPIO_TypeDef *) GPIOH_BASE)
+#define GPIOI               ((GPIO_TypeDef *) GPIOI_BASE)
+#define GPIOJ               ((GPIO_TypeDef *) GPIOJ_BASE)
+#define GPIOK               ((GPIO_TypeDef *) GPIOK_BASE)
 #define CRC                 ((CRC_TypeDef *) CRC_BASE)
 #define RCC                 ((RCC_TypeDef *) RCC_BASE)
 #define FLASH               ((FLASH_TypeDef *) FLASH_R_BASE)
@@ -1148,12 +1222,15 @@ typedef struct
 #define DMA2_Stream5        ((DMA_Stream_TypeDef *) DMA2_Stream5_BASE)
 #define DMA2_Stream6        ((DMA_Stream_TypeDef *) DMA2_Stream6_BASE)
 #define DMA2_Stream7        ((DMA_Stream_TypeDef *) DMA2_Stream7_BASE)
+#define ETH                 ((ETH_TypeDef *) ETH_BASE)  
+#define DMA2D               ((DMA2D_TypeDef *)DMA2D_BASE)
 #define DCMI                ((DCMI_TypeDef *) DCMI_BASE)
+#define RNG                 ((RNG_TypeDef *) RNG_BASE)
 #define FMC_Bank1           ((FMC_Bank1_TypeDef *) FMC_Bank1_R_BASE)
 #define FMC_Bank1E          ((FMC_Bank1E_TypeDef *) FMC_Bank1E_R_BASE)
-#define FMC_Bank3           ((FMC_Bank3_TypeDef *) FMC_Bank3_R_BASE)
+#define FMC_Bank2_3         ((FMC_Bank2_3_TypeDef *) FMC_Bank2_3_R_BASE)
+#define FMC_Bank4           ((FMC_Bank4_TypeDef *) FMC_Bank4_R_BASE)
 #define FMC_Bank5_6         ((FMC_Bank5_6_TypeDef *) FMC_Bank5_6_R_BASE)
-#define QUADSPI             ((QUADSPI_TypeDef *) QSPI_R_BASE)
 #define DBGMCU              ((DBGMCU_TypeDef *) DBGMCU_BASE)
 #define USB_OTG_FS          ((USB_OTG_GlobalTypeDef *) USB_OTG_FS_PERIPH_BASE)
 #define USB_OTG_HS          ((USB_OTG_GlobalTypeDef *) USB_OTG_HS_PERIPH_BASE)
@@ -5430,146 +5507,6 @@ typedef struct
 
 /******************************************************************************/
 /*                                                                            */
-/*                          HDMI-CEC (CEC)                                    */
-/*                                                                            */
-/******************************************************************************/
-
-/*******************  Bit definition for CEC_CR register  *********************/
-#define CEC_CR_CECEN_Pos         (0U)                                          
-#define CEC_CR_CECEN_Msk         (0x1UL << CEC_CR_CECEN_Pos)                    /*!< 0x00000001 */
-#define CEC_CR_CECEN             CEC_CR_CECEN_Msk                              /*!< CEC Enable                              */
-#define CEC_CR_TXSOM_Pos         (1U)                                          
-#define CEC_CR_TXSOM_Msk         (0x1UL << CEC_CR_TXSOM_Pos)                    /*!< 0x00000002 */
-#define CEC_CR_TXSOM             CEC_CR_TXSOM_Msk                              /*!< CEC Tx Start Of Message                 */
-#define CEC_CR_TXEOM_Pos         (2U)                                          
-#define CEC_CR_TXEOM_Msk         (0x1UL << CEC_CR_TXEOM_Pos)                    /*!< 0x00000004 */
-#define CEC_CR_TXEOM             CEC_CR_TXEOM_Msk                              /*!< CEC Tx End Of Message                   */
-
-/*******************  Bit definition for CEC_CFGR register  *******************/
-#define CEC_CFGR_SFT_Pos         (0U)                                          
-#define CEC_CFGR_SFT_Msk         (0x7UL << CEC_CFGR_SFT_Pos)                    /*!< 0x00000007 */
-#define CEC_CFGR_SFT             CEC_CFGR_SFT_Msk                              /*!< CEC Signal Free Time                    */
-#define CEC_CFGR_RXTOL_Pos       (3U)                                          
-#define CEC_CFGR_RXTOL_Msk       (0x1UL << CEC_CFGR_RXTOL_Pos)                  /*!< 0x00000008 */
-#define CEC_CFGR_RXTOL           CEC_CFGR_RXTOL_Msk                            /*!< CEC Tolerance                           */
-#define CEC_CFGR_BRESTP_Pos      (4U)                                          
-#define CEC_CFGR_BRESTP_Msk      (0x1UL << CEC_CFGR_BRESTP_Pos)                 /*!< 0x00000010 */
-#define CEC_CFGR_BRESTP          CEC_CFGR_BRESTP_Msk                           /*!< CEC Rx Stop                             */
-#define CEC_CFGR_BREGEN_Pos      (5U)                                          
-#define CEC_CFGR_BREGEN_Msk      (0x1UL << CEC_CFGR_BREGEN_Pos)                 /*!< 0x00000020 */
-#define CEC_CFGR_BREGEN          CEC_CFGR_BREGEN_Msk                           /*!< CEC Bit Rising Error generation         */
-#define CEC_CFGR_LBPEGEN_Pos     (6U)                                          
-#define CEC_CFGR_LBPEGEN_Msk     (0x1UL << CEC_CFGR_LBPEGEN_Pos)                /*!< 0x00000040 */
-#define CEC_CFGR_LBPEGEN         CEC_CFGR_LBPEGEN_Msk                          /*!< CEC Long Bit Period Error generation    */
-#define CEC_CFGR_SFTOPT_Pos      (8U)                                          
-#define CEC_CFGR_SFTOPT_Msk      (0x1UL << CEC_CFGR_SFTOPT_Pos)                 /*!< 0x00000100 */
-#define CEC_CFGR_SFTOPT          CEC_CFGR_SFTOPT_Msk                           /*!< CEC Signal Free Time optional           */
-#define CEC_CFGR_BRDNOGEN_Pos    (7U)                                          
-#define CEC_CFGR_BRDNOGEN_Msk    (0x1UL << CEC_CFGR_BRDNOGEN_Pos)               /*!< 0x00000080 */
-#define CEC_CFGR_BRDNOGEN        CEC_CFGR_BRDNOGEN_Msk                         /*!< CEC Broadcast No error generation       */
-#define CEC_CFGR_OAR_Pos         (16U)                                         
-#define CEC_CFGR_OAR_Msk         (0x7FFFUL << CEC_CFGR_OAR_Pos)                 /*!< 0x7FFF0000 */
-#define CEC_CFGR_OAR             CEC_CFGR_OAR_Msk                              /*!< CEC Own Address                         */
-#define CEC_CFGR_LSTN_Pos        (31U)                                         
-#define CEC_CFGR_LSTN_Msk        (0x1UL << CEC_CFGR_LSTN_Pos)                   /*!< 0x80000000 */
-#define CEC_CFGR_LSTN            CEC_CFGR_LSTN_Msk                             /*!< CEC Listen mode                         */
-
-/*******************  Bit definition for CEC_TXDR register  *******************/
-#define CEC_TXDR_TXD_Pos         (0U)                                          
-#define CEC_TXDR_TXD_Msk         (0xFFUL << CEC_TXDR_TXD_Pos)                   /*!< 0x000000FF */
-#define CEC_TXDR_TXD             CEC_TXDR_TXD_Msk                              /*!< CEC Tx Data                              */
-
-/*******************  Bit definition for CEC_RXDR register  *******************/
-#define CEC_RXDR_RXD_Pos         (0U)                                          
-#define CEC_RXDR_RXD_Msk         (0xFFUL << CEC_RXDR_RXD_Pos)                   /*!< 0x000000FF */
-#define CEC_RXDR_RXD             CEC_RXDR_RXD_Msk                              /*!< CEC Rx Data                              */
-/*legacy define*/
-#define  CEC_TXDR_RXD                        CEC_RXDR_RXD      /*!< CEC Rx Data                              */
-
-/*******************  Bit definition for CEC_ISR register  ********************/
-#define CEC_ISR_RXBR_Pos         (0U)                                          
-#define CEC_ISR_RXBR_Msk         (0x1UL << CEC_ISR_RXBR_Pos)                    /*!< 0x00000001 */
-#define CEC_ISR_RXBR             CEC_ISR_RXBR_Msk                              /*!< CEC Rx-Byte Received                      */
-#define CEC_ISR_RXEND_Pos        (1U)                                          
-#define CEC_ISR_RXEND_Msk        (0x1UL << CEC_ISR_RXEND_Pos)                   /*!< 0x00000002 */
-#define CEC_ISR_RXEND            CEC_ISR_RXEND_Msk                             /*!< CEC End Of Reception                      */
-#define CEC_ISR_RXOVR_Pos        (2U)                                          
-#define CEC_ISR_RXOVR_Msk        (0x1UL << CEC_ISR_RXOVR_Pos)                   /*!< 0x00000004 */
-#define CEC_ISR_RXOVR            CEC_ISR_RXOVR_Msk                             /*!< CEC Rx-Overrun                            */
-#define CEC_ISR_BRE_Pos          (3U)                                          
-#define CEC_ISR_BRE_Msk          (0x1UL << CEC_ISR_BRE_Pos)                     /*!< 0x00000008 */
-#define CEC_ISR_BRE              CEC_ISR_BRE_Msk                               /*!< CEC Rx Bit Rising Error                   */
-#define CEC_ISR_SBPE_Pos         (4U)                                          
-#define CEC_ISR_SBPE_Msk         (0x1UL << CEC_ISR_SBPE_Pos)                    /*!< 0x00000010 */
-#define CEC_ISR_SBPE             CEC_ISR_SBPE_Msk                              /*!< CEC Rx Short Bit period Error             */
-#define CEC_ISR_LBPE_Pos         (5U)                                          
-#define CEC_ISR_LBPE_Msk         (0x1UL << CEC_ISR_LBPE_Pos)                    /*!< 0x00000020 */
-#define CEC_ISR_LBPE             CEC_ISR_LBPE_Msk                              /*!< CEC Rx Long Bit period Error              */
-#define CEC_ISR_RXACKE_Pos       (6U)                                          
-#define CEC_ISR_RXACKE_Msk       (0x1UL << CEC_ISR_RXACKE_Pos)                  /*!< 0x00000040 */
-#define CEC_ISR_RXACKE           CEC_ISR_RXACKE_Msk                            /*!< CEC Rx Missing Acknowledge                */
-#define CEC_ISR_ARBLST_Pos       (7U)                                          
-#define CEC_ISR_ARBLST_Msk       (0x1UL << CEC_ISR_ARBLST_Pos)                  /*!< 0x00000080 */
-#define CEC_ISR_ARBLST           CEC_ISR_ARBLST_Msk                            /*!< CEC Arbitration Lost                      */
-#define CEC_ISR_TXBR_Pos         (8U)                                          
-#define CEC_ISR_TXBR_Msk         (0x1UL << CEC_ISR_TXBR_Pos)                    /*!< 0x00000100 */
-#define CEC_ISR_TXBR             CEC_ISR_TXBR_Msk                              /*!< CEC Tx Byte Request                       */
-#define CEC_ISR_TXEND_Pos        (9U)                                          
-#define CEC_ISR_TXEND_Msk        (0x1UL << CEC_ISR_TXEND_Pos)                   /*!< 0x00000200 */
-#define CEC_ISR_TXEND            CEC_ISR_TXEND_Msk                             /*!< CEC End of Transmission                   */
-#define CEC_ISR_TXUDR_Pos        (10U)                                         
-#define CEC_ISR_TXUDR_Msk        (0x1UL << CEC_ISR_TXUDR_Pos)                   /*!< 0x00000400 */
-#define CEC_ISR_TXUDR            CEC_ISR_TXUDR_Msk                             /*!< CEC Tx-Buffer Underrun                    */
-#define CEC_ISR_TXERR_Pos        (11U)                                         
-#define CEC_ISR_TXERR_Msk        (0x1UL << CEC_ISR_TXERR_Pos)                   /*!< 0x00000800 */
-#define CEC_ISR_TXERR            CEC_ISR_TXERR_Msk                             /*!< CEC Tx-Error                              */
-#define CEC_ISR_TXACKE_Pos       (12U)                                         
-#define CEC_ISR_TXACKE_Msk       (0x1UL << CEC_ISR_TXACKE_Pos)                  /*!< 0x00001000 */
-#define CEC_ISR_TXACKE           CEC_ISR_TXACKE_Msk                            /*!< CEC Tx Missing Acknowledge                */
-
-/*******************  Bit definition for CEC_IER register  ********************/
-#define CEC_IER_RXBRIE_Pos       (0U)                                          
-#define CEC_IER_RXBRIE_Msk       (0x1UL << CEC_IER_RXBRIE_Pos)                  /*!< 0x00000001 */
-#define CEC_IER_RXBRIE           CEC_IER_RXBRIE_Msk                            /*!< CEC Rx-Byte Received IT Enable            */
-#define CEC_IER_RXENDIE_Pos      (1U)                                          
-#define CEC_IER_RXENDIE_Msk      (0x1UL << CEC_IER_RXENDIE_Pos)                 /*!< 0x00000002 */
-#define CEC_IER_RXENDIE          CEC_IER_RXENDIE_Msk                           /*!< CEC End Of Reception IT Enable            */
-#define CEC_IER_RXOVRIE_Pos      (2U)                                          
-#define CEC_IER_RXOVRIE_Msk      (0x1UL << CEC_IER_RXOVRIE_Pos)                 /*!< 0x00000004 */
-#define CEC_IER_RXOVRIE          CEC_IER_RXOVRIE_Msk                           /*!< CEC Rx-Overrun IT Enable                  */
-#define CEC_IER_BREIE_Pos        (3U)                                          
-#define CEC_IER_BREIE_Msk        (0x1UL << CEC_IER_BREIE_Pos)                   /*!< 0x00000008 */
-#define CEC_IER_BREIE            CEC_IER_BREIE_Msk                             /*!< CEC Rx Bit Rising Error IT Enable         */
-#define CEC_IER_SBPEIE_Pos       (4U)                                          
-#define CEC_IER_SBPEIE_Msk       (0x1UL << CEC_IER_SBPEIE_Pos)                  /*!< 0x00000010 */
-#define CEC_IER_SBPEIE           CEC_IER_SBPEIE_Msk                            /*!< CEC Rx Short Bit period Error IT Enable   */
-#define CEC_IER_LBPEIE_Pos       (5U)                                          
-#define CEC_IER_LBPEIE_Msk       (0x1UL << CEC_IER_LBPEIE_Pos)                  /*!< 0x00000020 */
-#define CEC_IER_LBPEIE           CEC_IER_LBPEIE_Msk                            /*!< CEC Rx Long Bit period Error IT Enable    */
-#define CEC_IER_RXACKEIE_Pos     (6U)                                          
-#define CEC_IER_RXACKEIE_Msk     (0x1UL << CEC_IER_RXACKEIE_Pos)                /*!< 0x00000040 */
-#define CEC_IER_RXACKEIE         CEC_IER_RXACKEIE_Msk                          /*!< CEC Rx Missing Acknowledge IT Enable      */
-#define CEC_IER_ARBLSTIE_Pos     (7U)                                          
-#define CEC_IER_ARBLSTIE_Msk     (0x1UL << CEC_IER_ARBLSTIE_Pos)                /*!< 0x00000080 */
-#define CEC_IER_ARBLSTIE         CEC_IER_ARBLSTIE_Msk                          /*!< CEC Arbitration Lost IT Enable            */
-#define CEC_IER_TXBRIE_Pos       (8U)                                          
-#define CEC_IER_TXBRIE_Msk       (0x1UL << CEC_IER_TXBRIE_Pos)                  /*!< 0x00000100 */
-#define CEC_IER_TXBRIE           CEC_IER_TXBRIE_Msk                            /*!< CEC Tx Byte Request  IT Enable            */
-#define CEC_IER_TXENDIE_Pos      (9U)                                          
-#define CEC_IER_TXENDIE_Msk      (0x1UL << CEC_IER_TXENDIE_Pos)                 /*!< 0x00000200 */
-#define CEC_IER_TXENDIE          CEC_IER_TXENDIE_Msk                           /*!< CEC End of Transmission IT Enable         */
-#define CEC_IER_TXUDRIE_Pos      (10U)                                         
-#define CEC_IER_TXUDRIE_Msk      (0x1UL << CEC_IER_TXUDRIE_Pos)                 /*!< 0x00000400 */
-#define CEC_IER_TXUDRIE          CEC_IER_TXUDRIE_Msk                           /*!< CEC Tx-Buffer Underrun IT Enable          */
-#define CEC_IER_TXERRIE_Pos      (11U)                                         
-#define CEC_IER_TXERRIE_Msk      (0x1UL << CEC_IER_TXERRIE_Pos)                 /*!< 0x00000800 */
-#define CEC_IER_TXERRIE          CEC_IER_TXERRIE_Msk                           /*!< CEC Tx-Error IT Enable                    */
-#define CEC_IER_TXACKEIE_Pos     (12U)                                         
-#define CEC_IER_TXACKEIE_Msk     (0x1UL << CEC_IER_TXACKEIE_Pos)                /*!< 0x00001000 */
-#define CEC_IER_TXACKEIE         CEC_IER_TXACKEIE_Msk                          /*!< CEC Tx Missing Acknowledge IT Enable      */
-
-/******************************************************************************/
-/*                                                                            */
 /*                          CRC calculation unit                              */
 /*                                                                            */
 /******************************************************************************/
@@ -5789,23 +5726,9 @@ typedef struct
 #define DCMI_CR_FCRC_1             0x00000200U                                 
 #define DCMI_CR_EDM_0              0x00000400U                                 
 #define DCMI_CR_EDM_1              0x00000800U                                 
-#define DCMI_CR_OUTEN_Pos          (13U)                                       
-#define DCMI_CR_OUTEN_Msk          (0x1UL << DCMI_CR_OUTEN_Pos)                 /*!< 0x00002000 */
-#define DCMI_CR_OUTEN              DCMI_CR_OUTEN_Msk                           
 #define DCMI_CR_ENABLE_Pos         (14U)                                       
 #define DCMI_CR_ENABLE_Msk         (0x1UL << DCMI_CR_ENABLE_Pos)                /*!< 0x00004000 */
 #define DCMI_CR_ENABLE             DCMI_CR_ENABLE_Msk                          
-#define DCMI_CR_BSM_0              0x00010000U                                 
-#define DCMI_CR_BSM_1              0x00020000U                                 
-#define DCMI_CR_OEBS_Pos           (18U)                                       
-#define DCMI_CR_OEBS_Msk           (0x1UL << DCMI_CR_OEBS_Pos)                  /*!< 0x00040000 */
-#define DCMI_CR_OEBS               DCMI_CR_OEBS_Msk                            
-#define DCMI_CR_LSM_Pos            (19U)                                       
-#define DCMI_CR_LSM_Msk            (0x1UL << DCMI_CR_LSM_Pos)                   /*!< 0x00080000 */
-#define DCMI_CR_LSM                DCMI_CR_LSM_Msk                             
-#define DCMI_CR_OELS_Pos           (20U)                                       
-#define DCMI_CR_OELS_Msk           (0x1UL << DCMI_CR_OELS_Pos)                  /*!< 0x00100000 */
-#define DCMI_CR_OELS               DCMI_CR_OELS_Msk                            
 
 /********************  Bits definition for DCMI_SR register  ******************/
 #define DCMI_SR_HSYNC_Pos          (0U)                                        
@@ -6349,6 +6272,287 @@ typedef struct
 #define DMA_SxM1AR_M1A_Pos       (0U)                                          
 #define DMA_SxM1AR_M1A_Msk       (0xFFFFFFFFUL << DMA_SxM1AR_M1A_Pos)           /*!< 0xFFFFFFFF */
 #define DMA_SxM1AR_M1A           DMA_SxM1AR_M1A_Msk                            /*!< Memory Address */
+
+
+/******************************************************************************/
+/*                                                                            */
+/*                         AHB Master DMA2D Controller (DMA2D)                */
+/*                                                                            */
+/******************************************************************************/
+
+/********************  Bit definition for DMA2D_CR register  ******************/
+
+#define DMA2D_CR_START_Pos         (0U)                                        
+#define DMA2D_CR_START_Msk         (0x1UL << DMA2D_CR_START_Pos)                /*!< 0x00000001 */
+#define DMA2D_CR_START             DMA2D_CR_START_Msk                          /*!< Start transfer */
+#define DMA2D_CR_SUSP_Pos          (1U)                                        
+#define DMA2D_CR_SUSP_Msk          (0x1UL << DMA2D_CR_SUSP_Pos)                 /*!< 0x00000002 */
+#define DMA2D_CR_SUSP              DMA2D_CR_SUSP_Msk                           /*!< Suspend transfer */
+#define DMA2D_CR_ABORT_Pos         (2U)                                        
+#define DMA2D_CR_ABORT_Msk         (0x1UL << DMA2D_CR_ABORT_Pos)                /*!< 0x00000004 */
+#define DMA2D_CR_ABORT             DMA2D_CR_ABORT_Msk                          /*!< Abort transfer */
+#define DMA2D_CR_TEIE_Pos          (8U)                                        
+#define DMA2D_CR_TEIE_Msk          (0x1UL << DMA2D_CR_TEIE_Pos)                 /*!< 0x00000100 */
+#define DMA2D_CR_TEIE              DMA2D_CR_TEIE_Msk                           /*!< Transfer Error Interrupt Enable */
+#define DMA2D_CR_TCIE_Pos          (9U)                                        
+#define DMA2D_CR_TCIE_Msk          (0x1UL << DMA2D_CR_TCIE_Pos)                 /*!< 0x00000200 */
+#define DMA2D_CR_TCIE              DMA2D_CR_TCIE_Msk                           /*!< Transfer Complete Interrupt Enable */
+#define DMA2D_CR_TWIE_Pos          (10U)                                       
+#define DMA2D_CR_TWIE_Msk          (0x1UL << DMA2D_CR_TWIE_Pos)                 /*!< 0x00000400 */
+#define DMA2D_CR_TWIE              DMA2D_CR_TWIE_Msk                           /*!< Transfer Watermark Interrupt Enable */
+#define DMA2D_CR_CAEIE_Pos         (11U)                                       
+#define DMA2D_CR_CAEIE_Msk         (0x1UL << DMA2D_CR_CAEIE_Pos)                /*!< 0x00000800 */
+#define DMA2D_CR_CAEIE             DMA2D_CR_CAEIE_Msk                          /*!< CLUT Access Error Interrupt Enable */
+#define DMA2D_CR_CTCIE_Pos         (12U)                                       
+#define DMA2D_CR_CTCIE_Msk         (0x1UL << DMA2D_CR_CTCIE_Pos)                /*!< 0x00001000 */
+#define DMA2D_CR_CTCIE             DMA2D_CR_CTCIE_Msk                          /*!< CLUT Transfer Complete Interrupt Enable */
+#define DMA2D_CR_CEIE_Pos          (13U)                                       
+#define DMA2D_CR_CEIE_Msk          (0x1UL << DMA2D_CR_CEIE_Pos)                 /*!< 0x00002000 */
+#define DMA2D_CR_CEIE              DMA2D_CR_CEIE_Msk                           /*!< Configuration Error Interrupt Enable */
+#define DMA2D_CR_MODE_Pos          (16U)                                       
+#define DMA2D_CR_MODE_Msk          (0x3UL << DMA2D_CR_MODE_Pos)                 /*!< 0x00030000 */
+#define DMA2D_CR_MODE              DMA2D_CR_MODE_Msk                           /*!< DMA2D Mode[1:0] */
+#define DMA2D_CR_MODE_0            (0x1UL << DMA2D_CR_MODE_Pos)                 /*!< 0x00010000 */
+#define DMA2D_CR_MODE_1            (0x2UL << DMA2D_CR_MODE_Pos)                 /*!< 0x00020000 */
+
+/********************  Bit definition for DMA2D_ISR register  *****************/
+
+#define DMA2D_ISR_TEIF_Pos         (0U)                                        
+#define DMA2D_ISR_TEIF_Msk         (0x1UL << DMA2D_ISR_TEIF_Pos)                /*!< 0x00000001 */
+#define DMA2D_ISR_TEIF             DMA2D_ISR_TEIF_Msk                          /*!< Transfer Error Interrupt Flag */
+#define DMA2D_ISR_TCIF_Pos         (1U)                                        
+#define DMA2D_ISR_TCIF_Msk         (0x1UL << DMA2D_ISR_TCIF_Pos)                /*!< 0x00000002 */
+#define DMA2D_ISR_TCIF             DMA2D_ISR_TCIF_Msk                          /*!< Transfer Complete Interrupt Flag */
+#define DMA2D_ISR_TWIF_Pos         (2U)                                        
+#define DMA2D_ISR_TWIF_Msk         (0x1UL << DMA2D_ISR_TWIF_Pos)                /*!< 0x00000004 */
+#define DMA2D_ISR_TWIF             DMA2D_ISR_TWIF_Msk                          /*!< Transfer Watermark Interrupt Flag */
+#define DMA2D_ISR_CAEIF_Pos        (3U)                                        
+#define DMA2D_ISR_CAEIF_Msk        (0x1UL << DMA2D_ISR_CAEIF_Pos)               /*!< 0x00000008 */
+#define DMA2D_ISR_CAEIF            DMA2D_ISR_CAEIF_Msk                         /*!< CLUT Access Error Interrupt Flag */
+#define DMA2D_ISR_CTCIF_Pos        (4U)                                        
+#define DMA2D_ISR_CTCIF_Msk        (0x1UL << DMA2D_ISR_CTCIF_Pos)               /*!< 0x00000010 */
+#define DMA2D_ISR_CTCIF            DMA2D_ISR_CTCIF_Msk                         /*!< CLUT Transfer Complete Interrupt Flag */
+#define DMA2D_ISR_CEIF_Pos         (5U)                                        
+#define DMA2D_ISR_CEIF_Msk         (0x1UL << DMA2D_ISR_CEIF_Pos)                /*!< 0x00000020 */
+#define DMA2D_ISR_CEIF             DMA2D_ISR_CEIF_Msk                          /*!< Configuration Error Interrupt Flag */
+
+/********************  Bit definition for DMA2D_IFCR register  ****************/
+
+#define DMA2D_IFCR_CTEIF_Pos       (0U)                                        
+#define DMA2D_IFCR_CTEIF_Msk       (0x1UL << DMA2D_IFCR_CTEIF_Pos)              /*!< 0x00000001 */
+#define DMA2D_IFCR_CTEIF           DMA2D_IFCR_CTEIF_Msk                        /*!< Clears Transfer Error Interrupt Flag         */
+#define DMA2D_IFCR_CTCIF_Pos       (1U)                                        
+#define DMA2D_IFCR_CTCIF_Msk       (0x1UL << DMA2D_IFCR_CTCIF_Pos)              /*!< 0x00000002 */
+#define DMA2D_IFCR_CTCIF           DMA2D_IFCR_CTCIF_Msk                        /*!< Clears Transfer Complete Interrupt Flag      */
+#define DMA2D_IFCR_CTWIF_Pos       (2U)                                        
+#define DMA2D_IFCR_CTWIF_Msk       (0x1UL << DMA2D_IFCR_CTWIF_Pos)              /*!< 0x00000004 */
+#define DMA2D_IFCR_CTWIF           DMA2D_IFCR_CTWIF_Msk                        /*!< Clears Transfer Watermark Interrupt Flag     */
+#define DMA2D_IFCR_CAECIF_Pos      (3U)                                        
+#define DMA2D_IFCR_CAECIF_Msk      (0x1UL << DMA2D_IFCR_CAECIF_Pos)             /*!< 0x00000008 */
+#define DMA2D_IFCR_CAECIF          DMA2D_IFCR_CAECIF_Msk                       /*!< Clears CLUT Access Error Interrupt Flag      */
+#define DMA2D_IFCR_CCTCIF_Pos      (4U)                                        
+#define DMA2D_IFCR_CCTCIF_Msk      (0x1UL << DMA2D_IFCR_CCTCIF_Pos)             /*!< 0x00000010 */
+#define DMA2D_IFCR_CCTCIF          DMA2D_IFCR_CCTCIF_Msk                       /*!< Clears CLUT Transfer Complete Interrupt Flag */
+#define DMA2D_IFCR_CCEIF_Pos       (5U)                                        
+#define DMA2D_IFCR_CCEIF_Msk       (0x1UL << DMA2D_IFCR_CCEIF_Pos)              /*!< 0x00000020 */
+#define DMA2D_IFCR_CCEIF           DMA2D_IFCR_CCEIF_Msk                        /*!< Clears Configuration Error Interrupt Flag    */
+
+/* Legacy defines */
+#define DMA2D_IFSR_CTEIF                   DMA2D_IFCR_CTEIF                     /*!< Clears Transfer Error Interrupt Flag         */
+#define DMA2D_IFSR_CTCIF                   DMA2D_IFCR_CTCIF                     /*!< Clears Transfer Complete Interrupt Flag      */
+#define DMA2D_IFSR_CTWIF                   DMA2D_IFCR_CTWIF                     /*!< Clears Transfer Watermark Interrupt Flag     */
+#define DMA2D_IFSR_CCAEIF                  DMA2D_IFCR_CAECIF                    /*!< Clears CLUT Access Error Interrupt Flag      */
+#define DMA2D_IFSR_CCTCIF                  DMA2D_IFCR_CCTCIF                    /*!< Clears CLUT Transfer Complete Interrupt Flag */
+#define DMA2D_IFSR_CCEIF                   DMA2D_IFCR_CCEIF                     /*!< Clears Configuration Error Interrupt Flag    */
+
+/********************  Bit definition for DMA2D_FGMAR register  ***************/
+
+#define DMA2D_FGMAR_MA_Pos         (0U)                                        
+#define DMA2D_FGMAR_MA_Msk         (0xFFFFFFFFUL << DMA2D_FGMAR_MA_Pos)         /*!< 0xFFFFFFFF */
+#define DMA2D_FGMAR_MA             DMA2D_FGMAR_MA_Msk                          /*!< Memory Address */
+
+/********************  Bit definition for DMA2D_FGOR register  ****************/
+
+#define DMA2D_FGOR_LO_Pos          (0U)                                        
+#define DMA2D_FGOR_LO_Msk          (0x3FFFUL << DMA2D_FGOR_LO_Pos)              /*!< 0x00003FFF */
+#define DMA2D_FGOR_LO              DMA2D_FGOR_LO_Msk                           /*!< Line Offset */
+
+/********************  Bit definition for DMA2D_BGMAR register  ***************/
+
+#define DMA2D_BGMAR_MA_Pos         (0U)                                        
+#define DMA2D_BGMAR_MA_Msk         (0xFFFFFFFFUL << DMA2D_BGMAR_MA_Pos)         /*!< 0xFFFFFFFF */
+#define DMA2D_BGMAR_MA             DMA2D_BGMAR_MA_Msk                          /*!< Memory Address */
+
+/********************  Bit definition for DMA2D_BGOR register  ****************/
+
+#define DMA2D_BGOR_LO_Pos          (0U)                                        
+#define DMA2D_BGOR_LO_Msk          (0x3FFFUL << DMA2D_BGOR_LO_Pos)              /*!< 0x00003FFF */
+#define DMA2D_BGOR_LO              DMA2D_BGOR_LO_Msk                           /*!< Line Offset */
+
+/********************  Bit definition for DMA2D_FGPFCCR register  *************/
+
+#define DMA2D_FGPFCCR_CM_Pos       (0U)                                        
+#define DMA2D_FGPFCCR_CM_Msk       (0xFUL << DMA2D_FGPFCCR_CM_Pos)              /*!< 0x0000000F */
+#define DMA2D_FGPFCCR_CM           DMA2D_FGPFCCR_CM_Msk                        /*!< Input color mode CM[3:0] */
+#define DMA2D_FGPFCCR_CM_0         (0x1UL << DMA2D_FGPFCCR_CM_Pos)              /*!< 0x00000001 */
+#define DMA2D_FGPFCCR_CM_1         (0x2UL << DMA2D_FGPFCCR_CM_Pos)              /*!< 0x00000002 */
+#define DMA2D_FGPFCCR_CM_2         (0x4UL << DMA2D_FGPFCCR_CM_Pos)              /*!< 0x00000004 */
+#define DMA2D_FGPFCCR_CM_3         (0x8UL << DMA2D_FGPFCCR_CM_Pos)              /*!< 0x00000008 */
+#define DMA2D_FGPFCCR_CCM_Pos      (4U)                                        
+#define DMA2D_FGPFCCR_CCM_Msk      (0x1UL << DMA2D_FGPFCCR_CCM_Pos)             /*!< 0x00000010 */
+#define DMA2D_FGPFCCR_CCM          DMA2D_FGPFCCR_CCM_Msk                       /*!< CLUT Color mode */
+#define DMA2D_FGPFCCR_START_Pos    (5U)                                        
+#define DMA2D_FGPFCCR_START_Msk    (0x1UL << DMA2D_FGPFCCR_START_Pos)           /*!< 0x00000020 */
+#define DMA2D_FGPFCCR_START        DMA2D_FGPFCCR_START_Msk                     /*!< Start */
+#define DMA2D_FGPFCCR_CS_Pos       (8U)                                        
+#define DMA2D_FGPFCCR_CS_Msk       (0xFFUL << DMA2D_FGPFCCR_CS_Pos)             /*!< 0x0000FF00 */
+#define DMA2D_FGPFCCR_CS           DMA2D_FGPFCCR_CS_Msk                        /*!< CLUT size */
+#define DMA2D_FGPFCCR_AM_Pos       (16U)                                       
+#define DMA2D_FGPFCCR_AM_Msk       (0x3UL << DMA2D_FGPFCCR_AM_Pos)              /*!< 0x00030000 */
+#define DMA2D_FGPFCCR_AM           DMA2D_FGPFCCR_AM_Msk                        /*!< Alpha mode AM[1:0] */
+#define DMA2D_FGPFCCR_AM_0         (0x1UL << DMA2D_FGPFCCR_AM_Pos)              /*!< 0x00010000 */
+#define DMA2D_FGPFCCR_AM_1         (0x2UL << DMA2D_FGPFCCR_AM_Pos)              /*!< 0x00020000 */
+#define DMA2D_FGPFCCR_ALPHA_Pos    (24U)                                       
+#define DMA2D_FGPFCCR_ALPHA_Msk    (0xFFUL << DMA2D_FGPFCCR_ALPHA_Pos)          /*!< 0xFF000000 */
+#define DMA2D_FGPFCCR_ALPHA        DMA2D_FGPFCCR_ALPHA_Msk                     /*!< Alpha value */
+
+/********************  Bit definition for DMA2D_FGCOLR register  **************/
+
+#define DMA2D_FGCOLR_BLUE_Pos      (0U)                                        
+#define DMA2D_FGCOLR_BLUE_Msk      (0xFFUL << DMA2D_FGCOLR_BLUE_Pos)            /*!< 0x000000FF */
+#define DMA2D_FGCOLR_BLUE          DMA2D_FGCOLR_BLUE_Msk                       /*!< Blue Value */
+#define DMA2D_FGCOLR_GREEN_Pos     (8U)                                        
+#define DMA2D_FGCOLR_GREEN_Msk     (0xFFUL << DMA2D_FGCOLR_GREEN_Pos)           /*!< 0x0000FF00 */
+#define DMA2D_FGCOLR_GREEN         DMA2D_FGCOLR_GREEN_Msk                      /*!< Green Value */
+#define DMA2D_FGCOLR_RED_Pos       (16U)                                       
+#define DMA2D_FGCOLR_RED_Msk       (0xFFUL << DMA2D_FGCOLR_RED_Pos)             /*!< 0x00FF0000 */
+#define DMA2D_FGCOLR_RED           DMA2D_FGCOLR_RED_Msk                        /*!< Red Value */   
+
+/********************  Bit definition for DMA2D_BGPFCCR register  *************/
+
+#define DMA2D_BGPFCCR_CM_Pos       (0U)                                        
+#define DMA2D_BGPFCCR_CM_Msk       (0xFUL << DMA2D_BGPFCCR_CM_Pos)              /*!< 0x0000000F */
+#define DMA2D_BGPFCCR_CM           DMA2D_BGPFCCR_CM_Msk                        /*!< Input color mode CM[3:0] */
+#define DMA2D_BGPFCCR_CM_0         (0x1UL << DMA2D_BGPFCCR_CM_Pos)              /*!< 0x00000001 */
+#define DMA2D_BGPFCCR_CM_1         (0x2UL << DMA2D_BGPFCCR_CM_Pos)              /*!< 0x00000002 */
+#define DMA2D_BGPFCCR_CM_2         (0x4UL << DMA2D_BGPFCCR_CM_Pos)              /*!< 0x00000004 */
+#define DMA2D_BGPFCCR_CM_3         0x00000008U                                 /*!< Input color mode CM bit 3 */
+#define DMA2D_BGPFCCR_CCM_Pos      (4U)                                        
+#define DMA2D_BGPFCCR_CCM_Msk      (0x1UL << DMA2D_BGPFCCR_CCM_Pos)             /*!< 0x00000010 */
+#define DMA2D_BGPFCCR_CCM          DMA2D_BGPFCCR_CCM_Msk                       /*!< CLUT Color mode */
+#define DMA2D_BGPFCCR_START_Pos    (5U)                                        
+#define DMA2D_BGPFCCR_START_Msk    (0x1UL << DMA2D_BGPFCCR_START_Pos)           /*!< 0x00000020 */
+#define DMA2D_BGPFCCR_START        DMA2D_BGPFCCR_START_Msk                     /*!< Start */
+#define DMA2D_BGPFCCR_CS_Pos       (8U)                                        
+#define DMA2D_BGPFCCR_CS_Msk       (0xFFUL << DMA2D_BGPFCCR_CS_Pos)             /*!< 0x0000FF00 */
+#define DMA2D_BGPFCCR_CS           DMA2D_BGPFCCR_CS_Msk                        /*!< CLUT size */
+#define DMA2D_BGPFCCR_AM_Pos       (16U)                                       
+#define DMA2D_BGPFCCR_AM_Msk       (0x3UL << DMA2D_BGPFCCR_AM_Pos)              /*!< 0x00030000 */
+#define DMA2D_BGPFCCR_AM           DMA2D_BGPFCCR_AM_Msk                        /*!< Alpha mode AM[1:0] */
+#define DMA2D_BGPFCCR_AM_0         (0x1UL << DMA2D_BGPFCCR_AM_Pos)              /*!< 0x00010000 */
+#define DMA2D_BGPFCCR_AM_1         (0x2UL << DMA2D_BGPFCCR_AM_Pos)              /*!< 0x00020000 */
+#define DMA2D_BGPFCCR_ALPHA_Pos    (24U)                                       
+#define DMA2D_BGPFCCR_ALPHA_Msk    (0xFFUL << DMA2D_BGPFCCR_ALPHA_Pos)          /*!< 0xFF000000 */
+#define DMA2D_BGPFCCR_ALPHA        DMA2D_BGPFCCR_ALPHA_Msk                     /*!< background Input Alpha value */
+
+/********************  Bit definition for DMA2D_BGCOLR register  **************/
+
+#define DMA2D_BGCOLR_BLUE_Pos      (0U)                                        
+#define DMA2D_BGCOLR_BLUE_Msk      (0xFFUL << DMA2D_BGCOLR_BLUE_Pos)            /*!< 0x000000FF */
+#define DMA2D_BGCOLR_BLUE          DMA2D_BGCOLR_BLUE_Msk                       /*!< Blue Value */
+#define DMA2D_BGCOLR_GREEN_Pos     (8U)                                        
+#define DMA2D_BGCOLR_GREEN_Msk     (0xFFUL << DMA2D_BGCOLR_GREEN_Pos)           /*!< 0x0000FF00 */
+#define DMA2D_BGCOLR_GREEN         DMA2D_BGCOLR_GREEN_Msk                      /*!< Green Value */
+#define DMA2D_BGCOLR_RED_Pos       (16U)                                       
+#define DMA2D_BGCOLR_RED_Msk       (0xFFUL << DMA2D_BGCOLR_RED_Pos)             /*!< 0x00FF0000 */
+#define DMA2D_BGCOLR_RED           DMA2D_BGCOLR_RED_Msk                        /*!< Red Value */
+
+/********************  Bit definition for DMA2D_FGCMAR register  **************/
+
+#define DMA2D_FGCMAR_MA_Pos        (0U)                                        
+#define DMA2D_FGCMAR_MA_Msk        (0xFFFFFFFFUL << DMA2D_FGCMAR_MA_Pos)        /*!< 0xFFFFFFFF */
+#define DMA2D_FGCMAR_MA            DMA2D_FGCMAR_MA_Msk                         /*!< Memory Address */
+
+/********************  Bit definition for DMA2D_BGCMAR register  **************/
+
+#define DMA2D_BGCMAR_MA_Pos        (0U)                                        
+#define DMA2D_BGCMAR_MA_Msk        (0xFFFFFFFFUL << DMA2D_BGCMAR_MA_Pos)        /*!< 0xFFFFFFFF */
+#define DMA2D_BGCMAR_MA            DMA2D_BGCMAR_MA_Msk                         /*!< Memory Address */
+
+/********************  Bit definition for DMA2D_OPFCCR register  **************/
+
+#define DMA2D_OPFCCR_CM_Pos        (0U)                                        
+#define DMA2D_OPFCCR_CM_Msk        (0x7UL << DMA2D_OPFCCR_CM_Pos)               /*!< 0x00000007 */
+#define DMA2D_OPFCCR_CM            DMA2D_OPFCCR_CM_Msk                         /*!< Color mode CM[2:0] */
+#define DMA2D_OPFCCR_CM_0          (0x1UL << DMA2D_OPFCCR_CM_Pos)               /*!< 0x00000001 */
+#define DMA2D_OPFCCR_CM_1          (0x2UL << DMA2D_OPFCCR_CM_Pos)               /*!< 0x00000002 */
+#define DMA2D_OPFCCR_CM_2          (0x4UL << DMA2D_OPFCCR_CM_Pos)               /*!< 0x00000004 */
+
+/********************  Bit definition for DMA2D_OCOLR register  ***************/
+
+/*!<Mode_ARGB8888/RGB888 */
+
+#define DMA2D_OCOLR_BLUE_1         0x000000FFU                                 /*!< BLUE Value */
+#define DMA2D_OCOLR_GREEN_1        0x0000FF00U                                 /*!< GREEN Value  */
+#define DMA2D_OCOLR_RED_1          0x00FF0000U                                 /*!< Red Value */
+#define DMA2D_OCOLR_ALPHA_1        0xFF000000U                                 /*!< Alpha Channel Value */
+
+/*!<Mode_RGB565 */
+#define DMA2D_OCOLR_BLUE_2         0x0000001FU                                 /*!< BLUE Value */
+#define DMA2D_OCOLR_GREEN_2        0x000007E0U                                 /*!< GREEN Value  */
+#define DMA2D_OCOLR_RED_2          0x0000F800U                                 /*!< Red Value */
+
+/*!<Mode_ARGB1555 */
+#define DMA2D_OCOLR_BLUE_3         0x0000001FU                                 /*!< BLUE Value */
+#define DMA2D_OCOLR_GREEN_3        0x000003E0U                                 /*!< GREEN Value  */
+#define DMA2D_OCOLR_RED_3          0x00007C00U                                 /*!< Red Value */
+#define DMA2D_OCOLR_ALPHA_3        0x00008000U                                 /*!< Alpha Channel Value */
+
+/*!<Mode_ARGB4444 */
+#define DMA2D_OCOLR_BLUE_4         0x0000000FU                                 /*!< BLUE Value */
+#define DMA2D_OCOLR_GREEN_4        0x000000F0U                                 /*!< GREEN Value  */
+#define DMA2D_OCOLR_RED_4          0x00000F00U                                 /*!< Red Value */
+#define DMA2D_OCOLR_ALPHA_4        0x0000F000U                                 /*!< Alpha Channel Value */
+
+/********************  Bit definition for DMA2D_OMAR register  ****************/
+
+#define DMA2D_OMAR_MA_Pos          (0U)                                        
+#define DMA2D_OMAR_MA_Msk          (0xFFFFFFFFUL << DMA2D_OMAR_MA_Pos)          /*!< 0xFFFFFFFF */
+#define DMA2D_OMAR_MA              DMA2D_OMAR_MA_Msk                           /*!< Memory Address */
+
+/********************  Bit definition for DMA2D_OOR register  *****************/
+
+#define DMA2D_OOR_LO_Pos           (0U)                                        
+#define DMA2D_OOR_LO_Msk           (0x3FFFUL << DMA2D_OOR_LO_Pos)               /*!< 0x00003FFF */
+#define DMA2D_OOR_LO               DMA2D_OOR_LO_Msk                            /*!< Line Offset */
+
+/********************  Bit definition for DMA2D_NLR register  *****************/
+
+#define DMA2D_NLR_NL_Pos           (0U)                                        
+#define DMA2D_NLR_NL_Msk           (0xFFFFUL << DMA2D_NLR_NL_Pos)               /*!< 0x0000FFFF */
+#define DMA2D_NLR_NL               DMA2D_NLR_NL_Msk                            /*!< Number of Lines */
+#define DMA2D_NLR_PL_Pos           (16U)                                       
+#define DMA2D_NLR_PL_Msk           (0x3FFFUL << DMA2D_NLR_PL_Pos)               /*!< 0x3FFF0000 */
+#define DMA2D_NLR_PL               DMA2D_NLR_PL_Msk                            /*!< Pixel per Lines */
+
+/********************  Bit definition for DMA2D_LWR register  *****************/
+
+#define DMA2D_LWR_LW_Pos           (0U)                                        
+#define DMA2D_LWR_LW_Msk           (0xFFFFUL << DMA2D_LWR_LW_Pos)               /*!< 0x0000FFFF */
+#define DMA2D_LWR_LW               DMA2D_LWR_LW_Msk                            /*!< Line Watermark */
+
+/********************  Bit definition for DMA2D_AMTCR register  ***************/
+
+#define DMA2D_AMTCR_EN_Pos         (0U)                                        
+#define DMA2D_AMTCR_EN_Msk         (0x1UL << DMA2D_AMTCR_EN_Pos)                /*!< 0x00000001 */
+#define DMA2D_AMTCR_EN             DMA2D_AMTCR_EN_Msk                          /*!< Enable */
+#define DMA2D_AMTCR_DT_Pos         (8U)                                        
+#define DMA2D_AMTCR_DT_Msk         (0xFFUL << DMA2D_AMTCR_DT_Pos)               /*!< 0x0000FF00 */
+#define DMA2D_AMTCR_DT             DMA2D_AMTCR_DT_Msk                          /*!< Dead Time */
+
+/********************  Bit definition for DMA2D_FGCLUT register  **************/
+                                                                     
+/********************  Bit definition for DMA2D_BGCLUT register  **************/
 
 
 /******************************************************************************/
@@ -7055,6 +7259,9 @@ typedef struct
 #define FMC_BCR1_WAITPOL_Pos        (9U)                                       
 #define FMC_BCR1_WAITPOL_Msk        (0x1UL << FMC_BCR1_WAITPOL_Pos)             /*!< 0x00000200 */
 #define FMC_BCR1_WAITPOL            FMC_BCR1_WAITPOL_Msk                       /*!<Wait signal polarity bit   */
+#define FMC_BCR1_WRAPMOD_Pos        (10U)                                      
+#define FMC_BCR1_WRAPMOD_Msk        (0x1UL << FMC_BCR1_WRAPMOD_Pos)             /*!< 0x00000400 */
+#define FMC_BCR1_WRAPMOD            FMC_BCR1_WRAPMOD_Msk                       /*!<Wrapped burst mode support */
 #define FMC_BCR1_WAITCFG_Pos        (11U)                                      
 #define FMC_BCR1_WAITCFG_Msk        (0x1UL << FMC_BCR1_WAITCFG_Pos)             /*!< 0x00000800 */
 #define FMC_BCR1_WAITCFG            FMC_BCR1_WAITCFG_Msk                       /*!<Wait timing configuration  */
@@ -7082,9 +7289,6 @@ typedef struct
 #define FMC_BCR1_CCLKEN_Pos         (20U)                                      
 #define FMC_BCR1_CCLKEN_Msk         (0x1UL << FMC_BCR1_CCLKEN_Pos)              /*!< 0x00100000 */
 #define FMC_BCR1_CCLKEN             FMC_BCR1_CCLKEN_Msk                        /*!<Continous clock enable     */
-#define FMC_BCR1_WFDIS_Pos          (21U)                                      
-#define FMC_BCR1_WFDIS_Msk          (0x1UL << FMC_BCR1_WFDIS_Pos)               /*!< 0x00200000 */
-#define FMC_BCR1_WFDIS              FMC_BCR1_WFDIS_Msk                         /*!<Write FIFO Disable         */
 
 /******************  Bit definition for FMC_BCR2 register  *******************/
 #define FMC_BCR2_MBKEN_Pos          (0U)                                       
@@ -7115,6 +7319,9 @@ typedef struct
 #define FMC_BCR2_WAITPOL_Pos        (9U)                                       
 #define FMC_BCR2_WAITPOL_Msk        (0x1UL << FMC_BCR2_WAITPOL_Pos)             /*!< 0x00000200 */
 #define FMC_BCR2_WAITPOL            FMC_BCR2_WAITPOL_Msk                       /*!<Wait signal polarity bit   */
+#define FMC_BCR2_WRAPMOD_Pos        (10U)                                      
+#define FMC_BCR2_WRAPMOD_Msk        (0x1UL << FMC_BCR2_WRAPMOD_Pos)             /*!< 0x00000400 */
+#define FMC_BCR2_WRAPMOD            FMC_BCR2_WRAPMOD_Msk                       /*!<Wrapped burst mode support */
 #define FMC_BCR2_WAITCFG_Pos        (11U)                                      
 #define FMC_BCR2_WAITCFG_Msk        (0x1UL << FMC_BCR2_WAITCFG_Pos)             /*!< 0x00000800 */
 #define FMC_BCR2_WAITCFG            FMC_BCR2_WAITCFG_Msk                       /*!<Wait timing configuration  */
@@ -7130,6 +7337,12 @@ typedef struct
 #define FMC_BCR2_ASYNCWAIT_Pos      (15U)                                      
 #define FMC_BCR2_ASYNCWAIT_Msk      (0x1UL << FMC_BCR2_ASYNCWAIT_Pos)           /*!< 0x00008000 */
 #define FMC_BCR2_ASYNCWAIT          FMC_BCR2_ASYNCWAIT_Msk                     /*!<Asynchronous wait          */
+#define FMC_BCR2_CPSIZE_Pos         (16U)                                      
+#define FMC_BCR2_CPSIZE_Msk         (0x7UL << FMC_BCR2_CPSIZE_Pos)              /*!< 0x00070000 */
+#define FMC_BCR2_CPSIZE             FMC_BCR2_CPSIZE_Msk                        /*!<CRAM page size */
+#define FMC_BCR2_CPSIZE_0           (0x1UL << FMC_BCR2_CPSIZE_Pos)              /*!< 0x00010000 */
+#define FMC_BCR2_CPSIZE_1           (0x2UL << FMC_BCR2_CPSIZE_Pos)              /*!< 0x00020000 */
+#define FMC_BCR2_CPSIZE_2           (0x4UL << FMC_BCR2_CPSIZE_Pos)              /*!< 0x00040000 */
 #define FMC_BCR2_CBURSTRW_Pos       (19U)                                      
 #define FMC_BCR2_CBURSTRW_Msk       (0x1UL << FMC_BCR2_CBURSTRW_Pos)            /*!< 0x00080000 */
 #define FMC_BCR2_CBURSTRW           FMC_BCR2_CBURSTRW_Msk                      /*!<Write burst enable         */
@@ -7163,6 +7376,9 @@ typedef struct
 #define FMC_BCR3_WAITPOL_Pos        (9U)                                       
 #define FMC_BCR3_WAITPOL_Msk        (0x1UL << FMC_BCR3_WAITPOL_Pos)             /*!< 0x00000200 */
 #define FMC_BCR3_WAITPOL            FMC_BCR3_WAITPOL_Msk                       /*!<Wait signal polarity bit   */
+#define FMC_BCR3_WRAPMOD_Pos        (10U)                                      
+#define FMC_BCR3_WRAPMOD_Msk        (0x1UL << FMC_BCR3_WRAPMOD_Pos)             /*!< 0x00000400 */
+#define FMC_BCR3_WRAPMOD            FMC_BCR3_WRAPMOD_Msk                       /*!<Wrapped burst mode support */
 #define FMC_BCR3_WAITCFG_Pos        (11U)                                      
 #define FMC_BCR3_WAITCFG_Msk        (0x1UL << FMC_BCR3_WAITCFG_Pos)             /*!< 0x00000800 */
 #define FMC_BCR3_WAITCFG            FMC_BCR3_WAITCFG_Msk                       /*!<Wait timing configuration  */
@@ -7178,6 +7394,12 @@ typedef struct
 #define FMC_BCR3_ASYNCWAIT_Pos      (15U)                                      
 #define FMC_BCR3_ASYNCWAIT_Msk      (0x1UL << FMC_BCR3_ASYNCWAIT_Pos)           /*!< 0x00008000 */
 #define FMC_BCR3_ASYNCWAIT          FMC_BCR3_ASYNCWAIT_Msk                     /*!<Asynchronous wait          */
+#define FMC_BCR3_CPSIZE_Pos         (16U)                                      
+#define FMC_BCR3_CPSIZE_Msk         (0x7UL << FMC_BCR3_CPSIZE_Pos)              /*!< 0x00070000 */
+#define FMC_BCR3_CPSIZE             FMC_BCR3_CPSIZE_Msk                        /*!<CRAM page size */
+#define FMC_BCR3_CPSIZE_0           (0x1UL << FMC_BCR3_CPSIZE_Pos)              /*!< 0x00010000 */
+#define FMC_BCR3_CPSIZE_1           (0x2UL << FMC_BCR3_CPSIZE_Pos)              /*!< 0x00020000 */
+#define FMC_BCR3_CPSIZE_2           (0x4UL << FMC_BCR3_CPSIZE_Pos)              /*!< 0x00040000 */
 #define FMC_BCR3_CBURSTRW_Pos       (19U)                                      
 #define FMC_BCR3_CBURSTRW_Msk       (0x1UL << FMC_BCR3_CBURSTRW_Pos)            /*!< 0x00080000 */
 #define FMC_BCR3_CBURSTRW           FMC_BCR3_CBURSTRW_Msk                      /*!<Write burst enable         */
@@ -7211,6 +7433,9 @@ typedef struct
 #define FMC_BCR4_WAITPOL_Pos        (9U)                                       
 #define FMC_BCR4_WAITPOL_Msk        (0x1UL << FMC_BCR4_WAITPOL_Pos)             /*!< 0x00000200 */
 #define FMC_BCR4_WAITPOL            FMC_BCR4_WAITPOL_Msk                       /*!<Wait signal polarity bit   */
+#define FMC_BCR4_WRAPMOD_Pos        (10U)                                      
+#define FMC_BCR4_WRAPMOD_Msk        (0x1UL << FMC_BCR4_WRAPMOD_Pos)             /*!< 0x00000400 */
+#define FMC_BCR4_WRAPMOD            FMC_BCR4_WRAPMOD_Msk                       /*!<Wrapped burst mode support */
 #define FMC_BCR4_WAITCFG_Pos        (11U)                                      
 #define FMC_BCR4_WAITCFG_Msk        (0x1UL << FMC_BCR4_WAITCFG_Pos)             /*!< 0x00000800 */
 #define FMC_BCR4_WAITCFG            FMC_BCR4_WAITCFG_Msk                       /*!<Wait timing configuration  */
@@ -7226,6 +7451,12 @@ typedef struct
 #define FMC_BCR4_ASYNCWAIT_Pos      (15U)                                      
 #define FMC_BCR4_ASYNCWAIT_Msk      (0x1UL << FMC_BCR4_ASYNCWAIT_Pos)           /*!< 0x00008000 */
 #define FMC_BCR4_ASYNCWAIT          FMC_BCR4_ASYNCWAIT_Msk                     /*!<Asynchronous wait          */
+#define FMC_BCR4_CPSIZE_Pos         (16U)                                      
+#define FMC_BCR4_CPSIZE_Msk         (0x7UL << FMC_BCR4_CPSIZE_Pos)              /*!< 0x00070000 */
+#define FMC_BCR4_CPSIZE             FMC_BCR4_CPSIZE_Msk                        /*!<CRAM page size */
+#define FMC_BCR4_CPSIZE_0           (0x1UL << FMC_BCR4_CPSIZE_Pos)              /*!< 0x00010000 */
+#define FMC_BCR4_CPSIZE_1           (0x2UL << FMC_BCR4_CPSIZE_Pos)              /*!< 0x00020000 */
+#define FMC_BCR4_CPSIZE_2           (0x4UL << FMC_BCR4_CPSIZE_Pos)              /*!< 0x00040000 */
 #define FMC_BCR4_CBURSTRW_Pos       (19U)                                      
 #define FMC_BCR4_CBURSTRW_Msk       (0x1UL << FMC_BCR4_CBURSTRW_Pos)            /*!< 0x00080000 */
 #define FMC_BCR4_CBURSTRW           FMC_BCR4_CBURSTRW_Msk                      /*!<Write burst enable         */
@@ -7638,175 +7869,561 @@ typedef struct
 #define FMC_BWTR4_ACCMOD_0          (0x1UL << FMC_BWTR4_ACCMOD_Pos)             /*!< 0x10000000 */
 #define FMC_BWTR4_ACCMOD_1          (0x2UL << FMC_BWTR4_ACCMOD_Pos)             /*!< 0x20000000 */
 
-/******************  Bit definition for FMC_PCR register  *******************/
-#define FMC_PCR_PWAITEN_Pos         (1U)                                       
-#define FMC_PCR_PWAITEN_Msk         (0x1UL << FMC_PCR_PWAITEN_Pos)              /*!< 0x00000002 */
-#define FMC_PCR_PWAITEN             FMC_PCR_PWAITEN_Msk                        /*!<Wait feature enable bit                   */
-#define FMC_PCR_PBKEN_Pos           (2U)                                       
-#define FMC_PCR_PBKEN_Msk           (0x1UL << FMC_PCR_PBKEN_Pos)                /*!< 0x00000004 */
-#define FMC_PCR_PBKEN               FMC_PCR_PBKEN_Msk                          /*!<PC Card/NAND Flash memory bank enable bit */
-#define FMC_PCR_PTYP_Pos            (3U)                                       
-#define FMC_PCR_PTYP_Msk            (0x1UL << FMC_PCR_PTYP_Pos)                 /*!< 0x00000008 */
-#define FMC_PCR_PTYP                FMC_PCR_PTYP_Msk                           /*!<Memory type                               */
+/******************  Bit definition for FMC_PCR2 register  *******************/
 
-#define FMC_PCR_PWID_Pos            (4U)                                       
-#define FMC_PCR_PWID_Msk            (0x3UL << FMC_PCR_PWID_Pos)                 /*!< 0x00000030 */
-#define FMC_PCR_PWID                FMC_PCR_PWID_Msk                           /*!<PWID[1:0] bits (NAND Flash databus width) */
-#define FMC_PCR_PWID_0              (0x1UL << FMC_PCR_PWID_Pos)                 /*!< 0x00000010 */
-#define FMC_PCR_PWID_1              (0x2UL << FMC_PCR_PWID_Pos)                 /*!< 0x00000020 */
+#define FMC_PCR2_PWAITEN_Pos        (1U)                                       
+#define FMC_PCR2_PWAITEN_Msk        (0x1UL << FMC_PCR2_PWAITEN_Pos)             /*!< 0x00000002 */
+#define FMC_PCR2_PWAITEN            FMC_PCR2_PWAITEN_Msk                       /*!<Wait feature enable bit                   */
+#define FMC_PCR2_PBKEN_Pos          (2U)                                       
+#define FMC_PCR2_PBKEN_Msk          (0x1UL << FMC_PCR2_PBKEN_Pos)               /*!< 0x00000004 */
+#define FMC_PCR2_PBKEN              FMC_PCR2_PBKEN_Msk                         /*!<PC Card/NAND Flash memory bank enable bit */
+#define FMC_PCR2_PTYP_Pos           (3U)                                       
+#define FMC_PCR2_PTYP_Msk           (0x1UL << FMC_PCR2_PTYP_Pos)                /*!< 0x00000008 */
+#define FMC_PCR2_PTYP               FMC_PCR2_PTYP_Msk                          /*!<Memory type                               */
 
-#define FMC_PCR_ECCEN_Pos           (6U)                                       
-#define FMC_PCR_ECCEN_Msk           (0x1UL << FMC_PCR_ECCEN_Pos)                /*!< 0x00000040 */
-#define FMC_PCR_ECCEN               FMC_PCR_ECCEN_Msk                          /*!<ECC computation logic enable bit          */
+#define FMC_PCR2_PWID_Pos           (4U)                                       
+#define FMC_PCR2_PWID_Msk           (0x3UL << FMC_PCR2_PWID_Pos)                /*!< 0x00000030 */
+#define FMC_PCR2_PWID               FMC_PCR2_PWID_Msk                          /*!<PWID[1:0] bits (NAND Flash databus width) */
+#define FMC_PCR2_PWID_0             (0x1UL << FMC_PCR2_PWID_Pos)                /*!< 0x00000010 */
+#define FMC_PCR2_PWID_1             (0x2UL << FMC_PCR2_PWID_Pos)                /*!< 0x00000020 */
 
-#define FMC_PCR_TCLR_Pos            (9U)                                       
-#define FMC_PCR_TCLR_Msk            (0xFUL << FMC_PCR_TCLR_Pos)                 /*!< 0x00001E00 */
-#define FMC_PCR_TCLR                FMC_PCR_TCLR_Msk                           /*!<TCLR[3:0] bits (CLE to RE delay)          */
-#define FMC_PCR_TCLR_0              (0x1UL << FMC_PCR_TCLR_Pos)                 /*!< 0x00000200 */
-#define FMC_PCR_TCLR_1              (0x2UL << FMC_PCR_TCLR_Pos)                 /*!< 0x00000400 */
-#define FMC_PCR_TCLR_2              (0x4UL << FMC_PCR_TCLR_Pos)                 /*!< 0x00000800 */
-#define FMC_PCR_TCLR_3              (0x8UL << FMC_PCR_TCLR_Pos)                 /*!< 0x00001000 */
+#define FMC_PCR2_ECCEN_Pos          (6U)                                       
+#define FMC_PCR2_ECCEN_Msk          (0x1UL << FMC_PCR2_ECCEN_Pos)               /*!< 0x00000040 */
+#define FMC_PCR2_ECCEN              FMC_PCR2_ECCEN_Msk                         /*!<ECC computation logic enable bit          */
 
-#define FMC_PCR_TAR_Pos             (13U)                                      
-#define FMC_PCR_TAR_Msk             (0xFUL << FMC_PCR_TAR_Pos)                  /*!< 0x0001E000 */
-#define FMC_PCR_TAR                 FMC_PCR_TAR_Msk                            /*!<TAR[3:0] bits (ALE to RE delay)           */
-#define FMC_PCR_TAR_0               (0x1UL << FMC_PCR_TAR_Pos)                  /*!< 0x00002000 */
-#define FMC_PCR_TAR_1               (0x2UL << FMC_PCR_TAR_Pos)                  /*!< 0x00004000 */
-#define FMC_PCR_TAR_2               (0x4UL << FMC_PCR_TAR_Pos)                  /*!< 0x00008000 */
-#define FMC_PCR_TAR_3               (0x8UL << FMC_PCR_TAR_Pos)                  /*!< 0x00010000 */
+#define FMC_PCR2_TCLR_Pos           (9U)                                       
+#define FMC_PCR2_TCLR_Msk           (0xFUL << FMC_PCR2_TCLR_Pos)                /*!< 0x00001E00 */
+#define FMC_PCR2_TCLR               FMC_PCR2_TCLR_Msk                          /*!<TCLR[3:0] bits (CLE to RE delay)          */
+#define FMC_PCR2_TCLR_0             (0x1UL << FMC_PCR2_TCLR_Pos)                /*!< 0x00000200 */
+#define FMC_PCR2_TCLR_1             (0x2UL << FMC_PCR2_TCLR_Pos)                /*!< 0x00000400 */
+#define FMC_PCR2_TCLR_2             (0x4UL << FMC_PCR2_TCLR_Pos)                /*!< 0x00000800 */
+#define FMC_PCR2_TCLR_3             (0x8UL << FMC_PCR2_TCLR_Pos)                /*!< 0x00001000 */
 
-#define FMC_PCR_ECCPS_Pos           (17U)                                      
-#define FMC_PCR_ECCPS_Msk           (0x7UL << FMC_PCR_ECCPS_Pos)                /*!< 0x000E0000 */
-#define FMC_PCR_ECCPS               FMC_PCR_ECCPS_Msk                          /*!<ECCPS[1:0] bits (ECC page size)           */
-#define FMC_PCR_ECCPS_0             (0x1UL << FMC_PCR_ECCPS_Pos)                /*!< 0x00020000 */
-#define FMC_PCR_ECCPS_1             (0x2UL << FMC_PCR_ECCPS_Pos)                /*!< 0x00040000 */
-#define FMC_PCR_ECCPS_2             (0x4UL << FMC_PCR_ECCPS_Pos)                /*!< 0x00080000 */
+#define FMC_PCR2_TAR_Pos            (13U)                                      
+#define FMC_PCR2_TAR_Msk            (0xFUL << FMC_PCR2_TAR_Pos)                 /*!< 0x0001E000 */
+#define FMC_PCR2_TAR                FMC_PCR2_TAR_Msk                           /*!<TAR[3:0] bits (ALE to RE delay)           */
+#define FMC_PCR2_TAR_0              (0x1UL << FMC_PCR2_TAR_Pos)                 /*!< 0x00002000 */
+#define FMC_PCR2_TAR_1              (0x2UL << FMC_PCR2_TAR_Pos)                 /*!< 0x00004000 */
+#define FMC_PCR2_TAR_2              (0x4UL << FMC_PCR2_TAR_Pos)                 /*!< 0x00008000 */
+#define FMC_PCR2_TAR_3              (0x8UL << FMC_PCR2_TAR_Pos)                 /*!< 0x00010000 */
 
-/*******************  Bit definition for FMC_SR register  *******************/
-#define FMC_SR_IRS_Pos              (0U)                                       
-#define FMC_SR_IRS_Msk              (0x1UL << FMC_SR_IRS_Pos)                   /*!< 0x00000001 */
-#define FMC_SR_IRS                  FMC_SR_IRS_Msk                             /*!<Interrupt Rising Edge status                */
-#define FMC_SR_ILS_Pos              (1U)                                       
-#define FMC_SR_ILS_Msk              (0x1UL << FMC_SR_ILS_Pos)                   /*!< 0x00000002 */
-#define FMC_SR_ILS                  FMC_SR_ILS_Msk                             /*!<Interrupt Level status                      */
-#define FMC_SR_IFS_Pos              (2U)                                       
-#define FMC_SR_IFS_Msk              (0x1UL << FMC_SR_IFS_Pos)                   /*!< 0x00000004 */
-#define FMC_SR_IFS                  FMC_SR_IFS_Msk                             /*!<Interrupt Falling Edge status               */
-#define FMC_SR_IREN_Pos             (3U)                                       
-#define FMC_SR_IREN_Msk             (0x1UL << FMC_SR_IREN_Pos)                  /*!< 0x00000008 */
-#define FMC_SR_IREN                 FMC_SR_IREN_Msk                            /*!<Interrupt Rising Edge detection Enable bit  */
-#define FMC_SR_ILEN_Pos             (4U)                                       
-#define FMC_SR_ILEN_Msk             (0x1UL << FMC_SR_ILEN_Pos)                  /*!< 0x00000010 */
-#define FMC_SR_ILEN                 FMC_SR_ILEN_Msk                            /*!<Interrupt Level detection Enable bit        */
-#define FMC_SR_IFEN_Pos             (5U)                                       
-#define FMC_SR_IFEN_Msk             (0x1UL << FMC_SR_IFEN_Pos)                  /*!< 0x00000020 */
-#define FMC_SR_IFEN                 FMC_SR_IFEN_Msk                            /*!<Interrupt Falling Edge detection Enable bit */
-#define FMC_SR_FEMPT_Pos            (6U)                                       
-#define FMC_SR_FEMPT_Msk            (0x1UL << FMC_SR_FEMPT_Pos)                 /*!< 0x00000040 */
-#define FMC_SR_FEMPT                FMC_SR_FEMPT_Msk                           /*!<FIFO empty                                  */
+#define FMC_PCR2_ECCPS_Pos          (17U)                                      
+#define FMC_PCR2_ECCPS_Msk          (0x7UL << FMC_PCR2_ECCPS_Pos)               /*!< 0x000E0000 */
+#define FMC_PCR2_ECCPS              FMC_PCR2_ECCPS_Msk                         /*!<ECCPS[1:0] bits (ECC page size)           */
+#define FMC_PCR2_ECCPS_0            (0x1UL << FMC_PCR2_ECCPS_Pos)               /*!< 0x00020000 */
+#define FMC_PCR2_ECCPS_1            (0x2UL << FMC_PCR2_ECCPS_Pos)               /*!< 0x00040000 */
+#define FMC_PCR2_ECCPS_2            (0x4UL << FMC_PCR2_ECCPS_Pos)               /*!< 0x00080000 */
 
-/******************  Bit definition for FMC_PMEM register  ******************/
-#define FMC_PMEM_MEMSET2_Pos        (0U)                                       
-#define FMC_PMEM_MEMSET2_Msk        (0xFFUL << FMC_PMEM_MEMSET2_Pos)            /*!< 0x000000FF */
-#define FMC_PMEM_MEMSET2            FMC_PMEM_MEMSET2_Msk                       /*!<MEMSET2[7:0] bits (Common memory 2 setup time) */
-#define FMC_PMEM_MEMSET2_0          (0x01UL << FMC_PMEM_MEMSET2_Pos)            /*!< 0x00000001 */
-#define FMC_PMEM_MEMSET2_1          (0x02UL << FMC_PMEM_MEMSET2_Pos)            /*!< 0x00000002 */
-#define FMC_PMEM_MEMSET2_2          (0x04UL << FMC_PMEM_MEMSET2_Pos)            /*!< 0x00000004 */
-#define FMC_PMEM_MEMSET2_3          (0x08UL << FMC_PMEM_MEMSET2_Pos)            /*!< 0x00000008 */
-#define FMC_PMEM_MEMSET2_4          (0x10UL << FMC_PMEM_MEMSET2_Pos)            /*!< 0x00000010 */
-#define FMC_PMEM_MEMSET2_5          (0x20UL << FMC_PMEM_MEMSET2_Pos)            /*!< 0x00000020 */
-#define FMC_PMEM_MEMSET2_6          (0x40UL << FMC_PMEM_MEMSET2_Pos)            /*!< 0x00000040 */
-#define FMC_PMEM_MEMSET2_7          (0x80UL << FMC_PMEM_MEMSET2_Pos)            /*!< 0x00000080 */
+/******************  Bit definition for FMC_PCR3 register  *******************/
+#define FMC_PCR3_PWAITEN_Pos        (1U)                                       
+#define FMC_PCR3_PWAITEN_Msk        (0x1UL << FMC_PCR3_PWAITEN_Pos)             /*!< 0x00000002 */
+#define FMC_PCR3_PWAITEN            FMC_PCR3_PWAITEN_Msk                       /*!<Wait feature enable bit                   */
+#define FMC_PCR3_PBKEN_Pos          (2U)                                       
+#define FMC_PCR3_PBKEN_Msk          (0x1UL << FMC_PCR3_PBKEN_Pos)               /*!< 0x00000004 */
+#define FMC_PCR3_PBKEN              FMC_PCR3_PBKEN_Msk                         /*!<PC Card/NAND Flash memory bank enable bit */
+#define FMC_PCR3_PTYP_Pos           (3U)                                       
+#define FMC_PCR3_PTYP_Msk           (0x1UL << FMC_PCR3_PTYP_Pos)                /*!< 0x00000008 */
+#define FMC_PCR3_PTYP               FMC_PCR3_PTYP_Msk                          /*!<Memory type                               */
 
-#define FMC_PMEM_MEMWAIT2_Pos       (8U)                                       
-#define FMC_PMEM_MEMWAIT2_Msk       (0xFFUL << FMC_PMEM_MEMWAIT2_Pos)           /*!< 0x0000FF00 */
-#define FMC_PMEM_MEMWAIT2           FMC_PMEM_MEMWAIT2_Msk                      /*!<MEMWAIT2[7:0] bits (Common memory 2 wait time) */
-#define FMC_PMEM_MEMWAIT2_0         (0x01UL << FMC_PMEM_MEMWAIT2_Pos)           /*!< 0x00000100 */
-#define FMC_PMEM_MEMWAIT2_1         (0x02UL << FMC_PMEM_MEMWAIT2_Pos)           /*!< 0x00000200 */
-#define FMC_PMEM_MEMWAIT2_2         (0x04UL << FMC_PMEM_MEMWAIT2_Pos)           /*!< 0x00000400 */
-#define FMC_PMEM_MEMWAIT2_3         (0x08UL << FMC_PMEM_MEMWAIT2_Pos)           /*!< 0x00000800 */
-#define FMC_PMEM_MEMWAIT2_4         (0x10UL << FMC_PMEM_MEMWAIT2_Pos)           /*!< 0x00001000 */
-#define FMC_PMEM_MEMWAIT2_5         (0x20UL << FMC_PMEM_MEMWAIT2_Pos)           /*!< 0x00002000 */
-#define FMC_PMEM_MEMWAIT2_6         (0x40UL << FMC_PMEM_MEMWAIT2_Pos)           /*!< 0x00004000 */
-#define FMC_PMEM_MEMWAIT2_7         (0x80UL << FMC_PMEM_MEMWAIT2_Pos)           /*!< 0x00008000 */
+#define FMC_PCR3_PWID_Pos           (4U)                                       
+#define FMC_PCR3_PWID_Msk           (0x3UL << FMC_PCR3_PWID_Pos)                /*!< 0x00000030 */
+#define FMC_PCR3_PWID               FMC_PCR3_PWID_Msk                          /*!<PWID[1:0] bits (NAND Flash databus width) */
+#define FMC_PCR3_PWID_0             (0x1UL << FMC_PCR3_PWID_Pos)                /*!< 0x00000010 */
+#define FMC_PCR3_PWID_1             (0x2UL << FMC_PCR3_PWID_Pos)                /*!< 0x00000020 */
 
-#define FMC_PMEM_MEMHOLD2_Pos       (16U)                                      
-#define FMC_PMEM_MEMHOLD2_Msk       (0xFFUL << FMC_PMEM_MEMHOLD2_Pos)           /*!< 0x00FF0000 */
-#define FMC_PMEM_MEMHOLD2           FMC_PMEM_MEMHOLD2_Msk                      /*!<MEMHOLD2[7:0] bits (Common memory 2 hold time) */
-#define FMC_PMEM_MEMHOLD2_0         (0x01UL << FMC_PMEM_MEMHOLD2_Pos)           /*!< 0x00010000 */
-#define FMC_PMEM_MEMHOLD2_1         (0x02UL << FMC_PMEM_MEMHOLD2_Pos)           /*!< 0x00020000 */
-#define FMC_PMEM_MEMHOLD2_2         (0x04UL << FMC_PMEM_MEMHOLD2_Pos)           /*!< 0x00040000 */
-#define FMC_PMEM_MEMHOLD2_3         (0x08UL << FMC_PMEM_MEMHOLD2_Pos)           /*!< 0x00080000 */
-#define FMC_PMEM_MEMHOLD2_4         (0x10UL << FMC_PMEM_MEMHOLD2_Pos)           /*!< 0x00100000 */
-#define FMC_PMEM_MEMHOLD2_5         (0x20UL << FMC_PMEM_MEMHOLD2_Pos)           /*!< 0x00200000 */
-#define FMC_PMEM_MEMHOLD2_6         (0x40UL << FMC_PMEM_MEMHOLD2_Pos)           /*!< 0x00400000 */
-#define FMC_PMEM_MEMHOLD2_7         (0x80UL << FMC_PMEM_MEMHOLD2_Pos)           /*!< 0x00800000 */
+#define FMC_PCR3_ECCEN_Pos          (6U)                                       
+#define FMC_PCR3_ECCEN_Msk          (0x1UL << FMC_PCR3_ECCEN_Pos)               /*!< 0x00000040 */
+#define FMC_PCR3_ECCEN              FMC_PCR3_ECCEN_Msk                         /*!<ECC computation logic enable bit          */
 
-#define FMC_PMEM_MEMHIZ2_Pos        (24U)                                      
-#define FMC_PMEM_MEMHIZ2_Msk        (0xFFUL << FMC_PMEM_MEMHIZ2_Pos)            /*!< 0xFF000000 */
-#define FMC_PMEM_MEMHIZ2            FMC_PMEM_MEMHIZ2_Msk                       /*!<MEMHIZ2[7:0] bits (Common memory 2 databus HiZ time) */
-#define FMC_PMEM_MEMHIZ2_0          (0x01UL << FMC_PMEM_MEMHIZ2_Pos)            /*!< 0x01000000 */
-#define FMC_PMEM_MEMHIZ2_1          (0x02UL << FMC_PMEM_MEMHIZ2_Pos)            /*!< 0x02000000 */
-#define FMC_PMEM_MEMHIZ2_2          (0x04UL << FMC_PMEM_MEMHIZ2_Pos)            /*!< 0x04000000 */
-#define FMC_PMEM_MEMHIZ2_3          (0x08UL << FMC_PMEM_MEMHIZ2_Pos)            /*!< 0x08000000 */
-#define FMC_PMEM_MEMHIZ2_4          (0x10UL << FMC_PMEM_MEMHIZ2_Pos)            /*!< 0x10000000 */
-#define FMC_PMEM_MEMHIZ2_5          (0x20UL << FMC_PMEM_MEMHIZ2_Pos)            /*!< 0x20000000 */
-#define FMC_PMEM_MEMHIZ2_6          (0x40UL << FMC_PMEM_MEMHIZ2_Pos)            /*!< 0x40000000 */
-#define FMC_PMEM_MEMHIZ2_7          (0x80UL << FMC_PMEM_MEMHIZ2_Pos)            /*!< 0x80000000 */
+#define FMC_PCR3_TCLR_Pos           (9U)                                       
+#define FMC_PCR3_TCLR_Msk           (0xFUL << FMC_PCR3_TCLR_Pos)                /*!< 0x00001E00 */
+#define FMC_PCR3_TCLR               FMC_PCR3_TCLR_Msk                          /*!<TCLR[3:0] bits (CLE to RE delay)          */
+#define FMC_PCR3_TCLR_0             (0x1UL << FMC_PCR3_TCLR_Pos)                /*!< 0x00000200 */
+#define FMC_PCR3_TCLR_1             (0x2UL << FMC_PCR3_TCLR_Pos)                /*!< 0x00000400 */
+#define FMC_PCR3_TCLR_2             (0x4UL << FMC_PCR3_TCLR_Pos)                /*!< 0x00000800 */
+#define FMC_PCR3_TCLR_3             (0x8UL << FMC_PCR3_TCLR_Pos)                /*!< 0x00001000 */
 
-/******************  Bit definition for FMC_PATT register  ******************/
-#define FMC_PATT_ATTSET2_Pos        (0U)                                       
-#define FMC_PATT_ATTSET2_Msk        (0xFFUL << FMC_PATT_ATTSET2_Pos)            /*!< 0x000000FF */
-#define FMC_PATT_ATTSET2            FMC_PATT_ATTSET2_Msk                       /*!<ATTSET2[7:0] bits (Attribute memory 2 setup time) */
-#define FMC_PATT_ATTSET2_0          (0x01UL << FMC_PATT_ATTSET2_Pos)            /*!< 0x00000001 */
-#define FMC_PATT_ATTSET2_1          (0x02UL << FMC_PATT_ATTSET2_Pos)            /*!< 0x00000002 */
-#define FMC_PATT_ATTSET2_2          (0x04UL << FMC_PATT_ATTSET2_Pos)            /*!< 0x00000004 */
-#define FMC_PATT_ATTSET2_3          (0x08UL << FMC_PATT_ATTSET2_Pos)            /*!< 0x00000008 */
-#define FMC_PATT_ATTSET2_4          (0x10UL << FMC_PATT_ATTSET2_Pos)            /*!< 0x00000010 */
-#define FMC_PATT_ATTSET2_5          (0x20UL << FMC_PATT_ATTSET2_Pos)            /*!< 0x00000020 */
-#define FMC_PATT_ATTSET2_6          (0x40UL << FMC_PATT_ATTSET2_Pos)            /*!< 0x00000040 */
-#define FMC_PATT_ATTSET2_7          (0x80UL << FMC_PATT_ATTSET2_Pos)            /*!< 0x00000080 */
+#define FMC_PCR3_TAR_Pos            (13U)                                      
+#define FMC_PCR3_TAR_Msk            (0xFUL << FMC_PCR3_TAR_Pos)                 /*!< 0x0001E000 */
+#define FMC_PCR3_TAR                FMC_PCR3_TAR_Msk                           /*!<TAR[3:0] bits (ALE to RE delay)           */
+#define FMC_PCR3_TAR_0              (0x1UL << FMC_PCR3_TAR_Pos)                 /*!< 0x00002000 */
+#define FMC_PCR3_TAR_1              (0x2UL << FMC_PCR3_TAR_Pos)                 /*!< 0x00004000 */
+#define FMC_PCR3_TAR_2              (0x4UL << FMC_PCR3_TAR_Pos)                 /*!< 0x00008000 */
+#define FMC_PCR3_TAR_3              (0x8UL << FMC_PCR3_TAR_Pos)                 /*!< 0x00010000 */
 
-#define FMC_PATT_ATTWAIT2_Pos       (8U)                                       
-#define FMC_PATT_ATTWAIT2_Msk       (0xFFUL << FMC_PATT_ATTWAIT2_Pos)           /*!< 0x0000FF00 */
-#define FMC_PATT_ATTWAIT2           FMC_PATT_ATTWAIT2_Msk                      /*!<ATTWAIT2[7:0] bits (Attribute memory 2 wait time) */
-#define FMC_PATT_ATTWAIT2_0         (0x01UL << FMC_PATT_ATTWAIT2_Pos)           /*!< 0x00000100 */
-#define FMC_PATT_ATTWAIT2_1         (0x02UL << FMC_PATT_ATTWAIT2_Pos)           /*!< 0x00000200 */
-#define FMC_PATT_ATTWAIT2_2         (0x04UL << FMC_PATT_ATTWAIT2_Pos)           /*!< 0x00000400 */
-#define FMC_PATT_ATTWAIT2_3         (0x08UL << FMC_PATT_ATTWAIT2_Pos)           /*!< 0x00000800 */
-#define FMC_PATT_ATTWAIT2_4         (0x10UL << FMC_PATT_ATTWAIT2_Pos)           /*!< 0x00001000 */
-#define FMC_PATT_ATTWAIT2_5         (0x20UL << FMC_PATT_ATTWAIT2_Pos)           /*!< 0x00002000 */
-#define FMC_PATT_ATTWAIT2_6         (0x40UL << FMC_PATT_ATTWAIT2_Pos)           /*!< 0x00004000 */
-#define FMC_PATT_ATTWAIT2_7         (0x80UL << FMC_PATT_ATTWAIT2_Pos)           /*!< 0x00008000 */
+#define FMC_PCR3_ECCPS_Pos          (17U)                                      
+#define FMC_PCR3_ECCPS_Msk          (0x7UL << FMC_PCR3_ECCPS_Pos)               /*!< 0x000E0000 */
+#define FMC_PCR3_ECCPS              FMC_PCR3_ECCPS_Msk                         /*!<ECCPS[2:0] bits (ECC page size)           */
+#define FMC_PCR3_ECCPS_0            (0x1UL << FMC_PCR3_ECCPS_Pos)               /*!< 0x00020000 */
+#define FMC_PCR3_ECCPS_1            (0x2UL << FMC_PCR3_ECCPS_Pos)               /*!< 0x00040000 */
+#define FMC_PCR3_ECCPS_2            (0x4UL << FMC_PCR3_ECCPS_Pos)               /*!< 0x00080000 */
 
-#define FMC_PATT_ATTHOLD2_Pos       (16U)                                      
-#define FMC_PATT_ATTHOLD2_Msk       (0xFFUL << FMC_PATT_ATTHOLD2_Pos)           /*!< 0x00FF0000 */
-#define FMC_PATT_ATTHOLD2           FMC_PATT_ATTHOLD2_Msk                      /*!<ATTHOLD2[7:0] bits (Attribute memory 2 hold time) */
-#define FMC_PATT_ATTHOLD2_0         (0x01UL << FMC_PATT_ATTHOLD2_Pos)           /*!< 0x00010000 */
-#define FMC_PATT_ATTHOLD2_1         (0x02UL << FMC_PATT_ATTHOLD2_Pos)           /*!< 0x00020000 */
-#define FMC_PATT_ATTHOLD2_2         (0x04UL << FMC_PATT_ATTHOLD2_Pos)           /*!< 0x00040000 */
-#define FMC_PATT_ATTHOLD2_3         (0x08UL << FMC_PATT_ATTHOLD2_Pos)           /*!< 0x00080000 */
-#define FMC_PATT_ATTHOLD2_4         (0x10UL << FMC_PATT_ATTHOLD2_Pos)           /*!< 0x00100000 */
-#define FMC_PATT_ATTHOLD2_5         (0x20UL << FMC_PATT_ATTHOLD2_Pos)           /*!< 0x00200000 */
-#define FMC_PATT_ATTHOLD2_6         (0x40UL << FMC_PATT_ATTHOLD2_Pos)           /*!< 0x00400000 */
-#define FMC_PATT_ATTHOLD2_7         (0x80UL << FMC_PATT_ATTHOLD2_Pos)           /*!< 0x00800000 */
+/******************  Bit definition for FMC_PCR4 register  *******************/
+#define FMC_PCR4_PWAITEN_Pos        (1U)                                       
+#define FMC_PCR4_PWAITEN_Msk        (0x1UL << FMC_PCR4_PWAITEN_Pos)             /*!< 0x00000002 */
+#define FMC_PCR4_PWAITEN            FMC_PCR4_PWAITEN_Msk                       /*!<Wait feature enable bit                   */
+#define FMC_PCR4_PBKEN_Pos          (2U)                                       
+#define FMC_PCR4_PBKEN_Msk          (0x1UL << FMC_PCR4_PBKEN_Pos)               /*!< 0x00000004 */
+#define FMC_PCR4_PBKEN              FMC_PCR4_PBKEN_Msk                         /*!<PC Card/NAND Flash memory bank enable bit */
+#define FMC_PCR4_PTYP_Pos           (3U)                                       
+#define FMC_PCR4_PTYP_Msk           (0x1UL << FMC_PCR4_PTYP_Pos)                /*!< 0x00000008 */
+#define FMC_PCR4_PTYP               FMC_PCR4_PTYP_Msk                          /*!<Memory type                               */
 
-#define FMC_PATT_ATTHIZ2_Pos        (24U)                                      
-#define FMC_PATT_ATTHIZ2_Msk        (0xFFUL << FMC_PATT_ATTHIZ2_Pos)            /*!< 0xFF000000 */
-#define FMC_PATT_ATTHIZ2            FMC_PATT_ATTHIZ2_Msk                       /*!<ATTHIZ2[7:0] bits (Attribute memory 2 databus HiZ time) */
-#define FMC_PATT_ATTHIZ2_0          (0x01UL << FMC_PATT_ATTHIZ2_Pos)            /*!< 0x01000000 */
-#define FMC_PATT_ATTHIZ2_1          (0x02UL << FMC_PATT_ATTHIZ2_Pos)            /*!< 0x02000000 */
-#define FMC_PATT_ATTHIZ2_2          (0x04UL << FMC_PATT_ATTHIZ2_Pos)            /*!< 0x04000000 */
-#define FMC_PATT_ATTHIZ2_3          (0x08UL << FMC_PATT_ATTHIZ2_Pos)            /*!< 0x08000000 */
-#define FMC_PATT_ATTHIZ2_4          (0x10UL << FMC_PATT_ATTHIZ2_Pos)            /*!< 0x10000000 */
-#define FMC_PATT_ATTHIZ2_5          (0x20UL << FMC_PATT_ATTHIZ2_Pos)            /*!< 0x20000000 */
-#define FMC_PATT_ATTHIZ2_6          (0x40UL << FMC_PATT_ATTHIZ2_Pos)            /*!< 0x40000000 */
-#define FMC_PATT_ATTHIZ2_7          (0x80UL << FMC_PATT_ATTHIZ2_Pos)            /*!< 0x80000000 */
+#define FMC_PCR4_PWID_Pos           (4U)                                       
+#define FMC_PCR4_PWID_Msk           (0x3UL << FMC_PCR4_PWID_Pos)                /*!< 0x00000030 */
+#define FMC_PCR4_PWID               FMC_PCR4_PWID_Msk                          /*!<PWID[1:0] bits (NAND Flash databus width) */
+#define FMC_PCR4_PWID_0             (0x1UL << FMC_PCR4_PWID_Pos)                /*!< 0x00000010 */
+#define FMC_PCR4_PWID_1             (0x2UL << FMC_PCR4_PWID_Pos)                /*!< 0x00000020 */
 
-/******************  Bit definition for FMC_ECCR register  ******************/
-#define FMC_ECCR_ECC2_Pos           (0U)                                       
-#define FMC_ECCR_ECC2_Msk           (0xFFFFFFFFUL << FMC_ECCR_ECC2_Pos)         /*!< 0xFFFFFFFF */
-#define FMC_ECCR_ECC2               FMC_ECCR_ECC2_Msk                          /*!<ECC result */
+#define FMC_PCR4_ECCEN_Pos          (6U)                                       
+#define FMC_PCR4_ECCEN_Msk          (0x1UL << FMC_PCR4_ECCEN_Pos)               /*!< 0x00000040 */
+#define FMC_PCR4_ECCEN              FMC_PCR4_ECCEN_Msk                         /*!<ECC computation logic enable bit          */
+
+#define FMC_PCR4_TCLR_Pos           (9U)                                       
+#define FMC_PCR4_TCLR_Msk           (0xFUL << FMC_PCR4_TCLR_Pos)                /*!< 0x00001E00 */
+#define FMC_PCR4_TCLR               FMC_PCR4_TCLR_Msk                          /*!<TCLR[3:0] bits (CLE to RE delay)          */
+#define FMC_PCR4_TCLR_0             (0x1UL << FMC_PCR4_TCLR_Pos)                /*!< 0x00000200 */
+#define FMC_PCR4_TCLR_1             (0x2UL << FMC_PCR4_TCLR_Pos)                /*!< 0x00000400 */
+#define FMC_PCR4_TCLR_2             (0x4UL << FMC_PCR4_TCLR_Pos)                /*!< 0x00000800 */
+#define FMC_PCR4_TCLR_3             (0x8UL << FMC_PCR4_TCLR_Pos)                /*!< 0x00001000 */
+
+#define FMC_PCR4_TAR_Pos            (13U)                                      
+#define FMC_PCR4_TAR_Msk            (0xFUL << FMC_PCR4_TAR_Pos)                 /*!< 0x0001E000 */
+#define FMC_PCR4_TAR                FMC_PCR4_TAR_Msk                           /*!<TAR[3:0] bits (ALE to RE delay)           */
+#define FMC_PCR4_TAR_0              (0x1UL << FMC_PCR4_TAR_Pos)                 /*!< 0x00002000 */
+#define FMC_PCR4_TAR_1              (0x2UL << FMC_PCR4_TAR_Pos)                 /*!< 0x00004000 */
+#define FMC_PCR4_TAR_2              (0x4UL << FMC_PCR4_TAR_Pos)                 /*!< 0x00008000 */
+#define FMC_PCR4_TAR_3              (0x8UL << FMC_PCR4_TAR_Pos)                 /*!< 0x00010000 */
+
+#define FMC_PCR4_ECCPS_Pos          (17U)                                      
+#define FMC_PCR4_ECCPS_Msk          (0x7UL << FMC_PCR4_ECCPS_Pos)               /*!< 0x000E0000 */
+#define FMC_PCR4_ECCPS              FMC_PCR4_ECCPS_Msk                         /*!<ECCPS[2:0] bits (ECC page size)           */
+#define FMC_PCR4_ECCPS_0            (0x1UL << FMC_PCR4_ECCPS_Pos)               /*!< 0x00020000 */
+#define FMC_PCR4_ECCPS_1            (0x2UL << FMC_PCR4_ECCPS_Pos)               /*!< 0x00040000 */
+#define FMC_PCR4_ECCPS_2            (0x4UL << FMC_PCR4_ECCPS_Pos)               /*!< 0x00080000 */
+
+/*******************  Bit definition for FMC_SR2 register  *******************/
+#define FMC_SR2_IRS_Pos             (0U)                                       
+#define FMC_SR2_IRS_Msk             (0x1UL << FMC_SR2_IRS_Pos)                  /*!< 0x00000001 */
+#define FMC_SR2_IRS                 FMC_SR2_IRS_Msk                            /*!<Interrupt Rising Edge status                */
+#define FMC_SR2_ILS_Pos             (1U)                                       
+#define FMC_SR2_ILS_Msk             (0x1UL << FMC_SR2_ILS_Pos)                  /*!< 0x00000002 */
+#define FMC_SR2_ILS                 FMC_SR2_ILS_Msk                            /*!<Interrupt Level status                      */
+#define FMC_SR2_IFS_Pos             (2U)                                       
+#define FMC_SR2_IFS_Msk             (0x1UL << FMC_SR2_IFS_Pos)                  /*!< 0x00000004 */
+#define FMC_SR2_IFS                 FMC_SR2_IFS_Msk                            /*!<Interrupt Falling Edge status               */
+#define FMC_SR2_IREN_Pos            (3U)                                       
+#define FMC_SR2_IREN_Msk            (0x1UL << FMC_SR2_IREN_Pos)                 /*!< 0x00000008 */
+#define FMC_SR2_IREN                FMC_SR2_IREN_Msk                           /*!<Interrupt Rising Edge detection Enable bit  */
+#define FMC_SR2_ILEN_Pos            (4U)                                       
+#define FMC_SR2_ILEN_Msk            (0x1UL << FMC_SR2_ILEN_Pos)                 /*!< 0x00000010 */
+#define FMC_SR2_ILEN                FMC_SR2_ILEN_Msk                           /*!<Interrupt Level detection Enable bit        */
+#define FMC_SR2_IFEN_Pos            (5U)                                       
+#define FMC_SR2_IFEN_Msk            (0x1UL << FMC_SR2_IFEN_Pos)                 /*!< 0x00000020 */
+#define FMC_SR2_IFEN                FMC_SR2_IFEN_Msk                           /*!<Interrupt Falling Edge detection Enable bit */
+#define FMC_SR2_FEMPT_Pos           (6U)                                       
+#define FMC_SR2_FEMPT_Msk           (0x1UL << FMC_SR2_FEMPT_Pos)                /*!< 0x00000040 */
+#define FMC_SR2_FEMPT               FMC_SR2_FEMPT_Msk                          /*!<FIFO empty                                  */
+
+/*******************  Bit definition for FMC_SR3 register  *******************/
+#define FMC_SR3_IRS_Pos             (0U)                                       
+#define FMC_SR3_IRS_Msk             (0x1UL << FMC_SR3_IRS_Pos)                  /*!< 0x00000001 */
+#define FMC_SR3_IRS                 FMC_SR3_IRS_Msk                            /*!<Interrupt Rising Edge status                */
+#define FMC_SR3_ILS_Pos             (1U)                                       
+#define FMC_SR3_ILS_Msk             (0x1UL << FMC_SR3_ILS_Pos)                  /*!< 0x00000002 */
+#define FMC_SR3_ILS                 FMC_SR3_ILS_Msk                            /*!<Interrupt Level status                      */
+#define FMC_SR3_IFS_Pos             (2U)                                       
+#define FMC_SR3_IFS_Msk             (0x1UL << FMC_SR3_IFS_Pos)                  /*!< 0x00000004 */
+#define FMC_SR3_IFS                 FMC_SR3_IFS_Msk                            /*!<Interrupt Falling Edge status               */
+#define FMC_SR3_IREN_Pos            (3U)                                       
+#define FMC_SR3_IREN_Msk            (0x1UL << FMC_SR3_IREN_Pos)                 /*!< 0x00000008 */
+#define FMC_SR3_IREN                FMC_SR3_IREN_Msk                           /*!<Interrupt Rising Edge detection Enable bit  */
+#define FMC_SR3_ILEN_Pos            (4U)                                       
+#define FMC_SR3_ILEN_Msk            (0x1UL << FMC_SR3_ILEN_Pos)                 /*!< 0x00000010 */
+#define FMC_SR3_ILEN                FMC_SR3_ILEN_Msk                           /*!<Interrupt Level detection Enable bit        */
+#define FMC_SR3_IFEN_Pos            (5U)                                       
+#define FMC_SR3_IFEN_Msk            (0x1UL << FMC_SR3_IFEN_Pos)                 /*!< 0x00000020 */
+#define FMC_SR3_IFEN                FMC_SR3_IFEN_Msk                           /*!<Interrupt Falling Edge detection Enable bit */
+#define FMC_SR3_FEMPT_Pos           (6U)                                       
+#define FMC_SR3_FEMPT_Msk           (0x1UL << FMC_SR3_FEMPT_Pos)                /*!< 0x00000040 */
+#define FMC_SR3_FEMPT               FMC_SR3_FEMPT_Msk                          /*!<FIFO empty                                  */
+
+/*******************  Bit definition for FMC_SR4 register  *******************/
+#define FMC_SR4_IRS_Pos             (0U)                                       
+#define FMC_SR4_IRS_Msk             (0x1UL << FMC_SR4_IRS_Pos)                  /*!< 0x00000001 */
+#define FMC_SR4_IRS                 FMC_SR4_IRS_Msk                            /*!<Interrupt Rising Edge status                */
+#define FMC_SR4_ILS_Pos             (1U)                                       
+#define FMC_SR4_ILS_Msk             (0x1UL << FMC_SR4_ILS_Pos)                  /*!< 0x00000002 */
+#define FMC_SR4_ILS                 FMC_SR4_ILS_Msk                            /*!<Interrupt Level status                      */
+#define FMC_SR4_IFS_Pos             (2U)                                       
+#define FMC_SR4_IFS_Msk             (0x1UL << FMC_SR4_IFS_Pos)                  /*!< 0x00000004 */
+#define FMC_SR4_IFS                 FMC_SR4_IFS_Msk                            /*!<Interrupt Falling Edge status               */
+#define FMC_SR4_IREN_Pos            (3U)                                       
+#define FMC_SR4_IREN_Msk            (0x1UL << FMC_SR4_IREN_Pos)                 /*!< 0x00000008 */
+#define FMC_SR4_IREN                FMC_SR4_IREN_Msk                           /*!<Interrupt Rising Edge detection Enable bit  */
+#define FMC_SR4_ILEN_Pos            (4U)                                       
+#define FMC_SR4_ILEN_Msk            (0x1UL << FMC_SR4_ILEN_Pos)                 /*!< 0x00000010 */
+#define FMC_SR4_ILEN                FMC_SR4_ILEN_Msk                           /*!<Interrupt Level detection Enable bit        */
+#define FMC_SR4_IFEN_Pos            (5U)                                       
+#define FMC_SR4_IFEN_Msk            (0x1UL << FMC_SR4_IFEN_Pos)                 /*!< 0x00000020 */
+#define FMC_SR4_IFEN                FMC_SR4_IFEN_Msk                           /*!<Interrupt Falling Edge detection Enable bit */
+#define FMC_SR4_FEMPT_Pos           (6U)                                       
+#define FMC_SR4_FEMPT_Msk           (0x1UL << FMC_SR4_FEMPT_Pos)                /*!< 0x00000040 */
+#define FMC_SR4_FEMPT               FMC_SR4_FEMPT_Msk                          /*!<FIFO empty                                  */
+
+/******************  Bit definition for FMC_PMEM2 register  ******************/
+#define FMC_PMEM2_MEMSET2_Pos       (0U)                                       
+#define FMC_PMEM2_MEMSET2_Msk       (0xFFUL << FMC_PMEM2_MEMSET2_Pos)           /*!< 0x000000FF */
+#define FMC_PMEM2_MEMSET2           FMC_PMEM2_MEMSET2_Msk                      /*!<MEMSET2[7:0] bits (Common memory 2 setup time) */
+#define FMC_PMEM2_MEMSET2_0         (0x01UL << FMC_PMEM2_MEMSET2_Pos)           /*!< 0x00000001 */
+#define FMC_PMEM2_MEMSET2_1         (0x02UL << FMC_PMEM2_MEMSET2_Pos)           /*!< 0x00000002 */
+#define FMC_PMEM2_MEMSET2_2         (0x04UL << FMC_PMEM2_MEMSET2_Pos)           /*!< 0x00000004 */
+#define FMC_PMEM2_MEMSET2_3         (0x08UL << FMC_PMEM2_MEMSET2_Pos)           /*!< 0x00000008 */
+#define FMC_PMEM2_MEMSET2_4         (0x10UL << FMC_PMEM2_MEMSET2_Pos)           /*!< 0x00000010 */
+#define FMC_PMEM2_MEMSET2_5         (0x20UL << FMC_PMEM2_MEMSET2_Pos)           /*!< 0x00000020 */
+#define FMC_PMEM2_MEMSET2_6         (0x40UL << FMC_PMEM2_MEMSET2_Pos)           /*!< 0x00000040 */
+#define FMC_PMEM2_MEMSET2_7         (0x80UL << FMC_PMEM2_MEMSET2_Pos)           /*!< 0x00000080 */
+
+#define FMC_PMEM2_MEMWAIT2_Pos      (8U)                                       
+#define FMC_PMEM2_MEMWAIT2_Msk      (0xFFUL << FMC_PMEM2_MEMWAIT2_Pos)          /*!< 0x0000FF00 */
+#define FMC_PMEM2_MEMWAIT2          FMC_PMEM2_MEMWAIT2_Msk                     /*!<MEMWAIT2[7:0] bits (Common memory 2 wait time) */
+#define FMC_PMEM2_MEMWAIT2_0        (0x01UL << FMC_PMEM2_MEMWAIT2_Pos)          /*!< 0x00000100 */
+#define FMC_PMEM2_MEMWAIT2_1        (0x02UL << FMC_PMEM2_MEMWAIT2_Pos)          /*!< 0x00000200 */
+#define FMC_PMEM2_MEMWAIT2_2        (0x04UL << FMC_PMEM2_MEMWAIT2_Pos)          /*!< 0x00000400 */
+#define FMC_PMEM2_MEMWAIT2_3        (0x08UL << FMC_PMEM2_MEMWAIT2_Pos)          /*!< 0x00000800 */
+#define FMC_PMEM2_MEMWAIT2_4        (0x10UL << FMC_PMEM2_MEMWAIT2_Pos)          /*!< 0x00001000 */
+#define FMC_PMEM2_MEMWAIT2_5        (0x20UL << FMC_PMEM2_MEMWAIT2_Pos)          /*!< 0x00002000 */
+#define FMC_PMEM2_MEMWAIT2_6        (0x40UL << FMC_PMEM2_MEMWAIT2_Pos)          /*!< 0x00004000 */
+#define FMC_PMEM2_MEMWAIT2_7        (0x80UL << FMC_PMEM2_MEMWAIT2_Pos)          /*!< 0x00008000 */
+
+#define FMC_PMEM2_MEMHOLD2_Pos      (16U)                                      
+#define FMC_PMEM2_MEMHOLD2_Msk      (0xFFUL << FMC_PMEM2_MEMHOLD2_Pos)          /*!< 0x00FF0000 */
+#define FMC_PMEM2_MEMHOLD2          FMC_PMEM2_MEMHOLD2_Msk                     /*!<MEMHOLD2[7:0] bits (Common memory 2 hold time) */
+#define FMC_PMEM2_MEMHOLD2_0        (0x01UL << FMC_PMEM2_MEMHOLD2_Pos)          /*!< 0x00010000 */
+#define FMC_PMEM2_MEMHOLD2_1        (0x02UL << FMC_PMEM2_MEMHOLD2_Pos)          /*!< 0x00020000 */
+#define FMC_PMEM2_MEMHOLD2_2        (0x04UL << FMC_PMEM2_MEMHOLD2_Pos)          /*!< 0x00040000 */
+#define FMC_PMEM2_MEMHOLD2_3        (0x08UL << FMC_PMEM2_MEMHOLD2_Pos)          /*!< 0x00080000 */
+#define FMC_PMEM2_MEMHOLD2_4        (0x10UL << FMC_PMEM2_MEMHOLD2_Pos)          /*!< 0x00100000 */
+#define FMC_PMEM2_MEMHOLD2_5        (0x20UL << FMC_PMEM2_MEMHOLD2_Pos)          /*!< 0x00200000 */
+#define FMC_PMEM2_MEMHOLD2_6        (0x40UL << FMC_PMEM2_MEMHOLD2_Pos)          /*!< 0x00400000 */
+#define FMC_PMEM2_MEMHOLD2_7        (0x80UL << FMC_PMEM2_MEMHOLD2_Pos)          /*!< 0x00800000 */
+
+#define FMC_PMEM2_MEMHIZ2_Pos       (24U)                                      
+#define FMC_PMEM2_MEMHIZ2_Msk       (0xFFUL << FMC_PMEM2_MEMHIZ2_Pos)           /*!< 0xFF000000 */
+#define FMC_PMEM2_MEMHIZ2           FMC_PMEM2_MEMHIZ2_Msk                      /*!<MEMHIZ2[7:0] bits (Common memory 2 databus HiZ time) */
+#define FMC_PMEM2_MEMHIZ2_0         (0x01UL << FMC_PMEM2_MEMHIZ2_Pos)           /*!< 0x01000000 */
+#define FMC_PMEM2_MEMHIZ2_1         (0x02UL << FMC_PMEM2_MEMHIZ2_Pos)           /*!< 0x02000000 */
+#define FMC_PMEM2_MEMHIZ2_2         (0x04UL << FMC_PMEM2_MEMHIZ2_Pos)           /*!< 0x04000000 */
+#define FMC_PMEM2_MEMHIZ2_3         (0x08UL << FMC_PMEM2_MEMHIZ2_Pos)           /*!< 0x08000000 */
+#define FMC_PMEM2_MEMHIZ2_4         (0x10UL << FMC_PMEM2_MEMHIZ2_Pos)           /*!< 0x10000000 */
+#define FMC_PMEM2_MEMHIZ2_5         (0x20UL << FMC_PMEM2_MEMHIZ2_Pos)           /*!< 0x20000000 */
+#define FMC_PMEM2_MEMHIZ2_6         (0x40UL << FMC_PMEM2_MEMHIZ2_Pos)           /*!< 0x40000000 */
+#define FMC_PMEM2_MEMHIZ2_7         (0x80UL << FMC_PMEM2_MEMHIZ2_Pos)           /*!< 0x80000000 */
+
+/******************  Bit definition for FMC_PMEM3 register  ******************/
+#define FMC_PMEM3_MEMSET3_Pos       (0U)                                       
+#define FMC_PMEM3_MEMSET3_Msk       (0xFFUL << FMC_PMEM3_MEMSET3_Pos)           /*!< 0x000000FF */
+#define FMC_PMEM3_MEMSET3           FMC_PMEM3_MEMSET3_Msk                      /*!<MEMSET3[7:0] bits (Common memory 3 setup time) */
+#define FMC_PMEM3_MEMSET3_0         (0x01UL << FMC_PMEM3_MEMSET3_Pos)           /*!< 0x00000001 */
+#define FMC_PMEM3_MEMSET3_1         (0x02UL << FMC_PMEM3_MEMSET3_Pos)           /*!< 0x00000002 */
+#define FMC_PMEM3_MEMSET3_2         (0x04UL << FMC_PMEM3_MEMSET3_Pos)           /*!< 0x00000004 */
+#define FMC_PMEM3_MEMSET3_3         (0x08UL << FMC_PMEM3_MEMSET3_Pos)           /*!< 0x00000008 */
+#define FMC_PMEM3_MEMSET3_4         (0x10UL << FMC_PMEM3_MEMSET3_Pos)           /*!< 0x00000010 */
+#define FMC_PMEM3_MEMSET3_5         (0x20UL << FMC_PMEM3_MEMSET3_Pos)           /*!< 0x00000020 */
+#define FMC_PMEM3_MEMSET3_6         (0x40UL << FMC_PMEM3_MEMSET3_Pos)           /*!< 0x00000040 */
+#define FMC_PMEM3_MEMSET3_7         (0x80UL << FMC_PMEM3_MEMSET3_Pos)           /*!< 0x00000080 */
+
+#define FMC_PMEM3_MEMWAIT3_Pos      (8U)                                       
+#define FMC_PMEM3_MEMWAIT3_Msk      (0xFFUL << FMC_PMEM3_MEMWAIT3_Pos)          /*!< 0x0000FF00 */
+#define FMC_PMEM3_MEMWAIT3          FMC_PMEM3_MEMWAIT3_Msk                     /*!<MEMWAIT3[7:0] bits (Common memory 3 wait time) */
+#define FMC_PMEM3_MEMWAIT3_0        (0x01UL << FMC_PMEM3_MEMWAIT3_Pos)          /*!< 0x00000100 */
+#define FMC_PMEM3_MEMWAIT3_1        (0x02UL << FMC_PMEM3_MEMWAIT3_Pos)          /*!< 0x00000200 */
+#define FMC_PMEM3_MEMWAIT3_2        (0x04UL << FMC_PMEM3_MEMWAIT3_Pos)          /*!< 0x00000400 */
+#define FMC_PMEM3_MEMWAIT3_3        (0x08UL << FMC_PMEM3_MEMWAIT3_Pos)          /*!< 0x00000800 */
+#define FMC_PMEM3_MEMWAIT3_4        (0x10UL << FMC_PMEM3_MEMWAIT3_Pos)          /*!< 0x00001000 */
+#define FMC_PMEM3_MEMWAIT3_5        (0x20UL << FMC_PMEM3_MEMWAIT3_Pos)          /*!< 0x00002000 */
+#define FMC_PMEM3_MEMWAIT3_6        (0x40UL << FMC_PMEM3_MEMWAIT3_Pos)          /*!< 0x00004000 */
+#define FMC_PMEM3_MEMWAIT3_7        (0x80UL << FMC_PMEM3_MEMWAIT3_Pos)          /*!< 0x00008000 */
+
+#define FMC_PMEM3_MEMHOLD3_Pos      (16U)                                      
+#define FMC_PMEM3_MEMHOLD3_Msk      (0xFFUL << FMC_PMEM3_MEMHOLD3_Pos)          /*!< 0x00FF0000 */
+#define FMC_PMEM3_MEMHOLD3          FMC_PMEM3_MEMHOLD3_Msk                     /*!<MEMHOLD3[7:0] bits (Common memory 3 hold time) */
+#define FMC_PMEM3_MEMHOLD3_0        (0x01UL << FMC_PMEM3_MEMHOLD3_Pos)          /*!< 0x00010000 */
+#define FMC_PMEM3_MEMHOLD3_1        (0x02UL << FMC_PMEM3_MEMHOLD3_Pos)          /*!< 0x00020000 */
+#define FMC_PMEM3_MEMHOLD3_2        (0x04UL << FMC_PMEM3_MEMHOLD3_Pos)          /*!< 0x00040000 */
+#define FMC_PMEM3_MEMHOLD3_3        (0x08UL << FMC_PMEM3_MEMHOLD3_Pos)          /*!< 0x00080000 */
+#define FMC_PMEM3_MEMHOLD3_4        (0x10UL << FMC_PMEM3_MEMHOLD3_Pos)          /*!< 0x00100000 */
+#define FMC_PMEM3_MEMHOLD3_5        (0x20UL << FMC_PMEM3_MEMHOLD3_Pos)          /*!< 0x00200000 */
+#define FMC_PMEM3_MEMHOLD3_6        (0x40UL << FMC_PMEM3_MEMHOLD3_Pos)          /*!< 0x00400000 */
+#define FMC_PMEM3_MEMHOLD3_7        (0x80UL << FMC_PMEM3_MEMHOLD3_Pos)          /*!< 0x00800000 */
+
+#define FMC_PMEM3_MEMHIZ3_Pos       (24U)                                      
+#define FMC_PMEM3_MEMHIZ3_Msk       (0xFFUL << FMC_PMEM3_MEMHIZ3_Pos)           /*!< 0xFF000000 */
+#define FMC_PMEM3_MEMHIZ3           FMC_PMEM3_MEMHIZ3_Msk                      /*!<MEMHIZ3[7:0] bits (Common memory 3 databus HiZ time) */
+#define FMC_PMEM3_MEMHIZ3_0         (0x01UL << FMC_PMEM3_MEMHIZ3_Pos)           /*!< 0x01000000 */
+#define FMC_PMEM3_MEMHIZ3_1         (0x02UL << FMC_PMEM3_MEMHIZ3_Pos)           /*!< 0x02000000 */
+#define FMC_PMEM3_MEMHIZ3_2         (0x04UL << FMC_PMEM3_MEMHIZ3_Pos)           /*!< 0x04000000 */
+#define FMC_PMEM3_MEMHIZ3_3         (0x08UL << FMC_PMEM3_MEMHIZ3_Pos)           /*!< 0x08000000 */
+#define FMC_PMEM3_MEMHIZ3_4         (0x10UL << FMC_PMEM3_MEMHIZ3_Pos)           /*!< 0x10000000 */
+#define FMC_PMEM3_MEMHIZ3_5         (0x20UL << FMC_PMEM3_MEMHIZ3_Pos)           /*!< 0x20000000 */
+#define FMC_PMEM3_MEMHIZ3_6         (0x40UL << FMC_PMEM3_MEMHIZ3_Pos)           /*!< 0x40000000 */
+#define FMC_PMEM3_MEMHIZ3_7         (0x80UL << FMC_PMEM3_MEMHIZ3_Pos)           /*!< 0x80000000 */
+
+/******************  Bit definition for FMC_PMEM4 register  ******************/
+#define FMC_PMEM4_MEMSET4_Pos       (0U)                                       
+#define FMC_PMEM4_MEMSET4_Msk       (0xFFUL << FMC_PMEM4_MEMSET4_Pos)           /*!< 0x000000FF */
+#define FMC_PMEM4_MEMSET4           FMC_PMEM4_MEMSET4_Msk                      /*!<MEMSET4[7:0] bits (Common memory 4 setup time) */
+#define FMC_PMEM4_MEMSET4_0         (0x01UL << FMC_PMEM4_MEMSET4_Pos)           /*!< 0x00000001 */
+#define FMC_PMEM4_MEMSET4_1         (0x02UL << FMC_PMEM4_MEMSET4_Pos)           /*!< 0x00000002 */
+#define FMC_PMEM4_MEMSET4_2         (0x04UL << FMC_PMEM4_MEMSET4_Pos)           /*!< 0x00000004 */
+#define FMC_PMEM4_MEMSET4_3         (0x08UL << FMC_PMEM4_MEMSET4_Pos)           /*!< 0x00000008 */
+#define FMC_PMEM4_MEMSET4_4         (0x10UL << FMC_PMEM4_MEMSET4_Pos)           /*!< 0x00000010 */
+#define FMC_PMEM4_MEMSET4_5         (0x20UL << FMC_PMEM4_MEMSET4_Pos)           /*!< 0x00000020 */
+#define FMC_PMEM4_MEMSET4_6         (0x40UL << FMC_PMEM4_MEMSET4_Pos)           /*!< 0x00000040 */
+#define FMC_PMEM4_MEMSET4_7         (0x80UL << FMC_PMEM4_MEMSET4_Pos)           /*!< 0x00000080 */
+
+#define FMC_PMEM4_MEMWAIT4_Pos      (8U)                                       
+#define FMC_PMEM4_MEMWAIT4_Msk      (0xFFUL << FMC_PMEM4_MEMWAIT4_Pos)          /*!< 0x0000FF00 */
+#define FMC_PMEM4_MEMWAIT4          FMC_PMEM4_MEMWAIT4_Msk                     /*!<MEMWAIT4[7:0] bits (Common memory 4 wait time) */
+#define FMC_PMEM4_MEMWAIT4_0        (0x01UL << FMC_PMEM4_MEMWAIT4_Pos)          /*!< 0x00000100 */
+#define FMC_PMEM4_MEMWAIT4_1        (0x02UL << FMC_PMEM4_MEMWAIT4_Pos)          /*!< 0x00000200 */
+#define FMC_PMEM4_MEMWAIT4_2        (0x04UL << FMC_PMEM4_MEMWAIT4_Pos)          /*!< 0x00000400 */
+#define FMC_PMEM4_MEMWAIT4_3        (0x08UL << FMC_PMEM4_MEMWAIT4_Pos)          /*!< 0x00000800 */
+#define FMC_PMEM4_MEMWAIT4_4        (0x10UL << FMC_PMEM4_MEMWAIT4_Pos)          /*!< 0x00001000 */
+#define FMC_PMEM4_MEMWAIT4_5        (0x20UL << FMC_PMEM4_MEMWAIT4_Pos)          /*!< 0x00002000 */
+#define FMC_PMEM4_MEMWAIT4_6        (0x40UL << FMC_PMEM4_MEMWAIT4_Pos)          /*!< 0x00004000 */
+#define FMC_PMEM4_MEMWAIT4_7        (0x80UL << FMC_PMEM4_MEMWAIT4_Pos)          /*!< 0x00008000 */
+
+#define FMC_PMEM4_MEMHOLD4_Pos      (16U)                                      
+#define FMC_PMEM4_MEMHOLD4_Msk      (0xFFUL << FMC_PMEM4_MEMHOLD4_Pos)          /*!< 0x00FF0000 */
+#define FMC_PMEM4_MEMHOLD4          FMC_PMEM4_MEMHOLD4_Msk                     /*!<MEMHOLD4[7:0] bits (Common memory 4 hold time) */
+#define FMC_PMEM4_MEMHOLD4_0        (0x01UL << FMC_PMEM4_MEMHOLD4_Pos)          /*!< 0x00010000 */
+#define FMC_PMEM4_MEMHOLD4_1        (0x02UL << FMC_PMEM4_MEMHOLD4_Pos)          /*!< 0x00020000 */
+#define FMC_PMEM4_MEMHOLD4_2        (0x04UL << FMC_PMEM4_MEMHOLD4_Pos)          /*!< 0x00040000 */
+#define FMC_PMEM4_MEMHOLD4_3        (0x08UL << FMC_PMEM4_MEMHOLD4_Pos)          /*!< 0x00080000 */
+#define FMC_PMEM4_MEMHOLD4_4        (0x10UL << FMC_PMEM4_MEMHOLD4_Pos)          /*!< 0x00100000 */
+#define FMC_PMEM4_MEMHOLD4_5        (0x20UL << FMC_PMEM4_MEMHOLD4_Pos)          /*!< 0x00200000 */
+#define FMC_PMEM4_MEMHOLD4_6        (0x40UL << FMC_PMEM4_MEMHOLD4_Pos)          /*!< 0x00400000 */
+#define FMC_PMEM4_MEMHOLD4_7        (0x80UL << FMC_PMEM4_MEMHOLD4_Pos)          /*!< 0x00800000 */
+
+#define FMC_PMEM4_MEMHIZ4_Pos       (24U)                                      
+#define FMC_PMEM4_MEMHIZ4_Msk       (0xFFUL << FMC_PMEM4_MEMHIZ4_Pos)           /*!< 0xFF000000 */
+#define FMC_PMEM4_MEMHIZ4           FMC_PMEM4_MEMHIZ4_Msk                      /*!<MEMHIZ4[7:0] bits (Common memory 4 databus HiZ time) */
+#define FMC_PMEM4_MEMHIZ4_0         (0x01UL << FMC_PMEM4_MEMHIZ4_Pos)           /*!< 0x01000000 */
+#define FMC_PMEM4_MEMHIZ4_1         (0x02UL << FMC_PMEM4_MEMHIZ4_Pos)           /*!< 0x02000000 */
+#define FMC_PMEM4_MEMHIZ4_2         (0x04UL << FMC_PMEM4_MEMHIZ4_Pos)           /*!< 0x04000000 */
+#define FMC_PMEM4_MEMHIZ4_3         (0x08UL << FMC_PMEM4_MEMHIZ4_Pos)           /*!< 0x08000000 */
+#define FMC_PMEM4_MEMHIZ4_4         (0x10UL << FMC_PMEM4_MEMHIZ4_Pos)           /*!< 0x10000000 */
+#define FMC_PMEM4_MEMHIZ4_5         (0x20UL << FMC_PMEM4_MEMHIZ4_Pos)           /*!< 0x20000000 */
+#define FMC_PMEM4_MEMHIZ4_6         (0x40UL << FMC_PMEM4_MEMHIZ4_Pos)           /*!< 0x40000000 */
+#define FMC_PMEM4_MEMHIZ4_7         (0x80UL << FMC_PMEM4_MEMHIZ4_Pos)           /*!< 0x80000000 */
+
+/******************  Bit definition for FMC_PATT2 register  ******************/
+#define FMC_PATT2_ATTSET2_Pos       (0U)                                       
+#define FMC_PATT2_ATTSET2_Msk       (0xFFUL << FMC_PATT2_ATTSET2_Pos)           /*!< 0x000000FF */
+#define FMC_PATT2_ATTSET2           FMC_PATT2_ATTSET2_Msk                      /*!<ATTSET2[7:0] bits (Attribute memory 2 setup time) */
+#define FMC_PATT2_ATTSET2_0         (0x01UL << FMC_PATT2_ATTSET2_Pos)           /*!< 0x00000001 */
+#define FMC_PATT2_ATTSET2_1         (0x02UL << FMC_PATT2_ATTSET2_Pos)           /*!< 0x00000002 */
+#define FMC_PATT2_ATTSET2_2         (0x04UL << FMC_PATT2_ATTSET2_Pos)           /*!< 0x00000004 */
+#define FMC_PATT2_ATTSET2_3         (0x08UL << FMC_PATT2_ATTSET2_Pos)           /*!< 0x00000008 */
+#define FMC_PATT2_ATTSET2_4         (0x10UL << FMC_PATT2_ATTSET2_Pos)           /*!< 0x00000010 */
+#define FMC_PATT2_ATTSET2_5         (0x20UL << FMC_PATT2_ATTSET2_Pos)           /*!< 0x00000020 */
+#define FMC_PATT2_ATTSET2_6         (0x40UL << FMC_PATT2_ATTSET2_Pos)           /*!< 0x00000040 */
+#define FMC_PATT2_ATTSET2_7         (0x80UL << FMC_PATT2_ATTSET2_Pos)           /*!< 0x00000080 */
+
+#define FMC_PATT2_ATTWAIT2_Pos      (8U)                                       
+#define FMC_PATT2_ATTWAIT2_Msk      (0xFFUL << FMC_PATT2_ATTWAIT2_Pos)          /*!< 0x0000FF00 */
+#define FMC_PATT2_ATTWAIT2          FMC_PATT2_ATTWAIT2_Msk                     /*!<ATTWAIT2[7:0] bits (Attribute memory 2 wait time) */
+#define FMC_PATT2_ATTWAIT2_0        (0x01UL << FMC_PATT2_ATTWAIT2_Pos)          /*!< 0x00000100 */
+#define FMC_PATT2_ATTWAIT2_1        (0x02UL << FMC_PATT2_ATTWAIT2_Pos)          /*!< 0x00000200 */
+#define FMC_PATT2_ATTWAIT2_2        (0x04UL << FMC_PATT2_ATTWAIT2_Pos)          /*!< 0x00000400 */
+#define FMC_PATT2_ATTWAIT2_3        (0x08UL << FMC_PATT2_ATTWAIT2_Pos)          /*!< 0x00000800 */
+#define FMC_PATT2_ATTWAIT2_4        (0x10UL << FMC_PATT2_ATTWAIT2_Pos)          /*!< 0x00001000 */
+#define FMC_PATT2_ATTWAIT2_5        (0x20UL << FMC_PATT2_ATTWAIT2_Pos)          /*!< 0x00002000 */
+#define FMC_PATT2_ATTWAIT2_6        (0x40UL << FMC_PATT2_ATTWAIT2_Pos)          /*!< 0x00004000 */
+#define FMC_PATT2_ATTWAIT2_7        (0x80UL << FMC_PATT2_ATTWAIT2_Pos)          /*!< 0x00008000 */
+
+#define FMC_PATT2_ATTHOLD2_Pos      (16U)                                      
+#define FMC_PATT2_ATTHOLD2_Msk      (0xFFUL << FMC_PATT2_ATTHOLD2_Pos)          /*!< 0x00FF0000 */
+#define FMC_PATT2_ATTHOLD2          FMC_PATT2_ATTHOLD2_Msk                     /*!<ATTHOLD2[7:0] bits (Attribute memory 2 hold time) */
+#define FMC_PATT2_ATTHOLD2_0        (0x01UL << FMC_PATT2_ATTHOLD2_Pos)          /*!< 0x00010000 */
+#define FMC_PATT2_ATTHOLD2_1        (0x02UL << FMC_PATT2_ATTHOLD2_Pos)          /*!< 0x00020000 */
+#define FMC_PATT2_ATTHOLD2_2        (0x04UL << FMC_PATT2_ATTHOLD2_Pos)          /*!< 0x00040000 */
+#define FMC_PATT2_ATTHOLD2_3        (0x08UL << FMC_PATT2_ATTHOLD2_Pos)          /*!< 0x00080000 */
+#define FMC_PATT2_ATTHOLD2_4        (0x10UL << FMC_PATT2_ATTHOLD2_Pos)          /*!< 0x00100000 */
+#define FMC_PATT2_ATTHOLD2_5        (0x20UL << FMC_PATT2_ATTHOLD2_Pos)          /*!< 0x00200000 */
+#define FMC_PATT2_ATTHOLD2_6        (0x40UL << FMC_PATT2_ATTHOLD2_Pos)          /*!< 0x00400000 */
+#define FMC_PATT2_ATTHOLD2_7        (0x80UL << FMC_PATT2_ATTHOLD2_Pos)          /*!< 0x00800000 */
+
+#define FMC_PATT2_ATTHIZ2_Pos       (24U)                                      
+#define FMC_PATT2_ATTHIZ2_Msk       (0xFFUL << FMC_PATT2_ATTHIZ2_Pos)           /*!< 0xFF000000 */
+#define FMC_PATT2_ATTHIZ2           FMC_PATT2_ATTHIZ2_Msk                      /*!<ATTHIZ2[7:0] bits (Attribute memory 2 databus HiZ time) */
+#define FMC_PATT2_ATTHIZ2_0         (0x01UL << FMC_PATT2_ATTHIZ2_Pos)           /*!< 0x01000000 */
+#define FMC_PATT2_ATTHIZ2_1         (0x02UL << FMC_PATT2_ATTHIZ2_Pos)           /*!< 0x02000000 */
+#define FMC_PATT2_ATTHIZ2_2         (0x04UL << FMC_PATT2_ATTHIZ2_Pos)           /*!< 0x04000000 */
+#define FMC_PATT2_ATTHIZ2_3         (0x08UL << FMC_PATT2_ATTHIZ2_Pos)           /*!< 0x08000000 */
+#define FMC_PATT2_ATTHIZ2_4         (0x10UL << FMC_PATT2_ATTHIZ2_Pos)           /*!< 0x10000000 */
+#define FMC_PATT2_ATTHIZ2_5         (0x20UL << FMC_PATT2_ATTHIZ2_Pos)           /*!< 0x20000000 */
+#define FMC_PATT2_ATTHIZ2_6         (0x40UL << FMC_PATT2_ATTHIZ2_Pos)           /*!< 0x40000000 */
+#define FMC_PATT2_ATTHIZ2_7         (0x80UL << FMC_PATT2_ATTHIZ2_Pos)           /*!< 0x80000000 */
+
+/******************  Bit definition for FMC_PATT3 register  ******************/
+#define FMC_PATT3_ATTSET3_Pos       (0U)                                       
+#define FMC_PATT3_ATTSET3_Msk       (0xFFUL << FMC_PATT3_ATTSET3_Pos)           /*!< 0x000000FF */
+#define FMC_PATT3_ATTSET3           FMC_PATT3_ATTSET3_Msk                      /*!<ATTSET3[7:0] bits (Attribute memory 3 setup time) */
+#define FMC_PATT3_ATTSET3_0         (0x01UL << FMC_PATT3_ATTSET3_Pos)           /*!< 0x00000001 */
+#define FMC_PATT3_ATTSET3_1         (0x02UL << FMC_PATT3_ATTSET3_Pos)           /*!< 0x00000002 */
+#define FMC_PATT3_ATTSET3_2         (0x04UL << FMC_PATT3_ATTSET3_Pos)           /*!< 0x00000004 */
+#define FMC_PATT3_ATTSET3_3         (0x08UL << FMC_PATT3_ATTSET3_Pos)           /*!< 0x00000008 */
+#define FMC_PATT3_ATTSET3_4         (0x10UL << FMC_PATT3_ATTSET3_Pos)           /*!< 0x00000010 */
+#define FMC_PATT3_ATTSET3_5         (0x20UL << FMC_PATT3_ATTSET3_Pos)           /*!< 0x00000020 */
+#define FMC_PATT3_ATTSET3_6         (0x40UL << FMC_PATT3_ATTSET3_Pos)           /*!< 0x00000040 */
+#define FMC_PATT3_ATTSET3_7         (0x80UL << FMC_PATT3_ATTSET3_Pos)           /*!< 0x00000080 */
+
+#define FMC_PATT3_ATTWAIT3_Pos      (8U)                                       
+#define FMC_PATT3_ATTWAIT3_Msk      (0xFFUL << FMC_PATT3_ATTWAIT3_Pos)          /*!< 0x0000FF00 */
+#define FMC_PATT3_ATTWAIT3          FMC_PATT3_ATTWAIT3_Msk                     /*!<ATTWAIT3[7:0] bits (Attribute memory 3 wait time) */
+#define FMC_PATT3_ATTWAIT3_0        (0x01UL << FMC_PATT3_ATTWAIT3_Pos)          /*!< 0x00000100 */
+#define FMC_PATT3_ATTWAIT3_1        (0x02UL << FMC_PATT3_ATTWAIT3_Pos)          /*!< 0x00000200 */
+#define FMC_PATT3_ATTWAIT3_2        (0x04UL << FMC_PATT3_ATTWAIT3_Pos)          /*!< 0x00000400 */
+#define FMC_PATT3_ATTWAIT3_3        (0x08UL << FMC_PATT3_ATTWAIT3_Pos)          /*!< 0x00000800 */
+#define FMC_PATT3_ATTWAIT3_4        (0x10UL << FMC_PATT3_ATTWAIT3_Pos)          /*!< 0x00001000 */
+#define FMC_PATT3_ATTWAIT3_5        (0x20UL << FMC_PATT3_ATTWAIT3_Pos)          /*!< 0x00002000 */
+#define FMC_PATT3_ATTWAIT3_6        (0x40UL << FMC_PATT3_ATTWAIT3_Pos)          /*!< 0x00004000 */
+#define FMC_PATT3_ATTWAIT3_7        (0x80UL << FMC_PATT3_ATTWAIT3_Pos)          /*!< 0x00008000 */
+
+#define FMC_PATT3_ATTHOLD3_Pos      (16U)                                      
+#define FMC_PATT3_ATTHOLD3_Msk      (0xFFUL << FMC_PATT3_ATTHOLD3_Pos)          /*!< 0x00FF0000 */
+#define FMC_PATT3_ATTHOLD3          FMC_PATT3_ATTHOLD3_Msk                     /*!<ATTHOLD3[7:0] bits (Attribute memory 3 hold time) */
+#define FMC_PATT3_ATTHOLD3_0        (0x01UL << FMC_PATT3_ATTHOLD3_Pos)          /*!< 0x00010000 */
+#define FMC_PATT3_ATTHOLD3_1        (0x02UL << FMC_PATT3_ATTHOLD3_Pos)          /*!< 0x00020000 */
+#define FMC_PATT3_ATTHOLD3_2        (0x04UL << FMC_PATT3_ATTHOLD3_Pos)          /*!< 0x00040000 */
+#define FMC_PATT3_ATTHOLD3_3        (0x08UL << FMC_PATT3_ATTHOLD3_Pos)          /*!< 0x00080000 */
+#define FMC_PATT3_ATTHOLD3_4        (0x10UL << FMC_PATT3_ATTHOLD3_Pos)          /*!< 0x00100000 */
+#define FMC_PATT3_ATTHOLD3_5        (0x20UL << FMC_PATT3_ATTHOLD3_Pos)          /*!< 0x00200000 */
+#define FMC_PATT3_ATTHOLD3_6        (0x40UL << FMC_PATT3_ATTHOLD3_Pos)          /*!< 0x00400000 */
+#define FMC_PATT3_ATTHOLD3_7        (0x80UL << FMC_PATT3_ATTHOLD3_Pos)          /*!< 0x00800000 */
+
+#define FMC_PATT3_ATTHIZ3_Pos       (24U)                                      
+#define FMC_PATT3_ATTHIZ3_Msk       (0xFFUL << FMC_PATT3_ATTHIZ3_Pos)           /*!< 0xFF000000 */
+#define FMC_PATT3_ATTHIZ3           FMC_PATT3_ATTHIZ3_Msk                      /*!<ATTHIZ3[7:0] bits (Attribute memory 3 databus HiZ time) */
+#define FMC_PATT3_ATTHIZ3_0         (0x01UL << FMC_PATT3_ATTHIZ3_Pos)           /*!< 0x01000000 */
+#define FMC_PATT3_ATTHIZ3_1         (0x02UL << FMC_PATT3_ATTHIZ3_Pos)           /*!< 0x02000000 */
+#define FMC_PATT3_ATTHIZ3_2         (0x04UL << FMC_PATT3_ATTHIZ3_Pos)           /*!< 0x04000000 */
+#define FMC_PATT3_ATTHIZ3_3         (0x08UL << FMC_PATT3_ATTHIZ3_Pos)           /*!< 0x08000000 */
+#define FMC_PATT3_ATTHIZ3_4         (0x10UL << FMC_PATT3_ATTHIZ3_Pos)           /*!< 0x10000000 */
+#define FMC_PATT3_ATTHIZ3_5         (0x20UL << FMC_PATT3_ATTHIZ3_Pos)           /*!< 0x20000000 */
+#define FMC_PATT3_ATTHIZ3_6         (0x40UL << FMC_PATT3_ATTHIZ3_Pos)           /*!< 0x40000000 */
+#define FMC_PATT3_ATTHIZ3_7         (0x80UL << FMC_PATT3_ATTHIZ3_Pos)           /*!< 0x80000000 */
+
+/******************  Bit definition for FMC_PATT4 register  ******************/
+#define FMC_PATT4_ATTSET4_Pos       (0U)                                       
+#define FMC_PATT4_ATTSET4_Msk       (0xFFUL << FMC_PATT4_ATTSET4_Pos)           /*!< 0x000000FF */
+#define FMC_PATT4_ATTSET4           FMC_PATT4_ATTSET4_Msk                      /*!<ATTSET4[7:0] bits (Attribute memory 4 setup time) */
+#define FMC_PATT4_ATTSET4_0         (0x01UL << FMC_PATT4_ATTSET4_Pos)           /*!< 0x00000001 */
+#define FMC_PATT4_ATTSET4_1         (0x02UL << FMC_PATT4_ATTSET4_Pos)           /*!< 0x00000002 */
+#define FMC_PATT4_ATTSET4_2         (0x04UL << FMC_PATT4_ATTSET4_Pos)           /*!< 0x00000004 */
+#define FMC_PATT4_ATTSET4_3         (0x08UL << FMC_PATT4_ATTSET4_Pos)           /*!< 0x00000008 */
+#define FMC_PATT4_ATTSET4_4         (0x10UL << FMC_PATT4_ATTSET4_Pos)           /*!< 0x00000010 */
+#define FMC_PATT4_ATTSET4_5         (0x20UL << FMC_PATT4_ATTSET4_Pos)           /*!< 0x00000020 */
+#define FMC_PATT4_ATTSET4_6         (0x40UL << FMC_PATT4_ATTSET4_Pos)           /*!< 0x00000040 */
+#define FMC_PATT4_ATTSET4_7         (0x80UL << FMC_PATT4_ATTSET4_Pos)           /*!< 0x00000080 */
+
+#define FMC_PATT4_ATTWAIT4_Pos      (8U)                                       
+#define FMC_PATT4_ATTWAIT4_Msk      (0xFFUL << FMC_PATT4_ATTWAIT4_Pos)          /*!< 0x0000FF00 */
+#define FMC_PATT4_ATTWAIT4          FMC_PATT4_ATTWAIT4_Msk                     /*!<ATTWAIT4[7:0] bits (Attribute memory 4 wait time) */
+#define FMC_PATT4_ATTWAIT4_0        (0x01UL << FMC_PATT4_ATTWAIT4_Pos)          /*!< 0x00000100 */
+#define FMC_PATT4_ATTWAIT4_1        (0x02UL << FMC_PATT4_ATTWAIT4_Pos)          /*!< 0x00000200 */
+#define FMC_PATT4_ATTWAIT4_2        (0x04UL << FMC_PATT4_ATTWAIT4_Pos)          /*!< 0x00000400 */
+#define FMC_PATT4_ATTWAIT4_3        (0x08UL << FMC_PATT4_ATTWAIT4_Pos)          /*!< 0x00000800 */
+#define FMC_PATT4_ATTWAIT4_4        (0x10UL << FMC_PATT4_ATTWAIT4_Pos)          /*!< 0x00001000 */
+#define FMC_PATT4_ATTWAIT4_5        (0x20UL << FMC_PATT4_ATTWAIT4_Pos)          /*!< 0x00002000 */
+#define FMC_PATT4_ATTWAIT4_6        (0x40UL << FMC_PATT4_ATTWAIT4_Pos)          /*!< 0x00004000 */
+#define FMC_PATT4_ATTWAIT4_7        (0x80UL << FMC_PATT4_ATTWAIT4_Pos)          /*!< 0x00008000 */
+
+#define FMC_PATT4_ATTHOLD4_Pos      (16U)                                      
+#define FMC_PATT4_ATTHOLD4_Msk      (0xFFUL << FMC_PATT4_ATTHOLD4_Pos)          /*!< 0x00FF0000 */
+#define FMC_PATT4_ATTHOLD4          FMC_PATT4_ATTHOLD4_Msk                     /*!<ATTHOLD4[7:0] bits (Attribute memory 4 hold time) */
+#define FMC_PATT4_ATTHOLD4_0        (0x01UL << FMC_PATT4_ATTHOLD4_Pos)          /*!< 0x00010000 */
+#define FMC_PATT4_ATTHOLD4_1        (0x02UL << FMC_PATT4_ATTHOLD4_Pos)          /*!< 0x00020000 */
+#define FMC_PATT4_ATTHOLD4_2        (0x04UL << FMC_PATT4_ATTHOLD4_Pos)          /*!< 0x00040000 */
+#define FMC_PATT4_ATTHOLD4_3        (0x08UL << FMC_PATT4_ATTHOLD4_Pos)          /*!< 0x00080000 */
+#define FMC_PATT4_ATTHOLD4_4        (0x10UL << FMC_PATT4_ATTHOLD4_Pos)          /*!< 0x00100000 */
+#define FMC_PATT4_ATTHOLD4_5        (0x20UL << FMC_PATT4_ATTHOLD4_Pos)          /*!< 0x00200000 */
+#define FMC_PATT4_ATTHOLD4_6        (0x40UL << FMC_PATT4_ATTHOLD4_Pos)          /*!< 0x00400000 */
+#define FMC_PATT4_ATTHOLD4_7        (0x80UL << FMC_PATT4_ATTHOLD4_Pos)          /*!< 0x00800000 */
+
+#define FMC_PATT4_ATTHIZ4_Pos       (24U)                                      
+#define FMC_PATT4_ATTHIZ4_Msk       (0xFFUL << FMC_PATT4_ATTHIZ4_Pos)           /*!< 0xFF000000 */
+#define FMC_PATT4_ATTHIZ4           FMC_PATT4_ATTHIZ4_Msk                      /*!<ATTHIZ4[7:0] bits (Attribute memory 4 databus HiZ time) */
+#define FMC_PATT4_ATTHIZ4_0         (0x01UL << FMC_PATT4_ATTHIZ4_Pos)           /*!< 0x01000000 */
+#define FMC_PATT4_ATTHIZ4_1         (0x02UL << FMC_PATT4_ATTHIZ4_Pos)           /*!< 0x02000000 */
+#define FMC_PATT4_ATTHIZ4_2         (0x04UL << FMC_PATT4_ATTHIZ4_Pos)           /*!< 0x04000000 */
+#define FMC_PATT4_ATTHIZ4_3         (0x08UL << FMC_PATT4_ATTHIZ4_Pos)           /*!< 0x08000000 */
+#define FMC_PATT4_ATTHIZ4_4         (0x10UL << FMC_PATT4_ATTHIZ4_Pos)           /*!< 0x10000000 */
+#define FMC_PATT4_ATTHIZ4_5         (0x20UL << FMC_PATT4_ATTHIZ4_Pos)           /*!< 0x20000000 */
+#define FMC_PATT4_ATTHIZ4_6         (0x40UL << FMC_PATT4_ATTHIZ4_Pos)           /*!< 0x40000000 */
+#define FMC_PATT4_ATTHIZ4_7         (0x80UL << FMC_PATT4_ATTHIZ4_Pos)           /*!< 0x80000000 */
+
+/******************  Bit definition for FMC_PIO4 register  *******************/
+#define FMC_PIO4_IOSET4_Pos         (0U)                                       
+#define FMC_PIO4_IOSET4_Msk         (0xFFUL << FMC_PIO4_IOSET4_Pos)             /*!< 0x000000FF */
+#define FMC_PIO4_IOSET4             FMC_PIO4_IOSET4_Msk                        /*!<IOSET4[7:0] bits (I/O 4 setup time) */
+#define FMC_PIO4_IOSET4_0           (0x01UL << FMC_PIO4_IOSET4_Pos)             /*!< 0x00000001 */
+#define FMC_PIO4_IOSET4_1           (0x02UL << FMC_PIO4_IOSET4_Pos)             /*!< 0x00000002 */
+#define FMC_PIO4_IOSET4_2           (0x04UL << FMC_PIO4_IOSET4_Pos)             /*!< 0x00000004 */
+#define FMC_PIO4_IOSET4_3           (0x08UL << FMC_PIO4_IOSET4_Pos)             /*!< 0x00000008 */
+#define FMC_PIO4_IOSET4_4           (0x10UL << FMC_PIO4_IOSET4_Pos)             /*!< 0x00000010 */
+#define FMC_PIO4_IOSET4_5           (0x20UL << FMC_PIO4_IOSET4_Pos)             /*!< 0x00000020 */
+#define FMC_PIO4_IOSET4_6           (0x40UL << FMC_PIO4_IOSET4_Pos)             /*!< 0x00000040 */
+#define FMC_PIO4_IOSET4_7           (0x80UL << FMC_PIO4_IOSET4_Pos)             /*!< 0x00000080 */
+
+#define FMC_PIO4_IOWAIT4_Pos        (8U)                                       
+#define FMC_PIO4_IOWAIT4_Msk        (0xFFUL << FMC_PIO4_IOWAIT4_Pos)            /*!< 0x0000FF00 */
+#define FMC_PIO4_IOWAIT4            FMC_PIO4_IOWAIT4_Msk                       /*!<IOWAIT4[7:0] bits (I/O 4 wait time) */
+#define FMC_PIO4_IOWAIT4_0          (0x01UL << FMC_PIO4_IOWAIT4_Pos)            /*!< 0x00000100 */
+#define FMC_PIO4_IOWAIT4_1          (0x02UL << FMC_PIO4_IOWAIT4_Pos)            /*!< 0x00000200 */
+#define FMC_PIO4_IOWAIT4_2          (0x04UL << FMC_PIO4_IOWAIT4_Pos)            /*!< 0x00000400 */
+#define FMC_PIO4_IOWAIT4_3          (0x08UL << FMC_PIO4_IOWAIT4_Pos)            /*!< 0x00000800 */
+#define FMC_PIO4_IOWAIT4_4          (0x10UL << FMC_PIO4_IOWAIT4_Pos)            /*!< 0x00001000 */
+#define FMC_PIO4_IOWAIT4_5          (0x20UL << FMC_PIO4_IOWAIT4_Pos)            /*!< 0x00002000 */
+#define FMC_PIO4_IOWAIT4_6          (0x40UL << FMC_PIO4_IOWAIT4_Pos)            /*!< 0x00004000 */
+#define FMC_PIO4_IOWAIT4_7          (0x80UL << FMC_PIO4_IOWAIT4_Pos)            /*!< 0x00008000 */
+
+#define FMC_PIO4_IOHOLD4_Pos        (16U)                                      
+#define FMC_PIO4_IOHOLD4_Msk        (0xFFUL << FMC_PIO4_IOHOLD4_Pos)            /*!< 0x00FF0000 */
+#define FMC_PIO4_IOHOLD4            FMC_PIO4_IOHOLD4_Msk                       /*!<IOHOLD4[7:0] bits (I/O 4 hold time) */
+#define FMC_PIO4_IOHOLD4_0          (0x01UL << FMC_PIO4_IOHOLD4_Pos)            /*!< 0x00010000 */
+#define FMC_PIO4_IOHOLD4_1          (0x02UL << FMC_PIO4_IOHOLD4_Pos)            /*!< 0x00020000 */
+#define FMC_PIO4_IOHOLD4_2          (0x04UL << FMC_PIO4_IOHOLD4_Pos)            /*!< 0x00040000 */
+#define FMC_PIO4_IOHOLD4_3          (0x08UL << FMC_PIO4_IOHOLD4_Pos)            /*!< 0x00080000 */
+#define FMC_PIO4_IOHOLD4_4          (0x10UL << FMC_PIO4_IOHOLD4_Pos)            /*!< 0x00100000 */
+#define FMC_PIO4_IOHOLD4_5          (0x20UL << FMC_PIO4_IOHOLD4_Pos)            /*!< 0x00200000 */
+#define FMC_PIO4_IOHOLD4_6          (0x40UL << FMC_PIO4_IOHOLD4_Pos)            /*!< 0x00400000 */
+#define FMC_PIO4_IOHOLD4_7          (0x80UL << FMC_PIO4_IOHOLD4_Pos)            /*!< 0x00800000 */
+
+#define FMC_PIO4_IOHIZ4_Pos         (24U)                                      
+#define FMC_PIO4_IOHIZ4_Msk         (0xFFUL << FMC_PIO4_IOHIZ4_Pos)             /*!< 0xFF000000 */
+#define FMC_PIO4_IOHIZ4             FMC_PIO4_IOHIZ4_Msk                        /*!<IOHIZ4[7:0] bits (I/O 4 databus HiZ time) */
+#define FMC_PIO4_IOHIZ4_0           (0x01UL << FMC_PIO4_IOHIZ4_Pos)             /*!< 0x01000000 */
+#define FMC_PIO4_IOHIZ4_1           (0x02UL << FMC_PIO4_IOHIZ4_Pos)             /*!< 0x02000000 */
+#define FMC_PIO4_IOHIZ4_2           (0x04UL << FMC_PIO4_IOHIZ4_Pos)             /*!< 0x04000000 */
+#define FMC_PIO4_IOHIZ4_3           (0x08UL << FMC_PIO4_IOHIZ4_Pos)             /*!< 0x08000000 */
+#define FMC_PIO4_IOHIZ4_4           (0x10UL << FMC_PIO4_IOHIZ4_Pos)             /*!< 0x10000000 */
+#define FMC_PIO4_IOHIZ4_5           (0x20UL << FMC_PIO4_IOHIZ4_Pos)             /*!< 0x20000000 */
+#define FMC_PIO4_IOHIZ4_6           (0x40UL << FMC_PIO4_IOHIZ4_Pos)             /*!< 0x40000000 */
+#define FMC_PIO4_IOHIZ4_7           (0x80UL << FMC_PIO4_IOHIZ4_Pos)             /*!< 0x80000000 */
+
+
+/******************  Bit definition for FMC_ECCR2 register  ******************/
+#define FMC_ECCR2_ECC2_Pos          (0U)                                       
+#define FMC_ECCR2_ECC2_Msk          (0xFFFFFFFFUL << FMC_ECCR2_ECC2_Pos)        /*!< 0xFFFFFFFF */
+#define FMC_ECCR2_ECC2              FMC_ECCR2_ECC2_Msk                         /*!<ECC result */
+
+/******************  Bit definition for FMC_ECCR3 register  ******************/
+#define FMC_ECCR3_ECC3_Pos          (0U)                                       
+#define FMC_ECCR3_ECC3_Msk          (0xFFFFFFFFUL << FMC_ECCR3_ECC3_Pos)        /*!< 0xFFFFFFFF */
+#define FMC_ECCR3_ECC3              FMC_ECCR3_ECC3_Msk                         /*!<ECC result */
 
 /******************  Bit definition for FMC_SDCR1 register  ******************/
 #define FMC_SDCR1_NC_Pos            (0U)                                       
@@ -9365,264 +9982,6 @@ typedef struct
 
 /******************************************************************************/
 /*                                                                            */
-/*        Fast Mode Plus Inter-integrated Circuit Interface (I2C)             */
-/*                                                                            */
-/******************************************************************************/
-/*******************  Bit definition for I2C_CR1 register  *******************/
-#define FMPI2C_CR1_PE_Pos               (0U)                                   
-#define FMPI2C_CR1_PE_Msk               (0x1UL << FMPI2C_CR1_PE_Pos)            /*!< 0x00000001 */
-#define FMPI2C_CR1_PE                   FMPI2C_CR1_PE_Msk                      /*!< Peripheral enable                   */
-#define FMPI2C_CR1_TXIE_Pos             (1U)                                   
-#define FMPI2C_CR1_TXIE_Msk             (0x1UL << FMPI2C_CR1_TXIE_Pos)          /*!< 0x00000002 */
-#define FMPI2C_CR1_TXIE                 FMPI2C_CR1_TXIE_Msk                    /*!< TX interrupt enable                 */
-#define FMPI2C_CR1_RXIE_Pos             (2U)                                   
-#define FMPI2C_CR1_RXIE_Msk             (0x1UL << FMPI2C_CR1_RXIE_Pos)          /*!< 0x00000004 */
-#define FMPI2C_CR1_RXIE                 FMPI2C_CR1_RXIE_Msk                    /*!< RX interrupt enable                 */
-#define FMPI2C_CR1_ADDRIE_Pos           (3U)                                   
-#define FMPI2C_CR1_ADDRIE_Msk           (0x1UL << FMPI2C_CR1_ADDRIE_Pos)        /*!< 0x00000008 */
-#define FMPI2C_CR1_ADDRIE               FMPI2C_CR1_ADDRIE_Msk                  /*!< Address match interrupt enable      */
-#define FMPI2C_CR1_NACKIE_Pos           (4U)                                   
-#define FMPI2C_CR1_NACKIE_Msk           (0x1UL << FMPI2C_CR1_NACKIE_Pos)        /*!< 0x00000010 */
-#define FMPI2C_CR1_NACKIE               FMPI2C_CR1_NACKIE_Msk                  /*!< NACK received interrupt enable      */
-#define FMPI2C_CR1_STOPIE_Pos           (5U)                                   
-#define FMPI2C_CR1_STOPIE_Msk           (0x1UL << FMPI2C_CR1_STOPIE_Pos)        /*!< 0x00000020 */
-#define FMPI2C_CR1_STOPIE               FMPI2C_CR1_STOPIE_Msk                  /*!< STOP detection interrupt enable     */
-#define FMPI2C_CR1_TCIE_Pos             (6U)                                   
-#define FMPI2C_CR1_TCIE_Msk             (0x1UL << FMPI2C_CR1_TCIE_Pos)          /*!< 0x00000040 */
-#define FMPI2C_CR1_TCIE                 FMPI2C_CR1_TCIE_Msk                    /*!< Transfer complete interrupt enable  */
-#define FMPI2C_CR1_ERRIE_Pos            (7U)                                   
-#define FMPI2C_CR1_ERRIE_Msk            (0x1UL << FMPI2C_CR1_ERRIE_Pos)         /*!< 0x00000080 */
-#define FMPI2C_CR1_ERRIE                FMPI2C_CR1_ERRIE_Msk                   /*!< Errors interrupt enable             */
-#define FMPI2C_CR1_DNF_Pos              (8U)                                   
-#define FMPI2C_CR1_DNF_Msk              (0xFUL << FMPI2C_CR1_DNF_Pos)           /*!< 0x00000F00 */
-#define FMPI2C_CR1_DNF                  FMPI2C_CR1_DNF_Msk                     /*!< Digital noise filter                */
-#define FMPI2C_CR1_ANFOFF_Pos           (12U)                                  
-#define FMPI2C_CR1_ANFOFF_Msk           (0x1UL << FMPI2C_CR1_ANFOFF_Pos)        /*!< 0x00001000 */
-#define FMPI2C_CR1_ANFOFF               FMPI2C_CR1_ANFOFF_Msk                  /*!< Analog noise filter OFF             */
-#define FMPI2C_CR1_TXDMAEN_Pos          (14U)                                  
-#define FMPI2C_CR1_TXDMAEN_Msk          (0x1UL << FMPI2C_CR1_TXDMAEN_Pos)       /*!< 0x00004000 */
-#define FMPI2C_CR1_TXDMAEN              FMPI2C_CR1_TXDMAEN_Msk                 /*!< DMA transmission requests enable    */
-#define FMPI2C_CR1_RXDMAEN_Pos          (15U)                                  
-#define FMPI2C_CR1_RXDMAEN_Msk          (0x1UL << FMPI2C_CR1_RXDMAEN_Pos)       /*!< 0x00008000 */
-#define FMPI2C_CR1_RXDMAEN              FMPI2C_CR1_RXDMAEN_Msk                 /*!< DMA reception requests enable       */
-#define FMPI2C_CR1_SBC_Pos              (16U)                                  
-#define FMPI2C_CR1_SBC_Msk              (0x1UL << FMPI2C_CR1_SBC_Pos)           /*!< 0x00010000 */
-#define FMPI2C_CR1_SBC                  FMPI2C_CR1_SBC_Msk                     /*!< Slave byte control                  */
-#define FMPI2C_CR1_NOSTRETCH_Pos        (17U)                                  
-#define FMPI2C_CR1_NOSTRETCH_Msk        (0x1UL << FMPI2C_CR1_NOSTRETCH_Pos)     /*!< 0x00020000 */
-#define FMPI2C_CR1_NOSTRETCH            FMPI2C_CR1_NOSTRETCH_Msk               /*!< Clock stretching disable            */
-#define FMPI2C_CR1_GCEN_Pos             (19U)                                  
-#define FMPI2C_CR1_GCEN_Msk             (0x1UL << FMPI2C_CR1_GCEN_Pos)          /*!< 0x00080000 */
-#define FMPI2C_CR1_GCEN                 FMPI2C_CR1_GCEN_Msk                    /*!< General call enable                 */
-#define FMPI2C_CR1_SMBHEN_Pos           (20U)                                  
-#define FMPI2C_CR1_SMBHEN_Msk           (0x1UL << FMPI2C_CR1_SMBHEN_Pos)        /*!< 0x00100000 */
-#define FMPI2C_CR1_SMBHEN               FMPI2C_CR1_SMBHEN_Msk                  /*!< SMBus host address enable           */
-#define FMPI2C_CR1_SMBDEN_Pos           (21U)                                  
-#define FMPI2C_CR1_SMBDEN_Msk           (0x1UL << FMPI2C_CR1_SMBDEN_Pos)        /*!< 0x00200000 */
-#define FMPI2C_CR1_SMBDEN               FMPI2C_CR1_SMBDEN_Msk                  /*!< SMBus device default address enable */
-#define FMPI2C_CR1_ALERTEN_Pos          (22U)                                  
-#define FMPI2C_CR1_ALERTEN_Msk          (0x1UL << FMPI2C_CR1_ALERTEN_Pos)       /*!< 0x00400000 */
-#define FMPI2C_CR1_ALERTEN              FMPI2C_CR1_ALERTEN_Msk                 /*!< SMBus alert enable                  */
-#define FMPI2C_CR1_PECEN_Pos            (23U)                                  
-#define FMPI2C_CR1_PECEN_Msk            (0x1UL << FMPI2C_CR1_PECEN_Pos)         /*!< 0x00800000 */
-#define FMPI2C_CR1_PECEN                FMPI2C_CR1_PECEN_Msk                   /*!< PEC enable                          */
-
-/* Legacy Defines */
-#define FMPI2C_CR1_DFN_Pos              FMPI2C_CR1_DNF_Pos                                  
-#define FMPI2C_CR1_DFN_Msk              FMPI2C_CR1_DNF_Msk
-#define FMPI2C_CR1_DFN                  FMPI2C_CR1_DNF
-/******************  Bit definition for I2C_CR2 register  ********************/
-#define FMPI2C_CR2_SADD_Pos             (0U)                                   
-#define FMPI2C_CR2_SADD_Msk             (0x3FFUL << FMPI2C_CR2_SADD_Pos)        /*!< 0x000003FF */
-#define FMPI2C_CR2_SADD                 FMPI2C_CR2_SADD_Msk                    /*!< Slave address (master mode)                             */
-#define FMPI2C_CR2_RD_WRN_Pos           (10U)                                  
-#define FMPI2C_CR2_RD_WRN_Msk           (0x1UL << FMPI2C_CR2_RD_WRN_Pos)        /*!< 0x00000400 */
-#define FMPI2C_CR2_RD_WRN               FMPI2C_CR2_RD_WRN_Msk                  /*!< Transfer direction (master mode)                        */
-#define FMPI2C_CR2_ADD10_Pos            (11U)                                  
-#define FMPI2C_CR2_ADD10_Msk            (0x1UL << FMPI2C_CR2_ADD10_Pos)         /*!< 0x00000800 */
-#define FMPI2C_CR2_ADD10                FMPI2C_CR2_ADD10_Msk                   /*!< 10-bit addressing mode (master mode)                    */
-#define FMPI2C_CR2_HEAD10R_Pos          (12U)                                  
-#define FMPI2C_CR2_HEAD10R_Msk          (0x1UL << FMPI2C_CR2_HEAD10R_Pos)       /*!< 0x00001000 */
-#define FMPI2C_CR2_HEAD10R              FMPI2C_CR2_HEAD10R_Msk                 /*!< 10-bit address header only read direction (master mode) */
-#define FMPI2C_CR2_START_Pos            (13U)                                  
-#define FMPI2C_CR2_START_Msk            (0x1UL << FMPI2C_CR2_START_Pos)         /*!< 0x00002000 */
-#define FMPI2C_CR2_START                FMPI2C_CR2_START_Msk                   /*!< START generation                                        */
-#define FMPI2C_CR2_STOP_Pos             (14U)                                  
-#define FMPI2C_CR2_STOP_Msk             (0x1UL << FMPI2C_CR2_STOP_Pos)          /*!< 0x00004000 */
-#define FMPI2C_CR2_STOP                 FMPI2C_CR2_STOP_Msk                    /*!< STOP generation (master mode)                           */
-#define FMPI2C_CR2_NACK_Pos             (15U)                                  
-#define FMPI2C_CR2_NACK_Msk             (0x1UL << FMPI2C_CR2_NACK_Pos)          /*!< 0x00008000 */
-#define FMPI2C_CR2_NACK                 FMPI2C_CR2_NACK_Msk                    /*!< NACK generation (slave mode)                            */
-#define FMPI2C_CR2_NBYTES_Pos           (16U)                                  
-#define FMPI2C_CR2_NBYTES_Msk           (0xFFUL << FMPI2C_CR2_NBYTES_Pos)       /*!< 0x00FF0000 */
-#define FMPI2C_CR2_NBYTES               FMPI2C_CR2_NBYTES_Msk                  /*!< Number of bytes                                         */
-#define FMPI2C_CR2_RELOAD_Pos           (24U)                                  
-#define FMPI2C_CR2_RELOAD_Msk           (0x1UL << FMPI2C_CR2_RELOAD_Pos)        /*!< 0x01000000 */
-#define FMPI2C_CR2_RELOAD               FMPI2C_CR2_RELOAD_Msk                  /*!< NBYTES reload mode                                      */
-#define FMPI2C_CR2_AUTOEND_Pos          (25U)                                  
-#define FMPI2C_CR2_AUTOEND_Msk          (0x1UL << FMPI2C_CR2_AUTOEND_Pos)       /*!< 0x02000000 */
-#define FMPI2C_CR2_AUTOEND              FMPI2C_CR2_AUTOEND_Msk                 /*!< Automatic end mode (master mode)                        */
-#define FMPI2C_CR2_PECBYTE_Pos          (26U)                                  
-#define FMPI2C_CR2_PECBYTE_Msk          (0x1UL << FMPI2C_CR2_PECBYTE_Pos)       /*!< 0x04000000 */
-#define FMPI2C_CR2_PECBYTE              FMPI2C_CR2_PECBYTE_Msk                 /*!< Packet error checking byte                              */
-
-/*******************  Bit definition for I2C_OAR1 register  ******************/
-#define FMPI2C_OAR1_OA1_Pos             (0U)                                   
-#define FMPI2C_OAR1_OA1_Msk             (0x3FFUL << FMPI2C_OAR1_OA1_Pos)        /*!< 0x000003FF */
-#define FMPI2C_OAR1_OA1                 FMPI2C_OAR1_OA1_Msk                    /*!< Interface own address 1   */
-#define FMPI2C_OAR1_OA1MODE_Pos         (10U)                                  
-#define FMPI2C_OAR1_OA1MODE_Msk         (0x1UL << FMPI2C_OAR1_OA1MODE_Pos)      /*!< 0x00000400 */
-#define FMPI2C_OAR1_OA1MODE             FMPI2C_OAR1_OA1MODE_Msk                /*!< Own address 1 10-bit mode */
-#define FMPI2C_OAR1_OA1EN_Pos           (15U)                                  
-#define FMPI2C_OAR1_OA1EN_Msk           (0x1UL << FMPI2C_OAR1_OA1EN_Pos)        /*!< 0x00008000 */
-#define FMPI2C_OAR1_OA1EN               FMPI2C_OAR1_OA1EN_Msk                  /*!< Own address 1 enable      */
-
-/*******************  Bit definition for I2C_OAR2 register  ******************/
-#define FMPI2C_OAR2_OA2_Pos             (1U)                                   
-#define FMPI2C_OAR2_OA2_Msk             (0x7FUL << FMPI2C_OAR2_OA2_Pos)         /*!< 0x000000FE */
-#define FMPI2C_OAR2_OA2                 FMPI2C_OAR2_OA2_Msk                    /*!< Interface own address 2 */
-#define FMPI2C_OAR2_OA2MSK_Pos          (8U)                                   
-#define FMPI2C_OAR2_OA2MSK_Msk          (0x7UL << FMPI2C_OAR2_OA2MSK_Pos)       /*!< 0x00000700 */
-#define FMPI2C_OAR2_OA2MSK              FMPI2C_OAR2_OA2MSK_Msk                 /*!< Own address 2 masks     */
-#define FMPI2C_OAR2_OA2EN_Pos           (15U)                                  
-#define FMPI2C_OAR2_OA2EN_Msk           (0x1UL << FMPI2C_OAR2_OA2EN_Pos)        /*!< 0x00008000 */
-#define FMPI2C_OAR2_OA2EN               FMPI2C_OAR2_OA2EN_Msk                  /*!< Own address 2 enable    */
-
-/*******************  Bit definition for I2C_TIMINGR register *******************/
-#define FMPI2C_TIMINGR_SCLL_Pos         (0U)                                   
-#define FMPI2C_TIMINGR_SCLL_Msk         (0xFFUL << FMPI2C_TIMINGR_SCLL_Pos)     /*!< 0x000000FF */
-#define FMPI2C_TIMINGR_SCLL             FMPI2C_TIMINGR_SCLL_Msk                /*!< SCL low period (master mode)  */
-#define FMPI2C_TIMINGR_SCLH_Pos         (8U)                                   
-#define FMPI2C_TIMINGR_SCLH_Msk         (0xFFUL << FMPI2C_TIMINGR_SCLH_Pos)     /*!< 0x0000FF00 */
-#define FMPI2C_TIMINGR_SCLH             FMPI2C_TIMINGR_SCLH_Msk                /*!< SCL high period (master mode) */
-#define FMPI2C_TIMINGR_SDADEL_Pos       (16U)                                  
-#define FMPI2C_TIMINGR_SDADEL_Msk       (0xFUL << FMPI2C_TIMINGR_SDADEL_Pos)    /*!< 0x000F0000 */
-#define FMPI2C_TIMINGR_SDADEL           FMPI2C_TIMINGR_SDADEL_Msk              /*!< Data hold time                */
-#define FMPI2C_TIMINGR_SCLDEL_Pos       (20U)                                  
-#define FMPI2C_TIMINGR_SCLDEL_Msk       (0xFUL << FMPI2C_TIMINGR_SCLDEL_Pos)    /*!< 0x00F00000 */
-#define FMPI2C_TIMINGR_SCLDEL           FMPI2C_TIMINGR_SCLDEL_Msk              /*!< Data setup time               */
-#define FMPI2C_TIMINGR_PRESC_Pos        (28U)                                  
-#define FMPI2C_TIMINGR_PRESC_Msk        (0xFUL << FMPI2C_TIMINGR_PRESC_Pos)     /*!< 0xF0000000 */
-#define FMPI2C_TIMINGR_PRESC            FMPI2C_TIMINGR_PRESC_Msk               /*!< Timings prescaler             */
-
-/******************* Bit definition for I2C_TIMEOUTR register *******************/
-#define FMPI2C_TIMEOUTR_TIMEOUTA_Pos    (0U)                                   
-#define FMPI2C_TIMEOUTR_TIMEOUTA_Msk    (0xFFFUL << FMPI2C_TIMEOUTR_TIMEOUTA_Pos) /*!< 0x00000FFF */
-#define FMPI2C_TIMEOUTR_TIMEOUTA        FMPI2C_TIMEOUTR_TIMEOUTA_Msk           /*!< Bus timeout A                 */
-#define FMPI2C_TIMEOUTR_TIDLE_Pos       (12U)                                  
-#define FMPI2C_TIMEOUTR_TIDLE_Msk       (0x1UL << FMPI2C_TIMEOUTR_TIDLE_Pos)    /*!< 0x00001000 */
-#define FMPI2C_TIMEOUTR_TIDLE           FMPI2C_TIMEOUTR_TIDLE_Msk              /*!< Idle clock timeout detection  */
-#define FMPI2C_TIMEOUTR_TIMOUTEN_Pos    (15U)                                  
-#define FMPI2C_TIMEOUTR_TIMOUTEN_Msk    (0x1UL << FMPI2C_TIMEOUTR_TIMOUTEN_Pos) /*!< 0x00008000 */
-#define FMPI2C_TIMEOUTR_TIMOUTEN        FMPI2C_TIMEOUTR_TIMOUTEN_Msk           /*!< Clock timeout enable          */
-#define FMPI2C_TIMEOUTR_TIMEOUTB_Pos    (16U)                                  
-#define FMPI2C_TIMEOUTR_TIMEOUTB_Msk    (0xFFFUL << FMPI2C_TIMEOUTR_TIMEOUTB_Pos) /*!< 0x0FFF0000 */
-#define FMPI2C_TIMEOUTR_TIMEOUTB        FMPI2C_TIMEOUTR_TIMEOUTB_Msk           /*!< Bus timeout B                 */
-#define FMPI2C_TIMEOUTR_TEXTEN_Pos      (31U)                                  
-#define FMPI2C_TIMEOUTR_TEXTEN_Msk      (0x1UL << FMPI2C_TIMEOUTR_TEXTEN_Pos)   /*!< 0x80000000 */
-#define FMPI2C_TIMEOUTR_TEXTEN          FMPI2C_TIMEOUTR_TEXTEN_Msk             /*!< Extended clock timeout enable */
-
-/******************  Bit definition for I2C_ISR register  *********************/
-#define FMPI2C_ISR_TXE_Pos              (0U)                                   
-#define FMPI2C_ISR_TXE_Msk              (0x1UL << FMPI2C_ISR_TXE_Pos)           /*!< 0x00000001 */
-#define FMPI2C_ISR_TXE                  FMPI2C_ISR_TXE_Msk                     /*!< Transmit data register empty     */
-#define FMPI2C_ISR_TXIS_Pos             (1U)                                   
-#define FMPI2C_ISR_TXIS_Msk             (0x1UL << FMPI2C_ISR_TXIS_Pos)          /*!< 0x00000002 */
-#define FMPI2C_ISR_TXIS                 FMPI2C_ISR_TXIS_Msk                    /*!< Transmit interrupt status        */
-#define FMPI2C_ISR_RXNE_Pos             (2U)                                   
-#define FMPI2C_ISR_RXNE_Msk             (0x1UL << FMPI2C_ISR_RXNE_Pos)          /*!< 0x00000004 */
-#define FMPI2C_ISR_RXNE                 FMPI2C_ISR_RXNE_Msk                    /*!< Receive data register not empty  */
-#define FMPI2C_ISR_ADDR_Pos             (3U)                                   
-#define FMPI2C_ISR_ADDR_Msk             (0x1UL << FMPI2C_ISR_ADDR_Pos)          /*!< 0x00000008 */
-#define FMPI2C_ISR_ADDR                 FMPI2C_ISR_ADDR_Msk                    /*!< Address matched (slave mode)     */
-#define FMPI2C_ISR_NACKF_Pos            (4U)                                   
-#define FMPI2C_ISR_NACKF_Msk            (0x1UL << FMPI2C_ISR_NACKF_Pos)         /*!< 0x00000010 */
-#define FMPI2C_ISR_NACKF                FMPI2C_ISR_NACKF_Msk                   /*!< NACK received flag               */
-#define FMPI2C_ISR_STOPF_Pos            (5U)                                   
-#define FMPI2C_ISR_STOPF_Msk            (0x1UL << FMPI2C_ISR_STOPF_Pos)         /*!< 0x00000020 */
-#define FMPI2C_ISR_STOPF                FMPI2C_ISR_STOPF_Msk                   /*!< STOP detection flag              */
-#define FMPI2C_ISR_TC_Pos               (6U)                                   
-#define FMPI2C_ISR_TC_Msk               (0x1UL << FMPI2C_ISR_TC_Pos)            /*!< 0x00000040 */
-#define FMPI2C_ISR_TC                   FMPI2C_ISR_TC_Msk                      /*!< Transfer complete (master mode)  */
-#define FMPI2C_ISR_TCR_Pos              (7U)                                   
-#define FMPI2C_ISR_TCR_Msk              (0x1UL << FMPI2C_ISR_TCR_Pos)           /*!< 0x00000080 */
-#define FMPI2C_ISR_TCR                  FMPI2C_ISR_TCR_Msk                     /*!< Transfer complete reload         */
-#define FMPI2C_ISR_BERR_Pos             (8U)                                   
-#define FMPI2C_ISR_BERR_Msk             (0x1UL << FMPI2C_ISR_BERR_Pos)          /*!< 0x00000100 */
-#define FMPI2C_ISR_BERR                 FMPI2C_ISR_BERR_Msk                    /*!< Bus error                        */
-#define FMPI2C_ISR_ARLO_Pos             (9U)                                   
-#define FMPI2C_ISR_ARLO_Msk             (0x1UL << FMPI2C_ISR_ARLO_Pos)          /*!< 0x00000200 */
-#define FMPI2C_ISR_ARLO                 FMPI2C_ISR_ARLO_Msk                    /*!< Arbitration lost                 */
-#define FMPI2C_ISR_OVR_Pos              (10U)                                  
-#define FMPI2C_ISR_OVR_Msk              (0x1UL << FMPI2C_ISR_OVR_Pos)           /*!< 0x00000400 */
-#define FMPI2C_ISR_OVR                  FMPI2C_ISR_OVR_Msk                     /*!< Overrun/Underrun                 */
-#define FMPI2C_ISR_PECERR_Pos           (11U)                                  
-#define FMPI2C_ISR_PECERR_Msk           (0x1UL << FMPI2C_ISR_PECERR_Pos)        /*!< 0x00000800 */
-#define FMPI2C_ISR_PECERR               FMPI2C_ISR_PECERR_Msk                  /*!< PEC error in reception           */
-#define FMPI2C_ISR_TIMEOUT_Pos          (12U)                                  
-#define FMPI2C_ISR_TIMEOUT_Msk          (0x1UL << FMPI2C_ISR_TIMEOUT_Pos)       /*!< 0x00001000 */
-#define FMPI2C_ISR_TIMEOUT              FMPI2C_ISR_TIMEOUT_Msk                 /*!< Timeout or Tlow detection flag   */
-#define FMPI2C_ISR_ALERT_Pos            (13U)                                  
-#define FMPI2C_ISR_ALERT_Msk            (0x1UL << FMPI2C_ISR_ALERT_Pos)         /*!< 0x00002000 */
-#define FMPI2C_ISR_ALERT                FMPI2C_ISR_ALERT_Msk                   /*!< SMBus alert                      */
-#define FMPI2C_ISR_BUSY_Pos             (15U)                                  
-#define FMPI2C_ISR_BUSY_Msk             (0x1UL << FMPI2C_ISR_BUSY_Pos)          /*!< 0x00008000 */
-#define FMPI2C_ISR_BUSY                 FMPI2C_ISR_BUSY_Msk                    /*!< Bus busy                         */
-#define FMPI2C_ISR_DIR_Pos              (16U)                                  
-#define FMPI2C_ISR_DIR_Msk              (0x1UL << FMPI2C_ISR_DIR_Pos)           /*!< 0x00010000 */
-#define FMPI2C_ISR_DIR                  FMPI2C_ISR_DIR_Msk                     /*!< Transfer direction (slave mode)  */
-#define FMPI2C_ISR_ADDCODE_Pos          (17U)                                  
-#define FMPI2C_ISR_ADDCODE_Msk          (0x7FUL << FMPI2C_ISR_ADDCODE_Pos)      /*!< 0x00FE0000 */
-#define FMPI2C_ISR_ADDCODE              FMPI2C_ISR_ADDCODE_Msk                 /*!< Address match code (slave mode)  */
-
-/******************  Bit definition for I2C_ICR register  *********************/
-#define FMPI2C_ICR_ADDRCF_Pos           (3U)                                   
-#define FMPI2C_ICR_ADDRCF_Msk           (0x1UL << FMPI2C_ICR_ADDRCF_Pos)        /*!< 0x00000008 */
-#define FMPI2C_ICR_ADDRCF               FMPI2C_ICR_ADDRCF_Msk                  /*!< Address matched clear flag  */
-#define FMPI2C_ICR_NACKCF_Pos           (4U)                                   
-#define FMPI2C_ICR_NACKCF_Msk           (0x1UL << FMPI2C_ICR_NACKCF_Pos)        /*!< 0x00000010 */
-#define FMPI2C_ICR_NACKCF               FMPI2C_ICR_NACKCF_Msk                  /*!< NACK clear flag             */
-#define FMPI2C_ICR_STOPCF_Pos           (5U)                                   
-#define FMPI2C_ICR_STOPCF_Msk           (0x1UL << FMPI2C_ICR_STOPCF_Pos)        /*!< 0x00000020 */
-#define FMPI2C_ICR_STOPCF               FMPI2C_ICR_STOPCF_Msk                  /*!< STOP detection clear flag   */
-#define FMPI2C_ICR_BERRCF_Pos           (8U)                                   
-#define FMPI2C_ICR_BERRCF_Msk           (0x1UL << FMPI2C_ICR_BERRCF_Pos)        /*!< 0x00000100 */
-#define FMPI2C_ICR_BERRCF               FMPI2C_ICR_BERRCF_Msk                  /*!< Bus error clear flag        */
-#define FMPI2C_ICR_ARLOCF_Pos           (9U)                                   
-#define FMPI2C_ICR_ARLOCF_Msk           (0x1UL << FMPI2C_ICR_ARLOCF_Pos)        /*!< 0x00000200 */
-#define FMPI2C_ICR_ARLOCF               FMPI2C_ICR_ARLOCF_Msk                  /*!< Arbitration lost clear flag */
-#define FMPI2C_ICR_OVRCF_Pos            (10U)                                  
-#define FMPI2C_ICR_OVRCF_Msk            (0x1UL << FMPI2C_ICR_OVRCF_Pos)         /*!< 0x00000400 */
-#define FMPI2C_ICR_OVRCF                FMPI2C_ICR_OVRCF_Msk                   /*!< Overrun/Underrun clear flag */
-#define FMPI2C_ICR_PECCF_Pos            (11U)                                  
-#define FMPI2C_ICR_PECCF_Msk            (0x1UL << FMPI2C_ICR_PECCF_Pos)         /*!< 0x00000800 */
-#define FMPI2C_ICR_PECCF                FMPI2C_ICR_PECCF_Msk                   /*!< PAC error clear flag        */
-#define FMPI2C_ICR_TIMOUTCF_Pos         (12U)                                  
-#define FMPI2C_ICR_TIMOUTCF_Msk         (0x1UL << FMPI2C_ICR_TIMOUTCF_Pos)      /*!< 0x00001000 */
-#define FMPI2C_ICR_TIMOUTCF             FMPI2C_ICR_TIMOUTCF_Msk                /*!< Timeout clear flag          */
-#define FMPI2C_ICR_ALERTCF_Pos          (13U)                                  
-#define FMPI2C_ICR_ALERTCF_Msk          (0x1UL << FMPI2C_ICR_ALERTCF_Pos)       /*!< 0x00002000 */
-#define FMPI2C_ICR_ALERTCF              FMPI2C_ICR_ALERTCF_Msk                 /*!< Alert clear flag            */
-
-/******************  Bit definition for I2C_PECR register  *********************/
-#define FMPI2C_PECR_PEC_Pos             (0U)                                   
-#define FMPI2C_PECR_PEC_Msk             (0xFFUL << FMPI2C_PECR_PEC_Pos)         /*!< 0x000000FF */
-#define FMPI2C_PECR_PEC                 FMPI2C_PECR_PEC_Msk                    /*!< PEC register */
-
-/******************  Bit definition for I2C_RXDR register  *********************/
-#define FMPI2C_RXDR_RXDATA_Pos          (0U)                                   
-#define FMPI2C_RXDR_RXDATA_Msk          (0xFFUL << FMPI2C_RXDR_RXDATA_Pos)      /*!< 0x000000FF */
-#define FMPI2C_RXDR_RXDATA              FMPI2C_RXDR_RXDATA_Msk                 /*!< 8-bit receive data */
-
-/******************  Bit definition for I2C_TXDR register  *********************/
-#define FMPI2C_TXDR_TXDATA_Pos          (0U)                                   
-#define FMPI2C_TXDR_TXDATA_Msk          (0xFFUL << FMPI2C_TXDR_TXDATA_Pos)      /*!< 0x000000FF */
-#define FMPI2C_TXDR_TXDATA              FMPI2C_TXDR_TXDATA_Msk                 /*!< 8-bit transmit data */
-
-
-
-/******************************************************************************/
-/*                                                                            */
 /*                           Independent WATCHDOG                             */
 /*                                                                            */
 /******************************************************************************/
@@ -9723,12 +10082,6 @@ typedef struct
 #define PWR_CR_UDEN            PWR_CR_UDEN_Msk                                 /*!< Under Drive enable in stop mode     */
 #define PWR_CR_UDEN_0          (0x1UL << PWR_CR_UDEN_Pos)                       /*!< 0x00040000 */
 #define PWR_CR_UDEN_1          (0x2UL << PWR_CR_UDEN_Pos)                       /*!< 0x00080000 */
-#define PWR_CR_FMSSR_Pos       (20U)                                           
-#define PWR_CR_FMSSR_Msk       (0x1UL << PWR_CR_FMSSR_Pos)                      /*!< 0x00100000 */
-#define PWR_CR_FMSSR           PWR_CR_FMSSR_Msk                                /*!< Flash Memory Sleep System Run        */
-#define PWR_CR_FISSR_Pos       (21U)                                           
-#define PWR_CR_FISSR_Msk       (0x1UL << PWR_CR_FISSR_Pos)                      /*!< 0x00200000 */
-#define PWR_CR_FISSR           PWR_CR_FISSR_Msk                                /*!< Flash Interface Stop while System Run */
 
 /* Legacy define */
 #define  PWR_CR_PMODE                        PWR_CR_VOS
@@ -9748,12 +10101,9 @@ typedef struct
 #define PWR_CSR_BRR_Pos        (3U)                                            
 #define PWR_CSR_BRR_Msk        (0x1UL << PWR_CSR_BRR_Pos)                       /*!< 0x00000008 */
 #define PWR_CSR_BRR            PWR_CSR_BRR_Msk                                 /*!< Backup regulator ready                           */
-#define PWR_CSR_EWUP2_Pos      (7U)                                            
-#define PWR_CSR_EWUP2_Msk      (0x1UL << PWR_CSR_EWUP2_Pos)                     /*!< 0x00000080 */
-#define PWR_CSR_EWUP2          PWR_CSR_EWUP2_Msk                               /*!< Enable WKUP pin 2                                */
-#define PWR_CSR_EWUP1_Pos      (8U)                                            
-#define PWR_CSR_EWUP1_Msk      (0x1UL << PWR_CSR_EWUP1_Pos)                     /*!< 0x00000100 */
-#define PWR_CSR_EWUP1          PWR_CSR_EWUP1_Msk                               /*!< Enable WKUP pin 1                                */
+#define PWR_CSR_EWUP_Pos       (8U)                                            
+#define PWR_CSR_EWUP_Msk       (0x1UL << PWR_CSR_EWUP_Pos)                      /*!< 0x00000100 */
+#define PWR_CSR_EWUP           PWR_CSR_EWUP_Msk                                /*!< Enable WKUP pin                                  */
 #define PWR_CSR_BRE_Pos        (9U)                                            
 #define PWR_CSR_BRE_Msk        (0x1UL << PWR_CSR_BRE_Pos)                       /*!< 0x00000200 */
 #define PWR_CSR_BRE            PWR_CSR_BRE_Msk                                 /*!< Backup regulator enable                          */
@@ -9774,240 +10124,6 @@ typedef struct
 
 /* Legacy define */
 #define  PWR_CSR_REGRDY                      PWR_CSR_VOSRDY
-
-/******************************************************************************/
-/*                                                                            */
-/*                                    QUADSPI                                 */
-/*                                                                            */
-/******************************************************************************/
-/*****************  Bit definition for QUADSPI_CR register  *******************/
-#define QUADSPI_CR_EN_Pos                (0U)                                  
-#define QUADSPI_CR_EN_Msk                (0x1UL << QUADSPI_CR_EN_Pos)           /*!< 0x00000001 */
-#define QUADSPI_CR_EN                    QUADSPI_CR_EN_Msk                     /*!< Enable                             */
-#define QUADSPI_CR_ABORT_Pos             (1U)                                  
-#define QUADSPI_CR_ABORT_Msk             (0x1UL << QUADSPI_CR_ABORT_Pos)        /*!< 0x00000002 */
-#define QUADSPI_CR_ABORT                 QUADSPI_CR_ABORT_Msk                  /*!< Abort request                      */
-#define QUADSPI_CR_DMAEN_Pos             (2U)                                  
-#define QUADSPI_CR_DMAEN_Msk             (0x1UL << QUADSPI_CR_DMAEN_Pos)        /*!< 0x00000004 */
-#define QUADSPI_CR_DMAEN                 QUADSPI_CR_DMAEN_Msk                  /*!< DMA Enable                         */
-#define QUADSPI_CR_TCEN_Pos              (3U)                                  
-#define QUADSPI_CR_TCEN_Msk              (0x1UL << QUADSPI_CR_TCEN_Pos)         /*!< 0x00000008 */
-#define QUADSPI_CR_TCEN                  QUADSPI_CR_TCEN_Msk                   /*!< Timeout Counter Enable             */
-#define QUADSPI_CR_SSHIFT_Pos            (4U)                                  
-#define QUADSPI_CR_SSHIFT_Msk            (0x1UL << QUADSPI_CR_SSHIFT_Pos)       /*!< 0x00000010 */
-#define QUADSPI_CR_SSHIFT                QUADSPI_CR_SSHIFT_Msk                 /*!< SSHIFT Sample Shift                */
-#define QUADSPI_CR_DFM_Pos               (6U)                                  
-#define QUADSPI_CR_DFM_Msk               (0x1UL << QUADSPI_CR_DFM_Pos)          /*!< 0x00000040 */
-#define QUADSPI_CR_DFM                   QUADSPI_CR_DFM_Msk                    /*!< Dual Flash Mode                    */
-#define QUADSPI_CR_FSEL_Pos              (7U)                                  
-#define QUADSPI_CR_FSEL_Msk              (0x1UL << QUADSPI_CR_FSEL_Pos)         /*!< 0x00000080 */
-#define QUADSPI_CR_FSEL                  QUADSPI_CR_FSEL_Msk                   /*!< Flash Select                       */
-#define QUADSPI_CR_FTHRES_Pos            (8U)                                  
-#define QUADSPI_CR_FTHRES_Msk            (0x1FUL << QUADSPI_CR_FTHRES_Pos)      /*!< 0x00001F00 */
-#define QUADSPI_CR_FTHRES                QUADSPI_CR_FTHRES_Msk                 /*!< FTHRES[3:0] FIFO Level             */
-#define QUADSPI_CR_FTHRES_0              (0x01UL << QUADSPI_CR_FTHRES_Pos)      /*!< 0x00000100 */
-#define QUADSPI_CR_FTHRES_1              (0x02UL << QUADSPI_CR_FTHRES_Pos)      /*!< 0x00000200 */
-#define QUADSPI_CR_FTHRES_2              (0x04UL << QUADSPI_CR_FTHRES_Pos)      /*!< 0x00000400 */
-#define QUADSPI_CR_FTHRES_3              (0x08UL << QUADSPI_CR_FTHRES_Pos)      /*!< 0x00000800 */
-#define QUADSPI_CR_FTHRES_4              (0x10UL << QUADSPI_CR_FTHRES_Pos)      /*!< 0x00001000 */
-#define QUADSPI_CR_TEIE_Pos              (16U)                                 
-#define QUADSPI_CR_TEIE_Msk              (0x1UL << QUADSPI_CR_TEIE_Pos)         /*!< 0x00010000 */
-#define QUADSPI_CR_TEIE                  QUADSPI_CR_TEIE_Msk                   /*!< Transfer Error Interrupt Enable    */
-#define QUADSPI_CR_TCIE_Pos              (17U)                                 
-#define QUADSPI_CR_TCIE_Msk              (0x1UL << QUADSPI_CR_TCIE_Pos)         /*!< 0x00020000 */
-#define QUADSPI_CR_TCIE                  QUADSPI_CR_TCIE_Msk                   /*!< Transfer Complete Interrupt Enable */
-#define QUADSPI_CR_FTIE_Pos              (18U)                                 
-#define QUADSPI_CR_FTIE_Msk              (0x1UL << QUADSPI_CR_FTIE_Pos)         /*!< 0x00040000 */
-#define QUADSPI_CR_FTIE                  QUADSPI_CR_FTIE_Msk                   /*!< FIFO Threshold Interrupt Enable    */
-#define QUADSPI_CR_SMIE_Pos              (19U)                                 
-#define QUADSPI_CR_SMIE_Msk              (0x1UL << QUADSPI_CR_SMIE_Pos)         /*!< 0x00080000 */
-#define QUADSPI_CR_SMIE                  QUADSPI_CR_SMIE_Msk                   /*!< Status Match Interrupt Enable      */
-#define QUADSPI_CR_TOIE_Pos              (20U)                                 
-#define QUADSPI_CR_TOIE_Msk              (0x1UL << QUADSPI_CR_TOIE_Pos)         /*!< 0x00100000 */
-#define QUADSPI_CR_TOIE                  QUADSPI_CR_TOIE_Msk                   /*!< TimeOut Interrupt Enable           */
-#define QUADSPI_CR_APMS_Pos              (22U)                                 
-#define QUADSPI_CR_APMS_Msk              (0x1UL << QUADSPI_CR_APMS_Pos)         /*!< 0x00400000 */
-#define QUADSPI_CR_APMS                  QUADSPI_CR_APMS_Msk                   /*!< Bit 1                              */
-#define QUADSPI_CR_PMM_Pos               (23U)                                 
-#define QUADSPI_CR_PMM_Msk               (0x1UL << QUADSPI_CR_PMM_Pos)          /*!< 0x00800000 */
-#define QUADSPI_CR_PMM                   QUADSPI_CR_PMM_Msk                    /*!< Polling Match Mode                 */
-#define QUADSPI_CR_PRESCALER_Pos         (24U)                                 
-#define QUADSPI_CR_PRESCALER_Msk         (0xFFUL << QUADSPI_CR_PRESCALER_Pos)   /*!< 0xFF000000 */
-#define QUADSPI_CR_PRESCALER             QUADSPI_CR_PRESCALER_Msk              /*!< PRESCALER[7:0] Clock prescaler     */
-#define QUADSPI_CR_PRESCALER_0           (0x01UL << QUADSPI_CR_PRESCALER_Pos)   /*!< 0x01000000 */
-#define QUADSPI_CR_PRESCALER_1           (0x02UL << QUADSPI_CR_PRESCALER_Pos)   /*!< 0x02000000 */
-#define QUADSPI_CR_PRESCALER_2           (0x04UL << QUADSPI_CR_PRESCALER_Pos)   /*!< 0x04000000 */
-#define QUADSPI_CR_PRESCALER_3           (0x08UL << QUADSPI_CR_PRESCALER_Pos)   /*!< 0x08000000 */
-#define QUADSPI_CR_PRESCALER_4           (0x10UL << QUADSPI_CR_PRESCALER_Pos)   /*!< 0x10000000 */
-#define QUADSPI_CR_PRESCALER_5           (0x20UL << QUADSPI_CR_PRESCALER_Pos)   /*!< 0x20000000 */
-#define QUADSPI_CR_PRESCALER_6           (0x40UL << QUADSPI_CR_PRESCALER_Pos)   /*!< 0x40000000 */
-#define QUADSPI_CR_PRESCALER_7           (0x80UL << QUADSPI_CR_PRESCALER_Pos)   /*!< 0x80000000 */
-
-/*****************  Bit definition for QUADSPI_DCR register  ******************/
-#define QUADSPI_DCR_CKMODE_Pos           (0U)                                  
-#define QUADSPI_DCR_CKMODE_Msk           (0x1UL << QUADSPI_DCR_CKMODE_Pos)      /*!< 0x00000001 */
-#define QUADSPI_DCR_CKMODE               QUADSPI_DCR_CKMODE_Msk                /*!< Mode 0 / Mode 3                 */
-#define QUADSPI_DCR_CSHT_Pos             (8U)                                  
-#define QUADSPI_DCR_CSHT_Msk             (0x7UL << QUADSPI_DCR_CSHT_Pos)        /*!< 0x00000700 */
-#define QUADSPI_DCR_CSHT                 QUADSPI_DCR_CSHT_Msk                  /*!< CSHT[2:0]: ChipSelect High Time */
-#define QUADSPI_DCR_CSHT_0               (0x1UL << QUADSPI_DCR_CSHT_Pos)        /*!< 0x00000100 */
-#define QUADSPI_DCR_CSHT_1               (0x2UL << QUADSPI_DCR_CSHT_Pos)        /*!< 0x00000200 */
-#define QUADSPI_DCR_CSHT_2               (0x4UL << QUADSPI_DCR_CSHT_Pos)        /*!< 0x00000400 */
-#define QUADSPI_DCR_FSIZE_Pos            (16U)                                 
-#define QUADSPI_DCR_FSIZE_Msk            (0x1FUL << QUADSPI_DCR_FSIZE_Pos)      /*!< 0x001F0000 */
-#define QUADSPI_DCR_FSIZE                QUADSPI_DCR_FSIZE_Msk                 /*!< FSIZE[4:0]: Flash Size          */
-#define QUADSPI_DCR_FSIZE_0              (0x01UL << QUADSPI_DCR_FSIZE_Pos)      /*!< 0x00010000 */
-#define QUADSPI_DCR_FSIZE_1              (0x02UL << QUADSPI_DCR_FSIZE_Pos)      /*!< 0x00020000 */
-#define QUADSPI_DCR_FSIZE_2              (0x04UL << QUADSPI_DCR_FSIZE_Pos)      /*!< 0x00040000 */
-#define QUADSPI_DCR_FSIZE_3              (0x08UL << QUADSPI_DCR_FSIZE_Pos)      /*!< 0x00080000 */
-#define QUADSPI_DCR_FSIZE_4              (0x10UL << QUADSPI_DCR_FSIZE_Pos)      /*!< 0x00100000 */
-
-/******************  Bit definition for QUADSPI_SR register  *******************/
-#define QUADSPI_SR_TEF_Pos               (0U)                                  
-#define QUADSPI_SR_TEF_Msk               (0x1UL << QUADSPI_SR_TEF_Pos)          /*!< 0x00000001 */
-#define QUADSPI_SR_TEF                   QUADSPI_SR_TEF_Msk                    /*!< Transfer Error Flag    */
-#define QUADSPI_SR_TCF_Pos               (1U)                                  
-#define QUADSPI_SR_TCF_Msk               (0x1UL << QUADSPI_SR_TCF_Pos)          /*!< 0x00000002 */
-#define QUADSPI_SR_TCF                   QUADSPI_SR_TCF_Msk                    /*!< Transfer Complete Flag */
-#define QUADSPI_SR_FTF_Pos               (2U)                                  
-#define QUADSPI_SR_FTF_Msk               (0x1UL << QUADSPI_SR_FTF_Pos)          /*!< 0x00000004 */
-#define QUADSPI_SR_FTF                   QUADSPI_SR_FTF_Msk                    /*!< FIFO Threshlod Flag    */
-#define QUADSPI_SR_SMF_Pos               (3U)                                  
-#define QUADSPI_SR_SMF_Msk               (0x1UL << QUADSPI_SR_SMF_Pos)          /*!< 0x00000008 */
-#define QUADSPI_SR_SMF                   QUADSPI_SR_SMF_Msk                    /*!< Status Match Flag      */
-#define QUADSPI_SR_TOF_Pos               (4U)                                  
-#define QUADSPI_SR_TOF_Msk               (0x1UL << QUADSPI_SR_TOF_Pos)          /*!< 0x00000010 */
-#define QUADSPI_SR_TOF                   QUADSPI_SR_TOF_Msk                    /*!< Timeout Flag           */
-#define QUADSPI_SR_BUSY_Pos              (5U)                                  
-#define QUADSPI_SR_BUSY_Msk              (0x1UL << QUADSPI_SR_BUSY_Pos)         /*!< 0x00000020 */
-#define QUADSPI_SR_BUSY                  QUADSPI_SR_BUSY_Msk                   /*!< Busy                   */
-#define QUADSPI_SR_FLEVEL_Pos            (8U)                                  
-#define QUADSPI_SR_FLEVEL_Msk            (0x3FUL << QUADSPI_SR_FLEVEL_Pos)      /*!< 0x00003F00 */
-#define QUADSPI_SR_FLEVEL                QUADSPI_SR_FLEVEL_Msk                 /*!< FIFO Threshlod Flag    */
-#define QUADSPI_SR_FLEVEL_0              (0x01UL << QUADSPI_SR_FLEVEL_Pos)      /*!< 0x00000100 */
-#define QUADSPI_SR_FLEVEL_1              (0x02UL << QUADSPI_SR_FLEVEL_Pos)      /*!< 0x00000200 */
-#define QUADSPI_SR_FLEVEL_2              (0x04UL << QUADSPI_SR_FLEVEL_Pos)      /*!< 0x00000400 */
-#define QUADSPI_SR_FLEVEL_3              (0x08UL << QUADSPI_SR_FLEVEL_Pos)      /*!< 0x00000800 */
-#define QUADSPI_SR_FLEVEL_4              (0x10UL << QUADSPI_SR_FLEVEL_Pos)      /*!< 0x00001000 */
-#define QUADSPI_SR_FLEVEL_5              (0x20UL << QUADSPI_SR_FLEVEL_Pos)      /*!< 0x00002000 */
-
-/******************  Bit definition for QUADSPI_FCR register  ******************/
-#define QUADSPI_FCR_CTEF_Pos             (0U)                                  
-#define QUADSPI_FCR_CTEF_Msk             (0x1UL << QUADSPI_FCR_CTEF_Pos)        /*!< 0x00000001 */
-#define QUADSPI_FCR_CTEF                 QUADSPI_FCR_CTEF_Msk                  /*!< Clear Transfer Error Flag    */
-#define QUADSPI_FCR_CTCF_Pos             (1U)                                  
-#define QUADSPI_FCR_CTCF_Msk             (0x1UL << QUADSPI_FCR_CTCF_Pos)        /*!< 0x00000002 */
-#define QUADSPI_FCR_CTCF                 QUADSPI_FCR_CTCF_Msk                  /*!< Clear Transfer Complete Flag */
-#define QUADSPI_FCR_CSMF_Pos             (3U)                                  
-#define QUADSPI_FCR_CSMF_Msk             (0x1UL << QUADSPI_FCR_CSMF_Pos)        /*!< 0x00000008 */
-#define QUADSPI_FCR_CSMF                 QUADSPI_FCR_CSMF_Msk                  /*!< Clear Status Match Flag      */
-#define QUADSPI_FCR_CTOF_Pos             (4U)                                  
-#define QUADSPI_FCR_CTOF_Msk             (0x1UL << QUADSPI_FCR_CTOF_Pos)        /*!< 0x00000010 */
-#define QUADSPI_FCR_CTOF                 QUADSPI_FCR_CTOF_Msk                  /*!< Clear Timeout Flag           */
-
-/******************  Bit definition for QUADSPI_DLR register  ******************/
-#define QUADSPI_DLR_DL_Pos               (0U)                                  
-#define QUADSPI_DLR_DL_Msk               (0xFFFFFFFFUL << QUADSPI_DLR_DL_Pos)   /*!< 0xFFFFFFFF */
-#define QUADSPI_DLR_DL                   QUADSPI_DLR_DL_Msk                    /*!< DL[31:0]: Data Length */
-
-/******************  Bit definition for QUADSPI_CCR register  ******************/
-#define QUADSPI_CCR_INSTRUCTION_Pos      (0U)                                  
-#define QUADSPI_CCR_INSTRUCTION_Msk      (0xFFUL << QUADSPI_CCR_INSTRUCTION_Pos) /*!< 0x000000FF */
-#define QUADSPI_CCR_INSTRUCTION          QUADSPI_CCR_INSTRUCTION_Msk           /*!< INSTRUCTION[7:0]: Instruction         */
-#define QUADSPI_CCR_INSTRUCTION_0        (0x01UL << QUADSPI_CCR_INSTRUCTION_Pos) /*!< 0x00000001 */
-#define QUADSPI_CCR_INSTRUCTION_1        (0x02UL << QUADSPI_CCR_INSTRUCTION_Pos) /*!< 0x00000002 */
-#define QUADSPI_CCR_INSTRUCTION_2        (0x04UL << QUADSPI_CCR_INSTRUCTION_Pos) /*!< 0x00000004 */
-#define QUADSPI_CCR_INSTRUCTION_3        (0x08UL << QUADSPI_CCR_INSTRUCTION_Pos) /*!< 0x00000008 */
-#define QUADSPI_CCR_INSTRUCTION_4        (0x10UL << QUADSPI_CCR_INSTRUCTION_Pos) /*!< 0x00000010 */
-#define QUADSPI_CCR_INSTRUCTION_5        (0x20UL << QUADSPI_CCR_INSTRUCTION_Pos) /*!< 0x00000020 */
-#define QUADSPI_CCR_INSTRUCTION_6        (0x40UL << QUADSPI_CCR_INSTRUCTION_Pos) /*!< 0x00000040 */
-#define QUADSPI_CCR_INSTRUCTION_7        (0x80UL << QUADSPI_CCR_INSTRUCTION_Pos) /*!< 0x00000080 */
-#define QUADSPI_CCR_IMODE_Pos            (8U)                                  
-#define QUADSPI_CCR_IMODE_Msk            (0x3UL << QUADSPI_CCR_IMODE_Pos)       /*!< 0x00000300 */
-#define QUADSPI_CCR_IMODE                QUADSPI_CCR_IMODE_Msk                 /*!< IMODE[1:0]: Instruction Mode          */
-#define QUADSPI_CCR_IMODE_0              (0x1UL << QUADSPI_CCR_IMODE_Pos)       /*!< 0x00000100 */
-#define QUADSPI_CCR_IMODE_1              (0x2UL << QUADSPI_CCR_IMODE_Pos)       /*!< 0x00000200 */
-#define QUADSPI_CCR_ADMODE_Pos           (10U)                                 
-#define QUADSPI_CCR_ADMODE_Msk           (0x3UL << QUADSPI_CCR_ADMODE_Pos)      /*!< 0x00000C00 */
-#define QUADSPI_CCR_ADMODE               QUADSPI_CCR_ADMODE_Msk                /*!< ADMODE[1:0]: Address Mode             */
-#define QUADSPI_CCR_ADMODE_0             (0x1UL << QUADSPI_CCR_ADMODE_Pos)      /*!< 0x00000400 */
-#define QUADSPI_CCR_ADMODE_1             (0x2UL << QUADSPI_CCR_ADMODE_Pos)      /*!< 0x00000800 */
-#define QUADSPI_CCR_ADSIZE_Pos           (12U)                                 
-#define QUADSPI_CCR_ADSIZE_Msk           (0x3UL << QUADSPI_CCR_ADSIZE_Pos)      /*!< 0x00003000 */
-#define QUADSPI_CCR_ADSIZE               QUADSPI_CCR_ADSIZE_Msk                /*!< ADSIZE[1:0]: Address Size             */
-#define QUADSPI_CCR_ADSIZE_0             (0x1UL << QUADSPI_CCR_ADSIZE_Pos)      /*!< 0x00001000 */
-#define QUADSPI_CCR_ADSIZE_1             (0x2UL << QUADSPI_CCR_ADSIZE_Pos)      /*!< 0x00002000 */
-#define QUADSPI_CCR_ABMODE_Pos           (14U)                                 
-#define QUADSPI_CCR_ABMODE_Msk           (0x3UL << QUADSPI_CCR_ABMODE_Pos)      /*!< 0x0000C000 */
-#define QUADSPI_CCR_ABMODE               QUADSPI_CCR_ABMODE_Msk                /*!< ABMODE[1:0]: Alternate Bytes Mode     */
-#define QUADSPI_CCR_ABMODE_0             (0x1UL << QUADSPI_CCR_ABMODE_Pos)      /*!< 0x00004000 */
-#define QUADSPI_CCR_ABMODE_1             (0x2UL << QUADSPI_CCR_ABMODE_Pos)      /*!< 0x00008000 */
-#define QUADSPI_CCR_ABSIZE_Pos           (16U)                                 
-#define QUADSPI_CCR_ABSIZE_Msk           (0x3UL << QUADSPI_CCR_ABSIZE_Pos)      /*!< 0x00030000 */
-#define QUADSPI_CCR_ABSIZE               QUADSPI_CCR_ABSIZE_Msk                /*!< ABSIZE[1:0]: Instruction Mode         */
-#define QUADSPI_CCR_ABSIZE_0             (0x1UL << QUADSPI_CCR_ABSIZE_Pos)      /*!< 0x00010000 */
-#define QUADSPI_CCR_ABSIZE_1             (0x2UL << QUADSPI_CCR_ABSIZE_Pos)      /*!< 0x00020000 */
-#define QUADSPI_CCR_DCYC_Pos             (18U)                                 
-#define QUADSPI_CCR_DCYC_Msk             (0x1FUL << QUADSPI_CCR_DCYC_Pos)       /*!< 0x007C0000 */
-#define QUADSPI_CCR_DCYC                 QUADSPI_CCR_DCYC_Msk                  /*!< DCYC[4:0]: Dummy Cycles               */
-#define QUADSPI_CCR_DCYC_0               (0x01UL << QUADSPI_CCR_DCYC_Pos)       /*!< 0x00040000 */
-#define QUADSPI_CCR_DCYC_1               (0x02UL << QUADSPI_CCR_DCYC_Pos)       /*!< 0x00080000 */
-#define QUADSPI_CCR_DCYC_2               (0x04UL << QUADSPI_CCR_DCYC_Pos)       /*!< 0x00100000 */
-#define QUADSPI_CCR_DCYC_3               (0x08UL << QUADSPI_CCR_DCYC_Pos)       /*!< 0x00200000 */
-#define QUADSPI_CCR_DCYC_4               (0x10UL << QUADSPI_CCR_DCYC_Pos)       /*!< 0x00400000 */
-#define QUADSPI_CCR_DMODE_Pos            (24U)                                 
-#define QUADSPI_CCR_DMODE_Msk            (0x3UL << QUADSPI_CCR_DMODE_Pos)       /*!< 0x03000000 */
-#define QUADSPI_CCR_DMODE                QUADSPI_CCR_DMODE_Msk                 /*!< DMODE[1:0]: Data Mode                 */
-#define QUADSPI_CCR_DMODE_0              (0x1UL << QUADSPI_CCR_DMODE_Pos)       /*!< 0x01000000 */
-#define QUADSPI_CCR_DMODE_1              (0x2UL << QUADSPI_CCR_DMODE_Pos)       /*!< 0x02000000 */
-#define QUADSPI_CCR_FMODE_Pos            (26U)                                 
-#define QUADSPI_CCR_FMODE_Msk            (0x3UL << QUADSPI_CCR_FMODE_Pos)       /*!< 0x0C000000 */
-#define QUADSPI_CCR_FMODE                QUADSPI_CCR_FMODE_Msk                 /*!< FMODE[1:0]: Functional Mode           */
-#define QUADSPI_CCR_FMODE_0              (0x1UL << QUADSPI_CCR_FMODE_Pos)       /*!< 0x04000000 */
-#define QUADSPI_CCR_FMODE_1              (0x2UL << QUADSPI_CCR_FMODE_Pos)       /*!< 0x08000000 */
-#define QUADSPI_CCR_SIOO_Pos             (28U)                                 
-#define QUADSPI_CCR_SIOO_Msk             (0x1UL << QUADSPI_CCR_SIOO_Pos)        /*!< 0x10000000 */
-#define QUADSPI_CCR_SIOO                 QUADSPI_CCR_SIOO_Msk                  /*!< SIOO: Send Instruction Only Once Mode */
-#define QUADSPI_CCR_DHHC_Pos             (30U)                                 
-#define QUADSPI_CCR_DHHC_Msk             (0x1UL << QUADSPI_CCR_DHHC_Pos)        /*!< 0x40000000 */
-#define QUADSPI_CCR_DHHC                 QUADSPI_CCR_DHHC_Msk                  /*!< DHHC: Delay Half Hclk Cycle           */
-#define QUADSPI_CCR_DDRM_Pos             (31U)                                 
-#define QUADSPI_CCR_DDRM_Msk             (0x1UL << QUADSPI_CCR_DDRM_Pos)        /*!< 0x80000000 */
-#define QUADSPI_CCR_DDRM                 QUADSPI_CCR_DDRM_Msk                  /*!< DDRM: Double Data Rate Mode           */
-/******************  Bit definition for QUADSPI_AR register  *******************/
-#define QUADSPI_AR_ADDRESS_Pos           (0U)                                  
-#define QUADSPI_AR_ADDRESS_Msk           (0xFFFFFFFFUL << QUADSPI_AR_ADDRESS_Pos) /*!< 0xFFFFFFFF */
-#define QUADSPI_AR_ADDRESS               QUADSPI_AR_ADDRESS_Msk                /*!< ADDRESS[31:0]: Address                */
-
-/******************  Bit definition for QUADSPI_ABR register  ******************/
-#define QUADSPI_ABR_ALTERNATE_Pos        (0U)                                  
-#define QUADSPI_ABR_ALTERNATE_Msk        (0xFFFFFFFFUL << QUADSPI_ABR_ALTERNATE_Pos) /*!< 0xFFFFFFFF */
-#define QUADSPI_ABR_ALTERNATE            QUADSPI_ABR_ALTERNATE_Msk             /*!< ALTERNATE[31:0]: Alternate Bytes      */
-
-/******************  Bit definition for QUADSPI_DR register  *******************/
-#define QUADSPI_DR_DATA_Pos              (0U)                                  
-#define QUADSPI_DR_DATA_Msk              (0xFFFFFFFFUL << QUADSPI_DR_DATA_Pos)  /*!< 0xFFFFFFFF */
-#define QUADSPI_DR_DATA                  QUADSPI_DR_DATA_Msk                   /*!< DATA[31:0]: Data                      */
-
-/******************  Bit definition for QUADSPI_PSMKR register  ****************/
-#define QUADSPI_PSMKR_MASK_Pos           (0U)                                  
-#define QUADSPI_PSMKR_MASK_Msk           (0xFFFFFFFFUL << QUADSPI_PSMKR_MASK_Pos) /*!< 0xFFFFFFFF */
-#define QUADSPI_PSMKR_MASK               QUADSPI_PSMKR_MASK_Msk                /*!< MASK[31:0]: Status Mask               */
-
-/******************  Bit definition for QUADSPI_PSMAR register  ****************/
-#define QUADSPI_PSMAR_MATCH_Pos          (0U)                                  
-#define QUADSPI_PSMAR_MATCH_Msk          (0xFFFFFFFFUL << QUADSPI_PSMAR_MATCH_Pos) /*!< 0xFFFFFFFF */
-#define QUADSPI_PSMAR_MATCH              QUADSPI_PSMAR_MATCH_Msk               /*!< MATCH[31:0]: Status Match             */
-
-/******************  Bit definition for QUADSPI_PIR register  *****************/
-#define QUADSPI_PIR_INTERVAL_Pos         (0U)                                  
-#define QUADSPI_PIR_INTERVAL_Msk         (0xFFFFUL << QUADSPI_PIR_INTERVAL_Pos) /*!< 0x0000FFFF */
-#define QUADSPI_PIR_INTERVAL             QUADSPI_PIR_INTERVAL_Msk              /*!< INTERVAL[15:0]: Polling Interval      */
-
-/******************  Bit definition for QUADSPI_LPTR register  *****************/
-#define QUADSPI_LPTR_TIMEOUT_Pos         (0U)                                  
-#define QUADSPI_LPTR_TIMEOUT_Msk         (0xFFFFUL << QUADSPI_LPTR_TIMEOUT_Pos) /*!< 0x0000FFFF */
-#define QUADSPI_LPTR_TIMEOUT             QUADSPI_LPTR_TIMEOUT_Msk              /*!< TIMEOUT[15:0]: Timeout period         */
 
 /******************************************************************************/
 /*                                                                            */
@@ -10129,18 +10245,7 @@ typedef struct
 #define RCC_PLLCFGR_PLLQ_1                 (0x2UL << RCC_PLLCFGR_PLLQ_Pos)      /*!< 0x02000000 */
 #define RCC_PLLCFGR_PLLQ_2                 (0x4UL << RCC_PLLCFGR_PLLQ_Pos)      /*!< 0x04000000 */
 #define RCC_PLLCFGR_PLLQ_3                 (0x8UL << RCC_PLLCFGR_PLLQ_Pos)      /*!< 0x08000000 */
-/*
- * @brief Specific device feature definitions (not present on all devices in the STM32F4 serie)
- */
-#define RCC_PLLR_SYSCLK_SUPPORT            /*!< Support PLLR as system clock */
-#define RCC_PLLR_I2S_CLKSOURCE_SUPPORT     /*!< Support PLLR clock as I2S clock source */
 
-#define RCC_PLLCFGR_PLLR_Pos               (28U)                               
-#define RCC_PLLCFGR_PLLR_Msk               (0x7UL << RCC_PLLCFGR_PLLR_Pos)      /*!< 0x70000000 */
-#define RCC_PLLCFGR_PLLR                   RCC_PLLCFGR_PLLR_Msk                
-#define RCC_PLLCFGR_PLLR_0                 (0x1UL << RCC_PLLCFGR_PLLR_Pos)      /*!< 0x10000000 */
-#define RCC_PLLCFGR_PLLR_1                 (0x2UL << RCC_PLLCFGR_PLLR_Pos)      /*!< 0x20000000 */
-#define RCC_PLLCFGR_PLLR_2                 (0x4UL << RCC_PLLCFGR_PLLR_Pos)      /*!< 0x40000000 */
 
 /********************  Bit definition for RCC_CFGR register  ******************/
 /*!< SW configuration */
@@ -10153,7 +10258,6 @@ typedef struct
 #define RCC_CFGR_SW_HSI                    0x00000000U                         /*!< HSI selected as system clock */
 #define RCC_CFGR_SW_HSE                    0x00000001U                         /*!< HSE selected as system clock */
 #define RCC_CFGR_SW_PLL                    0x00000002U                         /*!< PLL selected as system clock */
-#define RCC_CFGR_SW_PLLR                   0x00000003U                         /*!< PLL/PLLR selected as system clock */
 
 /*!< SWS configuration */
 #define RCC_CFGR_SWS_Pos                   (2U)                                
@@ -10165,7 +10269,6 @@ typedef struct
 #define RCC_CFGR_SWS_HSI                   0x00000000U                         /*!< HSI oscillator used as system clock        */
 #define RCC_CFGR_SWS_HSE                   0x00000004U                         /*!< HSE oscillator used as system clock        */
 #define RCC_CFGR_SWS_PLL                   0x00000008U                         /*!< PLL used as system clock                   */
-#define RCC_CFGR_SWS_PLLR                  0x0000000CU                         /*!< PLL/PLLR used as system clock       */
 
 /*!< HPRE configuration */
 #define RCC_CFGR_HPRE_Pos                  (4U)                                
@@ -10231,6 +10334,9 @@ typedef struct
 #define RCC_CFGR_MCO1_0                    (0x1UL << RCC_CFGR_MCO1_Pos)         /*!< 0x00200000 */
 #define RCC_CFGR_MCO1_1                    (0x2UL << RCC_CFGR_MCO1_Pos)         /*!< 0x00400000 */
 
+#define RCC_CFGR_I2SSRC_Pos                (23U)                               
+#define RCC_CFGR_I2SSRC_Msk                (0x1UL << RCC_CFGR_I2SSRC_Pos)       /*!< 0x00800000 */
+#define RCC_CFGR_I2SSRC                    RCC_CFGR_I2SSRC_Msk                 
 
 #define RCC_CFGR_MCO1PRE_Pos               (24U)                               
 #define RCC_CFGR_MCO1PRE_Msk               (0x7UL << RCC_CFGR_MCO1PRE_Pos)      /*!< 0x07000000 */
@@ -10351,6 +10457,15 @@ typedef struct
 #define RCC_AHB1RSTR_GPIOHRST_Pos          (7U)                                
 #define RCC_AHB1RSTR_GPIOHRST_Msk          (0x1UL << RCC_AHB1RSTR_GPIOHRST_Pos) /*!< 0x00000080 */
 #define RCC_AHB1RSTR_GPIOHRST              RCC_AHB1RSTR_GPIOHRST_Msk           
+#define RCC_AHB1RSTR_GPIOIRST_Pos          (8U)                                
+#define RCC_AHB1RSTR_GPIOIRST_Msk          (0x1UL << RCC_AHB1RSTR_GPIOIRST_Pos) /*!< 0x00000100 */
+#define RCC_AHB1RSTR_GPIOIRST              RCC_AHB1RSTR_GPIOIRST_Msk           
+#define RCC_AHB1RSTR_GPIOJRST_Pos          (9U)                                
+#define RCC_AHB1RSTR_GPIOJRST_Msk          (0x1UL << RCC_AHB1RSTR_GPIOJRST_Pos) /*!< 0x00000200 */
+#define RCC_AHB1RSTR_GPIOJRST              RCC_AHB1RSTR_GPIOJRST_Msk           
+#define RCC_AHB1RSTR_GPIOKRST_Pos          (10U)                               
+#define RCC_AHB1RSTR_GPIOKRST_Msk          (0x1UL << RCC_AHB1RSTR_GPIOKRST_Pos) /*!< 0x00000400 */
+#define RCC_AHB1RSTR_GPIOKRST              RCC_AHB1RSTR_GPIOKRST_Msk           
 #define RCC_AHB1RSTR_CRCRST_Pos            (12U)                               
 #define RCC_AHB1RSTR_CRCRST_Msk            (0x1UL << RCC_AHB1RSTR_CRCRST_Pos)   /*!< 0x00001000 */
 #define RCC_AHB1RSTR_CRCRST                RCC_AHB1RSTR_CRCRST_Msk             
@@ -10360,6 +10475,12 @@ typedef struct
 #define RCC_AHB1RSTR_DMA2RST_Pos           (22U)                               
 #define RCC_AHB1RSTR_DMA2RST_Msk           (0x1UL << RCC_AHB1RSTR_DMA2RST_Pos)  /*!< 0x00400000 */
 #define RCC_AHB1RSTR_DMA2RST               RCC_AHB1RSTR_DMA2RST_Msk            
+#define RCC_AHB1RSTR_DMA2DRST_Pos          (23U)                               
+#define RCC_AHB1RSTR_DMA2DRST_Msk          (0x1UL << RCC_AHB1RSTR_DMA2DRST_Pos) /*!< 0x00800000 */
+#define RCC_AHB1RSTR_DMA2DRST              RCC_AHB1RSTR_DMA2DRST_Msk           
+#define RCC_AHB1RSTR_ETHMACRST_Pos         (25U)                               
+#define RCC_AHB1RSTR_ETHMACRST_Msk         (0x1UL << RCC_AHB1RSTR_ETHMACRST_Pos) /*!< 0x02000000 */
+#define RCC_AHB1RSTR_ETHMACRST             RCC_AHB1RSTR_ETHMACRST_Msk          
 #define RCC_AHB1RSTR_OTGHRST_Pos           (29U)                               
 #define RCC_AHB1RSTR_OTGHRST_Msk           (0x1UL << RCC_AHB1RSTR_OTGHRST_Pos)  /*!< 0x20000000 */
 #define RCC_AHB1RSTR_OTGHRST               RCC_AHB1RSTR_OTGHRST_Msk            
@@ -10368,6 +10489,9 @@ typedef struct
 #define RCC_AHB2RSTR_DCMIRST_Pos           (0U)                                
 #define RCC_AHB2RSTR_DCMIRST_Msk           (0x1UL << RCC_AHB2RSTR_DCMIRST_Pos)  /*!< 0x00000001 */
 #define RCC_AHB2RSTR_DCMIRST               RCC_AHB2RSTR_DCMIRST_Msk            
+#define RCC_AHB2RSTR_RNGRST_Pos            (6U)                                
+#define RCC_AHB2RSTR_RNGRST_Msk            (0x1UL << RCC_AHB2RSTR_RNGRST_Pos)   /*!< 0x00000040 */
+#define RCC_AHB2RSTR_RNGRST                RCC_AHB2RSTR_RNGRST_Msk             
 #define RCC_AHB2RSTR_OTGFSRST_Pos          (7U)                                
 #define RCC_AHB2RSTR_OTGFSRST_Msk          (0x1UL << RCC_AHB2RSTR_OTGFSRST_Pos) /*!< 0x00000080 */
 #define RCC_AHB2RSTR_OTGFSRST              RCC_AHB2RSTR_OTGFSRST_Msk           
@@ -10375,9 +10499,6 @@ typedef struct
 #define RCC_AHB3RSTR_FMCRST_Pos            (0U)                                
 #define RCC_AHB3RSTR_FMCRST_Msk            (0x1UL << RCC_AHB3RSTR_FMCRST_Pos)   /*!< 0x00000001 */
 #define RCC_AHB3RSTR_FMCRST                RCC_AHB3RSTR_FMCRST_Msk             
-#define RCC_AHB3RSTR_QSPIRST_Pos           (1U)                                
-#define RCC_AHB3RSTR_QSPIRST_Msk           (0x1UL << RCC_AHB3RSTR_QSPIRST_Pos)  /*!< 0x00000002 */
-#define RCC_AHB3RSTR_QSPIRST               RCC_AHB3RSTR_QSPIRST_Msk            
 
 
 /********************  Bit definition for RCC_APB1RSTR register  **************/
@@ -10417,9 +10538,6 @@ typedef struct
 #define RCC_APB1RSTR_SPI3RST_Pos           (15U)                               
 #define RCC_APB1RSTR_SPI3RST_Msk           (0x1UL << RCC_APB1RSTR_SPI3RST_Pos)  /*!< 0x00008000 */
 #define RCC_APB1RSTR_SPI3RST               RCC_APB1RSTR_SPI3RST_Msk            
-#define RCC_APB1RSTR_SPDIFRXRST_Pos        (16U)                               
-#define RCC_APB1RSTR_SPDIFRXRST_Msk        (0x1UL << RCC_APB1RSTR_SPDIFRXRST_Pos) /*!< 0x00010000 */
-#define RCC_APB1RSTR_SPDIFRXRST            RCC_APB1RSTR_SPDIFRXRST_Msk         
 #define RCC_APB1RSTR_USART2RST_Pos         (17U)                               
 #define RCC_APB1RSTR_USART2RST_Msk         (0x1UL << RCC_APB1RSTR_USART2RST_Pos) /*!< 0x00020000 */
 #define RCC_APB1RSTR_USART2RST             RCC_APB1RSTR_USART2RST_Msk          
@@ -10441,24 +10559,24 @@ typedef struct
 #define RCC_APB1RSTR_I2C3RST_Pos           (23U)                               
 #define RCC_APB1RSTR_I2C3RST_Msk           (0x1UL << RCC_APB1RSTR_I2C3RST_Pos)  /*!< 0x00800000 */
 #define RCC_APB1RSTR_I2C3RST               RCC_APB1RSTR_I2C3RST_Msk            
-#define RCC_APB1RSTR_FMPI2C1RST_Pos        (24U)                               
-#define RCC_APB1RSTR_FMPI2C1RST_Msk        (0x1UL << RCC_APB1RSTR_FMPI2C1RST_Pos) /*!< 0x01000000 */
-#define RCC_APB1RSTR_FMPI2C1RST            RCC_APB1RSTR_FMPI2C1RST_Msk         
 #define RCC_APB1RSTR_CAN1RST_Pos           (25U)                               
 #define RCC_APB1RSTR_CAN1RST_Msk           (0x1UL << RCC_APB1RSTR_CAN1RST_Pos)  /*!< 0x02000000 */
 #define RCC_APB1RSTR_CAN1RST               RCC_APB1RSTR_CAN1RST_Msk            
 #define RCC_APB1RSTR_CAN2RST_Pos           (26U)                               
 #define RCC_APB1RSTR_CAN2RST_Msk           (0x1UL << RCC_APB1RSTR_CAN2RST_Pos)  /*!< 0x04000000 */
 #define RCC_APB1RSTR_CAN2RST               RCC_APB1RSTR_CAN2RST_Msk            
-#define RCC_APB1RSTR_CECRST_Pos            (27U)                               
-#define RCC_APB1RSTR_CECRST_Msk            (0x1UL << RCC_APB1RSTR_CECRST_Pos)   /*!< 0x08000000 */
-#define RCC_APB1RSTR_CECRST                RCC_APB1RSTR_CECRST_Msk             
 #define RCC_APB1RSTR_PWRRST_Pos            (28U)                               
 #define RCC_APB1RSTR_PWRRST_Msk            (0x1UL << RCC_APB1RSTR_PWRRST_Pos)   /*!< 0x10000000 */
 #define RCC_APB1RSTR_PWRRST                RCC_APB1RSTR_PWRRST_Msk             
 #define RCC_APB1RSTR_DACRST_Pos            (29U)                               
 #define RCC_APB1RSTR_DACRST_Msk            (0x1UL << RCC_APB1RSTR_DACRST_Pos)   /*!< 0x20000000 */
 #define RCC_APB1RSTR_DACRST                RCC_APB1RSTR_DACRST_Msk             
+#define RCC_APB1RSTR_UART7RST_Pos          (30U)                               
+#define RCC_APB1RSTR_UART7RST_Msk          (0x1UL << RCC_APB1RSTR_UART7RST_Pos) /*!< 0x40000000 */
+#define RCC_APB1RSTR_UART7RST              RCC_APB1RSTR_UART7RST_Msk           
+#define RCC_APB1RSTR_UART8RST_Pos          (31U)                               
+#define RCC_APB1RSTR_UART8RST_Msk          (0x1UL << RCC_APB1RSTR_UART8RST_Pos) /*!< 0x80000000 */
+#define RCC_APB1RSTR_UART8RST              RCC_APB1RSTR_UART8RST_Msk           
 
 /********************  Bit definition for RCC_APB2RSTR register  **************/
 #define RCC_APB2RSTR_TIM1RST_Pos           (0U)                                
@@ -10497,12 +10615,15 @@ typedef struct
 #define RCC_APB2RSTR_TIM11RST_Pos          (18U)                               
 #define RCC_APB2RSTR_TIM11RST_Msk          (0x1UL << RCC_APB2RSTR_TIM11RST_Pos) /*!< 0x00040000 */
 #define RCC_APB2RSTR_TIM11RST              RCC_APB2RSTR_TIM11RST_Msk           
+#define RCC_APB2RSTR_SPI5RST_Pos           (20U)                               
+#define RCC_APB2RSTR_SPI5RST_Msk           (0x1UL << RCC_APB2RSTR_SPI5RST_Pos)  /*!< 0x00100000 */
+#define RCC_APB2RSTR_SPI5RST               RCC_APB2RSTR_SPI5RST_Msk            
+#define RCC_APB2RSTR_SPI6RST_Pos           (21U)                               
+#define RCC_APB2RSTR_SPI6RST_Msk           (0x1UL << RCC_APB2RSTR_SPI6RST_Pos)  /*!< 0x00200000 */
+#define RCC_APB2RSTR_SPI6RST               RCC_APB2RSTR_SPI6RST_Msk            
 #define RCC_APB2RSTR_SAI1RST_Pos           (22U)                               
 #define RCC_APB2RSTR_SAI1RST_Msk           (0x1UL << RCC_APB2RSTR_SAI1RST_Pos)  /*!< 0x00400000 */
 #define RCC_APB2RSTR_SAI1RST               RCC_APB2RSTR_SAI1RST_Msk            
-#define RCC_APB2RSTR_SAI2RST_Pos           (23U)                               
-#define RCC_APB2RSTR_SAI2RST_Msk           (0x1UL << RCC_APB2RSTR_SAI2RST_Pos)  /*!< 0x00800000 */
-#define RCC_APB2RSTR_SAI2RST               RCC_APB2RSTR_SAI2RST_Msk            
 
 /* Old SPI1RST bit definition, maintained for legacy purpose */
 #define  RCC_APB2RSTR_SPI1                   RCC_APB2RSTR_SPI1RST
@@ -10532,18 +10653,45 @@ typedef struct
 #define RCC_AHB1ENR_GPIOHEN_Pos            (7U)                                
 #define RCC_AHB1ENR_GPIOHEN_Msk            (0x1UL << RCC_AHB1ENR_GPIOHEN_Pos)   /*!< 0x00000080 */
 #define RCC_AHB1ENR_GPIOHEN                RCC_AHB1ENR_GPIOHEN_Msk             
+#define RCC_AHB1ENR_GPIOIEN_Pos            (8U)                                
+#define RCC_AHB1ENR_GPIOIEN_Msk            (0x1UL << RCC_AHB1ENR_GPIOIEN_Pos)   /*!< 0x00000100 */
+#define RCC_AHB1ENR_GPIOIEN                RCC_AHB1ENR_GPIOIEN_Msk             
+#define RCC_AHB1ENR_GPIOJEN_Pos            (9U)                                
+#define RCC_AHB1ENR_GPIOJEN_Msk            (0x1UL << RCC_AHB1ENR_GPIOJEN_Pos)   /*!< 0x00000200 */
+#define RCC_AHB1ENR_GPIOJEN                RCC_AHB1ENR_GPIOJEN_Msk             
+#define RCC_AHB1ENR_GPIOKEN_Pos            (10U)                               
+#define RCC_AHB1ENR_GPIOKEN_Msk            (0x1UL << RCC_AHB1ENR_GPIOKEN_Pos)   /*!< 0x00000400 */
+#define RCC_AHB1ENR_GPIOKEN                RCC_AHB1ENR_GPIOKEN_Msk             
 #define RCC_AHB1ENR_CRCEN_Pos              (12U)                               
 #define RCC_AHB1ENR_CRCEN_Msk              (0x1UL << RCC_AHB1ENR_CRCEN_Pos)     /*!< 0x00001000 */
 #define RCC_AHB1ENR_CRCEN                  RCC_AHB1ENR_CRCEN_Msk               
 #define RCC_AHB1ENR_BKPSRAMEN_Pos          (18U)                               
 #define RCC_AHB1ENR_BKPSRAMEN_Msk          (0x1UL << RCC_AHB1ENR_BKPSRAMEN_Pos) /*!< 0x00040000 */
 #define RCC_AHB1ENR_BKPSRAMEN              RCC_AHB1ENR_BKPSRAMEN_Msk           
+#define RCC_AHB1ENR_CCMDATARAMEN_Pos       (20U)                               
+#define RCC_AHB1ENR_CCMDATARAMEN_Msk       (0x1UL << RCC_AHB1ENR_CCMDATARAMEN_Pos) /*!< 0x00100000 */
+#define RCC_AHB1ENR_CCMDATARAMEN           RCC_AHB1ENR_CCMDATARAMEN_Msk        
 #define RCC_AHB1ENR_DMA1EN_Pos             (21U)                               
 #define RCC_AHB1ENR_DMA1EN_Msk             (0x1UL << RCC_AHB1ENR_DMA1EN_Pos)    /*!< 0x00200000 */
 #define RCC_AHB1ENR_DMA1EN                 RCC_AHB1ENR_DMA1EN_Msk              
 #define RCC_AHB1ENR_DMA2EN_Pos             (22U)                               
 #define RCC_AHB1ENR_DMA2EN_Msk             (0x1UL << RCC_AHB1ENR_DMA2EN_Pos)    /*!< 0x00400000 */
 #define RCC_AHB1ENR_DMA2EN                 RCC_AHB1ENR_DMA2EN_Msk              
+#define RCC_AHB1ENR_DMA2DEN_Pos            (23U)                               
+#define RCC_AHB1ENR_DMA2DEN_Msk            (0x1UL << RCC_AHB1ENR_DMA2DEN_Pos)   /*!< 0x00800000 */
+#define RCC_AHB1ENR_DMA2DEN                RCC_AHB1ENR_DMA2DEN_Msk             
+#define RCC_AHB1ENR_ETHMACEN_Pos           (25U)                               
+#define RCC_AHB1ENR_ETHMACEN_Msk           (0x1UL << RCC_AHB1ENR_ETHMACEN_Pos)  /*!< 0x02000000 */
+#define RCC_AHB1ENR_ETHMACEN               RCC_AHB1ENR_ETHMACEN_Msk            
+#define RCC_AHB1ENR_ETHMACTXEN_Pos         (26U)                               
+#define RCC_AHB1ENR_ETHMACTXEN_Msk         (0x1UL << RCC_AHB1ENR_ETHMACTXEN_Pos) /*!< 0x04000000 */
+#define RCC_AHB1ENR_ETHMACTXEN             RCC_AHB1ENR_ETHMACTXEN_Msk          
+#define RCC_AHB1ENR_ETHMACRXEN_Pos         (27U)                               
+#define RCC_AHB1ENR_ETHMACRXEN_Msk         (0x1UL << RCC_AHB1ENR_ETHMACRXEN_Pos) /*!< 0x08000000 */
+#define RCC_AHB1ENR_ETHMACRXEN             RCC_AHB1ENR_ETHMACRXEN_Msk          
+#define RCC_AHB1ENR_ETHMACPTPEN_Pos        (28U)                               
+#define RCC_AHB1ENR_ETHMACPTPEN_Msk        (0x1UL << RCC_AHB1ENR_ETHMACPTPEN_Pos) /*!< 0x10000000 */
+#define RCC_AHB1ENR_ETHMACPTPEN            RCC_AHB1ENR_ETHMACPTPEN_Msk         
 #define RCC_AHB1ENR_OTGHSEN_Pos            (29U)                               
 #define RCC_AHB1ENR_OTGHSEN_Msk            (0x1UL << RCC_AHB1ENR_OTGHSEN_Pos)   /*!< 0x20000000 */
 #define RCC_AHB1ENR_OTGHSEN                RCC_AHB1ENR_OTGHSEN_Msk             
@@ -10559,6 +10707,9 @@ typedef struct
 #define RCC_AHB2ENR_DCMIEN_Pos             (0U)                                
 #define RCC_AHB2ENR_DCMIEN_Msk             (0x1UL << RCC_AHB2ENR_DCMIEN_Pos)    /*!< 0x00000001 */
 #define RCC_AHB2ENR_DCMIEN                 RCC_AHB2ENR_DCMIEN_Msk              
+#define RCC_AHB2ENR_RNGEN_Pos              (6U)                                
+#define RCC_AHB2ENR_RNGEN_Msk              (0x1UL << RCC_AHB2ENR_RNGEN_Pos)     /*!< 0x00000040 */
+#define RCC_AHB2ENR_RNGEN                  RCC_AHB2ENR_RNGEN_Msk               
 #define RCC_AHB2ENR_OTGFSEN_Pos            (7U)                                
 #define RCC_AHB2ENR_OTGFSEN_Msk            (0x1UL << RCC_AHB2ENR_OTGFSEN_Pos)   /*!< 0x00000080 */
 #define RCC_AHB2ENR_OTGFSEN                RCC_AHB2ENR_OTGFSEN_Msk             
@@ -10572,9 +10723,6 @@ typedef struct
 #define RCC_AHB3ENR_FMCEN_Pos              (0U)                                
 #define RCC_AHB3ENR_FMCEN_Msk              (0x1UL << RCC_AHB3ENR_FMCEN_Pos)     /*!< 0x00000001 */
 #define RCC_AHB3ENR_FMCEN                  RCC_AHB3ENR_FMCEN_Msk               
-#define RCC_AHB3ENR_QSPIEN_Pos             (1U)                                
-#define RCC_AHB3ENR_QSPIEN_Msk             (0x1UL << RCC_AHB3ENR_QSPIEN_Pos)    /*!< 0x00000002 */
-#define RCC_AHB3ENR_QSPIEN                 RCC_AHB3ENR_QSPIEN_Msk              
 
 /********************  Bit definition for RCC_APB1ENR register  ***************/
 #define RCC_APB1ENR_TIM2EN_Pos             (0U)                                
@@ -10613,9 +10761,6 @@ typedef struct
 #define RCC_APB1ENR_SPI3EN_Pos             (15U)                               
 #define RCC_APB1ENR_SPI3EN_Msk             (0x1UL << RCC_APB1ENR_SPI3EN_Pos)    /*!< 0x00008000 */
 #define RCC_APB1ENR_SPI3EN                 RCC_APB1ENR_SPI3EN_Msk              
-#define RCC_APB1ENR_SPDIFRXEN_Pos          (16U)                               
-#define RCC_APB1ENR_SPDIFRXEN_Msk          (0x1UL << RCC_APB1ENR_SPDIFRXEN_Pos) /*!< 0x00010000 */
-#define RCC_APB1ENR_SPDIFRXEN              RCC_APB1ENR_SPDIFRXEN_Msk           
 #define RCC_APB1ENR_USART2EN_Pos           (17U)                               
 #define RCC_APB1ENR_USART2EN_Msk           (0x1UL << RCC_APB1ENR_USART2EN_Pos)  /*!< 0x00020000 */
 #define RCC_APB1ENR_USART2EN               RCC_APB1ENR_USART2EN_Msk            
@@ -10637,24 +10782,24 @@ typedef struct
 #define RCC_APB1ENR_I2C3EN_Pos             (23U)                               
 #define RCC_APB1ENR_I2C3EN_Msk             (0x1UL << RCC_APB1ENR_I2C3EN_Pos)    /*!< 0x00800000 */
 #define RCC_APB1ENR_I2C3EN                 RCC_APB1ENR_I2C3EN_Msk              
-#define RCC_APB1ENR_FMPI2C1EN_Pos          (24U)                               
-#define RCC_APB1ENR_FMPI2C1EN_Msk          (0x1UL << RCC_APB1ENR_FMPI2C1EN_Pos) /*!< 0x01000000 */
-#define RCC_APB1ENR_FMPI2C1EN              RCC_APB1ENR_FMPI2C1EN_Msk           
 #define RCC_APB1ENR_CAN1EN_Pos             (25U)                               
 #define RCC_APB1ENR_CAN1EN_Msk             (0x1UL << RCC_APB1ENR_CAN1EN_Pos)    /*!< 0x02000000 */
 #define RCC_APB1ENR_CAN1EN                 RCC_APB1ENR_CAN1EN_Msk              
 #define RCC_APB1ENR_CAN2EN_Pos             (26U)                               
 #define RCC_APB1ENR_CAN2EN_Msk             (0x1UL << RCC_APB1ENR_CAN2EN_Pos)    /*!< 0x04000000 */
 #define RCC_APB1ENR_CAN2EN                 RCC_APB1ENR_CAN2EN_Msk              
-#define RCC_APB1ENR_CECEN_Pos              (27U)                               
-#define RCC_APB1ENR_CECEN_Msk              (0x1UL << RCC_APB1ENR_CECEN_Pos)     /*!< 0x08000000 */
-#define RCC_APB1ENR_CECEN                  RCC_APB1ENR_CECEN_Msk               
 #define RCC_APB1ENR_PWREN_Pos              (28U)                               
 #define RCC_APB1ENR_PWREN_Msk              (0x1UL << RCC_APB1ENR_PWREN_Pos)     /*!< 0x10000000 */
 #define RCC_APB1ENR_PWREN                  RCC_APB1ENR_PWREN_Msk               
 #define RCC_APB1ENR_DACEN_Pos              (29U)                               
 #define RCC_APB1ENR_DACEN_Msk              (0x1UL << RCC_APB1ENR_DACEN_Pos)     /*!< 0x20000000 */
 #define RCC_APB1ENR_DACEN                  RCC_APB1ENR_DACEN_Msk               
+#define RCC_APB1ENR_UART7EN_Pos            (30U)                               
+#define RCC_APB1ENR_UART7EN_Msk            (0x1UL << RCC_APB1ENR_UART7EN_Pos)   /*!< 0x40000000 */
+#define RCC_APB1ENR_UART7EN                RCC_APB1ENR_UART7EN_Msk             
+#define RCC_APB1ENR_UART8EN_Pos            (31U)                               
+#define RCC_APB1ENR_UART8EN_Msk            (0x1UL << RCC_APB1ENR_UART8EN_Pos)   /*!< 0x80000000 */
+#define RCC_APB1ENR_UART8EN                RCC_APB1ENR_UART8EN_Msk             
 
 /********************  Bit definition for RCC_APB2ENR register  ***************/
 #define RCC_APB2ENR_TIM1EN_Pos             (0U)                                
@@ -10699,12 +10844,15 @@ typedef struct
 #define RCC_APB2ENR_TIM11EN_Pos            (18U)                               
 #define RCC_APB2ENR_TIM11EN_Msk            (0x1UL << RCC_APB2ENR_TIM11EN_Pos)   /*!< 0x00040000 */
 #define RCC_APB2ENR_TIM11EN                RCC_APB2ENR_TIM11EN_Msk             
+#define RCC_APB2ENR_SPI5EN_Pos             (20U)                               
+#define RCC_APB2ENR_SPI5EN_Msk             (0x1UL << RCC_APB2ENR_SPI5EN_Pos)    /*!< 0x00100000 */
+#define RCC_APB2ENR_SPI5EN                 RCC_APB2ENR_SPI5EN_Msk              
+#define RCC_APB2ENR_SPI6EN_Pos             (21U)                               
+#define RCC_APB2ENR_SPI6EN_Msk             (0x1UL << RCC_APB2ENR_SPI6EN_Pos)    /*!< 0x00200000 */
+#define RCC_APB2ENR_SPI6EN                 RCC_APB2ENR_SPI6EN_Msk              
 #define RCC_APB2ENR_SAI1EN_Pos             (22U)                               
 #define RCC_APB2ENR_SAI1EN_Msk             (0x1UL << RCC_APB2ENR_SAI1EN_Pos)    /*!< 0x00400000 */
 #define RCC_APB2ENR_SAI1EN                 RCC_APB2ENR_SAI1EN_Msk              
-#define RCC_APB2ENR_SAI2EN_Pos             (23U)                               
-#define RCC_APB2ENR_SAI2EN_Msk             (0x1UL << RCC_APB2ENR_SAI2EN_Pos)    /*!< 0x00800000 */
-#define RCC_APB2ENR_SAI2EN                 RCC_APB2ENR_SAI2EN_Msk              
 
 /********************  Bit definition for RCC_AHB1LPENR register  *************/
 #define RCC_AHB1LPENR_GPIOALPEN_Pos        (0U)                                
@@ -10731,6 +10879,15 @@ typedef struct
 #define RCC_AHB1LPENR_GPIOHLPEN_Pos        (7U)                                
 #define RCC_AHB1LPENR_GPIOHLPEN_Msk        (0x1UL << RCC_AHB1LPENR_GPIOHLPEN_Pos) /*!< 0x00000080 */
 #define RCC_AHB1LPENR_GPIOHLPEN            RCC_AHB1LPENR_GPIOHLPEN_Msk         
+#define RCC_AHB1LPENR_GPIOILPEN_Pos        (8U)                                
+#define RCC_AHB1LPENR_GPIOILPEN_Msk        (0x1UL << RCC_AHB1LPENR_GPIOILPEN_Pos) /*!< 0x00000100 */
+#define RCC_AHB1LPENR_GPIOILPEN            RCC_AHB1LPENR_GPIOILPEN_Msk         
+#define RCC_AHB1LPENR_GPIOJLPEN_Pos        (9U)                                
+#define RCC_AHB1LPENR_GPIOJLPEN_Msk        (0x1UL << RCC_AHB1LPENR_GPIOJLPEN_Pos) /*!< 0x00000200 */
+#define RCC_AHB1LPENR_GPIOJLPEN            RCC_AHB1LPENR_GPIOJLPEN_Msk         
+#define RCC_AHB1LPENR_GPIOKLPEN_Pos        (10U)                               
+#define RCC_AHB1LPENR_GPIOKLPEN_Msk        (0x1UL << RCC_AHB1LPENR_GPIOKLPEN_Pos) /*!< 0x00000400 */
+#define RCC_AHB1LPENR_GPIOKLPEN            RCC_AHB1LPENR_GPIOKLPEN_Msk         
 #define RCC_AHB1LPENR_CRCLPEN_Pos          (12U)                               
 #define RCC_AHB1LPENR_CRCLPEN_Msk          (0x1UL << RCC_AHB1LPENR_CRCLPEN_Pos) /*!< 0x00001000 */
 #define RCC_AHB1LPENR_CRCLPEN              RCC_AHB1LPENR_CRCLPEN_Msk           
@@ -10752,7 +10909,22 @@ typedef struct
 #define RCC_AHB1LPENR_DMA2LPEN_Pos         (22U)                               
 #define RCC_AHB1LPENR_DMA2LPEN_Msk         (0x1UL << RCC_AHB1LPENR_DMA2LPEN_Pos) /*!< 0x00400000 */
 #define RCC_AHB1LPENR_DMA2LPEN             RCC_AHB1LPENR_DMA2LPEN_Msk          
+#define RCC_AHB1LPENR_DMA2DLPEN_Pos        (23U)                               
+#define RCC_AHB1LPENR_DMA2DLPEN_Msk        (0x1UL << RCC_AHB1LPENR_DMA2DLPEN_Pos) /*!< 0x00800000 */
+#define RCC_AHB1LPENR_DMA2DLPEN            RCC_AHB1LPENR_DMA2DLPEN_Msk         
 
+#define RCC_AHB1LPENR_ETHMACLPEN_Pos       (25U)                               
+#define RCC_AHB1LPENR_ETHMACLPEN_Msk       (0x1UL << RCC_AHB1LPENR_ETHMACLPEN_Pos) /*!< 0x02000000 */
+#define RCC_AHB1LPENR_ETHMACLPEN           RCC_AHB1LPENR_ETHMACLPEN_Msk        
+#define RCC_AHB1LPENR_ETHMACTXLPEN_Pos     (26U)                               
+#define RCC_AHB1LPENR_ETHMACTXLPEN_Msk     (0x1UL << RCC_AHB1LPENR_ETHMACTXLPEN_Pos) /*!< 0x04000000 */
+#define RCC_AHB1LPENR_ETHMACTXLPEN         RCC_AHB1LPENR_ETHMACTXLPEN_Msk      
+#define RCC_AHB1LPENR_ETHMACRXLPEN_Pos     (27U)                               
+#define RCC_AHB1LPENR_ETHMACRXLPEN_Msk     (0x1UL << RCC_AHB1LPENR_ETHMACRXLPEN_Pos) /*!< 0x08000000 */
+#define RCC_AHB1LPENR_ETHMACRXLPEN         RCC_AHB1LPENR_ETHMACRXLPEN_Msk      
+#define RCC_AHB1LPENR_ETHMACPTPLPEN_Pos    (28U)                               
+#define RCC_AHB1LPENR_ETHMACPTPLPEN_Msk    (0x1UL << RCC_AHB1LPENR_ETHMACPTPLPEN_Pos) /*!< 0x10000000 */
+#define RCC_AHB1LPENR_ETHMACPTPLPEN        RCC_AHB1LPENR_ETHMACPTPLPEN_Msk     
 #define RCC_AHB1LPENR_OTGHSLPEN_Pos        (29U)                               
 #define RCC_AHB1LPENR_OTGHSLPEN_Msk        (0x1UL << RCC_AHB1LPENR_OTGHSLPEN_Pos) /*!< 0x20000000 */
 #define RCC_AHB1LPENR_OTGHSLPEN            RCC_AHB1LPENR_OTGHSLPEN_Msk         
@@ -10764,6 +10936,9 @@ typedef struct
 #define RCC_AHB2LPENR_DCMILPEN_Pos         (0U)                                
 #define RCC_AHB2LPENR_DCMILPEN_Msk         (0x1UL << RCC_AHB2LPENR_DCMILPEN_Pos) /*!< 0x00000001 */
 #define RCC_AHB2LPENR_DCMILPEN             RCC_AHB2LPENR_DCMILPEN_Msk          
+#define RCC_AHB2LPENR_RNGLPEN_Pos          (6U)                                
+#define RCC_AHB2LPENR_RNGLPEN_Msk          (0x1UL << RCC_AHB2LPENR_RNGLPEN_Pos) /*!< 0x00000040 */
+#define RCC_AHB2LPENR_RNGLPEN              RCC_AHB2LPENR_RNGLPEN_Msk           
 #define RCC_AHB2LPENR_OTGFSLPEN_Pos        (7U)                                
 #define RCC_AHB2LPENR_OTGFSLPEN_Msk        (0x1UL << RCC_AHB2LPENR_OTGFSLPEN_Pos) /*!< 0x00000080 */
 #define RCC_AHB2LPENR_OTGFSLPEN            RCC_AHB2LPENR_OTGFSLPEN_Msk         
@@ -10772,9 +10947,6 @@ typedef struct
 #define RCC_AHB3LPENR_FMCLPEN_Pos          (0U)                                
 #define RCC_AHB3LPENR_FMCLPEN_Msk          (0x1UL << RCC_AHB3LPENR_FMCLPEN_Pos) /*!< 0x00000001 */
 #define RCC_AHB3LPENR_FMCLPEN              RCC_AHB3LPENR_FMCLPEN_Msk           
-#define RCC_AHB3LPENR_QSPILPEN_Pos         (1U)                                
-#define RCC_AHB3LPENR_QSPILPEN_Msk         (0x1UL << RCC_AHB3LPENR_QSPILPEN_Pos) /*!< 0x00000002 */
-#define RCC_AHB3LPENR_QSPILPEN             RCC_AHB3LPENR_QSPILPEN_Msk          
 
 /********************  Bit definition for RCC_APB1LPENR register  *************/
 #define RCC_APB1LPENR_TIM2LPEN_Pos         (0U)                                
@@ -10813,9 +10985,6 @@ typedef struct
 #define RCC_APB1LPENR_SPI3LPEN_Pos         (15U)                               
 #define RCC_APB1LPENR_SPI3LPEN_Msk         (0x1UL << RCC_APB1LPENR_SPI3LPEN_Pos) /*!< 0x00008000 */
 #define RCC_APB1LPENR_SPI3LPEN             RCC_APB1LPENR_SPI3LPEN_Msk          
-#define RCC_APB1LPENR_SPDIFRXLPEN_Pos      (16U)                               
-#define RCC_APB1LPENR_SPDIFRXLPEN_Msk      (0x1UL << RCC_APB1LPENR_SPDIFRXLPEN_Pos) /*!< 0x00010000 */
-#define RCC_APB1LPENR_SPDIFRXLPEN          RCC_APB1LPENR_SPDIFRXLPEN_Msk       
 #define RCC_APB1LPENR_USART2LPEN_Pos       (17U)                               
 #define RCC_APB1LPENR_USART2LPEN_Msk       (0x1UL << RCC_APB1LPENR_USART2LPEN_Pos) /*!< 0x00020000 */
 #define RCC_APB1LPENR_USART2LPEN           RCC_APB1LPENR_USART2LPEN_Msk        
@@ -10837,24 +11006,24 @@ typedef struct
 #define RCC_APB1LPENR_I2C3LPEN_Pos         (23U)                               
 #define RCC_APB1LPENR_I2C3LPEN_Msk         (0x1UL << RCC_APB1LPENR_I2C3LPEN_Pos) /*!< 0x00800000 */
 #define RCC_APB1LPENR_I2C3LPEN             RCC_APB1LPENR_I2C3LPEN_Msk          
-#define RCC_APB1LPENR_FMPI2C1LPEN_Pos      (24U)                               
-#define RCC_APB1LPENR_FMPI2C1LPEN_Msk      (0x1UL << RCC_APB1LPENR_FMPI2C1LPEN_Pos) /*!< 0x01000000 */
-#define RCC_APB1LPENR_FMPI2C1LPEN          RCC_APB1LPENR_FMPI2C1LPEN_Msk       
 #define RCC_APB1LPENR_CAN1LPEN_Pos         (25U)                               
 #define RCC_APB1LPENR_CAN1LPEN_Msk         (0x1UL << RCC_APB1LPENR_CAN1LPEN_Pos) /*!< 0x02000000 */
 #define RCC_APB1LPENR_CAN1LPEN             RCC_APB1LPENR_CAN1LPEN_Msk          
 #define RCC_APB1LPENR_CAN2LPEN_Pos         (26U)                               
 #define RCC_APB1LPENR_CAN2LPEN_Msk         (0x1UL << RCC_APB1LPENR_CAN2LPEN_Pos) /*!< 0x04000000 */
 #define RCC_APB1LPENR_CAN2LPEN             RCC_APB1LPENR_CAN2LPEN_Msk          
-#define RCC_APB1LPENR_CECLPEN_Pos          (27U)                               
-#define RCC_APB1LPENR_CECLPEN_Msk          (0x1UL << RCC_APB1LPENR_CECLPEN_Pos) /*!< 0x08000000 */
-#define RCC_APB1LPENR_CECLPEN              RCC_APB1LPENR_CECLPEN_Msk           
 #define RCC_APB1LPENR_PWRLPEN_Pos          (28U)                               
 #define RCC_APB1LPENR_PWRLPEN_Msk          (0x1UL << RCC_APB1LPENR_PWRLPEN_Pos) /*!< 0x10000000 */
 #define RCC_APB1LPENR_PWRLPEN              RCC_APB1LPENR_PWRLPEN_Msk           
 #define RCC_APB1LPENR_DACLPEN_Pos          (29U)                               
 #define RCC_APB1LPENR_DACLPEN_Msk          (0x1UL << RCC_APB1LPENR_DACLPEN_Pos) /*!< 0x20000000 */
 #define RCC_APB1LPENR_DACLPEN              RCC_APB1LPENR_DACLPEN_Msk           
+#define RCC_APB1LPENR_UART7LPEN_Pos        (30U)                               
+#define RCC_APB1LPENR_UART7LPEN_Msk        (0x1UL << RCC_APB1LPENR_UART7LPEN_Pos) /*!< 0x40000000 */
+#define RCC_APB1LPENR_UART7LPEN            RCC_APB1LPENR_UART7LPEN_Msk         
+#define RCC_APB1LPENR_UART8LPEN_Pos        (31U)                               
+#define RCC_APB1LPENR_UART8LPEN_Msk        (0x1UL << RCC_APB1LPENR_UART8LPEN_Pos) /*!< 0x80000000 */
+#define RCC_APB1LPENR_UART8LPEN            RCC_APB1LPENR_UART8LPEN_Msk         
 
 /********************  Bit definition for RCC_APB2LPENR register  *************/
 #define RCC_APB2LPENR_TIM1LPEN_Pos         (0U)                                
@@ -10899,12 +11068,15 @@ typedef struct
 #define RCC_APB2LPENR_TIM11LPEN_Pos        (18U)                               
 #define RCC_APB2LPENR_TIM11LPEN_Msk        (0x1UL << RCC_APB2LPENR_TIM11LPEN_Pos) /*!< 0x00040000 */
 #define RCC_APB2LPENR_TIM11LPEN            RCC_APB2LPENR_TIM11LPEN_Msk         
+#define RCC_APB2LPENR_SPI5LPEN_Pos         (20U)                               
+#define RCC_APB2LPENR_SPI5LPEN_Msk         (0x1UL << RCC_APB2LPENR_SPI5LPEN_Pos) /*!< 0x00100000 */
+#define RCC_APB2LPENR_SPI5LPEN             RCC_APB2LPENR_SPI5LPEN_Msk          
+#define RCC_APB2LPENR_SPI6LPEN_Pos         (21U)                               
+#define RCC_APB2LPENR_SPI6LPEN_Msk         (0x1UL << RCC_APB2LPENR_SPI6LPEN_Pos) /*!< 0x00200000 */
+#define RCC_APB2LPENR_SPI6LPEN             RCC_APB2LPENR_SPI6LPEN_Msk          
 #define RCC_APB2LPENR_SAI1LPEN_Pos         (22U)                               
 #define RCC_APB2LPENR_SAI1LPEN_Msk         (0x1UL << RCC_APB2LPENR_SAI1LPEN_Pos) /*!< 0x00400000 */
 #define RCC_APB2LPENR_SAI1LPEN             RCC_APB2LPENR_SAI1LPEN_Msk          
-#define RCC_APB2LPENR_SAI2LPEN_Pos         (23U)                               
-#define RCC_APB2LPENR_SAI2LPEN_Msk         (0x1UL << RCC_APB2LPENR_SAI2LPEN_Pos) /*!< 0x00800000 */
-#define RCC_APB2LPENR_SAI2LPEN             RCC_APB2LPENR_SAI2LPEN_Msk          
 
 /********************  Bit definition for RCC_BDCR register  ******************/
 #define RCC_BDCR_LSEON_Pos                 (0U)                                
@@ -10916,9 +11088,6 @@ typedef struct
 #define RCC_BDCR_LSEBYP_Pos                (2U)                                
 #define RCC_BDCR_LSEBYP_Msk                (0x1UL << RCC_BDCR_LSEBYP_Pos)       /*!< 0x00000004 */
 #define RCC_BDCR_LSEBYP                    RCC_BDCR_LSEBYP_Msk                 
-#define RCC_BDCR_LSEMOD_Pos                (3U)                                
-#define RCC_BDCR_LSEMOD_Msk                (0x1UL << RCC_BDCR_LSEMOD_Pos)       /*!< 0x00000008 */
-#define RCC_BDCR_LSEMOD                    RCC_BDCR_LSEMOD_Msk                 
 
 #define RCC_BDCR_RTCSEL_Pos                (8U)                                
 #define RCC_BDCR_RTCSEL_Msk                (0x3UL << RCC_BDCR_RTCSEL_Pos)       /*!< 0x00000300 */
@@ -10983,16 +11152,6 @@ typedef struct
 #define RCC_SSCGR_SSCGEN                   RCC_SSCGR_SSCGEN_Msk                
 
 /********************  Bit definition for RCC_PLLI2SCFGR register  ************/
-#define RCC_PLLI2SCFGR_PLLI2SM_Pos         (0U)                                
-#define RCC_PLLI2SCFGR_PLLI2SM_Msk         (0x3FUL << RCC_PLLI2SCFGR_PLLI2SM_Pos) /*!< 0x0000003F */
-#define RCC_PLLI2SCFGR_PLLI2SM             RCC_PLLI2SCFGR_PLLI2SM_Msk          
-#define RCC_PLLI2SCFGR_PLLI2SM_0           (0x01UL << RCC_PLLI2SCFGR_PLLI2SM_Pos) /*!< 0x00000001 */
-#define RCC_PLLI2SCFGR_PLLI2SM_1           (0x02UL << RCC_PLLI2SCFGR_PLLI2SM_Pos) /*!< 0x00000002 */
-#define RCC_PLLI2SCFGR_PLLI2SM_2           (0x04UL << RCC_PLLI2SCFGR_PLLI2SM_Pos) /*!< 0x00000004 */
-#define RCC_PLLI2SCFGR_PLLI2SM_3           (0x08UL << RCC_PLLI2SCFGR_PLLI2SM_Pos) /*!< 0x00000008 */
-#define RCC_PLLI2SCFGR_PLLI2SM_4           (0x10UL << RCC_PLLI2SCFGR_PLLI2SM_Pos) /*!< 0x00000010 */
-#define RCC_PLLI2SCFGR_PLLI2SM_5           (0x20UL << RCC_PLLI2SCFGR_PLLI2SM_Pos) /*!< 0x00000020 */
-
 #define RCC_PLLI2SCFGR_PLLI2SN_Pos         (6U)                                
 #define RCC_PLLI2SCFGR_PLLI2SN_Msk         (0x1FFUL << RCC_PLLI2SCFGR_PLLI2SN_Pos) /*!< 0x00007FC0 */
 #define RCC_PLLI2SCFGR_PLLI2SN             RCC_PLLI2SCFGR_PLLI2SN_Msk          
@@ -11006,11 +11165,6 @@ typedef struct
 #define RCC_PLLI2SCFGR_PLLI2SN_7           (0x080UL << RCC_PLLI2SCFGR_PLLI2SN_Pos) /*!< 0x00002000 */
 #define RCC_PLLI2SCFGR_PLLI2SN_8           (0x100UL << RCC_PLLI2SCFGR_PLLI2SN_Pos) /*!< 0x00004000 */
 
-#define RCC_PLLI2SCFGR_PLLI2SP_Pos         (16U)                               
-#define RCC_PLLI2SCFGR_PLLI2SP_Msk         (0x3UL << RCC_PLLI2SCFGR_PLLI2SP_Pos) /*!< 0x00030000 */
-#define RCC_PLLI2SCFGR_PLLI2SP             RCC_PLLI2SCFGR_PLLI2SP_Msk          
-#define RCC_PLLI2SCFGR_PLLI2SP_0           (0x1UL << RCC_PLLI2SCFGR_PLLI2SP_Pos) /*!< 0x00010000 */
-#define RCC_PLLI2SCFGR_PLLI2SP_1           (0x2UL << RCC_PLLI2SCFGR_PLLI2SP_Pos) /*!< 0x00020000 */
 #define RCC_PLLI2SCFGR_PLLI2SQ_Pos         (24U)                               
 #define RCC_PLLI2SCFGR_PLLI2SQ_Msk         (0xFUL << RCC_PLLI2SCFGR_PLLI2SQ_Pos) /*!< 0x0F000000 */
 #define RCC_PLLI2SCFGR_PLLI2SQ             RCC_PLLI2SCFGR_PLLI2SQ_Msk          
@@ -11026,15 +11180,6 @@ typedef struct
 #define RCC_PLLI2SCFGR_PLLI2SR_2           (0x4UL << RCC_PLLI2SCFGR_PLLI2SR_Pos) /*!< 0x40000000 */
 
 /********************  Bit definition for RCC_PLLSAICFGR register  ************/
-#define RCC_PLLSAICFGR_PLLSAIM_Pos         (0U)                                
-#define RCC_PLLSAICFGR_PLLSAIM_Msk         (0x3FUL << RCC_PLLSAICFGR_PLLSAIM_Pos) /*!< 0x0000003F */
-#define RCC_PLLSAICFGR_PLLSAIM             RCC_PLLSAICFGR_PLLSAIM_Msk          
-#define RCC_PLLSAICFGR_PLLSAIM_0           (0x01UL << RCC_PLLSAICFGR_PLLSAIM_Pos) /*!< 0x00000001 */
-#define RCC_PLLSAICFGR_PLLSAIM_1           (0x02UL << RCC_PLLSAICFGR_PLLSAIM_Pos) /*!< 0x00000002 */
-#define RCC_PLLSAICFGR_PLLSAIM_2           (0x04UL << RCC_PLLSAICFGR_PLLSAIM_Pos) /*!< 0x00000004 */
-#define RCC_PLLSAICFGR_PLLSAIM_3           (0x08UL << RCC_PLLSAICFGR_PLLSAIM_Pos) /*!< 0x00000008 */
-#define RCC_PLLSAICFGR_PLLSAIM_4           (0x10UL << RCC_PLLSAICFGR_PLLSAIM_Pos) /*!< 0x00000010 */
-#define RCC_PLLSAICFGR_PLLSAIM_5           (0x20UL << RCC_PLLSAICFGR_PLLSAIM_Pos) /*!< 0x00000020 */
 #define RCC_PLLSAICFGR_PLLSAIN_Pos         (6U)                                
 #define RCC_PLLSAICFGR_PLLSAIN_Msk         (0x1FFUL << RCC_PLLSAICFGR_PLLSAIN_Pos) /*!< 0x00007FC0 */
 #define RCC_PLLSAICFGR_PLLSAIN             RCC_PLLSAICFGR_PLLSAIN_Msk          
@@ -11048,11 +11193,6 @@ typedef struct
 #define RCC_PLLSAICFGR_PLLSAIN_7           (0x080UL << RCC_PLLSAICFGR_PLLSAIN_Pos) /*!< 0x00002000 */
 #define RCC_PLLSAICFGR_PLLSAIN_8           (0x100UL << RCC_PLLSAICFGR_PLLSAIN_Pos) /*!< 0x00004000 */
 
-#define RCC_PLLSAICFGR_PLLSAIP_Pos         (16U)                               
-#define RCC_PLLSAICFGR_PLLSAIP_Msk         (0x3UL << RCC_PLLSAICFGR_PLLSAIP_Pos) /*!< 0x00030000 */
-#define RCC_PLLSAICFGR_PLLSAIP             RCC_PLLSAICFGR_PLLSAIP_Msk          
-#define RCC_PLLSAICFGR_PLLSAIP_0           (0x1UL << RCC_PLLSAICFGR_PLLSAIP_Pos) /*!< 0x00010000 */
-#define RCC_PLLSAICFGR_PLLSAIP_1           (0x2UL << RCC_PLLSAICFGR_PLLSAIP_Pos) /*!< 0x00020000 */
 
 #define RCC_PLLSAICFGR_PLLSAIQ_Pos         (24U)                               
 #define RCC_PLLSAICFGR_PLLSAIQ_Msk         (0xFUL << RCC_PLLSAICFGR_PLLSAIQ_Pos) /*!< 0x0F000000 */
@@ -11062,6 +11202,12 @@ typedef struct
 #define RCC_PLLSAICFGR_PLLSAIQ_2           (0x4UL << RCC_PLLSAICFGR_PLLSAIQ_Pos) /*!< 0x04000000 */
 #define RCC_PLLSAICFGR_PLLSAIQ_3           (0x8UL << RCC_PLLSAICFGR_PLLSAIQ_Pos) /*!< 0x08000000 */
 
+#define RCC_PLLSAICFGR_PLLSAIR_Pos         (28U)                               
+#define RCC_PLLSAICFGR_PLLSAIR_Msk         (0x7UL << RCC_PLLSAICFGR_PLLSAIR_Pos) /*!< 0x70000000 */
+#define RCC_PLLSAICFGR_PLLSAIR             RCC_PLLSAICFGR_PLLSAIR_Msk          
+#define RCC_PLLSAICFGR_PLLSAIR_0           (0x1UL << RCC_PLLSAICFGR_PLLSAIR_Pos) /*!< 0x10000000 */
+#define RCC_PLLSAICFGR_PLLSAIR_1           (0x2UL << RCC_PLLSAICFGR_PLLSAIR_Pos) /*!< 0x20000000 */
+#define RCC_PLLSAICFGR_PLLSAIR_2           (0x4UL << RCC_PLLSAICFGR_PLLSAIR_Pos) /*!< 0x40000000 */
 
 /********************  Bit definition for RCC_DCKCFGR register  ***************/
 #define RCC_DCKCFGR_PLLI2SDIVQ_Pos        (0U)                                
@@ -11081,74 +11227,56 @@ typedef struct
 #define RCC_DCKCFGR_PLLSAIDIVQ_2          (0x04UL << RCC_DCKCFGR_PLLSAIDIVQ_Pos) /*!< 0x00000400 */
 #define RCC_DCKCFGR_PLLSAIDIVQ_3          (0x08UL << RCC_DCKCFGR_PLLSAIDIVQ_Pos) /*!< 0x00000800 */
 #define RCC_DCKCFGR_PLLSAIDIVQ_4          (0x10UL << RCC_DCKCFGR_PLLSAIDIVQ_Pos) /*!< 0x00001000 */
-#define RCC_DCKCFGR_SAI1SRC_Pos            (20U)                               
-#define RCC_DCKCFGR_SAI1SRC_Msk            (0x3UL << RCC_DCKCFGR_SAI1SRC_Pos)   /*!< 0x00300000 */
-#define RCC_DCKCFGR_SAI1SRC                RCC_DCKCFGR_SAI1SRC_Msk             
-#define RCC_DCKCFGR_SAI1SRC_0              (0x1UL << RCC_DCKCFGR_SAI1SRC_Pos)   /*!< 0x00100000 */
-#define RCC_DCKCFGR_SAI1SRC_1              (0x2UL << RCC_DCKCFGR_SAI1SRC_Pos)   /*!< 0x00200000 */
-#define RCC_DCKCFGR_SAI2SRC_Pos            (22U)                               
-#define RCC_DCKCFGR_SAI2SRC_Msk            (0x3UL << RCC_DCKCFGR_SAI2SRC_Pos)   /*!< 0x00C00000 */
-#define RCC_DCKCFGR_SAI2SRC                RCC_DCKCFGR_SAI2SRC_Msk             
-#define RCC_DCKCFGR_SAI2SRC_0              (0x1UL << RCC_DCKCFGR_SAI2SRC_Pos)   /*!< 0x00400000 */
-#define RCC_DCKCFGR_SAI2SRC_1              (0x2UL << RCC_DCKCFGR_SAI2SRC_Pos)   /*!< 0x00800000 */
+#define RCC_DCKCFGR_PLLSAIDIVR_Pos        (16U)                               
+#define RCC_DCKCFGR_PLLSAIDIVR_Msk        (0x3UL << RCC_DCKCFGR_PLLSAIDIVR_Pos) /*!< 0x00030000 */
+#define RCC_DCKCFGR_PLLSAIDIVR            RCC_DCKCFGR_PLLSAIDIVR_Msk         
+#define RCC_DCKCFGR_PLLSAIDIVR_0          (0x1UL << RCC_DCKCFGR_PLLSAIDIVR_Pos) /*!< 0x00010000 */
+#define RCC_DCKCFGR_PLLSAIDIVR_1          (0x2UL << RCC_DCKCFGR_PLLSAIDIVR_Pos) /*!< 0x00020000 */
 
+#define RCC_DCKCFGR_SAI1ASRC_Pos           (20U)                               
+#define RCC_DCKCFGR_SAI1ASRC_Msk           (0x3UL << RCC_DCKCFGR_SAI1ASRC_Pos)  /*!< 0x00300000 */
+#define RCC_DCKCFGR_SAI1ASRC               RCC_DCKCFGR_SAI1ASRC_Msk            
+#define RCC_DCKCFGR_SAI1ASRC_0             (0x1UL << RCC_DCKCFGR_SAI1ASRC_Pos)  /*!< 0x00100000 */
+#define RCC_DCKCFGR_SAI1ASRC_1             (0x2UL << RCC_DCKCFGR_SAI1ASRC_Pos)  /*!< 0x00200000 */
+#define RCC_DCKCFGR_SAI1BSRC_Pos           (22U)                               
+#define RCC_DCKCFGR_SAI1BSRC_Msk           (0x3UL << RCC_DCKCFGR_SAI1BSRC_Pos)  /*!< 0x00C00000 */
+#define RCC_DCKCFGR_SAI1BSRC               RCC_DCKCFGR_SAI1BSRC_Msk            
+#define RCC_DCKCFGR_SAI1BSRC_0             (0x1UL << RCC_DCKCFGR_SAI1BSRC_Pos)  /*!< 0x00400000 */
+#define RCC_DCKCFGR_SAI1BSRC_1             (0x2UL << RCC_DCKCFGR_SAI1BSRC_Pos)  /*!< 0x00800000 */
 #define RCC_DCKCFGR_TIMPRE_Pos             (24U)                               
 #define RCC_DCKCFGR_TIMPRE_Msk             (0x1UL << RCC_DCKCFGR_TIMPRE_Pos)    /*!< 0x01000000 */
 #define RCC_DCKCFGR_TIMPRE                 RCC_DCKCFGR_TIMPRE_Msk              
-#define RCC_DCKCFGR_I2S1SRC_Pos            (25U)                               
-#define RCC_DCKCFGR_I2S1SRC_Msk            (0x3UL << RCC_DCKCFGR_I2S1SRC_Pos)   /*!< 0x06000000 */
-#define RCC_DCKCFGR_I2S1SRC                RCC_DCKCFGR_I2S1SRC_Msk             
-#define RCC_DCKCFGR_I2S1SRC_0              (0x1UL << RCC_DCKCFGR_I2S1SRC_Pos)   /*!< 0x02000000 */
-#define RCC_DCKCFGR_I2S1SRC_1              (0x2UL << RCC_DCKCFGR_I2S1SRC_Pos)   /*!< 0x04000000 */
 
-#define RCC_DCKCFGR_I2S2SRC_Pos            (27U)                               
-#define RCC_DCKCFGR_I2S2SRC_Msk            (0x3UL << RCC_DCKCFGR_I2S2SRC_Pos)   /*!< 0x18000000 */
-#define RCC_DCKCFGR_I2S2SRC                RCC_DCKCFGR_I2S2SRC_Msk             
-#define RCC_DCKCFGR_I2S2SRC_0              (0x1UL << RCC_DCKCFGR_I2S2SRC_Pos)   /*!< 0x08000000 */
-#define RCC_DCKCFGR_I2S2SRC_1              (0x2UL << RCC_DCKCFGR_I2S2SRC_Pos)   /*!< 0x10000000 */
 
-/********************  Bit definition for RCC_CKGATENR register  ***************/
-#define RCC_CKGATENR_AHB2APB1_CKEN_Pos     (0U)                                
-#define RCC_CKGATENR_AHB2APB1_CKEN_Msk     (0x1UL << RCC_CKGATENR_AHB2APB1_CKEN_Pos) /*!< 0x00000001 */
-#define RCC_CKGATENR_AHB2APB1_CKEN         RCC_CKGATENR_AHB2APB1_CKEN_Msk      
-#define RCC_CKGATENR_AHB2APB2_CKEN_Pos     (1U)                                
-#define RCC_CKGATENR_AHB2APB2_CKEN_Msk     (0x1UL << RCC_CKGATENR_AHB2APB2_CKEN_Pos) /*!< 0x00000002 */
-#define RCC_CKGATENR_AHB2APB2_CKEN         RCC_CKGATENR_AHB2APB2_CKEN_Msk      
-#define RCC_CKGATENR_CM4DBG_CKEN_Pos       (2U)                                
-#define RCC_CKGATENR_CM4DBG_CKEN_Msk       (0x1UL << RCC_CKGATENR_CM4DBG_CKEN_Pos) /*!< 0x00000004 */
-#define RCC_CKGATENR_CM4DBG_CKEN           RCC_CKGATENR_CM4DBG_CKEN_Msk        
-#define RCC_CKGATENR_SPARE_CKEN_Pos        (3U)                                
-#define RCC_CKGATENR_SPARE_CKEN_Msk        (0x1UL << RCC_CKGATENR_SPARE_CKEN_Pos) /*!< 0x00000008 */
-#define RCC_CKGATENR_SPARE_CKEN            RCC_CKGATENR_SPARE_CKEN_Msk         
-#define RCC_CKGATENR_SRAM_CKEN_Pos         (4U)                                
-#define RCC_CKGATENR_SRAM_CKEN_Msk         (0x1UL << RCC_CKGATENR_SRAM_CKEN_Pos) /*!< 0x00000010 */
-#define RCC_CKGATENR_SRAM_CKEN             RCC_CKGATENR_SRAM_CKEN_Msk          
-#define RCC_CKGATENR_FLITF_CKEN_Pos        (5U)                                
-#define RCC_CKGATENR_FLITF_CKEN_Msk        (0x1UL << RCC_CKGATENR_FLITF_CKEN_Pos) /*!< 0x00000020 */
-#define RCC_CKGATENR_FLITF_CKEN            RCC_CKGATENR_FLITF_CKEN_Msk         
-#define RCC_CKGATENR_RCC_CKEN_Pos          (6U)                                
-#define RCC_CKGATENR_RCC_CKEN_Msk          (0x1UL << RCC_CKGATENR_RCC_CKEN_Pos) /*!< 0x00000040 */
-#define RCC_CKGATENR_RCC_CKEN              RCC_CKGATENR_RCC_CKEN_Msk           
+/******************************************************************************/
+/*                                                                            */
+/*                                    RNG                                     */
+/*                                                                            */
+/******************************************************************************/
+/********************  Bits definition for RNG_CR register  *******************/
+#define RNG_CR_RNGEN_Pos    (2U)                                               
+#define RNG_CR_RNGEN_Msk    (0x1UL << RNG_CR_RNGEN_Pos)                         /*!< 0x00000004 */
+#define RNG_CR_RNGEN        RNG_CR_RNGEN_Msk                                   
+#define RNG_CR_IE_Pos       (3U)                                               
+#define RNG_CR_IE_Msk       (0x1UL << RNG_CR_IE_Pos)                            /*!< 0x00000008 */
+#define RNG_CR_IE           RNG_CR_IE_Msk                                      
 
-/********************  Bit definition for RCC_DCKCFGR2 register  ***************/
-#define RCC_DCKCFGR2_FMPI2C1SEL_Pos        (22U)                               
-#define RCC_DCKCFGR2_FMPI2C1SEL_Msk        (0x3UL << RCC_DCKCFGR2_FMPI2C1SEL_Pos) /*!< 0x00C00000 */
-#define RCC_DCKCFGR2_FMPI2C1SEL            RCC_DCKCFGR2_FMPI2C1SEL_Msk         
-#define RCC_DCKCFGR2_FMPI2C1SEL_0          (0x1UL << RCC_DCKCFGR2_FMPI2C1SEL_Pos) /*!< 0x00400000 */
-#define RCC_DCKCFGR2_FMPI2C1SEL_1          (0x2UL << RCC_DCKCFGR2_FMPI2C1SEL_Pos) /*!< 0x00800000 */
-#define RCC_DCKCFGR2_CECSEL_Pos            (26U)                               
-#define RCC_DCKCFGR2_CECSEL_Msk            (0x1UL << RCC_DCKCFGR2_CECSEL_Pos)   /*!< 0x04000000 */
-#define RCC_DCKCFGR2_CECSEL                RCC_DCKCFGR2_CECSEL_Msk             
-#define RCC_DCKCFGR2_CK48MSEL_Pos          (27U)                               
-#define RCC_DCKCFGR2_CK48MSEL_Msk          (0x1UL << RCC_DCKCFGR2_CK48MSEL_Pos) /*!< 0x08000000 */
-#define RCC_DCKCFGR2_CK48MSEL              RCC_DCKCFGR2_CK48MSEL_Msk           
-#define RCC_DCKCFGR2_SDIOSEL_Pos           (28U)                               
-#define RCC_DCKCFGR2_SDIOSEL_Msk           (0x1UL << RCC_DCKCFGR2_SDIOSEL_Pos)  /*!< 0x10000000 */
-#define RCC_DCKCFGR2_SDIOSEL               RCC_DCKCFGR2_SDIOSEL_Msk            
-#define RCC_DCKCFGR2_SPDIFRXSEL_Pos        (29U)                               
-#define RCC_DCKCFGR2_SPDIFRXSEL_Msk        (0x1UL << RCC_DCKCFGR2_SPDIFRXSEL_Pos) /*!< 0x20000000 */
-#define RCC_DCKCFGR2_SPDIFRXSEL            RCC_DCKCFGR2_SPDIFRXSEL_Msk         
-
+/********************  Bits definition for RNG_SR register  *******************/
+#define RNG_SR_DRDY_Pos     (0U)                                               
+#define RNG_SR_DRDY_Msk     (0x1UL << RNG_SR_DRDY_Pos)                          /*!< 0x00000001 */
+#define RNG_SR_DRDY         RNG_SR_DRDY_Msk                                    
+#define RNG_SR_CECS_Pos     (1U)                                               
+#define RNG_SR_CECS_Msk     (0x1UL << RNG_SR_CECS_Pos)                          /*!< 0x00000002 */
+#define RNG_SR_CECS         RNG_SR_CECS_Msk                                    
+#define RNG_SR_SECS_Pos     (2U)                                               
+#define RNG_SR_SECS_Msk     (0x1UL << RNG_SR_SECS_Pos)                          /*!< 0x00000004 */
+#define RNG_SR_SECS         RNG_SR_SECS_Msk                                    
+#define RNG_SR_CEIS_Pos     (5U)                                               
+#define RNG_SR_CEIS_Msk     (0x1UL << RNG_SR_CEIS_Pos)                          /*!< 0x00000020 */
+#define RNG_SR_CEIS         RNG_SR_CEIS_Msk                                    
+#define RNG_SR_SEIS_Pos     (6U)                                               
+#define RNG_SR_SEIS_Msk     (0x1UL << RNG_SR_SEIS_Pos)                          /*!< 0x00000040 */
+#define RNG_SR_SEIS         RNG_SR_SEIS_Msk                                    
 
 /******************************************************************************/
 /*                                                                            */
@@ -12089,188 +12217,6 @@ typedef struct
 #define SAI_xDR_DATA_Msk           (0xFFFFFFFFUL << SAI_xDR_DATA_Pos)           /*!< 0xFFFFFFFF */
 #define SAI_xDR_DATA               SAI_xDR_DATA_Msk                            
 
-/******************************************************************************/
-/*                                                                            */
-/*                              SPDIF-RX Interface                            */
-/*                                                                            */
-/******************************************************************************/
-/********************  Bit definition for SPDIFRX_CR register  *******************/
-#define SPDIFRX_CR_SPDIFEN_Pos      (0U)                                       
-#define SPDIFRX_CR_SPDIFEN_Msk      (0x3UL << SPDIFRX_CR_SPDIFEN_Pos)           /*!< 0x00000003 */
-#define SPDIFRX_CR_SPDIFEN          SPDIFRX_CR_SPDIFEN_Msk                     /*!<Peripheral Block Enable                      */
-#define SPDIFRX_CR_RXDMAEN_Pos      (2U)                                       
-#define SPDIFRX_CR_RXDMAEN_Msk      (0x1UL << SPDIFRX_CR_RXDMAEN_Pos)           /*!< 0x00000004 */
-#define SPDIFRX_CR_RXDMAEN          SPDIFRX_CR_RXDMAEN_Msk                     /*!<Receiver DMA Enable for data flow            */
-#define SPDIFRX_CR_RXSTEO_Pos       (3U)                                       
-#define SPDIFRX_CR_RXSTEO_Msk       (0x1UL << SPDIFRX_CR_RXSTEO_Pos)            /*!< 0x00000008 */
-#define SPDIFRX_CR_RXSTEO           SPDIFRX_CR_RXSTEO_Msk                      /*!<Stereo Mode                                  */
-#define SPDIFRX_CR_DRFMT_Pos        (4U)                                       
-#define SPDIFRX_CR_DRFMT_Msk        (0x3UL << SPDIFRX_CR_DRFMT_Pos)             /*!< 0x00000030 */
-#define SPDIFRX_CR_DRFMT            SPDIFRX_CR_DRFMT_Msk                       /*!<RX Data format                               */
-#define SPDIFRX_CR_PMSK_Pos         (6U)                                       
-#define SPDIFRX_CR_PMSK_Msk         (0x1UL << SPDIFRX_CR_PMSK_Pos)              /*!< 0x00000040 */
-#define SPDIFRX_CR_PMSK             SPDIFRX_CR_PMSK_Msk                        /*!<Mask Parity error bit                        */
-#define SPDIFRX_CR_VMSK_Pos         (7U)                                       
-#define SPDIFRX_CR_VMSK_Msk         (0x1UL << SPDIFRX_CR_VMSK_Pos)              /*!< 0x00000080 */
-#define SPDIFRX_CR_VMSK             SPDIFRX_CR_VMSK_Msk                        /*!<Mask of Validity bit                         */
-#define SPDIFRX_CR_CUMSK_Pos        (8U)                                       
-#define SPDIFRX_CR_CUMSK_Msk        (0x1UL << SPDIFRX_CR_CUMSK_Pos)             /*!< 0x00000100 */
-#define SPDIFRX_CR_CUMSK            SPDIFRX_CR_CUMSK_Msk                       /*!<Mask of channel status and user bits         */
-#define SPDIFRX_CR_PTMSK_Pos        (9U)                                       
-#define SPDIFRX_CR_PTMSK_Msk        (0x1UL << SPDIFRX_CR_PTMSK_Pos)             /*!< 0x00000200 */
-#define SPDIFRX_CR_PTMSK            SPDIFRX_CR_PTMSK_Msk                       /*!<Mask of Preamble Type bits                   */
-#define SPDIFRX_CR_CBDMAEN_Pos      (10U)                                      
-#define SPDIFRX_CR_CBDMAEN_Msk      (0x1UL << SPDIFRX_CR_CBDMAEN_Pos)           /*!< 0x00000400 */
-#define SPDIFRX_CR_CBDMAEN          SPDIFRX_CR_CBDMAEN_Msk                     /*!<Control Buffer DMA ENable for control flow   */
-#define SPDIFRX_CR_CHSEL_Pos        (11U)                                      
-#define SPDIFRX_CR_CHSEL_Msk        (0x1UL << SPDIFRX_CR_CHSEL_Pos)             /*!< 0x00000800 */
-#define SPDIFRX_CR_CHSEL            SPDIFRX_CR_CHSEL_Msk                       /*!<Channel Selection                            */
-#define SPDIFRX_CR_NBTR_Pos         (12U)                                      
-#define SPDIFRX_CR_NBTR_Msk         (0x3UL << SPDIFRX_CR_NBTR_Pos)              /*!< 0x00003000 */
-#define SPDIFRX_CR_NBTR             SPDIFRX_CR_NBTR_Msk                        /*!<Maximum allowed re-tries during synchronization phase */
-#define SPDIFRX_CR_WFA_Pos          (14U)                                      
-#define SPDIFRX_CR_WFA_Msk          (0x1UL << SPDIFRX_CR_WFA_Pos)               /*!< 0x00004000 */
-#define SPDIFRX_CR_WFA              SPDIFRX_CR_WFA_Msk                         /*!<Wait For Activity     */
-#define SPDIFRX_CR_INSEL_Pos        (16U)                                      
-#define SPDIFRX_CR_INSEL_Msk        (0x7UL << SPDIFRX_CR_INSEL_Pos)             /*!< 0x00070000 */
-#define SPDIFRX_CR_INSEL            SPDIFRX_CR_INSEL_Msk                       /*!<SPDIFRX input selection */
-
-/*******************  Bit definition for SPDIFRX_IMR register  *******************/
-#define SPDIFRX_IMR_RXNEIE_Pos      (0U)                                       
-#define SPDIFRX_IMR_RXNEIE_Msk      (0x1UL << SPDIFRX_IMR_RXNEIE_Pos)           /*!< 0x00000001 */
-#define SPDIFRX_IMR_RXNEIE          SPDIFRX_IMR_RXNEIE_Msk                     /*!<RXNE interrupt enable                              */
-#define SPDIFRX_IMR_CSRNEIE_Pos     (1U)                                       
-#define SPDIFRX_IMR_CSRNEIE_Msk     (0x1UL << SPDIFRX_IMR_CSRNEIE_Pos)          /*!< 0x00000002 */
-#define SPDIFRX_IMR_CSRNEIE         SPDIFRX_IMR_CSRNEIE_Msk                    /*!<Control Buffer Ready Interrupt Enable              */
-#define SPDIFRX_IMR_PERRIE_Pos      (2U)                                       
-#define SPDIFRX_IMR_PERRIE_Msk      (0x1UL << SPDIFRX_IMR_PERRIE_Pos)           /*!< 0x00000004 */
-#define SPDIFRX_IMR_PERRIE          SPDIFRX_IMR_PERRIE_Msk                     /*!<Parity error interrupt enable                      */
-#define SPDIFRX_IMR_OVRIE_Pos       (3U)                                       
-#define SPDIFRX_IMR_OVRIE_Msk       (0x1UL << SPDIFRX_IMR_OVRIE_Pos)            /*!< 0x00000008 */
-#define SPDIFRX_IMR_OVRIE           SPDIFRX_IMR_OVRIE_Msk                      /*!<Overrun error Interrupt Enable                     */
-#define SPDIFRX_IMR_SBLKIE_Pos      (4U)                                       
-#define SPDIFRX_IMR_SBLKIE_Msk      (0x1UL << SPDIFRX_IMR_SBLKIE_Pos)           /*!< 0x00000010 */
-#define SPDIFRX_IMR_SBLKIE          SPDIFRX_IMR_SBLKIE_Msk                     /*!<Synchronization Block Detected Interrupt Enable    */
-#define SPDIFRX_IMR_SYNCDIE_Pos     (5U)                                       
-#define SPDIFRX_IMR_SYNCDIE_Msk     (0x1UL << SPDIFRX_IMR_SYNCDIE_Pos)          /*!< 0x00000020 */
-#define SPDIFRX_IMR_SYNCDIE         SPDIFRX_IMR_SYNCDIE_Msk                    /*!<Synchronization Done                               */
-#define SPDIFRX_IMR_IFEIE_Pos       (6U)                                       
-#define SPDIFRX_IMR_IFEIE_Msk       (0x1UL << SPDIFRX_IMR_IFEIE_Pos)            /*!< 0x00000040 */
-#define SPDIFRX_IMR_IFEIE           SPDIFRX_IMR_IFEIE_Msk                      /*!<Serial Interface Error Interrupt Enable            */
-
-/*******************  Bit definition for SPDIFRX_SR register  *******************/
-#define SPDIFRX_SR_RXNE_Pos         (0U)                                       
-#define SPDIFRX_SR_RXNE_Msk         (0x1UL << SPDIFRX_SR_RXNE_Pos)              /*!< 0x00000001 */
-#define SPDIFRX_SR_RXNE             SPDIFRX_SR_RXNE_Msk                        /*!<Read data register not empty                          */
-#define SPDIFRX_SR_CSRNE_Pos        (1U)                                       
-#define SPDIFRX_SR_CSRNE_Msk        (0x1UL << SPDIFRX_SR_CSRNE_Pos)             /*!< 0x00000002 */
-#define SPDIFRX_SR_CSRNE            SPDIFRX_SR_CSRNE_Msk                       /*!<The Control Buffer register is not empty              */
-#define SPDIFRX_SR_PERR_Pos         (2U)                                       
-#define SPDIFRX_SR_PERR_Msk         (0x1UL << SPDIFRX_SR_PERR_Pos)              /*!< 0x00000004 */
-#define SPDIFRX_SR_PERR             SPDIFRX_SR_PERR_Msk                        /*!<Parity error                                          */
-#define SPDIFRX_SR_OVR_Pos          (3U)                                       
-#define SPDIFRX_SR_OVR_Msk          (0x1UL << SPDIFRX_SR_OVR_Pos)               /*!< 0x00000008 */
-#define SPDIFRX_SR_OVR              SPDIFRX_SR_OVR_Msk                         /*!<Overrun error                                         */
-#define SPDIFRX_SR_SBD_Pos          (4U)                                       
-#define SPDIFRX_SR_SBD_Msk          (0x1UL << SPDIFRX_SR_SBD_Pos)               /*!< 0x00000010 */
-#define SPDIFRX_SR_SBD              SPDIFRX_SR_SBD_Msk                         /*!<Synchronization Block Detected                        */
-#define SPDIFRX_SR_SYNCD_Pos        (5U)                                       
-#define SPDIFRX_SR_SYNCD_Msk        (0x1UL << SPDIFRX_SR_SYNCD_Pos)             /*!< 0x00000020 */
-#define SPDIFRX_SR_SYNCD            SPDIFRX_SR_SYNCD_Msk                       /*!<Synchronization Done                                  */
-#define SPDIFRX_SR_FERR_Pos         (6U)                                       
-#define SPDIFRX_SR_FERR_Msk         (0x1UL << SPDIFRX_SR_FERR_Pos)              /*!< 0x00000040 */
-#define SPDIFRX_SR_FERR             SPDIFRX_SR_FERR_Msk                        /*!<Framing error                                         */
-#define SPDIFRX_SR_SERR_Pos         (7U)                                       
-#define SPDIFRX_SR_SERR_Msk         (0x1UL << SPDIFRX_SR_SERR_Pos)              /*!< 0x00000080 */
-#define SPDIFRX_SR_SERR             SPDIFRX_SR_SERR_Msk                        /*!<Synchronization error                                 */
-#define SPDIFRX_SR_TERR_Pos         (8U)                                       
-#define SPDIFRX_SR_TERR_Msk         (0x1UL << SPDIFRX_SR_TERR_Pos)              /*!< 0x00000100 */
-#define SPDIFRX_SR_TERR             SPDIFRX_SR_TERR_Msk                        /*!<Time-out error                                        */
-#define SPDIFRX_SR_WIDTH5_Pos       (16U)                                      
-#define SPDIFRX_SR_WIDTH5_Msk       (0x7FFFUL << SPDIFRX_SR_WIDTH5_Pos)         /*!< 0x7FFF0000 */
-#define SPDIFRX_SR_WIDTH5           SPDIFRX_SR_WIDTH5_Msk                      /*!<Duration of 5 symbols counted with SPDIFRX_clk        */
-
-/*******************  Bit definition for SPDIFRX_IFCR register  *******************/
-#define SPDIFRX_IFCR_PERRCF_Pos     (2U)                                       
-#define SPDIFRX_IFCR_PERRCF_Msk     (0x1UL << SPDIFRX_IFCR_PERRCF_Pos)          /*!< 0x00000004 */
-#define SPDIFRX_IFCR_PERRCF         SPDIFRX_IFCR_PERRCF_Msk                    /*!<Clears the Parity error flag                         */
-#define SPDIFRX_IFCR_OVRCF_Pos      (3U)                                       
-#define SPDIFRX_IFCR_OVRCF_Msk      (0x1UL << SPDIFRX_IFCR_OVRCF_Pos)           /*!< 0x00000008 */
-#define SPDIFRX_IFCR_OVRCF          SPDIFRX_IFCR_OVRCF_Msk                     /*!<Clears the Overrun error flag                        */
-#define SPDIFRX_IFCR_SBDCF_Pos      (4U)                                       
-#define SPDIFRX_IFCR_SBDCF_Msk      (0x1UL << SPDIFRX_IFCR_SBDCF_Pos)           /*!< 0x00000010 */
-#define SPDIFRX_IFCR_SBDCF          SPDIFRX_IFCR_SBDCF_Msk                     /*!<Clears the Synchronization Block Detected flag       */
-#define SPDIFRX_IFCR_SYNCDCF_Pos    (5U)                                       
-#define SPDIFRX_IFCR_SYNCDCF_Msk    (0x1UL << SPDIFRX_IFCR_SYNCDCF_Pos)         /*!< 0x00000020 */
-#define SPDIFRX_IFCR_SYNCDCF        SPDIFRX_IFCR_SYNCDCF_Msk                   /*!<Clears the Synchronization Done flag                 */
-
-/*******************  Bit definition for SPDIFRX_DR register  (DRFMT = 0b00 case) *******************/
-#define SPDIFRX_DR0_DR_Pos          (0U)                                       
-#define SPDIFRX_DR0_DR_Msk          (0xFFFFFFUL << SPDIFRX_DR0_DR_Pos)          /*!< 0x00FFFFFF */
-#define SPDIFRX_DR0_DR              SPDIFRX_DR0_DR_Msk                         /*!<Data value            */
-#define SPDIFRX_DR0_PE_Pos          (24U)                                      
-#define SPDIFRX_DR0_PE_Msk          (0x1UL << SPDIFRX_DR0_PE_Pos)               /*!< 0x01000000 */
-#define SPDIFRX_DR0_PE              SPDIFRX_DR0_PE_Msk                         /*!<Parity Error bit      */
-#define SPDIFRX_DR0_V_Pos           (25U)                                      
-#define SPDIFRX_DR0_V_Msk           (0x1UL << SPDIFRX_DR0_V_Pos)                /*!< 0x02000000 */
-#define SPDIFRX_DR0_V               SPDIFRX_DR0_V_Msk                          /*!<Validity bit          */
-#define SPDIFRX_DR0_U_Pos           (26U)                                      
-#define SPDIFRX_DR0_U_Msk           (0x1UL << SPDIFRX_DR0_U_Pos)                /*!< 0x04000000 */
-#define SPDIFRX_DR0_U               SPDIFRX_DR0_U_Msk                          /*!<User bit              */
-#define SPDIFRX_DR0_C_Pos           (27U)                                      
-#define SPDIFRX_DR0_C_Msk           (0x1UL << SPDIFRX_DR0_C_Pos)                /*!< 0x08000000 */
-#define SPDIFRX_DR0_C               SPDIFRX_DR0_C_Msk                          /*!<Channel Status bit    */
-#define SPDIFRX_DR0_PT_Pos          (28U)                                      
-#define SPDIFRX_DR0_PT_Msk          (0x3UL << SPDIFRX_DR0_PT_Pos)               /*!< 0x30000000 */
-#define SPDIFRX_DR0_PT              SPDIFRX_DR0_PT_Msk                         /*!<Preamble Type         */
-
-/*******************  Bit definition for SPDIFRX_DR register  (DRFMT = 0b01 case) *******************/
-#define SPDIFRX_DR1_DR_Pos          (8U)                                       
-#define SPDIFRX_DR1_DR_Msk          (0xFFFFFFUL << SPDIFRX_DR1_DR_Pos)          /*!< 0xFFFFFF00 */
-#define SPDIFRX_DR1_DR              SPDIFRX_DR1_DR_Msk                         /*!<Data value            */
-#define SPDIFRX_DR1_PT_Pos          (4U)                                       
-#define SPDIFRX_DR1_PT_Msk          (0x3UL << SPDIFRX_DR1_PT_Pos)               /*!< 0x00000030 */
-#define SPDIFRX_DR1_PT              SPDIFRX_DR1_PT_Msk                         /*!<Preamble Type         */
-#define SPDIFRX_DR1_C_Pos           (3U)                                       
-#define SPDIFRX_DR1_C_Msk           (0x1UL << SPDIFRX_DR1_C_Pos)                /*!< 0x00000008 */
-#define SPDIFRX_DR1_C               SPDIFRX_DR1_C_Msk                          /*!<Channel Status bit    */
-#define SPDIFRX_DR1_U_Pos           (2U)                                       
-#define SPDIFRX_DR1_U_Msk           (0x1UL << SPDIFRX_DR1_U_Pos)                /*!< 0x00000004 */
-#define SPDIFRX_DR1_U               SPDIFRX_DR1_U_Msk                          /*!<User bit              */
-#define SPDIFRX_DR1_V_Pos           (1U)                                       
-#define SPDIFRX_DR1_V_Msk           (0x1UL << SPDIFRX_DR1_V_Pos)                /*!< 0x00000002 */
-#define SPDIFRX_DR1_V               SPDIFRX_DR1_V_Msk                          /*!<Validity bit          */
-#define SPDIFRX_DR1_PE_Pos          (0U)                                       
-#define SPDIFRX_DR1_PE_Msk          (0x1UL << SPDIFRX_DR1_PE_Pos)               /*!< 0x00000001 */
-#define SPDIFRX_DR1_PE              SPDIFRX_DR1_PE_Msk                         /*!<Parity Error bit      */
-
-/*******************  Bit definition for SPDIFRX_DR register  (DRFMT = 0b10 case) *******************/
-#define SPDIFRX_DR1_DRNL1_Pos       (16U)                                      
-#define SPDIFRX_DR1_DRNL1_Msk       (0xFFFFUL << SPDIFRX_DR1_DRNL1_Pos)         /*!< 0xFFFF0000 */
-#define SPDIFRX_DR1_DRNL1           SPDIFRX_DR1_DRNL1_Msk                      /*!<Data value Channel B      */
-#define SPDIFRX_DR1_DRNL2_Pos       (0U)                                       
-#define SPDIFRX_DR1_DRNL2_Msk       (0xFFFFUL << SPDIFRX_DR1_DRNL2_Pos)         /*!< 0x0000FFFF */
-#define SPDIFRX_DR1_DRNL2           SPDIFRX_DR1_DRNL2_Msk                      /*!<Data value Channel A      */
-
-/*******************  Bit definition for SPDIFRX_CSR register   *******************/
-#define SPDIFRX_CSR_USR_Pos         (0U)                                       
-#define SPDIFRX_CSR_USR_Msk         (0xFFFFUL << SPDIFRX_CSR_USR_Pos)           /*!< 0x0000FFFF */
-#define SPDIFRX_CSR_USR             SPDIFRX_CSR_USR_Msk                        /*!<User data information           */
-#define SPDIFRX_CSR_CS_Pos          (16U)                                      
-#define SPDIFRX_CSR_CS_Msk          (0xFFUL << SPDIFRX_CSR_CS_Pos)              /*!< 0x00FF0000 */
-#define SPDIFRX_CSR_CS              SPDIFRX_CSR_CS_Msk                         /*!<Channel A status information    */
-#define SPDIFRX_CSR_SOB_Pos         (24U)                                      
-#define SPDIFRX_CSR_SOB_Msk         (0x1UL << SPDIFRX_CSR_SOB_Pos)              /*!< 0x01000000 */
-#define SPDIFRX_CSR_SOB             SPDIFRX_CSR_SOB_Msk                        /*!<Start Of Block                  */
-
-/*******************  Bit definition for SPDIFRX_DIR register    *******************/
-#define SPDIFRX_DIR_THI_Pos         (0U)                                       
-#define SPDIFRX_DIR_THI_Msk         (0x13FFUL << SPDIFRX_DIR_THI_Pos)           /*!< 0x000013FF */
-#define SPDIFRX_DIR_THI             SPDIFRX_DIR_THI_Msk                        /*!<Threshold LOW      */
-#define SPDIFRX_DIR_TLO_Pos         (16U)                                      
-#define SPDIFRX_DIR_TLO_Msk         (0x1FFFUL << SPDIFRX_DIR_TLO_Pos)           /*!< 0x1FFF0000 */
-#define SPDIFRX_DIR_TLO             SPDIFRX_DIR_TLO_Msk                        /*!<Threshold HIGH     */
-
 
 /******************************************************************************/
 /*                                                                            */
@@ -12339,6 +12285,15 @@ typedef struct
 #define SDIO_CMD_SDIOSUSPEND_Pos       (11U)                                   
 #define SDIO_CMD_SDIOSUSPEND_Msk       (0x1UL << SDIO_CMD_SDIOSUSPEND_Pos)      /*!< 0x00000800 */
 #define SDIO_CMD_SDIOSUSPEND           SDIO_CMD_SDIOSUSPEND_Msk                /*!<SD I/O suspend command                                         */
+#define SDIO_CMD_ENCMDCOMPL_Pos        (12U)                                   
+#define SDIO_CMD_ENCMDCOMPL_Msk        (0x1UL << SDIO_CMD_ENCMDCOMPL_Pos)       /*!< 0x00001000 */
+#define SDIO_CMD_ENCMDCOMPL            SDIO_CMD_ENCMDCOMPL_Msk                 /*!<Enable CMD completion                                          */
+#define SDIO_CMD_NIEN_Pos              (13U)                                   
+#define SDIO_CMD_NIEN_Msk              (0x1UL << SDIO_CMD_NIEN_Pos)             /*!< 0x00002000 */
+#define SDIO_CMD_NIEN                  SDIO_CMD_NIEN_Msk                       /*!<Not Interrupt Enable                                           */
+#define SDIO_CMD_CEATACMD_Pos          (14U)                                   
+#define SDIO_CMD_CEATACMD_Msk          (0x1UL << SDIO_CMD_CEATACMD_Pos)         /*!< 0x00004000 */
+#define SDIO_CMD_CEATACMD              SDIO_CMD_CEATACMD_Msk                   /*!<CE-ATA command                                                 */
 
 /*****************  Bit definition for SDIO_RESPCMD register  *****************/
 #define SDIO_RESPCMD_RESPCMD_Pos       (0U)                                    
@@ -12448,6 +12403,9 @@ typedef struct
 #define SDIO_STA_DATAEND_Pos           (8U)                                    
 #define SDIO_STA_DATAEND_Msk           (0x1UL << SDIO_STA_DATAEND_Pos)          /*!< 0x00000100 */
 #define SDIO_STA_DATAEND               SDIO_STA_DATAEND_Msk                    /*!<Data end (data counter, SDIDCOUNT, is zero)   */
+#define SDIO_STA_STBITERR_Pos          (9U)                                    
+#define SDIO_STA_STBITERR_Msk          (0x1UL << SDIO_STA_STBITERR_Pos)         /*!< 0x00000200 */
+#define SDIO_STA_STBITERR              SDIO_STA_STBITERR_Msk                   /*!<Start bit not detected on all data signals in wide bus mode */
 #define SDIO_STA_DBCKEND_Pos           (10U)                                   
 #define SDIO_STA_DBCKEND_Msk           (0x1UL << SDIO_STA_DBCKEND_Pos)          /*!< 0x00000400 */
 #define SDIO_STA_DBCKEND               SDIO_STA_DBCKEND_Msk                    /*!<Data block sent/received (CRC check passed)   */
@@ -12487,6 +12445,9 @@ typedef struct
 #define SDIO_STA_SDIOIT_Pos            (22U)                                   
 #define SDIO_STA_SDIOIT_Msk            (0x1UL << SDIO_STA_SDIOIT_Pos)           /*!< 0x00400000 */
 #define SDIO_STA_SDIOIT                SDIO_STA_SDIOIT_Msk                     /*!<SDIO interrupt received                       */
+#define SDIO_STA_CEATAEND_Pos          (23U)                                   
+#define SDIO_STA_CEATAEND_Msk          (0x1UL << SDIO_STA_CEATAEND_Pos)         /*!< 0x00800000 */
+#define SDIO_STA_CEATAEND              SDIO_STA_CEATAEND_Msk                   /*!<CE-ATA command completion signal received for CMD61 */
 
 /*******************  Bit definition for SDIO_ICR register  *******************/
 #define SDIO_ICR_CCRCFAILC_Pos         (0U)                                    
@@ -12516,12 +12477,18 @@ typedef struct
 #define SDIO_ICR_DATAENDC_Pos          (8U)                                    
 #define SDIO_ICR_DATAENDC_Msk          (0x1UL << SDIO_ICR_DATAENDC_Pos)         /*!< 0x00000100 */
 #define SDIO_ICR_DATAENDC              SDIO_ICR_DATAENDC_Msk                   /*!<DATAEND flag clear bit  */
+#define SDIO_ICR_STBITERRC_Pos         (9U)                                    
+#define SDIO_ICR_STBITERRC_Msk         (0x1UL << SDIO_ICR_STBITERRC_Pos)        /*!< 0x00000200 */
+#define SDIO_ICR_STBITERRC             SDIO_ICR_STBITERRC_Msk                  /*!<STBITERR flag clear bit */
 #define SDIO_ICR_DBCKENDC_Pos          (10U)                                   
 #define SDIO_ICR_DBCKENDC_Msk          (0x1UL << SDIO_ICR_DBCKENDC_Pos)         /*!< 0x00000400 */
 #define SDIO_ICR_DBCKENDC              SDIO_ICR_DBCKENDC_Msk                   /*!<DBCKEND flag clear bit  */
 #define SDIO_ICR_SDIOITC_Pos           (22U)                                   
 #define SDIO_ICR_SDIOITC_Msk           (0x1UL << SDIO_ICR_SDIOITC_Pos)          /*!< 0x00400000 */
 #define SDIO_ICR_SDIOITC               SDIO_ICR_SDIOITC_Msk                    /*!<SDIOIT flag clear bit   */
+#define SDIO_ICR_CEATAENDC_Pos         (23U)                                   
+#define SDIO_ICR_CEATAENDC_Msk         (0x1UL << SDIO_ICR_CEATAENDC_Pos)        /*!< 0x00800000 */
+#define SDIO_ICR_CEATAENDC             SDIO_ICR_CEATAENDC_Msk                  /*!<CEATAEND flag clear bit */
 
 /******************  Bit definition for SDIO_MASK register  *******************/
 #define SDIO_MASK_CCRCFAILIE_Pos       (0U)                                    
@@ -12551,6 +12518,9 @@ typedef struct
 #define SDIO_MASK_DATAENDIE_Pos        (8U)                                    
 #define SDIO_MASK_DATAENDIE_Msk        (0x1UL << SDIO_MASK_DATAENDIE_Pos)       /*!< 0x00000100 */
 #define SDIO_MASK_DATAENDIE            SDIO_MASK_DATAENDIE_Msk                 /*!<Data End Interrupt Enable                  */
+#define SDIO_MASK_STBITERRIE_Pos       (9U)                                    
+#define SDIO_MASK_STBITERRIE_Msk       (0x1UL << SDIO_MASK_STBITERRIE_Pos)      /*!< 0x00000200 */
+#define SDIO_MASK_STBITERRIE           SDIO_MASK_STBITERRIE_Msk                /*!<Start Bit Error Interrupt Enable           */
 #define SDIO_MASK_DBCKENDIE_Pos        (10U)                                   
 #define SDIO_MASK_DBCKENDIE_Msk        (0x1UL << SDIO_MASK_DBCKENDIE_Pos)       /*!< 0x00000400 */
 #define SDIO_MASK_DBCKENDIE            SDIO_MASK_DBCKENDIE_Msk                 /*!<Data Block End Interrupt Enable            */
@@ -12590,6 +12560,9 @@ typedef struct
 #define SDIO_MASK_SDIOITIE_Pos         (22U)                                   
 #define SDIO_MASK_SDIOITIE_Msk         (0x1UL << SDIO_MASK_SDIOITIE_Pos)        /*!< 0x00400000 */
 #define SDIO_MASK_SDIOITIE             SDIO_MASK_SDIOITIE_Msk                  /*!<SDIO Mode Interrupt Received interrupt Enable */
+#define SDIO_MASK_CEATAENDIE_Pos       (23U)                                   
+#define SDIO_MASK_CEATAENDIE_Msk       (0x1UL << SDIO_MASK_CEATAENDIE_Pos)      /*!< 0x00800000 */
+#define SDIO_MASK_CEATAENDIE           SDIO_MASK_CEATAENDIE_Msk                /*!<CE-ATA command completion signal received Interrupt Enable */
 
 /*****************  Bit definition for SDIO_FIFOCNT register  *****************/
 #define SDIO_FIFOCNT_FIFOCOUNT_Pos     (0U)                                    
@@ -12606,7 +12579,7 @@ typedef struct
 /*                        Serial Peripheral Interface                         */
 /*                                                                            */
 /******************************************************************************/
-#define I2S_APB1_APB2_FEATURE                                                  /*!< I2S IP's are splited between RCC APB1 and APB2 interfaces */
+#define SPI_I2S_FULLDUPLEX_SUPPORT                                             /*!< I2S Full-Duplex support */
 
 /*******************  Bit definition for SPI_CR1 register  ********************/
 #define SPI_CR1_CPHA_Pos            (0U)                                       
@@ -12766,9 +12739,6 @@ typedef struct
 #define SPI_I2SCFGR_I2SMOD_Pos      (11U)                                      
 #define SPI_I2SCFGR_I2SMOD_Msk      (0x1UL << SPI_I2SCFGR_I2SMOD_Pos)           /*!< 0x00000800 */
 #define SPI_I2SCFGR_I2SMOD          SPI_I2SCFGR_I2SMOD_Msk                     /*!<I2S mode selection */
-#define SPI_I2SCFGR_ASTRTEN_Pos     (12U)                                      
-#define SPI_I2SCFGR_ASTRTEN_Msk     (0x1UL << SPI_I2SCFGR_ASTRTEN_Pos)          /*!< 0x00001000 */
-#define SPI_I2SCFGR_ASTRTEN         SPI_I2SCFGR_ASTRTEN_Msk                    /*!<Asynchronous start enable */
 
 /******************  Bit definition for SPI_I2SPR register  *******************/
 #define SPI_I2SPR_I2SDIV_Pos        (0U)                                       
@@ -12815,6 +12785,11 @@ typedef struct
 #define SYSCFG_PMC_ADC3DC2_Pos               (18U)                             
 #define SYSCFG_PMC_ADC3DC2_Msk               (0x1UL << SYSCFG_PMC_ADC3DC2_Pos)  /*!< 0x00040000 */
 #define SYSCFG_PMC_ADC3DC2                   SYSCFG_PMC_ADC3DC2_Msk            /*!< Refer to AN4073 on how to use this bit  */
+#define SYSCFG_PMC_MII_RMII_SEL_Pos          (23U)                             
+#define SYSCFG_PMC_MII_RMII_SEL_Msk          (0x1UL << SYSCFG_PMC_MII_RMII_SEL_Pos) /*!< 0x00800000 */
+#define SYSCFG_PMC_MII_RMII_SEL              SYSCFG_PMC_MII_RMII_SEL_Msk       /*!<Ethernet PHY interface selection */
+/* Old MII_RMII_SEL bit definition, maintained for legacy purpose */
+#define SYSCFG_PMC_MII_RMII             SYSCFG_PMC_MII_RMII_SEL    
 
 /*****************  Bit definition for SYSCFG_EXTICR1 register  ***************/
 #define SYSCFG_EXTICR1_EXTI0_Pos             (0U)                              
@@ -13111,14 +13086,6 @@ typedef struct
 #define SYSCFG_CMPCR_READY_Pos               (8U)                              
 #define SYSCFG_CMPCR_READY_Msk               (0x1UL << SYSCFG_CMPCR_READY_Pos)  /*!< 0x00000100 */
 #define SYSCFG_CMPCR_READY                   SYSCFG_CMPCR_READY_Msk            /*!<Compensation cell power-down */
-/******************  Bit definition for SYSCFG_CFGR register  ****************/  
-#define SYSCFG_CFGR_FMPI2C1_SCL_Pos          (0U)                              
-#define SYSCFG_CFGR_FMPI2C1_SCL_Msk          (0x1UL << SYSCFG_CFGR_FMPI2C1_SCL_Pos) /*!< 0x00000001 */
-#define SYSCFG_CFGR_FMPI2C1_SCL              SYSCFG_CFGR_FMPI2C1_SCL_Msk       /*!<FM+ drive capability for FMPI2C1_SCL pin */
-#define SYSCFG_CFGR_FMPI2C1_SDA_Pos          (1U)                              
-#define SYSCFG_CFGR_FMPI2C1_SDA_Msk          (0x1UL << SYSCFG_CFGR_FMPI2C1_SDA_Pos) /*!< 0x00000002 */
-#define SYSCFG_CFGR_FMPI2C1_SDA              SYSCFG_CFGR_FMPI2C1_SDA_Msk       /*!<FM+ drive capability for FMPI2C1_SDA pin */
-
 
 /******************************************************************************/
 /*                                                                            */
@@ -14010,9 +13977,6 @@ typedef struct
 #define DBGMCU_APB1_FZ_DBG_I2C3_SMBUS_TIMEOUT_Pos    (23U)                     
 #define DBGMCU_APB1_FZ_DBG_I2C3_SMBUS_TIMEOUT_Msk    (0x1UL << DBGMCU_APB1_FZ_DBG_I2C3_SMBUS_TIMEOUT_Pos) /*!< 0x00800000 */
 #define DBGMCU_APB1_FZ_DBG_I2C3_SMBUS_TIMEOUT        DBGMCU_APB1_FZ_DBG_I2C3_SMBUS_TIMEOUT_Msk 
-#define DBGMCU_APB1_FZ_DBG_I2C4_SMBUS_TIMEOUT_Pos    (24U)                     
-#define DBGMCU_APB1_FZ_DBG_I2C4_SMBUS_TIMEOUT_Msk    (0x1UL << DBGMCU_APB1_FZ_DBG_I2C4_SMBUS_TIMEOUT_Pos) /*!< 0x01000000 */
-#define DBGMCU_APB1_FZ_DBG_I2C4_SMBUS_TIMEOUT        DBGMCU_APB1_FZ_DBG_I2C4_SMBUS_TIMEOUT_Msk 
 #define DBGMCU_APB1_FZ_DBG_CAN1_STOP_Pos             (25U)                     
 #define DBGMCU_APB1_FZ_DBG_CAN1_STOP_Msk             (0x1UL << DBGMCU_APB1_FZ_DBG_CAN1_STOP_Pos) /*!< 0x02000000 */
 #define DBGMCU_APB1_FZ_DBG_CAN1_STOP                 DBGMCU_APB1_FZ_DBG_CAN1_STOP_Msk 
@@ -14041,6 +14005,959 @@ typedef struct
 
 /******************************************************************************/
 /*                                                                            */
+/*                Ethernet MAC Registers bits definitions                     */
+/*                                                                            */
+/******************************************************************************/
+/* Bit definition for Ethernet MAC Control Register register */
+#define ETH_MACCR_WD_Pos                              (23U)                    
+#define ETH_MACCR_WD_Msk                              (0x1UL << ETH_MACCR_WD_Pos) /*!< 0x00800000 */
+#define ETH_MACCR_WD                                  ETH_MACCR_WD_Msk         /* Watchdog disable */
+#define ETH_MACCR_JD_Pos                              (22U)                    
+#define ETH_MACCR_JD_Msk                              (0x1UL << ETH_MACCR_JD_Pos) /*!< 0x00400000 */
+#define ETH_MACCR_JD                                  ETH_MACCR_JD_Msk         /* Jabber disable */
+#define ETH_MACCR_IFG_Pos                             (17U)                    
+#define ETH_MACCR_IFG_Msk                             (0x7UL << ETH_MACCR_IFG_Pos) /*!< 0x000E0000 */
+#define ETH_MACCR_IFG                                 ETH_MACCR_IFG_Msk        /* Inter-frame gap */
+#define ETH_MACCR_IFG_96Bit                           0x00000000U              /* Minimum IFG between frames during transmission is 96Bit */
+#define ETH_MACCR_IFG_88Bit                           0x00020000U              /* Minimum IFG between frames during transmission is 88Bit */
+#define ETH_MACCR_IFG_80Bit                           0x00040000U              /* Minimum IFG between frames during transmission is 80Bit */
+#define ETH_MACCR_IFG_72Bit                           0x00060000U              /* Minimum IFG between frames during transmission is 72Bit */
+#define ETH_MACCR_IFG_64Bit                           0x00080000U              /* Minimum IFG between frames during transmission is 64Bit */
+#define ETH_MACCR_IFG_56Bit                           0x000A0000U              /* Minimum IFG between frames during transmission is 56Bit */
+#define ETH_MACCR_IFG_48Bit                           0x000C0000U              /* Minimum IFG between frames during transmission is 48Bit */
+#define ETH_MACCR_IFG_40Bit                           0x000E0000U              /* Minimum IFG between frames during transmission is 40Bit */
+#define ETH_MACCR_CSD_Pos                             (16U)                    
+#define ETH_MACCR_CSD_Msk                             (0x1UL << ETH_MACCR_CSD_Pos) /*!< 0x00010000 */
+#define ETH_MACCR_CSD                                 ETH_MACCR_CSD_Msk        /* Carrier sense disable (during transmission) */
+#define ETH_MACCR_FES_Pos                             (14U)                    
+#define ETH_MACCR_FES_Msk                             (0x1UL << ETH_MACCR_FES_Pos) /*!< 0x00004000 */
+#define ETH_MACCR_FES                                 ETH_MACCR_FES_Msk        /* Fast ethernet speed */
+#define ETH_MACCR_ROD_Pos                             (13U)                    
+#define ETH_MACCR_ROD_Msk                             (0x1UL << ETH_MACCR_ROD_Pos) /*!< 0x00002000 */
+#define ETH_MACCR_ROD                                 ETH_MACCR_ROD_Msk        /* Receive own disable */
+#define ETH_MACCR_LM_Pos                              (12U)                    
+#define ETH_MACCR_LM_Msk                              (0x1UL << ETH_MACCR_LM_Pos) /*!< 0x00001000 */
+#define ETH_MACCR_LM                                  ETH_MACCR_LM_Msk         /* loopback mode */
+#define ETH_MACCR_DM_Pos                              (11U)                    
+#define ETH_MACCR_DM_Msk                              (0x1UL << ETH_MACCR_DM_Pos) /*!< 0x00000800 */
+#define ETH_MACCR_DM                                  ETH_MACCR_DM_Msk         /* Duplex mode */
+#define ETH_MACCR_IPCO_Pos                            (10U)                    
+#define ETH_MACCR_IPCO_Msk                            (0x1UL << ETH_MACCR_IPCO_Pos) /*!< 0x00000400 */
+#define ETH_MACCR_IPCO                                ETH_MACCR_IPCO_Msk       /* IP Checksum offload */
+#define ETH_MACCR_RD_Pos                              (9U)                     
+#define ETH_MACCR_RD_Msk                              (0x1UL << ETH_MACCR_RD_Pos) /*!< 0x00000200 */
+#define ETH_MACCR_RD                                  ETH_MACCR_RD_Msk         /* Retry disable */
+#define ETH_MACCR_APCS_Pos                            (7U)                     
+#define ETH_MACCR_APCS_Msk                            (0x1UL << ETH_MACCR_APCS_Pos) /*!< 0x00000080 */
+#define ETH_MACCR_APCS                                ETH_MACCR_APCS_Msk       /* Automatic Pad/CRC stripping */
+#define ETH_MACCR_BL_Pos                              (5U)                     
+#define ETH_MACCR_BL_Msk                              (0x3UL << ETH_MACCR_BL_Pos) /*!< 0x00000060 */
+#define ETH_MACCR_BL                                  ETH_MACCR_BL_Msk         /* Back-off limit: random integer number (r) of slot time delays before rescheduling
+                                                       a transmission attempt during retries after a collision: 0 =< r <2^k */
+#define ETH_MACCR_BL_10                               0x00000000U              /* k = min (n, 10) */
+#define ETH_MACCR_BL_8                                0x00000020U              /* k = min (n, 8) */
+#define ETH_MACCR_BL_4                                0x00000040U              /* k = min (n, 4) */
+#define ETH_MACCR_BL_1                                0x00000060U              /* k = min (n, 1) */ 
+#define ETH_MACCR_DC_Pos                              (4U)                     
+#define ETH_MACCR_DC_Msk                              (0x1UL << ETH_MACCR_DC_Pos) /*!< 0x00000010 */
+#define ETH_MACCR_DC                                  ETH_MACCR_DC_Msk         /* Defferal check */
+#define ETH_MACCR_TE_Pos                              (3U)                     
+#define ETH_MACCR_TE_Msk                              (0x1UL << ETH_MACCR_TE_Pos) /*!< 0x00000008 */
+#define ETH_MACCR_TE                                  ETH_MACCR_TE_Msk         /* Transmitter enable */
+#define ETH_MACCR_RE_Pos                              (2U)                     
+#define ETH_MACCR_RE_Msk                              (0x1UL << ETH_MACCR_RE_Pos) /*!< 0x00000004 */
+#define ETH_MACCR_RE                                  ETH_MACCR_RE_Msk         /* Receiver enable */
+
+/* Bit definition for Ethernet MAC Frame Filter Register */
+#define ETH_MACFFR_RA_Pos                             (31U)                    
+#define ETH_MACFFR_RA_Msk                             (0x1UL << ETH_MACFFR_RA_Pos) /*!< 0x80000000 */
+#define ETH_MACFFR_RA                                 ETH_MACFFR_RA_Msk        /* Receive all */
+#define ETH_MACFFR_HPF_Pos                            (10U)                    
+#define ETH_MACFFR_HPF_Msk                            (0x1UL << ETH_MACFFR_HPF_Pos) /*!< 0x00000400 */
+#define ETH_MACFFR_HPF                                ETH_MACFFR_HPF_Msk       /* Hash or perfect filter */
+#define ETH_MACFFR_SAF_Pos                            (9U)                     
+#define ETH_MACFFR_SAF_Msk                            (0x1UL << ETH_MACFFR_SAF_Pos) /*!< 0x00000200 */
+#define ETH_MACFFR_SAF                                ETH_MACFFR_SAF_Msk       /* Source address filter enable */
+#define ETH_MACFFR_SAIF_Pos                           (8U)                     
+#define ETH_MACFFR_SAIF_Msk                           (0x1UL << ETH_MACFFR_SAIF_Pos) /*!< 0x00000100 */
+#define ETH_MACFFR_SAIF                               ETH_MACFFR_SAIF_Msk      /* SA inverse filtering */ 
+#define ETH_MACFFR_PCF_Pos                            (6U)                     
+#define ETH_MACFFR_PCF_Msk                            (0x3UL << ETH_MACFFR_PCF_Pos) /*!< 0x000000C0 */
+#define ETH_MACFFR_PCF                                ETH_MACFFR_PCF_Msk       /* Pass control frames: 3 cases */
+#define ETH_MACFFR_PCF_BlockAll_Pos                   (6U)                     
+#define ETH_MACFFR_PCF_BlockAll_Msk                   (0x1UL << ETH_MACFFR_PCF_BlockAll_Pos) /*!< 0x00000040 */
+#define ETH_MACFFR_PCF_BlockAll                       ETH_MACFFR_PCF_BlockAll_Msk /* MAC filters all control frames from reaching the application */
+#define ETH_MACFFR_PCF_ForwardAll_Pos                 (7U)                     
+#define ETH_MACFFR_PCF_ForwardAll_Msk                 (0x1UL << ETH_MACFFR_PCF_ForwardAll_Pos) /*!< 0x00000080 */
+#define ETH_MACFFR_PCF_ForwardAll                     ETH_MACFFR_PCF_ForwardAll_Msk /* MAC forwards all control frames to application even if they fail the Address Filter */
+#define ETH_MACFFR_PCF_ForwardPassedAddrFilter_Pos    (6U)                     
+#define ETH_MACFFR_PCF_ForwardPassedAddrFilter_Msk    (0x3UL << ETH_MACFFR_PCF_ForwardPassedAddrFilter_Pos) /*!< 0x000000C0 */
+#define ETH_MACFFR_PCF_ForwardPassedAddrFilter        ETH_MACFFR_PCF_ForwardPassedAddrFilter_Msk /* MAC forwards control frames that pass the Address Filter. */ 
+#define ETH_MACFFR_BFD_Pos                            (5U)                     
+#define ETH_MACFFR_BFD_Msk                            (0x1UL << ETH_MACFFR_BFD_Pos) /*!< 0x00000020 */
+#define ETH_MACFFR_BFD                                ETH_MACFFR_BFD_Msk       /* Broadcast frame disable */ 
+#define ETH_MACFFR_PAM_Pos                            (4U)                     
+#define ETH_MACFFR_PAM_Msk                            (0x1UL << ETH_MACFFR_PAM_Pos) /*!< 0x00000010 */
+#define ETH_MACFFR_PAM                                ETH_MACFFR_PAM_Msk       /* Pass all mutlicast */
+#define ETH_MACFFR_DAIF_Pos                           (3U)                     
+#define ETH_MACFFR_DAIF_Msk                           (0x1UL << ETH_MACFFR_DAIF_Pos) /*!< 0x00000008 */
+#define ETH_MACFFR_DAIF                               ETH_MACFFR_DAIF_Msk      /* DA Inverse filtering */
+#define ETH_MACFFR_HM_Pos                             (2U)                     
+#define ETH_MACFFR_HM_Msk                             (0x1UL << ETH_MACFFR_HM_Pos) /*!< 0x00000004 */
+#define ETH_MACFFR_HM                                 ETH_MACFFR_HM_Msk        /* Hash multicast */ 
+#define ETH_MACFFR_HU_Pos                             (1U)                     
+#define ETH_MACFFR_HU_Msk                             (0x1UL << ETH_MACFFR_HU_Pos) /*!< 0x00000002 */
+#define ETH_MACFFR_HU                                 ETH_MACFFR_HU_Msk        /* Hash unicast */
+#define ETH_MACFFR_PM_Pos                             (0U)                     
+#define ETH_MACFFR_PM_Msk                             (0x1UL << ETH_MACFFR_PM_Pos) /*!< 0x00000001 */
+#define ETH_MACFFR_PM                                 ETH_MACFFR_PM_Msk        /* Promiscuous mode */
+
+/* Bit definition for Ethernet MAC Hash Table High Register */
+#define ETH_MACHTHR_HTH_Pos                           (0U)                     
+#define ETH_MACHTHR_HTH_Msk                           (0xFFFFFFFFUL << ETH_MACHTHR_HTH_Pos) /*!< 0xFFFFFFFF */
+#define ETH_MACHTHR_HTH                               ETH_MACHTHR_HTH_Msk      /* Hash table high */
+
+/* Bit definition for Ethernet MAC Hash Table Low Register */
+#define ETH_MACHTLR_HTL_Pos                           (0U)                     
+#define ETH_MACHTLR_HTL_Msk                           (0xFFFFFFFFUL << ETH_MACHTLR_HTL_Pos) /*!< 0xFFFFFFFF */
+#define ETH_MACHTLR_HTL                               ETH_MACHTLR_HTL_Msk      /* Hash table low */
+
+/* Bit definition for Ethernet MAC MII Address Register */
+#define ETH_MACMIIAR_PA_Pos                           (11U)                    
+#define ETH_MACMIIAR_PA_Msk                           (0x1FUL << ETH_MACMIIAR_PA_Pos) /*!< 0x0000F800 */
+#define ETH_MACMIIAR_PA                               ETH_MACMIIAR_PA_Msk      /* Physical layer address */
+#define ETH_MACMIIAR_MR_Pos                           (6U)                     
+#define ETH_MACMIIAR_MR_Msk                           (0x1FUL << ETH_MACMIIAR_MR_Pos) /*!< 0x000007C0 */
+#define ETH_MACMIIAR_MR                               ETH_MACMIIAR_MR_Msk      /* MII register in the selected PHY */
+#define ETH_MACMIIAR_CR_Pos                           (2U)                     
+#define ETH_MACMIIAR_CR_Msk                           (0x7UL << ETH_MACMIIAR_CR_Pos) /*!< 0x0000001C */
+#define ETH_MACMIIAR_CR                               ETH_MACMIIAR_CR_Msk      /* CR clock range: 6 cases */
+#define ETH_MACMIIAR_CR_Div42                         0x00000000U              /* HCLK:60-100 MHz; MDC clock= HCLK/42   */
+#define ETH_MACMIIAR_CR_Div62_Pos                     (2U)                     
+#define ETH_MACMIIAR_CR_Div62_Msk                     (0x1UL << ETH_MACMIIAR_CR_Div62_Pos) /*!< 0x00000004 */
+#define ETH_MACMIIAR_CR_Div62                         ETH_MACMIIAR_CR_Div62_Msk /* HCLK:100-150 MHz; MDC clock= HCLK/62  */
+#define ETH_MACMIIAR_CR_Div16_Pos                     (3U)                     
+#define ETH_MACMIIAR_CR_Div16_Msk                     (0x1UL << ETH_MACMIIAR_CR_Div16_Pos) /*!< 0x00000008 */
+#define ETH_MACMIIAR_CR_Div16                         ETH_MACMIIAR_CR_Div16_Msk /* HCLK:20-35 MHz; MDC clock= HCLK/16    */
+#define ETH_MACMIIAR_CR_Div26_Pos                     (2U)                     
+#define ETH_MACMIIAR_CR_Div26_Msk                     (0x3UL << ETH_MACMIIAR_CR_Div26_Pos) /*!< 0x0000000C */
+#define ETH_MACMIIAR_CR_Div26                         ETH_MACMIIAR_CR_Div26_Msk /* HCLK:35-60 MHz; MDC clock= HCLK/26    */
+#define ETH_MACMIIAR_CR_Div102_Pos                    (4U)                     
+#define ETH_MACMIIAR_CR_Div102_Msk                    (0x1UL << ETH_MACMIIAR_CR_Div102_Pos) /*!< 0x00000010 */
+#define ETH_MACMIIAR_CR_Div102                        ETH_MACMIIAR_CR_Div102_Msk /* HCLK:150-168 MHz; MDC clock= HCLK/102 */
+#define ETH_MACMIIAR_MW_Pos                           (1U)                     
+#define ETH_MACMIIAR_MW_Msk                           (0x1UL << ETH_MACMIIAR_MW_Pos) /*!< 0x00000002 */
+#define ETH_MACMIIAR_MW                               ETH_MACMIIAR_MW_Msk      /* MII write */
+#define ETH_MACMIIAR_MB_Pos                           (0U)                     
+#define ETH_MACMIIAR_MB_Msk                           (0x1UL << ETH_MACMIIAR_MB_Pos) /*!< 0x00000001 */
+#define ETH_MACMIIAR_MB                               ETH_MACMIIAR_MB_Msk      /* MII busy  */
+
+/* Bit definition for Ethernet MAC MII Data Register */
+#define ETH_MACMIIDR_MD_Pos                           (0U)                     
+#define ETH_MACMIIDR_MD_Msk                           (0xFFFFUL << ETH_MACMIIDR_MD_Pos) /*!< 0x0000FFFF */
+#define ETH_MACMIIDR_MD                               ETH_MACMIIDR_MD_Msk      /* MII data: read/write data from/to PHY */
+
+/* Bit definition for Ethernet MAC Flow Control Register */
+#define ETH_MACFCR_PT_Pos                             (16U)                    
+#define ETH_MACFCR_PT_Msk                             (0xFFFFUL << ETH_MACFCR_PT_Pos) /*!< 0xFFFF0000 */
+#define ETH_MACFCR_PT                                 ETH_MACFCR_PT_Msk        /* Pause time */
+#define ETH_MACFCR_ZQPD_Pos                           (7U)                     
+#define ETH_MACFCR_ZQPD_Msk                           (0x1UL << ETH_MACFCR_ZQPD_Pos) /*!< 0x00000080 */
+#define ETH_MACFCR_ZQPD                               ETH_MACFCR_ZQPD_Msk      /* Zero-quanta pause disable */
+#define ETH_MACFCR_PLT_Pos                            (4U)                     
+#define ETH_MACFCR_PLT_Msk                            (0x3UL << ETH_MACFCR_PLT_Pos) /*!< 0x00000030 */
+#define ETH_MACFCR_PLT                                ETH_MACFCR_PLT_Msk       /* Pause low threshold: 4 cases */
+#define ETH_MACFCR_PLT_Minus4                         0x00000000U              /* Pause time minus 4 slot times   */
+#define ETH_MACFCR_PLT_Minus28_Pos                    (4U)                     
+#define ETH_MACFCR_PLT_Minus28_Msk                    (0x1UL << ETH_MACFCR_PLT_Minus28_Pos) /*!< 0x00000010 */
+#define ETH_MACFCR_PLT_Minus28                        ETH_MACFCR_PLT_Minus28_Msk /* Pause time minus 28 slot times  */
+#define ETH_MACFCR_PLT_Minus144_Pos                   (5U)                     
+#define ETH_MACFCR_PLT_Minus144_Msk                   (0x1UL << ETH_MACFCR_PLT_Minus144_Pos) /*!< 0x00000020 */
+#define ETH_MACFCR_PLT_Minus144                       ETH_MACFCR_PLT_Minus144_Msk /* Pause time minus 144 slot times */
+#define ETH_MACFCR_PLT_Minus256_Pos                   (4U)                     
+#define ETH_MACFCR_PLT_Minus256_Msk                   (0x3UL << ETH_MACFCR_PLT_Minus256_Pos) /*!< 0x00000030 */
+#define ETH_MACFCR_PLT_Minus256                       ETH_MACFCR_PLT_Minus256_Msk /* Pause time minus 256 slot times */
+#define ETH_MACFCR_UPFD_Pos                           (3U)                     
+#define ETH_MACFCR_UPFD_Msk                           (0x1UL << ETH_MACFCR_UPFD_Pos) /*!< 0x00000008 */
+#define ETH_MACFCR_UPFD                               ETH_MACFCR_UPFD_Msk      /* Unicast pause frame detect */
+#define ETH_MACFCR_RFCE_Pos                           (2U)                     
+#define ETH_MACFCR_RFCE_Msk                           (0x1UL << ETH_MACFCR_RFCE_Pos) /*!< 0x00000004 */
+#define ETH_MACFCR_RFCE                               ETH_MACFCR_RFCE_Msk      /* Receive flow control enable */
+#define ETH_MACFCR_TFCE_Pos                           (1U)                     
+#define ETH_MACFCR_TFCE_Msk                           (0x1UL << ETH_MACFCR_TFCE_Pos) /*!< 0x00000002 */
+#define ETH_MACFCR_TFCE                               ETH_MACFCR_TFCE_Msk      /* Transmit flow control enable */
+#define ETH_MACFCR_FCBBPA_Pos                         (0U)                     
+#define ETH_MACFCR_FCBBPA_Msk                         (0x1UL << ETH_MACFCR_FCBBPA_Pos) /*!< 0x00000001 */
+#define ETH_MACFCR_FCBBPA                             ETH_MACFCR_FCBBPA_Msk    /* Flow control busy/backpressure activate */
+
+/* Bit definition for Ethernet MAC VLAN Tag Register */
+#define ETH_MACVLANTR_VLANTC_Pos                      (16U)                    
+#define ETH_MACVLANTR_VLANTC_Msk                      (0x1UL << ETH_MACVLANTR_VLANTC_Pos) /*!< 0x00010000 */
+#define ETH_MACVLANTR_VLANTC                          ETH_MACVLANTR_VLANTC_Msk /* 12-bit VLAN tag comparison */
+#define ETH_MACVLANTR_VLANTI_Pos                      (0U)                     
+#define ETH_MACVLANTR_VLANTI_Msk                      (0xFFFFUL << ETH_MACVLANTR_VLANTI_Pos) /*!< 0x0000FFFF */
+#define ETH_MACVLANTR_VLANTI                          ETH_MACVLANTR_VLANTI_Msk /* VLAN tag identifier (for receive frames) */
+
+/* Bit definition for Ethernet MAC Remote Wake-UpFrame Filter Register */ 
+#define ETH_MACRWUFFR_D_Pos                           (0U)                     
+#define ETH_MACRWUFFR_D_Msk                           (0xFFFFFFFFUL << ETH_MACRWUFFR_D_Pos) /*!< 0xFFFFFFFF */
+#define ETH_MACRWUFFR_D                               ETH_MACRWUFFR_D_Msk      /* Wake-up frame filter register data */
+/* Eight sequential Writes to this address (offset 0x28) will write all Wake-UpFrame Filter Registers.
+   Eight sequential Reads from this address (offset 0x28) will read all Wake-UpFrame Filter Registers. */
+/* Wake-UpFrame Filter Reg0 : Filter 0 Byte Mask
+   Wake-UpFrame Filter Reg1 : Filter 1 Byte Mask
+   Wake-UpFrame Filter Reg2 : Filter 2 Byte Mask
+   Wake-UpFrame Filter Reg3 : Filter 3 Byte Mask
+   Wake-UpFrame Filter Reg4 : RSVD - Filter3 Command - RSVD - Filter2 Command - 
+                              RSVD - Filter1 Command - RSVD - Filter0 Command
+   Wake-UpFrame Filter Re5 : Filter3 Offset - Filter2 Offset - Filter1 Offset - Filter0 Offset
+   Wake-UpFrame Filter Re6 : Filter1 CRC16 - Filter0 CRC16
+   Wake-UpFrame Filter Re7 : Filter3 CRC16 - Filter2 CRC16 */
+
+/* Bit definition for Ethernet MAC PMT Control and Status Register */ 
+#define ETH_MACPMTCSR_WFFRPR_Pos                      (31U)                    
+#define ETH_MACPMTCSR_WFFRPR_Msk                      (0x1UL << ETH_MACPMTCSR_WFFRPR_Pos) /*!< 0x80000000 */
+#define ETH_MACPMTCSR_WFFRPR                          ETH_MACPMTCSR_WFFRPR_Msk /* Wake-Up Frame Filter Register Pointer Reset */
+#define ETH_MACPMTCSR_GU_Pos                          (9U)                     
+#define ETH_MACPMTCSR_GU_Msk                          (0x1UL << ETH_MACPMTCSR_GU_Pos) /*!< 0x00000200 */
+#define ETH_MACPMTCSR_GU                              ETH_MACPMTCSR_GU_Msk     /* Global Unicast                              */
+#define ETH_MACPMTCSR_WFR_Pos                         (6U)                     
+#define ETH_MACPMTCSR_WFR_Msk                         (0x1UL << ETH_MACPMTCSR_WFR_Pos) /*!< 0x00000040 */
+#define ETH_MACPMTCSR_WFR                             ETH_MACPMTCSR_WFR_Msk    /* Wake-Up Frame Received                      */
+#define ETH_MACPMTCSR_MPR_Pos                         (5U)                     
+#define ETH_MACPMTCSR_MPR_Msk                         (0x1UL << ETH_MACPMTCSR_MPR_Pos) /*!< 0x00000020 */
+#define ETH_MACPMTCSR_MPR                             ETH_MACPMTCSR_MPR_Msk    /* Magic Packet Received                       */
+#define ETH_MACPMTCSR_WFE_Pos                         (2U)                     
+#define ETH_MACPMTCSR_WFE_Msk                         (0x1UL << ETH_MACPMTCSR_WFE_Pos) /*!< 0x00000004 */
+#define ETH_MACPMTCSR_WFE                             ETH_MACPMTCSR_WFE_Msk    /* Wake-Up Frame Enable                        */
+#define ETH_MACPMTCSR_MPE_Pos                         (1U)                     
+#define ETH_MACPMTCSR_MPE_Msk                         (0x1UL << ETH_MACPMTCSR_MPE_Pos) /*!< 0x00000002 */
+#define ETH_MACPMTCSR_MPE                             ETH_MACPMTCSR_MPE_Msk    /* Magic Packet Enable                         */
+#define ETH_MACPMTCSR_PD_Pos                          (0U)                     
+#define ETH_MACPMTCSR_PD_Msk                          (0x1UL << ETH_MACPMTCSR_PD_Pos) /*!< 0x00000001 */
+#define ETH_MACPMTCSR_PD                              ETH_MACPMTCSR_PD_Msk     /* Power Down                                  */
+
+/* Bit definition for Ethernet MAC debug Register */
+#define ETH_MACDBGR_TFF_Pos                           (25U)                    
+#define ETH_MACDBGR_TFF_Msk                           (0x1UL << ETH_MACDBGR_TFF_Pos) /*!< 0x02000000 */
+#define ETH_MACDBGR_TFF                               ETH_MACDBGR_TFF_Msk      /* Tx FIFO full                                                            */
+#define ETH_MACDBGR_TFNE_Pos                          (24U)                    
+#define ETH_MACDBGR_TFNE_Msk                          (0x1UL << ETH_MACDBGR_TFNE_Pos) /*!< 0x01000000 */
+#define ETH_MACDBGR_TFNE                              ETH_MACDBGR_TFNE_Msk     /* Tx FIFO not empty                                                       */
+#define ETH_MACDBGR_TFWA_Pos                          (22U)                    
+#define ETH_MACDBGR_TFWA_Msk                          (0x1UL << ETH_MACDBGR_TFWA_Pos) /*!< 0x00400000 */
+#define ETH_MACDBGR_TFWA                              ETH_MACDBGR_TFWA_Msk     /* Tx FIFO write active                                                    */
+#define ETH_MACDBGR_TFRS_Pos                          (20U)                    
+#define ETH_MACDBGR_TFRS_Msk                          (0x3UL << ETH_MACDBGR_TFRS_Pos) /*!< 0x00300000 */
+#define ETH_MACDBGR_TFRS                              ETH_MACDBGR_TFRS_Msk     /* Tx FIFO read status mask                                                */
+#define ETH_MACDBGR_TFRS_WRITING_Pos                  (20U)                    
+#define ETH_MACDBGR_TFRS_WRITING_Msk                  (0x3UL << ETH_MACDBGR_TFRS_WRITING_Pos) /*!< 0x00300000 */
+#define ETH_MACDBGR_TFRS_WRITING                      ETH_MACDBGR_TFRS_WRITING_Msk /* Writing the received TxStatus or flushing the TxFIFO                    */
+#define ETH_MACDBGR_TFRS_WAITING_Pos                  (21U)                    
+#define ETH_MACDBGR_TFRS_WAITING_Msk                  (0x1UL << ETH_MACDBGR_TFRS_WAITING_Pos) /*!< 0x00200000 */
+#define ETH_MACDBGR_TFRS_WAITING                      ETH_MACDBGR_TFRS_WAITING_Msk /* Waiting for TxStatus from MAC transmitter                               */
+#define ETH_MACDBGR_TFRS_READ_Pos                     (20U)                    
+#define ETH_MACDBGR_TFRS_READ_Msk                     (0x1UL << ETH_MACDBGR_TFRS_READ_Pos) /*!< 0x00100000 */
+#define ETH_MACDBGR_TFRS_READ                         ETH_MACDBGR_TFRS_READ_Msk /* Read state (transferring data to the MAC transmitter)                   */
+#define ETH_MACDBGR_TFRS_IDLE                         0x00000000U              /* Idle state                                                              */
+#define ETH_MACDBGR_MTP_Pos                           (19U)                    
+#define ETH_MACDBGR_MTP_Msk                           (0x1UL << ETH_MACDBGR_MTP_Pos) /*!< 0x00080000 */
+#define ETH_MACDBGR_MTP                               ETH_MACDBGR_MTP_Msk      /* MAC transmitter in pause                                                */
+#define ETH_MACDBGR_MTFCS_Pos                         (17U)                    
+#define ETH_MACDBGR_MTFCS_Msk                         (0x3UL << ETH_MACDBGR_MTFCS_Pos) /*!< 0x00060000 */
+#define ETH_MACDBGR_MTFCS                             ETH_MACDBGR_MTFCS_Msk    /* MAC transmit frame controller status mask                               */
+#define ETH_MACDBGR_MTFCS_TRANSFERRING_Pos            (17U)                    
+#define ETH_MACDBGR_MTFCS_TRANSFERRING_Msk            (0x3UL << ETH_MACDBGR_MTFCS_TRANSFERRING_Pos) /*!< 0x00060000 */
+#define ETH_MACDBGR_MTFCS_TRANSFERRING                ETH_MACDBGR_MTFCS_TRANSFERRING_Msk /* Transferring input frame for transmission                               */
+#define ETH_MACDBGR_MTFCS_GENERATINGPCF_Pos           (18U)                    
+#define ETH_MACDBGR_MTFCS_GENERATINGPCF_Msk           (0x1UL << ETH_MACDBGR_MTFCS_GENERATINGPCF_Pos) /*!< 0x00040000 */
+#define ETH_MACDBGR_MTFCS_GENERATINGPCF               ETH_MACDBGR_MTFCS_GENERATINGPCF_Msk /* Generating and transmitting a Pause control frame (in full duplex mode) */
+#define ETH_MACDBGR_MTFCS_WAITING_Pos                 (17U)                    
+#define ETH_MACDBGR_MTFCS_WAITING_Msk                 (0x1UL << ETH_MACDBGR_MTFCS_WAITING_Pos) /*!< 0x00020000 */
+#define ETH_MACDBGR_MTFCS_WAITING                     ETH_MACDBGR_MTFCS_WAITING_Msk /* Waiting for Status of previous frame or IFG/backoff period to be over   */
+#define ETH_MACDBGR_MTFCS_IDLE                        0x00000000U              /* Idle                                                                    */
+#define ETH_MACDBGR_MMTEA_Pos                         (16U)                    
+#define ETH_MACDBGR_MMTEA_Msk                         (0x1UL << ETH_MACDBGR_MMTEA_Pos) /*!< 0x00010000 */
+#define ETH_MACDBGR_MMTEA                             ETH_MACDBGR_MMTEA_Msk    /* MAC MII transmit engine active                                          */
+#define ETH_MACDBGR_RFFL_Pos                          (8U)                     
+#define ETH_MACDBGR_RFFL_Msk                          (0x3UL << ETH_MACDBGR_RFFL_Pos) /*!< 0x00000300 */
+#define ETH_MACDBGR_RFFL                              ETH_MACDBGR_RFFL_Msk     /* Rx FIFO fill level mask                                                 */
+#define ETH_MACDBGR_RFFL_FULL_Pos                     (8U)                     
+#define ETH_MACDBGR_RFFL_FULL_Msk                     (0x3UL << ETH_MACDBGR_RFFL_FULL_Pos) /*!< 0x00000300 */
+#define ETH_MACDBGR_RFFL_FULL                         ETH_MACDBGR_RFFL_FULL_Msk /* RxFIFO full                                                             */
+#define ETH_MACDBGR_RFFL_ABOVEFCT_Pos                 (9U)                     
+#define ETH_MACDBGR_RFFL_ABOVEFCT_Msk                 (0x1UL << ETH_MACDBGR_RFFL_ABOVEFCT_Pos) /*!< 0x00000200 */
+#define ETH_MACDBGR_RFFL_ABOVEFCT                     ETH_MACDBGR_RFFL_ABOVEFCT_Msk /* RxFIFO fill-level above flow-control activate threshold                 */
+#define ETH_MACDBGR_RFFL_BELOWFCT_Pos                 (8U)                     
+#define ETH_MACDBGR_RFFL_BELOWFCT_Msk                 (0x1UL << ETH_MACDBGR_RFFL_BELOWFCT_Pos) /*!< 0x00000100 */
+#define ETH_MACDBGR_RFFL_BELOWFCT                     ETH_MACDBGR_RFFL_BELOWFCT_Msk /* RxFIFO fill-level below flow-control de-activate threshold              */
+#define ETH_MACDBGR_RFFL_EMPTY                        0x00000000U              /* RxFIFO empty                                                            */
+#define ETH_MACDBGR_RFRCS_Pos                         (5U)                     
+#define ETH_MACDBGR_RFRCS_Msk                         (0x3UL << ETH_MACDBGR_RFRCS_Pos) /*!< 0x00000060 */
+#define ETH_MACDBGR_RFRCS                             ETH_MACDBGR_RFRCS_Msk    /* Rx FIFO read controller status mask                                     */
+#define ETH_MACDBGR_RFRCS_FLUSHING_Pos                (5U)                     
+#define ETH_MACDBGR_RFRCS_FLUSHING_Msk                (0x3UL << ETH_MACDBGR_RFRCS_FLUSHING_Pos) /*!< 0x00000060 */
+#define ETH_MACDBGR_RFRCS_FLUSHING                    ETH_MACDBGR_RFRCS_FLUSHING_Msk /* Flushing the frame data and status                                      */
+#define ETH_MACDBGR_RFRCS_STATUSREADING_Pos           (6U)                     
+#define ETH_MACDBGR_RFRCS_STATUSREADING_Msk           (0x1UL << ETH_MACDBGR_RFRCS_STATUSREADING_Pos) /*!< 0x00000040 */
+#define ETH_MACDBGR_RFRCS_STATUSREADING               ETH_MACDBGR_RFRCS_STATUSREADING_Msk /* Reading frame status (or time-stamp)                                    */
+#define ETH_MACDBGR_RFRCS_DATAREADING_Pos             (5U)                     
+#define ETH_MACDBGR_RFRCS_DATAREADING_Msk             (0x1UL << ETH_MACDBGR_RFRCS_DATAREADING_Pos) /*!< 0x00000020 */
+#define ETH_MACDBGR_RFRCS_DATAREADING                 ETH_MACDBGR_RFRCS_DATAREADING_Msk /* Reading frame data                                                      */
+#define ETH_MACDBGR_RFRCS_IDLE                        0x00000000U              /* IDLE state                                                              */
+#define ETH_MACDBGR_RFWRA_Pos                         (4U)                     
+#define ETH_MACDBGR_RFWRA_Msk                         (0x1UL << ETH_MACDBGR_RFWRA_Pos) /*!< 0x00000010 */
+#define ETH_MACDBGR_RFWRA                             ETH_MACDBGR_RFWRA_Msk    /* Rx FIFO write controller active                                         */
+#define ETH_MACDBGR_MSFRWCS_Pos                       (1U)                     
+#define ETH_MACDBGR_MSFRWCS_Msk                       (0x3UL << ETH_MACDBGR_MSFRWCS_Pos) /*!< 0x00000006 */
+#define ETH_MACDBGR_MSFRWCS                           ETH_MACDBGR_MSFRWCS_Msk  /* MAC small FIFO read / write controllers status  mask                    */
+#define ETH_MACDBGR_MSFRWCS_1                         (0x2UL << ETH_MACDBGR_MSFRWCS_Pos) /*!< 0x00000004 */
+#define ETH_MACDBGR_MSFRWCS_0                         (0x1UL << ETH_MACDBGR_MSFRWCS_Pos) /*!< 0x00000002 */
+#define ETH_MACDBGR_MMRPEA_Pos                        (0U)                     
+#define ETH_MACDBGR_MMRPEA_Msk                        (0x1UL << ETH_MACDBGR_MMRPEA_Pos) /*!< 0x00000001 */
+#define ETH_MACDBGR_MMRPEA                            ETH_MACDBGR_MMRPEA_Msk   /* MAC MII receive protocol engine active                                  */
+
+/* Bit definition for Ethernet MAC Status Register */
+#define ETH_MACSR_TSTS_Pos                            (9U)                     
+#define ETH_MACSR_TSTS_Msk                            (0x1UL << ETH_MACSR_TSTS_Pos) /*!< 0x00000200 */
+#define ETH_MACSR_TSTS                                ETH_MACSR_TSTS_Msk       /* Time stamp trigger status */
+#define ETH_MACSR_MMCTS_Pos                           (6U)                     
+#define ETH_MACSR_MMCTS_Msk                           (0x1UL << ETH_MACSR_MMCTS_Pos) /*!< 0x00000040 */
+#define ETH_MACSR_MMCTS                               ETH_MACSR_MMCTS_Msk      /* MMC transmit status       */
+#define ETH_MACSR_MMMCRS_Pos                          (5U)                     
+#define ETH_MACSR_MMMCRS_Msk                          (0x1UL << ETH_MACSR_MMMCRS_Pos) /*!< 0x00000020 */
+#define ETH_MACSR_MMMCRS                              ETH_MACSR_MMMCRS_Msk     /* MMC receive status        */
+#define ETH_MACSR_MMCS_Pos                            (4U)                     
+#define ETH_MACSR_MMCS_Msk                            (0x1UL << ETH_MACSR_MMCS_Pos) /*!< 0x00000010 */
+#define ETH_MACSR_MMCS                                ETH_MACSR_MMCS_Msk       /* MMC status                */
+#define ETH_MACSR_PMTS_Pos                            (3U)                     
+#define ETH_MACSR_PMTS_Msk                            (0x1UL << ETH_MACSR_PMTS_Pos) /*!< 0x00000008 */
+#define ETH_MACSR_PMTS                                ETH_MACSR_PMTS_Msk       /* PMT status                */
+
+/* Bit definition for Ethernet MAC Interrupt Mask Register */
+#define ETH_MACIMR_TSTIM_Pos                          (9U)                     
+#define ETH_MACIMR_TSTIM_Msk                          (0x1UL << ETH_MACIMR_TSTIM_Pos) /*!< 0x00000200 */
+#define ETH_MACIMR_TSTIM                              ETH_MACIMR_TSTIM_Msk     /* Time stamp trigger interrupt mask */
+#define ETH_MACIMR_PMTIM_Pos                          (3U)                     
+#define ETH_MACIMR_PMTIM_Msk                          (0x1UL << ETH_MACIMR_PMTIM_Pos) /*!< 0x00000008 */
+#define ETH_MACIMR_PMTIM                              ETH_MACIMR_PMTIM_Msk     /* PMT interrupt mask                */
+
+/* Bit definition for Ethernet MAC Address0 High Register */
+#define ETH_MACA0HR_MACA0H_Pos                        (0U)                     
+#define ETH_MACA0HR_MACA0H_Msk                        (0xFFFFUL << ETH_MACA0HR_MACA0H_Pos) /*!< 0x0000FFFF */
+#define ETH_MACA0HR_MACA0H                            ETH_MACA0HR_MACA0H_Msk   /* MAC address0 high */
+
+/* Bit definition for Ethernet MAC Address0 Low Register */
+#define ETH_MACA0LR_MACA0L_Pos                        (0U)                     
+#define ETH_MACA0LR_MACA0L_Msk                        (0xFFFFFFFFUL << ETH_MACA0LR_MACA0L_Pos) /*!< 0xFFFFFFFF */
+#define ETH_MACA0LR_MACA0L                            ETH_MACA0LR_MACA0L_Msk   /* MAC address0 low */
+
+/* Bit definition for Ethernet MAC Address1 High Register */
+#define ETH_MACA1HR_AE_Pos                            (31U)                    
+#define ETH_MACA1HR_AE_Msk                            (0x1UL << ETH_MACA1HR_AE_Pos) /*!< 0x80000000 */
+#define ETH_MACA1HR_AE                                ETH_MACA1HR_AE_Msk       /* Address enable */
+#define ETH_MACA1HR_SA_Pos                            (30U)                    
+#define ETH_MACA1HR_SA_Msk                            (0x1UL << ETH_MACA1HR_SA_Pos) /*!< 0x40000000 */
+#define ETH_MACA1HR_SA                                ETH_MACA1HR_SA_Msk       /* Source address */
+#define ETH_MACA1HR_MBC_Pos                           (24U)                    
+#define ETH_MACA1HR_MBC_Msk                           (0x3FUL << ETH_MACA1HR_MBC_Pos) /*!< 0x3F000000 */
+#define ETH_MACA1HR_MBC                               ETH_MACA1HR_MBC_Msk      /* Mask byte control: bits to mask for comparison of the MAC Address bytes */
+#define ETH_MACA1HR_MBC_HBits15_8                     0x20000000U              /* Mask MAC Address high reg bits [15:8] */
+#define ETH_MACA1HR_MBC_HBits7_0                      0x10000000U              /* Mask MAC Address high reg bits [7:0]  */
+#define ETH_MACA1HR_MBC_LBits31_24                    0x08000000U              /* Mask MAC Address low reg bits [31:24] */
+#define ETH_MACA1HR_MBC_LBits23_16                    0x04000000U              /* Mask MAC Address low reg bits [23:16] */
+#define ETH_MACA1HR_MBC_LBits15_8                     0x02000000U              /* Mask MAC Address low reg bits [15:8]  */
+#define ETH_MACA1HR_MBC_LBits7_0                      0x01000000U              /* Mask MAC Address low reg bits [7:0]   */
+#define ETH_MACA1HR_MACA1H_Pos                        (0U)                     
+#define ETH_MACA1HR_MACA1H_Msk                        (0xFFFFUL << ETH_MACA1HR_MACA1H_Pos) /*!< 0x0000FFFF */
+#define ETH_MACA1HR_MACA1H                            ETH_MACA1HR_MACA1H_Msk   /* MAC address1 high */
+
+/* Bit definition for Ethernet MAC Address1 Low Register */
+#define ETH_MACA1LR_MACA1L_Pos                        (0U)                     
+#define ETH_MACA1LR_MACA1L_Msk                        (0xFFFFFFFFUL << ETH_MACA1LR_MACA1L_Pos) /*!< 0xFFFFFFFF */
+#define ETH_MACA1LR_MACA1L                            ETH_MACA1LR_MACA1L_Msk   /* MAC address1 low */
+
+/* Bit definition for Ethernet MAC Address2 High Register */
+#define ETH_MACA2HR_AE_Pos                            (31U)                    
+#define ETH_MACA2HR_AE_Msk                            (0x1UL << ETH_MACA2HR_AE_Pos) /*!< 0x80000000 */
+#define ETH_MACA2HR_AE                                ETH_MACA2HR_AE_Msk       /* Address enable */
+#define ETH_MACA2HR_SA_Pos                            (30U)                    
+#define ETH_MACA2HR_SA_Msk                            (0x1UL << ETH_MACA2HR_SA_Pos) /*!< 0x40000000 */
+#define ETH_MACA2HR_SA                                ETH_MACA2HR_SA_Msk       /* Source address */
+#define ETH_MACA2HR_MBC_Pos                           (24U)                    
+#define ETH_MACA2HR_MBC_Msk                           (0x3FUL << ETH_MACA2HR_MBC_Pos) /*!< 0x3F000000 */
+#define ETH_MACA2HR_MBC                               ETH_MACA2HR_MBC_Msk      /* Mask byte control */
+#define ETH_MACA2HR_MBC_HBits15_8                     0x20000000U              /* Mask MAC Address high reg bits [15:8] */
+#define ETH_MACA2HR_MBC_HBits7_0                      0x10000000U              /* Mask MAC Address high reg bits [7:0]  */
+#define ETH_MACA2HR_MBC_LBits31_24                    0x08000000U              /* Mask MAC Address low reg bits [31:24] */
+#define ETH_MACA2HR_MBC_LBits23_16                    0x04000000U              /* Mask MAC Address low reg bits [23:16] */
+#define ETH_MACA2HR_MBC_LBits15_8                     0x02000000U              /* Mask MAC Address low reg bits [15:8]  */
+#define ETH_MACA2HR_MBC_LBits7_0                      0x01000000U              /* Mask MAC Address low reg bits [70]    */
+#define ETH_MACA2HR_MACA2H_Pos                        (0U)                     
+#define ETH_MACA2HR_MACA2H_Msk                        (0xFFFFUL << ETH_MACA2HR_MACA2H_Pos) /*!< 0x0000FFFF */
+#define ETH_MACA2HR_MACA2H                            ETH_MACA2HR_MACA2H_Msk   /* MAC address1 high */
+
+/* Bit definition for Ethernet MAC Address2 Low Register */
+#define ETH_MACA2LR_MACA2L_Pos                        (0U)                     
+#define ETH_MACA2LR_MACA2L_Msk                        (0xFFFFFFFFUL << ETH_MACA2LR_MACA2L_Pos) /*!< 0xFFFFFFFF */
+#define ETH_MACA2LR_MACA2L                            ETH_MACA2LR_MACA2L_Msk   /* MAC address2 low */
+
+/* Bit definition for Ethernet MAC Address3 High Register */
+#define ETH_MACA3HR_AE_Pos                            (31U)                    
+#define ETH_MACA3HR_AE_Msk                            (0x1UL << ETH_MACA3HR_AE_Pos) /*!< 0x80000000 */
+#define ETH_MACA3HR_AE                                ETH_MACA3HR_AE_Msk       /* Address enable */
+#define ETH_MACA3HR_SA_Pos                            (30U)                    
+#define ETH_MACA3HR_SA_Msk                            (0x1UL << ETH_MACA3HR_SA_Pos) /*!< 0x40000000 */
+#define ETH_MACA3HR_SA                                ETH_MACA3HR_SA_Msk       /* Source address */
+#define ETH_MACA3HR_MBC_Pos                           (24U)                    
+#define ETH_MACA3HR_MBC_Msk                           (0x3FUL << ETH_MACA3HR_MBC_Pos) /*!< 0x3F000000 */
+#define ETH_MACA3HR_MBC                               ETH_MACA3HR_MBC_Msk      /* Mask byte control */
+#define ETH_MACA3HR_MBC_HBits15_8                     0x20000000U              /* Mask MAC Address high reg bits [15:8] */
+#define ETH_MACA3HR_MBC_HBits7_0                      0x10000000U              /* Mask MAC Address high reg bits [7:0]  */
+#define ETH_MACA3HR_MBC_LBits31_24                    0x08000000U              /* Mask MAC Address low reg bits [31:24] */
+#define ETH_MACA3HR_MBC_LBits23_16                    0x04000000U              /* Mask MAC Address low reg bits [23:16] */
+#define ETH_MACA3HR_MBC_LBits15_8                     0x02000000U              /* Mask MAC Address low reg bits [15:8]  */
+#define ETH_MACA3HR_MBC_LBits7_0                      0x01000000U              /* Mask MAC Address low reg bits [70]    */
+#define ETH_MACA3HR_MACA3H_Pos                        (0U)                     
+#define ETH_MACA3HR_MACA3H_Msk                        (0xFFFFUL << ETH_MACA3HR_MACA3H_Pos) /*!< 0x0000FFFF */
+#define ETH_MACA3HR_MACA3H                            ETH_MACA3HR_MACA3H_Msk   /* MAC address3 high */
+
+/* Bit definition for Ethernet MAC Address3 Low Register */
+#define ETH_MACA3LR_MACA3L_Pos                        (0U)                     
+#define ETH_MACA3LR_MACA3L_Msk                        (0xFFFFFFFFUL << ETH_MACA3LR_MACA3L_Pos) /*!< 0xFFFFFFFF */
+#define ETH_MACA3LR_MACA3L                            ETH_MACA3LR_MACA3L_Msk   /* MAC address3 low */
+
+/******************************************************************************/
+/*                Ethernet MMC Registers bits definition                      */
+/******************************************************************************/
+
+/* Bit definition for Ethernet MMC Contol Register */
+#define ETH_MMCCR_MCFHP_Pos                           (5U)                     
+#define ETH_MMCCR_MCFHP_Msk                           (0x1UL << ETH_MMCCR_MCFHP_Pos) /*!< 0x00000020 */
+#define ETH_MMCCR_MCFHP                               ETH_MMCCR_MCFHP_Msk      /* MMC counter Full-Half preset */
+#define ETH_MMCCR_MCP_Pos                             (4U)                     
+#define ETH_MMCCR_MCP_Msk                             (0x1UL << ETH_MMCCR_MCP_Pos) /*!< 0x00000010 */
+#define ETH_MMCCR_MCP                                 ETH_MMCCR_MCP_Msk        /* MMC counter preset           */
+#define ETH_MMCCR_MCF_Pos                             (3U)                     
+#define ETH_MMCCR_MCF_Msk                             (0x1UL << ETH_MMCCR_MCF_Pos) /*!< 0x00000008 */
+#define ETH_MMCCR_MCF                                 ETH_MMCCR_MCF_Msk        /* MMC Counter Freeze           */
+#define ETH_MMCCR_ROR_Pos                             (2U)                     
+#define ETH_MMCCR_ROR_Msk                             (0x1UL << ETH_MMCCR_ROR_Pos) /*!< 0x00000004 */
+#define ETH_MMCCR_ROR                                 ETH_MMCCR_ROR_Msk        /* Reset on Read                */
+#define ETH_MMCCR_CSR_Pos                             (1U)                     
+#define ETH_MMCCR_CSR_Msk                             (0x1UL << ETH_MMCCR_CSR_Pos) /*!< 0x00000002 */
+#define ETH_MMCCR_CSR                                 ETH_MMCCR_CSR_Msk        /* Counter Stop Rollover        */
+#define ETH_MMCCR_CR_Pos                              (0U)                     
+#define ETH_MMCCR_CR_Msk                              (0x1UL << ETH_MMCCR_CR_Pos) /*!< 0x00000001 */
+#define ETH_MMCCR_CR                                  ETH_MMCCR_CR_Msk         /* Counters Reset               */
+
+/* Bit definition for Ethernet MMC Receive Interrupt Register */
+#define ETH_MMCRIR_RGUFS_Pos                          (17U)                    
+#define ETH_MMCRIR_RGUFS_Msk                          (0x1UL << ETH_MMCRIR_RGUFS_Pos) /*!< 0x00020000 */
+#define ETH_MMCRIR_RGUFS                              ETH_MMCRIR_RGUFS_Msk     /* Set when Rx good unicast frames counter reaches half the maximum value */
+#define ETH_MMCRIR_RFAES_Pos                          (6U)                     
+#define ETH_MMCRIR_RFAES_Msk                          (0x1UL << ETH_MMCRIR_RFAES_Pos) /*!< 0x00000040 */
+#define ETH_MMCRIR_RFAES                              ETH_MMCRIR_RFAES_Msk     /* Set when Rx alignment error counter reaches half the maximum value */
+#define ETH_MMCRIR_RFCES_Pos                          (5U)                     
+#define ETH_MMCRIR_RFCES_Msk                          (0x1UL << ETH_MMCRIR_RFCES_Pos) /*!< 0x00000020 */
+#define ETH_MMCRIR_RFCES                              ETH_MMCRIR_RFCES_Msk     /* Set when Rx crc error counter reaches half the maximum value */
+
+/* Bit definition for Ethernet MMC Transmit Interrupt Register */
+#define ETH_MMCTIR_TGFS_Pos                           (21U)                    
+#define ETH_MMCTIR_TGFS_Msk                           (0x1UL << ETH_MMCTIR_TGFS_Pos) /*!< 0x00200000 */
+#define ETH_MMCTIR_TGFS                               ETH_MMCTIR_TGFS_Msk      /* Set when Tx good frame count counter reaches half the maximum value */
+#define ETH_MMCTIR_TGFMSCS_Pos                        (15U)                    
+#define ETH_MMCTIR_TGFMSCS_Msk                        (0x1UL << ETH_MMCTIR_TGFMSCS_Pos) /*!< 0x00008000 */
+#define ETH_MMCTIR_TGFMSCS                            ETH_MMCTIR_TGFMSCS_Msk   /* Set when Tx good multi col counter reaches half the maximum value */
+#define ETH_MMCTIR_TGFSCS_Pos                         (14U)                    
+#define ETH_MMCTIR_TGFSCS_Msk                         (0x1UL << ETH_MMCTIR_TGFSCS_Pos) /*!< 0x00004000 */
+#define ETH_MMCTIR_TGFSCS                             ETH_MMCTIR_TGFSCS_Msk    /* Set when Tx good single col counter reaches half the maximum value */
+
+/* Bit definition for Ethernet MMC Receive Interrupt Mask Register */
+#define ETH_MMCRIMR_RGUFM_Pos                         (17U)                    
+#define ETH_MMCRIMR_RGUFM_Msk                         (0x1UL << ETH_MMCRIMR_RGUFM_Pos) /*!< 0x00020000 */
+#define ETH_MMCRIMR_RGUFM                             ETH_MMCRIMR_RGUFM_Msk    /* Mask the interrupt when Rx good unicast frames counter reaches half the maximum value */
+#define ETH_MMCRIMR_RFAEM_Pos                         (6U)                     
+#define ETH_MMCRIMR_RFAEM_Msk                         (0x1UL << ETH_MMCRIMR_RFAEM_Pos) /*!< 0x00000040 */
+#define ETH_MMCRIMR_RFAEM                             ETH_MMCRIMR_RFAEM_Msk    /* Mask the interrupt when when Rx alignment error counter reaches half the maximum value */
+#define ETH_MMCRIMR_RFCEM_Pos                         (5U)                     
+#define ETH_MMCRIMR_RFCEM_Msk                         (0x1UL << ETH_MMCRIMR_RFCEM_Pos) /*!< 0x00000020 */
+#define ETH_MMCRIMR_RFCEM                             ETH_MMCRIMR_RFCEM_Msk    /* Mask the interrupt when Rx crc error counter reaches half the maximum value */
+
+/* Bit definition for Ethernet MMC Transmit Interrupt Mask Register */
+#define ETH_MMCTIMR_TGFM_Pos                          (21U)                    
+#define ETH_MMCTIMR_TGFM_Msk                          (0x1UL << ETH_MMCTIMR_TGFM_Pos) /*!< 0x00200000 */
+#define ETH_MMCTIMR_TGFM                              ETH_MMCTIMR_TGFM_Msk     /* Mask the interrupt when Tx good frame count counter reaches half the maximum value */
+#define ETH_MMCTIMR_TGFMSCM_Pos                       (15U)                    
+#define ETH_MMCTIMR_TGFMSCM_Msk                       (0x1UL << ETH_MMCTIMR_TGFMSCM_Pos) /*!< 0x00008000 */
+#define ETH_MMCTIMR_TGFMSCM                           ETH_MMCTIMR_TGFMSCM_Msk  /* Mask the interrupt when Tx good multi col counter reaches half the maximum value */
+#define ETH_MMCTIMR_TGFSCM_Pos                        (14U)                    
+#define ETH_MMCTIMR_TGFSCM_Msk                        (0x1UL << ETH_MMCTIMR_TGFSCM_Pos) /*!< 0x00004000 */
+#define ETH_MMCTIMR_TGFSCM                            ETH_MMCTIMR_TGFSCM_Msk   /* Mask the interrupt when Tx good single col counter reaches half the maximum value */
+
+/* Bit definition for Ethernet MMC Transmitted Good Frames after Single Collision Counter Register */
+#define ETH_MMCTGFSCCR_TGFSCC_Pos                     (0U)                     
+#define ETH_MMCTGFSCCR_TGFSCC_Msk                     (0xFFFFFFFFUL << ETH_MMCTGFSCCR_TGFSCC_Pos) /*!< 0xFFFFFFFF */
+#define ETH_MMCTGFSCCR_TGFSCC                         ETH_MMCTGFSCCR_TGFSCC_Msk /* Number of successfully transmitted frames after a single collision in Half-duplex mode. */
+
+/* Bit definition for Ethernet MMC Transmitted Good Frames after More than a Single Collision Counter Register */
+#define ETH_MMCTGFMSCCR_TGFMSCC_Pos                   (0U)                     
+#define ETH_MMCTGFMSCCR_TGFMSCC_Msk                   (0xFFFFFFFFUL << ETH_MMCTGFMSCCR_TGFMSCC_Pos) /*!< 0xFFFFFFFF */
+#define ETH_MMCTGFMSCCR_TGFMSCC                       ETH_MMCTGFMSCCR_TGFMSCC_Msk /* Number of successfully transmitted frames after more than a single collision in Half-duplex mode. */
+
+/* Bit definition for Ethernet MMC Transmitted Good Frames Counter Register */
+#define ETH_MMCTGFCR_TGFC_Pos                         (0U)                     
+#define ETH_MMCTGFCR_TGFC_Msk                         (0xFFFFFFFFUL << ETH_MMCTGFCR_TGFC_Pos) /*!< 0xFFFFFFFF */
+#define ETH_MMCTGFCR_TGFC                             ETH_MMCTGFCR_TGFC_Msk    /* Number of good frames transmitted. */
+
+/* Bit definition for Ethernet MMC Received Frames with CRC Error Counter Register */
+#define ETH_MMCRFCECR_RFCEC_Pos                       (0U)                     
+#define ETH_MMCRFCECR_RFCEC_Msk                       (0xFFFFFFFFUL << ETH_MMCRFCECR_RFCEC_Pos) /*!< 0xFFFFFFFF */
+#define ETH_MMCRFCECR_RFCEC                           ETH_MMCRFCECR_RFCEC_Msk  /* Number of frames received with CRC error. */
+
+/* Bit definition for Ethernet MMC Received Frames with Alignement Error Counter Register */
+#define ETH_MMCRFAECR_RFAEC_Pos                       (0U)                     
+#define ETH_MMCRFAECR_RFAEC_Msk                       (0xFFFFFFFFUL << ETH_MMCRFAECR_RFAEC_Pos) /*!< 0xFFFFFFFF */
+#define ETH_MMCRFAECR_RFAEC                           ETH_MMCRFAECR_RFAEC_Msk  /* Number of frames received with alignment (dribble) error */
+
+/* Bit definition for Ethernet MMC Received Good Unicast Frames Counter Register */
+#define ETH_MMCRGUFCR_RGUFC_Pos                       (0U)                     
+#define ETH_MMCRGUFCR_RGUFC_Msk                       (0xFFFFFFFFUL << ETH_MMCRGUFCR_RGUFC_Pos) /*!< 0xFFFFFFFF */
+#define ETH_MMCRGUFCR_RGUFC                           ETH_MMCRGUFCR_RGUFC_Msk  /* Number of good unicast frames received. */
+
+/******************************************************************************/
+/*               Ethernet PTP Registers bits definition                       */
+/******************************************************************************/
+
+/* Bit definition for Ethernet PTP Time Stamp Contol Register */
+#define ETH_PTPTSCR_TSCNT_Pos                         (16U)                    
+#define ETH_PTPTSCR_TSCNT_Msk                         (0x3UL << ETH_PTPTSCR_TSCNT_Pos) /*!< 0x00030000 */
+#define ETH_PTPTSCR_TSCNT                             ETH_PTPTSCR_TSCNT_Msk    /* Time stamp clock node type */
+#define ETH_PTPTSSR_TSSMRME_Pos                       (15U)                    
+#define ETH_PTPTSSR_TSSMRME_Msk                       (0x1UL << ETH_PTPTSSR_TSSMRME_Pos) /*!< 0x00008000 */
+#define ETH_PTPTSSR_TSSMRME                           ETH_PTPTSSR_TSSMRME_Msk  /* Time stamp snapshot for message relevant to master enable */
+#define ETH_PTPTSSR_TSSEME_Pos                        (14U)                    
+#define ETH_PTPTSSR_TSSEME_Msk                        (0x1UL << ETH_PTPTSSR_TSSEME_Pos) /*!< 0x00004000 */
+#define ETH_PTPTSSR_TSSEME                            ETH_PTPTSSR_TSSEME_Msk   /* Time stamp snapshot for event message enable */
+#define ETH_PTPTSSR_TSSIPV4FE_Pos                     (13U)                    
+#define ETH_PTPTSSR_TSSIPV4FE_Msk                     (0x1UL << ETH_PTPTSSR_TSSIPV4FE_Pos) /*!< 0x00002000 */
+#define ETH_PTPTSSR_TSSIPV4FE                         ETH_PTPTSSR_TSSIPV4FE_Msk /* Time stamp snapshot for IPv4 frames enable */
+#define ETH_PTPTSSR_TSSIPV6FE_Pos                     (12U)                    
+#define ETH_PTPTSSR_TSSIPV6FE_Msk                     (0x1UL << ETH_PTPTSSR_TSSIPV6FE_Pos) /*!< 0x00001000 */
+#define ETH_PTPTSSR_TSSIPV6FE                         ETH_PTPTSSR_TSSIPV6FE_Msk /* Time stamp snapshot for IPv6 frames enable */
+#define ETH_PTPTSSR_TSSPTPOEFE_Pos                    (11U)                    
+#define ETH_PTPTSSR_TSSPTPOEFE_Msk                    (0x1UL << ETH_PTPTSSR_TSSPTPOEFE_Pos) /*!< 0x00000800 */
+#define ETH_PTPTSSR_TSSPTPOEFE                        ETH_PTPTSSR_TSSPTPOEFE_Msk /* Time stamp snapshot for PTP over ethernet frames enable */
+#define ETH_PTPTSSR_TSPTPPSV2E_Pos                    (10U)                    
+#define ETH_PTPTSSR_TSPTPPSV2E_Msk                    (0x1UL << ETH_PTPTSSR_TSPTPPSV2E_Pos) /*!< 0x00000400 */
+#define ETH_PTPTSSR_TSPTPPSV2E                        ETH_PTPTSSR_TSPTPPSV2E_Msk /* Time stamp PTP packet snooping for version2 format enable */
+#define ETH_PTPTSSR_TSSSR_Pos                         (9U)                     
+#define ETH_PTPTSSR_TSSSR_Msk                         (0x1UL << ETH_PTPTSSR_TSSSR_Pos) /*!< 0x00000200 */
+#define ETH_PTPTSSR_TSSSR                             ETH_PTPTSSR_TSSSR_Msk    /* Time stamp Sub-seconds rollover */
+#define ETH_PTPTSSR_TSSARFE_Pos                       (8U)                     
+#define ETH_PTPTSSR_TSSARFE_Msk                       (0x1UL << ETH_PTPTSSR_TSSARFE_Pos) /*!< 0x00000100 */
+#define ETH_PTPTSSR_TSSARFE                           ETH_PTPTSSR_TSSARFE_Msk  /* Time stamp snapshot for all received frames enable */
+
+#define ETH_PTPTSCR_TSARU_Pos                         (5U)                     
+#define ETH_PTPTSCR_TSARU_Msk                         (0x1UL << ETH_PTPTSCR_TSARU_Pos) /*!< 0x00000020 */
+#define ETH_PTPTSCR_TSARU                             ETH_PTPTSCR_TSARU_Msk    /* Addend register update */
+#define ETH_PTPTSCR_TSITE_Pos                         (4U)                     
+#define ETH_PTPTSCR_TSITE_Msk                         (0x1UL << ETH_PTPTSCR_TSITE_Pos) /*!< 0x00000010 */
+#define ETH_PTPTSCR_TSITE                             ETH_PTPTSCR_TSITE_Msk    /* Time stamp interrupt trigger enable */
+#define ETH_PTPTSCR_TSSTU_Pos                         (3U)                     
+#define ETH_PTPTSCR_TSSTU_Msk                         (0x1UL << ETH_PTPTSCR_TSSTU_Pos) /*!< 0x00000008 */
+#define ETH_PTPTSCR_TSSTU                             ETH_PTPTSCR_TSSTU_Msk    /* Time stamp update */
+#define ETH_PTPTSCR_TSSTI_Pos                         (2U)                     
+#define ETH_PTPTSCR_TSSTI_Msk                         (0x1UL << ETH_PTPTSCR_TSSTI_Pos) /*!< 0x00000004 */
+#define ETH_PTPTSCR_TSSTI                             ETH_PTPTSCR_TSSTI_Msk    /* Time stamp initialize */
+#define ETH_PTPTSCR_TSFCU_Pos                         (1U)                     
+#define ETH_PTPTSCR_TSFCU_Msk                         (0x1UL << ETH_PTPTSCR_TSFCU_Pos) /*!< 0x00000002 */
+#define ETH_PTPTSCR_TSFCU                             ETH_PTPTSCR_TSFCU_Msk    /* Time stamp fine or coarse update */
+#define ETH_PTPTSCR_TSE_Pos                           (0U)                     
+#define ETH_PTPTSCR_TSE_Msk                           (0x1UL << ETH_PTPTSCR_TSE_Pos) /*!< 0x00000001 */
+#define ETH_PTPTSCR_TSE                               ETH_PTPTSCR_TSE_Msk      /* Time stamp enable */
+
+/* Bit definition for Ethernet PTP Sub-Second Increment Register */
+#define ETH_PTPSSIR_STSSI_Pos                         (0U)                     
+#define ETH_PTPSSIR_STSSI_Msk                         (0xFFUL << ETH_PTPSSIR_STSSI_Pos) /*!< 0x000000FF */
+#define ETH_PTPSSIR_STSSI                             ETH_PTPSSIR_STSSI_Msk    /* System time Sub-second increment value */
+
+/* Bit definition for Ethernet PTP Time Stamp High Register */
+#define ETH_PTPTSHR_STS_Pos                           (0U)                     
+#define ETH_PTPTSHR_STS_Msk                           (0xFFFFFFFFUL << ETH_PTPTSHR_STS_Pos) /*!< 0xFFFFFFFF */
+#define ETH_PTPTSHR_STS                               ETH_PTPTSHR_STS_Msk      /* System Time second */
+
+/* Bit definition for Ethernet PTP Time Stamp Low Register */
+#define ETH_PTPTSLR_STPNS_Pos                         (31U)                    
+#define ETH_PTPTSLR_STPNS_Msk                         (0x1UL << ETH_PTPTSLR_STPNS_Pos) /*!< 0x80000000 */
+#define ETH_PTPTSLR_STPNS                             ETH_PTPTSLR_STPNS_Msk    /* System Time Positive or negative time */
+#define ETH_PTPTSLR_STSS_Pos                          (0U)                     
+#define ETH_PTPTSLR_STSS_Msk                          (0x7FFFFFFFUL << ETH_PTPTSLR_STSS_Pos) /*!< 0x7FFFFFFF */
+#define ETH_PTPTSLR_STSS                              ETH_PTPTSLR_STSS_Msk     /* System Time sub-seconds */
+
+/* Bit definition for Ethernet PTP Time Stamp High Update Register */
+#define ETH_PTPTSHUR_TSUS_Pos                         (0U)                     
+#define ETH_PTPTSHUR_TSUS_Msk                         (0xFFFFFFFFUL << ETH_PTPTSHUR_TSUS_Pos) /*!< 0xFFFFFFFF */
+#define ETH_PTPTSHUR_TSUS                             ETH_PTPTSHUR_TSUS_Msk    /* Time stamp update seconds */
+
+/* Bit definition for Ethernet PTP Time Stamp Low Update Register */
+#define ETH_PTPTSLUR_TSUPNS_Pos                       (31U)                    
+#define ETH_PTPTSLUR_TSUPNS_Msk                       (0x1UL << ETH_PTPTSLUR_TSUPNS_Pos) /*!< 0x80000000 */
+#define ETH_PTPTSLUR_TSUPNS                           ETH_PTPTSLUR_TSUPNS_Msk  /* Time stamp update Positive or negative time */
+#define ETH_PTPTSLUR_TSUSS_Pos                        (0U)                     
+#define ETH_PTPTSLUR_TSUSS_Msk                        (0x7FFFFFFFUL << ETH_PTPTSLUR_TSUSS_Pos) /*!< 0x7FFFFFFF */
+#define ETH_PTPTSLUR_TSUSS                            ETH_PTPTSLUR_TSUSS_Msk   /* Time stamp update sub-seconds */
+
+/* Bit definition for Ethernet PTP Time Stamp Addend Register */
+#define ETH_PTPTSAR_TSA_Pos                           (0U)                     
+#define ETH_PTPTSAR_TSA_Msk                           (0xFFFFFFFFUL << ETH_PTPTSAR_TSA_Pos) /*!< 0xFFFFFFFF */
+#define ETH_PTPTSAR_TSA                               ETH_PTPTSAR_TSA_Msk      /* Time stamp addend */
+
+/* Bit definition for Ethernet PTP Target Time High Register */
+#define ETH_PTPTTHR_TTSH_Pos                          (0U)                     
+#define ETH_PTPTTHR_TTSH_Msk                          (0xFFFFFFFFUL << ETH_PTPTTHR_TTSH_Pos) /*!< 0xFFFFFFFF */
+#define ETH_PTPTTHR_TTSH                              ETH_PTPTTHR_TTSH_Msk     /* Target time stamp high */
+
+/* Bit definition for Ethernet PTP Target Time Low Register */
+#define ETH_PTPTTLR_TTSL_Pos                          (0U)                     
+#define ETH_PTPTTLR_TTSL_Msk                          (0xFFFFFFFFUL << ETH_PTPTTLR_TTSL_Pos) /*!< 0xFFFFFFFF */
+#define ETH_PTPTTLR_TTSL                              ETH_PTPTTLR_TTSL_Msk     /* Target time stamp low */
+
+/* Bit definition for Ethernet PTP Time Stamp Status Register */
+#define ETH_PTPTSSR_TSTTR_Pos                         (5U)                     
+#define ETH_PTPTSSR_TSTTR_Msk                         (0x1UL << ETH_PTPTSSR_TSTTR_Pos) /*!< 0x00000020 */
+#define ETH_PTPTSSR_TSTTR                             ETH_PTPTSSR_TSTTR_Msk    /* Time stamp target time reached */
+#define ETH_PTPTSSR_TSSO_Pos                          (4U)                     
+#define ETH_PTPTSSR_TSSO_Msk                          (0x1UL << ETH_PTPTSSR_TSSO_Pos) /*!< 0x00000010 */
+#define ETH_PTPTSSR_TSSO                              ETH_PTPTSSR_TSSO_Msk     /* Time stamp seconds overflow */
+
+/******************************************************************************/
+/*                 Ethernet DMA Registers bits definition                     */
+/******************************************************************************/
+
+/* Bit definition for Ethernet DMA Bus Mode Register */
+#define ETH_DMABMR_AAB_Pos                            (25U)                    
+#define ETH_DMABMR_AAB_Msk                            (0x1UL << ETH_DMABMR_AAB_Pos) /*!< 0x02000000 */
+#define ETH_DMABMR_AAB                                ETH_DMABMR_AAB_Msk       /* Address-Aligned beats */
+#define ETH_DMABMR_FPM_Pos                            (24U)                    
+#define ETH_DMABMR_FPM_Msk                            (0x1UL << ETH_DMABMR_FPM_Pos) /*!< 0x01000000 */
+#define ETH_DMABMR_FPM                                ETH_DMABMR_FPM_Msk       /* 4xPBL mode */
+#define ETH_DMABMR_USP_Pos                            (23U)                    
+#define ETH_DMABMR_USP_Msk                            (0x1UL << ETH_DMABMR_USP_Pos) /*!< 0x00800000 */
+#define ETH_DMABMR_USP                                ETH_DMABMR_USP_Msk       /* Use separate PBL */
+#define ETH_DMABMR_RDP_Pos                            (17U)                    
+#define ETH_DMABMR_RDP_Msk                            (0x3FUL << ETH_DMABMR_RDP_Pos) /*!< 0x007E0000 */
+#define ETH_DMABMR_RDP                                ETH_DMABMR_RDP_Msk       /* RxDMA PBL */
+#define ETH_DMABMR_RDP_1Beat                          0x00020000U              /* maximum number of beats to be transferred in one RxDMA transaction is 1 */
+#define ETH_DMABMR_RDP_2Beat                          0x00040000U              /* maximum number of beats to be transferred in one RxDMA transaction is 2 */
+#define ETH_DMABMR_RDP_4Beat                          0x00080000U              /* maximum number of beats to be transferred in one RxDMA transaction is 4 */
+#define ETH_DMABMR_RDP_8Beat                          0x00100000U              /* maximum number of beats to be transferred in one RxDMA transaction is 8 */
+#define ETH_DMABMR_RDP_16Beat                         0x00200000U              /* maximum number of beats to be transferred in one RxDMA transaction is 16 */
+#define ETH_DMABMR_RDP_32Beat                         0x00400000U              /* maximum number of beats to be transferred in one RxDMA transaction is 32 */                
+#define ETH_DMABMR_RDP_4xPBL_4Beat                    0x01020000U              /* maximum number of beats to be transferred in one RxDMA transaction is 4 */
+#define ETH_DMABMR_RDP_4xPBL_8Beat                    0x01040000U              /* maximum number of beats to be transferred in one RxDMA transaction is 8 */
+#define ETH_DMABMR_RDP_4xPBL_16Beat                   0x01080000U              /* maximum number of beats to be transferred in one RxDMA transaction is 16 */
+#define ETH_DMABMR_RDP_4xPBL_32Beat                   0x01100000U              /* maximum number of beats to be transferred in one RxDMA transaction is 32 */
+#define ETH_DMABMR_RDP_4xPBL_64Beat                   0x01200000U              /* maximum number of beats to be transferred in one RxDMA transaction is 64 */
+#define ETH_DMABMR_RDP_4xPBL_128Beat                  0x01400000U              /* maximum number of beats to be transferred in one RxDMA transaction is 128 */  
+#define ETH_DMABMR_FB_Pos                             (16U)                    
+#define ETH_DMABMR_FB_Msk                             (0x1UL << ETH_DMABMR_FB_Pos) /*!< 0x00010000 */
+#define ETH_DMABMR_FB                                 ETH_DMABMR_FB_Msk        /* Fixed Burst */
+#define ETH_DMABMR_RTPR_Pos                           (14U)                    
+#define ETH_DMABMR_RTPR_Msk                           (0x3UL << ETH_DMABMR_RTPR_Pos) /*!< 0x0000C000 */
+#define ETH_DMABMR_RTPR                               ETH_DMABMR_RTPR_Msk      /* Rx Tx priority ratio */
+#define ETH_DMABMR_RTPR_1_1                           0x00000000U              /* Rx Tx priority ratio */
+#define ETH_DMABMR_RTPR_2_1                           0x00004000U              /* Rx Tx priority ratio */
+#define ETH_DMABMR_RTPR_3_1                           0x00008000U              /* Rx Tx priority ratio */
+#define ETH_DMABMR_RTPR_4_1                           0x0000C000U              /* Rx Tx priority ratio */  
+#define ETH_DMABMR_PBL_Pos                            (8U)                     
+#define ETH_DMABMR_PBL_Msk                            (0x3FUL << ETH_DMABMR_PBL_Pos) /*!< 0x00003F00 */
+#define ETH_DMABMR_PBL                                ETH_DMABMR_PBL_Msk       /* Programmable burst length */
+#define ETH_DMABMR_PBL_1Beat                          0x00000100U              /* maximum number of beats to be transferred in one TxDMA (or both) transaction is 1 */
+#define ETH_DMABMR_PBL_2Beat                          0x00000200U              /* maximum number of beats to be transferred in one TxDMA (or both) transaction is 2 */
+#define ETH_DMABMR_PBL_4Beat                          0x00000400U              /* maximum number of beats to be transferred in one TxDMA (or both) transaction is 4 */
+#define ETH_DMABMR_PBL_8Beat                          0x00000800U              /* maximum number of beats to be transferred in one TxDMA (or both) transaction is 8 */
+#define ETH_DMABMR_PBL_16Beat                         0x00001000U              /* maximum number of beats to be transferred in one TxDMA (or both) transaction is 16 */
+#define ETH_DMABMR_PBL_32Beat                         0x00002000U              /* maximum number of beats to be transferred in one TxDMA (or both) transaction is 32 */                
+#define ETH_DMABMR_PBL_4xPBL_4Beat                    0x01000100U              /* maximum number of beats to be transferred in one TxDMA (or both) transaction is 4 */
+#define ETH_DMABMR_PBL_4xPBL_8Beat                    0x01000200U              /* maximum number of beats to be transferred in one TxDMA (or both) transaction is 8 */
+#define ETH_DMABMR_PBL_4xPBL_16Beat                   0x01000400U              /* maximum number of beats to be transferred in one TxDMA (or both) transaction is 16 */
+#define ETH_DMABMR_PBL_4xPBL_32Beat                   0x01000800U              /* maximum number of beats to be transferred in one TxDMA (or both) transaction is 32 */
+#define ETH_DMABMR_PBL_4xPBL_64Beat                   0x01001000U              /* maximum number of beats to be transferred in one TxDMA (or both) transaction is 64 */
+#define ETH_DMABMR_PBL_4xPBL_128Beat                  0x01002000U              /* maximum number of beats to be transferred in one TxDMA (or both) transaction is 128 */
+#define ETH_DMABMR_EDE_Pos                            (7U)                     
+#define ETH_DMABMR_EDE_Msk                            (0x1UL << ETH_DMABMR_EDE_Pos) /*!< 0x00000080 */
+#define ETH_DMABMR_EDE                                ETH_DMABMR_EDE_Msk       /* Enhanced Descriptor Enable */
+#define ETH_DMABMR_DSL_Pos                            (2U)                     
+#define ETH_DMABMR_DSL_Msk                            (0x1FUL << ETH_DMABMR_DSL_Pos) /*!< 0x0000007C */
+#define ETH_DMABMR_DSL                                ETH_DMABMR_DSL_Msk       /* Descriptor Skip Length */
+#define ETH_DMABMR_DA_Pos                             (1U)                     
+#define ETH_DMABMR_DA_Msk                             (0x1UL << ETH_DMABMR_DA_Pos) /*!< 0x00000002 */
+#define ETH_DMABMR_DA                                 ETH_DMABMR_DA_Msk        /* DMA arbitration scheme */
+#define ETH_DMABMR_SR_Pos                             (0U)                     
+#define ETH_DMABMR_SR_Msk                             (0x1UL << ETH_DMABMR_SR_Pos) /*!< 0x00000001 */
+#define ETH_DMABMR_SR                                 ETH_DMABMR_SR_Msk        /* Software reset */
+
+/* Bit definition for Ethernet DMA Transmit Poll Demand Register */
+#define ETH_DMATPDR_TPD_Pos                           (0U)                     
+#define ETH_DMATPDR_TPD_Msk                           (0xFFFFFFFFUL << ETH_DMATPDR_TPD_Pos) /*!< 0xFFFFFFFF */
+#define ETH_DMATPDR_TPD                               ETH_DMATPDR_TPD_Msk      /* Transmit poll demand */
+
+/* Bit definition for Ethernet DMA Receive Poll Demand Register */
+#define ETH_DMARPDR_RPD_Pos                           (0U)                     
+#define ETH_DMARPDR_RPD_Msk                           (0xFFFFFFFFUL << ETH_DMARPDR_RPD_Pos) /*!< 0xFFFFFFFF */
+#define ETH_DMARPDR_RPD                               ETH_DMARPDR_RPD_Msk      /* Receive poll demand  */
+
+/* Bit definition for Ethernet DMA Receive Descriptor List Address Register */
+#define ETH_DMARDLAR_SRL_Pos                          (0U)                     
+#define ETH_DMARDLAR_SRL_Msk                          (0xFFFFFFFFUL << ETH_DMARDLAR_SRL_Pos) /*!< 0xFFFFFFFF */
+#define ETH_DMARDLAR_SRL                              ETH_DMARDLAR_SRL_Msk     /* Start of receive list */
+
+/* Bit definition for Ethernet DMA Transmit Descriptor List Address Register */
+#define ETH_DMATDLAR_STL_Pos                          (0U)                     
+#define ETH_DMATDLAR_STL_Msk                          (0xFFFFFFFFUL << ETH_DMATDLAR_STL_Pos) /*!< 0xFFFFFFFF */
+#define ETH_DMATDLAR_STL                              ETH_DMATDLAR_STL_Msk     /* Start of transmit list */
+
+/* Bit definition for Ethernet DMA Status Register */
+#define ETH_DMASR_TSTS_Pos                            (29U)                    
+#define ETH_DMASR_TSTS_Msk                            (0x1UL << ETH_DMASR_TSTS_Pos) /*!< 0x20000000 */
+#define ETH_DMASR_TSTS                                ETH_DMASR_TSTS_Msk       /* Time-stamp trigger status */
+#define ETH_DMASR_PMTS_Pos                            (28U)                    
+#define ETH_DMASR_PMTS_Msk                            (0x1UL << ETH_DMASR_PMTS_Pos) /*!< 0x10000000 */
+#define ETH_DMASR_PMTS                                ETH_DMASR_PMTS_Msk       /* PMT status */
+#define ETH_DMASR_MMCS_Pos                            (27U)                    
+#define ETH_DMASR_MMCS_Msk                            (0x1UL << ETH_DMASR_MMCS_Pos) /*!< 0x08000000 */
+#define ETH_DMASR_MMCS                                ETH_DMASR_MMCS_Msk       /* MMC status */
+#define ETH_DMASR_EBS_Pos                             (23U)                    
+#define ETH_DMASR_EBS_Msk                             (0x7UL << ETH_DMASR_EBS_Pos) /*!< 0x03800000 */
+#define ETH_DMASR_EBS                                 ETH_DMASR_EBS_Msk        /* Error bits status */
+  /* combination with EBS[2:0] for GetFlagStatus function */
+#define ETH_DMASR_EBS_DescAccess_Pos                  (25U)                    
+#define ETH_DMASR_EBS_DescAccess_Msk                  (0x1UL << ETH_DMASR_EBS_DescAccess_Pos) /*!< 0x02000000 */
+#define ETH_DMASR_EBS_DescAccess                      ETH_DMASR_EBS_DescAccess_Msk /* Error bits 0-data buffer, 1-desc. access */
+#define ETH_DMASR_EBS_ReadTransf_Pos                  (24U)                    
+#define ETH_DMASR_EBS_ReadTransf_Msk                  (0x1UL << ETH_DMASR_EBS_ReadTransf_Pos) /*!< 0x01000000 */
+#define ETH_DMASR_EBS_ReadTransf                      ETH_DMASR_EBS_ReadTransf_Msk /* Error bits 0-write trnsf, 1-read transfr */
+#define ETH_DMASR_EBS_DataTransfTx_Pos                (23U)                    
+#define ETH_DMASR_EBS_DataTransfTx_Msk                (0x1UL << ETH_DMASR_EBS_DataTransfTx_Pos) /*!< 0x00800000 */
+#define ETH_DMASR_EBS_DataTransfTx                    ETH_DMASR_EBS_DataTransfTx_Msk /* Error bits 0-Rx DMA, 1-Tx DMA */
+#define ETH_DMASR_TPS_Pos                             (20U)                    
+#define ETH_DMASR_TPS_Msk                             (0x7UL << ETH_DMASR_TPS_Pos) /*!< 0x00700000 */
+#define ETH_DMASR_TPS                                 ETH_DMASR_TPS_Msk        /* Transmit process state */
+#define ETH_DMASR_TPS_Stopped                         0x00000000U              /* Stopped - Reset or Stop Tx Command issued  */
+#define ETH_DMASR_TPS_Fetching_Pos                    (20U)                    
+#define ETH_DMASR_TPS_Fetching_Msk                    (0x1UL << ETH_DMASR_TPS_Fetching_Pos) /*!< 0x00100000 */
+#define ETH_DMASR_TPS_Fetching                        ETH_DMASR_TPS_Fetching_Msk /* Running - fetching the Tx descriptor */
+#define ETH_DMASR_TPS_Waiting_Pos                     (21U)                    
+#define ETH_DMASR_TPS_Waiting_Msk                     (0x1UL << ETH_DMASR_TPS_Waiting_Pos) /*!< 0x00200000 */
+#define ETH_DMASR_TPS_Waiting                         ETH_DMASR_TPS_Waiting_Msk /* Running - waiting for status */
+#define ETH_DMASR_TPS_Reading_Pos                     (20U)                    
+#define ETH_DMASR_TPS_Reading_Msk                     (0x3UL << ETH_DMASR_TPS_Reading_Pos) /*!< 0x00300000 */
+#define ETH_DMASR_TPS_Reading                         ETH_DMASR_TPS_Reading_Msk /* Running - reading the data from host memory */
+#define ETH_DMASR_TPS_Suspended_Pos                   (21U)                    
+#define ETH_DMASR_TPS_Suspended_Msk                   (0x3UL << ETH_DMASR_TPS_Suspended_Pos) /*!< 0x00600000 */
+#define ETH_DMASR_TPS_Suspended                       ETH_DMASR_TPS_Suspended_Msk /* Suspended - Tx Descriptor unavailable */
+#define ETH_DMASR_TPS_Closing_Pos                     (20U)                    
+#define ETH_DMASR_TPS_Closing_Msk                     (0x7UL << ETH_DMASR_TPS_Closing_Pos) /*!< 0x00700000 */
+#define ETH_DMASR_TPS_Closing                         ETH_DMASR_TPS_Closing_Msk /* Running - closing Rx descriptor */
+#define ETH_DMASR_RPS_Pos                             (17U)                    
+#define ETH_DMASR_RPS_Msk                             (0x7UL << ETH_DMASR_RPS_Pos) /*!< 0x000E0000 */
+#define ETH_DMASR_RPS                                 ETH_DMASR_RPS_Msk        /* Receive process state */
+#define ETH_DMASR_RPS_Stopped                         0x00000000U              /* Stopped - Reset or Stop Rx Command issued */
+#define ETH_DMASR_RPS_Fetching_Pos                    (17U)                    
+#define ETH_DMASR_RPS_Fetching_Msk                    (0x1UL << ETH_DMASR_RPS_Fetching_Pos) /*!< 0x00020000 */
+#define ETH_DMASR_RPS_Fetching                        ETH_DMASR_RPS_Fetching_Msk /* Running - fetching the Rx descriptor */
+#define ETH_DMASR_RPS_Waiting_Pos                     (17U)                    
+#define ETH_DMASR_RPS_Waiting_Msk                     (0x3UL << ETH_DMASR_RPS_Waiting_Pos) /*!< 0x00060000 */
+#define ETH_DMASR_RPS_Waiting                         ETH_DMASR_RPS_Waiting_Msk /* Running - waiting for packet */
+#define ETH_DMASR_RPS_Suspended_Pos                   (19U)                    
+#define ETH_DMASR_RPS_Suspended_Msk                   (0x1UL << ETH_DMASR_RPS_Suspended_Pos) /*!< 0x00080000 */
+#define ETH_DMASR_RPS_Suspended                       ETH_DMASR_RPS_Suspended_Msk /* Suspended - Rx Descriptor unavailable */
+#define ETH_DMASR_RPS_Closing_Pos                     (17U)                    
+#define ETH_DMASR_RPS_Closing_Msk                     (0x5UL << ETH_DMASR_RPS_Closing_Pos) /*!< 0x000A0000 */
+#define ETH_DMASR_RPS_Closing                         ETH_DMASR_RPS_Closing_Msk /* Running - closing descriptor */
+#define ETH_DMASR_RPS_Queuing_Pos                     (17U)                    
+#define ETH_DMASR_RPS_Queuing_Msk                     (0x7UL << ETH_DMASR_RPS_Queuing_Pos) /*!< 0x000E0000 */
+#define ETH_DMASR_RPS_Queuing                         ETH_DMASR_RPS_Queuing_Msk /* Running - queuing the receive frame into host memory */
+#define ETH_DMASR_NIS_Pos                             (16U)                    
+#define ETH_DMASR_NIS_Msk                             (0x1UL << ETH_DMASR_NIS_Pos) /*!< 0x00010000 */
+#define ETH_DMASR_NIS                                 ETH_DMASR_NIS_Msk        /* Normal interrupt summary */
+#define ETH_DMASR_AIS_Pos                             (15U)                    
+#define ETH_DMASR_AIS_Msk                             (0x1UL << ETH_DMASR_AIS_Pos) /*!< 0x00008000 */
+#define ETH_DMASR_AIS                                 ETH_DMASR_AIS_Msk        /* Abnormal interrupt summary */
+#define ETH_DMASR_ERS_Pos                             (14U)                    
+#define ETH_DMASR_ERS_Msk                             (0x1UL << ETH_DMASR_ERS_Pos) /*!< 0x00004000 */
+#define ETH_DMASR_ERS                                 ETH_DMASR_ERS_Msk        /* Early receive status */
+#define ETH_DMASR_FBES_Pos                            (13U)                    
+#define ETH_DMASR_FBES_Msk                            (0x1UL << ETH_DMASR_FBES_Pos) /*!< 0x00002000 */
+#define ETH_DMASR_FBES                                ETH_DMASR_FBES_Msk       /* Fatal bus error status */
+#define ETH_DMASR_ETS_Pos                             (10U)                    
+#define ETH_DMASR_ETS_Msk                             (0x1UL << ETH_DMASR_ETS_Pos) /*!< 0x00000400 */
+#define ETH_DMASR_ETS                                 ETH_DMASR_ETS_Msk        /* Early transmit status */
+#define ETH_DMASR_RWTS_Pos                            (9U)                     
+#define ETH_DMASR_RWTS_Msk                            (0x1UL << ETH_DMASR_RWTS_Pos) /*!< 0x00000200 */
+#define ETH_DMASR_RWTS                                ETH_DMASR_RWTS_Msk       /* Receive watchdog timeout status */
+#define ETH_DMASR_RPSS_Pos                            (8U)                     
+#define ETH_DMASR_RPSS_Msk                            (0x1UL << ETH_DMASR_RPSS_Pos) /*!< 0x00000100 */
+#define ETH_DMASR_RPSS                                ETH_DMASR_RPSS_Msk       /* Receive process stopped status */
+#define ETH_DMASR_RBUS_Pos                            (7U)                     
+#define ETH_DMASR_RBUS_Msk                            (0x1UL << ETH_DMASR_RBUS_Pos) /*!< 0x00000080 */
+#define ETH_DMASR_RBUS                                ETH_DMASR_RBUS_Msk       /* Receive buffer unavailable status */
+#define ETH_DMASR_RS_Pos                              (6U)                     
+#define ETH_DMASR_RS_Msk                              (0x1UL << ETH_DMASR_RS_Pos) /*!< 0x00000040 */
+#define ETH_DMASR_RS                                  ETH_DMASR_RS_Msk         /* Receive status */
+#define ETH_DMASR_TUS_Pos                             (5U)                     
+#define ETH_DMASR_TUS_Msk                             (0x1UL << ETH_DMASR_TUS_Pos) /*!< 0x00000020 */
+#define ETH_DMASR_TUS                                 ETH_DMASR_TUS_Msk        /* Transmit underflow status */
+#define ETH_DMASR_ROS_Pos                             (4U)                     
+#define ETH_DMASR_ROS_Msk                             (0x1UL << ETH_DMASR_ROS_Pos) /*!< 0x00000010 */
+#define ETH_DMASR_ROS                                 ETH_DMASR_ROS_Msk        /* Receive overflow status */
+#define ETH_DMASR_TJTS_Pos                            (3U)                     
+#define ETH_DMASR_TJTS_Msk                            (0x1UL << ETH_DMASR_TJTS_Pos) /*!< 0x00000008 */
+#define ETH_DMASR_TJTS                                ETH_DMASR_TJTS_Msk       /* Transmit jabber timeout status */
+#define ETH_DMASR_TBUS_Pos                            (2U)                     
+#define ETH_DMASR_TBUS_Msk                            (0x1UL << ETH_DMASR_TBUS_Pos) /*!< 0x00000004 */
+#define ETH_DMASR_TBUS                                ETH_DMASR_TBUS_Msk       /* Transmit buffer unavailable status */
+#define ETH_DMASR_TPSS_Pos                            (1U)                     
+#define ETH_DMASR_TPSS_Msk                            (0x1UL << ETH_DMASR_TPSS_Pos) /*!< 0x00000002 */
+#define ETH_DMASR_TPSS                                ETH_DMASR_TPSS_Msk       /* Transmit process stopped status */
+#define ETH_DMASR_TS_Pos                              (0U)                     
+#define ETH_DMASR_TS_Msk                              (0x1UL << ETH_DMASR_TS_Pos) /*!< 0x00000001 */
+#define ETH_DMASR_TS                                  ETH_DMASR_TS_Msk         /* Transmit status */
+
+/* Bit definition for Ethernet DMA Operation Mode Register */
+#define ETH_DMAOMR_DTCEFD_Pos                         (26U)                    
+#define ETH_DMAOMR_DTCEFD_Msk                         (0x1UL << ETH_DMAOMR_DTCEFD_Pos) /*!< 0x04000000 */
+#define ETH_DMAOMR_DTCEFD                             ETH_DMAOMR_DTCEFD_Msk    /* Disable Dropping of TCP/IP checksum error frames */
+#define ETH_DMAOMR_RSF_Pos                            (25U)                    
+#define ETH_DMAOMR_RSF_Msk                            (0x1UL << ETH_DMAOMR_RSF_Pos) /*!< 0x02000000 */
+#define ETH_DMAOMR_RSF                                ETH_DMAOMR_RSF_Msk       /* Receive store and forward */
+#define ETH_DMAOMR_DFRF_Pos                           (24U)                    
+#define ETH_DMAOMR_DFRF_Msk                           (0x1UL << ETH_DMAOMR_DFRF_Pos) /*!< 0x01000000 */
+#define ETH_DMAOMR_DFRF                               ETH_DMAOMR_DFRF_Msk      /* Disable flushing of received frames */
+#define ETH_DMAOMR_TSF_Pos                            (21U)                    
+#define ETH_DMAOMR_TSF_Msk                            (0x1UL << ETH_DMAOMR_TSF_Pos) /*!< 0x00200000 */
+#define ETH_DMAOMR_TSF                                ETH_DMAOMR_TSF_Msk       /* Transmit store and forward */
+#define ETH_DMAOMR_FTF_Pos                            (20U)                    
+#define ETH_DMAOMR_FTF_Msk                            (0x1UL << ETH_DMAOMR_FTF_Pos) /*!< 0x00100000 */
+#define ETH_DMAOMR_FTF                                ETH_DMAOMR_FTF_Msk       /* Flush transmit FIFO */
+#define ETH_DMAOMR_TTC_Pos                            (14U)                    
+#define ETH_DMAOMR_TTC_Msk                            (0x7UL << ETH_DMAOMR_TTC_Pos) /*!< 0x0001C000 */
+#define ETH_DMAOMR_TTC                                ETH_DMAOMR_TTC_Msk       /* Transmit threshold control */
+#define ETH_DMAOMR_TTC_64Bytes                        0x00000000U              /* threshold level of the MTL Transmit FIFO is 64 Bytes */
+#define ETH_DMAOMR_TTC_128Bytes                       0x00004000U              /* threshold level of the MTL Transmit FIFO is 128 Bytes */
+#define ETH_DMAOMR_TTC_192Bytes                       0x00008000U              /* threshold level of the MTL Transmit FIFO is 192 Bytes */
+#define ETH_DMAOMR_TTC_256Bytes                       0x0000C000U              /* threshold level of the MTL Transmit FIFO is 256 Bytes */
+#define ETH_DMAOMR_TTC_40Bytes                        0x00010000U              /* threshold level of the MTL Transmit FIFO is 40 Bytes */
+#define ETH_DMAOMR_TTC_32Bytes                        0x00014000U              /* threshold level of the MTL Transmit FIFO is 32 Bytes */
+#define ETH_DMAOMR_TTC_24Bytes                        0x00018000U              /* threshold level of the MTL Transmit FIFO is 24 Bytes */
+#define ETH_DMAOMR_TTC_16Bytes                        0x0001C000U              /* threshold level of the MTL Transmit FIFO is 16 Bytes */
+#define ETH_DMAOMR_ST_Pos                             (13U)                    
+#define ETH_DMAOMR_ST_Msk                             (0x1UL << ETH_DMAOMR_ST_Pos) /*!< 0x00002000 */
+#define ETH_DMAOMR_ST                                 ETH_DMAOMR_ST_Msk        /* Start/stop transmission command */
+#define ETH_DMAOMR_FEF_Pos                            (7U)                     
+#define ETH_DMAOMR_FEF_Msk                            (0x1UL << ETH_DMAOMR_FEF_Pos) /*!< 0x00000080 */
+#define ETH_DMAOMR_FEF                                ETH_DMAOMR_FEF_Msk       /* Forward error frames */
+#define ETH_DMAOMR_FUGF_Pos                           (6U)                     
+#define ETH_DMAOMR_FUGF_Msk                           (0x1UL << ETH_DMAOMR_FUGF_Pos) /*!< 0x00000040 */
+#define ETH_DMAOMR_FUGF                               ETH_DMAOMR_FUGF_Msk      /* Forward undersized good frames */
+#define ETH_DMAOMR_RTC_Pos                            (3U)                     
+#define ETH_DMAOMR_RTC_Msk                            (0x3UL << ETH_DMAOMR_RTC_Pos) /*!< 0x00000018 */
+#define ETH_DMAOMR_RTC                                ETH_DMAOMR_RTC_Msk       /* receive threshold control */
+#define ETH_DMAOMR_RTC_64Bytes                        0x00000000U              /* threshold level of the MTL Receive FIFO is 64 Bytes */
+#define ETH_DMAOMR_RTC_32Bytes                        0x00000008U              /* threshold level of the MTL Receive FIFO is 32 Bytes */
+#define ETH_DMAOMR_RTC_96Bytes                        0x00000010U              /* threshold level of the MTL Receive FIFO is 96 Bytes */
+#define ETH_DMAOMR_RTC_128Bytes                       0x00000018U              /* threshold level of the MTL Receive FIFO is 128 Bytes */
+#define ETH_DMAOMR_OSF_Pos                            (2U)                     
+#define ETH_DMAOMR_OSF_Msk                            (0x1UL << ETH_DMAOMR_OSF_Pos) /*!< 0x00000004 */
+#define ETH_DMAOMR_OSF                                ETH_DMAOMR_OSF_Msk       /* operate on second frame */
+#define ETH_DMAOMR_SR_Pos                             (1U)                     
+#define ETH_DMAOMR_SR_Msk                             (0x1UL << ETH_DMAOMR_SR_Pos) /*!< 0x00000002 */
+#define ETH_DMAOMR_SR                                 ETH_DMAOMR_SR_Msk        /* Start/stop receive */
+
+/* Bit definition for Ethernet DMA Interrupt Enable Register */
+#define ETH_DMAIER_NISE_Pos                           (16U)                    
+#define ETH_DMAIER_NISE_Msk                           (0x1UL << ETH_DMAIER_NISE_Pos) /*!< 0x00010000 */
+#define ETH_DMAIER_NISE                               ETH_DMAIER_NISE_Msk      /* Normal interrupt summary enable */
+#define ETH_DMAIER_AISE_Pos                           (15U)                    
+#define ETH_DMAIER_AISE_Msk                           (0x1UL << ETH_DMAIER_AISE_Pos) /*!< 0x00008000 */
+#define ETH_DMAIER_AISE                               ETH_DMAIER_AISE_Msk      /* Abnormal interrupt summary enable */
+#define ETH_DMAIER_ERIE_Pos                           (14U)                    
+#define ETH_DMAIER_ERIE_Msk                           (0x1UL << ETH_DMAIER_ERIE_Pos) /*!< 0x00004000 */
+#define ETH_DMAIER_ERIE                               ETH_DMAIER_ERIE_Msk      /* Early receive interrupt enable */
+#define ETH_DMAIER_FBEIE_Pos                          (13U)                    
+#define ETH_DMAIER_FBEIE_Msk                          (0x1UL << ETH_DMAIER_FBEIE_Pos) /*!< 0x00002000 */
+#define ETH_DMAIER_FBEIE                              ETH_DMAIER_FBEIE_Msk     /* Fatal bus error interrupt enable */
+#define ETH_DMAIER_ETIE_Pos                           (10U)                    
+#define ETH_DMAIER_ETIE_Msk                           (0x1UL << ETH_DMAIER_ETIE_Pos) /*!< 0x00000400 */
+#define ETH_DMAIER_ETIE                               ETH_DMAIER_ETIE_Msk      /* Early transmit interrupt enable */
+#define ETH_DMAIER_RWTIE_Pos                          (9U)                     
+#define ETH_DMAIER_RWTIE_Msk                          (0x1UL << ETH_DMAIER_RWTIE_Pos) /*!< 0x00000200 */
+#define ETH_DMAIER_RWTIE                              ETH_DMAIER_RWTIE_Msk     /* Receive watchdog timeout interrupt enable */
+#define ETH_DMAIER_RPSIE_Pos                          (8U)                     
+#define ETH_DMAIER_RPSIE_Msk                          (0x1UL << ETH_DMAIER_RPSIE_Pos) /*!< 0x00000100 */
+#define ETH_DMAIER_RPSIE                              ETH_DMAIER_RPSIE_Msk     /* Receive process stopped interrupt enable */
+#define ETH_DMAIER_RBUIE_Pos                          (7U)                     
+#define ETH_DMAIER_RBUIE_Msk                          (0x1UL << ETH_DMAIER_RBUIE_Pos) /*!< 0x00000080 */
+#define ETH_DMAIER_RBUIE                              ETH_DMAIER_RBUIE_Msk     /* Receive buffer unavailable interrupt enable */
+#define ETH_DMAIER_RIE_Pos                            (6U)                     
+#define ETH_DMAIER_RIE_Msk                            (0x1UL << ETH_DMAIER_RIE_Pos) /*!< 0x00000040 */
+#define ETH_DMAIER_RIE                                ETH_DMAIER_RIE_Msk       /* Receive interrupt enable */
+#define ETH_DMAIER_TUIE_Pos                           (5U)                     
+#define ETH_DMAIER_TUIE_Msk                           (0x1UL << ETH_DMAIER_TUIE_Pos) /*!< 0x00000020 */
+#define ETH_DMAIER_TUIE                               ETH_DMAIER_TUIE_Msk      /* Transmit Underflow interrupt enable */
+#define ETH_DMAIER_ROIE_Pos                           (4U)                     
+#define ETH_DMAIER_ROIE_Msk                           (0x1UL << ETH_DMAIER_ROIE_Pos) /*!< 0x00000010 */
+#define ETH_DMAIER_ROIE                               ETH_DMAIER_ROIE_Msk      /* Receive Overflow interrupt enable */
+#define ETH_DMAIER_TJTIE_Pos                          (3U)                     
+#define ETH_DMAIER_TJTIE_Msk                          (0x1UL << ETH_DMAIER_TJTIE_Pos) /*!< 0x00000008 */
+#define ETH_DMAIER_TJTIE                              ETH_DMAIER_TJTIE_Msk     /* Transmit jabber timeout interrupt enable */
+#define ETH_DMAIER_TBUIE_Pos                          (2U)                     
+#define ETH_DMAIER_TBUIE_Msk                          (0x1UL << ETH_DMAIER_TBUIE_Pos) /*!< 0x00000004 */
+#define ETH_DMAIER_TBUIE                              ETH_DMAIER_TBUIE_Msk     /* Transmit buffer unavailable interrupt enable */
+#define ETH_DMAIER_TPSIE_Pos                          (1U)                     
+#define ETH_DMAIER_TPSIE_Msk                          (0x1UL << ETH_DMAIER_TPSIE_Pos) /*!< 0x00000002 */
+#define ETH_DMAIER_TPSIE                              ETH_DMAIER_TPSIE_Msk     /* Transmit process stopped interrupt enable */
+#define ETH_DMAIER_TIE_Pos                            (0U)                     
+#define ETH_DMAIER_TIE_Msk                            (0x1UL << ETH_DMAIER_TIE_Pos) /*!< 0x00000001 */
+#define ETH_DMAIER_TIE                                ETH_DMAIER_TIE_Msk       /* Transmit interrupt enable */
+
+/* Bit definition for Ethernet DMA Missed Frame and Buffer Overflow Counter Register */
+#define ETH_DMAMFBOCR_OFOC_Pos                        (28U)                    
+#define ETH_DMAMFBOCR_OFOC_Msk                        (0x1UL << ETH_DMAMFBOCR_OFOC_Pos) /*!< 0x10000000 */
+#define ETH_DMAMFBOCR_OFOC                            ETH_DMAMFBOCR_OFOC_Msk   /* Overflow bit for FIFO overflow counter */
+#define ETH_DMAMFBOCR_MFA_Pos                         (17U)                    
+#define ETH_DMAMFBOCR_MFA_Msk                         (0x7FFUL << ETH_DMAMFBOCR_MFA_Pos) /*!< 0x0FFE0000 */
+#define ETH_DMAMFBOCR_MFA                             ETH_DMAMFBOCR_MFA_Msk    /* Number of frames missed by the application */
+#define ETH_DMAMFBOCR_OMFC_Pos                        (16U)                    
+#define ETH_DMAMFBOCR_OMFC_Msk                        (0x1UL << ETH_DMAMFBOCR_OMFC_Pos) /*!< 0x00010000 */
+#define ETH_DMAMFBOCR_OMFC                            ETH_DMAMFBOCR_OMFC_Msk   /* Overflow bit for missed frame counter */
+#define ETH_DMAMFBOCR_MFC_Pos                         (0U)                     
+#define ETH_DMAMFBOCR_MFC_Msk                         (0xFFFFUL << ETH_DMAMFBOCR_MFC_Pos) /*!< 0x0000FFFF */
+#define ETH_DMAMFBOCR_MFC                             ETH_DMAMFBOCR_MFC_Msk    /* Number of frames missed by the controller */
+
+/* Bit definition for Ethernet DMA Current Host Transmit Descriptor Register */
+#define ETH_DMACHTDR_HTDAP_Pos                        (0U)                     
+#define ETH_DMACHTDR_HTDAP_Msk                        (0xFFFFFFFFUL << ETH_DMACHTDR_HTDAP_Pos) /*!< 0xFFFFFFFF */
+#define ETH_DMACHTDR_HTDAP                            ETH_DMACHTDR_HTDAP_Msk   /* Host transmit descriptor address pointer */
+
+/* Bit definition for Ethernet DMA Current Host Receive Descriptor Register */
+#define ETH_DMACHRDR_HRDAP_Pos                        (0U)                     
+#define ETH_DMACHRDR_HRDAP_Msk                        (0xFFFFFFFFUL << ETH_DMACHRDR_HRDAP_Pos) /*!< 0xFFFFFFFF */
+#define ETH_DMACHRDR_HRDAP                            ETH_DMACHRDR_HRDAP_Msk   /* Host receive descriptor address pointer */
+
+/* Bit definition for Ethernet DMA Current Host Transmit Buffer Address Register */
+#define ETH_DMACHTBAR_HTBAP_Pos                       (0U)                     
+#define ETH_DMACHTBAR_HTBAP_Msk                       (0xFFFFFFFFUL << ETH_DMACHTBAR_HTBAP_Pos) /*!< 0xFFFFFFFF */
+#define ETH_DMACHTBAR_HTBAP                           ETH_DMACHTBAR_HTBAP_Msk  /* Host transmit buffer address pointer */
+
+/* Bit definition for Ethernet DMA Current Host Receive Buffer Address Register */
+#define ETH_DMACHRBAR_HRBAP_Pos                       (0U)                     
+#define ETH_DMACHRBAR_HRBAP_Msk                       (0xFFFFFFFFUL << ETH_DMACHRBAR_HRBAP_Pos) /*!< 0xFFFFFFFF */
+#define ETH_DMACHRBAR_HRBAP                           ETH_DMACHRBAR_HRBAP_Msk  /* Host receive buffer address pointer */
+
+/******************************************************************************/
+/*                                                                            */
 /*                                       USB_OTG                              */
 /*                                                                            */
 /******************************************************************************/
@@ -14051,24 +14968,6 @@ typedef struct
 #define USB_OTG_GOTGCTL_SRQ_Pos                  (1U)                          
 #define USB_OTG_GOTGCTL_SRQ_Msk                  (0x1UL << USB_OTG_GOTGCTL_SRQ_Pos) /*!< 0x00000002 */
 #define USB_OTG_GOTGCTL_SRQ                      USB_OTG_GOTGCTL_SRQ_Msk       /*!< Session request */
-#define USB_OTG_GOTGCTL_VBVALOEN_Pos             (2U)                          
-#define USB_OTG_GOTGCTL_VBVALOEN_Msk             (0x1UL << USB_OTG_GOTGCTL_VBVALOEN_Pos) /*!< 0x00000004 */
-#define USB_OTG_GOTGCTL_VBVALOEN                 USB_OTG_GOTGCTL_VBVALOEN_Msk  /*!< VBUS valid override enable */
-#define USB_OTG_GOTGCTL_VBVALOVAL_Pos            (3U)                          
-#define USB_OTG_GOTGCTL_VBVALOVAL_Msk            (0x1UL << USB_OTG_GOTGCTL_VBVALOVAL_Pos) /*!< 0x00000008 */
-#define USB_OTG_GOTGCTL_VBVALOVAL                USB_OTG_GOTGCTL_VBVALOVAL_Msk /*!< VBUS valid override value */
-#define USB_OTG_GOTGCTL_AVALOEN_Pos              (4U)                          
-#define USB_OTG_GOTGCTL_AVALOEN_Msk              (0x1UL << USB_OTG_GOTGCTL_AVALOEN_Pos) /*!< 0x00000010 */
-#define USB_OTG_GOTGCTL_AVALOEN                  USB_OTG_GOTGCTL_AVALOEN_Msk   /*!< A-peripheral session valid override enable */
-#define USB_OTG_GOTGCTL_AVALOVAL_Pos             (5U)                          
-#define USB_OTG_GOTGCTL_AVALOVAL_Msk             (0x1UL << USB_OTG_GOTGCTL_AVALOVAL_Pos) /*!< 0x00000020 */
-#define USB_OTG_GOTGCTL_AVALOVAL                 USB_OTG_GOTGCTL_AVALOVAL_Msk  /*!< A-peripheral session valid override value */
-#define USB_OTG_GOTGCTL_BVALOEN_Pos              (6U)                          
-#define USB_OTG_GOTGCTL_BVALOEN_Msk              (0x1UL << USB_OTG_GOTGCTL_BVALOEN_Pos) /*!< 0x00000040 */
-#define USB_OTG_GOTGCTL_BVALOEN                  USB_OTG_GOTGCTL_BVALOEN_Msk   /*!< B-peripheral session valid override enable */
-#define USB_OTG_GOTGCTL_BVALOVAL_Pos             (7U)                          
-#define USB_OTG_GOTGCTL_BVALOVAL_Msk             (0x1UL << USB_OTG_GOTGCTL_BVALOVAL_Pos) /*!< 0x00000080 */
-#define USB_OTG_GOTGCTL_BVALOVAL                 USB_OTG_GOTGCTL_BVALOVAL_Msk  /*!< B-peripheral session valid override value  */
 #define USB_OTG_GOTGCTL_HNGSCS_Pos               (8U)                          
 #define USB_OTG_GOTGCTL_HNGSCS_Msk               (0x1UL << USB_OTG_GOTGCTL_HNGSCS_Pos) /*!< 0x00000100 */
 #define USB_OTG_GOTGCTL_HNGSCS                   USB_OTG_GOTGCTL_HNGSCS_Msk    /*!< Host set HNP enable */
@@ -14081,9 +14980,6 @@ typedef struct
 #define USB_OTG_GOTGCTL_DHNPEN_Pos               (11U)                         
 #define USB_OTG_GOTGCTL_DHNPEN_Msk               (0x1UL << USB_OTG_GOTGCTL_DHNPEN_Pos) /*!< 0x00000800 */
 #define USB_OTG_GOTGCTL_DHNPEN                   USB_OTG_GOTGCTL_DHNPEN_Msk    /*!< Device HNP enabled */
-#define USB_OTG_GOTGCTL_EHEN_Pos                 (12U)                         
-#define USB_OTG_GOTGCTL_EHEN_Msk                 (0x1UL << USB_OTG_GOTGCTL_EHEN_Pos) /*!< 0x00001000 */
-#define USB_OTG_GOTGCTL_EHEN                     USB_OTG_GOTGCTL_EHEN_Msk      /*!< Embedded host enable */
 #define USB_OTG_GOTGCTL_CIDSTS_Pos               (16U)                         
 #define USB_OTG_GOTGCTL_CIDSTS_Msk               (0x1UL << USB_OTG_GOTGCTL_CIDSTS_Pos) /*!< 0x00010000 */
 #define USB_OTG_GOTGCTL_CIDSTS                   USB_OTG_GOTGCTL_CIDSTS_Msk    /*!< Connector ID status */
@@ -14093,12 +14989,9 @@ typedef struct
 #define USB_OTG_GOTGCTL_ASVLD_Pos                (18U)                         
 #define USB_OTG_GOTGCTL_ASVLD_Msk                (0x1UL << USB_OTG_GOTGCTL_ASVLD_Pos) /*!< 0x00040000 */
 #define USB_OTG_GOTGCTL_ASVLD                    USB_OTG_GOTGCTL_ASVLD_Msk     /*!< A-session valid  */
-#define USB_OTG_GOTGCTL_BSESVLD_Pos              (19U)                         
-#define USB_OTG_GOTGCTL_BSESVLD_Msk              (0x1UL << USB_OTG_GOTGCTL_BSESVLD_Pos) /*!< 0x00080000 */
-#define USB_OTG_GOTGCTL_BSESVLD                  USB_OTG_GOTGCTL_BSESVLD_Msk   /*!< B-session valid */
-#define USB_OTG_GOTGCTL_OTGVER_Pos               (20U)                         
-#define USB_OTG_GOTGCTL_OTGVER_Msk               (0x1UL << USB_OTG_GOTGCTL_OTGVER_Pos) /*!< 0x00100000 */
-#define USB_OTG_GOTGCTL_OTGVER                   USB_OTG_GOTGCTL_OTGVER_Msk    /*!< OTG version  */
+#define USB_OTG_GOTGCTL_BSVLD_Pos                (19U)                         
+#define USB_OTG_GOTGCTL_BSVLD_Msk                (0x1UL << USB_OTG_GOTGCTL_BSVLD_Pos) /*!< 0x00080000 */
+#define USB_OTG_GOTGCTL_BSVLD                    USB_OTG_GOTGCTL_BSVLD_Msk     /*!< B-session valid */
 
 /********************  Bit definition forUSB_OTG_HCFG register  ********************/
 
@@ -14183,9 +15076,6 @@ typedef struct
 #define USB_OTG_GOTGINT_DBCDNE_Pos               (19U)                         
 #define USB_OTG_GOTGINT_DBCDNE_Msk               (0x1UL << USB_OTG_GOTGINT_DBCDNE_Pos) /*!< 0x00080000 */
 #define USB_OTG_GOTGINT_DBCDNE                   USB_OTG_GOTGINT_DBCDNE_Msk    /*!< Debounce done                          */
-#define USB_OTG_GOTGINT_IDCHNG_Pos               (20U)                         
-#define USB_OTG_GOTGINT_IDCHNG_Msk               (0x1UL << USB_OTG_GOTGINT_IDCHNG_Pos) /*!< 0x00100000 */
-#define USB_OTG_GOTGINT_IDCHNG                   USB_OTG_GOTGINT_IDCHNG_Msk    /*!< Change in ID pin input value           */
 
 /********************  Bit definition for USB_OTG_DCTL register  ********************/
 #define USB_OTG_DCTL_RWUSIG_Pos                  (0U)                          
@@ -14526,9 +15416,6 @@ typedef struct
 #define USB_OTG_GINTSTS_DATAFSUSP_Pos            (22U)                         
 #define USB_OTG_GINTSTS_DATAFSUSP_Msk            (0x1UL << USB_OTG_GINTSTS_DATAFSUSP_Pos) /*!< 0x00400000 */
 #define USB_OTG_GINTSTS_DATAFSUSP                USB_OTG_GINTSTS_DATAFSUSP_Msk /*!< Data fetch suspended                           */
-#define USB_OTG_GINTSTS_RSTDET_Pos               (23U)                         
-#define USB_OTG_GINTSTS_RSTDET_Msk               (0x1UL << USB_OTG_GINTSTS_RSTDET_Pos) /*!< 0x00800000 */
-#define USB_OTG_GINTSTS_RSTDET                   USB_OTG_GINTSTS_RSTDET_Msk    /*!< Reset detected interrupt                       */
 #define USB_OTG_GINTSTS_HPRTINT_Pos              (24U)                         
 #define USB_OTG_GINTSTS_HPRTINT_Msk              (0x1UL << USB_OTG_GINTSTS_HPRTINT_Pos) /*!< 0x01000000 */
 #define USB_OTG_GINTSTS_HPRTINT                  USB_OTG_GINTSTS_HPRTINT_Msk   /*!< Host port interrupt                            */
@@ -14538,9 +15425,6 @@ typedef struct
 #define USB_OTG_GINTSTS_PTXFE_Pos                (26U)                         
 #define USB_OTG_GINTSTS_PTXFE_Msk                (0x1UL << USB_OTG_GINTSTS_PTXFE_Pos) /*!< 0x04000000 */
 #define USB_OTG_GINTSTS_PTXFE                    USB_OTG_GINTSTS_PTXFE_Msk     /*!< Periodic TxFIFO empty                          */
-#define USB_OTG_GINTSTS_LPMINT_Pos               (27U)                         
-#define USB_OTG_GINTSTS_LPMINT_Msk               (0x1UL << USB_OTG_GINTSTS_LPMINT_Pos) /*!< 0x08000000 */
-#define USB_OTG_GINTSTS_LPMINT                   USB_OTG_GINTSTS_LPMINT_Msk    /*!< LPM interrupt                                  */
 #define USB_OTG_GINTSTS_CIDSCHG_Pos              (28U)                         
 #define USB_OTG_GINTSTS_CIDSCHG_Msk              (0x1UL << USB_OTG_GINTSTS_CIDSCHG_Pos) /*!< 0x10000000 */
 #define USB_OTG_GINTSTS_CIDSCHG                  USB_OTG_GINTSTS_CIDSCHG_Msk   /*!< Connector ID status change                     */
@@ -14612,9 +15496,6 @@ typedef struct
 #define USB_OTG_GINTMSK_FSUSPM_Pos               (22U)                         
 #define USB_OTG_GINTMSK_FSUSPM_Msk               (0x1UL << USB_OTG_GINTMSK_FSUSPM_Pos) /*!< 0x00400000 */
 #define USB_OTG_GINTMSK_FSUSPM                   USB_OTG_GINTMSK_FSUSPM_Msk    /*!< Data fetch suspended mask                           */
-#define USB_OTG_GINTMSK_RSTDEM_Pos               (23U)                         
-#define USB_OTG_GINTMSK_RSTDEM_Msk               (0x1UL << USB_OTG_GINTMSK_RSTDEM_Pos) /*!< 0x00800000 */
-#define USB_OTG_GINTMSK_RSTDEM                   USB_OTG_GINTMSK_RSTDEM_Msk    /*!< Reset detected interrupt mask                      */
 #define USB_OTG_GINTMSK_PRTIM_Pos                (24U)                         
 #define USB_OTG_GINTMSK_PRTIM_Msk                (0x1UL << USB_OTG_GINTMSK_PRTIM_Pos) /*!< 0x01000000 */
 #define USB_OTG_GINTMSK_PRTIM                    USB_OTG_GINTMSK_PRTIM_Msk     /*!< Host port interrupt mask                            */
@@ -14624,9 +15505,6 @@ typedef struct
 #define USB_OTG_GINTMSK_PTXFEM_Pos               (26U)                         
 #define USB_OTG_GINTMSK_PTXFEM_Msk               (0x1UL << USB_OTG_GINTMSK_PTXFEM_Pos) /*!< 0x04000000 */
 #define USB_OTG_GINTMSK_PTXFEM                   USB_OTG_GINTMSK_PTXFEM_Msk    /*!< Periodic TxFIFO empty mask                          */
-#define USB_OTG_GINTMSK_LPMINTM_Pos              (27U)                         
-#define USB_OTG_GINTMSK_LPMINTM_Msk              (0x1UL << USB_OTG_GINTMSK_LPMINTM_Pos) /*!< 0x08000000 */
-#define USB_OTG_GINTMSK_LPMINTM                  USB_OTG_GINTMSK_LPMINTM_Msk   /*!< LPM interrupt Mask                                  */
 #define USB_OTG_GINTMSK_CIDSCHGM_Pos             (28U)                         
 #define USB_OTG_GINTMSK_CIDSCHGM_Msk             (0x1UL << USB_OTG_GINTMSK_CIDSCHGM_Pos) /*!< 0x10000000 */
 #define USB_OTG_GINTMSK_CIDSCHGM                 USB_OTG_GINTMSK_CIDSCHGM_Msk  /*!< Connector ID status change mask                     */
@@ -14789,9 +15667,21 @@ typedef struct
 #define USB_OTG_GCCFG_PWRDWN_Pos                 (16U)                         
 #define USB_OTG_GCCFG_PWRDWN_Msk                 (0x1UL << USB_OTG_GCCFG_PWRDWN_Pos) /*!< 0x00010000 */
 #define USB_OTG_GCCFG_PWRDWN                     USB_OTG_GCCFG_PWRDWN_Msk      /*!< Power down */
-#define USB_OTG_GCCFG_VBDEN_Pos                  (21U)                         
-#define USB_OTG_GCCFG_VBDEN_Msk                  (0x1UL << USB_OTG_GCCFG_VBDEN_Pos) /*!< 0x00200000 */
-#define USB_OTG_GCCFG_VBDEN                      USB_OTG_GCCFG_VBDEN_Msk       /*!< USB VBUS Detection Enable */
+#define USB_OTG_GCCFG_I2CPADEN_Pos               (17U)                         
+#define USB_OTG_GCCFG_I2CPADEN_Msk               (0x1UL << USB_OTG_GCCFG_I2CPADEN_Pos) /*!< 0x00020000 */
+#define USB_OTG_GCCFG_I2CPADEN                   USB_OTG_GCCFG_I2CPADEN_Msk    /*!< Enable I2C bus connection for the external I2C PHY interface*/ 
+#define USB_OTG_GCCFG_VBUSASEN_Pos               (18U)                         
+#define USB_OTG_GCCFG_VBUSASEN_Msk               (0x1UL << USB_OTG_GCCFG_VBUSASEN_Pos) /*!< 0x00040000 */
+#define USB_OTG_GCCFG_VBUSASEN                   USB_OTG_GCCFG_VBUSASEN_Msk    /*!< Enable the VBUS sensing device */
+#define USB_OTG_GCCFG_VBUSBSEN_Pos               (19U)                         
+#define USB_OTG_GCCFG_VBUSBSEN_Msk               (0x1UL << USB_OTG_GCCFG_VBUSBSEN_Pos) /*!< 0x00080000 */
+#define USB_OTG_GCCFG_VBUSBSEN                   USB_OTG_GCCFG_VBUSBSEN_Msk    /*!< Enable the VBUS sensing device */
+#define USB_OTG_GCCFG_SOFOUTEN_Pos               (20U)                         
+#define USB_OTG_GCCFG_SOFOUTEN_Msk               (0x1UL << USB_OTG_GCCFG_SOFOUTEN_Pos) /*!< 0x00100000 */
+#define USB_OTG_GCCFG_SOFOUTEN                   USB_OTG_GCCFG_SOFOUTEN_Msk    /*!< SOF output enable */
+#define USB_OTG_GCCFG_NOVBUSSENS_Pos             (21U)                         
+#define USB_OTG_GCCFG_NOVBUSSENS_Msk             (0x1UL << USB_OTG_GCCFG_NOVBUSSENS_Pos) /*!< 0x00200000 */
+#define USB_OTG_GCCFG_NOVBUSSENS                 USB_OTG_GCCFG_NOVBUSSENS_Msk  /*!< VBUS sensing disable option*/ 
 
 /********************  Bit definition forUSB_OTG_DEACHINTMSK register  ********************/
 #define USB_OTG_DEACHINTMSK_IEP1INTM_Pos         (1U)                          
@@ -14805,53 +15695,6 @@ typedef struct
 #define USB_OTG_CID_PRODUCT_ID_Pos               (0U)                          
 #define USB_OTG_CID_PRODUCT_ID_Msk               (0xFFFFFFFFUL << USB_OTG_CID_PRODUCT_ID_Pos) /*!< 0xFFFFFFFF */
 #define USB_OTG_CID_PRODUCT_ID                   USB_OTG_CID_PRODUCT_ID_Msk    /*!< Product ID field */
-
-/********************  Bit definition for USB_OTG_GLPMCFG register  ********************/
-#define USB_OTG_GLPMCFG_LPMEN_Pos                (0U)                          
-#define USB_OTG_GLPMCFG_LPMEN_Msk                (0x1UL << USB_OTG_GLPMCFG_LPMEN_Pos) /*!< 0x00000001 */
-#define USB_OTG_GLPMCFG_LPMEN                    USB_OTG_GLPMCFG_LPMEN_Msk     /*!< LPM support enable                                     */
-#define USB_OTG_GLPMCFG_LPMACK_Pos               (1U)                          
-#define USB_OTG_GLPMCFG_LPMACK_Msk               (0x1UL << USB_OTG_GLPMCFG_LPMACK_Pos) /*!< 0x00000002 */
-#define USB_OTG_GLPMCFG_LPMACK                   USB_OTG_GLPMCFG_LPMACK_Msk    /*!< LPM Token acknowledge enable                           */
-#define USB_OTG_GLPMCFG_BESL_Pos                 (2U)                          
-#define USB_OTG_GLPMCFG_BESL_Msk                 (0xFUL << USB_OTG_GLPMCFG_BESL_Pos) /*!< 0x0000003C */
-#define USB_OTG_GLPMCFG_BESL                     USB_OTG_GLPMCFG_BESL_Msk      /*!< BESL value received with last ACKed LPM Token          */
-#define USB_OTG_GLPMCFG_REMWAKE_Pos              (6U)                          
-#define USB_OTG_GLPMCFG_REMWAKE_Msk              (0x1UL << USB_OTG_GLPMCFG_REMWAKE_Pos) /*!< 0x00000040 */
-#define USB_OTG_GLPMCFG_REMWAKE                  USB_OTG_GLPMCFG_REMWAKE_Msk   /*!< bRemoteWake value received with last ACKed LPM Token   */
-#define USB_OTG_GLPMCFG_L1SSEN_Pos               (7U)                          
-#define USB_OTG_GLPMCFG_L1SSEN_Msk               (0x1UL << USB_OTG_GLPMCFG_L1SSEN_Pos) /*!< 0x00000080 */
-#define USB_OTG_GLPMCFG_L1SSEN                   USB_OTG_GLPMCFG_L1SSEN_Msk    /*!< L1 shallow sleep enable                                */
-#define USB_OTG_GLPMCFG_BESLTHRS_Pos             (8U)                          
-#define USB_OTG_GLPMCFG_BESLTHRS_Msk             (0xFUL << USB_OTG_GLPMCFG_BESLTHRS_Pos) /*!< 0x00000F00 */
-#define USB_OTG_GLPMCFG_BESLTHRS                 USB_OTG_GLPMCFG_BESLTHRS_Msk  /*!< BESL threshold                                         */
-#define USB_OTG_GLPMCFG_L1DSEN_Pos               (12U)                         
-#define USB_OTG_GLPMCFG_L1DSEN_Msk               (0x1UL << USB_OTG_GLPMCFG_L1DSEN_Pos) /*!< 0x00001000 */
-#define USB_OTG_GLPMCFG_L1DSEN                   USB_OTG_GLPMCFG_L1DSEN_Msk    /*!< L1 deep sleep enable                                   */
-#define USB_OTG_GLPMCFG_LPMRSP_Pos               (13U)                         
-#define USB_OTG_GLPMCFG_LPMRSP_Msk               (0x3UL << USB_OTG_GLPMCFG_LPMRSP_Pos) /*!< 0x00006000 */
-#define USB_OTG_GLPMCFG_LPMRSP                   USB_OTG_GLPMCFG_LPMRSP_Msk    /*!< LPM response                                           */
-#define USB_OTG_GLPMCFG_SLPSTS_Pos               (15U)                         
-#define USB_OTG_GLPMCFG_SLPSTS_Msk               (0x1UL << USB_OTG_GLPMCFG_SLPSTS_Pos) /*!< 0x00008000 */
-#define USB_OTG_GLPMCFG_SLPSTS                   USB_OTG_GLPMCFG_SLPSTS_Msk    /*!< Port sleep status                                      */
-#define USB_OTG_GLPMCFG_L1RSMOK_Pos              (16U)                         
-#define USB_OTG_GLPMCFG_L1RSMOK_Msk              (0x1UL << USB_OTG_GLPMCFG_L1RSMOK_Pos) /*!< 0x00010000 */
-#define USB_OTG_GLPMCFG_L1RSMOK                  USB_OTG_GLPMCFG_L1RSMOK_Msk   /*!< Sleep State Resume OK                                  */
-#define USB_OTG_GLPMCFG_LPMCHIDX_Pos             (17U)                         
-#define USB_OTG_GLPMCFG_LPMCHIDX_Msk             (0xFUL << USB_OTG_GLPMCFG_LPMCHIDX_Pos) /*!< 0x001E0000 */
-#define USB_OTG_GLPMCFG_LPMCHIDX                 USB_OTG_GLPMCFG_LPMCHIDX_Msk  /*!< LPM Channel Index                                      */
-#define USB_OTG_GLPMCFG_LPMRCNT_Pos              (21U)                         
-#define USB_OTG_GLPMCFG_LPMRCNT_Msk              (0x7UL << USB_OTG_GLPMCFG_LPMRCNT_Pos) /*!< 0x00E00000 */
-#define USB_OTG_GLPMCFG_LPMRCNT                  USB_OTG_GLPMCFG_LPMRCNT_Msk   /*!< LPM retry count                                        */
-#define USB_OTG_GLPMCFG_SNDLPM_Pos               (24U)                         
-#define USB_OTG_GLPMCFG_SNDLPM_Msk               (0x1UL << USB_OTG_GLPMCFG_SNDLPM_Pos) /*!< 0x01000000 */
-#define USB_OTG_GLPMCFG_SNDLPM                   USB_OTG_GLPMCFG_SNDLPM_Msk    /*!< Send LPM transaction                                   */
-#define USB_OTG_GLPMCFG_LPMRCNTSTS_Pos           (25U)                         
-#define USB_OTG_GLPMCFG_LPMRCNTSTS_Msk           (0x7UL << USB_OTG_GLPMCFG_LPMRCNTSTS_Pos) /*!< 0x0E000000 */
-#define USB_OTG_GLPMCFG_LPMRCNTSTS               USB_OTG_GLPMCFG_LPMRCNTSTS_Msk /*!< LPM retry count status                                 */
-#define USB_OTG_GLPMCFG_ENBESL_Pos               (28U)                         
-#define USB_OTG_GLPMCFG_ENBESL_Msk               (0x1UL << USB_OTG_GLPMCFG_ENBESL_Pos) /*!< 0x10000000 */
-#define USB_OTG_GLPMCFG_ENBESL                   USB_OTG_GLPMCFG_ENBESL_Msk    /*!< Enable best effort service latency                     */
 
 /********************  Bit definition for USB_OTG_DIEPEACHMSK1 register  ********************/
 #define USB_OTG_DIEPEACHMSK1_XFRCM_Pos           (0U)                          
@@ -15450,6 +16293,9 @@ typedef struct
 /******************************* DCMI Instances *******************************/
 #define IS_DCMI_ALL_INSTANCE(INSTANCE) ((INSTANCE) == DCMI)
 
+/******************************* DMA2D Instances *******************************/
+#define IS_DMA2D_ALL_INSTANCE(INSTANCE) ((INSTANCE) == DMA2D)
+
 /******************************** DMA Instances *******************************/
 #define IS_DMA_STREAM_ALL_INSTANCE(INSTANCE) (((INSTANCE) == DMA1_Stream0) || \
                                               ((INSTANCE) == DMA1_Stream1) || \
@@ -15476,7 +16322,10 @@ typedef struct
                                         ((INSTANCE) == GPIOE) || \
                                         ((INSTANCE) == GPIOF) || \
                                         ((INSTANCE) == GPIOG) || \
-                                        ((INSTANCE) == GPIOH))
+                                        ((INSTANCE) == GPIOH) || \
+                                        ((INSTANCE) == GPIOI) || \
+                                        ((INSTANCE) == GPIOJ) || \
+                                        ((INSTANCE) == GPIOK))
 
 /******************************** I2C Instances *******************************/
 #define IS_I2C_ALL_INSTANCE(INSTANCE) (((INSTANCE) == I2C1) || \
@@ -15487,32 +16336,36 @@ typedef struct
 #define IS_SMBUS_ALL_INSTANCE         IS_I2C_ALL_INSTANCE
 
 /******************************** I2S Instances *******************************/
-#define IS_I2S_APB1_INSTANCE(INSTANCE)  (((INSTANCE) == SPI2) || \
-                                         ((INSTANCE) == SPI3))
 
-#define IS_I2S_ALL_INSTANCE(INSTANCE)  (((INSTANCE) == SPI1) || \
-                                        ((INSTANCE) == SPI2) || \
-                                        ((INSTANCE) == SPI3))
+#define IS_I2S_ALL_INSTANCE(INSTANCE)  (((INSTANCE) == SPI2) || \
+                                       ((INSTANCE) == SPI3))
 
+/*************************** I2S Extended Instances ***************************/
+#define IS_I2S_EXT_ALL_INSTANCE(INSTANCE) (((INSTANCE) == I2S2ext)|| \
+                                           ((INSTANCE) == I2S3ext))
+/* Legacy Defines */
+#define IS_I2S_ALL_INSTANCE_EXT    IS_I2S_EXT_ALL_INSTANCE
 
+/******************************* RNG Instances ********************************/
+#define IS_RNG_ALL_INSTANCE(INSTANCE)  ((INSTANCE) == RNG)
 
 /****************************** RTC Instances *********************************/
 #define IS_RTC_ALL_INSTANCE(INSTANCE)  ((INSTANCE) == RTC)
 
 /******************************* SAI Instances ********************************/
-#define IS_SAI_ALL_INSTANCE(PERIPH) (((PERIPH) == SAI1_Block_A)  || \
-                                     ((PERIPH) == SAI1_Block_B)  || \
-                                     ((PERIPH) == SAI2_Block_A)  || \
-                                     ((PERIPH) == SAI2_Block_B))
+#define IS_SAI_ALL_INSTANCE(PERIPH) (((PERIPH) == SAI1_Block_A) || \
+                                     ((PERIPH) == SAI1_Block_B))
 /* Legacy define */
 
 #define IS_SAI_BLOCK_PERIPH IS_SAI_ALL_INSTANCE
 
 /******************************** SPI Instances *******************************/
-#define IS_SPI_ALL_INSTANCE(INSTANCE) (((INSTANCE) == SPI1) || \
-                                       ((INSTANCE) == SPI2) || \
-                                       ((INSTANCE) == SPI3) || \
-                                       ((INSTANCE) == SPI4))
+#define IS_SPI_ALL_INSTANCE(INSTANCE) (((INSTANCE) == SPI1)  || \
+                                       ((INSTANCE) == SPI2)  || \
+                                       ((INSTANCE) == SPI3)  || \
+                                       ((INSTANCE) == SPI4)  || \
+                                       ((INSTANCE) == SPI5)  || \
+                                       ((INSTANCE) == SPI6))
 
 
 /****************** TIM Instances : All supported instances *******************/
@@ -15832,7 +16685,9 @@ typedef struct
                                                ((INSTANCE) == USART3) || \
                                                ((INSTANCE) == UART4)  || \
                                                ((INSTANCE) == UART5)  || \
-                                               ((INSTANCE) == USART6))
+                                               ((INSTANCE) == USART6) || \
+                                               ((INSTANCE) == UART7)  || \
+                                               ((INSTANCE) == UART8))
 
 /* Legacy defines */
 #define IS_UART_INSTANCE          IS_UART_HALFDUPLEX_INSTANCE
@@ -15841,8 +16696,6 @@ typedef struct
 #define IS_UART_HWFLOW_INSTANCE(INSTANCE) (((INSTANCE) == USART1) || \
                                            ((INSTANCE) == USART2) || \
                                            ((INSTANCE) == USART3) || \
-                                           ((INSTANCE) == UART4)  || \
-                                           ((INSTANCE) == UART5)  || \
                                            ((INSTANCE) == USART6))
 /******************** UART Instances : LIN mode **********************/
 #define IS_UART_LIN_INSTANCE          IS_UART_HALFDUPLEX_INSTANCE
@@ -15859,8 +16712,9 @@ typedef struct
                                     ((INSTANCE) == USART3) || \
                                     ((INSTANCE) == UART4)  || \
                                     ((INSTANCE) == UART5)  || \
-                                    ((INSTANCE) == USART6))
-
+                                    ((INSTANCE) == USART6) || \
+                                    ((INSTANCE) == UART7)  || \
+                                    ((INSTANCE) == UART8))                                     
 
 /*********************** PCD Instances ****************************************/
 #define IS_PCD_ALL_INSTANCE(INSTANCE) (((INSTANCE) == USB_OTG_FS) || \
@@ -15879,35 +16733,18 @@ typedef struct
 /****************************** WWDG Instances ********************************/
 #define IS_WWDG_ALL_INSTANCE(INSTANCE)  ((INSTANCE) == WWDG)
 
-
-/****************************** QSPI Instances ********************************/
-#define IS_QSPI_ALL_INSTANCE(__INSTANCE__) ((__INSTANCE__) == QUADSPI)
-
-/******************************* CEC Instances ********************************/
-#define IS_CEC_ALL_INSTANCE(__INSTANCE__) ((__INSTANCE__) == CEC)
-
-/***************************** FMPI2C Instances *******************************/
-#define IS_FMPI2C_ALL_INSTANCE(__INSTANCE__) ((__INSTANCE__) == FMPI2C1)
-#define IS_FMPSMBUS_ALL_INSTANCE         IS_FMPI2C_ALL_INSTANCE
-
-/******************************* SPDIFRX Instances ********************************/
-#define IS_SPDIFRX_ALL_INSTANCE(INSTANCE) ((INSTANCE) == SPDIFRX)
 /****************************** USB Exported Constants ************************/
 #define USB_OTG_FS_HOST_MAX_CHANNEL_NBR                8U
-#define USB_OTG_FS_MAX_IN_ENDPOINTS                    6U    /* Including EP0 */
-#define USB_OTG_FS_MAX_OUT_ENDPOINTS                   6U    /* Including EP0 */
+#define USB_OTG_FS_MAX_IN_ENDPOINTS                    4U    /* Including EP0 */
+#define USB_OTG_FS_MAX_OUT_ENDPOINTS                   4U    /* Including EP0 */
 #define USB_OTG_FS_TOTAL_FIFO_SIZE                     1280U /* in Bytes */
-#define USB_OTG_HS_HOST_MAX_CHANNEL_NBR                16U
-#define USB_OTG_HS_MAX_IN_ENDPOINTS                    9U    /* Including EP0 */
-#define USB_OTG_HS_MAX_OUT_ENDPOINTS                   9U    /* Including EP0 */
-#define USB_OTG_HS_TOTAL_FIFO_SIZE                     4096U /* in Bytes */
 
 /*
  * @brief Specific devices reset values definitions
  */
 #define RCC_PLLCFGR_RST_VALUE              0x24003010U
-#define RCC_PLLI2SCFGR_RST_VALUE           0x24003010U
-#define RCC_PLLSAICFGR_RST_VALUE           0x04003010U
+#define RCC_PLLI2SCFGR_RST_VALUE           0x24003000U
+#define RCC_PLLSAICFGR_RST_VALUE           0x24003000U
 
 #define RCC_MAX_FREQUENCY           180000000U         /*!< Max frequency of family in Hz*/
 #define RCC_MAX_FREQUENCY_SCALE1    RCC_MAX_FREQUENCY  /*!< Maximum frequency for system clock at power scale1, in Hz */
@@ -15937,6 +16774,10 @@ typedef struct
 #define FLASH_SCALE3_LATENCY2_FREQ   60000000U      /*!< HCLK frequency to set FLASH latency 2 in power scale 3  */
 #define FLASH_SCALE3_LATENCY3_FREQ   90000000U      /*!< HCLK frequency to set FLASH latency 3 in power scale 3  */
 
+#define USB_OTG_HS_HOST_MAX_CHANNEL_NBR                12U
+#define USB_OTG_HS_MAX_IN_ENDPOINTS                    6U    /* Including EP0 */
+#define USB_OTG_HS_MAX_OUT_ENDPOINTS                   6U    /* Including EP0 */
+#define USB_OTG_HS_TOTAL_FIFO_SIZE                     4096U /* in Bytes */
 /******************************************************************************/
 /*  For a painless codes migration between the STM32F4xx device product       */
 /*  lines, the aliases defined below are put in place to overcome the         */
@@ -15949,7 +16790,6 @@ typedef struct
 
 /* Aliases for __IRQHandler */
 #define FSMC_IRQHandler        FMC_IRQHandler
-#define QuadSPI_IRQHandler     QUADSPI_IRQHandler
 
 /**
   * @}
@@ -15967,7 +16807,7 @@ typedef struct
 }
 #endif /* __cplusplus */
 
-#endif /* __STM32F446xx_H */
+#endif /* __STM32F427xx_H */
 
 
 
