@@ -45,7 +45,7 @@
 #define HCI_RESET_RAND_CNT              4
 
 #define VENDOR_SPECIFIC_EVENT           0xFF
-#define EVT_BLUE_INITIALIZED            0x0001
+#define EVT_BLUENRG_MS_INITIALIZED      0x0001
 #define ACI_READ_CONFIG_DATA_OPCODE     0xFC0D
 #define ACI_WRITE_CONFIG_DATA_OPCODE    0xFC0C
 #define ACI_GATT_INIT_OPCODE            0xFD01
@@ -60,16 +60,16 @@
 
 namespace ble {
 namespace vendor {
-namespace bluenrg {
+namespace bluenrg_ms {
 
 /**
- * BlueNRG HCI driver implementation.
+ * BlueNRG_MS HCI driver implementation.
  * @see cordio::CordioHCIDriver
  */
 class HCIDriver : public cordio::CordioHCIDriver {
 public:
     /**
-     * Construction of the BlueNRG HCIDriver.
+     * Construction of the BlueNRG_MS HCIDriver.
      * @param transport: Transport of the HCI commands.
      * @param rst: Name of the reset pin
      */
@@ -81,7 +81,7 @@ public:
      */
     virtual void do_initialize()
     {
-        bluenrg_reset();
+        bluenrg_ms_reset();
     }
 
     /**
@@ -99,7 +99,7 @@ public:
     virtual void start_reset_sequence()
     {
         reset_received = false;
-        bluenrg_initialized = false;
+        bluenrg_ms_initialized = false;
         enable_link_layer_mode_ongoing = false;
         /* send an HCI Reset command to start the sequence */
         HciResetCmd();
@@ -135,8 +135,8 @@ public:
                     /* initialize rand command count */
                     randCnt = 0;
                     reset_received = true;
-                    // bluenrg_initialized event has to come after the hci reset event
-                    bluenrg_initialized = false;
+                    // bluenrg_ms_initialized event has to come after the hci reset event
+                    bluenrg_ms_initialized = false;
                 }
                 break;
 
@@ -294,11 +294,11 @@ public:
                 pMsg += HCI_EVT_HDR_LEN;
                 BSTREAM_TO_UINT16(opcode, pMsg);
 
-                if (opcode == EVT_BLUE_INITIALIZED) {
-                    if (bluenrg_initialized) {
+                if (opcode == EVT_BLUENRG_MS_INITIALIZED) {
+                    if (bluenrg_ms_initialized) {
                         return;
                     }
-                    bluenrg_initialized = true;
+                    bluenrg_ms_initialized = true;
                     if (reset_received) {
                         aciEnableLinkLayerModeOnly();
                     }
@@ -398,9 +398,9 @@ private:
         }
     }
 
-    void bluenrg_reset()
+    void bluenrg_ms_reset()
     {
-        /* Reset BlueNRG SPI interface. Hold reset line to 0 for 1500ms */
+        /* Reset BlueNRG_MS SPI interface. Hold reset line to 0 for 1500ms */
         rst = 0;
         wait_us(1500);
         rst = 1;
@@ -411,12 +411,12 @@ private:
 
     mbed::DigitalOut rst;
     bool reset_received;
-    bool bluenrg_initialized;
+    bool bluenrg_ms_initialized;
     bool enable_link_layer_mode_ongoing;
 };
 
 /**
- * Transport driver of the ST BlueNRG shield.
+ * Transport driver of the ST BlueNRG_MS shield.
  * @important: With that driver, it is assumed that the SPI bus used is not shared
  * with other SPI peripherals. The reasons behind this choice are simplicity and
  * performance:
@@ -438,7 +438,7 @@ private:
 class TransportDriver : public cordio::CordioHCITransportDriver {
 public:
     /**
-     * Construct the transport driver required by a BlueNRG module.
+     * Construct the transport driver required by a BlueNRG_MS module.
      * @param mosi Pin of the SPI mosi
      * @param miso Pin of the SPI miso
      * @param sclk Pin of the SPI clock
@@ -462,7 +462,7 @@ public:
         spi.format(8, 0);
         spi.frequency(8000000);
 
-        // Deselect the BlueNRG chip by keeping its nCS signal high
+        // Deselect the BlueNRG_MS chip by keeping its nCS signal high
         nCS = 1;
 
         wait_us(500);
@@ -600,7 +600,7 @@ exit:
     rtos::Mutex _spi_mutex;
 };
 
-} // namespace bluenrg
+} // namespace bluenrg_ms
 } // namespace vendor
 } // namespace ble
 
@@ -609,14 +609,14 @@ exit:
  */
 ble::vendor::cordio::CordioHCIDriver &ble_cordio_get_hci_driver()
 {
-    static ble::vendor::bluenrg::TransportDriver transport_driver(
+    static ble::vendor::bluenrg_ms::TransportDriver transport_driver(
         MBED_CONF_BLUENRG_MS_SPI_MOSI,
         MBED_CONF_BLUENRG_MS_SPI_MISO,
         MBED_CONF_BLUENRG_MS_SPI_SCK,
         MBED_CONF_BLUENRG_MS_SPI_NCS,
         MBED_CONF_BLUENRG_MS_SPI_IRQ
     );
-    static ble::vendor::bluenrg::HCIDriver hci_driver(
+    static ble::vendor::bluenrg_ms::HCIDriver hci_driver(
         transport_driver,
         MBED_CONF_BLUENRG_MS_SPI_RESET
     );
