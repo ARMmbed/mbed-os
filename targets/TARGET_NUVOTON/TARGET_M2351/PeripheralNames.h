@@ -18,6 +18,7 @@
 #define MBED_PERIPHERALNAMES_H
 
 #include "cmsis.h"
+#include "PinNames.h"
 #include "partition_M2351.h"
 
 #ifdef __cplusplus
@@ -181,7 +182,16 @@ typedef enum {
 #endif
 
     // NOTE: board-specific
-    STDIO_UART  = UART_0,
+#if defined(MBED_CONF_TARGET_USB_UART)
+    USB_UART    = MBED_CONF_TARGET_USB_UART,
+#else
+    USB_UART    = NC,
+#endif
+#if defined(MBED_CONF_TARGET_STDIO_UART)
+    STDIO_UART  = MBED_CONF_TARGET_STDIO_UART,
+#else
+    STDIO_UART  = USB_UART,
+#endif
 
 } UARTName;
 
