@@ -6,6 +6,7 @@
 
 STACK_SIZE = MBED_BOOT_STACK_SIZE;
 
+/* 60 Non-Core vectors + 16 ARM Core System Handler Vectors vectors + reserved areas = 392 bytes (0x188) to be reserved in RAM */
 MEMORY
 { 
   FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 64K

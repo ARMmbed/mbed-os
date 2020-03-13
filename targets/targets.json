@@ -2807,6 +2807,11 @@
             "IAR",
             "GCC_ARM"
         ],
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "macros": [
             "USE_HAL_DRIVER",
             "USE_FULL_LL_DRIVER",
@@ -3630,12 +3635,14 @@
             }
         },
         "overrides": {
-            "lse_available": 0
+            "lse_available": 0,
+            "boot-stack-size": "0x400",
+            "tickless-from-us-ticker": true
         },
         "detect_code": [
             "0775"
         ],
-        "default_lib": "small",
+        "c_lib": "small",
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -3644,9 +3651,7 @@
         "device_has_remove": [
             "LPTICKER"
         ],
-        "release_versions": [
-            "2"
-        ],
+        "supported_application_profiles":["bare-metal"],
         "device_name": "STM32F303K8"
     },
     "NUCLEO_F303RE": {
