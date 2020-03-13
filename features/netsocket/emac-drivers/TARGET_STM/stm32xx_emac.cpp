@@ -320,7 +320,7 @@ bool STM32_EMAC::low_level_init_successful()
 
     if (HAL_ETH_Init(&EthHandle) != HAL_OK) {
         tr_error("HAL_ETH_Init issue");
-        return false;
+        /* HAL_ETH_Init returns TIMEOUT when Ethernet cable is not plugged */;
     }
 
     uint32_t TempRegisterValue;
