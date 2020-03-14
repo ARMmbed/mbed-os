@@ -19,7 +19,7 @@ MEMORY
 { 
   FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
   CCM (rwx) : ORIGIN = 0x10000000, LENGTH = 16K
-  RAM (rwx) : ORIGIN = 0x20000198, LENGTH = 64K - (0x194+0x4)
+  RAM (rwx) : ORIGIN = 0x20000198, LENGTH = 64K - (0x164+0x4)
 }
 
 /* Linker script to place sections and symbol values. Should be used together

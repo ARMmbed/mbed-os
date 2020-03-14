@@ -9,10 +9,10 @@ define symbol __region_ROM_end__   = MBED_APP_START + MBED_APP_SIZE - 1;
 define symbol __region_CCMRAM_start__ = 0x10000000;
 define symbol __region_CCMRAM_end__   = 0x10003FFF;
 
-/* [RAM = 64kb = 0x10000] Vector table dynamic copy: 101 vectors = 404 bytes (0x194) to be reserved in RAM */
+/* [RAM = 64kb = 0x10000] Vector table dynamic copy: 89 vectors = 356 bytes (0x164) to be reserved in RAM */
 define symbol __NVIC_start__          = 0x20000000;
-define symbol __NVIC_end__            = 0x20000197; /* Add 4 more bytes to be aligned on 8 bytes */
-define symbol __region_RAM_start__    = 0x20000198;
+define symbol __NVIC_end__            = 0x20000197;
+define symbol __region_RAM_start__    = 0x20000168; /* Add 4 more bytes to be aligned on 8 bytes */
 define symbol __region_RAM_end__      = 0x2000FFFF;
 
 /* Memory regions */

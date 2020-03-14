@@ -51,8 +51,8 @@
   #define MBED_BOOT_STACK_SIZE      0x400
 #endif
 
-; 101 vectors = 404 bytes (0x194) 8-byte aligned = 0x198 (0x194 + 0x4) to be reserved in RAM
-#define VECTOR_SIZE                 0x198
+; 89 vectors = 356 bytes (0x164) 8-byte aligned = 0x168 (0x164 + 0x4) to be reserved in RAM
+#define VECTOR_SIZE                 0x168
 
 #define RAM_FIXED_SIZE              (MBED_BOOT_STACK_SIZE+VECTOR_SIZE)
 
