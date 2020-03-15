@@ -572,6 +572,14 @@ void USBMSD::_read_next()
 
 void USBMSD::memoryWrite(uint8_t *buf, uint16_t size)
 {
+    // Max sized packets are required to be sent until the transfer is complete
+    MBED_ASSERT(_block_size % MAX_PACKET == 0);
+    if ((size != MAX_PACKET) && (size != 0)) {
+        _stage = ERROR;
+        endpoint_stall(_bulk_out);
+        return;
+    }
+
     if ((_addr + size) > _memory_size) {
         size = _memory_size - _addr;
         _stage = ERROR;
