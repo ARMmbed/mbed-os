@@ -9851,13 +9851,30 @@
         "macros": []
     },
     "AMA3B1KK": {
+        "public": false,
         "inherits": ["FAMILY_Apollo3"],
         "macros_add": ["AM_PACKAGE_BGA"]
     },
     "SparkFun_Artemis_Module": {
+        "public": false,
+        "inherits": ["AMA3B1KK"]
+    },
+    "SparkFun_Edge": {
         "inherits": ["AMA3B1KK"]
     },
     "SparkFun_RedBoard_Artemis_ATP": {
+        "inherits": ["SparkFun_Artemis_Module"]
+    },
+    "SparkFun_RedBoard_Artemis": {
+        "inherits": ["SparkFun_Artemis_Module"]
+    },
+    "SparkFun_RedBoard_Artemis_Nano": {
+        "inherits": ["SparkFun_Artemis_Module"]
+    },
+    "SparkFun_Artemis_Thing_Plus": {
+        "inherits": ["SparkFun_Artemis_Module"]
+    },    
+    "SparkFun_ARTmbed": {
         "inherits": ["SparkFun_Artemis_Module"]
     },
     "__build_tools_metadata__": {
