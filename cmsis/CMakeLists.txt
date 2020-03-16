@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# TODO: fix to get CORTEX_M or CORTEX_A here
-add_subdirectory(TARGET_CORTEX_M)
+mbed_add_cmake_directory("TARGET" "${MBED_OS_TARGET_LABELS}")
 
 target_include_directories(mbed-os PUBLIC .)
