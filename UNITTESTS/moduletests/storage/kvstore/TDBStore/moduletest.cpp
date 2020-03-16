@@ -60,7 +60,7 @@ TEST_F(TDBStoreModuleTest, set_get)
     EXPECT_STREQ("data", buf);
 }
 
-TEST_F(TDBStoreModuleTest, erased_get_set)
+TEST_F(TDBStoreModuleTest, erased_set_get)
 {
     EXPECT_EQ(tdb.deinit(), MBED_SUCCESS);
     EXPECT_EQ(flash.init(), MBED_SUCCESS);
@@ -102,11 +102,11 @@ TEST_F(TDBStoreModuleTest, corrupted_set_deinit_init_get)
     for (int i = 0; i < 100; ++i) {
         EXPECT_EQ(tdb.deinit(), MBED_SUCCESS);
         // Corrupt the first part of the storage
-        for (int i = 0; i < heap.size()/BLOCK_SIZE/2; i++) {
-            for (int j = 0; j < BLOCK_SIZE; j++) {
-                block[j] = rand();
+        for (int j = 0; j < heap.size()/BLOCK_SIZE/2; j++) {
+            for (int k = 0; k < BLOCK_SIZE; k++) {
+                block[k] = rand();
             }
-            EXPECT_EQ(heap.program(block, BLOCK_SIZE * i, BLOCK_SIZE), MBED_SUCCESS);
+            EXPECT_EQ(heap.program(block, BLOCK_SIZE * j, BLOCK_SIZE), MBED_SUCCESS);
         }
         EXPECT_EQ(tdb.init(), MBED_SUCCESS);
         for (int j = 0; j < 100; ++j) {
