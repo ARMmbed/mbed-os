@@ -1,12 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# TODO: compiler specific needs to be ifdef
-target_sources(mbed-os PRIVATE cmsis_armcc.h)
-target_sources(mbed-os PRIVATE cmsis_armclang.h)
-target_sources(mbed-os PRIVATE cmsis_armclang_ltm.h)
 target_sources(mbed-os PRIVATE cmsis_compiler.h)
-target_sources(mbed-os PRIVATE cmsis_gcc.h)
-target_sources(mbed-os PRIVATE cmsis_iccarm.h)
 
 target_sources(mbed-os PRIVATE cmsis_version.h)
 target_sources(mbed-os PRIVATE core_armv81mml.h)
