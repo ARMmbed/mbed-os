@@ -124,3 +124,28 @@ TEST_F(TDBStoreModuleTest, corrupted_set_deinit_init_get)
     EXPECT_EQ(heap.deinit(), MBED_SUCCESS);
     delete[] block;
 }
+
+TEST_F(TDBStoreModuleTest, set_multiple_iterate)
+{
+    char buf[100];
+    KVStore::iterator_t iterator;
+    EXPECT_EQ(tdb.set("primary_key", "data", 5, 0), MBED_SUCCESS);
+    EXPECT_EQ(tdb.set("primary_second_key", "value", 6, 0), MBED_SUCCESS);
+    EXPECT_EQ(tdb.iterator_open(&iterator, "primary"), MBED_SUCCESS);
+    EXPECT_EQ(tdb.iterator_next(iterator, buf, 100), MBED_SUCCESS);
+    EXPECT_EQ(tdb.iterator_next(iterator, buf, 100), MBED_SUCCESS);
+    EXPECT_EQ(tdb.iterator_next(iterator, buf, 100), MBED_ERROR_ITEM_NOT_FOUND);
+    EXPECT_EQ(tdb.iterator_close(iterator), MBED_SUCCESS);
+}
+
+TEST_F(TDBStoreModuleTest, reserved_data_set_get)
+{
+    char reserved_key[] = "value";
+    char buf[64];
+    size_t size;
+    EXPECT_EQ(tdb.reserved_data_set(reserved_key, 6), MBED_SUCCESS);
+    EXPECT_EQ(tdb.reserved_data_get(buf, 64, &size), MBED_SUCCESS);
+    EXPECT_STREQ("value", buf);
+    EXPECT_EQ(size, 6);
+    EXPECT_EQ(tdb.reserved_data_set(reserved_key, 6), MBED_ERROR_WRITE_FAILED);
+}
