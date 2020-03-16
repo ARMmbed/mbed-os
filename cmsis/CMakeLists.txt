@@ -2,4 +2,6 @@
 
 mbed_add_cmake_directory("TARGET" "${MBED_OS_TARGET_LABELS}")
 
+target_sources(mbed-os PRIVATE RTE_Components.h)
+
 target_include_directories(mbed-os PUBLIC .)
