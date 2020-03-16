@@ -6,6 +6,9 @@ set(CMAKE_C_COMPILER      "arm-none-eabi-gcc")
 set(CMAKE_CXX_COMPILER    "arm-none-eabi-g++")
 set(ELF2BIN               "arm-none-eabi-objcopy")
 
+# TODO: @mbed-os-tools This needs to come from tools
+set(MBED_OS_TOOLCHAIN GCC_ARM CACHE INTERNAL "")
+
 set(LD_SYS_LIBS "-Wl,--start-group -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys  -Wl,--end-group")
 
 set(CMAKE_C_FLAGS "-std=gnu11 -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -fmessage-length=0 -fno-exceptions -ffunction-sections -fdata-sections -funsigned-char -MMD -fno-delete-null-pointer-checks -fomit-frame-pointer -Og -g3 -DMBED_DEBUG -DMBED_TRAP_ERRORS_ENABLED=1 -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -DMBED_ROM_START=0x0 -DMBED_ROM_SIZE=0x100000 -DMBED_RAM1_START=0x1fff0000 -DMBED_RAM1_SIZE=0x10000 -DMBED_RAM_START=0x20000000 -DMBED_RAM_SIZE=0x30000 -include mbed_config.h")
