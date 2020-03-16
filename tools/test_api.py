@@ -2276,6 +2276,9 @@ def test_spec_from_test_builds(test_builds):
 
             if test_builds[build]['platform'].endswith('_NPSA'):
                 test_builds[build]['platform'] = test_builds[build]['platform'][:-5]
+        # Convert Dual Core target name to test spec platform name
+        if test_builds[build]['platform'].endswith('_CM4') or test_builds[build]['platform'].endswith('_CM7'):
+            test_builds[build]['platform'] = test_builds[build]['platform'][:-4]
     return {
         "builds": test_builds
     }
