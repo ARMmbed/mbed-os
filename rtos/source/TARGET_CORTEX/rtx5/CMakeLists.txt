@@ -9,9 +9,13 @@ target_sources(mbed-os PRIVATE RTX/Config/RTX_Config.h)
 target_sources(mbed-os PRIVATE RTX/Include/rtx_evr.h)
 target_sources(mbed-os PRIVATE RTX/Include/rtx_os.h)
 
-# TODO: toolchain selection
-target_sources(mbed-os PRIVATE RTX/Source/TOOLCHAIN_GCC/TARGET_RTOS_M4_M7/irq_cm4f.S)
-target_sources(mbed-os PRIVATE RTX/Source/TOOLCHAIN_GCC/TARGET_RTOS_M4_M7/irq_cm4f.S)
+if(${MBED_OS_TOOLCHAIN} STREQUAL "GCC ARM")
+add_subdirectory(mbed-os PRIVATE RTX/Source/TOOLCHAIN_GCC)
+elif(${MBED_OS_TOOLCHAIN} STREQUAL "ARM")
+add_subdirectory(mbed-os PRIVATE RTX/Source/TOOLCHAIN_ARM)
+elif(${MBED_OS_TOOLCHAIN} STREQUAL "IAR")
+add_subdirectory(mbed-os PRIVATE RTX/Source/TOOLCHAIN_IAR)
+endif()
 
 target_sources(mbed-os PRIVATE RTX/Source/rtx_core_ca.h)
 target_sources(mbed-os PRIVATE RTX/Source/rtx_core_cm.h)
