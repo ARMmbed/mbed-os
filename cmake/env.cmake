@@ -3,7 +3,7 @@
 # TODO: @mbed-os-tools This needs to come from tools
 # Build system provides "target" list.
 # Note: This must be placed before subdirectories
-set(MBED_OS_TARGET_LABELS Freescale;MCUXpresso_MCUS;KSDK2_MCUS;FRDM;KPSDK_MCUS;KPSDK_CODE;MCU_K64F;Freescale_EMAC;PSA CACHE INTERNAL "")
+set(MBED_OS_TARGET_LABELS Freescale;MCUXpresso_MCUS;KSDK2_MCUS;FRDM;KPSDK_MCUS;KPSDK_CODE;MCU_K64F;Freescale_EMAC;PSA;CORTEX_M CACHE INTERNAL "")
 
 # TODO: @mbed-os-tools This needs to come from tools
 set(MBED_OS_TOOLCHAIN GCC_ARM CACHE INTERNAL "")
