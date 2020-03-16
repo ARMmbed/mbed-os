@@ -1,7 +1,6 @@
 {
     "requires": [
         "bare-metal",
-        "rtos-api",
         "greentea-client",
         "utest",
         "unity",
