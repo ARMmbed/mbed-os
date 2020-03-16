@@ -102,6 +102,18 @@ extern "C"
 
 //*****************************************************************************
 //
+// Button definitions.
+//
+//*****************************************************************************
+#define AM_BSP_NUM_BUTTONS                  1
+extern am_devices_button_t am_bsp_psButtons[AM_BSP_NUM_BUTTONS];
+
+#define AM_BSP_GPIO_BUTTON10        AM_BSP_GPIO_BUTTON0
+#define AM_BSP_GPIO_SWCH            AM_BSP_GPIO_BUTTON0
+
+
+//*****************************************************************************
+//
 // LED definitions.
 //
 //*****************************************************************************
@@ -110,12 +122,12 @@ extern am_devices_led_t am_bsp_psLEDs[AM_BSP_NUM_LEDS];
 
 // LED Device Array Indices
 #define AM_BSP_LED0 0
-#define AM_BSP_LED_BLUE      AM_BSP_LED0
+#define AM_BSP_LED_BLUE         AM_BSP_LED0
 
 // Corresponding GPIO Numbers
 #define AM_BSP_GPIO_LED             AM_BSP_GPIO_LED_BLUE
 #define AM_BSP_GPIO_LED0            AM_BSP_GPIO_LED_BLUE
-#define AM_BSP_GPIO_LED37           AM_BSP_GPIO_LED_BLUE
+#define AM_BSP_GPIO_LED18           AM_BSP_GPIO_LED_BLUE
 
 
 //*****************************************************************************
@@ -124,12 +136,12 @@ extern am_devices_led_t am_bsp_psLEDs[AM_BSP_NUM_LEDS];
 //
 //*****************************************************************************
 //
-// The ATP PWM LED is pad 5
+// The Artemis Thing Plus PWM LED is pad 26
 //
 #define AM_BSP_PIN_PWM_LED                  AM_BSP_GPIO_LED0
-#define AM_BSP_PWM_LED_TIMER                2
-#define AM_BSP_PWM_LED_TIMER_SEG            AM_HAL_CTIMER_TIMERA
-#define AM_BSP_PWM_LED_TIMER_INT            AM_HAL_CTIMER_INT_TIMERA2C0
+#define AM_BSP_PWM_LED_TIMER                0
+#define AM_BSP_PWM_LED_TIMER_SEG            AM_HAL_CTIMER_TIMERB
+#define AM_BSP_PWM_LED_TIMER_INT            AM_HAL_CTIMER_INT_TIMERB0C0
 
 //*****************************************************************************
 //

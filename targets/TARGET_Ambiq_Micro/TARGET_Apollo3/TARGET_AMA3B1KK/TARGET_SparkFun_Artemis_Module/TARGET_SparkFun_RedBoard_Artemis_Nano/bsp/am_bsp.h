@@ -93,11 +93,11 @@ extern "C"
 // Qwiic Connector.
 //
 //*****************************************************************************
-#define AM_BSP_QWIIC_I2C_IOM                4
-#define AM_BSP_QWIIC_I2C_SDA_PIN            AM_BSP_GPIO_IOM4_SDA
-#define AM_BSP_QWIIC_I2C_SCL_PIN            AM_BSP_GPIO_IOM4_SCL
-#define g_AM_BSP_QWIIC_I2C_SDA              g_AM_BSP_GPIO_IOM4_SDA
-#define g_AM_BSP_QWIIC_I2C_SCL              g_AM_BSP_GPIO_IOM4_SCL
+#define AM_BSP_QWIIC_I2C_IOM                2
+#define AM_BSP_QWIIC_I2C_SDA_PIN            AM_BSP_GPIO_IOM2_SDA
+#define AM_BSP_QWIIC_I2C_SCL_PIN            AM_BSP_GPIO_IOM2_SCL
+#define g_AM_BSP_QWIIC_I2C_SDA              g_AM_BSP_GPIO_IOM2_SDA
+#define g_AM_BSP_QWIIC_I2C_SCL              g_AM_BSP_GPIO_IOM2_SCL
 
 
 //*****************************************************************************
@@ -115,7 +115,7 @@ extern am_devices_led_t am_bsp_psLEDs[AM_BSP_NUM_LEDS];
 // Corresponding GPIO Numbers
 #define AM_BSP_GPIO_LED             AM_BSP_GPIO_LED_BLUE
 #define AM_BSP_GPIO_LED0            AM_BSP_GPIO_LED_BLUE
-#define AM_BSP_GPIO_LED37           AM_BSP_GPIO_LED_BLUE
+#define AM_BSP_GPIO_LED19           AM_BSP_GPIO_LED_BLUE
 
 
 //*****************************************************************************
@@ -124,12 +124,12 @@ extern am_devices_led_t am_bsp_psLEDs[AM_BSP_NUM_LEDS];
 //
 //*****************************************************************************
 //
-// The ATP PWM LED is pad 5
+// The RedBoard Artemis Nano LED is pad 19
 //
 #define AM_BSP_PIN_PWM_LED                  AM_BSP_GPIO_LED0
-#define AM_BSP_PWM_LED_TIMER                2
-#define AM_BSP_PWM_LED_TIMER_SEG            AM_HAL_CTIMER_TIMERA
-#define AM_BSP_PWM_LED_TIMER_INT            AM_HAL_CTIMER_INT_TIMERA2C0
+#define AM_BSP_PWM_LED_TIMER                1
+#define AM_BSP_PWM_LED_TIMER_SEG            AM_HAL_CTIMER_TIMERB
+#define AM_BSP_PWM_LED_TIMER_INT            AM_HAL_CTIMER_INT_TIMERB1C0
 
 //*****************************************************************************
 //

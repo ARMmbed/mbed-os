@@ -78,6 +78,18 @@ extern "C"
 
 //*****************************************************************************
 //
+// Camera
+//
+//*****************************************************************************
+#define AM_BSP_CAMERA_HM01B0_MCLK_PIN              26
+#define AM_BSP_CAMERA_HM01B0_I2C_IOM               1
+#define AM_BSP_CAMERA_HM01B0_I2C_SDA_PIN           AM_BSP_GPIO_IOM1_SDA
+#define AM_BSP_CAMERA_HM01B0_I2C_SCL_PIN           AM_BSP_GPIO_IOM1_SCL
+#define AM_BSP_CAMERA_HM01B0_MCLK_GEN_MOD           0
+#define AM_BSP_CAMERA_HM01B0_MCLK_GEN_SEG           AM_HAL_CTIMER_TIMERB
+
+//*****************************************************************************
+//
 // PDM Microphone
 //
 //*****************************************************************************
@@ -86,6 +98,18 @@ extern "C"
 #define AM_BSP_PDM_CLOCK_PIN                AM_BSP_GPIO_MIC_CLK
 #define g_AM_BSP_PDM_DATA                   g_AM_BSP_GPIO_MIC_DATA
 #define g_AM_BSP_PDM_CLOCK                  g_AM_BSP_GPIO_MIC_CLK
+
+//*****************************************************************************
+//
+// Accelerometer.
+//
+//*****************************************************************************
+#define AM_BSP_ACCELEROMETER_I2C_IOM        3
+#define AM_BSP_ACCELEROMETER_I2C_ADDRESS    0x19
+#define AM_BSP_ACCELEROMETER_I2C_SDA_PIN    AM_BSP_GPIO_IOM3_SDA
+#define AM_BSP_ACCELEROMETER_I2C_SCL_PIN    AM_BSP_GPIO_IOM3_SCL
+#define g_AM_BSP_ACCELEROMETER_I2C_SDA      g_AM_BSP_GPIO_IOM3_SDA
+#define g_AM_BSP_ACCELEROMETER_I2C_SCL      g_AM_BSP_GPIO_IOM3_SCL
 
 
 //*****************************************************************************
@@ -100,22 +124,44 @@ extern "C"
 #define g_AM_BSP_QWIIC_I2C_SCL              g_AM_BSP_GPIO_IOM4_SCL
 
 
+// //*****************************************************************************
+// //
+// // Button definitions.
+// //
+// //*****************************************************************************
+// #define AM_BSP_NUM_BUTTONS                  0
+// extern am_devices_button_t am_bsp_psButtons[AM_BSP_NUM_BUTTONS];
+
+
 //*****************************************************************************
 //
 // LED definitions.
 //
 //*****************************************************************************
-#define AM_BSP_NUM_LEDS                   1
+#define AM_BSP_NUM_LEDS                   4
 extern am_devices_led_t am_bsp_psLEDs[AM_BSP_NUM_LEDS];
 
 // LED Device Array Indices
 #define AM_BSP_LED0 0
-#define AM_BSP_LED_BLUE      AM_BSP_LED0
+#define AM_BSP_LED1 1
+#define AM_BSP_LED2 2
+#define AM_BSP_LED3 3
+
+#define AM_BSP_LED_RED      AM_BSP_LED0
+#define AM_BSP_LED_BLUE     AM_BSP_LED1
+#define AM_BSP_LED_GREEN    AM_BSP_LED2
+#define AM_BSP_LED_YELLOW   AM_BSP_LED3
 
 // Corresponding GPIO Numbers
-#define AM_BSP_GPIO_LED             AM_BSP_GPIO_LED_BLUE
-#define AM_BSP_GPIO_LED0            AM_BSP_GPIO_LED_BLUE
-#define AM_BSP_GPIO_LED37           AM_BSP_GPIO_LED_BLUE
+#define AM_BSP_GPIO_LED0             AM_BSP_GPIO_LED_RED
+#define AM_BSP_GPIO_LED1            AM_BSP_GPIO_LED_BLUE
+#define AM_BSP_GPIO_LED2           AM_BSP_GPIO_LED_GREEN
+#define AM_BSP_GPIO_LED3          AM_BSP_GPIO_LED_YELLOW
+
+#define AM_BSP_GPIO_LED19             AM_BSP_GPIO_LED_RED
+#define AM_BSP_GPIO_LED18            AM_BSP_GPIO_LED_BLUE
+#define AM_BSP_GPIO_LED17           AM_BSP_GPIO_LED_GREEN
+#define AM_BSP_GPIO_LED37          AM_BSP_GPIO_LED_YELLOW
 
 
 //*****************************************************************************
@@ -124,12 +170,12 @@ extern am_devices_led_t am_bsp_psLEDs[AM_BSP_NUM_LEDS];
 //
 //*****************************************************************************
 //
-// The ATP PWM LED is pad 5
+// The Edge2 LED0 is pin 19
 //
 #define AM_BSP_PIN_PWM_LED                  AM_BSP_GPIO_LED0
-#define AM_BSP_PWM_LED_TIMER                2
-#define AM_BSP_PWM_LED_TIMER_SEG            AM_HAL_CTIMER_TIMERA
-#define AM_BSP_PWM_LED_TIMER_INT            AM_HAL_CTIMER_INT_TIMERA2C0
+#define AM_BSP_PWM_LED_TIMER                1
+#define AM_BSP_PWM_LED_TIMER_SEG            AM_HAL_CTIMER_TIMERB
+#define AM_BSP_PWM_LED_TIMER_INT            AM_HAL_CTIMER_INT_TIMERB1C0
 
 //*****************************************************************************
 //

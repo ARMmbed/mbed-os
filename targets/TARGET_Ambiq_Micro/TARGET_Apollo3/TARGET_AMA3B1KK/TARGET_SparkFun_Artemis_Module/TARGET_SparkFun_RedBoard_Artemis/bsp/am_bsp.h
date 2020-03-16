@@ -115,8 +115,7 @@ extern am_devices_led_t am_bsp_psLEDs[AM_BSP_NUM_LEDS];
 // Corresponding GPIO Numbers
 #define AM_BSP_GPIO_LED             AM_BSP_GPIO_LED_BLUE
 #define AM_BSP_GPIO_LED0            AM_BSP_GPIO_LED_BLUE
-#define AM_BSP_GPIO_LED37           AM_BSP_GPIO_LED_BLUE
-
+#define AM_BSP_GPIO_LED13           AM_BSP_GPIO_LED_BLUE
 
 //*****************************************************************************
 //
@@ -124,7 +123,7 @@ extern am_devices_led_t am_bsp_psLEDs[AM_BSP_NUM_LEDS];
 //
 //*****************************************************************************
 //
-// The ATP PWM LED is pad 5
+// The RedBoard Artemis PWM LED is pad 5
 //
 #define AM_BSP_PIN_PWM_LED                  AM_BSP_GPIO_LED0
 #define AM_BSP_PWM_LED_TIMER                2

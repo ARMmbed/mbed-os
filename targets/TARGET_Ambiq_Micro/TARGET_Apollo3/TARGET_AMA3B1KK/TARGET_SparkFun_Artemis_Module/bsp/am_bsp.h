@@ -76,60 +76,17 @@ extern "C"
 //
 //*****************************************************************************
 
-//*****************************************************************************
-//
-// PDM Microphone
-//
-//*****************************************************************************
-#define AM_BSP_PDM_CHANNEL                  AM_HAL_PDM_CHANNEL_RIGHT
-#define AM_BSP_PDM_DATA_PIN                 AM_BSP_GPIO_MIC_DATA
-#define AM_BSP_PDM_CLOCK_PIN                AM_BSP_GPIO_MIC_CLK
-#define g_AM_BSP_PDM_DATA                   g_AM_BSP_GPIO_MIC_DATA
-#define g_AM_BSP_PDM_CLOCK                  g_AM_BSP_GPIO_MIC_CLK
-
-
-//*****************************************************************************
-//
-// Qwiic Connector.
-//
-//*****************************************************************************
-#define AM_BSP_QWIIC_I2C_IOM                4
-#define AM_BSP_QWIIC_I2C_SDA_PIN            AM_BSP_GPIO_IOM4_SDA
-#define AM_BSP_QWIIC_I2C_SCL_PIN            AM_BSP_GPIO_IOM4_SCL
-#define g_AM_BSP_QWIIC_I2C_SDA              g_AM_BSP_GPIO_IOM4_SDA
-#define g_AM_BSP_QWIIC_I2C_SCL              g_AM_BSP_GPIO_IOM4_SCL
-
 
 //*****************************************************************************
 //
 // LED definitions.
 //
 //*****************************************************************************
-#define AM_BSP_NUM_LEDS                   1
+#undef AM_BSP_NUM_LEDS
+#ifdef AM_BSP_NUM_LEDS
 extern am_devices_led_t am_bsp_psLEDs[AM_BSP_NUM_LEDS];
+#endif // AM_BSP_NUM_LEDS
 
-// LED Device Array Indices
-#define AM_BSP_LED0 0
-#define AM_BSP_LED_BLUE      AM_BSP_LED0
-
-// Corresponding GPIO Numbers
-#define AM_BSP_GPIO_LED             AM_BSP_GPIO_LED_BLUE
-#define AM_BSP_GPIO_LED0            AM_BSP_GPIO_LED_BLUE
-#define AM_BSP_GPIO_LED37           AM_BSP_GPIO_LED_BLUE
-
-
-//*****************************************************************************
-//
-// PWM_LED peripheral assignments.
-//
-//*****************************************************************************
-//
-// The ATP PWM LED is pad 5
-//
-#define AM_BSP_PIN_PWM_LED                  AM_BSP_GPIO_LED0
-#define AM_BSP_PWM_LED_TIMER                2
-#define AM_BSP_PWM_LED_TIMER_SEG            AM_HAL_CTIMER_TIMERA
-#define AM_BSP_PWM_LED_TIMER_INT            AM_HAL_CTIMER_INT_TIMERA2C0
 
 //*****************************************************************************
 //
