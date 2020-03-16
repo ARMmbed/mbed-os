@@ -97,10 +97,12 @@ CellularDevice *CellularDevice::get_default_instance()
 
 nsapi_error_t QUECTEL_EC2X::press_power_button(uint32_t timeout)
 {
-    _pwr_key = _active_high;
-    ThisThread::sleep_for(timeout);
-    _pwr_key = !_active_high;
-    ThisThread::sleep_for(100);
+    if (_pwr_key.is_connected()) {
+        _pwr_key = _active_high;
+        ThisThread::sleep_for(timeout);
+        _pwr_key = !_active_high;
+        ThisThread::sleep_for(100);
+    }
 
     return NSAPI_ERROR_OK;
 }
