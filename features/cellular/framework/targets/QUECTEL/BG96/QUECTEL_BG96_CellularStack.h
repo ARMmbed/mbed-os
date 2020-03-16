@@ -54,8 +54,10 @@ protected: // NetworkStack
     virtual nsapi_error_t gethostbyname_async_cancel(int id);
 #endif
 
+#if defined(MBED_CONF_NSAPI_OFFLOAD_TLSSOCKET) && (MBED_CONF_NSAPI_OFFLOAD_TLSSOCKET)
     virtual nsapi_error_t setsockopt(nsapi_socket_t handle, int level,
                                      int optname, const void *optval, unsigned optlen);
+#endif
 
 protected: // AT_CellularStack
 
@@ -79,7 +81,9 @@ private:
 
     void handle_open_socket_response(int &modem_connect_id, int &err, bool tlssocket);
 
+#if defined(MBED_CONF_NSAPI_OFFLOAD_TLSSOCKET) && (MBED_CONF_NSAPI_OFFLOAD_TLSSOCKET)
     nsapi_error_t set_to_modem_impl(const char *filename, const char *config, const char *data, size_t size);
+#endif
 
 #ifdef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
     // URC handler for DNS query
