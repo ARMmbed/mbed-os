@@ -45,8 +45,8 @@ add_subdirectory(mbed-os)
 # Include project configuration
 add_subdirectory(gen_config)
 
-# add syslibs dependencies to create the correct linker order
-target_link_libraries(app mbed-os gen_config -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys)
+# Link the example libs
+target_link_libraries(app mbed-os gen_config)
 
 get_property(linkerfile GLOBAL PROPERTY MBED_OS_TARGET_LINKER_FILE)
 
