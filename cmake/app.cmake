@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Include other required CMake files
-# TODO: @mbed-os-tools This needs to come from tools, we should include here toolchain cmake
-include(${MBED_OS_ROOT}/cmake/gcc.cmake)
+# TODO: @mbed-os-tools This needs to come from tools
+include(${MBED_OS_ROOT}/cmake/toolchain.cmake)
 
 include(${MBED_OS_ROOT}/cmake/target.cmake)
 include(${MBED_OS_ROOT}/cmake/env.cmake)
