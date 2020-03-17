@@ -8,7 +8,7 @@ set_property(GLOBAL PROPERTY MBED_OS_TARGET_LINKER_FILE "")
 # TODO: @mbed-os-tools This needs to come from tools
 # Build system provides "target" list.
 # Note: This must be placed before subdirectories
-set_property(GLOBAL PROPERTY MBED_OS_TARGET_LABELS Freescale;MCUXpresso_MCUS;KSDK2_MCUS;FRDM;KPSDK_MCUS;KPSDK_CODE;MCU_K64F;Freescale_EMAC;PSA;CORTEX_M;RTOS_M4_M7)
+set_property(GLOBAL PROPERTY MBED_OS_TARGET_LABELS Freescale;MCUXpresso_MCUS;KSDK2_MCUS;FRDM;KPSDK_MCUS;KPSDK_CODE;MCU_K64F;Freescale_EMAC;PSA;CORTEX_M;RTOS_M4_M7;K64F)
 
 # TODO: @mbed-os-tools Generate definitions
 add_definitions(
@@ -71,6 +71,7 @@ add_definitions(
   -DTARGET_RTOS_M4_M7
   -DTOOLCHAIN_GCC
   -DTOOLCHAIN_GCC_ARM
+  -DMBEDTLS_MD5_C
   -D__CMSIS_RTOS
   -D__CORTEX_M4
   -D__FPU_PRESENT=1
