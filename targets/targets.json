@@ -12762,6 +12762,34 @@
             "IAR"
         ],
         "config": {
+            "spim-ccm-enable": {
+                "help": "Enable SPIM CCM mode to spare 32KiB SRAM for normal use",
+                "value": 0
+            },
+            "usb-uart": {
+                "help": "Configure USB_UART. USB_UART and USB_UART_TX/USB_UART_RX must be consistent.",
+                "value": null
+            },
+            "usb-uart-tx": {
+                "help": "Configure USBTX. USB_UART and USBTX/USBRX must be consistent.",
+                "value": null
+            },
+            "usb-uart-rx": {
+                "help": "Configure USBRX. USB_UART and USBTX/USBRX must be consistent.",
+                "value": null
+            },
+            "stdio-uart": {
+                "help": "Configure STDIO_UART. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART defaults to USB_UART.",
+                "value": null
+            },
+            "stdio-uart-tx": {
+                "help": "Configure STDIO_UART_TX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_TX defaults to USBTX.",
+                "value": null
+            },
+            "stdio-uart-rx": {
+                "help": "Configure STDIO_UART_RX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_RX defaults to USBRX.",
+                "value": null
+            },
             "gpio-irq-debounce-enable": {
                 "help": "Enable GPIO IRQ debounce",
                 "value": 0
@@ -12787,7 +12815,6 @@
             "Target"
         ],
         "macros_add": [
-            "MBEDTLS_CONFIG_HW_SUPPORT",
             "LPTICKER_DELAY_TICKS=4"
         ],
         "device_has": [
@@ -12820,12 +12847,14 @@
             "RESET_REASON",
             "USBDEVICE"
         ],
+        "components_add": [
+            "FLASHIAP"
+        ],
         "release_versions": [
             "5"
         ],
         "bootloader_supported": true,
         "overrides": {
-            "network-default-interface-type": "ETHERNET",
             "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
         }
@@ -12834,25 +12863,39 @@
         "inherits": [
             "MCU_M480"
         ],
-        "components_add": [
-            "FLASHIAP"
+        "macros_add": [
+            "MBEDTLS_CONFIG_HW_SUPPORT"
         ],
         "device_name": "M487JIDAE",
         "detect_code": [
             "1304"
-        ]
+        ],
+        "overrides": {
+            "usb-uart": "UART_0",
+            "usb-uart-tx": "PB_13",
+            "usb-uart-rx": "PB_12",
+            "spim-ccm-enable": 1,
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "NUMAKER_IOT_M487": {
         "inherits": [
             "MCU_M480"
         ],
-        "components_add": [
-            "FLASHIAP"
+        "macros_add": [
+            "MBEDTLS_CONFIG_HW_SUPPORT"
         ],
         "device_name": "M487JIDAE",
         "detect_code": [
             "1308"
-        ]
+        ],
+        "overrides": {
+            "usb-uart": "UART_0",
+            "usb-uart-tx": "PB_13",
+            "usb-uart-rx": "PB_12",
+            "spim-ccm-enable": 1,
+            "network-default-interface-type": "WIFI"
+        }
     },
     "TMPM066": {
         "inherits": [

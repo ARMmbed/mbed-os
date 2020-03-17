@@ -76,6 +76,7 @@ void SystemInit (void)
     /* Disable Flash Access Cycle Auto-tuning, set access cycle for CPU @ 192MHz */
     FMC->CYCCTL = FMC_CYCCTL_FADIS_Msk | (8 << FMC_CYCCTL_CYCLE_Pos);
 
+#if MBED_CONF_TARGET_SPIM_CCM_ENABLE
     // Divert SRAM bank2 (32 KB) to CCM from SPIM cache
     // NOTE: C-runtime not initialized yet. Ensure no static memory (global variable) are accessed in function below.
     // NOTE: SPIM must keep enabled to run CCM mode.
@@ -84,5 +85,6 @@ void SystemInit (void)
     SPIM_DISABLE_CACHE();
     SPIM_ENABLE_CCM();
     while (! SPIM_IS_CCM_EN());
+#endif
 }
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
