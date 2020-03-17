@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-target_sources(mbed-os PRIVATE 2.0)
+# SPDX-License-Identifier: Apache-2.0
 
 target_sources(mbed-os PRIVATE ATCmdParser.h)
 target_sources(mbed-os PRIVATE Callback.h)
