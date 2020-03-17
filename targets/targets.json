@@ -19,7 +19,7 @@
         "c_lib": "std",
         "bootloader_supported": false,
         "static_memory_defines": true,
-        "printf_lib": "std",
+        "printf_lib": "minimal-printf",
         "supported_c_libs": {
             "arm": [
                 "std"

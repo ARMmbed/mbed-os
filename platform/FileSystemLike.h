@@ -48,40 +48,6 @@ public:
     FileSystemLike(const char *name = NULL) : FileBase(name, FileSystemPathType) {}
     virtual ~FileSystemLike() {}
 
-    // Inherited functions with name conflicts
-    using FileSystemHandle::open;
-
-    /** Open a file on the filesystem
-     *
-     *  @param path     The name of the file to open
-     *  @param flags    The flags to open the file in, one of O_RDONLY, O_WRONLY, O_RDWR,
-     *                  bitwise or'd with one of O_CREAT, O_TRUNC, O_APPEND
-     *  @return         A file handle on success, NULL on failure
-     *  @deprecated Replaced by `int open(FileHandle **, ...)` for propagating error codes
-     */
-    MBED_DEPRECATED_SINCE("mbed-os-5.5",
-                          "Replaced by `int open(FileHandle **, ...)` for propagating error codes")
-    FileHandle *open(const char *path, int flags)
-    {
-        FileHandle *file;
-        int err = open(&file, path, flags);
-        return err ? NULL : file;
-    }
-
-    /** Open a directory on the filesystem
-     *
-     *  @param path     Name of the directory to open
-     *  @return         A directory handle on success, NULL on failure
-     *  @deprecated Replaced by `int open(DirHandle **, ...)` for propagating error codes
-     */
-    MBED_DEPRECATED_SINCE("mbed-os-5.5",
-                          "Replaced by `int open(DirHandle **, ...)` for propagating error codes")
-    DirHandle *opendir(const char *path)
-    {
-        DirHandle *dir;
-        int err = open(&dir, path);
-        return err ? NULL : dir;
-    }
 };
 
 /**@}*/

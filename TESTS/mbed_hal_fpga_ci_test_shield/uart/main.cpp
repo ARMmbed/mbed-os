@@ -28,13 +28,14 @@
 #include "greentea-client/test_env.h"
 #include "platform/mbed_critical.h"
 #include <stdlib.h>
+#include "hal/serial_api.h"
 #include "UARTTester.h"
 #include "pinmap.h"
 #include "test_utils.h"
-#include "serial_api.h"
 #include "us_ticker_api.h"
 #include "uart_fpga_test.h"
 #include "hal/static_pinmap.h"
+
 
 using namespace utest::v1;
 

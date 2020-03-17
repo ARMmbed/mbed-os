@@ -21,8 +21,6 @@
 
 using namespace utest::v1;
 
-#include "gpio_api.h"
-#include "gpio_irq_api.h"
 #include "analogin_api.h"
 #include "analogout_api.h"
 #include "can_api.h"
@@ -41,10 +39,6 @@ typedef struct {
 } pinmap_info_t;
 
 const pinmap_info_t pinmap_functions[] = {
-    PINMAP_TEST_ENTRY(gpio_pinmap),
-#if DEVICE_INTERRUPTIN
-    PINMAP_TEST_ENTRY(gpio_irq_pinmap),
-#endif
 #if DEVICE_ANALOGIN
     PINMAP_TEST_ENTRY(analogin_pinmap),
 #endif

@@ -231,15 +231,13 @@ nsapi_error_t OdinWiFiInterface::set_credentials(const char *ssid, const char *p
         return NSAPI_ERROR_PARAMETER;
     }
 
-    osStatus res = _mutex.lock();
-    MBED_ASSERT(res == osOK);
+    _mutex.lock();    
 
     strncpy(_sta.ssid, ssid, cbWLAN_SSID_MAX_LENGTH);
     strncpy(_sta.passwd, pass, cbWLAN_MAX_PASSPHRASE_LENGTH);
     _sta.security = security;
 
-    res = _mutex.unlock();
-    MBED_ASSERT(res == osOK);
+    _mutex.unlock();
 
     return NSAPI_ERROR_OK;
 }
@@ -275,26 +273,18 @@ nsapi_error_t OdinWiFiInterface::set_channel(uint8_t channel)
         return NSAPI_ERROR_PARAMETER;
     }
 
-    osStatus res = _mutex.lock();
-    MBED_ASSERT(res == osOK);
-
+    _mutex.lock();
     _sta.channel = channel;
-
-    res = _mutex.unlock();
-    MBED_ASSERT(res == osOK);
+    _mutex.unlock();
 
     return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t OdinWiFiInterface::set_timeout(int ms)
 {
-    osStatus res = _mutex.lock();
-    MBED_ASSERT(res == osOK);
-
+    _mutex.lock();
     _sta.timeout_ms = ms;
-
-    res = _mutex.unlock();
-    MBED_ASSERT(res == osOK);
+    _mutex.unlock();
 
     return NSAPI_ERROR_OK;
 }
@@ -560,8 +550,7 @@ nsapi_error_t OdinWiFiInterface::set_ap_network(const char *ip_address, const ch
 {
     nsapi_error_t result = NSAPI_ERROR_PARAMETER;
 
-    osStatus res = _mutex.lock();
-    MBED_ASSERT(res == osOK);
+    _mutex.lock();
 
     if ((ip_address != NULL) && (netmask != NULL) && (gateway != NULL))
     {
@@ -583,8 +572,7 @@ nsapi_error_t OdinWiFiInterface::set_ap_network(const char *ip_address, const ch
         result = NSAPI_ERROR_OK;
     }
 
-    res = _mutex.unlock();
-    MBED_ASSERT(res == osOK);
+    _mutex.unlock();
 
     return result;
 }
@@ -593,28 +581,22 @@ nsapi_error_t OdinWiFiInterface::set_ap_network(const char *ip_address, const ch
 nsapi_error_t OdinWiFiInterface::set_ap_credentials(const char *ssid, const char *pass,
         nsapi_security_t security)
 {
-    osStatus res = _mutex.lock();
-    MBED_ASSERT(res == osOK);
+    _mutex.lock();
 
     _ap.ssid = ssid;
     _ap.passwd = pass;
     _ap.security = security;
 
-    res = _mutex.unlock();
-    MBED_ASSERT(res == osOK);
+    _mutex.unlock();
 
     return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t OdinWiFiInterface::set_ap_channel(uint8_t channel)
 {
-    osStatus res = _mutex.lock();
-    MBED_ASSERT(res == osOK);
-
+    _mutex.lock();
     _ap.channel = channel;
-
-    res = _mutex.unlock();
-    MBED_ASSERT(res == osOK);
+    _mutex.unlock();
 
     return NSAPI_ERROR_OK;
 }
@@ -623,13 +605,9 @@ int OdinWiFiInterface::get_ap_connection_count()
 {
     int cnt;
 
-    osStatus res = _mutex.lock();
-    MBED_ASSERT(res == osOK);
-
+    _mutex.lock();
     cnt = _ap.cnt_connected;
-
-    res = _mutex.unlock();
-    MBED_ASSERT(res == osOK);
+    _mutex.unlock();
 
     return cnt;
 }
@@ -641,13 +619,9 @@ int OdinWiFiInterface::get_ap_max_connection_count()
 
 nsapi_error_t OdinWiFiInterface::set_ap_dhcp(bool dhcp)
 {
-    osStatus res = _mutex.lock();
-    MBED_ASSERT(res == osOK);
-
+    _mutex.lock();
     _ap.use_dhcp = dhcp;
-
-    res = _mutex.unlock();
-    MBED_ASSERT(res == osOK);
+    _mutex.unlock();
 
     return NSAPI_ERROR_OK;
 }
@@ -739,13 +713,9 @@ nsapi_error_t OdinWiFiInterface::ap_stop()
 
 nsapi_error_t OdinWiFiInterface::set_ap_beacon_interval(uint16_t interval)
 {
-    osStatus res = _mutex.lock();
-    MBED_ASSERT(res == osOK);
-
+    _mutex.lock();
     _ap.beacon_interval = interval;
-
-    res = _mutex.unlock();
-    MBED_ASSERT(res == osOK);
+    _mutex.unlock();
 
     return NSAPI_ERROR_OK;
 }
@@ -860,8 +830,7 @@ void OdinWiFiInterface::handle_in_msg(void)
             struct odin_wifi_msg_s *msg = (odin_wifi_msg_s*)evt.value.p;
             MBED_ASSERT(msg != 0);
 
-            osStatus res = _mutex.lock();
-            MBED_ASSERT(res == osOK);
+            _mutex.lock();            
 
             switch(msg->type) {
 				case ODIN_WIFI_MSG_USER_CONNECT:
@@ -949,8 +918,7 @@ void OdinWiFiInterface::handle_in_msg(void)
 					break;
             }
 
-            res = _mutex.unlock();
-            MBED_ASSERT(res == osOK);
+            _mutex.unlock();      
 
             if(msg != 0) {
                 _msg_pool->free(msg);
@@ -1530,8 +1498,7 @@ void OdinWiFiInterface::handle_wlan_status_ap_down()
 
 void OdinWiFiInterface::init(bool debug = false)
 {
-    osStatus res = _mutex.lock();
-    MBED_ASSERT(res == osOK);
+    _mutex.lock();
 
     // Initialise internal variables
     _state = S_NOT_INITIALISED;
@@ -1595,8 +1562,7 @@ void OdinWiFiInterface::init(bool debug = false)
 
     _thread.start(callback(wlan_callb_s::odin_thread_fcn, this));
 
-    res = _mutex.unlock();
-    MBED_ASSERT(res == osOK);
+    _mutex.unlock();
 }
 
 void OdinWiFiInterface::send_user_response_msg(unsigned int type, nsapi_error_t error_code)
@@ -1817,14 +1783,12 @@ void OdinWiFiInterface::wlan_scan_indication(cbWLAN_ScanIndicationInfo *scan_inf
             MBED_ASSERT(ok == osOK);
         }
         else {
-            osStatus res = _mutex.lock();
-            MBED_ASSERT(res == osOK);
+            _mutex.lock();            
 
             // Add scan result to scan_list
             update_scan_list(scan_info);
 
-            res = _mutex.unlock();
-            MBED_ASSERT(res == osOK);
+            _mutex.unlock();            
         }
     }
     else {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2020, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,25 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef ALT1250_PPP_CELLULARCONTEXT_H_
+#define ALT1250_PPP_CELLULARCONTEXT_H_
 
-#include "rtos/Mutex.h"
+#include "AT_CellularContext.h"
 
-rtos::Mutex::Mutex()
-{
-    return;
-}
+namespace mbed {
 
-rtos::Mutex::~Mutex()
-{
-    return;
-}
+class ALT1250_PPP_CellularContext: public AT_CellularContext {
+public:
+    ALT1250_PPP_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, bool cp_req = false, bool nonip_req = false);
+    virtual ~ALT1250_PPP_CellularContext();
 
-osStatus rtos::Mutex::lock()
-{
-    return osOK;
-}
+protected:
+    virtual nsapi_error_t do_user_authentication();
+};
 
-osStatus rtos::Mutex::unlock()
-{
-    return osOK;
-}
+} /* namespace mbed */
+
+#endif // ALT1250_PPP_CELLULARCONTEXT_H_

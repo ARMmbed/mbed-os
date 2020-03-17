@@ -153,50 +153,6 @@ public:
         return -EINVAL;
     }
 
-    /** Move the file position to a given offset from a given location.
-     *
-     *  @param offset The offset from whence to move to
-     *  @param whence SEEK_SET for the start of the file, SEEK_CUR for the
-     *   current file position, or SEEK_END for the end of the file.
-     *
-     *  @returns
-     *    new file position on success,
-     *    -1 on failure or unsupported
-     *  @deprecated Replaced by `off_t FileHandle::seek(off_t offset, int whence = SEEK_SET)'
-     *
-     */
-    MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by FileHandle::seek")
-    virtual off_t lseek(off_t offset, int whence)
-    {
-        return seek(offset, whence);
-    }
-
-    /** Flush any buffers associated with the FileHandle, ensuring it
-     *  is up to date on disk
-     *
-     *  @returns
-     *    0 on success or un-needed,
-     *   -1 on error
-     *  @deprecated Replaced by `int FileHandle::sync()'
-     */
-    MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by FileHandle::sync")
-    virtual int fsync()
-    {
-        return sync();
-    }
-
-    /** Find the length of the file
-     *
-     *  @returns
-     *   Length of the file
-     *  @deprecated Replaced by `off_t FileHandle::size()'
-     */
-    MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by FileHandle::size")
-    virtual off_t flen()
-    {
-        return size();
-    }
-
     /** Set blocking or nonblocking mode of the file operation like read/write.
      *  Definition depends on the subclass implementing FileHandle.
      *  The default is blocking.

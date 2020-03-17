@@ -140,7 +140,6 @@ public:
     nsapi_error_t set_client_cert_key(const char *client_cert_pem, const char *client_private_key_pem);
 
     // From TCPSocket
-    nsapi_error_t connect(const char *host, uint16_t port) override;
     nsapi_error_t connect(const SocketAddress &address) override;
 
 protected:

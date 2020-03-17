@@ -85,9 +85,6 @@ For further documentation and help, you can visit the [Mbed TLS website](https:/
 
 ### Contributing to the project
 
-We are happy to accept bug reports and contributions from the community. There are some requirements to integrate contributions:
+We gratefully accept bug reports and contributions from the community. Contributions should be submitted to the [standalone Mbed TLS project](https://github.com/ARMmbed/mbedtls), not to the version of Mbed TLS embedded within Mbed OS.
 
-* Simple bug fixes to existing code do not contain copyright themselves, and we can integrate without issue. The same is true of trivial contributions.
-* For larger contributions, such as a new feature, the code can possibly fall under copyright law. We then need your consent to share in the ownership of the copyright. We have a form for this, which we will send to you if you submit a contribution or pull request that we deem this necessary for.
-
-Please submit contributions to the [standalone Mbed TLS project](https://github.com/ARMmbed/mbedtls), not to the version of Mbed TLS embedded within Mbed OS.
+Please see the [contributing guidelines](https://github.com/ARMmbed/mbedtls/blob/development/CONTRIBUTING.md) of the project for details on how to do this.

@@ -293,11 +293,9 @@ typedef enum {
 #endif
 
     // Generic signals namings
-    LED1        = PB_0,  // Orange
-    LED2        = PH_4,  // Green
-    LED3        = PB_13, // Green
-    LED4        = LED1,
-    LED_RED     = LED3,
+    LED1        = PH_4,  // LD2 Green
+    LED2        = PB_13, // LD3 Green
+
     USER_BUTTON = PC_13, // Joystick
 
     // Standardized button names

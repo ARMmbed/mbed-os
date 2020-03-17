@@ -29,7 +29,7 @@
 
 # Set the Mbed Crypto release to import (this can/should be edited before
 # import)
-CRYPTO_RELEASE ?= mbedcrypto-3.0.0d0
+CRYPTO_RELEASE ?= mbedcrypto-3.0.1
 CRYPTO_REPO_URL ?= git@github.com:ARMmbed/mbed-crypto.git
 
 # Translate between Mbed Crypto namespace and Mbed OS namespace
@@ -85,7 +85,6 @@ rsync:
 	#
 	# Copying licenses
 	cp $(CRYPTO_DIR)/LICENSE $(TARGET_PREFIX)/
-	cp $(CRYPTO_DIR)/apache-2.0.txt $(TARGET_PREFIX)/
 	#
 	# Copying Mbed Crypto into Mbed OS...
 	rm -rf $(TARGET_SRV_IMPL)
@@ -130,7 +129,6 @@ $(CRYPTO_GIT_CFG):
 
 clean:
 	rm -f $(TARGET_PREFIX)/LICENSE
-	rm -f $(TARGET_PREFIX)/apache-2.0.txt
 	rm -f $(TARGET_PREFIX)/VERSION.txt
 	rm -f $(TARGET_PREFIX)/AUTHORS.txt
 	rm -rf $(TARGET_INC)

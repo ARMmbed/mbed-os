@@ -201,34 +201,6 @@ static inline void sleep(void)
 #endif /* DEVICE_SLEEP */
 }
 
-/** Send the microcontroller to deep sleep
- *
- * @deprecated
- * Do not use this function. Applications should use sleep() API which puts the system in deepsleep mode if supported.
- *
- * @note This function can be a noop if not implemented by the platform.
- * @note This function will be a noop in debug mode (debug build profile when MBED_DEBUG is defined)
- *
- * This processor is setup ready for deep sleep, and sent to sleep. This mode
- * has the same sleep features as sleep plus it powers down peripherals and clocks. All state
- * is still maintained.
- *
- * The processor can only be woken up by an external interrupt on a pin or a watchdog timer.
- *
- * @note
- *  The mbed interface semihosting is disconnected as part of going to sleep, and can not be restored.
- * Flash re-programming and the USB serial port will remain active, but the mbed program will no longer be
- * able to access the LocalFileSystem
- */
-
-MBED_DEPRECATED_SINCE("mbed-os-5.6", "One entry point for an application, use sleep()")
-static inline void deepsleep(void)
-{
-#if DEVICE_SLEEP
-    sleep_manager_sleep_auto();
-#endif /* DEVICE_SLEEP */
-}
-
 /** Provides the time spent in sleep mode since boot.
  *
  *  @return  Time spent in sleep

@@ -86,7 +86,7 @@ public:
      *  @param f        Function to execute when the event is dispatched
      *  @param args     Arguments to bind to the callback
      */
-    constexpr UserAllocatedEvent(F f,  ArgTs... args) : _e(get_default_equeue_event()), _c(f, args...), _equeue(), _post_ref()
+    constexpr UserAllocatedEvent(F f,  ArgTs... args) : _e(get_default_equeue_event()), _c(f, args...), _delay(), _period(-1), _equeue(), _post_ref()
     {
     }
 
@@ -100,7 +100,7 @@ public:
      *  @param f        Function to execute when the event is dispatched
      *  @param args     Arguments to bind to the callback
      */
-    constexpr UserAllocatedEvent(EventQueue *queue, F f,  ArgTs... args) : _e(get_default_equeue_event()), _c(f, args...), _equeue(&queue->_equeue), _post_ref()
+    constexpr UserAllocatedEvent(EventQueue *queue, F f,  ArgTs... args) : _e(get_default_equeue_event()), _c(f, args...), _delay(), _period(-1), _equeue(&queue->_equeue), _post_ref()
     {
     }
 
@@ -215,7 +215,7 @@ public:
     void delay(int delay)
     {
         MBED_ASSERT(!_post_ref);
-        equeue_event_delay(&_e + 1, delay);
+        _delay = delay;
     }
 
     /** Configure the period of an event
@@ -225,7 +225,7 @@ public:
     void period(int period)
     {
         MBED_ASSERT(!_post_ref);
-        equeue_event_period(&_e + 1, period);
+        _period = period;
     }
 
     /** Cancels posted event
@@ -243,7 +243,7 @@ public:
      */
     bool cancel()
     {
-        return equeue_cancel_user_allocated(_equeue, &_e);
+        return _post_ref > 0 ? equeue_cancel_user_allocated(_equeue, &_e) : false;
     }
 
 
@@ -251,6 +251,8 @@ private:
     friend class EventQueue;
     struct equeue_event _e;
     C _c;
+    int _delay;
+    int _period;
     struct equeue *_equeue;
     uint8_t _post_ref;
 
@@ -260,17 +262,22 @@ private:
             return false;
         }
         core_util_atomic_incr_u8(&_post_ref, 1);
+        equeue_event_delay(&_e + 1, _delay);
+        equeue_event_period(&_e + 1, _period);
         equeue_post_user_allocated(_equeue, &EventQueue::function_call<C>, &_e);
         return true;
     }
 
     bool post_on(EventQueue *queue)
     {
+        MBED_ASSERT(queue);
         if (_post_ref) {
             return false;
         }
         _equeue = &(queue->_equeue);
         core_util_atomic_incr_u8(&_post_ref, 1);
+        equeue_event_delay(&_e + 1, _delay);
+        equeue_event_period(&_e + 1, _period);
         equeue_post_user_allocated(_equeue, &EventQueue::function_call<C>, &_e);
         return true;
     }

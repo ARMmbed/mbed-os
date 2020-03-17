@@ -116,14 +116,15 @@ Case cases[] = {
     Case("C strings: %u %d integer formatting", test_case_c_string_u_d, greentea_failure_handler),
     Case("C strings: %x %E integer formatting", test_case_c_string_x_X, greentea_failure_handler),
 #if !defined(__NEWLIB_NANO)
-    //In build tools, GCC with Newlib-nano linker option "-u _printf_float" is not configured
-    //to enable printf floating format. So disabling floating format test case.
+    // Newlib-nano linker option "-u _printf_float" is not set to enable floating point support.
+#if (defined(MBED_MINIMAL_PRINTF) && MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FLOATING_POINT) || !defined(MBED_MINIMAL_PRINTF)
     Case("C strings: %f %f float formatting", test_case_c_string_f_f, greentea_failure_handler),
+#endif
 #ifndef MBED_MINIMAL_PRINTF
     Case("C strings: %e %E float formatting", test_case_c_string_e_E, greentea_failure_handler),
     Case("C strings: %g %g float formatting", test_case_c_string_g_g, greentea_failure_handler),
-#endif
-#endif
+#endif // MBED_MINIMAL_PRINTF
+#endif // !defined(__NEWLIB_NANO)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

@@ -32,7 +32,7 @@
 
 struct thread_neighbor_class_s;
 
-/** Thead Spesific ModeFlags */
+/** Thread Spesific ModeFlags */
 #define MLE_THREAD_SECURED_DATA_REQUEST 0x04
 #define MLE_THREAD_REQ_FULL_DATA_SET 0x01
 

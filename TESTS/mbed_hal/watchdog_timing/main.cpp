@@ -59,7 +59,7 @@ bool send_reset_notification(testcase_data *tcdata, uint32_t delay_ms)
 {
     char msg_value[12];
     int str_len = snprintf(msg_value, sizeof msg_value, "%02x,%08lx", tcdata->start_index + tcdata->index, delay_ms);
-    if (str_len != (sizeof msg_value) - 1) {
+    if (str_len < 0) {
         utest_printf("Failed to compose a value string to be sent to host.");
         return false;
     }
@@ -110,7 +110,7 @@ void test_timing()
 
         int str_len = snprintf(msg_value, sizeof msg_value, "%02x,%08lx", current_case.start_index + current_case.index,
                                (uint32_t) current_ts);
-        if (str_len != (sizeof msg_value) - 1) {
+        if (str_len < 0) {
             utest_printf("Failed to compose a value string to be sent to host.");
             return;
         }

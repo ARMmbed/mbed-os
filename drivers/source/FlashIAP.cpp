@@ -59,8 +59,12 @@ int FlashIAP::init()
             ret = -1;
         }
     }
-    uint32_t page_size = get_page_size();
-    _page_buf = new uint8_t[page_size];
+
+    // Do not allocate if flash_init failed
+    if (ret == 0) {
+        uint32_t page_size = get_page_size();
+        _page_buf = new uint8_t[page_size];
+    }
 
     _mutex->unlock();
     return ret;

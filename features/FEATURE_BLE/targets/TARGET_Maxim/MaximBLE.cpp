@@ -322,8 +322,8 @@ void MaximBLE::waitForEvent(void)
 
         // go to sleep
         if (hciDrvReadyToSleep()) {
-            // go to deep sleep
-            deepsleep();
+            // go to sleep
+            sleep();
             hciDrvResume();
         }
         else {

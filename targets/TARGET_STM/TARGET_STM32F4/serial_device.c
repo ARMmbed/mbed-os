@@ -272,7 +272,16 @@ int serial_getc(serial_t *obj)
     UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
 
     while (!serial_readable(obj));
-    return (int)(huart->Instance->DR & 0x1FF);
+    if (obj_s->parity == UART_PARITY_NONE) {
+        return (int)(huart->Instance->DR & 0x1FF);
+    } else {
+        // When receiving with the parity enabled, the value read in the MSB bit is the received parity bit
+        if (obj_s->databits == UART_WORDLENGTH_8B) {
+            return (int)(huart->Instance->DR & 0x07F); // 7 data bits + 1 parity bit
+        } else {
+            return (int)(huart->Instance->DR & 0x0FF); // 8 data bits + 1 parity bit
+        }
+    }
 }
 
 void serial_putc(serial_t *obj, int c)
@@ -743,7 +752,7 @@ static void _serial_set_flow_control_direct(serial_t *obj, FlowControl type, con
     }
     if (type == FlowControlRTS) {
         // Enable RTS
-        MBED_ASSERT(pinmap->rx_flow_pin != (UARTName)NC);
+        MBED_ASSERT(pinmap->rx_flow_pin != NC);
         obj_s->hw_flow_ctl = UART_HWCONTROL_RTS;
         obj_s->pin_rts = pinmap->rx_flow_pin;
         // Enable the pin for RTS function
@@ -752,7 +761,7 @@ static void _serial_set_flow_control_direct(serial_t *obj, FlowControl type, con
     }
     if (type == FlowControlCTS) {
         // Enable CTS
-        MBED_ASSERT(pinmap->tx_flow_pin != (UARTName)NC);
+        MBED_ASSERT(pinmap->tx_flow_pin != NC);
         obj_s->hw_flow_ctl = UART_HWCONTROL_CTS;
         obj_s->pin_cts = pinmap->tx_flow_pin;
         // Enable the pin for CTS function
@@ -761,8 +770,8 @@ static void _serial_set_flow_control_direct(serial_t *obj, FlowControl type, con
     }
     if (type == FlowControlRTSCTS) {
         // Enable CTS & RTS
-        MBED_ASSERT(pinmap->rx_flow_pin != (UARTName)NC);
-        MBED_ASSERT(pinmap->tx_flow_pin != (UARTName)NC);
+        MBED_ASSERT(pinmap->rx_flow_pin != NC);
+        MBED_ASSERT(pinmap->tx_flow_pin != NC);
         obj_s->hw_flow_ctl = UART_HWCONTROL_RTS_CTS;
         obj_s->pin_rts = pinmap->rx_flow_pin;;
         obj_s->pin_cts = pinmap->tx_flow_pin;;

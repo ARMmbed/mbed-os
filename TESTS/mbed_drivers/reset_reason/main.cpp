@@ -75,7 +75,7 @@ static cmd_status_t handle_command(const char *key, const char *value)
         int raw_reason_hex_str_len = snprintf(raw_reason_hex_str,
                                               sizeof raw_reason_hex_str, "%08lx", raw_reason);
 
-        if (raw_reason_hex_str_len != (sizeof raw_reason_hex_str) - 1) {
+        if (raw_reason_hex_str_len < 0) {
             TEST_ASSERT_MESSAGE(0, "Failed to compose raw reset reason hex string.");
             return CMD_STATUS_ERROR;
         }
@@ -134,7 +134,7 @@ void test_reset_reason()
     hal_reset_reason_get_capabilities(&rrcap);
     char msg_value[11];
     int str_len = snprintf(msg_value, sizeof msg_value, "%08lx,%01x", rrcap.reasons, MSG_VALUE_WATCHDOG_STATUS);
-    if (str_len != (sizeof msg_value) - 1) {
+    if (str_len < 0) {
         printf("Failed to compose a value string to be sent to host.");
         GREENTEA_TESTSUITE_RESULT(0);
         return;

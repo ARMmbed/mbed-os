@@ -84,36 +84,9 @@ public:
     /**
       Wait until a Mutex becomes available.
 
-      @return  status code that indicates the execution status of the function:
-               @a osOK the mutex has been obtained.
-
       @note You cannot call this function from ISR context.
-      @note This function treats RTOS errors as fatal system errors, so it can only return osOK.
-            Use of the return value is deprecated, as the return is expected to become void in the future.
      */
-#if MBED_CONF_RTOS_PRESENT
-    osStatus lock();
-#else
-    void lock(); // Value return backwards compatibility not required for non-RTOS
-#endif
-
-    /**
-      Wait until a Mutex becomes available.
-
-      @deprecated Do not use this function. This function has been replaced with lock(), trylock() and trylock_for() functions.
-
-      @param   millisec  timeout value.
-      @return  status code that indicates the execution status of the function:
-               @a osOK the mutex has been obtained.
-               @a osErrorTimeout the mutex could not be obtained in the given time.
-               @a osErrorResource the mutex could not be obtained when no timeout was specified.
-
-      @note You cannot call this function from ISR context.
-      @note This function treats RTOS errors as fatal system errors, so it can only return osOK or
-            osErrorResource in case when millisec is 0 or osErrorTimeout if millisec is not osWaitForever.
-     */
-    MBED_DEPRECATED_SINCE("mbed-os-5.10.0", "Replaced with lock(), trylock() and trylock_for() functions")
-    osStatus lock(uint32_t millisec);
+    void lock();
 
     /** Try to lock the mutex, and return immediately
       @return true if the mutex was acquired, false otherwise.
@@ -150,18 +123,9 @@ public:
     /**
       Unlock the mutex that has previously been locked by the same thread
 
-      @return status code that indicates the execution status of the function:
-              @a osOK the mutex has been released.
-
       @note You cannot call this function from ISR context.
-      @note This function treats RTOS errors as fatal system errors, so it can only return osOK.
-            Use of the return value is deprecated, as the return is expected to become void in the future.
      */
-#if MBED_CONF_RTOS_PRESENT
-    osStatus unlock();
-#else
-    void unlock(); // Value return backwards compatibility not required for non-RTOS
-#endif
+    void unlock();
 
     /** Get the owner the this mutex
       @return  the current owner of this mutex.

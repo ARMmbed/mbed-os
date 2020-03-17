@@ -1072,14 +1072,14 @@ TEST_F(TestEqueue, test_equeue_user_allocated_event_post)
 
     uint8_t touched = 0;
     user_allocated_event e1 = { { 0, 0, 0, NULL, NULL, NULL, 0, -1, NULL, NULL }, 0 };
-    user_allocated_event e2 = { { 0, 0, 0, NULL, NULL, NULL, 1, -1, NULL, NULL }, 0 };
-    user_allocated_event e3 = { { 0, 0, 0, NULL, NULL, NULL, 1, -1, NULL, NULL }, 0 };
-    user_allocated_event e4 = { { 0, 0, 0, NULL, NULL, NULL, 1, -1, NULL, NULL }, 0 };
+    user_allocated_event e2 = { { 0, 0, 0, NULL, NULL, NULL, 10,  10, NULL, NULL }, 0 };
+    user_allocated_event e3 = { { 0, 0, 0, NULL, NULL, NULL, 10,  10, NULL, NULL }, 0 };
+    user_allocated_event e4 = { { 0, 0, 0, NULL, NULL, NULL, 10,  10, NULL, NULL }, 0 };
     user_allocated_event e5 = { { 0, 0, 0, NULL, NULL, NULL, 0, -1, NULL, NULL }, 0 };
 
-    EXPECT_NE(0, equeue_call(&q, simple_func, &touched));
-    EXPECT_EQ(0, equeue_call(&q, simple_func, &touched));
-    EXPECT_EQ(0, equeue_call(&q, simple_func, &touched));
+    EXPECT_NE(0, equeue_call_every(&q, 10, simple_func, &touched));
+    EXPECT_EQ(0, equeue_call_every(&q, 10, simple_func, &touched));
+    EXPECT_EQ(0, equeue_call_every(&q, 10, simple_func, &touched));
 
     equeue_post_user_allocated(&q, simple_func, &e1.e);
     equeue_post_user_allocated(&q, simple_func, &e2.e);
@@ -1087,17 +1087,9 @@ TEST_F(TestEqueue, test_equeue_user_allocated_event_post)
     equeue_post_user_allocated(&q, simple_func, &e4.e);
     equeue_post_user_allocated(&q, simple_func, &e5.e);
     equeue_cancel_user_allocated(&q, &e3.e);
+    equeue_cancel_user_allocated(&q, &e3.e);
 
-    equeue_dispatch(&q, 1);
-
-    EXPECT_EQ(1, touched);
-    EXPECT_EQ(1, e1.touched);
-    EXPECT_EQ(1, e2.touched);
-    EXPECT_EQ(0, e3.touched);
-    EXPECT_EQ(1, e4.touched);
-    EXPECT_EQ(1, e5.touched);
-
-    equeue_dispatch(&q, 10);
+    equeue_dispatch(&q, 11);
 
     EXPECT_EQ(1, touched);
     EXPECT_EQ(1, e1.touched);
@@ -1105,6 +1097,18 @@ TEST_F(TestEqueue, test_equeue_user_allocated_event_post)
     EXPECT_EQ(0, e3.touched);
     EXPECT_EQ(1, e4.touched);
     EXPECT_EQ(1, e5.touched);
+
+    e3.e.target = 10; // set target as it's modified by equeue_call
+    e3.e.period = 10; // set period as it's reset by equeue_cancel
+    equeue_post_user_allocated(&q, simple_func, &e3.e);
+    equeue_dispatch(&q, 101);
+
+    EXPECT_EQ(11, touched);
+    EXPECT_EQ(1 , e1.touched);
+    EXPECT_EQ(11, e2.touched);
+    EXPECT_EQ(10 , e3.touched);
+    EXPECT_EQ(11, e4.touched);
+    EXPECT_EQ(1 , e5.touched);
 
     equeue_destroy(&q);
 }

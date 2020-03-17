@@ -29,7 +29,6 @@
 #include "rtos/Thread.h"
 #include "rtos/ThisThread.h"
 #include "rtos/Mutex.h"
-#include "rtos/RtosTimer.h"
 #include "rtos/Semaphore.h"
 #include "rtos/Mail.h"
 #include "rtos/MemoryPool.h"

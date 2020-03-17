@@ -115,15 +115,7 @@ SPIFBlockDevice::SPIFBlockDevice(PinName mosi, PinName miso, PinName sclk, PinNa
 
 int SPIFBlockDevice::init()
 {
-    uint8_t vendor_device_ids[4];
-    size_t data_length = 3;
     int status = SPIF_BD_ERROR_OK;
-    spif_bd_error spi_status = SPIF_BD_ERROR_OK;
-
-    _sfdp_info.bptbl.addr = 0x0;
-    _sfdp_info.bptbl.size = 0;
-    _sfdp_info.smptbl.addr = 0x0;
-    _sfdp_info.smptbl.size = 0;
 
     _mutex->lock();
 
@@ -146,22 +138,10 @@ int SPIFBlockDevice::init()
         tr_debug("Initialize flash memory OK");
     }
 
-    /* Read Manufacturer ID (1byte), and Device ID (2bytes)*/
-    spi_status = _spi_send_general_command(SPIF_RDID, SPI_NO_ADDRESS_COMMAND, NULL, 0, (char *)vendor_device_ids,
-                                           data_length);
-    if (spi_status != SPIF_BD_ERROR_OK) {
-        tr_error("init - Read Vendor ID Failed");
+    if (_handle_vendor_quirks() < 0) {
+        tr_error("Init - Could not read vendor id");
         status = SPIF_BD_ERROR_DEVICE_ERROR;
         goto exit_point;
-    }
-
-    switch (vendor_device_ids[0]) {
-        case 0xbf:
-            // SST devices come preset with block protection
-            // enabled for some regions, issue global protection unlock to clear
-            _set_write_enable();
-            _spi_send_general_command(SPIF_ULBPR, SPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0);
-            break;
     }
 
     //Synchronize Device
@@ -171,31 +151,26 @@ int SPIFBlockDevice::init()
         goto exit_point;
     }
 
-    /**************************** Parse SFDP Header ***********************************/
-    if (sfdp_parse_headers(callback(this, &SPIFBlockDevice::_spi_send_read_sfdp_command), _sfdp_info) < 0) {
-        tr_error("init - Parse SFDP Headers Failed");
-        status = SPIF_BD_ERROR_PARSING_FAILED;
-        goto exit_point;
-    }
+    /**************************** Parse SFDP headers and tables ***********************************/
+    {
+        _sfdp_info.bptbl.addr = 0x0;
+        _sfdp_info.bptbl.size = 0;
+        _sfdp_info.smptbl.addr = 0x0;
+        _sfdp_info.smptbl.size = 0;
 
+        if (sfdp_parse_headers(callback(this, &SPIFBlockDevice::_spi_send_read_sfdp_command), _sfdp_info) < 0) {
+            tr_error("init - Parse SFDP Headers Failed");
+            status = SPIF_BD_ERROR_PARSING_FAILED;
+            goto exit_point;
+        }
 
-    /**************************** Parse Basic Parameters Table ***********************************/
-    if (_sfdp_parse_basic_param_table(callback(this, &SPIFBlockDevice::_spi_send_read_sfdp_command), _sfdp_info) < 0) {
-        tr_error("init - Parse Basic Param Table Failed");
-        status = SPIF_BD_ERROR_PARSING_FAILED;
-        goto exit_point;
-    }
+        if (_sfdp_parse_basic_param_table(callback(this, &SPIFBlockDevice::_spi_send_read_sfdp_command), _sfdp_info) < 0) {
+            tr_error("init - Parse Basic Param Table Failed");
+            status = SPIF_BD_ERROR_PARSING_FAILED;
+            goto exit_point;
+        }
 
-    /**************************** Parse Sector Map Table ***********************************/
-    _sfdp_info.smptbl.region_size[0] = _sfdp_info.bptbl.device_size_bytes;
-    // If there's no region map, we have a single region sized the entire device size
-    _sfdp_info.smptbl.region_high_boundary[0] = _sfdp_info.bptbl.device_size_bytes - 1;
-
-    if ((_sfdp_info.smptbl.addr != 0) && (0 != _sfdp_info.smptbl.size)) {
-        tr_debug("init - Parsing Sector Map Table - addr: 0x%" PRIx32 "h, Size: %d", _sfdp_info.smptbl.addr,
-                 _sfdp_info.smptbl.size);
-        if (sfdp_parse_sector_map_table(callback(this, &SPIFBlockDevice::_spi_send_read_sfdp_command),
-                                        _sfdp_info.smptbl) < 0) {
+        if (sfdp_parse_sector_map_table(callback(this, &SPIFBlockDevice::_spi_send_read_sfdp_command), _sfdp_info) < 0) {
             tr_error("init - Parse Sector Map Table Failed");
             status = SPIF_BD_ERROR_PARSING_FAILED;
             goto exit_point;
@@ -629,19 +604,15 @@ int SPIFBlockDevice::_sfdp_parse_basic_param_table(Callback<int(bd_addr_t, void 
     }
 
     // Check address size, currently only supports 3byte addresses
-    if ((param_table[2] & 0x4) != 0 || (param_table[7] & 0x80) != 0) {
-        tr_error("init - verify 3byte addressing Failed");
+    if (sfdp_detect_addressability(param_table, _sfdp_info.bptbl) < 0) {
+        tr_error("Verify 3byte addressing failed");
         return -1;
     }
 
-    // Get device density (stored in bits - 1)
-    uint32_t density_bits = (
-                                (param_table[7] << 24) |
-                                (param_table[6] << 16) |
-                                (param_table[5] << 8) |
-                                param_table[4]);
-    sfdp_info.bptbl.device_size_bytes = (density_bits + 1) / 8;
-    tr_debug("Density bits: %" PRIu32 " , device size: %llu bytes", density_bits, sfdp_info.bptbl.device_size_bytes);
+    if (sfdp_detect_device_density(param_table, _sfdp_info.bptbl) < 0) {
+        tr_error("Detecting device density failed");
+        return -1;
+    }
 
     // Set Default read/program/erase Instructions
     _read_instruction = SPIF_READ;
@@ -777,4 +748,33 @@ int SPIFBlockDevice::_set_write_enable()
         status = 0;
     } while (false);
     return status;
+}
+
+int SPIFBlockDevice::_handle_vendor_quirks()
+{
+    uint8_t vendor_device_ids[4];
+    size_t data_length = 3;
+
+    /* Read Manufacturer ID (1byte), and Device ID (2bytes)*/
+    spif_bd_error spi_status = _spi_send_general_command(SPIF_RDID, SPI_NO_ADDRESS_COMMAND, NULL, 0,
+                                                         (char *)vendor_device_ids,
+                                                         data_length);
+
+    if (spi_status != SPIF_BD_ERROR_OK) {
+        tr_error("Read Vendor ID Failed");
+        return -1;
+    }
+
+    tr_debug("Vendor device ID = 0x%x 0x%x 0x%x", vendor_device_ids[0], vendor_device_ids[1], vendor_device_ids[2]);
+
+    switch (vendor_device_ids[0]) {
+        case 0xbf:
+            // SST devices come preset with block protection
+            // enabled for some regions, issue global protection unlock to clear
+            _set_write_enable();
+            _spi_send_general_command(SPIF_ULBPR, SPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0);
+            break;
+    }
+
+    return 0;
 }
