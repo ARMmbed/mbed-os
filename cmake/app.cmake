@@ -8,15 +8,6 @@ include(${MBED_OS_ROOT}/cmake/target.cmake)
 include(${MBED_OS_ROOT}/cmake/env.cmake)
 include(${MBED_OS_ROOT}/cmake/util.cmake)
 
-# Compiler setup
-set(CMAKE_SYSTEM_NAME Generic)
-set(CMAKE_CROSSCOMPILING TRUE)
-set(CMAKE_C_COMPILER_WORKS TRUE)
-set(CMAKE_CXX_COMPILER_WORKS TRUE)
-
-# Project setup
-enable_language(C CXX ASM)
-
 # if the environment does not specify build type, set to Debug
 if(NOT CMAKE_BUILD_TYPE)
 set(CMAKE_BUILD_TYPE "RelWithDebInfo"
