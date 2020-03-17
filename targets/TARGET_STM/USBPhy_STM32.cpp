@@ -29,9 +29,20 @@
 #define IDX_TO_EP(idx)      (((idx) >> 1)|((idx) & 1) << 7)
 
 /* endpoint defines */
-#define NUM_ENDPOINTS           4
+
+#if (MBED_CONF_TARGET_USB_SPEED == USE_USB_OTG_HS)
+
+#define NUM_ENDPOINTS                6
+#define MAX_PACKET_SIZE_NON_ISO      512
+#define MAX_PACKET_SIZE_ISO          1023     // Spec can go up to 1023, only ram for this though
+
+#else
+
+#define NUM_ENDPOINTS                4
 #define MAX_PACKET_SIZE_NON_ISO      64
 #define MAX_PACKET_SIZE_ISO          (256 + 128)     // Spec can go up to 1023, only ram for this though
+
+#endif
 
 static const uint32_t tx_ep_sizes[NUM_ENDPOINTS] = {
     MAX_PACKET_SIZE_NON_ISO,
@@ -333,8 +344,11 @@ void USBPhyHw::init(USBPhyEvents *events)
         total_bytes += fifo_size;
     }
 
+#if (MBED_CONF_TARGET_USB_SPEED != USE_USB_OTG_HS)
     /* 1.25 kbytes */
     MBED_ASSERT(total_bytes <= 1280);
+#endif
+
 #endif
 
     // Configure interrupt vector

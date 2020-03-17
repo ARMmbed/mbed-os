@@ -34,8 +34,6 @@ static const uint8_t cdc_line_coding_default[7] = {0x80, 0x25, 0x00, 0x00, 0x00,
 #define CLS_DTR   (1 << 0)
 #define CLS_RTS   (1 << 1)
 
-#define CDC_MAX_PACKET_SIZE    64
-
 class USBCDC::AsyncWrite: public AsyncOp {
 public:
     AsyncWrite(USBCDC *serial, uint8_t *buf, uint32_t size):
