@@ -17,9 +17,6 @@
 
 #if defined(TARGET_TFM)
 #include "interface/include/psa_client.h"
-#elif defined(TARGET_MBED_SPM)
-#include "TARGET_MBED_SPM/psa_defs.h"
-#include "TARGET_MBED_SPM/spm_client.h"
 #else
 
 #ifndef __MBED_OS_DEFAULT_PSA_CLIENT_API_H__

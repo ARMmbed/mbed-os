@@ -467,9 +467,6 @@ Case cases[] = {
     Case("Testing client psa_version() API on non-existing SID", psa_version_non_existing),
     Case("Testing client psa_version() API to a service that is not NSPE callable", psa_version_secure_access_only),
     Case("Testing client multiple calls on different channels to the same SID", multi_thread_diff_handles),
-#if defined TARGET_MBED_SPM // TF-M issue: https://developer.trustedfirmware.org/T244
-    Case("Testing client exceed num of max channels allowed", exceed_num_of_max_channels),
-#endif
 };
 
 utest::v1::status_t test_setup(const size_t number_of_cases)

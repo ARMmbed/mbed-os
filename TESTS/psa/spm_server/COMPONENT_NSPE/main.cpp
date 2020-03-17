@@ -262,9 +262,6 @@ Case cases[] = {
     SPM_UTEST_CASE("Try to skip more bytes than left while reading", skip_more_than_left),
     SPM_UTEST_CASE("Test rhandle implementation by calculating the factorial function", rhandle_factorial),
     SPM_UTEST_CASE("Test a call flow between 2 secure partitions", cross_partition_call),
-#if defined TARGET_MBED_SPM // TF-M issue: https://developer.trustedfirmware.org/T273
-    SPM_UTEST_CASE("Test a common DOORBELL scenario", doorbell_test),
-#endif
 };
 
 //Declare your test specification with a custom setup handler

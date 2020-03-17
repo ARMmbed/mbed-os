@@ -21,10 +21,6 @@
 #include "psa/service.h"
 #include "mbed_spm_partitions.h"
 
-#if defined(TARGET_MBED_SPM)
-#include "cmsis_os2.h"
-#endif
-
 void server_part2_main(void *ptr)
 {
     psa_signal_t signals = 0;
@@ -88,10 +84,6 @@ void server_part2_main(void *ptr)
                     }
                     // In doorbell scenario the server first calls psa_reply()
                     psa_reply(msg.handle, PSA_SUCCESS);
-#if defined(TARGET_MBED_SPM)
-                    // Then the servers waits to some driver making long calculations - imitate using osDelay()
-                    osDelay(20);
-#endif
                     // After work is done, ring the doorbell
                     psa_notify(caller_part_id);
                     break;

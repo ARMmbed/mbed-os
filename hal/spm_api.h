@@ -64,31 +64,6 @@ void spm_hal_memory_protection_init(void);
 
 #endif // defined(COMPONENT_SPE)
 
-/* ---------------------------------- HAL-Mailbox API ----------------------- */
-
-#if defined(COMPONENT_SPM_MAILBOX)
-/**
- * @brief Wakeup mailbox dispatcher thread
- *
- * Arm implements this function, which is expected to be called by target-
- * specific Inter-Processor-Communication logic on mailbox interrupt handler.
- *
- */
-void spm_mailbox_irq_callback(void);
-
-/**
- * @brief Notify the peer processor about a general event occurrence.
- *
- * Wake up the peer processor waiting on the mailbox driver event.
- *
- * @note Implement the functions below with target-specific code.
- */
-void spm_hal_mailbox_notify(void);
-
-#endif // defined(COMPONENT_SPM_MAILBOX)
-
-/** @}*/
-
 #ifdef __cplusplus
 }
 #endif
