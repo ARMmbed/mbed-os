@@ -1,5 +1,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
+# internal helper functions
+function(_mbed_set_handler)
+    if(${MBED_OS_TOOLCHAIN} STREQUAL "GCC ARM")
+        target_sources(mbed-os PRIVATE source/TARGET_CORTEX_M/TOOLCHAIN_GCC/except.S)
+    elseif(${MBED_OS_TOOLCHAIN} STREQUAL ARM)
+        target_sources(mbed-os PRIVATE source/TARGET_CORTEX_M/TOOLCHAIN_ARM/except.S)
+    elseif(${MBED_OS_TOOLCHAIN} STREQUAL IAR)
+        target_sources(mbed-os PRIVATE source/TARGET_CORTEX_M/TOOLCHAIN_IAR/except.S)
+        target_sources(mbed-os PRIVATE source/TARGET_CORTEX_M/TOOLCHAIN_IAR/cmain.S)
+    endif()
+endfunction()
+
 target_sources(mbed-os PRIVATE ATCmdParser.h)
 target_sources(mbed-os PRIVATE Callback.h)
 target_sources(mbed-os PRIVATE CallChain.h)
@@ -96,7 +108,9 @@ target_sources(mbed-os PRIVATE source/Stream.cpp)
 target_sources(mbed-os PRIVATE source/SysTimer.cpp)
 target_sources(mbed-os PRIVATE source/SysTimer.h)
 
-target_sources(mbed-os PRIVATE source/TARGET_CORTEX_M/TOOLCHAIN_GCC/except.S)
+_mbed_set_handler()
+
+# Currently only Cortex-M anyway, so this is hardcoded here
 target_sources(mbed-os PRIVATE source/TARGET_CORTEX_M/mbed_fault_handler.c)
 target_sources(mbed-os PRIVATE source/TARGET_CORTEX_M/mbed_fault_handler.h)
 
