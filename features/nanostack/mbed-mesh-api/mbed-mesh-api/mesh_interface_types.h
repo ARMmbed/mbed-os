@@ -65,6 +65,16 @@ typedef enum {
 } mesh_device_type_t;
 
 /**
+ * Mesh channel function
+ */
+typedef enum {
+   MESH_CHANNEL_FUNCTION_FIXED = 0x00,
+   MESH_CHANNEL_FUNCTION_TR51CF,
+   MESH_CHANNEL_FUNCTION_DH1CF,
+   MESH_CHANNEL_FUNCTION_VENDOR_DEFINED
+} mesh_channel_function_t;
+
+/**
  * Mesh network statistics
  */
 typedef struct {
