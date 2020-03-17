@@ -26,7 +26,9 @@ add_subdirectory(hal)
 add_subdirectory(platform)
 add_subdirectory(targets)
 
-# TODO: this is the default, but what if baremetal is selected, this needs to be under
-# the condition
-# cc @mbed-os-tools Also how to get this in from tools, to be defined
-add_subdirectory(rtos)
+# Add additional components
+get_property(components GLOBAL PROPERTY MBED_OS_COMPONENTS)
+
+foreach(component ${components})
+    add_subdirectory(${component})
+endforeach()
