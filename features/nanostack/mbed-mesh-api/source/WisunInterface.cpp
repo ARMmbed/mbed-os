@@ -21,6 +21,9 @@
 #include "NanostackLockGuard.h"
 #include "mesh_system.h"
 #include "randLIB.h"
+#include "fhss_api.h"
+#include "fhss_config.h"
+#include "ws_management_api.h"
 
 #include "ns_trace.h"
 #define TRACE_GROUP "WSIn"
@@ -57,6 +60,63 @@ nsapi_error_t WisunInterface::do_initialize()
         }
         _interface->attach(_connection_status_cb);
     }
+
+    // Apply mbed configuration to Wi-SUN
+    configure();
+
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t WisunInterface::configure()
+{
+    int status;
+
+    if (_configured) {
+        // Already configured
+        return NSAPI_ERROR_OK;
+    }
+
+    _configured = true;
+#ifdef MBED_CONF_MBED_MESH_API_WISUN_NETWORK_NAME
+    char network_name[] = {MBED_CONF_MBED_MESH_API_WISUN_NETWORK_NAME};
+    status = set_network_name((char *) &network_name);
+    if (status < 0) {
+        tr_error("Failed to set network name!");
+        return NSAPI_ERROR_PARAMETER;
+    }
+#endif
+
+#if (MBED_CONF_MBED_MESH_API_WISUN_REGULATORY_DOMAIN != 255) || (MBED_CONF_MBED_MESH_API_WISUN_OPERATING_CLASS != 255) || (MBED_CONF_MBED_MESH_API_WISUN_OPERATING_MODE != 255)
+    status = set_network_regulatory_domain(MBED_CONF_MBED_MESH_API_WISUN_REGULATORY_DOMAIN,
+                                           MBED_CONF_MBED_MESH_API_WISUN_OPERATING_CLASS,
+                                           MBED_CONF_MBED_MESH_API_WISUN_OPERATING_MODE);
+    if (status < 0) {
+        tr_error("Failed to set regulatory domain!");
+        return NSAPI_ERROR_PARAMETER;
+    }
+#endif
+
+#if (MBED_CONF_MBED_MESH_API_WISUN_UC_CHANNEL_FUNCTION != 255)
+    status = set_unicast_channel_function(static_cast<mesh_channel_function_t>(MBED_CONF_MBED_MESH_API_WISUN_UC_CHANNEL_FUNCTION),
+                                          MBED_CONF_MBED_MESH_API_WISUN_UC_FIXED_CHANNEL,
+                                          MBED_CONF_MBED_MESH_API_WISUN_UC_DWELL_INTERVAL);
+    if (status < 0) {
+        tr_error("Failed to set unicast channel function configuration");
+        return NSAPI_ERROR_PARAMETER;
+    }
+#endif
+
+#if (MBED_CONF_MBED_MESH_API_WISUN_BC_CHANNEL_FUNCTION != 255) || (MBED_CONF_MBED_MESH_API_WISUN_BC_DWELL_INTERVAL != 0) || (MBED_CONF_MBED_MESH_API_WISUN_BC_INTERVAL != 0)
+    status = set_broadcast_channel_function(static_cast<mesh_channel_function_t>(MBED_CONF_MBED_MESH_API_WISUN_BC_CHANNEL_FUNCTION),
+                                            MBED_CONF_MBED_MESH_API_WISUN_BC_FIXED_CHANNEL,
+                                            MBED_CONF_MBED_MESH_API_WISUN_BC_DWELL_INTERVAL,
+                                            MBED_CONF_MBED_MESH_API_WISUN_BC_INTERVAL);
+    if (status < 0) {
+        tr_error("Failed to set broadcast channel function configuration");
+        return NSAPI_ERROR_PARAMETER;
+    }
+#endif
+
     return NSAPI_ERROR_OK;
 }
 
@@ -180,26 +240,226 @@ bool WisunInterface::getRouterIpAddress(char *address, int8_t len)
 
 mesh_error_t WisunInterface::set_network_name(char *network_name)
 {
-    mesh_error_t ret_val = MESH_ERROR_NONE;
-
-    int status = wisun_tasklet_set_network_name(get_interface_id(), network_name);
+    int status = ws_management_network_name_set(get_interface_id(), network_name);
     if (status != 0) {
-        ret_val = MESH_ERROR_UNKNOWN;
+        return MESH_ERROR_UNKNOWN;
     }
 
-    return ret_val;
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::get_network_name(char *network_name)
+{
+    int status = ws_management_network_name_get(get_interface_id(), network_name);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::validate_network_name(char *network_name)
+{
+    int status = ws_management_network_name_validate(get_interface_id(), network_name);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
 }
 
 mesh_error_t WisunInterface::set_network_regulatory_domain(uint8_t regulatory_domain, uint8_t operating_class, uint8_t operating_mode)
 {
-    mesh_error_t ret_val = MESH_ERROR_NONE;
-
-    int status = wisun_tasklet_set_regulatory_domain(get_interface_id(), regulatory_domain, operating_class, operating_mode);
+    int status = ws_management_regulatory_domain_set(get_interface_id(), regulatory_domain, operating_class, operating_mode);
     if (status != 0) {
-        ret_val = MESH_ERROR_UNKNOWN;
+        return MESH_ERROR_UNKNOWN;
     }
 
-    return ret_val;
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::get_network_regulatory_domain(uint8_t *regulatory_domain, uint8_t *operating_class, uint8_t *operating_mode)
+{
+    int status = ws_management_regulatory_domain_get(get_interface_id(), regulatory_domain, operating_class, operating_mode);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::validate_network_regulatory_domain(uint8_t regulatory_domain, uint8_t operating_class, uint8_t operating_mode)
+{
+    int status = ws_management_regulatory_domain_validate(get_interface_id(), regulatory_domain, operating_class, operating_mode);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::set_network_size(uint8_t network_size)
+{
+    if (network_size == 0xff) {
+        // Size 0xff is internal API
+        network_size = 0xfe;
+    }
+
+    int status = ws_management_network_size_set(get_interface_id(), network_size);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::get_network_size(uint8_t *network_size)
+{
+    int status = ws_management_network_size_get(get_interface_id(), network_size);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::validate_network_size(uint8_t network_size)
+{
+    if (network_size == 0xff) {
+        // Size 0xff is internal API
+        network_size = 0xfe;
+    }
+
+    int status = ws_management_network_size_validate(get_interface_id(), network_size);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::set_channel_mask(uint32_t channel_mask[8])
+{
+    int status = ws_management_channel_mask_set(get_interface_id(), channel_mask);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::get_channel_mask(uint32_t *channel_mask)
+{
+    int status = ws_management_channel_mask_get(get_interface_id(), channel_mask);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::validate_channel_mask(uint32_t channel_mask[8])
+{
+    int status = ws_management_channel_mask_validate(get_interface_id(), channel_mask);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::set_unicast_channel_function(mesh_channel_function_t channel_function, uint16_t fixed_channel, uint8_t dwell_interval)
+{
+    int status = ws_management_fhss_unicast_channel_function_configure(get_interface_id(), channel_function, fixed_channel, dwell_interval);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::get_unicast_channel_function(mesh_channel_function_t *channel_function, uint16_t *fixed_channel, uint8_t *dwell_interval)
+{
+    uint8_t ch_function;
+    int status = ws_management_fhss_unicast_channel_function_get(get_interface_id(), &ch_function, fixed_channel, dwell_interval);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+    *channel_function = static_cast<mesh_channel_function_t>(ch_function);
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::validate_unicast_channel_function(mesh_channel_function_t channel_function, uint16_t fixed_channel, uint8_t dwell_interval)
+{
+    int status = ws_management_fhss_unicast_channel_function_validate(get_interface_id(), channel_function, fixed_channel, dwell_interval);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::set_broadcast_channel_function(mesh_channel_function_t channel_function, uint16_t fixed_channel, uint8_t dwell_interval, uint32_t broadcast_interval)
+{
+    int status = ws_management_fhss_broadcast_channel_function_configure(get_interface_id(), channel_function, fixed_channel, dwell_interval, broadcast_interval);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::get_broadcast_channel_function(mesh_channel_function_t *channel_function, uint16_t *fixed_channel, uint8_t *dwell_interval, uint32_t *broadcast_interval)
+{
+    uint8_t ch_function;
+    int status = ws_management_fhss_broadcast_channel_function_get(get_interface_id(), &ch_function, fixed_channel, dwell_interval, broadcast_interval);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+    *channel_function = static_cast<mesh_channel_function_t>(ch_function);
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::validate_broadcast_channel_function(mesh_channel_function_t channel_function, uint16_t fixed_channel, uint8_t dwell_interval, uint32_t broadcast_interval)
+{
+    int status = ws_management_fhss_broadcast_channel_function_validate(get_interface_id(), channel_function, fixed_channel, dwell_interval, broadcast_interval);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::set_timing_parameters(uint16_t disc_trickle_imin, uint16_t disc_trickle_imax, uint8_t disc_trickle_k, uint16_t pan_timeout)
+{
+    int status = ws_management_timing_parameters_set(get_interface_id(), disc_trickle_imin, disc_trickle_imax, disc_trickle_k, pan_timeout);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::get_timing_parameters(uint16_t *disc_trickle_imin, uint16_t *disc_trickle_imax, uint8_t *disc_trickle_k, uint16_t *pan_timeout)
+{
+    int status = ws_management_timing_parameters_get(get_interface_id(), disc_trickle_imin, disc_trickle_imax, disc_trickle_k, pan_timeout);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
+}
+
+mesh_error_t WisunInterface::validate_timing_parameters(uint16_t disc_trickle_imin, uint16_t disc_trickle_imax, uint8_t disc_trickle_k, uint16_t pan_timeout)
+{
+    int status = ws_management_timing_parameters_validate(get_interface_id(), disc_trickle_imin, disc_trickle_imax, disc_trickle_k, pan_timeout);
+    if (status != 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    return MESH_ERROR_NONE;
 }
 
 mesh_error_t WisunInterface::set_own_certificate(uint8_t *cert, uint16_t cert_len, uint8_t *cert_key, uint16_t cert_key_len)
