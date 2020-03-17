@@ -10,5 +10,7 @@ set(CMAKE_CXX_COMPILER_WORKS TRUE)
 enable_language(C CXX ASM)
 
 # TODO: @mbed-os-tools This needs to come from tools
-set_property(GLOBAL PROPERTY MBED_OS_COMPONENTS "")
+# If this is a list like rtos/wifi/networking, we need to figure out the path in Mbed OS (have dictionary or
+# something similar). The best would be if this list contains list of components paths (rtos/ features/ble etc)
+set_property(GLOBAL PROPERTY MBED_OS_COMPONENTS rtos)
 
