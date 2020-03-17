@@ -50,10 +50,6 @@ add_subdirectory(gen_config)
 # Link the example libs
 target_link_libraries(app mbed-os gen_config)
 
-add_custom_command(TARGET app PRE_LINK
-                ${CMAKE_PRE_BUILD_COMMAND}
-                )
-
-add_custom_command(TARGET app POST_BUILD
-                ${CMAKE_POST_BUILD_COMMAND}
-                )
+# Custom pre/post build steps
+add_custom_command(TARGET app PRE_LINK ${CMAKE_PRE_BUILD_COMMAND})
+add_custom_command(TARGET app POST_BUILD ${CMAKE_POST_BUILD_COMMAND})
