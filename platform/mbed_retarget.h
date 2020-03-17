@@ -40,6 +40,13 @@
 #include <errno.h>
 #endif
 
+#if defined __has_include
+#  if __has_include (<sys/stat.h>)
+#    include <sys/stat.h>
+#    define HAVE_SYS_STAT_H
+#  endif
+#endif
+
 /* We can get the following standard types from sys/types for gcc, but we
  * need to define the types ourselves for the other compilers that normally
  * target embedded systems */
@@ -495,6 +502,8 @@ typedef struct Dir DIR;
 #define     S_IWOTH 0000002 ///< write permission, other
 #define     S_IXOTH 0000001 ///< execute/search permission, other
 
+#ifndef HAVE_SYS_STAT_H
+
 /* Refer to sys/stat standard
  * Note: Not all fields may be supported by the underlying filesystem
  */
@@ -513,6 +522,8 @@ struct stat {
     time_t    st_mtime;   ///< Time of last data modification
     time_t    st_ctime;   ///< Time of last status change
 };
+
+#endif
 
 struct statvfs {
     unsigned long  f_bsize;    ///< Filesystem block size
