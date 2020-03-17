@@ -30,8 +30,8 @@
 #include "utest.h"
 #include <stdlib.h>
 
-#if !defined(TARGET_K64F) && !defined(TARGET_ARM_FM) && !defined(TARGET_MCU_PSOC6)
-#error [NOT_SUPPORTED] Kvstore API tests run only on K64F devices, Fastmodels, and PSoC 6
+#if !SECURESTORE_ENABLED
+#error [NOT_SUPPORTED] SecureStore need to be enabled for this test
 #else
 
 #define FSST_TEST_NUM_OF_THREADS 5
@@ -524,5 +524,5 @@ int main()
     return !Harness::run(specification);
 }
 
-#endif // !defined(TARGET_K64F) && !defined(TARGET_ARM_FM)
+#endif //!SECURESTORE_ENABLED
 #endif // !defined(MBED_CONF_RTOS_PRESENT)

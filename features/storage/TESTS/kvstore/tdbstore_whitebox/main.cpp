@@ -91,11 +91,6 @@ static const char *const res_val2  = "This should surely not be saved as the res
 
 static void white_box_test()
 {
-
-#if !defined(TARGET_K64F) && !defined(TARGET_MCU_PSOC6)
-    TEST_SKIP_MESSAGE("Kvstore API tests run only on K64F devices and PSoC 6");
-#endif
-
     bd_params_t bd_params[] = {
         {8192,     1,  16, 4096}, // Standard
         {4096 * 4, 1,   1, 4096}, // K82F like
@@ -333,10 +328,6 @@ static void white_box_test()
 
 static void multi_set_test()
 {
-
-#if !defined(TARGET_K64F) && !defined(TARGET_MCU_PSOC6)
-    TEST_SKIP_MESSAGE("Kvstore API tests run only on K64F devices and PSoC 6");
-#endif
 
     char *key;
     uint8_t *get_buf, *set_buf;
