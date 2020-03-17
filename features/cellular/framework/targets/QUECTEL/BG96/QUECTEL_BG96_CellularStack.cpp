@@ -525,6 +525,8 @@ void QUECTEL_BG96_CellularStack::ip2dot(const SocketAddress &ip, char *dot)
     }
 }
 
+#if defined(MBED_CONF_NSAPI_OFFLOAD_TLSSOCKET) && (MBED_CONF_NSAPI_OFFLOAD_TLSSOCKET)
+
 nsapi_error_t QUECTEL_BG96_CellularStack::set_to_modem_impl(const char *filename, const char *config, const char *data, size_t size)
 {
     // Delete old file from the modem.
@@ -548,7 +550,6 @@ nsapi_error_t QUECTEL_BG96_CellularStack::set_to_modem_impl(const char *filename
 
     return _at.get_last_error();
 }
-
 
 nsapi_error_t QUECTEL_BG96_CellularStack::setsockopt(nsapi_socket_t handle, int level,
                                                      int optname, const void *optval, unsigned optlen)
@@ -641,3 +642,4 @@ nsapi_error_t QUECTEL_BG96_CellularStack::setsockopt(nsapi_socket_t handle, int 
 
     return ret;
 }
+#endif
