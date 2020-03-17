@@ -1077,7 +1077,7 @@ extern "C" long PREFIX(_flen)(FILEHANDLE fh)
 }
 
 // Do not compile this code for TFM secure target
-#if !defined(COMPONENT_SPE) || !defined(TARGET_TFM)
+#if !defined(TARGET_TFM)
 
 #if !defined(__MICROLIB)
 __asm(".global __use_two_region_memory\n\t");
@@ -1138,7 +1138,7 @@ MBED_USED extern "C" __value_in_regs struct __initial_stackheap __user_setup_sta
     return _mbed_user_setup_stackheap(R0, R1, R2, R3);
 }
 
-#endif // !defined(COMPONENT_SPE) || !defined(TARGET_TFM)
+#endif // !defined(TARGET_TFM)
 
 #endif
 

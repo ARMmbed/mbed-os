@@ -14,9 +14,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifdef PSA_CRYPTO_SECURE
-#include "crypto_struct_spe.h"
-#else
 #include "crypto_struct_ipc.h"
-#endif
-
