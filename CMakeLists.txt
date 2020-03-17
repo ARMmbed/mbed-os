@@ -26,9 +26,9 @@ add_subdirectory(hal)
 add_subdirectory(platform)
 add_subdirectory(targets)
 
-# Add additional components
-get_property(components GLOBAL PROPERTY MBED_OS_COMPONENTS)
+# Add additional modules
+get_property(modules GLOBAL PROPERTY MBED_OS_MODULES)
 
-foreach(component ${components})
-    add_subdirectory(${component})
+foreach(module ${modules})
+    add_subdirectory(${module})
 endforeach()
