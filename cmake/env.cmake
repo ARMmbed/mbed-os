@@ -7,5 +7,3 @@ set(MBED_OS_TARGET_LABELS Freescale;MCUXpresso_MCUS;KSDK2_MCUS;FRDM;KPSDK_MCUS;K
 
 # TODO: Follow what is for targets above, get somehow from tools what componenets/modules are enabled
 set(MBED_OS_COMPONENTS CACHE INTERNAL "")
-
-set(MBED_OS_TARGET_CORE M4_M7 CACHE INTERNAL "")
