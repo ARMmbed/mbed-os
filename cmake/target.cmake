@@ -4,6 +4,15 @@
 # but also target related info. They are now in toolchain.cmake
 # They should be moved here once
 
+# Placeholder, use the same command to overwrite provide target linker script file
+set_property(GLOBAL PROPERTY MBED_OS_TARGET_LINKER_FILE "")
+
+# TODO: @mbed-os-tools This needs to come from tools
+# Build system provides "target" list.
+# Note: This must be placed before subdirectories
+set_property(GLOBAL PROPERTY MBED_OS_TARGET_LABELS Freescale;MCUXpresso_MCUS;KSDK2_MCUS;FRDM;KPSDK_MCUS;KPSDK_CODE;MCU_K64F;Freescale_EMAC;PSA;CORTEX_M;RTOS_M4_M7)
+
+# TODO: @mbed-os-tools Generate definitions
 add_definitions(
   -DARM_MATH_CM4
   -DCOMPONENT_FLASHIAP=1
