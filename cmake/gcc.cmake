@@ -7,7 +7,7 @@ set(CMAKE_CXX_COMPILER    "arm-none-eabi-g++")
 set(ELF2BIN               "arm-none-eabi-objcopy")
 
 # TODO: @mbed-os-tools This needs to come from tools
-set(MBED_OS_TOOLCHAIN GCC_ARM CACHE INTERNAL "")
+set(MBED_OS_TOOLCHAIN "GCC ARM" CACHE INTERNAL "")
 
 set(LD_SYS_LIBS "-Wl,--start-group -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys  -Wl,--end-group")
 
