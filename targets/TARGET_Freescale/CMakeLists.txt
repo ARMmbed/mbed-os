@@ -5,7 +5,6 @@ target_sources(mbed-os PRIVATE USBEndpoints_Kinetis.h)
 target_sources(mbed-os PRIVATE USBPhyHw.h)
 target_sources(mbed-os PRIVATE USBPhy_Kinetis.cpp)
 
-get_property(target_labels GLOBAL PROPERTY MBED_OS_TARGET_LABELS)
-mbed_add_cmake_directory("" "${target_labels}")
+mbed_add_cmake_directory_if_labels("")
 
 target_include_directories(mbed-os PUBLIC .)
