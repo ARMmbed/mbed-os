@@ -394,6 +394,10 @@ bool test_socket_api_callbacks()
     memset(&buf, 1, 16);
 
     socket_callback_t *sckt_data = (socket_callback_t *)malloc(sizeof(socket_callback_t));
+    if(NULL == sckt_data)
+    {
+        return false;
+    }
     memset(sckt_data, 0, sizeof(socket_callback_t));
 
     coap_security_handler_stub.sec_obj = coap_security_handler_stub_alloc();
@@ -476,6 +480,10 @@ bool test_security_callbacks()
     memset(&buf, 1, 16);
 
     socket_callback_t *sckt_data = (socket_callback_t *)malloc(sizeof(socket_callback_t));
+    if(NULL==sckt_data)
+    {
+        return false;
+    }
     memset(sckt_data, 0, sizeof(socket_callback_t));
 
     coap_security_handler_stub.sec_obj = coap_security_handler_stub_alloc();
