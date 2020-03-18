@@ -264,22 +264,10 @@ void test_direct_access_to_device_inject_root()
     } else if (strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "TDB_EXTERNAL") == 0) {
         internal_start_address =  MBED_CONF_STORAGE_TDB_EXTERNAL_INTERNAL_BASE_ADDRESS;
         internal_rbp_size =  MBED_CONF_STORAGE_TDB_EXTERNAL_RBP_INTERNAL_SIZE;
-    } else if (strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "TDB_INTERNAL") == 0) {
+    } else if (strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "TDB_INTERNAL") == 0 ||
+               strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "default") == 0) {
         internal_start_address =  MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS;
         internal_rbp_size =  MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE;
-    } else if (strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "default") == 0) {
-#if COMPONENT_QSPIF || COMPONENT_SPIF || COMPONENT_DATAFLASH
-        internal_start_address =  MBED_CONF_STORAGE_TDB_EXTERNAL_INTERNAL_BASE_ADDRESS;
-        internal_rbp_size =  MBED_CONF_STORAGE_TDB_EXTERNAL_RBP_INTERNAL_SIZE;
-#elif COMPONENT_SD
-        internal_start_address =  MBED_CONF_STORAGE_FILESYSTEM_INTERNAL_BASE_ADDRESS;
-        internal_rbp_size =  MBED_CONF_STORAGE_FILESYSTEM_RBP_INTERNAL_SIZE;
-#elif COMPONENT_FLASHIAP
-        internal_start_address =  MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS;
-        internal_rbp_size =  MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE;
-#else
-        TEST_SKIP_UNLESS_MESSAGE(false, "Test skipped. No KVStore Internal");
-#endif
     } else {
         TEST_SKIP_UNLESS_MESSAGE(false, "Test skipped. No KVStore Internal");
     }
