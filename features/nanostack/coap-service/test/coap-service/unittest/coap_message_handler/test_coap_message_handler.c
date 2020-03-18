@@ -86,6 +86,10 @@ bool test_coap_message_handler_init()
     }
     retCounter = 1;
     sn_coap_protocol_stub.expectedCoap = (struct coap_s *)malloc(sizeof(struct coap_s));
+    if(NULL == sn_coap_protocol_stub.expectedCoap)
+    {
+        return false;
+    }
     memset(sn_coap_protocol_stub.expectedCoap, 0, sizeof(struct coap_s));
     nsdynmemlib_stub.returnCounter = 1;
     coap_msg_handler_t *handle = coap_message_handler_init(&test_own_alloc, &test_own_free, &coap_tx_function);
@@ -105,6 +109,10 @@ bool test_coap_message_handler_destroy()
     }
     retCounter = 1;
     sn_coap_protocol_stub.expectedCoap = (struct coap_s *)malloc(sizeof(struct coap_s));
+    if(NULL == sn_coap_protocol_stub.expectedCoap)
+    {
+        return false;
+    }
     memset(sn_coap_protocol_stub.expectedCoap, 0, sizeof(struct coap_s));
     nsdynmemlib_stub.returnCounter = 1;
     coap_msg_handler_t *handle = coap_message_handler_init(&test_own_alloc, &test_own_free, &coap_tx_function);
@@ -124,6 +132,10 @@ bool test_coap_message_handler_find_transaction()
     }
     retCounter = 1;
     sn_coap_protocol_stub.expectedCoap = (struct coap_s *)malloc(sizeof(struct coap_s));
+    if(NULL == sn_coap_protocol_stub.expectedCoap)
+    {
+        return false;
+    }
     memset(sn_coap_protocol_stub.expectedCoap, 0, sizeof(struct coap_s));
     nsdynmemlib_stub.returnCounter = 1;
     coap_msg_handler_t *handle = coap_message_handler_init(&test_own_alloc, &test_own_free, &coap_tx_function);
@@ -163,6 +175,10 @@ bool test_coap_message_handler_coap_msg_process()
 
     retCounter = 1;
     sn_coap_protocol_stub.expectedCoap = (struct coap_s *)malloc(sizeof(struct coap_s));
+    if(NULL == sn_coap_protocol_stub.expectedCoap)
+    {
+        goto exit;
+    }
     memset(sn_coap_protocol_stub.expectedCoap, 0, sizeof(struct coap_s));
     nsdynmemlib_stub.returnCounter = 1;
     coap_msg_handler_t *handle = coap_message_handler_init(&test_own_alloc, &test_own_free, &coap_tx_function);
@@ -174,6 +190,10 @@ bool test_coap_message_handler_coap_msg_process()
     }
 
     sn_coap_protocol_stub.expectedHeader = (sn_coap_hdr_s *)malloc(sizeof(sn_coap_hdr_s));
+    if(NULL == sn_coap_protocol_stub.expectedHeader)
+    {
+        goto exit;
+    }
     memset(sn_coap_protocol_stub.expectedHeader, 0, sizeof(sn_coap_hdr_s));
     sn_coap_protocol_stub.expectedHeader->coap_status = 66;
     nsdynmemlib_stub.returnCounter = 1;
@@ -183,6 +203,10 @@ bool test_coap_message_handler_coap_msg_process()
     }
 
     sn_coap_protocol_stub.expectedHeader = (sn_coap_hdr_s *)malloc(sizeof(sn_coap_hdr_s));
+    if(NULL == sn_coap_protocol_stub.expectedHeader)
+    {
+        goto exit;
+    }
     memset(sn_coap_protocol_stub.expectedHeader, 0, sizeof(sn_coap_hdr_s));
     sn_coap_protocol_stub.expectedHeader->coap_status = COAP_STATUS_OK;
     sn_coap_protocol_stub.expectedHeader->msg_code = 1;
@@ -194,6 +218,10 @@ bool test_coap_message_handler_coap_msg_process()
     }
 
     sn_coap_protocol_stub.expectedHeader = (sn_coap_hdr_s *)malloc(sizeof(sn_coap_hdr_s));
+    if(NULL == sn_coap_protocol_stub.expectedHeader)
+    {
+        goto exit;
+    }
     memset(sn_coap_protocol_stub.expectedHeader, 0, sizeof(sn_coap_hdr_s));
     sn_coap_protocol_stub.expectedHeader->coap_status = COAP_STATUS_OK;
     sn_coap_protocol_stub.expectedHeader->msg_code = 1;
@@ -204,6 +232,10 @@ bool test_coap_message_handler_coap_msg_process()
     }
 
     sn_coap_protocol_stub.expectedHeader = (sn_coap_hdr_s *)malloc(sizeof(sn_coap_hdr_s));
+    if(NULL == sn_coap_protocol_stub.expectedHeader)
+    {
+        goto exit;
+    }
     memset(sn_coap_protocol_stub.expectedHeader, 0, sizeof(sn_coap_hdr_s));
     sn_coap_protocol_stub.expectedHeader->coap_status = COAP_STATUS_OK;
     sn_coap_protocol_stub.expectedHeader->msg_code = 333;
@@ -214,6 +246,10 @@ bool test_coap_message_handler_coap_msg_process()
     }
 
     sn_coap_protocol_stub.expectedHeader = (sn_coap_hdr_s *)malloc(sizeof(sn_coap_hdr_s));
+    if(NULL == sn_coap_protocol_stub.expectedHeader)
+    {
+        goto exit;
+    }
     memset(sn_coap_protocol_stub.expectedHeader, 0, sizeof(sn_coap_hdr_s));
     sn_coap_protocol_stub.expectedHeader->coap_status = COAP_STATUS_OK;
     sn_coap_protocol_stub.expectedHeader->msg_code = 333;
@@ -247,6 +283,10 @@ bool test_coap_message_handler_request_send()
 {
     retCounter = 1;
     sn_coap_protocol_stub.expectedCoap = (struct coap_s *)malloc(sizeof(struct coap_s));
+    if(NULL == sn_coap_protocol_stub.expectedCoap)
+    {
+        return false;
+    }
     memset(sn_coap_protocol_stub.expectedCoap, 0, sizeof(struct coap_s));
     nsdynmemlib_stub.returnCounter = 1;
     coap_msg_handler_t *handle = coap_message_handler_init(&test_own_alloc, &test_own_free, &coap_tx_function);
@@ -329,6 +369,10 @@ bool test_coap_message_handler_request_delete()
 {
     retCounter = 1;
     sn_coap_protocol_stub.expectedCoap = (struct coap_s *)malloc(sizeof(struct coap_s));
+    if(NULL == sn_coap_protocol_stub.expectedCoap)
+    {
+        return false;
+    }
     memset(sn_coap_protocol_stub.expectedCoap, 0, sizeof(struct coap_s));
     nsdynmemlib_stub.returnCounter = 1;
     coap_msg_handler_t *handle = coap_message_handler_init(&test_own_alloc, &test_own_free, &coap_tx_function);
@@ -367,6 +411,10 @@ bool test_coap_message_handler_request_delete_by_service_id()
 {
     retCounter = 1;
     sn_coap_protocol_stub.expectedCoap = (struct coap_s *)malloc(sizeof(struct coap_s));
+    if(NULL == sn_coap_protocol_stub.expectedCoap)
+    {
+        return false;
+    }
     memset(sn_coap_protocol_stub.expectedCoap, 0, sizeof(struct coap_s));
     nsdynmemlib_stub.returnCounter = 1;
     coap_msg_handler_t *handle = coap_message_handler_init(&test_own_alloc, &test_own_free, &coap_tx_function);
@@ -409,10 +457,18 @@ bool test_coap_message_handler_response_send()
 
     retCounter = 1;
     sn_coap_protocol_stub.expectedCoap = (struct coap_s *)malloc(sizeof(struct coap_s));
+    if(NULL == sn_coap_protocol_stub.expectedCoap)
+    {
+        return false;
+    }
     memset(sn_coap_protocol_stub.expectedCoap, 0, sizeof(struct coap_s));
     nsdynmemlib_stub.returnCounter = 1;
     coap_msg_handler_t *handle = coap_message_handler_init(&test_own_alloc, &test_own_free, &coap_tx_function);
     sn_coap_hdr_s *header = (sn_coap_hdr_s *)malloc(sizeof(sn_coap_hdr_s));
+    if(NULL == header)
+    {
+        return false;
+    }
     memset(header, 0, sizeof(sn_coap_hdr_s));
 
     if (-2 != coap_message_handler_response_send(handle, 2, 0, header, 1, 3, NULL, 0)) {
@@ -443,6 +499,10 @@ bool test_coap_message_handler_response_send()
     }
 
     sn_coap_builder_stub.expectedHeader = (sn_coap_hdr_s *)malloc(sizeof(sn_coap_hdr_s));
+    if(NULL == sn_coap_builder_stub.expectedHeader)
+    {
+        return false;
+    }
     memset(sn_coap_builder_stub.expectedHeader, 0, sizeof(sn_coap_hdr_s));
     nsdynmemlib_stub.returnCounter = 0;
     if (-1 != coap_message_handler_response_send(handle, 2, 0, header, 1, 3, NULL, 0)) {
@@ -450,6 +510,10 @@ bool test_coap_message_handler_response_send()
     }
 
     sn_coap_builder_stub.expectedHeader = (sn_coap_hdr_s *)malloc(sizeof(sn_coap_hdr_s));
+    if(NULL == sn_coap_builder_stub.expectedHeader)
+    {
+        return false;
+    }
     memset(sn_coap_builder_stub.expectedHeader, 0, sizeof(sn_coap_hdr_s));
     nsdynmemlib_stub.returnCounter = 1;
     if (0 != coap_message_handler_response_send(handle, 2, 0, header, 1, 3, NULL, 0)) {
@@ -472,6 +536,10 @@ bool test_coap_message_handler_exec()
 
     retCounter = 1;
     sn_coap_protocol_stub.expectedCoap = (struct coap_s *)malloc(sizeof(struct coap_s));
+    if(NULL == sn_coap_protocol_stub.expectedCoap)
+    {
+        return false;
+    }
     memset(sn_coap_protocol_stub.expectedCoap, 0, sizeof(struct coap_s));
     nsdynmemlib_stub.returnCounter = 1;
     coap_msg_handler_t *handle = coap_message_handler_init(&test_own_alloc, &test_own_free, &coap_tx_function);
