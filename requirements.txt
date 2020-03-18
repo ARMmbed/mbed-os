@@ -25,7 +25,7 @@ hidapi>=0.7.99,<0.8.0;platform_system!="Linux"
 cmsis-pack-manager>=0.2.3,<0.3.0
 pywin32==224;platform_system=='Windows'
 wmi==1.4.9;platform_system=='Windows'
-psutil==5.6.2
+psutil==5.6.6
 cryptography>=2.5,<3
 Click>=7.0,<7.1
 cbor>=1.0.0
