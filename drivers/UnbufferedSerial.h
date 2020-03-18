@@ -160,6 +160,9 @@ public:
     using SerialBase::format;
     using SerialBase::attach;
     using SerialBase::baud;
+    using SerialBase::RxIrq;
+    using SerialBase::TxIrq;
+    using SerialBase::IrqCnt;
 
 #if DEVICE_SERIAL_FC
     // For now use the base enum - but in future we may have extra options
