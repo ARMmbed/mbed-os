@@ -16,6 +16,7 @@ add_library(mbed-os OBJECT)
 target_include_directories(mbed-os PUBLIC .)
 
 # Link config from generate folder
+# TODO: @mbed-os-tools We need to get this gen_config somehow set up
 target_link_libraries(mbed-os PRIVATE gen_config)
 
 # Baremetal build with RTOS and events
