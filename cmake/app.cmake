@@ -1,8 +1,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Include other required CMake files
-# TODO: @mbed-os-tools This needs to come from tools
-include(${MBED_OS_ROOT}/cmake/toolchain.cmake)
+# Set cached global first
+# TODO: @mbed-os-tools - GCC ARM should come from tools
+set(MBED_OS_TOOLCHAIN "GCC ARM" CACHE INTERNAL "")
+
+# Include toolchain specific CMake
+if(MBED_OS_TOOLCHAIN STREQUAL "GCC ARM")
+    include(${MBED_OS_ROOT}/cmake/gcc.cmake)
+elseif(MBED_OS_TOOLCHAIN STREQUAL "ARM")
+    include(${MBED_OS_ROOT}/cmake/arm.cmake)
+elseif(MBED_OS_TOOLCHAIN STREQUAL "IAR")
+    include(${MBED_OS_ROOT}/cmake/iar.cmake)
+endif()
 
 include(${MBED_OS_ROOT}/cmake/target.cmake)
 include(${MBED_OS_ROOT}/cmake/env.cmake)
