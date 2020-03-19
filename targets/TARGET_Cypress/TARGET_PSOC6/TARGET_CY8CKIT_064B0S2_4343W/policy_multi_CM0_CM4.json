@@ -15,12 +15,7 @@
             "permission" : "enabled",
             "control" : "firmware",
             "key" : 5,
-            "syscall": true,
-            "mmio": true,
-            "flash": true,
-            "workflash": true,
-            "sflash": true,
-            "sram": true
+            "flash": true
         },
         "rma" : {
             "permission" : "allowed",
@@ -59,7 +54,7 @@
                     3
                 ],
                 "id": 0,
-                "launch": 4,
+                "launch": 1,
                 "monotonic": 0,
                 "smif_id": 0,
                 "upgrade": false,
@@ -89,34 +84,72 @@
                     8
                 ],
                 "boot_keys": [
-                    { "kid": 8, "key": "../keys/USERAPP_CM4_KEY.json" }
+                    { "kid": 8, "key": "./keys/USERAPP_CM4_KEY.json" }
                 ],
-                "id": 4,
+                "id": 1,
                 "monotonic": 0,
                 "smif_id": 0,
+                "multi_image" : 1,
                 "upgrade": true,
                 "version": "0.1",
                 "rollback_counter": 0,
                 "encrypt": false,
-                "encrypt_key": "../keys/image-aes-128.key",
+                "encrypt_key": "./keys/image-aes-128.key",
                 "encrypt_key_id": 1,
-                "encrypt_peer": "../keys/dev_pub_key.pem",
+                "encrypt_peer": "./keys/dev_pub_key.pem",
                 "upgrade_auth": [
                     8
                 ],
                 "upgrade_keys": [
-                    { "kid": 8, "key": "../keys/USERAPP_CM4_KEY.json" }
+                    { "kid": 8, "key": "./keys/USERAPP_CM4_KEY.json" }
                 ],
                 "resources": [
                     {
                         "type": "BOOT",
                         "address": 268435456,
-                        "size": 327680
+                        "size": 458752
                     },
                     {
                         "type": "UPGRADE",
-                        "address": 268763136,
-                        "size": 327680
+                        "address": 268894208,
+                        "size": 458752
+                    }
+                ]
+            },
+            {
+                "boot_auth": [
+                    8
+                ],
+                "boot_keys": [
+                    { "kid": 8, "key": "./keys/USERAPP_CM4_KEY.json" }
+                ],
+                "id": 16,
+                "monotonic": 0,
+                "smif_id": 0,
+                "multi_image" : 2,
+                "upgrade": true,
+                "version": "0.1",
+                "rollback_counter": 0,
+                "encrypt": false,
+                "encrypt_key": "./keys/image-aes-128.key",
+                "encrypt_key_id": 1,
+                "encrypt_peer": "./keys/dev_pub_key.pem",
+                "upgrade_auth": [
+                    8
+                ],
+                "upgrade_keys": [
+                    { "kid": 8, "key": "./keys/USERAPP_CM4_KEY.json" }
+                ],
+                "resources": [
+                    {
+                        "type": "BOOT",
+                        "address": 269352960,
+                        "size": 458752
+                    },
+                    {
+                        "type": "UPGRADE",
+                        "address": 269811712,
+                        "size": 458752
                     }
                 ]
             }
