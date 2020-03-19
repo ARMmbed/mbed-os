@@ -12,99 +12,101 @@ function(_mbed_set_handler)
     endif()
 endfunction()
 
-target_sources(mbed-os PRIVATE ATCmdParser.h)
-target_sources(mbed-os PRIVATE Callback.h)
-target_sources(mbed-os PRIVATE CircularBuffer.h)
-target_sources(mbed-os PRIVATE CMakeLists.txt)
-target_sources(mbed-os PRIVATE critical.h)
-target_sources(mbed-os PRIVATE CriticalSectionLock.h)
-target_sources(mbed-os PRIVATE CThunk.h)
-target_sources(mbed-os PRIVATE DeepSleepLock.h)
-target_sources(mbed-os PRIVATE DirHandle.h)
-target_sources(mbed-os PRIVATE FileBase.h)
-target_sources(mbed-os PRIVATE FileHandle.h)
-target_sources(mbed-os PRIVATE FileLike.h)
-target_sources(mbed-os PRIVATE FilePath.h)
-target_sources(mbed-os PRIVATE FileSystemHandle.h)
-target_sources(mbed-os PRIVATE FileSystemLike.h)
-target_sources(mbed-os PRIVATE LocalFileSystem.h)
-target_sources(mbed-os PRIVATE mbed_application.h)
-target_sources(mbed-os PRIVATE mbed_assert.h)
-target_sources(mbed-os PRIVATE mbed_atomic.h)
-target_sources(mbed-os PRIVATE mbed_critical.h)
-target_sources(mbed-os PRIVATE mbed_debug.h)
-target_sources(mbed-os PRIVATE mbed_error.h)
-target_sources(mbed-os PRIVATE mbed_interface.h)
-target_sources(mbed-os PRIVATE mbed_mem_trace.h)
-target_sources(mbed-os PRIVATE mbed_mktime.h)
-target_sources(mbed-os PRIVATE mbed_mpu_mgmt.h)
-target_sources(mbed-os PRIVATE mbed_poll.h)
-target_sources(mbed-os PRIVATE mbed_power_mgmt.h)
-target_sources(mbed-os PRIVATE mbed_preprocessor.h)
-target_sources(mbed-os PRIVATE mbed_retarget.h)
-target_sources(mbed-os PRIVATE mbed_rtc_time.h)
-target_sources(mbed-os PRIVATE mbed_semihost_api.h)
-target_sources(mbed-os PRIVATE mbed_sleep.h)
-target_sources(mbed-os PRIVATE mbed_stats.h)
-target_sources(mbed-os PRIVATE mbed_thread.h)
-target_sources(mbed-os PRIVATE mbed_toolchain.h)
-target_sources(mbed-os PRIVATE mbed_version.h)
-target_sources(mbed-os PRIVATE mbed_wait_api.h)
-target_sources(mbed-os PRIVATE NonCopyable.h)
-target_sources(mbed-os PRIVATE platform.h)
-target_sources(mbed-os PRIVATE PlatformMutex.h)
-target_sources(mbed-os PRIVATE rtc_time.h)
-target_sources(mbed-os PRIVATE ScopedLock.h)
-target_sources(mbed-os PRIVATE ScopedRamExecutionLock.h)
-target_sources(mbed-os PRIVATE ScopedRomWriteLock.h)
-target_sources(mbed-os PRIVATE semihost_api.h)
-target_sources(mbed-os PRIVATE SharedPtr.h)
-target_sources(mbed-os PRIVATE SingletonPtr.h)
-target_sources(mbed-os PRIVATE sleep.h)
-target_sources(mbed-os PRIVATE Span.h)
-target_sources(mbed-os PRIVATE Stream.h)
-target_sources(mbed-os PRIVATE toolchain.h)
-target_sources(mbed-os PRIVATE Transaction.h)
-target_sources(mbed-os PRIVATE wait_api.h)
+target_sources(mbed-os PRIVATE
+    ATCmdParser.h
+    Callback.h
+    CircularBuffer.h
+    CMakeLists.txt
+    critical.h
+    CriticalSectionLock.h
+    CThunk.h
+    DeepSleepLock.h
+    DirHandle.h
+    FileBase.h
+    FileHandle.h
+    FileLike.h
+    FilePath.h
+    FileSystemHandle.h
+    FileSystemLike.h
+    LocalFileSystem.h
+    mbed_application.h
+    mbed_assert.h
+    mbed_atomic.h
+    mbed_critical.h
+    mbed_debug.h
+    mbed_error.h
+    mbed_interface.h
+    mbed_mem_trace.h
+    mbed_mktime.h
+    mbed_mpu_mgmt.h
+    mbed_poll.h
+    mbed_power_mgmt.h
+    mbed_preprocessor.h
+    mbed_retarget.h
+    mbed_rtc_time.h
+    mbed_semihost_api.h
+    mbed_sleep.h
+    mbed_stats.h
+    mbed_thread.h
+    mbed_toolchain.h
+    mbed_version.h
+    mbed_wait_api.h
+    NonCopyable.h
+    platform.h
+    PlatformMutex.h
+    rtc_time.h
+    ScopedLock.h
+    ScopedRamExecutionLock.h
+    ScopedRomWriteLock.h
+    semihost_api.h
+    SharedPtr.h
+    SingletonPtr.h
+    sleep.h
+    Span.h
+    Stream.h
+    toolchain.h
+    Transaction.h
+    wait_api.h
 
-target_sources(mbed-os PRIVATE source/ATCmdParser.cpp)
-target_sources(mbed-os PRIVATE source/CriticalSectionLock.cpp)
-target_sources(mbed-os PRIVATE source/CThunkBase.cpp)
-target_sources(mbed-os PRIVATE source/DeepSleepLock.cpp)
-target_sources(mbed-os PRIVATE source/FileBase.cpp)
-target_sources(mbed-os PRIVATE source/FileHandle.cpp)
-target_sources(mbed-os PRIVATE source/FilePath.cpp)
-target_sources(mbed-os PRIVATE source/FileSystemHandle.cpp)
-target_sources(mbed-os PRIVATE source/LocalFileSystem.cpp)
-target_sources(mbed-os PRIVATE source/mbed_alloc_wrappers.cpp)
-target_sources(mbed-os PRIVATE source/mbed_application.c)
-target_sources(mbed-os PRIVATE source/mbed_assert.c)
-target_sources(mbed-os PRIVATE source/mbed_atomic_impl.c)
-target_sources(mbed-os PRIVATE source/mbed_board.c)
-target_sources(mbed-os PRIVATE source/mbed_crash_data_offsets.h)
-target_sources(mbed-os PRIVATE source/mbed_critical.c)
-target_sources(mbed-os PRIVATE source/mbed_error.c)
-target_sources(mbed-os PRIVATE source/mbed_error_hist.c)
-target_sources(mbed-os PRIVATE source/mbed_error_hist.h)
-target_sources(mbed-os PRIVATE source/mbed_interface.c)
-target_sources(mbed-os PRIVATE source/mbed_mem_trace.cpp)
-target_sources(mbed-os PRIVATE source/mbed_mktime.c)
-target_sources(mbed-os PRIVATE source/mbed_mpu_mgmt.c)
-target_sources(mbed-os PRIVATE source/mbed_os_timer.cpp)
-target_sources(mbed-os PRIVATE source/mbed_os_timer.h)
-target_sources(mbed-os PRIVATE source/mbed_poll.cpp)
-target_sources(mbed-os PRIVATE source/mbed_power_mgmt.c)
-target_sources(mbed-os PRIVATE source/mbed_retarget.cpp)
-target_sources(mbed-os PRIVATE source/mbed_rtc_time.cpp)
-target_sources(mbed-os PRIVATE source/mbed_sdk_boot.c)
-target_sources(mbed-os PRIVATE source/mbed_semihost_api.c)
-target_sources(mbed-os PRIVATE source/mbed_stats.c)
-target_sources(mbed-os PRIVATE source/mbed_thread.cpp)
-target_sources(mbed-os PRIVATE source/mbed_wait_api_no_rtos.c)
-target_sources(mbed-os PRIVATE source/mbed_wait_api_rtos.cpp)
-target_sources(mbed-os PRIVATE source/Stream.cpp)
-target_sources(mbed-os PRIVATE source/SysTimer.cpp)
-target_sources(mbed-os PRIVATE source/SysTimer.h)
+    source/ATCmdParser.cpp
+    source/CriticalSectionLock.cpp
+    source/CThunkBase.cpp
+    source/DeepSleepLock.cpp
+    source/FileBase.cpp
+    source/FileHandle.cpp
+    source/FilePath.cpp
+    source/FileSystemHandle.cpp
+    source/LocalFileSystem.cpp
+    source/mbed_alloc_wrappers.cpp
+    source/mbed_application.c
+    source/mbed_assert.c
+    source/mbed_atomic_impl.c
+    source/mbed_board.c
+    source/mbed_crash_data_offsets.h
+    source/mbed_critical.c
+    source/mbed_error.c
+    source/mbed_error_hist.c
+    source/mbed_error_hist.h
+    source/mbed_interface.c
+    source/mbed_mem_trace.cpp
+    source/mbed_mktime.c
+    source/mbed_mpu_mgmt.c
+    source/mbed_os_timer.cpp
+    source/mbed_os_timer.h
+    source/mbed_poll.cpp
+    source/mbed_power_mgmt.c
+    source/mbed_retarget.cpp
+    source/mbed_rtc_time.cpp
+    source/mbed_sdk_boot.c
+    source/mbed_semihost_api.c
+    source/mbed_stats.c
+    source/mbed_thread.cpp
+    source/mbed_wait_api_no_rtos.c
+    source/mbed_wait_api_rtos.cpp
+    source/Stream.cpp
+    source/SysTimer.cpp
+    source/SysTimer.h
+)
 
 _mbed_set_handler()
 
