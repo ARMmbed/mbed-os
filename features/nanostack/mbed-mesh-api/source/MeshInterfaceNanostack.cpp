@@ -92,6 +92,15 @@ int InterfaceNanostack::disconnect()
     return _interface->bringdown();
 }
 
+char *Nanostack::MeshInterface::get_interface_name(char *buf)
+{
+    if (interface_id < 0) {
+        return NULL;
+    }
+    sprintf(buf, "MES%d", interface_id);
+    return buf;
+};
+
 nsapi_error_t MeshInterfaceNanostack::initialize(NanostackRfPhy *phy)
 {
     if (_phy && phy && _phy != phy) {

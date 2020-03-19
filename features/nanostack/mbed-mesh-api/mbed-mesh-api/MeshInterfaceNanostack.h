@@ -76,6 +76,8 @@ protected:
 };
 
 class Nanostack::MeshInterface : public Nanostack::Interface {
+public:
+    char *get_interface_name(char *buf);
 protected:
     MeshInterface(NanostackRfPhy &phy) : Interface(phy) { }
     NanostackRfPhy &get_phy() const
