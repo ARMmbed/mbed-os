@@ -13,5 +13,5 @@ enable_language(C CXX ASM)
 # TODO: @mbed-os-tools This needs to come from tools
 # If this is a list like rtos/wifi/networking, we need to figure out the path in Mbed OS (have dictionary or
 # something similar). The best would be if this list contains list of module paths (rtos/ features/ble etc)
-set_property(GLOBAL PROPERTY MBED_OS_MODULES rtos)
+set_property(GLOBAL PROPERTY MBED_OS_MODULES "")
 
