@@ -14092,8 +14092,9 @@
             "1910"
         ],
         "forced_reset_timeout": 5,
+        "hex_filename": "psoc64_02_cm0_secure.hex",
         "post_binary_hook": {
-            "function": "PSOC6Code.sign_image"
+            "function": "PSOC6Code.sign_es_image"
         },
         "overrides": {
             "network-default-interface-type": "WIFI"

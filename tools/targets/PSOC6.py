@@ -25,6 +25,7 @@ import json
 from intelhex import IntelHex, hex2bin, bin2hex
 
 from ..config import ConfigException
+from ..settings import ROOT
 
 # The size of the program data in Cypress HEX files is limited to 0x80000000
 # Higher addresses contain additional metadata (chip protection, eFuse data, etc..)
@@ -484,6 +485,66 @@ def sign_image(toolchain, binf):
             if slot["slot_data"]["type"] == "UPGRADE":
                 bin2hex(out_bin_name, out_hex_name, offset=int(slot["slot_data"]["address"]))
                 toolchain.notify.info("Image UPGRADE: " + out_hex_name + "\n")
+
+
+def sign_es_image(toolchain, elf, binf, m0hex):
+    """
+    Adds signature to a binary file being built,
+    using cysecuretools python package.
+    :param toolchain: Toolchain object of current build session
+    :param binf: Binary file created for target
+    """
+
+    print("Found CM0 prebuild hex file: ")
+    print(m0hex)
+
+    m0hex_build = os.path.join(toolchain.build_dir, toolchain.target.hex_filename)
+
+    copy2(m0hex, m0hex_build)
+
+    m0hex = m0hex_build
+
+    print(m0hex)
+
+    # Mapping from mbed target to cysecuretools target
+    TARGET_MAPPING = {
+            "CY8CKIT_064B0S2_4343W": "cy8ckit-064b0s2-4343w"
+    }
+
+    try:
+        secure_target = TARGET_MAPPING[toolchain.target.name]
+    except KeyError:
+        raise ConfigException("[PSOC6.sign_image] Target " + toolchain.target.name + " is not supported in cysecuretools.")
+
+    from pathlib import Path, PurePath
+
+    mbed_os_root = Path(ROOT)
+
+    # Use custom policy file defined in users mbed_app.json or use default
+    # policy if no custom policy exists
+    try:
+        policy_path = Path(str(toolchain.config.get_config_data()[0]["app.policy_file"].value))
+        if policy_path.is_absolute():
+            policy_file = policy_path
+        else:
+            policy_file = mbed_os_root / policy_path
+        toolchain.notify.debug("[PSOC6.sign_image] Using custom policy file at: " + str(policy_file))
+    except KeyError as e:
+        policy_file = mbed_os_root / Path("targets/TARGET_Cypress/TARGET_PSOC6/TARGET_" + toolchain.target.name + "/policy_multi_CM0_CM4.json")
+        toolchain.notify.debug("[PSOC6.sign_image] Using default policy file at: " + str(policy_file))
+
+    # Append cysecuretools path to sys.path and import cysecuretools. This will
+    # prioritize system installations of cysecuretools over the included
+    # cysecuretools.
+    #sb_tools_path = mbed_os_root / Path("targets/TARGET_Cypress/TARGET_PSOC6/")
+    #sys.path.append(str(sb_tools_path))
+    import cysecuretools
+
+    tools = cysecuretools.CySecureTools(secure_target, str(policy_file))
+    tools.sign_image(m0hex, image_id=1)
+    tools.sign_image(binf, image_id=16)
+
+    complete(toolchain, elf, hexf0=binf, hexf1=m0hex)
 
 
 def complete(toolchain, elf0, hexf0, hexf1=None):
