@@ -146,18 +146,14 @@ BLE::Instance(InstanceID_t id)
     static BLE *singletons[NUM_INSTANCES];
     if (id < NUM_INSTANCES) {
         if (singletons[id] == NULL) {
-BLE_DEPRECATED_API_USE_BEGIN()
             singletons[id] = new BLE(id); /* This object will never be freed. */
-BLE_DEPRECATED_API_USE_END()
         }
 
         return *singletons[id];
     }
 
     /* we come here only in the case of a bad interfaceID. */
-BLE_DEPRECATED_API_USE_BEGIN()
     static BLE badSingleton(NUM_INSTANCES /* this is a bad index; and will result in a NULL transport. */);
-BLE_DEPRECATED_API_USE_END()
     return badSingleton;
 }
 
@@ -281,15 +277,6 @@ SecurityManager& BLE::securityManager()
 
 #endif // BLE_FEATURE_SECURITY
 
-void BLE::waitForEvent(void)
-{
-    if (!transport) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
-    }
-
-    transport->waitForEvent();
-}
-
 void BLE::processEvents()
 {
     core_util_critical_section_enter();
@@ -341,11 +328,6 @@ void BLE::signalEventsToProcess()
     }
 }
 
-// start of deprecated functions
-
-BLE_DEPRECATED_API_USE_BEGIN()
-
-// NOTE: move and remove deprecation once private
 BLE::BLE(InstanceID_t instanceIDIn) : instanceID(instanceIDIn), transport(),
     whenEventsToProcess(defaultSchedulingCallback),
     event_signaled(false)
@@ -361,166 +343,4 @@ BLE::BLE(InstanceID_t instanceIDIn) : instanceID(instanceIDIn), transport(),
         transport = NULL;
     }
 }
-
-ble_error_t BLE::setAddress(
-    BLEProtocol::AddressType_t type,
-    const BLEProtocol::AddressBytes_t address
-) {
-    return gap().setAddress(type, address);
-}
-
-#if BLE_ROLE_CENTRAL
-ble_error_t BLE::connect(
-    const BLEProtocol::AddressBytes_t peerAddr,
-    BLEProtocol::AddressType_t peerAddrType,
-    const Gap::ConnectionParams_t *connectionParams,
-    const GapScanningParams *scanParams
-) {
-    return gap().connect(peerAddr, peerAddrType, connectionParams, scanParams);
-}
-#endif // BLE_ROLE_CENTRAL
-
-#if BLE_FEATURE_CONNECTABLE
-ble_error_t BLE::disconnect(Gap::DisconnectionReason_t reason) {
-    return gap().disconnect(reason);
-}
-#endif // BLE_FEATURE_CONNECTABLE
-
-Gap::GapState_t BLE::getGapState(void) const {
-    return gap().getState();
-}
-
-#if BLE_ROLE_BROADCASTER
-void BLE::setAdvertisingType(GapAdvertisingParams::AdvertisingType advType) {
-    gap().setAdvertisingType(advType);
-}
-
-void BLE::setAdvertisingInterval(uint16_t interval) {
-    gap().setAdvertisingInterval(interval);
-}
-
-void BLE::setAdvertisingTimeout(uint16_t timeout) {
-    gap().setAdvertisingTimeout(timeout);
-}
-
-void BLE::setAdvertisingParams(const GapAdvertisingParams &advParams) {
-    gap().setAdvertisingParams(advParams);
-}
-
-const GapAdvertisingParams &BLE::getAdvertisingParams(void) const {
-    return gap().getAdvertisingParams();
-}
-
-ble_error_t BLE::accumulateAdvertisingPayload(uint8_t flags) {
-    return gap().accumulateAdvertisingPayload(flags);
-}
-
-ble_error_t BLE::accumulateAdvertisingPayload(GapAdvertisingData::Appearance app) {
-    return gap().accumulateAdvertisingPayload(app);
-}
-
-ble_error_t BLE::accumulateAdvertisingPayloadTxPower(int8_t power) {
-    return gap().accumulateAdvertisingPayloadTxPower(power);
-}
-
-ble_error_t BLE::accumulateAdvertisingPayload(GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len) {
-    return gap().accumulateAdvertisingPayload(type, data, len);
-}
-
-ble_error_t BLE::setAdvertisingData(const GapAdvertisingData &advData) {
-    return gap().setAdvertisingPayload(advData);
-}
-
-const GapAdvertisingData &BLE::getAdvertisingData(void) const {
-    return gap().getAdvertisingPayload();
-}
-
-void BLE::clearAdvertisingPayload(void) {
-    gap().clearAdvertisingPayload();
-}
-
-ble_error_t BLE::setAdvertisingPayload(void) {
-    return BLE_ERROR_NONE;
-}
-
-ble_error_t BLE::accumulateScanResponse(GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len) {
-    return gap().accumulateScanResponse(type, data, len);
-}
-
-void BLE::clearScanResponse(void) {
-    gap().clearScanResponse();
-}
-
-ble_error_t BLE::startAdvertising(void) {
-    return gap().startAdvertising();
-}
-
-ble_error_t BLE::stopAdvertising(void) {
-    return gap().stopAdvertising();
-}
-#endif // BLE_ROLE_BROADCASTER
-
-#if BLE_ROLE_OBSERVER
-ble_error_t BLE::setScanParams(uint16_t interval,
-    uint16_t window,
-    uint16_t timeout,
-    bool     activeScanning) {
-    return gap().setScanParams(interval, window, timeout, activeScanning);
-}
-
-ble_error_t BLE::setScanInterval(uint16_t interval) {
-    return gap().setScanInterval(interval);
-}
-
-ble_error_t BLE::setScanWindow(uint16_t window) {
-    return gap().setScanWindow(window);
-}
-
-ble_error_t BLE::setScanTimeout(uint16_t timeout) {
-    return gap().setScanTimeout(timeout);
-}
-
-void BLE::setActiveScan(bool activeScanning) {
-    gap().setActiveScanning(activeScanning);
-}
-
-ble_error_t BLE::startScan(void (*callback)(const Gap::AdvertisementCallbackParams_t *params)) {
-    return gap().startScan(callback);
-}
-#endif // BLE_ROLE_OBSERVER
-
-#if BLE_FEATURE_CONNECTABLE
-ble_error_t BLE::disconnect(Gap::Handle_t connectionHandle, Gap::DisconnectionReason_t reason) {
-    return gap().disconnect(connectionHandle, reason);
-}
-
-ble_error_t BLE::updateConnectionParams(Gap::Handle_t handle, const Gap::ConnectionParams_t *params) {
-    return gap().updateConnectionParams(handle, params);
-}
-#endif // BLE_FEATURE_CONNECTABLE
-
-ble_error_t BLE::setTxPower(int8_t txPower) {
-    return gap().setTxPower(txPower);
-}
-
-void BLE::getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *countP) {
-    gap().getPermittedTxPowerValues(valueArrayPP, countP);
-}
-
-void BLE::onTimeout(Gap::TimeoutEventCallback_t timeoutCallback) {
-    gap().onTimeout(timeoutCallback);
-}
-
-#if BLE_FEATURE_CONNECTABLE
-void BLE::onDisconnection(Gap::DisconnectionEventCallback_t disconnectionCallback) {
-    gap().onDisconnection(disconnectionCallback);
-}
-#endif // BLE_FEATURE_CONNECTABLE
-
-void BLE::onRadioNotification(void (*callback)(bool)) {
-    gap().onRadioNotification(callback);
-}
-
-
-BLE_DEPRECATED_API_USE_END()
 
