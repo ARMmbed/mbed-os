@@ -43,75 +43,8 @@
  * @param number_of_ms
  */
 /*lint --e{438, 522} "Variable not used" "Function lacks side-effects" */
-#if defined ( __CC_ARM   )
 
-static __ASM void __INLINE nrf_delay_us(uint32_t volatile number_of_us)
-{
-loop
-        SUBS    R0, R0, #1
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-#ifdef NRF52
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-#endif
-        BNE    loop
-        BX     LR
-}
-
-#elif defined ( __ICCARM__ )
+#if defined ( __ICCARM__ )
 
 static void __INLINE nrf_delay_us(uint32_t volatile number_of_us)
 {

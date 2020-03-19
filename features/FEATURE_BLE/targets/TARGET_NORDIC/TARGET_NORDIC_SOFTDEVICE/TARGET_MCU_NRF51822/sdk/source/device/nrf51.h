@@ -109,10 +109,7 @@ typedef enum {
 
 
 /* -------------------  Start of section using anonymous unions  ------------------ */
-#if defined(__CC_ARM)
-  #pragma push
-  #pragma anon_unions
-#elif defined(__ICCARM__)
+#if defined(__ICCARM__)
   #pragma language=extended
 #elif defined(__GNUC__)
   /* anonymous unions are enabled by default */
@@ -1155,9 +1152,7 @@ typedef struct {                                    /*!< GPIO Structure         
 
 
 /* --------------------  End of section using anonymous unions  ------------------- */
-#if defined(__CC_ARM)
-  #pragma pop
-#elif defined(__ICCARM__)
+#if defined(__ICCARM__)
   /* leave anonymous unions enabled */
 #elif defined(__GNUC__)
   /* anonymous unions are enabled by default */

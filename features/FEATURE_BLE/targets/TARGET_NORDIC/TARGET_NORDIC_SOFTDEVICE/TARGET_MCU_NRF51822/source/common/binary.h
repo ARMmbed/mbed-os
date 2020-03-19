@@ -60,7 +60,7 @@
 /// test n-th bit of x
 #define BIT_TEST(x, n) ( (x) & BIT(n) )
 
-#if defined(__GNUC__) && !defined(__CC_ARM) // keil does not support binary format
+#if defined(__GNUC__) // keil does not support binary format
 
 #define BIN8(x)               ((uint8_t)  (0b##x))
 #define BIN16(b1, b2)         ((uint16_t) (0b##b1##b2))

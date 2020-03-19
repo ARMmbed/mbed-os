@@ -35,11 +35,7 @@
 #include "ble_hci.h"
 #include "app_error.h"
 
-#if defined ( __CC_ARM )
-    #ifndef __ALIGN
-        #define __ALIGN(x)      __align(x)                  /**< Forced aligment keyword for ARM Compiler */
-    #endif
-#elif defined ( __ICCARM__ )
+#if defined ( __ICCARM__ )
     #ifndef __ALIGN
         #define __ALIGN(x)                                  /**< Forced aligment keyword for IAR Compiler */
     #endif

@@ -39,10 +39,7 @@
 #include "app_error.h"
 
 
-#if defined(__CC_ARM)
-  #pragma push
-  #pragma anon_unions
-#elif defined(__ICCARM__)
+#if defined(__ICCARM__)
   #pragma language=extended
 #elif defined(__GNUC__)
   /* anonymous unions are enabled by default */
@@ -80,9 +77,7 @@ typedef struct
 } ble_conn_state_t;
 
 
-#if defined(__CC_ARM)
-  #pragma pop
-#elif defined(__ICCARM__)
+#if defined(__ICCARM__)
   /* leave anonymous unions enabled */
 #elif defined(__GNUC__)
   /* anonymous unions are enabled by default */
@@ -411,4 +406,3 @@ sdk_mapped_flags_t ble_conn_state_user_flag_collection(ble_conn_state_user_flag_
         return 0;
     }
 }
-
