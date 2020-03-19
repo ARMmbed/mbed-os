@@ -300,6 +300,49 @@ namespace mbed {
 #define     _IFCHR  0020000 //< character special
 #define     _IFIFO  0010000 //< fifo special
 
+#ifndef S_IFMT
+#define S_IFMT      _IFMT   //< type of file
+#endif
+#ifndef S_IFSOCK
+#define S_IFSOCK    _IFSOCK //< socket
+#endif
+#ifndef S_IFLNK
+#define S_IFLNK     _IFLNK  //< symbolic link
+#endif
+#ifndef S_IFREG
+#define S_IFREG     _IFREG  //< regular
+#endif
+#ifndef S_IFBLK
+#define S_IFBLK     _IFBLK  //< block special
+#endif
+#ifndef S_IFDIR
+#define S_IFDIR     _IFDIR  //< directory
+#endif
+#ifndef S_IFCHR
+#define S_IFCHR     _IFCHR  //< character special
+#endif
+#ifndef S_IFIFO
+#define S_IFIFO     _IFIFO  //< fifo special
+#endif
+
+#ifndef S_IRWXU
+#define S_IRWXU     (S_IRUSR | S_IWUSR | S_IXUSR)
+#define     S_IRUSR 0000400 ///< read permission, owner
+#define     S_IWUSR 0000200 ///< write permission, owner
+#define     S_IXUSR 0000100 ///< execute/search permission, owner
+#endif /* S_IRWXU */
+#ifndef S_IRWXG
+#define S_IRWXG     (S_IRGRP | S_IWGRP | S_IXGRP)
+#define     S_IRGRP 0000040 ///< read permission, group
+#define     S_IWGRP 0000020 ///< write permission, group
+#define     S_IXGRP 0000010 ///< execute/search permission, group
+#endif /* S_IRWXG */
+#ifndef S_IRWXO
+#define S_IRWXO     (S_IROTH | S_IWOTH | S_IXOTH)
+#define     S_IROTH 0000004 ///< read permission, other
+#define     S_IWOTH 0000002 ///< write permission, other
+#define     S_IXOTH 0000001 ///< execute/search permission, other
+#endif /* S_IRWXO */
 
 #define O_RDONLY 0        ///< Open for reading
 #define O_WRONLY 1        ///< Open for writing
@@ -319,6 +362,23 @@ namespace mbed {
 #define STDOUT_FILENO 1
 #define STDERR_FILENO 2
 
+#ifndef _STAT_VER
+struct stat {
+    dev_t     st_dev;     ///< Device ID containing file
+    ino_t     st_ino;     ///< File serial number
+    mode_t    st_mode;    ///< Mode of file
+    nlink_t   st_nlink;   ///< Number of links to file
+
+    uid_t     st_uid;     ///< User ID
+    gid_t     st_gid;     ///< Group ID
+
+    off_t     st_size;    ///< Size of file in bytes
+
+    time_t    st_atime;   ///< Time of last access
+    time_t    st_mtime;   ///< Time of last data modification
+    time_t    st_ctime;   ///< Time of last status change
+};
+#endif
 
 struct statvfs {
     unsigned long  f_bsize;    ///< Filesystem block size
