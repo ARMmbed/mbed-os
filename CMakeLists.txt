@@ -19,13 +19,14 @@ target_include_directories(mbed-os PUBLIC .)
 # TODO: @mbed-os-tools We need to get this gen_config somehow set up
 target_link_libraries(mbed-os PRIVATE gen_config)
 
-# Baremetal build with RTOS and events
+# Default build
 add_subdirectory(cmsis)
 add_subdirectory(drivers)
 add_subdirectory(events)
 add_subdirectory(hal)
 add_subdirectory(platform)
 add_subdirectory(targets)
+add_subdirectory(rtos)
 
 # Add additional modules
 get_property(modules GLOBAL PROPERTY MBED_OS_MODULES)
