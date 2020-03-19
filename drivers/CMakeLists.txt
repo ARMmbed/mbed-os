@@ -1,79 +1,81 @@
 # SPDX-License-Identifier: Apache-2.0
 
-target_sources(mbed-os PRIVATE internal/AsyncOp.h)
-target_sources(mbed-os PRIVATE internal/ByteBuffer.h)
-target_sources(mbed-os PRIVATE internal/EndpointResolver.h)
-target_sources(mbed-os PRIVATE internal/LinkedList.h)
-target_sources(mbed-os PRIVATE internal/LinkedListBase.h)
-target_sources(mbed-os PRIVATE internal/LinkEntry.h)
-target_sources(mbed-os PRIVATE internal/MIDIMessage.h)
-target_sources(mbed-os PRIVATE internal/OperationList.h)
-target_sources(mbed-os PRIVATE internal/OperationListBase.h)
-target_sources(mbed-os PRIVATE internal/PolledQueue.h)
-target_sources(mbed-os PRIVATE internal/SFDP.h)
-target_sources(mbed-os PRIVATE internal/Task.h)
-target_sources(mbed-os PRIVATE internal/TaskBase.h)
-target_sources(mbed-os PRIVATE internal/TaskQueue.h)
-target_sources(mbed-os PRIVATE internal/USBAudio_Types.h)
-target_sources(mbed-os PRIVATE internal/USBDescriptor.h)
-target_sources(mbed-os PRIVATE internal/USBDevice.h)
-target_sources(mbed-os PRIVATE internal/USBDevice_Types.h)
-target_sources(mbed-os PRIVATE internal/USBHID_Types.h)
+target_sources(mbed-os PRIVATE
+    internal/AsyncOp.h
+    internal/ByteBuffer.h
+    internal/EndpointResolver.h
+    internal/LinkedList.h
+    internal/LinkedListBase.h
+    internal/LinkEntry.h
+    internal/MIDIMessage.h
+    internal/OperationList.h
+    internal/OperationListBase.h
+    internal/PolledQueue.h
+    internal/SFDP.h
+    internal/Task.h
+    internal/TaskBase.h
+    internal/TaskQueue.h
+    internal/USBAudio_Types.h
+    internal/USBDescriptor.h
+    internal/USBDevice.h
+    internal/USBDevice_Types.h
+    internal/USBHID_Types.h
 
-target_sources(mbed-os PRIVATE source/AnalogIn.cpp)
-target_sources(mbed-os PRIVATE source/AnalogOut.cpp)
-target_sources(mbed-os PRIVATE source/BufferedSerial.cpp)
-target_sources(mbed-os PRIVATE source/BusIn.cpp)
-target_sources(mbed-os PRIVATE source/BusInOut.cpp)
-target_sources(mbed-os PRIVATE source/BusOut.cpp)
-target_sources(mbed-os PRIVATE source/CAN.cpp)
-target_sources(mbed-os PRIVATE source/DigitalIn.cpp)
-target_sources(mbed-os PRIVATE source/DigitalInOut.cpp)
-target_sources(mbed-os PRIVATE source/DigitalOut.cpp)
-target_sources(mbed-os PRIVATE source/FlashIAP.cpp)
-target_sources(mbed-os PRIVATE source/I2C.cpp)
-target_sources(mbed-os PRIVATE source/I2CSlave.cpp)
-target_sources(mbed-os PRIVATE source/InterruptIn.cpp)
-target_sources(mbed-os PRIVATE source/MbedCRC.cpp)
-target_sources(mbed-os PRIVATE source/PortIn.cpp)
-target_sources(mbed-os PRIVATE source/PortInOut.cpp)
-target_sources(mbed-os PRIVATE source/PortOut.cpp)
-target_sources(mbed-os PRIVATE source/PwmOut.cpp)
-target_sources(mbed-os PRIVATE source/QSPI.cpp)
-target_sources(mbed-os PRIVATE source/RawSerial.cpp)
-target_sources(mbed-os PRIVATE source/ResetReason.cpp)
-target_sources(mbed-os PRIVATE source/Serial.cpp)
-target_sources(mbed-os PRIVATE source/Serial.cpp)
-target_sources(mbed-os PRIVATE source/SerialWireOutput.cpp)
-target_sources(mbed-os PRIVATE source/SFDP.cpp)
-target_sources(mbed-os PRIVATE source/SPI.cpp)
-target_sources(mbed-os PRIVATE source/SPISlave.cpp)
-target_sources(mbed-os PRIVATE source/Timeout.cpp)
-target_sources(mbed-os PRIVATE source/Timer.cpp)
-target_sources(mbed-os PRIVATE source/TimerEvent.cpp)
-target_sources(mbed-os PRIVATE source/UARTSerial.cpp)
-target_sources(mbed-os PRIVATE source/UnbufferedSerial.cpp)
-target_sources(mbed-os PRIVATE source/Watchdog.cpp)
-target_sources(mbed-os PRIVATE source/Watchdog.cpp)
+    source/AnalogIn.cpp
+    source/AnalogOut.cpp
+    source/BufferedSerial.cpp
+    source/BusIn.cpp
+    source/BusInOut.cpp
+    source/BusOut.cpp
+    source/CAN.cpp
+    source/DigitalIn.cpp
+    source/DigitalInOut.cpp
+    source/DigitalOut.cpp
+    source/FlashIAP.cpp
+    source/I2C.cpp
+    source/I2CSlave.cpp
+    source/InterruptIn.cpp
+    source/MbedCRC.cpp
+    source/PortIn.cpp
+    source/PortInOut.cpp
+    source/PortOut.cpp
+    source/PwmOut.cpp
+    source/QSPI.cpp
+    source/RawSerial.cpp
+    source/ResetReason.cpp
+    source/Serial.cpp
+    source/Serial.cpp
+    source/SerialWireOutput.cpp
+    source/SFDP.cpp
+    source/SPI.cpp
+    source/SPISlave.cpp
+    source/Timeout.cpp
+    source/Timer.cpp
+    source/TimerEvent.cpp
+    source/UARTSerial.cpp
+    source/UnbufferedSerial.cpp
+    source/Watchdog.cpp
+    source/Watchdog.cpp
 
-#target_sources(mbed-os PRIVATE source/usb/AsyncOp.cpp)
-#target_sources(mbed-os PRIVATE source/usb/ByteBuffer.cpp)
-#target_sources(mbed-os PRIVATE source/usb/EndpointResolver.cpp)
-#target_sources(mbed-os PRIVATE source/usb/LinkedListBase.cpp)
-#target_sources(mbed-os PRIVATE source/usb/OperationListBase.cpp)
-#target_sources(mbed-os PRIVATE source/usb/PolledQueue.cpp)
-#target_sources(mbed-os PRIVATE source/usb/TaskBase.cpp)
-#target_sources(mbed-os PRIVATE source/usb/USBAudio.cpp)
-#target_sources(mbed-os PRIVATE source/usb/USBCDC.cpp)
-#target_sources(mbed-os PRIVATE source/usb/USBCDC_ECM.cpp)
-#target_sources(mbed-os PRIVATE source/usb/USBDevice.cpp)
-#target_sources(mbed-os PRIVATE source/usb/USBHID.cpp)
-#target_sources(mbed-os PRIVATE source/usb/USBKeyboard.cpp)
-#target_sources(mbed-os PRIVATE source/usb/USBMIDI.cpp)
-#target_sources(mbed-os PRIVATE source/usb/USBMouse.cpp)
-#target_sources(mbed-os PRIVATE source/usb/USBMouseKeyboard.cpp)
-#target_sources(mbed-os PRIVATE source/usb/USBMSD.cpp)
-#target_sources(mbed-os PRIVATE source/usb/USBSerial.cpp)
+    #source/usb/AsyncOp.cpp
+    #source/usb/ByteBuffer.cpp
+    #source/usb/EndpointResolver.cpp
+    #source/usb/LinkedListBase.cpp
+    #source/usb/OperationListBase.cpp
+    #source/usb/PolledQueue.cpp
+    #source/usb/TaskBase.cpp
+    #source/usb/USBAudio.cpp
+    #source/usb/USBCDC.cpp
+    #source/usb/USBCDC_ECM.cpp
+    #source/usb/USBDevice.cpp
+    #source/usb/USBHID.cpp
+    #source/usb/USBKeyboard.cpp
+    #source/usb/USBMIDI.cpp
+    #source/usb/USBMouse.cpp
+    #source/usb/USBMouseKeyboard.cpp
+    #source/usb/USBMSD.cpp
+    #source/usb/USBSerial.cpp
+)
 
 target_include_directories(mbed-os PUBLIC .)
 target_include_directories(mbed-os PUBLIC internal)
