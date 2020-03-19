@@ -8,8 +8,6 @@ set(CMAKE_C_COMPILER      "arm-none-eabi-gcc")
 set(CMAKE_CXX_COMPILER    "arm-none-eabi-g++")
 set(ELF2BIN               "arm-none-eabi-objcopy")
 
-set(MBED_OS_TOOLCHAIN "GCC ARM" CACHE INTERNAL "")
-
 set(LD_SYS_LIBS "-Wl,--start-group -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys  -Wl,--end-group")
 
 # TODO: @mbed-os-tools get flags from config, target and profile
