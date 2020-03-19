@@ -32,6 +32,7 @@ public:
     typedef mbed::Callback<void (uint8_t up, int8_t device_id)> link_state_cb_t;
     virtual void set_link_state_changed_callback(link_state_cb_t link_state_cb);
 
+    char *get_interface_name(char *buf);
 private:
     friend class Nanostack;
     PPPInterface(NanostackPhy &phy) : Interface(phy), link_state_up(false), enet_tasklet_connected(false) {}
