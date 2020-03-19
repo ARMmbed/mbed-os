@@ -23,7 +23,6 @@
 #include "mbed_error.h"
 #include "MbedCRC.h"
 #include "mbed_trace.h"
-#include "TDBStore.h"
 #include "kv_config.h"
 #define TRACE_GROUP "DADK"
 
