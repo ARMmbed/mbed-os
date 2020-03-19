@@ -14093,8 +14093,11 @@
         ],
         "forced_reset_timeout": 5,
         "hex_filename": "psoc64_02_cm0_secure.hex",
+        "cm0_img_id": 1,
+        "cm4_img_id": 16,
+        "policy_file": "policy_multi_CM0_CM4.json",
         "post_binary_hook": {
-            "function": "PSOC6Code.sign_es_image"
+            "function": "PSOC6Code.sign_es100_image"
         },
         "overrides": {
             "network-default-interface-type": "WIFI"

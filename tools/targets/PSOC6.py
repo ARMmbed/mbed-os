@@ -25,7 +25,6 @@ import json
 from intelhex import IntelHex, hex2bin, bin2hex
 
 from ..config import ConfigException
-from ..settings import ROOT
 
 # The size of the program data in Cypress HEX files is limited to 0x80000000
 # Higher addresses contain additional metadata (chip protection, eFuse data, etc..)
@@ -487,7 +486,7 @@ def sign_image(toolchain, binf):
                 toolchain.notify.info("Image UPGRADE: " + out_hex_name + "\n")
 
 
-def sign_es_image(toolchain, elf, binf, m0hex):
+def sign_es100_image(toolchain, resourses, elf, binf, m0hex):
     """
     Adds signature to a binary file being built,
     using cysecuretools python package.
@@ -518,20 +517,20 @@ def sign_es_image(toolchain, elf, binf, m0hex):
 
     from pathlib import Path, PurePath
 
-    mbed_os_root = Path(ROOT)
+    mbed_os_root = Path(os.getcwd())
 
-    # Use custom policy file defined in users mbed_app.json or use default
-    # policy if no custom policy exists
-    try:
-        policy_path = Path(str(toolchain.config.get_config_data()[0]["app.policy_file"].value))
-        if policy_path.is_absolute():
+    policy_path = Path(toolchain.target.policy_file)
+    if policy_path.is_absolute():
+        policy_file = policy_path
+    else:
+        policy_path = mbed_os_root / policy_path
+
+        if os.path.isfile(str(policy_path)):
             policy_file = policy_path
         else:
-            policy_file = mbed_os_root / policy_path
-        toolchain.notify.debug("[PSOC6.sign_image] Using custom policy file at: " + str(policy_file))
-    except KeyError as e:
-        policy_file = mbed_os_root / Path("targets/TARGET_Cypress/TARGET_PSOC6/TARGET_" + toolchain.target.name + "/policy_multi_CM0_CM4.json")
-        toolchain.notify.debug("[PSOC6.sign_image] Using default policy file at: " + str(policy_file))
+            policy_file = Path(find_policy(toolchain, resourses))
+        
+    toolchain.notify.info("[PSOC6.sign_image] Using policy file: " + str(policy_file))
 
     # Append cysecuretools path to sys.path and import cysecuretools. This will
     # prioritize system installations of cysecuretools over the included
@@ -541,10 +540,52 @@ def sign_es_image(toolchain, elf, binf, m0hex):
     import cysecuretools
 
     tools = cysecuretools.CySecureTools(secure_target, str(policy_file))
-    tools.sign_image(m0hex, image_id=1)
-    tools.sign_image(binf, image_id=16)
+
+    sign_application(toolchain, tools, m0hex, image_id=toolchain.target.cm0_img_id)
+    sign_application(toolchain, tools, binf, image_id=toolchain.target.cm4_img_id)
 
     complete(toolchain, elf, hexf0=binf, hexf1=m0hex)
+
+
+def sign_application(toolchain, tools, binary, image_id):
+    """
+    Helper function for adding signature to binary
+    :param tools: CySecureTools object
+    :param binary: Path to binary file to add signature
+    :param image_id: ID of image slot in which binary will be flashed
+    """
+    
+    # Get address and size of image slot from policy for passed image_id
+    # UPGRADE image will be generated automatically by cysecuretools
+    address, size = tools.flash_map(image_id=image_id, image_type="BOOT")
+
+    tools.sign_image(binary, image_id)
+    toolchain.notify.debug("[PSOC6.sign_image] Slot start address and size for image ID " \
+                                + str(image_id) + " is " + hex(address) + ", " + hex(size))
+
+
+def find_policy(toolchain, resources):
+    """
+    Locate path to policy file, defined in targets.json
+    :param toolchain: toolchain object from mbed build system
+    :param resources: resources object from mbed build system
+    """
+    policy_filename = toolchain.target.policy_file
+
+    if policy_filename is None:
+        return None
+    # Locate user-specified image
+    from tools.resources import FileType
+    json_files = resources.get_file_paths(FileType.JSON)
+    policy = next((f for f in json_files if os.path.basename(f) == policy_filename), None)
+
+    if policy:
+        toolchain.notify.info("Policy file found: %s." % policy)
+    else:
+        toolchain.notify.info("Policy file %s not found. Aborting." % policy_filename)
+        raise ConfigException("Required policy file not found.")
+
+    return policy
 
 
 def complete(toolchain, elf0, hexf0, hexf1=None):
