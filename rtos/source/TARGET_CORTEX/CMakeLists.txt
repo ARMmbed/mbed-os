@@ -1,12 +1,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
-target_sources(mbed-os PRIVATE mbed_boot.c)
-target_sources(mbed-os PRIVATE mbed_boot.h)
-target_sources(mbed-os PRIVATE mbed_rtos_rtx.c)
-target_sources(mbed-os PRIVATE mbed_rtx_conf.h)
-target_sources(mbed-os PRIVATE mbed_rtx_handlers.c)
-target_sources(mbed-os PRIVATE mbed_rtx_idle.cpp)
-target_sources(mbed-os PRIVATE mbed_rtx_storage.h)
+target_sources(mbed-os PRIVATE
+    mbed_boot.c
+    mbed_boot.h
+    mbed_rtos_rtx.c
+    mbed_rtx_conf.h
+    mbed_rtx_handlers.c
+    mbed_rtx_idle.cpp
+    mbed_rtx_storage.h
+)
 
 add_subdirectory(rtx5)
 
