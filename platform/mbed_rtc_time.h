@@ -33,7 +33,7 @@ extern "C" {
  */
 
 /* Timeval definition for non GCC_ARM toolchains */
-#if !defined(__GNUC__) || defined(__CC_ARM) || defined(__clang__)
+#if !defined(__GNUC__) || defined(__clang__)
 struct timeval {
     time_t tv_sec;
     int32_t tv_usec;

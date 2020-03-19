@@ -97,7 +97,7 @@ asm(" .global __use_full_stdio\n");
 
 using namespace mbed;
 
-#if defined(__MICROLIB) && (__ARMCC_VERSION>5030000)
+#if defined(__MICROLIB)
 // Before version 5.03, we were using a patched version of microlib with proper names
 extern const char __stdin_name[]  = ":tt";
 extern const char __stdout_name[] = ":tt";
@@ -560,7 +560,7 @@ std::FILE *fdopen(FileHandle *fh, const char *mode)
  * */
 extern "C" FILEHANDLE PREFIX(_open)(const char *name, int openflags)
 {
-#if defined(__MICROLIB) && (__ARMCC_VERSION>5030000)
+#if defined(__MICROLIB)
     // Before version 5.03, we were using a patched version of microlib with proper names
     // This is the workaround that the microlib author suggested us
     static int n = 0;
@@ -1635,8 +1635,6 @@ extern "C" WEAK void *__aeabi_read_tp(void)
     return __section_begin("__iar_tls$$DATA");
 }
 #endif
-#elif defined(__CC_ARM)
-// Do nothing
 #elif defined (__GNUC__)
 struct _reent;
 // Stub out locks when an rtos is not present

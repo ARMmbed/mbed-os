@@ -196,8 +196,8 @@ struct SingletonPtr {
     }
 
     mutable T *_ptr;
-#if __cplusplus >= 201103L && !defined __CC_ARM
-    // Align data appropriately (ARM Compiler 5 does not support alignas in C++11 mode)
+#if __cplusplus >= 201103L
+    // Align data appropriately
     alignas(T) mutable char _data[sizeof(T)];
 #else
     // Force data to be 8 byte aligned

@@ -22,7 +22,6 @@
 
 // Warning for unsupported compilers
 #if !defined(__GNUC__)   /* GCC        */ \
- && !defined(__CC_ARM)   /* ARMCC      */ \
  && !defined(__clang__)  /* LLVM/Clang */ \
  && !defined(__ICCARM__) /* IAR        */
 #warning "This compiler is not yet supported."
@@ -71,9 +70,9 @@
  *  @endcode
  */
 #ifndef MBED_ALIGN
-#if __cplusplus >= 201103 && !defined __CC_ARM
+#if __cplusplus >= 201103
 #define MBED_ALIGN(N) alignas(N)
-#elif __STDC_VERSION__ >= 201112 && !defined __CC_ARM
+#elif __STDC_VERSION__ >= 201112
 #define MBED_ALIGN(N) _Alignas(N)
 #elif defined(__ICCARM__)
 #define MBED_ALIGN(N) _Pragma(MBED_STRINGIFY(data_alignment=N))
@@ -94,7 +93,7 @@
  *  @endcode
  */
 #ifndef MBED_UNUSED
-#if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
+#if defined(__GNUC__) || defined(__clang__)
 #define MBED_UNUSED __attribute__((__unused__))
 #else
 #define MBED_UNUSED
@@ -112,7 +111,7 @@
  *  @endcode
  */
 #ifndef MBED_USED
-#if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
+#if defined(__GNUC__) || defined(__clang__)
 #define MBED_USED __attribute__((used))
 #elif defined(__ICCARM__)
 #define MBED_USED __root
@@ -187,9 +186,7 @@
  *      MBED_COMPILER_BARRIER();
  *  }
  */
-#ifdef __CC_ARM
-#define MBED_COMPILER_BARRIER() __memory_changed()
-#elif defined(__GNUC__) || defined(__clang__) || defined(__ICCARM__)
+#if defined(__GNUC__) || defined(__clang__) || defined(__ICCARM__)
 #define MBED_COMPILER_BARRIER() asm volatile("" : : : "memory")
 #else
 #error "Missing MBED_COMPILER_BARRIER implementation"
@@ -238,7 +235,7 @@
  *  @endcode
  */
 #ifndef MBED_PURE
-#if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
+#if defined(__GNUC__) || defined(__clang__)
 #define MBED_PURE __attribute__((const))
 #else
 #define MBED_PURE
@@ -257,7 +254,7 @@
  *  @endcode
  */
 #ifndef MBED_NOINLINE
-#if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
+#if defined(__GNUC__) || defined(__clang__)
 #define MBED_NOINLINE __attribute__((noinline))
 #elif defined(__ICCARM__)
 #define MBED_NOINLINE _Pragma("inline=never")
@@ -279,7 +276,7 @@
  *  @endcode
  */
 #ifndef MBED_FORCEINLINE
-#if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
+#if defined(__GNUC__) || defined(__clang__)
 #define MBED_FORCEINLINE inline __attribute__((always_inline))
 #elif defined(__ICCARM__)
 #define MBED_FORCEINLINE _Pragma("inline=forced")
@@ -305,7 +302,7 @@
 #define MBED_NORETURN [[noreturn]]
 #elif __STDC_VERSION__ >= 201112
 #define MBED_NORETURN _Noreturn
-#elif defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
+#elif defined(__GNUC__) || defined(__clang__)
 #define MBED_NORETURN __attribute__((noreturn))
 #elif defined(__ICCARM__)
 #define MBED_NORETURN __noreturn
@@ -333,7 +330,7 @@
  *  @endcode
  */
 #ifndef MBED_UNREACHABLE
-#if (defined(__GNUC__) || defined(__clang__)) && !defined(__CC_ARM)
+#if (defined(__GNUC__) || defined(__clang__))
 #define MBED_UNREACHABLE __builtin_unreachable()
 #else
 #define MBED_UNREACHABLE while (1)
@@ -371,7 +368,7 @@
 #else
 #define MBED_FALLTHROUGH
 #endif
-#elif defined (__GNUC__) && !defined(__CC_ARM)
+#elif defined (__GNUC__)
 #define MBED_FALLTHROUGH __attribute__((fallthrough))
 #else
 #define MBED_FALLTHROUGH
@@ -391,9 +388,7 @@
  *  @endcode
  */
 #ifndef MBED_DEPRECATED
-#if defined(__CC_ARM)
-#define MBED_DEPRECATED(M) __attribute__((deprecated))
-#elif defined(__GNUC__) || defined(__clang__)
+#if defined(__GNUC__) || defined(__clang__)
 #define MBED_DEPRECATED(M) __attribute__((deprecated(M)))
 #else
 #define MBED_DEPRECATED(M)
@@ -430,17 +425,15 @@
  * @return Address of the calling function
  */
 #ifndef MBED_CALLER_ADDR
-#if (defined(__GNUC__) || defined(__clang__)) && !defined(__CC_ARM)
+#if (defined(__GNUC__) || defined(__clang__))
 #define MBED_CALLER_ADDR() __builtin_extract_return_addr(__builtin_return_address(0))
-#elif defined(__CC_ARM)
-#define MBED_CALLER_ADDR() __builtin_return_address(0)
 #else
 #define MBED_CALLER_ADDR() (NULL)
 #endif
 #endif
 
 #ifndef MBED_SECTION
-#if (defined(__GNUC__) || defined(__clang__)) || defined(__CC_ARM)
+#if (defined(__GNUC__) || defined(__clang__))
 #define MBED_SECTION(name) __attribute__ ((section (name)))
 #elif defined(__ICCARM__)
 #define MBED_SECTION(name) _Pragma(MBED_STRINGIFY(location=name))
@@ -464,7 +457,7 @@
 #endif
 
 #ifndef MBED_PRINTF
-#if defined(__GNUC__) || defined(__CC_ARM)
+#if defined(__GNUC__)
 #define MBED_PRINTF(format_idx, first_param_idx) __attribute__ ((__format__(__printf__, format_idx, first_param_idx)))
 #else
 #define MBED_PRINTF(format_idx, first_param_idx)
@@ -472,7 +465,7 @@
 #endif
 
 #ifndef MBED_PRINTF_METHOD
-#if defined(__GNUC__) || defined(__CC_ARM)
+#if defined(__GNUC__)
 #define MBED_PRINTF_METHOD(format_idx, first_param_idx) __attribute__ ((__format__(__printf__, format_idx+1, first_param_idx == 0 ? 0 : first_param_idx+1)))
 #else
 #define MBED_PRINTF_METHOD(format_idx, first_param_idx)
@@ -480,7 +473,7 @@
 #endif
 
 #ifndef MBED_SCANF
-#if defined(__GNUC__) || defined(__CC_ARM)
+#if defined(__GNUC__)
 #define MBED_SCANF(format_idx, first_param_idx) __attribute__ ((__format__(__scanf__, format_idx, first_param_idx)))
 #else
 #define MBED_SCANF(format_idx, first_param_idx)
@@ -488,7 +481,7 @@
 #endif
 
 #ifndef MBED_SCANF_METHOD
-#if defined(__GNUC__) || defined(__CC_ARM)
+#if defined(__GNUC__)
 #define MBED_SCANF_METHOD(format_idx, first_param_idx) __attribute__ ((__format__(__scanf__, format_idx+1, first_param_idx == 0 ? 0 : first_param_idx+1)))
 #else
 #define MBED_SCANF_METHOD(format_idx, first_param_idx)
@@ -498,9 +491,7 @@
 // Macro containing the filename part of the value of __FILE__. Defined as
 // string literal.
 #ifndef MBED_FILENAME
-#if defined(__CC_ARM)
-#define MBED_FILENAME __MODULE__
-#elif defined(__GNUC__)
+#if defined(__GNUC__)
 #define MBED_FILENAME (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __builtin_strrchr(__FILE__, '\\') ? __builtin_strrchr(__FILE__, '\\') + 1 : __FILE__)
 #elif defined(__ICCARM__)
 #define MBED_FILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)

@@ -101,7 +101,7 @@ do {                                                     \
 #elif defined(__cplusplus) && defined(__GNUC__) && defined(__GXX_EXPERIMENTAL_CXX0X__) \
     && (__GNUC__*100 + __GNUC_MINOR__) > 403L
 #define MBED_STATIC_ASSERT(expr, msg) __extension__ static_assert(expr, msg)
-#elif !defined(__cplusplus) && defined(__GNUC__) && !defined(__CC_ARM) \
+#elif !defined(__cplusplus) && defined(__GNUC__) \
     && (__GNUC__*100 + __GNUC_MINOR__) > 406L
 #define MBED_STATIC_ASSERT(expr, msg) __extension__ _Static_assert(expr, msg)
 #elif defined(__ICCARM__)

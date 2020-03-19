@@ -26,7 +26,7 @@ extern "C" {
 
 #if DEVICE_SEMIHOST
 
-#if !defined(__CC_ARM) && !defined(__ARMCC_VERSION)
+#if !defined(__ARMCC_VERSION)
 
 #if defined(__ICCARM__)
 static inline int __semihost(int reason, const void *arg)
