@@ -46,6 +46,11 @@ using namespace events;
 #define MBED_CONF_QUECTEL_EC2X_POLARITY    1 // active high
 #endif
 
+#if !defined(MBED_CONF_QUECTEL_EC2X_START_TIMEOUT)
+#define MBED_CONF_QUECTEL_EC2X_START_TIMEOUT    15000
+#endif
+
+
 static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     AT_CellularNetwork::RegistrationModeLAC,    // C_EREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
@@ -128,7 +133,7 @@ nsapi_error_t QUECTEL_EC2X::soft_power_on()
 
         _at.lock();
 
-        _at.set_at_timeout(5000);
+        _at.set_at_timeout(MBED_CONF_QUECTEL_EC2X_START_TIMEOUT);
         _at.resp_start();
         _at.set_stop_tag("RDY");
         bool rdy = _at.consume_to_stop_tag();

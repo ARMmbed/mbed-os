@@ -33,6 +33,10 @@
             "help": "Serial connection baud rate",
             "value": 115200
         },
+        "start-timeout": {
+            "help": "How long to wait for modem to start after reset (milliseconds)",
+            "value": 15000
+        },
         "provide-default": {
             "help": "Provide as default CellularDevice [true/false]",
             "value": false
