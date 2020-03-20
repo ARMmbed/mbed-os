@@ -22,7 +22,9 @@ from os import getcwd, getenv
 from distutils.spawn import find_executable
 from distutils.version import LooseVersion
 
-from tools.toolchains.mbed_toolchain import mbedToolchain, TOOLCHAIN_PATHS
+from tools.toolchains.mbed_toolchain import (
+    mbedToolchain, TOOLCHAIN_PATHS, should_replace_small_c_lib
+)
 from tools.utils import run_cmd
 
 
@@ -54,7 +56,12 @@ class GCC(mbedToolchain):
         # Add flags for current size setting
         c_lib = "std"
         if hasattr(target, "c_lib"):
-            self.check_c_lib_supported(target, "gcc_arm")
+            toolchain = "gcc_arm"
+
+            if should_replace_small_c_lib(target, toolchain):
+                target.c_lib = "std"
+
+            self.check_c_lib_supported(target, toolchain)
             c_lib = target.c_lib
         elif hasattr(target, "default_build"):
             c_lib = target.default_build

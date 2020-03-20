@@ -1393,3 +1393,28 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
         to_ret['linker'] = {'flags': copy(self.flags['ld'])}
         to_ret.update(self.config.report)
         return to_ret
+
+def should_replace_small_c_lib(target, toolchain):
+    """
+    Check if the small C lib should be replaced with the standard C lib.
+    Return True if the replacement occurs otherwise return False.
+    """
+    return (
+        not is_library_supported("small", target, toolchain)
+        and is_library_supported("std", target, toolchain)
+        and target.c_lib == "small"
+    )
+
+
+def is_library_supported(lib_type, target, toolchain):
+    """
+    Check if a library type is supported by a toolchain for a given target.
+
+    Return True if the library type is supported, False if not supported or
+    the target does not have an supported_c_libs attribute.
+    """
+    return (
+        hasattr(target, "supported_c_libs")
+        and toolchain.lower() in target.supported_c_libs
+        and lib_type in target.supported_c_libs[toolchain.lower()]
+    )
