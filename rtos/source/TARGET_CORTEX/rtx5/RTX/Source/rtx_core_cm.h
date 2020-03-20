@@ -192,67 +192,7 @@ __STATIC_INLINE void SetPendSV (void) {
 
 //lint -save -e9023 -e9024 -e9026 "Function-like macros using '#/##'" [MISRA Note 10]
 
-#if defined(__CC_ARM)
-
-#if   ((defined(__ARM_ARCH_7M__)      && (__ARM_ARCH_7M__      != 0)) ||       \
-       (defined(__ARM_ARCH_7EM__)     && (__ARM_ARCH_7EM__     != 0)) ||       \
-       (defined(__ARM_ARCH_8M_MAIN__) && (__ARM_ARCH_8M_MAIN__ != 0)))
-#define __SVC_INDIRECT(n) __svc_indirect(n)
-#elif ((defined(__ARM_ARCH_6M__)      && (__ARM_ARCH_6M__      != 0)) ||       \
-       (defined(__ARM_ARCH_8M_BASE__) && (__ARM_ARCH_8M_BASE__ != 0)))
-#define __SVC_INDIRECT(n) __svc_indirect_r7(n)
-#endif
-
-#define SVC0_0N(f,t)                                                           \
-__SVC_INDIRECT(0) t    svc##f (t(*)());                                        \
-__attribute__((always_inline))                                                 \
-__STATIC_INLINE   t  __svc##f (void) {                                         \
-  svc##f(svcRtx##f);                                                           \
-}
-
-#define SVC0_0(f,t)                                                            \
-__SVC_INDIRECT(0) t    svc##f (t(*)());                                        \
-__attribute__((always_inline))                                                 \
-__STATIC_INLINE   t  __svc##f (void) {                                         \
-  return svc##f(svcRtx##f);                                                    \
-}
-
-#define SVC0_1N(f,t,t1)                                                        \
-__SVC_INDIRECT(0) t    svc##f (t(*)(t1),t1);                                   \
-__attribute__((always_inline))                                                 \
-__STATIC_INLINE   t  __svc##f (t1 a1) {                                        \
-  svc##f(svcRtx##f,a1);                                                        \
-}
-
-#define SVC0_1(f,t,t1)                                                         \
-__SVC_INDIRECT(0) t    svc##f (t(*)(t1),t1);                                   \
-__attribute__((always_inline))                                                 \
-__STATIC_INLINE   t  __svc##f (t1 a1) {                                        \
-  return svc##f(svcRtx##f,a1);                                                 \
-}
-
-#define SVC0_2(f,t,t1,t2)                                                      \
-__SVC_INDIRECT(0) t    svc##f (t(*)(t1,t2),t1,t2);                             \
-__attribute__((always_inline))                                                 \
-__STATIC_INLINE   t  __svc##f (t1 a1, t2 a2) {                                 \
-  return svc##f(svcRtx##f,a1,a2);                                              \
-}
-
-#define SVC0_3(f,t,t1,t2,t3)                                                   \
-__SVC_INDIRECT(0) t    svc##f (t(*)(t1,t2,t3),t1,t2,t3);                       \
-__attribute__((always_inline))                                                 \
-__STATIC_INLINE   t  __svc##f (t1 a1, t2 a2, t3 a3) {                          \
-  return svc##f(svcRtx##f,a1,a2,a3);                                           \
-}
-
-#define SVC0_4(f,t,t1,t2,t3,t4)                                                \
-__SVC_INDIRECT(0) t    svc##f (t(*)(t1,t2,t3,t4),t1,t2,t3,t4);                 \
-__attribute__((always_inline))                                                 \
-__STATIC_INLINE   t  __svc##f (t1 a1, t2 a2, t3 a3, t4 a4) {                   \
-  return svc##f(svcRtx##f,a1,a2,a3,a4);                                        \
-}
-
-#elif defined(__ICCARM__)
+#if defined(__ICCARM__)
 
 #if   ((defined(__ARM_ARCH_7M__)      && (__ARM_ARCH_7M__      != 0)) ||       \
        (defined(__ARM_ARCH_7EM__)     && (__ARM_ARCH_7EM__     != 0)) ||       \
@@ -330,7 +270,7 @@ __STATIC_INLINE   t  __svc##f (t1 a1, t2 a2, t3 a3, t4 a4) {                   \
   return svc##f(a1,a2,a3,a4);                                                  \
 }
 
-#else   // !(defined(__CC_ARM) || defined(__ICCARM__))
+#else   // defined(__ICCARM__))
 
 //lint -esym(522,__svc*) "Functions '__svc*' are impure (side-effects)"
 
@@ -449,18 +389,6 @@ __STATIC_INLINE t __svc##f (t1 a1, t2 a2, t3 a3, t4 a4) {                      \
 /// \param[in]  mem             Memory address
 /// \param[in]  val             Value to write
 /// \return                     Previous value
-#if defined(__CC_ARM)
-static __asm    uint8_t atomic_wr8 (uint8_t *mem, uint8_t val) {
-  mov    r2,r0
-1
-  ldrexb r0,[r2]
-  strexb r3,r1,[r2]
-  cbz    r3,%F2
-  b      %B1
-2
-  bx     lr
-}
-#else
 __STATIC_INLINE uint8_t atomic_wr8 (uint8_t *mem, uint8_t val) {
 #ifdef  __ICCARM__
 #pragma diag_suppress=Pe550
@@ -490,25 +418,11 @@ __STATIC_INLINE uint8_t atomic_wr8 (uint8_t *mem, uint8_t val) {
 
   return ret;
 }
-#endif
 
 /// Atomic Access Operation: Set bits (32-bit)
 /// \param[in]  mem             Memory address
 /// \param[in]  bits            Bit mask
 /// \return                     New value
-#if defined(__CC_ARM)
-static __asm    uint32_t atomic_set32 (uint32_t *mem, uint32_t bits) {
-  mov   r2,r0
-1
-  ldrex r0,[r2]
-  orr   r0,r0,r1
-  strex r3,r0,[r2]
-  cbz   r3,%F2
-  b     %B1
-2
-  bx     lr
-}
-#else
 __STATIC_INLINE uint32_t atomic_set32 (uint32_t *mem, uint32_t bits) {
 #ifdef  __ICCARM__
 #pragma diag_suppress=Pe550
@@ -549,26 +463,11 @@ __STATIC_INLINE uint32_t atomic_set32 (uint32_t *mem, uint32_t bits) {
 
   return ret;
 }
-#endif
 
 /// Atomic Access Operation: Clear bits (32-bit)
 /// \param[in]  mem             Memory address
 /// \param[in]  bits            Bit mask
 /// \return                     Previous value
-#if defined(__CC_ARM)
-static __asm    uint32_t atomic_clr32 (uint32_t *mem, uint32_t bits) {
-  push  {r4,lr}
-  mov   r2,r0
-1
-  ldrex r0,[r2]
-  bic   r4,r0,r1
-  strex r3,r4,[r2]
-  cbz   r3,%F2
-  b     %B1
-2
-  pop   {r4,pc}
-}
-#else
 __STATIC_INLINE uint32_t atomic_clr32 (uint32_t *mem, uint32_t bits) {
 #ifdef  __ICCARM__
 #pragma diag_suppress=Pe550
@@ -609,33 +508,11 @@ __STATIC_INLINE uint32_t atomic_clr32 (uint32_t *mem, uint32_t bits) {
 
   return ret;
 }
-#endif
 
 /// Atomic Access Operation: Check if all specified bits (32-bit) are active and clear them
 /// \param[in]  mem             Memory address
 /// \param[in]  bits            Bit mask
 /// \return                     Active bits before clearing or 0 if not active
-#if defined(__CC_ARM)
-static __asm    uint32_t atomic_chk32_all (uint32_t *mem, uint32_t bits) {
-  push  {r4,lr}
-  mov   r2,r0
-1
-  ldrex r0,[r2]
-  and   r4,r0,r1
-  cmp   r4,r1
-  beq   %F2
-  clrex
-  movs  r0,#0
-  pop   {r4,pc}
-2
-  bic   r4,r0,r1
-  strex r3,r4,[r2]
-  cbz   r3,%F3
-  b     %B1
-3
-  pop   {r4,pc}
-}
-#else
 __STATIC_INLINE uint32_t atomic_chk32_all (uint32_t *mem, uint32_t bits) {
 #ifdef  __ICCARM__
 #pragma diag_suppress=Pe550
@@ -684,32 +561,11 @@ __STATIC_INLINE uint32_t atomic_chk32_all (uint32_t *mem, uint32_t bits) {
 
   return ret;
 }
-#endif
 
 /// Atomic Access Operation: Check if any specified bits (32-bit) are active and clear them
 /// \param[in]  mem             Memory address
 /// \param[in]  bits            Bit mask
 /// \return                     Active bits before clearing or 0 if not active
-#if defined(__CC_ARM)
-static __asm    uint32_t atomic_chk32_any (uint32_t *mem, uint32_t bits) {
-  push  {r4,lr}
-  mov   r2,r0
-1
-  ldrex r0,[r2]
-  tst   r0,r1
-  bne   %F2
-  clrex
-  movs  r0,#0
-  pop   {r4,pc}
-2
-  bic   r4,r0,r1
-  strex r3,r4,[r2]
-  cbz   r3,%F3
-  b     %B1
-3
-  pop   {r4,pc}
-}
-#else
 __STATIC_INLINE uint32_t atomic_chk32_any (uint32_t *mem, uint32_t bits) {
 #ifdef  __ICCARM__
 #pragma diag_suppress=Pe550
@@ -752,24 +608,10 @@ __STATIC_INLINE uint32_t atomic_chk32_any (uint32_t *mem, uint32_t bits) {
 
   return ret;
 }
-#endif
 
 /// Atomic Access Operation: Increment (32-bit)
 /// \param[in]  mem             Memory address
 /// \return                     Previous value
-#if defined(__CC_ARM)
-static __asm    uint32_t atomic_inc32 (uint32_t *mem) {
-  mov   r2,r0
-1
-  ldrex r0,[r2]
-  adds  r1,r0,#1
-  strex r3,r1,[r2]
-  cbz   r3,%F2
-  b     %B1
-2
-  bx     lr
-}
-#else
 __STATIC_INLINE uint32_t atomic_inc32 (uint32_t *mem) {
 #ifdef  __ICCARM__
 #pragma diag_suppress=Pe550
@@ -800,31 +642,11 @@ __STATIC_INLINE uint32_t atomic_inc32 (uint32_t *mem) {
 
   return ret;
 }
-#endif
 
 /// Atomic Access Operation: Increment (16-bit) if Less Than
 /// \param[in]  mem             Memory address
 /// \param[in]  max             Maximum value
 /// \return                     Previous value
-#if defined(__CC_ARM)
-static __asm    uint16_t atomic_inc16_lt (uint16_t *mem, uint16_t max) {
-  push   {r4,lr}
-  mov    r2,r0
-1
-  ldrexh r0,[r2]
-  cmp    r1,r0
-  bhi    %F2
-  clrex
-  pop    {r4,pc}
-2
-  adds   r4,r0,#1
-  strexh r3,r4,[r2]
-  cbz    r3,%F3
-  b      %B1
-3
-  pop    {r4,pc}
-}
-#else
 __STATIC_INLINE uint16_t atomic_inc16_lt (uint16_t *mem, uint16_t max) {
 #ifdef  __ICCARM__
 #pragma diag_suppress=Pe550
@@ -861,30 +683,11 @@ __STATIC_INLINE uint16_t atomic_inc16_lt (uint16_t *mem, uint16_t max) {
 
   return ret;
 }
-#endif
 
 /// Atomic Access Operation: Increment (16-bit) and clear on Limit
 /// \param[in]  mem             Memory address
 /// \param[in]  max             Maximum value
 /// \return                     Previous value
-#if defined(__CC_ARM)
-static __asm    uint16_t atomic_inc16_lim (uint16_t *mem, uint16_t lim) {
-  push   {r4,lr}
-  mov    r2,r0
-1
-  ldrexh r0,[r2]
-  adds   r4,r0,#1
-  cmp    r1,r4
-  bhi    %F2
-  movs   r4,#0
-2
-  strexh r3,r4,[r2]
-  cbz    r3,%F3
-  b      %B1
-3
-  pop    {r4,pc}
-}
-#else
 __STATIC_INLINE uint16_t atomic_inc16_lim (uint16_t *mem, uint16_t lim) {
 #ifdef  __ICCARM__
 #pragma diag_suppress=Pe550
@@ -920,24 +723,10 @@ __STATIC_INLINE uint16_t atomic_inc16_lim (uint16_t *mem, uint16_t lim) {
 
   return ret;
 }
-#endif
 
 /// Atomic Access Operation: Decrement (32-bit)
 /// \param[in]  mem             Memory address
 /// \return                     Previous value
-#if defined(__CC_ARM)
-static __asm    uint32_t atomic_dec32 (uint32_t *mem) {
-  mov   r2,r0
-1
-  ldrex r0,[r2]
-  subs  r1,r0,#1
-  strex r3,r1,[r2]
-  cbz   r3,%F2
-  b     %B1
-2
-  bx     lr
-}
-#else
 __STATIC_INLINE uint32_t atomic_dec32 (uint32_t *mem) {
 #ifdef  __ICCARM__
 #pragma diag_suppress=Pe550
@@ -968,28 +757,10 @@ __STATIC_INLINE uint32_t atomic_dec32 (uint32_t *mem) {
 
   return ret;
 }
-#endif
 
 /// Atomic Access Operation: Decrement (32-bit) if Not Zero
 /// \param[in]  mem             Memory address
 /// \return                     Previous value
-#if defined(__CC_ARM)
-static __asm    uint32_t atomic_dec32_nz (uint32_t *mem) {
-  mov   r2,r0
-1
-  ldrex r0,[r2]
-  cbnz  r0,%F2
-  clrex
-  bx    lr
-2
-  subs  r1,r0,#1
-  strex r3,r1,[r2]
-  cbz   r3,%F3
-  b     %B1
-3
-  bx     lr
-}
-#else
 __STATIC_INLINE uint32_t atomic_dec32_nz (uint32_t *mem) {
 #ifdef  __ICCARM__
 #pragma diag_suppress=Pe550
@@ -1024,28 +795,10 @@ __STATIC_INLINE uint32_t atomic_dec32_nz (uint32_t *mem) {
 
   return ret;
 }
-#endif
 
 /// Atomic Access Operation: Decrement (16-bit) if Not Zero
 /// \param[in]  mem             Memory address
 /// \return                     Previous value
-#if defined(__CC_ARM)
-static __asm    uint16_t atomic_dec16_nz (uint16_t *mem) {
-  mov    r2,r0
-1
-  ldrexh r0,[r2]
-  cbnz   r0,%F2
-  clrex
-  bx     lr
-2
-  subs   r1,r0,#1
-  strexh r3,r1,[r2]
-  cbz    r3,%F3
-  b      %B1
-3
-  bx      lr
-}
-#else
 __STATIC_INLINE uint16_t atomic_dec16_nz (uint16_t *mem) {
 #ifdef  __ICCARM__
 #pragma diag_suppress=Pe550
@@ -1080,28 +833,10 @@ __STATIC_INLINE uint16_t atomic_dec16_nz (uint16_t *mem) {
 
   return ret;
 }
-#endif
 
 /// Atomic Access Operation: Link Get
 /// \param[in]  root            Root address
 /// \return                     Link
-#if defined(__CC_ARM)
-static __asm    void *atomic_link_get (void **root) {
-  mov   r2,r0
-1
-  ldrex r0,[r2]
-  cbnz  r0,%F2
-  clrex
-  bx    lr
-2
-  ldr   r1,[r0]
-  strex r3,r1,[r2]
-  cbz   r3,%F3
-  b     %B1
-3
-  bx     lr
-}
-#else
 __STATIC_INLINE void *atomic_link_get (void **root) {
 #ifdef  __ICCARM__
 #pragma diag_suppress=Pe550
@@ -1136,28 +871,10 @@ __STATIC_INLINE void *atomic_link_get (void **root) {
 
   return ret;
 }
-#endif
 
 /// Atomic Access Operation: Link Put
 /// \param[in]  root            Root address
 /// \param[in]  lnk             Link
-#if defined(__CC_ARM)
-static __asm    void atomic_link_put (void **root, void *link) {
-1
-  ldr   r2,[r0]
-  str   r2,[r1]
-  dmb
-  ldrex r2,[r0]
-  ldr   r3,[r1]
-  cmp   r3,r2
-  bne   %B1
-  strex r3,r1,[r0]
-  cbz   r3,%F2
-  b     %B1
-2
-  bx    lr
-}
-#else
 __STATIC_INLINE void atomic_link_put (void **root, void *link) {
 #ifdef  __ICCARM__
 #pragma diag_suppress=Pe550
@@ -1191,7 +908,6 @@ __STATIC_INLINE void atomic_link_put (void **root, void *link) {
   : "cc", "memory"
   );
 }
-#endif
 
 //lint --flb "Library End" [MISRA Note 12]
 

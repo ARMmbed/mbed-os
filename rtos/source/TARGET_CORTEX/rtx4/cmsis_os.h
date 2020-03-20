@@ -146,9 +146,7 @@
 #define osFeature_MessageQ    1         ///< Message Queues:  1=available, 0=not available
 #define osFeature_MailQ       1         ///< Mail Queues:     1=available, 0=not available
  
-#if   defined(__CC_ARM)
-#define os_InRegs __value_in_regs
-#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#if defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
 #define os_InRegs __attribute__((value_in_regs))
 #else
 #define os_InRegs

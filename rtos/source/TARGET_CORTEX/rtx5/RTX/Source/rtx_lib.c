@@ -125,12 +125,8 @@ static osRtxThread_t os_idle_thread_cb \
 __attribute__((section(".bss.os.thread.cb")));
 
 // Idle Thread Stack
-#if defined (__CC_ARM)
-static uint64_t os_idle_thread_stack[OS_IDLE_THREAD_STACK_SIZE/8];
-#else
 static uint64_t os_idle_thread_stack[OS_IDLE_THREAD_STACK_SIZE/8] \
 __attribute__((section(".bss.os.thread.stack")));
-#endif
 // Idle Thread Attributes
 static const osThreadAttr_t os_idle_thread_attr = {
 #if defined(OS_IDLE_THREAD_NAME)
@@ -184,13 +180,9 @@ __attribute__((section(".data.os.timer.mpi"))) =
 static osRtxThread_t os_timer_thread_cb \
 __attribute__((section(".bss.os.thread.cb")));
 
-#if defined (__CC_ARM)
-static uint64_t os_timer_thread_stack[OS_TIMER_THREAD_STACK_SIZE/8];
-#else
 // Timer Thread Stack
 static uint64_t os_timer_thread_stack[OS_TIMER_THREAD_STACK_SIZE/8] \
 __attribute__((section(".bss.os.thread.stack")));
-#endif
 
 // Timer Thread Attributes
 static const osThreadAttr_t os_timer_thread_attr = {
@@ -568,45 +560,6 @@ __WEAK void * const osRtxUserSVC[1] = { (void *)0 };
 // OS Sections
 // ===========
 
-#if defined(__CC_ARM)
-__asm void os_cb_sections_wrapper (void) {
-                EXTERN  ||.bss.os.thread.cb$$Base||     [WEAK]
-                EXTERN  ||.bss.os.thread.cb$$Limit||    [WEAK]
-                EXTERN  ||.bss.os.timer.cb$$Base||      [WEAK]
-                EXTERN  ||.bss.os.timer.cb$$Limit||     [WEAK]
-                EXTERN  ||.bss.os.evflags.cb$$Base||    [WEAK]
-                EXTERN  ||.bss.os.evflags.cb$$Limit||   [WEAK]
-                EXTERN  ||.bss.os.mutex.cb$$Base||      [WEAK]
-                EXTERN  ||.bss.os.mutex.cb$$Limit||     [WEAK]
-                EXTERN  ||.bss.os.semaphore.cb$$Base||  [WEAK]
-                EXTERN  ||.bss.os.semaphore.cb$$Limit|| [WEAK]
-                EXTERN  ||.bss.os.mempool.cb$$Base||    [WEAK]
-                EXTERN  ||.bss.os.mempool.cb$$Limit||   [WEAK]
-                EXTERN  ||.bss.os.msgqueue.cb$$Base||   [WEAK]
-                EXTERN  ||.bss.os.msgqueue.cb$$Limit||  [WEAK]
-
-                AREA    ||.rodata||, DATA, READONLY
-                EXPORT  os_cb_sections
-os_cb_sections
-                DCD     ||.bss.os.thread.cb$$Base||
-                DCD     ||.bss.os.thread.cb$$Limit||
-                DCD     ||.bss.os.timer.cb$$Base||
-                DCD     ||.bss.os.timer.cb$$Limit||
-                DCD     ||.bss.os.evflags.cb$$Base||
-                DCD     ||.bss.os.evflags.cb$$Limit||
-                DCD     ||.bss.os.mutex.cb$$Base||
-                DCD     ||.bss.os.mutex.cb$$Limit||
-                DCD     ||.bss.os.semaphore.cb$$Base||
-                DCD     ||.bss.os.semaphore.cb$$Limit||
-                DCD     ||.bss.os.mempool.cb$$Base||
-                DCD     ||.bss.os.mempool.cb$$Limit||
-                DCD     ||.bss.os.msgqueue.cb$$Base||
-                DCD     ||.bss.os.msgqueue.cb$$Limit||
-
-                AREA    ||.emb_text||, CODE
-};
-#endif
-
 #if (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 //lint -e{19} "Linker symbols"
 __asm (
@@ -628,7 +581,7 @@ __asm (
 #endif
 
 #if (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)) || \
-    (defined(__GNUC__) && !defined(__CC_ARM))
+    (defined(__GNUC__))
 
 extern __attribute__((weak)) uint32_t __os_thread_cb_start__;    //lint -esym(526,__os_thread_cb_start__)
 extern __attribute__((weak)) uint32_t __os_thread_cb_end__;      //lint -esym(526,__os_thread_cb_end__)
@@ -679,8 +632,7 @@ __attribute__((section(".rodata"))) =
 // OS Initialization
 // =================
 
-#if  defined(__CC_ARM) || \
-    (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+#if defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
 
 #ifndef __MICROLIB
 //lint -esym(714,_platform_post_stackheap_init) "Referenced by C library"
@@ -719,8 +671,7 @@ void osRtxKernelPreInit (void) {
 // ===============================================
 
 #if ( !defined(RTX_NO_MULTITHREAD_CLIB) && \
-     ( defined(__CC_ARM) || \
-      (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))) && \
+     (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)) && \
       !defined(__MICROLIB))
 
 #define LIBSPACE_SIZE 96

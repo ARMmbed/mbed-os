@@ -48,9 +48,7 @@
 #define CMSIS_OS2_H_
  
 #ifndef __NO_RETURN
-#if   defined(__CC_ARM)
-#define __NO_RETURN __declspec(noreturn)
-#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#if defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
 #define __NO_RETURN __attribute__((__noreturn__))
 #elif defined(__GNUC__)
 #define __NO_RETURN __attribute__((__noreturn__))
