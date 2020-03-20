@@ -35,7 +35,7 @@
 **************************************************************************************************/
 
 /*! \brief  Print function attributes. */
-#if defined(__GNUC__) || defined(__CC_ARM)
+#if defined(__GNUC__)
 #define PRINT_ATTRIBUTE(a, b) __attribute__((format(printf, a, b)))
 #else
 #define PRINT_ATTRIBUTE(a, b)

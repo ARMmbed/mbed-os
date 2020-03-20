@@ -267,12 +267,9 @@ ble_error_t LegacyGap<Impl>::initRadioNotification(void) {
 
 /* -------- deprecated template implementation -------- */
 
-#if defined(__GNUC__) && !defined(__CC_ARM)
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#elif defined(__CC_ARM)
-#pragma push
-#pragma diag_suppress 1361
 #endif
 
 template<class Impl>
@@ -850,10 +847,8 @@ void LegacyGap<Impl>::processAdvertisementReport(
     onAdvertisementReport.call(&params);
 }
 
-#if defined(__GNUC__) && !defined(__CC_ARM)
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
-#elif defined(__CC_ARM)
-#pragma pop
 #endif
 
 #if BLE_ROLE_BROADCASTER

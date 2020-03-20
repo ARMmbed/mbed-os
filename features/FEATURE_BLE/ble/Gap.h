@@ -2636,12 +2636,9 @@ protected:
 
 /* -------- deprecated template implementation -------- */
 
-#if defined(__GNUC__) && !defined(__CC_ARM)
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#elif defined(__CC_ARM)
-#pragma push
-#pragma diag_suppress 1361
 #endif
 
 #if BLE_ROLE_OBSERVER
@@ -2687,10 +2684,8 @@ void LegacyGap<Impl>::onRadioNotification(T *tptr, void (T::*mptr)(bool))
     radioNotificationCallback.attach(tptr, mptr);
 }
 
-#if defined(__GNUC__) && !defined(__CC_ARM)
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
-#elif defined(__CC_ARM)
-#pragma pop
 #endif
 
 } // interface

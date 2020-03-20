@@ -19,14 +19,10 @@
 /**
  * Declare the beginning of a code block that uses a deprecated API
  */
-#if defined(__GNUC__) && !defined(__CC_ARM)
+#if defined(__GNUC__)
 #define BLE_DEPRECATED_API_USE_BEGIN() \
     _Pragma("GCC diagnostic push") \
     _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
-#elif defined(__CC_ARM)
-#define BLE_DEPRECATED_API_USE_BEGIN() \
-    _Pragma("push") \
-    _Pragma("diag_suppress 1361")
 #else
 #define BLE_DEPRECATED_API_USE_BEGIN()
 #endif
@@ -34,12 +30,9 @@
 /**
  * Declare the end of a code block that uses a deprecated API
  */
-#if defined(__GNUC__) && !defined(__CC_ARM)
+#if defined(__GNUC__)
 #define BLE_DEPRECATED_API_USE_END() \
     _Pragma("GCC diagnostic pop")
-#elif defined(__CC_ARM)
-#define BLE_DEPRECATED_API_USE_END() \
-        _Pragma("pop")
 #else
 #define BLE_DEPRECATED_API_USE_END()
 #endif
