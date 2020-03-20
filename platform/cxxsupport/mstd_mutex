@@ -35,7 +35,7 @@
  * Toolchains will vary greatly in how much is in namespace std, depending on retargetting.
  */
 
-#if !defined __CC_ARM && !defined __IAR_SYSTEMS_ICC__
+#if !defined __IAR_SYSTEMS_ICC__
 #include <mutex>
 #endif
 
@@ -56,9 +56,9 @@ extern "C" void __cxa_guard_release(int *guard_object_p);
 // IAR does not provide <mutex> at all - it errors on inclusion
 // ARMC6 provides it, but it is empty unless _ARM_LIBCPP_EXTERNAL_THREADS is defined
 // GCC has it, and only the actual `mutex` types are conditional on _GLIBCXX_HAS_GTHREADS
-// So pick up std stuff, unless ARMC5, ICC, or ARMC6-without-threads
+// So pick up std stuff, unless ICC, or ARMC6-without-threads
 namespace mstd {
-#if !defined __CC_ARM && !defined __IAR_SYSTEMS_ICC__ && !defined _LIBCPP_HAS_NO_THREADS
+#if !defined __IAR_SYSTEMS_ICC__ && !defined _LIBCPP_HAS_NO_THREADS
 using std::defer_lock;
 using std::defer_lock_t;
 using std::try_to_lock;

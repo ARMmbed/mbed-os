@@ -49,26 +49,6 @@
 #define MSTD_CONSTEXPR_FN_11 constexpr
 #define MSTD_CONSTEXPR_OBJ_11 constexpr
 
-#ifdef __CC_ARM
-
-// [expr.alignof]
-#define alignof(T) __alignof__(T)
-
-// [dcl.align]
-// Types not supported - workaround is to use alignas(alignof(T)), which is legal anyway
-#ifndef __alignas_is_defined
-#define __alignas_is_defined
-#define alignas(N) __attribute__((aligned(N)))
-#endif
-
-namespace std {
-// [cstddef.syn]
-using nullptr_t = decltype(nullptr);
-
-} // namespace std
-
-#endif // __CC_ARM
-
 namespace mstd {
 using std::size_t;
 using std::ptrdiff_t;

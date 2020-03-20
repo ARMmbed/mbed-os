@@ -94,18 +94,7 @@ extern "C" {
 #define MBED_SUB3_IMM "IL" // SUB or ADD, 12-bit immediate
 #endif
 
-// ARM C 5 inline assembler recommends against using LDREX/STREX
-// for same reason as intrinsics, but there's no other way to get
-// inlining. ARM C 5 is being retired anyway.
-
-#ifdef __CC_ARM
-#pragma diag_suppress 3732
-#define DO_MBED_LOCKFREE_EXCHG_ASM(M)                           \
-    __asm {                                                     \
-        LDREX##M    oldValue, [valuePtr]                      ; \
-        STREX##M    fail, newValue, [valuePtr]                  \
-    }
-#elif defined __clang__ || defined __GNUC__
+#if defined __clang__ || defined __GNUC__
 #define DO_MBED_LOCKFREE_EXCHG_ASM(M)                           \
     __asm volatile (                                            \
         ".syntax unified\n\t"                                   \
@@ -131,14 +120,7 @@ extern "C" {
     )
 #endif
 
-#ifdef __CC_ARM
-#define DO_MBED_LOCKFREE_NEWVAL_2OP_ASM(OP, Constants, M)       \
-    __asm {                                                     \
-        LDREX##M    newValue, [valuePtr]                      ; \
-        OP          newValue, arg                             ; \
-        STREX##M    fail, newValue, [valuePtr]                  \
-    }
-#elif defined __clang__ || defined __GNUC__
+#if defined __clang__ || defined __GNUC__
 #define DO_MBED_LOCKFREE_NEWVAL_2OP_ASM(OP, Constants, M)       \
     __asm volatile (                                            \
         ".syntax unified\n\t"                                   \
@@ -167,14 +149,7 @@ extern "C" {
     )
 #endif
 
-#ifdef __CC_ARM
-#define DO_MBED_LOCKFREE_OLDVAL_3OP_ASM(OP, Constants, M)       \
-    __asm {                                                     \
-        LDREX##M    oldValue, [valuePtr]                      ; \
-        OP          newValue, oldValue, arg                   ; \
-        STREX##M    fail, newValue, [valuePtr]                  \
-    }
-#elif defined __clang__ || defined __GNUC__
+#if defined __clang__ || defined __GNUC__
 #define DO_MBED_LOCKFREE_OLDVAL_3OP_ASM(OP, Constants, M)       \
     __asm volatile (                                            \
         ".syntax unified\n\t"                                   \
@@ -207,15 +182,7 @@ extern "C" {
 /* Bitwise operations are harder to do in ARMv8-M baseline - there
  * are only 2-operand versions of the instructions.
  */
-#ifdef __CC_ARM
-#define DO_MBED_LOCKFREE_OLDVAL_2OP_ASM(OP, Constants, M)       \
-    __asm {                                                     \
-        LDREX##M    oldValue, [valuePtr]                      ; \
-        MOV         newValue, oldValue                        ; \
-        OP          newValue, arg                             ; \
-        STREX##M    fail, newValue, [valuePtr]                  \
-    }
-#elif defined __clang__ || defined __GNUC__
+#if defined __clang__ || defined __GNUC__
 #define DO_MBED_LOCKFREE_OLDVAL_2OP_ASM(OP, Constants, M)       \
     __asm volatile (                                            \
         ".syntax unified\n\t"                                   \
@@ -252,14 +219,7 @@ extern "C" {
  * implementations the same.
  */
 #if MBED_EXCLUSIVE_ACCESS_ARM
-#ifdef __CC_ARM
-#define DO_MBED_LOCKFREE_CAS_WEAK_ASM(M)                        \
-    __asm {                                                     \
-        LDREX##M     oldValue, [ptr]                          ; \
-        SUBS         fail, oldValue, expectedValue            ; \
-        STREX##M##EQ fail, desiredValue, [ptr]                  \
-    }
-#elif defined __clang__ || defined __GNUC__
+#if defined __clang__ || defined __GNUC__
 #define DO_MBED_LOCKFREE_CAS_WEAK_ASM(M)                        \
     __asm volatile (                                            \
         ".syntax unified\n\t"                                   \
@@ -288,16 +248,7 @@ extern "C" {
     )
 #endif
 #else // MBED_EXCLUSIVE_ACCESS_ARM
-#ifdef __CC_ARM
-#define DO_MBED_LOCKFREE_CAS_WEAK_ASM(M)                        \
-    __asm {                                                     \
-        LDREX##M     oldValue, [ptr]                          ; \
-        SUBS         fail, oldValue, expectedValue            ; \
-        BNE          done                                     ; \
-        STREX##M     fail, desiredValue, [ptr]                ; \
-done:                                                           \
-    }
-#elif defined __clang__ || defined __GNUC__
+#if defined __clang__ || defined __GNUC__
 #define DO_MBED_LOCKFREE_CAS_WEAK_ASM(M)                        \
     __asm volatile (                                            \
         ".syntax unified\n\t"                                   \
@@ -336,19 +287,7 @@ done:                                                           \
  * (This is the operation for which STREX returning 0 for success
  * is beneficial.)
  */
-#ifdef __CC_ARM
-#define DO_MBED_LOCKFREE_CAS_STRONG_ASM(M)                      \
-    __asm {                                                     \
-    retry:                                                    ; \
-        LDREX##M     oldValue, [ptr]                          ; \
-        SUBS         fail, oldValue, expectedValue            ; \
-        BNE          done                                     ; \
-        STREX##M     fail, desiredValue, [ptr]                ; \
-        CMP          fail, 0                                  ; \
-        BNE          retry                                    ; \
-    done:                                                       \
-    }
-#elif defined __clang__ || defined __GNUC__
+#if defined __clang__ || defined __GNUC__
 #define DO_MBED_LOCKFREE_CAS_STRONG_ASM(M)                      \
     __asm volatile (                                            \
         ".syntax unified\n\t"                                   \
