@@ -124,19 +124,19 @@ namespace interface {
  * Sequence diagram "Just Works" pairing
  *
  * \verbatim
- *  /----------- Device 1 --------------\  *------ BLE link ------*  /-------------- Device 2 -------------\
+ *  /-------- Device 1 ---------\  *----- BLE link -----*  /----------- Device 2-----------\
  *
- * App  EventHandler              SecurityManager              SecurityManager           EventHandler     App
- *  |        |                          |                            |                        |            |
- *  |---------------------------> requestPairing()                   |                        |            |
- *  |        |                          |------[pairing start]------>|                        |            |
- *  |        |                          |                            |----------------> pairingRequest() ->|
- *  |        |                          |                        acceptPairing() <------------------------ |
- *  |        |                          |<---[pairing complete]----->|                        |            |
- *  |<- pairingResult() <---------------|                            |----------------> pairingResult() -->|
- *  |        |                          |                            |                        |            |
+ * App  EventHandler      SecurityManager            SecurityManager    EventHandler      App
+ *  |        |                  |                          |                 |             |
+ *  |-------------------> requestPairing()                 |                 |             |
+ *  |        |                  |-----[pairing start]----->|                 |             |
+ *  |        |                  |                          |---------> pairingRequest() -->|
+ *  |        |                  |                   acceptPairing() <--------------------- |
+ *  |        |                  |<--[pairing complete]---->|                 |             |
+ *  |<- pairingResult() <-------|                          |---------> pairingResult() --->|
+ *  |        |                  |                          |                 |             |
  * @endverbatim
- * 
+ *
  *  @note the requestPairing() call isn't required to trigger pairing. Pairing will also be triggered
  *  if you request encryption and authentication and no bonding information is available. The sequence will
  *  be the same save for the lack of explicit requestPairing() call.
@@ -145,16 +145,16 @@ namespace interface {
  *  Sequence diagram Encryption request when bonding information is available
  *
  * \verbatim
- *  /----------- Device 1 --------------\  *------ BLE link ------*  /-------------- Device 2 -------------\
+ *  /--------- Device 1 ---------\  *------ BLE link ------*  /--------- Device 2 ---------\
  *
- * App  EventHandler              SecurityManager              SecurityManager           EventHandler     App
- *  |       |                           |                            |                        |            |
- *  |---------------------------> setLinkEncryption()                |                        |            |
- *  |       |                           |<-[encryption established]->|                        |            |
- *  |<- linkEncryptionResult() <--------|                            |---------> linkEncryptionResult() -->|
- *  |       |                           |                            |                        |            |
+ * App  EventHandler       SecurityManager              SecurityManager   EventHandler    App
+ *  |       |                    |                            |                |           |
+ *  |--------------------> setLinkEncryption()                |                |           |
+ *  |       |                    |<-[encryption established]->|                |           |
+ *  |<- linkEncryptionResult() <-|                            |-> linkEncryptionResult() ->|
+ *  |       |                    |                            |                |           |
  * @endverbatim
- * 
+ *
  * @note if bonding information is not available, pairing will be triggered
  *
  *
@@ -162,27 +162,27 @@ namespace interface {
  * and other a keyboard
  *
  * \verbatim
- *  /----------- Device 1 (keyboard) ---\  *------ BLE link ------*  /-------------- Device 2 (display) ---\
+ *  /---- Device 1 (keyboard) ---\  *------ BLE link ------*  /----- Device 2 (display) ---\
  *
- * App  EventHandler              SecurityManager              SecurityManager           EventHandler     App
- *  |        |                          |                            |                        |            |
- *  |---------------------------> requestPairing()                   |                        |            |
- *  |        |                          |------[pairing start]------>|                        |            |
- *  |        |                          |                            |----------------> pairingRequest() ->|
- *  |        |                          |                        acceptPairing() <------------------------ |
- *  |        |                          |<---[secure con. pairing]-->|                        |            |
- *  |<- passkeyRequest() <--------------|                            |----------------> passkeyDisplay() ->|
- *  |        |                          |                            |                        |            |
+ * App  EventHandler       SecurityManager              SecurityManager  EventHandler     App
+ *  |       |                    |                            |               |            |
+ *  |--------------------> requestPairing()                   |               |            |
+ *  |        |                   |------[pairing start]------>|               |            |
+ *  |        |                   |                            |-------> pairingRequest() ->|
+ *  |        |                   |                        acceptPairing() <--------------- |
+ *  |        |                   |<---[secure con. pairing]-->|               |            |
+ *  |<- passkeyRequest() <-------|                            |-------> passkeyDisplay() ->|
+ *  |        |                   |                            |               |            |
  *
- *                       user reads the passkey on Device 2 and inputs it on Device 1
+ *                  user reads the passkey on Device 2 and inputs it on Device 1
  *
- *  |        |                          |                            |                        |            |
- *  |-------------------------->passkeyEntered()                     |                        |            |
- *  |        |                          |<---[pairing complete]----->|                        |            |
- *  |<- pairingResult() <---------------|                            |----------------> pairingResult() -->|
- *  |        |                          |                            |                        |            |
+ *  |        |                   |                            |               |            |
+ *  |------------------->passkeyEntered()                     |               |            |
+ *  |        |                   |<---[pairing complete]----->|               |            |
+ *  |<- pairingResult() <--------|                            |-------> pairingResult() -->|
+ *  |        |                   |                            |               |            |
  * @endverbatim
- * 
+ *
  */
 #if !defined(DOXYGEN_ONLY)
 template <class Impl>
