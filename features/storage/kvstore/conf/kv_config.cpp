@@ -1145,24 +1145,7 @@ int _storage_config_filesystem_common()
 
 int _storage_config_default()
 {
-#if COMPONENT_QSPIF || COMPONENT_SPIF || COMPONENT_DATAFLASH
-    return _storage_config_TDB_EXTERNAL();
-#elif COMPONENT_SD
-    return _storage_config_FILESYSTEM();
-#elif COMPONENT_FLASHIAP
     return _storage_config_TDB_INTERNAL();
-#else
-    BlockDevice *bd = get_other_blockdevice();
-    if (bd) {
-        if (bd->get_erase_value() != -1) {
-            return _storage_config_TDB_EXTERNAL();
-        } else {
-            return _storage_config_FILESYSTEM();
-        }
-    } else {
-        return MBED_ERROR_UNSUPPORTED;
-    }
-#endif
 }
 
 const char *get_filesystemstore_folder_path()
