@@ -120,6 +120,10 @@ int InternetSocket::get_latency_estimate_to_address(const SocketAddress &address
     nsapi_latency_req_t ns_api_latency_req;
     unsigned opt_len = sizeof(nsapi_latency_req_t);
 
+    if (!latency) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
     // Set up address
     memcpy(ns_api_latency_req.addr, address.get_ip_bytes(), 16);
 
@@ -132,7 +136,7 @@ int InternetSocket::get_latency_estimate_to_address(const SocketAddress &address
     return ret;
 }
 
-int InternetSocket::get_stagger_estimate_to_address(const SocketAddress &address, uint32_t data_amount, uint16_t *stagger_min, uint16_t *stagger_max, uint16_t *stagger_rand)
+int InternetSocket::get_stagger_estimate_to_address(const SocketAddress &address, uint16_t data_amount, uint16_t *stagger_min, uint16_t *stagger_max, uint16_t *stagger_rand)
 {
     nsapi_error_t ret;
     nsapi_stagger_req_t nsapi_stagger;
@@ -145,9 +149,15 @@ int InternetSocket::get_stagger_estimate_to_address(const SocketAddress &address
     ret = this->getsockopt(NSAPI_SOCKET, NSAPI_STAGGER, (void *)&nsapi_stagger, &opt_len);
     if (ret == NSAPI_ERROR_OK) {
         // success, stagger found
-        *stagger_min = nsapi_stagger.stagger_min;
-        *stagger_max = nsapi_stagger.stagger_max;
-        *stagger_rand = nsapi_stagger.stagger_rand;
+        if (stagger_min) {
+            *stagger_min = nsapi_stagger.stagger_min;
+        }
+        if (stagger_max) {
+            *stagger_max = nsapi_stagger.stagger_max;
+        }
+        if (stagger_rand) {
+            *stagger_rand = nsapi_stagger.stagger_rand;
+        }
     }
 
     return ret;
