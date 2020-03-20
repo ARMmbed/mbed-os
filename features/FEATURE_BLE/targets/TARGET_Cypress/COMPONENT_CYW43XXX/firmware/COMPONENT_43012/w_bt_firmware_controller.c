@@ -2,6 +2,7 @@
 
 /* labelling: appname-(chipname)(stepping)-frequency-(headset GIT SHA)-(generating SDK version)-
  *                                                                            Wiced-release.hcd */
+#ifndef TARGET_CYW9P62S1_43012EVB_01
 const char brcm_patch_version[] = "CYW43012C0_003.001.015.0128.0000_Generic_UART_37_4MHz_wlcsp_ref3_sLNA";
 const uint8_t brcm_patchram_format = 0x01;
 /* Configuration Data Records (Write_RAM) */
@@ -4061,3 +4062,4 @@ const uint8_t brcm_patchram_buf[] = {
 };
 
 const int brcm_patch_ram_length = sizeof(brcm_patchram_buf);
+#endif
