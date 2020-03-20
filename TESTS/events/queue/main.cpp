@@ -34,6 +34,16 @@ using namespace utest::v1;
 // (for more details about EVENTS_EVENT_SIZE see EventQueue constructor)
 #define TEST_EQUEUE_SIZE (18*EVENTS_EVENT_SIZE)
 
+// By empirical, we take 80MHz CPU/2ms delay as base tolerance for time left test.
+// For higher CPU frequency, tolerance is fixed to 2ms.
+// For lower CPU frequency, tolerance is inversely proportional to CPU frequency.
+// E.g.:
+// 100MHz: 2ms
+// 80MHz: 2ms
+// 64MHz: 3ms
+// 48MHz: 4ms
+#define ALLOWED_TIME_LEFT_TOLERANCE_MS   ((SystemCoreClock >= 80000000) ? 2 : ((80000000 * 2 + SystemCoreClock - 1) / SystemCoreClock))
+
 // flag for called
 volatile bool touched = false;
 
@@ -283,7 +293,7 @@ int timeleft_events[2];
 void check_time_left(EventQueue *queue, int index, int expected)
 {
     const int event_id = timeleft_events[index];
-    TEST_ASSERT_INT_WITHIN(2, expected, queue->time_left(event_id));
+    TEST_ASSERT_INT_WITHIN(ALLOWED_TIME_LEFT_TOLERANCE_MS, expected, queue->time_left(event_id));
     touched = true;
 }
 
