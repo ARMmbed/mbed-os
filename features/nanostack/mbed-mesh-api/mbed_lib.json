@@ -159,6 +159,10 @@
             "value_max": 255,
             "value": 255
         },
+        "wisun-device-type": {
+            "help": "Supported device operating modes: MESH_DEVICE_TYPE_WISUN_ROUTER, MESH_DEVICE_TYPE_WISUN_BORDER_ROUTER",
+            "value": "MESH_DEVICE_TYPE_WISUN_ROUTER"
+        },
         "certificate-header": {
             "help": "File name of the certificate header file (used on include directive)",
             "value": null
