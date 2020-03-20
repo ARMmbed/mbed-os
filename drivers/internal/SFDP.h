@@ -131,7 +131,7 @@ int sfdp_find_addr_region(bd_size_t offset, const sfdp_hdr_info &sfdp_info);
  * @param size     Upper limit for region size
  * @param offset   Offset value
  * @param region   Region number
- * @param smptbl    Information about different erase types
+ * @param smptbl   Information about different erase types
  *
  * @return Largest erase type
  */
