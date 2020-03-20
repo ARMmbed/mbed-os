@@ -445,11 +445,10 @@ bool test_coap_message_handler_response_send()
 
     retCounter = 1;
     sn_coap_protocol_stub.expectedCoap = (struct coap_s *)malloc(sizeof(struct coap_s));
-    if(NULL == sn_coap_protocol_stub.expectedCoap)
+    if(sn_coap_protocol_stub.expectedCoap)
     {
-        return false;
+        memset(sn_coap_protocol_stub.expectedCoap, 0, sizeof(struct coap_s));
     }
-    memset(sn_coap_protocol_stub.expectedCoap, 0, sizeof(struct coap_s));
     nsdynmemlib_stub.returnCounter = 1;
     coap_msg_handler_t *handle = coap_message_handler_init(&test_own_alloc, &test_own_free, &coap_tx_function);
     sn_coap_hdr_s *header = (sn_coap_hdr_s *)malloc(sizeof(sn_coap_hdr_s));
