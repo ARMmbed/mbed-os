@@ -1111,7 +1111,17 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
                    "target.default_lib is no longer supported, please use target.c_lib for C library selection."
                 )
         if  hasattr(target, "c_lib"):
+
             target.c_lib = target.c_lib.lower()
+
+            if (
+                target.c_lib == "small"
+                and hasattr(target, "supported_c_libs")
+                and "small" not in target.supported_c_libs[toolchain]
+                and "std" in target.supported_c_libs[toolchain]
+            ):
+                target.c_lib = "std"
+
             if (
                 hasattr(target, "supported_c_libs") == False
                 or toolchain not in target.supported_c_libs

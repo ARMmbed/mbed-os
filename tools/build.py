@@ -39,6 +39,7 @@ from tools.build_api import mcu_toolchain_matrix
 from tools.build_api import print_build_results
 from tools.build_api import target_supports_toolchain
 from tools.build_api import find_valid_toolchain
+from tools.build_api import check_small_c_lib_support
 from tools.notifier.term import TerminalNotifier
 from tools.utils import argparse_filestring_type, args_error, argparse_many
 from tools.utils import argparse_dir_not_parent
@@ -177,6 +178,10 @@ def main():
             except NoValidToolchainException as e:
                 print_end_warnings(e.end_warnings)
                 args_error(parser, str(e))
+
+            warning = check_small_c_lib_swap(target, toolchain_name)
+            end_warnings += [warning] if warning is not None else []
+
             tt_id = "%s::%s" % (internal_tc_name, target_name)
             if not target_supports_toolchain(target, toolchain_name):
                 # Log this later

@@ -52,6 +52,11 @@ from .config import Config
 
 RELEASE_VERSIONS = ['2', '5']
 
+SMALL_C_LIB_CHANGE_WARNING = (
+    "Warning: We noticed that you are using target.c_lib set to small. "
+    "As the {} target does not support a small C library for the {} toolchain, we are using the standard C library instead. "
+)
+
 def prep_report(report, target_name, toolchain_name, id_name):
     """Setup report keys
 
@@ -205,6 +210,27 @@ def get_toolchain_name(target, toolchain_name):
 
     return toolchain_name
 
+
+def check_small_c_lib_support(target, toolchain_name):
+    """
+    Check if the small C lib is supported.
+    If it is not supported and the standard C library is supported, the later will be used instead.
+    Return a warning if the standard C lib will be used instead of the small C lib.
+    """
+    if (
+        hasattr(target, "c_lib")
+        and target.c_lib.lower() == "small"
+        and hasattr(target, "supported_c_libs")
+        and toolchain_name not in target.supported_c_libs
+    ):
+        if (
+            "small" not in target.supported_c_libs[toolchain_name]
+            and "std" in target.supported_c_libs[toolchain_name]
+        ):
+            return SMALL_C_LIB_CHANGE_WARNING.format(target.name, toolchain_name)
+
+
+
 def find_valid_toolchain(target, toolchain):
     """Given a target and toolchain, get the names for the appropriate
     toolchain to use. The environment is also checked to see if the corresponding
@@ -250,6 +276,7 @@ def find_valid_toolchain(target, toolchain):
                 and "uARM" in {toolchain_name, target.default_toolchain}
             ):
                 end_warnings.append(UARM_TOOLCHAIN_WARNING)
+
             return toolchain_name, internal_tc_name, end_warnings
     else:
         if last_error:
