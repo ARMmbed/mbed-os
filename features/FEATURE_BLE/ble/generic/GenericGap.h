@@ -79,7 +79,7 @@ class GenericGap :
     using LegacyGap::default_central_privacy_configuration;
     using LegacyGap::state;
 
-    typedef typename LegacyGap::Address_t Address_t;
+    typedef typename BLEProtocol::AddressBytes_t Address_t;
     typedef typename LegacyGap::PeerAddressType_t PeerAddressType_t;
     typedef typename LegacyGap::ConnectionParams_t ConnectionParams_t;
     typedef typename LegacyGap::Handle_t Handle_t;
@@ -299,14 +299,6 @@ public:
     uint8_t getMaxPeriodicAdvertiserListSize_();
 
     /**
-     * @see Gap::setAddress
-     */
-    ble_error_t setAddress_(
-        BLEProtocol::AddressType_t type,
-        const BLEProtocol::AddressBytes_t address
-    );
-
-    /**
      * @see Gap::setRandomStaticAddress
      */
     ble_error_t setRandomStaticAddress_(const ble::address_t& address);
@@ -333,11 +325,6 @@ public:
      * @see Gap::getMaxAdvertisingInterval
      */
     uint16_t getMaxAdvertisingInterval_() const;
-
-    /**
-     * @see Gap::stopAdvertising
-     */
-    ble_error_t stopAdvertising_();
 
     /**
      * @see Gap::stopScan
@@ -635,8 +622,6 @@ private:
         bool minimiseFragmentation,
         bool scan_response
     );
-
-    void process_scan_timeout();
 
     void on_advertising_timeout();
 

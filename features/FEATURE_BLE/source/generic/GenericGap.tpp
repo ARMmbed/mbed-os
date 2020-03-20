@@ -470,47 +470,6 @@ bool GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setAddress_(
-    LegacyAddressType_t type,
-    const uint8_t* address
-)
-{
-    switch (type) {
-        case LegacyAddressType::PUBLIC:
-            // The public address cannot be set, just set the type to public
-            _address_type = type;
-            return BLE_ERROR_NONE;
-
-        case LegacyAddressType::RANDOM_STATIC: {
-            if (is_random_static_address(address) == false) {
-                return BLE_ERROR_INVALID_PARAM;
-            }
-
-            ble_error_t err = _pal_gap.set_random_address(
-                ble::address_t(address)
-            );
-            if (err) {
-                return err;
-            }
-
-            _address_type = type;
-            _address = ble::address_t(address);
-            _random_static_identity_address = ble::address_t(address);
-            return BLE_ERROR_NONE;
-        }
-
-        case LegacyAddressType::RANDOM_PRIVATE_RESOLVABLE:
-        case LegacyAddressType::RANDOM_PRIVATE_NON_RESOLVABLE:
-            // Note: it is not allowed to set directly these addresses
-            // privacy management handled it for users.
-            return BLE_ERROR_INVALID_PARAM;
-
-        default:
-            return BLE_ERROR_INVALID_PARAM;
-    }
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setRandomStaticAddress_(
     const ble::address_t& address
 )
@@ -565,25 +524,6 @@ template <template<class> class PalGapImpl, class PalSecurityManager, class Conn
 uint16_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getMaxAdvertisingInterval_() const
 {
     return GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX;
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::stopAdvertising_()
-{
-    useVersionOneAPI();
-    ble_error_t err = _pal_gap.advertising_enable(false);
-    if (err) {
-        return err;
-    }
-    _advertising_timeout.detach();
-    state.advertising = false;
-
-#if BLE_FEATURE_PRIVACY
-    // Stop address rotation if required
-    set_random_address_rotation(false);
-#endif
-
-    return BLE_ERROR_NONE;
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
@@ -1572,7 +1512,6 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         );
     }
 
-    BLE_DEPRECATED_API_USE_BEGIN()
     LegacyGap::processConnectionEvent(
         handle,
         role,
@@ -1584,7 +1523,6 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         peerResolvableAddr,
         localResolvableAddr
     );
-    BLE_DEPRECATED_API_USE_END()
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
@@ -1609,12 +1547,10 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         );
     }
 
-    BLE_DEPRECATED_API_USE_BEGIN()
     LegacyGap::processDisconnectionEvent(
         handle,
         reason
     );
-    BLE_DEPRECATED_API_USE_END()
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
@@ -1657,18 +1593,6 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::process_scan_timeout()
-{
-    ble_error_t err = _pal_gap.scan_enable(false, false);
-    if (err) {
-        // TODO: define the mechanism signaling the error
-    }
-    BLE_DEPRECATED_API_USE_BEGIN()
-    LegacyGap::processTimeoutEvent(LegacyGap::TIMEOUT_SRC_SCAN);
-    BLE_DEPRECATED_API_USE_END()
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::on_advertising_timeout()
 {
     _event_queue.post(mbed::callback(this, &GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::process_advertising_timeout));
@@ -1687,9 +1611,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
     set_random_address_rotation(false);
 #endif
 
-    BLE_DEPRECATED_API_USE_BEGIN()
     LegacyGap::processTimeoutEvent(LegacyGap::TIMEOUT_SRC_ADVERTISING);
-    BLE_DEPRECATED_API_USE_END()
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
@@ -1792,7 +1714,6 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
             );
         }
 
-        BLE_DEPRECATED_API_USE_BEGIN()
         LegacyGap::processAdvertisementReport(
             advertising.address.data(),
             advertising.rssi,
@@ -1802,7 +1723,6 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
             advertising.data.data(),
             peer_address_type
         );
-        BLE_DEPRECATED_API_USE_END()
     }
 }
 
@@ -1832,9 +1752,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         // event
 
         // TODO: Define events in case of connection faillure
-        BLE_DEPRECATED_API_USE_BEGIN()
         LegacyGap::processTimeoutEvent(LegacyGap::TIMEOUT_SRC_CONN);
-        BLE_DEPRECATED_API_USE_END()
         return;
     }
 
@@ -3019,7 +2937,6 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         // This handler is not supposed to be called with V1 API as the extended
         // scan is not called. However the Cordio LL stack doesn't act that way
         // and use extended scan with V1 API.
-        BLE_DEPRECATED_API_USE_BEGIN()
         LegacyGap::processAdvertisementReport(
             address.data(),
             rssi,
@@ -3029,7 +2946,6 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
             data,
             (peer_address_type_t::type) address_type->value()
         );
-        BLE_DEPRECATED_API_USE_END()
     }
 }
 
