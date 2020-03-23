@@ -20,17 +20,20 @@
 #include "FileSystem.h"
 
 #include <stdlib.h>
+#include "LittleFileSystem.h"
+
 #if COMPONENT_SPIF
 #include "SPIFBlockDevice.h"
-#include "LittleFileSystem.h"
+#elif COMPONENT_QSPIF
+#include "QSPIFBlockDevice.h"
+#elif COMPONENT_OSPIF
+#include "OSPIFBlockDevice.h"
 #elif COMPONENT_SD
 #include "SDBlockDevice.h"
-#include "FATFileSystem.h"
 #else
 #error [NOT_SUPPORTED] storage test not supported on this platform
 #endif
 
-#if COMPONENT_SPIF || COMPONENT_SD
 using namespace utest::v1;
 using namespace mbed;
 
@@ -2131,4 +2134,3 @@ int main()
     return !Harness::run(specification);
 }
 
-#endif // COMPONENT_SPIF || COMPONENT_SD
