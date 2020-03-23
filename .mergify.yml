@@ -102,6 +102,7 @@ pull_request_rules:
   # Conflict in the PR - needs: work and a comment to notify a user
   - name: "label needs: work when there is a conflict"
     conditions:
+      - open
       - conflict
     actions:
       label:
@@ -158,7 +159,7 @@ pull_request_rules:
         add: ['do not merge']
 
   # Check if version label is applied
-  - name: release version is a must for merged PRs
+  - name: release version is a must for merged PRs part 1
     conditions:
       - merged
       - -label~=^(release-version)
@@ -169,4 +170,22 @@ pull_request_rules:
       comment:
         message: This PR does not contain release version label after merging.
 
+  # If there is a release version remove 'release version missing' and / or 
+  # release review required
+  - name: release version is a must for merged PRs part 2
+    conditions:
+      - merged
+      - -label=^(release-version)
+    actions:
+      label:
+        remove: ['release version missing', 'Release review required']                
+        
+ # Clean-up if closed but not merged
+  - name: remove release version and needs labels
+    conditions:
+      - closed
+      - -merged
+    actions:
+      label:
+        remove_all=True
 
