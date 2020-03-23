@@ -8680,9 +8680,6 @@
             "SPI",
             "STDIO_MESSAGES"
         ],
-        "features": [
-            "BLE"
-        ],
         "release_versions": [],
         "detect_code": [
             "0400"
@@ -8757,9 +8754,6 @@
             "SPI",
             "SPI_ASYNCH",
             "STDIO_MESSAGES"
-        ],
-        "features": [
-            "BLE"
         ],
         "release_versions": [],
         "detect_code": [
@@ -8978,9 +8972,6 @@
             "STDIO_MESSAGES",
             "USTICKER",
             "MPU"
-        ],
-        "features": [
-            "BLE"
         ],
         "release_versions": [
             "2",
