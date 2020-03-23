@@ -126,6 +126,33 @@ static control_t file_4_threads(const size_t call_count)
     return CaseNext;
 }
 
+static control_t file_5_threads(const size_t call_count)
+{
+    size_t block_size1 = 4;
+    size_t block_size2 = 256;
+    size_t block_size3 = 1024;
+    size_t block_size4 = 4096;
+    size_t block_size5 = 4096;
+
+    Thread t1;
+    Thread t2;
+    Thread t3;
+    Thread t4;
+    Thread t5;
+    t1.start(callback(file_fn, &block_size1));
+    t2.start(callback(file_fn, &block_size2));
+    t3.start(callback(file_fn, &block_size3));
+    t4.start(callback(file_fn, &block_size4));
+    t5.start(callback(file_fn, &block_size5));
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+    t5.join();
+
+    return CaseNext;
+}
+
 utest::v1::status_t test_setup_handler(const size_t number_of_cases)
 {
     GREENTEA_SETUP(10 * 60, "default_auto");
@@ -174,14 +201,18 @@ utest::v1::status_t case_teardown_handler(const Case *const source,
 
 
 Case cases[] = {
-                Case(TEST_BLOCK_DEVICE_TYPE "+" TEST_FILESYSTEM_TYPE " 2 files, block size 4B/256B",
-                     case_setup_handler,
-                     file_2_threads,
-                     case_teardown_handler),
-                Case(TEST_BLOCK_DEVICE_TYPE "+" TEST_FILESYSTEM_TYPE " 4 files, block size 4B/256B/1KiB/4KiB",
-                     case_setup_handler,
-                     file_4_threads,
-                     case_teardown_handler),
+    Case(TEST_BLOCK_DEVICE_TYPE "+" TEST_FILESYSTEM_TYPE " 2 files, block size 4B/256B",
+         case_setup_handler,
+         file_2_threads,
+         case_teardown_handler),
+    Case(TEST_BLOCK_DEVICE_TYPE "+" TEST_FILESYSTEM_TYPE " 4 files, block size 4B/256B/1KiB/4KiB",
+         case_setup_handler,
+         file_4_threads,
+         case_teardown_handler),
+    Case(TEST_BLOCK_DEVICE_TYPE "+" TEST_FILESYSTEM_TYPE " 5 files, block size 4B/256B/1KiB/4KiB/4KiB",
+         case_setup_handler,
+         file_5_threads,
+         case_teardown_handler),
 };
 
 Specification specification(test_setup_handler, cases, test_teardown_handler);
