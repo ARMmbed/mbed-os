@@ -122,21 +122,23 @@ static void mbed_minimal_putchar(char *buffer, size_t length, int *result, char 
 {
     /* only continue if 'result' doesn't overflow */
     if ((*result >= 0) && (*result <= INT_MAX - 1)) {
-        if (buffer) {
-            /* write data only if there's enough space */
-            if ((size_t)*result < length) {
-                buffer[*result] = data;
-            }
-
-            /* increment 'result' even if data was not written. This ensures that
-               'mbed_minimal_formatted_string' returns the correct value. */
-            *result += 1;
-        } else {
+        if (stream) {
             if (fputc(data, stream) == EOF) {
                 *result = EOF;
             } else {
                 *result += 1;
             }
+        } else {
+            if (buffer) {
+                /* write data only if there's enough space */
+                if ((size_t)*result < length) {
+                    buffer[*result] = data;
+                }
+            }
+
+            /* increment 'result' even if data was not written. This ensures that
+               'mbed_minimal_formatted_string' returns the correct value. */
+            *result += 1;
         }
     }
 }

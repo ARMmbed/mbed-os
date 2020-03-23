@@ -635,6 +635,11 @@ static control_t test_snprintf_d(const size_t call_count)
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 #endif
 
+    int a = 2;
+    int b = 3;
+    result_minimal = mbed_snprintf(0, 0, "%d + %d = %d\n", a, b, a + b);
+    TEST_ASSERT_EQUAL_INT(10, result_minimal);
+
     return CaseNext;
 }
 
