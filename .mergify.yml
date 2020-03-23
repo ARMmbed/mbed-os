@@ -102,7 +102,7 @@ pull_request_rules:
   # Conflict in the PR - needs: work and a comment to notify a user
   - name: "label needs: work when there is a conflict"
     conditions:
-      - open
+      - -closed
       - conflict
     actions:
       label:
