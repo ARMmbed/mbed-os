@@ -10139,9 +10139,7 @@
             "MCU_NRF51",
             "MCU_NRF51822_UNIFIED",
             "NRF5x",
-            "NRF51",
-            "SDK_11",
-            "NORDIC_SOFTDEVICE"
+            "NRF51"
         ],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
@@ -10171,9 +10169,6 @@
             ]
         },
         "program_cycle_s": 6,
-        "features": [
-            "BLE"
-        ],
         "config": {
             "lf_clock_src": {
                 "value": "NRF_LF_SRC_XTAL",
