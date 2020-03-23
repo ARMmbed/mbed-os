@@ -276,6 +276,7 @@ bool QSPI::_initialize()
     qspi_status_t ret = qspi_init(&_qspi, _qspi_io0, _qspi_io1, _qspi_io2, _qspi_io3, _qspi_clk, _qspi_cs, _hz, _mode);
     if (QSPI_STATUS_OK == ret) {
         _initialized = true;
+        _owner = this;
     } else {
         _initialized = false;
     }
@@ -294,6 +295,7 @@ bool QSPI::_initialize_direct()
     qspi_status_t ret = qspi_init_direct(&_qspi, _static_pinmap, _hz, _mode);
     if (QSPI_STATUS_OK == ret) {
         _initialized = true;
+        _owner = this;
     } else {
         _initialized = false;
     }
