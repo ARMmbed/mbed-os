@@ -269,7 +269,10 @@ int DeviceKey::generate_root_of_trust()
 
     mbedtls_entropy_free(entropy);
     delete entropy;
-    ret = device_inject_root_of_trust(key_buff, actual_size);
+
+    if (ret == DEVICEKEY_SUCCESS) {
+        ret = device_inject_root_of_trust(key_buff, actual_size);
+    }
 #endif
 
     return ret;
