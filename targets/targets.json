@@ -4905,6 +4905,7 @@
         ],
         "core": "Cortex-M7FD",
         "components_add": [
+            "QSPIF",
             "FLASHIAP"
         ],
         "mbed_rom_start": "0x08000000",
@@ -4914,7 +4915,8 @@
         "extra_labels_add": [
             "STM32H7",
             "STM32H747xI",
-            "DISCO_H747I_CM7"
+            "DISCO_H747I_CM7",
+            "MT25QL512"
         ],
         "config": {
             "clock_source": {
@@ -4950,6 +4952,7 @@
             "CRC",
             "TRNG",
             "FLASH",
+            "QSPI",
             "MPU"
         ],
         "release_versions": [
@@ -4967,9 +4970,11 @@
         "extra_labels_add": [
             "STM32H7",
             "STM32H747xI",
-            "DISCO_H747I"
+            "DISCO_H747I",
+            "MT25QL512"
         ],
         "components_add": [
+            "QSPIF",
             "FLASHIAP"
         ],
         "mbed_rom_start": "0x08100000",
@@ -5007,6 +5012,7 @@
             "CRC",
             "TRNG",
             "FLASH",
+            "QSPI",
             "MPU"
         ],
         "bootloader_supported": true

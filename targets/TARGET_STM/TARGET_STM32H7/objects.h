@@ -146,6 +146,19 @@ struct analogin_s {
     uint8_t differential;
 };
 
+#if DEVICE_QSPI
+struct qspi_s {
+    QSPI_HandleTypeDef handle;
+    QSPIName qspi;
+    PinName io0;
+    PinName io1;
+    PinName io2;
+    PinName io3;
+    PinName sclk;
+    PinName ssel;
+};
+#endif
+
 #define GPIO_IP_WITHOUT_BRR
 
 #if defined(DUAL_CORE)
