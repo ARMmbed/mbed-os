@@ -1224,10 +1224,6 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None,
 
     unique_supported_toolchains = get_unique_supported_toolchains(
         release_targets)
-    #Add ARMC5 column as well to the matrix to help with showing which targets are in ARMC5
-    #ARMC5 is not a toolchain class but yet we use that as a toolchain id in supported_toolchains in targets.json
-    #capture that info in a separate column
-    unique_supported_toolchains.append('ARMC5')
 
     prepend_columns = ["Target"] + ["mbed OS %s" % x for x in RELEASE_VERSIONS]
 
