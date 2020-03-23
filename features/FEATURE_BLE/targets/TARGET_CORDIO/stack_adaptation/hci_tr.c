@@ -72,7 +72,7 @@ void hciTrSendAclData(void *pContext, uint8_t *pData)
       /* pData is not freed as the hciDrvWrite took ownership of the WSF buffer */
 #else
       /* free buffer */
-      WsfMsgFree(pData);
+      hciCoreTxAclComplete((hciCoreConn_t *)pContext, pData);
 #endif // CORDIO_ZERO_COPY_HCI
   }
 }
