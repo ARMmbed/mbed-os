@@ -22,20 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-/***************************/
-/* MBED                    */
-/***************************/
-#if TARGET_LIKE_MBED
-
-#if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
-static char mbed_stdio_out_prev = 0;
-#endif
-
-
-/***************************/
-/* Linux                   */
-/***************************/
-#else
+#if !TARGET_LIKE_MBED
 /* Linux implementation is for debug only */
 #define MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FLOATING_POINT 1
 #define MBED_CONF_PLATFORM_MINIMAL_PRINTF_SET_FLOATING_POINT_MAX_DECIMALS 6
@@ -106,7 +93,6 @@ static void mbed_minimal_formatted_string_signed(char *buffer, size_t length, in
 static void mbed_minimal_formatted_string_unsigned(char *buffer, size_t length, int *result, MBED_UNSIGNED_STORAGE value, FILE *stream);
 static void mbed_minimal_formatted_string_hexadecimal(char *buffer, size_t length, int *result, MBED_UNSIGNED_STORAGE value, FILE *stream, bool upper);
 static void mbed_minimal_formatted_string_void_pointer(char *buffer, size_t length, int *result, const void *value, FILE *stream);
-static void mbed_minimal_formatted_string_character(char *buffer, size_t length, int *result, char character, FILE *stream);
 static void mbed_minimal_formatted_string_string(char *buffer, size_t length, int *result, const char *string, size_t precision, FILE *stream);
 
 
@@ -282,7 +268,7 @@ static void mbed_minimal_formatted_string_double(char *buffer, size_t length, in
     mbed_minimal_formatted_string_signed(buffer, length, result, integer, stream);
 
     /* write decimal point */
-    mbed_minimal_formatted_string_character(buffer, length, result, '.', stream);
+    mbed_minimal_putchar(buffer, length, result, '.', stream);
 
     /* get decimal part */
     double precision = 1.0;
@@ -326,33 +312,6 @@ static void mbed_minimal_formatted_string_double(char *buffer, size_t length, in
     mbed_minimal_formatted_string_unsigned(buffer, length, result, decimal, stream);
 }
 #endif
-
-/**
- * @brief      Print character.
- *
- * @param      buffer  The buffer to store output (NULL for stdout).
- * @param[in]  length  The length of the buffer.
- * @param      result  The current output location.
- * @param[in]  value   The character to be printed.
- */
-static void mbed_minimal_formatted_string_character(char *buffer, size_t length, int *result, char character, FILE *stream)
-{
-    /* write character */
-    if (buffer) {
-        mbed_minimal_putchar(buffer, length, result, character, stream);
-    } else {
-        /* convert \n to \r\n if enabled in platform configuration */
-#if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
-        if (character == '\n' && mbed_stdio_out_prev != '\r') {
-            mbed_minimal_putchar(buffer, length, result, '\r', stream);
-        }
-
-        /* cache character */
-        mbed_stdio_out_prev = character;
-#endif
-        mbed_minimal_putchar(buffer, length, result, character, stream);
-    }
-}
 
 /**
  * @brief      Print string with precision.
@@ -513,7 +472,7 @@ int mbed_minimal_formatted_string(char *buffer, size_t length, const char *forma
 #else
                     /* If 64 bit is not enabled, print %ll[di] rather than truncated value */
                     if (length_modifier == LENGTH_LL) {
-                        mbed_minimal_formatted_string_character(buffer, length, &result, '%', stream);
+                        mbed_minimal_putchar(buffer, length, &result, '%', stream);
                         if (next == '%') {
                             // Continue printing loop after `%`
                             index = next_index;
@@ -572,7 +531,7 @@ int mbed_minimal_formatted_string(char *buffer, size_t length, const char *forma
 #else
                     /* If 64 bit is not enabled, print %ll[uxX] rather than truncated value */
                     if (length_modifier == LENGTH_LL) {
-                        mbed_minimal_formatted_string_character(buffer, length, &result, '%', stream);
+                        mbed_minimal_putchar(buffer, length, &result, '%', stream);
                         if (next == '%') {
                             // Continue printing loop after `%`
                             index = next_index;
@@ -638,7 +597,7 @@ int mbed_minimal_formatted_string(char *buffer, size_t length, const char *forma
                     char value = va_arg(arguments, MBED_SIGNED_NATIVE_TYPE);
                     index = next_index;
 
-                    mbed_minimal_formatted_string_character(buffer, length, &result, value, stream);
+                    mbed_minimal_putchar(buffer, length, &result, value, stream);
                 }
                 /* string */
                 else if (next == 's') {
@@ -655,7 +614,7 @@ int mbed_minimal_formatted_string(char *buffer, size_t length, const char *forma
                     mbed_minimal_formatted_string_void_pointer(buffer, length, &result, value, stream);
                 } else {
                     // Unrecognised, or `%%`. Print the `%` that led us in.
-                    mbed_minimal_formatted_string_character(buffer, length, &result, '%', stream);
+                    mbed_minimal_putchar(buffer, length, &result, '%', stream);
                     if (next == '%') {
                         // Continue printing loop after `%%`
                         index = next_index;
@@ -667,7 +626,7 @@ int mbed_minimal_formatted_string(char *buffer, size_t length, const char *forma
                 /* not a format specifier */
             {
                 /* write normal character */
-                mbed_minimal_formatted_string_character(buffer, length, &result, format[index], stream);
+                mbed_minimal_putchar(buffer, length, &result, format[index], stream);
             }
         }
 
