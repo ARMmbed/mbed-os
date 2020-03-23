@@ -13675,6 +13675,7 @@
             "CY8C624ABZI_D44",
             "CYBSP_WIFI_CAPABLE"
         ],
+        "device_name": "CY8C624ABZI-D44",
         "detect_code": [
             "1901"
         ],
@@ -13716,6 +13717,7 @@
             "CY8C624ABZI_D44",
             "CYBSP_WIFI_CAPABLE"
         ],
+        "device_name": "CY8C624ABZI-D44",
         "detect_code": [
             "190B"
         ],
@@ -13749,6 +13751,7 @@
             "CY_ENABLE_XIP_PROGRAM",
             "CY_STORAGE_WIFI_DATA=\".cy_xip\""
         ],
+        "device_name": "CY8C6245LQI-S3D72",
         "detect_code": [
             "190E"
         ],
@@ -13825,6 +13828,7 @@
             "CYHAL_UDB_SDIO",
             "CYBSP_WIFI_CAPABLE"
         ],
+        "device_name": "CY8C6247BZI-D54",
         "detect_code": [
             "1900"
         ],
@@ -13857,6 +13861,7 @@
         "macros_add": [
             "CY8C6347BZI_BLD53"
         ],
+        "device_name": "CY8C6347BZI-BLD53",
         "detect_code": [
             "1902"
         ],
@@ -13886,6 +13891,7 @@
         "macros_add": [
             "CYBLE_416045_02"
         ],
+        "device_name": "CYBLE-416045-02",
         "detect_code": [
             "1904"
         ],
@@ -13952,6 +13958,7 @@
             "CYHAL_UDB_SDIO",
             "CYBSP_WIFI_CAPABLE"
         ],
+        "device_name": "CY8C6247BZI-D54",
         "detect_code": [
             "1900"
         ],
@@ -13989,6 +13996,7 @@
             "CYHAL_UDB_SDIO",
             "CYBSP_WIFI_CAPABLE"
         ],
+        "device_name": "CY8C6247BZI-D54",
         "detect_code": [
             "1906"
         ],
@@ -14028,6 +14036,7 @@
             "CYHAL_UDB_SDIO",
             "CYBSP_WIFI_CAPABLE"
         ],
+        "device_name": "CY8C6247FDI-D52",
         "detect_code": [
             "1903"
         ],
