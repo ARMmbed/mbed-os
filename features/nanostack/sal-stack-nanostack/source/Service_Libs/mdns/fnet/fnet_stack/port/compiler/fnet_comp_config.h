@@ -94,10 +94,6 @@
     #elif defined(__clang__)
         #define FNET_CFG_COMP_CLANG (1)
         #define FNET_COMP_STR       "CLANG"
-        /* Keil uVision compiler using armcc. */
-    #elif defined(__CC_ARM)
-        #define FNET_CFG_COMP_UV    (1)
-        #define FNET_COMP_STR       "UV"
         /* GNU GCC */
     #elif defined(__GNUC__)
         #define FNET_CFG_COMP_GNUC  (1)
