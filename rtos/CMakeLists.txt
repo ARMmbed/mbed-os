@@ -31,4 +31,4 @@ add_subdirectory(source/TARGET_CORTEX)
 
 target_include_directories(mbed-os PUBLIC .)
 
-target_include_directories(mbed-os PRIVATE source)
+target_include_directories(mbed-os PUBLIC source)
