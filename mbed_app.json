@@ -1,0 +1,19 @@
+{
+    "macros": [
+        "MBED_ROM_START=0x100E0000",
+        "MBED_ROM_SIZE=0x001D0000"
+    ],
+    "target_overrides": {
+        "*": {
+            "platform.stdio-baud-rate": 115200,
+            "platform.stack-stats-enabled": true,
+            "platform.heap-stats-enabled": true,
+            "platform.cpu-stats-enabled": true,
+            "platform.thread-stats-enabled": true,
+            "platform.sys-stats-enabled": true,
+            "target.cm0_img_id": 1,
+            "target.cm4_img_id": 16,
+            "target.policy_file": "./targets/TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CKIT_064B0S2_4343W/policy_multi_CM0_CM4.json"
+        }
+    }
+}
