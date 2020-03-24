@@ -59,5 +59,5 @@ target_sources(mbed-os PRIVATE
     src/timing.c
     src/xtea.c
 )
-target_include_directories(mbed-os PRIVATE inc)
-target_include_directories(mbed-os PRIVATE inc/psa)
+target_include_directories(mbed-os PUBLIC inc)
+target_include_directories(mbed-os PUBLIC inc/psa)
