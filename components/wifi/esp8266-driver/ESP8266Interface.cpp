@@ -715,6 +715,7 @@ nsapi_error_t ESP8266Interface::_init(void)
         if (!_esp.startup(ESP8266::WIFIMODE_STATION)) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }
+#if MBED_CONF_ESP8266_SNTP_ENABLE
         if (!_esp.set_sntp_config(MBED_CONF_ESP8266_SNTP_ENABLE,
                                   MBED_CONF_ESP8266_SNTP_TIMEZONE,
                                   MBED_CONF_ESP8266_SNTP_SERVER0,
@@ -722,6 +723,7 @@ nsapi_error_t ESP8266Interface::_init(void)
                                   MBED_CONF_ESP8266_SNTP_SERVER2)) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }
+#endif
         _initialized = true;
     }
     return NSAPI_ERROR_OK;

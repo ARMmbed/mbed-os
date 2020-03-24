@@ -71,7 +71,7 @@
             "value": false
         },
         "sntp-enable": {
-            "help": "Enable SNTP. This allows application to use get_sntp_time()",
+            "help": "Enable SNTP. This allows application to use get_sntp_time(). Only available from ESP8266 AT v1.5. This driver supports v1.7 and higher.",
             "value": false
         },
         "sntp-timezone": {
