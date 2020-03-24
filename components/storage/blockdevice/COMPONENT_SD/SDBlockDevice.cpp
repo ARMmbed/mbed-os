@@ -252,15 +252,15 @@ const uint32_t SDBlockDevice::_block_size = BLOCK_SIZE_HC;
 
 #if MBED_CONF_SD_CRC_ENABLED
 SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz, bool crc_on)
-    : _sectors(0), _spi(mosi, miso, sclk), _cs(cs), _is_initialized(0),
+    : _sectors(0), _spi(mosi, miso, sclk, cs), _is_initialized(0),
       _init_ref_count(0), _crc_on(crc_on)
 #else
 SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz, bool crc_on)
-    : _sectors(0), _spi(mosi, miso, sclk), _cs(cs), _is_initialized(0),
+    : _sectors(0), _spi(mosi, miso, sclk, cs), _is_initialized(0),
       _init_ref_count(0)
 #endif
 {
-    _cs = 1;
+    _spi.deselect();
     _card_type = SDCARD_NONE;
 
     // Set default to 100kHz for initialisation and 1MHz for data transfer
@@ -274,15 +274,15 @@ SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName c
 
 #if MBED_CONF_SD_CRC_ENABLED
 SDBlockDevice::SDBlockDevice(const spi_pinmap_t &spi_pinmap, PinName cs, uint64_t hz, bool crc_on)
-    : _sectors(0), _spi(spi_pinmap), _cs(cs), _is_initialized(0),
+    : _sectors(0), _spi(spi_pinmap, cs), _is_initialized(0),
       _init_ref_count(0), _crc_on(crc_on)
 #else
 SDBlockDevice::SDBlockDevice(const spi_pinmap_t &spi_pinmap, PinName cs, uint64_t hz, bool crc_on)
-    : _sectors(0), _spi(spi_pinmap), _cs(cs), _is_initialized(0),
+    : _sectors(0), _spi(spi_pinmap, cs), _is_initialized(0),
       _init_ref_count(0)
 #endif
 {
-    _cs = 1;
+    _spi.deselect();
     _card_type = SDCARD_NONE;
 
     // Set default to 100kHz for initialisation and 1MHz for data transfer
@@ -1129,29 +1129,22 @@ void SDBlockDevice::_spi_wait(uint8_t count)
 
 void SDBlockDevice::_spi_init()
 {
-    _spi.lock();
     // Set to SCK for initialization, and clock card with cs = 1
     _spi.frequency(_init_sck);
     _spi.format(8, 0);
     _spi.set_default_write_value(SPI_FILL_CHAR);
     // Initial 74 cycles required for few cards, before selecting SPI mode
-    _cs = 1;
     _spi_wait(10);
-    _spi.unlock();
 }
 
 void SDBlockDevice::_select()
 {
-    _spi.lock();
     _spi.write(SPI_FILL_CHAR);
-    _cs = 0;
 }
 
 void SDBlockDevice::_deselect()
 {
-    _cs = 1;
     _spi.write(SPI_FILL_CHAR);
-    _spi.unlock();
 }
 
 #endif  /* DEVICE_SPI */

@@ -140,8 +140,7 @@ DataFlashBlockDevice::DataFlashBlockDevice(PinName mosi,
                                            PinName cs,
                                            int freq,
                                            PinName nwp)
-    :   _spi(mosi, miso, sclk),
-        _cs(cs, 1),
+    :   _spi(mosi, miso, sclk, cs),
         _nwp(nwp),
         _device_size(0),
         _page_size(0),
@@ -331,9 +330,6 @@ int DataFlashBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 
         uint8_t *external_buffer = static_cast<uint8_t *>(buffer);
 
-        /* activate device */
-        _cs = 0;
-
         /* send read opcode */
         _spi.write(DATAFLASH_OP_READ_LOW_FREQUENCY);
 
@@ -351,9 +347,6 @@ int DataFlashBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
         for (uint32_t index = 0; index < size; index++) {
             external_buffer[index] = _spi.write(DATAFLASH_OP_NOP);
         }
-
-        /* deactivate device */
-        _cs = 1;
 
         result = BD_ERROR_OK;
     }
@@ -546,18 +539,12 @@ uint16_t DataFlashBlockDevice::_get_register(uint8_t opcode)
     _mutex.lock();
     DEBUG_PRINTF("_get_register: %" PRIX8 "\r\n", opcode);
 
-    /* activate device */
-    _cs = 0;
-
     /* write opcode */
     _spi.write(opcode);
 
     /* read and store result */
     int status = (_spi.write(DATAFLASH_OP_NOP));
     status = (status << 8) | (_spi.write(DATAFLASH_OP_NOP));
-
-    /* deactivate device */
-    _cs = 1;
 
     _mutex.unlock();
     return status;
@@ -579,9 +566,6 @@ void DataFlashBlockDevice::_write_command(uint32_t command, const uint8_t *buffe
 {
     DEBUG_PRINTF("_write_command: %" PRIX32 " %p %" PRIX32 "\r\n", command, buffer, size);
 
-    /* activate device */
-    _cs = 0;
-
     /* send command (opcode with data or 4 byte command) */
     _spi.write((command >> 24) & 0xFF);
     _spi.write((command >> 16) & 0xFF);
@@ -594,9 +578,6 @@ void DataFlashBlockDevice::_write_command(uint32_t command, const uint8_t *buffe
             _spi.write(buffer[index]);
         }
     }
-
-    /* deactivate device */
-    _cs = 1;
 }
 
 /**

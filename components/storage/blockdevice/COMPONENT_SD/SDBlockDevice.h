@@ -274,7 +274,6 @@ private:
     int _freq(void);
 
     /* Chip Select and SPI mode select */
-    mbed::DigitalOut _cs;
     void _select();
     void _deselect();
 
