@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 function(_mbed_get_rtx_assembly TOOLCHAIN_DIR)
-    foreach(key ${MBED_OS_TARGET_LABELS})
+    get_property(target_labels GLOBAL PROPERTY MBED_OS_TARGET_LABELS)
+    foreach(key ${target_labels})
         if(${key} STREQUAL CORTEX_A)
             set(STARTUP_RTX_FILE TARGET_CORTEX_A/irq_ca.S)
         elseif(${key} STREQUAL M0)
