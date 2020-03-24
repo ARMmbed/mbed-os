@@ -42,7 +42,7 @@
 define symbol __ICFEDIT_intvec_start__ = 0x00000000;
 
 if (!isdefinedsymbol(MBED_ROM_START)) {
-  define symbol MBED_ROM_START = 0x10000000;
+  define symbol MBED_ROM_START = 0x100E0000;
 }
 
 /* MBED_APP_START is being  used by the bootloader build script and
