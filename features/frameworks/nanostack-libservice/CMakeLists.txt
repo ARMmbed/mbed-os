@@ -24,5 +24,5 @@ target_sources(mbed-os PRIVATE
     source/nsdynmemLIB/nsdynmemLIB.c
     source/nvmHelper/ns_nvm_helper.c
 )
-target_include_directories(mbed-os PRIVATE mbed-client-libservice)
-target_include_directories(mbed-os PRIVATE mbed-client-libservice/platform)
+target_include_directories(mbed-os PUBLIC mbed-client-libservice)
+target_include_directories(mbed-os PUBLIC mbed-client-libservice/platform)
