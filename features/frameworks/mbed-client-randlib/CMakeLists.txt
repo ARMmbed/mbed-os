@@ -5,5 +5,5 @@ target_sources(mbed-os PRIVATE
     mbed-client-randlib/randLIB.h
     mbed-client-randlib/platform/arm_hal_random.h
 )
-target_include_directories(mbed-os PRIVATE mbed-client-randlib)
-target_include_directories(mbed-os PRIVATE mbed-client-randlib/platform)
+target_include_directories(mbed-os PUBLIC mbed-client-randlib)
+target_include_directories(mbed-os PUBLIC mbed-client-randlib/platform)

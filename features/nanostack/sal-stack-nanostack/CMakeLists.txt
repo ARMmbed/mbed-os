@@ -1,3 +1,3 @@
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os PRIVATE nanostack)
+target_include_directories(mbed-os PUBLIC nanostack)
