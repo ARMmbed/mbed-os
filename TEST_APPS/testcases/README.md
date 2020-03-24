@@ -10,6 +10,5 @@ Testcases
 
 Current testcases:
 
--   [`netsocket`](https://github.com/ARMmbed/mbed-os/blob/master/TEST_APPS/testcases/netsocket)
 -   [`example`](https://github.com/ARMmbed/mbed-os/blob/master/TEST_APPS/testcases/example)
 -   [`nanostack_mac_tester`](https://github.com/ARMmbed/mbed-os/blob/master/TEST_APPS/testcases/nanostack_mac_tester)
