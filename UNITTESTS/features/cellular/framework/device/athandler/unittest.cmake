@@ -28,7 +28,6 @@ set(unittest-test-sources
   stubs/SerialBase_stub.cpp
   stubs/mbed_assert_stub.cpp
   stubs/mbed_poll_stub.cpp
-  stubs/Timer_stub.cpp
   stubs/equeue_stub.c
   stubs/Kernel_stub.cpp
   stubs/ThisThread_stub.cpp

@@ -44,9 +44,7 @@ Timeout::Timeout() : TimeoutBase(get_us_ticker_data(), true)
  * (In C++17 could avoid the need for this by making the members inline).
  */
 const bool HighResClock::is_steady;
-const bool SteadyHighResClock::is_steady;
 const bool LowPowerClock::is_steady;
-mstd::once_flag SteadyHighResClock::init;
 const bool RealTimeClock::is_steady;
 
 #if DEVICE_LPTICKER
