@@ -64,7 +64,6 @@ static const mbed_error_status_t mixed_scan_api_error =
 static const mbed_error_status_t illegal_state_error =
     MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_ILLEGAL_STATE);
 
-
 /*
  * Return true if value is included in the range [lower_bound : higher_bound]
  */
@@ -440,8 +439,6 @@ GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::
     _scan_enabled(false),
     _advertising_timeout(),
     _scan_timeout(),
-    _deprecated_scan_api_used(false),
-    _non_deprecated_scan_api_used(false),
     _user_manage_connection_parameter_requests(false)
 {
     _pal_gap.initialize();
@@ -558,78 +555,11 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::connect_(
-    const BLEProtocol::AddressBytes_t peerAddr,
-    PeerAddressType_t peerAddrType,
-    const ConnectionParams_t *connectionParams,
-    const GapScanningParams *scanParams
-)
-{
-    useVersionOneAPI();
-    if (connectionParams == NULL) {
-        connectionParams = &default_connection_params;
-    }
-
-    if (scanParams == NULL) {
-        scanParams = &default_scan_params;
-    }
-
-    if (is_scan_params_valid(scanParams) == false) {
-        return BLE_ERROR_PARAM_OUT_OF_RANGE;
-    }
-
-    if (is_connection_params_valid(connectionParams) == false) {
-        return BLE_ERROR_PARAM_OUT_OF_RANGE;
-    }
-
-    // Force scan stop before initiating the scan used for connection
-    stopScan_();
-
-    return _pal_gap.create_connection(
-        scanParams->getInterval(),
-        scanParams->getWindow(),
-#if BLE_FEATURE_WHITELIST
-        _initiator_policy_mode,
-#else
-        pal::initiator_policy_t::NO_FILTER,
-#endif
-        (pal::connection_peer_address_type_t::type) peerAddrType.value(),
-        ble::address_t(peerAddr),
-        get_own_address_type(CENTRAL_CONNECTION /* requires resolvable address */),
-        connectionParams->minConnectionInterval,
-        connectionParams->maxConnectionInterval,
-        connectionParams->slaveLatency,
-        connectionParams->connectionSupervisionTimeout,
-        /* minimum_connection_event_length */ 0,
-        /* maximum_connection_event_length */ 0
-    );
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::connect_(
-    const BLEProtocol::AddressBytes_t peerAddr,
-    LegacyAddressType_t peerAddrType,
-    const ConnectionParams_t *connectionParams,
-    const GapScanningParams *scanParams
-)
-{
-    useVersionOneAPI();
-    return connect_(
-        peerAddr,
-        to_peer_address_type(peerAddrType),
-        connectionParams,
-        scanParams
-    );
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::connect_(
     peer_address_type_t peerAddressType,
     const ble::address_t &peerAddress,
     const ConnectionParameters &connectionParams
 )
 {
-    useVersionTwoAPI();
-
     if (!connectionParams.getNumberOfEnabledPhys()) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -721,8 +651,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     conn_event_length_t maxConnectionEventLength
 )
 {
-    useVersionTwoAPI();
-
     if (supervisionTimeout <= minSupervisionTimeout(maxConnectionInterval, slaveLatency)) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -749,8 +677,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     conn_event_length_t maxConnectionEventLength
 )
 {
-    useVersionTwoAPI();
-
     if (supervisionTimeout <= minSupervisionTimeout(maxConnectionInterval, slaveLatency)) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -771,8 +697,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     connection_handle_t connectionHandle
 )
 {
-    useVersionTwoAPI();
-
     return _pal_gap.reject_connection_parameter_request(
         connectionHandle,
         pal::hci_error_code_t::UNACCEPTABLE_CONNECTION_PARAMETERS
@@ -782,7 +706,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::cancelConnect_()
 {
-    useVersionTwoAPI();
     return _pal_gap.cancel_connection_creation();
 }
 
@@ -870,50 +793,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     local_disconnection_reason_t reason
 )
 {
-    useVersionTwoAPI();
-
     return _pal_gap.disconnect(connectionHandle, reason);
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::disconnect_(Handle_t connectionHandle, DisconnectionReason_t reason)
-{
-    useVersionOneAPI();
-
-    if (is_disconnection_reason_valid(reason) == false) {
-        return BLE_ERROR_INVALID_PARAM;
-    }
-    return _pal_gap.disconnect(
-        connectionHandle,
-        (pal::disconnection_reason_t::type) reason
-    );
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::disconnect_(DisconnectionReason_t reason)
-{
-    useVersionOneAPI();
-    return BLE_ERROR_NOT_IMPLEMENTED;
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::updateConnectionParams_(Handle_t handle, const ConnectionParams_t *params)
-{
-    useVersionOneAPI();
-
-    if (is_connection_params_valid(params) == false) {
-        return BLE_ERROR_PARAM_OUT_OF_RANGE;
-    }
-
-    return _pal_gap.connection_parameters_update(
-        handle,
-        params->minConnectionInterval,
-        params->maxConnectionInterval,
-        params->slaveLatency,
-        params->connectionSupervisionTimeout,
-        /* minimum_connection_event_length */ 0,
-        /* maximum_connection_event_length */ 0
-    );
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
@@ -1122,127 +1002,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setAdvertisingPolicyMode_(AdvertisingPolicyMode_t mode)
-{
-    useVersionOneAPI();
-
-    if (mode > LegacyGap::ADV_POLICY_FILTER_ALL_REQS) {
-        return BLE_ERROR_INVALID_PARAM;
-    }
-
-    _advertising_filter_policy = (pal::advertising_filter_policy_t::type) mode;
-    return BLE_ERROR_NONE;
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setScanningPolicyMode_(ScanningPolicyMode_t mode)
-{
-    useVersionOneAPI();
-
-    if (mode > LegacyGap::SCAN_POLICY_FILTER_ALL_ADV) {
-        return BLE_ERROR_INVALID_PARAM;
-    }
-
-    _scanning_filter_policy = (pal::scanning_filter_policy_t::type) mode;
-    return BLE_ERROR_NONE;
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setInitiatorPolicyMode_(InitiatorPolicyMode_t mode)
-{
-    useVersionOneAPI();
-
-    if (mode > LegacyGap::INIT_POLICY_FILTER_ALL_ADV) {
-        return BLE_ERROR_INVALID_PARAM;
-    }
-
-    _initiator_policy_mode = (pal::initiator_policy_t::type) mode;
-    return BLE_ERROR_NONE;
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-typename GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::LegacyGap::AdvertisingPolicyMode_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getAdvertisingPolicyMode_(void) const
-{
-    useVersionOneAPI();
-    return (AdvertisingPolicyMode_t) _advertising_filter_policy.value();
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-typename GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::LegacyGap::ScanningPolicyMode_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getScanningPolicyMode_(void) const
-{
-    useVersionOneAPI();
-    return (ScanningPolicyMode_t) _scanning_filter_policy.value();
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-typename GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::LegacyGap::InitiatorPolicyMode_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getInitiatorPolicyMode_(void) const
-{
-    useVersionOneAPI();
-    return (InitiatorPolicyMode_t) _initiator_policy_mode.value();
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::startRadioScan_(const GapScanningParams &scanningParams)
-{
-    useVersionOneAPI();
-
-    if (is_scan_params_valid(&scanningParams) == false) {
-        return BLE_ERROR_INVALID_PARAM;
-    }
-
-#if BLE_FEATURE_WHITELIST
-    if (_scanning_filter_policy == pal::scanning_filter_policy_t::FILTER_ADVERTISING &&
-        _whitelist.size == 0) {
-        return BLE_ERROR_INVALID_STATE;
-    }
-#endif // BLE_FEATURE_WHITELIST
-
-    pal::own_address_type_t own_address_type = get_own_address_type(CENTRAL_SCAN /* central, can use non resolvable address for scan requests */);
-
-#if BLE_FEATURE_PRIVACY
-    if (_privacy_enabled && (own_address_type == pal::own_address_type_t::RANDOM)) {
-        // Use non-resolvable static random address
-        set_random_address_rotation(true);
-    }
-#endif // BLE_FEATURE_PRIVACY
-
-    ble_error_t err = _pal_gap.set_scan_parameters(
-        scanningParams.getActiveScanning(),
-        scanningParams.getInterval(),
-        scanningParams.getWindow(),
-        own_address_type,
-#if BLE_FEATURE_WHITELIST
-        _scanning_filter_policy
-#else
-        pal::scanning_filter_policy_t::NO_FILTER
-#endif // BLE_FEATURE_WHITELIST
-    );
-
-    if (err) {
-        return err;
-    }
-
-    err = _pal_gap.scan_enable(true, false);
-
-    if (err) {
-        return err;
-    }
-
-    _scan_enabled = true;
-
-    _scan_timeout.detach();
-    uint16_t timeout = scanningParams.getTimeout();
-    if (timeout) {
-        _scan_timeout.attach_us(
-            mbed::callback(this, &GenericGap::on_scan_timeout_),
-            scanningParams.getTimeout() * 1000000U
-        );
-    }
-
-    return BLE_ERROR_NONE;
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::initRadioNotification_(void)
 {
     return BLE_ERROR_NOT_IMPLEMENTED;
@@ -1313,105 +1072,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setAdvertisingData_(const GapAdvertisingData &advData, const GapAdvertisingData &scanResponse)
-{
-    useVersionOneAPI();
-
-    ble_error_t err = _pal_gap.set_advertising_data(
-        advData.getPayloadLen(),
-        pal::advertising_data_t(advData.getPayload(), advData.getPayloadLen())
-    );
-    if (err) {
-        return err;
-    }
-
-    return _pal_gap.set_scan_response_data(
-        scanResponse.getPayloadLen(),
-        pal::advertising_data_t(scanResponse.getPayload(), scanResponse.getPayloadLen())
-    );
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::startAdvertising_(const GapAdvertisingParams &params)
-{
-    useVersionOneAPI();
-
-    if (is_advertising_params_valid(params) == false) {
-        return BLE_ERROR_INVALID_PARAM;
-    }
-
-    // We can only use non resolvable addresses if the device is non connectable
-    AddressUseType_t address_use_type =
-        ((params.getAdvertisingType() == GapAdvertisingParams::ADV_SCANNABLE_UNDIRECTED) ||
-            (params.getAdvertisingType() == GapAdvertisingParams::ADV_NON_CONNECTABLE_UNDIRECTED)) ?
-            PERIPHERAL_NON_CONNECTABLE :
-            PERIPHERAL_CONNECTABLE;
-
-    pal::own_address_type_t own_address_type = get_own_address_type(address_use_type);
-
-#if BLE_FEATURE_PRIVACY
-    if (_privacy_enabled && (own_address_type == pal::own_address_type_t::RANDOM)) {
-        // Use non-resolvable static random address
-        set_random_address_rotation(true);
-    }
-#endif // BLE_FEATURE_PRIVACY
-
-    // TODO: fix the high level API to have a min/max range
-    // Going against recommendations (The Advertising_Interval_Min and
-    // Advertising_Interval_Max should not be the same value to enable the
-    // Controller to determine the best advertising interval given other activities.)
-    // for now but not against specification: "The Advertising_Interval_Min
-    // shall be less than or equal to the Advertising_Interval_Max"
-    ble_error_t err = _pal_gap.set_advertising_parameters(
-        /* advertising_interval_min */ params.getIntervalInADVUnits(),
-        /* advertising_interval_max */ params.getIntervalInADVUnits(),
-        (pal::advertising_type_t::type) params.getAdvertisingType(),
-        own_address_type,
-        pal::advertising_peer_address_type_t::PUBLIC,
-        ble::address_t(),
-        pal::advertising_channel_map_t::ALL_ADVERTISING_CHANNELS,
-#if BLE_FEATURE_WHITELIST
-        _advertising_filter_policy
-#else
-        pal::advertising_filter_policy_t::NO_FILTER
-#endif
-    );
-
-    if (err) {
-        return err;
-    }
-
-#if defined(TARGET_CORDIO_LL)
-    // TODO: fix advertising set creation in the link layer.
-    // The Cordio link layer implements legacy API on top of extended advertising
-    // and has an issue that no advertising set is created until we set parameters.
-    // As a workaround, set advertising data again to ensure it takes effect.
-    err = setAdvertisingData_(this->_advPayload, this->_scanResponse);
-    if (err) {
-        return err;
-    }
-#endif
-
-    err = _pal_gap.advertising_enable(true);
-    if (err) {
-        return err;
-    }
-
-    state.advertising = true;
-
-    _advertising_timeout.detach();
-    uint16_t timeout = params.getTimeout();
-    if (timeout) {
-        _advertising_timeout.attach_us(
-            mbed::callback(this, &GenericGap::on_advertising_timeout),
-            params.getTimeout() * 1000000U
-        );
-    }
-
-    return BLE_ERROR_NONE;
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::reset_(void)
 {
     LegacyGap::reset_();
@@ -1422,10 +1082,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 #if BLE_ROLE_OBSERVER
     _scan_timeout.detach();
 #endif
-
-    if (_deprecated_scan_api_used == true) {
-    	return BLE_ERROR_NONE;
-    }
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
@@ -1644,16 +1300,6 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
                 )
             );
         }
-
-        LegacyGap::processAdvertisementReport(
-            advertising.address.data(),
-            advertising.rssi,
-            advertising.type == pal::received_advertising_type_t::SCAN_RESPONSE,
-            (GapAdvertisingParams::AdvertisingType_t) advertising.type.value(),
-            advertising.data.size(),
-            advertising.data.data(),
-            peer_address_type
-        );
     }
 }
 
@@ -1800,7 +1446,6 @@ template <template<class> class PalGapImpl, class PalSecurityManager, class Conn
 void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::on_disconnection_complete(const pal::GapDisconnectionCompleteEvent &e)
 {
     if (e.status == pal::hci_error_code_t::SUCCESS) {
-
         // signal internal stack
         if (_connection_event_handler) {
             _connection_event_handler->on_disconnected(
@@ -2085,7 +1730,6 @@ const uint8_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorE
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 uint8_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getMaxAdvertisingSetNumber_()
 {
-    useVersionTwoAPI();
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
         uint8_t set_number = _pal_gap.get_max_number_of_advertising_sets();
@@ -2100,21 +1744,18 @@ uint8_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHa
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 uint16_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getMaxAdvertisingDataLength_()
 {
-    useVersionTwoAPI();
     return _pal_gap.get_maximum_advertising_data_length();
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 uint16_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getMaxConnectableAdvertisingDataLength_()
 {
-    useVersionTwoAPI();
     return _pal_gap.get_maximum_connectable_advertising_data_length();
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 uint16_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getMaxActiveSetAdvertisingDataLength_()
 {
-    useVersionTwoAPI();
     return _pal_gap.get_maximum_hci_advertising_data_length();
 }
 
@@ -2124,8 +1765,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     const AdvertisingParameters &parameters
 )
 {
-    useVersionTwoAPI();
-
     if (is_extended_advertising_available() == false) {
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
@@ -2158,8 +1797,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::destroyAdvertisingSet_(advertising_handle_t handle)
 {
-    useVersionTwoAPI();
-
     if (is_extended_advertising_available() == false) {
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
@@ -2202,8 +1839,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     const AdvertisingParameters &params
 )
 {
-    useVersionTwoAPI();
-
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     if (handle >= getMaxAdvertisingSetNumber_()) {
         return BLE_ERROR_INVALID_PARAM;
@@ -2314,8 +1949,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     Span<const uint8_t> payload
 )
 {
-    useVersionTwoAPI();
-
     return setAdvertisingData(
         handle,
         payload,
@@ -2330,8 +1963,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     Span<const uint8_t> response
 )
 {
-    useVersionTwoAPI();
-
     return setAdvertisingData(
         handle,
         response,
@@ -2468,7 +2099,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     uint8_t maxEvents
 )
 {
-    useVersionTwoAPI();
     ble_error_t error = BLE_ERROR_NONE;
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING
@@ -2526,8 +2156,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::stopAdvertising_(advertising_handle_t handle)
 {
-    useVersionTwoAPI();
-
     ble_error_t status;
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING
@@ -2581,8 +2209,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 bool GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::isAdvertisingActive_(advertising_handle_t handle)
 {
-    useVersionTwoAPI();
-
     if (handle >= getMaxAdvertisingSetNumber_()) {
         return false;
     }
@@ -2598,8 +2224,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     bool advertiseTxPower
 )
 {
-    useVersionTwoAPI();
-
     if (periodicAdvertisingIntervalMin.value() > periodicAdvertisingIntervalMax.value()) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -2630,8 +2254,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     Span<const uint8_t> payload
 )
 {
-    useVersionTwoAPI();
-
     if (handle == LEGACY_ADVERTISING_HANDLE) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -2692,8 +2314,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::startPeriodicAdvertising_(advertising_handle_t handle)
 {
-    useVersionTwoAPI();
-
     if (handle == LEGACY_ADVERTISING_HANDLE) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -2726,8 +2346,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::stopPeriodicAdvertising_(advertising_handle_t handle)
 {
-    useVersionTwoAPI();
-
     if (handle == LEGACY_ADVERTISING_HANDLE) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -2756,8 +2374,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 bool GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::isPeriodicAdvertisingActive_(advertising_handle_t handle)
 {
-    useVersionTwoAPI();
-
     if (handle >= getMaxAdvertisingSetNumber_()) {
         return false;
     }
@@ -2830,63 +2446,28 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
     }
 #endif // BLE_FEATURE_PRIVACY
 
-    if (_deprecated_scan_api_used == false) {
-        // report in new event handler
-        if (!_eventHandler) {
-            return;
-        }
-        _eventHandler->onAdvertisingReport(
-            AdvertisingReportEvent(
-                event_type,
-                address_type ?
-                    (peer_address_type_t::type) address_type->value() :
-                    peer_address_type_t::ANONYMOUS,
-                (BLEProtocol::AddressBytes_t &) address,
-                primary_phy,
-                secondary_phy ? *secondary_phy : phy_t::NONE,
-                advertising_sid,
-                tx_power,
-                rssi,
-                periodic_advertising_interval,
-                (ble::peer_address_type_t::type) direct_address_type.value(),
-                (BLEProtocol::AddressBytes_t &) direct_address,
-                make_Span(data, data_length)
-            )
-        );
-    } else {
-        if (event_type.legacy_advertising() == false) {
-            return;
-        }
-
-        GapAdvertisingParams::AdvertisingType_t advertising_type;
-
-        if (event_type.connectable() == false) {
-            if (event_type.scannable_advertising()) {
-                advertising_type = GapAdvertisingParams::ADV_SCANNABLE_UNDIRECTED;
-            } else {
-                advertising_type = GapAdvertisingParams::ADV_NON_CONNECTABLE_UNDIRECTED;
-            }
-        } else {
-            if (event_type.directed_advertising()) {
-                advertising_type = GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED;
-            } else {
-                advertising_type = GapAdvertisingParams::ADV_CONNECTABLE_UNDIRECTED;
-            }
-        }
-
-        // This handler is not supposed to be called with V1 API as the extended
-        // scan is not called. However the Cordio LL stack doesn't act that way
-        // and use extended scan with V1 API.
-        LegacyGap::processAdvertisementReport(
-            address.data(),
-            rssi,
-            event_type.scan_response(),
-            advertising_type,
-            data_length,
-            data,
-            (peer_address_type_t::type) address_type->value()
-        );
+    if (!_eventHandler) {
+        return;
     }
+
+    _eventHandler->onAdvertisingReport(
+        AdvertisingReportEvent(
+            event_type,
+            address_type ?
+                (peer_address_type_t::type) address_type->value() :
+                peer_address_type_t::ANONYMOUS,
+            (BLEProtocol::AddressBytes_t &) address,
+            primary_phy,
+            secondary_phy ? *secondary_phy : phy_t::NONE,
+            advertising_sid,
+            tx_power,
+            rssi,
+            periodic_advertising_interval,
+            (ble::peer_address_type_t::type) direct_address_type.value(),
+            (BLEProtocol::AddressBytes_t &) direct_address,
+            make_Span(data, data_length)
+        )
+    );
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
@@ -2917,7 +2498,6 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
             clock_accuracy
         )
     );
-
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
@@ -3065,8 +2645,6 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setScanParameters_(const ScanParameters &params)
 {
-    useVersionTwoAPI();
-
     if (is_extended_advertising_available()) {
         bool active_scanning[] = {
             params.get1mPhyConfiguration().isActiveScanningSet(),
@@ -3116,8 +2694,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     scan_period_t period
 )
 {
-    useVersionTwoAPI();
-
 #if BLE_FEATURE_PRIVACY
     if (_privacy_enabled && _central_privacy_configuration.use_non_resolvable_random_address) {
         set_random_address_rotation(true);
@@ -3174,8 +2750,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     sync_timeout_t timeout
 )
 {
-    useVersionTwoAPI();
-
     if (is_extended_advertising_available() == false) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -3206,8 +2780,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     sync_timeout_t timeout
 )
 {
-    useVersionTwoAPI();
-
     if (is_extended_advertising_available() == false) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -3225,8 +2797,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::cancelCreateSync_()
 {
-    useVersionTwoAPI();
-
     if (is_extended_advertising_available() == false) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -3237,8 +2807,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::terminateSync_(periodic_sync_handle_t handle)
 {
-    useVersionTwoAPI();
-
     if (is_extended_advertising_available() == false) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -3253,8 +2821,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     advertising_sid_t sid
 )
 {
-    useVersionTwoAPI();
-
     if (is_extended_advertising_available() == false) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -3283,8 +2849,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     advertising_sid_t sid
 )
 {
-    useVersionTwoAPI();
-
     if (is_extended_advertising_available() == false) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -3309,8 +2873,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::clearPeriodicAdvertiserList_()
 {
-    useVersionTwoAPI();
-
     if (is_extended_advertising_available() == false) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -3321,43 +2883,11 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 uint8_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getMaxPeriodicAdvertiserListSize_()
 {
-    useVersionTwoAPI();
-
     if (is_extended_advertising_available() == false) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     return _pal_gap.read_periodic_advertiser_list_size();
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::useVersionOneAPI_() const
-{
-    if (_non_deprecated_scan_api_used) {
-        MBED_ERROR(mixed_scan_api_error, "Use of deprecated scan API with up to date API");
-    }
-    _deprecated_scan_api_used = true;
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::useVersionTwoAPI_() const
-{
-    if (_deprecated_scan_api_used) {
-        MBED_ERROR(mixed_scan_api_error, "Use of up to date scan API with deprecated API");
-    }
-    if (!_non_deprecated_scan_api_used) {
-        _non_deprecated_scan_api_used = true;
-#if BLE_FEATURE_EXTENDED_ADVERTISING
-        if (const_cast<GenericGap*>(this)->is_extended_advertising_available()) {
-            const_cast<GenericGap*>(this)->setExtendedAdvertisingParameters(
-                LEGACY_ADVERTISING_HANDLE,
-                AdvertisingParameters()
-            );
-        }
-        const_cast<BitArray<MAX_ADVERTISING_SETS>*>(&_existing_sets)->set(LEGACY_ADVERTISING_HANDLE);
-#endif
-    }
-
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>

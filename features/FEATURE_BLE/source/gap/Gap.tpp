@@ -419,18 +419,6 @@ ble_error_t Gap<Impl>::setPhy(
 #endif // BLE_FEATURE_PHY_MANAGEMENT
 
 template<class Impl>
-void Gap<Impl>::useVersionOneAPI() const
-{
-    return impl()->useVersionOneAPI_();
-}
-
-template<class Impl>
-void Gap<Impl>::useVersionTwoAPI() const
-{
-    return impl()->useVersionTwoAPI_();
-}
-
-template<class Impl>
 Gap<Impl>::Gap() : _eventHandler(NULL)
 {
 }
@@ -817,16 +805,6 @@ ble_error_t Gap<Impl>::setPhy_(
 )
 {
     return BLE_ERROR_NOT_IMPLEMENTED;
-}
-
-template<class Impl>
-void Gap<Impl>::useVersionOneAPI_() const
-{
-}
-
-template<class Impl>
-void Gap<Impl>::useVersionTwoAPI_() const
-{
 }
 
 template<class Impl>

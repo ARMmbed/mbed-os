@@ -1265,15 +1265,6 @@ public:
     ble_error_t setRandomStaticAddress(const ble::address_t& address);
 
 protected:
-    /** Can only be called if use_non_deprecated_scan_api() hasn't been called.
-     *  This guards against mixed use of deprecated and nondeprecated API.
-     */
-    void useVersionOneAPI() const;
-
-    /** Can only be called if use_deprecated_scan_api() hasn't been called.
-     *  This guards against mixed use of deprecated and nondeprecated API.
-     */
-    void useVersionTwoAPI() const;
 
     /**
      * Construct a Gap instance.
@@ -1415,8 +1406,6 @@ protected:
         central_privay_configuration_t *configuration
     );
     ble_error_t setRandomStaticAddress_(const ble::address_t& address);
-    void useVersionOneAPI_() const;
-    void useVersionTwoAPI_() const;
 
 protected:
     /**

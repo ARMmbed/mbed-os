@@ -99,8 +99,6 @@ class GenericGap :
     using ble::interface::Gap<GenericGap>::getMaxAdvertisingDataLength;
 #endif // BLE_ROLE_BROADCASTER
     using ble::interface::Gap<GenericGap>::isFeatureSupported;
-    using ble::interface::Gap<GenericGap>::useVersionOneAPI;
-    using ble::interface::Gap<GenericGap>::useVersionTwoAPI;
 
     // Imports from PalGap EventHandler
     using PalGapEventHandler::on_scan_timeout;
@@ -642,10 +640,6 @@ private:
 
     void on_address_rotation_timeout();
 
-    void useVersionOneAPI_() const;
-
-    void useVersionTwoAPI_() const;
-
     /* implements pal::Gap::EventHandler */
 private:
     void on_read_phy_(
@@ -828,8 +822,6 @@ private:
     BitArray<MAX_ADVERTISING_SETS> _set_is_connectable;
 
     // deprecation flags
-    mutable bool _deprecated_scan_api_used : 1;
-    mutable bool _non_deprecated_scan_api_used : 1;
     bool _user_manage_connection_parameter_requests : 1;
 
 private:
