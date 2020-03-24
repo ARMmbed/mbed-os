@@ -1488,72 +1488,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::processConnectionEvent(
-    Handle_t handle,
-    Role_t role,
-    peer_address_type_t peerAddrType,
-    const BLEProtocol::AddressBytes_t peerAddr,
-    BLEProtocol::AddressType_t ownAddrType,
-    const BLEProtocol::AddressBytes_t ownAddr,
-    const ConnectionParams_t *connectionParams,
-    const uint8_t *peerResolvableAddr,
-    const uint8_t *localResolvableAddr
-)
-{
-    if (_connection_event_handler) {
-        _connection_event_handler->on_connected(
-            handle,
-            role,
-            peerAddrType,
-            peerAddr,
-            ownAddrType,
-            ownAddr,
-            connectionParams
-        );
-    }
-
-    LegacyGap::processConnectionEvent(
-        handle,
-        role,
-        peerAddrType,
-        peerAddr,
-        ownAddrType,
-        ownAddr,
-        connectionParams,
-        peerResolvableAddr,
-        localResolvableAddr
-    );
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::processDisconnectionEvent(
-    Handle_t handle,
-    DisconnectionReason_t reason
-)
-{
-    if (_connection_event_handler) {
-        _connection_event_handler->on_disconnected(
-            handle,
-            reason
-        );
-    }
-
-    if (_eventHandler) {
-        _eventHandler->onDisconnectionComplete(
-            DisconnectionCompleteEvent(
-                handle,
-                (disconnection_reason_t::type) reason
-            )
-        );
-    }
-
-    LegacyGap::processDisconnectionEvent(
-        handle,
-        reason
-    );
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::on_scan_timeout_()
 {
     if (!_scan_enabled) {
@@ -1825,20 +1759,20 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         address = _pal_gap.get_random_address();
     }
 
-    // legacy process event
-    processConnectionEvent(
-        e.connection_handle,
-        e.role.value() == e.role.CENTRAL ? LegacyGap::CENTRAL : LegacyGap::PERIPHERAL,
-        e.peer_address_type,
-        e.peer_address.data(),
-        _address_type,
-        address.data(),
-        &connection_params,
-        e.local_resolvable_private_address.data(),
-        e.peer_resolvable_private_address.data()
-    );
+    // signal internal stack
+    if (_connection_event_handler) {
+        _connection_event_handler->on_connected(
+            e.connection_handle,
+            e.role.value() == e.role.CENTRAL ? LegacyGap::CENTRAL : LegacyGap::PERIPHERAL,
+            e.peer_address_type,
+            e.peer_address.data(),
+            _address_type,
+            address.data(),
+            &connection_params
+        );
+    }
 
-    // new process event
+    // signal application
     if (_eventHandler) {
         _eventHandler->onConnectionComplete(
             ConnectionCompleteEvent(
@@ -1874,10 +1808,24 @@ template <template<class> class PalGapImpl, class PalSecurityManager, class Conn
 void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::on_disconnection_complete(const pal::GapDisconnectionCompleteEvent &e)
 {
     if (e.status == pal::hci_error_code_t::SUCCESS) {
-        processDisconnectionEvent(
-            e.connection_handle,
-            (DisconnectionReason_t) e.reason
-        );
+
+        // signal internal stack
+        if (_connection_event_handler) {
+            _connection_event_handler->on_disconnected(
+                (Handle_t) e.connection_handle,
+                (DisconnectionReason_t) e.reason
+            );
+        }
+
+        // signal application
+        if (_eventHandler) {
+            _eventHandler->onDisconnectionComplete(
+                DisconnectionCompleteEvent(
+                    (connection_handle_t) e.connection_handle,
+                    (disconnection_reason_t::type) e.reason
+                )
+            );
+        }
     } else {
         // TODO: define what to do in case of failure
     }

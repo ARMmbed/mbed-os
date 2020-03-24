@@ -592,28 +592,6 @@ public:
      */
     ble_error_t reset_(void);
 
-    /**
-     * @copydoc ::Gap::processConnectionEvent
-     */
-    void processConnectionEvent(
-        Handle_t handle,
-        Role_t role,
-        peer_address_type_t peerAddrType,
-        const BLEProtocol::AddressBytes_t peerAddr,
-        BLEProtocol::AddressType_t ownAddrType,
-        const BLEProtocol::AddressBytes_t ownAddr,
-        const ConnectionParams_t *connectionParams,
-        const uint8_t *peerResolvableAddr,
-        const uint8_t *localResolvableAddr
-    );
-
-    /**
-     * @copydoc ::Gap::processDisconnectionEvent
-     */
-    void processDisconnectionEvent(
-        Handle_t handle,
-        DisconnectionReason_t reason
-    );
 
 private:
     ble_error_t setAdvertisingData(
