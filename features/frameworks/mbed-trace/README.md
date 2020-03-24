@@ -151,6 +151,8 @@ In Mbed OS, the build time maximum tracing level can be set through `mbed_app.js
 }
 ```
 
+When max-level is not set by the application, default level is INFO.
+
 ### Helping functions
 
 The purpose of the helping functions is to provide simple conversions,
