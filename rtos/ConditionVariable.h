@@ -28,6 +28,7 @@
 #include "rtos/mbed_rtos_types.h"
 #include "rtos/Mutex.h"
 #include "rtos/Semaphore.h"
+#include "rtos/Kernel.h"
 
 #include "platform/NonCopyable.h"
 

@@ -97,9 +97,6 @@ public:
     /** Clock to use with attach_absolute, guaranteeing running only while attached or manually locked */
     using clock = HighResClock;
 
-    /** Clock to use with attach_absolute, running always */
-    using steady_clock = SteadyHighResClock;
-
     /** @copydoc TimeoutBase::scheduled_time() */
     HighResClock::time_point scheduled_time() const
     {
