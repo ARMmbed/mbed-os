@@ -205,11 +205,6 @@ void InternetSocket::sigio(Callback<void()> callback)
     core_util_critical_section_exit();
 }
 
-void InternetSocket::attach(Callback<void()> callback)
-{
-    sigio(callback);
-}
-
 nsapi_error_t InternetSocket::getpeername(SocketAddress *address)
 {
     if (!_socket) {
