@@ -38,23 +38,6 @@ public:
      */
     UDPSocket();
 
-    /** Create and open a socket on the network stack of the given
-     *  network interface.
-     *
-     *  @tparam S    Type of the Network stack.
-     *  @param stack Network stack as target for socket.
-     *  @deprecated since mbed-os-5.11
-     */
-    template <typename S>
-    MBED_DEPRECATED_SINCE("mbed-os-5.11",
-                          "The UDPSocket(S *stack) constructor is deprecated"
-                          "It discards the open() call return value."
-                          "Use another constructor and call open() explicitly, instead.")
-    UDPSocket(S *stack) : UDPSocket()
-    {
-        open(stack);
-    }
-
 #if !defined(DOXYGEN_ONLY)
 
 protected:
