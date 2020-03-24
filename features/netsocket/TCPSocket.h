@@ -177,7 +177,6 @@ public:
     nsapi_error_t listen(int backlog = 1) override;
 
 protected:
-    friend class TCPServer;
     nsapi_protocol_t get_proto() override;
 
 private:
