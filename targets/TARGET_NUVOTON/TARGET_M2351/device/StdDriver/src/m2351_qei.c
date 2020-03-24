@@ -6,6 +6,9 @@
  * @brief    Quadrature Encoder Interface (QEI) driver source file
  *
  * @note
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "M2351.h"

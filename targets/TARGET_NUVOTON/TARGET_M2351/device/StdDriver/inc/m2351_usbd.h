@@ -3,6 +3,8 @@
  * @version  V3.00
  * @brief    M2351 series USBD driver header file
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * @copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #ifndef __USBD_H__

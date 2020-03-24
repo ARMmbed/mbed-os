@@ -4,6 +4,9 @@
  * @brief    M2351 series BPWM driver header file
  *
  * @note
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __BPWM_H__
