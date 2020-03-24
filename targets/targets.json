@@ -14712,13 +14712,13 @@
             "5"
         ]
     },
-    "NUMAKER_IOT_M263A": {
+    "MCU_M261": {
         "core": "Cortex-M23",
         "default_toolchain": "ARMC6",
+        "public": false,
         "extra_labels": [
             "NUVOTON",
             "M261",
-            "M263KIAAE",
             "FLASH_CMSIS_ALGO"
         ],
         "macros": [
@@ -14732,6 +14732,30 @@
             "IAR"
         ],
         "config": {
+            "usb-uart": {
+                "help": "Configure USB_UART. USB_UART and USB_UART_TX/USB_UART_RX must be consistent.",
+                "value": null
+            },
+            "usb-uart-tx": {
+                "help": "Configure USBTX. USB_UART and USBTX/USBRX must be consistent.",
+                "value": null
+            },
+            "usb-uart-rx": {
+                "help": "Configure USBRX. USB_UART and USBTX/USBRX must be consistent.",
+                "value": null
+            },
+            "stdio-uart": {
+                "help": "Configure STDIO_UART. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART defaults to USB_UART.",
+                "value": null
+            },
+            "stdio-uart-tx": {
+                "help": "Configure STDIO_UART_TX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_TX defaults to USBTX.",
+                "value": null
+            },
+            "stdio-uart-rx": {
+                "help": "Configure STDIO_UART_RX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_RX defaults to USBRX.",
+                "value": null
+            },
             "gpio-irq-debounce-enable": {
                 "help": "Enable GPIO IRQ debounce",
                 "value": 0
@@ -14782,19 +14806,29 @@
         "components_add": [
             "FLASHIAP"
         ],
-        "detect_code": [
-            "1310"
-        ],
         "release_versions": [
             "5"
         ],
-        "device_name": "M263KIAAE",
         "bootloader_supported": true,
         "overrides": {
             "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
         },
         "forced_reset_timeout": 3
+    },
+    "NUMAKER_IOT_M263A": {
+        "inherits": [
+            "MCU_M261"
+        ],
+        "device_name": "M263KIAAE",
+        "detect_code": [
+            "1310"
+        ],
+        "overrides": {
+            "usb-uart": "UART_0",
+            "usb-uart-tx": "PB_13",
+            "usb-uart-rx": "PB_12"
+        }
     },
     "NUCLEO_G071RB": {
         "inherits": [
