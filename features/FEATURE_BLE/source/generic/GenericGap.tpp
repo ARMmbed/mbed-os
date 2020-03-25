@@ -1127,15 +1127,10 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
         /* clear advertising set data on the controller */
         _pal_gap.clear_advertising_sets();
-
-        setExtendedAdvertisingParameters(
-            LEGACY_ADVERTISING_HANDLE,
-            AdvertisingParameters()
-        );
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     }
 
-    _existing_sets.set(LEGACY_ADVERTISING_HANDLE);
+    prepare_legacy_advertising_set();
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     return BLE_ERROR_NONE;
@@ -1844,6 +1839,8 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         return BLE_ERROR_INVALID_PARAM;
     }
 
+    prepare_legacy_advertising_set();
+
     if (!_existing_sets.get(handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -1997,6 +1994,8 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     if (handle >= getMaxAdvertisingSetNumber_()) {
         return BLE_ERROR_INVALID_PARAM;
     }
+
+    prepare_legacy_advertising_set();
 
     if (!_existing_sets.get(handle)) {
         return BLE_ERROR_INVALID_PARAM;
@@ -2901,6 +2900,23 @@ bool GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
     return false;
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
 }
+
+template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
+void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::prepare_legacy_advertising_set()
+{
+#if BLE_FEATURE_EXTENDED_ADVERTISING
+    if (_existing_sets.get(LEGACY_ADVERTISING_HANDLE)) {
+        return;
+    }
+
+    setExtendedAdvertisingParameters(
+        LEGACY_ADVERTISING_HANDLE,
+        AdvertisingParameters()
+    );
+    _existing_sets.set(LEGACY_ADVERTISING_HANDLE);
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+}
+
 
 } // generic
 } // ble

@@ -831,6 +831,8 @@ private:
     );
 
     bool is_extended_advertising_available();
+
+    void prepare_legacy_advertising_set();
 };
 
 } // namespace generic
