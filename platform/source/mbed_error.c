@@ -197,7 +197,7 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
     //Call the error hook if available
     if (error_hook != NULL) {
         error_hook(&last_error_ctx);
-    { else {
+    } else {
         mbed_error_hook(&last_error_ctx);
     }
 
