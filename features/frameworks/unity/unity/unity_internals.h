@@ -227,9 +227,7 @@ typedef _US64 _U_SINT;
 #endif
 typedef UNITY_FLOAT_TYPE _UF;
 
-#if defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
-#else
-
+#if !defined(__ARMCC_VERSION)
 #ifndef isinf
 #define isinf(n) (((1.0f / f_zero) == n) ? 1 : 0) || (((-1.0f / f_zero) == n) ? 1 : 0)
 #define UNITY_FLOAT_NEEDS_ZERO
