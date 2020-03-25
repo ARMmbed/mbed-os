@@ -122,7 +122,7 @@ public:
      *  @param rx_continuous Sets the reception in continuous mode
      *                          [false: single mode, true: continuous mode]
      */
-    virtual void set_rx_config (radio_modems_t modem, uint32_t bandwidth,
+    virtual void set_rx_config(radio_modems_t modem, uint32_t bandwidth,
                                uint32_t datarate, uint8_t coderate,
                                uint32_t bandwidth_afc, uint16_t preamble_len,
                                uint16_t symb_timeout, bool fix_len,
@@ -160,10 +160,10 @@ public:
      *  @param timeout       Transmission timeout [ms]
      */
     virtual void set_tx_config(radio_modems_t modem, int8_t power, uint32_t fdev,
-                              uint32_t bandwidth, uint32_t datarate,
-                              uint8_t coderate, uint16_t preamble_len,
-                              bool fix_len, bool crc_on, bool freq_hop_on,
-                              uint8_t hop_period, bool iq_inverted, uint32_t timeout);
+                               uint32_t bandwidth, uint32_t datarate,
+                               uint8_t coderate, uint16_t preamble_len,
+                               bool fix_len, bool crc_on, bool freq_hop_on,
+                               uint8_t hop_period, bool iq_inverted, uint32_t timeout);
 
     /**
      *  Sends the buffer of size
@@ -374,8 +374,8 @@ private:
     void set_crc_seed(uint16_t seed);
     void set_crc_polynomial(uint16_t polynomial);
     void set_whitening_seed(uint16_t seed);
-    void set_pa_config( uint8_t pa_DC, uint8_t hp_max, uint8_t device_type,
-                        uint8_t pa_LUT );
+    void set_pa_config(uint8_t pa_DC, uint8_t hp_max, uint8_t device_type,
+                       uint8_t pa_LUT);
     void set_tx_power(int8_t power);
     void calibrate_image(uint32_t freq);
     void configure_dio_irq(uint16_t irq_mask, uint16_t dio1_mask,

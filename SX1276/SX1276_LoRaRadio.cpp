@@ -64,8 +64,7 @@ using namespace mbed;
 /*!
  * FSK bandwidth definition
  */
-typedef struct
-{
+typedef struct {
     uint32_t bandwidth;
     uint8_t  register_value;
 } fsk_bw_t;
@@ -73,8 +72,7 @@ typedef struct
 /*!
  * Radio registers definition
  */
-typedef struct
-{
+typedef struct {
     uint8_t     modem;
     uint8_t     addr;
     uint8_t     value;
@@ -100,24 +98,23 @@ typedef struct
     { MODEM_LORA, REG_LR_PAYLOADMAXLENGTH, 0x40 },\
 }
 
-static const fsk_bw_t fsk_bandwidths[] =
-{
-    { 2600  , 0x17 },
-    { 3100  , 0x0F },
-    { 3900  , 0x07 },
-    { 5200  , 0x16 },
-    { 6300  , 0x0E },
-    { 7800  , 0x06 },
-    { 10400 , 0x15 },
-    { 12500 , 0x0D },
-    { 15600 , 0x05 },
-    { 20800 , 0x14 },
-    { 25000 , 0x0C },
-    { 31300 , 0x04 },
-    { 41700 , 0x13 },
-    { 50000 , 0x0B },
-    { 62500 , 0x03 },
-    { 83333 , 0x12 },
+static const fsk_bw_t fsk_bandwidths[] = {
+    { 2600, 0x17 },
+    { 3100, 0x0F },
+    { 3900, 0x07 },
+    { 5200, 0x16 },
+    { 6300, 0x0E },
+    { 7800, 0x06 },
+    { 10400, 0x15 },
+    { 12500, 0x0D },
+    { 15600, 0x05 },
+    { 20800, 0x14 },
+    { 25000, 0x0C },
+    { 31300, 0x04 },
+    { 41700, 0x13 },
+    { 50000, 0x0B },
+    { 62500, 0x03 },
+    { 83333, 0x12 },
     { 100000, 0x0A },
     { 125000, 0x02 },
     { 166700, 0x11 },
@@ -193,7 +190,7 @@ SX1276_LoRaRadio::SX1276_LoRaRadio(PinName spi_mosi,
         _tcxo(tcxo)
 
 #ifdef MBED_CONF_RTOS_PRESENT
-        , irq_thread(osPriorityRealtime, 1024, NULL, "LR-SX1276")
+    , irq_thread(osPriorityRealtime, 1024, NULL, "LR-SX1276")
 #endif
 {
     _rf_ctrls.ant_switch = antswitch;
@@ -318,10 +315,10 @@ uint8_t SX1276_LoRaRadio::get_status(void)
 void SX1276_LoRaRadio::set_channel(uint32_t freq)
 {
     _rf_settings.channel = freq;
-    freq = (uint32_t) ((float) freq / (float) FREQ_STEP);
-    write_to_register(REG_FRFMSB, (uint8_t) ((freq >> 16) & 0xFF));
-    write_to_register(REG_FRFMID, (uint8_t) ((freq >> 8) & 0xFF));
-    write_to_register(REG_FRFLSB, (uint8_t) (freq & 0xFF));
+    freq = (uint32_t)((float) freq / (float) FREQ_STEP);
+    write_to_register(REG_FRFMSB, (uint8_t)((freq >> 16) & 0xFF));
+    write_to_register(REG_FRFMID, (uint8_t)((freq >> 8) & 0xFF));
+    write_to_register(REG_FRFLSB, (uint8_t)(freq & 0xFF));
 }
 
 /**
@@ -334,7 +331,7 @@ void SX1276_LoRaRadio::set_channel(uint32_t freq)
  * In addition to that RX and TX configuration APIs should be called again in
  * order to have correct desires setup.
  */
-uint32_t SX1276_LoRaRadio::random( void )
+uint32_t SX1276_LoRaRadio::random(void)
 {
     uint8_t i;
     uint32_t rnd = 0;
@@ -342,17 +339,17 @@ uint32_t SX1276_LoRaRadio::random( void )
     /*
      * Radio setup for random number generation
      */
-    set_modem( MODEM_LORA );
+    set_modem(MODEM_LORA);
 
     // Disable LoRa modem interrupts
     write_to_register(REG_LR_IRQFLAGSMASK, RFLR_IRQFLAGS_RXTIMEOUT |
-                  RFLR_IRQFLAGS_RXDONE |
-                  RFLR_IRQFLAGS_PAYLOADCRCERROR |
-                  RFLR_IRQFLAGS_VALIDHEADER |
-                  RFLR_IRQFLAGS_TXDONE |
-                  RFLR_IRQFLAGS_CADDONE |
-                  RFLR_IRQFLAGS_FHSSCHANGEDCHANNEL |
-                  RFLR_IRQFLAGS_CADDETECTED );
+                      RFLR_IRQFLAGS_RXDONE |
+                      RFLR_IRQFLAGS_PAYLOADCRCERROR |
+                      RFLR_IRQFLAGS_VALIDHEADER |
+                      RFLR_IRQFLAGS_TXDONE |
+                      RFLR_IRQFLAGS_CADDONE |
+                      RFLR_IRQFLAGS_FHSSCHANGEDCHANNEL |
+                      RFLR_IRQFLAGS_CADDETECTED);
 
     // Set radio in continuous reception
     set_operation_mode(RF_OPMODE_RECEIVER);
@@ -360,7 +357,7 @@ uint32_t SX1276_LoRaRadio::random( void )
     for (i = 0; i < 32; i++) {
         ThisThread::sleep_for(1);
         // Unfiltered RSSI value reading. Only takes the LSB value
-        rnd |= ((uint32_t) read_register( REG_LR_RSSIWIDEBAND) & 0x01) << i;
+        rnd |= ((uint32_t) read_register(REG_LR_RSSIWIDEBAND) & 0x01) << i;
     }
 
     sleep();
@@ -397,15 +394,15 @@ void SX1276_LoRaRadio::set_rx_config(radio_modems_t modem, uint32_t bandwidth,
             _rf_settings.fsk.preamble_len = preamble_len;
             _rf_settings.fsk.rx_single_timeout = (symb_timeout + 1) / 2; // dividing by 2 as our detector size is 2 symbols (16 bytes)
 
-            datarate = (uint16_t) ((float) XTAL_FREQ / (float) datarate);
-            write_to_register(REG_BITRATEMSB, (uint8_t) (datarate >> 8));
-            write_to_register(REG_BITRATELSB, (uint8_t) (datarate & 0xFF));
+            datarate = (uint16_t)((float) XTAL_FREQ / (float) datarate);
+            write_to_register(REG_BITRATEMSB, (uint8_t)(datarate >> 8));
+            write_to_register(REG_BITRATELSB, (uint8_t)(datarate & 0xFF));
 
             write_to_register(REG_RXBW, get_fsk_bw_reg_val(bandwidth));
             write_to_register(REG_AFCBW, get_fsk_bw_reg_val(bandwidth_afc));
 
-            write_to_register(REG_PREAMBLEMSB, (uint8_t) ((preamble_len >> 8) & 0xFF));
-            write_to_register(REG_PREAMBLELSB, (uint8_t) (preamble_len & 0xFF));
+            write_to_register(REG_PREAMBLEMSB, (uint8_t)((preamble_len >> 8) & 0xFF));
+            write_to_register(REG_PREAMBLELSB, (uint8_t)(preamble_len & 0xFF));
 
             if (fix_len == 1) {
                 write_to_register(REG_PAYLOADLENGTH, payload_len);
@@ -414,18 +411,18 @@ void SX1276_LoRaRadio::set_rx_config(radio_modems_t modem, uint32_t bandwidth,
             }
 
             write_to_register(
-                    REG_PACKETCONFIG1,
-                    (read_register(REG_PACKETCONFIG1)
-                            & RF_PACKETCONFIG1_CRC_MASK
-                            & RF_PACKETCONFIG1_PACKETFORMAT_MASK)
-                            | ((fix_len == 1) ?
-                                    RF_PACKETCONFIG1_PACKETFORMAT_FIXED :
-                                    RF_PACKETCONFIG1_PACKETFORMAT_VARIABLE)
-                            | (crc_on << 4));
+                REG_PACKETCONFIG1,
+                (read_register(REG_PACKETCONFIG1)
+                 & RF_PACKETCONFIG1_CRC_MASK
+                 & RF_PACKETCONFIG1_PACKETFORMAT_MASK)
+                | ((fix_len == 1) ?
+                   RF_PACKETCONFIG1_PACKETFORMAT_FIXED :
+                   RF_PACKETCONFIG1_PACKETFORMAT_VARIABLE)
+                | (crc_on << 4));
 
             // TODO why packet mode 2 ?
             write_to_register(REG_PACKETCONFIG2, (read_register(REG_PACKETCONFIG2)
-                                            | RF_PACKETCONFIG2_DATAMODE_PACKET));
+                                                  | RF_PACKETCONFIG2_DATAMODE_PACKET));
 
             break;
 
@@ -439,7 +436,7 @@ void SX1276_LoRaRadio::set_rx_config(radio_modems_t modem, uint32_t bandwidth,
             }
 
             // stupid hack. TODO think something better
-            bandwidth+=7;
+            bandwidth += 7;
 
             _rf_settings.lora.bandwidth = bandwidth;
             _rf_settings.lora.datarate = datarate;
@@ -466,40 +463,40 @@ void SX1276_LoRaRadio::set_rx_config(radio_modems_t modem, uint32_t bandwidth,
                 _rf_settings.lora.low_datarate_optimize = 0x00;
             }
 
-            write_to_register(REG_LR_MODEMCONFIG1, (read_register( REG_LR_MODEMCONFIG1)
-                            & RFLR_MODEMCONFIG1_BW_MASK
-                            & RFLR_MODEMCONFIG1_CODINGRATE_MASK
-                            & RFLR_MODEMCONFIG1_IMPLICITHEADER_MASK)
-                            | (bandwidth << 4)
-                            | (coderate << 1) | fix_len);
+            write_to_register(REG_LR_MODEMCONFIG1, (read_register(REG_LR_MODEMCONFIG1)
+                                                    & RFLR_MODEMCONFIG1_BW_MASK
+                                                    & RFLR_MODEMCONFIG1_CODINGRATE_MASK
+                                                    & RFLR_MODEMCONFIG1_IMPLICITHEADER_MASK)
+                              | (bandwidth << 4)
+                              | (coderate << 1) | fix_len);
 
-            write_to_register(REG_LR_MODEMCONFIG2, (read_register( REG_LR_MODEMCONFIG2)
-                    & RFLR_MODEMCONFIG2_SF_MASK
-                    & RFLR_MODEMCONFIG2_RXPAYLOADCRC_MASK
-                    & RFLR_MODEMCONFIG2_SYMBTIMEOUTMSB_MASK)
-                            | (datarate << 4)
-                            | (crc_on << 2)
-                            | ((symb_timeout >> 8)
-                                    & ~RFLR_MODEMCONFIG2_SYMBTIMEOUTMSB_MASK));
+            write_to_register(REG_LR_MODEMCONFIG2, (read_register(REG_LR_MODEMCONFIG2)
+                                                    & RFLR_MODEMCONFIG2_SF_MASK
+                                                    & RFLR_MODEMCONFIG2_RXPAYLOADCRC_MASK
+                                                    & RFLR_MODEMCONFIG2_SYMBTIMEOUTMSB_MASK)
+                              | (datarate << 4)
+                              | (crc_on << 2)
+                              | ((symb_timeout >> 8)
+                                 & ~RFLR_MODEMCONFIG2_SYMBTIMEOUTMSB_MASK));
 
-            write_to_register(REG_LR_MODEMCONFIG3, (read_register( REG_LR_MODEMCONFIG3)
-                    & RFLR_MODEMCONFIG3_LOWDATARATEOPTIMIZE_MASK)
-                            | (_rf_settings.lora.low_datarate_optimize << 3));
+            write_to_register(REG_LR_MODEMCONFIG3, (read_register(REG_LR_MODEMCONFIG3)
+                                                    & RFLR_MODEMCONFIG3_LOWDATARATEOPTIMIZE_MASK)
+                              | (_rf_settings.lora.low_datarate_optimize << 3));
 
-            write_to_register(REG_LR_SYMBTIMEOUTLSB, (uint8_t) (symb_timeout & 0xFF));
+            write_to_register(REG_LR_SYMBTIMEOUTLSB, (uint8_t)(symb_timeout & 0xFF));
 
-            write_to_register(REG_LR_PREAMBLEMSB, (uint8_t) ((preamble_len >> 8) & 0xFF));
-            write_to_register(REG_LR_PREAMBLELSB, (uint8_t) (preamble_len & 0xFF));
+            write_to_register(REG_LR_PREAMBLEMSB, (uint8_t)((preamble_len >> 8) & 0xFF));
+            write_to_register(REG_LR_PREAMBLELSB, (uint8_t)(preamble_len & 0xFF));
 
             if (fix_len == 1) {
                 write_to_register(REG_LR_PAYLOADLENGTH, payload_len);
             }
 
             if (_rf_settings.lora.freq_hop_on == true) {
-                write_to_register(REG_LR_PLLHOP, (read_register( REG_LR_PLLHOP)
-                                & RFLR_PLLHOP_FASTHOP_MASK)
-                                | RFLR_PLLHOP_FASTHOP_ON);
-                write_to_register(REG_LR_HOPPERIOD,_rf_settings.lora.hop_period);
+                write_to_register(REG_LR_PLLHOP, (read_register(REG_LR_PLLHOP)
+                                                  & RFLR_PLLHOP_FASTHOP_MASK)
+                                  | RFLR_PLLHOP_FASTHOP_ON);
+                write_to_register(REG_LR_HOPPERIOD, _rf_settings.lora.hop_period);
             }
 
             if ((bandwidth == 9) && (_rf_settings.channel > RF_MID_BAND_THRESH)) {
@@ -517,13 +514,13 @@ void SX1276_LoRaRadio::set_rx_config(radio_modems_t modem, uint32_t bandwidth,
 
             if (datarate == 6) {
                 write_to_register(REG_LR_DETECTOPTIMIZE, (read_register(REG_LR_DETECTOPTIMIZE)
-                                          & RFLR_DETECTIONOPTIMIZE_MASK)
-                                          | RFLR_DETECTIONOPTIMIZE_SF6);
+                                                          & RFLR_DETECTIONOPTIMIZE_MASK)
+                                  | RFLR_DETECTIONOPTIMIZE_SF6);
                 write_to_register(REG_LR_DETECTIONTHRESHOLD, RFLR_DETECTIONTHRESH_SF6);
             } else {
                 write_to_register(REG_LR_DETECTOPTIMIZE, (read_register(REG_LR_DETECTOPTIMIZE)
-                                          & RFLR_DETECTIONOPTIMIZE_MASK)
-                                          | RFLR_DETECTIONOPTIMIZE_SF7_TO_SF12);
+                                                          & RFLR_DETECTIONOPTIMIZE_MASK)
+                                  | RFLR_DETECTIONOPTIMIZE_SF7_TO_SF12);
                 write_to_register(REG_LR_DETECTIONTHRESHOLD, RFLR_DETECTIONTHRESH_SF7_TO_SF12);
             }
             break;
@@ -562,28 +559,28 @@ void SX1276_LoRaRadio::set_tx_config(radio_modems_t modem, int8_t power,
             _rf_settings.fsk.iq_inverted = iq_inverted;
             _rf_settings.fsk.tx_timeout = timeout;
 
-            fdev = (uint16_t) ((float) fdev / (float) FREQ_STEP);
-            write_to_register( REG_FDEVMSB, (uint8_t) (fdev >> 8));
-            write_to_register( REG_FDEVLSB, (uint8_t) (fdev & 0xFF));
+            fdev = (uint16_t)((float) fdev / (float) FREQ_STEP);
+            write_to_register(REG_FDEVMSB, (uint8_t)(fdev >> 8));
+            write_to_register(REG_FDEVLSB, (uint8_t)(fdev & 0xFF));
 
-            datarate = (uint16_t) ((float) XTAL_FREQ / (float) datarate);
-            write_to_register( REG_BITRATEMSB, (uint8_t) (datarate >> 8));
-            write_to_register( REG_BITRATELSB, (uint8_t) (datarate & 0xFF));
+            datarate = (uint16_t)((float) XTAL_FREQ / (float) datarate);
+            write_to_register(REG_BITRATEMSB, (uint8_t)(datarate >> 8));
+            write_to_register(REG_BITRATELSB, (uint8_t)(datarate & 0xFF));
 
-            write_to_register( REG_PREAMBLEMSB, (preamble_len >> 8) & 0x00FF);
-            write_to_register( REG_PREAMBLELSB, preamble_len & 0xFF);
+            write_to_register(REG_PREAMBLEMSB, (preamble_len >> 8) & 0x00FF);
+            write_to_register(REG_PREAMBLELSB, preamble_len & 0xFF);
 
             write_to_register(REG_PACKETCONFIG1,
-                    (read_register( REG_PACKETCONFIG1) &
-                    RF_PACKETCONFIG1_CRC_MASK &
-                    RF_PACKETCONFIG1_PACKETFORMAT_MASK)
-                            | ((fix_len == 1) ?
-                                    RF_PACKETCONFIG1_PACKETFORMAT_FIXED :
-                                    RF_PACKETCONFIG1_PACKETFORMAT_VARIABLE)
-                            | (crc_on << 4));
+                              (read_register(REG_PACKETCONFIG1) &
+                               RF_PACKETCONFIG1_CRC_MASK &
+                               RF_PACKETCONFIG1_PACKETFORMAT_MASK)
+                              | ((fix_len == 1) ?
+                                 RF_PACKETCONFIG1_PACKETFORMAT_FIXED :
+                                 RF_PACKETCONFIG1_PACKETFORMAT_VARIABLE)
+                              | (crc_on << 4));
             write_to_register(REG_PACKETCONFIG2,
-                    (read_register( REG_PACKETCONFIG2)
-                            | RF_PACKETCONFIG2_DATAMODE_PACKET));
+                              (read_register(REG_PACKETCONFIG2)
+                               | RF_PACKETCONFIG2_DATAMODE_PACKET));
 
             break;
 
@@ -617,38 +614,38 @@ void SX1276_LoRaRadio::set_tx_config(radio_modems_t modem, int8_t power,
 
             if (_rf_settings.lora.freq_hop_on == true) {
                 write_to_register(REG_LR_PLLHOP, (read_register(REG_LR_PLLHOP)
-                                & RFLR_PLLHOP_FASTHOP_MASK)
-                                | RFLR_PLLHOP_FASTHOP_ON);
-                write_to_register( REG_LR_HOPPERIOD, _rf_settings.lora.hop_period);
+                                                  & RFLR_PLLHOP_FASTHOP_MASK)
+                                  | RFLR_PLLHOP_FASTHOP_ON);
+                write_to_register(REG_LR_HOPPERIOD, _rf_settings.lora.hop_period);
             }
 
-            write_to_register(REG_LR_MODEMCONFIG1, (read_register( REG_LR_MODEMCONFIG1)
-                    & RFLR_MODEMCONFIG1_BW_MASK
-                    & RFLR_MODEMCONFIG1_CODINGRATE_MASK
-                    & RFLR_MODEMCONFIG1_IMPLICITHEADER_MASK) | (bandwidth << 4)
-                                                | (coderate << 1) | fix_len);
+            write_to_register(REG_LR_MODEMCONFIG1, (read_register(REG_LR_MODEMCONFIG1)
+                                                    & RFLR_MODEMCONFIG1_BW_MASK
+                                                    & RFLR_MODEMCONFIG1_CODINGRATE_MASK
+                                                    & RFLR_MODEMCONFIG1_IMPLICITHEADER_MASK) | (bandwidth << 4)
+                              | (coderate << 1) | fix_len);
 
-            write_to_register(REG_LR_MODEMCONFIG2, (read_register( REG_LR_MODEMCONFIG2)
-                    & RFLR_MODEMCONFIG2_SF_MASK
-                    & RFLR_MODEMCONFIG2_RXPAYLOADCRC_MASK)
+            write_to_register(REG_LR_MODEMCONFIG2, (read_register(REG_LR_MODEMCONFIG2)
+                                                    & RFLR_MODEMCONFIG2_SF_MASK
+                                                    & RFLR_MODEMCONFIG2_RXPAYLOADCRC_MASK)
                               | (datarate << 4)
                               | (crc_on << 2));
 
             write_to_register(REG_LR_MODEMCONFIG3, (read_register(REG_LR_MODEMCONFIG3)
-                    & RFLR_MODEMCONFIG3_LOWDATARATEOPTIMIZE_MASK)
+                                                    & RFLR_MODEMCONFIG3_LOWDATARATEOPTIMIZE_MASK)
                               | (_rf_settings.lora.low_datarate_optimize << 3));
 
             write_to_register(REG_LR_PREAMBLEMSB, (preamble_len >> 8) & 0x00FF);
             write_to_register(REG_LR_PREAMBLELSB, preamble_len & 0xFF);
 
             if (datarate == 6) {
-                write_to_register(REG_LR_DETECTOPTIMIZE, (read_register( REG_LR_DETECTOPTIMIZE)
-                        & RFLR_DETECTIONOPTIMIZE_MASK) | RFLR_DETECTIONOPTIMIZE_SF6);
+                write_to_register(REG_LR_DETECTOPTIMIZE, (read_register(REG_LR_DETECTOPTIMIZE)
+                                                          & RFLR_DETECTIONOPTIMIZE_MASK) | RFLR_DETECTIONOPTIMIZE_SF6);
                 write_to_register(REG_LR_DETECTIONTHRESHOLD, RFLR_DETECTIONTHRESH_SF6);
             } else {
-                write_to_register(REG_LR_DETECTOPTIMIZE, (read_register( REG_LR_DETECTOPTIMIZE)
-                        & RFLR_DETECTIONOPTIMIZE_MASK) | RFLR_DETECTIONOPTIMIZE_SF7_TO_SF12);
-                write_to_register( REG_LR_DETECTIONTHRESHOLD, RFLR_DETECTIONTHRESH_SF7_TO_SF12);
+                write_to_register(REG_LR_DETECTOPTIMIZE, (read_register(REG_LR_DETECTOPTIMIZE)
+                                                          & RFLR_DETECTIONOPTIMIZE_MASK) | RFLR_DETECTIONOPTIMIZE_SF7_TO_SF12);
+                write_to_register(REG_LR_DETECTIONTHRESHOLD, RFLR_DETECTIONTHRESH_SF7_TO_SF12);
             }
 
             break;
@@ -668,17 +665,17 @@ uint32_t SX1276_LoRaRadio::time_on_air(radio_modems_t modem, uint8_t pkt_len)
     switch (modem) {
         case MODEM_FSK:
             airTime =
-                    rint((8 * (_rf_settings.fsk.preamble_len
-                                    + ((read_register( REG_SYNCCONFIG)
-                                            & ~RF_SYNCCONFIG_SYNCSIZE_MASK) + 1)
-                                    + ((_rf_settings.fsk.fix_len == 0x01) ?
-                                            0.0f : 1.0f)
-                                    + (((read_register( REG_PACKETCONFIG1)
-                                            & ~RF_PACKETCONFIG1_ADDRSFILTERING_MASK)
-                                            != 0x00) ? 1.0f : 0) + pkt_len
-                                    + ((_rf_settings.fsk.crc_on == 0x01) ?
-                                            2.0 : 0))
-                            / _rf_settings.fsk.datarate) * 1000);
+                rint((8 * (_rf_settings.fsk.preamble_len
+                           + ((read_register(REG_SYNCCONFIG)
+                               & ~RF_SYNCCONFIG_SYNCSIZE_MASK) + 1)
+                           + ((_rf_settings.fsk.fix_len == 0x01) ?
+                              0.0f : 1.0f)
+                           + (((read_register(REG_PACKETCONFIG1)
+                                & ~RF_PACKETCONFIG1_ADDRSFILTERING_MASK)
+                               != 0x00) ? 1.0f : 0) + pkt_len
+                           + ((_rf_settings.fsk.crc_on == 0x01) ?
+                              2.0 : 0))
+                      / _rf_settings.fsk.datarate) * 1000);
 
             break;
         case MODEM_LORA:
@@ -724,13 +721,13 @@ uint32_t SX1276_LoRaRadio::time_on_air(radio_modems_t modem, uint8_t pkt_len)
             float tPreamble = (_rf_settings.lora.preamble_len + 4.25f) * ts;
             // Symbol length of payload and time
             float tmp = ceil((8 * pkt_len - 4 * _rf_settings.lora.datarate + 28
-                            + 16 * _rf_settings.lora.crc_on
-                            - (_rf_settings.lora.fix_len ? 20 : 0))
-                            / (float) (4
-                                    * (_rf_settings.lora.datarate
-                                            - ((_rf_settings.lora.low_datarate_optimize > 0)
-                                                    ? 2 : 0))))
-                            * (_rf_settings.lora.coderate + 4);
+                              + 16 * _rf_settings.lora.crc_on
+                              - (_rf_settings.lora.fix_len ? 20 : 0))
+                             / (float)(4
+                                       * (_rf_settings.lora.datarate
+                                          - ((_rf_settings.lora.low_datarate_optimize > 0)
+                                             ? 2 : 0))))
+                        * (_rf_settings.lora.coderate + 4);
             float nPayload = 8 + ((tmp > 0) ? tmp : 0);
             float tPayload = nPayload * ts;
             // Time on air
@@ -757,7 +754,7 @@ void SX1276_LoRaRadio::send(uint8_t *buffer, uint8_t size)
             _rf_settings.fsk_packet_handler.size = size;
 
             if (_rf_settings.fsk.fix_len == false) {
-                write_fifo((uint8_t*) &size, 1);
+                write_fifo((uint8_t *) &size, 1);
             } else {
                 write_to_register(REG_PAYLOADLENGTH, size);
             }
@@ -772,7 +769,7 @@ void SX1276_LoRaRadio::send(uint8_t *buffer, uint8_t size)
             // Write payload buffer
             write_fifo(buffer, _rf_settings.fsk_packet_handler.chunk_size);
             _rf_settings.fsk_packet_handler.nb_bytes +=
-                    _rf_settings.fsk_packet_handler.chunk_size;
+                _rf_settings.fsk_packet_handler.chunk_size;
             tx_timeout = _rf_settings.fsk.tx_timeout;
 
             break;
@@ -780,18 +777,18 @@ void SX1276_LoRaRadio::send(uint8_t *buffer, uint8_t size)
         case MODEM_LORA:
             if (_rf_settings.lora.iq_inverted == true) {
                 write_to_register(REG_LR_INVERTIQ, ((read_register(REG_LR_INVERTIQ)
-                                & RFLR_INVERTIQ_TX_MASK
-                                & RFLR_INVERTIQ_RX_MASK)
-                                    | RFLR_INVERTIQ_RX_OFF
-                                    | RFLR_INVERTIQ_TX_ON));
-                write_to_register( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_ON);
+                                                     & RFLR_INVERTIQ_TX_MASK
+                                                     & RFLR_INVERTIQ_RX_MASK)
+                                                    | RFLR_INVERTIQ_RX_OFF
+                                                    | RFLR_INVERTIQ_TX_ON));
+                write_to_register(REG_LR_INVERTIQ2, RFLR_INVERTIQ2_ON);
             } else {
-                write_to_register(REG_LR_INVERTIQ, ((read_register( REG_LR_INVERTIQ)
-                                & RFLR_INVERTIQ_TX_MASK
-                                & RFLR_INVERTIQ_RX_MASK)
-                                    | RFLR_INVERTIQ_RX_OFF
-                                    | RFLR_INVERTIQ_TX_OFF));
-                write_to_register( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_OFF);
+                write_to_register(REG_LR_INVERTIQ, ((read_register(REG_LR_INVERTIQ)
+                                                     & RFLR_INVERTIQ_TX_MASK
+                                                     & RFLR_INVERTIQ_RX_MASK)
+                                                    | RFLR_INVERTIQ_RX_OFF
+                                                    | RFLR_INVERTIQ_TX_OFF));
+                write_to_register(REG_LR_INVERTIQ2, RFLR_INVERTIQ2_OFF);
             }
 
             _rf_settings.lora_packet_handler.size = size;
@@ -804,7 +801,7 @@ void SX1276_LoRaRadio::send(uint8_t *buffer, uint8_t size)
             write_to_register(REG_LR_FIFOADDRPTR, 0);
 
             // FIFO operations can not take place in Sleep mode
-            if ((read_register( REG_OPMODE) & ~RF_OPMODE_MASK) == RF_OPMODE_SLEEP) {
+            if ((read_register(REG_OPMODE) & ~RF_OPMODE_MASK) == RF_OPMODE_SLEEP) {
                 standby();
                 ThisThread::sleep_for(1);
             }
@@ -834,7 +831,7 @@ void SX1276_LoRaRadio::sleep()
 /**
  * Put radio in Standby mode
  */
-void SX1276_LoRaRadio::standby( void )
+void SX1276_LoRaRadio::standby(void)
 {
     tx_timeout_timer.detach();
 
@@ -860,22 +857,22 @@ void SX1276_LoRaRadio::receive(void)
             // DIO3=FifoEmpty?
             // DIO4=PreambleDetect
             // DIO5=ModeReady?
-            write_to_register(REG_DIOMAPPING1, (read_register( REG_DIOMAPPING1)
-                    & RF_DIOMAPPING1_DIO0_MASK
-                    & RF_DIOMAPPING1_DIO1_MASK
-                    & RF_DIOMAPPING1_DIO2_MASK)
+            write_to_register(REG_DIOMAPPING1, (read_register(REG_DIOMAPPING1)
+                                                & RF_DIOMAPPING1_DIO0_MASK
+                                                & RF_DIOMAPPING1_DIO1_MASK
+                                                & RF_DIOMAPPING1_DIO2_MASK)
                               | RF_DIOMAPPING1_DIO0_00
                               | RF_DIOMAPPING1_DIO1_00
                               | RF_DIOMAPPING1_DIO2_10);
 
-            write_to_register(REG_DIOMAPPING2, (read_register( REG_DIOMAPPING2)
-                    & RF_DIOMAPPING2_DIO4_MASK
-                    & RF_DIOMAPPING2_MAP_MASK)
+            write_to_register(REG_DIOMAPPING2, (read_register(REG_DIOMAPPING2)
+                                                & RF_DIOMAPPING2_DIO4_MASK
+                                                & RF_DIOMAPPING2_MAP_MASK)
                               | RF_DIOMAPPING2_DIO4_11
                               | RF_DIOMAPPING2_MAP_PREAMBLEDETECT);
 
             _rf_settings.fsk_packet_handler.fifo_thresh =
-                    read_register(REG_FIFOTHRESH) & 0x3F;
+                read_register(REG_FIFOTHRESH) & 0x3F;
 
             write_to_register(REG_RXCONFIG, RF_RXCONFIG_AFCAUTO_ON
                               | RF_RXCONFIG_AGCAUTO_ON
@@ -901,15 +898,15 @@ void SX1276_LoRaRadio::receive(void)
         case MODEM_LORA:
 
             if (_rf_settings.lora.iq_inverted == true) {
-                write_to_register(REG_LR_INVERTIQ, ((read_register( REG_LR_INVERTIQ)
-                                & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK)
-                                | RFLR_INVERTIQ_RX_ON | RFLR_INVERTIQ_TX_OFF));
-                write_to_register( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_ON);
+                write_to_register(REG_LR_INVERTIQ, ((read_register(REG_LR_INVERTIQ)
+                                                     & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK)
+                                                    | RFLR_INVERTIQ_RX_ON | RFLR_INVERTIQ_TX_OFF));
+                write_to_register(REG_LR_INVERTIQ2, RFLR_INVERTIQ2_ON);
             } else {
-                write_to_register(REG_LR_INVERTIQ, ((read_register( REG_LR_INVERTIQ)
-                                & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK)
-                                | RFLR_INVERTIQ_RX_OFF | RFLR_INVERTIQ_TX_OFF));
-                write_to_register( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_OFF);
+                write_to_register(REG_LR_INVERTIQ, ((read_register(REG_LR_INVERTIQ)
+                                                     & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK)
+                                                    | RFLR_INVERTIQ_RX_OFF | RFLR_INVERTIQ_TX_OFF));
+                write_to_register(REG_LR_INVERTIQ2, RFLR_INVERTIQ2_OFF);
             }
 
             // ERRATA 2.3 - Receiver Spurious Reception of a LoRa Signal
@@ -919,42 +916,42 @@ void SX1276_LoRaRadio::receive(void)
                 write_to_register(REG_LR_TEST30, 0x00);
                 switch (_rf_settings.lora.bandwidth) {
                     case 0: // 7.8 kHz
-                        write_to_register( REG_LR_TEST2F, 0x48);
+                        write_to_register(REG_LR_TEST2F, 0x48);
                         set_channel(_rf_settings.channel + 7.81e3);
                         break;
                     case 1: // 10.4 kHz
-                        write_to_register( REG_LR_TEST2F, 0x44);
+                        write_to_register(REG_LR_TEST2F, 0x44);
                         set_channel(_rf_settings.channel + 10.42e3);
                         break;
                     case 2: // 15.6 kHz
-                        write_to_register( REG_LR_TEST2F, 0x44);
+                        write_to_register(REG_LR_TEST2F, 0x44);
                         set_channel(_rf_settings.channel + 15.62e3);
                         break;
                     case 3: // 20.8 kHz
-                        write_to_register( REG_LR_TEST2F, 0x44);
+                        write_to_register(REG_LR_TEST2F, 0x44);
                         set_channel(_rf_settings.channel + 20.83e3);
                         break;
                     case 4: // 31.2 kHz
-                        write_to_register( REG_LR_TEST2F, 0x44);
+                        write_to_register(REG_LR_TEST2F, 0x44);
                         set_channel(_rf_settings.channel + 31.25e3);
                         break;
                     case 5: // 41.4 kHz
-                        write_to_register( REG_LR_TEST2F, 0x44);
+                        write_to_register(REG_LR_TEST2F, 0x44);
                         set_channel(_rf_settings.channel + 41.67e3);
                         break;
                     case 6: // 62.5 kHz
-                        write_to_register( REG_LR_TEST2F, 0x40);
+                        write_to_register(REG_LR_TEST2F, 0x40);
                         break;
                     case 7: // 125 kHz
-                        write_to_register( REG_LR_TEST2F, 0x40);
+                        write_to_register(REG_LR_TEST2F, 0x40);
                         break;
                     case 8: // 250 kHz
-                        write_to_register( REG_LR_TEST2F, 0x40);
+                        write_to_register(REG_LR_TEST2F, 0x40);
                         break;
                 }
             } else {
-                write_to_register( REG_LR_DETECTOPTIMIZE,
-                                  read_register( REG_LR_DETECTOPTIMIZE) | 0x80);
+                write_to_register(REG_LR_DETECTOPTIMIZE,
+                                  read_register(REG_LR_DETECTOPTIMIZE) | 0x80);
             }
 
             if (_rf_settings.lora.freq_hop_on == true) {
@@ -965,20 +962,20 @@ void SX1276_LoRaRadio::receive(void)
 
                 // DIO0=RxDone, DIO2=FhssChangeChannel
                 write_to_register(REG_DIOMAPPING1, (read_register(REG_DIOMAPPING1)
-                                & RFLR_DIOMAPPING1_DIO0_MASK
-                                & RFLR_DIOMAPPING1_DIO2_MASK)
-                                | RFLR_DIOMAPPING1_DIO0_00
-                                | RFLR_DIOMAPPING1_DIO2_00);
+                                                    & RFLR_DIOMAPPING1_DIO0_MASK
+                                                    & RFLR_DIOMAPPING1_DIO2_MASK)
+                                  | RFLR_DIOMAPPING1_DIO0_00
+                                  | RFLR_DIOMAPPING1_DIO2_00);
             } else {
                 write_to_register(REG_LR_IRQFLAGSMASK, RFLR_IRQFLAGS_VALIDHEADER
-                                   | RFLR_IRQFLAGS_TXDONE
-                                   | RFLR_IRQFLAGS_CADDONE
-                                   | RFLR_IRQFLAGS_FHSSCHANGEDCHANNEL
-                                   | RFLR_IRQFLAGS_CADDETECTED);
+                                  | RFLR_IRQFLAGS_TXDONE
+                                  | RFLR_IRQFLAGS_CADDONE
+                                  | RFLR_IRQFLAGS_FHSSCHANGEDCHANNEL
+                                  | RFLR_IRQFLAGS_CADDETECTED);
 
                 // DIO0=RxDone
-                write_to_register(REG_DIOMAPPING1, (read_register( REG_DIOMAPPING1)
-                                & RFLR_DIOMAPPING1_DIO0_MASK)
+                write_to_register(REG_DIOMAPPING1, (read_register(REG_DIOMAPPING1)
+                                                    & RFLR_DIOMAPPING1_DIO0_MASK)
                                   | RFLR_DIOMAPPING1_DIO0_00);
             }
             write_to_register(REG_LR_FIFORXBASEADDR, 0);
@@ -1014,9 +1011,9 @@ void SX1276_LoRaRadio::receive(void)
  *
  */
 bool SX1276_LoRaRadio::perform_carrier_sense(radio_modems_t modem,
-                                   uint32_t freq,
-                                   int16_t rssi_threshold,
-                                   uint32_t max_carrier_sense_time)
+                                             uint32_t freq,
+                                             int16_t rssi_threshold,
+                                             uint32_t max_carrier_sense_time)
 {
     bool status = true;
     int16_t rssi = 0;
@@ -1110,7 +1107,7 @@ void SX1276_LoRaRadio::start_cad()
             // DIO3=CADDone
             reg_val = read_register(REG_DIOMAPPING1);
             write_to_register(REG_DIOMAPPING1, (reg_val &
-                              RFLR_DIOMAPPING1_DIO3_MASK) |
+                                                RFLR_DIOMAPPING1_DIO3_MASK) |
                               RFLR_DIOMAPPING1_DIO3_00);
 
             set_operation_mode(RFLR_OPMODE_CAD);
@@ -1135,10 +1132,10 @@ void SX1276_LoRaRadio::set_tx_continuous_wave(uint32_t freq, int8_t power,
     set_tx_config(MODEM_FSK, power, 0, 0, 4800, 0, 5, false, false, 0, 0, 0, time * 1000);
     reg_val = read_register(REG_PACKETCONFIG2);
 
-    write_to_register( REG_PACKETCONFIG2, (reg_val & RF_PACKETCONFIG2_DATAMODE_MASK ) );
+    write_to_register(REG_PACKETCONFIG2, (reg_val & RF_PACKETCONFIG2_DATAMODE_MASK));
     // Disable radio interrupts
-    write_to_register( REG_DIOMAPPING1, RF_DIOMAPPING1_DIO0_11 | RF_DIOMAPPING1_DIO1_11 );
-    write_to_register( REG_DIOMAPPING2, RF_DIOMAPPING2_DIO4_10 | RF_DIOMAPPING2_DIO5_10 );
+    write_to_register(REG_DIOMAPPING1, RF_DIOMAPPING1_DIO0_11 | RF_DIOMAPPING1_DIO1_11);
+    write_to_register(REG_DIOMAPPING2, RF_DIOMAPPING2_DIO4_10 | RF_DIOMAPPING2_DIO5_10);
 
     _rf_settings.state = RF_TX_RUNNING;
     tx_timeout_timer.attach_us(callback(this, &SX1276_LoRaRadio::timeout_irq_isr), time * 1000000);
@@ -1279,46 +1276,45 @@ void SX1276_LoRaRadio::set_operation_mode(uint8_t mode)
  * At initialization FSK is chosen. Later stack or application
  * can choose to change.
  */
-void SX1276_LoRaRadio::set_modem(uint8_t modem )
+void SX1276_LoRaRadio::set_modem(uint8_t modem)
 {
-    if ((read_register(REG_OPMODE) & RFLR_OPMODE_LONGRANGEMODE_ON) != 0 ) {
+    if ((read_register(REG_OPMODE) & RFLR_OPMODE_LONGRANGEMODE_ON) != 0) {
         _rf_settings.modem = MODEM_LORA;
     } else {
         _rf_settings.modem = MODEM_FSK;
     }
 
-    if(_rf_settings.modem == modem ) {
+    if (_rf_settings.modem == modem) {
         // if the modem is already set
         return;
     }
 
     _rf_settings.modem = modem;
 
-    switch(_rf_settings.modem)
-    {
-    default:
-    case MODEM_FSK:
-        // before changing modem mode, put the module to sleep
-        sleep();
-        write_to_register(REG_OPMODE, (read_register(REG_OPMODE) & RFLR_OPMODE_LONGRANGEMODE_MASK)
-                                      | RFLR_OPMODE_LONGRANGEMODE_OFF);
+    switch (_rf_settings.modem) {
+        default:
+        case MODEM_FSK:
+            // before changing modem mode, put the module to sleep
+            sleep();
+            write_to_register(REG_OPMODE, (read_register(REG_OPMODE) & RFLR_OPMODE_LONGRANGEMODE_MASK)
+                              | RFLR_OPMODE_LONGRANGEMODE_OFF);
 
-        // Datasheet Tables 28, 29 DIO mapping
-        write_to_register(REG_DIOMAPPING1, 0x00); // sets DIO0-DI03 in default mode
-        write_to_register(REG_DIOMAPPING2, 0x30); // bits 4-5 are turned on i.e.,
-                                                  //  DIO5 and DIO4=ModeReady
-        break;
-    case MODEM_LORA:
-        sleep();
-        write_to_register(REG_OPMODE, (read_register(REG_OPMODE) & RFLR_OPMODE_LONGRANGEMODE_MASK)
-                                      | RFLR_OPMODE_LONGRANGEMODE_ON);
+            // Datasheet Tables 28, 29 DIO mapping
+            write_to_register(REG_DIOMAPPING1, 0x00); // sets DIO0-DI03 in default mode
+            write_to_register(REG_DIOMAPPING2, 0x30); // bits 4-5 are turned on i.e.,
+            //  DIO5 and DIO4=ModeReady
+            break;
+        case MODEM_LORA:
+            sleep();
+            write_to_register(REG_OPMODE, (read_register(REG_OPMODE) & RFLR_OPMODE_LONGRANGEMODE_MASK)
+                              | RFLR_OPMODE_LONGRANGEMODE_ON);
 
-        // Datasheet Tables 17 DIO mapping for LoRa
-        // set to defaults
-        write_to_register(REG_DIOMAPPING1, 0x00); // DIO0 - DIO3 defaults
-        write_to_register(REG_DIOMAPPING2, 0x00); // DIO4 - DIO5 defaults
+            // Datasheet Tables 17 DIO mapping for LoRa
+            // set to defaults
+            write_to_register(REG_DIOMAPPING1, 0x00); // DIO0 - DIO3 defaults
+            write_to_register(REG_DIOMAPPING2, 0x00); // DIO4 - DIO5 defaults
 
-        break;
+            break;
     }
 }
 
@@ -1390,38 +1386,36 @@ void SX1276_LoRaRadio::rx_chain_calibration(void)
     uint32_t initialFreq;
 
     // Save context
-    regPaConfigInitVal = read_register( REG_PACONFIG );
-    initialFreq = (float) (((uint32_t) this->read_register(REG_FRFMSB) << 16) |
-                            ((uint32_t) this->read_register(REG_FRFMID) << 8 ) |
-                            ((uint32_t)this->read_register(REG_FRFLSB))) * (float) FREQ_STEP;
+    regPaConfigInitVal = read_register(REG_PACONFIG);
+    initialFreq = (float)(((uint32_t) this->read_register(REG_FRFMSB) << 16) |
+                          ((uint32_t) this->read_register(REG_FRFMID) << 8) |
+                          ((uint32_t)this->read_register(REG_FRFLSB))) * (float) FREQ_STEP;
 
     // Cut the PA just in case, RFO output, power = -1 dBm
     write_to_register(REG_PACONFIG, 0x00);
 
     // Launch Rx chain calibration for LF band
-    write_to_register (REG_IMAGECAL, (read_register(REG_IMAGECAL)
-                                       & RF_IMAGECAL_IMAGECAL_MASK)
-                                       | RF_IMAGECAL_IMAGECAL_START);
-    while((read_register(REG_IMAGECAL) & RF_IMAGECAL_IMAGECAL_RUNNING )
-                                      == RF_IMAGECAL_IMAGECAL_RUNNING )
-    {
+    write_to_register(REG_IMAGECAL, (read_register(REG_IMAGECAL)
+                                     & RF_IMAGECAL_IMAGECAL_MASK)
+                      | RF_IMAGECAL_IMAGECAL_START);
+    while ((read_register(REG_IMAGECAL) & RF_IMAGECAL_IMAGECAL_RUNNING)
+            == RF_IMAGECAL_IMAGECAL_RUNNING) {
     }
 
     // Sets a Frequency in HF band
     set_channel(868000000);
 
     // Launch Rx chain calibration for HF band
-    write_to_register (REG_IMAGECAL, (read_register(REG_IMAGECAL)
-                                      & RF_IMAGECAL_IMAGECAL_MASK )
-                                      | RF_IMAGECAL_IMAGECAL_START );
-    while((read_register(REG_IMAGECAL) & RF_IMAGECAL_IMAGECAL_RUNNING )
-                                      == RF_IMAGECAL_IMAGECAL_RUNNING )
-    {
+    write_to_register(REG_IMAGECAL, (read_register(REG_IMAGECAL)
+                                     & RF_IMAGECAL_IMAGECAL_MASK)
+                      | RF_IMAGECAL_IMAGECAL_START);
+    while ((read_register(REG_IMAGECAL) & RF_IMAGECAL_IMAGECAL_RUNNING)
+            == RF_IMAGECAL_IMAGECAL_RUNNING) {
         // do nothing, just wait while rf image frequency calibration is done
     }
 
     // Restore context
-    write_to_register( REG_PACONFIG, regPaConfigInitVal );
+    write_to_register(REG_PACONFIG, regPaConfigInitVal);
     set_channel(initialFreq);
 }
 
@@ -1490,7 +1484,7 @@ void SX1276_LoRaRadio::set_rf_tx_power(int8_t power)
                 power = 20;
             }
             paConfig = (paConfig & RF_PACONFIG_OUTPUTPOWER_MASK)
-                    | (uint8_t) ((uint16_t) (power - 5) & 0x0F);
+                       | (uint8_t)((uint16_t)(power - 5) & 0x0F);
         } else {
             if (power < 2) {
                 power = 2;
@@ -1499,7 +1493,7 @@ void SX1276_LoRaRadio::set_rf_tx_power(int8_t power)
                 power = 17;
             }
             paConfig = (paConfig & RF_PACONFIG_OUTPUTPOWER_MASK)
-                    | (uint8_t) ((uint16_t) (power - 2) & 0x0F);
+                       | (uint8_t)((uint16_t)(power - 2) & 0x0F);
         }
     } else {
         if (power < -1) {
@@ -1509,10 +1503,10 @@ void SX1276_LoRaRadio::set_rf_tx_power(int8_t power)
             power = 14;
         }
         paConfig = (paConfig & RF_PACONFIG_OUTPUTPOWER_MASK)
-                | (uint8_t) ((uint16_t) (power + 1) & 0x0F);
+                   | (uint8_t)((uint16_t)(power + 1) & 0x0F);
     }
-    write_to_register( REG_PACONFIG, paConfig);
-    write_to_register( REG_PADAC, paDac);
+    write_to_register(REG_PACONFIG, paConfig);
+    write_to_register(REG_PADAC, paDac);
 }
 
 /**
@@ -1534,17 +1528,17 @@ void SX1276_LoRaRadio::transmit(uint32_t timeout)
             // DIO3=FifoEmpty
             // DIO4=LowBat
             // DIO5=ModeReady
-            write_to_register(REG_DIOMAPPING1,(read_register(REG_DIOMAPPING1) &
-                              RF_DIOMAPPING1_DIO0_MASK &
-                              RF_DIOMAPPING1_DIO1_MASK &
-                              RF_DIOMAPPING1_DIO2_MASK) |
+            write_to_register(REG_DIOMAPPING1, (read_register(REG_DIOMAPPING1) &
+                                                RF_DIOMAPPING1_DIO0_MASK &
+                                                RF_DIOMAPPING1_DIO1_MASK &
+                                                RF_DIOMAPPING1_DIO2_MASK) |
                               RF_DIOMAPPING1_DIO1_01);
 
             write_to_register(REG_DIOMAPPING2, (read_register(REG_DIOMAPPING2) &
-                              RF_DIOMAPPING2_DIO4_MASK &
-                              RF_DIOMAPPING2_MAP_MASK));
+                                                RF_DIOMAPPING2_DIO4_MASK &
+                                                RF_DIOMAPPING2_MAP_MASK));
             _rf_settings.fsk_packet_handler.fifo_thresh =
-                              read_register(REG_FIFOTHRESH) & 0x3F;
+                read_register(REG_FIFOTHRESH) & 0x3F;
 
             break;
 
@@ -1562,8 +1556,8 @@ void SX1276_LoRaRadio::transmit(uint32_t timeout)
                 // DIO0=tx_done, DIO2=fhss_change_channel
 
                 write_to_register(REG_DIOMAPPING1, (read_register(REG_DIOMAPPING1) &
-                                  RFLR_DIOMAPPING1_DIO0_MASK &
-                                  RFLR_DIOMAPPING1_DIO2_MASK) |
+                                                    RFLR_DIOMAPPING1_DIO0_MASK &
+                                                    RFLR_DIOMAPPING1_DIO2_MASK) |
                                   RFLR_DIOMAPPING1_DIO0_01 |
                                   RFLR_DIOMAPPING1_DIO2_01);
             } else {
@@ -1577,8 +1571,8 @@ void SX1276_LoRaRadio::transmit(uint32_t timeout)
                                   RFLR_IRQFLAGS_CADDETECTED);
 
                 // DIO0=tx_done
-                write_to_register(REG_DIOMAPPING1,(read_register(REG_DIOMAPPING1) &
-                                  RFLR_DIOMAPPING1_DIO0_MASK) |
+                write_to_register(REG_DIOMAPPING1, (read_register(REG_DIOMAPPING1) &
+                                                    RFLR_DIOMAPPING1_DIO0_MASK) |
                                   RFLR_DIOMAPPING1_DIO0_01);
             }
 
@@ -1588,7 +1582,7 @@ void SX1276_LoRaRadio::transmit(uint32_t timeout)
     _rf_settings.state = RF_TX_RUNNING;
 
     tx_timeout_timer.attach_us(callback(this,
-                               &SX1276_LoRaRadio::timeout_irq_isr), timeout * 1000);
+                                        &SX1276_LoRaRadio::timeout_irq_isr), timeout * 1000);
 
     set_operation_mode(RF_OPMODE_TRANSMITTER);
 }
@@ -1678,12 +1672,12 @@ void SX1276_LoRaRadio::set_antenna_switch(uint8_t mode)
     switch (mode) {
         case RFLR_OPMODE_TRANSMITTER:
             if (_rf_ctrls.rf_switch_ctl1 != NC
-                && _rf_ctrls.rf_switch_ctl2 != NC) {
+                    && _rf_ctrls.rf_switch_ctl2 != NC) {
                 // module is in transmit mode and RF latch switches
                 // are connected. Check if power amplifier boost is
                 // setup or not
                 if ((read_register(REG_PACONFIG) & RF_PACONFIG_PASELECT_PABOOST)
-                                       == RF_PACONFIG_PASELECT_PABOOST) {
+                        == RF_PACONFIG_PASELECT_PABOOST) {
                     _rf_switch_ctl1 = 1;
                     _rf_switch_ctl2 = 0;
                 } else {
@@ -1708,7 +1702,7 @@ void SX1276_LoRaRadio::set_antenna_switch(uint8_t mode)
                 }
                 _rxctl = 0;
             }
-            if (_rf_ctrls.ant_switch != NC){
+            if (_rf_ctrls.ant_switch != NC) {
                 _ant_switch = 1;
             }
             break;
@@ -1716,7 +1710,7 @@ void SX1276_LoRaRadio::set_antenna_switch(uint8_t mode)
         case RFLR_OPMODE_RECEIVER_SINGLE:
         case RFLR_OPMODE_CAD:
             if (_rf_ctrls.rf_switch_ctl1 != NC
-                && _rf_ctrls.rf_switch_ctl2 != NC) {
+                    && _rf_ctrls.rf_switch_ctl2 != NC) {
                 // radio is in reception or CAD mode and RF latch switches
                 // are connected
                 _rf_switch_ctl1 = 1;
@@ -1736,7 +1730,7 @@ void SX1276_LoRaRadio::set_antenna_switch(uint8_t mode)
         default:
             // Enforce default case  when any connected control pin is kept low.
             if (_rf_ctrls.rf_switch_ctl1 != NC
-                && _rf_ctrls.rf_switch_ctl2 != NC) {
+                    && _rf_ctrls.rf_switch_ctl2 != NC) {
                 // radio is in reception or CAD mode and RF latch switches
                 // are connected
                 _rf_switch_ctl1 = 0;
@@ -1762,9 +1756,9 @@ void SX1276_LoRaRadio::set_antenna_switch(uint8_t mode)
 void SX1276_LoRaRadio::dio0_irq_isr()
 {
 #ifdef MBED_CONF_RTOS_PRESENT
-   irq_thread.flags_set(SIG_DIO0);
+    irq_thread.flags_set(SIG_DIO0);
 #else
-   handle_dio0_irq();
+    handle_dio0_irq();
 #endif
 }
 
@@ -1874,32 +1868,32 @@ void SX1276_LoRaRadio::handle_dio0_irq()
                     // We can have a snapshot of RSSI here as at this point it
                     // should be more smoothed out.
                     _rf_settings.fsk_packet_handler.rssi_value =
-                            -(read_register(REG_RSSIVALUE) >> 1);
+                        -(read_register(REG_RSSIVALUE) >> 1);
 
                     _rf_settings.fsk_packet_handler.afc_value =
-                            (int32_t) (float) (((uint16_t) read_register(REG_AFCMSB) << 8)
-                                    | (uint16_t) read_register( REG_AFCLSB))
-                                    * (float) FREQ_STEP;
+                        (int32_t)(float)(((uint16_t) read_register(REG_AFCMSB) << 8)
+                                         | (uint16_t) read_register(REG_AFCLSB))
+                        * (float) FREQ_STEP;
                     _rf_settings.fsk_packet_handler.rx_gain =
-                                          (read_register( REG_LNA) >> 5) & 0x07;
+                        (read_register(REG_LNA) >> 5) & 0x07;
 
                     // Read received packet size
                     if ((_rf_settings.fsk_packet_handler.size == 0)
                             && (_rf_settings.fsk_packet_handler.nb_bytes == 0)) {
                         if (_rf_settings.fsk.fix_len == false) {
-                            read_fifo((uint8_t*) &_rf_settings.fsk_packet_handler.size, 1);
+                            read_fifo((uint8_t *) &_rf_settings.fsk_packet_handler.size, 1);
                         } else {
                             _rf_settings.fsk_packet_handler.size = read_register(REG_PAYLOADLENGTH);
                         }
                         read_fifo(_data_buffer + _rf_settings.fsk_packet_handler.nb_bytes,
-                                _rf_settings.fsk_packet_handler.size - _rf_settings.fsk_packet_handler.nb_bytes);
+                                  _rf_settings.fsk_packet_handler.size - _rf_settings.fsk_packet_handler.nb_bytes);
                         _rf_settings.fsk_packet_handler.nb_bytes +=
-                                (_rf_settings.fsk_packet_handler.size - _rf_settings.fsk_packet_handler.nb_bytes);
+                            (_rf_settings.fsk_packet_handler.size - _rf_settings.fsk_packet_handler.nb_bytes);
                     } else {
                         read_fifo(_data_buffer + _rf_settings.fsk_packet_handler.nb_bytes,
-                                _rf_settings.fsk_packet_handler.size - _rf_settings.fsk_packet_handler.nb_bytes);
+                                  _rf_settings.fsk_packet_handler.size - _rf_settings.fsk_packet_handler.nb_bytes);
                         _rf_settings.fsk_packet_handler.nb_bytes +=
-                                (_rf_settings.fsk_packet_handler.size - _rf_settings.fsk_packet_handler.nb_bytes);
+                            (_rf_settings.fsk_packet_handler.size - _rf_settings.fsk_packet_handler.nb_bytes);
                     }
 
                     if (_rf_settings.fsk.rx_continuous == false) {
@@ -1907,14 +1901,14 @@ void SX1276_LoRaRadio::handle_dio0_irq()
                     } else {
                         // Continuous mode restart Rx chain
                         write_to_register(REG_RXCONFIG, read_register(REG_RXCONFIG)
-                                        | RF_RXCONFIG_RESTARTRXWITHOUTPLLLOCK);
+                                          | RF_RXCONFIG_RESTARTRXWITHOUTPLLLOCK);
                     }
 
                     if ((_radio_events != NULL) && (_radio_events->rx_done)) {
                         _radio_events->rx_done(
-                                _data_buffer,
-                                _rf_settings.fsk_packet_handler.size,
-                                _rf_settings.fsk_packet_handler.rssi_value, 0);
+                            _data_buffer,
+                            _rf_settings.fsk_packet_handler.size,
+                            _rf_settings.fsk_packet_handler.rssi_value, 0);
                     }
                     _rf_settings.fsk_packet_handler.preamble_detected = 0;
                     _rf_settings.fsk_packet_handler.sync_word_detected = 0;
@@ -1932,7 +1926,7 @@ void SX1276_LoRaRadio::handle_dio0_irq()
                     if ((irqFlags & RFLR_IRQFLAGS_PAYLOADCRCERROR_MASK)
                             == RFLR_IRQFLAGS_PAYLOADCRCERROR) {
                         // Clear Irq
-                        write_to_register( REG_LR_IRQFLAGS, RFLR_IRQFLAGS_PAYLOADCRCERROR);
+                        write_to_register(REG_LR_IRQFLAGS, RFLR_IRQFLAGS_PAYLOADCRCERROR);
 
                         if (_rf_settings.lora.rx_continuous == false) {
                             _rf_settings.state = RF_IDLE;
@@ -1946,36 +1940,35 @@ void SX1276_LoRaRadio::handle_dio0_irq()
                     }
 
                     _rf_settings.lora_packet_handler.snr_value = read_register(
-                            REG_LR_PKTSNRVALUE);
-                    if (_rf_settings.lora_packet_handler.snr_value & 0x80) // The SNR sign bit is 1
-                            {
+                                                                     REG_LR_PKTSNRVALUE);
+                    if (_rf_settings.lora_packet_handler.snr_value & 0x80) { // The SNR sign bit is 1
                         // Invert and divide by 4
                         snr = ((~_rf_settings.lora_packet_handler.snr_value + 1)
-                                & 0xFF) >> 2;
+                               & 0xFF) >> 2;
                         snr = -snr;
                     } else {
                         // Divide by 4
                         snr =
-                                (_rf_settings.lora_packet_handler.snr_value
-                                        & 0xFF) >> 2;
+                            (_rf_settings.lora_packet_handler.snr_value
+                             & 0xFF) >> 2;
                     }
 
-                    int16_t rssi = read_register( REG_LR_PKTRSSIVALUE);
+                    int16_t rssi = read_register(REG_LR_PKTRSSIVALUE);
                     if (snr < 0) {
                         if (_rf_settings.channel > RF_MID_BAND_THRESH) {
                             _rf_settings.lora_packet_handler.rssi_value =
-                                    RSSI_OFFSET_HF + rssi + (rssi >> 4) + snr;
+                                RSSI_OFFSET_HF + rssi + (rssi >> 4) + snr;
                         } else {
                             _rf_settings.lora_packet_handler.rssi_value =
-                                    RSSI_OFFSET_LF + rssi + (rssi >> 4) + snr;
+                                RSSI_OFFSET_LF + rssi + (rssi >> 4) + snr;
                         }
                     } else {
                         if (_rf_settings.channel > RF_MID_BAND_THRESH) {
                             _rf_settings.lora_packet_handler.rssi_value =
-                                    RSSI_OFFSET_HF + rssi + (rssi >> 4);
+                                RSSI_OFFSET_HF + rssi + (rssi >> 4);
                         } else {
                             _rf_settings.lora_packet_handler.rssi_value =
-                                    RSSI_OFFSET_LF + rssi + (rssi >> 4);
+                                RSSI_OFFSET_LF + rssi + (rssi >> 4);
                         }
                     }
 
@@ -1988,12 +1981,12 @@ void SX1276_LoRaRadio::handle_dio0_irq()
 
                     if ((_radio_events != NULL) && (_radio_events->rx_done)) {
                         _radio_events->rx_done(_data_buffer,
-                                _rf_settings.lora_packet_handler.size,
-                                _rf_settings.lora_packet_handler.rssi_value,
-                                _rf_settings.lora_packet_handler.snr_value);
+                                               _rf_settings.lora_packet_handler.size,
+                                               _rf_settings.lora_packet_handler.rssi_value,
+                                               _rf_settings.lora_packet_handler.snr_value);
                     }
                 }
-                    break;
+                break;
                 default:
                     break;
             }
@@ -2005,7 +1998,7 @@ void SX1276_LoRaRadio::handle_dio0_irq()
                 case MODEM_LORA:
                     // Clear Irq
                     write_to_register(REG_LR_IRQFLAGS, RFLR_IRQFLAGS_TXDONE);
-                    // Intentional fall through
+                // Intentional fall through
                 case MODEM_FSK:
                 default:
                     _rf_settings.state = RF_IDLE;
@@ -2032,10 +2025,10 @@ void SX1276_LoRaRadio::handle_dio1_irq()
                     if ((_rf_settings.fsk_packet_handler.size == 0)
                             && (_rf_settings.fsk_packet_handler.nb_bytes == 0)) {
                         if (_rf_settings.fsk.fix_len == false) {
-                            read_fifo((uint8_t*) &_rf_settings.fsk_packet_handler.size, 1);
+                            read_fifo((uint8_t *) &_rf_settings.fsk_packet_handler.size, 1);
                         } else {
                             _rf_settings.fsk_packet_handler.size =
-                                    read_register(REG_PAYLOADLENGTH);
+                                read_register(REG_PAYLOADLENGTH);
                         }
                     }
 
@@ -2043,16 +2036,16 @@ void SX1276_LoRaRadio::handle_dio1_irq()
                             - _rf_settings.fsk_packet_handler.nb_bytes)
                             > _rf_settings.fsk_packet_handler.fifo_thresh) {
                         read_fifo((_data_buffer + _rf_settings.fsk_packet_handler.nb_bytes),
-                                _rf_settings.fsk_packet_handler.fifo_thresh);
+                                  _rf_settings.fsk_packet_handler.fifo_thresh);
                         _rf_settings.fsk_packet_handler.nb_bytes +=
-                                _rf_settings.fsk_packet_handler.fifo_thresh;
+                            _rf_settings.fsk_packet_handler.fifo_thresh;
                     } else {
                         read_fifo((_data_buffer + _rf_settings.fsk_packet_handler.nb_bytes),
-                                _rf_settings.fsk_packet_handler.size
-                                        - _rf_settings.fsk_packet_handler.nb_bytes);
+                                  _rf_settings.fsk_packet_handler.size
+                                  - _rf_settings.fsk_packet_handler.nb_bytes);
                         _rf_settings.fsk_packet_handler.nb_bytes +=
-                                (_rf_settings.fsk_packet_handler.size
-                                        - _rf_settings.fsk_packet_handler.nb_bytes);
+                            (_rf_settings.fsk_packet_handler.size
+                             - _rf_settings.fsk_packet_handler.nb_bytes);
                     }
 
                     break;
@@ -2080,16 +2073,16 @@ void SX1276_LoRaRadio::handle_dio1_irq()
                             - _rf_settings.fsk_packet_handler.nb_bytes)
                             > _rf_settings.fsk_packet_handler.chunk_size) {
                         write_fifo((_data_buffer + _rf_settings.fsk_packet_handler.nb_bytes),
-                                _rf_settings.fsk_packet_handler.chunk_size);
+                                   _rf_settings.fsk_packet_handler.chunk_size);
                         _rf_settings.fsk_packet_handler.nb_bytes +=
-                                _rf_settings.fsk_packet_handler.chunk_size;
+                            _rf_settings.fsk_packet_handler.chunk_size;
                     } else {
                         // Write the last chunk of data
                         write_fifo(_data_buffer + _rf_settings.fsk_packet_handler.nb_bytes,
-                                _rf_settings.fsk_packet_handler.size
-                                        - _rf_settings.fsk_packet_handler.nb_bytes);
+                                   _rf_settings.fsk_packet_handler.size
+                                   - _rf_settings.fsk_packet_handler.nb_bytes);
                         _rf_settings.fsk_packet_handler.nb_bytes +=
-                                _rf_settings.fsk_packet_handler.size - _rf_settings.fsk_packet_handler.nb_bytes;
+                            _rf_settings.fsk_packet_handler.size - _rf_settings.fsk_packet_handler.nb_bytes;
                     }
 
                     break;
@@ -2122,11 +2115,11 @@ void SX1276_LoRaRadio::handle_dio2_irq(void)
                                       RF_IRQFLAGS1_SYNCADDRESSMATCH |
                                       RF_IRQFLAGS1_TIMEOUT);
 
-                    write_to_register( REG_IRQFLAGS2, RF_IRQFLAGS2_FIFOOVERRUN);
+                    write_to_register(REG_IRQFLAGS2, RF_IRQFLAGS2_FIFOOVERRUN);
 
                     if (_rf_settings.fsk.rx_continuous == true) {
                         // Continuous mode restart Rx chain
-                        write_to_register( REG_RXCONFIG,
+                        write_to_register(REG_RXCONFIG,
                                           read_register(REG_RXCONFIG) |
                                           RF_RXCONFIG_RESTARTRXWITHOUTPLLLOCK);
                     } else {
@@ -2149,8 +2142,8 @@ void SX1276_LoRaRadio::handle_dio2_irq(void)
                         if ((_radio_events != NULL)
                                 && (_radio_events->fhss_change_channel)) {
                             _radio_events->fhss_change_channel(
-                                    (read_register(REG_LR_HOPCHANNEL)
-                                            & RFLR_HOPCHANNEL_CHANNEL_MASK));
+                                (read_register(REG_LR_HOPCHANNEL)
+                                 & RFLR_HOPCHANNEL_CHANNEL_MASK));
                         }
                     }
 
@@ -2175,8 +2168,8 @@ void SX1276_LoRaRadio::handle_dio2_irq(void)
                         if ((_radio_events != NULL)
                                 && (_radio_events->fhss_change_channel)) {
                             _radio_events->fhss_change_channel(
-                                    (read_register(REG_LR_HOPCHANNEL)
-                                            & RFLR_HOPCHANNEL_CHANNEL_MASK));
+                                (read_register(REG_LR_HOPCHANNEL)
+                                 & RFLR_HOPCHANNEL_CHANNEL_MASK));
                         }
                     }
                     break;
@@ -2199,7 +2192,7 @@ void SX1276_LoRaRadio::handle_dio3_irq(void)
                     == RFLR_IRQFLAGS_CADDETECTED) {
                 // Clear Irq
                 write_to_register(REG_LR_IRQFLAGS,
-                        RFLR_IRQFLAGS_CADDETECTED | RFLR_IRQFLAGS_CADDONE);
+                                  RFLR_IRQFLAGS_CADDETECTED | RFLR_IRQFLAGS_CADDONE);
                 if ((_radio_events != NULL)
                         && (_radio_events->cad_done)) {
                     _radio_events->cad_done(true);
@@ -2227,7 +2220,7 @@ void SX1276_LoRaRadio::handle_dio4_irq(void)
                 _rf_settings.fsk_packet_handler.preamble_detected = 1;
             }
         }
-            break;
+        break;
         case MODEM_LORA:
             break;
         default:

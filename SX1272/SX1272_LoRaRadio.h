@@ -33,7 +33,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "SPI.h"
 #include "platform/PlatformMutex.h"
 #ifdef MBED_CONF_RTOS_PRESENT
- #include "rtos/Thread.h"
+#include "rtos/Thread.h"
 #endif
 
 #include "lorawan/LoRaRadio.h"
@@ -145,7 +145,7 @@ public:
      *  @param rx_continuous Sets the reception in continuous mode
      *                          [false: single mode, true: continuous mode]
      */
-    virtual void set_rx_config (radio_modems_t modem, uint32_t bandwidth,
+    virtual void set_rx_config(radio_modems_t modem, uint32_t bandwidth,
                                uint32_t datarate, uint8_t coderate,
                                uint32_t bandwidth_afc, uint16_t preamble_len,
                                uint16_t symb_timeout, bool fix_len,
@@ -183,10 +183,10 @@ public:
      *  @param timeout       Transmission timeout [ms]
      */
     virtual void set_tx_config(radio_modems_t modem, int8_t power, uint32_t fdev,
-                              uint32_t bandwidth, uint32_t datarate,
-                              uint8_t coderate, uint16_t preamble_len,
-                              bool fix_len, bool crc_on, bool freq_hop_on,
-                              uint8_t hop_period, bool iq_inverted, uint32_t timeout);
+                               uint32_t bandwidth, uint32_t datarate,
+                               uint8_t coderate, uint16_t preamble_len,
+                               bool fix_len, bool crc_on, bool freq_hop_on,
+                               uint8_t hop_period, bool iq_inverted, uint32_t timeout);
 
     /**
      *  Sends the buffer of size

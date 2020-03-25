@@ -19,7 +19,7 @@
  * \author    Miguel Luis ( Semtech )
  *
  * \author    Gregory Cristian ( Semtech )
- * 
+ *
  * Copyright (c) 2019, Arm Limited and affiliates.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -388,7 +388,7 @@ typedef enum {
 /*!
  * \brief Represents the CRC length
  */
-typedef enum radio_crc_types_e{
+typedef enum radio_crc_types_e {
     RADIO_CRC_OFF                           = 0x01,         //!< No CRC in use
     RADIO_CRC_1_BYTES                       = 0x00,
     RADIO_CRC_2_BYTES                       = 0x02,
