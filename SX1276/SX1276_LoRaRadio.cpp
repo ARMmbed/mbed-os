@@ -22,20 +22,20 @@ Copyright (c) 2017, Arm Limited and affiliates.
 SPDX-License-Identifier: BSD-3-Clause
 */
 
-#include <stdio.h>
-#include <math.h> //rint
-#include <string.h>
 #include "PinNames.h"
-#include "Callback.h"
-#include "mbed_wait_api.h"
-#include "Timer.h"
-#ifdef MBED_CONF_RTOS_PRESENT
-#include "ThisThread.h"
-using namespace rtos;
-#endif
+#include "platform/Callback.h"
+#include "platform/mbed_wait_api.h"
+#include "drivers/Timer.h"
+#include "rtos/ThisThread.h"
+
 #include "SX1276_LoRaRadio.h"
 #include "sx1276Regs-Fsk.h"
 #include "sx1276Regs-LoRa.h"
+
+#include <math.h> //rint
+
+using namespace rtos;
+using namespace mbed;
 
 /*!
  * Sync word for Private LoRa networks
@@ -289,9 +289,9 @@ void SX1276_LoRaRadio::radio_reset()
 {
     _reset_ctl.output();
     _reset_ctl = 0;
-    wait_ms(2);
+    ThisThread::sleep_for(2);
     _reset_ctl.input();
-    wait_ms(6);
+    ThisThread::sleep_for(6);
 }
 
 /**
@@ -358,7 +358,7 @@ uint32_t SX1276_LoRaRadio::random( void )
     set_operation_mode(RF_OPMODE_RECEIVER);
 
     for (i = 0; i < 32; i++) {
-        wait_ms(1);
+        ThisThread::sleep_for(1);
         // Unfiltered RSSI value reading. Only takes the LSB value
         rnd |= ((uint32_t) read_register( REG_LR_RSSIWIDEBAND) & 0x01) << i;
     }
@@ -806,7 +806,7 @@ void SX1276_LoRaRadio::send(uint8_t *buffer, uint8_t size)
             // FIFO operations can not take place in Sleep mode
             if ((read_register( REG_OPMODE) & ~RF_OPMODE_MASK) == RF_OPMODE_SLEEP) {
                 standby();
-                wait_ms(1);
+                ThisThread::sleep_for(1);
             }
             // write_to_register payload buffer
             write_fifo(buffer, size);
@@ -1026,7 +1026,7 @@ bool SX1276_LoRaRadio::perform_carrier_sense(radio_modems_t modem,
     set_operation_mode(RF_OPMODE_RECEIVER);
 
     // hold on a bit, radio turn-around time
-    wait_ms(1);
+    ThisThread::sleep_for(1);
 
     Timer elapsed_time;
     elapsed_time.start();
@@ -1329,14 +1329,14 @@ void SX1276_LoRaRadio::set_sx1276_variant_type()
 {
     if (_rf_ctrls.ant_switch != NC) {
         _ant_switch.input();
-        wait_ms(1);
+        ThisThread::sleep_for(1);
         if (_ant_switch == 1) {
             radio_variant = SX1276MB1LAS;
         } else {
             radio_variant = SX1276MB1MAS;
         }
         _ant_switch.output();
-        wait_ms(1);
+        ThisThread::sleep_for(1);
     } else {
         radio_variant = MBED_CONF_SX1276_LORA_DRIVER_RADIO_VARIANT;
     }
@@ -1362,8 +1362,9 @@ void SX1276_LoRaRadio::setup_spi()
     // otherwise use default SPI frequency which is 8 MHz
     _spi.frequency(spi_freq);
 #endif
+
     // 100 us wait to settle down
-    wait(0.1);
+    wait_us(100);
 }
 
 /**
