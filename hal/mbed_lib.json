@@ -1,9 +1,0 @@
-{
-    "name": "hal",
-    "config": {
-	"enable-objects-extensions": {
-	    "help": "Enable inclusion of objects_extensions.h",
-	    "value": false
-	}
-    }
-}

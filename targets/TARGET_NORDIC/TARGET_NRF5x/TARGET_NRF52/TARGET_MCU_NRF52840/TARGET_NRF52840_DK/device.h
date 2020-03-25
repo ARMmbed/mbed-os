@@ -28,7 +28,7 @@
  * can be equipped with one by external hardware (eg: CAN via SPI). This allows
  * the standard APIs to be used without any extra hacks.
  */
-#if MBED_CONF_HAL_ENABLE_OBJECTS_EXTENSIONS
+#if MBED_CONF_TARGET_ENABLE_OBJECTS_EXTENSIONS
 #include "objects_extensions.h"
 #endif
 

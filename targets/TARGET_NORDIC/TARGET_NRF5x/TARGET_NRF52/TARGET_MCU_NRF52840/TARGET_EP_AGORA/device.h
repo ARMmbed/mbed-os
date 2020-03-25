@@ -17,21 +17,18 @@
 #ifndef MBED_DEVICE_H
 #define MBED_DEVICE_H
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #include "objects.h"
+
+/**
+ * This allows applications and external libraries to provide
+ * structs typically included in objects.h
+ *
+ * Useful if a chip doesn't have a certain peripheral (eg: CAN) but
+ * can be equipped with one by external hardware (eg: CAN via SPI). This allows
+ * the standard APIs to be used without any extra hacks.
+ */
+#if MBED_CONF_TARGET_ENABLE_OBJECTS_EXTENSIONS
+#include "objects_extensions.h"
+#endif
 
 #endif

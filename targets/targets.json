@@ -11652,7 +11652,13 @@
         ],
         "macros_add": [
             "CONFIG_GPIO_AS_PINRESET"
-        ]
+        ],
+        "config": {
+            "enable-objects-extensions": {
+                "help": "Enable inclusion of objects_extensions.h",
+                "value": false
+            }
+        }
     },
     "ARDUINO_NANO33BLE": {
         "inherits": [
@@ -14579,7 +14585,13 @@
         ],
         "detect_code": [
             "2600"
-        ]
+        ],
+        "config": {
+            "enable-objects-extensions": {
+                "help": "Enable inclusion of objects_extensions.h",
+                "value": false
+            }
+        }
     },
     "IM880B": {
         "inherits": [
