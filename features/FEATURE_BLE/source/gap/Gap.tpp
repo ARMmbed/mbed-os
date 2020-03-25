@@ -488,6 +488,24 @@ ble_error_t Gap<Impl>::setRandomStaticAddress(const ble::address_t& address)
     return impl()->setRandomStaticAddress_(address);
 }
 
+
+#if BLE_FEATURE_WHITELIST
+template<class Impl>
+uint8_t Gap<Impl>::getMaxWhitelistSize(void) const {
+    return impl()->getMaxWhitelistSize_();
+}
+
+template<class Impl>
+ble_error_t Gap<Impl>::getWhitelist(whitelist_t &whitelist) const {
+    return impl()->getWhitelist_(whitelist);
+}
+
+template<class Impl>
+ble_error_t Gap<Impl>::setWhitelist(const whitelist_t &whitelist) {
+    return impl()->setWhitelist_(whitelist);
+}
+#endif // BLE_FEATURE_WHITELIST
+
 // -----------------------------------------------------------------------------
 /* ------------------------- Default implementations ------------------------ */
 // -----------------------------------------------------------------------------

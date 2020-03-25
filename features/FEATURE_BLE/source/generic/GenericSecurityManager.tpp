@@ -165,7 +165,7 @@ ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::purgeAl
 }
 
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
-ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::generateWhitelistFromBondTable_(::Gap::Whitelist_t *whitelist) const {
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::generateWhitelistFromBondTable_(::ble::whitelist_t *whitelist) const {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     if (eventHandler) {
         if (!whitelist) {

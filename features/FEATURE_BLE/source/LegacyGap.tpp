@@ -19,23 +19,6 @@
 namespace ble {
 namespace interface {
 
-#if BLE_FEATURE_WHITELIST
-template<class Impl>
-uint8_t LegacyGap<Impl>::getMaxWhitelistSize(void) const {
-    return impl()->getMaxWhitelistSize_();
-}
-
-template<class Impl>
-ble_error_t LegacyGap<Impl>::getWhitelist(Whitelist_t &whitelist) const {
-    return impl()->getWhitelist_(whitelist);
-}
-
-template<class Impl>
-ble_error_t LegacyGap<Impl>::setWhitelist(const Whitelist_t &whitelist) {
-    return impl()->setWhitelist_(whitelist);
-}
-#endif // BLE_FEATURE_WHITELIST
-
 template<class Impl>
 void LegacyGap<Impl>::processConnectionEvent(
     Handle_t handle,
@@ -357,21 +340,6 @@ ble_error_t LegacyGap<Impl>::reset_(void)
 // -----------------------------------------------------------------------------
 /* ------------------------- Default implementations ------------------------ */
 // -----------------------------------------------------------------------------
-
-template<class Impl>
-uint8_t LegacyGap<Impl>::getMaxWhitelistSize_(void) const {
-    return 0;
-}
-
-template<class Impl>
-ble_error_t LegacyGap<Impl>::getWhitelist_(Whitelist_t &whitelist) const {
-    return BLE_ERROR_NOT_IMPLEMENTED;
-}
-
-template<class Impl>
-ble_error_t LegacyGap<Impl>::setWhitelist_(const Whitelist_t &whitelist) {
-    return BLE_ERROR_NOT_IMPLEMENTED;
-}
 
 template<class Impl>
 ble_error_t LegacyGap<Impl>::getAddress_(

@@ -20,7 +20,6 @@
 #include "BLERoles.h"
 #include "ble/common/StaticInterface.h"
 #include "ble/BLETypes.h"
-#include "ble/BLEProtocol.h"
 #include "ble/gap/AdvertisingDataBuilder.h"
 #include "ble/gap/AdvertisingDataSimpleBuilder.h"
 #include "ble/gap/ConnectionParameters.h"
@@ -1256,6 +1255,48 @@ public:
 #endif // BLE_ROLE_OBSERVER
 #endif // BLE_FEATURE_PRIVACY
 
+#if BLE_FEATURE_WHITELIST
+    /**
+     * Get the maximum size of the whitelist.
+     *
+     * @return Maximum size of the whitelist.
+     */
+    uint8_t getMaxWhitelistSize(void) const;
+
+    /**
+     * Get the Link Layer to use the internal whitelist when scanning,
+     * advertising or initiating a connection depending on the filter policies.
+     *
+     * @param[in,out] whitelist Define the whitelist instance which is used
+     * to store the whitelist requested. In input, the caller provisions memory.
+     *
+     * @return BLE_ERROR_NONE if the implementation's whitelist was successfully
+     * copied into the supplied reference.
+     */
+    ble_error_t getWhitelist(whitelist_t &whitelist) const;
+
+    /**
+     * Set the value of the whitelist to be used during GAP procedures.
+     *
+     * @param[in] whitelist A reference to a whitelist containing the addresses
+     * to be copied to the internal whitelist.
+     *
+     * @return BLE_ERROR_NONE if the implementation's whitelist was successfully
+     * populated with the addresses in the given whitelist.
+     *
+     * @note The whitelist must not contain addresses of type @ref
+     * BLEProtocol::AddressType::RANDOM_PRIVATE_NON_RESOLVABLE. This
+     * results in a @ref BLE_ERROR_INVALID_PARAM because the remote peer might
+     * change its private address at any time, and it is not possible to resolve
+     * it.
+     *
+     * @note If the input whitelist is larger than @ref getMaxWhitelistSize(),
+     * then @ref BLE_ERROR_PARAM_OUT_OF_RANGE is returned.
+     */
+    ble_error_t setWhitelist(const whitelist_t &whitelist);
+
+#endif // BLE_FEATURE_WHITELIST
+
 #if !defined(DOXYGEN_ONLY)
     /*
      * API reserved for the controller driver to set the random static address.
@@ -1406,6 +1447,9 @@ protected:
         central_privay_configuration_t *configuration
     );
     ble_error_t setRandomStaticAddress_(const ble::address_t& address);
+    uint8_t getMaxWhitelistSize_(void) const;
+    ble_error_t getWhitelist_(whitelist_t &whitelist) const;
+    ble_error_t setWhitelist_(const whitelist_t &whitelist);
 
 protected:
     /**

@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "ble/SafeEnum.h"
+#include "ble/BLEProtocol.h"
 #include "platform/Span.h"
 #include "ble/gap/Types.h"
 
@@ -829,6 +830,27 @@ struct coded_symbol_per_bit_t :SafeEnum<coded_symbol_per_bit_t, uint8_t> {
      */
     coded_symbol_per_bit_t(type value) :
         SafeEnum<coded_symbol_per_bit_t, uint8_t>(value) { }
+};
+
+
+/**
+ * Representation of a whitelist of addresses.
+ */
+struct whitelist_t {
+    /**
+        * Pointer to the array of the addresses composing the whitelist.
+        */
+    BLEProtocol::Address_t *addresses;
+
+    /**
+        * Number addresses in this whitelist.
+        */
+    uint8_t size;
+
+    /**
+        * Capacity of the array holding the addresses.
+        */
+    uint8_t capacity;
 };
 
 } // namespace ble

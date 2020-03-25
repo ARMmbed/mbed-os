@@ -320,7 +320,7 @@ static bool is_disconnection_reason_valid(::Gap::DisconnectionReason_t reason)
 /*
  * Return true if the whitelist in input is valid or false otherwise.
  */
-static bool is_whitelist_valid(const ::Gap::Whitelist_t &whitelist)
+static bool is_whitelist_valid(const ::ble::whitelist_t &whitelist)
 {
     if (whitelist.size > whitelist.capacity) {
         return false;
@@ -347,7 +347,7 @@ static bool is_whitelist_valid(const ::Gap::Whitelist_t &whitelist)
  * Return true if device is present in the whitelist.
  */
 static bool is_in_whitelist(
-    const BLEProtocol::Address_t &device, const ::Gap::Whitelist_t &whitelist
+    const BLEProtocol::Address_t &device, const ::ble::whitelist_t &whitelist
 )
 {
     for (size_t i = 0; i < whitelist.size; ++i) {
@@ -890,7 +890,7 @@ uint8_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHa
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getWhitelist_(Whitelist_t &whitelist) const
+ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getWhitelist_(whitelist_t &whitelist) const
 {
     if (initialize_whitelist() == false) {
         return BLE_ERROR_INVALID_STATE;
@@ -909,7 +909,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setWhitelist_(const Whitelist_t &whitelist)
+ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setWhitelist_(const whitelist_t &whitelist)
 {
     if (is_whitelist_valid(whitelist) == false) {
         return BLE_ERROR_INVALID_PARAM;
