@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2018-2019 ARM Limited
+ * Copyright (c) 2018-2020 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,6 +47,7 @@ extern "C" {
  *      - Start scheduler
  *      - main thread calls start mbed
  * 4. Start mbed
+ *      - Call mbed_tfm_init
  *      - Call mbed_main
  *      - Call main
  *
@@ -150,6 +151,20 @@ void mbed_toolchain_init(void);
 void mbed_sdk_init(void);
 
 /**
+ * TF-M specific application hook for running code before mbed_main
+ *
+ * This is a weak function which can be overridden by an application
+ * to allow code to run before mbed_main is called.
+ * Some TF-M supported platforms require synchronization between
+ * Secure and Non-Secure cores, therefore these tasks are done here.
+ *
+ * Preconditions:
+ * - The RTOS has been started by a call to mbed_rtos_start
+ * - The toolchain has been initialized by a call to mbed_toolchain_init
+ */
+void mbed_tfm_init(void);
+
+/**
  * Application hook for running code before main
  *
  * This is a weak function which can be overridden by an application
@@ -157,6 +172,7 @@ void mbed_sdk_init(void);
  *
  * Preconditions:
  * - The RTOS has been started by a call to mbed_rtos_start
+ * - TFM support has been initialized by a call to mbed_tfm_init.
  * - The toolchain has been initialized by a call to mbed_toolchain_init
  */
 void mbed_main(void);
