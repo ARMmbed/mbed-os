@@ -24,6 +24,8 @@ static USBPhyHw *instance;
 #if defined (TARGET_M451)
 #undef  MBED_CONF_TARGET_USB_DEVICE_HSUSBD
 #define MBED_CONF_TARGET_USB_DEVICE_HSUSBD 0  /* USB 1.1 Only */
+#elif defined (TARGET_M480)
+#define USBD_SET_ADDRESS         0x05ul
 #elif defined (TARGET_M2351) || defined(TARGET_M261)
 #undef  MBED_CONF_TARGET_USB_DEVICE_HSUSBD
 #define MBED_CONF_TARGET_USB_DEVICE_HSUSBD 0  /* USB 1.1 Only */

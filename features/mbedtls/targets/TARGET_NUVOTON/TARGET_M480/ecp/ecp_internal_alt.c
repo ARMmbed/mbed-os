@@ -240,7 +240,7 @@ int mbedtls_internal_ecp_init( const mbedtls_ecp_group *grp )
     crypto_init();
     
     /* Enable ECC interrupt */
-    ECC_ENABLE_INT();
+    ECC_ENABLE_INT(CRPT);
 
     return 0;
 }
@@ -248,7 +248,7 @@ int mbedtls_internal_ecp_init( const mbedtls_ecp_group *grp )
 void mbedtls_internal_ecp_free( const mbedtls_ecp_group *grp )
 {
     /* Disable ECC interrupt */
-    ECC_DISABLE_INT();
+    ECC_DISABLE_INT(CRPT);
 
     /* Uninit crypto module */
     crypto_uninit();

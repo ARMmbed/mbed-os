@@ -57,7 +57,7 @@ void dma_init(void)
     // Reset this module
     SYS_ResetModule(dma_modinit.rsetidx);
 
-    PDMA_Open(0);
+    PDMA_Open(dma_modbase(), 0);
 
     NVIC_SetVector(dma_modinit.irq_n, (uint32_t) dma_modinit.var);
     NVIC_EnableIRQ(dma_modinit.irq_n);
@@ -109,13 +109,13 @@ PDMA_T *dma_modbase(void)
 
 static void pdma_vec(void)
 {
-    uint32_t intsts = PDMA_GET_INT_STATUS();
+    uint32_t intsts = PDMA_GET_INT_STATUS(dma_modbase());
 
     // Abort
     if (intsts & PDMA_INTSTS_ABTIF_Msk) {
-        uint32_t abtsts = PDMA_GET_ABORT_STS();
+        uint32_t abtsts = PDMA_GET_ABORT_STS(dma_modbase());
         // Clear all Abort flags
-        PDMA_CLR_ABORT_FLAG(abtsts);
+        PDMA_CLR_ABORT_FLAG(dma_modbase(), abtsts);
 
         while (abtsts) {
             int chn_id = nu_ctz(abtsts) - PDMA_ABTSTS_ABTIF0_Pos + NU_PDMA_CH_Pos;
@@ -131,9 +131,9 @@ static void pdma_vec(void)
 
     // Transfer done
     if (intsts & PDMA_INTSTS_TDIF_Msk) {
-        uint32_t tdsts = PDMA_GET_TD_STS();
+        uint32_t tdsts = PDMA_GET_TD_STS(dma_modbase());
         // Clear all transfer done flags
-        PDMA_CLR_TD_FLAG(tdsts);
+        PDMA_CLR_TD_FLAG(dma_modbase(), tdsts);
 
         while (tdsts) {
             int chn_id = nu_ctz(tdsts) - PDMA_TDSTS_TDIF0_Pos + NU_PDMA_CH_Pos;

@@ -69,7 +69,7 @@ void mbedtls_sha1_hw_starts(crypto_sha_context *ctx)
     ctx->blocksize = 64;
     ctx->blocksize_mask = 0x3F;
 
-    SHA_Open(SHA_MODE_SHA1, SHA_NO_SWAP, 0);
+    SHA_Open(CRPT, SHA_MODE_SHA1, SHA_NO_SWAP, 0);
 
     // Ensure we have correct initial internal states in SHA_DGST registers even though SHA H/W is not actually started.
     CRPT->HMAC_CTL |= CRPT_HMAC_CTL_START_Msk;
@@ -143,7 +143,7 @@ void mbedtls_sha256_hw_starts( crypto_sha_context *ctx, int is224)
     ctx->blocksize_mask = 0x3F;
     ctx->is224_384 = is224;
 
-    SHA_Open(is224 ? SHA_MODE_SHA224 : SHA_MODE_SHA256, SHA_NO_SWAP, 0);
+    SHA_Open(CRPT, is224 ? SHA_MODE_SHA224 : SHA_MODE_SHA256, SHA_NO_SWAP, 0);
 
     // Ensure we have correct initial internal states in SHA_DGST registers even though SHA H/W is not actually started.
     CRPT->HMAC_CTL |= CRPT_HMAC_CTL_START_Msk;
@@ -218,7 +218,7 @@ void mbedtls_sha512_hw_starts( crypto_sha_context *ctx, int is384)
     ctx->blocksize_mask = 0x7F;
     ctx->is224_384 = is384;
 
-    SHA_Open(is384 ? SHA_MODE_SHA384 : SHA_MODE_SHA512, SHA_NO_SWAP, 0);
+    SHA_Open(CRPT, is384 ? SHA_MODE_SHA384 : SHA_MODE_SHA512, SHA_NO_SWAP, 0);
 
     // Ensure we have correct initial internal states in SHA_DGST registers even though SHA H/W is not actually started.
     CRPT->HMAC_CTL |= CRPT_HMAC_CTL_START_Msk;
