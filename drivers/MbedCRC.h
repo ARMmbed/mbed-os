@@ -644,7 +644,7 @@ private:
     }
 
     /* Check to see if we can do assembler optimizations */
-#if ((defined __GNUC__ || defined __clang__) && !defined __CC_ARM) && \
+#if (defined __GNUC__ || defined __clang__) && \
     (defined __arm__ || defined __ARM_ARCH)
 #if (__ARM_ARCH_7M__      == 1U) || \
     (__ARM_ARCH_7EM__     == 1U) || \
