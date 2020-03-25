@@ -28,8 +28,6 @@
 
 #include "drivers/Timeout.h"
 
-#include "ble/pal/Deprecated.h"
-
 namespace ble {
 namespace generic {
 
@@ -1535,6 +1533,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::process_advertising_timeout()
 {
+    // This will signal timeout via onAdvertisingEnd()
     ble_error_t err = _pal_gap.advertising_enable(false);
     if (err) {
         // TODO: define the mechanism signaling the error
@@ -1544,8 +1543,6 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
     // Stop address rotation if required
     set_random_address_rotation(false);
 #endif
-
-    LegacyGap::processTimeoutEvent(LegacyGap::TIMEOUT_SRC_ADVERTISING);
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
@@ -1682,11 +1679,6 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
             );
         }
 
-        // for now notify user that the connection failled by issuing a timeout
-        // event
-
-        // TODO: Define events in case of connection faillure
-        LegacyGap::processTimeoutEvent(LegacyGap::TIMEOUT_SRC_CONN);
         return;
     }
 
