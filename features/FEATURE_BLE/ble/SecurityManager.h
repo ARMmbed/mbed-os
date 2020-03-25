@@ -294,7 +294,7 @@ public:
          *
          * @param[in] whitelist pointer to the whitelist filled with entries based on bonding information
          */
-        virtual void whitelistFromBondTable(::Gap::Whitelist_t* whitelist) {
+        virtual void whitelistFromBondTable(::ble::whitelist_t* whitelist) {
             (void)whitelist;
         }
 
@@ -516,7 +516,7 @@ public:
      *
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
-    ble_error_t generateWhitelistFromBondTable(::Gap::Whitelist_t *whitelist) const;
+    ble_error_t generateWhitelistFromBondTable(::ble::whitelist_t *whitelist) const;
 
     ////////////////////////////////////////////////////////////////////////////
     // Pairing
@@ -884,7 +884,7 @@ protected:
     ble_error_t purgeAllBondingState_(void);
 
     ble_error_t generateWhitelistFromBondTable_(
-        ::Gap::Whitelist_t *whitelist
+        ::ble::whitelist_t *whitelist
     ) const;
 
     ble_error_t requestPairing_(

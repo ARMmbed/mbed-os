@@ -80,11 +80,11 @@ class GenericGap :
     using LegacyGap::state;
 
     typedef typename BLEProtocol::AddressBytes_t Address_t;
+    typedef typename ble::whitelist_t whitelist_t;
     typedef typename LegacyGap::PeerAddressType_t PeerAddressType_t;
     typedef typename LegacyGap::ConnectionParams_t ConnectionParams_t;
     typedef typename LegacyGap::Handle_t Handle_t;
     typedef typename LegacyGap::CodedSymbolPerBit_t CodedSymbolPerBit_t;
-    typedef typename LegacyGap::Whitelist_t Whitelist_t;
     typedef typename LegacyGap::DisconnectionReason_t DisconnectionReason_t;
     typedef typename LegacyGap::AdvertisingPolicyMode_t AdvertisingPolicyMode_t;
     typedef typename LegacyGap::ScanningPolicyMode_t ScanningPolicyMode_t;
@@ -492,12 +492,12 @@ public:
     /**
      * @see Gap::getWhitelist
      */
-    ble_error_t getWhitelist_(Whitelist_t &whitelist) const;
+    ble_error_t getWhitelist_(whitelist_t &whitelist) const;
 
     /**
      * @see Gap::setWhitelist
      */
-    ble_error_t setWhitelist_(const Whitelist_t &whitelist);
+    ble_error_t setWhitelist_(const whitelist_t &whitelist);
 
     /**
      * @see Gap::setAdvertisingPolicyMode
@@ -756,7 +756,7 @@ private:
     pal::initiator_policy_t _initiator_policy_mode;
     pal::scanning_filter_policy_t _scanning_filter_policy;
     pal::advertising_filter_policy_t _advertising_filter_policy;
-    mutable Whitelist_t _whitelist;
+    mutable whitelist_t _whitelist;
 
     bool _privacy_enabled;
     PeripheralPrivacyConfiguration_t _peripheral_privacy_configuration;

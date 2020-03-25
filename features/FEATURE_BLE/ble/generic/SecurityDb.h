@@ -123,7 +123,7 @@ public:
         SecurityEntryIdentityDbCb_t;
     typedef mbed::Callback<void(Span<SecurityEntryIdentity_t>&, size_t count)>
         IdentitylistDbCb_t;
-    typedef mbed::Callback<void(::Gap::Whitelist_t*)>
+    typedef mbed::Callback<void(::ble::whitelist_t*)>
         WhitelistDbCb_t;
 
     SecurityDb() : _local_sign_counter(0) { };
@@ -567,7 +567,7 @@ public:
      */
     virtual void get_whitelist(
         WhitelistDbCb_t cb,
-        ::Gap::Whitelist_t *whitelist
+        ::ble::whitelist_t *whitelist
     ) {
         /*TODO: fill whitelist*/
         cb(whitelist);
@@ -582,7 +582,7 @@ public:
      */
     virtual void generate_whitelist_from_bond_table(
         WhitelistDbCb_t cb,
-        ::Gap::Whitelist_t *whitelist
+        ::ble::whitelist_t *whitelist
     ) {
         for (size_t i = 0; i < get_entry_count() && whitelist->size < whitelist->capacity; i++) {
             entry_handle_t db_handle = get_entry_handle_by_index(i);
@@ -620,7 +620,7 @@ public:
      *
      * @param[in] whitelist
      */
-    virtual void set_whitelist(const ::Gap::Whitelist_t &whitelist) { };
+    virtual void set_whitelist(const ::ble::whitelist_t &whitelist) { };
 
     /**
      * Add a new entry to the whitelist in the NVM.

@@ -101,7 +101,7 @@ public:
     ble_error_t purgeAllBondingState_();
 
     ble_error_t generateWhitelistFromBondTable_(
-        ::Gap::Whitelist_t *whitelist
+        ::ble::whitelist_t *whitelist
     ) const;
 
     ////////////////////////////////////////////////////////////////////////////
