@@ -18,6 +18,7 @@
 #define MBED_LOWPOWERCLOCK_H
 
 #include <chrono>
+#if DEVICE_LPTICKER
 #include "hal/lp_ticker_api.h"
 
 namespace mbed {
@@ -63,4 +64,5 @@ public:
 /** @}*/
 
 }
+#endif /* DEVICE_LPTICKER */
 #endif /* MBED_LOWPOWERCLOCK_H */

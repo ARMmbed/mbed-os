@@ -85,7 +85,10 @@ inline namespace chrono_literals {
 constexpr chrono::deciseconds operator "" _ds(unsigned long long x)
 {
     chrono::deciseconds::rep val = static_cast<chrono::deciseconds::rep>(x);
-    assert(val >= 0 && static_cast<unsigned long long>(val) == x);
+    if (val < 0) {
+        assert(false);
+    }
+    assert(static_cast<unsigned long long>(val) == x);
     return chrono::deciseconds(val);
 }
 
@@ -103,7 +106,10 @@ constexpr chrono::deciseconds operator "" _ds(unsigned long long x)
 constexpr chrono::centiseconds operator "" _cs(unsigned long long x)
 {
     chrono::centiseconds::rep val = static_cast<chrono::centiseconds::rep>(x);
-    assert(val >= 0 && static_cast<unsigned long long>(val) == x);
+    if (val < 0) {
+        assert(false);
+    }
+    assert(static_cast<unsigned long long>(val) == x);
     return chrono::centiseconds(val);
 }
 
