@@ -1096,8 +1096,8 @@ MBED_NORETURN mbed_error_status_t mbed_error(mbed_error_status_t error_status, c
  * mbed_set_error_hook( my_custom_error_hook )
  *
  * @endcode
- * @note The erro hook function implementation should be re-entrant.
- * 
+ * @note The error hook function implementation should be re-entrant.
+ *
  * @deprecated You should use an overridden mbed_error_hook() function if you like to catch errors in your application.
  *             With mbed_set_error_hook() it is not possible to catch errors before your application started.
  */
