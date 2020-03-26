@@ -73,7 +73,7 @@ typedef struct network_params {
     char netmask[PARAM_LEN]; /**< Netmask */
     char gateway[PARAM_LEN]; /**< Gateway */
     int  connection_status; /**< Connection status */
-}network_params_t;
+} network_params_t;
 
 /******************************************************
 *             Function Declarations
@@ -94,7 +94,7 @@ extern scl_result_t scl_init(void);
  *
  *  @param index           Index of the command.
  *  @param buffer          Data to be sent.
- *	@param timeout         The maximum time (in ms) to wait for the Network Processor to release IPC channel.
+ *  @param timeout         The maximum time (in ms) to wait for the Network Processor to release IPC channel.
  *
  *  @return SCL_SUCCESS on successful communication within SCL timeout duration or SCL_ERROR
  */

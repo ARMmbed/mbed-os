@@ -37,8 +37,8 @@ struct scl_tx_nw_credentials {
     nsapi_security_t network_security_type;
     int ssid_len;
     int pass_len;
-    const char* network_ssid;
-    const char* network_passphrase;
+    const char *network_ssid;
+    const char *network_passphrase;
 } scl_tx_nw_credentials_t;
 
 network_params_t network_parameter;
@@ -186,9 +186,9 @@ nsapi_error_t SclSTAInterface::connect()
         scl_tx_nw_credentials_t.pass_len = strlen(_pass);
     }
     scl_tx_nw_credentials_t.network_security_type = _security;
-    
-    ret_val = scl_send_data(SCL_TX_CONNECT, (char*)&scl_tx_nw_credentials_t, TIMER_DEFAULT_VALUE);
-    
+
+    ret_val = scl_send_data(SCL_TX_CONNECT, (char *)&scl_tx_nw_credentials_t, TIMER_DEFAULT_VALUE);
+
     if (ret_val == SCL_SUCCESS) {
         SCL_LOG(("wifi provisioning in progress"));
     }
@@ -202,15 +202,15 @@ nsapi_error_t SclSTAInterface::connect()
         wait_us(NW_DELAY_TIME_US);
         delay_timeout++;
     }
-    
+
     if (delay_timeout >= NW_CONNECT_TIMEOUT || ret_val != SCL_SUCCESS) {
         return NSAPI_ERROR_NO_CONNECTION;
     }
-    
+
     if (!_scl_emac.powered_up) {
         _scl_emac.power_up();
     }
-    
+
     if (!_interface) {
         nsapi_error_t err = _stack.add_ethernet_interface(_emac, true, &_interface);
         if (err != NSAPI_ERROR_OK) {
@@ -225,12 +225,12 @@ nsapi_error_t SclSTAInterface::connect()
     }
 
     interface_status = _interface->bringup(false,
-                               network_parameter.ip_address,
-                               network_parameter.netmask,
-                               network_parameter.gateway,
-                               DEFAULT_STACK);
+                                           network_parameter.ip_address,
+                                           network_parameter.netmask,
+                                           network_parameter.gateway,
+                                           DEFAULT_STACK);
 
-    scl_send_data(SCL_TX_CONNECTION_STATUS, (char*)&connection_status, TIMER_DEFAULT_VALUE);
+    scl_send_data(SCL_TX_CONNECTION_STATUS, (char *)&connection_status, TIMER_DEFAULT_VALUE);
 
     return interface_status;
 }
@@ -246,12 +246,12 @@ nsapi_error_t SclSTAInterface::disconnect()
 {
     scl_result_t ret_val;
     nsapi_error_t disconnect_status;
-    ret_val = scl_send_data(SCL_TX_DISCONNECT, (char*)&disconnect_status, TIMER_DEFAULT_VALUE);
-    
+    ret_val = scl_send_data(SCL_TX_DISCONNECT, (char *)&disconnect_status, TIMER_DEFAULT_VALUE);
+
     if (ret_val == SCL_ERROR) {
         return NSAPI_ERROR_TIMEOUT;
     }
-    
+
     if (!_interface) {
         return NSAPI_STATUS_DISCONNECTED;
     }
@@ -303,19 +303,18 @@ int SclSTAInterface::get_bssid(uint8_t *bssid)
 {
     scl_mac_t ap_mac;
     scl_result_t res = SCL_SUCCESS;
-    
+
     if (bssid == NULL) {
         return SCL_BADARG;
     }
-    
+
     memset(&ap_mac, 0, sizeof(ap_mac));
     if (scl_wifi_is_ready_to_transceive() == SCL_SUCCESS) {
         res = (scl_result_t) scl_wifi_get_bssid(&ap_mac);
         if (res == SCL_SUCCESS) {
             memcpy(bssid, ap_mac.octet, sizeof(ap_mac.octet));
         }
-    }
-    else {
+    } else {
         return SCL_CONNECTION_LOST;
     }
     return res;

@@ -60,7 +60,7 @@ typedef struct scl_tx_buf {
 extern bool scl_wifi_on(void);
 
 /** Brings up the Wi-Fi core
- *  
+ *
  *  @return SCL_SUCCESS or Error code.
  */
 extern scl_result_t scl_wifi_set_up(void);

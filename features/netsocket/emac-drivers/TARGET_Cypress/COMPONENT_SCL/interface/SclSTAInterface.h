@@ -41,14 +41,14 @@ public:
     SclSTAInterface(
         SCL_EMAC &emac = SCL_EMAC::get_instance(),
         OnboardNetworkStack &stack = OnboardNetworkStack::get_default_instance());
-    
+
     /** Gets the current instance of the SclSTAInterface
      *
      *  @return         Pointer to the object of class SclSTAInterface.
      */
-	static SclSTAInterface *get_default_instance();
-    
-	/** Turns on the Wi-Fi device
+    static SclSTAInterface *get_default_instance();
+
+    /** Turns on the Wi-Fi device
     *
     *  @return         void
     */
@@ -106,7 +106,7 @@ public:
         return 0;
     }
 
-    /** Set blocking status of interface. 
+    /** Set blocking status of interface.
      *  Nonblocking mode is not supported.
      *
      *  @param blocking  True if connect is blocking

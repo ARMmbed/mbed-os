@@ -31,10 +31,10 @@
 #define SCL_THREAD_PRIORITY        (CY_RTOS_PRIORITY_HIGH)
 #define SCL_INTR_SRC               (cpuss_interrupts_ipc_4_IRQn)
 #define SCL_INTR_PRI               (1)
-#define SCL_RX_CHANNEL             (4)          
+#define SCL_RX_CHANNEL             (4)
 #define SCL_CHANNEL_NOTIFY_INTR    ((1 << SCL_RX_CHANNEL) << 16)
 #define SCL_NOTIFY                 (1 << SCL_TX_CHANNEL)
-#define SCL_LOCK_ACQUIRE_STATUS    (0x80000000) 
+#define SCL_LOCK_ACQUIRE_STATUS    (0x80000000)
 #define SCL_TX_CHANNEL             (3)
 #define SCL_RELEASE                (0)
 #define DELAY_TIME                 (1000)
@@ -42,7 +42,7 @@
 #define SEMAPHORE_INITCOUNT        (0)
 /******************************************************
  **               Function Declarations
- *******************************************************/ 
+ *******************************************************/
 static void scl_isr(void);
 static void scl_config(void);
 static void scl_rx_handler(void);
@@ -97,8 +97,7 @@ static void scl_isr(void)
 static void scl_config(void)
 {
     IPC_INTR_STRUCT_Type *scl_rx_intr = NULL;
-    cy_stc_sysint_t intrCfg =
-    {
+    cy_stc_sysint_t intrCfg = {
         .intrSrc = SCL_INTR_SRC,
         .intrPriority = SCL_INTR_PRI
     };
@@ -114,9 +113,9 @@ static void scl_config(void)
  */
 static scl_result_t scl_thread_init(void)
 {
-    cy_rslt_t retval,tmp = 0;
+    cy_rslt_t retval, tmp = 0;
     memset(&g_scl_thread_info, 0, sizeof(g_scl_thread_info));
-    g_scl_thread_info.scl_thread_stack_start = (uint8_t*) malloc (SCL_THREAD_STACK_SIZE);;
+    g_scl_thread_info.scl_thread_stack_start = (uint8_t *) malloc(SCL_THREAD_STACK_SIZE);;
     g_scl_thread_info.scl_thread_stack_size = (uint32_t) SCL_THREAD_STACK_SIZE;
     g_scl_thread_info.scl_thread_priority = (cy_thread_priority_t) SCL_THREAD_PRIORITY;
 
@@ -126,15 +125,14 @@ static scl_result_t scl_thread_init(void)
             return SCL_ERROR;
         }
         retval = cy_rtos_create_thread(&g_scl_thread_info.scl_thread, (cy_thread_entry_fn_t) scl_rx_handler,
-                "SCL_thread", g_scl_thread_info.scl_thread_stack_start,
-                g_scl_thread_info.scl_thread_stack_size,
-                g_scl_thread_info.scl_thread_priority,(uint32_t) tmp);
+                                       "SCL_thread", g_scl_thread_info.scl_thread_stack_start,
+                                       g_scl_thread_info.scl_thread_stack_size,
+                                       g_scl_thread_info.scl_thread_priority, (uint32_t) tmp);
         if (retval != SCL_SUCCESS) {
             return SCL_ERROR;
         }
         g_scl_thread_info.scl_inited = SCL_TRUE;
-    }
-    else {
+    } else {
         return SCL_ERROR;
     }
     return SCL_SUCCESS;
@@ -161,25 +159,24 @@ scl_result_t scl_init(void)
         if (retval != SCL_SUCCESS) {
             SCL_LOG(("Thread init failed\n"));
             return SCL_ERROR;
-        }
-        else {
-            retval = scl_send_data(SCL_TX_CONFIG_PARAMETERS, (char*) &configuration_parameters ,TIMER_DEFAULT_VALUE);
+        } else {
+            retval = scl_send_data(SCL_TX_CONFIG_PARAMETERS, (char *) &configuration_parameters, TIMER_DEFAULT_VALUE);
             return retval;
         }
     }
     return SCL_SUCCESS;
 }
 
-scl_result_t scl_send_data(int index, char* buffer, uint32_t timeout)
+scl_result_t scl_send_data(int index, char *buffer, uint32_t timeout)
 {
     uint32_t acquire_state;
     IPC_STRUCT_Type *scl_send = NULL;
     uint32_t delay_timeout;
-    
-    SCL_LOG(("scl_send_data index = %d\n",index));
+
+    SCL_LOG(("scl_send_data index = %d\n", index));
     scl_send = Cy_IPC_Drv_GetIpcBaseAddress(SCL_TX_CHANNEL);
     CHECK_BUFFER_NULL(buffer);
-    if (!(REG_IPC_STRUCT_LOCK_STATUS(scl_send) & SCL_LOCK_ACQUIRE_STATUS)) {    
+    if (!(REG_IPC_STRUCT_LOCK_STATUS(scl_send) & SCL_LOCK_ACQUIRE_STATUS)) {
         acquire_state = REG_IPC_STRUCT_ACQUIRE(scl_send);
         if (!(acquire_state & SCL_LOCK_ACQUIRE_STATUS)) {
             SCL_LOG(("IPC Channel 3 Acquired Failed\r\n"));
@@ -197,15 +194,13 @@ scl_result_t scl_send_data(int index, char* buffer, uint32_t timeout)
             REG_IPC_STRUCT_RELEASE(scl_send) = SCL_RELEASE;
             delay_timeout = 0;
             return SCL_ERROR;
-        }
-        else {
+        } else {
             return SCL_SUCCESS;
         }
-    }
-    else {
+    } else {
         SCL_LOG(("unable to acquire lock\n"));
         return SCL_ERROR;
-    }    
+    }
 }
 
 scl_result_t scl_end(void)
@@ -239,7 +234,7 @@ static void scl_rx_handler(void)
     uint32_t rx_ipc_size;
     struct rx_ipc_info {
         uint32_t size;
-        int* buf_alloc;
+        int *buf_alloc;
     }*rx_cp = NULL;
 
     SCL_LOG(("Starting CP Rx thread\r\n"));
@@ -250,44 +245,38 @@ static void scl_rx_handler(void)
         index = (uint32_t)REG_IPC_STRUCT_DATA0(scl_receive);
         SCL_LOG(("scl_rx_handler index = %lu\n", index));
         switch (index) {
-            case SCL_RX_DATA:
-            {
-                rx_cp = (struct rx_ipc_info*) REG_IPC_STRUCT_DATA1(scl_receive);
+            case SCL_RX_DATA: {
+                rx_cp = (struct rx_ipc_info *) REG_IPC_STRUCT_DATA1(scl_receive);
                 scl_buffer = rx_cp->buf_alloc;
                 REG_IPC_STRUCT_RELEASE(scl_receive) = SCL_RELEASE;
-                SCL_LOG(("scl_buffer = %p\n",scl_buffer));
+                SCL_LOG(("scl_buffer = %p\n", scl_buffer));
                 scl_network_process_ethernet_data(scl_buffer);
                 break;
             }
-            case SCL_RX_TEST_MSG:
-            {
-                buffer = (char*) REG_IPC_STRUCT_DATA1(scl_receive);
-                SCL_LOG(("%s\r\n", (char*) buffer));
+            case SCL_RX_TEST_MSG: {
+                buffer = (char *) REG_IPC_STRUCT_DATA1(scl_receive);
+                SCL_LOG(("%s\r\n", (char *) buffer));
                 REG_IPC_STRUCT_RELEASE(scl_receive) = SCL_RELEASE;
                 break;
             }
-			case SCL_RX_GET_BUFFER:
-			{
-				rx_ipc_size = (uint32_t) REG_IPC_STRUCT_DATA1(scl_receive);
-                scl_host_buffer_get(&cp_buffer, SCL_NETWORK_RX, rx_ipc_size, SCL_FALSE );
+            case SCL_RX_GET_BUFFER: {
+                rx_ipc_size = (uint32_t) REG_IPC_STRUCT_DATA1(scl_receive);
+                scl_host_buffer_get(&cp_buffer, SCL_NETWORK_RX, rx_ipc_size, SCL_FALSE);
                 REG_IPC_STRUCT_DATA1(scl_receive) = (uint32_t)cp_buffer;
-				REG_IPC_STRUCT_RELEASE(scl_receive) = SCL_RELEASE;
-			    break;
-			}
-            case SCL_RX_GET_CONNECTION_STATUS:
-            {
-                connection_status = (nsapi_connection_status_t) REG_IPC_STRUCT_DATA1(scl_receive);
-                if (connection_status == NSAPI_STATUS_GLOBAL_UP) {
-                    scl_emac_wifi_link_state_changed(true);    
-                }
-                else {
-                    scl_emac_wifi_link_state_changed(false);
-                }
-                SCL_LOG(("connection status = %d\n",connection_status));
+                REG_IPC_STRUCT_RELEASE(scl_receive) = SCL_RELEASE;
                 break;
             }
-            default:
-            {
+            case SCL_RX_GET_CONNECTION_STATUS: {
+                connection_status = (nsapi_connection_status_t) REG_IPC_STRUCT_DATA1(scl_receive);
+                if (connection_status == NSAPI_STATUS_GLOBAL_UP) {
+                    scl_emac_wifi_link_state_changed(true);
+                } else {
+                    scl_emac_wifi_link_state_changed(false);
+                }
+                SCL_LOG(("connection status = %d\n", connection_status));
+                break;
+            }
+            default: {
                 SCL_LOG(("incorrect IPC from Network Processor\n"));
                 REG_IPC_STRUCT_RELEASE(scl_receive) = SCL_RELEASE;
                 break;
@@ -299,6 +288,6 @@ static void scl_rx_handler(void)
 scl_result_t scl_get_nw_parameters(network_params_t *nw_param)
 {
     scl_result_t status = SCL_ERROR;
-    status = scl_send_data(SCL_TX_WIFI_NW_PARAM, (char*)nw_param, TIMER_DEFAULT_VALUE);
+    status = scl_send_data(SCL_TX_WIFI_NW_PARAM, (char *)nw_param, TIMER_DEFAULT_VALUE);
     return status;
 }

@@ -78,8 +78,7 @@ extern "C"
 /**
  * Enumeration of Wi-Fi security modes
  */
-typedef enum
-{
+typedef enum {
     SCL_SECURITY_OPEN             = 0,                                                                 /**< Open security                                         */
     SCL_SECURITY_WEP_PSK          = WEP_ENABLED,                                                       /**< WEP PSK Security with open authentication             */
     SCL_SECURITY_WEP_SHARED       = (WEP_ENABLED | SHARED_ENABLED),                                    /**< WEP PSK Security with shared authentication           */
@@ -92,7 +91,7 @@ typedef enum
     SCL_SECURITY_WPA2_FBT_PSK     = (WPA2_SECURITY | AES_ENABLED | FBT_ENABLED),                       /**< WPA2 FBT PSK Security with AES & TKIP */
     SCL_SECURITY_WPA3_SAE         = (WPA3_SECURITY | AES_ENABLED),                                     /**< WPA3 Security with AES */
     SCL_SECURITY_WPA3_WPA2_PSK    = (WPA3_SECURITY | WPA2_SECURITY | AES_ENABLED),                     /**< WPA3 WPA2 PSK Security with AES */
-    
+
     SCL_SECURITY_WPA_TKIP_ENT     = (ENTERPRISE_ENABLED | WPA_SECURITY | TKIP_ENABLED),                /**< WPA Enterprise Security with TKIP                     */
     SCL_SECURITY_WPA_AES_ENT      = (ENTERPRISE_ENABLED | WPA_SECURITY | AES_ENABLED),                 /**< WPA Enterprise Security with AES                      */
     SCL_SECURITY_WPA_MIXED_ENT    = (ENTERPRISE_ENABLED | WPA_SECURITY | AES_ENABLED | TKIP_ENABLED),  /**< WPA Enterprise Security with AES & TKIP               */
@@ -100,13 +99,13 @@ typedef enum
     SCL_SECURITY_WPA2_AES_ENT     = (ENTERPRISE_ENABLED | WPA2_SECURITY | AES_ENABLED),                /**< WPA2 Enterprise Security with AES                     */
     SCL_SECURITY_WPA2_MIXED_ENT   = (ENTERPRISE_ENABLED | WPA2_SECURITY | AES_ENABLED | TKIP_ENABLED), /**< WPA2 Enterprise Security with AES & TKIP              */
     SCL_SECURITY_WPA2_FBT_ENT     = (ENTERPRISE_ENABLED | WPA2_SECURITY | AES_ENABLED | FBT_ENABLED),  /**< WPA2 Enterprise Security with AES & FBT               */
-    
+
     SCL_SECURITY_IBSS_OPEN        = (IBSS_ENABLED),                                                    /**< Open security on IBSS ad-hoc network                  */
     SCL_SECURITY_WPS_OPEN         = (WPS_ENABLED),                                                     /**< WPS with open security                                */
     SCL_SECURITY_WPS_SECURE       = (WPS_ENABLED | AES_ENABLED),                                       /**< WPS with AES security                                 */
-    
+
     SCL_SECURITY_UNKNOWN          = -1,                                                                /**< Returned by scan function if security is unknown. Do not pass this to the join function! */
-    
+
     SCL_SECURITY_FORCE_32_BIT     = 0x7fffffff                                                         /**< Exists only to force scl_security_t type to 32 bits */
 } scl_security_t;
 

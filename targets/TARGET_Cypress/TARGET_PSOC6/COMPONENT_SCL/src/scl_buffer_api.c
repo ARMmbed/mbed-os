@@ -40,28 +40,21 @@
 scl_result_t scl_host_buffer_get(scl_buffer_t *buffer, scl_buffer_dir_t direction,
                                  uint16_t size, uint32_t wait)
 {
-    UNUSED_PARAMETER( direction );
+    UNUSED_PARAMETER(direction);
     struct pbuf *p = NULL;
-    if ( ( direction == SCL_NETWORK_TX) && ( size <= PBUF_POOL_BUFSIZE ) )
-    {
+    if ((direction == SCL_NETWORK_TX) && (size <= PBUF_POOL_BUFSIZE)) {
         p = pbuf_alloc(PBUF_RAW, size, PBUF_POOL);
-    }
-    else
-    {
-        p = pbuf_alloc(PBUF_RAW, size+SDIO_BLOCK_SIZE, PBUF_RAM);
-        if ( p != NULL )
-        {
+    } else {
+        p = pbuf_alloc(PBUF_RAW, size + SDIO_BLOCK_SIZE, PBUF_RAM);
+        if (p != NULL) {
             p->len = size;
             p->tot_len -=  SDIO_BLOCK_SIZE;
         }
     }
-    if (p != NULL )
-    {
+    if (p != NULL) {
         *buffer = p;
         return SCL_SUCCESS;
-    }
-    else
-    {
+    } else {
         return SCL_BUFFER_ALLOC_FAIL;
     }
 
@@ -69,21 +62,21 @@ scl_result_t scl_host_buffer_get(scl_buffer_t *buffer, scl_buffer_dir_t directio
 
 void scl_buffer_release(scl_buffer_t buffer, scl_buffer_dir_t direction)
 {
-    UNUSED_PARAMETER( direction );
-    (void) pbuf_free( (struct pbuf *)buffer );
+    UNUSED_PARAMETER(direction);
+    (void) pbuf_free((struct pbuf *)buffer);
 }
 
 uint8_t *scl_buffer_get_current_piece_data_pointer(scl_buffer_t buffer)
 {
     CY_ASSERT(buffer != NULL);
-    struct pbuf *pbuffer= (struct pbuf*) buffer;
-    return (uint8_t*) pbuffer->payload;
+    struct pbuf *pbuffer = (struct pbuf *) buffer;
+    return (uint8_t *) pbuffer->payload;
 }
 
 uint16_t scl_buffer_get_current_piece_size(scl_buffer_t buffer)
 {
     CY_ASSERT(buffer != NULL);
-    struct pbuf *pbuffer = (struct pbuf*) buffer;
+    struct pbuf *pbuffer = (struct pbuf *) buffer;
     return (uint16_t) pbuffer->len;
 }
 

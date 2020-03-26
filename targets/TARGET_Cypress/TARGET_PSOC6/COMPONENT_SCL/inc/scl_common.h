@@ -151,8 +151,7 @@ typedef uint32_t scl_result_t;
 /**
  * Typedef for SCL boolean flags
  */
-typedef enum
-{
+typedef enum {
     SCL_FALSE = 0, /**< Boolean False */
     SCL_TRUE  = 1 /**< Boolean True */
 } scl_bool_t;
@@ -160,8 +159,7 @@ typedef enum
 /**
  * Typedef for SCL interface roles
  */
-typedef enum
-{
+typedef enum {
     SCL_INVALID_ROLE           = 0,         /**< Invalid role */
     SCL_STA_ROLE               = 1,         /**< STA or Client Interface */
     SCL_AP_ROLE                = 2,         /**< softAP Interface */
@@ -171,8 +169,7 @@ typedef enum
 /**
  * Typedef for SCL IPC receive index
  */
-typedef enum
-{
+typedef enum {
     SCL_RX_DATA                  = 0,      /**< Received buffer */
     SCL_RX_TEST_MSG              = 1,      /**< Test message */
     SCL_RX_GET_BUFFER            = 2,      /**< Get the buffer */
@@ -182,8 +179,7 @@ typedef enum
 /**
  * Typedef for SCL IPC transmit index
  */
-typedef enum
-{
+typedef enum {
     SCL_TX_TEST_MSG                    = 1,  /**< Test Message */
     SCL_TX_WIFI_INIT                   = 2,  /**< Initialize Wi-Fi */
     SCL_TX_CONFIG_PARAMETERS           = 3,  /**< Configuration parameters */
@@ -205,8 +201,7 @@ typedef enum
 /**
  * Structure for storing a MAC address (Wi-Fi Media Access Control address).
  */
-typedef struct
-{
+typedef struct {
     uint8_t octet[6]; /**< Unique 6-byte MAC address */
 } scl_mac_t;
 

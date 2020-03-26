@@ -52,8 +52,7 @@ extern "C"
  * Indicates the transmit/receive direction that the buffer has
  * been used for. This is needed if transmit/receive pools are separate.
  */
-typedef enum
-{
+typedef enum {
     SCL_NETWORK_TX = 0, /**< Transmit direction */
     SCL_NETWORK_RX = 1 /**< Receive direction */
 } scl_buffer_dir_t;
@@ -65,7 +64,7 @@ typedef enum
  *
  *  Attempts to allocate a buffer of the requested size. A buffer
  *  is either allocated from a static pool of memory or allocated dynamically.
- *  
+ *
  *  @param   buffer    A pointer which receives the allocated buffer.
  *  @param   direction Indicates transmit/receive direction that the buffer is
  *                      used for. This may be needed if transmit/receive pools are separate.
