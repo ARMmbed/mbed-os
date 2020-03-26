@@ -293,7 +293,7 @@ const char *mbed_trace_include_filters_get(void);
  * @param fmt    trace format (like printf)
  * @param ...    variable arguments related to fmt
  */
-#if defined(__GNUC__) || defined(__CC_ARM)
+#if defined(__GNUC__)
 void mbed_tracef(uint8_t dlevel, const char *grp, const char *fmt, ...) __attribute__((__format__(__printf__, 3, 4)));
 #else
 void mbed_tracef(uint8_t dlevel, const char *grp, const char *fmt, ...);
@@ -313,7 +313,7 @@ void mbed_tracef(uint8_t dlevel, const char *grp, const char *fmt, ...);
  * @param fmt    trace format (like vprintf)
  * @param ap     variable arguments list (like vprintf)
  */
-#if defined(__GNUC__) || defined(__CC_ARM)
+#if defined(__GNUC__)
 void mbed_vtracef(uint8_t dlevel, const char *grp, const char *fmt, va_list ap) __attribute__((__format__(__printf__, 3, 0)));
 #else
 void mbed_vtracef(uint8_t dlevel, const char *grp, const char *fmt, va_list ap);
