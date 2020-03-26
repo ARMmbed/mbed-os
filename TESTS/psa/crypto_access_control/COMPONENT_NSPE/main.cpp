@@ -348,7 +348,7 @@ void test_use_other_partition_key_aead(void)
 void test_use_other_partition_key_asymmetric_sign_verify(void)
 {
     static const psa_key_id_t key_id = 999;
-    static const psa_key_type_t key_type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_CURVE_SECP256R1);
+    static const psa_key_type_t key_type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_CURVE_SECP_R1);
     static const psa_algorithm_t key_alg = PSA_ALG_ECDSA(PSA_ALG_SHA_256);
     static const psa_key_usage_t key_usage = PSA_KEY_USAGE_SIGN | PSA_KEY_USAGE_VERIFY;
     static const size_t key_bits = 256;

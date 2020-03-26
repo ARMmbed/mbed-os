@@ -48,20 +48,11 @@ static psa_status_t get_curve(psa_key_type_t type, enum ecc_curve_t *curve_type)
 {
     psa_ecc_curve_t curve = PSA_KEY_TYPE_GET_CURVE(type);
     switch (curve) {
-        case PSA_ECC_CURVE_SECP256R1:
+        case PSA_ECC_CURVE_SECP_R1:
             *curve_type = P_256;
             break;
-        case PSA_ECC_CURVE_SECP384R1:
-            *curve_type = P_384;
-            break;
-        case PSA_ECC_CURVE_SECP521R1:
-            *curve_type = P_521;
-            break;
-        case PSA_ECC_CURVE_CURVE25519:
+        case PSA_ECC_CURVE_MONTGOMERY:
             *curve_type = X25519;
-            break;
-        case PSA_ECC_CURVE_CURVE448:
-            *curve_type = X448;
             break;
         default:
             return (PSA_ERROR_NOT_SUPPORTED);
