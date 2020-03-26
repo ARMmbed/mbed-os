@@ -14089,7 +14089,7 @@
             "CYBSP_WIFI_CAPABLE"
         ],
         "detect_code": [
-            "1910"
+            "190A"
         ],
         "forced_reset_timeout": 5,
         "hex_filename": "psoc64_02_cm0_secure.hex",
