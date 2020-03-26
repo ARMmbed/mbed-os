@@ -906,7 +906,7 @@ void SX126X_LoRaRadio::set_rx_config(radio_modems_t modem,
         }
 
         case MODEM_LORA: {
-            _rx_timeout_in_symbols = symb_timeout;
+            _rx_timeout_in_symbols = rx_continuous ? 0 : symb_timeout;
             _mod_params.modem_type = MODEM_LORA;
             _mod_params.params.lora.spreading_factor =
                 (lora_spread_factors_t) datarate;
@@ -1002,15 +1002,18 @@ void SX126X_LoRaRadio::send(uint8_t *buffer, uint8_t size)
 
 void SX126X_LoRaRadio::receive(void)
 {
-    if (get_modem() == MODEM_LORA && _reception_mode != RECEPTION_MODE_CONTINUOUS) {
-        // Data-sheet Table 13-11: StopOnPreambParam
-        // We will use radio's internal timer to mark no reception. This behaviour
-        // is different from SX1272/SX1276 where we are relying on radio to stop
-        // at preamble detection.
-        // 0x00 means Timer will be stopped on SyncWord(FSK) or Header (LoRa) detection
-        // 0x01 means Timer is stopped on preamble detection
-        uint8_t stop_at_preamble = 0x01;
-        write_opmode_command(RADIO_SET_STOPRXTIMERONPREAMBLE, &stop_at_preamble, 1);
+    if (get_modem() == MODEM_LORA) {
+        if (_reception_mode != RECEPTION_MODE_CONTINUOUS) {
+            // Data-sheet Table 13-11: StopOnPreambParam
+            // We will use radio's internal timer to mark no reception. This behaviour
+            // is different from SX1272/SX1276 where we are relying on radio to stop
+            // at preamble detection.
+            // 0x00 means Timer will be stopped on SyncWord(FSK) or Header (LoRa) detection
+            // 0x01 means Timer is stopped on preamble detection
+            uint8_t stop_at_preamble = 0x01;
+            write_opmode_command(RADIO_SET_STOPRXTIMERONPREAMBLE, &stop_at_preamble, 1);
+        }
+
         // Data-sheet 13.4.9 SetLoRaSymbNumTimeout
         write_opmode_command(RADIO_SET_LORASYMBTIMEOUT, &_rx_timeout_in_symbols, 1);
     }
