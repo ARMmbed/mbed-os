@@ -27,7 +27,7 @@
  * Avoids the semihosting issue
  * FixMe: describe 'semihosting issue'
  */
-#if defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#if defined(__ARMCC_VERSION)
 __asm("  .global __ARM_use_no_argv\n");
 #endif
 
