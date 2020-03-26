@@ -150,26 +150,6 @@ public:
     void setPreferredConnectionParams(const ::Gap::ConnectionParams_t& params);
 
     /**
-     * @see ::GattServer::setDeviceName
-     */
-    ble_error_t setDeviceName(const uint8_t *deviceName);
-
-    /**
-     * @see ::GattServer::getDeviceName
-     */
-    void getDeviceName(const uint8_t*& name, uint16_t& length);
-
-    /**
-     * @see ::GattServer::setAppearance
-     */
-    void setAppearance(GapAdvertisingData::Appearance appearance);
-
-    /**
-     * @see ::GattServer::getAppearance
-     */
-    GapAdvertisingData::Appearance getAppearance();
-
-    /**
      * @see ::GattServer::reset
      */
     ble_error_t reset_(void);

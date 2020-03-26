@@ -19,69 +19,6 @@ public:
 
     virtual ~GenericAccessService() { }
 
-    virtual ble_error_t get_device_name_length(uint8_t& length) {
-#if BLE_FEATURE_GATT_SERVER
-        const uint8_t* name = NULL;
-        uint16_t actual_length = 0;
-
-        gatt_server().getDeviceName(name, actual_length);
-        length = actual_length;
-
-        return BLE_ERROR_NONE;
-#else
-        return BLE_ERROR_NOT_IMPLEMENTED;
-#endif
-    }
-
-    virtual ble_error_t get_device_name(Span<uint8_t>& array) {
-#if BLE_FEATURE_GATT_SERVER
-        const uint8_t* name = NULL;
-        uint16_t length = 0;
-
-        gatt_server().getDeviceName(name, length);
-
-        if (length > array.size()) {
-            return BLE_ERROR_PARAM_OUT_OF_RANGE;
-        }
-
-        memcpy(array.data(), name, length);
-
-        return BLE_ERROR_NONE;
-#else
-        return BLE_ERROR_NOT_IMPLEMENTED;
-#endif // BLE_FEATURE_GATT_SERVER
-    }
-
-    virtual ble_error_t set_device_name(const uint8_t* device_name) {
-#if BLE_FEATURE_GATT_SERVER
-        return gatt_server().setDeviceName(device_name);
-#else
-        return BLE_ERROR_NOT_IMPLEMENTED;
-#endif // BLE_FEATURE_GATT_SERVER
-    }
-
-    virtual ble_error_t get_appearance(
-        GapAdvertisingData::Appearance& appearance
-    ) {
-#if BLE_FEATURE_GATT_SERVER
-        appearance = gatt_server().getAppearance();
-        return BLE_ERROR_NONE;
-#else
-        return BLE_ERROR_NOT_IMPLEMENTED;
-#endif // BLE_FEATURE_GATT_SERVER
-    }
-
-    virtual ble_error_t set_appearance(
-        GapAdvertisingData::Appearance appearance
-    ) {
-#if BLE_FEATURE_GATT_SERVER
-        gatt_server().setAppearance(appearance);
-        return BLE_ERROR_NONE;
-#else
-        return BLE_ERROR_NOT_IMPLEMENTED;
-#endif // BLE_FEATURE_GATT_SERVER
-    }
-
     virtual ble_error_t get_peripheral_prefered_connection_parameters(
         ::Gap::ConnectionParams_t& parameters
     ) {

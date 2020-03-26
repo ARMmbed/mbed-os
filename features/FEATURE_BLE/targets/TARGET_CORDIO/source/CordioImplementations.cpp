@@ -26,7 +26,6 @@
 #include "ble/pal/AttClientToGattClientAdapter.h"
 #include "ble/pal/PalGap.h"
 
-#include "source/LegacyGap.tpp"
 #include "source/gap/Gap.tpp"
 #include "source/GattClient.tpp"
 #include "source/SecurityManager.tpp"
@@ -121,14 +120,3 @@ template class ble::interface::Gap<
         SecurityManagerImpl
     >
 >;
-
-template class ble::interface::LegacyGap<
-    ble::generic::GenericGap<
-        ble::pal::vendor::cordio::Gap,
-        SecurityManagerImpl::PalSecurityManager,
-        SecurityManagerImpl
-    >
->;
-
-
-
