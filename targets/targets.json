@@ -6702,18 +6702,8 @@
         "macros_add": [
             "STM32F411xE",
             "HSE_VALUE=26000000",
-            "USE_PLL_HSE_EXTC=0",
-            "VECT_TAB_OFFSET=0x00010000"
+            "USE_PLL_HSE_EXTC=0"
         ],
-        "post_binary_hook": {
-            "function": "MTSCode.combine_bins_mts_dot",
-            "toolchains": [
-                "GCC_ARM",
-                "ARM_STD",
-                "ARM_MICRO",
-                "IAR"
-            ]
-        },
         "device_has_add": [
             "MPU"
         ],
@@ -6724,6 +6714,7 @@
             "2",
             "5"
         ],
+        "bootloader_supported": true,
         "device_name": "STM32F411RE",
         "detect_code": [
             "0320"
