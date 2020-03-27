@@ -47,20 +47,14 @@
 static SingletonPtr<PlatformMutex> _mutex;
 
 #if defined(__ARMCC_VERSION)
-#   if __ARMCC_VERSION >= 6010050
-#      include <arm_compat.h>
-#   endif
+#   include <arm_compat.h>
 #   include <rt_sys.h>
 #   include <rt_misc.h>
 #   include <stdint.h>
 #   define PREFIX(x)    _sys##x
 #   define OPEN_MAX     _SYS_OPEN
 #   ifdef __MICROLIB
-#       if __ARMCC_VERSION >= 6010050
 asm(" .global __use_full_stdio\n");
-#       else
-#           pragma import(__use_full_stdio)
-#       endif
 #   endif
 
 #elif defined(__ICCARM__)
@@ -803,7 +797,7 @@ MBED_WEAK int mbed::minimal_console_putc(int c)
 }
 #endif // MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
 
-#if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#if defined (__ARMCC_VERSION)
 extern "C" void PREFIX(_exit)(int return_code)
 {
     while (1) {}
@@ -1084,12 +1078,8 @@ extern "C" long PREFIX(_flen)(FILEHANDLE fh)
 #if !defined(COMPONENT_SPE) || !defined(TARGET_TFM)
 
 #if !defined(__MICROLIB)
-#if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
 __asm(".global __use_two_region_memory\n\t");
 __asm(".global __use_no_semihosting\n\t");
-#else
-#pragma import(__use_two_region_memory)
-#endif
 #endif
 
 // Through weak-reference, we can check if ARM_LIB_HEAP is defined at run-time.
