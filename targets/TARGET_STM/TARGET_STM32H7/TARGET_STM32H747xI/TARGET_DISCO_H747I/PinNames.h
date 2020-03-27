@@ -428,6 +428,14 @@ typedef enum {
     ETH_TX_EN = PG_11,
     ETH_TX_EN_ALT0 = PB_11,
 
+    /**** QSPI FLASH pins ****/
+    QSPI_FLASH1_IO0 = PD_11,
+    QSPI_FLASH1_IO1 = PF_9,
+    QSPI_FLASH1_IO2 = PF_7,
+    QSPI_FLASH1_IO3 = PF_6,
+    QSPI_FLASH1_SCK = PB_2,
+    QSPI_FLASH1_CSN = PG_6,
+
     /**** OSCILLATOR pins ****/
     RCC_OSC32_IN = PC_14,
     RCC_OSC32_OUT = PC_15,
