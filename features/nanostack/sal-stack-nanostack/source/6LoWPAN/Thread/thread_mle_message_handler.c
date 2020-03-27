@@ -892,7 +892,7 @@ static void thread_parse_child_update_response(protocol_interface_info_entry_t *
 
     if (cur->thread_info->thread_device_mode == THREAD_DEVICE_MODE_SLEEPY_END_DEVICE) {
         if (cur->thread_info->childUpdateReqTimer < 1) {
-            cur->thread_info->childUpdateReqTimer = 0.8 * timeout;
+            cur->thread_info->childUpdateReqTimer = 8 * timeout / 10;
         }
     }
     //This process is ready

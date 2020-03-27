@@ -381,7 +381,7 @@ void thread_key_guard_timer_calculate(protocol_interface_info_entry_t *cur, link
     }
 
     cur->thread_info->masterSecretMaterial.keyRotation = key_rotation * 3600; // setting value is hours converting to seconds
-    cur->thread_info->masterSecretMaterial.keySwitchGuardTimer = is_init ? 0 : (key_rotation * 3600 * 0.93);
+    cur->thread_info->masterSecretMaterial.keySwitchGuardTimer = is_init ? 0 : (key_rotation * 3600 * 93 / 100);
 }
 
 void thread_key_guard_timer_reset(protocol_interface_info_entry_t *cur)
