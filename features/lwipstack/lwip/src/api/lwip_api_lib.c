@@ -130,7 +130,7 @@ netconn_apimsg(tcpip_callback_fn fn, struct api_msg *apimsg)
 
   if (sys_tcpip_thread_check()) {
       fn(apimsg);
-      return ERR_OK;
+      return apimsg->err;
   } else {
       err = tcpip_send_msg_wait_sem(fn, apimsg, LWIP_API_MSG_SEM(apimsg));
 
