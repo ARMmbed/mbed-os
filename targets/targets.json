@@ -9863,19 +9863,19 @@
         "inherits": ["AMA3B1KK"]
     },
     "SparkFun_RedBoard_Artemis_ATP": {
-        "inherits": ["SparkFun_Artemis_Module"]
+        "inherits": ["AMA3B1KK"]
     },
     "SparkFun_RedBoard_Artemis": {
-        "inherits": ["SparkFun_Artemis_Module"]
+        "inherits": ["AMA3B1KK"]
     },
     "SparkFun_RedBoard_Artemis_Nano": {
-        "inherits": ["SparkFun_Artemis_Module"]
+        "inherits": ["AMA3B1KK"]
     },
     "SparkFun_Artemis_Thing_Plus": {
-        "inherits": ["SparkFun_Artemis_Module"]
+        "inherits": ["AMA3B1KK"]
     },    
     "SparkFun_ARTmbed": {
-        "inherits": ["SparkFun_Artemis_Module"]
+        "inherits": ["AMA3B1KK"]
     },
     "__build_tools_metadata__": {
         "version": "1",
