@@ -58,7 +58,11 @@ void test_Transaction_init()
     TEST_ASSERT_EQUAL(rx_buffer_size,   test_transaction.get_transaction()->rx_length);
     TEST_ASSERT_EQUAL(event_id,         test_transaction.get_transaction()->event);
     TEST_ASSERT_EQUAL(word_width,       test_transaction.get_transaction()->width);
-    TEST_ASSERT_EQUAL(callback,         test_transaction.get_transaction()->callback);
+#if MBED_CONF_PLATFORM_CALLBACK_COMPARABLE
+    TEST_ASSERT_TRUE(callback == test_transaction.get_transaction()->callback);
+#else
+    TEST_ASSERT_FALSE(nullptr == test_transaction.get_transaction()->callback)
+#endif
 }
 
 /** Test Transaction class - creation without initialisation

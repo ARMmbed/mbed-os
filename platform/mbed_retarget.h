@@ -34,11 +34,8 @@
  */
 #ifndef __error_t_defined
 #define __error_t_defined 1
-#include <errno.h>
-#undef __error_t_defined
-#else
-#include <errno.h>
 #endif
+#include <errno.h>
 
 #if defined __has_include
 #  if __has_include (<sys/stat.h>)

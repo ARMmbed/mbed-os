@@ -3,6 +3,8 @@
 # UNIT TESTS
 ####################
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMBED_CONF_PLATFORM_CALLBACK_COMPARABLE")
+
 # Source files
 set(unittest-sources
   ../features/netsocket/SocketAddress.cpp

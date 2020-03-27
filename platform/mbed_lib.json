@@ -123,6 +123,14 @@
             "help": "The maximum CThunk objects used at the same time. This must be greater than 0 and less 256",
             "value": 8
         },
+        "callback-nontrivial": {
+            "help": "Enables support for non-trivial callable objects in Callback. Can be disabled to save ROM if no-one is using non-trivial types. Changing this value may cause incompatibility with pre-built binaries.",
+            "value": true
+        },
+        "callback-comparable": {
+            "help": "Enables support for comparing two Callbacks. See notes on operator== for limitations. Can be disabled to save ROM if not required.",
+            "value": true
+        },
         "crash-capture-enabled": {
             "help": "Enables crash context capture when the system enters a fatal error/crash.",
             "value": false

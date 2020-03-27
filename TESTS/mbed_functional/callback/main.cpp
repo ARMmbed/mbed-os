@@ -18,9 +18,27 @@
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"
+#include <mstd_functional>
 
 using namespace utest::v1;
 
+template <typename T>
+using func0_type = T();
+
+template <typename T>
+using func1_type = T(T);
+
+template <typename T>
+using func2_type = T(T, T);
+
+template <typename T>
+using func3_type = T(T, T, T);
+
+template <typename T>
+using func4_type = T(T, T, T, T);
+
+template <typename T>
+using func5_type = T(T, T, T, T, T);
 
 // static functions
 template <typename T>
@@ -523,13 +541,17 @@ void test_dispatch0()
     Verifier<T>::verify0(&const_volatile_void_func0<T>, (const volatile Thing<T> *)&thing);
     Verifier<T>::verify0(callback(static_func0<T>));
 
-    Callback<T()> cb(static_func0);
+    Callback<T()> cb(static_func0<T>);
     Verifier<T>::verify0(cb);
-    cb = static_func0;
+    TEST_ASSERT_TRUE(cb);
+    func0_type<T> *p = nullptr;
+    cb = p;
+    TEST_ASSERT_FALSE(cb);
+    cb = static_func0<T>;
     Verifier<T>::verify0(cb);
     cb = {&bound_func0<T>, &thing};
     Verifier<T>::verify0(&cb, &Callback<T()>::call);
-    Verifier<T>::verify0(&Callback<T()>::thunk, (void *)&cb);
+    Verifier<T>::verify0(&Callback<T()>::thunk, &cb);
 }
 
 template <typename T>
@@ -554,9 +576,13 @@ void test_dispatch1()
     Verifier<T>::verify1(&const_volatile_void_func1<T>, (const volatile Thing<T> *)&thing);
     Verifier<T>::verify1(callback(static_func1<T>));
 
-    Callback<T(T)> cb(static_func1);
+    Callback<T(T)> cb(static_func1<T>);
     Verifier<T>::verify1(cb);
-    cb = static_func1;
+    TEST_ASSERT_TRUE(cb);
+    func1_type<T> *p = nullptr;
+    cb = p;
+    TEST_ASSERT_FALSE(cb);
+    cb = static_func1<T>;
     Verifier<T>::verify1(cb);
     cb = {&bound_func1<T>, &thing};
     Verifier<T>::verify1(&cb, &Callback<T(T)>::call);
@@ -585,9 +611,13 @@ void test_dispatch2()
     Verifier<T>::verify2(&const_volatile_void_func2<T>, (const volatile Thing<T> *)&thing);
     Verifier<T>::verify2(callback(static_func2<T>));
 
-    Callback<T(T, T)> cb(static_func2);
+    Callback<T(T, T)> cb(static_func2<T>);
     Verifier<T>::verify2(cb);
-    cb = static_func2;
+    TEST_ASSERT_TRUE(cb);
+    func2_type<T> *p = nullptr;
+    cb = p;
+    TEST_ASSERT_FALSE(cb);
+    cb = static_func2<T>;
     Verifier<T>::verify2(cb);
     cb = {&bound_func2<T>, &thing};
     Verifier<T>::verify2(&cb, &Callback<T(T, T)>::call);
@@ -616,9 +646,13 @@ void test_dispatch3()
     Verifier<T>::verify3(&const_volatile_void_func3<T>, (const volatile Thing<T> *)&thing);
     Verifier<T>::verify3(callback(static_func3<T>));
 
-    Callback<T(T, T, T)> cb(static_func3);
+    Callback<T(T, T, T)> cb(static_func3<T>);
     Verifier<T>::verify3(cb);
-    cb = static_func3;
+    TEST_ASSERT_TRUE(cb);
+    func3_type<T> *p = nullptr;
+    cb = p;
+    TEST_ASSERT_FALSE(cb);
+    cb = static_func3<T>;
     Verifier<T>::verify3(cb);
     cb = {&bound_func3<T>, &thing};
     Verifier<T>::verify3(&cb, &Callback<T(T, T, T)>::call);
@@ -647,9 +681,13 @@ void test_dispatch4()
     Verifier<T>::verify4(&const_volatile_void_func4<T>, (const volatile Thing<T> *)&thing);
     Verifier<T>::verify4(callback(static_func4<T>));
 
-    Callback<T(T, T, T, T)> cb(static_func4);
+    Callback<T(T, T, T, T)> cb(static_func4<T>);
     Verifier<T>::verify4(cb);
-    cb = static_func4;
+    TEST_ASSERT_TRUE(cb);
+    func4_type<T> *p = nullptr;
+    cb = p;
+    TEST_ASSERT_FALSE(cb);
+    cb = static_func4<T>;
     Verifier<T>::verify4(cb);
     cb = {&bound_func4<T>, &thing};
     Verifier<T>::verify4(&cb, &Callback<T(T, T, T, T)>::call);
@@ -678,14 +716,158 @@ void test_dispatch5()
     Verifier<T>::verify5(&const_volatile_void_func5<T>, (const volatile Thing<T> *)&thing);
     Verifier<T>::verify5(callback(static_func5<T>));
 
-    Callback<T(T, T, T, T, T)> cb(static_func5);
+    Callback<T(T, T, T, T, T)> cb(static_func5<T>);
     Verifier<T>::verify5(cb);
-    cb = static_func5;
+    TEST_ASSERT_TRUE(cb);
+    func5_type<T> *p = nullptr;
+    cb = p;
+    TEST_ASSERT_FALSE(cb);
+    cb = static_func5<T>;
     Verifier<T>::verify5(cb);
     cb = {&bound_func5<T>, &thing};
     Verifier<T>::verify5(&cb, &Callback<T(T, T, T, T, T)>::call);
+#if 0
     Verifier<T>::verify5(&Callback<T(T, T, T, T, T)>::thunk, (void *)&cb);
+#endif
 }
+
+#include <mstd_functional>
+
+struct TrivialFunctionObject {
+    TrivialFunctionObject(int n) : val(n)
+    {
+    }
+
+    int operator()(int x) const
+    {
+        return x + val;
+    }
+private:
+    int val;
+};
+
+/* Exact count of copy, construction and destruction may vary depending on
+ * copy elision by compiler, but the derived live count can be relied upon.
+ */
+static int construct_count;
+static int destruct_count;
+static int copy_count;
+
+static int live_count()
+{
+    return construct_count - destruct_count;
+}
+
+struct FunctionObject {
+    FunctionObject(int n) : val(n)
+    {
+        construct_count++;
+    }
+
+    FunctionObject(const FunctionObject &other) : val(other.val)
+    {
+        construct_count++;
+        copy_count++;
+    }
+
+    ~FunctionObject()
+    {
+        destruct_count++;
+        destroyed = true;
+    }
+
+    int operator()(int x) const
+    {
+        return destroyed ? -1000 : x + val;
+    }
+private:
+    const int val;
+    bool destroyed = false;
+};
+
+void test_trivial()
+{
+    TrivialFunctionObject fn(1);
+    TEST_ASSERT_EQUAL(2, fn(1));
+    Callback<int(int)> cb(fn);
+    TEST_ASSERT_TRUE(cb);
+    TEST_ASSERT_EQUAL(2, cb(1));
+    fn = 5;
+    TEST_ASSERT_EQUAL(6, fn(1));
+    TEST_ASSERT_EQUAL(2, cb(1));
+    cb = std::ref(fn);
+    fn = 10;
+    TEST_ASSERT_EQUAL(11, fn(1));
+    TEST_ASSERT_EQUAL(11, cb(1));
+    cb = TrivialFunctionObject(3);
+    TEST_ASSERT_EQUAL(7, cb(4));
+    cb = nullptr;
+    TEST_ASSERT_FALSE(cb);
+    cb = TrivialFunctionObject(7);
+    Callback<int(int)> cb2(cb);
+    TEST_ASSERT_EQUAL(8, cb(1));
+    TEST_ASSERT_EQUAL(9, cb2(2));
+    cb2 = cb;
+    TEST_ASSERT_EQUAL(6, cb2(-1));
+    cb = cb;
+    TEST_ASSERT_EQUAL(8, cb(1));
+    cb = std::negate<int>();
+    TEST_ASSERT_EQUAL(-4, cb(4));
+    cb = [](int x) {
+        return x - 7;
+    };
+    TEST_ASSERT_EQUAL(1, cb(8));
+    cb = cb2 = nullptr;
+    TEST_ASSERT_FALSE(cb);
+}
+
+#if MBED_CONF_PLATFORM_CALLBACK_NONTRIVIAL
+void test_nontrivial()
+{
+    {
+        FunctionObject fn(1);
+        TEST_ASSERT_EQUAL(1, construct_count);
+        TEST_ASSERT_EQUAL(0, destruct_count);
+        TEST_ASSERT_EQUAL(2, fn(1));
+        Callback<int(int)> cb(fn);
+        TEST_ASSERT_TRUE(cb);
+        TEST_ASSERT_EQUAL(2, live_count());
+        TEST_ASSERT_EQUAL(2, cb(1));
+        cb = std::ref(fn);
+        TEST_ASSERT_EQUAL(1, live_count());
+        TEST_ASSERT_EQUAL(5, cb(4));
+        cb = FunctionObject(3);
+        TEST_ASSERT_EQUAL(2, live_count());
+        TEST_ASSERT_EQUAL(7, cb(4));
+        cb = nullptr;
+        TEST_ASSERT_FALSE(cb);
+        TEST_ASSERT_EQUAL(1, live_count());
+        cb = FunctionObject(7);
+        TEST_ASSERT_EQUAL(2, live_count());
+        int old_copy_count = copy_count;
+        Callback<int(int)> cb2(cb);
+        TEST_ASSERT_EQUAL(old_copy_count + 1, copy_count);
+        TEST_ASSERT_EQUAL(3, live_count());
+        TEST_ASSERT_EQUAL(8, cb(1));
+        TEST_ASSERT_EQUAL(9, cb2(2));
+        old_copy_count = copy_count;
+        cb2 = cb;
+        TEST_ASSERT_EQUAL(old_copy_count + 1, copy_count);
+        TEST_ASSERT_EQUAL(3, live_count());
+        TEST_ASSERT_EQUAL(6, cb2(-1));
+        int old_construct_count = construct_count;
+        old_copy_count = copy_count;
+        cb = cb;
+        TEST_ASSERT_EQUAL(3, live_count());
+        TEST_ASSERT_EQUAL(old_construct_count, construct_count);
+        TEST_ASSERT_EQUAL(old_copy_count, copy_count);
+        cb = cb2 = nullptr;
+        TEST_ASSERT_FALSE(cb);
+        TEST_ASSERT_EQUAL(1, live_count());
+    }
+    TEST_ASSERT_EQUAL(0, live_count());
+}
+#endif
 
 
 // Test setup
@@ -702,7 +884,10 @@ Case cases[] = {
     Case("Testing callbacks with 2 uint64s", test_dispatch2<uint64_t>),
     Case("Testing callbacks with 3 uint64s", test_dispatch3<uint64_t>),
     Case("Testing callbacks with 4 uint64s", test_dispatch4<uint64_t>),
+// IAR currently crashes at link time with this test - skip it as it's well beyond anything needed by real code
+#ifndef __ICCARM__
     Case("Testing callbacks with 5 uint64s", test_dispatch5<uint64_t>),
+#endif
 #elif DO_SMALL_TEST
     Case("Testing callbacks with 0 uchars", test_dispatch0<unsigned char>),
     Case("Testing callbacks with 1 uchars", test_dispatch1<unsigned char>),
@@ -717,6 +902,10 @@ Case cases[] = {
     Case("Testing callbacks with 3 ints", test_dispatch3<int>),
     Case("Testing callbacks with 4 ints", test_dispatch4<int>),
     Case("Testing callbacks with 5 ints", test_dispatch5<int>),
+    Case("Testing trivial function object", test_trivial),
+#if MBED_CONF_PLATFORM_CALLBACK_NONTRIVIAL
+    Case("Testing non-trivial function object", test_nontrivial),
+#endif
 #endif
 };
 

@@ -300,20 +300,6 @@ struct remove_cvref : type_identity<std::remove_cv_t<std::remove_reference_t<T>>
 template <typename T>
 using remove_cvref_t = typename remove_cvref<T>::type;
 
-/* C++20 unwrap_reference */
-template <typename T>
-struct unwrap_reference : type_identity<T> { };
-template <typename T>
-struct unwrap_reference<std::reference_wrapper<T>> : type_identity<T &> { };
-template <typename T>
-using unwrap_reference_t = typename unwrap_reference<T>::type;
-
-/* C++20 unwrap_ref_decay */
-template <typename T>
-struct unwrap_ref_decay : unwrap_reference<std::decay_t<T>> { };
-template <typename T>
-using unwrap_ref_decay_t = typename unwrap_ref_decay<T>::type;
-
 }
 
 #if __cpp_lib_invoke < 201411

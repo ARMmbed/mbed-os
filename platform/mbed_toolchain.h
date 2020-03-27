@@ -19,6 +19,10 @@
 
 #include "platform/mbed_preprocessor.h"
 
+/* Workaround to prevent GCC library defining error_t, which can collide */
+#ifndef __error_t_defined
+#define __error_t_defined 1
+#endif
 
 // Warning for unsupported compilers
 #if !defined(__GNUC__)   /* GCC        */ \
