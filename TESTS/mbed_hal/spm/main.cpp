@@ -19,7 +19,7 @@
 #error [NOT_SUPPORTED] Test supported only on PSA targets
 #else
 
-#if (defined( __CC_ARM ) || defined(__ARMCC_VERSION) || defined( __ICCARM__ ))
+#if (defined(__ARMCC_VERSION) || defined( __ICCARM__ ))
 #error [NOT_SUPPORTED] this test is supported on GCC only
 #else
 
@@ -158,5 +158,5 @@ int main()
 }
 
 #endif // DOMAIN_NS == 1
-#endif // (defined( __CC_ARM ) || defined(__ARMCC_VERSION) || defined( __ICCARM__ ))
+#endif // (defined(__ARMCC_VERSION) || defined( __ICCARM__ ))
 #endif // !defined(COMPONENT_PSA_SRV_IPC)

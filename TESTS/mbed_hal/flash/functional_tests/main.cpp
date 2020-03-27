@@ -55,19 +55,7 @@ static void erase_range(flash_t *flash, uint32_t addr, uint32_t size)
         size = size > sector_size ? size - sector_size : 0;
     }
 }
-#ifdef __CC_ARM
-MBED_NOINLINE
-__asm static void delay_loop(uint32_t count)
-{
-// AStyle should not format inline assembly
-// *INDENT-OFF*
-1
-  SUBS a1, a1, #1
-  BCS  %BT1
-  BX   lr
-// *INDENT-ON*
-}
-#elif defined (__ICCARM__)
+#if defined (__ICCARM__)
 MBED_NOINLINE
 static void delay_loop(uint32_t count)
 {
@@ -80,7 +68,7 @@ static void delay_loop(uint32_t count)
         : "cc"
     );
 }
-#elif  defined ( __GNUC__ ) ||  (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+#elif  defined ( __GNUC__ ) ||  defined(__ARMCC_VERSION)
 MBED_NOINLINE
 static void delay_loop(uint32_t count)
 {
