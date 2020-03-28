@@ -855,6 +855,7 @@ void SX126X_LoRaRadio::set_rx_config(radio_modems_t modem,
 
     if (rx_continuous) {
         _reception_mode = RECEPTION_MODE_CONTINUOUS;
+        symb_timeout = 0;
     }  else {
         _reception_mode = RECEPTION_MODE_SINGLE;
     }
@@ -906,7 +907,7 @@ void SX126X_LoRaRadio::set_rx_config(radio_modems_t modem,
         }
 
         case MODEM_LORA: {
-            _rx_timeout_in_symbols = rx_continuous ? 0 : symb_timeout;
+            _rx_timeout_in_symbols = symb_timeout;
             _mod_params.modem_type = MODEM_LORA;
             _mod_params.params.lora.spreading_factor =
                 (lora_spread_factors_t) datarate;
