@@ -72,12 +72,13 @@ public:
 
     /**
      * @brief Initialize SecureStore class. It will also initialize
-     *        the underlying KVStore and the rollback protection KVStore.
+     *        the underlying KVStore and the rollback protection KVStore by default.
+     *        If other init modes are needed, set the flags as necessary.
      *
      * @returns MBED_SUCCESS                        Success.
      *          or any other error from underlying KVStore instances.
      */
-    virtual int init(bool no_overwrite = false);
+    virtual int init(InitModeFlags flags = DEFAULT_INIT_FLAGS);
 
     /**
      * @brief Deinitialize SecureStore class, free handles and memory allocations.

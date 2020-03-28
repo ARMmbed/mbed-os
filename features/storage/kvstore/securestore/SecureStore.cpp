@@ -738,8 +738,12 @@ int SecureStore::get_info(const char *key, info_t *info)
 }
 
 
-int SecureStore::init(bool no_overwrite)
+int SecureStore::init(InitModeFlags flags)
 {
+    if (!KVStore::_is_valid_flags(flags)) {
+        return MBED_ERROR_INVALID_ARGUMENT;
+    }
+    
     int ret = MBED_SUCCESS;
 
     MBED_ASSERT(!(scratch_buf_size % enc_block_size));
@@ -748,6 +752,9 @@ int SecureStore::init(bool no_overwrite)
     }
 
     _mutex.lock();
+
+    _flags = flags;
+
 #if defined(MBEDTLS_PLATFORM_C)
     ret = mbedtls_platform_setup(NULL);
     if (ret) {
@@ -761,13 +768,13 @@ int SecureStore::init(bool no_overwrite)
     _scratch_buf = new uint8_t[scratch_buf_size];
     _ih = new inc_set_handle_t;
 
-    ret = _underlying_kv->init(no_overwrite);
+    ret = _underlying_kv->init(flags);
     if (ret) {
         goto fail;
     }
 
     if (_rbp_kv) {
-        ret = _rbp_kv->init(no_overwrite);
+        ret = _rbp_kv->init(flags);
         if (ret) {
             goto fail;
         }

@@ -70,8 +70,19 @@ FileSystemStore::FileSystemStore(FileSystem *fs) : _fs(fs),
 
 }
 
-int FileSystemStore::init(bool no_overwrite)
+int FileSystemStore::init(InitModeFlags flags)
 {
+    // Check for implemented flags
+    if (!KVStore::_is_valid_flags(flags)) {
+        return MBED_ERROR_INVALID_ARGUMENT;
+    }
+    if (!((flags & InitModeFlags::Append) == InitModeFlags::Append ||
+        (flags & InitModeFlags::ExclusiveCreation) == InitModeFlags::ExclusiveCreation)) {
+        return MBED_ERROR_UNSUPPORTED;
+    }
+
+    _flags = flags;
+
     int status = MBED_SUCCESS;
 
     _mutex.lock();
@@ -93,7 +104,7 @@ int FileSystemStore::init(bool no_overwrite)
     Dir kv_dir;
 
     if (kv_dir.open(_fs, _cfg_fs_path) != 0) {
-        if (no_overwrite) {
+        if ((flags & InitModeFlags::ExclusiveCreation) == InitModeFlags::ExclusiveCreation) {
             status = MBED_ERROR_INITIALIZATION_FAILED;
             goto exit_point;
         }

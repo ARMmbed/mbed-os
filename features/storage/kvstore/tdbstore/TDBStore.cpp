@@ -1009,17 +1009,29 @@ int TDBStore::increment_max_keys(void **ram_table)
 }
 
 
-int TDBStore::init(bool no_overwrite)
+int TDBStore::init(InitModeFlags flags)
 {
+    // Check for implemented flags
+    if (!KVStore::_is_valid_flags(flags)) {
+        return MBED_ERROR_INVALID_ARGUMENT;
+    }
+    if (!((flags & InitModeFlags::Append) == InitModeFlags::Append ||
+        (flags & InitModeFlags::ExclusiveCreation) == InitModeFlags::ExclusiveCreation)) {
+        return MBED_ERROR_UNSUPPORTED;
+    }
+    
     ram_table_entry_t *ram_table;
     area_state_e area_state[_num_areas];
     uint32_t next_offset;
-    uint32_t flags, hash;
+    uint32_t record_flags, hash;
     uint32_t actual_data_size;
     int ret = MBED_SUCCESS;
     uint16_t versions[_num_areas];
+    bool all_areas_invalid = true;
 
     _mutex.lock();
+
+    _flags = flags;
 
     if (_is_initialized) {
         goto end;
@@ -1067,7 +1079,7 @@ int TDBStore::init(bool no_overwrite)
         master_record_data_t master_rec;
         ret = read_record(area, _master_record_offset, const_cast<char *>(master_rec_key),
                           &master_rec, sizeof(master_rec), actual_data_size, 0, false, true, true, false,
-                          hash, flags, next_offset);
+                          hash, record_flags, next_offset);
         if ((ret != MBED_SUCCESS) && (ret != MBED_ERROR_INVALID_DATA_DETECTED)) {
             MBED_ERROR(ret, "TDBSTORE: Unable to read record at init");
         }
@@ -1088,9 +1100,17 @@ int TDBStore::init(bool no_overwrite)
         _active_area_version = versions[area];
     }
 
-    // In case we have two empty areas, arbitrarily use area 0 as the active one.
-    if (std::all_of(area_state, area_state + _num_areas, [area_state](area_state_e area) { return area == TDBSTORE_AREA_STATE_INVALID; })) {
-        if (no_overwrite) {
+    // Check that all areas are invalid, which would imply it needs initialization
+    for (uint8_t area = 0; area < _num_areas; area++) {
+        if (area_state[area] != TDBSTORE_AREA_STATE_INVALID) {
+            all_areas_invalid = false;
+            break;
+        }
+    }
+
+    if (all_areas_invalid) {
+        // If we wanted to init only if a valid location exists, it does not, so we fail here
+        if ((_flags & InitModeFlags::ExclusiveCreation) == InitModeFlags::ExclusiveCreation) {
             ret = MBED_ERROR_INITIALIZATION_FAILED;
             goto fail;
         }

@@ -60,16 +60,16 @@ public:
      * @brief Initialize TDBStore. If data exists, TDBStore will check the data integrity
      *        on initialize. If the integrity checks fails, the TDBStore will use GC to collect
      *        the available data and clean corrupted and erroneous records. If data exists, but
-     *        is not valid, TBDStore will overwrite the data. If data should be preserved, set
-     *        the no_overwrite parameter to true.
+     *        is not valid, TBDStore will overwrite the data by default. If other init modes are
+     *        desired, set the flags as necessary.
      *
-     * @param[in]  no_overwrite     If no valid TBDStore is found, do not erase area.
+     * @param[in]  flags                            The read/write and initiazation mode of the TBDStore.
      * 
      * @returns MBED_SUCCESS                        Success.
      *          MBED_ERROR_INITIALIZATION_FAILED    No valid TBD store found in the BlockDevice.
      * @returns Negative error code on other failure.
      */
-    virtual int init(bool no_overwrite = false);
+    virtual int init(InitModeFlags flags = DEFAULT_INIT_FLAGS);
 
     /**
      * @brief Deinitialize TDBStore, release and free resources.

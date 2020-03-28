@@ -20,8 +20,57 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include "mbed_enum_flags.h"
 
 namespace mbed {
+
+
+/**
+ * @brief A set of creation flags for the KVStore instance.
+ * 
+ * The Read, Write, and ReadWrite flags may be OR-ed to produce the correct initialization
+ * sequence. This is similar to how a file is opened.
+ * 
+ * By default, the init mode opens in ReadWrite and Append mode as the default argument.
+ * 
+ * At least one of Read, Write, or ReadWrite must be specified. Additionally, at least one
+ * of the following must be specified with write access: Append, Truncate, CreateNewOnly, or
+ * ExclusiveCreation.
+ * 
+ */
+// MBED_SCOPED_ENUM_FLAGS(mbed::InitModeFlags) {
+enum class InitModeFlags {    
+    Read                = (1 << 0),         //!< Enable read access from the KVStore
+    Write               = (1 << 1),         //!< Enable write access to the KVStore
+    ReadWrite           = ((1 << 0) | (1 << 1)),   //!< Enable read and write access to the KVSTore. This is the default.
+    Append              = (1 << 8),         //!< Allow adding to the the KVStore and create from new if necessary. This is the default.
+    Truncate            = (1 << 9),         //!< Erase all key/value pairs before using.
+    CreateNewOnly       = (1 << 10),        //!< Only open the KVStore if it does not already exist.
+    ExclusiveCreation   = (1 << 11),        //!< Only open the KVStore if it already exists.
+
+    // These are for debug only
+    // WriteOpenFlags      = (Append | Truncate | CreateNewOnly | ExclusiveCreation),
+    WriteOpenFlags      = 0xf00,
+    // AllFlags             = (ReadWrite | WriteOpenFlags)
+    NoFlags = 0,
+    AllFlags = 0xf03
+};
+
+constexpr InitModeFlags operator ~ (InitModeFlags a); 
+// constexpr InitModeFlags operator | (InitModeFlags a, InitModeFlags b);
+constexpr InitModeFlags operator | (InitModeFlags a, InitModeFlags b) {
+    return static_cast<InitModeFlags>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
+}
+constexpr InitModeFlags operator & (InitModeFlags a, InitModeFlags b);
+constexpr InitModeFlags operator ^ (InitModeFlags a, InitModeFlags b);
+
+InitModeFlags& operator |= (InitModeFlags& a, InitModeFlags b);
+
+InitModeFlags& operator &= (InitModeFlags& a, InitModeFlags b);
+
+InitModeFlags& operator ^= (InitModeFlags& a, InitModeFlags b);
+
+//InitModeFlags DEFAULT_KV_INIT_FLAGS = 
 
 /** KVStore class
  *
@@ -35,6 +84,10 @@ public:
         RESERVED_FLAG                       = (1 << 2),
         REQUIRE_REPLAY_PROTECTION_FLAG      = (1 << 3),
     };
+
+    
+
+    static const InitModeFlags DEFAULT_INIT_FLAGS = InitModeFlags::ReadWrite | InitModeFlags::Append;
 
     static const uint32_t MAX_KEY_SIZE = 128;
 
@@ -74,7 +127,7 @@ public:
      * @returns MBED_ERROR_INITIALIZATION_FAILED    No valid KVStore in the storage.
      *          MBED_SUCCESS on success or an error code on other failure
      */
-    virtual int init(bool no_overwrite = false) = 0;
+    virtual int init(InitModeFlags flags = KVStore::DEFAULT_INIT_FLAGS) = 0;
 
     /**
      * @brief Deinitialize KVStore
@@ -205,18 +258,12 @@ public:
      *
      * @returns MBED_SUCCESS on success or an error code on failure
      */
-    bool is_valid_key(const char *key) const
-    {
-        if (!key || !strlen(key) || (strlen(key) > MAX_KEY_SIZE)) {
-            return false;
-        }
+    bool is_valid_key(const char *key) const;
 
-        if (strpbrk(key, " */?:;\"|<>\\")) {
-            return false;
-        }
-        return true;
-    }
+protected:
+    InitModeFlags _flags;
 
+    static bool _is_valid_flags(InitModeFlags flags);
 };
 /** @}*/
 
