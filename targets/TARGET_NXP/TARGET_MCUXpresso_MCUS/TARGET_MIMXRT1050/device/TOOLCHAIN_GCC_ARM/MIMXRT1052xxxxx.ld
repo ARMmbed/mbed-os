@@ -50,10 +50,15 @@ M_VECTOR_RAM_SIZE = DEFINED(__ram_vector_table__) ? 0x0400 : 0x0;
 /* Specify the memory areas */
 MEMORY
 {
+#if !defined(MBED_APP_COMPILE)
   m_flash_config        (RX)  : ORIGIN = MBED_APP_START, LENGTH = 0x00001000
   m_ivt                 (RX)  : ORIGIN = MBED_APP_START + 0x1000, LENGTH = 0x00001000
   m_interrupts          (RX)  : ORIGIN = MBED_APP_START + 0x2000, LENGTH = 0x00000400
   m_text                (RX)  : ORIGIN = MBED_APP_START + 0x2400, LENGTH = MBED_APP_SIZE - 0x2400
+#else
+  m_interrupts          (RX)  : ORIGIN = MBED_APP_START, LENGTH = 0x00000400
+  m_text                (RX)  : ORIGIN = MBED_APP_START + 0x400, LENGTH = MBED_APP_SIZE - 0x400
+#endif
   m_text2               (RX)  : ORIGIN = 0x00000000, LENGTH = 0x00020000
   m_data                (RW)  : ORIGIN = 0x80000000, LENGTH = 0x01E00000
   m_ncache              (RW)  : ORIGIN = 0x81E00000, LENGTH = 0x00200000
@@ -64,6 +69,7 @@ MEMORY
 /* Define output sections */
 SECTIONS
 {
+#if !defined(MBED_APP_COMPILE)
   .flash_config :
   {
     . = ALIGN(8);
@@ -82,7 +88,7 @@ SECTIONS
     KEEP(* (.boot_hdr.dcd_data))      /* dcd section */
     . = ALIGN(8);
   } > m_ivt
-
+#endif
   /* The startup code goes first into internal RAM */
   .interrupts :
   {

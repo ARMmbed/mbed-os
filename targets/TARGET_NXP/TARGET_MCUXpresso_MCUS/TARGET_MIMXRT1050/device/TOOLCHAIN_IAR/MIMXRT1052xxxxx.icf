@@ -46,11 +46,19 @@ define symbol __heap_size__=0x10000;
 define symbol __ram_vector_table_size__ =  isdefinedsymbol(__ram_vector_table__) ? 0x00000400 : 0;
 define symbol __ram_vector_table_offset__ =  isdefinedsymbol(__ram_vector_table__) ? 0x000003FF : 0;
 
-define symbol m_interrupts_start       = MBED_APP_START + 0x2000;
-define symbol m_interrupts_end         = MBED_APP_START + 0x23FF;
+if (!isdefinedsymbol(MBED_APP_COMPILE)) {
+    define symbol m_interrupts_start       = MBED_APP_START + 0x2000;
+    define symbol m_interrupts_end         = MBED_APP_START + 0x23FF;
 
-define symbol m_text_start             = MBED_APP_START + 0x2400;
-define symbol m_text_end               = MBED_APP_START + MBED_APP_SIZE - 1;
+    define symbol m_text_start             = MBED_APP_START + 0x2400;
+    define symbol m_text_end               = MBED_APP_START + MBED_APP_SIZE - 1;
+} else {
+    define symbol m_interrupts_start       = MBED_APP_START;
+    define symbol m_interrupts_end         = MBED_APP_START + 0x3FF;
+
+    define symbol m_text_start             = MBED_APP_START + 0x400;
+    define symbol m_text_end               = MBED_APP_START + MBED_APP_SIZE - 1;
+}
 
 define symbol m_text2_start            = 0x00000000;
 define symbol m_text2_end              = 0x0001FFFF;
@@ -70,10 +78,12 @@ define symbol m_data3_end              = 0x81DFFFFF;
 define symbol m_ncache_start           = 0x81E00000;
 define symbol m_ncache_end             = 0x81FFFFFF;
 
-define exported symbol m_boot_hdr_conf_start = MBED_APP_START;
-define symbol m_boot_hdr_ivt_start           = MBED_APP_START + 0x1000;
-define symbol m_boot_hdr_boot_data_start     = MBED_APP_START + 0x1020;
-define symbol m_boot_hdr_dcd_data_start      = MBED_APP_START + 0x1030;
+if (!isdefinedsymbol(MBED_APP_COMPILE)) {
+    define exported symbol m_boot_hdr_conf_start = MBED_APP_START;
+    define symbol m_boot_hdr_ivt_start           = MBED_APP_START + 0x1000;
+    define symbol m_boot_hdr_boot_data_start     = MBED_APP_START + 0x1020;
+    define symbol m_boot_hdr_dcd_data_start      = MBED_APP_START + 0x1030;
+}
 
 /* Sizes */
 if (isdefinedsymbol(__stack_size__)) {
@@ -117,12 +127,14 @@ do not initialize  { section .noinit };
 
 place at address mem: m_interrupts_start    { readonly section .intvec };
 
-place at address mem:m_boot_hdr_conf_start { section .boot_hdr.conf };
-place at address mem:m_boot_hdr_ivt_start { section .boot_hdr.ivt };
-place at address mem:m_boot_hdr_boot_data_start { readonly section .boot_hdr.boot_data };
-place at address mem:m_boot_hdr_dcd_data_start { readonly section .boot_hdr.dcd_data };
+if (!isdefinedsymbol(MBED_APP_COMPILE)) {
+    place at address mem:m_boot_hdr_conf_start { section .boot_hdr.conf };
+    place at address mem:m_boot_hdr_ivt_start { section .boot_hdr.ivt };
+    place at address mem:m_boot_hdr_boot_data_start { readonly section .boot_hdr.boot_data };
+    place at address mem:m_boot_hdr_dcd_data_start { readonly section .boot_hdr.dcd_data };
+    keep{ section .boot_hdr.conf, section .boot_hdr.ivt, section .boot_hdr.boot_data, section .boot_hdr.dcd_data };
+}
 
-keep{ section .boot_hdr.conf, section .boot_hdr.ivt, section .boot_hdr.boot_data, section .boot_hdr.dcd_data };
 
 place in TEXT_region                        { readonly };
 place in DATA3_region                       { block RW };
