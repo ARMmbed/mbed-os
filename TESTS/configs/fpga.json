@@ -1,0 +1,30 @@
+{
+    "target_overrides": {
+        "*": {
+            "target.components_add": [
+                "FPGA_CI_TEST_SHIELD"
+            ]
+        },
+        "MCU_NRF52840": {
+            "target.macros_add": [
+                "UART_TWO_STOP_BITS_NOT_SUPPORTED",
+                "UART_ODD_PARITY_NOT_SUPPORTED"
+            ]
+        },
+        "K64F": {
+            "target.macros_add": [
+                "UART_7BITS_PARITY_NONE_NOT_SUPPORTED"
+            ]
+        },
+        "STM": {
+            "target.macros_add": [
+                "UART_9BITS_PARITY_NOT_SUPPORTED"
+            ]
+        },
+        "STM32F4": {
+            "target.macros_add": [
+                "UART_7BITS_PARITY_NONE_NOT_SUPPORTED"
+            ]
+        }
+    }
+}
