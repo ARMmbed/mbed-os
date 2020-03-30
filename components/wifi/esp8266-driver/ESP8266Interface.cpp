@@ -571,7 +571,7 @@ nsapi_error_t ESP8266Interface::get_netmask(SocketAddress *address)
         return NSAPI_ERROR_NO_CONNECTION;
     }
 
-    if (!address->set_ip_address(_esp.gateway())) {
+    if (!address->set_ip_address(_esp.netmask())) {
         return NSAPI_ERROR_NO_ADDRESS;
     }
 
