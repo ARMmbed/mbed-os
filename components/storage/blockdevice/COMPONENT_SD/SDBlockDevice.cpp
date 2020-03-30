@@ -252,15 +252,14 @@ const uint32_t SDBlockDevice::_block_size = BLOCK_SIZE_HC;
 
 #if MBED_CONF_SD_CRC_ENABLED
 SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz, bool crc_on)
-    : _sectors(0), _spi(mosi, miso, sclk, cs), _is_initialized(0),
+    : _sectors(0), _spi(mosi, miso, sclk, cs, use_gpio_ssel), _is_initialized(0),
       _init_ref_count(0), _crc_on(crc_on)
 #else
 SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz, bool crc_on)
-    : _sectors(0), _spi(mosi, miso, sclk, cs), _is_initialized(0),
+    : _sectors(0), _spi(mosi, miso, sclk, cs, use_gpio_ssel), _is_initialized(0),
       _init_ref_count(0)
 #endif
 {
-    _spi.deselect();
     _card_type = SDCARD_NONE;
 
     // Set default to 100kHz for initialisation and 1MHz for data transfer
@@ -282,7 +281,6 @@ SDBlockDevice::SDBlockDevice(const spi_pinmap_t &spi_pinmap, PinName cs, uint64_
       _init_ref_count(0)
 #endif
 {
-    _spi.deselect();
     _card_type = SDCARD_NONE;
 
     // Set default to 100kHz for initialisation and 1MHz for data transfer
@@ -538,7 +536,7 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
         _spi.write(SPI_STOP_TRAN);
     }
 
-    _deselect();
+    _postclock_then_deselect();
     unlock();
     return status;
 }
@@ -585,7 +583,7 @@ int SDBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
         buffer += _block_size;
         --blockCnt;
     }
-    _deselect();
+    _postclock_then_deselect();
 
     // Send CMD12(0x00000000) to stop the transmission for multi-block transfer
     if (size > _block_size) {
@@ -753,7 +751,7 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, bool isAc
 
     // Select card and wait for card to be ready before sending next command
     // Note: next command will fail if card is not ready
-    _select();
+    _preclock_then_select();
 
     // No need to wait for card to be ready when sending the stop command
     if (CMD12_STOP_TRANSMISSION != cmd) {
@@ -789,17 +787,17 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, bool isAc
 
     // Process the response R1  : Exit on CRC/Illegal command error/No response
     if (R1_NO_RESPONSE == response) {
-        _deselect();
+        _postclock_then_deselect();
         debug_if(SD_DBG, "No response CMD:%d response: 0x%" PRIx32 "\n", cmd, response);
         return SD_BLOCK_DEVICE_ERROR_NO_DEVICE;         // No device
     }
     if (response & R1_COM_CRC_ERROR) {
-        _deselect();
+        _postclock_then_deselect();
         debug_if(SD_DBG, "CRC error CMD:%d response 0x%" PRIx32 "\n", cmd, response);
         return SD_BLOCK_DEVICE_ERROR_CRC;                // CRC error
     }
     if (response & R1_ILLEGAL_COMMAND) {
-        _deselect();
+        _postclock_then_deselect();
         debug_if(SD_DBG, "Illegal command CMD:%d response 0x%" PRIx32 "\n", cmd, response);
         if (CMD8_SEND_IF_COND == cmd) {                  // Illegal command is for Ver1 or not SD Card
             _card_type = CARD_UNKNOWN;
@@ -857,7 +855,7 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, bool isAc
         return BD_ERROR_OK;
     }
     // Deselect card
-    _deselect();
+    _postclock_then_deselect();
     return status;
 }
 
@@ -908,7 +906,7 @@ int SDBlockDevice::_read_bytes(uint8_t *buffer, uint32_t length)
     // read until start byte (0xFE)
     if (false == _wait_token(SPI_START_BLOCK)) {
         debug_if(SD_DBG, "Read timeout\n");
-        _deselect();
+        _postclock_then_deselect();
         return SD_BLOCK_DEVICE_ERROR_NO_RESPONSE;
     }
 
@@ -930,13 +928,13 @@ int SDBlockDevice::_read_bytes(uint8_t *buffer, uint32_t length)
         if (crc_result != crc) {
             debug_if(SD_DBG, "_read_bytes: Invalid CRC received 0x%" PRIx16 " result of computation 0x%" PRIx32 "\n",
                      crc, crc_result);
-            _deselect();
+            _postclock_then_deselect();
             return SD_BLOCK_DEVICE_ERROR_CRC;
         }
     }
 #endif
 
-    _deselect();
+    _postclock_then_deselect();
     return 0;
 }
 
@@ -1129,22 +1127,28 @@ void SDBlockDevice::_spi_wait(uint8_t count)
 
 void SDBlockDevice::_spi_init()
 {
+    _spi.lock();
     // Set to SCK for initialization, and clock card with cs = 1
     _spi.frequency(_init_sck);
     _spi.format(8, 0);
     _spi.set_default_write_value(SPI_FILL_CHAR);
     // Initial 74 cycles required for few cards, before selecting SPI mode
     _spi_wait(10);
+    _spi.unlock();
 }
 
-void SDBlockDevice::_select()
+void SDBlockDevice::_preclock_then_select()
 {
+    _spi.lock();
     _spi.write(SPI_FILL_CHAR);
+    _spi.select();
+    _spi.unlock();
 }
 
-void SDBlockDevice::_deselect()
+void SDBlockDevice::_postclock_then_deselect()
 {
     _spi.write(SPI_FILL_CHAR);
+    _spi.deselect();
 }
 
 #endif  /* DEVICE_SPI */

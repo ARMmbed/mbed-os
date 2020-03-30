@@ -272,10 +272,8 @@ private:
     int _read_bytes(uint8_t *buffer, uint32_t length);
     uint8_t _write(const uint8_t *buffer, uint8_t token, uint32_t length);
     int _freq(void);
-
-    /* Chip Select and SPI mode select */
-    void _select();
-    void _deselect();
+    void _preclock_then_select();
+    void _postclock_then_deselect();
 
     virtual void lock()
     {

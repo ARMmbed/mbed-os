@@ -87,7 +87,7 @@ SingletonPtr<PlatformMutex> SPIFBlockDevice::_mutex;
 //***********************
 SPIFBlockDevice::SPIFBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName csel, int freq)
     :
-    _spi(mosi, miso, sclk, csel), _prog_instruction(0), _erase_instruction(0),
+    _spi(mosi, miso, sclk, csel, use_gpio_ssel), _prog_instruction(0), _erase_instruction(0),
     _page_size_bytes(0), _init_ref_count(0), _is_initialized(false)
 {
     _address_size = SPIF_ADDR_SIZE_3_BYTES;
@@ -470,6 +470,8 @@ spif_bd_error SPIFBlockDevice::_spi_send_read_command(int read_inst, uint8_t *bu
     uint32_t dummy_bytes = _dummy_and_mode_cycles / 8;
     int dummy_byte = 0;
 
+    _spi.select();
+
     // Write 1 byte Instruction
     _spi.write(read_inst);
 
@@ -487,6 +489,8 @@ spif_bd_error SPIFBlockDevice::_spi_send_read_command(int read_inst, uint8_t *bu
     for (bd_size_t i = 0; i < size; i++) {
         buffer[i] = _spi.write(0);
     }
+
+    _spi.deselect();
 
     return SPIF_BD_ERROR_OK;
 }
@@ -514,6 +518,8 @@ spif_bd_error SPIFBlockDevice::_spi_send_program_command(int prog_inst, const vo
     int dummy_byte = 0;
     uint8_t *data = (uint8_t *)buffer;
 
+    _spi.select();
+
     // Write 1 byte Instruction
     _spi.write(prog_inst);
 
@@ -531,6 +537,8 @@ spif_bd_error SPIFBlockDevice::_spi_send_program_command(int prog_inst, const vo
     for (bd_size_t i = 0; i < size; i++) {
         _spi.write(data[i]);
     }
+
+    _spi.deselect();
 
     return SPIF_BD_ERROR_OK;
 }
@@ -550,6 +558,8 @@ spif_bd_error SPIFBlockDevice::_spi_send_general_command(int instruction, bd_add
     uint32_t dummy_bytes = _dummy_and_mode_cycles / 8;
     uint8_t dummy_byte = 0x00;
 
+    _spi.select();
+
     // Write 1 byte Instruction
     _spi.write(instruction);
 
@@ -568,6 +578,8 @@ spif_bd_error SPIFBlockDevice::_spi_send_general_command(int instruction, bd_add
 
     // Read/Write Data
     _spi.write(tx_buffer, (int)tx_length, rx_buffer, (int)rx_length);
+
+    _spi.deselect();
 
     return SPIF_BD_ERROR_OK;
 }
