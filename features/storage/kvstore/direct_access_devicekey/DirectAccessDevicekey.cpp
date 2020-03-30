@@ -23,6 +23,7 @@
 #include "mbed_error.h"
 #include "MbedCRC.h"
 #include "mbed_trace.h"
+#include "kv_config.h"
 #define TRACE_GROUP "DADK"
 
 using namespace mbed;
@@ -82,7 +83,7 @@ int direct_access_to_devicekey(uint32_t tdb_start_offset, uint32_t tdb_end_offse
 
     status = calc_area_params(&flash, tdb_start_offset, tdb_end_offset, area_params);
     if (status != MBED_SUCCESS) {
-        tr_error("Couldn't calulate Area Params - err: %d", status);
+        tr_error("Couldn't calculate Area Params - err: %d", status);
         goto exit_point;
     }
 
@@ -108,21 +109,17 @@ exit_point:
     return status;
 }
 
-int  get_expected_internal_TDBStore_position(uint32_t *out_tdb_start_offset, uint32_t *out_tdb_end_offset)
+int get_expected_internal_TDBStore_position(uint32_t *out_tdb_start_offset, uint32_t *out_tdb_end_offset)
 {
-    uint32_t flash_end_address;
-    uint32_t flash_start_address;
-    uint32_t aligned_start_address;
-    uint32_t aligned_end_address;
+    bd_addr_t tdb_start_address;
+    bd_size_t tdb_size;
     FlashIAP flash;
-    bool is_default_configuration = false;
-    uint32_t tdb_size;
 
     if (strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "FILESYSTEM") == 0) {
 #ifndef MBED_CONF_STORAGE_FILESYSTEM_INTERNAL_BASE_ADDRESS
         return MBED_ERROR_ITEM_NOT_FOUND;
 #else
-        *out_tdb_start_offset =  MBED_CONF_STORAGE_FILESYSTEM_INTERNAL_BASE_ADDRESS;
+        tdb_start_address =  MBED_CONF_STORAGE_FILESYSTEM_INTERNAL_BASE_ADDRESS;
         tdb_size = MBED_CONF_STORAGE_FILESYSTEM_RBP_INTERNAL_SIZE;
 #endif
 
@@ -130,7 +127,7 @@ int  get_expected_internal_TDBStore_position(uint32_t *out_tdb_start_offset, uin
 #ifndef MBED_CONF_STORAGE_TDB_EXTERNAL_INTERNAL_BASE_ADDRESS
         return MBED_ERROR_ITEM_NOT_FOUND;
 #else
-        *out_tdb_start_offset =  MBED_CONF_STORAGE_TDB_EXTERNAL_INTERNAL_BASE_ADDRESS;
+        tdb_start_address =  MBED_CONF_STORAGE_TDB_EXTERNAL_INTERNAL_BASE_ADDRESS;
         tdb_size = MBED_CONF_STORAGE_TDB_EXTERNAL_RBP_INTERNAL_SIZE;
 #endif
 
@@ -139,52 +136,28 @@ int  get_expected_internal_TDBStore_position(uint32_t *out_tdb_start_offset, uin
 #ifndef MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS
         return MBED_ERROR_ITEM_NOT_FOUND;
 #else
-        *out_tdb_start_offset =  MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS;
+        tdb_start_address =  MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS;
         tdb_size = MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE;
 #endif
     } else {
         return MBED_ERROR_UNSUPPORTED;
     }
 
-    *out_tdb_end_offset = (*out_tdb_start_offset) + tdb_size;
-
-    if ((*out_tdb_start_offset == 0) && (tdb_size == 0)) {
-        is_default_configuration = true;
-    } else if ((*out_tdb_start_offset == 0) || (tdb_size == 0)) {
-        return MBED_ERROR_UNSUPPORTED;
+    int ret;
+    if ((tdb_start_address == 0) && (tdb_size == 0)) {
+        ret = kv_get_default_flash_addresses(&tdb_start_address, &tdb_size);
+        if (ret != MBED_SUCCESS) {
+            return MBED_ERROR_FAILED_OPERATION;
+        }
     }
 
-    int ret = flash.init();
-    if (ret != 0) {
+    ret = kv_get_flash_bounds_from_config(&tdb_start_address, &tdb_size);
+    if (ret != MBED_SUCCESS) {
         return MBED_ERROR_FAILED_OPERATION;
     }
 
-    uint32_t flash_first_writable_sector_address = (uint32_t)(align_up(FLASHIAP_APP_ROM_END_ADDR,
-                                                                       flash.get_sector_size(FLASHIAP_APP_ROM_END_ADDR)));
-
-    //Get flash parameters before starting
-    flash_start_address = flash.get_flash_start();
-    flash_end_address = flash_start_address + flash.get_flash_size();
-
-    if (!is_default_configuration) {
-        aligned_start_address = align_down(*out_tdb_start_offset, flash.get_sector_size(*out_tdb_start_offset));
-        aligned_end_address = align_up(*out_tdb_end_offset, flash.get_sector_size(*out_tdb_end_offset - 1));
-        if ((*out_tdb_start_offset != aligned_start_address) || (*out_tdb_end_offset != aligned_end_address)
-                || (*out_tdb_end_offset > flash_end_address)) {
-            flash.deinit();
-            return MBED_ERROR_INVALID_OPERATION;
-        }
-    } else {
-        aligned_start_address = flash_end_address - (flash.get_sector_size(flash_end_address - 1) * 2);
-        if (aligned_start_address < flash_first_writable_sector_address) {
-            flash.deinit();
-            return MBED_ERROR_INVALID_OPERATION;
-        }
-        *out_tdb_start_offset = aligned_start_address;
-        *out_tdb_end_offset = flash_end_address;
-    }
-
-    flash.deinit();
+    *out_tdb_start_offset = tdb_start_address;
+    *out_tdb_end_offset = tdb_start_address + tdb_size;
 
     return MBED_SUCCESS;
 }

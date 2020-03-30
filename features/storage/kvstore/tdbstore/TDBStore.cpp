@@ -25,6 +25,7 @@
 #include "mbed_assert.h"
 #include "mbed_wait_api.h"
 #include "MbedCRC.h"
+#include "FlashIAP.h"
 
 using namespace mbed;
 
@@ -108,6 +109,11 @@ typedef struct {
 static inline uint32_t align_up(uint32_t val, uint32_t size)
 {
     return (((val - 1) / size) + 1) * size;
+}
+
+static inline uint32_t align_down(uint64_t val, uint64_t size)
+{
+    return (((val) / size)) * size;
 }
 
 
@@ -1421,7 +1427,6 @@ int TDBStore::reserved_data_get(void *reserved_data, size_t reserved_data_buf_si
     _mutex.unlock();
     return ret;
 }
-
 
 void TDBStore::offset_in_erase_unit(uint8_t area, uint32_t offset,
                                     uint32_t &offset_from_start, uint32_t &dist_to_end)

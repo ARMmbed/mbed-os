@@ -2,11 +2,11 @@
     "name": "storage_tdb_external",
     "config": {
         "rbp_internal_size": {
-            "help": "Default is the size of the 2 last sectors of internal flash",
+            "help": "Default is the larger of the last 2 sectors or last 14 pages of flash.",
             "value": "0"
         },
         "internal_base_address": {
-            "help": "If default, the base address is set to the first sector after the application code ends.",
+            "help": "If default, the base address is set to internal_size bytes before the end of flash.",
             "value": "0"
         },
         "blockdevice": {

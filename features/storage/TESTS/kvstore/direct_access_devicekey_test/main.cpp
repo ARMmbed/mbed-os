@@ -58,7 +58,6 @@ int  get_virtual_TDBStore_position(uint32_t conf_start_address, uint32_t conf_si
     uint32_t flash_start_address;
     uint32_t aligned_start_address;
     FlashIAP flash;
-    static const int STORE_SECTORS = 2;
 
     int ret = flash.init();
     if (ret != 0) {
@@ -93,19 +92,11 @@ int  get_virtual_TDBStore_position(uint32_t conf_start_address, uint32_t conf_si
             }
         }
     } else {
-        // Assumption is that last two sectors are reserved for the TDBStore
-        aligned_start_address = flash.get_flash_start() + flash.get_flash_size();
-
-        for (int i = STORE_SECTORS; i; i--) {
-            bd_size_t sector_size = flash.get_sector_size(aligned_start_address - 1);
-            aligned_start_address -= sector_size;
-        }
-
-        if (aligned_start_address < flash_first_writable_sector_address) {
-            flash.deinit();
-            return -2;
-        }
-        bd_final_size = (flash_end_address - aligned_start_address);
+        bd_addr_t default_start;
+        bd_size_t default_size;
+        kv_get_default_flash_addresses(&default_start, &default_size);
+        aligned_start_address = (uint32_t)default_start;
+        bd_final_size = (uint32_t)default_size;
     }
 
     (*tdb_start_address) = aligned_start_address;
