@@ -1,5 +1,5 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+/* Copyright (c) 2020 Renesas Electronics Corporation.
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 #include <string.h>
-#include "ethernet_api.h"
+#include "rza1_eth.h"
 #include "cmsis.h"
 #include "mbed_interface.h"
 #include "mbed_toolchain.h"
 #include "mbed_error.h"
 #include "iodefine.h"
-#include "ethernetext_api.h"
+#include "rza1_eth_ext.h"
 
 #if DEVICE_ETHERNET
 
@@ -89,8 +89,8 @@
                                                 /* 0x00000001 : Receive frame CRC error */
 #define EDMAC_EESIPR_INI_EtherC (0x00400000)    /* 0x00400000 : E-MAC status register */
 
-void ethernet_address(char *);
-void ethernet_set_link(int, int);
+void rza1_ethernet_address(char *);
+void rza1_ethernet_set_link(int, int);
 
 
 /* Send descriptor */
@@ -114,13 +114,13 @@ typedef struct tag_edmac_recv_desc {
 /* Transmit/receive buffers (must be allocated in 16-byte boundaries) */
 #if defined(__ICCARM__)
 #pragma data_alignment=16
-static uint8_t ethernet_nc_memory[(sizeof(edmac_send_desc_t) * NUM_OF_TX_DESCRIPTOR) +
+static uint8_t rza1_ethernet_nc_memory[(sizeof(edmac_send_desc_t) * NUM_OF_TX_DESCRIPTOR) +
                                  (sizeof(edmac_recv_desc_t) * NUM_OF_RX_DESCRIPTOR) +
                                  (NUM_OF_TX_DESCRIPTOR * SIZE_OF_BUFFER) +
                                  (NUM_OF_RX_DESCRIPTOR * SIZE_OF_BUFFER)]  //16 bytes aligned!
                                  @ ".mirrorram";
 #else
-static uint8_t ethernet_nc_memory[(sizeof(edmac_send_desc_t) * NUM_OF_TX_DESCRIPTOR) +
+static uint8_t rza1_ethernet_nc_memory[(sizeof(edmac_send_desc_t) * NUM_OF_TX_DESCRIPTOR) +
                                  (sizeof(edmac_recv_desc_t) * NUM_OF_RX_DESCRIPTOR) +
                                  (NUM_OF_TX_DESCRIPTOR * SIZE_OF_BUFFER) +
                                  (NUM_OF_RX_DESCRIPTOR * SIZE_OF_BUFFER)]
@@ -162,7 +162,7 @@ static void set_ether_pir(uint32_t set_data);
 static void wait_100us(int32_t wait_cnt);
 
 
-int ethernetext_init(ethernet_cfg_t *p_ethcfg) {
+int ethernetext_init(rza1_ethernet_cfg_t *p_ethcfg) {
     int32_t  i;
     uint16_t val;
 
@@ -210,38 +210,6 @@ int ethernetext_init(ethernet_cfg_t *p_ethcfg) {
     wait_100us(250);                /* 25msec */
     GPIOP4      |=  0x0004;         /* P4_2 Outputs high level */
     wait_100us(100);                /* 10msec */
-#elif defined(TARGET_VK_RZ_A1H)
-    /* -->4F<-- P1_14(ET_COL) */
-    GPIOPMC1    |=  0x4000;
-    GPIOPFCAE1  &= ~0x4000;
-    GPIOPFCE1   |=  0x4000;
-    GPIOPFC1    |=  0x4000;
-    GPIOPIPC1   |=  0x4000;
-
-    /* -->2F<-- P2_0(ET_TXCLK), P2_1(ET_TXER), P2_2(ET_TXEN), P2_3(ET_CRS), P2_4(ET_TXD0),
-    P2_5(ET_TXD1), P2_6(ET_TXD2), P2_7(ET_TXD3), P2_8(ET_RXD0), P2_9(ET_RXD1), P2_10(ET_RXD2) P2_11(ET_RXD3) */
-    GPIOPMC2    |=  0x0FFF;
-    GPIOPFCAE2  &= ~0x0FFF;
-    GPIOPFCE2   &= ~0x0FFF;
-    GPIOPFC2    |=  0x0FFF;
-    GPIOPIPC2   |=  0x0FFF;
-
-    /* -->3F<-- P3_3(ET_MDIO), P3_4(ET_RXCLK), P3_5(ET_RXER), P3_6(ET_RXDV) */
-    GPIOPMC3    |=  0x0078;
-    GPIOPFCAE3  &= ~0x0078;
-    GPIOPFCE3   &= ~0x0078;
-    GPIOPFC3    |=  0x0078;
-    GPIOPIPC3   |=  0x0078;
-
-    /* -->3F<-- P7_0(ET_MDC) */
-    GPIOPMC7    |=  0x0001;
-    GPIOPFCAE7  &= ~0x0001;
-    GPIOPFCE7   |=  0x0001;
-    GPIOPFC7    &= ~0x0001;
-    GPIOPIPC7   |=  0x0001;
-
-    /* Resets the E-MAC,E-DMAC */
-    lan_reg_reset();
 #else
 #error "There is no initialization processing."
 #endif
@@ -265,7 +233,7 @@ int ethernetext_init(ethernet_cfg_t *p_ethcfg) {
     if (p_ethcfg->ether_mac != NULL) {
         (void)memcpy(mac_addr, p_ethcfg->ether_mac, sizeof(mac_addr));
     } else {
-        ethernet_address(mac_addr); /* Get MAC Address */
+        rza1_ethernet_address(mac_addr); /* Get MAC Address */
     }
 
     return 0;
@@ -390,24 +358,24 @@ void ethernetext_set_all_multicast(int all) {
 }
 
 
-int ethernet_init() {
-    ethernet_cfg_t ethcfg;
+int rza1_ethernet_init() {
+    rza1_ethernet_cfg_t ethcfg;
 
     ethcfg.int_priority = 5;
     ethcfg.recv_cb      = NULL;
     ethcfg.ether_mac    = NULL;
     ethernetext_init(&ethcfg);
-    ethernet_set_link(-1, 0);   /* Auto-Negotiation */
+    rza1_ethernet_set_link(-1, 0);   /* Auto-Negotiation */
 
     return 0;
 }
 
-void ethernet_free() {
+void rza1_ethernet_free() {
     ETHERARSTR |= 0x00000001;            /* ETHER software reset */
     CPGSTBCR7  |= CPG_STBCR7_BIT_MSTP74; /* disable ETHER clock */
 }
 
-int ethernet_write(const char *data, int slen) {
+int rza1_ethernet_write(const char *data, int slen) {
     edmac_send_desc_t *p_send_desc;
     int32_t           copy_size;
 
@@ -431,7 +399,7 @@ int ethernet_write(const char *data, int slen) {
     return copy_size;
 }
 
-int ethernet_send() {
+int rza1_ethernet_send() {
     edmac_send_desc_t *p_send_desc;
     int32_t           ret;
 
@@ -463,7 +431,7 @@ int ethernet_send() {
     return ret;
 }
 
-int ethernet_receive() {
+int rza1_ethernet_receive() {
     edmac_recv_desc_t *p_recv_desc;
     int32_t           receive_size = 0;
 
@@ -507,7 +475,7 @@ int ethernet_receive() {
     return receive_size;
 }
 
-int ethernet_read(char *data, int dlen) {
+int rza1_ethernet_read(char *data, int dlen) {
     edmac_recv_desc_t *p_recv_desc = p_recv_end_desc;                   /* Read top descriptor */
     int32_t           copy_size;
 
@@ -525,13 +493,13 @@ int ethernet_read(char *data, int dlen) {
     return copy_size;
 }
 
-void ethernet_address(char *mac) {
+void rza1_ethernet_address(char *mac) {
     if (mac != NULL) {
         mbed_mac_address(mac); /* Get MAC Address */
     }
 }
 
-int ethernet_link(void) {
+int rza1_ethernet_link(void) {
     int32_t  ret;
     uint16_t data;
 
@@ -545,7 +513,7 @@ int ethernet_link(void) {
     return ret;
 }
 
-void ethernet_set_link(int speed, int duplex) {
+void rza1_ethernet_set_link(int speed, int duplex) {
     uint16_t data;
     int32_t  i;
     int32_t  link;
@@ -612,8 +580,8 @@ static void lan_desc_create(void) {
     int32_t i;
     uint8_t *p_memory_top;
 
-    (void)memset((void *)ethernet_nc_memory, 0, sizeof(ethernet_nc_memory));
-    p_memory_top = ethernet_nc_memory;
+    (void)memset((void *)rza1_ethernet_nc_memory, 0, sizeof(rza1_ethernet_nc_memory));
+    p_memory_top = rza1_ethernet_nc_memory;
 
     /* Descriptor area configuration */
     p_eth_desc_dsend  = (edmac_send_desc_t *)p_memory_top;

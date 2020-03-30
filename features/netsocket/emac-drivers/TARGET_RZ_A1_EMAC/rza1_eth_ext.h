@@ -1,4 +1,4 @@
-/* Copyright (c) 2014 Renesas Electronics Corporation.
+/* Copyright (c) 2020 Renesas Electronics Corporation.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,13 +29,13 @@ extern "C" {
 
 typedef void (ethernetext_cb_fnc)(void);
 
-typedef struct tag_ethernet_cfg {
+typedef struct tag_rza1_ethernet_cfg {
     int                  int_priority;
     ethernetext_cb_fnc   *recv_cb;
     char                 *ether_mac;
-} ethernet_cfg_t;
+} rza1_ethernet_cfg_t;
 
-extern int ethernetext_init(ethernet_cfg_t *p_ethcfg);
+extern int ethernetext_init(rza1_ethernet_cfg_t *p_ethcfg);
 extern void ethernetext_start_stop(int32_t mode);
 extern int ethernetext_chk_link_mode(void);
 extern void ethernetext_set_link_mode(int32_t link);
