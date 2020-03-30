@@ -950,6 +950,15 @@ MBED_NORETURN void error(const char *format, ...) MBED_PRINTF(1, 2);
  */
 typedef void (*mbed_error_hook_t)(const mbed_error_ctx *error_ctx);
 
+/**
+ * Callback/Error hook function. If application implementation needs to receive this callback when an error is reported,
+ * mbed_error_hook function should be overridden with custom implementation. When an error happens in the system error handling
+ * implementation will invoke this callback with the mbed_error_status_t reported and the error context at the time of error.
+ * @param  error_ctx        Error context structure associated with this error.
+ * @return                  void
+ *
+ */
+void mbed_error_hook(const mbed_error_ctx *error_context);
 
 /**
  * Callback function for reporting error context during boot up. When MbedOS error handling system detects a fatal error
@@ -1087,8 +1096,10 @@ MBED_NORETURN mbed_error_status_t mbed_error(mbed_error_status_t error_status, c
  * mbed_set_error_hook( my_custom_error_hook )
  *
  * @endcode
- * @note The erro hook function implementation should be re-entrant.
+ * @note The error hook function implementation should be re-entrant.
  *
+ * @deprecated You should use an overridden mbed_error_hook() function if you like to catch errors in your application.
+ *             With mbed_set_error_hook() it is not possible to catch errors before your application started.
  */
 mbed_error_status_t mbed_set_error_hook(mbed_error_hook_t custom_error_hook);
 

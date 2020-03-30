@@ -197,11 +197,18 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
     //Call the error hook if available
     if (error_hook != NULL) {
         error_hook(&last_error_ctx);
+    } else {
+        mbed_error_hook(&last_error_ctx);
     }
 
     core_util_critical_section_exit();
 
     return MBED_SUCCESS;
+}
+
+WEAK void mbed_error_hook(const mbed_error_ctx *error_context)
+{
+    //Dont do anything here, let application override this if required.
 }
 
 WEAK void mbed_error_reboot_callback(mbed_error_ctx *error_context)
@@ -323,6 +330,7 @@ WEAK MBED_NORETURN mbed_error_status_t mbed_error(mbed_error_status_t error_stat
 }
 
 //Register an application defined callback with error handling
+MBED_DEPRECATED("Use an overridden mbed_error_hook() function instead")
 mbed_error_status_t mbed_set_error_hook(mbed_error_hook_t error_hook_in)
 {
     //register the new hook/callback
