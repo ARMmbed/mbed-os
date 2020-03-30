@@ -24,7 +24,7 @@
 #if !INTEGRATION_TESTS
 #error [NOT_SUPPORTED] integration tests not enabled for this target
 #elif !MBED_CONF_RTOS_PRESENT
-#error [NOT_SUPPORTED] integration tests required RTOS
+#error [NOT_SUPPORTED] integration tests require RTOS
 #else
 
 #include "mbed.h"
