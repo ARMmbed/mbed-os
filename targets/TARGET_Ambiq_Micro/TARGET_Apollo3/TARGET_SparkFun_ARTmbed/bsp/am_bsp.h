@@ -136,32 +136,32 @@ extern "C"
 // extern am_devices_button_t am_bsp_psButtons[AM_BSP_NUM_BUTTONS];
 
 
-// //*****************************************************************************
-// //
-// // LED definitions.
-// //
-// //*****************************************************************************
-// #define AM_BSP_NUM_LEDS                   1
-// extern am_devices_led_t am_bsp_psLEDs[AM_BSP_NUM_LEDS];
+//*****************************************************************************
+//
+// LED definitions.
+//
+//*****************************************************************************
+#define AM_BSP_NUM_LEDS                   1
+extern am_devices_led_t am_bsp_psLEDs[AM_BSP_NUM_LEDS];
 
-// #define AM_BSP_GPIO_LED0         AM_BSP_GPIO_LED_BLUE
-// #define AM_BSP_GPIO_LED23        AM_BSP_GPIO_LED_BLUE
-// #define AM_BSP_GPIO_LED_STAT     AM_BSP_GPIO_LED_BLUE
+#define AM_BSP_GPIO_LED0         AM_BSP_GPIO_LED_BLUE
+#define AM_BSP_GPIO_LED23        AM_BSP_GPIO_LED_BLUE
+#define AM_BSP_GPIO_LED_STAT     AM_BSP_GPIO_LED_BLUE
 
 
 
-// //*****************************************************************************
-// //
-// // PWM_LED peripheral assignments.
-// //
-// //*****************************************************************************
-// //
-// // The ARTMBED LED0 is pad 23
-// //
-// #define AM_BSP_PIN_PWM_LED                  AM_BSP_GPIO_LED0
-// #define AM_BSP_PWM_LED_TIMER                3
-// #define AM_BSP_PWM_LED_TIMER_SEG            AM_HAL_CTIMER_TIMERB
-// #define AM_BSP_PWM_LED_TIMER_INT            AM_HAL_CTIMER_INT_TIMERB3C0
+//*****************************************************************************
+//
+// PWM_LED peripheral assignments.
+//
+//*****************************************************************************
+//
+// The ARTMBED LED0 is pad 23
+//
+#define AM_BSP_PIN_PWM_LED                  AM_BSP_GPIO_LED0
+#define AM_BSP_PWM_LED_TIMER                3
+#define AM_BSP_PWM_LED_TIMER_SEG            AM_HAL_CTIMER_TIMERB
+#define AM_BSP_PWM_LED_TIMER_INT            AM_HAL_CTIMER_INT_TIMERB3C0
 
 //*****************************************************************************
 //

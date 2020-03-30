@@ -192,6 +192,14 @@ extern const am_hal_gpio_pincfg_t       g_AM_BSP_GPIO_MIC_CLK;
 
 //*****************************************************************************
 //
+//  LED_BLUE pin: The BLUE LED labeled STAT.
+//
+//*****************************************************************************
+#define AM_BSP_GPIO_LED_BLUE            	23
+extern const am_hal_gpio_pincfg_t       g_AM_BSP_GPIO_LED_BLUE;
+
+//*****************************************************************************
+//
 //  COM_UART_TX pin: This pin is the COM_UART transmit pin.
 //
 //*****************************************************************************

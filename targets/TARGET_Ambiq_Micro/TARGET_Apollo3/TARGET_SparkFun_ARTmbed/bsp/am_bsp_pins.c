@@ -241,6 +241,17 @@ const am_hal_gpio_pincfg_t g_AM_BSP_GPIO_MIC_CLK =
 
 //*****************************************************************************
 //
+//  LED_BLUE pin: The BLUE LED labeled STAT.
+//
+//*****************************************************************************
+const am_hal_gpio_pincfg_t g_AM_BSP_GPIO_LED_BLUE =
+{
+    .uFuncSel            = AM_HAL_PIN_23_GPIO,
+    .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA
+};
+
+//*****************************************************************************
+//
 //  COM_UART_TX pin: This pin is the COM_UART transmit pin.
 //
 //*****************************************************************************
