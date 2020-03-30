@@ -17,10 +17,11 @@
  *  limitations under the License.
  *
  */
-#ifndef MBEDTLS_AES_ALT_H
-#define MBEDTLS_AES_ALT_H
+#ifndef MBEDTLS_STM32L4_AES_ALT_H
+#define MBEDTLS_STM32L4_AES_ALT_H
 
 
+#if (TARGET_STM32L4)
 #if defined(MBEDTLS_AES_ALT)
 #include "mbedtls/platform.h"
 #include "mbedtls/config.h"
@@ -303,5 +304,6 @@ MBEDTLS_DEPRECATED void mbedtls_aes_decrypt(mbedtls_aes_context *ctx,
 
 #endif /* MBEDTLS_AES_ALT */
 
-#endif /* MBEDTLS_AES_ALT_H */
+#endif /* TARGET_STM32L4 */
 
+#endif /* MBEDTLS_STM32L4_AES_ALT_H */

@@ -1,5 +1,5 @@
 /*
- *  Hardware aes implementation for STM32F4 STM32F7 and STM32L4 families
+ *  Hardware AES implementation for STM32L4 family
  *******************************************************************************
  * Copyright (c) 2017, STMicroelectronics
  *  SPDX-License-Identifier: Apache-2.0
@@ -18,17 +18,15 @@
  *
  */
 
-#include <string.h>
+#if (TARGET_STM32L4)
+
 #include "mbedtls/aes.h"
 
 #if defined(MBEDTLS_AES_ALT)
 
+#include <string.h>
+
 #include "mbedtls/platform.h"
-//the following defines are provided to maintain compatibility between STM32 families
-#define __HAL_RCC_CRYP_CLK_ENABLE    __HAL_RCC_AES_CLK_ENABLE
-#define __HAL_RCC_CRYP_FORCE_RESET   __HAL_RCC_AES_FORCE_RESET
-#define __HAL_RCC_CRYP_RELEASE_RESET __HAL_RCC_AES_RELEASE_RESET
-#define CRYP                         AES
 
 static int aes_set_key(mbedtls_aes_context *ctx, const unsigned char *key, unsigned int keybits)
 {
@@ -48,7 +46,7 @@ static int aes_set_key(mbedtls_aes_context *ctx, const unsigned char *key, unsig
     }
 
     ctx->hcryp_aes.Init.DataType = CRYP_DATATYPE_8B;
-    ctx->hcryp_aes.Instance = CRYP;
+    ctx->hcryp_aes.Instance = AES;
 
     /* Deinitializes the CRYP peripheral */
     if (HAL_CRYP_DeInit(&ctx->hcryp_aes) == HAL_ERROR) {
@@ -56,7 +54,7 @@ static int aes_set_key(mbedtls_aes_context *ctx, const unsigned char *key, unsig
     }
 
     /* Enable CRYP clock */
-    __HAL_RCC_CRYP_CLK_ENABLE();
+    __HAL_RCC_AES_CLK_ENABLE();
 
     ctx->hcryp_aes.Init.pKey = ctx->aes_key;
     ctx->hcryp_aes.Init.KeyWriteFlag = CRYP_KEY_WRITE_ENABLE;
@@ -97,10 +95,10 @@ void mbedtls_aes_free(mbedtls_aes_context *ctx)
     }
 #endif /* DUAL_CORE */
     /* Force the CRYP Periheral Clock Reset */
-    __HAL_RCC_CRYP_FORCE_RESET();
+    __HAL_RCC_AES_FORCE_RESET();
 
     /* Release the CRYP Periheral Clock Reset */
-    __HAL_RCC_CRYP_RELEASE_RESET();
+    __HAL_RCC_AES_RELEASE_RESET();
 #if defined(DUAL_CORE)
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
 #endif /* DUAL_CORE */
@@ -388,3 +386,4 @@ void mbedtls_aes_decrypt(mbedtls_aes_context *ctx,
 }
 #endif /* MBEDTLS_DEPRECATED_REMOVED */
 #endif /*MBEDTLS_AES_ALT*/
+#endif /* TARGET_STM32L4 */
