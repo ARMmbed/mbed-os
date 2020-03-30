@@ -392,6 +392,9 @@ void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
   {   
     /* Request Wait For Interrupt */
     __WFI();
+    __NOP(); // Workaround for STM32F4 errata
+    __NOP(); // see chapter 2.1.3 - Debugging Sleep/Stop mode with WFE/WFI entry
+    __NOP(); // https://www.st.com/resource/en/errata_sheet/dm00037591-stm32f405-407xx-and-stm32f415-417xx-device-limitations-stmicroelectronics.pdf
   }
   else
   {
