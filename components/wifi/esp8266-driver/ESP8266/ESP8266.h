@@ -195,6 +195,17 @@ public:
     const char *ip_addr(void);
 
     /**
+     * Set static IP address, gateway and netmask
+     *
+     * @param ip IP address to set
+     * @param gateway (optional) gateway to set
+     * @param netmask (optional) netmask to set
+     *
+     * @return true if operation was successful and flase otherwise
+     */
+    const bool set_ip_addr(const char *ip, const char *gateway, const char *netmask);
+
+    /**
     * Get the MAC address of ESP8266
     *
     * @return null-terminated MAC address or null if no MAC address is assigned

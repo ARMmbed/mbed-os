@@ -132,6 +132,12 @@ public:
      */
     virtual int set_channel(uint8_t channel);
 
+    /** @copydoc NetworkInterface::set_network */
+    virtual nsapi_error_t set_network(const SocketAddress &ip_address, const SocketAddress &netmask, const SocketAddress &gateway);
+
+    /** @copydoc NetworkInterface::dhcp */
+    virtual nsapi_error_t set_dhcp(bool dhcp);
+
     /** Stop the interface
      *  @return             0 on success, negative on failure
      */
@@ -518,7 +524,8 @@ private:
     void _connect_async();
     void _disconnect_async();
     rtos::Mutex _cmutex; // Protect asynchronous connection logic
-    esp_connection_software_status_t _software_conn_stat ;
+    esp_connection_software_status_t _software_conn_stat;
+    bool _dhcp;
 
 };
 #endif
