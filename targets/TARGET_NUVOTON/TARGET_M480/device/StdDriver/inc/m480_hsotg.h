@@ -3,6 +3,8 @@
  * @version  V0.10
  * @brief    M480 Series HSOTG Driver Header File
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * @copyright  (C) 2017 Nuvoton Technology Corp. All rights reserved.
  *
  ******************************************************************************/

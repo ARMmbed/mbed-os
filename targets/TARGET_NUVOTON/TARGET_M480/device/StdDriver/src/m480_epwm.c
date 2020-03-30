@@ -5,6 +5,8 @@
  * $Date: 16/06/23 11:14a $
  * @brief    M480 series EPWM driver source file
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"

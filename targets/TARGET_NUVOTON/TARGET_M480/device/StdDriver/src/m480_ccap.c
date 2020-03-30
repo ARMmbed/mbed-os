@@ -3,6 +3,8 @@
  * @version  V1.00
  * @brief    M480 Series CCAP Driver Source File
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 

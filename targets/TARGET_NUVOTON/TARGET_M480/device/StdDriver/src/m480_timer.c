@@ -2,6 +2,8 @@
  * @file     timer.c
  * @brief    M480 Timer Controller(Timer) driver source file
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"

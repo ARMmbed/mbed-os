@@ -3,6 +3,8 @@
  * @version  V1.00
  * @brief    USBD register definition header file
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __USBD_REG_H__

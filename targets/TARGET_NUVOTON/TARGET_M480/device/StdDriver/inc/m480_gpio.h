@@ -3,6 +3,8 @@
  * @version  V3.00
  * @brief    M480 series GPIO driver header file
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #ifndef __GPIO_H__

@@ -3,6 +3,8 @@
  * @version  V1.0
  * @brief    M480 Series CLK Driver Header File
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #ifndef __CLK_H__

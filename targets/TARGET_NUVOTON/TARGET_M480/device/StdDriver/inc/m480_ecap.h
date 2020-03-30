@@ -3,6 +3,8 @@
  * @version  V3.00
  * @brief    EnHanced Input Capture Timer(ECAP) driver header file
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #ifndef __ECAP_H__

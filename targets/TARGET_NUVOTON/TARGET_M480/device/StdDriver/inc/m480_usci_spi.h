@@ -3,6 +3,8 @@
  * @version  V3.00
  * @brief    M480 series USCI_SPI driver header file
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #ifndef __USCI_SPI_H__

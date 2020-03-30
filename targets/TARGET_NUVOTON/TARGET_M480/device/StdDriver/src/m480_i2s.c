@@ -3,6 +3,8 @@
  * @version  V0.10
  * @brief    M480 I2S driver source file
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 

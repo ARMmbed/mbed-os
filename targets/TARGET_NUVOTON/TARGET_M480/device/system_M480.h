@@ -3,6 +3,8 @@
  * @version  V1.00
  * @brief    CMSIS Cortex-M4 Core Peripheral Access Layer Header File for M480
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 
