@@ -115,7 +115,7 @@ extern "C" {
 #define TRACE_LEVEL_CMD           0x01
 
 #ifndef MBED_TRACE_MAX_LEVEL
-#define MBED_TRACE_MAX_LEVEL TRACE_LEVEL_DEBUG
+#define MBED_TRACE_MAX_LEVEL TRACE_LEVEL_INFO
 #endif
 
 //usage macros:
