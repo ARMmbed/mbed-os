@@ -854,6 +854,17 @@ struct disconnection_reason_t : SafeEnum<disconnection_reason_t, uint8_t> {
     disconnection_reason_t(type value) : SafeEnum(value)
     {
     }
+
+    /**
+     * Construct a new instance of disconnection_reason_t.
+     *
+     * @param value The value of the local_disconnection_reason_t created.
+     *
+     * @note This should only be used for casting raw values from HCI.
+     */
+    disconnection_reason_t(uint8_t value) : SafeEnum(value)
+    {
+    }
 };
 
 /**
@@ -917,7 +928,7 @@ struct peripheral_privacy_configuration_t {
  * @note This configuration is also used when the local device operates as
  * an observer.
  */
-struct central_privay_configuration_t {
+struct central_privacy_configuration_t {
     /**
      * Indicates if nonresolvable random address should be used when the
      * central or observer sends scan request packets.
