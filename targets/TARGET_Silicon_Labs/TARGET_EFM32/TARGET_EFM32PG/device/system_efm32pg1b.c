@@ -40,6 +40,13 @@
 /** ULFRCO frequency */
 #define EFM32_ULFRCO_FREQ (1000UL)
 
+#if defined(__VTOR_PRESENT) && (__VTOR_PRESENT == 1U)
+#if defined(__ICCARM__)    /* IAR requires the __vector_table symbol */
+#define __Vectors    __vector_table
+#endif
+extern const tVectorEntry __Vectors[];
+#endif
+
 /*******************************************************************************
  **************************   LOCAL VARIABLES   ********************************
  ******************************************************************************/
