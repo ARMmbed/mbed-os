@@ -86,11 +86,9 @@ void mbed_toolchain_init()
    With the RTOS there is not only one stack above the heap, there are multiple
    stacks and some of them are underneath the heap pointer.
 */
-#if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#if defined (__ARMCC_VERSION)
 __asm(".global __use_two_region_memory\n\t");
 __asm(".global __use_no_semihosting\n\t");
-#else
-#pragma import(__use_two_region_memory)
 #endif
 
 #define LIBSPACE_SIZE 96
