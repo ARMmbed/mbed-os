@@ -32,6 +32,9 @@
     "STM32G071RBTx": {
         "OGChipSelectEditMenu": "STM32G071RB\tST STM32G071RB"
     },
+    "STM32WB55RGVx": {
+        "OGChipSelectEditMenu": "STM32WB55RG\tST STM32WB55RG"
+    },
     "EFM32LG990F256": {
         "OGChipSelectEditMenu": "EFM32LG990F256\tSiliconLaboratories EFM32LG990F256"
     },
