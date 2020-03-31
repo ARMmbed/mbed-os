@@ -18,6 +18,7 @@
 #ifndef NETWORK_STACK_H
 #define NETWORK_STACK_H
 
+#include <type_traits>
 #include "nsapi_types.h"
 #include "netsocket/SocketAddress.h"
 #include "netsocket/NetworkInterface.h"
@@ -475,6 +476,16 @@ private:
     virtual nsapi_error_t call_in(int delay, mbed::Callback<void()> func);
 };
 
+inline NetworkStack *_nsapi_create_stack(NetworkStack *stack, std::true_type /* convertible to NetworkStack */)
+{
+    return stack;
+}
+
+inline NetworkStack *_nsapi_create_stack(NetworkInterface *iface, std::false_type /* not convertible to NetworkStack */)
+{
+    return iface->get_stack();
+}
+
 /** Convert a raw nsapi_stack_t object into a C++ NetworkStack object
  *
  *  @param stack    Pointer to an object that can be converted to a stack
@@ -485,15 +496,10 @@ private:
  */
 NetworkStack *nsapi_create_stack(nsapi_stack_t *stack);
 
-inline NetworkStack *nsapi_create_stack(NetworkStack *stack)
-{
-    return stack;
-}
-
 template <typename IF>
 NetworkStack *nsapi_create_stack(IF *iface)
 {
-    return nsapi_create_stack(static_cast<NetworkInterface *>(iface)->get_stack());
+    return _nsapi_create_stack(iface, std::is_convertible<IF *, NetworkStack *>());
 }
 
 

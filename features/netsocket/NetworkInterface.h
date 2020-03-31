@@ -423,13 +423,7 @@ public:
 #if !defined(DOXYGEN_ONLY)
 
 protected:
-    friend class InternetSocket;
-    friend class UDPSocket;
-    friend class TCPSocket;
-    friend class TCPServer;
-    friend class SocketAddress;
-    template <typename IF>
-    friend NetworkStack *nsapi_create_stack(IF *iface);
+    friend NetworkStack *_nsapi_create_stack(NetworkInterface *iface, std::false_type);
 
     /** Provide access to the NetworkStack object
      *

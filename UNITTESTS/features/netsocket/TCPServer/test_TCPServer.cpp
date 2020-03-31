@@ -54,7 +54,7 @@ TEST_F(TestTCPServer, constructor)
 
 TEST_F(TestTCPServer, constructor_parameters)
 {
-    TCPServer serverParam = TCPServer(dynamic_cast<NetworkStack *>(&stack));
+    TCPServer serverParam = TCPServer(&stack);
     const SocketAddress a("127.0.0.1", 1024);
     EXPECT_EQ(serverParam.connect(a), NSAPI_ERROR_OK);
 }
@@ -62,10 +62,10 @@ TEST_F(TestTCPServer, constructor_parameters)
 TEST_F(TestTCPServer, accept)
 {
     const SocketAddress a("127.0.0.1", 1024);
-    EXPECT_EQ(socket->open(static_cast<NetworkStack *>(&stack)), NSAPI_ERROR_OK);
+    EXPECT_EQ(socket->open(&stack), NSAPI_ERROR_OK);
     EXPECT_EQ(socket->connect(a), NSAPI_ERROR_OK);
     nsapi_error_t error;
-    EXPECT_EQ(server->open(static_cast<NetworkStack *>(&stack)), NSAPI_ERROR_OK);
+    EXPECT_EQ(server->open(&stack), NSAPI_ERROR_OK);
     EXPECT_EQ(server->bind(a), NSAPI_ERROR_OK);
     server->listen(1);
     SocketAddress client_addr;
@@ -81,7 +81,7 @@ TEST_F(TestTCPServer, accept_no_socket)
 TEST_F(TestTCPServer, accept_error)
 {
     SocketAddress client_addr;
-    EXPECT_EQ(server->open(static_cast<NetworkStack *>(&stack)), NSAPI_ERROR_OK);
+    EXPECT_EQ(server->open(&stack), NSAPI_ERROR_OK);
     stack.return_value = NSAPI_ERROR_AUTH_FAILURE;
     EXPECT_EQ(server->accept(socket, &client_addr), NSAPI_ERROR_AUTH_FAILURE);
 }
@@ -89,7 +89,7 @@ TEST_F(TestTCPServer, accept_error)
 TEST_F(TestTCPServer, accept_error_would_block)
 {
     SocketAddress client_addr;
-    EXPECT_EQ(server->open(static_cast<NetworkStack *>(&stack)), NSAPI_ERROR_OK);
+    EXPECT_EQ(server->open(&stack), NSAPI_ERROR_OK);
     stack.return_value = NSAPI_ERROR_WOULD_BLOCK;
     eventFlagsStubNextRetval.push_back(0);
     eventFlagsStubNextRetval.push_back(osFlagsError); // Break the wait loop

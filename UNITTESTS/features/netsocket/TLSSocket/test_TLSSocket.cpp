@@ -58,7 +58,7 @@ TEST_F(TestTLSSocket, constructor)
 
 TEST_F(TestTLSSocket, connect)
 {
-    socket->open((NetworkStack *)&stack);
+    socket->open(&stack);
 
     stack.return_value = NSAPI_ERROR_OK;
     SocketAddress a("127.0.0.1", 1024);
