@@ -22,10 +22,21 @@ function(_mbed_get_rtx_assembly TOOLCHAIN_DIR)
     endforeach()
 endfunction()
 
+function(_mbed_add_cortexa_handler_if)
+    get_property(target_labels GLOBAL PROPERTY MBED_OS_TARGET_LABELS)
+    foreach(key ${target_labels})
+        if(${key} STREQUAL CORTEX_A)
+            target_sources(mbed-os PRIVATE RTX/Config/TARGET_CORTEX_A/handlers.c)
+        endif()
+    endforeach()
+endfunction()
+
 target_sources(mbed-os PRIVATE Include/cmsis_os2.h)
 target_sources(mbed-os PRIVATE Include/os_tick.h)
 
-# TODO: Cortex-A missing here
+# Add Cortex A handlers if needed
+_mbed_add_cortexa_handler_if()
+
 target_sources(mbed-os PRIVATE RTX/Config/RTX_Config.c)
 target_sources(mbed-os PRIVATE RTX/Config/RTX_Config.h)
 target_sources(mbed-os PRIVATE RTX/Include/rtx_evr.h)
