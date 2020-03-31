@@ -3,6 +3,8 @@
  * @version  V3.00
  * @brief    Cyclic Redundancy Check(CRC) driver source file
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"

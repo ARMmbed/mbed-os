@@ -4,6 +4,9 @@
  * @brief    M2351 series DAC driver source file
  *
  * @note
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"

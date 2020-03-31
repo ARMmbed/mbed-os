@@ -13148,12 +13148,12 @@
             "MPU"
         ]
     },
-    "NU_PFM_M2351": {
+    "MCU_M2351": {
         "default_toolchain": "ARMC6",
+        "public": false,
         "extra_labels": [
             "NUVOTON",
             "M2351",
-            "M2351KIAAEES",
             "FLASH_CMSIS_ALGO"
         ],
         "OUTPUT_EXT": "hex",
@@ -13163,6 +13163,30 @@
         ],
         "is_disk_virtual": true,
         "config": {
+            "usb-uart": {
+                "help": "Configure USB_UART. USB_UART and USB_UART_TX/USB_UART_RX must be consistent.",
+                "value": null
+            },
+            "usb-uart-tx": {
+                "help": "Configure USBTX. USB_UART and USBTX/USBRX must be consistent.",
+                "value": null
+            },
+            "usb-uart-rx": {
+                "help": "Configure USBRX. USB_UART and USBTX/USBRX must be consistent.",
+                "value": null
+            },
+            "stdio-uart": {
+                "help": "Configure STDIO_UART. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART defaults to USB_UART.",
+                "value": null
+            },
+            "stdio-uart-tx": {
+                "help": "Configure STDIO_UART_TX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_TX defaults to USBTX.",
+                "value": null
+            },
+            "stdio-uart-rx": {
+                "help": "Configure STDIO_UART_RX. STDIO_UART and STDIO_UART_TX/STDIO_UART_RX must be consistent. STDIO_UART_RX defaults to USBRX.",
+                "value": null
+            },
             "gpio-irq-debounce-enable": {
                 "help": "Enable GPIO IRQ debounce",
                 "value": 0
@@ -13215,16 +13239,26 @@
             "MPU",
             "USBDEVICE"
         ],
-        "detect_code": [
-            "1305"
-        ],
         "release_versions": [
             "5"
         ],
-        "device_name": "M2351KIAAEES",
         "bootloader_supported": true,
-        "forced_reset_timeout": 3,
-        "public": false
+        "forced_reset_timeout": 3
+    },
+    "NU_PFM_M2351": {
+        "inherits": [
+            "MCU_M2351"
+        ],
+        "detect_code": [
+            "1305"
+        ],
+        "device_name": "M2351KIAAEES",
+        "public": false,
+        "overrides": {
+            "usb-uart": "UART_0",
+            "usb-uart-tx": "PB_13",
+            "usb-uart-rx": "PB_12"
+        }
     },
     "NU_PFM_M2351_NPSA_NS": {
         "inherits": [

@@ -3,6 +3,8 @@
  * @version  V1.00
  * @brief    CAN driver source file
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "M2351.h"

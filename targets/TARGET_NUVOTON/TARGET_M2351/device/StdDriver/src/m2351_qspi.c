@@ -3,6 +3,8 @@
  * @version  V3.00
  * @brief    M2351 series QSPI driver source file
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "NuMicro.h"

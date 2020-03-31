@@ -3,6 +3,8 @@
  * @version  V2.00
  * @brief    MaskROM library header file
  *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * @copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __MKROM_LIB_H__

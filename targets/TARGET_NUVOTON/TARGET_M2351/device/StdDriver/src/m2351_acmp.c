@@ -6,6 +6,9 @@
  * @brief    Analog Comparator(ACMP) driver source file
  *
  * @note
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 
