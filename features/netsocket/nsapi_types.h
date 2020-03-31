@@ -128,6 +128,8 @@ typedef enum nsapi_security {
     NSAPI_SECURITY_EAP_TLS      = 0x7,      /*!< phrase conforms to EAP-TLS */
     NSAPI_SECURITY_PEAP         = 0x8,      /*!< phrase conforms to PEAP */
     NSAPI_SECURITY_WPA2_ENT     = 0x9,      /*!< phrase conforms to WPA2-AES and WPA-TKIP with enterprise security */
+    NSAPI_SECURITY_WPA3         = 0xA,      /*!< phrase conforms to WPA3 */
+    NSAPI_SECURITY_WPA3_WPA2    = 0xB,      /*!< phrase conforms to WPA3_WPA2 */
     NSAPI_SECURITY_UNKNOWN      = 0xFF,     /*!< unknown/unsupported security in scan results */
 } nsapi_security_t;
 
