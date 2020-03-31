@@ -38,16 +38,6 @@ void Semaphore::constructor(int32_t count, uint16_t max_count)
 
 }
 
-int32_t Semaphore::wait(uint32_t millisec)
-{
-    return Semaphore_stub::wait_return_value;
-}
-
-int32_t Semaphore::wait_until(uint64_t millisec)
-{
-    return Semaphore_stub::wait_return_value;
-}
-
 void Semaphore::acquire()
 {
 

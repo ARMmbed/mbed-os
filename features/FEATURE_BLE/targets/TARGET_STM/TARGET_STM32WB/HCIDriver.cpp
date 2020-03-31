@@ -757,7 +757,7 @@ static bool acl_data_wait(void)
 
     /* Wait 10 sec for previous ACL command to be ack'ed by Low Layers
      * before sending the next one */
-    if (acl_ack_sem.wait(10000) < 1) {
+    if (!acl_ack_sem.try_acquire_for(10000)) {
         return false;
     } else {
         return true;
@@ -777,7 +777,7 @@ static void sysevt_received(void *pdata)
 static bool sysevt_wait(void)
 {
     /*  Wait for 10sec max - if not return an error */
-    if (sys_event_sem.wait(10000) < 1) {
+    if (!sys_event_sem.try_acquire_for(10000)) {
         return false;
     } else {
         /*  release immmediately, now that M0 runs */
@@ -791,7 +791,7 @@ static bool sysevt_wait(void)
 static bool sysevt_check(void)
 {
     /*  Check if system is UP and runing already */
-    if (sys_event_sem.wait(10) < 1) {
+    if (!sys_event_sem.try_acquire_for(10)) {
         return false;
     } else {
         /*  release immmediately as M0 already runs */
@@ -822,7 +822,7 @@ void shci_cmd_resp_release(uint32_t flag)
 void shci_cmd_resp_wait(uint32_t timeout)
 {
     /* TO DO: manage timeouts if we can return an error */
-    if (sys_resp_sem.wait(timeout) < 1) {
+    if (!sys_resp_sem.try_acquire_for(timeout)) {
         tr_error("shci_cmd_resp_wait timed out");
     }
 }
