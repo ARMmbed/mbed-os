@@ -431,7 +431,7 @@ private:
      */
     void on_connected_(
         connection_handle_t connection,
-        ::Gap::Role_t role,
+        connection_role_t role,
         peer_address_type_t peer_address_type,
         const BLEProtocol::AddressBytes_t peer_address,
         BLEProtocol::AddressType_t local_address_type,
@@ -448,7 +448,7 @@ private:
      */
     void on_disconnected_(
         connection_handle_t connection,
-        ::Gap::DisconnectionReason_t reason
+        disconnection_reason_t reason
     );
 
     /**

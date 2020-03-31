@@ -51,7 +51,7 @@ public:
      */
     void on_connected(
         connection_handle_t connection,
-        ::Gap::Role_t role,
+        connection_role_t role,
         ble::peer_address_type_t peer_address_type,
         const BLEProtocol::AddressBytes_t peer_address,
         BLEProtocol::AddressType_t local_address_type,
@@ -77,7 +77,7 @@ public:
      */
     void on_disconnected(
         connection_handle_t connection,
-        ::Gap::DisconnectionReason_t reason
+        ble::disconnection_reason_t reason
     ) {
         self()->on_disconnected_(connection, reason);
     }

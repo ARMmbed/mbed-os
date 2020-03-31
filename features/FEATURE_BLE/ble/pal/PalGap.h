@@ -1881,7 +1881,7 @@ public:
      */
     ble_error_t disconnect(
         connection_handle_t connection,
-        disconnection_reason_t disconnection_reason
+        local_disconnection_reason_t disconnection_reason
     ) {
         return impl()->disconnect_(connection, disconnection_reason);
     }

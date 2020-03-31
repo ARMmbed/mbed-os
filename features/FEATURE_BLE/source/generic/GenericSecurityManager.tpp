@@ -1104,7 +1104,7 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::set_mitm_perfo
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_connected_(
     connection_handle_t connection,
-    ::Gap::Role_t role,
+    connection_role_t role,
     peer_address_type_t peer_address_type,
     const BLEProtocol::AddressBytes_t peer_address,
     BLEProtocol::AddressType_t local_address_type,
@@ -1120,7 +1120,7 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_connected_(
 
     // setup the control block
     cb->local_address = local_address;
-    cb->is_master = (role == ::Gap::CENTRAL);
+    cb->is_master = (role == connection_role_t::CENTRAL);
 
     // get the associated db handle and the distribution flags if any
     cb->db_entry = _db->open_entry(peer_address_type, peer_address);
@@ -1150,7 +1150,7 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_connected_(
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_disconnected_(
     connection_handle_t connection,
-    ::Gap::DisconnectionReason_t reason
+    disconnection_reason_t reason
 ) {
 #if BLE_FEATURE_SECURITY
     MBED_ASSERT(_db);
