@@ -174,7 +174,7 @@ public:
      * queue.
      *
      * The parameter `millisec` can have the following values:
-     *  - When the timeout is 0 (the default), the function returns instantly.
+     *  - When the timeout is 0, the function returns instantly.
      *  - When the timeout is osWaitForever, the function waits for an
      *    infinite time.
      *  - For all other values, the function waits for the given number of
@@ -182,7 +182,7 @@ public:
      *
      * @param  data      Pointer to the element to insert into the queue.
      * @param  millisec  Timeout for the operation to be executed, or 0 in case
-     *                   of no timeout. (default: 0)
+     *                   of no timeout.
      * @param  prio      Priority of the operation or 0 in case of default.
      *                   (default: 0)
      *
@@ -201,7 +201,7 @@ public:
      * @deprecated Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.
      */
     MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
-    osStatus put(T *data, uint32_t millisec = 0, uint8_t prio = 0)
+    osStatus put(T *data, uint32_t millisec, uint8_t prio = 0)
     {
         return put(data, std::chrono::duration<uint32_t, std::milli>(millisec), prio);
     }
@@ -288,7 +288,6 @@ public:
      * (FIFO) order.
      *
      * @param   millisec  Timeout value.
-     *                    (default: osWaitForever).
      *
      * @return Event information that includes the message in event. Message
      *         value and the status code in event.status:
@@ -305,7 +304,7 @@ public:
      * @deprecated Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.
      */
     MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
-    osEvent get(uint32_t millisec = osWaitForever)
+    osEvent get(uint32_t millisec)
     {
         return get(std::chrono::duration<uint32_t, std::milli>(millisec));
     }

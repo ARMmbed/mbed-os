@@ -27,6 +27,8 @@
 #include "mbed.h"
 #include "drivers/RealTimeClock.h"
 #include "rtc_api.h"
+#include <type_traits>
+#include <mstd_atomic>
 
 using namespace utest::v1;
 using namespace std::chrono;
@@ -34,11 +36,14 @@ using namespace std::chrono;
 static constexpr auto WAIT_TIME = 4s;
 static constexpr auto WAIT_TOLERANCE = 1s;
 
+#define TEST_ASSERT_DURATION_WITHIN(delta, expected, actual) \
+    do { \
+        using ct = std::common_type_t<decltype(delta), decltype(expected), decltype(actual)>; \
+        TEST_ASSERT_INT_WITHIN(ct(delta).count(), ct(expected).count(), ct(actual).count()); \
+    } while (0)
+
 #if DEVICE_LPTICKER
 mstd::atomic_bool expired;
-
-#define TEST_ASSERT_DURATION_WITHIN(delta, expected, actual) \
-    TEST_ASSERT_INT64_WITHIN(microseconds(delta).count(), microseconds(expected).count(), microseconds(actual).count())
 
 void set_flag_true(void)
 {
@@ -154,11 +159,11 @@ void rtc_glitch_test()
 /* Test that the RTC correctly handles different time values. */
 void rtc_range_test()
 {
-    static const RealTimeClock::time_point starts[] {
-        0x00000000s,
-        0xEFFFFFFFs,
-        0x00001000s,
-        0x00010000s,
+    static const RealTimeClock::time_point starts[] = {
+        RealTimeClock::time_point{0x00000000s},
+        RealTimeClock::time_point{0xEFFFFFFFs},
+        RealTimeClock::time_point{0x00001000s},
+        RealTimeClock::time_point{0x00010000s},
     };
 
     RealTimeClock::init();
@@ -187,7 +192,7 @@ void rtc_accuracy_test()
     timer1.stop();
 
     /* RTC accuracy is at least 10%. */
-    TEST_ASSERT_DURATION_WITHIN(1s, 10s, timer1.read_duration());
+    TEST_ASSERT_DURATION_WITHIN(1s, 10s, timer1.elapsed_time());
 }
 
 /* Test that ::rtc_write/::rtc_read functions provides availability to set/get RTC time. */
@@ -221,7 +226,7 @@ void rtc_enabled_test()
      */
 
     RealTimeClock::init();
-    RealTimeClock::write(RealTimeClock::time_point(0));
+    RealTimeClock::write(RealTimeClock::time_point(0s));
     TEST_ASSERT_TRUE(RealTimeClock::isenabled());
     RealTimeClock::free();
 }
