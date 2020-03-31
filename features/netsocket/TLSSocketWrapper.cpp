@@ -47,11 +47,7 @@ TLSSocketWrapper::TLSSocketWrapper(Socket *transport, const char *hostname, cont
     }
 #endif /* MBEDTLS_PLATFORM_C */
     mbedtls_entropy_init(&_entropy);
-#if defined(MBEDTLS_CTR_DRBG_C)
-    mbedtls_ctr_drbg_init(&_drbg);
-#elif defined(MBEDTLS_HMAC_DRBG_C)
-    mbedtls_hmac_drbg_init(&_drbg);
-#endif
+    DRBG_INIT(&_drbg);
 
     mbedtls_ssl_init(&_ssl);
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
@@ -69,11 +65,9 @@ TLSSocketWrapper::~TLSSocketWrapper()
         close();
     }
     mbedtls_entropy_free(&_entropy);
-#if defined(MBEDTLS_CTR_DRBG_C)
-    mbedtls_ctr_drbg_free(&_drbg);
-#elif defined(MBEDTLS_HMAC_DRBG_C)
-    mbedtls_hmac_drbg_free(&_drbg);
-#endif
+
+    DRBG_FREE(&_drbg);
+
     mbedtls_ssl_free(&_ssl);
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
     mbedtls_pk_free(&_pkctx);
@@ -201,14 +195,12 @@ nsapi_error_t TLSSocketWrapper::start_handshake(bool first_call)
         print_mbedtls_error("mbedtls_hmac_drbg_seed", ret);
         return NSAPI_ERROR_AUTH_FAILURE;
     }
+#else
+#error "CTR or HMAC must be defined for TLSSocketWrapper!"
 #endif
 
 #if !defined(MBEDTLS_SSL_CONF_RNG)
-#if defined(MBEDTLS_CTR_DRBG_C)
-    mbedtls_ssl_conf_rng(get_ssl_config(), mbedtls_ctr_drbg_random, &_drbg);
-#elif defined(MBEDTLS_HMAC_DRBG_C)
-    mbedtls_ssl_conf_rng(get_ssl_config(), mbedtls_hmac_drbg_random, &_drbg);
-#endif
+    mbedtls_ssl_conf_rng(get_ssl_config(), DRBG_RANDOM, &_drbg);
 #endif
 
 

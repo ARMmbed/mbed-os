@@ -44,8 +44,14 @@ struct coap_security_s {
 
 #if defined(MBEDTLS_CTR_DRBG_C)
     mbedtls_ctr_drbg_context    _drbg;
+#define DRBG_INIT mbedtls_ctr_drbg_init
+#define DRBG_RANDOM mbedtls_ctr_drbg_random
+#define DRBG_FREE mbedtls_ctr_drbg_free
 #elif defined(MBEDTLS_HMAC_DRBG_C)
     mbedtls_hmac_drbg_context   _drbg;
+#define DRBG_INIT mbedtls_hmac_drbg_init
+#define DRBG_RANDOM mbedtls_hmac_drbg_random
+#define DRBG_FREE mbedtls_hmac_drbg_free
 #else
 #error "CTR or HMAC must be defined for coap_security_handler!"
 #endif
@@ -122,11 +128,7 @@ static int coap_security_handler_init(coap_security_t *sec)
 
     mbedtls_ssl_init(&sec->_ssl);
     mbedtls_ssl_config_init(&sec->_conf);
-#if defined(MBEDTLS_CTR_DRBG_C)
-    mbedtls_ctr_drbg_init(&sec->_drbg);
-#elif defined(MBEDTLS_HMAC_DRBG_C)
-    mbedtls_hmac_drbg_init(&sec->_drbg);
-#endif
+    DRBG_INIT(&sec->_drbg);
     mbedtls_entropy_init(&sec->_entropy);
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
@@ -157,6 +159,8 @@ static int coap_security_handler_init(coap_security_t *sec)
                                strlen(pers))) != 0) {
         return -1;
     }
+#else
+#error "CTR or HMAC must be defined for coap_security_handler!"
 #endif
     return 0;
 }
@@ -180,11 +184,9 @@ static void coap_security_handler_reset(coap_security_t *sec)
 #endif
 
     mbedtls_entropy_free(&sec->_entropy);
-#if defined(MBEDTLS_CTR_DRBG_C)
-    mbedtls_ctr_drbg_free(&sec->_drbg);
-#elif defined(MBEDTLS_HMAC_DRBG_C)
-    mbedtls_hmac_drbg_free(&sec->_drbg);
-#endif
+
+    DRBG_FREE(&sec->_drbg);
+
     mbedtls_ssl_config_free(&sec->_conf);
     mbedtls_ssl_free(&sec->_ssl);
 #if defined(MBEDTLS_PLATFORM_C)
@@ -421,11 +423,7 @@ int coap_security_handler_connect_non_blocking(coap_security_t *sec, bool is_ser
     }
 
 #if !defined(MBEDTLS_SSL_CONF_RNG)
-#if defined(MBEDTLS_CTR_DRBG_C)
-    mbedtls_ssl_conf_rng(&sec->_conf, mbedtls_ctr_drbg_random, &sec->_drbg);
-#elif defined(MBEDTLS_HMAC_DRBG_C)
-    mbedtls_ssl_conf_rng(&sec->_conf, mbedtls_hmac_drbg_random, &sec->_drbg);
-#endif
+    mbedtls_ssl_conf_rng(&sec->_conf, DRBG_RANDOM, &sec->_drbg);
 #endif
 
     if ((mbedtls_ssl_setup(&sec->_ssl, &sec->_conf)) != 0) {
