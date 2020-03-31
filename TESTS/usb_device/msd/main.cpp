@@ -221,7 +221,7 @@ void msd_process(USBMSD *msd)
     Semaphore proc;
     msd->attach(callback(run_processing, &proc));
     while (!msd_process_done) {
-        proc.wait(100);
+        proc.try_acquire_for(100);
         msd->process();
         if (msd->media_removed()) {
             media_remove_event.release();
@@ -345,7 +345,7 @@ void mount_unmount_test(BlockDevice *bd, FileSystem *fs)
             TEST_ASSERT_EQUAL_STRING_LOOP("passed", _key, i);
 
             // wait for unmount event (set 10s timeout)
-            media_remove_event.wait(10000);
+            media_remove_event.try_acquire_for(10000);
             if (!usb.media_removed()) {
                 TEST_ASSERT_EQUAL_LOOP(true, usb.media_removed(), i);
             }
