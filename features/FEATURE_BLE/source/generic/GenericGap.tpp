@@ -1782,6 +1782,8 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         return BLE_ERROR_INVALID_PARAM;
     }
 
+    prepare_legacy_advertising_set();
+
     if (!_existing_sets.get(handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -2689,7 +2691,6 @@ bool GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::prepare_legacy_advertising_set()
 {
-#if BLE_FEATURE_EXTENDED_ADVERTISING
     if (_existing_sets.get(LEGACY_ADVERTISING_HANDLE)) {
         return;
     }
@@ -2699,7 +2700,6 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         AdvertisingParameters()
     );
     _existing_sets.set(LEGACY_ADVERTISING_HANDLE);
-#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 }
 
 
