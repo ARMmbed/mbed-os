@@ -28,7 +28,6 @@
 #include "ble/pal/GenericAccessService.h"
 #include "ble/pal/EventQueue.h"
 #include "ble/pal/ConnectionEventMonitor.h"
-#include "ble/pal/Deprecated.h"
 
 #include "drivers/LowPowerTimeout.h"
 #include "drivers/LowPowerTicker.h"
@@ -60,14 +59,12 @@ class GenericGap :
     >
 {
     // Typedef of base and companion classes .
-    // typedef ::ble::interface::LegacyGap<GenericGap> LegacyGap;
     typedef ::ble::interface::Gap<GenericGap> Gap;
     typedef pal::ConnectionEventMonitor<ConnectionEventMonitorEventHandler> ConnectionEventMonitor;
     typedef TPalGap<GenericGap> PalGap;
     typedef pal::GapEventHandler<GenericGap> PalGapEventHandler;
 
     // Friendship with base classes
-    // friend LegacyGap;
     friend Gap;
     friend ConnectionEventMonitor;
     friend pal::GapEventHandler<GenericGap>;
@@ -77,7 +74,6 @@ class GenericGap :
     using Gap::_eventHandler;
     using Gap::default_peripheral_privacy_configuration;
     using Gap::default_central_privacy_configuration;
-    // using Gap::state;
 
     typedef typename BLEProtocol::AddressBytes_t Address_t;
     typedef typename ble::whitelist_t whitelist_t;
@@ -654,7 +650,6 @@ private:
     BitArray<MAX_ADVERTISING_SETS> _connectable_payload_size_exceeded;
     BitArray<MAX_ADVERTISING_SETS> _set_is_connectable;
 
-    // deprecation flags
     bool _user_manage_connection_parameter_requests : 1;
 
 private:

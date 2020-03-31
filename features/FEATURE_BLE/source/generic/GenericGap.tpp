@@ -68,43 +68,6 @@ static bool is_in_range(T value, T lower_bound, T higher_bound)
 }
 
 /*
- * Return true if the connection parameters are valid or false otherwise.
- */
-static bool is_connection_params_valid(const ::Gap::ConnectionParams_t *params)
-{
-    if (params == NULL) {
-        return false;
-    }
-
-    if (is_in_range(params->slaveLatency, slave_latency_min, slave_latency_max) == false) {
-        return false;
-    }
-
-    if (is_in_range(params->maxConnectionInterval, connection_interval_min, connection_interval_max) == false) {
-        return false;
-    }
-
-    if (is_in_range(params->minConnectionInterval, connection_interval_min, params->maxConnectionInterval) == false) {
-        return false;
-    }
-
-    if (is_in_range(params->connectionSupervisionTimeout, supervision_timeout_min, supervision_timeout_max) == false) {
-        return false;
-    }
-
-    uint16_t max_connection_interval_ms =
-        ((uint32_t) params->maxConnectionInterval * 125) / 100;
-    uint16_t min_connection_supervision_timeout =
-        ((1 + params->slaveLatency) * max_connection_interval_ms * 2) / 10;
-
-    if (params->connectionSupervisionTimeout < min_connection_supervision_timeout) {
-        return false;
-    }
-
-    return true;
-}
-
-/*
  * Return true of the connection parameters are acceptable as preferred connection
  * parameters.
  *
@@ -260,35 +223,6 @@ static bool is_random_address(const BLEProtocol::AddressBytes_t address)
 }
 
 /*
- * Check disconnection reason validity.
- */
-static bool is_disconnection_reason_valid(disconnection_reason_t reason)
-{
-    switch (reason.value()) {
-        /**
-         * Note: accepted reasons are:
-        typedef pal::disconnection_reason_t reason_t;
-        case reason_t::AUTHENTICATION_FAILLURE:
-        case reason_t::REMOTE_USER_TERMINATED_CONNECTION:
-        case reason_t::REMOTE_DEVICE_TERMINATED_CONNECTION_DUE_TO_LOW_RESOURCES:
-        case reason_t::REMOTE_DEVICE_TERMINATED_CONNECTION_DUE_TO_POWER_OFF:
-        case reason_t::UNSUPPORTED_REMOTE_FEATURE:
-        case reason_t::PAIRING_WITH_UNIT_KEY_NOT_SUPPORTED:
-        case reason_t::UNACCEPTABLE_CONNECTION_PARAMETERS:
-            */
-
-        // TODO Fix Disconnectionreason_t which expose invalid value
-        case disconnection_reason_t::REMOTE_USER_TERMINATED_CONNECTION:
-        case disconnection_reason_t::REMOTE_DEV_TERMINATION_DUE_TO_LOW_RESOURCES:
-        case disconnection_reason_t::REMOTE_DEV_TERMINATION_DUE_TO_POWER_OFF:
-        case disconnection_reason_t::UNACCEPTABLE_CONNECTION_PARAMETERS:
-            return true;
-        default:
-            return false;
-    }
-}
-
-/*
  * Return true if the whitelist in input is valid or false otherwise.
  */
 static bool is_whitelist_valid(const ::ble::whitelist_t &whitelist)
@@ -345,18 +279,6 @@ static pal::whitelist_address_type_t to_whitelist_address_type(
     return (address_type == BLEProtocol::AddressType::PUBLIC) ?
         pal::whitelist_address_type_t::PUBLIC_DEVICE_ADDRESS :
         pal::whitelist_address_type_t::RANDOM_DEVICE_ADDRESS;
-}
-
-/*
- * Convert a BLEProtocol::AddressType_t into a pal::peer_address_type
- */
-static peer_address_type_t to_peer_address_type(
-    LegacyAddressType_t address_type
-)
-{
-    return (address_type == LegacyAddressType::PUBLIC) ?
-        peer_address_type_t::PUBLIC :
-        peer_address_type_t::RANDOM;
 }
 
 microsecond_t minSupervisionTimeout(
@@ -755,20 +677,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setTxPower_(int8_t txPower)
-{
-    // TODO: This is not standard, expose it as an extension API and document it
-    // as such
-    return BLE_ERROR_NOT_IMPLEMENTED;
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getPermittedTxPowerValues_(const int8_t **valueArrayPP, size_t *countP)
-{
-    *countP = 0;
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 uint8_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getMaxWhitelistSize_(void) const
 {
     return _pal_gap.read_white_list_capacity();
@@ -884,12 +792,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     _whitelist.size = whitelist.size;
 
     return BLE_ERROR_NONE;
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::initRadioNotification_(void)
-{
-    return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
