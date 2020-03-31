@@ -409,6 +409,11 @@ int ESP8266Interface::set_channel(uint8_t channel)
 
 nsapi_error_t ESP8266Interface::set_network(const SocketAddress &ip_address, const SocketAddress &netmask, const SocketAddress &gateway)
 {
+    nsapi_error_t init_result = _init();
+    if (NSAPI_ERROR_OK != init_result) {
+        return init_result;
+    }
+
     // netmask and gateway switched on purpose. ESP takes different argument order.
     if (_esp.set_ip_addr(ip_address.get_ip_address(), gateway.get_ip_address(), netmask.get_ip_address())) {
         _dhcp = false;
@@ -420,6 +425,11 @@ nsapi_error_t ESP8266Interface::set_network(const SocketAddress &ip_address, con
 
 nsapi_error_t ESP8266Interface::set_dhcp(bool dhcp)
 {
+    nsapi_error_t init_result = _init();
+    if (NSAPI_ERROR_OK != init_result) {
+        return init_result;
+    }
+
     _dhcp = dhcp;
     if (_esp.dhcp(dhcp, 1)) {
         return NSAPI_ERROR_OK;
