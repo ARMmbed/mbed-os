@@ -20,6 +20,7 @@
 #include "BLERoles.h"
 #include "ble/common/StaticInterface.h"
 #include "ble/BLETypes.h"
+#include "ble/CallChainOfFunctionPointersWithContext.h"
 #include "ble/gap/AdvertisingDataBuilder.h"
 #include "ble/gap/AdvertisingDataSimpleBuilder.h"
 #include "ble/gap/ConnectionParameters.h"
@@ -278,6 +279,21 @@ class Gap : public StaticInterface<Impl, Gap> {
 #endif
     using StaticInterface<Impl, ::ble::interface::Gap>::impl;
 
+    /**
+     * Gap shutdown event handler.
+     *
+     * @see Gap::onShutdown().
+     */
+    typedef FunctionPointerWithContext<const Gap *> GapShutdownCallback_t;
+
+    /**
+     * Callchain of gap shutdown event handler.
+     *
+     * @see Gap::onShutdown().
+     */
+    typedef CallChainOfFunctionPointersWithContext<const Gap *>
+        GapShutdownCallbackChain_t;
+
 public:
 
     /**
@@ -530,6 +546,53 @@ public:
         {
         }
     };
+
+    /**
+     * Parameters of a BLE connection.
+     */
+    typedef struct {
+        /**
+         * Minimum interval between two connection events allowed for a
+         * connection.
+         *
+         * It shall be less than or equal to maxConnectionInterval. This value,
+         * in units of 1.25ms, is included in the range [0x0006 : 0x0C80].
+         */
+        uint16_t minConnectionInterval;
+
+        /**
+         * Maximum interval between two connection events allowed for a
+         * connection.
+         *
+         * It shall be greater than or equal to minConnectionInterval. This
+         * value is in unit of 1.25ms and is in the range [0x0006 : 0x0C80].
+         */
+        uint16_t maxConnectionInterval;
+
+        /**
+         * Number of connection events the slave can drop if it has nothing to
+         * communicate to the master.
+         *
+         * This value shall be in the range [0x0000 : 0x01F3].
+         */
+        uint16_t slaveLatency;
+
+        /**
+         * Link supervision timeout for the connection.
+         *
+         * Time after which the connection is considered lost if the device
+         * didn't receive a packet from its peer.
+         *
+         * It is larger than:
+         *        (1 + slaveLatency) * maxConnectionInterval * 2
+         *
+         * This value is in the range [0x000A : 0x0C80] and is in unit of
+         * 10 ms.
+         *
+         * @note maxConnectionInterval is in ms in the formulae above.
+         */
+        uint16_t connectionSupervisionTimeout;
+    } ConnectionParams_t;
 
     /**
      * Assign the event handler implementation that will be used by the gap
@@ -1164,7 +1227,7 @@ public:
     /**
      * Default peripheral privacy configuration.
      */
-    static const central_privay_configuration_t
+    static const central_privacy_configuration_t
         default_central_privacy_configuration;
 
 
@@ -1238,7 +1301,7 @@ public:
      * @return BLE_ERROR_NONE in case of success or an appropriate error code.
      */
     ble_error_t setCentralPrivacyConfiguration(
-        const central_privay_configuration_t *configuration
+        const central_privacy_configuration_t *configuration
     );
 
     /**
@@ -1250,7 +1313,7 @@ public:
      * @return BLE_ERROR_NONE in case of success or an appropriate error code.
      */
     ble_error_t getCentralPrivacyConfiguration(
-        central_privay_configuration_t *configuration
+        central_privacy_configuration_t *configuration
     );
 #endif // BLE_ROLE_OBSERVER
 #endif // BLE_FEATURE_PRIVACY
@@ -1297,6 +1360,94 @@ public:
 
 #endif // BLE_FEATURE_WHITELIST
 
+    /**
+     * Fetch the current address and its type.
+     *
+     * @param[out] typeP Type of the current address set.
+     * @param[out] address Value of the current address.
+     *
+     * @note If privacy is enabled the device address may be unavailable to
+     * application code.
+     *
+     * @return BLE_ERROR_NONE on success.
+     */
+    ble_error_t getAddress(
+        BLEProtocol::AddressType_t *typeP,
+        BLEProtocol::AddressBytes_t address
+    );
+
+    /**
+     * Return the type of a random address.
+     *
+     * @param[in] address The random address to retrieve the type from. The
+     * address must be ordered in little endian.
+     *
+     * @param[out] addressType Type of the address to fill.
+     *
+     * @return BLE_ERROR_NONE in case of success or BLE_ERROR_INVALID_PARAM if
+     * the address in input was not identifiable as a random address.
+     */
+    static ble_error_t getRandomAddressType(
+        const BLEProtocol::AddressBytes_t address,
+        ble::random_address_type_t *addressType
+    );
+
+    /**
+     * Reset the Gap instance.
+     *
+     * Reset process starts by notifying all registered shutdown event handlers
+     * that the Gap instance is about to be shut down. Then, it clears all Gap state
+     * of the associated object and then cleans the state present in the vendor
+     * implementation.
+     *
+     * This function is meant to be overridden in the platform-specific
+     * subclass. Nevertheless, the subclass only resets its
+     * state and not the data held in Gap members. This is achieved by a
+     * call to Gap::reset() from the subclass' reset() implementation.
+     *
+     * @return BLE_ERROR_NONE on success.
+     *
+     * @note Currently, a call to reset() does not reset the advertising and
+     * scan parameters to default values.
+     */
+    ble_error_t reset(void);
+
+        /**
+     * Register a Gap shutdown event handler.
+     *
+     * The handler is called when the Gap instance is about to shut down.
+     * It is usually issued after a call to BLE::shutdown().
+     *
+     * @param[in] callback Shutdown event handler to register.
+     *
+     * @note To unregister a shutdown event handler, use
+     * onShutdown().detach(callback).
+     */
+    void onShutdown(const GapShutdownCallback_t &callback);
+
+    /**
+     * Register a Gap shutdown event handler.
+     *
+     * @param[in] objPtr Instance used to invoke @p memberPtr.
+     * @param[in] memberPtr Shutdown event handler to register.
+     */
+    template<typename T>
+    void onShutdown(T *objPtr, void (T::*memberPtr)(const Gap *))
+    {
+        shutdownCallChain.add(objPtr, memberPtr);
+    }
+
+    /**
+     * Access the callchain of shutdown event handler.
+     *
+     * @note To register callbacks, use onShutdown().add(callback).
+     *
+     * @note To unregister callbacks, use onShutdown().detach(callback).
+     *
+     * @return A reference to the shutdown event callback chain.
+     */
+    GapShutdownCallbackChain_t &onShutdown();
+
 #if !defined(DOXYGEN_ONLY)
     /*
      * API reserved for the controller driver to set the random static address.
@@ -1311,6 +1462,7 @@ protected:
      * Construct a Gap instance.
      */
     Gap();
+
 
     /* ----------------- API to override in derived class -------------- */
 
@@ -1441,17 +1593,32 @@ protected:
         peripheral_privacy_configuration_t *configuration
     );
     ble_error_t setCentralPrivacyConfiguration_(
-        const central_privay_configuration_t *configuration
+        const central_privacy_configuration_t *configuration
     );
     ble_error_t getCentralPrivacyConfiguration_(
-        central_privay_configuration_t *configuration
+        central_privacy_configuration_t *configuration
     );
     ble_error_t setRandomStaticAddress_(const ble::address_t& address);
     uint8_t getMaxWhitelistSize_(void) const;
     ble_error_t getWhitelist_(whitelist_t &whitelist) const;
     ble_error_t setWhitelist_(const whitelist_t &whitelist);
 
+    ble_error_t getAddress_(
+        BLEProtocol::AddressType_t *typeP,
+        BLEProtocol::AddressBytes_t address
+    );
+
+    /* Note: Implementation must call the base class reset_ */
+    ble_error_t reset_(void);
+
 protected:
+
+    /**
+     * Callchain containing all registered callback handlers for shutdown
+     * events.
+     */
+    GapShutdownCallbackChain_t shutdownCallChain;
+
     /**
      * Event handler provided by the application.
      */

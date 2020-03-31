@@ -49,15 +49,6 @@ static const uint16_t advertising_interval_max = 0x4000;
 static const uint16_t supervision_timeout_min = 0x000A;
 static const uint16_t supervision_timeout_max = 0x0C80;
 
-static const ::Gap::ConnectionParams_t default_connection_params = {
-    /* min conn interval */ 50,
-    /* max  conn interval */ 100,
-    /* slave latency */ 0,
-    /* supervision timeout */ 600
-};
-
-static const GapScanningParams default_scan_params;
-
 static const mbed_error_status_t mixed_scan_api_error =
     MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_USE_INCOMPATIBLE_API);
 
@@ -73,26 +64,6 @@ static bool is_in_range(T value, T lower_bound, T higher_bound)
     if (value < lower_bound || value > higher_bound) {
         return false;
     }
-    return true;
-}
-
-/*
- * Return true if the scan parameters are valid or false otherwise.
- */
-static bool is_scan_params_valid(const GapScanningParams *params)
-{
-    if (params == NULL) {
-        return false;
-    }
-
-    if (is_in_range(params->getInterval(), scan_interval_min, scan_interval_max) == false) {
-        return false;
-    }
-
-    if (is_in_range(params->getWindow(), scan_interval_min, params->getInterval()) == false) {
-        return false;
-    }
-
     return true;
 }
 
@@ -291,9 +262,9 @@ static bool is_random_address(const BLEProtocol::AddressBytes_t address)
 /*
  * Check disconnection reason validity.
  */
-static bool is_disconnection_reason_valid(::Gap::DisconnectionReason_t reason)
+static bool is_disconnection_reason_valid(disconnection_reason_t reason)
 {
-    switch (reason) {
+    switch (reason.value()) {
         /**
          * Note: accepted reasons are:
         typedef pal::disconnection_reason_t reason_t;
@@ -307,10 +278,10 @@ static bool is_disconnection_reason_valid(::Gap::DisconnectionReason_t reason)
             */
 
         // TODO Fix Disconnectionreason_t which expose invalid value
-        case ::Gap::REMOTE_USER_TERMINATED_CONNECTION:
-        case ::Gap::REMOTE_DEV_TERMINATION_DUE_TO_LOW_RESOURCES:
-        case ::Gap::REMOTE_DEV_TERMINATION_DUE_TO_POWER_OFF:
-        case ::Gap::CONN_INTERVAL_UNACCEPTABLE:
+        case disconnection_reason_t::REMOTE_USER_TERMINATED_CONNECTION:
+        case disconnection_reason_t::REMOTE_DEV_TERMINATION_DUE_TO_LOW_RESOURCES:
+        case disconnection_reason_t::REMOTE_DEV_TERMINATION_DUE_TO_POWER_OFF:
+        case disconnection_reason_t::UNACCEPTABLE_CONNECTION_PARAMETERS:
             return true;
         default:
             return false;
@@ -386,23 +357,6 @@ static peer_address_type_t to_peer_address_type(
     return (address_type == LegacyAddressType::PUBLIC) ?
         peer_address_type_t::PUBLIC :
         peer_address_type_t::RANDOM;
-}
-
-
-/*
- * Return true if the advertising parameters are valid.
- */
-static bool is_advertising_params_valid(const GapAdvertisingParams &params)
-{
-    if (is_in_range(params.getIntervalInADVUnits(), advertising_interval_min, advertising_interval_max) == false) {
-        return false;
-    }
-
-    if (params.getAdvertisingType() > GapAdvertisingParams::ADV_NON_CONNECTABLE_UNDIRECTED) {
-        return false;
-    }
-
-    return true;
 }
 
 microsecond_t minSupervisionTimeout(
@@ -504,21 +458,25 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-uint16_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getMinAdvertisingInterval_() const
-{
-    return GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MIN;
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-uint16_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getMinNonConnectableAdvertisingInterval_() const
-{
-    return GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MIN_NONCON;
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-uint16_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getMaxAdvertisingInterval_() const
-{
-    return GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX;
+ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getRandomAddressType(
+    const BLEProtocol::AddressBytes_t address,
+    ble::random_address_type_t* type
+) {
+    // see section Device address in Bluetooth Link Layer specification
+    // (Vol 6 - Part B)
+    switch (address[5] >> 6) {
+        case 0x03:
+            *type = random_address_type_t::STATIC;
+            return BLE_ERROR_NONE;
+        case 0x00:
+            *type = random_address_type_t::NON_RESOLVABLE_PRIVATE;
+            return BLE_ERROR_NONE;
+        case 0x01:
+            *type = random_address_type_t::RESOLVABLE_PRIVATE;
+            return BLE_ERROR_NONE;
+        default:
+            return BLE_ERROR_INVALID_PARAM;
+    }
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
@@ -710,7 +668,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::readPhy_(Handle_t connection)
+ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::readPhy_(ble::connection_handle_t connection)
 {
     return _pal_gap.read_phy(connection);
 }
@@ -728,10 +686,10 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setPhy_(
-    Handle_t connection,
+    ble::connection_handle_t connection,
     const phy_set_t *txPhys,
     const phy_set_t *rxPhys,
-    CodedSymbolPerBit_t codedSymbol
+    ble::coded_symbol_per_bit_t codedSymbol
 )
 {
     phy_set_t tx_phys(txPhys ? txPhys->value() : 0);
@@ -742,7 +700,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::on_read_phy_(
     pal::hci_error_code_t hci_status,
-    Handle_t connection_handle,
+    ble::connection_handle_t connection_handle,
     phy_t tx_phy,
     phy_t rx_phy
 )
@@ -772,7 +730,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::on_phy_update_complete_(
     pal::hci_error_code_t hci_status,
-    Handle_t connection_handle,
+    ble::connection_handle_t connection_handle,
     phy_t tx_phy,
     phy_t rx_phy
 )
@@ -794,79 +752,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 )
 {
     return _pal_gap.disconnect(connectionHandle, reason);
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getPreferredConnectionParams_(ConnectionParams_t *params)
-{
-    if (params == NULL) {
-        return BLE_ERROR_INVALID_PARAM;
-    }
-
-    return _gap_service.get_peripheral_prefered_connection_parameters(
-        *params
-    );
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setPreferredConnectionParams_(const ConnectionParams_t *params)
-{
-    if (is_preferred_connection_params_valid(params) == false) {
-        return BLE_ERROR_PARAM_OUT_OF_RANGE;
-    }
-
-    return _gap_service.set_peripheral_prefered_connection_parameters(
-        *params
-    );
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setDeviceName_(const uint8_t *deviceName)
-{
-    return _gap_service.set_device_name(deviceName);
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getDeviceName_(uint8_t *deviceName, unsigned *lengthP)
-{
-    if (lengthP == NULL) {
-        return BLE_ERROR_INVALID_PARAM;
-    }
-
-    uint8_t length = 0;
-    ble_error_t err = _gap_service.get_device_name_length(length);
-    if (err) {
-        return err;
-    }
-
-    if (deviceName != NULL) {
-        if (*lengthP < length) {
-            return BLE_ERROR_INVALID_PARAM;
-        }
-
-        Span<uint8_t> name(deviceName, *lengthP);
-        err = _gap_service.get_device_name(name);
-        if (err) {
-            return err;
-        }
-    }
-    *lengthP = length;
-    return BLE_ERROR_NONE;
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setAppearance_(GapAdvertisingData::Appearance appearance)
-{
-    return _gap_service.set_appearance(appearance);
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getAppearance_(GapAdvertisingData::Appearance *appearanceP)
-{
-    if (appearanceP == NULL) {
-        return BLE_ERROR_INVALID_PARAM;
-    }
-    return _gap_service.get_appearance(*appearanceP);
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
@@ -1029,7 +914,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setPeripheralPrivacyConfiguration_(
-    const PeripheralPrivacyConfiguration_t *configuration
+    const peripheral_privacy_configuration_t *configuration
 )
 {
     _peripheral_privacy_configuration = *configuration;
@@ -1041,7 +926,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getPeripheralPrivacyConfiguration_(
-    PeripheralPrivacyConfiguration_t *configuration
+    peripheral_privacy_configuration_t *configuration
 )
 {
     *configuration = _peripheral_privacy_configuration;
@@ -1051,7 +936,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setCentralPrivacyConfiguration_(
-    const CentralPrivacyConfiguration_t *configuration
+    const central_privacy_configuration_t *configuration
 )
 {
     _central_privacy_configuration = *configuration;
@@ -1063,7 +948,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getCentralPrivacyConfiguration_(
-    CentralPrivacyConfiguration_t *configuration
+    central_privacy_configuration_t *configuration
 )
 {
     *configuration = _central_privacy_configuration;
@@ -1074,7 +959,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::reset_(void)
 {
-    LegacyGap::reset_();
+    Gap::reset_();
 
 #if BLE_ROLE_BROADCASTER
     _advertising_timeout.detach();
@@ -1240,7 +1125,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 #if BLE_FEATURE_PRIVACY
         // Check if the address hasn't been resolved
         if (_privacy_enabled &&
-            _central_privacy_configuration.resolution_strategy == CentralPrivacyConfiguration_t::RESOLVE_AND_FILTER &&
+            _central_privacy_configuration.resolution_strategy == central_privacy_configuration_t::RESOLVE_AND_FILTER &&
             advertising.address_type == pal::connection_peer_address_type_t::RANDOM_ADDRESS &&
             is_random_private_resolvable_address(advertising.address.data())
             ) {
@@ -1334,7 +1219,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
     ) {
         // Apply privacy policy if in peripheral mode for non-resolved addresses
         ble::random_address_type_t random_address_type(ble::random_address_type_t::RESOLVABLE_PRIVATE);
-        ble_error_t err = LegacyGap::getRandomAddressType(e.peer_address.data(), &random_address_type);
+        ble_error_t err = getRandomAddressType(e.peer_address.data(), &random_address_type);
         if (err) {
             // FIXME: return for now; needs to report the error ?
             return;
@@ -1342,19 +1227,19 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 
         if (random_address_type == ble::random_address_type_t::RESOLVABLE_PRIVATE) {
             switch (_peripheral_privacy_configuration.resolution_strategy) {
-                case PeripheralPrivacyConfiguration_t::REJECT_NON_RESOLVED_ADDRESS:
+                case peripheral_privacy_configuration_t::REJECT_NON_RESOLVED_ADDRESS:
                     // Reject connection request - the user will get notified through a callback
                     _pal_gap.disconnect(
                         e.connection_handle,
-                        pal::disconnection_reason_t::AUTHENTICATION_FAILURE
+                        pal::local_disconnection_reason_t::AUTHENTICATION_FAILURE
                     );
                     return;
 
-                case PeripheralPrivacyConfiguration_t::PERFORM_PAIRING_PROCEDURE:
+                case peripheral_privacy_configuration_t::PERFORM_PAIRING_PROCEDURE:
                     needs_pairing = true;
                     break;
 
-                case PeripheralPrivacyConfiguration_t::PERFORM_AUTHENTICATION_PROCEDURE:
+                case peripheral_privacy_configuration_t::PERFORM_AUTHENTICATION_PROCEDURE:
                     needs_authentication = true;
                     break;
 
@@ -1396,7 +1281,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
     if (_connection_event_handler) {
         _connection_event_handler->on_connected(
             e.connection_handle,
-            e.role.value() == e.role.CENTRAL ? LegacyGap::CENTRAL : LegacyGap::PERIPHERAL,
+            e.role,
             e.peer_address_type,
             e.peer_address.data(),
             _address_type,
@@ -1444,8 +1329,8 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         // signal internal stack
         if (_connection_event_handler) {
             _connection_event_handler->on_disconnected(
-                (Handle_t) e.connection_handle,
-                (DisconnectionReason_t) e.reason
+                (connection_handle_t) e.connection_handle,
+                disconnection_reason_t(e.reason)
             );
         }
 
@@ -1589,12 +1474,12 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
     if (_privacy_enabled) {
 #if BLE_ROLE_BROADCASTER
-        if (_peripheral_privacy_configuration.resolution_strategy != PeripheralPrivacyConfiguration_t::DO_NOT_RESOLVE) {
+        if (_peripheral_privacy_configuration.resolution_strategy != peripheral_privacy_configuration_t::DO_NOT_RESOLVE) {
             enable = true;
         }
 #endif // BLE_ROLE_BROADCASTER
 #if BLE_ROLE_OBSERVER
-        if (_central_privacy_configuration.resolution_strategy != CentralPrivacyConfiguration_t::DO_NOT_RESOLVE) {
+        if (_central_privacy_configuration.resolution_strategy != central_privacy_configuration_t::DO_NOT_RESOLVE) {
             enable = true;
         }
 #endif // BLE_ROLE_OBSERVER
@@ -1995,8 +1880,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    prepare_legacy_advertising_set();
-
     if (!_existing_sets.get(handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -2008,7 +1891,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
             return BLE_ERROR_INVALID_PARAM;
         }
 
-        if (payload.size() > GAP_ADVERTISING_DATA_MAX_PAYLOAD) {
+        if (payload.size() > LEGACY_ADVERTISING_MAX_SIZE) {
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -2436,7 +2319,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 #if BLE_FEATURE_PRIVACY
     // Check if the address hasn't been resolved
     if (_privacy_enabled &&
-        _central_privacy_configuration.resolution_strategy == CentralPrivacyConfiguration_t::RESOLVE_AND_FILTER &&
+        _central_privacy_configuration.resolution_strategy == central_privacy_configuration_t::RESOLVE_AND_FILTER &&
         address_type != NULL &&
         *address_type == pal::connection_peer_address_type_t::RANDOM_ADDRESS &&
         is_random_private_resolvable_address(address.data())
@@ -2824,8 +2707,8 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    if (peerAddressType != PeerAddressType_t::PUBLIC ||
-        peerAddressType != PeerAddressType_t::RANDOM
+    if (peerAddressType != peer_address_type_t::PUBLIC ||
+        peerAddressType != peer_address_type_t::RANDOM
         ) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -2852,8 +2735,8 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    if (peerAddressType != PeerAddressType_t::PUBLIC ||
-        peerAddressType != PeerAddressType_t::RANDOM
+    if (peerAddressType != peer_address_type_t::PUBLIC ||
+        peerAddressType != peer_address_type_t::RANDOM
         ) {
         return BLE_ERROR_INVALID_PARAM;
     }

@@ -315,6 +315,7 @@ ble_error_t Gap<Impl>::cancelConnect()
 #endif
 
 #if BLE_FEATURE_CONNECTABLE
+
 template<class Impl>
 ble_error_t Gap<Impl>::updateConnectionParameters(
     connection_handle_t connectionHandle,
@@ -433,9 +434,9 @@ const peripheral_privacy_configuration_t Gap<Impl>::default_peripheral_privacy_c
 };
 
 template<class Impl>
-const central_privay_configuration_t Gap<Impl>::default_central_privacy_configuration = {
+const central_privacy_configuration_t Gap<Impl>::default_central_privacy_configuration = {
     /* use_non_resolvable_random_address */ false,
-    /* resolution_strategy */ central_privay_configuration_t::RESOLVE_AND_FORWARD
+    /* resolution_strategy */ central_privacy_configuration_t::RESOLVE_AND_FORWARD
 };
 
 #if BLE_FEATURE_PRIVACY
@@ -466,7 +467,7 @@ ble_error_t Gap<Impl>::getPeripheralPrivacyConfiguration(
 #if BLE_ROLE_OBSERVER
 template<class Impl>
 ble_error_t Gap<Impl>::setCentralPrivacyConfiguration(
-    const central_privay_configuration_t *configuration
+    const central_privacy_configuration_t *configuration
 )
 {
     return impl()->setCentralPrivacyConfiguration_(configuration);
@@ -474,7 +475,7 @@ ble_error_t Gap<Impl>::setCentralPrivacyConfiguration(
 
 template<class Impl>
 ble_error_t Gap<Impl>::getCentralPrivacyConfiguration(
-    central_privay_configuration_t *configuration
+    central_privacy_configuration_t *configuration
 )
 {
     return impl()->getCentralPrivacyConfiguration_(configuration);
@@ -505,6 +506,12 @@ ble_error_t Gap<Impl>::setWhitelist(const whitelist_t &whitelist) {
     return impl()->setWhitelist_(whitelist);
 }
 #endif // BLE_FEATURE_WHITELIST
+
+template<class Impl>
+ble_error_t Gap<Impl>::reset(void)
+{
+    return impl()->reset_();
+}
 
 // -----------------------------------------------------------------------------
 /* ------------------------- Default implementations ------------------------ */
@@ -849,7 +856,7 @@ ble_error_t Gap<Impl>::getPeripheralPrivacyConfiguration_(
 
 template<class Impl>
 ble_error_t Gap<Impl>::setCentralPrivacyConfiguration_(
-    const central_privay_configuration_t *configuration
+    const central_privacy_configuration_t *configuration
 )
 {
     return BLE_ERROR_NOT_IMPLEMENTED;
@@ -857,10 +864,30 @@ ble_error_t Gap<Impl>::setCentralPrivacyConfiguration_(
 
 template<class Impl>
 ble_error_t Gap<Impl>::getCentralPrivacyConfiguration_(
-    central_privay_configuration_t *configuration
+    central_privacy_configuration_t *configuration
 )
 {
     return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+template<class Impl>
+ble_error_t Gap<Impl>::getAddress(
+    BLEProtocol::AddressType_t *typeP,
+    BLEProtocol::AddressBytes_t address
+) {
+    return impl()->getAddress_(typeP, address);
+}
+
+template<class Impl>
+ble_error_t Gap<Impl>::reset_(void)
+{
+    /* Notify that the instance is about to shut down */
+    shutdownCallChain.call(this);
+    shutdownCallChain.clear();
+
+    this->_eventHandler = NULL;
+
+    return BLE_ERROR_NONE;
 }
 
 template<class Impl>
