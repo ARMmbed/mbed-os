@@ -20,7 +20,7 @@
 /*
  * Based on mbed-stress-test by Marcus Chang @ Arm Mbed - http://github.com/ARMmbed/mbed-stress-test
 */
-#if INTEGRATION_TESTS
+#if INTEGRATION_TESTS && MBED_CONF_RTOS_PRESENT
 
 #include "mbed.h"
 #include "unity/unity.h"
