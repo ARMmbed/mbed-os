@@ -391,7 +391,7 @@ void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
   if(SLEEPEntry == PWR_SLEEPENTRY_WFI)
   {   
     /* Request Wait For Interrupt */
-    __NOP();
+    __WFI();
   }
   else
   {
