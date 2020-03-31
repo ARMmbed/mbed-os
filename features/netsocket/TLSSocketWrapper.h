@@ -35,6 +35,20 @@
 // This class requires Mbed TLS SSL/TLS client code
 #if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
 
+#if defined(MBEDTLS_CTR_DRBG_C)
+#define DRBG_CTX mbedtls_ctr_drbg_context
+#define DRBG_INIT mbedtls_ctr_drbg_init
+#define DRBG_RANDOM mbedtls_ctr_drbg_random
+#define DRBG_FREE mbedtls_ctr_drbg_free
+#elif defined(MBEDTLS_HMAC_DRBG_C)
+#define DRBG_CTX mbedtls_hmac_drbg_context
+#define DRBG_INIT mbedtls_hmac_drbg_init
+#define DRBG_RANDOM mbedtls_hmac_drbg_random
+#define DRBG_FREE mbedtls_hmac_drbg_free
+#else
+#error "CTR or HMAC must be defined for TLSSocketWrapper!"
+#endif
+
 /**
  * TLSSocket is a wrapper around Socket for interacting with TLS servers.
  *
@@ -292,11 +306,7 @@ private:
     mbedtls_pk_context _pkctx;
 #endif
 
-#if defined(MBEDTLS_CTR_DRBG_C)
-    mbedtls_ctr_drbg_context _drbg;
-#elif defined(MBEDTLS_HMAC_DRBG_C)
-    mbedtls_hmac_drbg_context _drbg;
-#endif
+    DRBG_CTX _drbg;
 
     mbedtls_entropy_context _entropy;
 

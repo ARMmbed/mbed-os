@@ -102,17 +102,15 @@ struct altcp_tls_config {
 #if defined(MBEDTLS_CTR_DRBG_C)
     mbedtls_ctr_drbg_context    _drbg;
 #define DRBG_INIT mbedtls_ctr_drbg_init
-#define DRBG_SEED mbedtls_ctr_drbg_seed
 #define DRBG_SEED_ERROR "mbedtls_ctr_drbg_seed failed: %d\n"
 #define DRBG_RANDOM mbedtls_ctr_drbg_random
 #elif defined(MBEDTLS_HMAC_DRBG_C)
     mbedtls_hmac_drbg_context   _drbg;
 #define DRBG_INIT mbedtls_hmac_drbg_init
-#define DRBG_SEED mbedtls_hmac_drbg_seed
 #define DRBG_SEED_ERROR "mbedtls_hmac_drbg_seed failed: %d\n"
 #define DRBG_RANDOM mbedtls_hmac_drbg_random
 #else
-#error "CTR or HMAC must be defined for coap_security_handler!"
+#error "CTR or HMAC must be defined for altcp_tls_mbedtls!"
 #endif
   mbedtls_x509_crt *cert;
   mbedtls_pk_context *pkey;
@@ -740,7 +738,16 @@ altcp_tls_create_config(int is_server, int have_cert, int have_pkey, int have_ca
   DRBG_INIT(&conf->_drbg);
 
   /* Seed the RNG */
-  ret = DRBG_SEED(&conf->_drbg, ALTCP_MBEDTLS_RNG_FN, &conf->entropy, ALTCP_MBEDTLS_ENTROPY_PTR, ALTCP_MBEDTLS_ENTROPY_LEN);
+#if defined(MBEDTLS_CTR_DRBG_C)
+    ret = mbedtls_ctr_drbg_seed(&conf->_drbg, ALTCP_MBEDTLS_RNG_FN,
+                                &conf->entropy, ALTCP_MBEDTLS_ENTROPY_PTR, ALTCP_MBEDTLS_ENTROPY_LEN);
+#elif defined(MBEDTLS_HMAC_DRBG_C)
+    ret = mbedtls_hmac_drbg_seed(&conf->_drbg, mbedtls_md_info_from_type(MBEDTLS_MD_SHA256),
+                                 ALTCP_MBEDTLS_RNG_FN, &conf->entropy,
+                                 ALTCP_MBEDTLS_ENTROPY_PTR, ALTCP_MBEDTLS_ENTROPY_LEN);
+#else
+#error "CTR or HMAC must be defined for altcp_tls_mbedtls!"
+#endif
 
   if (ret != 0) {
     LWIP_DEBUGF(ALTCP_MBEDTLS_DEBUG, (DRBG_SEED_ERROR, ret));
