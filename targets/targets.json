@@ -7153,9 +7153,6 @@
             ]
         },
         "program_cycle_s": 6,
-        "features": [
-            "BLE"
-        ],
         "device_has": [
             "ANALOGIN",
             "I2C",
@@ -10124,9 +10121,6 @@
             "BOARD_PCA10028",
             "NRF51",
             "TARGET_NRF51822",
-            "BLE_STACK_SUPPORT_REQD",
-            "SOFTDEVICE_PRESENT",
-            "S130",
             "TARGET_MCU_NRF51822",
             "CMSIS_VECTAB_VIRTUAL",
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
@@ -10149,14 +10143,6 @@
             "IAR"
         ],
         "public": false,
-        "MERGE_SOFT_DEVICE": true,
-        "EXPECTED_SOFTDEVICES_WITH_OFFSETS": [
-            {
-                "boot": "",
-                "name": "s130_nrf51_2.0.0_softdevice.hex",
-                "offset": 110592
-            }
-        ],
         "detect_code": [
             "1070"
         ],
