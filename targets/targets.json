@@ -13689,6 +13689,8 @@
             "CYBSP_WIFI_CAPABLE"
         ],
         "device_name": "CY8C624ABZI-D44",
+        "mbed_ram_start": "0x08002000",
+        "mbed_ram_size": "0x000FD800",
         "detect_code": [
             "1901"
         ],
@@ -13731,6 +13733,8 @@
             "CYBSP_WIFI_CAPABLE"
         ],
         "device_name": "CY8C624ABZI-D44",
+        "mbed_ram_start": "0x08002000",
+        "mbed_ram_size": "0x000FD800",
         "detect_code": [
             "190B"
         ],
@@ -13765,6 +13769,8 @@
             "CY_STORAGE_WIFI_DATA=\".cy_xip\""
         ],
         "device_name": "CY8C6245LQI-S3D72",
+        "mbed_ram_start": "0x08002000",
+        "mbed_ram_size": "0x0003D800",
         "detect_code": [
             "190E"
         ],
@@ -13842,6 +13848,8 @@
             "CYBSP_WIFI_CAPABLE"
         ],
         "device_name": "CY8C6247BZI-D54",
+        "mbed_ram_start": "0x08002000",
+        "mbed_ram_size": "0x00045800",
         "detect_code": [
             "1900"
         ],
@@ -13875,6 +13883,8 @@
             "CY8C6347BZI_BLD53"
         ],
         "device_name": "CY8C6347BZI-BLD53",
+        "mbed_ram_start": "0x08002000",
+        "mbed_ram_size": "0x00045800",
         "detect_code": [
             "1902"
         ],
@@ -13905,6 +13915,8 @@
             "CYBLE_416045_02"
         ],
         "device_name": "CYBLE-416045-02",
+        "mbed_ram_start": "0x08002000",
+        "mbed_ram_size": "0x00045800",
         "detect_code": [
             "1904"
         ],
@@ -13972,6 +13984,8 @@
             "CYBSP_WIFI_CAPABLE"
         ],
         "device_name": "CY8C6247BZI-D54",
+        "mbed_ram_start": "0x08002000",
+        "mbed_ram_size": "0x00045800",
         "detect_code": [
             "1900"
         ],
@@ -14010,6 +14024,8 @@
             "CYBSP_WIFI_CAPABLE"
         ],
         "device_name": "CY8C6247BZI-D54",
+        "mbed_ram_start": "0x08002000",
+        "mbed_ram_size": "0x00045800",
         "detect_code": [
             "1906"
         ],
@@ -14050,6 +14066,8 @@
             "CYBSP_WIFI_CAPABLE"
         ],
         "device_name": "CY8C6247FDI-D52",
+        "mbed_ram_start": "0x08002000",
+        "mbed_ram_size": "0x00045800",
         "detect_code": [
             "1903"
         ],
