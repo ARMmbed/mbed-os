@@ -526,25 +526,6 @@ public:
     }
 
     /**
-     * Register an attribute write event handler.
-     *
-     * @param[in] callback Event handler being registered.
-     *
-     * @note It is possible to remove registered handlers using
-     * onDataWritten().detach(callbackToRemove).
-     *
-     * @note Write commands (issued using writeWoResponse) don't generate a
-     * response.
-     *
-     * @deprecated Use GattServer::onDataWritten().
-     */
-    MBED_DEPRECATED("Use GattServer::onDataWritten()")
-    void onDataWrite(WriteCallback_t callback)
-    {
-        onDataWritten(callback);
-    }
-
-    /**
      * Register a service discovery termination event handler.
      *
      * @param[in] callback Event handler being registered.
