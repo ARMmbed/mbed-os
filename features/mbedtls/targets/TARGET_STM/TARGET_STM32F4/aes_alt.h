@@ -42,7 +42,7 @@ extern "C" {
  *                 generating an extra round key
  */
 typedef struct {
-    unsigned char      aes_key[32]; /* Decryption key */
+    uint32_t aes_key[8]; /* Decryption key */
     CRYP_HandleTypeDef hcryp_aes;
     uint32_t           ctx_save_cr; /* save context for multi-instance */
 }

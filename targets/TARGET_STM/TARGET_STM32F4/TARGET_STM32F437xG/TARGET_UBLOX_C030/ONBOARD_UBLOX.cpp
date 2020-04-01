@@ -37,13 +37,13 @@ CellularDevice *CellularDevice::get_target_default_instance()
     static BufferedSerial serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
     static ONBOARD_UBLOX_N2XX device(&serial);
 #elif defined(TARGET_UBLOX_C030_U201)
-    #if (NSAPI_PPP_AVAILABLE)
-        static BufferedSerial serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
-        static ONBOARD_UBLOX_PPP device(&serial);
-    #else
-        static BufferedSerial serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
-        static ONBOARD_UBLOX_AT device(&serial);
-    #endif
+#if (NSAPI_PPP_AVAILABLE)
+    static BufferedSerial serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
+    static ONBOARD_UBLOX_PPP device(&serial);
+#else
+    static BufferedSerial serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
+    static ONBOARD_UBLOX_AT device(&serial);
+#endif
 #else //UBLOX_C027
     static BufferedSerial serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
     static ONBOARD_UBLOX_PPP device(&serial);

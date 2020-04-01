@@ -23,7 +23,7 @@
 #include "PinNames.h"
 #include "drivers/BufferedSerial.h"
 
-#define WAIT_AFTER_POWR_CHANGED	(1000)	// [msec.]
+#define WAIT_AFTER_POWR_CHANGED (1000)  // [msec.]
 
 using namespace mbed;
 

@@ -57,7 +57,7 @@ typedef enum {
     PD_4  = 0x34, PD_5  = 0x35, PD_6  = 0x36, PD_7  = 0x37,
     PD_8  = 0x38, PD_9  = 0x39, PD_10 = 0x3A, PD_11 = 0x3B,
     PD_12 = 0x3C, PD_13 = 0x3D, PD_14 = 0x3E, PD_15 = 0x3F,
-    
+
     PE_0  = 0x40, PE_1  = 0x41, PE_2  = 0x42, PE_3  = 0x43,
     PE_4  = 0x44, PE_5  = 0x45, PE_6  = 0x46, PE_7  = 0x47,
     PE_8  = 0x48, PE_9  = 0x49, PE_10 = 0x4A, PE_11 = 0x4B,
@@ -65,20 +65,20 @@ typedef enum {
 
 
     PH_0  = 0x70, PH_1  = 0x71,
-    
+
     // Not connected
     NC = -1,
 
     // Power
     PWR3V3 = PE_0,       // 3.3V rail for the Arduino interface,
-                         // user LEDs and GNSS power, should be
-                         // set to open drain output
-    
+    // user LEDs and GNSS power, should be
+    // set to open drain output
+
     // GNSS
     GNSSEN  = PA_15,     // VCC_IO to GNSS, should be set to push-pull, no pull-up, output
     GNSSTXD = PC_6,
     GNSSRXD = PC_7,
-    
+
     // Cellular modem (a DCE)
     MDMPWRON  = PE_14,   // Power (active high)
     MDMRST    = PB_5,    // Reset (active low)
@@ -97,7 +97,7 @@ typedef enum {
     MDMDSR    = NC,      // DSR line not connected
     MDMDTR    = NC,      // DTR line not connected
     MDMRI     = NC,      // RI line not connected
-    MDMGPIO2  = PD_1,    // 
+    MDMGPIO2  = PD_1,    //
     MDMGPIO3  = PB_4,    //
     MDMCURRENTSENSE = PC_2,
 
@@ -107,12 +107,12 @@ typedef enum {
 
     // Board Pins
     // A0-A5
-    A0      = PA_3,  
+    A0      = PA_3,
     A1      = PC_0,
     A2      = PC_3,
-    A3      = PA_4,  
-    A4      = PA_6,  
-    A5      = PB_0,  
+    A3      = PA_4,
+    A4      = PA_6,
+    A5      = PB_0,
     // D0-D15
     D0      = PD_9,   // UART3-RX
     D1      = PD_8,   // UART3-TX
@@ -182,15 +182,15 @@ typedef enum {
     STDIO_UART_RX = PD_6,
 #else
     STDIO_UART_RX = PA_10,
-#endif	
+#endif
 #endif
 
     // ST-Link
     USBRX   = STDIO_UART_RX,
     USBTX   = STDIO_UART_TX,
-    SWDIO   = PA_13, 
-    SWCLK   = PA_14, 
-    NTRST   = PB_4,  
+    SWDIO   = PA_13,
+    SWCLK   = PA_14,
+    NTRST   = PB_4,
 } PinName;
 
 #define ACTIVE_HIGH_POLARITY    1

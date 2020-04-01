@@ -3788,8 +3788,10 @@
         "core": "Cortex-M4F",
         "extra_labels_add": [
             "STM32F4",
-            "STM32F401xE",
-            "STM32F401RE"
+            "STM32F401xE"
+        ],
+        "macros_add": [
+            "STM32F401xE"
         ],
         "config": {
             "clock_source": {
@@ -3819,8 +3821,7 @@
         "core": "Cortex-M4F",
         "extra_labels_add": [
             "STM32F4",
-            "STM32F401xE",
-            "STM32F401VE"
+            "STM32F401xE"
         ],
         "config": {
             "clock_source": {
@@ -3830,6 +3831,7 @@
             }
         },
         "macros_add": [
+            "STM32F401xE",
             "HSE_VALUE=25000000"
         ],
         "device_has_add": [
@@ -3860,8 +3862,9 @@
         "core": "Cortex-M4F",
         "extra_labels_add": [
             "STM32F4",
-            "STM32F410RB",
-            "STM32F410xB",
+            "STM32F410xB"
+        ],
+        "macros_add": [
             "STM32F410Rx"
         ],
         "config": {
@@ -3903,10 +3906,12 @@
             "MORPHO"
         ],
         "core": "Cortex-M4F",
+        "macros_add": [
+            "STM32F411xE"
+        ],
         "extra_labels_add": [
             "STM32F4",
-            "STM32F411xE",
-            "STM32F411RE"
+            "STM32F411xE"
         ],
         "components_add": [
             "FLASHIAP"
@@ -3957,8 +3962,10 @@
         "core": "Cortex-M4F",
         "extra_labels_add": [
             "STM32F4",
-            "STM32F412xG",
-            "STM32F412ZG"
+            "STM32F412xG"
+        ],
+        "macros_add": [
+            "STM32F412Zx"
         ],
         "config": {
             "clock_source": {
@@ -3998,13 +4005,11 @@
         "extra_labels_add": [
             "STM32F4",
             "STM32F412xG",
-            "STM32F412ZG",
             "WICED",
             "CYW43362"
         ],
         "macros_add": [
-            "USB_STM_HAL",
-            "USBHOST_OTHER"
+            "STM32F412Zx"
         ],
         "device_has_add": [
             "CAN",
@@ -4049,7 +4054,6 @@
         "extra_labels_add": [
             "STM32F4",
             "STM32F412xG",
-            "STM32F412ZG",
             "WICED",
             "CYW4343X",
             "CORDIO"
@@ -4058,8 +4062,7 @@
             "BLE"
         ],
         "macros_add": [
-            "USB_STM_HAL",
-            "USBHOST_OTHER"
+            "STM32F412Zx"
         ],
         "device_has_add": [
             "SERIAL_ASYNCH",
@@ -4133,8 +4136,6 @@
         "extra_labels_add": [
             "N25Q128A",
             "STM32F4",
-            "STM32F413xx",
-            "STM32F413ZH",
             "STM32F413xH"
         ],
         "config": {
@@ -4154,7 +4155,9 @@
         "detect_code": [
             "0743"
         ],
-        "macros_add": [],
+        "macros_add": [
+            "STM32F413xx"
+        ],
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -4182,8 +4185,6 @@
         "core": "Cortex-M4F",
         "extra_labels_add": [
             "STM32F4",
-            "STM32F413xx",
-            "STM32F413ZH",
             "STM32F413xH"
         ],
         "config": {
@@ -4203,7 +4204,9 @@
         "detect_code": [
             "0743"
         ],
-        "macros_add": [],
+        "macros_add": [
+            "STM32F413xx"
+        ],
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -4231,8 +4234,10 @@
         "default_toolchain": "uARM",
         "extra_labels_add": [
             "STM32F4",
-            "STM32F411xE",
-            "STM32F411RE"
+            "STM32F411xE"
+        ],
+        "macros_add": [
+            "STM32F411xE"
         ],
         "supported_toolchains": [
             "ARM",
@@ -4280,11 +4285,11 @@
         },
         "extra_labels_add": [
             "STM32F4",
-            "STM32F429",
-            "STM32F429ZI",
-            "STM32F429xx",
             "STM32F429xI",
             "PSA"
+        ],
+        "macros_add": [
+            "STM32F429xx"
         ],
         "components_add": [
             "FLASHIAP"
@@ -4344,16 +4349,13 @@
         },
         "extra_labels_add": [
             "STM32F4",
-            "STM32F429",
-            "STM32F429ZI",
-            "STM32F429xx",
             "STM32F429xI"
         ],
         "components_add": [
             "FLASHIAP"
         ],
         "macros_add": [
-            "USB_STM_HAL"
+            "STM32F429xx"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -4397,12 +4399,10 @@
         },
         "extra_labels_add": [
             "STM32F4",
-            "STM32F439",
-            "STM32F439ZI",
-            "STM32F439xx",
             "STM32F439xI"
         ],
         "macros_add": [
+            "STM32F439xx",
             "MBEDTLS_CONFIG_HW_SUPPORT"
         ],
         "device_has_add": [
@@ -4441,15 +4441,11 @@
         },
         "extra_labels_add": [
             "STM32F4",
-            "STM32F439",
-            "STM32F439ZI",
-            "STM32F439xx",
             "STM32F439xI"
         ],
         "macros_add": [
-            "MBEDTLS_CONFIG_HW_SUPPORT",
-            "USB_STM_HAL",
-            "USBHOST_OTHER"
+            "STM32F439xx",
+            "MBEDTLS_CONFIG_HW_SUPPORT"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -4480,8 +4476,10 @@
         "core": "Cortex-M4F",
         "extra_labels_add": [
             "STM32F4",
-            "STM32F446xE",
-            "STM32F446RE"
+            "STM32F446xE"
+        ],
+        "macros_add": [
+            "STM32F446xx"
         ],
         "config": {
             "clock_source": {
@@ -4518,8 +4516,10 @@
         "core": "Cortex-M4F",
         "extra_labels_add": [
             "STM32F4",
-            "STM32F446xE",
-            "STM32F446ZE"
+            "STM32F446xE"
+        ],
+        "macros_add": [
+            "STM32F446xx"
         ],
         "config": {
             "clock_source": {
@@ -4560,8 +4560,10 @@
         "core": "Cortex-M4F",
         "extra_labels_add": [
             "STM32F4",
-            "STM32F446xE",
-            "STM32F446VE"
+            "STM32F446xE"
+        ],
+        "macros_add": [
+            "STM32F446xx"
         ],
         "detect_code": [
             "0840"
@@ -5694,12 +5696,6 @@
             "ARDUINO"
         ],
         "core": "Cortex-M4F",
-        "supported_toolchains": [
-            "ARM",
-            "uARM",
-            "GCC_ARM",
-            "IAR"
-        ],
         "program_cycle_s": 2,
         "components_add": [
             "SD",
@@ -5707,10 +5703,7 @@
         ],
         "extra_labels_add": [
             "STM32F4",
-            "STM32F407",
-            "STM32F407xx",
-            "STM32F407xE",
-            "STM32F407VE"
+            "STM32F407xE"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -5724,7 +5717,7 @@
             "SERIAL_FC"
         ],
         "macros_add": [
-            "USB_STM_HAL"
+            "STM32F407xx"
         ],
         "config": {
             "clock_source": {
@@ -5766,15 +5759,11 @@
         },
         "extra_labels_add": [
             "STM32F4",
-            "STM32F439",
-            "STM32F439VI",
-            "STM32F439xx",
             "STM32F439xI"
         ],
         "macros_add": [
-            "MBEDTLS_CONFIG_HW_SUPPORT",
-            "USB_STM_HAL",
-            "USBHOST_OTHER"
+            "STM32F439xx",
+            "MBEDTLS_CONFIG_HW_SUPPORT"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -5815,12 +5804,10 @@
         },
         "extra_labels_add": [
             "STM32F4",
-            "STM32F439",
-            "STM32F439VI",
-            "STM32F439xx",
             "STM32F439xI"
         ],
         "macros_add": [
+            "STM32F439xx",
             "MBEDTLS_CONFIG_HW_SUPPORT"
         ],
         "device_has_add": [
@@ -5988,6 +5975,9 @@
             "STM32F4",
             "STM32F407xG"
         ],
+        "macros_add": [
+            "STM32F407xx"
+        ],
         "config": {
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL | USE_PLL_HSI",
@@ -6029,6 +6019,9 @@
             "STM32F4",
             "STM32F407xG"
         ],
+        "macros_add": [
+            "STM32F407xx"
+        ],
         "config": {
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL | USE_PLL_HSI",
@@ -6067,9 +6060,9 @@
         "core": "Cortex-M4F",
         "extra_labels_add": [
             "STM32F4",
-            "STM32F429",
-            "STM32F429ZI",
-            "STM32F429xI",
+            "STM32F429xI"
+        ],
+        "macros_add": [
             "STM32F429xx"
         ],
         "config": {
@@ -6121,9 +6114,9 @@
         "extra_labels_add": [
             "N25Q128A",
             "STM32F4",
-            "STM32F469",
-            "STM32F469NI",
-            "STM32F469xI",
+            "STM32F469xI"
+        ],
+        "macros_add": [
             "STM32F469xx"
         ],
         "config": {
@@ -6162,10 +6155,7 @@
         ],
         "extra_labels_add": [
             "STM32F4",
-            "STM32F469",
-            "STM32F469NI",
-            "STM32F469xI",
-            "STM32F469xx"
+            "STM32F469xI"
         ],
         "config": {
             "clock_source": {
@@ -6183,8 +6173,7 @@
             "lse_available": 0
         },
         "macros_add": [
-            "USB_STM_HAL",
-            "USBHOST_OTHER"
+            "STM32F469xx"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -6683,11 +6672,11 @@
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
-            "STM32F4",
-            "STM32F405RG"
+            "STM32F4"
         ],
         "is_disk_virtual": true,
         "macros_add": [
+            "STM32F405xx",
             "HSE_VALUE=26000000"
         ],
         "device_has_add": [
@@ -6708,10 +6697,10 @@
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
-            "STM32F4",
-            "STM32F411RE"
+            "STM32F4"
         ],
         "macros_add": [
+            "STM32F411xE",
             "HSE_VALUE=26000000",
             "USE_PLL_HSE_EXTC=0",
             "VECT_TAB_OFFSET=0x00010000"
@@ -6746,8 +6735,7 @@
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
-            "STM32F4",
-            "STM32F411RE"
+            "STM32F4"
         ],
         "components_add": [
             "FLASHIAP"
@@ -6756,6 +6744,7 @@
             "lse_available": 0
         },
         "macros_add": [
+            "STM32F411xE",
             "HSE_VALUE=26000000"
         ],
         "post_binary_hook": {
@@ -6792,8 +6781,6 @@
         "core": "Cortex-M4F",
         "extra_labels_add": [
             "STM32F4",
-            "STM32F413xx",
-            "STM32F413ZH",
             "STM32F413xH"
         ],
         "config": {
@@ -6821,8 +6808,8 @@
             "0316"
         ],
         "macros_add": [
-            "MBED_TICKLESS",
-            "USBSTM_HAL_UNSUPPORTED"
+            "STM32F413xx",
+            "MBED_TICKLESS"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -6900,15 +6887,14 @@
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
-            "STM32F4",
-            "STM32F411RE"
+            "STM32F4"
         ],
         "overrides": {
             "lse_available": 0
         },
         "macros_add": [
-            "HSE_VALUE=26000000",
-            "VECT_TAB_OFFSET=0x08010000"
+            "STM32F411xE",
+            "HSE_VALUE=26000000"
         ],
         "device_has_add": [
             "MPU"
@@ -7100,9 +7086,10 @@
         "default_toolchain": "GCC_ARM",
         "extra_labels_add": [
             "STM32F4",
-            "STM32F401",
-            "STM32F401xC",
-            "STM32F401VC"
+            "STM32F401xC"
+        ],
+        "macros_add": [
+            "STM32F401xC"
         ],
         "supported_toolchains": [
             "GCC_ARM"
@@ -7119,14 +7106,12 @@
         "core": "Cortex-M4F",
         "extra_labels_add": [
             "STM32F4",
-            "STM32F439",
-            "STM32F439ZI",
-            "STM32F439xx",
             "STM32F439xI",
             "CORDIO",
             "CORDIO_ODIN_W2"
         ],
-        "macros": [
+        "macros_add": [
+            "STM32F439xx",
             "MBEDTLS_CONFIG_HW_SUPPORT",
             "HSE_VALUE=24000000",
             "HSE_STARTUP_TIMEOUT=5000",
@@ -7271,12 +7256,10 @@
         ],
         "extra_labels_add": [
             "STM32F4",
-            "STM32F437",
-            "STM32F437VG",
-            "STM32F437xx",
             "STM32F437xG"
         ],
         "macros_add": [
+            "STM32F437xx",
             "MBEDTLS_CONFIG_HW_SUPPORT",
             "HSE_VALUE=12000000",
             "GNSSBAUD=9600"
@@ -12953,8 +12936,10 @@
         "core": "Cortex-M4F",
         "extra_labels_add": [
             "STM32F4",
-            "STM32F411xE",
-            "STM32F411RE"
+            "STM32F411xE"
+        ],
+        "macros_add": [
+            "STM32F411xE"
         ],
         "device_has": [
             "ANALOGIN",

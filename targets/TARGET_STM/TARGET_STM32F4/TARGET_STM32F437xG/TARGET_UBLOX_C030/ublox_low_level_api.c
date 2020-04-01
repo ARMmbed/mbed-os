@@ -18,12 +18,13 @@
 #include <stdbool.h>
 #include "gpio_api.h"
 
-void ublox_board_init(void) {
+void ublox_board_init(void)
+{
     gpio_t gpio;
 
     // Enable power to 3V3
     gpio_init_inout(&gpio, PWR3V3, PIN_OUTPUT, OpenDrain, 1);
-    
+
 #if defined(TARGET_UBLOX_C030_R41XM)
     /* In case of SARA-R4, MDMRST needs to be asserted for 10 seconds before modem actually powers down.
      * This means that modem is initially responsive to AT commands but powers down

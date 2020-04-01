@@ -62,10 +62,10 @@ void onboard_modem_deinit()
 void onboard_modem_power_up()
 {
 #if defined(TARGET_UBLOX_C030_R41XM)
-        /* keep the power line low for 1 seconds */
+    /* keep the power line low for 1 seconds */
     press_power_button(1000000);
 #else
-        /* keep the power line low for 50 microseconds */
+    /* keep the power line low for 50 microseconds */
     press_power_button(50);
 #endif
 
@@ -75,7 +75,7 @@ void onboard_modem_power_up()
 
 void onboard_modem_power_down()
 {
-        /* keep the power line low for 1.5 seconds */
+    /* keep the power line low for 1.5 seconds */
     press_power_button(1500000);
 }
 

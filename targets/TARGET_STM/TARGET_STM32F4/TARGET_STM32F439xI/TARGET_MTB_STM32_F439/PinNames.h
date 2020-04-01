@@ -296,7 +296,7 @@ typedef enum {
     ****************/
     SPI_CS      = PD_2,
 
-    CAN1_RX    = PD_0, //Test point on MCB 
+    CAN1_RX    = PD_0, //Test point on MCB
     CAN1_TX    = PD_1, //Test point on MCB
 
     /**** ETHERNET pins ****/
@@ -367,12 +367,12 @@ typedef enum {
     GP8 = PE_15,
 
     /**** MODEM pins ****/
-/*
-    MDMTXD = PD_5,
-    MDMRXD = PD_6,
-    MDMRTS = PD_4,
-    MDMCTS = PD_3
-*/
+    /*
+        MDMTXD = PD_5,
+        MDMRXD = PD_6,
+        MDMRTS = PD_4,
+        MDMCTS = PD_3
+    */
 
 } PinName;
 

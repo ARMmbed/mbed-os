@@ -295,7 +295,7 @@ static void TurnOnAwakeSignal(void)
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOK, &GPIO_InitStruct);		
+    HAL_GPIO_Init(GPIOK, &GPIO_InitStruct);
 
     /* Enable AWAKE pin */
     HAL_GPIO_WritePin(GPIOK, GPIO_PIN_3, GPIO_PIN_SET);

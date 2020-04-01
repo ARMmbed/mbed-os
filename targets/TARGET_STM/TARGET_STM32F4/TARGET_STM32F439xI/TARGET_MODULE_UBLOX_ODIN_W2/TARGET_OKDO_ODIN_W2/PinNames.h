@@ -144,7 +144,7 @@ typedef enum {
     P_TP7      = PA_13,
     P_TP8      = PA_15,
     P_TP9      = PA_14,
-    P_TP10     = PB_3, 
+    P_TP10     = PB_3,
     //P_TP11,         // BOOT0
 
     // Mbed pins

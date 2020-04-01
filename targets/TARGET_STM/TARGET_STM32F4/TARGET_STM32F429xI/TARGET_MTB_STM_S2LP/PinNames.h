@@ -280,12 +280,12 @@ typedef enum {
     SPI2_SCK     = PC_10,
     SPI2_CS      = NC,
 
-/*
-    SPI3_MOSI    = PE_6,
-    SPI3_MISO    = PE_5,
-    SPI3_SCK     = PE_12,
-    SPI3_CS      = PE_11,
-*/
+    /*
+        SPI3_MOSI    = PE_6,
+        SPI3_MISO    = PE_5,
+        SPI3_SCK     = PE_12,
+        SPI3_CS      = PE_11,
+    */
     //Default SPI, connected to S2_LP on MCB.
     SPI_MOSI    = SPI0_MOSI,
     SPI_MISO    = SPI0_MISO,
@@ -344,10 +344,10 @@ typedef enum {
     UART2_TX = PE_1,
     UART2_RX = PE_0,
 
-/*
-    CAN1_TXD = PD_1,
-    CAN1_RXD = PD_0,
-*/
+    /*
+        CAN1_TXD = PD_1,
+        CAN1_RXD = PD_0,
+    */
 
     //MTB aliases.
     TX1 = UART1_TX,

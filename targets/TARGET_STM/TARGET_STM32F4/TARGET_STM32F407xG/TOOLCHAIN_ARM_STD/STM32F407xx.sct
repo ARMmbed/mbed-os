@@ -1,0 +1,54 @@
+#! armcc -E
+; *****************************************
+; *** Scatter-Loading Description File  ***
+; *****************************************
+
+; 1 MB FLASH (0x100000) + 192 KB SRAM (0x30000) + 64 KB CCBRAM (0x10000)+ 4 KB BKPSRAM
+
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x08000000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x100000
+#endif
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+#define Stack_Size MBED_BOOT_STACK_SIZE
+
+#define MBED_RAM_START              0x20000000
+; MBED_RAM_SIZE=0x20000 + MBED_RAM1_SIZE=0x10000
+#define MBED_RAM_SIZE0              0x30000
+#define MBED_VECTTABLE_RAM_START    (MBED_RAM_START)
+#define MBED_VECTTABLE_RAM_SIZE     0x1B0
+#define MBED_CRASH_REPORT_RAM_START (MBED_VECTTABLE_RAM_START + MBED_VECTTABLE_RAM_SIZE)
+#define MBED_CRASH_REPORT_RAM_SIZE  0x100
+#define MBED_RAM0_START             (MBED_CRASH_REPORT_RAM_START + MBED_CRASH_REPORT_RAM_SIZE)
+#define MBED_RAM0_SIZE              (MBED_RAM_SIZE0 - MBED_VECTTABLE_RAM_SIZE - MBED_CRASH_REPORT_RAM_SIZE)
+
+LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
+  ER_IROM1 MBED_APP_START MBED_APP_SIZE  {  ; load address = execution address
+   *.o (RESET, +First)
+   *(InRoot$$Sections)
+   .ANY (+RO)
+  }
+  
+  ; Total: 107 vectors = 428 bytes (0x1AC) 8-byte aligned = 0x1B0 (0x1AC + 0x4) to be reserved in RAM
+  RW_IRAM1 (MBED_RAM0_START) (MBED_RAM0_SIZE-Stack_Size)  {  ; RW data
+   .ANY (+RW +ZI)
+  }
+
+  RW_IRAM2 0x10000000 0x00010000  {  ; CCM
+   .ANY (CCMRAM)
+  }
+  
+  RW_m_crash_data MBED_CRASH_REPORT_RAM_START EMPTY MBED_CRASH_REPORT_RAM_SIZE { ; RW data
+  }
+
+  ARM_LIB_STACK (0x20000188+0x0001FE78) EMPTY -Stack_Size { ; stack
+  }
+}
+
