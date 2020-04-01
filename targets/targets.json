@@ -7162,9 +7162,6 @@
         "supported_form_factors": [
             "ARDUINO"
         ],
-        "release_versions": [
-            "5"
-        ],
         "device_has_remove": [],
         "extra_labels_add": [
             "PSA"
@@ -7193,9 +7190,6 @@
         "inherits": [
             "MODULE_UBLOX_ODIN_W2"
         ],
-        "release_versions": [
-            "5"
-        ],
         "config": {
             "stdio_uart_tx_help": {
                 "help": "Value: PA_9(default) or PD_8"
@@ -7219,9 +7213,6 @@
         "overrides": {
             "lse_available": 0
         },
-        "release_versions": [
-            "5"
-        ],
         "detect_code": [
             "0450"
         ]
@@ -7234,9 +7225,6 @@
         "overrides": {
             "lse_available": 0
         },
-        "release_versions": [
-            "5"
-        ],
         "detect_code": [
             "1280"
         ]
