@@ -1,32 +1,30 @@
 /***************************************************************************//**
- * @file em_csen.h
+ * @file
  * @brief Capacitive Sense Module (CSEN) peripheral API
- * @version 5.3.3
  *******************************************************************************
  * # License
- * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
- *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
- * obligation to support this Software. Silicon Labs is providing the
- * Software "AS IS", with no express or implied warranties of any kind,
- * including, but not limited to, any implied warranties of merchantability
- * or fitness for any particular purpose or warranties against infringement
- * of any proprietary rights of a third party.
- *
- * Silicon Labs will not be liable for any consequential, incidental, or
- * special damages, or any other relief, or for any claim by any third party,
- * arising from your use of this Software.
  *
  ******************************************************************************/
 
@@ -50,27 +48,27 @@ extern "C" {
 
 /***************************************************************************//**
  * @addtogroup CSEN
- * @brief Capacitive Sense (CSEN) Peripheral API
+ * @brief Capacitive Sense (CSEN) Peripheral API.
  *
  * @details
- *  This module provides functions for controlling the capacitive sense
- *  peripheral of Silicon Labs 32-bit MCUs and SoCs. The CSEN includes a
+ *  Provides functions for controlling the capacitive sense
+ *  peripheral of Silicon Labs' 32-bit MCUs and SoCs. The CSEN includes a
  *  capacitance-to-digital circuit that measures capacitance on selected
- *  inputs. Measurements are performed using either a successive approximation
- *  register (SAR) or a delta modulator (DM) analog to digital converter.
+ *  inputs. Measurements are performed using either a Successive Approximation
+ *  Register (SAR) or a Delta Modulator (DM) analog to digital converter.
  *
  *  The CSEN can be configured to measure capacitance on a single port pin
  *  or to automatically measure multiple port pins in succession using scan
- *  mode. Also several port pins can be shorted together to measure the
+ *  mode. Also, several port pins can be shorted together to measure the
  *  combined capacitance.
  *
  *  The CSEN includes an accumulator which can be configured to average
- *  multiple conversions on the selected input. Additionally, an exponential
- *  moving average (EMA) calculator is included to provide data smoothing.
+ *  multiple conversions on the selected input. Additionally, an Exponential
+ *  Moving Average (EMA) calculator is included to provide data smoothing.
  *  A comparator is also included and can be used to terminate a continuous
  *  conversion when the configured threshold condition is met.
  *
- *  The following example shows how to intialize and start a single
+ *  The following example shows how to initialize and start a single
  *  conversion on one input:
  *
  *  @include em_csen_single.c
@@ -90,7 +88,7 @@ typedef enum {
   /** Comparator trips when the result is greater than the threshold. */
   csenCmpModeGreater     = CSEN_CTRL_CMPEN | CSEN_CTRL_CMPPOL_GT,
 
-  /** Comparator trips when the result is less or equal to the threshold. */
+  /** Comparator trips when the result is less than or equal to the threshold. */
   csenCmpModeLessOrEqual = CSEN_CTRL_CMPEN | CSEN_CTRL_CMPPOL_LTE,
 
   /** Comparator trips when the EMA is within the threshold window. */
@@ -102,7 +100,7 @@ typedef enum {
   /** Successive Approximation (SAR) converter. */
   csenConvSelSAR     = CSEN_CTRL_CONVSEL_SAR,
 
-  /** Successive Approximation (SAR) converter with low freq attenuation. */
+  /** Successive Approximation (SAR) converter with low frequency attenuation. */
   csenConvSelSARChop = CSEN_CTRL_CONVSEL_SAR | CSEN_CTRL_CHOPEN_ENABLE,
 
   /** Delta Modulation (DM) converter. */
@@ -114,26 +112,26 @@ typedef enum {
 
 /** Sample Mode. Determines how inputs are sampled for a conversion. */
 typedef enum {
-  /** Convert multiple inputs shorted together and stop. */
+  /** Converts multiple inputs shorted together and stop. */
   csenSampleModeBonded     = CSEN_CTRL_CM_SGL | CSEN_CTRL_MCEN_ENABLE,
 
-  /** Convert one input and stop. */
+  /** Converts one input and stop. */
   csenSampleModeSingle     = CSEN_CTRL_CM_SGL,
 
-  /** Convert multiple inputs one at a time and stop. */
+  /** Converts multiple inputs one at a time and stop. */
   csenSampleModeScan       = CSEN_CTRL_CM_SCAN,
 
-  /** Continuously convert multiple inputs shorted together. */
+  /** Continuously converts multiple inputs shorted together. */
   csenSampleModeContBonded = CSEN_CTRL_CM_CONTSGL | CSEN_CTRL_MCEN_ENABLE,
 
-  /** Continuously convert one input. */
+  /** Continuously converts one input. */
   csenSampleModeContSingle = CSEN_CTRL_CM_CONTSGL,
 
-  /** Continuously convert multiple inputs one at a time. */
+  /** Continuously converts multiple inputs one at a time. */
   csenSampleModeContScan   = CSEN_CTRL_CM_CONTSCAN,
 } CSEN_SampleMode_TypeDef;
 
-/** Start Trigger Select. */
+/** Starts Trigger Select. */
 typedef enum {
   csenTrigSelPRS   = _CSEN_CTRL_STM_PRS,   /**< PRS system. */
   csenTrigSelTimer = _CSEN_CTRL_STM_TIMER, /**< CSEN PC timer. */
@@ -337,7 +335,7 @@ typedef enum {
  *******************************   STRUCTS   ***********************************
  ******************************************************************************/
 
-/** CSEN init structure, common for all measurement modes. */
+/** CSEN initialization structure, common for all measurement modes. */
 typedef struct {
   /** Requests system charge pump high accuracy mode. */
   bool                          cpAccuracyHi;
@@ -348,7 +346,7 @@ typedef struct {
   /** Keeps the converter warm allowing continuous conversions. */
   bool                          keepWarm;
 
-  /** Converter warmup time is warmUpCount + 3 converter clock cycles. */
+  /** Converter warm-up time is warmUpCount + 3 converter clock cycles. */
   uint8_t                       warmUpCount;
 
   /** Period counter reload value. */
@@ -376,7 +374,7 @@ typedef struct {
     false,                      /* Charge pump low accuracy mode. */  \
     false,                      /* Use external kelvin connection. */ \
     false,                      /* Disable keep warm. */              \
-    0,                          /* 0+3 cycle warmup time. */          \
+    0,                          /* 0+3 cycle warm-up time. */         \
     0,                          /* Period counter reload. */          \
     csenPCPrescaleDiv1,         /* Period counter prescale. */        \
     csenPRSSELCh0,              /* PRS channel 0. */                  \
@@ -390,7 +388,7 @@ typedef struct {
     csenInputSelAPORT3CH24TO31, /* input56To63 -> aport3ch24to31 */   \
   }
 
-/** Measurement mode init structure. */
+/** Measurement mode initialization structure. */
 typedef struct {
   /** Selects the conversion sample mode. */
   CSEN_SampleMode_TypeDef       sampleMode;
@@ -455,7 +453,7 @@ typedef struct {
    *  Delta Modulation converter. */
   uint8_t                       dmDelta;
 
-  /** Disable DM automatic delta size reduction per cycle. Only applies to the
+  /** Disables DM automatic delta size reduction per cycle. Only applies to the
    *  Delta Modulation converter. */
   bool                          dmFixedDelta;
 

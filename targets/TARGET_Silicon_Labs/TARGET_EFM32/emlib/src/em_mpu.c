@@ -1,37 +1,36 @@
 /***************************************************************************//**
- * @file em_mpu.c
+ * @file
  * @brief Memory Protection Unit (MPU) Peripheral API
- * @version 5.3.3
  *******************************************************************************
  * # License
- * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
- * obligation to support this Software. Silicon Labs is providing the
- * Software "AS IS", with no express or implied warranties of any kind,
- * including, but not limited to, any implied warranties of merchantability
- * or fitness for any particular purpose or warranties against infringement
- * of any proprietary rights of a third party.
- *
- * Silicon Labs will not be liable for any consequential, incidental, or
- * special damages, or any other relief, or for any claim by any third party,
- * arising from your use of this Software.
- *
  ******************************************************************************/
 
 #include "em_mpu.h"
-#if defined(__MPU_PRESENT) && (__MPU_PRESENT == 1)
+#if defined(__MPU_PRESENT) && (__MPU_PRESENT == 1) && (__CORTEX_M <= 7)
+
 #include "em_assert.h"
 
 /***************************************************************************//**
@@ -42,26 +41,31 @@
 /***************************************************************************//**
  * @addtogroup MPU
  * @brief Memory Protection Unit (MPU) Peripheral API
+ * @deprecated
+ *   These functions are deprecated and marked for removal in a later release.
+ *   Use ARM's ARM_MPU_xxx API instead. See file
+ *   platform/CMSIS/Include/mpu_armv7.h or mpu_armv8.h
+ *
  * @details
- *  This module contains functions to enable, disable and setup the MPU.
- *  The MPU is used to control access attributes and permissions in the
+ *  This module contains functions to enable, disable, and set up MPU.
+ *  MPU is used to control access attributes and permissions in the
  *  memory map. The settings that can be controlled are:
  *
  *  @li Executable attribute.
  *  @li Cachable, bufferable and shareable attributes.
  *  @li Cache policy.
- *  @li Access permissions: Priviliged or User state, read or write access,
+ *  @li Access permissions: Privileged or User state, read or write access,
  *      and combinations of all these.
  *
- *  The MPU can be activated and deactivated with functions:
+ *  The MPU module can be activated and deactivated with functions:
  *  @verbatim
  *  MPU_Enable(..);
  *  MPU_Disable();@endverbatim
- *  The MPU can control 8 memory regions with individual access control
+ *  The MPU module can control 8 memory regions with individual access control
  *  settings. Section attributes and permissions are set with:
  *  @verbatim
  *  MPU_ConfigureRegion(..);@endverbatim
- *  It is advisable to disable the MPU when altering region settings.
+ *  It is advisable to disable MPU when altering region settings.
  *
  *
  * @{
@@ -73,16 +77,21 @@
 
 /***************************************************************************//**
  * @brief
- *   Configure an MPU region.
+ *   Configure the MPU region.
+ *
+ * @deprecated
+ *   Deprecated and marked for removal in a later release.
+ *   Use ARM's ARM_MPU_SetRegion(), ARM_MPU_SetRegionEx(), ARM_MPU_Load()
+ *   or similar instead.
  *
  * @details
  *   Writes to MPU RBAR and RASR registers.
- *   Refer to Cortex-M3 Reference Manual, MPU chapter for further details.
- *   To disable a region it is only required to set init->regionNo to the
+ *   See Cortex-M3 Reference Manual, MPU chapter for more details.
+ *   To disable a region, set init->regionNo to the
  *   desired value and init->regionEnable = false.
  *
  * @param[in] init
- *   Pointer to a structure containing MPU region init information.
+ *   A pointer to the structure containing the MPU region initialization information.
  ******************************************************************************/
 void MPU_ConfigureRegion(const MPU_RegionInit_TypeDef *init)
 {
@@ -113,4 +122,4 @@ void MPU_ConfigureRegion(const MPU_RegionInit_TypeDef *init)
 
 /** @} (end addtogroup CMU) */
 /** @} (end addtogroup emlib) */
-#endif /* defined(__MPU_PRESENT) && (__MPU_PRESENT == 1) */
+#endif /* defined(__MPU_PRESENT) && (__MPU_PRESENT == 1) && (__CORTEX_M <= 7) */

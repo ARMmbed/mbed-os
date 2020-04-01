@@ -1,43 +1,50 @@
-/**************************************************************************//**
- * @file efr32mg12p_prs_signals.h
+/***************************************************************************//**
+ * @file
  * @brief EFR32MG12P_PRS_SIGNALS register and bit field definitions
- * @version 5.1.2
- ******************************************************************************
- * @section License
- * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
- ******************************************************************************
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.@n
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.@n
+ *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Laboratories, Inc.
- * has no obligation to support this Software. Silicon Laboratories, Inc. is
- * providing the Software "AS IS", with no express or implied warranties of any
- * kind, including, but not limited to, any implied warranties of
- * merchantability or fitness for any particular purpose or warranties against
- * infringement of any proprietary rights of a third party.
- *
- * Silicon Laboratories, Inc. will not be liable for any consequential,
- * incidental, or special damages, or any other relief, or for any claim by
- * any third party, arising from your use of this Software.
- *
- *****************************************************************************/
-/**************************************************************************//**
-* @addtogroup Parts
-* @{
-******************************************************************************/
-/**************************************************************************//**
- * @addtogroup EFR32MG12P_PRS_Signals
+ ******************************************************************************/
+
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
+/***************************************************************************//**
+ * @addtogroup Parts
+ * @{
+ ******************************************************************************/
+/***************************************************************************//**
+ * @addtogroup EFR32MG12P_PRS
+ * @{
+ * @addtogroup EFR32MG12P_PRS_Signals PRS Signals
  * @{
  * @brief PRS Signal names
- *****************************************************************************/
+ ******************************************************************************/
 #define PRS_PRS_CH0                 ((1 << 8) + 0)  /**< PRS PRS channel 0 */
 #define PRS_PRS_CH1                 ((1 << 8) + 1)  /**< PRS PRS channel 1 */
 #define PRS_PRS_CH2                 ((1 << 8) + 2)  /**< PRS PRS channel 2 */
@@ -112,6 +119,7 @@
 #define PRS_VDAC0_OPA0              ((24 << 8) + 2) /**< PRS OPA0 warmedup or outputvalid based on OPA0PRSOUTMODE mode in OPACTRL. */
 #define PRS_VDAC0_OPA1              ((24 << 8) + 3) /**< PRS OPA1 warmedup or outputvalid based on OPA1PRSOUTMODE mode in OPACTRL. */
 #define PRS_VDAC0_OPA2              ((24 << 8) + 4) /**< PRS OPA2 warmedup or outputvalid based on OPA2PRSOUTMODE mode in OPACTRL. */
+#define PRS_RFSENSE_WU              ((25 << 8) + 0) /**< PRS RFSENSE Output */
 #define PRS_CRYOTIMER_PERIOD        ((26 << 8) + 0) /**< PRS CRYOTIMER Output */
 #define PRS_USART0_IRTX             ((48 << 8) + 0) /**< PRS USART 0 IRDA out */
 #define PRS_USART0_TXC              ((48 << 8) + 1) /**< PRS USART 0 TX complete */
@@ -160,7 +168,23 @@
 #define PRS_CM4_TXEV                ((67 << 8) + 0) /**< PRS  */
 #define PRS_CM4_ICACHEPCHITSOF      ((67 << 8) + 1) /**< PRS  */
 #define PRS_CM4_ICACHEPCMISSESOF    ((67 << 8) + 2) /**< PRS  */
+#define PRS_RAC_ACTIVE              ((81 << 8) + 0) /**< PRS RAC is active */
+#define PRS_RAC_TX                  ((81 << 8) + 1) /**< PRS RAC is in TX */
+#define PRS_RAC_RX                  ((81 << 8) + 2) /**< PRS RAC is in RX */
+#define PRS_RAC_LNAEN               ((81 << 8) + 3) /**< PRS LNA enable */
+#define PRS_RAC_PAEN                ((81 << 8) + 4) /**< PRS PA enable */
+#define PRS_PROTIMER_LBTS           ((84 << 8) + 5) /**< PRS Listen Before Talk Success */
+#define PRS_PROTIMER_LBTR           ((84 << 8) + 6) /**< PRS Listen Before Talk Retry */
+#define PRS_PROTIMER_LBTF           ((84 << 8) + 7) /**< PRS Listen Before Talk Failure */
+#define PRS_MODEM_FRAMEDET          ((86 << 8) + 0) /**< PRS Frame detected */
+#define PRS_MODEM_PREDET            ((86 << 8) + 1) /**< PRS Receive preamble detected */
+#define PRS_MODEM_TIMDET            ((86 << 8) + 2) /**< PRS Receive timing detected */
+#define PRS_MODEM_FRAMESENT         ((86 << 8) + 3) /**< PRS Entire frame transmitted */
+#define PRS_MODEM_SYNCSENT          ((86 << 8) + 4) /**< PRS Syncword transmitted */
+#define PRS_MODEM_PRESENT           ((86 << 8) + 5) /**< PRS Preamble transmitted */
+#define PRS_MODEM_ANT0              ((87 << 8) + 5) /**< PRS Antenna 0 select */
+#define PRS_MODEM_ANT1              ((87 << 8) + 6) /**< PRS Antenna 1 select */
 
+/** @} */
 /** @} End of group EFR32MG12P_PRS */
 /** @} End of group Parts */
-

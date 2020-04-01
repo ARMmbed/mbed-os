@@ -1,7 +1,6 @@
 /***************************************************************************//**
  * @file
  * @brief Controller Area Network API
- * @version 5.7.2
  *******************************************************************************
  * # License
  * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
@@ -236,7 +235,7 @@ void CAN_SendMessage(CAN_TypeDef *can,
                      const CAN_MessageObject_TypeDef *message,
                      bool wait);
 
-void CAN_ReadMessage(CAN_TypeDef *can,
+bool CAN_ReadMessage(CAN_TypeDef *can,
                      uint8_t interface,
                      CAN_MessageObject_TypeDef *message);
 

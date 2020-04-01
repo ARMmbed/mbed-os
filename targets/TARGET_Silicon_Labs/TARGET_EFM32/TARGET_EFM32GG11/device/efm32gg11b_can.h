@@ -1,34 +1,32 @@
-/**************************************************************************//**
- * @file efm32gg11b_can.h
+/***************************************************************************//**
+ * @file
  * @brief EFM32GG11B_CAN register and bit field definitions
- * @version 5.3.2
- ******************************************************************************
+ *******************************************************************************
  * # License
- * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
- ******************************************************************************
+ * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.@n
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.@n
+ *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Laboratories, Inc.
- * has no obligation to support this Software. Silicon Laboratories, Inc. is
- * providing the Software "AS IS", with no express or implied warranties of any
- * kind, including, but not limited to, any implied warranties of
- * merchantability or fitness for any particular purpose or warranties against
- * infringement of any proprietary rights of a third party.
- *
- * Silicon Laboratories, Inc. will not be liable for any consequential,
- * incidental, or special damages, or any other relief, or for any claim by
- * any third party, arising from your use of this Software.
- *
- *****************************************************************************/
+ ******************************************************************************/
 
 #if defined(__ICCARM__)
 #pragma system_include       /* Treat file as system include file. */
@@ -36,50 +34,50 @@
 #pragma clang system_header  /* Treat file as system include file. */
 #endif
 
-/**************************************************************************//**
-* @addtogroup Parts
-* @{
-******************************************************************************/
-/**************************************************************************//**
+/***************************************************************************//**
+ * @addtogroup Parts
+ * @{
+ ******************************************************************************/
+/***************************************************************************//**
  * @defgroup EFM32GG11B_CAN CAN
  * @{
  * @brief EFM32GG11B_CAN Register Declaration
- *****************************************************************************/
+ ******************************************************************************/
 /** CAN Register Declaration */
 typedef struct {
-  __IOM uint32_t  CTRL;         /**< Control Register  */
-  __IOM uint32_t  STATUS;       /**< Status Register  */
-  __IM uint32_t   ERRCNT;       /**< Error Count Register  */
-  __IOM uint32_t  BITTIMING;    /**< Bit Timing Register  */
-  __IM uint32_t   INTID;        /**< Interrupt Identification Register  */
-  __IOM uint32_t  TEST;         /**< Test Register  */
-  __IOM uint32_t  BRPE;         /**< BRP Extension Register  */
-  __IM uint32_t   TRANSREQ;     /**< Transmission Request Register  */
-  __IM uint32_t   MESSAGEDATA;  /**< New Data Register  */
+  __IOM uint32_t  CTRL;          /**< Control Register  */
+  __IOM uint32_t  STATUS;        /**< Status Register  */
+  __IM uint32_t   ERRCNT;        /**< Error Count Register  */
+  __IOM uint32_t  BITTIMING;     /**< Bit Timing Register  */
+  __IM uint32_t   INTID;         /**< Interrupt Identification Register  */
+  __IOM uint32_t  TEST;          /**< Test Register  */
+  __IOM uint32_t  BRPE;          /**< BRP Extension Register  */
+  __IM uint32_t   TRANSREQ;      /**< Transmission Request Register  */
+  __IM uint32_t   MESSAGEDATA;   /**< New Data Register  */
 
-  uint32_t        RESERVED0[1]; /**< Reserved for future use **/
-  __IM uint32_t   MESSAGESTATE; /**< Message Valid Register  */
-  __IOM uint32_t  CONFIG;       /**< Configuration Register  */
-  __IM uint32_t   IF0IF;        /**< Message Object Interrupt Flag Register  */
-  __IOM uint32_t  IF0IFS;       /**< Message Object Interrupt Flag Set Register  */
-  __IOM uint32_t  IF0IFC;       /**< Message Object Interrupt Flag Clear Register  */
-  __IOM uint32_t  IF0IEN;       /**< Message Object Interrupt Enable Register  */
-  __IM uint32_t   IF1IF;        /**< Status Interrupt Flag Register  */
-  __IOM uint32_t  IF1IFS;       /**< Message Object Interrupt Flag Set Register  */
-  __IOM uint32_t  IF1IFC;       /**< Message Object Interrupt Flag Clear Register  */
-  __IOM uint32_t  IF1IEN;       /**< Status Interrupt Enable Register  */
-  __IOM uint32_t  ROUTE;        /**< I/O Routing Register  */
+  uint32_t        RESERVED0[1U]; /**< Reserved for future use **/
+  __IM uint32_t   MESSAGESTATE;  /**< Message Valid Register  */
+  __IOM uint32_t  CONFIG;        /**< Configuration Register  */
+  __IM uint32_t   IF0IF;         /**< Message Object Interrupt Flag Register  */
+  __IOM uint32_t  IF0IFS;        /**< Message Object Interrupt Flag Set Register  */
+  __IOM uint32_t  IF0IFC;        /**< Message Object Interrupt Flag Clear Register  */
+  __IOM uint32_t  IF0IEN;        /**< Message Object Interrupt Enable Register  */
+  __IM uint32_t   IF1IF;         /**< Status Interrupt Flag Register  */
+  __IOM uint32_t  IF1IFS;        /**< Message Object Interrupt Flag Set Register  */
+  __IOM uint32_t  IF1IFC;        /**< Message Object Interrupt Flag Clear Register  */
+  __IOM uint32_t  IF1IEN;        /**< Status Interrupt Enable Register  */
+  __IOM uint32_t  ROUTE;         /**< I/O Routing Register  */
 
-  uint32_t        RESERVED1[3]; /**< Reserved registers */
-  CAN_MIR_TypeDef MIR[2];       /**< Interface Registers */
-} CAN_TypeDef;                  /** @} */
+  uint32_t        RESERVED1[3U]; /**< Reserved registers */
+  CAN_MIR_TypeDef MIR[2U];       /**< Interface Registers */
+} CAN_TypeDef;                   /** @} */
 
-/**************************************************************************//**
+/***************************************************************************//**
  * @addtogroup EFM32GG11B_CAN
  * @{
  * @defgroup EFM32GG11B_CAN_BitFields  CAN Bit Fields
  * @{
- *****************************************************************************/
+ ******************************************************************************/
 
 /* Bit fields for CAN CTRL */
 #define _CAN_CTRL_RESETVALUE                     0x00000001UL                  /**< Default value for CAN_CTRL */
@@ -114,7 +112,7 @@ typedef struct {
 #define _CAN_CTRL_CCE_MASK                       0x40UL                        /**< Bit mask for CAN_CCE */
 #define _CAN_CTRL_CCE_DEFAULT                    0x00000000UL                  /**< Mode DEFAULT for CAN_CTRL */
 #define CAN_CTRL_CCE_DEFAULT                     (_CAN_CTRL_CCE_DEFAULT << 6)  /**< Shifted mode DEFAULT for CAN_CTRL */
-#define CAN_CTRL_TEST                            (0x1UL << 7)                  /**< Test Mode Enable Write access to the Test Register is enabled by setting bit test in the CAN Control Register */
+#define CAN_CTRL_TEST                            (0x1UL << 7)                  /**< Test Mode Enable Write */
 #define _CAN_CTRL_TEST_SHIFT                     7                             /**< Shift value for CAN_TEST */
 #define _CAN_CTRL_TEST_MASK                      0x80UL                        /**< Bit mask for CAN_TEST */
 #define _CAN_CTRL_TEST_DEFAULT                   0x00000000UL                  /**< Mode DEFAULT for CAN_CTRL */
@@ -143,7 +141,7 @@ typedef struct {
 #define CAN_STATUS_LEC_BIT0                      (_CAN_STATUS_LEC_BIT0 << 0)      /**< Shifted mode BIT0 for CAN_STATUS */
 #define CAN_STATUS_LEC_CRC                       (_CAN_STATUS_LEC_CRC << 0)       /**< Shifted mode CRC for CAN_STATUS */
 #define CAN_STATUS_LEC_UNUSED                    (_CAN_STATUS_LEC_UNUSED << 0)    /**< Shifted mode UNUSED for CAN_STATUS */
-#define CAN_STATUS_TXOK                          (0x1UL << 3)                     /**< Transmitted a message successfully */
+#define CAN_STATUS_TXOK                          (0x1UL << 3)                     /**< Transmitted a Message Successfully */
 #define _CAN_STATUS_TXOK_SHIFT                   3                                /**< Shift value for CAN_TXOK */
 #define _CAN_STATUS_TXOK_MASK                    0x8UL                            /**< Bit mask for CAN_TXOK */
 #define _CAN_STATUS_TXOK_DEFAULT                 0x00000000UL                     /**< Mode DEFAULT for CAN_STATUS */
@@ -257,7 +255,7 @@ typedef struct {
 #define CAN_TEST_TX_SAMPT                        (_CAN_TEST_TX_SAMPT << 5)       /**< Shifted mode SAMPT for CAN_TEST */
 #define CAN_TEST_TX_LOW                          (_CAN_TEST_TX_LOW << 5)         /**< Shifted mode LOW for CAN_TEST */
 #define CAN_TEST_TX_HIGH                         (_CAN_TEST_TX_HIGH << 5)        /**< Shifted mode HIGH for CAN_TEST */
-#define CAN_TEST_RX                              (0x1UL << 7)                    /**< Monitors the actual value of CAN_RX pin */
+#define CAN_TEST_RX                              (0x1UL << 7)                    /**< Monitors the Actual Value of CAN_RX Pin */
 #define _CAN_TEST_RX_SHIFT                       7                               /**< Shift value for CAN_RX */
 #define _CAN_TEST_RX_MASK                        0x80UL                          /**< Bit mask for CAN_RX */
 #define _CAN_TEST_RX_DEFAULT                     0x00000000UL                    /**< Mode DEFAULT for CAN_TEST */
@@ -461,12 +459,12 @@ typedef struct {
 #define _CAN_MIR_CMDMASK_CONTROL_MASK            0x10UL                                       /**< Bit mask for CAN_CONTROL */
 #define _CAN_MIR_CMDMASK_CONTROL_DEFAULT         0x00000000UL                                 /**< Mode DEFAULT for CAN_MIR_CMDMASK */
 #define CAN_MIR_CMDMASK_CONTROL_DEFAULT          (_CAN_MIR_CMDMASK_CONTROL_DEFAULT << 4)      /**< Shifted mode DEFAULT for CAN_MIR_CMDMASK */
-#define CAN_MIR_CMDMASK_ARBACC                   (0x1UL << 5)                                 /**< Access Arbitration bits */
+#define CAN_MIR_CMDMASK_ARBACC                   (0x1UL << 5)                                 /**< Access Arbitration Bits */
 #define _CAN_MIR_CMDMASK_ARBACC_SHIFT            5                                            /**< Shift value for CAN_ARBACC */
 #define _CAN_MIR_CMDMASK_ARBACC_MASK             0x20UL                                       /**< Bit mask for CAN_ARBACC */
 #define _CAN_MIR_CMDMASK_ARBACC_DEFAULT          0x00000000UL                                 /**< Mode DEFAULT for CAN_MIR_CMDMASK */
 #define CAN_MIR_CMDMASK_ARBACC_DEFAULT           (_CAN_MIR_CMDMASK_ARBACC_DEFAULT << 5)       /**< Shifted mode DEFAULT for CAN_MIR_CMDMASK */
-#define CAN_MIR_CMDMASK_MASKACC                  (0x1UL << 6)                                 /**< Access Mask bits */
+#define CAN_MIR_CMDMASK_MASKACC                  (0x1UL << 6)                                 /**< Access Mask Bits */
 #define _CAN_MIR_CMDMASK_MASKACC_SHIFT           6                                            /**< Shift value for CAN_MASKACC */
 #define _CAN_MIR_CMDMASK_MASKACC_MASK            0x40UL                                       /**< Bit mask for CAN_MASKACC */
 #define _CAN_MIR_CMDMASK_MASKACC_DEFAULT         0x00000000UL                                 /**< Mode DEFAULT for CAN_MIR_CMDMASK */
@@ -572,7 +570,7 @@ typedef struct {
 #define _CAN_MIR_CTRL_INTPND_MASK                0x2000UL                                /**< Bit mask for CAN_INTPND */
 #define _CAN_MIR_CTRL_INTPND_DEFAULT             0x00000000UL                            /**< Mode DEFAULT for CAN_MIR_CTRL */
 #define CAN_MIR_CTRL_INTPND_DEFAULT              (_CAN_MIR_CTRL_INTPND_DEFAULT << 13)    /**< Shifted mode DEFAULT for CAN_MIR_CTRL */
-#define CAN_MIR_CTRL_MESSAGEOF                   (0x1UL << 14)                           /**< Message Lost (only valid for Message Objects with direction = receive) */
+#define CAN_MIR_CTRL_MESSAGEOF                   (0x1UL << 14)                           /**< Message Lost (only Valid for Message Objects With Direction = Receive) */
 #define _CAN_MIR_CTRL_MESSAGEOF_SHIFT            14                                      /**< Shift value for CAN_MESSAGEOF */
 #define _CAN_MIR_CTRL_MESSAGEOF_MASK             0x4000UL                                /**< Bit mask for CAN_MESSAGEOF */
 #define _CAN_MIR_CTRL_MESSAGEOF_DEFAULT          0x00000000UL                            /**< Mode DEFAULT for CAN_MIR_CTRL */

@@ -1,32 +1,30 @@
 /***************************************************************************//**
- * @file em_rtc.h
+ * @file
  * @brief Real Time Counter (RTC) peripheral API
- * @version 5.3.3
  *******************************************************************************
  * # License
- * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
- *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
- * obligation to support this Software. Silicon Labs is providing the
- * Software "AS IS", with no express or implied warranties of any kind,
- * including, but not limited to, any implied warranties of merchantability
- * or fitness for any particular purpose or warranties against infringement
- * of any proprietary rights of a third party.
- *
- * Silicon Labs will not be liable for any consequential, incidental, or
- * special damages, or any other relief, or for any claim by any third party,
- * arising from your use of this Software.
  *
  ******************************************************************************/
 
@@ -53,22 +51,34 @@ extern "C" {
  ******************************************************************************/
 
 /*******************************************************************************
+ *******************************   DEFINES   ***********************************
+ ******************************************************************************/
+
+/** The RTC peripheral on series 0 devices support 2 compare channels while
+ *  the RTC peripheral on series 1 devices support 6 compare channels. */
+#if defined(_SILICON_LABS_32B_SERIES_0)
+#define NUM_RTC_CHANNELS   2U
+#else
+#define NUM_RTC_CHANNELS   6U
+#endif
+
+/*******************************************************************************
  *******************************   STRUCTS   ***********************************
  ******************************************************************************/
 
 /** RTC initialization structure. */
 typedef struct {
-  bool enable;   /**< Start counting when init completed. */
+  bool enable;   /**< Start counting when initialization is completed. */
   bool debugRun; /**< Counter shall keep running during debug halt. */
   bool comp0Top; /**< Use compare register 0 as max count value. */
 } RTC_Init_TypeDef;
 
-/** Suggested default config for RTC init structure. */
-#define RTC_INIT_DEFAULT                                     \
-  {                                                          \
-    true,  /* Start counting when init done */               \
-    false, /* Disable updating during debug halt */          \
-    true   /* Restart counting from 0 when reaching COMP0 */ \
+/** Suggested default configuration for RTC initialization structure. */
+#define RTC_INIT_DEFAULT                                      \
+  {                                                           \
+    true,  /* Start counting when initialization is done. */  \
+    false, /* Disable updating during debug halt. */          \
+    true   /* Restart counting from 0 when reaching COMP0. */ \
   }
 
 /*******************************************************************************
@@ -145,8 +155,8 @@ __STATIC_INLINE void RTC_IntDisable(uint32_t flags)
  *
  * @note
  *   Depending on the use, a pending interrupt may already be set prior to
- *   enabling the interrupt. Consider using RTC_IntClear() prior to enabling
- *   if such a pending interrupt should be ignored.
+ *   enabling the interrupt. To ignore a pending interrupt, consider using
+ *   RTC_IntClear() prior to enabling the interrupt.
  *
  * @param[in] flags
  *   RTC interrupt sources to enable. Use a set of interrupt flags OR-ed
@@ -163,7 +173,7 @@ __STATIC_INLINE void RTC_IntEnable(uint32_t flags)
  *   Get pending RTC interrupt flags.
  *
  * @note
- *   The event bits are not cleared by the use of this function.
+ *   Event bits are not cleared by using this function.
  *
  * @return
  *   Pending RTC interrupt sources. Returns a set of interrupt flags OR-ed
@@ -180,13 +190,13 @@ __STATIC_INLINE uint32_t RTC_IntGet(void)
  *   Useful for handling more interrupt sources in the same interrupt handler.
  *
  * @note
- *   Interrupt flags are not cleared by the use of this function.
+ *   Interrupt flags are not cleared by using this function.
  *
  * @return
- *   Pending and enabled RTC interrupt sources
+ *   Pending and enabled RTC interrupt sources.
  *   The return value is the bitwise AND of
  *   - the enabled interrupt sources in RTC_IEN and
- *   - the pending interrupt flags RTC_IF
+ *   - the pending interrupt flags RTC_IF.
  ******************************************************************************/
 __STATIC_INLINE uint32_t RTC_IntGetEnabled(void)
 {

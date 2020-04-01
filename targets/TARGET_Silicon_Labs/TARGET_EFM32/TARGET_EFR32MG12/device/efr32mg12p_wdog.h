@@ -1,63 +1,70 @@
-/**************************************************************************//**
- * @file efr32mg12p_wdog.h
+/***************************************************************************//**
+ * @file
  * @brief EFR32MG12P_WDOG register and bit field definitions
- * @version 5.1.2
- ******************************************************************************
- * @section License
- * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
- ******************************************************************************
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.@n
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.@n
+ *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Laboratories, Inc.
- * has no obligation to support this Software. Silicon Laboratories, Inc. is
- * providing the Software "AS IS", with no express or implied warranties of any
- * kind, including, but not limited to, any implied warranties of
- * merchantability or fitness for any particular purpose or warranties against
- * infringement of any proprietary rights of a third party.
- *
- * Silicon Laboratories, Inc. will not be liable for any consequential,
- * incidental, or special damages, or any other relief, or for any claim by
- * any third party, arising from your use of this Software.
- *
- *****************************************************************************/
-/**************************************************************************//**
-* @addtogroup Parts
-* @{
-******************************************************************************/
-/**************************************************************************//**
- * @defgroup EFR32MG12P_WDOG
+ ******************************************************************************/
+
+#if defined(__ICCARM__)
+#pragma system_include       /* Treat file as system include file. */
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#pragma clang system_header  /* Treat file as system include file. */
+#endif
+
+/***************************************************************************//**
+ * @addtogroup Parts
+ * @{
+ ******************************************************************************/
+/***************************************************************************//**
+ * @defgroup EFR32MG12P_WDOG WDOG
  * @{
  * @brief EFR32MG12P_WDOG Register Declaration
- *****************************************************************************/
-typedef struct
-{
-  __IOM uint32_t   CTRL;         /**< Control Register  */
-  __IOM uint32_t   CMD;          /**< Command Register  */
+ ******************************************************************************/
+/** WDOG Register Declaration */
+typedef struct {
+  __IOM uint32_t   CTRL;          /**< Control Register  */
+  __IOM uint32_t   CMD;           /**< Command Register  */
 
-  __IM uint32_t    SYNCBUSY;     /**< Synchronization Busy Register  */
+  __IM uint32_t    SYNCBUSY;      /**< Synchronization Busy Register  */
 
-  WDOG_PCH_TypeDef PCH[2];       /**< PCH */
+  WDOG_PCH_TypeDef PCH[2U];       /**< PCH */
 
-  uint32_t         RESERVED0[2]; /**< Reserved for future use **/
-  __IM uint32_t    IF;           /**< Watchdog Interrupt Flags  */
-  __IOM uint32_t   IFS;          /**< Interrupt Flag Set Register  */
-  __IOM uint32_t   IFC;          /**< Interrupt Flag Clear Register  */
-  __IOM uint32_t   IEN;          /**< Interrupt Enable Register  */
-} WDOG_TypeDef;                  /** @} */
+  uint32_t         RESERVED0[2U]; /**< Reserved for future use **/
+  __IM uint32_t    IF;            /**< Watchdog Interrupt Flags  */
+  __IOM uint32_t   IFS;           /**< Interrupt Flag Set Register  */
+  __IOM uint32_t   IFC;           /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t   IEN;           /**< Interrupt Enable Register  */
+} WDOG_TypeDef;                   /** @} */
 
-/**************************************************************************//**
- * @defgroup EFR32MG12P_WDOG_BitFields
+/***************************************************************************//**
+ * @addtogroup EFR32MG12P_WDOG
  * @{
- *****************************************************************************/
+ * @defgroup EFR32MG12P_WDOG_BitFields  WDOG Bit Fields
+ * @{
+ ******************************************************************************/
 
 /* Bit fields for WDOG CTRL */
 #define _WDOG_CTRL_RESETVALUE                     0x00000F00UL                          /**< Default value for WDOG_CTRL */
@@ -82,7 +89,7 @@ typedef struct
 #define _WDOG_CTRL_EM3RUN_MASK                    0x8UL                                 /**< Bit mask for WDOG_EM3RUN */
 #define _WDOG_CTRL_EM3RUN_DEFAULT                 0x00000000UL                          /**< Mode DEFAULT for WDOG_CTRL */
 #define WDOG_CTRL_EM3RUN_DEFAULT                  (_WDOG_CTRL_EM3RUN_DEFAULT << 3)      /**< Shifted mode DEFAULT for WDOG_CTRL */
-#define WDOG_CTRL_LOCK                            (0x1UL << 4)                          /**< Configuration lock */
+#define WDOG_CTRL_LOCK                            (0x1UL << 4)                          /**< Configuration Lock */
 #define _WDOG_CTRL_LOCK_SHIFT                     4                                     /**< Shift value for WDOG_LOCK */
 #define _WDOG_CTRL_LOCK_MASK                      0x10UL                                /**< Bit mask for WDOG_LOCK */
 #define _WDOG_CTRL_LOCK_DEFAULT                   0x00000000UL                          /**< Mode DEFAULT for WDOG_CTRL */
@@ -208,7 +215,7 @@ typedef struct
 #define WDOG_PCH_PRSCTRL_PRSSEL_PRSCH9            (_WDOG_PCH_PRSCTRL_PRSSEL_PRSCH9 << 0)        /**< Shifted mode PRSCH9 for WDOG_PCH_PRSCTRL */
 #define WDOG_PCH_PRSCTRL_PRSSEL_PRSCH10           (_WDOG_PCH_PRSCTRL_PRSSEL_PRSCH10 << 0)       /**< Shifted mode PRSCH10 for WDOG_PCH_PRSCTRL */
 #define WDOG_PCH_PRSCTRL_PRSSEL_PRSCH11           (_WDOG_PCH_PRSCTRL_PRSSEL_PRSCH11 << 0)       /**< Shifted mode PRSCH11 for WDOG_PCH_PRSCTRL */
-#define WDOG_PCH_PRSCTRL_PRSMISSRSTEN             (0x1UL << 8)                                  /**< PRS missing event will trigger a watchdog reset */
+#define WDOG_PCH_PRSCTRL_PRSMISSRSTEN             (0x1UL << 8)                                  /**< PRS Missing Event Will Trigger a Watchdog Reset */
 #define _WDOG_PCH_PRSCTRL_PRSMISSRSTEN_SHIFT      8                                             /**< Shift value for WDOG_PRSMISSRSTEN */
 #define _WDOG_PCH_PRSCTRL_PRSMISSRSTEN_MASK       0x100UL                                       /**< Bit mask for WDOG_PRSMISSRSTEN */
 #define _WDOG_PCH_PRSCTRL_PRSMISSRSTEN_DEFAULT    0x00000000UL                                  /**< Mode DEFAULT for WDOG_PCH_PRSCTRL */
@@ -330,6 +337,6 @@ typedef struct
 #define _WDOG_IEN_PEM1_DEFAULT                    0x00000000UL                  /**< Mode DEFAULT for WDOG_IEN */
 #define WDOG_IEN_PEM1_DEFAULT                     (_WDOG_IEN_PEM1_DEFAULT << 4) /**< Shifted mode DEFAULT for WDOG_IEN */
 
+/** @} */
 /** @} End of group EFR32MG12P_WDOG */
 /** @} End of group Parts */
-

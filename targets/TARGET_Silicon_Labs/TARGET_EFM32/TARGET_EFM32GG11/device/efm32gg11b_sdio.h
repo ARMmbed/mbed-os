@@ -1,34 +1,32 @@
-/**************************************************************************//**
- * @file efm32gg11b_sdio.h
+/***************************************************************************//**
+ * @file
  * @brief EFM32GG11B_SDIO register and bit field definitions
- * @version 5.3.2
- ******************************************************************************
+ *******************************************************************************
  * # License
- * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
- ******************************************************************************
+ * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.@n
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.@n
+ *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Laboratories, Inc.
- * has no obligation to support this Software. Silicon Laboratories, Inc. is
- * providing the Software "AS IS", with no express or implied warranties of any
- * kind, including, but not limited to, any implied warranties of
- * merchantability or fitness for any particular purpose or warranties against
- * infringement of any proprietary rights of a third party.
- *
- * Silicon Laboratories, Inc. will not be liable for any consequential,
- * incidental, or special damages, or any other relief, or for any claim by
- * any third party, arising from your use of this Software.
- *
- *****************************************************************************/
+ ******************************************************************************/
 
 #if defined(__ICCARM__)
 #pragma system_include       /* Treat file as system include file. */
@@ -36,68 +34,68 @@
 #pragma clang system_header  /* Treat file as system include file. */
 #endif
 
-/**************************************************************************//**
-* @addtogroup Parts
-* @{
-******************************************************************************/
-/**************************************************************************//**
+/***************************************************************************//**
+ * @addtogroup Parts
+ * @{
+ ******************************************************************************/
+/***************************************************************************//**
  * @defgroup EFM32GG11B_SDIO SDIO
  * @{
  * @brief EFM32GG11B_SDIO Register Declaration
- *****************************************************************************/
+ ******************************************************************************/
 /** SDIO Register Declaration */
 typedef struct {
-  __IOM uint32_t SDMASYSADDR;    /**< SDMA System address register  */
-  __IOM uint32_t BLKSIZE;        /**< Block Size and Block count Register  */
-  __IOM uint32_t CMDARG1;        /**< SD Command Argument Register  */
-  __IOM uint32_t TFRMODE;        /**< Transfer mode and command Register  */
-  __IM uint32_t  RESP0;          /**< Response0 and Response1 Register  */
-  __IM uint32_t  RESP2;          /**< Response2 and Response3 Register  */
-  __IM uint32_t  RESP4;          /**< Response4 and Response5 Register  */
-  __IM uint32_t  RESP6;          /**< Response6 and Response7 Register  */
-  __IOM uint32_t BUFDATPORT;     /**< Buffer Data Register  */
-  __IM uint32_t  PRSSTAT;        /**< Preset state Register  */
-  __IOM uint32_t HOSTCTRL1;      /**< Host Control1, Power, Block gap and Wakeup-up control register  */
-  __IOM uint32_t CLOCKCTRL;      /**< Clock Control, Timeout control and Software Register  */
-  __IOM uint32_t IFCR;           /**< Normal and Error Interrupt status Register  */
-  __IOM uint32_t IFENC;          /**< Normal and Error Interrupt status enable Register  */
-  __IOM uint32_t IEN;            /**< Normal and Error Interrupt Signal Enable Register  */
-  __IOM uint32_t AC12ERRSTAT;    /**< AUTO CMD12 Error Status and Host Control2 Register  */
-  __IM uint32_t  CAPAB0;         /**< Capabilities Register to hold bits 31~0  */
-  __IM uint32_t  CAPAB2;         /**< Capabilities Register to hold bits 63~32  */
-  __IM uint32_t  MAXCURCAPAB;    /**< Maximum Current Capabilities Register  */
-  uint32_t       RESERVED0[1];   /**< Reserved for future use **/
-  __IOM uint32_t FEVTERRSTAT;    /**< Force Event Register for Auto CMD error status  */
-  __IM uint32_t  ADMAES;         /**< ADMA Error Status Register  */
-  __IOM uint32_t ADSADDR;        /**< ADMA System Address Register   */
-  uint32_t       RESERVED1[1];   /**< Reserved for future use **/
-  __IM uint32_t  PRSTVAL0;       /**< Preset value for Initialization and Default Speed mode  */
-  __IM uint32_t  PRSTVAL2;       /**< Preset value for High Speed and SDR12 modes  */
-  __IM uint32_t  PRSTVAL4;       /**< Preset value for SDR25 and SDR50 modes  */
-  __IM uint32_t  PRSTVAL6;       /**< Preset value for SDR104 and DDR50 modes  */
-  __IOM uint32_t BOOTTOCTRL;     /**< Boot Timeout Control Register  */
-  uint32_t       RESERVED2[34];  /**< Reserved for future use **/
-  __IM uint32_t  SLOTINTSTAT;    /**< Slot Interrupt Status Register  */
+  __IOM uint32_t SDMASYSADDR;     /**< SDMA System Address Register  */
+  __IOM uint32_t BLKSIZE;         /**< Block Size and Block Count Register  */
+  __IOM uint32_t CMDARG1;         /**< SD Command Argument Register  */
+  __IOM uint32_t TFRMODE;         /**< Transfer Mode and Command Register  */
+  __IM uint32_t  RESP0;           /**< Response0 and Response1 Register  */
+  __IM uint32_t  RESP2;           /**< Response2 and Response3 Register  */
+  __IM uint32_t  RESP4;           /**< Response4 and Response5 Register  */
+  __IM uint32_t  RESP6;           /**< Response6 and Response7 Register  */
+  __IOM uint32_t BUFDATPORT;      /**< Buffer Data Register  */
+  __IM uint32_t  PRSSTAT;         /**< Present State Register  */
+  __IOM uint32_t HOSTCTRL1;       /**< Host Control1, Power, Block Gap and Wakeup-up Control Register  */
+  __IOM uint32_t CLOCKCTRL;       /**< Clock Control, Timeout Control and Software Register  */
+  __IOM uint32_t IFCR;            /**< Normal and Error Interrupt Status Register  */
+  __IOM uint32_t IFENC;           /**< Normal and Error Interrupt Status Enable Register  */
+  __IOM uint32_t IEN;             /**< Normal and Error Interrupt Signal Enable Register  */
+  __IOM uint32_t AC12ERRSTAT;     /**< AUTO CMD12 Error Status and Host Control2 Register  */
+  __IM uint32_t  CAPAB0;          /**< Capabilities Register to Hold Bits 31~0  */
+  __IM uint32_t  CAPAB2;          /**< Capabilities Register to Hold Bits 63~32  */
+  __IM uint32_t  MAXCURCAPAB;     /**< Maximum Current Capabilities Register  */
+  uint32_t       RESERVED0[1U];   /**< Reserved for future use **/
+  __IOM uint32_t FEVTERRSTAT;     /**< Force Event Register for Auto CMD Error Status  */
+  __IM uint32_t  ADMAES;          /**< ADMA Error Status Register  */
+  __IOM uint32_t ADSADDR;         /**< ADMA System Address Register  */
+  uint32_t       RESERVED1[1U];   /**< Reserved for future use **/
+  __IM uint32_t  PRSTVAL0;        /**< Preset Value for Initialization and Default Speed Mode  */
+  __IM uint32_t  PRSTVAL2;        /**< Preset Value for High Speed and SDR12 Modes  */
+  __IM uint32_t  PRSTVAL4;        /**< Preset Value for SDR25 and SDR50 Modes  */
+  __IM uint32_t  PRSTVAL6;        /**< Preset Value for SDR104 and DDR50 Modes  */
+  __IOM uint32_t BOOTTOCTRL;      /**< Boot Timeout Control Register  */
+  uint32_t       RESERVED2[34U];  /**< Reserved for future use **/
+  __IM uint32_t  SLOTINTSTAT;     /**< Slot Interrupt Status Register  */
 
-  uint32_t       RESERVED3[448]; /**< Reserved for future use **/
-  __IOM uint32_t CTRL;           /**< Core Control Signals  */
-  __IOM uint32_t CFG0;           /**< Core Configuration 0  */
-  __IOM uint32_t CFG1;           /**< Core Configuration 1  */
-  __IOM uint32_t CFGPRESETVAL0;  /**< Core Configuration preset value 0  */
-  __IOM uint32_t CFGPRESETVAL1;  /**< Core Configuration preset value 1  */
-  __IOM uint32_t CFGPRESETVAL2;  /**< Core Configuration preset value 2  */
-  __IOM uint32_t CFGPRESETVAL3;  /**< Core Configuration preset value 3  */
-  __IOM uint32_t ROUTELOC0;      /**< I/O LOCATION Register   */
-  __IOM uint32_t ROUTELOC1;      /**< I/O LOCATION Register   */
-  __IOM uint32_t ROUTEPEN;       /**< I/O LOCATION Enable Register  */
-} SDIO_TypeDef;                  /** @} */
+  uint32_t       RESERVED3[448U]; /**< Reserved for future use **/
+  __IOM uint32_t CTRL;            /**< Core Control Signals  */
+  __IOM uint32_t CFG0;            /**< Core Configuration 0  */
+  __IOM uint32_t CFG1;            /**< Core Configuration 1  */
+  __IOM uint32_t CFGPRESETVAL0;   /**< Core Configuration Preset Value 0  */
+  __IOM uint32_t CFGPRESETVAL1;   /**< Core Configuration Preset Value 1  */
+  __IOM uint32_t CFGPRESETVAL2;   /**< Core Configuration Preset Value 2  */
+  __IOM uint32_t CFGPRESETVAL3;   /**< Core Configuration Preset Value 3  */
+  __IOM uint32_t ROUTELOC0;       /**< I/O LOCATION Register  */
+  __IOM uint32_t ROUTELOC1;       /**< I/O LOCATION Register  */
+  __IOM uint32_t ROUTEPEN;        /**< I/O LOCATION Enable Register  */
+} SDIO_TypeDef;                   /** @} */
 
-/**************************************************************************//**
+/***************************************************************************//**
  * @addtogroup EFM32GG11B_SDIO
  * @{
  * @defgroup EFM32GG11B_SDIO_BitFields  SDIO Bit Fields
  * @{
- *****************************************************************************/
+ ******************************************************************************/
 
 /* Bit fields for SDIO SDMASYSADDR */
 #define _SDIO_SDMASYSADDR_RESETVALUE                   0x00000000UL                                    /**< Default value for SDIO_SDMASYSADDR */
@@ -191,7 +189,7 @@ typedef struct {
 #define SDIO_TFRMODE_DATDIRSEL_DEFAULT                 (_SDIO_TFRMODE_DATDIRSEL_DEFAULT << 4)        /**< Shifted mode DEFAULT for SDIO_TFRMODE */
 #define SDIO_TFRMODE_DATDIRSEL_DISABLE                 (_SDIO_TFRMODE_DATDIRSEL_DISABLE << 4)        /**< Shifted mode DISABLE for SDIO_TFRMODE */
 #define SDIO_TFRMODE_DATDIRSEL_ENABLE                  (_SDIO_TFRMODE_DATDIRSEL_ENABLE << 4)         /**< Shifted mode ENABLE for SDIO_TFRMODE */
-#define SDIO_TFRMODE_MULTSINGBLKSEL                    (0x1UL << 5)                                  /**< Multiple or Single block data transfer selection */
+#define SDIO_TFRMODE_MULTSINGBLKSEL                    (0x1UL << 5)                                  /**< Multiple or Single Block Data Transfer Selection */
 #define _SDIO_TFRMODE_MULTSINGBLKSEL_SHIFT             5                                             /**< Shift value for SDIO_MULTSINGBLKSEL */
 #define _SDIO_TFRMODE_MULTSINGBLKSEL_MASK              0x20UL                                        /**< Bit mask for SDIO_MULTSINGBLKSEL */
 #define _SDIO_TFRMODE_MULTSINGBLKSEL_DEFAULT           0x00000000UL                                  /**< Mode DEFAULT for SDIO_TFRMODE */
@@ -309,7 +307,7 @@ typedef struct {
 #define _SDIO_PRSSTAT_CMDINHIBITDAT_MASK               0x2UL                                           /**< Bit mask for SDIO_CMDINHIBITDAT */
 #define _SDIO_PRSSTAT_CMDINHIBITDAT_DEFAULT            0x00000000UL                                    /**< Mode DEFAULT for SDIO_PRSSTAT */
 #define SDIO_PRSSTAT_CMDINHIBITDAT_DEFAULT             (_SDIO_PRSSTAT_CMDINHIBITDAT_DEFAULT << 1)      /**< Shifted mode DEFAULT for SDIO_PRSSTAT */
-#define SDIO_PRSSTAT_DATLINEACTIVE                     (0x1UL << 2)                                    /**< DAT line active */
+#define SDIO_PRSSTAT_DATLINEACTIVE                     (0x1UL << 2)                                    /**< DAT Line Active */
 #define _SDIO_PRSSTAT_DATLINEACTIVE_SHIFT              2                                               /**< Shift value for SDIO_DATLINEACTIVE */
 #define _SDIO_PRSSTAT_DATLINEACTIVE_MASK               0x4UL                                           /**< Bit mask for SDIO_DATLINEACTIVE */
 #define _SDIO_PRSSTAT_DATLINEACTIVE_DEFAULT            0x00000000UL                                    /**< Mode DEFAULT for SDIO_PRSSTAT */
@@ -319,7 +317,7 @@ typedef struct {
 #define _SDIO_PRSSTAT_RETUNINGREQ_MASK                 0x8UL                                           /**< Bit mask for SDIO_RETUNINGREQ */
 #define _SDIO_PRSSTAT_RETUNINGREQ_DEFAULT              0x00000000UL                                    /**< Mode DEFAULT for SDIO_PRSSTAT */
 #define SDIO_PRSSTAT_RETUNINGREQ_DEFAULT               (_SDIO_PRSSTAT_RETUNINGREQ_DEFAULT << 3)        /**< Shifted mode DEFAULT for SDIO_PRSSTAT */
-#define SDIO_PRSSTAT_WRTRANACT                         (0x1UL << 8)                                    /**< Write Transfer Active  */
+#define SDIO_PRSSTAT_WRTRANACT                         (0x1UL << 8)                                    /**< Write Transfer Active */
 #define _SDIO_PRSSTAT_WRTRANACT_SHIFT                  8                                               /**< Shift value for SDIO_WRTRANACT */
 #define _SDIO_PRSSTAT_WRTRANACT_MASK                   0x100UL                                         /**< Bit mask for SDIO_WRTRANACT */
 #define _SDIO_PRSSTAT_WRTRANACT_DEFAULT                0x00000000UL                                    /**< Mode DEFAULT for SDIO_PRSSTAT */
@@ -344,7 +342,7 @@ typedef struct {
 #define _SDIO_PRSSTAT_CARDINS_MASK                     0x10000UL                                       /**< Bit mask for SDIO_CARDINS */
 #define _SDIO_PRSSTAT_CARDINS_DEFAULT                  0x00000000UL                                    /**< Mode DEFAULT for SDIO_PRSSTAT */
 #define SDIO_PRSSTAT_CARDINS_DEFAULT                   (_SDIO_PRSSTAT_CARDINS_DEFAULT << 16)           /**< Shifted mode DEFAULT for SDIO_PRSSTAT */
-#define SDIO_PRSSTAT_CARDSTATESTABLE                   (0x1UL << 17)                                   /**< Card state Stable status */
+#define SDIO_PRSSTAT_CARDSTATESTABLE                   (0x1UL << 17)                                   /**< Card State Stable Status */
 #define _SDIO_PRSSTAT_CARDSTATESTABLE_SHIFT            17                                              /**< Shift value for SDIO_CARDSTATESTABLE */
 #define _SDIO_PRSSTAT_CARDSTATESTABLE_MASK             0x20000UL                                       /**< Bit mask for SDIO_CARDSTATESTABLE */
 #define _SDIO_PRSSTAT_CARDSTATESTABLE_DEFAULT          0x00000000UL                                    /**< Mode DEFAULT for SDIO_PRSSTAT */
@@ -354,7 +352,7 @@ typedef struct {
 #define _SDIO_PRSSTAT_CARDDETPINLVL_MASK               0x40000UL                                       /**< Bit mask for SDIO_CARDDETPINLVL */
 #define _SDIO_PRSSTAT_CARDDETPINLVL_DEFAULT            0x00000000UL                                    /**< Mode DEFAULT for SDIO_PRSSTAT */
 #define SDIO_PRSSTAT_CARDDETPINLVL_DEFAULT             (_SDIO_PRSSTAT_CARDDETPINLVL_DEFAULT << 18)     /**< Shifted mode DEFAULT for SDIO_PRSSTAT */
-#define SDIO_PRSSTAT_WRPROTSWPINLVL                    (0x1UL << 19)                                   /**< Write Protect Switch Pin level */
+#define SDIO_PRSSTAT_WRPROTSWPINLVL                    (0x1UL << 19)                                   /**< Write Protect Switch Pin Level */
 #define _SDIO_PRSSTAT_WRPROTSWPINLVL_SHIFT             19                                              /**< Shift value for SDIO_WRPROTSWPINLVL */
 #define _SDIO_PRSSTAT_WRPROTSWPINLVL_MASK              0x80000UL                                       /**< Bit mask for SDIO_WRPROTSWPINLVL */
 #define _SDIO_PRSSTAT_WRPROTSWPINLVL_DEFAULT           0x00000000UL                                    /**< Mode DEFAULT for SDIO_PRSSTAT */
@@ -363,7 +361,7 @@ typedef struct {
 #define _SDIO_PRSSTAT_DAT3TO0SIGLVL_MASK               0xF00000UL                                      /**< Bit mask for SDIO_DAT3TO0SIGLVL */
 #define _SDIO_PRSSTAT_DAT3TO0SIGLVL_DEFAULT            0x00000000UL                                    /**< Mode DEFAULT for SDIO_PRSSTAT */
 #define SDIO_PRSSTAT_DAT3TO0SIGLVL_DEFAULT             (_SDIO_PRSSTAT_DAT3TO0SIGLVL_DEFAULT << 20)     /**< Shifted mode DEFAULT for SDIO_PRSSTAT */
-#define SDIO_PRSSTAT_CMDSIGLVL                         (0x1UL << 24)                                   /**< Command Line Signal level */
+#define SDIO_PRSSTAT_CMDSIGLVL                         (0x1UL << 24)                                   /**< Command Line Signal Level */
 #define _SDIO_PRSSTAT_CMDSIGLVL_SHIFT                  24                                              /**< Shift value for SDIO_CMDSIGLVL */
 #define _SDIO_PRSSTAT_CMDSIGLVL_MASK                   0x1000000UL                                     /**< Bit mask for SDIO_CMDSIGLVL */
 #define _SDIO_PRSSTAT_CMDSIGLVL_DEFAULT                0x00000000UL                                    /**< Mode DEFAULT for SDIO_PRSSTAT */
@@ -385,7 +383,7 @@ typedef struct {
 #define SDIO_HOSTCTRL1_LEDCTRL_DEFAULT                 (_SDIO_HOSTCTRL1_LEDCTRL_DEFAULT << 0)              /**< Shifted mode DEFAULT for SDIO_HOSTCTRL1 */
 #define SDIO_HOSTCTRL1_LEDCTRL_LEDOFF                  (_SDIO_HOSTCTRL1_LEDCTRL_LEDOFF << 0)               /**< Shifted mode LEDOFF for SDIO_HOSTCTRL1 */
 #define SDIO_HOSTCTRL1_LEDCTRL_LEDON                   (_SDIO_HOSTCTRL1_LEDCTRL_LEDON << 0)                /**< Shifted mode LEDON for SDIO_HOSTCTRL1 */
-#define SDIO_HOSTCTRL1_DATTRANWD                       (0x1UL << 1)                                        /**< Data Transfer width 1-bit or 4-bit mode  */
+#define SDIO_HOSTCTRL1_DATTRANWD                       (0x1UL << 1)                                        /**< Data Transfer Width 1-bit or 4-bit Mode */
 #define _SDIO_HOSTCTRL1_DATTRANWD_SHIFT                1                                                   /**< Shift value for SDIO_DATTRANWD */
 #define _SDIO_HOSTCTRL1_DATTRANWD_MASK                 0x2UL                                               /**< Bit mask for SDIO_DATTRANWD */
 #define _SDIO_HOSTCTRL1_DATTRANWD_DEFAULT              0x00000000UL                                        /**< Mode DEFAULT for SDIO_HOSTCTRL1 */
@@ -433,7 +431,7 @@ typedef struct {
 #define SDIO_HOSTCTRL1_CDTSTLVL_DEFAULT                (_SDIO_HOSTCTRL1_CDTSTLVL_DEFAULT << 6)             /**< Shifted mode DEFAULT for SDIO_HOSTCTRL1 */
 #define SDIO_HOSTCTRL1_CDTSTLVL_NOCARD                 (_SDIO_HOSTCTRL1_CDTSTLVL_NOCARD << 6)              /**< Shifted mode NOCARD for SDIO_HOSTCTRL1 */
 #define SDIO_HOSTCTRL1_CDTSTLVL_CARDIN                 (_SDIO_HOSTCTRL1_CDTSTLVL_CARDIN << 6)              /**< Shifted mode CARDIN for SDIO_HOSTCTRL1 */
-#define SDIO_HOSTCTRL1_CDSIGDET                        (0x1UL << 7)                                        /**< Card detetct signal detection */
+#define SDIO_HOSTCTRL1_CDSIGDET                        (0x1UL << 7)                                        /**< Card Detetct Signal Detection */
 #define _SDIO_HOSTCTRL1_CDSIGDET_SHIFT                 7                                                   /**< Shift value for SDIO_CDSIGDET */
 #define _SDIO_HOSTCTRL1_CDSIGDET_MASK                  0x80UL                                              /**< Bit mask for SDIO_CDSIGDET */
 #define _SDIO_HOSTCTRL1_CDSIGDET_DEFAULT               0x00000000UL                                        /**< Mode DEFAULT for SDIO_HOSTCTRL1 */
@@ -457,12 +455,12 @@ typedef struct {
 #define SDIO_HOSTCTRL1_SDBUSVOLTSEL_1P8V               (_SDIO_HOSTCTRL1_SDBUSVOLTSEL_1P8V << 9)            /**< Shifted mode 1P8V for SDIO_HOSTCTRL1 */
 #define SDIO_HOSTCTRL1_SDBUSVOLTSEL_3P0V               (_SDIO_HOSTCTRL1_SDBUSVOLTSEL_3P0V << 9)            /**< Shifted mode 3P0V for SDIO_HOSTCTRL1 */
 #define SDIO_HOSTCTRL1_SDBUSVOLTSEL_3P3V               (_SDIO_HOSTCTRL1_SDBUSVOLTSEL_3P3V << 9)            /**< Shifted mode 3P3V for SDIO_HOSTCTRL1 */
-#define SDIO_HOSTCTRL1_HRDRST                          (0x1UL << 12)                                       /**< Hardware reset signal */
+#define SDIO_HOSTCTRL1_HRDRST                          (0x1UL << 12)                                       /**< Hardware Reset Signal */
 #define _SDIO_HOSTCTRL1_HRDRST_SHIFT                   12                                                  /**< Shift value for SDIO_HRDRST */
 #define _SDIO_HOSTCTRL1_HRDRST_MASK                    0x1000UL                                            /**< Bit mask for SDIO_HRDRST */
 #define _SDIO_HOSTCTRL1_HRDRST_DEFAULT                 0x00000000UL                                        /**< Mode DEFAULT for SDIO_HOSTCTRL1 */
 #define SDIO_HOSTCTRL1_HRDRST_DEFAULT                  (_SDIO_HOSTCTRL1_HRDRST_DEFAULT << 12)              /**< Shifted mode DEFAULT for SDIO_HOSTCTRL1 */
-#define SDIO_HOSTCTRL1_STOPATBLKGAPREQ                 (0x1UL << 16)                                       /**< Stop At Block Gap Request */
+#define SDIO_HOSTCTRL1_STOPATBLKGAPREQ                 (0x1UL << 16)                                       /**< Stop at Block Gap Request */
 #define _SDIO_HOSTCTRL1_STOPATBLKGAPREQ_SHIFT          16                                                  /**< Shift value for SDIO_STOPATBLKGAPREQ */
 #define _SDIO_HOSTCTRL1_STOPATBLKGAPREQ_MASK           0x10000UL                                           /**< Bit mask for SDIO_STOPATBLKGAPREQ */
 #define _SDIO_HOSTCTRL1_STOPATBLKGAPREQ_DEFAULT        0x00000000UL                                        /**< Mode DEFAULT for SDIO_HOSTCTRL1 */
@@ -477,7 +475,7 @@ typedef struct {
 #define _SDIO_HOSTCTRL1_RDWAITCTRL_MASK                0x40000UL                                           /**< Bit mask for SDIO_RDWAITCTRL */
 #define _SDIO_HOSTCTRL1_RDWAITCTRL_DEFAULT             0x00000000UL                                        /**< Mode DEFAULT for SDIO_HOSTCTRL1 */
 #define SDIO_HOSTCTRL1_RDWAITCTRL_DEFAULT              (_SDIO_HOSTCTRL1_RDWAITCTRL_DEFAULT << 18)          /**< Shifted mode DEFAULT for SDIO_HOSTCTRL1 */
-#define SDIO_HOSTCTRL1_INTATBLKGAP                     (0x1UL << 19)                                       /**< Interrupt At Block Gap */
+#define SDIO_HOSTCTRL1_INTATBLKGAP                     (0x1UL << 19)                                       /**< Interrupt at Block Gap */
 #define _SDIO_HOSTCTRL1_INTATBLKGAP_SHIFT              19                                                  /**< Shift value for SDIO_INTATBLKGAP */
 #define _SDIO_HOSTCTRL1_INTATBLKGAP_MASK               0x80000UL                                           /**< Bit mask for SDIO_INTATBLKGAP */
 #define _SDIO_HOSTCTRL1_INTATBLKGAP_DEFAULT            0x00000000UL                                        /**< Mode DEFAULT for SDIO_HOSTCTRL1 */
@@ -502,17 +500,17 @@ typedef struct {
 #define _SDIO_HOSTCTRL1_BOOTACKCHK_MASK                0x800000UL                                          /**< Bit mask for SDIO_BOOTACKCHK */
 #define _SDIO_HOSTCTRL1_BOOTACKCHK_DEFAULT             0x00000001UL                                        /**< Mode DEFAULT for SDIO_HOSTCTRL1 */
 #define SDIO_HOSTCTRL1_BOOTACKCHK_DEFAULT              (_SDIO_HOSTCTRL1_BOOTACKCHK_DEFAULT << 23)          /**< Shifted mode DEFAULT for SDIO_HOSTCTRL1 */
-#define SDIO_HOSTCTRL1_WKUPEVNTENONCARDINT             (0x1UL << 24)                                       /**< Wakeup Event Enable On Card Interrupt */
+#define SDIO_HOSTCTRL1_WKUPEVNTENONCARDINT             (0x1UL << 24)                                       /**< Wakeup Event Enable on Card Interrupt */
 #define _SDIO_HOSTCTRL1_WKUPEVNTENONCARDINT_SHIFT      24                                                  /**< Shift value for SDIO_WKUPEVNTENONCARDINT */
 #define _SDIO_HOSTCTRL1_WKUPEVNTENONCARDINT_MASK       0x1000000UL                                         /**< Bit mask for SDIO_WKUPEVNTENONCARDINT */
 #define _SDIO_HOSTCTRL1_WKUPEVNTENONCARDINT_DEFAULT    0x00000000UL                                        /**< Mode DEFAULT for SDIO_HOSTCTRL1 */
 #define SDIO_HOSTCTRL1_WKUPEVNTENONCARDINT_DEFAULT     (_SDIO_HOSTCTRL1_WKUPEVNTENONCARDINT_DEFAULT << 24) /**< Shifted mode DEFAULT for SDIO_HOSTCTRL1 */
-#define SDIO_HOSTCTRL1_WKUPEVNTENONCINS                (0x1UL << 25)                                       /**< Wakeup Event Enable On SD Card Insertion */
+#define SDIO_HOSTCTRL1_WKUPEVNTENONCINS                (0x1UL << 25)                                       /**< Wakeup Event Enable on SD Card Insertion */
 #define _SDIO_HOSTCTRL1_WKUPEVNTENONCINS_SHIFT         25                                                  /**< Shift value for SDIO_WKUPEVNTENONCINS */
 #define _SDIO_HOSTCTRL1_WKUPEVNTENONCINS_MASK          0x2000000UL                                         /**< Bit mask for SDIO_WKUPEVNTENONCINS */
 #define _SDIO_HOSTCTRL1_WKUPEVNTENONCINS_DEFAULT       0x00000000UL                                        /**< Mode DEFAULT for SDIO_HOSTCTRL1 */
 #define SDIO_HOSTCTRL1_WKUPEVNTENONCINS_DEFAULT        (_SDIO_HOSTCTRL1_WKUPEVNTENONCINS_DEFAULT << 25)    /**< Shifted mode DEFAULT for SDIO_HOSTCTRL1 */
-#define SDIO_HOSTCTRL1_WKUPEVNTENONCRM                 (0x1UL << 26)                                       /**< Wakeup Event Enable On SD Card Removal */
+#define SDIO_HOSTCTRL1_WKUPEVNTENONCRM                 (0x1UL << 26)                                       /**< Wakeup Event Enable on SD Card Removal */
 #define _SDIO_HOSTCTRL1_WKUPEVNTENONCRM_SHIFT          26                                                  /**< Shift value for SDIO_WKUPEVNTENONCRM */
 #define _SDIO_HOSTCTRL1_WKUPEVNTENONCRM_MASK           0x4000000UL                                         /**< Bit mask for SDIO_WKUPEVNTENONCRM */
 #define _SDIO_HOSTCTRL1_WKUPEVNTENONCRM_DEFAULT        0x00000000UL                                        /**< Mode DEFAULT for SDIO_HOSTCTRL1 */
@@ -624,12 +622,12 @@ typedef struct {
 #define _SDIO_IFCR_RETUNINGEVT_MASK                    0x1000UL                                   /**< Bit mask for SDIO_RETUNINGEVT */
 #define _SDIO_IFCR_RETUNINGEVT_DEFAULT                 0x00000000UL                               /**< Mode DEFAULT for SDIO_IFCR */
 #define SDIO_IFCR_RETUNINGEVT_DEFAULT                  (_SDIO_IFCR_RETUNINGEVT_DEFAULT << 12)     /**< Shifted mode DEFAULT for SDIO_IFCR */
-#define SDIO_IFCR_BOOTACKRCV                           (0x1UL << 13)                              /**< Boot Ack received */
+#define SDIO_IFCR_BOOTACKRCV                           (0x1UL << 13)                              /**< Boot Ack Received */
 #define _SDIO_IFCR_BOOTACKRCV_SHIFT                    13                                         /**< Shift value for SDIO_BOOTACKRCV */
 #define _SDIO_IFCR_BOOTACKRCV_MASK                     0x2000UL                                   /**< Bit mask for SDIO_BOOTACKRCV */
 #define _SDIO_IFCR_BOOTACKRCV_DEFAULT                  0x00000000UL                               /**< Mode DEFAULT for SDIO_IFCR */
 #define SDIO_IFCR_BOOTACKRCV_DEFAULT                   (_SDIO_IFCR_BOOTACKRCV_DEFAULT << 13)      /**< Shifted mode DEFAULT for SDIO_IFCR */
-#define SDIO_IFCR_BOOTTERMINATE                        (0x1UL << 14)                              /**< Boot terminate interrupt */
+#define SDIO_IFCR_BOOTTERMINATE                        (0x1UL << 14)                              /**< Boot Terminate Interrupt */
 #define _SDIO_IFCR_BOOTTERMINATE_SHIFT                 14                                         /**< Shift value for SDIO_BOOTTERMINATE */
 #define _SDIO_IFCR_BOOTTERMINATE_MASK                  0x4000UL                                   /**< Bit mask for SDIO_BOOTTERMINATE */
 #define _SDIO_IFCR_BOOTTERMINATE_DEFAULT               0x00000000UL                               /**< Mode DEFAULT for SDIO_IFCR */
@@ -689,7 +687,7 @@ typedef struct {
 #define _SDIO_IFCR_ADMAERR_MASK                        0x2000000UL                                /**< Bit mask for SDIO_ADMAERR */
 #define _SDIO_IFCR_ADMAERR_DEFAULT                     0x00000000UL                               /**< Mode DEFAULT for SDIO_IFCR */
 #define SDIO_IFCR_ADMAERR_DEFAULT                      (_SDIO_IFCR_ADMAERR_DEFAULT << 25)         /**< Shifted mode DEFAULT for SDIO_IFCR */
-#define SDIO_IFCR_TARGETRESP                           (0x1UL << 28)                              /**<  Specific  error STAT  */
+#define SDIO_IFCR_TARGETRESP                           (0x1UL << 28)                              /**<  Specific  Error STAT */
 #define _SDIO_IFCR_TARGETRESP_SHIFT                    28                                         /**< Shift value for SDIO_TARGETRESP */
 #define _SDIO_IFCR_TARGETRESP_MASK                     0x10000000UL                               /**< Bit mask for SDIO_TARGETRESP */
 #define _SDIO_IFCR_TARGETRESP_DEFAULT                  0x00000000UL                               /**< Mode DEFAULT for SDIO_IFCR */
@@ -753,7 +751,7 @@ typedef struct {
 #define _SDIO_IFENC_BOOTACKRCVEN_MASK                  0x2000UL                                      /**< Bit mask for SDIO_BOOTACKRCVEN */
 #define _SDIO_IFENC_BOOTACKRCVEN_DEFAULT               0x00000000UL                                  /**< Mode DEFAULT for SDIO_IFENC */
 #define SDIO_IFENC_BOOTACKRCVEN_DEFAULT                (_SDIO_IFENC_BOOTACKRCVEN_DEFAULT << 13)      /**< Shifted mode DEFAULT for SDIO_IFENC */
-#define SDIO_IFENC_BOOTTERMINATEEN                     (0x1UL << 14)                                 /**< Boot terminate Interrupt Signal Enable */
+#define SDIO_IFENC_BOOTTERMINATEEN                     (0x1UL << 14)                                 /**< Boot Terminate Interrupt Signal Enable */
 #define _SDIO_IFENC_BOOTTERMINATEEN_SHIFT              14                                            /**< Shift value for SDIO_BOOTTERMINATEEN */
 #define _SDIO_IFENC_BOOTTERMINATEEN_MASK               0x4000UL                                      /**< Bit mask for SDIO_BOOTTERMINATEEN */
 #define _SDIO_IFENC_BOOTTERMINATEEN_DEFAULT            0x00000000UL                                  /**< Mode DEFAULT for SDIO_IFENC */
@@ -822,12 +820,12 @@ typedef struct {
 /* Bit fields for SDIO IEN */
 #define _SDIO_IEN_RESETVALUE                           0x00000000UL                                    /**< Default value for SDIO_IEN */
 #define _SDIO_IEN_MASK                                 0x17FF71FFUL                                    /**< Mask for SDIO_IEN */
-#define SDIO_IEN_CMDCOMSEN                             (0x1UL << 0)                                    /**< Command complete Signal Enable */
+#define SDIO_IEN_CMDCOMSEN                             (0x1UL << 0)                                    /**< Command Complete Signal Enable */
 #define _SDIO_IEN_CMDCOMSEN_SHIFT                      0                                               /**< Shift value for SDIO_CMDCOMSEN */
 #define _SDIO_IEN_CMDCOMSEN_MASK                       0x1UL                                           /**< Bit mask for SDIO_CMDCOMSEN */
 #define _SDIO_IEN_CMDCOMSEN_DEFAULT                    0x00000000UL                                    /**< Mode DEFAULT for SDIO_IEN */
 #define SDIO_IEN_CMDCOMSEN_DEFAULT                     (_SDIO_IEN_CMDCOMSEN_DEFAULT << 0)              /**< Shifted mode DEFAULT for SDIO_IEN */
-#define SDIO_IEN_TRANCOMSEN                            (0x1UL << 1)                                    /**< Transfer complete Signal Enable */
+#define SDIO_IEN_TRANCOMSEN                            (0x1UL << 1)                                    /**< Transfer Complete Signal Enable */
 #define _SDIO_IEN_TRANCOMSEN_SHIFT                     1                                               /**< Shift value for SDIO_TRANCOMSEN */
 #define _SDIO_IEN_TRANCOMSEN_MASK                      0x2UL                                           /**< Bit mask for SDIO_TRANCOMSEN */
 #define _SDIO_IEN_TRANCOMSEN_DEFAULT                   0x00000000UL                                    /**< Mode DEFAULT for SDIO_IEN */
@@ -872,7 +870,7 @@ typedef struct {
 #define _SDIO_IEN_RETUNINGEVTSEN_MASK                  0x1000UL                                        /**< Bit mask for SDIO_RETUNINGEVTSEN */
 #define _SDIO_IEN_RETUNINGEVTSEN_DEFAULT               0x00000000UL                                    /**< Mode DEFAULT for SDIO_IEN */
 #define SDIO_IEN_RETUNINGEVTSEN_DEFAULT                (_SDIO_IEN_RETUNINGEVTSEN_DEFAULT << 12)        /**< Shifted mode DEFAULT for SDIO_IEN */
-#define SDIO_IEN_BOOTACKRCVSEN                         (0x1UL << 13)                                   /**< Boot Ack received Signal Enable */
+#define SDIO_IEN_BOOTACKRCVSEN                         (0x1UL << 13)                                   /**< Boot Ack Received Signal Enable */
 #define _SDIO_IEN_BOOTACKRCVSEN_SHIFT                  13                                              /**< Shift value for SDIO_BOOTACKRCVSEN */
 #define _SDIO_IEN_BOOTACKRCVSEN_MASK                   0x2000UL                                        /**< Bit mask for SDIO_BOOTACKRCVSEN */
 #define _SDIO_IEN_BOOTACKRCVSEN_DEFAULT                0x00000000UL                                    /**< Mode DEFAULT for SDIO_IEN */
@@ -946,7 +944,7 @@ typedef struct {
 /* Bit fields for SDIO AC12ERRSTAT */
 #define _SDIO_AC12ERRSTAT_RESETVALUE                   0x00000000UL                                   /**< Default value for SDIO_AC12ERRSTAT */
 #define _SDIO_AC12ERRSTAT_MASK                         0xC0FF009FUL                                   /**< Mask for SDIO_AC12ERRSTAT */
-#define SDIO_AC12ERRSTAT_AC12NOTEXE                    (0x1UL << 0)                                   /**< Auto CMD12 not executed  */
+#define SDIO_AC12ERRSTAT_AC12NOTEXE                    (0x1UL << 0)                                   /**< Auto CMD12 Not Executed */
 #define _SDIO_AC12ERRSTAT_AC12NOTEXE_SHIFT             0                                              /**< Shift value for SDIO_AC12NOTEXE */
 #define _SDIO_AC12ERRSTAT_AC12NOTEXE_MASK              0x1UL                                          /**< Bit mask for SDIO_AC12NOTEXE */
 #define _SDIO_AC12ERRSTAT_AC12NOTEXE_DEFAULT           0x00000000UL                                   /**< Mode DEFAULT for SDIO_AC12ERRSTAT */
@@ -971,7 +969,7 @@ typedef struct {
 #define _SDIO_AC12ERRSTAT_AC12INDEXERR_MASK            0x10UL                                         /**< Bit mask for SDIO_AC12INDEXERR */
 #define _SDIO_AC12ERRSTAT_AC12INDEXERR_DEFAULT         0x00000000UL                                   /**< Mode DEFAULT for SDIO_AC12ERRSTAT */
 #define SDIO_AC12ERRSTAT_AC12INDEXERR_DEFAULT          (_SDIO_AC12ERRSTAT_AC12INDEXERR_DEFAULT << 4)  /**< Shifted mode DEFAULT for SDIO_AC12ERRSTAT */
-#define SDIO_AC12ERRSTAT_CNIBAC12ERR                   (0x1UL << 7)                                   /**< Command Not issued by Auto CMD12 Error */
+#define SDIO_AC12ERRSTAT_CNIBAC12ERR                   (0x1UL << 7)                                   /**< Command Not Issued By Auto CMD12 Error */
 #define _SDIO_AC12ERRSTAT_CNIBAC12ERR_SHIFT            7                                              /**< Shift value for SDIO_CNIBAC12ERR */
 #define _SDIO_AC12ERRSTAT_CNIBAC12ERR_MASK             0x80UL                                         /**< Bit mask for SDIO_CNIBAC12ERR */
 #define _SDIO_AC12ERRSTAT_CNIBAC12ERR_DEFAULT          0x00000000UL                                   /**< Mode DEFAULT for SDIO_AC12ERRSTAT */
@@ -1053,37 +1051,37 @@ typedef struct {
 #define _SDIO_CAPAB0_EXTMEDIABUSSUP_MASK               0x40000UL                                   /**< Bit mask for SDIO_EXTMEDIABUSSUP */
 #define _SDIO_CAPAB0_EXTMEDIABUSSUP_DEFAULT            0x00000000UL                                /**< Mode DEFAULT for SDIO_CAPAB0 */
 #define SDIO_CAPAB0_EXTMEDIABUSSUP_DEFAULT             (_SDIO_CAPAB0_EXTMEDIABUSSUP_DEFAULT << 18) /**< Shifted mode DEFAULT for SDIO_CAPAB0 */
-#define SDIO_CAPAB0_ADMA2SUP                           (0x1UL << 19)                               /**< ADMA2 support  */
+#define SDIO_CAPAB0_ADMA2SUP                           (0x1UL << 19)                               /**< ADMA2 Support */
 #define _SDIO_CAPAB0_ADMA2SUP_SHIFT                    19                                          /**< Shift value for SDIO_ADMA2SUP */
 #define _SDIO_CAPAB0_ADMA2SUP_MASK                     0x80000UL                                   /**< Bit mask for SDIO_ADMA2SUP */
 #define _SDIO_CAPAB0_ADMA2SUP_DEFAULT                  0x00000000UL                                /**< Mode DEFAULT for SDIO_CAPAB0 */
 #define SDIO_CAPAB0_ADMA2SUP_DEFAULT                   (_SDIO_CAPAB0_ADMA2SUP_DEFAULT << 19)       /**< Shifted mode DEFAULT for SDIO_CAPAB0 */
-#define SDIO_CAPAB0_HSSUP                              (0x1UL << 21)                               /**< High Speed Support  */
+#define SDIO_CAPAB0_HSSUP                              (0x1UL << 21)                               /**< High Speed Support */
 #define _SDIO_CAPAB0_HSSUP_SHIFT                       21                                          /**< Shift value for SDIO_HSSUP */
 #define _SDIO_CAPAB0_HSSUP_MASK                        0x200000UL                                  /**< Bit mask for SDIO_HSSUP */
 #define _SDIO_CAPAB0_HSSUP_DEFAULT                     0x00000000UL                                /**< Mode DEFAULT for SDIO_CAPAB0 */
 #define SDIO_CAPAB0_HSSUP_DEFAULT                      (_SDIO_CAPAB0_HSSUP_DEFAULT << 21)          /**< Shifted mode DEFAULT for SDIO_CAPAB0 */
-#define SDIO_CAPAB0_SDMASUP                            (0x1UL << 22)                               /**< SDMA Support  */
+#define SDIO_CAPAB0_SDMASUP                            (0x1UL << 22)                               /**< SDMA Support */
 #define _SDIO_CAPAB0_SDMASUP_SHIFT                     22                                          /**< Shift value for SDIO_SDMASUP */
 #define _SDIO_CAPAB0_SDMASUP_MASK                      0x400000UL                                  /**< Bit mask for SDIO_SDMASUP */
 #define _SDIO_CAPAB0_SDMASUP_DEFAULT                   0x00000000UL                                /**< Mode DEFAULT for SDIO_CAPAB0 */
 #define SDIO_CAPAB0_SDMASUP_DEFAULT                    (_SDIO_CAPAB0_SDMASUP_DEFAULT << 22)        /**< Shifted mode DEFAULT for SDIO_CAPAB0 */
-#define SDIO_CAPAB0_SUSRESSUP                          (0x1UL << 23)                               /**< Suspend / Resume Support  */
+#define SDIO_CAPAB0_SUSRESSUP                          (0x1UL << 23)                               /**< Suspend / Resume Support */
 #define _SDIO_CAPAB0_SUSRESSUP_SHIFT                   23                                          /**< Shift value for SDIO_SUSRESSUP */
 #define _SDIO_CAPAB0_SUSRESSUP_MASK                    0x800000UL                                  /**< Bit mask for SDIO_SUSRESSUP */
 #define _SDIO_CAPAB0_SUSRESSUP_DEFAULT                 0x00000000UL                                /**< Mode DEFAULT for SDIO_CAPAB0 */
 #define SDIO_CAPAB0_SUSRESSUP_DEFAULT                  (_SDIO_CAPAB0_SUSRESSUP_DEFAULT << 23)      /**< Shifted mode DEFAULT for SDIO_CAPAB0 */
-#define SDIO_CAPAB0_VOLTSUP3P3V                        (0x1UL << 24)                               /**< Voltage Support 3.3V  */
+#define SDIO_CAPAB0_VOLTSUP3P3V                        (0x1UL << 24)                               /**< Voltage Support 3.3V */
 #define _SDIO_CAPAB0_VOLTSUP3P3V_SHIFT                 24                                          /**< Shift value for SDIO_VOLTSUP3P3V */
 #define _SDIO_CAPAB0_VOLTSUP3P3V_MASK                  0x1000000UL                                 /**< Bit mask for SDIO_VOLTSUP3P3V */
 #define _SDIO_CAPAB0_VOLTSUP3P3V_DEFAULT               0x00000000UL                                /**< Mode DEFAULT for SDIO_CAPAB0 */
 #define SDIO_CAPAB0_VOLTSUP3P3V_DEFAULT                (_SDIO_CAPAB0_VOLTSUP3P3V_DEFAULT << 24)    /**< Shifted mode DEFAULT for SDIO_CAPAB0 */
-#define SDIO_CAPAB0_VOLTSUP3P0V                        (0x1UL << 25)                               /**< Voltage Support 3.0V  */
+#define SDIO_CAPAB0_VOLTSUP3P0V                        (0x1UL << 25)                               /**< Voltage Support 3.0V */
 #define _SDIO_CAPAB0_VOLTSUP3P0V_SHIFT                 25                                          /**< Shift value for SDIO_VOLTSUP3P0V */
 #define _SDIO_CAPAB0_VOLTSUP3P0V_MASK                  0x2000000UL                                 /**< Bit mask for SDIO_VOLTSUP3P0V */
 #define _SDIO_CAPAB0_VOLTSUP3P0V_DEFAULT               0x00000000UL                                /**< Mode DEFAULT for SDIO_CAPAB0 */
 #define SDIO_CAPAB0_VOLTSUP3P0V_DEFAULT                (_SDIO_CAPAB0_VOLTSUP3P0V_DEFAULT << 25)    /**< Shifted mode DEFAULT for SDIO_CAPAB0 */
-#define SDIO_CAPAB0_VOLTSUP1P8V                        (0x1UL << 26)                               /**< Voltage Support 1.8V  */
+#define SDIO_CAPAB0_VOLTSUP1P8V                        (0x1UL << 26)                               /**< Voltage Support 1.8V */
 #define _SDIO_CAPAB0_VOLTSUP1P8V_SHIFT                 26                                          /**< Shift value for SDIO_VOLTSUP1P8V */
 #define _SDIO_CAPAB0_VOLTSUP1P8V_MASK                  0x4000000UL                                 /**< Bit mask for SDIO_VOLTSUP1P8V */
 #define _SDIO_CAPAB0_VOLTSUP1P8V_DEFAULT               0x00000000UL                                /**< Mode DEFAULT for SDIO_CAPAB0 */
@@ -1093,7 +1091,7 @@ typedef struct {
 #define _SDIO_CAPAB0_SYSBUS64BSUP_MASK                 0x10000000UL                                /**< Bit mask for SDIO_SYSBUS64BSUP */
 #define _SDIO_CAPAB0_SYSBUS64BSUP_DEFAULT              0x00000000UL                                /**< Mode DEFAULT for SDIO_CAPAB0 */
 #define SDIO_CAPAB0_SYSBUS64BSUP_DEFAULT               (_SDIO_CAPAB0_SYSBUS64BSUP_DEFAULT << 28)   /**< Shifted mode DEFAULT for SDIO_CAPAB0 */
-#define SDIO_CAPAB0_ASYNCINTSUP                        (0x1UL << 29)                               /**< Asynchronous Interrupt Support  */
+#define SDIO_CAPAB0_ASYNCINTSUP                        (0x1UL << 29)                               /**< Asynchronous Interrupt Support */
 #define _SDIO_CAPAB0_ASYNCINTSUP_SHIFT                 29                                          /**< Shift value for SDIO_ASYNCINTSUP */
 #define _SDIO_CAPAB0_ASYNCINTSUP_MASK                  0x20000000UL                                /**< Bit mask for SDIO_ASYNCINTSUP */
 #define _SDIO_CAPAB0_ASYNCINTSUP_DEFAULT               0x00000000UL                                /**< Mode DEFAULT for SDIO_CAPAB0 */
@@ -1112,32 +1110,32 @@ typedef struct {
 /* Bit fields for SDIO CAPAB2 */
 #define _SDIO_CAPAB2_RESETVALUE                        0x00000000UL                              /**< Default value for SDIO_CAPAB2 */
 #define _SDIO_CAPAB2_MASK                              0x03FFEF77UL                              /**< Mask for SDIO_CAPAB2 */
-#define SDIO_CAPAB2_SDR50SUP                           (0x1UL << 0)                              /**< SDR50 Support  */
+#define SDIO_CAPAB2_SDR50SUP                           (0x1UL << 0)                              /**< SDR50 Support */
 #define _SDIO_CAPAB2_SDR50SUP_SHIFT                    0                                         /**< Shift value for SDIO_SDR50SUP */
 #define _SDIO_CAPAB2_SDR50SUP_MASK                     0x1UL                                     /**< Bit mask for SDIO_SDR50SUP */
 #define _SDIO_CAPAB2_SDR50SUP_DEFAULT                  0x00000000UL                              /**< Mode DEFAULT for SDIO_CAPAB2 */
 #define SDIO_CAPAB2_SDR50SUP_DEFAULT                   (_SDIO_CAPAB2_SDR50SUP_DEFAULT << 0)      /**< Shifted mode DEFAULT for SDIO_CAPAB2 */
-#define SDIO_CAPAB2_SDR104SUP                          (0x1UL << 1)                              /**< SDR104 Support  */
+#define SDIO_CAPAB2_SDR104SUP                          (0x1UL << 1)                              /**< SDR104 Support */
 #define _SDIO_CAPAB2_SDR104SUP_SHIFT                   1                                         /**< Shift value for SDIO_SDR104SUP */
 #define _SDIO_CAPAB2_SDR104SUP_MASK                    0x2UL                                     /**< Bit mask for SDIO_SDR104SUP */
 #define _SDIO_CAPAB2_SDR104SUP_DEFAULT                 0x00000000UL                              /**< Mode DEFAULT for SDIO_CAPAB2 */
 #define SDIO_CAPAB2_SDR104SUP_DEFAULT                  (_SDIO_CAPAB2_SDR104SUP_DEFAULT << 1)     /**< Shifted mode DEFAULT for SDIO_CAPAB2 */
-#define SDIO_CAPAB2_DDR50SUP                           (0x1UL << 2)                              /**< DDR50 Support  */
+#define SDIO_CAPAB2_DDR50SUP                           (0x1UL << 2)                              /**< DDR50 Support */
 #define _SDIO_CAPAB2_DDR50SUP_SHIFT                    2                                         /**< Shift value for SDIO_DDR50SUP */
 #define _SDIO_CAPAB2_DDR50SUP_MASK                     0x4UL                                     /**< Bit mask for SDIO_DDR50SUP */
 #define _SDIO_CAPAB2_DDR50SUP_DEFAULT                  0x00000000UL                              /**< Mode DEFAULT for SDIO_CAPAB2 */
 #define SDIO_CAPAB2_DDR50SUP_DEFAULT                   (_SDIO_CAPAB2_DDR50SUP_DEFAULT << 2)      /**< Shifted mode DEFAULT for SDIO_CAPAB2 */
-#define SDIO_CAPAB2_DRVTYPASUP                         (0x1UL << 4)                              /**< Driver Type A Support  */
+#define SDIO_CAPAB2_DRVTYPASUP                         (0x1UL << 4)                              /**< Driver Type a Support */
 #define _SDIO_CAPAB2_DRVTYPASUP_SHIFT                  4                                         /**< Shift value for SDIO_DRVTYPASUP */
 #define _SDIO_CAPAB2_DRVTYPASUP_MASK                   0x10UL                                    /**< Bit mask for SDIO_DRVTYPASUP */
 #define _SDIO_CAPAB2_DRVTYPASUP_DEFAULT                0x00000000UL                              /**< Mode DEFAULT for SDIO_CAPAB2 */
 #define SDIO_CAPAB2_DRVTYPASUP_DEFAULT                 (_SDIO_CAPAB2_DRVTYPASUP_DEFAULT << 4)    /**< Shifted mode DEFAULT for SDIO_CAPAB2 */
-#define SDIO_CAPAB2_DRVTYPCSUP                         (0x1UL << 5)                              /**< Driver Type C Support  */
+#define SDIO_CAPAB2_DRVTYPCSUP                         (0x1UL << 5)                              /**< Driver Type C Support */
 #define _SDIO_CAPAB2_DRVTYPCSUP_SHIFT                  5                                         /**< Shift value for SDIO_DRVTYPCSUP */
 #define _SDIO_CAPAB2_DRVTYPCSUP_MASK                   0x20UL                                    /**< Bit mask for SDIO_DRVTYPCSUP */
 #define _SDIO_CAPAB2_DRVTYPCSUP_DEFAULT                0x00000000UL                              /**< Mode DEFAULT for SDIO_CAPAB2 */
 #define SDIO_CAPAB2_DRVTYPCSUP_DEFAULT                 (_SDIO_CAPAB2_DRVTYPCSUP_DEFAULT << 5)    /**< Shifted mode DEFAULT for SDIO_CAPAB2 */
-#define SDIO_CAPAB2_DRVTYPDSUP                         (0x1UL << 6)                              /**< Driver Type D Support  */
+#define SDIO_CAPAB2_DRVTYPDSUP                         (0x1UL << 6)                              /**< Driver Type D Support */
 #define _SDIO_CAPAB2_DRVTYPDSUP_SHIFT                  6                                         /**< Shift value for SDIO_DRVTYPDSUP */
 #define _SDIO_CAPAB2_DRVTYPDSUP_MASK                   0x40UL                                    /**< Bit mask for SDIO_DRVTYPDSUP */
 #define _SDIO_CAPAB2_DRVTYPDSUP_DEFAULT                0x00000000UL                              /**< Mode DEFAULT for SDIO_CAPAB2 */
@@ -1146,7 +1144,7 @@ typedef struct {
 #define _SDIO_CAPAB2_TIMCNTRETUN_MASK                  0xF00UL                                   /**< Bit mask for SDIO_TIMCNTRETUN */
 #define _SDIO_CAPAB2_TIMCNTRETUN_DEFAULT               0x00000000UL                              /**< Mode DEFAULT for SDIO_CAPAB2 */
 #define SDIO_CAPAB2_TIMCNTRETUN_DEFAULT                (_SDIO_CAPAB2_TIMCNTRETUN_DEFAULT << 8)   /**< Shifted mode DEFAULT for SDIO_CAPAB2 */
-#define SDIO_CAPAB2_USETUNSDR50                        (0x1UL << 13)                             /**< Use Tuning for SDR50  */
+#define SDIO_CAPAB2_USETUNSDR50                        (0x1UL << 13)                             /**< Use Tuning for SDR50 */
 #define _SDIO_CAPAB2_USETUNSDR50_SHIFT                 13                                        /**< Shift value for SDIO_USETUNSDR50 */
 #define _SDIO_CAPAB2_USETUNSDR50_MASK                  0x2000UL                                  /**< Bit mask for SDIO_USETUNSDR50 */
 #define _SDIO_CAPAB2_USETUNSDR50_DEFAULT               0x00000000UL                              /**< Mode DEFAULT for SDIO_CAPAB2 */
@@ -1159,12 +1157,12 @@ typedef struct {
 #define _SDIO_CAPAB2_CLOCKKMUL_MASK                    0xFF0000UL                                /**< Bit mask for SDIO_CLOCKKMUL */
 #define _SDIO_CAPAB2_CLOCKKMUL_DEFAULT                 0x00000000UL                              /**< Mode DEFAULT for SDIO_CAPAB2 */
 #define SDIO_CAPAB2_CLOCKKMUL_DEFAULT                  (_SDIO_CAPAB2_CLOCKKMUL_DEFAULT << 16)    /**< Shifted mode DEFAULT for SDIO_CAPAB2 */
-#define SDIO_CAPAB2_SPIMODE                            (0x1UL << 24)                             /**< SPI mode support */
+#define SDIO_CAPAB2_SPIMODE                            (0x1UL << 24)                             /**< SPI Mode Support */
 #define _SDIO_CAPAB2_SPIMODE_SHIFT                     24                                        /**< Shift value for SDIO_SPIMODE */
 #define _SDIO_CAPAB2_SPIMODE_MASK                      0x1000000UL                               /**< Bit mask for SDIO_SPIMODE */
 #define _SDIO_CAPAB2_SPIMODE_DEFAULT                   0x00000000UL                              /**< Mode DEFAULT for SDIO_CAPAB2 */
 #define SDIO_CAPAB2_SPIMODE_DEFAULT                    (_SDIO_CAPAB2_SPIMODE_DEFAULT << 24)      /**< Shifted mode DEFAULT for SDIO_CAPAB2 */
-#define SDIO_CAPAB2_SPIBLOCKMODE                       (0x1UL << 25)                             /**< SPI Block mode support  */
+#define SDIO_CAPAB2_SPIBLOCKMODE                       (0x1UL << 25)                             /**< SPI Block Mode Support */
 #define _SDIO_CAPAB2_SPIBLOCKMODE_SHIFT                25                                        /**< Shift value for SDIO_SPIBLOCKMODE */
 #define _SDIO_CAPAB2_SPIBLOCKMODE_MASK                 0x2000000UL                               /**< Bit mask for SDIO_SPIBLOCKMODE */
 #define _SDIO_CAPAB2_SPIBLOCKMODE_DEFAULT              0x00000000UL                              /**< Mode DEFAULT for SDIO_CAPAB2 */
@@ -1189,72 +1187,72 @@ typedef struct {
 /* Bit fields for SDIO FEVTERRSTAT */
 #define _SDIO_FEVTERRSTAT_RESETVALUE                   0x00000000UL                                /**< Default value for SDIO_FEVTERRSTAT */
 #define _SDIO_FEVTERRSTAT_MASK                         0xF7FF009FUL                                /**< Mask for SDIO_FEVTERRSTAT */
-#define SDIO_FEVTERRSTAT_AC12NEX                       (0x1UL << 0)                                /**< Force Event for command not issued by Auto CM12 Not Executed */
+#define SDIO_FEVTERRSTAT_AC12NEX                       (0x1UL << 0)                                /**< Force Event for Command Not Issued By Auto CM12 Not Executed */
 #define _SDIO_FEVTERRSTAT_AC12NEX_SHIFT                0                                           /**< Shift value for SDIO_AC12NEX */
 #define _SDIO_FEVTERRSTAT_AC12NEX_MASK                 0x1UL                                       /**< Bit mask for SDIO_AC12NEX */
 #define _SDIO_FEVTERRSTAT_AC12NEX_DEFAULT              0x00000000UL                                /**< Mode DEFAULT for SDIO_FEVTERRSTAT */
 #define SDIO_FEVTERRSTAT_AC12NEX_DEFAULT               (_SDIO_FEVTERRSTAT_AC12NEX_DEFAULT << 0)    /**< Shifted mode DEFAULT for SDIO_FEVTERRSTAT */
-#define SDIO_FEVTERRSTAT_AC12TOE                       (0x1UL << 1)                                /**< Force Event for Auto CMD Timeout Error  */
+#define SDIO_FEVTERRSTAT_AC12TOE                       (0x1UL << 1)                                /**< Force Event for Auto CMD Timeout Error */
 #define _SDIO_FEVTERRSTAT_AC12TOE_SHIFT                1                                           /**< Shift value for SDIO_AC12TOE */
 #define _SDIO_FEVTERRSTAT_AC12TOE_MASK                 0x2UL                                       /**< Bit mask for SDIO_AC12TOE */
 #define _SDIO_FEVTERRSTAT_AC12TOE_DEFAULT              0x00000000UL                                /**< Mode DEFAULT for SDIO_FEVTERRSTAT */
 #define SDIO_FEVTERRSTAT_AC12TOE_DEFAULT               (_SDIO_FEVTERRSTAT_AC12TOE_DEFAULT << 1)    /**< Shifted mode DEFAULT for SDIO_FEVTERRSTAT */
-#define SDIO_FEVTERRSTAT_AC12CRCE                      (0x1UL << 2)                                /**< Force Event for Auto CMD CRC Error  */
+#define SDIO_FEVTERRSTAT_AC12CRCE                      (0x1UL << 2)                                /**< Force Event for Auto CMD CRC Error */
 #define _SDIO_FEVTERRSTAT_AC12CRCE_SHIFT               2                                           /**< Shift value for SDIO_AC12CRCE */
 #define _SDIO_FEVTERRSTAT_AC12CRCE_MASK                0x4UL                                       /**< Bit mask for SDIO_AC12CRCE */
 #define _SDIO_FEVTERRSTAT_AC12CRCE_DEFAULT             0x00000000UL                                /**< Mode DEFAULT for SDIO_FEVTERRSTAT */
 #define SDIO_FEVTERRSTAT_AC12CRCE_DEFAULT              (_SDIO_FEVTERRSTAT_AC12CRCE_DEFAULT << 2)   /**< Shifted mode DEFAULT for SDIO_FEVTERRSTAT */
-#define SDIO_FEVTERRSTAT_AC12EBE                       (0x1UL << 3)                                /**< Force Event for Auto CMD End bit Error  */
+#define SDIO_FEVTERRSTAT_AC12EBE                       (0x1UL << 3)                                /**< Force Event for Auto CMD End Bit Error */
 #define _SDIO_FEVTERRSTAT_AC12EBE_SHIFT                3                                           /**< Shift value for SDIO_AC12EBE */
 #define _SDIO_FEVTERRSTAT_AC12EBE_MASK                 0x8UL                                       /**< Bit mask for SDIO_AC12EBE */
 #define _SDIO_FEVTERRSTAT_AC12EBE_DEFAULT              0x00000000UL                                /**< Mode DEFAULT for SDIO_FEVTERRSTAT */
 #define SDIO_FEVTERRSTAT_AC12EBE_DEFAULT               (_SDIO_FEVTERRSTAT_AC12EBE_DEFAULT << 3)    /**< Shifted mode DEFAULT for SDIO_FEVTERRSTAT */
-#define SDIO_FEVTERRSTAT_AC12INDXE                     (0x1UL << 4)                                /**< Force Event for Auto CMD Index Error  */
+#define SDIO_FEVTERRSTAT_AC12INDXE                     (0x1UL << 4)                                /**< Force Event for Auto CMD Index Error */
 #define _SDIO_FEVTERRSTAT_AC12INDXE_SHIFT              4                                           /**< Shift value for SDIO_AC12INDXE */
 #define _SDIO_FEVTERRSTAT_AC12INDXE_MASK               0x10UL                                      /**< Bit mask for SDIO_AC12INDXE */
 #define _SDIO_FEVTERRSTAT_AC12INDXE_DEFAULT            0x00000000UL                                /**< Mode DEFAULT for SDIO_FEVTERRSTAT */
 #define SDIO_FEVTERRSTAT_AC12INDXE_DEFAULT             (_SDIO_FEVTERRSTAT_AC12INDXE_DEFAULT << 4)  /**< Shifted mode DEFAULT for SDIO_FEVTERRSTAT */
-#define SDIO_FEVTERRSTAT_CNIBAC12E                     (0x1UL << 7)                                /**< Force Event for command not issued by Auto CMD12 Error  */
+#define SDIO_FEVTERRSTAT_CNIBAC12E                     (0x1UL << 7)                                /**< Force Event for Command Not Issued By Auto CMD12 Error */
 #define _SDIO_FEVTERRSTAT_CNIBAC12E_SHIFT              7                                           /**< Shift value for SDIO_CNIBAC12E */
 #define _SDIO_FEVTERRSTAT_CNIBAC12E_MASK               0x80UL                                      /**< Bit mask for SDIO_CNIBAC12E */
 #define _SDIO_FEVTERRSTAT_CNIBAC12E_DEFAULT            0x00000000UL                                /**< Mode DEFAULT for SDIO_FEVTERRSTAT */
 #define SDIO_FEVTERRSTAT_CNIBAC12E_DEFAULT             (_SDIO_FEVTERRSTAT_CNIBAC12E_DEFAULT << 7)  /**< Shifted mode DEFAULT for SDIO_FEVTERRSTAT */
-#define SDIO_FEVTERRSTAT_CMDTOE                        (0x1UL << 16)                               /**< Force Event for Command Timeout Error  */
+#define SDIO_FEVTERRSTAT_CMDTOE                        (0x1UL << 16)                               /**< Force Event for Command Timeout Error */
 #define _SDIO_FEVTERRSTAT_CMDTOE_SHIFT                 16                                          /**< Shift value for SDIO_CMDTOE */
 #define _SDIO_FEVTERRSTAT_CMDTOE_MASK                  0x10000UL                                   /**< Bit mask for SDIO_CMDTOE */
 #define _SDIO_FEVTERRSTAT_CMDTOE_DEFAULT               0x00000000UL                                /**< Mode DEFAULT for SDIO_FEVTERRSTAT */
 #define SDIO_FEVTERRSTAT_CMDTOE_DEFAULT                (_SDIO_FEVTERRSTAT_CMDTOE_DEFAULT << 16)    /**< Shifted mode DEFAULT for SDIO_FEVTERRSTAT */
-#define SDIO_FEVTERRSTAT_CMDCRCE                       (0x1UL << 17)                               /**< Force Event for Command CRC Error  */
+#define SDIO_FEVTERRSTAT_CMDCRCE                       (0x1UL << 17)                               /**< Force Event for Command CRC Error */
 #define _SDIO_FEVTERRSTAT_CMDCRCE_SHIFT                17                                          /**< Shift value for SDIO_CMDCRCE */
 #define _SDIO_FEVTERRSTAT_CMDCRCE_MASK                 0x20000UL                                   /**< Bit mask for SDIO_CMDCRCE */
 #define _SDIO_FEVTERRSTAT_CMDCRCE_DEFAULT              0x00000000UL                                /**< Mode DEFAULT for SDIO_FEVTERRSTAT */
 #define SDIO_FEVTERRSTAT_CMDCRCE_DEFAULT               (_SDIO_FEVTERRSTAT_CMDCRCE_DEFAULT << 17)   /**< Shifted mode DEFAULT for SDIO_FEVTERRSTAT */
-#define SDIO_FEVTERRSTAT_CMDEBE                        (0x1UL << 18)                               /**< Force Event for Command End Bit Error  */
+#define SDIO_FEVTERRSTAT_CMDEBE                        (0x1UL << 18)                               /**< Force Event for Command End Bit Error */
 #define _SDIO_FEVTERRSTAT_CMDEBE_SHIFT                 18                                          /**< Shift value for SDIO_CMDEBE */
 #define _SDIO_FEVTERRSTAT_CMDEBE_MASK                  0x40000UL                                   /**< Bit mask for SDIO_CMDEBE */
 #define _SDIO_FEVTERRSTAT_CMDEBE_DEFAULT               0x00000000UL                                /**< Mode DEFAULT for SDIO_FEVTERRSTAT */
 #define SDIO_FEVTERRSTAT_CMDEBE_DEFAULT                (_SDIO_FEVTERRSTAT_CMDEBE_DEFAULT << 18)    /**< Shifted mode DEFAULT for SDIO_FEVTERRSTAT */
-#define SDIO_FEVTERRSTAT_CMDINDXE                      (0x1UL << 19)                               /**< Force Event for Command Index Error  */
+#define SDIO_FEVTERRSTAT_CMDINDXE                      (0x1UL << 19)                               /**< Force Event for Command Index Error */
 #define _SDIO_FEVTERRSTAT_CMDINDXE_SHIFT               19                                          /**< Shift value for SDIO_CMDINDXE */
 #define _SDIO_FEVTERRSTAT_CMDINDXE_MASK                0x80000UL                                   /**< Bit mask for SDIO_CMDINDXE */
 #define _SDIO_FEVTERRSTAT_CMDINDXE_DEFAULT             0x00000000UL                                /**< Mode DEFAULT for SDIO_FEVTERRSTAT */
 #define SDIO_FEVTERRSTAT_CMDINDXE_DEFAULT              (_SDIO_FEVTERRSTAT_CMDINDXE_DEFAULT << 19)  /**< Shifted mode DEFAULT for SDIO_FEVTERRSTAT */
-#define SDIO_FEVTERRSTAT_DATTOE                        (0x1UL << 20)                               /**< Force Event for Data Timeout Error  */
+#define SDIO_FEVTERRSTAT_DATTOE                        (0x1UL << 20)                               /**< Force Event for Data Timeout Error */
 #define _SDIO_FEVTERRSTAT_DATTOE_SHIFT                 20                                          /**< Shift value for SDIO_DATTOE */
 #define _SDIO_FEVTERRSTAT_DATTOE_MASK                  0x100000UL                                  /**< Bit mask for SDIO_DATTOE */
 #define _SDIO_FEVTERRSTAT_DATTOE_DEFAULT               0x00000000UL                                /**< Mode DEFAULT for SDIO_FEVTERRSTAT */
 #define SDIO_FEVTERRSTAT_DATTOE_DEFAULT                (_SDIO_FEVTERRSTAT_DATTOE_DEFAULT << 20)    /**< Shifted mode DEFAULT for SDIO_FEVTERRSTAT */
-#define SDIO_FEVTERRSTAT_DATCRCE                       (0x1UL << 21)                               /**< Force Event for Data CRC Error  */
+#define SDIO_FEVTERRSTAT_DATCRCE                       (0x1UL << 21)                               /**< Force Event for Data CRC Error */
 #define _SDIO_FEVTERRSTAT_DATCRCE_SHIFT                21                                          /**< Shift value for SDIO_DATCRCE */
 #define _SDIO_FEVTERRSTAT_DATCRCE_MASK                 0x200000UL                                  /**< Bit mask for SDIO_DATCRCE */
 #define _SDIO_FEVTERRSTAT_DATCRCE_DEFAULT              0x00000000UL                                /**< Mode DEFAULT for SDIO_FEVTERRSTAT */
 #define SDIO_FEVTERRSTAT_DATCRCE_DEFAULT               (_SDIO_FEVTERRSTAT_DATCRCE_DEFAULT << 21)   /**< Shifted mode DEFAULT for SDIO_FEVTERRSTAT */
-#define SDIO_FEVTERRSTAT_DATEBE                        (0x1UL << 22)                               /**< Force Event for Data End Bit Error  */
+#define SDIO_FEVTERRSTAT_DATEBE                        (0x1UL << 22)                               /**< Force Event for Data End Bit Error */
 #define _SDIO_FEVTERRSTAT_DATEBE_SHIFT                 22                                          /**< Shift value for SDIO_DATEBE */
 #define _SDIO_FEVTERRSTAT_DATEBE_MASK                  0x400000UL                                  /**< Bit mask for SDIO_DATEBE */
 #define _SDIO_FEVTERRSTAT_DATEBE_DEFAULT               0x00000000UL                                /**< Mode DEFAULT for SDIO_FEVTERRSTAT */
 #define SDIO_FEVTERRSTAT_DATEBE_DEFAULT                (_SDIO_FEVTERRSTAT_DATEBE_DEFAULT << 22)    /**< Shifted mode DEFAULT for SDIO_FEVTERRSTAT */
-#define SDIO_FEVTERRSTAT_CURLIMITE                     (0x1UL << 23)                               /**< Force Event for Current Limit Error  */
+#define SDIO_FEVTERRSTAT_CURLIMITE                     (0x1UL << 23)                               /**< Force Event for Current Limit Error */
 #define _SDIO_FEVTERRSTAT_CURLIMITE_SHIFT              23                                          /**< Shift value for SDIO_CURLIMITE */
 #define _SDIO_FEVTERRSTAT_CURLIMITE_MASK               0x800000UL                                  /**< Bit mask for SDIO_CURLIMITE */
 #define _SDIO_FEVTERRSTAT_CURLIMITE_DEFAULT            0x00000000UL                                /**< Mode DEFAULT for SDIO_FEVTERRSTAT */
@@ -1264,12 +1262,12 @@ typedef struct {
 #define _SDIO_FEVTERRSTAT_AC12E_MASK                   0x1000000UL                                 /**< Bit mask for SDIO_AC12E */
 #define _SDIO_FEVTERRSTAT_AC12E_DEFAULT                0x00000000UL                                /**< Mode DEFAULT for SDIO_FEVTERRSTAT */
 #define SDIO_FEVTERRSTAT_AC12E_DEFAULT                 (_SDIO_FEVTERRSTAT_AC12E_DEFAULT << 24)     /**< Shifted mode DEFAULT for SDIO_FEVTERRSTAT */
-#define SDIO_FEVTERRSTAT_ADMAE                         (0x1UL << 25)                               /**< Force Event for ADMA Error  */
+#define SDIO_FEVTERRSTAT_ADMAE                         (0x1UL << 25)                               /**< Force Event for ADMA Error */
 #define _SDIO_FEVTERRSTAT_ADMAE_SHIFT                  25                                          /**< Shift value for SDIO_ADMAE */
 #define _SDIO_FEVTERRSTAT_ADMAE_MASK                   0x2000000UL                                 /**< Bit mask for SDIO_ADMAE */
 #define _SDIO_FEVTERRSTAT_ADMAE_DEFAULT                0x00000000UL                                /**< Mode DEFAULT for SDIO_FEVTERRSTAT */
 #define SDIO_FEVTERRSTAT_ADMAE_DEFAULT                 (_SDIO_FEVTERRSTAT_ADMAE_DEFAULT << 25)     /**< Shifted mode DEFAULT for SDIO_FEVTERRSTAT */
-#define SDIO_FEVTERRSTAT_TUNINGE                       (0x1UL << 26)                               /**< Force Event for Tuning Errro  */
+#define SDIO_FEVTERRSTAT_TUNINGE                       (0x1UL << 26)                               /**< Force Event for Tuning Errro */
 #define _SDIO_FEVTERRSTAT_TUNINGE_SHIFT                26                                          /**< Shift value for SDIO_TUNINGE */
 #define _SDIO_FEVTERRSTAT_TUNINGE_MASK                 0x4000000UL                                 /**< Bit mask for SDIO_TUNINGE */
 #define _SDIO_FEVTERRSTAT_TUNINGE_DEFAULT              0x00000000UL                                /**< Mode DEFAULT for SDIO_FEVTERRSTAT */
@@ -1286,7 +1284,7 @@ typedef struct {
 #define _SDIO_ADMAES_ADMAES_MASK                       0x3UL                               /**< Bit mask for SDIO_ADMAES */
 #define _SDIO_ADMAES_ADMAES_DEFAULT                    0x00000000UL                        /**< Mode DEFAULT for SDIO_ADMAES */
 #define SDIO_ADMAES_ADMAES_DEFAULT                     (_SDIO_ADMAES_ADMAES_DEFAULT << 0)  /**< Shifted mode DEFAULT for SDIO_ADMAES */
-#define SDIO_ADMAES_ADMALME                            (0x1UL << 2)                        /**< ADMA Length Mismatch Error  */
+#define SDIO_ADMAES_ADMALME                            (0x1UL << 2)                        /**< ADMA Length Mismatch Error */
 #define _SDIO_ADMAES_ADMALME_SHIFT                     2                                   /**< Shift value for SDIO_ADMALME */
 #define _SDIO_ADMAES_ADMALME_MASK                      0x4UL                               /**< Bit mask for SDIO_ADMALME */
 #define _SDIO_ADMAES_ADMALME_DEFAULT                   0x00000000UL                        /**< Mode DEFAULT for SDIO_ADMAES */
@@ -1307,7 +1305,7 @@ typedef struct {
 #define _SDIO_PRSTVAL0_INITSDCLKFREQVAL_MASK           0x3FFUL                                        /**< Bit mask for SDIO_INITSDCLKFREQVAL */
 #define _SDIO_PRSTVAL0_INITSDCLKFREQVAL_DEFAULT        0x00000000UL                                   /**< Mode DEFAULT for SDIO_PRSTVAL0 */
 #define SDIO_PRSTVAL0_INITSDCLKFREQVAL_DEFAULT         (_SDIO_PRSTVAL0_INITSDCLKFREQVAL_DEFAULT << 0) /**< Shifted mode DEFAULT for SDIO_PRSTVAL0 */
-#define SDIO_PRSTVAL0_INITCLCKGENVAL                   (0x1UL << 10)                                  /**< Clock generator select value for Initialization  */
+#define SDIO_PRSTVAL0_INITCLCKGENVAL                   (0x1UL << 10)                                  /**< Clock Generator Select Value for Initialization */
 #define _SDIO_PRSTVAL0_INITCLCKGENVAL_SHIFT            10                                             /**< Shift value for SDIO_INITCLCKGENVAL */
 #define _SDIO_PRSTVAL0_INITCLCKGENVAL_MASK             0x400UL                                        /**< Bit mask for SDIO_INITCLCKGENVAL */
 #define _SDIO_PRSTVAL0_INITCLCKGENVAL_DEFAULT          0x00000000UL                                   /**< Mode DEFAULT for SDIO_PRSTVAL0 */
@@ -1328,7 +1326,7 @@ typedef struct {
 #define _SDIO_PRSTVAL0_DSPSDCLKFREQVAL_MASK            0x3FF0000UL                                    /**< Bit mask for SDIO_DSPSDCLKFREQVAL */
 #define _SDIO_PRSTVAL0_DSPSDCLKFREQVAL_DEFAULT         0x00000000UL                                   /**< Mode DEFAULT for SDIO_PRSTVAL0 */
 #define SDIO_PRSTVAL0_DSPSDCLKFREQVAL_DEFAULT          (_SDIO_PRSTVAL0_DSPSDCLKFREQVAL_DEFAULT << 16) /**< Shifted mode DEFAULT for SDIO_PRSTVAL0 */
-#define SDIO_PRSTVAL0_DSPCLKGENVAL                     (0x1UL << 26)                                  /**< Clock generator select value for Default Speed */
+#define SDIO_PRSTVAL0_DSPCLKGENVAL                     (0x1UL << 26)                                  /**< Clock Generator Select Value for Default Speed */
 #define _SDIO_PRSTVAL0_DSPCLKGENVAL_SHIFT              26                                             /**< Shift value for SDIO_DSPCLKGENVAL */
 #define _SDIO_PRSTVAL0_DSPCLKGENVAL_MASK               0x4000000UL                                    /**< Bit mask for SDIO_DSPCLKGENVAL */
 #define _SDIO_PRSTVAL0_DSPCLKGENVAL_DEFAULT            0x00000000UL                                   /**< Mode DEFAULT for SDIO_PRSTVAL0 */
@@ -1353,7 +1351,7 @@ typedef struct {
 #define _SDIO_PRSTVAL2_HSPSDCLKFREQVAL_MASK            0x3FFUL                                          /**< Bit mask for SDIO_HSPSDCLKFREQVAL */
 #define _SDIO_PRSTVAL2_HSPSDCLKFREQVAL_DEFAULT         0x00000000UL                                     /**< Mode DEFAULT for SDIO_PRSTVAL2 */
 #define SDIO_PRSTVAL2_HSPSDCLKFREQVAL_DEFAULT          (_SDIO_PRSTVAL2_HSPSDCLKFREQVAL_DEFAULT << 0)    /**< Shifted mode DEFAULT for SDIO_PRSTVAL2 */
-#define SDIO_PRSTVAL2_HSPCLKGENVAL                     (0x1UL << 10)                                    /**< Clock generator select value for High Speed */
+#define SDIO_PRSTVAL2_HSPCLKGENVAL                     (0x1UL << 10)                                    /**< Clock Generator Select Value for High Speed */
 #define _SDIO_PRSTVAL2_HSPCLKGENVAL_SHIFT              10                                               /**< Shift value for SDIO_HSPCLKGENVAL */
 #define _SDIO_PRSTVAL2_HSPCLKGENVAL_MASK               0x400UL                                          /**< Bit mask for SDIO_HSPCLKGENVAL */
 #define _SDIO_PRSTVAL2_HSPCLKGENVAL_DEFAULT            0x00000000UL                                     /**< Mode DEFAULT for SDIO_PRSTVAL2 */
@@ -1374,7 +1372,7 @@ typedef struct {
 #define _SDIO_PRSTVAL2_SDR12SDCLKFREQVAL_MASK          0x3FF0000UL                                      /**< Bit mask for SDIO_SDR12SDCLKFREQVAL */
 #define _SDIO_PRSTVAL2_SDR12SDCLKFREQVAL_DEFAULT       0x00000000UL                                     /**< Mode DEFAULT for SDIO_PRSTVAL2 */
 #define SDIO_PRSTVAL2_SDR12SDCLKFREQVAL_DEFAULT        (_SDIO_PRSTVAL2_SDR12SDCLKFREQVAL_DEFAULT << 16) /**< Shifted mode DEFAULT for SDIO_PRSTVAL2 */
-#define SDIO_PRSTVAL2_SDR12CLKGENVAL                   (0x1UL << 26)                                    /**< Clock generator select value for SDR12 */
+#define SDIO_PRSTVAL2_SDR12CLKGENVAL                   (0x1UL << 26)                                    /**< Clock Generator Select Value for SDR12 */
 #define _SDIO_PRSTVAL2_SDR12CLKGENVAL_SHIFT            26                                               /**< Shift value for SDIO_SDR12CLKGENVAL */
 #define _SDIO_PRSTVAL2_SDR12CLKGENVAL_MASK             0x4000000UL                                      /**< Bit mask for SDIO_SDR12CLKGENVAL */
 #define _SDIO_PRSTVAL2_SDR12CLKGENVAL_DEFAULT          0x00000000UL                                     /**< Mode DEFAULT for SDIO_PRSTVAL2 */
@@ -1399,7 +1397,7 @@ typedef struct {
 #define _SDIO_PRSTVAL4_SDR25SDCLKFREQVAL_MASK          0x3FFUL                                          /**< Bit mask for SDIO_SDR25SDCLKFREQVAL */
 #define _SDIO_PRSTVAL4_SDR25SDCLKFREQVAL_DEFAULT       0x00000000UL                                     /**< Mode DEFAULT for SDIO_PRSTVAL4 */
 #define SDIO_PRSTVAL4_SDR25SDCLKFREQVAL_DEFAULT        (_SDIO_PRSTVAL4_SDR25SDCLKFREQVAL_DEFAULT << 0)  /**< Shifted mode DEFAULT for SDIO_PRSTVAL4 */
-#define SDIO_PRSTVAL4_SDR25CLKGENVAL                   (0x1UL << 10)                                    /**< Clock generator select value for SDR25 */
+#define SDIO_PRSTVAL4_SDR25CLKGENVAL                   (0x1UL << 10)                                    /**< Clock Generator Select Value for SDR25 */
 #define _SDIO_PRSTVAL4_SDR25CLKGENVAL_SHIFT            10                                               /**< Shift value for SDIO_SDR25CLKGENVAL */
 #define _SDIO_PRSTVAL4_SDR25CLKGENVAL_MASK             0x400UL                                          /**< Bit mask for SDIO_SDR25CLKGENVAL */
 #define _SDIO_PRSTVAL4_SDR25CLKGENVAL_DEFAULT          0x00000000UL                                     /**< Mode DEFAULT for SDIO_PRSTVAL4 */
@@ -1420,7 +1418,7 @@ typedef struct {
 #define _SDIO_PRSTVAL4_SDR50SDCLKFREQVAL_MASK          0x3FF0000UL                                      /**< Bit mask for SDIO_SDR50SDCLKFREQVAL */
 #define _SDIO_PRSTVAL4_SDR50SDCLKFREQVAL_DEFAULT       0x00000000UL                                     /**< Mode DEFAULT for SDIO_PRSTVAL4 */
 #define SDIO_PRSTVAL4_SDR50SDCLKFREQVAL_DEFAULT        (_SDIO_PRSTVAL4_SDR50SDCLKFREQVAL_DEFAULT << 16) /**< Shifted mode DEFAULT for SDIO_PRSTVAL4 */
-#define SDIO_PRSTVAL4_SDR50CLCKGENVAL                  (0x1UL << 26)                                    /**< Clock generator select value for SDR50 */
+#define SDIO_PRSTVAL4_SDR50CLCKGENVAL                  (0x1UL << 26)                                    /**< Clock Generator Select Value for SDR50 */
 #define _SDIO_PRSTVAL4_SDR50CLCKGENVAL_SHIFT           26                                               /**< Shift value for SDIO_SDR50CLCKGENVAL */
 #define _SDIO_PRSTVAL4_SDR50CLCKGENVAL_MASK            0x4000000UL                                      /**< Bit mask for SDIO_SDR50CLCKGENVAL */
 #define _SDIO_PRSTVAL4_SDR50CLCKGENVAL_DEFAULT         0x00000000UL                                     /**< Mode DEFAULT for SDIO_PRSTVAL4 */
@@ -1445,7 +1443,7 @@ typedef struct {
 #define _SDIO_PRSTVAL6_SDR104SDCLKFREQVAL_MASK         0x3FFUL                                          /**< Bit mask for SDIO_SDR104SDCLKFREQVAL */
 #define _SDIO_PRSTVAL6_SDR104SDCLKFREQVAL_DEFAULT      0x00000000UL                                     /**< Mode DEFAULT for SDIO_PRSTVAL6 */
 #define SDIO_PRSTVAL6_SDR104SDCLKFREQVAL_DEFAULT       (_SDIO_PRSTVAL6_SDR104SDCLKFREQVAL_DEFAULT << 0) /**< Shifted mode DEFAULT for SDIO_PRSTVAL6 */
-#define SDIO_PRSTVAL6_SDR104CLKGENVAL                  (0x1UL << 10)                                    /**< Clock generator select value for SDR104 */
+#define SDIO_PRSTVAL6_SDR104CLKGENVAL                  (0x1UL << 10)                                    /**< Clock Generator Select Value for SDR104 */
 #define _SDIO_PRSTVAL6_SDR104CLKGENVAL_SHIFT           10                                               /**< Shift value for SDIO_SDR104CLKGENVAL */
 #define _SDIO_PRSTVAL6_SDR104CLKGENVAL_MASK            0x400UL                                          /**< Bit mask for SDIO_SDR104CLKGENVAL */
 #define _SDIO_PRSTVAL6_SDR104CLKGENVAL_DEFAULT         0x00000000UL                                     /**< Mode DEFAULT for SDIO_PRSTVAL6 */
@@ -1466,7 +1464,7 @@ typedef struct {
 #define _SDIO_PRSTVAL6_DDR50SDCLKFREQVAL_MASK          0x3FF0000UL                                      /**< Bit mask for SDIO_DDR50SDCLKFREQVAL */
 #define _SDIO_PRSTVAL6_DDR50SDCLKFREQVAL_DEFAULT       0x00000000UL                                     /**< Mode DEFAULT for SDIO_PRSTVAL6 */
 #define SDIO_PRSTVAL6_DDR50SDCLKFREQVAL_DEFAULT        (_SDIO_PRSTVAL6_DDR50SDCLKFREQVAL_DEFAULT << 16) /**< Shifted mode DEFAULT for SDIO_PRSTVAL6 */
-#define SDIO_PRSTVAL6_DDR50CLKGENVAL                   (0x1UL << 26)                                    /**< Clock generator select value for DDR50 */
+#define SDIO_PRSTVAL6_DDR50CLKGENVAL                   (0x1UL << 26)                                    /**< Clock Generator Select Value for DDR50 */
 #define _SDIO_PRSTVAL6_DDR50CLKGENVAL_SHIFT            26                                               /**< Shift value for SDIO_DDR50CLKGENVAL */
 #define _SDIO_PRSTVAL6_DDR50CLKGENVAL_MASK             0x4000000UL                                      /**< Bit mask for SDIO_DDR50CLKGENVAL */
 #define _SDIO_PRSTVAL6_DDR50CLKGENVAL_DEFAULT          0x00000000UL                                     /**< Mode DEFAULT for SDIO_PRSTVAL6 */
@@ -1495,7 +1493,7 @@ typedef struct {
 /* Bit fields for SDIO SLOTINTSTAT */
 #define _SDIO_SLOTINTSTAT_RESETVALUE                   0x10020000UL                                 /**< Default value for SDIO_SLOTINTSTAT */
 #define _SDIO_SLOTINTSTAT_MASK                         0xFFFF0001UL                                 /**< Mask for SDIO_SLOTINTSTAT */
-#define SDIO_SLOTINTSTAT_INTSLOT0                      (0x1UL << 0)                                 /**< Interrupt Signal for Slot#0  */
+#define SDIO_SLOTINTSTAT_INTSLOT0                      (0x1UL << 0)                                 /**< Interrupt Signal for Slot#0 */
 #define _SDIO_SLOTINTSTAT_INTSLOT0_SHIFT               0                                            /**< Shift value for SDIO_INTSLOT0 */
 #define _SDIO_SLOTINTSTAT_INTSLOT0_MASK                0x1UL                                        /**< Bit mask for SDIO_INTSLOT0 */
 #define _SDIO_SLOTINTSTAT_INTSLOT0_DEFAULT             0x00000000UL                                 /**< Mode DEFAULT for SDIO_SLOTINTSTAT */
@@ -1512,7 +1510,7 @@ typedef struct {
 /* Bit fields for SDIO CTRL */
 #define _SDIO_CTRL_RESETVALUE                          0x00000000UL                           /**< Default value for SDIO_CTRL */
 #define _SDIO_CTRL_MASK                                0x00030FFFUL                           /**< Mask for SDIO_CTRL */
-#define SDIO_CTRL_ITAPDLYEN                            (0x1UL << 0)                           /**< Selective tap Delay Line Enable on rxclk_in */
+#define SDIO_CTRL_ITAPDLYEN                            (0x1UL << 0)                           /**< Selective Tap Delay Line Enable on Rxclk_in */
 #define _SDIO_CTRL_ITAPDLYEN_SHIFT                     0                                      /**< Shift value for SDIO_ITAPDLYEN */
 #define _SDIO_CTRL_ITAPDLYEN_MASK                      0x1UL                                  /**< Bit mask for SDIO_ITAPDLYEN */
 #define _SDIO_CTRL_ITAPDLYEN_DEFAULT                   0x00000000UL                           /**< Mode DEFAULT for SDIO_CTRL */
@@ -1521,12 +1519,12 @@ typedef struct {
 #define _SDIO_CTRL_ITAPDLYSEL_MASK                     0x3EUL                                 /**< Bit mask for SDIO_ITAPDLYSEL */
 #define _SDIO_CTRL_ITAPDLYSEL_DEFAULT                  0x00000000UL                           /**< Mode DEFAULT for SDIO_CTRL */
 #define SDIO_CTRL_ITAPDLYSEL_DEFAULT                   (_SDIO_CTRL_ITAPDLYSEL_DEFAULT << 1)   /**< Shifted mode DEFAULT for SDIO_CTRL */
-#define SDIO_CTRL_ITAPCHGWIN                           (0x1UL << 6)                           /**< Gating signal for Tap Delay change */
+#define SDIO_CTRL_ITAPCHGWIN                           (0x1UL << 6)                           /**< Gating Signal for Tap Delay Change */
 #define _SDIO_CTRL_ITAPCHGWIN_SHIFT                    6                                      /**< Shift value for SDIO_ITAPCHGWIN */
 #define _SDIO_CTRL_ITAPCHGWIN_MASK                     0x40UL                                 /**< Bit mask for SDIO_ITAPCHGWIN */
 #define _SDIO_CTRL_ITAPCHGWIN_DEFAULT                  0x00000000UL                           /**< Mode DEFAULT for SDIO_CTRL */
 #define SDIO_CTRL_ITAPCHGWIN_DEFAULT                   (_SDIO_CTRL_ITAPCHGWIN_DEFAULT << 6)   /**< Shifted mode DEFAULT for SDIO_CTRL */
-#define SDIO_CTRL_OTAPDLYEN                            (0x1UL << 7)                           /**< Selective tap Delay Line Enable on SDIO_CLK pin */
+#define SDIO_CTRL_OTAPDLYEN                            (0x1UL << 7)                           /**< Selective Tap Delay Line Enable on SDIO_CLK Pin */
 #define _SDIO_CTRL_OTAPDLYEN_SHIFT                     7                                      /**< Shift value for SDIO_OTAPDLYEN */
 #define _SDIO_CTRL_OTAPDLYEN_MASK                      0x80UL                                 /**< Bit mask for SDIO_OTAPDLYEN */
 #define _SDIO_CTRL_OTAPDLYEN_DEFAULT                   0x00000000UL                           /**< Mode DEFAULT for SDIO_CTRL */
@@ -1570,42 +1568,42 @@ typedef struct {
 #define SDIO_CFG0_MAXBLKLEN_512B                       (_SDIO_CFG0_MAXBLKLEN_512B << 21)      /**< Shifted mode 512B for SDIO_CFG0 */
 #define SDIO_CFG0_MAXBLKLEN_1024B                      (_SDIO_CFG0_MAXBLKLEN_1024B << 21)     /**< Shifted mode 1024B for SDIO_CFG0 */
 #define SDIO_CFG0_MAXBLKLEN_2048B                      (_SDIO_CFG0_MAXBLKLEN_2048B << 21)     /**< Shifted mode 2048B for SDIO_CFG0 */
-#define SDIO_CFG0_C8BITSUP                             (0x1UL << 23)                          /**< 8-bit interface support */
+#define SDIO_CFG0_C8BITSUP                             (0x1UL << 23)                          /**< 8-bit Interface Support */
 #define _SDIO_CFG0_C8BITSUP_SHIFT                      23                                     /**< Shift value for SDIO_C8BITSUP */
 #define _SDIO_CFG0_C8BITSUP_MASK                       0x800000UL                             /**< Bit mask for SDIO_C8BITSUP */
 #define _SDIO_CFG0_C8BITSUP_DEFAULT                    0x00000000UL                           /**< Mode DEFAULT for SDIO_CFG0 */
 #define SDIO_CFG0_C8BITSUP_DEFAULT                     (_SDIO_CFG0_C8BITSUP_DEFAULT << 23)    /**< Shifted mode DEFAULT for SDIO_CFG0 */
-#define SDIO_CFG0_CADMA2SUP                            (0x1UL << 24)                          /**< ADMA2 mode support */
+#define SDIO_CFG0_CADMA2SUP                            (0x1UL << 24)                          /**< ADMA2 Mode Support */
 #define _SDIO_CFG0_CADMA2SUP_SHIFT                     24                                     /**< Shift value for SDIO_CADMA2SUP */
 #define _SDIO_CFG0_CADMA2SUP_MASK                      0x1000000UL                            /**< Bit mask for SDIO_CADMA2SUP */
 #define _SDIO_CFG0_CADMA2SUP_DEFAULT                   0x00000000UL                           /**< Mode DEFAULT for SDIO_CFG0 */
 #define SDIO_CFG0_CADMA2SUP_DEFAULT                    (_SDIO_CFG0_CADMA2SUP_DEFAULT << 24)   /**< Shifted mode DEFAULT for SDIO_CFG0 */
-#define SDIO_CFG0_CHSSUP                               (0x1UL << 25)                          /**< High Speed mode support */
+#define SDIO_CFG0_CHSSUP                               (0x1UL << 25)                          /**< High Speed Mode Support */
 #define _SDIO_CFG0_CHSSUP_SHIFT                        25                                     /**< Shift value for SDIO_CHSSUP */
 #define _SDIO_CFG0_CHSSUP_MASK                         0x2000000UL                            /**< Bit mask for SDIO_CHSSUP */
 #define _SDIO_CFG0_CHSSUP_DEFAULT                      0x00000000UL                           /**< Mode DEFAULT for SDIO_CFG0 */
 #define SDIO_CFG0_CHSSUP_DEFAULT                       (_SDIO_CFG0_CHSSUP_DEFAULT << 25)      /**< Shifted mode DEFAULT for SDIO_CFG0 */
-#define SDIO_CFG0_CSDMASUP                             (0x1UL << 26)                          /**< SDMA mode support */
+#define SDIO_CFG0_CSDMASUP                             (0x1UL << 26)                          /**< SDMA Mode Support */
 #define _SDIO_CFG0_CSDMASUP_SHIFT                      26                                     /**< Shift value for SDIO_CSDMASUP */
 #define _SDIO_CFG0_CSDMASUP_MASK                       0x4000000UL                            /**< Bit mask for SDIO_CSDMASUP */
 #define _SDIO_CFG0_CSDMASUP_DEFAULT                    0x00000000UL                           /**< Mode DEFAULT for SDIO_CFG0 */
 #define SDIO_CFG0_CSDMASUP_DEFAULT                     (_SDIO_CFG0_CSDMASUP_DEFAULT << 26)    /**< Shifted mode DEFAULT for SDIO_CFG0 */
-#define SDIO_CFG0_CSUSPRESSUP                          (0x1UL << 27)                          /**< Suspend/Resume support */
+#define SDIO_CFG0_CSUSPRESSUP                          (0x1UL << 27)                          /**< Suspend/Resume Support */
 #define _SDIO_CFG0_CSUSPRESSUP_SHIFT                   27                                     /**< Shift value for SDIO_CSUSPRESSUP */
 #define _SDIO_CFG0_CSUSPRESSUP_MASK                    0x8000000UL                            /**< Bit mask for SDIO_CSUSPRESSUP */
 #define _SDIO_CFG0_CSUSPRESSUP_DEFAULT                 0x00000000UL                           /**< Mode DEFAULT for SDIO_CFG0 */
 #define SDIO_CFG0_CSUSPRESSUP_DEFAULT                  (_SDIO_CFG0_CSUSPRESSUP_DEFAULT << 27) /**< Shifted mode DEFAULT for SDIO_CFG0 */
-#define SDIO_CFG0_C3P3VSUP                             (0x1UL << 28)                          /**< Core 3P3V support */
+#define SDIO_CFG0_C3P3VSUP                             (0x1UL << 28)                          /**< Core 3P3V Support */
 #define _SDIO_CFG0_C3P3VSUP_SHIFT                      28                                     /**< Shift value for SDIO_C3P3VSUP */
 #define _SDIO_CFG0_C3P3VSUP_MASK                       0x10000000UL                           /**< Bit mask for SDIO_C3P3VSUP */
 #define _SDIO_CFG0_C3P3VSUP_DEFAULT                    0x00000000UL                           /**< Mode DEFAULT for SDIO_CFG0 */
 #define SDIO_CFG0_C3P3VSUP_DEFAULT                     (_SDIO_CFG0_C3P3VSUP_DEFAULT << 28)    /**< Shifted mode DEFAULT for SDIO_CFG0 */
-#define SDIO_CFG0_C3P0VSUP                             (0x1UL << 29)                          /**< 3P0V support */
+#define SDIO_CFG0_C3P0VSUP                             (0x1UL << 29)                          /**< 3P0V Support */
 #define _SDIO_CFG0_C3P0VSUP_SHIFT                      29                                     /**< Shift value for SDIO_C3P0VSUP */
 #define _SDIO_CFG0_C3P0VSUP_MASK                       0x20000000UL                           /**< Bit mask for SDIO_C3P0VSUP */
 #define _SDIO_CFG0_C3P0VSUP_DEFAULT                    0x00000000UL                           /**< Mode DEFAULT for SDIO_CFG0 */
 #define SDIO_CFG0_C3P0VSUP_DEFAULT                     (_SDIO_CFG0_C3P0VSUP_DEFAULT << 29)    /**< Shifted mode DEFAULT for SDIO_CFG0 */
-#define SDIO_CFG0_C1P8VSUP                             (0x1UL << 30)                          /**< 1P8V support */
+#define SDIO_CFG0_C1P8VSUP                             (0x1UL << 30)                          /**< 1P8V Support */
 #define _SDIO_CFG0_C1P8VSUP_SHIFT                      30                                     /**< Shift value for SDIO_C1P8VSUP */
 #define _SDIO_CFG0_C1P8VSUP_MASK                       0x40000000UL                           /**< Bit mask for SDIO_C1P8VSUP */
 #define _SDIO_CFG0_C1P8VSUP_DEFAULT                    0x00000000UL                           /**< Mode DEFAULT for SDIO_CFG0 */
@@ -1644,7 +1642,7 @@ typedef struct {
 #define _SDIO_CFG1_CDDR50SUP_MASK                      0x20UL                                 /**< Bit mask for SDIO_CDDR50SUP */
 #define _SDIO_CFG1_CDDR50SUP_DEFAULT                   0x00000000UL                           /**< Mode DEFAULT for SDIO_CFG1 */
 #define SDIO_CFG1_CDDR50SUP_DEFAULT                    (_SDIO_CFG1_CDDR50SUP_DEFAULT << 5)    /**< Shifted mode DEFAULT for SDIO_CFG1 */
-#define SDIO_CFG1_CDRVASUP                             (0x1UL << 6)                           /**< Support Type A Driver */
+#define SDIO_CFG1_CDRVASUP                             (0x1UL << 6)                           /**< Support Type a Driver */
 #define _SDIO_CFG1_CDRVASUP_SHIFT                      6                                      /**< Shift value for SDIO_CDRVASUP */
 #define _SDIO_CFG1_CDRVASUP_MASK                       0x40UL                                 /**< Bit mask for SDIO_CDRVASUP */
 #define _SDIO_CFG1_CDRVASUP_DEFAULT                    0x00000000UL                           /**< Mode DEFAULT for SDIO_CFG1 */
@@ -1677,7 +1675,7 @@ typedef struct {
 #define _SDIO_CFG1_SPISUP_MASK                         0x10000UL                              /**< Bit mask for SDIO_SPISUP */
 #define _SDIO_CFG1_SPISUP_DEFAULT                      0x00000000UL                           /**< Mode DEFAULT for SDIO_CFG1 */
 #define SDIO_CFG1_SPISUP_DEFAULT                       (_SDIO_CFG1_SPISUP_DEFAULT << 16)      /**< Shifted mode DEFAULT for SDIO_CFG1 */
-#define SDIO_CFG1_ASYNCWKUPEN                          (0x1UL << 18)                          /**< asynchronous wakeup enable */
+#define SDIO_CFG1_ASYNCWKUPEN                          (0x1UL << 18)                          /**< Asynchronous Wakeup Enable */
 #define _SDIO_CFG1_ASYNCWKUPEN_SHIFT                   18                                     /**< Shift value for SDIO_ASYNCWKUPEN */
 #define _SDIO_CFG1_ASYNCWKUPEN_MASK                    0x40000UL                              /**< Bit mask for SDIO_ASYNCWKUPEN */
 #define _SDIO_CFG1_ASYNCWKUPEN_DEFAULT                 0x00000000UL                           /**< Mode DEFAULT for SDIO_CFG1 */

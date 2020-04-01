@@ -1,32 +1,30 @@
 /***************************************************************************//**
- * @file em_common.h
+ * @file
  * @brief General purpose utilities.
- * @version 5.3.3
  *******************************************************************************
  * # License
- * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
- *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
- * obligation to support this Software. Silicon Labs is providing the
- * Software "AS IS", with no express or implied warranties of any kind,
- * including, but not limited to, any implied warranties of merchantability
- * or fitness for any particular purpose or warranties against infringement
- * of any proprietary rights of a third party.
- *
- * Silicon Labs will not be liable for any consequential, incidental, or
- * special damages, or any other relief, or for any claim by any third party,
- * arising from your use of this Software.
  *
  ******************************************************************************/
 #ifndef EM_COMMON_H
@@ -34,6 +32,7 @@
 
 #include "em_device.h"
 #include <stdbool.h>
+#include "em_assert.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,8 +56,10 @@ extern "C" {
  *
  * @n
  * @note
- *  EMLIB does not implement support for radio features. Please refer to stack
- *  documentation for more information on RF support.
+ *  The RAIL library provides a generic interface for all Silicon Labs radio features.
+ *  RAIL documentation is available from [Simplicity Studio](http://www.silabs.com/simplicity) 
+ *  or at [docs.silabs.com](https://docs.silabs.com/rail/latest/).
+ *
  * @{
  ******************************************************************************/
 
@@ -69,8 +70,6 @@ extern "C" {
  *  This SDK supports the following compilers/IDEs:
  *  @li Simplicity Studio
  *  @li IAR Embedded Workbench
- *  @li Atollic TrueSTUDIO IDE
- *  @li Rowley Associates CrossWorks for ARM
  *  @li Keil µVision IDE
  *  @li Plain armgcc
  *
@@ -85,6 +84,15 @@ extern "C" {
  * @{
  ******************************************************************************/
 
+/** @brief Round n up to closest interval of i. */
+#define SL_CEILING(n, i)   ((((n) + (i) - 1U) / (i)) * (i))
+
+/** @brief Round n down to closest interval of i. */
+#define SL_FLOOR(n, i) ((n / i) * i))
+
+/** @brief Stringify X */
+#define STRINGIZE(X) #X
+
 #if !defined(__GNUC__)
 /* Not GCC compilers */
 
@@ -95,7 +103,6 @@ extern "C" {
 #define SL_MAX(a, b) ((a) > (b) ? (a) : (b))
 
 /** @brief Macros for handling packed structs. */
-#define STRINGIZE(X) #X
 #define SL_PACK_START(X) _Pragma(STRINGIZE(pack(X)))
 #define SL_PACK_END()    _Pragma("pack()")
 #define SL_ATTRIBUTE_PACKED
@@ -115,6 +122,14 @@ extern "C" {
 #endif
 
 #if defined(__ICCARM__)
+
+#if (__VER__ >= 8000000)
+/** @brief Obsoleted macro from version 8.00 and on . */
+#define _STD_BEGIN
+/** @brief Obsoleted macro from version 8.00 and on . */
+#define _STD_END
+#endif
+
 /** @brief IAR Embedded Workbench: Macros for handling aligned structs. */
 #define SL_ALIGN(X) _Pragma(STRINGIZE(data_alignment = X))
 
@@ -132,28 +147,32 @@ extern "C" {
 
 #define SL_ATTRIBUTE_ALIGN(X)
 
+/** @brief Macro for notifying the compiler of an intended
+ *  switch case fallthrough. */
+#define SL_FALLTHROUGH
+
 #else // !defined(__GNUC__)
 /* GCC compilers */
 
-/** @brief Macro for getting minimum value. No sideeffects, a and b are evaluated once only. */
+/** @brief A macro for getting the minimum value. No sideeffects, a and b are evaluated one time only. */
 #define SL_MIN(a, b) __extension__({ __typeof__(a)_a = (a); __typeof__(b)_b = (b); _a < _b ? _a : _b; })
 
-/** @brief Macro for getting maximum value. No sideeffects, a and b are evaluated once only. */
+/** @brief A macro for getting the maximum value. No sideeffects, a and b are evaluated one time only. */
 #define SL_MAX(a, b) __extension__({ __typeof__(a)_a = (a); __typeof__(b)_b = (b); _a > _b ? _a : _b; })
 
-/** @brief GCC style macro for handling packed structs. */
+/** @brief A GCC style macro for handling packed structures. */
 #define SL_ATTRIBUTE_PACKED __attribute__ ((packed))
 
-/** @brief Macro for handling packed structs.
- *  @n Use this macro before the struct definition.
- *  @n X denotes the maximum alignment of struct members. X is not supported with
- *  GCC. GCC always use 1 byte maximum alignment.
+/** @brief A macro for handling packed structures.
+ *  @n Use this macro before the structure definition.
+ *  @n X denotes the maximum alignment of structure members. X is not supported with
+ *  GCC. GCC always uses 1 byte maximum alignment.
  */
 #define SL_PACK_START(x)
 
-/** @brief Macro for handling packed structs.
- *  @n Use this macro after the struct definition.
- *  @n With GCC, add SL_ATTRIBUTE_PACKED after the closing } of the struct
+/** @brief A macro for handling packed structures.
+ *  @n Use this macro after the structure definition.
+ *  @n With GCC, add SL_ATTRIBUTE_PACKED after the closing curly braces of the structure
  *  definition.
  */
 #define SL_PACK_END()
@@ -161,25 +180,33 @@ extern "C" {
 /** @brief GCC style macro for aligning a variable. */
 #define SL_ATTRIBUTE_ALIGN(X) __attribute__ ((aligned(X)))
 
-/** @brief Macro for aligning a variable.
+/** @brief A macro for aligning a variable.
  *  @n Use this macro before the variable definition.
  *  @n X denotes the storage alignment value in bytes.
- *  @n To be gcc compatible use SL_ATTRIBUTE_ALIGN(X) before the ; on normal
- *  variables. Use SL_ATTRIBUTE_ALIGN(X) before the opening { on struct variables.
+ *  @n To be GCC-compatible, use SL_ATTRIBUTE_ALIGN(X) before the semicolon on normal
+ *  variables. Use SL_ATTRIBUTE_ALIGN(X) before the opening curly brace on structure variables.
  */
 #define SL_ALIGN(X)
 
-/** @brief Macro for defining a weak symbol. */
+/** @brief A macro for defining a weak symbol. */
 #define SL_WEAK __attribute__ ((weak))
 
-/** @brief Macro for handling non-returning functions. */
+/** @brief A macro for handling non-returning functions. */
 #define SL_NORETURN __attribute__ ((noreturn))
 
-/** Macro for placing a variable in a section.
- *  @n Use this macro after the variable definition, before the = or ;.
+/** A macro for placing a variable in a section.
+ *  @n Use this macro after the variable definition, before the equal sign or a semicolon.
  *  @n X denotes the section to place the variable in.
  */
 #define SL_ATTRIBUTE_SECTION(X) __attribute__ ((section(X)))
+
+/** @brief A macro for notifying the compiler of an intended
+ *  switch case fallthrough. */
+#if __GNUC__ >= 7
+  #define SL_FALLTHROUGH __attribute__ ((fallthrough));
+#else
+  #define SL_FALLTHROUGH
+#endif
 
 #endif // !defined(__GNUC__)
 
@@ -191,7 +218,7 @@ extern "C" {
  *   Data value to check for number of trailing zero bits.
  *
  * @return
- *   Number of trailing zeros in value.
+ *   A number of trailing zeros in value.
  ******************************************************************************/
 __STATIC_INLINE uint32_t SL_CTZ(uint32_t value)
 {
@@ -221,7 +248,7 @@ __STATIC_INLINE uint32_t EFM32_CTZ(uint32_t value)
  *   Data value to reverse.
  *
  * @return
- *   Reversed value.
+ *   A reversed value.
  ******************************************************************************/
 __STATIC_INLINE uint32_t SL_RBIT(uint32_t value)
 {
@@ -251,11 +278,27 @@ __STATIC_INLINE uint32_t SL_RBIT(uint32_t value)
  *   16-bit data value to reverse.
  *
  * @return
- *   16-bit reversed value.
+ *   A 16-bit reversed value.
  ******************************************************************************/
 __STATIC_INLINE uint32_t SL_RBIT16(uint32_t value)
 {
   return SL_RBIT(value) >> 16;
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Convert logarithm of 2 to division factor.
+ *
+ * @param[in] log2
+ *   Logarithm of 2.
+ *
+ * @return
+ *   Dividend.
+ ******************************************************************************/
+__STATIC_INLINE uint32_t SL_Log2ToDiv(uint32_t log2)
+{
+  EFM_ASSERT(log2 < 32U);
+  return 1UL << log2;
 }
 
 /** @} (end addtogroup COMMON) */

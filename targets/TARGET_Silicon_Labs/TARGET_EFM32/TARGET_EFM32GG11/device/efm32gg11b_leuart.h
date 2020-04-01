@@ -1,34 +1,32 @@
-/**************************************************************************//**
- * @file efm32gg11b_leuart.h
+/***************************************************************************//**
+ * @file
  * @brief EFM32GG11B_LEUART register and bit field definitions
- * @version 5.3.2
- ******************************************************************************
+ *******************************************************************************
  * # License
- * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
- ******************************************************************************
+ * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.@n
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.@n
+ *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Laboratories, Inc.
- * has no obligation to support this Software. Silicon Laboratories, Inc. is
- * providing the Software "AS IS", with no express or implied warranties of any
- * kind, including, but not limited to, any implied warranties of
- * merchantability or fitness for any particular purpose or warranties against
- * infringement of any proprietary rights of a third party.
- *
- * Silicon Laboratories, Inc. will not be liable for any consequential,
- * incidental, or special damages, or any other relief, or for any claim by
- * any third party, arising from your use of this Software.
- *
- *****************************************************************************/
+ ******************************************************************************/
 
 #if defined(__ICCARM__)
 #pragma system_include       /* Treat file as system include file. */
@@ -36,50 +34,50 @@
 #pragma clang system_header  /* Treat file as system include file. */
 #endif
 
-/**************************************************************************//**
-* @addtogroup Parts
-* @{
-******************************************************************************/
-/**************************************************************************//**
+/***************************************************************************//**
+ * @addtogroup Parts
+ * @{
+ ******************************************************************************/
+/***************************************************************************//**
  * @defgroup EFM32GG11B_LEUART LEUART
  * @{
  * @brief EFM32GG11B_LEUART Register Declaration
- *****************************************************************************/
+ ******************************************************************************/
 /** LEUART Register Declaration */
 typedef struct {
-  __IOM uint32_t CTRL;         /**< Control Register  */
-  __IOM uint32_t CMD;          /**< Command Register  */
-  __IM uint32_t  STATUS;       /**< Status Register  */
-  __IOM uint32_t CLKDIV;       /**< Clock Control Register  */
-  __IOM uint32_t STARTFRAME;   /**< Start Frame Register  */
-  __IOM uint32_t SIGFRAME;     /**< Signal Frame Register  */
-  __IM uint32_t  RXDATAX;      /**< Receive Buffer Data Extended Register  */
-  __IM uint32_t  RXDATA;       /**< Receive Buffer Data Register  */
-  __IM uint32_t  RXDATAXP;     /**< Receive Buffer Data Extended Peek Register  */
-  __IOM uint32_t TXDATAX;      /**< Transmit Buffer Data Extended Register  */
-  __IOM uint32_t TXDATA;       /**< Transmit Buffer Data Register  */
-  __IM uint32_t  IF;           /**< Interrupt Flag Register  */
-  __IOM uint32_t IFS;          /**< Interrupt Flag Set Register  */
-  __IOM uint32_t IFC;          /**< Interrupt Flag Clear Register  */
-  __IOM uint32_t IEN;          /**< Interrupt Enable Register  */
-  __IOM uint32_t PULSECTRL;    /**< Pulse Control Register  */
+  __IOM uint32_t CTRL;          /**< Control Register  */
+  __IOM uint32_t CMD;           /**< Command Register  */
+  __IM uint32_t  STATUS;        /**< Status Register  */
+  __IOM uint32_t CLKDIV;        /**< Clock Control Register  */
+  __IOM uint32_t STARTFRAME;    /**< Start Frame Register  */
+  __IOM uint32_t SIGFRAME;      /**< Signal Frame Register  */
+  __IM uint32_t  RXDATAX;       /**< Receive Buffer Data Extended Register  */
+  __IM uint32_t  RXDATA;        /**< Receive Buffer Data Register  */
+  __IM uint32_t  RXDATAXP;      /**< Receive Buffer Data Extended Peek Register  */
+  __IOM uint32_t TXDATAX;       /**< Transmit Buffer Data Extended Register  */
+  __IOM uint32_t TXDATA;        /**< Transmit Buffer Data Register  */
+  __IM uint32_t  IF;            /**< Interrupt Flag Register  */
+  __IOM uint32_t IFS;           /**< Interrupt Flag Set Register  */
+  __IOM uint32_t IFC;           /**< Interrupt Flag Clear Register  */
+  __IOM uint32_t IEN;           /**< Interrupt Enable Register  */
+  __IOM uint32_t PULSECTRL;     /**< Pulse Control Register  */
 
-  __IOM uint32_t FREEZE;       /**< Freeze Register  */
-  __IM uint32_t  SYNCBUSY;     /**< Synchronization Busy Register  */
+  __IOM uint32_t FREEZE;        /**< Freeze Register  */
+  __IM uint32_t  SYNCBUSY;      /**< Synchronization Busy Register  */
 
-  uint32_t       RESERVED0[3]; /**< Reserved for future use **/
-  __IOM uint32_t ROUTEPEN;     /**< I/O Routing Pin Enable Register  */
-  __IOM uint32_t ROUTELOC0;    /**< I/O Routing Location Register  */
-  uint32_t       RESERVED1[2]; /**< Reserved for future use **/
-  __IOM uint32_t INPUT;        /**< LEUART Input Register  */
-} LEUART_TypeDef;              /** @} */
+  uint32_t       RESERVED0[3U]; /**< Reserved for future use **/
+  __IOM uint32_t ROUTEPEN;      /**< I/O Routing Pin Enable Register  */
+  __IOM uint32_t ROUTELOC0;     /**< I/O Routing Location Register  */
+  uint32_t       RESERVED1[2U]; /**< Reserved for future use **/
+  __IOM uint32_t INPUT;         /**< LEUART Input Register  */
+} LEUART_TypeDef;               /** @} */
 
-/**************************************************************************//**
+/***************************************************************************//**
  * @addtogroup EFM32GG11B_LEUART
  * @{
  * @defgroup EFM32GG11B_LEUART_BitFields  LEUART Bit Fields
  * @{
- *****************************************************************************/
+ ******************************************************************************/
 
 /* Bit fields for LEUART CTRL */
 #define _LEUART_CTRL_RESETVALUE                  0x00000000UL                         /**< Default value for LEUART_CTRL */
@@ -117,12 +115,12 @@ typedef struct {
 #define LEUART_CTRL_STOPBITS_DEFAULT             (_LEUART_CTRL_STOPBITS_DEFAULT << 4) /**< Shifted mode DEFAULT for LEUART_CTRL */
 #define LEUART_CTRL_STOPBITS_ONE                 (_LEUART_CTRL_STOPBITS_ONE << 4)     /**< Shifted mode ONE for LEUART_CTRL */
 #define LEUART_CTRL_STOPBITS_TWO                 (_LEUART_CTRL_STOPBITS_TWO << 4)     /**< Shifted mode TWO for LEUART_CTRL */
-#define LEUART_CTRL_INV                          (0x1UL << 5)                         /**< Invert Input And Output */
+#define LEUART_CTRL_INV                          (0x1UL << 5)                         /**< Invert Input and Output */
 #define _LEUART_CTRL_INV_SHIFT                   5                                    /**< Shift value for LEUART_INV */
 #define _LEUART_CTRL_INV_MASK                    0x20UL                               /**< Bit mask for LEUART_INV */
 #define _LEUART_CTRL_INV_DEFAULT                 0x00000000UL                         /**< Mode DEFAULT for LEUART_CTRL */
 #define LEUART_CTRL_INV_DEFAULT                  (_LEUART_CTRL_INV_DEFAULT << 5)      /**< Shifted mode DEFAULT for LEUART_CTRL */
-#define LEUART_CTRL_ERRSDMA                      (0x1UL << 6)                         /**< Clear RX DMA On Error */
+#define LEUART_CTRL_ERRSDMA                      (0x1UL << 6)                         /**< Clear RX DMA on Error */
 #define _LEUART_CTRL_ERRSDMA_SHIFT               6                                    /**< Shift value for LEUART_ERRSDMA */
 #define _LEUART_CTRL_ERRSDMA_MASK                0x40UL                               /**< Bit mask for LEUART_ERRSDMA */
 #define _LEUART_CTRL_ERRSDMA_DEFAULT             0x00000000UL                         /**< Mode DEFAULT for LEUART_CTRL */
@@ -333,7 +331,7 @@ typedef struct {
 #define _LEUART_TXDATAX_TXDATA_MASK              0x1FFUL                                 /**< Bit mask for LEUART_TXDATA */
 #define _LEUART_TXDATAX_TXDATA_DEFAULT           0x00000000UL                            /**< Mode DEFAULT for LEUART_TXDATAX */
 #define LEUART_TXDATAX_TXDATA_DEFAULT            (_LEUART_TXDATAX_TXDATA_DEFAULT << 0)   /**< Shifted mode DEFAULT for LEUART_TXDATAX */
-#define LEUART_TXDATAX_TXBREAK                   (0x1UL << 13)                           /**< Transmit Data As Break */
+#define LEUART_TXDATAX_TXBREAK                   (0x1UL << 13)                           /**< Transmit Data as Break */
 #define _LEUART_TXDATAX_TXBREAK_SHIFT            13                                      /**< Shift value for LEUART_TXBREAK */
 #define _LEUART_TXDATAX_TXBREAK_MASK             0x2000UL                                /**< Bit mask for LEUART_TXBREAK */
 #define _LEUART_TXDATAX_TXBREAK_DEFAULT          0x00000000UL                            /**< Mode DEFAULT for LEUART_TXDATAX */

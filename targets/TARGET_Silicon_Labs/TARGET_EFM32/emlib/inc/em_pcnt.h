@@ -1,32 +1,30 @@
 /***************************************************************************//**
- * @file em_pcnt.h
+ * @file
  * @brief Pulse Counter (PCNT) peripheral API
- * @version 5.3.3
  *******************************************************************************
  * # License
- * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
- *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
- * obligation to support this Software. Silicon Labs is providing the
- * Software "AS IS", with no express or implied warranties of any kind,
- * including, but not limited to, any implied warranties of merchantability
- * or fitness for any particular purpose or warranties against infringement
- * of any proprietary rights of a third party.
- *
- * Silicon Labs will not be liable for any consequential, incidental, or
- * special damages, or any other relief, or for any claim by any third party,
- * arising from your use of this Software.
  *
  ******************************************************************************/
 
@@ -64,12 +62,20 @@ extern "C" {
 
 #ifdef PCNT1
 /** PCNT1 Counter register size. */
+#if defined(_SILICON_LABS_32B_SERIES_0)
 #define PCNT1_CNT_SIZE    (8)   /* PCNT1 counter is  8 bits. */
+#else
+#define PCNT1_CNT_SIZE   (16)   /* PCNT1 counter is  16 bits. */
+#endif
 #endif
 
 #ifdef PCNT2
 /** PCNT2 Counter register size. */
+#if defined(_SILICON_LABS_32B_SERIES_0)
 #define PCNT2_CNT_SIZE    (8)   /* PCNT2 counter is  8 bits. */
+#else
+#define PCNT2_CNT_SIZE   (16)   /* PCNT2 counter is  16 bits. */
+#endif
 #endif
 
 /*******************************************************************************
@@ -165,20 +171,20 @@ typedef enum {
  *******************************   STRUCTS   ***********************************
  ******************************************************************************/
 
-/** Init structure. */
+/** Initialization structure. */
 typedef struct {
   /** Mode to operate in. */
   PCNT_Mode_TypeDef     mode;
 
   /** Initial counter value (refer to reference manual for max value allowed).
    * Only used for #pcntModeOvsSingle (and possibly #pcntModeDisable) modes.
-   * If using #pcntModeExtSingle or #pcntModeExtQuad modes, the counter
+   * If using #pcntModeExtSingle or #pcntModeExtQuad modes, counter
    * value is reset to HW reset value. */
   uint32_t              counter;
 
   /** Initial top value (refer to reference manual for max value allowed).
    * Only used for #pcntModeOvsSingle (and possibly #pcntModeDisable) modes.
-   * If using #pcntModeExtSingle or #pcntModeExtQuad modes, the top
+   * If using #pcntModeExtSingle or #pcntModeExtQuad modes, top
    * value is reset to HW reset value. */
   uint32_t              top;
 
@@ -196,7 +202,7 @@ typedef struct {
   bool                  filter;
 
 #if defined(PCNT_CTRL_HYST)
-  /** Set to true to enable hysteresis. When its enabled, the PCNT will always
+  /** Set to true to enable hysteresis. When enabled, PCNT will always
    *  overflow and underflow to TOP/2. */
   bool                  hyst;
 
@@ -207,11 +213,11 @@ typedef struct {
   bool                  s1CntDir;
 
   /** Selects whether the regular counter responds to up-count events,
-   *  down-count events, both or none. */
+   *  down-count events, both, or none. */
   PCNT_CntEvent_TypeDef cntEvent;
 
   /** Selects whether the auxiliary counter responds to up-count events,
-   *  down-count events, both or none. */
+   *  down-count events, both, or none. */
   PCNT_CntEvent_TypeDef auxCntEvent;
 
   /** Select PRS channel as input to S0IN in PCNTx_INPUT register. */
@@ -223,7 +229,7 @@ typedef struct {
 } PCNT_Init_TypeDef;
 
 #if !defined(PCNT_CTRL_HYST)
-/** Default config for PCNT init structure. */
+/** Default configuration for PCNT initialization structure. */
 #define PCNT_INIT_DEFAULT                                                         \
   {                                                                               \
     pcntModeDisable,                        /* Disabled by default. */            \
@@ -234,7 +240,7 @@ typedef struct {
     false                                   /* Filter disabled. */                \
   }
 #else
-/** Default config for PCNT init structure. */
+/** Default configuration for PCNT initialization structure. */
 #define PCNT_INIT_DEFAULT                                                                      \
   {                                                                                            \
     pcntModeDisable,                        /* Disabled by default. */                         \
@@ -255,7 +261,7 @@ typedef struct {
 #if defined(PCNT_OVSCFG_FILTLEN_DEFAULT)
 /** Filter initialization structure */
 typedef struct {
-  /** Used only in OVSINGLE and OVSQUAD1X-4X modes. To use this, enable the filter through
+  /** Used only in OVSINGLE and OVSQUAD1X-4X modes. To use this, enable filter by
    *  setting filter to true during PCNT_Init(). Filter length = (filtLen + 5) LFACLK cycles. */
   uint8_t               filtLen;
 
@@ -265,18 +271,18 @@ typedef struct {
 } PCNT_Filter_TypeDef;
 #endif
 
-/** Default config for PCNT init structure. */
+/** Default configuration for PCNT initialization structure. */
 #if defined(PCNT_OVSCFG_FILTLEN_DEFAULT)
-#define PCNT_FILTER_DEFAULT                                                         \
-  {                                                                                 \
-    0,                                      /* Default length is 5 LFACLK cycles */ \
-    false                                   /* No flutter removal */                \
+#define PCNT_FILTER_DEFAULT                                                          \
+  {                                                                                  \
+    0,                                      /* Default length is 5 LFACLK cycles. */ \
+    false                                   /* No flutter removal. */                \
   }
 #endif
 
 #if defined(PCNT_CTRL_TCCMODE_DEFAULT)
 
-/** Modes for Triggered Compare and Clear module */
+/** Modes for Triggered Compare and Clear module. */
 typedef enum {
   /** Triggered compare and clear not enabled. */
   tccModeDisabled       = _PCNT_CTRL_TCCMODE_DISABLED,
@@ -303,7 +309,7 @@ typedef enum {
   tccPrescDiv8          = _PCNT_CTRL_TCCPRESC_DIV8
 } PCNT_TCCPresc_Typedef;
 
-/** Compare modes for TCC module */
+/** Compare modes for TCC module. */
 typedef enum {
   /** Compare match if PCNT_CNT is less than, or equal to PCNT_TOP. */
   tccCompLTOE           = _PCNT_CTRL_TCCCOMP_LTOE,
@@ -316,23 +322,23 @@ typedef enum {
   tccCompRange          = _PCNT_CTRL_TCCCOMP_RANGE
 } PCNT_TCCComp_Typedef;
 
-/** TCC initialization structure */
+/** TCC initialization structure. */
 typedef struct {
   /** Mode to operate in. */
   PCNT_TCCMode_TypeDef      mode;
 
-  /** Prescaler value for LFACLK in LFA mode */
+  /** Prescaler value for LFACLK in LFA mode. */
   PCNT_TCCPresc_Typedef     prescaler;
 
-  /** Choose the event that will trigger a clear */
+  /** Choose the event that will trigger a clear. */
   PCNT_TCCComp_Typedef      compare;
 
   /** PRS input to TCC module, either for gating the PCNT clock, triggering the TCC comparison, or both. */
   PCNT_PRSSel_TypeDef       tccPRS;
 
   /** TCC PRS input polarity. @n
-   *  False = Rising edge for comparison trigger, and PCNT clock gated when the PRS signal is high. @n
-   *  True = Falling edge for comparison trigger, and PCNT clock gated when the PRS signal is low. */
+   *  False = Rising edge for comparison trigger, and PCNT clock gated when PRS signal is high. @n
+   *  True = Falling edge for comparison trigger, and PCNT clock gated when PRS signal is low. */
   bool                      prsPolarity;
 
   /** Enable gating PCNT input clock through TCC PRS signal.
@@ -340,14 +346,14 @@ typedef struct {
   bool                      prsGateEnable;
 } PCNT_TCC_TypeDef;
 
-#define PCNT_TCC_DEFAULT                                                                           \
-  {                                                                                                \
-    tccModeDisabled,                            /* Disabled by default */                          \
-    tccPrescDiv1,                               /* Do not prescale LFA clock in LFA mode */        \
-    tccCompLTOE,                                /* Clear when CNT <= TOP */                        \
-    pcntPRSCh0,                                 /* Select PRS channel 0 as input to TCC */         \
-    false,                                      /* PRS polarity is rising edge, and gate when 1 */ \
-    false                                       /* Do not gate the PCNT counter input */           \
+#define PCNT_TCC_DEFAULT                                                                            \
+  {                                                                                                 \
+    tccModeDisabled,                            /* Disabled by default. */                          \
+    tccPrescDiv1,                               /* Do not prescale LFA clock in LFA mode. */        \
+    tccCompLTOE,                                /* Clear when CNT <= TOP. */                        \
+    pcntPRSCh0,                                 /* Select PRS channel 0 as input to TCC. */         \
+    false,                                      /* PRS polarity is rising edge, and gate when 1. */ \
+    false                                       /* Do not gate PCNT counter input. */               \
   }
 
 #endif
@@ -397,13 +403,13 @@ void PCNT_CounterTopSet(PCNT_TypeDef *pcnt, uint32_t count, uint32_t top);
  *   Set counter value.
  *
  * @details
- *   The pulse counter is disabled while changing counter value, and reenabled
+ *   Pulse counter is disabled while changing counter value, and re-enabled
  *   (if originally enabled) when counter value has been set.
  *
  * @note
- *   This function will stall until synchronization to low frequency domain is
+ *   This function will stall until synchronization to low-frequency domain is
  *   completed. For that reason, it should normally not be used when using
- *   an external clock to clock the PCNT module, since stall time may be
+ *   an external clock to clock the PCNT module since stall time may be
  *   undefined in that case. The counter should normally only be set when
  *   operating in (or about to enable) #pcntModeOvsSingle mode.
  *
@@ -460,7 +466,7 @@ __STATIC_INLINE void PCNT_IntClear(PCNT_TypeDef *pcnt, uint32_t flags)
  *
  * @param[in] flags
  *   PCNT interrupt sources to disable. Use a bitwise logic OR combination of
- *   valid interrupt flags for the PCNT module (PCNT_IF_nnn).
+ *   valid interrupt flags for PCNT module (PCNT_IF_nnn).
  ******************************************************************************/
 __STATIC_INLINE void PCNT_IntDisable(PCNT_TypeDef *pcnt, uint32_t flags)
 {
@@ -473,15 +479,15 @@ __STATIC_INLINE void PCNT_IntDisable(PCNT_TypeDef *pcnt, uint32_t flags)
  *
  * @note
  *   Depending on the use, a pending interrupt may already be set prior to
- *   enabling the interrupt. Consider using PCNT_IntClear() prior to enabling
- *   if such a pending interrupt should be ignored.
+ *   enabling the interrupt. To ignore a pending interrupt, consider using
+ *   PCNT_IntClear() prior to enabling the interrupt.
  *
  * @param[in] pcnt
  *   Pointer to PCNT peripheral register block.
  *
  * @param[in] flags
  *   PCNT interrupt sources to enable. Use a bitwise logic OR combination of
- *   valid interrupt flags for the PCNT module (PCNT_IF_nnn).
+ *   valid interrupt flags for PCNT module (PCNT_IF_nnn).
  ******************************************************************************/
 __STATIC_INLINE void PCNT_IntEnable(PCNT_TypeDef *pcnt, uint32_t flags)
 {
@@ -500,7 +506,7 @@ __STATIC_INLINE void PCNT_IntEnable(PCNT_TypeDef *pcnt, uint32_t flags)
  *
  * @return
  *   PCNT interrupt sources pending. A bitwise logic OR combination of valid
- *   interrupt flags for the PCNT module (PCNT_IF_nnn).
+ *   interrupt flags for PCNT module (PCNT_IF_nnn).
  ******************************************************************************/
 __STATIC_INLINE uint32_t PCNT_IntGet(PCNT_TypeDef *pcnt)
 {
@@ -536,7 +542,7 @@ __STATIC_INLINE uint32_t PCNT_IntGetEnabled(PCNT_TypeDef *pcnt)
    * of volatile accesses. */
   ien = pcnt->IEN;
 
-  /* Bitwise AND of pending and enabled interrupts */
+  /* Bitwise AND of pending and enabled interrupts. */
   return pcnt->IF & ien;
 }
 
@@ -549,7 +555,7 @@ __STATIC_INLINE uint32_t PCNT_IntGetEnabled(PCNT_TypeDef *pcnt)
  *
  * @param[in] flags
  *   PCNT interrupt sources to set to pending. Use a bitwise logic OR combination
- *   of valid interrupt flags for the PCNT module (PCNT_IF_nnn).
+ *   of valid interrupt flags for PCNT module (PCNT_IF_nnn).
  ******************************************************************************/
 __STATIC_INLINE void PCNT_IntSet(PCNT_TypeDef *pcnt, uint32_t flags)
 {

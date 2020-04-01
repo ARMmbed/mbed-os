@@ -1,34 +1,32 @@
 /***************************************************************************//**
- * @file system_efm32gg11b.h
+ * @file
  * @brief CMSIS Cortex-M4 System Layer for EFM32 devices.
- * @version 5.3.2
- ******************************************************************************
+ *******************************************************************************
  * # License
- * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
- ******************************************************************************
+ * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.@n
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.@n
+ *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Laboratories, Inc.
- * has no obligation to support this Software. Silicon Laboratories, Inc. is
- * providing the Software "AS IS", with no express or implied warranties of any
- * kind, including, but not limited to, any implied warranties of
- * merchantability or fitness for any particular purpose or warranties against
- * infringement of any proprietary rights of a third party.
- *
- * Silicon Laboratories, Inc. will not be liable for any consequential,
- * incidental, or special damages, or any other relief, or for any claim by
- * any third party, arising from your use of this Software.
- *
- *****************************************************************************/
+ ******************************************************************************/
 
 #ifndef SYSTEM_EFM32_H
 #define SYSTEM_EFM32_H
@@ -39,21 +37,31 @@ extern "C" {
 
 #include <stdint.h>
 
-/**************************************************************************//**
+/***************************************************************************//**
  * @addtogroup Parts
  * @{
- *****************************************************************************/
-/**************************************************************************//**
+ ******************************************************************************/
+/***************************************************************************//**
  * @addtogroup EFM32GG11B EFM32GG11B
  * @{
- *****************************************************************************/
+ ******************************************************************************/
+
+/*******************************************************************************
+ ******************************   TYPEDEFS   ***********************************
+ ******************************************************************************/
+
+/* Interrupt vectortable entry */
+typedef union {
+  void (*pFunc)(void);
+  void *topOfStack;
+} tVectorEntry;
 
 /*******************************************************************************
  **************************   GLOBAL VARIABLES   *******************************
  ******************************************************************************/
 
-extern uint32_t SystemCoreClock;        /**< System Clock Frequency (Core Clock) */
-extern uint32_t SystemHfrcoFreq;        /**< System HFRCO frequency */
+extern uint32_t SystemCoreClock;    /**< System Clock Frequency (Core Clock) */
+extern uint32_t SystemHfrcoFreq;    /**< System HFRCO frequency */
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
@@ -91,6 +99,10 @@ void USART1_RX_IRQHandler(void);    /**< USART1_RX IRQ Handler */
 void USART1_TX_IRQHandler(void);    /**< USART1_TX IRQ Handler */
 void USART2_RX_IRQHandler(void);    /**< USART2_RX IRQ Handler */
 void USART2_TX_IRQHandler(void);    /**< USART2_TX IRQ Handler */
+void UART0_RX_IRQHandler(void);     /**< UART0_RX IRQ Handler */
+void UART0_TX_IRQHandler(void);     /**< UART0_TX IRQ Handler */
+void UART1_RX_IRQHandler(void);     /**< UART1_RX IRQ Handler */
+void UART1_TX_IRQHandler(void);     /**< UART1_TX IRQ Handler */
 void LEUART0_IRQHandler(void);      /**< LEUART0 IRQ Handler */
 void LEUART1_IRQHandler(void);      /**< LEUART1 IRQ Handler */
 void LETIMER0_IRQHandler(void);     /**< LETIMER0 IRQ Handler */
@@ -137,7 +149,7 @@ void QSPI0_IRQHandler(void);        /**< QSPI0 IRQ Handler */
 
 uint32_t SystemCoreClockGet(void);
 
-/**************************************************************************//**
+/***************************************************************************//**
  * @brief
  *   Update CMSIS SystemCoreClock variable.
  *
@@ -150,10 +162,10 @@ uint32_t SystemCoreClockGet(void);
  *   API, this variable will be kept updated. This function is only provided
  *   for CMSIS compliance and if a user modifies the the core clock outside
  *   the CMU API.
- *****************************************************************************/
+ ******************************************************************************/
 static __INLINE void SystemCoreClockUpdate(void)
 {
-  SystemCoreClockGet();
+  (void)SystemCoreClockGet();
 }
 
 uint32_t SystemMaxCoreClockGet(void);

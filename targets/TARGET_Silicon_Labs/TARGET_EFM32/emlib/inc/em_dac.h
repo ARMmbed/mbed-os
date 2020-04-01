@@ -1,32 +1,30 @@
 /***************************************************************************//**
- * @file em_dac.h
+ * @file
  * @brief Digital to Analog Converter (DAC) peripheral API
- * @version 5.3.3
  *******************************************************************************
  * # License
- * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
- *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
- * obligation to support this Software. Silicon Labs is providing the
- * Software "AS IS", with no express or implied warranties of any kind,
- * including, but not limited to, any implied warranties of merchantability
- * or fitness for any particular purpose or warranties against infringement
- * of any proprietary rights of a third party.
- *
- * Silicon Labs will not be liable for any consequential, incidental, or
- * special damages, or any other relief, or for any claim by any third party,
- * arising from your use of this Software.
  *
  ******************************************************************************/
 
@@ -131,7 +129,7 @@ typedef enum {
  *******************************   STRUCTS   ***********************************
  ******************************************************************************/
 
-/** DAC init structure, common for both channels. */
+/** DAC initialization structure, common for both channels. */
 typedef struct {
   /** Refresh interval. Only used if REFREN bit set for a DAC channel. */
   DAC_Refresh_TypeDef  refresh;
@@ -139,7 +137,7 @@ typedef struct {
   /** Reference voltage to use. */
   DAC_Ref_TypeDef      reference;
 
-  /** Output mode */
+  /** Output mode. */
   DAC_Output_TypeDef   outMode;
 
   /** Conversion mode. */
@@ -167,7 +165,7 @@ typedef struct {
   bool                 diff;
 } DAC_Init_TypeDef;
 
-/** Default config for DAC init structure. */
+/** Default configuration for DAC initialization structure. */
 #define DAC_INIT_DEFAULT                                               \
   {                                                                    \
     dacRefresh8,            /* Refresh every 8 prescaled cycles. */    \
@@ -182,7 +180,7 @@ typedef struct {
     false                   /* Single ended mode. */                   \
   }
 
-/** DAC channel init structure. */
+/** DAC channel initialization structure. */
 typedef struct {
   /** Enable channel. */
   bool               enable;
@@ -195,7 +193,8 @@ typedef struct {
 
   /**
    * Enable/disable automatic refresh of channel. Refresh interval must be
-   * defined in common control init, please see DAC_Init().
+   * defined in common control initialization, see DAC_Init() for more
+   * information.
    */
   bool               refreshEnable;
 
@@ -206,13 +205,13 @@ typedef struct {
   DAC_PRSSEL_TypeDef prsSel;
 } DAC_InitChannel_TypeDef;
 
-/** Default config for DAC channel init structure. */
-#define DAC_INITCHANNEL_DEFAULT                                         \
-  {                                                                     \
-    false,            /* Leave channel disabled when init done. */      \
-    false,            /* Disable PRS triggering. */                     \
-    false,            /* Channel not refreshed automatically. */        \
-    dacPRSSELCh0      /* Select PRS ch0 (if PRS triggering enabled). */ \
+/** Default configuration for DAC channel initialization structure. */
+#define DAC_INITCHANNEL_DEFAULT                                              \
+  {                                                                          \
+    false,            /* Leave channel disabled when initialization done. */ \
+    false,            /* Disable PRS triggering. */                          \
+    false,            /* Channel not refreshed automatically. */             \
+    dacPRSSELCh0      /* Select PRS ch0 (if PRS triggering enabled). */      \
   }
 
 /*******************************************************************************
@@ -254,7 +253,7 @@ __STATIC_INLINE void DAC_Channel0OutputSet(DAC_TypeDef *dac,
  *   Set the output signal of DAC channel 1 to a given value.
  *
  * @details
- *   This function sets the output signal of DAC channel 1 by writing @p value
+ *   Sets the output signal of DAC channel 1 by writing @p value
  *   to the CH1DATA register.
  *
  * @param[in] dac
@@ -278,8 +277,8 @@ __STATIC_INLINE void DAC_Channel1OutputSet(DAC_TypeDef *dac,
  *   Pointer to DAC peripheral register block.
  *
  * @param[in] flags
- *   Pending DAC interrupt source to clear. Use a bitwise logic OR combination of
- *   valid interrupt flags for the DAC module (DAC_IF_nnn).
+ *   Pending DAC interrupt source to clear. Use a bitwise logic OR combination
+ *   of valid interrupt flags for the DAC module (DAC_IF_nnn).
  ******************************************************************************/
 __STATIC_INLINE void DAC_IntClear(DAC_TypeDef *dac, uint32_t flags)
 {
@@ -308,8 +307,8 @@ __STATIC_INLINE void DAC_IntDisable(DAC_TypeDef *dac, uint32_t flags)
  *
  * @note
  *   Depending on the use, a pending interrupt may already be set prior to
- *   enabling the interrupt. Consider using DAC_IntClear() prior to enabling
- *   if such a pending interrupt should be ignored.
+ *   enabling the interrupt. To ignore a pending interrupt, consider using
+ *   DAC_IntClear() prior to enabling the interrupt.
  *
  * @param[in] dac
  *   Pointer to DAC peripheral register block.
@@ -328,7 +327,7 @@ __STATIC_INLINE void DAC_IntEnable(DAC_TypeDef *dac, uint32_t flags)
  *   Get pending DAC interrupt flags.
  *
  * @note
- *   The event bits are not cleared by the use of this function.
+ *   Event bits are not cleared by the use of this function.
  *
  * @param[in] dac
  *   Pointer to DAC peripheral register block.
@@ -355,7 +354,7 @@ __STATIC_INLINE uint32_t DAC_IntGet(DAC_TypeDef *dac)
  *
  * @return
  *   Pending and enabled DAC interrupt sources.
- *   The return value is the bitwise AND combination of
+ *   Return value is the bitwise AND combination of
  *   - the OR combination of enabled interrupt sources in DACx_IEN_nnn
  *     register (DACx_IEN_nnn) and
  *   - the OR combination of valid interrupt flags of the DAC module
@@ -369,7 +368,7 @@ __STATIC_INLINE uint32_t DAC_IntGetEnabled(DAC_TypeDef *dac)
    * of volatile accesses. */
   ien = dac->IEN;
 
-  /* Bitwise AND of pending and enabled interrupts */
+  /* Bitwise AND of pending and enabled interrupts. */
   return dac->IF & ien;
 }
 

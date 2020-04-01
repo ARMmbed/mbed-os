@@ -1,34 +1,32 @@
-/**************************************************************************//**
- * @file efm32gg11b_emu.h
+/***************************************************************************//**
+ * @file
  * @brief EFM32GG11B_EMU register and bit field definitions
- * @version 5.3.2
- ******************************************************************************
+ *******************************************************************************
  * # License
- * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
- ******************************************************************************
+ * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.@n
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.@n
+ *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Laboratories, Inc.
- * has no obligation to support this Software. Silicon Laboratories, Inc. is
- * providing the Software "AS IS", with no express or implied warranties of any
- * kind, including, but not limited to, any implied warranties of
- * merchantability or fitness for any particular purpose or warranties against
- * infringement of any proprietary rights of a third party.
- *
- * Silicon Laboratories, Inc. will not be liable for any consequential,
- * incidental, or special damages, or any other relief, or for any claim by
- * any third party, arising from your use of this Software.
- *
- *****************************************************************************/
+ ******************************************************************************/
 
 #if defined(__ICCARM__)
 #pragma system_include       /* Treat file as system include file. */
@@ -36,15 +34,15 @@
 #pragma clang system_header  /* Treat file as system include file. */
 #endif
 
-/**************************************************************************//**
-* @addtogroup Parts
-* @{
-******************************************************************************/
-/**************************************************************************//**
+/***************************************************************************//**
+ * @addtogroup Parts
+ * @{
+ ******************************************************************************/
+/***************************************************************************//**
  * @defgroup EFM32GG11B_EMU EMU
  * @{
  * @brief EFM32GG11B_EMU Register Declaration
- *****************************************************************************/
+ ******************************************************************************/
 /** EMU Register Declaration */
 typedef struct {
   __IOM uint32_t CTRL;                  /**< Control Register  */
@@ -53,38 +51,38 @@ typedef struct {
   __IOM uint32_t RAM0CTRL;              /**< Memory Control Register  */
   __IOM uint32_t CMD;                   /**< Command Register  */
 
-  uint32_t       RESERVED0[1];          /**< Reserved for future use **/
+  uint32_t       RESERVED0[1U];         /**< Reserved for future use **/
   __IOM uint32_t EM4CTRL;               /**< EM4 Control Register  */
-  __IOM uint32_t TEMPLIMITS;            /**< Temperature limits for interrupt generation  */
-  __IM uint32_t  TEMP;                  /**< Value of last temperature measurement  */
+  __IOM uint32_t TEMPLIMITS;            /**< Temperature Limits for Interrupt Generation  */
+  __IM uint32_t  TEMP;                  /**< Value of Last Temperature Measurement  */
   __IM uint32_t  IF;                    /**< Interrupt Flag Register  */
   __IOM uint32_t IFS;                   /**< Interrupt Flag Set Register  */
   __IOM uint32_t IFC;                   /**< Interrupt Flag Clear Register  */
   __IOM uint32_t IEN;                   /**< Interrupt Enable Register  */
   __IOM uint32_t PWRLOCK;               /**< Regulator and Supply Lock Register  */
 
-  uint32_t       RESERVED1[1];          /**< Reserved for future use **/
-  __IOM uint32_t PWRCTRL;               /**< Power Control Register.  */
+  uint32_t       RESERVED1[1U];         /**< Reserved for future use **/
+  __IOM uint32_t PWRCTRL;               /**< Power Control Register  */
   __IOM uint32_t DCDCCTRL;              /**< DCDC Control  */
 
-  uint32_t       RESERVED2[2];          /**< Reserved for future use **/
+  uint32_t       RESERVED2[2U];         /**< Reserved for future use **/
   __IOM uint32_t DCDCMISCCTRL;          /**< DCDC Miscellaneous Control Register  */
   __IOM uint32_t DCDCZDETCTRL;          /**< DCDC Power Train NFET Zero Current Detector Control Register  */
   __IOM uint32_t DCDCCLIMCTRL;          /**< DCDC Power Train PFET Current Limiter Control Register  */
   __IOM uint32_t DCDCLNCOMPCTRL;        /**< DCDC Low Noise Compensator Control Register  */
   __IOM uint32_t DCDCLNVCTRL;           /**< DCDC Low Noise Voltage Register  */
 
-  uint32_t       RESERVED3[1];          /**< Reserved for future use **/
+  uint32_t       RESERVED3[1U];         /**< Reserved for future use **/
   __IOM uint32_t DCDCLPVCTRL;           /**< DCDC Low Power Voltage Register  */
 
-  uint32_t       RESERVED4[1];          /**< Reserved for future use **/
+  uint32_t       RESERVED4[1U];         /**< Reserved for future use **/
   __IOM uint32_t DCDCLPCTRL;            /**< DCDC Low Power Control Register  */
   __IOM uint32_t DCDCLNFREQCTRL;        /**< DCDC Low Noise Controller Frequency Control  */
 
-  uint32_t       RESERVED5[1];          /**< Reserved for future use **/
+  uint32_t       RESERVED5[1U];         /**< Reserved for future use **/
   __IM uint32_t  DCDCSYNC;              /**< DCDC Read Status Register  */
 
-  uint32_t       RESERVED6[5];          /**< Reserved for future use **/
+  uint32_t       RESERVED6[5U];         /**< Reserved for future use **/
   __IOM uint32_t VMONAVDDCTRL;          /**< VMON AVDD Channel Control  */
   __IOM uint32_t VMONALTAVDDCTRL;       /**< Alternate VMON AVDD Channel Control  */
   __IOM uint32_t VMONDVDDCTRL;          /**< VMON DVDD Channel Control  */
@@ -92,37 +90,37 @@ typedef struct {
   __IOM uint32_t VMONIO1CTRL;           /**< VMON IOVDD1 Channel Control  */
   __IOM uint32_t VMONBUVDDCTRL;         /**< VMON BUVDD Channel Control  */
 
-  uint32_t       RESERVED7[3];          /**< Reserved for future use **/
+  uint32_t       RESERVED7[3U];         /**< Reserved for future use **/
   __IOM uint32_t RAM1CTRL;              /**< Memory Control Register  */
   __IOM uint32_t RAM2CTRL;              /**< Memory Control Register  */
-  __IOM uint32_t BUCTRL;                /**< Backup power configuration register  */
-  uint32_t       RESERVED8[2];          /**< Reserved for future use **/
+  __IOM uint32_t BUCTRL;                /**< Backup Power Configuration Register  */
+  uint32_t       RESERVED8[2U];         /**< Reserved for future use **/
   __IOM uint32_t R5VCTRL;               /**< 5V Regulator Control  */
   __IOM uint32_t R5VADCCTRL;            /**< 5V Regulator Control  */
   __IOM uint32_t R5VOUTLEVEL;           /**< 5V Regulator Voltage Select  */
 
-  uint32_t       RESERVED9[2];          /**< Reserved for future use **/
+  uint32_t       RESERVED9[2U];         /**< Reserved for future use **/
   __IOM uint32_t R5VDETCTRL;            /**< 5V Detector Enables  */
 
-  uint32_t       RESERVED10[3];         /**< Reserved for future use **/
-  __IOM uint32_t DCDCLPEM01CFG;         /**< Configuration bits for low power mode to be applied during EM01, this field is only relevant if LP mode is used in EM01.  */
+  uint32_t       RESERVED10[3U];        /**< Reserved for future use **/
+  __IOM uint32_t DCDCLPEM01CFG;         /**< Configuration Bits for Low Power Mode to Be Applied During EM01, This Field is Only Relevant If LP Mode is Used in EM01  */
   __IM uint32_t  R5VSTATUS;             /**< 5V Detector Status Register  */
 
-  uint32_t       RESERVED11[1];         /**< Reserved for future use **/
+  uint32_t       RESERVED11[1U];        /**< Reserved for future use **/
   __IM uint32_t  R5VSYNC;               /**< 5V Read Status Register  */
 
-  uint32_t       RESERVED12[1];         /**< Reserved for future use **/
-  __IOM uint32_t EM23PERNORETAINCMD;    /**< Clears corresponding bits in EM23PERNORETAINSTATUS unlocking access to peripheral  */
-  __IM uint32_t  EM23PERNORETAINSTATUS; /**< Status indicating if peripherals were powered down in EM23, subsequently locking access to it.  */
-  __IOM uint32_t EM23PERNORETAINCTRL;   /**< When set corresponding peripherals may get powered down in EM23  */
+  uint32_t       RESERVED12[1U];        /**< Reserved for future use **/
+  __IOM uint32_t EM23PERNORETAINCMD;    /**< Clears Corresponding Bits in EM23PERNORETAINSTATUS Unlocking Access to Peripheral  */
+  __IM uint32_t  EM23PERNORETAINSTATUS; /**< Status Indicating If Peripherals Were Powered Down in EM23, Subsequently Locking Access to It  */
+  __IOM uint32_t EM23PERNORETAINCTRL;   /**< When Set Corresponding Peripherals May Get Powered Down in EM23  */
 } EMU_TypeDef;                          /** @} */
 
-/**************************************************************************//**
+/***************************************************************************//**
  * @addtogroup EFM32GG11B_EMU
  * @{
  * @defgroup EFM32GG11B_EMU_BitFields  EMU Bit Fields
  * @{
- *****************************************************************************/
+ ******************************************************************************/
 
 /* Bit fields for EMU CTRL */
 #define _EMU_CTRL_RESETVALUE                                 0x00000000UL                                /**< Default value for EMU_CTRL */
@@ -142,7 +140,7 @@ typedef struct {
 #define _EMU_CTRL_EM01LD_MASK                                0x8UL                                       /**< Bit mask for EMU_EM01LD */
 #define _EMU_CTRL_EM01LD_DEFAULT                             0x00000000UL                                /**< Mode DEFAULT for EMU_CTRL */
 #define EMU_CTRL_EM01LD_DEFAULT                              (_EMU_CTRL_EM01LD_DEFAULT << 3)             /**< Shifted mode DEFAULT for EMU_CTRL */
-#define EMU_CTRL_EM23VSCALEAUTOWSEN                          (0x1UL << 4)                                /**< Automatically configures Flash, Ram and Frequency to wakeup from EM2 or EM3 at low voltage */
+#define EMU_CTRL_EM23VSCALEAUTOWSEN                          (0x1UL << 4)                                /**< Automatically Configures Flash and Frequency to Wakeup From EM2 or EM3 at Low Voltage */
 #define _EMU_CTRL_EM23VSCALEAUTOWSEN_SHIFT                   4                                           /**< Shift value for EMU_EM23VSCALEAUTOWSEN */
 #define _EMU_CTRL_EM23VSCALEAUTOWSEN_MASK                    0x10UL                                      /**< Bit mask for EMU_EM23VSCALEAUTOWSEN */
 #define _EMU_CTRL_EM23VSCALEAUTOWSEN_DEFAULT                 0x00000000UL                                /**< Mode DEFAULT for EMU_CTRL */
@@ -171,42 +169,42 @@ typedef struct {
 /* Bit fields for EMU STATUS */
 #define _EMU_STATUS_RESETVALUE                               0x00000000UL                           /**< Default value for EMU_STATUS */
 #define _EMU_STATUS_MASK                                     0x041710BFUL                           /**< Mask for EMU_STATUS */
-#define EMU_STATUS_VMONRDY                                   (0x1UL << 0)                           /**< VMON ready */
+#define EMU_STATUS_VMONRDY                                   (0x1UL << 0)                           /**< VMON Ready */
 #define _EMU_STATUS_VMONRDY_SHIFT                            0                                      /**< Shift value for EMU_VMONRDY */
 #define _EMU_STATUS_VMONRDY_MASK                             0x1UL                                  /**< Bit mask for EMU_VMONRDY */
 #define _EMU_STATUS_VMONRDY_DEFAULT                          0x00000000UL                           /**< Mode DEFAULT for EMU_STATUS */
 #define EMU_STATUS_VMONRDY_DEFAULT                           (_EMU_STATUS_VMONRDY_DEFAULT << 0)     /**< Shifted mode DEFAULT for EMU_STATUS */
-#define EMU_STATUS_VMONAVDD                                  (0x1UL << 1)                           /**< VMON AVDD Channel. */
+#define EMU_STATUS_VMONAVDD                                  (0x1UL << 1)                           /**< VMON AVDD Channel */
 #define _EMU_STATUS_VMONAVDD_SHIFT                           1                                      /**< Shift value for EMU_VMONAVDD */
 #define _EMU_STATUS_VMONAVDD_MASK                            0x2UL                                  /**< Bit mask for EMU_VMONAVDD */
 #define _EMU_STATUS_VMONAVDD_DEFAULT                         0x00000000UL                           /**< Mode DEFAULT for EMU_STATUS */
 #define EMU_STATUS_VMONAVDD_DEFAULT                          (_EMU_STATUS_VMONAVDD_DEFAULT << 1)    /**< Shifted mode DEFAULT for EMU_STATUS */
-#define EMU_STATUS_VMONALTAVDD                               (0x1UL << 2)                           /**< Alternate VMON AVDD Channel. */
+#define EMU_STATUS_VMONALTAVDD                               (0x1UL << 2)                           /**< Alternate VMON AVDD Channel */
 #define _EMU_STATUS_VMONALTAVDD_SHIFT                        2                                      /**< Shift value for EMU_VMONALTAVDD */
 #define _EMU_STATUS_VMONALTAVDD_MASK                         0x4UL                                  /**< Bit mask for EMU_VMONALTAVDD */
 #define _EMU_STATUS_VMONALTAVDD_DEFAULT                      0x00000000UL                           /**< Mode DEFAULT for EMU_STATUS */
 #define EMU_STATUS_VMONALTAVDD_DEFAULT                       (_EMU_STATUS_VMONALTAVDD_DEFAULT << 2) /**< Shifted mode DEFAULT for EMU_STATUS */
-#define EMU_STATUS_VMONDVDD                                  (0x1UL << 3)                           /**< VMON DVDD Channel. */
+#define EMU_STATUS_VMONDVDD                                  (0x1UL << 3)                           /**< VMON DVDD Channel */
 #define _EMU_STATUS_VMONDVDD_SHIFT                           3                                      /**< Shift value for EMU_VMONDVDD */
 #define _EMU_STATUS_VMONDVDD_MASK                            0x8UL                                  /**< Bit mask for EMU_VMONDVDD */
 #define _EMU_STATUS_VMONDVDD_DEFAULT                         0x00000000UL                           /**< Mode DEFAULT for EMU_STATUS */
 #define EMU_STATUS_VMONDVDD_DEFAULT                          (_EMU_STATUS_VMONDVDD_DEFAULT << 3)    /**< Shifted mode DEFAULT for EMU_STATUS */
-#define EMU_STATUS_VMONIO0                                   (0x1UL << 4)                           /**< VMON IOVDD0 Channel. */
+#define EMU_STATUS_VMONIO0                                   (0x1UL << 4)                           /**< VMON IOVDD0 Channel */
 #define _EMU_STATUS_VMONIO0_SHIFT                            4                                      /**< Shift value for EMU_VMONIO0 */
 #define _EMU_STATUS_VMONIO0_MASK                             0x10UL                                 /**< Bit mask for EMU_VMONIO0 */
 #define _EMU_STATUS_VMONIO0_DEFAULT                          0x00000000UL                           /**< Mode DEFAULT for EMU_STATUS */
 #define EMU_STATUS_VMONIO0_DEFAULT                           (_EMU_STATUS_VMONIO0_DEFAULT << 4)     /**< Shifted mode DEFAULT for EMU_STATUS */
-#define EMU_STATUS_VMONIO1                                   (0x1UL << 5)                           /**< VMON IOVDD1 Channel. */
+#define EMU_STATUS_VMONIO1                                   (0x1UL << 5)                           /**< VMON IOVDD1 Channel */
 #define _EMU_STATUS_VMONIO1_SHIFT                            5                                      /**< Shift value for EMU_VMONIO1 */
 #define _EMU_STATUS_VMONIO1_MASK                             0x20UL                                 /**< Bit mask for EMU_VMONIO1 */
 #define _EMU_STATUS_VMONIO1_DEFAULT                          0x00000000UL                           /**< Mode DEFAULT for EMU_STATUS */
 #define EMU_STATUS_VMONIO1_DEFAULT                           (_EMU_STATUS_VMONIO1_DEFAULT << 5)     /**< Shifted mode DEFAULT for EMU_STATUS */
-#define EMU_STATUS_VMONBUVDD                                 (0x1UL << 7)                           /**< VMON BUVDD Channel. */
+#define EMU_STATUS_VMONBUVDD                                 (0x1UL << 7)                           /**< VMON BUVDD Channel */
 #define _EMU_STATUS_VMONBUVDD_SHIFT                          7                                      /**< Shift value for EMU_VMONBUVDD */
 #define _EMU_STATUS_VMONBUVDD_MASK                           0x80UL                                 /**< Bit mask for EMU_VMONBUVDD */
 #define _EMU_STATUS_VMONBUVDD_DEFAULT                        0x00000000UL                           /**< Mode DEFAULT for EMU_STATUS */
 #define EMU_STATUS_VMONBUVDD_DEFAULT                         (_EMU_STATUS_VMONBUVDD_DEFAULT << 7)   /**< Shifted mode DEFAULT for EMU_STATUS */
-#define EMU_STATUS_BURDY                                     (0x1UL << 12)                          /**< Backup Mode Ready. */
+#define EMU_STATUS_BURDY                                     (0x1UL << 12)                          /**< Backup Mode Ready */
 #define _EMU_STATUS_BURDY_SHIFT                              12                                     /**< Shift value for EMU_BURDY */
 #define _EMU_STATUS_BURDY_MASK                               0x1000UL                               /**< Bit mask for EMU_BURDY */
 #define _EMU_STATUS_BURDY_DEFAULT                            0x00000000UL                           /**< Mode DEFAULT for EMU_STATUS */
@@ -221,7 +219,7 @@ typedef struct {
 #define EMU_STATUS_VSCALE_VSCALE2                            (_EMU_STATUS_VSCALE_VSCALE2 << 16)     /**< Shifted mode VSCALE2 for EMU_STATUS */
 #define EMU_STATUS_VSCALE_VSCALE0                            (_EMU_STATUS_VSCALE_VSCALE0 << 16)     /**< Shifted mode VSCALE0 for EMU_STATUS */
 #define EMU_STATUS_VSCALE_RESV                               (_EMU_STATUS_VSCALE_RESV << 16)        /**< Shifted mode RESV for EMU_STATUS */
-#define EMU_STATUS_VSCALEBUSY                                (0x1UL << 18)                          /**< System is busy Scaling Voltage */
+#define EMU_STATUS_VSCALEBUSY                                (0x1UL << 18)                          /**< System is Busy Scaling Voltage */
 #define _EMU_STATUS_VSCALEBUSY_SHIFT                         18                                     /**< Shift value for EMU_VSCALEBUSY */
 #define _EMU_STATUS_VSCALEBUSY_MASK                          0x40000UL                              /**< Bit mask for EMU_VSCALEBUSY */
 #define _EMU_STATUS_VSCALEBUSY_DEFAULT                       0x00000000UL                           /**< Mode DEFAULT for EMU_STATUS */
@@ -289,12 +287,12 @@ typedef struct {
 #define _EMU_CMD_EM4UNLATCH_MASK                             0x1UL                               /**< Bit mask for EMU_EM4UNLATCH */
 #define _EMU_CMD_EM4UNLATCH_DEFAULT                          0x00000000UL                        /**< Mode DEFAULT for EMU_CMD */
 #define EMU_CMD_EM4UNLATCH_DEFAULT                           (_EMU_CMD_EM4UNLATCH_DEFAULT << 0)  /**< Shifted mode DEFAULT for EMU_CMD */
-#define EMU_CMD_EM01VSCALE0                                  (0x1UL << 4)                        /**< EM01 Voltage Scale Command to scale to Voltage Scale Level 0 */
+#define EMU_CMD_EM01VSCALE0                                  (0x1UL << 4)                        /**< EM01 Voltage Scale Command to Scale to Voltage Scale Level 0 */
 #define _EMU_CMD_EM01VSCALE0_SHIFT                           4                                   /**< Shift value for EMU_EM01VSCALE0 */
 #define _EMU_CMD_EM01VSCALE0_MASK                            0x10UL                              /**< Bit mask for EMU_EM01VSCALE0 */
 #define _EMU_CMD_EM01VSCALE0_DEFAULT                         0x00000000UL                        /**< Mode DEFAULT for EMU_CMD */
 #define EMU_CMD_EM01VSCALE0_DEFAULT                          (_EMU_CMD_EM01VSCALE0_DEFAULT << 4) /**< Shifted mode DEFAULT for EMU_CMD */
-#define EMU_CMD_EM01VSCALE2                                  (0x1UL << 6)                        /**< EM01 Voltage Scale Command to scale to Voltage Scale Level 2 */
+#define EMU_CMD_EM01VSCALE2                                  (0x1UL << 6)                        /**< EM01 Voltage Scale Command to Scale to Voltage Scale Level 2 */
 #define _EMU_CMD_EM01VSCALE2_SHIFT                           6                                   /**< Shift value for EMU_EM01VSCALE2 */
 #define _EMU_CMD_EM01VSCALE2_MASK                            0x40UL                              /**< Bit mask for EMU_EM01VSCALE2 */
 #define _EMU_CMD_EM01VSCALE2_DEFAULT                         0x00000000UL                        /**< Mode DEFAULT for EMU_CMD */
@@ -312,17 +310,17 @@ typedef struct {
 #define EMU_EM4CTRL_EM4STATE_DEFAULT                         (_EMU_EM4CTRL_EM4STATE_DEFAULT << 0)       /**< Shifted mode DEFAULT for EMU_EM4CTRL */
 #define EMU_EM4CTRL_EM4STATE_EM4S                            (_EMU_EM4CTRL_EM4STATE_EM4S << 0)          /**< Shifted mode EM4S for EMU_EM4CTRL */
 #define EMU_EM4CTRL_EM4STATE_EM4H                            (_EMU_EM4CTRL_EM4STATE_EM4H << 0)          /**< Shifted mode EM4H for EMU_EM4CTRL */
-#define EMU_EM4CTRL_RETAINLFRCO                              (0x1UL << 1)                               /**< LFRCO Retain during EM4 */
+#define EMU_EM4CTRL_RETAINLFRCO                              (0x1UL << 1)                               /**< LFRCO Retain During EM4 */
 #define _EMU_EM4CTRL_RETAINLFRCO_SHIFT                       1                                          /**< Shift value for EMU_RETAINLFRCO */
 #define _EMU_EM4CTRL_RETAINLFRCO_MASK                        0x2UL                                      /**< Bit mask for EMU_RETAINLFRCO */
 #define _EMU_EM4CTRL_RETAINLFRCO_DEFAULT                     0x00000000UL                               /**< Mode DEFAULT for EMU_EM4CTRL */
 #define EMU_EM4CTRL_RETAINLFRCO_DEFAULT                      (_EMU_EM4CTRL_RETAINLFRCO_DEFAULT << 1)    /**< Shifted mode DEFAULT for EMU_EM4CTRL */
-#define EMU_EM4CTRL_RETAINLFXO                               (0x1UL << 2)                               /**< LFXO Retain during EM4 */
+#define EMU_EM4CTRL_RETAINLFXO                               (0x1UL << 2)                               /**< LFXO Retain During EM4 */
 #define _EMU_EM4CTRL_RETAINLFXO_SHIFT                        2                                          /**< Shift value for EMU_RETAINLFXO */
 #define _EMU_EM4CTRL_RETAINLFXO_MASK                         0x4UL                                      /**< Bit mask for EMU_RETAINLFXO */
 #define _EMU_EM4CTRL_RETAINLFXO_DEFAULT                      0x00000000UL                               /**< Mode DEFAULT for EMU_EM4CTRL */
 #define EMU_EM4CTRL_RETAINLFXO_DEFAULT                       (_EMU_EM4CTRL_RETAINLFXO_DEFAULT << 2)     /**< Shifted mode DEFAULT for EMU_EM4CTRL */
-#define EMU_EM4CTRL_RETAINULFRCO                             (0x1UL << 3)                               /**< ULFRCO Retain during EM4S */
+#define EMU_EM4CTRL_RETAINULFRCO                             (0x1UL << 3)                               /**< ULFRCO Retain During EM4S */
 #define _EMU_EM4CTRL_RETAINULFRCO_SHIFT                      3                                          /**< Shift value for EMU_RETAINULFRCO */
 #define _EMU_EM4CTRL_RETAINULFRCO_MASK                       0x8UL                                      /**< Bit mask for EMU_RETAINULFRCO */
 #define _EMU_EM4CTRL_RETAINULFRCO_DEFAULT                    0x00000000UL                               /**< Mode DEFAULT for EMU_EM4CTRL */
@@ -353,7 +351,7 @@ typedef struct {
 #define _EMU_TEMPLIMITS_TEMPHIGH_MASK                        0xFF00UL                                /**< Bit mask for EMU_TEMPHIGH */
 #define _EMU_TEMPLIMITS_TEMPHIGH_DEFAULT                     0x000000FFUL                            /**< Mode DEFAULT for EMU_TEMPLIMITS */
 #define EMU_TEMPLIMITS_TEMPHIGH_DEFAULT                      (_EMU_TEMPLIMITS_TEMPHIGH_DEFAULT << 8) /**< Shifted mode DEFAULT for EMU_TEMPLIMITS */
-#define EMU_TEMPLIMITS_EM4WUEN                               (0x1UL << 16)                           /**< Enable EM4 Wakeup due to low/high temperature */
+#define EMU_TEMPLIMITS_EM4WUEN                               (0x1UL << 16)                           /**< Enable EM4 Wakeup Due to Low/high Temperature */
 #define _EMU_TEMPLIMITS_EM4WUEN_SHIFT                        16                                      /**< Shift value for EMU_EM4WUEN */
 #define _EMU_TEMPLIMITS_EM4WUEN_MASK                         0x10000UL                               /**< Bit mask for EMU_EM4WUEN */
 #define _EMU_TEMPLIMITS_EM4WUEN_DEFAULT                      0x00000000UL                            /**< Mode DEFAULT for EMU_TEMPLIMITS */
@@ -420,7 +418,7 @@ typedef struct {
 #define _EMU_IF_VMONIO1RISE_MASK                             0x200UL                                      /**< Bit mask for EMU_VMONIO1RISE */
 #define _EMU_IF_VMONIO1RISE_DEFAULT                          0x00000000UL                                 /**< Mode DEFAULT for EMU_IF */
 #define EMU_IF_VMONIO1RISE_DEFAULT                           (_EMU_IF_VMONIO1RISE_DEFAULT << 9)           /**< Shifted mode DEFAULT for EMU_IF */
-#define EMU_IF_R5VREADY                                      (0x1UL << 10)                                /**< 5V regulator is ready to use. */
+#define EMU_IF_R5VREADY                                      (0x1UL << 10)                                /**< 5V Regulator is Ready to Use */
 #define _EMU_IF_R5VREADY_SHIFT                               10                                           /**< Shift value for EMU_R5VREADY */
 #define _EMU_IF_R5VREADY_MASK                                0x400UL                                      /**< Bit mask for EMU_R5VREADY */
 #define _EMU_IF_R5VREADY_DEFAULT                             0x00000000UL                                 /**< Mode DEFAULT for EMU_IF */
@@ -435,42 +433,42 @@ typedef struct {
 #define _EMU_IF_VMONBUVDDRISE_MASK                           0x2000UL                                     /**< Bit mask for EMU_VMONBUVDDRISE */
 #define _EMU_IF_VMONBUVDDRISE_DEFAULT                        0x00000000UL                                 /**< Mode DEFAULT for EMU_IF */
 #define EMU_IF_VMONBUVDDRISE_DEFAULT                         (_EMU_IF_VMONBUVDDRISE_DEFAULT << 13)        /**< Shifted mode DEFAULT for EMU_IF */
-#define EMU_IF_PFETOVERCURRENTLIMIT                          (0x1UL << 16)                                /**< PFET current limit hit */
+#define EMU_IF_PFETOVERCURRENTLIMIT                          (0x1UL << 16)                                /**< PFET Current Limit Hit */
 #define _EMU_IF_PFETOVERCURRENTLIMIT_SHIFT                   16                                           /**< Shift value for EMU_PFETOVERCURRENTLIMIT */
 #define _EMU_IF_PFETOVERCURRENTLIMIT_MASK                    0x10000UL                                    /**< Bit mask for EMU_PFETOVERCURRENTLIMIT */
 #define _EMU_IF_PFETOVERCURRENTLIMIT_DEFAULT                 0x00000000UL                                 /**< Mode DEFAULT for EMU_IF */
 #define EMU_IF_PFETOVERCURRENTLIMIT_DEFAULT                  (_EMU_IF_PFETOVERCURRENTLIMIT_DEFAULT << 16) /**< Shifted mode DEFAULT for EMU_IF */
-#define EMU_IF_NFETOVERCURRENTLIMIT                          (0x1UL << 17)                                /**< NFET current limit hit */
+#define EMU_IF_NFETOVERCURRENTLIMIT                          (0x1UL << 17)                                /**< NFET Current Limit Hit */
 #define _EMU_IF_NFETOVERCURRENTLIMIT_SHIFT                   17                                           /**< Shift value for EMU_NFETOVERCURRENTLIMIT */
 #define _EMU_IF_NFETOVERCURRENTLIMIT_MASK                    0x20000UL                                    /**< Bit mask for EMU_NFETOVERCURRENTLIMIT */
 #define _EMU_IF_NFETOVERCURRENTLIMIT_DEFAULT                 0x00000000UL                                 /**< Mode DEFAULT for EMU_IF */
 #define EMU_IF_NFETOVERCURRENTLIMIT_DEFAULT                  (_EMU_IF_NFETOVERCURRENTLIMIT_DEFAULT << 17) /**< Shifted mode DEFAULT for EMU_IF */
-#define EMU_IF_DCDCLPRUNNING                                 (0x1UL << 18)                                /**< LP mode is running */
+#define EMU_IF_DCDCLPRUNNING                                 (0x1UL << 18)                                /**< LP Mode is Running */
 #define _EMU_IF_DCDCLPRUNNING_SHIFT                          18                                           /**< Shift value for EMU_DCDCLPRUNNING */
 #define _EMU_IF_DCDCLPRUNNING_MASK                           0x40000UL                                    /**< Bit mask for EMU_DCDCLPRUNNING */
 #define _EMU_IF_DCDCLPRUNNING_DEFAULT                        0x00000000UL                                 /**< Mode DEFAULT for EMU_IF */
 #define EMU_IF_DCDCLPRUNNING_DEFAULT                         (_EMU_IF_DCDCLPRUNNING_DEFAULT << 18)        /**< Shifted mode DEFAULT for EMU_IF */
-#define EMU_IF_DCDCLNRUNNING                                 (0x1UL << 19)                                /**< LN mode is running */
+#define EMU_IF_DCDCLNRUNNING                                 (0x1UL << 19)                                /**< LN Mode is Running */
 #define _EMU_IF_DCDCLNRUNNING_SHIFT                          19                                           /**< Shift value for EMU_DCDCLNRUNNING */
 #define _EMU_IF_DCDCLNRUNNING_MASK                           0x80000UL                                    /**< Bit mask for EMU_DCDCLNRUNNING */
 #define _EMU_IF_DCDCLNRUNNING_DEFAULT                        0x00000000UL                                 /**< Mode DEFAULT for EMU_IF */
 #define EMU_IF_DCDCLNRUNNING_DEFAULT                         (_EMU_IF_DCDCLNRUNNING_DEFAULT << 19)        /**< Shifted mode DEFAULT for EMU_IF */
-#define EMU_IF_DCDCINBYPASS                                  (0x1UL << 20)                                /**< DCDC is in bypass */
+#define EMU_IF_DCDCINBYPASS                                  (0x1UL << 20)                                /**< DCDC is in Bypass */
 #define _EMU_IF_DCDCINBYPASS_SHIFT                           20                                           /**< Shift value for EMU_DCDCINBYPASS */
 #define _EMU_IF_DCDCINBYPASS_MASK                            0x100000UL                                   /**< Bit mask for EMU_DCDCINBYPASS */
 #define _EMU_IF_DCDCINBYPASS_DEFAULT                         0x00000000UL                                 /**< Mode DEFAULT for EMU_IF */
 #define EMU_IF_DCDCINBYPASS_DEFAULT                          (_EMU_IF_DCDCINBYPASS_DEFAULT << 20)         /**< Shifted mode DEFAULT for EMU_IF */
-#define EMU_IF_BURDY                                         (0x1UL << 22)                                /**< Backup functionality ready Interrupt Flag */
+#define EMU_IF_BURDY                                         (0x1UL << 22)                                /**< Backup Functionality Ready Interrupt Flag */
 #define _EMU_IF_BURDY_SHIFT                                  22                                           /**< Shift value for EMU_BURDY */
 #define _EMU_IF_BURDY_MASK                                   0x400000UL                                   /**< Bit mask for EMU_BURDY */
 #define _EMU_IF_BURDY_DEFAULT                                0x00000000UL                                 /**< Mode DEFAULT for EMU_IF */
 #define EMU_IF_BURDY_DEFAULT                                 (_EMU_IF_BURDY_DEFAULT << 22)                /**< Shifted mode DEFAULT for EMU_IF */
-#define EMU_IF_R5VVSINT                                      (0x1UL << 23)                                /**< 5V regulator voltage update done. */
+#define EMU_IF_R5VVSINT                                      (0x1UL << 23)                                /**< 5V Regulator Voltage Update Done */
 #define _EMU_IF_R5VVSINT_SHIFT                               23                                           /**< Shift value for EMU_R5VVSINT */
 #define _EMU_IF_R5VVSINT_MASK                                0x800000UL                                   /**< Bit mask for EMU_R5VVSINT */
 #define _EMU_IF_R5VVSINT_DEFAULT                             0x00000000UL                                 /**< Mode DEFAULT for EMU_IF */
 #define EMU_IF_R5VVSINT_DEFAULT                              (_EMU_IF_R5VVSINT_DEFAULT << 23)             /**< Shifted mode DEFAULT for EMU_IF */
-#define EMU_IF_EM23WAKEUP                                    (0x1UL << 24)                                /**< Wakeup IRQ from EM2 and EM3 */
+#define EMU_IF_EM23WAKEUP                                    (0x1UL << 24)                                /**< Wakeup IRQ From EM2 and EM3 */
 #define _EMU_IF_EM23WAKEUP_SHIFT                             24                                           /**< Shift value for EMU_EM23WAKEUP */
 #define _EMU_IF_EM23WAKEUP_MASK                              0x1000000UL                                  /**< Bit mask for EMU_EM23WAKEUP */
 #define _EMU_IF_EM23WAKEUP_DEFAULT                           0x00000000UL                                 /**< Mode DEFAULT for EMU_IF */
@@ -911,7 +909,7 @@ typedef struct {
 #define EMU_PWRCTRL_ANASW_DEFAULT                            (_EMU_PWRCTRL_ANASW_DEFAULT << 5)               /**< Shifted mode DEFAULT for EMU_PWRCTRL */
 #define EMU_PWRCTRL_ANASW_AVDD                               (_EMU_PWRCTRL_ANASW_AVDD << 5)                  /**< Shifted mode AVDD for EMU_PWRCTRL */
 #define EMU_PWRCTRL_ANASW_DVDD                               (_EMU_PWRCTRL_ANASW_DVDD << 5)                  /**< Shifted mode DVDD for EMU_PWRCTRL */
-#define EMU_PWRCTRL_REGPWRSEL                                (0x1UL << 10)                                   /**< This field selects the input supply pin for the Digital LDO. */
+#define EMU_PWRCTRL_REGPWRSEL                                (0x1UL << 10)                                   /**< This Field Selects the Input Supply Pin for the Digital LDO */
 #define _EMU_PWRCTRL_REGPWRSEL_SHIFT                         10                                              /**< Shift value for EMU_REGPWRSEL */
 #define _EMU_PWRCTRL_REGPWRSEL_MASK                          0x400UL                                         /**< Bit mask for EMU_REGPWRSEL */
 #define _EMU_PWRCTRL_REGPWRSEL_DEFAULT                       0x00000000UL                                    /**< Mode DEFAULT for EMU_PWRCTRL */
@@ -920,7 +918,7 @@ typedef struct {
 #define EMU_PWRCTRL_REGPWRSEL_DEFAULT                        (_EMU_PWRCTRL_REGPWRSEL_DEFAULT << 10)          /**< Shifted mode DEFAULT for EMU_PWRCTRL */
 #define EMU_PWRCTRL_REGPWRSEL_AVDD                           (_EMU_PWRCTRL_REGPWRSEL_AVDD << 10)             /**< Shifted mode AVDD for EMU_PWRCTRL */
 #define EMU_PWRCTRL_REGPWRSEL_DVDD                           (_EMU_PWRCTRL_REGPWRSEL_DVDD << 10)             /**< Shifted mode DVDD for EMU_PWRCTRL */
-#define EMU_PWRCTRL_IMMEDIATEPWRSWITCH                       (0x1UL << 13)                                   /**< Allows immeditate switching of ANASW and REGPWRSEL bitfields */
+#define EMU_PWRCTRL_IMMEDIATEPWRSWITCH                       (0x1UL << 13)                                   /**< Allows Immediate Switching of ANASW and REGPWRSEL Bitfields */
 #define _EMU_PWRCTRL_IMMEDIATEPWRSWITCH_SHIFT                13                                              /**< Shift value for EMU_IMMEDIATEPWRSWITCH */
 #define _EMU_PWRCTRL_IMMEDIATEPWRSWITCH_MASK                 0x2000UL                                        /**< Bit mask for EMU_IMMEDIATEPWRSWITCH */
 #define _EMU_PWRCTRL_IMMEDIATEPWRSWITCH_DEFAULT              0x00000000UL                                    /**< Mode DEFAULT for EMU_PWRCTRL */
@@ -963,22 +961,22 @@ typedef struct {
 /* Bit fields for EMU DCDCMISCCTRL */
 #define _EMU_DCDCMISCCTRL_RESETVALUE                         0x03107706UL                                      /**< Default value for EMU_DCDCMISCCTRL */
 #define _EMU_DCDCMISCCTRL_MASK                               0x377FFF27UL                                      /**< Mask for EMU_DCDCMISCCTRL */
-#define EMU_DCDCMISCCTRL_LNFORCECCM                          (0x1UL << 0)                                      /**< Force DCDC into CCM mode in low noise operation */
+#define EMU_DCDCMISCCTRL_LNFORCECCM                          (0x1UL << 0)                                      /**< Force DCDC Into CCM Mode in Low Noise Operation */
 #define _EMU_DCDCMISCCTRL_LNFORCECCM_SHIFT                   0                                                 /**< Shift value for EMU_LNFORCECCM */
 #define _EMU_DCDCMISCCTRL_LNFORCECCM_MASK                    0x1UL                                             /**< Bit mask for EMU_LNFORCECCM */
 #define _EMU_DCDCMISCCTRL_LNFORCECCM_DEFAULT                 0x00000000UL                                      /**< Mode DEFAULT for EMU_DCDCMISCCTRL */
 #define EMU_DCDCMISCCTRL_LNFORCECCM_DEFAULT                  (_EMU_DCDCMISCCTRL_LNFORCECCM_DEFAULT << 0)       /**< Shifted mode DEFAULT for EMU_DCDCMISCCTRL */
-#define EMU_DCDCMISCCTRL_LPCMPHYSDIS                         (0x1UL << 1)                                      /**< Disable LP mode hysteresis in the state machine control */
+#define EMU_DCDCMISCCTRL_LPCMPHYSDIS                         (0x1UL << 1)                                      /**< Disable LP Mode Hysteresis in the State Machine Control */
 #define _EMU_DCDCMISCCTRL_LPCMPHYSDIS_SHIFT                  1                                                 /**< Shift value for EMU_LPCMPHYSDIS */
 #define _EMU_DCDCMISCCTRL_LPCMPHYSDIS_MASK                   0x2UL                                             /**< Bit mask for EMU_LPCMPHYSDIS */
 #define _EMU_DCDCMISCCTRL_LPCMPHYSDIS_DEFAULT                0x00000001UL                                      /**< Mode DEFAULT for EMU_DCDCMISCCTRL */
 #define EMU_DCDCMISCCTRL_LPCMPHYSDIS_DEFAULT                 (_EMU_DCDCMISCCTRL_LPCMPHYSDIS_DEFAULT << 1)      /**< Shifted mode DEFAULT for EMU_DCDCMISCCTRL */
-#define EMU_DCDCMISCCTRL_LPCMPHYSHI                          (0x1UL << 2)                                      /**< Comparator threshold on the high side */
+#define EMU_DCDCMISCCTRL_LPCMPHYSHI                          (0x1UL << 2)                                      /**< Comparator Threshold on the High Side */
 #define _EMU_DCDCMISCCTRL_LPCMPHYSHI_SHIFT                   2                                                 /**< Shift value for EMU_LPCMPHYSHI */
 #define _EMU_DCDCMISCCTRL_LPCMPHYSHI_MASK                    0x4UL                                             /**< Bit mask for EMU_LPCMPHYSHI */
 #define _EMU_DCDCMISCCTRL_LPCMPHYSHI_DEFAULT                 0x00000001UL                                      /**< Mode DEFAULT for EMU_DCDCMISCCTRL */
 #define EMU_DCDCMISCCTRL_LPCMPHYSHI_DEFAULT                  (_EMU_DCDCMISCCTRL_LPCMPHYSHI_DEFAULT << 2)       /**< Shifted mode DEFAULT for EMU_DCDCMISCCTRL */
-#define EMU_DCDCMISCCTRL_LNFORCECCMIMM                       (0x1UL << 5)                                      /**< Force DCDC into CCM mode immediately, based on LNFORCECCM */
+#define EMU_DCDCMISCCTRL_LNFORCECCMIMM                       (0x1UL << 5)                                      /**< Force DCDC Into CCM Mode Immediately, Based on LNFORCECCM */
 #define _EMU_DCDCMISCCTRL_LNFORCECCMIMM_SHIFT                5                                                 /**< Shift value for EMU_LNFORCECCMIMM */
 #define _EMU_DCDCMISCCTRL_LNFORCECCMIMM_MASK                 0x20UL                                            /**< Bit mask for EMU_LNFORCECCMIMM */
 #define _EMU_DCDCMISCCTRL_LNFORCECCMIMM_DEFAULT              0x00000000UL                                      /**< Mode DEFAULT for EMU_DCDCMISCCTRL */
@@ -1089,7 +1087,7 @@ typedef struct {
 /* Bit fields for EMU DCDCLPVCTRL */
 #define _EMU_DCDCLPVCTRL_RESETVALUE                          0x00000168UL                           /**< Default value for EMU_DCDCLPVCTRL */
 #define _EMU_DCDCLPVCTRL_MASK                                0x000001FFUL                           /**< Mask for EMU_DCDCLPVCTRL */
-#define EMU_DCDCLPVCTRL_LPATT                                (0x1UL << 0)                           /**< Low power feedback attenuation */
+#define EMU_DCDCLPVCTRL_LPATT                                (0x1UL << 0)                           /**< Low Power Feedback Attenuation */
 #define _EMU_DCDCLPVCTRL_LPATT_SHIFT                         0                                      /**< Shift value for EMU_LPATT */
 #define _EMU_DCDCLPVCTRL_LPATT_MASK                          0x1UL                                  /**< Bit mask for EMU_LPATT */
 #define _EMU_DCDCLPVCTRL_LPATT_DEFAULT                       0x00000000UL                           /**< Mode DEFAULT for EMU_DCDCLPVCTRL */
@@ -1110,7 +1108,7 @@ typedef struct {
 #define _EMU_DCDCLPCTRL_LPCMPHYSSELEM234H_MASK               0xF000UL                                          /**< Bit mask for EMU_LPCMPHYSSELEM234H */
 #define _EMU_DCDCLPCTRL_LPCMPHYSSELEM234H_DEFAULT            0x00000000UL                                      /**< Mode DEFAULT for EMU_DCDCLPCTRL */
 #define EMU_DCDCLPCTRL_LPCMPHYSSELEM234H_DEFAULT             (_EMU_DCDCLPCTRL_LPCMPHYSSELEM234H_DEFAULT << 12) /**< Shifted mode DEFAULT for EMU_DCDCLPCTRL */
-#define EMU_DCDCLPCTRL_LPVREFDUTYEN                          (0x1UL << 24)                                     /**< LP mode duty cycling enable */
+#define EMU_DCDCLPCTRL_LPVREFDUTYEN                          (0x1UL << 24)                                     /**< LP Mode Duty Cycling Enable */
 #define _EMU_DCDCLPCTRL_LPVREFDUTYEN_SHIFT                   24                                                /**< Shift value for EMU_LPVREFDUTYEN */
 #define _EMU_DCDCLPCTRL_LPVREFDUTYEN_MASK                    0x1000000UL                                       /**< Bit mask for EMU_LPVREFDUTYEN */
 #define _EMU_DCDCLPCTRL_LPVREFDUTYEN_DEFAULT                 0x00000001UL                                      /**< Mode DEFAULT for EMU_DCDCLPCTRL */
@@ -1135,7 +1133,7 @@ typedef struct {
 /* Bit fields for EMU DCDCSYNC */
 #define _EMU_DCDCSYNC_RESETVALUE                             0x00000000UL                              /**< Default value for EMU_DCDCSYNC */
 #define _EMU_DCDCSYNC_MASK                                   0x00000001UL                              /**< Mask for EMU_DCDCSYNC */
-#define EMU_DCDCSYNC_DCDCCTRLBUSY                            (0x1UL << 0)                              /**< DCDC CTRL Register Transfer Busy. */
+#define EMU_DCDCSYNC_DCDCCTRLBUSY                            (0x1UL << 0)                              /**< DCDC CTRL Register Transfer Busy */
 #define _EMU_DCDCSYNC_DCDCCTRLBUSY_SHIFT                     0                                         /**< Shift value for EMU_DCDCCTRLBUSY */
 #define _EMU_DCDCSYNC_DCDCCTRLBUSY_MASK                      0x1UL                                     /**< Bit mask for EMU_DCDCCTRLBUSY */
 #define _EMU_DCDCSYNC_DCDCCTRLBUSY_DEFAULT                   0x00000000UL                              /**< Mode DEFAULT for EMU_DCDCSYNC */
@@ -1248,7 +1246,7 @@ typedef struct {
 #define _EMU_VMONIO0CTRL_FALLWU_MASK                         0x8UL                                        /**< Bit mask for EMU_FALLWU */
 #define _EMU_VMONIO0CTRL_FALLWU_DEFAULT                      0x00000000UL                                 /**< Mode DEFAULT for EMU_VMONIO0CTRL */
 #define EMU_VMONIO0CTRL_FALLWU_DEFAULT                       (_EMU_VMONIO0CTRL_FALLWU_DEFAULT << 3)       /**< Shifted mode DEFAULT for EMU_VMONIO0CTRL */
-#define EMU_VMONIO0CTRL_RETDIS                               (0x1UL << 4)                                 /**< EM4 IO0 Retention disable */
+#define EMU_VMONIO0CTRL_RETDIS                               (0x1UL << 4)                                 /**< EM4 IO0 Retention Disable */
 #define _EMU_VMONIO0CTRL_RETDIS_SHIFT                        4                                            /**< Shift value for EMU_RETDIS */
 #define _EMU_VMONIO0CTRL_RETDIS_MASK                         0x10UL                                       /**< Bit mask for EMU_RETDIS */
 #define _EMU_VMONIO0CTRL_RETDIS_DEFAULT                      0x00000000UL                                 /**< Mode DEFAULT for EMU_VMONIO0CTRL */
@@ -1280,7 +1278,7 @@ typedef struct {
 #define _EMU_VMONIO1CTRL_FALLWU_MASK                         0x8UL                                        /**< Bit mask for EMU_FALLWU */
 #define _EMU_VMONIO1CTRL_FALLWU_DEFAULT                      0x00000000UL                                 /**< Mode DEFAULT for EMU_VMONIO1CTRL */
 #define EMU_VMONIO1CTRL_FALLWU_DEFAULT                       (_EMU_VMONIO1CTRL_FALLWU_DEFAULT << 3)       /**< Shifted mode DEFAULT for EMU_VMONIO1CTRL */
-#define EMU_VMONIO1CTRL_RETDIS                               (0x1UL << 4)                                 /**< EM4 IO1 Retention disable */
+#define EMU_VMONIO1CTRL_RETDIS                               (0x1UL << 4)                                 /**< EM4 IO1 Retention Disable */
 #define _EMU_VMONIO1CTRL_RETDIS_SHIFT                        4                                            /**< Shift value for EMU_RETDIS */
 #define _EMU_VMONIO1CTRL_RETDIS_MASK                         0x10UL                                       /**< Bit mask for EMU_RETDIS */
 #define _EMU_VMONIO1CTRL_RETDIS_DEFAULT                      0x00000000UL                                 /**< Mode DEFAULT for EMU_VMONIO1CTRL */
@@ -1368,17 +1366,17 @@ typedef struct {
 /* Bit fields for EMU BUCTRL */
 #define _EMU_BUCTRL_RESETVALUE                               0x00000000UL                              /**< Default value for EMU_BUCTRL */
 #define _EMU_BUCTRL_MASK                                     0x80333307UL                              /**< Mask for EMU_BUCTRL */
-#define EMU_BUCTRL_EN                                        (0x1UL << 0)                              /**< Enable backup mode */
+#define EMU_BUCTRL_EN                                        (0x1UL << 0)                              /**< Enable Backup Mode */
 #define _EMU_BUCTRL_EN_SHIFT                                 0                                         /**< Shift value for EMU_EN */
 #define _EMU_BUCTRL_EN_MASK                                  0x1UL                                     /**< Bit mask for EMU_EN */
 #define _EMU_BUCTRL_EN_DEFAULT                               0x00000000UL                              /**< Mode DEFAULT for EMU_BUCTRL */
 #define EMU_BUCTRL_EN_DEFAULT                                (_EMU_BUCTRL_EN_DEFAULT << 0)             /**< Shifted mode DEFAULT for EMU_BUCTRL */
-#define EMU_BUCTRL_STATEN                                    (0x1UL << 1)                              /**< Enable backup mode status export. */
+#define EMU_BUCTRL_STATEN                                    (0x1UL << 1)                              /**< Enable Backup Mode Status Export */
 #define _EMU_BUCTRL_STATEN_SHIFT                             1                                         /**< Shift value for EMU_STATEN */
 #define _EMU_BUCTRL_STATEN_MASK                              0x2UL                                     /**< Bit mask for EMU_STATEN */
 #define _EMU_BUCTRL_STATEN_DEFAULT                           0x00000000UL                              /**< Mode DEFAULT for EMU_BUCTRL */
 #define EMU_BUCTRL_STATEN_DEFAULT                            (_EMU_BUCTRL_STATEN_DEFAULT << 1)         /**< Shifted mode DEFAULT for EMU_BUCTRL */
-#define EMU_BUCTRL_BUVINPROBEEN                              (0x1UL << 2)                              /**< Enable BU_VIN probing. */
+#define EMU_BUCTRL_BUVINPROBEEN                              (0x1UL << 2)                              /**< Enable BU_VIN Probing */
 #define _EMU_BUCTRL_BUVINPROBEEN_SHIFT                       2                                         /**< Shift value for EMU_BUVINPROBEEN */
 #define _EMU_BUCTRL_BUVINPROBEEN_MASK                        0x4UL                                     /**< Bit mask for EMU_BUVINPROBEEN */
 #define _EMU_BUCTRL_BUVINPROBEEN_DEFAULT                     0x00000000UL                              /**< Mode DEFAULT for EMU_BUCTRL */
@@ -1431,7 +1429,7 @@ typedef struct {
 #define EMU_BUCTRL_BUINACTPWRCON_MAINBU                      (_EMU_BUCTRL_BUINACTPWRCON_MAINBU << 20)  /**< Shifted mode MAINBU for EMU_BUCTRL */
 #define EMU_BUCTRL_BUINACTPWRCON_BUMAIN                      (_EMU_BUCTRL_BUINACTPWRCON_BUMAIN << 20)  /**< Shifted mode BUMAIN for EMU_BUCTRL */
 #define EMU_BUCTRL_BUINACTPWRCON_NODIODE                     (_EMU_BUCTRL_BUINACTPWRCON_NODIODE << 20) /**< Shifted mode NODIODE for EMU_BUCTRL */
-#define EMU_BUCTRL_DISMAXCOMP                                (0x1UL << 31)                             /**< Disable MAIN-BU comparator */
+#define EMU_BUCTRL_DISMAXCOMP                                (0x1UL << 31)                             /**< Disable MAIN-BU Comparator */
 #define _EMU_BUCTRL_DISMAXCOMP_SHIFT                         31                                        /**< Shift value for EMU_DISMAXCOMP */
 #define _EMU_BUCTRL_DISMAXCOMP_MASK                          0x80000000UL                              /**< Bit mask for EMU_DISMAXCOMP */
 #define _EMU_BUCTRL_DISMAXCOMP_DEFAULT                       0x00000000UL                              /**< Mode DEFAULT for EMU_BUCTRL */
@@ -1445,12 +1443,12 @@ typedef struct {
 #define _EMU_R5VCTRL_BYPASS_MASK                             0x1UL                                 /**< Bit mask for EMU_BYPASS */
 #define _EMU_R5VCTRL_BYPASS_DEFAULT                          0x00000000UL                          /**< Mode DEFAULT for EMU_R5VCTRL */
 #define EMU_R5VCTRL_BYPASS_DEFAULT                           (_EMU_R5VCTRL_BYPASS_DEFAULT << 0)    /**< Shifted mode DEFAULT for EMU_R5VCTRL */
-#define EMU_R5VCTRL_EM4WUEN                                  (0x1UL << 1)                          /**< Enable EM4 Wakeup due to VBUS detection */
+#define EMU_R5VCTRL_EM4WUEN                                  (0x1UL << 1)                          /**< Enable EM4 Wakeup Due to VBUS Detection */
 #define _EMU_R5VCTRL_EM4WUEN_SHIFT                           1                                     /**< Shift value for EMU_EM4WUEN */
 #define _EMU_R5VCTRL_EM4WUEN_MASK                            0x2UL                                 /**< Bit mask for EMU_EM4WUEN */
 #define _EMU_R5VCTRL_EM4WUEN_DEFAULT                         0x00000000UL                          /**< Mode DEFAULT for EMU_R5VCTRL */
 #define EMU_R5VCTRL_EM4WUEN_DEFAULT                          (_EMU_R5VCTRL_EM4WUEN_DEFAULT << 1)   /**< Shifted mode DEFAULT for EMU_R5VCTRL */
-#define EMU_R5VCTRL_IMONEN                                   (0x1UL << 2)                          /**< Enable the regulator current monitor for selected current path to either VREGI or VBUS. */
+#define EMU_R5VCTRL_IMONEN                                   (0x1UL << 2)                          /**< Enable the Regulator Current Monitor for Selected Current Path to Either VREGI or VBUS */
 #define _EMU_R5VCTRL_IMONEN_SHIFT                            2                                     /**< Shift value for EMU_IMONEN */
 #define _EMU_R5VCTRL_IMONEN_MASK                             0x4UL                                 /**< Bit mask for EMU_IMONEN */
 #define _EMU_R5VCTRL_IMONEN_DEFAULT                          0x00000000UL                          /**< Mode DEFAULT for EMU_R5VCTRL */
@@ -1469,7 +1467,7 @@ typedef struct {
 /* Bit fields for EMU R5VADCCTRL */
 #define _EMU_R5VADCCTRL_RESETVALUE                           0x00000000UL                               /**< Default value for EMU_R5VADCCTRL */
 #define _EMU_R5VADCCTRL_MASK                                 0x0000F001UL                               /**< Mask for EMU_R5VADCCTRL */
-#define EMU_R5VADCCTRL_ENAMUX                                (0x1UL << 0)                               /**< Enable the 5V subsystem ADC MUX. */
+#define EMU_R5VADCCTRL_ENAMUX                                (0x1UL << 0)                               /**< Enable the 5V Subsystem ADC MUX */
 #define _EMU_R5VADCCTRL_ENAMUX_SHIFT                         0                                          /**< Shift value for EMU_ENAMUX */
 #define _EMU_R5VADCCTRL_ENAMUX_MASK                          0x1UL                                      /**< Bit mask for EMU_ENAMUX */
 #define _EMU_R5VADCCTRL_ENAMUX_DEFAULT                       0x00000000UL                               /**< Mode DEFAULT for EMU_R5VADCCTRL */
@@ -1539,32 +1537,32 @@ typedef struct {
 /* Bit fields for EMU R5VSTATUS */
 #define _EMU_R5VSTATUS_RESETVALUE                            0x00000020UL                                /**< Default value for EMU_R5VSTATUS */
 #define _EMU_R5VSTATUS_MASK                                  0x0000003FUL                                /**< Mask for EMU_R5VSTATUS */
-#define EMU_R5VSTATUS_VREGIDET                               (0x1UL << 0)                                /**< VREGI detected */
+#define EMU_R5VSTATUS_VREGIDET                               (0x1UL << 0)                                /**< VREGI Detected */
 #define _EMU_R5VSTATUS_VREGIDET_SHIFT                        0                                           /**< Shift value for EMU_VREGIDET */
 #define _EMU_R5VSTATUS_VREGIDET_MASK                         0x1UL                                       /**< Bit mask for EMU_VREGIDET */
 #define _EMU_R5VSTATUS_VREGIDET_DEFAULT                      0x00000000UL                                /**< Mode DEFAULT for EMU_R5VSTATUS */
 #define EMU_R5VSTATUS_VREGIDET_DEFAULT                       (_EMU_R5VSTATUS_VREGIDET_DEFAULT << 0)      /**< Shifted mode DEFAULT for EMU_R5VSTATUS */
-#define EMU_R5VSTATUS_VBUSDET                                (0x1UL << 1)                                /**< USB VBUS detected. */
+#define EMU_R5VSTATUS_VBUSDET                                (0x1UL << 1)                                /**< USB VBUS Detected */
 #define _EMU_R5VSTATUS_VBUSDET_SHIFT                         1                                           /**< Shift value for EMU_VBUSDET */
 #define _EMU_R5VSTATUS_VBUSDET_MASK                          0x2UL                                       /**< Bit mask for EMU_VBUSDET */
 #define _EMU_R5VSTATUS_VBUSDET_DEFAULT                       0x00000000UL                                /**< Mode DEFAULT for EMU_R5VSTATUS */
 #define EMU_R5VSTATUS_VBUSDET_DEFAULT                        (_EMU_R5VSTATUS_VBUSDET_DEFAULT << 1)       /**< Shifted mode DEFAULT for EMU_R5VSTATUS */
-#define EMU_R5VSTATUS_VREGODET                               (0x1UL << 2)                                /**< VREGO detected */
+#define EMU_R5VSTATUS_VREGODET                               (0x1UL << 2)                                /**< VREGO Detected */
 #define _EMU_R5VSTATUS_VREGODET_SHIFT                        2                                           /**< Shift value for EMU_VREGODET */
 #define _EMU_R5VSTATUS_VREGODET_MASK                         0x4UL                                       /**< Bit mask for EMU_VREGODET */
 #define _EMU_R5VSTATUS_VREGODET_DEFAULT                      0x00000000UL                                /**< Mode DEFAULT for EMU_R5VSTATUS */
 #define EMU_R5VSTATUS_VREGODET_DEFAULT                       (_EMU_R5VSTATUS_VREGODET_DEFAULT << 2)      /**< Shifted mode DEFAULT for EMU_R5VSTATUS */
-#define EMU_R5VSTATUS_VBUSGTVREGI                            (0x1UL << 3)                                /**< Output of the supply comparator between VBUS and VREGI. */
+#define EMU_R5VSTATUS_VBUSGTVREGI                            (0x1UL << 3)                                /**< Output of the Supply Comparator Between VBUS and VREGI */
 #define _EMU_R5VSTATUS_VBUSGTVREGI_SHIFT                     3                                           /**< Shift value for EMU_VBUSGTVREGI */
 #define _EMU_R5VSTATUS_VBUSGTVREGI_MASK                      0x8UL                                       /**< Bit mask for EMU_VBUSGTVREGI */
 #define _EMU_R5VSTATUS_VBUSGTVREGI_DEFAULT                   0x00000000UL                                /**< Mode DEFAULT for EMU_R5VSTATUS */
 #define EMU_R5VSTATUS_VBUSGTVREGI_DEFAULT                    (_EMU_R5VSTATUS_VBUSGTVREGI_DEFAULT << 3)   /**< Shifted mode DEFAULT for EMU_R5VSTATUS */
-#define EMU_R5VSTATUS_LDODROPOUTDET                          (0x1UL << 4)                                /**< Regulator dropout detection */
+#define EMU_R5VSTATUS_LDODROPOUTDET                          (0x1UL << 4)                                /**< Regulator Dropout Detection */
 #define _EMU_R5VSTATUS_LDODROPOUTDET_SHIFT                   4                                           /**< Shift value for EMU_LDODROPOUTDET */
 #define _EMU_R5VSTATUS_LDODROPOUTDET_MASK                    0x10UL                                      /**< Bit mask for EMU_LDODROPOUTDET */
 #define _EMU_R5VSTATUS_LDODROPOUTDET_DEFAULT                 0x00000000UL                                /**< Mode DEFAULT for EMU_R5VSTATUS */
 #define EMU_R5VSTATUS_LDODROPOUTDET_DEFAULT                  (_EMU_R5VSTATUS_LDODROPOUTDET_DEFAULT << 4) /**< Shifted mode DEFAULT for EMU_R5VSTATUS */
-#define EMU_R5VSTATUS_COLDSTART                              (0x1UL << 5)                                /**< Indicates if the regulator is going through a cold start */
+#define EMU_R5VSTATUS_COLDSTART                              (0x1UL << 5)                                /**< Indicates If the Regulator is Going Through a Cold Start */
 #define _EMU_R5VSTATUS_COLDSTART_SHIFT                       5                                           /**< Shift value for EMU_COLDSTART */
 #define _EMU_R5VSTATUS_COLDSTART_MASK                        0x20UL                                      /**< Bit mask for EMU_COLDSTART */
 #define _EMU_R5VSTATUS_COLDSTART_DEFAULT                     0x00000001UL                                /**< Mode DEFAULT for EMU_R5VSTATUS */
@@ -1573,7 +1571,7 @@ typedef struct {
 /* Bit fields for EMU R5VSYNC */
 #define _EMU_R5VSYNC_RESETVALUE                              0x00000000UL                             /**< Default value for EMU_R5VSYNC */
 #define _EMU_R5VSYNC_MASK                                    0x00000001UL                             /**< Mask for EMU_R5VSYNC */
-#define EMU_R5VSYNC_OUTLEVELBUSY                             (0x1UL << 0)                             /**< 5V Regulator Voltage Register Transfer Busy. */
+#define EMU_R5VSYNC_OUTLEVELBUSY                             (0x1UL << 0)                             /**< 5V Regulator Voltage Register Transfer Busy */
 #define _EMU_R5VSYNC_OUTLEVELBUSY_SHIFT                      0                                        /**< Shift value for EMU_OUTLEVELBUSY */
 #define _EMU_R5VSYNC_OUTLEVELBUSY_MASK                       0x1UL                                    /**< Bit mask for EMU_OUTLEVELBUSY */
 #define _EMU_R5VSYNC_OUTLEVELBUSY_DEFAULT                    0x00000000UL                             /**< Mode DEFAULT for EMU_R5VSYNC */
@@ -1582,127 +1580,127 @@ typedef struct {
 /* Bit fields for EMU EM23PERNORETAINCMD */
 #define _EMU_EM23PERNORETAINCMD_RESETVALUE                   0x00000000UL                                           /**< Default value for EMU_EM23PERNORETAINCMD */
 #define _EMU_EM23PERNORETAINCMD_MASK                         0x01FFFFFFUL                                           /**< Mask for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_ACMP0UNLOCK                   (0x1UL << 0)                                           /**< Clears status bit of ACMP0 and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_ACMP0UNLOCK                   (0x1UL << 0)                                           /**< Clears Status Bit of ACMP0 and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_ACMP0UNLOCK_SHIFT            0                                                      /**< Shift value for EMU_ACMP0UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_ACMP0UNLOCK_MASK             0x1UL                                                  /**< Bit mask for EMU_ACMP0UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_ACMP0UNLOCK_DEFAULT          0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_ACMP0UNLOCK_DEFAULT           (_EMU_EM23PERNORETAINCMD_ACMP0UNLOCK_DEFAULT << 0)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_ACMP1UNLOCK                   (0x1UL << 1)                                           /**< Clears status bit of ACMP1 and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_ACMP1UNLOCK                   (0x1UL << 1)                                           /**< Clears Status Bit of ACMP1 and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_ACMP1UNLOCK_SHIFT            1                                                      /**< Shift value for EMU_ACMP1UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_ACMP1UNLOCK_MASK             0x2UL                                                  /**< Bit mask for EMU_ACMP1UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_ACMP1UNLOCK_DEFAULT          0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_ACMP1UNLOCK_DEFAULT           (_EMU_EM23PERNORETAINCMD_ACMP1UNLOCK_DEFAULT << 1)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_PCNT0UNLOCK                   (0x1UL << 2)                                           /**< Clears status bit of PCNT0 and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_PCNT0UNLOCK                   (0x1UL << 2)                                           /**< Clears Status Bit of PCNT0 and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_PCNT0UNLOCK_SHIFT            2                                                      /**< Shift value for EMU_PCNT0UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_PCNT0UNLOCK_MASK             0x4UL                                                  /**< Bit mask for EMU_PCNT0UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_PCNT0UNLOCK_DEFAULT          0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_PCNT0UNLOCK_DEFAULT           (_EMU_EM23PERNORETAINCMD_PCNT0UNLOCK_DEFAULT << 2)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_PCNT1UNLOCK                   (0x1UL << 3)                                           /**< Clears status bit of PCNT1 and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_PCNT1UNLOCK                   (0x1UL << 3)                                           /**< Clears Status Bit of PCNT1 and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_PCNT1UNLOCK_SHIFT            3                                                      /**< Shift value for EMU_PCNT1UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_PCNT1UNLOCK_MASK             0x8UL                                                  /**< Bit mask for EMU_PCNT1UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_PCNT1UNLOCK_DEFAULT          0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_PCNT1UNLOCK_DEFAULT           (_EMU_EM23PERNORETAINCMD_PCNT1UNLOCK_DEFAULT << 3)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_PCNT2UNLOCK                   (0x1UL << 4)                                           /**< Clears status bit of PCNT2 and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_PCNT2UNLOCK                   (0x1UL << 4)                                           /**< Clears Status Bit of PCNT2 and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_PCNT2UNLOCK_SHIFT            4                                                      /**< Shift value for EMU_PCNT2UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_PCNT2UNLOCK_MASK             0x10UL                                                 /**< Bit mask for EMU_PCNT2UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_PCNT2UNLOCK_DEFAULT          0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_PCNT2UNLOCK_DEFAULT           (_EMU_EM23PERNORETAINCMD_PCNT2UNLOCK_DEFAULT << 4)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_I2C0UNLOCK                    (0x1UL << 5)                                           /**< Clears status bit of I2C0 and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_I2C0UNLOCK                    (0x1UL << 5)                                           /**< Clears Status Bit of I2C0 and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_I2C0UNLOCK_SHIFT             5                                                      /**< Shift value for EMU_I2C0UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_I2C0UNLOCK_MASK              0x20UL                                                 /**< Bit mask for EMU_I2C0UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_I2C0UNLOCK_DEFAULT           0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_I2C0UNLOCK_DEFAULT            (_EMU_EM23PERNORETAINCMD_I2C0UNLOCK_DEFAULT << 5)      /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_I2C1UNLOCK                    (0x1UL << 6)                                           /**< Clears status bit of I2C1 and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_I2C1UNLOCK                    (0x1UL << 6)                                           /**< Clears Status Bit of I2C1 and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_I2C1UNLOCK_SHIFT             6                                                      /**< Shift value for EMU_I2C1UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_I2C1UNLOCK_MASK              0x40UL                                                 /**< Bit mask for EMU_I2C1UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_I2C1UNLOCK_DEFAULT           0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_I2C1UNLOCK_DEFAULT            (_EMU_EM23PERNORETAINCMD_I2C1UNLOCK_DEFAULT << 6)      /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_DAC0UNLOCK                    (0x1UL << 7)                                           /**< Clears status bit of DAC0 and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_DAC0UNLOCK                    (0x1UL << 7)                                           /**< Clears Status Bit of DAC0 and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_DAC0UNLOCK_SHIFT             7                                                      /**< Shift value for EMU_DAC0UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_DAC0UNLOCK_MASK              0x80UL                                                 /**< Bit mask for EMU_DAC0UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_DAC0UNLOCK_DEFAULT           0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_DAC0UNLOCK_DEFAULT            (_EMU_EM23PERNORETAINCMD_DAC0UNLOCK_DEFAULT << 7)      /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_IDAC0UNLOCK                   (0x1UL << 8)                                           /**< Clears status bit of IDAC0 and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_IDAC0UNLOCK                   (0x1UL << 8)                                           /**< Clears Status Bit of IDAC0 and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_IDAC0UNLOCK_SHIFT            8                                                      /**< Shift value for EMU_IDAC0UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_IDAC0UNLOCK_MASK             0x100UL                                                /**< Bit mask for EMU_IDAC0UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_IDAC0UNLOCK_DEFAULT          0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_IDAC0UNLOCK_DEFAULT           (_EMU_EM23PERNORETAINCMD_IDAC0UNLOCK_DEFAULT << 8)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_ADC0UNLOCK                    (0x1UL << 9)                                           /**< Clears status bit of ADC0 and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_ADC0UNLOCK                    (0x1UL << 9)                                           /**< Clears Status Bit of ADC0 and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_ADC0UNLOCK_SHIFT             9                                                      /**< Shift value for EMU_ADC0UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_ADC0UNLOCK_MASK              0x200UL                                                /**< Bit mask for EMU_ADC0UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_ADC0UNLOCK_DEFAULT           0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_ADC0UNLOCK_DEFAULT            (_EMU_EM23PERNORETAINCMD_ADC0UNLOCK_DEFAULT << 9)      /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_LETIMER0UNLOCK                (0x1UL << 10)                                          /**< Clears status bit of LETIMER0 and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_LETIMER0UNLOCK                (0x1UL << 10)                                          /**< Clears Status Bit of LETIMER0 and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_LETIMER0UNLOCK_SHIFT         10                                                     /**< Shift value for EMU_LETIMER0UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_LETIMER0UNLOCK_MASK          0x400UL                                                /**< Bit mask for EMU_LETIMER0UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_LETIMER0UNLOCK_DEFAULT       0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_LETIMER0UNLOCK_DEFAULT        (_EMU_EM23PERNORETAINCMD_LETIMER0UNLOCK_DEFAULT << 10) /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_WDOG0UNLOCK                   (0x1UL << 11)                                          /**< Clears status bit of WDOG0 and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_WDOG0UNLOCK                   (0x1UL << 11)                                          /**< Clears Status Bit of WDOG0 and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_WDOG0UNLOCK_SHIFT            11                                                     /**< Shift value for EMU_WDOG0UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_WDOG0UNLOCK_MASK             0x800UL                                                /**< Bit mask for EMU_WDOG0UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_WDOG0UNLOCK_DEFAULT          0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_WDOG0UNLOCK_DEFAULT           (_EMU_EM23PERNORETAINCMD_WDOG0UNLOCK_DEFAULT << 11)    /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_WDOG1UNLOCK                   (0x1UL << 12)                                          /**< Clears status bit of WDOG1 and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_WDOG1UNLOCK                   (0x1UL << 12)                                          /**< Clears Status Bit of WDOG1 and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_WDOG1UNLOCK_SHIFT            12                                                     /**< Shift value for EMU_WDOG1UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_WDOG1UNLOCK_MASK             0x1000UL                                               /**< Bit mask for EMU_WDOG1UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_WDOG1UNLOCK_DEFAULT          0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_WDOG1UNLOCK_DEFAULT           (_EMU_EM23PERNORETAINCMD_WDOG1UNLOCK_DEFAULT << 12)    /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_LESENSE0UNLOCK                (0x1UL << 13)                                          /**< Clears status bit of LESENSE0 and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_LESENSE0UNLOCK                (0x1UL << 13)                                          /**< Clears Status Bit of LESENSE0 and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_LESENSE0UNLOCK_SHIFT         13                                                     /**< Shift value for EMU_LESENSE0UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_LESENSE0UNLOCK_MASK          0x2000UL                                               /**< Bit mask for EMU_LESENSE0UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_LESENSE0UNLOCK_DEFAULT       0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_LESENSE0UNLOCK_DEFAULT        (_EMU_EM23PERNORETAINCMD_LESENSE0UNLOCK_DEFAULT << 13) /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_CSENUNLOCK                    (0x1UL << 14)                                          /**< Clears status bit of CSEN and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_CSENUNLOCK                    (0x1UL << 14)                                          /**< Clears Status Bit of CSEN and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_CSENUNLOCK_SHIFT             14                                                     /**< Shift value for EMU_CSENUNLOCK */
 #define _EMU_EM23PERNORETAINCMD_CSENUNLOCK_MASK              0x4000UL                                               /**< Bit mask for EMU_CSENUNLOCK */
 #define _EMU_EM23PERNORETAINCMD_CSENUNLOCK_DEFAULT           0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_CSENUNLOCK_DEFAULT            (_EMU_EM23PERNORETAINCMD_CSENUNLOCK_DEFAULT << 14)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_LEUART0UNLOCK                 (0x1UL << 15)                                          /**< Clears status bit of LEUART0 and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_LEUART0UNLOCK                 (0x1UL << 15)                                          /**< Clears Status Bit of LEUART0 and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_LEUART0UNLOCK_SHIFT          15                                                     /**< Shift value for EMU_LEUART0UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_LEUART0UNLOCK_MASK           0x8000UL                                               /**< Bit mask for EMU_LEUART0UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_LEUART0UNLOCK_DEFAULT        0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_LEUART0UNLOCK_DEFAULT         (_EMU_EM23PERNORETAINCMD_LEUART0UNLOCK_DEFAULT << 15)  /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_LEUART1UNLOCK                 (0x1UL << 16)                                          /**< Clears status bit of LEUART1 and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_LEUART1UNLOCK                 (0x1UL << 16)                                          /**< Clears Status Bit of LEUART1 and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_LEUART1UNLOCK_SHIFT          16                                                     /**< Shift value for EMU_LEUART1UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_LEUART1UNLOCK_MASK           0x10000UL                                              /**< Bit mask for EMU_LEUART1UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_LEUART1UNLOCK_DEFAULT        0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_LEUART1UNLOCK_DEFAULT         (_EMU_EM23PERNORETAINCMD_LEUART1UNLOCK_DEFAULT << 16)  /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_LCDUNLOCK                     (0x1UL << 17)                                          /**< Clears status bit of LCD and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_LCDUNLOCK                     (0x1UL << 17)                                          /**< Clears Status Bit of LCD and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_LCDUNLOCK_SHIFT              17                                                     /**< Shift value for EMU_LCDUNLOCK */
 #define _EMU_EM23PERNORETAINCMD_LCDUNLOCK_MASK               0x20000UL                                              /**< Bit mask for EMU_LCDUNLOCK */
 #define _EMU_EM23PERNORETAINCMD_LCDUNLOCK_DEFAULT            0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_LCDUNLOCK_DEFAULT             (_EMU_EM23PERNORETAINCMD_LCDUNLOCK_DEFAULT << 17)      /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_LETIMER1UNLOCK                (0x1UL << 18)                                          /**< Clears status bit of LETIMER1 and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_LETIMER1UNLOCK                (0x1UL << 18)                                          /**< Clears Status Bit of LETIMER1 and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_LETIMER1UNLOCK_SHIFT         18                                                     /**< Shift value for EMU_LETIMER1UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_LETIMER1UNLOCK_MASK          0x40000UL                                              /**< Bit mask for EMU_LETIMER1UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_LETIMER1UNLOCK_DEFAULT       0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_LETIMER1UNLOCK_DEFAULT        (_EMU_EM23PERNORETAINCMD_LETIMER1UNLOCK_DEFAULT << 18) /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_I2C2UNLOCK                    (0x1UL << 19)                                          /**< Clears status bit of I2C2 and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_I2C2UNLOCK                    (0x1UL << 19)                                          /**< Clears Status Bit of I2C2 and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_I2C2UNLOCK_SHIFT             19                                                     /**< Shift value for EMU_I2C2UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_I2C2UNLOCK_MASK              0x80000UL                                              /**< Bit mask for EMU_I2C2UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_I2C2UNLOCK_DEFAULT           0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_I2C2UNLOCK_DEFAULT            (_EMU_EM23PERNORETAINCMD_I2C2UNLOCK_DEFAULT << 19)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_ADC1UNLOCK                    (0x1UL << 20)                                          /**< Clears status bit of ADC1 and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_ADC1UNLOCK                    (0x1UL << 20)                                          /**< Clears Status Bit of ADC1 and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_ADC1UNLOCK_SHIFT             20                                                     /**< Shift value for EMU_ADC1UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_ADC1UNLOCK_MASK              0x100000UL                                             /**< Bit mask for EMU_ADC1UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_ADC1UNLOCK_DEFAULT           0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_ADC1UNLOCK_DEFAULT            (_EMU_EM23PERNORETAINCMD_ADC1UNLOCK_DEFAULT << 20)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_ACMP2UNLOCK                   (0x1UL << 21)                                          /**< Clears status bit of ACMP2 and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_ACMP2UNLOCK                   (0x1UL << 21)                                          /**< Clears Status Bit of ACMP2 and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_ACMP2UNLOCK_SHIFT            21                                                     /**< Shift value for EMU_ACMP2UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_ACMP2UNLOCK_MASK             0x200000UL                                             /**< Bit mask for EMU_ACMP2UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_ACMP2UNLOCK_DEFAULT          0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_ACMP2UNLOCK_DEFAULT           (_EMU_EM23PERNORETAINCMD_ACMP2UNLOCK_DEFAULT << 21)    /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_ACMP3UNLOCK                   (0x1UL << 22)                                          /**< Clears status bit of ACMP3 and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_ACMP3UNLOCK                   (0x1UL << 22)                                          /**< Clears Status Bit of ACMP3 and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_ACMP3UNLOCK_SHIFT            22                                                     /**< Shift value for EMU_ACMP3UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_ACMP3UNLOCK_MASK             0x400000UL                                             /**< Bit mask for EMU_ACMP3UNLOCK */
 #define _EMU_EM23PERNORETAINCMD_ACMP3UNLOCK_DEFAULT          0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_ACMP3UNLOCK_DEFAULT           (_EMU_EM23PERNORETAINCMD_ACMP3UNLOCK_DEFAULT << 22)    /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_RTCUNLOCK                     (0x1UL << 23)                                          /**< Clears status bit of RTC and unlocks access to it */
+#define EMU_EM23PERNORETAINCMD_RTCUNLOCK                     (0x1UL << 23)                                          /**< Clears Status Bit of RTC and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_RTCUNLOCK_SHIFT              23                                                     /**< Shift value for EMU_RTCUNLOCK */
 #define _EMU_EM23PERNORETAINCMD_RTCUNLOCK_MASK               0x800000UL                                             /**< Bit mask for EMU_RTCUNLOCK */
 #define _EMU_EM23PERNORETAINCMD_RTCUNLOCK_DEFAULT            0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
 #define EMU_EM23PERNORETAINCMD_RTCUNLOCK_DEFAULT             (_EMU_EM23PERNORETAINCMD_RTCUNLOCK_DEFAULT << 23)      /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCMD */
-#define EMU_EM23PERNORETAINCMD_USBUNLOCK                     (0x1UL << 24)                                          /**< clears status bit of USB and ulocks access to it */
+#define EMU_EM23PERNORETAINCMD_USBUNLOCK                     (0x1UL << 24)                                          /**< Clears Status Bit of USB and Unlocks Access to It */
 #define _EMU_EM23PERNORETAINCMD_USBUNLOCK_SHIFT              24                                                     /**< Shift value for EMU_USBUNLOCK */
 #define _EMU_EM23PERNORETAINCMD_USBUNLOCK_MASK               0x1000000UL                                            /**< Bit mask for EMU_USBUNLOCK */
 #define _EMU_EM23PERNORETAINCMD_USBUNLOCK_DEFAULT            0x00000000UL                                           /**< Mode DEFAULT for EMU_EM23PERNORETAINCMD */
@@ -1711,127 +1709,127 @@ typedef struct {
 /* Bit fields for EMU EM23PERNORETAINSTATUS */
 #define _EMU_EM23PERNORETAINSTATUS_RESETVALUE                0x00000000UL                                              /**< Default value for EMU_EM23PERNORETAINSTATUS */
 #define _EMU_EM23PERNORETAINSTATUS_MASK                      0x01FFFFFFUL                                              /**< Mask for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_ACMP0LOCKED                (0x1UL << 0)                                              /**< Indicates if ACMP0 powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_ACMP0LOCKED                (0x1UL << 0)                                              /**< Indicates If ACMP0 Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_ACMP0LOCKED_SHIFT         0                                                         /**< Shift value for EMU_ACMP0LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_ACMP0LOCKED_MASK          0x1UL                                                     /**< Bit mask for EMU_ACMP0LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_ACMP0LOCKED_DEFAULT       0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_ACMP0LOCKED_DEFAULT        (_EMU_EM23PERNORETAINSTATUS_ACMP0LOCKED_DEFAULT << 0)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_ACMP1LOCKED                (0x1UL << 1)                                              /**< Indicates if ACMP1 powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_ACMP1LOCKED                (0x1UL << 1)                                              /**< Indicates If ACMP1 Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_ACMP1LOCKED_SHIFT         1                                                         /**< Shift value for EMU_ACMP1LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_ACMP1LOCKED_MASK          0x2UL                                                     /**< Bit mask for EMU_ACMP1LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_ACMP1LOCKED_DEFAULT       0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_ACMP1LOCKED_DEFAULT        (_EMU_EM23PERNORETAINSTATUS_ACMP1LOCKED_DEFAULT << 1)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_PCNT0LOCKED                (0x1UL << 2)                                              /**< Indicates if PCNT0 powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_PCNT0LOCKED                (0x1UL << 2)                                              /**< Indicates If PCNT0 Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_PCNT0LOCKED_SHIFT         2                                                         /**< Shift value for EMU_PCNT0LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_PCNT0LOCKED_MASK          0x4UL                                                     /**< Bit mask for EMU_PCNT0LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_PCNT0LOCKED_DEFAULT       0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_PCNT0LOCKED_DEFAULT        (_EMU_EM23PERNORETAINSTATUS_PCNT0LOCKED_DEFAULT << 2)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_PCNT1LOCKED                (0x1UL << 3)                                              /**< Indicates if PCNT1 powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_PCNT1LOCKED                (0x1UL << 3)                                              /**< Indicates If PCNT1 Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_PCNT1LOCKED_SHIFT         3                                                         /**< Shift value for EMU_PCNT1LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_PCNT1LOCKED_MASK          0x8UL                                                     /**< Bit mask for EMU_PCNT1LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_PCNT1LOCKED_DEFAULT       0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_PCNT1LOCKED_DEFAULT        (_EMU_EM23PERNORETAINSTATUS_PCNT1LOCKED_DEFAULT << 3)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_PCNT2LOCKED                (0x1UL << 4)                                              /**< Indicates if PCNT2 powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_PCNT2LOCKED                (0x1UL << 4)                                              /**< Indicates If PCNT2 Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_PCNT2LOCKED_SHIFT         4                                                         /**< Shift value for EMU_PCNT2LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_PCNT2LOCKED_MASK          0x10UL                                                    /**< Bit mask for EMU_PCNT2LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_PCNT2LOCKED_DEFAULT       0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_PCNT2LOCKED_DEFAULT        (_EMU_EM23PERNORETAINSTATUS_PCNT2LOCKED_DEFAULT << 4)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_I2C0LOCKED                 (0x1UL << 5)                                              /**< Indicates if I2C0 powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_I2C0LOCKED                 (0x1UL << 5)                                              /**< Indicates If I2C0 Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_I2C0LOCKED_SHIFT          5                                                         /**< Shift value for EMU_I2C0LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_I2C0LOCKED_MASK           0x20UL                                                    /**< Bit mask for EMU_I2C0LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_I2C0LOCKED_DEFAULT        0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_I2C0LOCKED_DEFAULT         (_EMU_EM23PERNORETAINSTATUS_I2C0LOCKED_DEFAULT << 5)      /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_I2C1LOCKED                 (0x1UL << 6)                                              /**< Indicates if I2C1 powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_I2C1LOCKED                 (0x1UL << 6)                                              /**< Indicates If I2C1 Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_I2C1LOCKED_SHIFT          6                                                         /**< Shift value for EMU_I2C1LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_I2C1LOCKED_MASK           0x40UL                                                    /**< Bit mask for EMU_I2C1LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_I2C1LOCKED_DEFAULT        0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_I2C1LOCKED_DEFAULT         (_EMU_EM23PERNORETAINSTATUS_I2C1LOCKED_DEFAULT << 6)      /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_DAC0LOCKED                 (0x1UL << 7)                                              /**< Indicates if DAC0 powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_DAC0LOCKED                 (0x1UL << 7)                                              /**< Indicates If DAC0 Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_DAC0LOCKED_SHIFT          7                                                         /**< Shift value for EMU_DAC0LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_DAC0LOCKED_MASK           0x80UL                                                    /**< Bit mask for EMU_DAC0LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_DAC0LOCKED_DEFAULT        0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_DAC0LOCKED_DEFAULT         (_EMU_EM23PERNORETAINSTATUS_DAC0LOCKED_DEFAULT << 7)      /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_IDAC0LOCKED                (0x1UL << 8)                                              /**< Indicates if IDAC0 powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_IDAC0LOCKED                (0x1UL << 8)                                              /**< Indicates If IDAC0 Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_IDAC0LOCKED_SHIFT         8                                                         /**< Shift value for EMU_IDAC0LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_IDAC0LOCKED_MASK          0x100UL                                                   /**< Bit mask for EMU_IDAC0LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_IDAC0LOCKED_DEFAULT       0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_IDAC0LOCKED_DEFAULT        (_EMU_EM23PERNORETAINSTATUS_IDAC0LOCKED_DEFAULT << 8)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_ADC0LOCKED                 (0x1UL << 9)                                              /**< Indicates if ADC0 powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_ADC0LOCKED                 (0x1UL << 9)                                              /**< Indicates If ADC0 Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_ADC0LOCKED_SHIFT          9                                                         /**< Shift value for EMU_ADC0LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_ADC0LOCKED_MASK           0x200UL                                                   /**< Bit mask for EMU_ADC0LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_ADC0LOCKED_DEFAULT        0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_ADC0LOCKED_DEFAULT         (_EMU_EM23PERNORETAINSTATUS_ADC0LOCKED_DEFAULT << 9)      /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_LETIMER0LOCKED             (0x1UL << 10)                                             /**< Indicates if LETIMER0 powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_LETIMER0LOCKED             (0x1UL << 10)                                             /**< Indicates If LETIMER0 Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_LETIMER0LOCKED_SHIFT      10                                                        /**< Shift value for EMU_LETIMER0LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_LETIMER0LOCKED_MASK       0x400UL                                                   /**< Bit mask for EMU_LETIMER0LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_LETIMER0LOCKED_DEFAULT    0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_LETIMER0LOCKED_DEFAULT     (_EMU_EM23PERNORETAINSTATUS_LETIMER0LOCKED_DEFAULT << 10) /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_WDOG0LOCKED                (0x1UL << 11)                                             /**< Indicates if WDOG0 powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_WDOG0LOCKED                (0x1UL << 11)                                             /**< Indicates If WDOG0 Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_WDOG0LOCKED_SHIFT         11                                                        /**< Shift value for EMU_WDOG0LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_WDOG0LOCKED_MASK          0x800UL                                                   /**< Bit mask for EMU_WDOG0LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_WDOG0LOCKED_DEFAULT       0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_WDOG0LOCKED_DEFAULT        (_EMU_EM23PERNORETAINSTATUS_WDOG0LOCKED_DEFAULT << 11)    /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_WDOG1LOCKED                (0x1UL << 12)                                             /**< Indicates if WDOG1 powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_WDOG1LOCKED                (0x1UL << 12)                                             /**< Indicates If WDOG1 Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_WDOG1LOCKED_SHIFT         12                                                        /**< Shift value for EMU_WDOG1LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_WDOG1LOCKED_MASK          0x1000UL                                                  /**< Bit mask for EMU_WDOG1LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_WDOG1LOCKED_DEFAULT       0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_WDOG1LOCKED_DEFAULT        (_EMU_EM23PERNORETAINSTATUS_WDOG1LOCKED_DEFAULT << 12)    /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_LESENSE0LOCKED             (0x1UL << 13)                                             /**< Indicates if LESENSE0 powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_LESENSE0LOCKED             (0x1UL << 13)                                             /**< Indicates If LESENSE0 Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_LESENSE0LOCKED_SHIFT      13                                                        /**< Shift value for EMU_LESENSE0LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_LESENSE0LOCKED_MASK       0x2000UL                                                  /**< Bit mask for EMU_LESENSE0LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_LESENSE0LOCKED_DEFAULT    0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_LESENSE0LOCKED_DEFAULT     (_EMU_EM23PERNORETAINSTATUS_LESENSE0LOCKED_DEFAULT << 13) /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_CSENLOCKED                 (0x1UL << 14)                                             /**< Indicates if CSEN powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_CSENLOCKED                 (0x1UL << 14)                                             /**< Indicates If CSEN Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_CSENLOCKED_SHIFT          14                                                        /**< Shift value for EMU_CSENLOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_CSENLOCKED_MASK           0x4000UL                                                  /**< Bit mask for EMU_CSENLOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_CSENLOCKED_DEFAULT        0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_CSENLOCKED_DEFAULT         (_EMU_EM23PERNORETAINSTATUS_CSENLOCKED_DEFAULT << 14)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_LEUART0LOCKED              (0x1UL << 15)                                             /**< Indicates if LEUART0 powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_LEUART0LOCKED              (0x1UL << 15)                                             /**< Indicates If LEUART0 Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_LEUART0LOCKED_SHIFT       15                                                        /**< Shift value for EMU_LEUART0LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_LEUART0LOCKED_MASK        0x8000UL                                                  /**< Bit mask for EMU_LEUART0LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_LEUART0LOCKED_DEFAULT     0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_LEUART0LOCKED_DEFAULT      (_EMU_EM23PERNORETAINSTATUS_LEUART0LOCKED_DEFAULT << 15)  /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_LEUART1LOCKED              (0x1UL << 16)                                             /**< Indicates if LEUART1 powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_LEUART1LOCKED              (0x1UL << 16)                                             /**< Indicates If LEUART1 Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_LEUART1LOCKED_SHIFT       16                                                        /**< Shift value for EMU_LEUART1LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_LEUART1LOCKED_MASK        0x10000UL                                                 /**< Bit mask for EMU_LEUART1LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_LEUART1LOCKED_DEFAULT     0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_LEUART1LOCKED_DEFAULT      (_EMU_EM23PERNORETAINSTATUS_LEUART1LOCKED_DEFAULT << 16)  /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_LCDLOCKED                  (0x1UL << 17)                                             /**< Indicates if LCD powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_LCDLOCKED                  (0x1UL << 17)                                             /**< Indicates If LCD Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_LCDLOCKED_SHIFT           17                                                        /**< Shift value for EMU_LCDLOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_LCDLOCKED_MASK            0x20000UL                                                 /**< Bit mask for EMU_LCDLOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_LCDLOCKED_DEFAULT         0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_LCDLOCKED_DEFAULT          (_EMU_EM23PERNORETAINSTATUS_LCDLOCKED_DEFAULT << 17)      /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_LETIMER1LOCKED             (0x1UL << 18)                                             /**< Indicates if LETIMER1 powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_LETIMER1LOCKED             (0x1UL << 18)                                             /**< Indicates If LETIMER1 Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_LETIMER1LOCKED_SHIFT      18                                                        /**< Shift value for EMU_LETIMER1LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_LETIMER1LOCKED_MASK       0x40000UL                                                 /**< Bit mask for EMU_LETIMER1LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_LETIMER1LOCKED_DEFAULT    0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_LETIMER1LOCKED_DEFAULT     (_EMU_EM23PERNORETAINSTATUS_LETIMER1LOCKED_DEFAULT << 18) /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_I2C2LOCKED                 (0x1UL << 19)                                             /**< Indicates if I2C2 powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_I2C2LOCKED                 (0x1UL << 19)                                             /**< Indicates If I2C2 Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_I2C2LOCKED_SHIFT          19                                                        /**< Shift value for EMU_I2C2LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_I2C2LOCKED_MASK           0x80000UL                                                 /**< Bit mask for EMU_I2C2LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_I2C2LOCKED_DEFAULT        0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_I2C2LOCKED_DEFAULT         (_EMU_EM23PERNORETAINSTATUS_I2C2LOCKED_DEFAULT << 19)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_ADC1LOCKED                 (0x1UL << 20)                                             /**< Indicates if ADC1 powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_ADC1LOCKED                 (0x1UL << 20)                                             /**< Indicates If ADC1 Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_ADC1LOCKED_SHIFT          20                                                        /**< Shift value for EMU_ADC1LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_ADC1LOCKED_MASK           0x100000UL                                                /**< Bit mask for EMU_ADC1LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_ADC1LOCKED_DEFAULT        0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_ADC1LOCKED_DEFAULT         (_EMU_EM23PERNORETAINSTATUS_ADC1LOCKED_DEFAULT << 20)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_ACMP2LOCKED                (0x1UL << 21)                                             /**< Indicates if ACMP2 powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_ACMP2LOCKED                (0x1UL << 21)                                             /**< Indicates If ACMP2 Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_ACMP2LOCKED_SHIFT         21                                                        /**< Shift value for EMU_ACMP2LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_ACMP2LOCKED_MASK          0x200000UL                                                /**< Bit mask for EMU_ACMP2LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_ACMP2LOCKED_DEFAULT       0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_ACMP2LOCKED_DEFAULT        (_EMU_EM23PERNORETAINSTATUS_ACMP2LOCKED_DEFAULT << 21)    /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_ACMP3LOCKED                (0x1UL << 22)                                             /**< Indicates if ACMP3 powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_ACMP3LOCKED                (0x1UL << 22)                                             /**< Indicates If ACMP3 Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_ACMP3LOCKED_SHIFT         22                                                        /**< Shift value for EMU_ACMP3LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_ACMP3LOCKED_MASK          0x400000UL                                                /**< Bit mask for EMU_ACMP3LOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_ACMP3LOCKED_DEFAULT       0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_ACMP3LOCKED_DEFAULT        (_EMU_EM23PERNORETAINSTATUS_ACMP3LOCKED_DEFAULT << 22)    /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_RTCLOCKED                  (0x1UL << 23)                                             /**< Indicates if RTC powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_RTCLOCKED                  (0x1UL << 23)                                             /**< Indicates If RTC Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_RTCLOCKED_SHIFT           23                                                        /**< Shift value for EMU_RTCLOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_RTCLOCKED_MASK            0x800000UL                                                /**< Bit mask for EMU_RTCLOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_RTCLOCKED_DEFAULT         0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
 #define EMU_EM23PERNORETAINSTATUS_RTCLOCKED_DEFAULT          (_EMU_EM23PERNORETAINSTATUS_RTCLOCKED_DEFAULT << 23)      /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
-#define EMU_EM23PERNORETAINSTATUS_USBLOCKED                  (0x1UL << 24)                                             /**< Indicates if USB powered down during EM23. Access to this peripheral locked until this bit cleared using EM23PERNORETAINCMD */
+#define EMU_EM23PERNORETAINSTATUS_USBLOCKED                  (0x1UL << 24)                                             /**< Indicates If USB Powered Down During EM23 */
 #define _EMU_EM23PERNORETAINSTATUS_USBLOCKED_SHIFT           24                                                        /**< Shift value for EMU_USBLOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_USBLOCKED_MASK            0x1000000UL                                               /**< Bit mask for EMU_USBLOCKED */
 #define _EMU_EM23PERNORETAINSTATUS_USBLOCKED_DEFAULT         0x00000000UL                                              /**< Mode DEFAULT for EMU_EM23PERNORETAINSTATUS */
@@ -1840,127 +1838,127 @@ typedef struct {
 /* Bit fields for EMU EM23PERNORETAINCTRL */
 #define _EMU_EM23PERNORETAINCTRL_RESETVALUE                  0x00000000UL                                         /**< Default value for EMU_EM23PERNORETAINCTRL */
 #define _EMU_EM23PERNORETAINCTRL_MASK                        0x01FFFFFFUL                                         /**< Mask for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_ACMP0DIS                     (0x1UL << 0)                                         /**< Allow power down of ACMP0 during EM23 */
+#define EMU_EM23PERNORETAINCTRL_ACMP0DIS                     (0x1UL << 0)                                         /**< Allow Power Down of ACMP0 During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_ACMP0DIS_SHIFT              0                                                    /**< Shift value for EMU_ACMP0DIS */
 #define _EMU_EM23PERNORETAINCTRL_ACMP0DIS_MASK               0x1UL                                                /**< Bit mask for EMU_ACMP0DIS */
 #define _EMU_EM23PERNORETAINCTRL_ACMP0DIS_DEFAULT            0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_ACMP0DIS_DEFAULT             (_EMU_EM23PERNORETAINCTRL_ACMP0DIS_DEFAULT << 0)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_ACMP1DIS                     (0x1UL << 1)                                         /**< Allow power down of ACMP1 during EM23 */
+#define EMU_EM23PERNORETAINCTRL_ACMP1DIS                     (0x1UL << 1)                                         /**< Allow Power Down of ACMP1 During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_ACMP1DIS_SHIFT              1                                                    /**< Shift value for EMU_ACMP1DIS */
 #define _EMU_EM23PERNORETAINCTRL_ACMP1DIS_MASK               0x2UL                                                /**< Bit mask for EMU_ACMP1DIS */
 #define _EMU_EM23PERNORETAINCTRL_ACMP1DIS_DEFAULT            0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_ACMP1DIS_DEFAULT             (_EMU_EM23PERNORETAINCTRL_ACMP1DIS_DEFAULT << 1)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_PCNT0DIS                     (0x1UL << 2)                                         /**< Allow power down of PCNT0 during EM23 */
+#define EMU_EM23PERNORETAINCTRL_PCNT0DIS                     (0x1UL << 2)                                         /**< Allow Power Down of PCNT0 During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_PCNT0DIS_SHIFT              2                                                    /**< Shift value for EMU_PCNT0DIS */
 #define _EMU_EM23PERNORETAINCTRL_PCNT0DIS_MASK               0x4UL                                                /**< Bit mask for EMU_PCNT0DIS */
 #define _EMU_EM23PERNORETAINCTRL_PCNT0DIS_DEFAULT            0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_PCNT0DIS_DEFAULT             (_EMU_EM23PERNORETAINCTRL_PCNT0DIS_DEFAULT << 2)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_PCNT1DIS                     (0x1UL << 3)                                         /**< Allow power down of PCNT1 during EM23 */
+#define EMU_EM23PERNORETAINCTRL_PCNT1DIS                     (0x1UL << 3)                                         /**< Allow Power Down of PCNT1 During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_PCNT1DIS_SHIFT              3                                                    /**< Shift value for EMU_PCNT1DIS */
 #define _EMU_EM23PERNORETAINCTRL_PCNT1DIS_MASK               0x8UL                                                /**< Bit mask for EMU_PCNT1DIS */
 #define _EMU_EM23PERNORETAINCTRL_PCNT1DIS_DEFAULT            0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_PCNT1DIS_DEFAULT             (_EMU_EM23PERNORETAINCTRL_PCNT1DIS_DEFAULT << 3)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_PCNT2DIS                     (0x1UL << 4)                                         /**< Allow power down of PCNT2 during EM23 */
+#define EMU_EM23PERNORETAINCTRL_PCNT2DIS                     (0x1UL << 4)                                         /**< Allow Power Down of PCNT2 During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_PCNT2DIS_SHIFT              4                                                    /**< Shift value for EMU_PCNT2DIS */
 #define _EMU_EM23PERNORETAINCTRL_PCNT2DIS_MASK               0x10UL                                               /**< Bit mask for EMU_PCNT2DIS */
 #define _EMU_EM23PERNORETAINCTRL_PCNT2DIS_DEFAULT            0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_PCNT2DIS_DEFAULT             (_EMU_EM23PERNORETAINCTRL_PCNT2DIS_DEFAULT << 4)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_I2C0DIS                      (0x1UL << 5)                                         /**< Allow power down of I2C0 during EM23 */
+#define EMU_EM23PERNORETAINCTRL_I2C0DIS                      (0x1UL << 5)                                         /**< Allow Power Down of I2C0 During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_I2C0DIS_SHIFT               5                                                    /**< Shift value for EMU_I2C0DIS */
 #define _EMU_EM23PERNORETAINCTRL_I2C0DIS_MASK                0x20UL                                               /**< Bit mask for EMU_I2C0DIS */
 #define _EMU_EM23PERNORETAINCTRL_I2C0DIS_DEFAULT             0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_I2C0DIS_DEFAULT              (_EMU_EM23PERNORETAINCTRL_I2C0DIS_DEFAULT << 5)      /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_I2C1DIS                      (0x1UL << 6)                                         /**< Allow power down of I2C1 during EM23 */
+#define EMU_EM23PERNORETAINCTRL_I2C1DIS                      (0x1UL << 6)                                         /**< Allow Power Down of I2C1 During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_I2C1DIS_SHIFT               6                                                    /**< Shift value for EMU_I2C1DIS */
 #define _EMU_EM23PERNORETAINCTRL_I2C1DIS_MASK                0x40UL                                               /**< Bit mask for EMU_I2C1DIS */
 #define _EMU_EM23PERNORETAINCTRL_I2C1DIS_DEFAULT             0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_I2C1DIS_DEFAULT              (_EMU_EM23PERNORETAINCTRL_I2C1DIS_DEFAULT << 6)      /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_DAC0DIS                      (0x1UL << 7)                                         /**< Allow power down of DAC0 during EM23 */
-#define _EMU_EM23PERNORETAINCTRL_DAC0DIS_SHIFT               7                                                    /**< Shift value for EMU_DAC0DIS */
-#define _EMU_EM23PERNORETAINCTRL_DAC0DIS_MASK                0x80UL                                               /**< Bit mask for EMU_DAC0DIS */
-#define _EMU_EM23PERNORETAINCTRL_DAC0DIS_DEFAULT             0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_DAC0DIS_DEFAULT              (_EMU_EM23PERNORETAINCTRL_DAC0DIS_DEFAULT << 7)      /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_IDAC0DIS                     (0x1UL << 8)                                         /**< Allow power down of IDAC0 during EM23 */
+#define EMU_EM23PERNORETAINCTRL_VDAC0DIS                     (0x1UL << 7)                                         /**< Allow Power Down of DAC0 During EM23 */
+#define _EMU_EM23PERNORETAINCTRL_VDAC0DIS_SHIFT              7                                                    /**< Shift value for EMU_VDAC0DIS */
+#define _EMU_EM23PERNORETAINCTRL_VDAC0DIS_MASK               0x80UL                                               /**< Bit mask for EMU_VDAC0DIS */
+#define _EMU_EM23PERNORETAINCTRL_VDAC0DIS_DEFAULT            0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
+#define EMU_EM23PERNORETAINCTRL_VDAC0DIS_DEFAULT             (_EMU_EM23PERNORETAINCTRL_VDAC0DIS_DEFAULT << 7)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
+#define EMU_EM23PERNORETAINCTRL_IDAC0DIS                     (0x1UL << 8)                                         /**< Allow Power Down of IDAC0 During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_IDAC0DIS_SHIFT              8                                                    /**< Shift value for EMU_IDAC0DIS */
 #define _EMU_EM23PERNORETAINCTRL_IDAC0DIS_MASK               0x100UL                                              /**< Bit mask for EMU_IDAC0DIS */
 #define _EMU_EM23PERNORETAINCTRL_IDAC0DIS_DEFAULT            0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_IDAC0DIS_DEFAULT             (_EMU_EM23PERNORETAINCTRL_IDAC0DIS_DEFAULT << 8)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_ADC0DIS                      (0x1UL << 9)                                         /**< Allow power down of ADC0 during EM23 */
+#define EMU_EM23PERNORETAINCTRL_ADC0DIS                      (0x1UL << 9)                                         /**< Allow Power Down of ADC0 During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_ADC0DIS_SHIFT               9                                                    /**< Shift value for EMU_ADC0DIS */
 #define _EMU_EM23PERNORETAINCTRL_ADC0DIS_MASK                0x200UL                                              /**< Bit mask for EMU_ADC0DIS */
 #define _EMU_EM23PERNORETAINCTRL_ADC0DIS_DEFAULT             0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_ADC0DIS_DEFAULT              (_EMU_EM23PERNORETAINCTRL_ADC0DIS_DEFAULT << 9)      /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_LETIMER0DIS                  (0x1UL << 10)                                        /**< Allow power down of LETIMER0 during EM23 */
+#define EMU_EM23PERNORETAINCTRL_LETIMER0DIS                  (0x1UL << 10)                                        /**< Allow Power Down of LETIMER0 During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_LETIMER0DIS_SHIFT           10                                                   /**< Shift value for EMU_LETIMER0DIS */
 #define _EMU_EM23PERNORETAINCTRL_LETIMER0DIS_MASK            0x400UL                                              /**< Bit mask for EMU_LETIMER0DIS */
 #define _EMU_EM23PERNORETAINCTRL_LETIMER0DIS_DEFAULT         0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_LETIMER0DIS_DEFAULT          (_EMU_EM23PERNORETAINCTRL_LETIMER0DIS_DEFAULT << 10) /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_WDOG0DIS                     (0x1UL << 11)                                        /**< Allow power down of WDOG0 during EM23 */
+#define EMU_EM23PERNORETAINCTRL_WDOG0DIS                     (0x1UL << 11)                                        /**< Allow Power Down of WDOG0 During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_WDOG0DIS_SHIFT              11                                                   /**< Shift value for EMU_WDOG0DIS */
 #define _EMU_EM23PERNORETAINCTRL_WDOG0DIS_MASK               0x800UL                                              /**< Bit mask for EMU_WDOG0DIS */
 #define _EMU_EM23PERNORETAINCTRL_WDOG0DIS_DEFAULT            0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_WDOG0DIS_DEFAULT             (_EMU_EM23PERNORETAINCTRL_WDOG0DIS_DEFAULT << 11)    /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_WDOG1DIS                     (0x1UL << 12)                                        /**< Allow power down of WDOG1 during EM23 */
+#define EMU_EM23PERNORETAINCTRL_WDOG1DIS                     (0x1UL << 12)                                        /**< Allow Power Down of WDOG1 During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_WDOG1DIS_SHIFT              12                                                   /**< Shift value for EMU_WDOG1DIS */
 #define _EMU_EM23PERNORETAINCTRL_WDOG1DIS_MASK               0x1000UL                                             /**< Bit mask for EMU_WDOG1DIS */
 #define _EMU_EM23PERNORETAINCTRL_WDOG1DIS_DEFAULT            0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_WDOG1DIS_DEFAULT             (_EMU_EM23PERNORETAINCTRL_WDOG1DIS_DEFAULT << 12)    /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_LESENSE0DIS                  (0x1UL << 13)                                        /**< Allow power down of LESENSE0 during EM23 */
+#define EMU_EM23PERNORETAINCTRL_LESENSE0DIS                  (0x1UL << 13)                                        /**< Allow Power Down of LESENSE0 During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_LESENSE0DIS_SHIFT           13                                                   /**< Shift value for EMU_LESENSE0DIS */
 #define _EMU_EM23PERNORETAINCTRL_LESENSE0DIS_MASK            0x2000UL                                             /**< Bit mask for EMU_LESENSE0DIS */
 #define _EMU_EM23PERNORETAINCTRL_LESENSE0DIS_DEFAULT         0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_LESENSE0DIS_DEFAULT          (_EMU_EM23PERNORETAINCTRL_LESENSE0DIS_DEFAULT << 13) /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_CSENDIS                      (0x1UL << 14)                                        /**< Allow power down of CSEN during EM23 */
+#define EMU_EM23PERNORETAINCTRL_CSENDIS                      (0x1UL << 14)                                        /**< Allow Power Down of CSEN During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_CSENDIS_SHIFT               14                                                   /**< Shift value for EMU_CSENDIS */
 #define _EMU_EM23PERNORETAINCTRL_CSENDIS_MASK                0x4000UL                                             /**< Bit mask for EMU_CSENDIS */
 #define _EMU_EM23PERNORETAINCTRL_CSENDIS_DEFAULT             0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_CSENDIS_DEFAULT              (_EMU_EM23PERNORETAINCTRL_CSENDIS_DEFAULT << 14)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_LEUART0DIS                   (0x1UL << 15)                                        /**< Allow power down of LEUART0 during EM23 */
+#define EMU_EM23PERNORETAINCTRL_LEUART0DIS                   (0x1UL << 15)                                        /**< Allow Power Down of LEUART0 During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_LEUART0DIS_SHIFT            15                                                   /**< Shift value for EMU_LEUART0DIS */
 #define _EMU_EM23PERNORETAINCTRL_LEUART0DIS_MASK             0x8000UL                                             /**< Bit mask for EMU_LEUART0DIS */
 #define _EMU_EM23PERNORETAINCTRL_LEUART0DIS_DEFAULT          0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_LEUART0DIS_DEFAULT           (_EMU_EM23PERNORETAINCTRL_LEUART0DIS_DEFAULT << 15)  /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_LEUART1DIS                   (0x1UL << 16)                                        /**< Allow power down of LEUART1 during EM23 */
+#define EMU_EM23PERNORETAINCTRL_LEUART1DIS                   (0x1UL << 16)                                        /**< Allow Power Down of LEUART1 During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_LEUART1DIS_SHIFT            16                                                   /**< Shift value for EMU_LEUART1DIS */
 #define _EMU_EM23PERNORETAINCTRL_LEUART1DIS_MASK             0x10000UL                                            /**< Bit mask for EMU_LEUART1DIS */
 #define _EMU_EM23PERNORETAINCTRL_LEUART1DIS_DEFAULT          0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_LEUART1DIS_DEFAULT           (_EMU_EM23PERNORETAINCTRL_LEUART1DIS_DEFAULT << 16)  /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_LCDDIS                       (0x1UL << 17)                                        /**< Allow power down of LCD during EM23 */
+#define EMU_EM23PERNORETAINCTRL_LCDDIS                       (0x1UL << 17)                                        /**< Allow Power Down of LCD During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_LCDDIS_SHIFT                17                                                   /**< Shift value for EMU_LCDDIS */
 #define _EMU_EM23PERNORETAINCTRL_LCDDIS_MASK                 0x20000UL                                            /**< Bit mask for EMU_LCDDIS */
 #define _EMU_EM23PERNORETAINCTRL_LCDDIS_DEFAULT              0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_LCDDIS_DEFAULT               (_EMU_EM23PERNORETAINCTRL_LCDDIS_DEFAULT << 17)      /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_LETIMER1DIS                  (0x1UL << 18)                                        /**< Allow power down of LETIMER1 during EM23 */
+#define EMU_EM23PERNORETAINCTRL_LETIMER1DIS                  (0x1UL << 18)                                        /**< Allow Power Down of LETIMER1 During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_LETIMER1DIS_SHIFT           18                                                   /**< Shift value for EMU_LETIMER1DIS */
 #define _EMU_EM23PERNORETAINCTRL_LETIMER1DIS_MASK            0x40000UL                                            /**< Bit mask for EMU_LETIMER1DIS */
 #define _EMU_EM23PERNORETAINCTRL_LETIMER1DIS_DEFAULT         0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_LETIMER1DIS_DEFAULT          (_EMU_EM23PERNORETAINCTRL_LETIMER1DIS_DEFAULT << 18) /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_I2C2DIS                      (0x1UL << 19)                                        /**< Allow power down of I2C2 during EM23 */
+#define EMU_EM23PERNORETAINCTRL_I2C2DIS                      (0x1UL << 19)                                        /**< Allow Power Down of I2C2 During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_I2C2DIS_SHIFT               19                                                   /**< Shift value for EMU_I2C2DIS */
 #define _EMU_EM23PERNORETAINCTRL_I2C2DIS_MASK                0x80000UL                                            /**< Bit mask for EMU_I2C2DIS */
 #define _EMU_EM23PERNORETAINCTRL_I2C2DIS_DEFAULT             0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_I2C2DIS_DEFAULT              (_EMU_EM23PERNORETAINCTRL_I2C2DIS_DEFAULT << 19)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_ADC1DIS                      (0x1UL << 20)                                        /**< Allow power down of ADC1 during EM23 */
+#define EMU_EM23PERNORETAINCTRL_ADC1DIS                      (0x1UL << 20)                                        /**< Allow Power Down of ADC1 During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_ADC1DIS_SHIFT               20                                                   /**< Shift value for EMU_ADC1DIS */
 #define _EMU_EM23PERNORETAINCTRL_ADC1DIS_MASK                0x100000UL                                           /**< Bit mask for EMU_ADC1DIS */
 #define _EMU_EM23PERNORETAINCTRL_ADC1DIS_DEFAULT             0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_ADC1DIS_DEFAULT              (_EMU_EM23PERNORETAINCTRL_ADC1DIS_DEFAULT << 20)     /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_ACMP2DIS                     (0x1UL << 21)                                        /**< Allow power down of ACMP2 during EM23 */
+#define EMU_EM23PERNORETAINCTRL_ACMP2DIS                     (0x1UL << 21)                                        /**< Allow Power Down of ACMP2 During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_ACMP2DIS_SHIFT              21                                                   /**< Shift value for EMU_ACMP2DIS */
 #define _EMU_EM23PERNORETAINCTRL_ACMP2DIS_MASK               0x200000UL                                           /**< Bit mask for EMU_ACMP2DIS */
 #define _EMU_EM23PERNORETAINCTRL_ACMP2DIS_DEFAULT            0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_ACMP2DIS_DEFAULT             (_EMU_EM23PERNORETAINCTRL_ACMP2DIS_DEFAULT << 21)    /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_ACMP3DIS                     (0x1UL << 22)                                        /**< Allow power down of ACMP3 during EM23 */
+#define EMU_EM23PERNORETAINCTRL_ACMP3DIS                     (0x1UL << 22)                                        /**< Allow Power Down of ACMP3 During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_ACMP3DIS_SHIFT              22                                                   /**< Shift value for EMU_ACMP3DIS */
 #define _EMU_EM23PERNORETAINCTRL_ACMP3DIS_MASK               0x400000UL                                           /**< Bit mask for EMU_ACMP3DIS */
 #define _EMU_EM23PERNORETAINCTRL_ACMP3DIS_DEFAULT            0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_ACMP3DIS_DEFAULT             (_EMU_EM23PERNORETAINCTRL_ACMP3DIS_DEFAULT << 22)    /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_RTCDIS                       (0x1UL << 23)                                        /**< Allow power down of RTC during EM23 */
+#define EMU_EM23PERNORETAINCTRL_RTCDIS                       (0x1UL << 23)                                        /**< Allow Power Down of RTC During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_RTCDIS_SHIFT                23                                                   /**< Shift value for EMU_RTCDIS */
 #define _EMU_EM23PERNORETAINCTRL_RTCDIS_MASK                 0x800000UL                                           /**< Bit mask for EMU_RTCDIS */
 #define _EMU_EM23PERNORETAINCTRL_RTCDIS_DEFAULT              0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
 #define EMU_EM23PERNORETAINCTRL_RTCDIS_DEFAULT               (_EMU_EM23PERNORETAINCTRL_RTCDIS_DEFAULT << 23)      /**< Shifted mode DEFAULT for EMU_EM23PERNORETAINCTRL */
-#define EMU_EM23PERNORETAINCTRL_USBDIS                       (0x1UL << 24)                                        /**< Allow power down of USB during EM23 */
+#define EMU_EM23PERNORETAINCTRL_USBDIS                       (0x1UL << 24)                                        /**< Allow Power Down of USB During EM23 */
 #define _EMU_EM23PERNORETAINCTRL_USBDIS_SHIFT                24                                                   /**< Shift value for EMU_USBDIS */
 #define _EMU_EM23PERNORETAINCTRL_USBDIS_MASK                 0x1000000UL                                          /**< Bit mask for EMU_USBDIS */
 #define _EMU_EM23PERNORETAINCTRL_USBDIS_DEFAULT              0x00000000UL                                         /**< Mode DEFAULT for EMU_EM23PERNORETAINCTRL */
