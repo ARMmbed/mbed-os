@@ -266,8 +266,6 @@ private:
 private:
     // Master side hardware
     mbed::SPI _spi;
-    // Enable CS control (low/high) for SPI driver operations
-    mbed::DigitalOut _cs;
 
     // Mutex is used to protect Flash device for some SPI Driver commands that must be done sequentially with no other commands in between
     // e.g. (1)Set Write Enable, (2)Program, (3)Wait Memory Ready

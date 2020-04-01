@@ -182,7 +182,6 @@ public:
 private:
     // Master side hardware
     mbed::SPI _spi;
-    mbed::DigitalOut _cs;
     mbed::DigitalOut _nwp;
 
     // Device configuration
