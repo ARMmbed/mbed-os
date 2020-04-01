@@ -1426,32 +1426,6 @@ public:
     }
 
 public:
-    /**
-     * Set up the minimum security (mode and level) requirements for access to
-     * the characteristic's value attribute.
-     *
-     * @param[in] securityMode Can be one of encryption or signing, with or
-     * without protection for man in the middle attacks (MITM).
-     *
-     * @deprecated Fine grained security check has been added to with mbed OS
-     * 5.9. It is possible to set independently security requirements for read,
-     * write and update operations. In the meantime SecurityManager::SecurityMode_t
-     * is not used anymore to represent security requirements as it maps
-     * incorrectly the Bluetooth standard.
-     */
-    MBED_DEPRECATED_SINCE(
-        "mbed-os-5.9",
-        "Use setWriteSecurityRequirements, setReadSecurityRequirements and "
-        "setUpdateSecurityRequirements"
-    )
-    void requireSecurity(SecurityManager::SecurityMode_t securityMode)
-    {
-        SecurityRequirement_t sec_requirements = SecurityModeToAttSecurity(securityMode);
-
-        _valueAttribute.setReadSecurityRequirement(sec_requirements);
-        _valueAttribute.setWriteSecurityRequirement(sec_requirements);
-        _update_security = sec_requirements.value();
-    }
 
     /**
      * Set all security requirements of the characteristic.
@@ -1730,62 +1704,6 @@ public:
     }
 
     /**
-     * Get the characteristic's required security.
-     *
-     * @return The characteristic's required security.
-     *
-     * @deprecated Fine grained security check has been added to with mbed OS
-     * 5.9. It is possible to set independently security requirements for read,
-     * write and update operations. In the meantime SecurityManager::SecurityMode_t
-     * is not used anymore to represent security requirements as it maps
-     * incorrectly the Bluetooth standard.
-     */
-    MBED_DEPRECATED_SINCE(
-        "mbed-os-5.9",
-        "Use getWriteSecurityRequirements, getReadSecurityRequirements and "
-        "getUpdateSecurityRequirements"
-    )
-    SecurityManager::SecurityMode_t getRequiredSecurity() const
-    {
-        SecurityRequirement_t max_sec = std::max(
-            std::max(
-                getReadSecurityRequirement(),
-                getWriteSecurityRequirement()
-            ),
-            getUpdateSecurityRequirement()
-        );
-
-        bool needs_signing =
-            _properties & BLE_GATT_CHAR_PROPERTIES_AUTHENTICATED_SIGNED_WRITES;
-
-        switch(max_sec.value()) {
-            case SecurityRequirement_t::NONE:
-                MBED_ASSERT(needs_signing == false);
-                return SecurityManager::SECURITY_MODE_ENCRYPTION_OPEN_LINK;
-#if BLE_FEATURE_SECURITY
-            case SecurityRequirement_t::UNAUTHENTICATED:
-                return (needs_signing) ?
-                    SecurityManager::SECURITY_MODE_SIGNED_NO_MITM :
-                    SecurityManager::SECURITY_MODE_ENCRYPTION_NO_MITM;
-
-            case SecurityRequirement_t::AUTHENTICATED:
-                return (needs_signing) ?
-                    SecurityManager::SECURITY_MODE_SIGNED_WITH_MITM :
-                    SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM;
-#if BLE_FEATURE_SECURE_CONNECTIONS
-            case SecurityRequirement_t::SC_AUTHENTICATED:
-                MBED_ASSERT(needs_signing == false);
-                // fallback to encryption with MITM
-                return SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM;
-#endif // BLE_FEATURE_SECURE_CONNECTIONS
-#endif // BLE_FEATURE_SECURITY
-            default:
-                MBED_ASSERT(false);
-                return SecurityManager::SECURITY_MODE_NO_ACCESS;
-        }
-    }
-
-    /**
      * Get the total number of descriptors within this characteristic.
      *
      * @return The total number of descriptors.
@@ -1839,42 +1757,6 @@ public:
     }
 
 private:
-
-    /**
-     * Loosely convert a SecurityManager::SecurityMode_t into a
-     * SecurityRequirement_t.
-     *
-     * @param[in] mode The security mode to convert
-     *
-     * @return The security requirement equivalent to the security mode in input.
-     */
-    SecurityRequirement_t SecurityModeToAttSecurity(
-        SecurityManager::SecurityMode_t mode
-    ) {
-        switch(mode) {
-            case SecurityManager::SECURITY_MODE_ENCRYPTION_OPEN_LINK:
-            case SecurityManager::SECURITY_MODE_NO_ACCESS:
-                // assuming access is managed by property and orthogonal to
-                // security mode ...
-                return SecurityRequirement_t::NONE;
-#if BLE_FEATURE_SECURITY
-            case SecurityManager::SECURITY_MODE_ENCRYPTION_NO_MITM:
-#if BLE_FEATURE_SIGNING
-            case SecurityManager::SECURITY_MODE_SIGNED_NO_MITM:
-#endif
-                return SecurityRequirement_t::UNAUTHENTICATED;
-
-            case SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM:
-#if BLE_FEATURE_SIGNING
-            case SecurityManager::SECURITY_MODE_SIGNED_WITH_MITM:
-#endif
-                return SecurityRequirement_t::AUTHENTICATED;
-#endif // BLE_FEATURE_SECURITY
-            default:
-                // should not happens; makes the compiler happy.
-                return SecurityRequirement_t::NONE;
-        }
-    }
 
     /**
      * Attribute that contains the actual value of this characteristic.
