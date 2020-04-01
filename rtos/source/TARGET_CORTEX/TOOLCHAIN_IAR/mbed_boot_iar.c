@@ -28,7 +28,7 @@
 #pragma section="CSTACK"
 #pragma section="HEAP"
 
-extern void *__vector_table;
+extern void *__vector_table[];
 extern int  __low_level_init(void);
 extern void __iar_data_init3(void);
 extern __weak void __iar_init_core(void);
