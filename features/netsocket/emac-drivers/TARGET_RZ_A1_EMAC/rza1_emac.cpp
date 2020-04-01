@@ -17,8 +17,8 @@
 #include "rtos/ThisThread.h"
 #include "netsocket/nsapi_types.h"
 #include "mbed_shared_queues.h"
-#include "ethernet_api.h"
-#include "ethernetext_api.h"
+#include "rza1_eth.h"
+#include "rza1_eth_ext.h"
 #include "rza1_emac.h"
 
 #define RZ_A1_ETH_IF_NAME    "en"
@@ -70,7 +70,7 @@ void RZ_A1_EMAC::set_hwaddr(const uint8_t *addr)
 
     /* Reconnect */
     if (power_on != false) {
-        ethernet_cfg_t ethcfg;
+        rza1_ethernet_cfg_t ethcfg;
         ethcfg.int_priority = 6;
         ethcfg.recv_cb      = &_recv_callback;
         ethcfg.ether_mac    = NULL;
@@ -89,7 +89,7 @@ bool RZ_A1_EMAC::link_out(emac_mem_buf_t *buf)
 
     while ((copy_buf != NULL) && (memory_manager->get_ptr(copy_buf) != NULL) && (memory_manager->get_len(copy_buf) != 0)) {
         for (retry_cnt = 0; retry_cnt < 100; retry_cnt++) {
-            write_size = ethernet_write((char *)memory_manager->get_ptr(copy_buf), memory_manager->get_len(copy_buf));
+            write_size = rza1_ethernet_write((char *)memory_manager->get_ptr(copy_buf), memory_manager->get_len(copy_buf));
             if (write_size != 0) {
                 total_write_size += write_size;
                 break;
@@ -101,7 +101,7 @@ bool RZ_A1_EMAC::link_out(emac_mem_buf_t *buf)
     memory_manager->free(buf);
 
     if (total_write_size > 0) {
-        if (ethernet_send() == 1) {
+        if (rza1_ethernet_send() == 1) {
             result = true;
         }
     }
@@ -115,7 +115,7 @@ bool RZ_A1_EMAC::power_up()
         return true;
     }
 
-    ethernet_cfg_t ethcfg;
+    rza1_ethernet_cfg_t ethcfg;
     ethcfg.int_priority = 6;
     ethcfg.recv_cb      = &_recv_callback;
     ethcfg.ether_mac    = NULL;
@@ -184,13 +184,13 @@ void RZ_A1_EMAC::recv_task(void) {
     while (1) {
         rtos::ThisThread::flags_wait_all(1);
         for (cnt = 0; cnt < 16; cnt++) {
-            recv_size = ethernet_receive();
+            recv_size = rza1_ethernet_receive();
             if (recv_size == 0) {
                 break;
             }
             buf = memory_manager->alloc_heap(recv_size, 0);
             if (buf != NULL) {
-                (void)ethernet_read((char *)memory_manager->get_ptr(buf), memory_manager->get_len(buf));
+                (void)rza1_ethernet_read((char *)memory_manager->get_ptr(buf), memory_manager->get_len(buf));
                 emac_link_input_cb(buf);
             }
         }
@@ -199,7 +199,7 @@ void RZ_A1_EMAC::recv_task(void) {
 
 void RZ_A1_EMAC::phy_task(void)
 {
-    if (ethernet_link() == 1) {
+    if (rza1_ethernet_link() == 1) {
         int link_mode = ethernetext_chk_link_mode();
         if (link_mode != link_mode_last) {
             if (connect_sts != false) {
