@@ -13963,7 +13963,6 @@
         "extra_labels_add": [
             "PSOC6_01",
             "MXCRYPTO_01",
-            "CM0P_SLEEP",
             "CORDIO"
         ],
         "macros_add": [
