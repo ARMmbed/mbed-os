@@ -613,7 +613,7 @@ uint32_t CLK_WaitClockReady(uint32_t u32ClkMask)
 {
     int32_t i32TimeOutCnt;
 
-    i32TimeOutCnt = __HSI / 200; /* About 5ms */
+    i32TimeOutCnt = __HSI / 20; /* About 50ms */
 
     while((CLK->CLKSTATUS & u32ClkMask) != u32ClkMask) {
         if(i32TimeOutCnt-- <= 0)

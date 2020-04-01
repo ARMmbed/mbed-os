@@ -40,7 +40,7 @@ extern uint32_t mbed_stack_isr_size;
 #define EXPECTED_ISR_STACK_SIZE                  (1024)
 #endif
 
-#if defined(TARGET_NUCLEO_F070RB) || defined(TARGET_NANO100) || defined(TARGET_STM32F072RB) || defined(TARGET_TMPM46B) || defined(TARGET_TMPM066)
+#if defined(TARGET_NUCLEO_F070RB) || defined(TARGET_STM32F072RB) || defined(TARGET_TMPM46B) || defined(TARGET_TMPM066)
 #define EXPECTED_MAIN_THREAD_STACK_SIZE          (3072)
 #else
 #define EXPECTED_MAIN_THREAD_STACK_SIZE          (4096)
