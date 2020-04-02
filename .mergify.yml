@@ -178,8 +178,15 @@ pull_request_rules:
       - label=^(release-version)
     actions:
       label:
-        remove: ['release version missing', 'Release review required']                
-        
+        remove: ['release version missing', 'Release review required']
+
+  - name: add release review required to release branches
+    conditions:
+      - base~=^mbed-os-5.15
+    actions:
+      label:
+        add: ['Release review required']
+
  # Clean-up if closed but not merged
   - name: remove release version and needs labels
     conditions:
