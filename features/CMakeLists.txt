@@ -11,5 +11,7 @@ add_subdirectory(frameworks/mbed-client-randlib)
 add_subdirectory(frameworks/nanostack-libservice)
 add_subdirectory(netsocket)
 add_subdirectory(nanostack)
+add_subdirectory(storage)
+add_subdirectory(device_key)
 
 target_include_directories(mbed-os PUBLIC .)
