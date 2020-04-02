@@ -313,7 +313,7 @@ bool STM32_EMAC::low_level_init_successful()
     EthHandle.Init.MACAddr = &MACAddr[0];
     EthHandle.Init.RxMode = ETH_RXINTERRUPT_MODE;
     EthHandle.Init.ChecksumMode = ETH_CHECKSUM_BY_SOFTWARE;
-    EthHandle.Init.MediaInterface = ETH_MEDIA_INTERFACE_RMII;
+    EthHandle.Init.MediaInterface = MBED_CONF_STM32_EMAC_ETH_PHY_MEDIA_INTERFACE;
     tr_info("PHY Addr %u AutoNegotiation %u", EthHandle.Init.PhyAddress, EthHandle.Init.AutoNegotiation);
     tr_debug("MAC Addr %02x:%02x:%02x:%02x:%02x:%02x", MACAddr[0], MACAddr[1], MACAddr[2], MACAddr[3], MACAddr[4], MACAddr[5]);
     tr_info("ETH buffers : %u Rx %u Tx", ETH_RXBUFNB, ETH_TXBUFNB);
