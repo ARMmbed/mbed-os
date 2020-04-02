@@ -337,7 +337,7 @@ void FLEXSPI_Init(FLEXSPI_Type *base, const flexspi_config_t *config)
 void FLEXSPI_GetDefaultConfig(flexspi_config_t *config)
 {
     /* Initializes the configure structure to zero. */
-    (void)memset(config, 0, sizeof(*config));
+    (void)flexspi_memset(config, 0, sizeof(*config));
 
     config->rxSampleClock          = kFLEXSPI_ReadSampleClkLoopbackInternally;
     config->enableSckFreeRunning   = false;
@@ -359,7 +359,7 @@ void FLEXSPI_GetDefaultConfig(flexspi_config_t *config)
     config->ahbConfig.ahbGrantTimeoutCycle = 0xFFU;
     config->ahbConfig.ahbBusTimeoutCycle   = 0xFFFFU;
     config->ahbConfig.resumeWaitCycle      = 0x20U;
-    (void)memset(config->ahbConfig.buffer, 0, sizeof(config->ahbConfig.buffer));
+    (void)flexspi_memset(config->ahbConfig.buffer, 0, sizeof(config->ahbConfig.buffer));
     for (uint8_t i = 0; i < (uint32_t)FSL_FEATURE_FLEXSPI_AHB_BUFFER_COUNT; i++)
     {
         config->ahbConfig.buffer[i].enablePrefetch = true; /* Default enable AHB prefetch. */
