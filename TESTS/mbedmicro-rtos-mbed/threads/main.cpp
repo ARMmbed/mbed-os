@@ -29,6 +29,7 @@
 #include "rtos.h"
 #include "SynchronizedIntegral.h"
 #include <mstd_mutex>
+#include <type_traits>
 
 #define THREAD_STACK_SIZE 512
 #if defined(__CORTEX_A9) || defined(__CORTEX_M23) || defined(__CORTEX_M33) || defined(TARGET_ARM_FM) ||  defined(TARGET_CY8CKIT_062_WIFI_BT_PSA)
@@ -38,6 +39,12 @@
 #define PARALLEL_THREAD_STACK_SIZE 384
 #define CHILD_THREAD_STACK_SIZE 384
 #endif
+
+#define TEST_ASSERT_DURATION_WITHIN(delta, expected, actual) \
+    do { \
+        using ct = std::common_type_t<decltype(delta), decltype(expected), decltype(actual)>; \
+        TEST_ASSERT_INT_WITHIN(ct(delta).count(), ct(expected).count(), ct(actual).count()); \
+    } while (0)
 
 
 using namespace utest::v1;
@@ -67,7 +74,7 @@ void increment_with_yield(counter_t *counter)
 
 void increment_with_wait(counter_t *counter)
 {
-    ThisThread::sleep_for(100);
+    ThisThread::sleep_for(100ms);
     (*counter)++;
 }
 
@@ -93,7 +100,7 @@ void increment_with_murder(counter_t *counter)
     {
         // take ownership of the counter mutex so it prevent the child to
         // modify counter.
-        lock_guard lock(counter->internal_mutex());
+        lock_guard<rtos::Mutex> lock(counter->internal_mutex());
         Thread *child = new (std::nothrow) Thread(osPriorityNormal, CHILD_THREAD_STACK_SIZE);
         char *dummy = new (std::nothrow) char[CHILD_THREAD_STACK_SIZE];
         delete[] dummy;
@@ -476,7 +483,7 @@ void test_thread_wait()
 
     ThisThread::sleep_for(150ms);
 
-    TEST_ASSERT_UINT32_WITHIN(50000, 150000, timer.read_us());
+    TEST_ASSERT_DURATION_WITHIN(50ms, 150ms, timer.elapsed_time());
 }
 
 /** Testing thread name
@@ -703,7 +710,7 @@ void test_msg_get()
 
 void test_msg_put_thread(Queue<int32_t, 1> *queue)
 {
-    queue->put((int32_t *)0xDEADBEEF, osWaitForever);
+    queue->put((int32_t *)0xDEADBEEF, Kernel::wait_for_u32_forever);
 
 }
 

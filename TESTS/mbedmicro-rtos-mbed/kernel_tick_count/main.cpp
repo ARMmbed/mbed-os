@@ -48,7 +48,7 @@ using utest::v1::Case;
 #define TEST_ASSERT_DURATION_WITHIN(delta, expected, actual) \
     do { \
         using ct = std::common_type_t<decltype(delta), decltype(expected), decltype(actual)>; \
-        TEST_ASSERT_WITHIN(ct(delta).count(), ct(expected).count(), ct(actual).count()); \
+        TEST_ASSERT_INT_WITHIN(ct(delta).count(), ct(expected).count(), ct(actual).count()); \
     } while (0)
 
 /** Test if declared kernel ticker frequency is 1kHz

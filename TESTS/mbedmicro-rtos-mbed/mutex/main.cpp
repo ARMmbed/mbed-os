@@ -27,6 +27,14 @@
 #include "unity.h"
 #include "utest.h"
 #include "rtos.h"
+#include <type_traits>
+
+#define TEST_ASSERT_DURATION_WITHIN(delta, expected, actual) \
+    do { \
+        using ct = std::common_type_t<decltype(delta), decltype(expected), decltype(actual)>; \
+        TEST_ASSERT_INT_WITHIN(ct(delta).count(), ct(expected).count(), ct(actual).count()); \
+    } while (0)
+
 
 using namespace utest::v1;
 using namespace std::chrono;
@@ -47,7 +55,7 @@ volatile int change_counter = 0;
 volatile bool changing_counter = false;
 volatile bool mutex_defect = false;
 
-bool manipulate_protected_zone(const int thread_delay)
+bool manipulate_protected_zone(const Kernel::Clock::duration thread_delay)
 {
     bool result = true;
     osStatus stat;
@@ -75,7 +83,7 @@ bool manipulate_protected_zone(const int thread_delay)
     return result;
 }
 
-void test_thread(int const *thread_delay)
+void test_thread(Kernel::Clock::duration const *thread_delay)
 {
     while (true) {
         manipulate_protected_zone(*thread_delay);
@@ -201,7 +209,7 @@ void test_dual_thread_lock_lock_thread(Mutex *mutex)
 
     bool stat = mutex->trylock_for(TEST_DELAY);
     TEST_ASSERT_EQUAL(false, stat);
-    TEST_ASSERT_UINT32_WITHIN(5000, TEST_DELAY * 1000, timer.read_us());
+    TEST_ASSERT_DURATION_WITHIN(5ms, TEST_DELAY, timer.elapsed_time());
 }
 
 /** Test dual thread lock

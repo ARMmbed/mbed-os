@@ -35,35 +35,35 @@ public:
     // preincrement operator
     T operator++()
     {
-        lock_guard lock(_mutex);
+        lock_guard<rtos::Mutex> lock(_mutex);
         return ++_value;
     }
 
     // predecrement operator
     T operator--()
     {
-        lock_guard lock(_mutex);
+        lock_guard<rtos::Mutex> lock(_mutex);
         return --_value;
     }
 
     // post increment operator
     T operator++(int)
     {
-        lock_guard lock(_mutex);
+        lock_guard<rtos::Mutex> lock(_mutex);
         return _value++;
     }
 
     // post decrement operator
     T operator--(int)
     {
-        lock_guard lock(_mutex);
+        lock_guard<rtos::Mutex> lock(_mutex);
         return _value--;
     }
 
     // conversion operator, used also for <,>,<=,>=,== and !=
     operator T()  const
     {
-        lock_guard lock(_mutex);
+        lock_guard<rtos::Mutex> lock(_mutex);
         return _value;
     }
 

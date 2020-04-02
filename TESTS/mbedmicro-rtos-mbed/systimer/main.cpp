@@ -23,42 +23,63 @@
 
 #include "platform/source/SysTimer.h"
 
+using namespace std::chrono;
+
 #define TEST_TICKS 42
-#define TEST_TICK_US (TEST_TICKS * 1000)
-#define DELAY_DELTA_US 2500ULL
+#define TEST_TICK_PERIOD std::ratio<TEST_TICKS, 1000>::type
+#define TEST_TICK_DURATION duration<long long, TEST_TICK_PERIOD>
+#define DELAY TEST_TICK_DURATION(1)
+#define DELAY_DELTA 2500us
+
+#define TEST_ASSERT_EQUAL_DURATION(expected, actual) \
+    do { \
+        using ct = std::common_type_t<decltype(expected), decltype(actual)>; \
+        TEST_ASSERT_EQUAL(ct(expected).count(), ct(actual).count()); \
+    } while (0)
+
+#define TEST_ASSERT_EQUAL_TIME_POINT(expected, actual) \
+    do { \
+        using ct = std::common_type_t<decltype(expected), decltype(actual)>; \
+        TEST_ASSERT_EQUAL(ct(expected).time_since_epoch().count(), ct(actual).time_since_epoch().count()); \
+    } while (0)
+
+#define TEST_ASSERT_DURATION_WITHIN(delta, expected, actual) \
+    do { \
+        using ct = std::common_type_t<decltype(delta), decltype(expected), decltype(actual)>; \
+        TEST_ASSERT_INT_WITHIN(ct(delta).count(), ct(expected).count(), ct(actual).count()); \
+    } while (0)
+
 
 /*  Use a specific delta value for deep sleep, as entry/exit adds up extra latency.
  *  Use deep sleep latency if defined and add 1ms extra delta */
 #if defined MBED_CONF_TARGET_DEEP_SLEEP_LATENCY
-#define DEEP_SLEEP_DELAY_DELTA_US ((MBED_CONF_TARGET_DEEP_SLEEP_LATENCY * 1000ULL) + 1000ULL)
+#define DEEP_SLEEP_DELAY_DELTA milliseconds(MBED_CONF_TARGET_DEEP_SLEEP_LATENCY + 1)
 #else
-#define DEEP_SLEEP_DELAY_DELTA_US 2500ULL
+#define DEEP_SLEEP_DELAY_DELTA 2500us
 #endif
 
 using namespace utest::v1;
 using mbed::internal::SysTimer;
 
-const us_timestamp_t DELAY_US = TEST_TICK_US;
-
 // The SysTick interrupt must not be set as pending by the test code.
-template <uint32_t US_IN_TICK>
-class SysTimerTest: public SysTimer<US_IN_TICK, false> {
+template <class Period>
+class SysTimerTest: public SysTimer<Period, false> {
 private:
     Semaphore _sem;
     virtual void handler()
     {
         _sem.release();
-        SysTimer<US_IN_TICK, false>::handler();
+        SysTimer<Period, false>::handler();
     }
 
 public:
     SysTimerTest() :
-        SysTimer<US_IN_TICK, false>(), _sem(0, 1)
+        SysTimer<Period, false>(), _sem(0, 1)
     {
     }
 
     SysTimerTest(const ticker_data_t *data) :
-        SysTimer<US_IN_TICK, false>(data), _sem(0, 1)
+        SysTimer<Period, false>(data), _sem(0, 1)
     {
     }
 
@@ -66,7 +87,7 @@ public:
     {
     }
 
-    bool sem_try_acquire(uint32_t millisec)
+    bool sem_try_acquire(rtos::Kernel::Clock::duration_u32 millisec)
     {
         return _sem.try_acquire_for(millisec);
     }
@@ -77,7 +98,7 @@ public:
     }
 };
 
-timestamp_t mock_ticker_timestamp;
+duration<timestamp_t, std::micro> mock_ticker_timestamp;
 
 void mock_ticker_init()
 {
@@ -85,7 +106,7 @@ void mock_ticker_init()
 
 uint32_t mock_ticker_read()
 {
-    return mock_ticker_timestamp;
+    return mock_ticker_timestamp.count();
 }
 
 void mock_ticker_disable_interrupt()
@@ -137,7 +158,7 @@ const ticker_data_t mock_ticker_data = {
 
 void mock_ticker_reset()
 {
-    mock_ticker_timestamp = 0;
+    mock_ticker_timestamp = 0s;
     memset(&mock_ticker_event_queue, 0, sizeof mock_ticker_event_queue);
 }
 
@@ -149,8 +170,9 @@ void mock_ticker_reset()
  */
 void test_created_with_zero_tick_count(void)
 {
-    SysTimerTest<1000> st;
-    TEST_ASSERT_EQUAL_UINT32(0, st.get_tick());
+    SysTimerTest<std::milli> st;
+    using time_point = decltype(st)::time_point;
+    TEST_ASSERT_EQUAL_TIME_POINT(time_point(TEST_TICK_DURATION(0)), st.get_tick());
 }
 
 /** Test tick count is updated correctly
@@ -167,20 +189,21 @@ void test_created_with_zero_tick_count(void)
 void test_update_tick(void)
 {
     mock_ticker_reset();
-    SysTimerTest<1000> st(&mock_ticker_data);
-    st.set_wake_time(st.get_tick() + TEST_TICKS * 2);
+    SysTimerTest<std::milli> st(&mock_ticker_data);
+    using time_point = decltype(st)::time_point;
+    st.set_wake_time(st.get_tick() + TEST_TICK_DURATION(2));
     st.cancel_wake();
-    TEST_ASSERT_EQUAL_UINT32(0, st.get_tick());
+    TEST_ASSERT_EQUAL_TIME_POINT(time_point(TEST_TICK_DURATION(0)), st.get_tick());
 
-    st.set_wake_time(st.get_tick() + TEST_TICKS * 2);
-    mock_ticker_timestamp = DELAY_US;
+    st.set_wake_time(st.get_tick() + TEST_TICK_DURATION(2));
+    mock_ticker_timestamp = TEST_TICK_DURATION(1);
     st.cancel_wake();
-    TEST_ASSERT_EQUAL_UINT32(TEST_TICKS, st.update_and_get_tick());
-    TEST_ASSERT_EQUAL_UINT32(TEST_TICKS, st.get_tick());
+    TEST_ASSERT_EQUAL_TIME_POINT(time_point(TEST_TICK_DURATION(1)), st.update_and_get_tick());
+    TEST_ASSERT_EQUAL_TIME_POINT(time_point(TEST_TICK_DURATION(1)), st.get_tick());
 
-    st.set_wake_time(st.get_tick() + TEST_TICKS * 2);
+    st.set_wake_time(st.get_tick() + TEST_TICK_DURATION(2));
     st.cancel_wake();
-    TEST_ASSERT_EQUAL_UINT32(TEST_TICKS, st.get_tick());
+    TEST_ASSERT_EQUAL_TIME_POINT(time_point(TEST_TICK_DURATION(1)), st.get_tick());
 }
 
 /** Test get_time returns correct time
@@ -192,12 +215,12 @@ void test_update_tick(void)
 void test_get_time(void)
 {
     mock_ticker_reset();
-    SysTimerTest<1000> st(&mock_ticker_data);
-    us_timestamp_t t1 = st.get_time();
+    SysTimerTest<std::milli> st(&mock_ticker_data);
+    auto t1 = st.get_time();
 
-    mock_ticker_timestamp = DELAY_US;
-    us_timestamp_t t2 = st.get_time();
-    TEST_ASSERT_EQUAL_UINT64(DELAY_US, t2 - t1);
+    mock_ticker_timestamp = TEST_TICK_DURATION(1);
+    auto t2 = st.get_time();
+    TEST_ASSERT_EQUAL_DURATION(TEST_TICK_DURATION(1), t2 - t1);
 }
 
 /** Test cancel_tick
@@ -209,14 +232,15 @@ void test_get_time(void)
  */
 void test_cancel_tick(void)
 {
-    SysTimerTest<TEST_TICK_US> st;
+    SysTimerTest<TEST_TICK_PERIOD> st;
+    using time_point = decltype(st)::time_point;
     st.cancel_tick();
     st.start_tick();
 
     st.cancel_tick();
-    bool acquired = st.sem_try_acquire((DELAY_US + DELAY_DELTA_US) / 1000ULL);
+    bool acquired = st.sem_try_acquire(duration_cast<Kernel::Clock::duration>(TEST_TICK_DURATION(1) + DELAY_DELTA));
     TEST_ASSERT_FALSE(acquired);
-    TEST_ASSERT_EQUAL_UINT32(0, st.get_tick());
+    TEST_ASSERT_EQUAL_TIME_POINT(time_point(TEST_TICK_DURATION(0)), st.get_tick());
 }
 
 /** Test handler called twice
@@ -230,29 +254,30 @@ void test_cancel_tick(void)
  */
 void test_handler_called_twice(void)
 {
-    SysTimerTest<TEST_TICK_US> st;
-    us_timestamp_t t1 = st.get_time();
-    bool acquired = st.sem_try_acquire(0);
+    SysTimerTest<TEST_TICK_PERIOD> st;
+    using time_point = decltype(st)::time_point;
+    auto t1 = st.get_time();
+    bool acquired = st.sem_try_acquire(0s);
     TEST_ASSERT_FALSE(acquired);
 
     st.start_tick();
     // Wait in a busy loop to prevent entering sleep or deepsleep modes.
     do {
-        acquired = st.sem_try_acquire(0);
+        acquired = st.sem_try_acquire(0s);
     } while (!acquired);
-    us_timestamp_t t2 = st.get_time();
+    auto t2 = st.get_time();
     TEST_ASSERT_TRUE(acquired);
-    TEST_ASSERT_EQUAL_UINT32(1, st.get_tick());
-    TEST_ASSERT_UINT64_WITHIN(DELAY_DELTA_US, DELAY_US, t2 - t1);
+    TEST_ASSERT_EQUAL_TIME_POINT(time_point(TEST_TICK_DURATION(1)), st.get_tick());
+    TEST_ASSERT_DURATION_WITHIN(DELAY_DELTA, TEST_TICK_DURATION(1), t2 - t1);
 
     // Wait in a busy loop to prevent entering sleep or deepsleep modes.
     do {
-        acquired = st.sem_try_acquire(0);
+        acquired = st.sem_try_acquire(0s);
     } while (!acquired);
     t2 = st.get_time();
     TEST_ASSERT_TRUE(acquired);
-    TEST_ASSERT_EQUAL_UINT32(2, st.get_tick());
-    TEST_ASSERT_UINT64_WITHIN(DELAY_DELTA_US, DELAY_US * 2, t2 - t1);
+    TEST_ASSERT_EQUAL_TIME_POINT(time_point(TEST_TICK_DURATION(2)), st.get_tick());
+    TEST_ASSERT_DURATION_WITHIN(DELAY_DELTA, TEST_TICK_DURATION(2), t2 - t1);
     st.cancel_tick();
 }
 
@@ -269,7 +294,7 @@ void test_handler_called_twice(void)
 void test_sleep(void)
 {
     Timer timer;
-    SysTimerTest<TEST_TICK_US> st;
+    SysTimerTest<TEST_TICK_PERIOD> st;
 
     sleep_manager_lock_deep_sleep();
     timer.start();
@@ -282,7 +307,7 @@ void test_sleep(void)
     st.cancel_tick();
     sleep_manager_unlock_deep_sleep();
 
-    TEST_ASSERT_UINT64_WITHIN(DELAY_DELTA_US, DELAY_US, timer.read_high_resolution_us());
+    TEST_ASSERT_DURATION_WITHIN(DELAY_DELTA, TEST_TICK_DURATION(1), timer.elapsed_time());
 }
 
 #if DEVICE_LPTICKER && !MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER
@@ -305,10 +330,10 @@ void test_deepsleep(void)
      * hardware buffers are empty. However, such an API does not exist now,
      * so we'll use the ThisThread::sleep_for() function for now.
      */
-    ThisThread::sleep_for(10);
+    ThisThread::sleep_for(10ms);
     // Regular Timer might be disabled during deepsleep.
     LowPowerTimer lptimer;
-    SysTimerTest<TEST_TICK_US> st;
+    SysTimerTest<TEST_TICK_PERIOD> st;
 
     lptimer.start();
     st.start_tick();
@@ -317,7 +342,7 @@ void test_deepsleep(void)
     lptimer.stop();
     st.cancel_tick();
 
-    TEST_ASSERT_UINT64_WITHIN(DEEP_SLEEP_DELAY_DELTA_US, DELAY_US, lptimer.read_high_resolution_us());
+    TEST_ASSERT_DURATION_WITHIN(DEEP_SLEEP_DELAY_DELTA, TEST_TICK_DURATION(1), lptimer.elapsed_time());
 }
 #endif
 #endif

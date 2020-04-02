@@ -74,8 +74,10 @@ public:
 
     SysTimer(const ticker_data_t *data);
 
-    virtual ~SysTimer();
+protected:
+    ~SysTimer();
 
+public:
     /**
      * Get the interrupt number for the tick
      *
@@ -237,7 +239,7 @@ public:
 
 protected:
     using highres_duration_u32 = std::chrono::duration<uint32_t, highres_period>;
-    virtual void handler();
+    void handler() override;
     void _increment_tick();
     void _schedule_tick();
     duration _elapsed_ticks() const;
