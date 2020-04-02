@@ -20,18 +20,6 @@
 #ifndef MBED_MBED_RTX_H
 #define MBED_MBED_RTX_H
 
-#if defined(TARGET_TMPM066)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP                        (0x20004000UL)
-#endif
-#ifdef MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE
-#undef MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE
-#endif
-#define MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE 3072
-
-#endif
-
 #if defined(TARGET_TMPM46B)
 
 #ifndef INITIAL_SP
@@ -44,26 +32,10 @@
 
 #endif
 
-#if defined(TARGET_TMPM3H6)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP                        (0x20004000UL)
-#endif
-
-#endif
-
 #if defined(TARGET_TMPM4G9)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP                        (0x20030000UL)
-#endif
-
-#endif
-
-#if defined(TARGET_TMPM3HQ)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP                        (0x20010000UL)
 #endif
 
 #endif
