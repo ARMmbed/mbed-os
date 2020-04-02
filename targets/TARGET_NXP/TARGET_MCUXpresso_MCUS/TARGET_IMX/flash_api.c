@@ -37,12 +37,57 @@ AT_QUICKACCESS_SECTION_CODE(status_t flexspi_nor_flash_page_program_ram(uint32_t
 AT_QUICKACCESS_SECTION_CODE(void flexspi_nor_flash_read_data_ram(uint32_t addr,
                                                                  uint32_t *buffer,
                                                                  uint32_t size));
+AT_QUICKACCESS_SECTION_CODE(void *flexspi_memset(void *buf, int c, size_t n));
+/**
+ * @brief Set bytes in memory. If put this code in SRAM, Make sure this code
+ * does not call functions in Flash.
+ *
+ * @return pointer to start of buffer
+ */
+void *flexspi_memset(void *buf, int c, size_t n)
+{
+    /* do byte-sized initialization until word-aligned or finished */
+    unsigned char *d_byte = (unsigned char *)buf;
+    unsigned char c_byte = (unsigned char)c;
+
+    while (((unsigned int)d_byte) & 0x3) {
+        if (n == 0) {
+            return buf;
+        }
+        *(d_byte++) = c_byte;
+        n--;
+    };
+
+    /* do word-sized initialization as long as possible */
+
+    unsigned int *d_word = (unsigned int *)d_byte;
+    unsigned int c_word = (unsigned int)(unsigned char)c;
+
+    c_word |= c_word << 8;
+    c_word |= c_word << 16;
+
+    while (n >= sizeof(unsigned int)) {
+        *(d_word++) = c_word;
+        n -= sizeof(unsigned int);
+    }
+
+    /* do byte-sized initialization until finished */
+
+    d_byte = (unsigned char *)d_word;
+
+    while (n > 0) {
+        *(d_byte++) = c_byte;
+        n--;
+    }
+
+    return buf;
+}
 
 void flexspi_update_lut_ram(void)
 {
     flexspi_config_t config;
 
-    memset(&config, 0, sizeof(config));
+    flexspi_memset(&config, 0, sizeof(config));
 
     /*Get FLEXSPI default settings and configure the flexspi. */
     FLEXSPI_GetDefaultConfig(&config);
@@ -77,7 +122,7 @@ status_t flexspi_nor_write_enable_ram(uint32_t baseAddr)
     flexspi_transfer_t flashXfer;
     status_t status = kStatus_Success;
 
-    memset(&flashXfer, 0, sizeof(flashXfer));
+    flexspi_memset(&flashXfer, 0, sizeof(flashXfer));
 
     /* Write enable */
     flashXfer.deviceAddress = baseAddr;
@@ -99,7 +144,7 @@ status_t flexspi_nor_wait_bus_busy_ram(void)
     status_t status = kStatus_Success;
     flexspi_transfer_t flashXfer;
 
-    memset(&flashXfer, 0, sizeof(flashXfer));
+    flexspi_memset(&flashXfer, 0, sizeof(flashXfer));
 
     flashXfer.deviceAddress = 0;
     flashXfer.port          = kFLEXSPI_PortA1;
@@ -138,7 +183,7 @@ status_t flexspi_nor_flash_erase_sector_ram(uint32_t address)
     status_t status = kStatus_Success;
     flexspi_transfer_t flashXfer;
 
-    memset(&flashXfer, 0, sizeof(flashXfer));
+    flexspi_memset(&flashXfer, 0, sizeof(flashXfer));
 
     /* Write enable */
     status = flexspi_nor_write_enable_ram(address);
@@ -229,7 +274,7 @@ status_t flexspi_nor_flash_page_program_ram(uint32_t address, const uint32_t *sr
     flexspi_transfer_t flashXfer;
     uint32_t offset = 0;
 
-    memset(&flashXfer, 0, sizeof(flashXfer));
+    flexspi_memset(&flashXfer, 0, sizeof(flashXfer));
 
     flexspi_lower_clock_ram();
 
