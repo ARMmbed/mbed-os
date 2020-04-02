@@ -4,7 +4,6 @@
         "drivers",
         "platform",
         "mbedtls",
-        "mbed-crypto",
         "storage",
         "flashiap-block-device",
         "tdbstore",
