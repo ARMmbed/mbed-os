@@ -278,7 +278,9 @@ void flexspi_nor_flash_read_data_ram(uint32_t addr, uint32_t *buffer, uint32_t s
 
 int32_t flash_init(flash_t *obj)
 {
+    core_util_critical_section_enter();
     flexspi_update_lut_ram();
+    core_util_critical_section_exit();
 
     return 0;
 }
