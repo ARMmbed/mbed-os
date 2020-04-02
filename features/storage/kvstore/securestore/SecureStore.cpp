@@ -20,10 +20,10 @@
 
 #if SECURESTORE_ENABLED
 
-#include "aes.h"
-#include "cmac.h"
+#include "mbedtls/aes.h"
+#include "mbedtls/cmac.h"
 #include "mbedtls/platform.h"
-#include "entropy.h"
+#include "mbedtls/entropy.h"
 #include "DeviceKey.h"
 #include "mbed_assert.h"
 #include "mbed_wait_api.h"
