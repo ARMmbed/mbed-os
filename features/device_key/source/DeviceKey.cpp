@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include "platform/mbed_error.h"
 #include <string.h>
-#include "entropy.h"
+#include "mbedtls/entropy.h"
 #include "mbed_trace.h"
 
 #define TRACE_GROUP "DEVKEY"
