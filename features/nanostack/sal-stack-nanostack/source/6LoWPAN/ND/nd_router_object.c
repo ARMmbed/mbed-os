@@ -856,9 +856,6 @@ static void nd_update_registration(protocol_interface_info_entry_t *cur_interfac
         mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur_interface), ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh), ADDR_802_15_4_LONG);
 
         if (entry) {
-            if (ws_info(cur_interface)) {
-                ws_common_etx_validate(cur_interface, entry);
-            }
 
             if (!entry->ffd_device) {
                 rpl_control_publish_host_address(protocol_6lowpan_rpl_domain, neigh->ip_address, neigh->lifetime);
@@ -931,11 +928,13 @@ bool nd_ns_aro_handler(protocol_interface_info_entry_t *cur_interface, const uin
     }
 
     /* TODO - check hard upper limit on registrations? */
-    if (ws_info(cur_interface) &&
-            !ws_common_allow_child_registration(cur_interface, aro_out->eui64)) {
-        aro_out->present = true;
-        aro_out->status = ARO_FULL;
-        return true;
+    if (ws_info(cur_interface)) {
+
+        aro_out->status = ws_common_allow_child_registration(cur_interface, aro_out->eui64);
+        if (aro_out->status != ARO_SUCCESS) {
+            aro_out->present = true;
+            return true;
+        }
     }
 
     /* We need to have entry in the Neighbour Cache */
@@ -1757,6 +1756,8 @@ void nd_6lowpan_set_radv_params(protocol_interface_info_entry_t *cur_interface)
     cur_interface->adv_retrans_timer = nd_params.ra_retrans_timer;
     cur_interface->max_initial_rtr_adv_interval = nd_params.ra_interval_min;
     cur_interface->max_initial_rtr_advertisements = nd_params.ra_transmits;
+#else
+    (void) cur_interface;
 #endif
 }
 #endif // HAVE_6LOWPAN_ND

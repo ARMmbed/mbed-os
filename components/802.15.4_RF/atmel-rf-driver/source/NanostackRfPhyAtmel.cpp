@@ -524,7 +524,7 @@ static void rf_if_reset_radio(void)
 #else
     rf->spi.frequency(MBED_CONF_ATMEL_RF_LOW_SPI_SPEED);
 #endif
-    rf->IRQ.rise(0);
+    rf->IRQ.rise(nullptr);
     rf->RST = 1;
     ThisThread::sleep_for(2);
     rf->RST = 0;

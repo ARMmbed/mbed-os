@@ -322,7 +322,7 @@ struct socket *buffer_socket_set(buffer_t *buf, struct socket *socket);
         } while(0)
 
 /** get data length*/
-#define buffer_data_length(x)  (int16_t)(x->buf_end - x->buf_ptr)
+#define buffer_data_length(x)  (int)(x->buf_end - x->buf_ptr)
 
 /** get data length Set*/
 #define buffer_data_length_set(x,z)  ((x)->buf_end = (x)->buf_ptr + (z))

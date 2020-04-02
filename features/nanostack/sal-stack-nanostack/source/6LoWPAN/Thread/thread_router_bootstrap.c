@@ -969,13 +969,6 @@ int thread_router_bootstrap_reset_child_info(protocol_interface_info_entry_t *cu
     tr_debug("Child free %x", child->mac16);
     thread_dynamic_storage_child_info_clear(cur->id, child);
 
-    /* As we are losing a link to a child address, we can assume that if we have an IP neighbour cache
-     * mapping to that address, it is no longer valid. We must have been their parent, and they must be
-     * finding a new parent, and hence a new 16-bit address. (Losing a link to a router address would not
-     * invalidate our IP->16-bit mapping.)
-     */
-    protocol_6lowpan_release_short_link_address_from_neighcache(cur, child->mac16);
-
     // If Child's RLOC16 appears in the Network Data send the RLOC16 to the Leader
     if (thread_network_data_services_registered(&cur->thread_info->networkDataStorage, child->mac16)) {
         tr_debug("Remove references to Child's RLOC16 from the Network Data");
@@ -1824,7 +1817,6 @@ void thread_router_bootstrap_mle_receive_cb(int8_t interface_id, mle_message_t *
                 // Was this previously our child? If yes, update.
                 if ((entry_temp->mac16 & THREAD_CHILD_MASK) && thread_router_addr_from_addr(entry_temp->mac16) == cur->thread_info->routerShortAddress) {
                     thread_dynamic_storage_child_info_clear(cur->id, entry_temp);
-                    protocol_6lowpan_release_short_link_address_from_neighcache(cur, entry_temp->mac16);
                 }
                 update_mac_mib = true;
                 entry_temp->mac16 = shortAddress; // short address refreshed

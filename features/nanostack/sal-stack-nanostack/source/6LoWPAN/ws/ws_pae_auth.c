@@ -70,6 +70,9 @@
    nanostack monitor */
 #define SUPPLICANT_NUMBER_TO_PURGE             5
 
+// Short GTK lifetime value, for GTK install check
+#define SHORT_GTK_LIFETIME                     10 * 3600  // 10 hours
+
 typedef struct {
     ns_list_link_t link;                                     /**< Link */
     kmp_service_t *kmp_service;                              /**< KMP service */
@@ -113,7 +116,7 @@ static void ws_pae_auth_kmp_api_create_confirm(kmp_api_t *kmp, kmp_result_e resu
 static void ws_pae_auth_kmp_api_create_indication(kmp_api_t *kmp, kmp_type_e type, kmp_addr_t *addr);
 static void ws_pae_auth_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e result, kmp_sec_keys_t *sec_keys);
 static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *supp_entry);
-static kmp_type_e ws_pae_auth_next_protocol_get(supp_entry_t *supp_entry);
+static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry_t *supp_entry);
 static kmp_api_t *ws_pae_auth_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, supp_entry_t *supp_entry);
 static void ws_pae_auth_kmp_api_finished(kmp_api_t *kmp);
 
@@ -666,7 +669,9 @@ static void ws_pae_auth_gtk_key_insert(pae_auth_t *pae_auth)
         sec_prot_keys_gtk_clear(pae_auth->next_gtks, next_gtk_index);
         sec_prot_keys_gtk_set(pae_auth->next_gtks, next_gtk_index, gtk_value, 0);
     } else {
-        randLIB_get_n_bytes_random(gtk_value, GTK_LEN);
+        do {
+            randLIB_get_n_bytes_random(gtk_value, GTK_LEN);
+        } while (sec_prot_keys_gtk_valid_check(gtk_value) < 0);
     }
 
     // Gets latest installed key lifetime and adds GTK expire offset to it
@@ -910,7 +915,7 @@ static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *sup
     supp_entry->retry_ticks = 0;
 
     // Get next protocol based on what keys supplicant has
-    kmp_type_e next_type = ws_pae_auth_next_protocol_get(supp_entry);
+    kmp_type_e next_type = ws_pae_auth_next_protocol_get(pae_auth, supp_entry);
 
     if (next_type == KMP_TYPE_NONE) {
         // All done
@@ -969,7 +974,7 @@ static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *sup
     kmp_api_create_request(new_kmp, next_type, &supp_entry->addr, &supp_entry->sec_keys);
 }
 
-static kmp_type_e ws_pae_auth_next_protocol_get(supp_entry_t *supp_entry)
+static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry_t *supp_entry)
 {
     kmp_type_e next_type = KMP_TYPE_NONE;
     sec_prot_keys_t *sec_keys = &supp_entry->sec_keys;
@@ -999,9 +1004,22 @@ static kmp_type_e ws_pae_auth_next_protocol_get(supp_entry_t *supp_entry)
 
     if (gtk_index >= 0) {
         if (next_type == KMP_TYPE_NONE && gtk_index >= 0) {
-            // Update just GTK
-            next_type = IEEE_802_11_GKH;
-            tr_info("PAE start GKH, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
+
+            /* Check if the PTK has been already used to install GTK to specific index and if it
+             * has been, trigger 4WH to update also the PTK. This prevents writing multiple
+             * GTK keys to same index using same PTK.
+             */
+            if (pae_auth->timer_settings->gtk_expire_offset > SHORT_GTK_LIFETIME &&
+                    sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(sec_keys, gtk_index)) {
+                // start 4WH towards supplicant
+                next_type = IEEE_802_11_4WH;
+                sec_keys->ptk_mismatch = true;
+                tr_info("PAE start 4WH due to GTK index re-use, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
+            } else {
+                // Update just GTK
+                next_type = IEEE_802_11_GKH;
+                tr_info("PAE start GKH, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
+            }
         }
 
         tr_info("PAE update GTK index: %i, eui-64: %s", gtk_index, trace_array(supp_entry->addr.eui_64, 8));

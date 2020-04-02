@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2017, Arm Limited and affiliates.
+ * Copyright (c) 2020, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,23 +15,32 @@
  * limitations under the License.
  */
 
-/*
- * \file protocol_6lowpan_interface.h
- *
- */
-
-#ifndef PROTOCOL_6LOWPAN_INTERFACE_H_
-#define PROTOCOL_6LOWPAN_INTERFACE_H_
 /**
- * 6LoWPAN interface activate
+ * \file fhss_test_api.h
+ * \brief
  */
-extern int8_t nwk_6lowpan_up(struct protocol_interface_info_entry *cur);
+
+#ifndef FHSS_TEST_API_H
+#define FHSS_TEST_API_H
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
- * 6LoWPAN interface deactivate
- */
-extern int8_t nwk_6lowpan_down(struct protocol_interface_info_entry *cur);
+  * \brief Set optimal packet length
+  *
+  * \param fhss_api FHSS instance.
+  * \param packet_length Optimal packet length
+  *
+  * \return  0 Success
+  * \return -1 Failure
+  */
+int8_t fhss_set_optimal_packet_length(const fhss_api_t *fhss_api, uint16_t packet_length);
 
-extern void protocol_mac_reset(struct protocol_interface_info_entry *cur);
+#ifdef __cplusplus
+}
+#endif
 
-
-#endif /* PROTOCOL_6LOWPAN_INTERFACE_H_ */
+#endif // FHSS_TEST_API_H

@@ -429,7 +429,7 @@ static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *r
 
         if (rf_ptr->mac_ack_tx_active) {
             //Accept direct non crypted acks and crypted only if neighbor is at list
-            if (rf_ptr->ack_tx_possible || mac_sec_mib_device_description_get(rf_ptr, rf_ptr->enhanced_ack_buffer.DstAddr, rf_ptr->enhanced_ack_buffer.fcf_dsn.DstAddrMode, rf_ptr->enhanced_ack_buffer.DstPANId)) {
+            if (rf_ptr->ack_tx_possible) {
                 return PHY_TX_ALLOWED;
             }
 
@@ -481,10 +481,6 @@ static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *r
         return 0;
     }
 
-    //
-    bool waiting_ack = false;
-
-
     if (rf_ptr->mac_ack_tx_active) {
         mac_data_ack_tx_finish(rf_ptr);
         return 0;
@@ -506,11 +502,40 @@ static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *r
         timer_mac_stop(rf_ptr);
     }
 
+    if (rf_ptr->fhss_api && rf_ptr->active_pd_data_request->asynch_request == false) {
+        /* waiting_ack == false allows FHSS to change back to RX channel after transmission
+         * tx_completed == true allows FHSS to delete stored failure handles
+         */
+        bool waiting_ack = false, tx_completed = false;
+        if (status == PHY_LINK_TX_SUCCESS && !rf_ptr->macTxRequestAck) {
+            waiting_ack = false;
+            tx_completed = true;
+        } else if (status == PHY_LINK_TX_SUCCESS && rf_ptr->macTxRequestAck) {
+            waiting_ack = true;
+            tx_completed = false;
+        } else if (status == PHY_LINK_CCA_FAIL) {
+            waiting_ack = false;
+            tx_completed = false;
+        } else if (status == PHY_LINK_CCA_OK) {
+            waiting_ack = false;
+            tx_completed = false;
+        } else if (status == PHY_LINK_TX_FAIL) {
+            waiting_ack = false;
+            tx_completed = false;
+        } else if (status == PHY_LINK_TX_DONE) {
+            waiting_ack = false;
+            tx_completed = true;
+        } else if (status == PHY_LINK_TX_DONE_PENDING) {
+            waiting_ack = false;
+            tx_completed = true;
+        }
+        rf_ptr->fhss_api->data_tx_done(rf_ptr->fhss_api, waiting_ack, tx_completed, rf_ptr->active_pd_data_request->msduHandle);
+    }
+
     switch (status) {
         case PHY_LINK_TX_SUCCESS:
             if (rf_ptr->macTxRequestAck) {
                 timer_mac_start(rf_ptr, MAC_TIMER_ACK, rf_ptr->mac_ack_wait_duration); /*wait for ACK 1 ms*/
-                waiting_ack = true;
             } else {
                 //TODO CHECK this is MAC_TX_ PERMIT OK
                 mac_tx_done_state_set(rf_ptr, MAC_TX_DONE);
@@ -539,15 +564,6 @@ static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *r
 
         default:
             break;
-    }
-    if (rf_ptr->fhss_api) {
-        bool tx_is_done = false;
-        if (rf_ptr->mac_tx_result == MAC_TX_DONE) {
-            tx_is_done = true;
-        }
-        if (rf_ptr->active_pd_data_request->asynch_request == false) {
-            rf_ptr->fhss_api->data_tx_done(rf_ptr->fhss_api, waiting_ack, tx_is_done, rf_ptr->active_pd_data_request->msduHandle);
-        }
     }
     return 0;
 }
@@ -772,7 +788,7 @@ static int8_t mac_pd_sap_generate_ack(protocol_interface_rf_mac_setup_s *rf_ptr,
         return -1;
     }
 
-    if (rf_ptr->enhanced_ack_buffer.aux_header.securityLevel == 0 || mac_sec_mib_device_description_get(rf_ptr, rf_ptr->enhanced_ack_buffer.DstAddr, rf_ptr->enhanced_ack_buffer.fcf_dsn.DstAddrMode, rf_ptr->enhanced_ack_buffer.DstPANId)) {
+    if (mac_sec_mib_device_description_get(rf_ptr, rf_ptr->enhanced_ack_buffer.DstAddr, rf_ptr->enhanced_ack_buffer.fcf_dsn.DstAddrMode, rf_ptr->enhanced_ack_buffer.DstPANId)) {
         rf_ptr->ack_tx_possible = true;
     } else {
         rf_ptr->ack_tx_possible = false;
@@ -874,6 +890,11 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
 
     if (message->id == MAC15_4_PD_SAP_DATA_IND) {
         arm_pd_sap_generic_ind_t *pd_data_ind = &(message->message.generic_data_ind);
+        mac_pre_parsed_frame_t *buffer = NULL;
+        if (pd_data_ind->data_len == 0) {
+            goto ERROR_HANDLER;
+        }
+
         if (pd_data_ind->data_len < 3) {
             return -1;
         }
@@ -881,7 +902,7 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
         mac_fcf_sequence_t fcf_read;
         const uint8_t *ptr = mac_header_parse_fcf_dsn(&fcf_read, pd_data_ind->data_ptr);
 
-        mac_pre_parsed_frame_t *buffer = mac_pd_sap_allocate_receive_buffer(rf_ptr, &fcf_read, pd_data_ind);
+        buffer = mac_pd_sap_allocate_receive_buffer(rf_ptr, &fcf_read, pd_data_ind);
         if (buffer && mac_filter_modify_link_quality(rf_ptr->mac_interface_id, buffer) == 1) {
             goto ERROR_HANDLER;
         }
@@ -919,7 +940,12 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
         }
 ERROR_HANDLER:
         mcps_sap_pre_parsed_frame_buffer_free(buffer);
-        sw_mac_stats_update(rf_ptr, STAT_MAC_RX_DROP, 0);
+        if (pd_data_ind->data_len >= 3) {
+            sw_mac_stats_update(rf_ptr, STAT_MAC_RX_DROP, 0);
+        }
+        if (rf_ptr->fhss_api) {
+            rf_ptr->fhss_api->data_tx_done(rf_ptr->fhss_api, false, false, 0);
+        }
         return -1;
 
     } else if (message->id == MAC15_4_PD_SAP_DATA_TX_CONFIRM) {

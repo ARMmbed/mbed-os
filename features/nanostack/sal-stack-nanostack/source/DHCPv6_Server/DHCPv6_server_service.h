@@ -66,8 +66,9 @@ void DHCPv6_server_service_timeout_cb(uint32_t timeUpdateInSeconds);
  *  /param interface interface id of this thread instance.
  *  /param guaPrefix Prefix which will be removed
  *  /param mode true trig autonous mode, false define address by default suffics + client id
+ *  /param autonomous_skip_list true skip address list allocation when autonous mode is selected
  */
-int DHCPv6_server_service_set_address_autonous_flag(int8_t interface, uint8_t guaPrefix[static 16], bool mode);
+int DHCPv6_server_service_set_address_autonous_flag(int8_t interface, uint8_t guaPrefix[static 16], bool mode, bool autonomous_skip_list);
 
 
 /* SET max accepted clients to server, Default is 200

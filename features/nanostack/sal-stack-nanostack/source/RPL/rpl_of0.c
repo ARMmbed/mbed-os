@@ -42,12 +42,14 @@
 static void rpl_of0_parent_selection(rpl_instance_t *instance);
 static uint16_t rpl_of0_rank_through_neighbour(const rpl_neighbour_t *neighbour);
 static bool rpl_of0_neighbour_acceptable(const rpl_instance_t *instance, const rpl_neighbour_t *neighbour);
+static bool rpl_of0_possible_better_candidate(const rpl_instance_t *instance, const rpl_neighbour_t *existing, uint16_t rank, uint16_t etx);
 
 static rpl_objective_t rpl_of0 = {
     .ocp = RPL_OCP_OF0,
     .parent_selection = rpl_of0_parent_selection,
     .path_cost = rpl_of0_rank_through_neighbour,
     .neighbour_acceptable = rpl_of0_neighbour_acceptable,
+    .possible_better_candidate = rpl_of0_possible_better_candidate,
 };
 
 #define DEFAULT_STEP_OF_RANK 3
@@ -113,6 +115,14 @@ static uint16_t rpl_of0_rank_increase(const rpl_neighbour_t *neighbour)
 static uint16_t rpl_of0_rank_through_neighbour(const rpl_neighbour_t *neighbour)
 {
     return rpl_rank_add(neighbour->rank, rpl_of0_rank_increase(neighbour));
+}
+
+static bool rpl_of0_possible_better_candidate(const rpl_instance_t *instance, const rpl_neighbour_t *existing, uint16_t rank, uint16_t etx)
+{
+    (void)etx;
+    uint16_t existing_path = rpl_of0_rank_through_neighbour(existing);
+    uint16_t potential_path_with_hysteresis = rpl_rank_add(rank, 2 * rpl_policy_of0_rank_factor(instance->domain) * existing->dodag_version->dodag->config.min_hop_rank_increase);
+    return potential_path_with_hysteresis <= existing_path;
 }
 
 /* Given a preferred parent, we are only permitted to stretch our above the

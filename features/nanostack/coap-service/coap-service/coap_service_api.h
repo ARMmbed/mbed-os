@@ -184,7 +184,7 @@ extern void coap_service_close_secure_connection(int8_t service_id, uint8_t dest
  * \param destination_addr_ptr             Receiver IPv6 address.
  * \param port                             Receiver port number.
  * \param *data_ptr                        Pointer to the data.
- * \param data_len                         Lenght of the data.
+ * \param data_len                         Length of the data.
  *
  * \return 0 for success / -1 for failure
   */
@@ -199,7 +199,7 @@ typedef int coap_service_virtual_socket_send_cb(int8_t service_id, uint8_t desti
  * \param source_addr_ptr                  Receiver IPv6 address.
  * \param port                             Receiver port number.
  * \param *data_ptr                        Pointer to the data
- * \param data_len                         Lenght of the data
+ * \param data_len                         Length of the data
  *
  * \return 0 for success / -1 for failure
   */
@@ -257,7 +257,7 @@ extern int8_t coap_service_unregister_uri(int8_t service_id, const char *uri);
  * \param *uri                  Uri address.
  * \param cont_type             Content type can be found from sn_coap_header.
  * \param payload_ptr           Pointer to message content.
- * \param payload_len           Lenght of the message.
+ * \param payload_len           Length of the message.
  * \param *request_response_cb  Callback to inform result of the request.
  *
  * \return msg_id               Id number of the current message.
@@ -276,7 +276,7 @@ extern uint16_t coap_service_request_send(int8_t service_id, uint8_t options, co
  * \param message_code     Message code can be found from sn_coap_header.
  * \param content_type     Content type can be found from sn_coap_header.
  * \param payload_ptr      Pointer to message content.
- * \param payload_len      Lenght of the message.
+ * \param payload_len      Length of the message.
  *
  * \return -1              For failure
  *-         0              For success
@@ -295,7 +295,7 @@ extern int8_t coap_service_response_send(int8_t service_id, uint8_t options, sn_
  * \param message_code     Message code can be found from sn_coap_header.
  * \param content_type     Content type can be found from sn_coap_header.
  * \param payload_ptr      Pointer to message content.
- * \param payload_len      Lenght of the message.
+ * \param payload_len      Length of the message.
  *
  * \return -1              For failure
  *-         0              For success

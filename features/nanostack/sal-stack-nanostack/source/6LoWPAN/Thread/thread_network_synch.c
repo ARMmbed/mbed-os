@@ -64,6 +64,7 @@
 #include "Common_Protocols/icmpv6_radv.h"
 #include "MLE/mle.h"
 #include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "6LoWPAN/lowpan_adaptation_interface.h"
 #include "6LoWPAN/MAC/mac_helper.h"
 
 #define TRACE_GROUP "tsyn"
@@ -192,15 +193,29 @@ void thread_dynamic_storage_child_info_store(protocol_interface_info_entry_t *cu
 
 void thread_dynamic_storage_child_info_clear(int8_t interface_id, struct mac_neighbor_table_entry *child)
 {
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur) {
+        return;
+    }
     thread_sync_child_info_t *child_info = thread_dynamic_storage_child_info_find(interface_id, child);
+
 
     if (child_info) {
         // Clear child information
         memset(child_info, 0, sizeof(thread_sync_child_info_t));
         tr_debug("Dynamic storage: cleared child; mac16=%04x", child->mac16);
-        return;
     }
-    return;
+    uint8_t temp_address[2];
+    common_write_16_bit(child->mac16, temp_address);
+    //Release Old short address entries
+    lowpan_adaptation_free_messages_from_queues_by_address(cur, temp_address, ADDR_802_15_4_SHORT);
+    /* As we are losing a link to a child address, we can assume that if we have an IP neighbour cache
+     * mapping to that address, it is no longer valid. We must have been their parent, and they must be
+     * finding a new parent, and hence a new 16-bit address. (Losing a link to a router address would not
+     * invalidate our IP->16-bit mapping.)
+     */
+    protocol_6lowpan_release_short_link_address_from_neighcache(cur, child->mac16);
+
 }
 
 static thread_sync_child_info_t *thread_dynamic_storage_child_info_find(int8_t interface_id, mac_neighbor_table_entry_t *child)

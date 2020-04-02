@@ -285,7 +285,7 @@ static void thread_update_mle_entry(protocol_interface_info_entry_t *cur, mle_me
     if (short_address != entry_temp->mac16) {
         if (thread_router_addr_from_addr(entry_temp->mac16) == cur->thread_info->routerShortAddress) {
             thread_dynamic_storage_child_info_clear(cur->id, entry_temp);
-            protocol_6lowpan_release_short_link_address_from_neighcache(cur, entry_temp->mac16);
+
         }
         entry_temp->mac16 = short_address;
         /* throw MLME_GET request, short address is changed automatically in get request callback */
