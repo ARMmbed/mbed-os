@@ -333,6 +333,14 @@ struct _flexspi_handle
 extern "C" {
 #endif /*_cplusplus. */
 
+/**
+ * @brief Set bytes in memory. If put this code in SRAM, Make sure this code
+ * does not call functions in Flash.
+ *
+ * @return pointer to start of buffer
+ */
+extern void *flexspi_memset(void *buf, int c, size_t n);
+
 /*!
  * @name Initialization and deinitialization
  * @{
