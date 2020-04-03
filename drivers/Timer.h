@@ -111,8 +111,8 @@ protected:
     TimerBase(const ticker_data_t *data, bool lock_deepsleep);
     ~TimerBase();
     std::chrono::microseconds slicetime() const;
-    TickerDataClock::time_point _start;   // the start time of the latest slice
-    std::chrono::microseconds _time;    // any accumulated time from previous slices
+    TickerDataClock::time_point _start{};   // the start time of the latest slice
+    std::chrono::microseconds _time{};    // any accumulated time from previous slices
     TickerDataClock _ticker_data;
     bool _lock_deepsleep;    // flag that indicates if deep sleep should be disabled
     bool _running = false;   // whether the timer is running

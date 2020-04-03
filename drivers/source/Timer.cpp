@@ -100,7 +100,7 @@ microseconds TimerBase::elapsed_time() const
 microseconds TimerBase::slicetime() const
 {
     CriticalSectionLock lock;
-    microseconds ret;
+    microseconds ret = 0us;
     if (_running) {
         ret = _ticker_data.now() - _start;
     }

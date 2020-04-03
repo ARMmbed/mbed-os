@@ -149,7 +149,7 @@ protected:
     void attach_absolute(Callback<void()> func, TickerDataClock::time_point abs_time);
 
     void handler() override;
-    std::chrono::microseconds  _delay;  /**< Time delay (in microseconds) for resetting the multishot callback. */
+    std::chrono::microseconds  _delay{0};  /**< Time delay (in microseconds) for resetting the multishot callback. */
     Callback<void()>    _function;  /**< Callback. */
     bool          _lock_deepsleep;  /**< Flag which indicates if deep sleep should be disabled. */
 #endif
