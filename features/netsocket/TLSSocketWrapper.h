@@ -29,10 +29,25 @@
 #include "mbedtls/ssl.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
+#include "mbedtls/hmac_drbg.h"
 #include "mbedtls/error.h"
 
 // This class requires Mbed TLS SSL/TLS client code
 #if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
+
+#if defined(MBEDTLS_CTR_DRBG_C)
+#define DRBG_CTX mbedtls_ctr_drbg_context
+#define DRBG_INIT mbedtls_ctr_drbg_init
+#define DRBG_RANDOM mbedtls_ctr_drbg_random
+#define DRBG_FREE mbedtls_ctr_drbg_free
+#elif defined(MBEDTLS_HMAC_DRBG_C)
+#define DRBG_CTX mbedtls_hmac_drbg_context
+#define DRBG_INIT mbedtls_hmac_drbg_init
+#define DRBG_RANDOM mbedtls_hmac_drbg_random
+#define DRBG_FREE mbedtls_hmac_drbg_free
+#else
+#error "CTR or HMAC must be defined for TLSSocketWrapper!"
+#endif
 
 /**
  * TLSSocket is a wrapper around Socket for interacting with TLS servers.
@@ -66,6 +81,9 @@ public:
     ~TLSSocketWrapper() override;
 
     /** Set hostname.
+     *
+     * @note Implementation is inside following defines:
+     * #if defined(MBEDTLS_X509_CRT_PARSE_C) && !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
      *
      * TLSSocket requires hostname used to verify the certificate.
      * If hostname is not given in constructor, this function must be used before
@@ -241,7 +259,7 @@ protected:
      *  @retval       NSAPI_ERROR_IN_PROGRESS if the first call did not complete the request.
      *  @retval       NSAPI_ERROR_NO_SOCKET in case the transport socket was not created correctly.
      *  @retval       NSAPI_ERROR_AUTH_FAILURE in case of tls-related authentication errors.
-     *                See @ref mbedtls_ctr_drbg_seed, @ref mbedtls_ssl_setup. @ref mbedtls_ssl_handshake.
+     *                See @ref mbedtls_ctr_drbg_seed or @ref mbedtls_hmac_drbg_seed, @ref mbedtls_ssl_setup. @ref mbedtls_ssl_handshake.
      */
     nsapi_error_t start_handshake(bool first_call);
 
@@ -290,7 +308,9 @@ private:
 #ifdef MBEDTLS_X509_CRT_PARSE_C
     mbedtls_pk_context _pkctx;
 #endif
-    mbedtls_ctr_drbg_context _ctr_drbg;
+
+    DRBG_CTX _drbg;
+
     mbedtls_entropy_context _entropy;
 
     rtos::EventFlags _event_flag;
