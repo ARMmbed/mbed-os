@@ -98,7 +98,7 @@ public:
      * ADC reference voltage (typically equal to supply voltage). The ADC reference voltage
      * sets the maximum voltage the ADC can quantify (ie: Vin == Vref when ADC output == ADC_MAX_VALUE)
      *
-     * The target's ADC reference voltage can be configured by overriding "drivers.adc_vref"
+     * The target's ADC reference voltage can be configured by overriding "target.adc_vref"
      *
      * @returns A floating-point value representing the current input voltage, measured in volts.
      */
@@ -107,7 +107,7 @@ public:
     /**
      * Sets this AnalogIn instance's reference voltage.
      *
-     * Defaults to the configurable MBED_CONF_DRIVERS_DEFAULT_ADC_VREF setting.
+     * Defaults to the configurable MBED_CONF_TARGET_DEFAULT_ADC_VREF setting.
      *
      * The AnalogIn's reference voltage is used to scale the output when calling AnalogIn::read_volts
      *

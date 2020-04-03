@@ -23,14 +23,14 @@ namespace mbed {
 
 SingletonPtr<PlatformMutex> AnalogIn::_mutex;
 
-AnalogIn::AnalogIn(PinName pin) : vref(MBED_CONF_DRIVERS_DEFAULT_ADC_VREF)
+AnalogIn::AnalogIn(PinName pin) : vref(MBED_CONF_TARGET_DEFAULT_ADC_VREF)
 {
     lock();
     analogin_init(&_adc, pin);
     unlock();
 }
 
-AnalogIn::AnalogIn(const PinMap &pinmap) : vref(MBED_CONF_DRIVERS_DEFAULT_ADC_VREF)
+AnalogIn::AnalogIn(const PinMap &pinmap) : vref(MBED_CONF_TARGET_DEFAULT_ADC_VREF)
 {
     lock();
     analogin_init_direct(&_adc, &pinmap);
