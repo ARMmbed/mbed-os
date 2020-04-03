@@ -24,6 +24,15 @@
 #define __error_t_defined 1
 #endif
 
+/* Work around ARM Compiler 6 bug - assert does not work in constexpr
+ * functions unless you stop it from using its __promise built-in.
+ */
+#ifdef __ARMCC_VERSION
+#ifndef __DO_NOT_LINK_PROMISE_WITH_ASSERT
+#define __DO_NOT_LINK_PROMISE_WITH_ASSERT
+#endif
+#endif
+
 // Warning for unsupported compilers
 #if !defined(__GNUC__)   /* GCC        */ \
  && !defined(__clang__)  /* LLVM/Clang */ \
