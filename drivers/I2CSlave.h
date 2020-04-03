@@ -53,7 +53,7 @@ namespace mbed {
  * #error [NOT_SUPPORTED] I2C Slave is not supported
  * #endif
  *
- * I2CSlave slave(p3, p4);
+ * I2CSlave slave(I2C_SDA, I2C_SCL);
  *
  * int main() {
  *
@@ -86,7 +86,7 @@ namespace mbed {
  *
  * // Master side of the example
  *
- * I2C master(p3, p4);
+ * I2C master(I2C_SDA, I2C_SCL);
  *
  * static const char* to_send[] = { "abcde", "12345", "EFGHI" };
  *
