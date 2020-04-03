@@ -54,7 +54,7 @@ unsigned short AnalogIn::read_u16()
     return ret;
 }
 
-float AnalogIn::read_volts()
+float AnalogIn::read_voltage()
 {
     return (this->read() * this->vref);
 }

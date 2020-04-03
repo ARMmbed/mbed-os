@@ -102,7 +102,7 @@ public:
      *
      * @returns A floating-point value representing the current input voltage, measured in volts.
      */
-    float read_volts();
+    float read_voltage();
 
     /**
      * Sets this AnalogIn instance's reference voltage.
