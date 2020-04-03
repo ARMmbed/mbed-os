@@ -49,8 +49,6 @@ typedef enum {
 
 typedef enum {
 
-    // TODO - wasn't sure what to do about "alternates"
-
     PA_0  = 0x00,
     PA_0_ALT0 = PA_0 | ALT0,
     PA_1  = 0x01,
