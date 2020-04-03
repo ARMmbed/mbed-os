@@ -40,6 +40,8 @@ static int16_t rpl_policy_dao_initial_timeout_conf = 20; // Default is 2 seconds
 static uint16_t rpl_policy_dio_validity_period_hysteresis = 0x0180; //Fixed Point 1.5
 static uint8_t rpl_policy_multicast_config_min_advertisment_count = 0;
 static uint8_t rpl_policy_mrhof_parent_set_size_conf = 3; // default parent set size
+static uint16_t rpl_policy_minimum_dao_target_refresh_conf = 0; // by default follow the configuration
+static uint16_t rpl_policy_address_registration_timeout_value = 0; // Address registration timeouts in minutes 0 use address lifetime
 
 /* TODO - application API to control when to join new instances / DODAGs
  *
@@ -113,6 +115,16 @@ bool rpl_policy_request_dao_acks(const rpl_domain_t *domain, uint8_t mop)
 void rpl_policy_set_initial_dao_ack_wait(uint16_t timeout_in_ms)
 {
     rpl_policy_dao_initial_timeout_conf = timeout_in_ms;
+}
+
+void rpl_policy_set_minimum_dao_target_refresh(uint16_t seconds)
+{
+    rpl_policy_minimum_dao_target_refresh_conf = seconds;
+}
+
+uint16_t rpl_policy_minimum_dao_target_refresh(void)
+{
+    return rpl_policy_minimum_dao_target_refresh_conf;
 }
 
 uint16_t rpl_policy_initial_dao_ack_wait(const rpl_domain_t *domain, uint8_t mop)
@@ -379,6 +391,16 @@ uint8_t rpl_policy_dio_multicast_config_advertisment_min_count(void)
 void rpl_policy_set_dio_multicast_config_advertisment_min_count(uint8_t min_count)
 {
     rpl_policy_multicast_config_min_advertisment_count = min_count;
+}
+
+uint16_t rpl_policy_address_registration_timeout()
+{
+    return rpl_policy_address_registration_timeout_value;
+}
+
+void rpl_policy_set_address_registration_timeout(uint16_t timeout_in_minutes)
+{
+    rpl_policy_address_registration_timeout_value = timeout_in_minutes;
 }
 
 

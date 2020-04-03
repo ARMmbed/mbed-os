@@ -22,44 +22,43 @@
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
 #include "fhss_config.h"
+#include "ws_management_api.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "6LoWPAN/ws/ws_config.h"
+#include "6LoWPAN/ws/ws_cfg_settings.h"
 #include "6LoWPAN/ws/ws_pae_timers.h"
 
 #ifdef HAVE_WS
 
 #define TRACE_GROUP "wspt"
 
-#define SECONDS_IN_DAY                          24 * 60 * 60
-#define SECONDS_IN_MONTH                        30 * SECONDS_IN_DAY
 #define SECONDS_IN_MINUTE                       60
 
-#define DEFAULT_GTK_EXPIRE_OFFSET               43200                   // 30 days
-#define DEFAULT_PMK_LIFETIME                    4                       // 4 months
-#define DEFAULT_PTK_LIFETIME                    2                       // 2 months
-#define DEFAULT_GTK_NEW_ACTIVATION_TIME         720                     // default 1/720 * 30 days --> 60 minutes
-#define DEFAULT_REVOCATION_LIFETIME_REDUCTION   30                      // default 1/30 * 30 days --> 1 day
 #define DEFAULT_GTK_REQUEST_IMIN                4                       // 4 minutes
 #define DEFAULT_GTK_REQUEST_IMAX                64                      // 64 minutes
-#define DEFAULT_GTK_MAX_MISMATCH                64                      // 64 minutes
-#define DEFAULT_GTK_NEW_INSTALL_REQUIRED        80                      // 80 percent of GTK lifetime --> 24 days
 
-static void ws_pae_timers_calculate(timer_settings_t *timer_settings);
+static void ws_pae_timers_calculate(sec_timer_cfg_t *timer_settings);
 
-void ws_pae_timers_settings_init(timer_settings_t *timer_settings)
+void ws_pae_timers_settings_init(sec_timer_cfg_t *timer_settings, ws_sec_timer_cfg_t *new_timer_settings)
 {
-    timer_settings->gtk_expire_offset = DEFAULT_GTK_EXPIRE_OFFSET * SECONDS_IN_MINUTE;
-    timer_settings->pmk_lifetime = DEFAULT_PMK_LIFETIME * SECONDS_IN_MONTH;
-    timer_settings->ptk_lifetime = DEFAULT_PTK_LIFETIME * SECONDS_IN_MONTH;
-    timer_settings->gtk_new_act_time = DEFAULT_GTK_NEW_ACTIVATION_TIME;
-    timer_settings->revocat_lifetime_reduct = DEFAULT_REVOCATION_LIFETIME_REDUCTION;
-    timer_settings->gtk_request_imin = DEFAULT_GTK_REQUEST_IMIN * SECONDS_IN_MINUTE;
-    timer_settings->gtk_request_imax = DEFAULT_GTK_REQUEST_IMAX * SECONDS_IN_MINUTE;
-    timer_settings->gtk_max_mismatch = DEFAULT_GTK_MAX_MISMATCH * SECONDS_IN_MINUTE;
-    timer_settings->gtk_new_install_req = DEFAULT_GTK_NEW_INSTALL_REQUIRED;
+    if (timer_settings == NULL || new_timer_settings == NULL) {
+        return;
+    }
+
+    timer_settings->gtk_expire_offset = new_timer_settings->gtk_expire_offset * SECONDS_IN_MINUTE;
+    timer_settings->pmk_lifetime = new_timer_settings->pmk_lifetime * SECONDS_IN_MINUTE;
+    timer_settings->ptk_lifetime = new_timer_settings->ptk_lifetime * SECONDS_IN_MINUTE;
+    timer_settings->gtk_new_act_time = new_timer_settings->gtk_new_act_time;
+    timer_settings->revocat_lifetime_reduct = new_timer_settings->revocat_lifetime_reduct;
+    timer_settings->gtk_request_imin = new_timer_settings->gtk_request_imin * SECONDS_IN_MINUTE;
+    timer_settings->gtk_request_imax = new_timer_settings->gtk_request_imax * SECONDS_IN_MINUTE;
+    timer_settings->gtk_max_mismatch = new_timer_settings->gtk_max_mismatch * SECONDS_IN_MINUTE;
+    timer_settings->gtk_new_install_req = new_timer_settings->gtk_new_install_req;
+
+    ws_pae_timers_calculate(timer_settings);
 }
 
-void ws_pae_timers_lifetime_set(timer_settings_t *timer_settings, uint32_t gtk_lifetime, uint32_t pmk_lifetime, uint32_t ptk_lifetime)
+void ws_pae_timers_lifetime_set(sec_timer_cfg_t *timer_settings, uint32_t gtk_lifetime, uint32_t pmk_lifetime, uint32_t ptk_lifetime)
 {
     if (gtk_lifetime) {
         timer_settings->gtk_expire_offset = gtk_lifetime * 60;
@@ -73,7 +72,7 @@ void ws_pae_timers_lifetime_set(timer_settings_t *timer_settings, uint32_t gtk_l
     ws_pae_timers_calculate(timer_settings);
 }
 
-void ws_pae_timers_gtk_time_settings_set(timer_settings_t *timer_settings, uint8_t revocat_lifetime_reduct, uint8_t new_activation_time, uint8_t new_install_req, uint32_t max_mismatch)
+void ws_pae_timers_gtk_time_settings_set(sec_timer_cfg_t *timer_settings, uint8_t revocat_lifetime_reduct, uint8_t new_activation_time, uint8_t new_install_req, uint32_t max_mismatch)
 {
     if (revocat_lifetime_reduct) {
         timer_settings->revocat_lifetime_reduct = revocat_lifetime_reduct;
@@ -90,7 +89,7 @@ void ws_pae_timers_gtk_time_settings_set(timer_settings_t *timer_settings, uint8
     ws_pae_timers_calculate(timer_settings);
 }
 
-static void ws_pae_timers_calculate(timer_settings_t *timer_settings)
+static void ws_pae_timers_calculate(sec_timer_cfg_t *timer_settings)
 {
     // Calculate GTK_NEW_INSTALL_REQUIRED < 100 * (1 - 1 / REVOCATION_LIFETIME_REDUCTION)
     uint8_t calc_gtk_new_install_req = 100 - (100 / timer_settings->revocat_lifetime_reduct);
@@ -106,9 +105,6 @@ static void ws_pae_timers_calculate(timer_settings_t *timer_settings)
     }
 
     // Verify that GTK request Imin and Imax are sensible when compared to revocation lifetime
-    timer_settings->gtk_request_imin = DEFAULT_GTK_REQUEST_IMIN * SECONDS_IN_MINUTE;
-    timer_settings->gtk_request_imax = DEFAULT_GTK_REQUEST_IMAX * SECONDS_IN_MINUTE;
-
     uint32_t gtk_revocation_lifetime = timer_settings->gtk_expire_offset / timer_settings->revocat_lifetime_reduct;
     uint32_t new_activation_time = timer_settings->gtk_expire_offset / timer_settings->gtk_new_act_time;
 
@@ -147,7 +143,7 @@ static void ws_pae_timers_calculate(timer_settings_t *timer_settings)
     }
 }
 
-bool ws_pae_timers_gtk_new_install_required(timer_settings_t *timer_settings, uint32_t seconds)
+bool ws_pae_timers_gtk_new_install_required(sec_timer_cfg_t *timer_settings, uint32_t seconds)
 {
     uint32_t gtk_new_install_req_seconds = timer_settings->gtk_expire_offset - timer_settings->gtk_new_install_req * timer_settings->gtk_expire_offset / 100;
 
@@ -158,7 +154,7 @@ bool ws_pae_timers_gtk_new_install_required(timer_settings_t *timer_settings, ui
     }
 }
 
-bool ws_pae_timers_gtk_new_activation_time(timer_settings_t *timer_settings, uint32_t seconds)
+bool ws_pae_timers_gtk_new_activation_time(sec_timer_cfg_t *timer_settings, uint32_t seconds)
 {
     uint32_t gtk_gtk_new_activation_time_seconds = timer_settings->gtk_expire_offset / timer_settings->gtk_new_act_time;
 
@@ -169,7 +165,7 @@ bool ws_pae_timers_gtk_new_activation_time(timer_settings_t *timer_settings, uin
     }
 }
 
-uint32_t ws_pae_timers_gtk_revocation_lifetime_get(timer_settings_t *timer_settings)
+uint32_t ws_pae_timers_gtk_revocation_lifetime_get(sec_timer_cfg_t *timer_settings)
 {
     return timer_settings->gtk_expire_offset / timer_settings->revocat_lifetime_reduct;
 }

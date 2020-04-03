@@ -694,27 +694,29 @@ static inline int8_t socket_read_session_address(int8_t socket, ns_address_t *ad
  *
  * IPv6 socket options summary
  *
- * | opt_name / cmsg_type         | Data type        | set/getsockopt  | sendmsg | recvmsg                           |
- * | :--------------------------: | :--------------: | :-------------: | :-----: | :-------------------------------: |
- * | SOCKET_IPV6_TCLASS           | int16_t          |     Yes         |   Yes   | If enabled with RECVTCLASS        |
- * | SOCKET_IPV6_UNICAST_HOPS     | int16_t          |     Yes         |   No    | No                                |
- * | SOCKET_IPV6_MULTICAST_HOPS   | int16_t          |     Yes         |   No    | No                                |
- * | SOCKET_IPV6_ADDR_PREFERENCES | int              |     Yes         |   No    | No                                |
- * | SOCKET_IPV6_USE_MIN_MTU      | int8_t           |     Yes         |   Yes   | No                                |
- * | SOCKET_IPV6_DONTFRAG         | int8_t           |     Yes         |   Yes   | No                                |
- * | SOCKET_IPV6_FLOW_LABEL       | int32_t          |     Yes         |   No    | No                                |
- * | SOCKET_IPV6_HOPLIMIT         | int16_t          |     No          |   Yes   | If enabled with RECVHOPLIMIT      |
- * | SOCKET_IPV6_PKTINFO          | ns_in6_pktinfo_t |     No          |   Yes   | If enabled with RECVPKTINFO       |
- * | SOCKET_IPV6_RECVPKTINFO      | bool             |     Yes         |   No    | No                                |
- * | SOCKET_IPV6_RECVHOPLIMIT     | bool             |     Yes         |   No    | No                                |
- * | SOCKET_IPV6_RECVTCLASS       | bool             |     Yes         |   No    | No                                |
- * | SOCKET_IPV6_MULTICAST_IF     | int8_t           |     Yes         |   No    | No                                |
- * | SOCKET_IPV6_MULTICAST_LOOP   | bool             |     Yes         |   Yes   | No                                |
- * | SOCKET_IPV6_JOIN_GROUP       | ns_ipv6_mreq_t   |     Set only    |   No    | No                                |
- * | SOCKET_IPV6_LEAVE_GROUP      | ns_ipv6_mreq_t   |     Set only    |   No    | No                                |
- * | SOCKET_BROADCAST_PAN         | int8_t           |     Yes         |   No    | No                                |
- * | SOCKET_LINK_LAYER_SECURITY   | int8_t           |     Yes         |   No    | No                                |
- * | SOCKET_INTERFACE_SELECT      | int8_t           |     Yes         |   No    | No                                |
+ * | opt_name / cmsg_type         | Data type         | set/getsockopt  | sendmsg | recvmsg                           |
+ * | :--------------------------: | :---------- ----: | :-------------: | :-----: | :-------------------------------: |
+ * | SOCKET_IPV6_TCLASS           | int16_t           |     Yes         |   Yes   | If enabled with RECVTCLASS        |
+ * | SOCKET_IPV6_UNICAST_HOPS     | int16_t           |     Yes         |   No    | No                                |
+ * | SOCKET_IPV6_MULTICAST_HOPS   | int16_t           |     Yes         |   No    | No                                |
+ * | SOCKET_IPV6_ADDR_PREFERENCES | int               |     Yes         |   No    | No                                |
+ * | SOCKET_IPV6_USE_MIN_MTU      | int8_t            |     Yes         |   Yes   | No                                |
+ * | SOCKET_IPV6_DONTFRAG         | int8_t            |     Yes         |   Yes   | No                                |
+ * | SOCKET_IPV6_FLOW_LABEL       | int32_t           |     Yes         |   No    | No                                |
+ * | SOCKET_IPV6_HOPLIMIT         | int16_t           |     No          |   Yes   | If enabled with RECVHOPLIMIT      |
+ * | SOCKET_IPV6_PKTINFO          | ns_in6_pktinfo_t  |     No          |   Yes   | If enabled with RECVPKTINFO       |
+ * | SOCKET_IPV6_RECVPKTINFO      | bool              |     Yes         |   No    | No                                |
+ * | SOCKET_IPV6_RECVHOPLIMIT     | bool              |     Yes         |   No    | No                                |
+ * | SOCKET_IPV6_RECVTCLASS       | bool              |     Yes         |   No    | No                                |
+ * | SOCKET_IPV6_MULTICAST_IF     | int8_t            |     Yes         |   No    | No                                |
+ * | SOCKET_IPV6_MULTICAST_LOOP   | bool              |     Yes         |   Yes   | No                                |
+ * | SOCKET_IPV6_JOIN_GROUP       | ns_ipv6_mreq_t    |     Set only    |   No    | No                                |
+ * | SOCKET_IPV6_LEAVE_GROUP      | ns_ipv6_mreq_t    |     Set only    |   No    | No                                |
+ * | SOCKET_BROADCAST_PAN         | int8_t            |     Yes         |   No    | No                                |
+ * | SOCKET_LINK_LAYER_SECURITY   | int8_t            |     Yes         |   No    | No                                |
+ * | SOCKET_INTERFACE_SELECT      | int8_t            |     Yes         |   No    | No                                |
+ * | SOCKET_LATENCY               | ns_ipv6_latency_t |     Get only    |   No    | No                                |
+ * | SOCKET_STAGGER               | ns_ipv6_stagger_t |     Get only    |   No    | No                                |
  *
  */
 
@@ -753,6 +755,10 @@ static inline int8_t socket_read_session_address(int8_t socket, ns_address_t *ad
 #define SOCKET_IPV6_JOIN_GROUP              15
 /** Leave a multicast group, using ns_ipv6_mreq_t */
 #define SOCKET_IPV6_LEAVE_GROUP             16
+/** Read estimated latency to reach destination */
+#define SOCKET_LATENCY                      17
+/** Read estimated stagger value that can be used as initial delay after bootstrap or firmware update. */
+#define SOCKET_STAGGER                      18
 
 #define SOCKET_BROADCAST_PAN                0xfc /**< Internal use - transmit with IEEE 802.15.4 broadcast PAN ID */
 #define SOCKET_LINK_LAYER_SECURITY          0xfd /**< Not standard enable or disable socket security at link layer (For 802.15.4). */
@@ -765,6 +771,20 @@ typedef struct ns_ipv6_mreq {
     int8_t ipv6mr_interface;            /**< interface id */
 } ns_ipv6_mreq_t;
 
+/** Latency request used for getsockopt() */
+typedef struct {
+    uint8_t dest_addr[16];      /**< [IN] IPv6 destination address */
+    uint32_t latency;           /**< [OUT] estimated latency value in milliseconds */
+} ns_ipv6_latency_t;
+
+/** Stagger request used for getsockopt() */
+typedef struct {
+    uint8_t dest_addr[16];      /**< [IN] IPv6 destination address */
+    uint16_t data_amount;       /**< [IN] Amount of data in kilobytes */
+    uint16_t stagger_min;       /**< [OUT] Minimum stagger value in seconds */
+    uint16_t stagger_max;       /**< [OUT] Maximum stagger value in seconds */
+    uint16_t stagger_rand;      /**< [OUT] Randomized stagger value in seconds */
+} ns_ipv6_stagger_t;
 /**
  * \brief Set an option for a socket
  *
@@ -804,6 +824,7 @@ int8_t socket_setsockopt(int8_t socket, uint8_t level, uint8_t opt_name, const v
  * \return 0 on success.
  * \return -1 invalid socket ID.
  * \return -2 invalid/unsupported option.
+ * \return -3 data can't be retrieved.
  */
 int8_t socket_getsockopt(int8_t socket, uint8_t level, uint8_t opt_name, void *opt_value, uint16_t *opt_len);
 

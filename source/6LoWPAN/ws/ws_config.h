@@ -27,9 +27,21 @@
  *
  */
 
-#define WS_RPL_DIO_IMIN 15
-#define WS_RPL_DIO_DOUBLING 2
-#define WS_RPL_DIO_REDUNDANCY 0
+#define WS_RPL_DIO_IMIN_SMALL 15
+#define WS_RPL_DIO_DOUBLING_SMALL 2
+#define WS_RPL_DIO_REDUNDANCY_SMALL 0
+
+#define WS_RPL_DIO_IMIN_MEDIUM 15
+#define WS_RPL_DIO_DOUBLING_MEDIUM 5
+#define WS_RPL_DIO_REDUNDANCY_MEDIUM 10
+
+#define WS_RPL_DIO_IMIN_LARGE 19
+#define WS_RPL_DIO_DOUBLING_LARGE 1
+#define WS_RPL_DIO_REDUNDANCY_LARGE 10 // May need some tuning still
+
+#define WS_RPL_DIO_IMIN_AUTOMATIC 14
+#define WS_RPL_DIO_DOUBLING_AUTOMATIC 3
+#define WS_RPL_DIO_REDUNDANCY_AUTOMATIC 0
 
 #define WS_RPL_MIN_HOP_RANK_INCREASE 196
 #define WS_RPL_MAX_HOP_RANK_INCREASE 2048
@@ -37,14 +49,17 @@
 #define WS_CERTIFICATE_RPL_MIN_HOP_RANK_INCREASE 128
 #define WS_CERTIFICATE_RPL_MAX_HOP_RANK_INCREASE 0
 
+/*
+ *  RPL DAO timeout maximum value. This will force DAO timeout to happen before this time
+ */
+#define WS_RPL_DAO_MAX_TIMOUT (3600*2)
+
 /* Border router version change interval
  *
- * Minimum interval at which a Border Router shall increment its PAN Version value.
+ * Amount of version increases border router makes during PAN_TIMEOUT time
  */
 
-#define PAN_VERSION_SMALL_NETWORK_LIFETIME 4*60
-#define PAN_VERSION_MEDIUM_NETWORK_LIFETIME 15*60
-#define PAN_VERSION_LARGE_NETWORK_LIFETIME 30*60 //30min
+#define PAN_VERSION_CHANGE_INTERVAL 3
 
 // RPL version number update intervall
 // after restart version numbers are increased faster and then slowed down when network is stable
@@ -101,10 +116,11 @@ extern uint8_t DEVICE_MIN_SENS;
  * IMIN = 10 seconds, IMAX = 3 doublings
  */
 
-#define DATA_MESSAGE_IMIN (10 * 1000)
+#define DATA_MESSAGE_IMIN 10
 #define DATA_MESSAGE_TIMER_EXPIRATIONS 3
-#define DATA_MESSAGE_IMAX (80 * 1000)
-#define MPL_SEED_SET_ENTRY_TIMEOUT (DATA_MESSAGE_IMAX * 24 * 4 / 1000) // 10 seconds per hop making this 240 seconds
+#define DATA_MESSAGE_IMAX 80
+#define DATA_MESSAGE_K 8
+#define MPL_SEED_SET_ENTRY_TIMEOUT (DATA_MESSAGE_IMAX * 24 * 4) // 10 seconds per hop making this 240 seconds
 
 /* DHCP client timeout configuration values
  *
@@ -169,5 +185,32 @@ extern uint8_t DEVICE_MIN_SENS;
  * ERRATA changes after 1.0 specification release.
  */
 #define WISUN_1_0_ERRATA_FIX
+
+/*
+ *  Security protocol message retry configuration parameters
+ */
+#define SEC_PROT_SMALL_IMIN 30              // Retries done in 30 seconds
+#define SEC_PROT_SMALL_IMAX 90              // Largest value 90 seconds
+#define SEC_PROT_RETRY_TIMEOUT_SMALL 330    // Retry timeout for small network additional 30 seconds for authenticator delay
+
+#define SEC_PROT_LARGE_IMIN 60              // Retries done in 60 seconds
+#define SEC_PROT_LARGE_IMAX 240             // Largest value 240 seconds
+#define SEC_PROT_RETRY_TIMEOUT_LARGE 750    // Retry timeout for large network additional 30 seconds for authenticator delay
+
+#define SEC_PROT_TIMER_EXPIRATIONS 2        // Number of retries
+
+/*
+ *  Security protocol timer configuration parameters
+ */
+#define MINUTES_IN_DAY   24 * 60
+#define DEFAULT_GTK_EXPIRE_OFFSET               43200                    // 30 days
+#define DEFAULT_PMK_LIFETIME                    4 * 30 * MINUTES_IN_DAY  // 4 months
+#define DEFAULT_PTK_LIFETIME                    2 * 30 * MINUTES_IN_DAY  // 2 months
+#define DEFAULT_GTK_NEW_ACTIVATION_TIME         720                      // default 1/720 * 30 days --> 60 minutes
+#define DEFAULT_REVOCATION_LIFETIME_REDUCTION   30                       // default 1/30 * 30 days --> 1 day
+#define DEFAULT_GTK_REQUEST_IMIN                4                        // 4 minutes
+#define DEFAULT_GTK_REQUEST_IMAX                64                       // 64 minutes
+#define DEFAULT_GTK_MAX_MISMATCH                64                       // 64 minutes
+#define DEFAULT_GTK_NEW_INSTALL_REQUIRED        80                       // 80 percent of GTK lifetime --> 24 days
 
 #endif /* WS_CONFIG_H_ */
