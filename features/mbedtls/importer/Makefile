@@ -36,9 +36,20 @@ TARGET_SRC:=$(TARGET_PREFIX)src
 TARGET_INC:=$(TARGET_PREFIX)inc
 TARGET_TESTS:=$(TARGET_PREFIX)TESTS
 
+# A folder structure is introduced here for targets that have both a Secure
+# Processing Environment (SPE) targets and Non-secure Processing Environment
+# (NSPE). Documentation for each folder as follows:
+# COMPONENT_PSA_SRV_IMPL - Include secure service implementation code. For
+# example PSA Crypto or PSA Secure Time implementations
+TARGET_SRV_IMPL:=$(TARGET_PREFIX)/platform/COMPONENT_PSA_SRV_IMPL
+# COMPONENT_NSPE - Include code that compiles ONLY to the NSPE image and never
+# compiles to the SPE image
+TARGET_NSPE:=$(TARGET_SRV_IMPL)/COMPONENT_NSPE
+
 # mbed TLS source directory - hidden from mbed via TARGET_IGNORE
 MBED_TLS_DIR:=TARGET_IGNORE/mbedtls
 MBED_TLS_API:=$(MBED_TLS_DIR)/include/mbedtls
+CRYPTO_API:=$(MBED_TLS_DIR)/include/psa
 MBED_TLS_GIT_CFG=$(MBED_TLS_DIR)/.git/config
 
 .PHONY: all deploy deploy-tests rsync mbedtls clean update
@@ -57,10 +68,24 @@ rsync:
 	rm -rf $(TARGET_INC)
 	mkdir -p $(TARGET_INC)
 	rsync -a --delete $(MBED_TLS_API) $(TARGET_INC)
+	rsync -a --delete --exclude='crypto_struct.h' $(CRYPTO_API) $(TARGET_INC)/
 	#
 	# Copying licenses
 	cp $(MBED_TLS_DIR)/LICENSE $(TARGET_PREFIX)
 	#
+	# Copying Mbed Crypto into Mbed OS...
+	rm -rf $(TARGET_SRV_IMPL)
+
+	mkdir -p $(TARGET_SRV_IMPL)
+	mkdir -p $(TARGET_NSPE)
+
+	rsync -a --delete $(CRYPTO_API)/crypto_struct.h $(TARGET_NSPE)/
+	rsync -a --delete $(MBED_TLS_DIR)/library/psa_*.c $(TARGET_SRV_IMPL)/
+	rsync -a --delete $(MBED_TLS_DIR)/library/psa_*.h $(TARGET_SRV_IMPL)/
+	#
+	# Remove PSA-specific C & H files (they go into $(TARGET_SRV_IMPL))
+	rm -rf $(TARGET_SRC)/psa_*.c
+	rm -rf $(TARGET_SRC)/psa_*.h
 
 deploy: rsync
 	#
@@ -110,3 +135,4 @@ clean:
 	rm -rf $(TARGET_SRC)
 	rm -rf $(TARGET_INC)
 	rm -rf $(MBED_TLS_DIR)
+	rm -rf $(TARGET_SRV_IMPL)
