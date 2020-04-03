@@ -49,16 +49,16 @@ using namespace rtos;
 #endif
 
 #ifdef TEST_GPIOS_ENABLED
-#define TEST_TX_STARTED     rf->TEST1 = 1;
-#define TEST_TX_DONE        rf->TEST1 = 0;
-#define TEST_RX_STARTED     rf->TEST2 = 1;
-#define TEST_RX_DONE        rf->TEST2 = 0;
-#define TEST_ACK_TX_STARTED rf->TEST3 = 1;
-#define TEST_ACK_TX_DONE    rf->TEST3 = 0;
-#define TEST1_ON            rf->TEST4 = 1;
-#define TEST1_OFF           rf->TEST4 = 0;
-#define TEST2_ON            rf->TEST5 = 1;
-#define TEST2_OFF           rf->TEST5 = 0;
+#define TEST_TX_STARTED         test_pins->TEST1 = 1;
+#define TEST_TX_DONE            test_pins->TEST1 = 0;
+#define TEST_RX_STARTED         test_pins->TEST2 = 1;
+#define TEST_RX_DONE            test_pins->TEST2 = 0;
+#define TEST_CSMA_STARTED       test_pins->TEST3 = 1;
+#define TEST_CSMA_DONE          test_pins->TEST3 = 0;
+#define TEST_SPARE_1_ON         test_pins->TEST4 = 1;
+#define TEST_SPARE_1_OFF        test_pins->TEST4 = 0;
+#define TEST_SPARE_2_ON         test_pins->TEST5 = 1;
+#define TEST_SPARE_2_OFF        test_pins->TEST5 = 0;
 extern void (*fhss_uc_switch)(void);
 extern void (*fhss_bc_switch)(void);
 #else //TEST_GPIOS_ENABLED
@@ -66,12 +66,12 @@ extern void (*fhss_bc_switch)(void);
 #define TEST_TX_DONE
 #define TEST_RX_STARTED
 #define TEST_RX_DONE
-#define TEST_ACK_TX_STARTED
-#define TEST_ACK_TX_DONE
-#define TEST1_ON
-#define TEST1_OFF
-#define TEST2_ON
-#define TEST2_OFF
+#define TEST_CSMA_STARTED
+#define TEST_CSMA_DONE
+#define TEST_SPARE_1_ON
+#define TEST_SPARE_1_OFF
+#define TEST_SPARE_2_ON
+#define TEST_SPARE_2_OFF
 #endif //TEST_GPIOS_ENABLED
 
 #define MAC_FRAME_TYPE_MASK     0x07
@@ -116,21 +116,11 @@ class RFPins {
 public:
     RFPins(PinName spi_sdi, PinName spi_sdo,
            PinName spi_sclk, PinName spi_cs, PinName spi_sdn,
-#ifdef TEST_GPIOS_ENABLED
-           PinName spi_test1, PinName spi_test2, PinName spi_test3, PinName spi_test4, PinName spi_test5,
-#endif //TEST_GPIOS_ENABLED
            PinName spi_gpio0, PinName spi_gpio1, PinName spi_gpio2,
            PinName spi_gpio3);
     UnlockedSPI spi;
     DigitalOut CS;
     DigitalOut SDN;
-#ifdef TEST_GPIOS_ENABLED
-    DigitalOut TEST1;
-    DigitalOut TEST2;
-    DigitalOut TEST3;
-    DigitalOut TEST4;
-    DigitalOut TEST5;
-#endif //TEST_GPIOS_ENABLED
     InterruptIn RF_S2LP_GPIO0;
     InterruptIn RF_S2LP_GPIO1;
     InterruptIn RF_S2LP_GPIO2;
@@ -145,21 +135,11 @@ public:
 
 RFPins::RFPins(PinName spi_sdi, PinName spi_sdo,
                PinName spi_sclk, PinName spi_cs, PinName spi_sdn,
-#ifdef TEST_GPIOS_ENABLED
-               PinName spi_test1, PinName spi_test2, PinName spi_test3, PinName spi_test4, PinName spi_test5,
-#endif //TEST_GPIOS_ENABLED
                PinName spi_gpio0, PinName spi_gpio1, PinName spi_gpio2,
                PinName spi_gpio3)
     :   spi(spi_sdi, spi_sdo, spi_sclk),
         CS(spi_cs),
         SDN(spi_sdn),
-#ifdef TEST_GPIOS_ENABLED
-        TEST1(spi_test1),
-        TEST2(spi_test2),
-        TEST3(spi_test3),
-        TEST4(spi_test4),
-        TEST5(spi_test5),
-#endif //TEST_GPIOS_ENABLED
         RF_S2LP_GPIO0(spi_gpio0),
         RF_S2LP_GPIO1(spi_gpio1),
         RF_S2LP_GPIO2(spi_gpio2),
@@ -167,6 +147,25 @@ RFPins::RFPins(PinName spi_sdi, PinName spi_sdo,
         irq_thread(osPriorityRealtime, 1024)
 {
     irq_thread.start(mbed::callback(this, &RFPins::rf_irq_task));
+}
+
+class TestPins_S2LP {
+public:
+    TestPins_S2LP(PinName test_pin_1, PinName test_pin_2, PinName test_pin_3, PinName test_pin_4, PinName test_pin_5);
+    DigitalOut TEST1;
+    DigitalOut TEST2;
+    DigitalOut TEST3;
+    DigitalOut TEST4;
+    DigitalOut TEST5;
+};
+
+TestPins_S2LP::TestPins_S2LP(PinName test_pin_1, PinName test_pin_2, PinName test_pin_3, PinName test_pin_4, PinName test_pin_5)
+    :   TEST1(test_pin_1),
+        TEST2(test_pin_2),
+        TEST3(test_pin_3),
+        TEST4(test_pin_4),
+        TEST5(test_pin_5)
+{
 }
 
 static uint8_t rf_read_register(uint8_t addr);
@@ -183,6 +182,7 @@ static bool rf_rx_filter(uint8_t *mac_header, uint8_t *mac_64bit_addr, uint8_t *
 static void rf_cca_timer_start(uint32_t slots);
 
 static RFPins *rf;
+static TestPins_S2LP *test_pins;
 static phy_device_driver_s device_driver;
 static int8_t rf_radio_driver_id = -1;
 static uint8_t *tx_data_ptr;
@@ -246,20 +246,20 @@ static void rf_irq_task_process_irq();
 #define ACK_SENDING_TIME (uint32_t)(8000000/phy_subghz.datarate)*ACK_FRAME_LENGTH + PACKET_SENDING_EXTRA_TIME
 
 #ifdef TEST_GPIOS_ENABLED
-void test1_toggle(void)
+static void test1_toggle(void)
 {
-    if (rf->TEST4) {
-        rf->TEST4 = 0;
+    if (test_pins->TEST4) {
+        test_pins->TEST4 = 0;
     } else {
-        rf->TEST4 = 1;
+        test_pins->TEST4 = 1;
     }
 }
-void test2_toggle(void)
+static void test2_toggle(void)
 {
-    if (rf->TEST5) {
-        rf->TEST5 = 0;
+    if (test_pins->TEST5) {
+        test_pins->TEST5 = 0;
     } else {
-        rf->TEST5 = 1;
+        test_pins->TEST5 = 1;
     }
 }
 #endif //TEST_GPIOS_ENABLED
@@ -749,19 +749,18 @@ static int8_t rf_interface_state_control(phy_interface_state_e new_state, uint8_
 
 static void rf_tx_sent_handler(void)
 {
+    TEST_TX_DONE
     rf_backup_timer_stop();
     rf_disable_interrupt(TX_DATA_SENT);
     if (rf_state != RF_TX_ACK) {
         tx_finnish_time = rf_get_timestamp();
         rf_update_tx_active_time();
-        TEST_TX_DONE
         rf_state = RF_IDLE;
         rf_receive(rf_rx_channel);
         if (device_driver.phy_tx_done_cb) {
             device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_TX_SUCCESS, 0, 0);
         }
     } else {
-        TEST_ACK_TX_DONE
         rf_receive(rf_rx_channel);
     }
 }
@@ -807,6 +806,7 @@ static int rf_cca_check(void)
 
 static void rf_cca_timer_interrupt(void)
 {
+    TEST_CSMA_DONE
     int8_t status = device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_CCA_PREPARE, 0, 0);
     if (status == PHY_TX_NOT_ALLOWED) {
         rf_flush_tx_fifo();
@@ -851,12 +851,14 @@ static void rf_cca_timer_interrupt(void)
 
 static void rf_cca_timer_stop(void)
 {
+    TEST_CSMA_DONE
     rf->cca_timer.detach();
 }
 
 static void rf_cca_timer_start(uint32_t slots)
 {
     rf->cca_timer.attach_us(rf_cca_timer_signal, slots);
+    TEST_CSMA_STARTED
 }
 
 static void rf_backup_timer_interrupt(void)
@@ -941,7 +943,7 @@ static void rf_send_ack(uint8_t seq)
     rf_write_packet_length(sizeof(ack_frame) + 4);
     tx_data_ptr = NULL;
     rf_start_tx();
-    TEST_ACK_TX_STARTED
+    TEST_TX_STARTED
     rf_backup_timer_start(ACK_SENDING_TIME);
     if (device_driver.phy_rf_statistics) {
         device_driver.phy_rf_statistics->tx_bytes += sizeof(ack_frame);
@@ -1278,6 +1280,7 @@ int8_t NanostackRfPhys2lp::rf_register()
     }
 
     rf = _rf;
+    test_pins = _test_pins;
 
     int8_t radio_id = rf_device_register(_mac_addr);
     if (radio_id < 0) {
@@ -1300,9 +1303,6 @@ void NanostackRfPhys2lp::rf_unregister()
 }
 
 NanostackRfPhys2lp::NanostackRfPhys2lp(PinName spi_sdi, PinName spi_sdo, PinName spi_sclk, PinName spi_cs, PinName spi_sdn
-#ifdef TEST_GPIOS_ENABLED
-                                       ,PinName spi_test1, PinName spi_test2, PinName spi_test3, PinName spi_test4, PinName spi_test5
-#endif //TEST_GPIOS_ENABLED
                                        ,PinName spi_gpio0, PinName spi_gpio1, PinName spi_gpio2, PinName spi_gpio3
 #ifdef AT24MAC
                                        ,PinName i2c_sda, PinName i2c_scl
@@ -1314,16 +1314,12 @@ NanostackRfPhys2lp::NanostackRfPhys2lp(PinName spi_sdi, PinName spi_sdo, PinName
 #endif //AT24MAC
                     _mac_addr(), _rf(NULL), _mac_set(false),
       _spi_sdi(spi_sdi), _spi_sdo(spi_sdo), _spi_sclk(spi_sclk), _spi_cs(spi_cs), _spi_sdn(spi_sdn),
-#ifdef TEST_GPIOS_ENABLED
-      _spi_test1(spi_test1), _spi_test2(spi_test2), _spi_test3(spi_test3), _spi_test4(spi_test4), _spi_test5(spi_test5),
-#endif //TEST_GPIOS_ENABLED
       _spi_gpio0(spi_gpio0), _spi_gpio1(spi_gpio1), _spi_gpio2(spi_gpio2), _spi_gpio3(spi_gpio3)
 {
-    _rf = new RFPins(_spi_sdi, _spi_sdo, _spi_sclk, _spi_cs, _spi_sdn,
+    _rf = new RFPins(_spi_sdi, _spi_sdo, _spi_sclk, _spi_cs, _spi_sdn, _spi_gpio0, _spi_gpio1, _spi_gpio2, _spi_gpio3);
 #ifdef TEST_GPIOS_ENABLED
-                     _spi_test1, _spi_test2, _spi_test3, _spi_test4, _spi_test5,
+    _test_pins = new TestPins_S2LP(TEST_PIN_TX, TEST_PIN_RX, TEST_PIN_CSMA, TEST_PIN_SPARE_1, TEST_PIN_SPARE_2);
 #endif //TEST_GPIOS_ENABLED
-                     _spi_gpio0, _spi_gpio1, _spi_gpio2, _spi_gpio3);
 }
 
 NanostackRfPhys2lp::~NanostackRfPhys2lp()
@@ -1428,9 +1424,6 @@ static bool rf_rx_filter(uint8_t *mac_header, uint8_t *mac_64bit_addr, uint8_t *
 NanostackRfPhy &NanostackRfPhy::get_default_instance()
 {
     static NanostackRfPhys2lp rf_phy(S2LP_SPI_SDI, S2LP_SPI_SDO, S2LP_SPI_SCLK, S2LP_SPI_CS, S2LP_SPI_SDN
-#ifdef TEST_GPIOS_ENABLED
-                                     ,S2LP_SPI_TEST1, S2LP_SPI_TEST2, S2LP_SPI_TEST3, S2LP_SPI_TEST4, S2LP_SPI_TEST5
-#endif //TEST_GPIOS_ENABLED
                                      ,S2LP_SPI_GPIO0, S2LP_SPI_GPIO1, S2LP_SPI_GPIO2, S2LP_SPI_GPIO3
 #ifdef AT24MAC
                                      ,S2LP_I2C_SDA, S2LP_I2C_SCL
