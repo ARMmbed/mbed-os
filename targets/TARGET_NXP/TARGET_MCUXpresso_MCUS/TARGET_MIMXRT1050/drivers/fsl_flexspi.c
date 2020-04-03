@@ -78,7 +78,7 @@ uint32_t FLEXSPI_GetInstance(FLEXSPI_Type *base);
  * @param base FLEXSPI base pointer.
  * @param config Flash configuration parameters.
  */
-AT_QUICKACCESS_SECTION_CODE(static uint32_t FLEXSPI_ConfigureDll(FLEXSPI_Type *base, flexspi_device_config_t *config));
+AT_QUICKACCESS_SECTION_CODE(uint32_t FLEXSPI_ConfigureDll(FLEXSPI_Type *base, flexspi_device_config_t *config));
 
 /*!
  * @brief Check and clear IP command execution errors.
@@ -138,7 +138,7 @@ uint32_t FLEXSPI_GetInstance(FLEXSPI_Type *base)
     return instance;
 }
 
-static uint32_t FLEXSPI_ConfigureDll(FLEXSPI_Type *base, flexspi_device_config_t *config)
+uint32_t FLEXSPI_ConfigureDll(FLEXSPI_Type *base, flexspi_device_config_t *config)
 {
     bool isUnifiedConfig = true;
     uint32_t flexspiDllValue;
