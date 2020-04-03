@@ -24,6 +24,8 @@
 #include "fhss_config.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "6LoWPAN/ws/ws_config.h"
+#include "6LoWPAN/ws/ws_cfg_settings.h"
+#include "Security/protocols/sec_prot_cfg.h"
 #include "Security/kmp/kmp_addr.h"
 #include "Security/kmp/kmp_api.h"
 #include "Security/PANA/pana_eap_header.h"
@@ -60,21 +62,6 @@ typedef struct {
     uint16_t                      recv_size;        /**< Received pdu size */
 } gkh_sec_prot_int_t;
 
-/*Small network setup*/
-#define GKH_SMALL_IMIN 300 // retries done in 30 seconds
-#define GKH_SMALL_IMAX 900 // Largest value 90 seconds
-
-/* Large network setup*/
-#define GKH_LARGE_IMIN 600 // retries done in 60 seconds
-#define GKH_LARGE_IMAX 2400 // Largest value 240 seconds
-
-static trickle_params_t gkh_trickle_params = {
-    .Imin = GKH_SMALL_IMIN,            /* ticks are 100ms */
-    .Imax = GKH_SMALL_IMAX,            /* ticks are 100ms */
-    .k = 0,                /* infinity - no consistency checking */
-    .TimerExpirations = 2
-};
-
 static uint16_t auth_gkh_sec_prot_size(void);
 static int8_t auth_gkh_sec_prot_init(sec_prot_t *prot);
 
@@ -100,18 +87,6 @@ int8_t auth_gkh_sec_prot_register(kmp_service_t *service)
         return -1;
     }
 
-    return 0;
-}
-
-int8_t auth_gkh_sec_prot_timing_adjust(uint8_t timing)
-{
-    if (timing < 16) {
-        gkh_trickle_params.Imin = GKH_SMALL_IMIN;
-        gkh_trickle_params.Imax = GKH_SMALL_IMAX;
-    } else {
-        gkh_trickle_params.Imin = GKH_LARGE_IMIN;
-        gkh_trickle_params.Imax = GKH_LARGE_IMAX;
-    }
     return 0;
 }
 
@@ -283,7 +258,7 @@ static int8_t auth_gkh_sec_prot_message_send(sec_prot_t *prot, gkh_sec_prot_msg_
 static void auth_gkh_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks)
 {
     gkh_sec_prot_int_t *data = gkh_sec_prot_get(prot);
-    sec_prot_timer_timeout_handle(prot, &data->common, &gkh_trickle_params, ticks);
+    sec_prot_timer_timeout_handle(prot, &data->common, &prot->cfg->sec_prot_trickle_params, ticks);
 }
 
 static void auth_gkh_sec_prot_state_machine(sec_prot_t *prot)
@@ -312,7 +287,7 @@ static void auth_gkh_sec_prot_state_machine(sec_prot_t *prot)
             auth_gkh_sec_prot_message_send(prot, GKH_MESSAGE_1);
 
             // Start trickle timer to re-send if no response
-            sec_prot_timer_trickle_start(&data->common, &gkh_trickle_params);
+            sec_prot_timer_trickle_start(&data->common, &prot->cfg->sec_prot_trickle_params);
 
             sec_prot_state_set(prot, &data->common, GKH_STATE_MESSAGE_2);
 

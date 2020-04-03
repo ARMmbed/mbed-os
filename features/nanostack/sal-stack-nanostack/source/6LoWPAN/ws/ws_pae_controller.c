@@ -23,9 +23,12 @@
 #include "nsdynmemLIB.h"
 #include "fhss_config.h"
 #include "ns_address.h"
+#include "ws_management_api.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "6LoWPAN/ws/ws_config.h"
+#include "6LoWPAN/ws/ws_cfg_settings.h"
 #include "6LoWPAN/ws/ws_pae_controller.h"
+#include "Security/protocols/sec_prot_cfg.h"
 #include "Security/protocols/sec_prot_certs.h"
 #include "Security/protocols/sec_prot_keys.h"
 #include "6LoWPAN/ws/ws_pae_timers.h"
@@ -67,7 +70,8 @@ typedef struct {
     char *network_name;                                              /**< Network name for GAK generation */
     uint16_t frame_cnt_store_timer;                                  /**< Timer for storing frame counter value */
     frame_counters_t frame_counters;                                 /**< Frame counters */
-    timer_settings_t timer_settings;                                 /**< Timer settings */
+    sec_timer_cfg_t sec_timer_cfg;                                   /**< Timer configuration (configuration set values) */
+    sec_prot_cfg_t sec_prot_cfg;                                     /**< Configuration */
     protocol_interface_info_entry_t *interface_ptr;                  /**< List link entry */
     ws_pae_controller_auth_completed *auth_completed;                /**< Authentication completed callback, continue bootstrap */
     ws_pae_controller_nw_key_set *nw_key_set;                        /**< Key set callback */
@@ -576,6 +580,8 @@ int8_t ws_pae_controller_init(protocol_interface_info_entry_t *interface_ptr)
     controller->nw_frame_counter_set = NULL;
     controller->pan_ver_increment = NULL;
     controller->pae_nvm_buffer = pae_nvm_buffer;
+    memset(&controller->sec_timer_cfg, 0, sizeof(ws_sec_timer_cfg_t));
+    memset(&controller->sec_prot_cfg, 0, sizeof(sec_prot_cfg_t));
 
     ws_pae_controller_data_init(controller);
 
@@ -583,6 +589,29 @@ int8_t ws_pae_controller_init(protocol_interface_info_entry_t *interface_ptr)
 
     return 0;
 }
+
+int8_t ws_pae_controller_configure(protocol_interface_info_entry_t *interface_ptr, struct ws_sec_timer_cfg_s *sec_timer_cfg, struct ws_sec_prot_cfg_s *sec_prot_cfg)
+{
+    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
+    if (controller == NULL) {
+        return 0;
+    }
+
+    if (sec_prot_cfg) {
+        controller->sec_prot_cfg.sec_prot_trickle_params.Imin = sec_prot_cfg->sec_prot_trickle_imin * 10;
+        controller->sec_prot_cfg.sec_prot_trickle_params.Imax = sec_prot_cfg->sec_prot_trickle_imax * 10;
+        controller->sec_prot_cfg.sec_prot_trickle_params.k = 0;
+        controller->sec_prot_cfg.sec_prot_trickle_params.TimerExpirations = sec_prot_cfg->sec_prot_trickle_timer_exp;
+        controller->sec_prot_cfg.sec_prot_retry_timeout = sec_prot_cfg->sec_prot_retry_timeout * 10;
+    }
+
+    if (sec_timer_cfg) {
+        ws_pae_timers_settings_init(&controller->sec_timer_cfg, sec_timer_cfg);
+    }
+
+    return 0;
+}
+
 
 static void ws_pae_controller_data_init(pae_controller_t *controller)
 {
@@ -616,7 +645,6 @@ static void ws_pae_controller_data_init(pae_controller_t *controller)
     sec_prot_keys_gtks_init(&controller->next_gtks);
     sec_prot_certs_init(&controller->certs);
     sec_prot_certs_ext_certificate_validation_set(&controller->certs, pae_controller_config.ext_cert_valid_enabled);
-    ws_pae_timers_settings_init(&controller->timer_settings);
 }
 
 static void ws_pae_controller_frame_counter_read(pae_controller_t *controller)
@@ -667,7 +695,7 @@ int8_t ws_pae_controller_supp_init(protocol_interface_info_entry_t *interface_pt
         return -1;
     }
 
-    if (ws_pae_supp_init(controller->interface_ptr, &controller->certs, &controller->timer_settings) < 0) {
+    if (ws_pae_supp_init(controller->interface_ptr, &controller->certs, &controller->sec_timer_cfg, &controller->sec_prot_cfg) < 0) {
         return -1;
     }
 
@@ -693,7 +721,7 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
         return -1;
     }
 
-    if (ws_pae_auth_init(controller->interface_ptr, &controller->gtks, &controller->next_gtks, &controller->certs, &controller->timer_settings) < 0) {
+    if (ws_pae_auth_init(controller->interface_ptr, &controller->gtks, &controller->next_gtks, &controller->certs, &controller->sec_timer_cfg, &controller->sec_prot_cfg) < 0) {
         return -1;
     }
 
@@ -749,13 +777,6 @@ int8_t ws_pae_controller_delete(protocol_interface_info_entry_t *interface_ptr)
     ns_dyn_mem_free(controller->pae_nvm_buffer);
     ns_dyn_mem_free(controller);
 
-    return 0;
-}
-
-int8_t ws_pae_controller_timing_adjust(uint8_t timing)
-{
-    ws_pae_supp_timing_adjust(timing);
-    ws_pae_auth_timing_adjust(timing);
     return 0;
 }
 
@@ -998,7 +1019,7 @@ int8_t ws_pae_controller_gtk_update(int8_t interface_id, uint8_t *gtk[GTK_NUM])
     for (uint8_t i = 0; i < GTK_NUM; i++) {
         if (gtk[i]) {
             uint32_t lifetime = sec_prot_keys_gtk_install_order_last_lifetime_get(&controller->gtks);
-            lifetime += controller->timer_settings.gtk_expire_offset;
+            lifetime += controller->sec_timer_cfg.gtk_expire_offset;
             if (sec_prot_keys_gtk_set(&controller->gtks, i, gtk[i], lifetime) >= 0) {
                 controller->gtks_set = true;
                 tr_info("GTK set index: %i, lifetime %"PRIu32", system time: %"PRIu32"", i, lifetime, protocol_core_monotonic_time / 10);
@@ -1049,30 +1070,6 @@ int8_t ws_pae_controller_active_key_update(int8_t interface_id, uint8_t index)
     if (controller->pae_nw_key_index_update) {
         controller->pae_nw_key_index_update(controller->interface_ptr, index);
     }
-
-    return 0;
-}
-
-int8_t ws_pae_controller_key_lifetime_update(int8_t interface_id, uint32_t gtk_lifetime, uint32_t pmk_lifetime, uint32_t ptk_lifetime)
-{
-    pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
-    if (!controller) {
-        return -1;
-    }
-
-    ws_pae_timers_lifetime_set(&controller->timer_settings, gtk_lifetime, pmk_lifetime, ptk_lifetime);
-
-    return 0;
-}
-
-int8_t ws_pae_controller_gtk_time_settings_update(int8_t interface_id, uint8_t revocat_lifetime_reduct, uint8_t new_activation_time, uint8_t new_install_req, uint32_t max_mismatch)
-{
-    pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
-    if (!controller) {
-        return -1;
-    }
-
-    ws_pae_timers_gtk_time_settings_set(&controller->timer_settings, revocat_lifetime_reduct, new_activation_time, new_install_req, max_mismatch);
 
     return 0;
 }

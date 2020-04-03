@@ -145,6 +145,9 @@ void rpl_control_process_routes(rpl_domain_t *domain, bool process_routes);
 /* Manually send poison on all existing instances a few times */
 void rpl_control_poison(rpl_domain_t *domain, uint8_t poison_count);
 
+/* force DAO to verify connections before given time*/
+void rpl_control_dao_timeout(rpl_domain_t *domain, uint16_t seconds);
+
 /* APIs to create domains and map them to interfaces */
 rpl_domain_t *rpl_control_create_domain(void);
 void rpl_control_delete_domain(rpl_domain_t *domain);
@@ -170,11 +173,13 @@ bool rpl_control_find_worst_neighbor(struct protocol_interface_info_entry *inter
 /* Parent link confirmation API extension */
 void rpl_control_request_parent_link_confirmation(bool requested);
 void rpl_control_set_dio_multicast_min_config_advertisment_count(uint8_t min_count);
+void rpl_control_set_address_registration_timeout(uint16_t timeout_in_minutes);
 void rpl_control_set_dao_retry_count(uint8_t count);
+void rpl_control_set_minimum_dao_target_refresh(uint16_t seconds);
 void rpl_control_set_initial_dao_ack_wait(uint16_t timeout_in_ms);
 void rpl_control_set_mrhof_parent_set_size(uint16_t parent_set_size);
 void rpl_control_register_address(struct protocol_interface_info_entry *interface, const uint8_t addr[16]);
-void rpl_control_address_register_done(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16], uint8_t status);
+bool rpl_control_address_register_done(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16], uint8_t status);
 
 /* Configure and return the routing lookup predicate for a specified RPL instance ID */
 ipv6_route_predicate_fn_t *rpl_control_get_route_predicate(rpl_domain_t *domain, uint8_t instance_id, const uint8_t src[16], const uint8_t dst[16]);
@@ -198,7 +203,7 @@ uint8_t rpl_policy_mrhof_parent_set_size_get(const rpl_domain_t *domain);
 #define rpl_control_remove_domain_from_interface(cur) ((void) 0)
 #define rpl_control_free_domain_instances_from_interface(cur) ((void) 0)
 #define rpl_control_register_address(interface, addr) ((void) 0)
-#define rpl_control_address_register_done(interface, ll_addr, status) ((void) 0)
+#define rpl_control_address_register_done(interface, ll_addr, status) (false)
 #define rpl_policy_mrhof_parent_set_size_get(domain) (0)
 #define rpl_control_set_mrhof_parent_set_size(parent_set_size)
 

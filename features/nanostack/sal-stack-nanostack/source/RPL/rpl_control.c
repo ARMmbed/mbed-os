@@ -181,11 +181,19 @@ void rpl_control_set_dio_multicast_min_config_advertisment_count(uint8_t min_cou
     rpl_policy_set_dio_multicast_config_advertisment_min_count(min_count);
 }
 
+void rpl_control_set_address_registration_timeout(uint16_t timeout_in_minutes)
+{
+    rpl_policy_set_address_registration_timeout(timeout_in_minutes);
+}
+
 void rpl_control_set_dao_retry_count(uint8_t count)
 {
     rpl_policy_set_dao_retry_count(count);
 }
-
+void rpl_control_set_minimum_dao_target_refresh(uint16_t seconds)
+{
+    rpl_policy_set_minimum_dao_target_refresh(seconds);
+}
 void rpl_control_set_initial_dao_ack_wait(uint16_t timeout_in_ms)
 {
     rpl_policy_set_initial_dao_ack_wait(timeout_in_ms);
@@ -198,6 +206,9 @@ void rpl_control_set_mrhof_parent_set_size(uint16_t parent_set_size)
 /* Send address registration to either specified address, or to non-registered address */
 void rpl_control_register_address(protocol_interface_info_entry_t *interface, const uint8_t addr[16])
 {
+    if (!interface->rpl_domain) {
+        return;
+    }
     if (!rpl_policy_parent_confirmation_requested()) {
         return;
     }
@@ -206,21 +217,23 @@ void rpl_control_register_address(protocol_interface_info_entry_t *interface, co
     }
 }
 
-void rpl_control_address_register_done(protocol_interface_info_entry_t *interface, const uint8_t ll_addr[16], uint8_t status)
+bool rpl_control_address_register_done(protocol_interface_info_entry_t *interface, const uint8_t ll_addr[16], uint8_t status)
 {
+    bool blacklist_neighbour = false;
     if (!interface->rpl_domain) {
-        return;
+        return false;
     }
     if (!rpl_policy_parent_confirmation_requested()) {
-        return;
+        return false;
     }
 
     ns_list_foreach(struct rpl_instance, instance, &interface->rpl_domain->instances) {
         rpl_neighbour_t *neighbour = rpl_lookup_neighbour_by_ll_address(instance, ll_addr, interface->id);
         if (neighbour) {
-            rpl_instance_address_registration_done(interface, instance, neighbour, status);
+            blacklist_neighbour = blacklist_neighbour || rpl_instance_address_registration_done(interface, instance, neighbour, status);
         }
     }
+    return blacklist_neighbour;
 }
 
 bool rpl_control_is_dodag_parent(protocol_interface_info_entry_t *interface, const uint8_t ll_addr[16])
@@ -673,6 +686,14 @@ void rpl_control_force_leaf(rpl_domain_t *domain, bool leaf)
         }
     }
 }
+
+void rpl_control_dao_timeout(rpl_domain_t *domain, uint16_t seconds)
+{
+    ns_list_foreach(rpl_instance_t, instance, &domain->instances) {
+        rpl_instance_dao_timeout(instance, seconds);
+    }
+}
+
 void rpl_control_process_routes(rpl_domain_t *domain, bool process_routes)
 {
     domain->process_routes = process_routes;

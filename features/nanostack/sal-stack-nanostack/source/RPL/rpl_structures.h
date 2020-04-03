@@ -52,6 +52,7 @@ struct rpl_neighbour {
     unsigned dodag_pref: 4;                 // Preference indication for DODAG parents (0=best)
     uint8_t dao_path_control;               // Path control bit assignments for DAO parent
     uint8_t old_dao_path_control;
+    uint8_t addr_reg_failures;              // Address registration failure count (missing ACK)
     int8_t interface_id;
     uint8_t g_mop_prf;
     uint8_t dtsn;
