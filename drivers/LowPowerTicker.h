@@ -40,11 +40,8 @@ namespace mbed {
  * @note Synchronization level: Interrupt safe
  */
 class LowPowerTicker : public TickerBase {
-
 public:
-    LowPowerTicker() : TickerBase(get_lp_ticker_data())
-    {
-    }
+    LowPowerTicker();
 };
 
 /** @}*/

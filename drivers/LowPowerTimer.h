@@ -37,12 +37,8 @@ namespace mbed {
  * @note Synchronization level: Interrupt safe
  */
 class LowPowerTimer : public TimerBase {
-
 public:
-    LowPowerTimer() : TimerBase(get_lp_ticker_data())
-    {
-    }
-
+    LowPowerTimer();
 };
 
 /** @}*/

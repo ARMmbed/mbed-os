@@ -15,8 +15,10 @@
  * limitations under the License.
  */
 #include "drivers/Ticker.h"
+#include "drivers/LowPowerTicker.h"
 
 #include "hal/us_ticker_api.h"
+#include "hal/lp_ticker_api.h"
 #include "platform/CriticalSectionLock.h"
 #include "platform/mbed_power_mgmt.h"
 
@@ -102,5 +104,11 @@ void TickerBase::attach_absolute(Callback<void()> func, TickerDataClock::time_po
 Ticker::Ticker() : TickerBase(get_us_ticker_data(), true)
 {
 }
+
+#if DEVICE_LPTICKER
+LowPowerTicker::LowPowerTicker() : TickerBase(get_lp_ticker_data(), false)
+{
+}
+#endif
 
 } // namespace mbed
