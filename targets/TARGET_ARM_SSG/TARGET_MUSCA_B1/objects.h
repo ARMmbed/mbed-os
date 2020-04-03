@@ -54,6 +54,23 @@ struct trng_s {
 };
 #endif // DEVICE_TRNG
 
+#if DEVICE_I2C || DEVICE_I2CSLAVE
+enum byte_transfer_states {
+    BYTE_TRANSFER_STATE_NONE = 0,
+    BYTE_TRANSFER_STATE_START,
+    BYTE_TRANSFER_STATE_ADDRESS,
+    BYTE_TRANSFER_STATE_DATA,
+};
+
+struct i2c_s {
+    struct i2c_ip6510_dev_t *dev;
+    uint16_t last_address;
+    PinName sda;
+    PinName scl;
+    enum byte_transfer_states byte_state;
+};
+#endif
+
 #ifdef __cplusplus
 }
 #endif

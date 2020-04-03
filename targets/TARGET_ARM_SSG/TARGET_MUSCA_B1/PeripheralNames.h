@@ -30,6 +30,11 @@ typedef enum {
     UART_1
 } UARTName;
 
+typedef enum {
+    I2C_0 = 0,
+    I2C_1
+} I2CName;
+
 #define STDIO_UART_TX  UART1_TX
 #define STDIO_UART_RX  UART1_RX
 #define STDIO_UART     UART_1

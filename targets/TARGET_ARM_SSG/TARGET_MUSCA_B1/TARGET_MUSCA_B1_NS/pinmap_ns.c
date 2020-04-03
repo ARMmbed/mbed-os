@@ -32,6 +32,16 @@
 #include "rtx_lib.h"
 
 
+const PinMap PinMap_I2C_SDA[] = {
+    {I2C0_SDA, I2C_0, ALTERNATE_FUNC_1},
+    {I2C1_SDA, I2C_1, PRIMARY_FUNC}
+};
+
+const PinMap PinMap_I2C_SCL[] = {
+    {I2C0_SCL, I2C_0, ALTERNATE_FUNC_1},
+    {I2C1_SCL, I2C_1, PRIMARY_FUNC}
+};
+
 /**
  * \brief Translates between different pin mode enums
  *
