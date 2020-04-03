@@ -56,6 +56,11 @@ static inline uint32_t align_up(uint32_t val, uint32_t size)
     return (((val - 1) / size) + 1) * size;
 }
 
+static inline uint32_t align_down(uint64_t val, uint64_t size)
+{
+    return (((val) / size)) * size;
+}
+
 MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
 {
 #if COMPONENT_SPIF
@@ -104,13 +109,18 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
     }
 
     //Find the start of first sector after text area
-    bottom_address = align_up(FLASHIAP_APP_ROM_END_ADDR, flash.get_sector_size(FLASHIAP_APP_ROM_END_ADDR));
+    int sector_size = flash.get_sector_size(FLASHIAP_APP_ROM_END_ADDR);
+    bottom_address = align_up(FLASHIAP_APP_ROM_END_ADDR, sector_size);
     start_address = flash.get_flash_start();
     flash_size = flash.get_flash_size();
 
     ret = flash.deinit();
 
-    static FlashIAPBlockDevice default_bd(bottom_address, start_address + flash_size - bottom_address);
+    int  total_size = start_address + flash_size - bottom_address;
+    if (total_size % (sector_size * 2)) {
+        total_size =  align_down(total_size, sector_size * 2);
+    }
+    static FlashIAPBlockDevice default_bd(bottom_address, total_size);
 
 #else
 
