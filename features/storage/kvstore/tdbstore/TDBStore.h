@@ -63,7 +63,8 @@ public:
      *        is not valid, TBDStore will overwrite the data by default. If other init modes are
      *        desired, set the flags as necessary.
      *
-     * @param[in]  flags                            The read/write and initiazation mode of the TBDStore.
+     * @param[in]  flags                            Flags that determine how the FileSystemStore allows KV
+     *                                              read/write and store creation.
      * 
      * @returns MBED_SUCCESS                        Success.
      *          MBED_ERROR_INITIALIZATION_FAILED    No valid TBD store found in the BlockDevice.

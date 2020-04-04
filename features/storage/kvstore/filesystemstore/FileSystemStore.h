@@ -50,7 +50,8 @@ public:
       *        if it doesn't exist, creating it by default. If other init modes are desired,
       *        set the flags as necessary.
       *
-      * @param[in]  no_overwrite    If no valid FileSystemStore is found, do not create one.
+      * @param[in]  flags                            Flags that determine how the FileSystemStore allows KV
+      *                                              read/write and store creation.
       * 
       * @returns MBED_SUCCESS                        Success.
       *          MBED_ERROR_INITIALIZATION_FAILED    No valid FileSystemStore found on the device. 

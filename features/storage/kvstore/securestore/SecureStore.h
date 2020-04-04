@@ -74,6 +74,9 @@ public:
      * @brief Initialize SecureStore class. It will also initialize
      *        the underlying KVStore and the rollback protection KVStore by default.
      *        If other init modes are needed, set the flags as necessary.
+     * 
+     * @param[in]  flags                            Flags that determine how the FileSystemStore allows KV
+     *                                              read/write and store creation.
      *
      * @returns MBED_SUCCESS                        Success.
      *          or any other error from underlying KVStore instances.

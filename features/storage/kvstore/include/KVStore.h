@@ -74,7 +74,9 @@ public:
      *  erasing if necessary. If this is undesired, set the no_overwrite parameter
      *  to true.
      *
-     * @param[in]   no_overwrite    If true, KVStore will not modify the underlying storage.
+     * @param[in]  flags                            Flags that determine how the FileSystemStore allows KV
+     *                                              read/write and store creation.
+     * 
      * 
      * @returns MBED_ERROR_INITIALIZATION_FAILED    No valid KVStore in the storage.
      *          MBED_SUCCESS on success or an error code on other failure
