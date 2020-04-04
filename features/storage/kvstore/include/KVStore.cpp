@@ -20,35 +20,6 @@
 namespace mbed {
 
 
-constexpr InitModeFlags operator ~ (InitModeFlags a) {
-    return static_cast<InitModeFlags>(~static_cast<uint32_t>(a));
-}
-// constexpr InitModeFlags operator | (InitModeFlags a, InitModeFlags b) {
-//     return static_cast<InitModeFlags>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
-// }
-constexpr InitModeFlags operator & (InitModeFlags a, InitModeFlags b) {
-    return static_cast<InitModeFlags>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b));
-}
-constexpr InitModeFlags operator ^ (InitModeFlags a, InitModeFlags b) {
-    return static_cast<InitModeFlags>(static_cast<uint32_t>(a) ^ static_cast<uint32_t>(b));
-}
-
-
-InitModeFlags& operator |= (InitModeFlags& a, InitModeFlags b) {
-    a = a | b;
-    return a;
-}
-
-InitModeFlags& operator &= (InitModeFlags& a, InitModeFlags b) {
-    a = a & b;
-    return a;
-}
-
-InitModeFlags& operator ^= (InitModeFlags& a, InitModeFlags b) {
-    a = a ^ b;
-    return a;
-}    
-
 bool KVStore::is_valid_key(const char *key) const {
     if (!key || !strlen(key) || (strlen(key) > MAX_KEY_SIZE)) {
         return false;
