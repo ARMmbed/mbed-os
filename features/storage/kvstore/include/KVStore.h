@@ -216,7 +216,7 @@ public:
 protected:
     InitModeFlags _flags;
 
-    bool _has_flags(InitModeFlags flags) const;
+    bool _has_flags_any(InitModeFlags flags) const;
     
     static bool _is_valid_flags(InitModeFlags flags);
 };
