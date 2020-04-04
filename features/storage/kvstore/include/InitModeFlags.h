@@ -20,19 +20,22 @@ namespace mbed {
  * 
  */
 MBED_SCOPED_ENUM_FLAGS(InitModeFlags) {
-// enum class InitModeFlags {    
-    Read                = (1 << 0),         //!< Enable read access from the KVStore
-    Write               = (1 << 1),         //!< Enable write access to the KVStore
-    ReadWrite           = ((1 << 0) | (1 << 1)),   //!< Enable read and write access to the KVSTore. This is the default.
-    Append              = (1 << 8),         //!< Allow adding to the the KVStore and create from new if necessary. This is the default.
-    Truncate            = (1 << 9),         //!< Erase all key/value pairs before using.
-    CreateNewOnly       = (1 << 10),        //!< Only open the KVStore if it does not already exist.
-    ExclusiveCreation   = (1 << 11),        //!< Only open the KVStore if it already exists.
+    Read                    = (1 << 0),                 //!< Enable read access from the KVStore
+    Write                   = (1 << 1),                 //!< Enable write access to the KVStore
+    ReadWrite               = ((1 << 0) | (1 << 1)),    //!< Enable read and write access to the KVSTore. This is the default.
+    Append                  = (1 << 8),                 //!< Allow adding to the the KVStore and create from new if necessary. This is the default.
+    Truncate                = (1 << 9),                 //!< Erase all key/value pairs before using.
+    CreateNewOnly           = (1 << 10),                //!< Only open the KVStore if it does not already exist.
+    ExclusiveCreation       = (1 << 11),                //!< Only open the KVStore if it already exists.
+    WriteOnlyAllowKeyRead   = (1 << 12),                //!< Allow reading KVStore keys even in write only mode
 
-    // These are for debug only
+#if !defined(DOXYGEN_ONLY)
+    // These are for interal use only
     WriteOpenFlags      = 0xf00,
     NoFlags             = 0,
-    AllFlags            = 0xf03
+    AllFlags            = 0x1f03
+
+#endif // DOXYGEN_ONLY
 };
 
 }

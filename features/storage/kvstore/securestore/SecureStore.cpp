@@ -188,6 +188,10 @@ int SecureStore::set_start(set_handle_t *handle, const char *key, size_t final_d
         return MBED_ERROR_NOT_READY;
     }
 
+    if (!KVStore::_has_flags(InitModeFlags::Write)) {
+        return MBED_ERROR_INVALID_OPERATION;
+    }
+
     if (!is_valid_key(key)) {
         return MBED_ERROR_INVALID_ARGUMENT;
     }
@@ -456,6 +460,10 @@ int SecureStore::set(const char *key, const void *buffer, size_t size, uint32_t 
     int ret;
     set_handle_t handle;
 
+    if (!KVStore::_has_flags(InitModeFlags::Write)) {
+        return MBED_ERROR_INVALID_OPERATION;
+    }
+
     // Don't wait till we get to set_add_data to catch this
     if (!buffer && size) {
         return MBED_ERROR_INVALID_ARGUMENT;
@@ -478,6 +486,11 @@ int SecureStore::set(const char *key, const void *buffer, size_t size, uint32_t 
 int SecureStore::remove(const char *key)
 {
     info_t info;
+
+    if (!KVStore::_has_flags(InitModeFlags::Write)) {
+        return MBED_ERROR_INVALID_OPERATION;
+    }
+
     _mutex.lock();
 
     int ret = do_get(key, 0, 0, 0, 0, &info);
@@ -721,6 +734,10 @@ end:
 int SecureStore::get(const char *key, void *buffer, size_t buffer_size, size_t *actual_size,
                      size_t offset)
 {
+    if (!KVStore::_has_flags(InitModeFlags::Read)) {
+        return MBED_ERROR_INVALID_OPERATION;
+    }
+    
     _mutex.lock();
     int ret = do_get(key, buffer, buffer_size, actual_size, offset);
     _mutex.unlock();
@@ -730,6 +747,10 @@ int SecureStore::get(const char *key, void *buffer, size_t buffer_size, size_t *
 
 int SecureStore::get_info(const char *key, info_t *info)
 {
+    if (!KVStore::_has_flags(InitModeFlags::Read)) {
+        return MBED_ERROR_INVALID_OPERATION;
+    }
+    
     _mutex.lock();
     int ret = do_get(key, 0, 0, 0, 0, info);
     _mutex.unlock();
@@ -831,6 +852,10 @@ int SecureStore::reset()
         return MBED_ERROR_NOT_READY;
     }
 
+    if (!KVStore::_has_flags(InitModeFlags::Write)) {
+        return MBED_ERROR_INVALID_OPERATION;
+    }
+
     _mutex.lock();
     ret = _underlying_kv->reset();
     if (ret) {
@@ -855,6 +880,10 @@ int SecureStore::iterator_open(iterator_t *it, const char *prefix)
 
     if (!_is_initialized) {
         return MBED_ERROR_NOT_READY;
+    }
+
+    if (!KVStore::_has_flags(InitModeFlags::Read | InitModeFlags::WriteOnlyAllowKeyRead)) {
+        return MBED_ERROR_INVALID_OPERATION;
     }
 
     if (!it) {

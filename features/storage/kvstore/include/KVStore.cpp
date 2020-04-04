@@ -56,4 +56,8 @@ bool KVStore::_is_valid_flags(InitModeFlags flags) {
     return true;
 }
 
+bool KVStore::_has_flags(InitModeFlags flags) const {
+    return !(((_flags & flags)) == InitModeFlags::NoFlags);
+}
+
 }

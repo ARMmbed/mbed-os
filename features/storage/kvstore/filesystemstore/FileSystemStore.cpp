@@ -147,6 +147,10 @@ int FileSystemStore::reset()
     Dir kv_dir;
     struct dirent dir_ent;
 
+    if (!KVStore::_has_flags(InitModeFlags::Write)) {
+        return MBED_ERROR_INVALID_OPERATION;
+    }
+
     _mutex.lock();
     if (false == _is_initialized) {
         status = MBED_ERROR_NOT_READY;
@@ -179,6 +183,10 @@ int FileSystemStore::set(const char *key, const void *buffer, size_t size, uint3
     if (false == _is_initialized) {
         status = MBED_ERROR_NOT_READY;
         goto exit_point;
+    }
+
+    if (!KVStore::_has_flags(InitModeFlags::Write)) {
+        return MBED_ERROR_INVALID_OPERATION;
     }
 
     if ((!is_valid_key(key)) || ((buffer == NULL) && (size > 0))) {
@@ -223,6 +231,10 @@ int FileSystemStore::get(const char *key, void *buffer, size_t buffer_size, size
     if (false == _is_initialized) {
         status = MBED_ERROR_NOT_READY;
         goto exit_point;
+    }
+
+    if (!KVStore::_has_flags(InitModeFlags::Read)) {
+        return MBED_ERROR_INVALID_OPERATION;
     }
 
     key_metadata_t key_metadata;
@@ -270,6 +282,10 @@ int FileSystemStore::get_info(const char *key, info_t *info)
     int status = MBED_SUCCESS;
     File kv_file;
 
+    if (!KVStore::_has_flags(InitModeFlags::Read)) {
+        return MBED_ERROR_INVALID_OPERATION;
+    }
+
     _mutex.lock();
 
     if (false == _is_initialized) {
@@ -303,6 +319,10 @@ int FileSystemStore::remove(const char *key)
 {
     File kv_file;
     key_metadata_t key_metadata;
+
+    if (!KVStore::_has_flags(InitModeFlags::Write)) {
+        return MBED_ERROR_INVALID_OPERATION;
+    }
 
     _mutex.lock();
 
@@ -345,6 +365,10 @@ int FileSystemStore::set_start(set_handle_t *handle, const char *key, size_t fin
     File *kv_file;
     key_metadata_t key_metadata;
     int key_len = 0;
+
+    if (!KVStore::_has_flags(InitModeFlags::Write)) {
+        return MBED_ERROR_INVALID_OPERATION;
+    }
 
     if (create_flags & ~supported_flags) {
         return MBED_ERROR_INVALID_ARGUMENT;
@@ -493,6 +517,10 @@ int FileSystemStore::iterator_open(iterator_t *it, const char *prefix)
     Dir *kv_dir = NULL;
     key_iterator_handle_t *key_it = NULL;
 
+    if (!KVStore::_has_flags(InitModeFlags::Read | InitModeFlags::WriteOnlyAllowKeyRead)) {
+        return MBED_ERROR_INVALID_OPERATION;
+    }
+    
     if (it == NULL) {
         return MBED_ERROR_INVALID_ARGUMENT;
     }

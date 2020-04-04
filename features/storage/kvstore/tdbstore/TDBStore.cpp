@@ -441,6 +441,10 @@ int TDBStore::set_start(set_handle_t *handle, const char *key, size_t final_data
     inc_set_handle_t *ih;
     bool need_gc = false;
 
+    if (!KVStore::_has_flags(InitModeFlags::Write)) {
+        return MBED_ERROR_INVALID_OPERATION;
+    }
+
     if (!is_valid_key(key)) {
         return MBED_ERROR_INVALID_ARGUMENT;
     }
@@ -715,6 +719,10 @@ int TDBStore::set(const char *key, const void *buffer, size_t size, uint32_t cre
     int ret;
     set_handle_t handle;
 
+    if (!KVStore::_has_flags(InitModeFlags::Write)) {
+        return MBED_ERROR_INVALID_OPERATION;
+    }
+
     // Don't wait till we get to set_add_data to catch this
     if (!buffer && size) {
         return MBED_ERROR_INVALID_ARGUMENT;
@@ -736,6 +744,10 @@ int TDBStore::set(const char *key, const void *buffer, size_t size, uint32_t cre
 
 int TDBStore::remove(const char *key)
 {
+    if (!KVStore::_has_flags(InitModeFlags::Write)) {
+        return MBED_ERROR_INVALID_OPERATION;
+    }
+    
     return set(key, 0, 0, delete_flag);
 }
 
@@ -745,6 +757,10 @@ int TDBStore::get(const char *key, void *buffer, size_t buffer_size, size_t *act
     uint32_t actual_data_size;
     uint32_t bd_offset, next_bd_offset;
     uint32_t flags, hash, ram_table_ind;
+
+    if (!KVStore::_has_flags(InitModeFlags::Read)) {
+        return MBED_ERROR_INVALID_OPERATION;
+    }
 
     if (!is_valid_key(key)) {
         return MBED_ERROR_INVALID_ARGUMENT;
@@ -776,6 +792,10 @@ int TDBStore::get_info(const char *key, info_t *info)
     uint32_t bd_offset, next_bd_offset;
     uint32_t flags, hash, ram_table_ind;
     uint32_t actual_data_size;
+
+    if (!KVStore::_has_flags(InitModeFlags::Read)) {
+        return MBED_ERROR_INVALID_OPERATION;
+    }
 
     if (!is_valid_key(key)) {
         return MBED_ERROR_INVALID_ARGUMENT;
@@ -1212,6 +1232,10 @@ int TDBStore::reset()
         return MBED_ERROR_NOT_READY;
     }
 
+    if (!KVStore::_has_flags(InitModeFlags::Write)) {
+        return MBED_ERROR_INVALID_OPERATION;
+    }
+
     _mutex.lock();
 
     // Reset both areas
@@ -1242,6 +1266,10 @@ int TDBStore::iterator_open(iterator_t *it, const char *prefix)
 
     if (!_is_initialized) {
         return MBED_ERROR_NOT_READY;
+    }
+
+    if (!KVStore::_has_flags(InitModeFlags::Read | InitModeFlags::WriteOnlyAllowKeyRead)) {
+        return MBED_ERROR_INVALID_OPERATION;
     }
 
     if (!it) {
@@ -1365,6 +1393,10 @@ int TDBStore::reserved_data_set(const void *reserved_data, size_t reserved_data_
     reserved_trailer_t trailer;
     int ret;
 
+    if (!KVStore::_has_flags(InitModeFlags::Write)) {
+        return MBED_ERROR_INVALID_OPERATION;
+    }
+
     if (reserved_data_buf_size > RESERVED_AREA_SIZE) {
         return MBED_ERROR_INVALID_SIZE;
     }
@@ -1468,6 +1500,10 @@ int TDBStore::do_reserved_data_get(void *reserved_data, size_t reserved_data_buf
 
 int TDBStore::reserved_data_get(void *reserved_data, size_t reserved_data_buf_size, size_t *actual_data_size)
 {
+    if (!KVStore::_has_flags(InitModeFlags::Read)) {
+        return MBED_ERROR_INVALID_OPERATION;
+    }
+    
     _mutex.lock();
     int ret = do_reserved_data_get(reserved_data, reserved_data_buf_size, actual_data_size);
     _mutex.unlock();

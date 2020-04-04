@@ -212,11 +212,15 @@ public:
      */
     bool is_valid_key(const char *key) const;
 
+#if !defined(DOXYGEN_ONLY)
 protected:
     InitModeFlags _flags;
 
+    bool _has_flags(InitModeFlags flags) const;
+    
     static bool _is_valid_flags(InitModeFlags flags);
 };
+#endif // DOXYGEN_ONLY
 /** @}*/
 
 } // namespace mbed
