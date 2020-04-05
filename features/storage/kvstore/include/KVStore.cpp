@@ -20,7 +20,8 @@
 namespace mbed {
 
 
-bool KVStore::is_valid_key(const char *key) const {
+bool KVStore::is_valid_key(const char *key) const
+{
     if (!key || !strlen(key) || (strlen(key) > MAX_KEY_SIZE)) {
         return false;
     }
@@ -31,12 +32,13 @@ bool KVStore::is_valid_key(const char *key) const {
     return true;
 }
 
-bool KVStore::_is_valid_flags(InitModeFlags flags) {
+bool KVStore::_is_valid_flags(InitModeFlags flags)
+{
     // Check that only valid bits are here at all
     if ((~(InitModeFlags::AllFlags) & flags) == InitModeFlags::NoFlags) {
         return false;
     }
-    
+
     // Need at least one of the Read or Write bits set
     if ((flags & InitModeFlags::ReadWrite) == InitModeFlags::NoFlags) {
         return false;
@@ -56,7 +58,8 @@ bool KVStore::_is_valid_flags(InitModeFlags flags) {
     return true;
 }
 
-bool KVStore::_has_flags_any(InitModeFlags flags) const {
+bool KVStore::_has_flags_any(InitModeFlags flags) const
+{
     return !(((_flags & flags)) == InitModeFlags::NoFlags);
 }
 

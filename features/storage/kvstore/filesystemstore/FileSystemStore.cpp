@@ -77,7 +77,7 @@ int FileSystemStore::init(InitModeFlags flags)
         return MBED_ERROR_INVALID_ARGUMENT;
     }
     if (!((flags & InitModeFlags::Append) == InitModeFlags::Append ||
-        (flags & InitModeFlags::ExclusiveCreation) == InitModeFlags::ExclusiveCreation)) {
+            (flags & InitModeFlags::ExclusiveCreation) == InitModeFlags::ExclusiveCreation)) {
         return MBED_ERROR_UNSUPPORTED;
     }
 
@@ -520,7 +520,7 @@ int FileSystemStore::iterator_open(iterator_t *it, const char *prefix)
     if (!KVStore::_has_flags_any(InitModeFlags::Read | InitModeFlags::WriteOnlyAllowKeyRead)) {
         return MBED_ERROR_INVALID_OPERATION;
     }
-    
+
     if (it == NULL) {
         return MBED_ERROR_INVALID_ARGUMENT;
     }

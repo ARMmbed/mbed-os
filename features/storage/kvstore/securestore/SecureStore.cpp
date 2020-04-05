@@ -737,7 +737,7 @@ int SecureStore::get(const char *key, void *buffer, size_t buffer_size, size_t *
     if (!KVStore::_has_flags_any(InitModeFlags::Read)) {
         return MBED_ERROR_INVALID_OPERATION;
     }
-    
+
     _mutex.lock();
     int ret = do_get(key, buffer, buffer_size, actual_size, offset);
     _mutex.unlock();
@@ -750,7 +750,7 @@ int SecureStore::get_info(const char *key, info_t *info)
     if (!KVStore::_has_flags_any(InitModeFlags::Read)) {
         return MBED_ERROR_INVALID_OPERATION;
     }
-    
+
     _mutex.lock();
     int ret = do_get(key, 0, 0, 0, 0, info);
     _mutex.unlock();
@@ -764,7 +764,7 @@ int SecureStore::init(InitModeFlags flags)
     if (!KVStore::_is_valid_flags(flags)) {
         return MBED_ERROR_INVALID_ARGUMENT;
     }
-    
+
     int ret = MBED_SUCCESS;
 
     MBED_ASSERT(!(scratch_buf_size % enc_block_size));

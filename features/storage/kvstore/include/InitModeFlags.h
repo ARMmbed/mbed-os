@@ -8,18 +8,19 @@ namespace mbed {
 
 /**
  * @brief A set of creation flags for the KVStore instance.
- * 
+ *
  * The Read, Write, and ReadWrite flags may be OR-ed to produce the correct initialization
  * sequence. This is similar to how a file is opened.
- * 
+ *
  * By default, the init mode opens in ReadWrite and Append mode as the default argument.
- * 
+ *
  * At least one of Read, Write, or ReadWrite must be specified. Additionally, at least one
  * of the following must be specified with write access: Append, Truncate, CreateNewOnly, or
  * ExclusiveCreation.
- * 
+ *
  */
-MBED_SCOPED_ENUM_FLAGS(InitModeFlags) {
+MBED_SCOPED_ENUM_FLAGS(InitModeFlags)
+{
     Read                    = (1 << 0),                 //!< Enable read access from the KVStore
     Write                   = (1 << 1),                 //!< Enable write access to the KVStore
     ReadWrite               = ((1 << 0) | (1 << 1)),    //!< Enable read and write access to the KVSTore. This is the default.

@@ -65,7 +65,7 @@ public:
      *
      * @param[in]  flags                            Flags that determine how the FileSystemStore allows KV
      *                                              read/write and store creation.
-     * 
+     *
      * @returns MBED_SUCCESS                        Success.
      *          MBED_ERROR_INITIALIZATION_FAILED    No valid TBD store found in the BlockDevice.
      * @returns Negative error code on other failure.

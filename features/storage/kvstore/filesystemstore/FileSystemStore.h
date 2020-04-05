@@ -52,9 +52,9 @@ public:
       *
       * @param[in]  flags                            Flags that determine how the FileSystemStore allows KV
       *                                              read/write and store creation.
-      * 
+      *
       * @returns MBED_SUCCESS                        Success.
-      *          MBED_ERROR_INITIALIZATION_FAILED    No valid FileSystemStore found on the device. 
+      *          MBED_ERROR_INITIALIZATION_FAILED    No valid FileSystemStore found on the device.
       *          MBED_ERROR_FAILED_OPERATION         Underlying file system failed operation.
       */
     virtual int init(InitModeFlags flags = DEFAULT_INIT_FLAGS);

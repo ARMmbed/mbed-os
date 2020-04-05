@@ -747,7 +747,7 @@ int TDBStore::remove(const char *key)
     if (!KVStore::_has_flags_any(InitModeFlags::Write)) {
         return MBED_ERROR_INVALID_OPERATION;
     }
-    
+
     return set(key, 0, 0, delete_flag);
 }
 
@@ -1036,10 +1036,10 @@ int TDBStore::init(InitModeFlags flags)
         return MBED_ERROR_INVALID_ARGUMENT;
     }
     if (!((flags & InitModeFlags::Append) == InitModeFlags::Append ||
-        (flags & InitModeFlags::ExclusiveCreation) == InitModeFlags::ExclusiveCreation)) {
+            (flags & InitModeFlags::ExclusiveCreation) == InitModeFlags::ExclusiveCreation)) {
         return MBED_ERROR_UNSUPPORTED;
     }
-    
+
     ram_table_entry_t *ram_table;
     area_state_e area_state[_num_areas];
     uint32_t next_offset;
@@ -1503,7 +1503,7 @@ int TDBStore::reserved_data_get(void *reserved_data, size_t reserved_data_buf_si
     if (!KVStore::_has_flags_any(InitModeFlags::Read)) {
         return MBED_ERROR_INVALID_OPERATION;
     }
-    
+
     _mutex.lock();
     int ret = do_reserved_data_get(reserved_data, reserved_data_buf_size, actual_data_size);
     _mutex.unlock();

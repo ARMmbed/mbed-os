@@ -102,7 +102,7 @@ void test_file_system_store_functionality_unit_test()
 
     err = fsst->init(InitModeFlags::ExclusiveCreation | InitModeFlags::ReadWrite);
     TEST_ASSER_EQUAL_ERROR_CODE(MBED_ERROR_INITIALIZATION_FAILED, err);
-    
+
     err = fsst->init();
     TEST_ASSERT_EQUAL_ERROR_CODE(0, err);
 

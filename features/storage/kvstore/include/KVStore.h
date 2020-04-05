@@ -37,7 +37,7 @@ public:
         REQUIRE_REPLAY_PROTECTION_FLAG      = (1 << 3),
     };
 
-    
+
 
     static const InitModeFlags DEFAULT_INIT_FLAGS = InitModeFlags::ReadWrite | InitModeFlags::Append;
 
@@ -76,8 +76,8 @@ public:
      *
      * @param[in]  flags                            Flags that determine how the FileSystemStore allows KV
      *                                              read/write and store creation.
-     * 
-     * 
+     *
+     *
      * @returns MBED_ERROR_INITIALIZATION_FAILED    No valid KVStore in the storage.
      *          MBED_SUCCESS on success or an error code on other failure
      */
@@ -219,7 +219,7 @@ protected:
     InitModeFlags _flags;
 
     bool _has_flags_any(InitModeFlags flags) const;
-    
+
     static bool _is_valid_flags(InitModeFlags flags);
 };
 #endif // DOXYGEN_ONLY
