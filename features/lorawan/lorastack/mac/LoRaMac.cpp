@@ -422,7 +422,7 @@ bool LoRaMac::message_integrity_check(const uint8_t *const payload,
 
     _lora_crypto.compute_mic(payload, size - LORAMAC_MFR_LEN,
                              args, address, DOWN_LINK, *downlink_counter,
-                             &mic);
+                             0, &mic);
 
     if (mic_rx != mic) {
         _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_MIC_FAIL;
@@ -2456,7 +2456,7 @@ lorawan_status_t LoRaMac::calculate_userdata_mic()
 
     if (0 != _lora_crypto.compute_mic(_params.tx_buffer, _params.tx_buffer_len,
                                       args, _params.dev_addr, UP_LINK,
-                                      _params.ul_frame_counter, &mic)) {
+                                      _params.ul_frame_counter, 0, &mic)) {
         status = LORAWAN_STATUS_CRYPTO_FAIL;
     }
 
@@ -2469,7 +2469,7 @@ lorawan_status_t LoRaMac::calculate_userdata_mic()
 
         if (0 != _lora_crypto.compute_mic(_params.tx_buffer, _params.tx_buffer_len,
                                           args, _params.dev_addr, UP_LINK,
-                                          _params.ul_frame_counter, &mic2)) {
+                                          _params.ul_frame_counter, 1, &mic2)) {
             status = LORAWAN_STATUS_CRYPTO_FAIL;
         }
 

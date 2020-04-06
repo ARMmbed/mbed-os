@@ -52,35 +52,35 @@ TEST_F(Test_LoRaMacCrypto, constructor)
 
 TEST_F(Test_LoRaMacCrypto, compute_mic)
 {
-    EXPECT_TRUE(MBEDTLS_ERR_CIPHER_ALLOC_FAILED == object->compute_mic(NULL, 0, 0, 0, 0, 0, NULL));
+    EXPECT_TRUE(MBEDTLS_ERR_CIPHER_ALLOC_FAILED == object->compute_mic(NULL, 0, 0, 0, 0, 0, 0, NULL));
 
     mbedtls_cipher_info_t info;
     cipher_stub.info_value = &info;
     cipher_stub.int_zero_counter = 0;
     cipher_stub.int_value = -1;
-    EXPECT_TRUE(-1 == object->compute_mic(NULL, 0, 0, 0, 0, 0, NULL));
+    EXPECT_TRUE(-1 == object->compute_mic(NULL, 0, 0, 0, 0, 0, 0, NULL));
 
     cipher_stub.int_value = 0;
     cmac_stub.int_zero_counter = 0;
     cmac_stub.int_value = -1;
-    EXPECT_TRUE(-1 == object->compute_mic(NULL, 0, 0, 0, 0, 0, NULL));
+    EXPECT_TRUE(-1 == object->compute_mic(NULL, 0, 0, 0, 0, 0, 0, NULL));
 
     cmac_stub.int_zero_counter = 1;
     cmac_stub.int_value = -1;
-    EXPECT_TRUE(-1 == object->compute_mic(NULL, 0, 0, 0, 0, 0, NULL));
+    EXPECT_TRUE(-1 == object->compute_mic(NULL, 0, 0, 0, 0, 0, 0, NULL));
 
     cmac_stub.int_zero_counter = 2;
     cmac_stub.int_value = -1;
-    EXPECT_TRUE(-1 == object->compute_mic(NULL, 0, 0, 0, 0, 0, NULL));
+    EXPECT_TRUE(-1 == object->compute_mic(NULL, 0, 0, 0, 0, 0, 0, NULL));
 
     cmac_stub.int_zero_counter = 3;
     cmac_stub.int_value = -1;
-    EXPECT_TRUE(-1 == object->compute_mic(NULL, 0, 0, 0, 0, 0, NULL));
+    EXPECT_TRUE(-1 == object->compute_mic(NULL, 0, 0, 0, 0, 0, 0, NULL));
 
     uint32_t mic[16];
     cmac_stub.int_zero_counter = 3;
     cmac_stub.int_value = 0;
-    EXPECT_TRUE(0 == object->compute_mic(NULL, 0, 0, 0, 0, 0, mic));
+    EXPECT_TRUE(0 == object->compute_mic(NULL, 0, 0, 0, 0, 0, 0, mic));
 
 }
 

@@ -42,7 +42,7 @@ lorawan_status_t LoRaMacCrypto::set_keys(uint8_t *, uint8_t *, uint8_t *, uint8_
 }
 
 int LoRaMacCrypto::compute_mic(const uint8_t *, uint16_t, uint32_t, uint32_t,
-                               uint8_t, uint32_t, uint32_t *)
+                               uint8_t, uint32_t, uint8_t, uint32_t *)
 {
     return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];
 }

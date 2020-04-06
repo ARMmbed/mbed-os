@@ -68,6 +68,7 @@ public:
      * @param [in]  address         - Frame address
      * @param [in]  dir             - Frame direction [0: uplink, 1: downlink]
      * @param [in]  seq_counter     - Frame sequence counter
+     * @param [in]  block           - Block number [0, 1]
      * @param [out] mic             - Computed MIC field
      *
      * @return                        0 if successful, or a cipher specific error code
@@ -75,7 +76,7 @@ public:
     int compute_mic(const uint8_t *buffer, uint16_t size,
                     uint32_t args, uint32_t address,
                     uint8_t dir, uint32_t seq_counter,
-                    uint32_t *mic);
+                    uint8_t block, uint32_t *mic);
 
     /**
      * Performs payload encryption

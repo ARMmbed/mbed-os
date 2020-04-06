@@ -82,40 +82,65 @@ lorawan_status_t LoRaMacCrypto::set_keys(uint8_t *nwk_key, uint8_t *app_key, uin
 int LoRaMacCrypto::compute_mic(const uint8_t *buffer, uint16_t size,
                                uint32_t args, uint32_t address,
                                uint8_t dir, uint32_t seq_counter,
-                               uint32_t *mic)
+                               uint8_t block, uint32_t *mic)
 {
     uint8_t computed_mic[16] = {};
-    uint8_t mic_block_b0[16] = {};
+    uint8_t mic_block[16] = {};
     int ret = 0;
 
-    //In case of LW_1_0_2 this is same as nwk_skey
-    uint8_t *key = _keys.snwk_sintkey;
+    uint8_t *key;
+    switch (dir) {
+        case 0:
+            switch (block) {
+                case 0:
+                    key = _keys.nwk_skey;
+                    break;
+
+                case 1:
+                    key = _keys.snwk_sintkey;
+                    break;
+
+                default:
+                    MBED_ASSERT(false);
+                    break;
+            }
+            break;
+
+        case 1:
+            MBED_ASSERT(block == 0);
+            key = _keys.snwk_sintkey;
+            break;
+
+        default:
+            MBED_ASSERT(false);
+            break;
+    }
 
     //TODO: handle multicast based on address
     //_dev_addr
 
-    mic_block_b0[0] = 0x49;
+    mic_block[0] = 0x49;
 
-    mic_block_b0[1] = (args) & 0xFF;
-    mic_block_b0[2] = (args >> 8) & 0xFF;
-    mic_block_b0[3] = (args >> 16) & 0xFF;
-    mic_block_b0[4] = (args >> 24) & 0xFF;
+    mic_block[1] = (args) & 0xFF;
+    mic_block[2] = (args >> 8) & 0xFF;
+    mic_block[3] = (args >> 16) & 0xFF;
+    mic_block[4] = (args >> 24) & 0xFF;
 
-    mic_block_b0[5] = dir;
+    mic_block[5] = dir;
 
-    mic_block_b0[6] = (address) & 0xFF;
-    mic_block_b0[7] = (address >> 8) & 0xFF;
-    mic_block_b0[8] = (address >> 16) & 0xFF;
-    mic_block_b0[9] = (address >> 24) & 0xFF;
+    mic_block[6] = (address) & 0xFF;
+    mic_block[7] = (address >> 8) & 0xFF;
+    mic_block[8] = (address >> 16) & 0xFF;
+    mic_block[9] = (address >> 24) & 0xFF;
 
-    mic_block_b0[10] = (seq_counter) & 0xFF;
-    mic_block_b0[11] = (seq_counter >> 8) & 0xFF;
-    mic_block_b0[12] = (seq_counter >> 16) & 0xFF;
-    mic_block_b0[13] = (seq_counter >> 24) & 0xFF;
+    mic_block[10] = (seq_counter) & 0xFF;
+    mic_block[11] = (seq_counter >> 8) & 0xFF;
+    mic_block[12] = (seq_counter >> 16) & 0xFF;
+    mic_block[13] = (seq_counter >> 24) & 0xFF;
 
-    mic_block_b0[14] = 0;
+    mic_block[14] = 0;
 
-    mic_block_b0[15] = size & 0xFF;
+    mic_block[15] = size & 0xFF;
 
     mbedtls_cipher_init(aes_cmac_ctx);
 
@@ -132,7 +157,7 @@ int LoRaMacCrypto::compute_mic(const uint8_t *buffer, uint16_t size,
             goto exit;
         }
 
-        ret = mbedtls_cipher_cmac_update(aes_cmac_ctx, mic_block_b0, sizeof(mic_block_b0));
+        ret = mbedtls_cipher_cmac_update(aes_cmac_ctx, mic_block, sizeof(mic_block));
         if (0 != ret) {
             goto exit;
         }
