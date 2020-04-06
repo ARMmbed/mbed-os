@@ -377,7 +377,6 @@ int8_t WhdSTAInterface::get_rssi()
     int32_t rssi;
     whd_result_t res;
 
-    // initialize wiced, this is noop if already init
     if (!_whd_emac.powered_up) {
         if(!_whd_emac.power_up()) {
             CY_ASSERT(false);
@@ -386,7 +385,7 @@ int8_t WhdSTAInterface::get_rssi()
 
     res = (whd_result_t)whd_wifi_get_rssi(_whd_emac.ifp, &rssi);
     if (res != 0) {
-        CY_ASSERT(false);
+        /* The network GT tests expect that this function should return 0 in case of an error and not assert */
         return 0;
     }
 
