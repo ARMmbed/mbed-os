@@ -763,6 +763,31 @@ TEST_F(TestATHandler, test_ATHandler_read_string)
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == at.get_last_error());
 }
 
+TEST_F(TestATHandler, test_ATHandler_read_string_with_delimiter)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    filehandle_stub_table = NULL;
+    filehandle_stub_table_pos = 0;
+
+    ATHandler at(&fh1, que, 0, ",");
+
+    char table1[] = "+CCLK:\"20/04/05,15:38:57+12\"\r\nOK\r\n";
+    at.flush();
+    filehandle_stub_table = table1;
+    filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN;
+    mbed_poll_stub::int_value = 1;
+
+    char buf1[64];
+
+    at.clear_error();
+    at.resp_start("+CCLK:");
+    // Device error because empty buffer and attempt to fill_buffer by consume_char('\"')
+    EXPECT_EQ(20, at.read_string(buf1, sizeof(buf1)));
+    EXPECT_STREQ("20/04/05,15:38:57+12", buf1);
+}
+
 TEST_F(TestATHandler, test_ATHandler_read_hex_string)
 {
     EventQueue que;
@@ -852,7 +877,7 @@ TEST_F(TestATHandler, test_ATHandler_read_int)
     EXPECT_TRUE(-1 == ret);
     at.clear_error();
 
-    char table[] = "\",\"OK\r\n\0";
+    char table[] = ",OK\r\n\0";
     filehandle_stub_table = table;
     filehandle_stub_table_pos = 0;
     mbed_poll_stub::revents_value = POLLIN;
@@ -865,7 +890,7 @@ TEST_F(TestATHandler, test_ATHandler_read_int)
     at.flush();
     at.clear_error();
 
-    char table2[] = "\"2,\"OK\r\n\0";
+    char table2[] = "2,OK\r\n\0";
     filehandle_stub_table = table2;
     filehandle_stub_table_pos = 0;
     mbed_poll_stub::revents_value = POLLIN;
