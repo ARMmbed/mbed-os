@@ -23,6 +23,8 @@ Copyright (c) 2017, Arm Limited and affiliates.
 SPDX-License-Identifier: BSD-3-Clause
 */
 
+#if DEVICE_SPI
+
 #include "SX1272_LoRaRadio.h"
 #include "sx1272Regs-Fsk.h"
 #include "sx1272Regs-LoRa.h"
@@ -2080,3 +2082,5 @@ void SX1272_LoRaRadio::handle_timeout_irq()
         }
     }
 }
+
+#endif // DEVICE_SPI

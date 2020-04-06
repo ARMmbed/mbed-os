@@ -25,6 +25,8 @@ SPDX-License-Identifier: BSD-3-Clause
 #ifndef MBED_LORA_RADIO_DRV_SX126X_LORARADIO_H_
 #define MBED_LORA_RADIO_DRV_SX126X_LORARADIO_H_
 
+#if DEVICE_SPI
+
 #include "mbed_critical.h"
 #include "PinNames.h"
 #include "InterruptIn.h"
@@ -400,5 +402,7 @@ private:
     modulation_params_t _mod_params;
     packet_params_t _packet_params;
 };
+
+#endif // DEVICE_SPI
 
 #endif /* MBED_LORA_RADIO_DRV_SX126X_LORARADIO_H_ */

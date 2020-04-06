@@ -26,6 +26,8 @@ SPDX-License-Identifier: BSD-3-Clause
 #ifndef SX1272_LORARADIO_H_
 #define SX1272_LORARADIO_H_
 
+#if DEVICE_SPI
+
 #include "PinNames.h"
 #include "InterruptIn.h"
 #include "DigitalOut.h"
@@ -434,5 +436,7 @@ private:
     void handle_dio5_irq();
     void handle_timeout_irq();
 };
+
+#endif // DEVICE_SPI
 
 #endif /* SX1272_LORARADIO_H_ */

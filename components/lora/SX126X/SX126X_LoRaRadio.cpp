@@ -22,6 +22,8 @@ Copyright (c) 2019, Arm Limited and affiliates.
 SPDX-License-Identifier: BSD-3-Clause
 */
 
+#if DEVICE_SPI
+
 #include <math.h>
 #include "ThisThread.h"
 #include "mbed_wait_api.h"
@@ -1337,3 +1339,4 @@ void SX126X_LoRaRadio::clear_device_errors(void)
     write_opmode_command((uint8_t) RADIO_CLR_ERROR, buf, 2);
 }
 
+#endif // DEVICE_SPI
