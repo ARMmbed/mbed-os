@@ -578,6 +578,12 @@ struct own_address_type_t : SafeEnum<own_address_type_t, uint8_t> {
     own_address_type_t(type value) : SafeEnum(value)
     {
     }
+
+    /**
+     * Default initialization of own_address_type_t.
+     */
+    own_address_type_t() :
+        SafeEnum<own_address_type_t, uint8_t>(PUBLIC) { }
 };
 
 /**
