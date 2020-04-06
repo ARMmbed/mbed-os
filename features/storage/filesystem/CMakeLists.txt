@@ -6,6 +6,7 @@ target_include_directories(mbed-os
 		${CMAKE_CURRENT_SOURCE_DIR}
 		fat
 		littlefs
+		littlefs/littlefs
 )
 
 target_sources(mbed-os
@@ -17,4 +18,5 @@ target_sources(mbed-os
 		fat/ChaN/ff.cpp
 		fat/ChaN/ffunicode.cpp
 		littlefs/LittleFileSystem.cpp
+		littlefs/littlefs/lfs.c
 )
