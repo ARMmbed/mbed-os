@@ -555,7 +555,6 @@ lorawan_status_t LoRaWANStack::set_device_class(const device_class_t &device_cla
     if (_loramac.get_device_class() != device_class) {
         if ((_loramac.get_server_type() == LW1_1) && (device_class != CLASS_B)) {
             _new_class_type = device_class;
-            set_device_mode_indication();
             _device_mode_ind_needed = true;
             _device_mode_ind_ongoing = true;
         } else {
