@@ -29,6 +29,7 @@
 #include "sw_mac.h"
 #include "ns_list.h"
 #include "net_interface.h"
+#include "nwk_stats_api.h"
 #include "ws_management_api.h" //ws_management_node_init
 #ifdef MBED_CONF_MBED_MESH_API_CERTIFICATE_HEADER
 #if !defined(MBED_CONF_MBED_MESH_API_ROOT_CERTIFICATE) || !defined(MBED_CONF_MBED_MESH_API_OWN_CERTIFICATE) || \
@@ -89,6 +90,15 @@ static wisun_tasklet_data_str_t *wisun_tasklet_data_ptr = NULL;
 static wisun_certificates_t *wisun_certificates_ptr = NULL;
 static mac_api_t *mac_api = NULL;
 
+typedef struct {
+    nwk_stats_t nwk_stats;
+    mac_statistics_t mac_statistics;
+    ws_statistics_t ws_statistics;
+} wisun_statistics_t;
+
+static bool statistics_started = false;
+static wisun_statistics_t *statistics = NULL;
+
 extern fhss_timer_t fhss_functions;
 
 /* private function prototypes */
@@ -99,6 +109,7 @@ static void wisun_tasklet_configure_and_connect_to_network(void);
 static void wisun_tasklet_clear_stored_certificates(void) ;
 static int wisun_tasklet_store_certificate_data(const uint8_t *cert, uint16_t cert_len, const uint8_t *cert_key, uint16_t cert_key_len, bool remove_own, bool remove_trusted, bool trusted_cert);
 static int wisun_tasklet_add_stored_certificates(void) ;
+static void wisun_tasklet_statistics_do_start(void);
 
 /*
  * \brief A function which will be eventually called by NanoStack OS when ever the OS has an event to deliver.
@@ -300,6 +311,10 @@ static void wisun_tasklet_configure_and_connect_to_network(void)
 #endif
     arm_network_own_certificate_add((const arm_certificate_entry_s *)&own_cert);
 #endif
+
+    if (statistics_started) {
+        wisun_tasklet_statistics_do_start();
+    }
 
     status = arm_nwk_interface_up(wisun_tasklet_data_ptr->network_interface_id);
     if (status >= 0) {
@@ -563,4 +578,67 @@ int wisun_tasklet_set_trusted_certificate(uint8_t *cert, uint16_t cert_len)
     }
     // Stack is inactive store the certificates and activate when connect() called
     return wisun_tasklet_store_certificate_data(cert, cert_len, NULL, 0, false, false, true);
+}
+
+int wisun_tasklet_statistics_start(void)
+{
+    statistics_started = true;
+
+    if (statistics == NULL) {
+        statistics = ns_dyn_mem_alloc(sizeof(wisun_statistics_t));
+    }
+    if (statistics == NULL) {
+        return -1;
+    }
+    memset(statistics, 0, sizeof(wisun_statistics_t));
+
+    wisun_tasklet_statistics_do_start();
+
+    return 0;
+}
+
+static void wisun_tasklet_statistics_do_start(void)
+{
+    if (!wisun_tasklet_data_ptr || wisun_tasklet_data_ptr->network_interface_id < 0 || !mac_api) {
+        return;
+    }
+
+    protocol_stats_start(&statistics->nwk_stats);
+    ns_sw_mac_statistics_start(mac_api, &statistics->mac_statistics);
+    ws_statistics_start(wisun_tasklet_data_ptr->network_interface_id, &statistics->ws_statistics);
+}
+
+int wisun_tasklet_statistics_nw_read(mesh_nw_statistics_t *stats)
+{
+    if (!statistics || !stats) {
+        return -1;
+    }
+
+    stats->rpl_total_memory = statistics->nwk_stats.rpl_total_memory;
+    stats->etx_1st_parent = statistics->nwk_stats.etx_1st_parent;
+    stats->etx_2nd_parent = statistics->nwk_stats.etx_2nd_parent;
+    stats->asynch_tx_count = statistics->ws_statistics.asynch_tx_count;
+    stats->asynch_rx_count = statistics->ws_statistics.asynch_rx_count;
+
+    return 0;
+}
+
+int wisun_tasklet_statistics_mac_read(mesh_mac_statistics_t *stats)
+{
+    if (!statistics || !stats) {
+        return -1;
+    }
+
+    stats->mac_rx_count = statistics->mac_statistics.mac_rx_count;
+    stats->mac_tx_count = statistics->mac_statistics.mac_tx_count;
+    stats->mac_bc_rx_count = statistics->mac_statistics.mac_bc_rx_count;
+    stats->mac_bc_tx_count = statistics->mac_statistics.mac_bc_tx_count;
+    stats->mac_tx_bytes = statistics->mac_statistics.mac_tx_bytes;
+    stats->mac_rx_bytes = statistics->mac_statistics.mac_rx_bytes;
+    stats->mac_tx_failed_count = statistics->mac_statistics.mac_tx_failed_count;
+    stats->mac_retry_count = statistics->mac_statistics.mac_retry_count;
+    stats->mac_cca_attempts_count = statistics->mac_statistics.mac_cca_attempts_count;
+    stats->mac_failed_cca_count = statistics->mac_statistics.mac_failed_cca_count;
+
+    return 0;
 }
