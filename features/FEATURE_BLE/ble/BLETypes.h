@@ -21,7 +21,6 @@
 #include <stdint.h>
 #include <string.h>
 #include "ble/SafeEnum.h"
-#include "ble/BLEProtocol.h"
 #include "platform/Span.h"
 #include "ble/gap/Types.h"
 
@@ -837,10 +836,53 @@ struct coded_symbol_per_bit_t :SafeEnum<coded_symbol_per_bit_t, uint8_t> {
  * Representation of a whitelist of addresses.
  */
 struct whitelist_t {
+        /**
+     * BLE address representation.
+     *
+     * It contains an address-type (peer_address_type_t) and the address value
+     * (address_t).
+     */
+    struct entry_t {
+        /**
+         * Construct an entry_t object with the supplied type and address.
+         *
+         * @param[in] typeIn The peer address type.
+         * @param[in] addressIn The peer address.
+         *
+         * @post type is equal to typeIn and address is equal to the content
+         * present in addressIn.
+         */
+        entry_t(peer_address_type_t typeIn, const address_t &addressIn) :
+            type(typeIn),
+            address(addressIn)
+        { }
+
+        /**
+         * Empty constructor.
+         *
+         * @note The address constructed with the empty constructor is not
+         * valid.
+         *
+         * @post type is equal to PUBLIC and the address value is equal to
+         * 00:00:00:00:00:00
+         */
+        entry_t(void) : type(), address() { }
+
+        /**
+         * Type of the peer address.
+         */
+        peer_address_type_t  type;
+
+        /**
+         * Value of the peer address.
+         */
+        address_t address;
+    };
+
     /**
         * Pointer to the array of the addresses composing the whitelist.
         */
-    BLEProtocol::Address_t *addresses;
+    entry_t *addresses;
 
     /**
         * Number addresses in this whitelist.
