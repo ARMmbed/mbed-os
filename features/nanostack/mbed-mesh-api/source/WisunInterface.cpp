@@ -252,6 +252,36 @@ mesh_error_t WisunInterface::remove_trusted_certificates(void)
     return ret_val;
 }
 
+mesh_error_t WisunInterface::enable_statistics(void)
+{
+    mesh_error_t ret_val = MESH_ERROR_NONE;
+    int status = wisun_tasklet_statistics_start();
+    if (status < 0) {
+        ret_val = MESH_ERROR_UNKNOWN;
+    }
+    return ret_val;
+}
+
+mesh_error_t WisunInterface::read_nw_statistics(mesh_nw_statistics_t *statistics)
+{
+    mesh_error_t ret_val = MESH_ERROR_NONE;
+    int status = wisun_tasklet_statistics_nw_read(statistics);
+    if (status < 0) {
+        ret_val = MESH_ERROR_UNKNOWN;
+    }
+    return ret_val;
+}
+
+mesh_error_t WisunInterface::read_mac_statistics(mesh_mac_statistics_t *statistics)
+{
+    mesh_error_t ret_val = MESH_ERROR_NONE;
+    int status = wisun_tasklet_statistics_mac_read(statistics);
+    if (status < 0) {
+        ret_val = MESH_ERROR_UNKNOWN;
+    }
+    return ret_val;
+}
+
 #define WISUN 0x2345
 #if MBED_CONF_NSAPI_DEFAULT_MESH_TYPE == WISUN && DEVICE_802_15_4_PHY
 MBED_WEAK MeshInterface *MeshInterface::get_target_default_instance()

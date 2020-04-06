@@ -64,6 +64,33 @@ typedef enum {
     MESH_DEVICE_TYPE_WISUN_BORDER_ROUTER        /*<! Wi-SUN border router */
 } mesh_device_type_t;
 
+/**
+ * Mesh network statistics
+ */
+typedef struct {
+    uint32_t rpl_total_memory;  /*<! RPL current memory usage total. */
+    uint16_t etx_1st_parent;    /*<! Primary parent ETX. */
+    uint16_t etx_2nd_parent;    /*<! Secondary parent ETX. */
+    uint32_t asynch_tx_count;   /*<! Asynch TX counter */
+    uint32_t asynch_rx_count;   /*<! Asynch RX counter */
+} mesh_nw_statistics_t;
+
+/**
+ * Mesh physical layer statistics
+ */
+typedef struct {
+    uint32_t mac_rx_count;            /*<! MAC RX packet count. */
+    uint32_t mac_tx_count;            /*<! MAC TX packet count. */
+    uint32_t mac_bc_rx_count;         /*<! MAC broadcast RX packet count. */
+    uint32_t mac_bc_tx_count;         /*<! MAC broadcast TX packet count. */
+    uint32_t mac_tx_bytes;            /*<! MAC TX bytes count. */
+    uint32_t mac_rx_bytes;            /*<! MAC RX bytes count. */
+    uint32_t mac_tx_failed_count;     /*<! MAC TX failed count. */
+    uint32_t mac_retry_count;         /*<! MAC TX retry count. */
+    uint32_t mac_cca_attempts_count;  /*<! MAC CCA attempts count. */
+    uint32_t mac_failed_cca_count;    /*<! MAC failed CCA count. */
+} mesh_mac_statistics_t;
+
 #ifdef __cplusplus
 }
 #endif

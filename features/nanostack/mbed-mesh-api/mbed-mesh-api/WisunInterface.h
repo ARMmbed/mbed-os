@@ -131,6 +131,40 @@ public:
      * \param len
      * */
     bool getRouterIpAddress(char *address, int8_t len);
+
+    /**
+     * \brief Enable Wi-SUN statistics
+     *
+     * After enabling statistics those can be read using the network, physical layer,
+     * MAC and FHSS and Wi-SUN statistics read functions.
+     *
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN on error
+     * */
+    mesh_error_t enable_statistics(void);
+
+    /**
+     * \brief Reads Wi-SUN network statistics
+     *
+     * Reads network statistics.
+     *
+     * \param statistics Network statistics.
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN on error
+     * */
+    mesh_error_t read_nw_statistics(mesh_nw_statistics_t *statistics);
+
+    /**
+     * \brief Reads Wi-SUN MAC statistics
+     *
+     * Reads MAC statistics.
+     *
+     * \param statistics MAC statistics.
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN on error
+     * */
+    mesh_error_t read_mac_statistics(mesh_mac_statistics_t *statistics);
+
 protected:
     Nanostack::WisunInterface *get_interface() const;
     virtual nsapi_error_t do_initialize();
