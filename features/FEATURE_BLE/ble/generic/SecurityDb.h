@@ -597,16 +597,12 @@ public:
                 continue;
             }
 
-            memcpy(
-                whitelist->addresses[whitelist->size].address,
-                identity->identity_address.data(),
-                sizeof(BLEProtocol::AddressBytes_t)
-            );
+            whitelist->addresses[whitelist->size].address = identity->identity_address;
 
             if (identity->identity_address_is_public) {
-                whitelist->addresses[whitelist->size].type = BLEProtocol::AddressType::PUBLIC;
+                whitelist->addresses[whitelist->size].type = peer_address_type_t::PUBLIC_IDENTITY;
             } else {
-                whitelist->addresses[whitelist->size].type = BLEProtocol::AddressType::RANDOM_STATIC;
+                whitelist->addresses[whitelist->size].type = peer_address_type_t::RANDOM_STATIC_IDENTITY;
             }
 
             whitelist->size++;

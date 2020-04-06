@@ -18,7 +18,6 @@
 #include <stdint.h>
 
 #include "ble/BLEInstanceBase.h"
-#include "ble/BLEProtocol.h"
 #include "ble/Gap.h"
 #include "ble/pal/PalGap.h"
 #include "ble/pal/GapEvents.h"
@@ -32,8 +31,6 @@ namespace ble {
 namespace generic {
 
 using pal::connection_peer_address_type_t;
-typedef BLEProtocol::AddressType_t LegacyAddressType_t;
-typedef BLEProtocol::AddressType LegacyAddressType;
 
 namespace {
 
@@ -154,9 +151,9 @@ static bool is_prand_valid(const uint8_t *bytes, size_t len)
  * or not.
  * Return true if it is the case and false otherwise.
  */
-static bool is_prand_48_bits_valid(const BLEProtocol::AddressBytes_t address)
+static bool is_prand_48_bits_valid(const address_t &address)
 {
-    return is_prand_valid(address, 6);
+    return is_prand_valid(address.data(), 6);
 }
 
 /*
@@ -164,15 +161,15 @@ static bool is_prand_48_bits_valid(const BLEProtocol::AddressBytes_t address)
  * or not.
  * Return true if it is the case and false otherwise.
  */
-static bool is_prand_24_bits_valid(const BLEProtocol::AddressBytes_t address)
+static bool is_prand_24_bits_valid(const address_t &address)
 {
-    return is_prand_valid(address + 3, 3);
+    return is_prand_valid(address.data() + 3, 3);
 }
 
 /*
  * Return true if address is a random static address.
  */
-static bool is_random_static_address(const BLEProtocol::AddressBytes_t address)
+static bool is_random_static_address(const address_t &address)
 {
     // top two msb bits shall be equal to 0b11.
     if ((address[5] & 0xC0) != 0xC0) {
@@ -186,7 +183,7 @@ static bool is_random_static_address(const BLEProtocol::AddressBytes_t address)
  * Return true if address is a random private non resolvable address.
  */
 static bool is_random_private_non_resolvable_address(
-    const BLEProtocol::AddressBytes_t address
+    const address_t &address
 )
 {
     // top two msb bits shall be equal to 0b00.
@@ -201,7 +198,7 @@ static bool is_random_private_non_resolvable_address(
  * Return true if address is a random private resolvable address.
  */
 static bool is_random_private_resolvable_address(
-    const BLEProtocol::AddressBytes_t address
+    const address_t &address
 )
 {
     // top two msb bits shall be equal to 0b01.
@@ -215,7 +212,7 @@ static bool is_random_private_resolvable_address(
 /*
  * Return true if the address is a random address.
  */
-static bool is_random_address(const BLEProtocol::AddressBytes_t address)
+static bool is_random_address(const address_t &address)
 {
     return is_random_private_resolvable_address(address) ||
         is_random_private_non_resolvable_address(address) ||
@@ -232,18 +229,30 @@ static bool is_whitelist_valid(const ::ble::whitelist_t &whitelist)
     }
 
     for (size_t i = 0; i < whitelist.size; ++i) {
-        const BLEProtocol::Address_t &address = whitelist.addresses[i];
-        if (address.type != BLEProtocol::AddressType::PUBLIC &&
-            address.type != BLEProtocol::AddressType::RANDOM_STATIC
-        ) {
-            return false;
+        const whitelist_t::entry_t &entry = whitelist.addresses[i];
+        switch (entry.type.value()) {
+            case peer_address_type_t::PUBLIC:
+            case peer_address_type_t::PUBLIC_IDENTITY:
+                if (is_random_address(entry.address)) {
+                    return false; // invalid address bytes
+                }
+                break;
+            case peer_address_type_t::RANDOM:
+                if (!is_random_static_address(entry.address)
+                    && !is_random_private_resolvable_address(entry.address)) {
+                    // is either non-resolvable or contains invalid address bytes
+                    return false;
+                }
+                break;
+            case peer_address_type_t::RANDOM_STATIC_IDENTITY:
+                if (!is_random_static_address(entry.address)) {
+                    return false; // invalid address bytes
+                }
+                break;
+            default: // ANONYMOUS
+                return false;
         }
 
-        if (address.type != BLEProtocol::AddressType::PUBLIC) {
-            if (is_random_address(address.address) == false) {
-                return false;
-            }
-        }
     }
     return true;
 }
@@ -252,17 +261,13 @@ static bool is_whitelist_valid(const ::ble::whitelist_t &whitelist)
  * Return true if device is present in the whitelist.
  */
 static bool is_in_whitelist(
-    const BLEProtocol::Address_t &device, const ::ble::whitelist_t &whitelist
+    const whitelist_t::entry_t &device, const whitelist_t &whitelist
 )
 {
     for (size_t i = 0; i < whitelist.size; ++i) {
-        const BLEProtocol::Address_t &potential_device = whitelist.addresses[i];
+        const whitelist_t::entry_t &potential_device = whitelist.addresses[i];
 
-        if (potential_device.type != device.type) {
-            continue;
-        }
-
-        if (memcmp(potential_device.address, device.address, sizeof(device.address)) == 0) {
+        if (potential_device.address == device.address) {
             return true;
         }
     }
@@ -270,13 +275,14 @@ static bool is_in_whitelist(
 }
 
 /*
- * Convert a BLEProtocol::AddressType_t into a pal::whitelist_address_type_t.
+ * Convert a peer_address_type_t into a pal::whitelist_address_type_t.
  */
 static pal::whitelist_address_type_t to_whitelist_address_type(
-    BLEProtocol::AddressType_t address_type
+    peer_address_type_t address_type
 )
 {
-    return (address_type == BLEProtocol::AddressType::PUBLIC) ?
+    return (address_type == peer_address_type_t::PUBLIC
+        || address_type == peer_address_type_t::PUBLIC_IDENTITY) ?
         pal::whitelist_address_type_t::PUBLIC_DEVICE_ADDRESS :
         pal::whitelist_address_type_t::RANDOM_DEVICE_ADDRESS;
 }
@@ -303,7 +309,7 @@ GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::
     _pal_gap(pal_gap),
     _gap_service(generic_access_service),
     _pal_sm(pal_sm),
-    _address_type(LegacyAddressType::PUBLIC),
+    _address_type(own_address_type_t::PUBLIC),
     _initiator_policy_mode(pal::initiator_policy_t::NO_FILTER),
     _scanning_filter_policy(pal::scanning_filter_policy_t::NO_FILTER),
     _advertising_filter_policy(pal::advertising_filter_policy_t::NO_FILTER),
@@ -354,7 +360,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         return err;
     }
 
-    _address_type = LegacyAddressType::RANDOM_STATIC;
+    _address_type = own_address_type_t::RANDOM;
     _address = address;
     _random_static_identity_address = address;
     return BLE_ERROR_NONE;
@@ -362,26 +368,24 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getAddress_(
-    LegacyAddressType_t *type,
-    BLEProtocol::AddressBytes_t address
+    own_address_type_t &type,
+    address_t &address
 )
 {
-    *type = _address_type;
-    ble::address_t address_value;
+    type = _address_type;
 
-    if (_address_type == LegacyAddressType::PUBLIC) {
-        address_value = _pal_gap.get_device_address();
+    if (_address_type == own_address_type_t::PUBLIC) {
+        address = _pal_gap.get_device_address();
     } else {
-        address_value = _pal_gap.get_random_address();
+        address = _pal_gap.get_random_address();
     }
 
-    memcpy(address, address_value.data(), address_value.size());
     return BLE_ERROR_NONE;
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getRandomAddressType(
-    const BLEProtocol::AddressBytes_t address,
+    const address_t address,
     ble::random_address_type_t* type
 ) {
     // see section Device address in Bluetooth Link Layer specification
@@ -718,7 +722,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
     // first evict devices not in the existing whitelist
     for (size_t i = 0; i < _whitelist.size; ++i) {
-        const BLEProtocol::Address_t &device = _whitelist.addresses[i];
+        const whitelist_t::entry_t &device = _whitelist.addresses[i];
 
         if (is_in_whitelist(device, whitelist) == false) {
             ble_error_t err = _pal_gap.remove_device_from_whitelist(
@@ -729,7 +733,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
             // try to restore the whitelist to its initial state
             if (err) {
                 for (size_t j = 0; j < i; ++j) {
-                    const BLEProtocol::Address_t &device = _whitelist.addresses[j];
+                    const whitelist_t::entry_t &device = _whitelist.addresses[j];
 
                     if (is_in_whitelist(device, whitelist) == false) {
                         _pal_gap.add_device_to_whitelist(
@@ -745,7 +749,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
     // second add devices which were not in the initial whitelist
     for (size_t i = 0; i < whitelist.size; ++i) {
-        const BLEProtocol::Address_t &device = whitelist.addresses[i];
+        const whitelist_t::entry_t &device = whitelist.addresses[i];
 
         if (is_in_whitelist(device, _whitelist) == false) {
             ble_error_t err = _pal_gap.add_device_to_whitelist(
@@ -757,7 +761,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
             if (err) {
                 // first remove the devices added
                 for (size_t j = 0; j < i; ++j) {
-                    const BLEProtocol::Address_t &device = whitelist.addresses[j];
+                    const whitelist_t::entry_t &device = whitelist.addresses[j];
 
                     if (is_in_whitelist(device, _whitelist) == false) {
                         _pal_gap.remove_device_from_whitelist(
@@ -769,7 +773,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
                 // second add the devices of the initial list evicted
                 for (size_t i = 0; i < _whitelist.size; ++i) {
-                    const BLEProtocol::Address_t &device = _whitelist.addresses[i];
+                    const whitelist_t::entry_t &device = _whitelist.addresses[i];
 
                     if (is_in_whitelist(device, whitelist) == false) {
                         _pal_gap.add_device_to_whitelist(
@@ -1173,7 +1177,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
     };
 
     ble::address_t address;
-    if (_address_type == LegacyAddressType::PUBLIC) {
+    if (_address_type == own_address_type_t::PUBLIC) {
         address = _pal_gap.get_device_address();
     } else {
         address = _pal_gap.get_random_address();
@@ -1185,9 +1189,9 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
             e.connection_handle,
             e.role,
             e.peer_address_type,
-            e.peer_address.data(),
+            e.peer_address,
             _address_type,
-            address.data(),
+            address,
             &connection_params
         );
     }
@@ -1327,8 +1331,8 @@ pal::own_address_type_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEve
             return pal::own_address_type_t::RANDOM;
         }
 
-        switch (_address_type) {
-            case BLEProtocol::AddressType::PUBLIC:
+        switch (_address_type.value()) {
+            case own_address_type_t::PUBLIC:
                 return pal::own_address_type_t::RESOLVABLE_PRIVATE_ADDRESS_PUBLIC_FALLBACK;
             default:
                 return pal::own_address_type_t::RESOLVABLE_PRIVATE_ADDRESS_RANDOM_FALLBACK;
@@ -1336,8 +1340,8 @@ pal::own_address_type_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEve
     }
 #endif // BLE_FEATURE_PRIVACY
 
-    switch (_address_type) {
-        case BLEProtocol::AddressType::PUBLIC:
+    switch (_address_type.value()) {
+        case own_address_type_t::PUBLIC:
             return pal::own_address_type_t::PUBLIC;
         default:
             return pal::own_address_type_t::RANDOM;
@@ -1357,7 +1361,7 @@ bool GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         return false;
     }
 
-    _whitelist.addresses = new(std::nothrow) BLEProtocol::Address_t[whitelist_capacity];
+    _whitelist.addresses = new(std::nothrow) whitelist_t::entry_t[whitelist_capacity];
     if (_whitelist.addresses == NULL) {
         return false;
     }
@@ -1460,7 +1464,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         return;
     }
 
-    _address_type = LegacyAddressType::RANDOM_PRIVATE_NON_RESOLVABLE;
+    _address_type = own_address_type_t::RANDOM;
     _address = address;
 }
 
@@ -2242,7 +2246,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
             address_type ?
                 (peer_address_type_t::type) address_type->value() :
                 peer_address_type_t::ANONYMOUS,
-            (BLEProtocol::AddressBytes_t &) address,
+            (address_t &) address,
             primary_phy,
             secondary_phy ? *secondary_phy : phy_t::NONE,
             advertising_sid,
@@ -2250,7 +2254,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
             rssi,
             periodic_advertising_interval,
             (ble::peer_address_type_t::type) direct_address_type.value(),
-            (BLEProtocol::AddressBytes_t &) direct_address,
+            (address_t &) direct_address,
             make_Span(data, data_length)
         )
     );

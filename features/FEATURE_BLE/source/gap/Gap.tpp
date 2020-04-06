@@ -872,8 +872,8 @@ ble_error_t Gap<Impl>::getCentralPrivacyConfiguration_(
 
 template<class Impl>
 ble_error_t Gap<Impl>::getAddress(
-    BLEProtocol::AddressType_t *typeP,
-    BLEProtocol::AddressBytes_t address
+    own_address_type_t &typeP,
+    address_t &address
 ) {
     return impl()->getAddress_(typeP, address);
 }

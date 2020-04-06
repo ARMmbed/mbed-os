@@ -1106,9 +1106,9 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_connected_(
     connection_handle_t connection,
     connection_role_t role,
     peer_address_type_t peer_address_type,
-    const BLEProtocol::AddressBytes_t peer_address,
-    BLEProtocol::AddressType_t local_address_type,
-    const BLEProtocol::AddressBytes_t local_address,
+    address_t peer_address,
+    own_address_type_t local_address_type,
+    address_t local_address,
     const ::Gap::ConnectionParams_t *connection_params
 ) {
 #if BLE_FEATURE_SECURITY

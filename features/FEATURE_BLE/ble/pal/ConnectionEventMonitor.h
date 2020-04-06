@@ -17,7 +17,6 @@
 #ifndef MBED_BLE_CONNECTION_EVENT_MONITOR
 #define MBED_BLE_CONNECTION_EVENT_MONITOR
 
-#include "ble/BLEProtocol.h"
 #include "ble/Gap.h"
 #include "ble/BLETypes.h"
 
@@ -53,9 +52,9 @@ public:
         connection_handle_t connection,
         connection_role_t role,
         ble::peer_address_type_t peer_address_type,
-        const BLEProtocol::AddressBytes_t peer_address,
-        BLEProtocol::AddressType_t local_address_type,
-        const BLEProtocol::AddressBytes_t local_address,
+        address_t peer_address,
+        own_address_type_t local_address_type,
+        const address_t local_address,
         const ::Gap::ConnectionParams_t *connection_params
     ) {
         self()->on_connected_(

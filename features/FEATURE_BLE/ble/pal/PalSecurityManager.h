@@ -21,7 +21,6 @@
 #include "platform/Callback.h"
 #include "platform/NonCopyable.h"
 #include "ble/BLETypes.h"
-#include "ble/BLEProtocol.h"
 #include "ble/SecurityManager.h"
 #include "ble/pal/GapTypes.h"
 

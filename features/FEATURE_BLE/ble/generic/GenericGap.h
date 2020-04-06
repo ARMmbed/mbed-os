@@ -19,7 +19,6 @@
 
 #include <algorithm>
 
-#include "ble/BLEProtocol.h"
 #include "ble/Gap.h"
 #include "ble/pal/PalGap.h"
 #include "ble/pal/GapEvents.h"
@@ -75,7 +74,6 @@ class GenericGap :
     using Gap::default_peripheral_privacy_configuration;
     using Gap::default_central_privacy_configuration;
 
-    typedef typename BLEProtocol::AddressBytes_t Address_t;
     typedef typename ble::whitelist_t whitelist_t;
     typedef typename Gap::ConnectionParams_t ConnectionParams_t;
 
@@ -291,8 +289,8 @@ public:
      * @see Gap::getAddress
      */
     ble_error_t getAddress_(
-        BLEProtocol::AddressType_t *type,
-        BLEProtocol::AddressBytes_t address
+        own_address_type_t &type,
+        address_t &address
     );
 
     /**
@@ -405,12 +403,12 @@ public:
     );
 
     ble_error_t getAddress(
-        BLEProtocol::AddressType_t *typeP,
-        BLEProtocol::AddressBytes_t address
+        own_address_type_t &typeP,
+        address_t &address
     );
 
     static ble_error_t getRandomAddressType(
-        const BLEProtocol::AddressBytes_t address,
+        const ble::address_t address,
         ble::random_address_type_t *addressType
     );
 
@@ -580,7 +578,7 @@ private:
     PalGap &_pal_gap;
     pal::GenericAccessService &_gap_service;
     PalSecurityManager &_pal_sm;
-    BLEProtocol::AddressType_t _address_type;
+    ble::own_address_type_t _address_type;
     ble::address_t _address;
     pal::initiator_policy_t _initiator_policy_mode;
     pal::scanning_filter_policy_t _scanning_filter_policy;

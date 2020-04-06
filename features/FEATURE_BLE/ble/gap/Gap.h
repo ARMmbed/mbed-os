@@ -1347,8 +1347,7 @@ public:
      * @return BLE_ERROR_NONE if the implementation's whitelist was successfully
      * populated with the addresses in the given whitelist.
      *
-     * @note The whitelist must not contain addresses of type @ref
-     * BLEProtocol::AddressType::RANDOM_PRIVATE_NON_RESOLVABLE. This
+     * @note The whitelist must not contain non-resolvable addresses. This
      * results in a @ref BLE_ERROR_INVALID_PARAM because the remote peer might
      * change its private address at any time, and it is not possible to resolve
      * it.
@@ -1372,8 +1371,8 @@ public:
      * @return BLE_ERROR_NONE on success.
      */
     ble_error_t getAddress(
-        BLEProtocol::AddressType_t *typeP,
-        BLEProtocol::AddressBytes_t address
+        own_address_type_t &typeP,
+        address_t &address
     );
 
     /**
@@ -1388,7 +1387,7 @@ public:
      * the address in input was not identifiable as a random address.
      */
     static ble_error_t getRandomAddressType(
-        const BLEProtocol::AddressBytes_t address,
+        const ble::address_t address,
         ble::random_address_type_t *addressType
     );
 
@@ -1604,8 +1603,8 @@ protected:
     ble_error_t setWhitelist_(const whitelist_t &whitelist);
 
     ble_error_t getAddress_(
-        BLEProtocol::AddressType_t *typeP,
-        BLEProtocol::AddressBytes_t address
+        own_address_type_t &typeP,
+        address_t &address
     );
 
     /* Note: Implementation must call the base class reset_ */
