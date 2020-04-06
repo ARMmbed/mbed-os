@@ -69,6 +69,7 @@ void LoRaMacCommand::parse_mac_commands_to_repeat()
     for (i = 0; i < mac_cmd_buf_idx; i++) {
         switch (mac_cmd_buffer[i]) {
             // STICKY
+            case MOTE_DEVICE_MODE_IND:
             case MOTE_MAC_RESET_IND:
             case MOTE_MAC_RX_PARAM_SETUP_ANS:
             case MOTE_MAC_DL_CHANNEL_ANS:
@@ -86,6 +87,7 @@ void LoRaMacCommand::parse_mac_commands_to_repeat()
                 i += 2;
                 break;
             }
+            case MOTE_MAC_BEACON_FREQ_ANS:
             case MOTE_MAC_LINK_ADR_ANS:
             case MOTE_MAC_NEW_CHANNEL_ANS:
             case MOTE_MAC_REJOIN_PARAM_SETUP_ANS:
