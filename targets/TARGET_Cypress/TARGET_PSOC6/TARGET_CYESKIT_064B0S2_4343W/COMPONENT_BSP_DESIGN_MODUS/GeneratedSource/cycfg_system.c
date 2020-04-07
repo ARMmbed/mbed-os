@@ -36,16 +36,16 @@
 #define CY_CFG_SYSCLK_CLKFAST_ENABLED 1
 #define CY_CFG_SYSCLK_FLL_ENABLED 1
 #define CY_CFG_SYSCLK_CLKHF0_ENABLED 1
-#define CY_CFG_SYSCLK_CLKHF0_FREQ_MHZ 100UL
+#define CY_CFG_SYSCLK_CLKHF0_FREQ_MHZ 96UL
 #define CY_CFG_SYSCLK_CLKHF0_CLKPATH CY_SYSCLK_CLKHF_IN_CLKPATH0
 #define CY_CFG_SYSCLK_CLKHF2_ENABLED 1
-#define CY_CFG_SYSCLK_CLKHF2_FREQ_MHZ 50UL
+#define CY_CFG_SYSCLK_CLKHF2_FREQ_MHZ 48UL
 #define CY_CFG_SYSCLK_CLKHF2_CLKPATH CY_SYSCLK_CLKHF_IN_CLKPATH0
 #define CY_CFG_SYSCLK_CLKHF3_ENABLED 1
-#define CY_CFG_SYSCLK_CLKHF3_FREQ_MHZ 100UL
+#define CY_CFG_SYSCLK_CLKHF3_FREQ_MHZ 96UL
 #define CY_CFG_SYSCLK_CLKHF3_CLKPATH CY_SYSCLK_CLKHF_IN_CLKPATH0
 #define CY_CFG_SYSCLK_CLKHF4_ENABLED 1
-#define CY_CFG_SYSCLK_CLKHF4_FREQ_MHZ 100UL
+#define CY_CFG_SYSCLK_CLKHF4_FREQ_MHZ 96UL
 #define CY_CFG_SYSCLK_CLKHF4_CLKPATH CY_SYSCLK_CLKHF_IN_CLKPATH0
 #define CY_CFG_SYSCLK_ILO_ENABLED 1
 #define CY_CFG_SYSCLK_IMO_ENABLED 1
@@ -71,16 +71,16 @@
 
 static const cy_stc_fll_manual_config_t srss_0_clock_0_fll_0_fllConfig = 
 {
-	.fllMult = 500U,
-	.refDiv = 20U,
+	.fllMult = 504U,
+	.refDiv = 21U,
 	.ccoRange = CY_SYSCLK_FLL_CCO_RANGE4,
 	.enableOutputDiv = true,
 	.lockTolerance = 10U,
 	.igain = 9U,
-	.pgain = 5U,
+	.pgain = 4U,
 	.settlingCount = 8U,
 	.outputMode = CY_SYSCLK_FLLPLL_OUTPUT_OUTPUT,
-	.cco_Freq = 355U,
+	.cco_Freq = 320U,
 };
 #if defined (CY_USING_HAL)
 	const cyhal_resource_inst_t srss_0_clock_0_pathmux_0_obj = 

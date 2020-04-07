@@ -286,7 +286,7 @@
                 <Block location="srss[0].clock[0].fll[0]">
                     <Personality template="mxs40fll" version="1.0">
                         <Param id="configuration" value="auto"/>
-                        <Param id="desiredFrequency" value="100.000"/>
+                        <Param id="desiredFrequency" value="96.000"/>
                     </Personality>
                 </Block>
                 <Block location="srss[0].clock[0].hfclk[0]">
