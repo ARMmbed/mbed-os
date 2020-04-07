@@ -861,6 +861,7 @@ struct disconnection_reason_t : SafeEnum<disconnection_reason_t, uint8_t> {
     {
     }
 
+#if !defined(DOXYGEN_ONLY)
     /**
      * Construct a new instance of disconnection_reason_t.
      *
@@ -868,10 +869,11 @@ struct disconnection_reason_t : SafeEnum<disconnection_reason_t, uint8_t> {
      *
      * @note This should only be used for casting raw values from HCI.
      */
-    disconnection_reason_t(uint8_t value) : SafeEnum(value)
+    explicit disconnection_reason_t(uint8_t value) : SafeEnum(value)
     {
     }
 };
+#endif // !defined(DOXYGEN_ONLY)
 
 /**
  * Privacy Configuration of the peripheral role.
