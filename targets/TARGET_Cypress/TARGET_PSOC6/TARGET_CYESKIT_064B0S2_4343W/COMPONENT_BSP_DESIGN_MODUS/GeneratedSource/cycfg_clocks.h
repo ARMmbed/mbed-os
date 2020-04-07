@@ -4,8 +4,8 @@
 * Description:
 * Clock configuration
 * This file was automatically generated and should not be modified.
-* cfg-backend-cli: 1.2.0.1478
-* Device Support Library (../../../../output/psoc6/psoc6pdl): 1.4.0.1571
+* Device Configurator: 2.0.0.1483
+* Device Support Library (../../../psoc6pdl): 1.4.1.2240
 *
 ********************************************************************************
 * Copyright 2017-2019 Cypress Semiconductor Corporation
@@ -39,7 +39,7 @@ extern "C" {
 
 #define CYBSP_CSD_CLK_DIV_ENABLED 1U
 #define CYBSP_CSD_CLK_DIV_HW CY_SYSCLK_DIV_8_BIT
-#define CYBSP_CSD_CLK_DIV_NUM 3U
+#define CYBSP_CSD_CLK_DIV_NUM 0U
 
 #if defined (CY_USING_HAL)
 	extern const cyhal_resource_inst_t CYBSP_CSD_CLK_DIV_obj;

@@ -29,7 +29,7 @@
             <Encrypt>false</Encrypt>
             <DataSelect>SPI_MOSI_MISO_DATA_0_1</DataSelect>
             <MemoryConfigsPath>default_memory.xml</MemoryConfigsPath>
-            <ConfigDataInFlash>true</ConfigDataInFlash>
+            <ConfigDataInFlash>false</ConfigDataInFlash>
         </SlotConfig>
         <SlotConfig>
             <SlaveSlot>2</SlaveSlot>
@@ -43,7 +43,7 @@
             <Encrypt>false</Encrypt>
             <DataSelect>SPI_MOSI_MISO_DATA_0_1</DataSelect>
             <MemoryConfigsPath>default_memory.xml</MemoryConfigsPath>
-            <ConfigDataInFlash>true</ConfigDataInFlash>
+            <ConfigDataInFlash>false</ConfigDataInFlash>
         </SlotConfig>
         <SlotConfig>
             <SlaveSlot>3</SlaveSlot>
@@ -57,7 +57,7 @@
             <Encrypt>false</Encrypt>
             <DataSelect>SPI_MOSI_MISO_DATA_0_1</DataSelect>
             <MemoryConfigsPath>default_memory.xml</MemoryConfigsPath>
-            <ConfigDataInFlash>true</ConfigDataInFlash>
+            <ConfigDataInFlash>false</ConfigDataInFlash>
         </SlotConfig>
     </SlotConfigs>
 </Configuration>

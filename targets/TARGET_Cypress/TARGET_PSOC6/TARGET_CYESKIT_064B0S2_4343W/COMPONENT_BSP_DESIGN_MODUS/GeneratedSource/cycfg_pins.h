@@ -4,8 +4,8 @@
 * Description:
 * Pin configuration
 * This file was automatically generated and should not be modified.
-* cfg-backend-cli: 1.2.0.1478
-* Device Support Library (../../../../output/psoc6/psoc6pdl): 1.4.0.1571
+* Device Configurator: 2.0.0.1483
+* Device Support Library (../../../psoc6pdl): 1.4.1.2240
 *
 ********************************************************************************
 * Copyright 2017-2019 Cypress Semiconductor Corporation
@@ -86,29 +86,29 @@ extern "C" {
 #if defined (CY_USING_HAL)
 	#define CYBSP_WCO_OUT_HAL_DRIVEMODE CYHAL_GPIO_DRIVE_ANALOG
 #endif //defined (CY_USING_HAL)
-#define CYBSP_CSD_TX_ENABLED 1U
-#define CYBSP_CSD_TX_PORT GPIO_PRT1
-#define CYBSP_CSD_TX_PORT_NUM 1U
-#define CYBSP_CSD_TX_PIN 0U
-#define CYBSP_CSD_TX_NUM 0U
-#define CYBSP_CSD_TX_DRIVEMODE CY_GPIO_DM_ANALOG
-#define CYBSP_CSD_TX_INIT_DRIVESTATE 1
+#define CYBSP_CSD_RX_ENABLED 1U
+#define CYBSP_CSD_RX_PORT GPIO_PRT1
+#define CYBSP_CSD_RX_PORT_NUM 1U
+#define CYBSP_CSD_RX_PIN 0U
+#define CYBSP_CSD_RX_NUM 0U
+#define CYBSP_CSD_RX_DRIVEMODE CY_GPIO_DM_ANALOG
+#define CYBSP_CSD_RX_INIT_DRIVESTATE 1
 #ifndef ioss_0_port_1_pin_0_HSIOM
 	#define ioss_0_port_1_pin_0_HSIOM HSIOM_SEL_GPIO
 #endif
-#define CYBSP_CSD_TX_HSIOM ioss_0_port_1_pin_0_HSIOM
-#define CYBSP_CSD_TX_IRQ ioss_interrupts_gpio_1_IRQn
+#define CYBSP_CSD_RX_HSIOM ioss_0_port_1_pin_0_HSIOM
+#define CYBSP_CSD_RX_IRQ ioss_interrupts_gpio_1_IRQn
 #if defined (CY_USING_HAL)
-	#define CYBSP_CSD_TX_HAL_PORT_PIN P1_0
+	#define CYBSP_CSD_RX_HAL_PORT_PIN P1_0
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
-	#define CYBSP_CSD_TX_HAL_IRQ CYHAL_GPIO_IRQ_NONE
+	#define CYBSP_CSD_RX_HAL_IRQ CYHAL_GPIO_IRQ_NONE
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
-	#define CYBSP_CSD_TX_HAL_DIR CYHAL_GPIO_DIR_INPUT 
+	#define CYBSP_CSD_RX_HAL_DIR CYHAL_GPIO_DIR_INPUT 
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
-	#define CYBSP_CSD_TX_HAL_DRIVEMODE CYHAL_GPIO_DRIVE_ANALOG
+	#define CYBSP_CSD_RX_HAL_DRIVEMODE CYHAL_GPIO_DRIVE_ANALOG
 #endif //defined (CY_USING_HAL)
 #define CYBSP_SWO_ENABLED 1U
 #define CYBSP_SWO_PORT GPIO_PRT6
@@ -431,9 +431,9 @@ extern const cy_stc_gpio_pin_config_t CYBSP_WCO_OUT_config;
 #if defined (CY_USING_HAL)
 	extern const cyhal_resource_inst_t CYBSP_WCO_OUT_obj;
 #endif //defined (CY_USING_HAL)
-extern const cy_stc_gpio_pin_config_t CYBSP_CSD_TX_config;
+extern const cy_stc_gpio_pin_config_t CYBSP_CSD_RX_config;
 #if defined (CY_USING_HAL)
-	extern const cyhal_resource_inst_t CYBSP_CSD_TX_obj;
+	extern const cyhal_resource_inst_t CYBSP_CSD_RX_obj;
 #endif //defined (CY_USING_HAL)
 extern const cy_stc_gpio_pin_config_t CYBSP_SWO_config;
 #if defined (CY_USING_HAL)

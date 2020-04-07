@@ -92,13 +92,13 @@ extern "C" {
 /** LED 8; User LED1 */
 #define CYBSP_LED8                  (P1_5)
 /** LED 9; User LED2 */
-#define CYBSP_LED9                  (P13_7)
+#define CYBSP_LED9                  (P11_1)
 /** LED 5: RGB LED - Red; User LED3 */
-#define CYBSP_LED_RGB_RED           (P0_3)
+#define CYBSP_LED_RGB_RED           (P1_1)
 /** LED 5: RGB LED - Green; User LED4 */
-#define CYBSP_LED_RGB_GREEN         (P1_1)
+#define CYBSP_LED_RGB_GREEN         (P0_5)
 /** LED 5: RGB LED - Blue; User LED5 */
-#define CYBSP_LED_RGB_BLUE          (P11_1)
+#define CYBSP_LED_RGB_BLUE          (P7_3)
 
 /** LED 8; User LED1 */
 #define CYBSP_USER_LED1             (CYBSP_LED8)
@@ -152,7 +152,7 @@ extern "C" {
 /** Pin: WIFI ON */
 #define CYBSP_WIFI_WL_REG_ON        (P2_6)
 /** Pin: WIFI Host Wakeup */
-#define CYBSP_WIFI_HOST_WAKE        (P2_7)
+#define CYBSP_WIFI_HOST_WAKE        (P4_1)
 
 /** Pin: BT UART RX */
 #define CYBSP_BT_UART_RX            (P3_0)
@@ -166,14 +166,18 @@ extern "C" {
 /** Pin: BT Power */
 #define CYBSP_BT_POWER              (P3_4)
 /** Pin: BT Host Wakeup */
-#define CYBSP_BT_HOST_WAKE          (P3_5)
+#define CYBSP_BT_HOST_WAKE          (P4_0)
 /** Pin: BT Device Wakeup */
-#define CYBSP_BT_DEVICE_WAKE        (P4_0)
+#define CYBSP_BT_DEVICE_WAKE        (P3_5)
 
 /** Pin: UART RX */
 #define CYBSP_DEBUG_UART_RX         (P5_0)
 /** Pin: UART TX */
 #define CYBSP_DEBUG_UART_TX         (P5_1)
+/** Pin: UART RX */
+#define CYBSP_DEBUG_UART_RTS        (P5_2)
+/** Pin: UART TX */
+#define CYBSP_DEBUG_UART_CTS        (P5_3)
 
 /** Pin: I2C SCL */
 #define CYBSP_I2C_SCL               (P6_0)
@@ -223,17 +227,17 @@ extern "C" {
 */
 
 /** Arduino A0 */
-#define CYBSP_A0                    P10_0
+#define CYBSP_A0                    (P10_0)
 /** Arduino A1 */
-#define CYBSP_A1                    P10_1
+#define CYBSP_A1                    (P10_1)
 /** Arduino A2 */
-#define CYBSP_A2                    P10_2
+#define CYBSP_A2                    (P10_2)
 /** Arduino A3 */
-#define CYBSP_A3                    P10_3
+#define CYBSP_A3                    (P10_3)
 /** Arduino A4 */
-#define CYBSP_A4                    P10_4
+#define CYBSP_A4                    (P10_4)
 /** Arduino A5 */
-#define CYBSP_A5                    P10_5
+#define CYBSP_A5                    (P10_5)
 /** Arduino D0 */
 #define CYBSP_D0                    (P5_0)
 /** Arduino D1 */
@@ -249,11 +253,11 @@ extern "C" {
 /** Arduino D6 */
 #define CYBSP_D6                    (P5_6)
 /** Arduino D7 */
-#define CYBSP_D7                    (P0_2)
+#define CYBSP_D7                    (P5_7)
 /** Arduino D8 */
-#define CYBSP_D8                    (P13_0)
+#define CYBSP_D8                    (P7_5)
 /** Arduino D9 */
-#define CYBSP_D9                    (P13_1)
+#define CYBSP_D9                    (P7_6)
 /** Arduino D10 */
 #define CYBSP_D10                   (P12_3)
 /** Arduino D11 */
@@ -302,19 +306,11 @@ extern "C" {
 /** Cypress J2 Header pin 13 */
 #define CYBSP_J2_13                 (P10_6)
 /** Cypress J2 Header pin 14 */
-#define CYBSP_J2_14                 (NC)
+#define CYBSP_J2_14                 (P9_6)
 /** Cypress J2 Header pin 15 */
-#define CYBSP_J2_15                 (P6_2)
+#define CYBSP_J2_15                 (P10_7)
 /** Cypress J2 Header pin 16 */
-#define CYBSP_J2_16                 (P9_6)
-/** Cypress J2 Header pin 17 */
-#define CYBSP_J2_17                 (P6_3)
-/** Cypress J2 Header pin 18 */
-#define CYBSP_J2_18                 (P9_7)
-/** Cypress J2 Header pin 19 */
-#define CYBSP_J2_19                 (P13_6)
-/** Cypress J2 Header pin 20 */
-#define CYBSP_J2_20                 (P13_7)
+#define CYBSP_J2_16                 (P9_7)
 
 /** \} group_bsp_pins_j2 */
 

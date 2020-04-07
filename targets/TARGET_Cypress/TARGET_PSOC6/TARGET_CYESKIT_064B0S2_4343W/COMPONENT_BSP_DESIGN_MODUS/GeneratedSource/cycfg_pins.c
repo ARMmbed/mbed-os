@@ -4,8 +4,8 @@
 * Description:
 * Pin configuration
 * This file was automatically generated and should not be modified.
-* cfg-backend-cli: 1.2.0.1478
-* Device Support Library (../../../../output/psoc6/psoc6pdl): 1.4.0.1571
+* Device Configurator: 2.0.0.1483
+* Device Support Library (../../../psoc6pdl): 1.4.1.2240
 *
 ********************************************************************************
 * Copyright 2017-2019 Cypress Semiconductor Corporation
@@ -74,11 +74,11 @@ const cy_stc_gpio_pin_config_t CYBSP_WCO_OUT_config =
 		.channel_num = CYBSP_WCO_OUT_PIN,
 	};
 #endif //defined (CY_USING_HAL)
-const cy_stc_gpio_pin_config_t CYBSP_CSD_TX_config = 
+const cy_stc_gpio_pin_config_t CYBSP_CSD_RX_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_ANALOG,
-	.hsiom = CYBSP_CSD_TX_HSIOM,
+	.hsiom = CYBSP_CSD_RX_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
@@ -91,11 +91,11 @@ const cy_stc_gpio_pin_config_t CYBSP_CSD_TX_config =
 	.vohSel = 0UL,
 };
 #if defined (CY_USING_HAL)
-	const cyhal_resource_inst_t CYBSP_CSD_TX_obj = 
+	const cyhal_resource_inst_t CYBSP_CSD_RX_obj = 
 	{
 		.type = CYHAL_RSC_GPIO,
-		.block_num = CYBSP_CSD_TX_PORT_NUM,
-		.channel_num = CYBSP_CSD_TX_PIN,
+		.block_num = CYBSP_CSD_RX_PORT_NUM,
+		.channel_num = CYBSP_CSD_RX_PIN,
 	};
 #endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_SWO_config = 
@@ -425,7 +425,7 @@ void init_cycfg_pins(void)
 #endif //defined (CY_USING_HAL)
 
 #if defined (CY_USING_HAL)
-	cyhal_hwmgr_reserve(&CYBSP_CSD_TX_obj);
+	cyhal_hwmgr_reserve(&CYBSP_CSD_RX_obj);
 #endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(CYBSP_SWO_PORT, CYBSP_SWO_PIN, &CYBSP_SWO_config);

@@ -4,8 +4,8 @@
 * Description:
 * Peripheral Hardware Block configuration
 * This file was automatically generated and should not be modified.
-* cfg-backend-cli: 1.2.0.1478
-* Device Support Library (../../../../output/psoc6/psoc6pdl): 1.4.0.1571
+* Device Configurator: 2.0.0.1483
+* Device Support Library (../../../psoc6pdl): 1.4.1.2240
 *
 ********************************************************************************
 * Copyright 2017-2019 Cypress Semiconductor Corporation
@@ -38,17 +38,17 @@ extern "C" {
 #define CYBSP_CSD_ENABLED 1U
 #define CY_CAPSENSE_CORE 4u
 #define CY_CAPSENSE_CPU_CLK 100000000u
-#define CY_CAPSENSE_PERI_CLK 100000000u
+#define CY_CAPSENSE_PERI_CLK 50000000u
 #define CY_CAPSENSE_VDDA_MV 3300u
 #define CY_CAPSENSE_PERI_DIV_TYPE CY_SYSCLK_DIV_8_BIT
-#define CY_CAPSENSE_PERI_DIV_INDEX 3u
+#define CY_CAPSENSE_PERI_DIV_INDEX 0u
 #define Cmod_PORT GPIO_PRT7
 #define CintA_PORT GPIO_PRT7
 #define CintB_PORT GPIO_PRT7
-#define Button0_Rx0_PORT GPIO_PRT8
-#define Button0_Tx_PORT GPIO_PRT1
-#define Button1_Rx0_PORT GPIO_PRT8
-#define Button1_Tx_PORT GPIO_PRT1
+#define Button0_Rx0_PORT GPIO_PRT1
+#define Button0_Tx_PORT GPIO_PRT8
+#define Button1_Rx0_PORT GPIO_PRT1
+#define Button1_Tx_PORT GPIO_PRT8
 #define LinearSlider0_Sns0_PORT GPIO_PRT8
 #define LinearSlider0_Sns1_PORT GPIO_PRT8
 #define LinearSlider0_Sns2_PORT GPIO_PRT8
@@ -57,10 +57,10 @@ extern "C" {
 #define Cmod_PIN 7u
 #define CintA_PIN 1u
 #define CintB_PIN 2u
-#define Button0_Rx0_PIN 1u
-#define Button0_Tx_PIN 0u
-#define Button1_Rx0_PIN 2u
-#define Button1_Tx_PIN 0u
+#define Button0_Rx0_PIN 0u
+#define Button0_Tx_PIN 1u
+#define Button1_Rx0_PIN 0u
+#define Button1_Tx_PIN 2u
 #define LinearSlider0_Sns0_PIN 3u
 #define LinearSlider0_Sns1_PIN 4u
 #define LinearSlider0_Sns2_PIN 5u
