@@ -565,6 +565,14 @@ void USBMSD::_read_next()
 
 void USBMSD::memoryWrite(uint8_t *buf, uint16_t size)
 {
+    // Max sized packets are required to be sent until the transfer is complete
+    MBED_ASSERT(_block_size % MAX_PACKET == 0);
+    if ((size != MAX_PACKET) && (size != 0)) {
+        _stage = ERROR;
+        endpoint_stall(_bulk_out);
+        return;
+    }
+
     if ((_addr + size) > _memory_size) {
         size = _memory_size - _addr;
         _stage = ERROR;
@@ -869,23 +877,25 @@ void USBMSD::memoryRead(void)
 
     n = (_length > MAX_PACKET) ? MAX_PACKET : _length;
 
-    if ((_addr + n) > _memory_size) {
-        n = _memory_size - _addr;
+    if (_addr > (_memory_size - n)) {
+        n = _addr < _memory_size ? _memory_size - _addr : 0;
         _stage = ERROR;
     }
 
-    // we read an entire block
-    if (!(_addr % _block_size)) {
-        disk_read(_page, _addr / _block_size, 1);
+    if (n > 0) {
+        // we read an entire block
+        if (!(_addr % _block_size)) {
+            disk_read(_page, _addr / _block_size, 1);
+        }
+
+        // write data which are in RAM
+        _write_next(&_page[_addr % _block_size], MAX_PACKET);
+
+        _addr += n;
+        _length -= n;
+
+        _csw.DataResidue -= n;
     }
-
-    // write data which are in RAM
-    _write_next(&_page[_addr % _block_size], MAX_PACKET);
-
-    _addr += n;
-    _length -= n;
-
-    _csw.DataResidue -= n;
 
     if (!_length || (_stage != PROCESS_CBW)) {
         _csw.Status = (_stage == PROCESS_CBW) ? CSW_PASSED : CSW_FAILED;
@@ -896,30 +906,37 @@ void USBMSD::memoryRead(void)
 
 bool USBMSD::infoTransfer(void)
 {
-    uint32_t n;
+    uint32_t addr_block;
 
     // Logical Block Address of First Block
-    n = (_cbw.CB[2] << 24) | (_cbw.CB[3] << 16) | (_cbw.CB[4] <<  8) | (_cbw.CB[5] <<  0);
+    addr_block = (_cbw.CB[2] << 24) | (_cbw.CB[3] << 16) | (_cbw.CB[4] <<  8) | (_cbw.CB[5] <<  0);
 
-    _addr = n * _block_size;
+    _addr = addr_block * _block_size;
 
+    if ((addr_block >= _block_count) || (_addr >= _memory_size)) {
+        _csw.Status = CSW_FAILED;
+        sendCSW();
+        return false;
+    }
+
+    uint32_t length_blocks = 0;
     // Number of Blocks to transfer
     switch (_cbw.CB[0]) {
         case READ10:
         case WRITE10:
         case VERIFY10:
-            n = (_cbw.CB[7] <<  8) | (_cbw.CB[8] <<  0);
+            length_blocks = (_cbw.CB[7] <<  8) | (_cbw.CB[8] <<  0);
             break;
 
         case READ12:
         case WRITE12:
-            n = (_cbw.CB[6] << 24) | (_cbw.CB[7] << 16) | (_cbw.CB[8] <<  8) | (_cbw.CB[9] <<  0);
+            length_blocks = (_cbw.CB[6] << 24) | (_cbw.CB[7] << 16) | (_cbw.CB[8] <<  8) | (_cbw.CB[9] <<  0);
             break;
     }
 
-    _length = n * _block_size;
+    _length = length_blocks * _block_size;
 
-    if (!_cbw.DataLength) {              // host requests no data
+    if (!_cbw.DataLength || !length_blocks || (length_blocks > _block_count - addr_block) || (_length > _memory_size - _addr)) { // host requests no data or wrong length
         _csw.Status = CSW_FAILED;
         sendCSW();
         return false;
