@@ -30,6 +30,7 @@
 #include "mbedtls/pk_internal.h"
 
 #include "mbedtls/platform_util.h"
+#include "mbedtls/error.h"
 
 #if defined(MBEDTLS_RSA_C)
 #include "mbedtls/rsa.h"
@@ -297,7 +298,7 @@ int mbedtls_pk_verify_restartable( mbedtls_pk_context *ctx,
         mbedtls_ecp_restart_is_enabled() &&
         ctx->pk_info->verify_rs_func != NULL )
     {
-        int ret;
+        int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED;
 
         if( ( ret = pk_restart_setup( rs_ctx, ctx->pk_info ) ) != 0 )
             return( ret );
@@ -354,7 +355,7 @@ int mbedtls_pk_verify_ext( mbedtls_pk_type_t type, const void *options,
     if( type == MBEDTLS_PK_RSASSA_PSS )
     {
 #if defined(MBEDTLS_RSA_C) && defined(MBEDTLS_PKCS1_V21)
-        int ret;
+        int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED;
         const mbedtls_pk_rsassa_pss_options *pss_opts;
 
 #if SIZE_MAX > UINT_MAX
@@ -420,7 +421,7 @@ int mbedtls_pk_sign_restartable( mbedtls_pk_context *ctx,
         mbedtls_ecp_restart_is_enabled() &&
         ctx->pk_info->sign_rs_func != NULL )
     {
-        int ret;
+        int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED;
 
         if( ( ret = pk_restart_setup( rs_ctx, ctx->pk_info ) ) != 0 )
             return( ret );
@@ -604,7 +605,8 @@ int mbedtls_pk_wrap_as_opaque( mbedtls_pk_context *pk,
     psa_ecc_curve_t curve_id;
     psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
     psa_key_type_t key_type;
-    int ret;
+    size_t bits;
+    int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED;
 
     /* export the private key material in the format PSA wants */
     if( mbedtls_pk_get_type( pk ) != MBEDTLS_PK_ECKEY )
@@ -615,13 +617,13 @@ int mbedtls_pk_wrap_as_opaque( mbedtls_pk_context *pk,
     if( ( ret = mbedtls_mpi_write_binary( &ec->d, d, d_len ) ) != 0 )
         return( ret );
 
-    curve_id = mbedtls_ecp_curve_info_from_grp_id( ec->grp.id )->tls_id;
-    key_type = PSA_KEY_TYPE_ECC_KEY_PAIR(
-                                 mbedtls_psa_parse_tls_ecc_group ( curve_id ) );
+    curve_id = mbedtls_ecc_group_to_psa( ec->grp.id, &bits );
+    key_type = PSA_KEY_TYPE_ECC_KEY_PAIR( curve_id );
 
     /* prepare the key attributes */
     psa_set_key_type( &attributes, key_type );
-    psa_set_key_usage_flags( &attributes, PSA_KEY_USAGE_SIGN );
+    psa_set_key_bits( &attributes, bits );
+    psa_set_key_usage_flags( &attributes, PSA_KEY_USAGE_SIGN_HASH );
     psa_set_key_algorithm( &attributes, PSA_ALG_ECDSA(hash_alg) );
 
     /* import private key into PSA */
