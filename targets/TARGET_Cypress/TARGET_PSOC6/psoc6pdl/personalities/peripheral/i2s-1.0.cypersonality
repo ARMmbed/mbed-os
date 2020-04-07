@@ -3,14 +3,14 @@
 
 <!--****************************************************************************
 * \file i2s.cypersonality
-* \version 1.0
+* \version 1.0.1
 *
 * \brief
 * I2S personality description file.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -269,6 +269,7 @@
     
     <!-- I2S instance number -->
     <ParamString id="InstNumber" name="Instance Number" group="Internal" default="`${getInstNumber(&quot;audioss&quot;)}`" visible="false" editable="false" desc="I2S Instance number." />
+    <ParamBool id="hasAudioss1" name="hasAudioss1" group="Internal" default="`${hasBlock(&quot;audioss[1]&quot;)}`" visible="false" editable="false" desc="Check whether device has more than one audioss" />
     
   </Parameters>
 
@@ -296,8 +297,9 @@
     <ConfigInclude value="cy_i2s.h" include="true" />
     <ConfigInclude value="cyhal_hwmgr.h" include="true" guard="defined (CY_USING_HAL)" />
     
-    <ConfigDefine name="`${INST_NAME}`_HW" value="I2S`${InstNumber}`" public="true" include="true" />
-    <ConfigDefine name="`${INST_NAME}`_IRQ" value="audioss_`${InstNumber}`_interrupt_i2s_IRQn" public="true" include="true" />
+    <ConfigDefine name="`${INST_NAME}`_HW" value="I2S`${hasAudioss1 ? InstNumber : &quot;&quot;}`" public="true" include="true" />
+    <ConfigDefine name="`${INST_NAME}`_IRQ" value="audioss_`${hasAudioss1 ? InstNumber . &quot;_&quot; : &quot;&quot;}`interrupt_i2s_IRQn" public="true" include="true" />
+    
     <ConfigStruct name="`${INST_NAME . &quot;_config&quot;}`" type="cy_stc_i2s_config_t" const="`${inFlash}`" public="true" include="true">
       <Member name="txEnabled"             value="`${txEnabled}`" />
       <Member name="rxEnabled"             value="`${rxEnabled}`" />
@@ -335,7 +337,7 @@
     
     <ConfigStruct name="`${INST_NAME}`_obj" type="cyhal_resource_inst_t" const="true" public="true" include="true" guard="defined (CY_USING_HAL)">
       <Member name="type" value="CYHAL_RSC_I2S" />
-      <Member name="block_num" value="`${getInstNumber(&quot;audioss&quot;)}`U" />
+      <Member name="block_num" value="`${InstNumber}`U" />
       <Member name="channel_num" value="0U" />
     </ConfigStruct>
     

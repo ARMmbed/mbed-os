@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" release="PSoC Creator  4.2 Nightly Build 1112" xmlns="http://cypress.com/xsd/cysem">
+<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" release="PSoC Creator  4.3 Nightly Build 1365" xmlns="http://cypress.com/xsd/cysem">
   <Instances count="38">
     <Instance guid="09373d34-20d2-4303-a52b-d96300ec4539" name="IMO" component="clock_side">
       <Parameter name="CY_COMMENT">
@@ -1082,7 +1082,7 @@ SYS_TICK</Value>
         <Value>2</Value>
       </Parameter>
       <Parameter name="ToolTip">
-        <Value>Watch Crystal Oscillator: This source is driven from an off-chip watch crystal that provides an extremely accurate source. This clock is stopped in the hibernate power mode.</Value>
+        <Value>Watch Crystal Oscillator: This source is driven from an off-chip watch crystal that provides an extremely accurate source. This clock runs in hibernate power mode.</Value>
       </Parameter>
     </Instance>
     <Instance guid="f2d4f666-373b-4dfe-b3b7-966b9228b304" name="FLL" component="clock_side">
@@ -1628,8 +1628,8 @@ SYS_TICK</Value>
     </Signal>
     <Signal name="Net_2423[3:0]" type="Digital" terminalCount="5">
       <Terminal name="WCO.a_3" type="Instance Digital Output" />
-      <Terminal name="ILO.a_14" type="Instance Digital Output" />
       <Terminal name="PILO.a_14" type="Instance Digital Output" />
+      <Terminal name="ILO.a_14" type="Instance Digital Output" />
       <Terminal name="LF_CLK_MUX.b_0" type="Instance Digital Input" />
       <Terminal name="CLK_LF.b_17" type="Instance Digital Input" />
     </Signal>
@@ -1866,17 +1866,17 @@ SYS_TICK</Value>
       <Terminal name="CLK_BAK.a_3" type="Instance Digital Output" />
     </Signal>
     <Signal name="Net_2931[4:0]" type="Digital" terminalCount="11">
-      <Terminal name="PLL_BYPASS_0.a_0" type="Instance Digital Output" />
       <Terminal name="FLL_BYPASS.a_0" type="Instance Digital Output" />
+      <Terminal name="PLL_BYPASS_0.a_0" type="Instance Digital Output" />
       <Terminal name="CLK_HF1.b_17" type="Instance Digital Input" />
-      <Terminal name="CLK_HF2.b_17" type="Instance Digital Input" />
-      <Terminal name="CLK_PUMP.b_17" type="Instance Digital Input" />
-      <Terminal name="CLK_HF3.b_17" type="Instance Digital Input" />
       <Terminal name="CLK_HF0.b_17" type="Instance Digital Input" />
+      <Terminal name="CLK_HF3.b_17" type="Instance Digital Input" />
+      <Terminal name="CLK_HF2.b_17" type="Instance Digital Input" />
       <Terminal name="CLK_HF4_1.b_17" type="Instance Digital Input" />
-      <Terminal name="arc_bridge_1.o" type="Instance Digital Output" />
-      <Terminal name="arc_bridge_2.o" type="Instance Digital Output" />
+      <Terminal name="CLK_PUMP.b_17" type="Instance Digital Input" />
       <Terminal name="arc_bridge_3.o" type="Instance Digital Output" />
+      <Terminal name="arc_bridge_2.o" type="Instance Digital Output" />
+      <Terminal name="arc_bridge_1.o" type="Instance Digital Output" />
     </Signal>
     <Signal name="Net_2934" type="Digital" terminalCount="1">
       <Terminal name="CLK_PUMP.b_15" type="Instance Digital Input" />

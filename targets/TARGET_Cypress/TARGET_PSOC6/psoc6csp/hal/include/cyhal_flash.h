@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,11 @@
 * \addtogroup group_hal_flash Flash
 * \ingroup group_hal
 * \{
-* Flash HAL high-level description
+* High level interface for interacting with internal flash memory.
+*
+* This driver allows data to be read from and written to flash. It also
+* provides the ability to obtain information about the address and
+* characteristics of the flash block(s) contained on the device.
 */
 
 

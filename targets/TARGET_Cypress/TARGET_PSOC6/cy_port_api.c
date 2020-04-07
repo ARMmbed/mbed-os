@@ -41,7 +41,7 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
 
 void port_mode(port_t *obj, PinMode mode)
 {
-    gpio_t gpio = {.pin = 0, .direction = obj->direction, .drive_mode = obj->drive_mode};
+    gpio_t gpio = {.direction = obj->direction, .drive_mode = obj->drive_mode};
     for (uint8_t pin = 0; pin < 8; pin++) {
         if ((1 << pin) & obj->mask) {
             gpio.pin = port_pin(obj->port, pin);
@@ -52,7 +52,7 @@ void port_mode(port_t *obj, PinMode mode)
 
 void port_dir(port_t *obj, PinDirection dir)
 {
-    gpio_t gpio = {.pin = 0, .direction = obj->direction, .drive_mode = obj->drive_mode};
+    gpio_t gpio = {.direction = obj->direction, .drive_mode = obj->drive_mode};
     for (uint8_t pin = 0; pin < 8; pin++) {
         if ((1 << pin) & obj->mask) {
             gpio.pin = port_pin(obj->port, pin);

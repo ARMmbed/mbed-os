@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_prot.c
-* \version 1.30.1
+* \version 1.30.2
 *
 * \brief
 * Provides an API implementation of the Protection Unit driver
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -776,11 +776,12 @@ cy_en_prot_status_t Cy_Prot_GetSmpuStruct(PROT_SMPU_SMPU_STRUCT_Type** base,
 * The register to update attributes in.
 *
 * \param pcMask
-* The protection context mask. This is a 16-bit value of the allowed contexts. 
-* It is an OR'ed (|) field of the * provided defines in cy_prot.h. 
-* For example: (CY_PROT_PCMASK1 | CY_PROT_PCMASK3 | CY_PROT_PCMASK4).
-* \note The function accepts pcMask values from CY_PROT_PCMASK1 to CY_PROT_PCMASK5. 
-* But each device has its own number of available protection contexts. 
+* The protection context mask. It specifies the protection context or a set of
+* multiple protection contexts to be configured.
+* It is a value of OR'd (|) items of \ref cy_en_prot_pcmask_t.
+* For example: (\ref CY_PROT_PCMASK1 | \ref CY_PROT_PCMASK3 | \ref CY_PROT_PCMASK4).
+* \note The function accepts pcMask values from \ref CY_PROT_PCMASK1 to \ref CY_PROT_PCMASK15.
+* But each device has its own number of available protection contexts.
 * That number is defined by PERI_PC_NR in the config file.
 *
 * \param userPermission
@@ -888,11 +889,12 @@ static cy_en_prot_status_t Prot_ConfigPpuAtt(volatile uint32_t * reg, uint16_t p
 * The register base address of the protection structure is being configured.
 *
 * \param pcMask
-* The protection context mask. This is a 16-bit value of the allowed contexts, 
-* it is an OR'ed (|) field of the * provided defines in cy_prot.h. 
-* For example: (CY_PROT_PCMASK1 | CY_PROT_PCMASK3 | CY_PROT_PCMASK4).
-* \note The function accepts pcMask values from CY_PROT_PCMASK1 to CY_PROT_PCMASK15. 
-* But each device has its own number of available protection contexts. 
+* The protection context mask. It specifies the protection context or a set of
+* multiple protection contexts to be configured.
+* It is a value of OR'd (|) items of \ref cy_en_prot_pcmask_t.
+* For example: (\ref CY_PROT_PCMASK1 | \ref CY_PROT_PCMASK3 | \ref CY_PROT_PCMASK4).
+* \note The function accepts pcMask values from \ref CY_PROT_PCMASK1 to \ref CY_PROT_PCMASK15.
+* But each device has its own number of available protection contexts.
 * That number is defined by PERI_PC_NR in the config file.
 *
 * \param userPermission
@@ -1013,11 +1015,12 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuProgSlaveAddr(PERI_MS_PPU_PR_Type* base, ui
 * The register base address of the protection structure is being configured.
 *
 * \param pcMask
-* The protection context mask. This is a 16-bit value of the allowed contexts, 
-* it is an OR'ed (|) field of the * provided defines in cy_prot.h. 
-* For example: (CY_PROT_PCMASK1 | CY_PROT_PCMASK3 | CY_PROT_PCMASK4).
-* \note The function accepts pcMask values from CY_PROT_PCMASK1 to CY_PROT_PCMASK15. 
-* But each device has its own number of available protection contexts. 
+* The protection context mask. It specifies the protection context or a set of
+* multiple protection contexts to be configured.
+* It is a value of OR'd (|) items of \ref cy_en_prot_pcmask_t.
+* For example: (\ref CY_PROT_PCMASK1 | \ref CY_PROT_PCMASK3 | \ref CY_PROT_PCMASK4).
+* \note The function accepts pcMask values from \ref CY_PROT_PCMASK1 to \ref CY_PROT_PCMASK15.
+* But each device has its own number of available protection contexts.
 * That number is defined by PERI_PC_NR in the config file.
 *
 * \param userPermission
@@ -1167,11 +1170,12 @@ cy_en_prot_status_t Cy_Prot_DisablePpuProgSlaveRegion(PERI_MS_PPU_PR_Type* base)
 * The register base address of the protection structure is being configured.
 *
 * \param pcMask
-* The protection context mask. This is a 16-bit value of the allowed contexts, 
-* it is an OR'ed (|) field of the * provided defines in cy_prot.h. 
-* For example: (CY_PROT_PCMASK1 | CY_PROT_PCMASK3 | CY_PROT_PCMASK4).
-* \note The function accepts pcMask values from CY_PROT_PCMASK1 to CY_PROT_PCMASK15. 
-* But each device has its own number of available protection contexts. 
+* The protection context mask. It specifies the protection context or a set of
+* multiple protection contexts to be configured.
+* It is a value of OR'd (|) items of \ref cy_en_prot_pcmask_t.
+* For example: (\ref CY_PROT_PCMASK1 | \ref CY_PROT_PCMASK3 | \ref CY_PROT_PCMASK4).
+* \note The function accepts pcMask values from \ref CY_PROT_PCMASK1 to \ref CY_PROT_PCMASK15.
+* But each device has its own number of available protection contexts.
 * That number is defined by PERI_PC_NR in the config file.
 *
 * \param userPermission
@@ -1232,11 +1236,12 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedMasterAtt(PERI_MS_PPU_FX_Type* base, u
 * The register base address of the protection structure is being configured.
 *
 * \param pcMask
-* The protection context mask. This is a 16-bit value of the allowed contexts, 
-* it is an OR'ed (|) field of the * provided defines in cy_prot.h. 
-* For example: (CY_PROT_PCMASK1 | CY_PROT_PCMASK3 | CY_PROT_PCMASK4).
-* \note The function accepts pcMask values from CY_PROT_PCMASK1 to CY_PROT_PCMASK15. 
-* But each device has its own number of available protection contexts. 
+* The protection context mask. It specifies the protection context or a set of
+* multiple protection contexts to be configured.
+* It is a value of OR'd (|) items of \ref cy_en_prot_pcmask_t.
+* For example: (\ref CY_PROT_PCMASK1 | \ref CY_PROT_PCMASK3 | \ref CY_PROT_PCMASK4).
+* \note The function accepts pcMask values from \ref CY_PROT_PCMASK1 to \ref CY_PROT_PCMASK15.
+* But each device has its own number of available protection contexts.
 * That number is defined by PERI_PC_NR in the config file.
 *
 * \param userPermission

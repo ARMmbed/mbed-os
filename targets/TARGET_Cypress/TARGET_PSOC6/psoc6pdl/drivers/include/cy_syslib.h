@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_syslib.h
-* \version 2.50
+* \version 2.50.1
 *
 * Provides an API declaration of the SysLib driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -139,6 +139,11 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>2.50.1</td>
+*     <td>Used the core library defines for the message codes forming.
+*     <td>Improve PDL code base.</td>
+*   </tr>
+*   <tr>
 *     <td>2.50</td>
 *     <td>Moved following macros to the core library: 
 *         CY_LO8,CY_HI8,CY_LO16,CY_HI16,CY_SWAP_ENDIAN16,CY_SWAP_ENDIAN32, 
@@ -250,6 +255,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "cy_utils.h"
+#include "cy_result.h"
 #include "cy_device.h"
 #include "cy_device_headers.h"
 
@@ -290,13 +296,13 @@ extern "C" {
 * \{
 * Function status type codes
 */
-#define CY_PDL_STATUS_CODE_Pos  (0U)        /**< The module status code position in the status code */
-#define CY_PDL_STATUS_TYPE_Pos  (16U)       /**< The status type position in the status code */
-#define CY_PDL_MODULE_ID_Pos    (18U)       /**< The software module ID position in the status code */
-#define CY_PDL_STATUS_INFO      (0UL << CY_PDL_STATUS_TYPE_Pos)    /**< The information status type */
-#define CY_PDL_STATUS_WARNING   (1UL << CY_PDL_STATUS_TYPE_Pos)    /**< The warning status type */
-#define CY_PDL_STATUS_ERROR     (2UL << CY_PDL_STATUS_TYPE_Pos)    /**< The error status type */
-#define CY_PDL_MODULE_ID_Msk    (0x3FFFU)   /**< The software module ID mask */
+#define CY_PDL_STATUS_CODE_Pos  (CY_RSLT_CODE_POSITION)     /**< The module status code position in the status code */
+#define CY_PDL_STATUS_TYPE_Pos  (CY_RSLT_TYPE_POSITION)     /**< The status type position in the status code */
+#define CY_PDL_MODULE_ID_Pos    (CY_RSLT_MODULE_POSITION)   /**< The software module ID position in the status code */
+#define CY_PDL_STATUS_INFO      ((uint32_t)CY_RSLT_TYPE_INFO << CY_PDL_STATUS_TYPE_Pos)     /**< The information status type */
+#define CY_PDL_STATUS_WARNING   ((uint32_t)CY_RSLT_TYPE_WARNING << CY_PDL_STATUS_TYPE_Pos)  /**< The warning status type */
+#define CY_PDL_STATUS_ERROR     ((uint32_t)CY_RSLT_TYPE_ERROR << CY_PDL_STATUS_TYPE_Pos)    /**< The error status type */
+#define CY_PDL_MODULE_ID_Msk    (CY_RSLT_MODULE_MASK)       /**< The software module ID mask */
 /** Get the software PDL module ID */
 #define CY_PDL_DRV_ID(id)       ((uint32_t)((uint32_t)((id) & CY_PDL_MODULE_ID_Msk) << CY_PDL_MODULE_ID_Pos))
 #define CY_SYSLIB_ID            CY_PDL_DRV_ID(0x11U)     /**< SYSLIB PDL ID */

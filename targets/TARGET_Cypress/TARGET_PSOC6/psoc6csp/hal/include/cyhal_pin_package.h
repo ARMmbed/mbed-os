@@ -3,10 +3,10 @@
 *
 * Description:
 * Provides definitions for the pinout for each supported device.
-* 
+*
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,24 +37,29 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/** Port names */
+/** Port definitions that individual pins can belong to. */
 typedef enum {
-    CYHAL_PORT_0  = 0x0,
-    CYHAL_PORT_1  = 0x1,
-    CYHAL_PORT_2  = 0x2,
-    CYHAL_PORT_3  = 0x3,
-    CYHAL_PORT_4  = 0x4,
-    CYHAL_PORT_5  = 0x5,
-    CYHAL_PORT_6  = 0x6,
-    CYHAL_PORT_7  = 0x7,
-    CYHAL_PORT_8  = 0x8,
-    CYHAL_PORT_9  = 0x9,
-    CYHAL_PORT_10 = 0xA,
-    CYHAL_PORT_11 = 0xB,
-    CYHAL_PORT_12 = 0xC,
-    CYHAL_PORT_13 = 0xD,
-    CYHAL_PORT_14 = 0xE,
-    CYHAL_PORT_15 = 0xF,
+    CYHAL_PORT_0  = 0x00,
+    CYHAL_PORT_1  = 0x01,
+    CYHAL_PORT_2  = 0x02,
+    CYHAL_PORT_3  = 0x03,
+    CYHAL_PORT_4  = 0x04,
+    CYHAL_PORT_5  = 0x05,
+    CYHAL_PORT_6  = 0x06,
+    CYHAL_PORT_7  = 0x07,
+    CYHAL_PORT_8  = 0x08,
+    CYHAL_PORT_9  = 0x09,
+    CYHAL_PORT_10 = 0x0A,
+    CYHAL_PORT_11 = 0x0B,
+    CYHAL_PORT_12 = 0x0C,
+    CYHAL_PORT_13 = 0x0D,
+    CYHAL_PORT_14 = 0x0E,
+    CYHAL_PORT_15 = 0x0F,
+    CYHAL_PORT_16 = 0x10,
+    CYHAL_PORT_17 = 0x11,
+    CYHAL_PORT_18 = 0x12,
+    CYHAL_PORT_19 = 0x13,
+    CYHAL_PORT_20 = 0x14,
 } cyhal_port_t;
 
 /** Bitfield representing the configuration of a GPIO (hsiom selection and mode).
@@ -115,6 +120,8 @@ typedef uint16_t cyhal_gpio_mapping_cfg_t; // 8bit hsiom, 8bit mode
 #include "pin_packages/cyhal_psoc6_03_49_wlcsp.h"
 #elif defined(_GPIO_PSOC6_03_68_QFN_H_)
 #include "pin_packages/cyhal_psoc6_03_68_qfn.h"
+#elif defined(_GPIO_PLAYER_128_TQFP_H_)
+#include "pin_packages/cyhal_mxs28playermcuss_128_tqfp.h"
 #else
 #error "Unhandled Device/PinPackage combination"
 #endif
@@ -123,4 +130,4 @@ typedef uint16_t cyhal_gpio_mapping_cfg_t; // 8bit hsiom, 8bit mode
 }
 #endif /* __cplusplus */
 
-/** \} group_hal_adc */
+/** \} group_hal_psoc6 */

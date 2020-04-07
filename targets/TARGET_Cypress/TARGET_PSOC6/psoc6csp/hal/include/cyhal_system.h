@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,11 +26,16 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_hal_system SYSTEM (Power Management and System Clock)
+* \addtogroup group_hal_system System (Power Management and System Clock)
 * \ingroup group_hal
 * \{
-* High level interface for interacting with the Cypress power management
+* High level interface for interacting with the power management
 * and system clock configuration.
+*
+* This driver provides three categories of functionality:
+* * Retrieval and adjustment of system clock frequencies.
+* * Control over low power operating modes.
+* * The ability to disable interrupts during a critical section, and to renable them afterwards.
 */
 
 #pragma once
@@ -55,6 +60,19 @@ extern "C" {
 #define CYHAL_SYSTEM_RSLT_SRC_CLK_DISABLED (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SYSTEM , 3))
 /** An error occurred in System module */
 #define CYHAL_SYSTEM_RSLT_NO_VALID_DIVIDER (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SYSTEM , 4))
+
+/** Flags enum of possible system reset causes */
+typedef enum
+{
+    CYHAL_SYSTEM_RESET_NONE            = 0,      /** No cause */
+    CYHAL_SYSTEM_RESET_WDT             = 1 << 0, /** A watchdog timer (WDT) reset has occurred */
+    CYHAL_SYSTEM_RESET_ACTIVE_FAULT    = 1 << 1, /** The fault logging system requested a reset from its Active logic. */
+    CYHAL_SYSTEM_RESET_DEEPSLEEP_FAULT = 1 << 2, /** The fault logging system requested a reset from its Deep-Sleep logic. */
+    CYHAL_SYSTEM_RESET_SOFT            = 1 << 3, /** The CPU requested a system reset through it's SYSRESETREQ. */
+    CYHAL_SYSTEM_RESET_HIB_WAKEUP      = 1 << 4, /** A reset has occurred due to a a wakeup from hibernate power mode. */
+    CYHAL_SYSTEM_RESET_WCO_ERR         = 1 << 5, /** A reset has occurred due to a watch-crystal clock error */
+    CYHAL_SYSTEM_RESET_SYS_CLK_ERR     = 1 << 6, /** A reset has occurred due to a system clock error */
+} cyhal_reset_reason_t;
 
 /** Enter a critical section
  *
@@ -113,6 +131,32 @@ cy_rslt_t cyhal_system_register_callback(cyhal_system_callback_t *callback);
  */
 cy_rslt_t cyhal_system_unregister_callback(cyhal_system_callback_t const *callback);
 
+/**
+ * Requests that the current operation delays for at least the specified length of time.
+ * If this is running in an RTOS aware environment (-DCY_RTOS_AWARE) it will attempt to
+ * have the RTOS suspend the current task so others can continue to run. If this is not
+ * run under an RTOS it will then defer to the standard system delay which is likely to
+ * be a busy loop.
+ * If this is part of an application that is build with RTOS awareness, but the delay
+ * should not depend on the RTOS for whatever reason, use cyhal_system_delay_us() with
+ * the appropriate 1000x multiplier to the delay time.
+ *
+ * @param[in] milliseconds The number of milliseconds to delay for
+ * @return Returns CY_RSLT_SUCCESS if the delay request was successful, otherwise error
+ */
+cy_rslt_t cyhal_system_delay_ms(uint32_t milliseconds);
+
+/**
+ * Requests that the current operation delay for at least the specified number of
+ * micro-seconds. This will generally keep the processor active in a loop for the
+ * specified length of time. If this is running under an RTOS, it will NOT attempt to
+ * run any other RTOS tasks, however if the scheduler or a high priority interrupt
+ * comes it they can take over anyway.
+ *
+ * @param[in] microseconds The number of micro-seconds to delay for
+ */
+void cyhal_system_delay_us(uint16_t microseconds);
+
 /** Gets the specified clock's current frequency.
  *
  * @param[in]  clock        ID of clock to configure
@@ -137,6 +181,15 @@ cy_rslt_t cyhal_system_clock_set_frequency(uint8_t clock, uint32_t frequency_hz)
  * @return The status of the set_divider request
  */
 cy_rslt_t cyhal_system_clock_set_divider(cyhal_system_clock_t clock, cyhal_system_divider_t divider);
+
+/** Gets the cause of the latest reset or resets that occured in the system.
+ *
+ * @return Returns an enum of flags with the cause of the last reset(s)
+ */
+cyhal_reset_reason_t cyhal_system_get_reset_reason(void);
+
+/** Clears the reset cause registers */
+void cyhal_system_clear_reset_reason(void);
 
 #if defined(__cplusplus)
 }

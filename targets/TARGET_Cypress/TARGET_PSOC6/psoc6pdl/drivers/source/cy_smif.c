@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_smif.c
-* \version 1.40.1
+* \version 1.50
 *
 * \brief
 *  This file provides the source code for the SMIF driver APIs.

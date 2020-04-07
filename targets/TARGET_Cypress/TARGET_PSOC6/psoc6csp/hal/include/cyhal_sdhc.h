@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,10 @@
 * \addtogroup group_hal_sdhc SDHC (SD Host Controller)
 * \ingroup group_hal
 * \{
-* High level interface for interacting with the Cypress SDHC.
+* High level interface for interacting with the SD Host Controller (SDHC).
+*
+* The SD Host Controller allows data to be read from and written to several types
+* of memory cards, including SD and eMMC (see cyhal_sdhc_card_type_t for a full list).
 */
 
 #pragma once
@@ -44,12 +47,13 @@ extern "C" {
 #endif
 
 #define CYHAL_SDHC_RSLT_ERR_PIN (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SDHC, 0)) /**< Pin related Error. >*/
+#define CYHAL_SDHC_RSLT_ERR_UNSUPPORTED (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SDHC, 1)) /**< Requested feature is not supported on this hardware. >*/
 
 /** Card types */
 typedef enum
 {
     CYHAL_SDHC_SD, //!< Secure Digital card
-    CYHAL_SDHC_SDIO, //!< CD Input Output card
+    CYHAL_SDHC_SDIO, //!< SD Input Output card
     CYHAL_SDHC_EMMC, //!< Embedded Multimedia card
     CYHAL_SDHC_COMBO, //!< Combo Card (SD + SDIO)
     CYHAL_SDHC_UNUSABLE, //!< Unusable card or unsupported type

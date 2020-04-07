@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_prot.h
-* \version 1.30.1
+* \version 1.30.2
 *
 * \brief
 * Provides an API declaration of the Protection Unit driver
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -389,6 +389,12 @@
 * \section group_prot_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.30.2</td>
+*     <td>Clarified the description of the next API functions: \ref Cy_Prot_ConfigPpuProgMasterAtt,\n
+*         \ref Cy_Prot_ConfigPpuProgSlaveAtt, \ref Cy_Prot_ConfigPpuFixedMasterAtt, \ref Cy_Prot_ConfigPpuFixedSlaveAtt.</td>
+*     <td>API enhancement based on usability feedback.</td>
+*   </tr>
 *   <tr>
 *     <td>1.30.1</td>
 *     <td>Snippet updated.</td>

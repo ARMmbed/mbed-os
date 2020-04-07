@@ -8,7 +8,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +28,14 @@
 * \addtogroup group_hal_hwmgr HWMGR (Hardware Manager)
 * \ingroup group_hal
 * \{
-* High level interface for interacting with the Cypress Hardware Manager.
+* High level interface for interacting with the Hardware Manager.
+*
+* This provides two related functions:
+* * Allows HAL drivers (or application firmware) to mark specific hardware blocks
+*   as consumed, so that other firmware will not accidentally try to use the block
+*   for a conflicting purpose.
+* * For resources which are interchangeable, such as clock dividers, provides allocation
+*   and reservation of an available instance (if one exists).
 */
 
 #pragma once
@@ -79,13 +86,6 @@ void cyhal_hwmgr_free(const cyhal_resource_inst_t* obj);
  * @return The status of the allocate request
  */
 cy_rslt_t cyhal_hwmgr_allocate(cyhal_resource_t type, cyhal_resource_inst_t* obj);
-
-/** Allocate (pick and reserve) an DMA resource and provide a reference to it.
- *
- * @param[out] obj The resource object that was allocated
- * @return The status of the reserve request
- */
-cy_rslt_t cyhal_hwmgr_allocate_dma(cyhal_resource_inst_t* obj);
 
 /** Allocate (pick and reserve) an Clock Divider resource and provide a reference to it.
  *

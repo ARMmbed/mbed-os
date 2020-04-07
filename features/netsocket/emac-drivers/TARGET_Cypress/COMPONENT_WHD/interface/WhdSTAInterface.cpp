@@ -250,7 +250,9 @@ nsapi_error_t WhdSTAInterface::connect()
 
     // initialize wiced, this is noop if already init
     if (!_whd_emac.powered_up) {
-        _whd_emac.power_up();
+        if(!_whd_emac.power_up()) {
+            return NSAPI_ERROR_DEVICE_ERROR;
+        }
     }
 
     res = whd_management_set_event_handler(_whd_emac.ifp, sta_link_change_events,
@@ -322,7 +324,9 @@ nsapi_error_t WhdSTAInterface::connect()
 void WhdSTAInterface::wifi_on()
 {
     if (!_whd_emac.powered_up) {
-        _whd_emac.power_up();
+        if(!_whd_emac.power_up()) {
+            CY_ASSERT(false);
+        }
     }
 }
 
@@ -375,11 +379,14 @@ int8_t WhdSTAInterface::get_rssi()
 
     // initialize wiced, this is noop if already init
     if (!_whd_emac.powered_up) {
-        _whd_emac.power_up();
+        if(!_whd_emac.power_up()) {
+            CY_ASSERT(false);
+        }
     }
 
     res = (whd_result_t)whd_wifi_get_rssi(_whd_emac.ifp, &rssi);
     if (res != 0) {
+        CY_ASSERT(false);
         return 0;
     }
 
@@ -454,7 +461,9 @@ int WhdSTAInterface::internal_scan(WiFiAccessPoint *aps, unsigned count, scan_re
 
     // initialize wiced, this is noop if already init
     if (!_whd_emac.powered_up) {
-        _whd_emac.power_up();
+        if(!_whd_emac.power_up()) {
+            return NSAPI_ERROR_DEVICE_ERROR;
+        }
     }
 
     interal_scan_data.sema = new Semaphore();
@@ -466,7 +475,6 @@ int WhdSTAInterface::internal_scan(WiFiAccessPoint *aps, unsigned count, scan_re
     interal_scan_data.result_buff = new std::vector<whd_scan_result_t>();
     whd_result_t whd_res;
     int res;
-
 
     whd_res = (whd_result_t)whd_wifi_scan(_whd_emac.ifp, WHD_SCAN_TYPE_ACTIVE, WHD_BSS_TYPE_ANY,
                                           NULL, NULL, NULL, NULL, whd_scan_handler, &internal_scan_result, &interal_scan_data);

@@ -125,7 +125,6 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
             break;
         default:
             MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SERIAL, MBED_ERROR_CODE_UNSUPPORTED), "Unsupported parity");
-            return;
     }
     cyhal_uart_cfg_t cfg = {
         .data_bits = data_bits,
@@ -152,11 +151,11 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         static const cyhal_uart_event_t interrupt_mask = (cyhal_uart_event_t)
                                                          (CYHAL_UART_IRQ_RX_DONE | CYHAL_UART_IRQ_RX_ERROR | CYHAL_UART_IRQ_RX_NOT_EMPTY);
         ser->rx_event_mask = enable
-                             ? (ser->rx_event_mask | interrupt_mask)
-                             : (ser->rx_event_mask & ~interrupt_mask);
+                             ? (cyhal_uart_event_t)(ser->rx_event_mask | interrupt_mask)
+                             : (cyhal_uart_event_t)(ser->rx_event_mask & ~interrupt_mask);
         cyhal_uart_enable_event(&(ser->hal_obj), interrupt_mask, CYHAL_ISR_PRIORITY_DEFAULT, (bool)enable);
     } else if (irq == TxIrq) {
-        static const cyhal_uart_event_t interrupt_mask = CYHAL_UART_IRQ_TX_DONE | CYHAL_UART_IRQ_TX_ERROR | CYHAL_UART_IRQ_TX_EMPTY;
+        static const cyhal_uart_event_t interrupt_mask = (cyhal_uart_event_t)(CYHAL_UART_IRQ_TX_DONE | CYHAL_UART_IRQ_TX_ERROR | CYHAL_UART_IRQ_TX_EMPTY);
         ser->tx_event_mask = enable
                              ? (cyhal_uart_event_t)(ser->tx_event_mask | interrupt_mask)
                              : (cyhal_uart_event_t)(ser->tx_event_mask & ~interrupt_mask);

@@ -357,6 +357,113 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_03 =
     /* ipcLockStatusOffset       */ offsetof(IPC_STRUCT_V2_Type, LOCK_STATUS),
 };
 
+const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_04 =
+{
+    /* Base HW addresses */
+    /* cpussBase                 */ 0x40200000UL,
+    /* flashcBase                */ 0x40240000UL,
+    /* periBase                  */ 0x40000000UL,
+    /* udbBase                   */ 0UL,
+    /* protBase                  */ 0x40230000UL,
+    /* hsiomBase                 */ 0x40300000UL,
+    /* gpioBase                  */ 0x40310000UL,
+    /* passBase                  */ 0x409F0000UL,
+    /* ipcBase                   */ 0x40220000UL,
+    /* cryptoBase                */ 0x40100000UL,
+
+    /* IP block versions [7:4] major, [3:0] minor */
+    /* cpussVersion              */ 0x20U,
+    /* cryptoVersion             */ 0x20U,
+    /* dwVersion                 */ 0x20U,
+    /* ipcVersion                */ 0x20U,
+    /* periVersion               */ 0x20U,
+    /* srssVersion               */ 0x13U,
+
+    /* Parameters */
+    /* cpussIpcNr                */ 16U,
+    /* cpussIpcIrqNr             */ 16U,
+    /* cpussDw0ChNr              */ 30U,
+    /* cpussDw1ChNr              */ 32U,
+    /* cpussFlashPaSize          */ 128U,
+    /* cpussIpc0Irq              */ 23,
+    /* cpussFmIrq                */ 117,
+    /* cpussNotConnectedIrq      */ 1023,
+    /* srssNumClkpath            */ 5U,
+    /* srssNumPll                */ 1U,
+    /* srssNumHfroot             */ 4U,
+    /* periClockNr               */ 28U,
+    /* smifDeviceNr              */ 3U,
+    /* passSarChannels           */ 16U,
+    /* epMonitorNr               */ 0u,
+    /* udbPresent                */ 0U,
+    /* sysPmSimoPresent          */ 1U,
+    /* protBusMasterMask         */ 0xC01FUL,
+    /* cryptoMemSize             */ 1024u,
+    /* flashRwwRequired          */ 0U,
+    /* flashPipeRequired         */ 0U,
+    /* flashWriteDelay           */ 0U,
+    /* flashProgramDelay         */ 0U,
+    /* flashEraseDelay           */ 0U,
+    /* flashCtlMainWs0Freq       */ 25U,
+    /* flashCtlMainWs1Freq       */ 50U,
+    /* flashCtlMainWs2Freq       */ 75U,
+    /* flashCtlMainWs3Freq       */ 100U,
+    /* flashCtlMainWs4Freq       */ 125U,
+
+    /* Peripheral register offsets */
+
+    /* DW registers */
+    /* dwChOffset                */ (uint16_t)offsetof(DW_V2_Type, CH_STRUCT),
+    /* dwChSize                  */ sizeof(DW_CH_STRUCT_V2_Type),
+    /* dwChCtlPrioPos            */ (uint8_t)DW_CH_STRUCT_V2_CH_CTL_PRIO_Pos,
+    /* dwChCtlPreemptablePos     */ (uint8_t)DW_CH_STRUCT_V2_CH_CTL_PREEMPTABLE_Pos,
+    /* dwStatusChIdxPos          */ (uint8_t)DW_V2_STATUS_CH_IDX_Pos,
+    /* dwStatusChIdxMsk          */ DW_V2_STATUS_CH_IDX_Msk,
+
+    /* PERI registers  */
+    /* periTrCmdOffset           */ (uint16_t)offsetof(PERI_V2_Type, TR_CMD),
+    /* periTrCmdGrSelMsk         */ (uint16_t)PERI_V2_TR_CMD_GROUP_SEL_Msk,
+    /* periTrGrOffset            */ (uint16_t)offsetof(PERI_V2_Type, TR_GR),
+    /* periTrGrSize              */ sizeof(PERI_TR_GR_V2_Type),
+
+    /* periDivCmdDivSelMsk       */ (uint8_t)PERI_V2_DIV_CMD_DIV_SEL_Msk,
+    /* periDivCmdTypeSelPos      */ (uint8_t)PERI_V2_DIV_CMD_TYPE_SEL_Pos,
+    /* periDivCmdPaDivSelPos     */ (uint8_t)PERI_V2_DIV_CMD_PA_DIV_SEL_Pos,
+    /* periDivCmdPaTypeSelPos    */ (uint8_t)PERI_V2_DIV_CMD_PA_TYPE_SEL_Pos,
+
+    /* periDiv8CtlOffset         */ (uint16_t)offsetof(PERI_V2_Type, DIV_8_CTL),
+    /* periDiv16CtlOffset        */ (uint16_t)offsetof(PERI_V2_Type, DIV_16_CTL),
+    /* periDiv16_5CtlOffset      */ (uint16_t)offsetof(PERI_V2_Type, DIV_16_5_CTL),
+    /* periDiv24_5CtlOffset      */ (uint16_t)offsetof(PERI_V2_Type, DIV_24_5_CTL),
+
+    /* GPIO registers  */
+    /* gpioPrtIntrCfgOffset      */ (uint8_t)offsetof(GPIO_PRT_V2_Type, INTR_CFG),
+    /* gpioPrtCfgOffset          */ (uint8_t)offsetof(GPIO_PRT_V2_Type, CFG),
+    /* gpioPrtCfgInOffset        */ (uint8_t)offsetof(GPIO_PRT_V2_Type, CFG_IN),
+    /* gpioPrtCfgOutOffset       */ (uint8_t)offsetof(GPIO_PRT_V2_Type, CFG_OUT),
+    /* gpioPrtCfgSioOffset       */ (uint8_t)offsetof(GPIO_PRT_V2_Type, CFG_SIO),
+
+    /* CPUSS registers */
+    /* cpussCm0ClockCtlOffset    */ offsetof(CPUSS_V2_Type, CM0_CLOCK_CTL),
+    /* cpussCm4ClockCtlOffset    */ offsetof(CPUSS_V2_Type, CM4_CLOCK_CTL),
+    /* cpussCm4StatusOffset      */ offsetof(CPUSS_V2_Type, CM4_STATUS),
+    /* cpussCm0StatusOffset      */ offsetof(CPUSS_V2_Type, CM0_STATUS),
+    /* cpussCm4PwrCtlOffset      */ offsetof(CPUSS_V2_Type, CM4_PWR_CTL),
+    /* cpussTrimRamCtlOffset     */ offsetof(CPUSS_V2_Type, TRIM_RAM_CTL),
+    /* cpussTrimRomCtlOffset     */ offsetof(CPUSS_V2_Type, TRIM_ROM_CTL),
+    /* cpussSysTickCtlOffset     */ offsetof(CPUSS_V2_Type, SYSTICK_CTL),
+    /* cpussCm0NmiCtlOffset      */ (uint16_t)offsetof(CPUSS_V2_Type, CM0_NMI_CTL),
+    /* cpussCm4NmiCtlOffset      */ (uint16_t)offsetof(CPUSS_V2_Type, CM4_NMI_CTL),
+    /* cpussRomCtl               */ (uint16_t)offsetof(CPUSS_V2_Type, ROM_CTL),
+    /* cpussRam0Ctl0             */ (uint16_t)offsetof(CPUSS_V2_Type, RAM0_CTL0),
+    /* cpussRam1Ctl0             */ (uint16_t)offsetof(CPUSS_V2_Type, RAM1_CTL0),
+    /* cpussRam2Ctl0             */ (uint16_t)offsetof(CPUSS_V2_Type, RAM2_CTL0),
+
+    /* IPC registers */
+    /* ipcStructSize             */ sizeof(IPC_STRUCT_V2_Type),
+    /* ipcLockStatusOffset       */ offsetof(IPC_STRUCT_V2_Type, LOCK_STATUS),
+};
+
 
 /******************************************************************************
 * Function Name: Cy_PDL_Init

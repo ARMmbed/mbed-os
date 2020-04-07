@@ -7,7 +7,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,13 +29,13 @@
 extern "C" {
 #endif
 
-/** 
+/**
  * Initialize the programmable analog. This utilizes reference counting to avoid
  * repeatedly initializing the analog subsystem when multiple analog blocks are in use
  * */
 void cyhal_analog_init();
 
-/** 
+/**
  * Uninitialize the programmable analog. This utilizes reference counting to avoid
  * disabling the analog subsystem until all blocks which require it have been freed.
  */

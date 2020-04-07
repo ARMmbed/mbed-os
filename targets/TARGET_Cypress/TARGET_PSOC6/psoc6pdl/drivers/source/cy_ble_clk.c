@@ -1,13 +1,13 @@
  /***************************************************************************//**
 * \file cy_ble_clk.c
-* \version 3.30
+* \version 3.40
 *
 * \brief
 *  This driver provides the source code for API BLE ECO clock.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2017-2019 Cypress Semiconductor Corporation
+* Copyright 2017-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -235,8 +235,7 @@ cy_en_ble_eco_status_t Cy_BLE_EcoConfigure(cy_en_ble_eco_freq_t freq, cy_en_ble_
             Cy_SysPm_IoUnfreeze();
         }
 
-        if(((BLE_BLESS_MT_CFG & BLE_BLESS_MT_CFG_ENABLE_BLERD_Msk) != 0u) &&
-           ((BLE_BLESS_MT_STATUS & BLE_BLESS_MT_STATUS_BLESS_STATE_Msk) != 0u))
+        if(Cy_BLE_EcoIsEnabled())
         {
             status = CY_BLE_ECO_ALREADY_STARTED;
         }
