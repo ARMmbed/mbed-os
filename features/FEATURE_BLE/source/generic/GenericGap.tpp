@@ -920,8 +920,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         _pal_gap.clear_advertising_sets();
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     }
-
-    prepare_legacy_advertising_set();
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     return BLE_ERROR_NONE;
@@ -1630,10 +1628,12 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    prepare_legacy_advertising_set();
-
     if (!_existing_sets.get(handle)) {
-        return BLE_ERROR_INVALID_PARAM;
+        if (handle == LEGACY_ADVERTISING_HANDLE) {
+            prepare_legacy_advertising_set();
+        } else {
+            return BLE_ERROR_INVALID_PARAM;
+        }
     }
 
     if (is_extended_advertising_available()) {
@@ -1786,10 +1786,12 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    prepare_legacy_advertising_set();
-
     if (!_existing_sets.get(handle)) {
-        return BLE_ERROR_INVALID_PARAM;
+        if (handle == LEGACY_ADVERTISING_HANDLE) {
+            prepare_legacy_advertising_set();
+        } else {
+            return BLE_ERROR_INVALID_PARAM;
+        }
     }
 
     // handle special case of legacy advertising
