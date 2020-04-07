@@ -4223,42 +4223,6 @@
         ],
         "device_name": "STM32F413ZH"
     },
-    "ELMO_F411RE": {
-        "inherits": [
-            "FAMILY_STM32"
-        ],
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "core": "Cortex-M4F",
-        "default_toolchain": "uARM",
-        "extra_labels_add": [
-            "STM32F4",
-            "STM32F411xE"
-        ],
-        "macros_add": [
-            "STM32F411xE"
-        ],
-        "supported_toolchains": [
-            "ARM",
-            "uARM",
-            "GCC_ARM"
-        ],
-        "detect_code": [
-            "0410"
-        ],
-        "device_has_add": [
-            "MPU"
-        ],
-        "device_has_remove": [
-            "SERIAL_FC"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "STM32F411RE"
-    },
     "NUCLEO_F429ZI": {
         "inherits": [
             "FAMILY_STM32"
