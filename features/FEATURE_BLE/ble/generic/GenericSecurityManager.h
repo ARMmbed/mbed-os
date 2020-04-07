@@ -435,8 +435,7 @@ private:
         peer_address_type_t peer_address_type,
         address_t peer_address,
         own_address_type_t local_address_type,
-        address_t local_address,
-        const ::Gap::ConnectionParams_t *connection_params
+        address_t local_address
     );
 
     /**

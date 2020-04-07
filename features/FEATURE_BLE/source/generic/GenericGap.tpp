@@ -1165,15 +1165,6 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
     }
 #endif // BLE_ROLE_PERIPHERAL
 
-    // using these parameters if stupid, there is no range for the
-    // connection interval when the connection is established
-    ConnectionParams_t connection_params = {
-        /* minConnectionInterval */ e.connection_interval,
-        /* maxConnectionInterval */ e.connection_interval,
-        e.connection_latency,
-        e.supervision_timeout
-    };
-
     ble::address_t address;
     if (_address_type == own_address_type_t::PUBLIC) {
         address = _pal_gap.get_device_address();
@@ -1189,8 +1180,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
             e.peer_address_type,
             e.peer_address,
             _address_type,
-            address,
-            &connection_params
+            address
         );
     }
 

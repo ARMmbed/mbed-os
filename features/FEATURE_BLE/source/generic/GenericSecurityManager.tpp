@@ -1108,8 +1108,7 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_connected_(
     peer_address_type_t peer_address_type,
     address_t peer_address,
     own_address_type_t local_address_type,
-    address_t local_address,
-    const ::Gap::ConnectionParams_t *connection_params
+    address_t local_address
 ) {
 #if BLE_FEATURE_SECURITY
     MBED_ASSERT(_db);
