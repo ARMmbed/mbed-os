@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+add_subdirectory(ppp)
+
 target_sources(mbed-os PRIVATE
     #CellularInterface.h
     #CellularNonIPSocket.cpp
