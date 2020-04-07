@@ -14406,48 +14406,6 @@
             "network-default-interface-type": "ETHERNET"
         }
     },
-    "TT_M3HQ": {
-        "inherits": [
-            "Target"
-        ],
-        "core": "Cortex-M3",
-        "is_disk_virtual": true,
-        "extra_labels": [
-            "TT"
-        ],
-        "macros": [
-            "__TT_M3HQ__"
-        ],
-        "supported_toolchains": [
-            "GCC_ARM",
-            "ARM",
-            "IAR"
-        ],
-        "device_has": [
-            "ANALOGIN",
-            "USTICKER",
-            "ANALOGOUT",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "SERIAL",
-            "SLEEP",
-            "SPI",
-            "I2C",
-            "I2CSLAVE",
-            "STDIO_MESSAGES",
-            "MPU"
-        ],
-        "device_name": "TMPM3HQFDFG",
-        "detect_code": [
-            "8012"
-        ],
-        "release_versions": [
-            "5"
-        ]
-    },
     "GD32_F450ZI": {
         "inherits": [
             "GD32_Target"
@@ -14530,50 +14488,6 @@
         "release_versions": [
             "5"
         ]
-    },
-    "TT_M4G9": {
-        "inherits": [
-            "Target"
-        ],
-        "core": "Cortex-M4F",
-        "is_disk_virtual": true,
-        "extra_labels": [
-            "TT"
-        ],
-        "macros": [
-            "__TT_M4G9__"
-        ],
-        "supported_toolchains": [
-            "GCC_ARM",
-            "ARM",
-            "IAR"
-        ],
-        "device_has": [
-            "USTICKER",
-            "ANALOGIN",
-            "ANALOGOUT",
-            "SERIAL",
-            "I2C",
-            "I2CSLAVE",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "SLEEP",
-            "SPI",
-            "STDIO_MESSAGES",
-            "FLASH",
-            "MPU"
-        ],
-        "device_name": "TMPM4G9F15FG",
-        "detect_code": [
-            "8013"
-        ],
-        "release_versions": [
-            "5"
-        ],
-        "bootloader_supported": true
     },
     "EP_AGORA": {
         "inherits": [
