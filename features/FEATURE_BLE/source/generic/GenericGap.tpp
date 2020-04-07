@@ -73,7 +73,7 @@ static bool is_in_range(T value, T lower_bound, T higher_bound)
  * timeout to be equal to 0xFFFF. When it is the case that value can be
  * interpreted as "non specific".
  */
-static bool is_preferred_connection_params_valid(const ::Gap::ConnectionParams_t *params)
+static bool is_preferred_connection_params_valid(const ::Gap::PreferredConnectionParams_t *params)
 {
     if (params == NULL) {
         return false;

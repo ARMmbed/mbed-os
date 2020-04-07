@@ -75,7 +75,7 @@ class GenericGap :
     using Gap::default_central_privacy_configuration;
 
     typedef typename ble::whitelist_t whitelist_t;
-    typedef typename Gap::ConnectionParams_t ConnectionParams_t;
+    typedef typename Gap::PreferredConnectionParams_t PreferredConnectionParams_t;
 
     // Imports from Gap
 #if BLE_ROLE_BROADCASTER

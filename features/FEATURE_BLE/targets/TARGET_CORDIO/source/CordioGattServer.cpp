@@ -800,9 +800,9 @@ bool GattServer::isOnDataReadAvailable_() const
     return true;
 }
 
-::Gap::ConnectionParams_t GattServer::getPreferredConnectionParams()
+::Gap::PreferredConnectionParams_t GattServer::getPreferredConnectionParams()
 {
-    ::Gap::ConnectionParams_t params = { 0 };
+    ::Gap::PreferredConnectionParams_t params = { 0 };
     memcpy(&params.minConnectionInterval, generic_access_service.ppcp, 2);
     memcpy(&params.maxConnectionInterval, generic_access_service.ppcp + 2, 2);
     memcpy(&params.slaveLatency, generic_access_service.ppcp + 4, 2);
@@ -810,7 +810,7 @@ bool GattServer::isOnDataReadAvailable_() const
     return params;
 }
 
-void GattServer::setPreferredConnectionParams(const ::Gap::ConnectionParams_t& params)
+void GattServer::setPreferredConnectionParams(const ::Gap::PreferredConnectionParams_t& params)
 {
     memcpy(generic_access_service.ppcp, &params.minConnectionInterval, 2);
     memcpy(generic_access_service.ppcp + 2, &params.maxConnectionInterval, 2);

@@ -548,7 +548,7 @@ public:
     };
 
     /**
-     * Parameters of a BLE connection.
+     * Preferred connection parameter display in Generic Access Service.
      */
     typedef struct {
         /**
@@ -592,7 +592,7 @@ public:
          * @note maxConnectionInterval is in ms in the formulae above.
          */
         uint16_t connectionSupervisionTimeout;
-    } ConnectionParams_t;
+    } PreferredConnectionParams_t;
 
     /**
      * Assign the event handler implementation that will be used by the gap

@@ -87,7 +87,7 @@ public:
 #endif // Disabled until reworked and reintroduced to GattServer API
 
     virtual ble_error_t get_peripheral_preferred_connection_parameters(
-        ::Gap::ConnectionParams_t& parameters
+        ::Gap::PreferredConnectionParams_t& parameters
     ) {
 #if BLE_FEATURE_GATT_SERVER
         parameters = gatt_server().getPreferredConnectionParams();
@@ -98,7 +98,7 @@ public:
     }
 
     virtual ble_error_t set_peripheral_preferred_connection_parameters(
-        const ::Gap::ConnectionParams_t& parameters
+        const ::Gap::PreferredConnectionParams_t& parameters
     ) {
 #if BLE_FEATURE_GATT_SERVER
         gatt_server().setPreferredConnectionParams(parameters);

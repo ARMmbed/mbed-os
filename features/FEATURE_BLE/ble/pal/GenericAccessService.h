@@ -57,7 +57,7 @@ struct GenericAccessService {
      * Parameters Characteristic
      */
      virtual ble_error_t get_peripheral_preferred_connection_parameters(
-         ::Gap::ConnectionParams_t& parameters
+         ::Gap::PreferredConnectionParams_t& parameters
     ) = 0;
 
     /**
@@ -74,7 +74,7 @@ struct GenericAccessService {
      * Parameters Characteristic
      */
     virtual ble_error_t set_peripheral_preferred_connection_parameters(
-        const ::Gap::ConnectionParams_t& parameters
+        const ::Gap::PreferredConnectionParams_t& parameters
    ) = 0;
 
 private:
