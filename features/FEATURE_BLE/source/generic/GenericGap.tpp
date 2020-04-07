@@ -68,7 +68,7 @@ static bool is_in_range(T value, T lower_bound, T higher_bound)
  * Return true of the connection parameters are acceptable as preferred connection
  * parameters.
  *
- * Prefered connection parameters unlike actual connection parameters allow the
+ * Preferred connection parameters unlike actual connection parameters allow the
  * max connection interval, min connection interval and connection supervision
  * timeout to be equal to 0xFFFF. When it is the case that value can be
  * interpreted as "non specific".

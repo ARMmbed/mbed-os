@@ -44,11 +44,11 @@ struct GenericAccessService {
     virtual ~GenericAccessService() { }
 
     /**
-     * Acquire the peripheral prefered connection parameters stored in the GAP
+     * Acquire the peripheral preferred connection parameters stored in the GAP
      * GATT service.
      *
      * @param parameters: If the call succeed will contain the value of
-     * the peripheral prefered connection parameters characteristic.
+     * the peripheral preferred connection parameters characteristic.
      *
      * @return BLE_ERROR_NONE in case of success or the appropriate error code
      * otherwise.
@@ -56,15 +56,15 @@ struct GenericAccessService {
      * @see Bluetooth 4.2 Vol 3 PartC: 12.3 - Peripheral Preferred Connection
      * Parameters Characteristic
      */
-     virtual ble_error_t get_peripheral_prefered_connection_parameters(
+     virtual ble_error_t get_peripheral_preferred_connection_parameters(
          ::Gap::ConnectionParams_t& parameters
     ) = 0;
 
     /**
-     * set the value of the peripheral prefered connection parameters stored in
+     * set the value of the peripheral preferred connection parameters stored in
      * the GAP GATT service.
      *
-     * @param parameters: If the peripheral prefered connection parameters
+     * @param parameters: If the peripheral preferred connection parameters
      * to set.
      *
      * @return BLE_ERROR_NONE in case of success or the appropriate error code
@@ -73,7 +73,7 @@ struct GenericAccessService {
      * @see Bluetooth 4.2 Vol 3 PartC: 12.3 - Peripheral Preferred Connection
      * Parameters Characteristic
      */
-    virtual ble_error_t set_peripheral_prefered_connection_parameters(
+    virtual ble_error_t set_peripheral_preferred_connection_parameters(
         const ::Gap::ConnectionParams_t& parameters
    ) = 0;
 
