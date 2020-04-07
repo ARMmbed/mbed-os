@@ -14087,64 +14087,6 @@
             "5"
         ]
     },
-    "RDA5981X": {
-        "inherits": [
-            "Target"
-        ],
-        "core": "Cortex-M4F",
-        "public": true,
-        "extra_labels": [
-            "RDA",
-            "UNO_91H",
-            "FLASH_CMSIS_ALGO",
-            "RDA_EMAC"
-        ],
-        "supported_toolchains": [
-            "ARM",
-            "GCC_ARM",
-            "IAR"
-        ],
-        "macros": [
-            "CMSIS_NVIC_VIRTUAL",
-            "CMSIS_NVIC_VIRTUAL_HEADER_FILE=\"RDA5981_nvic_virtual.h\""
-        ],
-        "device_has": [
-            "USTICKER",
-            "PORTIN",
-            "PORTOUT",
-            "PORTINOUT",
-            "INTERRUPTIN",
-            "EMAC",
-            "SERIAL",
-            "SERIAL_FC",
-            "STDIO_MESSAGES",
-            "PWMOUT",
-            "SPI",
-            "SLEEP",
-            "ANALOGIN",
-            "FLASH",
-            "TRNG"
-        ],
-        "release_versions": [
-            "2",
-            "5"
-        ]
-    },
-    "UNO_91H": {
-        "inherits": [
-            "RDA5981X"
-        ],
-        "detect_code": [
-            "8001"
-        ],
-        "components_add": [
-            "FLASHIAP"
-        ],
-        "overrides": {
-            "network-default-interface-type": "WIFI"
-        },
-        "bootloader_supported": false
-    },
     "GD32_Target": {
         "inherits": [
             "Target"
