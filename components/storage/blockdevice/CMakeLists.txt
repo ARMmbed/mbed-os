@@ -10,4 +10,5 @@ target_sources(mbed-os
 	PRIVATE
 		COMPONENT_FLASHIAP/FlashIAPBlockDevice.cpp
 		COMPONENT_SD/SDBlockDevice.cpp
+		COMPONENT_QSPIF/QSPIFBlockDevice.cpp
 )
