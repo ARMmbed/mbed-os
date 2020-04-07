@@ -149,6 +149,29 @@ public:
      */
     void setPreferredConnectionParams(const ::Gap::ConnectionParams_t& params);
 
+#if 0 // Disabled until reworked and reintroduced to GattServer API
+    /**
+     * @see ::GattServer::setDeviceName
+     */
+    ble_error_t setDeviceName(const uint8_t *deviceName);
+
+    /**
+     * @see ::GattServer::getDeviceName
+     */
+    void getDeviceName(const uint8_t*& name, uint16_t& length);
+
+    /**
+     * @see ::GattServer::setAppearance
+     */
+    void setAppearance(GapAdvertisingData::Appearance appearance);
+
+    /**
+     * @see ::GattServer::getAppearance
+     */
+    GapAdvertisingData::Appearance getAppearance();
+
+#endif // Disabled until reworked and reintroduced to GattServer API
+
     /**
      * @see ::GattServer::reset
      */

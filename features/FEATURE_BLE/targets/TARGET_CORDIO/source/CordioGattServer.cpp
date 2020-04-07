@@ -818,6 +818,51 @@ void GattServer::setPreferredConnectionParams(const ::Gap::ConnectionParams_t& p
     memcpy(generic_access_service.ppcp + 6, &params.connectionSupervisionTimeout, 2);
 }
 
+#if 0 // Disabled until reworked and reintroduced to GattServer API
+
+ble_error_t GattServer::setDeviceName(const uint8_t *deviceName)
+{
+    size_t length = 0;
+
+    if (deviceName != NULL) {
+        length = strlen((const char*)deviceName);
+    }
+
+    if (length == 0) {
+        free(generic_access_service.device_name_value());
+    } else {
+        uint8_t* res = (uint8_t*) realloc(generic_access_service.device_name_value(), length);
+        if (res == NULL) {
+            return BLE_ERROR_NO_MEM;
+        }
+
+        generic_access_service.device_name_value() = res;
+        memcpy(res, deviceName, length);
+    }
+
+    generic_access_service.device_name_length = length;
+
+    return BLE_ERROR_NONE;
+}
+
+void GattServer::getDeviceName(const uint8_t*& name, uint16_t& length)
+{
+    length = generic_access_service.device_name_length;
+    name = generic_access_service.device_name_value();
+}
+
+void GattServer::setAppearance(GapAdvertisingData::Appearance appearance)
+{
+    generic_access_service.appearance = appearance;
+}
+
+GapAdvertisingData::Appearance GattServer::getAppearance()
+{
+    return (GapAdvertisingData::Appearance) generic_access_service.appearance;
+}
+
+#endif // Disabled until reworked and reintroduced to GattServer API
+
 ble_error_t GattServer::reset_(void)
 {
     Base::reset_();
