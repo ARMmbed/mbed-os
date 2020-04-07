@@ -128,7 +128,7 @@ bool ESP8266::at_available()
         tr_debug("at_available(): Waiting AT response.");
     }
     // Switch baud-rate from default one to assigned one
-    if(MBED_CONF_ESP8266_SERIAL_BAUDRATE !=  ESP8266_DEFAULT_SERIAL_BAUDRATE) {
+    if (MBED_CONF_ESP8266_SERIAL_BAUDRATE !=  ESP8266_DEFAULT_SERIAL_BAUDRATE) {
         ready &= _parser.send("AT+UART_CUR=%u,8,1,0,0", MBED_CONF_ESP8266_SERIAL_BAUDRATE)
                  && _parser.recv("OK\n");
         _serial.set_baud(MBED_CONF_ESP8266_SERIAL_BAUDRATE);
