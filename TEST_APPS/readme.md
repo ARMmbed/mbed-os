@@ -42,17 +42,15 @@ If you only want to run some specific tests, you can use the `-n` option. You ca
 
 #### Running the tests with a specific test-config
 
-Some devices may offer multiple network interfaces to operate with. For example, `UBLOX_EVK_ODIN_W2` offers ethernet and Wi-Fi capabilities.
-
-The tests can be run for either one of those using already existing test-config -files.
+Some devices may offer multiple network interfaces to operate with. The tests can be run for either one of those using already existing test-config -files.
 
 To run the tests with the Wi-Fi interface:
 
-`mbed test -m UBLOX_EVK_ODIN_W2 -t <toolchain> --icetea --test-config tools/test_configs/HeapBlockDeviceAndWifiInterface.json`
+`mbed test -m <target> -t <toolchain> --icetea --test-config tools/test_configs/HeapBlockDeviceAndWifiInterface.json`
 
 To run the tests with the ethernet interface:
 
-`mbed test -m UBLOX_EVK_ODIN_W2 -t <toolchain> --icetea --test-config tools/test_configs/HeapBlockDeviceAndEthernetInterface.json`
+`mbed test -m <target> -t <toolchain> --icetea --test-config tools/test_configs/HeapBlockDeviceAndEthernetInterface.json`
 
 #### Providing Wi-Fi access point information
 
