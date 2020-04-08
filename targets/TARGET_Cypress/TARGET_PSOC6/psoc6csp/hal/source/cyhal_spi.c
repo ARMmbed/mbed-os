@@ -254,6 +254,12 @@ cy_rslt_t cyhal_spi_init(cyhal_spi_t *obj, cyhal_gpio_t mosi, cyhal_gpio_t miso,
         if (NC != ssel)
         {
             ssel_map = CY_UTILS_GET_RESOURCE(ssel, cyhal_pin_map_scb_spi_m_select0);
+	    if(ssel_map == NULL)
+            	ssel_map = CY_UTILS_GET_RESOURCE(ssel, cyhal_pin_map_scb_spi_m_select1);
+            if(ssel_map == NULL)
+                ssel_map = CY_UTILS_GET_RESOURCE(ssel, cyhal_pin_map_scb_spi_m_select2);
+            if(ssel_map == NULL)
+                ssel_map = CY_UTILS_GET_RESOURCE(ssel, cyhal_pin_map_scb_spi_m_select3);
         }
         sclk_map = CY_UTILS_GET_RESOURCE(sclk, cyhal_pin_map_scb_spi_m_clk);
     }
