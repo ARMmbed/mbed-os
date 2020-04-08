@@ -49,7 +49,7 @@
              "SPI_CLK":  "PB_13",
              "SPI_CS":   "PC_12"
        },
-       "MTB_MXCHIP_EMW3166": {
+       "WIO_EMW3166": {
              "SPI_MOSI": "PB_15",
              "SPI_MISO": "PB_14",
              "SPI_CLK":  "PB_13",

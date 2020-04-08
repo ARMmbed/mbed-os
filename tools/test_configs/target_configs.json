@@ -43,7 +43,7 @@
         "default_test_configuration": "NONE",
         "test_configurations": ["HEAPBLOCKDEVICE_AND_WIFI"]
     },
-    "MTB_MXCHIP_EMW3166": {
+    "WIO_EMW3166": {
         "default_test_configuration": "NONE",
         "test_configurations": ["HEAPBLOCKDEVICE_AND_WIFI"]
     },

@@ -37,7 +37,7 @@
     !defined(TARGET_REALTEK_RTL8195AM)      && \
     !defined(TARGET_MTB_ADV_WISE_1530)      && \
     !defined(TARGET_MTB_USI_WM_BN_BM_22)    && \
-    !defined(TARGET_MTB_MXCHIP_EMW3166)     && \
+    !defined(TARGET_WIO_EMW3166)            && \
     !defined(TARGET_MTB_UBLOX_ODIN_W2)      && \
     !defined(TARGET_UNO_91H)
 #error [NOT_SUPPORTED] Wifi tests are not valid for the target

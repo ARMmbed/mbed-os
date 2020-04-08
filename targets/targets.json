@@ -3992,7 +3992,7 @@
         "device_name": "STM32F412ZG",
         "bootloader_supported": true
     },
-    "MTB_MXCHIP_EMW3166": {
+    "WIO_EMW3166": {
         "inherits": [
             "FAMILY_STM32"
         ],
