@@ -47,9 +47,6 @@
         },
         "CY8CKIT_062S2_43012": {
             "thread-stacksize": 896
-        },
-        "CYSBSYSKIT_01": {
-            "thread-stacksize": 896
         }
     }
 }
