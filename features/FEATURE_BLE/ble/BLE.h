@@ -466,12 +466,6 @@ private:
 };
 
 /**
- * @deprecated This type alias is retained for the sake of compatibility with
- * older code. This will be dropped at some point.
- */
-typedef BLE BLEDevice;
-
-/**
  * @namespace ble Entry namespace for all %BLE API definitions.
  */
 
