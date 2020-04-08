@@ -11537,100 +11537,6 @@
             "SARA_NBIOT"
         ]
     },
-    "VBLUNO51_LEGACY": {
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "inherits": [
-            "MCU_NRF51_32K"
-        ],
-        "detect_code": [
-            "C006"
-        ],
-        "overrides": {
-            "uart_hwfc": 0
-        },
-        "extra_labels_add": [
-            "VBLUNO51"
-        ]
-    },
-    "VBLUNO51_BOOT": {
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "inherits": [
-            "MCU_NRF51_32K_BOOT"
-        ],
-        "detect_code": [
-            "C006"
-        ],
-        "overrides": {
-            "uart_hwfc": 0
-        },
-        "extra_labels_add": [
-            "VBLUNO51"
-        ],
-        "macros_add": [
-            "TARGET_VBLUNO51"
-        ]
-    },
-    "VBLUNO51_OTA": {
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "inherits": [
-            "MCU_NRF51_32K_OTA"
-        ],
-        "detect_code": [
-            "C006"
-        ],
-        "overrides": {
-            "uart_hwfc": 0
-        },
-        "extra_labels_add": [
-            "VBLUNO51"
-        ],
-        "macros_add": [
-            "TARGET_VBLUNO51"
-        ]
-    },
-    "VBLUNO51": {
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "inherits": [
-            "MCU_NRF51_32K_UNIFIED"
-        ],
-        "detect_code": [
-            "C006"
-        ],
-        "overrides": {
-            "uart_hwfc": 0
-        },
-        "device_has": [
-            "USTICKER",
-            "LPTICKER",
-            "ANALOGIN",
-            "I2C",
-            "I2C_ASYNCH",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "SERIAL",
-            "SERIAL_ASYNCH",
-            "SERIAL_FC",
-            "SLEEP",
-            "SPI",
-            "SPI_ASYNCH",
-            "SPISLAVE"
-        ],
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "nRF51822_xxAC"
-    },
     "DISCO_L496AG": {
         "inherits": [
             "FAMILY_STM32"
@@ -12029,38 +11935,6 @@
         "mbed_ram_start": "0x20000000",
         "mbed_ram_size": "0x40000",
         "release_versions": [ "5" ]
-    },
-    "VBLUNO52": {
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "inherits": [
-            "MCU_NRF52832"
-        ],
-        "release_versions": [
-            "5"
-        ],
-        "device_name": "nRF52832_xxAA",
-        "macros_add": [
-            "CONFIG_GPIO_AS_PINRESET",
-            "NRF52_PAN_12",
-            "NRF52_PAN_15",
-            "NRF52_PAN_20",
-            "NRF52_PAN_30",
-            "NRF52_PAN_31",
-            "NRF52_PAN_36",
-            "NRF52_PAN_51",
-            "NRF52_PAN_53",
-            "NRF52_PAN_54",
-            "NRF52_PAN_55",
-            "NRF52_PAN_58",
-            "NRF52_PAN_62",
-            "NRF52_PAN_63",
-            "NRF52_PAN_64"
-        ],
-        "overrides": {
-            "console-uart-flow-control": "RTSCTS"
-        }
     },
     "MCU_M480": {
         "core": "Cortex-M4F",
