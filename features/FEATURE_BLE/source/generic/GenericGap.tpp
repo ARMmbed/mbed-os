@@ -234,19 +234,13 @@ static bool is_whitelist_valid(const ::ble::whitelist_t &whitelist)
             case peer_address_type_t::PUBLIC:
             case peer_address_type_t::PUBLIC_IDENTITY:
                 if (is_random_address(entry.address)) {
-                    return false; // invalid address bytes
+                    return false; // needs to be public
                 }
                 break;
             case peer_address_type_t::RANDOM:
-                if (!is_random_static_address(entry.address)
-                    && !is_random_private_resolvable_address(entry.address)) {
-                    // is either non-resolvable or contains invalid address bytes
-                    return false;
-                }
-                break;
             case peer_address_type_t::RANDOM_STATIC_IDENTITY:
                 if (!is_random_static_address(entry.address)) {
-                    return false; // invalid address bytes
+                    return false; // needs to be random static
                 }
                 break;
             default: // ANONYMOUS
