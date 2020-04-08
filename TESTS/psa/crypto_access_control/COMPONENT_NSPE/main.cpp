@@ -348,7 +348,7 @@ void test_use_other_partition_key_aead(void)
 void test_use_other_partition_key_asymmetric_sign_verify(void)
 {
     static const psa_key_id_t key_id = 999;
-    static const psa_key_type_t key_type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_CURVE_SECP256R1);
+    static const psa_key_type_t key_type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_CURVE_SECP_R1);
     static const psa_algorithm_t key_alg = PSA_ALG_ECDSA(PSA_ALG_SHA_256);
     static const psa_key_usage_t key_usage = PSA_KEY_USAGE_SIGN | PSA_KEY_USAGE_VERIFY;
     static const size_t key_bits = 256;
@@ -373,12 +373,12 @@ void test_use_other_partition_key_asymmetric_sign_verify(void)
     TEST_ASSERT_NOT_EQUAL(0, key_handle);
 
     /* try to asymmetric sign using the key that was created by the test partition */
-    TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_asymmetric_sign(key_handle, key_alg, input, sizeof(input),
-                                                                    signature, sizeof(signature), &len));
+    TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_sign_hash(key_handle, key_alg, input, sizeof(input),
+                                                              signature, sizeof(signature), &len));
 
     /* try to asymmetric verify using the key that was created by the test partition */
-    TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_asymmetric_verify(key_handle, key_alg, input, sizeof(input),
-                                                                      signature, sizeof(signature)));
+    TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_verify_hash(key_handle, key_alg, input, sizeof(input),
+                                                                signature, sizeof(signature)));
 
     /* via test partition - destroy the key created by the test partition */
     TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_destroy_key(key_handle));

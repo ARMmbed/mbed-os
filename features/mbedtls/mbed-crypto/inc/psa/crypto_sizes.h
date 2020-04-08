@@ -190,47 +190,6 @@
 #define PSA_VENDOR_ECC_MAX_CURVE_BITS 0
 #endif
 
-/** Bit size associated with an elliptic curve.
- *
- * \param curve     An elliptic curve (value of type #psa_ecc_curve_t).
- *
- * \return          The size associated with \p curve, in bits.
- *                  This may be 0 if the implementation does not support
- *                  the specified curve.
- */
-#define PSA_ECC_CURVE_BITS(curve)               \
-    ((curve) == PSA_ECC_CURVE_SECT163K1        ? 163 : \
-     (curve) == PSA_ECC_CURVE_SECT163R1        ? 163 : \
-     (curve) == PSA_ECC_CURVE_SECT163R2        ? 163 : \
-     (curve) == PSA_ECC_CURVE_SECT193R1        ? 193 : \
-     (curve) == PSA_ECC_CURVE_SECT193R2        ? 193 : \
-     (curve) == PSA_ECC_CURVE_SECT233K1        ? 233 : \
-     (curve) == PSA_ECC_CURVE_SECT233R1        ? 233 : \
-     (curve) == PSA_ECC_CURVE_SECT239K1        ? 239 : \
-     (curve) == PSA_ECC_CURVE_SECT283K1        ? 283 : \
-     (curve) == PSA_ECC_CURVE_SECT283R1        ? 283 : \
-     (curve) == PSA_ECC_CURVE_SECT409K1        ? 409 : \
-     (curve) == PSA_ECC_CURVE_SECT409R1        ? 409 : \
-     (curve) == PSA_ECC_CURVE_SECT571K1        ? 571 : \
-     (curve) == PSA_ECC_CURVE_SECT571R1        ? 571 : \
-     (curve) == PSA_ECC_CURVE_SECP160K1        ? 160 : \
-     (curve) == PSA_ECC_CURVE_SECP160R1        ? 160 : \
-     (curve) == PSA_ECC_CURVE_SECP160R2        ? 160 : \
-     (curve) == PSA_ECC_CURVE_SECP192K1        ? 192 : \
-     (curve) == PSA_ECC_CURVE_SECP192R1        ? 192 : \
-     (curve) == PSA_ECC_CURVE_SECP224K1        ? 224 : \
-     (curve) == PSA_ECC_CURVE_SECP224R1        ? 224 : \
-     (curve) == PSA_ECC_CURVE_SECP256K1        ? 256 : \
-     (curve) == PSA_ECC_CURVE_SECP256R1        ? 256 : \
-     (curve) == PSA_ECC_CURVE_SECP384R1        ? 384 : \
-     (curve) == PSA_ECC_CURVE_SECP521R1        ? 521 : \
-     (curve) == PSA_ECC_CURVE_BRAINPOOL_P256R1 ? 256 : \
-     (curve) == PSA_ECC_CURVE_BRAINPOOL_P384R1 ? 384 : \
-     (curve) == PSA_ECC_CURVE_BRAINPOOL_P512R1 ? 512 : \
-     (curve) == PSA_ECC_CURVE_CURVE25519       ? 255 : \
-     (curve) == PSA_ECC_CURVE_CURVE448         ? 448 : \
-     0)
-
 /** \def PSA_ALG_TLS12_PSK_TO_MS_MAX_PSK_LEN
  *
  * This macro returns the maximum length of the PSK supported
@@ -246,21 +205,6 @@
  * for #PSA_ALG_TLS12_PSK_TO_MS_MAX_PSK_LEN.
  */
 #define PSA_ALG_TLS12_PSK_TO_MS_MAX_PSK_LEN 128
-
-/** \def PSA_ASYMMETRIC_SIGNATURE_MAX_SIZE
- *
- * Maximum size of an asymmetric signature.
- *
- * This macro must expand to a compile-time constant integer. This value
- * should be the maximum size of a MAC supported by the implementation,
- * in bytes, and must be no smaller than this maximum.
- */
-#define PSA_ASYMMETRIC_SIGNATURE_MAX_SIZE                               \
-    PSA_BITS_TO_BYTES(                                                  \
-        PSA_VENDOR_RSA_MAX_KEY_BITS > PSA_VENDOR_ECC_MAX_CURVE_BITS ?   \
-        PSA_VENDOR_RSA_MAX_KEY_BITS :                                   \
-        PSA_VENDOR_ECC_MAX_CURVE_BITS                                   \
-        )
 
 /** The maximum size of a block cipher supported by the implementation. */
 #define PSA_MAX_BLOCK_CIPHER_BLOCK_SIZE 16
@@ -426,7 +370,7 @@
 #define PSA_ECDSA_SIGNATURE_SIZE(curve_bits)    \
     (PSA_BITS_TO_BYTES(curve_bits) * 2)
 
-/** Sufficient signature buffer size for psa_asymmetric_sign().
+/** Sufficient signature buffer size for psa_sign_hash().
  *
  * This macro returns a sufficient buffer size for a signature using a key
  * of the specified type and size, with the specified algorithm.
@@ -444,7 +388,7 @@
  *
  * \return If the parameters are valid and supported, return
  *         a buffer size in bytes that guarantees that
- *         psa_asymmetric_sign() will not fail with
+ *         psa_sign_hash() will not fail with
  *         #PSA_ERROR_BUFFER_TOO_SMALL.
  *         If the parameters are a valid combination that is not supported
  *         by the implementation, this macro shall return either a
@@ -452,10 +396,26 @@
  *         If the parameters are not valid, the
  *         return value is unspecified.
  */
-#define PSA_ASYMMETRIC_SIGN_OUTPUT_SIZE(key_type, key_bits, alg)        \
+#define PSA_SIGN_OUTPUT_SIZE(key_type, key_bits, alg)        \
     (PSA_KEY_TYPE_IS_RSA(key_type) ? ((void)alg, PSA_BITS_TO_BYTES(key_bits)) : \
      PSA_KEY_TYPE_IS_ECC(key_type) ? PSA_ECDSA_SIGNATURE_SIZE(key_bits) : \
      ((void)alg, 0))
+
+#define PSA_VENDOR_ECDSA_SIGNATURE_MAX_SIZE     \
+    PSA_ECDSA_SIGNATURE_SIZE(PSA_VENDOR_ECC_MAX_CURVE_BITS)
+
+/** \def PSA_SIGNATURE_MAX_SIZE
+ *
+ * Maximum size of an asymmetric signature.
+ *
+ * This macro must expand to a compile-time constant integer. This value
+ * should be the maximum size of a signature supported by the implementation,
+ * in bytes, and must be no smaller than this maximum.
+ */
+#define PSA_SIGNATURE_MAX_SIZE                               \
+    (PSA_BITS_TO_BYTES(PSA_VENDOR_RSA_MAX_KEY_BITS) > PSA_VENDOR_ECDSA_SIGNATURE_MAX_SIZE ? \
+     PSA_BITS_TO_BYTES(PSA_VENDOR_RSA_MAX_KEY_BITS) :                   \
+     PSA_VENDOR_ECDSA_SIGNATURE_MAX_SIZE)
 
 /** Sufficient output buffer size for psa_asymmetric_encrypt().
  *
@@ -681,7 +641,7 @@
  *
  * \return If the parameters are valid and supported, return
  *         a buffer size in bytes that guarantees that
- *         psa_asymmetric_sign() will not fail with
+ *         psa_sign_hash() will not fail with
  *         #PSA_ERROR_BUFFER_TOO_SMALL.
  *         If the parameters are a valid combination that is not supported
  *         by the implementation, this macro shall return either a

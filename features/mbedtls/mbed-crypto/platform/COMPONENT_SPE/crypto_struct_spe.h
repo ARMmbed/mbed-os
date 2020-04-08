@@ -330,10 +330,10 @@ typedef uint16_t psa_key_attributes_flag_t;
 typedef struct
 {
     psa_key_type_t type;
+    psa_key_bits_t bits;
     psa_key_lifetime_t lifetime;
     psa_key_id_t id;
     psa_key_policy_t policy;
-    psa_key_bits_t bits;
     psa_key_attributes_flag_t flags;
 } psa_core_key_attributes_t;
 
@@ -344,14 +344,14 @@ typedef struct
 typedef struct
 {
     psa_key_type_t type;
+    psa_key_bits_t bits;
     psa_key_lifetime_t lifetime;
     psa_app_key_id_t id;
     psa_key_policy_t policy;
-    psa_key_bits_t bits;
-    uint16_t flags;
+    psa_key_attributes_flag_t flags;
 } psa_client_core_key_attributes_t;
 
-#define PSA_CORE_KEY_ATTRIBUTES_INIT {0, 0, PSA_KEY_ID_INIT, PSA_KEY_POLICY_INIT, 0, 0}
+#define PSA_CORE_KEY_ATTRIBUTES_INIT {PSA_KEY_TYPE_NONE, 0, PSA_KEY_LIFETIME_VOLATILE, PSA_KEY_ID_INIT, PSA_KEY_POLICY_INIT, 0}
 
 struct psa_key_attributes_s
 {
@@ -368,6 +368,7 @@ struct psa_key_attributes_s
 #else
 #define PSA_KEY_ATTRIBUTES_INIT {PSA_CORE_KEY_ATTRIBUTES_INIT, NULL, 0}
 #endif
+
 typedef struct psa_client_key_attributes_s
 {
     psa_client_core_key_attributes_t core;

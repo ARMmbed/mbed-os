@@ -319,7 +319,8 @@ struct mbedtls_ssl_handshake_params
     mbedtls_ecdh_context ecdh_ctx;              /*!<  ECDH key exchange       */
 
 #if defined(MBEDTLS_USE_PSA_CRYPTO)
-    psa_ecc_curve_t ecdh_psa_curve;
+    psa_key_type_t ecdh_psa_type;
+    uint16_t ecdh_bits;
     psa_key_handle_t ecdh_psa_privkey;
     unsigned char ecdh_psa_peerkey[MBEDTLS_PSA_MAX_EC_PUBKEY_LENGTH];
     size_t ecdh_psa_peerkey_len;
@@ -1061,5 +1062,47 @@ int mbedtls_ssl_encrypt_buf( mbedtls_ssl_context *ssl,
 int mbedtls_ssl_decrypt_buf( mbedtls_ssl_context const *ssl,
                              mbedtls_ssl_transform *transform,
                              mbedtls_record *rec );
+
+/* Length of the "epoch" field in the record header */
+static inline size_t mbedtls_ssl_ep_len( const mbedtls_ssl_context *ssl )
+{
+#if defined(MBEDTLS_SSL_PROTO_DTLS)
+    if( ssl->conf->transport == MBEDTLS_SSL_TRANSPORT_DATAGRAM )
+        return( 2 );
+#else
+    ((void) ssl);
+#endif
+    return( 0 );
+}
+
+#if defined(MBEDTLS_SSL_PROTO_DTLS)
+int mbedtls_ssl_resend_hello_request( mbedtls_ssl_context *ssl );
+#endif /* MBEDTLS_SSL_PROTO_DTLS */
+
+void mbedtls_ssl_set_timer( mbedtls_ssl_context *ssl, uint32_t millisecs );
+int mbedtls_ssl_check_timer( mbedtls_ssl_context *ssl );
+
+void mbedtls_ssl_reset_in_out_pointers( mbedtls_ssl_context *ssl );
+void mbedtls_ssl_update_out_pointers( mbedtls_ssl_context *ssl,
+                              mbedtls_ssl_transform *transform );
+void mbedtls_ssl_update_in_pointers( mbedtls_ssl_context *ssl );
+
+int mbedtls_ssl_session_reset_int( mbedtls_ssl_context *ssl, int partial );
+
+#if defined(MBEDTLS_SSL_DTLS_ANTI_REPLAY)
+void mbedtls_ssl_dtls_replay_reset( mbedtls_ssl_context *ssl );
+#endif
+
+void mbedtls_ssl_handshake_wrapup_free_hs_transform( mbedtls_ssl_context *ssl );
+
+#if defined(MBEDTLS_SSL_RENEGOTIATION)
+int mbedtls_ssl_start_renegotiation( mbedtls_ssl_context *ssl );
+#endif /* MBEDTLS_SSL_RENEGOTIATION */
+
+#if defined(MBEDTLS_SSL_PROTO_DTLS)
+size_t mbedtls_ssl_get_current_mtu( const mbedtls_ssl_context *ssl );
+void mbedtls_ssl_buffering_free( mbedtls_ssl_context *ssl );
+void mbedtls_ssl_flight_free( mbedtls_ssl_flight_item *flight );
+#endif /* MBEDTLS_SSL_PROTO_DTLS */
 
 #endif /* ssl_internal.h */
