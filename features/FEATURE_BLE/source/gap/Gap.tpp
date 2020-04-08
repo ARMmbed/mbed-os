@@ -424,9 +424,6 @@ Gap<Impl>::Gap() : _eventHandler(NULL)
 {
 }
 
-
-/* -------------------- Future deprecation ------------------------- */
-
 template<class Impl>
 const peripheral_privacy_configuration_t Gap<Impl>::default_peripheral_privacy_configuration = {
     /* use_non_resolvable_random_address */ false,
