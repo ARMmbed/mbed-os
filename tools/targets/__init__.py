@@ -694,22 +694,6 @@ class PSOC6Code(object):
             from tools.targets.PSOC6 import sign_image as psoc6_sign_image
             psoc6_sign_image(t_self, binf)
 
-    @staticmethod
-    def sign_es100_image(t_self, resources, elf, binf):
-        """
-        Calls sign_es100_image function to add signature to Secure Boot binary file.
-        This function is used with Cypress kits, that support cysecuretools signing.
-        """
-        from tools.targets.PSOC6 import sign_es100_image as psoc6_sign_es100_image
-        if hasattr(t_self.target, "hex_filename"):
-            hex_filename = t_self.target.hex_filename
-            # Completing main image involves merging M0 image.
-            from tools.targets.PSOC6 import find_cm0_image
-            m0hexf = find_cm0_image(t_self, resources, elf, binf, hex_filename)
-
-            psoc6_sign_es100_image(t_self, resources, elf, binf, m0hexf)
-
-
 class ArmMuscaA1Code(object):
     """Musca-A1 Hooks"""
     @staticmethod

@@ -14100,53 +14100,6 @@
             "network-default-interface-type": "WIFI"
         }
     },
-"CY8CKIT_064B0S2_4343W": {
-        "inherits": [
-            "MCU_PSOC6_M4"
-        ],
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "features": [
-            "BLE"
-        ],
-        "components_add": [
-            "WHD",
-            "4343W",
-            "CYW43XXX"
-        ],
-        "components_remove": [
-            "QSPIF"
-        ],
-        "device_has_remove": [
-            "ANALOGOUT",
-            "QSPI"
-        ],
-        "extra_labels_add": [
-            "PSOC6_02",
-            "MXCRYPTO_02",
-            "CORDIO"
-        ],
-        "macros_add": [
-            "CYB0644ABZI_S2D44",
-            "CYBSP_WIFI_CAPABLE"
-        ],
-        "detect_code": [
-            "190A"
-        ],
-        "forced_reset_timeout": 5,
-        "hex_filename": "psoc64_02_cm0_secure.hex",
-        "cm0_img_id": 1,
-        "cm4_img_id": 16,
-        "policy_file": "policy_multi_CM0_CM4.json",
-        "post_binary_hook": {
-            "function": "PSOC6Code.sign_es100_image"
-        },
-        "overrides": {
-            "network-default-interface-type": "WIFI"
-        },
-        "program_cycle_s": 10
-	},
     "CYSBSYSKIT_01": {
         "inherits": [
             "MCU_PSOC6_M4"
