@@ -30,7 +30,7 @@ static volatile uint8_t wk_CPGSTBCR9;
 static volatile uint8_t wk_CPGSTBCR10;
 static volatile uint8_t wk_CPGSTBCR11;
 static volatile uint8_t wk_CPGSTBCR12;
-#if defined(TARGET_RZA1H)  || defined(TARGET_VK_RZ_A1H)
+#if defined(TARGET_RZA1H)
 static volatile uint8_t wk_CPGSTBCR13;
 #endif
 static volatile uint8_t wk_CPGSTBREQ1;
@@ -52,7 +52,7 @@ static const module_stanby_t module_stanby[] = {
     {&wk_CPGSTBCR7,  &CPGSTBCR7,  &CPGSTBREQ2, &CPGSTBACK2, CPG_STBCR7_BIT_MSTP74,   CPG_STBREQ2_BIT_STBRQ26}, /* Ethernet */
     {&wk_CPGSTBCR8,  &CPGSTBCR8,  &CPGSTBREQ2, &CPGSTBACK2, CPG_STBCR8_BIT_MSTP83,   CPG_STBREQ2_BIT_STBRQ27}, /* MediaLB */
     {&wk_CPGSTBCR9,  &CPGSTBCR9,  &CPGSTBREQ2, &CPGSTBACK2, CPG_STBCR9_BIT_MSTP91,   CPG_STBREQ2_BIT_STBRQ25}, /* VDC5_0 */
-#if defined(TARGET_RZA1H)  || defined(TARGET_VK_RZ_A1H)
+#if defined(TARGET_RZA1H)
     {&wk_CPGSTBCR8,  &CPGSTBCR8,  &CPGSTBREQ2, &CPGSTBACK2, CPG_STBCR8_BIT_MSTP85,   CPG_STBREQ2_BIT_STBRQ21}, /* IMR-LSD */
     {&wk_CPGSTBCR8,  &CPGSTBCR8,  &CPGSTBREQ2, &CPGSTBACK2, CPG_STBCR8_BIT_MSTP86,   CPG_STBREQ2_BIT_STBRQ22}, /* IMR-LS2_1 */
     {&wk_CPGSTBCR8,  &CPGSTBCR8,  &CPGSTBREQ2, &CPGSTBACK2, CPG_STBCR8_BIT_MSTP87,   CPG_STBREQ2_BIT_STBRQ23}, /* IMR-LS2_0 */
@@ -124,7 +124,7 @@ void hal_deepsleep(void) {
     wk_CPGSTBCR10 = CPGSTBCR10;
     wk_CPGSTBCR11 = CPGSTBCR11;
     wk_CPGSTBCR12 = CPGSTBCR12;
-#if defined(TARGET_RZA1H)  || defined(TARGET_VK_RZ_A1H)
+#if defined(TARGET_RZA1H)
     wk_CPGSTBCR13 = CPGSTBCR13;
 #endif
 
@@ -165,7 +165,7 @@ void hal_deepsleep(void) {
     dummy_8    = CPGSTBCR11;
     CPGSTBCR12 = 0xFF;
     dummy_8    = CPGSTBCR12;
-#if defined(TARGET_RZA1H)  || defined(TARGET_VK_RZ_A1H)
+#if defined(TARGET_RZA1H)
     CPGSTBCR13 = 0xFF;
     dummy_8    = CPGSTBCR13;
 #endif
@@ -196,7 +196,7 @@ void hal_deepsleep(void) {
     dummy_8    = CPGSTBCR11;
     CPGSTBCR12 = wk_CPGSTBCR12;
     dummy_8    = CPGSTBCR12;
-#if defined(TARGET_RZA1H)  || defined(TARGET_VK_RZ_A1H)
+#if defined(TARGET_RZA1H)
     CPGSTBCR13 = wk_CPGSTBCR13;
     dummy_8    = CPGSTBCR13;
 #endif

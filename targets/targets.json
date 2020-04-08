@@ -8801,26 +8801,6 @@
             "5500"
         ]
     },
-    "VK_RZ_A1H": {
-        "inherits": [
-            "RZ_A1XX"
-        ],
-        "extra_labels_add": [
-            "RZA1H",
-            "VKRZA1H",
-            "RZ_A1_EMAC"
-        ],
-        "device_has_add": [
-            "EMAC"
-        ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
-        "detect_code": [
-            "C002"
-        ]
-    },
     "GR_LYCHEE": {
         "inherits": [
             "RZ_A1XX"
