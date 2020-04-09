@@ -84,6 +84,8 @@ protected:
      */
     virtual void do_connect();
 
+    virtual void do_disconnect();
+
     /** Get the operation specific timeout. Used in synchronous mode when setting the maximum
      *   waiting time. Modem specific implementation can override this to provide different timeouts.
      *
@@ -121,7 +123,6 @@ private:
     nsapi_error_t check_operation(nsapi_error_t err, ContextOperation op);
     void ciot_opt_cb(mbed::CellularNetwork::CIoT_Supported_Opt ciot_opt);
     virtual void do_connect_with_retry();
-    void do_disconnect();
     void set_cid(int cid);
 
 private:

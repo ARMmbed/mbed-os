@@ -113,6 +113,13 @@ void UBLOX_AT_CellularContext::do_connect()
         _status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, _connect_status);
     }
 }
+#ifndef UBX_MDM_SARA_R41XM
+void UBLOX_AT_CellularContext::do_disconnect()
+{
+    disconnect_modem_stack();
+    AT_CellularContext::do_disconnect();
+}
+#endif
 
 #ifndef UBX_MDM_SARA_R41XM
 nsapi_error_t UBLOX_AT_CellularContext::define_context()
