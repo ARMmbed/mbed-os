@@ -1,0 +1,55 @@
+{
+  "name": "littlefs2",
+  "config": {
+    "block_size": {
+        "macro_name": "MBED_LFS2_BLOCK_SIZE",
+        "value": 512,
+        "help": "Size of a logical block. This does not impact ram consumption and may be larger than the physical erase block. If the physical erase block is larger, littlefs will use that instead. Larger values will be faster but waste more storage when files are not aligned to a block size."
+    },
+    "block_cycles": {
+        "macro_name": "MBED_LFS2_BLOCK_CYCLES",
+        "value": 1024,
+        "help": "Number of erase cycles before a block is forcefully evicted. Larger values are more efficient but cause less even wear distribution. 0 disables dynamic wear-leveling."
+    },
+    "cache_size": {
+        "macro_name": "MBED_LFS2_CACHE_SIZE",
+        "value": "64",
+        "help": "Size of read/program caches. Each file uses 1 cache, and littlefs allocates 2 caches for internal operations. Larger values should be faster but uses more RAM."
+    },
+    "lookahead_size": {
+        "macro_name": "MBED_LFS2_LOOKAHEAD_SIZE",
+        "value": 64,
+        "help": "Size of the lookahead buffer. A larger lookahead reduces the allocation scans and results in a faster filesystem but uses more RAM."
+    },
+    "intrinsics": {
+        "macro_name": "MBED_LFS2_INTRINSICS",
+        "value": true,
+        "help": "Enable intrinsics for bit operations such as ctz, popc, and le32 conversion. Can be disabled to help debug toolchain issues"
+    },
+    "enable_info": {
+        "macro_name": "MBED_LFS2_ENABLE_INFO",
+        "value": false,
+        "help": "Enables info logging, true = enabled, false = disabled, null = disabled only in release builds"
+    },
+    "enable_debug": {
+        "macro_name": "MBED_LFS2_ENABLE_DEBUG",
+        "value": null,
+        "help": "Enables debug logging, true = enabled, false = disabled, null = disabled only in release builds"
+    },
+    "enable_warn": {
+        "macro_name": "MBED_LFS2_ENABLE_WARN",
+        "value": null,
+        "help": "Enables warn logging, true = enabled, false = disabled, null = disabled only in release builds"
+    },
+    "enable_error": {
+        "macro_name": "MBED_LFS2_ENABLE_ERROR",
+        "value": null,
+        "help": "Enables error logging, true = enabled, false = disabled, null = disabled only in release builds"
+    },
+    "enable_assert": {
+        "macro_name": "MBED_LFS2_ENABLE_ASSERT",
+        "value": null,
+        "help": "Enables asserts, true = enabled, false = disabled, null = disabled only in release builds"
+    }
+  }
+}
