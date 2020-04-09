@@ -14,10 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] kernel tick count test cases require a RTOS to run.
-#else
-
 #include "greentea-client/test_env.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
@@ -36,6 +32,7 @@ using utest::v1::Case;
 #define SMALL_DELTA         1500        // 0.15%
 #define BIG_DELTA           15000       // 1.5%
 
+#if defined(MBED_CONF_RTOS_PRESENT)
 /** Test if kernel ticker frequency is 1kHz
 
     Given a RTOS kernel ticker
@@ -47,6 +44,7 @@ void test_frequency()
     uint32_t freq = osKernelGetTickFreq();
     TEST_ASSERT_EQUAL_UINT32_MESSAGE(1000, freq, "Expected SysTick frequency is 1kHz");
 }
+#endif
 
 /** Test if kernel ticker increments by one
 
@@ -105,7 +103,9 @@ void test_interval()
 
 // Test cases
 Case cases[] = {
+#if defined(MBED_CONF_RTOS_PRESENT)
     Case("Test kernel ticker frequency", test_frequency),
+#endif
     Case("Test if kernel ticker increments by one", test_increment),
     Case("Test if kernel ticker interval is 1ms", test_interval)
 };
@@ -122,4 +122,3 @@ int main()
 {
     return !utest::v1::Harness::run(specification);
 }
-#endif // !defined(MBED_CONF_RTOS_PRESENT)
