@@ -1,4 +1,5 @@
 /* Copyright (c) 2009-2019 Arm Limited
+ * Copyright (c) 2019-2020 Packetcraft, Inc.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -284,6 +285,7 @@ void smprActSendPairRandom(smpCcb_t *pCcb, smpMsg_t *pMsg)
   /* store STK and adjust based on max key length */
   memcpy(pCcb->pScr->buf.b3, pMsg->aes.pCiphertext, encKeyLen);
   memset((pCcb->pScr->buf.b3 + encKeyLen), 0, (SMP_KEY_LEN - encKeyLen));
+  pCcb->keyReady = TRUE;
 
   /* start smp response timer */
   smpStartRspTimer(pCcb);
