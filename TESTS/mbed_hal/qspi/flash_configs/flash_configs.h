@@ -69,8 +69,7 @@
         defined(TARGET_CY8CPROTO_062S2_43012) ||    \
         defined(TARGET_CY8CPROTO_062S3_4343W) ||    \
         defined(TARGET_CYW943012P6EVB_01) ||        \
-        defined(TARGET_CYW9P62S1_43438EVB_01) ||   \
-        defined(TARGET_CYSBSYSKIT_01))
+        defined(TARGET_CYW9P62S1_43438EVB_01))
 #include "S25FL512S_config.h"
 
 #elif   defined(TARGET_CYW9P62S1_43012EVB_01)
