@@ -697,6 +697,27 @@ uint8_t smpGetScSecLevel(smpCcb_t *pCcb)
 
 /*************************************************************************************************/
 /*!
+ *  \brief  Check if LE Secure Connections is enabled on the connection.
+ *
+ *  \param  connId    Connection identifier.
+ *
+ *  \return TRUE is Secure Connections is enabled, else FALSE
+ */
+/*************************************************************************************************/
+bool_t SmpDmLescEnabled(dmConnId_t connId)
+{
+  smpCcb_t *pCcb = smpCcbByConnId(connId);
+
+  if (pCcb == NULL || pCcb->pScCcb == NULL)
+  {
+    return FALSE;
+  }
+
+  return pCcb->pScCcb->lescEnabled;
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief  Return the STK for the given connection.
  *
  *  \param  connId    Connection identifier.
