@@ -36,6 +36,7 @@ using utest::v1::Case;
 
 #define MAX_FLAG_POS 30
 #define PROHIBITED_FLAG_POS 31
+static bool is_ticker_used = false; /* This flag protects avoid calling ThisThread::sleep_for as it is not safe to call in IRQ mode. */
 
 /* flags */
 #define FLAG01          0x1FFF       /* 00000000000000000001111111111111 */
@@ -51,7 +52,9 @@ void send_thread(EventFlags *ef)
         const uint32_t flag = flags & (1 << i);
         if (flag) {
             ef->set(flag);
-            ThisThread::sleep_for(wait_ms);
+            if (!is_ticker_used) {
+                ThisThread::sleep_for(wait_ms);
+            }
         }
     }
 }
@@ -349,7 +352,7 @@ void test_multi_thread_all_many_wait(void)
         TEST_ASSERT_EQUAL(NO_FLAGS, ef.get());
     }
 }
-#else
+#endif
 
 /** Test if multi-event flag set cause wait_all to return
 
@@ -361,11 +364,13 @@ void test_multi_eventflags_all(void)
 {
     EventFlags ef;
     Ticker t1, t2, t3;
+    is_ticker_used = true;
     t1.attach_us(callback(send_thread<FLAG01, 0>, &ef), 3000);
-    t2.attach_us(callback(send_thread<FLAG02, 0>, &ef), 5000);
-    t3.attach_us(callback(send_thread<FLAG03, 0>, &ef), 6000);
-    uint32_t ret = ef.wait_all(FLAG01 | FLAG02 | FLAG03);
+    t2.attach_us(callback(send_thread<FLAG02, 0>, &ef), 4000);
+    t3.attach_us(callback(send_thread<FLAG03, 0>, &ef), 5000);
+    uint32_t ret = ef.wait_all(FLAG01 | FLAG02 | FLAG03, 20, false);
     TEST_ASSERT_EQUAL(FLAG01 | FLAG02 | FLAG03, ret);
+    is_ticker_used = false;
 }
 
 /** Test if multi-event flag set cause wait_any to return
@@ -374,12 +379,12 @@ void test_multi_eventflags_all(void)
     When callbacks set specified flags
     Then main thread waits until receive all of them
  */
-
 void test_multi_eventflags_any(void)
 {
     EventFlags ef;
     uint32_t ret;
     Ticker t1, t2, t3;
+    is_ticker_used = true;
     t1.attach_us(callback(send_thread<FLAG01, 0>, &ef), 3000);
     t2.attach_us(callback(send_thread<FLAG02, 0>, &ef), 4000);
     t3.attach_us(callback(send_thread<FLAG03, 0>, &ef), 5000);
@@ -391,6 +396,7 @@ void test_multi_eventflags_any(void)
     }
     ret = ef.get();
     TEST_ASSERT_EQUAL(NO_FLAGS, ret);
+    is_ticker_used = false;
 }
 
 /** Test if multi-event flag set cause wait_any(without clear) to return
@@ -404,6 +410,7 @@ void test_multi_eventflags_any_no_clear(void)
     EventFlags ef;
     uint32_t ret;
     Ticker t1, t2, t3;
+    is_ticker_used = true;
     t1.attach_us(callback(send_thread<FLAG01, 0>, &ef), 3000);
     t2.attach_us(callback(send_thread<FLAG02, 0>, &ef), 4000);
     t3.attach_us(callback(send_thread<FLAG03, 0>, &ef), 5000);
@@ -417,8 +424,9 @@ void test_multi_eventflags_any_no_clear(void)
     }
     ret = ef.get();
     TEST_ASSERT_EQUAL(NO_FLAGS, ret);
+    is_ticker_used = false;
 }
-#endif
+
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(10, "default_auto");
@@ -436,12 +444,11 @@ Case cases[] = {
     Case("Test multi-threaded wait_any", test_multi_thread_any),
     Case("Test multi-threaded wait_all many wait", test_multi_thread_all_many_wait),
     Case("Test multi-threaded wait_any timeout", test_multi_thread_any_timeout),
-    Case("Test multi-threaded wait_any no clear", test_multi_thread_any_no_clear)
-#else
+    Case("Test multi-threaded wait_any no clear", test_multi_thread_any_no_clear),
+#endif
     Case("Test multi-eventflags wait_all", test_multi_eventflags_all),
     Case("Test multi-eventflags wait_any", test_multi_eventflags_any),
     Case("Test multi-eventflags wait_any no clear", test_multi_eventflags_any_no_clear)
-#endif
 };
 
 utest::v1::Specification specification(test_setup, cases);
