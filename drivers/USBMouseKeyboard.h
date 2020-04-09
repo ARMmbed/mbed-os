@@ -49,7 +49,7 @@
  *   {
  *       key_mouse.move(20, 0);
  *       key_mouse.printf("Hello From MBED\r\n");
- *       wait(1);
+ *       ThisThread::sleep_for(1000);
  *   }
  * }
  * @endcode
@@ -68,7 +68,7 @@
  *   {
  *       key_mouse.move(X_MAX_ABS/2, Y_MAX_ABS/2);
  *       key_mouse.printf("Hello from MBED\r\n");
- *       wait(1);
+ *       ThisThread::sleep_for(1000);
  *   }
  * }
  * @endcode

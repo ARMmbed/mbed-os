@@ -48,9 +48,9 @@ namespace mbed {
  * int main() {
  *     while(1) {
  *         ledport = LED_MASK;
- *         wait(1);
+ *         ThisThread::sleep_for(1000);
  *         ledport = 0;
- *         wait(1);
+ *         ThisThread::sleep_for(1000);
  *     }
  * }
  * @endcode

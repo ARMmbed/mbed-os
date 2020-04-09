@@ -23,28 +23,6 @@
 #include "hal/us_ticker_api.h"
 #include "hal/ticker_api.h"
 
-// This implementation of the wait functions will be compiled only
-// if the RTOS is not present.
-#ifndef MBED_CONF_RTOS_PRESENT
-
-void wait(float s)
-{
-    wait_ms(s * 1000.0f);
-}
-
-void wait_ms(int ms)
-{
-#if DEVICE_LPTICKER
-    const ticker_data_t *const ticker = get_lp_ticker_data();
-    uint32_t start = ticker_read(ticker);
-    while ((ticker_read(ticker) - start) < (uint32_t)(ms * 1000));
-#else
-    wait_us(ms * 1000);
-#endif
-}
-
-#endif // #ifndef MBED_CONF_RTOS_PRESENT
-
 // This wait_us is used by both RTOS and non-RTOS builds
 /*  The actual time delay may be 1 less usec */
 

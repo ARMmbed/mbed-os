@@ -154,7 +154,7 @@ public:
      *             printf("Message received: %d\n\n", msg.data[0]);
      *             led2 = !led2;
      *         }
-     *         wait(0.2);
+     *         ThisThread::sleep_for(200);
      *     }
      * }
      *

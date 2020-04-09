@@ -69,7 +69,7 @@ enum MOUSE_TYPE {
  *   while (1)
  *   {
  *      mouse.move(20, 0);
- *      wait(0.5);
+ *      ThisThread::sleep_for(500);
  *   }
  * }
  *
@@ -102,7 +102,7 @@ enum MOUSE_TYPE {
  *
  *       mouse.move(x_screen, y_screen);
  *       angle += 3;
- *       wait(0.01);
+ *       ThisThread::sleep_for(10);
  *   }
  * }
  *

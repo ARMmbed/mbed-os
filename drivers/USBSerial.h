@@ -43,7 +43,7 @@
 *    while(1)
 *    {
 *        serial.printf("I am a virtual serial port\n");
-*        wait(1);
+*        ThisThread::sleep_for(1000);
 *    }
 * }
 * @endcode

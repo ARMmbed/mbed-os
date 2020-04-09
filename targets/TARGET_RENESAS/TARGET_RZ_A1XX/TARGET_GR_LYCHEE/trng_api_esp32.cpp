@@ -17,6 +17,7 @@
 #if DEVICE_TRNG
 #include "drivers/I2C.h"
 #include "platform/mbed_wait_api.h"
+#include "rtos/ThisThread.h"
 
 #define ESP32_I2C_ADDR    (0x28<<1)
 #define RETRY_CNT_MAX     (20)
@@ -47,7 +48,9 @@ extern "C" void trng_init_esp32(void)
         GPIOPM3  &= ~0x4000;         /* Output mode */
 
         GPIOP3   |=  0x4000;         /* Outputs hi level */
-        wait_ms(5);
+
+        rtos::ThisThread::sleep_for(5);
+
         GPIOP5   |=  0x0008;         /* Outputs hi level */
     }
 }
@@ -84,7 +87,7 @@ extern "C" int trng_get_bytes_esp32(uint8_t *output, size_t length, size_t *outp
         }
         if (ret != 0) {
             retry_cnt++;
-            wait_ms(100);
+            rtos::ThisThread::sleep_for(100);
         }
     }
     if (retry_cnt >= RETRY_CNT_MAX) {

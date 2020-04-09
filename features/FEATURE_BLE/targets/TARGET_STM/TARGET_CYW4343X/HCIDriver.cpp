@@ -96,13 +96,13 @@ public:
         output_mode(bt_device_wake_name, 0);
         output_mode(bt_power_name, 1);
 
-        wait_ms(500);
+        ThisThread::sleep_for(500);
 
         bt_device_wake = 0;
-        wait_ms(500);
+        ThisThread::sleep_for(500);
 
         bt_power = 1;
-        wait_ms(500);
+        ThisThread::sleep_for(500);
     }
 
     virtual void do_terminate() { }
@@ -312,7 +312,7 @@ private:
         service_pack_next = NULL;
         service_pack_index = 0;
         service_pack_transfered = true;
-        wait_ms(1000);
+        ThisThread::sleep_for(1000);
         set_sleep_mode();
     }
 

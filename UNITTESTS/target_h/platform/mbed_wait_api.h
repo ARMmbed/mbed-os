@@ -22,8 +22,6 @@
 extern "C" {
 #endif
 
-void wait_ms(int ms);
-
 void wait_us(int us);
 
 #ifdef __cplusplus

@@ -46,7 +46,7 @@ namespace mbed {
  *         if(enable) {
  *             led = !led;
  *         }
- *         wait(0.25);
+ *         ThisThread::sleep_for(250);
  *     }
  * }
  * @endcode

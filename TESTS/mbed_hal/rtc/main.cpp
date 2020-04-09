@@ -61,9 +61,9 @@ void rtc_sleep_test_support(bool deepsleep_mode)
      * to allow for hardware serial buffers to completely flush.
      * This should be replaced with a better function that checks if the
      * hardware buffers are empty. However, such an API does not exist now,
-     * so we'll use the wait_ms() function for now.
+     * so we'll use the ThisThread::sleep_for() function for now.
      */
-    wait_ms(10);
+    ThisThread::sleep_for(10);
 
     rtc_init();
 

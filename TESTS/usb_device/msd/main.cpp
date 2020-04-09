@@ -440,7 +440,7 @@ void mount_unmount_and_data_test(BlockDevice *bd, FileSystem *fs)
     TEST_ASSERT_EQUAL_STRING("passed", _key);
 
     do {
-        wait_ms(1);
+        ThisThread::sleep_for(1);
     } while (test_files_exist(fs_root));
     TEST_ASSERT_EQUAL(false, test_files_exist(fs_root));
 

@@ -66,7 +66,7 @@ namespace mbed {
  *         // set up configuration register (at 0x01)
  *         i2c.write(addr8bit, cmd, 2);
  *
- *         wait(0.5);
+ *         ThisThread::sleep_for(500);
  *
  *         // read temperature register
  *         cmd[0] = 0x00;

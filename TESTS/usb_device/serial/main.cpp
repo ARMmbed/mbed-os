@@ -296,7 +296,7 @@ void test_cdc_usb_reconnect()
     usb_cdc.connect();
     // Wait for the USB enumeration to complete.
     while (!usb_cdc.configured()) {
-        wait_ms(1);
+        ThisThread::sleep_for(1);
     }
     TEST_ASSERT_TRUE(usb_cdc.configured());
     TEST_ASSERT_FALSE(usb_cdc.ready());
@@ -305,7 +305,7 @@ void test_cdc_usb_reconnect()
     // Wait for the host to open the port.
 #if LINUX_HOST_DTR_FIX
     usb_cdc.wait_ready();
-    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+    ThisThread::sleep_for(LINUX_HOST_DTR_FIX_DELAY_MS);
 #endif
     usb_cdc.wait_ready();
     TEST_ASSERT_TRUE(usb_cdc.configured());
@@ -316,12 +316,12 @@ void test_cdc_usb_reconnect()
     TEST_ASSERT_FALSE(usb_cdc.configured());
     TEST_ASSERT_FALSE(usb_cdc.ready());
 
-    wait_ms(USB_RECONNECT_DELAY_MS);
+    ThisThread::sleep_for(USB_RECONNECT_DELAY_MS);
     // Connect the USB device again.
     usb_cdc.connect();
     // Wait for the USB enumeration to complete.
     while (!usb_cdc.configured()) {
-        wait_ms(1);
+        ThisThread::sleep_for(1);
     }
     TEST_ASSERT_TRUE(usb_cdc.configured());
     TEST_ASSERT_FALSE(usb_cdc.ready());
@@ -330,7 +330,7 @@ void test_cdc_usb_reconnect()
     // Wait for the host to open the port again.
 #if LINUX_HOST_DTR_FIX
     usb_cdc.wait_ready();
-    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+    ThisThread::sleep_for(LINUX_HOST_DTR_FIX_DELAY_MS);
 #endif
     usb_cdc.wait_ready();
     TEST_ASSERT_TRUE(usb_cdc.configured());
@@ -355,7 +355,7 @@ void test_cdc_rx_single_bytes()
     greentea_send_kv(MSG_KEY_SEND_BYTES_SINGLE, MSG_VALUE_DUMMY);
 #if LINUX_HOST_DTR_FIX
     usb_cdc.wait_ready();
-    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+    ThisThread::sleep_for(LINUX_HOST_DTR_FIX_DELAY_MS);
 #endif
     usb_cdc.wait_ready();
     uint8_t buff = 0x01;
@@ -369,7 +369,7 @@ void test_cdc_rx_single_bytes()
     }
     // Wait for the host to close its port.
     while (usb_cdc.ready()) {
-        wait_ms(1);
+        ThisThread::sleep_for(1);
     }
     usb_cdc.disconnect();
 }
@@ -380,7 +380,7 @@ void tx_thread_fun(USBCDC *usb_cdc)
     uint8_t buff[TX_BUFF_SIZE] = { 0 };
     while (event_flags.get() & EF_SEND) {
         if (!usb_cdc->send(buff, TX_BUFF_SIZE)) {
-            wait_ms(1);
+            ThisThread::sleep_for(1);
             continue;
         }
         buff_val++;
@@ -402,7 +402,7 @@ void test_cdc_rx_single_bytes_concurrent()
     greentea_send_kv(MSG_KEY_SEND_BYTES_SINGLE, MSG_VALUE_DUMMY);
 #if LINUX_HOST_DTR_FIX
     usb_cdc.wait_ready();
-    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+    ThisThread::sleep_for(LINUX_HOST_DTR_FIX_DELAY_MS);
 #endif
     usb_cdc.wait_ready();
     Thread tx_thread;
@@ -421,7 +421,7 @@ void test_cdc_rx_single_bytes_concurrent()
     tx_thread.join();
     // Wait for the host to close its port.
     while (usb_cdc.ready()) {
-        wait_ms(1);
+        ThisThread::sleep_for(1);
     }
     usb_cdc.disconnect();
 }
@@ -439,7 +439,7 @@ void test_cdc_rx_multiple_bytes()
     greentea_send_kv(MSG_KEY_SEND_BYTES_MULTIPLE, HOST_RX_BUFF_SIZE_RATIO);
 #if LINUX_HOST_DTR_FIX
     usb_cdc.wait_ready();
-    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+    ThisThread::sleep_for(LINUX_HOST_DTR_FIX_DELAY_MS);
 #endif
     usb_cdc.wait_ready();
     uint8_t buff[RX_BUFF_SIZE] = { 0 };
@@ -460,7 +460,7 @@ void test_cdc_rx_multiple_bytes()
     }
     // Wait for the host to close its port.
     while (usb_cdc.ready()) {
-        wait_ms(1);
+        ThisThread::sleep_for(1);
     }
     usb_cdc.disconnect();
 }
@@ -479,7 +479,7 @@ void test_cdc_rx_multiple_bytes_concurrent()
     greentea_send_kv(MSG_KEY_SEND_BYTES_MULTIPLE, HOST_RX_BUFF_SIZE_RATIO);
 #if LINUX_HOST_DTR_FIX
     usb_cdc.wait_ready();
-    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+    ThisThread::sleep_for(LINUX_HOST_DTR_FIX_DELAY_MS);
 #endif
     usb_cdc.wait_ready();
     Thread tx_thread;
@@ -505,7 +505,7 @@ void test_cdc_rx_multiple_bytes_concurrent()
     tx_thread.join();
     // Wait for the host to close its port.
     while (usb_cdc.ready()) {
-        wait_ms(1);
+        ThisThread::sleep_for(1);
     }
     usb_cdc.disconnect();
 }
@@ -524,7 +524,7 @@ void test_cdc_loopback()
     greentea_send_kv(MSG_KEY_LOOPBACK, MSG_VALUE_DUMMY);
 #if LINUX_HOST_DTR_FIX
     usb_cdc.wait_ready();
-    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+    ThisThread::sleep_for(LINUX_HOST_DTR_FIX_DELAY_MS);
 #endif
     usb_cdc.wait_ready();
     uint8_t rx_buff, tx_buff;
@@ -537,7 +537,7 @@ void test_cdc_loopback()
     }
     // Wait for the host to close its port.
     while (usb_cdc.ready()) {
-        wait_ms(1);
+        ThisThread::sleep_for(1);
     }
     usb_cdc.disconnect();
 }
@@ -559,7 +559,7 @@ void test_serial_usb_reconnect()
     usb_serial.connect();
     // Wait for the USB enumeration to complete.
     while (!usb_serial.configured()) {
-        wait_ms(1);
+        ThisThread::sleep_for(1);
     }
     TEST_ASSERT_TRUE(usb_serial.configured());
     TEST_ASSERT_FALSE(usb_serial.connected());
@@ -569,10 +569,10 @@ void test_serial_usb_reconnect()
     // Wait for the host to open the port.
 #if LINUX_HOST_DTR_FIX
     usb_serial.wait_ready();
-    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+    ThisThread::sleep_for(LINUX_HOST_DTR_FIX_DELAY_MS);
 #endif
     while (!usb_serial.connected()) {
-        wait_ms(1);
+        ThisThread::sleep_for(1);
     }
     TEST_ASSERT_TRUE(usb_serial.configured());
     TEST_ASSERT_TRUE(usb_serial.connected());
@@ -584,12 +584,12 @@ void test_serial_usb_reconnect()
     TEST_ASSERT_FALSE(usb_serial.connected());
     TEST_ASSERT_EQUAL_INT(0, usb_serial.readable());
 
-    wait_ms(USB_RECONNECT_DELAY_MS);
+    ThisThread::sleep_for(USB_RECONNECT_DELAY_MS);
     // Connect the USB device again.
     usb_serial.connect();
     // Wait for the USB enumeration to complete.
     while (!usb_serial.configured()) {
-        wait_ms(1);
+        ThisThread::sleep_for(1);
     }
     TEST_ASSERT_TRUE(usb_serial.configured());
     TEST_ASSERT_FALSE(usb_serial.connected());
@@ -599,10 +599,10 @@ void test_serial_usb_reconnect()
     // Wait for the host to open the port again.
 #if LINUX_HOST_DTR_FIX
     usb_serial.wait_ready();
-    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+    ThisThread::sleep_for(LINUX_HOST_DTR_FIX_DELAY_MS);
 #endif
     while (!usb_serial.connected()) {
-        wait_ms(1);
+        ThisThread::sleep_for(1);
     }
     TEST_ASSERT_TRUE(usb_serial.configured());
     TEST_ASSERT_TRUE(usb_serial.connected());
@@ -629,10 +629,10 @@ void test_serial_term_reopen()
     // Wait for the host to open the terminal.
 #if LINUX_HOST_DTR_FIX
     usb_serial.wait_ready();
-    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+    ThisThread::sleep_for(LINUX_HOST_DTR_FIX_DELAY_MS);
 #endif
     while (!usb_serial.connected()) {
-        wait_ms(1);
+        ThisThread::sleep_for(1);
     }
     TEST_ASSERT_TRUE(usb_serial.configured());
     TEST_ASSERT_TRUE(usb_serial.ready());
@@ -641,7 +641,7 @@ void test_serial_term_reopen()
 
     // Wait for the host to close the terminal.
     while (usb_serial.ready()) {
-        wait_ms(1);
+        ThisThread::sleep_for(1);
     }
     TEST_ASSERT_TRUE(usb_serial.configured());
     TEST_ASSERT_FALSE(usb_serial.ready());
@@ -652,10 +652,10 @@ void test_serial_term_reopen()
     // Wait for the host to open the terminal again.
 #if LINUX_HOST_DTR_FIX
     usb_serial.wait_ready();
-    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+    ThisThread::sleep_for(LINUX_HOST_DTR_FIX_DELAY_MS);
 #endif
     while (!usb_serial.connected()) {
-        wait_ms(1);
+        ThisThread::sleep_for(1);
     }
     TEST_ASSERT_TRUE(usb_serial.configured());
     TEST_ASSERT_TRUE(usb_serial.ready());
@@ -664,7 +664,7 @@ void test_serial_term_reopen()
 
     // Wait for the host to close the terminal again.
     while (usb_serial.ready()) {
-        wait_ms(1);
+        ThisThread::sleep_for(1);
     }
     TEST_ASSERT_TRUE(usb_serial.configured());
     TEST_ASSERT_FALSE(usb_serial.ready());
@@ -687,7 +687,7 @@ void test_serial_getc()
     greentea_send_kv(MSG_KEY_SEND_BYTES_SINGLE, MSG_VALUE_DUMMY);
 #if LINUX_HOST_DTR_FIX
     usb_serial.wait_ready();
-    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+    ThisThread::sleep_for(LINUX_HOST_DTR_FIX_DELAY_MS);
 #endif
     usb_serial.wait_ready();
     for (int expected = 0xff; expected >= 0; expected--) {
@@ -698,7 +698,7 @@ void test_serial_getc()
     }
     // Wait for the host to close its port.
     while (usb_serial.ready()) {
-        wait_ms(1);
+        ThisThread::sleep_for(1);
     }
     usb_serial.disconnect();
 }
@@ -719,7 +719,7 @@ void test_serial_printf_scanf()
     greentea_send_kv(MSG_KEY_LOOPBACK, MSG_VALUE_DUMMY);
 #if LINUX_HOST_DTR_FIX
     usb_serial.wait_ready();
-    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+    ThisThread::sleep_for(LINUX_HOST_DTR_FIX_DELAY_MS);
 #endif
     usb_serial.wait_ready();
     static const char fmt[] = "Formatted\nstring %i.";
@@ -735,7 +735,7 @@ void test_serial_printf_scanf()
     }
     // Wait for the host to close its port.
     while (usb_serial.ready()) {
-        wait_ms(1);
+        ThisThread::sleep_for(1);
     }
     usb_serial.disconnect();
 }
@@ -764,7 +764,7 @@ void test_serial_line_coding_change()
     greentea_send_kv(MSG_KEY_CHANGE_LINE_CODING, MSG_VALUE_DUMMY);
 #if LINUX_HOST_DTR_FIX
     usb_serial.wait_ready();
-    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+    ThisThread::sleep_for(LINUX_HOST_DTR_FIX_DELAY_MS);
 #endif
     usb_serial.wait_ready();
     usb_serial.attach(line_coding_changed_cb);
@@ -805,7 +805,7 @@ void test_serial_line_coding_change()
     }
     // Wait for the host to close its port.
     while (usb_serial.ready()) {
-        wait_ms(1);
+        ThisThread::sleep_for(1);
     }
     usb_serial.disconnect();
 }

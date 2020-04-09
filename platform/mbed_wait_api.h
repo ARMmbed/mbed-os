@@ -41,58 +41,25 @@ extern "C" {
  * @code
  * #include "mbed.h"
  *
- * DigitalOut heartbeat(LED1);
+ * // Blinking rate in milliseconds
+ * #define BLINKING_RATE_MS   500
+ * DigitalOut  led(LED2);
+ * InterruptIn button(SW2);
+ *
+ * void blink_led() {
+ *     led = 1;
+ *     wait_us(BLINKING_RATE_MS * 1000);
+ *     led = 0;
+ * }
  *
  * int main() {
- *     while (1) {
- *         heartbeat = 1;
- *         wait(0.5);
- *         heartbeat = 0;
- *         wait(0.5);
+ *     button.fall(&blink_led);
+ *     while(1) {
+ *         // Do nothing
  *     }
  * }
  * @endcode
  */
-
-/** Waits for a number of seconds, with microsecond resolution (within
- *  the accuracy of single precision floating point).
- *
- *  @param s number of seconds to wait
- *
- *  @note
- *    If the RTOS is present, this function spins to get the exact number of microseconds for
- *    microsecond precision up to 10 milliseconds. If delay is larger than 10 milliseconds and not in ISR, it is the same as
- *    `wait_ms`. We recommend `wait_us` and `wait_ms` over `wait`.
- *
- *  @deprecated
- *    'wait' is deprecated in favor of explicit sleep functions. To sleep, 'wait' should be replaced by
- *    'ThisThread::sleep_for' (C++) or 'thread_sleep_for' (C). If you wish to wait (without sleeping), call
- *    'wait_us'. 'wait_us' is safe to call from ISR context.
- */
-MBED_DEPRECATED_SINCE("mbed-os-5.14",
-                      "'wait' is deprecated in favor of explicit sleep functions. To sleep, 'wait' should be replaced by "
-                      "'ThisThread::sleep_for' (C++) or 'thread_sleep_for' (C). If you wish to wait (without sleeping), call "
-                      "'wait_us'. 'wait_us' is safe to call from ISR context.")
-void wait(float s);
-
-/** Waits a number of milliseconds.
- *
- *  @param ms the whole number of milliseconds to wait
- *
- *  @note
- *    If the RTOS is present, it calls ThisThread::sleep_for(), which is same as CMSIS osDelay().
- *    You can't call this from interrupts, and it doesn't lock hardware sleep.
- *
- *  @deprecated
- *    'wait_ms' is deprecated in favor of explicit sleep functions. To sleep, 'wait_ms' should be replaced by
- *    'ThisThread::sleep_for' (C++) or 'thread_sleep_for' (C). If you wish to wait (without sleeping), call
- *    'wait_us'. 'wait_us' is safe to call from ISR context.
- */
-MBED_DEPRECATED_SINCE("mbed-os-5.14",
-                      "'wait_ms' is deprecated in favor of explicit sleep functions. To sleep, 'wait_ms' should be replaced by "
-                      "'ThisThread::sleep_for' (C++) or 'thread_sleep_for' (C). If you wish to wait (without sleeping), call "
-                      "'wait_us'. 'wait_us' is safe to call from ISR context.")
-void wait_ms(int ms);
 
 /** Waits a number of microseconds.
  *

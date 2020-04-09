@@ -103,7 +103,7 @@ static cmd_status_t handle_command(const char *key, const char *value)
 
     if (strcmp(key, MSG_KEY_DEVICE_RESET) == 0 && strcmp(value, MSG_VALUE_DEVICE_RESET_NVIC) == 0) {
         greentea_send_kv(MSG_KEY_DEVICE_RESET, MSG_VALUE_DEVICE_RESET_ACK);
-        wait_ms(SERIAL_FLUSH_TIME_MS); // Wait for the serial buffers to flush.
+        ThisThread::sleep_for(SERIAL_FLUSH_TIME_MS); // Wait for the serial buffers to flush.
         NVIC_SystemReset();
         TEST_ASSERT_MESSAGE(0, "NVIC_SystemReset did not reset the device as expected.");
         return CMD_STATUS_ERROR;
@@ -112,13 +112,13 @@ static cmd_status_t handle_command(const char *key, const char *value)
 #if DEVICE_WATCHDOG
     if (strcmp(key, MSG_KEY_DEVICE_RESET) == 0 && strcmp(value, MSG_VALUE_DEVICE_RESET_WATCHDOG) == 0) {
         greentea_send_kv(MSG_KEY_DEVICE_RESET, MSG_VALUE_DEVICE_RESET_ACK);
-        wait_ms(SERIAL_FLUSH_TIME_MS); // Wait for the serial buffers to flush.
+        ThisThread::sleep_for(SERIAL_FLUSH_TIME_MS); // Wait for the serial buffers to flush.
         watchdog_config_t config = { .timeout_ms = WDG_TIMEOUT_MS };
         if (hal_watchdog_init(&config) != WATCHDOG_STATUS_OK) {
             TEST_ASSERT_MESSAGE(0, "hal_watchdog_init() error.");
             return CMD_STATUS_ERROR;
         }
-        wait_ms(2 * WDG_TIMEOUT_MS); // Watchdog should fire before twice the timeout value.
+        ThisThread::sleep_for(2 * WDG_TIMEOUT_MS); // Watchdog should fire before twice the timeout value.
         TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
         return CMD_STATUS_ERROR;
     }
