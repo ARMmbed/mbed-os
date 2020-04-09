@@ -17,11 +17,6 @@
 #ifndef MBED_NONCOPYABLE_H_
 #define MBED_NONCOPYABLE_H_
 
-#if (!defined(MBED_DEBUG) && (MBED_CONF_PLATFORM_FORCE_NON_COPYABLE_ERROR == 0))
-#include "platform/mbed_toolchain.h"
-#include "platform/mbed_debug.h"
-#endif
-
 namespace mbed {
 
 /** \addtogroup platform-public-api */
@@ -176,39 +171,6 @@ protected:
      */
     ~NonCopyable() = default;
 
-#if (!defined(MBED_DEBUG) && (MBED_CONF_PLATFORM_FORCE_NON_COPYABLE_ERROR == 0))
-    /**
-     * NonCopyable copy constructor.
-     *
-     * A compile time warning is issued when this function is used, and a runtime
-     * warning is printed when the copy construction of the noncopyable happens.
-     *
-     * If you see this warning, your code is probably doing something unspecified.
-     * Copying of noncopyable resources can lead to resource leak and random error.
-     */
-    MBED_DEPRECATED("Invalid copy construction of a NonCopyable resource.")
-    NonCopyable(const NonCopyable &)
-    {
-        debug("Invalid copy construction of a NonCopyable resource: %s\r\n", MBED_PRETTY_FUNCTION);
-    }
-
-    /**
-     * NonCopyable copy assignment operator.
-     *
-     * A compile time warning is issued when this function is used, and a runtime
-     * warning is printed when the copy construction of the noncopyable happens.
-     *
-     * If you see this warning, your code is probably doing something unspecified.
-     * Copying of noncopyable resources can lead to resource leak and random error.
-     */
-    MBED_DEPRECATED("Invalid copy assignment of a NonCopyable resource.")
-    NonCopyable &operator=(const NonCopyable &)
-    {
-        debug("Invalid copy assignment of a NonCopyable resource: %s\r\n", MBED_PRETTY_FUNCTION);
-        return *this;
-    }
-
-#else
 public:
     /**
      * Define copy constructor as deleted. Any attempt to copy construct
@@ -221,7 +183,6 @@ public:
      * a NonCopyable will fail at compile time.
      */
     NonCopyable &operator=(const NonCopyable &) = delete;
-#endif
 #endif
 };
 
