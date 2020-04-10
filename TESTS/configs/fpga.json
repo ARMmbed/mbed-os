@@ -13,7 +13,8 @@
         },
         "K64F": {
             "target.macros_add": [
-                "UART_7BITS_PARITY_NONE_NOT_SUPPORTED"
+                "UART_7BITS_PARITY_NONE_NOT_SUPPORTED",
+                "UART_9BITS_PARITY_NOT_SUPPORTED"
             ]
         },
         "STM": {
