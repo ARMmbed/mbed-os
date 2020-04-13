@@ -1129,7 +1129,7 @@ PinLabel = {}
 
 def parse_BoardFile(fileName):
     print(" * Board file: '%s'" % (fileName))
-    board_file = open(board_file_name, "r")
+    board_file = open(fileName, "r")
     # IOC_PIN_pattern = re.compile(r'(P[A-I][\d]*).*\.([\w]*)=(.*)')
     IOC_PIN_pattern = re.compile(r'(.*)\.([\w]*)=(.*)')
     for line in board_file.readlines():
