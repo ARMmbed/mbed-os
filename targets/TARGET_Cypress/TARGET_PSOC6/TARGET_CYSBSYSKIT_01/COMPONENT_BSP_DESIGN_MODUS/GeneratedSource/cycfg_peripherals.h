@@ -1,8 +1,8 @@
 /*******************************************************************************
-* File Name: cycfg_system.h
+* File Name: cycfg_peripherals.h
 *
 * Description:
-* System configuration
+* Peripheral Hardware Block configuration
 * This file was automatically generated and should not be modified.
 * Device Configurator: 2.0.0.1483
 * Device Support Library (../../../psoc6pdl): 1.3.1.1499
@@ -24,12 +24,12 @@
 * limitations under the License.
 ********************************************************************************/
 
-#if !defined(CYCFG_SYSTEM_H)
-#define CYCFG_SYSTEM_H
+#if !defined(CYCFG_PERIPHERALS_H)
+#define CYCFG_PERIPHERALS_H
 
 #include "cycfg_notices.h"
-#include "cy_sysclk.h"
-#include "cy_systick.h"
+#include "cy_smif.h"
+#include "cycfg_qspi_memslot.h"
 #if defined (CY_USING_HAL)
 #include "cyhal_hwmgr.h"
 #endif //defined (CY_USING_HAL)
@@ -38,40 +38,35 @@
 extern "C" {
 #endif
 
-#define cpuss_0_dap_0_ENABLED 1U
-#define srss_0_clock_0_ENABLED 1U
-#define srss_0_clock_0_altsystickclk_0_ENABLED 1U
-#define srss_0_clock_0_bakclk_0_ENABLED 1U
-#define srss_0_clock_0_fastclk_0_ENABLED 1U
-#define srss_0_clock_0_hfclk_0_ENABLED 1U
-#define CY_CFG_SYSCLK_CLKHF0 0UL
-#define srss_0_clock_0_hfclk_2_ENABLED 1U
-#define CY_CFG_SYSCLK_CLKHF2 2UL
-#define srss_0_clock_0_hfclk_4_ENABLED 1U
-#define CY_CFG_SYSCLK_CLKHF4 4UL
-#define srss_0_clock_0_ilo_0_ENABLED 1U
-#define srss_0_clock_0_imo_0_ENABLED 1U
-#define srss_0_clock_0_lfclk_0_ENABLED 1U
-#define CY_CFG_SYSCLK_CLKLF_FREQ_HZ 32000
-#define srss_0_clock_0_pathmux_0_ENABLED 1U
-#define srss_0_clock_0_pathmux_1_ENABLED 1U
-#define srss_0_clock_0_periclk_0_ENABLED 1U
-#define srss_0_clock_0_pll_0_ENABLED 1U
-#define srss_0_clock_0_slowclk_0_ENABLED 1U
-#define srss_0_clock_0_timerclk_0_ENABLED 1U
+#define CYBSP_QSPI_ENABLED 1U
+#define CYBSP_QSPI_HW SMIF0
+#define CYBSP_QSPI_IRQ smif_interrupt_IRQn
+#define CYBSP_QSPI_MEMORY_MODE_ALIGMENT_ERROR (0UL)
+#define CYBSP_QSPI_RX_DATA_FIFO_UNDERFLOW (0UL)
+#define CYBSP_QSPI_TX_COMMAND_FIFO_OVERFLOW (0UL)
+#define CYBSP_QSPI_TX_DATA_FIFO_OVERFLOW (0UL)
+#define CYBSP_QSPI_RX_FIFO_TRIGEER_LEVEL (0UL)
+#define CYBSP_QSPI_TX_FIFO_TRIGEER_LEVEL (0UL)
+#define CYBSP_QSPI_DATALINES0_1 (1UL)
+#define CYBSP_QSPI_DATALINES2_3 (1UL)
+#define CYBSP_QSPI_DATALINES4_5 (0UL)
+#define CYBSP_QSPI_DATALINES6_7 (0UL)
+#define CYBSP_QSPI_SS0 (1UL)
+#define CYBSP_QSPI_SS1 (0UL)
+#define CYBSP_QSPI_SS2 (0UL)
+#define CYBSP_QSPI_SS3 (0UL)
+#define CYBSP_QSPI_DESELECT_DELAY 7
 
+extern const cy_stc_smif_config_t CYBSP_QSPI_config;
 #if defined (CY_USING_HAL)
-extern const cyhal_resource_inst_t srss_0_clock_0_pathmux_0_obj;
-#endif //defined (CY_USING_HAL)
-#if defined (CY_USING_HAL)
-extern const cyhal_resource_inst_t srss_0_clock_0_pathmux_1_obj;
+extern const cyhal_resource_inst_t CYBSP_QSPI_obj;
 #endif //defined (CY_USING_HAL)
 
-void init_cycfg_system(void);
+void init_cycfg_peripherals(void);
 
 #if defined(__cplusplus)
 }
 #endif
 
 
-#endif /* CYCFG_SYSTEM_H */
+#endif /* CYCFG_PERIPHERALS_H */

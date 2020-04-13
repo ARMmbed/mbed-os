@@ -42,7 +42,7 @@ extern const cy_stc_smif_mem_cmd_t S25FL512S_SlaveSlot_0_writeStsRegQeCmd;
 extern const cy_stc_smif_mem_device_cfg_t deviceCfg_S25FL512S_SlaveSlot_0;
 
 extern const cy_stc_smif_mem_config_t S25FL512S_SlaveSlot_0;
-extern const cy_stc_smif_mem_config_t* const smifMemConfigs[CY_SMIF_DEVICE_NUM];
+extern const cy_stc_smif_mem_config_t *const smifMemConfigs[CY_SMIF_DEVICE_NUM];
 
 extern const cy_stc_smif_block_config_t smifBlockConfig;
 

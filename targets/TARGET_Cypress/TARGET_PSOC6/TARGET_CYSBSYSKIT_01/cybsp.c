@@ -2,7 +2,7 @@
 * \file cybsp.c
 *
 * Description:
-* Provides initialization code for starting up the hardware contained on the 
+* Provides initialization code for starting up the hardware contained on the
 * Cypress board.
 *
 ********************************************************************************
@@ -40,18 +40,18 @@ extern "C" {
 #endif
 
 /* The sysclk deep sleep callback is recommended to be the last callback that
-* is executed before entry into deep sleep mode and the first one upon 
+* is executed before entry into deep sleep mode and the first one upon
 * exit the deep sleep mode.
 * Doing so minimizes the time spent on low power mode entry and exit.
 */
 #ifndef CYBSP_SYSCLK_PM_CALLBACK_ORDER
-    #define CYBSP_SYSCLK_PM_CALLBACK_ORDER  (255u)
+#define CYBSP_SYSCLK_PM_CALLBACK_ORDER  (255u)
 #endif
 
 #if defined(CYBSP_WIFI_CAPABLE) && defined(CY_USING_HAL)
 static cyhal_sdio_t sdio_obj;
 
-cyhal_sdio_t* cybsp_get_wifi_sdio_obj(void)
+cyhal_sdio_t *cybsp_get_wifi_sdio_obj(void)
 {
     return &sdio_obj;
 }
@@ -73,8 +73,7 @@ static cy_rslt_t cybsp_register_sysclk_pm_callback(void)
         .order = CYBSP_SYSCLK_PM_CALLBACK_ORDER
     };
 
-    if (!Cy_SysPm_RegisterCallback(&cybsp_sysclk_pm_callback))
-    {
+    if (!Cy_SysPm_RegisterCallback(&cybsp_sysclk_pm_callback)) {
         result = CYBSP_RSLT_ERR_SYSCLK_PM_CALLBACK;
     }
     return result;
@@ -93,8 +92,7 @@ cy_rslt_t cybsp_init(void)
     init_cycfg_all();
 #endif
 
-    if (CY_RSLT_SUCCESS == result)
-    {
+    if (CY_RSLT_SUCCESS == result) {
         result = cybsp_register_sysclk_pm_callback();
     }
 

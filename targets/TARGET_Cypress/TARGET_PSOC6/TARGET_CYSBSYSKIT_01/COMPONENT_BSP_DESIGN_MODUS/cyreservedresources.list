@@ -50,44 +50,16 @@ scb[10]
 ioss[0].port[5].pin[4]
 # CYBSP_DEBUG_UART_TX
 ioss[0].port[5].pin[5]
+# CYBSP_DEBUG_UART_RTS
+ioss[0].port[5].pin[6]
+# CYBSP_DEBUG_UART_CTS
+ioss[0].port[5].pin[7]
+
 # CYBSP_DEBUG_UART_CLK_DIV
 peri[0].div_16[0]
 
 # POWER
 srss[0].power[0]
-
-# SYSTEM CLOCK
-srss[0].clock[0]
-# CLK_ALT_SYS_TICK
-srss[0].clock[0].altsystickclk[0]
-# CLK_BAK
-srss[0].clock[0].bakclk[0]
-# CLK_FAST
-srss[0].clock[0].fastclk[0]
-# CLK_HF0
-srss[0].clock[0].hfclk[0]
-# CLK_HF2
-srss[0].clock[0].hfclk[2]
-# CLK_HF4
-srss[0].clock[0].hfclk[4]
-# CLK_ILO
-srss[0].clock[0].ilo[0]
-# CLK_IMO
-srss[0].clock[0].imo[0]
-# CLK_LF
-srss[0].clock[0].lfclk[0]
-# PATH_MUX0
-srss[0].clock[0].pathmux[0]
-# PATH_MUX1
-srss[0].clock[0].pathmux[1]
-# CLK_PERI
-srss[0].clock[0].periclk[0]
-# CLK_PLL0
-srss[0].clock[0].pll[0]
-# CLK_SLOW
-srss[0].clock[0].slowclk[0]
-# CLK_TIMER
-srss[0].clock[0].timerclk[0]
 
 # RTC
 srss[0].rtc[0]

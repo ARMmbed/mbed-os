@@ -1,8 +1,8 @@
 /*******************************************************************************
-* File Name: cycfg.h
+* File Name: cycfg_peripherals.c
 *
 * Description:
-* Simple wrapper header containing all generated files.
+* Peripheral Hardware Block configuration
 * This file was automatically generated and should not be modified.
 * Device Configurator: 2.0.0.1483
 * Device Support Library (../../../psoc6pdl): 1.3.1.1499
@@ -24,25 +24,26 @@
 * limitations under the License.
 ********************************************************************************/
 
-#if !defined(CYCFG_H)
-#define CYCFG_H
-
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
-#include "cycfg_notices.h"
-#include "cycfg_system.h"
-#include "cycfg_routing.h"
 #include "cycfg_peripherals.h"
-#include "cycfg_pins.h"
 
-void init_cycfg_all(void);
+const cy_stc_smif_config_t CYBSP_QSPI_config = {
+    .mode = (uint32_t)CY_SMIF_NORMAL,
+    .deselectDelay = CYBSP_QSPI_DESELECT_DELAY,
+    .rxClockSel = (uint32_t)CY_SMIF_SEL_INV_INTERNAL_CLK,
+    .blockEvent = (uint32_t)CY_SMIF_BUS_ERROR,
+};
+#if defined (CY_USING_HAL)
+const cyhal_resource_inst_t CYBSP_QSPI_obj = {
+    .type = CYHAL_RSC_SMIF,
+    .block_num = 0U,
+    .channel_num = 0U,
+};
+#endif //defined (CY_USING_HAL)
 
 
-#if defined(__cplusplus)
+void init_cycfg_peripherals(void)
+{
+#if defined (CY_USING_HAL)
+    cyhal_hwmgr_reserve(&CYBSP_QSPI_obj);
+#endif //defined (CY_USING_HAL)
 }
-#endif
-
-
-#endif /* CYCFG_H */
