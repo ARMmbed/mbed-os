@@ -45,10 +45,9 @@ scl_result_t scl_host_buffer_get(scl_buffer_t *buffer, scl_buffer_dir_t directio
     if ((direction == SCL_NETWORK_TX) && (size <= PBUF_POOL_BUFSIZE)) {
         p = pbuf_alloc(PBUF_RAW, size, PBUF_POOL);
     } else {
-        p = pbuf_alloc(PBUF_RAW, size + SDIO_BLOCK_SIZE, PBUF_RAM);
+        p = pbuf_alloc(PBUF_RAW, size, PBUF_RAM);
         if (p != NULL) {
             p->len = size;
-            p->tot_len -=  SDIO_BLOCK_SIZE;
         }
     }
     if (p != NULL) {
