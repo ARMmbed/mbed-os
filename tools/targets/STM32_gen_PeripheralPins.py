@@ -1371,6 +1371,7 @@ if args.target:
 # Parse the user's custom board .ioc file
 if args.custom:
     parse_BoardFile(args.custom)
+    TargetName = ""
 
 for mcu_file in mcu_list:
     if args.mcu:
