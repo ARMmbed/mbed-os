@@ -10399,39 +10399,6 @@
             "0455"
         ]
     },
-    "MTB_LAIRD_BL652": {
-        "inherits": [
-            "MCU_NRF52832"
-        ],
-        "release_versions": [
-            "5"
-        ],
-        "device_name": "nRF52832_xxAA",
-        "macros_add": [
-            "CONFIG_GPIO_AS_PINRESET",
-            "NRF52_PAN_12",
-            "NRF52_PAN_15",
-            "NRF52_PAN_20",
-            "NRF52_PAN_30",
-            "NRF52_PAN_31",
-            "NRF52_PAN_36",
-            "NRF52_PAN_51",
-            "NRF52_PAN_53",
-            "NRF52_PAN_54",
-            "NRF52_PAN_55",
-            "NRF52_PAN_58",
-            "NRF52_PAN_62",
-            "NRF52_PAN_63",
-            "NRF52_PAN_64"
-        ],
-        "overrides": {
-            "lf_clock_src": "NRF_LF_SRC_RC",
-            "console-uart-flow-control": null
-        },
-        "detect_code": [
-            "0461"
-        ]
-    },
     "MTB_MURATA_WSM_BL241": {
         "inherits": [
             "MCU_NRF52832"
