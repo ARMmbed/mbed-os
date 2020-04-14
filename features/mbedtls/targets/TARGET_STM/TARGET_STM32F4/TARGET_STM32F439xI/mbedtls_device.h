@@ -20,8 +20,4 @@
 #ifndef MBEDTLS_DEVICE_H
 #define MBEDTLS_DEVICE_H
 
-#ifdef TARGET_UBLOX_EVK_ODIN_W2
-#define MBEDTLS_MPI_WINDOW_SIZE     3 /**< Maximum windows size used. */
-#endif
-
 #endif /* MBEDTLS_DEVICE_H */

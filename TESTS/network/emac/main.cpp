@@ -33,13 +33,9 @@
 #else
 
 #if (MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == WIFI) && \
-    !defined(TARGET_UBLOX_EVK_ODIN_W2)      && \
-    !defined(TARGET_REALTEK_RTL8195AM)      && \
     !defined(TARGET_MTB_ADV_WISE_1530)      && \
     !defined(TARGET_MTB_USI_WM_BN_BM_22)    && \
-    !defined(TARGET_MTB_MXCHIP_EMW3166)     && \
-    !defined(TARGET_MTB_UBLOX_ODIN_W2)      && \
-    !defined(TARGET_UNO_91H)
+    !defined(TARGET_WIO_EMW3166)
 #error [NOT_SUPPORTED] Wifi tests are not valid for the target
 #else
 

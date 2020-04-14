@@ -172,7 +172,7 @@
             "lwip.tcp-enabled"                          : true,
             "mbed-trace.enable"                         : false
         },
-        "MTB_MXCHIP_EMW3166": {
+        "WIO_EMW3166": {
             "target.components_add"                     : ["SPIF"],
             "spif-driver.SPI_MOSI"                      : "PB_15",
             "spif-driver.SPI_MISO"                      : "PB_14",

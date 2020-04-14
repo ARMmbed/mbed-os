@@ -113,18 +113,6 @@
              "SPI_CLK":  "D13",
              "SPI_CS":   "D10"
         },
-        "UBLOX_EVK_ODIN_W2": {
-            "SPI_CS": "D9",
-            "SPI_MOSI": "D11",
-            "SPI_MISO": "D12",
-            "SPI_CLK": "D13"
-        },
-        "MTB_UBLOX_ODIN_W2": {
-            "SPI_CS": "PG_4",
-            "SPI_MOSI": "PE_14",
-            "SPI_MISO": "PE_13",
-            "SPI_CLK": "PE_12"
-       },
         "RZ_A1H": {
              "SPI_MOSI": "P8_5",
              "SPI_MISO": "P8_6",
@@ -160,12 +148,6 @@
             "SPI_MISO": "p6",
             "SPI_CLK": "p7",
             "SPI_CS": "p8"
-        },
-        "REALTEK_RTL8195AM": {
-            "SPI_MOSI": "D11",
-            "SPI_MISO": "D12",
-            "SPI_CLK": "D13",
-            "SPI_CS": "D10"
         },
         "CC3220SF_LAUNCHXL": {
             "SPI_MOSI": "D11",

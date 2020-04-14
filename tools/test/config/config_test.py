@@ -203,7 +203,7 @@ def test_init_override_app_config(target):
         mock_json_file_to_dict.assert_any_call(app_config)
         assert config.app_config_data == mock_return
 
-@pytest.mark.parametrize("target", ["K64F", "UBLOX_EVK_ODIN_W2"])
+@pytest.mark.parametrize("target", ["K64F"])
 @pytest.mark.parametrize("overrides", [
     {},
     {"restrict_size": "0x200"},
