@@ -1,0 +1,65 @@
+#! armcc -E
+; Scatter-Loading Description File
+;******************************************************************************
+;* @attention
+;*
+;* Copyright (c) 2018-2019 STMicroelectronics.
+;* All rights reserved.
+;*
+;* This software component is licensed by ST under BSD 3-Clause license,
+;* the "License"; You may not use this file except in compliance with the
+;* License. You may obtain a copy of the License at:
+;*                        opensource.org/licenses/BSD-3-Clause
+;*
+;******************************************************************************
+
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x08000000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x100000
+#endif
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+#define Stack_Size MBED_BOOT_STACK_SIZE
+
+#define MBED_RAM_START              0x24000000
+#define MBED_RAM_SIZE               0x80000
+#define MBED_VECTTABLE_RAM_START    0x20000000
+#define MBED_VECTTABLE_RAM_SIZE     0x298
+#define MBED_RAM0_START             (MBED_RAM_START)
+#define MBED_RAM0_SIZE              (MBED_RAM_SIZE)
+
+LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
+
+  ER_IROM1 MBED_APP_START MBED_APP_SIZE  {  ; load address = execution address
+   *.o (RESET, +First)
+   *(InRoot$$Sections)
+   .ANY (+RO)
+  }
+
+  RW_IRAM1 (MBED_RAM0_START) (MBED_RAM0_SIZE-Stack_Size)  {  ; RW data
+   .ANY (+RW +ZI)
+  }
+
+  ARM_LIB_STACK (MBED_RAM0_START+MBED_RAM0_SIZE) EMPTY -Stack_Size { ; stack
+  }
+
+  RW_DMARxDscrTab 0x30040000 0x60 {
+    *(.RxDecripSection)
+  }
+  RW_DMATxDscrTab 0x30040100 0x140 {
+    *(.TxDecripSection)
+  }
+  RW_Rx_Buffb 0x30040400 0x1800 {
+    *(.RxArraySection)
+  }
+  RW_Eth_Ram 0x30044000 0x4000 {
+    *(.ethusbram)
+  }
+
+}
