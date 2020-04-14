@@ -59,9 +59,12 @@ void osRtxMutexOwnerRelease (os_mutex_t *mutex_list) {
         osRtxThreadWaitExit(thread, (uint32_t)osOK, FALSE);
         // Thread is the new Mutex owner
         mutex->owner_thread = thread;
-        mutex->owner_next   = thread->mutex_list;
         mutex->owner_prev   = NULL;
-        thread->mutex_list  = mutex;
+        mutex->owner_next   = thread->mutex_list;
+        if (thread->mutex_list != NULL) {
+          thread->mutex_list->owner_prev = mutex;
+        }
+        thread->mutex_list = mutex;
         mutex->lock = 1U;
         EvrRtxMutexAcquired(mutex, 1U);
       }
@@ -194,10 +197,10 @@ static osStatus_t svcRtxMutexAcquire (osMutexId_t mutex_id, uint32_t timeout) {
   if (mutex->lock == 0U) {
     // Acquire Mutex
     mutex->owner_thread = thread;
-    mutex->owner_next   = thread->mutex_list;
     mutex->owner_prev   = NULL;
+    mutex->owner_next   = thread->mutex_list;
     if (thread->mutex_list != NULL) {
-        thread->mutex_list->owner_prev = mutex;
+      thread->mutex_list->owner_prev = mutex;
     }
     thread->mutex_list = mutex;
     mutex->lock = 1U;
@@ -320,9 +323,12 @@ static osStatus_t svcRtxMutexRelease (osMutexId_t mutex_id) {
       osRtxThreadWaitExit(thread, (uint32_t)osOK, FALSE);
       // Thread is the new Mutex owner
       mutex->owner_thread = thread;
-      mutex->owner_next   = thread->mutex_list;
       mutex->owner_prev   = NULL;
-      thread->mutex_list  = mutex;
+      mutex->owner_next   = thread->mutex_list;
+      if (thread->mutex_list != NULL) {
+        thread->mutex_list->owner_prev = mutex;
+      }
+      thread->mutex_list = mutex;
       mutex->lock = 1U;
       EvrRtxMutexAcquired(mutex, 1U);
     }

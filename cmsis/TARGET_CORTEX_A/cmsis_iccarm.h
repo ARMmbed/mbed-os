@@ -70,6 +70,10 @@
   #define __ASM __asm
 #endif
 
+#ifndef   __COMPILER_BARRIER
+  #define __COMPILER_BARRIER() __ASM volatile("":::"memory")
+#endif
+
 #ifndef __INLINE
   #define __INLINE inline
 #endif

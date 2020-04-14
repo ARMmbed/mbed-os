@@ -568,9 +568,7 @@
 // Number of Threads which use standard C/C++ library libspace
 // (when thread specific memory allocation is not used).
 #if (OS_THREAD_OBJ_MEM == 0)
-#ifndef OS_THREAD_LIBSPACE_NUM
 #define OS_THREAD_LIBSPACE_NUM      4
-#endif
 #else
 #define OS_THREAD_LIBSPACE_NUM      OS_THREAD_NUM
 #endif

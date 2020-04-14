@@ -1184,6 +1184,7 @@ static osStatus_t svcRtxThreadJoin (osThreadId_t thread_id) {
     // Suspend current Thread
     if (osRtxThreadWaitEnter(osRtxThreadWaitingJoin, osWaitForever)) {
       thread->thread_join = osRtxThreadGetRunning();
+      thread->attr &= ~osThreadJoinable;
       EvrRtxThreadJoinPending(thread);
     } else {
       EvrRtxThreadError(thread, (int32_t)osErrorResource);
@@ -1223,7 +1224,7 @@ static void svcRtxThreadExit (void) {
   osRtxThreadSwitch(osRtxThreadListGet(&osRtxInfo.thread.ready));
   osRtxThreadSetRunning(NULL);
 
-  if (((thread->attr & osThreadJoinable) == 0U) || (thread->thread_join != NULL)) {
+  if ((thread->attr & osThreadJoinable) == 0U) {
     osRtxThreadFree(thread);
   } else {
     // Update Thread State and put it into Terminate Thread list
@@ -1299,7 +1300,7 @@ static osStatus_t svcRtxThreadTerminate (osThreadId_t thread_id) {
       osRtxThreadDispatch(NULL);
     }
 
-    if (((thread->attr & osThreadJoinable) == 0U) || (thread->thread_join != NULL)) {
+    if ((thread->attr & osThreadJoinable) == 0U) {
       osRtxThreadFree(thread);
     } else {
       // Update Thread State and put it into Terminate Thread list
