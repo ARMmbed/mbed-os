@@ -36,7 +36,6 @@ using utest::v1::Case;
 
 #define MAX_FLAG_POS 30
 #define PROHIBITED_FLAG_POS 31
-static bool is_ticker_used = false; /* This flag protects avoid calling ThisThread::sleep_for as it is not safe to call in IRQ mode. */
 
 /* flags */
 #define FLAG01          0x1FFF       /* 00000000000000000001111111111111 */
@@ -45,14 +44,13 @@ static bool is_ticker_used = false; /* This flag protects avoid calling ThisThre
 #define PROHIBITED_FLAG 0x80000000   /* 10000000000000000000000000000000 */
 #define NO_FLAGS 0x0
 
-template<uint32_t flags, uint32_t wait_ms>
-void send_thread(EventFlags *ef)
+void send_thread(EventFlags *ef, uint32_t flags, uint32_t wait_ms)
 {
     for (uint32_t i = 0; i <= MAX_FLAG_POS; i++) {
         const uint32_t flag = flags & (1 << i);
         if (flag) {
             ef->set(flag);
-            if (!is_ticker_used) {
+            if (wait_ms != 0) {
                 ThisThread::sleep_for(wait_ms);
             }
         }
@@ -220,9 +218,9 @@ void test_multi_thread_all(void)
     Thread thread1(osPriorityNormal, THREAD_STACK_SIZE);
     Thread thread2(osPriorityNormal, THREAD_STACK_SIZE);
     Thread thread3(osPriorityNormal, THREAD_STACK_SIZE);
-    thread1.start(callback(send_thread<FLAG01, 1>, &ef));
-    thread2.start(callback(send_thread<FLAG02, 2>, &ef));
-    thread3.start(callback(send_thread<FLAG03, 3>, &ef));
+    thread1.start([&] { send_thread(&ef, FLAG01, 1); });
+    thread2.start([&] { send_thread(&ef, FLAG02, 2); });
+    thread3.start([&] { send_thread(&ef, FLAG03, 3); });
 
     uint32_t ret = ef.wait_all(FLAG01 | FLAG02 | FLAG03);
     TEST_ASSERT_EQUAL(FLAG01 | FLAG02 | FLAG03, ret);
@@ -241,9 +239,9 @@ void test_multi_thread_any(void)
     Thread thread1(osPriorityNormal, THREAD_STACK_SIZE);
     Thread thread2(osPriorityNormal, THREAD_STACK_SIZE);
     Thread thread3(osPriorityNormal, THREAD_STACK_SIZE);
-    thread1.start(callback(send_thread<FLAG01, 1>, &ef));
-    thread2.start(callback(send_thread<FLAG02, 1>, &ef));
-    thread3.start(callback(send_thread<FLAG03, 1>, &ef));
+    thread1.start([&] { send_thread(&ef, FLAG01, 1); });
+    thread2.start([&] { send_thread(&ef, FLAG02, 1); });
+    thread3.start([&] { send_thread(&ef, FLAG03, 1); });
 
     for (int i = 0; i <= MAX_FLAG_POS; i++) {
         uint32_t flag = 1 << i;
@@ -296,9 +294,9 @@ void test_multi_thread_any_no_clear(void)
     Thread thread1(osPriorityNormal, THREAD_STACK_SIZE);
     Thread thread2(osPriorityNormal, THREAD_STACK_SIZE);
     Thread thread3(osPriorityNormal, THREAD_STACK_SIZE);
-    thread1.start(callback(send_thread<FLAG01, 1>, &ef));
-    thread2.start(callback(send_thread<FLAG02, 1>, &ef));
-    thread3.start(callback(send_thread<FLAG03, 1>, &ef));
+    thread1.start([&] { send_thread(&ef, FLAG01, 1); });
+    thread2.start([&] { send_thread(&ef, FLAG02, 1); });
+    thread3.start([&] { send_thread(&ef, FLAG03, 1); });
 
     for (int i = 0; i <= MAX_FLAG_POS; i++) {
         uint32_t flag = 1 << i;
@@ -364,13 +362,11 @@ void test_multi_eventflags_all(void)
 {
     EventFlags ef;
     Ticker t1, t2, t3;
-    is_ticker_used = true;
-    t1.attach_us(callback(send_thread<FLAG01, 0>, &ef), 3000);
-    t2.attach_us(callback(send_thread<FLAG02, 0>, &ef), 4000);
-    t3.attach_us(callback(send_thread<FLAG03, 0>, &ef), 5000);
+    t1.attach_us([&] { send_thread(&ef, FLAG01, 0); }, 3000);
+    t2.attach_us([&] { send_thread(&ef, FLAG02, 0); }, 4000);
+    t3.attach_us([&] { send_thread(&ef, FLAG03, 0); }, 5000);
     uint32_t ret = ef.wait_all(FLAG01 | FLAG02 | FLAG03, 20, false);
     TEST_ASSERT_EQUAL(FLAG01 | FLAG02 | FLAG03, ret);
-    is_ticker_used = false;
 }
 
 /** Test if multi-event flag set cause wait_any to return
@@ -384,10 +380,9 @@ void test_multi_eventflags_any(void)
     EventFlags ef;
     uint32_t ret;
     Ticker t1, t2, t3;
-    is_ticker_used = true;
-    t1.attach_us(callback(send_thread<FLAG01, 0>, &ef), 3000);
-    t2.attach_us(callback(send_thread<FLAG02, 0>, &ef), 4000);
-    t3.attach_us(callback(send_thread<FLAG03, 0>, &ef), 5000);
+    t1.attach_us([&] { send_thread(&ef, FLAG01, 0); }, 3000);
+    t2.attach_us([&] { send_thread(&ef, FLAG02, 0); }, 4000);
+    t3.attach_us([&] { send_thread(&ef, FLAG03, 0); }, 5000);
 
     for (int i = 0; i <= MAX_FLAG_POS; i++) {
         uint32_t flag = 1 << i;
@@ -396,7 +391,6 @@ void test_multi_eventflags_any(void)
     }
     ret = ef.get();
     TEST_ASSERT_EQUAL(NO_FLAGS, ret);
-    is_ticker_used = false;
 }
 
 /** Test if multi-event flag set cause wait_any(without clear) to return
@@ -410,10 +404,9 @@ void test_multi_eventflags_any_no_clear(void)
     EventFlags ef;
     uint32_t ret;
     Ticker t1, t2, t3;
-    is_ticker_used = true;
-    t1.attach_us(callback(send_thread<FLAG01, 0>, &ef), 3000);
-    t2.attach_us(callback(send_thread<FLAG02, 0>, &ef), 4000);
-    t3.attach_us(callback(send_thread<FLAG03, 0>, &ef), 5000);
+    t1.attach_us([&] { send_thread(&ef, FLAG01, 0); }, 3000);
+    t2.attach_us([&] { send_thread(&ef, FLAG02, 0); }, 4000);
+    t3.attach_us([&] { send_thread(&ef, FLAG03, 0); }, 5000);
 
     for (int i = 0; i <= MAX_FLAG_POS; i++) {
         uint32_t flag = 1 << i;
@@ -424,7 +417,6 @@ void test_multi_eventflags_any_no_clear(void)
     }
     ret = ef.get();
     TEST_ASSERT_EQUAL(NO_FLAGS, ret);
-    is_ticker_used = false;
 }
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
