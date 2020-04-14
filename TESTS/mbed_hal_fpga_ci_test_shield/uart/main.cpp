@@ -93,6 +93,13 @@ static void uart_test_common(int baudrate, int data_bits, SerialParity parity, i
     // Only 7, 8 & 9 data bits.
     MBED_ASSERT(data_bits >= 7 && data_bits <= 9);
 
+#if defined(UART_9BITS_NOT_SUPPORTED)
+    if (data_bits == 9) {
+        utest_printf(" UART_9BITS_NOT_SUPPORTED set ... ");
+        return;
+    }
+#endif
+
 #if defined(UART_9BITS_PARITY_NOT_SUPPORTED)
     if ((data_bits == 9) && (parity != ParityNone)) {
         utest_printf(" UART_9BITS_PARITY_NOT_SUPPORTED set ... ");
