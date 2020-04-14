@@ -86,13 +86,10 @@ static void test_irq_handler(uint32_t id, SerialIrq event)
 static void uart_test_common(int baudrate, int data_bits, SerialParity parity, int stop_bits, bool init_direct, PinName tx, PinName rx, PinName cts, PinName rts)
 {
     // The FPGA CI shield only supports None, Odd & Even.
-    // Forced parity is not supported on Atmel, Freescale, Nordic & STM targets.
+    // Forced parity is not supported on many targets
     MBED_ASSERT(parity != ParityForced1 && parity != ParityForced0);
 
-    // STM-specific constraints
-    // Only 7, 8 & 9 data bits.
-    MBED_ASSERT(data_bits >= 7 && data_bits <= 9);
-
+// See TESTS/configs/fpga.json to check which target supports what
 #if defined(UART_9BITS_NOT_SUPPORTED)
     if (data_bits == 9) {
         utest_printf(" UART_9BITS_NOT_SUPPORTED set ... ");
@@ -103,6 +100,13 @@ static void uart_test_common(int baudrate, int data_bits, SerialParity parity, i
 #if defined(UART_9BITS_PARITY_NOT_SUPPORTED)
     if ((data_bits == 9) && (parity != ParityNone)) {
         utest_printf(" UART_9BITS_PARITY_NOT_SUPPORTED set ... ");
+        return;
+    }
+#endif
+
+#if defined(UART_7BITS_NOT_SUPPORTED)
+    if (data_bits == 7) {
+        utest_printf(" UART_7BITS_NOT_SUPPORTED set ... ");
         return;
     }
 #endif
