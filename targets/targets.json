@@ -7678,58 +7678,6 @@
             "TARGET_MTM_CONNECT04S"
         ]
     },
-    "MTB_LAIRD_BL600": {
-        "inherits": [
-            "MCU_NRF51_32K_UNIFIED"
-        ],
-        "device_has": [
-            "USTICKER",
-            "LPTICKER",
-            "ANALOGIN",
-            "I2C",
-            "I2C_ASYNCH",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "SERIAL",
-            "SERIAL_ASYNCH",
-            "SERIAL_FC",
-            "SLEEP",
-            "SPI",
-            "SPI_ASYNCH",
-            "SPISLAVE"
-        ],
-        "device_name": "nRF51822_xxAC",
-        "release_versions": [
-            "5"
-        ],
-        "extra_labels_add": [
-            "MTB_LAIRD_BL600"
-        ],
-        "config": {
-            "usb_tx": {
-                "help": "Value SIO_21",
-                "value": "SIO_21"
-            },
-            "usb_rx": {
-                "help": "Value SIO_22",
-                "value": "SIO_22"
-            },
-            "stdio_uart": {
-                "help": "Value: UART_0",
-                "value": "UART_0",
-                "macro_name": "STDIO_UART"
-            }
-        },
-        "overrides": {
-            "uart_hwfc": 0
-        },
-        "detect_code": [
-            "0452"
-        ]
-    },
     "TY51822R3": {
         "inherits": [
             "MCU_NRF51_32K_UNIFIED"
@@ -10583,30 +10531,6 @@
         "macros_add": [
             "CONFIG_GPIO_AS_PINRESET"
         ]
-    },
-    "MTB_LAIRD_BL654": {
-        "inherits": [
-            "MCU_NRF52840"
-        ],
-        "detect_code": [
-            "0465"
-        ],
-        "features_remove": [
-            "CRYPTOCELL310"
-        ],
-        "macros_remove": [
-            "MBEDTLS_CONFIG_HW_SUPPORT"
-        ],
-        "macros_add": [
-            "NRFX_RNG_ENABLED=1",
-            "RNG_ENABLED=1",
-            "NRF_QUEUE_ENABLED=1",
-            "CONFIG_GPIO_AS_PINRESET"
-        ],
-        "overrides": {
-            "lf_clock_src": "NRF_LF_SRC_RC",
-            "console-uart-flow-control": null
-        }
     },
     "MAKERDIARY_NRF52840_MDK": {
         "inherits": [
