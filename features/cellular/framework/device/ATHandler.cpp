@@ -1545,6 +1545,9 @@ void ATHandler::write_hex_string(const char *str, size_t size)
 
 void ATHandler::set_baud(int baud_rate)
 {
+#if (DEVICE_SERIAL && DEVICE_INTERRUPTIN)
     static_cast<BufferedSerial *>(_fileHandle)->set_baud(baud_rate);
+#else
+    tr_error("Device does not support BufferedSerial");
+#endif
 }
-
