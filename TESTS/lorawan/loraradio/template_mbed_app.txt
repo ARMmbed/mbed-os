@@ -91,28 +91,6 @@
             "lora-tcxo":            "NC"
         },
 
-        "MTB_MTS_XDOT": {
-            "lora-radio":           "SX1272",
-            "lora-spi-mosi":        "LORA_MOSI",
-            "lora-spi-miso":        "LORA_MISO",
-            "lora-spi-sclk":        "LORA_SCK",
-            "lora-cs":              "LORA_NSS",
-            "lora-reset":           "LORA_RESET",
-            "lora-dio0":            "LORA_DIO0",
-            "lora-dio1":            "LORA_DIO1",
-            "lora-dio2":            "LORA_DIO2",
-            "lora-dio3":            "LORA_DIO3",
-            "lora-dio4":            "LORA_DIO4",
-            "lora-dio5":            "NC",
-            "lora-rf-switch-ctl1":  "NC",
-            "lora-rf-switch-ctl2":  "NC",
-            "lora-txctl":           "NC",
-            "lora-rxctl":           "NC",
-            "lora-ant-switch":      "NC",
-            "lora-pwr-amp-ctl":     "NC",
-            "lora-tcxo":            "NC"
-        },
-
         "LTEK_FF1705": {
             "lora-radio":           "SX1272",
             "lora-spi-mosi":        "LORA_MOSI",

@@ -6700,48 +6700,6 @@
             "8080"
         ]
     },
-    "MTB_MTS_XDOT": {
-        "inherits": [
-            "FAMILY_STM32"
-        ],
-        "core": "Cortex-M3",
-        "default_toolchain": "ARM",
-        "extra_labels_add": [
-            "STM32L1",
-            "STM32L151CC"
-        ],
-        "config": {
-            "hse_value": {
-                "value": "24000000",
-                "macro_name": "HSE_VALUE"
-            }
-        },
-        "overrides": {
-            "stdio_uart_tx": "PA_2",
-            "stdio_uart_rx": "PA_3"
-        },
-        "supported_toolchains": [
-            "ARM",
-            "GCC_ARM",
-            "IAR"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "FLASH",
-            "MPU"
-        ],
-        "device_has_remove": [
-            "SERIAL_FC"
-        ],
-        "release_versions": [
-            "5"
-        ],
-        "device_name": "STM32L151CC",
-        "bootloader_supported": true,
-        "detect_code": [
-            "0453"
-        ]
-    },
     "MTB_RAK811": {
         "inherits": [
             "FAMILY_STM32"
