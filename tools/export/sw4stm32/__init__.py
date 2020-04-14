@@ -103,11 +103,6 @@ class Sw4STM32(GNUARMEclipse):
             'name': 'DISCO-L072CZ-LRWAN1',
             'mcuId': 'STM32L072CZTx'
         },
-        'MTB_MURATA_ABZ':
-        {
-            'name': 'MTB-MURATA-ABZ',
-            'mcuId': 'STM32L0x2xZ'
-        },
         'DISCO_L475VG_IOT01A':
         {
             'name': 'STM32L475G-DISCO',
