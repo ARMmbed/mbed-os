@@ -114,14 +114,14 @@ static int lfs2_totype(int type)
 
 ////// Block device operations //////
 static int lfs2_bd_read(const struct lfs2_config *c, lfs2_block_t block,
-                       lfs2_off_t off, void *buffer, lfs2_size_t size)
+                        lfs2_off_t off, void *buffer, lfs2_size_t size)
 {
     BlockDevice *bd = (BlockDevice *)c->context;
     return bd->read(buffer, (bd_addr_t)block * c->block_size + off, size);
 }
 
 static int lfs2_bd_prog(const struct lfs2_config *c, lfs2_block_t block,
-                       lfs2_off_t off, const void *buffer, lfs2_size_t size)
+                        lfs2_off_t off, const void *buffer, lfs2_size_t size)
 {
     BlockDevice *bd = (BlockDevice *)c->context;
     return bd->program(buffer, (bd_addr_t)block * c->block_size + off, size);
@@ -144,8 +144,8 @@ static int lfs2_bd_sync(const struct lfs2_config *c)
 
 // Filesystem implementation (See LittleFileSystem2.h)
 LittleFileSystem2::LittleFileSystem2(const char *name, BlockDevice *bd,
-                                   lfs2_size_t block_size, uint32_t block_cycles,
-                                   lfs2_size_t cache_size, lfs2_size_t lookahead_size)
+                                     lfs2_size_t block_size, uint32_t block_cycles,
+                                     lfs2_size_t cache_size, lfs2_size_t lookahead_size)
     : FileSystem(name)
 {
     memset(&_config, 0, sizeof(_config));
@@ -222,8 +222,8 @@ int LittleFileSystem2::unmount()
 }
 
 int LittleFileSystem2::format(BlockDevice *bd,
-                             lfs2_size_t block_size, uint32_t block_cycles,
-                             lfs2_size_t cache_size, lfs2_size_t lookahead_size)
+                              lfs2_size_t block_size, uint32_t block_cycles,
+                              lfs2_size_t cache_size, lfs2_size_t lookahead_size)
 {
     int err = bd->init();
     if (err) {
@@ -281,10 +281,10 @@ int LittleFileSystem2::reformat(BlockDevice *bd)
     }
 
     int err = LittleFileSystem2::format(bd,
-            _config.block_size,
-            _config.block_cycles,
-            _config.cache_size,
-            _config.lookahead_size);
+                                        _config.block_size,
+                                        _config.block_cycles,
+                                        _config.cache_size,
+                                        _config.lookahead_size);
     if (err) {
         _mutex.unlock();
         return err;

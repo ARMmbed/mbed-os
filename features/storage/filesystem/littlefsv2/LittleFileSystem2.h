@@ -58,10 +58,10 @@ public:
      *      more RAM.
      */
     LittleFileSystem2(const char *name = NULL, mbed::BlockDevice *bd = NULL,
-                     lfs2_size_t block_size = MBED_LFS2_BLOCK_SIZE,
-                     uint32_t   block_cycles = MBED_LFS2_BLOCK_CYCLES,
-                     lfs2_size_t cache_size = MBED_LFS2_CACHE_SIZE,
-                     lfs2_size_t lookahead = MBED_LFS2_LOOKAHEAD_SIZE);
+                      lfs2_size_t block_size = MBED_LFS2_BLOCK_SIZE,
+                      uint32_t   block_cycles = MBED_LFS2_BLOCK_CYCLES,
+                      lfs2_size_t cache_size = MBED_LFS2_CACHE_SIZE,
+                      lfs2_size_t lookahead = MBED_LFS2_LOOKAHEAD_SIZE);
 
     virtual ~LittleFileSystem2();
 
