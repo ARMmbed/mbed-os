@@ -21,7 +21,7 @@
 
 #include "ns_types.h"
 #include "ns_trace.h"
-
+#include "randLIB.h"
 #include "net_interface.h"
 
 #include "Core/include/ns_address_internal.h"
@@ -33,6 +33,11 @@
 #include "RPL/rpl_policy.h"
 
 #define TRACE_GROUP "RPLy"
+
+typedef enum {
+    RPL_POLICY_FORWARD,
+    RPL_POLICY_DROP
+} rpl_forward_policy_t;
 
 static bool rpl_policy_parent_confirmation_req = false;
 static int8_t rpl_policy_dao_retry_count_conf = 0;
@@ -156,6 +161,46 @@ int8_t rpl_policy_dao_retry_count()
     return rpl_policy_dao_retry_count_conf;
 }
 
+//Default Optimistic value is ETX < 2.5
+static uint16_t rpl_policy_etx_full_forward = 0x280;
+//Total Drop limit default is 8.0 etx
+static uint16_t rpl_policy_etx_full_drop = 0x800;
+
+//Scale 100 % to bigger are to get more random resolution
+#define MAX_DROP_COMPARE (100 * 256)
+
+int rpl_policy_forward_link_etx_threshold_set(uint16_t etx_full_forward, uint16_t etx_full_drop)
+{
+    if (etx_full_forward > etx_full_drop) {
+        return -1;
+    }
+
+    rpl_policy_etx_full_forward = etx_full_forward;
+    rpl_policy_etx_full_drop = etx_full_drop;
+
+    return 0;
+}
+
+static rpl_forward_policy_t rpl_policy_link_forward_policy(uint16_t link_etx)
+{
+    if (link_etx >= rpl_policy_etx_full_drop) {
+        return RPL_POLICY_DROP;
+    }
+
+    if (link_etx <= rpl_policy_etx_full_forward) {
+        return RPL_POLICY_FORWARD;
+    }
+
+    // The multiplication could overflow 16-bit, even though the final result will be 16-bit
+    uint16_t drop_prob = (uint32_t) MAX_DROP_COMPARE * (link_etx - rpl_policy_etx_full_forward) / (rpl_policy_etx_full_drop - rpl_policy_etx_full_forward);
+
+    if (randLIB_get_random_in_range(0, 25599) < drop_prob) {
+        return RPL_POLICY_DROP;
+    }
+
+    return RPL_POLICY_FORWARD;
+}
+
 /* Given the next-hop address from a source routing header, which interface,
  * if any, should we assume that next hop is on?
  */
@@ -174,7 +219,9 @@ int8_t rpl_policy_srh_next_hop_interface(rpl_domain_t *domain, int8_t if_id, con
     }
 
     uint16_t etx = ipv6_map_ip_to_ll_and_call_ll_addr_handler(NULL, if_id, n, next_hop, etx_read);
-    if (etx > ETX_SRH_THRESHOLD) {
+
+    //Validate Link ETX and play poker game if ETX is over optimistic value
+    if (rpl_policy_link_forward_policy(etx) == RPL_POLICY_DROP) {
         tr_warn("Rejecting SRH to %s: etx = %x", trace_ipv6(next_hop), etx);
         goto reject;
     }

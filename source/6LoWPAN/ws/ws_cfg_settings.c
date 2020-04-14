@@ -273,19 +273,23 @@ int8_t ws_cfg_network_size_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_
         nw_size_external_cfg = NULL;
     }
 
+    uint8_t set_flags = 0;
+    if (cfg->network_size == NETWORK_SIZE_AUTOMATIC) {
+        set_flags = CFG_FLAGS_DISABLE_VAL_SET;
+    }
     /* Sets values if changed or network size has been previously automatic (to make sure
        the settings are in sync */
     if (ws_cfg_timing_validate(&ws_cfg.timing, &nw_size_cfg.timing) == CFG_SETTINGS_CHANGED ||
             old_network_size == NETWORK_SIZE_AUTOMATIC) {
-        ws_cfg_timing_set(cur, &ws_cfg.timing, &nw_size_cfg.timing, 0);
+        ws_cfg_timing_set(cur, &ws_cfg.timing, &nw_size_cfg.timing, &set_flags);
     }
     if (ws_cfg_rpl_validate(&ws_cfg.rpl, &nw_size_cfg.rpl) == CFG_SETTINGS_CHANGED ||
             old_network_size == NETWORK_SIZE_AUTOMATIC) {
-        ws_cfg_rpl_set(cur, &ws_cfg.rpl, &nw_size_cfg.rpl, 0);
+        ws_cfg_rpl_set(cur, &ws_cfg.rpl, &nw_size_cfg.rpl, &set_flags);
     }
     if (ws_cfg_sec_prot_validate(&ws_cfg.sec_prot, &nw_size_cfg.sec_prot) == CFG_SETTINGS_CHANGED ||
             old_network_size == NETWORK_SIZE_AUTOMATIC) {
-        ws_cfg_sec_prot_set(cur, &ws_cfg.sec_prot, &nw_size_cfg.sec_prot, 0);
+        ws_cfg_sec_prot_set(cur, &ws_cfg.sec_prot, &nw_size_cfg.sec_prot, &set_flags);
     }
 
     // If is in an automatic network size mode, updates automatic configuration
@@ -355,6 +359,7 @@ static void ws_cfg_network_size_config_set_small(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.sec_prot_trickle_imax = SEC_PROT_SMALL_IMAX;
     cfg->sec_prot.sec_prot_trickle_timer_exp = SEC_PROT_TIMER_EXPIRATIONS;
     cfg->sec_prot.sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_SMALL;
+    cfg->sec_prot.sec_max_ongoing_authentication = MAX_SIMULTANEOUS_EAP_TLS_NEGOTIATIONS_SMALL;
 }
 
 static void ws_cfg_network_size_config_set_medium(ws_cfg_nw_size_t *cfg)
@@ -380,6 +385,7 @@ static void ws_cfg_network_size_config_set_medium(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.sec_prot_trickle_imax = SEC_PROT_SMALL_IMAX;
     cfg->sec_prot.sec_prot_trickle_timer_exp = SEC_PROT_TIMER_EXPIRATIONS;
     cfg->sec_prot.sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_SMALL;
+    cfg->sec_prot.sec_max_ongoing_authentication = MAX_SIMULTANEOUS_EAP_TLS_NEGOTIATIONS_MEDIUM;
 }
 
 static void ws_cfg_network_size_config_set_large(ws_cfg_nw_size_t *cfg)
@@ -405,6 +411,7 @@ static void ws_cfg_network_size_config_set_large(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.sec_prot_trickle_imax = SEC_PROT_LARGE_IMAX;
     cfg->sec_prot.sec_prot_trickle_timer_exp = SEC_PROT_TIMER_EXPIRATIONS;
     cfg->sec_prot.sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_LARGE;
+    cfg->sec_prot.sec_max_ongoing_authentication = MAX_SIMULTANEOUS_EAP_TLS_NEGOTIATIONS_LARGE;
 }
 
 static void ws_cfg_network_size_config_set_certificate(ws_cfg_nw_size_t *cfg)
@@ -430,6 +437,7 @@ static void ws_cfg_network_size_config_set_certificate(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.sec_prot_trickle_imax = SEC_PROT_SMALL_IMAX;
     cfg->sec_prot.sec_prot_trickle_timer_exp = SEC_PROT_TIMER_EXPIRATIONS;
     cfg->sec_prot.sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_SMALL;
+    cfg->sec_prot.sec_max_ongoing_authentication = MAX_SIMULTANEOUS_EAP_TLS_NEGOTIATIONS_SMALL;
 }
 
 static int8_t ws_cfg_gen_default_set(ws_gen_cfg_t *cfg)
@@ -721,10 +729,6 @@ int8_t ws_cfg_rpl_set(protocol_interface_info_entry_t *cur, ws_rpl_cfg_t *cfg, w
 
     *cfg = *new_cfg;
 
-    if (cur && !(cfg_flags & CFG_FLAGS_BOOTSTRAP_RESTART_DISABLE)) {
-        ws_bootstrap_restart_delayed(cur->id);
-    }
-
     return CFG_SETTINGS_OK;
 }
 
@@ -974,7 +978,7 @@ static int8_t ws_cfg_sec_prot_default_set(ws_sec_prot_cfg_t *cfg)
     cfg->sec_prot_trickle_imax = SEC_PROT_SMALL_IMAX;
     cfg->sec_prot_trickle_timer_exp = 2;
     cfg->sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_SMALL;
-
+    cfg->sec_max_ongoing_authentication = MAX_SIMULTANEOUS_EAP_TLS_NEGOTIATIONS_MEDIUM;
     return CFG_SETTINGS_OK;
 }
 
@@ -994,7 +998,8 @@ int8_t ws_cfg_sec_prot_validate(ws_sec_prot_cfg_t *cfg, ws_sec_prot_cfg_t *new_c
     if (cfg->sec_prot_trickle_imin != new_cfg->sec_prot_trickle_imin ||
             cfg->sec_prot_trickle_imax != new_cfg->sec_prot_trickle_imax ||
             cfg->sec_prot_trickle_timer_exp != new_cfg->sec_prot_trickle_timer_exp ||
-            cfg->sec_prot_retry_timeout != new_cfg->sec_prot_retry_timeout) {
+            cfg->sec_prot_retry_timeout != new_cfg->sec_prot_retry_timeout ||
+            cfg->sec_max_ongoing_authentication != new_cfg->sec_max_ongoing_authentication) {
 
         return CFG_SETTINGS_CHANGED;
     }

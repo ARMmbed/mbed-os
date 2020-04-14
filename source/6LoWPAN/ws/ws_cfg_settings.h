@@ -110,6 +110,7 @@ typedef struct ws_sec_prot_cfg_s {
     uint16_t sec_prot_trickle_imin;     /**< Security protocol trickle parameters Imin; seconds; default 30 */
     uint16_t sec_prot_trickle_imax;     /**< Security protocol trickle parameters Imax; seconds; default 90 */
     uint8_t sec_prot_trickle_timer_exp; /**< Security protocol trickle timer expirations; default 2 */
+    uint16_t sec_max_ongoing_authentication; /**< Pae authenticator max Accept ongoing authentication count */
 } ws_sec_prot_cfg_t;
 
 /**

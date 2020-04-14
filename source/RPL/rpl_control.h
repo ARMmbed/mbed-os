@@ -206,7 +206,6 @@ uint8_t rpl_policy_mrhof_parent_set_size_get(const rpl_domain_t *domain);
 #define rpl_control_address_register_done(interface, ll_addr, status) (false)
 #define rpl_policy_mrhof_parent_set_size_get(domain) (0)
 #define rpl_control_set_mrhof_parent_set_size(parent_set_size)
-
 #endif /* HAVE_RPL */
 
 #endif /* RPL_CONTROL_H_ */

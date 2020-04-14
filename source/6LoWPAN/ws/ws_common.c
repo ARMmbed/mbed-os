@@ -59,7 +59,7 @@ int8_t ws_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_chann
     return 0;
 }
 
-static uint32_t ws_decode_channel_spacing(uint8_t channel_spacing)
+uint32_t ws_decode_channel_spacing(uint8_t channel_spacing)
 {
     if (CHANNEL_SPACING_100 == channel_spacing) {
         return 100000;
@@ -75,7 +75,7 @@ static uint32_t ws_decode_channel_spacing(uint8_t channel_spacing)
     return 0;
 }
 
-static uint32_t ws_get_datarate_using_operating_mode(uint8_t operating_mode)
+uint32_t ws_get_datarate_using_operating_mode(uint8_t operating_mode)
 {
     if ((OPERATING_MODE_1a == operating_mode) || (OPERATING_MODE_1b == operating_mode)) {
         return 50000;
@@ -91,7 +91,7 @@ static uint32_t ws_get_datarate_using_operating_mode(uint8_t operating_mode)
     return 0;
 }
 
-static phy_modulation_index_e ws_get_modulation_index_using_operating_mode(uint8_t operating_mode)
+phy_modulation_index_e ws_get_modulation_index_using_operating_mode(uint8_t operating_mode)
 {
     if ((OPERATING_MODE_1b == operating_mode) || (OPERATING_MODE_2b == operating_mode) || (OPERATING_MODE_4b == operating_mode)) {
         return MODULATION_INDEX_1_0;
@@ -100,21 +100,9 @@ static phy_modulation_index_e ws_get_modulation_index_using_operating_mode(uint8
     }
 }
 
-static int ws_set_domain_rf_config(protocol_interface_info_entry_t *cur)
-{
-    phy_rf_channel_configuration_s rf_configs;
-    rf_configs.channel_0_center_frequency = (uint32_t)cur->ws_info->hopping_schdule.ch0_freq * 100000;
-    rf_configs.channel_spacing = ws_decode_channel_spacing(cur->ws_info->hopping_schdule.channel_spacing);
-    rf_configs.datarate = ws_get_datarate_using_operating_mode(cur->ws_info->hopping_schdule.operating_mode);
-    rf_configs.modulation_index = ws_get_modulation_index_using_operating_mode(cur->ws_info->hopping_schdule.operating_mode);
-    rf_configs.modulation = M_2FSK;
-    rf_configs.number_of_channels = cur->ws_info->hopping_schdule.number_of_channels;
-    ws_bootstrap_set_rf_config(cur, rf_configs);
-    return 0;
-}
-
 int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, ws_hopping_schedule_t *hopping_schdule)
 {
+    (void)cur;
     if (ws_get_datarate_using_operating_mode(hopping_schdule->operating_mode) == 0) {
         //Unsupported operation mode
         return -1;
@@ -200,10 +188,6 @@ int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, 
     hopping_schdule->number_of_channels = (uint8_t)ws_common_channel_number_calc(hopping_schdule->regulatory_domain, hopping_schdule->operating_class);
     if (!hopping_schdule->number_of_channels) {
         return -1;
-    }
-
-    if (cur) {
-        ws_set_domain_rf_config(cur);
     }
     return 0;
 }
