@@ -6,107 +6,107 @@
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Config/handlers.c",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Config/TARGET_CORTEX_A/handlers.c"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Config/TARGET_CORTEX_A/handlers.c"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Config/RTX_Config.h",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Config/RTX_Config.h"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Config/RTX_Config.h"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Config/RTX_Config.c",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Config/RTX_Config.c"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Config/RTX_Config.c"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/ARM/irq_cm0.s",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_ARM/TARGET_M0/irq_cm0.S"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_ARM/TARGET_M0/irq_cm0.S"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/ARM/irq_cm0.s",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_ARM/TARGET_M0P/irq_cm0.S"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_ARM/TARGET_M0P/irq_cm0.S"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/ARM/irq_armv8mbl.s",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_ARM/TARGET_M23/irq_armv8mbl.S"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_ARM/TARGET_M23/irq_armv8mbl.S"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/ARM/irq_cm3.s",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_ARM/TARGET_M3/irq_cm3.S"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_ARM/TARGET_M3/irq_cm3.S"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/ARM/irq_armv8mml.s",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_ARM/TARGET_M33/irq_armv8mml.S"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_ARM/TARGET_M33/irq_armv8mml.S"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/ARM/irq_cm4f.s",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_ARM/TARGET_RTOS_M4_M7/irq_cm4f.S"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_ARM/TARGET_RTOS_M4_M7/irq_cm4f.S"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/ARM/irq_ca.s",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_ARM/TARGET_CORTEX_A/irq_ca.S"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_ARM/TARGET_CORTEX_A/irq_ca.S"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/GCC/irq_cm0.S",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_GCC/TARGET_M0/irq_cm0.S"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_GCC/TARGET_M0/irq_cm0.S"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/GCC/irq_cm0.S",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_GCC/TARGET_M0P/irq_cm0.S"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_GCC/TARGET_M0P/irq_cm0.S"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/GCC/irq_armv8mbl.S",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_GCC/TARGET_M23/irq_armv8mbl.S"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_GCC/TARGET_M23/irq_armv8mbl.S"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/GCC/irq_cm3.S",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_GCC/TARGET_M3/irq_cm3.S"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_GCC/TARGET_M3/irq_cm3.S"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/GCC/irq_armv8mml.S",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_GCC/TARGET_M33/irq_armv8mml.S"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_GCC/TARGET_M33/irq_armv8mml.S"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/GCC/irq_cm4f.S",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_GCC/TARGET_RTOS_M4_M7/irq_cm4f.S"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_GCC/TARGET_RTOS_M4_M7/irq_cm4f.S"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/GCC/irq_ca.S",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_GCC/TARGET_CORTEX_A/irq_ca.S"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_GCC/TARGET_CORTEX_A/irq_ca.S"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/IAR/irq_cm0.s",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_IAR/TARGET_M0/irq_cm0.S"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_IAR/TARGET_M0/irq_cm0.S"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/IAR/irq_cm0.s",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_IAR/TARGET_M0P/irq_cm0.S"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_IAR/TARGET_M0P/irq_cm0.S"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/IAR/irq_armv8mbl_common.s",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_IAR/TARGET_M23/irq_armv8mbl_common.S"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_IAR/TARGET_M23/irq_armv8mbl_common.S"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/IAR/irq_cm3.s",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_IAR/TARGET_M3/irq_cm3.S"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_IAR/TARGET_M3/irq_cm3.S"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/IAR/irq_armv8mml_common.s",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_IAR/TARGET_M33/irq_armv8mml_common.S"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_IAR/TARGET_M33/irq_armv8mml_common.S"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/IAR/irq_cm4f.s",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_IAR/TARGET_RTOS_M4_M7/irq_cm4f.S"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_IAR/TARGET_RTOS_M4_M7/irq_cm4f.S"
     },
     {
       "src_file" : "CMSIS/RTOS2/Source/os_systick.c",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/Source/os_systick.c"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/Source/os_systick.c"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/IAR/irq_ca.s",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_IAR/TARGET_CORTEX_A/irq_ca.S"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_IAR/TARGET_CORTEX_A/irq_ca.S"
     },
     {
       "src_file" : "CMSIS/RTOS2/RTX/Library/cmsis_os1.c",
-      "dest_file" : "rtos/TARGET_CORTEX/rtx4/cmsis_os1.c"
+      "dest_file" : "rtos/source/TARGET_CORTEX/rtx4/cmsis_os1.c"
     }
   ],
   "folders" : [
@@ -116,23 +116,23 @@
     },
     {
       "src_folder" : "CMSIS/RTOS2/Include/",
-      "dest_folder" : "rtos/TARGET_CORTEX/rtx5/Include/"
+      "dest_folder" : "rtos/source/TARGET_CORTEX/rtx5/Include/"
     },
     {
       "src_folder" : "CMSIS/RTOS2/RTX/Include1/",
-      "dest_folder" : "rtos/TARGET_CORTEX/rtx4/"
+      "dest_folder" : "rtos/source/TARGET_CORTEX/rtx4/"
     },
     {
       "src_folder" : "CMSIS/RTOS2/RTX/Include/",
-      "dest_folder" : "rtos/TARGET_CORTEX/rtx5/RTX/Include/"
+      "dest_folder" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Include/"
     },
     {
       "src_folder" : "CMSIS/RTOS2/RTX/Source/",
-      "dest_folder" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/"
+      "dest_folder" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/"
     },
     {
       "src_folder" : "CMSIS/RTOS2/RTX/Source/",
-      "dest_folder" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/"
+      "dest_folder" : "rtos/source/TARGET_CORTEX/rtx5/RTX/Source/"
     },
     {
       "src_folder" : "CMSIS/Core_A/Include/",
