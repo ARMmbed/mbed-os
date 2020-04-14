@@ -121,7 +121,7 @@ matrix:
       script:
         - >-
           git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
-            | ( grep '.\(c\|cpp\|h\|hpp\)$' || true ) \
+            | ( grep '.*\.\(c\|cpp\|h\|hpp\)$' || true ) \
             | ( grep -v -f .astyleignore || true ) \
             | while read file; do astyle -n --options=.astylerc "${file}"; done
         - git diff --exit-code --diff-filter=d --color
