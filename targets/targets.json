@@ -4319,44 +4319,6 @@
             "network-default-interface-type": "ETHERNET"
         }
     },
-    "MTB_STM32_F439": {
-        "inherits": [
-            "FAMILY_STM32"
-        ],
-        "core": "Cortex-M4F",
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (8MHz) | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_XTAL",
-                "macro_name": "CLOCK_SOURCE"
-            }
-        },
-        "extra_labels_add": [
-            "STM32F4",
-            "STM32F439xI"
-        ],
-        "macros_add": [
-            "STM32F439xx",
-            "MBEDTLS_CONFIG_HW_SUPPORT"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "CAN",
-            "SERIAL_ASYNCH",
-            "SERIAL_FC",
-            "TRNG",
-            "FLASH",
-            "MPU"
-        ],
-        "detect_code": [
-            "0469"
-        ],
-        "release_versions": [
-            "5"
-        ],
-        "device_name": "STM32F439VI",
-        "bootloader_supported": true
-    },
     "NUCLEO_F446RE": {
         "inherits": [
             "FAMILY_STM32"
