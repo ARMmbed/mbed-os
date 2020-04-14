@@ -128,6 +128,12 @@ struct i2c_s {
     uint32_t mask;
     uint32_t event;
 #endif
+
+#if DEVICE_I2CSLAVE
+    bool was_slave;
+    bool is_slave;
+    uint8_t slave_addr;
+#endif
 };
 
 struct analogin_s {
