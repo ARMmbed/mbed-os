@@ -114,6 +114,12 @@ typedef struct ws_info_s {
 
 int8_t ws_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain);
 
+uint32_t ws_decode_channel_spacing(uint8_t channel_spacing);
+
+uint32_t ws_get_datarate_using_operating_mode(uint8_t operating_mode);
+
+phy_modulation_index_e ws_get_modulation_index_using_operating_mode(uint8_t operating_mode);
+
 int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, ws_hopping_schedule_t *hopping_schdule);
 
 uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operating_class);

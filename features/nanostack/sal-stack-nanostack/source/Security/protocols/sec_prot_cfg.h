@@ -23,6 +23,7 @@
 typedef struct sec_prot_cfg_s {
     trickle_params_t sec_prot_trickle_params;
     uint16_t sec_prot_retry_timeout;
+    uint16_t sec_max_ongoing_authentication;
 } sec_prot_cfg_t;
 
 #endif /* SEC_PROT_CONF_H_ */

@@ -603,6 +603,7 @@ int8_t ws_pae_controller_configure(protocol_interface_info_entry_t *interface_pt
         controller->sec_prot_cfg.sec_prot_trickle_params.k = 0;
         controller->sec_prot_cfg.sec_prot_trickle_params.TimerExpirations = sec_prot_cfg->sec_prot_trickle_timer_exp;
         controller->sec_prot_cfg.sec_prot_retry_timeout = sec_prot_cfg->sec_prot_retry_timeout * 10;
+        controller->sec_prot_cfg.sec_max_ongoing_authentication = sec_prot_cfg->sec_max_ongoing_authentication;
     }
 
     if (sec_timer_cfg) {

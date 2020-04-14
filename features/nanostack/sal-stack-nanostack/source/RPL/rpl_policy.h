@@ -35,6 +35,8 @@ uint16_t rpl_policy_minimum_dao_target_refresh(void);
 void rpl_policy_set_dao_retry_count(uint8_t count);
 int8_t rpl_policy_dao_retry_count();
 
+int rpl_policy_forward_link_etx_threshold_set(uint16_t etx_full_forward, uint16_t etx_full_drop);
+
 int8_t rpl_policy_srh_next_hop_interface(rpl_domain_t *domain, int8_t if_id, const uint8_t *next_hop);
 uint16_t rpl_policy_modify_downward_cost_to_root_neighbour(rpl_domain_t *domain, int8_t if_id, const uint8_t *next_hop, uint16_t cost);
 

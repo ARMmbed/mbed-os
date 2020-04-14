@@ -17,6 +17,7 @@
 
 #include <string.h>
 #include "nsconfig.h"
+#ifdef HAVE_WS
 #include "ns_types.h"
 #include "ns_trace.h"
 #include "net_interface.h"
@@ -38,6 +39,7 @@
 #include "RPL/rpl_protocol.h"
 #include "RPL/rpl_control.h"
 #include "RPL/rpl_data.h"
+#include "RPL/rpl_policy.h"
 #include "Common_Protocols/icmpv6.h"
 #include "Common_Protocols/icmpv6_radv.h"
 #include "Common_Protocols/ipv6_constants.h"
@@ -73,7 +75,7 @@
 
 #define TRACE_GROUP "wsbs"
 
-#ifdef HAVE_WS
+
 
 static void ws_bootstrap_event_handler(arm_event_s *event);
 static void ws_bootstrap_state_change(protocol_interface_info_entry_t *cur, icmp_state_t nwk_bootstrap_state);
@@ -522,6 +524,9 @@ static int8_t ws_fhss_initialize(protocol_interface_info_entry_t *cur)
             return 0;
         }
         fhss_configuration = *fhss_configuration_copy;
+        //Overwrite domain channel setup this will over write a default 35 channel
+        int num_of_channels = channel_list_count_channels(fhss_configuration_copy->unicast_channel_mask);
+        cur->ws_info->hopping_schdule.number_of_channels = (uint8_t) num_of_channels;
         memcpy(cur->ws_info->cfg->fhss.fhss_channel_mask, fhss_configuration_copy->unicast_channel_mask, sizeof(uint32_t) * 8);
         cur->ws_info->cfg->fhss.fhss_uc_channel_function = fhss_configuration_copy->ws_uc_channel_function;
         cur->ws_info->cfg->fhss.fhss_bc_channel_function = fhss_configuration_copy->ws_bc_channel_function;
@@ -2047,6 +2052,19 @@ int ws_bootstrap_aro_failure(protocol_interface_info_entry_t *cur, const uint8_t
     return 0;
 }
 
+static int ws_bootstrap_set_domain_rf_config(protocol_interface_info_entry_t *cur)
+{
+    phy_rf_channel_configuration_s rf_configs;
+    rf_configs.channel_0_center_frequency = (uint32_t)cur->ws_info->hopping_schdule.ch0_freq * 100000;
+    rf_configs.channel_spacing = ws_decode_channel_spacing(cur->ws_info->hopping_schdule.channel_spacing);
+    rf_configs.datarate = ws_get_datarate_using_operating_mode(cur->ws_info->hopping_schdule.operating_mode);
+    rf_configs.modulation_index = ws_get_modulation_index_using_operating_mode(cur->ws_info->hopping_schdule.operating_mode);
+    rf_configs.modulation = M_2FSK;
+    rf_configs.number_of_channels = cur->ws_info->hopping_schdule.number_of_channels;
+    ws_bootstrap_set_rf_config(cur, rf_configs);
+    return 0;
+}
+
 static void ws_bootstrap_mac_activate(protocol_interface_info_entry_t *cur, uint16_t channel, uint16_t panid, bool coordinator)
 {
     mlme_start_t start_req;
@@ -2455,6 +2473,10 @@ static void ws_bootstrap_rpl_activate(protocol_interface_info_entry_t *cur)
     if (cur->bootsrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         rpl_control_set_memory_limits(WS_NODE_RPL_SOFT_MEM_LIMIT, WS_NODE_RPL_HARD_MEM_LIMIT);
     }
+    // Set RPL Link ETX Validation Threshold to 2.5 - 33.0
+    // This setup will set ETX 0x800 to report ICMP error 18% probability
+    // When ETX start go over 0x280 forward dropping probability start increase  linear to 100% at 0x2100
+    rpl_policy_forward_link_etx_threshold_set(0x280, 0x2100);
 
     // Set the minimum target refresh to sen DAO registrations before pan timeout
     rpl_control_set_minimum_dao_target_refresh(WS_RPL_DAO_MAX_TIMOUT);
@@ -2475,6 +2497,7 @@ static void ws_bootstrap_network_discovery_configure(protocol_interface_info_ent
     cur->ws_info->network_pan_id = 0xffff;
 
     ws_common_regulatory_domain_config(cur, &cur->ws_info->hopping_schdule);
+    ws_bootstrap_set_domain_rf_config(cur);
     ws_fhss_configure(cur, true);
 
     //Set Network names, Pan information configure, hopping schedule & GTKHash
@@ -2900,12 +2923,18 @@ static void ws_bootstrap_event_handler(arm_event_s *event)
             if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
                 tr_info("Border router start network");
 
+
                 if (!ws_bbr_ready_to_start(cur)) {
                     // Wi-SUN not started yet we wait for Border router permission
                     ws_bootstrap_state_change(cur, ER_WAIT_RESTART);
                     cur->nwk_nd_re_scan_count = randLIB_get_random_in_range(40, 100);
                     return;
                 }
+                // Clear Old information from stack
+
+                ws_nud_table_reset(cur);
+                ws_bootstrap_neighbor_list_clean(cur);
+                ws_bootstrap_ip_stack_reset(cur);
                 ws_pae_controller_auth_init(cur);
 
                 // Randomize fixed channels. Only used if channel plan is fixed.
@@ -2928,9 +2957,10 @@ static void ws_bootstrap_event_handler(arm_event_s *event)
                 ws_bbr_pan_version_increase(cur);
 
                 // Set default parameters for FHSS when starting a discovery
+                ws_common_regulatory_domain_config(cur, &cur->ws_info->hopping_schdule);
                 ws_fhss_border_router_configure(cur);
+                ws_bootstrap_set_domain_rf_config(cur);
                 ws_bootstrap_fhss_activate(cur);
-                ws_bootstrap_event_operation_start(cur);
 
                 uint8_t ll_addr[16];
                 addr_interface_get_ll_address(cur, ll_addr, 1);
@@ -2949,6 +2979,8 @@ static void ws_bootstrap_event_handler(arm_event_s *event)
 
                 // Set PAE port to 10254 and authenticator relay to 10253 (and to own ll address)
                 ws_pae_controller_authenticator_start(cur, PAE_AUTH_SOCKET_PORT, ll_addr, EAPOL_RELAY_SOCKET_PORT);
+
+                ws_bootstrap_event_operation_start(cur);
                 break;
             }
             ws_pae_controller_supp_init(cur);

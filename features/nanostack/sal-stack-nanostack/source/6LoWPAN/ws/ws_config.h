@@ -199,6 +199,11 @@ extern uint8_t DEVICE_MIN_SENS;
 
 #define SEC_PROT_TIMER_EXPIRATIONS 2        // Number of retries
 
+// Maximum number of simultaneous EAP-TLS negotiations
+#define MAX_SIMULTANEOUS_EAP_TLS_NEGOTIATIONS_SMALL     3
+#define MAX_SIMULTANEOUS_EAP_TLS_NEGOTIATIONS_MEDIUM    20
+#define MAX_SIMULTANEOUS_EAP_TLS_NEGOTIATIONS_LARGE       50
+
 /*
  *  Security protocol timer configuration parameters
  */

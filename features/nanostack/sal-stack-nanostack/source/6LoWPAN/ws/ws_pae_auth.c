@@ -59,8 +59,6 @@
 // Wait for for supplicant to indicate activity (e.g. to send a message)
 #define WAIT_FOR_AUTHENTICATION_TICKS          5 * 60 * 10  // 5 minutes
 
-// Maximum number of simultaneous EAP-TLS negotiations
-#define MAX_SIMULTANEOUS_EAP_TLS_NEGOTIATIONS  3
 
 /* If EAP-TLS is delayed due to simultaneous negotiations limit, defines how
    long to wait for previous negotiation to complete */
@@ -941,7 +939,7 @@ static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *sup
            supplicant. Otherwise supplicant must re-send initial EAPOL-Key
            to try again using its trickle schedule */
         uint16_t ongoing_eap_tls_cnt = ws_pae_lib_supp_list_kmp_count(&pae_auth->active_supp_list, IEEE_802_1X_MKA);
-        if (ongoing_eap_tls_cnt >= MAX_SIMULTANEOUS_EAP_TLS_NEGOTIATIONS) {
+        if (ongoing_eap_tls_cnt >= pae_auth->sec_prot_cfg->sec_max_ongoing_authentication) {
             supp_entry->retry_ticks = EAP_TLS_NEGOTIATION_TRIGGER_TIMEOUT;
             tr_info("EAP-TLS max ongoing reached, count %i, delayed: eui-64: %s", ongoing_eap_tls_cnt, trace_array(supp_entry->addr.eui_64, 8));
             return;
