@@ -200,16 +200,35 @@ void TDBStore::calc_area_params()
 
     memset(_area_params, 0, sizeof(_area_params));
     size_t area_0_size = 0;
+    size_t area_1_size = 0;
 
-    while (area_0_size < bd_size / 2) {
+    // The size calculations are a bit complex because we need to make sure we're
+    // always aligned to an erase block boundary (whose size may not be uniform
+    // across the address space), and we also need to make sure that the first
+    // area never goes over half of the total size even if bd_size is an odd
+    // number of sectors.
+    while (true) {
         bd_size_t erase_unit_size = _bd->get_erase_size(area_0_size);
-        area_0_size += erase_unit_size;
+        if (area_0_size + erase_unit_size <= (bd_size / 2)) {
+            area_0_size += erase_unit_size;
+        } else {
+            break;
+        }
+    }
+
+    while (true) {
+        bd_size_t erase_unit_size = _bd->get_erase_size(area_0_size + area_1_size);
+        if (area_1_size + erase_unit_size <= (bd_size / 2)) {
+            area_1_size += erase_unit_size;
+        } else {
+            break;
+        }
     }
 
     _area_params[0].address = 0;
     _area_params[0].size = area_0_size;
     _area_params[1].address = area_0_size;
-    _area_params[1].size = bd_size - area_0_size;
+    _area_params[1].size = area_1_size;
 
     // The areas must be of same size
     MBED_ASSERT(_area_params[0].size == _area_params[1].size);
