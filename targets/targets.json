@@ -6342,35 +6342,6 @@
             "C036"
         ]
     },
-    "NZ32_SC151": {
-        "inherits": [
-            "FAMILY_STM32"
-        ],
-        "core": "Cortex-M3",
-        "default_toolchain": "uARM",
-        "program_cycle_s": 1.5,
-        "extra_labels_add": [
-            "STM32L1",
-            "STM32L151RC"
-        ],
-        "overrides": {
-            "lse_available": 0
-        },
-        "supported_toolchains": [
-            "ARM",
-            "uARM",
-            "GCC_ARM"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "MPU"
-        ],
-        "device_has_remove": [
-            "LPTICKER"
-        ],
-        "default_lib": "small",
-        "device_name": "STM32L151RC"
-    },
     "MCU_NRF51": {
         "inherits": [
             "Target"
