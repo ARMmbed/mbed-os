@@ -134,10 +134,34 @@ int wisun_tasklet_set_trusted_certificate(uint8_t *cert, uint16_t cert_len);
 /*
  * \brief Remove trusted certificate from Wi-SUN network
  *
-  * \return 0 if certificates removed successfully
+ * \return 0 if certificates removed successfully
  * \return < 0 in case of errors
  */
 int wisun_tasklet_remove_trusted_certificates(void);
+
+/*
+ * \brief Start Wi-SUN statistics
+ *
+ * \return 0 Statistics start successful
+ * \return < 0 in case of errors
+ */
+int wisun_tasklet_statistics_start(void);
+
+/*
+ * \brief Reads Wi-SUN network statistics
+ *
+ * \return 0 Statistics read successful
+ * \return < 0 in case of errors
+ */
+int wisun_tasklet_statistics_nw_read(mesh_nw_statistics_t *stats);
+
+/*
+ * \brief Reads Wi-SUN MAC statistics
+ *
+ * \return 0 Statistics read successful
+ * \return < 0 in case of errors
+ */
+int wisun_tasklet_statistics_mac_read(mesh_mac_statistics_t *stats);
 
 #ifdef __cplusplus
 }
