@@ -91,13 +91,11 @@ asm(" .global __use_full_stdio\n");
 
 using namespace mbed;
 
-#if defined(__MICROLIB)
-// Before version 5.03, we were using a patched version of microlib with proper names
-extern const char __stdin_name[]  = ":tt";
-extern const char __stdout_name[] = ":tt";
-extern const char __stderr_name[] = ":tt";
-
-#else
+// Microlib currently does not allow re-defining the pathnames for the
+// standard I/O device handles (STDIN, STDOUT, and STDERR).
+// It uses the default pathname ":tt" at library initialization to identify
+// them all.
+#if !defined(__MICROLIB)
 extern const char __stdin_name[]  = "/stdin";
 extern const char __stdout_name[] = "/stdout";
 extern const char __stderr_name[] = "/stderr";
@@ -555,11 +553,15 @@ std::FILE *fdopen(FileHandle *fh, const char *mode)
 extern "C" FILEHANDLE PREFIX(_open)(const char *name, int openflags)
 {
 #if defined(__MICROLIB)
-    // Before version 5.03, we were using a patched version of microlib with proper names
-    // This is the workaround that the microlib author suggested us
-    static int n = 0;
-    if (std::strcmp(name, ":tt") == 0 && n < 3) {
-        return n++;
+    // Use the mode requested to select the standard I/O device handle to return.
+    if (std::strcmp(name, ":tt") == 0) {
+        if (openflags & OPEN_W) {
+            return STDOUT_FILENO;
+        } else if (openflags & OPEN_A) {
+            return STDERR_FILENO;
+        } else {
+            return STDIN_FILENO;
+        }
     }
 #else
     /* Use the posix convention that stdin,out,err are filehandles 0,1,2.
