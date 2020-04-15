@@ -86,6 +86,12 @@ typedef enum {
     LED2 = PA3,
     LED3 = PA4,
 
+    /* I2C pins */
+    I2C0_SDA = PA14,    /* Alternate Function - 1 */
+    I2C0_SCL = PA15,    /* Alternate Function - 1 */
+    I2C1_SDA = PA18,
+    I2C1_SCL = PA19,
+
     /* Not connected */
     NC = (int)0xFFFFFFFF
 } PinName;

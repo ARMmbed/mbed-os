@@ -8452,6 +8452,8 @@
         ],
         "device_has_add": [
             "INTERRUPTIN",
+            "I2C",
+            "I2CSLAVE",
             "LPTICKER",
             "SERIAL",
             "SLEEP",

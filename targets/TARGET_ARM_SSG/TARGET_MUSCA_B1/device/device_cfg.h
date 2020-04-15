@@ -108,6 +108,12 @@
 #define GP_TIMER_FREQ_HZ       32768UL /* System Ref Clock */
 #define GP_TIMER_BIT_WIDTH     32U
 
+/* I2C IP6510 */
+#define I2C0_IP6510_NS
+#define I2C0_IP6510_DEV         I2C0_IP6510_DEV_NS
+#define I2C1_IP6510_NS
+#define I2C1_IP6510_DEV         I2C1_IP6510_DEV_NS
+
 /**
  * mbed usec high-resolution ticker configuration
  */
