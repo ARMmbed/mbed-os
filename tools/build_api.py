@@ -48,6 +48,7 @@ from .targets import TARGET_NAMES, TARGET_MAP, CORE_ARCH, Target
 from .libraries import Library
 from .toolchains import TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
 from .toolchains.arm import UARM_TOOLCHAIN_WARNING
+from .toolchains.mbed_toolchain import should_replace_small_c_lib
 from .config import Config
 
 RELEASE_VERSIONS = ['2', '5']
@@ -205,6 +206,7 @@ def get_toolchain_name(target, toolchain_name):
 
     return toolchain_name
 
+
 def find_valid_toolchain(target, toolchain):
     """Given a target and toolchain, get the names for the appropriate
     toolchain to use. The environment is also checked to see if the corresponding
@@ -250,6 +252,15 @@ def find_valid_toolchain(target, toolchain):
                 and "uARM" in {toolchain_name, target.default_toolchain}
             ):
                 end_warnings.append(UARM_TOOLCHAIN_WARNING)
+
+            if should_replace_small_c_lib(target, toolchain):
+                warning = (
+                    "Warning: We noticed that target.c_lib is set to small.\n"
+                    "As the {} target does not support a small C library for the {} toolchain,\n"
+                    "we are using the standard C library instead. "
+                ).format(target.name, toolchain)
+                end_warnings.append(warning)
+
             return toolchain_name, internal_tc_name, end_warnings
     else:
         if last_error:

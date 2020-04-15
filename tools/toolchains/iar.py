@@ -20,7 +20,9 @@ from os import remove
 from os.path import join, splitext, exists
 from distutils.version import LooseVersion
 
-from tools.toolchains.mbed_toolchain import mbedToolchain, TOOLCHAIN_PATHS
+from tools.toolchains.mbed_toolchain import (
+    mbedToolchain, TOOLCHAIN_PATHS, should_replace_small_c_lib
+)
 from tools.utils import run_cmd
 
 class IAR(mbedToolchain):
@@ -53,6 +55,11 @@ class IAR(mbedToolchain):
             build_dir=build_dir,
             build_profile=build_profile
         )
+
+        toolchain = "iar"
+
+        if should_replace_small_c_lib(target, toolchain):
+            target.c_lib = "std"
 
         self.check_c_lib_supported(target, "iar")
 

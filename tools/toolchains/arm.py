@@ -26,7 +26,9 @@ from tempfile import mkstemp
 from shutil import rmtree
 from distutils.version import LooseVersion
 
-from tools.toolchains.mbed_toolchain import mbedToolchain, TOOLCHAIN_PATHS
+from tools.toolchains.mbed_toolchain import (
+    mbedToolchain, TOOLCHAIN_PATHS, should_replace_small_c_lib
+)
 from tools.utils import mkdir, NotSupportedException, run_cmd
 from tools.resources import FileRef
 
@@ -70,7 +72,12 @@ class ARM(mbedToolchain):
             raise NotSupportedException(
                 "this compiler does not support the core %s" % target.core)
 
-        self.check_c_lib_supported(target, "arm")
+        toolchain = "arm"
+
+        if should_replace_small_c_lib(target, toolchain):
+            target.c_lib = "std"
+
+        self.check_c_lib_supported(target, toolchain)
 
         if (
             getattr(target, "default_toolchain", "ARM") == "uARM"
@@ -562,7 +569,12 @@ class ARMC6(ARM_STD):
                     "ARM/ARMC6 compiler support is required for ARMC6 build"
                 )
 
-        self.check_c_lib_supported(target, "arm")
+        toolchain = "arm"
+
+        if should_replace_small_c_lib(target, toolchain):
+            target.c_lib = "std"
+
+        self.check_c_lib_supported(target, toolchain)
 
         if (
             getattr(target, "default_toolchain", "ARMC6") == "uARM"
