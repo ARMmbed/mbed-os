@@ -7153,9 +7153,6 @@
             ]
         },
         "program_cycle_s": 6,
-        "features": [
-            "BLE"
-        ],
         "device_has": [
             "ANALOGIN",
             "I2C",
@@ -8680,9 +8677,6 @@
             "SPI",
             "STDIO_MESSAGES"
         ],
-        "features": [
-            "BLE"
-        ],
         "release_versions": [],
         "detect_code": [
             "0400"
@@ -8757,9 +8751,6 @@
             "SPI",
             "SPI_ASYNCH",
             "STDIO_MESSAGES"
-        ],
-        "features": [
-            "BLE"
         ],
         "release_versions": [],
         "detect_code": [
@@ -8978,9 +8969,6 @@
             "STDIO_MESSAGES",
             "USTICKER",
             "MPU"
-        ],
-        "features": [
-            "BLE"
         ],
         "release_versions": [
             "2",
@@ -10133,9 +10121,6 @@
             "BOARD_PCA10028",
             "NRF51",
             "TARGET_NRF51822",
-            "BLE_STACK_SUPPORT_REQD",
-            "SOFTDEVICE_PRESENT",
-            "S130",
             "TARGET_MCU_NRF51822",
             "CMSIS_VECTAB_VIRTUAL",
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
@@ -10148,9 +10133,7 @@
             "MCU_NRF51",
             "MCU_NRF51822_UNIFIED",
             "NRF5x",
-            "NRF51",
-            "SDK_11",
-            "NORDIC_SOFTDEVICE"
+            "NRF51"
         ],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
@@ -10160,14 +10143,6 @@
             "IAR"
         ],
         "public": false,
-        "MERGE_SOFT_DEVICE": true,
-        "EXPECTED_SOFTDEVICES_WITH_OFFSETS": [
-            {
-                "boot": "",
-                "name": "s130_nrf51_2.0.0_softdevice.hex",
-                "offset": 110592
-            }
-        ],
         "detect_code": [
             "1070"
         ],
@@ -10180,9 +10155,6 @@
             ]
         },
         "program_cycle_s": 6,
-        "features": [
-            "BLE"
-        ],
         "config": {
             "lf_clock_src": {
                 "value": "NRF_LF_SRC_XTAL",
