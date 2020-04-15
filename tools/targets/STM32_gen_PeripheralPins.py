@@ -1129,7 +1129,7 @@ PinLabel = {}
 
 def parse_BoardFile(fileName):
     print(" * Board file: '%s'" % (fileName))
-    board_file = open(board_file_name, "r")
+    board_file = open(fileName, "r")
     # IOC_PIN_pattern = re.compile(r'(P[A-I][\d]*).*\.([\w]*)=(.*)')
     IOC_PIN_pattern = re.compile(r'(.*)\.([\w]*)=(.*)')
     for line in board_file.readlines():
@@ -1248,6 +1248,10 @@ specify the board file description in STM32CubeMX to use (use double quotes).
    Parameter can be a filter like L496 (only the first file found will be parsed).
 '''))
 
+group.add_argument("-c", "--custom", help=textwrap.dedent('''\
+specify a custom board .ioc file description to use (use double quotes).
+'''))
+
 args = parser.parse_args()
 
 if not(os.path.isdir(cubemxdir)):
@@ -1363,6 +1367,11 @@ if args.target:
 
     else:
         quit()
+
+# Parse the user's custom board .ioc file
+if args.custom:
+    parse_BoardFile(args.custom)
+    TargetName = ""
 
 for mcu_file in mcu_list:
     if args.mcu:
