@@ -78,7 +78,7 @@ uint32_t FLEXSPI_GetInstance(FLEXSPI_Type *base);
  * @param base FLEXSPI base pointer.
  * @param config Flash configuration parameters.
  */
-AT_QUICKACCESS_SECTION_CODE(static uint32_t FLEXSPI_ConfigureDll(FLEXSPI_Type *base, flexspi_device_config_t *config));
+AT_QUICKACCESS_SECTION_CODE(uint32_t FLEXSPI_ConfigureDll(FLEXSPI_Type *base, flexspi_device_config_t *config));
 
 /*!
  * @brief Check and clear IP command execution errors.
@@ -138,7 +138,7 @@ uint32_t FLEXSPI_GetInstance(FLEXSPI_Type *base)
     return instance;
 }
 
-static uint32_t FLEXSPI_ConfigureDll(FLEXSPI_Type *base, flexspi_device_config_t *config)
+uint32_t FLEXSPI_ConfigureDll(FLEXSPI_Type *base, flexspi_device_config_t *config)
 {
     bool isUnifiedConfig = true;
     uint32_t flexspiDllValue;
@@ -337,7 +337,7 @@ void FLEXSPI_Init(FLEXSPI_Type *base, const flexspi_config_t *config)
 void FLEXSPI_GetDefaultConfig(flexspi_config_t *config)
 {
     /* Initializes the configure structure to zero. */
-    (void)memset(config, 0, sizeof(*config));
+    (void)flexspi_memset(config, 0, sizeof(*config));
 
     config->rxSampleClock          = kFLEXSPI_ReadSampleClkLoopbackInternally;
     config->enableSckFreeRunning   = false;
@@ -359,7 +359,7 @@ void FLEXSPI_GetDefaultConfig(flexspi_config_t *config)
     config->ahbConfig.ahbGrantTimeoutCycle = 0xFFU;
     config->ahbConfig.ahbBusTimeoutCycle   = 0xFFFFU;
     config->ahbConfig.resumeWaitCycle      = 0x20U;
-    (void)memset(config->ahbConfig.buffer, 0, sizeof(config->ahbConfig.buffer));
+    (void)flexspi_memset(config->ahbConfig.buffer, 0, sizeof(config->ahbConfig.buffer));
     for (uint8_t i = 0; i < (uint32_t)FSL_FEATURE_FLEXSPI_AHB_BUFFER_COUNT; i++)
     {
         config->ahbConfig.buffer[i].enablePrefetch = true; /* Default enable AHB prefetch. */
