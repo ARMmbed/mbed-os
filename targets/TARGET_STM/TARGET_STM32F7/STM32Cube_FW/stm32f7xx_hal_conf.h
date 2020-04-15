@@ -451,8 +451,7 @@
    
 /* Exported macro ------------------------------------------------------------*/
 #ifdef  USE_FULL_ASSERT
-/* ALL MBED targets use same stm32_assert.h */
-#include "stm32_assert.h"
+#include "stm32_assert.h" // MBED patch
 #else
   #define assert_param(expr) ((void)0U)
 #endif /* USE_FULL_ASSERT */
