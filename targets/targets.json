@@ -9899,20 +9899,6 @@
             "CONFIG_GPIO_AS_PINRESET"
         ]
     },
-    "MAKERDIARY_NRF52840_MDK": {
-        "inherits": [
-            "MCU_NRF52840"
-        ],
-        "detect_code": [
-            "1026"
-        ],
-        "device_has_remove": [
-            "ITM"
-        ],
-        "macros_add": [
-            "CONFIG_GPIO_AS_PINRESET"
-        ]
-    },
     "NUMAKER_PFM_NUC472": {
         "core": "Cortex-M4F",
         "components_add": [
