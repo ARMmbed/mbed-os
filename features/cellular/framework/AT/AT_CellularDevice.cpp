@@ -598,7 +598,10 @@ nsapi_error_t AT_CellularDevice::clear()
 
 nsapi_error_t AT_CellularDevice::set_baud_rate(int baud_rate)
 {
-    nsapi_error_t error = set_baud_rate_impl(baud_rate);
+    nsapi_error_t error;
+
+#if (DEVICE_SERIAL && DEVICE_INTERRUPTIN)
+    error = set_baud_rate_impl(baud_rate);
 
     if (error) {
         tr_warning("Baudrate was not changed to desired value: %d", baud_rate);
@@ -609,6 +612,12 @@ nsapi_error_t AT_CellularDevice::set_baud_rate(int baud_rate)
 
     // Give some time before starting using the UART with the new baud rate
     rtos::ThisThread::sleep_for(3000);
+#else
+    // Currently ATHandler only supports BufferedSerial based communication and
+    // if serial is disabled, baud rate cannot be set
+    tr_warn("set_baud_rate: Serial not supported");
+    error = NSAPI_ERROR_UNSUPPORTED;
+#endif
 
     return error;
 }
