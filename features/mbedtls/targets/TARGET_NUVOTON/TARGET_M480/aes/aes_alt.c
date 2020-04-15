@@ -1,5 +1,7 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2015-2016 Nuvoton
+/*
+ * Copyright (c) 2015-2016, Nuvoton Technology Corporation
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -150,15 +152,15 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
     /* Init crypto module */
     crypto_init();
     /* Enable AES interrupt */
-    AES_ENABLE_INT();
+    AES_ENABLE_INT(CRPT);
     
     /* We support multiple contexts with context save & restore and so needs just one 
      * H/W channel. Always use H/W channel #0. */
 
     /* AES_IN_OUT_SWAP: Let H/W know both input/output data are arranged in little-endian */
-    AES_Open(0, ctx->encDec, ctx->opMode, ctx->keySize, AES_IN_OUT_SWAP);
-    AES_SetInitVect(0, ctx->iv);
-    AES_SetKey(0, ctx->keys, ctx->keySize);
+    AES_Open(CRPT, 0, ctx->encDec, ctx->opMode, ctx->keySize, AES_IN_OUT_SWAP);
+    AES_SetInitVect(CRPT, 0, ctx->iv);
+    AES_SetKey(CRPT, 0, ctx->keys, ctx->keySize);
     
     /* AES DMA buffer requirements same as above */
     if (! crypto_dma_buff_compat(input, dataSize, 16)) {
@@ -182,10 +184,10 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
     }
     MBED_ASSERT(! crypto_dma_buffs_overlap(pIn, dataSize, pOut, dataSize));
     
-    AES_SetDMATransfer(0, (uint32_t)pIn, (uint32_t)pOut, dataSize);
+    AES_SetDMATransfer(CRPT, 0, (uint32_t)pIn, (uint32_t)pOut, dataSize);
 
     crypto_aes_prestart();
-    AES_Start(0, CRYPTO_DMA_ONE_SHOT);
+    AES_Start(CRPT, 0, CRYPTO_DMA_ONE_SHOT);
     crypto_aes_wait();
     
     if( pOut != output ) {
@@ -199,7 +201,7 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
     ctx->iv[3] = CRPT->AES_FDBCK[3];
     
     /* Disable AES interrupt */
-    AES_DISABLE_INT();
+    AES_DISABLE_INT(CRPT);
     /* Uninit crypto module */
     crypto_uninit();
     

@@ -1,5 +1,7 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2015-2016 Nuvoton
+/*
+ * Copyright (c) 2015-2016, Nuvoton Technology Corporation
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -355,7 +357,7 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
     /* Init crypto module */
     crypto_init();
     /* Enable DES interrupt */
-    TDES_ENABLE_INT();
+    TDES_ENABLE_INT(CRPT);
     
     /* Configure TDES_CTL register
      *
@@ -373,7 +375,8 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
      * 1. BE for byte sequence in word
      * 2. BE for word sequence in double-word
      */
-    TDES_Open(0,                                                // Channel number (0~4) 
+    TDES_Open(CRPT
+            0,                                                // Channel number (0~4) 
             enc,                                                // 0: decode, 1: encode
             (tdes_opmode & CRPT_TDES_CTL_TMODE_Msk) ? 1 : 0,    // 0: DES, 1: TDES 
             (keyopt == 1) ? 1 : 0,                              // 0: TDES 2-key mode, 1: TDES 3-key mode
@@ -390,7 +393,7 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
         keys3x2[i][0] = nu_get32_be(key[i] + 0);
         keys3x2[i][1] = nu_get32_be(key[i] + 4);
     }
-    TDES_SetKey(0, keys3x2);
+    TDES_SetKey(CRPT, 0, keys3x2);
 
     uint32_t rmn = length;
     const unsigned char *in_pos = input;
@@ -402,15 +405,15 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
         uint32_t ivh, ivl;
         ivh = nu_get32_be(iv);
         ivl = nu_get32_be(iv + 4);
-        TDES_SetInitVect(0, ivh, ivl);
+        TDES_SetInitVect(CRPT, 0, ivh, ivl);
 
         memcpy(dmabuf_in, in_pos, data_len);
 
         /* We always use DMA backup buffers, which are guaranteed to be non-overlapped. */
-        TDES_SetDMATransfer(0, (uint32_t) dmabuf_in, (uint32_t) dmabuf_out, data_len);
+        TDES_SetDMATransfer(CRPT, 0, (uint32_t) dmabuf_in, (uint32_t) dmabuf_out, data_len);
 
         crypto_des_prestart();
-        TDES_Start(0, CRYPTO_DMA_ONE_SHOT);
+        TDES_Start(CRPT, 0, CRYPTO_DMA_ONE_SHOT);
         crypto_des_wait();
 
         memcpy(out_pos, dmabuf_out, data_len);
@@ -452,7 +455,7 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
     }
 
     /* Disable DES interrupt */
-    TDES_DISABLE_INT();
+    TDES_DISABLE_INT(CRPT);
     /* Uninit crypto module */
     crypto_uninit();
     

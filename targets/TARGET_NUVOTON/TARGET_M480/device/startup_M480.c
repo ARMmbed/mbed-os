@@ -6,6 +6,9 @@
  * @brief    CMSIS Cortex-M4 Core Peripheral Access Layer Source File for M480 Series MCU
  *
  * @note
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Copyright (C) 2013~2015 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 

@@ -1,5 +1,7 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2015-2016 Nuvoton
+/*
+ * Copyright (c) 2015-2016, Nuvoton Technology Corporation
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +23,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
+#include "gpio_api.h"
 #include "nu_modutil.h"
 #include "nu_miscutil.h"
 #include "nu_bitutil.h"
@@ -64,10 +67,17 @@ static struct nu_spi_var spi3_var = {
     .pdma_perp_rx       =   PDMA_SPI3_RX
 #endif
 };
+/* Degrade QSPI0/1 to SPI_4/5 for standard SPI usage */
 static struct nu_spi_var spi4_var = {
 #if DEVICE_SPI_ASYNCH
-    .pdma_perp_tx       =   PDMA_SPI4_TX,
-    .pdma_perp_rx       =   PDMA_SPI4_RX
+    .pdma_perp_tx       =   PDMA_QSPI0_TX,
+    .pdma_perp_rx       =   PDMA_QSPI0_RX
+#endif
+};
+static struct nu_spi_var spi5_var = {
+#if DEVICE_SPI_ASYNCH
+    .pdma_perp_tx       =   PDMA_QSPI1_TX,
+    .pdma_perp_rx       =   PDMA_QSPI1_RX
 #endif
 };
 
@@ -121,11 +131,13 @@ static uint32_t spi_fifo_depth(spi_t *obj);
 static uint32_t spi_modinit_mask = 0;
 
 static const struct nu_modinit_s spi_modinit_tab[] = {
-    {SPI_0, SPI0_MODULE, CLK_CLKSEL2_SPI0SEL_PCLK0, MODULE_NoMsk, SPI0_RST, SPI0_IRQn, &spi0_var},
-    {SPI_1, SPI1_MODULE, CLK_CLKSEL2_SPI1SEL_PCLK1, MODULE_NoMsk, SPI1_RST, SPI1_IRQn, &spi1_var},
-    {SPI_2, SPI2_MODULE, CLK_CLKSEL2_SPI2SEL_PCLK0, MODULE_NoMsk, SPI2_RST, SPI2_IRQn, &spi2_var},
-    {SPI_3, SPI3_MODULE, CLK_CLKSEL2_SPI3SEL_PCLK1, MODULE_NoMsk, SPI3_RST, SPI3_IRQn, &spi3_var},
-    {SPI_4, SPI4_MODULE, CLK_CLKSEL2_SPI4SEL_PCLK0, MODULE_NoMsk, SPI4_RST, SPI4_IRQn, &spi4_var},
+    {SPI_0, SPI0_MODULE, CLK_CLKSEL2_SPI0SEL_PCLK1, MODULE_NoMsk, SPI0_RST, SPI0_IRQn, &spi0_var},
+    {SPI_1, SPI1_MODULE, CLK_CLKSEL2_SPI1SEL_PCLK0, MODULE_NoMsk, SPI1_RST, SPI1_IRQn, &spi1_var},
+    {SPI_2, SPI2_MODULE, CLK_CLKSEL2_SPI2SEL_PCLK1, MODULE_NoMsk, SPI2_RST, SPI2_IRQn, &spi2_var},
+    {SPI_3, SPI3_MODULE, CLK_CLKSEL2_SPI3SEL_PCLK0, MODULE_NoMsk, SPI3_RST, SPI3_IRQn, &spi3_var},
+    /* Degrade QSPI0/1 to SPI_4/5 for standard SPI usage */
+    {SPI_4, QSPI0_MODULE, CLK_CLKSEL2_QSPI0SEL_PCLK0, MODULE_NoMsk, QSPI0_RST, QSPI0_IRQn, &spi4_var},
+    {SPI_5, QSPI1_MODULE, CLK_CLKSEL3_QSPI1SEL_PCLK1, MODULE_NoMsk, QSPI1_RST, QSPI1_IRQn, &spi5_var},
 
     {NC, 0, 0, 0, 0, (IRQn_Type) 0, NULL}
 };
@@ -440,48 +452,58 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
 
         // Configure tx DMA
         pdma_base->CHCTL |= 1 << obj->spi.dma_chn_id_tx;  // Enable this DMA channel
-        PDMA_SetTransferMode(obj->spi.dma_chn_id_tx,
+        PDMA_SetTransferMode(pdma_base,
+                             obj->spi.dma_chn_id_tx,
                              ((struct nu_spi_var *) modinit->var)->pdma_perp_tx,    // Peripheral connected to this PDMA
                              0,  // Scatter-gather disabled
                              0); // Scatter-gather descriptor address
-        PDMA_SetTransferCnt(obj->spi.dma_chn_id_tx,
+        PDMA_SetTransferCnt(pdma_base,
+                            obj->spi.dma_chn_id_tx,
                             (data_width == 8) ? PDMA_WIDTH_8 : (data_width == 16) ? PDMA_WIDTH_16 : PDMA_WIDTH_32,
                             tx_length);
-        PDMA_SetTransferAddr(obj->spi.dma_chn_id_tx,
+        PDMA_SetTransferAddr(pdma_base,
+                             obj->spi.dma_chn_id_tx,
                              (uint32_t) tx,  // NOTE:
                              // NUC472: End of source address
                              // M451/M480: Start of source address
                              PDMA_SAR_INC,   // Source address incremental
                              (uint32_t) &spi_base->TX,   // Destination address
                              PDMA_DAR_FIX);  // Destination address fixed
-        PDMA_SetBurstType(obj->spi.dma_chn_id_tx,
+        PDMA_SetBurstType(pdma_base,
+                          obj->spi.dma_chn_id_tx,
                           PDMA_REQ_SINGLE,    // Single mode
                           0); // Burst size
-        PDMA_EnableInt(obj->spi.dma_chn_id_tx,
+        PDMA_EnableInt(pdma_base,
+                       obj->spi.dma_chn_id_tx,
                        PDMA_INT_TRANS_DONE);   // Interrupt type
         // Register DMA event handler
         dma_set_handler(obj->spi.dma_chn_id_tx, (uint32_t) spi_dma_handler_tx, (uint32_t) obj, DMA_EVENT_ALL);
 
         // Configure rx DMA
         pdma_base->CHCTL |= 1 << obj->spi.dma_chn_id_rx;  // Enable this DMA channel
-        PDMA_SetTransferMode(obj->spi.dma_chn_id_rx,
+        PDMA_SetTransferMode(pdma_base,
+                             obj->spi.dma_chn_id_rx,
                              ((struct nu_spi_var *) modinit->var)->pdma_perp_rx,    // Peripheral connected to this PDMA
                              0,  // Scatter-gather disabled
                              0); // Scatter-gather descriptor address
-        PDMA_SetTransferCnt(obj->spi.dma_chn_id_rx,
+        PDMA_SetTransferCnt(pdma_base,
+                            obj->spi.dma_chn_id_rx,
                             (data_width == 8) ? PDMA_WIDTH_8 : (data_width == 16) ? PDMA_WIDTH_16 : PDMA_WIDTH_32,
                             rx_length);
-        PDMA_SetTransferAddr(obj->spi.dma_chn_id_rx,
+        PDMA_SetTransferAddr(pdma_base,
+                             obj->spi.dma_chn_id_rx,
                              (uint32_t) &spi_base->RX,   // Source address
                              PDMA_SAR_FIX,   // Source address fixed
                              (uint32_t) rx,  // NOTE:
                              // NUC472: End of destination address
                              // M451/M480: Start of destination address
                              PDMA_DAR_INC);  // Destination address incremental
-        PDMA_SetBurstType(obj->spi.dma_chn_id_rx,
+        PDMA_SetBurstType(pdma_base,
+                          obj->spi.dma_chn_id_rx,
                           PDMA_REQ_SINGLE,    // Single mode
                           0); // Burst size
-        PDMA_EnableInt(obj->spi.dma_chn_id_rx,
+        PDMA_EnableInt(pdma_base,
+                       obj->spi.dma_chn_id_rx,
                        PDMA_INT_TRANS_DONE);   // Interrupt type
         // Register DMA event handler
         dma_set_handler(obj->spi.dma_chn_id_rx, (uint32_t) spi_dma_handler_rx, (uint32_t) obj, DMA_EVENT_ALL);
@@ -534,14 +556,14 @@ void spi_abort_asynch(spi_t *obj)
         }
 
         if (obj->spi.dma_chn_id_tx != DMA_ERROR_OUT_OF_CHANNELS) {
-            PDMA_DisableInt(obj->spi.dma_chn_id_tx, PDMA_INT_TRANS_DONE);
+            PDMA_DisableInt(pdma_base, obj->spi.dma_chn_id_tx, PDMA_INT_TRANS_DONE);
             // NOTE: On NUC472, next PDMA transfer will fail with PDMA_STOP() called. Cause is unknown.
             pdma_base->CHCTL &= ~(1 << obj->spi.dma_chn_id_tx);
         }
         SPI_DISABLE_TX_PDMA(((SPI_T *) NU_MODBASE(obj->spi.spi)));
 
         if (obj->spi.dma_chn_id_rx != DMA_ERROR_OUT_OF_CHANNELS) {
-            PDMA_DisableInt(obj->spi.dma_chn_id_rx, PDMA_INT_TRANS_DONE);
+            PDMA_DisableInt(pdma_base, obj->spi.dma_chn_id_rx, PDMA_INT_TRANS_DONE);
             // NOTE: On NUC472, next PDMA transfer will fail with PDMA_STOP() called. Cause is unknown.
             pdma_base->CHCTL &= ~(1 << obj->spi.dma_chn_id_rx);
         }
@@ -874,18 +896,17 @@ static void spi_dma_handler_rx(uint32_t id, uint32_t event_dma)
     vec();
 }
 
-/** Return FIFO depth of the SPI peripheral
+/* Return FIFO depth of the SPI peripheral
  *
- * @details
- *  M487
- *      SPI0            8
- *      SPI1/2/3/4      8 if data width <=16; 4 otherwise
+ * M480
+ *   QSPI0/1        8
+ *   SPI0/1/2/3     8 if data width <=16; 4 otherwise
  */
 static uint32_t spi_fifo_depth(spi_t *obj)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
 
-    if (spi_base == SPI0) {
+    if (spi_base == ((SPI_T *) QSPI0) || spi_base == ((SPI_T *) QSPI1)) {
         return 8;
     }
 

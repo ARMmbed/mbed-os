@@ -1,5 +1,7 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2016-2018 Nuvoton
+/*
+ * Copyright (c) 2016-2018, Nuvoton Technology Corporation
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -240,7 +242,7 @@ int mbedtls_internal_ecp_init( const mbedtls_ecp_group *grp )
     crypto_init();
     
     /* Enable ECC interrupt */
-    ECC_ENABLE_INT();
+    ECC_ENABLE_INT(CRPT);
 
     return 0;
 }
@@ -248,7 +250,7 @@ int mbedtls_internal_ecp_init( const mbedtls_ecp_group *grp )
 void mbedtls_internal_ecp_free( const mbedtls_ecp_group *grp )
 {
     /* Disable ECC interrupt */
-    ECC_DISABLE_INT();
+    ECC_DISABLE_INT(CRPT);
 
     /* Uninit crypto module */
     crypto_uninit();

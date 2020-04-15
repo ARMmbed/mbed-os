@@ -1,5 +1,7 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2015-2016 Nuvoton
+/*
+ * Copyright (c) 2015-2016, Nuvoton Technology Corporation
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,3 +99,23 @@ const PinList *pinmap_restricted_pins()
     };
     return &pin_list;
 }
+
+/* List of UART peripherals excluded from testing */
+#if DEVICE_SERIAL
+const PeripheralList *pinmap_uart_restricted_peripherals()
+{
+    static const int peripherals[] = {
+        USB_UART,       // Dedicated to USB VCOM
+#if TARGET_NUMAKER_PFM_M487 || TARGET_NUMAKER_IOT_M487
+        UART_6,         // Only available in M480 LG
+        UART_7,
+#endif
+    };
+
+    static const PeripheralList peripheral_list = {
+        sizeof peripherals / sizeof peripherals[0],
+        peripherals
+    };
+    return &peripheral_list;
+}
+#endif

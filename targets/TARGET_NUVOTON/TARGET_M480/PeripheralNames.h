@@ -1,5 +1,7 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2015-2016 Nuvoton
+/*
+ * Copyright (c) 2015-2016, Nuvoton Technology Corporation
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,11 +47,12 @@ typedef enum {
     GPIO_E = (int) NU_MODNAME(GPIOE_BASE, 4, 0),
     GPIO_F = (int) NU_MODNAME(GPIOF_BASE, 5, 0),
     GPIO_G = (int) NU_MODNAME(GPIOG_BASE, 6, 0),
-    GPIO_H = (int) NU_MODNAME(GPIOH_BASE, 7, 0)
+    GPIO_H = (int) NU_MODNAME(GPIOH_BASE, 7, 0),
 } GPIOName;
 #endif
 
 typedef enum {
+    /* EADC0 */
     ADC_0_0 = (int) NU_MODNAME(EADC_BASE, 0, 0),
     ADC_0_1 = (int) NU_MODNAME(EADC_BASE, 0, 1),
     ADC_0_2 = (int) NU_MODNAME(EADC_BASE, 0, 2),
@@ -65,12 +68,30 @@ typedef enum {
     ADC_0_12 = (int) NU_MODNAME(EADC_BASE, 0, 12),
     ADC_0_13 = (int) NU_MODNAME(EADC_BASE, 0, 13),
     ADC_0_14 = (int) NU_MODNAME(EADC_BASE, 0, 14),
-    ADC_0_15 = (int) NU_MODNAME(EADC_BASE, 0, 15)
+    ADC_0_15 = (int) NU_MODNAME(EADC_BASE, 0, 15),
+
+    /* EADC1 */
+    ADC_1_0 = (int) NU_MODNAME(EADC1_BASE, 1, 0),
+    ADC_1_1 = (int) NU_MODNAME(EADC1_BASE, 1, 1),
+    ADC_1_2 = (int) NU_MODNAME(EADC1_BASE, 1, 2),
+    ADC_1_3 = (int) NU_MODNAME(EADC1_BASE, 1, 3),
+    ADC_1_4 = (int) NU_MODNAME(EADC1_BASE, 1, 4),
+    ADC_1_5 = (int) NU_MODNAME(EADC1_BASE, 1, 5),
+    ADC_1_6 = (int) NU_MODNAME(EADC1_BASE, 1, 6),
+    ADC_1_7 = (int) NU_MODNAME(EADC1_BASE, 1, 7),
+    ADC_1_8 = (int) NU_MODNAME(EADC1_BASE, 1, 8),
+    ADC_1_9 = (int) NU_MODNAME(EADC1_BASE, 1, 9),
+    ADC_1_10 = (int) NU_MODNAME(EADC1_BASE, 1, 10),
+    ADC_1_11 = (int) NU_MODNAME(EADC1_BASE, 1, 11),
+    ADC_1_12 = (int) NU_MODNAME(EADC1_BASE, 1, 12),
+    ADC_1_13 = (int) NU_MODNAME(EADC1_BASE, 1, 13),
+    ADC_1_14 = (int) NU_MODNAME(EADC1_BASE, 1, 14),
+    ADC_1_15 = (int) NU_MODNAME(EADC1_BASE, 1, 15),
 } ADCName;
 
 typedef enum {
     DAC_0_0 = (int) NU_MODNAME(DAC0_BASE, 0, 0),
-    DAC_1_0 = (int) NU_MODNAME(DAC1_BASE, 1, 0)
+    DAC_1_0 = (int) NU_MODNAME(DAC1_BASE, 1, 0),
 } DACName;
 
 typedef enum {
@@ -80,6 +101,8 @@ typedef enum {
     UART_3 = (int) NU_MODNAME(UART3_BASE, 3, 0),
     UART_4 = (int) NU_MODNAME(UART4_BASE, 4, 0),
     UART_5 = (int) NU_MODNAME(UART5_BASE, 5, 0),
+    UART_6 = (int) NU_MODNAME(UART5_BASE, 6, 0),
+    UART_7 = (int) NU_MODNAME(UART5_BASE, 7, 0),
     // NOTE: board-specific
 #if defined(MBED_CONF_TARGET_USB_UART)
     USB_UART    = MBED_CONF_TARGET_USB_UART,
@@ -87,9 +110,9 @@ typedef enum {
     USB_UART    = NC,
 #endif
 #if defined(MBED_CONF_TARGET_STDIO_UART)
-    STDIO_UART  = MBED_CONF_TARGET_STDIO_UART
+    STDIO_UART  = MBED_CONF_TARGET_STDIO_UART,
 #else
-    STDIO_UART  = USB_UART
+    STDIO_UART  = USB_UART,
 #endif
 } UARTName;
 
@@ -98,13 +121,16 @@ typedef enum {
     SPI_1 = (int) NU_MODNAME(SPI1_BASE, 1, 0),
     SPI_2 = (int) NU_MODNAME(SPI2_BASE, 2, 0),
     SPI_3 = (int) NU_MODNAME(SPI3_BASE, 3, 0),
-    SPI_4 = (int) NU_MODNAME(SPI4_BASE, 4, 0)
+
+    /* No SPI4/5 H/W, degrade QSPI0/1 H/W to SPI_4/5 for standard SPI usage */
+    SPI_4 = (int) NU_MODNAME(QSPI0_BASE, 4, 0),
+    SPI_5 = (int) NU_MODNAME(QSPI1_BASE, 5, 0),
 } SPIName;
 
 typedef enum {
     I2C_0 = (int) NU_MODNAME(I2C0_BASE, 0, 0),
     I2C_1 = (int) NU_MODNAME(I2C1_BASE, 1, 0),
-    I2C_2 = (int) NU_MODNAME(I2C2_BASE, 2, 0)
+    I2C_2 = (int) NU_MODNAME(I2C2_BASE, 2, 0),
 } I2CName;
 
 typedef enum {
@@ -114,13 +140,13 @@ typedef enum {
     PWM_0_3 = (int) NU_MODNAME(EPWM0_BASE, 0, 3),
     PWM_0_4 = (int) NU_MODNAME(EPWM0_BASE, 0, 4),
     PWM_0_5 = (int) NU_MODNAME(EPWM0_BASE, 0, 5),
-    
+
     PWM_1_0 = (int) NU_MODNAME(EPWM1_BASE, 1, 0),
     PWM_1_1 = (int) NU_MODNAME(EPWM1_BASE, 1, 1),
     PWM_1_2 = (int) NU_MODNAME(EPWM1_BASE, 1, 2),
     PWM_1_3 = (int) NU_MODNAME(EPWM1_BASE, 1, 3),
     PWM_1_4 = (int) NU_MODNAME(EPWM1_BASE, 1, 4),
-    PWM_1_5 = (int) NU_MODNAME(EPWM1_BASE, 1, 5)
+    PWM_1_5 = (int) NU_MODNAME(EPWM1_BASE, 1, 5),
 } PWMName;
 
 typedef enum {
@@ -131,21 +157,22 @@ typedef enum {
 } TIMERName;
 
 typedef enum {
-    RTC_0 = (int) NU_MODNAME(RTC_BASE, 0, 0)
+    RTC_0 = (int) NU_MODNAME(RTC_BASE, 0, 0),
 } RTCName;
 
 typedef enum {
-    DMA_0 = (int) NU_MODNAME(PDMA_BASE, 0, 0)
+    DMA_0 = (int) NU_MODNAME(PDMA_BASE, 0, 0),
 } DMAName;
 
 typedef enum {
     SD_0 = (int) NU_MODNAME(SDH0_BASE, 0, 0),
-    SD_1 = (int) NU_MODNAME(SDH1_BASE, 1, 0)
+    SD_1 = (int) NU_MODNAME(SDH1_BASE, 1, 0),
 } SDName;
 
 typedef enum {
     CAN_0 = (int) NU_MODNAME(CAN0_BASE, 0, 0),
-    CAN_1 = (int) NU_MODNAME(CAN1_BASE, 1, 0)
+    CAN_1 = (int) NU_MODNAME(CAN1_BASE, 1, 0),
+    CAN_2 = (int) NU_MODNAME(CAN2_BASE, 2, 0),
 } CANName;
 
 #ifdef __cplusplus

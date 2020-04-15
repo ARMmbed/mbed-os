@@ -1,5 +1,7 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2015-2016 Nuvoton
+/*
+ * Copyright (c) 2015-2016, Nuvoton Technology Corporation
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 
 #include "cmsis.h"
 #include "mbed_assert.h"
@@ -305,22 +306,22 @@ extern "C" void CRYPTO_IRQHandler()
 {
     uint32_t intsts;
     
-    if ((intsts = PRNG_GET_INT_FLAG()) != 0) {
+    if ((intsts = PRNG_GET_INT_FLAG(CRPT)) != 0) {
         /* Done with OK */
         crypto_prng_done |= CRYPTO_DONE_OK;
         /* Clear interrupt flag */
-        PRNG_CLR_INT_FLAG();
-    }  else if ((intsts = AES_GET_INT_FLAG()) != 0) {
+        PRNG_CLR_INT_FLAG(CRPT);
+    }  else if ((intsts = AES_GET_INT_FLAG(CRPT)) != 0) {
         /* Done with OK */
         crypto_aes_done |= CRYPTO_DONE_OK;
         /* Clear interrupt flag */
-        AES_CLR_INT_FLAG();
-    } else if ((intsts = TDES_GET_INT_FLAG()) != 0) {
+        AES_CLR_INT_FLAG(CRPT);
+    } else if ((intsts = TDES_GET_INT_FLAG(CRPT)) != 0) {
         /* Done with OK */
         crypto_des_done |= CRYPTO_DONE_OK;
         /* Clear interrupt flag */
-        TDES_CLR_INT_FLAG();
-    } else if ((intsts = ECC_GET_INT_FLAG()) != 0) {
+        TDES_CLR_INT_FLAG(CRPT);
+    } else if ((intsts = ECC_GET_INT_FLAG(CRPT)) != 0) {
         /* Check interrupt flags */
         if (intsts & CRPT_INTSTS_ECCIF_Msk) {
             /* Done with OK */
@@ -330,6 +331,6 @@ extern "C" void CRYPTO_IRQHandler()
             crypto_ecc_done |= CRYPTO_DONE_ERR;
         }
         /* Clear interrupt flag */
-        ECC_CLR_INT_FLAG();
+        ECC_CLR_INT_FLAG(CRPT);
     }
 }
