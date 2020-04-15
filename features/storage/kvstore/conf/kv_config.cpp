@@ -1107,6 +1107,10 @@ int kv_get_flash_bounds_from_config(bd_addr_t *start_address, bd_size_t *size)
                 return MBED_ERROR_INVALID_SIZE;
             }
         }
+
+        // Non-default configuration. Maybe in front of application, so in front of FLASHIAP_APP_ROM_END_ADDR. Must skip after-application check below.
+        flash.deinit();
+        return MBED_SUCCESS;
     }
 
     flash.deinit();
