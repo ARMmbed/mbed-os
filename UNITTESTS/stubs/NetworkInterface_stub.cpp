@@ -72,6 +72,11 @@ nsapi_error_t NetworkInterface::add_dns_server(const SocketAddress &address, con
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
+nsapi_error_t NetworkInterface::get_dns_server(int index, SocketAddress *address, const char *interface_name)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
 void NetworkInterface::attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
 

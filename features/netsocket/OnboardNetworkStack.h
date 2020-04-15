@@ -51,6 +51,28 @@ public:
         ~Interface() = default;
 
     public:
+        /** Set IP address
+         *
+         * bringup() can only take one IP address and in dual stack case
+         * another IP address can be set using this function.
+         *
+         * Must be called before bringup().
+         *
+         * @param    ip         IP address to be used for the interface as "W:X:Y:Z" or NULL
+         * @param    netmask    Net mask to be used for the interface as "W:X:Y:Z" or NULL
+         * @param    gw         Gateway address to be used for the interface as "W:X:Y:Z" or NULL
+         * @param    ipv6_flag  Provide this flag for IPv6 state flag override. For example, you can set IP6_ADDR_PREFERRED.
+         *                      For IPv4, this value will be ignored.
+         * @return              NSAPI_ERROR_OK on success, or error code
+         */
+        virtual nsapi_error_t set_ip_address(const char *ip,
+                                             const char *netmask,
+                                             const char *gw,
+                                             uint8_t ipv6_flag)
+        {
+            return NSAPI_ERROR_UNSUPPORTED;
+        }
+
         /** Connect the interface to the network
          *
          * Sets up a connection on specified network interface, using DHCP or provided network details. If the @a dhcp is set to
