@@ -10065,31 +10065,6 @@
         ],
         "device_name": "nRF51822_xxAC"
     },
-    "OSHCHIP": {
-        "inherits": [
-            "MCU_NRF51_32K_UNIFIED"
-        ],
-        "overrides": {
-            "lf_clock_src": "NRF_LF_SRC_RC"
-        },
-        "device_has": [
-            "USTICKER",
-            "LPTICKER",
-            "ANALOGIN",
-            "I2C",
-            "I2C_ASYNCH",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "SERIAL",
-            "SLEEP",
-            "SPI",
-            "SPISLAVE"
-        ],
-        "device_name": "nRF51822_xxAC"
-    },
     "MCU_NRF52832": {
         "inherits": [
             "Target"
