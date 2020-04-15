@@ -11020,6 +11020,12 @@
         "release_versions": [
             "5"
         ],
+        "sectors": [
+            [
+                0,
+                2048
+            ]
+        ],
         "device_name": "NUC472HI8AE",
         "bootloader_supported": true,
         "overrides": {
@@ -11186,6 +11192,12 @@
         "release_versions": [
             "2",
             "5"
+        ],
+        "sectors": [
+            [
+                0,
+                2048
+            ]
         ],
         "device_name": "M453VG6AE",
         "bootloader_supported": true,
@@ -11849,6 +11861,12 @@
         "release_versions": [
             "5"
         ],
+        "sectors": [
+            [
+                0,
+                4096
+            ]
+        ],
         "bootloader_supported": true,
         "overrides": {
             "deep-sleep-latency": 1,
@@ -12233,6 +12251,12 @@
         ],
         "release_versions": [
             "5"
+        ],
+        "sectors": [
+            [
+                0,
+                2048
+            ]
         ],
         "bootloader_supported": true,
         "forced_reset_timeout": 3
@@ -13571,6 +13595,12 @@
         ],
         "release_versions": [
             "5"
+        ],
+        "sectors": [
+            [
+                0,
+                2048
+            ]
         ],
         "bootloader_supported": true,
         "overrides": {
