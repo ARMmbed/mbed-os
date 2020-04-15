@@ -630,17 +630,6 @@
             "2"
         ]
     },
-    "XADOW_M0": {
-        "inherits": [
-            "MCU_LPC11U35_501"
-        ],
-        "release_versions": [
-            "2"
-        ],
-        "detect_code": [
-            "9008"
-        ]
-    },
     "LPC11U35_Y5_MBUG": {
         "inherits": [
             "MCU_LPC11U35_501"
@@ -694,53 +683,6 @@
             "SPISLAVE"
         ],
         "device_name": "LPC11U37FBD64/501"
-    },
-    "ARCH_GPRS": {
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "core": "Cortex-M0",
-        "default_toolchain": "uARM",
-        "extra_labels": [
-            "NXP",
-            "LPC11UXX",
-            "LPC11U37_501"
-        ],
-        "macros": [
-            "CMSIS_VECTAB_VIRTUAL",
-            "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
-        ],
-        "supported_toolchains": [
-            "ARM",
-            "uARM",
-            "GCC_ARM",
-            "IAR"
-        ],
-        "inherits": [
-            "LPCTarget"
-        ],
-        "device_has": [
-            "ANALOGIN",
-            "I2C",
-            "I2CSLAVE",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "SERIAL",
-            "SLEEP",
-            "SPI",
-            "SPISLAVE"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "LPC11U37FBD64/501",
-        "detect_code": [
-            "9010"
-        ]
     },
     "LPC11U68": {
         "supported_form_factors": [
@@ -2201,21 +2143,6 @@
             "FLASH"
         ],
         "device_name": "MK24FN1M0xxx12"
-    },
-    "RO359B": {
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "inherits": [
-            "MCU_K24F1M"
-        ],
-        "detect_code": [
-            "1022"
-        ],
-        "release_versions": [
-            "2",
-            "5"
-        ]
     },
     "K64F": {
         "supported_form_factors": [
@@ -7454,132 +7381,6 @@
         ],
         "detect_code": [
             "1075"
-        ]
-    },
-    "ARCH_BLE": {
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "inherits": [
-            "MCU_NRF51_16K"
-        ],
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "nRF51822_xxAA",
-        "detect_code": [
-            "9009"
-        ]
-    },
-    "ARCH_BLE_BOOT": {
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "inherits": [
-            "MCU_NRF51_16K_BOOT"
-        ],
-        "extra_labels_add": [
-            "ARCH_BLE"
-        ],
-        "macros_add": [
-            "TARGET_ARCH_BLE"
-        ]
-    },
-    "ARCH_BLE_OTA": {
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "inherits": [
-            "MCU_NRF51_16K_OTA"
-        ],
-        "extra_labels_add": [
-            "ARCH_BLE"
-        ],
-        "macros_add": [
-            "TARGET_ARCH_BLE"
-        ]
-    },
-    "ARCH_LINK": {
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "inherits": [
-            "MCU_NRF51_16K"
-        ],
-        "extra_labels_add": [
-            "ARCH_BLE"
-        ],
-        "macros_add": [
-            "TARGET_ARCH_BLE"
-        ],
-        "detect_code": [
-            "9013"
-        ]
-    },
-    "ARCH_LINK_BOOT": {
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "inherits": [
-            "MCU_NRF51_16K_BOOT"
-        ],
-        "extra_labels_add": [
-            "ARCH_BLE",
-            "ARCH_LINK"
-        ],
-        "macros_add": [
-            "TARGET_ARCH_BLE",
-            "TARGET_ARCH_LINK"
-        ]
-    },
-    "ARCH_LINK_OTA": {
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "inherits": [
-            "MCU_NRF51_16K_OTA"
-        ],
-        "extra_labels_add": [
-            "ARCH_BLE",
-            "ARCH_LINK"
-        ],
-        "macros_add": [
-            "TARGET_ARCH_BLE",
-            "TARGET_ARCH_LINK"
-        ]
-    },
-    "SEEED_TINY_BLE": {
-        "inherits": [
-            "MCU_NRF51_16K"
-        ],
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "nRF51822_xxAA",
-        "detect_code": [
-            "9012"
-        ]
-    },
-    "SEEED_TINY_BLE_BOOT": {
-        "inherits": [
-            "MCU_NRF51_16K_BOOT"
-        ],
-        "extra_labels_add": [
-            "SEEED_TINY_BLE"
-        ],
-        "macros_add": [
-            "TARGET_SEEED_TINY_BLE"
-        ]
-    },
-    "SEEED_TINY_BLE_OTA": {
-        "inherits": [
-            "MCU_NRF51_16K_OTA"
-        ],
-        "extra_labels_add": [
-            "SEEED_TINY_BLE"
-        ],
-        "macros_add": [
-            "TARGET_SEEED_TINY_BLE"
         ]
     },
     "HRM1017": {

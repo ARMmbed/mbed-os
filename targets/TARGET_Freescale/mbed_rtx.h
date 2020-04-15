@@ -115,12 +115,6 @@
 #define INITIAL_SP              (0x20030000UL)
 #endif
 
-#elif defined(TARGET_RO359B)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20030000UL)
-#endif
-
 #endif
 
 #if defined(__ARMCC_VERSION)
