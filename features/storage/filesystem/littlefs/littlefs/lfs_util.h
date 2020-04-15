@@ -116,7 +116,7 @@ static inline uint32_t lfs_min(uint32_t a, uint32_t b) {
 // Find the next smallest power of 2 less than or equal to a
 static inline uint32_t lfs_npw2(uint32_t a) {
 #if !defined(LFS_NO_INTRINSICS) && MBED_LFS_INTRINSICS && \
-    (defined(__GNUC__) || defined(__CC_ARM))
+    defined(__GNUC__)
     return 32 - __builtin_clz(a-1);
 #else
     uint32_t r = 0;
@@ -144,7 +144,7 @@ static inline uint32_t lfs_ctz(uint32_t a) {
 // Count the number of binary ones in a
 static inline uint32_t lfs_popc(uint32_t a) {
 #if !defined(LFS_NO_INTRINSICS) && MBED_LFS_INTRINSICS && \
-    (defined(__GNUC__) || defined(__CC_ARM))
+    defined(__GNUC__)
     return __builtin_popcount(a);
 #else
     a = a - ((a >> 1) & 0x55555555);
