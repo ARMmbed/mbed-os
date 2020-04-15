@@ -5346,49 +5346,6 @@
             "0830"
         ]
     },
-    "OLIMEX_STM32E407_F407ZG": {
-        "inherits": [
-            "FAMILY_STM32"
-        ],
-        "core": "Cortex-M4F",
-        "extra_labels_add": [
-            "STM32F4",
-            "STM32F407xG"
-        ],
-        "macros_add": [
-            "STM32F407xx"
-        ],
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            },
-            "hse_value": {
-                "macro_name": "HSE_VALUE",
-                "value": "12000000"
-            }
-        },
-        "overrides": {
-            "lse_available": 0
-        },
-        "device_has_add": [
-            "ANALOGOUT",
-            "TRNG",
-            "FLASH",
-            "MPU",
-            "EMAC",
-            "CAN",
-            "USBDEVICE"
-        ],
-        "device_has_remove": [
-            "LPTICKER"
-        ],
-        "release_versions": [
-            "5"
-        ],
-        "device_name": "STM32F407ZG"
-    },
     "DISCO_F429ZI": {
         "inherits": [
             "FAMILY_STM32"
