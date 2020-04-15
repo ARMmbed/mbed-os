@@ -397,41 +397,6 @@
         ],
         "device_name": "LPC11U24FBD48/401"
     },
-    "OC_MBUINO": {
-        "inherits": [
-            "LPC11U24"
-        ],
-        "macros": [
-            "TARGET_LPC11U24",
-            "CMSIS_VECTAB_VIRTUAL",
-            "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
-        ],
-        "extra_labels": [
-            "NXP",
-            "LPC11UXX"
-        ],
-        "device_has": [
-            "ANALOGIN",
-            "I2C",
-            "I2CSLAVE",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "SERIAL",
-            "SLEEP",
-            "SPI",
-            "SPISLAVE",
-            "STDIO_MESSAGES"
-        ],
-        "release_versions": [
-            "2"
-        ],
-        "detect_code": [
-            "1080"
-        ]
-    },
     "LPC11U24_301": {
         "inherits": [
             "LPCTarget"
