@@ -36,6 +36,9 @@
 
 #define ESP8266_ALL_SOCKET_IDS      -1
 
+#define ESP8266_DEFAULT_SERIAL_BAUDRATE 115200
+
+
 using namespace mbed;
 
 ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
@@ -62,7 +65,7 @@ ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
       _sock_sending_id(-1),
       _conn_status(NSAPI_STATUS_DISCONNECTED)
 {
-    _serial.set_baud(MBED_CONF_ESP8266_SERIAL_BAUDRATE);
+    _serial.set_baud(ESP8266_DEFAULT_SERIAL_BAUDRATE);
     _parser.debug_on(debug);
     _parser.set_delimiter("\r\n");
     _parser.oob("+IPD", callback(this, &ESP8266::_oob_packet_hdlr));
@@ -123,6 +126,14 @@ bool ESP8266::at_available()
             break;
         }
         tr_debug("at_available(): Waiting AT response.");
+    }
+    // Switch baud-rate from default one to assigned one
+    if (MBED_CONF_ESP8266_SERIAL_BAUDRATE !=  ESP8266_DEFAULT_SERIAL_BAUDRATE) {
+        ready &= _parser.send("AT+UART_CUR=%u,8,1,0,0", MBED_CONF_ESP8266_SERIAL_BAUDRATE)
+                 && _parser.recv("OK\n");
+        _serial.set_baud(MBED_CONF_ESP8266_SERIAL_BAUDRATE);
+        ready &= _parser.send("AT")
+                 && _parser.recv("OK\n");
     }
     _smutex.unlock();
 
