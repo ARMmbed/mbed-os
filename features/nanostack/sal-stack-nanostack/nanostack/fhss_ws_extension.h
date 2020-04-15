@@ -31,6 +31,14 @@ extern "C" {
 #endif
 
 /**
+ * @brief ws_channel_mask_t WS neighbour supported channel mask
+ */
+typedef struct ws_channel_mask {
+    uint16_t channel_count;                     /**<active channels at mask */
+    uint32_t channel_mask[8];                   /**< Supported channels */
+} ws_channel_mask_t;
+
+/**
  * @brief unicast_timing_info Unicast timing/hopping schedule information structure.
  */
 typedef struct unicast_timing_info {
@@ -64,6 +72,7 @@ typedef struct fhss_ws_neighbor_timing_info {
     uint8_t timing_accuracy;                    /**< Neighbor timing accuracy */
     unicast_timing_info_t uc_timing_info;       /**< Neighbor unicast timing info */
     broadcast_timing_info_t bc_timing_info;     /**< Neighbor broadcast timing info */
+    ws_channel_mask_t uc_channel_list;          /**< Neighbor Unicast channel list */
     uint32_t *excluded_channels;                /**< Neighbor excluded channels (bit mask) */
 } fhss_ws_neighbor_timing_info_t;
 

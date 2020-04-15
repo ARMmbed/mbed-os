@@ -39,9 +39,13 @@
 #include "Common_Protocols/ipv6_flow.h"
 #include "Common_Protocols/tcp.h"
 #include "Common_Protocols/udp.h"
+#include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
 #include "common_functions.h"
 
 #define TRACE_GROUP "sckA"
+
+/* Data already written to space provided */
+#define GETSOCKOPT_DATA_READY  1
 
 const uint8_t ns_in6addr_any[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -1010,12 +1014,35 @@ int8_t socket_setsockopt(int8_t socket, uint8_t level, uint8_t opt_name, const v
     }
 }
 
+static bool socket_latency_get(const uint8_t dest_addr[static 16], uint32_t *latency)
+{
+    ipv6_route_t *route = ipv6_route_choose_next_hop(dest_addr, -1, NULL);
+    if (!route) {
+        return false;
+    }
+
+    return protocol_6lowpan_latency_estimate_get(route->info.interface_id, latency);
+}
+
+static bool socket_stagger_value_get(const uint8_t dest_addr[static 16], uint32_t data_amount, uint16_t *stagger_min, uint16_t *stagger_max, uint16_t *stagger_rand)
+{
+    ipv6_route_t *route = ipv6_route_choose_next_hop(dest_addr, -1, NULL);
+    if (!route) {
+        // No route found, return 0
+        return false;
+    }
+
+    return protocol_6lowpan_stagger_estimate_get(route->info.interface_id, data_amount, stagger_min, stagger_max, stagger_rand);
+}
+
 static union {
     int8_t s8;
     uint16_t u16;
     int16_t s16;
     uint32_t u32;
     int32_t s32;
+    uint64_t u64;
+    int64_t s64;
     bool boolean;
 } opt_temp;
 
@@ -1130,7 +1157,41 @@ static int8_t ipv6_getsockopt(const socket_t *socket_ptr, uint8_t opt_name, cons
             *value = &opt_temp.boolean;
             *len = sizeof(bool);
             break;
+        case SOCKET_LATENCY: {
+            ns_ipv6_latency_t *ns_ipv6_latency = (ns_ipv6_latency_t *)*value;
 
+            if (*len <  sizeof(ns_ipv6_latency_t)) {
+                return -1;
+            }
+            if (socket_latency_get(ns_ipv6_latency->dest_addr, &ns_ipv6_latency->latency)) {
+                *len = sizeof(ns_ipv6_latency_t);
+                return GETSOCKOPT_DATA_READY;
+            }
+            return -3;
+            /* break; */
+        }
+        case SOCKET_STAGGER: {
+            ns_ipv6_stagger_t *ns_ipv6_stagger = (ns_ipv6_stagger_t *)*value;
+            uint16_t stagger_min, stagger_max, stagger_rand;
+            bool retval;
+
+            if (*len <  sizeof(ns_ipv6_stagger_t)) {
+                return -1;
+            }
+            retval = socket_stagger_value_get(ns_ipv6_stagger->dest_addr,
+                                              ns_ipv6_stagger->data_amount,
+                                              &stagger_min, &stagger_max, &stagger_rand);
+            if (retval) {
+                ns_ipv6_stagger->stagger_min = stagger_min;
+                ns_ipv6_stagger->stagger_max = stagger_max;
+                ns_ipv6_stagger->stagger_rand = stagger_rand;
+                *len = sizeof(ns_ipv6_stagger_t);
+                return GETSOCKOPT_DATA_READY;
+            }
+
+            return -3;
+            /* break; */
+        }
         default:
             return -2;
     }
@@ -1145,12 +1206,15 @@ int8_t socket_getsockopt(int8_t socket, uint8_t level, uint8_t opt_name, void *o
         return -1;
     }
 
-    const void *value;
-    uint16_t len;
+    const void *value = opt_value;
+    uint16_t len = *opt_len;
 
     if (level == SOCKET_IPPROTO_IPV6 && socket_is_ipv6(socket_ptr)) {
         int8_t ret = ipv6_getsockopt(socket_ptr, opt_name, &value, &len);
         if (ret != 0) {
+            if (ret == GETSOCKOPT_DATA_READY) {
+                ret = 0;
+            }
             return ret;
         }
     } else if (level == SOCKET_SOL_SOCKET) {
@@ -1198,4 +1262,3 @@ ns_cmsghdr_t *NS_CMSG_NXTHDR(const ns_msghdr_t *msgh, const ns_cmsghdr_t *cmsg)
     }
     return (ns_cmsghdr_t *) start_of_next_header;
 }
-

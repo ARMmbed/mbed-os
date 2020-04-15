@@ -23,6 +23,7 @@
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
 #include "fhss_config.h"
+#include "ws_management_api.h"
 #include "eventOS_event.h"
 #include "eventOS_scheduler.h"
 #include "eventOS_event_timer.h"
@@ -32,6 +33,7 @@
 #include "RPL/rpl_control.h"
 #include "RPL/rpl_data.h"
 #include "6LoWPAN/ws/ws_config.h"
+#include "Security/protocols/sec_prot_cfg.h"
 #include "Security/kmp/kmp_addr.h"
 #include "Security/kmp/kmp_api.h"
 #include "Security/protocols/sec_prot_certs.h"
@@ -41,6 +43,7 @@
 #include "Security/protocols/tls_sec_prot/tls_sec_prot.h"
 #include "Security/protocols/fwh_sec_prot/supp_fwh_sec_prot.h"
 #include "Security/protocols/gkh_sec_prot/supp_gkh_sec_prot.h"
+#include "6LoWPAN/ws/ws_cfg_settings.h"
 #include "6LoWPAN/ws/ws_pae_controller.h"
 #include "6LoWPAN/ws/ws_pae_timers.h"
 #include "6LoWPAN/ws/ws_pae_supp.h"
@@ -101,7 +104,8 @@ typedef struct {
     sec_prot_gtk_keys_t gtks;                              /**< GTKs */
     uint8_t new_br_eui_64[8];                              /**< Border router EUI-64 indicated by bootstrap */
     sec_prot_keys_nw_info_t sec_keys_nw_info;              /**< Security keys network information */
-    timer_settings_t *timer_settings;                      /**< Timer settings */
+    sec_timer_cfg_t *sec_timer_cfg;                        /**< Timer configuration */
+    sec_prot_cfg_t *sec_prot_cfg;                          /**< Protocol Configuration */
     uint8_t nw_keys_used_cnt;                              /**< How many times bootstrap has been tried with current keys */
     uint8_t initial_key_retry_cnt;                         /**< initial EAPOL-Key retry counter */
     bool auth_trickle_running : 1;                         /**< Initial EAPOL-Key Trickle timer running */
@@ -370,7 +374,7 @@ int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_pt
             // Starts supplicant timer
             ws_pae_supp_timer_start(pae_supp);
 
-            tr_info("GTK update start imin: %i, imax: %i, max mismatch: %i, tr time: %i", pae_supp->timer_settings->gtk_request_imin, pae_supp->timer_settings->gtk_request_imax, pae_supp->timer_settings->gtk_max_mismatch, pae_supp->auth_trickle_timer.t);
+            tr_info("GTK update start imin: %i, imax: %i, max mismatch: %i, tr time: %i", pae_supp->sec_timer_cfg->gtk_request_imin, pae_supp->sec_timer_cfg->gtk_request_imax, pae_supp->sec_timer_cfg->gtk_max_mismatch, pae_supp->auth_trickle_timer.t);
         }
     }
 
@@ -618,7 +622,7 @@ void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_
     pae_supp->gtk_hash_ptr_get = gtk_hash_ptr_get;
 }
 
-int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const sec_prot_certs_t *certs, timer_settings_t *timer_settings)
+int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const sec_prot_certs_t *certs, sec_timer_cfg_t *sec_timer_cfg, sec_prot_cfg_t *sec_prot_cfg)
 {
     if (!interface_ptr) {
         return -1;
@@ -641,8 +645,9 @@ int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const se
     pae_supp->initial_key_timer = 0;
     pae_supp->initial_key_retry_timer = 0;
     pae_supp->nw_keys_used_cnt = 0;
-    pae_supp->timer_settings = timer_settings;
     pae_supp->initial_key_retry_cnt = INITIAL_KEY_RETRY_COUNT;
+    pae_supp->sec_timer_cfg = sec_timer_cfg;
+    pae_supp->sec_prot_cfg = sec_prot_cfg;
     pae_supp->auth_trickle_running = false;
     pae_supp->auth_requested = false;
     pae_supp->timer_running = false;
@@ -741,14 +746,6 @@ int8_t ws_pae_supp_delete(protocol_interface_info_entry_t *interface_ptr)
     }
 
     ws_pae_supp_free(pae_supp);
-    return 0;
-}
-
-int8_t ws_pae_supp_timing_adjust(uint8_t timing)
-{
-    timing_value = timing;
-    supp_fwh_sec_prot_timing_adjust(timing);
-    supp_eap_sec_prot_timing_adjust(timing);
     return 0;
 }
 
@@ -998,8 +995,8 @@ static void ws_pae_supp_initial_last_interval_trickle_timer_start(pae_supp_t *pa
 static void ws_pae_supp_initial_key_update_trickle_timer_start(pae_supp_t *pae_supp, uint8_t timer_expirations)
 {
     // Starts trickle for the key update
-    pae_supp->auth_trickle_params.Imin = pae_supp->timer_settings->gtk_request_imin;
-    pae_supp->auth_trickle_params.Imax = pae_supp->timer_settings->gtk_request_imax;
+    pae_supp->auth_trickle_params.Imin = pae_supp->sec_timer_cfg->gtk_request_imin;
+    pae_supp->auth_trickle_params.Imax = pae_supp->sec_timer_cfg->gtk_request_imax;
     pae_supp->auth_trickle_params.k = 0;
     pae_supp->auth_trickle_params.TimerExpirations = timer_expirations;
 
@@ -1216,7 +1213,7 @@ static kmp_api_t *ws_pae_supp_kmp_incoming_ind(kmp_service_t *service, kmp_type_
 static kmp_api_t *ws_pae_supp_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, pae_supp_t *pae_supp)
 {
     // Create new instance
-    kmp_api_t *kmp = kmp_api_create(service, type);
+    kmp_api_t *kmp = kmp_api_create(service, type, pae_supp->sec_prot_cfg);
     if (!kmp) {
         return NULL;
     }

@@ -74,8 +74,11 @@
 #include "6LoWPAN/Fragmentation/cipv6_fragmenter.h"
 #include "Service_Libs/etx/etx.h"
 #include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "6LoWPAN/ws/ws_common.h"
 #include "6LoWPAN/ws/ws_bootstrap.h"
-
+#ifdef HAVE_WS
+#include "6LoWPAN/ws/ws_cfg_settings.h"
+#endif
 
 #define TRACE_GROUP_LOWPAN "6lo"
 #define TRACE_GROUP "6lo"
@@ -116,6 +119,9 @@ void protocol_init(void)
 #endif
 #ifdef HAVE_RPL
     protocol_6lowpan_rpl_domain = rpl_control_create_domain();
+#endif
+#ifdef HAVE_WS
+    ws_cfg_settings_init();
 #endif
 }
 
@@ -778,4 +784,84 @@ uint8_t protocol_6lowpan_beacon_compare_rx(int8_t interface_id, uint8_t join_pri
     conn_to_pref = ((256 - join_priority) * (uint16_t) link_quality) >> 8;
 
     return conn_to_pref;
+}
+
+bool protocol_6lowpan_latency_estimate_get(int8_t interface_id, uint32_t *latency)
+{
+    protocol_interface_info_entry_t *cur_interface = protocol_stack_interface_info_get_by_id(interface_id);
+    uint32_t latency_estimate = 0;
+
+    if (!cur_interface) {
+        return false;
+    }
+
+    if (cur_interface->eth_mac_api) {
+        // either PPP or Ethernet interface.
+        latency_estimate = 100;
+    } else if (thread_info(cur_interface)) {
+        // thread network
+        latency_estimate = 1000;
+    } else if (ws_info(cur_interface)) {
+        latency_estimate = ws_common_latency_estimate_get(cur_interface);
+    } else {
+        // 6LoWPAN ND
+        latency_estimate = 8000;
+    }
+
+    if (latency_estimate != 0) {
+        *latency = latency_estimate;
+        return true;
+    }
+
+    return false;
+}
+
+bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t data_amount, uint16_t *stagger_min, uint16_t *stagger_max, uint16_t *stagger_rand)
+{
+    size_t network_size;
+    uint32_t datarate;
+    protocol_interface_info_entry_t *cur_interface = protocol_stack_interface_info_get_by_id(interface_id);
+
+    if (!cur_interface) {
+        return false;
+    }
+
+    *stagger_min = 1;
+
+    if (cur_interface->eth_mac_api) {
+        // either PPP or Ethernet interface.
+        network_size = 1;
+        datarate = 1000000;
+    } else if (thread_info(cur_interface)) {
+        // thread network
+        network_size = 23;
+        datarate = 250000;
+    } else if (ws_info(cur_interface)) {
+        network_size = ws_common_network_size_estimate_get(cur_interface);
+        datarate = ws_common_datarate_get(cur_interface);
+    } else {
+        // 6LoWPAN ND
+        network_size = 1000;
+        datarate = 250000;
+    }
+
+    if (data_amount == 0) {
+        // If no data amount given, use 1kB
+        data_amount = 1;
+    }
+    /**Example:
+     * Maximum stagger value to send 1kB on 50 devices network using datarate 50000 kb/:
+     * (1 * 1024 * 8 * 50) / (50000/4)) = ~ 32s
+     *
+     * devices: 50,   datarate: 250kbps => stagger ~ 6s
+     * devices: 1000, datarate: 50kbps  => stagger ~ 655s
+     */
+    /* Do not occupy whole bandwidth, halve the theoretical datarate and reserve room for other channel usage */
+    datarate = datarate / 4;
+    *stagger_max = (uint16_t) * stagger_min + ((data_amount * 1024 * 8 * network_size) / datarate);
+
+    // Randomize stagger value
+    *stagger_rand = randLIB_get_random_in_range(*stagger_min, *stagger_max);
+
+    return true;
 }

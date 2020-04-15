@@ -21,6 +21,7 @@
 #include "ns_list.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
+#include "common_functions.h"
 #include "fhss_config.h"
 #include "6LoWPAN/ws/ws_config.h"
 #include "6LoWPAN/ws/ws_neighbor_class.h"
@@ -94,6 +95,121 @@ void ws_neighbor_class_neighbor_unicast_time_info_update(ws_neighbor_class_entry
     ws_neighbor->fhss_data.uc_timing_info.ufsi = ws_utt->ufsi;
 }
 
+static void ws_neighbour_channel_list_enable_all(ws_channel_mask_t *channel_info, uint16_t number_of_channels)
+{
+    uint32_t mask;
+    channel_info->channel_count = number_of_channels;
+    for (uint8_t n = 0; n < 8; n++) {
+        if (number_of_channels >= 32) {
+            mask = 0xffffffff;
+            number_of_channels -= 32;
+        } else if (number_of_channels) {
+            mask = 0;
+            //Start bit enable to MSB
+            for (uint16_t i = 0; i < (number_of_channels % 32); i++) {
+                mask |= 1 << i;
+            }
+            number_of_channels = 0;
+        } else {
+            mask = 0;
+        }
+        channel_info->channel_mask[n] = mask;
+    }
+}
+
+static void ws_neighbour_excluded_mask_by_range(ws_channel_mask_t *channel_info, ws_excluded_channel_range_t *range_info, uint16_t number_of_channels)
+{
+    uint16_t range_start, range_stop;
+    uint8_t mask_index = 0;
+    uint32_t compare_mask_bit;
+    uint8_t *range_ptr = range_info->range_start;
+    while (range_info->number_of_range) {
+        range_start = common_read_16_bit_inverse(range_ptr);
+        range_ptr += 2;
+        range_stop = common_read_16_bit_inverse(range_ptr);
+        range_ptr += 2;
+        range_info->number_of_range--;
+        for (uint16_t channel = 0; channel < number_of_channels; channel++) {
+
+            if (channel >= range_start && channel <= range_stop) {
+                //Cut channel
+                compare_mask_bit = 1 << (channel % 32);
+                mask_index = 0 + (channel / 32);
+
+                if (channel_info->channel_mask[mask_index] & compare_mask_bit) {
+                    channel_info->channel_mask[mask_index] ^= compare_mask_bit;
+                    channel_info->channel_count--;
+                }
+            } else if (channel > range_stop) {
+                break;
+            }
+        }
+    }
+}
+
+static uint32_t ws_reserve_order_32_bit(uint32_t value)
+{
+    uint32_t ret_val = 0;
+    for (uint8_t i = 0; i < 32; i++) {
+        if ((value & (1 << i))) {
+            ret_val |= 1 << ((32 - 1) - i);
+        }
+    }
+    return ret_val;
+}
+
+static void ws_neighbour_excluded_mask_by_mask(ws_channel_mask_t *channel_info, ws_excluded_channel_mask_t *mask_info, uint16_t number_of_channels)
+{
+    if (mask_info->mask_len_inline == 0) {
+        return;
+    }
+
+    uint16_t channel_at_mask;
+    uint8_t mask_index = 0;
+    uint32_t channel_compare_mask, compare_mask_bit;
+    uint8_t *mask_ptr =  mask_info->channel_mask;
+
+    channel_at_mask = mask_info->mask_len_inline * 8;
+
+    for (uint16_t channel = 0; channel < number_of_channels; channel += 32) {
+        if (channel) {
+            mask_index++;
+            mask_ptr += 4;
+        }
+
+        //Read allaways 32-bit
+        if (channel_at_mask >= 32) {
+            channel_compare_mask = common_read_32_bit(mask_ptr);
+            channel_at_mask -= 32;
+        } else {
+            //Read Rest bytes seprately
+            channel_compare_mask = 0;
+            uint8_t move_mask = 0;
+            //Convert 8-24bit to 32-bit
+            while (channel_at_mask) {
+                channel_compare_mask |= (uint32_t)(*mask_ptr++ << (24 - move_mask));
+                channel_at_mask -= 8;
+                move_mask += 8;
+            }
+        }
+        //Reserve bit order for compare
+        channel_compare_mask = ws_reserve_order_32_bit(channel_compare_mask);
+        //Compare now 32-bit mask's bits one by one
+        for (uint8_t i = 0; i < 32; i++) {
+            //Start from MSB
+            compare_mask_bit = 1 << (i);
+            if ((channel_compare_mask & compare_mask_bit) && (channel_info->channel_mask[mask_index] & compare_mask_bit)) {
+                channel_info->channel_mask[mask_index] ^= compare_mask_bit;
+                channel_info->channel_count--;
+            }
+        }
+        //Stop compare if all bits in line are compared
+        if (channel_at_mask == 0) {
+            break;
+        }
+    }
+}
+
 void ws_neighbor_class_neighbor_unicast_schedule_set(ws_neighbor_class_entry_t *ws_neighbor, ws_us_ie_t *ws_us)
 {
     ws_neighbor->fhss_data.uc_timing_info.unicast_channel_function = ws_us->channel_function;
@@ -105,9 +221,21 @@ void ws_neighbor_class_neighbor_unicast_schedule_set(ws_neighbor_class_entry_t *
             ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = ws_common_channel_number_calc(ws_us->plan.zero.regulator_domain, ws_us->plan.zero.operation_class);
         } else if (ws_us->channel_plan == 1) {
             ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = ws_us->plan.one.number_of_channel;
-        } else {
-            ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = 0;
         }
+
+        //Handle excluded channel and generate activate channel list
+        if (ws_us->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
+            ws_neighbour_channel_list_enable_all(&ws_neighbor->fhss_data.uc_channel_list, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
+            ws_neighbour_excluded_mask_by_range(&ws_neighbor->fhss_data.uc_channel_list, &ws_us->excluded_channels.range, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
+        } else if (ws_us->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK) {
+            ws_neighbour_channel_list_enable_all(&ws_neighbor->fhss_data.uc_channel_list, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
+            ws_neighbour_excluded_mask_by_mask(&ws_neighbor->fhss_data.uc_channel_list, &ws_us->excluded_channels.mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
+        } else if (ws_us->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_NONE) {
+            if (ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels != ws_neighbor->fhss_data.uc_channel_list.channel_count) {
+                ws_neighbour_channel_list_enable_all(&ws_neighbor->fhss_data.uc_channel_list, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
+            }
+        }
+
     }
     ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval = ws_us->dwell_interval;
 }
