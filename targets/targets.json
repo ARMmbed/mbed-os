@@ -6296,6 +6296,7 @@
     },
     "DISCO_L475VG_IOT01A": {
         "components_add": [
+            "BlueNRG_MS",
             "QSPIF",
             "FLASHIAP"
         ],
@@ -6304,6 +6305,7 @@
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
+            "CORDIO",
             "MX25R6435F",
             "STM32L4",
             "STM32L475xG",
@@ -6344,6 +6346,9 @@
             "QSPI",
             "USBDEVICE",
             "MPU"
+        ],
+        "features": [
+            "BLE"
         ],
         "release_versions": [
             "2",
@@ -11704,6 +11709,7 @@
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M33FE",
         "extra_labels_add": [
+            "CORDIO",
             "STM32L5",
             "STM32L562xx",
             "MX25LM51245G"
@@ -11714,6 +11720,7 @@
             "PMOD"
         ],
         "components_add": [
+            "BlueNRG_MS",
             "FLASHIAP"
         ],
         "macros_add": [
@@ -11743,6 +11750,9 @@
             "TRNG",
             "FLASH",
             "QSPI"
+        ],
+        "features": [
+            "BLE"
         ],
         "detect_code": ["0854"],
         "bootloader_supported": true,
