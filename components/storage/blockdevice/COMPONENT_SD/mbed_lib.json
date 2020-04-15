@@ -71,12 +71,6 @@
              "SPI_CLK":  "PTE2",
              "SPI_CS":   "PTE4"
         },
-        "LPC11U37H_401": {
-             "SPI_MOSI": "SDMOSI",
-             "SPI_MISO": "SDMISO",
-             "SPI_CLK":  "SDSCLK",
-             "SPI_CS":   "SDSSEL"
-        },
         "LPC2368": {
              "SPI_MOSI": "p11",
              "SPI_MISO": "p12",
