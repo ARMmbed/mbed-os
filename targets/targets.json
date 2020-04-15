@@ -1050,28 +1050,6 @@
             "IAR"
         ]
     },
-    "ELEKTOR_COCORICO": {
-        "core": "Cortex-M0+",
-        "default_toolchain": "uARM",
-        "extra_labels": [
-            "NXP",
-            "LPC81X"
-        ],
-        "supported_toolchains": [
-            "uARM",
-            "GCC_ARM",
-            "IAR"
-        ],
-        "inherits": [
-            "LPCTarget"
-        ],
-        "is_disk_virtual": true,
-        "detect_code": [
-            "C000"
-        ],
-        "default_lib": "small",
-        "device_name": "LPC812M101JDH16"
-    },
     "KL05Z": {
         "supported_form_factors": [
             "ARDUINO"
