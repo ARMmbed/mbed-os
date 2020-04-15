@@ -44,7 +44,7 @@ SocketAddress::SocketAddress(const SocketAddress &addr) : _addr(addr._addr), _po
 
 bool SocketAddress::set_ip_address(const char *addr)
 {
-    _ip_address.reset();
+    _ip_address = nullptr;
 
     if (addr && stoip4(addr, strlen(addr), _addr.bytes)) {
         _addr.version = NSAPI_IPv4;
@@ -73,7 +73,7 @@ void SocketAddress::set_ip_bytes(const void *bytes, nsapi_version_t version)
 
 void SocketAddress::set_addr(const nsapi_addr_t &addr)
 {
-    _ip_address.reset();
+    _ip_address = nullptr;
     _addr = addr;
 }
 

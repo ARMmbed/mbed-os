@@ -81,7 +81,7 @@ static void _ifup()
     SocketAddress eth_ip_address_if;
     LWIP::get_instance().get_ip_address_if(&eth_ip_address_if, interface_name[interface_num]);
     printf("IP_if: %s\n", eth_ip_address.get_ip_address());
-    TEST_ASSERT_EQUAL(eth_ip_address_if, eth_ip_address);
+    TEST_ASSERT(eth_ip_address_if == eth_ip_address);
     interface_num++;
 
     wifi = WiFiInterface::get_default_instance();
@@ -112,7 +112,7 @@ static void _ifup()
         SocketAddress wifi_ip_address_if;
         LWIP::get_instance().get_ip_address_if(&wifi_ip_address_if, interface_name[interface_num]);
         printf("IP_if: %s\n", STRING_VERIFY(wifi_ip_address_if.get_ip_address()));
-        TEST_ASSERT_EQUAL(wifi_ip_address_if, wifi_ip_address);
+        TEST_ASSERT(wifi_ip_address_if == wifi_ip_address);
         SocketAddress wifi_netmask;
         wifi->get_netmask(&wifi_netmask);
         printf("Netmask: %s\n", STRING_VERIFY(wifi_netmask.get_ip_address()));
