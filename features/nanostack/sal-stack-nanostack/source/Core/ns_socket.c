@@ -342,7 +342,7 @@ static void socket_free(socket_t *socket)
     ns_dyn_mem_free(socket);
 }
 
-error_t socket_port_validate(uint16_t port, uint8_t protocol)
+socket_error_t socket_port_validate(uint16_t port, uint8_t protocol)
 {
     ns_list_foreach(socket_t, socket, &socket_list) {
         if (!socket_is_ipv6(socket)) {
@@ -497,7 +497,7 @@ socket_t *socket_dereference(socket_t *socket_ptr)
  * \return eFALSE no free sockets
  * \return eBUSY port reserved
  */
-error_t socket_create(socket_family_t family, socket_type_t type, uint8_t protocol, int8_t *sid, uint16_t port, void (*passed_fptr)(void *), bool buffer_type)
+socket_error_t socket_create(socket_family_t family, socket_type_t type, uint8_t protocol, int8_t *sid, uint16_t port, void (*passed_fptr)(void *), bool buffer_type)
 {
     if (sid) {
         *sid = -1;
@@ -850,7 +850,7 @@ socket_t *socket_lookup(socket_family_t family, uint8_t protocol, const sockaddr
  * \return eFALSE no socket found
  * \return eBUSY socket full
  */
-error_t socket_up(buffer_t *buf)
+socket_error_t socket_up(buffer_t *buf)
 {
     socket_t *socket = buf->socket;
 

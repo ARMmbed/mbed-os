@@ -18,25 +18,26 @@
 #ifndef WS_PAE_TIMERS_H_
 #define WS_PAE_TIMERS_H_
 
-typedef struct {
-    uint32_t gtk_expire_offset;            // GTK lifetime; GTK_EXPIRE_OFFSET (seconds)
-    uint32_t pmk_lifetime;                 // PMK lifetime (seconds)
-    uint32_t ptk_lifetime;                 // PTK lifetime (seconds)
-    uint16_t gtk_new_act_time;             // GTK_NEW_ACTIVATION_TIME (1/X of expire offset)
-    uint16_t revocat_lifetime_reduct;      // REVOCATION_LIFETIME_REDUCTION (reduction of lifetime)
-    uint16_t gtk_request_imin;             // GTK_REQUEST_IMIN (seconds)
-    uint16_t gtk_request_imax;             // GTK_REQUEST_IMAX (seconds)
-    uint16_t gtk_max_mismatch;             // GTK_MAX_MISMATCH (seconds)
-    uint8_t gtk_new_install_req;           // GTK_NEW_INSTALL_REQUIRED (percent of GTK lifetime)
-} timer_settings_t;
+typedef struct sec_timer_cfg_s {
+    uint32_t gtk_expire_offset;                      /* GTK lifetime; GTK_EXPIRE_OFFSET (seconds) */
+    uint32_t pmk_lifetime;                           /* PMK lifetime (seconds) */
+    uint32_t ptk_lifetime;                           /* PTK lifetime (seconds) */
+    uint16_t gtk_new_act_time;                       /* GTK_NEW_ACTIVATION_TIME (1/X of expire offset) */
+    uint16_t revocat_lifetime_reduct;                /* REVOCATION_LIFETIME_REDUCTION (reduction of lifetime) */
+    uint16_t gtk_request_imin;                       /* GTK_REQUEST_IMIN (seconds) */
+    uint16_t gtk_request_imax;                       /* GTK_REQUEST_IMAX (seconds) */
+    uint16_t gtk_max_mismatch;                       /* GTK_MAX_MISMATCH (seconds) */
+    uint8_t gtk_new_install_req;                     /* GTK_NEW_INSTALL_REQUIRED (percent of GTK lifetime) */
+} sec_timer_cfg_t;
 
 /**
  * ws_pae_timers_settings_init initializes timer settings structure
  *
  * \param timer_settings timer settings
+ * \param new_timer_settings new timer settings
  *
  */
-void ws_pae_timers_settings_init(timer_settings_t *timer_settings);
+void ws_pae_timers_settings_init(sec_timer_cfg_t *timer_settings, ws_sec_timer_cfg_t *new_timer_settings);
 
 /**
  *  ws_pae_timers_lifetime_set sets GTK, PTK and PTK lifetimes
@@ -47,7 +48,7 @@ void ws_pae_timers_settings_init(timer_settings_t *timer_settings);
  * \param ptk_lifetime PTK lifetime
  *
  */
-void ws_pae_timers_lifetime_set(timer_settings_t *timer_settings, uint32_t gtk_lifetime, uint32_t pmk_lifetime, uint32_t ptk_lifetime);
+void ws_pae_timers_lifetime_set(sec_timer_cfg_t *timer_settings, uint32_t gtk_lifetime, uint32_t pmk_lifetime, uint32_t ptk_lifetime);
 
 /**
  *  ws_pae_timers_gtk_time_settings_set sets GTK, PTK and PTK lifetimes
@@ -59,7 +60,7 @@ void ws_pae_timers_lifetime_set(timer_settings_t *timer_settings, uint32_t gtk_l
  * \param max_mismatch max mismatch
  *
  */
-void ws_pae_timers_gtk_time_settings_set(timer_settings_t *timer_settings, uint8_t revocat_lifetime_reduct, uint8_t new_activation_time, uint8_t new_install_req, uint32_t max_mismatch);
+void ws_pae_timers_gtk_time_settings_set(sec_timer_cfg_t *timer_settings, uint8_t revocat_lifetime_reduct, uint8_t new_activation_time, uint8_t new_install_req, uint32_t max_mismatch);
 
 /**
  *  ws_pae_timers_gtk_new_install_required GTK new install required check
@@ -71,7 +72,7 @@ void ws_pae_timers_gtk_time_settings_set(timer_settings_t *timer_settings, uint8
  * \return false GTK install not required
  *
  */
-bool ws_pae_timers_gtk_new_install_required(timer_settings_t *timer_settings, uint32_t seconds);
+bool ws_pae_timers_gtk_new_install_required(sec_timer_cfg_t *timer_settings, uint32_t seconds);
 
 /**
  *  ws_pae_timers_gtk_new_activation_time GTK new activation time
@@ -83,7 +84,7 @@ bool ws_pae_timers_gtk_new_install_required(timer_settings_t *timer_settings, ui
  * \return false GTK new activation time not expired
  *
  */
-bool ws_pae_timers_gtk_new_activation_time(timer_settings_t *timer_settings, uint32_t seconds);
+bool ws_pae_timers_gtk_new_activation_time(sec_timer_cfg_t *timer_settings, uint32_t seconds);
 
 /**
  *  ws_pae_timers_gtk_revocation_lifetime_get GTK revocation lifetime get
@@ -93,6 +94,6 @@ bool ws_pae_timers_gtk_new_activation_time(timer_settings_t *timer_settings, uin
  * \return GTK revocation lifetime
  *
  */
-uint32_t ws_pae_timers_gtk_revocation_lifetime_get(timer_settings_t *timer_settings);
+uint32_t ws_pae_timers_gtk_revocation_lifetime_get(sec_timer_cfg_t *timer_settings);
 
 #endif /* WS_PAE_TIMERS_H_ */

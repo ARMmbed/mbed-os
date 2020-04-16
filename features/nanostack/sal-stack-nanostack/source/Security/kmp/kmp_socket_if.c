@@ -29,6 +29,7 @@
 #include "Common_Protocols/ipv6_constants.h"
 #include "socket_api.h"
 #include "6LoWPAN/ws/ws_config.h"
+#include "Security/protocols/sec_prot_cfg.h"
 #include "Security/kmp/kmp_addr.h"
 #include "Security/kmp/kmp_api.h"
 #include "Security/kmp/kmp_socket_if.h"

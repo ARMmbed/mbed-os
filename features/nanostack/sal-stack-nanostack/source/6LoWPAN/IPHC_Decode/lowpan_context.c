@@ -31,7 +31,7 @@
 
 #define TRACE_GROUP "lCon"
 
-lowpan_context_t *lowpan_contex_get_by_id(const lowpan_context_list_t *list, uint8_t id)
+lowpan_context_t *lowpan_context_get_by_id(const lowpan_context_list_t *list, uint8_t id)
 {
     id &=  LOWPAN_CONTEXT_CID_MASK;
     /* Check to see we already have info for this context */
@@ -65,7 +65,7 @@ int_fast8_t lowpan_context_update(lowpan_context_list_t *list, uint8_t cid_flags
 
     /* Check to see we already have info for this context */
 
-    ctx = lowpan_contex_get_by_id(list, cid);
+    ctx = lowpan_context_get_by_id(list, cid);
     if (ctx) {
         //Remove from the list - it will be reinserted below, sorted by its
         //new context length. (Don't need "safe" foreach, as we break

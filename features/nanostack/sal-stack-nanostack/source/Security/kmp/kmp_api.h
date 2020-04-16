@@ -61,6 +61,8 @@ typedef struct sec_prot_s sec_prot_t;
 typedef struct kmp_api_s kmp_api_t;
 typedef struct kmp_service_s kmp_service_t;
 
+struct ws_cfg_settings_s;
+
 /**
  * kmp_api_create_request KMP-CREATE.request
  *
@@ -123,11 +125,12 @@ typedef void kmp_api_finished(kmp_api_t *kmp);
  *
  * \param service KMP service
  * \param type KMP type
+ * \param cfg configuration
  *
  * \return KMP instance or NULL
  *
  */
-kmp_api_t *kmp_api_create(kmp_service_t *service, kmp_type_e type);
+kmp_api_t *kmp_api_create(kmp_service_t *service, kmp_type_e type, sec_prot_cfg_t *cfg);
 
 /**
  * kmp_api_start start KMP api

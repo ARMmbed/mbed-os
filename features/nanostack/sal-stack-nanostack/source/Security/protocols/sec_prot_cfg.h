@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, Arm Limited and affiliates.
+ * Copyright (c) 2020, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,23 +15,15 @@
  * limitations under the License.
  */
 
-#ifndef SUPP_FWH_SEC_PROT_H_
-#define SUPP_FWH_SEC_PROT_H_
+#ifndef SEC_PROT_CFG_H_
+#define SEC_PROT_CFG_H_
 
-/*
- * Supplicant Four Way Handshake (4WH) security protocol. 4WH protocol is
- * specified in IEEE 802.11 and Wi-SUN FANWG-FANTPS.
- *
- */
+/* Security protocol configuration settings */
 
-/**
- * supp_fwh_sec_prot_register register supplicant 4WH protocol to KMP service
- *
- * \param service KMP service
- *
- * \return < 0 failure
- * \return >= 0 success
- */
-int8_t supp_fwh_sec_prot_register(kmp_service_t *service);
+typedef struct sec_prot_cfg_s {
+    trickle_params_t sec_prot_trickle_params;
+    uint16_t sec_prot_retry_timeout;
+    uint16_t sec_max_ongoing_authentication;
+} sec_prot_cfg_t;
 
-#endif /* SUPP_FWH_SEC_PROT_H_ */
+#endif /* SEC_PROT_CONF_H_ */

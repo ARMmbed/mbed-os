@@ -24,6 +24,7 @@
 #include "fhss_config.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "6LoWPAN/ws/ws_config.h"
+#include "Security/protocols/sec_prot_cfg.h"
 #include "Security/kmp/kmp_addr.h"
 #include "Security/kmp/kmp_api.h"
 #include "Security/PANA/pana_eap_header.h"
@@ -75,8 +76,6 @@ typedef struct {
 #define EAP_TLS_RETRY_TIMEOUT_SMALL 330*10 // retry timeout for small network additional 30 seconds for authenticator delay
 #define EAP_TLS_RETRY_TIMEOUT_LARGE 750*10 // retry timeout for large network additional 30 seconds for authenticator delay
 
-static uint16_t retry_timeout = EAP_TLS_RETRY_TIMEOUT_SMALL;
-
 static uint16_t supp_eap_tls_sec_prot_size(void);
 static int8_t supp_eap_tls_sec_prot_init(sec_prot_t *prot);
 
@@ -109,17 +108,6 @@ int8_t supp_eap_tls_sec_prot_register(kmp_service_t *service)
 
     return 0;
 }
-
-int8_t supp_eap_sec_prot_timing_adjust(uint8_t timing)
-{
-    if (timing < 16) {
-        retry_timeout = EAP_TLS_RETRY_TIMEOUT_SMALL;
-    } else {
-        retry_timeout = EAP_TLS_RETRY_TIMEOUT_LARGE;
-    }
-    return 0;
-}
-
 
 static uint16_t supp_eap_tls_sec_prot_size(void)
 {
@@ -416,7 +404,7 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             }
 
             // Set retry timeout based on network size
-            data->common.ticks = retry_timeout;
+            data->common.ticks = prot->cfg->sec_prot_retry_timeout;
 
             // Store sequence ID
             supp_eap_tls_sec_prot_seq_id_update(prot);
@@ -461,7 +449,7 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             supp_eap_tls_sec_prot_seq_id_update(prot);
 
             sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_REQUEST);
-            data->common.ticks = retry_timeout;
+            data->common.ticks = prot->cfg->sec_prot_retry_timeout;
 
             // Initialize TLS protocol
             if (supp_eap_tls_sec_prot_init_tls(prot) < 0) {
@@ -495,7 +483,7 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
                 // Store sequence ID
                 if (supp_eap_tls_sec_prot_seq_id_update(prot)) {
                     // When receiving a new sequence number, adds more time for re-send if no response
-                    data->common.ticks = retry_timeout;
+                    data->common.ticks = prot->cfg->sec_prot_retry_timeout;
                 }
 
                 // All fragments received for a message
