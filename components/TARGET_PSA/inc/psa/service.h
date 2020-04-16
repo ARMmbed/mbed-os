@@ -21,12 +21,6 @@
 #include "secure_fw/core/ipc/include/tfm_utils.h"
 #define SPM_PANIC(format, ...) tfm_panic()
 
-#elif defined(TARGET_MBED_SPM)
-
-#include "TARGET_MBED_SPM/psa_defs.h"
-#include "TARGET_MBED_SPM/COMPONENT_SPE/spm_server.h"
-#include "TARGET_MBED_SPM/COMPONENT_SPE/spm_panic.h"
-
 #else
 
 #error "Compiling psa service header on non-secure target is not allowed"

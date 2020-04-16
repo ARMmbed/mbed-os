@@ -24,11 +24,7 @@
 #include "pits_impl.h"
 #include "mbed_error.h"
 
-#if defined(TARGET_MBED_SPM)
-#include "kv_config.h"
-#else
 int kv_init_storage_config();
-#endif
 
 #ifdef   __cplusplus
 extern "C"
