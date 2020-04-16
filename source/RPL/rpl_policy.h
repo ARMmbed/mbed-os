@@ -29,8 +29,13 @@ bool rpl_policy_request_dao_acks(const rpl_domain_t *domain, uint8_t mop);
 uint16_t rpl_policy_initial_dao_ack_wait(const rpl_domain_t *domain, uint8_t mop);
 void rpl_policy_set_initial_dao_ack_wait(uint16_t timeout_in_ms);
 
+void rpl_policy_set_minimum_dao_target_refresh(uint16_t seconds);
+uint16_t rpl_policy_minimum_dao_target_refresh(void);
+
 void rpl_policy_set_dao_retry_count(uint8_t count);
 int8_t rpl_policy_dao_retry_count();
+
+int rpl_policy_forward_link_etx_threshold_set(uint16_t etx_full_forward, uint16_t etx_full_drop);
 
 int8_t rpl_policy_srh_next_hop_interface(rpl_domain_t *domain, int8_t if_id, const uint8_t *next_hop);
 uint16_t rpl_policy_modify_downward_cost_to_root_neighbour(rpl_domain_t *domain, int8_t if_id, const uint8_t *next_hop, uint16_t cost);
@@ -68,5 +73,7 @@ bool rpl_policy_parent_confirmation_requested(void);
 void rpl_policy_set_parent_confirmation_request(bool confirmation_requested);
 uint8_t rpl_policy_dio_multicast_config_advertisment_min_count(void);
 void rpl_policy_set_dio_multicast_config_advertisment_min_count(uint8_t min_count);
+uint16_t rpl_policy_address_registration_timeout();
+void rpl_policy_set_address_registration_timeout(uint16_t timeout_in_minutes);
 
 #endif /* RPL_POLICY_H_ */

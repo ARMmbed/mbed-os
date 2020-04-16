@@ -32,7 +32,7 @@ static uint8_t *mcps_mac_security_aux_header_start_pointer_get(const mac_pre_par
 static uint8_t *mac_header_information_elements_write(const mac_pre_build_frame_t *buffer, uint8_t *ptr);
 
 
-static uint8_t mac_fcf_lenght(const mac_fcf_sequence_t *header)
+static uint8_t mac_fcf_length(const mac_fcf_sequence_t *header)
 {
     uint8_t length;
     if (header->frameVersion == MAC_FRAME_VERSION_2015) {
@@ -298,7 +298,7 @@ static uint8_t *mac_header_write_fcf_dsn(const mac_fcf_sequence_t *header, uint8
 uint16_t mac_header_off_set_to_aux_header(const mac_fcf_sequence_t *fcf)
 {
     //Skip first FCF & address field
-    uint16_t offset = mac_fcf_lenght(fcf);//Skip FCF + DSN
+    uint16_t offset = mac_fcf_length(fcf);//Skip FCF + DSN
     offset += mac_dst_address_length_with_panid(fcf);
     offset += mac_address_length(fcf->SrcAddrMode);
     if (fcf->SrcPanPresents) {
@@ -351,7 +351,7 @@ static bool mac_header_pan_full_compressed(const mac_fcf_sequence_t *header)
 
 static uint16_t mac_header_read_src_pan(const mac_fcf_sequence_t *header, const uint8_t *ptr)
 {
-    ptr += mac_fcf_lenght(header);//Skip FCF + DSN
+    ptr += mac_fcf_length(header);//Skip FCF + DSN
 
     ptr += mac_dst_address_length_with_panid(header); //Skip Dst panID & Address
 
@@ -360,7 +360,7 @@ static uint16_t mac_header_read_src_pan(const mac_fcf_sequence_t *header, const 
 
 static uint16_t mac_header_read_dst_pan(const mac_fcf_sequence_t *header, const uint8_t *ptr)
 {
-    ptr += mac_fcf_lenght(header);//Skip FCF + DSN
+    ptr += mac_fcf_length(header);//Skip FCF + DSN
 
     return common_read_16_bit_inverse(ptr);
 }
@@ -403,7 +403,7 @@ void mac_header_get_src_address(const mac_fcf_sequence_t *header, const uint8_t 
         return;
     }
 
-    ptr += mac_fcf_lenght(header);//Skip FCF + DSN
+    ptr += mac_fcf_length(header);//Skip FCF + DSN
 
     ptr += mac_dst_address_length_with_panid(header);
 
@@ -430,7 +430,7 @@ void mac_header_get_dst_address(const mac_fcf_sequence_t *header, const uint8_t 
     }
     uint8_t address_len, address_index, i;
 
-    ptr += mac_fcf_lenght(header);//Skip FCF + DSN
+    ptr += mac_fcf_length(header);//Skip FCF + DSN
 
     address_len = mac_address_length(header->DstAddrMode);
 

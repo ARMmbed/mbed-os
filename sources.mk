@@ -40,6 +40,7 @@ SRCS += \
 	source/6LoWPAN/ws/ws_eapol_relay_lib.c \
 	source/6LoWPAN/ws/ws_eapol_pdu.c \
 	source/6LoWPAN/ws/ws_stats.c \
+	source/6LoWPAN/ws/ws_cfg_settings.c \
 	source/BorderRouter/border_router.c \
 	source/Common_Protocols/icmpv6.c \
 	source/Common_Protocols/icmpv6_prefix.c \

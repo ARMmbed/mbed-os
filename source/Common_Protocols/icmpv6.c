@@ -1377,6 +1377,7 @@ void ack_remove_neighbour_cb(struct buffer *buffer_ptr, uint8_t status)
 
 static void icmpv6_aro_cb(buffer_t *buf, uint8_t status)
 {
+    (void)status;
     uint8_t ll_address[16];
     if (buf->dst_sa.addr_type == ADDR_IPV6) {
         /*Full IPv6 address*/
@@ -1387,8 +1388,8 @@ static void icmpv6_aro_cb(buffer_t *buf, uint8_t status)
         memcpy(ll_address + 8, &buf->dst_sa.address[2], 8);
         ll_address[8] ^= 2;
     }
-    rpl_control_address_register_done(buf->interface, ll_address, status);
-    if (status != SOCKET_TX_DONE) {
+    if (rpl_control_address_register_done(buf->interface, ll_address, status)) {
+        // When RPL returns true neighbor should be blacklisted
         ws_common_aro_failure(buf->interface, ll_address);
     }
 }

@@ -268,6 +268,7 @@ struct sec_prot_s {
     sec_prot_receive_disable      *receive_disable;      /**< Disable receiving of messages */
 
     sec_prot_keys_t               *sec_keys;             /**< Security keys storage pointer */
+    sec_prot_cfg_t                *cfg;                  /**< Configuration pointer */
     uint8_t                       header_size;           /**< Header size */
     sec_prot_int_data_t           *data;                 /**< Protocol internal data */
 };
