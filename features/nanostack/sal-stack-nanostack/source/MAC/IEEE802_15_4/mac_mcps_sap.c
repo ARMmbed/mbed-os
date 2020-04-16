@@ -228,8 +228,8 @@ void mcps_sap_data_req_handler_ext(protocol_interface_rf_mac_setup_s *rf_mac_set
         goto verify_status;
     }
 
-    if ((data_req->msduLength + ie_header_length + ie_payload_length) > rf_mac_setup->dev_driver->phy_driver->phy_MTU - MAC_DATA_PACKET_MIN_HEADER_LENGTH) {
-        tr_debug("packet %u, %u", data_req->msduLength, rf_mac_setup->dev_driver->phy_driver->phy_MTU);
+    if ((data_req->msduLength + ie_header_length + ie_payload_length) > rf_mac_setup->phy_mtu_size - MAC_DATA_PACKET_MIN_HEADER_LENGTH) {
+        tr_debug("packet %u, %u", data_req->msduLength, rf_mac_setup->phy_mtu_size);
         status = MLME_FRAME_TOO_LONG;
         goto verify_status;
     }
@@ -358,7 +358,7 @@ verify_status:
 static int8_t mac_virtual_data_req_handler(protocol_interface_rf_mac_setup_s *rf_mac_setup, const uint8_t *data_ptr, uint16_t data_length)
 {
 
-    if (!rf_mac_setup->macUpState || data_length > rf_mac_setup->dev_driver->phy_driver->phy_MTU) {
+    if (!rf_mac_setup->macUpState || data_length > rf_mac_setup->phy_mtu_size) {
         return -1;
     }
 
@@ -1576,7 +1576,7 @@ static int8_t mcps_generic_packet_build(protocol_interface_rf_mac_setup_s *rf_pt
     uint16_t mac_payload_length = frame_length;
 
     if (mac_payload_length > MAC_IEEE_802_15_4_MAX_MAC_SAFE_PAYLOAD_SIZE &&
-            dev_driver->phy_MTU == MAC_IEEE_802_15_4_MAX_PHY_PACKET_SIZE) {
+            rf_ptr->phy_mtu_size == MAC_IEEE_802_15_4_MAX_PHY_PACKET_SIZE) {
         /* IEEE 802.15.4-2003 only allowed unsecured payloads up to 102 bytes
         * (always leaving room for maximum MAC overhead).
         * IEEE 802.15.4-2006 allows bigger if MAC header is small enough, but
@@ -1596,8 +1596,8 @@ static int8_t mcps_generic_packet_build(protocol_interface_rf_mac_setup_s *rf_pt
 
     //Add MHR length to total length
     frame_length += buffer->mac_header_length_with_security + buffer->security_mic_len;
-    if ((frame_length) > dev_driver->phy_MTU - 2) {
-        tr_debug("Too Long %u, %u pa %u header %u mic %u", frame_length, mac_payload_length, buffer->mac_header_length_with_security,  buffer->security_mic_len, dev_driver->phy_MTU);
+    if ((frame_length) > rf_ptr->phy_mtu_size - 2) {
+        tr_debug("Too Long %u, %u pa %u header %u mic %u", frame_length, mac_payload_length, buffer->mac_header_length_with_security,  buffer->security_mic_len, rf_ptr->phy_mtu_size);
         buffer->status = MLME_FRAME_TOO_LONG;
         //decrement security counter
         if (key_desc) {
@@ -1745,8 +1745,8 @@ int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, bool in
     //Add MHR length to total length
     frame_length += buffer->mac_header_length_with_security + buffer->security_mic_len;
     uint16_t ack_mtu_size;
-    if (ENHANCED_ACK_MAX_LENGTH > dev_driver->phy_MTU) {
-        ack_mtu_size = dev_driver->phy_MTU;
+    if (ENHANCED_ACK_MAX_LENGTH > rf_ptr->phy_mtu_size) {
+        ack_mtu_size = rf_ptr->phy_mtu_size;
     } else {
         ack_mtu_size = ENHANCED_ACK_MAX_LENGTH;
     }

@@ -43,6 +43,7 @@
 #define MAC_IEEE_802_15_4_MIN_MPDU_OVERHEAD             9       /**< Minimum overhead added by MAC to MPDU */
 #define MAC_IEEE_802_15_4_MAX_BEACON_OVERHEAD           75      /**< Maximum overhead which is added by the MAC for beacon */
 #define MAC_IEEE_802_15_4_MAX_PHY_PACKET_SIZE           127     /**< Maximum number of octets PHY layer is able to receive */
+#define MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE          2047    /**< Maximum number of octets PHY layer is able to receive */
 
 #define MAC_IEEE_802_15_4_MAX_BEACON_PAYLOAD_LENGTH \
     (MAC_IEEE_802_15_4_MAX_PHY_PACKET_SIZE - MAC_IEEE_802_15_4_MAX_BEACON_OVERHEAD) /**< Maximum size of beacon payload */

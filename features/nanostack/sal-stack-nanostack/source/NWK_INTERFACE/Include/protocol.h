@@ -375,6 +375,7 @@ struct protocol_interface_info_entry {
     trickle_params_t mpl_control_trickle_params;
     uint16_t mpl_seed_set_entry_lifetime;
     uint8_t mpl_seed_id[16];
+    struct mpl_domain *mpl_domain;
 #endif
     if_6lowpan_dad_entry_t if_6lowpan_dad_process;
     lowpan_context_list_t lowpan_contexts;

@@ -75,5 +75,7 @@ uint8_t protocol_6lowpan_beacon_join_priority_tx(int8_t interface_id);
 uint8_t protocol_6lowpan_beacon_compare_rx(int8_t interface_id, uint8_t join_priority, uint8_t link_quality);
 bool protocol_6lowpan_bootsrap_start(struct protocol_interface_info_entry *interface);
 bool protocol_6lowpan_bootsrap_link_set(struct protocol_interface_info_entry *interface, struct mlme_pan_descriptor_s *pan_descriptor, const uint8_t *beacon_payload, uint8_t beacon_length);
+bool protocol_6lowpan_latency_estimate_get(int8_t interface_id, uint32_t *latency);
+bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t data_amount, uint16_t *stagger_min, uint16_t *stagger_max, uint16_t *stagger_rand);
 
 #endif /* PROTOCOL_6LOWPAN_H_ */
