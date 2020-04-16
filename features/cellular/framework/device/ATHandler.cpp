@@ -35,6 +35,10 @@ using namespace mbed_cellular_util;
 
 #include "CellularLog.h"
 
+#ifndef MBED_CONF_CELLULAR_DEBUG_AT
+#define MBED_CONF_CELLULAR_DEBUG_AT 0
+#endif
+
 // URCs should be handled fast, if you add debug traces within URC processing then you also need to increase this time
 #define PROCESS_URC_TIME 20
 
