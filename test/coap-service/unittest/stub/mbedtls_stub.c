@@ -248,6 +248,38 @@ int mbedtls_ctr_drbg_random(void *p_rng,
     return mbedtls_stub.crt_expected_int;
 }
 
+// from hmac_drbg.h
+void mbedtls_hmac_drbg_init(mbedtls_hmac_drbg_context *ctx)
+{
+
+}
+
+void mbedtls_hmac_drbg_free(mbedtls_hmac_drbg_context *ctx)
+{
+
+}
+
+int mbedtls_hmac_drbg_seed(mbedtls_hmac_drbg_context *ctx,
+                           const mbedtls_md_info_t *md_info,
+                           int (*f_entropy)(void *, unsigned char *, size_t),
+                           void *p_entropy,
+                           const unsigned char *custom,
+                           size_t len)
+{
+    return mbedtls_stub.crt_expected_int;
+}
+
+int mbedtls_hmac_drbg_random(void *p_rng, unsigned char *output, size_t out_len)
+{
+    return mbedtls_stub.crt_expected_int;
+}
+
+// from md.h
+const mbedtls_md_info_t *mbedtls_md_info_from_type(mbedtls_md_type_t md_type)
+{
+    return 0;
+}
+
 //From x509_crt.h
 void mbedtls_x509_crt_init(mbedtls_x509_crt *a)
 {
