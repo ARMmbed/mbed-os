@@ -140,6 +140,21 @@ const  uint8_t D1CorePrescTable[16] = {0, 0, 0, 0, 1, 2, 3, 4, 1, 2, 3, 4, 6, 7,
   */
 
 /**
+ * @brief Setup the target board-specific configuration
+ * of the microcontroller
+ *
+ * @note If used, this function should be implemented
+ * elsewhere. This declaration is weak so it may be overridden
+ * by user code.
+ *
+ * @param None
+ * @retval None
+ */
+__weak void TargetBSP_Init(void) {
+    /** Do nothing */
+}
+
+/**
   * @brief  Setup the microcontroller system
   *         Initialize the FPU setting and  vector table location
   *         configuration.
@@ -216,6 +231,9 @@ void SystemInit(void)
     }
 
 #endif /* CORE_CM7*/
+
+    /* BSP initialization hook (external RAM, etc) */
+    TargetBSP_Init();
 
 #ifdef CORE_CM4
 
