@@ -388,6 +388,10 @@ LWIP::Interface::Interface() :
     attr.cb_mem = &has_any_addr_sem;
     attr.cb_size = sizeof has_any_addr_sem;
     has_any_addr = osSemaphoreNew(UINT16_MAX, 0, &attr);
+
+    attr.cb_mem = &remove_interface_sem;
+    attr.cb_size = sizeof remove_interface_sem;
+    remove_interface = osSemaphoreNew(UINT16_MAX, 0, &attr);
 #if PREF_ADDR_TIMEOUT
     attr.cb_mem = &has_pref_addr_sem;
     attr.cb_size = sizeof has_pref_addr_sem;
@@ -453,6 +457,50 @@ nsapi_error_t LWIP::add_ethernet_interface(EMAC &emac, bool default_if, OnboardN
     }
     lwip_add_random_seed(seed);
 
+    return NSAPI_ERROR_OK;
+#else
+    return NSAPI_ERROR_UNSUPPORTED;
+#endif //LWIP_ETHERNET
+}
+
+void LWIP::Interface::delete_interface(OnboardNetworkStack::Interface **interface_out)
+{
+#if LWIP_ETHERNET
+    if ((interface_out != NULL) && (*interface_out != NULL)) {
+        LWIP::Interface *lwip = static_cast<Interface *>(*interface_out);
+        LWIP::Interface *node = lwip->list;
+
+        if (lwip->list != NULL) {
+            if (lwip->list == lwip) {
+
+                lwip->list = lwip->list->next;
+                netif_remove(&node->netif);
+                *interface_out = NULL;
+                delete node;
+            } else {
+                while (node->next != NULL && node->next != lwip) {
+                    node = node->next;
+                }
+                if (node->next != NULL && node->next == lwip) {
+                    Interface *remove = node->next;
+                    node->next = node->next->next;
+                    netif_remove(&remove->netif);
+                    *interface_out = NULL;
+                    delete remove;
+                }
+            }
+        }
+        osSemaphoreRelease(lwip->remove_interface);
+    }
+#endif
+}
+
+nsapi_error_t LWIP::remove_ethernet_interface(OnboardNetworkStack::Interface **interface_out)
+{
+#if LWIP_ETHERNET
+    LWIP::Interface *lwip = static_cast<Interface *>(*interface_out);
+    tcpip_callback_with_block((tcpip_callback_fn)&LWIP::Interface::delete_interface, interface_out, 1);
+    osSemaphoreAcquire(lwip->remove_interface, osWaitForever);
     return NSAPI_ERROR_OK;
 #else
     return NSAPI_ERROR_UNSUPPORTED;
