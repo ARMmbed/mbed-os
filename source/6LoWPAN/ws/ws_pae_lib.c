@@ -22,13 +22,16 @@
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
 #include "fhss_config.h"
+#include "ws_management_api.h"
 #include "NWK_INTERFACE/Include/protocol.h"
+#include "6LoWPAN/ws/ws_cfg_settings.h"
 #include "6LoWPAN/ws/ws_config.h"
+#include "6LoWPAN/ws/ws_pae_timers.h"
+#include "Security/protocols/sec_prot_cfg.h"
 #include "Security/kmp/kmp_addr.h"
 #include "Security/kmp/kmp_api.h"
 #include "Security/protocols/sec_prot_certs.h"
 #include "Security/protocols/sec_prot_keys.h"
-#include "6LoWPAN/ws/ws_pae_timers.h"
 #include "6LoWPAN/ws/ws_pae_lib.h"
 
 #ifdef HAVE_WS
@@ -228,7 +231,7 @@ bool ws_pae_lib_supp_list_timer_update(supp_list_t *active_supp_list, supp_list_
     return timer_running;
 }
 
-void ws_pae_lib_supp_list_slow_timer_update(supp_list_t *supp_list, timer_settings_t *timer_settings, uint16_t seconds)
+void ws_pae_lib_supp_list_slow_timer_update(supp_list_t *supp_list, sec_timer_cfg_t *timer_settings, uint16_t seconds)
 {
     ns_list_foreach(supp_entry_t, entry, supp_list) {
         if (sec_prot_keys_pmk_lifetime_decrement(&entry->sec_keys, timer_settings->pmk_lifetime, seconds)) {

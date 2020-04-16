@@ -27,6 +27,7 @@
 #include "6LoWPAN/ws/ws_config.h"
 #include "6LoWPAN/ws/ws_common.h"
 #include "6LoWPAN/ws/ws_bootstrap.h"
+#include "6LoWPAN/ws/ws_cfg_settings.h"
 #include "RPL/rpl_control.h"
 #include "RPL/rpl_data.h"
 #include "Common_Protocols/icmpv6.h"
@@ -61,6 +62,7 @@ static uint8_t current_instance_id = RPL_INSTANCE_ID;
  */
 static int8_t backbone_interface_id = -1; // BBR backbone information
 static uint16_t configuration = 0;
+static uint32_t pan_version_timer = 0;
 
 static uint8_t static_dodag_prefix[8] = {0xfd, 0x00, 0x72, 0x83, 0x7e};
 static uint8_t static_dodag_id_prefix[8] = {0xfd, 0x00, 0x61, 0x72, 0x6d};
@@ -80,9 +82,9 @@ static rpl_dodag_conf_t rpl_conf = {
     .dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE,
     .min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE,
     // DIO configuration
-    .dio_interval_min = WS_RPL_DIO_IMIN,
-    .dio_interval_doublings = WS_RPL_DIO_DOUBLING,
-    .dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY
+    .dio_interval_min = WS_RPL_DIO_IMIN_SMALL,
+    .dio_interval_doublings = WS_RPL_DIO_DOUBLING_SMALL,
+    .dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY_SMALL
 };
 
 static void ws_bbr_rpl_version_timer_start(protocol_interface_info_entry_t *cur, uint8_t version)
@@ -109,9 +111,9 @@ void ws_bbr_rpl_config(protocol_interface_info_entry_t *cur, uint8_t imin, uint8
 {
     if (imin == 0 || doubling == 0) {
         // use default values
-        imin = WS_RPL_DIO_IMIN;
-        doubling = WS_RPL_DIO_DOUBLING;
-        redundancy = WS_RPL_DIO_REDUNDANCY;
+        imin = WS_RPL_DIO_IMIN_SMALL;
+        doubling = WS_RPL_DIO_DOUBLING_SMALL;
+        redundancy = WS_RPL_DIO_REDUNDANCY_SMALL;
     }
 
     if (rpl_conf.dio_interval_min == imin &&
@@ -532,6 +534,22 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
         }
     }
 }
+void ws_bbr_pan_version_increase(protocol_interface_info_entry_t *cur)
+{
+    if (!cur) {
+        return;
+    }
+    tr_debug("Border router version number update");
+    if (configuration & BBR_REQUIRE_DAO_REFRESH) {
+        // Version number is not periodically increased forcing nodes to check Border router availability using DAO
+        pan_version_timer = 0;
+    } else {
+        pan_version_timer = cur->ws_info->cfg->timing.pan_timeout / PAN_VERSION_CHANGE_INTERVAL;
+    }
+    cur->ws_info->pan_information.pan_version++;
+    // Inconsistent for border router to make information distribute faster
+    ws_bootstrap_configuration_trickle_reset(cur);
+}
 
 void ws_bbr_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds)
 {
@@ -574,18 +592,21 @@ void ws_bbr_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds
     }
     // Normal BBR operation
     if (protocol_6lowpan_rpl_root_dodag) {
-        if (cur->ws_info->pan_version_timer > seconds) {
-            cur->ws_info->pan_version_timer -= seconds;
-        } else {
-            // PAN version number update
-            tr_debug("Border router version number update");
-            cur->ws_info->pan_version_timer = ws_common_version_lifetime_get(cur->ws_info->network_size_config);
-            cur->ws_info->pan_information.pan_version++;
-            // Inconsistent for border router to make information distribute faster
-            ws_bootstrap_configuration_trickle_reset(cur);
-
-            if (cur->ws_info->network_size_config == NETWORK_SIZE_AUTOMATIC) {
-                ws_common_network_size_configure(cur, cur->ws_info->pan_information.pan_size);
+        /*
+         * PAN version change is one way to enable nodes to detect the border router availability
+         * if this is not done periodically devices need to have other means to detect border router condiftion
+         *
+         * If devices do not see version change they need to send DAO to border router before PAN timeout
+         *
+         * The update frequency should be related to PAN timeout and happen for example 4 times.
+         */
+        if (pan_version_timer > 0) {
+            if (pan_version_timer > seconds) {
+                pan_version_timer -= seconds;
+            } else {
+                // PAN version number update
+                pan_version_timer = 0;
+                ws_bbr_pan_version_increase(cur);
             }
         }
         if (cur->ws_info->rpl_version_timer > seconds) {
@@ -751,6 +772,166 @@ int ws_bbr_ext_certificate_validation_set(int8_t interface_id, uint8_t validatio
     return ws_pae_controller_ext_certificate_validation_set(interface_id, enabled);
 #else
     (void) validation;
+    return -1;
+#endif
+}
+
+int ws_bbr_rpl_parameters_set(int8_t interface_id, uint8_t dio_interval_min, uint8_t dio_interval_doublings, uint8_t dio_redundancy_constant)
+{
+    (void) interface_id;
+#ifdef HAVE_WS_BORDER_ROUTER
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+
+    ws_rpl_cfg_t cfg;
+    if (ws_cfg_rpl_get(&cfg, NULL) < 0) {
+        return -1;
+    }
+
+    if (dio_interval_min > 0) {
+        cfg.dio_interval_min = dio_interval_min;
+    }
+    if (dio_interval_doublings > 0) {
+        cfg.dio_interval_doublings = dio_interval_doublings;
+    }
+    if (dio_redundancy_constant != 0xff) {
+        cfg.dio_redundancy_constant = dio_redundancy_constant;
+    }
+
+    if (ws_cfg_rpl_set(cur, NULL, &cfg, 0) < 0) {
+        return -2;
+    }
+
+    return 0;
+#else
+    (void) dio_interval_min;
+    (void) dio_interval_doublings;
+    (void) dio_redundancy_constant;
+    return -1;
+#endif
+}
+
+int ws_bbr_rpl_parameters_get(int8_t interface_id, uint8_t *dio_interval_min, uint8_t *dio_interval_doublings, uint8_t *dio_redundancy_constant)
+{
+    (void) interface_id;
+#ifdef HAVE_WS_BORDER_ROUTER
+    if (!dio_interval_min || !dio_interval_doublings || !dio_redundancy_constant) {
+        return -1;
+    }
+
+    ws_rpl_cfg_t cfg;
+    if (ws_cfg_rpl_get(&cfg, NULL) < 0) {
+        return -2;
+    }
+
+    *dio_interval_min = cfg.dio_interval_min;
+    *dio_interval_doublings = cfg.dio_interval_doublings;
+    *dio_redundancy_constant = cfg.dio_redundancy_constant;
+
+    return 0;
+#else
+    (void) dio_interval_min;
+    (void) dio_interval_doublings;
+    (void) dio_redundancy_constant;
+    return -1;
+#endif
+}
+
+int ws_bbr_rpl_parameters_validate(int8_t interface_id, uint8_t dio_interval_min, uint8_t dio_interval_doublings, uint8_t dio_redundancy_constant)
+{
+    (void) interface_id;
+#ifdef HAVE_WS_BORDER_ROUTER
+    ws_rpl_cfg_t cfg;
+    if (ws_cfg_rpl_get(&cfg, NULL) < 0) {
+        return -2;
+    }
+
+    if (dio_interval_min > 0) {
+        cfg.dio_interval_min = dio_interval_min;
+    }
+    if (dio_interval_doublings > 0) {
+        cfg.dio_interval_doublings = dio_interval_doublings;
+    }
+    if (dio_redundancy_constant != 0xff) {
+        cfg.dio_redundancy_constant = dio_redundancy_constant;
+    }
+
+    if (ws_cfg_rpl_validate(NULL, &cfg) < 0) {
+        return -3;
+    }
+
+    return 0;
+#else
+    (void) dio_interval_min;
+    (void) dio_interval_doublings;
+    (void) dio_redundancy_constant;
+    return -1;
+#endif
+}
+
+int ws_bbr_pan_configuration_set(int8_t interface_id, uint16_t pan_id)
+{
+    (void) interface_id;
+#ifdef HAVE_WS_BORDER_ROUTER
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+
+    ws_gen_cfg_t cfg;
+    if (ws_cfg_gen_get(&cfg, NULL) < 0) {
+        return -1;
+    }
+
+    cfg.network_pan_id = pan_id;
+
+    if (ws_cfg_gen_set(cur, NULL, &cfg, 0) < 0) {
+        return -2;
+    }
+
+    return 0;
+#else
+    (void) pan_id;
+    return -1;
+#endif
+}
+
+int ws_bbr_pan_configuration_get(int8_t interface_id, uint16_t *pan_id)
+{
+    (void) interface_id;
+#ifdef HAVE_WS_BORDER_ROUTER
+    if (!pan_id) {
+        return -1;
+    }
+
+    ws_gen_cfg_t cfg;
+    if (ws_cfg_gen_get(&cfg, NULL) < 0) {
+        return -2;
+    }
+
+    *pan_id = cfg.network_pan_id;
+
+    return 0;
+#else
+    (void) pan_id;
+    return -1;
+#endif
+}
+
+int ws_bbr_pan_configuration_validate(int8_t interface_id, uint16_t pan_id)
+{
+    (void) interface_id;
+#ifdef HAVE_WS_BORDER_ROUTER
+    ws_gen_cfg_t cfg;
+    if (ws_cfg_gen_get(&cfg, NULL) < 0) {
+        return -1;
+    }
+
+    cfg.network_pan_id = pan_id;
+
+    if (ws_cfg_gen_validate(NULL, &cfg) < 0) {
+        return -2;
+    }
+
+    return 0;
+#else
+    (void) pan_id;
     return -1;
 #endif
 }

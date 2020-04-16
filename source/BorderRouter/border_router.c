@@ -201,7 +201,7 @@ int8_t arm_nwk_6lowpan_border_router_context_update(int8_t interface_id, uint8_t
                 if (cur->border_router_setup->nd_nwk) {
                     nd_router_setup_t *routerSetup = cur->border_router_setup->nd_border_router_configure;
 
-                    if (!lowpan_contex_get_by_id(&routerSetup->context_list, (c_id_flags & LOWPAN_CONTEXT_CID_MASK))) {
+                    if (!lowpan_context_get_by_id(&routerSetup->context_list, (c_id_flags & LOWPAN_CONTEXT_CID_MASK))) {
                         if (ns_list_count(&routerSetup->context_list) >= ND_MAX_PROXY_CONTEXT_COUNT) {
                             return -1;
                         }
@@ -245,7 +245,7 @@ int8_t arm_nwk_6lowpan_border_router_nd_context_load(int8_t interface_id, uint8_
             contex_data += 2;
             //Now Pointer Indicate to prefix
             //Check first is current ID at list
-            if (!lowpan_contex_get_by_id(&nd_router_setup->context_list, (c_id & LOWPAN_CONTEXT_CID_MASK))) {
+            if (!lowpan_context_get_by_id(&nd_router_setup->context_list, (c_id & LOWPAN_CONTEXT_CID_MASK))) {
                 if (ns_list_count(&nd_router_setup->context_list) >= ND_MAX_PROXY_CONTEXT_COUNT) {
                     tr_debug("All Contexts are allocated");
                     return -1;
@@ -305,7 +305,7 @@ int8_t arm_nwk_6lowpan_border_router_context_remove_by_id(int8_t interface_id, u
 
     nd_router_configuration = cur_interface->border_router_setup->nd_border_router_configure;
 
-    entry = lowpan_contex_get_by_id(&nd_router_configuration->context_list, c_id);
+    entry = lowpan_context_get_by_id(&nd_router_configuration->context_list, c_id);
     if (entry) {
         ns_list_remove(&nd_router_configuration->context_list, entry);
         ns_dyn_mem_free(entry);
@@ -333,7 +333,7 @@ int8_t arm_nwk_6lowpan_border_router_context_parameter_update(int8_t interface_i
 
     nd_router_configuration = cur_interface->border_router_setup->nd_border_router_configure;
 
-    entry = lowpan_contex_get_by_id(&nd_router_configuration->context_list, c_id);
+    entry = lowpan_context_get_by_id(&nd_router_configuration->context_list, c_id);
     if (entry) {
         uint8_t cid_flag = entry->cid;
         entry->compression = compress_mode;

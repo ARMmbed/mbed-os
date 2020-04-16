@@ -233,7 +233,7 @@ bool ws_pae_lib_supp_list_timer_update(supp_list_t *active_supp_list, supp_list_
  * \param seconds seconds
  *
  */
-void ws_pae_lib_supp_list_slow_timer_update(supp_list_t *supp_list, timer_settings_t *timer_settings, uint16_t seconds);
+void ws_pae_lib_supp_list_slow_timer_update(supp_list_t *supp_list, sec_timer_cfg_t *timer_settings, uint16_t seconds);
 
 /**
  *  ws_pae_lib_supp_list_timer_update updates supplicant timers
