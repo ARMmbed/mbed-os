@@ -247,20 +247,6 @@ ble_error_t SecurityManager<Impl>::getSigningKey(
     return impl()->getSigningKey_(connectionHandle, authenticated);
 }
 
-template <class Impl>
-ble_error_t SecurityManager<Impl>::getAddressesFromBondTable(
-    ::Gap::Whitelist_t &addresses
-) const {
-    return impl()->getAddressesFromBondTable_(addresses);
-}
-
-template <class Impl>
-ble_error_t SecurityManager<Impl>::getAddressesFromBondTable_(
-    ::Gap::Whitelist_t &addresses
-) const {
-    return BLE_ERROR_NOT_IMPLEMENTED;
-}
-
 /* ------------------------ Dummy implementations --------------------------- */
 
 template <class Impl>
