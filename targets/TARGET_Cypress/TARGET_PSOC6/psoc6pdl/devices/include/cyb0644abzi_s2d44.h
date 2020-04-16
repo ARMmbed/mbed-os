@@ -5,11 +5,11 @@
 * CYB0644ABZI-S2D44 device header
 *
 * \note
-* Generator version: 1.5.0.1292
+* Generator version: 1.6.0.81
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -572,7 +572,7 @@ typedef enum {
 #include "gpio_psoc6_02_124_bga.h"
 
 #define CY_DEVICE_PSOC6A2M
-#define CY_SILICON_ID                   0xE4301102UL
+#define CY_SILICON_ID                   0xE4701202UL
 #define CY_HF_CLK_MAX_FREQ              150000000UL
 
 #define CPUSS_FLASHC_PA_SIZE_LOG2       0x7UL

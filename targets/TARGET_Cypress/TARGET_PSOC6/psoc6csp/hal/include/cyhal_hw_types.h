@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,10 +23,18 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_hal_psoc6_hw_types Implementation-defined types
-* \ingroup group_hal_psoc6
+* \addtogroup group_hal_psoc6 PSoC 6 Implementation Specific
 * \{
-* Aliases for types which are part of the public HAL interface but whose  representations are 
+* This section provides details about the PSoC 6 implementation of the Cypress HAL.
+* All information within this section is platform specific and is provided for reference.
+* Portable application code should depend only on the APIs and types which are documented
+* in the @ref group_hal section.
+*/
+
+/**
+* \addtogroup group_hal_psoc6_hw_types PSoC6 Specific Hardware Types
+* \{
+* Aliases for types which are part of the public HAL interface but whose representations
 * need to vary per HAL implementation
 */
 
@@ -35,6 +43,7 @@
 #include "cy_pdl.h"
 #include "cyhal_hw_resources.h"
 #include "cyhal_pin_package.h"
+#include "cyhal_triggers.h"
 #include <stdbool.h>
 
 #if defined(CYHAL_UDB_SDIO)
@@ -47,7 +56,9 @@ extern "C" {
 
 
 #ifndef CYHAL_ISR_PRIORITY_DEFAULT
-/** Default priority for interrupts */
+/** Priority that is applied by default to all drivers when initalized. Priorities can be
+ * overridden on each driver as part of enabling events.
+ */
 #define CYHAL_ISR_PRIORITY_DEFAULT  (7)
 #endif
 
@@ -56,6 +67,7 @@ extern "C" {
 */
 
 #define CYHAL_CRC_IMPL_HEADER       "cyhal_crc_impl.h"      //!< Implementation specific header for CRC
+#define CYHAL_DMA_IMPL_HEADER       "cyhal_dma_impl.h"      //!< Implementation specific header for DMA
 #define CYHAL_GPIO_IMPL_HEADER      "cyhal_gpio_impl.h"     //!< Implementation specific header for GPIO
 #define CYHAL_PWM_IMPL_HEADER       "cyhal_pwm_impl.h"      //!< Implementation specific header for PWM
 #define CYHAL_SYSTEM_IMPL_HEADER    "cyhal_system_impl.h"   //!< Implementation specific header for System
@@ -67,7 +79,6 @@ extern "C" {
 /**
 */
 typedef uint32_t cyhal_source_t; //!< Routable signal source
-typedef uint32_t cyhal_dest_t; //!< Routable signal destination
 
 /** Callbacks for Sleep and Deepsleep APIs */
 #define cyhal_system_callback_t cy_stc_syspm_callback_t
@@ -98,13 +109,6 @@ typedef struct {
     void*         callback_arg;
 } cyhal_event_callback_data_t;
 
-/**
-* \addtogroup group_hal_psoc6_hw_types_handle Instance Handles
-* \{
-* Structs which retain data which needs to persist across HAL API calls. From the perspective of the 
-* generic HAL interface, these are opaque; the contents are specific to this implementation.
-*/
-
 /** @brief ADC object */
 typedef struct {
 #ifdef CY_IP_MXS40PASS_SAR
@@ -131,16 +135,6 @@ typedef struct {
 #endif
 } cyhal_adc_channel_t;
 
-/** @brief Comparator object */
-typedef struct {
-#if defined(CY_IP_MXLPCOMP_INSTANCES) || defined(PASS_NR_CTBS)
-    /* TODO: define */
-    void * TODO_define;
-#else
-    void *empty;
-#endif
-} cyhal_comp_t;
-
 /** @brief CRC object */
 typedef struct {
 #if defined(CY_IP_MXCRYPTO_INSTANCES) || defined(CPUSS_CRYPTO_PRESENT)
@@ -163,8 +157,37 @@ typedef struct {
 
 /** @brief DMA object */
 typedef struct {
-#if defined(CY_IP_M4CPUSS_DMAC_INSTANCES) || defined(CY_IP_M4CPUSS_DMA_INSTANCES)
-    cyhal_resource_inst_t     resource;
+#if defined(CY_IP_M4CPUSS_DMAC) || defined(CY_IP_M4CPUSS_DMA)
+    cyhal_resource_inst_t          resource;
+    union
+    {
+#ifdef CY_IP_M4CPUSS_DMA
+        cy_stc_dma_channel_config_t    dw;
+#endif
+#ifdef CY_IP_M4CPUSS_DMAC
+        cy_stc_dmac_channel_config_t   dmac;
+#endif
+    } channel_config;
+    union
+    {
+#ifdef CY_IP_M4CPUSS_DMA
+        cy_stc_dma_descriptor_config_t dw;
+#endif
+#ifdef CY_IP_M4CPUSS_DMAC
+        cy_stc_dmac_descriptor_config_t dmac;
+#endif
+    } descriptor_config;
+    union
+    {
+#ifdef CY_IP_M4CPUSS_DMA
+        cy_stc_dma_descriptor_t        dw;
+#endif
+#ifdef CY_IP_M4CPUSS_DMAC
+        cy_stc_dmac_descriptor_t        dmac;
+#endif
+    } descriptor;
+    uint32_t                       irq_cause;
+    cyhal_event_callback_data_t    callback_data;
 #else
     void *empty;
 #endif
@@ -199,46 +222,33 @@ typedef struct {
 #endif
 } cyhal_i2c_t;
 
-/** @brief I2S object */
+/** @brief EZI2C object */
 typedef struct {
-#ifdef CY_IP_MXAUDIOSS_INSTANCES
-    /* TODO: define */
-    void * TODO_define;
+#ifdef CY_IP_MXSCB
+    CySCB_Type*                         base;
+    cyhal_resource_inst_t               resource;
+    cyhal_gpio_t                        pin_sda;
+    cyhal_gpio_t                        pin_scl;
+    cyhal_clock_divider_t               clock;
+    bool                                is_shared_clock;
+    cy_stc_scb_ezi2c_context_t          context;
+    uint32_t                            irq_cause;
+    cyhal_event_callback_data_t         callback_data;
 #else
     void *empty;
 #endif
-} cyhal_i2s_t;
+} cyhal_ezi2c_t;
 
 /** @brief LPTIMER object */
 typedef struct {
 #ifdef CY_IP_MXS40SRSS_MCWDT_INSTANCES
-    MCWDT_STRUCT_Type           *base;
-    cyhal_resource_inst_t       resource;
-    cyhal_event_callback_data_t callback_data;
+    MCWDT_STRUCT_Type                *base;
+    cyhal_resource_inst_t            resource;
+    cyhal_event_callback_data_t      callback_data;
 #else
     void *empty;
 #endif
 } cyhal_lptimer_t;
-
-/** @brief OpAmp object */
-typedef struct {
-#ifdef PASS_NR_CTBS
-    /* TODO: define */
-    void * TODO_define;
-#else
-    void *empty;
-#endif
-} cyhal_opamp_t;
-
-/** @brief PDM-PCM object */
-typedef struct {
-#ifdef CY_IP_MXAUDIOSS_INSTANCES
-    /* TODO: define */
-    void * TODO_define;
-#else
-    void *empty;
-#endif
-} cyhal_pdm_pcm_t;
 
 /** @brief PWM object */
 typedef struct {
@@ -246,6 +256,7 @@ typedef struct {
     TCPWM_Type*                     base;
     cyhal_resource_inst_t           resource;
     cyhal_gpio_t                    pin;
+    cyhal_gpio_t                    pin_compl;
     cyhal_clock_divider_t           clock;
     uint32_t                        clock_hz;
     bool                            dedicated_clock;
@@ -280,12 +291,18 @@ typedef struct {
 #if defined(CY_IP_MXCRYPTO_INSTANCES) || defined(CPUSS_CRYPTO_PRESENT)
     CRYPTO_Type*                base;
     cyhal_resource_inst_t       resource;
+#else
+    void *empty;
 #endif
 } cyhal_trng_t;
 
 /** @brief RTC object */
 typedef struct {
-    uint8_t placeholder;
+#ifdef CY_IP_MXS40SRSS_RTC
+    cy_stc_rtc_dst_t dst;
+#else
+    void *empty;
+#endif
 } cyhal_rtc_t;
 
 /** @brief SDHC object */
@@ -457,10 +474,9 @@ typedef struct {
     uint8_t placeholder;
 } cyhal_wdt_t;
 
-/** \} group_hal_psoc6_hw_types_handles */
-
 #if defined(__cplusplus)
 }
 #endif /* __cplusplus */
 
 /** \} group_hal_psoc6_hw_types */
+/** \} group_hal_psoc6 */

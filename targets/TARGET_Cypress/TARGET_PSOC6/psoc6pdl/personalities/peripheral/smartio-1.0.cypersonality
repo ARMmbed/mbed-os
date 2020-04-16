@@ -3,14 +3,14 @@
 
 <!--****************************************************************************
 * \file smartio.cypersonality
-* \version 1.0
+* \version 1.0.1
 *
 * \brief
 * Smart I/O personality description file.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -82,7 +82,7 @@
       <ParamBool id="hasIoIn$idx" group="Internal" name="has IO in signal" visible="false" editable="false" default="`${hasVisibleOption(&quot;io_in[$idx]&quot;)}`" desc="IO in signal available" />
       <ParamBool id="hasIoOut$idx" group="Internal" name="has IO out signal" visible="false" editable="false" default="`${hasVisibleOption(&quot;io_out[$idx]&quot;)}`" desc="IO out signal available" />
       <ParamBool id="hasAnyIo$idx" group="Internal" name="has any io connection" visible="false" editable="false" default="`${hasIoIn$idx || hasIoOut$idx}`" desc="any io connection available"/>
-      <ParamChoice id="ioMode$idx" name="I/O terminal $idx mode" group="I/O Terminal" default="`${hasAnyIo$idx ? CY_SMARTIO_BYPASS : CY_SMARTIO_NONE}`" visible="`${(debug eq true)}`" editable="true" desc="I/O terminal $idx signal mode/direction" >
+      <ParamChoice id="ioMode$idx" name="I/O terminal $idx mode" group="I/O Terminal" default="`${hasAnyIo$idx ? CY_SMARTIO_BYPASS : CY_SMARTIO_NONE}`" visible="`${(debug eq true)}`" editable="`${hasAnyIo$idx}`" desc="I/O terminal $idx signal mode/direction" >
         <Entry name="Bypass" value="CY_SMARTIO_BYPASS" visible="`${hasAnyIo$idx}`" />
         <Entry name="Input(Sync)" value="CY_SMARTIO_SYNC_INPUT" visible="`${(clkSrc ne CY_SMARTIO_CLK_ASYNC) &amp;&amp; hasIoIn$idx}`" />
         <Entry name="Input(Async)" value="CY_SMARTIO_ASYNC_INPUT" visible="`${hasIoIn$idx}`" />
@@ -104,8 +104,8 @@
       <ParamBool id="hasAnyChip$idx" group="Internal" name="has any chip connection" visible="false" editable="false" default="`${hasChipIn$idx || hasChipOut$idx || hasChipInout$idx}`" desc="any chip connection available"/>
       
       <!-- Chip_in and chip_out's visibility expressions appear reversed. They are not. The in/out are with respect to the chip -->
-      <ParamChoice id="chipMode$idx" name="Chip terminal $idx mode" group="Chip Terminal" default="`${hasAnyChip$idx ? CY_SMARTIO_BYPASS : CY_SMARTIO_NONE}`" visible="`${(debug eq true)}`" editable="true" desc="Chip terminal $idx signal mode/direction" >
-        <Entry name="Bypass" value="CY_SMARTIO_BYPASS" visible="`${hasAnyChip$idx}`" />
+      <ParamChoice id="chipMode$idx" name="Chip terminal $idx mode" group="Chip Terminal" default="`${hasAnyChip$idx &amp;&amp; hasAnyIo$idx ? CY_SMARTIO_BYPASS : CY_SMARTIO_NONE}`" visible="`${(debug eq true)}`" editable="`${hasAnyChip$idx}`" desc="Chip terminal $idx signal mode/direction" >
+        <Entry name="Bypass" value="CY_SMARTIO_BYPASS" visible="`${hasAnyChip$idx &amp;&amp; hasAnyIo$idx}`" />
         <Entry name="Input(Sync)" value="CY_SMARTIO_SYNC_INPUT" visible="`${(clkSrc ne CY_SMARTIO_CLK_ASYNC) &amp;&amp; (hasChipOut$idx || hasChipInout$idx)}`" />
         <Entry name="Input(Async)" value="CY_SMARTIO_ASYNC_INPUT" visible="`${hasChipOut$idx || hasChipInout$idx}`" />
         <Entry name="Output" value="CY_SMARTIO_OUTPUT" visible="`${hasChipIn$idx || hasChipInout$idx}`" />

@@ -3,14 +3,14 @@
 
 <!--****************************************************************************
 * \file smif.cypersonality
-* \version 1.1
+* \version 1.1.1
 *
 * \brief
 * Quad Serial Peripheral Interface (QSPI) personality description file.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -62,7 +62,7 @@
     </ParamCustom>
   
     <!-- Data -->
-    <ParamSignal port="spi_data0[0]" name="SPI Data[0]" group="Data" visible="true" desc="Data line 0 to be used by the QSPI block, must be used in conjunction with Data line 1" canBeEmpty="true">
+    <ParamSignal port="spi_data0[0]" name="SPI Data[0]" group="Data" visible="`${hasVisibleOption(&quot;spi_data0[0]&quot;)}`" desc="Data line 0 to be used by the QSPI block, must be used in conjunction with Data line 1" canBeEmpty="true">
       <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
         <Parameter id="DriveModes" severity="ERROR" reason="Drive Mode must be set to 'Strong Drive. Input buffer on'.">
           <Fixed value="CY_GPIO_DM_STRONG" />
@@ -70,7 +70,7 @@
       </Constraint>
       <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
     </ParamSignal>
-    <ParamSignal port="spi_data1[0]" name="SPI Data[1]" group="Data" visible="true" desc="Data line 1 to be used by the QSPI block, must be used in conjunction with Data line 0" canBeEmpty="true">
+    <ParamSignal port="spi_data1[0]" name="SPI Data[1]" group="Data" visible="`${hasVisibleOption(&quot;spi_data1[0]&quot;)}`" desc="Data line 1 to be used by the QSPI block, must be used in conjunction with Data line 0" canBeEmpty="true">
       <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
         <Parameter id="DriveModes" severity="ERROR" reason="Drive Mode must be set to 'Strong Drive. Input buffer on'.">
           <Fixed value="CY_GPIO_DM_STRONG" />
@@ -78,7 +78,7 @@
       </Constraint>
       <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
     </ParamSignal>
-    <ParamSignal port="spi_data2[0]" name="SPI Data[2]" group="Data" visible="true" desc="Data line 2 to be used by the QSPI block, must be used in conjunction with Data line 3" canBeEmpty="true">
+    <ParamSignal port="spi_data2[0]" name="SPI Data[2]" group="Data" visible="`${hasVisibleOption(&quot;spi_data2[0]&quot;)}`" desc="Data line 2 to be used by the QSPI block, must be used in conjunction with Data line 3" canBeEmpty="true">
       <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
         <Parameter id="DriveModes" severity="ERROR" reason="Drive Mode must be set to 'Strong Drive. Input buffer on'.">
           <Fixed value="CY_GPIO_DM_STRONG" />
@@ -86,7 +86,7 @@
       </Constraint>
       <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
     </ParamSignal>
-    <ParamSignal port="spi_data3[0]" name="SPI Data[3]" group="Data" visible="true" desc="Data line 3 to be used by the QSPI block, must be used in conjunction with Data line 2" canBeEmpty="true">
+    <ParamSignal port="spi_data3[0]" name="SPI Data[3]" group="Data" visible="`${hasVisibleOption(&quot;spi_data3[0]&quot;)}`" desc="Data line 3 to be used by the QSPI block, must be used in conjunction with Data line 2" canBeEmpty="true">
       <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
         <Parameter id="DriveModes" severity="ERROR" reason="Drive Mode must be set to 'Strong Drive. Input buffer on'.">
           <Fixed value="CY_GPIO_DM_STRONG" />
@@ -94,7 +94,7 @@
       </Constraint>
       <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
     </ParamSignal>
-    <ParamSignal port="spi_data4[0]" name="SPI Data[4]" group="Data" visible="`${CHIP_TOP.DATA8_PRESENT == 1}`" desc="Data line 4 to be used by the QSPI block, must be used in conjunction with Data line 5" canBeEmpty="true">
+    <ParamSignal port="spi_data4[0]" name="SPI Data[4]" group="Data" visible="`${(CHIP_TOP.DATA8_PRESENT == 1) &amp;&amp; hasVisibleOption(&quot;spi_data4[0]&quot;)}`" desc="Data line 4 to be used by the QSPI block, must be used in conjunction with Data line 5" canBeEmpty="true">
       <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
         <Parameter id="DriveModes" severity="ERROR" reason="Drive Mode must be set to 'Strong Drive. Input buffer on'.">
           <Fixed value="CY_GPIO_DM_STRONG" />
@@ -102,7 +102,7 @@
       </Constraint>
       <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
     </ParamSignal>
-    <ParamSignal port="spi_data5[0]" name="SPI Data[5]" group="Data" visible="`${CHIP_TOP.DATA8_PRESENT == 1}`" desc="Data line 5 to be used by the QSPI block, must be used in conjunction with Data line 4" canBeEmpty="true">
+    <ParamSignal port="spi_data5[0]" name="SPI Data[5]" group="Data" visible="`${(CHIP_TOP.DATA8_PRESENT == 1) &amp;&amp; hasVisibleOption(&quot;spi_data5[0]&quot;)}`" desc="Data line 5 to be used by the QSPI block, must be used in conjunction with Data line 4" canBeEmpty="true">
       <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
         <Parameter id="DriveModes" severity="ERROR" reason="Drive Mode must be set to 'Strong Drive. Input buffer on'.">
           <Fixed value="CY_GPIO_DM_STRONG" />
@@ -110,7 +110,7 @@
       </Constraint>
       <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
     </ParamSignal>
-    <ParamSignal port="spi_data6[0]" name="SPI Data[6]" group="Data" visible="`${CHIP_TOP.DATA8_PRESENT == 1}`" desc="Data line 6 to be used by the QSPI block, must be used in conjunction with Data line 7" canBeEmpty="true">
+    <ParamSignal port="spi_data6[0]" name="SPI Data[6]" group="Data" visible="`${(CHIP_TOP.DATA8_PRESENT == 1) &amp;&amp; hasVisibleOption(&quot;spi_data6[0]&quot;)}`" desc="Data line 6 to be used by the QSPI block, must be used in conjunction with Data line 7" canBeEmpty="true">
       <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
         <Parameter id="DriveModes" severity="ERROR" reason="Drive Mode must be set to 'Strong Drive. Input buffer on'.">
           <Fixed value="CY_GPIO_DM_STRONG" />
@@ -118,7 +118,7 @@
       </Constraint>
       <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
     </ParamSignal>
-    <ParamSignal port="spi_data7[0]" name="SPI Data[7]" group="Data" visible="`${CHIP_TOP.DATA8_PRESENT == 1}`" desc="Data line 7 to be used by the QSPI block, must be used in conjunction with Data line 6" canBeEmpty="true">
+    <ParamSignal port="spi_data7[0]" name="SPI Data[7]" group="Data" visible="`${(CHIP_TOP.DATA8_PRESENT == 1) &amp;&amp; hasVisibleOption(&quot;spi_data7[0]&quot;)}`" desc="Data line 7 to be used by the QSPI block, must be used in conjunction with Data line 6" canBeEmpty="true">
       <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
         <Parameter id="DriveModes" severity="ERROR" reason="Drive Mode must be set to 'Strong Drive. Input buffer on'.">
           <Fixed value="CY_GPIO_DM_STRONG" />
@@ -128,7 +128,7 @@
     </ParamSignal>
 
     <!-- Select -->
-    <ParamSignal port="spi_select0[0]" name="SPI Slave Select 0" group="Slave Select" visible="true" desc="Select signal 0 to specifiy which memory device to communicate with" canBeEmpty="true">
+    <ParamSignal port="spi_select0[0]" name="SPI Slave Select 0" group="Slave Select" visible="`${hasVisibleOption(&quot;spi_select0[0]&quot;)}`" desc="Select signal 0 to specifiy which memory device to communicate with" canBeEmpty="true">
       <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
         <Parameter id="DriveModes" severity="ERROR" reason="Drive Mode must be set to 'Strong Drive. Input buffer off'.">
           <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />
@@ -136,7 +136,7 @@
       </Constraint>
       <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
     </ParamSignal>
-    <ParamSignal port="spi_select1[0]" name="SPI Slave Select 1" group="Slave Select" visible="true" desc="Select signal 1 to specifiy which memory device to communicate with" canBeEmpty="true">
+    <ParamSignal port="spi_select1[0]" name="SPI Slave Select 1" group="Slave Select" visible="`${hasVisibleOption(&quot;spi_select1[0]&quot;)}`" desc="Select signal 1 to specifiy which memory device to communicate with" canBeEmpty="true">
       <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
         <Parameter id="DriveModes" severity="ERROR" reason="Drive Mode must be set to 'Strong Drive. Input buffer off'.">
           <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />
@@ -144,7 +144,7 @@
       </Constraint>
       <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
     </ParamSignal>
-    <ParamSignal port="spi_select2[0]" name="SPI Slave Select 2" group="Slave Select" visible="true" desc="Select signal 2 to specifiy which memory device to communicate with" canBeEmpty="true">
+    <ParamSignal port="spi_select2[0]" name="SPI Slave Select 2" group="Slave Select" visible="`${hasVisibleOption(&quot;spi_select2[0]&quot;)}`" desc="Select signal 2 to specifiy which memory device to communicate with" canBeEmpty="true">
       <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
         <Parameter id="DriveModes" severity="ERROR" reason="Drive Mode must be set to 'Strong Drive. Input buffer off'.">
           <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />
@@ -152,7 +152,7 @@
       </Constraint>
       <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
     </ParamSignal>
-    <ParamSignal port="spi_select3[0]" name="SPI Slave Select 3" group="Slave Select" visible="true" desc="Select signal 3 to specifiy which memory device to communicate with" canBeEmpty="true">
+    <ParamSignal port="spi_select3[0]" name="SPI Slave Select 3" group="Slave Select" visible="`${hasVisibleOption(&quot;spi_select3[0]&quot;)}`" desc="Select signal 3 to specifiy which memory device to communicate with" canBeEmpty="true">
       <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
         <Parameter id="DriveModes" severity="ERROR" reason="Drive Mode must be set to 'Strong Drive. Input buffer off'.">
           <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />

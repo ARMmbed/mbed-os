@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,13 @@
 * \addtogroup group_hal_interconnect INTERCONNECT (Internal digital routing)
 * \ingroup group_hal
 * \{
-* High level interface for interacting with the Cypress digital routing.
+* High level interface for interacting with the digital routing.
+*
+* This provides limited facilities for runtime manipulation of the on chip routing.
+* The following types of connections are supported:
+* * Connection from a peripheral to a pin. (A dedicated connection must exist
+    between the pin and the peripheral; see the device datasheet for more details)
+* * Experimental support for connecting between two on-chip "trigger" terminals.
 */
 
 #pragma once

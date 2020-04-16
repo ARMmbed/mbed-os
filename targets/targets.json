@@ -2171,7 +2171,7 @@
             "secure-ram-start": "0x30000000",
             "secure-ram-size": "0x22000"
         }
-    },    
+    },
     "HANI_IOT": {
         "inherits": ["LPC55S69_NS"],
         "detect_code": ["0360"],
@@ -5910,7 +5910,10 @@
         "device_has_add": ["USBDEVICE", "EMAC", "FLASH", "LPTICKER"],
         "release_versions": ["2", "5"],
         "device_name": "R7S72100",
-        "bootloader_supported": false
+        "bootloader_supported": true,
+        "mbed_rom_start"        : "0x18000000",
+        "mbed_rom_size"         : "0x800000",
+        "sectors": [[402653184,4096]]
     },
     "VK_RZ_A1H": {
         "inherits": ["RZ_A1XX"],
@@ -5927,7 +5930,10 @@
         "device_has_remove": ["ETHERNET"],
         "release_versions": ["2", "5"],
         "device_name": "R7S72103",
-        "bootloader_supported": false,
+        "bootloader_supported": true,
+        "mbed_rom_start"        : "0x18000000",
+        "mbed_rom_size"         : "0x800000",
+        "sectors": [[402653184,4096]],
         "overrides": {
             "network-default-interface-type": null
         }
@@ -9175,7 +9181,7 @@
         "macros_add": ["MCU_PSOC6_M4", "CY_RTOS_AWARE", "CY_USING_HAL", "MBED_TICKLESS"],
         "public": false
     },
-    "CY8CMOD_062_4343W": {
+    "CY8CPROTO_062_4343W": {
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
         "components_add": ["WHD", "4343W", "CYW43XXX"],
@@ -9186,28 +9192,42 @@
             "CORDIO"
         ],
         "macros_add": ["CY8C624ABZI_D44", "CYBSP_WIFI_CAPABLE"],
-        "public": false,
+        "detect_code": [
+            "1901"
+        ],
+        "bootloader_supported": false,
+        "sectors": [
+            [
+                268435456,
+                512
+            ]
+        ],
         "overrides": {
             "network-default-interface-type": "WIFI"
         }
     },
-    "CY8CMOD_062S2_43012": {
+    "CY8CKIT_062S2_43012": {
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
         "components_add": ["WHD", "43012", "CYW43XXX"],
         "device_has_remove": ["ANALOGOUT"],
+        "supported_form_factors": [
+            "ARDUINO"
+        ],
         "extra_labels_add": [
             "PSOC6_02",
             "MXCRYPTO_02",
             "CORDIO"
         ],
         "macros_add": ["CY8C624ABZI_D44", "CYBSP_WIFI_CAPABLE"],
-        "public": false,
+        "detect_code": [
+            "190B"
+        ],
         "overrides": {
             "network-default-interface-type": "WIFI"
         }
     },
-    "CY8CMOD_062S3_4343W": {
+    "CY8CPROTO_062S3_4343W": {
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
         "components_add": ["WHD", "4343W", "CYW43XXX"],
@@ -9223,7 +9243,9 @@
             "CY_ENABLE_XIP_PROGRAM",
             "CY_STORAGE_WIFI_DATA=\".cy_xip\""
         ],
-        "public": false,
+        "detect_code": [
+            "190E"
+        ],
         "overrides": {
             "network-default-interface-type": "WIFI",
             "xip-enable": true
@@ -9264,39 +9286,12 @@
         ],
         "macros_add": ["CY8C6247BZI_D54", "CYHAL_UDB_SDIO", "CYBSP_WIFI_CAPABLE"],
         "detect_code": ["1900"],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "bootloader_supported": false,
         "sectors": [[268435456, 512]],
         "overrides": {
             "network-default-interface-type": "WIFI"
         },
         "program_cycle_s": 10
-    },
-    "CY8CPROTO_062_4343W": {
-        "inherits": ["CY8CMOD_062_4343W"],
-        "detect_code": ["1901"],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
-        "bootloader_supported": false,
-        "sectors": [[268435456, 512]]
-    },
-    "CY8CPROTO_062S3_4343W": {
-        "inherits": ["CY8CMOD_062S3_4343W"],
-        "detect_code": ["190E"],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        }
-    },
-    "CY8CKIT_062S2_43012": {
-        "inherits": ["CY8CMOD_062S2_43012"],
-        "supported_form_factors": ["ARDUINO"],
-        "detect_code": ["190B"],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        }
     },
     "CY8CKIT_062_BLE": {
         "inherits": ["MCU_PSOC6_M4"],
@@ -9308,9 +9303,6 @@
         ],
         "macros_add": ["CY8C6347BZI_BLD53"],
         "detect_code": ["1902"],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "sectors": [[268443648, 512]],
         "bootloader_supported": false
     },
@@ -9324,9 +9316,6 @@
         ],
         "macros_add": ["CYBLE_416045_02"],
         "detect_code": ["1904"],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "sectors": [[268443648, 512]],
         "bootloader_supported": false
     },
@@ -9359,9 +9348,6 @@
         ],
         "macros_add": ["CY8C6247BZI_D54", "CYHAL_UDB_SDIO", "CYBSP_WIFI_CAPABLE"],
         "detect_code": ["1900"],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "bootloader_supported": false,
         "sectors": [[268435456, 512]],
         "overrides": {
@@ -9380,9 +9366,6 @@
         ],
         "macros_add": ["CY8C6247BZI_D54", "CYHAL_UDB_SDIO", "CYBSP_WIFI_CAPABLE"],
         "detect_code": ["1906"],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "overrides": {
             "network-default-interface-type": "WIFI"
         }
@@ -9394,18 +9377,13 @@
         "components_add": ["WHD", "43012", "CYW43XXX"],
         "components_remove": ["QSPIF"],
         "device_has_remove": ["ANALOGOUT", "QSPI"],
-        "macros_remove": ["MBEDTLS_CONFIG_HW_SUPPORT"],
         "extra_labels_add": [
             "PSOC6_01",
             "MXCRYPTO_01",
             "CORDIO"
         ],
-        "extra_labels_remove": ["MXCRYPTO"],
         "macros_add": ["CY8C6247FDI_D52", "CYHAL_UDB_SDIO", "CYBSP_WIFI_CAPABLE"],
         "detect_code": ["1903"],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
         "overrides": {
             "network-default-interface-type": "WIFI"
         }

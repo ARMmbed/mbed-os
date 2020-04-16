@@ -59,8 +59,8 @@ extern "C" {
 #define psa_aead_finish  psa_sec_aead_finish
 #define psa_aead_verify  psa_sec_aead_verify
 #define psa_aead_abort  psa_sec_aead_abort
-#define psa_asymmetric_sign  psa_sec_asymmetric_sign
-#define psa_asymmetric_verify  psa_sec_asymmetric_verify
+#define psa_sign_hash  psa_sec_sign_hash
+#define psa_verify_hash  psa_sec_verify_hash
 #define psa_asymmetric_encrypt  psa_sec_asymmetric_encrypt
 #define psa_asymmetric_decrypt  psa_sec_asymmetric_decrypt
 #define psa_key_derivation_setup  psa_sec_key_derivation_setup

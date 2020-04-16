@@ -24,11 +24,13 @@
 #include "mbedtls/platform.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/ctr_drbg.h"
+#include "mbedtls/hmac_drbg.h"
 #include "mbedtls/x509_crt.h"
 #include "mbedtls/sha256.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/pk.h"
 #include "mbedtls/platform.h"
+#include "mbedtls/md.h"
 
 
 #define HANDSHAKE_FINISHED_VALUE 8888

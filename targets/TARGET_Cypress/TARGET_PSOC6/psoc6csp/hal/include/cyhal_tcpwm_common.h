@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2019 Cypress Semiconductor Corporation
+* Copyright 2019-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+/** \cond INTERNAL */
 /**
  * \addtogroup group_hal_psoc6_tcpwm_common TCPWM Common Functionality
  * \ingroup group_hal_psoc6
@@ -77,3 +78,4 @@ void cyhal_tcpwm_register_callback(cyhal_resource_inst_t *resource, cy_israddres
 void cyhal_tcpwm_enable_event(TCPWM_Type *type, cyhal_resource_inst_t *resource, uint32_t event, uint8_t intrPriority, bool enable);
 
 /** \} group_hal_psoc6_tcpwm_common */
+/** \endcond */

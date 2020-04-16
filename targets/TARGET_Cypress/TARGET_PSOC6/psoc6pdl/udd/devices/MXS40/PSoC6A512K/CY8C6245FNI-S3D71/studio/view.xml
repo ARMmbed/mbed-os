@@ -33,7 +33,7 @@
   <Param name="CAN_FD" value="Y" />
   <Param name="TimerCounterPWM_Count" value="12" />
   <Param name="TimerCounterPWM_removed" value="NA" />
-  <Param name="USB_Type" value="FS" />
+  <Param name="USB_Type" value="NA" />
   <Param name="CapSense" value="Y" />
   <Param name="TMG" value="Y" />
   <Param name="CapSenseADC" value="Y" />

@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -111,7 +111,7 @@ cy_en_syspm_status_t SDIO_DeepSleepCallback(cy_stc_syspm_callback_params_t *para
     CY_UNUSED_PARAMETER(params);
     cy_en_syspm_status_t status = CY_SYSPM_FAIL;
 
-    switch (mode) 
+    switch (mode)
     {
         case CY_SYSPM_CHECK_READY:
         case CY_SYSPM_CHECK_FAIL:
@@ -656,7 +656,7 @@ en_sdio_result_t SDIO_SendCommandAndWait(stc_sdio_cmd_t *pstcCmd)
     cy_rslt_t result;
 
     /* Initialize the semaphore. This is not done in init because init is called
-    * in interrupt thread. cy_rtos_init_semaphore call is prohibited in 
+    * in interrupt thread. cy_rtos_init_semaphore call is prohibited in
     * interrupt thread.
     */
     if(!sema_initialized)
@@ -770,16 +770,16 @@ en_sdio_result_t SDIO_SendCommandAndWait(stc_sdio_cmd_t *pstcCmd)
 
                     #ifdef CY_RTOS_AWARE
                         /* Wait for the transfer to finish.
-                        *  Acquire semaphore and wait until it will be released 
+                        *  Acquire semaphore and wait until it will be released
                         *  in SDIO_IRQ:
-                        *  1. sdio_transfer_finished_semaphore count is equal to 
-                        *     zero. cy_rtos_get_semaphore waits until semaphore 
-                        *     count is increased by cy_rtos_set_semaphore() in 
+                        *  1. sdio_transfer_finished_semaphore count is equal to
+                        *     zero. cy_rtos_get_semaphore waits until semaphore
+                        *     count is increased by cy_rtos_set_semaphore() in
                         *     SDIO_IRQ.
-                        *  2. The cy_rtos_set_semaphore() increases 
+                        *  2. The cy_rtos_set_semaphore() increases
                         *     sdio_transfer_finished_semaphore count.
-                        *  3. The cy_rtos_get_semaphore() function decreases 
-                        *     sdio_transfer_finished_semaphore back to zero 
+                        *  3. The cy_rtos_get_semaphore() function decreases
+                        *     sdio_transfer_finished_semaphore back to zero
                         *     and exit. Or timeout occurs
                         */
                         result = cy_rtos_get_semaphore( &sdio_transfer_finished_semaphore, 10, false );
@@ -1080,7 +1080,12 @@ void SDIO_DisableSdClk(void)
 void SDIO_SetSdClkFrequency(uint32_t u32SdClkFreqHz)
 {
     uint16_t u16Div;
-    u16Div = Cy_SysClk_ClkPeriGetFrequency() / u32SdClkFreqHz;
+    /*
+     * The UDB SDIO implemenation has a extra divider internally that divides the input clock to the UDB
+     * by 2. The desired clock frequency is hence intentionally multiplied by 2 in order to get the required
+     * SDIO operating frequency.
+     */
+    u16Div = Cy_SysClk_ClkPeriGetFrequency() / (2 * u32SdClkFreqHz);
     Cy_SysClk_PeriphSetDivider(SDIO_HOST_Internal_Clock_DIV_TYPE, SDIO_HOST_Internal_Clock_DIV_NUM, (u16Div-1));
 }
 
@@ -1247,10 +1252,10 @@ void SDIO_IRQ(void)
     {
         pfnCardInt_count++;
     }
-    
+
     /* Execute card interrupt callback if neccesary */
     if (0 != pfnCardInt_count)
-    {        
+    {
         if (NULL != gstcInternalData.pstcCallBacks.pfnCardIntCb)
         {
             gstcInternalData.pstcCallBacks.pfnCardIntCb();
@@ -1277,7 +1282,7 @@ void SDIO_IRQ(void)
             /* CRC was bad, set the flag */
             gstcInternalData.stcEvents.u8CRCError++;
         }
-        
+
         /* Set the done flag */
 
     #ifdef CY_RTOS_AWARE

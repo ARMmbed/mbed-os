@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,27 @@
 * \addtogroup group_hal_uart UART (Universal Asynchronous Receiver-Transmitter)
 * \ingroup group_hal
 * \{
-* High level interface for interacting with the Cypress UART.
+* High level interface for interacting with the Universal Asynchronous Receiver-Transmitter (UART).
+*
+* The Universal Asynchronous Receiver/Transmitter (UART) protocol is an
+* asynchronous serial interface protocol. UART communication is typically
+* point-to-point. The UART interface consists of two signals:
+* * TX: Transmitter output
+* * RX: Receiver input
+*
+* Additionally, two side-band signals are used to implement flow control in
+* UART. Note that the flow control applies only to TX functionality.
+* * Clear to Send (CTS): This is an input signal to the transmitter.
+*   When active, it indicates that the slave is ready for the master to
+*   transmit data.
+* * Ready to Send (RTS): This is an output signal from the receiver. When
+*   active, it indicates that the receiver is ready to receive data
+*
+* Flow control can be configured via cyhal_uart_set_flow_control()
+*
+* The data frame size, STOP bits, and parity can be configured via cyhal_uart_cfg_t.
+* The UART contains dedicated hardware buffers for transmit and receive. Optionally,
+* either these can be augmented with a software buffer.
 */
 
 #pragma once

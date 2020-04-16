@@ -3,14 +3,14 @@
 
 <!--****************************************************************************
 * \file connectivity_wifi.cypersonality
-* \version 1.0
+* \version 1.0.1
 *
 * \brief
 * Personality description file for the WiFi part of Low Power Assistant.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2019 Cypress Semiconductor Corporation
+* Copyright 2019-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -263,6 +263,6 @@
       <Member name="`${tcpkaOflIdx + 1}`u" value="{NULL, NULL, NULL, NULL}" include="`${pktFilterEn || arpOffload || tcpkaOffload}`" />
     </ConfigStruct>
 
-    <ConfigFunction signature="const ol_desc_t *cycfg_get_default_ol_list(void)" body="&#9;return &amp;ol_list_0[0];" public="false" include="`${pktFilterEn || arpOffload}`" />
+    <ConfigFunction signature="const ol_desc_t *cycfg_get_default_ol_list(void)" body="&#9;return &amp;ol_list_0[0];" public="false" include="`${pktFilterEn || arpOffload || tcpkaOffload}`" />
   </ConfigFirmware>
 </Personality>

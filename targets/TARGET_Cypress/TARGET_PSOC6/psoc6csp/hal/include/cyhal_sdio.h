@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,8 +29,14 @@
 * \addtogroup group_hal_sdio SDIO (Secure Digital Input Output)
 * \ingroup group_hal
 * \{
-* High level interface for interacting with the Cypress SDIO interface.
+* High level interface for interacting with the Secure Digital Input Output (SDIO) interface.
 *
+* The Secure Digital Input Output (SDIO) protocol is an extension of the SD
+* interface for general I/O functions.
+*
+* This driver allows commands to be sent over the SDIO bus; the supported commands
+* can be found in cyhal_sdio_command_t. Bulk data transfer is also supported
+* via cyhal_sdio_bulk_transfer().
 */
 
 #pragma once
@@ -43,11 +49,6 @@
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
-/**
-  * \addtogroup group_hal_sdio_errors Error Codes
-  * \{
-  */
 
 #define CYHAL_SDIO_RET_NO_ERRORS           (0x00)    /**< No error*/
 #define CYHAL_SDIO_RET_NO_SP_ERRORS        (0x01)    /**< Non-specific error code*/
@@ -91,8 +92,6 @@ extern "C" {
                                                             CYHAL_RSLT_MODULE_SDIO, \
                                                             CYHAL_SDIO_CANCELED)
 
-/** \} group_hal_sdio_errors */
-
 /** Commands that can be issued */
 typedef enum
 {
@@ -115,7 +114,7 @@ typedef enum
 /** Types of events that could be asserted by SDIO */
 typedef enum {
     /* Interrupt-based thread events */
-    CYHAL_SDIO_CMD_COMPLETE   = 0x00001,  //!> Command Complete 
+    CYHAL_SDIO_CMD_COMPLETE   = 0x00001,  //!> Command Complete
     CYHAL_SDIO_XFER_COMPLETE  = 0x00002,  //!> Host read/write transfer is complete
     CYHAL_SDIO_BGAP_EVENT     = 0x00004,  //!> This bit is set when both read/write transaction is stopped
     CYHAL_SDIO_DMA_INTERRUPT  = 0x00008,  //!> Host controller detects an SDMA Buffer Boundary during transfer
@@ -131,11 +130,11 @@ typedef enum {
     CYHAL_SDIO_FX_EVENT       = 0x02000,  //!> This status is set when R[14] of response register is set to 1
     CYHAL_SDIO_CQE_EVENT      = 0x04000,  //!> This status is set if Command Queuing/Crypto event has occurred
     CYHAL_SDIO_ERR_INTERRUPT  = 0x08000,  //!> If any of the bits in the Error Interrupt Status register are set
-    
+
     /* Non-interrupt-based thread events */
     CYHAL_SDIO_GOING_DOWN     = 0x10000, //!> The interface is going away (eg: powering down for some period of time)
     CYHAL_SDIO_COMING_UP      = 0x20000, //!> The interface is back up (eg: came back from a low power state)
-    
+
     CYHAL_SDIO_ALL_INTERRUPTS = 0x0E1FF,  //!> Is used to enable/disable all interrupts events
 } cyhal_sdio_event_t;
 
@@ -193,9 +192,13 @@ cy_rslt_t cyhal_sdio_send_cmd(const cyhal_sdio_t *obj, cyhal_transfer_t directio
  * @param[in,out] obj       The SDIO object
  * @param[in]     direction The direction of transfer (read/write)
  * @param[in]     argument  The argument to the command
- * @param[in]     data      The data to send to the SDIO device. The data buffer 
- *                          should be aligned to the block size (64 bytes) if data 
- *                          size is greater that block size (64 bytes).
+ * @param[in]     data      The data to send to the SDIO device. A bulk transfer is done in block
+ *                          size (default: 64 bytes) chunks for better performance. Therefore,
+ *                          the size of the data buffer passed into this function must be at least
+ *                          `length` bytes and a multiple of the block size. For example, when
+ *                          requesting to read 100 bytes of data with a block size 64 bytes, the
+ *                          data buffer needs to be at least 128 bytes. The first 100 bytes of data
+ *                          in the buffer will be the requested data.
  * @param[in]     length    The number of bytes to send
  * @param[out]    response  The response from the SDIO device
  * @return The status of the configure request
@@ -245,7 +248,7 @@ void cyhal_sdio_register_callback(cyhal_sdio_t *obj, cyhal_sdio_event_callback_t
 void cyhal_sdio_enable_event(cyhal_sdio_t *obj, cyhal_sdio_event_t event, uint8_t intrPriority, bool enable);
 
 /*******************************************************************************
-* Backward compatibility macro. The following code is DEPRECATED and must 
+* Backward compatibility macro. The following code is DEPRECATED and must
 * not be used in new projects
 *******************************************************************************/
 /** \cond INTERNAL */

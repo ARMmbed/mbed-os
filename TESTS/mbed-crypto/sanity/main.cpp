@@ -262,13 +262,13 @@ void test_crypto_asymmetric_sign_verify(void)
     psa_set_key_algorithm(&attributes, alg);
     psa_set_key_type(&attributes, key_type);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_import_key(&attributes, key, sizeof(key), &key_handle));
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_asymmetric_sign(key_handle, alg, input, sizeof(input),
-                                                       signature, sizeof(signature), &signature_len));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_sign_hash(key_handle, alg, input, sizeof(input),
+                                                 signature, sizeof(signature), &signature_len));
     TEST_ASSERT_EQUAL(sizeof(signature), signature_len);
     TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_signature, signature, signature_len);
 
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_asymmetric_verify(key_handle, alg, input, sizeof(input),
-                                                         signature, signature_len));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_verify_hash(key_handle, alg, input, sizeof(input),
+                                                   signature, signature_len));
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(key_handle));
 }
 
