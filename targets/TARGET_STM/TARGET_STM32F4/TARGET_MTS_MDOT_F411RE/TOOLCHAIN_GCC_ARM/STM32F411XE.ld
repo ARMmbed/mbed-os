@@ -1,4 +1,10 @@
-/* Linker script to configure memory regions. */
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x08000000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 512K
+#endif
 
 #if !defined(MBED_BOOT_STACK_SIZE)
     #define MBED_BOOT_STACK_SIZE 0x400
@@ -6,12 +12,13 @@
 
 STACK_SIZE = MBED_BOOT_STACK_SIZE;
 
+M_CRASH_DATA_RAM_SIZE = 0x100;
+
+/* Linker script to configure memory regions. */
 MEMORY
-{ 
-  /* First 64kB of flash reserved for bootloader */
-  /* Other 448kB for application */
-  FLASH (rx) : ORIGIN = 0x08010000, LENGTH = 448K
-  RAM (rwx) : ORIGIN = 0x20000198, LENGTH = 128k - 0x198
+{
+  FLASH (rx)   : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
+  RAM (rwx)  : ORIGIN = 0x20000198, LENGTH = 128k - 0x198
 }
 
 /* Linker script to place sections and symbol values. Should be used together
@@ -85,6 +92,18 @@ SECTIONS
 
     __etext = .;
     _sidata = .;
+    
+    .crash_data_ram :
+    {
+        . = ALIGN(8);
+        __CRASH_DATA_RAM__ = .;
+        __CRASH_DATA_RAM_START__ = .; /* Create a global symbol at data start */
+        KEEP(*(.keep.crash_data_ram))
+        *(.m_crash_data_ram)     /* This is a user defined section */
+        . += M_CRASH_DATA_RAM_SIZE;
+        . = ALIGN(8);
+        __CRASH_DATA_RAM_END__ = .; /* Define a global symbol at data end */
+    } > RAM    
 
     .data : AT (__etext)
     {

@@ -40,10 +40,8 @@
 /*!< Uncomment the following line if you need to relocate your vector Table in
      Internal SRAM. */
 /* #define VECT_TAB_SRAM */
-#ifndef VECT_TAB_OFFSET
 #define VECT_TAB_OFFSET  0x00 /*!< Vector Table base offset field.
                                    This value must be a multiple of 0x200. */
-#endif
 
 
 /* Select the clock sources (other than HSI) to start with (0=OFF, 1=ON) */
@@ -92,11 +90,23 @@ void SystemInit(void)
     SystemInit_ExtMemCtl();
 #endif /* DATA_IN_ExtSRAM || DATA_IN_ExtSDRAM */
 
-    /* Configure the Vector Table location add offset address ------------------*/
-#ifdef VECT_TAB_SRAM
-    SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
+#if defined(__ICCARM__)
+#pragma section=".intvec"
+#define FLASH_VTOR_BASE   ((uint32_t)__section_begin(".intvec"))
+#elif defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+    extern uint32_t Load$$LR$$LR_IROM1$$Base[];
+#define FLASH_VTOR_BASE   ((uint32_t)Load$$LR$$LR_IROM1$$Base)
+#elif defined(__GNUC__)
+    extern uint32_t g_pfnVectors[];
+#define FLASH_VTOR_BASE   ((uint32_t)g_pfnVectors)
 #else
-    SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
+#error "Flash vector address not set for this toolchain"
+#endif
+
+#ifdef VECT_TAB_SRAM
+    SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM. */
+#else
+    SCB->VTOR = FLASH_VTOR_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH. */
 #endif
 
 }
