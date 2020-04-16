@@ -58,6 +58,7 @@ namespace rtos {
  *       current thread's stack, both for the Mbed OS and underlying RTOS
  *       objects (static or dynamic RTOS memory pools are not being used).
  *
+ * @note Bare metal profile: This class is not supported.
  */
 template<typename T, uint32_t queue_sz>
 class Queue : private mbed::NonCopyable<Queue<T, queue_sz> > {

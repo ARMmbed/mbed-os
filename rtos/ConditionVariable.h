@@ -90,6 +90,8 @@ struct Waiter;
  *
  * @note Synchronization level: Thread safe
  *
+ * @note Bare metal profile: This class is not supported.
+ *
  * Example:
  *
  * @code

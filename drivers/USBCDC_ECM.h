@@ -42,6 +42,7 @@
  * \defgroup drivers_USBCDC_ECM USBCDC_ECM class
  * \ingroup drivers-public-api-usb
  * @{
+ * @note Bare metal profile: This class is not supported.
  */
 
 class USBCDC_ECM: public USBDevice {

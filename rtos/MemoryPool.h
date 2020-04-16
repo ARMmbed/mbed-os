@@ -51,6 +51,9 @@ namespace rtos {
  @note
  Memory considerations: The memory pool data store and control structures will be created on current thread's stack,
  both for the mbed OS and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
+
+ @note
+ Bare metal profile: This class is not supported.
 */
 template<typename T, uint32_t pool_sz>
 class MemoryPool : private mbed::NonCopyable<MemoryPool<T, pool_sz> > {

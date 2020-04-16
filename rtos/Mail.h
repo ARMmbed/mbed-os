@@ -59,6 +59,9 @@ namespace rtos {
  * Memory considerations: The mail data store and control structures are part of this class - they do not (themselves)
  * allocate memory on the heap, both for the Mbed OS and underlying RTOS objects (static or dynamic RTOS memory
  * pools are not being used).
+ *
+ * @note
+ * Bare metal profile: This class is not supported.
  */
 template<typename T, uint32_t queue_sz>
 class Mail : private mbed::NonCopyable<Mail<T, queue_sz> > {
