@@ -1,6 +1,5 @@
 ^BUILD
 ^cmsis
-^components/802.15.4_RF
 ^components/TARGET_PSA/services/attestation/attestation.h
 ^components/TARGET_PSA/services/attestation/COMPONENT_PSA_SRV_IMPL/tfm_impl
 ^components/TARGET_PSA/services/attestation/qcbor
@@ -13,8 +12,7 @@
 ^features/lwipstack/lwip
 ^features/lwipstack/lwip-sys
 ^features/mbedtls
-^features/nanostack/coap-service
-^features/nanostack/sal-stack-nanostack
+^features/nanostack/sal-stack-nanostack/source/Service_Libs/mdns/fnet
 ^features/nanostack/targets
 ^features/netsocket/emac-drivers
 ^features/netsocket/ppp/include
