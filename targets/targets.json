@@ -11876,48 +11876,6 @@
             "network-default-interface-type": "WIFI"
         }
     },
-    "TMPM066": {
-        "inherits": [
-            "Target"
-        ],
-        "core": "Cortex-M0",
-        "is_disk_virtual": true,
-        "extra_labels": [
-            "TOSHIBA"
-        ],
-        "macros": [
-            "__TMPM066__",
-            "CMSIS_VECTAB_VIRTUAL",
-            "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
-        ],
-        "supported_toolchains": [
-            "GCC_ARM",
-            "ARM",
-            "IAR"
-        ],
-        "device_has": [
-            "USTICKER",
-            "ANALOGIN",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "RESET_REASON",
-            "SERIAL",
-            "SLEEP",
-            "I2C",
-            "I2CSLAVE",
-            "STDIO_MESSAGES",
-            "PWMOUT"
-        ],
-        "device_name": "TMPM066FWUG",
-        "detect_code": [
-            "7011"
-        ],
-        "release_versions": [
-            "5"
-        ]
-    },
     "SAKURAIO_EVB_01": {
         "inherits": [
             "FAMILY_STM32"
@@ -12482,49 +12440,6 @@
             ]
         ],
         "bootloader_supported": true
-    },
-    "TMPM3H6": {
-        "inherits": [
-            "Target"
-        ],
-        "core": "Cortex-M3",
-        "is_disk_virtual": true,
-        "extra_labels": [
-            "TOSHIBA"
-        ],
-        "macros": [
-            "__TMPM3H6__"
-        ],
-        "supported_toolchains": [
-            "GCC_ARM",
-            "ARM",
-            "IAR"
-        ],
-        "device_has": [
-            "USTICKER",
-            "ANALOGIN",
-            "ANALOGOUT",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "RESET_REASON",
-            "SERIAL",
-            "SLEEP",
-            "SPI",
-            "I2C",
-            "I2CSLAVE",
-            "STDIO_MESSAGES",
-            "MPU"
-        ],
-        "device_name": "TMPM3H6FWFG",
-        "detect_code": [
-            "7012"
-        ],
-        "release_versions": [
-            "5"
-        ]
     },
     "TMPM4G9": {
         "inherits": [
@@ -13117,56 +13032,6 @@
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         }
-    },
-    "TMPM3HQ": {
-        "inherits": [
-            "Target"
-        ],
-        "core": "Cortex-M3",
-        "is_disk_virtual": true,
-        "extra_labels": [
-            "TOSHIBA"
-        ],
-        "macros": [
-            "__TMPM3HQ__"
-        ],
-        "supported_toolchains": [
-            "GCC_ARM",
-            "ARM",
-            "IAR"
-        ],
-        "device_has": [
-            "USTICKER",
-            "ANALOGIN",
-            "ANALOGOUT",
-            "CRC",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "RESET_REASON",
-            "RTC",
-            "SERIAL",
-            "SERIAL_FC",
-            "SLEEP",
-            "SPI",
-            "SPI_ASYNCH",
-            "SPISLAVE",
-            "I2C",
-            "I2C_ASYNCH",
-            "I2CSLAVE",
-            "STDIO_MESSAGES",
-            "FLASH",
-            "MPU"
-        ],
-        "device_name": "TMPM3HQFDFG",
-        "detect_code": [
-            "7014"
-        ],
-        "release_versions": [
-            "5"
-        ]
     },
     "GD32_Target": {
         "inherits": [
