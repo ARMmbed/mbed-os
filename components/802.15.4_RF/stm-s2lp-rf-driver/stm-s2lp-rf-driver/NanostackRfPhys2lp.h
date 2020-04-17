@@ -36,11 +36,11 @@ class TestPins_S2LP;
 class NanostackRfPhys2lp : public NanostackRfPhy {
 public:
     NanostackRfPhys2lp(PinName spi_sdi, PinName spi_sdo, PinName spi_sclk, PinName spi_cs, PinName spi_sdn
-                       ,PinName spi_gpio0, PinName spi_gpio1, PinName spi_gpio2, PinName spi_gpio3
+                       , PinName spi_gpio0, PinName spi_gpio1, PinName spi_gpio2, PinName spi_gpio3
 #ifdef AT24MAC
-                       ,PinName i2c_sda, PinName i2c_scl
+                       , PinName i2c_sda, PinName i2c_scl
 #endif //AT24MAC
-                       );
+                      );
     virtual ~NanostackRfPhys2lp();
     virtual int8_t rf_register();
     virtual void rf_unregister();
