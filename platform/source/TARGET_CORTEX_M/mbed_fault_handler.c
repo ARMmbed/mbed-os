@@ -45,7 +45,7 @@ extern bool mbed_error_in_progress;
 
 //This is a handler function called from Fault handler to print the error information out.
 //This runs in fault context and uses special functions(defined in mbed_rtx_fault_handler.c) to print the information without using C-lib support.
-void mbed_fault_handler(uint32_t fault_type, const mbed_fault_context_t *mbed_fault_context_in)
+MBED_NORETURN void mbed_fault_handler(uint32_t fault_type, const mbed_fault_context_t *mbed_fault_context_in)
 {
     mbed_error_status_t faultStatus = MBED_SUCCESS;
 

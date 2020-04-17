@@ -58,7 +58,7 @@ typedef struct {
 
 //This is a handler function called from Fault handler to print the error information out.
 //This runs in fault context and uses special functions(defined in mbed_fault_handler.c) to print the information without using C-lib support.
-void mbed_fault_handler(uint32_t fault_type, const mbed_fault_context_t *mbed_fault_context_in);
+MBED_NORETURN void mbed_fault_handler(uint32_t fault_type, const mbed_fault_context_t *mbed_fault_context_in);
 
 /**
  * Call this function to retrieve the fault context after a fatal exception which triggered a system reboot. The function retrieves the fault context stored in crash-report ram area which is preserved over reboot.
