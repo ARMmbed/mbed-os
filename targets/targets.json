@@ -3659,53 +3659,6 @@
             ]
         }
     },
-    "MTB_STM_S2LP": {
-        "inherits": [
-            "FAMILY_STM32"
-        ],
-        "core": "Cortex-M4F",
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (8MHz) | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_XTAL",
-                "macro_name": "CLOCK_SOURCE"
-            },
-            "clock_source_usb": {
-                "help": "As 48 Mhz clock is configured for USB, SYSCLK has to be reduced from 180 to 168 MHz (set 0 for the max SYSCLK value)",
-                "value": "1",
-                "macro_name": "CLOCK_SOURCE_USB"
-            }
-        },
-        "extra_labels_add": [
-            "STM32F4",
-            "STM32F429xI"
-        ],
-        "components_add": [
-            "FLASHIAP"
-        ],
-        "macros_add": [
-            "STM32F429xx"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "CAN",
-            "SERIAL_ASYNCH",
-            "TRNG",
-            "FLASH",
-            "MPU"
-        ],
-        "detect_code": [
-            "0467"
-        ],
-        "release_versions": [
-            "5"
-        ],
-        "device_name": "STM32F429ZI",
-        "bootloader_supported": true,
-        "overrides": {
-            "network-default-interface-type": "MESH"
-        }
-    },
     "NUCLEO_F439ZI": {
         "inherits": [
             "FAMILY_STM32"

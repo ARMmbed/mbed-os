@@ -42,9 +42,6 @@
         },
         "NUCLEO_F429ZI": {
             "s2lp.provide-default"                      : true
-        },
-        "MTB_STM_S2LP": {
-            "s2lp.provide-default"                      : true
         }
     }
 }
