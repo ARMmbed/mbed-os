@@ -110,12 +110,15 @@ public:
      * Uses TRNG or various other entropy sources to generate random device key and
      * inject it into device's KVStore. Device Key can only be generated once.
      *
-     * \return DEVICEKEY_SUCCESS, when device key successfully generated and injected.
-     * \return DEVICEKEY_ALREADY_EXIST, if the key has already been written.
-     * \return DEVICEKEY_GENERATE_RANDOM_ERROR if this device does not contain entropy sources and cannot generate a key.
-     * \return error codes on other failures.
+     * @param key_size Size of key in bytes to generate. Must be 16 bytes or 32 bytes. Default is 16 bytes.
+     *
+     * @return DEVICEKEY_SUCCESS, when device key successfully generated and injected.
+     * @return DEVICEKEY_ALREADY_EXIST, if the key has already been written.
+     * @return DEVICEKEY_GENERATE_RANDOM_ERROR if this device does not contain entropy sources and cannot generate a key.
+     * @return DEVICEKEY_INVALID_KEY_SIZE if key_size is not 32 or 16 bytes.
+     * @return error codes on other failures.
      */
-    int generate_root_of_trust();
+    int generate_root_of_trust(size_t key_size = DEVICE_KEY_16BYTE);
 
 private:
     // Private constructor, as class is a singleton
