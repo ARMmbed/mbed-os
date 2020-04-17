@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2016 ARM Limited
+ * Copyright (c) 2006-2020 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -95,6 +95,7 @@ void mbed_init(void)
 void mbed_start(void)
 {
     mbed_toolchain_init();
+    mbed_tfm_init();
     mbed_main();
     mbed_error_initialize();
     main();
@@ -106,6 +107,11 @@ MBED_WEAK void mbed_sdk_init(void)
 }
 
 MBED_WEAK void software_init_hook_rtos()
+{
+    // Nothing by default
+}
+
+MBED_WEAK void mbed_tfm_init(void)
 {
     // Nothing by default
 }
