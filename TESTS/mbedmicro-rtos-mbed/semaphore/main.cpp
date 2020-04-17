@@ -101,7 +101,7 @@ void single_thread(struct test_data *data)
 /** Test single thread
 
     Given a two threads A & B and a semaphore (with count of 0) and a counter (equals to 0)
-    when thread B calls @a wait
+    when thread B calls @a acquire
     then thread B waits for a token to become available
     then the counter is equal to 0
     when thread A calls @a release on the semaphore
@@ -144,8 +144,8 @@ void timeout_thread(Semaphore *sem)
 /** Test timeout
 
     Given thread and a semaphore with no tokens available
-    when thread calls @a wait on the semaphore with timeout of 10ms
-    then the thread waits for 10ms and timeouts after
+    when a thread calls @a try_acquire_for with a timeout of 30ms
+    then the thread is blocked for up to 30ms and timeouts after.
  */
 void test_timeout()
 {
@@ -177,8 +177,10 @@ void test_ticker_release(struct test_data *data)
 /** Test semaphore acquire
 
     Given a semaphore with no tokens available and ticker with the callback registered
-    when callbacks update the test data and release semaphore
-    which will unblock the main thread which is blocked on semaphore acquire.
+    when the main thread calls @a acquire
+    then the main thread is blocked
+    when callback calls @a release on the semaphore
+    then the main thread is unblocked
  */
 void test_semaphore_acquire()
 {
@@ -205,14 +207,14 @@ void test_ticker_try_acquire(Semaphore *sem)
 /** Test semaphore try acquire
 
     Given a semaphore with no tokens available and ticker with the callback registered
-    when callbacks try to acquire the semaphore will fail.
+    when callback tries to acquire the semaphore, it fails.
  */
 void test_semaphore_try_acquire()
 {
     Semaphore sem(0);
     Ticker t1;
     t1.attach_us(callback(test_ticker_try_acquire, &sem), 3000);
-    ThisThread::sleep_for(3);
+    ThisThread::sleep_for(4);
     t1.detach();
 }
 
@@ -220,14 +222,14 @@ void test_semaphore_try_acquire()
 /** Test semaphore try timeout
 
     Given a semaphore with no tokens available
-    when the main thread calls @a wait on the semaphore with try timeout of 5ms
-    then the main thread waits for 5ms and timeouts after
+    when the main thread calls @a try_acquire_for with 3ms timeout
+    then the main thread is blocked for 3ms and timeouts after
  */
 void test_semaphore_try_timeout()
 {
     Semaphore sem(0);
     bool res;
-    res = sem.try_acquire_for(5);
+    res = sem.try_acquire_for(3);
     TEST_ASSERT_FALSE(res);
 }
 
@@ -242,8 +244,10 @@ void test_ticker_semaphore_release(struct Semaphore *sem)
 /** Test semaphore try acquire timeout
 
     Given a semaphore with no tokens available and ticker with the callback registered
-    when callbacks release the semaphore will unblock the main thread
-    which is waiting for semaphore with a timeout.
+    when the main thread calls @a try_acquire_for with 10ms timeout
+    then the main thread is blocked for up to 10ms
+    when callback call @a release on the semaphore after 3ms
+    then the main thread is unblocked.
  */
 void test_semaphore_try_acquire_timeout()
 {
@@ -251,7 +255,7 @@ void test_semaphore_try_acquire_timeout()
     bool res;
     Ticker t1;
     t1.attach_us(callback(test_ticker_semaphore_release, &sem), 3000);
-    res = sem.try_acquire_for(30);
+    res = sem.try_acquire_for(10);
     t1.detach();
     TEST_ASSERT_TRUE(res);
 }
@@ -260,12 +264,12 @@ void test_semaphore_try_acquire_timeout()
 
 Test 1 token no timeout
 Given thread and a semaphore with one token available
-when thread calls @a wait on the semaphore with timeout of 0ms
+when thread calls @a try_acquire with timeout of 0ms
 then the thread acquires the token immediately
 
 Test 0 tokens no timeout
 Given thread and a semaphore with no tokens available
-when thread calls @a wait on the semaphore with timeout of 0ms
+when thread calls @a try_acquire with timeout of 0ms
 then the thread returns immediately without acquiring a token
  */
 template<int T>
@@ -285,7 +289,7 @@ void test_no_timeout()
 /** Test multiple tokens wait
 
     Given a thread and a semaphore initialized with 5 tokens
-    when thread calls @a wait 6 times on the semaphore
+    when thread calls @a try_acquire 6 times in a loop
     then the token counts goes to zero
  */
 void test_multiple_tokens_wait()
