@@ -35,8 +35,10 @@ using namespace mbed_cellular_util;
 
 #include "CellularLog.h"
 
-#ifndef MBED_CONF_CELLULAR_DEBUG_AT
-#define MBED_CONF_CELLULAR_DEBUG_AT 0
+#if defined(MBED_CONF_CELLULAR_DEBUG_AT) && (MBED_CONF_CELLULAR_DEBUG_AT) && defined(MBED_CONF_MBED_TRACE_ENABLE) && MBED_CONF_MBED_TRACE_ENABLE
+#define DEBUG_AT_ENABLED 1
+#else
+#define DEBUG_AT_ENABLED 0
 #endif
 
 // URCs should be handled fast, if you add debug traces within URC processing then you also need to increase this time
@@ -89,7 +91,7 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const 
     _urc_matched(false),
     _error_found(false),
     _max_resp_length(MAX_RESP_LENGTH),
-    _debug_on(MBED_CONF_CELLULAR_DEBUG_AT),
+    _debug_on(DEBUG_AT_ENABLED),
     _cmd_start(false),
     _use_delimiter(true),
     _start_time(0),
@@ -495,7 +497,7 @@ ssize_t ATHandler::read_bytes(uint8_t *buf, size_t len)
         buf[read_len] = c;
     }
 
-#if MBED_CONF_CELLULAR_DEBUG_AT
+#if DEBUG_AT_ENABLED
     if (debug_on && disabled_debug) {
         tr_info("read_bytes trace suppressed (total length %d)", read_len);
     }
@@ -651,7 +653,7 @@ ssize_t ATHandler::read_hex_string(char *buf, size_t size)
         buf_idx++;
     }
 
-#if MBED_CONF_CELLULAR_DEBUG_AT
+#if DEBUG_AT_ENABLED
     if (debug_on && disabled_debug) {
         tr_info("read_hex_string trace suppressed (total length %d)", buf_idx);
     }
@@ -1379,8 +1381,8 @@ size_t ATHandler::write(const void *data, size_t len)
     fhs.events = POLLOUT;
     size_t write_len = 0;
 
-#if MBED_CONF_CELLULAR_DEBUG_AT
-    bool suppress_traced = false;
+#if DEBUG_AT_ENABLED
+    bool suppress_traces = false;
 #endif
 
     for (; write_len < len;) {
@@ -1395,13 +1397,13 @@ size_t ATHandler::write(const void *data, size_t len)
             return 0;
         }
 
-#if MBED_CONF_CELLULAR_DEBUG_AT
+#if DEBUG_AT_ENABLED
         if (write_len + ret > DEBUG_MAXLEN) {
-            if (_debug_on && !suppress_traced) {
+            if (_debug_on && !suppress_traces) {
                 debug_print((char *)data + write_len, DEBUG_MAXLEN, AT_TX);
                 tr_debug("write trace suppressed (total length %d)", len);
             }
-            suppress_traced = true;
+            suppress_traces = true;
         } else {
             debug_print((char *)data + write_len, ret, AT_TX);
         }
@@ -1451,7 +1453,7 @@ void ATHandler::flush()
 
 void ATHandler::debug_print(const char *p, int len, ATType type)
 {
-#if MBED_CONF_CELLULAR_DEBUG_AT
+#if DEBUG_AT_ENABLED
     if (_debug_on) {
         const int buf_size = len * 4 + 1; // x4 -> reserve space for extra characters, +1 -> terminating null
         char *buffer = new char [buf_size];
@@ -1489,7 +1491,7 @@ void ATHandler::debug_print(const char *p, int len, ATType type)
             tr_error("AT trace unable to allocate buffer!");
         }
     }
-#endif // MBED_CONF_CELLULAR_DEBUG_AT
+#endif // DEBUG_AT_ENABLED
 }
 
 bool ATHandler::sync(int timeout_ms)
