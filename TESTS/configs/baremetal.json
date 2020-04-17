@@ -9,6 +9,7 @@
         "psa-compliance-framework",
         "filesystem",
         "littlefs",
+        "littlefs2",
         "mbed-trace",
         "device_key",
         "storage_tdb_internal",
