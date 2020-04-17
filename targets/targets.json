@@ -5960,47 +5960,6 @@
         "device_name": "STM32L471QG",
         "bootloader_supported": true
     },
-    "MTB_MTS_DRAGONFLY": {
-        "inherits": [
-            "FAMILY_STM32"
-        ],
-        "core": "Cortex-M4F",
-        "extra_labels_add": [
-            "STM32F4"
-        ],
-        "overrides": {
-            "lse_available": 0
-        },
-        "macros_add": [
-            "STM32F411xE",
-            "HSE_VALUE=26000000"
-        ],
-        "device_has_add": [
-            "MPU"
-        ],
-        "device_has_remove": [
-            "SERIAL_FC",
-            "LPTICKER"
-        ],
-        "post_binary_hook": {
-            "function": "MTSCode.combine_bins_mtb_mts_dragonfly",
-            "toolchains": [
-                "GCC_ARM",
-                "ARM_STD",
-                "ARM_MICRO",
-                "IAR"
-            ]
-        },
-        "release_versions": [
-            "2",
-            "5"
-        ],
-        "device_name": "STM32F411RE",
-        "bootloader_supported": true,
-        "detect_code": [
-            "0454"
-        ]
-    },
     "XDOT_L151CC": {
         "inherits": [
             "FAMILY_STM32"
