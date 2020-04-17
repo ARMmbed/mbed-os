@@ -104,6 +104,10 @@ UsageFault_Handler:
 
 Fault_Handler:
 #if (DOMAIN_NS == 1)
+#if MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
+#define mbed_fault_context __CRASH_DATA_RAM_START__
+#endif
+
         MOV     R12,R3
         PUSH    {R4-R7}
         ADD     R6,SP,#16
@@ -114,7 +118,6 @@ Fault_Handler:
 
 Fault_Handler_Continue:
         LDR     R7,=mbed_fault_context
-        LDR     R7,[R7]
         LDMIA   R6!,{R0-R3}
         STMIA   R7!,{R0-R3}             // Capture R0..R3
         POP     {R0-R3}
@@ -143,8 +146,7 @@ Fault_Handler_Continue2:
         MRS     R6,CONTROL
         STMIA   R7!,{R0,R1,R5,R6}       // Capture PSP,MSP,EXC_RETURN,CONTROL
         MOV     R0,R12
-        MOV     R1,R7
-        SUBS    R1,R1,#21*4
+        LDR     R1,=mbed_fault_context
         BL      mbed_fault_handler      // mbed_fault_handler does not return
 #else
         B       .

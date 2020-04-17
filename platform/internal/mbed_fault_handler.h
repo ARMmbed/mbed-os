@@ -18,11 +18,15 @@
 #ifndef MBED_FAULT_HANDLER_H
 #define MBED_FAULT_HANDLER_H
 
+#include "mbed_toolchain.h"
+#include "mbed_error.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 //Fault context struct
+#ifdef TARGET_CORTEX_M
 //WARNING: DO NOT CHANGE THIS STRUCT WITHOUT MAKING CORRESPONDING CHANGES in except.S files.
 //Offset of these registers are used by fault handler in except.S
 typedef struct {
@@ -48,13 +52,44 @@ typedef struct {
     uint32_t EXC_RETURN;
     uint32_t CONTROL;
 } mbed_fault_context_t;
+#elif defined TARGET_CORTEX_A
+// This is not currently used, but would be a plausible implementation
+typedef struct {
+    uint32_t R0_reg;
+    uint32_t R1_reg;
+    uint32_t R2_reg;
+    uint32_t R3_reg;
+    uint32_t R4_reg;
+    uint32_t R5_reg;
+    uint32_t R6_reg;
+    uint32_t R7_reg;
+    uint32_t R8_reg;
+    uint32_t R9_reg;
+    uint32_t R10_reg;
+    uint32_t R11_reg;
+    uint32_t R12_reg;
+    uint32_t SP_reg;
+    uint32_t LR_reg;
+    uint32_t PC_reg;
+    uint32_t CPSR;
+    uint32_t SP_usr;
+    uint32_t LR_usr;
+} mbed_fault_context_t;
+#else
+// Dummy for mbed_crash_data_t
+typedef struct {
+} mbed_fault_context_t;
+#endif
+
 
 //Fault type definitions
+#ifdef TARGET_CORTEX_M
 //WARNING: DO NOT CHANGE THESE VALUES WITHOUT MAKING CORRESPONDING CHANGES in except.S files.
 #define HARD_FAULT_EXCEPTION       (0x10) //Keep some gap between values for any future insertion/expansion
 #define MEMMANAGE_FAULT_EXCEPTION  (0x20)
 #define BUS_FAULT_EXCEPTION        (0x30)
 #define USAGE_FAULT_EXCEPTION      (0x40)
+#endif
 
 //This is a handler function called from Fault handler to print the error information out.
 //This runs in fault context and uses special functions(defined in mbed_fault_handler.c) to print the information without using C-lib support.
@@ -65,7 +100,7 @@ MBED_NORETURN void mbed_fault_handler(uint32_t fault_type, const mbed_fault_cont
  * @param  fault_context        Pointer to mbed_fault_context_t struct allocated by the caller. This is the mbed_fault_context_t info captured as part of the fatal exception which triggered the reboot.
  * @return                      0 or MBED_SUCCESS on success.
  *                              MBED_ERROR_INVALID_ARGUMENT in case of invalid error_info pointer
- *                              MBED_ERROR_ITEM_NOT_FOUND if no reboot context is currently captured by teh system
+ *                              MBED_ERROR_ITEM_NOT_FOUND if no reboot context is currently captured by the system
  *
  */
 mbed_error_status_t mbed_get_reboot_fault_context(mbed_fault_context_t *fault_context);
