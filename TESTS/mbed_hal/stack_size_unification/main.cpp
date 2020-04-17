@@ -15,10 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] stack size unification test cases require a RTOS to run.
-#else
-
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
@@ -30,12 +26,16 @@
 
 using namespace utest::v1;
 
+#ifdef MBED_CONF_RTOS_PRESENT
 extern osThreadAttr_t _main_thread_attr;
+#endif
 extern uint32_t mbed_stack_isr_size;
 
 /* Exception for Nordic boards - BLE requires 2KB ISR stack. */
 #if defined(TARGET_NRF5x)
 #define EXPECTED_ISR_STACK_SIZE                  (2048)
+#elif !defined(MBED_CONF_RTOS_PRESENT)
+#define EXPECTED_ISR_STACK_SIZE                  (4096)
 #else
 #define EXPECTED_ISR_STACK_SIZE                  (1024)
 #endif
@@ -58,8 +58,10 @@ extern uint32_t mbed_stack_isr_size;
 void stack_size_unification_test()
 {
     TEST_ASSERT_EQUAL(EXPECTED_ISR_STACK_SIZE, mbed_stack_isr_size);
+#ifdef MBED_CONF_RTOS_PRESENT
     TEST_ASSERT_EQUAL(EXPECTED_MAIN_THREAD_STACK_SIZE, _main_thread_attr.stack_size);
     TEST_ASSERT_EQUAL(EXPECTED_USER_THREAD_DEFAULT_STACK_SIZE, OS_STACK_SIZE);
+#endif
 }
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
@@ -80,4 +82,3 @@ int main()
 }
 
 #endif // TARGET_RENESAS
-#endif // !defined(MBED_CONF_RTOS_PRESENT)
