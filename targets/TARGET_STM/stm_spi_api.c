@@ -105,7 +105,6 @@ void spi_get_capabilities(PinName ssel, bool slave, spi_capabilities_t *cap)
 
     // check if given ssel pin is in the cs pinmap
     const PinMap *cs_pins = spi_master_cs_pinmap();
-    PinName pin = NC;
     while (cs_pins->pin != NC) {
         if (cs_pins->pin == ssel) {
 #if DEVICE_SPISLAVE
