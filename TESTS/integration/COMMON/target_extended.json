@@ -197,13 +197,6 @@
             "nanostack.configuration"                   : "thread_router",
             "nanostack-hal.event_loop_thread_stack_size": 8192
         },
-        "MTB_USI_WM_BN_BM_22": {
-            "target.components_add"                     : ["SPIF"],
-            "spif-driver.SPI_MOSI"                      : "PC_3",
-            "spif-driver.SPI_MISO"                      : "PC_2",
-            "spif-driver.SPI_CLK"                       : "PB_13",
-            "spif-driver.SPI_CS"                        : "PA_6"
-        },
         "MTB_ADV_WISE_1570": {
             "target.components_add"                     : ["SPIF"],
             "spif-driver.SPI_FREQ"                      : 20000000,
@@ -213,15 +206,6 @@
             "platform.stdio-baud-rate"                  : 115200,
             "platform.default-serial-baud-rate"         : 115200,
             "nsapi.dns-response-wait-time"              : 30000
-        },
-        "MTB_ADV_WISE_1530": {
-            "target.components_add"                     : ["SPIF"],
-            "spif-driver.SPI_MOSI"                      : "PC_3",
-            "spif-driver.SPI_MISO"                      : "PC_2",
-            "spif-driver.SPI_CLK"                       : "PB_13",
-            "spif-driver.SPI_CS"                        : "PC_12",
-            "no_led"                                    : "1",
-            "tests-fs-size"                             : "2*1024*1024"
         },
         "MCU_PSOC6": {
             "tests-fs-size"                             : "8*1024*1024"

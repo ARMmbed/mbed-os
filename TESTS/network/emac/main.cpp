@@ -32,14 +32,6 @@
 #error [NOT_SUPPORTED] Either wifi or ethernet testing need to be enabled
 #else
 
-#if (MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == WIFI) && \
-    !defined(TARGET_MTB_ADV_WISE_1530)      && \
-    !defined(TARGET_MTB_USI_WM_BN_BM_22)    && \
-    !defined(TARGET_WIO_EMW3166)
-#error [NOT_SUPPORTED] Wifi tests are not valid for the target
-#else
-
-
 
 #include "greentea-client/test_env.h"
 #include "unity.h"

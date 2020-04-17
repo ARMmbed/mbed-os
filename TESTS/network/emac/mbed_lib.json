@@ -7,12 +7,6 @@
     "target_overrides": {
         "WIO_EMW3166": {
             "NO_SUPPORT_FOR_IPV4_MULTICAST_FILTER": true
-        },
-        "MTB_ADV_WISE_1530": {
-            "NO_SUPPORT_FOR_IPV4_MULTICAST_FILTER": true
-        },
-        "MTB_USI_WM_BN_BM_22": {
-            "NO_SUPPORT_FOR_IPV4_MULTICAST_FILTER": true
         }
     }
 }
