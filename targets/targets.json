@@ -1712,10 +1712,12 @@
             "SLEEP",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES"
+            "STDIO_MESSAGES",
+            "USBDEVICE"
         ],
         "release_versions": [
-            "2"
+            "2",
+            "5"
         ],
         "device_name": "MK20DX256xxx7"
     },
