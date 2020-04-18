@@ -1168,9 +1168,10 @@
             "SLEEP",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES"
+            "STDIO_MESSAGES",
+            "USBDEVICE"
         ],
-        "release_versions": ["2"],
+        "release_versions": ["2", "5"],
         "device_name": "MK20DX256xxx7"
     },
     "MCU_K22F512": {
