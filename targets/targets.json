@@ -1713,7 +1713,8 @@
             "SPI",
             "SPISLAVE",
             "STDIO_MESSAGES",
-            "USBDEVICE"
+            "USBDEVICE",
+            "USTICKER"
         ],
         "release_versions": [
             "2",
