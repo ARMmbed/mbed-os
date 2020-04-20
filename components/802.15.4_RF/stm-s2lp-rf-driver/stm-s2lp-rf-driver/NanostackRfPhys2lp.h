@@ -28,6 +28,49 @@
 // Uncomment to use testing gpios attached to TX/RX processes
 // #define TEST_GPIOS_ENABLED
 
+#if !defined(S2LP_SPI_SDI)
+#define S2LP_SPI_SDI        D11
+#endif
+#if !defined(S2LP_SPI_SDO)
+#define S2LP_SPI_SDO        D12
+#endif
+#if !defined(S2LP_SPI_SCLK)
+#define S2LP_SPI_SCLK       D13
+#endif
+#if !defined(S2LP_SPI_CS)
+#define S2LP_SPI_CS         A1
+#endif
+#if !defined(S2LP_SPI_SDN)
+#define S2LP_SPI_SDN        D7
+#endif
+#if !defined(TEST_PIN_TX)
+#define TEST_PIN_TX         D6
+#endif
+#if !defined(TEST_PIN_RX)
+#define TEST_PIN_RX         D5
+#endif
+#if !defined(TEST_PIN_CSMA)
+#define TEST_PIN_CSMA       D4
+#endif
+#if !defined(TEST_PIN_SPARE_1)
+#define TEST_PIN_SPARE_1    D2
+#endif
+#if !defined(TEST_PIN_SPARE_2)
+#define TEST_PIN_SPARE_2    D8
+#endif
+#if !defined(S2LP_SPI_GPIO0)
+#define S2LP_SPI_GPIO0      A0
+#endif
+#if !defined(S2LP_SPI_GPIO1)
+#define S2LP_SPI_GPIO1      A2
+#endif
+#if !defined(S2LP_SPI_GPIO2)
+#define S2LP_SPI_GPIO2      A3
+#endif
+#if !defined(S2LP_SPI_GPIO3)
+#define S2LP_SPI_GPIO3      A5
+#endif
+
 #include "at24mac_s2lp.h"
 
 class RFPins;
