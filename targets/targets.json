@@ -801,21 +801,6 @@
             "4337"
         ]
     },
-    "LPC1800": {
-        "inherits": [
-            "LPCTarget"
-        ],
-        "core": "Cortex-M3",
-        "extra_labels": [
-            "NXP",
-            "LPC43XX"
-        ],
-        "public": false,
-        "supported_toolchains": [
-            "ARM",
-            "IAR"
-        ]
-    },
     "KL05Z": {
         "supported_form_factors": [
             "ARDUINO"
