@@ -44,9 +44,25 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     unsigned int ftm_n = (pwm >> TPM_SHIFT);
     unsigned int ch_n = (pwm & 0xFF);
 
-    SIM->SCGC6 |= 1 << (SIM_SCGC6_FTM0_SHIFT + ftm_n);
-
     FTM_Type *ftm = (FTM_Type *)(FTM0_BASE + 0x1000 * ftm_n);
+    if (ftm_n < 2)
+    {
+        SIM->SCGC6 |= 1 << (SIM_SCGC6_FTM0_SHIFT + ftm_n);
+    } else {
+#if defined(TARGET_K20DX256)
+        /* note: the above hashdefine appears to be a misnomer, the two chips supported by this folder are:
+         *   * MK20DX256VLH7 (used by the TEENSY3_1 board)
+         *   * MK20DX128VLH5 (used by the K20D50M board)
+         *   The difference that matters seems to come from the suffix of 5 vs 7. */
+        SIM->SCGC3 |= 1 << (SIM_SCGC3_FTM2_SHIFT);
+#ifndef FTM2_BASE
+// Note: FTM2_BASE is missing from TARGET_TEENSY3_1/device/MK20DX256.h
+#define FTM2_BASE (0x400B8000)
+#endif
+        ftm = (FTM_Type *)(FTM2_BASE); // placed at non-contiguous address
+#endif
+    }
+
     ftm->CONF |= FTM_CONF_BDMMODE(3);
     ftm->SC = FTM_SC_CLKS(1) | FTM_SC_PS(clkdiv); // (clock)MHz / clkdiv ~= (0.75)MHz
     ftm->CONTROLS[ch_n].CnSC = (FTM_CnSC_MSB_MASK | FTM_CnSC_ELSB_MASK); /* No Interrupts; High True pulses on Edge Aligned PWM */

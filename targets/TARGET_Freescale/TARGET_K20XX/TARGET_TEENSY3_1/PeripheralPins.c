@@ -113,6 +113,7 @@ const PinMap PinMap_SPI_SSEL[] = { // CS
 const PinMap PinMap_PWM[] = {
     {PTA0,  PWM_6 , 3}, // PTA0, FTM0 CH5
     {PTA1,  PWM_7 , 3}, // PTA1, FTM0 CH6
+    {PTA2,  PWM_8 , 3}, // PTA2, FTM0 CH7
     {PTA3,  PWM_1 , 3}, // PTA3, FTM0 CH0
     {PTA4,  PWM_2 , 3}, // PTA4, FTM0 CH1
     {PTA5,  PWM_3 , 3}, // PTA5, FTM0 CH2
@@ -120,9 +121,12 @@ const PinMap PinMap_PWM[] = {
     {PTA13, PWM_10, 3}, // PTA13, FTM1 CH1
     {PTB0,  PWM_9 , 3}, // PTB0, FTM1 CH0
     {PTB1,  PWM_10, 3}, // PTB1, FTM1 CH1
+    {PTB18, PWM_11, 3}, // PTB18, FTM2 CH0
+    {PTB19, PWM_12, 3}, // PTB19, FTM2 CH1
     {PTC1,  PWM_1 , 4}, // PTC1, FTM0 CH0
     {PTC2,  PWM_2 , 4}, // PTC2, FTM0 CH1
     {PTC3,  PWM_3 , 4}, // PTC3, FTM0 CH2
+    {PTC4,  PWM_4 , 4}, // PTC4, FTM0 CH3
     {PTD4,  PWM_5 , 4}, // PTD4, FTM0 CH4
     {PTD5,  PWM_6 , 4}, // PTD5, FTM0 CH5
     {PTD6,  PWM_7 , 4}, // PTD6, FTM0 CH6
