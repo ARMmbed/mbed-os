@@ -347,43 +347,6 @@
         ],
         "device_name": "LPC11U68JBD100"
     },
-    "LPC1347": {
-        "inherits": [
-            "LPCTarget"
-        ],
-        "core": "Cortex-M3",
-        "extra_labels": [
-            "NXP",
-            "LPC13XX"
-        ],
-        "supported_toolchains": [
-            "ARM",
-            "GCC_ARM",
-            "IAR"
-        ],
-        "device_has": [
-            "ANALOGIN",
-            "I2C",
-            "I2CSLAVE",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "SERIAL",
-            "SLEEP",
-            "SPI",
-            "SPISLAVE",
-            "STDIO_MESSAGES"
-        ],
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "LPC1347FBD48",
-        "detect_code": [
-            "9003"
-        ]
-    },
     "LPC1549": {
         "supported_form_factors": [
             "ARDUINO"

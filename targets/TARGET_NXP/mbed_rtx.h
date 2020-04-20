@@ -41,12 +41,6 @@
 #define INITIAL_SP              (0x10001000UL)
 #endif
 
-#elif defined(TARGET_LPC1347)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x10002000UL)
-#endif
-
 #elif defined(TARGET_LPC1549)
 
 #ifndef INITIAL_SP
