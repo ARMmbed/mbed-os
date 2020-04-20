@@ -100,6 +100,7 @@ const PinMap PinMap_PWM[] = {
     // Duplicate: {D3,  PWM_5 , 4}, // PTD4, FTM0 CH4 // also green led
     {D5,  PWM_7 , 3}, // PTA1, FTM0 CH6
     // Duplicate: {D6,  PWM_3 , 4}, // PTC3, FTM0 CH2 // also red led
+    {D7,  PWM_4 , 4}, // PTC4, FTM0_CH3
     // Duplicate: {D9,  PWM_8 , 3}, // PTA2, FTM0 CH7 // also blue led
     {D10, PWM_2 , 4}, // PTC2, FTM0 CH1
 
