@@ -283,8 +283,8 @@ typedef enum {
     PWM7 = PTD6,
     PWM8 = PTC1,
     PWM9 = PTC2,
-    PWM10 = PTB19,
-    PWM11 = PTB18,
+    PWM10 = PTB18,
+    PWM11 = PTB19,
     
     DAC = DAC0_OUT,
 
