@@ -6550,62 +6550,6 @@
             "TARGET_WALLBOT_BLE"
         ]
     },
-    "DELTA_DFCM_NNN40": {
-        "inherits": [
-            "MCU_NRF51_32K"
-        ],
-        "program_cycle_s": 10,
-        "macros_add": [
-            "TARGET_NRF_LFCLK_RC"
-        ],
-        "device_has": [
-            "ANALOGIN",
-            "DEBUG_AWARENESS",
-            "I2C",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "SERIAL",
-            "SLEEP",
-            "SPI",
-            "SPISLAVE"
-        ],
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "nRF51822_xxAC",
-        "detect_code": [
-            "4500"
-        ]
-    },
-    "DELTA_DFCM_NNN40_BOOT": {
-        "inherits": [
-            "MCU_NRF51_32K_BOOT"
-        ],
-        "program_cycle_s": 10,
-        "extra_labels_add": [
-            "DELTA_DFCM_NNN40"
-        ],
-        "macros_add": [
-            "TARGET_DELTA_DFCM_NNN40",
-            "TARGET_NRF_LFCLK_RC"
-        ]
-    },
-    "DELTA_DFCM_NNN40_OTA": {
-        "inherits": [
-            "MCU_NRF51_32K_OTA"
-        ],
-        "program_cycle_s": 10,
-        "extra_labels_add": [
-            "DELTA_DFCM_NNN40"
-        ],
-        "macros_add": [
-            "TARGET_DELTA_DFCM_NNN40",
-            "TARGET_NRF_LFCLK_RC"
-        ]
-    },
     "NRF51_DK_LEGACY": {
         "supported_form_factors": [
             "ARDUINO"

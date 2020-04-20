@@ -520,7 +520,6 @@ TESTS = [
                         "RBLAB_NRF51822", "RBLAB_NRF51822_BOOT", "RBLAB_NRF51822_OTA",
                         "SEEED_TINY_BLE", "SEEED_TINY_BLE_BOOT", "SEEED_TINY_BLE_OTA",
                         "WALLBOT_BLE", "WALLBOT_BLE_BOOT", "WALLBOT_BLE_OTA",
-                        "DELTA_DFCM_NNN40", "DELTA_DFCM_NNN40_BOOT", "DELTA_DFCM_NNN40_OTA",
                         "LPC1114"],
         #"host_test": "rtc_auto",
     },
