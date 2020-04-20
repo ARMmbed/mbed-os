@@ -577,56 +577,6 @@
             "1235"
         ]
     },
-    "XBED_LPC1768": {
-        "inherits": [
-            "LPCTarget"
-        ],
-        "core": "Cortex-M3",
-        "supported_toolchains": [
-            "ARM",
-            "uARM",
-            "GCC_ARM",
-            "IAR"
-        ],
-        "extra_labels": [
-            "NXP",
-            "LPC176X",
-            "XBED_LPC1768"
-        ],
-        "macros": [
-            "TARGET_LPC1768"
-        ],
-        "detect_code": [
-            "1010"
-        ],
-        "device_has": [
-            "ANALOGIN",
-            "ANALOGOUT",
-            "CAN",
-            "DEBUG_AWARENESS",
-            "ETHERNET",
-            "I2C",
-            "I2CSLAVE",
-            "INTERRUPTIN",
-            "LOCALFILESYSTEM",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "SEMIHOST",
-            "SERIAL",
-            "SERIAL_FC",
-            "SLEEP",
-            "SPI",
-            "SPISLAVE",
-            "STDIO_MESSAGES",
-            "FLASH",
-            "MPU",
-            "WATCHDOG",
-            "RESET_REASON"
-        ],
-        "device_name": "LPC1768"
-    },
     "LPC810": {
         "inherits": [
             "LPCTarget"
