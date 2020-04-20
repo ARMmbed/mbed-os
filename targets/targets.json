@@ -577,39 +577,6 @@
             "1235"
         ]
     },
-    "LPC810": {
-        "inherits": [
-            "LPCTarget"
-        ],
-        "core": "Cortex-M0+",
-        "default_toolchain": "uARM",
-        "extra_labels": [
-            "NXP",
-            "LPC81X"
-        ],
-        "is_disk_virtual": true,
-        "supported_toolchains": [
-            "uARM",
-            "IAR",
-            "GCC_ARM"
-        ],
-        "device_has": [
-            "I2C",
-            "I2CSLAVE",
-            "INTERRUPTIN",
-            "PWMOUT",
-            "SERIAL",
-            "SERIAL_FC",
-            "SLEEP",
-            "SPI",
-            "SPISLAVE"
-        ],
-        "default_lib": "small",
-        "device_name": "LPC810M021FN8",
-        "detect_code": [
-            "1020"
-        ]
-    },
     "LPC812": {
         "supported_form_factors": [
             "ARDUINO"
