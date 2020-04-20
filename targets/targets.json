@@ -9253,46 +9253,6 @@
             "1237"
         ]
     },
-    "DELTA_DFBM_NQ620": {
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "inherits": [
-            "MCU_NRF52832"
-        ],
-        "release_versions": [
-            "5"
-        ],
-        "device_name": "nRF52832_xxAA",
-        "device_has_remove": [
-            "ITM"
-        ],
-        "macros_add": [
-            "CONFIG_GPIO_AS_PINRESET",
-            "NRF52_PAN_12",
-            "NRF52_PAN_15",
-            "NRF52_PAN_20",
-            "NRF52_PAN_30",
-            "NRF52_PAN_31",
-            "NRF52_PAN_36",
-            "NRF52_PAN_51",
-            "NRF52_PAN_53",
-            "NRF52_PAN_54",
-            "NRF52_PAN_55",
-            "NRF52_PAN_58",
-            "NRF52_PAN_62",
-            "NRF52_PAN_63",
-            "NRF52_PAN_64"
-        ],
-        "overrides": {
-            "lf_clock_src": "NRF_LF_SRC_RC",
-            "lf_clock_rc_calib_timer_interval": 16,
-            "lf_clock_rc_calib_mode_config": 0
-        },
-        "detect_code": [
-            "4501"
-        ]
-    },
     "MCU_NRF52840": {
         "inherits": [
             "Target"
