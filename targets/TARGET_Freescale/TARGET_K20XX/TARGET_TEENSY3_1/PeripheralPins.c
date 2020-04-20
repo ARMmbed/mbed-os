@@ -111,11 +111,6 @@ const PinMap PinMap_SPI_SSEL[] = { // CS
 
 /************PWM***************/
 const PinMap PinMap_PWM[] = {
-    // LEDs
-    {LED_RED  , PWM_3 , 4}, // PTC3, FTM0 CH2
-    {LED_GREEN, PWM_5,  4}, // PTD4, FTM0 CH4
-    {LED_BLUE , PWM_8 , 3}, // PTA2, FTM0 CH7
-
     {PTA0,  PWM_6 , 3}, // PTA0, FTM0 CH5
     {PTA1,  PWM_7 , 3}, // PTA1, FTM0 CH6
     {PTA3,  PWM_1 , 3}, // PTA3, FTM0 CH0
