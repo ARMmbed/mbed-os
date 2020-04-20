@@ -452,12 +452,6 @@
             "network-default-interface-type": "ETHERNET"
         }
     },
-    "LPC1769": {
-        "inherits": [
-            "LPC1768"
-        ],
-        "device_name": "LPC1769"
-    },
     "ARCH_PRO": {
         "supported_form_factors": [
             "ARDUINO"

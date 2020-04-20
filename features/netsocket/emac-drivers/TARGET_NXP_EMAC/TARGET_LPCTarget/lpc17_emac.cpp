@@ -119,7 +119,7 @@ struct lpc_enetdata {
     uint32_t lpc_reserved_tx_num; /**< Number of reserved TX descriptors, zero-copy mode */
 };
 
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC1769)
+#if defined(TARGET_LPC1768)
 /** \brief Group LPC17xx processors into one definition
  */
 #define TARGET_LPC17XX

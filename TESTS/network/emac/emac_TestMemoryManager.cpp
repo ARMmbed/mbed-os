@@ -49,7 +49,7 @@ char s_trace_buffer[100] = MEM_MNGR_TRACE;
 /* For LPC boards define the heap memory bank ourselves to give us section placement
    control */
 #ifndef ETHMEM_SECTION
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC1769)
+#if defined(TARGET_LPC1768)
 #  if defined (__ICCARM__)
 #     define ETHMEM_SECTION
 #  elif defined(TOOLCHAIN_GCC_CR)
