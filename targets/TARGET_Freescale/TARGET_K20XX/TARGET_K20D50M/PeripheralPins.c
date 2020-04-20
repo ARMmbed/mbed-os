@@ -97,10 +97,10 @@ const PinMap PinMap_PWM[] = {
     {LED_BLUE , PWM_8 , 3}, // PTA2, FTM0 CH7
 
     // Arduino digital pinout
-    {D3,  PWM_5 , 4}, // PTD4, FTM0 CH4
+    // Duplicate: {D3,  PWM_5 , 4}, // PTD4, FTM0 CH4 // also green led
     {D5,  PWM_7 , 3}, // PTA1, FTM0 CH6
-    {D6,  PWM_3 , 4}, // PTC3, FTM0 CH2
-    {D9,  PWM_6 , 4}, // PTD5, FTM0 CH6
+    // Duplicate: {D6,  PWM_3 , 4}, // PTC3, FTM0 CH2 // also red led
+    // Duplicate: {D9,  PWM_8 , 3}, // PTA2, FTM0 CH7 // also blue led
     {D10, PWM_2 , 4}, // PTC2, FTM0 CH1
 
     {PTA0,  PWM_6 , 3}, // PTA0, FTM0 CH5
@@ -112,7 +112,7 @@ const PinMap PinMap_PWM[] = {
     {PTB0,  PWM_9 , 3}, // PTB0, FTM1 CH0
     {PTB1,  PWM_10, 3}, // PTB1, FTM1 CH1
     {PTC1,  PWM_1 , 4}, // PTC1, FTM0 CH0
-    {PTD4,  PWM_4 , 4}, // PTD4, FTM0 CH3
+    // Duplicate: {PTD4,  PWM_5 , 4}, // PTD4, FTM0 CH4 (also known as D3, and green led)
     {PTD6,  PWM_7 , 4}, // PTD6, FTM0 CH6
     {PTD7,  PWM_8 , 4}, // PTD7, FTM0 CH7
 
