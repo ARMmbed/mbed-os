@@ -100,7 +100,9 @@ void pwmout_period_ms(pwmout_t* obj, int ms) {
 // Set the PWM period, keeping the duty cycle the same.
 void pwmout_period_us(pwmout_t* obj, int us) {
     float dc = pwmout_read(obj);
-    *obj->MOD = (uint32_t)(pwm_clock * (float)us) - 1;
+    uint32_t new_mod = (uint32_t)(pwm_clock * (float)us) - 1;
+    if ((new_mod > 0xffff) || (new_mod < 0)) error("PWM period out of range");
+    *obj->MOD = new_mod;
     *obj->SYNC |= FTM_SYNC_SWSYNC_MASK;
     pwmout_write(obj, dc);
 }
