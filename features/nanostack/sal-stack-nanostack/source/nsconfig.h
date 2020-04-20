@@ -24,10 +24,6 @@
 
 #include "ns_types.h"
 
-#ifdef __CC_ARM
-#pragma diag_suppress 546 // transfer of control bypasses initialization
-#endif
-
 #define __ns_cfg_header(x) #x
 #define _ns_cfg_header(x) __ns_cfg_header(configs/cfg_##x.h)
 #define ns_cfg_header(x) _ns_cfg_header(x)

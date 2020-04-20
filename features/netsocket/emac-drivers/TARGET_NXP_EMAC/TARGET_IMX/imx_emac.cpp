@@ -241,15 +241,6 @@ bool Kinetis_EMAC::low_level_init_successful()
     config.rxAccelerConfig = kENET_RxAccelMacCheckEnabled;
     ENET_Init(ENET, &g_handle, &config, &buffCfg, hwaddr, sysClock);
 
-#if defined(TOOLCHAIN_ARM)
-#if defined(__OPTIMISE_TIME) && (__ARMCC_VERSION < 5060750)
-    /* Add multicast groups
-       work around for https://github.com/ARMmbed/mbed-os/issues/4372 */
-    ENET->GAUR = 0xFFFFFFFFu;
-    ENET->GALR = 0xFFFFFFFFu;
-#endif
-#endif
-
     ENET_SetCallback(&g_handle, &Kinetis_EMAC::ethernet_callback, this);
     ENET_ActiveRead(ENET);
 

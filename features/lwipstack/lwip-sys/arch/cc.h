@@ -54,14 +54,7 @@ extern "C" {
 #define LWIP_PROVIDE_ERRNO
 #endif
 
-#if defined(__arm__) && defined(__ARMCC_VERSION) && (__ARMCC_VERSION < 6010050)
-    /* Keil uVision4 tools */
-    #define PACK_STRUCT_BEGIN __packed
-    #define PACK_STRUCT_STRUCT
-    #define PACK_STRUCT_END
-    #define PACK_STRUCT_FIELD(fld) fld
-    #define ALIGNED(n)  __align(n)
-#elif defined (__IAR_SYSTEMS_ICC__)
+#if defined (__IAR_SYSTEMS_ICC__)
     /* IAR Embedded Workbench tools */
     #define PACK_STRUCT_BEGIN __packed
     #define PACK_STRUCT_STRUCT
