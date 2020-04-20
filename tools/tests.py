@@ -501,8 +501,6 @@ TESTS = [
                         "NRF15_DONGLE", "NRF15_DONGLE_BOOT", "NRF15_DONGLE_OTA",
                         "ARCH_BLE", "ARCH_BLE_BOOT", "ARCH_BLE_OTA",
                         "ARCH_LINK", "ARCH_LINK_BOOT", "ARCH_LINK_OTA",
-                        "RBLAB_BLENANO", "RBLAB_BLENANO_BOOT", "RBLAB_BLENANO_OTA",
-                        "RBLAB_NRF51822", "RBLAB_NRF51822_BOOT", "RBLAB_NRF51822_OTA",
                         "SEEED_TINY_BLE", "SEEED_TINY_BLE_BOOT", "SEEED_TINY_BLE_OTA",
                         "WALLBOT_BLE", "WALLBOT_BLE_BOOT", "WALLBOT_BLE_OTA",
                         "LPC1114"],
