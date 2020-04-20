@@ -380,6 +380,15 @@ void ppc_init_cfg(void)
                                  ARM_PPC_NONSECURE_ONLY,
                                  ARM_PPC_PRIV_ONLY);
 
+    /* Grant non-secure access for APB MHU0 on EXP0 */
+    ret |= Driver_APB_PPCEXP0.Initialize();
+    ret |= Driver_APB_PPCEXP0.ConfigPeriph(MUSCA_B1_CI_MHU0_S_APB_PPC_POS,
+                                    ARM_PPC_NONSECURE_ONLY,
+                                    ARM_PPC_PRIV_ONLY);
+    ret |= Driver_APB_PPCEXP0.ConfigPeriph(MUSCA_B1_CI_MHU0_R_APB_PPC_POS,
+                                    ARM_PPC_NONSECURE_ONLY,
+                                    ARM_PPC_PRIV_ONLY);
+
     /* Grant non-secure access for APB peripherals on EXP1 */
     ret |= Driver_APB_PPCEXP1.Initialize();
     ret |= Driver_APB_PPCEXP1.ConfigPeriph(MUSCA_B1_PWM0_APB_PPC_POS,
