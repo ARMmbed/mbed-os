@@ -20,10 +20,9 @@ void pin_function(PinName pin, int function) {
     MBED_ASSERT(pin != (PinName)NC);
 
     uint32_t port_n = (uint32_t)pin >> PORT_SHIFT;
-    uint32_t pin_n  = (uint32_t)(pin & 0x7C) >> 2;
-
     SIM->SCGC5 |= 1 << (SIM_SCGC5_PORTA_SHIFT + port_n);
-    __IO uint32_t* pin_pcr = &(((PORT_Type *)(PORTA_BASE + 0x1000 * port_n)))->PCR[pin_n];
+
+    __IO uint32_t* pin_pcr = (__IO uint32_t*)(PORTA_BASE + pin);
 
     // pin mux bits: [10:8] -> 11100000000 = (0x700)
     *pin_pcr = (*pin_pcr & ~0x700) | (function << 8);
