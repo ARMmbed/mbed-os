@@ -165,12 +165,6 @@
         "LPC1768": {
             "mem-size": 16362
         },
-        "LPC4088": {
-            "mem-size": 15360
-        },
-        "LPC4088_DM": {
-            "mem-size": 15360
-        },
         "UBLOX_C027": {
             "mem-size": 16362
         },

@@ -125,15 +125,7 @@ struct lpc_enetdata {
 #define TARGET_LPC17XX
 #endif
 
-#if defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
-#  if defined (__ICCARM__)
-#     define ETHMEM_SECTION
-#  elif defined(TOOLCHAIN_GCC_CR)
-#     define ETHMEM_SECTION __attribute__((section(".data.$RamPeriph32"), aligned))
-#  else
-#     define ETHMEM_SECTION __attribute__((section("AHBSRAM0"),aligned))
-#  endif
-#elif defined(TARGET_LPC17XX)
+#if defined(TARGET_LPC17XX)
 #  if defined(TOOLCHAIN_GCC_ARM) || defined(TOOLCHAIN_ARM)
 #     define ETHMEM_SECTION __attribute__((section("AHBSRAM1"),aligned))
 #  endif
@@ -392,8 +384,6 @@ int32_t LPC17_EMAC::lpc_packet_addr_notsafe(void *addr)
     /* Check for legal address ranges */
 #if defined(TARGET_LPC17XX)
     if ((((uint32_t) addr >= 0x2007C000) && ((uint32_t) addr < 0x20083FFF))) {
-#elif defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
-    if ((((uint32_t) addr >= 0x20000000) && ((uint32_t) addr < 0x20007FFF))) {
 #endif
         return 0;
     }
@@ -699,27 +689,6 @@ bool LPC17_EMAC::low_level_init()
 #if defined(TARGET_LPC17XX)
     LPC_PINCON->PINSEL2 = 0x50150105;                  /* Enable P1 Ethernet Pins. */
     LPC_PINCON->PINSEL3 = (LPC_PINCON->PINSEL3 & ~0x0000000F) | 0x00000005;
-#elif defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
-  LPC_IOCON->P1_0  &= ~0x07;    /*  ENET I/O config */
-  LPC_IOCON->P1_0  |= 0x01;     /* ENET_TXD0 */
-  LPC_IOCON->P1_1  &= ~0x07;
-  LPC_IOCON->P1_1  |= 0x01;     /* ENET_TXD1 */
-  LPC_IOCON->P1_4  &= ~0x07;
-  LPC_IOCON->P1_4  |= 0x01;     /* ENET_TXEN */
-  LPC_IOCON->P1_8  &= ~0x07;
-  LPC_IOCON->P1_8  |= 0x01;     /* ENET_CRS */
-  LPC_IOCON->P1_9  &= ~0x07;
-  LPC_IOCON->P1_9  |= 0x01;     /* ENET_RXD0 */
-  LPC_IOCON->P1_10 &= ~0x07;
-  LPC_IOCON->P1_10 |= 0x01;     /* ENET_RXD1 */
-  LPC_IOCON->P1_14 &= ~0x07;
-  LPC_IOCON->P1_14 |= 0x01;     /* ENET_RX_ER */
-  LPC_IOCON->P1_15 &= ~0x07;
-  LPC_IOCON->P1_15 |= 0x01;     /* ENET_REF_CLK */
-  LPC_IOCON->P1_16 &= ~0x07;    /* ENET/PHY I/O config */
-  LPC_IOCON->P1_16 |= 0x01;     /* ENET_MDC */
-  LPC_IOCON->P1_17 &= ~0x07;
-  LPC_IOCON->P1_17 |= 0x01;     /* ENET_MDIO */
 #endif
 
     /* Reset all MAC logic */
