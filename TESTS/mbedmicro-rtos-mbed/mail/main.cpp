@@ -29,6 +29,13 @@
 #include "rtos.h"
 
 using namespace utest::v1;
+using namespace std::chrono;
+
+#define TEST_ASSERT_DURATION_WITHIN(delta, expected, actual) \
+    do { \
+        using ct = std::common_type_t<decltype(delta), decltype(expected), decltype(actual)>; \
+        TEST_ASSERT_INT_WITHIN(ct(delta).count(), ct(expected).count(), ct(actual).count()); \
+    } while (0)
 
 #if defined(__CORTEX_M23) || defined(__CORTEX_M33)
 #define THREAD_STACK_SIZE   512
@@ -43,9 +50,9 @@ using namespace utest::v1;
 #define THREAD_1_ID         1
 #define THREAD_2_ID         2
 #define THREAD_3_ID         3
-#define QUEUE_PUT_DELAY_1   5
-#define QUEUE_PUT_DELAY_2   50
-#define QUEUE_PUT_DELAY_3   100
+#define QUEUE_PUT_DELAY_1   5ms
+#define QUEUE_PUT_DELAY_2   50ms
+#define QUEUE_PUT_DELAY_3   100ms
 #define DATA_BASE           100
 
 
@@ -55,27 +62,26 @@ typedef struct {
 } mail_t;
 
 
-template<uint8_t thread_id, uint32_t wait_ms, uint32_t send_count>
-void send_thread(Mail<mail_t, QUEUE_SIZE> *m)
+void send_thread(Mail<mail_t, QUEUE_SIZE> *m, uint8_t thread_id, milliseconds wait, uint32_t send_count)
 {
     uint32_t data = thread_id * DATA_BASE;
 
     for (uint32_t i = 0; i < send_count; i++) {
-        mail_t *mail = m->alloc();
+        mail_t *mail = m->try_alloc();
         mail->thread_id = thread_id;
         mail->data = data++;
         m->put(mail);
-        ThisThread::sleep_for(wait_ms);
+        ThisThread::sleep_for(wait);
     }
 }
 
-template<uint8_t thread_id, uint32_t queue_size, uint32_t wait_ms>
-void receive_thread(Mail<mail_t, queue_size> *m)
+template<uint32_t queue_size>
+void receive_thread(Mail<mail_t, queue_size> *m, uint8_t thread_id, milliseconds wait)
 {
     int result_counter = 0;
     uint32_t data = thread_id * DATA_BASE;
 
-    ThisThread::sleep_for(wait_ms);
+    ThisThread::sleep_for(wait);
     for (uint32_t i = 0; i < queue_size; i++) {
         osEvent evt = m->get();
         if (evt.status == osEventMail) {
@@ -108,10 +114,10 @@ void test_single_thread_order(void)
 
     // mail send thread creation
     Thread thread(osPriorityNormal, THREAD_STACK_SIZE);
-    thread.start(callback(send_thread<THREAD_1_ID, QUEUE_PUT_DELAY_1, QUEUE_SIZE>, &mail_box));
+    thread.start([&] { send_thread(&mail_box, THREAD_1_ID, QUEUE_PUT_DELAY_1, QUEUE_SIZE); });
 
     // wait for some mail to be collected
-    ThisThread::sleep_for(10);
+    ThisThread::sleep_for(10ms);
 
     for (uint32_t i = 0; i < QUEUE_SIZE; i++) {
         // mail receive (main thread)
@@ -148,12 +154,12 @@ void test_multi_thread_order(void)
     Thread thread1(osPriorityNormal, THREAD_STACK_SIZE);
     Thread thread2(osPriorityNormal, THREAD_STACK_SIZE);
     Thread thread3(osPriorityNormal, THREAD_STACK_SIZE);
-    thread1.start(callback(send_thread<THREAD_1_ID, QUEUE_PUT_DELAY_1, 7>, &mail_box));
-    thread2.start(callback(send_thread<THREAD_2_ID, QUEUE_PUT_DELAY_2, 5>, &mail_box));
-    thread3.start(callback(send_thread<THREAD_3_ID, QUEUE_PUT_DELAY_3, 4>, &mail_box));
+    thread1.start([&] { send_thread(&mail_box, THREAD_1_ID, QUEUE_PUT_DELAY_1, 7); });
+    thread2.start([&] { send_thread(&mail_box, THREAD_2_ID, QUEUE_PUT_DELAY_2, 5); });
+    thread3.start([&] { send_thread(&mail_box, THREAD_3_ID, QUEUE_PUT_DELAY_3, 4); });
 
     // wait for some mail to be collected
-    ThisThread::sleep_for(10);
+    ThisThread::sleep_for(10ms);
 
     for (uint32_t i = 0; i < QUEUE_SIZE; i++) {
         // mail receive (main thread)
@@ -191,30 +197,30 @@ void test_multi_thread_multi_mail_order(void)
     Thread thread1(osPriorityNormal, THREAD_STACK_SIZE);
     Thread thread2(osPriorityNormal, THREAD_STACK_SIZE);
     Thread thread3(osPriorityNormal, THREAD_STACK_SIZE);
-    thread1.start(callback(receive_thread<THREAD_1_ID, 4, 0>, mail_box + 1));
-    thread2.start(callback(receive_thread<THREAD_2_ID, 4, 10>, mail_box + 2));
-    thread3.start(callback(receive_thread<THREAD_3_ID, 4, 100>, mail_box + 3));
+    thread1.start([&] { receive_thread<4>(mail_box + 1, THREAD_1_ID, 0ms); });
+    thread2.start([&] { receive_thread<4>(mail_box + 2, THREAD_2_ID, 10ms); });
+    thread3.start([&] { receive_thread<4>(mail_box + 3, THREAD_3_ID, 100ms); });
 
     for (uint32_t i = 0; i < 4; i++) {
         id = THREAD_1_ID;
-        mail = mail_box[id].alloc();
+        mail = mail_box[id].try_alloc();
         mail->thread_id = id;
         mail->data = data[id]++;
         mail_box[id].put(mail);
 
         id = THREAD_2_ID;
-        mail = mail_box[id].alloc();
+        mail = mail_box[id].try_alloc();
         mail->thread_id = id;
         mail->data = data[id]++;
         mail_box[id].put(mail);
 
         id = THREAD_3_ID;
-        mail = mail_box[id].alloc();
+        mail = mail_box[id].try_alloc();
         mail->thread_id = id;
         mail->data = data[id]++;
         mail_box[id].put(mail);
 
-        ThisThread::sleep_for(i * 10);
+        ThisThread::sleep_for(i * 10ms);
     }
 
     thread1.join();
@@ -238,7 +244,7 @@ void test_free_wrong()
     status = mail_box.free(mail);
     TEST_ASSERT_EQUAL(osErrorParameter, status);
 
-    mail = mail_box.alloc();
+    mail = mail_box.try_alloc();
     TEST_ASSERT_NOT_EQUAL(NULL, mail);
 
     mail = &data;
@@ -262,7 +268,7 @@ void test_free_null()
     status = mail_box.free(mail);
     TEST_ASSERT_EQUAL(osErrorParameter, status);
 
-    mail = mail_box.alloc();
+    mail = mail_box.try_alloc();
     TEST_ASSERT_NOT_EQUAL(NULL, mail);
 
     mail = NULL;
@@ -282,8 +288,8 @@ void test_get_empty_timeout()
     Timer timer;
 
     timer.start();
-    osEvent evt = mail_box.get(50);
-    TEST_ASSERT_UINT32_WITHIN(5000, 50000, timer.read_us());
+    osEvent evt = mail_box.get(50ms);
+    TEST_ASSERT_DURATION_WITHIN(5ms, 50ms, timer.elapsed_time());
     TEST_ASSERT_EQUAL(osEventTimeout, evt.status);
 }
 
@@ -297,7 +303,7 @@ void test_get_empty_no_timeout()
 {
     Mail<uint32_t, 4> mail_box;
 
-    osEvent evt = mail_box.get(0);
+    osEvent evt = mail_box.get(0ms);
     TEST_ASSERT_EQUAL(osOK, evt.status);
 }
 
@@ -316,14 +322,14 @@ void test_order(void)
     const int32_t TEST_VAL1 = 123;
     const int32_t TEST_VAL2 = 456;
 
-    int32_t *mail1 = mail_box.alloc();
+    int32_t *mail1 = mail_box.try_alloc();
     TEST_ASSERT_NOT_EQUAL(NULL, mail1);
 
     *mail1 = TEST_VAL1;
     status = mail_box.put(mail1);
     TEST_ASSERT_EQUAL(osOK, status);
 
-    int32_t *mail2 = mail_box.alloc();
+    int32_t *mail2 = mail_box.try_alloc();
     TEST_ASSERT_NOT_EQUAL(NULL, mail2);
 
     *mail2 = TEST_VAL2;
@@ -354,9 +360,9 @@ void test_order(void)
 /** Test Mail box max size limit
 
     Given an Mail box with max size of 4 elements
-    When call @a alloc four times it returns memory blocks
+    When call @a try_alloc four times it returns memory blocks
     Then the memory blocks should be valid
-    When call @a alloc one more time it returns memory blocks
+    When call @a try_alloc one more time it returns memory blocks
     Then the memory blocks should be not valid (NULL - no memory available)
  */
 void test_max_size()
@@ -366,23 +372,23 @@ void test_max_size()
     const uint32_t TEST_VAL = 123;
 
     // 1 OK
-    uint32_t *mail1 = mail_box.alloc();
+    uint32_t *mail1 = mail_box.try_alloc();
     TEST_ASSERT_NOT_EQUAL(NULL, mail1);
 
     // 2 OK
-    uint32_t *mail2 = mail_box.alloc();
+    uint32_t *mail2 = mail_box.try_alloc();
     TEST_ASSERT_NOT_EQUAL(NULL, mail2);
 
     // 3 OK
-    uint32_t *mail3 = mail_box.alloc();
+    uint32_t *mail3 = mail_box.try_alloc();
     TEST_ASSERT_NOT_EQUAL(NULL, mail3);
 
     // 4 OK
-    uint32_t *mail4 = mail_box.alloc();
+    uint32_t *mail4 = mail_box.try_alloc();
     TEST_ASSERT_NOT_EQUAL(NULL, mail4);
 
     // 5 KO
-    uint32_t *mail5 = mail_box.alloc();
+    uint32_t *mail5 = mail_box.try_alloc();
     TEST_ASSERT_EQUAL(NULL, mail5);
 
 
@@ -412,7 +418,7 @@ void test_data_type(void)
     Mail<T, 4> mail_box;
     const T TEST_VAL = 123;
 
-    T *mail = mail_box.alloc();
+    T *mail = mail_box.try_alloc();
     TEST_ASSERT_NOT_EQUAL(NULL, mail);
 
     *mail = TEST_VAL;
@@ -430,17 +436,17 @@ void test_data_type(void)
     TEST_ASSERT_EQUAL(osOK, status);
 }
 
-/** Test calloc - memory block allocation with resetting
+/** Test try_calloc - memory block allocation with resetting
 
     Given an empty Mail box
-    When call @a calloc it returns allocated memory block
+    When call @a try_calloc it returns allocated memory block
     Then the memory block should be valid and filled with zeros
  */
 void test_calloc()
 {
     Mail<uint32_t, 1> mail_box;
 
-    uint32_t *mail = mail_box.calloc();
+    uint32_t *mail = mail_box.try_calloc();
     TEST_ASSERT_NOT_EQUAL(NULL, mail);
     TEST_ASSERT_EQUAL(0, *mail);
 }
@@ -455,7 +461,7 @@ void test_mail_empty()
 {
     Mail<mail_t, 1> m;
 
-    mail_t *mail = m.alloc();
+    mail_t *mail = m.try_alloc();
 
     TEST_ASSERT_EQUAL(true,  m.empty());
 
@@ -474,7 +480,7 @@ void test_mail_full()
 {
     Mail<mail_t, 1> m;
 
-    mail_t *mail = m.alloc();
+    mail_t *mail = m.try_alloc();
 
     TEST_ASSERT_EQUAL(false,  m.full());
 
@@ -490,7 +496,7 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-    Case("Test calloc", test_calloc),
+    Case("Test try_calloc", test_calloc),
     Case("Test message type uint8", test_data_type<uint8_t>),
     Case("Test message type uint16", test_data_type<uint16_t>),
     Case("Test message type uint32", test_data_type<uint32_t>),

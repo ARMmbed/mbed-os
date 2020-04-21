@@ -88,10 +88,12 @@ public:
       @return  address of the allocated memory block or nullptr in case of no memory available.
 
       @note You may call this function from ISR context.
+      @deprecated Replaced with try_alloc. In future alloc() will be an untimed blocking call.
     */
-    T *alloc(void)
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Replaced with try_alloc. In future alloc() will be an untimed blocking call.")
+    T *alloc()
     {
-        return (T *)osMemoryPoolAlloc(_id, 0);
+        return try_alloc();
     }
 
     /** Allocate a memory block from a memory pool, without blocking.
@@ -99,7 +101,7 @@ public:
 
       @note You may call this function from ISR context.
     */
-    T *try_alloc(void)
+    T *try_alloc()
     {
         return (T *)osMemoryPoolAlloc(_id, 0);
     }
@@ -123,7 +125,7 @@ public:
 
       @note You may call this function from ISR context if the rel_time parameter is set to 0.
     */
-    T *alloc_for(Kernel::Clock::duration_u32 rel_time)
+    T *try_alloc_for(Kernel::Clock::duration_u32 rel_time)
     {
         return (T *)osMemoryPoolAlloc(_id, rel_time.count());
     }
@@ -156,7 +158,7 @@ public:
         wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
         the wait will time out earlier than specified.
     */
-    T *alloc_until(Kernel::Clock::time_point abs_time)
+    T *try_alloc_until(Kernel::Clock::time_point abs_time)
     {
         Kernel::Clock::time_point now = Kernel::Clock::now();
         Kernel::Clock::duration_u32 rel_time;
@@ -167,16 +169,28 @@ public:
         } else {
             rel_time = abs_time - now;
         }
-        return alloc_for(rel_time);
+        return try_alloc_for(rel_time);
     }
     /** Allocate a memory block from a memory pool, without blocking, and set memory block to zero.
       @return  address of the allocated memory block or nullptr in case of no memory available.
 
       @note You may call this function from ISR context.
+      @deprecated Replaced with try_calloc. In future calloc() will be an untimed blocking call.
     */
-    T *calloc(void)
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Replaced with try_calloc. In future calloc() will be an untimed blocking call.")
+    T *calloc()
     {
-        T *item = alloc();
+        return try_calloc();
+    }
+
+    /** Allocate a memory block from a memory pool, without blocking, and set memory block to zero.
+      @return  address of the allocated memory block or nullptr in case of no memory available.
+
+      @note You may call this function from ISR context.
+    */
+    T *try_calloc()
+    {
+        T *item = try_alloc();
         if (item != nullptr) {
             memset(item, 0, sizeof(T));
         }
@@ -202,7 +216,7 @@ public:
 
       @note You may call this function from ISR context if the rel_time parameter is set to 0.
     */
-    T *calloc_for(Kernel::Clock::duration_u32 rel_time)
+    T *try_calloc_for(Kernel::Clock::duration_u32 rel_time)
     {
         T *item = alloc_for(rel_time);
         if (item != nullptr) {
@@ -239,7 +253,7 @@ public:
         wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
         the wait will time out earlier than specified.
     */
-    T *calloc_until(Kernel::Clock::time_point abs_time)
+    T *try_calloc_until(Kernel::Clock::time_point abs_time)
     {
         T *item = alloc_until(abs_time);
         if (item != nullptr) {
