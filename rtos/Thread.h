@@ -84,6 +84,9 @@ namespace rtos {
  * to give access to particular thread used overloaded constructor with `tz_module` as argument during thread creation.
  *
  * MBED_TZ_DEFAULT_ACCESS is target specific define, should be set in targets.json file for Cortex-M23/M33 devices.
+ *
+ * @note
+ * Bare metal profile: This class is not supported.
  */
 
 class Thread : private mbed::NonCopyable<Thread> {
