@@ -470,16 +470,6 @@ class LPCTargetCode(object):
         t_self.notify.debug("LPC Patch: %s" % os.path.split(binf)[1])
         patch(binf)
 
-class TEENSY3_1Code(object):
-    """Hooks for the TEENSY3.1"""
-    @staticmethod
-    def binary_hook(t_self, resources, elf, binf):
-        """Hook that is run after elf is generated"""
-        # This function is referenced by old versions of targets.json and
-        # should be kept for backwards compatibility.
-        pass
-
-
 class MTSCode(object):
     """Generic MTS code"""
     @staticmethod

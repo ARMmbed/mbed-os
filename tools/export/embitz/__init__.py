@@ -22,7 +22,6 @@ from tools.export.exporters import Exporter, apply_supported_whitelist
 
 
 POST_BINARY_WHITELIST = set([
-    "TEENSY3_1Code.binary_hook",
     "LPCTargetCode.lpc_patch"
 ])
 

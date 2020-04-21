@@ -19,13 +19,7 @@
 
 #include <stdint.h>
 
-#if defined(TARGET_TEENSY3_1)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20008000UL)
-#endif
-
-#elif defined(TARGET_MCU_K22F)
+#if defined(TARGET_MCU_K22F)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20010000UL)
