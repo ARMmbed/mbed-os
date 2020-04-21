@@ -313,9 +313,7 @@
             ]
         },
         "c_lib": "small",
-        "release_versions": [
-            "2", "5"
-        ],
+        "supported_application_modes": ["bare-metal"],
         "device_name": "LPC1114FN28/102",
         "detect_code": [
             "1114"
