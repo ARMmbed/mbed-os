@@ -1075,56 +1075,6 @@
             "network-default-interface-type": "MESH"
         }
     },
-    "MCU_K24F1M": {
-        "core": "Cortex-M4F",
-        "supported_toolchains": [
-            "ARM",
-            "GCC_ARM",
-            "IAR"
-        ],
-        "extra_labels": [
-            "Freescale",
-            "MCUXpresso_MCUS",
-            "KSDK2_MCUS",
-            "MCU_K24F",
-            "KPSDK_MCUS",
-            "KPSDK_CODE"
-        ],
-        "is_disk_virtual": true,
-        "public": false,
-        "macros": [
-            "CPU_MK24FN1M0VDC12",
-            "FSL_RTOS_MBED"
-        ],
-        "inherits": [
-            "Target"
-        ],
-        "device_has": [
-            "USTICKER",
-            "LPTICKER",
-            "RTC",
-            "ANALOGIN",
-            "ANALOGOUT",
-            "I2C",
-            "I2CSLAVE",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "SERIAL",
-            "SERIAL_FC",
-            "SERIAL_ASYNCH",
-            "SLEEP",
-            "SPI",
-            "SPI_ASYNCH",
-            "SPISLAVE",
-            "STDIO_MESSAGES",
-            "TRNG",
-            "FLASH"
-        ],
-        "device_name": "MK24FN1M0xxx12"
-    },
     "K64F": {
         "supported_form_factors": [
             "ARDUINO"
