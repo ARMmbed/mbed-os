@@ -84,7 +84,7 @@ static int reset_phy(void)
 
     }
 
-    if(delayCnt == 0) {
+    if(delayCnt == -1) {
         NU_DEBUGF(("Reset phy failed\n"));
         return(-1);
     }
@@ -105,7 +105,7 @@ static int reset_phy(void)
             break;
     }
 
-    if(delayCnt == 0) {
+    if(delayCnt == -1) {
         NU_DEBUGF(("AN failed. Set to 100 FULL\n"));
         EMAC->CTL |= (EMAC_CTL_OPMODE_Msk | EMAC_CTL_FUDUP_Msk);
         return(-1);
