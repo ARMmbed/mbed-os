@@ -53,13 +53,7 @@
 #define INITIAL_SP              (0x10008000UL)
 #endif
 
-#elif defined(TARGET_LPC812)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x10001000UL)
-#endif
-
-#elif defined(TARGET_LPC824) || defined(TARGET_SSCI824)
+#elif defined(TARGET_SSCI824)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10002000UL)

@@ -538,118 +538,6 @@
             "1235"
         ]
     },
-    "LPC812": {
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "core": "Cortex-M0+",
-        "default_toolchain": "uARM",
-        "extra_labels": [
-            "NXP",
-            "LPC81X"
-        ],
-        "is_disk_virtual": true,
-        "supported_toolchains": [
-            "uARM",
-            "IAR",
-            "GCC_ARM"
-        ],
-        "inherits": [
-            "LPCTarget"
-        ],
-        "detect_code": [
-            "1050"
-        ],
-        "device_has": [
-            "I2C",
-            "I2CSLAVE",
-            "INTERRUPTIN",
-            "PWMOUT",
-            "SERIAL",
-            "SERIAL_FC",
-            "SLEEP",
-            "SPI",
-            "SPISLAVE"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "LPC812M101JDH20"
-    },
-    "LPC824": {
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "core": "Cortex-M0+",
-        "default_toolchain": "uARM",
-        "extra_labels": [
-            "NXP",
-            "LPC82X"
-        ],
-        "is_disk_virtual": true,
-        "supported_toolchains": [
-            "uARM",
-            "GCC_ARM",
-            "IAR"
-        ],
-        "inherits": [
-            "LPCTarget"
-        ],
-        "device_has": [
-            "ANALOGIN",
-            "I2C",
-            "I2CSLAVE",
-            "INTERRUPTIN",
-            "PWMOUT",
-            "SERIAL",
-            "SLEEP",
-            "SPI",
-            "SPISLAVE"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "LPC824M201JDH20",
-        "detect_code": [
-            "0824"
-        ]
-    },
-    "SSCI824": {
-        "inherits": [
-            "LPCTarget"
-        ],
-        "core": "Cortex-M0+",
-        "default_toolchain": "uARM",
-        "extra_labels": [
-            "NXP",
-            "LPC82X"
-        ],
-        "is_disk_virtual": true,
-        "supported_toolchains": [
-            "uARM",
-            "GCC_ARM"
-        ],
-        "device_has": [
-            "ANALOGIN",
-            "I2C",
-            "I2CSLAVE",
-            "INTERRUPTIN",
-            "PWMOUT",
-            "SERIAL",
-            "SLEEP",
-            "SPI",
-            "SPISLAVE"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "detect_code": [
-            "1018"
-        ]
-    },
     "LPC4337": {
         "inherits": [
             "LPCTarget"
@@ -689,6 +577,48 @@
         "detect_code": [
             "4337"
         ]
+    },
+    "LPC11U37H_401": {
+        "supported_form_factors": [
+            "ARDUINO"
+        ],
+        "core": "Cortex-M0",
+        "default_toolchain": "uARM",
+        "extra_labels": [
+            "NXP",
+            "LPC11UXX"
+        ],
+        "macros": [
+            "CMSIS_VECTAB_VIRTUAL",
+            "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
+        ],
+        "supported_toolchains": [
+            "ARM",
+            "uARM",
+            "GCC_ARM"
+        ],
+        "inherits": [
+            "LPCTarget"
+        ],
+        "device_has": [
+            "ANALOGIN",
+            "I2C",
+            "I2CSLAVE",
+            "INTERRUPTIN",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "PWMOUT",
+            "SERIAL",
+            "SLEEP",
+            "SPI",
+            "SPISLAVE"
+        ],
+        "default_lib": "small",
+        "release_versions": [
+            "2"
+        ],
+        "device_name": "LPC11U37HFBD64/401"
     },
     "KL05Z": {
         "supported_form_factors": [

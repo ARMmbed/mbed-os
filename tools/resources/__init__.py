@@ -52,7 +52,6 @@ LEGACY_IGNORE_DIRS = set([
     'LPC11U24',
     'LPC1768',
     'LPC2368',
-    'LPC812',
     'KL25Z',
 
     # Legacy Toolchains
