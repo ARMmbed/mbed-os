@@ -1,0 +1,17 @@
+{   
+    "boot0" : { 
+        "VERSION" : "0.1",
+        "ROLLBACK_COUNTER" : "0"
+    },
+    
+    "boot1" : {
+        "VERSION" : "0.1",
+        "ROLLBACK_COUNTER" : "0"
+    },
+    
+    "sdk_path" : "targets/TARGET_Cypress/TARGET_PSOC6/sb-tools/",
+    "priv_key_file": "keys/USERAPP_CM4_KEY_PRIV.pem",
+    "aes_key_file": "keys/image-aes-128.key",
+    "dev_pub_key_file": "keys/dev_pub_key.pem",
+    "policy_file": "policy/policy_single_stage_CM4_2m.json"
+}
