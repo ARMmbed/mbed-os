@@ -72,9 +72,6 @@
     "MK64FN1M0xxx12": {
         "OGChipSelectEditMenu": "MK64FN1M0xxx12\tNXP MK64FN1M0xxx12"
     },
-    "RAPIDIOT_K64F": {
-        "OGChipSelectEditMenu": "MK64FN1M0xxx12\tNXP MK64FN1M0xxx12"
-    },
     "MK66FN2M0xxx18": {
         "OGChipSelectEditMenu": "MK66FN2M0xxx18\tNXP MK66FN2M0xxx18"
     },
@@ -86,9 +83,6 @@
     },
     "MKL43Z256xxx4": {
         "OGChipSelectEditMenu": "MKL43Z256xxx4\tNXP MKL43Z256xxx4"
-    },
-    "MKL82Z128xxx7": {
-        "OGChipSelectEditMenu": "MKL82Z128xxx7\tNXP MKL82Z128xxx7"
     },
     "MKW24D512xxx5": {
         "OGChipSelectEditMenu": "MKW24D512xxx5\tNXP MKW24D512xxx5"
