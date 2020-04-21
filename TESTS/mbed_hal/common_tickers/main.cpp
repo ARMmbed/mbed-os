@@ -15,10 +15,6 @@
  * limitations under the License.
  */
 
-#if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] usticker test cases require a RTOS to run
-#else
-
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
@@ -28,6 +24,7 @@
 #include "hal/lp_ticker_api.h"
 #include "hal/mbed_lp_ticker_wrapper.h"
 
+#ifdef MBED_CONF_RTOS_PRESENT
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -35,6 +32,7 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif // __cplusplus
+#endif
 
 #if !DEVICE_USTICKER
 #error [NOT_SUPPORTED] test not supported
@@ -520,9 +518,11 @@ utest::v1::status_t us_ticker_setup(const Case *const source, const size_t index
 {
     intf = get_us_ticker_data()->interface;
 
+#ifdef MBED_CONF_RTOS_PRESENT
     /* OS, common ticker and low power ticker wrapper
      * may make use of us ticker so suspend them for this test */
     osKernelSuspend();
+#endif
 #if DEVICE_LPTICKER && (LPTICKER_DELAY_TICKS > 0)
     /* Suspend the lp ticker wrapper since it makes use of the us ticker */
     ticker_suspend(get_lp_ticker_data());
@@ -552,7 +552,9 @@ utest::v1::status_t us_ticker_teardown(const Case *const source, const size_t pa
     lp_ticker_wrapper_resume();
     ticker_resume(get_lp_ticker_data());
 #endif
+#ifdef MBED_CONF_RTOS_PRESENT
     osKernelResume(0);
+#endif
 
     return greentea_case_teardown_handler(source, passed, failed, reason);
 }
@@ -562,8 +564,10 @@ utest::v1::status_t lp_ticker_setup(const Case *const source, const size_t index
 {
     intf = get_lp_ticker_data()->interface;
 
+#ifdef MBED_CONF_RTOS_PRESENT
     /* OS and common ticker may make use of lp ticker so suspend them for this test */
     osKernelSuspend();
+#endif
     ticker_suspend(get_lp_ticker_data());
 
     intf->init();
@@ -584,7 +588,9 @@ utest::v1::status_t lp_ticker_teardown(const Case *const source, const size_t pa
     prev_irq_handler = NULL;
 
     ticker_resume(get_lp_ticker_data());
+#ifdef MBED_CONF_RTOS_PRESENT
     osKernelResume(0);
+#endif
 
     return greentea_case_teardown_handler(source, passed, failed, reason);
 }
@@ -626,4 +632,3 @@ int main()
     return !Harness::run(specification);
 }
 #endif // !DEVICE_USTICKER
-#endif // !defined(MBED_CONF_RTOS_PRESENT)

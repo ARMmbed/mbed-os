@@ -15,10 +15,6 @@
  * limitations under the License.
  */
 
-#if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] Low power timer test cases require a RTOS to run.
-#else
-
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
@@ -167,8 +163,10 @@ void lp_ticker_glitch_test()
 #if DEVICE_LPTICKER
 utest::v1::status_t lp_ticker_deepsleep_test_setup_handler(const Case *const source, const size_t index_of_case)
 {
+#ifdef MBED_CONF_RTOS_PRESENT
     /* disable everything using the lp ticker for this test */
     osKernelSuspend();
+#endif
     ticker_suspend(get_lp_ticker_data());
 #if DEVICE_LPTICKER && (LPTICKER_DELAY_TICKS > 0)
     lp_ticker_wrapper_suspend();
@@ -185,7 +183,9 @@ utest::v1::status_t lp_ticker_deepsleep_test_teardown_handler(const Case *const 
     lp_ticker_wrapper_resume();
 #endif
     ticker_resume(get_lp_ticker_data());
+#ifdef MBED_CONF_RTOS_PRESENT
     osKernelResume(0);
+#endif
     return greentea_case_teardown_handler(source, passed, failed, reason);
 }
 #endif
@@ -212,4 +212,3 @@ int main()
 }
 
 #endif // !DEVICE_LPTICKER
-#endif // !defined(MBED_CONF_RTOS_PRESENT)
