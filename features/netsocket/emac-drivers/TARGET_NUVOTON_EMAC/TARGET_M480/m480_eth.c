@@ -78,13 +78,14 @@ static int reset_phy(void)
     mdio_write(CONFIG_PHY_ADDR, MII_BMCR, BMCR_RESET);
 
     delayCnt = 2000;
-    while(delayCnt-- > 0) {
+    while(delayCnt > 0) {
+		delayCnt--;
         if((mdio_read(CONFIG_PHY_ADDR, MII_BMCR) & BMCR_RESET) == 0)
             break;
 
     }
 
-    if(delayCnt == -1) {
+    if(delayCnt == 0) {
         NU_DEBUGF(("Reset phy failed\n"));
         return(-1);
     }
@@ -99,13 +100,14 @@ static int reset_phy(void)
     mdio_write(CONFIG_PHY_ADDR, MII_BMCR, reg | BMCR_ANRESTART);
 
     delayCnt = 200000;
-    while(delayCnt-- > 0) {
+    while(delayCnt > 0) {
+		delayCnt--;
         if((mdio_read(CONFIG_PHY_ADDR, MII_BMSR) & (BMSR_ANEGCOMPLETE | BMSR_LSTATUS))
                 == (BMSR_ANEGCOMPLETE | BMSR_LSTATUS))
             break;
     }
 
-    if(delayCnt == -1) {
+    if(delayCnt == 0) {
         NU_DEBUGF(("AN failed. Set to 100 FULL\n"));
         EMAC->CTL |= (EMAC_CTL_OPMODE_Msk | EMAC_CTL_FUDUP_Msk);
         return(-1);
