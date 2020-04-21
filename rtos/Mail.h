@@ -33,6 +33,7 @@
 #include "rtos/mbed_rtos1_types.h"
 
 #include "platform/mbed_toolchain.h"
+#include "platform/mbed_assert.h"
 #include "platform/NonCopyable.h"
 
 #ifndef MBED_NO_GLOBAL_USING_DIRECTIVE
@@ -289,31 +290,19 @@ public:
      * @param   mptr  Memory block previously allocated with Mail::alloc or Mail::calloc.
      *
      * @return  Status code that indicates the execution status of the function (osOK on success).
+     *          See note.
      *
      * @note You may call this function from ISR context.
+     * @note As the mail should have already been allocated, and the memory pool is the same size
+     *       as the queue, the put operation should always succeed, despite being implemented with
+     *       Queue::try_put - there is room in the queue for every mail from the pool. Therefore
+     *       use of the return value is deprecated, and the function will return void in future.
      */
     osStatus put(T *mptr)
     {
-        return _queue.put(mptr);
-    }
-
-    /** Get a mail from the queue.
-     *
-     * @param millisec Timeout value.
-     *
-     * @return Event that contains mail information or error code.
-     * @retval osEventMessage   Message received.
-     * @retval osOK             No mail is available (and no timeout was specified).
-     * @retval osEventTimeout   No mail has arrived during the given timeout period.
-     * @retval osErrorParameter A parameter is invalid or outside of a permitted range.
-     *
-     * @note You may call this function from ISR context if the millisec parameter is set to 0.
-     * @deprecated Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.
-     */
-    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
-    osEvent get(uint32_t millisec)
-    {
-        return get(std::chrono::duration<uint32_t, std::milli>(millisec));
+        bool ok = _queue.try_put(mptr);
+        MBED_ASSERT(ok);
+        return ok ? osOK : osErrorResource;
     }
 
     /** Get a mail from the queue.
@@ -328,14 +317,44 @@ public:
      *         @a osErrorParameter A parameter is invalid or outside of a permitted range.
      *
      * @note You may call this function from ISR context if the millisec parameter is set to 0.
+     * @deprecated Replaced with try_get and try_get_for. In future get will be an untimed blocking call.
      */
-    osEvent get(Kernel::Clock::duration_u32 rel_time = Kernel::wait_for_u32_forever)
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Replaced with try_get and try_get_for. In future get will be an untimed blocking call.")
+    osEvent get(uint32_t millisec = osWaitForever)
     {
-        osEvent evt = _queue.get(rel_time);
+        osEvent evt = _queue.get(millisec);
         if (evt.status == osEventMessage) {
             evt.status = osEventMail;
         }
         return evt;
+    }
+
+    /** Get a mail from the queue.
+     *
+     * @return Pointer to received mail, or nullptr if none was received.
+     *
+     * @note You may call this function from ISR context.
+     */
+    T *try_get()
+    {
+        T *mptr = nullptr;
+        _queue.try_get(&mptr);
+        return mptr;
+    }
+
+    /** Get a mail from the queue.
+     *
+     * @param rel_time Timeout value or Kernel::wait_for_u32_forever.
+     *
+     * @return Pointer to received mail, or nullptr if none was received.
+     *
+     * @note You may call this function from ISR context if the millisec parameter is set to 0.
+     */
+    T *try_get_for(Kernel::Clock::duration_u32 rel_time)
+    {
+        T *mptr = nullptr;
+        _queue.try_get_for(rel_time, &mptr);
+        return mptr;
     }
 
     /** Free a memory block from a mail.

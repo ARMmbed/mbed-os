@@ -705,12 +705,12 @@ void test_msg_get()
 
     TEST_ASSERT_EQUAL(Thread::WaitingMessageGet, t.get_state());
 
-    queue.put((int32_t *)0xE1EE7);
+    queue.try_put((int32_t *)0xE1EE7);
 }
 
 void test_msg_put_thread(Queue<int32_t, 1> *queue)
 {
-    queue->put((int32_t *)0xDEADBEEF, Kernel::wait_for_u32_forever);
+    queue->try_put_for(Kernel::wait_for_u32_forever, (int32_t *)0xDEADBEEF);
 
 }
 
@@ -729,7 +729,7 @@ void test_msg_put()
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     Queue<int32_t, 1> queue;
 
-    queue.put((int32_t *)0xE1EE7);
+    queue.try_put((int32_t *)0xE1EE7);
 
     t.start(callback(test_msg_put_thread, &queue));
 

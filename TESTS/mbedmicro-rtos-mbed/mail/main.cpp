@@ -83,9 +83,8 @@ void receive_thread(Mail<mail_t, queue_size> *m, uint8_t thread_id, milliseconds
 
     ThisThread::sleep_for(wait);
     for (uint32_t i = 0; i < queue_size; i++) {
-        osEvent evt = m->get();
-        if (evt.status == osEventMail) {
-            mail_t *mail = (mail_t *)evt.value.p;
+        mail_t *mail = m->try_get_for(Kernel::wait_for_u32_forever);
+        if (mail) {
             const uint8_t id = mail->thread_id;
 
             // verify thread id
@@ -121,9 +120,8 @@ void test_single_thread_order(void)
 
     for (uint32_t i = 0; i < QUEUE_SIZE; i++) {
         // mail receive (main thread)
-        osEvent evt = mail_box.get();
-        if (evt.status == osEventMail) {
-            mail_t *mail = (mail_t *)evt.value.p;
+        mail_t *mail = mail_box.try_get_for(Kernel::wait_for_u32_forever);
+        if (mail) {
             const uint8_t id = mail->thread_id;
 
             // verify thread id
@@ -163,9 +161,8 @@ void test_multi_thread_order(void)
 
     for (uint32_t i = 0; i < QUEUE_SIZE; i++) {
         // mail receive (main thread)
-        osEvent evt = mail_box.get();
-        if (evt.status == osEventMail) {
-            mail_t *mail = (mail_t *)evt.value.p;
+        mail_t *mail = mail_box.try_get_for(Kernel::wait_for_u32_forever);
+        if (mail) {
             const uint8_t id = mail->thread_id;
 
             // verify thread id
@@ -279,8 +276,8 @@ void test_free_null()
 /** Test get from empty mailbox with timeout set
 
     Given an empty mailbox
-    When @a get is called on the mailbox with timeout of 50
-    Then mailbox returns status of osOK, but no data after specified amount of time
+    When @a try_get_for is called on the mailbox with timeout of 50ms
+    Then mailbox returns no data
  */
 void test_get_empty_timeout()
 {
@@ -288,23 +285,23 @@ void test_get_empty_timeout()
     Timer timer;
 
     timer.start();
-    osEvent evt = mail_box.get(50ms);
+    uint32_t *mail = mail_box.try_get_for(50ms);
     TEST_ASSERT_DURATION_WITHIN(5ms, 50ms, timer.elapsed_time());
-    TEST_ASSERT_EQUAL(osEventTimeout, evt.status);
+    TEST_ASSERT_NULL(mail);
 }
 
 /** Test get from empty mailbox with 0 timeout
 
     Given an empty mailbox
-    When @a get is called on the mailbox with timeout of 0
-    Then mailbox returns status of osOK, but no data
+    When @a try_get is called on the mailbox
+    Then mailbox returns no data
  */
 void test_get_empty_no_timeout()
 {
     Mail<uint32_t, 4> mail_box;
 
-    osEvent evt = mail_box.get(0ms);
-    TEST_ASSERT_EQUAL(osOK, evt.status);
+    uint32_t *mail = mail_box.try_get();
+    TEST_ASSERT_NULL(mail);
 }
 
 /** Test mail order
@@ -317,7 +314,6 @@ void test_get_empty_no_timeout()
 void test_order(void)
 {
     osStatus status;
-    osEvent evt;
     Mail<int32_t, 4> mail_box;
     const int32_t TEST_VAL1 = 123;
     const int32_t TEST_VAL2 = 456;
@@ -326,27 +322,21 @@ void test_order(void)
     TEST_ASSERT_NOT_EQUAL(NULL, mail1);
 
     *mail1 = TEST_VAL1;
-    status = mail_box.put(mail1);
-    TEST_ASSERT_EQUAL(osOK, status);
+    mail_box.put(mail1);
 
     int32_t *mail2 = mail_box.try_alloc();
     TEST_ASSERT_NOT_EQUAL(NULL, mail2);
 
     *mail2 = TEST_VAL2;
-    status = mail_box.put(mail2);
-    TEST_ASSERT_EQUAL(osOK, status);
+    mail_box.put(mail2);
 
 
-    evt = mail_box.get();
-    TEST_ASSERT_EQUAL(evt.status, osEventMail);
-
-    mail1 = (int32_t *)evt.value.p;
+    mail1 = mail_box.try_get_for(Kernel::wait_for_u32_forever);
+    TEST_ASSERT_NOT_NULL(mail1);
     TEST_ASSERT_EQUAL(TEST_VAL1, *mail1);
 
-    evt = mail_box.get();
-    TEST_ASSERT_EQUAL(evt.status, osEventMail);
-
-    mail2 = (int32_t *)evt.value.p;
+    mail2 = mail_box.try_get_for(Kernel::wait_for_u32_forever);
+    TEST_ASSERT_NOT_NULL(mail2);
     TEST_ASSERT_EQUAL(TEST_VAL2, *mail2);
 
 
@@ -369,7 +359,6 @@ void test_max_size()
 {
     osStatus status;
     Mail<uint32_t, 4> mail_box;
-    const uint32_t TEST_VAL = 123;
 
     // 1 OK
     uint32_t *mail1 = mail_box.try_alloc();
@@ -422,13 +411,10 @@ void test_data_type(void)
     TEST_ASSERT_NOT_EQUAL(NULL, mail);
 
     *mail = TEST_VAL;
-    status = mail_box.put(mail);
-    TEST_ASSERT_EQUAL(osOK, status);
+    mail_box.put(mail);
 
-    osEvent evt = mail_box.get();
-    TEST_ASSERT_EQUAL(evt.status, osEventMail);
-
-    mail = (T *)evt.value.p;
+    mail = mail_box.try_get_for(Kernel::wait_for_u32_forever);
+    TEST_ASSERT_NOT_NULL(mail);
     TEST_ASSERT_EQUAL(TEST_VAL, *mail);
 
 
