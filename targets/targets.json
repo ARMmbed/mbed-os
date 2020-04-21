@@ -953,66 +953,6 @@
         ],
         "device_name": "MKL43Z256xxx4"
     },
-    "KW24D": {
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "core": "Cortex-M4",
-        "supported_toolchains": [
-            "ARM",
-            "GCC_ARM",
-            "IAR"
-        ],
-        "extra_labels": [
-            "Freescale",
-            "MCUXpresso_MCUS",
-            "KSDK2_MCUS",
-            "FRDM"
-        ],
-        "is_disk_virtual": true,
-        "macros": [
-            "CPU_MKW24D512VHA5",
-            "FSL_RTOS_MBED",
-            "MBED_TICKLESS"
-        ],
-        "inherits": [
-            "Target"
-        ],
-        "detect_code": [
-            "0250"
-        ],
-        "device_has": [
-            "USTICKER",
-            "LPTICKER",
-            "RTC",
-            "ANALOGIN",
-            "I2C",
-            "I2CSLAVE",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "SERIAL",
-            "SERIAL_FC",
-            "SLEEP",
-            "SPI",
-            "SPISLAVE",
-            "STDIO_MESSAGES",
-            "TRNG",
-            "FLASH",
-            "802_15_4_PHY"
-        ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
-        "device_name": "MKW24D512xxx5",
-        "bootloader_supported": true,
-        "overrides": {
-            "network-default-interface-type": "MESH"
-        }
-    },
     "KW41Z": {
         "supported_form_factors": [
             "ARDUINO"

@@ -193,10 +193,6 @@
         }        
     },
     "target_overrides": {
-        "KW24D": {
-            "mbed-mesh-api.use-malloc-for-heap": true,
-            "mbed-mesh-api.heap-size": 14000
-        },
         "NCS36510": {
             "mbed-mesh-api.heap-size": 14000
         },
