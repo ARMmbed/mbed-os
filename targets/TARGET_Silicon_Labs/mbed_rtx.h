@@ -44,12 +44,6 @@
 #define INITIAL_SP              (0x20008000UL)
 #endif
 
-#elif defined(TARGET_EFM32WG)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20008000UL)
-#endif
-
 #elif defined(TARGET_EFR32MG1)
 
 #ifndef INITIAL_SP
