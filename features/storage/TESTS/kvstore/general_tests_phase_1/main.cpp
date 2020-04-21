@@ -14,13 +14,11 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] Kvstore API test cases require a RTOS to run
-#else
-
 #include "SecureStore.h"
 #include "TDBStore.h"
+#ifdef MBED_CONF_RTOS_PRESENT
 #include "Thread.h"
+#endif
 #include "mbed_error.h"
 #include "FlashSimBlockDevice.h"
 #include "SlicingBlockDevice.h"
@@ -45,7 +43,9 @@ static size_t       actual_size = 0;
 static const size_t buffer_size = 20;
 static const int    num_of_threads = 3;
 
+#ifdef MBED_CONF_RTOS_PRESENT
 static const char *keys[] = {"key1", "key2", "key3"};
+#endif
 
 KVStore::info_t info;
 KVStore::iterator_t kvstore_it;
@@ -265,6 +265,7 @@ static void set_same_key_several_time()
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
+#ifdef MBED_CONF_RTOS_PRESENT
 static void test_thread_set(char *th_key)
 {
     int res = kvstore->set((char *)th_key, data, data_size, 0);
@@ -302,6 +303,7 @@ static void set_several_keys_multithreaded()
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
     }
 }
+#endif
 
 //set key "write once" and try to set it again
 static void set_write_once_flag_try_set_twice()
@@ -706,6 +708,7 @@ static void get_key_that_was_set_twice()
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
+#ifdef MBED_CONF_RTOS_PRESENT
 static void test_thread_get(const void *th_key)
 {
     int res = kvstore->get((char *)th_key, buffer, buffer_size, &actual_size, 0);
@@ -741,7 +744,7 @@ static void get_several_keys_multithreaded()
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
     }
 }
-
+#endif
 
 /*----------------remove()------------------*/
 
@@ -826,7 +829,9 @@ template_case_t template_cases[] = {
     {"set_key_undefined_flags", set_key_undefined_flags, greentea_failure_handler},
     {"set_buffer_size_is_zero", set_buffer_size_is_zero, greentea_failure_handler},
     {"set_same_key_several_time", set_same_key_several_time, greentea_failure_handler},
+#ifdef MBED_CONF_RTOS_PRESENT
     {"set_several_keys_multithreaded", set_several_keys_multithreaded, greentea_failure_handler},
+#endif
     {"set_write_once_flag_try_set_twice", set_write_once_flag_try_set_twice, greentea_failure_handler},
     {"set_write_once_flag_try_remove", set_write_once_flag_try_remove, greentea_failure_handler},
     {"set_key_value_one_byte_size", set_key_value_one_byte_size, greentea_failure_handler},
@@ -851,7 +856,9 @@ template_case_t template_cases[] = {
     {"get_non_existing_key", get_non_existing_key, greentea_failure_handler},
     {"get_removed_key", get_removed_key, greentea_failure_handler},
     {"get_key_that_was_set_twice", get_key_that_was_set_twice, greentea_failure_handler},
+#ifdef MBED_CONF_RTOS_PRESENT
     {"get_several_keys_multithreaded", get_several_keys_multithreaded, greentea_failure_handler},
+#endif
 
     {"remove_key_null", remove_key_null, greentea_failure_handler},
     {"remove_key_length_exceeds_max", remove_key_length_exceeds_max, greentea_failure_handler},
@@ -912,4 +919,3 @@ int main()
 }
 
 #endif //!SECURESTORE_ENABLED
-#endif // !defined(MBED_CONF_RTOS_PRESENT)
