@@ -42,7 +42,10 @@ NetworkInterface *net;
 
 const char dns_test_hosts[MBED_CONF_APP_DNS_TEST_HOSTS_NUM][DNS_TEST_HOST_LEN] = MBED_CONF_APP_DNS_TEST_HOSTS;
 const char dns_test_hosts_second[MBED_CONF_APP_DNS_TEST_HOSTS_NUM][DNS_TEST_HOST_LEN] = MBED_CONF_APP_DNS_TEST_HOSTS_SECOND;
+
+#ifndef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
 const char dns_test_hosts_multi_ip[MBED_CONF_APP_DNS_SIMULT_QUERIES][DNS_TEST_HOST_LEN] = MBED_CONF_APP_DNS_TEST_MULTI_IP_HOSTS;
+#endif
 
 // Callback used for asynchronous DNS result
 void hostbyname_cb(void *data, nsapi_error_t result, SocketAddress *address)
@@ -221,8 +224,10 @@ Case cases[] = {
     Case("SYNCHRONOUS_DNS", SYNCHRONOUS_DNS),
     Case("SYNCHRONOUS_DNS_MULTIPLE", SYNCHRONOUS_DNS_MULTIPLE),
     Case("SYNCHRONOUS_DNS_INVALID", SYNCHRONOUS_DNS_INVALID),
+#ifndef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
     Case("SYNCHRONOUS_DNS_MULTI_IP", SYNCHRONOUS_DNS_MULTI_IP),
     Case("ASYNCHRONOUS_DNS_MULTI_IP", ASYNCHRONOUS_DNS_MULTI_IP),
+#endif
 };
 
 Specification specification(test_setup, cases, greentea_teardown, greentea_continue_handlers);

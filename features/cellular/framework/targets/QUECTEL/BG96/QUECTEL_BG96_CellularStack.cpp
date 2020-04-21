@@ -29,6 +29,8 @@ static const char BG96_SUPPORTED_CIPHER_SUITE[] = "0xFFFF"; // Support all
 //       Later can be expanded to support multiple contexts. Modem supports IDs 0-5.
 static const int sslctxID = 0;
 
+static const int BG96_ASYNC_DNS_QUERY_ID = 1; // BG96 driver only supports one request, so using id 1
+
 using namespace mbed;
 
 QUECTEL_BG96_CellularStack::QUECTEL_BG96_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
@@ -191,7 +193,7 @@ void QUECTEL_BG96_CellularStack::urc_qiurc_dnsgip()
     }
     SocketAddress address;
     if (read_dnsgip(address, _dns_version)) {
-        _dns_callback(NSAPI_ERROR_OK, &address);
+        _dns_callback(1, &address);
     } else {
         _dns_callback(NSAPI_ERROR_DNS_FAILURE, NULL);
     }
@@ -496,7 +498,7 @@ nsapi_value_or_error_t QUECTEL_BG96_CellularStack::gethostbyname_async(const cha
         _dns_version = version;
     }
 
-    return _at.unlock_return_error() ? NSAPI_ERROR_DNS_FAILURE : NSAPI_ERROR_OK;
+    return _at.unlock_return_error() ? NSAPI_ERROR_DNS_FAILURE : BG96_ASYNC_DNS_QUERY_ID;
 }
 
 nsapi_error_t QUECTEL_BG96_CellularStack::gethostbyname_async_cancel(int id)

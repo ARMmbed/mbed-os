@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#if !defined(MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES)
+
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
@@ -84,3 +86,5 @@ void SYNCHRONOUS_DNS_MULTI_IP()
     TEST_ASSERT_EQUAL(0, result_dns_failure);
     TEST_ASSERT_EQUAL(0, result_exp_timeout);
 }
+
+#endif // !defined(MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES)

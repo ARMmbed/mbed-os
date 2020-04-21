@@ -73,7 +73,10 @@ struct dns_application_data_multi_ip {
 
 extern const char dns_test_hosts[MBED_CONF_APP_DNS_TEST_HOSTS_NUM][DNS_TEST_HOST_LEN];
 extern const char dns_test_hosts_second[MBED_CONF_APP_DNS_TEST_HOSTS_NUM][DNS_TEST_HOST_LEN];
+
+#ifndef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
 extern const char dns_test_hosts_multi_ip[MBED_CONF_APP_DNS_SIMULT_QUERIES][DNS_TEST_HOST_LEN];
+#endif
 
 /*
  * Utility functions
