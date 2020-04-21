@@ -54,6 +54,10 @@ extern "C"
  */
 #define NW_CONNECT_TIMEOUT                     (30)
 /**
+ * Default timeout value (in seconds) for Wi-Fi disconnection
+ */
+#define NW_DISCONNECT_TIMEOUT                  (30)
+/**
  * Default interval (in micro seconds) for polling the Network Processor
  */
 #define NW_DELAY_TIME_US                       (3000000)

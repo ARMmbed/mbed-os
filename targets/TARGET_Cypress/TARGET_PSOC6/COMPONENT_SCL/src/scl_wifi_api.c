@@ -38,7 +38,7 @@ scl_result_t scl_wifi_is_ready_to_transceive(void)
 
     result = scl_send_data(SCL_TX_TRANSCEIVE_READY, (char *)&retval, TIMER_DEFAULT_VALUE);
     if (result == SCL_ERROR) {
-        SCL_LOG(("Ready to tranceive error\n"));
+        SCL_LOG(("Ready to tranceive error\r\n"));
         return SCL_ERROR;
     } else {
         return retval;
@@ -51,7 +51,7 @@ bool scl_wifi_on(void)
     scl_result_t result = SCL_SUCCESS;
     result = scl_send_data(SCL_TX_WIFI_ON, (char *)&retval, WIFI_ON_TIMEOUT);
     if (result == SCL_ERROR) {
-        SCL_LOG(("wifi_on Error\n"));
+        SCL_LOG(("wifi_on Error\r\n"));
         return false;
     } else {
         return retval;
@@ -66,7 +66,7 @@ scl_result_t scl_wifi_set_up(void)
     if (result == SCL_SUCCESS) {
         return retval;
     } else {
-        SCL_LOG(("Wifi set up error\n"));
+        SCL_LOG(("Wifi set up error\r\n"));
         return SCL_ERROR;
     }
 }
@@ -85,7 +85,7 @@ scl_result_t scl_wifi_get_mac_address(scl_mac_t *mac)
     if (scl_retval == SCL_SUCCESS) {
         return scl_mac_data.retval;
     } else {
-        SCL_LOG(("Get MAC address error\n"));
+        SCL_LOG(("Get MAC address error\r\n"));
         return SCL_ERROR;
     }
 }
@@ -98,7 +98,7 @@ scl_result_t scl_wifi_get_bssid(scl_mac_t *bssid)
     } scl_bssid_t;
     scl_result_t scl_retval = SCL_SUCCESS;
     scl_bssid_t.bssid = bssid;
-    scl_bssid_t.retval = 0;
+    scl_bssid_t.retval = SCL_SUCCESS;
     if (bssid == NULL) {
         return SCL_BADARG;
     }
@@ -106,7 +106,7 @@ scl_result_t scl_wifi_get_bssid(scl_mac_t *bssid)
     if (scl_retval == SCL_SUCCESS) {
         return scl_bssid_t.retval;
     } else {
-        SCL_LOG(("get bssid error\n"));
+        SCL_LOG(("get bssid error\r\n"));
         return SCL_ERROR;
     }
 }
@@ -115,14 +115,14 @@ scl_result_t scl_wifi_register_multicast_address(scl_mac_t *mac)
 {
     scl_mac scl_mac_t;
     scl_mac_t.mac = mac;
-    scl_mac_t.retval = 0;
+    scl_mac_t.retval = SCL_SUCCESS;
     scl_result_t scl_retval = SCL_SUCCESS;
     if (mac == NULL) {
         return SCL_BADARG;
     }
     scl_retval = scl_send_data(SCL_TX_REGISTER_MULTICAST_ADDRESS, (char *)&scl_mac_t, TIMER_DEFAULT_VALUE);
     if (scl_retval != SCL_SUCCESS) {
-        SCL_LOG(("Register Multicast Address IPC Error"));
+        SCL_LOG(("Register Multicast Address IPC Error\r\n"));
         return SCL_ERROR;
     }
     return (scl_mac_t.retval);
@@ -154,7 +154,7 @@ scl_result_t scl_wifi_get_rssi(int32_t *rssi)
     if (scl_retval == SCL_SUCCESS) {
         return tx_param_t.retval;
     } else {
-        SCL_LOG(("get rssi error\n"));
+        SCL_LOG(("get rssi error\r\n"));
         return SCL_ERROR;
     }
 }

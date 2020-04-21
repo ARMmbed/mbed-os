@@ -62,11 +62,11 @@ cy_rslt_t cybsp_init(void);
 
 #if defined(CYBSP_WIFI_CAPABLE) && defined(CY_USING_HAL)
 /**
- * \brief Get the initialized sdio object used for communicating with the WiFi Chip. 
+ * \brief Get the initialized sdio object used for communicating with the WiFi Chip.
  * \note This function should only be called after cybsp_init();
  * \returns The initialized sdio object.
  */
-cyhal_sdio_t* cybsp_get_wifi_sdio_obj(void);
+cyhal_sdio_t *cybsp_get_wifi_sdio_obj(void);
 #endif /* defined(CYBSP_WIFI_CAPABLE) */
 
 /** \} group_bsp_functions */

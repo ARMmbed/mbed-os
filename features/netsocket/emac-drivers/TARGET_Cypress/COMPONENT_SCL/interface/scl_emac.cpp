@@ -89,8 +89,11 @@ void SCL_EMAC::power_down()
 bool SCL_EMAC::power_up()
 {
     if (!powered_up) {
-        if (scl_wifi_on() != true) {
-            SCL_LOG(("returning False in scl_wifi_on()\n"));
+#ifdef MBED_TEST_MODE
+        scl_init();
+#endif
+        if (!scl_wifi_on()) {
+            SCL_LOG(("WiFi failed to turn on\r\n"));
             return false;
         }
         powered_up = true;
@@ -109,10 +112,9 @@ bool SCL_EMAC::get_hwaddr(uint8_t *addr) const
         memcpy(addr, mac.octet, sizeof(mac.octet));
         return true;
     } else {
-        SCL_LOG(("return False in SCL_EMAC::gethwaddr\n"));
+        SCL_LOG(("Unable to get MAC address\r\n"));
         return false;
     }
-
 }
 
 void SCL_EMAC::set_hwaddr(const uint8_t *addr)
@@ -150,7 +152,8 @@ bool SCL_EMAC::link_out(emac_mem_buf_t *buf)
     if (buf == NULL) {
         return false;
     }
-    retval = scl_network_send_ethernet_data(scl_tx_data);
+
+    retval = scl_network_send_ethernet_data(scl_tx_data); //Buffer is copied on Network Processor
     if (retval != SCL_SUCCESS) {
         return false;
     }

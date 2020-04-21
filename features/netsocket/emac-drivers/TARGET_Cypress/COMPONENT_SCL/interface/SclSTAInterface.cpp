@@ -32,14 +32,16 @@
 /** @file
  *  Provides SCL interface functions to be used with WiFiInterface or NetworkInterface Objects
  */
+#define MIN_SSID_LENGTH         (0)
+#define MIN_PASSWORD_LENGTH     (0)
 
-struct scl_tx_nw_credentials {
+struct scl_tx_net_credentials {
     nsapi_security_t network_security_type;
     int ssid_len;
     int pass_len;
     const char *network_ssid;
     const char *network_passphrase;
-} scl_tx_nw_credentials_t;
+} scl_tx_network_credentials;
 
 network_params_t network_parameter;
 
@@ -177,20 +179,24 @@ nsapi_error_t SclSTAInterface::connect()
     nsapi_error_t interface_status;
     uint32_t connection_status = 0;
 
-    scl_tx_nw_credentials_t.network_ssid = _ssid;
-    if (strlen(_ssid) < MAX_SSID_LENGTH) {
-        scl_tx_nw_credentials_t.ssid_len = strlen(_ssid);
+    scl_tx_network_credentials.network_ssid = _ssid;
+    if ((strlen(_ssid) < MAX_SSID_LENGTH) && (strlen(_ssid) > MIN_SSID_LENGTH)) {
+        scl_tx_network_credentials.ssid_len = strlen(_ssid);
+    } else {
+        return NSAPI_ERROR_PARAMETER;
     }
-    scl_tx_nw_credentials_t.network_passphrase = _pass;
-    if (strlen(_pass) < MAX_PASSWORD_LENGTH) {
-        scl_tx_nw_credentials_t.pass_len = strlen(_pass);
+    scl_tx_network_credentials.network_passphrase = _pass;
+    if (((strlen(_pass) < MAX_PASSWORD_LENGTH) && (strlen(_pass) > MIN_PASSWORD_LENGTH)) || (_security == NSAPI_SECURITY_NONE)) {
+        scl_tx_network_credentials.pass_len = strlen(_pass);
+    } else {
+        return NSAPI_ERROR_PARAMETER;
     }
-    scl_tx_nw_credentials_t.network_security_type = _security;
+    scl_tx_network_credentials.network_security_type = _security;
 
-    ret_val = scl_send_data(SCL_TX_CONNECT, (char *)&scl_tx_nw_credentials_t, TIMER_DEFAULT_VALUE);
+    ret_val = scl_send_data(SCL_TX_CONNECT, (char *)&scl_tx_network_credentials, TIMER_DEFAULT_VALUE);
 
     if (ret_val == SCL_SUCCESS) {
-        SCL_LOG(("wifi provisioning in progress"));
+        SCL_LOG(("wifi provisioning in progress\r\n"));
     }
 
     network_parameter.connection_status = NSAPI_STATUS_DISCONNECTED;
@@ -230,7 +236,9 @@ nsapi_error_t SclSTAInterface::connect()
                                            network_parameter.gateway,
                                            DEFAULT_STACK);
 
-    scl_send_data(SCL_TX_CONNECTION_STATUS, (char *)&connection_status, TIMER_DEFAULT_VALUE);
+    if (interface_status == NSAPI_ERROR_OK) {
+        scl_send_data(SCL_TX_CONNECTION_STATUS, (char *)&connection_status, TIMER_DEFAULT_VALUE);
+    }
 
     return interface_status;
 }
@@ -246,6 +254,8 @@ nsapi_error_t SclSTAInterface::disconnect()
 {
     scl_result_t ret_val;
     nsapi_error_t disconnect_status;
+    uint32_t delay_timeout = 0;
+
     ret_val = scl_send_data(SCL_TX_DISCONNECT, (char *)&disconnect_status, TIMER_DEFAULT_VALUE);
 
     if (ret_val == SCL_ERROR) {
@@ -253,7 +263,18 @@ nsapi_error_t SclSTAInterface::disconnect()
     }
 
     if (!_interface) {
-        return NSAPI_STATUS_DISCONNECTED;
+        return NSAPI_ERROR_NO_CONNECTION;
+    }
+
+    // block till disconnected from network
+    while ((network_parameter.connection_status != NSAPI_STATUS_DISCONNECTED) && delay_timeout < NW_DISCONNECT_TIMEOUT) {
+        ret_val = scl_get_nw_parameters(&network_parameter);
+        wait_us(NW_DELAY_TIME_US);
+        delay_timeout++;
+    }
+
+    if (delay_timeout >= NW_DISCONNECT_TIMEOUT) {
+        return NSAPI_ERROR_TIMEOUT;
     }
 
     // bring down
