@@ -61,7 +61,6 @@ Wiring:
   * digital_loop (Digital(In|Out|InOut), InterruptIn):
       * Arduino headers: (D0 <-> D7)
       * NUCLEO_*: (D2 <-> D9)
-      * LPC1549: (D2 <-> D7)
       * LPC1*: (p5   <-> p25 )
       * KL25Z: (PTA5<-> PTC6)
       * MAXWSNENV: (TP3 <-> TP4)
@@ -81,7 +80,6 @@ Wiring:
       * Arduino headers: (A0 <-> A5)
       * NUCLEO64: (A0 <-> A2)
       * NUCLEO144: (A0 <-> D13)
-      * LPC1549: (A0 <-> D12)
       * LPC1*: (p17   <-> p18 )
       * KL25Z: (PTE30 <-> PTC2)
 
@@ -108,7 +106,6 @@ Wiring:
 
   * can_transceiver:
      * LPC1768: (RX=p9,   TX=p10)
-     * LPC1549: (RX=D9,   TX=D8)
      * VK_RZ_A1H:(RX=P5_9, TX=P5_10)
      * NUCLEO_F091RC: (RX=PA_11, TX=PA_12)
      * NUCLEO_F072RB: (RX=PA_11, TX=PA_12)
@@ -194,7 +191,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
         "peripherals": ["analog_loop"],
-        "mcu": ["LPC1768", "KL25Z", "K64F", "K66F", "K22F", "LPC1549",
+        "mcu": ["LPC1768", "KL25Z", "K64F", "K66F", "K22F",
                 "NUCLEO_F072RB", "NUCLEO_F091RC", "NUCLEO_F302R8", "NUCLEO_F303K8", "NUCLEO_F303RE", "NUCLEO_F207ZG",
                 "NUCLEO_F334R8", "NUCLEO_F303ZE", "NUCLEO_L053R8", "DISCO_L072CZ_LRWAN1", "NUCLEO_L073RZ", "NUCLEO_L152RE",
                 "NUCLEO_F410RB", "NUCLEO_F446RE", "NUCLEO_F446ZE", "NUCLEO_F429ZI",
@@ -308,7 +305,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
         "peripherals": ["can_transceiver"],
-        "mcu": ["LPC1549", "LPC1768","B96B_F446VE", "VK_RZ_A1H",
+        "mcu": ["LPC1768","B96B_F446VE", "VK_RZ_A1H",
                 "NUCLEO_F091RC", "NUCLEO_F072RB", "NUCLEO_F042K6", "NUCLEO_F334R8", "NUCLEO_F207ZG",
         "NUCLEO_F303RE", "NUCLEO_F303K8", "NUCLEO_F302R8", "NUCLEO_F446RE","NUCLEO_F446ZE",
         "DISCO_F469NI", "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG",
@@ -342,7 +339,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "can_api"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC1549", "LPC1768","B96B_F446VE", "VK_RZ_A1H",
+        "mcu": ["LPC1768","B96B_F446VE", "VK_RZ_A1H",
                 "NUCLEO_F091RC", "NUCLEO_F072RB", "NUCLEO_F042K6", "NUCLEO_F334R8", "NUCLEO_F207ZG",
                 "NUCLEO_F303RE", "NUCLEO_F303K8", "NUCLEO_F303ZE", "NUCLEO_F302R8", "NUCLEO_F446RE","NUCLEO_F446ZE",
                 "DISCO_F469NI", "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG",
@@ -575,7 +572,7 @@ TESTS = [
         "id": "MBED_29", "description": "CAN network test",
         "source_dir": join(TEST_DIR, "mbed", "can"),
         "dependencies": [MBED_LIBRARIES],
-        "mcu": ["LPC1768", "LPC1549", "RZ_A1H", "GR_LYCHEE", "B96B_F446VE", "NUCLEO_F091RC",
+        "mcu": ["LPC1768", "RZ_A1H", "GR_LYCHEE", "B96B_F446VE", "NUCLEO_F091RC",
                 "NUCLEO_F072RB", "NUCLEO_F042K6", "NUCLEO_F334R8", "NUCLEO_F303RE",
                 "NUCLEO_F303K8", "NUCLEO_F302R8", "NUCLEO_F446RE","NUCLEO_F446ZE", "DISCO_F469NI", "NUCLEO_F207ZG",
                 "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG", "DISCO_F746NG",
@@ -586,7 +583,7 @@ TESTS = [
         "id": "MBED_30", "description": "CAN network test using interrupts",
         "source_dir": join(TEST_DIR, "mbed", "can_interrupt"),
         "dependencies": [MBED_LIBRARIES],
-        "mcu": ["LPC1768", "LPC1549", "RZ_A1H", "GR_LYCHEE", "B96B_F446VE", "NUCLEO_F091RC", "NUCLEO_F207ZG",
+        "mcu": ["LPC1768", "RZ_A1H", "GR_LYCHEE", "B96B_F446VE", "NUCLEO_F091RC", "NUCLEO_F207ZG",
                 "NUCLEO_F072RB", "NUCLEO_F042K6", "NUCLEO_F334R8", "NUCLEO_F303RE",
                 "NUCLEO_F303K8", "NUCLEO_F302R8", "NUCLEO_F446RE", "NUCLEO_F446ZE", "DISCO_F469NI",
                 "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG", "DISCO_F746NG",

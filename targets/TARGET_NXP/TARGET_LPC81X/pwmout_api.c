@@ -115,7 +115,6 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
 
     // LPC81x has only one SCT and 4 Outputs
     // LPC82x has only one SCT and 6 Outputs
-    // LPC1549 has 4 SCTs and 16 Outputs    
     switch(sct_n) {
         case 0:
             // SCTx_OUT0

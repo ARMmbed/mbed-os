@@ -347,45 +347,6 @@
         ],
         "device_name": "LPC11U68JBD100"
     },
-    "LPC1549": {
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "core": "Cortex-M3",
-        "default_toolchain": "uARM",
-        "extra_labels": [
-            "NXP",
-            "LPC15XX"
-        ],
-        "supported_toolchains": [
-            "uARM",
-            "GCC_ARM",
-            "IAR"
-        ],
-        "inherits": [
-            "LPCTarget"
-        ],
-        "detect_code": [
-            "1549"
-        ],
-        "device_has": [
-            "ANALOGIN",
-            "ANALOGOUT",
-            "CAN",
-            "I2C",
-            "INTERRUPTIN",
-            "PWMOUT",
-            "SERIAL",
-            "SERIAL_FC",
-            "SPI",
-            "SPISLAVE"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "LPC1549JBD64"
-    },
     "LPC1768": {
         "inherits": [
             "LPCTarget"
