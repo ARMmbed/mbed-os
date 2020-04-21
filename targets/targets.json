@@ -720,26 +720,36 @@
         "device_name": "MKL46Z256xxx4",
         "bootloader_supported": true
     },
-    "K20D50M": {
+    "TEENSY3_1": {
         "inherits": [
             "Target"
         ],
         "core": "Cortex-M4",
         "extra_labels": [
             "Freescale",
-            "K20XX"
+            "K20XX",
+            "K20DX256"
         ],
+        "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
         "supported_toolchains": [
             "GCC_ARM",
-            "ARM",
-            "IAR"
+            "ARM"
         ],
+        "post_binary_hook": {
+            "function": "TEENSY3_1Code.binary_hook",
+            "toolchains": [
+                "ARM_STD",
+                "ARM_MICRO",
+                "GCC_ARM"
+            ]
+        },
         "detect_code": [
             "0230"
         ],
         "device_has": [
             "ANALOGIN",
+            "ANALOGOUT",
             "I2C",
             "I2CSLAVE",
             "INTERRUPTIN",
@@ -757,7 +767,7 @@
         "release_versions": [
             "2"
         ],
-        "device_name": "MK20DX128xxx5"
+        "device_name": "MK20DX256xxx7"
     },
     "MCU_K22F512": {
         "core": "Cortex-M4F",

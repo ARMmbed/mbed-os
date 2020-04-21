@@ -35,12 +35,6 @@
         "NUCLEO_F410RB": {
              "TEST_BUFFER": 4096
         },
-        "K20D50M": {
-             "SPI_MOSI": "PTD2",
-             "SPI_MISO": "PTD3",
-             "SPI_CLK":  "PTD1",
-             "SPI_CS":   "PTC2"
-        },
         "KL22F": {
              "SPI_MOSI": "PTD6",
              "SPI_MISO": "PTD7",

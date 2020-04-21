@@ -51,12 +51,7 @@ void hal_deepsleep(void)
     //Switch back to PLL as clock source if needed
     //The interrupt that woke up the device will run at reduced speed
     if (PLL_FLL_en) {
-        
-#if defined (TARGET_K20D50M)    
-        if (MCG->C6 & (1<<MCG_C6_PLLS_SHIFT) != 0) /* If PLL */
-            while((MCG->S & MCG_S_LOCK0_MASK) == 0x00U); /* Wait until locked */
-        MCG->C1 &= ~MCG_C1_CLKS_MASK;
-#else    
+          
         // MCG->C1: CLKS=2,FRDIV=3,IREFS=0,IRCLKEN=1,IREFSTEN=0 
         MCG->C1 = MCG_C1_CLKS(2) | MCG_C1_FRDIV(3) | MCG_C1_IRCLKEN_MASK;
         // MCG->C6: LOLIE=0,PLLS=0,CME=0,VDIV0=0   
@@ -74,7 +69,7 @@ void hal_deepsleep(void)
         MCG->C1 = MCG_C1_FRDIV(2) | MCG_C1_IRCLKEN_MASK;;
         while((MCG->S & 0x0Cu) != 0x0Cu) { }            // Wait until output of the PLL is selected
         while((MCG->S & MCG_S_LOCK0_MASK) == 0u) { }    // Wait until locked             
-#endif
+
     }
     
     if (ADC_HSC) {
