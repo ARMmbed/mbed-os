@@ -1,4 +1,5 @@
 /* Copyright (c) 2009-2019 Arm Limited
+ * Copyright (c) 2019-2020 Packetcraft, Inc.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -524,6 +525,7 @@ void smprScActDHKeyCheckSend(smpCcb_t *pCcb, smpMsg_t *pMsg)
                           pCcb->pairReq[SMP_MAXKEY_POS] : pCcb->pairRsp[SMP_MAXKEY_POS];
 
     memset((pCcb->pScCcb->pLtk->ltk_t + encKeyLen), 0, (SMP_KEY_LEN - encKeyLen));
+    pCcb->keyReady = TRUE;
 
     /* Send the DH Key check Eb to the initiator */
     smpScSendDHKeyCheck(pCcb, pMsg, pCcb->pScCcb->pScratch->Nb_Eb);

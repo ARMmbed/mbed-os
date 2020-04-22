@@ -1,4 +1,5 @@
 /* Copyright (c) 2009-2019 Arm Limited
+ * Copyright (c) 2019-2020 Packetcraft, Inc.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -269,6 +270,7 @@ void smpiActStkEncrypt(smpCcb_t *pCcb, smpMsg_t *pMsg)
   /* adjust key based on max key length */
   memcpy(buf, pMsg->aes.pCiphertext, encKeyLen);
   memset((buf + encKeyLen), 0, (SMP_KEY_LEN - encKeyLen));
+  pCcb->keyReady = TRUE;
 
   secLevel = (pCcb->auth & SMP_AUTH_MITM_FLAG) ? DM_SEC_LEVEL_ENC_AUTH : DM_SEC_LEVEL_ENC;
   DmSmpEncryptReq(pCcb->connId, secLevel, buf);

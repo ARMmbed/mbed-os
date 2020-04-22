@@ -1,4 +1,5 @@
 /* Copyright (c) 2009-2019 Arm Limited
+ * Copyright (c) 2019-2020 Packetcraft, Inc.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -251,6 +252,17 @@ void SmpDmMsgSend(smpDmMsg_t *pMsg);
  */
 /*************************************************************************************************/
 void SmpDmEncryptInd(wsfMsgHdr_t *pMsg);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Check if LE Secure Connections is enabled on the connection.
+ *
+ *  \param  connId    Connection identifier.
+ *
+ *  \return TRUE is Secure Connections is enabled, else FALSE
+ */
+/*************************************************************************************************/
+bool_t SmpDmLescEnabled(dmConnId_t connId);
 
 /*************************************************************************************************/
 /*!
