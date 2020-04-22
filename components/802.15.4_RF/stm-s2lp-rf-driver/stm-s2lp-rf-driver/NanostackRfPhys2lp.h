@@ -28,42 +28,6 @@
 // Uncomment to use testing gpios attached to TX/RX processes
 // #define TEST_GPIOS_ENABLED
 
-#if defined(TARGET_MTB_STM_S2LP)
-#if !defined(S2LP_SPI_SDI)
-#define S2LP_SPI_SDI        PA_7
-#endif
-#if !defined(S2LP_SPI_SDO)
-#define S2LP_SPI_SDO        PA_6
-#endif
-#if !defined(S2LP_SPI_SCLK)
-#define S2LP_SPI_SCLK       PA_5
-#endif
-#if !defined(S2LP_SPI_CS)
-#define S2LP_SPI_CS         PC_0
-#endif
-#if !defined(S2LP_SPI_SDN)
-#define S2LP_SPI_SDN        PF_13
-#endif
-#if !defined(S2LP_SPI_GPIO0)
-#define S2LP_SPI_GPIO0      PA_3
-#endif
-#if !defined(S2LP_SPI_GPIO1)
-#define S2LP_SPI_GPIO1      PC_3
-#endif
-#if !defined(S2LP_SPI_GPIO2)
-#define S2LP_SPI_GPIO2      PF_3
-#endif
-#if !defined(S2LP_SPI_GPIO3)
-#define S2LP_SPI_GPIO3      PF_10
-#endif
-#if !defined(S2LP_I2C_SDA)
-#define S2LP_I2C_SDA        PB_7
-#endif
-#if !defined(S2LP_I2C_SCL)
-#define S2LP_I2C_SCL        PB_6
-#endif
-#define AT24MAC
-#else
 #if !defined(S2LP_SPI_SDI)
 #define S2LP_SPI_SDI        D11
 #endif
@@ -106,7 +70,6 @@
 #if !defined(S2LP_SPI_GPIO3)
 #define S2LP_SPI_GPIO3      A5
 #endif
-#endif
 
 #include "at24mac_s2lp.h"
 
@@ -116,11 +79,11 @@ class TestPins_S2LP;
 class NanostackRfPhys2lp : public NanostackRfPhy {
 public:
     NanostackRfPhys2lp(PinName spi_sdi, PinName spi_sdo, PinName spi_sclk, PinName spi_cs, PinName spi_sdn
-                       ,PinName spi_gpio0, PinName spi_gpio1, PinName spi_gpio2, PinName spi_gpio3
+                       , PinName spi_gpio0, PinName spi_gpio1, PinName spi_gpio2, PinName spi_gpio3
 #ifdef AT24MAC
-                       ,PinName i2c_sda, PinName i2c_scl
+                       , PinName i2c_sda, PinName i2c_scl
 #endif //AT24MAC
-                       );
+                      );
     virtual ~NanostackRfPhys2lp();
     virtual int8_t rf_register();
     virtual void rf_unregister();

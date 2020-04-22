@@ -19,15 +19,6 @@
         "default_test_configuration": "NONE",
         "test_configurations": ["ISM43362_WIFI"]
     },
-    "MTB_ADV_WISE_1530": {
-        "nsapi.socket-stats-enable": true,
-        "default_test_configuration": "NONE",
-        "test_configurations": ["HEAPBLOCKDEVICE_AND_WIFI"]
-    },
-    "MTB_USI_WM_BN_BM_22": {
-        "default_test_configuration": "NONE",
-        "test_configurations": ["HEAPBLOCKDEVICE_AND_WIFI"]
-    },
     "WIO_EMW3166": {
         "default_test_configuration": "NONE",
         "test_configurations": ["HEAPBLOCKDEVICE_AND_WIFI"]

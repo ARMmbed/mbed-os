@@ -49,10 +49,6 @@
             "platform.default-serial-baud-rate": 115200,
             "mbed-trace.enable": true,
             "cellular.debug-at": true
-        },
-        "MTB_STM_L475": {
-            "UBLOX_N2XX.tx": "TX1",
-            "UBLOX_N2XX.rx": "RX1"
         }
     }
 }

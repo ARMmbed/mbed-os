@@ -69,51 +69,7 @@
             "lora-tcxo":           "PA_12"
         },
 
-        "MTB_MURATA_ABZ": {
-            "lora-radio":          "SX1276",
-            "lora-spi-mosi":       "PA_7",
-            "lora-spi-miso":       "PA_6",
-            "lora-spi-sclk":       "PB_3",
-            "lora-cs":             "PA_15",
-            "lora-reset":          "PC_0",
-            "lora-dio0":           "PB_4",
-            "lora-dio1":           "PB_1",
-            "lora-dio2":           "PB_0",
-            "lora-dio3":           "PC_13",
-            "lora-dio4":           "NC",
-            "lora-dio5":           "NC",
-            "lora-rf-switch-ctl1": "NC",
-            "lora-rf-switch-ctl2": "NC",
-            "lora-txctl":          "PC_2",
-            "lora-rxctl":          "PA_1",
-            "lora-ant-switch":     "NC",
-            "lora-pwr-amp-ctl":    "PC_1",
-            "lora-tcxo":           "PA_12"
-        },
-
         "XDOT_L151CC": {
-            "lora-radio":           "SX1272",
-            "lora-spi-mosi":        "LORA_MOSI",
-            "lora-spi-miso":        "LORA_MISO",
-            "lora-spi-sclk":        "LORA_SCK",
-            "lora-cs":              "LORA_NSS",
-            "lora-reset":           "LORA_RESET",
-            "lora-dio0":            "LORA_DIO0",
-            "lora-dio1":            "LORA_DIO1",
-            "lora-dio2":            "LORA_DIO2",
-            "lora-dio3":            "LORA_DIO3",
-            "lora-dio4":            "LORA_DIO4",
-            "lora-dio5":            "NC",
-            "lora-rf-switch-ctl1":  "NC",
-            "lora-rf-switch-ctl2":  "NC",
-            "lora-txctl":           "NC",
-            "lora-rxctl":           "NC",
-            "lora-ant-switch":      "NC",
-            "lora-pwr-amp-ctl":     "NC",
-            "lora-tcxo":            "NC"
-        },
-
-        "MTB_MTS_XDOT": {
             "lora-radio":           "SX1272",
             "lora-spi-mosi":        "LORA_MOSI",
             "lora-spi-miso":        "LORA_MISO",
@@ -199,28 +155,6 @@
             "lora-ant-switch":      "ANT_SWITCH",
             "lora-pwr-amp-ctl":     "NC",
             "lora-tcxo":            "NC"
-        },
-
-        "MTB_RAK811": {
-            "lora-radio":          "SX1276",
-            "lora-spi-mosi":       "SPI_RF_MOSI",
-            "lora-spi-miso":       "SPI_RF_MISO",
-            "lora-spi-sclk":       "SPI_RF_SCK",
-            "lora-cs":             "SPI_RF_CS",
-            "lora-reset":          "SPI_RF_RESET",
-            "lora-dio0":           "DIO0",
-            "lora-dio1":           "DIO1",
-            "lora-dio2":           "DIO2",
-            "lora-dio3":           "DIO3",
-            "lora-dio4":           "DIO4",
-            "lora-dio5":           "NC",
-            "lora-rf-switch-ctl1": "NC",
-            "lora-rf-switch-ctl2": "NC",
-            "lora-txctl":          "ANT_CTX_PA",
-            "lora-rxctl":          "ANT_CRX_RX",
-            "lora-ant-switch":     "NC",
-            "lora-pwr-amp-ctl":    "NC",
-            "lora-tcxo":           "RF_TCXO_EN"
         }
     }
 }

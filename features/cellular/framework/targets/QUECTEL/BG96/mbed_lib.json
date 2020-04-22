@@ -37,13 +37,5 @@
             "help": "Provide as default CellularDevice [true/false]",
             "value": false
         }
-    },
-    "target_overrides": {
-        "MTB_STM_L475": {
-            "tx": "SERIAL_TX",
-            "rx": "SERIAL_RX",
-            "pwr": "PE_15",
-            "rst": "PE_9"
-        }
     }
 }
