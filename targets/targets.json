@@ -10055,7 +10055,6 @@
         "is_disk_virtual": true,
         "supported_toolchains": [
             "ARM",
-            "uARM",
             "GCC_ARM",
             "IAR"
         ],
@@ -10120,6 +10119,21 @@
         "release_versions": [
             "5"
         ],
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ],
+            "iar": [
+                "std"
+            ]
+        },
+        "c_lib": "small",
+        "supported_application_profiles": ["bare-metal"],
         "device_name": "NANO130KE3BN",
         "overrides": {
             "deep-sleep-latency": 1,
