@@ -937,7 +937,7 @@ int TDBStore::build_ram_table()
     _num_keys = 0;
     offset = _master_record_offset;
 
-    while (offset < _free_space_offset) {
+    while (offset + sizeof(record_header_t) < _free_space_offset) {
         ret = read_record(_active_area, offset, _key_buf, 0, 0, actual_data_size, 0,
                           true, false, false, true, hash, flags, next_offset);
 
