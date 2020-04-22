@@ -36,24 +36,7 @@
     ],
     "target_overrides": {
         "*": {
-            "mbed-trace.fea-ipv6": false
-        },
-        "K64F": {
-            "target.c_lib": "small"
-        },
-        "K66F": {
-            "target.c_lib": "small"
-        },
-        "NUCLEO_F303RE": {
-            "target.c_lib": "small"
-        },
-        "NUCLEO_F411RE": {
-            "target.c_lib": "small"
-        },
-        "NUCLEO_F429ZI": {
-            "target.c_lib": "small"
-        },
-        "DISCO_L475VG_IOT01A": {
+            "mbed-trace.fea-ipv6": false,
             "target.c_lib": "small"
         }
      }
