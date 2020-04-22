@@ -111,7 +111,7 @@ uint32_t mac_csma_backoff_get(protocol_interface_rf_mac_setup_s *rf_mac_setup)
             backoff_in_us += ((rf_mac_setup->multi_cca_interval * (rf_mac_setup->number_of_csma_ca_periods - 1)) - backoff_in_us);
         }
         if (rf_mac_setup->mac_tx_retry) {
-            backoff_in_us += rf_mac_setup->fhss_api->get_retry_period(rf_mac_setup->fhss_api, rf_mac_setup->active_pd_data_request->DstAddr, rf_mac_setup->dev_driver->phy_driver->phy_MTU);
+            backoff_in_us += rf_mac_setup->fhss_api->get_retry_period(rf_mac_setup->fhss_api, rf_mac_setup->active_pd_data_request->DstAddr, rf_mac_setup->phy_mtu_size);
         }
     }
     return backoff_in_us;

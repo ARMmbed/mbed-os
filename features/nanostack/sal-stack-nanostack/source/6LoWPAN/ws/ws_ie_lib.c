@@ -82,7 +82,13 @@ uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule_s *hopp
 
     length += ws_channel_function_length(channel_function, 1);
 
-    //Todo Derive some how exluded channel control
+    if (unicast_schedule && hopping_schedule->excluded_channels.excuded_channel_ctrl) {
+        if (hopping_schedule->excluded_channels.excuded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
+            length += (hopping_schedule->excluded_channels.excluded_range_length * 4) + 1;
+        } else {
+            length += hopping_schedule->excluded_channels.channel_mask_bytes_inline;
+        }
+    }
     return length;
 }
 
@@ -161,10 +167,11 @@ uint8_t *ws_wp_nested_hopping_schedule_write(uint8_t *ptr, struct ws_hopping_sch
     channel_info_base = (hopping_schedule->channel_plan);
     if (unicast_schedule) {
         channel_info_base |= (hopping_schedule->uc_channel_function << 3);
+        //Set Excluded Channel control part
+        channel_info_base |= (hopping_schedule->excluded_channels.excuded_channel_ctrl << 6);
     } else {
         channel_info_base |= (hopping_schedule->bc_channel_function << 3);
     }
-    //Todo define excluded channel ctrl
 
     *ptr++ = channel_info_base;
 
@@ -176,9 +183,9 @@ uint8_t *ws_wp_nested_hopping_schedule_write(uint8_t *ptr, struct ws_hopping_sch
             break;
         case 1:
             //CHo, Channel spasing and number of channel's inline
-            ptr = common_write_24_bit(hopping_schedule->fhss_uc_dwell_interval, ptr);
-            *ptr++ = ((hopping_schedule->channel_spacing << 4) & 0xf0);
-            ptr = common_write_16_bit(hopping_schedule->number_of_channels, ptr);
+            ptr = common_write_24_bit_inverse(hopping_schedule->ch0_freq * 100, ptr);
+            *ptr++ = hopping_schedule->channel_spacing;
+            ptr = common_write_16_bit_inverse(hopping_schedule->number_of_channels, ptr);
             break;
         default:
             break;
@@ -210,6 +217,44 @@ uint8_t *ws_wp_nested_hopping_schedule_write(uint8_t *ptr, struct ws_hopping_sch
             break;
 
     }
+
+    if (unicast_schedule && hopping_schedule->excluded_channels.excuded_channel_ctrl) {
+        if (hopping_schedule->excluded_channels.excuded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
+            uint8_t range_length = hopping_schedule->excluded_channels.excluded_range_length;
+            ws_excluded_channel_range_data_t *range_ptr = hopping_schedule->excluded_channels.exluded_range;
+            *ptr++ = range_length;
+            while (range_length) {
+                ptr = common_write_16_bit_inverse(range_ptr->range_start, ptr);
+                ptr = common_write_16_bit_inverse(range_ptr->range_end, ptr);
+                range_length--;
+                range_ptr++;
+            }
+        } else if (hopping_schedule->excluded_channels.excuded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK) {
+            //Set Mask
+            uint16_t channel_mask_length = hopping_schedule->excluded_channels.channel_mask_bytes_inline * 8;
+
+            for (uint8_t i = 0; i < 8; i++) {
+                uint32_t mask_value = hopping_schedule->excluded_channels.channel_mask[i];
+                if (channel_mask_length >= 32) {
+                    ptr = common_write_32_bit(mask_value, ptr);
+                    channel_mask_length -= 32;
+                } else {
+                    //Write MSB Bits from mask 24-8 top bits
+                    uint8_t move_mask = 0;
+                    while (channel_mask_length) {
+                        *ptr++ = (uint8_t)(mask_value >> (24 - move_mask));
+                        channel_mask_length -= 8;
+                        move_mask += 8;
+                    }
+                }
+
+                if (channel_mask_length == 0) {
+                    break;
+                }
+            }
+        }
+    }
+
     return ptr;
 }
 
@@ -330,8 +375,9 @@ static uint8_t *ws_channel_plan_zero_read(uint8_t *ptr, ws_channel_plan_zero_t *
 static uint8_t *ws_channel_plan_one_read(uint8_t *ptr, ws_channel_plan_one_t *plan)
 {
     plan->ch0 = common_read_24_bit_inverse(ptr);
+    plan->ch0 /= 100;
     ptr += 3;
-    plan->channel_spacing = (*ptr++ & 0xf0) >> 4;
+    plan->channel_spacing = *ptr++;
     plan->number_of_channel = common_read_16_bit_inverse(ptr);
     ptr += 2;
     return ptr;
@@ -358,6 +404,7 @@ bool ws_wp_nested_us_read(uint8_t *data, uint16_t length, struct ws_us_ie *us_ie
     if (mac_ie_nested_discover(data, length, &nested_payload_ie) < 4) {
         return false;
     }
+
     data = nested_payload_ie.content_ptr;
     us_ie->dwell_interval = *data++;
     us_ie->clock_drift = *data++;
@@ -417,6 +464,36 @@ bool ws_wp_nested_us_read(uint8_t *data, uint16_t length, struct ws_us_ie *us_ie
         default:
             return false;
 
+    }
+
+    switch (us_ie->excluded_channel_ctrl) {
+        case WS_EXC_CHAN_CTRL_NONE:
+
+            break;
+        case WS_EXC_CHAN_CTRL_RANGE:
+            us_ie->excluded_channels.range.number_of_range = *data;
+            if (nested_payload_ie.length < (us_ie->excluded_channels.range.number_of_range * 4) + 1) {
+                return false;
+            }
+            //Set Range start after validation
+            us_ie->excluded_channels.range.range_start = data + 1;
+            break;
+
+        case WS_EXC_CHAN_CTRL_BITMASK:
+            if (us_ie->channel_plan == 1) {
+                us_ie->excluded_channels.mask.mask_len_inline = ((us_ie->plan.one.number_of_channel + 7) / 8);
+                if (us_ie->excluded_channels.mask.mask_len_inline != nested_payload_ie.length) {
+                    //Channel mask length is not correct
+                    return false;
+                }
+            } else {
+                us_ie->excluded_channels.mask.mask_len_inline = nested_payload_ie.length;
+            }
+
+            us_ie->excluded_channels.mask.channel_mask = data;
+            break;
+        default:
+            return false;
     }
 
     return true;

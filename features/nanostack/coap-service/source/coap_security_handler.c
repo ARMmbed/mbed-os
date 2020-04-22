@@ -155,8 +155,8 @@ static int coap_security_handler_init(coap_security_t *sec)
 #elif defined(MBEDTLS_HMAC_DRBG_C)
     if ((mbedtls_hmac_drbg_seed(&sec->_drbg, mbedtls_md_info_from_type(MBEDTLS_MD_SHA256),
                                 mbedtls_entropy_func, &sec->_entropy,
-                               (const unsigned char *) pers,
-                               strlen(pers))) != 0) {
+                                (const unsigned char *) pers,
+                                strlen(pers))) != 0) {
         return -1;
     }
 #else

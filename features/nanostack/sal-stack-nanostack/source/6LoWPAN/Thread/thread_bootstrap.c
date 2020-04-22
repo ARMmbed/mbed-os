@@ -955,7 +955,7 @@ static void thread_interface_bootsrap_mode_init(protocol_interface_info_entry_t 
         cur->thread_info->thread_device_mode = THREAD_DEVICE_MODE_SLEEPY_END_DEVICE;
         //SET Sleepy Host To RX on Idle mode for bootsrap
         nwk_thread_host_control(cur, NET_HOST_RX_ON_IDLE, 0);
-        cur->thread_info->childUpdateReqTimer = 0.8 * cur->thread_info->host_link_timeout;
+        cur->thread_info->childUpdateReqTimer = 8 * cur->thread_info->host_link_timeout / 10;
     } else {
         tr_debug("Set End node Mode");
         cur->thread_info->thread_device_mode = THREAD_DEVICE_MODE_END_DEVICE;

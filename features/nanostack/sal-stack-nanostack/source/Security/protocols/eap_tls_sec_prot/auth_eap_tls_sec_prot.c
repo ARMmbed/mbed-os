@@ -24,6 +24,8 @@
 #include "fhss_config.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "6LoWPAN/ws/ws_config.h"
+#include "6LoWPAN/ws/ws_cfg_settings.h"
+#include "Security/protocols/sec_prot_cfg.h"
 #include "Security/kmp/kmp_addr.h"
 #include "Security/kmp/kmp_api.h"
 #include "Security/PANA/pana_eap_header.h"
@@ -77,22 +79,6 @@ typedef struct {
     bool                          send_pending: 1;  /**< TLS data is not yet send to network */
 } eap_tls_sec_prot_int_t;
 
-/*Small network setup*/
-#define EAP_TLS_SMALL_IMIN 300 // retries done in 30 seconds
-#define EAP_TLS_SMALL_IMAX 900 // Largest value 90 seconds
-
-/* Large network setup*/
-#define EAP_TLS_LARGE_IMIN 600 // retries done in 60 seconds
-#define EAP_TLS_LARGE_IMAX 2400 // Largest value 240 seconds
-
-
-static trickle_params_t eap_tls_trickle_params = {
-    .Imin = EAP_TLS_SMALL_IMIN,           /* ticks are 100ms */
-    .Imax = EAP_TLS_SMALL_IMAX,           /* ticks are 100ms */
-    .k = 0,                /* infinity - no consistency checking */
-    .TimerExpirations = 2
-};
-
 static uint16_t auth_eap_tls_sec_prot_size(void);
 static int8_t auth_eap_tls_sec_prot_init(sec_prot_t *prot);
 
@@ -123,19 +109,6 @@ int8_t auth_eap_tls_sec_prot_register(kmp_service_t *service)
         return -1;
     }
 
-    return 0;
-}
-
-int8_t auth_eap_tls_sec_prot_timing_adjust(uint8_t timing)
-{
-
-    if (timing < 16) {
-        eap_tls_trickle_params.Imin = EAP_TLS_SMALL_IMIN;
-        eap_tls_trickle_params.Imax = EAP_TLS_SMALL_IMAX;
-    } else {
-        eap_tls_trickle_params.Imin = EAP_TLS_LARGE_IMIN;
-        eap_tls_trickle_params.Imax = EAP_TLS_LARGE_IMAX;
-    }
     return 0;
 }
 
@@ -216,7 +189,7 @@ static int8_t auth_eap_tls_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_
                 // Call state machine
                 prot->state_machine(prot);
                 // Resets trickle timer to give time for supplicant to answer
-                sec_prot_timer_trickle_start(&data->common, &eap_tls_trickle_params);
+                sec_prot_timer_trickle_start(&data->common, &prot->cfg->sec_prot_trickle_params);
                 data->init_key_cnt++;
             }
             // Filters repeated initial EAPOL-key messages
@@ -323,7 +296,8 @@ static void auth_eap_tls_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks
         data->burst_filt_timer = 0;
     }
 
-    sec_prot_timer_timeout_handle(prot, &data->common, &eap_tls_trickle_params, ticks);
+    sec_prot_timer_timeout_handle(prot, &data->common,
+                                  &prot->cfg->sec_prot_trickle_params, ticks);
 }
 
 static void auth_eap_tls_sec_prot_tls_create_indication(sec_prot_t *tls_prot)
@@ -447,7 +421,7 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             auth_eap_tls_sec_prot_message_send(prot, EAP_REQ, EAP_IDENTITY, EAP_TLS_EXCHANGE_NONE);
 
             // Start trickle timer to re-send if no response
-            sec_prot_timer_trickle_start(&data->common, &eap_tls_trickle_params);
+            sec_prot_timer_trickle_start(&data->common, &prot->cfg->sec_prot_trickle_params);
 
             sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_RESPONSE_ID);
             break;
@@ -471,7 +445,7 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             auth_eap_tls_sec_prot_message_send(prot, EAP_REQ, EAP_TLS, EAP_TLS_EXCHANGE_START);
 
             // Start trickle timer to re-send if no response
-            sec_prot_timer_trickle_start(&data->common, &eap_tls_trickle_params);
+            sec_prot_timer_trickle_start(&data->common, &prot->cfg->sec_prot_trickle_params);
 
             sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_RESPONSE_START);
             break;
@@ -553,7 +527,7 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
                 auth_eap_tls_sec_prot_message_send(prot, EAP_REQ, EAP_TLS, EAP_TLS_EXCHANGE_ONGOING);
 
                 // Start trickle timer to re-send if no response
-                sec_prot_timer_trickle_start(&data->common, &eap_tls_trickle_params);
+                sec_prot_timer_trickle_start(&data->common, &prot->cfg->sec_prot_trickle_params);
             } else {
                 // TLS done, indicate success to peer
                 if (data->tls_result == EAP_TLS_RESULT_HANDSHAKE_OVER) {

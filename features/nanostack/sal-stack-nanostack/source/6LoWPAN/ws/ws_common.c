@@ -29,6 +29,7 @@
 #include "6LoWPAN/ws/ws_bootstrap.h"
 #include "6LoWPAN/ws/ws_bbr_api_internal.h"
 #include "6LoWPAN/ws/ws_pae_controller.h"
+#include "6LoWPAN/ws/ws_cfg_settings.h"
 #include "Service_Libs/etx/etx.h"
 #include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "Service_Libs/blacklist/blacklist.h"
@@ -44,30 +45,7 @@
 // This provides a range of -174 (0) to +80 (254) dBm
 uint8_t DEVICE_MIN_SENS = 174 - 93;
 
-#define TRICKLE_IMIN_60_SECS (60 * 10)
-#define TRICKLE_IMIN_30_SECS (30 * 10)
-#define TRICKLE_IMIN_15_SECS (15 * 10)
 
-static const trickle_params_t trickle_params_pan_discovery_large = {
-    .Imin = TRICKLE_IMIN_60_SECS,           /* 60 second; ticks are 1s */
-    .Imax = TRICKLE_IMIN_60_SECS << 4,      /* 960 seconds 16 min*/
-                                 .k = 1,    /* 1 */
-                                 .TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE
-};
-
-static const trickle_params_t trickle_params_pan_discovery_medium = {
-    .Imin = TRICKLE_IMIN_30_SECS,           /* 30 second; ticks are 1s */
-    .Imax = TRICKLE_IMIN_30_SECS << 5,      /* 960 seconds 16 min*/
-                                 .k = 1,    /* 1 */
-                                 .TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE
-};
-
-static const trickle_params_t trickle_params_pan_discovery_small = {
-    .Imin = TRICKLE_IMIN_15_SECS,           /* 15 second; ticks are 1s */
-    .Imax = TRICKLE_IMIN_15_SECS << 2,      /* 60 seconds 1 min*/
-                                 .k = 1,    /* 1 */
-                                 .TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE
-};
 
 uint16_t test_max_child_count_override = 0xffff;
 
@@ -81,7 +59,7 @@ int8_t ws_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_chann
     return 0;
 }
 
-static uint32_t ws_decode_channel_spacing(uint8_t channel_spacing)
+uint32_t ws_decode_channel_spacing(uint8_t channel_spacing)
 {
     if (CHANNEL_SPACING_100 == channel_spacing) {
         return 100000;
@@ -97,7 +75,7 @@ static uint32_t ws_decode_channel_spacing(uint8_t channel_spacing)
     return 0;
 }
 
-static uint32_t ws_get_datarate_using_operating_mode(uint8_t operating_mode)
+uint32_t ws_get_datarate_using_operating_mode(uint8_t operating_mode)
 {
     if ((OPERATING_MODE_1a == operating_mode) || (OPERATING_MODE_1b == operating_mode)) {
         return 50000;
@@ -113,7 +91,7 @@ static uint32_t ws_get_datarate_using_operating_mode(uint8_t operating_mode)
     return 0;
 }
 
-static phy_modulation_index_e ws_get_modulation_index_using_operating_mode(uint8_t operating_mode)
+phy_modulation_index_e ws_get_modulation_index_using_operating_mode(uint8_t operating_mode)
 {
     if ((OPERATING_MODE_1b == operating_mode) || (OPERATING_MODE_2b == operating_mode) || (OPERATING_MODE_4b == operating_mode)) {
         return MODULATION_INDEX_1_0;
@@ -122,105 +100,95 @@ static phy_modulation_index_e ws_get_modulation_index_using_operating_mode(uint8
     }
 }
 
-static int ws_set_domain_rf_config(protocol_interface_info_entry_t *cur)
+int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, ws_hopping_schedule_t *hopping_schdule)
 {
-    phy_rf_channel_configuration_s rf_configs;
-    rf_configs.channel_0_center_frequency = (uint32_t)cur->ws_info->hopping_schdule.ch0_freq * 100000;
-    rf_configs.channel_spacing = ws_decode_channel_spacing(cur->ws_info->hopping_schdule.channel_spacing);
-    rf_configs.datarate = ws_get_datarate_using_operating_mode(cur->ws_info->hopping_schdule.operating_mode);
-    rf_configs.modulation_index = ws_get_modulation_index_using_operating_mode(cur->ws_info->hopping_schdule.operating_mode);
-    rf_configs.modulation = M_2FSK;
-    rf_configs.number_of_channels = cur->ws_info->hopping_schdule.number_of_channels;
-    ws_bootstrap_set_rf_config(cur, rf_configs);
-    return 0;
-}
+    (void)cur;
+    if (ws_get_datarate_using_operating_mode(hopping_schdule->operating_mode) == 0) {
+        //Unsupported operation mode
+        return -1;
+    }
 
-int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur)
-{
-    cur->ws_info->hopping_schdule.channel_plan = 0;
+    hopping_schdule->channel_plan = 0;
 
-    if (cur->ws_info->hopping_schdule.regulatory_domain == REG_DOMAIN_KR) {
-        if (cur->ws_info->hopping_schdule.operating_class == 1) {
-            cur->ws_info->hopping_schdule.ch0_freq = 9171;
-            cur->ws_info->hopping_schdule.channel_spacing = CHANNEL_SPACING_200;
-        } else if (cur->ws_info->hopping_schdule.operating_class == 2) {
-            cur->ws_info->hopping_schdule.ch0_freq = 9173;
-            cur->ws_info->hopping_schdule.channel_spacing = CHANNEL_SPACING_400;
+    if (hopping_schdule->regulatory_domain == REG_DOMAIN_KR) {
+        if (hopping_schdule->operating_class == 1) {
+            hopping_schdule->ch0_freq = 9171;
+            hopping_schdule->channel_spacing = CHANNEL_SPACING_200;
+        } else if (hopping_schdule->operating_class == 2) {
+            hopping_schdule->ch0_freq = 9173;
+            hopping_schdule->channel_spacing = CHANNEL_SPACING_400;
         } else {
             return -1;
         }
-    } else if (cur->ws_info->hopping_schdule.regulatory_domain == REG_DOMAIN_EU) {
-        if (cur->ws_info->hopping_schdule.operating_class == 1) {
-            cur->ws_info->hopping_schdule.ch0_freq = 8631;
-            cur->ws_info->hopping_schdule.channel_spacing = CHANNEL_SPACING_100;
-        } else if (cur->ws_info->hopping_schdule.operating_class == 2) {
-            cur->ws_info->hopping_schdule.ch0_freq = 8631;
-            cur->ws_info->hopping_schdule.channel_spacing = CHANNEL_SPACING_200;
-        } else if (cur->ws_info->hopping_schdule.operating_class == 3) {
-            cur->ws_info->hopping_schdule.ch0_freq = 8701;
-            cur->ws_info->hopping_schdule.channel_spacing = CHANNEL_SPACING_100;
-        } else if (cur->ws_info->hopping_schdule.operating_class == 4) {
-            cur->ws_info->hopping_schdule.ch0_freq = 8702;
-            cur->ws_info->hopping_schdule.channel_spacing = CHANNEL_SPACING_200;
+    } else if (hopping_schdule->regulatory_domain == REG_DOMAIN_EU) {
+        if (hopping_schdule->operating_class == 1) {
+            hopping_schdule->ch0_freq = 8631;
+            hopping_schdule->channel_spacing = CHANNEL_SPACING_100;
+        } else if (hopping_schdule->operating_class == 2) {
+            hopping_schdule->ch0_freq = 8631;
+            hopping_schdule->channel_spacing = CHANNEL_SPACING_200;
+        } else if (hopping_schdule->operating_class == 3) {
+            hopping_schdule->ch0_freq = 8701;
+            hopping_schdule->channel_spacing = CHANNEL_SPACING_100;
+        } else if (hopping_schdule->operating_class == 4) {
+            hopping_schdule->ch0_freq = 8702;
+            hopping_schdule->channel_spacing = CHANNEL_SPACING_200;
         } else {
             return -1;
         }
-    } else if (cur->ws_info->hopping_schdule.regulatory_domain == REG_DOMAIN_IN) {
-        if (cur->ws_info->hopping_schdule.operating_class == 1) {
-            cur->ws_info->hopping_schdule.ch0_freq = 8651;
-            cur->ws_info->hopping_schdule.channel_spacing = CHANNEL_SPACING_100;
-        } else if (cur->ws_info->hopping_schdule.operating_class == 2) {
-            cur->ws_info->hopping_schdule.ch0_freq = 8651;
-            cur->ws_info->hopping_schdule.channel_spacing = CHANNEL_SPACING_200;
+    } else if (hopping_schdule->regulatory_domain == REG_DOMAIN_IN) {
+        if (hopping_schdule->operating_class == 1) {
+            hopping_schdule->ch0_freq = 8651;
+            hopping_schdule->channel_spacing = CHANNEL_SPACING_100;
+        } else if (hopping_schdule->operating_class == 2) {
+            hopping_schdule->ch0_freq = 8651;
+            hopping_schdule->channel_spacing = CHANNEL_SPACING_200;
         } else {
             return -1;
         }
-    } else if (cur->ws_info->hopping_schdule.regulatory_domain == REG_DOMAIN_NA) {
-        if (cur->ws_info->hopping_schdule.operating_class == 1) {
-            cur->ws_info->hopping_schdule.ch0_freq = 9022;
-            cur->ws_info->hopping_schdule.channel_spacing = CHANNEL_SPACING_200;
-        } else if (cur->ws_info->hopping_schdule.operating_class == 2) {
-            cur->ws_info->hopping_schdule.ch0_freq = 9024;
-            cur->ws_info->hopping_schdule.channel_spacing = CHANNEL_SPACING_400;
-        } else if (cur->ws_info->hopping_schdule.operating_class == 3) {
-            cur->ws_info->hopping_schdule.ch0_freq = 9026;
-            cur->ws_info->hopping_schdule.channel_spacing = CHANNEL_SPACING_600;
+    } else if (hopping_schdule->regulatory_domain == REG_DOMAIN_NA) {
+        if (hopping_schdule->operating_class == 1) {
+            hopping_schdule->ch0_freq = 9022;
+            hopping_schdule->channel_spacing = CHANNEL_SPACING_200;
+        } else if (hopping_schdule->operating_class == 2) {
+            hopping_schdule->ch0_freq = 9024;
+            hopping_schdule->channel_spacing = CHANNEL_SPACING_400;
+        } else if (hopping_schdule->operating_class == 3) {
+            hopping_schdule->ch0_freq = 9026;
+            hopping_schdule->channel_spacing = CHANNEL_SPACING_600;
         } else {
             return -1;
         }
-    } else if (cur->ws_info->hopping_schdule.regulatory_domain == REG_DOMAIN_JP) {
-        if (cur->ws_info->hopping_schdule.operating_class == 1) {
-            cur->ws_info->hopping_schdule.ch0_freq = 9206;
-            cur->ws_info->hopping_schdule.channel_spacing = CHANNEL_SPACING_200;
-        } else if (cur->ws_info->hopping_schdule.operating_class == 2) {
-            cur->ws_info->hopping_schdule.ch0_freq = 9209;
-            cur->ws_info->hopping_schdule.channel_spacing = CHANNEL_SPACING_400;
-        } else if (cur->ws_info->hopping_schdule.operating_class == 3) {
-            cur->ws_info->hopping_schdule.ch0_freq = 9208;
-            cur->ws_info->hopping_schdule.channel_spacing = CHANNEL_SPACING_600;
+    } else if (hopping_schdule->regulatory_domain == REG_DOMAIN_JP) {
+        if (hopping_schdule->operating_class == 1) {
+            hopping_schdule->ch0_freq = 9206;
+            hopping_schdule->channel_spacing = CHANNEL_SPACING_200;
+        } else if (hopping_schdule->operating_class == 2) {
+            hopping_schdule->ch0_freq = 9209;
+            hopping_schdule->channel_spacing = CHANNEL_SPACING_400;
+        } else if (hopping_schdule->operating_class == 3) {
+            hopping_schdule->ch0_freq = 9208;
+            hopping_schdule->channel_spacing = CHANNEL_SPACING_600;
         } else {
             return -1;
         }
-    } else if (cur->ws_info->hopping_schdule.regulatory_domain == REG_DOMAIN_WW) {
-        if (cur->ws_info->hopping_schdule.operating_class == 1) {
-            cur->ws_info->hopping_schdule.ch0_freq = 24002;
-            cur->ws_info->hopping_schdule.channel_spacing = CHANNEL_SPACING_200;
-        } else if (cur->ws_info->hopping_schdule.operating_class == 2) {
-            cur->ws_info->hopping_schdule.ch0_freq = 24004;
-            cur->ws_info->hopping_schdule.channel_spacing = CHANNEL_SPACING_400;
+    } else if (hopping_schdule->regulatory_domain == REG_DOMAIN_WW) {
+        if (hopping_schdule->operating_class == 1) {
+            hopping_schdule->ch0_freq = 24002;
+            hopping_schdule->channel_spacing = CHANNEL_SPACING_200;
+        } else if (hopping_schdule->operating_class == 2) {
+            hopping_schdule->ch0_freq = 24004;
+            hopping_schdule->channel_spacing = CHANNEL_SPACING_400;
         } else {
             return -1;
         }
     } else {
         return -1;
     }
-    cur->ws_info->hopping_schdule.number_of_channels = (uint8_t)ws_common_channel_number_calc(cur->ws_info->hopping_schdule.regulatory_domain, cur->ws_info->hopping_schdule.operating_class);
-    if (!cur->ws_info->hopping_schdule.number_of_channels) {
+    hopping_schdule->number_of_channels = (uint8_t)ws_common_channel_number_calc(hopping_schdule->regulatory_domain, hopping_schdule->operating_class);
+    if (!hopping_schdule->number_of_channels) {
         return -1;
     }
-    // Note: doesn't work for Brazil region
-    ws_generate_channel_list(cur->ws_info->hopping_schdule.channel_mask, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->hopping_schdule.regulatory_domain);
-    ws_set_domain_rf_config(cur);
     return 0;
 }
 
@@ -292,9 +260,12 @@ int8_t ws_common_allocate_and_init(protocol_interface_info_entry_t *cur)
     ns_list_init(&cur->ws_info->parent_list_free);
     ns_list_init(&cur->ws_info->parent_list_reserved);
 
+    cur->ws_info->network_pan_id = 0xffff;
     cur->ws_info->pan_information.use_parent_bs = true;
     cur->ws_info->pan_information.rpl_routing_method = true;
     cur->ws_info->pan_information.version = WS_FAN_VERSION_1_0;
+
+    cur->ws_info->pending_key_index_info.state = NO_PENDING_PROCESS;
 
     cur->ws_info->hopping_schdule.regulatory_domain = REG_DOMAIN_EU;
     cur->ws_info->hopping_schdule.operating_mode = OPERATING_MODE_3;
@@ -303,69 +274,11 @@ int8_t ws_common_allocate_and_init(protocol_interface_info_entry_t *cur)
     cur->ws_info->hopping_schdule.clock_drift = 255;
     // Timing accuracy is given from 0 to 2.55msec with 10usec resolution
     cur->ws_info->hopping_schdule.timing_accurancy = 100;
-    ws_common_regulatory_domain_config(cur);
-    cur->ws_info->network_size_config = NETWORK_SIZE_MEDIUM;
-    cur->ws_info->rpl_parent_candidate_max = WS_RPL_PARENT_CANDIDATE_MAX;
-    cur->ws_info->rpl_selected_parent_max = WS_RPL_SELECTED_PARENT_MAX;
-    ws_common_network_size_configure(cur, 200); // defaults to medium network size
-
-    // Set defaults for the device. user can modify these.
-    cur->ws_info->fhss_uc_fixed_channel = 0xffff;
-    cur->ws_info->fhss_bc_fixed_channel = 0xffff;
-    cur->ws_info->fhss_uc_dwell_interval = WS_FHSS_UC_DWELL_INTERVAL;
-    cur->ws_info->fhss_bc_interval = WS_FHSS_BC_INTERVAL;
-    cur->ws_info->fhss_bc_dwell_interval = WS_FHSS_BC_DWELL_INTERVAL;
-    cur->ws_info->fhss_uc_channel_function = WS_DH1CF;
-    cur->ws_info->fhss_bc_channel_function = WS_DH1CF;
-
+    ws_common_regulatory_domain_config(cur, &cur->ws_info->hopping_schdule);
     cur->ws_info->pending_key_index_info.state = NO_PENDING_PROCESS;
 
-    for (uint8_t n = 0; n < 8; n++) {
-        cur->ws_info->fhss_channel_mask[n] = 0xffffffff;
-    }
 
     return 0;
-}
-void ws_common_network_size_configure(protocol_interface_info_entry_t *cur, uint16_t network_size)
-{
-    // TODO Modify NUD timings based on network size
-    // TODO Modify EAPOLL timings
-
-    if (network_size < 100) {
-        // Configure the Wi-SUN discovery trickle parameters
-        cur->ws_info->trickle_params_pan_discovery = trickle_params_pan_discovery_small;
-        // default values are for Wi-SUN small network parameters
-        // imin: 14 (16s)
-        // doublings:3 (128s)
-        // redundancy; 0 Disabled
-        if (cur->ws_info->network_size_config == NETWORK_SIZE_AUTOMATIC) {
-            ws_bbr_rpl_config(cur, 14, 3, 0, WS_RPL_MAX_HOP_RANK_INCREASE, WS_RPL_MIN_HOP_RANK_INCREASE);
-        } else if (cur->ws_info->network_size_config == NETWORK_SIZE_CERTIFICATE) {
-            ws_bbr_rpl_config(cur, 0, 0, 0, WS_CERTIFICATE_RPL_MAX_HOP_RANK_INCREASE, WS_CERTIFICATE_RPL_MIN_HOP_RANK_INCREASE);
-        } else {
-            ws_bbr_rpl_config(cur, 0, 0, 0, WS_RPL_MAX_HOP_RANK_INCREASE, WS_RPL_MIN_HOP_RANK_INCREASE);
-        }
-        ws_pae_controller_timing_adjust(1); // Fast and reactive network
-    } else if (network_size < 300) {
-        // Configure the Wi-SUN discovery trickle parameters
-        cur->ws_info->trickle_params_pan_discovery = trickle_params_pan_discovery_medium;
-        // Something in between
-        // imin: 15 (32s)
-        // doublings:5 (960s)
-        // redundancy; 10
-        ws_bbr_rpl_config(cur, 15, 5, 10, WS_RPL_MAX_HOP_RANK_INCREASE, WS_RPL_MIN_HOP_RANK_INCREASE);
-        ws_pae_controller_timing_adjust(9); // medium limited network
-    } else {
-        // Configure the Wi-SUN discovery trickle parameters
-        cur->ws_info->trickle_params_pan_discovery = trickle_params_pan_discovery_large;
-        // Wi-SUN Large network parameters
-        // imin: 19 (524s, 9 min)
-        // doublings:1 (1048s, 17 min)
-        // redundancy; 10 May need some tuning still
-        ws_bbr_rpl_config(cur, 19, 1, 10, WS_RPL_MAX_HOP_RANK_INCREASE, WS_RPL_MIN_HOP_RANK_INCREASE);
-        ws_pae_controller_timing_adjust(24); // Very slow and high latency network
-    }
-    return;
 }
 
 void ws_common_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds)
@@ -418,6 +331,14 @@ uint8_t ws_common_allow_child_registration(protocol_interface_info_entry_t *inte
 
     //Validate Is EUI64 already allocated for any address
     if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, eui64)) {
+        /*
+         * ARO registration from child can update the link timeout so we don't need to send extra NUD if ARO received
+         */
+        mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_by_mac64(mac_neighbor_info(interface), eui64, false, false);
+
+        if (mac_neighbor) {
+            mac_neighbor_table_neighbor_refresh(mac_neighbor_info(interface), mac_neighbor, mac_neighbor->link_lifetime);
+        }
         tr_info("Child registration from old child");
         return ARO_SUCCESS;
     }
@@ -456,35 +377,53 @@ bool ws_common_negative_aro_mark(protocol_interface_info_entry_t *interface, con
     return true;
 }
 
-uint32_t ws_common_version_lifetime_get(uint8_t config)
+uint32_t ws_common_latency_estimate_get(protocol_interface_info_entry_t *cur)
 {
-    uint32_t lifetime;
-    if (config == NETWORK_SIZE_SMALL || config == NETWORK_SIZE_CERTIFICATE) {
-        lifetime = PAN_VERSION_SMALL_NETWORK_LIFETIME;
-    } else if (config == NETWORK_SIZE_MEDIUM) {
-        lifetime = PAN_VERSION_MEDIUM_NETWORK_LIFETIME;
-    } else {
-        lifetime = PAN_VERSION_LARGE_NETWORK_LIFETIME;
+    uint32_t latency = 0;
+    uint8_t network_size = cur->ws_info->cfg->gen.network_size;
+
+    if (network_size == NETWORK_SIZE_AUTOMATIC) {
+        network_size = cur->ws_info->pan_information.pan_size / 100;
     }
 
-    return lifetime;
-
-}
-
-uint32_t ws_common_version_timeout_get(uint8_t config)
-{
-    uint32_t lifetime;
-    if (config == NETWORK_SIZE_SMALL || config == NETWORK_SIZE_CERTIFICATE) {
-        lifetime = PAN_VERSION_SMALL_NETWORK_TIMEOUT;
-    } else if (config == NETWORK_SIZE_MEDIUM) {
-        lifetime = PAN_VERSION_MEDIUM_NETWORK_TIMEOUT;
-    } else {
-        lifetime = PAN_VERSION_LARGE_NETWORK_TIMEOUT;
+    if (network_size <= NETWORK_SIZE_SMALL) {
+        // handles also NETWORK_SIZE_CERTIFICATE
+        latency = 8000;
+    } else if (network_size <= NETWORK_SIZE_MEDIUM) {
+        latency = 16000;
+    } else  {
+        latency = 32000;
     }
 
-    return lifetime;
+    return latency;
 }
 
+uint32_t ws_common_datarate_get(protocol_interface_info_entry_t *cur)
+{
+    return ws_get_datarate_using_operating_mode(cur->ws_info->hopping_schdule.operating_mode);
+}
+
+uint32_t ws_common_network_size_estimate_get(protocol_interface_info_entry_t *cur)
+{
+    uint32_t network_size_estimate = 0;
+    uint8_t network_size = cur->ws_info->cfg->gen.network_size;
+
+    if (network_size == NETWORK_SIZE_AUTOMATIC) {
+        network_size = cur->ws_info->pan_information.pan_size / 100;
+    }
+
+    if (network_size <= NETWORK_SIZE_SMALL) {
+        // tens of devices (now 30), handles also NETWORK_SIZE_CERTIFICATE
+        network_size_estimate = 30;
+    } else if (network_size <= NETWORK_SIZE_MEDIUM) {
+        // hundreds of devices (now 300)
+        network_size_estimate = 300;
+    } else {
+        // huge amount of devices (now 1000)
+        network_size_estimate = 1000;
+    }
+
+    return network_size_estimate;
+}
 
 #endif // HAVE_WS
-

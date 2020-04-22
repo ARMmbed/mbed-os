@@ -25,6 +25,7 @@
 #include "Common_Protocols/ipv6_constants.h"
 #include "socket_api.h"
 #include "6LoWPAN/ws/ws_config.h"
+#include "Security/protocols/sec_prot_cfg.h"
 #include "Security/kmp/kmp_addr.h"
 #include "Security/kmp/kmp_api.h"
 #include "Security/kmp/kmp_socket_if.h"
@@ -98,7 +99,7 @@ static void kmp_sec_prot_receive_disable(sec_prot_t *prot);
 
 #define kmp_api_get_from_prot(prot) (kmp_api_t *)(((uint8_t *)prot) - offsetof(kmp_api_t, sec_prot));
 
-kmp_api_t *kmp_api_create(kmp_service_t *service, kmp_type_e type)
+kmp_api_t *kmp_api_create(kmp_service_t *service, kmp_type_e type, sec_prot_cfg_t *cfg)
 {
     if (!service) {
         return 0;
@@ -150,6 +151,7 @@ kmp_api_t *kmp_api_create(kmp_service_t *service, kmp_type_e type)
     kmp->sec_prot.addr_get = kmp_sec_prot_eui64_addr_get;
     kmp->sec_prot.type_get = kmp_sec_prot_by_type_get;
     kmp->sec_prot.receive_disable = kmp_sec_prot_receive_disable;
+    kmp->sec_prot.cfg = cfg;
 
     if (sec_prot->init(&kmp->sec_prot) < 0) {
         ns_dyn_mem_free(kmp);

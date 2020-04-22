@@ -31,6 +31,9 @@
 #include "mac_fhss_callbacks.h"
 #include "eventOS_callback_timer.h"
 #include "common_functions.h"
+#include "ns_trace.h"
+
+#define TRACE_GROUP "swm"
 
 //TODO: create linked list of created MACs
 
@@ -96,12 +99,27 @@ mac_api_t *ns_sw_mac_create(int8_t rf_driver_id, mac_description_storage_size_t 
     memset(this, 0, sizeof(mac_api_t));
     this->parent_id = -1;
     mac_store.dev_driver = driver;
-    mac_store.setup = mac_mlme_data_base_allocate(mac_store.dev_driver->phy_driver->PHY_MAC, mac_store.dev_driver, storage_sizes);
+
+    // Set default MTU size to 127 unless it is too much for PHY driver
+    if (driver->phy_driver->phy_MTU > MAC_IEEE_802_15_4_MAX_PHY_PACKET_SIZE) {
+        this->phyMTU = MAC_IEEE_802_15_4_MAX_PHY_PACKET_SIZE;
+    } else {
+        this->phyMTU = driver->phy_driver->phy_MTU;
+    }
+
+    mac_store.setup = mac_mlme_data_base_allocate(mac_store.dev_driver->phy_driver->PHY_MAC, mac_store.dev_driver, storage_sizes, this->phyMTU);
 
     if (!mac_store.setup) {
         ns_dyn_mem_free(this);
         return NULL;
     }
+
+    // Set MAC mode to PHY driver
+    mac_store.setup->current_mac_mode = IEEE_802_15_4_2011;
+    if (mac_store.setup->dev_driver->phy_driver->extension) {
+        mac_store.setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_802_15_4_MODE, (uint8_t *) &mac_store.setup->current_mac_mode);
+    }
+    tr_debug("Set MAC mode to %s, MTU size: %u", "IEEE 802.15.4-2011", mac_store.setup->phy_mtu_size);
 
     arm_net_phy_init(driver->phy_driver, &sw_mac_net_phy_rx, &sw_mac_net_phy_tx_done);
     arm_net_virtual_config_rx_cb_set(driver->phy_driver, &sw_mac_net_phy_config_parser);
@@ -116,10 +134,8 @@ mac_api_t *ns_sw_mac_create(int8_t rf_driver_id, mac_description_storage_size_t 
     this->mac64_get = &macext_mac64_address_get;
     this->mac64_set = &macext_mac64_address_set;
     this->mac_storage_sizes_get = &sw_mac_storage_decription_sizes_get;
-    this->phyMTU = driver->phy_driver->phy_MTU;
 
     mac_store.mac_api = this;
-
     mac_store.virtual_driver = NULL;
     return this;
 }
@@ -279,8 +295,8 @@ static int8_t ns_sw_mac_api_enable_mcps_ext(mac_api_t *api, mcps_data_indication
         ns_dyn_mem_free(mac_store.setup->dev_driver_tx_buffer.enhanced_ack_buf);
 
         uint16_t total_length;
-        if (ENHANCED_ACK_MAX_LENGTH > dev_driver->phy_driver->phy_MTU) {
-            total_length = dev_driver->phy_driver->phy_MTU;
+        if (ENHANCED_ACK_MAX_LENGTH > mac_store.setup->phy_mtu_size) {
+            total_length = mac_store.setup->phy_mtu_size;
         } else {
             total_length = ENHANCED_ACK_MAX_LENGTH;
         }
