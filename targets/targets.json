@@ -9961,7 +9961,6 @@
         "is_disk_virtual": true,
         "supported_toolchains": [
             "ARM",
-            "uARM",
             "GCC_ARM",
             "IAR"
         ],
@@ -10025,9 +10024,23 @@
             "FLASHIAP"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
+        "supported_c_libs": {
+            "arm": [
+                "std",
+                "small"
+            ],
+            "gcc_arm": [
+                "std",
+                "small"
+            ],
+            "iar": [
+                "std"
+            ]
+        },
+        "c_lib": "small",
+        "supported_application_profiles": ["bare-metal"],
         "sectors": [
             [
                 0,
