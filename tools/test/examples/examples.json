@@ -127,7 +127,9 @@
       "exporters": [],
       "compile" : true,
       "export": true,
-      "test" : false,
+      "test" : true,
+      "baud_rate": 9600,
+      "compare_log": ["mbed-os-example-wifi/tests/wifi_scan.log"],
       "auto-update" : true
     },
     {
