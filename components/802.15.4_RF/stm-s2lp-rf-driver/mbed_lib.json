@@ -4,6 +4,11 @@
         "provide-default": {
             "help": "Provide default NanostackRfpy. [true/false]",
             "value": false
+        },
+    "target_overrides": {
+        "MTB_STM_S2LP": {
+           "s2lp.provide-default": true
+         }
         }
     }
 }
