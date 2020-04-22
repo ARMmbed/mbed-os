@@ -149,6 +149,7 @@ public:
         static void netif_link_irq(struct netif *netif);
         static void netif_status_irq(struct netif *netif);
         static Interface *our_if_from_netif(struct netif *netif);
+        static void delete_interface(OnboardNetworkStack::Interface **interface_out);
 
 #if LWIP_ETHERNET
         static err_t emac_low_level_output(struct netif *netif, struct pbuf *p);
@@ -208,6 +209,8 @@ public:
             void *hw; /**< alternative implementation pointer - used for PPP */
         };
 
+        mbed_rtos_storage_semaphore_t remove_interface_sem;
+        osSemaphoreId_t remove_interface;
         mbed_rtos_storage_semaphore_t linked_sem;
         osSemaphoreId_t linked;
         mbed_rtos_storage_semaphore_t unlinked_sem;
@@ -281,6 +284,14 @@ public:
      * @return                      NSAPI_ERROR_OK on success, or error code
      */
     virtual nsapi_error_t add_ppp_interface(PPP &ppp, bool default_if, OnboardNetworkStack::Interface **interface_out);
+
+    /** Remove a network interface from IP stack
+     *
+     * Removes layer 3 IP objects,network interface from stack list .
+     * @param[out] interface_out    pointer to stack interface object controlling the EMAC
+     * @return                      NSAPI_ERROR_OK on success, or error code
+     */
+    nsapi_error_t remove_ethernet_interface(OnboardNetworkStack::Interface **interface_out) override;
 
     /** Remove a network interface from IP stack
      *
