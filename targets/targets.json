@@ -541,10 +541,14 @@
         "core": "Cortex-M3",
         "supported_toolchains": [
             "ARM",
-            "uARM",
             "GCC_ARM",
             "IAR"
         ],
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
         "extra_labels": [
             "NXP",
             "LPC176X",
@@ -582,10 +586,6 @@
             "USTICKER",
             "WATCHDOG",
             "RESET_REASON"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "LPC1768",
         "bootloader_supported": true,
