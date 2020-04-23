@@ -3335,6 +3335,22 @@
         ],
         "public": false
     },
+    "GENERIC_H745I_CM7": {
+        "inherits": [
+            "MCU_STM32H745I_CM7"
+        ],
+        "extra_labels_add": [
+            "GENERIC_H745I"
+        ]
+    },
+    "GENERIC_H745I_CM4": {
+        "inherits": [
+            "MCU_STM32H745I_CM4"
+        ],
+        "extra_labels_add": [
+            "GENERIC_H745I"
+        ]
+    },
     "UHURU_RAVEN": {
         "inherits": [
             "FAMILY_STM32"
