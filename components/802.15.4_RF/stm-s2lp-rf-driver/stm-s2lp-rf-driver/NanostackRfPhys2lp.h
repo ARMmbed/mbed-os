@@ -28,6 +28,42 @@
 // Uncomment to use testing gpios attached to TX/RX processes
 // #define TEST_GPIOS_ENABLED
 
+#if defined(TARGET_MTB_STM_S2LP)
+#if !defined(S2LP_SPI_SDI)
+#define S2LP_SPI_SDI        PA_7
+#endif
+#if !defined(S2LP_SPI_SDO)
+#define S2LP_SPI_SDO        PA_6
+#endif
+#if !defined(S2LP_SPI_SCLK)
+#define S2LP_SPI_SCLK       PA_5
+#endif
+#if !defined(S2LP_SPI_CS)
+#define S2LP_SPI_CS         PC_0
+#endif
+#if !defined(S2LP_SPI_SDN)
+#define S2LP_SPI_SDN        PF_13
+#endif
+#if !defined(S2LP_SPI_GPIO0)
+#define S2LP_SPI_GPIO0      PA_3
+#endif
+#if !defined(S2LP_SPI_GPIO1)
+#define S2LP_SPI_GPIO1      PC_3
+#endif
+#if !defined(S2LP_SPI_GPIO2)
+#define S2LP_SPI_GPIO2      PF_3
+#endif
+#if !defined(S2LP_SPI_GPIO3)
+#define S2LP_SPI_GPIO3      PF_10
+#endif
+#if !defined(S2LP_I2C_SDA)
+#define S2LP_I2C_SDA        PB_7
+#endif
+#if !defined(S2LP_I2C_SCL)
+#define S2LP_I2C_SCL        PB_6
+#endif
+#define AT24MAC
+#else
 #if !defined(S2LP_SPI_SDI)
 #define S2LP_SPI_SDI        D11
 #endif
@@ -69,6 +105,7 @@
 #endif
 #if !defined(S2LP_SPI_GPIO3)
 #define S2LP_SPI_GPIO3      A5
+#endif
 #endif
 
 #include "at24mac_s2lp.h"
