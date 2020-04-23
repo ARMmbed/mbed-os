@@ -347,7 +347,12 @@
         "exporters": [],
         "compile" : true,
         "export": true,
-        "test" : false,
+        "test" : true,
+        "baud_rate": 9600,
+        "compare_log": [
+            "mbed-os-example-nfc/tests/EEPROM.log",
+            "mbed-os-example-nfc/tests/SmartPoster_noShield.log"
+        ],
         "auto-update" : true
     },
     {
