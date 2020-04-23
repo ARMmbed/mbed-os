@@ -3260,7 +3260,7 @@
             "DISCO_H747I"
         ]
     },
-    "STM32H745xI": {
+    "MCU_STM32H745I": {
         "inherits": [
             "FAMILY_STM32"
         ],
@@ -3298,13 +3298,15 @@
         "release_versions": [
             "5"
         ],
-        "device_name": "STM32H745BITx",
         "bootloader_supported": true,
         "public": false
     },
-    "STM32H745I_CM7": {
+    "MCU_STM32H745I_CM7": {
         "inherits": [
-            "STM32H745xI"
+            "MCU_STM32H745I"
+        ],
+        "extra_labels_add": [
+            "CM7"
         ],
         "core": "Cortex-M7FD",
         "mbed_rom_start": "0x08000000",
@@ -3316,9 +3318,12 @@
         ],
         "public": false
     },
-    "STM32H745I_CM4": {
+    "MCU_STM32H745I_CM4": {
         "inherits": [
-            "STM32H745xI"
+            "MCU_STM32H745I"
+        ],
+        "extra_labels_add": [
+            "CM4"
         ],
         "core": "Cortex-M4F",
         "mbed_rom_start": "0x08100000",
