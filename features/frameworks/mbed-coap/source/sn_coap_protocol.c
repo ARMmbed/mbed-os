@@ -759,6 +759,14 @@ sn_coap_hdr_s *sn_coap_protocol_parse(struct coap_s *handle, sn_nsdl_addr_s *src
             goto cleanup;
         }
 
+#if SN_COAP_DUPLICATION_MAX_MSGS_COUNT
+        // copy data buffer to duplicate list for resending purposes
+        if (!sn_coap_protocol_update_duplicate_package_data(handle, src_addr_ptr, resp, packet_data_size, packet_data_ptr)) {
+            tr_error("sn_coap_protocol_parse - failed to update duplicate info!");
+            goto cleanup;
+        }
+#endif
+
         sn_coap_parser_release_allocated_coap_msg_mem(handle, resp);
 
         handle->sn_coap_tx_callback(packet_data_ptr, packet_data_size, src_addr_ptr, param);
