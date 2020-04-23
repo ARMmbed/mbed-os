@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,8 +29,13 @@
 * \addtogroup group_hal_dac DAC (Digital to Analog Converter)
 * \ingroup group_hal
 * \{
-* High level interface for interacting with the Cypress DAC.
+* High level interface for interacting with the digital to analog converter (DAC).
 *
+* This block drives a pin with a firmware configurable voltage. See the device datasheet
+* for details on which pins support DAC output.
+*
+* The cyhal_dac_write and cyhal_dac_read APIs are defined relative to the DAC's output
+* voltage range, which is device dependent.
 */
 
 #pragma once

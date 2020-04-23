@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,9 @@
 * \addtogroup group_hal_trng TRNG (True Random Number Generator)
 * \ingroup group_hal
 * \{
-* High level interface for interacting with the Cypress TRNG.
+* High level interface for interacting with the true random number generator (TRNG).
+*
+* This block uses dedicated hardware to efficiently generate truly random numbers.
 */
 
 #pragma once

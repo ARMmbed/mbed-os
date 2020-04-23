@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_smif_memslot.h
-* \version 1.40.1
+* \version 1.50
 *
 * \brief
 *  This file provides the constants and parameter values for the memory-level
@@ -201,10 +201,23 @@ extern "C" {
 #define CY_SMIF_SFDP_BFPT_BYTE_23                   (0x23U)                 /**< The byte 0x23 of the JEDEC Basic Flash Parameter Table */
 #define CY_SMIF_SFDP_BFPT_BYTE_28                   (0x28U)                 /**< The byte 0x28 of the JEDEC Basic Flash Parameter Table */
 #define CY_SMIF_SFDP_BFPT_BYTE_3A                   (0x3AU)                 /**< The byte 0x3A of the JEDEC Basic Flash Parameter Table */
+#define CY_SMIF_SFDP_BFPT_BYTE_3C                   (0x3CU)                 /**< The byte 0x3C of the JEDEC Basic Flash Parameter Table */
 #define CY_SMIF_SFDP_BFPT_ERASE_BYTE                (36U)                   /**< The byte 36 of the JEDEC Basic Flash Parameter Table */
 
 #define CY_SMIF_JEDEC_BFPT_10TH_DWORD               (9U)                    /**< Offset to JEDEC Basic Flash Parameter Table: 10th DWORD  */
 #define CY_SMIF_JEDEC_BFPT_11TH_DWORD               (10U)                   /**< Offset to JEDEC Basic Flash Parameter Table: 11th DWORD  */
+
+
+#define CY_SMIF_SFDP_SECTOR_MAP_CMD_OFFSET          (1UL)    /**< The offset for the detection command instruction in the Sector Map command descriptor */
+#define CY_SMIF_SFDP_SECTOR_MAP_ADDR_CODE_OFFSET    (2UL)    /**< The offset for the detection command address length in the Sector Map command descriptor */
+#define CY_SMIF_SFDP_SECTOR_MAP_REG_MSK_OFFSET      (3UL)    /**< The offset for the read data mask in the Sector Map command descriptor */
+#define CY_SMIF_SFDP_SECTOR_MAP_REG_ADDR_OFFSET     (4UL)    /**< The offset for the detection command address in the Sector Map command descriptor */
+#define CY_SMIF_SFDP_SECTOR_MAP_REGION_COUNT_OFFSET (2UL)    /**< The offset for the regions count in the Sector Map descriptor */
+#define CY_SMIF_SFDP_SECTOR_MAP_CONFIG_ID_OFFSET    (2UL)    /**< The offset for the configuration ID in the Sector Map descriptor */
+#define CY_SMIF_SFDP_SECTOR_MAP_SUPPORTED_ET_MASK   (0xFU)   /**< The mask for the supported erase type code in the Sector Map descriptor */
+#define CY_SMIF_SFDP_SECTOR_MAP_ADDR_BYTES_Msk      (0xC0UL) /**< The mask for the configuration detection command address bytes in the Sector Map descriptor */
+#define CY_SMIF_SFDP_SECTOR_MAP_ADDR_BYTES_Pos      (6UL)    /**< The position of the configuration detection command address bytes in the Sector Map descriptor */
+
 
 /* ----------------------------  1st DWORD  ---------------------------- */
 #define CY_SMIF_SFDP_FAST_READ_1_1_4_Pos            (6UL)                   /**< The SFDP 1-1-4 fast read support (Bit 6)               */
@@ -268,6 +281,14 @@ extern "C" {
 #define CY_SMIF_SFDP_QE_REQUIREMENTS_Pos            (4UL)                   /**< The SFDP quad enable requirements field (Bit 4)               */
 #define CY_SMIF_SFDP_QE_REQUIREMENTS_Msk            (0x70UL)                /**< The SFDP quad enable requirements field (Bitfield-Mask: 0x07) */
 
+
+/* ----------------------------  16th DWORD  --------------------------- */
+#define CY_SMIF_SFDP_ENTER_4_BYTE_METHOD_B7 (1U)                            /**< Issue 0xB7 instruction */
+#define CY_SMIF_SFDP_ENTER_4_BYTE_METHOD_WR_EN_B7 (2U)                      /**< Issue write enable instruction followed with 0xB7 */
+#define CY_SMIF_SFDP_ENTER_4_BYTE_METHOD_ALWAYS_4_BYTE (0x40U)              /**< Memory always operates in 4-byte mode */
+#define CY_SMIF_SFDP_ENTER_4_BYTE_METHOD_B7_CMD (0xB7U)                     /**< The instruction required to enter 4-byte addressing mode */
+
+
 /** \cond INTERNAL */
 /*******************************************************************************
 * These are legacy constants and API. They are left here just 
@@ -327,6 +348,16 @@ typedef struct
     cy_en_smif_txfr_width_t dataWidth;      /**< The width of the data transfer */
 } cy_stc_smif_mem_cmd_t;
 
+/** This structure specifies data used for memory with hybrid sectors */
+typedef struct
+{
+    uint32_t regionAddress;                 /**< This specifies the address where a region starts */
+    uint32_t sectorsCount;                  /**< This specifies the number of sectors in the region */
+    uint32_t eraseCmd;                      /**< This specifies the region specific erase instruction*/
+    uint32_t eraseSize;                     /**< This specifies the size of one sector */
+    uint32_t eraseTime;                     /**< Max time for sector erase type 1 cycle time in ms*/
+} cy_stc_smif_hybrid_region_info_t;
+
 
 /**
 *
@@ -337,31 +368,33 @@ typedef struct
 */
 typedef struct
 {
-    uint32_t numOfAddrBytes;                    /**< This specifies the number of address bytes used by the 
-                                                 * memory slave device, valid values 1-4 */
-    uint32_t memSize;                           /**< The memory size: For densities of 2 gigabits or less - the size in bytes;
-                                                 * For densities 4 gigabits and above - bit-31 is set to 1b to define that
-                                                 * this memory is 4 gigabits and above; and other 30:0 bits define N where 
-                                                 * the density is computed as 2^N bytes. 
-                                                 * For example, 0x80000021 corresponds to 2^30 = 1 gigabyte.
-                                                 */
-    cy_stc_smif_mem_cmd_t* readCmd;             /**< This specifies the Read command */
-    cy_stc_smif_mem_cmd_t* writeEnCmd;          /**< This specifies the Write Enable command */
-    cy_stc_smif_mem_cmd_t* writeDisCmd;         /**< This specifies the Write Disable command */
-    cy_stc_smif_mem_cmd_t* eraseCmd;            /**< This specifies the Erase command */
-    uint32_t eraseSize;                         /**< This specifies the sector size of each Erase */
-    cy_stc_smif_mem_cmd_t* chipEraseCmd;        /**< This specifies the Chip Erase command */
-    cy_stc_smif_mem_cmd_t* programCmd;          /**< This specifies the Program command */
-    uint32_t programSize;                       /**< This specifies the page size for programming */
-    cy_stc_smif_mem_cmd_t* readStsRegWipCmd;    /**< This specifies the command to read the WIP-containing status register  */
-    cy_stc_smif_mem_cmd_t* readStsRegQeCmd;     /**< This specifies the command to read the QE-containing status register */
-    cy_stc_smif_mem_cmd_t* writeStsRegQeCmd;    /**< This specifies the command to write into the QE-containing status register */
-    cy_stc_smif_mem_cmd_t* readSfdpCmd;         /**< This specifies the read SFDP command */
-    uint32_t stsRegBusyMask;                    /**< The Busy mask for the status registers */
-    uint32_t stsRegQuadEnableMask;              /**< The QE mask for the status registers */
-    uint32_t eraseTime;                         /**< Max time for erase type 1 cycle time in ms */
-    uint32_t chipEraseTime;                     /**< Max time for chip erase cycle time in ms */
-    uint32_t programTime;                       /**< Max time for page program cycle time in us */
+    uint32_t numOfAddrBytes;                              /**< This specifies the number of address bytes used by the 
+                                                          * memory slave device, valid values 1-4 */
+    uint32_t memSize;                                     /**< The memory size: For densities of 2 gigabits or less - the size in bytes;
+                                                          * For densities 4 gigabits and above - bit-31 is set to 1b to define that
+                                                          * this memory is 4 gigabits and above; and other 30:0 bits define N where 
+                                                          * the density is computed as 2^N bytes. 
+                                                          * For example, 0x80000021 corresponds to 2^30 = 1 gigabyte.
+                                                          */
+    cy_stc_smif_mem_cmd_t* readCmd;                       /**< This specifies the Read command */
+    cy_stc_smif_mem_cmd_t* writeEnCmd;                    /**< This specifies the Write Enable command */
+    cy_stc_smif_mem_cmd_t* writeDisCmd;                   /**< This specifies the Write Disable command */
+    cy_stc_smif_mem_cmd_t* eraseCmd;                      /**< This specifies the Erase command */
+    uint32_t eraseSize;                                   /**< This specifies the sector size of each Erase */
+    cy_stc_smif_mem_cmd_t* chipEraseCmd;                  /**< This specifies the Chip Erase command */
+    cy_stc_smif_mem_cmd_t* programCmd;                    /**< This specifies the Program command */
+    uint32_t programSize;                                 /**< This specifies the page size for programming */
+    cy_stc_smif_mem_cmd_t* readStsRegWipCmd;              /**< This specifies the command to read the WIP-containing status register  */
+    cy_stc_smif_mem_cmd_t* readStsRegQeCmd;               /**< This specifies the command to read the QE-containing status register */
+    cy_stc_smif_mem_cmd_t* writeStsRegQeCmd;              /**< This specifies the command to write into the QE-containing status register */
+    cy_stc_smif_mem_cmd_t* readSfdpCmd;                   /**< This specifies the read SFDP command */
+    uint32_t stsRegBusyMask;                              /**< The Busy mask for the status registers */
+    uint32_t stsRegQuadEnableMask;                        /**< The QE mask for the status registers */
+    uint32_t eraseTime;                                   /**< Max time for erase type 1 cycle time in ms */
+    uint32_t chipEraseTime;                               /**< Max time for chip erase cycle time in ms */
+    uint32_t programTime;                                 /**< Max time for page program cycle time in us */
+    uint32_t hybridRegionCount;                           /**< This specifies the number of regions for memory with hybrid sectors */
+    cy_stc_smif_hybrid_region_info_t** hybridRegionInfo;  /**< This specifies data for memory with hybrid sectors */
 } cy_stc_smif_mem_device_cfg_t;
 
  
@@ -490,7 +523,8 @@ cy_en_smif_status_t Cy_SMIF_MemEraseSector(SMIF_Type *base, cy_stc_smif_mem_conf
                                            cy_stc_smif_context_t const *context);
 cy_en_smif_status_t Cy_SMIF_MemEraseChip(SMIF_Type *base, cy_stc_smif_mem_config_t const *memConfig,
                                          cy_stc_smif_context_t const *context);
-
+cy_en_smif_status_t Cy_SMIF_MemLocateHybridRegion(cy_stc_smif_mem_config_t const *memDevice,
+                                               cy_stc_smif_hybrid_region_info_t** regionInfo, uint32_t address);
 /** \} group_smif_mem_slot_functions */
 
 

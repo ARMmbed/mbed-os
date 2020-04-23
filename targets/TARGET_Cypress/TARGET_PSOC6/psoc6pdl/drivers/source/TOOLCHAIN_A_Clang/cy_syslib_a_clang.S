@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_syslib_a_clang.S
-* \version 2.50
+* \version 2.50.1
 *
 * \brief Assembly routines for Apple Clang.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");

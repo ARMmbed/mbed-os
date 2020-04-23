@@ -30,12 +30,15 @@ typedef enum {
 #ifdef HAVE_WS
 
 struct llc_neighbour_req;
+struct ws_us_ie;
 
 int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode);
 
 void ws_bootstrap_state_machine(protocol_interface_info_entry_t *cur);
 
 int ws_bootstrap_restart(int8_t interface_id);
+
+int ws_bootstrap_restart_delayed(int8_t interface_id);
 
 int ws_bootstrap_set_rf_config(protocol_interface_info_entry_t *cur, phy_rf_channel_configuration_s rf_configs);
 
@@ -75,6 +78,8 @@ void ws_dhcp_client_address_delete(protocol_interface_info_entry_t *cur, uint8_t
 bool ws_eapol_relay_state_active(protocol_interface_info_entry_t *cur);
 
 void ws_bootstrap_eapol_parent_synch(struct protocol_interface_info_entry *cur, struct llc_neighbour_req *neighbor_info);
+
+bool ws_bootstrap_validate_channel_plan(struct ws_us_ie *ws_us, struct protocol_interface_info_entry *cur);
 
 #else
 

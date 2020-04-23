@@ -444,6 +444,7 @@ rpl_neighbour_t *rpl_create_neighbour(rpl_dodag_version_t *version, const uint8_
     neighbour->dtsn = dtsn;
     neighbour->dao_path_control = 0;
     neighbour->confirmed = 0;
+    neighbour->addr_reg_failures = 0;
 
     /* Need to limit number of neighbours here - chucking worst neighbour */
 

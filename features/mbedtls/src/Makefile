@@ -37,7 +37,7 @@ endif
 
 SOEXT_TLS=so.13
 SOEXT_X509=so.1
-SOEXT_CRYPTO=so.3
+SOEXT_CRYPTO=so.4
 
 # Set AR_DASH= (empty string) to use an ar implementation that does not accept
 # the - prefix for command line options (e.g. llvm-ar)
@@ -77,6 +77,7 @@ OBJS_X509=	certs.o		pkcs11.o	x509.o		\
 OBJS_TLS=	debug.o		net_sockets.o		\
 		ssl_cache.o	ssl_ciphersuites.o	\
 		ssl_cli.o	ssl_cookie.o		\
+		ssl_msg.o				\
 		ssl_srv.o	ssl_ticket.o		\
 		ssl_tls.o
 
@@ -146,16 +147,21 @@ libmbedx509.so: libmbedx509.$(SOEXT_X509)
 	echo "  LN    $@ -> $<"
 	ln -sf $< $@
 
-libmbedx509.dylib: $(OBJS_X509) libmbedcrypto.dylib
+libmbedx509.dylib: $(OBJS_X509) $(CRYPTO)libmbedcrypto.dylib
 	echo "  LD    $@"
 	$(CC) -dynamiclib -L. -lmbedcrypto  $(LOCAL_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS_X509)
 
-libmbedx509.dll: $(OBJS_X509) libmbedcrypto.dll
+libmbedx509.dll: $(OBJS_X509) $(CRYPTO)libmbedcrypto.dll
 	echo "  LD    $@"
 	$(CC) -shared -Wl,-soname,$@ -Wl,--out-implib,$@.a -o $@ $(OBJS_X509) -lws2_32 -lwinmm -lgdi32 -L. -lmbedcrypto -static-libgcc $(LOCAL_LDFLAGS) $(LDFLAGS)
 
 libmbedcrypto.%:
 	$(MAKE) CRYPTO_INCLUDES:="-I../../include -I../include" -C ../crypto/library $@
+
+libmbedcrypto.$(DLEXT): $(CRYPTO)libmbedcrypto.$(DLEXT)
+
+$(CRYPTO)libmbedcrypto.$(DLEXT): | libmbedcrypto.a
+	$(MAKE) CRYPTO_INCLUDES:="-I../../include -I../include" -C ../crypto/library libmbedcrypto.$(DLEXT)
 
 .c.o:
 	echo "  CC    $<"

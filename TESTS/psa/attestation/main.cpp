@@ -98,7 +98,7 @@ static void check_initial_attestation_get_token()
     TEST_ASSERT_EQUAL(status, PSA_SUCCESS);
     status = psa_attestation_inject_key(private_key_data,
                                         sizeof(private_key_data),
-                                        PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_CURVE_SECP256R1),
+                                        PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_CURVE_SECP_R1),
                                         exported,
                                         sizeof(exported),
                                         &exported_length);

@@ -2,12 +2,12 @@
 * \file cyhal_crypto_common.h
 *
 * Description:
-* This file provides common defines, addresses, and functions required by drivers 
+* This file provides common defines, addresses, and functions required by drivers
 * using the Crypto block.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");

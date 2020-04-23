@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <baseview>
-  <shortsiliconid>0xE430</shortsiliconid>
+  <shortsiliconid>0xE470</shortsiliconid>
   <familyid>0x102</familyid>
   <major>1</major>
-  <minor>1</minor>
+  <minor>2</minor>
   <mcu>CortexM0p,CortexM4</mcu>
   <vendor>Cypress</vendor>
   <flash>1900544</flash>

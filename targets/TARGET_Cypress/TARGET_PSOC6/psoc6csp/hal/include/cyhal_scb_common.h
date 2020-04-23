@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+/** \cond INTERNAL */
 /**
  * \addtogroup group_hal_psoc6_scb_common SCB Common Functionality
  * \ingroup group_hal_psoc6
@@ -71,3 +72,4 @@ __STATIC_INLINE void *cyhal_scb_get_irq_obj(void)
 #endif
 
 /** \} group_hal_psoc6_scb_common */
+/** \endcond */

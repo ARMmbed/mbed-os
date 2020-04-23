@@ -22,11 +22,11 @@
  * \enum error_t
  * \brief System generic error.
  */
-typedef enum error_t {
+typedef enum {
     eOK = 0,    /*!< no error */
     eFALSE = 1, /*!< no result */
     eBUSY = 2,  /*!< resource busy */
     eSYSTEM     /*!< error code readable in sys_error */
-} error_t;
+} socket_error_t;
 
 #endif /* NS_ERROR_TYPES_H_ */

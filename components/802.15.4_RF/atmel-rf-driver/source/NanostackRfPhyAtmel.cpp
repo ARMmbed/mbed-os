@@ -23,6 +23,7 @@
 #include "NanostackRfPhyAtmel.h"
 #include "randLIB.h"
 #include "AT86RFReg.h"
+#include "AT86RF215Reg.h"
 #include "nanostack/platform/arm_hal_phy.h"
 #include "mbed_trace.h"
 #include "mbed_toolchain.h"
@@ -244,34 +245,8 @@ static void rf_if_irq_task_process_irq();
 #endif
 
 // HW pins to RF chip
+#include "rfbits.h"
 
-class UnlockedSPI : public SPI {
-public:
-    UnlockedSPI(PinName mosi, PinName miso, PinName sclk) :
-        SPI(mosi, miso, sclk) { }
-    virtual void lock() { }
-    virtual void unlock() { }
-};
-
-class RFBits {
-public:
-    RFBits(PinName spi_mosi, PinName spi_miso,
-           PinName spi_sclk, PinName spi_cs,
-           PinName spi_rst, PinName spi_slp, PinName spi_irq);
-    UnlockedSPI spi;
-    DigitalOut CS;
-    DigitalOut RST;
-    DigitalOut SLP_TR;
-    InterruptIn IRQ;
-    Timeout ack_timer;
-    Timeout cal_timer;
-    Timeout cca_timer;
-#ifdef MBED_CONF_RTOS_PRESENT
-    Thread irq_thread;
-    Mutex mutex;
-    void rf_if_irq_task();
-#endif
-};
 
 RFBits::RFBits(PinName spi_mosi, PinName spi_miso,
                PinName spi_sclk, PinName spi_cs,
@@ -282,7 +257,8 @@ RFBits::RFBits(PinName spi_mosi, PinName spi_miso,
         SLP_TR(spi_slp),
         IRQ(spi_irq)
 #ifdef MBED_CONF_RTOS_PRESENT
-    , irq_thread(osPriorityRealtime, MBED_CONF_ATMEL_RF_IRQ_THREAD_STACK_SIZE, NULL, "atmel_irq_thread")
+    , irq_thread(osPriorityRealtime, MBED_CONF_ATMEL_RF_IRQ_THREAD_STACK_SIZE, NULL, "atmel_irq_thread"),
+        irq_thread_215(osPriorityRealtime, MBED_CONF_ATMEL_RF_IRQ_THREAD_STACK_SIZE, NULL, "atmel_215_irq_thread")
 #endif
 {
 #ifdef MBED_CONF_RTOS_PRESENT
@@ -290,7 +266,17 @@ RFBits::RFBits(PinName spi_mosi, PinName spi_miso,
 #endif
 }
 
+TestPins::TestPins(PinName test_pin_1, PinName test_pin_2, PinName test_pin_3, PinName test_pin_4, PinName test_pin_5)
+    :   TEST1(test_pin_1),
+        TEST2(test_pin_2),
+        TEST3(test_pin_3),
+        TEST4(test_pin_4),
+        TEST5(test_pin_5)
+{
+}
+
 static RFBits *rf;
+static TestPins *test_pins;
 static uint8_t rf_part_num = 0;
 /*TODO: RSSI Base value setting*/
 static int8_t rf_rssi_base_val = -91;
@@ -652,6 +638,10 @@ static void rf_if_write_set_tx_power_register(uint8_t value)
  */
 static uint8_t rf_if_read_part_num(void)
 {
+    // Part number is already set
+    if (rf_part_num) {
+        return rf_part_num;
+    }
     return rf_if_read_register(PART_NUM);
 }
 
@@ -664,9 +654,6 @@ static uint8_t rf_if_read_part_num(void)
  */
 static void rf_if_write_rf_settings(void)
 {
-    /*Reset RF module*/
-    rf_if_reset_radio();
-
     rf_part_num = rf_if_read_part_num();
 
     rf_if_write_register(XAH_CTRL_0, 0);
@@ -675,7 +662,9 @@ static void rf_if_write_rf_settings(void)
     rf_if_write_register(TRX_CTRL_1, TX_AUTO_CRC_ON | SPI_CMD_MODE_TRX_STATUS);
 
     rf_if_write_register(IRQ_MASK, CCA_ED_DONE | TRX_END | TRX_UR);
-
+#ifdef TEST_GPIOS_ENABLED
+    rf_if_set_bit(IRQ_MASK, RX_START, RX_START);
+#endif
     xah_ctrl_1 = rf_if_read_register(XAH_CTRL_1);
 
     /*Read transceiver PART_NUM*/
@@ -1024,6 +1013,11 @@ static void rf_if_interrupt_handler(void)
     /*Read and clear interrupt flag, and pick up trx_status*/
     irq_status = rf_if_read_register_with_status(IRQ_STATUS, &full_trx_status);
 
+#ifdef TEST_GPIOS_ENABLED
+    if (irq_status & RX_START) {
+        TEST_RX_STARTED
+    }
+#endif
     /*Frame end interrupt (RX and TX)*/
     if (irq_status & TRX_END) {
         rf_trx_states_t trx_status = rf_if_trx_status_from_full(full_trx_status);
@@ -1384,7 +1378,6 @@ static void rf_channel_set(uint8_t ch)
     rf_if_unlock();
 }
 
-
 /*
  * \brief Function initialises the radio driver and resets the radio.
  *
@@ -1526,6 +1519,7 @@ static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_h
         rf_tx_length = data_length;
         /*Start CCA timeout*/
         rf_cca_timer_start(RF_CCA_BASE_BACKOFF + randLIB_get_random_in_range(0, RF_CCA_RANDOM_BACKOFF));
+        TEST_CSMA_STARTED
         /*Store TX handle*/
         mac_tx_handle = tx_handle;
         rf_if_unlock();
@@ -1544,6 +1538,7 @@ static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_h
  */
 static void rf_cca_abort(void)
 {
+    TEST_CSMA_DONE
     rf_cca_timer_stop();
     rf_flags_clear(RFF_CCA);
 }
@@ -1585,6 +1580,7 @@ static bool rf_start_tx()
     rf_flags_set(RFF_TX);
     /*RF state change: SLP_TR pulse triggers PLL_ON->BUSY_TX*/
     rf_if_enable_slptr();
+    TEST_TX_STARTED
     /*Chip permits us to write frame buffer while it is transmitting*/
     /*As long as first byte of data is in within 176us of TX start, we're good */
     rf_if_write_frame_buffer(rf_tx_data, rf_tx_length);
@@ -1601,6 +1597,7 @@ static bool rf_start_tx()
  */
 static void rf_receive(rf_trx_states_t trx_status)
 {
+    TEST_RX_DONE
     uint16_t while_counter = 0;
     if (rf_flags_check(RFF_ON) == 0) {
         rf_on();
@@ -1765,6 +1762,7 @@ static void rf_handle_ack(uint8_t seq_number, uint8_t data_pending)
  */
 static void rf_handle_rx_end(rf_trx_states_t trx_status)
 {
+    TEST_RX_DONE
     /*Frame received interrupt*/
     if (!rf_flags_check(RFF_RX)) {
         return;
@@ -1827,6 +1825,7 @@ static void rf_shutdown(void)
  */
 static void rf_handle_tx_end(rf_trx_states_t trx_status)
 {
+    TEST_TX_DONE
     rf_rx_mode = 0;
     /*If ACK is needed for this transmission*/
     if ((rf_tx_data[0] & 0x20) && rf_flags_check(RFF_TX)) {
@@ -1853,6 +1852,7 @@ static void rf_handle_tx_end(rf_trx_states_t trx_status)
  */
 static void rf_handle_cca_ed_done(uint8_t full_trx_status)
 {
+    TEST_CSMA_DONE
     if (!rf_flags_check(RFF_CCA)) {
         return;
     }
@@ -2168,11 +2168,14 @@ static uint8_t rf_scale_lqi(int8_t rssi)
 NanostackRfPhyAtmel::NanostackRfPhyAtmel(PinName spi_mosi, PinName spi_miso,
                                          PinName spi_sclk, PinName spi_cs,  PinName spi_rst, PinName spi_slp, PinName spi_irq,
                                          PinName i2c_sda, PinName i2c_scl)
-    : _mac(i2c_sda, i2c_scl), _mac_addr(), _rf(NULL), _mac_set(false),
+    : _mac(i2c_sda, i2c_scl), _mac_addr(), _rf(NULL), _test_pins(NULL), _mac_set(false),
       _spi_mosi(spi_mosi), _spi_miso(spi_miso), _spi_sclk(spi_sclk),
       _spi_cs(spi_cs), _spi_rst(spi_rst), _spi_slp(spi_slp), _spi_irq(spi_irq)
 {
     _rf = new RFBits(_spi_mosi, _spi_miso, _spi_sclk, _spi_cs, _spi_rst, _spi_slp, _spi_irq);
+#ifdef TEST_GPIOS_ENABLED
+    _test_pins = new TestPins(TEST_PIN_TX, TEST_PIN_RX, TEST_PIN_CSMA, TEST_PIN_SPARE_1, TEST_PIN_SPARE_2);
+#endif
 }
 
 NanostackRfPhyAtmel::~NanostackRfPhyAtmel()
@@ -2196,6 +2199,7 @@ int8_t NanostackRfPhyAtmel::rf_register()
 
     // Read the mac address if it hasn't been set by a user
     rf = _rf;
+    test_pins = _test_pins;
     if (!_mac_set) {
         int ret = _mac.read_eui64((void *)_mac_addr);
         if (ret < 0) {
@@ -2204,9 +2208,20 @@ int8_t NanostackRfPhyAtmel::rf_register()
             return -1;
         }
     }
-
-    int8_t radio_id = rf_device_register(_mac_addr);
+    /*Reset RF module*/
+    rf_if_reset_radio();
+    rf_part_num = rf_if_read_part_num();
+    int8_t radio_id = -1;
+    if (rf_part_num != PART_AT86RF231 && rf_part_num != PART_AT86RF233 && rf_part_num != PART_AT86RF212) {
+        // Register RF type 215. Jumps to AT86RF215 driver.
+        radio_id = rf->init_215_driver(_rf, _test_pins, _mac_addr, &rf_part_num);
+    } else {
+        // Register other RF types.
+        radio_id = rf_device_register(_mac_addr);
+    }
+    tr_info("RF part number: %x", rf_part_num);
     if (radio_id < 0) {
+        tr_err("RF registration failed");
         rf = NULL;
     }
 

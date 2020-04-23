@@ -1,13 +1,13 @@
 /*******************************************************************************
 * \file cy_canfd.c
-* \version 1.0.1
+* \version 1.10
 *
 * \brief
 *  Provides an API implementation of the CAN FD driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2019 Cypress Semiconductor Corporation
+* Copyright 2019-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -269,11 +269,8 @@ cy_en_canfd_status_t Cy_CANFD_Init(CANFD_Type *base, uint32_t chan,
         (NULL != config->bitrate) &&
         (NULL != config->globalFilterConfig) &&
         (NULL != config->rxFIFO0Config) &&
-        (NULL != config->rxFIFO1Config) &&
-        ((0U != config->sidFilterConfig->numberOfSIDFilters) &&
-         (NULL != config->sidFilterConfig->sidFilter)) &&
-        ((0U != config->extidFilterConfig->numberOfEXTIDFilters) &&
-         (NULL != config->extidFilterConfig->extidFilter)) )
+        (NULL != config->rxFIFO1Config)
+       )
     {
         CY_ASSERT_L2(CY_CANFD_IS_CHANNEL_VALID(chan));
         CY_ASSERT_L2(CY_CANFD_IS_NOM_PRESCALER_VALID(config->bitrate->prescaler));
@@ -318,25 +315,42 @@ cy_en_canfd_status_t Cy_CANFD_Init(CANFD_Type *base, uint32_t chan,
             context->messageRAMaddress = config->messageRAMaddress;
             context->messageRAMsize = config->messageRAMsize;
 
-            /* Configure a standard ID filter:
-             * The number of SID filters and Start address (word) of the SID filter 
-             * configuration in Message RAM
-            */
-            CANFD_SIDFC(base, chan) = 
-            _VAL2FLD(CANFD_CH_M_TTCAN_SIDFC_LSS, config->sidFilterConfig->numberOfSIDFilters) |
-            _VAL2FLD(CANFD_CH_M_TTCAN_SIDFC_FLSSA, config->messageRAMaddress >> CY_CANFD_MRAM_SIGNIFICANT_BYTES_SHIFT);
+            if ((0U   != config->sidFilterConfig->numberOfSIDFilters) &&
+                (NULL != config->sidFilterConfig->sidFilter))
+            {
+                /* Configure a standard ID filter:
+                * The number of SID filters and Start address (word) of the SID filter 
+                * configuration in Message RAM
+                */
+                CANFD_SIDFC(base, chan) = 
+                _VAL2FLD(CANFD_CH_M_TTCAN_SIDFC_LSS, config->sidFilterConfig->numberOfSIDFilters) |
+                _VAL2FLD(CANFD_CH_M_TTCAN_SIDFC_FLSSA, config->messageRAMaddress >> CY_CANFD_MRAM_SIGNIFICANT_BYTES_SHIFT);
+            }
+            else
+            {
+                CANFD_SIDFC(base, chan) = 0U;
+            }
 
-            /* Configure an extended ID filter:
-             * The number of XID filters and start address (word) of the ext id 
-             * filter configuration in Message RAM
-            */
-            CANFD_XIDFC(base, chan) = 
-            _VAL2FLD(CANFD_CH_M_TTCAN_XIDFC_LSE, config->extidFilterConfig->numberOfEXTIDFilters) |
-            _VAL2FLD(CANFD_CH_M_TTCAN_XIDFC_FLESA, _FLD2VAL(CANFD_CH_M_TTCAN_SIDFC_FLSSA, CANFD_SIDFC(base, chan)) +
+            if((0U   != config->extidFilterConfig->numberOfEXTIDFilters) &&
+               (NULL != config->extidFilterConfig->extidFilter))
+            {
+                /* Configure an extended ID filter:
+                * The number of XID filters and start address (word) of the ext id 
+                * filter configuration in Message RAM
+                */
+                CANFD_XIDFC(base, chan) = 
+                _VAL2FLD(CANFD_CH_M_TTCAN_XIDFC_LSE, config->extidFilterConfig->numberOfEXTIDFilters) |
+                _VAL2FLD(CANFD_CH_M_TTCAN_XIDFC_FLESA, _FLD2VAL(CANFD_CH_M_TTCAN_SIDFC_FLSSA, CANFD_SIDFC(base, chan)) +
                                                            (config->sidFilterConfig->numberOfSIDFilters));
 
-            /* Update the extended ID AND Mask */
-            CANFD_XIDAM(base, chan) = _VAL2FLD(CANFD_CH_M_TTCAN_XIDAM_EIDM, config->extidFilterConfig->extIDANDMask);
+                /* Update the extended ID AND Mask */
+                CANFD_XIDAM(base, chan) = _VAL2FLD(CANFD_CH_M_TTCAN_XIDAM_EIDM, config->extidFilterConfig->extIDANDMask);
+            }
+            else
+            {
+                CANFD_XIDFC(base, chan) = 0U;
+                CANFD_XIDAM(base, chan) = 0U;
+            }
 
             /* Configuration of Rx Buffer and Rx FIFO */
             CANFD_RXESC(base, chan) = 
@@ -476,11 +490,17 @@ cy_en_canfd_status_t Cy_CANFD_Init(CANFD_Type *base, uint32_t chan,
             _VAL2FLD(CANFD_CH_M_TTCAN_GFC_RRFS, ((config->globalFilterConfig->rejectRemoteFramesStandard) ? 1UL : 0UL))|
             _VAL2FLD(CANFD_CH_M_TTCAN_GFC_RRFE, ((config->globalFilterConfig->rejectRemoteFramesExtended) ? 1UL : 0UL));
 
-            /* Standard Message ID filters */
-            Cy_CANFD_SidFiltersSetup(base, chan, config->sidFilterConfig, context);
+            if (0U != config->sidFilterConfig->numberOfSIDFilters)
+            {
+                /* Standard Message ID filters */
+                Cy_CANFD_SidFiltersSetup(base, chan, config->sidFilterConfig, context);
+            }
 
-            /* Extended Message ID filters */
-            Cy_CANFD_XidFiltersSetup(base, chan,  config->extidFilterConfig, context);
+            if(0U   != config->extidFilterConfig->numberOfEXTIDFilters)
+            {
+                /* Extended Message ID filters */
+                Cy_CANFD_XidFiltersSetup(base, chan,  config->extidFilterConfig, context);
+            }
 
             /* Configure the interrupt */
             Cy_CANFD_SetInterruptMask(base, chan, CY_CANFD_INTERRUPT_ENABLE_DEFAULT);

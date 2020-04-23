@@ -35,6 +35,8 @@ extern uint16_t test_max_child_count_override;
 
 struct ws_pan_information_s;
 struct ws_neighbor_class_s;
+struct ws_excluded_channel_data_s;
+struct ws_cfg_s;
 
 typedef struct parent_info_s {
     uint16_t             pan_id;             /**< PAN ID */
@@ -46,6 +48,7 @@ typedef struct parent_info_s {
     ws_us_ie_t           ws_us;
     uint32_t             timestamp;          /**< Timestamp when packet was received */
     uint32_t             age;          /**< Age of entry in 100ms ticks */
+    uint8_t              excluded_channel_data[32]; //Channel mask Max length and it accept 8 different range
     ns_list_link_t       link;
 } parent_info_t;
 
@@ -72,45 +75,33 @@ typedef struct {
 typedef NS_LIST_HEAD(ws_nud_table_entry_t, link) ws_nud_table_list_t;
 
 typedef struct ws_info_s {
-    char network_name[33]; // Network name max 32 octets + terminating 0.
-    uint16_t network_pan_id;
-
     trickle_t trickle_pan_config_solicit;
     trickle_t trickle_pan_config;
     trickle_t trickle_pan_advertisement_solicit;
     trickle_t trickle_pan_advertisement;
     trickle_params_t trickle_params_pan_discovery;
-    uint8_t network_size_config; // configuration for network size selection of application.
-    uint16_t rpl_parent_candidate_max;
-    uint16_t rpl_selected_parent_max;
     uint8_t rpl_state; // state from rpl_event_t
     uint8_t pas_requests; // Amount of PAN solicits sent
     parent_info_t parent_info[WS_PARENT_LIST_SIZE];
     parent_info_list_t parent_list_free;
     parent_info_list_t parent_list_reserved;
+    uint16_t aro_registration_timer;       /**< Aro registration timer */
     uint16_t rpl_version_timer;            /**< RPL version update timeout */
-    uint32_t pan_version_timer;            /**< border router version update timeout */
-    uint32_t pan_version_timeout_timer;    /**< routers will fallback to previous state after this */
+    uint32_t pan_timeout_timer;    /**< routers will fallback to previous state after this */
     uint32_t pan_config_sol_max_timeout;
     uint8_t gtkhash[32];
+    uint16_t network_pan_id;
     bool configuration_learned: 1;
     bool trickle_pas_running: 1;
     bool trickle_pa_running: 1;
     bool trickle_pcs_running: 1;
     bool trickle_pc_running: 1;
+    uint16_t trickle_pc_consistency_block_period;
     ws_pending_key_index_t pending_key_index_info;
-    // default fhss parameters for this device
-    uint8_t fhss_uc_dwell_interval;
-    uint8_t fhss_bc_dwell_interval;
-    uint32_t fhss_bc_interval;
-    uint8_t fhss_uc_channel_function;
-    uint8_t fhss_bc_channel_function;
-    uint16_t fhss_uc_fixed_channel;
-    uint16_t fhss_bc_fixed_channel;
-    uint32_t fhss_channel_mask[8];
     ws_nud_table_entry_t nud_table_entrys[ACTIVE_NUD_PROCESS_MAX];
     ws_nud_table_list_t active_nud_process;
     ws_nud_table_list_t free_nud_entries;
+    struct ws_cfg_s *cfg;                  /**< Wi-SUN configuration */
     struct ws_pan_information_s pan_information;
     ws_hopping_schedule_t hopping_schdule;
     struct ws_statistics *stored_stats_ptr;
@@ -123,13 +114,17 @@ typedef struct ws_info_s {
 
 int8_t ws_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain);
 
-int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur);
+uint32_t ws_decode_channel_spacing(uint8_t channel_spacing);
+
+uint32_t ws_get_datarate_using_operating_mode(uint8_t operating_mode);
+
+phy_modulation_index_e ws_get_modulation_index_using_operating_mode(uint8_t operating_mode);
+
+int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, ws_hopping_schedule_t *hopping_schdule);
 
 uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operating_class);
 
 int8_t ws_common_allocate_and_init(protocol_interface_info_entry_t *cur);
-
-void ws_common_network_size_configure(protocol_interface_info_entry_t *cur, uint16_t network_size);
 
 void ws_common_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds);
 
@@ -145,10 +140,13 @@ uint8_t ws_common_allow_child_registration(protocol_interface_info_entry_t *cur,
 
 bool ws_common_negative_aro_mark(protocol_interface_info_entry_t *interface, const uint8_t *eui64);
 
-
-uint32_t ws_common_version_lifetime_get(uint8_t config);
-
 uint32_t ws_common_version_timeout_get(uint8_t config);
+
+uint32_t ws_common_latency_estimate_get(protocol_interface_info_entry_t *cur);
+
+uint32_t ws_common_datarate_get(protocol_interface_info_entry_t *cur);
+
+uint32_t ws_common_network_size_estimate_get(protocol_interface_info_entry_t *cur);
 
 #define ws_info(cur) ((cur)->ws_info)
 #else
@@ -160,6 +158,9 @@ uint32_t ws_common_version_timeout_get(uint8_t config);
 #define ws_common_fast_timer(cur, ticks) ((void) 0)
 #define ws_common_allow_child_registration(cur, eui64) (2)
 #define ws_common_negative_aro_mark(interface, eui64)(false)
+#define ws_common_latency_estimate_get(cur) 0
+#define ws_common_datarate_get(cur) 0
+#define ws_common_network_size_estimate_get(cur) 0
 
 #endif //HAVE_WS
 #endif //WS_COMMON_H_

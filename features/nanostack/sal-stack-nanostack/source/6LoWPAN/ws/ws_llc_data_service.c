@@ -547,6 +547,12 @@ static void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t
             bs_ie_inline = ws_wp_nested_bs_read(ws_wp_nested.content_ptr, ws_wp_nested.length, &ws_bs_ie);
         }
 
+        //Validate Unicast shedule Channel Plan
+        if (us_ie_inline && !ws_bootstrap_validate_channel_plan(&us_ie, interface)) {
+            //Channel plan configuration mismatch
+            return;
+        }
+
         llc_neighbour_req_t neighbor_info;
         bool multicast;
         bool request_new_entry;

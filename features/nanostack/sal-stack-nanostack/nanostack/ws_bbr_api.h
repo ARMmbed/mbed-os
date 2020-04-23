@@ -52,6 +52,7 @@ int ws_bbr_start(int8_t interface_id, int8_t backbone_interface_id);
 #define BBR_GUA_ROUTE             0x0002 /**< More specific route is added for GUA prefix */
 #define BBR_BB_WAIT               0x0004 /**< Wait backbone availability before starting Wi-SUN network */
 #define BBR_DEFAULT_ROUTE         0x0008 /**< Add default route parameter to DIO */
+#define BBR_REQUIRE_DAO_REFRESH   0x0010 /**< Do not increment PAN version number when active forces DAO update from nodes*/
 
 /**
  * Configure border router features.
@@ -157,5 +158,89 @@ int ws_bbr_eapol_node_limit_set(int8_t interface_id, uint16_t limit);
  * \return <0 Setting set failed
  */
 int ws_bbr_ext_certificate_validation_set(int8_t interface_id, uint8_t validation);
+
+/**
+ * Sets RPL parameters
+ *
+ * Sets RPL DIO trickle parameters.
+ *
+ * \param interface_id Network interface ID.
+ * \param dio_interval_min DIO trickle timer Imin parameter.
+ * \param dio_interval_doublings DIO trickle timer Imax parameter as doublings of Imin
+ * \param dio_redundancy_constant DIO trickle timer redundancy constant.
+ *
+ * \return 0, RPL parameters set.
+ * \return <0 Node RPL parameters set failed.
+ */
+int ws_bbr_rpl_parameters_set(int8_t interface_id, uint8_t dio_interval_min, uint8_t dio_interval_doublings, uint8_t dio_redundancy_constant);
+
+/**
+ * Gets RPL parameters
+ *
+ * Gets RPL DIO trickle parameters.
+ *
+ * \param interface_id Network interface ID.
+ * \param dio_interval_min DIO trickle timer Imin parameter.
+ * \param dio_interval_doublings DIO trickle timer Imax parameter as doublings of Imin
+ * \param dio_redundancy_constant DIO trickle timer redundancy constant.
+ *
+ * \return 0, RPL parameters get.
+ * \return <0 Node RPL parameters get failed.
+ */
+int ws_bbr_rpl_parameters_get(int8_t interface_id, uint8_t *dio_interval_min, uint8_t *dio_interval_doublings, uint8_t *dio_redundancy_constant);
+
+/**
+ * Validate RPL parameters
+ *
+ * Validates RPL DIO trickle parameters.
+ *
+ * \param interface_id Network interface ID.
+ * \param dio_interval_min DIO trickle timer Imin parameter.
+ * \param dio_interval_doublings DIO trickle timer Imax parameter as doublings of Imin
+ * \param dio_redundancy_constant DIO trickle timer redundancy constant.
+ *
+ * \return 0, RPL parameters validated.
+ * \return <0 Node RPL parameters validation failed.
+ */
+int ws_bbr_rpl_parameters_validate(int8_t interface_id, uint8_t dio_interval_min, uint8_t dio_interval_doublings, uint8_t dio_redundancy_constant);
+
+/**
+ * Sets PAN configuration
+ *
+ * Sets PAN configuration parameters.
+ *
+ * \param interface_id Network interface ID.
+ * \param pan_id PAN ID; 0xffff default, generate the PAN ID.
+ *
+ * \return 0, PAN configuration set.
+ * \return <0 PAN configuration set failed.
+ */
+int ws_bbr_pan_configuration_set(int8_t interface_id, uint16_t pan_id);
+
+/**
+ * Gets PAN configuration
+ *
+ * Gets PAN configuration parameters.
+ *
+ * \param interface_id Network interface ID.
+ * \param pan_id PAN ID; 0xffff default
+ *
+ * \return 0, PAN configuration get.
+ * \return <0 PAN configuration get failed.
+ */
+int ws_bbr_pan_configuration_get(int8_t interface_id, uint16_t *pan_id);
+
+/**
+ * Validates PAN configuration
+ *
+ * Validates PAN configuration parameters.
+ *
+ * \param interface_id Network interface ID.
+ * \param pan_id PAN ID.
+ *
+ * \return 0, PAN configuration validated.
+ * \return <0 PAN configuration validation failed.
+ */
+int ws_bbr_pan_configuration_validate(int8_t interface_id, uint16_t pan_id);
 
 #endif /* WS_BBR_API_H_ */

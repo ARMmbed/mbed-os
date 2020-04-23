@@ -5,7 +5,7 @@
 * CY8C6245FNI-S3D11 device header
 *
 * \note
-* Generator version: 1.5.0.1286
+* Generator version: 1.5.1.36
 *
 ********************************************************************************
 * \copyright
@@ -489,9 +489,6 @@ typedef enum {
 #define CY_IP_MXS40IOSS                 1u
 #define CY_IP_MXS40IOSS_INSTANCES       1u
 #define CY_IP_MXS40IOSS_VERSION         2u
-#define CY_IP_MXUSBFS                   1u
-#define CY_IP_MXUSBFS_INSTANCES         1u
-#define CY_IP_MXUSBFS_VERSION           1u
 #define CY_IP_MXS40PASS                 1u
 #define CY_IP_MXS40PASS_INSTANCES       1u
 #define CY_IP_MXS40PASS_VERSION         1u
@@ -1102,16 +1099,6 @@ typedef enum {
 
 #define LCD0_BASE                               0x403B0000UL
 #define LCD0                                    ((LCD_Type*) LCD0_BASE)                                           /* 0x403B0000 */
-
-/*******************************************************************************
-*                                    USBFS
-*******************************************************************************/
-
-#define USBFS0_BASE                             0x403F0000UL
-#define USBFS0                                  ((USBFS_Type*) USBFS0_BASE)                                       /* 0x403F0000 */
-#define USBFS0_USBDEV                           ((USBFS_USBDEV_Type*) &USBFS0->USBDEV)                            /* 0x403F0000 */
-#define USBFS0_USBLPM                           ((USBFS_USBLPM_Type*) &USBFS0->USBLPM)                            /* 0x403F2000 */
-#define USBFS0_USBHOST                          ((USBFS_USBHOST_Type*) &USBFS0->USBHOST)                          /* 0x403F4000 */
 
 /*******************************************************************************
 *                                     SMIF

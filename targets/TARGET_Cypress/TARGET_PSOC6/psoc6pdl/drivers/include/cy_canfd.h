@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_canfd.h
-* \version 1.0.1
+* \version 1.10
 *
 *  This file provides constants and parameter values for 
 *  the CAN FD driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2019 Cypress Semiconductor Corporation
+* Copyright 2019-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -217,6 +217,11 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>1.10</td>
+*     <td>Updated of the \ref Cy_CANFD_Init() functions</td>
+*     <td>Allow initing CANFD with 0 number of SID/XID filters</td>
+*   </tr>
+*   <tr>
 *     <td>1.0.1</td>
 *     <td>Updated description of the \ref Cy_CANFD_Init() and \ref Cy_CANFD_DeInit() functions</td>
 *     <td>Documentation update and clarification </td>
@@ -266,7 +271,7 @@ extern "C" {
 #define CY_CANFD_DRV_VERSION_MAJOR       1U
 
 /** Driver minor version */
-#define CY_CANFD_DRV_VERSION_MINOR       0U
+#define CY_CANFD_DRV_VERSION_MINOR       10U
 
 /** CAN FD driver ID */
 #define CY_CANFD_ID CY_PDL_DRV_ID        (0x45U)
