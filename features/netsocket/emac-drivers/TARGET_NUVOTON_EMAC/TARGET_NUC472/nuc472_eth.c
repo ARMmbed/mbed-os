@@ -101,7 +101,7 @@ static int reset_phy(void)
 
     delayCnt = 200000;
     while(delayCnt > 0) {
-    delayCnt--;
+        delayCnt--;
         if((mdio_read(CONFIG_PHY_ADDR, MII_BMSR) & (BMSR_ANEGCOMPLETE | BMSR_LSTATUS))
                 == (BMSR_ANEGCOMPLETE | BMSR_LSTATUS))
             break;
