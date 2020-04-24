@@ -43,7 +43,7 @@
              "SPI_CLK":  "PB_13",
              "SPI_CS":   "PA_10"
        },
-       "MTB_ADV_WISE_1570": {
+       "ADV_WISE_1570": {
              "SPI_MOSI": "PA_7",
              "SPI_MISO": "PA_6",
              "SPI_CLK":  "PA_5",

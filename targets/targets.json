@@ -3913,7 +3913,7 @@
         ],
         "device_name": "STM32L486RG"
     },
-    "MTB_ADV_WISE_1570": {
+    "ADV_WISE_1570": {
         "components_add": [
             "FLASHIAP"
         ],
