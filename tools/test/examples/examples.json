@@ -300,7 +300,7 @@
         "sub-repo-example": false,
         "subs": [],
         "features" : [],
-        "targets" : ["K64F","K82F"],
+        "targets" : ["DISCO_L475VG_IOT01A"],
         "toolchains" : [],
         "exporters": [],
         "compile" : true,
