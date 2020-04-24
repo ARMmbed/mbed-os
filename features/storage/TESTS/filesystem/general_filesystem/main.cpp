@@ -44,8 +44,8 @@ static const size_t test_files = 2;
 
 FILE *fd[test_files];
 
-BlockDevice *bd = BlockDevice::get_default_instance();
-FileSystem  *fs = FileSystem::get_default_instance();
+BlockDevice *bd;
+FileSystem  *fs;
 const char *bd_type;
 
 /*----------------help functions------------------*/
@@ -76,6 +76,9 @@ static void deinit()
 //init the blockdevice and reformat the filesystem
 static void bd_init_fs_reformat()
 {
+    bd = BlockDevice::get_default_instance();
+    fs = FileSystem::get_default_instance();
+
     bd_type = bd->get_type();
     init();
 }
