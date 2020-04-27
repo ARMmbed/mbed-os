@@ -127,7 +127,7 @@ int InternetSocket::get_rtt_estimate_to_address(const SocketAddress &address, ui
     // Set up address
     memcpy(ns_api_latency_req.addr, address.get_ip_bytes(), 16);
 
-    ret = this->getsockopt(NSAPI_SOCKET, NSAPI_LATENCY, (void *)&ns_api_latency_req, &opt_len);
+    ret = this->getsockopt(NSAPI_SOCKET, NSAPI_LATENCY, &ns_api_latency_req, &opt_len);
     if (ret == NSAPI_ERROR_OK) {
         // success, latency found. Convert to RTT.
         *rtt_estimate = ns_api_latency_req.latency * 2;
@@ -146,7 +146,7 @@ int InternetSocket::get_stagger_estimate_to_address(const SocketAddress &address
     memcpy(nsapi_stagger.addr, address.get_ip_bytes(), 16);
     nsapi_stagger.data_amount = data_amount;
 
-    ret = this->getsockopt(NSAPI_SOCKET, NSAPI_STAGGER, (void *)&nsapi_stagger, &opt_len);
+    ret = this->getsockopt(NSAPI_SOCKET, NSAPI_STAGGER, &nsapi_stagger, &opt_len);
     if (ret == NSAPI_ERROR_OK) {
         // success, stagger found
         if (stagger_min) {
