@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#if defined(MBED_CONF_RTOS_PRESENT)
 #include <stdint.h>
 #include "USBCDC_ECM.h"
 #include "EndpointResolver.h"
@@ -556,3 +556,4 @@ void USBCDC_ECM::_bulk_out_callback()
 
     read_start(_bulk_out, _bulk_buf, MAX_PACKET_SIZE_BULK);
 }
+#endif // defined(MBED_CONF_RTOS_PRESENT)
