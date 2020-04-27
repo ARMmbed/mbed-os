@@ -6356,43 +6356,6 @@
             "5501"
         ]
     },
-    "MAXWSNENV": {
-        "inherits": [
-            "Target"
-        ],
-        "core": "Cortex-M3",
-        "macros": [
-            "__SYSTEM_HFX=24000000"
-        ],
-        "extra_labels": [
-            "Maxim",
-            "MAX32610"
-        ],
-        "supported_toolchains": [
-            "GCC_ARM",
-            "IAR",
-            "ARM"
-        ],
-        "device_has": [
-            "ANALOGIN",
-            "ANALOGOUT",
-            "I2C",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "SERIAL",
-            "SERIAL_FC",
-            "SLEEP",
-            "SPI",
-            "STDIO_MESSAGES"
-        ],
-        "release_versions": [],
-        "detect_code": [
-            "0400"
-        ]
-    },
     "MAX32600MBED": {
         "inherits": [
             "Target"

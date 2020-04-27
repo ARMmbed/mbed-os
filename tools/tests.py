@@ -56,14 +56,12 @@ Wiring:
   * TMP102 (I2C):
       * LPC1*: (SDA=p28 , SCL=p27)
       * KL25Z: (SDA=PTC9, SCL=PTC8)
-      * MAXWSNENV: (SDA=TP6, SCL=TP5)
 
   * digital_loop (Digital(In|Out|InOut), InterruptIn):
       * Arduino headers: (D0 <-> D7)
       * NUCLEO_*: (D2 <-> D9)
       * LPC1*: (p5   <-> p25 )
       * KL25Z: (PTA5<-> PTC6)
-      * MAXWSNENV: (TP3 <-> TP4)
       * MAX32600MBED: (P1_0 <-> P4_7)
       * VK_RZ_A1H: (P3_2 <-> P5_6)
 
@@ -72,7 +70,6 @@ Wiring:
       * LPC1*: (p5   <-> p25), (p6   <-> p26)
       * KL25Z: (PTA5 <-> PTC6), (PTA4 <-> PTC5)
       * NUCLEO_F103RB: (PC_6 <-> PB_8), (PC_5 <-> PB_9)
-      * MAXWSNENV: (TP1 <-> TP3), (TP2 <-> TP4)
       * MAX32600MBED: (P1_0 <-> P4_7), (P1_1 <-> P4_6)
       * VK_RZ_A1H: (P3_2 <-> P5_6), (P3_7 <-> P5_1)
 
