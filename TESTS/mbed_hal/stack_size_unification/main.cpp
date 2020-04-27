@@ -31,10 +31,7 @@ extern osThreadAttr_t _main_thread_attr;
 #endif
 extern uint32_t mbed_stack_isr_size;
 
-/* Exception for Nordic boards - BLE requires 2KB ISR stack. */
-#if defined(TARGET_NRF5x)
-#define EXPECTED_ISR_STACK_SIZE                  (2048)
-#elif !defined(MBED_CONF_RTOS_PRESENT)
+#if !defined(MBED_CONF_RTOS_PRESENT)
 #define EXPECTED_ISR_STACK_SIZE                  (4096)
 #else
 #define EXPECTED_ISR_STACK_SIZE                  (1024)
