@@ -5710,40 +5710,6 @@
             "TARGET_NRF_LFCLK_RC"
         ]
     },
-    "MTM_MTCONNECT04S": {
-        "inherits": [
-            "MCU_NRF51_32K"
-        ],
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "nRF51822_xxAC",
-        "detect_code": [
-            "C005"
-        ]
-    },
-    "MTM_MTCONNECT04S_BOOT": {
-        "inherits": [
-            "MCU_NRF51_32K_BOOT"
-        ],
-        "extra_labels_add": [
-            "MTM_CONNECT04S"
-        ],
-        "macros_add": [
-            "TARGET_MTM_CONNECT04S"
-        ]
-    },
-    "MTM_MTCONNECT04S_OTA": {
-        "inherits": [
-            "MCU_NRF51_32K_OTA"
-        ],
-        "extra_labels_add": [
-            "MTM_CONNECT04S"
-        ],
-        "macros_add": [
-            "TARGET_MTM_CONNECT04S"
-        ]
-    },
     "TY51822R3": {
         "inherits": [
             "MCU_NRF51_32K_UNIFIED"
