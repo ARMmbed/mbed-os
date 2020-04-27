@@ -1,5 +1,10 @@
 # Change Log
 
+## [v5.1.5](https://github.com/ARMmbed/mbed-coap/releases/tag/v5.1.5)
+
+- Added handling for duplicate message handling for Block2 messages. Previously CoAP was silently ignoring the duplicate messages. Now proper response will be sent.
+- Added extended version of `sn_coap_protocol_update_duplicate_package_data`, `sn_coap_protocol_update_duplicate_package_data_all` which will handle all CoAP data in the list.
+
 ## [v5.1.4](https://github.com/ARMmbed/mbed-coap/releases/tag/v5.1.4)
 
 - Add also 4.13 (Request Entity Too Large) responses to duplicate info list.
