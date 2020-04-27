@@ -6598,14 +6598,6 @@
             "0444"
         ]
     },
-    "MAX32625NEXPAQ": {
-        "inherits": [
-            "MAX32625_BASE"
-        ],
-        "detect_code": [
-            "0408"
-        ]
-    },
     "MAX32630FTHR": {
         "inherits": [
             "Target"
