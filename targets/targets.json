@@ -5628,40 +5628,6 @@
             "1105"
         ]
     },
-    "NRF51_DONGLE_LEGACY": {
-        "inherits": [
-            "MCU_NRF51_32K"
-        ],
-        "extra_labels_add": [
-            "NRF51_DONGLE"
-        ],
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "nRF51822_xxAC"
-    },
-    "NRF51_DONGLE_BOOT": {
-        "inherits": [
-            "MCU_NRF51_32K_BOOT"
-        ],
-        "extra_labels_add": [
-            "NRF51_DONGLE"
-        ],
-        "macros_add": [
-            "TARGET_NRF51_DONGLE"
-        ]
-    },
-    "NRF51_DONGLE_OTA": {
-        "inherits": [
-            "MCU_NRF51_32K_OTA"
-        ],
-        "extra_labels_add": [
-            "NRF51_DONGLE"
-        ],
-        "macros_add": [
-            "TARGET_NRF51_DONGLE"
-        ]
-    },
     "NRF51_MICROBIT": {
         "inherits": [
             "MCU_NRF51_16K_S110"
