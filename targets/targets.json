@@ -5586,39 +5586,6 @@
             "4005"
         ]
     },
-    "WALLBOT_BLE": {
-        "inherits": [
-            "MCU_NRF51_16K"
-        ],
-        "release_versions": [
-            "2"
-        ],
-        "detect_code": [
-            "1140"
-        ]
-    },
-    "WALLBOT_BLE_BOOT": {
-        "inherits": [
-            "MCU_NRF51_16K_BOOT"
-        ],
-        "extra_labels_add": [
-            "WALLBOT_BLE"
-        ],
-        "macros_add": [
-            "TARGET_WALLBOT_BLE"
-        ]
-    },
-    "WALLBOT_BLE_OTA": {
-        "inherits": [
-            "MCU_NRF51_16K_OTA"
-        ],
-        "extra_labels_add": [
-            "WALLBOT_BLE"
-        ],
-        "macros_add": [
-            "TARGET_WALLBOT_BLE"
-        ]
-    },
     "NRF51_DK_LEGACY": {
         "supported_form_factors": [
             "ARDUINO"

@@ -499,7 +499,6 @@ TESTS = [
                         "ARCH_BLE", "ARCH_BLE_BOOT", "ARCH_BLE_OTA",
                         "ARCH_LINK", "ARCH_LINK_BOOT", "ARCH_LINK_OTA",
                         "SEEED_TINY_BLE", "SEEED_TINY_BLE_BOOT", "SEEED_TINY_BLE_OTA",
-                        "WALLBOT_BLE", "WALLBOT_BLE_BOOT", "WALLBOT_BLE_OTA",
                         "LPC1114"],
         #"host_test": "rtc_auto",
     },
