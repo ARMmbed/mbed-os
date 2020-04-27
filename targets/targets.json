@@ -8676,6 +8676,9 @@
             "4343W",
             "CYW43XXX"
         ],
+        "components_remove": [
+            "QSPIF"
+        ],
         "device_has_remove": [
             "ANALOGOUT"
         ],
