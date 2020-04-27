@@ -162,25 +162,16 @@ static void update_present_time(const ticker_data_t *const ticker)
         // Optimized for 1MHz
 
         elapsed_us = elapsed_ticks;
-    } else if (0 != queue->frequency_shifts) {
-        // Optimized for frequencies divisible by 2
-        uint64_t us_x_ticks = elapsed_ticks * 1000000;
-        elapsed_us = us_x_ticks >> queue->frequency_shifts;
-
-        // Update remainder
-        queue->tick_remainder += us_x_ticks - (elapsed_us << queue->frequency_shifts);
-        if (queue->tick_remainder >= queue->frequency) {
-            elapsed_us += 1;
-            queue->tick_remainder -= queue->frequency;
-        }
     } else {
-        // General case
-
         uint64_t us_x_ticks = elapsed_ticks * 1000000;
-        elapsed_us = us_x_ticks / queue->frequency;
-
-        // Update remainder
-        queue->tick_remainder += us_x_ticks - elapsed_us * queue->frequency;
+        if (0 != queue->frequency_shifts) {
+            // Optimized for frequencies divisible by 2
+            elapsed_us = us_x_ticks >> queue->frequency_shifts;
+            queue->tick_remainder += us_x_ticks - (elapsed_us << queue->frequency_shifts);
+        } else {
+            elapsed_us = us_x_ticks / queue->frequency;
+            queue->tick_remainder += us_x_ticks - elapsed_us * queue->frequency;
+        }
         if (queue->tick_remainder >= queue->frequency) {
             elapsed_us += 1;
             queue->tick_remainder -= queue->frequency;
@@ -205,28 +196,55 @@ static timestamp_t compute_tick_round_up(const ticker_data_t *const ticker, us_t
 
         if (1000000 == queue->frequency) {
             // Optimized for 1MHz
-
             delta = delta_us;
-            if (delta > ticker->queue->max_delta) {
-                delta = ticker->queue->max_delta;
-            }
         } else if (0 != queue->frequency_shifts) {
             // Optimized frequencies divisible by 2
-
             delta = ((delta_us << ticker->queue->frequency_shifts) + 1000000 - 1) / 1000000;
-            if (delta > ticker->queue->max_delta) {
-                delta = ticker->queue->max_delta;
-            }
         } else {
             // General case
-
             delta = (delta_us * queue->frequency + 1000000 - 1) / 1000000;
-            if (delta > ticker->queue->max_delta) {
-                delta = ticker->queue->max_delta;
-            }
+        }
+        if (delta > ticker->queue->max_delta) {
+            delta = ticker->queue->max_delta;
         }
     }
     return (queue->tick_last_read + delta) & queue->bitmask;
+}
+
+//NOTE: Must be called from critical section!
+static void insert_event(const ticker_data_t *const ticker, ticker_event_t *obj, us_timestamp_t timestamp, uint32_t id)
+{
+    // initialise our data
+    obj->timestamp = timestamp;
+    obj->id = id;
+
+    /* Go through the list until we either reach the end, or find
+       an element this should come before (which is possibly the
+       head). */
+    ticker_event_t *prev = NULL, *p = ticker->queue->head;
+    while (p != NULL) {
+        /* check if we come before p */
+        if (timestamp < p->timestamp) {
+            break;
+        }
+        /* go to the next element */
+        prev = p;
+        p = p->next;
+    }
+
+    /* if we're at the end p will be NULL, which is correct */
+    obj->next = p;
+
+    /* if prev is NULL we're at the head */
+    if (prev == NULL) {
+        ticker->queue->head = obj;
+    } else {
+        prev->next = obj;
+    }
+
+    if (prev == NULL || timestamp <= ticker->queue->present_time) {
+        schedule_interrupt(ticker);
+    }
 }
 
 /**
@@ -345,6 +363,7 @@ void ticker_irq_handler(const ticker_data_t *const ticker)
     core_util_critical_section_exit();
 }
 
+
 void ticker_insert_event(const ticker_data_t *const ticker, ticker_event_t *obj, timestamp_t timestamp, uint32_t id)
 {
     core_util_critical_section_enter();
@@ -356,11 +375,7 @@ void ticker_insert_event(const ticker_data_t *const ticker, ticker_event_t *obj,
                                             timestamp
                                         );
 
-    // defer to ticker_insert_event_us
-    ticker_insert_event_us(
-        ticker,
-        obj, absolute_timestamp, id
-    );
+    insert_event(ticker, obj, absolute_timestamp, id);
 
     core_util_critical_section_exit();
 }
@@ -372,37 +387,7 @@ void ticker_insert_event_us(const ticker_data_t *const ticker, ticker_event_t *o
     // update the current timestamp
     update_present_time(ticker);
 
-    // initialise our data
-    obj->timestamp = timestamp;
-    obj->id = id;
-
-    /* Go through the list until we either reach the end, or find
-       an element this should come before (which is possibly the
-       head). */
-    ticker_event_t *prev = NULL, *p = ticker->queue->head;
-    while (p != NULL) {
-        /* check if we come before p */
-        if (timestamp < p->timestamp) {
-            break;
-        }
-        /* go to the next element */
-        prev = p;
-        p = p->next;
-    }
-
-    /* if we're at the end p will be NULL, which is correct */
-    obj->next = p;
-
-    /* if prev is NULL we're at the head */
-    if (prev == NULL) {
-        ticker->queue->head = obj;
-    } else {
-        prev->next = obj;
-    }
-
-    if (prev == NULL || timestamp <= ticker->queue->present_time) {
-        schedule_interrupt(ticker);
-    }
+    insert_event(ticker, obj, timestamp, id);
 
     core_util_critical_section_exit();
 }
