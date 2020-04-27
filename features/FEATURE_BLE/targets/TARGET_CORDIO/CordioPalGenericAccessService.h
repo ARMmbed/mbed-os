@@ -19,6 +19,8 @@ public:
 
     virtual ~GenericAccessService() { }
 
+#if 0 // Disabled until reworked and reintroduced to GattServer API
+
     virtual ble_error_t get_device_name_length(uint8_t& length) {
 #if BLE_FEATURE_GATT_SERVER
         const uint8_t* name = NULL;
@@ -82,8 +84,10 @@ public:
 #endif // BLE_FEATURE_GATT_SERVER
     }
 
-    virtual ble_error_t get_peripheral_prefered_connection_parameters(
-        ::Gap::ConnectionParams_t& parameters
+#endif // Disabled until reworked and reintroduced to GattServer API
+
+    virtual ble_error_t get_peripheral_preferred_connection_parameters(
+        ::Gap::PreferredConnectionParams_t& parameters
     ) {
 #if BLE_FEATURE_GATT_SERVER
         parameters = gatt_server().getPreferredConnectionParams();
@@ -93,8 +97,8 @@ public:
 #endif // BLE_FEATURE_GATT_SERVER
     }
 
-    virtual ble_error_t set_peripheral_prefered_connection_parameters(
-        const ::Gap::ConnectionParams_t& parameters
+    virtual ble_error_t set_peripheral_preferred_connection_parameters(
+        const ::Gap::PreferredConnectionParams_t& parameters
     ) {
 #if BLE_FEATURE_GATT_SERVER
         gatt_server().setPreferredConnectionParams(parameters);

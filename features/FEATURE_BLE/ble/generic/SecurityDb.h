@@ -123,7 +123,7 @@ public:
         SecurityEntryIdentityDbCb_t;
     typedef mbed::Callback<void(Span<SecurityEntryIdentity_t>&, size_t count)>
         IdentitylistDbCb_t;
-    typedef mbed::Callback<void(::Gap::Whitelist_t*)>
+    typedef mbed::Callback<void(::ble::whitelist_t*)>
         WhitelistDbCb_t;
 
     SecurityDb() : _local_sign_counter(0) { };
@@ -567,7 +567,7 @@ public:
      */
     virtual void get_whitelist(
         WhitelistDbCb_t cb,
-        ::Gap::Whitelist_t *whitelist
+        ::ble::whitelist_t *whitelist
     ) {
         /*TODO: fill whitelist*/
         cb(whitelist);
@@ -582,7 +582,7 @@ public:
      */
     virtual void generate_whitelist_from_bond_table(
         WhitelistDbCb_t cb,
-        ::Gap::Whitelist_t *whitelist
+        ::ble::whitelist_t *whitelist
     ) {
         for (size_t i = 0; i < get_entry_count() && whitelist->size < whitelist->capacity; i++) {
             entry_handle_t db_handle = get_entry_handle_by_index(i);
@@ -597,16 +597,12 @@ public:
                 continue;
             }
 
-            memcpy(
-                whitelist->addresses[whitelist->size].address,
-                identity->identity_address.data(),
-                sizeof(BLEProtocol::AddressBytes_t)
-            );
+            whitelist->addresses[whitelist->size].address = identity->identity_address;
 
             if (identity->identity_address_is_public) {
-                whitelist->addresses[whitelist->size].type = BLEProtocol::AddressType::PUBLIC;
+                whitelist->addresses[whitelist->size].type = peer_address_type_t::PUBLIC_IDENTITY;
             } else {
-                whitelist->addresses[whitelist->size].type = BLEProtocol::AddressType::RANDOM_STATIC;
+                whitelist->addresses[whitelist->size].type = peer_address_type_t::RANDOM_STATIC_IDENTITY;
             }
 
             whitelist->size++;
@@ -620,7 +616,7 @@ public:
      *
      * @param[in] whitelist
      */
-    virtual void set_whitelist(const ::Gap::Whitelist_t &whitelist) { };
+    virtual void set_whitelist(const ::ble::whitelist_t &whitelist) { };
 
     /**
      * Add a new entry to the whitelist in the NVM.

@@ -165,7 +165,7 @@ ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::purgeAl
 }
 
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
-ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::generateWhitelistFromBondTable_(::Gap::Whitelist_t *whitelist) const {
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::generateWhitelistFromBondTable_(::ble::whitelist_t *whitelist) const {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     if (eventHandler) {
         if (!whitelist) {
@@ -1104,12 +1104,11 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::set_mitm_perfo
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_connected_(
     connection_handle_t connection,
-    ::Gap::Role_t role,
+    connection_role_t role,
     peer_address_type_t peer_address_type,
-    const BLEProtocol::AddressBytes_t peer_address,
-    BLEProtocol::AddressType_t local_address_type,
-    const BLEProtocol::AddressBytes_t local_address,
-    const ::Gap::ConnectionParams_t *connection_params
+    address_t peer_address,
+    own_address_type_t local_address_type,
+    address_t local_address
 ) {
 #if BLE_FEATURE_SECURITY
     MBED_ASSERT(_db);
@@ -1120,7 +1119,7 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_connected_(
 
     // setup the control block
     cb->local_address = local_address;
-    cb->is_master = (role == ::Gap::CENTRAL);
+    cb->is_master = (role == connection_role_t::CENTRAL);
 
     // get the associated db handle and the distribution flags if any
     cb->db_entry = _db->open_entry(peer_address_type, peer_address);
@@ -1150,7 +1149,7 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_connected_(
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_disconnected_(
     connection_handle_t connection,
-    ::Gap::DisconnectionReason_t reason
+    disconnection_reason_t reason
 ) {
 #if BLE_FEATURE_SECURITY
     MBED_ASSERT(_db);

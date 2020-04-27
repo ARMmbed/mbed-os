@@ -394,7 +394,7 @@ ble_error_t Gap<EventHandler>::reject_connection_parameter_request_(
 template<class EventHandler>
 ble_error_t Gap<EventHandler>::disconnect_(
     connection_handle_t connection,
-    disconnection_reason_t disconnection_reason
+    local_disconnection_reason_t disconnection_reason
 )
 {
     DmConnClose(

@@ -27,7 +27,8 @@
 * Service:  https://developer.bluetooth.org/gatt/services/Pages/ServiceViewer.aspx?u=org.bluetooth.service.link_loss.xml
 * Alertness Level Char: https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.alert_level.xml
 */
-class LinkLossService {
+class LinkLossService : public ble::Gap::EventHandler
+{
 public:
     enum AlertLevel_t {
         NO_ALERT   = 0,
@@ -59,7 +60,7 @@ public:
         ble.gattServer().addService(linkLossService);
         serviceAdded = true;
 
-        ble.gap().onDisconnection(this, &LinkLossService::onDisconnectionFilter);
+        ble.gap().setEventHandler(this);
         ble.gattServer().onDataWritten(this, &LinkLossService::onDataWritten);
     }
 
@@ -90,7 +91,7 @@ protected:
         }
     }
 
-    void onDisconnectionFilter(const Gap::DisconnectionCallbackParams_t *params) {
+    virtual void onDisconnectionComplete(const ble::DisconnectionCompleteEvent &) {
         if (alertLevel != NO_ALERT) {
             callback(alertLevel);
         }

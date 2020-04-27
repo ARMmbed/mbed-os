@@ -71,7 +71,7 @@ ble_error_t SecurityManager<Impl>::purgeAllBondingState(void) {
 
 template <class Impl>
 ble_error_t SecurityManager<Impl>::generateWhitelistFromBondTable(
-    ::Gap::Whitelist_t *whitelist
+    ::ble::whitelist_t *whitelist
 ) const {
     return impl()->generateWhitelistFromBondTable_(whitelist);
 }
@@ -278,7 +278,7 @@ ble_error_t SecurityManager<Impl>::purgeAllBondingState_(void) {
 
 template <class Impl>
 ble_error_t SecurityManager<Impl>::generateWhitelistFromBondTable_(
-    ::Gap::Whitelist_t *whitelist
+    ::ble::whitelist_t *whitelist
 ) const {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }

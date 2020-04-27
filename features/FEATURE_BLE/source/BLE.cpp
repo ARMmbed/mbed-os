@@ -18,7 +18,6 @@
 #include "ble/BLE.h"
 #include "ble/BLEInstanceBase.h"
 #include "platform/mbed_critical.h"
-#include "Deprecated.h"
 
 #if defined(TARGET_OTA_ENABLED)
 #include "ble/services/DFUService.h"

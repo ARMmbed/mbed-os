@@ -20,7 +20,6 @@
 #include <algorithm>
 
 #include "BLETypes.h"
-#include "BLEProtocol.h"
 #include "blecommon.h"
 #include "SafeEnum.h"
 

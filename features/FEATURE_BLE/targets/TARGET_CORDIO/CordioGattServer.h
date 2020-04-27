@@ -142,13 +142,14 @@ public:
     /**
      * @see ::GattServer::getPreferredConnectionParams
      */
-    ::Gap::ConnectionParams_t getPreferredConnectionParams();
+    ::Gap::PreferredConnectionParams_t getPreferredConnectionParams();
 
     /**
      * @see ::GattServer::setPreferredConnectionParams
      */
-    void setPreferredConnectionParams(const ::Gap::ConnectionParams_t& params);
+    void setPreferredConnectionParams(const ::Gap::PreferredConnectionParams_t& params);
 
+#if 0 // Disabled until reworked and reintroduced to GattServer API
     /**
      * @see ::GattServer::setDeviceName
      */
@@ -168,6 +169,8 @@ public:
      * @see ::GattServer::getAppearance
      */
     GapAdvertisingData::Appearance getAppearance();
+
+#endif // Disabled until reworked and reintroduced to GattServer API
 
     /**
      * @see ::GattServer::reset

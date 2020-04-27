@@ -228,7 +228,9 @@ struct hci_error_code_t : SafeEnum<hci_error_code_t, uint8_t> {
 };
 
 
-typedef ble::local_disconnection_reason_t disconnection_reason_t;
+typedef ble::local_disconnection_reason_t local_disconnection_reason_t;
+
+typedef ble::disconnection_reason_t disconnection_reason_t;
 
 typedef ble::advertising_filter_policy_t advertising_filter_policy_t;
 

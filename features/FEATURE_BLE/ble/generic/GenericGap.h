@@ -19,7 +19,6 @@
 
 #include <algorithm>
 
-#include "ble/BLEProtocol.h"
 #include "ble/Gap.h"
 #include "ble/pal/PalGap.h"
 #include "ble/pal/GapEvents.h"
@@ -28,7 +27,6 @@
 #include "ble/pal/GenericAccessService.h"
 #include "ble/pal/EventQueue.h"
 #include "ble/pal/ConnectionEventMonitor.h"
-#include "ble/pal/Deprecated.h"
 
 #include "drivers/LowPowerTimeout.h"
 #include "drivers/LowPowerTicker.h"
@@ -49,7 +47,7 @@ template<
     class ConnectionEventMonitorEventHandler
 >
 class GenericGap :
-    public interface::LegacyGap<
+    public interface::Gap<
         GenericGap<TPalGap, PalSecurityManager, ConnectionEventMonitorEventHandler>
     >,
     public pal::ConnectionEventMonitor<
@@ -60,38 +58,24 @@ class GenericGap :
     >
 {
     // Typedef of base and companion classes .
-    typedef ::ble::interface::LegacyGap<GenericGap> LegacyGap;
     typedef ::ble::interface::Gap<GenericGap> Gap;
     typedef pal::ConnectionEventMonitor<ConnectionEventMonitorEventHandler> ConnectionEventMonitor;
     typedef TPalGap<GenericGap> PalGap;
     typedef pal::GapEventHandler<GenericGap> PalGapEventHandler;
 
     // Friendship with base classes
-    friend LegacyGap;
     friend Gap;
     friend ConnectionEventMonitor;
     friend pal::GapEventHandler<GenericGap>;
     friend PalGap;
 
     // Imports from LegacyGap
-    using LegacyGap::_eventHandler;
-    using LegacyGap::default_peripheral_privacy_configuration;
-    using LegacyGap::default_central_privacy_configuration;
-    using LegacyGap::state;
+    using Gap::_eventHandler;
+    using Gap::default_peripheral_privacy_configuration;
+    using Gap::default_central_privacy_configuration;
 
-    typedef typename LegacyGap::Address_t Address_t;
-    typedef typename LegacyGap::PeerAddressType_t PeerAddressType_t;
-    typedef typename LegacyGap::ConnectionParams_t ConnectionParams_t;
-    typedef typename LegacyGap::Handle_t Handle_t;
-    typedef typename LegacyGap::CodedSymbolPerBit_t CodedSymbolPerBit_t;
-    typedef typename LegacyGap::Whitelist_t Whitelist_t;
-    typedef typename LegacyGap::DisconnectionReason_t DisconnectionReason_t;
-    typedef typename LegacyGap::AdvertisingPolicyMode_t AdvertisingPolicyMode_t;
-    typedef typename LegacyGap::ScanningPolicyMode_t ScanningPolicyMode_t;
-    typedef typename LegacyGap::InitiatorPolicyMode_t InitiatorPolicyMode_t;
-    typedef typename LegacyGap::PeripheralPrivacyConfiguration_t PeripheralPrivacyConfiguration_t;
-    typedef typename LegacyGap::CentralPrivacyConfiguration_t CentralPrivacyConfiguration_t;
-    typedef typename LegacyGap::Role_t Role_t;
+    typedef typename ble::whitelist_t whitelist_t;
+    typedef typename Gap::PreferredConnectionParams_t PreferredConnectionParams_t;
 
     // Imports from Gap
 #if BLE_ROLE_BROADCASTER
@@ -99,8 +83,6 @@ class GenericGap :
     using ble::interface::Gap<GenericGap>::getMaxAdvertisingDataLength;
 #endif // BLE_ROLE_BROADCASTER
     using ble::interface::Gap<GenericGap>::isFeatureSupported;
-    using ble::interface::Gap<GenericGap>::useVersionOneAPI;
-    using ble::interface::Gap<GenericGap>::useVersionTwoAPI;
 
     // Imports from PalGap EventHandler
     using PalGapEventHandler::on_scan_timeout;
@@ -299,14 +281,6 @@ public:
     uint8_t getMaxPeriodicAdvertiserListSize_();
 
     /**
-     * @see Gap::setAddress
-     */
-    ble_error_t setAddress_(
-        BLEProtocol::AddressType_t type,
-        const BLEProtocol::AddressBytes_t address
-    );
-
-    /**
      * @see Gap::setRandomStaticAddress
      */
     ble_error_t setRandomStaticAddress_(const ble::address_t& address);
@@ -315,54 +289,14 @@ public:
      * @see Gap::getAddress
      */
     ble_error_t getAddress_(
-        BLEProtocol::AddressType_t *type,
-        BLEProtocol::AddressBytes_t address
+        own_address_type_t &type,
+        address_t &address
     );
-
-    /**
-     * @see Gap::getMinAdvertisingInterval
-     */
-    uint16_t getMinAdvertisingInterval_() const;
-
-    /**
-     * @see Gap::getMinNonConnectableAdvertisingInterval
-     */
-    uint16_t getMinNonConnectableAdvertisingInterval_() const;
-
-    /**
-     * @see Gap::getMaxAdvertisingInterval
-     */
-    uint16_t getMaxAdvertisingInterval_() const;
-
-    /**
-     * @see Gap::stopAdvertising
-     */
-    ble_error_t stopAdvertising_();
 
     /**
      * @see Gap::stopScan
      */
     ble_error_t stopScan_();
-
-    /**
-     * @see Gap::connect
-     */
-    ble_error_t connect_(
-        const BLEProtocol::AddressBytes_t peerAddr,
-        PeerAddressType_t peerAddrType,
-        const ConnectionParams_t *connectionParams,
-        const GapScanningParams *scanParams
-    );
-
-    /**
-     * @see Gap::connect
-     */
-    ble_error_t connect_(
-        const BLEProtocol::AddressBytes_t peerAddr,
-        BLEProtocol::AddressType_t peerAddrType,
-        const ConnectionParams_t *connectionParams,
-        const GapScanningParams *scanParams
-    );
 
     /**
      * @see Gap::connect
@@ -409,7 +343,7 @@ public:
     /**
      * @see Gap::readPhy
      */
-    ble_error_t readPhy_(Handle_t connection);
+    ble_error_t readPhy_(connection_handle_t connection);
 
     /**
     * @see Gap::setPreferredPhys
@@ -423,81 +357,16 @@ public:
     * @see Gap::setPhy
     */
     ble_error_t setPhy_(
-        Handle_t connection,
+        connection_handle_t connection,
         const phy_set_t *txPhys,
         const phy_set_t *rxPhys,
-        CodedSymbolPerBit_t codedSymbol
+        ble::coded_symbol_per_bit_t codedSymbol
     );
 
     ble_error_t disconnect_(
         connection_handle_t connectionHandle,
         local_disconnection_reason_t reason
     );
-
-    /**
-     * @see Gap::disconnect
-     */
-    ble_error_t disconnect_(
-        Handle_t connectionHandle,
-        DisconnectionReason_t reason
-    );
-
-    /**
-     * @see Gap::disconnect
-     */
-    ble_error_t disconnect_(DisconnectionReason_t reason);
-
-    /**
-     * @see Gap::updateConnectionParams
-     */
-    ble_error_t updateConnectionParams_(
-        Handle_t handle,
-        const ConnectionParams_t *params
-    );
-
-    /**
-     * @see Gap::getPreferredConnectionParams
-     */
-    ble_error_t getPreferredConnectionParams_(
-        ConnectionParams_t *params
-    );
-
-    /**
-     * @see Gap::setPreferredConnectionParams
-     */
-    ble_error_t setPreferredConnectionParams_(
-        const ConnectionParams_t *params
-    );
-
-    /**
-     * @see Gap::setDeviceName
-     */
-    ble_error_t setDeviceName_(const uint8_t *deviceName);
-
-    /**
-     * @see Gap::getDeviceName
-     */
-    ble_error_t getDeviceName_(uint8_t *deviceName, unsigned *lengthP);
-
-    /**
-     * @see Gap::setAppearance
-     */
-    ble_error_t setAppearance_(GapAdvertisingData::Appearance appearance);
-
-    /**
-     * @see Gap::getAppearance
-     */
-    ble_error_t getAppearance_(GapAdvertisingData::Appearance *appearanceP);
-
-    /**
-     * @see Gap::setTxPower
-     */
-    ble_error_t setTxPower_(int8_t txPower);
-
-    /**
-     * @see Gap::getPermittedTxPowerValues
-     */
-    void getPermittedTxPowerValues_(const int8_t **valueArrayPP, size_t *countP);
 
     /**
      * @see Gap::getMaxWhitelistSize
@@ -507,126 +376,47 @@ public:
     /**
      * @see Gap::getWhitelist
      */
-    ble_error_t getWhitelist_(Whitelist_t &whitelist) const;
+    ble_error_t getWhitelist_(whitelist_t &whitelist) const;
 
     /**
      * @see Gap::setWhitelist
      */
-    ble_error_t setWhitelist_(const Whitelist_t &whitelist);
-
-    /**
-     * @see Gap::setAdvertisingPolicyMode
-     */
-    ble_error_t setAdvertisingPolicyMode_(AdvertisingPolicyMode_t mode);
-
-    /**
-     * @see Gap::setScanningPolicyMode
-     */
-    ble_error_t setScanningPolicyMode_(ScanningPolicyMode_t mode);
-
-    /**
-     * @see Gap::setInitiatorPolicyMode
-     */
-    ble_error_t setInitiatorPolicyMode_(InitiatorPolicyMode_t mode);
-
-    /**
-     * @see Gap::getAdvertisingPolicyMode
-     */
-    AdvertisingPolicyMode_t getAdvertisingPolicyMode_(void) const;
-
-    /**
-     * @see Gap::getScanningPolicyMode
-     */
-    ScanningPolicyMode_t getScanningPolicyMode_(void) const;
-
-    /**
-     * @see Gap::getInitiatorPolicyMode
-     */
-    InitiatorPolicyMode_t getInitiatorPolicyMode_(void) const;
-
-    /**
-     * @see Gap::startRadioScan
-     */
-    ble_error_t startRadioScan_(const GapScanningParams &scanningParams);
-
-    /**
-     * @see Gap::initRadioNotification
-     */
-    ble_error_t initRadioNotification_(void);
+    ble_error_t setWhitelist_(const whitelist_t &whitelist);
 
     /**
      * @see Gap::enablePrivacy
      */
     ble_error_t enablePrivacy_(bool enable);
 
-    /**
-     * @see Gap::setPeripheralPrivacyConfiguration
-     */
+
     ble_error_t setPeripheralPrivacyConfiguration_(
-        const PeripheralPrivacyConfiguration_t *configuration
+        const peripheral_privacy_configuration_t *configuration
     );
-
-    /**
-     * @see Gap::getPeripheralPrivacyConfiguration
-     */
     ble_error_t getPeripheralPrivacyConfiguration_(
-        PeripheralPrivacyConfiguration_t *configuration
+        peripheral_privacy_configuration_t *configuration
     );
-
-    /**
-     * @see Gap::setCentralPrivacyConfiguration
-     */
     ble_error_t setCentralPrivacyConfiguration_(
-        const CentralPrivacyConfiguration_t *configuration
+        const central_privacy_configuration_t *configuration
     );
-
-    /**
-     * @see Gap::getCentralPrivacyConfiguration
-     */
     ble_error_t getCentralPrivacyConfiguration_(
-        CentralPrivacyConfiguration_t *configuration
+        central_privacy_configuration_t *configuration
     );
 
-    /**
-     * @see Gap::setAdvertisingData
-     */
-    ble_error_t setAdvertisingData_(
-        const GapAdvertisingData &advData,
-        const GapAdvertisingData &scanResponse
+    ble_error_t getAddress(
+        own_address_type_t &typeP,
+        address_t &address
     );
 
-    /**
-     * @see Gap::startAdvertising
-     */
-    ble_error_t startAdvertising_(const GapAdvertisingParams &params);
+    static ble_error_t getRandomAddressType(
+        const ble::address_t address,
+        ble::random_address_type_t *addressType
+    );
 
     /**
      * @see Gap::reset
      */
     ble_error_t reset_(void);
 
-    /**
-     * @copydoc ::Gap::processConnectionEvent
-     */
-    void processConnectionEvent(
-        Handle_t handle,
-        Role_t role,
-        peer_address_type_t peerAddrType,
-        const BLEProtocol::AddressBytes_t peerAddr,
-        BLEProtocol::AddressType_t ownAddrType,
-        const BLEProtocol::AddressBytes_t ownAddr,
-        const ConnectionParams_t *connectionParams,
-        const uint8_t *peerResolvableAddr,
-        const uint8_t *localResolvableAddr
-    );
-
-    /**
-     * @copydoc ::Gap::processDisconnectionEvent
-     */
-    void processDisconnectionEvent(
-        Handle_t handle,
-        DisconnectionReason_t reason
-    );
 
 private:
     ble_error_t setAdvertisingData(
@@ -635,8 +425,6 @@ private:
         bool minimiseFragmentation,
         bool scan_response
     );
-
-    void process_scan_timeout();
 
     void on_advertising_timeout();
 
@@ -679,15 +467,11 @@ private:
 
     void on_address_rotation_timeout();
 
-    void useVersionOneAPI_() const;
-
-    void useVersionTwoAPI_() const;
-
     /* implements pal::Gap::EventHandler */
 private:
     void on_read_phy_(
         pal::hci_error_code_t hci_status,
-        Handle_t connection_handle,
+        connection_handle_t connection_handle,
         phy_t tx_phy,
         phy_t rx_phy
     );
@@ -700,7 +484,7 @@ private:
 
     void on_phy_update_complete_(
         pal::hci_error_code_t hci_status,
-        Handle_t connection_handle,
+        connection_handle_t connection_handle,
         phy_t tx_phy,
         phy_t rx_phy
     );
@@ -794,16 +578,16 @@ private:
     PalGap &_pal_gap;
     pal::GenericAccessService &_gap_service;
     PalSecurityManager &_pal_sm;
-    BLEProtocol::AddressType_t _address_type;
+    ble::own_address_type_t _address_type;
     ble::address_t _address;
     pal::initiator_policy_t _initiator_policy_mode;
     pal::scanning_filter_policy_t _scanning_filter_policy;
     pal::advertising_filter_policy_t _advertising_filter_policy;
-    mutable Whitelist_t _whitelist;
+    mutable whitelist_t _whitelist;
 
     bool _privacy_enabled;
-    PeripheralPrivacyConfiguration_t _peripheral_privacy_configuration;
-    CentralPrivacyConfiguration_t _central_privacy_configuration;
+    peripheral_privacy_configuration_t _peripheral_privacy_configuration;
+    central_privacy_configuration_t _central_privacy_configuration;
     ble::address_t _random_static_identity_address;
     bool _random_address_rotating;
 
@@ -864,9 +648,6 @@ private:
     BitArray<MAX_ADVERTISING_SETS> _connectable_payload_size_exceeded;
     BitArray<MAX_ADVERTISING_SETS> _set_is_connectable;
 
-    // deprecation flags
-    mutable bool _deprecated_scan_api_used : 1;
-    mutable bool _non_deprecated_scan_api_used : 1;
     bool _user_manage_connection_parameter_requests : 1;
 
 private:
@@ -876,6 +657,8 @@ private:
     );
 
     bool is_extended_advertising_available();
+
+    void prepare_legacy_advertising_set();
 };
 
 } // namespace generic

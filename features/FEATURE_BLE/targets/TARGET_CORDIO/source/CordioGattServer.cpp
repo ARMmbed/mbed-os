@@ -800,9 +800,9 @@ bool GattServer::isOnDataReadAvailable_() const
     return true;
 }
 
-::Gap::ConnectionParams_t GattServer::getPreferredConnectionParams()
+::Gap::PreferredConnectionParams_t GattServer::getPreferredConnectionParams()
 {
-    ::Gap::ConnectionParams_t params = { 0 };
+    ::Gap::PreferredConnectionParams_t params = { 0 };
     memcpy(&params.minConnectionInterval, generic_access_service.ppcp, 2);
     memcpy(&params.maxConnectionInterval, generic_access_service.ppcp + 2, 2);
     memcpy(&params.slaveLatency, generic_access_service.ppcp + 4, 2);
@@ -810,13 +810,15 @@ bool GattServer::isOnDataReadAvailable_() const
     return params;
 }
 
-void GattServer::setPreferredConnectionParams(const ::Gap::ConnectionParams_t& params)
+void GattServer::setPreferredConnectionParams(const ::Gap::PreferredConnectionParams_t& params)
 {
     memcpy(generic_access_service.ppcp, &params.minConnectionInterval, 2);
     memcpy(generic_access_service.ppcp + 2, &params.maxConnectionInterval, 2);
     memcpy(generic_access_service.ppcp + 4, &params.slaveLatency, 2);
     memcpy(generic_access_service.ppcp + 6, &params.connectionSupervisionTimeout, 2);
 }
+
+#if 0 // Disabled until reworked and reintroduced to GattServer API
 
 ble_error_t GattServer::setDeviceName(const uint8_t *deviceName)
 {
@@ -858,6 +860,8 @@ GapAdvertisingData::Appearance GattServer::getAppearance()
 {
     return (GapAdvertisingData::Appearance) generic_access_service.appearance;
 }
+
+#endif // Disabled until reworked and reintroduced to GattServer API
 
 ble_error_t GattServer::reset_(void)
 {
@@ -1131,7 +1135,7 @@ void GattServer::add_generic_access_service()
     current_attribute->permissions = ATTS_PERMIT_READ;
 
 
-    // peripheral prefered connection parameters declaration
+    // peripheral preferred connection parameters declaration
     currentHandle += 2; // note: incremented by two to get a pointer to the value handle
     ++current_attribute;
 
@@ -1149,7 +1153,7 @@ void GattServer::add_generic_access_service()
     current_attribute->settings = 0;
     current_attribute->permissions = ATTS_PERMIT_READ;
 
-    // peripheral prefered connection parameters value
+    // peripheral preferred connection parameters value
     ++current_attribute;
     const uint8_t default_ppcp_value[] = {
         0xFF, 0xFF, // no specific min connection interval

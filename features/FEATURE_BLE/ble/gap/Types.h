@@ -578,6 +578,12 @@ struct own_address_type_t : SafeEnum<own_address_type_t, uint8_t> {
     own_address_type_t(type value) : SafeEnum(value)
     {
     }
+
+    /**
+     * Default initialization of own_address_type_t.
+     */
+    own_address_type_t() :
+        SafeEnum<own_address_type_t, uint8_t>(PUBLIC) { }
 };
 
 /**
@@ -854,7 +860,20 @@ struct disconnection_reason_t : SafeEnum<disconnection_reason_t, uint8_t> {
     disconnection_reason_t(type value) : SafeEnum(value)
     {
     }
+
+#if !defined(DOXYGEN_ONLY)
+    /**
+     * Construct a new instance of disconnection_reason_t.
+     *
+     * @param value The value of the local_disconnection_reason_t created.
+     *
+     * @note This should only be used for casting raw values from HCI.
+     */
+    explicit disconnection_reason_t(uint8_t value) : SafeEnum(value)
+    {
+    }
 };
+#endif // !defined(DOXYGEN_ONLY)
 
 /**
  * Privacy Configuration of the peripheral role.
@@ -901,9 +920,6 @@ struct peripheral_privacy_configuration_t {
         PERFORM_AUTHENTICATION_PROCEDURE
     };
 
-    MBED_DEPRECATED_SINCE("mbed-os-5.11", "Use resolution_strategy_t instead.")
-    typedef resolution_strategy_t ResolutionStrategy;
-
     /**
      * Connection strategy to use when a connection request contains a
      * private resolvable address.
@@ -917,7 +933,7 @@ struct peripheral_privacy_configuration_t {
  * @note This configuration is also used when the local device operates as
  * an observer.
  */
-struct central_privay_configuration_t {
+struct central_privacy_configuration_t {
     /**
      * Indicates if nonresolvable random address should be used when the
      * central or observer sends scan request packets.
@@ -953,9 +969,6 @@ struct central_privay_configuration_t {
          */
         RESOLVE_AND_FILTER
     };
-
-    MBED_DEPRECATED_SINCE("mbed-os-5.11", "Use resolution_strategy_t instead.")
-    typedef resolution_strategy_t ResolutionStrategy;
 
     /**
      * Resolution strategy applied to advertising packets received by the

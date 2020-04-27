@@ -315,6 +315,7 @@ ble_error_t Gap<Impl>::cancelConnect()
 #endif
 
 #if BLE_FEATURE_CONNECTABLE
+
 template<class Impl>
 ble_error_t Gap<Impl>::updateConnectionParameters(
     connection_handle_t connectionHandle,
@@ -419,24 +420,9 @@ ble_error_t Gap<Impl>::setPhy(
 #endif // BLE_FEATURE_PHY_MANAGEMENT
 
 template<class Impl>
-void Gap<Impl>::useVersionOneAPI() const
-{
-    return impl()->useVersionOneAPI_();
-}
-
-template<class Impl>
-void Gap<Impl>::useVersionTwoAPI() const
-{
-    return impl()->useVersionTwoAPI_();
-}
-
-template<class Impl>
 Gap<Impl>::Gap() : _eventHandler(NULL)
 {
 }
-
-
-/* -------------------- Future deprecation ------------------------- */
 
 template<class Impl>
 const peripheral_privacy_configuration_t Gap<Impl>::default_peripheral_privacy_configuration = {
@@ -445,9 +431,9 @@ const peripheral_privacy_configuration_t Gap<Impl>::default_peripheral_privacy_c
 };
 
 template<class Impl>
-const central_privay_configuration_t Gap<Impl>::default_central_privacy_configuration = {
+const central_privacy_configuration_t Gap<Impl>::default_central_privacy_configuration = {
     /* use_non_resolvable_random_address */ false,
-    /* resolution_strategy */ central_privay_configuration_t::RESOLVE_AND_FORWARD
+    /* resolution_strategy */ central_privacy_configuration_t::RESOLVE_AND_FORWARD
 };
 
 #if BLE_FEATURE_PRIVACY
@@ -478,7 +464,7 @@ ble_error_t Gap<Impl>::getPeripheralPrivacyConfiguration(
 #if BLE_ROLE_OBSERVER
 template<class Impl>
 ble_error_t Gap<Impl>::setCentralPrivacyConfiguration(
-    const central_privay_configuration_t *configuration
+    const central_privacy_configuration_t *configuration
 )
 {
     return impl()->setCentralPrivacyConfiguration_(configuration);
@@ -486,7 +472,7 @@ ble_error_t Gap<Impl>::setCentralPrivacyConfiguration(
 
 template<class Impl>
 ble_error_t Gap<Impl>::getCentralPrivacyConfiguration(
-    central_privay_configuration_t *configuration
+    central_privacy_configuration_t *configuration
 )
 {
     return impl()->getCentralPrivacyConfiguration_(configuration);
@@ -498,6 +484,30 @@ template<class Impl>
 ble_error_t Gap<Impl>::setRandomStaticAddress(const ble::address_t& address)
 {
     return impl()->setRandomStaticAddress_(address);
+}
+
+
+#if BLE_FEATURE_WHITELIST
+template<class Impl>
+uint8_t Gap<Impl>::getMaxWhitelistSize(void) const {
+    return impl()->getMaxWhitelistSize_();
+}
+
+template<class Impl>
+ble_error_t Gap<Impl>::getWhitelist(whitelist_t &whitelist) const {
+    return impl()->getWhitelist_(whitelist);
+}
+
+template<class Impl>
+ble_error_t Gap<Impl>::setWhitelist(const whitelist_t &whitelist) {
+    return impl()->setWhitelist_(whitelist);
+}
+#endif // BLE_FEATURE_WHITELIST
+
+template<class Impl>
+ble_error_t Gap<Impl>::reset(void)
+{
+    return impl()->reset_();
 }
 
 // -----------------------------------------------------------------------------
@@ -820,16 +830,6 @@ ble_error_t Gap<Impl>::setPhy_(
 }
 
 template<class Impl>
-void Gap<Impl>::useVersionOneAPI_() const
-{
-}
-
-template<class Impl>
-void Gap<Impl>::useVersionTwoAPI_() const
-{
-}
-
-template<class Impl>
 ble_error_t Gap<Impl>::enablePrivacy_(bool enable)
 {
     return BLE_ERROR_NOT_IMPLEMENTED;
@@ -853,7 +853,7 @@ ble_error_t Gap<Impl>::getPeripheralPrivacyConfiguration_(
 
 template<class Impl>
 ble_error_t Gap<Impl>::setCentralPrivacyConfiguration_(
-    const central_privay_configuration_t *configuration
+    const central_privacy_configuration_t *configuration
 )
 {
     return BLE_ERROR_NOT_IMPLEMENTED;
@@ -861,10 +861,30 @@ ble_error_t Gap<Impl>::setCentralPrivacyConfiguration_(
 
 template<class Impl>
 ble_error_t Gap<Impl>::getCentralPrivacyConfiguration_(
-    central_privay_configuration_t *configuration
+    central_privacy_configuration_t *configuration
 )
 {
     return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+template<class Impl>
+ble_error_t Gap<Impl>::getAddress(
+    own_address_type_t &typeP,
+    address_t &address
+) {
+    return impl()->getAddress_(typeP, address);
+}
+
+template<class Impl>
+ble_error_t Gap<Impl>::reset_(void)
+{
+    /* Notify that the instance is about to shut down */
+    shutdownCallChain.call(this);
+    shutdownCallChain.clear();
+
+    this->_eventHandler = NULL;
+
+    return BLE_ERROR_NONE;
 }
 
 template<class Impl>

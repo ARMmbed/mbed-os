@@ -240,17 +240,6 @@ public:
     virtual const SecurityManager &getSecurityManager(void) const = 0;
 #endif // BLE_FEATURE_SECURITY
 
-    /**
-     * Process pending events present in the vendor subsystem; then, put the MCU
-     * to sleep until an external source wakes it up.
-     *
-     * @attention This function is deprecated in the BLE class. It will be
-     * removed from this interface once it is removed from BLE.
-     *
-     * @see BLE::waitForEvent() BLE::processEvents()
-     */
-    virtual void waitForEvent(void) = 0;
-
 private:
     // this class is not a value type.
     // prohibit copy construction and copy assignement
