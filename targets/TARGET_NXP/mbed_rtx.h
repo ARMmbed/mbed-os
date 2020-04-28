@@ -47,12 +47,6 @@
 #define INITIAL_SP              (0x10008000UL)
 #endif
 
-#elif defined(TARGET_SSCI824)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x10002000UL)
-#endif
-
 #elif defined(TARGET_LPC54114_M4)
 
 #ifndef INITIAL_SP
