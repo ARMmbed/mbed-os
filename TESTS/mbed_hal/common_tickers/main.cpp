@@ -54,6 +54,11 @@ extern "C" {
 
 #define MAX_FUNC_EXEC_TIME_US 20
 #define DELTA_FUNC_EXEC_TIME_US 5
+#if defined(__MICROLIB)
+#define ADD_EXTRA_DELTA_FUNC_EXEC_TIME_US 25
+#else
+#define ADD_EXTRA_DELTA_FUNC_EXEC_TIME_US 0
+#endif
 #define NUM_OF_CALLS 100
 
 #define NUM_OF_CYCLES 100000
@@ -452,6 +457,7 @@ void ticker_increment_test(void)
 }
 
 /* Test that common ticker functions complete with the required amount of time. */
+template<int extra_latency>
 void ticker_speed_test(void)
 {
     int counter = NUM_OF_CALLS;
@@ -477,7 +483,7 @@ void ticker_speed_test(void)
     }
     stop = us_ticker_read();
 
-    TEST_ASSERT(diff_us(start, stop, us_ticker_info) < (NUM_OF_CALLS * (MAX_FUNC_EXEC_TIME_US + DELTA_FUNC_EXEC_TIME_US)));
+    TEST_ASSERT(diff_us(start, stop, us_ticker_info) < (NUM_OF_CALLS * (MAX_FUNC_EXEC_TIME_US + DELTA_FUNC_EXEC_TIME_US + extra_latency)));
 
     /* ---- Test ticker_set_interrupt function. ---- */
     counter = NUM_OF_CALLS;
@@ -510,7 +516,7 @@ void ticker_speed_test(void)
     }
     stop = us_ticker_read();
 
-    TEST_ASSERT(diff_us(start, stop, us_ticker_info) < (NUM_OF_CALLS * (MAX_FUNC_EXEC_TIME_US + DELTA_FUNC_EXEC_TIME_US)));
+    TEST_ASSERT(diff_us(start, stop, us_ticker_info) < (NUM_OF_CALLS * (MAX_FUNC_EXEC_TIME_US + DELTA_FUNC_EXEC_TIME_US + extra_latency)));
 
 }
 
@@ -611,7 +617,7 @@ Case cases[] = {
     Case("Microsecond ticker fire interrupt", us_ticker_setup, ticker_fire_now_test, us_ticker_teardown),
     Case("Microsecond ticker overflow test", us_ticker_setup, ticker_overflow_test, us_ticker_teardown),
     Case("Microsecond ticker increment test", us_ticker_setup, ticker_increment_test, us_ticker_teardown),
-    Case("Microsecond ticker speed test", us_ticker_setup, ticker_speed_test, us_ticker_teardown),
+    Case("Microsecond ticker speed test", us_ticker_setup, ticker_speed_test<0>, us_ticker_teardown),
 #if DEVICE_LPTICKER
     Case("lp ticker init is safe to call repeatedly", lp_ticker_setup, ticker_init_test, lp_ticker_teardown),
     Case("lp ticker info test", lp_ticker_setup, ticker_info_test, lp_ticker_teardown),
@@ -621,7 +627,7 @@ Case cases[] = {
     Case("lp ticker fire interrupt", lp_ticker_setup, ticker_fire_now_test, lp_ticker_teardown),
     Case("lp ticker overflow test", lp_ticker_setup, ticker_overflow_test, lp_ticker_teardown),
     Case("lp ticker increment test", lp_ticker_setup, ticker_increment_test, lp_ticker_teardown),
-    Case("lp ticker speed test", lp_ticker_setup, ticker_speed_test, lp_ticker_teardown),
+    Case("lp ticker speed test", lp_ticker_setup, ticker_speed_test<ADD_EXTRA_DELTA_FUNC_EXEC_TIME_US>, lp_ticker_teardown),
 #endif
 };
 
