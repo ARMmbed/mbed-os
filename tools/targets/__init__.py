@@ -573,14 +573,6 @@ class MCU_NRF51Code(object):
             binh.write_hex_file(fileout, write_start_addr=False)
 
 
-class NCS36510TargetCode(object):
-    @staticmethod
-    def ncs36510_addfib(t_self, resources, elf, binf):
-        from tools.targets.NCS import add_fib_at_start
-        print("binf ", binf)
-        add_fib_at_start(binf[:-4])
-
-
 class RTL8195ACode(object):
     """RTL8195A Hooks"""
     @staticmethod

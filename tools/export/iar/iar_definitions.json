@@ -246,9 +246,6 @@
         "CExtraOptions": "--drv_vector_table_base=0x0",
         "CMSISDAPJtagSpeedList": 10
     },
-    "NCS36510":{
-        "OGChipSelectEditMenu": "NCS36510\tONSemiconductor NCS36510"
-    },
     "NANO130KE3BN": {
         "OGChipSelectEditMenu": "Nano100BN series\tNuvoton Nano100BN series (Nano100BN,Nano110BN,Nano120BN,Nano130BN)",
         "IlinkOverrideProgramEntryLabel": 1,

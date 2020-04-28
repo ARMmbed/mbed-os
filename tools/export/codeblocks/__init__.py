@@ -35,7 +35,6 @@ class CodeBlocks(GccArm):
     PREPROCESS_ASM = False
 
     POST_BINARY_WHITELIST = set([
-        "NCS36510TargetCode.ncs36510_addfib",
         "PSOC6Code.complete"
     ])
 

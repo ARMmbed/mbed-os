@@ -135,7 +135,6 @@ class Uvision(Exporter):
         "MCU_NRF51Code.binary_hook",
         "LPCTargetCode.lpc_patch",
         "MTSCode.combine_bins_mts_dragonfly",
-        "NCS36510TargetCode.ncs36510_addfib",
         "LPC55S69Code.binary_hook",
         "M2351Code.merge_secure"
     ])

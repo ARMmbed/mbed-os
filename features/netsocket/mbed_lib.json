@@ -76,9 +76,6 @@
         }
     },
     "target_overrides": {
-        "NCS36510": {
-            "nsapi.default-mesh-type": "LOWPAN"
-        },
         "TB_SENSE_12": {
             "nsapi.default-mesh-type": "LOWPAN"
         }
