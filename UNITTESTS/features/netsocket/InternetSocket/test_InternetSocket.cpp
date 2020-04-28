@@ -185,6 +185,18 @@ TEST_F(TestInternetSocket, modify_multicast_group)
     EXPECT_EQ(socket->leave_multicast_group(a), NSAPI_ERROR_UNSUPPORTED);
 }
 
+TEST_F(TestInternetSocket, network_property)
+{
+    SocketAddress a("fd00:db8::ff", 1024);
+    uint32_t rtt_estimate;
+    uint16_t stagger_min, stagger_max, stagger_rand;
+    stack.return_value = NSAPI_ERROR_OK;
+    socket->open(&stack);
+    EXPECT_EQ(socket->get_rtt_estimate_to_address(a, &rtt_estimate), NSAPI_ERROR_UNSUPPORTED);
+    EXPECT_EQ(socket->get_rtt_estimate_to_address(a, NULL), NSAPI_ERROR_PARAMETER);
+    EXPECT_EQ(socket->get_stagger_estimate_to_address(a, 1, &stagger_min, &stagger_max, &stagger_rand), NSAPI_ERROR_UNSUPPORTED);
+}
+
 // set_blocking and set_timeout are tested within TCPSocket.
 
 TEST_F(TestInternetSocket, bind_no_socket)
