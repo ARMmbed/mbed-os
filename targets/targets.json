@@ -538,48 +538,6 @@
             "1235"
         ]
     },
-    "LPC11U37H_401": {
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "core": "Cortex-M0",
-        "default_toolchain": "uARM",
-        "extra_labels": [
-            "NXP",
-            "LPC11UXX"
-        ],
-        "macros": [
-            "CMSIS_VECTAB_VIRTUAL",
-            "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
-        ],
-        "supported_toolchains": [
-            "ARM",
-            "uARM",
-            "GCC_ARM"
-        ],
-        "inherits": [
-            "LPCTarget"
-        ],
-        "device_has": [
-            "ANALOGIN",
-            "I2C",
-            "I2CSLAVE",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "SERIAL",
-            "SLEEP",
-            "SPI",
-            "SPISLAVE"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "LPC11U37HFBD64/401"
-    },
     "KL05Z": {
         "supported_form_factors": [
             "ARDUINO"

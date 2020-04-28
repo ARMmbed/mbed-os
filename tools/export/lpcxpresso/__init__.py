@@ -34,7 +34,6 @@ class LPCXpresso(Exporter):
         'ARCH_PRO',
         'LPC11U68',
         'LPCCAPPUCCINO',
-        'LPC11U37H_401',
     ]
 
     def generate(self):
