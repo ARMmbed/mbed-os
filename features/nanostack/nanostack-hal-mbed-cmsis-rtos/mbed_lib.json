@@ -16,6 +16,14 @@
         "event-loop-use-mbed-events": {
             "help": "Use Mbed OS global event queue for Nanostack event loop, rather than our own thread.",
             "value": false
+        },
+        "use-kvstore": {
+            "help": "Use Mbed OS KVStore API instead of filesystem. Default: false",
+            "value": false
+        },
+        "kvstore-path": {
+            "help": "Path of KVStore partition. String, Default \"/kv/\"",
+            "value": "\"/kv/\""
         }
     }
 }
