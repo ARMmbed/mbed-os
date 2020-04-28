@@ -562,7 +562,6 @@ i2c_t *get_i2c_obj(I2C_HandleTypeDef *hi2c)
 
 void i2c_reset(i2c_t *obj)
 {
-    struct i2c_s *obj_s = I2C_S(obj);
     /*  As recommended in i2c_api.h, mainly send stop */
     i2c_stop(obj);
     /* then re-init */

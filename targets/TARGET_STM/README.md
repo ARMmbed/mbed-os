@@ -17,7 +17,7 @@ This table summarizes the STM32Cube versions currently used :
 | F2          |    1.6.0     | https://github.com/STMicroelectronics/STM32CubeF2 |
 | F3          |    1.9.0     | https://github.com/STMicroelectronics/STM32CubeF3 |
 | F4          |    1.19.0    | https://github.com/STMicroelectronics/STM32CubeF4 |
-| F7          |    1.10.0    | https://github.com/STMicroelectronics/STM32CubeF7 |
+| F7          |    1.16.0    | https://github.com/STMicroelectronics/STM32CubeF7 |
 | G0          |    1.3.0     | https://github.com/STMicroelectronics/STM32CubeG0 |
 | H7          |    1.4.0     | https://github.com/STMicroelectronics/STM32CubeH7 |
 | L0          |    1.10.0    | https://github.com/STMicroelectronics/STM32CubeL0 |
