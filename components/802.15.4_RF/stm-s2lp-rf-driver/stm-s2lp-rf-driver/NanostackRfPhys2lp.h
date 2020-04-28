@@ -28,7 +28,7 @@
 // Uncomment to use testing gpios attached to TX/RX processes
 // #define TEST_GPIOS_ENABLED
 
-#if defined(TARGET_MTB_STM_S2LP)
+#if defined(TARGET_MTB_STM_S2LP) || defined(TARGET_MTB_STM_S2LP_CT)
 #if !defined(S2LP_SPI_SDI)
 #define S2LP_SPI_SDI        PA_7
 #endif
