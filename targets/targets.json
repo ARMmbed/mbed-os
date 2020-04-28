@@ -4788,31 +4788,6 @@
         "device_name": "STM32L476VG",
         "bootloader_supported": true
     },
-    "MTS_MDOT_F405RG": {
-        "inherits": [
-            "FAMILY_STM32"
-        ],
-        "core": "Cortex-M4F",
-        "extra_labels_add": [
-            "STM32F4"
-        ],
-        "is_disk_virtual": true,
-        "macros_add": [
-            "STM32F405xx",
-            "HSE_VALUE=26000000"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "MPU"
-        ],
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "STM32F405RG",
-        "detect_code": [
-            "0305"
-        ]
-    },
     "MTS_MDOT_F411RE": {
         "inherits": [
             "FAMILY_STM32"
