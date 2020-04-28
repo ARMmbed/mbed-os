@@ -61,7 +61,7 @@ static const en_clk_dst_t cyhal_sar_clock[] =
 #endif
 };
 
-#define CYHAL_SAR_DEFAULT_CTRL ((uint32_t)CY_SAR_VREF_PWR_100 | (uint32_t)CY_SAR_VREF_SEL_BGR \
+#define CYHAL_SAR_DEFAULT_CTRL ((uint32_t)CY_SAR_VREF_PWR_100 | (uint32_t)CY_SAR_VREF_SEL_VDDA_DIV_2 \
                                 | (uint32_t)CY_SAR_BYPASS_CAP_DISABLE | (uint32_t)CY_SAR_NEG_SEL_VREF \
                                 | (uint32_t)CY_SAR_CTRL_NEGVREF_HW | (uint32_t)CY_SAR_CTRL_COMP_DLY_12 \
                                 | (uint32_t)CY_SAR_COMP_PWR_100 | (uint32_t)CY_SAR_DEEPSLEEP_SARMUX_OFF \
