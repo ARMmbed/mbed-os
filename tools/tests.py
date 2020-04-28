@@ -489,7 +489,6 @@ TESTS = [
                         "NRF51_DK", "NRF51_DK_BOOT", "NRF51_DK_OTA",
                         "NRF51_MICROBIT", "NRF51_MICROBIT_B", "NRF51_MICROBIT_BOOT",
                         "NRF51_MICROBIT_B_BOOT", "NRF51_MICROBIT_B_OTA", "NRF51_MICROBIT_OTA",
-                        "HRM1017", "HRM1017_BOOT", "HRM1701_OTA",
                         "NUCLEO_L011K4",
                         "TY51822R3", "TY51822R3_BOOT", "TY51822R3_OTA",
                         "NRF15_DONGLE", "NRF15_DONGLE_BOOT", "NRF15_DONGLE_OTA",

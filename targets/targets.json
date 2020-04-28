@@ -5378,45 +5378,6 @@
             "1075"
         ]
     },
-    "HRM1017": {
-        "inherits": [
-            "MCU_NRF51_16K"
-        ],
-        "macros_add": [
-            "TARGET_NRF_LFCLK_RC"
-        ],
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "nRF51822_xxAA",
-        "detect_code": [
-            "1017"
-        ]
-    },
-    "HRM1017_BOOT": {
-        "inherits": [
-            "MCU_NRF51_16K_BOOT"
-        ],
-        "extra_labels_add": [
-            "HRM1017"
-        ],
-        "macros_add": [
-            "TARGET_HRM1017",
-            "TARGET_NRF_LFCLK_RC"
-        ]
-    },
-    "HRM1017_OTA": {
-        "inherits": [
-            "MCU_NRF51_16K_OTA"
-        ],
-        "extra_labels_add": [
-            "HRM1017"
-        ],
-        "macros_add": [
-            "TARGET_HRM1017",
-            "TARGET_NRF_LFCLK_RC"
-        ]
-    },
     "NRF51_DK_LEGACY": {
         "supported_form_factors": [
             "ARDUINO"
