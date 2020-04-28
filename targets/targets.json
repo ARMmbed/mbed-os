@@ -815,6 +815,63 @@
         ],
         "device_name": "MKL43Z256xxx4"
     },
+    "KL82Z": {
+        "supported_form_factors": [
+            "ARDUINO"
+        ],
+        "core": "Cortex-M0+",
+        "supported_toolchains": [
+            "GCC_ARM",
+            "ARM",
+            "IAR"
+        ],
+        "extra_labels": [
+            "Freescale",
+            "MCUXpresso_MCUS",
+            "KSDK2_MCUS",
+            "FRDM"
+        ],
+        "macros": [
+            "CPU_MKL82Z128VLK7",
+            "FSL_RTOS_MBED",
+            "MBED_TICKLESS"
+        ],
+        "is_disk_virtual": true,
+        "inherits": [
+            "Target"
+        ],
+        "detect_code": [
+            "0218"
+        ],
+        "device_has": [
+            "USTICKER",
+            "LPTICKER",
+            "RTC",
+            "ANALOGIN",
+            "ANALOGOUT",
+            "I2C",
+            "I2CSLAVE",
+            "INTERRUPTIN",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "PWMOUT",
+            "SEMIHOST",
+            "SERIAL",
+            "SLEEP",
+            "SPI",
+            "SPISLAVE",
+            "STDIO_MESSAGES",
+            "TRNG",
+            "FLASH",
+            "QSPI"
+        ],
+        "release_versions": [
+            "2",
+            "5"
+        ],
+        "device_name": "MKL82Z128xxx7"
+    },
     "KW41Z": {
         "supported_form_factors": [
             "ARDUINO"
