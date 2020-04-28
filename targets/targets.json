@@ -5578,14 +5578,6 @@
             "TARGET_NRF_LFCLK_RC"
         ]
     },
-    "NRF51822_Y5_MBUG": {
-        "inherits": [
-            "MCU_NRF51_16K"
-        ],
-        "detect_code": [
-            "4005"
-        ]
-    },
     "NRF51_DK_LEGACY": {
         "supported_form_factors": [
             "ARDUINO"

@@ -485,7 +485,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "rtc"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "exclude_mcu": ["NRF51822", "NRF51822_BOOT", "NRF51822_OTA", "NRF51822_Y5_MBUG",
+        "exclude_mcu": ["NRF51822", "NRF51822_BOOT", "NRF51822_OTA",
                         "NRF51_DK", "NRF51_DK_BOOT", "NRF51_DK_OTA",
                         "NRF51_MICROBIT", "NRF51_MICROBIT_B", "NRF51_MICROBIT_BOOT",
                         "NRF51_MICROBIT_B_BOOT", "NRF51_MICROBIT_B_OTA", "NRF51_MICROBIT_OTA",
