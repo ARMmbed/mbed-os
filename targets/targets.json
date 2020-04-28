@@ -5502,67 +5502,6 @@
             "TARGET_NRF_LFCLK_RC"
         ]
     },
-    "TY51822R3": {
-        "inherits": [
-            "MCU_NRF51_32K_UNIFIED"
-        ],
-        "macros_add": [
-            "TARGET_NRF_32MHZ_XTAL"
-        ],
-        "device_has": [
-            "USTICKER",
-            "LPTICKER",
-            "ANALOGIN",
-            "I2C",
-            "I2C_ASYNCH",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "SERIAL",
-            "SERIAL_ASYNCH",
-            "SLEEP",
-            "SPI",
-            "SPI_ASYNCH",
-            "SPISLAVE"
-        ],
-        "detect_code": [
-            "1019"
-        ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
-        "overrides": {
-            "uart_hwfc": 0
-        },
-        "device_name": "nRF51822_xxAC"
-    },
-    "TY51822R3_BOOT": {
-        "inherits": [
-            "MCU_NRF51_32K_BOOT"
-        ],
-        "extra_labels_add": [
-            "TY51822R3"
-        ],
-        "macros_add": [
-            "TARGET_TY51822R3",
-            "TARGET_NRF_32MHZ_XTAL"
-        ]
-    },
-    "TY51822R3_OTA": {
-        "inherits": [
-            "MCU_NRF51_32K_OTA"
-        ],
-        "extra_labels_add": [
-            "NRF51_DK"
-        ],
-        "macros_add": [
-            "TARGET_TY51822R3",
-            "TARGET_NRF_32MHZ_XTAL"
-        ]
-    },
     "ARM_MPS2_Target": {
         "inherits": [
             "Target"
