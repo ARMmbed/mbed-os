@@ -1,5 +1,18 @@
 # Change Log
 
+## [v5.1.5](https://github.com/ARMmbed/mbed-coap/releases/tag/v5.1.5)
+
+- Added handling for duplicate message handling for Block2 messages. Previously CoAP was silently ignoring the duplicate messages. Now proper response will be sent.
+- Added extended version of `sn_coap_protocol_update_duplicate_package_data`, `sn_coap_protocol_update_duplicate_package_data_all` which will handle all CoAP data in the list.
+
+## [v5.1.4](https://github.com/ARMmbed/mbed-coap/releases/tag/v5.1.4)
+
+- Add also 4.13 (Request Entity Too Large) responses to duplicate info list.
+- Add client library configurations for `DEFAULT_RESPONSE_TIMEOUT` and `SN_COAP_DUPLICATION_MAX_TIME_MSGS_STORED`.
+- Increased the default timeouts of `DEFAULT_RESPONSE_TIMEOUT` and `SN_COAP_DUPLICATION_MAX_TIME_MSGS_STORED` to 300 seconds.
+  * These two are critical parameters for low-bandwidth high-latency networks. The defaults should be more geared towards such networks that are likely to have issues with transmissions.
+  * The increased defaults can increase the runtime HEAP usage when there is a lot of duplicates or retransmissions.
+
 ## [v5.1.3](https://github.com/ARMmbed/mbed-coap/releases/tag/v5.1.3)
 
 - Fix potential integer overflow when calculating CoAP data packet size: IOTCLT-3748 CVE-2019-17211 - mbed-coap integer overflow
