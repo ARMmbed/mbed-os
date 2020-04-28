@@ -490,7 +490,6 @@ TESTS = [
                         "NRF51_MICROBIT", "NRF51_MICROBIT_B", "NRF51_MICROBIT_BOOT",
                         "NRF51_MICROBIT_B_BOOT", "NRF51_MICROBIT_B_OTA", "NRF51_MICROBIT_OTA",
                         "NUCLEO_L011K4",
-                        "NRF15_DONGLE", "NRF15_DONGLE_BOOT", "NRF15_DONGLE_OTA",
                         "ARCH_BLE", "ARCH_BLE_BOOT", "ARCH_BLE_OTA",
                         "ARCH_LINK", "ARCH_LINK_BOOT", "ARCH_LINK_OTA",
                         "SEEED_TINY_BLE", "SEEED_TINY_BLE_BOOT", "SEEED_TINY_BLE_OTA",

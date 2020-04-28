@@ -6946,39 +6946,6 @@
             "1100"
         ]
     },
-    "NRF51_DONGLE": {
-        "inherits": [
-            "MCU_NRF51_32K_UNIFIED"
-        ],
-        "progen": {
-            "target": "nrf51-dongle"
-        },
-        "device_has": [
-            "USTICKER",
-            "LPTICKER",
-            "I2C",
-            "I2C_ASYNCH",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "SERIAL",
-            "SERIAL_ASYNCH",
-            "SLEEP",
-            "SPI",
-            "SPI_ASYNCH",
-            "SPISLAVE"
-        ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
-        "detect_code": [
-            "1120"
-        ],
-        "device_name": "nRF51822_xxAC"
-    },
     "MCU_NRF52832": {
         "inherits": [
             "Target"

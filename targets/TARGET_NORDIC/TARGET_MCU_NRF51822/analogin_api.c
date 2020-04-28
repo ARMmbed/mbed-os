@@ -29,10 +29,8 @@ static const PinMap PinMap_ADC[] = {
     {P0_4, ADC0_0, 32},
     {P0_5, ADC0_0, 64},
     {P0_6, ADC0_0, 128},
-#ifndef TARGET_NRF51_DONGLE
     {P0_26, ADC0_0, 1},
     {P0_27, ADC0_0, 2},
-#endif
     {NC, NC, 0}
 };
 
