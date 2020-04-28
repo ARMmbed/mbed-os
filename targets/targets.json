@@ -538,53 +538,6 @@
             "1235"
         ]
     },
-    "KL05Z": {
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "core": "Cortex-M0+",
-        "default_toolchain": "uARM",
-        "extra_labels": [
-            "Freescale",
-            "KLXX"
-        ],
-        "is_disk_virtual": true,
-        "supported_toolchains": [
-            "ARM",
-            "uARM",
-            "GCC_ARM",
-            "IAR"
-        ],
-        "inherits": [
-            "Target"
-        ],
-        "device_has": [
-            "USTICKER",
-            "ANALOGIN",
-            "ANALOGOUT",
-            "I2C",
-            "I2CSLAVE",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "SEMIHOST",
-            "SERIAL",
-            "SLEEP",
-            "SPI",
-            "SPISLAVE",
-            "STDIO_MESSAGES"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "MKL05Z32xxx4",
-        "detect_code": [
-            "0210"
-        ]
-    },
     "KL25Z": {
         "supported_form_factors": [
             "ARDUINO"

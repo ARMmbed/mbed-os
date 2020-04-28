@@ -43,12 +43,6 @@
 #define INITIAL_SP              (0x20006000UL)
 #endif
 
-#elif defined(TARGET_KL05Z)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20000C00UL)
-#endif
-
 #elif defined(TARGET_KL25Z)
 
 #ifndef INITIAL_SP

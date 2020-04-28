@@ -231,9 +231,6 @@
         "GBECoreSlave": 37,
         "NEON":1
     },
-    "MKL05Z32xxx4": {
-        "OGChipSelectEditMenu": "MKL05Z32xxx4\tFreescale MKL05Z32xxx4"
-    },
     "STM32F031K6": {
         "OGChipSelectEditMenu": "STM32F031x6\tST STM32F031x6"
     },

@@ -28,7 +28,6 @@ class CoIDE(Exporter):
 
     TARGETS = [
         'KL25Z',
-        'KL05Z',
         'LPC1768',
         'ARCH_PRO',
         'ARCH_MAX',
