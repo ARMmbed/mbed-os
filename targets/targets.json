@@ -7534,65 +7534,6 @@
             "1306"
         ]
     },
-    "HI2110": {
-        "inherits": [
-            "Target"
-        ],
-        "core": "Cortex-M0",
-        "default_toolchain": "GCC_ARM",
-        "supported_toolchains": [
-            "GCC_ARM",
-            "ARM",
-            "IAR"
-        ],
-        "extra_labels": [
-            "ublox"
-        ],
-        "macros": [
-            "TARGET_PROCESSOR_FAMILY_BOUDICA",
-            "BOUDICA_SARA",
-            "NDEBUG=1",
-            "CMSIS_VECTAB_VIRTUAL",
-            "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
-        ],
-        "public": false,
-        "target_overrides": {
-            "*": {
-                "core.stdio-flush-at-exit": false
-            }
-        },
-        "device_has": [
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "SERIAL",
-            "SLEEP",
-            "STDIO_MESSAGES"
-        ],
-        "default_lib": "std",
-        "release_versions": []
-    },
-    "SARA_NBIOT": {
-        "inherits": [
-            "HI2110"
-        ],
-        "extra_labels": [
-            "ublox",
-            "HI2110"
-        ],
-        "public": false
-    },
-    "SARA_NBIOT_EVK": {
-        "inherits": [
-            "SARA_NBIOT"
-        ],
-        "extra_labels": [
-            "ublox",
-            "HI2110",
-            "SARA_NBIOT"
-        ]
-    },
     "DISCO_L496AG": {
         "inherits": [
             "FAMILY_STM32"

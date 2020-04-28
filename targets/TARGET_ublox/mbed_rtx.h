@@ -17,12 +17,5 @@
 #ifndef MBED_MBED_RTX_H
 #define MBED_MBED_RTX_H
 
-#if defined(TARGET_HI2110)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x01000000 + 0x05000 - 256)
-#endif
-
-#endif
 
 #endif  // MBED_MBED_RTX_H
