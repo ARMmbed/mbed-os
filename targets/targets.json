@@ -8936,38 +8936,6 @@
         },
         "program_cycle_s": 10
     },
-    "CYW943012P6EVB_01": {
-        "inherits": [
-            "MCU_PSOC6_M4"
-        ],
-        "features": [
-            "BLE"
-        ],
-        "components_add": [
-            "WHD",
-            "43012",
-            "CYW43XXX"
-        ],
-        "extra_labels_add": [
-            "PSOC6_01",
-            "MXCRYPTO_01",
-            "CORDIO"
-        ],
-        "macros_add": [
-            "CY8C6247BZI_D54",
-            "CYHAL_UDB_SDIO",
-            "CYBSP_WIFI_CAPABLE"
-        ],
-        "device_name": "CY8C6247BZI-D54",
-        "mbed_ram_start": "0x08002000",
-        "mbed_ram_size": "0x00045800",
-        "detect_code": [
-            "1906"
-        ],
-        "overrides": {
-            "network-default-interface-type": "WIFI"
-        }
-    },
     "CYW9P62S1_43012EVB_01": {
         "inherits": [
             "MCU_PSOC6_M4"
