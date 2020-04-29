@@ -27,6 +27,7 @@
 
 #include "arm_hal_interrupt_private.h"
 #include "ns_hal_init.h"
+#include "ns_file_system_api.h"
 
 void ns_hal_init(void *heap, size_t h_size, void (*passed_fptr)(heap_fail_t), mem_stat_t *info_ptr)
 {
@@ -43,6 +44,10 @@ void ns_hal_init(void *heap, size_t h_size, void (*passed_fptr)(heap_fail_t), me
     }
     platform_critical_init();
     ns_dyn_mem_init(heap, h_size, passed_fptr, info_ptr);
+#if MBED_CONF_NANOSTACK_HAL_USE_KVSTORE == 1
+    ns_file_system_api_init();
+#endif
+
 #ifndef NS_EXCLUDE_HIGHRES_TIMER
     platform_timer_enable();
 #endif
