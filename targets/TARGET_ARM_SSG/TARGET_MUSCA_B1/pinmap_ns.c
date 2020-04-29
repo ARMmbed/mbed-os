@@ -34,12 +34,14 @@
 
 const PinMap PinMap_I2C_SDA[] = {
     {I2C0_SDA, I2C_0, ALTERNATE_FUNC_1},
-    {I2C1_SDA, I2C_1, PRIMARY_FUNC}
+    {I2C1_SDA, I2C_1, PRIMARY_FUNC},
+    {NC,       NC,    0}
 };
 
 const PinMap PinMap_I2C_SCL[] = {
     {I2C0_SCL, I2C_0, ALTERNATE_FUNC_1},
-    {I2C1_SCL, I2C_1, PRIMARY_FUNC}
+    {I2C1_SCL, I2C_1, PRIMARY_FUNC},
+    {NC,       NC,    0}
 };
 
 /**
