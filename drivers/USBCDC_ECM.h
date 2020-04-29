@@ -18,6 +18,7 @@
 #ifndef USBCDC_ECM_H
 #define USBCDC_ECM_H
 
+#if defined(MBED_CONF_RTOS_PRESENT)
 #include "USBDescriptor.h"
 #include "USBDevice.h"
 #include "ByteBuffer.h"
@@ -275,5 +276,5 @@ private:
 };
 
 /** @}*/
-
+#endif // defined(MBED_CONF_RTOS_PRESENT)
 #endif
