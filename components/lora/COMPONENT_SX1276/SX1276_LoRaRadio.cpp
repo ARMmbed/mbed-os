@@ -1975,6 +1975,7 @@ void SX1276_LoRaRadio::handle_dio0_irq()
                     }
 
                     _rf_settings.lora_packet_handler.size = read_register(REG_LR_RXNBBYTES);
+                    write_to_register(REG_LR_FIFOADDRPTR, read_register(REG_LR_FIFORXCURRENTADDR));
                     read_fifo(_data_buffer, _rf_settings.lora_packet_handler.size);
 
                     if (_rf_settings.lora.rx_continuous == false) {
