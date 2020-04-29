@@ -120,3 +120,12 @@ nsapi_error_t Nanostack::EthernetInterface::bringdown()
     }
     return NSAPI_ERROR_OK;
 }
+
+char *Nanostack::EthernetInterface::get_interface_name(char *buf)
+{
+    if (interface_id < 0) {
+        return NULL;
+    }
+    sprintf(buf, "ETH%d", interface_id);
+    return buf;
+};
