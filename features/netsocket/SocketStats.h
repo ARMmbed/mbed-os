@@ -60,17 +60,14 @@ class SocketStats {
 public:
 
 #if !defined(DOXYGEN_ONLY)
-    /** Create an socket statictics object
+    /** Create a socket statistics object
      *
      *  Application users must not create class objects.
      *  Entities reporting network statistics create the class object.
      *  Application can fetch network statistics using static `mbed_stats_socket_get_each` API
      *  without creating an object.
      */
-    SocketStats();
-    virtual ~SocketStats()
-    {
-    }
+    constexpr SocketStats() = default;
 #endif
     /**
      *  Fill the passed array of structures with the socket statistics for each created socket.
@@ -96,7 +93,7 @@ public:
      *         the socket creation count exceeds `MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT`.
      *
      */
-    void stats_new_socket_entry(const Socket *const reference_id);
+    void stats_new_socket_entry(Socket *reference_id);
 
     /** Updates the state of the socket and records `tick_last_change`.
      *  API used by socket (TCP or UDP) layers only, not to be used by application.
@@ -105,7 +102,7 @@ public:
      *  @param state  Parameter to update the current state of the socket.
      *
      */
-    void stats_update_socket_state(const Socket *const reference_id, socket_state state);
+    void stats_update_socket_state(const Socket *reference_id, socket_state state);
 
     /** Update the peer information of the socket.
      *  API used by socket (TCP or UDP) layers only, not to be used by application.
@@ -114,7 +111,7 @@ public:
      *  @param peer  Parameter to update destination peer information.
      *
      */
-    void stats_update_peer(const Socket *const reference_id, const SocketAddress &peer);
+    void stats_update_peer(const Socket *reference_id, const SocketAddress &peer);
 
     /** Update socket protocol.
      *  API used by socket (TCP or UDP) layers only, not to be used by application.
@@ -123,7 +120,7 @@ public:
      *  @param proto Parameter to update the protocol type of socket.
      *
      */
-    void stats_update_proto(const Socket *const reference_id, nsapi_protocol_t proto);
+    void stats_update_proto(const Socket *reference_id, nsapi_protocol_t proto);
 
     /** Update bytes sent on socket, which is cumulative count per socket.
      *  API used by socket (TCP or UDP) layers only, not to be used by application.
@@ -132,7 +129,7 @@ public:
      *  @param sent_bytes Parameter to append bytes sent over the socket.
      *
      */
-    void stats_update_sent_bytes(const Socket *const reference_id, size_t sent_bytes);
+    void stats_update_sent_bytes(const Socket *reference_id, size_t sent_bytes);
 
     /** Update bytes received on socket, which is cumulative count per socket
      *  API used by socket (TCP or UDP) layers only, not to be used by application.
@@ -141,7 +138,7 @@ public:
      *  @param recv_bytes Parameter to append bytes the socket receives.
      *
      */
-    void stats_update_recv_bytes(const Socket *const reference_id, size_t recv_bytes);
+    void stats_update_recv_bytes(const Socket *reference_id, size_t recv_bytes);
 
 #if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
 private:
@@ -154,9 +151,40 @@ private:
      *  @param reference_id   ID to identify the socket in the data array.
      *
      */
-    int get_entry_position(const Socket *const reference_id);
+    int get_entry_position(const Socket *reference_id);
 #endif
 #endif
 };
+
+#if !MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
+inline size_t SocketStats::mbed_stats_socket_get_each(mbed_stats_socket_t *, size_t)
+{
+    return 0;
+}
+
+inline void SocketStats::stats_new_socket_entry(Socket *)
+{
+}
+
+inline void SocketStats::stats_update_socket_state(const Socket *, socket_state)
+{
+}
+
+inline void SocketStats::stats_update_peer(const Socket *, const SocketAddress &)
+{
+}
+
+inline void SocketStats::stats_update_proto(const Socket *, nsapi_protocol_t)
+{
+}
+
+inline void SocketStats::stats_update_sent_bytes(const Socket *, size_t)
+{
+}
+
+inline void SocketStats::stats_update_recv_bytes(const Socket *, size_t)
+{
+}
+#endif // !MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
 
 #endif

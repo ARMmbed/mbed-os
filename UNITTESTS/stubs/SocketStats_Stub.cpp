@@ -22,7 +22,6 @@ int SocketStats::get_entry_position(const Socket *const reference_id)
 {
     return 0;
 }
-#endif
 
 size_t SocketStats::mbed_stats_socket_get_each(mbed_stats_socket_t *stats, size_t count)
 {
@@ -62,3 +61,4 @@ void SocketStats::stats_update_recv_bytes(const Socket *const reference_id, size
 {
     return;
 }
+#endif
