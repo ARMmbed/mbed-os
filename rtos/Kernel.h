@@ -49,6 +49,7 @@ uint64_t get_ms_count();
   @param   fptr pointer to the function to be called
 
   @note You may call this function from ISR context.
+  @note Bare metal profile: This API is not supported.
 */
 void attach_idle_hook(void (*fptr)(void));
 
@@ -56,6 +57,7 @@ void attach_idle_hook(void (*fptr)(void));
   @param   fptr pointer to the function to be called
 
   @note You may call this function from ISR context.
+  @note Bare metal profile: This API is not supported.
 */
 void attach_thread_terminate_hook(void (*fptr)(osThreadId_t id));
 
