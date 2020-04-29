@@ -244,6 +244,7 @@ protected:
     friend class InternetSocket;
     friend class InternetDatagramSocket;
     friend class TCPSocket;
+    friend class TCPServer;
 
     /** Opens a socket
      *

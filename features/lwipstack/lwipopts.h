@@ -153,7 +153,7 @@
 
 #define MEM_SIZE                    MBED_CONF_LWIP_MEM_SIZE
 
-// One tcp_pcb_listen is needed for each TCP server.
+// One tcp_pcb_listen is needed for each TCPServer.
 // Each requires 72 bytes of RAM.
 #define MEMP_NUM_TCP_PCB_LISTEN     MBED_CONF_LWIP_TCP_SERVER_MAX
 
@@ -172,7 +172,7 @@
 // Each netbuf requires 64 bytes of RAM.
 #define MEMP_NUM_NETBUF             MBED_CONF_LWIP_NUM_NETBUF
 
-// One netconn is needed for each UDPSocket or TCPSocket.
+// One netconn is needed for each UDPSocket, TCPSocket or TCPServer.
 // Each requires 236 bytes of RAM (total rounded to multiple of 512).
 #define MEMP_NUM_NETCONN            MBED_CONF_LWIP_SOCKET_MAX
 

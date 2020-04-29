@@ -49,33 +49,6 @@ protected:
     }
 };
 
-// Control the rtos EventFlags stub. See EventFlags_stub.cpp
-extern std::list<uint32_t> eventFlagsStubNextRetval;
-
-class TestTCPServer : public testing::Test {
-public:
-    unsigned int dataSize = 10;
-    char dataBuf[10];
-protected:
-    TCPSocket *socket;
-    TCPSocket *server;
-    NetworkStackstub stack;
-
-    virtual void SetUp()
-    {
-        server = new TCPSocket();
-        socket = new TCPSocket();
-    }
-
-    virtual void TearDown()
-    {
-        stack.return_values.clear();
-        eventFlagsStubNextRetval.clear();
-        delete socket;
-        delete server;
-    }
-};
-
 TEST_F(TestTCPSocket, get_proto)
 {
     TCPSocketFriend tcpFriend;
@@ -258,12 +231,6 @@ TEST_F(TestTCPSocket, recv_from_null)
     EXPECT_EQ(socket->recvfrom(NULL, dataBuf, dataSize), NSAPI_ERROR_OK);
 }
 
-TEST_F(TestTCPSocket, unsupported_api)
-{
-    SocketAddress addr;
-    EXPECT_EQ(socket->join_multicast_group(addr), NSAPI_ERROR_UNSUPPORTED);
-}
-
 /* listen */
 
 TEST_F(TestTCPSocket, listen_no_open)
@@ -279,9 +246,9 @@ TEST_F(TestTCPSocket, listen)
     EXPECT_EQ(socket->listen(1), NSAPI_ERROR_OK);
 }
 
-/* TCP server */
+/* these tests will have to be readjusted after TCPServer is deprecated. */
 
-TEST_F(TestTCPServer, accept_no_open)
+TEST_F(TestTCPSocket, accept_no_open)
 {
     nsapi_error_t error;
     stack.return_value = NSAPI_ERROR_OK;
@@ -289,17 +256,12 @@ TEST_F(TestTCPServer, accept_no_open)
     EXPECT_EQ(error, NSAPI_ERROR_NO_SOCKET);
 }
 
-TEST_F(TestTCPServer, accept)
+TEST_F(TestTCPSocket, accept)
 {
-    const SocketAddress a("127.0.0.1", 1024);
-    EXPECT_EQ(socket->open(&stack), NSAPI_ERROR_OK);
-    EXPECT_EQ(socket->connect(a), NSAPI_ERROR_OK);
     nsapi_error_t error;
-    EXPECT_EQ(server->open(&stack), NSAPI_ERROR_OK);
-    EXPECT_EQ(server->bind(a), NSAPI_ERROR_OK);
-    server->listen(1);
+    stack.return_value = NSAPI_ERROR_OK;
     socket->open(&stack);
-    TCPSocket *sock = server->accept(&error);
+    TCPSocket *sock = socket->accept(&error);
     EXPECT_NE(sock, nullptr);
     EXPECT_EQ(error, NSAPI_ERROR_OK);
     if (sock) {
@@ -307,26 +269,19 @@ TEST_F(TestTCPServer, accept)
     }
 }
 
-TEST_F(TestTCPServer, accept_would_block)
+TEST_F(TestTCPSocket, accept_would_block)
 {
     nsapi_error_t error;
     socket->open(&stack);
-    EXPECT_EQ(server->open(&stack), NSAPI_ERROR_OK);
-
     stack.return_value = NSAPI_ERROR_WOULD_BLOCK;
     eventFlagsStubNextRetval.push_back(0);
     eventFlagsStubNextRetval.push_back(osFlagsError); // Break the wait loop
-
     EXPECT_EQ(socket->accept(&error), nullptr);
     EXPECT_EQ(error, NSAPI_ERROR_WOULD_BLOCK);
 }
 
-TEST_F(TestTCPServer, accept_error)
+TEST_F(TestTCPSocket, unsupported_api)
 {
-    nsapi_error_t error;
-    EXPECT_EQ(server->open(&stack), NSAPI_ERROR_OK);
-    stack.return_value = NSAPI_ERROR_AUTH_FAILURE;
-    TCPSocket *sock = server->accept(&error);
-    EXPECT_EQ(server->accept(&error), nullptr);
-    EXPECT_EQ(error, NSAPI_ERROR_AUTH_FAILURE);
+    SocketAddress addr;
+    EXPECT_EQ(socket->join_multicast_group(addr), NSAPI_ERROR_UNSUPPORTED);
 }

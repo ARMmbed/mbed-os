@@ -1,0 +1,18 @@
+{
+    "macros": [
+        "MEM_ALLOC=malloc",
+        "MEM_FREE=free",
+        "MBED_HEAP_STATS_ENABLED=1",
+        "MBED_MEM_TRACING_ENABLED"
+    ],
+    "target_overrides": {
+        "*": {
+            "mbed-trace.enable": 1,
+            "platform.stdio-baud-rate": 115200,
+            "platform.stdio-convert-newlines": true,
+            "platform.stdio-buffered-serial": true,
+            "platform.stdio-flush-at-exit": true,
+            "drivers.uart-serial-rxbuf-size": 768
+        }
+    }
+}

@@ -59,7 +59,7 @@
             "value": false
         },
         "socket-max": {
-            "help": "Maximum number of open TCPSocket and UDPSocket instances allowed, including one used internally for DNS.  Each requires 236 bytes of pre-allocated RAM",
+            "help": "Maximum number of open TCPServer, TCPSocket and UDPSocket instances allowed, including one used internally for DNS.  Each requires 236 bytes of pre-allocated RAM",
             "value": 4
         },
         "tcp-enabled": {
@@ -67,7 +67,7 @@
             "value": true
         },
         "tcp-server-max": {
-            "help": "Maximum number of open TCP server instances allowed.  Each requires 72 bytes of pre-allocated RAM",
+            "help": "Maximum number of open TCPServer instances allowed.  Each requires 72 bytes of pre-allocated RAM",
             "value": 4
         },
         "tcp-socket-max": {
