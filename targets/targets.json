@@ -3265,7 +3265,8 @@
             "FAMILY_STM32"
         ],
         "extra_labels_add": [
-            "STM32H7"
+            "STM32H7",
+            "STM32H745xI"
         ],
         "config": {
             "clock_source": {
@@ -3305,9 +3306,6 @@
         "inherits": [
             "MCU_STM32H745I"
         ],
-        "extra_labels_add": [
-            "CM7"
-        ],
         "core": "Cortex-M7FD",
         "mbed_rom_start": "0x08000000",
         "mbed_rom_size": "0x100000",
@@ -3321,9 +3319,6 @@
     "MCU_STM32H745I_CM4": {
         "inherits": [
             "MCU_STM32H745I"
-        ],
-        "extra_labels_add": [
-            "CM4"
         ],
         "core": "Cortex-M4F",
         "mbed_rom_start": "0x08100000",
