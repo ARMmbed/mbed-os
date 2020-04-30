@@ -23,6 +23,40 @@
 * limitations under the License.
 *******************************************************************************/
 
+/**
+ * \addtogroup group_hal_psoc6_udb_sdio UDB SDIO (Secure Digital Input Output)
+ * \ingroup group_hal_psoc6
+ * \{
+ * The UDB based SDIO interface allows for communicating between a PSoC 6 and a
+ * Cypress wireless device such as the CYW4343W, CYW43438, or CYW43012. This
+ * library allows PSoC 6 devices that do not have a dedicated SDHC hardware block,
+ * but do have UDBs, to work with the
+ * <a href="https://github.com/cypresssemiconductorco/wifi-host-driver">Wi-Fi
+ * Host Driver (WHD)</a> library.
+ *
+ * \warning This library does not provide a complete SDIO implementation. It is
+ * only intended for use with a Cypress wireless device. Additionally, using this
+ * driver imposes a few system wide requirements, described below, that must be
+ * met to work properly.
+ *
+ * \section section_psoc6_udb_sdio_restrictions Restrictions
+ * The optimal configuration is to have ClkSlow & ClkPeri running at 100 MHz
+ * and for the SDIO to run at 25 MHz. For Cypress provided Board Support Packages
+ * (BSPs) that use this driver the necessary configuration is done automatically.
+ *
+ * To use this library, the following must be true:
+ * 1. ClkSlow & ClkPeri must both run at the same speed
+ * 2. ClkSlow & ClkPeri must run at 4x the desired SDIO speed
+ * 3. The first 8-bit peripheral clock divider must be reserved for use by this driver
+ * 4. The following DMA channels must be reserved for use by this driver
+ *     * DataWire 0 channel 0
+ *     * DataWire 0 channel 1
+ *     * DataWire 1 channel 1
+ *     * DataWire 1 channel 3
+ *
+ * \} group_hal_psoc6_udb_sdio
+ */
+
 #include "cyhal_hwmgr.h"
 #include "cy_utils.h"
 
@@ -39,6 +73,7 @@ extern "C"
 #include "cyhal_sdio.h"
 #include "cyhal_gpio.h"
 #include "cyhal_interconnect.h"
+#include "cyhal_syspm.h"
 
 #define CY_HAL_SDIO_CLK_DIV_VALUE   ((uint8_t) 0xFF)
 
@@ -66,30 +101,12 @@ extern "C"
 static cyhal_sdio_event_callback_t cyhal_sdio_callback = NULL;
 static cyhal_sdio_t *cyhal_sdio_config_struct = NULL;
 static void *cyhal_sdio_callback_args = NULL;
-static bool deep_sleep_pending = false;
 static bool op_pending = false;
 
 /*******************************************************************************
 *       (Internal) Configuration structures for SDIO pins
 *******************************************************************************/
-static const cy_stc_gpio_pin_config_t pin_cmd_config =
-{
-    .outVal = 1,
-    .driveMode = CY_GPIO_DM_STRONG,
-    .hsiom = HSIOM_SEL_DSI_DSI, /* DSI controls 'out' and 'output enable' */
-    .intEdge = CY_GPIO_INTR_DISABLE,
-    .intMask = 0UL,
-    .vtrip = CY_GPIO_VTRIP_CMOS,
-    .slewRate = CY_GPIO_SLEW_FAST,
-    .driveSel = CY_GPIO_DRIVE_1_2,
-    .vregEn = 0UL,
-    .ibufMode = 0UL,
-    .vtripSel = 0UL,
-    .vrefSel = 0UL,
-    .vohSel = 0UL,
-};
-
-static const cy_stc_gpio_pin_config_t pin_data_config =
+static const cy_stc_gpio_pin_config_t pin_config =
 {
     .outVal = 1,
     .driveMode = CY_GPIO_DM_STRONG,
@@ -126,30 +143,7 @@ static const cy_stc_gpio_pin_config_t pin_clk_config =
 /*******************************************************************************
 *       Internal functions
 *******************************************************************************/
-static cy_en_syspm_status_t cyhal_sdio_ds_callback(cy_stc_syspm_callback_params_t *callbackParams, cy_en_syspm_callback_mode_t mode);
-
-/******************************************************************************
-*  Parameter structure for Deep Sleep callback function
-******************************************************************************/
-static cy_stc_syspm_callback_params_t cyhal_sdio_pm_callback_params =
-{
-    NULL,
-    NULL
-};
-
-/******************************************************************************
-*       Deep Sleep callback
-******************************************************************************/
-static cy_stc_syspm_callback_t cyhal_sdio_pm_callback =
-{
-    &cyhal_sdio_ds_callback,
-    CY_SYSPM_DEEPSLEEP,
-    0U,
-    &cyhal_sdio_pm_callback_params,
-    NULL,
-    NULL,
-    CYHAL_SDIO_DS_CB_ORDER
-};
+static bool cyhal_sdio_ds_callback(cyhal_syspm_callback_state_t state, cyhal_syspm_callback_mode_t mode, void* callback_arg);
 
 /* Internal deep sleep callback, which does following:
 *  1. Save/restore not retained configuration registers in the Deep Sleep
@@ -158,18 +152,27 @@ static cy_stc_syspm_callback_t cyhal_sdio_pm_callback =
 *  3. Execute registered callback with CYHAL_SDIO_COMING_UP event, after
 *     exit from Deep Sleep
 * */
-cy_en_syspm_status_t cyhal_sdio_ds_callback(cy_stc_syspm_callback_params_t *callbackParams, cy_en_syspm_callback_mode_t mode)
+static bool cyhal_sdio_ds_callback(cyhal_syspm_callback_state_t state, cyhal_syspm_callback_mode_t mode, void* callback_arg)
 {
-    cy_en_syspm_status_t retVal = SDIO_DeepSleepCallback(callbackParams, mode);
+    static cy_stc_syspm_callback_params_t cyhal_sdio_pm_callback_params = { NULL, NULL };
+    bool allow = true;
+    cyhal_sdio_t *obj = (cyhal_sdio_t *)callback_arg;
+    CY_ASSERT(obj != NULL);
 
-    if (retVal == CY_SYSPM_SUCCESS)
+    if(state == CYHAL_SYSPM_CB_CPU_DEEPSLEEP)
+    {
+        allow = (SDIO_DeepSleepCallback(&cyhal_sdio_pm_callback_params, cyhal_utils_convert_haltopdl_pm_mode(mode)) == CY_SYSPM_SUCCESS);
+    }
+
+    if (allow)
     {
         switch (mode)
         {
-            case CY_SYSPM_CHECK_READY:
+            case CYHAL_SYSPM_CHECK_READY:
             {
                 /* Check if transfer is pending */
-                if (!op_pending)
+                allow = !op_pending;
+                if (allow)
                 {
                     /* Execute callback to indicate that interface is going down */
                     if ((cyhal_sdio_callback != NULL) && (0U != (cyhal_sdio_config_struct->events & (uint32_t) CYHAL_SDIO_GOING_DOWN)))
@@ -178,26 +181,23 @@ cy_en_syspm_status_t cyhal_sdio_ds_callback(cy_stc_syspm_callback_params_t *call
                     }
 
                     /* Indicate Deep Sleep entering */
-                    deep_sleep_pending = true;
+                    obj->pm_transition_pending = true;
                 }
-                else
-                {
-                    retVal = CY_SYSPM_FAIL;
-                }
+
                 break;
             }
 
-            case CY_SYSPM_BEFORE_TRANSITION:
+            case CYHAL_SYSPM_BEFORE_TRANSITION:
             {
-                /* Nothing to do in this mode */
+                /* Nothing to do */
                 break;
             }
 
-            case CY_SYSPM_AFTER_TRANSITION:
-            case CY_SYSPM_CHECK_FAIL:
+            case CYHAL_SYSPM_AFTER_TRANSITION:
+            case CYHAL_SYSPM_CHECK_FAIL:
             {
                 /* Execute this only if check ready case was executed */
-                if (deep_sleep_pending)
+                if (obj->pm_transition_pending)
                 {
                     /* Execute callback to indicate that interface is coming up */
                     if ((cyhal_sdio_callback != NULL) && (0U != (cyhal_sdio_config_struct->events & (uint32_t) CYHAL_SDIO_COMING_UP)))
@@ -205,18 +205,18 @@ cy_en_syspm_status_t cyhal_sdio_ds_callback(cy_stc_syspm_callback_params_t *call
                         (void)(cyhal_sdio_callback)(cyhal_sdio_callback_args, CYHAL_SDIO_COMING_UP);
                     }
 
-                    /* Indicate Deep Sleep exit */
-                    deep_sleep_pending = false;
+                    /* Indicate PM mode transition exit */
+                    obj->pm_transition_pending = false;
                 }
                 break;
             }
 
             default:
+                CY_ASSERT(false);
                 break;
         }
     }
-
-    return retVal;
+    return allow;
 }
 
 
@@ -261,6 +261,19 @@ static void cyhal_free_dmas()
     dmaRsc.block_num = 1;
     dmaRsc.channel_num = 3;
     cyhal_hwmgr_free(&dmaRsc);
+}
+
+cy_rslt_t cyhal_sdio_configure_pin(
+    cyhal_gpio_t pin, cyhal_gpio_t *pin_ref, const cy_stc_gpio_pin_config_t* cfg)
+{
+    cyhal_resource_inst_t pinRsc = cyhal_utils_get_gpio_resource(pin);
+    cy_rslt_t result = cyhal_hwmgr_reserve(&pinRsc);
+    if (result == CY_RSLT_SUCCESS)
+    {
+        *pin_ref = pin;
+        Cy_GPIO_Pin_Init(CYHAL_GET_PORTADDR(pin), CYHAL_GET_PIN(pin), cfg);
+    }
+    return result;
 }
 
 cy_rslt_t cyhal_sdio_init(cyhal_sdio_t *obj, cyhal_gpio_t cmd, cyhal_gpio_t clk, cyhal_gpio_t data0, cyhal_gpio_t data1, cyhal_gpio_t data2, cyhal_gpio_t data3)
@@ -342,76 +355,30 @@ cy_rslt_t cyhal_sdio_init(cyhal_sdio_t *obj, cyhal_gpio_t cmd, cyhal_gpio_t clk,
         retVal = cyhal_hwmgr_reserve(&dmaRsc);
     }
 
-    /* Reserve the clk pin */
+    /* Reserve the clk, cmd & 4 data pins */
     if (retVal == CY_RSLT_SUCCESS)
     {
-        cyhal_resource_inst_t pinRsc = cyhal_utils_get_gpio_resource(clk);
-        retVal = cyhal_hwmgr_reserve(&pinRsc);
-        if (retVal == CY_RSLT_SUCCESS)
-        {
-            obj->pin_clk = clk;
-            Cy_GPIO_Pin_Init(CYHAL_GET_PORTADDR(clk), CYHAL_GET_PIN(clk), &pin_clk_config);
-        }
+        retVal = cyhal_sdio_configure_pin(clk, &obj->pin_clk, &pin_clk_config);
     }
-
-    /* Reserve the cmd pin */
     if (retVal == CY_RSLT_SUCCESS)
     {
-        cyhal_resource_inst_t pinRsc = cyhal_utils_get_gpio_resource(cmd);
-        retVal = cyhal_hwmgr_reserve(&pinRsc);
-        if (retVal == CY_RSLT_SUCCESS)
-        {
-            obj->pin_cmd = cmd;
-            Cy_GPIO_Pin_Init(CYHAL_GET_PORTADDR(cmd), CYHAL_GET_PIN(cmd), &pin_cmd_config);
-        }
+        retVal = cyhal_sdio_configure_pin(cmd, &obj->pin_cmd, &pin_config);
     }
-
-    /* Reserve the data0 pin */
     if (retVal == CY_RSLT_SUCCESS)
     {
-        cyhal_resource_inst_t pinRsc = cyhal_utils_get_gpio_resource(data0);
-        retVal = cyhal_hwmgr_reserve(&pinRsc);
-        if (retVal == CY_RSLT_SUCCESS)
-        {
-            obj->pin_data0 = data0;
-            Cy_GPIO_Pin_Init(CYHAL_GET_PORTADDR(data0), CYHAL_GET_PIN(data0), &pin_data_config);
-        }
+        retVal = cyhal_sdio_configure_pin(data0, &obj->pin_data0, &pin_config);
     }
-
-    /* Reserve the data1 pin */
     if (retVal == CY_RSLT_SUCCESS)
     {
-        cyhal_resource_inst_t pinRsc = cyhal_utils_get_gpio_resource(data1);
-        retVal = cyhal_hwmgr_reserve(&pinRsc);
-        if (retVal == CY_RSLT_SUCCESS)
-        {
-            obj->pin_data1 = data1;
-            Cy_GPIO_Pin_Init(CYHAL_GET_PORTADDR(data1), CYHAL_GET_PIN(data1), &pin_data_config);
-        }
+        retVal = cyhal_sdio_configure_pin(data1, &obj->pin_data1, &pin_config);
     }
-
-    /* Reserve the data2 pin */
     if (retVal == CY_RSLT_SUCCESS)
     {
-        cyhal_resource_inst_t pinRsc = cyhal_utils_get_gpio_resource(data2);
-        retVal = cyhal_hwmgr_reserve(&pinRsc);
-        if (retVal == CY_RSLT_SUCCESS)
-        {
-            obj->pin_data2 = data2;
-            Cy_GPIO_Pin_Init(CYHAL_GET_PORTADDR(data2), CYHAL_GET_PIN(data2), &pin_data_config);
-        }
+        retVal = cyhal_sdio_configure_pin(data2, &obj->pin_data2, &pin_config);
     }
-
-    /* Reserve the data3 pin */
     if (retVal == CY_RSLT_SUCCESS)
     {
-        cyhal_resource_inst_t pinRsc = cyhal_utils_get_gpio_resource(data3);
-        retVal = cyhal_hwmgr_reserve(&pinRsc);
-        if (retVal == CY_RSLT_SUCCESS)
-        {
-            obj->pin_data3 = data3;
-            Cy_GPIO_Pin_Init(CYHAL_GET_PORTADDR(data3), CYHAL_GET_PIN(data3), &pin_data_config);
-        }
+        retVal = cyhal_sdio_configure_pin(data3, &obj->pin_data3, &pin_config);
     }
 
     /* Reserve UDB SDIO */
@@ -457,12 +424,18 @@ cy_rslt_t cyhal_sdio_init(cyhal_sdio_t *obj, cyhal_gpio_t cmd, cyhal_gpio_t clk,
             obj->events = 0u;
 
             /* Register SDIO Deep Sleep Callback */
-            if (retVal == CY_RSLT_SUCCESS)
+            if (CY_RSLT_SUCCESS == retVal)
             {
-                if (!Cy_SysPm_RegisterCallback(&cyhal_sdio_pm_callback))
-                {
-                    retVal = CY_RSLT_TYPE_ERROR;
-                }
+                obj->pm_callback_data.callback = &cyhal_sdio_ds_callback,
+                obj->pm_callback_data.states = (cyhal_syspm_callback_state_t)(CYHAL_SYSPM_CB_CPU_DEEPSLEEP | CYHAL_SYSPM_CB_SYSTEM_HIBERNATE);
+                obj->pm_callback_data.next = NULL;
+                obj->pm_callback_data.args = obj;
+                /* The CYHAL_SYSPM_BEFORE_TRANSITION mode cannot be ignored because the PM handler
+                 * calls the SDIO host driver callback that saves UDB state in this mode before transitioning.
+                 */
+                obj->pm_callback_data.ignore_modes = (cyhal_syspm_callback_mode_t)0;
+
+                cyhal_syspm_register_peripheral_callback(&obj->pm_callback_data);
             }
         }
     }
@@ -495,8 +468,7 @@ void cyhal_sdio_free(cyhal_sdio_t *obj)
     cyhal_hwmgr_free(&(obj->resource));
     SDIO_Free();
 
-    /* Unregister SDIO Deep Sleep Callback */
-    (void)Cy_SysPm_UnregisterCallback(&cyhal_sdio_pm_callback);
+    cyhal_syspm_unregister_peripheral_callback(&obj->pm_callback_data);
 }
 
 cy_rslt_t cyhal_sdio_configure(cyhal_sdio_t *obj, const cyhal_sdio_cfg_t *config)
@@ -528,6 +500,11 @@ cy_rslt_t cyhal_sdio_send_cmd(const cyhal_sdio_t *obj, cyhal_transfer_t directio
         return CYHAL_SDIO_RSLT_ERR_BAD_PARAM;
     }
 
+    if (obj->pm_transition_pending)
+    {
+        return CYHAL_SDIO_RSLT_ERR_PM_PENDING;
+    }
+
     uint32_t cmdResponse;
     stc_sdio_cmd_t cmd;
     en_sdio_result_t status;
@@ -553,24 +530,23 @@ cy_rslt_t cyhal_sdio_send_cmd(const cyhal_sdio_t *obj, cyhal_transfer_t directio
         cmd.u16BlockSize = 0U;           /* Not used */
 
         /* Send command only if there is no attempts to enter into Deep Sleep */
-        if (!deep_sleep_pending)
+
+        status = SDIO_SendCommandAndWait(&cmd);
+
+        if (Ok != status)
         {
-            status = SDIO_SendCommandAndWait(&cmd);
-
-            if (Ok != status)
-            {
-                retVal = CYHAL_SDIO_RSLT_ERR_FUNC_RET(status);
-            }
-            else
-            {
-                retVal = CY_RSLT_SUCCESS;
-            }
-
-            if (response != NULL)
-            {
-                *response = cmdResponse;
-            }
+            retVal = CYHAL_SDIO_RSLT_ERR_FUNC_RET(status);
         }
+        else
+        {
+            retVal = CY_RSLT_SUCCESS;
+        }
+
+        if (response != NULL)
+        {
+            *response = cmdResponse;
+        }
+
 
         /*  Indicate finished operation */
         op_pending = false;
@@ -582,6 +558,11 @@ cy_rslt_t cyhal_sdio_send_cmd(const cyhal_sdio_t *obj, cyhal_transfer_t directio
 cy_rslt_t cyhal_sdio_bulk_transfer(cyhal_sdio_t *obj, cyhal_transfer_t direction, uint32_t argument, const uint32_t* data, uint16_t length, uint32_t* response)
 {
     CY_ASSERT(NULL != obj);
+    if (obj->pm_transition_pending)
+    {
+        return CYHAL_SDIO_RSLT_ERR_PM_PENDING;
+    }
+
     cy_rslt_t retVal = CYHAL_SDIO_RSLT_CANCELED;
 
     /* Check other pending operations */
@@ -618,24 +599,20 @@ cy_rslt_t cyhal_sdio_bulk_transfer(cyhal_sdio_t *obj, cyhal_transfer_t direction
             cmd.u16BlockSize = length;
         }
 
-        /* Start transfer only if there is no attempts to enter into Deep Sleep */
-        if (!deep_sleep_pending)
+        status = SDIO_SendCommandAndWait(&cmd);
+
+        if (Ok != status)
         {
-            status = SDIO_SendCommandAndWait(&cmd);
+            retVal = CYHAL_SDIO_RSLT_ERR_FUNC_RET(status);
+        }
+        else
+        {
+            retVal = CY_RSLT_SUCCESS;
+        }
 
-            if (Ok != status)
-            {
-                retVal = CYHAL_SDIO_RSLT_ERR_FUNC_RET(status);
-            }
-            else
-            {
-                retVal = CY_RSLT_SUCCESS;
-            }
-
-            if (response != NULL)
-            {
-                *response = cmdResponse;
-            }
+        if (response != NULL)
+        {
+            *response = cmdResponse;
         }
 
         /*  Indicate finished transfer */
@@ -681,7 +658,7 @@ void cyhal_sdio_register_callback(cyhal_sdio_t *obj, cyhal_sdio_event_callback_t
     cyhal_sdio_callback_args = callback_arg;
 }
 
-void cyhal_sdio_enable_event(cyhal_sdio_t *obj, cyhal_sdio_event_t event, uint8_t intrPriority, bool enable)
+void cyhal_sdio_enable_event(cyhal_sdio_t *obj, cyhal_sdio_event_t event, uint8_t intr_priority, bool enable)
 {
     /* Only CYHAL_SDIO_CARD_INTERRUPT event can be registered */
     if (event == CYHAL_SDIO_CARD_INTERRUPT)
@@ -725,7 +702,7 @@ void cyhal_sdio_enable_event(cyhal_sdio_t *obj, cyhal_sdio_event_t event, uint8_
         cyhal_sdio_config_struct->events = obj->events;
     }
 
-    NVIC_SetPriority(udb_interrupts_0_IRQn, intrPriority);
+    NVIC_SetPriority(udb_interrupts_0_IRQn, intr_priority);
 }
 
 #if defined(__cplusplus)

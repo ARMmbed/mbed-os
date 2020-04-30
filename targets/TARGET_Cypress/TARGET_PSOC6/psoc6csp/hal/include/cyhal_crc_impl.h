@@ -1,8 +1,8 @@
-/***************************************************************************//**
+/***************************************************************************//** 
  * \file cyhal_crc_impl.h
 *
 * Description:
-* Provides a high level interface for interacting with the Cypress CRC accelerator.
+* Provides a high level interface for interacting with the Cypress CRC accelerator. 
 * This is a wrapper around the lower level PDL API.
 *
 ********************************************************************************

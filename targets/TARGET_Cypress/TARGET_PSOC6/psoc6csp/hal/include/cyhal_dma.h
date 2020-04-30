@@ -9,11 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-<<<<<<< HEAD
-* Copyright 2018-2019 Cypress Semiconductor Corporation
-=======
 * Copyright 2018-2020 Cypress Semiconductor Corporation
->>>>>>> Minor consistancy cleanup for HAL documentation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,15 +26,56 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_hal_dma DMA (Direct Memory Access)
-* \ingroup group_hal
-* \{
-* High level interface for interacting with the direct memory access (DMA). Allows the user to
-* initialize and configure a DMA channel in order to trigger data transfers to
-* and from memory and peripherals. The transfers occur independently of the CPU
-* and are triggered in software. Multiple channels are available with
-* user-selectable priority and transfer characteristics.
-*/
+ * \addtogroup group_hal_dma DMA (Direct Memory Access)
+ * \ingroup group_hal
+ * \{
+ * High level interface for interacting with the direct memory access (DMA).
+ * The DMA driver allows for initializing and configuring a DMA channel in
+ * order to trigger data transfers to and from memory and peripherals. The
+ * transfers occur independently of the CPU and are triggered in software.
+ * Multiple channels are available with user-selectable priority and transfer
+ * characteristics.
+ *
+ * \section section_dma_features Features
+ * * CPU independent memory access
+ * * Access to memory and peripherals
+ * * Multiple independent channels
+ * * Configurable transer sizes and bursts
+ * * Configurable priorities
+ * * Event completion notification
+ *
+ * \section section_dma_quickstart Quick Start
+ *
+ * See \ref subsection_dma_snippet_1 for a code snippet that sets up a DMA
+ * transfer to move memory from one location to another.
+ *
+ * \section section_dma_snippets Code snippets
+ * \note Error handling code has been intentionally left out of snippets to highlight API usage.
+ *
+ * \subsection subsection_dma_snippet_1 Snippet 1: Simple DMA initialization and transfer
+ * The following snippet initializes a DMA channel and uses it to transfer a a single block of memory.
+ * The DMA channel is reserved by calling \ref cyhal_dma_init. It then needs to be configured with
+ * \ref cyhal_dma_configure and then the transfer is started with \ref cyhal_dma_start_transfer.<br>
+ * If the DMA channel is not needed anymore, it can be released by calling \ref cyhal_dma_free
+ *
+ * \snippet dma.c snippet_cyhal_dma_simple_init
+ *
+ *
+ * \subsection subsection_dma_snippet_2 Snippet 2: Configuring the DMA channel based on memory requirements
+ * \ref cyhal_dma_configure can be used after DMA initialization to handle a variety of memory layouts.
+ *
+ * \snippet dma.c snippet_cyhal_dma_configure
+ *
+ *
+ * \subsection subsection_dma_snippet_3 Snippet 3: Interrupts and retriggering DMA transfers
+ * DMA events like transfer complete or error events can be used to trigger a callback function. <br>
+ * This snippet uses \ref cyhal_dma_configure to break the full transfer into multiple bursts. This
+ * allows higher priority items access to the memory bus if necessary while the DMA operation is still
+ * in progress. It then uses \ref cyhal_dma_enable_event() to enable the transfer complete event to
+ * trigger the callback function registered by \ref cyhal_dma_register_callback().
+ *
+ * \snippet dma.c snippet_cyhal_dma_events
+ */
 
 #pragma once
 
@@ -51,22 +88,39 @@
 extern "C" {
 #endif
 
+/** \addtogroup group_hal_results
+ *  \{ *//**
+ *  \{ @name DMA Results
+ */
+
 /** Invalid transfer width parameter error */
-#define CYHAL_DMA_RSLT_ERR_INVALID_TRANSFER_WIDTH    (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_DMA, 0))
+#define CYHAL_DMA_RSLT_ERR_INVALID_TRANSFER_WIDTH       \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_DMA, 0))
 /** Invalid parameter error */
-#define CYHAL_DMA_RSLT_ERR_INVALID_PARAMETER         (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_DMA, 1))
+#define CYHAL_DMA_RSLT_ERR_INVALID_PARAMETER            \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_DMA, 1))
 /** Invalid priority parameter error */
-#define CYHAL_DMA_RSLT_ERR_INVALID_PRIORITY          (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_DMA, 2))
+#define CYHAL_DMA_RSLT_ERR_INVALID_PRIORITY             \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_DMA, 2))
 /** Invalid src or dst addr alignment error */
-#define CYHAL_DMA_RSLT_ERR_INVALID_ALIGNMENT         (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_DMA, 3))
+#define CYHAL_DMA_RSLT_ERR_INVALID_ALIGNMENT            \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_DMA, 3))
 /** Invalid burst_size paramenter error */
-#define CYHAL_DMA_RSLT_ERR_INVALID_BURST_SIZE        (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_DMA, 4))
+#define CYHAL_DMA_RSLT_ERR_INVALID_BURST_SIZE           \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_DMA, 4))
 /** Channel busy error */
-#define CYHAL_DMA_RSLT_ERR_CHANNEL_BUSY              (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_DMA, 5))
+#define CYHAL_DMA_RSLT_ERR_CHANNEL_BUSY                 \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_DMA, 5))
 /** Transfer has already been started warning */
-#define CYHAL_DMA_RSLT_WARN_TRANSFER_ALREADY_STARTED (CY_RSLT_CREATE(CY_RSLT_TYPE_WARNING, CYHAL_RSLT_MODULE_DMA, 6))
+#define CYHAL_DMA_RSLT_WARN_TRANSFER_ALREADY_STARTED    \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_WARNING, CYHAL_RSLT_MODULE_DMA, 6))
 /** Unsupported hardware error */
-#define CYHAL_DMA_RSLT_FATAL_UNSUPPORTED_HARDWARE    (CY_RSLT_CREATE(CY_RSLT_TYPE_FATAL, CYHAL_RSLT_MODULE_DMA, 7))
+#define CYHAL_DMA_RSLT_FATAL_UNSUPPORTED_HARDWARE       \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_FATAL, CYHAL_RSLT_MODULE_DMA, 7))
+
+/**
+ * \} \}
+ */
 
 /** Direction for DMA transfers. */
 typedef enum
@@ -121,8 +175,9 @@ typedef void (*cyhal_dma_event_callback_t)(void *callback_arg, cyhal_dma_event_t
 
 /** Initialize the DMA peripheral.
  *
- * @param[out] obj          The DMA object to initialize
- * @param[in]  priority     The priority of this DMA operation relative to others. The number of priority levels which are supported is hardware dependent. All implementations define a CYHAL_DMA_PRIORITY_DEFAULT constant which is always valid. If supported, implementations will also define CYHAL_DMA_PRIORITY_HIGH, CYHAL_DMA_PRIORITY_MEDIUM, and CYHAL_DMA_PRIORITY_LOW. The behavior of any other value is implementation defined. See the implementation-specific DMA documentation for more details.
+ * @param[out] obj  Pointer to a DMA object. The caller must allocate the memory
+ *  for this object but the init function will initialize its contents.
+ * @param[in]  priority     The priority of this DMA operation relative to others. The number of priority levels which are supported is hardware dependent. All implementations define a #CYHAL_DMA_PRIORITY_DEFAULT constant which is always valid. If supported, implementations will also define #CYHAL_DMA_PRIORITY_HIGH, #CYHAL_DMA_PRIORITY_MEDIUM, and #CYHAL_DMA_PRIORITY_LOW. The behavior of any other value is implementation defined. See the implementation-specific DMA documentation for more details.
  * @param[in]  direction    The direction memory is copied
  * @return The status of the init request
  */
@@ -157,7 +212,9 @@ cy_rslt_t cyhal_dma_start_transfer(cyhal_dma_t *obj);
  */
 bool cyhal_dma_is_busy(cyhal_dma_t *obj);
 
-/** The DMA callback handler registration
+/** Register a DMA callback handler.
+ *
+ * This function will be called when one of the events enabled by \ref cyhal_dma_enable_event occurs.
  *
  * @param[in] obj          The DMA object
  * @param[in] callback     The callback handler which will be invoked when an event triggers
@@ -166,6 +223,8 @@ bool cyhal_dma_is_busy(cyhal_dma_t *obj);
 void cyhal_dma_register_callback(cyhal_dma_t *obj, cyhal_dma_event_callback_t callback, void *callback_arg);
 
 /** Configure DMA event enablement.
+ *
+ * When an enabled event occurs, the function specified by \ref cyhal_dma_register_callback will be called.
  *
  * @param[in] obj            The DMA object
  * @param[in] event          The DMA event type

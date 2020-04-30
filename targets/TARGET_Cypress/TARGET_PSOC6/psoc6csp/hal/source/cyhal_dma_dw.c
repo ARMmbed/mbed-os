@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +26,7 @@
 #include "cyhal_dma_dw.h"
 #include "cyhal_dma_impl.h"
 #include "cyhal_hwmgr.h"
-#include "cyhal_system.h"
+#include "cyhal_syspm.h"
 #include "cyhal_utils.h"
 #include "cyhal_triggers.h"
 
@@ -77,6 +77,48 @@ static const cy_stc_dma_channel_config_t default_channel_config_dw =
     .bufferable = false,
 };
 
+static bool cyhal_dma_dw_pm_callback(cyhal_syspm_callback_state_t state, cyhal_syspm_callback_mode_t mode, void* callback_arg);
+
+static cyhal_syspm_callback_data_t cyhal_dma_dw_pm_callback_args = {
+    .callback = &cyhal_dma_dw_pm_callback,
+    .states = (cyhal_syspm_callback_state_t)(CYHAL_SYSPM_CB_CPU_DEEPSLEEP | CYHAL_SYSPM_CB_SYSTEM_HIBERNATE),
+    .next = NULL,
+    .args = NULL,
+    .ignore_modes = CYHAL_SYSPM_BEFORE_TRANSITION,
+};
+static bool cyhal_dma_dw_pm_transition_pending = false;
+static bool cyhal_dma_dw_has_enabled(void)
+{
+    for (uint8_t i = 0; i < NUM_DW_CHANNELS; i++)
+        if (cyhal_dw_config_structs[i])
+            return true;
+    return false;
+}
+
+static bool cyhal_dma_dw_pm_callback(cyhal_syspm_callback_state_t state, cyhal_syspm_callback_mode_t mode, void* callback_arg)
+{
+    bool block_transition = false;
+    switch(mode)
+    {
+        case CYHAL_SYSPM_CHECK_READY:
+            for (uint8_t i = 0; i < NUM_DW_CHANNELS && !block_transition; i++)
+            {
+                block_transition |= (cyhal_dw_config_structs[i] != NULL) && cyhal_dma_is_busy_dw(cyhal_dw_config_structs[i]);
+            }
+
+            cyhal_dma_dw_pm_transition_pending = !block_transition;
+            break;
+
+        case CYHAL_SYSPM_CHECK_FAIL:
+        case CYHAL_SYSPM_AFTER_TRANSITION:
+            cyhal_dma_dw_pm_transition_pending = false;
+            break;
+        default:
+            break;
+    }
+    return cyhal_dma_dw_pm_transition_pending;
+}
+
 /** Sets the dw configuration struct */
 static inline void cyhal_dma_set_dw_obj(cyhal_dma_t *obj)
 {
@@ -99,44 +141,32 @@ static inline cyhal_dma_t* cyhal_dma_get_dw_obj(uint8_t block, uint8_t channel)
 /** This should never be called from a non-dma IRQn */
 static inline uint8_t cyhal_dma_get_dw_block_from_irqn(IRQn_Type irqn)
 {
-    uint8_t diff = irqn - cpuss_interrupts_dw0_0_IRQn;
-#if defined(CPUSS_DW0_CH_NR) && !defined(CPUSS_DW1_CH_NR)
-    CY_ASSERT(diff < CPUSS_DW0_CH_NR);
-
-    if(diff < CPUSS_DW0_CH_NR)
+#ifdef CPUSS_DW0_CH_NR
+    if (irqn >= cpuss_interrupts_dw0_0_IRQn && irqn < cpuss_interrupts_dw0_0_IRQn + (IRQn_Type)CPUSS_DW0_CH_NR)
         return 0;
-#elif defined(CPUSS_DW0_CH_NR) && defined(CPUSS_DW1_CH_NR)
-    CY_ASSERT(diff < CPUSS_DW0_CH_NR + CPUSS_DW1_CH_NR);
-
-    if(diff < CPUSS_DW0_CH_NR)
-        return 0;
-    if(diff < CPUSS_DW0_CH_NR + CPUSS_DW1_CH_NR)
+#endif
+#ifdef CPUSS_DW1_CH_NR
+    if (irqn >= cpuss_interrupts_dw1_0_IRQn && irqn < cpuss_interrupts_dw1_0_IRQn + (IRQn_Type)CPUSS_DW1_CH_NR)
         return 1;
 #endif
-
-    // Should never reach here. Just silencing compiler warnings.
     CY_ASSERT(false);
-    return 255;
+    return 0xFF;
 }
 
 /** Gets the dw channel number from irq number */
 /** This should never be called from a non-dma IRQn */
 static inline uint8_t cyhal_dma_get_dw_channel_from_irqn(IRQn_Type irqn)
 {
-    uint8_t diff = irqn - cpuss_interrupts_dw0_0_IRQn;
-#if defined(CPUSS_DW0_CH_NR) && !defined(CPUSS_DW1_CH_NR)
-    CY_ASSERT(diff < CPUSS_DW0_CH_NR);
-
-    if(diff < CPUSS_DW0_CH_NR)
-        return diff;
-#elif defined(CPUSS_DW0_CH_NR) && defined(CPUSS_DW1_CH_NR)
-    CY_ASSERT(diff < CPUSS_DW0_CH_NR + CPUSS_DW1_CH_NR);
-
-    if(diff < CPUSS_DW0_CH_NR)
-        return diff;
-    else
-        return diff - CPUSS_DW0_CH_NR;
+#ifdef CPUSS_DW0_CH_NR
+    if (irqn >= cpuss_interrupts_dw0_0_IRQn && irqn < cpuss_interrupts_dw0_0_IRQn + (IRQn_Type)CPUSS_DW0_CH_NR)
+        return irqn - cpuss_interrupts_dw0_0_IRQn;
 #endif
+#ifdef CPUSS_DW1_CH_NR
+    if (irqn >= cpuss_interrupts_dw1_0_IRQn && irqn < cpuss_interrupts_dw1_0_IRQn + (IRQn_Type)CPUSS_DW1_CH_NR)
+        return irqn - cpuss_interrupts_dw1_0_IRQn;
+#endif
+    CY_ASSERT(false);
+    return 0xFF;
 }
 
 /** Gets the irqn corresponding to a particular cyhal_dma_t config struct */
@@ -246,6 +276,11 @@ cy_rslt_t cyhal_dma_init_dw(cyhal_dma_t *obj, uint8_t priority)
     obj->callback_data.callback_arg = NULL;
     obj->irq_cause = 0;
 
+    if (!cyhal_dma_dw_has_enabled())
+    {
+        cyhal_syspm_register_peripheral_callback(&cyhal_dma_dw_pm_callback_args);
+    }
+
     cyhal_dma_set_dw_obj(obj);
 
     return CY_RSLT_SUCCESS;
@@ -259,6 +294,13 @@ void cyhal_dma_free_dw(cyhal_dma_t *obj)
     NVIC_DisableIRQ(cyhal_dma_get_dw_irqn(obj));
 
     cyhal_dma_free_dw_obj(obj);
+
+    if (!cyhal_dma_dw_has_enabled())
+    {
+        cyhal_syspm_unregister_peripheral_callback(&cyhal_dma_dw_pm_callback_args);
+        cyhal_dma_dw_pm_transition_pending = false;
+    }
+
     cyhal_hwmgr_free(&obj->resource);
 }
 
@@ -356,6 +398,9 @@ cy_rslt_t cyhal_dma_start_transfer_dw(cyhal_dma_t *obj)
     if(cyhal_dma_is_busy_dw(obj))
         return CYHAL_DMA_RSLT_WARN_TRANSFER_ALREADY_STARTED;
 
+    if (cyhal_dma_dw_pm_transition_pending)
+        return CYHAL_SYSPM_RSLT_ERR_PM_PENDING;
+
     uint32_t trigline = cyhal_dma_get_dw_trigger_line(obj->resource.block_num, obj->resource.channel_num);
     cy_en_trigmux_status_t trig_status = Cy_TrigMux_SwTrigger(trigline, CY_TRIGGER_TWO_CYCLES);
 
@@ -367,14 +412,14 @@ cy_rslt_t cyhal_dma_start_transfer_dw(cyhal_dma_t *obj)
         return CY_RSLT_SUCCESS;
 }
 
-void cyhal_dma_enable_event_dw(cyhal_dma_t *obj, cyhal_dma_event_t event, uint8_t intrPriority, bool enable)
+void cyhal_dma_enable_event_dw(cyhal_dma_t *obj, cyhal_dma_event_t event, uint8_t intr_priority, bool enable)
 {
     if(enable)
         obj->irq_cause |= event;
     else
         obj->irq_cause &= ~event;
 
-    NVIC_SetPriority(cyhal_dma_get_dw_irqn(obj), intrPriority);
+    NVIC_SetPriority(cyhal_dma_get_dw_irqn(obj), intr_priority);
 }
 
 bool cyhal_dma_is_busy_dw(cyhal_dma_t *obj)

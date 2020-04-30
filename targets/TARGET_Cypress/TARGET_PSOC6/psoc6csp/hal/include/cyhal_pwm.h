@@ -86,29 +86,41 @@
 #include <stdbool.h>
 #include "cy_result.h"
 #include "cyhal_hw_types.h"
-#include "cyhal_modules.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
+/** \addtogroup group_hal_results
+ *  \{ *//**
+ *  \{ @name PWM Results
+ */
+
+/** Bad argument */
+#define CYHAL_PWM_RSLT_BAD_ARGUMENT                     \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_PWM, 0))
+/** Failed to initialize PWM clock */
+#define CYHAL_PWM_RSLT_FAILED_CLOCK_INIT                \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_PWM, 1))
+/** Failed to initialize PWM */
+#define CYHAL_PWM_RSLT_FAILED_INIT                      \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_PWM, 2))
+
+/**
+ * \} \}
+ */
+
 /** Initialize the PWM out peripheral and configure the pin
  * This is similar to the \ref cyhal_pwm_init_adv() but uses defaults for some of the
  * more advanced setup options. See \ref subsection_pwm_snippet_1.
  *
- * @param[out] obj  The PWM object to initialize
+ * @param[out] obj  Pointer to a PWM object. The caller must allocate the memory
+ *  for this object but the init function will initialize its contents.
  * @param[in]  pin  The PWM pin to initialize
  * @param[in]  clk  An optional, pre-allocated clock to use, if NULL a new clock will be allocated
  * @return The status of the init request.
  */
-#define cyhal_pwm_init(obj, pin, clk) (cyhal_pwm_init_adv(obj, pin, NC, CYHAL_PWM_LEFT_ALIGN, true, 0u, (bool)(pin & 1), clk))
-
-/** Bad argument */
-#define CYHAL_PWM_RSLT_BAD_ARGUMENT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_PWM, 0))
-/** Failed to initialize PWM clock */
-#define CYHAL_PWM_RSLT_FAILED_CLOCK_INIT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_PWM, 1))
-/** Failed to initialize PWM */
-#define CYHAL_PWM_RSLT_FAILED_INIT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_PWM, 2))
+#define cyhal_pwm_init(obj, pin, clk) (cyhal_pwm_init_adv(obj, pin, NC, (pin & 1) ? CYHAL_PWM_RIGHT_ALIGN : CYHAL_PWM_LEFT_ALIGN, true, 0u, (bool)(pin & 1), clk))
 
 /** PWM interrupt triggers */
 typedef enum {
@@ -132,7 +144,8 @@ typedef void(*cyhal_pwm_event_callback_t)(void *callback_arg, cyhal_pwm_event_t 
  * This is similar to the \ref cyhal_pwm_init() but provides additional setup options. <br>
  * See \ref subsection_pwm_snippet_3.
  *
- * @param[out] obj              The PWM object to initialize.
+ * @param[out] obj              Pointer to a PWM object. The caller must allocate the memory
+ *                               for this object but the init function will initialize its contents.
  * @param[in]  pin              The PWM pin to initialize.
  * @param[in]  compl_pin        An optional, additional inverted output pin. <br>
  * If supplied, this must be connected to the same PWM instance as <b>pin</b>, for
@@ -149,7 +162,7 @@ typedef void(*cyhal_pwm_event_callback_t)(void *callback_arg, cyhal_pwm_event_t 
  *
  * @note In some cases, it is possible to use a pin designated for non-inverting output as an inverting output and vice versa. Whether this is possible is dependent on the HAL implementation and operating mode. See the implementation specific documentation for details.
  */
-cy_rslt_t cyhal_pwm_init_adv(cyhal_pwm_t *obj, cyhal_gpio_t pin, cyhal_gpio_t compl_pin, cyhal_pwm_alignment_t pwm_alignment, bool continuous, uint32_t dead_time_us, bool invert, const cyhal_clock_divider_t *clk);
+cy_rslt_t cyhal_pwm_init_adv(cyhal_pwm_t *obj, cyhal_gpio_t pin, cyhal_gpio_t compl_pin, cyhal_pwm_alignment_t pwm_alignment, bool continuous, uint32_t dead_time_us, bool invert, const cyhal_clock_t *clk);
 
 /** Deinitialize the PWM object
  *
@@ -189,7 +202,9 @@ cy_rslt_t cyhal_pwm_start(cyhal_pwm_t *obj);
  */
 cy_rslt_t cyhal_pwm_stop(cyhal_pwm_t *obj);
 
-/** The PWM interrupt handler registration
+/** Register a PWM interrupt handler
+ *
+ * This function will be called when one of the events enabled by \ref cyhal_pwm_enable_event occurs.
  *
  * @param[in] obj          The PWM object
  * @param[in] callback     The callback handler which will be invoked when the event occurs
@@ -198,6 +213,8 @@ cy_rslt_t cyhal_pwm_stop(cyhal_pwm_t *obj);
 void cyhal_pwm_register_callback(cyhal_pwm_t *obj, cyhal_pwm_event_callback_t callback, void *callback_arg);
 
 /** Configure PWM event enablement.
+ *
+ * When an enabled event occurs, the function specified by \ref cyhal_pwm_register_callback will be called.
  *
  * @param[in] obj            The PWM object
  * @param[in] event          The PWM event type

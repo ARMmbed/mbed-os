@@ -9,7 +9,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,9 +27,8 @@
 
 #include "cyhal_dma_dmac.h"
 #include "cyhal_dma_dw.h"
-#include "cyhal_hwmgr.h"
 #include "cyhal_system.h"
-#include "cyhal_utils.h"
+#include "cyhal_hwmgr.h"
 
 /**
 * \addtogroup group_hal_dma DMA (Direct Memory Access)
@@ -179,20 +178,20 @@ void cyhal_dma_register_callback(cyhal_dma_t *obj, cyhal_dma_event_callback_t ca
     cyhal_system_critical_section_exit(saved_intr_status);
 }
 
-void cyhal_dma_enable_event(cyhal_dma_t *obj, cyhal_dma_event_t event, uint8_t intrPriority, bool enable)
+void cyhal_dma_enable_event(cyhal_dma_t *obj, cyhal_dma_event_t event, uint8_t intr_priority, bool enable)
 {
     CY_ASSERT(NULL != obj);
 
 #ifdef CY_IP_M4CPUSS_DMAC
     if(obj->resource.type == CYHAL_RSC_DMA)
     {
-        cyhal_dma_enable_event_dmac(obj, event, intrPriority, enable);
+        cyhal_dma_enable_event_dmac(obj, event, intr_priority, enable);
     }
 #endif
 #ifdef CY_IP_M4CPUSS_DMA
     if(obj->resource.type == CYHAL_RSC_DW)
     {
-        cyhal_dma_enable_event_dw(obj, event, intrPriority, enable);
+        cyhal_dma_enable_event_dw(obj, event, intr_priority, enable);
     }
 #endif
 }

@@ -24,9 +24,7 @@
 *******************************************************************************/
 
 #include "cyhal_interconnect.h"
-#include "cyhal_hwmgr.h"
 #include "cyhal_gpio_impl.h"
-#include "cyhal_hwmgr.h"
 
 #ifdef CY_IP_MXPERI
 
@@ -39,8 +37,8 @@ cy_rslt_t cyhal_connect_pin(const cyhal_resource_pin_mapping_t *pin_connection)
 {
     cyhal_gpio_t pin = pin_connection->pin;
     GPIO_PRT_Type *port = Cy_GPIO_PortToAddr(CYHAL_GET_PORT(pin));
-    en_hsiom_sel_t hsiom = CY_GPIO_CFG_GET_HSIOM(pin_connection->cfg);
-    uint8_t mode = CY_GPIO_CFG_GET_MODE(pin_connection->cfg);
+    en_hsiom_sel_t hsiom = pin_connection->hsiom;
+    uint8_t mode = pin_connection->drive_mode;
 
     Cy_GPIO_Pin_FastInit(port, CYHAL_GET_PIN(pin), mode, 1, hsiom);
     // Force output to enable pulls.

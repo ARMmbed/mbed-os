@@ -169,7 +169,14 @@ cy_rslt_t cyhal_connect_trigger(cyhal_source_t source, cyhal_dest_t dest)
         else
         {
             cyhal_dest_t intraDest = cyhal_intra_trigger_source[foundSource];
+            #if __clang__
+                #pragma clang diagnostic push
+                #pragma clang diagnostic ignored "-Wtautological-constant-out-of-range-compare"
+            #endif
             if (CYHAL_INTERCONNECT_MUX_NOT_CONTINUATION != intraDest)
+            #if __clang__
+                #pragma clang diagnostic pop
+            #endif
             {
                 // This destination can be driven by the output of another mux.
                 uint8_t upstreamMuxIdx = cyhal_dest_to_mux_fake[intraDest];

@@ -2,7 +2,7 @@
 * \file cyhal_hw_resources.h
 *
 * \brief
-* Provides a struct definitions for configuration resources in the PDL.
+* Provides struct definitions for configuration resources in the PDL.
 *
 ********************************************************************************
 * \copyright
@@ -30,6 +30,8 @@
 
 #pragma once
 
+#include "cy_pdl.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -41,8 +43,8 @@ typedef enum
     CYHAL_RSC_ADC,       /*!< Analog to digital converter */
     CYHAL_RSC_BLESS,     /*!< Bluetooth communications block */
     CYHAL_RSC_CAN,       /*!< CAN communication block */
-    CYHAL_RSC_CLKPATH,   /*!< System clock clock path, used to drive hfclks */
-    CYHAL_RSC_CLOCK,     /*!< Clock divider */
+    CYHAL_RSC_CLKPATH,   /*!< Clock Path. DEPRECATED. */
+    CYHAL_RSC_CLOCK,     /*!< Clock */
     CYHAL_RSC_CRYPTO,    /*!< Crypto hardware accelerator */
     CYHAL_RSC_DAC,       /*!< Digital to analog converter */
     CYHAL_RSC_DMA,       /*!< DMA controller */
@@ -64,8 +66,65 @@ typedef enum
     CYHAL_RSC_INVALID,   /*!< Placeholder for invalid type */
 } cyhal_resource_t;
 
+/* NOTE: Any changes here must also be made in cyhal_hwmgr.c */
+/** Enum for the different types of clocks that exist on the device. */
+typedef enum
+{
+    // The first four items are here for backwards compatability with old clock APIs
+    CYHAL_CLOCK_BLOCK_PERIPHERAL_8BIT = CY_SYSCLK_DIV_8_BIT,        /*!< 8bit Peripheral Divider */
+    CYHAL_CLOCK_BLOCK_PERIPHERAL_16BIT = CY_SYSCLK_DIV_16_BIT,      /*!< 16bit Peripheral Divider */
+    CYHAL_CLOCK_BLOCK_PERIPHERAL_16_5BIT = CY_SYSCLK_DIV_16_5_BIT,  /*!< 16.5bit Peripheral Divider */
+    CYHAL_CLOCK_BLOCK_PERIPHERAL_24_5BIT = CY_SYSCLK_DIV_24_5_BIT,  /*!< 24.5bit Peripheral Divider */
+
+    CYHAL_CLOCK_BLOCK_IMO,                                          /*!< Internal Main Oscillator Input Clock */
+    CYHAL_CLOCK_BLOCK_ECO,                                          /*!< External Crystal Oscillator Input Clock */
+    CYHAL_CLOCK_BLOCK_EXT,                                          /*!< External Input Clock */
+    CYHAL_CLOCK_BLOCK_ALTHF,                                        /*!< Alternate High Frequency Input Clock */
+    CYHAL_CLOCK_BLOCK_ALTLF,                                        /*!< Alternate Low Frequency Input Clock */
+    CYHAL_CLOCK_BLOCK_ILO,                                          /*!< Internal Low Speed Oscillator Input Clock */
+    CYHAL_CLOCK_BLOCK_PILO,                                         /*!< Precision ILO Input Clock */
+    CYHAL_CLOCK_BLOCK_WCO,                                          /*!< Watch Crystal Oscillator Input Clock */
+    CYHAL_CLOCK_BLOCK_MFO,                                          /*!< Medium Frequency Oscillator Clock */
+
+    CYHAL_CLOCK_BLOCK_PATHMUX,                                      /*!< Path selection mux for input to FLL/PLLs */
+
+    CYHAL_CLOCK_BLOCK_FLL,                                          /*!< Frequency-Locked Loop Clock */
+    CYHAL_CLOCK_BLOCK_PLL,                                          /*!< Phase-Locked Loop Clock */
+
+    CYHAL_CLOCK_BLOCK_LF,                                           /*!< Low Frequency Clock */
+    CYHAL_CLOCK_BLOCK_MF,                                           /*!< Medium Frequency Clock */
+    CYHAL_CLOCK_BLOCK_HF,                                           /*!< High Frequency Clock */
+
+    CYHAL_CLOCK_BLOCK_PUMP,                                         /*!< Analog Pump Clock */
+    CYHAL_CLOCK_BLOCK_BAK,                                          /*!< Backup Power Domain Clock */
+    CYHAL_CLOCK_BLOCK_TIMER,                                        /*!< Timer Clock */
+    CYHAL_CLOCK_BLOCK_ALT_SYS_TICK,                                 /*!< Alternative SysTick Clock */
+
+    CYHAL_CLOCK_BLOCK_FAST,                                         /*!< Fast Clock for CM4 */
+    CYHAL_CLOCK_BLOCK_PERI,                                         /*!< Peripheral Clock */
+    CYHAL_CLOCK_BLOCK_SLOW,                                         /*!< Slow Clock for CM0+ */
+} cyhal_clock_block_t;
+
+/** @brief Clock object
+  * Application code should not rely on the specific contents of this struct.
+  * They are considered an implementation detail which is subject to change
+  * between platforms and/or HAL releases. */
+typedef struct
+{
+    //For backwards compatibility with cyhal_clock_divider_t only. Do not use going forward.
+    cy_en_divider_types_t   div_type;                /*!< Deprecated */
+    uint8_t                 div_num;                 /*!< Deprecated */
+    //End BWC items
+    cyhal_clock_block_t     block;
+    uint8_t                 channel;
+    bool                    reserved;
+} cyhal_clock_t;
+
 /**
-  * @brief Represents a particular instance of a resource on the chip
+  * @brief Represents a particular instance of a resource on the chip.
+  * Application code should not rely on the specific contents of this struct.
+  * They are considered an implementation detail which is subject to change
+  * between platforms and/or HAL releases.
   */
 typedef struct
 {

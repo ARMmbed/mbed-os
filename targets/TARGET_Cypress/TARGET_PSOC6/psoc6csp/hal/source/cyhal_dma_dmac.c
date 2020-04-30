@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +26,7 @@
 #include "cyhal_dma_dmac.h"
 #include "cyhal_dma_impl.h"
 #include "cyhal_hwmgr.h"
-#include "cyhal_system.h"
+#include "cyhal_syspm.h"
 #include "cyhal_utils.h"
 #include "cyhal_triggers.h"
 
@@ -71,6 +71,48 @@ static const cy_stc_dmac_channel_config_t default_channel_config_dmac =
     .bufferable = false,
 };
 
+static bool cyhal_dma_dmac_pm_callback(cyhal_syspm_callback_state_t state, cyhal_syspm_callback_mode_t mode, void* callback_arg);
+
+static cyhal_syspm_callback_data_t cyhal_dma_dmac_pm_callback_args = {
+    .callback = &cyhal_dma_dmac_pm_callback,
+    .states = (cyhal_syspm_callback_state_t)(CYHAL_SYSPM_CB_CPU_DEEPSLEEP | CYHAL_SYSPM_CB_SYSTEM_HIBERNATE),
+    .next = NULL,
+    .args = NULL,
+    .ignore_modes = CYHAL_SYSPM_BEFORE_TRANSITION,
+};
+static bool cyhal_dma_dmac_pm_transition_pending = false;
+static bool cyhal_dma_dmac_has_enabled(void)
+{
+    for (uint8_t i = 0; i <  CPUSS_DMAC_CH_NR; i++)
+        if (cyhal_dmac_config_structs[i])
+            return true;
+    return false;
+}
+
+static bool cyhal_dma_dmac_pm_callback(cyhal_syspm_callback_state_t state, cyhal_syspm_callback_mode_t mode, void* callback_arg)
+{
+    bool block_transition = false;
+    switch(mode)
+    {
+        case CYHAL_SYSPM_CHECK_READY:
+
+            for (uint8_t i = 0; i <  CPUSS_DMAC_CH_NR && !block_transition; i++)
+            {
+                block_transition |= (cyhal_dmac_config_structs[i] != NULL) && cyhal_dma_is_busy_dmac(cyhal_dmac_config_structs[i]);
+            }
+            cyhal_dma_dmac_pm_transition_pending = !block_transition;
+            break;
+
+        case CYHAL_SYSPM_CHECK_FAIL:
+        case CYHAL_SYSPM_AFTER_TRANSITION:
+            cyhal_dma_dmac_pm_transition_pending = false;
+            break;
+        default:
+            break;
+    }
+    return cyhal_dma_dmac_pm_transition_pending;
+}
+
 /** Sets the dmac configuration struct */
 static inline void cyhal_dma_set_dmac_obj(cyhal_dma_t *obj)
 {
@@ -96,10 +138,7 @@ static inline uint8_t cyhal_dma_get_dmac_block_from_irqn(IRQn_Type irqn)
     /* Since there is only one dmac block this function always returns 0. diff
      * is calculated here only to verify that this was called from a valid
      * IRQn. */
-    CY_UNUSED uint8_t diff = irqn - cpuss_interrupts_dmac_0_IRQn;
-
-    CY_ASSERT(diff < CPUSS_DMAC_CH_NR);
-
+    CY_ASSERT(irqn >= cpuss_interrupts_dmac_0_IRQn && irqn < cpuss_interrupts_dmac_0_IRQn + (IRQn_Type)CPUSS_DMAC_CH_NR);
     return 0;
 }
 
@@ -123,6 +162,7 @@ static inline IRQn_Type cyhal_dma_get_dmac_irqn(cyhal_dma_t *obj)
 /** Gets the dmac base pointer from block number */
 static inline DMAC_Type* cyhal_dma_get_dmac_base(uint8_t block_num)
 {
+    CY_UNUSED_PARAMETER(block_num);
     return DMAC;
 }
 
@@ -205,6 +245,11 @@ cy_rslt_t cyhal_dma_init_dmac(cyhal_dma_t *obj, uint8_t priority)
     if(!CY_DMAC_IS_PRIORITY_VALID(priority))
         return CYHAL_DMA_RSLT_ERR_INVALID_PRIORITY;
 
+    if (cyhal_dma_dmac_pm_transition_pending)
+    {
+        return CYHAL_SYSPM_RSLT_ERR_PM_PENDING;
+    }
+
     cy_rslt_t rslt = cyhal_hwmgr_allocate(CYHAL_RSC_DMA, &obj->resource);
     if(rslt != CY_RSLT_SUCCESS)
         return rslt;
@@ -219,6 +264,11 @@ cy_rslt_t cyhal_dma_init_dmac(cyhal_dma_t *obj, uint8_t priority)
     obj->callback_data.callback_arg = NULL;
     obj->irq_cause = 0;
 
+    if (!cyhal_dma_dmac_has_enabled())
+    {
+        cyhal_syspm_register_peripheral_callback(&cyhal_dma_dmac_pm_callback_args);
+    }
+
     cyhal_dma_set_dmac_obj(obj);
 
     return CY_RSLT_SUCCESS;
@@ -232,6 +282,13 @@ void cyhal_dma_free_dmac(cyhal_dma_t *obj)
     NVIC_DisableIRQ(cyhal_dma_get_dmac_irqn(obj));
 
     cyhal_dma_free_dmac_obj(obj);
+
+    if (!cyhal_dma_dmac_has_enabled())
+    {
+        cyhal_syspm_unregister_peripheral_callback(&cyhal_dma_dmac_pm_callback_args);
+        cyhal_dma_dmac_pm_transition_pending = false;
+    }
+
     cyhal_hwmgr_free(&obj->resource);
 }
 
@@ -330,6 +387,9 @@ cy_rslt_t cyhal_dma_start_transfer_dmac(cyhal_dma_t *obj)
     if(cyhal_dma_is_busy_dmac(obj))
         return CYHAL_DMA_RSLT_WARN_TRANSFER_ALREADY_STARTED;
 
+    if (cyhal_dma_dmac_pm_transition_pending)
+        return CYHAL_SYSPM_RSLT_ERR_PM_PENDING;
+
     uint32_t trigline = cyhal_dma_get_dmac_trigger_line(obj->resource.block_num, obj->resource.channel_num);
     cy_en_trigmux_status_t trig_status = Cy_TrigMux_SwTrigger(trigline, CY_TRIGGER_TWO_CYCLES);
 
@@ -341,14 +401,14 @@ cy_rslt_t cyhal_dma_start_transfer_dmac(cyhal_dma_t *obj)
         return CY_RSLT_SUCCESS;
 }
 
-void cyhal_dma_enable_event_dmac(cyhal_dma_t *obj, cyhal_dma_event_t event, uint8_t intrPriority, bool enable)
+void cyhal_dma_enable_event_dmac(cyhal_dma_t *obj, cyhal_dma_event_t event, uint8_t intr_priority, bool enable)
 {
     if(enable)
         obj->irq_cause |= event;
     else
         obj->irq_cause &= ~event;
 
-    NVIC_SetPriority(cyhal_dma_get_dmac_irqn(obj), intrPriority);
+    NVIC_SetPriority(cyhal_dma_get_dmac_irqn(obj), intr_priority);
 }
 
 bool cyhal_dma_is_busy_dmac(cyhal_dma_t *obj)

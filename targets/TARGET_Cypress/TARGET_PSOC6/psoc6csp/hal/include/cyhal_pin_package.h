@@ -62,10 +62,9 @@ typedef enum {
     CYHAL_PORT_20 = 0x14,
 } cyhal_port_t;
 
-/** Bitfield representing the configuration of a GPIO (hsiom selection and mode).
-  * Use the CY_GPIO_CFG_GET_MODE and CY_GPIO_CFG_GET_HSIOM to extract the
-  * individual field values.
-  */
+/** \cond INTERNAL */
+/* The items in this cond block are DEPRECATED. They are only provided for mbed usage. */
+
 typedef uint16_t cyhal_gpio_mapping_cfg_t; // 8bit hsiom, 8bit mode
 
 /** Extract the GPIO mode setting from a cyhal_gpio_mapping_cfg_t */
@@ -73,12 +72,11 @@ typedef uint16_t cyhal_gpio_mapping_cfg_t; // 8bit hsiom, 8bit mode
 /** Extract the HSIOM selection from a cyhal_gpio_mapping_cfg_t */
 #define CY_GPIO_CFG_GET_HSIOM(x) ((en_hsiom_sel_t)(((x) >> 8) & 0xFF))
 
-/** \cond INTERNAL */
 #define CY_GPIO_CFG_CREATE(hsiom, mode)  ((cyhal_gpio_mapping_cfg_t)(((hsiom) << 8) + (mode)))
 
 #define CYHAL_PIN_OUT_FUNCTION(hsiom)           CY_GPIO_CFG_CREATE(hsiom, CY_GPIO_DM_STRONG_IN_OFF)
 #define CYHAL_PIN_OUT_BUF_FUNCTION(hsiom)       CY_GPIO_CFG_CREATE(hsiom, CY_GPIO_DM_STRONG)
-#define CYHAL_PIN_OD_FUNCTION(hsiom)            CY_GPIO_CFG_CREATE(hsiom, CY_GPIO_DM_OD_DRIVESLOW_IN_OFF)
+#define CYHAL_PIN_OD_FUNCTION(hsiom)            CY_GPIO_CFG_CREATE(hsiom, CY_GPIO_DM_OD_DRIVESLOW)
 #define CYHAL_PIN_IN_FUNCTION(hsiom)            CY_GPIO_CFG_CREATE(hsiom, CY_GPIO_DM_HIGHZ)
 #define CYHAL_PIN_PULLUP_FUNCTION(hsiom)        CY_GPIO_CFG_CREATE(hsiom, CY_GPIO_DM_PULLUP)
 #define CYHAL_PIN_ANALOG_FUNCTION(hsiom)        CY_GPIO_CFG_CREATE(HSIOM_SEL_GPIO, CY_GPIO_DM_ANALOG)

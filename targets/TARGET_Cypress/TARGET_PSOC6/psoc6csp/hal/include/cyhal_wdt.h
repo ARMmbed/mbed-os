@@ -2,14 +2,14 @@
 * \file cyhal_wdt.h
 *
 * \brief
-* Provides a high level interface for interacting with the Cypress Watchdog Timer.
+* Provides a high level interface for interacting with the Watchdog Timer.
 * This interface abstracts out the chip specific details. If any chip specific
 * functionality is necessary, or performance is critical the low level functions
 * can be used directly.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2019 Cypress Semiconductor Corporation
+* Copyright 2019-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,33 +30,28 @@
 * \ingroup group_hal
 * \{
 * High level interface to the Watchdog Timer (WDT).
-*
-* cyhal_wdt_init() initializes the WDT and passes a pointer to the WDT block through obj.
-* The timeout_ms parameter takes in the timeout in milliseconds.
-* It can be used for recovering from a CPU or firmware failure.
-  The watchdog timer is initialized with a timeout interval. Once the WDT is started,
-  if cyhal_wdt_kick() must be called at least once within the timeout interval. In case
-  the firmware fails to do so, it is considered to be a CPU crash or firmware failure and the device
-  will be reset.
-*
+* The WDT can be used for recovering from a CPU or firmware failure.
+* The WDT is initialized with a timeout interval. Once the WDT is started, \ref
+* cyhal_wdt_kick must be called at least once within each timeout interval to
+* reset the count. In case the firmware fails to do so, it is considered to be a
+* CPU crash or firmware failure and the device will be reset.
 *
 *\section subsection_wdt_features Features
-* WDT supports Device Reset generation if not serviced within the configured timeout interval.
-*
+* WDT resets the device if the WDT is not "kicked" using \ref cyhal_wdt_kick
+* within the configured timeout interval.
 *
 * \section subsection_wdt_quickstart Quick Start
 *
-* \ref cyhal_wdt_init() can be used for initialization by providing the WDT object (obj) and the timeout parameter
-* (timeout period in ms).
-* The timeout parameter can have a minimum value of 1ms. The maximum value of the timeout
-* parameter can be obtained using the cyhal_wdt_get_max_timeout_ms().
+* \ref cyhal_wdt_init() is used to initialize the WDT by providing the WDT object
+* (**obj**) and the timeout (**timeout_ms**) value in milliseconds.
+* The timeout parameter can have a minimum value of 1ms. The maximum value of the
+* timeout parameter can be obtained using the cyhal_wdt_get_max_timeout_ms().
 *
+* \section subsection_wdt_snippet Code Snippet
 *
-* \section subsection_wdt_sample_use_case Sample use case
-*
-* \subsection subsection_wdt_use_case Use Case: Initialization and reset functionality
-* The following snippet initializes the WDT and depicts the reset functionality of WDT in case of CPU or
-* firmware failure.
+* \subsection subsection_wdt_snippet1 Snippet 1: Initialize the WDT and reset the
+* WDT periodically The following snippet initializes the WDT and illustrates how
+* to reset the WDT within the timeout interval.
 * \snippet wdt.c snippet_cyhal_wdt_init_and_reset
 */
 
@@ -69,17 +64,28 @@
 extern "C" {
 #endif
 
+/** \addtogroup group_hal_results
+ *  \{ *//**
+ *  \{ @name WDT Results
+ */
+
 /** WDT timeout out of range */
-#define CY_RSLT_WDT_INVALID_TIMEOUT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_WDT, 0))
+#define CY_RSLT_WDT_INVALID_TIMEOUT                     \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_WDT, 0))
 /** WDT already initialized */
-#define CY_RSLT_WDT_ALREADY_INITIALIZED (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_WDT, 1))
+#define CY_RSLT_WDT_ALREADY_INITIALIZED                 \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_WDT, 1))
+
+/**
+ * \} \}
+ */
 
 /** Initialize and start the WDT
 *
-* Initialize or re-initialize the WDT.
-* \attention The specified timeout must be at least 1ms and at most the WDT's maximum timeout (see cyhal_wdt_get_max_timeout_ms()).
+* \note The specified timeout must be at least 1ms and at most the WDT's maximum timeout (see cyhal_wdt_get_max_timeout_ms()).
 *
-* @param[out] obj The WDT object
+ * @param[out] obj  Pointer to a WDT object. The caller must allocate the memory
+ *  for this object but the init function will initialize its contents.
 * @param[in] timeout_ms The time in milliseconds before the WDT times out (1ms - max) (see cyhal_wdt_get_max_timeout_ms())
 * @return The status of the init request
 *
@@ -87,12 +93,11 @@ extern "C" {
 */
 cy_rslt_t cyhal_wdt_init(cyhal_wdt_t *obj, uint32_t timeout_ms);
 
-/** Deinitialize the WDT
+/** Free the WDT
 *
-* Powers down the WDT.
+* Powers down the WDT. Releases object (obj).
 * After calling this function no other WDT functions should be called except
-* cyhal_wdt_init(). Calling any function other than init after freeing is
-* undefined.
+* cyhal_wdt_init().
 *
 * @param[inout] obj The WDT object
 *
@@ -100,29 +105,25 @@ cy_rslt_t cyhal_wdt_init(cyhal_wdt_t *obj, uint32_t timeout_ms);
 
 void cyhal_wdt_free(cyhal_wdt_t *obj);
 
-/** Refresh the WDT
+/** Resets the WDT
 *
-* Refreshes the WDT.  This function should be called periodically to prevent the WDT from timing out.
-* In the event of a timeout, the WDT resets the system.
+* This function should be called periodically to prevent the WDT from timing out and resetting the device.
+*
+* See \ref subsection_wdt_snippet1
 *
 * @param[inout] obj The WDT object
 *
-* See \ref subsection_wdt_use_case
 */
 void cyhal_wdt_kick(cyhal_wdt_t *obj);
 
-/** Start the WDT
-*
-* Enables the WDT.
+/** Start (enable) the WDT
 *
 * @param[inout] obj The WDT object
 * @return The status of the start request
 */
 void cyhal_wdt_start(cyhal_wdt_t *obj);
 
-/** Stop the WDT
-*
-* Disables the WDT.
+/** Stop (disable) the WDT
 *
 * @param[inout] obj The WDT object
 * @return The status of the stop request
@@ -138,9 +139,7 @@ void cyhal_wdt_stop(cyhal_wdt_t *obj);
 */
 uint32_t cyhal_wdt_get_timeout_ms(cyhal_wdt_t *obj);
 
-/** Gets the maximum WDT timeout
-*
-* Gets the maximum timeout for the WDT.
+/** Gets the maximum WDT timeout in milliseconds
 *
 * @return The maximum timeout for the WDT
 */

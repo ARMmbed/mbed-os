@@ -54,13 +54,13 @@ __STATIC_INLINE void cyhal_pwm_register_callback_internal(cyhal_pwm_t *obj, cyha
 
 #define cyhal_pwm_register_callback(obj, callback, callback_arg) cyhal_pwm_register_callback_internal(obj, callback, callback_arg)
 
-__STATIC_INLINE void cyhal_pwm_enable_event_internal(cyhal_pwm_t *obj, cyhal_pwm_event_t event, uint8_t intrPriority, bool enable)
+__STATIC_INLINE void cyhal_pwm_enable_event_internal(cyhal_pwm_t *obj, cyhal_pwm_event_t event, uint8_t intr_priority, bool enable)
 {
     uint32_t converted = cyhal_pwm_convert_event(event);
-    cyhal_tcpwm_enable_event(obj->base, &(obj->resource), converted, intrPriority, enable);
+    cyhal_tcpwm_enable_event(obj->base, &(obj->resource), converted, intr_priority, enable);
 }
 
-#define cyhal_pwm_enable_event(obj, event, intrPriority, enable) cyhal_pwm_enable_event_internal(obj, event, intrPriority, enable)
+#define cyhal_pwm_enable_event(obj, event, intr_priority, enable) cyhal_pwm_enable_event_internal(obj, event, intr_priority, enable)
 
 #if defined(__cplusplus)
 }
