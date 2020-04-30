@@ -25,6 +25,8 @@
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
 
+#include <cmath>
+
 namespace mbed {
 /** \defgroup mbed-os-public Public API */
 
@@ -71,14 +73,14 @@ public:
      *
      * @param pinmap reference to structure which holds static pinmap.
      */
-    AnalogIn(const PinMap &pinmap);
-    AnalogIn(const PinMap &&) = delete; // prevent passing of temporary objects
+    AnalogIn(const PinMap &pinmap, float vref = MBED_CONF_TARGET_DEFAULT_ADC_VREF);
+    AnalogIn(const PinMap &&, float vref = MBED_CONF_TARGET_DEFAULT_ADC_VREF) = delete; // prevent passing of temporary objects
 
     /** Create an AnalogIn, connected to the specified pin
      *
      * @param pin AnalogIn pin to connect to
      */
-    AnalogIn(PinName pin);
+    AnalogIn(PinName pin, float vref = MBED_CONF_TARGET_DEFAULT_ADC_VREF);
 
     /** Read the input voltage, represented as a float in the range [0.0, 1.0]
      *
@@ -161,7 +163,7 @@ protected:
     analogin_t _adc;
     static SingletonPtr<PlatformMutex> _mutex;
 
-    float vref;
+    float _vref;
 
 #endif //!defined(DOXYGEN_ONLY)
 

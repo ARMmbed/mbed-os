@@ -23,20 +23,20 @@ namespace mbed {
 
 SingletonPtr<PlatformMutex> AnalogIn::_mutex;
 
-AnalogIn::AnalogIn(PinName pin) : vref(MBED_CONF_TARGET_DEFAULT_ADC_VREF)
+
+AnalogIn::AnalogIn(PinName pin, float vref) : _vref(vref)
 {
     lock();
     analogin_init(&_adc, pin);
     unlock();
 }
 
-AnalogIn::AnalogIn(const PinMap &pinmap) : vref(MBED_CONF_TARGET_DEFAULT_ADC_VREF)
+AnalogIn::AnalogIn(const PinMap &pinmap, float vref) : _vref(vref)
 {
     lock();
     analogin_init_direct(&_adc, &pinmap);
     unlock();
 }
-
 
 float AnalogIn::read()
 {
@@ -56,17 +56,17 @@ unsigned short AnalogIn::read_u16()
 
 float AnalogIn::read_voltage()
 {
-    return (this->read() * this->vref);
+    return (this->read() * this->_vref);
 }
 
 void AnalogIn::set_reference_voltage(float vref)
 {
-    this->vref = vref;
+    this->_vref = vref;
 }
 
 float AnalogIn::get_reference_voltage(void)
 {
-    return this->vref;
+    return this->_vref;
 }
 
 } // namespace mbed
