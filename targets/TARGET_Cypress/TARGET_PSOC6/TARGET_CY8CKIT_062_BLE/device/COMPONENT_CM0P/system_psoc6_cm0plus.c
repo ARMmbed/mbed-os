@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file system_psoc6_cm0plus.c
-* \version 2.70
+* \version 2.70.1
 *
 * The device system-source file.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");

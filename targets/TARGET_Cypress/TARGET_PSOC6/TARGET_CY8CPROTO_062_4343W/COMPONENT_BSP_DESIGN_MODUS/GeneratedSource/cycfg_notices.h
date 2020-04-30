@@ -6,7 +6,7 @@
 * design.
 * This file was automatically generated and should not be modified.
 * Device Configurator: 2.0.0.1483
-* Device Support Library (../../../../output/psoc6/psoc6pdl): 1.4.0.1571
+* Device Support Library (libs/psoc6pdl): 1.4.1.2240
 *
 ********************************************************************************
 * Copyright 2017-2019 Cypress Semiconductor Corporation

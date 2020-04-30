@@ -5,7 +5,7 @@
 * Pin configuration
 * This file was automatically generated and should not be modified.
 * Device Configurator: 2.0.0.1483
-* Device Support Library (../../../../output/libs/COMPONENT_PSOC6/psoc6pdl): 1.4.0.1889
+* Device Support Library (libs/psoc6pdl): 1.4.1.2240
 *
 ********************************************************************************
 * Copyright 2017-2019 Cypress Semiconductor Corporation
@@ -57,7 +57,7 @@ extern "C" {
 	#define CYBSP_WCO_IN_HAL_IRQ CYHAL_GPIO_IRQ_NONE
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
-	#define CYBSP_WCO_IN_HAL_DIR CYHAL_GPIO_DIR_INPUT 
+	#define CYBSP_WCO_IN_HAL_DIR CYHAL_GPIO_DIR_INPUT
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
 	#define CYBSP_WCO_IN_HAL_DRIVEMODE CYHAL_GPIO_DRIVE_ANALOG
@@ -81,7 +81,7 @@ extern "C" {
 	#define CYBSP_WCO_OUT_HAL_IRQ CYHAL_GPIO_IRQ_NONE
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
-	#define CYBSP_WCO_OUT_HAL_DIR CYHAL_GPIO_DIR_INPUT 
+	#define CYBSP_WCO_OUT_HAL_DIR CYHAL_GPIO_DIR_INPUT
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
 	#define CYBSP_WCO_OUT_HAL_DRIVEMODE CYHAL_GPIO_DRIVE_ANALOG
@@ -105,7 +105,7 @@ extern "C" {
 	#define SWDIO_HAL_IRQ CYHAL_GPIO_IRQ_NONE
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
-	#define SWDIO_HAL_DIR CYHAL_GPIO_DIR_BIDIRECTIONAL 
+	#define SWDIO_HAL_DIR CYHAL_GPIO_DIR_BIDIRECTIONAL
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
 	#define SWDIO_HAL_DRIVEMODE CYHAL_GPIO_DRIVE_PULLUP
@@ -129,7 +129,7 @@ extern "C" {
 	#define SWCLK_HAL_IRQ CYHAL_GPIO_IRQ_NONE
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
-	#define SWCLK_HAL_DIR CYHAL_GPIO_DIR_BIDIRECTIONAL 
+	#define SWCLK_HAL_DIR CYHAL_GPIO_DIR_BIDIRECTIONAL
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
 	#define SWCLK_HAL_DRIVEMODE CYHAL_GPIO_DRIVE_PULLDOWN
@@ -153,7 +153,7 @@ extern "C" {
 	#define CYBSP_CSD_SLD0_HAL_IRQ CYHAL_GPIO_IRQ_NONE
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
-	#define CYBSP_CSD_SLD0_HAL_DIR CYHAL_GPIO_DIR_INPUT 
+	#define CYBSP_CSD_SLD0_HAL_DIR CYHAL_GPIO_DIR_INPUT
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
 	#define CYBSP_CSD_SLD0_HAL_DRIVEMODE CYHAL_GPIO_DRIVE_ANALOG
@@ -177,7 +177,7 @@ extern "C" {
 	#define CYBSP_CSD_SLD1_HAL_IRQ CYHAL_GPIO_IRQ_NONE
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
-	#define CYBSP_CSD_SLD1_HAL_DIR CYHAL_GPIO_DIR_INPUT 
+	#define CYBSP_CSD_SLD1_HAL_DIR CYHAL_GPIO_DIR_INPUT
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
 	#define CYBSP_CSD_SLD1_HAL_DRIVEMODE CYHAL_GPIO_DRIVE_ANALOG
@@ -201,7 +201,7 @@ extern "C" {
 	#define CYBSP_CSD_SLD2_HAL_IRQ CYHAL_GPIO_IRQ_NONE
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
-	#define CYBSP_CSD_SLD2_HAL_DIR CYHAL_GPIO_DIR_INPUT 
+	#define CYBSP_CSD_SLD2_HAL_DIR CYHAL_GPIO_DIR_INPUT
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
 	#define CYBSP_CSD_SLD2_HAL_DRIVEMODE CYHAL_GPIO_DRIVE_ANALOG
@@ -225,7 +225,7 @@ extern "C" {
 	#define CYBSP_CSD_SLD3_HAL_IRQ CYHAL_GPIO_IRQ_NONE
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
-	#define CYBSP_CSD_SLD3_HAL_DIR CYHAL_GPIO_DIR_INPUT 
+	#define CYBSP_CSD_SLD3_HAL_DIR CYHAL_GPIO_DIR_INPUT
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
 	#define CYBSP_CSD_SLD3_HAL_DRIVEMODE CYHAL_GPIO_DRIVE_ANALOG
@@ -249,7 +249,7 @@ extern "C" {
 	#define CYBSP_CMOD_HAL_IRQ CYHAL_GPIO_IRQ_NONE
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
-	#define CYBSP_CMOD_HAL_DIR CYHAL_GPIO_DIR_INPUT 
+	#define CYBSP_CMOD_HAL_DIR CYHAL_GPIO_DIR_INPUT
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
 	#define CYBSP_CMOD_HAL_DRIVEMODE CYHAL_GPIO_DRIVE_ANALOG
@@ -273,7 +273,7 @@ extern "C" {
 	#define CYBSP_CSD_BTN0_HAL_IRQ CYHAL_GPIO_IRQ_NONE
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
-	#define CYBSP_CSD_BTN0_HAL_DIR CYHAL_GPIO_DIR_INPUT 
+	#define CYBSP_CSD_BTN0_HAL_DIR CYHAL_GPIO_DIR_INPUT
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
 	#define CYBSP_CSD_BTN0_HAL_DRIVEMODE CYHAL_GPIO_DRIVE_ANALOG
@@ -297,7 +297,7 @@ extern "C" {
 	#define CYBSP_CSD_BTN1_HAL_IRQ CYHAL_GPIO_IRQ_NONE
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
-	#define CYBSP_CSD_BTN1_HAL_DIR CYHAL_GPIO_DIR_INPUT 
+	#define CYBSP_CSD_BTN1_HAL_DIR CYHAL_GPIO_DIR_INPUT
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
 	#define CYBSP_CSD_BTN1_HAL_DRIVEMODE CYHAL_GPIO_DRIVE_ANALOG
@@ -321,7 +321,7 @@ extern "C" {
 	#define CYBSP_CSD_SLD4_HAL_IRQ CYHAL_GPIO_IRQ_NONE
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
-	#define CYBSP_CSD_SLD4_HAL_DIR CYHAL_GPIO_DIR_INPUT 
+	#define CYBSP_CSD_SLD4_HAL_DIR CYHAL_GPIO_DIR_INPUT
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
 	#define CYBSP_CSD_SLD4_HAL_DRIVEMODE CYHAL_GPIO_DRIVE_ANALOG

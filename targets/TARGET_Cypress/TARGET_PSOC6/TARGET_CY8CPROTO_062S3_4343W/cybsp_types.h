@@ -7,7 +7,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,6 +28,9 @@
 #if defined(CY_USING_HAL)
 #include "cyhal_pin_package.h"
 #endif
+#if defined(COMPONENT_BSP_DESIGN_MODUS) || defined(COMPONENT_CUSTOM_DESIGN_MODUS)
+#include "cycfg.h"
+#endif
 
 #if defined(__cplusplus)
 extern "C" {
@@ -41,7 +44,7 @@ extern "C" {
 * <ul>
 * <li>WCO uses external 32.768 kHz square wave input at P0[1]. Pin P0[0] should be left floating.</li>
 * <li>External clock is not supported since pin P0[5] is used as BT_HOST_WAKE signal</li>
-* </ul> 
+* </ul>
 *
 * <div class="category">Peripheral Default HAL Settings:</div>
 * | Resource | Parameter | Value | Remarks |
@@ -72,14 +75,22 @@ extern "C" {
 */
 
 /** Pin state for the LED on. */
+#ifndef CYBSP_LED_STATE_ON
 #define CYBSP_LED_STATE_ON          (0U)
+#endif
 /** Pin state for the LED off. */
+#ifndef CYBSP_LED_STATE_OFF
 #define CYBSP_LED_STATE_OFF         (1U)
+#endif
 
 /** Pin state for when a button is pressed. */
+#ifndef CYBSP_BTN_PRESSED
 #define CYBSP_BTN_PRESSED           (0U)
+#endif
 /** Pin state for when a button is released. */
+#ifndef CYBSP_BTN_OFF
 #define CYBSP_BTN_OFF               (1U)
+#endif
 
 /** \} group_bsp_pin_state */
 
@@ -96,12 +107,18 @@ extern "C" {
 */
 
 /** LED 4; User LED1 (red) */
+#ifndef CYBSP_LED4
 #define CYBSP_LED4                  (P11_1)
+#endif
 
 /** LED 4; User LED1 (red) */
+#ifndef CYBSP_USER_LED1
 #define CYBSP_USER_LED1             (CYBSP_LED4)
+#endif
 /** LED 4; User LED1 (red) */
+#ifndef CYBSP_USER_LED
 #define CYBSP_USER_LED              (CYBSP_USER_LED1)
+#endif
 
 /** \} group_bsp_pins_led */
 
@@ -112,12 +129,18 @@ extern "C" {
 */
 
 /** Switch 2; User Button 1 */
+#ifndef CYBSP_SW2
 #define CYBSP_SW2                   (P0_4)
+#endif
 
 /** Switch 2; User Button 1 */
+#ifndef CYBSP_USER_BTN1
 #define CYBSP_USER_BTN1             (CYBSP_SW2)
+#endif
 /** Switch 2; User Button 1 */
+#ifndef CYBSP_USER_BTN
 #define CYBSP_USER_BTN              (CYBSP_USER_BTN1)
+#endif
 
 /** \} group_bsp_pins_btn */
 
@@ -128,60 +151,110 @@ extern "C" {
 */
 
 /** Pin: WIFI SDIO D0 */
+#ifndef CYBSP_WIFI_SDIO_D0
 #define CYBSP_WIFI_SDIO_D0          (P2_0)
+#endif
 /** Pin: WIFI SDIO D1 */
+#ifndef CYBSP_WIFI_SDIO_D1
 #define CYBSP_WIFI_SDIO_D1          (P2_1)
+#endif
 /** Pin: WIFI SDIO D2 */
+#ifndef CYBSP_WIFI_SDIO_D2
 #define CYBSP_WIFI_SDIO_D2          (P2_2)
+#endif
 /** Pin: WIFI SDIO D3 */
+#ifndef CYBSP_WIFI_SDIO_D3
 #define CYBSP_WIFI_SDIO_D3          (P2_3)
+#endif
 /** Pin: WIFI SDIO CMD */
+#ifndef CYBSP_WIFI_SDIO_CMD
 #define CYBSP_WIFI_SDIO_CMD         (P2_4)
+#endif
 /** Pin: WIFI SDIO CLK */
+#ifndef CYBSP_WIFI_SDIO_CLK
 #define CYBSP_WIFI_SDIO_CLK         (P2_5)
+#endif
 /** Pin: WIFI ON */
+#ifndef CYBSP_WIFI_WL_REG_ON
 #define CYBSP_WIFI_WL_REG_ON        (P2_6)
+#endif
 /** Pin: WIFI Host Wakeup */
+#ifndef CYBSP_WIFI_HOST_WAKE
 #define CYBSP_WIFI_HOST_WAKE        (P2_7)
+#endif
 
 /** Pin: BT UART RX */
+#ifndef CYBSP_BT_UART_RX
 #define CYBSP_BT_UART_RX            (P3_0)
+#endif
 /** Pin: BT UART TX */
+#ifndef CYBSP_BT_UART_TX
 #define CYBSP_BT_UART_TX            (P3_1)
+#endif
 /** Pin: BT UART RTS */
+#ifndef CYBSP_BT_UART_RTS
 #define CYBSP_BT_UART_RTS           (P9_2)
+#endif
 /** Pin: BT UART CTS */
+#ifndef CYBSP_BT_UART_CTS
 #define CYBSP_BT_UART_CTS           (P9_3)
+#endif
 
 /** Pin: BT Power */
+#ifndef CYBSP_BT_POWER
 #define CYBSP_BT_POWER              (P0_2)
+#endif
 /** Pin: BT Host Wakeup */
+#ifndef CYBSP_BT_HOST_WAKE
 #define CYBSP_BT_HOST_WAKE          (P0_5)
+#endif
 /** Pin: BT Device Wakeup */
+#ifndef CYBSP_BT_DEVICE_WAKE
 #define CYBSP_BT_DEVICE_WAKE        (P0_3)
+#endif
 
 /** Pin: UART RX */
+#ifndef CYBSP_DEBUG_UART_RX
 #define CYBSP_DEBUG_UART_RX         (P10_0)
+#endif
 /** Pin: UART TX */
+#ifndef CYBSP_DEBUG_UART_TX
 #define CYBSP_DEBUG_UART_TX         (P10_1)
+#endif
 
 /** Pin: I2C SCL */
+#ifndef CYBSP_I2C_SCL
 #define CYBSP_I2C_SCL               (P6_4)
+#endif
 /** Pin: I2C SDA */
+#ifndef CYBSP_I2C_SDA
 #define CYBSP_I2C_SDA               (P6_5)
+#endif
 
 /** Pin: QUAD SPI SS */
+#ifndef CYBSP_QSPI_SS
 #define CYBSP_QSPI_SS               (P11_2)
+#endif
 /** Pin: QUAD SPI D3 */
+#ifndef CYBSP_QSPI_D3
 #define CYBSP_QSPI_D3               (P11_3)
+#endif
 /** Pin: QUAD SPI D2 */
+#ifndef CYBSP_QSPI_D2
 #define CYBSP_QSPI_D2               (P11_4)
+#endif
 /** Pin: QUAD SPI D1 */
+#ifndef CYBSP_QSPI_D1
 #define CYBSP_QSPI_D1               (P11_5)
+#endif
 /** Pin: QUAD SPI D0 */
+#ifndef CYBSP_QSPI_D0
 #define CYBSP_QSPI_D0               (P11_6)
+#endif
 /** Pin: QUAD SPI SCK */
+#ifndef CYBSP_QSPI_SCK
 #define CYBSP_QSPI_SCK              (P11_7)
+#endif
 
 /** Host-wake GPIO drive mode */
 #define CYBSP_WIFI_HOST_WAKE_GPIO_DM (CYHAL_GPIO_DRIVE_ANALOG)

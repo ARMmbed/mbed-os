@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Design version="12" xmlns="http://cypress.com/xsd/cydesignfile_v3">
+<Design version="12" device_library_hint_path="../../psoc6pdl/devicesupport.xml" xmlns="http://cypress.com/xsd/cydesignfile_v3">
     <ToolInfo version="1.0.0"/>
     <Devices>
         <Device mpn="CY8C6245LQI-S3D72">
@@ -386,6 +386,10 @@
                     </Arm>
                 </Mux>
             </Netlist>
+        </Device>
+        <Device mpn="CYW4343WKUBG">
+            <BlockConfig/>
+            <Netlist/>
         </Device>
     </Devices>
     <Libraries/>

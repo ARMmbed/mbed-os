@@ -75,14 +75,6 @@
                         <Param id="inFlash" value="true"/>
                     </Personality>
                 </Block>
-                <Block location="ioss[0].port[11].pin[2]"/>
-                <Block location="ioss[0].port[11].pin[3]"/>
-                <Block location="ioss[0].port[11].pin[4]"/>
-                <Block location="ioss[0].port[11].pin[5]"/>
-                <Block location="ioss[0].port[11].pin[6]"/>
-                <Block location="ioss[0].port[11].pin[7]"/>
-                <Block location="ioss[0].port[14].pin[0]"/>
-                <Block location="ioss[0].port[14].pin[1]"/>
                 <Block location="ioss[0].port[1].pin[0]">
                     <Alias value="CYBSP_CSD_RX"/>
                     <Personality template="mxs40pin" version="1.1">
@@ -96,16 +88,6 @@
                         <Param id="inFlash" value="true"/>
                     </Personality>
                 </Block>
-                <Block location="ioss[0].port[3].pin[0]"/>
-                <Block location="ioss[0].port[3].pin[1]"/>
-                <Block location="ioss[0].port[3].pin[2]"/>
-                <Block location="ioss[0].port[3].pin[3]"/>
-                <Block location="ioss[0].port[3].pin[4]"/>
-                <Block location="ioss[0].port[3].pin[5]"/>
-                <Block location="ioss[0].port[4].pin[0]"/>
-                <Block location="ioss[0].port[4].pin[1]"/>
-                <Block location="ioss[0].port[6].pin[0]"/>
-                <Block location="ioss[0].port[6].pin[1]"/>
                 <Block location="ioss[0].port[6].pin[4]">
                     <Alias value="CYBSP_SWO"/>
                     <Personality template="mxs40pin" version="1.1">
@@ -275,8 +257,6 @@
                         <Param id="inFlash" value="true"/>
                     </Personality>
                 </Block>
-                <Block location="peri[0].div_16[0]"/>
-                <Block location="peri[0].div_8[1]"/>
                 <Block location="peri[0].div_8[3]">
                     <Alias value="CYBSP_CSD_CLK_DIV"/>
                     <Personality template="mxs40peripheralclock" version="1.0">
@@ -285,10 +265,6 @@
                         <Param id="startOnReset" value="true"/>
                     </Personality>
                 </Block>
-                <Block location="peri[0].div_8[4]"/>
-                <Block location="scb[2]"/>
-                <Block location="scb[3]"/>
-                <Block location="smif[0]"/>
                 <Block location="srss[0].clock[0]">
                     <Personality template="mxs40sysclocks" version="1.2"/>
                 </Block>
@@ -405,7 +381,6 @@
                         <Param id="accuracyPpm" value="150"/>
                     </Personality>
                 </Block>
-                <Block location="srss[0].mcwdt[0]"/>
                 <Block location="srss[0].power[0]">
                     <Personality template="mxs40power" version="1.2">
                         <Param id="pwrMode" value="LDO_1_1"/>
@@ -423,8 +398,6 @@
                         <Param id="vddio1Mv" value="3300"/>
                     </Personality>
                 </Block>
-                <Block location="srss[0].rtc[0]"/>
-                <Block location="usb[0]"/>
             </BlockConfig>
             <Netlist>
                 <Net>

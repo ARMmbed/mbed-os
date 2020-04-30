@@ -5,7 +5,7 @@
 * Clock configuration
 * This file was automatically generated and should not be modified.
 * Device Configurator: 2.0.0.1483
-* Device Support Library: 1.3.1.1474
+* Device Support Library (libs/psoc6pdl): 1.4.1.2240
 *
 ********************************************************************************
 * Copyright 2017-2019 Cypress Semiconductor Corporation
@@ -27,7 +27,7 @@
 #include "cycfg_clocks.h"
 
 #if defined (CY_USING_HAL)
-	const cyhal_resource_inst_t CYBSP_CSD_CLK_DIV_obj = 
+	const cyhal_resource_inst_t CYBSP_CSD_CLK_DIV_obj =
 	{
 		.type = CYHAL_RSC_CLOCK,
 		.block_num = CYBSP_CSD_CLK_DIV_HW,
