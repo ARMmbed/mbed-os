@@ -35,8 +35,11 @@ BLESS Controller pre-built image executes the following steps:
 - goes to the while loop where processes BLE controller events and puts the CM0+ core into Deep Sleep.
 
 ### New in this image
-- Updated the BLE Stack to version 5.0.6
-- Added support QFN68 and BGA124 packages.
+- Updated the BLE Stack to version 5.0.7
+
+### Defect Fixes
+* Addressed [CVE-2019-16336](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-16336) and [CVE-2019-17061](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-17061) Vulnerabilities.
+
 
 The revision history of the PSoC 6 BLE Middleware is also available on the [API Reference Guide Changelog](https://cypresssemiconductorco.github.io/bless/ble_api_reference_manual/html/page_group_ble_changelog.html).
 
@@ -106,4 +109,4 @@ Make sure there is a single CM0P_* component included in the COMPONENTS list
 (it might be needed to remove CM0P_SLEEP from the list of standard BSP components).
 
 ---
-Copyright (c) Cypress Semiconductor Corporation, 2019.
+Copyright (c) Cypress Semiconductor Corporation, 2020.
