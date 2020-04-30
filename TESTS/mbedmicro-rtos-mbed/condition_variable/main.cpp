@@ -29,9 +29,10 @@
 #include "rtos.h"
 
 using namespace utest::v1;
+using namespace std::chrono_literals;
 
 #define TEST_STACK_SIZE 512
-#define TEST_DELAY 10
+#define TEST_DELAY 10ms
 
 static int change_counter = 0;
 static Mutex mutex;

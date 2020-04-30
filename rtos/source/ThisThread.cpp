@@ -31,6 +31,12 @@
 #include "platform/mbed_critical.h"
 #include "platform/source/mbed_os_timer.h"
 
+using std::milli;
+using std::chrono::duration;
+using rtos::Kernel::Clock;
+using rtos::Kernel::wait_for_u32_max;
+using rtos::Kernel::wait_for_u32_forever;
+
 #if !MBED_CONF_RTOS_PRESENT
 /* If the RTOS is not present, we call mbed_thread.cpp to do the work */
 /* If the RTOS is present, mbed_thread.cpp calls us to do the work */
@@ -95,16 +101,16 @@ bool non_rtos_check_flags(void *handle)
 }
 #endif
 
-static uint32_t flags_wait_for(uint32_t flags, uint32_t millisec, bool clear, uint32_t options)
+static uint32_t flags_wait_for(uint32_t flags, Clock::duration_u32 rel_time, bool clear, uint32_t options)
 {
     if (!clear) {
         options |= osFlagsNoClear;
     }
 #if MBED_CONF_RTOS_PRESENT
-    flags = osThreadFlagsWait(flags, options, millisec);
+    flags = osThreadFlagsWait(flags, options, rel_time.count());
     if (flags & osFlagsError) {
-        MBED_ASSERT((flags == osFlagsErrorTimeout && millisec != osWaitForever) ||
-                    (flags == osFlagsErrorResource && millisec == 0));
+        MBED_ASSERT((flags == osFlagsErrorTimeout && rel_time != wait_for_u32_forever) ||
+                    (flags == osFlagsErrorResource && rel_time == rel_time.zero()));
         flags = ThisThread::flags_get();
     }
 #else
@@ -113,7 +119,7 @@ static uint32_t flags_wait_for(uint32_t flags, uint32_t millisec, bool clear, ui
     check.options = options;
     check.flags_wanted = flags;
     check.result = 0;
-    mbed::internal::do_timed_sleep_relative_or_forever(millisec, rtos::internal::non_rtos_check_flags, &check);
+    mbed::internal::do_timed_sleep_relative_or_forever(rel_time, rtos::internal::non_rtos_check_flags, &check);
     flags = check.result;
 #endif
 
@@ -123,7 +129,7 @@ static uint32_t flags_wait_for(uint32_t flags, uint32_t millisec, bool clear, ui
 static uint32_t flags_wait(uint32_t flags, bool clear, uint32_t options)
 {
 #if MBED_CONF_RTOS_PRESENT
-    return flags_wait_for(flags, osWaitForever, clear, options);
+    return flags_wait_for(flags, wait_for_u32_forever, clear, options);
 #else
     /* Avoids pulling in timer if not used */
     if (!clear) {
@@ -141,20 +147,20 @@ static uint32_t flags_wait(uint32_t flags, bool clear, uint32_t options)
 #endif
 }
 
-static uint32_t flags_wait_until(uint32_t flags, uint64_t millisec, bool clear, uint32_t options)
+static uint32_t flags_wait_until(uint32_t flags, Clock::time_point abs_time, bool clear, uint32_t options)
 {
-    uint64_t now = Kernel::get_ms_count();
+    Clock::time_point now = Clock::now();
 
-    uint32_t delay;
-    if (now >= millisec) {
-        delay = 0;
-    } else if (millisec - now >= osWaitForever) {
+    Clock::duration_u32 rel_time;
+    if (now >= abs_time) {
+        rel_time = rel_time.zero();
+    } else if (abs_time - now > wait_for_u32_max) {
         // Documentation permits early return for big offsets
-        delay = osWaitForever - 1;
+        rel_time = wait_for_u32_max;
     } else {
-        delay = millisec - now;
+        rel_time = abs_time - now;
     }
-    return flags_wait_for(flags, delay, clear, options);
+    return flags_wait_for(flags, rel_time, clear, options);
 }
 
 uint32_t ThisThread::flags_wait_all(uint32_t flags, bool clear)
@@ -164,12 +170,22 @@ uint32_t ThisThread::flags_wait_all(uint32_t flags, bool clear)
 
 uint32_t ThisThread::flags_wait_all_for(uint32_t flags, uint32_t millisec, bool clear)
 {
-    return flags_wait_for(flags, millisec, clear, osFlagsWaitAll);
+    return flags_wait_all_for(flags, duration<uint32_t, milli>(millisec), clear);
+}
+
+uint32_t ThisThread::flags_wait_all_for(uint32_t flags, Clock::duration_u32 rel_time, bool clear)
+{
+    return flags_wait_for(flags, rel_time, clear, osFlagsWaitAll);
 }
 
 uint32_t ThisThread::flags_wait_all_until(uint32_t flags, uint64_t millisec, bool clear)
 {
-    return flags_wait_until(flags, millisec, clear, osFlagsWaitAll);
+    return flags_wait_all_until(flags, Clock::time_point(duration<uint64_t, milli>(millisec)), clear);
+}
+
+uint32_t ThisThread::flags_wait_all_until(uint32_t flags, Clock::time_point abs_time, bool clear)
+{
+    return flags_wait_until(flags, abs_time, clear, osFlagsWaitAll);
 }
 
 uint32_t ThisThread::flags_wait_any(uint32_t flags, bool clear)
@@ -179,45 +195,62 @@ uint32_t ThisThread::flags_wait_any(uint32_t flags, bool clear)
 
 uint32_t ThisThread::flags_wait_any_for(uint32_t flags, uint32_t millisec, bool clear)
 {
-    return flags_wait_for(flags, millisec, clear, osFlagsWaitAny);
+    return flags_wait_any_for(flags, duration<uint32_t, milli>(millisec), clear);
+}
+
+uint32_t ThisThread::flags_wait_any_for(uint32_t flags, Clock::duration_u32 rel_time, bool clear)
+{
+    return flags_wait_for(flags, rel_time, clear, osFlagsWaitAll);
 }
 
 uint32_t ThisThread::flags_wait_any_until(uint32_t flags, uint64_t millisec, bool clear)
 {
-    return flags_wait_until(flags, millisec, clear, osFlagsWaitAny);
+    return flags_wait_any_until(flags, Clock::time_point(duration<uint64_t, milli>(millisec)), clear);
+}
+
+uint32_t ThisThread::flags_wait_any_until(uint32_t flags, Clock::time_point abs_time, bool clear)
+{
+    return flags_wait_until(flags, abs_time, clear, osFlagsWaitAny);
 }
 
 void ThisThread::sleep_for(uint32_t millisec)
 {
+    ThisThread::sleep_for(duration<uint32_t, std::milli>(millisec));
+}
+
+void ThisThread::sleep_for(Clock::duration_u32 rel_time)
+{
 #if MBED_CONF_RTOS_PRESENT
-    osStatus_t status = osDelay(millisec);
+    osStatus_t status = osDelay(rel_time.count());
     MBED_ASSERT(status == osOK);
 #else
-    thread_sleep_for(millisec);
+    thread_sleep_for(rel_time.count());
 #endif
 }
 
 void ThisThread::sleep_until(uint64_t millisec)
 {
+    ThisThread::sleep_until(Clock::time_point(duration<uint64_t, milli>(millisec)));
+}
+
+void ThisThread::sleep_until(Clock::time_point abs_time)
+{
 #if MBED_CONF_RTOS_PRESENT
-    // CMSIS-RTOS 2.1.0 had 64-bit time and osDelayUntil, but that's been revoked.
-    // Limit ourselves to manual implementation assuming a >=32-bit osDelay.
+    Clock::time_point now;
 
-    // 64-bit time doesn't wrap (for half a billion years, at last)
-    // make the effort to loop for unlimited sleep, as it doesn't cost much
-    uint64_t now;
-
-    while ((now = Kernel::get_ms_count()) < millisec) {
-        if (millisec - now > UINT32_MAX) {
-            sleep_for(UINT32_MAX);
+    while ((now = Clock::now()) < abs_time) {
+        if (abs_time - now > wait_for_u32_max) {
+            osStatus_t status = osDelay(wait_for_u32_max.count());
+            MBED_ASSERT(status == osOK);
             continue;
         } else {
-            sleep_for(millisec - now);
+            osStatus_t status = osDelay((abs_time - now).count());
+            MBED_ASSERT(status == osOK);
             break;
         }
     }
 #else
-    thread_sleep_until(millisec);
+    thread_sleep_until(abs_time.time_since_epoch().count());
 #endif
 }
 

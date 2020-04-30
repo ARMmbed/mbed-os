@@ -36,13 +36,9 @@ namespace mbed {
  *
  * @note Synchronization level: Interrupt safe
  */
-class LowPowerTimer : public Timer, private NonCopyable<LowPowerTimer> {
-
+class LowPowerTimer : public TimerBase {
 public:
-    LowPowerTimer() : Timer(get_lp_ticker_data())
-    {
-    }
-
+    LowPowerTimer();
 };
 
 /** @}*/

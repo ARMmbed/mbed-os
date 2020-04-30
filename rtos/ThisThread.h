@@ -24,6 +24,8 @@
 #define THIS_THREAD_H
 
 #include <stdint.h>
+#include "platform/mbed_toolchain.h"
+#include "rtos/Kernel.h"
 #include "rtos/mbed_rtos_types.h"
 
 namespace rtos {
@@ -105,8 +107,20 @@ uint32_t flags_wait_any(uint32_t flags, bool clear = true);
   @return  actual thread flags before clearing, which may not satisfy the wait
   @note You cannot call this function from ISR context.
   @see Thread::flags_set
+  @deprecated Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.
 */
+MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
 uint32_t flags_wait_all_for(uint32_t flags, uint32_t millisec, bool clear = true);
+
+/** Wait for all of the specified Thread Flags to become signaled for the current thread.
+  @param   flags     specifies the flags to wait for
+  @param   rel_time  timeout value.
+  @param   clear     whether to clear the specified flags after waiting for them. (default: true)
+  @return  actual thread flags before clearing, which may not satisfy the wait
+  @note You cannot call this function from ISR context.
+  @see Thread::flags_set
+*/
+uint32_t flags_wait_all_for(uint32_t flags, Kernel::Clock::duration_u32 rel_time, bool clear = true);
 
 /** Wait for all of the specified Thread Flags to become signaled for the current thread.
   @param   flags     specifies the flags to wait for
@@ -119,8 +133,25 @@ uint32_t flags_wait_all_for(uint32_t flags, uint32_t millisec, bool clear = true
         wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
         the wait will time out earlier than specified.
   @see Thread::flags_set
+  @deprecated Pass a chrono time_point, not an integer millisecond count. For example use `Kernel::Clock::now() + 5s`
+              rather than `Kernel::get_ms_count() + 5000`.
 */
+MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono time_point, not an integer millisecond count. For example use `Kernel::Clock::now() + 5s` rather than `Kernel::get_ms_count() + 5000`.")
 uint32_t flags_wait_all_until(uint32_t flags, uint64_t millisec, bool clear = true);
+
+/** Wait for all of the specified Thread Flags to become signaled for the current thread.
+  @param   flags     specifies the flags to wait for
+  @param   abs_time  absolute timeout time, referenced to Kernel::Clock
+  @param   clear     whether to clear the specified flags after waiting for them. (default: true)
+  @return  actual thread flags before clearing, which may not satisfy the wait
+  @note You cannot call this function from ISR context.
+  @note the underlying RTOS may have a limit to the maximum wait time
+        due to internal 32-bit computations, but this is guaranteed to work if the
+        wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
+        the wait will time out earlier than specified.
+  @see Thread::flags_set
+*/
+uint32_t flags_wait_all_until(uint32_t flags, Kernel::Clock::time_point abs_time, bool clear = true);
 
 /** Wait for any of the specified Thread Flags to become signaled for the current thread.
   @param   flags     specifies the flags to wait for
@@ -129,8 +160,20 @@ uint32_t flags_wait_all_until(uint32_t flags, uint64_t millisec, bool clear = tr
   @return  actual thread flags before clearing, which may not satisfy the wait
   @note You cannot call this function from ISR context.
   @see Thread::flags_set
+  @deprecated Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.
 */
+MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
 uint32_t flags_wait_any_for(uint32_t flags, uint32_t millisec, bool clear = true);
+
+/** Wait for any of the specified Thread Flags to become signaled for the current thread.
+  @param   flags     specifies the flags to wait for
+  @param   rel_time  timeout value.
+  @param   clear     whether to clear the specified flags after waiting for them. (default: true)
+  @return  actual thread flags before clearing, which may not satisfy the wait
+  @note You cannot call this function from ISR context.
+  @see Thread::flags_set
+*/
+uint32_t flags_wait_any_for(uint32_t flags, Kernel::Clock::duration_u32 rel_time, bool clear = true);
 
 /** Wait for any of the specified Thread Flags to become signaled for the current thread.
   @param   flags     specifies the flags to wait for
@@ -143,15 +186,42 @@ uint32_t flags_wait_any_for(uint32_t flags, uint32_t millisec, bool clear = true
           wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
           the wait will time out earlier than specified.
   @see Thread::flags_set
+  @deprecated Pass a chrono time_point, not an integer millisecond count. For example use `Kernel::Clock::now() + 5s`
+              rather than `Kernel::get_ms_count() + 5000`.
 */
+MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono time_point, not an integer millisecond count. For example use `Kernel::Clock::now() + 5s` rather than `Kernel::get_ms_count() + 5000`.")
 uint32_t flags_wait_any_until(uint32_t flags, uint64_t millisec, bool clear = true);
+
+/** Wait for any of the specified Thread Flags to become signaled for the current thread.
+  @param   flags     specifies the flags to wait for
+  @param   abs_time  absolute timeout time, referenced to Kernel::Clock
+  @param   clear     whether to clear the specified flags after waiting for them. (default: true)
+  @return  actual thread flags before clearing, which may not satisfy the wait
+  @note You cannot call this function from ISR context.
+  @note the underlying RTOS may have a limit to the maximum wait time
+        due to internal 32-bit computations, but this is guaranteed to work if the
+          wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
+          the wait will time out earlier than specified.
+  @see Thread::flags_set
+*/
+uint32_t flags_wait_any_until(uint32_t flags, Kernel::Clock::time_point abs_time, bool clear = true);
 
 /** Sleep for a specified time period in millisec:
   @param   millisec  time delay value
   @note You cannot call this function from ISR context.
   @note The equivalent functionality is accessible in C via thread_sleep_for.
+  @deprecated Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.
 */
+MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
 void sleep_for(uint32_t millisec);
+
+/** Sleep for a specified time period:
+  @param   rel_time  time delay value
+  @note You cannot call this function from ISR context.
+  @note The equivalent functionality is accessible in C via thread_sleep_for.
+*/
+void sleep_for(Kernel::Clock::duration_u32 rel_time);
+
 
 /** Sleep until a specified time in millisec
   The specified time is according to Kernel::get_ms_count().
@@ -160,8 +230,21 @@ void sleep_for(uint32_t millisec);
   @note if millisec is equal to or lower than the current tick count, this
         returns immediately.
   @note The equivalent functionality is accessible in C via thread_sleep_until.
+  @deprecated Pass a chrono time_point, not an integer millisecond count. For example use
+              `Kernel::Clock::now() + 5s` rather than `Kernel::get_ms_count() + 5000`.
 */
+MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono time_point, not an integer millisecond count. For example use `Kernel::Clock::now() + 5s` rather than `Kernel::get_ms_count() + 5000`.")
 void sleep_until(uint64_t millisec);
+
+/** Sleep until a specified time in millisec
+  The specified time is according to Kernel::Clock.
+  @param   abs_time absolute time
+  @note You cannot call this function from ISR context.
+  @note if abs_time is equal to or lower than Kernel::Clock::now(), this
+        returns immediately.
+  @note The equivalent functionality is accessible in C via thread_sleep_until.
+*/
+void sleep_until(Kernel::Clock::time_point abs_time);
 
 /** Pass control to next equal-priority thread that is in state READY.
     (Higher-priority READY threads would prevent us from running; this

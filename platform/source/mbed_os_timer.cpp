@@ -68,12 +68,12 @@ OsTimer *init_os_timer()
 
 /* Optionally timed operation, with optional predicate */
 struct timed_predicate_op {
-    timed_predicate_op(uint64_t t) : wake_time(t), orig_predicate(NULL), orig_handle(NULL)
+    timed_predicate_op(OsClock::time_point t) : wake_time(t), orig_predicate(NULL), orig_handle(NULL)
     {
         init_os_timer();
     }
 
-    timed_predicate_op(uint64_t t, bool (*wake_predicate)(void *), void *wake_predicate_handle) : wake_time(t), orig_predicate(wake_predicate), orig_handle(wake_predicate_handle)
+    timed_predicate_op(OsClock::time_point t, bool (*wake_predicate)(void *), void *wake_predicate_handle) : wake_time(t), orig_predicate(wake_predicate), orig_handle(wake_predicate_handle)
     {
         init_os_timer();
     }
@@ -92,18 +92,18 @@ struct timed_predicate_op {
 
     void sleep_prepare()
     {
-        if (wake_time != (uint64_t) -1) {
-            os_timer->set_wake_time(wake_time);
+        if (wake_time != wake_time.max()) {
+            OsClock::set_wake_time(wake_time);
         }
     }
 
     bool sleep_prepared()
     {
-        return wake_time == (uint64_t) -1 || os_timer->wake_time_set();
+        return wake_time == wake_time.max() || os_timer->wake_time_set();
     }
 
 private:
-    uint64_t wake_time;
+    OsClock::time_point wake_time;
     bool (*orig_predicate)(void *);
     void *orig_handle;
 };
@@ -186,23 +186,23 @@ void do_sleep_operation(OpT &op)
  * The wake predicate will be called from both outside and inside a critical
  * section, so appropriate atomic care must be taken.
  */
-uint64_t do_timed_sleep_absolute(uint64_t wake_time, bool (*wake_predicate)(void *), void *wake_predicate_handle)
+OsClock::time_point do_timed_sleep_absolute(OsClock::time_point wake_time, bool (*wake_predicate)(void *), void *wake_predicate_handle)
 {
     {
         timed_predicate_op op(wake_time, wake_predicate, wake_predicate_handle);
         do_sleep_operation(op);
     }
 
-    return os_timer->update_and_get_tick();
+    return OsClock::now_with_init_done();
 }
 
 
 #if MBED_CONF_RTOS_PRESENT
 /* The 32-bit limit is part of the API - we will always wake within 2^32 ticks */
 /* This version is tuned for RTOS use, where the RTOS needs to know the time spent sleeping */
-uint32_t do_timed_sleep_relative(uint32_t wake_delay, bool (*wake_predicate)(void *), void *wake_predicate_handle)
+OsClock::duration_u32 do_timed_sleep_relative(OsClock::duration_u32 wake_delay, bool (*wake_predicate)(void *), void *wake_predicate_handle)
 {
-    uint64_t sleep_start = init_os_timer()->get_tick();
+    OsClock::time_point sleep_start = OsClock::now();
     // When running with RTOS, the requested delay will be based on the kernel's tick count.
     // If it missed a tick as entering idle, we should reflect that by moving the
     // start time back to reflect its current idea of time.
@@ -211,9 +211,9 @@ uint32_t do_timed_sleep_relative(uint32_t wake_delay, bool (*wake_predicate)(voi
     // clear the unacknowledged tick count.
     sleep_start -= os_timer->unacknowledged_ticks();
 
-    uint64_t sleep_finish = do_timed_sleep_absolute(sleep_start + wake_delay, wake_predicate, wake_predicate_handle);
+    OsClock::time_point sleep_finish = do_timed_sleep_absolute(sleep_start + wake_delay, wake_predicate, wake_predicate_handle);
 
-    return static_cast<uint32_t>(sleep_finish - sleep_start);
+    return sleep_finish - sleep_start;
 }
 
 #else
@@ -225,23 +225,23 @@ void do_untimed_sleep(bool (*wake_predicate)(void *), void *wake_predicate_handl
     do_sleep_operation(op);
 }
 
-/* (uint32_t)-1 delay is treated as "wait forever" */
+/* max() delay is treated as "wait forever" */
 /* This version is tuned for non-RTOS use, where we don't need to return sleep time, and waiting forever is possible */
-void do_timed_sleep_relative_or_forever(uint32_t wake_delay, bool (*wake_predicate)(void *), void *wake_predicate_handle)
+void do_timed_sleep_relative_or_forever(OsClock::duration_u32 wake_delay, bool (*wake_predicate)(void *), void *wake_predicate_handle)
 {
     // Special-case 0 delay, to save multiple callers having to do it. Just call the predicate once.
-    if (wake_delay == 0) {
+    if (wake_delay == wake_delay.zero()) {
         if (wake_predicate) {
             wake_predicate(wake_predicate_handle);
         }
         return;
     }
 
-    uint64_t wake_time;
-    if (wake_delay == (uint32_t) -1) {
-        wake_time = (uint64_t) -1;
+    OsClock::time_point wake_time;
+    if (wake_delay == OsClock::duration_u32::max()) {
+        wake_time = OsClock::time_point::max();
     } else {
-        wake_time = init_os_timer()->update_and_get_tick() + wake_delay;
+        wake_time = OsClock::now() + wake_delay;
     }
     /* Always use timed_predicate_op here to save pulling in two templates */
     timed_predicate_op op(wake_time, wake_predicate, wake_predicate_handle);

@@ -26,6 +26,7 @@
 #include "hal/us_ticker_api.h"
 #include "drivers/Timeout.h"
 
+#include "platform/mbed_chrono.h"
 #include "platform/mbed_critical.h"
 
 
@@ -227,7 +228,7 @@ private:
      *
      * This value is always larger or equal to exact value.
      */
-    uint32_t _lp_ticks_to_us(uint32_t);
+    mbed::chrono::microseconds_u32 _lp_ticks_to_us(uint32_t);
 
     /*
      * Schedule a match interrupt to fire at the correct time

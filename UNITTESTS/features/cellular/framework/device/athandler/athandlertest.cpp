@@ -25,7 +25,6 @@
 #include "mbed_poll_stub.h"
 #include "CellularUtil_stub.h"
 
-#include "Timer_stub.h"
 
 using namespace mbed;
 using namespace events;
@@ -228,7 +227,6 @@ TEST_F(TestATHandler, test_ATHandler_process_oob)
     at.process_oob();
 
     at.clear_error();
-    timer_stub_value = 0;
     filehandle_stub_table_pos = 0;
     at.read_bytes(buf, 5);
 
@@ -244,7 +242,6 @@ TEST_F(TestATHandler, test_ATHandler_process_oob)
     filehandle_stub_table = table2;
 
     at.clear_error();
-    timer_stub_value = 0;
     filehandle_stub_table_pos = 0;
     mbed_poll_stub::revents_value = POLLIN;
     mbed_poll_stub::int_value = 1;

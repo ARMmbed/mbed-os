@@ -21,19 +21,37 @@
 #include "rtos/Kernel.h"
 #include "mbed.h"
 
+#include <type_traits>
+
+using namespace std::chrono;
 
 using utest::v1::Case;
 
 #define TEST_REPEAT_COUNT   1000
-#define NUM_WAIT_TICKS      1000
 
-// all in [us]
-#define ONE_SECOND          1000000
-#define SMALL_DELTA         1500        // 0.15%
-#define BIG_DELTA           15000       // 1.5%
+#define ACCURACY_DURATION   1s
+#if defined(NO_SYSTICK) || defined(MBED_TICKLESS)
+// On targets with NO_SYSTICK/MBED_TICKLESS enabled, systick is emulated by lp_ticker what makes it less accurate
+// for more details https://os.mbed.com/docs/latest/reference/tickless.html
+#define ACCURACY_DELTA      15000us       // 1.5%
+#else
+#define ACCURACY_DELTA      1500us        // 0.15%
+#endif
 
-#if defined(MBED_CONF_RTOS_PRESENT)
-/** Test if kernel ticker frequency is 1kHz
+
+#define TEST_ASSERT_EQUAL_DURATION(expected, actual) \
+    do { \
+        using ct = std::common_type_t<decltype(expected), decltype(actual)>; \
+        TEST_ASSERT_EQUAL(ct(expected).count(), ct(actual).count()); \
+    } while (0)
+
+#define TEST_ASSERT_DURATION_WITHIN(delta, expected, actual) \
+    do { \
+        using ct = std::common_type_t<decltype(delta), decltype(expected), decltype(actual)>; \
+        TEST_ASSERT_INT_WITHIN(ct(delta).count(), ct(expected).count(), ct(actual).count()); \
+    } while (0)
+
+/** Test if declared kernel ticker frequency is 1kHz
 
     Given a RTOS kernel ticker
     When check it frequency
@@ -41,73 +59,66 @@ using utest::v1::Case;
  */
 void test_frequency()
 {
+#if defined(MBED_CONF_RTOS_PRESENT)
     uint32_t freq = osKernelGetTickFreq();
     TEST_ASSERT_EQUAL_UINT32_MESSAGE(1000, freq, "Expected SysTick frequency is 1kHz");
-}
 #endif
+    TEST_ASSERT_TRUE_MESSAGE((std::ratio_equal<rtos::Kernel::Clock::period, std::milli>::value), "Expected Kernel::Clock frequency is 1kHz");
+}
 
 /** Test if kernel ticker increments by one
 
     Given a RTOS kernel ticker
-    When perform subsequent calls of @a rtos::Kernel::get_ms_count
+    When perform subsequent calls of @a rtos::Kernel::Clock::now
     Then subsequent reads should not differ by more than one
  */
 void test_increment(void)
 {
     for (uint32_t i = 0; i < TEST_REPEAT_COUNT; i++) {
-        const uint64_t start = rtos::Kernel::get_ms_count();
+        auto start = rtos::Kernel::Clock::now();
         while (true) {
-            uint64_t diff = rtos::Kernel::get_ms_count() - start;
-            if (diff != 0) {
-                TEST_ASSERT_EQUAL_UINT64(1, diff);
+            rtos::Kernel::Clock::duration diff = rtos::Kernel::Clock::now() - start;
+            if (diff.count() != 0) {
+                TEST_ASSERT_EQUAL_INT64(1, diff.count());
                 break;
             }
         }
     }
 }
 
-/** Test if kernel ticker interval is 1ms
+/** Test if kernel ticker rate is correct
 
     Given a RTOS kernel ticker
-    When perform subsequent calls of @a rtos::Kernel::get_ms_count
-    Then the ticker interval should be 1ms
+    When perform subsequent calls of @a rtos::Kernel::Clock::now
+    Then when it reports 1 second elapsed, the time measured using a high-res Timer corresponds.
  */
-void test_interval()
+void test_accuracy()
 {
-    uint64_t start, stop;
+    Kernel::Clock::time_point start, stop;
     Timer timer;
 
-    start = rtos::Kernel::get_ms_count();
+    start = rtos::Kernel::Clock::now();
     // wait for tick
     do {
-        stop = rtos::Kernel::get_ms_count();
-    } while ((stop - start) == 0);
+        stop = rtos::Kernel::Clock::now();
+    } while (stop == start);
     timer.start();
     start = stop;
 
-    // wait for NUM_WAIT_TICKS ticks
+    // wait for 1 second to elapse according to kernel
     do {
-        stop = rtos::Kernel::get_ms_count();
-    } while ((stop - start) != NUM_WAIT_TICKS);
+        stop = rtos::Kernel::Clock::now();
+    } while ((stop - start) < ACCURACY_DURATION);
     timer.stop();
-    TEST_ASSERT_EQUAL_UINT64(NUM_WAIT_TICKS, (stop - start));
 
-#if defined(NO_SYSTICK) || defined(MBED_TICKLESS)
-    // On targets with NO_SYSTICK/MBED_TICKLESS enabled, systick is emulated by lp_ticker what makes it less accurate
-    // for more details https://os.mbed.com/docs/latest/reference/tickless.html
-    TEST_ASSERT_UINT64_WITHIN(BIG_DELTA, ONE_SECOND, timer.read_high_resolution_us());
-#else
-    TEST_ASSERT_UINT64_WITHIN(SMALL_DELTA, ONE_SECOND, timer.read_high_resolution_us());
-#endif
+    TEST_ASSERT_DURATION_WITHIN(ACCURACY_DELTA, ACCURACY_DURATION, timer.elapsed_time());
 }
 
 // Test cases
 Case cases[] = {
-#if defined(MBED_CONF_RTOS_PRESENT)
-    Case("Test kernel ticker frequency", test_frequency),
-#endif
+    Case("Test kernel ticker declared frequency", test_frequency),
     Case("Test if kernel ticker increments by one", test_increment),
-    Case("Test if kernel ticker interval is 1ms", test_interval)
+    Case("Test kernel ticker accuracy", test_accuracy)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

@@ -21,9 +21,8 @@
 
 #if DEVICE_LPTICKER || defined(DOXYGEN_ONLY)
 
-#include "hal/lp_ticker_api.h"
-#include "drivers/LowPowerTicker.h"
-#include "platform/NonCopyable.h"
+#include "drivers/LowPowerClock.h"
+#include "drivers/Timeout.h"
 
 namespace mbed {
 /**
@@ -36,14 +35,37 @@ namespace mbed {
  *
  * @note Synchronization level: Interrupt safe
  */
-class LowPowerTimeout : public LowPowerTicker, private NonCopyable<LowPowerTimeout> {
-#if !defined(DOXYGEN_ONLY)
-private:
-    virtual void handler(void)
+class LowPowerTimeout : public TimeoutBase {
+public:
+    LowPowerTimeout();
+
+    /** Clock to use with attach_absolute, guaranteeing running only while attached or manually locked */
+    using clock = LowPowerClock;
+
+    /** Clock to use with attach_absolute, running always */
+    using steady_clock = LowPowerClock;
+
+    /** @copydoc TimeoutBase::scheduled_time() */
+    LowPowerClock::time_point scheduled_time() const
     {
-        _function.call();
+        /* Massage from virtual TickerDataClock::time_point used internally to true LowPowerClock::time_point */
+        return LowPowerClock::time_point{TimeoutBase::scheduled_time().time_since_epoch()};
     }
-#endif
+
+    /** Attach a function to be called by the Timeout, specifying the absolute time
+     *
+     *  @param func pointer to the function to be called
+     *  @param abs_time the absolute time for the call, referenced to LowPowerClock
+     *
+     *  @note setting @a abs_time to a time in the past means the event will be scheduled immediately
+     *  resulting in an instant call to the function.
+     */
+    template <class F>
+    void attach_absolute(F &&func, LowPowerClock::time_point abs_time)
+    {
+        /* Massage from true LowPowerClock::time_point to virtual TickerDataClock::time_point used internally */
+        TimeoutBase::attach_absolute(std::forward<F>(func), TickerDataClock::time_point{abs_time.time_since_epoch()});
+    }
 };
 
 /** @}*/

@@ -29,27 +29,32 @@
 #include "rtos.h"
 
 using namespace utest::v1;
+using namespace std::chrono;
+
+#define TEST_ASSERT_DURATION_WITHIN(delta, expected, actual) \
+    do { \
+        using ct = std::common_type_t<decltype(delta), decltype(expected), decltype(actual)>; \
+        TEST_ASSERT_INT_WITHIN(ct(delta).count(), ct(expected).count(), ct(actual).count()); \
+    } while (0)
 
 #define THREAD_STACK_SIZE 512
 #define TEST_UINT_MSG 0xDEADBEEF
 #define TEST_UINT_MSG2 0xE1EE7
-#define TEST_TIMEOUT 50
+#define TEST_TIMEOUT 50ms
 
-template <uint32_t ms>
 void thread_put_uint_msg(Queue<uint32_t, 1> *q)
 {
-    ThisThread::sleep_for(ms);
+    ThisThread::sleep_for(TEST_TIMEOUT);
     osStatus stat = q->put((uint32_t *) TEST_UINT_MSG);
     TEST_ASSERT_EQUAL(osOK, stat);
 }
 
-template <uint32_t ms, uint32_t val>
 void thread_get_uint_msg(Queue<uint32_t, 1> *q)
 {
-    ThisThread::sleep_for(ms);
+    ThisThread::sleep_for(TEST_TIMEOUT);
     osEvent evt = q->get();
     TEST_ASSERT_EQUAL(osEventMessage, evt.status);
-    TEST_ASSERT_EQUAL(val, evt.value.v);
+    TEST_ASSERT_EQUAL(TEST_UINT_MSG, evt.value.v);
 }
 
 /** Test pass uint msg
@@ -127,7 +132,7 @@ void test_get_empty_no_timeout()
 {
     Queue<uint32_t, 1> q;
 
-    osEvent evt = q.get(0);
+    osEvent evt = q.get(0ms);
     TEST_ASSERT_EQUAL(osOK, evt.status);
 }
 
@@ -143,9 +148,9 @@ void test_get_empty_timeout()
     Timer timer;
     timer.start();
 
-    osEvent evt = q.get(50);
+    osEvent evt = q.get(50ms);
     TEST_ASSERT_EQUAL(osEventTimeout, evt.status);
-    TEST_ASSERT_UINT32_WITHIN(5000, 50000, timer.read_us());
+    TEST_ASSERT_DURATION_WITHIN(5ms, 50ms, timer.elapsed_time());
 }
 
 /** Test get empty wait forever
@@ -161,7 +166,7 @@ void test_get_empty_wait_forever()
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     Queue<uint32_t, 1> q;
 
-    t.start(callback(thread_put_uint_msg<TEST_TIMEOUT>, &q));
+    t.start(callback(thread_put_uint_msg, &q));
 
     Timer timer;
     timer.start();
@@ -169,7 +174,7 @@ void test_get_empty_wait_forever()
     osEvent evt = q.get();
     TEST_ASSERT_EQUAL(osEventMessage, evt.status);
     TEST_ASSERT_EQUAL(TEST_UINT_MSG, evt.value.v);
-    TEST_ASSERT_UINT32_WITHIN(TEST_TIMEOUT * 100, TEST_TIMEOUT * 1000, timer.read_us());
+    TEST_ASSERT_DURATION_WITHIN(TEST_TIMEOUT / 10, TEST_TIMEOUT, timer.elapsed_time());
 }
 
 /** Test put full no timeout
@@ -207,13 +212,13 @@ void test_put_full_timeout()
 
     stat = q.put((uint32_t *) TEST_UINT_MSG, TEST_TIMEOUT);
     TEST_ASSERT_EQUAL(osErrorTimeout, stat);
-    TEST_ASSERT_UINT32_WITHIN(TEST_TIMEOUT * 100, TEST_TIMEOUT * 1000, timer.read_us());
+    TEST_ASSERT_DURATION_WITHIN(TEST_TIMEOUT / 10, TEST_TIMEOUT, timer.elapsed_time());
 }
 
 /** Test put full wait forever
  *
  * Given two threads A & B and a queue with one slot for uint32_t data
- * When thread A puts a message to the queue and tries to put second one with @a osWaitForever timeout
+ * When thread A puts a message to the queue and tries to put second one with @a Kernel::wait_for_u32_forever timeout
  * Then thread waits for a slot to become empty in the queue
  * When thread B takes one message out of the queue
  * Then thread A successfully inserts message into the queue
@@ -223,16 +228,16 @@ void test_put_full_waitforever()
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     Queue<uint32_t, 1> q;
 
-    t.start(callback(thread_get_uint_msg<TEST_TIMEOUT, TEST_UINT_MSG>, &q));
+    t.start(callback(thread_get_uint_msg, &q));
 
     osStatus stat = q.put((uint32_t *) TEST_UINT_MSG);
     TEST_ASSERT_EQUAL(osOK, stat);
 
     Timer timer;
     timer.start();
-    stat = q.put((uint32_t *) TEST_UINT_MSG, osWaitForever);
+    stat = q.put((uint32_t *) TEST_UINT_MSG, Kernel::wait_for_u32_forever);
     TEST_ASSERT_EQUAL(osOK, stat);
-    TEST_ASSERT_UINT32_WITHIN(TEST_TIMEOUT * 100, TEST_TIMEOUT * 1000, timer.read_us());
+    TEST_ASSERT_DURATION_WITHIN(TEST_TIMEOUT / 10, TEST_TIMEOUT, timer.elapsed_time());
 
     t.join();
 }

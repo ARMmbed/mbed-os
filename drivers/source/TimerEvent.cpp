@@ -19,21 +19,18 @@
 #include <stddef.h>
 #include "hal/us_ticker_api.h"
 
-namespace mbed {
+using namespace std::chrono;
 
-TimerEvent::TimerEvent() : event(), _ticker_data(get_us_ticker_data())
-{
-    ticker_set_handler(_ticker_data, (&TimerEvent::irq));
-}
+namespace mbed {
 
 TimerEvent::TimerEvent(const ticker_data_t *data) : event(), _ticker_data(data)
 {
-    ticker_set_handler(_ticker_data, (&TimerEvent::irq));
+    _ticker_data.set_handler(irq);
 }
 
 void TimerEvent::irq(uint32_t id)
 {
-    TimerEvent *timer_event = (TimerEvent *)id;
+    TimerEvent *timer_event = reinterpret_cast<TimerEvent *>(id);
     timer_event->handler();
 }
 
@@ -48,14 +45,24 @@ void TimerEvent::insert(timestamp_t timestamp)
     ticker_insert_event(_ticker_data, &event, timestamp, (uint32_t)this);
 }
 
+void TimerEvent::insert(microseconds timestamp)
+{
+    insert_absolute(_ticker_data.now() + timestamp);
+}
+
 void TimerEvent::insert_absolute(us_timestamp_t timestamp)
 {
     ticker_insert_event_us(_ticker_data, &event, timestamp, (uint32_t)this);
 }
 
+void TimerEvent::insert_absolute(TickerDataClock::time_point timestamp)
+{
+    _ticker_data.insert_event(&event, timestamp, (uint32_t)this);
+}
+
 void TimerEvent::remove()
 {
-    ticker_remove_event(_ticker_data, &event);
+    _ticker_data.remove_event(&event);
 }
 
 } // namespace mbed

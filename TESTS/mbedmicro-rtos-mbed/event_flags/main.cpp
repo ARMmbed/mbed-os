@@ -21,6 +21,7 @@
 #include "utest/utest.h"
 
 using utest::v1::Case;
+using namespace std::chrono;
 
 #if !DEVICE_USTICKER
 #error [NOT_SUPPORTED] UsTicker need to be enabled for this test.
@@ -44,14 +45,14 @@ using utest::v1::Case;
 #define PROHIBITED_FLAG 0x80000000   /* 10000000000000000000000000000000 */
 #define NO_FLAGS 0x0
 
-void send_thread(EventFlags *ef, uint32_t flags, uint32_t wait_ms)
+void send_thread(EventFlags *ef, uint32_t flags, milliseconds wait)
 {
     for (uint32_t i = 0; i <= MAX_FLAG_POS; i++) {
         const uint32_t flag = flags & (1 << i);
         if (flag) {
             ef->set(flag);
-            if (wait_ms != 0) {
-                ThisThread::sleep_for(wait_ms);
+            if (wait != 0ms) {
+                ThisThread::sleep_for(wait);
             }
         }
     }
@@ -60,21 +61,19 @@ void send_thread(EventFlags *ef, uint32_t flags, uint32_t wait_ms)
 #if defined(MBED_CONF_RTOS_PRESENT)
 Semaphore sync_sem(0, 1);
 
-template<uint32_t flags, uint32_t wait_ms>
-void send_thread_sync(EventFlags *ef)
+void send_thread_sync(EventFlags *ef, uint32_t flags, milliseconds wait)
 {
     for (uint32_t i = 0; i <= MAX_FLAG_POS; i++) {
         const uint32_t flag = flags & (1 << i);
         if (flag) {
             sync_sem.acquire();
             ef->set(flag);
-            ThisThread::sleep_for(wait_ms);
+            ThisThread::sleep_for(wait);
         }
     }
 }
 
-template<uint32_t flags>
-void wait_thread_all(EventFlags *ef)
+void wait_thread_all(EventFlags *ef, uint32_t flags)
 {
     uint32_t ret, flags_after_clear;
     ret = ef->wait_all(flags);
@@ -218,9 +217,9 @@ void test_multi_thread_all(void)
     Thread thread1(osPriorityNormal, THREAD_STACK_SIZE);
     Thread thread2(osPriorityNormal, THREAD_STACK_SIZE);
     Thread thread3(osPriorityNormal, THREAD_STACK_SIZE);
-    thread1.start([&] { send_thread(&ef, FLAG01, 1); });
-    thread2.start([&] { send_thread(&ef, FLAG02, 2); });
-    thread3.start([&] { send_thread(&ef, FLAG03, 3); });
+    thread1.start([&] { send_thread(&ef, FLAG01, 1ms); });
+    thread2.start([&] { send_thread(&ef, FLAG02, 2ms); });
+    thread3.start([&] { send_thread(&ef, FLAG03, 3ms); });
 
     uint32_t ret = ef.wait_all(FLAG01 | FLAG02 | FLAG03);
     TEST_ASSERT_EQUAL(FLAG01 | FLAG02 | FLAG03, ret);
@@ -239,9 +238,9 @@ void test_multi_thread_any(void)
     Thread thread1(osPriorityNormal, THREAD_STACK_SIZE);
     Thread thread2(osPriorityNormal, THREAD_STACK_SIZE);
     Thread thread3(osPriorityNormal, THREAD_STACK_SIZE);
-    thread1.start([&] { send_thread(&ef, FLAG01, 1); });
-    thread2.start([&] { send_thread(&ef, FLAG02, 1); });
-    thread3.start([&] { send_thread(&ef, FLAG03, 1); });
+    thread1.start([&] { send_thread(&ef, FLAG01, 1ms); });
+    thread2.start([&] { send_thread(&ef, FLAG02, 1ms); });
+    thread3.start([&] { send_thread(&ef, FLAG03, 1ms); });
 
     for (int i = 0; i <= MAX_FLAG_POS; i++) {
         uint32_t flag = 1 << i;
@@ -265,16 +264,16 @@ void test_multi_thread_any_timeout(void)
     EventFlags ef;
     uint32_t ret;
     Thread thread(osPriorityNormal, THREAD_STACK_SIZE);
-    thread.start(callback(send_thread_sync < FLAG01 | FLAG02 | FLAG03, 1 >, &ef));
+    thread.start([&] { send_thread_sync(&ef, FLAG01 | FLAG02 | FLAG03, 1ms); });
 
     for (int i = 0; i <= MAX_FLAG_POS; i++) {
         uint32_t flag = 1 << i;
 
-        ret = ef.wait_any(flag, 10);
+        ret = ef.wait_any_for(flag, 10ms);
         TEST_ASSERT_EQUAL(osFlagsErrorTimeout, ret);
 
         sync_sem.release();
-        ret = ef.wait_any(flag, 10);
+        ret = ef.wait_any_for(flag, 10ms);
         TEST_ASSERT_EQUAL(flag, ret);
     }
     ret = ef.get();
@@ -294,13 +293,13 @@ void test_multi_thread_any_no_clear(void)
     Thread thread1(osPriorityNormal, THREAD_STACK_SIZE);
     Thread thread2(osPriorityNormal, THREAD_STACK_SIZE);
     Thread thread3(osPriorityNormal, THREAD_STACK_SIZE);
-    thread1.start([&] { send_thread(&ef, FLAG01, 1); });
-    thread2.start([&] { send_thread(&ef, FLAG02, 1); });
-    thread3.start([&] { send_thread(&ef, FLAG03, 1); });
+    thread1.start([&] { send_thread(&ef, FLAG01, 1ms); });
+    thread2.start([&] { send_thread(&ef, FLAG02, 1ms); });
+    thread3.start([&] { send_thread(&ef, FLAG03, 1ms); });
 
     for (int i = 0; i <= MAX_FLAG_POS; i++) {
         uint32_t flag = 1 << i;
-        ret = ef.wait_any(flag, osWaitForever, false);
+        ret = ef.wait_any_for(flag, Kernel::wait_for_u32_forever, false);
         TEST_ASSERT(flag | ret);
         ret = ef.clear(flag);
         TEST_ASSERT(ret < osFlagsError);
@@ -322,9 +321,9 @@ void test_multi_thread_all_many_wait(void)
         Thread thread1(osPriorityNormal, THREAD_STACK_SIZE);
         Thread thread2(osPriorityNormal, THREAD_STACK_SIZE);
         Thread thread3(osPriorityNormal, THREAD_STACK_SIZE);
-        thread1.start(callback(wait_thread_all<FLAG01>, &ef));
-        thread2.start(callback(wait_thread_all<FLAG02>, &ef));
-        thread3.start(callback(wait_thread_all<FLAG03>, &ef));
+        thread1.start([&] { wait_thread_all(&ef, FLAG01); });
+        thread2.start([&] { wait_thread_all(&ef, FLAG02); });
+        thread3.start([&] { wait_thread_all(&ef, FLAG03); });
 
         ef.set(FLAG01 | FLAG02 | FLAG03);
         thread1.join();
@@ -337,9 +336,9 @@ void test_multi_thread_all_many_wait(void)
         Thread thread1(osPriorityNormal, THREAD_STACK_SIZE);
         Thread thread2(osPriorityNormal, THREAD_STACK_SIZE);
         Thread thread3(osPriorityNormal, THREAD_STACK_SIZE);
-        thread1.start(callback(wait_thread_all<FLAG01>, &ef));
-        thread2.start(callback(wait_thread_all<FLAG02>, &ef));
-        thread3.start(callback(wait_thread_all<FLAG03>, &ef));
+        thread1.start([&] { wait_thread_all(&ef, FLAG01); });
+        thread2.start([&] { wait_thread_all(&ef, FLAG02); });
+        thread3.start([&] { wait_thread_all(&ef, FLAG03); });
 
         ef.set(FLAG01);
         thread1.join();
@@ -362,10 +361,10 @@ void test_multi_eventflags_all(void)
 {
     EventFlags ef;
     Ticker t1, t2, t3;
-    t1.attach_us([&] { send_thread(&ef, FLAG01, 0); }, 3000);
-    t2.attach_us([&] { send_thread(&ef, FLAG02, 0); }, 4000);
-    t3.attach_us([&] { send_thread(&ef, FLAG03, 0); }, 5000);
-    uint32_t ret = ef.wait_all(FLAG01 | FLAG02 | FLAG03, 20, false);
+    t1.attach([&] { send_thread(&ef, FLAG01, 0ms); }, 3ms);
+    t2.attach([&] { send_thread(&ef, FLAG02, 0ms); }, 4ms);
+    t3.attach([&] { send_thread(&ef, FLAG03, 0ms); }, 5ms);
+    uint32_t ret = ef.wait_all_for(FLAG01 | FLAG02 | FLAG03, 20ms, false);
     TEST_ASSERT_EQUAL(FLAG01 | FLAG02 | FLAG03, ret);
 }
 
@@ -380,9 +379,9 @@ void test_multi_eventflags_any(void)
     EventFlags ef;
     uint32_t ret;
     Ticker t1, t2, t3;
-    t1.attach_us([&] { send_thread(&ef, FLAG01, 0); }, 3000);
-    t2.attach_us([&] { send_thread(&ef, FLAG02, 0); }, 4000);
-    t3.attach_us([&] { send_thread(&ef, FLAG03, 0); }, 5000);
+    t1.attach([&] { send_thread(&ef, FLAG01, 0ms); }, 3ms);
+    t2.attach([&] { send_thread(&ef, FLAG02, 0ms); }, 4ms);
+    t3.attach([&] { send_thread(&ef, FLAG03, 0ms); }, 5ms);
 
     for (int i = 0; i <= MAX_FLAG_POS; i++) {
         uint32_t flag = 1 << i;
@@ -404,9 +403,9 @@ void test_multi_eventflags_any_no_clear(void)
     EventFlags ef;
     uint32_t ret;
     Ticker t1, t2, t3;
-    t1.attach_us([&] { send_thread(&ef, FLAG01, 0); }, 3000);
-    t2.attach_us([&] { send_thread(&ef, FLAG02, 0); }, 4000);
-    t3.attach_us([&] { send_thread(&ef, FLAG03, 0); }, 5000);
+    t1.attach([&] { send_thread(&ef, FLAG01, 0ms); }, 3ms);
+    t2.attach([&] { send_thread(&ef, FLAG02, 0ms); }, 4ms);
+    t3.attach([&] { send_thread(&ef, FLAG03, 0ms); }, 5ms);
 
     for (int i = 0; i <= MAX_FLAG_POS; i++) {
         uint32_t flag = 1 << i;

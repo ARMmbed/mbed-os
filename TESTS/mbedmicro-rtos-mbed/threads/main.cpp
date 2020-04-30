@@ -28,7 +28,8 @@
 #include "utest.h"
 #include "rtos.h"
 #include "SynchronizedIntegral.h"
-#include "LockGuard.h"
+#include <mstd_mutex>
+#include <type_traits>
 
 #define THREAD_STACK_SIZE 512
 #if defined(__CORTEX_A9) || defined(__CORTEX_M23) || defined(__CORTEX_M33) || defined(TARGET_ARM_FM) ||  defined(TARGET_CY8CKIT_062_WIFI_BT_PSA)
@@ -39,8 +40,15 @@
 #define CHILD_THREAD_STACK_SIZE 384
 #endif
 
+#define TEST_ASSERT_DURATION_WITHIN(delta, expected, actual) \
+    do { \
+        using ct = std::common_type_t<decltype(delta), decltype(expected), decltype(actual)>; \
+        TEST_ASSERT_INT_WITHIN(ct(delta).count(), ct(expected).count(), ct(actual).count()); \
+    } while (0)
+
 
 using namespace utest::v1;
+using mstd::lock_guard;
 
 // The counter type used accross all the tests
 // It is internall ysynchronized so read
@@ -66,7 +74,7 @@ void increment_with_yield(counter_t *counter)
 
 void increment_with_wait(counter_t *counter)
 {
-    ThisThread::sleep_for(100);
+    ThisThread::sleep_for(100ms);
     (*counter)++;
 }
 
@@ -92,7 +100,7 @@ void increment_with_murder(counter_t *counter)
     {
         // take ownership of the counter mutex so it prevent the child to
         // modify counter.
-        LockGuard lock(counter->internal_mutex());
+        lock_guard<rtos::Mutex> lock(counter->internal_mutex());
         Thread *child = new (std::nothrow) Thread(osPriorityNormal, CHILD_THREAD_STACK_SIZE);
         char *dummy = new (std::nothrow) char[CHILD_THREAD_STACK_SIZE];
         delete[] dummy;
@@ -293,7 +301,7 @@ void flags_wait()
 
 void flags_wait_tout()
 {
-    uint32_t flags = ThisThread::flags_wait_all_for(0x2, 50);
+    uint32_t flags = ThisThread::flags_wait_all_for(0x2, 50ms);
     TEST_ASSERT_EQUAL(0x1, flags);
 }
 
@@ -311,7 +319,7 @@ void flags_wait_multibit_any()
 
 void flags_wait_multibit_tout()
 {
-    uint32_t flags = ThisThread::flags_wait_all_for(0x1 | 0x2, 50);
+    uint32_t flags = ThisThread::flags_wait_all_for(0x1 | 0x2, 50ms);
     TEST_ASSERT_NOT_EQUAL(0x3, flags);
 }
 
@@ -375,7 +383,7 @@ void flags_clear()
     TEST_ASSERT_EQUAL(0x1, sig);
 
     /* Flags cleared we should get timeout */
-    uint32_t flags = ThisThread::flags_wait_all_for(0x1, 0);
+    uint32_t flags = ThisThread::flags_wait_all_for(0x1, 0s);
     TEST_ASSERT_EQUAL(0, flags);
 }
 
@@ -473,9 +481,9 @@ void test_thread_wait()
     Timer timer;
     timer.start();
 
-    ThisThread::sleep_for(150);
+    ThisThread::sleep_for(150ms);
 
-    TEST_ASSERT_UINT32_WITHIN(50000, 150000, timer.read_us());
+    TEST_ASSERT_DURATION_WITHIN(50ms, 150ms, timer.elapsed_time());
 }
 
 /** Testing thread name
@@ -527,7 +535,7 @@ void test_deleted()
 
 void test_delay_thread()
 {
-    ThisThread::sleep_for(50);
+    ThisThread::sleep_for(50ms);
 }
 
 /** Testing thread states: wait delay
@@ -702,7 +710,7 @@ void test_msg_get()
 
 void test_msg_put_thread(Queue<int32_t, 1> *queue)
 {
-    queue->put((int32_t *)0xDEADBEEF, osWaitForever);
+    queue->put((int32_t *)0xDEADBEEF, Kernel::wait_for_u32_forever);
 
 }
 

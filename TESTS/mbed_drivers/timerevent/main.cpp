@@ -41,7 +41,7 @@ private:
 
 public:
     TestTimerEvent() :
-        TimerEvent(), sem(0, 1)
+        TimerEvent(get_us_ticker_data()), sem(0, 1)
     {
 
         sleep_manager_lock_deep_sleep();

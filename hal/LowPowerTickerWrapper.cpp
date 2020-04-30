@@ -17,6 +17,8 @@
 #include "hal/LowPowerTickerWrapper.h"
 #include "platform/Callback.h"
 
+using namespace mbed::chrono;
+
 LowPowerTickerWrapper::LowPowerTickerWrapper(const ticker_data_t *data, const ticker_interface_t *interface, uint32_t min_cycles_between_writes, uint32_t min_cycles_until_match)
     : _intf(data->interface), _min_count_between_writes(min_cycles_between_writes + 1), _min_count_until_match(min_cycles_until_match + 1), _suspended(false)
 {
@@ -247,12 +249,12 @@ bool LowPowerTickerWrapper::_match_check(timestamp_t current)
            _ticker_match_interval_passed(_last_set_interrupt, current, _cur_match_time);
 }
 
-uint32_t LowPowerTickerWrapper::_lp_ticks_to_us(uint32_t ticks)
+microseconds_u32 LowPowerTickerWrapper::_lp_ticks_to_us(uint32_t ticks)
 {
     MBED_ASSERT(core_util_in_critical_section());
 
     // Add 4 microseconds to round up the micro second ticker time (which has a frequency of at least 250KHz - 4us period)
-    return _us_per_tick * ticks + 4;
+    return microseconds_u32(_us_per_tick * ticks + 4);
 }
 
 void LowPowerTickerWrapper::_schedule_match(timestamp_t current)
@@ -277,7 +279,7 @@ void LowPowerTickerWrapper::_schedule_match(timestamp_t current)
         // then don't schedule it again.
         if (!_pending_timeout) {
             uint32_t ticks = cycles_until_match < _min_count_until_match ? cycles_until_match : _min_count_until_match;
-            _timeout.attach_us(mbed::callback(this, &LowPowerTickerWrapper::_timeout_handler), _lp_ticks_to_us(ticks));
+            _timeout.attach(mbed::callback(this, &LowPowerTickerWrapper::_timeout_handler), _lp_ticks_to_us(ticks));
             _pending_timeout = true;
         }
         return;
@@ -309,7 +311,7 @@ void LowPowerTickerWrapper::_schedule_match(timestamp_t current)
         // Low power ticker incremented to less than _min_count_until_match
         // so low power ticker may not fire. Use Timeout to ensure it does fire.
         uint32_t ticks = cycles_until_match < _min_count_until_match ? cycles_until_match : _min_count_until_match;
-        _timeout.attach_us(mbed::callback(this, &LowPowerTickerWrapper::_timeout_handler), _lp_ticks_to_us(ticks));
+        _timeout.attach(mbed::callback(this, &LowPowerTickerWrapper::_timeout_handler), _lp_ticks_to_us(ticks));
         _pending_timeout = true;
         return;
     }

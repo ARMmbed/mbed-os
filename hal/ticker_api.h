@@ -187,6 +187,14 @@ us_timestamp_t ticker_read_us(const ticker_data_t *const ticker);
  */
 int ticker_get_next_timestamp(const ticker_data_t *const ticker, timestamp_t *timestamp);
 
+/** Read the next event's timestamp
+ *
+ * @param ticker        The ticker object.
+ * @param timestamp     The timestamp object.
+ * @return 1 if timestamp is pending event, 0 if there's no event pending
+ */
+int ticker_get_next_timestamp_us(const ticker_data_t *const ticker, us_timestamp_t *timestamp);
+
 /** Suspend this ticker
  *
  * When suspended reads will always return the same time and no
