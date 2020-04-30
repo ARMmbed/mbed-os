@@ -33,7 +33,7 @@ class Testcase(Bench):
                                    "count": 1,
                                    "type": "hardware",
                                    "allowed_platforms": [
-                                       "LPC1768", "KL25Z", "K64F", "K66F", "K22F", "LPC4088", "LPC1549",
+                                       "LPC1768", "KL25Z", "K64F", "K66F", "K22F",
                                        "NUCLEO_F072RB", "NUCLEO_F091RC", "NUCLEO_F302R8", "NUCLEO_F303K8",
                                        "NUCLEO_F303RE", "NUCLEO_F207ZG", "NUCLEO_F334R8", "NUCLEO_F303ZE",
                                        "NUCLEO_L053R8", "DISCO_L072CZ_LRWAN1", "NUCLEO_L073RZ", "NUCLEO_L152RE",

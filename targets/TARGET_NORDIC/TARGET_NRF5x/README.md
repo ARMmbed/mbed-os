@@ -155,7 +155,7 @@ The assert handler is defined in mbed-os/features/FEATURE_BLE/targets/TARGET_NOR
 
 #### Serial Wire Output (SWO)
 
-On the nRF52832 pin 18 (p18 or p0_18) is the SWO pin and a GPIO pin.  On the nRF52_DK and DELTA_DFBM_NQ620 targets p18 is also mapped to LED2, so the ITM has been removed from these targets to avoid contention.  If you need SWO capability instead of LED2, add the ITM through ```mbed_app.json```:
+On the nRF52832 pin 18 (p18 or p0_18) is the SWO pin and a GPIO pin.  On the nRF52_DK target p18 is also mapped to LED2, so the ITM has been removed from these targets to avoid contention.  If you need SWO capability instead of LED2, add the ITM through ```mbed_app.json```:
 ```
     "target_overrides": {
         "*": {

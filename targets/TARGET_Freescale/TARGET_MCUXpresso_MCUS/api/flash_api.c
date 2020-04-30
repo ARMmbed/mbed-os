@@ -102,13 +102,8 @@ uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
     uint32_t devicesize = 0;
     uint32_t startaddr = 0;
 
-#if defined(TARGET_RAPIDIOT)
-    startaddr = MBED_ROM_START;
-    devicesize = MBED_ROM_SIZE;
-#else
     FLASH_GetProperty((flash_config_t *)&obj->flash_config, kFLASH_PropertyPflashBlockBaseAddr, &startaddr);
     FLASH_GetProperty((flash_config_t *)&obj->flash_config, kFLASH_PropertyPflashTotalSize, &devicesize);
-#endif
 
     if ((address >= startaddr) && (address < (startaddr + devicesize))) {
         FLASH_GetProperty((flash_config_t *)&obj->flash_config, kFLASH_PropertyPflashSectorSize, &sectorsize);
@@ -124,28 +119,20 @@ uint32_t flash_get_page_size(const flash_t *obj)
 
 uint32_t flash_get_start_address(const flash_t *obj)
 {
-#if defined(TARGET_RAPIDIOT)
-    return MBED_ROM_START;
-#else
     uint32_t startaddr = 0;
 
     FLASH_GetProperty((flash_config_t *)&obj->flash_config, kFLASH_PropertyPflashBlockBaseAddr, &startaddr);
 
     return startaddr;
-#endif
 }
 
 uint32_t flash_get_size(const flash_t *obj)
 {
-#if defined(TARGET_RAPIDIOT)
-    return MBED_ROM_SIZE;
-#else
     uint32_t devicesize = 0;
 
     FLASH_GetProperty((flash_config_t *)&obj->flash_config, kFLASH_PropertyPflashTotalSize, &devicesize);
 
     return devicesize;
-#endif
 }
 
 uint8_t flash_get_erase_value(const flash_t *obj)

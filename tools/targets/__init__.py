@@ -470,54 +470,6 @@ class LPCTargetCode(object):
         t_self.notify.debug("LPC Patch: %s" % os.path.split(binf)[1])
         patch(binf)
 
-
-class LPC4088Code(object):
-    """Code specific to the LPC4088"""
-    @staticmethod
-    def binary_hook(t_self, resources, elf, binf):
-        """Hook to be run after an elf file is built"""
-        if not os.path.isdir(binf):
-            # Regular binary file, nothing to do
-            LPCTargetCode.lpc_patch(t_self, resources, elf, binf)
-            return
-        outbin = open(binf + ".temp", "wb")
-        partf = open(os.path.join(binf, "ER_IROM1"), "rb")
-        # Pad the fist part (internal flash) with 0xFF to 512k
-        data = partf.read()
-        outbin.write(data)
-        outbin.write(b'\xFF' * (512*1024 - len(data)))
-        partf.close()
-        # Read and append the second part (external flash) in chunks of fixed
-        # size
-        chunksize = 128 * 1024
-        partf = open(os.path.join(binf, "ER_IROM2"), "rb")
-        while True:
-            data = partf.read(chunksize)
-            outbin.write(data)
-            if len(data) < chunksize:
-                break
-        partf.close()
-        outbin.close()
-        # Remove the directory with the binary parts and rename the temporary
-        # file to 'binf'
-        shutil.rmtree(binf, True)
-        os.rename(binf + '.temp', binf)
-        t_self.notify.debug(
-            "Generated custom binary file (internal flash + SPIFI)"
-        )
-        LPCTargetCode.lpc_patch(t_self, resources, elf, binf)
-
-
-class TEENSY3_1Code(object):
-    """Hooks for the TEENSY3.1"""
-    @staticmethod
-    def binary_hook(t_self, resources, elf, binf):
-        """Hook that is run after elf is generated"""
-        # This function is referenced by old versions of targets.json and
-        # should be kept for backwards compatibility.
-        pass
-
-
 class MTSCode(object):
     """Generic MTS code"""
     @staticmethod
@@ -619,14 +571,6 @@ class MCU_NRF51Code(object):
 
         with open(binf.replace(".bin", ".hex"), "w") as fileout:
             binh.write_hex_file(fileout, write_start_addr=False)
-
-
-class NCS36510TargetCode(object):
-    @staticmethod
-    def ncs36510_addfib(t_self, resources, elf, binf):
-        from tools.targets.NCS import add_fib_at_start
-        print("binf ", binf)
-        add_fib_at_start(binf[:-4])
 
 
 class RTL8195ACode(object):

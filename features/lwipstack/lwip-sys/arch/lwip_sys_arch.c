@@ -31,15 +31,7 @@
 
 /* Define the heap ourselves to give us section placement control */
 #ifndef ETHMEM_SECTION
-#if defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
-#  if defined (__ICCARM__)
-#     define ETHMEM_SECTION
-#  elif defined(TOOLCHAIN_GCC_CR)
-#     define ETHMEM_SECTION __attribute__((section(".data.$RamPeriph32")))
-#  else
-#     define ETHMEM_SECTION __attribute__((section("AHBSRAM1"),aligned))
-#  endif
-#elif defined(TARGET_LPC1768)
+#if defined(TARGET_LPC1768)
 #  if defined (__ICCARM__)
 #     define ETHMEM_SECTION
 #  elif defined(TOOLCHAIN_GCC_CR)

@@ -76,12 +76,6 @@
         }
     },
     "target_overrides": {
-        "KW24D": {
-            "nsapi.default-mesh-type": "LOWPAN"
-        },
-        "NCS36510": {
-            "nsapi.default-mesh-type": "LOWPAN"
-        },
         "TB_SENSE_12": {
             "nsapi.default-mesh-type": "LOWPAN"
         }

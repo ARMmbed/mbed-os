@@ -27,19 +27,13 @@ class LPCXpresso(Exporter):
 
     TARGETS = [
         'LPC1768',
-        'LPC4088',
-        'LPC4088_DM',
-        'LPC4330_M4',
         'LPC1114',
         'LPC11U35_401',
         'LPC11U35_501',
         'UBLOX_C027',
         'ARCH_PRO',
-        'LPC1549',
         'LPC11U68',
         'LPCCAPPUCCINO',
-        'LPC824',
-        'LPC11U37H_401',
     ]
 
     def generate(self):

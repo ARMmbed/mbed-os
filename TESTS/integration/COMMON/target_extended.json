@@ -197,7 +197,7 @@
             "nanostack.configuration"                   : "thread_router",
             "nanostack-hal.event_loop_thread_stack_size": 8192
         },
-        "MTB_ADV_WISE_1570": {
+        "ADV_WISE_1570": {
             "target.components_add"                     : ["SPIF"],
             "spif-driver.SPI_FREQ"                      : 20000000,
             "target.network-default-interface-type"     : "CELLULAR",

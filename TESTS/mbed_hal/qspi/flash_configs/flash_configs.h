@@ -59,9 +59,6 @@
 #elif defined(TARGET_K82F)
 #include "NXP/K82F/flash_config.h"
 
-#elif defined(TARGET_KL82Z)
-#include "NXP/KL82Z/flash_config.h"
-
 #elif defined(TARGET_LPC546XX)
 #include "NXP/LPC546XX/flash_config.h"
 
@@ -88,4 +85,3 @@
 #endif
 
 #endif // MBED_FLASH_CONFIGS_H
-

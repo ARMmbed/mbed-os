@@ -43,9 +43,7 @@ class CMake(Exporter):
 
     POST_BINARY_WHITELIST = set([
         "MCU_NRF51Code.binary_hook",
-        "TEENSY3_1Code.binary_hook",
         "LPCTargetCode.lpc_patch",
-        "LPC4088Code.binary_hook",
         "PSOC6Code.complete"
     ])
 

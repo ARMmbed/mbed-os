@@ -41,46 +41,10 @@
 #define INITIAL_SP              (0x10001000UL)
 #endif
 
-#elif defined(TARGET_LPC1347)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x10002000UL)
-#endif
-
-#elif defined(TARGET_LPC1549)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x02009000UL)
-#endif
-
-#elif defined(TARGET_LPC1768) || defined(TARGET_LPC1769)
+#elif defined(TARGET_LPC1768)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10008000UL)
-#endif
-
-#elif defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x10010000UL)
-#endif
-
-#elif defined(TARGET_LPC4330) || defined(TARGET_LPC4337)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x10008000UL)
-#endif
-
-#elif defined(TARGET_LPC812)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x10001000UL)
-#endif
-
-#elif defined(TARGET_LPC824) || defined(TARGET_SSCI824)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x10002000UL)
 #endif
 
 #elif defined(TARGET_LPC54114_M4)

@@ -42,7 +42,7 @@ class Testcase(Bench):
                                 '*': {
                                     "count":3,
                                     "type": "hardware",
-                                    "allowed_platforms": ["K64F", "K66F", "NUCLEO_F429ZI", "KW24D", "KW41Z"],
+                                    "allowed_platforms": ["K64F", "K66F", "NUCLEO_F429ZI", "KW41Z"],
                                     "application": {
                                        "name": "TEST_APPS-device-nanostack_mac_tester"
                                     }

@@ -99,7 +99,7 @@ watchdog_features_t hal_watchdog_get_platform_features(void)
     #elif defined(TARGET_EFM32GG11)
         .clock_typical_frequency = 1000,
         .clock_max_frequency = 1120
-    #elif defined(TARGET_EFM32PG) || defined(TARGET_EFM32PG12) || defined(TARGET_EFR32MG1) || defined(TARGET_EFR32MG12)
+    #elif defined(TARGET_EFR32MG1) || defined(TARGET_EFR32MG12)
         .clock_typical_frequency = 1000,
         .clock_max_frequency = 1070
     #else

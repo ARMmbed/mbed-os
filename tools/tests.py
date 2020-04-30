@@ -56,15 +56,12 @@ Wiring:
   * TMP102 (I2C):
       * LPC1*: (SDA=p28 , SCL=p27)
       * KL25Z: (SDA=PTC9, SCL=PTC8)
-      * MAXWSNENV: (SDA=TP6, SCL=TP5)
 
   * digital_loop (Digital(In|Out|InOut), InterruptIn):
       * Arduino headers: (D0 <-> D7)
       * NUCLEO_*: (D2 <-> D9)
-      * LPC1549: (D2 <-> D7)
       * LPC1*: (p5   <-> p25 )
       * KL25Z: (PTA5<-> PTC6)
-      * MAXWSNENV: (TP3 <-> TP4)
       * MAX32600MBED: (P1_0 <-> P4_7)
       * VK_RZ_A1H: (P3_2 <-> P5_6)
 
@@ -73,7 +70,6 @@ Wiring:
       * LPC1*: (p5   <-> p25), (p6   <-> p26)
       * KL25Z: (PTA5 <-> PTC6), (PTA4 <-> PTC5)
       * NUCLEO_F103RB: (PC_6 <-> PB_8), (PC_5 <-> PB_9)
-      * MAXWSNENV: (TP1 <-> TP3), (TP2 <-> TP4)
       * MAX32600MBED: (P1_0 <-> P4_7), (P1_1 <-> P4_6)
       * VK_RZ_A1H: (P3_2 <-> P5_6), (P3_7 <-> P5_1)
 
@@ -81,7 +77,6 @@ Wiring:
       * Arduino headers: (A0 <-> A5)
       * NUCLEO64: (A0 <-> A2)
       * NUCLEO144: (A0 <-> D13)
-      * LPC1549: (A0 <-> D12)
       * LPC1*: (p17   <-> p18 )
       * KL25Z: (PTE30 <-> PTC2)
 
@@ -108,8 +103,6 @@ Wiring:
 
   * can_transceiver:
      * LPC1768: (RX=p9,   TX=p10)
-     * LPC1549: (RX=D9,   TX=D8)
-     * LPC4088: (RX=p9,   TX=p10)
      * VK_RZ_A1H:(RX=P5_9, TX=P5_10)
      * NUCLEO_F091RC: (RX=PA_11, TX=PA_12)
      * NUCLEO_F072RB: (RX=PA_11, TX=PA_12)
@@ -195,7 +188,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
         "peripherals": ["analog_loop"],
-        "mcu": ["LPC1768", "KL25Z", "K64F", "K66F", "K22F", "LPC4088", "LPC1549",
+        "mcu": ["LPC1768", "KL25Z", "K64F", "K66F", "K22F",
                 "NUCLEO_F072RB", "NUCLEO_F091RC", "NUCLEO_F302R8", "NUCLEO_F303K8", "NUCLEO_F303RE", "NUCLEO_F207ZG",
                 "NUCLEO_F334R8", "NUCLEO_F303ZE", "NUCLEO_L053R8", "DISCO_L072CZ_LRWAN1", "NUCLEO_L073RZ", "NUCLEO_L152RE",
                 "NUCLEO_F410RB", "NUCLEO_F446RE", "NUCLEO_F446ZE", "NUCLEO_F429ZI",
@@ -281,20 +274,6 @@ TESTS = [
         "automated": True,
     },
     {
-        "id": "MBED_A22", "description": "SPIFI for LPC4088 (test 1)",
-        "source_dir": join(TEST_DIR, "mbed", "spifi1"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "automated": True,
-        "mcu": ["LPC4088","LPC4088_DM"]
-    },
-    {
-        "id": "MBED_A23", "description": "SPIFI for LPC4088 (test 2)",
-        "source_dir": join(TEST_DIR, "mbed", "spifi2"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "automated": True,
-        "mcu": ["LPC4088","LPC4088_DM"]
-    },
-    {
         "id": "MBED_A24", "description": "Serial echo with RTS/CTS flow control",
         "source_dir": join(TEST_DIR, "mbed", "echo_flow_control"),
         "dependencies": [MBED_LIBRARIES],
@@ -323,7 +302,7 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
         "peripherals": ["can_transceiver"],
-        "mcu": ["LPC1549", "LPC1768","B96B_F446VE", "VK_RZ_A1H",
+        "mcu": ["LPC1768","B96B_F446VE", "VK_RZ_A1H",
                 "NUCLEO_F091RC", "NUCLEO_F072RB", "NUCLEO_F042K6", "NUCLEO_F334R8", "NUCLEO_F207ZG",
         "NUCLEO_F303RE", "NUCLEO_F303K8", "NUCLEO_F302R8", "NUCLEO_F446RE","NUCLEO_F446ZE",
         "DISCO_F469NI", "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG",
@@ -357,7 +336,7 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "can_api"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "mcu": ["LPC1549", "LPC1768","B96B_F446VE", "VK_RZ_A1H",
+        "mcu": ["LPC1768","B96B_F446VE", "VK_RZ_A1H",
                 "NUCLEO_F091RC", "NUCLEO_F072RB", "NUCLEO_F042K6", "NUCLEO_F334R8", "NUCLEO_F207ZG",
                 "NUCLEO_F303RE", "NUCLEO_F303K8", "NUCLEO_F303ZE", "NUCLEO_F302R8", "NUCLEO_F446RE","NUCLEO_F446ZE",
                 "DISCO_F469NI", "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG",
@@ -437,7 +416,7 @@ TESTS = [
         "id": "MBED_4", "description": "Sleep",
         "source_dir": join(TEST_DIR, "mbed", "sleep"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "mcu": ["LPC1768", "LPC11U24", "LPC4088","LPC4088_DM","NRF51822", "LPC11U68"]
+        "mcu": ["LPC1768", "LPC11U24", "NRF51822", "LPC11U68"]
     },
     {
         "id": "MBED_5", "description": "PWM",
@@ -506,21 +485,14 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "rtc"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
-        "exclude_mcu": ["NRF51822", "NRF51822_BOOT", "NRF51822_OTA", "NRF51822_Y5_MBUG",
+        "exclude_mcu": ["NRF51822", "NRF51822_BOOT", "NRF51822_OTA",
                         "NRF51_DK", "NRF51_DK_BOOT", "NRF51_DK_OTA",
                         "NRF51_MICROBIT", "NRF51_MICROBIT_B", "NRF51_MICROBIT_BOOT",
                         "NRF51_MICROBIT_B_BOOT", "NRF51_MICROBIT_B_OTA", "NRF51_MICROBIT_OTA",
-                        "HRM1017", "HRM1017_BOOT", "HRM1701_OTA",
                         "NUCLEO_L011K4",
-                        "TY51822R3", "TY51822R3_BOOT", "TY51822R3_OTA",
-                        "NRF15_DONGLE", "NRF15_DONGLE_BOOT", "NRF15_DONGLE_OTA",
                         "ARCH_BLE", "ARCH_BLE_BOOT", "ARCH_BLE_OTA",
                         "ARCH_LINK", "ARCH_LINK_BOOT", "ARCH_LINK_OTA",
-                        "RBLAB_BLENANO", "RBLAB_BLENANO_BOOT", "RBLAB_BLENANO_OTA",
-                        "RBLAB_NRF51822", "RBLAB_NRF51822_BOOT", "RBLAB_NRF51822_OTA",
                         "SEEED_TINY_BLE", "SEEED_TINY_BLE_BOOT", "SEEED_TINY_BLE_OTA",
-                        "WALLBOT_BLE", "WALLBOT_BLE_BOOT", "WALLBOT_BLE_OTA",
-                        "DELTA_DFCM_NNN40", "DELTA_DFCM_NNN40_BOOT", "DELTA_DFCM_NNN40_OTA",
                         "LPC1114"],
         #"host_test": "rtc_auto",
     },
@@ -593,7 +565,7 @@ TESTS = [
         "id": "MBED_29", "description": "CAN network test",
         "source_dir": join(TEST_DIR, "mbed", "can"),
         "dependencies": [MBED_LIBRARIES],
-        "mcu": ["LPC1768", "LPC4088", "LPC1549", "RZ_A1H", "GR_LYCHEE", "B96B_F446VE", "NUCLEO_F091RC",
+        "mcu": ["LPC1768", "RZ_A1H", "GR_LYCHEE", "B96B_F446VE", "NUCLEO_F091RC",
                 "NUCLEO_F072RB", "NUCLEO_F042K6", "NUCLEO_F334R8", "NUCLEO_F303RE",
                 "NUCLEO_F303K8", "NUCLEO_F302R8", "NUCLEO_F446RE","NUCLEO_F446ZE", "DISCO_F469NI", "NUCLEO_F207ZG",
                 "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG", "DISCO_F746NG",
@@ -604,7 +576,7 @@ TESTS = [
         "id": "MBED_30", "description": "CAN network test using interrupts",
         "source_dir": join(TEST_DIR, "mbed", "can_interrupt"),
         "dependencies": [MBED_LIBRARIES],
-        "mcu": ["LPC1768", "LPC4088", "LPC1549", "RZ_A1H", "GR_LYCHEE", "B96B_F446VE", "NUCLEO_F091RC", "NUCLEO_F207ZG",
+        "mcu": ["LPC1768", "RZ_A1H", "GR_LYCHEE", "B96B_F446VE", "NUCLEO_F091RC", "NUCLEO_F207ZG",
                 "NUCLEO_F072RB", "NUCLEO_F042K6", "NUCLEO_F334R8", "NUCLEO_F303RE",
                 "NUCLEO_F303K8", "NUCLEO_F302R8", "NUCLEO_F446RE", "NUCLEO_F446ZE", "DISCO_F469NI",
                 "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG", "DISCO_F746NG",
@@ -756,7 +728,7 @@ TESTS = [
         "id": "KL25Z_5", "description": "MMA8451Q accelerometer",
         "source_dir": join(TEST_DIR, "mbed", "i2c_MMA8451Q"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'MMA8451Q')],
-        "mcu": ["KL25Z", "KL05Z", "KL46Z", "K20D50M"],
+        "mcu": ["KL25Z", "KL46Z"],
         "automated": True,
         },
 

@@ -16,9 +16,8 @@
 
 #if defined(DEVICE_USBDEVICE) && DEVICE_USBDEVICE && \
     (defined(TARGET_KL25Z) | defined(TARGET_KL43Z) | \
-     defined(TARGET_KL46Z) | defined(TARGET_K20D50M) | \
-     defined(TARGET_K64F) | defined(TARGET_K22F) | defined(TARGET_K82F) | \
-     defined(TARGET_TEENSY3_1))
+     defined(TARGET_KL46Z) | \
+     defined(TARGET_K64F) | defined(TARGET_K22F) | defined(TARGET_K82F))
 
 #if defined(TARGET_KSDK2_MCUS)
 #include "fsl_common.h"
