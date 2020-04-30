@@ -41,7 +41,7 @@ extern "C" {
 
 /** Halt the processor in the debug state
  */
-static inline void CY_HALT()
+static inline void CY_HALT(void)
 {
     __asm("    bkpt    1");
 }
@@ -122,7 +122,7 @@ static inline void CY_HALT()
         #define CY_RAMFUNC_BEGIN    __attribute__ ((section(".cy_ramfunc")))
         #define CY_RAMFUNC_END
     #endif
-    
+
     #define CY_UNUSED           __attribute__ ((unused))
     #define CY_NOINLINE         __attribute__ ((noinline))
     #define CY_ALIGN(align)     __ALIGNED(align)
@@ -215,7 +215,7 @@ static inline void CY_HALT()
 *******************************************************************************/
 #define CY_GET_REG24(addr)          (((uint32_t) (*((const volatile uint8_t *)(addr)))) | \
                                     (((uint32_t) (*((const volatile uint8_t *)(addr) + 1))) << 8U) | \
-                                    (((uint32_t) (*((const volatile uint8_t *)(addr) + 2))) << 16U))                                    
+                                    (((uint32_t) (*((const volatile uint8_t *)(addr) + 2))) << 16U))
 
 
 /*******************************************************************************
@@ -284,8 +284,8 @@ static inline void CY_HALT()
 * Macro Name: CY_REG32_CLR_SET
 ****************************************************************************//**
 *
-*  Uses _CLR_SET_FLD32U macro for providing get-clear-modify-write 
-*  operations with a name field and value and writes a resulting value 
+*  Uses _CLR_SET_FLD32U macro for providing get-clear-modify-write
+*  operations with a name field and value and writes a resulting value
 *  to the 32-bit register.
 *
 *******************************************************************************/
@@ -303,14 +303,14 @@ static inline void CY_HALT()
 *******************************************************************************/
 #define _CLR_SET_FLD16U(reg, field, value) ((uint16_t)(((reg) & ((uint16_t)(~(field ## _Msk)))) |   \
                                                        ((uint16_t)_VAL2FLD(field, value))))
-                                                       
-                                                       
+
+
 /*******************************************************************************
 * Macro Name: CY_REG16_CLR_SET
 ****************************************************************************//**
 *
-*  Uses _CLR_SET_FLD16U macro for providing get-clear-modify-write 
-*  operations with a name field and value and writes a resulting value 
+*  Uses _CLR_SET_FLD16U macro for providing get-clear-modify-write
+*  operations with a name field and value and writes a resulting value
 *  to the 16-bit register.
 *
 *******************************************************************************/
@@ -328,14 +328,14 @@ static inline void CY_HALT()
 *******************************************************************************/
 #define _CLR_SET_FLD8U(reg, field, value) ((uint8_t)(((reg) & ((uint8_t)(~(field ## _Msk)))) |  \
                                                      ((uint8_t)_VAL2FLD(field, value))))
-                                                     
-                                                     
+
+
 /*******************************************************************************
 * Macro Name: CY_REG8_CLR_SET
 ****************************************************************************//**
 *
-*  Uses _CLR_SET_FLD8U macro for providing get-clear-modify-write 
-*  operations with a name field and value and writes a resulting value 
+*  Uses _CLR_SET_FLD8U macro for providing get-clear-modify-write
+*  operations with a name field and value and writes a resulting value
 *  to the 8-bit register.
 *
 *******************************************************************************/
