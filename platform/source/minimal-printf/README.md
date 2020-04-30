@@ -28,7 +28,6 @@ Unrecognized format specifiers are treated as ordinary characters.
 
 Floating point limitations:
 * All floating points are treated as %f.
-* No support for inf, infinity or nan
 
 ## Usage
 
