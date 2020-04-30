@@ -3,12 +3,12 @@
     "config": {
         "stdio-convert-newlines": {
             "help": "Enable conversion to standard newlines on stdin/stdout/stderr",
-            "value": false
+            "value": true
         },
 
         "stdio-convert-tty-newlines": {
             "help": "Enable conversion to standard newlines on any tty FILE stream",
-            "value": false
+            "value": true
         },
 
         "stdio-buffered-serial": {
