@@ -50,7 +50,7 @@ extern "C" {
  * US_TICKER_PERIOD_NUM, US_TICKER_PERIOD_DEN: These denote the ratio (numerator, denominator)
  * of the ticker period to a microsecond. For example, an 8MHz ticker would have NUM = 1, DEN = 8;
  * a 1MHz ticker would have NUM = 1, DEN = 1; a 250kHz ticker would have NUM = 4, DEN = 1.
- * Both numerator and denominator must be 16 bits or less.
+ * Both numerator and denominator must be 16 bits or less, but need not be fully simplified.
  *
  * US_TICKER_MASK: The value mask for the ticker - eg 0x07FFFFFF for a 27-bit ticker.
  *
