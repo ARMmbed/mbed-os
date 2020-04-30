@@ -7,7 +7,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,29 +27,20 @@
 * \addtogroup group_bsp_network_buffer Buffer management
 * \{
 * Basic set of APIs for dealing with network packet buffers
-*
-* \defgroup group_bsp_network_buffer_functions Functions
 */
 
 #pragma once
-#if defined(CYBSP_WIFI_CAPABLE)
 
 #include <stdint.h>
 #include <stdbool.h>
 #include "cy_result.h"
 #include "whd.h"
 #include "whd_network_types.h"
-#include "lwip/pbuf.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-
-/**
-* \addtogroup group_bsp_network_buffer_functions
-* \{
-*/
 
 /** Allocates a packet buffer
  *
@@ -136,7 +127,7 @@ whd_result_t cy_buffer_set_size(whd_buffer_t buffer, unsigned short size);
  *                             buffer - a negative value increases the space for headers at the front
  *                             of the packet, a positive value decreases the space.
  *
- *  @return                  : CY_RSLT_SUCCESS or WHD_PMK_WRONG_LENGTH if the added amount is outside 
+ *  @return                  : CY_RSLT_SUCCESS or WHD_PMK_WRONG_LENGTH if the added amount is outside
  *                             the size of the buffer
  */
 whd_result_t cy_buffer_add_remove_at_front(whd_buffer_t *buffer, int32_t add_remove_amount);
@@ -170,12 +161,9 @@ whd_result_t cy_buffer_add_remove_at_front(whd_buffer_t *buffer, int32_t add_rem
  */
 void cy_network_process_ethernet_data(whd_interface_t interface, whd_buffer_t buffer);
 
-/** \} group_bsp_network_buffer_functions */
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* defined(CYBSP_WIFI_CAPABLE) */
 
 /** \} group_bsp_network_buffer */

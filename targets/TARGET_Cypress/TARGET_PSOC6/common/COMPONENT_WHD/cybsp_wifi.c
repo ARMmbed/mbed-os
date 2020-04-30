@@ -3,10 +3,10 @@
 *
 * \brief
 * Provides utility functions that are used by board support packages.
-* 
+*
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,6 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-#if defined(CYBSP_WIFI_CAPABLE)
 
 #include "cybsp.h"
 #include "cybsp_wifi.h"
@@ -35,33 +34,33 @@
 extern "C" {
 #endif
 
-#define THREAD_STACK_SIZE   	    5120
-#define THREAD_PRIORITY   	        CY_RTOS_PRIORITY_HIGH
-#define COUNTRY                     WHD_COUNTRY_AUSTRALIA
-#define DEFAULT_OOB_PIN		        0
-#define WLAN_POWER_UP_DELAY_MS      250
+#define THREAD_STACK_SIZE               5120
+#define THREAD_PRIORITY                 CY_RTOS_PRIORITY_HIGH
+#define COUNTRY                         WHD_COUNTRY_AUSTRALIA
+#define DEFAULT_OOB_PIN                 0
+#define WLAN_POWER_UP_DELAY_MS          250
 
-#define SDIO_ENUMERATION_TRIES      500
-#define SDIO_RETRY_DELAY_MS         1
-#define SDIO_BUS_LEVEL_MAX_RETRIES  5
+#define SDIO_ENUMERATION_TRIES          500
+#define SDIO_RETRY_DELAY_MS             1
+#define SDIO_BUS_LEVEL_MAX_RETRIES      5
 
 #if !defined(CY_WIFI_OOB_INTR_PRIORITY)
-#define CY_WIFI_OOB_INTR_PRIORITY   2
-#endif/* !defined(CY_WIFI_OOB_INTR_PRIORITY) */
+    #define CY_WIFI_OOB_INTR_PRIORITY   2
+#endif
 
 /* Determine whether to use the SDIO oob interrupt.
  * Use CY_WIFI_HOST_WAKE_SW_FORCE to force the enable status.
  */
 #if !defined(CY_WIFI_HOST_WAKE_SW_FORCE)
-    #define CY_SDIO_BUS_USE_OOB_INTR (1u)
+    #define CY_SDIO_BUS_USE_OOB_INTR    (1u)
 #else
-    #define CY_SDIO_BUS_USE_OOB_INTR CY_WIFI_HOST_WAKE_SW_FORCE
+    #define CY_SDIO_BUS_USE_OOB_INTR    CY_WIFI_HOST_WAKE_SW_FORCE
 #endif /* defined(CY_WIFI_HOST_WAKE_SW_FORCE) */
 
 #if (CY_SDIO_BUS_USE_OOB_INTR != 0)
     /* Setup configuration based on configurator or BSP, where configurator has precedence. */
     #if defined(CYCFG_WIFI_HOST_WAKE_ENABLED)
-        #define CY_WIFI_HOST_WAKE_GPIO CYCFG_WIFI_HOST_WAKE_GPIO
+        #define CY_WIFI_HOST_WAKE_GPIO  CYCFG_WIFI_HOST_WAKE_GPIO
         #define CY_WIFI_HOST_WAKE_IRQ_EVENT CYCFG_WIFI_HOST_WAKE_IRQ_EVENT
     #else
         /* Setup host-wake pin */
@@ -78,7 +77,7 @@ extern "C" {
         #endif
     #endif
 #else
-    #define CY_WIFI_HOST_WAKE_GPIO CYHAL_NC_PIN_VALUE
+    #define CY_WIFI_HOST_WAKE_GPIO      CYHAL_NC_PIN_VALUE
     #define CY_WIFI_HOST_WAKE_IRQ_EVENT 0
 #endif /* (CY_SDIO_BUS_USE_OOB_INTR != 0) */
 
@@ -99,7 +98,6 @@ static whd_netif_funcs_t netif_ops =
     .whd_network_process_ethernet_data = cy_network_process_ethernet_data,
 };
 
-//TODO: Need to use resource implemenatation from abstraction layer.
 extern whd_resource_source_t resource_ops;
 
 static cy_rslt_t sdio_try_send_cmd(const cyhal_sdio_t *sdio_object, cyhal_transfer_t direction, \
@@ -112,7 +110,7 @@ static cy_rslt_t sdio_try_send_cmd(const cyhal_sdio_t *sdio_object, cyhal_transf
         result = cyhal_sdio_send_cmd(sdio_object, direction, command, argument, response);
         if(result != CY_RSLT_SUCCESS)
         {
-            Cy_SysLib_Delay(SDIO_RETRY_DELAY_MS);
+            cyhal_system_delay_ms(SDIO_RETRY_DELAY_MS);
         }
         loop_count++;
     }
@@ -140,7 +138,7 @@ static cy_rslt_t cybsp_sdio_enumerate(const cyhal_sdio_t *sdio_object)
         result = sdio_try_send_cmd(sdio_object, CYHAL_READ, CYHAL_SDIO_CMD_SEND_RELATIVE_ADDR, no_argument, &rel_addr);
         if(result != CY_RSLT_SUCCESS)
         {
-            Cy_SysLib_Delay(SDIO_RETRY_DELAY_MS);
+            cyhal_system_delay_ms(SDIO_RETRY_DELAY_MS);
         }
         loop_count++;
     } while (result != CY_RSLT_SUCCESS && loop_count <= SDIO_ENUMERATION_TRIES);
@@ -161,7 +159,7 @@ static cy_rslt_t reset_wifi_chip(void)
     {
         /* WiFi out of reset */
         cyhal_gpio_write(CYBSP_WIFI_WL_REG_ON, true);
-        Cy_SysLib_Delay(WLAN_POWER_UP_DELAY_MS);
+        cyhal_system_delay_ms(WLAN_POWER_UP_DELAY_MS);
     }
     return result;
 }
@@ -178,6 +176,15 @@ static cy_rslt_t init_sdio_bus(void)
             whd_sdio_config_t whd_sdio_config;
             whd_oob_config_t oob_config;
             cyhal_sdio_cfg_t config;
+
+            /* If the configurator reserved the pin, we need to release it here since
+                WHD will try to reserve it again. WHD has no idea about configurators
+                and expects it can reserve the pin that it is going to manage.
+             */
+            #if defined(CYCFG_WIFI_HOST_WAKE_ENABLED)
+                cyhal_resource_inst_t pinRsc = cyhal_utils_get_gpio_resource(CY_WIFI_HOST_WAKE_GPIO);
+                cyhal_hwmgr_free(&pinRsc);
+            #endif
 
             oob_config.host_oob_pin = CY_WIFI_HOST_WAKE_GPIO;
             oob_config.dev_gpio_sel = DEFAULT_OOB_PIN;
@@ -247,5 +254,3 @@ whd_driver_t cybsp_get_wifi_driver(void)
 #if defined(__cplusplus)
 }
 #endif
-
-#endif /* defined(CYBSP_WIFI_CAPABLE) */

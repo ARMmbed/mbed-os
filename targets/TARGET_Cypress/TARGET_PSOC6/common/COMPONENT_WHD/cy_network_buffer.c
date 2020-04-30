@@ -7,7 +7,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,12 +23,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-#if defined(CYBSP_WIFI_CAPABLE)
-
 #include <stdlib.h>
 #include "cy_network_buffer.h"
 #include "cy_utils.h"
+#include "lwip/pbuf.h"
 #include "lwip/memp.h"
+
 #define  SDIO_BLOCK_SIZE (64U)
 
 whd_result_t cy_host_buffer_get(whd_buffer_t *buffer, whd_buffer_dir_t direction, unsigned short size, unsigned long timeout_ms)
@@ -38,21 +38,21 @@ whd_result_t cy_host_buffer_get(whd_buffer_t *buffer, whd_buffer_dir_t direction
     struct pbuf *p = NULL;
     if ( ( direction == WHD_NETWORK_TX) && ( size <= PBUF_POOL_BUFSIZE ) )
     {
-    	p = pbuf_alloc(PBUF_RAW, size, PBUF_POOL);
+        p = pbuf_alloc(PBUF_RAW, size, PBUF_POOL);
     }
     else
     {
-    	p = pbuf_alloc(PBUF_RAW, size+SDIO_BLOCK_SIZE, PBUF_RAM);
-    	if ( p != NULL )
-    	{
-    	    p->len = size;
-    	    p->tot_len -=  SDIO_BLOCK_SIZE;
-    	}
+        p = pbuf_alloc(PBUF_RAW, size+SDIO_BLOCK_SIZE, PBUF_RAM);
+        if ( p != NULL )
+        {
+            p->len = size;
+            p->tot_len -=  SDIO_BLOCK_SIZE;
+        }
     }
     if (p != NULL )
     {
         *buffer = p;
-    	return WHD_SUCCESS;
+        return WHD_SUCCESS;
     }
     else
     {
@@ -108,5 +108,3 @@ whd_result_t cy_buffer_add_remove_at_front(whd_buffer_t *buffer, int32_t add_rem
 
     return WHD_SUCCESS;
 }
-
-#endif /* defined(CYBSP_WIFI_CAPABLE) */

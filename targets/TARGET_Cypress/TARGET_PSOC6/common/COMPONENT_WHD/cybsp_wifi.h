@@ -8,7 +8,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,14 +25,10 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_bsp_wifi WiFi
+* \addtogroup group_bsp_wifi WiFi Initialization
 * \{
-* Basic abstraction layer for dealing with boards containing a Cypress MCU. This
-* API provides convenience methods for initializing and manipulating different
-* hardware found on the board.
-*
-* \defgroup group_bsp_wifi_macros Macros
-* \defgroup group_bsp_wifi_functions Functions
+* Basic integration code for interfacing the WiFi Host Driver (WHD) with the Board
+* Support Packages (BSPs).
 */
 #pragma once
 
@@ -43,49 +39,40 @@
 extern "C" {
 #endif
 
-/**
-* \addtogroup group_bsp_wifi_macros
-* \{
-*/
-
 /** Initialization of the WiFi driver failed. */
-#define CYBSP_RSLT_WIFI_INIT_FAILED (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_BSP, 4))
+#define CYBSP_RSLT_WIFI_INIT_FAILED (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_BOARD_LIB_WHD_INTEGRATION, 0))
 
 /** SDIO enumeration failed. */
-#define CYBSP_RSLT_WIFI_SDIO_ENUM_TIMEOUT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_BSP, 5))
+#define CYBSP_RSLT_WIFI_SDIO_ENUM_TIMEOUT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_BOARD_LIB_WHD_INTEGRATION, 1))
 
-/** \} group_bsp_board_macros */
-
-/**
-* \addtogroup group_bsp_wifi_functions
-* \{
-*/
-
-/** Initializes the primary interface for the WiFi driver on the board. This function
- * does the following
- * 1) Initializes the WiFi driver.
+/** Initializes the primary interface for the WiFi driver on the board. This sets up
+ * the WHD interface to use the \ref group_bsp_network_buffer APIs and to communicate
+ * over the SDIO interface on the board. This function does the following:<br>
+ * 1) Initializes the WiFi driver.<br>
  * 2) Turns on the WiFi chip.
  *
- * @note This function cannot be called multiple times. The user needs to first de-initialize
- * before calling this function again.
- * 
- * @param[out] interface Interface to be initialized 
+ * @note This function cannot be called multiple times. If the interface needs to be
+ * reinitialized, \ref cybsp_wifi_deinit must be called before calling this function
+ * again.
+ *
+ * @param[out] interface Interface to be initialized
  * @return CY_RSLT_SUCCESS for successful initialization or error if initialization failed.
  */
 cy_rslt_t cybsp_wifi_init_primary(whd_interface_t* interface);
 
 /** This function initializes and adds a secondary interface to the WiFi driver.
  *  @note This function does not initialize the WiFi driver or turn on the WiFi chip.
- * That is required to be done by the primary interface
- * 
+ * That is required to be done by first calling \ref cybsp_wifi_init_primary.
+ *
  * @param[out] interface Interface to be initialized
  * @param[in] mac_address Mac address for secondary interface
  * @return CY_RSLT_SUCCESS for successful initialization or error if initialization failed.
  */
 cy_rslt_t cybsp_wifi_init_secondary(whd_interface_t* interface, whd_mac_t* mac_address);
 
-/** De-initializes all WiFi interfaces and the WiFi driver. This function does the following
- * 1) Deinitializes all WiFi interfaces and WiFi driver.
+/** De-initializes all WiFi interfaces and the WiFi driver. This function does the
+ * following:<br>
+ * 1) Deinitializes all WiFi interfaces and WiFi driver.<br>
  * 2) Turns off the WiFi chip.
  *
  * @param[in] interface Interface to be de-initialized.
@@ -94,13 +81,13 @@ cy_rslt_t cybsp_wifi_init_secondary(whd_interface_t* interface, whd_mac_t* mac_a
 cy_rslt_t cybsp_wifi_deinit(whd_interface_t interface);
 
 /** Gets the wifi driver instance initialized by the driver. This should only be called
- * after the interface is initialized by cybsp_wifi_init_primary().
+ * after being initialized by \ref cybsp_wifi_init_primary() and before being
+ * deinitialized by \ref cybsp_wifi_deinit(). This is also the only time where the
+ * driver reference is valid.
  *
  * @return Wifi driver instance pointer.
  */
 whd_driver_t cybsp_get_wifi_driver(void);
-
-/** \} group_bsp_wifi_functions */
 
 #ifdef __cplusplus
 }
