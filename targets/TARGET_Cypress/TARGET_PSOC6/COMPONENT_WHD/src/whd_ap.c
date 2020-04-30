@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Cypress Semiconductor Corporation
+ * Copyright 2020 Cypress Semiconductor Corporation
  * SPDX-License-Identifier: Apache-2.0
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -730,7 +730,23 @@ uint32_t whd_wifi_stop_ap(whd_interface_t ifp)
         data[1] = htod32( (uint32_t)BSS_DOWN );
         CHECK_RETURN(whd_cdc_send_iovar(ifp, CDC_SET, buffer, 0) );
     }
-
+    if ( (wlan_chip_id != 43430) && (wlan_chip_id != 43455) )
+    {
+        result = cy_rtos_get_semaphore(&ap->whd_wifi_sleep_flag, (uint32_t)10000, WHD_FALSE);
+        if (result != WHD_SUCCESS)
+        {
+            WPRINT_WHD_ERROR( ("Error getting a semaphore, %s failed at %d \n", __func__, __LINE__) );
+            return result;
+        }
+    }
+    /* Disable AP mode only if AP is on primary interface */
+    if (prim_ifp == ifp)
+    {
+        data = (uint32_t *)whd_cdc_get_ioctl_buffer(whd_driver, &buffer, (uint16_t)4);
+        CHECK_IOCTL_BUFFER(data);
+        *data = 0;
+        CHECK_RETURN(whd_cdc_send_ioctl(ifp, CDC_SET, WLC_SET_AP, buffer, 0) );
+    }
     /* Wait until AP is brought down */
     result = cy_rtos_get_semaphore(&ap->whd_wifi_sleep_flag, (uint32_t)10000, WHD_FALSE);
     ap->is_waiting_event = WHD_FALSE;
@@ -744,15 +760,6 @@ uint32_t whd_wifi_stop_ap(whd_interface_t ifp)
     {
         WPRINT_WHD_ERROR( ("Error deleting semaphore, %s failed at %d \n", __func__, __LINE__) );
         return result2;
-    }
-
-    /* Disable AP mode only if AP is on primary interface */
-    if (prim_ifp == ifp)
-    {
-        data = (uint32_t *)whd_cdc_get_ioctl_buffer(whd_driver, &buffer, (uint16_t)4);
-        CHECK_IOCTL_BUFFER(data);
-        *data = 0;
-        CHECK_RETURN(whd_cdc_send_ioctl(ifp, CDC_SET, WLC_SET_AP, buffer, 0) );
     }
 
     CHECK_RETURN(whd_wifi_deregister_event_handler(ifp, ifp->event_reg_list[WHD_AP_EVENT_ENTRY]) );

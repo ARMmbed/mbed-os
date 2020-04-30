@@ -9,13 +9,9 @@
  * You may obtain a copy of the License here:
  * LICENSE-permissive-binary-license-1.0.txt and at
  * https://www.mbed.com/licenses/PBL-1.0
- * 
+ *
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-
-/** @file
- *  NVRAM file for CY8CKIT_062S2_43012
  */
 
 #ifndef INCLUDED_NVRAM_IMAGE_H_
@@ -25,24 +21,17 @@
 #include <stdint.h>
 #include "generated_mac_address.txt"
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
 /**
- *
  * Character array of NVRAM image
- *
- * Generated from cyw9cy8ckit_062S2_43012_P100_722591.txt
- *
+ * Generated from cyw9cy8ckit_062S2_43012_P100_723349.txt
  */
 
-
-
 static const char wifi_nvram_image[] =
-        "NVRAMRev=$Rev:722591$"                                              "\x00"
+        "NVRAMRev=$Rev:723349$"                                              "\x00"
         "sromrev=11"                                                         "\x00"
         "cckdigfilttype=4"                                                   "\x00"
         "cckpwroffset0=2"                                                    "\x00"
@@ -145,23 +134,24 @@ static const char wifi_nvram_image[] =
         "lpo_select=4"                                                       "\x00"
         "paprrmcsgamma2g=450,500,550,600,675,950,950,950,950,950,950,950"    "\x00"
         "paprrmcsgamma5g20=450,500,550,600,800,950,1100,1100,1100,1100,1100,1100""\x00"
-        "swdiv_en=0"/*ToenableSW-DIVfeature*/                                   "\x00"
+        "swdiv_en=0"                                                         "\x00"
         "swdiv_gpio=0"                                                       "\x00"
         "swdiv_swctrl_en=2"                                                  "\x00"
         "swdiv_swctrl_ant0=0"                                                "\x00"
         "swdiv_swctrl_ant1=1"                                                "\x00"
         "swdiv_antmap2g_main=1"                                              "\x00"
         "swdiv_antmap5g_main=1"                                              "\x00"
-        "swdiv_snrlim=10000"/*Onlyenablesw_divifthesnronpresentantennaislessthan10000/8=1250*/"\x00"
-        "swdiv_thresh=3000"/*No.ofrxpktsthreshold*/                             "\x00"
-        "swdiv_snrthresh=24"/*Differencebetweenantenna'ssnrisgreaterthan24/8=3dB,thenshifttheantennas*/"\x00"
+        "swdiv_snrlim=10000"                                                 "\x00"
+        "swdiv_thresh=3000"                                                  "\x00"
+        "swdiv_snrthresh=24"                                                 "\x00"
         "lhlgpio_cfg=0x00000020,0x00000000"                                  "\x00"
         "\x00\x00";
-
 #ifdef __cplusplus
 } /*extern "C" */
 #endif
 
 #else /* ifndef INCLUDED_NVRAM_IMAGE_H_ */
+
 #error Wi-Fi NVRAM image included twice
+
 #endif /* ifndef INCLUDED_NVRAM_IMAGE_H_ */

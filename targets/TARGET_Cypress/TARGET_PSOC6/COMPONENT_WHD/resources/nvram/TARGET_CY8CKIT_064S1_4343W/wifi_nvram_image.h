@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 
-/** @file
- *  NVRAM file for CY8CKIT-062-WiFi-BT (PSoC6 WiFi-BT Pioneer Kit) using
- *  Murata's Type 1DX module - Copied from bcm94343wwcd1.txt on 08/04/2019
- *  # 2.4 GHz, 20 MHz BW mode; No Antenna Diversity
- */
-
 #ifndef INCLUDED_NVRAM_IMAGE_H_
 #define INCLUDED_NVRAM_IMAGE_H_
 
@@ -27,19 +21,17 @@
 #include <stdint.h>
 #include "generated_mac_address.txt"
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
  * Character array of NVRAM image
- *
  * Generated from cyw94343cy8ckit-062-wifi-bt.txt
  */
 
 static const char wifi_nvram_image[] =
-        "NVRAMRev=$Rev: 722523 $"                                            "\x00"
+        "NVRAMRev=$Rev: 723142 $"                                            "\x00"
         "manfid=0x2d0"                                                       "\x00"
         "prodid=0x086c"                                                      "\x00"
         "vendid=0x14e4"                                                      "\x00"
@@ -60,6 +52,7 @@ static const char wifi_nvram_image[] =
         "extpagain2g=0"                                                      "\x00"
         "pa2ga0=-168,6905,-799"                                              "\x00"
         "AvVmid_c0=0x0,0xc8"                                                 "\x00"
+        "AvVmidIQcal=0x2,0xa8"                                               "\x00"
         "cckpwroffset0=5"                                                    "\x00"
         "maxp2ga0=84"                                                        "\x00"
         "txpwrbckof=6"                                                       "\x00"
@@ -77,10 +70,10 @@ static const char wifi_nvram_image[] =
         "wl0id=0x431b"                                                       "\x00"
         "deadman_to=0xffffffff"                                              "\x00"
         "muxenab=0x11"                                                       "\x00"
-        "\x00\x00"; 
-
+        "spurconfig=0x3"                                                     "\x00"
+        "\x00\x00";
 #ifdef __cplusplus
-} /* extern "C" */
+} /*extern "C" */
 #endif
 
 #else /* ifndef INCLUDED_NVRAM_IMAGE_H_ */

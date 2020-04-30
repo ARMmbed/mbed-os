@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Cypress Semiconductor Corporation
+ * Copyright 2020 Cypress Semiconductor Corporation
  * SPDX-License-Identifier: Apache-2.0
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -151,6 +151,29 @@ void whd_event_info_to_string(uint32_t cmd, uint16_t flag, uint32_t reason, char
 void whd_hexdump(uint8_t *data, uint32_t data_len);
 
 extern wl_chanspec_t whd_channel_to_wl_band(whd_driver_t whd_driver, uint32_t channel);
+
+/*!
+ ******************************************************************************
+ * Convert an ipv4 string to a uint32_t.
+ *
+ * @param[in] ip4addr   : IP address in string format
+ * @param[in] len       : length of the ip address string
+ * @param[out] dest     : IP address format in uint32
+ *
+ * @return
+ */
+bool whd_str_to_ip(const char *ip4addr, size_t len, void *dest);
+
+/*!
+ ******************************************************************************
+ * Print binary IPv4 address to a string.
+ * String must contain enough room for full address, 16 bytes exact.
+ * @param[in] ip4addr     : IPv4 address
+ * @param[out] p          : ipv4 address in string format
+ *
+ * @return
+ */
+uint8_t whd_ip4_to_string(const void *ip4addr, char *p);
 
 #ifdef __cplusplus
 } /* extern "C" */
