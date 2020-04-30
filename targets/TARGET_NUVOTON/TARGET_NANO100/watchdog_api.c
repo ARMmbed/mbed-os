@@ -193,7 +193,7 @@ static void watchdog_setup_cascade_timeout(void)
         wdt_timeout_clk_toutsel |                           // Timeout interval
         WDT_CTL_WTE_Msk |                                   // Enable watchdog timer
         WDT_CTL_WTWKE_Msk |                                 // Enable wake-up on timeout
-        (wdt_timeout_rmn_clk ? 0 : WDT_CTL_WTRE_Msk) |      // Enable reset on last cascaded timeout
+        WDT_CTL_WTRE_Msk |                                  // Enable reset always to address cascaded timeout failure in interrupt disabled scenario e.g. Hard Fault
         WDT_CTL_WTR_Msk;                                    // Reset watchdog timer
     
     SYS_LockReg();
