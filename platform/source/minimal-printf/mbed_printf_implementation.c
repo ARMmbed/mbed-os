@@ -22,6 +22,10 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#if MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FLOATING_POINT
+#include <math.h>
+#endif
+
 #if !TARGET_LIKE_MBED
 /* Linux implementation is for debug only */
 #define MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FLOATING_POINT 1
@@ -261,6 +265,25 @@ static void mbed_minimal_formatted_string_void_pointer(char *buffer, size_t leng
  */
 static void mbed_minimal_formatted_string_double(char *buffer, size_t length, int *result, double value, FILE *stream)
 {
+    /* check for nan */
+    if(isnan(value)) {
+        mbed_minimal_formatted_string_string(buffer, length, result, "nan", 3, stream);
+        return;
+    }
+
+    /* check for inf */
+    if(isinf(value)) {
+        /* print positive or negative */
+        if(isinf(value) < 0) {
+            mbed_minimal_putchar(buffer, length, result, '-', stream);
+        } else {
+            mbed_minimal_putchar(buffer, length, result, '+', stream);
+        }
+
+        mbed_minimal_formatted_string_string(buffer, length, result, "inf", 3, stream);
+        return;
+    }
+
     /* get integer part */
     MBED_SIGNED_STORAGE integer = value;
 
