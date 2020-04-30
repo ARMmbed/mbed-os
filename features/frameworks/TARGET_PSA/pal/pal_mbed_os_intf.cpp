@@ -89,13 +89,13 @@ static void reset_storage_for_compliance_test()
 
 static void inject_entropy()
 {
-#if defined(MBEDTLS_ENTROPY_NV_SEED) || defined(COMPONENT_PSA_SRV_IPC)
+#if defined(MBEDTLS_ENTROPY_NV_SEED)
     uint8_t seed[MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE] = { 0 };
     for (int i = 0; i < MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE; ++i) {
         seed[i] = i;
     }
     mbedtls_psa_inject_entropy(seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE);
-#endif // defined(MBEDTLS_ENTROPY_NV_SEED) || defined(COMPONENT_PSA_SRV_IPC)
+#endif // defined(MBEDTLS_ENTROPY_NV_SEED)
 }
 
 

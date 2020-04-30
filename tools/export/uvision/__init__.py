@@ -390,23 +390,26 @@ class UvisionArmc5(Uvision):
     @classmethod
     def is_target_supported(cls, target_name):
         target = TARGET_MAP[target_name]
-        if int(target.build_tools_metadata["version"]) > 0:
-            #Just check for ARMC5 as ARMC5 must be there irrespective of whether uARM is there or not if the target is staying with ARMC5
-            if "ARMC5" not in target.supported_toolchains:
-                return False
-        else:
-            if not (set(target.supported_toolchains).intersection(
-                    set(["ARM", "uARM"]))):
-                return False
+        if not target.is_TFM_target:
+            if int(target.build_tools_metadata["version"]) > 0:
+                # Just check for ARMC5 as ARMC5 must be there irrespective of whether uARM is there or not if the target is staying with ARMC5
+                if "ARMC5" not in target.supported_toolchains:
+                    return False
+            else:
+                if not (set(target.supported_toolchains).intersection(
+                        set(["ARM", "uARM"]))):
+                    return False
 
-        if not DeviceCMSIS.check_supported(target_name):
-            return False
-        if "Cortex-A" in target.core:
-            return False
-        if not hasattr(target, "post_binary_hook"):
-            return True
-        if target.post_binary_hook['function'] in cls.POST_BINARY_WHITELIST:
-            return True
+            if not DeviceCMSIS.check_supported(target_name):
+                return False
+            if "Cortex-A" in target.core:
+                return False
+            if not hasattr(target, "post_binary_hook"):
+                return True
+            if target.post_binary_hook['function'] in cls.POST_BINARY_WHITELIST:
+                return True
+            else:
+                return False
         else:
             return False
 
@@ -419,21 +422,24 @@ class UvisionArmc6(Uvision):
     @classmethod
     def is_target_supported(cls, target_name):
         target = TARGET_MAP[target_name]
-        if int(target.build_tools_metadata["version"]) > 0:
-            if not len(set(target.supported_toolchains).intersection(
-                    set(["ARM", "ARMC6"]))) > 0:
-                return False
-        else:
-            if "ARMC6" not in target.supported_toolchains:
-                return False
+        if not target.is_TFM_target:
+            if int(target.build_tools_metadata["version"]) > 0:
+                if not len(set(target.supported_toolchains).intersection(
+                        set(["ARM", "ARMC6"]))) > 0:
+                    return False
+            else:
+                if "ARMC6" not in target.supported_toolchains:
+                    return False
 
-        if not DeviceCMSIS.check_supported(target_name):
-            return False
-        if "Cortex-A" in target.core:
-            return False
-        if not hasattr(target, "post_binary_hook"):
-            return True
-        if target.post_binary_hook['function'] in cls.POST_BINARY_WHITELIST:
-            return True
+            if not DeviceCMSIS.check_supported(target_name):
+                return False
+            if "Cortex-A" in target.core:
+                return False
+            if not hasattr(target, "post_binary_hook"):
+                return True
+            if target.post_binary_hook['function'] in cls.POST_BINARY_WHITELIST:
+                return True
+            else:
+                return False
         else:
             return False

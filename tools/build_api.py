@@ -42,7 +42,7 @@ from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
                     MBED_CONFIG_FILE, MBED_LIBRARIES_DRIVERS,
                     MBED_LIBRARIES_PLATFORM, MBED_LIBRARIES_HAL,
                     BUILD_DIR)
-from .resources import Resources, FileType, FileRef, PsaManifestResourceFilter
+from .resources import Resources, FileType, FileRef
 from .notifier.mock import MockNotifier
 from .targets import TARGET_NAMES, TARGET_MAP, CORE_ARCH, Target
 from .libraries import Library
@@ -422,7 +422,6 @@ def get_mbed_official_release(version):
             ) for target in TARGET_NAMES \
             if (hasattr(TARGET_MAP[target], 'release_versions')
                 and version in TARGET_MAP[target].release_versions)
-                and not Target.get_target(target).is_PSA_secure_target
         )
     )
 
@@ -624,11 +623,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
         into_dir, extra_artifacts = toolchain.config.deliver_into()
         if into_dir:
             copy_when_different(res[0], into_dir)
-            if not extra_artifacts:
-                if toolchain.target.is_TrustZone_secure_target:
-                    cmse_lib = join(dirname(res[0]), "cmse_lib.o")
-                    copy_when_different(cmse_lib, into_dir)
-            else:
+            if extra_artifacts:
                 for tc, art in extra_artifacts:
                     if toolchain_name == tc:
                         copy_when_different(join(build_path, art), into_dir)
@@ -774,7 +769,6 @@ def build_library(src_paths, build_path, target, toolchain_name,
         res = Resources(notify).scan_with_toolchain(
             src_paths, toolchain, dependencies_paths, inc_dirs=inc_dirs)
         res.filter(resource_filter)
-        res.filter(PsaManifestResourceFilter())
 
         # Copy headers, objects and static libraries - all files needed for
         # static lib

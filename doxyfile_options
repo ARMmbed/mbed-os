@@ -2102,7 +2102,6 @@ PREDEFINED             = DOXYGEN_ONLY            \
                          DEVICE_QSPI             \
                          DEVICE_STORAGE          \
                          DEVICE_WATCHDOG         \
-                         COMPONENT_SPE           \
                          "TFM_LVL=1" \
                          "MBED_DEPRECATED_SINCE(d, m)=" \
                          "MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, M)=" \

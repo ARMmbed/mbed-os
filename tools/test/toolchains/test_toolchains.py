@@ -130,7 +130,6 @@ class TestGccToolchain(TestCase):
         mock_target.c_lib = "std"
         del mock_target.default_lib
         mock_target.supported_c_libs = {"gcc_arm": ["std"]}
-        mock_target.is_TrustZone_secure_target = False
 
         gcc_obj = GCC_ARM(mock_target)
 
@@ -158,7 +157,6 @@ class TestGccToolchain(TestCase):
         mock_target.c_lib = "sMALL"
         del mock_target.default_lib
         mock_target.supported_toolchains = ["GCC_ARM"]
-        mock_target.is_TrustZone_secure_target = False
         gcc_arm_obj = GCC_ARM(mock_target)
         self.assertIn("-DMBED_RTOS_SINGLE_THREAD", gcc_arm_obj.flags["common"])
         self.assertIn("-D__NEWLIB_NANO", gcc_arm_obj.flags["common"])
@@ -213,7 +211,6 @@ class TestIarToolchain(TestCase):
         del mock_target.default_lib
         mock_target.c_lib = "std"
         mock_target.supported_c_libs = {"iar": ["std"]}
-        mock_target.is_TrustZone_secure_target = False
 
         iar_obj = IAR(mock_target)
         var = "-DMBED_MINIMAL_PRINTF"
@@ -227,7 +224,6 @@ class TestIarToolchain(TestCase):
         mock_target.c_lib = "sTD"
         del mock_target.default_lib
         mock_target.supported_toolchains = ["IAR"]
-        mock_target.is_TrustZone_secure_target = False
         try:
             IAR(mock_target)
         except NotSupportedException:

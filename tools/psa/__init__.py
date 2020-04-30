@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # Copyright (c) 2019 ARM Limited
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -16,13 +16,7 @@
 # limitations under the License.
 
 import os
-import shutil
-
 from tools.resources import FileType
-from tools.settings import ROOT
-from .generate_partition_code import manifests_discovery, generate_spm_code
-
-
 
 def find_secure_image(notify, resources, ns_image_path,
                       configured_s_image_filename, image_type):
@@ -56,12 +50,3 @@ def find_secure_image(notify, resources, ns_image_path,
         raise Exception("Required secure image not found.")
 
     return secure_image
-
-def generate_psa_sources(source_dirs, ignore_paths):
-    services, apps = manifests_discovery(root_dirs=source_dirs,
-                                         ignore_paths=ignore_paths + ['.git'])
-    assert len(services + apps), 'PSA manifest discovery failed'
-    psa_out_dir = os.path.join(ROOT, 'components', 'TARGET_PSA')
-
-    generate_spm_code(services, apps, psa_out_dir)
-    return psa_out_dir

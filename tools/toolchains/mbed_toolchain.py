@@ -990,15 +990,6 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
             self.ld.append(define_string)
             self.flags["ld"].append(define_string)
 
-        if self.target.is_PSA_secure_target:
-            for flag, param in [
-                ("MBED_PUBLIC_RAM_START", "target.public-ram-start"),
-                ("MBED_PUBLIC_RAM_SIZE", "target.public-ram-size")
-            ]:
-                define_string = self.make_ld_define(flag, params[param].value)
-                self.ld.append(define_string)
-                self.flags["ld"].append(define_string)
-
         if hasattr(self.target, 'post_binary_hook'):
             if self.target.post_binary_hook is None:
                 define_string = self.make_ld_define(

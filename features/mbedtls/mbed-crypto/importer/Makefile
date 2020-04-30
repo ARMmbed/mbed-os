@@ -49,9 +49,6 @@ TLS_SRC := \
 # COMPONENT_PSA_SRV_IMPL - Include secure service implementation code. For
 # example PSA Crypto or PSA Secure Time implementations
 TARGET_SRV_IMPL:=$(TARGET_PREFIX)/platform/COMPONENT_PSA_SRV_IMPL
-# COMPONENT_SPE - Include code that compiles ONLY to the SPE image and never
-# compiles to the NSPE image
-TARGET_SPE:=$(TARGET_PREFIX)/platform/COMPONENT_SPE
 # COMPONENT_NSPE - Include code that compiles ONLY to the NSPE image and never
 # compiles to the SPE image
 TARGET_NSPE:=$(TARGET_SRV_IMPL)/COMPONENT_NSPE
@@ -88,15 +85,12 @@ rsync:
 	#
 	# Copying Mbed Crypto into Mbed OS...
 	rm -rf $(TARGET_SRV_IMPL)
-	rm -rf $(TARGET_SPE)
 	rm -rf $(TARGET_SRC)
 
 	mkdir -p $(TARGET_SRV_IMPL)
-	mkdir -p $(TARGET_SPE)
 	mkdir -p $(TARGET_NSPE)
 
 	rsync -a --delete $(CRYPTO_API)/crypto_struct.h $(TARGET_NSPE)/
-	rsync -a --delete $(CRYPTO_API)/crypto_struct.h $(TARGET_SPE)/crypto_struct_spe.h
 	rsync -a --delete $(CRYPTO_DIR)/library/psa_*.c $(TARGET_SRV_IMPL)/
 	rsync -a --delete $(CRYPTO_DIR)/library/psa_*.h $(TARGET_SRV_IMPL)/
 	rsync -a --delete $(CRYPTO_DIR)/library/*.c $(TARGET_SRC)/
@@ -135,4 +129,3 @@ clean:
 	rm -rf $(TARGET_SRC)
 	rm -rf $(CRYPTO_DIR)
 	rm -rf $(TARGET_SRV_IMPL)
-	rm -rf $(TARGET_SPE)

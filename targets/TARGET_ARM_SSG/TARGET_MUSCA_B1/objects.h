@@ -31,7 +31,6 @@
 extern "C" {
 #endif
 
-#if TARGET_MUSCA_B1_NS
 struct serial_s {
     struct uart_pl011_dev_t *uart_dev;
     UARTName uart_index;                /* UART device number */
@@ -39,7 +38,6 @@ struct serial_s {
     IRQn_Type rx_irq;
     IRQn_Type rx_timeout_irq;
 };
-#endif // TARGET_MUSCA_B1_NS
 
 #if DEVICE_FLASH
 struct flash_s {

@@ -53,9 +53,12 @@ class CCES(Exporter):
         target_name - the name of the target.
         """
         target = TARGET_MAP[target_name]
-        return (cls.TOOLCHAIN in target.supported_toolchains) \
-            and hasattr(target, "device_name") \
-            and (target.device_name in SUPPORTED_DEVICES)
+        if not target.is_TFM_target:
+            return (cls.TOOLCHAIN in target.supported_toolchains) \
+                and hasattr(target, "device_name") \
+                and (target.device_name in SUPPORTED_DEVICES)
+        else:
+            return False
 
     @property
     def flags(self):

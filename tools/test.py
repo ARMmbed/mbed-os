@@ -43,8 +43,6 @@ from tools.utils import argparse_dir_not_parent
 from tools.utils import print_end_warnings
 from tools.settings import ROOT
 from tools.targets import Target
-from tools.psa import generate_psa_sources
-from tools.resources import OsAndSpeResourceFilter, SpeOnlyResourceFilter
 
 def main():
     error = False
@@ -247,12 +245,6 @@ def main():
             profile = extract_profile(parser, options, internal_tc_name)
             try:
                 resource_filter = None
-                if target.is_PSA_secure_target:
-                    resource_filter = OsAndSpeResourceFilter()
-                    generate_psa_sources(
-                        source_dirs=base_source_paths,
-                        ignore_paths=[options.build_dir]
-                    )
 
                 # Build sources
                 notify = TerminalNotifier(options.verbose, options.silent)
@@ -288,10 +280,7 @@ def main():
             if not library_build_success:
                 print("Failed to build library")
             else:
-                if target.is_PSA_secure_target:
-                    resource_filter = SpeOnlyResourceFilter()
-                else:
-                    resource_filter = None
+                resource_filter = None
 
                 # Build all the tests
                 notify = TerminalNotifier(options.verbose, options.silent)
