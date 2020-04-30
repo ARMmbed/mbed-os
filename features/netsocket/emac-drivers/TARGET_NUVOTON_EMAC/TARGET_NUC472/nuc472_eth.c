@@ -78,7 +78,8 @@ static int reset_phy(void)
     mdio_write(CONFIG_PHY_ADDR, MII_BMCR, BMCR_RESET);
 
     delayCnt = 2000;
-    while(delayCnt-- > 0) {
+    while(delayCnt > 0) {
+        delayCnt--;
         if((mdio_read(CONFIG_PHY_ADDR, MII_BMCR) & BMCR_RESET) == 0)
             break;
 
@@ -99,7 +100,8 @@ static int reset_phy(void)
     mdio_write(CONFIG_PHY_ADDR, MII_BMCR, reg | BMCR_ANRESTART);
 
     delayCnt = 200000;
-    while(delayCnt-- > 0) {
+    while(delayCnt > 0) {
+        delayCnt--;
         if((mdio_read(CONFIG_PHY_ADDR, MII_BMSR) & (BMSR_ANEGCOMPLETE | BMSR_LSTATUS))
                 == (BMSR_ANEGCOMPLETE | BMSR_LSTATUS))
             break;
