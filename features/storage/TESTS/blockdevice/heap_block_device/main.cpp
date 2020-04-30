@@ -23,15 +23,14 @@
 
 using namespace utest::v1;
 
-// TODO HACK, replace with available ram/heap property
-#if defined(TARGET_LPC1114)
-#error [NOT_SUPPORTED] Insufficient heap for heap block device tests
-#else
-
 #define TEST_BLOCK_SIZE 128
 #define TEST_BLOCK_DEVICE_SIZE 32*TEST_BLOCK_SIZE
 #define TEST_BLOCK_COUNT 10
 #define TEST_ERROR_MASK 16
+
+#if ((MBED_RAM_SIZE - MBED_BOOT_STACK_SIZE) <= TEST_BLOCK_DEVICE_SIZE)
+#error [NOT_SUPPORTED] Insufficient heap for heap block device tests
+#endif
 
 const struct {
     const char *name;
