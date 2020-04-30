@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_seglcd.c
-* \version 1.0.1
+* \version 1.0.2
 *
 * \brief
 * Provides an API implementation of the SegLCD driver
 *
 ********************************************************************************
 * \copyright
-* Copyright 2019 Cypress Semiconductor Corporation
+* Copyright 2019-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");

@@ -5,11 +5,11 @@
 * PSoC6_04 device GPIO header for 68-QFN package
 *
 * \note
-* Generator version: 1.5.1.36
+* Generator version: 1.6.0.111
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -286,8 +286,8 @@ typedef enum
 #define CSD_CSH_TANKPADD_PIN            2u
 #define CSD_CSH_TANKPADS_PORT           7u
 #define CSD_CSH_TANKPADS_PIN            2u
-#define CSD_CSHIELDPADS_PORT            8u
-#define CSD_CSHIELDPADS_PIN             1u
+#define CSD_CSHIELDPADS_PORT            7u
+#define CSD_CSHIELDPADS_PIN             7u
 #define CSD_VREF_EXT_PORT               7u
 #define CSD_VREF_EXT_PIN                3u
 #define IOSS_ADFT0_NET_PORT             10u

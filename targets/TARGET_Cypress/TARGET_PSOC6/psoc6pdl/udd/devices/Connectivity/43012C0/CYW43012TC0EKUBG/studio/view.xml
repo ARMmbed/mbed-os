@@ -12,7 +12,7 @@
   <Param name="SRAM_KB" value="1280" />
   <Param name="Bluetooth" value="5" />
   <Param name="Vddmin_volts" value="3.2" />
-  <Param name="Vddmax_volts" value="4.4000000000000004" />
+  <Param name="Vddmax_volts" value="4.4" />
   <Param name="TempMin_Celsius" value="-20" />
   <Param name="TempMax_Celsius" value="70" />
   <Param name="SiliconID" value="0x00000000" />

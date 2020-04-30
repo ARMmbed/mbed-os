@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_canfd.h
-* \version 1.10
+* \version 1.10.1
 *
 *  This file provides constants and parameter values for 
 *  the CAN FD driver.
@@ -31,8 +31,8 @@
 * devices in the CAN FD network.
 * The CAN FD driver provides an API to configure the main features - mode, bit time,
 * message buffers - and transmit and receive message in all modes:
-* - Classic CAN	using 11-bit identifiers
-* - Classic CAN	using 29-bit identifiers
+* - Classic CAN using 11-bit identifiers
+* - Classic CAN using 29-bit identifiers
 * - CAN Flexible Data using 11-bit identifiers
 * - CAN Flexible Data using 29-bit identifiers.
 *

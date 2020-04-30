@@ -1,6 +1,6 @@
 /*******************************************************************************
 * \file cy_canfd.c
-* \version 1.10
+* \version 1.10.1
 *
 * \brief
 *  Provides an API implementation of the CAN FD driver.

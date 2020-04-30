@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syslib.h
-* \version 2.50.1
+* \version 2.50.2
 *
 * Provides an API declaration of the SysLib driver.
 *
@@ -175,7 +175,7 @@
 *     <td>Minor documentation edits.</td>
 *     <td>Documentation update and clarification.</td>
 *   </tr>
-*	<tr>
+*   <tr>
 *     <td>Added new macros CY_RAMFUNC_BEGIN and CY_RAMFUNC_END for convenient placement function in RAM for all supported compilers.</td>
 *     <td>Improve user experience.</td>
 *   </tr>

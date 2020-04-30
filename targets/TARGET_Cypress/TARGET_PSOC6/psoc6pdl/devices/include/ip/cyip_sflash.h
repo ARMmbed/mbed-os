@@ -5,11 +5,11 @@
 * SFLASH IP definitions
 *
 * \note
-* Generator version: 1.5.1.36
+* Generator version: 1.6.0.111
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -48,13 +48,17 @@ typedef struct {
    __IM uint16_t RESERVED2[3];
   __IOM uint32_t CPUSS_WOUNDING;                /*!< 0x00000014 CPUSS Wounding */
    __IM uint32_t RESERVED3[2];
-  __IOM uint8_t  SORT_REV[3];                   /*!< 0x00000020 SORT Revision */
-  __IOM uint8_t  CRI_BB_REV;                    /*!< 0x00000023 CRI BB Revision */
+  __IOM uint8_t  S1_TESTPGM_REV;                /*!< 0x00000020 S1_testpgm_rev */
+  __IOM uint8_t  S2_TESTPGM_REV;                /*!< 0x00000021 S2_testpgm_rev */
+  __IOM uint8_t  S3_TESTPGM_REV;                /*!< 0x00000022 S3_testpgm_rev */
+  __IOM uint8_t  CRI_TESTPGM_REV;               /*!< 0x00000023 CRI_testpgm_rev */
   __IOM uint8_t  CRI_AB_REV;                    /*!< 0x00000024 CRI AB Revision */
-  __IOM uint8_t  CHI_AB_REV;                    /*!< 0x00000025 CHI AB Revision */
-   __IM uint16_t RESERVED4[43];
+  __IOM uint8_t  CHI_TESTPGM_REV;               /*!< 0x00000025 CHI_testpgm_rev */
+   __IM uint16_t RESERVED4;
+  __IOM uint32_t SFLASH_SVN;                    /*!< 0x00000028 SFLASH Subversion */
+   __IM uint32_t RESERVED5[20];
   __IOM uint32_t FB_FLAGS;                      /*!< 0x0000007C Flash boot flags */
-   __IM uint32_t RESERVED5[352];
+   __IM uint32_t RESERVED6[352];
   __IOM uint8_t  DIE_LOT[3];                    /*!< 0x00000600 Lot Number (3 bytes) */
   __IOM uint8_t  DIE_WAFER;                     /*!< 0x00000603 Wafer Number */
   __IOM uint8_t  DIE_X;                         /*!< 0x00000604 X Position on Wafer, CRI Pass/Fail Bin */
@@ -64,20 +68,20 @@ typedef struct {
   __IOM uint8_t  DIE_DAY;                       /*!< 0x00000608 Day number */
   __IOM uint8_t  DIE_MONTH;                     /*!< 0x00000609 Month number */
   __IOM uint8_t  DIE_YEAR;                      /*!< 0x0000060A Year number */
-   __IM uint8_t  RESERVED6[61];
+   __IM uint8_t  RESERVED7[61];
   __IOM uint16_t SAR_TEMP_MULTIPLIER;           /*!< 0x00000648 SAR Temperature Sensor Multiplication Factor */
   __IOM uint16_t SAR_TEMP_OFFSET;               /*!< 0x0000064A SAR Temperature Sensor Offset */
-   __IM uint32_t RESERVED7[8];
+   __IM uint32_t RESERVED8[8];
   __IOM uint32_t CSP_PANEL_ID;                  /*!< 0x0000066C CSP Panel Id to record panel ID of CSP die */
-   __IM uint32_t RESERVED8[52];
+   __IM uint32_t RESERVED9[52];
   __IOM uint8_t  LDO_0P9V_TRIM;                 /*!< 0x00000740 LDO_0P9V_TRIM */
   __IOM uint8_t  LDO_1P1V_TRIM;                 /*!< 0x00000741 LDO_1P1V_TRIM */
-   __IM uint16_t RESERVED9[95];
+   __IM uint16_t RESERVED10[95];
   __IOM uint32_t BLE_DEVICE_ADDRESS[128];       /*!< 0x00000800 BLE_DEVICE_ADDRESS */
   __IOM uint32_t USER_FREE_ROW1[128];           /*!< 0x00000A00 USER_FREE_ROW1 */
   __IOM uint32_t USER_FREE_ROW2[128];           /*!< 0x00000C00 USER_FREE_ROW2 */
   __IOM uint32_t USER_FREE_ROW3[128];           /*!< 0x00000E00 USER_FREE_ROW3 */
-   __IM uint32_t RESERVED10[302];
+   __IM uint32_t RESERVED11[302];
   __IOM uint8_t  DEVICE_UID[16];                /*!< 0x000014B8 Unique Identifier Number for each device */
   __IOM uint8_t  MASTER_KEY[16];                /*!< 0x000014C8 Master key to change other keys */
   __IOM uint32_t STANDARD_SMPU_STRUCT_SLAVE_ADDR[16]; /*!< 0x000014D8 Standard SMPU STRUCT Slave Address value */
@@ -85,36 +89,36 @@ typedef struct {
   __IOM uint32_t STANDARD_SMPU_STRUCT_MASTER_ATTR[16]; /*!< 0x00001558 Standard SMPU STRUCT Master Attribute value */
   __IOM uint32_t STANDARD_MPU_STRUCT[16];       /*!< 0x00001598 Standard MPU STRUCT */
   __IOM uint32_t STANDARD_PPU_STRUCT[16];       /*!< 0x000015D8 Standard PPU STRUCT */
-   __IM uint32_t RESERVED11[122];
+   __IM uint32_t RESERVED12[122];
   __IOM uint16_t PILO_FREQ_STEP;                /*!< 0x00001800 Resolution step for PILO at class in BCD format */
-   __IM uint16_t RESERVED12;
+   __IM uint16_t RESERVED13;
   __IOM uint32_t CSDV2_CSD0_ADC_VREF0;          /*!< 0x00001804 CSD 1p2 & 1p6 voltage levels for accuracy */
   __IOM uint32_t CSDV2_CSD0_ADC_VREF1;          /*!< 0x00001808 CSD 2p1 & 0p8 voltage levels for accuracy */
   __IOM uint32_t CSDV2_CSD0_ADC_VREF2;          /*!< 0x0000180C CSD calibration spare voltage level for accuracy */
   __IOM uint32_t PWR_TRIM_WAKE_CTL;             /*!< 0x00001810 Wakeup delay */
-   __IM uint16_t RESERVED13;
+   __IM uint16_t RESERVED14;
   __IOM uint16_t RADIO_LDO_TRIMS;               /*!< 0x00001816 Radio LDO Trims */
   __IOM uint32_t CPUSS_TRIM_ROM_CTL_ULP;        /*!< 0x00001818 CPUSS TRIM ROM CTL ULP value */
   __IOM uint32_t CPUSS_TRIM_RAM_CTL_ULP;        /*!< 0x0000181C CPUSS TRIM RAM CTL ULP value */
   __IOM uint32_t CPUSS_TRIM_ROM_CTL_LP;         /*!< 0x00001820 CPUSS TRIM ROM CTL LP value */
   __IOM uint32_t CPUSS_TRIM_RAM_CTL_LP;         /*!< 0x00001824 CPUSS TRIM RAM CTL LP value */
-   __IM uint32_t RESERVED14[7];
+   __IM uint32_t RESERVED15[7];
   __IOM uint32_t CPUSS_TRIM_ROM_CTL_HALF_ULP;   /*!< 0x00001844 CPUSS TRIM ROM CTL HALF ULP value */
   __IOM uint32_t CPUSS_TRIM_RAM_CTL_HALF_ULP;   /*!< 0x00001848 CPUSS TRIM RAM CTL HALF ULP value */
   __IOM uint32_t CPUSS_TRIM_ROM_CTL_HALF_LP;    /*!< 0x0000184C CPUSS TRIM ROM CTL HALF LP value */
   __IOM uint32_t CPUSS_TRIM_RAM_CTL_HALF_LP;    /*!< 0x00001850 CPUSS TRIM RAM CTL HALF LP value */
-   __IM uint32_t RESERVED15[491];
+   __IM uint32_t RESERVED16[491];
   __IOM uint32_t FLASH_BOOT_OBJECT_SIZE;        /*!< 0x00002000 Flash Boot - Object Size */
   __IOM uint32_t FLASH_BOOT_APP_ID;             /*!< 0x00002004 Flash Boot - Application ID/Version */
   __IOM uint32_t FLASH_BOOT_ATTRIBUTE;          /*!< 0x00002008 N/A */
   __IOM uint32_t FLASH_BOOT_N_CORES;            /*!< 0x0000200C Flash Boot - Number of Cores(N) */
   __IOM uint32_t FLASH_BOOT_VT_OFFSET;          /*!< 0x00002010 Flash Boot - Core Vector Table offset */
   __IOM uint32_t FLASH_BOOT_CORE_CPUID;         /*!< 0x00002014 Flash Boot - Core CPU ID/Core Index */
-   __IM uint32_t RESERVED16[48];
+   __IM uint32_t RESERVED17[48];
   __IOM uint8_t  FLASH_BOOT_CODE[14632];        /*!< 0x000020D8 Flash Boot - Code and Data */
   __IOM uint8_t  PUBLIC_KEY[3072];              /*!< 0x00005A00 Public key for signature verification (max RSA key size 4096) */
   __IOM uint32_t BOOT_PROT_SETTINGS[384];       /*!< 0x00006600 Boot protection settings (not present in PSOC6ABLE2) */
-   __IM uint32_t RESERVED17[768];
+   __IM uint32_t RESERVED18[768];
   __IOM uint32_t TOC1_OBJECT_SIZE;              /*!< 0x00007800 Object size in bytes for CRC calculation starting from offset
                                                                 0x00 */
   __IOM uint32_t TOC1_MAGIC_NUMBER;             /*!< 0x00007804 Magic number(0x01211219) */
@@ -125,7 +129,7 @@ typedef struct {
   __IOM uint32_t TOC1_FB_OBJECT_ADDR;           /*!< 0x00007814 Addresss of FLASH Boot(FB) object that include FLASH patch also */
   __IOM uint32_t TOC1_SYSCALL_TABLE_ADDR_UNUSED; /*!< 0x00007818 Unused (Address is Hardcoded in ROM) */
   __IOM uint32_t TOC1_OBJECT_ADDR_UNUSED;       /*!< 0x0000781C Unused (Address is Hardcoded in ROM) */
-   __IM uint32_t RESERVED18[119];
+   __IM uint32_t RESERVED19[119];
   __IOM uint32_t TOC1_CRC_ADDR;                 /*!< 0x000079FC Upper 2 bytes contain CRC16-CCITT and lower 2 bytes are 0 */
   __IOM uint32_t RTOC1_OBJECT_SIZE;             /*!< 0x00007A00 Redundant Object size in bytes for CRC calculation starting
                                                                 from offset 0x00 */
@@ -138,7 +142,7 @@ typedef struct {
                                                                 patch also */
   __IOM uint32_t RTOC1_SYSCALL_TABLE_ADDR_UNUSED; /*!< 0x00007A18 Redundant Unused (Address is Hardcoded in ROM) */
   __IOM uint32_t RTOC1_OBJECT_ADDR_UNUSED;      /*!< 0x00007A1C Redundant Unused (Address is Hardcoded in ROM) */
-   __IM uint32_t RESERVED19[119];
+   __IM uint32_t RESERVED20[119];
   __IOM uint32_t RTOC1_CRC_ADDR;                /*!< 0x00007BFC Redundant CRC,Upper 2 bytes contain CRC16-CCITT and lower 2
                                                                 bytes are 0 */
   __IOM uint32_t TOC2_OBJECT_SIZE;              /*!< 0x00007C00 Object size in bytes for CRC calculation starting from offset
@@ -158,7 +162,7 @@ typedef struct {
                                                                 SECURE_HASH(SHASH) */
   __IOM uint32_t TOC2_SIGNATURE_VERIF_KEY;      /*!< 0x00007C24 Address of signature verification key (0 if none).The object is
                                                                 signature specific key. It is the public key in case of RSA */
-   __IM uint32_t RESERVED20[115];
+   __IM uint32_t RESERVED21[115];
   __IOM uint32_t TOC2_REVISION;                 /*!< 0x00007DF4 Indicates TOC2 Revision. It is not used now. */
   __IOM uint32_t TOC2_FLAGS;                    /*!< 0x00007DF8 TOC2_FLAGS */
   __IOM uint32_t TOC2_CRC_ADDR;                 /*!< 0x00007DFC CRC,Upper 2 bytes contain CRC16-CCITT and lower 2 bytes are 0 */
@@ -180,7 +184,7 @@ typedef struct {
   __IOM uint32_t RTOC2_SIGNATURE_VERIF_KEY;     /*!< 0x00007E24 Redundant Address of signature verification key (0 if none).The
                                                                 object is signature specific key. It is the public key in case
                                                                 of RSA */
-   __IM uint32_t RESERVED21[115];
+   __IM uint32_t RESERVED22[115];
   __IOM uint32_t RTOC2_REVISION;                /*!< 0x00007FF4 Indicates RTOC2 Revision. It is not used now. */
   __IOM uint32_t RTOC2_FLAGS;                   /*!< 0x00007FF8 RTOC2_FLAGS */
   __IOM uint32_t RTOC2_CRC_ADDR;                /*!< 0x00007FFC Redundant CRC,Upper 2 bytes contain CRC16-CCITT and lower 2
@@ -200,18 +204,27 @@ typedef struct {
 /* SFLASH.CPUSS_WOUNDING */
 #define SFLASH_CPUSS_WOUNDING_CPUSS_WOUNDING_Pos 0UL
 #define SFLASH_CPUSS_WOUNDING_CPUSS_WOUNDING_Msk 0xFFFFFFFFUL
-/* SFLASH.SORT_REV */
-#define SFLASH_SORT_REV_DATA_Pos                0UL
-#define SFLASH_SORT_REV_DATA_Msk                0xFFUL
-/* SFLASH.CRI_BB_REV */
-#define SFLASH_CRI_BB_REV_DATA_Pos              0UL
-#define SFLASH_CRI_BB_REV_DATA_Msk              0xFFUL
+/* SFLASH.S1_TESTPGM_REV */
+#define SFLASH_S1_TESTPGM_REV_DATA_Pos          0UL
+#define SFLASH_S1_TESTPGM_REV_DATA_Msk          0xFFUL
+/* SFLASH.S2_TESTPGM_REV */
+#define SFLASH_S2_TESTPGM_REV_DATA_Pos          0UL
+#define SFLASH_S2_TESTPGM_REV_DATA_Msk          0xFFUL
+/* SFLASH.S3_TESTPGM_REV */
+#define SFLASH_S3_TESTPGM_REV_DATA_Pos          0UL
+#define SFLASH_S3_TESTPGM_REV_DATA_Msk          0xFFUL
+/* SFLASH.CRI_TESTPGM_REV */
+#define SFLASH_CRI_TESTPGM_REV_DATA_Pos         0UL
+#define SFLASH_CRI_TESTPGM_REV_DATA_Msk         0xFFUL
 /* SFLASH.CRI_AB_REV */
 #define SFLASH_CRI_AB_REV_DATA_Pos              0UL
 #define SFLASH_CRI_AB_REV_DATA_Msk              0xFFUL
-/* SFLASH.CHI_AB_REV */
-#define SFLASH_CHI_AB_REV_DATA_Pos              0UL
-#define SFLASH_CHI_AB_REV_DATA_Msk              0xFFUL
+/* SFLASH.CHI_TESTPGM_REV */
+#define SFLASH_CHI_TESTPGM_REV_DATA_Pos         0UL
+#define SFLASH_CHI_TESTPGM_REV_DATA_Msk         0xFFUL
+/* SFLASH.SFLASH_SVN */
+#define SFLASH_SFLASH_SVN_DATA32_Pos            0UL
+#define SFLASH_SFLASH_SVN_DATA32_Msk            0xFFFFFFFFUL
 /* SFLASH.FB_FLAGS */
 #define SFLASH_FB_FLAGS_FB_PIN_CTL_Pos          0UL
 #define SFLASH_FB_FLAGS_FB_PIN_CTL_Msk          0x3UL

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" release="PSoC Creator  4.2 Nightly Build 1127" xmlns="http://cypress.com/xsd/cysem">
-  <Instances count="138">
-    <Instance guid="00b88554-1ec0-45c5-aeaa-d544841c1feb" name="IOSS0_PORT9_P9_P43" component="swhv">
+<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" release="PSoC Creator  4.3" xmlns="http://cypress.com/xsd/cysem">
+  <Instances count="156">
+    <Instance guid="00b88554-1ec0-45c5-aeaa-d544841c1feb" name="IOSS0_PORT9_P9_P43" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -38,20 +38,11 @@
       <Parameter name="Index">
         <Value>0</Value>
       </Parameter>
-      <Parameter name="InputList">
-        <Value>temp_N,ibias,vssa_kelvin</Value>
-      </Parameter>
       <Parameter name="INSTANCE_NAME">
         <Value>PASS0_SARMUX0_TEMPSENSOR0</Value>
       </Parameter>
-      <Parameter name="LocalIdx">
-        <Value>0</Value>
-      </Parameter>
-      <Parameter name="PartitionId">
-        <Value>0</Value>
-      </Parameter>
     </Instance>
-    <Instance guid="05f58ff0-9462-4bf0-b3e8-fb090728978d" name="PASS0_SARMUX0_sw12" component="swhv">
+    <Instance guid="05f58ff0-9462-4bf0-b3e8-fb090728978d" name="PASS0_SARMUX0_sw12" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -68,7 +59,7 @@
         <Value>PASS0_SARMUX0_sw12</Value>
       </Parameter>
     </Instance>
-    <Instance guid="0611c18f-2510-4020-8507-da9fccea0c28" name="cy_shapetag_disconnect_11" component="cy_shapetag_disconnect">
+    <Instance guid="0611c18f-2510-4020-8507-da9fccea0c28" name="cy_shapetag_disconnect_11" component="cy_all_shapetag_disconnect">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -85,7 +76,7 @@
         <Value>cy_shapetag_disconnect_11</Value>
       </Parameter>
     </Instance>
-    <Instance guid="068393c8-39c5-4e06-ae93-c60dbba9dbf7" name="LPCOMP0_AN1" component="swhv">
+    <Instance guid="068393c8-39c5-4e06-ae93-c60dbba9dbf7" name="LPCOMP0_AN1" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -102,7 +93,7 @@
         <Value>LPCOMP0_AN1</Value>
       </Parameter>
     </Instance>
-    <Instance guid="06898289-5210-4715-a9b3-b45847a33e84" name="PASS0_SARMUX0_sw21" component="swhv">
+    <Instance guid="06898289-5210-4715-a9b3-b45847a33e84" name="PASS0_SARMUX0_sw21" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -119,7 +110,24 @@
         <Value>PASS0_SARMUX0_sw21</Value>
       </Parameter>
     </Instance>
-    <Instance guid="0b9fe791-3607-458e-8b4e-45761eb22347" name="legend_2" component="legend">
+    <Instance guid="0b25bb28-6a47-4968-b246-729d40d2569a" name="MUX_BKG_8" component="cy_all_mux_bkg">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>MUX_BKG_8</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="0b9fe791-3607-458e-8b4e-45761eb22347" name="legend_2" component="cy_all_legend">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -136,7 +144,7 @@
         <Value>legend_2</Value>
       </Parameter>
     </Instance>
-    <Instance guid="0c52d093-ac02-4915-9a2d-9801241ab49e" name="P10_Pin0" component="cy_mxs40_pin">
+    <Instance guid="0c52d093-ac02-4915-9a2d-9801241ab49e" name="P10_Pin0" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -149,9 +157,6 @@
       <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
-      <Parameter name="FLATTEN">
-        <Value>false</Value>
-      </Parameter>
       <Parameter name="INSTANCE_NAME">
         <Value>P10_Pin0</Value>
       </Parameter>
@@ -162,7 +167,7 @@
         <Value>10</Value>
       </Parameter>
     </Instance>
-    <Instance guid="0dffb3c4-e9da-418a-9f73-a841edb508fd" name="IOSS0_PORT8_P8_P51" component="swhv">
+    <Instance guid="0dffb3c4-e9da-418a-9f73-a841edb508fd" name="IOSS0_PORT8_P8_P51" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -180,7 +185,7 @@
         <Value>IOSS0_PORT8_P8_P51</Value>
       </Parameter>
     </Instance>
-    <Instance guid="0f03f684-48e2-4310-b967-f34b32043584" name="IOSS0_PORT8_P8_P40" component="swhv">
+    <Instance guid="0f03f684-48e2-4310-b967-f34b32043584" name="IOSS0_PORT8_P8_P40" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -198,7 +203,7 @@
         <Value>IOSS0_PORT8_P8_P40</Value>
       </Parameter>
     </Instance>
-    <Instance guid="10026f6a-0b80-4d21-b082-1b9fb8bce4ef" name="IOSS0_PORT8_P8_P41" component="swhv">
+    <Instance guid="10026f6a-0b80-4d21-b082-1b9fb8bce4ef" name="IOSS0_PORT8_P8_P41" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -216,7 +221,7 @@
         <Value>IOSS0_PORT8_P8_P41</Value>
       </Parameter>
     </Instance>
-    <Instance guid="1294380a-0b0a-4d6f-b4ab-623afd12289d" name="cy_shapetag_disconnect_7" component="cy_shapetag_disconnect">
+    <Instance guid="1294380a-0b0a-4d6f-b4ab-623afd12289d" name="cy_shapetag_disconnect_7" component="cy_all_shapetag_disconnect">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -233,7 +238,7 @@
         <Value>cy_shapetag_disconnect_7</Value>
       </Parameter>
     </Instance>
-    <Instance guid="13a12de2-01a6-4696-83ad-b2a91d2ffa1f" name="IOSS0_PORT3_P3_P50" component="swhv">
+    <Instance guid="13a12de2-01a6-4696-83ad-b2a91d2ffa1f" name="IOSS0_PORT3_P3_P50" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -251,7 +256,7 @@
         <Value>IOSS0_PORT3_P3_P50</Value>
       </Parameter>
     </Instance>
-    <Instance guid="14d75739-a942-4edd-ab1b-65bb04bf8c58" name="cy_shapetag_disconnect_5" component="cy_shapetag_disconnect">
+    <Instance guid="14d75739-a942-4edd-ab1b-65bb04bf8c58" name="cy_shapetag_disconnect_5" component="cy_all_shapetag_disconnect">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -268,7 +273,7 @@
         <Value>cy_shapetag_disconnect_5</Value>
       </Parameter>
     </Instance>
-    <Instance guid="18ede51c-0167-478a-977c-b9d7df10afd1" name="cy_shapetag_disconnect_17" component="cy_shapetag_disconnect">
+    <Instance guid="18ede51c-0167-478a-977c-b9d7df10afd1" name="cy_shapetag_disconnect_17" component="cy_all_shapetag_disconnect">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -302,7 +307,7 @@
         <Value>LPCOMP0_IN0</Value>
       </Parameter>
     </Instance>
-    <Instance guid="1ebdefb1-09fb-48e2-96c2-45839d9eec14" name="IOSS0_PORT7_P7_P47" component="swhv">
+    <Instance guid="1ebdefb1-09fb-48e2-96c2-45839d9eec14" name="IOSS0_PORT7_P7_P47" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -320,7 +325,7 @@
         <Value>IOSS0_PORT7_P7_P47</Value>
       </Parameter>
     </Instance>
-    <Instance guid="1f32ed62-36f5-4011-b2f9-3e81fe65b592" name="IOSS0_PORT7_P7_P44" component="swhv">
+    <Instance guid="1f32ed62-36f5-4011-b2f9-3e81fe65b592" name="IOSS0_PORT7_P7_P44" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -338,7 +343,24 @@
         <Value>IOSS0_PORT7_P7_P44</Value>
       </Parameter>
     </Instance>
-    <Instance guid="25fc7419-6b34-49a3-980e-0b962eb131de" name="cy_shapetag_disconnect_21" component="cy_shapetag_disconnect">
+    <Instance guid="20ea91f6-2604-4ec9-a327-5d13f397e604" name="MUX_BKG_14" component="cy_all_mux_bkg">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>MUX_BKG_14</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="25fc7419-6b34-49a3-980e-0b962eb131de" name="cy_shapetag_disconnect_21" component="cy_all_shapetag_disconnect">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -355,7 +377,7 @@
         <Value>cy_shapetag_disconnect_21</Value>
       </Parameter>
     </Instance>
-    <Instance guid="267f104a-7a46-4dbe-8a25-518cca7334fc" name="PASS0_SARMUX0_sw1" component="swhv">
+    <Instance guid="267f104a-7a46-4dbe-8a25-518cca7334fc" name="PASS0_SARMUX0_sw1" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -372,7 +394,7 @@
         <Value>PASS0_SARMUX0_sw1</Value>
       </Parameter>
     </Instance>
-    <Instance guid="28533d79-bacc-43a1-86c5-b1c330b28f10" name="IOSS0_PORT9_P9_P40" component="swhv">
+    <Instance guid="28533d79-bacc-43a1-86c5-b1c330b28f10" name="IOSS0_PORT9_P9_P40" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -390,7 +412,7 @@
         <Value>IOSS0_PORT9_P9_P40</Value>
       </Parameter>
     </Instance>
-    <Instance guid="2aa5332e-bfae-457b-a2f1-a5927f21a699" name="LPCOMP0_BN0" component="swhv">
+    <Instance guid="2aa5332e-bfae-457b-a2f1-a5927f21a699" name="LPCOMP0_BN0" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -407,7 +429,7 @@
         <Value>LPCOMP0_BN0</Value>
       </Parameter>
     </Instance>
-    <Instance guid="2bf223e3-e9a3-4b87-8632-2e242ab6145c" name="IOSS0_PORT7_P7_P41" component="swhv">
+    <Instance guid="2bf223e3-e9a3-4b87-8632-2e242ab6145c" name="IOSS0_PORT7_P7_P41" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -451,7 +473,7 @@
         <Value>false</Value>
       </Parameter>
     </Instance>
-    <Instance guid="2db7e777-acbc-43a3-8b21-4a1a624c6fd3" name="P10_Pin4" component="cy_mxs40_pin">
+    <Instance guid="2db7e777-acbc-43a3-8b21-4a1a624c6fd3" name="P10_Pin4" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -464,9 +486,6 @@
       <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
-      <Parameter name="FLATTEN">
-        <Value>false</Value>
-      </Parameter>
       <Parameter name="INSTANCE_NAME">
         <Value>P10_Pin4</Value>
       </Parameter>
@@ -477,7 +496,7 @@
         <Value>10</Value>
       </Parameter>
     </Instance>
-    <Instance guid="2fcdfc52-9c24-4304-a341-1614a02b79aa" name="cy_shapetag_disconnect_16" component="cy_shapetag_disconnect">
+    <Instance guid="2fcdfc52-9c24-4304-a341-1614a02b79aa" name="cy_shapetag_disconnect_16" component="cy_all_shapetag_disconnect">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -513,20 +532,11 @@
       <Parameter name="Index">
         <Value>0</Value>
       </Parameter>
-      <Parameter name="InputList">
-        <Value>vplus,vminus</Value>
-      </Parameter>
       <Parameter name="INSTANCE_NAME">
         <Value>LPCOMP0_COMP0</Value>
       </Parameter>
-      <Parameter name="LocalIdx">
-        <Value>0</Value>
-      </Parameter>
-      <Parameter name="PartitionId">
-        <Value>0</Value>
-      </Parameter>
     </Instance>
-    <Instance guid="30e352d4-929e-465b-9a63-bfd07f66ce69" name="PASS0_SARMUX0_sw20" component="swhv">
+    <Instance guid="30e352d4-929e-465b-9a63-bfd07f66ce69" name="PASS0_SARMUX0_sw20" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -543,7 +553,7 @@
         <Value>PASS0_SARMUX0_sw20</Value>
       </Parameter>
     </Instance>
-    <Instance guid="31602a10-9378-4edf-910e-ac722f5301b4" name="IOSS0_PORT3_P3_P51" component="swhv">
+    <Instance guid="31602a10-9378-4edf-910e-ac722f5301b4" name="IOSS0_PORT3_P3_P51" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -561,7 +571,7 @@
         <Value>IOSS0_PORT3_P3_P51</Value>
       </Parameter>
     </Instance>
-    <Instance guid="33338bf0-cf10-44d0-b1ea-bc0d6f8aa004" name="cy_shapetag_disconnect_6" component="cy_shapetag_disconnect">
+    <Instance guid="33338bf0-cf10-44d0-b1ea-bc0d6f8aa004" name="cy_shapetag_disconnect_6" component="cy_all_shapetag_disconnect">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -578,7 +588,7 @@
         <Value>cy_shapetag_disconnect_6</Value>
       </Parameter>
     </Instance>
-    <Instance guid="334a1b20-9e03-4a9c-a229-7809741485de" name="cy_shapetag_disconnect_4" component="cy_shapetag_disconnect">
+    <Instance guid="334a1b20-9e03-4a9c-a229-7809741485de" name="cy_shapetag_disconnect_4" component="cy_all_shapetag_disconnect">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -595,7 +605,7 @@
         <Value>cy_shapetag_disconnect_4</Value>
       </Parameter>
     </Instance>
-    <Instance guid="35ffb865-b18c-4e2d-b540-4ea12cf3c572" name="P10_Pin6" component="cy_mxs40_pin">
+    <Instance guid="35ffb865-b18c-4e2d-b540-4ea12cf3c572" name="P10_Pin6" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -606,9 +616,6 @@
         <Value>false</Value>
       </Parameter>
       <Parameter name="CY_SUPPRESS_API_GEN">
-        <Value>false</Value>
-      </Parameter>
-      <Parameter name="FLATTEN">
         <Value>false</Value>
       </Parameter>
       <Parameter name="INSTANCE_NAME">
@@ -621,7 +628,7 @@
         <Value>10</Value>
       </Parameter>
     </Instance>
-    <Instance guid="3b6ae533-2326-46ac-a3d6-f64c0f7bb6fb" name="P6_Pin3" component="cy_mxs40_pin">
+    <Instance guid="3b6ae533-2326-46ac-a3d6-f64c0f7bb6fb" name="P6_Pin3" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -632,9 +639,6 @@
         <Value>false</Value>
       </Parameter>
       <Parameter name="CY_SUPPRESS_API_GEN">
-        <Value>false</Value>
-      </Parameter>
-      <Parameter name="FLATTEN">
         <Value>false</Value>
       </Parameter>
       <Parameter name="INSTANCE_NAME">
@@ -647,7 +651,7 @@
         <Value>6</Value>
       </Parameter>
     </Instance>
-    <Instance guid="3d23252b-b7b8-433d-b540-14fafb0323f6" name="P10_Pin1" component="cy_mxs40_pin">
+    <Instance guid="3d23252b-b7b8-433d-b540-14fafb0323f6" name="P10_Pin1" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -658,9 +662,6 @@
         <Value>false</Value>
       </Parameter>
       <Parameter name="CY_SUPPRESS_API_GEN">
-        <Value>false</Value>
-      </Parameter>
-      <Parameter name="FLATTEN">
         <Value>false</Value>
       </Parameter>
       <Parameter name="INSTANCE_NAME">
@@ -690,7 +691,7 @@
         <Value>AMUXT3_AA_SR</Value>
       </Parameter>
     </Instance>
-    <Instance guid="41a40b80-ba5e-4b56-8e66-21c204b62def" name="cy_shapetag_disconnect_13" component="cy_shapetag_disconnect">
+    <Instance guid="41a40b80-ba5e-4b56-8e66-21c204b62def" name="cy_shapetag_disconnect_13" component="cy_all_shapetag_disconnect">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -707,7 +708,7 @@
         <Value>cy_shapetag_disconnect_13</Value>
       </Parameter>
     </Instance>
-    <Instance guid="42f02cc3-153f-42b3-8d83-1a58e0148878" name="IOSS0_PORT8_P8_P43" component="swhv">
+    <Instance guid="42f02cc3-153f-42b3-8d83-1a58e0148878" name="IOSS0_PORT8_P8_P43" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -725,7 +726,7 @@
         <Value>IOSS0_PORT8_P8_P43</Value>
       </Parameter>
     </Instance>
-    <Instance guid="43f8442b-e5ce-4c64-8544-929afbf6bb20" name="cy_shapetag_disconnect_15" component="cy_shapetag_disconnect">
+    <Instance guid="43f8442b-e5ce-4c64-8544-929afbf6bb20" name="cy_shapetag_disconnect_15" component="cy_all_shapetag_disconnect">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -742,7 +743,7 @@
         <Value>cy_shapetag_disconnect_15</Value>
       </Parameter>
     </Instance>
-    <Instance guid="44f9de0a-3871-440c-a36e-51b269a0fd47" name="P7_Pin7" component="cy_mxs40_pin">
+    <Instance guid="44f9de0a-3871-440c-a36e-51b269a0fd47" name="P7_Pin7" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -755,9 +756,6 @@
       <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
-      <Parameter name="FLATTEN">
-        <Value>false</Value>
-      </Parameter>
       <Parameter name="INSTANCE_NAME">
         <Value>P7_Pin7</Value>
       </Parameter>
@@ -768,7 +766,24 @@
         <Value>7</Value>
       </Parameter>
     </Instance>
-    <Instance guid="49011563-6e5b-48d3-82b3-12f7f0184a15" name="PASS0_SARMUX0_sw14" component="swhv">
+    <Instance guid="4843f1a9-c206-4293-af6b-93f49c1ec86a" name="MUX_BKG_4" component="cy_all_mux_bkg">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>MUX_BKG_4</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="49011563-6e5b-48d3-82b3-12f7f0184a15" name="PASS0_SARMUX0_sw14" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -785,7 +800,7 @@
         <Value>PASS0_SARMUX0_sw14</Value>
       </Parameter>
     </Instance>
-    <Instance guid="4a1d7839-040a-4e64-9c45-fb3562443d9d" name="PASS0_SARMUX0_sw0" component="swhv">
+    <Instance guid="4a1d7839-040a-4e64-9c45-fb3562443d9d" name="PASS0_SARMUX0_sw0" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -819,7 +834,7 @@
         <Value>AMUXT2_AA_SR</Value>
       </Parameter>
     </Instance>
-    <Instance guid="4d142d26-9d54-4013-aef7-19c9129b4ff6" name="LPCOMP0_AP1" component="swhv">
+    <Instance guid="4d142d26-9d54-4013-aef7-19c9129b4ff6" name="LPCOMP0_AP1" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -836,7 +851,7 @@
         <Value>LPCOMP0_AP1</Value>
       </Parameter>
     </Instance>
-    <Instance guid="4daa0cac-ab21-45f1-a0a7-1afc7aa754ec" name="LPCOMP0_AN0" component="swhv">
+    <Instance guid="4daa0cac-ab21-45f1-a0a7-1afc7aa754ec" name="LPCOMP0_AN0" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -853,7 +868,7 @@
         <Value>LPCOMP0_AN0</Value>
       </Parameter>
     </Instance>
-    <Instance guid="4ed5eaef-b5b9-4e62-81b8-23927dfd19c4" name="PASS0_SARMUX0_sw8" component="swhv">
+    <Instance guid="4ed5eaef-b5b9-4e62-81b8-23927dfd19c4" name="PASS0_SARMUX0_sw8" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -870,7 +885,7 @@
         <Value>PASS0_SARMUX0_sw8</Value>
       </Parameter>
     </Instance>
-    <Instance guid="4f25d1fc-2385-49ef-ba21-d2fc6f510c2b" name="IOSS0_PORT9_P9_P53" component="swhv">
+    <Instance guid="4f25d1fc-2385-49ef-ba21-d2fc6f510c2b" name="IOSS0_PORT9_P9_P53" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -888,7 +903,7 @@
         <Value>IOSS0_PORT9_P9_P53</Value>
       </Parameter>
     </Instance>
-    <Instance guid="50867626-6cb7-4e70-adb7-7f93323aa959" name="PASS0_SARMUX0_sw19" component="swhv">
+    <Instance guid="50867626-6cb7-4e70-adb7-7f93323aa959" name="PASS0_SARMUX0_sw19" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -905,7 +920,7 @@
         <Value>PASS0_SARMUX0_sw19</Value>
       </Parameter>
     </Instance>
-    <Instance guid="5457e1e9-8f60-4cbe-bc12-24c6906b6c1c" name="IOSS0_PORT7_P7_P52" component="swhv">
+    <Instance guid="5457e1e9-8f60-4cbe-bc12-24c6906b6c1c" name="IOSS0_PORT7_P7_P52" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -923,7 +938,24 @@
         <Value>IOSS0_PORT7_P7_P52</Value>
       </Parameter>
     </Instance>
-    <Instance guid="56b4d5ef-a350-4c71-9376-34b9f7e06778" name="AMUXT1_BB_SR" component="swhv">
+    <Instance guid="5560f8f3-4b6e-42de-baac-ac26c6c4097b" name="MUX_BKG_9" component="cy_all_mux_bkg">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>MUX_BKG_9</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="56b4d5ef-a350-4c71-9376-34b9f7e06778" name="AMUXT1_BB_SR" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -940,7 +972,7 @@
         <Value>AMUXT1_BB_SR</Value>
       </Parameter>
     </Instance>
-    <Instance guid="570c17f8-6bb5-4af7-8336-6b9b3ebf11f4" name="IOSS0_PORT8_P8_P52" component="swhv">
+    <Instance guid="570c17f8-6bb5-4af7-8336-6b9b3ebf11f4" name="IOSS0_PORT8_P8_P52" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -958,7 +990,7 @@
         <Value>IOSS0_PORT8_P8_P52</Value>
       </Parameter>
     </Instance>
-    <Instance guid="58c5f3b4-c3f1-466a-89bd-c318bef4db50" name="P7_Pin3" component="cy_mxs40_pin">
+    <Instance guid="58c5f3b4-c3f1-466a-89bd-c318bef4db50" name="P7_Pin3" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -969,9 +1001,6 @@
         <Value>false</Value>
       </Parameter>
       <Parameter name="CY_SUPPRESS_API_GEN">
-        <Value>false</Value>
-      </Parameter>
-      <Parameter name="FLATTEN">
         <Value>false</Value>
       </Parameter>
       <Parameter name="INSTANCE_NAME">
@@ -1018,7 +1047,7 @@
         <Value>AMUXT3_BB_SR</Value>
       </Parameter>
     </Instance>
-    <Instance guid="5ea7af1d-f032-4c0a-b3b6-71b7d4d8d5a2" name="IOSS0_PORT8_P8_P42" component="swhv">
+    <Instance guid="5ea7af1d-f032-4c0a-b3b6-71b7d4d8d5a2" name="IOSS0_PORT8_P8_P42" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1036,7 +1065,7 @@
         <Value>IOSS0_PORT8_P8_P42</Value>
       </Parameter>
     </Instance>
-    <Instance guid="60ff457f-97a1-4624-9e5e-ffb85b353a51" name="cy_shapetag_disconnect_14" component="cy_shapetag_disconnect">
+    <Instance guid="60ff457f-97a1-4624-9e5e-ffb85b353a51" name="cy_shapetag_disconnect_14" component="cy_all_shapetag_disconnect">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1053,7 +1082,24 @@
         <Value>cy_shapetag_disconnect_14</Value>
       </Parameter>
     </Instance>
-    <Instance guid="66bb7e7e-56ef-4005-bb78-c77fa4856e79" name="cy_shapetag_disconnect_18" component="cy_shapetag_disconnect">
+    <Instance guid="6566cb7a-e771-420c-a0d9-becd3cb770fa" name="MUX_BKG_15" component="cy_all_mux_bkg">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>MUX_BKG_15</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="66bb7e7e-56ef-4005-bb78-c77fa4856e79" name="cy_shapetag_disconnect_18" component="cy_all_shapetag_disconnect">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1070,7 +1116,7 @@
         <Value>cy_shapetag_disconnect_18</Value>
       </Parameter>
     </Instance>
-    <Instance guid="6e1dff03-beed-4691-a5f5-68d771c2ab2e" name="P7_Pin4" component="cy_mxs40_pin">
+    <Instance guid="686d645a-8801-464b-8a49-2f11f47bc942" name="MUX_BKG_7" component="cy_all_mux_bkg">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1083,7 +1129,21 @@
       <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
-      <Parameter name="FLATTEN">
+      <Parameter name="INSTANCE_NAME">
+        <Value>MUX_BKG_7</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="6e1dff03-beed-4691-a5f5-68d771c2ab2e" name="P7_Pin4" component="cy_all_pin">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
       <Parameter name="INSTANCE_NAME">
@@ -1096,7 +1156,24 @@
         <Value>7</Value>
       </Parameter>
     </Instance>
-    <Instance guid="73429323-c4f1-4cff-948b-226e5aec22a1" name="IOSS0_PORT7_P7_P54" component="swhv">
+    <Instance guid="708486f4-114f-4aca-aa47-beee38f74a7c" name="MUX_BKG_5" component="cy_all_mux_bkg">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>MUX_BKG_5</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="73429323-c4f1-4cff-948b-226e5aec22a1" name="IOSS0_PORT7_P7_P54" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1114,7 +1191,7 @@
         <Value>IOSS0_PORT7_P7_P54</Value>
       </Parameter>
     </Instance>
-    <Instance guid="7396bd24-5a82-4863-9104-2692929c6120" name="P10_Pin5" component="cy_mxs40_pin">
+    <Instance guid="7396bd24-5a82-4863-9104-2692929c6120" name="P10_Pin5" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1127,9 +1204,6 @@
       <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
-      <Parameter name="FLATTEN">
-        <Value>false</Value>
-      </Parameter>
       <Parameter name="INSTANCE_NAME">
         <Value>P10_Pin5</Value>
       </Parameter>
@@ -1138,6 +1212,23 @@
       </Parameter>
       <Parameter name="PortNumber">
         <Value>10</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="7478afbb-9979-4562-83ea-6824a5856190" name="MUX_BKG_11" component="cy_all_mux_bkg">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>MUX_BKG_11</Value>
       </Parameter>
     </Instance>
     <Instance guid="74c3ae9b-d3f2-469d-8748-54029581eb0b" name="AMUXT3_AA_SL" component="swh">
@@ -1157,6 +1248,23 @@
         <Value>AMUXT3_AA_SL</Value>
       </Parameter>
     </Instance>
+    <Instance guid="75cb6857-5ab2-47fa-95dc-d45a771204f5" name="MUX_BKG_18" component="cy_all_mux_bkg">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>MUX_BKG_18</Value>
+      </Parameter>
+    </Instance>
     <Instance guid="76dec818-ccc5-4fd9-8470-98a111e4b32e" name="AMUXT2_AA_SL" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
@@ -1174,7 +1282,24 @@
         <Value>AMUXT2_AA_SL</Value>
       </Parameter>
     </Instance>
-    <Instance guid="78df0c24-725c-418c-87a4-44c4a80df775" name="PASS0_SARMUX0_sw15" component="swhv">
+    <Instance guid="77cb82af-3a9b-46bc-a23d-a07daa268846" name="MUX_BKG_12" component="cy_all_mux_bkg">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>MUX_BKG_12</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="78df0c24-725c-418c-87a4-44c4a80df775" name="PASS0_SARMUX0_sw15" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1191,7 +1316,7 @@
         <Value>PASS0_SARMUX0_sw15</Value>
       </Parameter>
     </Instance>
-    <Instance guid="7a6d0def-bf5e-4ea5-bda9-8eafd4bbcdce" name="P5_Pin7" component="cy_mxs40_pin">
+    <Instance guid="7a6d0def-bf5e-4ea5-bda9-8eafd4bbcdce" name="P5_Pin7" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1202,9 +1327,6 @@
         <Value>false</Value>
       </Parameter>
       <Parameter name="CY_SUPPRESS_API_GEN">
-        <Value>false</Value>
-      </Parameter>
-      <Parameter name="FLATTEN">
         <Value>false</Value>
       </Parameter>
       <Parameter name="INSTANCE_NAME">
@@ -1217,7 +1339,7 @@
         <Value>5</Value>
       </Parameter>
     </Instance>
-    <Instance guid="7d984710-ddbd-4261-878a-862391eb2ee1" name="P9_Pin3" component="cy_mxs40_pin">
+    <Instance guid="7c2b3026-2636-478a-b4b5-c56dbacdc5ac" name="MUX_BKG_2" component="cy_all_mux_bkg">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1230,7 +1352,21 @@
       <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
-      <Parameter name="FLATTEN">
+      <Parameter name="INSTANCE_NAME">
+        <Value>MUX_BKG_2</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="7d984710-ddbd-4261-878a-862391eb2ee1" name="P9_Pin3" component="cy_all_pin">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
       <Parameter name="INSTANCE_NAME">
@@ -1243,7 +1379,7 @@
         <Value>9</Value>
       </Parameter>
     </Instance>
-    <Instance guid="7dc5e545-a6aa-41fe-9cab-c0098c3af6ea" name="AMUXT1_AA_SR" component="swhv">
+    <Instance guid="7dc5e545-a6aa-41fe-9cab-c0098c3af6ea" name="AMUXT1_AA_SR" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1260,7 +1396,7 @@
         <Value>AMUXT1_AA_SR</Value>
       </Parameter>
     </Instance>
-    <Instance guid="7e63687c-9b55-4641-a5b2-cb2f66a41328" name="cy_shapetag_disconnect_8" component="cy_shapetag_disconnect">
+    <Instance guid="7e63687c-9b55-4641-a5b2-cb2f66a41328" name="cy_shapetag_disconnect_8" component="cy_all_shapetag_disconnect">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1277,7 +1413,7 @@
         <Value>cy_shapetag_disconnect_8</Value>
       </Parameter>
     </Instance>
-    <Instance guid="808cee7b-2fb7-42f6-8d08-366f390fb517" name="P8_Pin2" component="cy_mxs40_pin">
+    <Instance guid="808cee7b-2fb7-42f6-8d08-366f390fb517" name="P8_Pin2" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1290,9 +1426,6 @@
       <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
-      <Parameter name="FLATTEN">
-        <Value>false</Value>
-      </Parameter>
       <Parameter name="INSTANCE_NAME">
         <Value>P8_Pin2</Value>
       </Parameter>
@@ -1303,7 +1436,7 @@
         <Value>8</Value>
       </Parameter>
     </Instance>
-    <Instance guid="80af3abd-170c-4df3-b900-ce049982ccfe" name="IOSS0_PORT8_P8_P53" component="swhv">
+    <Instance guid="80af3abd-170c-4df3-b900-ce049982ccfe" name="IOSS0_PORT8_P8_P53" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1321,7 +1454,7 @@
         <Value>IOSS0_PORT8_P8_P53</Value>
       </Parameter>
     </Instance>
-    <Instance guid="85db2882-2edb-479d-bb8a-bec0148d47e1" name="cy_shapetag_disconnect_1" component="cy_shapetag_disconnect">
+    <Instance guid="85db2882-2edb-479d-bb8a-bec0148d47e1" name="cy_shapetag_disconnect_1" component="cy_all_shapetag_disconnect">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1338,7 +1471,7 @@
         <Value>cy_shapetag_disconnect_1</Value>
       </Parameter>
     </Instance>
-    <Instance guid="861759c8-c32d-45af-b991-111ab45b0b88" name="P3_Pin0" component="cy_mxs40_pin">
+    <Instance guid="861759c8-c32d-45af-b991-111ab45b0b88" name="P3_Pin0" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1351,9 +1484,6 @@
       <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
-      <Parameter name="FLATTEN">
-        <Value>false</Value>
-      </Parameter>
       <Parameter name="INSTANCE_NAME">
         <Value>P3_Pin0</Value>
       </Parameter>
@@ -1364,7 +1494,7 @@
         <Value>3</Value>
       </Parameter>
     </Instance>
-    <Instance guid="8619493b-fd92-4885-9e74-b4aec93ae9ee" name="PASS0_SARMUX0_sw13" component="swhv">
+    <Instance guid="8619493b-fd92-4885-9e74-b4aec93ae9ee" name="PASS0_SARMUX0_sw13" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1381,7 +1511,7 @@
         <Value>PASS0_SARMUX0_sw13</Value>
       </Parameter>
     </Instance>
-    <Instance guid="876e3a4f-8691-472e-b768-1ad6824814ff" name="P10_Pin7" component="cy_mxs40_pin">
+    <Instance guid="86801966-64d3-4bd6-9191-dfddd8d65751" name="MUX_BKG_16" component="cy_all_mux_bkg">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1394,7 +1524,21 @@
       <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
-      <Parameter name="FLATTEN">
+      <Parameter name="INSTANCE_NAME">
+        <Value>MUX_BKG_16</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="876e3a4f-8691-472e-b768-1ad6824814ff" name="P10_Pin7" component="cy_all_pin">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
       <Parameter name="INSTANCE_NAME">
@@ -1407,7 +1551,7 @@
         <Value>10</Value>
       </Parameter>
     </Instance>
-    <Instance guid="888577f6-b6d3-4711-aa8b-532f8d511b2d" name="IOSS0_PORT7_P7_P43" component="swhv">
+    <Instance guid="888577f6-b6d3-4711-aa8b-532f8d511b2d" name="IOSS0_PORT7_P7_P43" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1425,7 +1569,7 @@
         <Value>IOSS0_PORT7_P7_P43</Value>
       </Parameter>
     </Instance>
-    <Instance guid="89161f6e-93e5-4df8-b546-63e8da6c1d9b" name="PASS0_SARMUX0_sw4" component="swhv">
+    <Instance guid="89161f6e-93e5-4df8-b546-63e8da6c1d9b" name="PASS0_SARMUX0_sw4" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1459,7 +1603,7 @@
         <Value>LPCOMP0_IP0</Value>
       </Parameter>
     </Instance>
-    <Instance guid="8bc23902-f8c9-4a91-a4e7-20f1dd28ad55" name="P7_Pin6" component="cy_mxs40_pin">
+    <Instance guid="8bc23902-f8c9-4a91-a4e7-20f1dd28ad55" name="P7_Pin6" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1472,9 +1616,6 @@
       <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
-      <Parameter name="FLATTEN">
-        <Value>false</Value>
-      </Parameter>
       <Parameter name="INSTANCE_NAME">
         <Value>P7_Pin6</Value>
       </Parameter>
@@ -1483,6 +1624,23 @@
       </Parameter>
       <Parameter name="PortNumber">
         <Value>7</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="8bef9255-159a-47c4-a03f-715979b7da8c" name="MUX_BKG_6" component="cy_all_mux_bkg">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>MUX_BKG_6</Value>
       </Parameter>
     </Instance>
     <Instance guid="8cad458e-7959-4e6a-abae-693012897f97" name="LPCOMP0_IP1" component="swh">
@@ -1502,7 +1660,7 @@
         <Value>LPCOMP0_IP1</Value>
       </Parameter>
     </Instance>
-    <Instance guid="8caeb445-b01d-48d8-aa79-cdeeb53c8b2b" name="PASS0_SARMUX0_sw2" component="swhv">
+    <Instance guid="8caeb445-b01d-48d8-aa79-cdeeb53c8b2b" name="PASS0_SARMUX0_sw2" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1519,7 +1677,7 @@
         <Value>PASS0_SARMUX0_sw2</Value>
       </Parameter>
     </Instance>
-    <Instance guid="8e7c4323-bc89-4700-a78f-59de38922696" name="PASS0_SARMUX0_sw6" component="swhv">
+    <Instance guid="8e7c4323-bc89-4700-a78f-59de38922696" name="PASS0_SARMUX0_sw6" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1536,7 +1694,7 @@
         <Value>PASS0_SARMUX0_sw6</Value>
       </Parameter>
     </Instance>
-    <Instance guid="90e150ea-717b-4c51-901d-93530cbd395c" name="AMUXT1_BB_SL" component="swhv">
+    <Instance guid="90e150ea-717b-4c51-901d-93530cbd395c" name="AMUXT1_BB_SL" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1553,7 +1711,7 @@
         <Value>AMUXT1_BB_SL</Value>
       </Parameter>
     </Instance>
-    <Instance guid="91fb00d9-a34c-4c94-b867-6bb70742c1c5" name="PASS0_SARMUX0_sw10" component="swhv">
+    <Instance guid="91fb00d9-a34c-4c94-b867-6bb70742c1c5" name="PASS0_SARMUX0_sw10" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1570,7 +1728,7 @@
         <Value>PASS0_SARMUX0_sw10</Value>
       </Parameter>
     </Instance>
-    <Instance guid="925891a0-cd95-4af9-abf4-a4f271890a0c" name="P7_Pin2" component="cy_mxs40_pin">
+    <Instance guid="925891a0-cd95-4af9-abf4-a4f271890a0c" name="P7_Pin2" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1583,9 +1741,6 @@
       <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
-      <Parameter name="FLATTEN">
-        <Value>false</Value>
-      </Parameter>
       <Parameter name="INSTANCE_NAME">
         <Value>P7_Pin2</Value>
       </Parameter>
@@ -1596,7 +1751,7 @@
         <Value>7</Value>
       </Parameter>
     </Instance>
-    <Instance guid="941454e6-2f77-4dac-9bc7-61b2f093dad0" name="PASS0_SARMUX0_sw11" component="swhv">
+    <Instance guid="941454e6-2f77-4dac-9bc7-61b2f093dad0" name="PASS0_SARMUX0_sw11" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1613,7 +1768,7 @@
         <Value>PASS0_SARMUX0_sw11</Value>
       </Parameter>
     </Instance>
-    <Instance guid="9636e40a-3bc3-4585-a11a-868adf3e5af9" name="PASS0_SARMUX0_sw7" component="swhv">
+    <Instance guid="9636e40a-3bc3-4585-a11a-868adf3e5af9" name="PASS0_SARMUX0_sw7" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1631,9 +1786,6 @@
       </Parameter>
     </Instance>
     <Instance guid="96ab5752-1a1c-4c54-b0b7-e88843802f38" name="PASS0_SARADC0_SAR" component="cy_mxs40_saradc">
-      <Parameter name="CompDefName">
-        <Value>p4sarcell</Value>
-      </Parameter>
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1652,20 +1804,11 @@
       <Parameter name="Index">
         <Value>0</Value>
       </Parameter>
-      <Parameter name="InputList">
-        <Value>vplus,vminus,vref,ext_vref</Value>
-      </Parameter>
       <Parameter name="INSTANCE_NAME">
         <Value>PASS0_SARADC0_SAR</Value>
       </Parameter>
-      <Parameter name="LocalIdx">
-        <Value>0</Value>
-      </Parameter>
-      <Parameter name="PartitionId">
-        <Value>0</Value>
-      </Parameter>
     </Instance>
-    <Instance guid="9a8b480b-e5f4-41f3-8626-badb68715396" name="cy_shapetag_disconnect_20" component="cy_shapetag_disconnect">
+    <Instance guid="9a8b480b-e5f4-41f3-8626-badb68715396" name="cy_shapetag_disconnect_20" component="cy_all_shapetag_disconnect">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1699,7 +1842,7 @@
         <Value>AMUXT2_BB_SR</Value>
       </Parameter>
     </Instance>
-    <Instance guid="9c6be191-090e-4105-914e-8dfe5d7bdef3" name="IOSS0_PORT8_P8_P50" component="swhv">
+    <Instance guid="9c6be191-090e-4105-914e-8dfe5d7bdef3" name="IOSS0_PORT8_P8_P50" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1717,7 +1860,7 @@
         <Value>IOSS0_PORT8_P8_P50</Value>
       </Parameter>
     </Instance>
-    <Instance guid="9e62aa05-36dd-4401-895e-2f1c2e781c4c" name="PASS0_SARMUX0_sw5" component="swhv">
+    <Instance guid="9e62aa05-36dd-4401-895e-2f1c2e781c4c" name="PASS0_SARMUX0_sw5" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1734,7 +1877,7 @@
         <Value>PASS0_SARMUX0_sw5</Value>
       </Parameter>
     </Instance>
-    <Instance guid="9eb16399-9f98-486a-b99e-3ad5375d3a09" name="IOSS0_PORT7_P7_P57" component="swhv">
+    <Instance guid="9eb16399-9f98-486a-b99e-3ad5375d3a09" name="IOSS0_PORT7_P7_P57" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1752,7 +1895,7 @@
         <Value>IOSS0_PORT7_P7_P57</Value>
       </Parameter>
     </Instance>
-    <Instance guid="a69fbd11-fc58-4afb-9a8c-361cbe1e5fbb" name="IOSS0_PORT7_P7_P46" component="swhv">
+    <Instance guid="a69fbd11-fc58-4afb-9a8c-361cbe1e5fbb" name="IOSS0_PORT7_P7_P46" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1770,7 +1913,7 @@
         <Value>IOSS0_PORT7_P7_P46</Value>
       </Parameter>
     </Instance>
-    <Instance guid="a749d76a-941a-4faf-9ce5-c995bfd35866" name="P10_Pin2" component="cy_mxs40_pin">
+    <Instance guid="a749d76a-941a-4faf-9ce5-c995bfd35866" name="P10_Pin2" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1783,9 +1926,6 @@
       <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
-      <Parameter name="FLATTEN">
-        <Value>false</Value>
-      </Parameter>
       <Parameter name="INSTANCE_NAME">
         <Value>P10_Pin2</Value>
       </Parameter>
@@ -1796,7 +1936,7 @@
         <Value>10</Value>
       </Parameter>
     </Instance>
-    <Instance guid="a9fe3162-554f-4544-839f-99c1b25dc91d" name="cy_shapetag_disconnect_19" component="cy_shapetag_disconnect">
+    <Instance guid="a9fe3162-554f-4544-839f-99c1b25dc91d" name="cy_shapetag_disconnect_19" component="cy_all_shapetag_disconnect">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1813,7 +1953,7 @@
         <Value>cy_shapetag_disconnect_19</Value>
       </Parameter>
     </Instance>
-    <Instance guid="aab390ae-a463-4a62-ad74-4c2b7d6e80f8" name="PASS0_SARMUX0_sw17" component="swhv">
+    <Instance guid="aab390ae-a463-4a62-ad74-4c2b7d6e80f8" name="PASS0_SARMUX0_sw17" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1830,7 +1970,7 @@
         <Value>PASS0_SARMUX0_sw17</Value>
       </Parameter>
     </Instance>
-    <Instance guid="ab49089d-d4f4-4e51-be77-4c0b6838eb00" name="IOSS0_PORT7_P7_P45" component="swhv">
+    <Instance guid="ab49089d-d4f4-4e51-be77-4c0b6838eb00" name="IOSS0_PORT7_P7_P45" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1867,20 +2007,11 @@
       <Parameter name="Index">
         <Value>1</Value>
       </Parameter>
-      <Parameter name="InputList">
-        <Value>vplus,vminus</Value>
-      </Parameter>
       <Parameter name="INSTANCE_NAME">
         <Value>LPCOMP0_COMP1</Value>
       </Parameter>
-      <Parameter name="LocalIdx">
-        <Value>0</Value>
-      </Parameter>
-      <Parameter name="PartitionId">
-        <Value>0</Value>
-      </Parameter>
     </Instance>
-    <Instance guid="b2cd08f7-09f9-4d4d-ad09-0527106a2c6f" name="P8_Pin1" component="cy_mxs40_pin">
+    <Instance guid="b2cd08f7-09f9-4d4d-ad09-0527106a2c6f" name="P8_Pin1" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1891,9 +2022,6 @@
         <Value>false</Value>
       </Parameter>
       <Parameter name="CY_SUPPRESS_API_GEN">
-        <Value>false</Value>
-      </Parameter>
-      <Parameter name="FLATTEN">
         <Value>false</Value>
       </Parameter>
       <Parameter name="INSTANCE_NAME">
@@ -1906,7 +2034,7 @@
         <Value>8</Value>
       </Parameter>
     </Instance>
-    <Instance guid="b348c4d5-3715-4c1a-b689-d157c4d4d080" name="P5_Pin6" component="cy_mxs40_pin">
+    <Instance guid="b348c4d5-3715-4c1a-b689-d157c4d4d080" name="P5_Pin6" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1919,9 +2047,6 @@
       <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
-      <Parameter name="FLATTEN">
-        <Value>false</Value>
-      </Parameter>
       <Parameter name="INSTANCE_NAME">
         <Value>P5_Pin6</Value>
       </Parameter>
@@ -1932,7 +2057,24 @@
         <Value>5</Value>
       </Parameter>
     </Instance>
-    <Instance guid="bc7bbe69-8b43-45e4-96f3-a5c1bd72a70a" name="IOSS0_PORT9_P9_P41" component="swhv">
+    <Instance guid="b885f83f-131b-4bde-bc33-7d0cb241607c" name="MUX_BKG_1" component="cy_all_mux_bkg">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>MUX_BKG_1</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="bc7bbe69-8b43-45e4-96f3-a5c1bd72a70a" name="IOSS0_PORT9_P9_P41" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1950,7 +2092,7 @@
         <Value>IOSS0_PORT9_P9_P41</Value>
       </Parameter>
     </Instance>
-    <Instance guid="c27fc1b6-7e0b-492a-9f57-03dc8aa49a76" name="AMUXT1_AA_SL" component="swhv">
+    <Instance guid="c27fc1b6-7e0b-492a-9f57-03dc8aa49a76" name="AMUXT1_AA_SL" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1967,7 +2109,7 @@
         <Value>AMUXT1_AA_SL</Value>
       </Parameter>
     </Instance>
-    <Instance guid="c3820805-d907-4cde-a17a-b78ae4132914" name="IOSS0_PORT7_P7_P53" component="swhv">
+    <Instance guid="c3820805-d907-4cde-a17a-b78ae4132914" name="IOSS0_PORT7_P7_P53" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -1985,7 +2127,7 @@
         <Value>IOSS0_PORT7_P7_P53</Value>
       </Parameter>
     </Instance>
-    <Instance guid="c4a67ea1-c17b-43bf-931a-166a90a121a4" name="IOSS0_PORT3_P3_P41" component="swhv">
+    <Instance guid="c4a67ea1-c17b-43bf-931a-166a90a121a4" name="IOSS0_PORT3_P3_P41" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2003,7 +2145,7 @@
         <Value>IOSS0_PORT3_P3_P41</Value>
       </Parameter>
     </Instance>
-    <Instance guid="c52a11b1-4a84-4a3b-84ea-5d395511888e" name="P9_Pin1" component="cy_mxs40_pin">
+    <Instance guid="c52a11b1-4a84-4a3b-84ea-5d395511888e" name="P9_Pin1" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2014,9 +2156,6 @@
         <Value>false</Value>
       </Parameter>
       <Parameter name="CY_SUPPRESS_API_GEN">
-        <Value>false</Value>
-      </Parameter>
-      <Parameter name="FLATTEN">
         <Value>false</Value>
       </Parameter>
       <Parameter name="INSTANCE_NAME">
@@ -2046,7 +2185,7 @@
         <Value>AMUXT2_BB_SL</Value>
       </Parameter>
     </Instance>
-    <Instance guid="c623d000-41db-4fe6-b683-8436b205735d" name="P8_Pin0" component="cy_mxs40_pin">
+    <Instance guid="c623d000-41db-4fe6-b683-8436b205735d" name="P8_Pin0" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2059,9 +2198,6 @@
       <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
-      <Parameter name="FLATTEN">
-        <Value>false</Value>
-      </Parameter>
       <Parameter name="INSTANCE_NAME">
         <Value>P8_Pin0</Value>
       </Parameter>
@@ -2072,7 +2208,24 @@
         <Value>8</Value>
       </Parameter>
     </Instance>
-    <Instance guid="cc346d58-f8b6-4b5c-b4e5-84a80ff2deb1" name="IOSS0_PORT9_P9_P52" component="swhv">
+    <Instance guid="c9121f40-8802-4deb-bce2-4e8452ff0e60" name="MUX_BKG_17" component="cy_all_mux_bkg">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>MUX_BKG_17</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="cc346d58-f8b6-4b5c-b4e5-84a80ff2deb1" name="IOSS0_PORT9_P9_P52" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2090,7 +2243,7 @@
         <Value>IOSS0_PORT9_P9_P52</Value>
       </Parameter>
     </Instance>
-    <Instance guid="cd1de15b-728d-4558-8a71-eeea70f69476" name="P8_Pin3" component="cy_mxs40_pin">
+    <Instance guid="cd1de15b-728d-4558-8a71-eeea70f69476" name="P8_Pin3" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2101,9 +2254,6 @@
         <Value>false</Value>
       </Parameter>
       <Parameter name="CY_SUPPRESS_API_GEN">
-        <Value>false</Value>
-      </Parameter>
-      <Parameter name="FLATTEN">
         <Value>false</Value>
       </Parameter>
       <Parameter name="INSTANCE_NAME">
@@ -2116,7 +2266,7 @@
         <Value>8</Value>
       </Parameter>
     </Instance>
-    <Instance guid="cd2102f2-4fd6-4dd0-bedd-51a994204acf" name="P6_Pin2" component="cy_mxs40_pin">
+    <Instance guid="cd2102f2-4fd6-4dd0-bedd-51a994204acf" name="P6_Pin2" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2127,9 +2277,6 @@
         <Value>false</Value>
       </Parameter>
       <Parameter name="CY_SUPPRESS_API_GEN">
-        <Value>false</Value>
-      </Parameter>
-      <Parameter name="FLATTEN">
         <Value>false</Value>
       </Parameter>
       <Parameter name="INSTANCE_NAME">
@@ -2159,7 +2306,7 @@
         <Value>LPCOMP0_IN1</Value>
       </Parameter>
     </Instance>
-    <Instance guid="cdb8ad15-fb2d-4203-af49-d77f25e6b320" name="IOSS0_PORT7_P7_P51" component="swhv">
+    <Instance guid="cdb8ad15-fb2d-4203-af49-d77f25e6b320" name="IOSS0_PORT7_P7_P51" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2177,7 +2324,7 @@
         <Value>IOSS0_PORT7_P7_P51</Value>
       </Parameter>
     </Instance>
-    <Instance guid="ce59ed90-4867-4482-8d80-2de4e41d2ff2" name="LPCOMP0_BP1" component="swhv">
+    <Instance guid="ce59ed90-4867-4482-8d80-2de4e41d2ff2" name="LPCOMP0_BP1" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2194,7 +2341,24 @@
         <Value>LPCOMP0_BP1</Value>
       </Parameter>
     </Instance>
-    <Instance guid="d18e9b2c-1649-4183-8cf9-db54a2a7551d" name="LPCOMP0_BN1" component="swhv">
+    <Instance guid="d0992ecd-2740-4d80-b9b0-0fd8d12f6620" name="MUX_BKG_10" component="cy_all_mux_bkg">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>MUX_BKG_10</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="d18e9b2c-1649-4183-8cf9-db54a2a7551d" name="LPCOMP0_BN1" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2211,7 +2375,7 @@
         <Value>LPCOMP0_BN1</Value>
       </Parameter>
     </Instance>
-    <Instance guid="d1f5c5d4-8550-4ecd-bf1a-013ff1e1bd58" name="P9_Pin2" component="cy_mxs40_pin">
+    <Instance guid="d1f5c5d4-8550-4ecd-bf1a-013ff1e1bd58" name="P9_Pin2" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2222,9 +2386,6 @@
         <Value>false</Value>
       </Parameter>
       <Parameter name="CY_SUPPRESS_API_GEN">
-        <Value>false</Value>
-      </Parameter>
-      <Parameter name="FLATTEN">
         <Value>false</Value>
       </Parameter>
       <Parameter name="INSTANCE_NAME">
@@ -2237,7 +2398,7 @@
         <Value>9</Value>
       </Parameter>
     </Instance>
-    <Instance guid="d422e11f-6713-417f-9345-2278e6c1e428" name="P3_Pin1" component="cy_mxs40_pin">
+    <Instance guid="d422e11f-6713-417f-9345-2278e6c1e428" name="P3_Pin1" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2250,9 +2411,6 @@
       <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
-      <Parameter name="FLATTEN">
-        <Value>false</Value>
-      </Parameter>
       <Parameter name="INSTANCE_NAME">
         <Value>P3_Pin1</Value>
       </Parameter>
@@ -2263,7 +2421,7 @@
         <Value>3</Value>
       </Parameter>
     </Instance>
-    <Instance guid="d6cd1dfc-0b4e-4eb5-b173-7867e6025107" name="IOSS0_PORT7_P7_P50" component="swhv">
+    <Instance guid="d6cd1dfc-0b4e-4eb5-b173-7867e6025107" name="IOSS0_PORT7_P7_P50" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2281,7 +2439,7 @@
         <Value>IOSS0_PORT7_P7_P50</Value>
       </Parameter>
     </Instance>
-    <Instance guid="d75b3612-4441-42cf-be04-447da0480a1c" name="cy_shapetag_disconnect_9" component="cy_shapetag_disconnect">
+    <Instance guid="d75b3612-4441-42cf-be04-447da0480a1c" name="cy_shapetag_disconnect_9" component="cy_all_shapetag_disconnect">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2298,7 +2456,7 @@
         <Value>cy_shapetag_disconnect_9</Value>
       </Parameter>
     </Instance>
-    <Instance guid="d8956787-ed85-4219-a6f1-d4f2aebc3eda" name="P7_Pin0" component="cy_mxs40_pin">
+    <Instance guid="d8956787-ed85-4219-a6f1-d4f2aebc3eda" name="P7_Pin0" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2311,9 +2469,6 @@
       <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
-      <Parameter name="FLATTEN">
-        <Value>false</Value>
-      </Parameter>
       <Parameter name="INSTANCE_NAME">
         <Value>P7_Pin0</Value>
       </Parameter>
@@ -2324,7 +2479,7 @@
         <Value>7</Value>
       </Parameter>
     </Instance>
-    <Instance guid="d8aae920-7be4-4ce9-861c-418c1a201564" name="PASS0_SARMUX0_sw18" component="swhv">
+    <Instance guid="d8aae920-7be4-4ce9-861c-418c1a201564" name="PASS0_SARMUX0_sw18" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2341,7 +2496,7 @@
         <Value>PASS0_SARMUX0_sw18</Value>
       </Parameter>
     </Instance>
-    <Instance guid="d96e3dcb-e411-4535-a10a-461b4df22257" name="IOSS0_PORT9_P9_P42" component="swhv">
+    <Instance guid="d96e3dcb-e411-4535-a10a-461b4df22257" name="IOSS0_PORT9_P9_P42" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2359,7 +2514,7 @@
         <Value>IOSS0_PORT9_P9_P42</Value>
       </Parameter>
     </Instance>
-    <Instance guid="d9ff4836-2840-4c1b-bbfc-921c42885d02" name="cy_shapetag_disconnect_10" component="cy_shapetag_disconnect">
+    <Instance guid="d9ff4836-2840-4c1b-bbfc-921c42885d02" name="cy_shapetag_disconnect_10" component="cy_all_shapetag_disconnect">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2376,7 +2531,7 @@
         <Value>cy_shapetag_disconnect_10</Value>
       </Parameter>
     </Instance>
-    <Instance guid="da828199-9385-4ca7-9fae-dffd929829ff" name="IOSS0_PORT7_P7_P42" component="swhv">
+    <Instance guid="da828199-9385-4ca7-9fae-dffd929829ff" name="IOSS0_PORT7_P7_P42" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2394,7 +2549,7 @@
         <Value>IOSS0_PORT7_P7_P42</Value>
       </Parameter>
     </Instance>
-    <Instance guid="dc33407c-39c9-44ec-9dc6-6c65edff5392" name="IOSS0_PORT9_P9_P50" component="swhv">
+    <Instance guid="dc33407c-39c9-44ec-9dc6-6c65edff5392" name="IOSS0_PORT9_P9_P50" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2412,7 +2567,7 @@
         <Value>IOSS0_PORT9_P9_P50</Value>
       </Parameter>
     </Instance>
-    <Instance guid="e12639a5-7e28-4db6-9634-ebb1675866d8" name="IOSS0_PORT7_P7_P56" component="swhv">
+    <Instance guid="e12639a5-7e28-4db6-9634-ebb1675866d8" name="IOSS0_PORT7_P7_P56" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2430,7 +2585,7 @@
         <Value>IOSS0_PORT7_P7_P56</Value>
       </Parameter>
     </Instance>
-    <Instance guid="e1fb3f8e-6aa3-4734-bf79-68b0db526b35" name="PASS0_SARMUX0_sw9" component="swhv">
+    <Instance guid="e1fb3f8e-6aa3-4734-bf79-68b0db526b35" name="PASS0_SARMUX0_sw9" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2447,7 +2602,7 @@
         <Value>PASS0_SARMUX0_sw9</Value>
       </Parameter>
     </Instance>
-    <Instance guid="e3d118f8-946e-477f-b4ca-d29f5ee0f03e" name="cy_shapetag_disconnect_12" component="cy_shapetag_disconnect">
+    <Instance guid="e3d118f8-946e-477f-b4ca-d29f5ee0f03e" name="cy_shapetag_disconnect_12" component="cy_all_shapetag_disconnect">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2464,7 +2619,24 @@
         <Value>cy_shapetag_disconnect_12</Value>
       </Parameter>
     </Instance>
-    <Instance guid="e6445985-2d8f-432c-96a1-f7cd0c95eb14" name="cy_shapetag_disconnect_2" component="cy_shapetag_disconnect">
+    <Instance guid="e4c5c8c9-0476-4e00-973b-0a8ebd584221" name="MUX_BKG_3" component="cy_all_mux_bkg">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="INSTANCE_NAME">
+        <Value>MUX_BKG_3</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="e6445985-2d8f-432c-96a1-f7cd0c95eb14" name="cy_shapetag_disconnect_2" component="cy_all_shapetag_disconnect">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2481,7 +2653,7 @@
         <Value>cy_shapetag_disconnect_2</Value>
       </Parameter>
     </Instance>
-    <Instance guid="e6d3cfbe-9b5b-44f2-93a5-7994853c9924" name="P10_Pin3" component="cy_mxs40_pin">
+    <Instance guid="e6d3cfbe-9b5b-44f2-93a5-7994853c9924" name="P10_Pin3" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2492,9 +2664,6 @@
         <Value>false</Value>
       </Parameter>
       <Parameter name="CY_SUPPRESS_API_GEN">
-        <Value>false</Value>
-      </Parameter>
-      <Parameter name="FLATTEN">
         <Value>false</Value>
       </Parameter>
       <Parameter name="INSTANCE_NAME">
@@ -2507,7 +2676,7 @@
         <Value>10</Value>
       </Parameter>
     </Instance>
-    <Instance guid="e6ebe0cc-c207-4411-bad9-42c9435a1409" name="P7_Pin1" component="cy_mxs40_pin">
+    <Instance guid="e6ebe0cc-c207-4411-bad9-42c9435a1409" name="P7_Pin1" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2520,9 +2689,6 @@
       <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
-      <Parameter name="FLATTEN">
-        <Value>false</Value>
-      </Parameter>
       <Parameter name="INSTANCE_NAME">
         <Value>P7_Pin1</Value>
       </Parameter>
@@ -2533,7 +2699,7 @@
         <Value>7</Value>
       </Parameter>
     </Instance>
-    <Instance guid="ea557a56-00b4-4137-963d-283d90b8ec34" name="IOSS0_PORT7_P7_P40" component="swhv">
+    <Instance guid="ea557a56-00b4-4137-963d-283d90b8ec34" name="IOSS0_PORT7_P7_P40" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2551,7 +2717,7 @@
         <Value>IOSS0_PORT7_P7_P40</Value>
       </Parameter>
     </Instance>
-    <Instance guid="ed4ccaf0-460a-4e9d-a941-08425f082a64" name="P9_Pin0" component="cy_mxs40_pin">
+    <Instance guid="ed198806-8e60-4c9a-ab8f-68253186f385" name="MUX_BKG_13" component="cy_all_mux_bkg">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2564,7 +2730,21 @@
       <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
-      <Parameter name="FLATTEN">
+      <Parameter name="INSTANCE_NAME">
+        <Value>MUX_BKG_13</Value>
+      </Parameter>
+    </Instance>
+    <Instance guid="ed4ccaf0-460a-4e9d-a941-08425f082a64" name="P9_Pin0" component="cy_all_pin">
+      <Parameter name="CY_COMMENT">
+        <Value />
+      </Parameter>
+      <Parameter name="CY_CONST_CONFIG">
+        <Value>true</Value>
+      </Parameter>
+      <Parameter name="CY_REMOVE">
+        <Value>false</Value>
+      </Parameter>
+      <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
       <Parameter name="INSTANCE_NAME">
@@ -2577,7 +2757,7 @@
         <Value>9</Value>
       </Parameter>
     </Instance>
-    <Instance guid="f0f32e88-de70-426b-bcf9-67a35dba2c9f" name="IOSS0_PORT7_P7_P55" component="swhv">
+    <Instance guid="f0f32e88-de70-426b-bcf9-67a35dba2c9f" name="IOSS0_PORT7_P7_P55" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2595,7 +2775,7 @@
         <Value>IOSS0_PORT7_P7_P55</Value>
       </Parameter>
     </Instance>
-    <Instance guid="f3c10c9e-5c3a-494d-8764-4bc1596877b5" name="IOSS0_PORT3_P3_P40" component="swhv">
+    <Instance guid="f3c10c9e-5c3a-494d-8764-4bc1596877b5" name="IOSS0_PORT3_P3_P40" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2613,7 +2793,7 @@
         <Value>IOSS0_PORT3_P3_P40</Value>
       </Parameter>
     </Instance>
-    <Instance guid="f78f5ef8-9c06-4ac6-99d7-c4174abc0ce8" name="LPCOMP0_BP0" component="swhv">
+    <Instance guid="f78f5ef8-9c06-4ac6-99d7-c4174abc0ce8" name="LPCOMP0_BP0" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2630,7 +2810,7 @@
         <Value>LPCOMP0_BP0</Value>
       </Parameter>
     </Instance>
-    <Instance guid="f7fb561d-cdd2-4783-8265-abe150ca461c" name="IOSS0_PORT9_P9_P51" component="swhv">
+    <Instance guid="f7fb561d-cdd2-4783-8265-abe150ca461c" name="IOSS0_PORT9_P9_P51" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2648,7 +2828,7 @@
         <Value>IOSS0_PORT9_P9_P51</Value>
       </Parameter>
     </Instance>
-    <Instance guid="f908fbd2-2095-4b00-b353-1937dc1d8053" name="P7_Pin5" component="cy_mxs40_pin">
+    <Instance guid="f908fbd2-2095-4b00-b353-1937dc1d8053" name="P7_Pin5" component="cy_all_pin">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2661,9 +2841,6 @@
       <Parameter name="CY_SUPPRESS_API_GEN">
         <Value>false</Value>
       </Parameter>
-      <Parameter name="FLATTEN">
-        <Value>false</Value>
-      </Parameter>
       <Parameter name="INSTANCE_NAME">
         <Value>P7_Pin5</Value>
       </Parameter>
@@ -2674,7 +2851,7 @@
         <Value>7</Value>
       </Parameter>
     </Instance>
-    <Instance guid="f99d9bd9-e6ef-4acd-a54e-6fd2f6ed4de4" name="PASS0_SARMUX0_sw3" component="swhv">
+    <Instance guid="f99d9bd9-e6ef-4acd-a54e-6fd2f6ed4de4" name="PASS0_SARMUX0_sw3" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2691,7 +2868,7 @@
         <Value>PASS0_SARMUX0_sw3</Value>
       </Parameter>
     </Instance>
-    <Instance guid="f9e5f34c-d69c-4c5b-a19d-b1387ab654e6" name="LPCOMP0_AP0" component="swhv">
+    <Instance guid="f9e5f34c-d69c-4c5b-a19d-b1387ab654e6" name="LPCOMP0_AP0" component="swh">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2708,7 +2885,7 @@
         <Value>LPCOMP0_AP0</Value>
       </Parameter>
     </Instance>
-    <Instance guid="fcbbde84-319c-4c8f-9dbe-37676846ca9b" name="cy_shapetag_disconnect_3" component="cy_shapetag_disconnect">
+    <Instance guid="fcbbde84-319c-4c8f-9dbe-37676846ca9b" name="cy_shapetag_disconnect_3" component="cy_all_shapetag_disconnect">
       <Parameter name="CY_COMMENT">
         <Value />
       </Parameter>
@@ -2731,9 +2908,9 @@
     <Signal name="AmuxB1_bridge" type="" terminalCount="0" />
     <Signal name="amuxbus_a_csd0" type="Analog" terminalCount="4">
       <Terminal name="cy_shapetag_disconnect_21.a" type="Instance Analog InOut" />
-      <Terminal name="cy_shapetag_disconnect_19.a" type="Instance Analog InOut" />
-      <Terminal name="cy_shapetag_disconnect_17.a" type="Instance Analog InOut" />
       <Terminal name="cy_shapetag_disconnect_15.a" type="Instance Analog InOut" />
+      <Terminal name="cy_shapetag_disconnect_17.a" type="Instance Analog InOut" />
+      <Terminal name="cy_shapetag_disconnect_19.a" type="Instance Analog InOut" />
     </Signal>
     <Signal name="amuxbus_a_csd1" type="" terminalCount="0" />
     <Signal name="amuxbus_a_sar" type="" terminalCount="0" />
@@ -2742,8 +2919,8 @@
     <Signal name="amuxbus_b_csd0" type="Analog" terminalCount="4">
       <Terminal name="cy_shapetag_disconnect_20.a" type="Instance Analog InOut" />
       <Terminal name="cy_shapetag_disconnect_18.a" type="Instance Analog InOut" />
-      <Terminal name="cy_shapetag_disconnect_16.a" type="Instance Analog InOut" />
       <Terminal name="cy_shapetag_disconnect_10.a" type="Instance Analog InOut" />
+      <Terminal name="cy_shapetag_disconnect_16.a" type="Instance Analog InOut" />
     </Signal>
     <Signal name="amuxbus_b_csd1" type="" terminalCount="0" />
     <Signal name="amuxbus_b_sar" type="" terminalCount="0" />

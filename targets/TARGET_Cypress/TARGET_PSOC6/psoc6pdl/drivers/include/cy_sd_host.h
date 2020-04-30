@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_sd_host.h
-* \version 1.30
+* \version 1.40
 *
 *  This file provides constants and parameter values for 
 *  the SD Host Controller driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -275,6 +275,12 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>1.40</td>
+*     <td>Added a possibility to customize the SD clock rump up time during wakeup from deep sleep,
+*         see \ref Cy_SD_Host_DeepSleepCallback description for details.</td>
+*     <td>Workaround for cases of specific wakeup timing requirements.</td>
+*   </tr>
+*   <tr>
 *     <td>1.30</td>
 *     <td>The internal function implementation is changed.</td>
 *     <td>Code efficiency enhancement, minor defect fixing.</td>
@@ -419,6 +425,11 @@ extern "C"
 #define CY_SD_HOST_CLK_25M                  (25UL * 1000UL * 1000UL) /**< Clk = 20 MHz. */
 #define CY_SD_HOST_CLK_50M                  (50UL * 1000UL * 1000UL) /**< Clk = 50 MHz. */
 #define CY_SD_HOST_CLK_100M                 (100UL * 1000UL * 1000UL) /**< Clk = 100 MHz. */
+
+#define CY_SD_HOST_CLK_RAMP_UP_TIME_MS      (100UL)  /**< The host power ramp up time. */
+#ifndef CY_SD_HOST_CLK_RAMP_UP_TIME_MS_WAKEUP
+#define CY_SD_HOST_CLK_RAMP_UP_TIME_MS_WAKEUP (CY_SD_HOST_CLK_RAMP_UP_TIME_MS)  /**< The host power ramp up time during wake up from deep sleep. */
+#endif /* !defined CY_SD_HOST_CLK_RAMP_UP_TIME_MS_WAKEUP */
 
 /* ADMA constants. */ 
 #define CY_SD_HOST_ADMA_NOP                 (0x0UL) /**< Does not execute the current line and go to next line. */

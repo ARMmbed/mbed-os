@@ -1,15 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <baseview>
-  <shortsiliconid>0xE70B</shortsiliconid>
-  <familyid>0x105</familyid>
-  <major>1</major>
-  <minor>1</minor>
   <mcu>CortexM0p,CortexM4</mcu>
   <vendor>Cypress</vendor>
   <flash>524288</flash>
   <ram>262144</ram>
   <package>100-TQFP</package>
-  <pins>100</pins>
   <minvoltage>1700</minvoltage>
   <maxvoltage>3600</maxvoltage>
   <description>The CY8C6245AZI-S3D02 device.</description>

@@ -52,7 +52,7 @@
   <Param name="Automotive_qualified" value="No (Industrial Grade Only)" />
   <Param name="SiliconID" value="0xE70D1105" />
   <Param name="Module" value="No" />
-  <Param name="REQUIRED_KITS" value="B0" />
+  <Param name="REQUIRED_KITS" value="None" />
   <Param name="Next_Best_Alt_Part" value="None" />
   <Param name="DATASHEET" value="" />
   <Param name="EDITING_SUPPORT" value="" />

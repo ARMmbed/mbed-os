@@ -5,11 +5,11 @@
 * PSoC6_02 device configuration header
 *
 * \note
-* Generator version: 1.5.0.1286
+* Generator version: 1.6.0.111
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -3941,6 +3941,240 @@ typedef I2S_V1_Type I2S_Type;
 /* Backward compatibility definitions */
 #define CPUSS_IRQ_NR                    CPUSS_SYSTEM_INT_NR
 #define CPUSS_DPSLP_IRQ_NR              CPUSS_SYSTEM_DPSLP_INT_NR
+
+/* Protection regions */
+typedef enum
+{
+    PROT_PERI_MAIN                  =   0,      /* Address 0x40000000, size 0x00002000 */
+    PROT_PERI_GR0_GROUP             =   1,      /* Address 0x40004010, size 0x00000004 */
+    PROT_PERI_GR1_GROUP             =   2,      /* Address 0x40004030, size 0x00000004 */
+    PROT_PERI_GR2_GROUP             =   3,      /* Address 0x40004050, size 0x00000004 */
+    PROT_PERI_GR3_GROUP             =   4,      /* Address 0x40004060, size 0x00000020 */
+    PROT_PERI_GR4_GROUP             =   5,      /* Address 0x40004080, size 0x00000020 */
+    PROT_PERI_GR6_GROUP             =   6,      /* Address 0x400040c0, size 0x00000020 */
+    PROT_PERI_GR9_GROUP             =   7,      /* Address 0x40004120, size 0x00000020 */
+    PROT_PERI_GR10_GROUP            =   8,      /* Address 0x40004140, size 0x00000020 */
+    PROT_PERI_TR                    =   9,      /* Address 0x40008000, size 0x00008000 */
+    PROT_CRYPTO_MAIN                =  10,      /* Address 0x40100000, size 0x00000400 */
+    PROT_CRYPTO_CRYPTO              =  11,      /* Address 0x40101000, size 0x00000800 */
+    PROT_CRYPTO_BOOT                =  12,      /* Address 0x40102000, size 0x00000100 */
+    PROT_CRYPTO_KEY0                =  13,      /* Address 0x40102100, size 0x00000004 */
+    PROT_CRYPTO_KEY1                =  14,      /* Address 0x40102120, size 0x00000004 */
+    PROT_CRYPTO_BUF                 =  15,      /* Address 0x40108000, size 0x00001000 */
+    PROT_CPUSS_CM4                  =  16,      /* Address 0x40200000, size 0x00000400 */
+    PROT_CPUSS_CM0                  =  17,      /* Address 0x40201000, size 0x00001000 */
+    PROT_CPUSS_BOOT                 =  18,      /* Address 0x40202000, size 0x00000200 */
+    PROT_CPUSS_CM0_INT              =  19,      /* Address 0x40208000, size 0x00000400 */
+    PROT_CPUSS_CM4_INT              =  20,      /* Address 0x4020a000, size 0x00000400 */
+    PROT_FAULT_STRUCT0_MAIN         =  21,      /* Address 0x40210000, size 0x00000100 */
+    PROT_FAULT_STRUCT1_MAIN         =  22,      /* Address 0x40210100, size 0x00000100 */
+    PROT_IPC_STRUCT0_IPC            =  23,      /* Address 0x40220000, size 0x00000020 */
+    PROT_IPC_STRUCT1_IPC            =  24,      /* Address 0x40220020, size 0x00000020 */
+    PROT_IPC_STRUCT2_IPC            =  25,      /* Address 0x40220040, size 0x00000020 */
+    PROT_IPC_STRUCT3_IPC            =  26,      /* Address 0x40220060, size 0x00000020 */
+    PROT_IPC_STRUCT4_IPC            =  27,      /* Address 0x40220080, size 0x00000020 */
+    PROT_IPC_STRUCT5_IPC            =  28,      /* Address 0x402200a0, size 0x00000020 */
+    PROT_IPC_STRUCT6_IPC            =  29,      /* Address 0x402200c0, size 0x00000020 */
+    PROT_IPC_STRUCT7_IPC            =  30,      /* Address 0x402200e0, size 0x00000020 */
+    PROT_IPC_STRUCT8_IPC            =  31,      /* Address 0x40220100, size 0x00000020 */
+    PROT_IPC_STRUCT9_IPC            =  32,      /* Address 0x40220120, size 0x00000020 */
+    PROT_IPC_STRUCT10_IPC           =  33,      /* Address 0x40220140, size 0x00000020 */
+    PROT_IPC_STRUCT11_IPC           =  34,      /* Address 0x40220160, size 0x00000020 */
+    PROT_IPC_STRUCT12_IPC           =  35,      /* Address 0x40220180, size 0x00000020 */
+    PROT_IPC_STRUCT13_IPC           =  36,      /* Address 0x402201a0, size 0x00000020 */
+    PROT_IPC_STRUCT14_IPC           =  37,      /* Address 0x402201c0, size 0x00000020 */
+    PROT_IPC_STRUCT15_IPC           =  38,      /* Address 0x402201e0, size 0x00000020 */
+    PROT_IPC_INTR_STRUCT0_INTR      =  39,      /* Address 0x40221000, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT1_INTR      =  40,      /* Address 0x40221020, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT2_INTR      =  41,      /* Address 0x40221040, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT3_INTR      =  42,      /* Address 0x40221060, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT4_INTR      =  43,      /* Address 0x40221080, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT5_INTR      =  44,      /* Address 0x402210a0, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT6_INTR      =  45,      /* Address 0x402210c0, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT7_INTR      =  46,      /* Address 0x402210e0, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT8_INTR      =  47,      /* Address 0x40221100, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT9_INTR      =  48,      /* Address 0x40221120, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT10_INTR     =  49,      /* Address 0x40221140, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT11_INTR     =  50,      /* Address 0x40221160, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT12_INTR     =  51,      /* Address 0x40221180, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT13_INTR     =  52,      /* Address 0x402211a0, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT14_INTR     =  53,      /* Address 0x402211c0, size 0x00000010 */
+    PROT_IPC_INTR_STRUCT15_INTR     =  54,      /* Address 0x402211e0, size 0x00000010 */
+    PROT_PROT_SMPU_MAIN             =  55,      /* Address 0x40230000, size 0x00000040 */
+    PROT_PROT_MPU0_MAIN             =  56,      /* Address 0x40234000, size 0x00000004 */
+    PROT_PROT_MPU5_MAIN             =  57,      /* Address 0x40235400, size 0x00000400 */
+    PROT_PROT_MPU6_MAIN             =  58,      /* Address 0x40235800, size 0x00000400 */
+    PROT_PROT_MPU14_MAIN            =  59,      /* Address 0x40237800, size 0x00000004 */
+    PROT_PROT_MPU15_MAIN            =  60,      /* Address 0x40237c00, size 0x00000400 */
+    PROT_FLASHC_MAIN                =  61,      /* Address 0x40240000, size 0x00000008 */
+    PROT_FLASHC_CMD                 =  62,      /* Address 0x40240008, size 0x00000004 */
+    PROT_FLASHC_DFT                 =  63,      /* Address 0x40240200, size 0x00000100 */
+    PROT_FLASHC_CM0                 =  64,      /* Address 0x40240400, size 0x00000080 */
+    PROT_FLASHC_CM4                 =  65,      /* Address 0x40240480, size 0x00000080 */
+    PROT_FLASHC_CRYPTO              =  66,      /* Address 0x40240500, size 0x00000004 */
+    PROT_FLASHC_DW0                 =  67,      /* Address 0x40240580, size 0x00000004 */
+    PROT_FLASHC_DW1                 =  68,      /* Address 0x40240600, size 0x00000004 */
+    PROT_FLASHC_DMAC                =  69,      /* Address 0x40240680, size 0x00000004 */
+    PROT_FLASHC_EXT_MS0             =  70,      /* Address 0x40240700, size 0x00000004 */
+    PROT_FLASHC_EXT_MS1             =  71,      /* Address 0x40240780, size 0x00000004 */
+    PROT_FLASHC_FM                  =  72,      /* Address 0x4024f000, size 0x00001000 */
+    PROT_SRSS_MAIN1                 =  73,      /* Address 0x40260000, size 0x00000100 */
+    PROT_SRSS_MAIN2                 =  74,      /* Address 0x40260100, size 0x00000010 */
+    PROT_WDT                        =  75,      /* Address 0x40260180, size 0x00000010 */
+    PROT_MAIN                       =  76,      /* Address 0x40260200, size 0x00000080 */
+    PROT_SRSS_MAIN3                 =  77,      /* Address 0x40260300, size 0x00000100 */
+    PROT_SRSS_MAIN4                 =  78,      /* Address 0x40260400, size 0x00000400 */
+    PROT_SRSS_MAIN5                 =  79,      /* Address 0x40260800, size 0x00000008 */
+    PROT_SRSS_MAIN6                 =  80,      /* Address 0x40267000, size 0x00001000 */
+    PROT_SRSS_MAIN7                 =  81,      /* Address 0x4026ff00, size 0x00000080 */
+    PROT_BACKUP_BACKUP              =  82,      /* Address 0x40270000, size 0x00010000 */
+    PROT_DW0_DW                     =  83,      /* Address 0x40280000, size 0x00000080 */
+    PROT_DW1_DW                     =  84,      /* Address 0x40290000, size 0x00000080 */
+    PROT_DW0_DW_CRC                 =  85,      /* Address 0x40280100, size 0x00000080 */
+    PROT_DW1_DW_CRC                 =  86,      /* Address 0x40290100, size 0x00000080 */
+    PROT_DW0_CH_STRUCT0_CH          =  87,      /* Address 0x40288000, size 0x00000040 */
+    PROT_DW0_CH_STRUCT1_CH          =  88,      /* Address 0x40288040, size 0x00000040 */
+    PROT_DW0_CH_STRUCT2_CH          =  89,      /* Address 0x40288080, size 0x00000040 */
+    PROT_DW0_CH_STRUCT3_CH          =  90,      /* Address 0x402880c0, size 0x00000040 */
+    PROT_DW0_CH_STRUCT4_CH          =  91,      /* Address 0x40288100, size 0x00000040 */
+    PROT_DW0_CH_STRUCT5_CH          =  92,      /* Address 0x40288140, size 0x00000040 */
+    PROT_DW0_CH_STRUCT6_CH          =  93,      /* Address 0x40288180, size 0x00000040 */
+    PROT_DW0_CH_STRUCT7_CH          =  94,      /* Address 0x402881c0, size 0x00000040 */
+    PROT_DW0_CH_STRUCT8_CH          =  95,      /* Address 0x40288200, size 0x00000040 */
+    PROT_DW0_CH_STRUCT9_CH          =  96,      /* Address 0x40288240, size 0x00000040 */
+    PROT_DW0_CH_STRUCT10_CH         =  97,      /* Address 0x40288280, size 0x00000040 */
+    PROT_DW0_CH_STRUCT11_CH         =  98,      /* Address 0x402882c0, size 0x00000040 */
+    PROT_DW0_CH_STRUCT12_CH         =  99,      /* Address 0x40288300, size 0x00000040 */
+    PROT_DW0_CH_STRUCT13_CH         = 100,      /* Address 0x40288340, size 0x00000040 */
+    PROT_DW0_CH_STRUCT14_CH         = 101,      /* Address 0x40288380, size 0x00000040 */
+    PROT_DW0_CH_STRUCT15_CH         = 102,      /* Address 0x402883c0, size 0x00000040 */
+    PROT_DW0_CH_STRUCT16_CH         = 103,      /* Address 0x40288400, size 0x00000040 */
+    PROT_DW0_CH_STRUCT17_CH         = 104,      /* Address 0x40288440, size 0x00000040 */
+    PROT_DW0_CH_STRUCT18_CH         = 105,      /* Address 0x40288480, size 0x00000040 */
+    PROT_DW0_CH_STRUCT19_CH         = 106,      /* Address 0x402884c0, size 0x00000040 */
+    PROT_DW0_CH_STRUCT20_CH         = 107,      /* Address 0x40288500, size 0x00000040 */
+    PROT_DW0_CH_STRUCT21_CH         = 108,      /* Address 0x40288540, size 0x00000040 */
+    PROT_DW0_CH_STRUCT22_CH         = 109,      /* Address 0x40288580, size 0x00000040 */
+    PROT_DW0_CH_STRUCT23_CH         = 110,      /* Address 0x402885c0, size 0x00000040 */
+    PROT_DW0_CH_STRUCT24_CH         = 111,      /* Address 0x40288600, size 0x00000040 */
+    PROT_DW0_CH_STRUCT25_CH         = 112,      /* Address 0x40288640, size 0x00000040 */
+    PROT_DW0_CH_STRUCT26_CH         = 113,      /* Address 0x40288680, size 0x00000040 */
+    PROT_DW0_CH_STRUCT27_CH         = 114,      /* Address 0x402886c0, size 0x00000040 */
+    PROT_DW0_CH_STRUCT28_CH         = 115,      /* Address 0x40288700, size 0x00000040 */
+    PROT_DW1_CH_STRUCT0_CH          = 116,      /* Address 0x40298000, size 0x00000040 */
+    PROT_DW1_CH_STRUCT1_CH          = 117,      /* Address 0x40298040, size 0x00000040 */
+    PROT_DW1_CH_STRUCT2_CH          = 118,      /* Address 0x40298080, size 0x00000040 */
+    PROT_DW1_CH_STRUCT3_CH          = 119,      /* Address 0x402980c0, size 0x00000040 */
+    PROT_DW1_CH_STRUCT4_CH          = 120,      /* Address 0x40298100, size 0x00000040 */
+    PROT_DW1_CH_STRUCT5_CH          = 121,      /* Address 0x40298140, size 0x00000040 */
+    PROT_DW1_CH_STRUCT6_CH          = 122,      /* Address 0x40298180, size 0x00000040 */
+    PROT_DW1_CH_STRUCT7_CH          = 123,      /* Address 0x402981c0, size 0x00000040 */
+    PROT_DW1_CH_STRUCT8_CH          = 124,      /* Address 0x40298200, size 0x00000040 */
+    PROT_DW1_CH_STRUCT9_CH          = 125,      /* Address 0x40298240, size 0x00000040 */
+    PROT_DW1_CH_STRUCT10_CH         = 126,      /* Address 0x40298280, size 0x00000040 */
+    PROT_DW1_CH_STRUCT11_CH         = 127,      /* Address 0x402982c0, size 0x00000040 */
+    PROT_DW1_CH_STRUCT12_CH         = 128,      /* Address 0x40298300, size 0x00000040 */
+    PROT_DW1_CH_STRUCT13_CH         = 129,      /* Address 0x40298340, size 0x00000040 */
+    PROT_DW1_CH_STRUCT14_CH         = 130,      /* Address 0x40298380, size 0x00000040 */
+    PROT_DW1_CH_STRUCT15_CH         = 131,      /* Address 0x402983c0, size 0x00000040 */
+    PROT_DW1_CH_STRUCT16_CH         = 132,      /* Address 0x40298400, size 0x00000040 */
+    PROT_DW1_CH_STRUCT17_CH         = 133,      /* Address 0x40298440, size 0x00000040 */
+    PROT_DW1_CH_STRUCT18_CH         = 134,      /* Address 0x40298480, size 0x00000040 */
+    PROT_DW1_CH_STRUCT19_CH         = 135,      /* Address 0x402984c0, size 0x00000040 */
+    PROT_DW1_CH_STRUCT20_CH         = 136,      /* Address 0x40298500, size 0x00000040 */
+    PROT_DW1_CH_STRUCT21_CH         = 137,      /* Address 0x40298540, size 0x00000040 */
+    PROT_DW1_CH_STRUCT22_CH         = 138,      /* Address 0x40298580, size 0x00000040 */
+    PROT_DW1_CH_STRUCT23_CH         = 139,      /* Address 0x402985c0, size 0x00000040 */
+    PROT_DW1_CH_STRUCT24_CH         = 140,      /* Address 0x40298600, size 0x00000040 */
+    PROT_DW1_CH_STRUCT25_CH         = 141,      /* Address 0x40298640, size 0x00000040 */
+    PROT_DW1_CH_STRUCT26_CH         = 142,      /* Address 0x40298680, size 0x00000040 */
+    PROT_DW1_CH_STRUCT27_CH         = 143,      /* Address 0x402986c0, size 0x00000040 */
+    PROT_DW1_CH_STRUCT28_CH         = 144,      /* Address 0x40298700, size 0x00000040 */
+    PROT_DMAC_TOP                   = 145,      /* Address 0x402a0000, size 0x00000010 */
+    PROT_DMAC_CH0_CH                = 146,      /* Address 0x402a1000, size 0x00000100 */
+    PROT_DMAC_CH1_CH                = 147,      /* Address 0x402a1100, size 0x00000100 */
+    PROT_DMAC_CH2_CH                = 148,      /* Address 0x402a1200, size 0x00000100 */
+    PROT_DMAC_CH3_CH                = 149,      /* Address 0x402a1300, size 0x00000100 */
+    PROT_EFUSE_CTL                  = 150,      /* Address 0x402c0000, size 0x00000080 */
+    PROT_EFUSE_DATA                 = 151,      /* Address 0x402c0800, size 0x00000200 */
+    PROT_PROFILE                    = 152,      /* Address 0x402d0000, size 0x00010000 */
+    PROT_HSIOM_PRT0_PRT             = 153,      /* Address 0x40300000, size 0x00000008 */
+    PROT_HSIOM_PRT1_PRT             = 154,      /* Address 0x40300010, size 0x00000008 */
+    PROT_HSIOM_PRT2_PRT             = 155,      /* Address 0x40300020, size 0x00000008 */
+    PROT_HSIOM_PRT3_PRT             = 156,      /* Address 0x40300030, size 0x00000008 */
+    PROT_HSIOM_PRT4_PRT             = 157,      /* Address 0x40300040, size 0x00000008 */
+    PROT_HSIOM_PRT5_PRT             = 158,      /* Address 0x40300050, size 0x00000008 */
+    PROT_HSIOM_PRT6_PRT             = 159,      /* Address 0x40300060, size 0x00000008 */
+    PROT_HSIOM_PRT7_PRT             = 160,      /* Address 0x40300070, size 0x00000008 */
+    PROT_HSIOM_PRT8_PRT             = 161,      /* Address 0x40300080, size 0x00000008 */
+    PROT_HSIOM_PRT9_PRT             = 162,      /* Address 0x40300090, size 0x00000008 */
+    PROT_HSIOM_PRT10_PRT            = 163,      /* Address 0x403000a0, size 0x00000008 */
+    PROT_HSIOM_PRT11_PRT            = 164,      /* Address 0x403000b0, size 0x00000008 */
+    PROT_HSIOM_PRT12_PRT            = 165,      /* Address 0x403000c0, size 0x00000008 */
+    PROT_HSIOM_PRT13_PRT            = 166,      /* Address 0x403000d0, size 0x00000008 */
+    PROT_HSIOM_PRT14_PRT            = 167,      /* Address 0x403000e0, size 0x00000008 */
+    PROT_HSIOM_AMUX                 = 168,      /* Address 0x40302000, size 0x00000020 */
+    PROT_HSIOM_MON                  = 169,      /* Address 0x40302200, size 0x00000010 */
+    PROT_GPIO_PRT0_PRT              = 170,      /* Address 0x40310000, size 0x00000040 */
+    PROT_GPIO_PRT1_PRT              = 171,      /* Address 0x40310080, size 0x00000040 */
+    PROT_GPIO_PRT2_PRT              = 172,      /* Address 0x40310100, size 0x00000040 */
+    PROT_GPIO_PRT3_PRT              = 173,      /* Address 0x40310180, size 0x00000040 */
+    PROT_GPIO_PRT4_PRT              = 174,      /* Address 0x40310200, size 0x00000040 */
+    PROT_GPIO_PRT5_PRT              = 175,      /* Address 0x40310280, size 0x00000040 */
+    PROT_GPIO_PRT6_PRT              = 176,      /* Address 0x40310300, size 0x00000040 */
+    PROT_GPIO_PRT7_PRT              = 177,      /* Address 0x40310380, size 0x00000040 */
+    PROT_GPIO_PRT8_PRT              = 178,      /* Address 0x40310400, size 0x00000040 */
+    PROT_GPIO_PRT9_PRT              = 179,      /* Address 0x40310480, size 0x00000040 */
+    PROT_GPIO_PRT10_PRT             = 180,      /* Address 0x40310500, size 0x00000040 */
+    PROT_GPIO_PRT11_PRT             = 181,      /* Address 0x40310580, size 0x00000040 */
+    PROT_GPIO_PRT12_PRT             = 182,      /* Address 0x40310600, size 0x00000040 */
+    PROT_GPIO_PRT13_PRT             = 183,      /* Address 0x40310680, size 0x00000040 */
+    PROT_GPIO_PRT14_PRT             = 184,      /* Address 0x40310700, size 0x00000040 */
+    PROT_GPIO_PRT0_CFG              = 185,      /* Address 0x40310040, size 0x00000010 */
+    PROT_GPIO_PRT1_CFG              = 186,      /* Address 0x403100c0, size 0x00000010 */
+    PROT_GPIO_PRT2_CFG              = 187,      /* Address 0x40310140, size 0x00000010 */
+    PROT_GPIO_PRT3_CFG              = 188,      /* Address 0x403101c0, size 0x00000010 */
+    PROT_GPIO_PRT4_CFG              = 189,      /* Address 0x40310240, size 0x00000010 */
+    PROT_GPIO_PRT5_CFG              = 190,      /* Address 0x403102c0, size 0x00000010 */
+    PROT_GPIO_PRT6_CFG              = 191,      /* Address 0x40310340, size 0x00000010 */
+    PROT_GPIO_PRT7_CFG              = 192,      /* Address 0x403103c0, size 0x00000010 */
+    PROT_GPIO_PRT8_CFG              = 193,      /* Address 0x40310440, size 0x00000010 */
+    PROT_GPIO_PRT9_CFG              = 194,      /* Address 0x403104c0, size 0x00000010 */
+    PROT_GPIO_PRT10_CFG             = 195,      /* Address 0x40310540, size 0x00000010 */
+    PROT_GPIO_PRT11_CFG             = 196,      /* Address 0x403105c0, size 0x00000010 */
+    PROT_GPIO_PRT12_CFG             = 197,      /* Address 0x40310640, size 0x00000010 */
+    PROT_GPIO_PRT13_CFG             = 198,      /* Address 0x403106c0, size 0x00000010 */
+    PROT_GPIO_PRT14_CFG             = 199,      /* Address 0x40310740, size 0x00000008 */
+    PROT_GPIO_GPIO                  = 200,      /* Address 0x40314000, size 0x00000040 */
+    PROT_GPIO_TEST                  = 201,      /* Address 0x40315000, size 0x00000008 */
+    PROT_SMARTIO_PRT8_PRT           = 202,      /* Address 0x40320800, size 0x00000100 */
+    PROT_SMARTIO_PRT9_PRT           = 203,      /* Address 0x40320900, size 0x00000100 */
+    PROT_LPCOMP                     = 204,      /* Address 0x40350000, size 0x00010000 */
+    PROT_CSD0                       = 205,      /* Address 0x40360000, size 0x00001000 */
+    PROT_TCPWM0                     = 206,      /* Address 0x40380000, size 0x00010000 */
+    PROT_TCPWM1                     = 207,      /* Address 0x40390000, size 0x00010000 */
+    PROT_LCD0                       = 208,      /* Address 0x403b0000, size 0x00010000 */
+    PROT_USBFS0                     = 209,      /* Address 0x403f0000, size 0x00010000 */
+    PROT_SMIF0                      = 210,      /* Address 0x40420000, size 0x00010000 */
+    PROT_SDHC0                      = 211,      /* Address 0x40460000, size 0x00010000 */
+    PROT_SDHC1                      = 212,      /* Address 0x40470000, size 0x00010000 */
+    PROT_SCB0                       = 213,      /* Address 0x40600000, size 0x00010000 */
+    PROT_SCB1                       = 214,      /* Address 0x40610000, size 0x00010000 */
+    PROT_SCB2                       = 215,      /* Address 0x40620000, size 0x00010000 */
+    PROT_SCB3                       = 216,      /* Address 0x40630000, size 0x00010000 */
+    PROT_SCB4                       = 217,      /* Address 0x40640000, size 0x00010000 */
+    PROT_SCB5                       = 218,      /* Address 0x40650000, size 0x00010000 */
+    PROT_SCB6                       = 219,      /* Address 0x40660000, size 0x00010000 */
+    PROT_SCB7                       = 220,      /* Address 0x40670000, size 0x00010000 */
+    PROT_SCB8                       = 221,      /* Address 0x40680000, size 0x00010000 */
+    PROT_SCB9                       = 222,      /* Address 0x40690000, size 0x00010000 */
+    PROT_SCB10                      = 223,      /* Address 0x406a0000, size 0x00010000 */
+    PROT_SCB11                      = 224,      /* Address 0x406b0000, size 0x00010000 */
+    PROT_SCB12                      = 225,      /* Address 0x406c0000, size 0x00010000 */
+    PROT_PDM0                       = 226,      /* Address 0x40a00000, size 0x00001000 */
+    PROT_I2S0                       = 227,      /* Address 0x40a10000, size 0x00001000 */
+    PROT_I2S1                       = 228       /* Address 0x40a11000, size 0x00001000 */
+} cy_en_prot_region_t;
 
 #endif /* _PSOC6_02_CONFIG_H_ */
 

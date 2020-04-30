@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syslib.c
-* \version 2.50.1
+* \version 2.50.2
 *
 *  Description:
 *   Provides system API implementation for the SysLib driver.

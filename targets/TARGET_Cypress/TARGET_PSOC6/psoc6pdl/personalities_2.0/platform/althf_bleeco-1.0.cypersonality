@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!--****************************************************************************
+* \file althf_bleeco.cypersonality
+* \version 1.0
+*
+* \brief
+* ALTHF (BLE ECO) personality description file.
+*
+********************************************************************************
+* \copyright
+* Copyright 2018-2019 Cypress Semiconductor Corporation
+* SPDX-License-Identifier: Apache-2.0
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*****************************************************************************-->
+
+<Personality id="mxs40althfble" name="ALTHF (BLE ECO)" version="1.0" path="Clocks/Fast" xmlns="http://cypress.com/xsd/cyhwpersonality_v1">
+  <Dependencies>
+    <IpBlock name="mxbless" />
+    <IpBlock name="mxs40srss" />
+    <Resource name="srss\.clock\.althf" used="true" />
+    <DependentResource name="bless" />
+  </Dependencies>
+  <ExposedMembers>
+    <ExposedMember key="frequency" paramId="frequency" />
+    <ExposedMember key="accuracy"  paramId="accuracyPct" />
+  </ExposedMembers>
+  <Parameters>
+    <!-- PDL documentation -->
+    <ParamDoc id="pdlDoc" name="Configuration Help" group="Peripheral Documentation" default="file:///`${cy_libs_path()}`/docs/pdl_api_reference_manual/html/group__group__ble__clk.html" linkText="Open BLE ECO Clock Documentation" visible="true" desc="Opens the Peripheral Driver Library Documentation" />
+
+    <ParamChoice id="ecoFrequency" name="Frequency" group="General" default="32000000" visible="true" editable="true" desc="ECO Frequency">
+      <Entry name="16 MHz" value="16000000" visible="true" />
+      <Entry name="32 MHz" value="32000000" visible="true" />
+    </ParamChoice>
+    <ParamRange id="accuracyPpm" name="Accuracy (&#177;ppm)" group="General" default="50" min="0" max="1000000" resolution="1" visible="true" editable="true" desc="Clock accuracy in ppm" />
+    <ParamString id="accuracyPct" name="Accuracy (&#177;%)" group="General" default="`${accuracyPpm/10000.0}`" visible="true" editable="false" desc="Clock accuracy in %" />
+    <ParamChoice id="divider" name="Divider" group="General" default="4" visible="true" editable="true" desc="System divider for ECO clock">
+      <Entry name="1" value="1" visible="true" />
+      <Entry name="2" value="2" visible="true" />
+      <Entry name="4" value="4" visible="true" />
+      <Entry name="8" value="8" visible="true" />
+    </ParamChoice>
+    <ParamRange id="frequency" name="Frequency" group="Internal" default="`${ecoFrequency / divider}`" min="2000000" max="32000000" resolution="1" visible="false" editable="false" desc="" />
+    <ParamRange id="startupTime" name="Startup Time (us)" group="General" default="785" min="400" max="4593.75" resolution="0.01" visible="true" editable="true" desc="ECO crystal startup time" />
+    <ParamRange id="loadCap" name="Load Cap (pF)" group="General" default="9.900" min="7.5" max="26.325" resolution="0.001" visible="true" editable="true" desc="ECO crystal load capacitance" />
+    <ParamChoice id="bleVoltageReg" name="BLE Voltage Regulator" group="General" visible="true" editable="true" default="CY_BLE_ECO_VOLTAGE_REG_AUTO" desc="Provides the ability to switch between using the BLESS LDO Linear Regulator or the SIMO Buck to supply the BLE Sub System. If the SIMO/BLESS LDO option is selected, the BLESS will be supplied by the SIMO Buck if it is enabled in system; otherwise, the BLESS will be supplied by the internal BLESS LDO Regulator">
+      <Entry name="SIMO/BLESS LDO" value="CY_BLE_ECO_VOLTAGE_REG_AUTO" visible="true" />
+      <Entry name="BLESS LDO" value="CY_BLE_ECO_VOLTAGE_REG_BLESSLDO" visible="true" />
+    </ParamChoice> 
+  </Parameters>
+  <ConfigFirmware>
+    <ConfigInclude value="cy_ble_clk.h" include="true" />
+    <ConfigDefine name="CY_CFG_SYSCLK_ALTHF_ENABLED" value="1" public="false" include="true" />
+    <ConfigFunction signature="__STATIC_INLINE void Cy_SysClk_AltHfInit()" body="    cy_en_ble_eco_status_t status = Cy_BLE_EcoConfigure(`${(ecoFrequency == 16000000) ? &quot;CY_BLE_BLESS_ECO_FREQ_16MHZ&quot; : &quot;CY_BLE_BLESS_ECO_FREQ_32MHZ&quot;}`, CY_BLE_SYS_ECO_CLK_DIV_`${divider}`, `${cast(uint64, (loadCap - 7.5) / 0.075)}`U, `${cast(uint64, startupTime / 31.25)}`U, `${bleVoltageReg}`);&#xA;    if ((CY_BLE_ECO_SUCCESS != status) &amp;&amp; (CY_BLE_ECO_ALREADY_STARTED !=status))&#xA;    {&#xA;        cycfg_ClockStartupError(CY_CFG_SYSCLK_ALTHF_ERROR);&#xA;    }" public="false" include="true" />
+  </ConfigFirmware>
+</Personality>
