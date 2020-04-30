@@ -55,7 +55,6 @@ typedef enum {
     p18 = P0_26,
     p19 = P1_30,
     p20 = P1_31,
-#else
     p21 = P2_5,
     p22 = P2_4,
     p23 = P2_3,
@@ -66,7 +65,6 @@ typedef enum {
     p28 = P0_10,
     p29 = P0_5,
     p30 = P0_4,
-#endif
 
     // Other mbed Pin Names
 #ifdef MCB1700
