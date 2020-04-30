@@ -266,15 +266,15 @@ static void mbed_minimal_formatted_string_void_pointer(char *buffer, size_t leng
 static void mbed_minimal_formatted_string_double(char *buffer, size_t length, int *result, double value, FILE *stream)
 {
     /* check for nan */
-    if(isnan(value)) {
+    if (isnan(value)) {
         mbed_minimal_formatted_string_string(buffer, length, result, "nan", 3, stream);
         return;
     }
 
     /* check for inf */
-    if(isinf(value)) {
+    if (isinf(value)) {
         /* print positive or negative */
-        if(isinf(value) < 0) {
+        if (isinf(value) < 0) {
             mbed_minimal_putchar(buffer, length, result, '-', stream);
         } else {
             mbed_minimal_putchar(buffer, length, result, '+', stream);
