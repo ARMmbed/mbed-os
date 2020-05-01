@@ -4570,19 +4570,15 @@
         "extra_labels_add": ["STM32F4", "STM32F411RE"],
         "macros_add": [
             "HSE_VALUE=26000000",
-            "USE_PLL_HSE_EXTC=0",
-            "VECT_TAB_OFFSET=0x00010000"
+            "USE_PLL_HSE_EXTC=0"
         ],
-        "post_binary_hook": {
-            "function": "MTSCode.combine_bins_mts_dot",
-            "toolchains": ["GCC_ARM", "ARM_STD", "ARM_MICRO", "IAR"]
-        },
         "device_has_add": ["MPU"],
         "device_has_remove": [
             "SERIAL_FC"
         ],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F411RE"
+        "device_name": "STM32F411RE",
+        "bootloader_supported": true
     },
     "MTS_DRAGONFLY_F411RE": {
         "inherits": ["FAMILY_STM32"],
