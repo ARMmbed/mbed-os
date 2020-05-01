@@ -563,11 +563,6 @@ class MTSCode(object):
         os.rename(target, binf)
 
     @staticmethod
-    def combine_bins_mts_dot(t_self, resources, elf, binf):
-        """A hook for the MTS MDOT"""
-        MTSCode._combine_bins_helper("MTS_MDOT_F411RE", binf)
-
-    @staticmethod
     def combine_bins_mts_dragonfly(t_self, resources, elf, binf):
         """A hoof for the MTS Dragonfly"""
         MTSCode._combine_bins_helper("MTS_DRAGONFLY_F411RE", binf)
