@@ -27,8 +27,8 @@ import os
 import shutil
 from . import macro_parser
 
-offset_re = re.compile(r"^#define ([0-9A-Z_]+)_IMAGE_OFFSET\s+((0x)?[0-9a-fA-F]+)")
-size_re   = re.compile(r"^#define ([0-9A-Z_]+)_IMAGE_MAX_SIZE\s+((0x)?[0-9a-fA-F]+)")
+offset_re = re.compile(r"^\s*RE_([0-9A-Z_]+)_IMAGE_OFFSET\s*=\s*(.*)")
+size_re = re.compile(r"^\s*RE_([0-9A-Z_]+)_IMAGE_MAX_SIZE\s*=\s*(.*)")
 
 class Assembly():
     def __init__(self, layout_path, output):

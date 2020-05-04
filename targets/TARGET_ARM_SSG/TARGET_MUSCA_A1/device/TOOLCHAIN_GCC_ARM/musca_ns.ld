@@ -32,7 +32,7 @@
 
 MEMORY
 {
-  CODE_RAM (rx)  : ORIGIN = NS_CODE_START, LENGTH = ((TOTAL_CODE_SRAM_SIZE / 2) - BL2_HEADER_SIZE)
+  FLASH (rx)  : ORIGIN = NS_CODE_START, LENGTH = NS_CODE_SIZE
   /* Vector table is copied to RAM, so RAM address needs to be adjusted */
   RAM   (rwx) : ORIGIN = NVIC_RAM_VECTOR_LIMIT, LENGTH = (NS_DATA_SIZE - NVIC_RAM_VECTOR_SIZE)
 }
@@ -46,37 +46,20 @@ ENTRY(Reset_Handler)
 
 SECTIONS
 {
-    /* Startup section is loaded to Flash and runs from Flash */
-    .startup :
+    .text :
     {
         KEEP(*(.vectors))
         __Vectors_End = .;
         __Vectors_Size = __Vectors_End - __Vectors;
         __end__ = .;
 
+        *(.text*)
         KEEP(*(.init))
         KEEP(*(.fini))
 
-    } > CODE_RAM
 
-    .ARM.extab :
-    {
-        *(.ARM.extab* .gnu.linkonce.armextab.*)
-    } > CODE_RAM
 
-    __exidx_start = .;
-    .ARM.exidx :
-    {
-        *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-    } > CODE_RAM
-    __exidx_end = .;
 
-    /* The text section is loaded into Flash but runs from SRAM
-     * The load address is aligned to 8 bytes
-     */
-    .text : ALIGN(8)
-    {
-        *(.text*)
 
         /* .ctors */
         *crtbegin.o(.ctors)
@@ -95,25 +78,26 @@ SECTIONS
         *(.rodata*)
 
         KEEP(*(.eh_frame*))
-    } >CODE_RAM
-    . = ALIGN(8); /* This alignment is needed to make the section size 8 bytes aligned */
+    } > FLASH
 
-    /* Create same symbols that armclang does so that in the c files
-     * we do not have to deal with the compiler type
-     */
-    Image$$ER_CODE_SRAM$$Base = ADDR(.text);
-    Image$$ER_CODE_SRAM$$Limit = .;
-    Image$$ER_CODE_SRAM$$Length = Image$$ER_CODE_SRAM$$Limit - Image$$ER_CODE_SRAM$$Base;
-    Load$$ER_CODE_SRAM$$Base = LOADADDR(.text);
-    Load$$ER_CODE_SRAM$$Length = Image$$ER_CODE_SRAM$$Length;
-    Load$$ER_CODE_SRAM$$Limit = Load$$ER_CODE_SRAM$$Base + Load$$ER_CODE_SRAM$$Length;
+    .ARM.extab :
+    {
+        *(.ARM.extab* .gnu.linkonce.armextab.*)
+    } > FLASH
+
+    __exidx_start = .;
+    .ARM.exidx :
+    {
+        *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+    } > FLASH
+    __exidx_end = .;
 
     /* To copy multiple ROM to RAM sections,
      * define etext2/data2_start/data2_end and
      * define __STARTUP_COPY_MULTIPLE in startup_cmsdk_musca_ns.S */
     .copy.table :
     {
-        . = ALIGN(8);
+        . = ALIGN(4);
         __copy_table_start__ = .;
         LONG (__etext)
         LONG (__data_start__)
@@ -122,36 +106,37 @@ SECTIONS
         LONG (DEFINED(__data2_start__) ? __data2_start__ : 0)
         LONG (DEFINED(__data2_start__) ? __data2_end__ - __data2_start__ : 0)
         __copy_table_end__ = .;
-    } > CODE_RAM
+    } > FLASH
 
     /* To clear multiple BSS sections,
+     * uncomment .zero.table section and,
      * define __STARTUP_CLEAR_BSS_MULTIPLE in startup_cmsdk_musca_ns.S */
     .zero.table :
     {
-        . = ALIGN(8);
+        . = ALIGN(4);
         __zero_table_start__ = .;
         LONG (__bss_start__)
         LONG (__bss_end__ - __bss_start__)
         LONG (DEFINED(__bss2_start__) ? __bss2_start__ : 0)
         LONG (DEFINED(__bss2_start__) ? __bss2_end__ - __bss2_start__ : 0)
         __zero_table_end__ = .;
-    } > CODE_RAM
+    } > FLASH
 
     __etext = .;
 
-    .data : ALIGN(8)
+    .data : AT (__etext)
     {
         __data_start__ = .;
         *(vtable)
         *(.data*)
 
-        . = ALIGN(8);
+        . = ALIGN(4);
         /* preinit data */
         PROVIDE_HIDDEN (__preinit_array_start = .);
         KEEP(*(.preinit_array))
         PROVIDE_HIDDEN (__preinit_array_end = .);
 
-        . = ALIGN(8);
+        . = ALIGN(4);
         /* init data */
         PROVIDE_HIDDEN (__init_array_start = .);
         KEEP(*(SORT(.init_array.*)))
@@ -159,7 +144,7 @@ SECTIONS
         PROVIDE_HIDDEN (__init_array_end = .);
 
 
-        . = ALIGN(8);
+        . = ALIGN(4);
         /* finit data */
         PROVIDE_HIDDEN (__fini_array_start = .);
         KEEP(*(SORT(.fini_array.*)))
@@ -167,19 +152,19 @@ SECTIONS
         PROVIDE_HIDDEN (__fini_array_end = .);
 
         KEEP(*(.jcr*))
-        . = ALIGN(8);
+        . = ALIGN(4);
         /* All data end */
         __data_end__ = .;
 
-    } > RAM AT>CODE_RAM
+    } > RAM
 
     .bss :
     {
-        . = ALIGN(8);
+        . = ALIGN(4);
         __bss_start__ = .;
         *(.bss*)
         *(COMMON)
-        . = ALIGN(8);
+        . = ALIGN(4);
         __bss_end__ = .;
     } > RAM
 

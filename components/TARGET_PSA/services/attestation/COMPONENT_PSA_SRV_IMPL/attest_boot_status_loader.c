@@ -21,6 +21,9 @@
 #include "attestation.h"
 #include "attestation_bootloader_data.h"
 #include "tfm_impl/tfm_boot_status.h"
+#ifdef TARGET_TFM
+#include "region_defs.h"
+#endif
 
 /*!
  * \def SHARED_DATA_INITIALZED and SHARED_DATA_UNNITIALZED
