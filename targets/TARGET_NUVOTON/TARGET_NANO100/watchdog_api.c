@@ -42,8 +42,12 @@
 #define NU_WDT_65536CLK                 65536
 #define NU_WDT_262144CLK                262144
 
-/* Watchdog reset delay */
-#define NU_WDT_RESET_DELAY_RSTDSEL      WDT_RESET_DELAY_3CLK
+/* Watchdog reset delay
+ *
+ * 1. Cannot be too small. This is to avoid premature WDT reset in pieces of timeout cascading.
+ * 2. Cannot be too large. This is to pass Greentea reset_reason/watchdog_reset tests, which have e.g. 50~100 reset delay tolerance.
+ */
+#define NU_WDT_RESET_DELAY_RSTDSEL      WDT_RESET_DELAY_130CLK
 
 /* Support watchdog timeout values beyond H/W
  *
