@@ -31,7 +31,8 @@
         "kv-global-api",
         "sd",
         "qspif",
-        "cryptocell310"
+        "cryptocell310",
+        "drivers-usb"
     ],
     "target_overrides": {
         "*": {
