@@ -158,7 +158,6 @@ public:
 private:
     BlockDevice *_bd;
     uint32_t *_erase_array;
-    bool *_programmable_array;
     uint32_t _erase_cycles;
     uint32_t _init_ref_count;
     bool _is_initialized;

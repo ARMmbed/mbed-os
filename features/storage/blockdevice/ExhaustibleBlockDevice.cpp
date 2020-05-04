@@ -21,31 +21,13 @@
 namespace mbed {
 
 ExhaustibleBlockDevice::ExhaustibleBlockDevice(BlockDevice *bd, uint32_t erase_cycles)
-    : _bd(bd), _erase_array(NULL), _programmable_array(NULL), _erase_cycles(erase_cycles),
-      _init_ref_count(0), _is_initialized(false)
+    : _bd(bd), _erase_array(NULL), _erase_cycles(erase_cycles), _init_ref_count(0), _is_initialized(false)
 {
 }
 
 ExhaustibleBlockDevice::~ExhaustibleBlockDevice()
 {
     delete[] _erase_array;
-    delete[] _programmable_array;
-}
-
-uint32_t ExhaustibleBlockDevice::get_erase_cycles(bd_addr_t addr) const
-{
-    if (!_is_initialized) {
-        return 0;
-    }
-    return _erase_array[addr / get_erase_size()];
-}
-
-void ExhaustibleBlockDevice::set_erase_cycles(bd_addr_t addr, uint32_t cycles)
-{
-    if (!_is_initialized) {
-        return;
-    }
-    _erase_array[addr / get_erase_size()] = cycles;
 }
 
 int ExhaustibleBlockDevice::init()
@@ -67,13 +49,6 @@ int ExhaustibleBlockDevice::init()
         _erase_array = new uint32_t[_bd->size() / _bd->get_erase_size()];
         for (size_t i = 0; i < _bd->size() / _bd->get_erase_size(); i++) {
             _erase_array[i] = _erase_cycles;
-        }
-    }
-
-    if (!_programmable_array) {
-        _programmable_array = new bool[_bd->size() / _bd->get_erase_size()];
-        for (size_t i = 0; i < _bd->size() / _bd->get_erase_size(); i++) {
-            _programmable_array[i] = true;
         }
     }
 
@@ -133,20 +108,10 @@ int ExhaustibleBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_
     }
 
     if (_erase_array[addr / get_erase_size()] == 0) {
-        return BD_ERROR_DEVICE_ERROR;
+        return 0;
     }
 
-    if (!_programmable_array[addr / get_erase_size()]) {
-        return BD_ERROR_DEVICE_ERROR;
-    }
-
-    int ret = _bd->program(buffer, addr, size);
-
-    if (ret == BD_ERROR_OK) {
-        _programmable_array[addr / get_erase_size()] = false;
-    }
-
-    return ret;
+    return _bd->program(buffer, addr, size);
 }
 
 int ExhaustibleBlockDevice::erase(bd_addr_t addr, bd_size_t size)
@@ -164,13 +129,13 @@ int ExhaustibleBlockDevice::erase(bd_addr_t addr, bd_size_t size)
         // use an erase cycle
         if (_erase_array[addr / eu_size] > 0) {
             _erase_array[addr / eu_size] -= 1;
+        }
+
+        if (_erase_array[addr / eu_size] > 0) {
             int  err = _bd->erase(addr, eu_size);
             if (err) {
                 return err;
             }
-            _programmable_array[addr / get_erase_size()] = true;
-        } else {
-            return BD_ERROR_DEVICE_ERROR;
         }
 
         addr += eu_size;
