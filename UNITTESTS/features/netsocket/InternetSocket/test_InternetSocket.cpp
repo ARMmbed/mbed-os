@@ -191,7 +191,7 @@ TEST_F(TestInternetSocket, network_property)
     uint32_t rtt_estimate;
     uint16_t stagger_min, stagger_max, stagger_rand;
     stack.return_value = NSAPI_ERROR_OK;
-    socket->open(&stack);
+    socket->open((NetworkStack *)&stack);
     EXPECT_EQ(socket->get_rtt_estimate_to_address(a, &rtt_estimate), NSAPI_ERROR_UNSUPPORTED);
     EXPECT_EQ(socket->get_rtt_estimate_to_address(a, NULL), NSAPI_ERROR_PARAMETER);
     EXPECT_EQ(socket->get_stagger_estimate_to_address(a, 1, &stagger_min, &stagger_max, &stagger_rand), NSAPI_ERROR_UNSUPPORTED);
