@@ -19,10 +19,6 @@
 #error [NOT_SUPPORTED] usb device tests not enabled
 #else
 
-#if !defined(MBED_CONF_RTOS_PRESENT)
-#error [NOT_SUPPORTED] USB stack and test cases require RTOS to run.
-#else
-
 #if !defined(DEVICE_USBDEVICE) || !DEVICE_USBDEVICE
 #error [NOT_SUPPORTED] USB Device not supported for this target
 #else
@@ -78,11 +74,11 @@
 // The solution is to wait for the first DTR spike, ignore it, and wait for
 // the correct DTR signal again.
 #define LINUX_HOST_DTR_FIX 1
-#define LINUX_HOST_DTR_FIX_DELAY_MS 1
+#define LINUX_HOST_DTR_FIX_DELAY_MS 1ms
 
 #define CDC_LOOPBACK_REPS 1200
 #define SERIAL_LOOPBACK_REPS 100
-#define USB_RECONNECT_DELAY_MS 1
+#define USB_RECONNECT_DELAY_MS 1ms
 
 #define LINE_CODING_SEP (',')
 #define LINE_CODING_DELIM (';')
@@ -153,8 +149,11 @@ line_coding_t test_codings[] = {
     { 9600, 8, 0, 0 },
     { 57600, 8, 0, 0 },
 };
-
+#if defined(MBED_CONF_RTOS_PRESENT)
 Mail<line_coding_t, 8> lc_mail;
+#else
+static CircularBuffer<line_coding_t, 8> lc_data;
+#endif
 
 #define EF_SEND (1ul << 0)
 EventFlags event_flags;
@@ -297,7 +296,7 @@ void test_cdc_usb_reconnect()
     usb_cdc.connect();
     // Wait for the USB enumeration to complete.
     while (!usb_cdc.configured()) {
-        ThisThread::sleep_for(1);
+        ThisThread::sleep_for(1ms);
     }
     TEST_ASSERT_TRUE(usb_cdc.configured());
     TEST_ASSERT_FALSE(usb_cdc.ready());
@@ -322,7 +321,7 @@ void test_cdc_usb_reconnect()
     usb_cdc.connect();
     // Wait for the USB enumeration to complete.
     while (!usb_cdc.configured()) {
-        ThisThread::sleep_for(1);
+        ThisThread::sleep_for(1ms);
     }
     TEST_ASSERT_TRUE(usb_cdc.configured());
     TEST_ASSERT_FALSE(usb_cdc.ready());
@@ -370,7 +369,7 @@ void test_cdc_rx_single_bytes()
     }
     // Wait for the host to close its port.
     while (usb_cdc.ready()) {
-        ThisThread::sleep_for(1);
+        ThisThread::sleep_for(1ms);
     }
     usb_cdc.disconnect();
 }
@@ -381,12 +380,23 @@ void tx_thread_fun(USBCDC *usb_cdc)
     uint8_t buff[TX_BUFF_SIZE] = { 0 };
     while (event_flags.get() & EF_SEND) {
         if (!usb_cdc->send(buff, TX_BUFF_SIZE)) {
-            ThisThread::sleep_for(1);
+            ThisThread::sleep_for(1ms);
             continue;
         }
         buff_val++;
         memset(buff, buff_val, TX_BUFF_SIZE);
     }
+}
+
+void tx_ticker_fun(USBCDC *usb_cdc, uint8_t start_val)
+{
+    static uint8_t buff_val = start_val;
+    uint8_t buff[TX_BUFF_SIZE] = { 0 };
+    memset(buff, buff_val, TX_BUFF_SIZE);
+    while (usb_cdc->send(buff, TX_BUFF_SIZE)) {
+        break;
+    }
+    buff_val++;
 }
 
 /** Test CDC receive single bytes concurrently
@@ -406,9 +416,15 @@ void test_cdc_rx_single_bytes_concurrent()
     ThisThread::sleep_for(LINUX_HOST_DTR_FIX_DELAY_MS);
 #endif
     usb_cdc.wait_ready();
+#if defined(MBED_CONF_RTOS_PRESENT)
     Thread tx_thread;
     event_flags.set(EF_SEND);
     tx_thread.start(mbed::callback(tx_thread_fun, &usb_cdc));
+#else
+    Ticker t;
+    t.attach([&] { tx_ticker_fun(&usb_cdc, 0); }, 3ms);
+#endif
+
     uint8_t buff = 0x01;
     for (int expected = 0xff; expected >= 0; expected--) {
         TEST_ASSERT(usb_cdc.receive(&buff, 1, NULL));
@@ -419,10 +435,12 @@ void test_cdc_rx_single_bytes_concurrent()
         TEST_ASSERT_EQUAL_UINT8(expected, buff);
     }
     event_flags.clear(EF_SEND);
+#if defined(MBED_CONF_RTOS_PRESENT)
     tx_thread.join();
+#endif
     // Wait for the host to close its port.
     while (usb_cdc.ready()) {
-        ThisThread::sleep_for(1);
+        ThisThread::sleep_for(1ms);
     }
     usb_cdc.disconnect();
 }
@@ -461,7 +479,7 @@ void test_cdc_rx_multiple_bytes()
     }
     // Wait for the host to close its port.
     while (usb_cdc.ready()) {
-        ThisThread::sleep_for(1);
+        ThisThread::sleep_for(1ms);
     }
     usb_cdc.disconnect();
 }
@@ -483,9 +501,14 @@ void test_cdc_rx_multiple_bytes_concurrent()
     ThisThread::sleep_for(LINUX_HOST_DTR_FIX_DELAY_MS);
 #endif
     usb_cdc.wait_ready();
+#if defined(MBED_CONF_RTOS_PRESENT)
     Thread tx_thread;
     event_flags.set(EF_SEND);
     tx_thread.start(mbed::callback(tx_thread_fun, &usb_cdc));
+#else
+    Ticker t;
+    t.attach([&] { tx_ticker_fun(&usb_cdc, 0); }, 3ms);
+#endif
     uint8_t buff[RX_BUFF_SIZE] = { 0 };
     uint8_t expected_buff[RX_BUFF_SIZE] = { 0 };
     for (int expected = 0xff; expected >= 0; expected--) {
@@ -502,11 +525,15 @@ void test_cdc_rx_multiple_bytes_concurrent()
             TEST_ASSERT_EQUAL_UINT8_ARRAY(expected_buff, buff, RX_BUFF_SIZE);
         }
     }
+#if defined(MBED_CONF_RTOS_PRESENT)
     event_flags.clear(EF_SEND);
     tx_thread.join();
+#else
+    t.detach();
+#endif
     // Wait for the host to close its port.
     while (usb_cdc.ready()) {
-        ThisThread::sleep_for(1);
+        ThisThread::sleep_for(1ms);
     }
     usb_cdc.disconnect();
 }
@@ -538,7 +565,7 @@ void test_cdc_loopback()
     }
     // Wait for the host to close its port.
     while (usb_cdc.ready()) {
-        ThisThread::sleep_for(1);
+        ThisThread::sleep_for(1ms);
     }
     usb_cdc.disconnect();
 }
@@ -560,7 +587,7 @@ void test_serial_usb_reconnect()
     usb_serial.connect();
     // Wait for the USB enumeration to complete.
     while (!usb_serial.configured()) {
-        ThisThread::sleep_for(1);
+        ThisThread::sleep_for(1ms);
     }
     TEST_ASSERT_TRUE(usb_serial.configured());
     TEST_ASSERT_FALSE(usb_serial.connected());
@@ -573,7 +600,7 @@ void test_serial_usb_reconnect()
     ThisThread::sleep_for(LINUX_HOST_DTR_FIX_DELAY_MS);
 #endif
     while (!usb_serial.connected()) {
-        ThisThread::sleep_for(1);
+        ThisThread::sleep_for(1ms);
     }
     TEST_ASSERT_TRUE(usb_serial.configured());
     TEST_ASSERT_TRUE(usb_serial.connected());
@@ -590,7 +617,7 @@ void test_serial_usb_reconnect()
     usb_serial.connect();
     // Wait for the USB enumeration to complete.
     while (!usb_serial.configured()) {
-        ThisThread::sleep_for(1);
+        ThisThread::sleep_for(1ms);
     }
     TEST_ASSERT_TRUE(usb_serial.configured());
     TEST_ASSERT_FALSE(usb_serial.connected());
@@ -603,7 +630,7 @@ void test_serial_usb_reconnect()
     ThisThread::sleep_for(LINUX_HOST_DTR_FIX_DELAY_MS);
 #endif
     while (!usb_serial.connected()) {
-        ThisThread::sleep_for(1);
+        ThisThread::sleep_for(1ms);
     }
     TEST_ASSERT_TRUE(usb_serial.configured());
     TEST_ASSERT_TRUE(usb_serial.connected());
@@ -633,7 +660,7 @@ void test_serial_term_reopen()
     ThisThread::sleep_for(LINUX_HOST_DTR_FIX_DELAY_MS);
 #endif
     while (!usb_serial.connected()) {
-        ThisThread::sleep_for(1);
+        ThisThread::sleep_for(1ms);
     }
     TEST_ASSERT_TRUE(usb_serial.configured());
     TEST_ASSERT_TRUE(usb_serial.ready());
@@ -642,7 +669,7 @@ void test_serial_term_reopen()
 
     // Wait for the host to close the terminal.
     while (usb_serial.ready()) {
-        ThisThread::sleep_for(1);
+        ThisThread::sleep_for(1ms);
     }
     TEST_ASSERT_TRUE(usb_serial.configured());
     TEST_ASSERT_FALSE(usb_serial.ready());
@@ -656,7 +683,7 @@ void test_serial_term_reopen()
     ThisThread::sleep_for(LINUX_HOST_DTR_FIX_DELAY_MS);
 #endif
     while (!usb_serial.connected()) {
-        ThisThread::sleep_for(1);
+        ThisThread::sleep_for(1ms);
     }
     TEST_ASSERT_TRUE(usb_serial.configured());
     TEST_ASSERT_TRUE(usb_serial.ready());
@@ -665,7 +692,7 @@ void test_serial_term_reopen()
 
     // Wait for the host to close the terminal again.
     while (usb_serial.ready()) {
-        ThisThread::sleep_for(1);
+        ThisThread::sleep_for(1ms);
     }
     TEST_ASSERT_TRUE(usb_serial.configured());
     TEST_ASSERT_FALSE(usb_serial.ready());
@@ -699,7 +726,7 @@ void test_serial_getc()
     }
     // Wait for the host to close its port.
     while (usb_serial.ready()) {
-        ThisThread::sleep_for(1);
+        ThisThread::sleep_for(1ms);
     }
     usb_serial.disconnect();
 }
@@ -736,19 +763,29 @@ void test_serial_printf_scanf()
     }
     // Wait for the host to close its port.
     while (usb_serial.ready()) {
-        ThisThread::sleep_for(1);
+        ThisThread::sleep_for(1ms);
     }
     usb_serial.disconnect();
 }
 
 void line_coding_changed_cb(int baud, int bits, int parity, int stop)
 {
+#if defined(MBED_CONF_RTOS_PRESENT)
     line_coding_t *lc = lc_mail.alloc();
     lc->baud = baud;
     lc->bits = bits;
     lc->parity = parity;
     lc->stop = stop;
     lc_mail.put(lc);
+#else
+    line_coding_t lc = {0};
+    lc.baud = baud;
+    lc.bits = bits;
+    lc.parity = parity;
+    lc.stop = stop;
+    lc_data.push(lc);
+    event_flags.set(EF_SEND);
+#endif
 }
 
 /** Test Serial / CDC line coding change
@@ -786,6 +823,7 @@ void test_serial_line_coding_change()
         // calls to line_coding_changed callback on the device.
         while (num_expected_callbacks > 0) {
             num_expected_callbacks--;
+#if defined(MBED_CONF_RTOS_PRESENT)
             osEvent event = lc_mail.get();
             TEST_ASSERT_EQUAL_UINT32(osEventMail, event.status);
             lc_actual = (line_coding_t *) event.value.p;
@@ -796,17 +834,28 @@ void test_serial_line_coding_change()
                 // set of params.
                 lc_mail.free(lc_actual);
             }
+#else
+            line_coding_t lc_receive = {0};
+            event_flags.wait_all(EF_SEND);
+            lc_data.pop(lc_receive);
+            if (lc_expected->get_num_diffs(lc_receive) == 0) {
+                break;
+            }
+            lc_actual = &lc_receive;
+#endif
         }
         TEST_ASSERT_EQUAL_INT(lc_expected->baud, lc_actual->baud);
         TEST_ASSERT_EQUAL_INT(lc_expected->bits, lc_actual->bits);
         TEST_ASSERT_EQUAL_INT(lc_expected->parity, lc_actual->parity);
         TEST_ASSERT_EQUAL_INT(lc_expected->stop, lc_actual->stop);
+#if defined(MBED_CONF_RTOS_PRESENT)
         lc_mail.free(lc_actual);
+#endif
         lc_prev = lc_expected;
     }
     // Wait for the host to close its port.
     while (usb_serial.ready()) {
-        ThisThread::sleep_for(1);
+        ThisThread::sleep_for(1ms);
     }
     usb_serial.disconnect();
 }
@@ -858,5 +907,4 @@ int main()
 }
 
 #endif // !defined(DEVICE_USBDEVICE) || !DEVICE_USBDEVICE
-#endif // !defined(MBED_CONF_RTOS_PRESENT)
 #endif // !defined(USB_DEVICE_TESTS)
