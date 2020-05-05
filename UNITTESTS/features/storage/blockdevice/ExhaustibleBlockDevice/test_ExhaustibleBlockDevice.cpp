@@ -78,8 +78,6 @@ TEST_F(ExhaustibleBlockModuleTest, init)
     EXPECT_EQ(b.get_read_size(), 0);
     EXPECT_EQ(b.get_program_size(), 0);
     EXPECT_EQ(b.size(), 0);
-    b.set_erase_cycles(0, 100); // This should not take effect.
-    EXPECT_EQ(b.get_erase_cycles(0), 0);
     EXPECT_EQ(b.erase(0, BLOCK_SIZE), BD_ERROR_DEVICE_ERROR);
     EXPECT_EQ(b.program(magic, 0, BLOCK_SIZE), BD_ERROR_DEVICE_ERROR);
     EXPECT_EQ(b.read(buf, 0, BLOCK_SIZE), BD_ERROR_DEVICE_ERROR);
@@ -95,7 +93,6 @@ TEST_F(ExhaustibleBlockModuleTest, init)
     EXPECT_EQ(b.get_erase_size(), bd_mock.get_erase_size());
     EXPECT_EQ(b.get_erase_size(0), bd_mock.get_erase_size(0));
     EXPECT_EQ(b.get_erase_value(), bd_mock.get_erase_value());
-    EXPECT_NE(b.get_erase_cycles(0), 100);
     EXPECT_EQ(b.get_program_size(), 512);
     EXPECT_EQ(b.get_read_size(), 512);
     EXPECT_EQ(b.size(), bd_mock.size());
@@ -110,8 +107,6 @@ TEST_F(ExhaustibleBlockModuleTest, program_unaligned)
 
 TEST_F(ExhaustibleBlockModuleTest, erase_cycle_limit_reached)
 {
-    EXPECT_NE(bd.get_erase_cycles(0), 0);
-
     EXPECT_CALL(bd_mock, program(_, 0, BLOCK_SIZE))
     .Times(1)
     .WillRepeatedly(Return(BD_ERROR_OK));
@@ -119,34 +114,22 @@ TEST_F(ExhaustibleBlockModuleTest, erase_cycle_limit_reached)
     EXPECT_EQ(bd.program(magic, 0, BLOCK_SIZE), 0);
 
     EXPECT_CALL(bd_mock, erase(0, BLOCK_SIZE))
-    .Times(ERASE_CYCLES)
+    .Times(ERASE_CYCLES - 1) // Will fall silently after erase cycles are worn out.
     .WillRepeatedly(Return(BD_ERROR_OK));
 
     for (int i = 0; i < ERASE_CYCLES; i++) {
         EXPECT_EQ(bd.erase(0, BLOCK_SIZE), 0);
     }
-    EXPECT_EQ(bd.get_erase_cycles(0), 0);
 
-    // This calls are expect not to happen.
-    EXPECT_EQ(bd.erase(0, BLOCK_SIZE), BD_ERROR_DEVICE_ERROR);
-    EXPECT_EQ(bd.program(magic2, 0, BLOCK_SIZE), BD_ERROR_DEVICE_ERROR);
+    // Erase silently fails, no error report.
+    EXPECT_EQ(bd.erase(0, BLOCK_SIZE), BD_ERROR_OK);
+    EXPECT_EQ(bd.program(magic2, 0, BLOCK_SIZE), BD_ERROR_OK);
 }
 
 TEST_F(ExhaustibleBlockModuleTest, erase_invalid)
 {
     ASSERT_GT(ERASE_CYCLES, 1);
 
-    EXPECT_EQ(bd.get_erase_cycles(0), ERASE_CYCLES);
-
     // Unaligned erase should fail
     EXPECT_EQ(bd.erase(0, BLOCK_SIZE-1), BD_ERROR_DEVICE_ERROR);
-    // Number of erase cycles should not change
-    EXPECT_EQ(bd.get_erase_cycles(0), ERASE_CYCLES);
-}
-
-TEST_F(ExhaustibleBlockModuleTest, set_erase_cycles)
-{
-    EXPECT_EQ(bd.get_erase_cycles(0), ERASE_CYCLES);
-    bd.set_erase_cycles(0, ERASE_CYCLES+1);
-    EXPECT_EQ(bd.get_erase_cycles(0), ERASE_CYCLES+1);
 }
