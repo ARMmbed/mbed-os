@@ -101,11 +101,15 @@ watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
     if (! wdt_hw_inited) {
         wdt_hw_inited = 1;
 
+        SYS_UnlockReg();
+
         /* Enable IP module clock */
         CLK_EnableModuleClock(WDT_MODULE);
 
         /* Select IP clock source */
         CLK_SetModuleClock(WDT_MODULE, 0, 0);
+
+        SYS_LockReg();
 
         /* Set up IP interrupt */
         NVIC_SetVector(WDT_IRQn, (uint32_t) WDT_IRQHandler);
