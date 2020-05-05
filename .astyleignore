@@ -20,6 +20,7 @@
 ^features/netsocket/ppp/source
 ^features/storage/filesystem/fat/ChaN
 ^features/storage/filesystem/littlefs/littlefs/
+^features/storage/filesystem/littlefsv2/littlefs/
 ^features/unsupported/
 ^hal/storage_abstraction
 ^platform/cxxsupport

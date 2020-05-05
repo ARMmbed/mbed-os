@@ -1,0 +1,40 @@
+language: python
+python: 2.7
+
+script:
+      # Check that example compiles
+    - sed -n '/``` c++/,/```/{/```/d; p;}' README.md > main.cpp
+    - PYTHONPATH=mbed-os python mbed-os/tools/make.py -t GCC_ARM -m K82F
+          --source=. --build=BUILD/K82F/GCC_ARM -j0      
+
+      # Check that tests compile
+    - rm -rf main.cpp BUILD
+    - PYTHONPATH=mbed-os python mbed-os/tools/test.py -t GCC_ARM -m K82F
+          --source=. --build=BUILD/TESTS/K82F/GCC_ARM -j0
+          -n 'tests*'
+
+      # Run littlefs functional tests
+    - make -Clittlefs test QUIET=1
+
+      # Run littlefs functional tests with different configurations
+      # Note: r/w size of 64 is default in mbed
+    - make -Clittlefs test QUIET=1 CFLAGS+="-DLFS2_READ_SIZE=64  -DLFS2_CACHE_SIZE=64"
+    - make -Clittlefs test QUIET=1 CFLAGS+="-DLFS2_READ_SIZE=1   -DLFS2_CACHE_SIZE=1"
+    - make -Clittlefs test QUIET=1 CFLAGS+="-DLFS2_READ_SIZE=512 -DLFS2_CACHE_SIZE=512 -DLFS2_BLOCK_CYCLES=16"
+    - make -Clittlefs test QUIET=1 CFLAGS+="-DLFS2_READ_SIZE=8   -DLFS2_CACHE_SIZE=16  -DLFS2_BLOCK_CYCLES=2"
+    - make -Clittlefs test QUIET=1 CFLAGS+="-DLFS2_BLOCK_COUNT=1023 -DLFS2_LOOKAHEAD_SIZE=256"
+
+install:
+      # Get arm-none-eabi-gcc
+    - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
+    - sudo apt-get update -qq
+    - sudo apt-get install -qq gcc-arm-embedded
+      # Get dependencies
+    - git clone https://github.com/armmbed/mbed-os.git
+      # Install python dependencies
+    - pip install -r mbed-os/requirements.txt
+    - sudo apt-get install python3 python3-pip
+    - sudo pip3 install toml
+      # Check versions
+    - arm-none-eabi-gcc --version
+    - gcc --version
