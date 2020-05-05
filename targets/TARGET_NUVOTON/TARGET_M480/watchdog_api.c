@@ -24,7 +24,7 @@
 
 /* Define WDT clock source in target configuration option */
 #ifndef MBED_CONF_TARGET_WDT_CLKSRC_SEL
-#define MBED_CONF_TARGET_WDT_CLKSRC_SEL     LIRC
+#define MBED_CONF_TARGET_WDT_CLKSRC_SEL     LXT
 #endif
 
 /* WDT clock source definition */
