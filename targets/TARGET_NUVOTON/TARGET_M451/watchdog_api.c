@@ -99,6 +99,8 @@ watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
     if (! wdt_hw_inited) {
         wdt_hw_inited = 1;
 
+        SYS_UnlockReg();
+
         /* Enable IP module clock */
         CLK_EnableModuleClock(WDT_MODULE);
 
@@ -108,6 +110,8 @@ watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
 #elif NU_INTERN_WDT_CLKSRC_SEL == NU_INTERN_WDT_CLKSRC_LIRC
         CLK_SetModuleClock(WDT_MODULE, CLK_CLKSEL1_WDTSEL_LIRC, 0);
 #endif
+
+        SYS_LockReg();
 
         /* Set up IP interrupt */
         NVIC_SetVector(WDT_IRQn, (uint32_t) WDT_IRQHandler);
