@@ -3682,7 +3682,7 @@
         "device_name": "STM32L452RETx",
         "bootloader_supported": true
     },
-    "MTB_ADV_WISE_1510": {
+    "ADV_WISE_1510": {
         "inherits": [
             "FAMILY_STM32"
         ],
