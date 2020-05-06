@@ -165,9 +165,6 @@
         "LPC1768": {
             "mem-size": 16362
         },
-        "UBLOX_C027": {
-            "mem-size": 16362
-        },
         "ARCH_PRO": {
             "mem-size": 16362
         },

@@ -135,7 +135,7 @@
             "lora-tcxo":            "NC"
         },
 
-        "MTB_ADV_WISE_1510": {
+        "ADV_WISE_1510": {
             "lora-radio":           "SX1276",
             "lora-spi-mosi":        "SPI_RF_MOSI",
             "lora-spi-miso":        "SPI_RF_MISO",

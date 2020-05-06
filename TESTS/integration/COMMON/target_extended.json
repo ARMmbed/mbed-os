@@ -163,15 +163,6 @@
         "RZ_A1H": {
             "target.macros_add"                         : ["MBEDTLS_TEST_NULL_ENTROPY", "MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES"]
         },
-        "UBLOX_C030_U201": {
-            "target.features_add"                       : ["STORAGE", "LWIP"],
-            "target.network-default-interface-type"     : "CELLULAR",
-            "lwip.ipv4-enabled"                         : true,
-            "lwip.ethernet-enabled"                     : false,
-            "lwip.ppp-enabled"                          : true,
-            "lwip.tcp-enabled"                          : true,
-            "mbed-trace.enable"                         : false
-        },
         "WIO_EMW3166": {
             "target.components_add"                     : ["SPIF"],
             "spif-driver.SPI_MOSI"                      : "PB_15",
