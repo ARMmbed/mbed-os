@@ -41,7 +41,7 @@ TARGET_TESTS:=$(TARGET_PREFIX)TESTS
 # (NSPE). Documentation for each folder as follows:
 # COMPONENT_PSA_SRV_IMPL - Include secure service implementation code. For
 # example PSA Crypto or PSA Secure Time implementations
-TARGET_SRV_IMPL:=$(TARGET_PREFIX)/platform/COMPONENT_PSA_SRV_IMPL
+TARGET_SRV_IMPL:=$(TARGET_PREFIX)/TARGET_MBED_PSA_SRV/COMPONENT_PSA_SRV_IMPL
 # COMPONENT_NSPE - Include code that compiles ONLY to the NSPE image and never
 # compiles to the SPE image
 TARGET_NSPE:=$(TARGET_SRV_IMPL)/COMPONENT_NSPE
@@ -49,7 +49,7 @@ TARGET_NSPE:=$(TARGET_SRV_IMPL)/COMPONENT_NSPE
 # mbed TLS source directory - hidden from mbed via TARGET_IGNORE
 MBED_TLS_DIR:=TARGET_IGNORE/mbedtls
 MBED_TLS_API:=$(MBED_TLS_DIR)/include/mbedtls
-CRYPTO_API:=$(MBED_TLS_DIR)/include/psa
+CRYPTO_API:=$(MBED_TLS_DIR)/TARGET_MBED_PSA_SRV/include/psa
 MBED_TLS_GIT_CFG=$(MBED_TLS_DIR)/.git/config
 
 .PHONY: all deploy deploy-tests rsync mbedtls clean update
