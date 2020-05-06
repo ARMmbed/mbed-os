@@ -5586,45 +5586,6 @@
             "MPU"
         ]
     },
-    "ARM_IOTSS_BEID": {
-        "inherits": [
-            "ARM_IOTSS_Target"
-        ],
-        "core": "Cortex-M3",
-        "supported_toolchains": [
-            "ARM"
-        ],
-        "extra_labels": [
-            "ARM_SSG",
-            "IOTSS",
-            "IOTSS_BEID"
-        ],
-        "macros": [
-            "CMSDK_BEID"
-        ],
-        "device_has": [
-            "AACI",
-            "ANALOGIN",
-            "CLCD",
-            "ETHERNET",
-            "I2C",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "SERIAL",
-            "SPI",
-            "SPISLAVE",
-            "TSC",
-            "MPU"
-        ],
-        "release_versions": [
-            "2"
-        ],
-        "detect_code": [
-            "5001"
-        ]
-    },
     "ARM_CM3DS_MPS2": {
         "inherits": [
             "ARM_IOTSS_Target"
