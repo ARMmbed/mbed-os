@@ -43,11 +43,6 @@
             "lwip.ppp-enabled": true,
             "lwip.ethernet-enabled": false,
             "cellular.debug-at": false
-        },
-        "UBLOX_C030_R412M": {
-            "platform.stdio-convert-newlines": true,
-            "platform.stdio-baud-rate": 115200,
-            "platform.default-serial-baud-rate": 115200
         }
     }
 }

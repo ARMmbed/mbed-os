@@ -197,10 +197,6 @@
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
-        "UBLOX_C030_U201": {
-            "crash-capture-enabled": true,
-            "fatal-error-auto-reboot-enabled": true
-        },
         "NUMAKER_PFM_M487": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true

@@ -30,7 +30,6 @@ class LPCXpresso(Exporter):
         'LPC1114',
         'LPC11U35_401',
         'LPC11U35_501',
-        'UBLOX_C027',
         'ARCH_PRO',
         'LPC11U68',
         'LPCCAPPUCCINO',

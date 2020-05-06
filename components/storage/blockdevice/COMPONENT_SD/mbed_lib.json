@@ -95,12 +95,6 @@
              "SPI_CLK":  "p15",
              "SPI_CS":   "p14"
         },
-        "UBLOX_C030": {
-             "SPI_MOSI": "D11",
-             "SPI_MISO": "D12",
-             "SPI_CLK":  "D13",
-             "SPI_CS":   "D10"
-        },
         "RZ_A1H": {
              "SPI_MOSI": "P8_5",
              "SPI_MISO": "P8_6",

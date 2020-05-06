@@ -31,7 +31,6 @@ class CoIDE(Exporter):
         'LPC1768',
         'ARCH_PRO',
         'ARCH_MAX',
-        'UBLOX_C027',
         'NUCLEO_L053R8',
         'NUCLEO_L152RE',
         'NUCLEO_F030R8',
