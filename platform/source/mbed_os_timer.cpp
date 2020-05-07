@@ -200,16 +200,18 @@ OsClock::time_point do_timed_sleep_absolute(OsClock::time_point wake_time, bool 
 #if MBED_CONF_RTOS_PRESENT
 /* The 32-bit limit is part of the API - we will always wake within 2^32 ticks */
 /* This version is tuned for RTOS use, where the RTOS needs to know the time spent sleeping */
-OsClock::duration_u32 do_timed_sleep_relative(OsClock::duration_u32 wake_delay, bool (*wake_predicate)(void *), void *wake_predicate_handle)
+/* Note that unlike do_timed_sleep_relative_or_forever it does not do a tick update on entry; */
+/* it assumes the caller has been using the ticker, and is passing a delay relative to the */
+/* time point of the ticks it has acknowledged. */
+OsClock::duration_u32 do_timed_sleep_relative_to_acknowledged_ticks(OsClock::duration_u32 wake_delay, bool (*wake_predicate)(void *), void *wake_predicate_handle)
 {
-    OsClock::time_point sleep_start = OsClock::now();
     // When running with RTOS, the requested delay will be based on the kernel's tick count.
-    // If it missed a tick as entering idle, we should reflect that by moving the
-    // start time back to reflect its current idea of time.
-    // Example: OS tick count = 100, our tick count = 101, requested delay = 50
+    // If it missed a tick as entering idle, we should reflect that by basing the start time
+    // on its current idea of time - OsClock::acknowledged_ticks().
+    // Example: OS acknowledged tick count = 100, our reported tick count = 101, requested delay = 50
     // We need to schedule wake for tick 150, report 50 ticks back to our caller, and
     // clear the unacknowledged tick count.
-    sleep_start -= os_timer->unacknowledged_ticks();
+    OsClock::time_point sleep_start = OsClock::acknowledged_ticks();
 
     OsClock::time_point sleep_finish = do_timed_sleep_absolute(sleep_start + wake_delay, wake_predicate, wake_predicate_handle);
 
@@ -226,7 +228,8 @@ void do_untimed_sleep(bool (*wake_predicate)(void *), void *wake_predicate_handl
 }
 
 /* max() delay is treated as "wait forever" */
-/* This version is tuned for non-RTOS use, where we don't need to return sleep time, and waiting forever is possible */
+/* This version is tuned for non-RTOS use, where we must update the tick count, */
+/* don't need to return sleep time, and waiting forever is possible */
 void do_timed_sleep_relative_or_forever(OsClock::duration_u32 wake_delay, bool (*wake_predicate)(void *), void *wake_predicate_handle)
 {
     // Special-case 0 delay, to save multiple callers having to do it. Just call the predicate once.
