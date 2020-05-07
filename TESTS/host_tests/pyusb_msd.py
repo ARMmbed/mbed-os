@@ -185,11 +185,10 @@ class MSDUtils(object):
         return False
 
     @staticmethod
-    def _disk_path_windows(serial):
-        serial_decoded = serial.encode("ascii")
+    def _disk_path_windows(serial):        
         c = wmi.WMI()
         for physical_disk in c.Win32_DiskDrive():
-            if serial_decoded == physical_disk.SerialNumber:
+            if serial == physical_disk.SerialNumber:
                 for partition in physical_disk.associators("Win32_DiskDriveToDiskPartition"):
                     for logical_disk in partition.associators("Win32_LogicalDiskToPartition"):
                         return logical_disk.Caption
