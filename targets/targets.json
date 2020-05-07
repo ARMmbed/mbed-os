@@ -13,7 +13,9 @@
         "is_disk_virtual": false,
         "macros": [],
         "device_has": [],
-        "features": [],
+        "features": [
+            "MBED_COAP"
+        ],
         "detect_code": [],
         "public": false,
         "c_lib": "std",
