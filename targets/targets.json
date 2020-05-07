@@ -1216,7 +1216,7 @@
         ],
         "device_name": "MK82FN256xxx15"
     },
-    "FAMILY_STM32": {
+    "MCU_STM32": {
         "inherits": [
             "Target"
         ],
@@ -1524,7 +1524,7 @@
     },
     "NUCLEO_F030R8": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -1563,7 +1563,7 @@
     },
     "NUCLEO_F031K6": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M0",
         "default_toolchain": "uARM",
@@ -1602,7 +1602,7 @@
     },
     "NUCLEO_F042K6": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M0",
         "default_toolchain": "uARM",
@@ -1642,7 +1642,7 @@
     },
     "NUCLEO_F070RB": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -1680,7 +1680,7 @@
     },
     "NUCLEO_F072RB": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -1720,7 +1720,7 @@
     },
     "NUCLEO_F091RC": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -1760,7 +1760,7 @@
     },
     "NUCLEO_F103RB": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -1797,7 +1797,7 @@
     },
     "NUCLEO_F207ZG": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "components_add": [
             "FLASHIAP"
@@ -1851,7 +1851,7 @@
     },
     "NUCLEO_F302R8": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -1887,7 +1887,7 @@
     },
     "NUCLEO_F303K8": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -1924,7 +1924,7 @@
     },
     "NUCLEO_F303RE": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -1962,7 +1962,7 @@
     },
     "NUCLEO_F303ZE": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -1999,7 +1999,7 @@
     },
     "NUCLEO_F334R8": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -2035,7 +2035,7 @@
     },
     "NUCLEO_F401RE": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -2068,7 +2068,7 @@
     },
     "STEVAL_3DP001V1": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -2105,7 +2105,7 @@
     },
     "NUCLEO_F410RB": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -2151,7 +2151,7 @@
     },
     "NUCLEO_F411RE": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -2188,7 +2188,7 @@
     },
     "NUCLEO_F412ZG": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -2229,7 +2229,7 @@
     },
     "WIO_EMW3166": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_toolchains": [
             "ARM",
@@ -2278,7 +2278,7 @@
             "FLASHIAP"
         ],
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO"
@@ -2328,7 +2328,7 @@
     },
     "NUCLEO_F413ZH": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO"
@@ -2376,7 +2376,7 @@
     },
     "NUCLEO_F429ZI": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO"
@@ -2434,7 +2434,7 @@
     },
     "MTB_STM_S2LP": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M4F",
         "config": {
@@ -2481,7 +2481,7 @@
     },
     "NUCLEO_F439ZI": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO"
@@ -2531,7 +2531,7 @@
     },
     "NUCLEO_F446RE": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -2571,7 +2571,7 @@
     },
     "NUCLEO_F446ZE": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -2615,7 +2615,7 @@
     },
     "B96B_F446VE": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -2647,7 +2647,7 @@
     },
     "NUCLEO_F746ZG": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M7F",
         "extra_labels_add": [
@@ -2706,7 +2706,7 @@
     },
     "NUCLEO_F756ZG": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M7F",
         "extra_labels_add": [
@@ -2765,7 +2765,7 @@
     },
     "NUCLEO_F767ZI": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "components_add": [
             "FLASHIAP"
@@ -2831,7 +2831,7 @@
     },
     "NUCLEO_H743ZI": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M7FD",
         "extra_labels_add": [
@@ -2899,7 +2899,7 @@
     },
     "NUCLEO_H743ZI2": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M7FD",
         "mbed_rom_start": "0x08000000",
@@ -2967,7 +2967,7 @@
     },
     "DISCO_H747I": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M7FD",
         "components_add": [
@@ -3030,7 +3030,7 @@
     },
     "DISCO_H747I_CM4": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -3090,7 +3090,7 @@
     },
     "MCU_STM32H745I": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "extra_labels_add": [
             "STM32H7",
@@ -3176,7 +3176,7 @@
     },
     "UHURU_RAVEN": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M7FD",
         "extra_labels_add": [
@@ -3229,7 +3229,7 @@
     },
     "NUCLEO_L011K4": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M0+",
         "extra_labels_add": [
@@ -3275,7 +3275,7 @@
     },
     "NUCLEO_L031K6": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M0+",
         "extra_labels_add": [
@@ -3315,7 +3315,7 @@
     },
     "NUCLEO_L053R8": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -3362,7 +3362,7 @@
     },
     "NUCLEO_L073RZ": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -3412,7 +3412,7 @@
     },
     "NUCLEO_L152RE": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -3447,7 +3447,7 @@
     },
     "NUCLEO_L432KC": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -3495,7 +3495,7 @@
     },
     "NUCLEO_L433RC_P": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -3547,7 +3547,7 @@
     },
     "NUCLEO_L452RE_P": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -3598,7 +3598,7 @@
     },
     "ADV_WISE_1510": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -3644,7 +3644,7 @@
     },
     "NUCLEO_L476RG": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -3697,7 +3697,7 @@
     },
     "NUCLEO_L486RG": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -3753,7 +3753,7 @@
             "FLASHIAP"
         ],
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -3801,7 +3801,7 @@
     },
     "ARCH_MAX": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO"
@@ -3853,7 +3853,7 @@
     },
     "WIO_3G": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M4F",
         "config": {
@@ -3898,7 +3898,7 @@
     },
     "WIO_BG96": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M4F",
         "config": {
@@ -3946,7 +3946,7 @@
     },
     "DISCO_F051R8": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M0",
         "extra_labels_add": [
@@ -3979,7 +3979,7 @@
     },
     "DISCO_F100RB": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M3",
         "extra_labels_add": [
@@ -3997,7 +3997,7 @@
     },
     "DISCO_F303VC": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -4042,7 +4042,7 @@
     },
     "DISCO_F334C8": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -4079,7 +4079,7 @@
     },
     "DISCO_F407VG": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -4123,7 +4123,7 @@
     },
     "DISCO_F429ZI": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -4173,7 +4173,7 @@
             "QSPIF"
         ],
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO"
@@ -4215,7 +4215,7 @@
     },
     "SDP_K1": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M4F",
         "supported_form_factors": [
@@ -4260,7 +4260,7 @@
     },
     "DISCO_L053C8": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M0+",
         "extra_labels_add": [
@@ -4304,7 +4304,7 @@
     },
     "DISCO_L072CZ_LRWAN1": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M0+",
         "extra_labels_add": [
@@ -4354,7 +4354,7 @@
     },
     "DISCO_F746NG": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M7F",
         "extra_labels_add": [
@@ -4418,7 +4418,7 @@
     },
     "DISCO_F769NI": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M7FD",
         "extra_labels_add": [
@@ -4486,7 +4486,7 @@
             "FLASHIAP"
         ],
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -4544,7 +4544,7 @@
             "FLASHIAP"
         ],
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -4599,7 +4599,7 @@
             "FLASHIAP"
         ],
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -4650,7 +4650,7 @@
     },
     "MTS_MDOT_F411RE": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -4679,7 +4679,7 @@
     },
     "MTS_DRAGONFLY_F411RE": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -4724,7 +4724,7 @@
     },
     "MTS_DRAGONFLY_F413RH": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -4787,7 +4787,7 @@
     },
     "MTS_DRAGONFLY_L471QG": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO"
@@ -4831,7 +4831,7 @@
     },
     "XDOT_L151CC": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M3",
         "default_toolchain": "ARM",
@@ -4877,7 +4877,7 @@
     },
     "MOTE_L152RC": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO"
@@ -4913,7 +4913,7 @@
     },
     "DISCO_F401VC": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M4F",
         "default_toolchain": "GCC_ARM",
@@ -7237,7 +7237,7 @@
     },
     "DISCO_L496AG": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -7297,7 +7297,7 @@
     },
     "NUCLEO_L496ZG": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -7358,7 +7358,7 @@
     },
     "NUCLEO_L4R5ZI": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -7422,7 +7422,7 @@
     },
     "DISCO_L4R9I": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -7480,7 +7480,7 @@
     },
     "NUCLEO_WB55RG": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -7529,7 +7529,7 @@
     },
     "NUCLEO_L552ZE_Q": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "core": "Cortex-M33FE",
         "extra_labels_add": [
@@ -7583,7 +7583,7 @@
         ]
     },
     "DISCO_L562QE": {
-        "inherits": ["FAMILY_STM32"],
+        "inherits": ["MCU_STM32"],
         "core": "Cortex-M33FE",
         "extra_labels_add": [
             "CORDIO",
@@ -9062,7 +9062,7 @@
     },
     "NUCLEO_G071RB": {
         "inherits": [
-            "FAMILY_STM32"
+            "MCU_STM32"
         ],
         "supported_form_factors": [
             "ARDUINO",
