@@ -52,6 +52,9 @@ Case cases[] = {
     Case("Zero delay (attach)", test_no_wait<AttachTester<LowPowerTimeout> >),
     Case("Zero delay (attach_us)", test_no_wait<AttachUSTester<LowPowerTimeout> >),
 
+    Case("Reschedule in callback (attach)",  test_reschedule<AttachTester<LowPowerTimeout> >),
+    Case("Reschedule in callback (attach_us)", test_reschedule<AttachUSTester<LowPowerTimeout> >),
+
     Case("10 ms delay accuracy (attach)", test_delay_accuracy<AttachTester<LowPowerTimeout>, 10000, SHORT_DELTA_US>,
          greentea_failure_handler),
     Case("10 ms delay accuracy (attach_us)", test_delay_accuracy<AttachUSTester<LowPowerTimeout>, 10000, SHORT_DELTA_US>,

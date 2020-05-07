@@ -363,6 +363,27 @@ private:
     TimeoutTesterType _timeout;
 };
 
+/** Template for tests: rescheduling
+ *
+ * Given a Timeout object
+ * When a callback is attached with that reattaches itself, with @a attach()
+ * Then the callback is called repeatedly
+ *
+ * Given a Timeout object
+ * When a callback is attached with that reattaches itself, with @a attach_us()
+ * Then the callback is called repeatedly
+ */
+template<typename T>
+void test_reschedule(void)
+{
+    volatile uint32_t callback_count = 0;
+    TimeoutDriftTester<T> timeout;
+
+    timeout.reschedule_callback();
+    ThisThread::sleep_for(TEST_DELAY_MS * 5);
+    TEST_ASSERT(timeout.get_callback_count() >= 3);
+}
+
 /** Template for tests: accuracy of timeout delay scheduled repeatedly
  *
  * Test time drift -- device part

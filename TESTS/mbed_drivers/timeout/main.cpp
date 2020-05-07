@@ -48,6 +48,9 @@ Case cases[] = {
     Case("Zero delay (attach)", test_no_wait<AttachTester<Timeout> >),
     Case("Zero delay (attach_us)", test_no_wait<AttachUSTester<Timeout> >),
 
+    Case("Reschedule in callback (attach)",  test_reschedule<AttachTester<Timeout> >),
+    Case("Reschedule in callback (attach_us)", test_reschedule<AttachUSTester<Timeout> >),
+
     Case("10 ms delay accuracy (attach)", test_delay_accuracy<AttachTester<Timeout>, 10000, SHORT_DELTA_US>,
          greentea_failure_handler),
     Case("10 ms delay accuracy (attach_us)", test_delay_accuracy<AttachUSTester<Timeout>, 10000, SHORT_DELTA_US>,
