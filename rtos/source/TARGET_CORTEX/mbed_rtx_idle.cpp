@@ -139,7 +139,7 @@ extern "C" {
         rtos::Kernel::Clock::duration_u32 ticks_to_sleep{osKernelSuspend()};
         // osKernelSuspend will call OS_Tick_Disable, cancelling the tick, which frees
         // up the os timer for the timed sleep
-        rtos::Kernel::Clock::duration_u32 ticks_slept = mbed::internal::do_timed_sleep_relative(ticks_to_sleep, rtos_event_pending);
+        rtos::Kernel::Clock::duration_u32 ticks_slept = mbed::internal::do_timed_sleep_relative_to_acknowledged_ticks(ticks_to_sleep, rtos_event_pending);
         MBED_ASSERT(ticks_slept < rtos::Kernel::wait_for_u32_max);
         osKernelResume(ticks_slept.count());
     }
