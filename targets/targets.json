@@ -9169,6 +9169,47 @@
             "3701"
         ]
     },
+    "FAMILY_Apollo3": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4F",
+        "features": ["BLE"],
+        "default_toolchain": "GCC_ARM",
+        "supported_toolchains": ["GCC_ARM"],
+        "public": false,
+        "extra_labels": ["Ambiq_Micro", "Apollo3", "CORDIO"],
+        "device_has": ["MPU", "USTICKER", "SERIAL", "INTERRUPTIN", "LPTICKER", "STDIO_MESSAGES"],
+        "macros": []
+    },
+    "AMA3B1KK": {
+        "public": false,
+        "inherits": ["FAMILY_Apollo3"],
+        "macros_add": ["AM_PACKAGE_BGA"]
+    },
+    "SparkFun_Artemis_Module": {
+        "public": false,
+        "inherits": ["AMA3B1KK"]
+    },
+    "SparkFun_Edge": {
+        "inherits": ["AMA3B1KK"]
+    },
+    "SparkFun_Edge2": {
+        "inherits": ["AMA3B1KK"]
+    },
+    "SparkFun_RedBoard_Artemis_ATP": {
+        "inherits": ["AMA3B1KK"]
+    },
+    "SparkFun_RedBoard_Artemis": {
+        "inherits": ["AMA3B1KK"]
+    },
+    "SparkFun_RedBoard_Artemis_Nano": {
+        "inherits": ["AMA3B1KK"]
+    },
+    "SparkFun_Artemis_Thing_Plus": {
+        "inherits": ["AMA3B1KK"]
+    },    
+    "SparkFun_ARTmbed": {
+        "inherits": ["AMA3B1KK"]
+    },
     "__build_tools_metadata__": {
         "version": "1",
         "public": false
