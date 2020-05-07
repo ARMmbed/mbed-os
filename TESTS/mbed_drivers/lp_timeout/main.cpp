@@ -37,54 +37,37 @@ utest::v1::status_t greentea_failure_handler(const Case *const source, const fai
 }
 
 Case cases[] = {
-    Case("Callback called once (attach)", test_single_call<AttachTester<LowPowerTimeout> >),
-    Case("Callback called once (attach_us)", test_single_call<AttachUSTester<LowPowerTimeout> >),
+    Case("Callback called once", test_single_call<LowPowerTimeout>),
 
-    Case("Callback not called when cancelled (attach)", test_cancel<AttachTester<LowPowerTimeout> >),
-    Case("Callback not called when cancelled (attach_us)", test_cancel<AttachUSTester<LowPowerTimeout> >),
+    Case("Callback not called when cancelled", test_cancel<LowPowerTimeout>),
 
-    Case("Callback override (attach)", test_override<AttachTester<LowPowerTimeout> >),
-    Case("Callback override (attach_us)", test_override<AttachUSTester<LowPowerTimeout> >),
+    Case("Callback override", test_override<LowPowerTimeout>),
 
-    Case("Multiple timeouts running in parallel (attach)", test_multiple<AttachTester<LowPowerTimeout> >),
-    Case("Multiple timeouts running in parallel (attach_us)", test_multiple<AttachUSTester<LowPowerTimeout> >),
+    Case("Multiple timeouts running in parallel", test_multiple<LowPowerTimeout>),
 
-    Case("Zero delay (attach)", test_no_wait<AttachTester<LowPowerTimeout> >),
-    Case("Zero delay (attach_us)", test_no_wait<AttachUSTester<LowPowerTimeout> >),
+    Case("Zero delay", test_no_wait<LowPowerTimeout>),
 
-    Case("Reschedule in callback (attach)",  test_reschedule<AttachTester<LowPowerTimeout> >),
-    Case("Reschedule in callback (attach_us)", test_reschedule<AttachUSTester<LowPowerTimeout> >),
+    Case("Reschedule in callback",  test_reschedule<LowPowerTimeout>),
 
-    Case("10 ms delay accuracy (attach)", test_delay_accuracy<AttachTester<LowPowerTimeout>, 10000, SHORT_DELTA_US>,
-         greentea_failure_handler),
-    Case("10 ms delay accuracy (attach_us)", test_delay_accuracy<AttachUSTester<LowPowerTimeout>, 10000, SHORT_DELTA_US>,
+    Case("10 ms delay accuracy", test_delay_accuracy<LowPowerTimeout, 10000, SHORT_DELTA_US>,
          greentea_failure_handler),
 
-    Case("1 s delay accuracy (attach)", test_delay_accuracy<AttachTester<LowPowerTimeout>, 1000000, LONG_DELTA_US>,
-         greentea_failure_handler),
-    Case("1 s delay accuracy (attach_us)", test_delay_accuracy<AttachUSTester<LowPowerTimeout>, 1000000, LONG_DELTA_US>,
+    Case("1 s delay accuracy (attach)", test_delay_accuracy<LowPowerTimeout, 1000000, LONG_DELTA_US>,
          greentea_failure_handler),
 
-    Case("5 s delay accuracy (attach)", test_delay_accuracy<AttachTester<LowPowerTimeout>, 5000000, LONG_DELTA_US>,
-         greentea_failure_handler),
-    Case("5 s delay accuracy (attach_us)", test_delay_accuracy<AttachUSTester<LowPowerTimeout>, 5000000, LONG_DELTA_US>,
+    Case("5 s delay accuracy (attach)", test_delay_accuracy<LowPowerTimeout, 5000000, LONG_DELTA_US>,
          greentea_failure_handler),
 
 #if DEVICE_SLEEP
-    Case("1 s delay during sleep (attach)", test_sleep<AttachTester<LowPowerTimeout>, 1000000, LONG_DELTA_US>,
-         greentea_failure_handler),
-    Case("1 s delay during sleep (attach_us)", test_sleep<AttachUSTester<LowPowerTimeout>, 1000000, LONG_DELTA_US>,
+    Case("1 s delay during sleep (attach)", test_sleep<LowPowerTimeout, 1000000, LONG_DELTA_US>,
          greentea_failure_handler),
 
-    Case("1 s delay during deepsleep (attach)", test_deepsleep<AttachTester<LowPowerTimeout>, 1000000, LONG_DELTA_US>,
-         greentea_failure_handler),
-    Case("1 s delay during deepsleep (attach_us)", test_deepsleep<AttachUSTester<LowPowerTimeout>, 1000000, LONG_DELTA_US>,
+    Case("1 s delay during deepsleep (attach)", test_deepsleep<LowPowerTimeout, 1000000, LONG_DELTA_US>,
          greentea_failure_handler),
 #endif
 
 #if !defined(SKIP_TIME_DRIFT_TESTS)
-    Case("Timing drift (attach)", test_drift<AttachTester<LowPowerTimeout> >),
-    Case("Timing drift (attach_us)", test_drift<AttachUSTester<LowPowerTimeout> >),
+    Case("Timing drift (attach)", test_drift<LowPowerTimeout>),
 #endif
 };
 
