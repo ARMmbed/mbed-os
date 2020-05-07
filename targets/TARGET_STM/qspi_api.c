@@ -712,10 +712,6 @@ qspi_status_t qspi_frequency(qspi_t *obj, int hz)
     int div = HAL_RCC_GetHCLKFreq() / hz;
     if (div > 255) {
         div = 255;
-    } else {
-        if ((HAL_RCC_GetHCLKFreq() % hz) == 0) {
-            div = div - 1;
-        }
     }
 
     obj->handle.Init.ClockPrescaler = div;
