@@ -27,11 +27,15 @@ namespace mbed {
 void TimeoutBase::handler()
 {
     if (_function) {
+        Callback<void()> function_to_call = _function;
+        // Clean up state to "detached" before calling callback; it may attach
+        // a new callback. Equivalent to detach(), but skips the remove();
+        // it's unnecessary because we're in the ticker's handler.
+        _function = nullptr;
         if (_lock_deepsleep) {
             sleep_manager_unlock_deep_sleep();
         }
-        _function();
-        _function = nullptr;
+        function_to_call();
     }
 }
 
