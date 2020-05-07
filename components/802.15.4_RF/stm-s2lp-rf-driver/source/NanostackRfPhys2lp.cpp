@@ -1303,18 +1303,18 @@ void NanostackRfPhys2lp::rf_unregister()
 }
 
 NanostackRfPhys2lp::NanostackRfPhys2lp(PinName spi_sdi, PinName spi_sdo, PinName spi_sclk, PinName spi_cs, PinName spi_sdn
-                                       ,PinName spi_gpio0, PinName spi_gpio1, PinName spi_gpio2, PinName spi_gpio3
+                                       , PinName spi_gpio0, PinName spi_gpio1, PinName spi_gpio2, PinName spi_gpio3
 #ifdef AT24MAC
-                                       ,PinName i2c_sda, PinName i2c_scl
+                                       , PinName i2c_sda, PinName i2c_scl
 #endif //AT24MAC
-                                       )
+                                      )
     :
 #ifdef AT24MAC
-                    _mac(i2c_sda, i2c_scl),
+    _mac(i2c_sda, i2c_scl),
 #endif //AT24MAC
-                    _mac_addr(), _rf(NULL), _mac_set(false),
-      _spi_sdi(spi_sdi), _spi_sdo(spi_sdo), _spi_sclk(spi_sclk), _spi_cs(spi_cs), _spi_sdn(spi_sdn),
-      _spi_gpio0(spi_gpio0), _spi_gpio1(spi_gpio1), _spi_gpio2(spi_gpio2), _spi_gpio3(spi_gpio3)
+    _mac_addr(), _rf(NULL), _mac_set(false),
+    _spi_sdi(spi_sdi), _spi_sdo(spi_sdo), _spi_sclk(spi_sclk), _spi_cs(spi_cs), _spi_sdn(spi_sdn),
+    _spi_gpio0(spi_gpio0), _spi_gpio1(spi_gpio1), _spi_gpio2(spi_gpio2), _spi_gpio3(spi_gpio3)
 {
     _rf = new RFPins(_spi_sdi, _spi_sdo, _spi_sclk, _spi_cs, _spi_sdn, _spi_gpio0, _spi_gpio1, _spi_gpio2, _spi_gpio3);
 #ifdef TEST_GPIOS_ENABLED
@@ -1423,12 +1423,12 @@ static bool rf_rx_filter(uint8_t *mac_header, uint8_t *mac_64bit_addr, uint8_t *
 #if MBED_CONF_S2LP_PROVIDE_DEFAULT
 NanostackRfPhy &NanostackRfPhy::get_default_instance()
 {
-    static NanostackRfPhys2lp rf_phy(S2LP_SPI_SDI, S2LP_SPI_SDO, S2LP_SPI_SCLK, S2LP_SPI_CS, S2LP_SPI_SDN
-                                     ,S2LP_SPI_GPIO0, S2LP_SPI_GPIO1, S2LP_SPI_GPIO2, S2LP_SPI_GPIO3
+    static NanostackRfPhys2lp rf_phy(MBED_CONF_S2LP_SPI_SDI, MBED_CONF_S2LP_SPI_SDO, MBED_CONF_S2LP_SPI_SCLK, MBED_CONF_S2LP_SPI_CS, MBED_CONF_S2LP_SPI_SDN
+                                     , MBED_CONF_S2LP_SPI_GPIO0, MBED_CONF_S2LP_SPI_GPIO1, MBED_CONF_S2LP_SPI_GPIO2, MBED_CONF_S2LP_SPI_GPIO3
 #ifdef AT24MAC
-                                     ,S2LP_I2C_SDA, S2LP_I2C_SCL
+                                     , MBED_CONF_S2LP_I2C_SDA, MBED_CONF_S2LP_I2C_SCL
 #endif //AT24MAC
-                                     );
+                                    );
     return rf_phy;
 }
 #endif // MBED_CONF_S2LP_PROVIDE_DEFAULT
