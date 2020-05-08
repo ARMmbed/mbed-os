@@ -23,7 +23,15 @@ void ThisThread::sleep_until(uint64_t millisec)
 {
 }
 
+void ThisThread::sleep_until(Kernel::Clock::time_point abs_time)
+{
+}
+
 void ThisThread::sleep_for(uint32_t millisec)
+{
+}
+
+void ThisThread::sleep_for(Kernel::Clock::duration_u32 rel_time)
 {
 }
 
