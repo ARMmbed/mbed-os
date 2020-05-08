@@ -38,6 +38,7 @@
 #include MBED_CONF_MBED_MESH_API_CERTIFICATE_HEADER
 #endif
 
+
 // For tracing we need to define flag, have include and define group
 //#define HAVE_DEBUG
 #define TRACE_GROUP  "WSND"
@@ -575,7 +576,7 @@ int8_t wisun_tasklet_network_init(int8_t device_id)
 {
     // TODO, read interface name from configuration
     mac_description_storage_size_t storage_sizes;
-    storage_sizes.device_decription_table_size = 32;
+    storage_sizes.device_decription_table_size = MBED_CONF_MBED_MESH_API_MAC_NEIGH_TABLE_SIZE;
     storage_sizes.key_description_table_size = 4;
     storage_sizes.key_lookup_size = 1;
     storage_sizes.key_usage_size = 3;
