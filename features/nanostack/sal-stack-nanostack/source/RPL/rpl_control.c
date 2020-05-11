@@ -1886,6 +1886,11 @@ static void rpl_domain_print(const rpl_domain_t *domain, route_print_fn_t *print
     }
 }
 
+uint16_t rpl_control_route_table_get(struct rpl_instance *instance, uint8_t *prefix, rpl_route_info_t *output_table, uint16_t output_table_len)
+{
+    return rpl_downward_route_table_get(instance, prefix, output_table, output_table_len);
+}
+
 void rpl_control_print(route_print_fn_t *print_fn)
 {
     unsigned t = protocol_core_monotonic_time % 10;

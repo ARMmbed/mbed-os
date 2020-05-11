@@ -28,6 +28,7 @@
 #include "eventOS_scheduler.h"
 #include "eventOS_event_timer.h"
 #include "ns_address.h"
+#include "Service_Libs/utils/ns_file.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "RPL/rpl_protocol.h"
 #include "RPL/rpl_control.h"
@@ -48,6 +49,7 @@
 #include "6LoWPAN/ws/ws_pae_timers.h"
 #include "6LoWPAN/ws/ws_pae_supp.h"
 #include "6LoWPAN/ws/ws_pae_lib.h"
+#include "6LoWPAN/ws/ws_pae_time.h"
 #include "6LoWPAN/ws/ws_pae_nvm_store.h"
 #include "6LoWPAN/ws/ws_pae_nvm_data.h"
 #include "6LoWPAN/MAC/mpx_api.h"
@@ -80,14 +82,6 @@
 #define INITIAL_KEY_TIMER_MAX                  30
 
 typedef struct {
-    char network_name[33];                                 /**< Network name for keys */
-    sec_prot_gtk_keys_t *gtks;                             /**< Link to GTKs */
-    uint16_t new_pan_id;                                   /**< new PAN ID indicated by bootstrap */
-    uint16_t key_pan_id;                                   /**< PAN ID for keys */
-    bool updated : 1;                                      /**< Network info has been updated */
-} sec_prot_keys_nw_info_t;
-
-typedef struct {
     ns_list_link_t link;                                   /**< Link */
     kmp_service_t *kmp_service;                            /**< KMP service */
     protocol_interface_info_entry_t *interface_ptr;        /**< Interface */
@@ -95,15 +89,15 @@ typedef struct {
     ws_pae_supp_nw_key_insert *nw_key_insert;              /**< Key insert callback */
     ws_pae_supp_nw_key_index_set *nw_key_index_set;        /**< Key index set callback */
     ws_pae_supp_gtk_hash_ptr_get *gtk_hash_ptr_get;        /**< Get pointer to GTK hash storage callback */
+    ws_pae_supp_nw_info_updated *nw_info_updated;          /**< Security keys network info updated callback */
     supp_entry_t entry;                                    /**< Supplicant data */
     kmp_addr_t target_addr;                                /**< EAPOL target (parent) address */
     uint16_t initial_key_timer;                            /**< Timer to trigger initial EAPOL-Key */
     uint16_t initial_key_retry_timer;                      /**< Timer to trigger initial EAPOL-Key 1st retry */
     trickle_t auth_trickle_timer;                          /**< Trickle timer for re-sending initial EAPOL-key or for GTK mismatch */
     trickle_params_t auth_trickle_params;                  /**< Trickle parameters for initial EAPOL-key or for GTK mismatch */
-    sec_prot_gtk_keys_t gtks;                              /**< GTKs */
     uint8_t new_br_eui_64[8];                              /**< Border router EUI-64 indicated by bootstrap */
-    sec_prot_keys_nw_info_t sec_keys_nw_info;              /**< Security keys network information */
+    sec_prot_keys_nw_info_t *sec_keys_nw_info;             /**< Security keys network information */
     sec_timer_cfg_t *sec_timer_cfg;                        /**< Timer configuration */
     sec_prot_cfg_t *sec_prot_cfg;                          /**< Protocol Configuration */
     uint8_t nw_keys_used_cnt;                              /**< How many times bootstrap has been tried with current keys */
@@ -151,7 +145,6 @@ static void ws_pae_supp_authenticate_response(pae_supp_t *pae_supp, auth_result_
 static int8_t ws_pae_supp_initial_key_send(pae_supp_t *pae_supp);
 static void ws_pae_supp_nvm_update(pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan_id);
-static int8_t ws_pae_supp_nvm_nw_info_write(pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_nvm_keys_write(pae_supp_t *pae_supp);
 static pae_supp_t *ws_pae_supp_get(protocol_interface_info_entry_t *interface_ptr);
 static int8_t ws_pae_supp_event_send(kmp_service_t *service, void *data);
@@ -186,7 +179,6 @@ static const eapol_pdu_recv_cb_data_t eapol_pdu_recv_cb_data = {
     .receive = kmp_eapol_pdu_if_receive
 };
 
-static const char *NW_INFO_FILE = NW_INFO_FILE_NAME;
 static const char *KEYS_FILE = KEYS_FILE_NAME;
 
 static int8_t tasklet_id = -1;
@@ -222,17 +214,17 @@ int8_t ws_pae_supp_authenticate(protocol_interface_info_entry_t *interface_ptr, 
     }
 
     // Delete GTKs
-    sec_prot_keys_gtks_init(pae_supp->sec_keys_nw_info.gtks);
+    sec_prot_keys_gtks_init(pae_supp->sec_keys_nw_info->gtks);
 
     /* PAN ID has changed, delete key data associated with border router
        i.e PMK, PTK, EA-IE data (border router EUI-64) */
-    if (pae_supp->sec_keys_nw_info.key_pan_id != 0xFFFF && pae_supp->sec_keys_nw_info.key_pan_id != dest_pan_id) {
+    if (pae_supp->sec_keys_nw_info->key_pan_id != 0xFFFF && pae_supp->sec_keys_nw_info->key_pan_id != dest_pan_id) {
         sec_prot_keys_pmk_delete(&pae_supp->entry.sec_keys);
         sec_prot_keys_ptk_delete(&pae_supp->entry.sec_keys);
         sec_prot_keys_ptk_eui_64_delete(&pae_supp->entry.sec_keys);
     }
 
-    pae_supp->sec_keys_nw_info.key_pan_id = dest_pan_id;
+    pae_supp->sec_keys_nw_info->key_pan_id = dest_pan_id;
 
     // Prepare to receive new border router address
     pae_supp->new_br_eui_64_fresh = false;
@@ -253,29 +245,6 @@ int8_t ws_pae_supp_authenticate(protocol_interface_info_entry_t *interface_ptr, 
     tr_debug("PAE active, timer %i", pae_supp->initial_key_timer);
 
     return 1;
-}
-
-int8_t ws_pae_supp_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name)
-{
-    pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
-    if (!pae_supp) {
-        return -1;
-    }
-
-    // PAN ID has been modified
-    if (pan_id != 0xffff && pan_id != pae_supp->sec_keys_nw_info.new_pan_id) {
-        pae_supp->sec_keys_nw_info.new_pan_id = pan_id;
-        pae_supp->sec_keys_nw_info.updated = true;
-    }
-
-    // Network name has been modified
-    if (network_name && strncmp(pae_supp->sec_keys_nw_info.network_name, network_name, 33) != 0) {
-        strncpy(pae_supp->sec_keys_nw_info.network_name, network_name, 32);
-        pae_supp->sec_keys_nw_info.updated = true;
-    }
-
-
-    return 0;
 }
 
 int8_t ws_pae_supp_border_router_addr_write(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64)
@@ -335,7 +304,7 @@ static int8_t ws_pae_supp_gtk_hash_mismatch_check(pae_supp_t *pae_supp)
     }
 
     // Check GTK hashes and initiate EAPOL procedure if mismatch is detected */
-    gtk_mismatch_e mismatch = sec_prot_keys_gtks_hash_update(&pae_supp->gtks, gtkhash);
+    gtk_mismatch_e mismatch = sec_prot_keys_gtks_hash_update(pae_supp->sec_keys_nw_info->gtks, gtkhash);
     if (mismatch != GTK_NO_MISMATCH) {
         return -1;
     }
@@ -352,7 +321,7 @@ int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_pt
     }
 
     // Check GTK hashes and initiate EAPOL procedure if mismatch is detected */
-    gtk_mismatch_e mismatch = sec_prot_keys_gtks_hash_update(&pae_supp->gtks, gtkhash);
+    gtk_mismatch_e mismatch = sec_prot_keys_gtks_hash_update(pae_supp->sec_keys_nw_info->gtks, gtkhash);
     if (mismatch > GTK_NO_MISMATCH) {
         tr_info("GTK hash update %s %s %s %s",
                 trace_array(&gtkhash[0], 8),
@@ -379,7 +348,7 @@ int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_pt
     }
 
     // Modify keys
-    pae_supp->nw_key_insert(pae_supp->interface_ptr, pae_supp->sec_keys_nw_info.gtks);
+    pae_supp->nw_key_insert(pae_supp->interface_ptr, pae_supp->sec_keys_nw_info->gtks);
 
     return 0;
 }
@@ -391,7 +360,7 @@ int8_t ws_pae_supp_nw_key_index_update(protocol_interface_info_entry_t *interfac
         return -1;
     }
 
-    if (sec_prot_keys_gtk_status_active_set(&pae_supp->gtks, index) >= 0) {
+    if (sec_prot_keys_gtk_status_active_set(pae_supp->sec_keys_nw_info->gtks, index) >= 0) {
         pae_supp->nw_key_index_set(interface_ptr, index);
     } else {
         tr_info("NW send key index: %i, no changes", index + 1);
@@ -407,7 +376,7 @@ int8_t ws_pae_supp_gtks_set(protocol_interface_info_entry_t *interface_ptr, sec_
         return -1;
     }
 
-    pae_supp->gtks = *gtks;
+    *pae_supp->sec_keys_nw_info->gtks = *gtks;
 
     return 0;
 }
@@ -427,12 +396,8 @@ int8_t ws_pae_supp_eapol_target_remove(protocol_interface_info_entry_t *interfac
 
 static void ws_pae_supp_nvm_update(pae_supp_t *pae_supp)
 {
-    // Check if NW info or GTKs have been changed
-    if (pae_supp->sec_keys_nw_info.updated || sec_prot_keys_gtks_are_updated(pae_supp->sec_keys_nw_info.gtks)) {
-        ws_pae_supp_nvm_nw_info_write(pae_supp);
-        pae_supp->sec_keys_nw_info.updated = false;
-        sec_prot_keys_gtks_updated_reset(pae_supp->sec_keys_nw_info.gtks);
-    }
+    // Indicate to PAE controller that NW info or GTKs may have been changed
+    pae_supp->nw_info_updated(pae_supp->interface_ptr);
 
     // Check if pairwise security keys have been changed
     if (sec_prot_keys_are_updated(&pae_supp->entry.sec_keys)) {
@@ -441,75 +406,30 @@ static void ws_pae_supp_nvm_update(pae_supp_t *pae_supp)
     }
 }
 
-static int8_t ws_pae_supp_nvm_nw_info_write(pae_supp_t *pae_supp)
-{
-    nvm_tlv_entry_t *tlv_entry = ws_pae_controller_nvm_tlv_get(pae_supp->interface_ptr);
-    if (!tlv_entry) {
-        return -1;
-    }
-
-    nvm_tlv_list_t tlv_list;
-    ns_list_init(&tlv_list);
-
-    ws_pae_nvm_store_nw_info_tlv_create(tlv_entry, pae_supp->sec_keys_nw_info.key_pan_id,
-                                        pae_supp->sec_keys_nw_info.network_name,
-                                        &pae_supp->gtks);
-    ns_list_add_to_end(&tlv_list, tlv_entry);
-
-    ws_pae_nvm_store_tlv_file_write(NW_INFO_FILE, &tlv_list);
-
-    return 0;
-}
-
-static int8_t ws_pae_supp_nvm_nw_info_read(pae_supp_t *pae_supp)
-{
-    nvm_tlv_list_t tlv_list;
-    ns_list_init(&tlv_list);
-
-    ws_pae_nvm_store_tlv_file_read(NW_INFO_FILE, &tlv_list);
-
-    ns_list_foreach_safe(nvm_tlv_entry_t, entry, &tlv_list) {
-        ws_pae_nvm_store_nw_info_tlv_read(entry, &pae_supp->sec_keys_nw_info.key_pan_id,
-                                          pae_supp->sec_keys_nw_info.network_name,
-                                          &pae_supp->gtks);
-        ns_list_remove(&tlv_list, entry);
-        ns_dyn_mem_free(entry);
-    }
-
-    return 0;
-}
-
 static int8_t ws_pae_supp_nvm_keys_write(pae_supp_t *pae_supp)
 {
-    nvm_tlv_entry_t *tlv_entry = ws_pae_controller_nvm_tlv_get(pae_supp->interface_ptr);
-    if (!tlv_entry) {
+    nvm_tlv_t *tlv = ws_pae_controller_nvm_tlv_get(pae_supp->interface_ptr);
+    if (!tlv) {
         return -1;
     }
 
-    nvm_tlv_list_t tlv_list;
-    ns_list_init(&tlv_list);
-
-    ws_pae_nvm_store_keys_tlv_create(tlv_entry, &pae_supp->entry.sec_keys);
-    ns_list_add_to_end(&tlv_list, tlv_entry);
-
-    ws_pae_nvm_store_tlv_file_write(KEYS_FILE, &tlv_list);
+    ws_pae_nvm_store_keys_tlv_create(tlv, &pae_supp->entry.sec_keys);
+    ws_pae_nvm_store_tlv_file_write(KEYS_FILE, tlv);
 
     return 0;
 }
 
 static int8_t ws_pae_supp_nvm_keys_read(pae_supp_t *pae_supp)
 {
-    nvm_tlv_list_t tlv_list;
-    ns_list_init(&tlv_list);
-
-    ws_pae_nvm_store_tlv_file_read(KEYS_FILE, &tlv_list);
-
-    ns_list_foreach_safe(nvm_tlv_entry_t, entry, &tlv_list) {
-        ws_pae_nvm_store_keys_tlv_read(entry, &pae_supp->entry.sec_keys);
-        ns_list_remove(&tlv_list, entry);
-        ns_dyn_mem_free(entry);
+    nvm_tlv_t *tlv = ws_pae_controller_nvm_tlv_get(pae_supp->interface_ptr);
+    if (!tlv) {
+        return -1;
     }
-
+    ws_pae_nvm_store_generic_tlv_create(tlv, PAE_NVM_KEYS_TAG, PAE_NVM_KEYS_LEN);
+    if (ws_pae_nvm_store_tlv_file_read(KEYS_FILE_NAME, tlv) < 0) {
+        return -1;
+    }
+    ws_pae_nvm_store_keys_tlv_read(tlv, &pae_supp->entry.sec_keys);
     return 0;
 }
 
@@ -569,8 +489,8 @@ static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan
         tr_debug("Keys not valid, delete GTKs");
 
         // Delete GTKs
-        sec_prot_keys_gtks_init(pae_supp->sec_keys_nw_info.gtks);
-        sec_prot_keys_gtks_updated_set(pae_supp->sec_keys_nw_info.gtks);
+        sec_prot_keys_gtks_init(pae_supp->sec_keys_nw_info->gtks);
+        sec_prot_keys_gtks_updated_set(pae_supp->sec_keys_nw_info->gtks);
         ws_pae_supp_nvm_update(pae_supp);
 
         pae_supp->nw_keys_used_cnt = 0;
@@ -579,12 +499,12 @@ static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan
 
     /* Checks if keys match to PAN ID and that needed keys exists (PMK, PTK and a GTK),
        and calls inserts function that will update the network keys as needed */
-    if ((pan_id == pae_supp->sec_keys_nw_info.key_pan_id) &&
-            (sec_prot_keys_gtk_count(pae_supp->sec_keys_nw_info.gtks) > 0) &&
+    if ((pan_id == pae_supp->sec_keys_nw_info->key_pan_id) &&
+            (sec_prot_keys_gtk_count(pae_supp->sec_keys_nw_info->gtks) > 0) &&
             (sec_prot_keys_pmk_get(&pae_supp->entry.sec_keys) != NULL) &&
             (sec_prot_keys_ptk_get(&pae_supp->entry.sec_keys) != NULL)) {
         tr_debug("Existing keys used, counter %i", pae_supp->nw_keys_used_cnt);
-        if (pae_supp->nw_key_insert(pae_supp->interface_ptr, pae_supp->sec_keys_nw_info.gtks) >= 0) {
+        if (pae_supp->nw_key_insert(pae_supp->interface_ptr, pae_supp->sec_keys_nw_info->gtks) >= 0) {
             tr_debug("Keys inserted");
         }
         pae_supp->nw_keys_used_cnt++;
@@ -595,21 +515,7 @@ static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan
     }
 }
 
-static void ws_pae_supp_keys_nw_info_init(sec_prot_keys_nw_info_t *sec_keys_nw_info, sec_prot_gtk_keys_t *gtks)
-{
-    if (!sec_keys_nw_info) {
-        return;
-    }
-
-    memset(sec_keys_nw_info, 0, sizeof(sec_prot_keys_nw_info_t));
-
-    sec_keys_nw_info->gtks = gtks;
-    sec_keys_nw_info->new_pan_id = 0xFFFF;
-    sec_keys_nw_info->key_pan_id = 0xFFFF;
-    sec_keys_nw_info->updated = false;
-}
-
-void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_supp_auth_completed *completed, ws_pae_supp_nw_key_insert *nw_key_insert, ws_pae_supp_nw_key_index_set *nw_key_index_set, ws_pae_supp_gtk_hash_ptr_get *gtk_hash_ptr_get)
+void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_supp_auth_completed *completed, ws_pae_supp_nw_key_insert *nw_key_insert, ws_pae_supp_nw_key_index_set *nw_key_index_set, ws_pae_supp_gtk_hash_ptr_get *gtk_hash_ptr_get, ws_pae_supp_nw_info_updated *nw_info_updated)
 {
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
     if (!pae_supp) {
@@ -620,9 +526,10 @@ void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_
     pae_supp->nw_key_insert = nw_key_insert;
     pae_supp->nw_key_index_set = nw_key_index_set;
     pae_supp->gtk_hash_ptr_get = gtk_hash_ptr_get;
+    pae_supp->nw_info_updated = nw_info_updated;
 }
 
-int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const sec_prot_certs_t *certs, sec_timer_cfg_t *sec_timer_cfg, sec_prot_cfg_t *sec_prot_cfg)
+int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const sec_prot_certs_t *certs, sec_timer_cfg_t *sec_timer_cfg, sec_prot_cfg_t *sec_prot_cfg, sec_prot_keys_nw_info_t *sec_keys_nw_info)
 {
     if (!interface_ptr) {
         return -1;
@@ -646,6 +553,7 @@ int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const se
     pae_supp->initial_key_retry_timer = 0;
     pae_supp->nw_keys_used_cnt = 0;
     pae_supp->initial_key_retry_cnt = INITIAL_KEY_RETRY_COUNT;
+    pae_supp->sec_keys_nw_info = sec_keys_nw_info;
     pae_supp->sec_timer_cfg = sec_timer_cfg;
     pae_supp->sec_prot_cfg = sec_prot_cfg;
     pae_supp->auth_trickle_running = false;
@@ -657,12 +565,10 @@ int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const se
 
     ws_pae_lib_supp_init(&pae_supp->entry);
 
-    ws_pae_supp_keys_nw_info_init(&pae_supp->sec_keys_nw_info, &pae_supp->gtks);
-
     kmp_address_init(KMP_ADDR_EUI_64, &pae_supp->target_addr, 0);
 
-    sec_prot_keys_gtks_init(&pae_supp->gtks);
-    sec_prot_keys_init(&pae_supp->entry.sec_keys, &pae_supp->gtks, certs);
+    sec_prot_keys_gtks_init(pae_supp->sec_keys_nw_info->gtks);
+    sec_prot_keys_init(&pae_supp->entry.sec_keys, pae_supp->sec_keys_nw_info->gtks, certs);
     memset(pae_supp->new_br_eui_64, 0, 8);
 
     pae_supp->kmp_service = kmp_service_create();
@@ -721,7 +627,6 @@ int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const se
         goto error;
     }
 
-    ws_pae_supp_nvm_nw_info_read(pae_supp);
     ws_pae_supp_nvm_keys_read(pae_supp);
 
     ns_list_add_to_end(&pae_supp_list, pae_supp);
@@ -840,7 +745,7 @@ void ws_pae_supp_fast_timer(uint16_t ticks)
         }
 
         // Updates KMP timers and supplicant authentication ongoing timer
-        bool running = ws_pae_lib_supp_timer_update(&pae_supp->entry, ticks, kmp_service_timer_if_timeout);
+        bool running = ws_pae_lib_supp_timer_update(NULL, &pae_supp->entry, ticks, kmp_service_timer_if_timeout);
 
         // Checks whether timer needs to be active
         if (!ws_pae_supp_authentication_ongoing(pae_supp) && !running) {
@@ -921,10 +826,11 @@ void ws_pae_supp_slow_timer(uint16_t seconds)
 
         // Decrements GTK lifetimes
         for (uint8_t i = 0; i < GTK_NUM; i++) {
-            if (!sec_prot_keys_gtk_is_set(&pae_supp->gtks, i)) {
+            if (!sec_prot_keys_gtk_is_set(pae_supp->sec_keys_nw_info->gtks, i)) {
                 continue;
             }
-            sec_prot_keys_gtk_lifetime_decrement(&pae_supp->gtks, i, seconds);
+            uint64_t current_time = ws_pae_current_time_get();
+            sec_prot_keys_gtk_lifetime_decrement(pae_supp->sec_keys_nw_info->gtks, i, current_time, seconds);
         }
 
         if (pae_supp->initial_key_timer > 0) {
@@ -1308,7 +1214,11 @@ static void ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e
        that bootstrap can decide if EAPOL target should be changed */
     else if (type > IEEE_802_1X_INITIAL_KEY && result == KMP_RESULT_ERR_TX_NO_ACK) {
         tr_info("Initial EAPOL-Key TX failure, target: %s", trace_array(kmp_address_eui_64_get(&pae_supp->entry.addr), 8));
-        ws_pae_supp_authenticate_response(pae_supp, AUTH_RESULT_ERR_TX_NO_ACK);
+        /* Fails authentication only if other authentication protocols are not yet
+           started by authenticator */
+        if (ws_pae_lib_kmp_list_count(&pae_supp->entry.kmp_list) <= 1) {
+            ws_pae_supp_authenticate_response(pae_supp, AUTH_RESULT_ERR_TX_NO_ACK);
+        }
     }
 }
 

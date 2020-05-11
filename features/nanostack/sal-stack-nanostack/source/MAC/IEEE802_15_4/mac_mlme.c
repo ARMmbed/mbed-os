@@ -48,6 +48,7 @@
 #include "MAC/IEEE802_15_4/mac_timer.h"
 #include "MAC/IEEE802_15_4/mac_pd_sap.h"
 #include "MAC/IEEE802_15_4/mac_mcps_sap.h"
+#include "MAC/IEEE802_15_4/mac_cca_threshold.h"
 #include "MAC/virtual_rf/virtual_rf_defines.h"
 #include "MAC/rf_driver_storage.h"
 
@@ -668,14 +669,50 @@ static int8_t mac_mlme_set_ack_wait_duration(protocol_interface_rf_mac_setup_s *
     return 0;
 }
 
+static void mac_mlme_trig_pending_ack(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_device_descriptor_t *device_ptr)
+{
+    platform_enter_critical();
+    if (rf_mac_setup->mac_ack_tx_active && !rf_mac_setup->ack_tx_possible &&
+            device_ptr->PANId == rf_mac_setup->enhanced_ack_buffer.DstPANId) {
+
+        //Compare address for pending neigbour add
+        if (rf_mac_setup->enhanced_ack_buffer.fcf_dsn.DstAddrMode == MAC_ADDR_MODE_16_BIT) {
+            uint16_t short_id = common_read_16_bit(rf_mac_setup->enhanced_ack_buffer.DstAddr);
+            if (short_id == device_ptr->ShortAddress) {
+                rf_mac_setup->ack_tx_possible = true;
+            }
+        } else if (rf_mac_setup->enhanced_ack_buffer.fcf_dsn.DstAddrMode == MAC_ADDR_MODE_64_BIT) {
+            if (memcmp(device_ptr->ExtAddress, rf_mac_setup->enhanced_ack_buffer.DstAddr, 8) == 0) {
+                rf_mac_setup->ack_tx_possible = true;
+            }
+        }
+    }
+    platform_exit_critical();
+}
+
 static int8_t mac_mlme_device_description_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
 {
 
     if (set_req->value_size != sizeof(mlme_device_descriptor_t)) {
         return -1;
     }
+    if (mac_sec_mib_device_description_set(set_req->attr_index, (mlme_device_descriptor_t *) set_req->value_pointer, rf_mac_setup) != 0) {
+        return -1;
+    }
 
-    return mac_sec_mib_device_description_set(set_req->attr_index, (mlme_device_descriptor_t *) set_req->value_pointer, rf_mac_setup);
+    mac_mlme_trig_pending_ack(rf_mac_setup, (mlme_device_descriptor_t *) set_req->value_pointer);
+    return 0;
+}
+
+static int8_t mac_mlme_device_pending_ack_trig(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
+{
+
+    if (set_req->value_size != sizeof(mlme_device_descriptor_t)) {
+        return -1;
+    }
+    mac_mlme_trig_pending_ack(rf_mac_setup, (mlme_device_descriptor_t *) set_req->value_pointer);
+
+    return 0;
 }
 
 static int8_t mac_mlme_key_description_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
@@ -754,6 +791,8 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
             return mac_mlme_set_ack_wait_duration(rf_mac_setup, set_req);
         case macDeviceTable:
             return mac_mlme_device_description_set(rf_mac_setup, set_req);
+        case macDevicePendingAckTrig:
+            return mac_mlme_device_pending_ack_trig(rf_mac_setup, set_req);
         case macKeyTable:
             return mac_mlme_key_description_set(rf_mac_setup, set_req);
         case macDefaultKeySource:
@@ -767,6 +806,10 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
             if (set_req->value_size == 8) {
                 memcpy(rf_mac_setup->coord_long_address, set_req->value_pointer, 8);
             }
+            return 0;
+        case macCCAThresholdStart:
+            pu8 = (uint8_t *) set_req->value_pointer;
+            mac_cca_thr_init(rf_mac_setup, *pu8, *((int8_t *)pu8 + 1), *((int8_t *)pu8 + 2), *((int8_t *)pu8 + 3));
             return 0;
         case mac802_15_4Mode:
             pu8 = (uint8_t *) set_req->value_pointer;
@@ -1059,6 +1102,7 @@ void mac_mlme_data_base_deallocate(struct protocol_interface_rf_mac_setup *rf_ma
         ns_dyn_mem_free(rf_mac->mac_beacon_payload);
 
         mac_sec_mib_deinit(rf_mac);
+        mac_cca_thr_deinit(rf_mac);
         ns_dyn_mem_free(rf_mac);
     }
 }

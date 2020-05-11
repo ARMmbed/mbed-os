@@ -226,7 +226,10 @@ static int8_t auth_gkh_sec_prot_message_send(sec_prot_t *prot, gkh_sec_prot_msg_
 
     switch (msg) {
         case GKH_MESSAGE_1:
-            sec_prot_keys_pmk_replay_cnt_increment(prot->sec_keys);
+            if (!sec_prot_keys_pmk_replay_cnt_increment(prot->sec_keys)) {
+                ns_dyn_mem_free(kde_start);
+                return -1;
+            }
             eapol_pdu.msg.key.replay_counter = sec_prot_keys_pmk_replay_cnt_get(prot->sec_keys);
             eapol_pdu.msg.key.key_information.key_ack = true;
             eapol_pdu.msg.key.key_information.key_mic = true;
@@ -283,7 +286,7 @@ static void auth_gkh_sec_prot_state_machine(sec_prot_t *prot)
             // KMP-CREATE.confirm
             prot->create_conf(prot, SEC_RESULT_OK);
 
-            // Sends 4WH Message 1
+            // Sends GKH Message 1
             auth_gkh_sec_prot_message_send(prot, GKH_MESSAGE_1);
 
             // Start trickle timer to re-send if no response
@@ -292,7 +295,7 @@ static void auth_gkh_sec_prot_state_machine(sec_prot_t *prot)
             sec_prot_state_set(prot, &data->common, GKH_STATE_MESSAGE_2);
 
             // Store the hash for to-be installed GTK as used for the PTK
-            sec_prot_keys_ptk_installed_gtk_hash_set(prot->sec_keys);
+            sec_prot_keys_ptk_installed_gtk_hash_set(prot->sec_keys, false);
             break;
 
         // Wait GKH message 2

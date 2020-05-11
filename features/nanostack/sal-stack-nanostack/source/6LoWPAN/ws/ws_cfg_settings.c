@@ -49,8 +49,9 @@
 #define TRICKLE_IMIN_15_SECS 15
 
 typedef struct ws_cfg_nw_size_s {
+    ws_gen_cfg_t gen;                   /**< General configuration */
     ws_timing_cfg_t timing;             /**< Timing configuration */
-    ws_rpl_cfg_t rpl;                   /**< RPL configuration */
+    ws_bbr_cfg_t bbr;                   /**< RPL configuration */
     ws_sec_prot_cfg_t sec_prot;         /**< Security protocols configuration */
 } ws_cfg_nw_size_t;
 
@@ -69,7 +70,7 @@ typedef union {
     ws_gen_cfg_t gen;
     ws_phy_cfg_t phy;
     ws_timing_cfg_t timing;
-    ws_rpl_cfg_t rpl;
+    ws_bbr_cfg_t bbr;
     ws_fhss_cfg_t fhss;
     ws_mpl_cfg_t mpl;
     ws_sec_timer_cfg_t sec_timer;
@@ -86,7 +87,7 @@ static int8_t ws_cfg_network_size_default_set(ws_gen_cfg_t *cfg);
 static int8_t ws_cfg_gen_default_set(ws_gen_cfg_t *cfg);
 static int8_t ws_cfg_phy_default_set(ws_phy_cfg_t *cfg);
 static int8_t ws_cfg_timing_default_set(ws_timing_cfg_t *cfg);
-static int8_t ws_cfg_rpl_default_set(ws_rpl_cfg_t *cfg);
+static int8_t ws_cfg_bbr_default_set(ws_bbr_cfg_t *cfg);
 static int8_t ws_cfg_mpl_default_set(ws_mpl_cfg_t *cfg);
 static int8_t ws_cfg_fhss_default_set(ws_fhss_cfg_t *cfg);
 static int8_t ws_cfg_sec_timer_default_set(ws_sec_timer_cfg_t *cfg);
@@ -107,7 +108,7 @@ static const ws_cfg_cb_t cfg_cb[] = {
     CFG_CB(ws_cfg_gen_default_set, ws_cfg_gen_validate, ws_cfg_gen_set, offsetof(ws_cfg_t, gen)),
     CFG_CB(ws_cfg_phy_default_set, ws_cfg_phy_validate, ws_cfg_phy_set, offsetof(ws_cfg_t, phy)),
     CFG_CB(ws_cfg_timing_default_set, ws_cfg_timing_validate, ws_cfg_timing_set, offsetof(ws_cfg_t, timing)),
-    CFG_CB(ws_cfg_rpl_default_set, ws_cfg_rpl_validate, ws_cfg_rpl_set, offsetof(ws_cfg_t, rpl)),
+    CFG_CB(ws_cfg_bbr_default_set, ws_cfg_bbr_validate, ws_cfg_bbr_set, offsetof(ws_cfg_t, bbr)),
     CFG_CB(ws_cfg_mpl_default_set, ws_cfg_mpl_validate, ws_cfg_mpl_set, offsetof(ws_cfg_t, mpl)),
     CFG_CB(ws_cfg_fhss_default_set, ws_cfg_fhss_validate, ws_cfg_fhss_set, offsetof(ws_cfg_t, fhss)),
     CFG_CB(ws_cfg_sec_timer_default_set, ws_cfg_sec_timer_validate, ws_cfg_sec_timer_set, offsetof(ws_cfg_t, sec_timer)),
@@ -128,10 +129,12 @@ static int8_t ws_cfg_to_get(ws_cfgs_t **cfg, ws_cfgs_t *new_cfg, ws_cfg_validate
     if (*cfg == NULL) {
         // In case external configuration is not same as internal
         if (nw_size_external_cfg && (!flags || !(*flags & CFG_FLAGS_FORCE_INTERNAL_CONFIG))) {
-            if (ws_cfg_ptr == (ws_cfgs_t *) &ws_cfg.timing) {
+            if (ws_cfg_ptr == (ws_cfgs_t *) &ws_cfg.gen) {
+                *cfg = (ws_cfgs_t *) &nw_size_external_cfg->gen;
+            } else if (ws_cfg_ptr == (ws_cfgs_t *) &ws_cfg.timing) {
                 *cfg = (ws_cfgs_t *) &nw_size_external_cfg->timing;
-            } else if (ws_cfg_ptr == (ws_cfgs_t *) &ws_cfg.rpl) {
-                *cfg = (ws_cfgs_t *) &nw_size_external_cfg->rpl;
+            } else if (ws_cfg_ptr == (ws_cfgs_t *) &ws_cfg.bbr) {
+                *cfg = (ws_cfgs_t *) &nw_size_external_cfg->bbr;
             } else if (ws_cfg_ptr == (ws_cfgs_t *) &ws_cfg.sec_prot) {
                 *cfg = (ws_cfgs_t *) &nw_size_external_cfg->sec_prot;
             } else {
@@ -245,8 +248,9 @@ int8_t ws_cfg_network_size_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_
     cfg->network_size = new_cfg->network_size;
 
     ws_cfg_nw_size_t nw_size_cfg;
+    ws_cfg_gen_get(&nw_size_cfg.gen, NULL);
     ws_cfg_timing_get(&nw_size_cfg.timing, NULL);
-    ws_cfg_rpl_get(&nw_size_cfg.rpl, NULL);
+    ws_cfg_bbr_get(&nw_size_cfg.bbr, NULL);
     ws_cfg_sec_prot_get(&nw_size_cfg.sec_prot, NULL);
 
     ws_cfg_network_size_config_set_size set_function = NULL;
@@ -279,13 +283,17 @@ int8_t ws_cfg_network_size_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_
     }
     /* Sets values if changed or network size has been previously automatic (to make sure
        the settings are in sync */
+    if (ws_cfg_gen_validate(&ws_cfg.gen, &nw_size_cfg.gen) == CFG_SETTINGS_CHANGED ||
+            old_network_size == NETWORK_SIZE_AUTOMATIC) {
+        ws_cfg_gen_set(cur, &ws_cfg.gen, &nw_size_cfg.gen, &set_flags);
+    }
     if (ws_cfg_timing_validate(&ws_cfg.timing, &nw_size_cfg.timing) == CFG_SETTINGS_CHANGED ||
             old_network_size == NETWORK_SIZE_AUTOMATIC) {
         ws_cfg_timing_set(cur, &ws_cfg.timing, &nw_size_cfg.timing, &set_flags);
     }
-    if (ws_cfg_rpl_validate(&ws_cfg.rpl, &nw_size_cfg.rpl) == CFG_SETTINGS_CHANGED ||
+    if (ws_cfg_bbr_validate(&ws_cfg.bbr, &nw_size_cfg.bbr) == CFG_SETTINGS_CHANGED ||
             old_network_size == NETWORK_SIZE_AUTOMATIC) {
-        ws_cfg_rpl_set(cur, &ws_cfg.rpl, &nw_size_cfg.rpl, &set_flags);
+        ws_cfg_bbr_set(cur, &ws_cfg.bbr, &nw_size_cfg.bbr, &set_flags);
     }
     if (ws_cfg_sec_prot_validate(&ws_cfg.sec_prot, &nw_size_cfg.sec_prot) == CFG_SETTINGS_CHANGED ||
             old_network_size == NETWORK_SIZE_AUTOMATIC) {
@@ -305,8 +313,10 @@ int8_t ws_cfg_network_size_configure(protocol_interface_info_entry_t *cur, uint1
     // Read settings that are affected by network size
     ws_cfg_nw_size_t new_nw_size_cfg;
     uint8_t flags = CFG_FLAGS_OVERRIDE_DISABLE_VAL_SET | CFG_FLAGS_FORCE_INTERNAL_CONFIG;
+
+    ws_cfg_gen_get(&new_nw_size_cfg.gen, &flags);
     ws_cfg_timing_get(&new_nw_size_cfg.timing, &flags);
-    ws_cfg_rpl_get(&new_nw_size_cfg.rpl, &flags);
+    ws_cfg_bbr_get(&new_nw_size_cfg.bbr, &flags);
     ws_cfg_sec_prot_get(&new_nw_size_cfg.sec_prot, &flags);
 
     if (!nw_size_external_cfg) {
@@ -321,7 +331,7 @@ int8_t ws_cfg_network_size_configure(protocol_interface_info_entry_t *cur, uint1
     if (network_size < 100) {
         // Automatic
         ws_cfg_network_size_config_set_small(&new_nw_size_cfg);
-    } else if (network_size < 300) {
+    } else if (network_size < 800) {
         // Medium
         ws_cfg_network_size_config_set_medium(&new_nw_size_cfg);
     } else {
@@ -329,8 +339,9 @@ int8_t ws_cfg_network_size_configure(protocol_interface_info_entry_t *cur, uint1
         ws_cfg_network_size_config_set_large(&new_nw_size_cfg);
     }
 
+    ws_cfg_gen_set(cur, NULL, &new_nw_size_cfg.gen, &flags);
     ws_cfg_timing_set(cur, NULL, &new_nw_size_cfg.timing, &flags);
-    ws_cfg_rpl_set(cur, NULL, &new_nw_size_cfg.rpl, &flags);
+    ws_cfg_bbr_set(cur, NULL, &new_nw_size_cfg.bbr, &flags);
     ws_cfg_sec_prot_set(cur, NULL, &new_nw_size_cfg.sec_prot, &flags);
 
     return CFG_SETTINGS_OK;
@@ -338,21 +349,25 @@ int8_t ws_cfg_network_size_configure(protocol_interface_info_entry_t *cur, uint1
 
 static void ws_cfg_network_size_config_set_small(ws_cfg_nw_size_t *cfg)
 {
+    // Configure the Wi-SUN parent configuration
+    cfg->gen.rpl_parent_candidate_max = WS_RPL_PARENT_CANDIDATE_MAX;
+    cfg->gen.rpl_selected_parent_max = WS_RPL_SELECTED_PARENT_MAX;
+
     // Configure the Wi-SUN timing trickle parameter
     cfg->timing.disc_trickle_imin = TRICKLE_IMIN_15_SECS;       // 15 seconds
     cfg->timing.disc_trickle_imax = TRICKLE_IMIN_15_SECS << 2;  // 60 seconds
     cfg->timing.disc_trickle_k = 1;
     cfg->timing.pan_timeout = PAN_VERSION_SMALL_NETWORK_TIMEOUT;
     cfg->timing.temp_link_min_timeout = WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_SMALL;
+    cfg->timing.temp_eapol_min_timeout = WS_EAPOL_TEMPORARY_ENTRY_SMALL_TIMEOUT;
 
     // RPL configuration
-    cfg->rpl.dio_interval_min = WS_RPL_DIO_IMIN_SMALL;               // 15; 32s seconds
-    cfg->rpl.dio_interval_doublings = WS_RPL_DIO_DOUBLING_SMALL;     // 2; 128
-    cfg->rpl.dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY_SMALL;  // Disabled
-    cfg->rpl.dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE;
-    cfg->rpl.min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE;
-    cfg->rpl.rpl_parent_candidate_max = WS_RPL_PARENT_CANDIDATE_MAX;
-    cfg->rpl.rpl_selected_parent_max = WS_RPL_SELECTED_PARENT_MAX;
+    cfg->bbr.dio_interval_min = WS_RPL_DIO_IMIN_SMALL;               // 15; 32s seconds
+    cfg->bbr.dio_interval_doublings = WS_RPL_DIO_DOUBLING_SMALL;     // 2; 128
+    cfg->bbr.dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY_SMALL;  // Disabled
+    cfg->bbr.dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE;
+    cfg->bbr.min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE;
+    cfg->bbr.dhcp_address_lifetime = WS_DHCP_ADDRESS_LIFETIME_SMALL;
 
     // EAPOL configuration
     cfg->sec_prot.sec_prot_trickle_imin = SEC_PROT_SMALL_IMIN;
@@ -364,21 +379,25 @@ static void ws_cfg_network_size_config_set_small(ws_cfg_nw_size_t *cfg)
 
 static void ws_cfg_network_size_config_set_medium(ws_cfg_nw_size_t *cfg)
 {
+    // Configure the Wi-SUN parent configuration
+    cfg->gen.rpl_parent_candidate_max = WS_RPL_PARENT_CANDIDATE_MAX;
+    cfg->gen.rpl_selected_parent_max = WS_RPL_SELECTED_PARENT_MAX;
+
     // Configure the Wi-SUN timing trickle parameters
     cfg->timing.disc_trickle_imin = TRICKLE_IMIN_30_SECS;       // 30 seconds
     cfg->timing.disc_trickle_imax = TRICKLE_IMIN_30_SECS << 5;  // 960 seconds; 16 minutes
     cfg->timing.disc_trickle_k = 1;
     cfg->timing.pan_timeout = PAN_VERSION_MEDIUM_NETWORK_TIMEOUT;
     cfg->timing.temp_link_min_timeout = WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_SMALL;
+    cfg->timing.temp_eapol_min_timeout = WS_EAPOL_TEMPORARY_ENTRY_MEDIUM_TIMEOUT;
 
     // RPL configuration
-    cfg->rpl.dio_interval_min = WS_RPL_DIO_IMIN_MEDIUM;              // 15; 32s
-    cfg->rpl.dio_interval_doublings = WS_RPL_DIO_DOUBLING_MEDIUM;    // 2; 1024s
-    cfg->rpl.dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY_MEDIUM; // 10
-    cfg->rpl.dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE;
-    cfg->rpl.min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE;
-    cfg->rpl.rpl_parent_candidate_max = WS_RPL_PARENT_CANDIDATE_MAX;
-    cfg->rpl.rpl_selected_parent_max = WS_RPL_SELECTED_PARENT_MAX;
+    cfg->bbr.dio_interval_min = WS_RPL_DIO_IMIN_MEDIUM;              // 15; 32s
+    cfg->bbr.dio_interval_doublings = WS_RPL_DIO_DOUBLING_MEDIUM;    // 2; 1024s
+    cfg->bbr.dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY_MEDIUM; // 10
+    cfg->bbr.dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE;
+    cfg->bbr.min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE;
+    cfg->bbr.dhcp_address_lifetime = WS_DHCP_ADDRESS_LIFETIME_MEDIUM;
 
     // EAPOL configuration
     cfg->sec_prot.sec_prot_trickle_imin = SEC_PROT_SMALL_IMIN;
@@ -390,21 +409,25 @@ static void ws_cfg_network_size_config_set_medium(ws_cfg_nw_size_t *cfg)
 
 static void ws_cfg_network_size_config_set_large(ws_cfg_nw_size_t *cfg)
 {
+    // Configure the Wi-SUN parent configuration
+    cfg->gen.rpl_parent_candidate_max = WS_RPL_PARENT_CANDIDATE_MAX;
+    cfg->gen.rpl_selected_parent_max = WS_RPL_SELECTED_PARENT_MAX;
+
     // Configure the Wi-SUN timing trickle parameters
     cfg->timing.disc_trickle_imin = TRICKLE_IMIN_60_SECS;       // 60 seconds
     cfg->timing.disc_trickle_imax = TRICKLE_IMIN_60_SECS << 4;  // 960 seconds; 16 minutes
     cfg->timing.disc_trickle_k = 1;
     cfg->timing.pan_timeout = PAN_VERSION_LARGE_NETWORK_TIMEOUT;
     cfg->timing.temp_link_min_timeout = WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_LARGE;
+    cfg->timing.temp_eapol_min_timeout = WS_EAPOL_TEMPORARY_ENTRY_LARGE_TIMEOUT;
 
     // RPL configuration
-    cfg->rpl.dio_interval_min = WS_RPL_DIO_IMIN_LARGE;               // 19; 524s, 9min
-    cfg->rpl.dio_interval_doublings = WS_RPL_DIO_DOUBLING_LARGE;     // 1; 1024s, 17min
-    cfg->rpl.dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY_LARGE;  // 10
-    cfg->rpl.dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE;
-    cfg->rpl.min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE;
-    cfg->rpl.rpl_parent_candidate_max = WS_RPL_PARENT_CANDIDATE_MAX;
-    cfg->rpl.rpl_selected_parent_max = WS_RPL_SELECTED_PARENT_MAX;
+    cfg->bbr.dio_interval_min = WS_RPL_DIO_IMIN_LARGE;               // 19; 524s, 9min
+    cfg->bbr.dio_interval_doublings = WS_RPL_DIO_DOUBLING_LARGE;     // 1; 1024s, 17min
+    cfg->bbr.dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY_LARGE;  // 10
+    cfg->bbr.dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE;
+    cfg->bbr.min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE;
+    cfg->bbr.dhcp_address_lifetime = WS_DHCP_ADDRESS_LIFETIME_LARGE;
 
     // EAPOL configuration
     cfg->sec_prot.sec_prot_trickle_imin = SEC_PROT_LARGE_IMIN;
@@ -416,21 +439,25 @@ static void ws_cfg_network_size_config_set_large(ws_cfg_nw_size_t *cfg)
 
 static void ws_cfg_network_size_config_set_certificate(ws_cfg_nw_size_t *cfg)
 {
+    // Configure the Wi-SUN parent configuration
+    cfg->gen.rpl_parent_candidate_max = WS_CERTIFICATE_RPL_PARENT_CANDIDATE_MAX;
+    cfg->gen.rpl_selected_parent_max = WS_CERTIFICATE_RPL_SELECTED_PARENT_MAX;
+
     // Configure the Wi-SUN timing trickle parameters
     cfg->timing.disc_trickle_imin = TRICKLE_IMIN_15_SECS;       // 15 seconds
     cfg->timing.disc_trickle_imax = TRICKLE_IMIN_15_SECS << 2;  // 60 seconds
     cfg->timing.disc_trickle_k = 1;
     cfg->timing.pan_timeout = PAN_VERSION_SMALL_NETWORK_TIMEOUT;
     cfg->timing.temp_link_min_timeout = WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_SMALL;
+    cfg->timing.temp_eapol_min_timeout = WS_EAPOL_TEMPORARY_ENTRY_SMALL_TIMEOUT;
 
     // RPL configuration (small)
-    cfg->rpl.dio_interval_min = WS_RPL_DIO_IMIN_SMALL;               // 15; 32s seconds
-    cfg->rpl.dio_interval_doublings = WS_RPL_DIO_DOUBLING_SMALL;     // 2; 128
-    cfg->rpl.dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY_SMALL;  // Disabled
-    cfg->rpl.dag_max_rank_increase = WS_CERTIFICATE_RPL_MAX_HOP_RANK_INCREASE;
-    cfg->rpl.min_hop_rank_increase = WS_CERTIFICATE_RPL_MIN_HOP_RANK_INCREASE;
-    cfg->rpl.rpl_parent_candidate_max = WS_CERTIFICATE_RPL_PARENT_CANDIDATE_MAX;
-    cfg->rpl.rpl_selected_parent_max = WS_CERTIFICATE_RPL_SELECTED_PARENT_MAX;
+    cfg->bbr.dio_interval_min = WS_RPL_DIO_IMIN_SMALL;               // 15; 32s seconds
+    cfg->bbr.dio_interval_doublings = WS_RPL_DIO_DOUBLING_SMALL;     // 2; 128
+    cfg->bbr.dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY_SMALL;  // Disabled
+    cfg->bbr.dag_max_rank_increase = WS_CERTIFICATE_RPL_MAX_HOP_RANK_INCREASE;
+    cfg->bbr.min_hop_rank_increase = WS_CERTIFICATE_RPL_MIN_HOP_RANK_INCREASE;
+    cfg->bbr.dhcp_address_lifetime = WS_DHCP_ADDRESS_LIFETIME_SMALL;
 
     // EAPOL configuration
     cfg->sec_prot.sec_prot_trickle_imin = SEC_PROT_SMALL_IMIN;
@@ -444,6 +471,8 @@ static int8_t ws_cfg_gen_default_set(ws_gen_cfg_t *cfg)
 {
     memset(cfg->network_name, 0, sizeof(cfg->network_name));
     cfg->network_pan_id = 0xffff;
+    cfg->rpl_parent_candidate_max = WS_RPL_PARENT_CANDIDATE_MAX;
+    cfg->rpl_selected_parent_max = WS_RPL_SELECTED_PARENT_MAX;
 
     return CFG_SETTINGS_OK;
 }
@@ -467,7 +496,9 @@ int8_t ws_cfg_gen_validate(ws_gen_cfg_t *cfg, ws_gen_cfg_t *new_cfg)
 
     // Regulator domain, operating mode or class has changed
     if (strcmp(cfg->network_name, new_cfg->network_name) != 0 ||
-            cfg->network_pan_id != new_cfg->network_pan_id) {
+            cfg->network_pan_id != new_cfg->network_pan_id ||
+            cfg->rpl_parent_candidate_max != new_cfg->rpl_parent_candidate_max ||
+            cfg->rpl_selected_parent_max != new_cfg->rpl_selected_parent_max) {
         return CFG_SETTINGS_CHANGED;
     }
 
@@ -493,6 +524,8 @@ int8_t ws_cfg_gen_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_t *cfg, w
         strncpy(cfg->network_name, new_cfg->network_name, 32);
     }
     cfg->network_pan_id = new_cfg->network_pan_id;
+    cfg->rpl_parent_candidate_max = new_cfg->rpl_parent_candidate_max;
+    cfg->rpl_selected_parent_max = new_cfg->rpl_selected_parent_max;
 
     if (cur && !(cfg_flags & CFG_FLAGS_BOOTSTRAP_RESTART_DISABLE)) {
         ws_bootstrap_restart_delayed(cur->id);
@@ -589,6 +622,7 @@ static int8_t ws_cfg_timing_default_set(ws_timing_cfg_t *cfg)
     cfg->disc_trickle_k = 1;
     cfg->pan_timeout = PAN_VERSION_MEDIUM_NETWORK_TIMEOUT;
     cfg->temp_link_min_timeout = WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_SMALL;
+    cfg->temp_eapol_min_timeout = WS_EAPOL_TEMPORARY_ENTRY_MEDIUM_TIMEOUT;
 
     return CFG_SETTINGS_OK;
 }
@@ -658,7 +692,7 @@ int8_t ws_cfg_timing_set(protocol_interface_info_entry_t *cur, ws_timing_cfg_t *
     return CFG_SETTINGS_OK;
 }
 
-static int8_t ws_cfg_rpl_default_set(ws_rpl_cfg_t *cfg)
+static int8_t ws_cfg_bbr_default_set(ws_bbr_cfg_t *cfg)
 {
     // Something in between
     // imin: 15 (32s)
@@ -671,45 +705,43 @@ static int8_t ws_cfg_rpl_default_set(ws_rpl_cfg_t *cfg)
     cfg->dio_redundancy_constant = 10;
     cfg->dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE;
     cfg->min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE;
-    cfg->rpl_parent_candidate_max = WS_RPL_PARENT_CANDIDATE_MAX;
-    cfg->rpl_selected_parent_max = WS_RPL_SELECTED_PARENT_MAX;
+    cfg->dhcp_address_lifetime = WS_DHCP_ADDRESS_LIFETIME_MEDIUM;
 
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_rpl_get(ws_rpl_cfg_t *cfg, uint8_t *flags)
+int8_t ws_cfg_bbr_get(ws_bbr_cfg_t *cfg, uint8_t *flags)
 {
-    ws_rpl_cfg_t *get_cfg = NULL;
-    ws_cfg_to_get((ws_cfgs_t **) &get_cfg, NULL, NULL, (ws_cfgs_t *) &ws_cfg.rpl, 0, flags);
+    ws_bbr_cfg_t *get_cfg = NULL;
+    ws_cfg_to_get((ws_cfgs_t **) &get_cfg, NULL, NULL, (ws_cfgs_t *) &ws_cfg.bbr, 0, flags);
     *cfg = *get_cfg;
 
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_rpl_validate(ws_rpl_cfg_t *cfg, ws_rpl_cfg_t *new_cfg)
+int8_t ws_cfg_bbr_validate(ws_bbr_cfg_t *cfg, ws_bbr_cfg_t *new_cfg)
 {
-    ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, NULL, (ws_cfgs_t *) &ws_cfg.rpl, 0, 0);
+    ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, NULL, (ws_cfgs_t *) &ws_cfg.bbr, 0, 0);
 
     if (cfg->dio_interval_min != new_cfg->dio_interval_min ||
             cfg->dio_interval_doublings != new_cfg->dio_interval_doublings ||
             cfg->dio_redundancy_constant != new_cfg->dio_redundancy_constant ||
             cfg->dag_max_rank_increase != new_cfg->dag_max_rank_increase ||
             cfg->min_hop_rank_increase != new_cfg->min_hop_rank_increase ||
-            cfg->rpl_parent_candidate_max != new_cfg->rpl_parent_candidate_max ||
-            cfg->rpl_selected_parent_max != new_cfg->rpl_selected_parent_max) {
+            cfg->dhcp_address_lifetime != new_cfg->dhcp_address_lifetime) {
         return CFG_SETTINGS_CHANGED;
     }
 
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_rpl_set(protocol_interface_info_entry_t *cur, ws_rpl_cfg_t *cfg, ws_rpl_cfg_t *new_cfg, uint8_t *flags)
+int8_t ws_cfg_bbr_set(protocol_interface_info_entry_t *cur, ws_bbr_cfg_t *cfg, ws_bbr_cfg_t *new_cfg, uint8_t *flags)
 {
     (void) cur;
     (void) flags;
 
     uint8_t cfg_flags;
-    int8_t ret = ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, (ws_cfg_validate) ws_cfg_rpl_validate, (ws_cfgs_t *) &ws_cfg.rpl, &cfg_flags, flags);
+    int8_t ret = ws_cfg_to_get((ws_cfgs_t **) &cfg, (ws_cfgs_t *) new_cfg, (ws_cfg_validate) ws_cfg_bbr_validate, (ws_cfgs_t *) &ws_cfg.bbr, &cfg_flags, flags);
     if (ret != CFG_SETTINGS_CHANGED) {
         return ret;
     }
@@ -719,13 +751,14 @@ int8_t ws_cfg_rpl_set(protocol_interface_info_entry_t *cur, ws_rpl_cfg_t *cfg, w
         ws_bbr_rpl_config(cur, new_cfg->dio_interval_min, new_cfg->dio_interval_doublings,
                           new_cfg->dio_redundancy_constant, new_cfg->dag_max_rank_increase,
                           new_cfg->min_hop_rank_increase);
+        ws_bbr_dhcp_address_lifetime_set(cur, new_cfg->dhcp_address_lifetime);
     }
 
     if (cfg == new_cfg) {
         return CFG_SETTINGS_OK;
     }
 
-    ws_cfg_trace((ws_cfgs_t *) cfg, (ws_cfgs_t *) new_cfg, sizeof(ws_rpl_cfg_t), "rpl");
+    ws_cfg_trace((ws_cfgs_t *) cfg, (ws_cfgs_t *) new_cfg, sizeof(ws_bbr_cfg_t), "rpl");
 
     *cfg = *new_cfg;
 
@@ -1095,8 +1128,9 @@ int8_t ws_cfg_settings_get(protocol_interface_info_entry_t *cur, ws_cfg_t *cfg)
 
     *cfg = ws_cfg;
 
+    ws_cfg_gen_get(&cfg->gen, NULL);
     ws_cfg_timing_get(&cfg->timing, NULL);
-    ws_cfg_rpl_get(&cfg->rpl, NULL);
+    ws_cfg_bbr_get(&cfg->bbr, NULL);
     ws_cfg_sec_prot_get(&cfg->sec_prot, NULL);
 
     return CFG_SETTINGS_OK;

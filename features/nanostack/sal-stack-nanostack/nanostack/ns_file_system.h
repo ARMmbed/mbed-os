@@ -50,6 +50,109 @@ int ns_file_system_set_root_path(const char *root_path);
  */
 char *ns_file_system_get_root_path(void);
 
+/**
+ * \brief NS file handle
+ *
+ */
+typedef void *NS_FILE;
+
+/**
+ * File open callback
+ *
+ * Depending on underlying file system file open for read for non-existing
+ * files can return success. In that case file read will fail.
+ *
+ * \param filename filename
+ * \param mode can be either "r" or "w"
+ *
+ * \return file handle
+ * \return NULL on error
+ *
+ */
+typedef NS_FILE(*ns_file_open)(const char *filename, const char *mode);
+
+/**
+ * File close callback
+ *
+ * \param handle file handle
+ *
+ * \return 0 on success
+ * \return < 0 in case of errors
+ *
+ */
+typedef int (*ns_file_close)(NS_FILE *handle);
+
+/**
+ * File remove callback
+ *
+ * \param filename filename
+ *
+ * \return 0 on success
+ * \return < 0 in case of errors
+ *
+ */
+typedef int (*ns_file_remove)(const char *filename);
+
+/**
+ * File write callback
+ *
+ * Write is not stream write. The whole file is written from start to end
+ * and if function is called again, previous file content is replaced with
+ * new content.
+ *
+ * \param handle file handle
+ * \param buffer buffer
+ * \param buffer buffer size
+ *
+ * \return bytes written
+ *
+ */
+typedef size_t (*ns_file_write)(NS_FILE *handle, const void *buffer, size_t size);
+
+/**
+ * File read callback
+ *
+ * Read is not stream read. The whole file is read from start to end
+ * and if function is called again, read is started from start again.
+ *
+ * \param handle file handle
+ * \param buffer buffer
+ * \param size buffer size
+ *
+ * \return bytes written
+ *
+ */
+typedef size_t (*ns_file_read)(NS_FILE *handle, void *buffer, size_t size);
+
+/**
+ * File size callback
+ *
+ * Reads file size.
+ *
+ * \param handle file handle
+ * \param size file size
+ *
+ * \return 0 on success
+ * \return < 0 in case of reading file size is not supported
+ *
+ */
+typedef int (*ns_file_size)(NS_FILE *handle, size_t *size);
+
+/**
+ * File callbacks set
+ *
+ * Sets file handling callbacks to nanostack.
+ *
+ * \param open file open callback
+ * \param close file close callback
+ * \param remove file remove callback
+ * \param write file write callback
+ * \param read file read callback
+ * \param size file size callback
+ *
+ */
+void ns_file_system_callbacks_set(ns_file_open open, ns_file_close close, ns_file_remove remove, ns_file_write write, ns_file_read read, ns_file_size size);
+
 #ifdef __cplusplus
 }
 #endif

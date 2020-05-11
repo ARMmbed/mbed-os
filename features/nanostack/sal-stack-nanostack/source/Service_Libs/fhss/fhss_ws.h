@@ -17,10 +17,6 @@
 #ifndef FHSS_WS_H_
 #define FHSS_WS_H_
 
-/* WS requires at least 19 MAC retransmissions (total 1+19=20 attempts). 802.15.4 macMaxFrameRetries is 3 (total 1+3=4 attempts).
- * At least 4 channel retries must be used: (Initial channel + WS_NUMBER_OF_CHANNEL_RETRIES) * MAC attempts = (1+4)*4=20 attempts
- */
-#define WS_NUMBER_OF_CHANNEL_RETRIES    4
 // TX slot length is optimised to this packet length
 #define OPTIMAL_PACKET_LENGTH   500
 // Default TX/RX slot length in milliseconds. Is used when datarate is not given by PHY.

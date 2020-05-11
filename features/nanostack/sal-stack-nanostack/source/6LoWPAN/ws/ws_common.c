@@ -388,11 +388,11 @@ uint32_t ws_common_latency_estimate_get(protocol_interface_info_entry_t *cur)
 
     if (network_size <= NETWORK_SIZE_SMALL) {
         // handles also NETWORK_SIZE_CERTIFICATE
-        latency = 8000;
+        latency = 4000;
     } else if (network_size <= NETWORK_SIZE_MEDIUM) {
-        latency = 16000;
+        latency = 8000;
     } else  {
-        latency = 32000;
+        latency = 16000;
     }
 
     return latency;
@@ -405,22 +405,11 @@ uint32_t ws_common_datarate_get(protocol_interface_info_entry_t *cur)
 
 uint32_t ws_common_network_size_estimate_get(protocol_interface_info_entry_t *cur)
 {
-    uint32_t network_size_estimate = 0;
-    uint8_t network_size = cur->ws_info->cfg->gen.network_size;
+    uint32_t network_size_estimate = 100;
 
-    if (network_size == NETWORK_SIZE_AUTOMATIC) {
-        network_size = cur->ws_info->pan_information.pan_size / 100;
-    }
-
-    if (network_size <= NETWORK_SIZE_SMALL) {
-        // tens of devices (now 30), handles also NETWORK_SIZE_CERTIFICATE
-        network_size_estimate = 30;
-    } else if (network_size <= NETWORK_SIZE_MEDIUM) {
-        // hundreds of devices (now 300)
-        network_size_estimate = 300;
-    } else {
-        // huge amount of devices (now 1000)
-        network_size_estimate = 1000;
+    if ((cur->ws_info->cfg->gen.network_size != NETWORK_SIZE_AUTOMATIC) &&
+            (cur->ws_info->cfg->gen.network_size != NETWORK_SIZE_CERTIFICATE)) {
+        network_size_estimate = cur->ws_info->cfg->gen.network_size * 100;
     }
 
     return network_size_estimate;

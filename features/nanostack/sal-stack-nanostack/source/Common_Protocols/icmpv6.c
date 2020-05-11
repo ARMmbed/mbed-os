@@ -1714,7 +1714,11 @@ buffer_t *icmpv6_build_na(protocol_interface_info_entry_t *cur, bool solicited, 
     buf->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_ICMP | B_TO_ICMP);
     buf->interface = cur;
 
-    tr_info("Build NA");
+    if (aro) {
+        tr_info("Build NA ARO");
+    } else {
+        tr_info("Build NA");
+    }
 
     return (buf);
 }

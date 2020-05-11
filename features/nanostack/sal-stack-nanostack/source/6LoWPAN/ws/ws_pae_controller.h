@@ -501,6 +501,16 @@ typedef void ws_pae_controller_auth_completed(protocol_interface_info_entry_t *i
 typedef void ws_pae_controller_pan_ver_increment(protocol_interface_info_entry_t *interface_ptr);
 
 /**
+ * ws_pae_controller_nw_info_updated network information is updated (read from memory)
+ *
+ * \param interface_ptr interface
+ * \param pan_id PAN ID
+ * \param network_name network name
+ *
+ */
+typedef void ws_pae_controller_nw_info_updated(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name);
+
+/**
  * ws_pae_controller_cb_register register PEA controller callbacks
  *
  * \param interface_ptr interface
@@ -511,12 +521,13 @@ typedef void ws_pae_controller_pan_ver_increment(protocol_interface_info_entry_t
  * \param nw_frame_counter_set network frame counter set callback
  * \param nw_frame_counter_read network frame counter read callback
  * \param pan_ver_increment PAN version increment callback
+ * \param nw_info_updated network information updated callback
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_controller_auth_completed *completed, ws_pae_controller_nw_key_set *nw_key_set, ws_pae_controller_nw_key_clear *nw_key_clear, ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set, ws_pae_controller_nw_frame_counter_set *nw_frame_counter_set, ws_pae_controller_nw_frame_counter_read *nw_frame_counter_read, ws_pae_controller_pan_ver_increment *pan_ver_increment);
+int8_t ws_pae_controller_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_controller_auth_completed *completed, ws_pae_controller_nw_key_set *nw_key_set, ws_pae_controller_nw_key_clear *nw_key_clear, ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set, ws_pae_controller_nw_frame_counter_set *nw_frame_counter_set, ws_pae_controller_nw_frame_counter_read *nw_frame_counter_read, ws_pae_controller_pan_ver_increment *pan_ver_increment, ws_pae_controller_nw_info_updated *nw_info_updated);
 
 /**
  * ws_pae_controller_fast_timer PAE controller fast timer call
@@ -534,7 +545,7 @@ void ws_pae_controller_fast_timer(uint16_t ticks);
  */
 void ws_pae_controller_slow_timer(uint16_t seconds);
 
-struct nvm_tlv_entry *ws_pae_controller_nvm_tlv_get(protocol_interface_info_entry_t *interface_ptr);
+struct nvm_tlv *ws_pae_controller_nvm_tlv_get(protocol_interface_info_entry_t *interface_ptr);
 
 /**
  * ws_pae_controller_forced_gc PAE controller garbage cleanup callback
