@@ -15,7 +15,7 @@ New commit is created on branch `feature_+repo_name+last_sha` with commit messag
 Note: Only files present in folder will be copied, directories inside the folder will not be copied.
 
 `commit_sha` is list of commits present in mbed-os repo. They are used to be on top of the update - we are changing the upstream repository. To illustrate, the upstream repository does not contain Mbed OS specific change. To apply this change for every update, we add this commit SHA to the `commit_sha`. Every update we do, will use this sha and apply it on top of the latest update. Each commit in the commit_sha list is cherry-picked and applied with the -x option, which records the SHA of the source commit in the commit message.
-Note: You must resolve any conflicts that arise during this cherry-pick process. Make sure that the "(cherry picked from commit ...)" statement is present in the commit message. Re-execute the python script to apply rest of the SHA commits.
+Note: You must resolve any conflicts that arise during this cherry-pick process. Make sure that the "(cherry picked from commit ...)" statement is present in the commit message. After the conflict resolution, continue with the cherry pick. Once done, just re-execute the python script to apply rest of the SHA commits.
 
 ```json
 {
