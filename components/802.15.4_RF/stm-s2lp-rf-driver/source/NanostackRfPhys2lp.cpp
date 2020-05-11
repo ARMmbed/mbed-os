@@ -207,6 +207,7 @@ static uint8_t s2lp_short_address[2];
 static uint8_t s2lp_MAC[8];
 static rf_mode_e rf_mode = RF_MODE_NORMAL;
 static bool rf_update_config = false;
+static bool rf_update_cca_threshold = false;
 static uint16_t cur_packet_len = 0xffff;
 static uint32_t receiver_ready_timestamp;
 static int16_t rssi_threshold = RSSI_THRESHOLD;
@@ -704,6 +705,13 @@ static int8_t rf_extension(phy_extension_type_e extension_type, uint8_t *data_pt
                 rf_receive(rf_rx_channel);
             }
             break;
+        case PHY_EXTENSION_SET_CHANNEL_CCA_THRESHOLD:
+            if ((rssi_threshold != (int8_t)*data_ptr) && (rf_state != RF_RX_STARTED)) {
+                rssi_threshold = (int8_t)*data_ptr;
+                rf_update_cca_threshold = true;
+                rf_receive(rf_rx_channel);
+            }
+            break;
         default:
             break;
     }
@@ -1046,6 +1054,12 @@ static void rf_receive(uint8_t rx_channel)
         rf_channel_multiplier = 1;
         rf_update_config = false;
         rf_set_channel_configuration_registers();
+    }
+    if (rf_update_cca_threshold == true) {
+        rf_update_cca_threshold = false;
+        uint8_t rssi_th;
+        rf_conf_calculate_rssi_threshold_registers(rssi_threshold, &rssi_th);
+        rf_write_register(RSSI_TH, rssi_th);
     }
     if (rx_channel != rf_rx_channel) {
         rf_write_register(CHNUM, rx_channel * rf_channel_multiplier);
