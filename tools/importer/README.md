@@ -4,7 +4,7 @@ importer.py script can be used to import code base from different repositories i
 
 ### Pre-requisties
 1. Get the required repository clone and update it to commit required - the recommended would be to checkout the latest release version in the repository that we are getting an update from.
-Note: Repository should be placed outside the mbed-os. For instance CMSIS_5 repo would be at the same level as mbed-os repository (`update/mbed-os` and update/CMSIS_5)
+Note: Repository should be placed outside the mbed-os. For instance [CMSIS_5](https://github.com/ARM-software/CMSIS_5) repository would be at the same level as mbed-os repository (`update/mbed-os` and update/CMSIS_5)
 2. Create json file as per template
 
 ### JSON file template
