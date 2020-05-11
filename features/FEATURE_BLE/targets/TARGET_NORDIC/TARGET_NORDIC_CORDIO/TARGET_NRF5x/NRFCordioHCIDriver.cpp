@@ -21,7 +21,6 @@
 
 // mbed Includes
 #include "mbed_assert.h"
-#include "rtos/source/rtos_idle.h"
 #include "platform/mbed_power_mgmt.h"
 #include "mbed_critical.h"
 
@@ -183,30 +182,6 @@ const LlRtCfg_t NRFCordioHCIDriver::_ll_cfg = {
 
 extern "C" void TIMER0_IRQHandler(void);
 
-static void idle_hook(void)
-{
-	wsfTimerTicks_t nextExpiration;
-	bool_t          timerRunning;
-
-	nextExpiration = WsfTimerNextExpiration(&timerRunning);
-	if(timerRunning && nextExpiration > 0)
-	{
-		// Make sure we hae enough time to go to sleep
-		if( nextExpiration < 1 /* 10 ms per tick which is long enough to got to sleep */ )
-		{
-			// Bail
-			return;
-		}
-	}
-
-    // critical section to complete sleep with locked deepsleep
-    core_util_critical_section_enter();
-    sleep_manager_lock_deep_sleep();
-    sleep();
-    sleep_manager_unlock_deep_sleep();
-    core_util_critical_section_exit();
-}
-
 NRFCordioHCIDriver::NRFCordioHCIDriver(CordioHCITransportDriver& transport_driver) : cordio::CordioHCIDriver(transport_driver), _is_init(false), _stack_buffer(NULL)
 {
     _stack_buffer = (uint8_t*)malloc(CORDIO_LL_MEMORY_FOOTPRINT);
@@ -233,9 +208,6 @@ NRFCordioHCIDriver::~NRFCordioHCIDriver()
     MBED_ASSERT(_stack_buffer != NULL);
     free(_stack_buffer);
     _stack_buffer = NULL;
-
-    // Restore RTOS idle thread
-	rtos_attach_idle_hook(NULL);
 
     MBED_ASSERT(_stack_buffer == NULL);
 }
@@ -280,9 +252,6 @@ void NRFCordioHCIDriver::do_initialize()
         .pFreeMem     = _stack_buffer,
         .freeMemAvail = CORDIO_LL_MEMORY_FOOTPRINT
     };
-
-    // Override RTOS idle thread
-    rtos_attach_idle_hook(idle_hook);
 
     /* switch to more accurate 16 MHz crystal oscillator (system starts up using 16MHz RC oscillator) */
     NRF_CLOCK->EVENTS_HFCLKSTARTED = 0;
