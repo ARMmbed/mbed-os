@@ -61,11 +61,7 @@ extern "C" {
 #define gCcaCCA_MODE1_c        1
 
 #define gXcvrRunState_d       gXcvrPwrAutodoze_c
-#if !defined(TARGET_KW24D)
 #define gXcvrLowPowerState_d  gXcvrPwrHibernate_c
-#else
-#define gXcvrLowPowerState_d  gXcvrPwrAutodoze_c
-#endif
 
 namespace {
 
@@ -504,9 +500,7 @@ static void rf_init(void)
     /* Disable Tristate on MISO for SPI reads */
     MCR20Drv_IndirectAccessSPIWrite(MISC_PAD_CTRL, 0x02);
     /* Set XCVR clock output settings */
-#if !defined(TARGET_KW24D)
     MCR20Drv_Set_CLK_OUT_Freq(gMCR20_ClkOutFreq_d);
-#endif
     /* Set default XCVR power state */
     rf_set_power_state(gXcvrRunState_d);
 
@@ -1758,7 +1752,7 @@ void NanostackRfPhyMcr20a::_pins_clear()
     irq_thread = NULL;
 }
 
-#if MBED_CONF_MCR20A_PROVIDE_DEFAULT || TARGET_KW24D
+#if MBED_CONF_MCR20A_PROVIDE_DEFAULT
 
 NanostackRfPhy &NanostackRfPhy::get_default_instance()
 {
