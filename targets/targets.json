@@ -9185,29 +9185,29 @@
         "inherits": ["FAMILY_Apollo3"],
         "macros_add": ["AM_PACKAGE_BGA"]
     },
-    "SparkFun_Artemis_Module": {
+    "SPARKFUN_ARTEMIS_MODULE": {
         "public": false,
         "inherits": ["AMA3B1KK"]
     },
-    "SparkFun_Edge": {
+    "SPARKFUN_EDGE": {
         "inherits": ["AMA3B1KK"]
     },
-    "SparkFun_Edge2": {
+    "SPARKFUN_EDGE2": {
         "inherits": ["AMA3B1KK"]
     },
-    "SparkFun_RedBoard_Artemis_ATP": {
+    "SPARKFUN_REDBOARD_ARTEMIS_ATP": {
         "inherits": ["AMA3B1KK"]
     },
-    "SparkFun_RedBoard_Artemis": {
+    "SPARKFUN_REDBOARD_ARTEMIS": {
         "inherits": ["AMA3B1KK"]
     },
-    "SparkFun_RedBoard_Artemis_Nano": {
+    "SPARKFUN_REDBOARD_ARTEMIS_NANO": {
         "inherits": ["AMA3B1KK"]
     },
-    "SparkFun_Artemis_Thing_Plus": {
+    "SPARKFUN_ARTEMIS_THING_PLUS": {
         "inherits": ["AMA3B1KK"]
     },    
-    "SparkFun_ARTmbed": {
+    "SPARKFUN_ARTMBED": {
         "inherits": ["AMA3B1KK"]
     },
     "__build_tools_metadata__": {
