@@ -264,6 +264,8 @@ typedef enum {
     macAutoRequestKeyIndex = 0x7b,  /*<The index of the key used for automatic data*/
     macDefaultKeySource = 0x7c,      /*<Default key source*/
     //NON standard extension
+    macCCAThresholdStart = 0xf4,    /*< Start automatic CCA threshold */
+    macDevicePendingAckTrig = 0xf5, /*< Trig Pending ACK for Accepted Data packet for temporary neighbour */
     mac802_15_4Mode = 0xf6,         /*<IEEE 802.15.4 mode*/
     macDeviceDescriptionPanIDUpdate = 0xf7, /*<Thread pending link update case this will update device descrioton list pan-id to new one*/
     macTXPower = 0xf8,              /*<TX output power*/

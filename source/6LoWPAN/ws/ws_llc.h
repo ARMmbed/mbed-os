@@ -86,6 +86,7 @@ typedef struct ws_neighbor_temp_class_s {
     uint8_t mac64[8];
     uint8_t mpduLinkQuality;
     int8_t signal_dbm;
+    uint16_t    eapol_timeout;
     ns_list_link_t link;
 } ws_neighbor_temp_class_t;
 
@@ -216,6 +217,8 @@ void ws_llc_set_pan_information_pointer(struct protocol_interface_info_entry *in
  *
  */
 void ws_llc_hopping_schedule_config(struct protocol_interface_info_entry *interface, struct ws_hopping_schedule_s *hopping_schedule);
+
+void ws_llc_timer_seconds(struct protocol_interface_info_entry *interface, uint16_t seconds_update);
 
 ws_neighbor_temp_class_t *ws_llc_get_multicast_temp_entry(struct protocol_interface_info_entry *interface, const uint8_t *mac64);
 

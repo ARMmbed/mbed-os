@@ -33,6 +33,7 @@
 #include "Security/protocols/sec_prot_certs.h"
 #include "Security/protocols/sec_prot_keys.h"
 #include "6LoWPAN/ws/ws_pae_lib.h"
+#include "6LoWPAN/ws/ws_pae_key_storage.h"
 
 #ifdef HAVE_WS
 
@@ -126,6 +127,16 @@ kmp_entry_t *ws_pae_lib_kmp_list_entry_get(kmp_list_t *kmp_list, kmp_api_t *kmp)
     return 0;
 }
 
+bool ws_pae_lib_kmp_list_empty(kmp_list_t *kmp_list)
+{
+    return ns_list_is_empty(kmp_list);
+}
+
+uint8_t ws_pae_lib_kmp_list_count(kmp_list_t *kmp_list)
+{
+    return ns_list_count(kmp_list);
+}
+
 void ws_pae_lib_kmp_timer_start(kmp_list_t *kmp_list, kmp_entry_t *entry)
 {
     if (ns_list_get_first(kmp_list) != entry) {
@@ -171,7 +182,7 @@ void ws_pae_lib_supp_list_init(supp_list_t *supp_list)
 
 supp_entry_t *ws_pae_lib_supp_list_add(supp_list_t *supp_list, const kmp_addr_t *addr)
 {
-    supp_entry_t *entry = ns_dyn_mem_alloc(sizeof(supp_entry_t));
+    supp_entry_t *entry = ns_dyn_mem_temporary_alloc(sizeof(supp_entry_t));
 
     if (!entry) {
         return NULL;
@@ -215,16 +226,16 @@ void ws_pae_lib_supp_list_delete(supp_list_t *supp_list)
     }
 }
 
-bool ws_pae_lib_supp_list_timer_update(supp_list_t *active_supp_list, supp_list_t *inactive_supp_list, uint16_t ticks, ws_pae_lib_kmp_timer_timeout timeout)
+bool ws_pae_lib_supp_list_timer_update(void *instance, supp_list_t *active_supp_list, uint16_t ticks, ws_pae_lib_kmp_timer_timeout timeout)
 {
     bool timer_running = false;
 
     ns_list_foreach_safe(supp_entry_t, entry, active_supp_list) {
-        bool running = ws_pae_lib_supp_timer_update(entry, ticks, timeout);
+        bool running = ws_pae_lib_supp_timer_update(instance, entry, ticks, timeout);
         if (running) {
             timer_running = true;
         } else {
-            ws_pae_lib_supp_list_to_inactive(active_supp_list, inactive_supp_list, entry);
+            ws_pae_lib_supp_list_to_inactive(instance, active_supp_list, entry);
         }
     }
 
@@ -251,6 +262,7 @@ void ws_pae_lib_supp_init(supp_entry_t *entry)
     memset(&entry->sec_keys, 0, sizeof(sec_prot_keys_t));
     entry->ticks = 0;
     entry->retry_ticks = 0;
+    entry->store_ticks = ws_pae_key_storage_storing_interval_get() * 1000;
     entry->active = true;
     entry->access_revoked = false;
 }
@@ -260,7 +272,7 @@ void ws_pae_lib_supp_delete(supp_entry_t *entry)
     ws_pae_lib_kmp_list_free(&entry->kmp_list);
 }
 
-bool ws_pae_lib_supp_timer_update(supp_entry_t *entry, uint16_t ticks, ws_pae_lib_kmp_timer_timeout timeout)
+bool ws_pae_lib_supp_timer_update(void *instance, supp_entry_t *entry, uint16_t ticks, ws_pae_lib_kmp_timer_timeout timeout)
 {
     // Updates KMP timers and calls timeout callback
     bool keep_timer_running = ws_pae_lib_kmp_timer_update(&entry->kmp_list, ticks, timeout);
@@ -284,6 +296,19 @@ bool ws_pae_lib_supp_timer_update(supp_entry_t *entry, uint16_t ticks, ws_pae_li
             tr_info("EAP-TLS max ongoing delay timeout eui-64: %s", trace_array(entry->addr.eui_64, 8));
         }
         entry->retry_ticks = 0;
+    }
+
+    if (!instance) {
+        return keep_timer_running;
+    }
+
+    // Updates retry timer
+    if (entry->store_ticks > ticks) {
+        entry->store_ticks -= ticks;
+    } else {
+        tr_info("PAE active entry key storage update timeout");
+        ws_pae_key_storage_supp_write(instance, entry);
+        entry->store_ticks = ws_pae_key_storage_storing_interval_get() * 1000;
     }
 
     return keep_timer_running;
@@ -326,7 +351,7 @@ void ws_pae_lib_supp_list_to_active(supp_list_t *active_supp_list, supp_list_t *
     entry->addr.type = KMP_ADDR_EUI_64_AND_IP;
 }
 
-void ws_pae_lib_supp_list_to_inactive(supp_list_t *active_supp_list, supp_list_t *inactive_supp_list, supp_entry_t *entry)
+void ws_pae_lib_supp_list_to_inactive(void *instance, supp_list_t *active_supp_list, supp_entry_t *entry)
 {
     if (!entry->active) {
         return;
@@ -340,40 +365,44 @@ void ws_pae_lib_supp_list_to_inactive(supp_list_t *active_supp_list, supp_list_t
         return;
     }
 
-    ns_list_remove(active_supp_list, entry);
-    ns_list_add_to_start(inactive_supp_list, entry);
+    // Store to key storage
+    ws_pae_key_storage_supp_write(instance, entry);
 
-    entry->active = false;
-    entry->ticks = 0;
-
-    // Removes relay address data
-    entry->addr.type = KMP_ADDR_EUI_64;
-    entry->addr.port = 0;
-    memset(entry->addr.relay_address, 0, 16);
+    // Remove supplicant entry
+    ws_pae_lib_supp_list_remove(active_supp_list, entry);
 }
 
-void ws_pae_lib_supp_list_purge(supp_list_t *active_supp_list, supp_list_t *inactive_supp_list, uint16_t max_number, uint8_t max_purge)
+void ws_pae_lib_supp_list_purge(supp_list_t *active_supp_list, uint16_t max_number, uint8_t max_purge)
 {
     uint16_t active_supp = ns_list_count(active_supp_list);
-    uint16_t inactive_supp = ns_list_count(inactive_supp_list);
 
-    if (active_supp + inactive_supp > max_number) {
-        uint16_t remove_count = active_supp + inactive_supp - max_number;
+    if (active_supp > max_number) {
+        uint16_t remove_count = active_supp - max_number;
         if (max_purge > 0 && remove_count > max_purge) {
             remove_count = max_purge;
         }
 
-        // Remove entries from inactive list
-        ns_list_foreach_safe(supp_entry_t, entry, inactive_supp_list) {
-            if (remove_count > 0) {
-                tr_info("Inactive supplicant removed, eui-64: %s", trace_array(kmp_address_eui_64_get(&entry->addr), 8));
-                ws_pae_lib_supp_list_remove(inactive_supp_list, entry);
+        // Remove entries from active list if there are no active KMPs ongoing for the entry
+        ns_list_foreach_safe(supp_entry_t, entry, active_supp_list) {
+            if (remove_count > 0 && ws_pae_lib_kmp_list_empty(&entry->kmp_list)) {
+                tr_info("Active supplicant removed, eui-64: %s", trace_array(kmp_address_eui_64_get(&entry->addr), 8));
+                ws_pae_lib_supp_list_remove(active_supp_list, entry);
                 remove_count--;
             } else {
                 break;
             }
         }
     }
+}
+
+bool ws_pae_lib_supp_list_active_limit_reached(supp_list_t *active_supp_list, uint16_t max_number)
+{
+    uint16_t active_supp = ns_list_count(active_supp_list);
+    if (active_supp > max_number) {
+        return true;
+    }
+
+    return false;
 }
 
 uint16_t ws_pae_lib_supp_list_kmp_count(supp_list_t *supp_list, kmp_type_e type)

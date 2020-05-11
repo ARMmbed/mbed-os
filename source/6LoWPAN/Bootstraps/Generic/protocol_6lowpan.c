@@ -83,6 +83,9 @@
 #define TRACE_GROUP_LOWPAN "6lo"
 #define TRACE_GROUP "6lo"
 
+/* Data rate for application used in Stagger calculation */
+#define STAGGER_DATARATE_FOR_APPL(n) ((n)*25/100)
+
 #ifdef HAVE_RPL
 rpl_domain_t *protocol_6lowpan_rpl_domain;
 /* Having to sidestep old rpl_dodag_t type for the moment */
@@ -800,7 +803,7 @@ bool protocol_6lowpan_latency_estimate_get(int8_t interface_id, uint32_t *latenc
         latency_estimate = 100;
     } else if (thread_info(cur_interface)) {
         // thread network
-        latency_estimate = 1000;
+        latency_estimate = 2000;
     } else if (ws_info(cur_interface)) {
         latency_estimate = ws_common_latency_estimate_get(cur_interface);
     } else {
@@ -820,13 +823,12 @@ bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t data_am
 {
     size_t network_size;
     uint32_t datarate;
+    uint32_t stagger_value;
     protocol_interface_info_entry_t *cur_interface = protocol_stack_interface_info_get_by_id(interface_id);
 
     if (!cur_interface) {
         return false;
     }
-
-    *stagger_min = 1;
 
     if (cur_interface->eth_mac_api) {
         // either PPP or Ethernet interface.
@@ -849,16 +851,25 @@ bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t data_am
         // If no data amount given, use 1kB
         data_amount = 1;
     }
-    /**Example:
-     * Maximum stagger value to send 1kB on 50 devices network using datarate 50000 kb/:
-     * (1 * 1024 * 8 * 50) / (50000/4)) = ~ 32s
-     *
-     * devices: 50,   datarate: 250kbps => stagger ~ 6s
-     * devices: 1000, datarate: 50kbps  => stagger ~ 655s
+
+    /*
+     * Do not occupy whole bandwidth, leave space for network formation etc...
      */
-    /* Do not occupy whole bandwidth, halve the theoretical datarate and reserve room for other channel usage */
-    datarate = datarate / 4;
-    *stagger_max = (uint16_t) * stagger_min + ((data_amount * 1024 * 8 * network_size) / datarate);
+    datarate = STAGGER_DATARATE_FOR_APPL(datarate);
+    stagger_value = 1 + ((data_amount * 1024 * 8 * network_size) / datarate);
+    /**
+     * Example:
+     * Maximum stagger value to send 1kB to 100 device network using data rate of 50kbs:
+     * 1 + (1 * 1024 * 8 * 100) / (50000*0.25) = 66s
+     */
+
+    *stagger_min = stagger_value / 5;   // Minimum stagger value is 1/5 of the max
+
+    if (stagger_value > 0xFFFF) {
+        *stagger_max = 0xFFFF;
+    } else {
+        *stagger_max = (uint16_t)stagger_value;
+    }
 
     // Randomize stagger value
     *stagger_rand = randLIB_get_random_in_range(*stagger_min, *stagger_max);
