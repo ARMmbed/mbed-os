@@ -40,12 +40,13 @@
  * \param cert_chain certificate chain
  * \param sec_timer_cfg timer configuration
  * \param sec_prot_cfg protocol configuration
+ * \param sec_keys_nw_info security keys network information
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const sec_prot_certs_t *certs, sec_timer_cfg_t *sec_timer_cfg, sec_prot_cfg_t *sec_prot_cfg);
+int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const sec_prot_certs_t *certs, sec_timer_cfg_t *sec_timer_cfg, sec_prot_cfg_t *sec_prot_cfg, sec_prot_keys_nw_info_t *sec_keys_nw_info);
 
 /**
  * ws_pae_supp_delete deletes PAE supplicant
@@ -87,19 +88,6 @@ void ws_pae_supp_slow_timer(uint16_t seconds);
  *
  */
 int8_t ws_pae_supp_authenticate(protocol_interface_info_entry_t *interface_ptr, uint16_t dest_pan_id, uint8_t *dest_eui_64);
-
-/**
- * ws_pae_supp_nw_info_set set network information
- *
- * \param interface_ptr interface
- * \param pan_id PAD ID
- * \param network_name network name
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_supp_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name);
 
 /**
  * ws_pae_supp_border_router_addr_write write border router address
@@ -225,15 +213,24 @@ typedef int8_t ws_pae_supp_nw_key_insert(protocol_interface_info_entry_t *interf
 typedef uint8_t *ws_pae_supp_gtk_hash_ptr_get(protocol_interface_info_entry_t *interface_ptr);
 
 /**
+ * ws_pae_supp_nw_info_updated security keys network information updated
+ *
+ * \param interface_ptr interface
+ *
+ */
+typedef void ws_pae_supp_nw_info_updated(protocol_interface_info_entry_t *interface_ptr);
+
+/**
  * ws_pae_supp_cb_register register PEA supplicant callbacks
  *
  * \param interface_ptr interface
  * \param completed authentication completed callback
  * \param nw_key_insert network key index callback
  * \param nw_key_index_set network send key index callback
+ * \param nw_info_updated security keys network information updated callback
  *
  */
-void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_supp_auth_completed *completed, ws_pae_supp_nw_key_insert *nw_key_insert, ws_pae_supp_nw_key_index_set *nw_key_index_set, ws_pae_supp_gtk_hash_ptr_get *gtk_hash_ptr_get);
+void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_supp_auth_completed *completed, ws_pae_supp_nw_key_insert *nw_key_insert, ws_pae_supp_nw_key_index_set *nw_key_index_set, ws_pae_supp_gtk_hash_ptr_get *gtk_hash_ptr_get, ws_pae_supp_nw_info_updated *nw_info_updated);
 
 #else
 
@@ -241,7 +238,6 @@ void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_
 #define ws_pae_supp_delete NULL
 #define ws_pae_supp_timing_adjust(timing) 1
 #define ws_pae_supp_cb_register(interface_ptr, completed, nw_key_insert, nw_key_index_set)
-#define ws_pae_supp_nw_info_set(interface_ptr, pan_id, network_name) -1
 #define ws_pae_supp_nw_key_valid(interface_ptr) -1
 #define ws_pae_supp_fast_timer NULL
 #define ws_pae_supp_slow_timer NULL

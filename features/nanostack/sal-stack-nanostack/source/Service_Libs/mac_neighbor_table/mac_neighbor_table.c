@@ -101,6 +101,10 @@ void mac_neighbor_table_neighbor_timeout_update(mac_neighbor_table_t *table_clas
     ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &table_class->neighbour_list) {
 
         if (cur->lifetime > time_update) {
+            if (cur->lifetime == 0xffffffff && cur->link_lifetime == 0xffffffff) {
+                continue; //Infinite Lifetime too not touch
+            }
+
             cur->lifetime -= time_update;
             if (!table_class->user_nud_notify_cb ||  table_class->active_nud_process > ACTIVE_NUD_PROCESS_MAX || cur->nud_active || !cur->rx_on_idle) {
                 continue;

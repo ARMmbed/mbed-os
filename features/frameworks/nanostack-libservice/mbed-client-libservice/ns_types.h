@@ -106,8 +106,6 @@ typedef int_fast32_t int_fast24_t;
 #define NS_NORETURN _Noreturn
 #elif defined __GNUC__
 #define NS_NORETURN __attribute__((__noreturn__))
-#elif defined __CC_ARM
-#define NS_NORETURN __declspec(noreturn)
 #elif defined __IAR_SYSTEMS_ICC__
 #define NS_NORETURN __noreturn
 #else
@@ -117,7 +115,7 @@ typedef int_fast32_t int_fast24_t;
 
 /* C11's "alignas" macro, emulated for integer expressions if necessary */
 #ifndef __alignas_is_defined
-#if defined __CC_ARM || defined __TASKING__
+#if defined __TASKING__
 #define alignas(n) __align(n)
 #define __alignas_is_defined 1
 #elif (defined __STDC_VERSION__ && __STDC_VERSION__ >= 201112L) || (defined __cplusplus && __cplusplus >= 201103L)
@@ -149,7 +147,7 @@ typedef int_fast32_t int_fast24_t;
  *    static int foo(void) MAYBE_UNUSED;
  * ~~~
  */
-#if defined __CC_ARM || defined __GNUC__
+#if defined __GNUC__
 #define MAYBE_UNUSED __attribute__((unused))
 #else
 #define MAYBE_UNUSED
@@ -219,7 +217,7 @@ typedef int_fast32_t int_fast24_t;
 #else /* C */
 # if __STDC_VERSION__ >= 201112L
 # define NS_STATIC_ASSERT(test, str) _Static_assert(test, str);
-# elif defined __GNUC__ && NS_GCC_VERSION >= 40600 && !defined __CC_ARM
+# elif defined __GNUC__ && NS_GCC_VERSION >= 40600
 # ifdef _Static_assert
 /*
  * Some versions of glibc cdefs.h (which comes in via <stdint.h> above)
@@ -255,7 +253,7 @@ typedef int_fast32_t int_fast24_t;
 
 /** \brief Pragma to suppress warnings about always true/false comparisons
  */
-#if defined __GNUC__ && NS_GCC_VERSION >= 40600 && !defined __CC_ARM
+#if defined __GNUC__ && NS_GCC_VERSION >= 40600
 #define NS_FUNNY_COMPARE_OK         _Pragma("GCC diagnostic push") \
                                     _Pragma("GCC diagnostic ignored \"-Wtype-limits\"")
 #define NS_FUNNY_COMPARE_RESTORE    _Pragma("GCC diagnostic pop")
@@ -272,11 +270,7 @@ typedef int_fast32_t int_fast24_t;
  * components should ensure this is not included by only using it in
  * a ifdef blocks providing dummy definitions.
  */
-#ifdef __CC_ARM
-// statement is unreachable(111),  controlling expression is constant(236), expression has no effect(174),
-// function was declared but never referenced(177), variable was set but never used(550)
-#define NS_DUMMY_DEFINITIONS_OK _Pragma("diag_suppress=111,236,174,177,550")
-#elif defined __IAR_SYSTEMS_ICC__
+#if defined __IAR_SYSTEMS_ICC__
 // controlling expression is constant
 #define NS_DUMMY_DEFINITIONS_OK _Pragma("diag_suppress=Pe236")
 #else

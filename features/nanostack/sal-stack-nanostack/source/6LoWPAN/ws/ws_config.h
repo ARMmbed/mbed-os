@@ -46,6 +46,10 @@
 #define WS_RPL_MIN_HOP_RANK_INCREASE 196
 #define WS_RPL_MAX_HOP_RANK_INCREASE 2048
 
+#define WS_DHCP_ADDRESS_LIFETIME_SMALL 2*3600 // small networks less than devices 100
+#define WS_DHCP_ADDRESS_LIFETIME_MEDIUM 12*3600 // Medium size networks from 100 - 1000 device networks
+#define WS_DHCP_ADDRESS_LIFETIME_LARGE 24*3600 // Large size networks 1000 + device networks
+
 #define WS_CERTIFICATE_RPL_MIN_HOP_RANK_INCREASE 128
 #define WS_CERTIFICATE_RPL_MAX_HOP_RANK_INCREASE 0
 

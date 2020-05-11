@@ -25,6 +25,7 @@
 #include "6LoWPAN/ws/ws_common.h"
 
 #include "ws_management_api.h"
+#include "ns_time_api.h"
 
 #ifndef HAVE_WS
 int ws_management_node_init(
@@ -390,6 +391,11 @@ int ws_statistics_stop(int8_t interface_id)
 {
     (void) interface_id;
     return -1;
+}
+
+void ns_time_api_system_time_callback_set(ns_time_api_system_time_callback callback)
+{
+    (void) callback;
 }
 
 #endif // no HAVE_WS

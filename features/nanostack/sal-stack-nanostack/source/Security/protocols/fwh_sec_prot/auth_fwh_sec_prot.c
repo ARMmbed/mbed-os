@@ -66,6 +66,7 @@ typedef struct {
     fwh_sec_prot_msg_e            recv_msg;                    /**< Received message */
     uint8_t                       nonce[EAPOL_KEY_NONCE_LEN];  /**< Authenticator nonce */
     uint8_t                       new_ptk[PTK_LEN];            /**< PTK (384 bits) */
+    uint8_t                       remote_eui64[8];             /**< Remote EUI-64 used to calculate PTK */
     void                          *recv_pdu;                   /**< received pdu */
     uint16_t                      recv_size;                   /**< received pdu size */
 } fwh_sec_prot_int_t;
@@ -265,14 +266,20 @@ static int8_t auth_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_
 
     switch (msg) {
         case FWH_MESSAGE_1:
-            sec_prot_keys_pmk_replay_cnt_increment(prot->sec_keys);
+            if (!sec_prot_keys_pmk_replay_cnt_increment(prot->sec_keys)) {
+                ns_dyn_mem_free(kde_start);
+                return 1;
+            }
             eapol_pdu.msg.key.replay_counter = sec_prot_keys_pmk_replay_cnt_get(prot->sec_keys);
             eapol_pdu.msg.key.key_information.key_ack = true;
             eapol_pdu.msg.key.key_length = EAPOL_KEY_LEN;
             eapol_pdu.msg.key.key_nonce = data->nonce;
             break;
         case FWH_MESSAGE_3:
-            sec_prot_keys_pmk_replay_cnt_increment(prot->sec_keys);
+            if (!sec_prot_keys_pmk_replay_cnt_increment(prot->sec_keys)) {
+                ns_dyn_mem_free(kde_start);
+                return -1;
+            }
             eapol_pdu.msg.key.replay_counter = sec_prot_keys_pmk_replay_cnt_get(prot->sec_keys);
             eapol_pdu.msg.key.key_information.install = true;
             eapol_pdu.msg.key.key_information.key_ack = true;
@@ -391,12 +398,16 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
                 }
                 // PTK is fresh for installing any GTKs
                 sec_prot_keys_ptk_installed_gtk_hash_clear_all(prot->sec_keys);
+                /* Store the hash for to-be installed GTK as used for the PTK, on 4WH
+                   this stores only the hash in NVM and does not affect otherwise */
+                sec_prot_keys_ptk_installed_gtk_hash_set(prot->sec_keys, true);
                 // If GTK was inserted set it valid
                 sec_prot_keys_gtkl_from_gtk_insert_index_set(prot->sec_keys);
                 // Reset PTK mismatch
                 sec_prot_keys_ptk_mismatch_reset(prot->sec_keys);
                 // Update PTK
                 sec_prot_keys_ptk_write(prot->sec_keys, data->new_ptk);
+                sec_prot_keys_ptk_eui_64_write(prot->sec_keys, data->remote_eui64);
                 sec_prot_state_set(prot, &data->common, FWH_STATE_FINISH);
             }
             break;
@@ -427,9 +438,7 @@ static int8_t auth_fwh_sec_prot_ptk_generate(sec_prot_t *prot, sec_prot_keys_t *
     fwh_sec_prot_int_t *data = fwh_sec_prot_get(prot);
 
     uint8_t local_eui64[8];
-    uint8_t remote_eui64[8];
-
-    prot->addr_get(prot, local_eui64, remote_eui64);
+    prot->addr_get(prot, local_eui64, data->remote_eui64);
 
     uint8_t *remote_nonce = data->recv_eapol_pdu.msg.key.key_nonce;
     if (!remote_nonce) {
@@ -438,7 +447,7 @@ static int8_t auth_fwh_sec_prot_ptk_generate(sec_prot_t *prot, sec_prot_keys_t *
     }
 
     uint8_t *pmk = sec_prot_keys_pmk_get(sec_keys);
-    sec_prot_lib_ptk_calc(pmk, local_eui64, remote_eui64, data->nonce, remote_nonce, data->new_ptk);
+    sec_prot_lib_ptk_calc(pmk, local_eui64, data->remote_eui64, data->nonce, remote_nonce, data->new_ptk);
 
     return 0;
 }

@@ -41,7 +41,7 @@
 #define PTKID_LEN               16
 #define KEYID_LEN               16
 
-#define GTK_DEFAULT_LIFETIME      60 * 60 * 24 * 30       // 30 days
+#define GTK_DEFAULT_LIFETIME      (60 * 60 * 24 * 30)     // 30 days
 #define GTK_EXPIRE_MISMATCH_TIME  60                      // Supplicant GTK expire time mismatch occurs if GTK expires before this time
 
 #define GTK_STATUS_NEW            0                       // New GTK, can transition to fresh
@@ -59,15 +59,22 @@
 #define PMK_LIFETIME_INSTALL      0xFFFFF
 #define PTK_LIFETIME_INSTALL      0xFFFFF
 
+// Limit is 60000 (of 65536)
+#define PMK_KEY_REPLAY_CNT_LIMIT       60000              // Upper limit for PMK replay counter
+#define PMK_KEY_REPLAY_CNT_LIMIT_MASK  0xFFFF             // Upper limit mask
+
+#define SEC_MAXIMUM_LIFETIME   (60 * 60 * 24 * 30 * 24)   // Maximum life time for PMK, PTK, GTKs etc. is two years
+
 typedef struct {
     uint8_t                key[GTK_LEN];              /**< Group Transient Key (128 bits) */
+    uint64_t               expirytime;                /**< GTK expiry time on storage */
     uint32_t               lifetime;                  /**< GTK lifetime in seconds */
     unsigned               status : 2;                /**< Group Transient Key status */
     unsigned               install_order : 2;         /**< Order in which GTK keys are added */
     bool                   set: 1;                    /**< Group Transient Key set (valid value) */
 } gtk_key_t;
 
-typedef struct {
+typedef struct sec_prot_gtk_keys_s {
     gtk_key_t              gtk[GTK_NUM];              /**< 4 Group Transient Keys */
     bool                   updated: 1;                /**< Group Transient Keys has been updated */
 } sec_prot_gtk_keys_t;
@@ -90,6 +97,7 @@ typedef struct {
     uint8_t                gtkl;                      /**< Remote GTKL information */
     int8_t                 gtk_set_index;             /**< Index of GTK to set */
     unsigned               ins_gtk_hash_set: 4;       /**< Hash for inserted GTKs for a PTK set */
+    unsigned               ins_gtk_4wh_hash_set: 4;   /**< Hash for inserted GTKs for a PTK set for a 4WH */
     bool                   pmk_set: 1;                /**< Pairwise Master Key set */
     bool                   ptk_set: 1;                /**< Pairwise Transient Key set */
     bool                   pmk_key_replay_cnt_set: 1; /**< Pairwise Master Key replay counter set */
@@ -110,6 +118,35 @@ typedef struct {
 typedef struct {
     frame_counter_t counter[GTK_NUM];                 /**< Frame counter for each GTK key */
 } frame_counters_t;
+
+// Authenticator supplicant security key data
+typedef struct {
+    uint8_t                pmk[PMK_LEN];              /**< Pairwise Master Key (256 bits) */
+    uint8_t                ptk[PTK_LEN];              /**< Pairwise Transient Key (384 bits) */
+    uint8_t                ptk_eui_64[8];             /**< Remote EUI-64 used to derive PTK or NULL */
+    sec_prot_gtk_hash_t    ins_gtk_hash[GTK_NUM];     /**< Hashes for inserted GTKs for a PTK */
+    uint16_t               pmk_key_replay_cnt;        /**< Pairwise Master Key replay counter */
+    uint16_t               pmk_lifetime;              /**< PMK lifetime (short time format) */
+    uint16_t               ptk_lifetime;              /**< PTK lifetime (short time format) */
+    unsigned               ins_gtk_hash_set: 4;       /**< Hash for inserted GTKs for a PTK set */
+    unsigned               ins_gtk_4wh_hash_set: 4;   /**< Hash for inserted GTKs for a PTK set for a 4WH */
+    bool                   pmk_set: 1;                /**< Pairwise Master Key set */
+    bool                   ptk_set: 1;                /**< Pairwise Transient Key set */
+    bool                   pmk_lifetime_set: 1;       /**< PMK lifetime (short time format) */
+    bool                   ptk_lifetime_set: 1;       /**< PTK lifetime (short time format) */
+    bool                   pmk_key_replay_cnt_set: 1; /**< Pairwise Master Key replay counter set */
+    bool                   ptk_eui_64_set: 1;         /**< Remote EUI-64 used to derive PTK is set */
+    bool                   eui_64_set: 1;             /**< Remote EUI-64 is set */
+} sec_prot_keys_storage_t;
+
+// Security keys (GTKs) and needed network information
+typedef struct {
+    char network_name[33];                                 /**< Network name for keys */
+    sec_prot_gtk_keys_t *gtks;                             /**< Link to GTKs */
+    uint16_t new_pan_id;                                   /**< new PAN ID indicated by bootstrap */
+    uint16_t key_pan_id;                                   /**< PAN ID for keys */
+    bool updated : 1;                                      /**< Network info has been updated */
+} sec_prot_keys_nw_info_t;
 
 /*
  * GTK mismatch types, list is ordered according to priority of mismatch i.e. if there
@@ -224,8 +261,11 @@ void sec_prot_keys_pmk_replay_cnt_set(sec_prot_keys_t *sec_keys, uint64_t counte
  *
  * \param sec_keys security keys
  *
+ * \return TRUE counter was incremented
+ * \return FALSE counter increment failed
+ *
  */
-void sec_prot_keys_pmk_replay_cnt_increment(sec_prot_keys_t *sec_keys);
+bool sec_prot_keys_pmk_replay_cnt_increment(sec_prot_keys_t *sec_keys);
 
 /**
  * sec_prot_keys_pmk_replay_cnt_compare compares received replay counter value to PMK replay counter
@@ -556,12 +596,38 @@ uint32_t sec_prot_keys_gtk_lifetime_get(sec_prot_gtk_keys_t *gtks, uint8_t index
  *
  * \param gtks GTK keys
  * \param index index for GTK
+ * \param current_time current timestamp
  * \param seconds elapsed seconds
  *
  * \return new GTK lifetime
  *
  */
-uint32_t sec_prot_keys_gtk_lifetime_decrement(sec_prot_gtk_keys_t *gtks, uint8_t index, uint16_t seconds);
+uint32_t sec_prot_keys_gtk_lifetime_decrement(sec_prot_gtk_keys_t *gtks, uint8_t index, uint64_t current_time, uint16_t seconds);
+
+/**
+ * sec_prot_keys_gtk_exptime_from_lifetime_get converts GTK lifetime to expiry time.
+ *
+ * \param gtks GTK keys
+ * \param index index for GTK
+ * \param current_time current time
+ *
+ * \return expiry time
+ *
+ */
+uint64_t sec_prot_keys_gtk_exptime_from_lifetime_get(sec_prot_gtk_keys_t *gtks, uint8_t index, uint64_t current_time);
+
+/**
+ * sec_prot_keys_gtk_expirytime_set sets GTK expiry time
+ *
+ * \param gtks GTK keys
+ * \param index index for GTK
+ * \param expirytime expiry time
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t sec_prot_keys_gtk_expirytime_set(sec_prot_gtk_keys_t *gtks, uint8_t index, uint64_t expirytime);
 
 /**
  * sec_prot_keys_gtks_are_updated returns GTKs have been updated flag
@@ -632,6 +698,17 @@ int8_t sec_prot_keys_gtk_status_active_set(sec_prot_gtk_keys_t *gtks, uint8_t in
 int8_t sec_prot_keys_gtk_status_active_get(sec_prot_gtk_keys_t *gtks);
 
 /**
+ * sec_prot_keys_gtk_status_active_to_fresh_set sets active GTK to fresh GTK
+ *
+ * \param gtks GTK keys
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t sec_prot_keys_gtk_status_active_to_fresh_set(sec_prot_gtk_keys_t *gtks);
+
+/**
  * sec_prot_keys_gtk_status_is_live checks whether GTK is active
  *
  * \param gtks GTK keys
@@ -641,6 +718,30 @@ int8_t sec_prot_keys_gtk_status_active_get(sec_prot_gtk_keys_t *gtks);
  *
  */
 bool sec_prot_keys_gtk_status_is_live(sec_prot_gtk_keys_t *gtks, uint8_t index);
+
+/**
+ * sec_prot_keys_gtk_status_get gets GTK status
+ *
+ * \param gtks GTK keys
+ * \param index index
+ *
+ * \return GTK status
+ *
+ */
+uint8_t sec_prot_keys_gtk_status_get(sec_prot_gtk_keys_t *gtks, uint8_t index);
+
+/**
+ * sec_prot_keys_gtk_status_get sets GTK status
+ *
+ * \param gtks GTK keys
+ * \param index index
+ * \param status status
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t sec_prot_keys_gtk_status_set(sec_prot_gtk_keys_t *gtks, uint8_t index, uint8_t status);
 
 /**
  * sec_prot_keys_gtks_hash_generate generate GTK hash based on all GTKs
@@ -762,6 +863,30 @@ void sec_prot_keys_gtk_install_order_update(sec_prot_gtk_keys_t *gtks);
 int8_t sec_prot_keys_gtk_install_index_get(sec_prot_gtk_keys_t *gtks);
 
 /**
+ * sec_prot_keys_gtk_install_order_get gets GTK install order
+ *
+ * \param gtks GTK keys
+ * \param index index
+ *
+ * \return GTK install order
+ *
+ */
+uint8_t sec_prot_keys_gtk_install_order_get(sec_prot_gtk_keys_t *gtks, uint8_t gtk_index);
+
+/**
+ * sec_prot_keys_gtk_install_order_set sets GTK install order
+ *
+ * \param gtks GTK keys
+ * \param index index
+ * \param install_order GTK install order
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t sec_prot_keys_gtk_install_order_set(sec_prot_gtk_keys_t *gtks, uint8_t gtk_index, uint8_t install_order);
+
+/**
  * sec_prot_keys_gtk_count counts GTK keys
  *
  * \param gtks GTK keys
@@ -784,9 +909,10 @@ void sec_prot_keys_ptk_installed_gtk_hash_clear_all(sec_prot_keys_t *sec_keys);
  *                                          to supplicant using the current PTK
  *
  * \param sec_keys security keys
+ * \param is_4wh set by 4WH
  *
  */
-void sec_prot_keys_ptk_installed_gtk_hash_set(sec_prot_keys_t *sec_keys);
+void sec_prot_keys_ptk_installed_gtk_hash_set(sec_prot_keys_t *sec_keys, bool is_4wh);
 
 /**
  * sec_prot_keys_ptk_installed_gtk_hash_set check if PTK is being used to store new GTK for the index

@@ -23,7 +23,9 @@
 #include <net_ws_test.h>
 #include "fhss_config.h"
 #include "ws_management_api.h"
+#include "mac_api.h"
 #include "NWK_INTERFACE/Include/protocol.h"
+#include "6LoWPAN/MAC/mac_helper.h"
 #include "6LoWPAN/ws/ws_config.h"
 #include "6LoWPAN/ws/ws_common.h"
 #include "6LoWPAN/ws/ws_bbr_api_internal.h"

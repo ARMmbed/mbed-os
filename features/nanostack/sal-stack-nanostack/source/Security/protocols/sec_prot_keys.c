@@ -140,15 +140,20 @@ void sec_prot_keys_pmk_replay_cnt_set(sec_prot_keys_t *sec_keys, uint64_t counte
     sec_keys->pmk_key_replay_cnt_set = true;
     sec_keys->pmk_key_replay_cnt = counter;
 }
-
-void sec_prot_keys_pmk_replay_cnt_increment(sec_prot_keys_t *sec_keys)
+bool sec_prot_keys_pmk_replay_cnt_increment(sec_prot_keys_t *sec_keys)
 {
     // Start from zero i.e. does not increment on first call
     if (!sec_keys->pmk_key_replay_cnt_set) {
         sec_keys->pmk_key_replay_cnt_set = true;
-        return;
+        return true;
+    }
+    // If counter is near to exhaust return error (ignores MSB 32bits which are re-start counter)
+    if ((sec_keys->pmk_key_replay_cnt & PMK_KEY_REPLAY_CNT_LIMIT_MASK) > PMK_KEY_REPLAY_CNT_LIMIT) {
+        sec_keys->pmk_key_replay_cnt |= 0xFFFF; // Invalidate counter; will result removal of keys
+        return false;
     }
     sec_keys->pmk_key_replay_cnt++;
+    return true;
 }
 
 bool sec_prot_keys_pmk_replay_cnt_compare(uint64_t received_counter, sec_prot_keys_t *sec_keys)
@@ -380,8 +385,11 @@ int8_t sec_prot_keys_gtk_insert_index_from_gtkl_get(sec_prot_keys_t *sec_keys)
 
     // Checks all keys
     for (uint8_t i = 0; i < GTK_NUM; i++) {
-        if (sec_prot_keys_gtk_status_is_live(sec_keys->gtks, i)) {
-            // If key is live, but not indicated on GTKL inserts it
+        if (sec_prot_keys_gtk_status_is_live(sec_keys->gtks, i) ||
+                sec_prot_keys_gtk_status_get(sec_keys->gtks, i) == GTK_STATUS_OLD) {
+            /* If key is live, but not indicated on GTKL inserts it. Also old keys indicated
+               still on GTK hash are inserted, since supplicants do not know the status of the
+               key and might need the key for receive (only) from not updated neighbors  */
             if (!sec_prot_keys_gtkl_gtk_is_live(sec_keys, i)) {
                 sec_prot_keys_gtk_insert_index_set(sec_keys, i);
                 return i;
@@ -438,6 +446,8 @@ int8_t sec_prot_keys_gtk_clear(sec_prot_gtk_keys_t *gtks, uint8_t index)
     gtks->gtk[index].status = GTK_STATUS_NEW;
     memset(gtks->gtk[index].key, 0, GTK_LEN);
 
+    gtks->updated = true;
+
     sec_prot_keys_gtk_install_order_update(gtks);
 
     return 0;
@@ -470,7 +480,7 @@ uint32_t sec_prot_keys_gtk_lifetime_get(sec_prot_gtk_keys_t *gtks, uint8_t index
     return gtks->gtk[index].lifetime;
 }
 
-uint32_t sec_prot_keys_gtk_lifetime_decrement(sec_prot_gtk_keys_t *gtks, uint8_t index, uint16_t seconds)
+uint32_t sec_prot_keys_gtk_lifetime_decrement(sec_prot_gtk_keys_t *gtks, uint8_t index, uint64_t current_time, uint16_t seconds)
 {
     if (gtks->gtk[index].lifetime > seconds) {
         gtks->gtk[index].lifetime -= seconds;
@@ -478,7 +488,42 @@ uint32_t sec_prot_keys_gtk_lifetime_decrement(sec_prot_gtk_keys_t *gtks, uint8_t
         gtks->gtk[index].lifetime = 0;
     }
 
+    // Calculates expiration timestamp for GTK from current time and lifetime
+    uint64_t expirytime = current_time + gtks->gtk[index].lifetime;
+    uint64_t diff;
+    // Compares calculated timestamp to stored one
+    if (gtks->gtk[index].expirytime >= expirytime) {
+        diff = gtks->gtk[index].expirytime - expirytime;
+    } else {
+        diff = expirytime - gtks->gtk[index].expirytime;
+    }
+    // If timestamps differ for more than 5 minutes marks field as updated (and stores to NVM)
+    if (diff > 300) {
+        gtks->updated = true;
+    }
+
     return gtks->gtk[index].lifetime;
+}
+
+uint64_t sec_prot_keys_gtk_exptime_from_lifetime_get(sec_prot_gtk_keys_t *gtks, uint8_t index, uint64_t current_time)
+{
+    if (index >= GTK_NUM || !gtks->gtk[index].set) {
+        return 0;
+    }
+
+    uint32_t lifetime = gtks->gtk[index].lifetime;
+    return current_time + lifetime;
+}
+
+int8_t sec_prot_keys_gtk_expirytime_set(sec_prot_gtk_keys_t *gtks, uint8_t index, uint64_t expirytime)
+{
+    if (index >= GTK_NUM || !gtks->gtk[index].set) {
+        return -1;
+    }
+
+    gtks->gtk[index].expirytime = expirytime;
+
+    return 0;
 }
 
 bool sec_prot_keys_gtks_are_updated(sec_prot_gtk_keys_t *gtks)
@@ -505,6 +550,7 @@ void sec_prot_keys_gtk_status_fresh_set(sec_prot_gtk_keys_t *gtks, uint8_t index
     // Active key remains as active, old keys are never reused
     if (gtks->gtk[index].status < GTK_STATUS_FRESH) {
         gtks->gtk[index].status = GTK_STATUS_FRESH;
+        gtks->updated = true;
     }
 }
 
@@ -528,9 +574,11 @@ int8_t sec_prot_keys_gtk_status_active_set(sec_prot_gtk_keys_t *gtks, uint8_t in
             // Sets previously active key old
             if (gtks->gtk[i].status == GTK_STATUS_ACTIVE) {
                 gtks->gtk[i].status = GTK_STATUS_OLD;
+                gtks->updated = true;
             }
         }
         gtks->gtk[index].status = GTK_STATUS_ACTIVE;
+        gtks->updated = true;
         return 0;
     }
 
@@ -546,6 +594,16 @@ int8_t sec_prot_keys_gtk_status_active_get(sec_prot_gtk_keys_t *gtks)
     }
 
     return -1;
+}
+
+int8_t sec_prot_keys_gtk_status_active_to_fresh_set(sec_prot_gtk_keys_t *gtks)
+{
+    int8_t index = sec_prot_keys_gtk_status_active_get(gtks);
+    if (index < 0) {
+        return -1;
+    }
+
+    return sec_prot_keys_gtk_status_set(gtks, index, GTK_STATUS_FRESH);
 }
 
 bool sec_prot_keys_gtk_status_is_live(sec_prot_gtk_keys_t *gtks, uint8_t index)
@@ -567,7 +625,34 @@ void sec_prot_keys_gtk_status_new_set(sec_prot_gtk_keys_t *gtks, uint8_t index)
         return;
     }
 
+    if (gtks->gtk[index].status != GTK_STATUS_NEW) {
+        gtks->updated = true;
+    }
+
     gtks->gtk[index].status = GTK_STATUS_NEW;
+}
+
+uint8_t sec_prot_keys_gtk_status_get(sec_prot_gtk_keys_t *gtks, uint8_t index)
+{
+    if (index >= GTK_NUM || !gtks->gtk[index].set) {
+        return 0;
+    }
+
+    return gtks->gtk[index].status;
+}
+
+int8_t sec_prot_keys_gtk_status_set(sec_prot_gtk_keys_t *gtks, uint8_t index, uint8_t status)
+{
+    if (index >= GTK_NUM || !gtks->gtk[index].set) {
+        return -1;
+    }
+
+    if (gtks->gtk[index].status != status) {
+        gtks->updated = true;
+    }
+
+    gtks->gtk[index].status = status;
+    return 0;
 }
 
 void sec_prot_keys_gtks_hash_generate(sec_prot_gtk_keys_t *gtks, uint8_t *gtkhash)
@@ -758,6 +843,9 @@ void sec_prot_keys_gtk_install_order_update(sec_prot_gtk_keys_t *gtks)
     uint8_t new_install_order = 0;
     for (uint8_t i = 0; i < GTK_NUM; i++) {
         if (ordered_indexes[i] >= 0) {
+            if (gtks->gtk[ordered_indexes[i]].install_order != new_install_order) {
+                gtks->updated = true;
+            }
             gtks->gtk[ordered_indexes[i]].install_order = new_install_order++;
         }
     }
@@ -786,6 +874,29 @@ int8_t sec_prot_keys_gtk_install_index_get(sec_prot_gtk_keys_t *gtks)
     return install_index;
 }
 
+uint8_t sec_prot_keys_gtk_install_order_get(sec_prot_gtk_keys_t *gtks, uint8_t index)
+{
+    if (index >= GTK_NUM || !gtks->gtk[index].set) {
+        return 0;
+    }
+
+    return gtks->gtk[index].install_order;
+}
+
+int8_t sec_prot_keys_gtk_install_order_set(sec_prot_gtk_keys_t *gtks, uint8_t index, uint8_t install_order)
+{
+    if (index >= GTK_NUM || !gtks->gtk[index].set) {
+        return -1;
+    }
+    if (gtks->gtk[index].install_order != install_order) {
+        gtks->updated = true;
+    }
+
+    gtks->gtk[index].install_order = install_order;
+    return 0;
+}
+
+
 uint8_t sec_prot_keys_gtk_count(sec_prot_gtk_keys_t *gtks)
 {
     uint8_t count = 0;
@@ -805,9 +916,10 @@ void sec_prot_keys_ptk_installed_gtk_hash_clear_all(sec_prot_keys_t *sec_keys)
         memset(sec_keys->ins_gtk_hash[sec_keys->gtk_set_index].hash, 0, INS_GTK_HASH_LEN);
     }
     sec_keys->ins_gtk_hash_set = 0;
+    sec_keys->ins_gtk_4wh_hash_set = 0;
 }
 
-void sec_prot_keys_ptk_installed_gtk_hash_set(sec_prot_keys_t *sec_keys)
+void sec_prot_keys_ptk_installed_gtk_hash_set(sec_prot_keys_t *sec_keys, bool is_4wh)
 {
     if (sec_keys->gtk_set_index >= 0) {
         uint8_t *gtk = sec_prot_keys_gtk_get(sec_keys->gtks, sec_keys->gtk_set_index);
@@ -824,12 +936,22 @@ void sec_prot_keys_ptk_installed_gtk_hash_set(sec_prot_keys_t *sec_keys)
          */
         memcpy(sec_keys->ins_gtk_hash[sec_keys->gtk_set_index].hash, gtk_hash, INS_GTK_HASH_LEN);
         sec_keys->ins_gtk_hash_set |= (1 << sec_keys->gtk_set_index);
+        /* If used on 4WH will store the hash in case GKH is initiated later for the
+         * same index as 4WH (likely to happen if just GTK update is made). This allows
+         * that NVM storage does not need to be updated since hash is already stored. */
+        if (is_4wh) {
+            sec_keys->ins_gtk_4wh_hash_set |= (1 << sec_keys->gtk_set_index);
+        } else {
+            sec_keys->ins_gtk_4wh_hash_set &= ~(1 << sec_keys->gtk_set_index);
+        }
     }
 }
 
 bool sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(sec_prot_keys_t *sec_keys, uint8_t gtk_index)
 {
-    if ((sec_keys->ins_gtk_hash_set & (1 << sec_keys->gtk_set_index)) == 0) {
+    // If not set or the key has been inserted by 4WH then there is no mismatch
+    if ((sec_keys->ins_gtk_hash_set & (1 << sec_keys->gtk_set_index)) == 0 ||
+            (sec_keys->ins_gtk_hash_set & (1 << sec_keys->gtk_set_index)) == 1) {
         return false;
     }
 
