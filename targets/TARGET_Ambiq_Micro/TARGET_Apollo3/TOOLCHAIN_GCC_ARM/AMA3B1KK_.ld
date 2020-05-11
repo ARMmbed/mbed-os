@@ -1,7 +1,7 @@
 /* stack: dynamic */
 /* heap: dynamic */
-#define MBED_APP_START 0x00010000
-#define MBED_APP_LENGTH 960K
+#define MBED_APP_START 0x0000C000
+#define MBED_APP_LENGTH 0x000F4000
 #define MBED_RAM_START 0x10000000
 #define MBED_RAM_SIZE   384K
 #define MBED_BOOT_STACK_SIZE 0x400
