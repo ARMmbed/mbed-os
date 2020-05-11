@@ -22,6 +22,13 @@ import struct
 import shutil
 import inspect
 import sys
+
+# Add PSA utility scripts on system path
+from os.path import dirname, abspath, join
+THIS_DIR = dirname(__file__)
+CODE_DIR = abspath(join(THIS_DIR, '..', 'psa', 'tfm', 'bin_utils'))
+sys.path.insert(0, CODE_DIR)
+
 from collections import namedtuple
 from copy import copy
 from future.utils import raise_from
