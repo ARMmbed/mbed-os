@@ -22,6 +22,7 @@ import struct
 import shutil
 import inspect
 import sys
+
 from collections import namedtuple
 from copy import copy
 from future.utils import raise_from
@@ -30,6 +31,11 @@ from tools.targets.LPC import patch
 from tools.paths import TOOLS_BOOTLOADERS
 from tools.utils import json_file_to_dict, NotSupportedException
 from tools.psa import find_secure_image
+
+# Add PSA TF-M binary utility scripts in system path
+from os.path import dirname, abspath, join
+TFM_SCRIPTS = abspath(join(dirname(__file__), '..', 'psa', 'tfm', 'bin_utils'))
+sys.path.insert(0, TFM_SCRIPTS)
 
 
 __all__ = ["target", "TARGETS", "TARGET_MAP", "TARGET_NAMES", "CORE_LABELS",
