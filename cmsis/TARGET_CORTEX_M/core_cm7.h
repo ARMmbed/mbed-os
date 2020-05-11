@@ -1,11 +1,11 @@
 /**************************************************************************//**
  * @file     core_cm7.h
  * @brief    CMSIS Cortex-M7 Core Peripheral Access Layer Header File
- * @version  V5.1.1
- * @date     28. March 2019
+ * @version  V5.1.2
+ * @date     27. March 2020
  ******************************************************************************/
 /*
- * Copyright (c) 2009-2019 Arm Limited. All rights reserved.
+ * Copyright (c) 2009-2020 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -209,6 +209,11 @@
     #warning "__DTCM_PRESENT        not defined in device header file; using default!"
   #endif
 
+  #ifndef __VTOR_PRESENT
+    #define __VTOR_PRESENT             1U
+    #warning "__VTOR_PRESENT not defined in device header file; using default!"
+  #endif
+  
   #ifndef __NVIC_PRIO_BITS
     #define __NVIC_PRIO_BITS          3U
     #warning "__NVIC_PRIO_BITS not defined in device header file; using default!"
@@ -2128,8 +2133,8 @@ __STATIC_INLINE void NVIC_DecodePriority (uint32_t Priority, uint32_t PriorityGr
  */
 __STATIC_INLINE void __NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
 {
-  uint32_t vectors = (uint32_t )SCB->VTOR;
-  (* (int *) (vectors + ((int32_t)IRQn + NVIC_USER_IRQ_OFFSET) * 4)) = vector;
+  uint32_t *vectors = (uint32_t *)SCB->VTOR;
+  vectors[(int32_t)IRQn + NVIC_USER_IRQ_OFFSET] = vector;
   __DSB();
 }
 
@@ -2144,8 +2149,8 @@ __STATIC_INLINE void __NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
  */
 __STATIC_INLINE uint32_t __NVIC_GetVector(IRQn_Type IRQn)
 {
-  uint32_t vectors = (uint32_t )SCB->VTOR;
-  return (uint32_t)(* (int *) (vectors + ((int32_t)IRQn + NVIC_USER_IRQ_OFFSET) * 4));
+  uint32_t *vectors = (uint32_t *)SCB->VTOR;
+  return vectors[(int32_t)IRQn + NVIC_USER_IRQ_OFFSET];
 }
 
 
@@ -2218,380 +2223,12 @@ __STATIC_INLINE uint32_t SCB_GetFPUType(void)
 /*@} end of CMSIS_Core_FpuFunctions */
 
 
-
 /* ##########################  Cache functions  #################################### */
-/**
-  \ingroup  CMSIS_Core_FunctionInterface
-  \defgroup CMSIS_Core_CacheFunctions Cache Functions
-  \brief    Functions that configure Instruction and Data cache.
-  @{
- */
 
-/* Cache Size ID Register Macros */
-#define CCSIDR_WAYS(x)         (((x) & SCB_CCSIDR_ASSOCIATIVITY_Msk) >> SCB_CCSIDR_ASSOCIATIVITY_Pos)
-#define CCSIDR_SETS(x)         (((x) & SCB_CCSIDR_NUMSETS_Msk      ) >> SCB_CCSIDR_NUMSETS_Pos      )
-
-#define __SCB_DCACHE_LINE_SIZE  32U /*!< Cortex-M7 cache line size is fixed to 32 bytes (8 words). See also register SCB_CCSIDR */
-#define __SCB_ICACHE_LINE_SIZE  32U /*!< Cortex-M7 cache line size is fixed to 32 bytes (8 words). See also register SCB_CCSIDR */
-
-/**
-  \brief   Enable I-Cache
-  \details Turns on I-Cache
-  */
-__STATIC_FORCEINLINE void SCB_EnableICache (void)
-{
-  #if defined (__ICACHE_PRESENT) && (__ICACHE_PRESENT == 1U)
-    if (SCB->CCR & SCB_CCR_IC_Msk) return;  /* return if ICache is already enabled */
-
-    __DSB();
-    __ISB();
-    SCB->ICIALLU = 0UL;                     /* invalidate I-Cache */
-    __DSB();
-    __ISB();
-    SCB->CCR |=  (uint32_t)SCB_CCR_IC_Msk;  /* enable I-Cache */
-    __DSB();
-    __ISB();
-  #endif
-}
-
-
-/**
-  \brief   Disable I-Cache
-  \details Turns off I-Cache
-  */
-__STATIC_FORCEINLINE void SCB_DisableICache (void)
-{
-  #if defined (__ICACHE_PRESENT) && (__ICACHE_PRESENT == 1U)
-    __DSB();
-    __ISB();
-    SCB->CCR &= ~(uint32_t)SCB_CCR_IC_Msk;  /* disable I-Cache */
-    SCB->ICIALLU = 0UL;                     /* invalidate I-Cache */
-    __DSB();
-    __ISB();
-  #endif
-}
-
-
-/**
-  \brief   Invalidate I-Cache
-  \details Invalidates I-Cache
-  */
-__STATIC_FORCEINLINE void SCB_InvalidateICache (void)
-{
-  #if defined (__ICACHE_PRESENT) && (__ICACHE_PRESENT == 1U)
-    __DSB();
-    __ISB();
-    SCB->ICIALLU = 0UL;
-    __DSB();
-    __ISB();
-  #endif
-}
-
-
-/**
-  \brief   I-Cache Invalidate by address
-  \details Invalidates I-Cache for the given address.
-           I-Cache is invalidated starting from a 32 byte aligned address in 32 byte granularity.
-           I-Cache memory blocks which are part of given address + given size are invalidated.
-  \param[in]   addr    address
-  \param[in]   isize   size of memory block (in number of bytes)
-*/
-__STATIC_FORCEINLINE void SCB_InvalidateICache_by_Addr (void *addr, int32_t isize)
-{
-  #if defined (__ICACHE_PRESENT) && (__ICACHE_PRESENT == 1U)
-    if ( isize > 0 ) {
-       int32_t op_size = isize + (((uint32_t)addr) & (__SCB_ICACHE_LINE_SIZE - 1U));
-      uint32_t op_addr = (uint32_t)addr /* & ~(__SCB_ICACHE_LINE_SIZE - 1U) */;
-
-      __DSB();
-
-      do {
-        SCB->ICIMVAU = op_addr;             /* register accepts only 32byte aligned values, only bits 31..5 are valid */
-        op_addr += __SCB_ICACHE_LINE_SIZE;
-        op_size -= __SCB_ICACHE_LINE_SIZE;
-      } while ( op_size > 0 );
-
-      __DSB();
-      __ISB();
-    }
-  #endif
-}
-
-
-/**
-  \brief   Enable D-Cache
-  \details Turns on D-Cache
-  */
-__STATIC_FORCEINLINE void SCB_EnableDCache (void)
-{
-  #if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
-    uint32_t ccsidr;
-    uint32_t sets;
-    uint32_t ways;
-
-    if (SCB->CCR & SCB_CCR_DC_Msk) return;  /* return if DCache is already enabled */
-
-    SCB->CSSELR = 0U;                       /* select Level 1 data cache */
-    __DSB();
-
-    ccsidr = SCB->CCSIDR;
-
-                                            /* invalidate D-Cache */
-    sets = (uint32_t)(CCSIDR_SETS(ccsidr));
-    do {
-      ways = (uint32_t)(CCSIDR_WAYS(ccsidr));
-      do {
-        SCB->DCISW = (((sets << SCB_DCISW_SET_Pos) & SCB_DCISW_SET_Msk) |
-                      ((ways << SCB_DCISW_WAY_Pos) & SCB_DCISW_WAY_Msk)  );
-        #if defined ( __CC_ARM )
-          __schedule_barrier();
-        #endif
-      } while (ways-- != 0U);
-    } while(sets-- != 0U);
-    __DSB();
-
-    SCB->CCR |=  (uint32_t)SCB_CCR_DC_Msk;  /* enable D-Cache */
-
-    __DSB();
-    __ISB();
-  #endif
-}
-
-
-/**
-  \brief   Disable D-Cache
-  \details Turns off D-Cache
-  */
-__STATIC_FORCEINLINE void SCB_DisableDCache (void)
-{
-  #if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
-    uint32_t ccsidr;
-    uint32_t sets;
-    uint32_t ways;
-
-    SCB->CSSELR = 0U;                       /* select Level 1 data cache */
-    __DSB();
-
-    SCB->CCR &= ~(uint32_t)SCB_CCR_DC_Msk;  /* disable D-Cache */
-    __DSB();
-
-    ccsidr = SCB->CCSIDR;
-
-                                            /* clean & invalidate D-Cache */
-    sets = (uint32_t)(CCSIDR_SETS(ccsidr));
-    do {
-      ways = (uint32_t)(CCSIDR_WAYS(ccsidr));
-      do {
-        SCB->DCCISW = (((sets << SCB_DCCISW_SET_Pos) & SCB_DCCISW_SET_Msk) |
-                       ((ways << SCB_DCCISW_WAY_Pos) & SCB_DCCISW_WAY_Msk)  );
-        #if defined ( __CC_ARM )
-          __schedule_barrier();
-        #endif
-      } while (ways-- != 0U);
-    } while(sets-- != 0U);
-
-    __DSB();
-    __ISB();
-  #endif
-}
-
-
-/**
-  \brief   Invalidate D-Cache
-  \details Invalidates D-Cache
-  */
-__STATIC_FORCEINLINE void SCB_InvalidateDCache (void)
-{
-  #if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
-    uint32_t ccsidr;
-    uint32_t sets;
-    uint32_t ways;
-
-    SCB->CSSELR = 0U;                       /* select Level 1 data cache */
-    __DSB();
-
-    ccsidr = SCB->CCSIDR;
-
-                                            /* invalidate D-Cache */
-    sets = (uint32_t)(CCSIDR_SETS(ccsidr));
-    do {
-      ways = (uint32_t)(CCSIDR_WAYS(ccsidr));
-      do {
-        SCB->DCISW = (((sets << SCB_DCISW_SET_Pos) & SCB_DCISW_SET_Msk) |
-                      ((ways << SCB_DCISW_WAY_Pos) & SCB_DCISW_WAY_Msk)  );
-        #if defined ( __CC_ARM )
-          __schedule_barrier();
-        #endif
-      } while (ways-- != 0U);
-    } while(sets-- != 0U);
-
-    __DSB();
-    __ISB();
-  #endif
-}
-
-
-/**
-  \brief   Clean D-Cache
-  \details Cleans D-Cache
-  */
-__STATIC_FORCEINLINE void SCB_CleanDCache (void)
-{
-  #if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
-    uint32_t ccsidr;
-    uint32_t sets;
-    uint32_t ways;
-
-    SCB->CSSELR = 0U;                       /* select Level 1 data cache */
-    __DSB();
-
-    ccsidr = SCB->CCSIDR;
-
-                                            /* clean D-Cache */
-    sets = (uint32_t)(CCSIDR_SETS(ccsidr));
-    do {
-      ways = (uint32_t)(CCSIDR_WAYS(ccsidr));
-      do {
-        SCB->DCCSW = (((sets << SCB_DCCSW_SET_Pos) & SCB_DCCSW_SET_Msk) |
-                      ((ways << SCB_DCCSW_WAY_Pos) & SCB_DCCSW_WAY_Msk)  );
-        #if defined ( __CC_ARM )
-          __schedule_barrier();
-        #endif
-      } while (ways-- != 0U);
-    } while(sets-- != 0U);
-
-    __DSB();
-    __ISB();
-  #endif
-}
-
-
-/**
-  \brief   Clean & Invalidate D-Cache
-  \details Cleans and Invalidates D-Cache
-  */
-__STATIC_FORCEINLINE void SCB_CleanInvalidateDCache (void)
-{
-  #if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
-    uint32_t ccsidr;
-    uint32_t sets;
-    uint32_t ways;
-
-    SCB->CSSELR = 0U;                       /* select Level 1 data cache */
-    __DSB();
-
-    ccsidr = SCB->CCSIDR;
-
-                                            /* clean & invalidate D-Cache */
-    sets = (uint32_t)(CCSIDR_SETS(ccsidr));
-    do {
-      ways = (uint32_t)(CCSIDR_WAYS(ccsidr));
-      do {
-        SCB->DCCISW = (((sets << SCB_DCCISW_SET_Pos) & SCB_DCCISW_SET_Msk) |
-                       ((ways << SCB_DCCISW_WAY_Pos) & SCB_DCCISW_WAY_Msk)  );
-        #if defined ( __CC_ARM )
-          __schedule_barrier();
-        #endif
-      } while (ways-- != 0U);
-    } while(sets-- != 0U);
-
-    __DSB();
-    __ISB();
-  #endif
-}
-
-
-/**
-  \brief   D-Cache Invalidate by address
-  \details Invalidates D-Cache for the given address.
-           D-Cache is invalidated starting from a 32 byte aligned address in 32 byte granularity.
-           D-Cache memory blocks which are part of given address + given size are invalidated.
-  \param[in]   addr    address
-  \param[in]   dsize   size of memory block (in number of bytes)
-*/
-__STATIC_FORCEINLINE void SCB_InvalidateDCache_by_Addr (void *addr, int32_t dsize)
-{
-  #if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
-    if ( dsize > 0 ) { 
-       int32_t op_size = dsize + (((uint32_t)addr) & (__SCB_DCACHE_LINE_SIZE - 1U));
-      uint32_t op_addr = (uint32_t)addr /* & ~(__SCB_DCACHE_LINE_SIZE - 1U) */;
-    
-      __DSB();
-
-      do {
-        SCB->DCIMVAC = op_addr;             /* register accepts only 32byte aligned values, only bits 31..5 are valid */
-        op_addr += __SCB_DCACHE_LINE_SIZE;
-        op_size -= __SCB_DCACHE_LINE_SIZE;
-      } while ( op_size > 0 );
-
-      __DSB();
-      __ISB();
-    }
-  #endif
-}
-
-
-/**
-  \brief   D-Cache Clean by address
-  \details Cleans D-Cache for the given address
-           D-Cache is cleaned starting from a 32 byte aligned address in 32 byte granularity.
-           D-Cache memory blocks which are part of given address + given size are cleaned.
-  \param[in]   addr    address
-  \param[in]   dsize   size of memory block (in number of bytes)
-*/
-__STATIC_FORCEINLINE void SCB_CleanDCache_by_Addr (uint32_t *addr, int32_t dsize)
-{
-  #if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
-    if ( dsize > 0 ) { 
-       int32_t op_size = dsize + (((uint32_t)addr) & (__SCB_DCACHE_LINE_SIZE - 1U));
-      uint32_t op_addr = (uint32_t)addr /* & ~(__SCB_DCACHE_LINE_SIZE - 1U) */;
-    
-      __DSB();
-
-      do {
-        SCB->DCCMVAC = op_addr;             /* register accepts only 32byte aligned values, only bits 31..5 are valid */
-        op_addr += __SCB_DCACHE_LINE_SIZE;
-        op_size -= __SCB_DCACHE_LINE_SIZE;
-      } while ( op_size > 0 );
-
-      __DSB();
-      __ISB();
-    }
-  #endif
-}
-
-
-/**
-  \brief   D-Cache Clean and Invalidate by address
-  \details Cleans and invalidates D_Cache for the given address
-           D-Cache is cleaned and invalidated starting from a 32 byte aligned address in 32 byte granularity.
-           D-Cache memory blocks which are part of given address + given size are cleaned and invalidated.
-  \param[in]   addr    address (aligned to 32-byte boundary)
-  \param[in]   dsize   size of memory block (in number of bytes)
-*/
-__STATIC_FORCEINLINE void SCB_CleanInvalidateDCache_by_Addr (uint32_t *addr, int32_t dsize)
-{
-  #if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
-    if ( dsize > 0 ) { 
-       int32_t op_size = dsize + (((uint32_t)addr) & (__SCB_DCACHE_LINE_SIZE - 1U));
-      uint32_t op_addr = (uint32_t)addr /* & ~(__SCB_DCACHE_LINE_SIZE - 1U) */;
-    
-      __DSB();
-
-      do {
-        SCB->DCCIMVAC = op_addr;            /* register accepts only 32byte aligned values, only bits 31..5 are valid */
-        op_addr +=          __SCB_DCACHE_LINE_SIZE;
-        op_size -=          __SCB_DCACHE_LINE_SIZE;
-      } while ( op_size > 0 );
-
-      __DSB();
-      __ISB();
-    }
-  #endif
-}
-
-/*@} end of CMSIS_Core_CacheFunctions */
-
+#if ((defined (__ICACHE_PRESENT) && (__ICACHE_PRESENT == 1U)) || \
+     (defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)))
+#include "cachel1_armv7.h"
+#endif
 
 
 /* ##################################    SysTick function  ############################################ */

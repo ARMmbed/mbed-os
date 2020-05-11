@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018 Arm Limited. All rights reserved.
+ * Copyright (c) 2016-2020 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -24,18 +24,30 @@
  */
 
 
-        .file    "irq_armv8mml.S"
         .syntax  unified
 
-#ifndef DOMAIN_NS
-        .equ     DOMAIN_NS, 0
-#endif
+        #ifdef   _RTE_
+        #include "RTE_Components.h"
+        #ifdef   RTE_CMSIS_RTOS2_RTX5_ARMV8M_NS
+        #define  DOMAIN_NS    1
+        #endif
+        #endif
 
-#if defined (__VFP_FP__) && !defined(__SOFTFP__)
-        .equ     __FPU_USED,  1
-#else
-        .equ     __FPU_USED,  0
-#endif
+        #ifndef  DOMAIN_NS
+        #define  DOMAIN_NS    0
+        #endif
+
+        #if (defined(__ARM_FP) && (__ARM_FP > 0))
+        .equ     FPU_USED,    1
+        #else
+        .equ     FPU_USED,    0
+        #endif
+
+        #if (defined(__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0))
+        .equ     MVE_USED,    1
+        #else
+        .equ     MVE_USED,    0
+        #endif
 
         .equ     I_T_RUN_OFS, 20        // osRtxInfo.thread.run offset
         .equ     TCB_SM_OFS,  48        // TCB.stack_mem offset
@@ -84,7 +96,7 @@ SVC_Context:
         IT       EQ
         BXEQ     LR                     // Exit when threads are the same
 
-        .if      __FPU_USED == 1
+        .if      (FPU_USED == 1) || (MVE_USED == 1)
         CBNZ     R1,SVC_ContextSave     // Branch if running thread is not deleted
         TST      LR,#0x10               // Check if extended stack frame
         BNE      SVC_ContextSwitch
@@ -98,18 +110,18 @@ SVC_Context:
         .endif
 
 SVC_ContextSave:
-        .if      DOMAIN_NS == 1
+        #if      (DOMAIN_NS == 1)
         LDR      R0,[R1,#TCB_TZM_OFS]   // Load TrustZone memory identifier
         CBZ      R0,SVC_ContextSave1    // Branch if there is no secure context
         PUSH     {R1,R2,R3,LR}          // Save registers and EXC_RETURN
         BL       TZ_StoreContext_S      // Store secure context
         POP      {R1,R2,R3,LR}          // Restore registers and EXC_RETURN
-        .endif
+        #endif
 
 SVC_ContextSave1:
         MRS      R0,PSP                 // Get PSP
         STMDB    R0!,{R4-R11}           // Save R4..R11
-        .if      __FPU_USED == 1
+        .if      (FPU_USED == 1) || (MVE_USED == 1)
         TST      LR,#0x10               // Check if extended stack frame
         IT       EQ
         VSTMDBEQ R0!,{S16-S31}          //  Save VFP S16.S31
@@ -123,13 +135,13 @@ SVC_ContextSwitch:
         STR      R2,[R3]                // osRtxInfo.thread.run: curr = next
 
 SVC_ContextRestore:
-        .if      DOMAIN_NS == 1
+        #if      (DOMAIN_NS == 1)
         LDR      R0,[R2,#TCB_TZM_OFS]   // Load TrustZone memory identifier
         CBZ      R0,SVC_ContextRestore1 // Branch if there is no secure context
         PUSH     {R2,R3}                // Save registers
         BL       TZ_LoadContext_S       // Load secure context
         POP      {R2,R3}                // Restore registers
-        .endif
+        #endif
 
 SVC_ContextRestore1:
         LDR      R0,[R2,#TCB_SM_OFS]    // Load stack memory base
@@ -138,12 +150,12 @@ SVC_ContextRestore1:
         LDR      R0,[R2,#TCB_SP_OFS]    // Load SP
         ORR      LR,R1,#0xFFFFFF00      // Set EXC_RETURN
 
-        .if      DOMAIN_NS == 1
+        #if      (DOMAIN_NS == 1)
         TST      LR,#0x40               // Check domain of interrupted thread
         BNE      SVC_ContextRestore2    // Branch if secure
-        .endif
+        #endif
 
-        .if      __FPU_USED == 1
+        .if      (FPU_USED == 1) || (MVE_USED == 1)
         TST      LR,#0x10               // Check if extended stack frame
         IT       EQ
         VLDMIAEQ R0!,{S16-S31}          //  Restore VFP S16..S31
@@ -221,28 +233,30 @@ Sys_Context:
         BXEQ     LR                     // Exit when threads are the same
 
 Sys_ContextSave:
-        .if      DOMAIN_NS == 1
+        #if      (DOMAIN_NS == 1)
         LDR      R0,[R1,#TCB_TZM_OFS]   // Load TrustZone memory identifier
         CBZ      R0,Sys_ContextSave1    // Branch if there is no secure context
         PUSH     {R1,R2,R3,LR}          // Save registers and EXC_RETURN
         BL       TZ_StoreContext_S      // Store secure context
         POP      {R1,R2,R3,LR}          // Restore registers and EXC_RETURN
+
+Sys_ContextSave1:
         TST      LR,#0x40               // Check domain of interrupted thread
         IT       NE
         MRSNE    R0,PSP                 // Get PSP
-        BNE      Sys_ContextSave2       // Branch if secure
-        .endif
+        BNE      Sys_ContextSave3       // Branch if secure
+        #endif
 
-Sys_ContextSave1:
+Sys_ContextSave2:
         MRS      R0,PSP                 // Get PSP
         STMDB    R0!,{R4-R11}           // Save R4..R11
-        .if      __FPU_USED == 1
+        .if      (FPU_USED == 1) || (MVE_USED == 1)
         TST      LR,#0x10               // Check if extended stack frame
         IT       EQ
         VSTMDBEQ R0!,{S16-S31}          //  Save VFP S16.S31
         .endif
 
-Sys_ContextSave2:
+Sys_ContextSave3:
         STR      R0,[R1,#TCB_SP_OFS]    // Store SP
         STRB     LR,[R1,#TCB_SF_OFS]    // Store stack frame information
 
@@ -250,13 +264,13 @@ Sys_ContextSwitch:
         STR      R2,[R3]                // osRtxInfo.run: curr = next
 
 Sys_ContextRestore:
-        .if      DOMAIN_NS == 1
+        #if      (DOMAIN_NS == 1)
         LDR      R0,[R2,#TCB_TZM_OFS]   // Load TrustZone memory identifier
         CBZ      R0,Sys_ContextRestore1 // Branch if there is no secure context
         PUSH     {R2,R3}                // Save registers
         BL       TZ_LoadContext_S       // Load secure context
         POP      {R2,R3}                // Restore registers
-        .endif
+        #endif
 
 Sys_ContextRestore1:
         LDR      R0,[R2,#TCB_SM_OFS]    // Load stack memory base
@@ -265,12 +279,12 @@ Sys_ContextRestore1:
         LDR      R0,[R2,#TCB_SP_OFS]    // Load SP
         ORR      LR,R1,#0xFFFFFF00      // Set EXC_RETURN
 
-        .if      DOMAIN_NS == 1
+        #if      (DOMAIN_NS == 1)
         TST      LR,#0x40               // Check domain of interrupted thread
         BNE      Sys_ContextRestore2    // Branch if secure
-        .endif
+        #endif
 
-        .if      __FPU_USED == 1
+        .if      (FPU_USED == 1) || (MVE_USED == 1)
         TST      LR,#0x10               // Check if extended stack frame
         IT       EQ
         VLDMIAEQ R0!,{S16-S31}          //  Restore VFP S16..S31

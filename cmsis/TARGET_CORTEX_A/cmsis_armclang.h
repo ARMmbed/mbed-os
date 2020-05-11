@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     cmsis_armclang.h
  * @brief    CMSIS compiler specific macros, functions, instructions
- * @version  V1.1.1
- * @date     15. May 2019
+ * @version  V1.2.0
+ * @date     05. August 2019
  ******************************************************************************/
 /*
  * Copyright (c) 2009-2019 Arm Limited. All rights reserved.
@@ -130,29 +130,17 @@
 /**
   \brief   Instruction Synchronization Barrier
  */
-#define __ISB() do {\
-                   __schedule_barrier();\
-                   __builtin_arm_isb(0xF);\
-                   __schedule_barrier();\
-                } while (0U)
+#define __ISB()                           __builtin_arm_isb(0xF)
 
 /**
   \brief   Data Synchronization Barrier
  */
-#define __DSB() do {\
-                   __schedule_barrier();\
-                   __builtin_arm_dsb(0xF);\
-                   __schedule_barrier();\
-                } while (0U)
+#define __DSB()                           __builtin_arm_dsb(0xF)
 
 /**
   \brief   Data Memory Barrier
  */
-#define __DMB() do {\
-                   __schedule_barrier();\
-                   __builtin_arm_dmb(0xF);\
-                   __schedule_barrier();\
-                } while (0U)
+#define __DMB()                           __builtin_arm_dmb(0xF)
 
 /**
   \brief   Reverse byte order (32 bit)
@@ -322,6 +310,8 @@ __STATIC_FORCEINLINE uint8_t __CLZ(uint32_t value)
 
 #if (defined (__ARM_FEATURE_DSP) && (__ARM_FEATURE_DSP == 1))
 
+#define     __SADD8                 __builtin_arm_sadd8
+#define     __SADD16                __builtin_arm_sadd16
 #define     __QADD8                 __builtin_arm_qadd8
 #define     __QSUB8                 __builtin_arm_qsub8
 #define     __QADD16                __builtin_arm_qadd16
@@ -342,7 +332,10 @@ __STATIC_FORCEINLINE uint8_t __CLZ(uint32_t value)
 #define     __SMUSD                 __builtin_arm_smusd
 #define     __SMUSDX                __builtin_arm_smusdx
 #define     __SMLSDX                __builtin_arm_smlsdx
-
+#define     __USAT16                __builtin_arm_usat16
+#define     __SSUB8                 __builtin_arm_ssub8
+#define     __SXTB16                __builtin_arm_sxtb16
+#define     __SXTAB16               __builtin_arm_sxtab16
 
 
 __STATIC_FORCEINLINE  int32_t __QADD( int32_t op1,  int32_t op2)
@@ -408,7 +401,7 @@ __STATIC_FORCEINLINE uint32_t __get_CPSR(void)
  */
 __STATIC_FORCEINLINE void __set_CPSR(uint32_t cpsr)
 {
-__ASM volatile ("MSR cpsr, %0" : : "r" (cpsr) : "memory");
+__ASM volatile ("MSR cpsr, %0" : : "r" (cpsr) : "cc", "memory");
 }
 
 /** \brief  Get Mode

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018 Arm Limited. All rights reserved.
+ * Copyright (c) 2013-2020 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -33,8 +33,14 @@
 
 #include <stdbool.h>
 typedef bool bool_t;
-#define FALSE                   (0)
-#define TRUE                    (1)
+
+#ifndef FALSE
+#define FALSE                   ((bool_t)0)
+#endif
+
+#ifndef TRUE
+#define TRUE                    ((bool_t)1)
+#endif
 
 #ifdef  RTE_CMSIS_RTOS2_RTX5_ARMV8M_NS
 #define DOMAIN_NS               1
@@ -45,17 +51,19 @@ typedef bool bool_t;
 #endif
 
 #if    (DOMAIN_NS == 1)
-#if   ((!defined(__ARM_ARCH_8M_BASE__) || (__ARM_ARCH_8M_BASE__ == 0)) && \
-       (!defined(__ARM_ARCH_8M_MAIN__) || (__ARM_ARCH_8M_MAIN__ == 0)))
+#if   ((!defined(__ARM_ARCH_8M_BASE__)   || (__ARM_ARCH_8M_BASE__   == 0)) && \
+       (!defined(__ARM_ARCH_8M_MAIN__)   || (__ARM_ARCH_8M_MAIN__   == 0)) && \
+       (!defined(__ARM_ARCH_8_1M_MAIN__) || (__ARM_ARCH_8_1M_MAIN__ == 0)))
 #error "Non-secure domain requires ARMv8-M Architecture!"
 #endif
 #endif
 
 #ifndef EXCLUSIVE_ACCESS
-#if    ((defined(__ARM_ARCH_7M__)      && (__ARM_ARCH_7M__      != 0)) || \
-        (defined(__ARM_ARCH_7EM__)     && (__ARM_ARCH_7EM__     != 0)) || \
-        (defined(__ARM_ARCH_8M_BASE__) && (__ARM_ARCH_8M_BASE__ != 0)) || \
-        (defined(__ARM_ARCH_8M_MAIN__) && (__ARM_ARCH_8M_MAIN__ != 0)))
+#if   ((defined(__ARM_ARCH_7M__)        && (__ARM_ARCH_7M__        != 0)) || \
+       (defined(__ARM_ARCH_7EM__)       && (__ARM_ARCH_7EM__       != 0)) || \
+       (defined(__ARM_ARCH_8M_BASE__)   && (__ARM_ARCH_8M_BASE__   != 0)) || \
+       (defined(__ARM_ARCH_8M_MAIN__)   && (__ARM_ARCH_8M_MAIN__   != 0)) || \
+       (defined(__ARM_ARCH_8_1M_MAIN__) && (__ARM_ARCH_8_1M_MAIN__ != 0)))
 #define EXCLUSIVE_ACCESS        1
 #else
 #define EXCLUSIVE_ACCESS        0
@@ -89,7 +97,8 @@ __STATIC_INLINE uint32_t xPSR_InitVal (bool_t privileged, bool_t thumb) {
 /// \param[in]  stack_frame     Stack Frame (EXC_RETURN[7..0])
 /// \return                     R0 Offset
 __STATIC_INLINE uint32_t StackOffsetR0 (uint8_t stack_frame) {
-#if (__FPU_USED == 1U)
+#if ((__FPU_USED == 1U) || \
+     (defined(__ARM_FEATURE_MVE) && (__ARM_FEATURE_MVE > 0)))
   return (((stack_frame & 0x10U) == 0U) ? ((16U+8U)*4U) : (8U*4U));
 #else
   (void)stack_frame;
@@ -120,9 +129,10 @@ __STATIC_INLINE bool_t IsIrqMode (void) {
 /// Check if IRQ is Masked
 /// \return     true=masked, false=not masked
 __STATIC_INLINE bool_t IsIrqMasked (void) {
-#if   ((defined(__ARM_ARCH_7M__)      && (__ARM_ARCH_7M__      != 0)) || \
-       (defined(__ARM_ARCH_7EM__)     && (__ARM_ARCH_7EM__     != 0)) || \
-       (defined(__ARM_ARCH_8M_MAIN__) && (__ARM_ARCH_8M_MAIN__ != 0)))
+#if   ((defined(__ARM_ARCH_7M__)        && (__ARM_ARCH_7M__        != 0)) || \
+       (defined(__ARM_ARCH_7EM__)       && (__ARM_ARCH_7EM__       != 0)) || \
+       (defined(__ARM_ARCH_8M_MAIN__)   && (__ARM_ARCH_8M_MAIN__   != 0)) || \
+       (defined(__ARM_ARCH_8_1M_MAIN__) && (__ARM_ARCH_8_1M_MAIN__ != 0)))
   return ((__get_PRIMASK() != 0U) || (__get_BASEPRI() != 0U));
 #else
   return  (__get_PRIMASK() != 0U);
@@ -134,8 +144,9 @@ __STATIC_INLINE bool_t IsIrqMasked (void) {
 
 /// Setup SVC and PendSV System Service Calls
 __STATIC_INLINE void SVC_Setup (void) {
-#if   ((defined(__ARM_ARCH_8M_MAIN__) && (__ARM_ARCH_8M_MAIN__ != 0)) || \
-       (defined(__CORTEX_M)           && (__CORTEX_M == 7U)))
+#if   ((defined(__ARM_ARCH_8M_MAIN__)   && (__ARM_ARCH_8M_MAIN__   != 0)) || \
+       (defined(__ARM_ARCH_8_1M_MAIN__) && (__ARM_ARCH_8_1M_MAIN__ != 0)) || \
+       (defined(__CORTEX_M)             && (__CORTEX_M == 7U)))
   uint32_t p, n;
 
   SCB->SHPR[10] = 0xFFU;
@@ -145,14 +156,14 @@ __STATIC_INLINE void SVC_Setup (void) {
     n = p + 1U;
   }
   SCB->SHPR[7] = (uint8_t)(0xFEU << n);
-#elif  (defined(__ARM_ARCH_8M_BASE__) && (__ARM_ARCH_8M_BASE__ != 0))
+#elif  (defined(__ARM_ARCH_8M_BASE__)   && (__ARM_ARCH_8M_BASE__   != 0))
   uint32_t n;
 
   SCB->SHPR[1] |= 0x00FF0000U;
   n = SCB->SHPR[1];
   SCB->SHPR[0] |= (n << (8+1)) & 0xFC000000U;
-#elif ((defined(__ARM_ARCH_7M__)      && (__ARM_ARCH_7M__      != 0)) || \
-       (defined(__ARM_ARCH_7EM__)     && (__ARM_ARCH_7EM__     != 0)))
+#elif ((defined(__ARM_ARCH_7M__)        && (__ARM_ARCH_7M__        != 0)) || \
+       (defined(__ARM_ARCH_7EM__)       && (__ARM_ARCH_7EM__       != 0)))
   uint32_t p, n;
 
   SCB->SHP[10] = 0xFFU;
@@ -162,7 +173,7 @@ __STATIC_INLINE void SVC_Setup (void) {
     n = p + 1U;
   }
   SCB->SHP[7] = (uint8_t)(0xFEU << n);
-#elif  (defined(__ARM_ARCH_6M__)      && (__ARM_ARCH_6M__      != 0))
+#elif  (defined(__ARM_ARCH_6M__)        && (__ARM_ARCH_6M__        != 0))
   uint32_t n;
 
   SCB->SHP[1] |= 0x00FF0000U;
@@ -194,12 +205,13 @@ __STATIC_INLINE void SetPendSV (void) {
 
 #if defined(__CC_ARM)
 
-#if   ((defined(__ARM_ARCH_7M__)      && (__ARM_ARCH_7M__      != 0)) ||       \
-       (defined(__ARM_ARCH_7EM__)     && (__ARM_ARCH_7EM__     != 0)) ||       \
-       (defined(__ARM_ARCH_8M_MAIN__) && (__ARM_ARCH_8M_MAIN__ != 0)))
+#if   ((defined(__ARM_ARCH_7M__)        && (__ARM_ARCH_7M__        != 0)) ||   \
+       (defined(__ARM_ARCH_7EM__)       && (__ARM_ARCH_7EM__       != 0)) ||   \
+       (defined(__ARM_ARCH_8M_MAIN__)   && (__ARM_ARCH_8M_MAIN__   != 0)) ||   \
+       (defined(__ARM_ARCH_8_1M_MAIN__) && (__ARM_ARCH_8_1M_MAIN__ != 0)))
 #define __SVC_INDIRECT(n) __svc_indirect(n)
-#elif ((defined(__ARM_ARCH_6M__)      && (__ARM_ARCH_6M__      != 0)) ||       \
-       (defined(__ARM_ARCH_8M_BASE__) && (__ARM_ARCH_8M_BASE__ != 0)))
+#elif ((defined(__ARM_ARCH_6M__)        && (__ARM_ARCH_6M__        != 0)) ||   \
+       (defined(__ARM_ARCH_8M_BASE__)   && (__ARM_ARCH_8M_BASE__   != 0)))
 #define __SVC_INDIRECT(n) __svc_indirect_r7(n)
 #endif
 
@@ -254,16 +266,17 @@ __STATIC_INLINE   t  __svc##f (t1 a1, t2 a2, t3 a3, t4 a4) {                   \
 
 #elif defined(__ICCARM__)
 
-#if   ((defined(__ARM_ARCH_7M__)      && (__ARM_ARCH_7M__      != 0)) ||       \
-       (defined(__ARM_ARCH_7EM__)     && (__ARM_ARCH_7EM__     != 0)) ||       \
-       (defined(__ARM_ARCH_8M_MAIN__) && (__ARM_ARCH_8M_MAIN__ != 0)))
+#if   ((defined(__ARM_ARCH_7M__)        && (__ARM_ARCH_7M__        != 0)) ||   \
+       (defined(__ARM_ARCH_7EM__)       && (__ARM_ARCH_7EM__       != 0)) ||   \
+       (defined(__ARM_ARCH_8M_MAIN__)   && (__ARM_ARCH_8M_MAIN__   != 0)) ||   \
+       (defined(__ARM_ARCH_8_1M_MAIN__) && (__ARM_ARCH_8_1M_MAIN__ != 0)))
 #define SVC_ArgF(f)                                                            \
   __asm(                                                                       \
     "mov r12,%0\n"                                                             \
     :: "r"(&f): "r12"                                                          \
   );
-#elif ((defined(__ARM_ARCH_6M__)      && (__ARM_ARCH_6M__      != 0)) ||       \
-       (defined(__ARM_ARCH_8M_BASE__) && (__ARM_ARCH_8M_BASE__ != 0)))
+#elif ((defined(__ARM_ARCH_6M__)        && (__ARM_ARCH_6M__        != 0)) ||   \
+       (defined(__ARM_ARCH_8M_BASE__)   && (__ARM_ARCH_8M_BASE__   != 0)))
 #define SVC_ArgF(f)                                                            \
   __asm(                                                                       \
     "mov r7,%0\n"                                                              \
@@ -334,12 +347,13 @@ __STATIC_INLINE   t  __svc##f (t1 a1, t2 a2, t3 a3, t4 a4) {                   \
 
 //lint -esym(522,__svc*) "Functions '__svc*' are impure (side-effects)"
 
-#if   ((defined(__ARM_ARCH_7M__)      && (__ARM_ARCH_7M__      != 0)) ||       \
-       (defined(__ARM_ARCH_7EM__)     && (__ARM_ARCH_7EM__     != 0)) ||       \
-       (defined(__ARM_ARCH_8M_MAIN__) && (__ARM_ARCH_8M_MAIN__ != 0)))
+#if   ((defined(__ARM_ARCH_7M__)        && (__ARM_ARCH_7M__        != 0)) ||   \
+       (defined(__ARM_ARCH_7EM__)       && (__ARM_ARCH_7EM__       != 0)) ||   \
+       (defined(__ARM_ARCH_8M_MAIN__)   && (__ARM_ARCH_8M_MAIN__   != 0)) ||   \
+       (defined(__ARM_ARCH_8_1M_MAIN__) && (__ARM_ARCH_8_1M_MAIN__ != 0)))
 #define SVC_RegF "r12"
-#elif ((defined(__ARM_ARCH_6M__)      && (__ARM_ARCH_6M__      != 0)) ||       \
-       (defined(__ARM_ARCH_8M_BASE__) && (__ARM_ARCH_8M_BASE__ != 0)))
+#elif ((defined(__ARM_ARCH_6M__)        && (__ARM_ARCH_6M__        != 0)) ||   \
+       (defined(__ARM_ARCH_8M_BASE__)   && (__ARM_ARCH_8M_BASE__   != 0)))
 #define SVC_RegF "r7"
 #endif
 

@@ -1,11 +1,11 @@
 /**************************************************************************//**
  * @file     cmsis_armcc.h
  * @brief    CMSIS compiler ARMCC (Arm Compiler 5) header file
- * @version  V5.1.0
- * @date     08. May 2019
+ * @version  V5.2.1
+ * @date     26. March 2020
  ******************************************************************************/
 /*
- * Copyright (c) 2009-2019 Arm Limited. All rights reserved.
+ * Copyright (c) 2009-2020 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -46,6 +46,7 @@
 
   /* __ARM_ARCH_8M_BASE__  not applicable */
   /* __ARM_ARCH_8M_MAIN__  not applicable */
+  /* __ARM_ARCH_8_1M_MAIN__  not applicable */
 
 /* CMSIS compiler control DSP macros */
 #if ((defined (__ARM_ARCH_7EM__) && (__ARM_ARCH_7EM__ == 1))     )
@@ -127,7 +128,7 @@
 #endif
 
 #ifndef __VECTOR_TABLE_ATTRIBUTE
-#define __VECTOR_TABLE_ATTRIBUTE  __attribute((used, section("RESET")))
+#define __VECTOR_TABLE_ATTRIBUTE  __attribute__((used, section("RESET")))
 #endif
 
 /* ###########################  Core Function Access  ########################### */
@@ -444,33 +445,21 @@ __STATIC_INLINE void __set_FPSCR(uint32_t fpscr)
            so that all instructions following the ISB are fetched from cache or memory,
            after the instruction has been completed.
  */
-#define __ISB() do {\
-                   __schedule_barrier();\
-                   __isb(0xF);\
-                   __schedule_barrier();\
-                } while (0U)
+#define __ISB()                           __isb(0xF)
 
 /**
   \brief   Data Synchronization Barrier
   \details Acts as a special kind of Data Memory Barrier.
            It completes when all explicit memory accesses before this instruction complete.
  */
-#define __DSB() do {\
-                   __schedule_barrier();\
-                   __dsb(0xF);\
-                   __schedule_barrier();\
-                } while (0U)
+#define __DSB()                           __dsb(0xF)
 
 /**
   \brief   Data Memory Barrier
   \details Ensures the apparent order of the explicit memory operations before
            and after the instruction, without ensuring their completion.
  */
-#define __DMB() do {\
-                   __schedule_barrier();\
-                   __dmb(0xF);\
-                   __schedule_barrier();\
-                } while (0U)
+#define __DMB()                           __dmb(0xF)
 
                   
 /**
@@ -886,6 +875,8 @@ __attribute__((always_inline)) __STATIC_INLINE uint32_t __USAT(int32_t val, uint
 
 #define __SMMLA(ARG1,ARG2,ARG3)          ( (int32_t)((((int64_t)(ARG1) * (ARG2)) + \
                                                       ((int64_t)(ARG3) << 32U)     ) >> 32U))
+
+#define __SXTB16_RORn(ARG1, ARG2)        __SXTB16(__ROR(ARG1, ARG2))
 
 #endif /* ((defined (__ARM_ARCH_7EM__) && (__ARM_ARCH_7EM__ == 1))     ) */
 /*@} end of group CMSIS_SIMD_intrinsics */

@@ -1,11 +1,11 @@
 /**************************************************************************//**
  * @file     core_sc000.h
  * @brief    CMSIS SC000 Core Peripheral Access Layer Header File
- * @version  V5.0.6
- * @date     12. November 2018
+ * @version  V5.0.7
+ * @date     27. March 2020
  ******************************************************************************/
 /*
- * Copyright (c) 2009-2018 Arm Limited. All rights reserved.
+ * Copyright (c) 2009-2020 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -62,7 +62,7 @@
 
 #include "cmsis_version.h"
 
-/*  CMSIS SC000 definitions */
+/* CMSIS SC000 definitions */
 #define __SC000_CMSIS_VERSION_MAIN  (__CM_CMSIS_VERSION_MAIN)                /*!< \deprecated [31:16] CMSIS HAL main version */
 #define __SC000_CMSIS_VERSION_SUB   (__CM_CMSIS_VERSION_SUB)                 /*!< \deprecated [15:0]  CMSIS HAL sub version */
 #define __SC000_CMSIS_VERSION       ((__SC000_CMSIS_VERSION_MAIN << 16U) | \
@@ -142,6 +142,11 @@
     #warning "__MPU_PRESENT not defined in device header file; using default!"
   #endif
 
+  #ifndef __VTOR_PRESENT
+    #define __VTOR_PRESENT             0U
+    #warning "__VTOR_PRESENT not defined in device header file; using default!"
+  #endif
+  
   #ifndef __NVIC_PRIO_BITS
     #define __NVIC_PRIO_BITS          2U
     #warning "__NVIC_PRIO_BITS not defined in device header file; using default!"

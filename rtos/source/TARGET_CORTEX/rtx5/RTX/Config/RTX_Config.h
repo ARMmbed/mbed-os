@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Arm Limited. All rights reserved.
+ * Copyright (c) 2013-2020 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -17,7 +17,7 @@
  *
  * -----------------------------------------------------------------------------
  *
- * $Revision:   V5.5.0
+ * $Revision:   V5.5.1
  *
  * Project:     CMSIS-RTOS RTX
  * Title:       RTX Configuration definitions
@@ -42,9 +42,9 @@
  
 //   <o>Global Dynamic Memory size [bytes] <0-1073741824:8>
 //   <i> Defines the combined global dynamic memory size.
-//   <i> Default: 4096
+//   <i> Default: 32768
 #ifndef OS_DYNAMIC_MEM_SIZE
-#define OS_DYNAMIC_MEM_SIZE         4096
+#define OS_DYNAMIC_MEM_SIZE         32768
 #endif
  
 //   <o>Kernel Tick Frequency [Hz] <1-1000000>
@@ -122,16 +122,16 @@
  
 //   <o>Default Thread Stack size [bytes] <96-1073741824:8>
 //   <i> Defines stack size for threads with zero stack size specified.
-//   <i> Default: 256
+//   <i> Default: 3072
 #ifndef OS_STACK_SIZE
-#define OS_STACK_SIZE               256
+#define OS_STACK_SIZE               3072
 #endif
  
 //   <o>Idle Thread Stack size [bytes] <72-1073741824:8>
 //   <i> Defines stack size for Idle thread.
-//   <i> Default: 256
+//   <i> Default: 512
 #ifndef OS_IDLE_THREAD_STACK_SIZE
-#define OS_IDLE_THREAD_STACK_SIZE   256
+#define OS_IDLE_THREAD_STACK_SIZE   512
 #endif
  
 //   <o>Idle Thread TrustZone Module Identifier
@@ -198,9 +198,9 @@
 //   <o>Timer Thread Stack size [bytes] <0-1073741824:8>
 //   <i> Defines stack size for Timer thread.
 //   <i> May be set to 0 when timers are not used.
-//   <i> Default: 256
+//   <i> Default: 512
 #ifndef OS_TIMER_THREAD_STACK_SIZE
-#define OS_TIMER_THREAD_STACK_SIZE  256
+#define OS_TIMER_THREAD_STACK_SIZE  512
 #endif
  
 //   <o>Timer Thread TrustZone Module Identifier
@@ -568,7 +568,9 @@
 // Number of Threads which use standard C/C++ library libspace
 // (when thread specific memory allocation is not used).
 #if (OS_THREAD_OBJ_MEM == 0)
+#ifndef OS_THREAD_LIBSPACE_NUM
 #define OS_THREAD_LIBSPACE_NUM      4
+#endif
 #else
 #define OS_THREAD_LIBSPACE_NUM      OS_THREAD_NUM
 #endif

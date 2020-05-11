@@ -1,11 +1,11 @@
 /**************************************************************************//**
  * @file     core_ca.h
  * @brief    CMSIS Cortex-A Core Peripheral Access Layer Header File
- * @version  V1.0.2
- * @date     12. November 2018
+ * @version  V1.0.3
+ * @date     28. January 2020
  ******************************************************************************/
 /*
- * Copyright (c) 2009-2018 ARM Limited. All rights reserved.
+ * Copyright (c) 2009-2020 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -1282,7 +1282,8 @@ __STATIC_INLINE void GIC_SetPendingIRQ(IRQn_Type IRQn)
     GICDistributor->ISPENDR[IRQn / 32U] = 1U << (IRQn % 32U);
   } else {
     // INTID 0-15 Software Generated Interrupt
-    GICDistributor->SPENDSGIR[IRQn / 4U] = 1U << ((IRQn % 4U) * 8U);
+    // Forward the interrupt to the CPU interface that requested it
+    GICDistributor->SGIR = (IRQn | 0x02000000U);
   }
 }
 

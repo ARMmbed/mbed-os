@@ -1,11 +1,11 @@
 /**************************************************************************//**
  * @file     cmsis_armclang_ltm.h
  * @brief    CMSIS compiler armclang (Arm Compiler 6) header file
- * @version  V1.2.0
- * @date     08. May 2019
+ * @version  V1.3.0
+ * @date     26. March 2020
  ******************************************************************************/
 /*
- * Copyright (c) 2018-2019 Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2020 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -133,7 +133,7 @@
 #endif
 
 #ifndef __VECTOR_TABLE_ATTRIBUTE
-#define __VECTOR_TABLE_ATTRIBUTE  __attribute((used, section("RESET")))
+#define __VECTOR_TABLE_ATTRIBUTE  __attribute__((used, section("RESET")))
 #endif
 
 
@@ -1218,7 +1218,7 @@ __STATIC_FORCEINLINE uint8_t __LDAB(volatile uint8_t *ptr)
 {
   uint32_t result;
 
-  __ASM volatile ("ldab %0, %1" : "=r" (result) : "Q" (*ptr) );
+  __ASM volatile ("ldab %0, %1" : "=r" (result) : "Q" (*ptr) : "memory" );
   return ((uint8_t) result);
 }
 
@@ -1233,7 +1233,7 @@ __STATIC_FORCEINLINE uint16_t __LDAH(volatile uint16_t *ptr)
 {
   uint32_t result;
 
-  __ASM volatile ("ldah %0, %1" : "=r" (result) : "Q" (*ptr) );
+  __ASM volatile ("ldah %0, %1" : "=r" (result) : "Q" (*ptr) : "memory" );
   return ((uint16_t) result);
 }
 
@@ -1248,7 +1248,7 @@ __STATIC_FORCEINLINE uint32_t __LDA(volatile uint32_t *ptr)
 {
   uint32_t result;
 
-  __ASM volatile ("lda %0, %1" : "=r" (result) : "Q" (*ptr) );
+  __ASM volatile ("lda %0, %1" : "=r" (result) : "Q" (*ptr) : "memory" );
   return(result);
 }
 
@@ -1261,7 +1261,7 @@ __STATIC_FORCEINLINE uint32_t __LDA(volatile uint32_t *ptr)
  */
 __STATIC_FORCEINLINE void __STLB(uint8_t value, volatile uint8_t *ptr)
 {
-  __ASM volatile ("stlb %1, %0" : "=Q" (*ptr) : "r" ((uint32_t)value) );
+  __ASM volatile ("stlb %1, %0" : "=Q" (*ptr) : "r" ((uint32_t)value) : "memory" );
 }
 
 
@@ -1273,7 +1273,7 @@ __STATIC_FORCEINLINE void __STLB(uint8_t value, volatile uint8_t *ptr)
  */
 __STATIC_FORCEINLINE void __STLH(uint16_t value, volatile uint16_t *ptr)
 {
-  __ASM volatile ("stlh %1, %0" : "=Q" (*ptr) : "r" ((uint32_t)value) );
+  __ASM volatile ("stlh %1, %0" : "=Q" (*ptr) : "r" ((uint32_t)value) : "memory" );
 }
 
 
@@ -1285,7 +1285,7 @@ __STATIC_FORCEINLINE void __STLH(uint16_t value, volatile uint16_t *ptr)
  */
 __STATIC_FORCEINLINE void __STL(uint32_t value, volatile uint32_t *ptr)
 {
-  __ASM volatile ("stl %1, %0" : "=Q" (*ptr) : "r" ((uint32_t)value) );
+  __ASM volatile ("stl %1, %0" : "=Q" (*ptr) : "r" ((uint32_t)value) : "memory" );
 }
 
 
@@ -1875,6 +1875,8 @@ __STATIC_FORCEINLINE  int32_t __QSUB( int32_t op1,  int32_t op2)
 
 #define __PKHTB(ARG1,ARG2,ARG3)          ( ((((uint32_t)(ARG1))          ) & 0xFFFF0000UL) |  \
                                            ((((uint32_t)(ARG2)) >> (ARG3)) & 0x0000FFFFUL)  )
+
+#define __SXTB16_RORn(ARG1, ARG2)        __SXTB16(__ROR(ARG1, ARG2))
 
 __STATIC_FORCEINLINE int32_t __SMMLA (int32_t op1, int32_t op2, int32_t op3)
 {

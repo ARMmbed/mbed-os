@@ -161,7 +161,7 @@ void osRtxThreadListPut (os_object_t *object, os_thread_t *thread) {
 
 /// Get a Thread with Highest Priority from specified Object list and remove it.
 /// \param[in]  object          generic object.
-/// \return thread object. 
+/// \return thread object.
 os_thread_t *osRtxThreadListGet (os_object_t *object) {
   os_thread_t *thread;
 
@@ -175,16 +175,9 @@ os_thread_t *osRtxThreadListGet (os_object_t *object) {
   return thread;
 }
 
-#if (!defined(EVR_RTX_DISABLE) && \
-    (((OS_EVR_EVFLAGS   != 0) && !defined(EVR_RTX_EVENT_FLAGS_WAIT_TIMEOUT_DISABLE))  || \
-     ((OS_EVR_MUTEX     != 0) && !defined(EVR_RTX_MUTEX_ACQUIRE_TIMEOUT_DISABLE))     || \
-     ((OS_EVR_SEMAPHORE != 0) && !defined(EVR_RTX_SEMAPHORE_ACQUIRE_TIMEOUT_DISABLE)) || \
-     ((OS_EVR_MEMPOOL   != 0) && !defined(EVR_RTX_MEMORY_POOL_ALLOC_TIMEOUT_DISABLE)) || \
-     ((OS_EVR_MSGQUEUE  != 0) && !defined(EVR_RTX_MESSAGE_QUEUE_GET_TIMEOUT_DISABLE)) || \
-     ((OS_EVR_MSGQUEUE  != 0) && !defined(EVR_RTX_MESSAGE_QUEUE_PUT_TIMEOUT_DISABLE))))
-
-/// Retrieve Thread list root.
+/// Retrieve Thread list root object.
 /// \param[in]  thread          thread object.
+/// \return root object.
 static void *osRtxThreadListRoot (os_thread_t *thread) {
   os_thread_t *thread0;
 
@@ -194,8 +187,6 @@ static void *osRtxThreadListRoot (os_thread_t *thread) {
   }
   return thread0;
 }
-
-#endif
 
 /// Re-sort a Thread in linked Object list by Priority (Highest at Head).
 /// \param[in]  thread          thread object.
@@ -327,6 +318,7 @@ static void osRtxThreadDelayRemove (os_thread_t *thread) {
 /// Process Thread Delay Tick (executed each System Tick).
 void osRtxThreadDelayTick (void) {
   os_thread_t *thread;
+  os_object_t *object;
 
   thread = osRtxInfo.thread.delay_list;
   if (thread == NULL) {
@@ -346,22 +338,29 @@ void osRtxThreadDelayTick (void) {
           EvrRtxThreadFlagsWaitTimeout(thread);
           break;
         case osRtxThreadWaitingEventFlags:
-          EvrRtxEventFlagsWaitTimeout((osEventFlagsId_t)osRtxThreadListRoot(thread));
+          object = osRtxObject(osRtxThreadListRoot(thread));
+          EvrRtxEventFlagsWaitTimeout(osRtxEventFlagsObject(object));
           break;
         case osRtxThreadWaitingMutex:
-          EvrRtxMutexAcquireTimeout((osMutexId_t)osRtxThreadListRoot(thread));
+          object = osRtxObject(osRtxThreadListRoot(thread));
+          osRtxMutexOwnerRestore(osRtxMutexObject(object), thread);
+          EvrRtxMutexAcquireTimeout(osRtxMutexObject(object));
           break;
         case osRtxThreadWaitingSemaphore:
-          EvrRtxSemaphoreAcquireTimeout((osSemaphoreId_t)osRtxThreadListRoot(thread));
+          object = osRtxObject(osRtxThreadListRoot(thread));
+          EvrRtxSemaphoreAcquireTimeout(osRtxSemaphoreObject(object));
           break;
         case osRtxThreadWaitingMemoryPool:
-          EvrRtxMemoryPoolAllocTimeout((osMemoryPoolId_t)osRtxThreadListRoot(thread));
+          object = osRtxObject(osRtxThreadListRoot(thread));
+          EvrRtxMemoryPoolAllocTimeout(osRtxMemoryPoolObject(object));
           break;
         case osRtxThreadWaitingMessageGet:
-          EvrRtxMessageQueueGetTimeout((osMessageQueueId_t)osRtxThreadListRoot(thread));
+          object = osRtxObject(osRtxThreadListRoot(thread));
+          EvrRtxMessageQueueGetTimeout(osRtxMessageQueueObject(object));
           break;
         case osRtxThreadWaitingMessagePut:
-          EvrRtxMessageQueuePutTimeout((osMessageQueueId_t)osRtxThreadListRoot(thread));
+          object = osRtxObject(osRtxThreadListRoot(thread));
+          EvrRtxMessageQueuePutTimeout(osRtxMessageQueueObject(object));
           break;
         default:
           // Invalid

@@ -125,12 +125,9 @@ static osRtxThread_t os_idle_thread_cb \
 __attribute__((section(".bss.os.thread.cb")));
 
 // Idle Thread Stack
-#if defined (__CC_ARM)
-static uint64_t os_idle_thread_stack[OS_IDLE_THREAD_STACK_SIZE/8];
-#else
 static uint64_t os_idle_thread_stack[OS_IDLE_THREAD_STACK_SIZE/8] \
 __attribute__((section(".bss.os.thread.stack")));
-#endif
+
 // Idle Thread Attributes
 static const osThreadAttr_t os_idle_thread_attr = {
 #if defined(OS_IDLE_THREAD_NAME)
@@ -184,13 +181,9 @@ __attribute__((section(".data.os.timer.mpi"))) =
 static osRtxThread_t os_timer_thread_cb \
 __attribute__((section(".bss.os.thread.cb")));
 
-#if defined (__CC_ARM)
-static uint64_t os_timer_thread_stack[OS_TIMER_THREAD_STACK_SIZE/8];
-#else
 // Timer Thread Stack
 static uint64_t os_timer_thread_stack[OS_TIMER_THREAD_STACK_SIZE/8] \
 __attribute__((section(".bss.os.thread.stack")));
-#endif
 
 // Timer Thread Attributes
 static const osThreadAttr_t os_timer_thread_attr = {
@@ -735,12 +728,11 @@ typedef void *mutex;
 //lint -e818 "Pointer 'm' could be declared as pointing to const"
 
 // Initialize mutex
-#if !defined(__ARMCC_VERSION) || __ARMCC_VERSION < 6010050
 __USED
-#endif
 int _mutex_initialize(mutex *m);
-__WEAK int _mutex_initialize(mutex *m) {
+int _mutex_initialize(mutex *m) {
   int result;
+
   *m = osMutexNew(NULL);
   if (*m != NULL) {
     result = 1;
@@ -752,10 +744,8 @@ __WEAK int _mutex_initialize(mutex *m) {
 }
 
 // Acquire mutex
-#if !defined(__ARMCC_VERSION) || __ARMCC_VERSION < 6010050
 __USED
-#endif
-__WEAK void _mutex_acquire(mutex *m);
+void _mutex_acquire(mutex *m);
 void _mutex_acquire(mutex *m) {
   if (os_kernel_is_active() != 0U) {
     (void)osMutexAcquire(*m, osWaitForever);
@@ -763,10 +753,8 @@ void _mutex_acquire(mutex *m) {
 }
 
 // Release mutex
-#if !defined(__ARMCC_VERSION) || __ARMCC_VERSION < 6010050
 __USED
-#endif
-__WEAK void _mutex_release(mutex *m);
+void _mutex_release(mutex *m);
 void _mutex_release(mutex *m) {
   if (os_kernel_is_active() != 0U) {
     (void)osMutexRelease(*m);
@@ -774,10 +762,8 @@ void _mutex_release(mutex *m) {
 }
 
 // Free mutex
-#if !defined(__ARMCC_VERSION) || __ARMCC_VERSION < 6010050
 __USED
-#endif
-__WEAK void _mutex_free(mutex *m);
+void _mutex_free(mutex *m);
 void _mutex_free(mutex *m) {
   (void)osMutexDelete(*m);
 }
