@@ -37,10 +37,10 @@
 
 #define VENDOR_TEST_CTRL_IN             1
 #define VENDOR_TEST_CTRL_OUT            2
-#define VENDOR_TEST_CTRL_IN_SIZES       9
-#define VENDOR_TEST_CTRL_OUT_SIZES      10
-#define VENDOR_TEST_RW_RESTART          11
-#define VENDOR_TEST_ABORT_BUFF_CHECK    12
+#define VENDOR_TEST_CTRL_IN_SIZES       3
+#define VENDOR_TEST_CTRL_OUT_SIZES      4
+#define VENDOR_TEST_RW_RESTART          5
+#define VENDOR_TEST_ABORT_BUFF_CHECK    6
 
 #define CTRL_BUF_SIZE (2048)
 

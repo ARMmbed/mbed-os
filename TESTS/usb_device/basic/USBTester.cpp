@@ -27,13 +27,8 @@
 
 #define VENDOR_TEST_CTRL_IN                 1
 #define VENDOR_TEST_CTRL_OUT                2
-#define VENDOR_TEST_CTRL_NONE               3
-#define VENDOR_TEST_CTRL_IN_DELAY           4
-#define VENDOR_TEST_CTRL_OUT_DELAY          5
-#define VENDOR_TEST_CTRL_IN_STATUS_DELAY    7
-#define VENDOR_TEST_CTRL_OUT_STATUS_DELAY   8
-#define VENDOR_TEST_CTRL_IN_SIZES           9
-#define VENDOR_TEST_CTRL_OUT_SIZES          10
+#define VENDOR_TEST_CTRL_IN_SIZES           3
+#define VENDOR_TEST_CTRL_OUT_SIZES          4
 
 #define MAX_EP_SIZE 64
 #define MIN_EP_SIZE 8
@@ -144,9 +139,6 @@ void USBTester::callback_request(const setup_packet_t *setup)
                 result = Receive;
                 data = ctrl_buf;
                 size = setup->wValue < 8 ? setup->wValue : 8;
-                break;
-            case VENDOR_TEST_CTRL_NONE:
-                result = Success;
                 break;
             case VENDOR_TEST_CTRL_IN_SIZES:
                 result = Send;
