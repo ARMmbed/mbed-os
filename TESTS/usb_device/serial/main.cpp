@@ -388,14 +388,14 @@ void tx_thread_fun(USBCDC *usb_cdc)
     }
 }
 
-void tx_ticker_fun(USBCDC *usb_cdc, uint8_t start_val)
+void tx_ticker_fun(USBCDC *usb_cdc, uint8_t start_val, uint8_t size = TX_BUFF_SIZE)
 {
     static uint8_t buff_val = start_val;
+    uint32_t actual_tx = 0;
     uint8_t buff[TX_BUFF_SIZE] = { 0 };
-    memset(buff, buff_val, TX_BUFF_SIZE);
-    while (usb_cdc->send(buff, TX_BUFF_SIZE)) {
-        break;
-    }
+    memset(buff, buff_val, size);
+    usb_cdc->send_nb(buff, size, &actual_tx);
+    TEST_ASSERT_EQUAL_UINT8(size, actual_tx);
     buff_val++;
 }
 
@@ -422,7 +422,7 @@ void test_cdc_rx_single_bytes_concurrent()
     tx_thread.start(mbed::callback(tx_thread_fun, &usb_cdc));
 #else
     Ticker t;
-    t.attach([&] { tx_ticker_fun(&usb_cdc, 0); }, 3ms);
+    t.attach([&] { tx_ticker_fun(&usb_cdc, 0, 1); }, 2ms);
 #endif
 
     uint8_t buff = 0x01;
@@ -434,9 +434,12 @@ void test_cdc_rx_single_bytes_concurrent()
         TEST_ASSERT(usb_cdc.receive(&buff, 1, NULL));
         TEST_ASSERT_EQUAL_UINT8(expected, buff);
     }
-    event_flags.clear(EF_SEND);
+
 #if defined(MBED_CONF_RTOS_PRESENT)
+    event_flags.clear(EF_SEND);
     tx_thread.join();
+#else
+    t.detach();
 #endif
     // Wait for the host to close its port.
     while (usb_cdc.ready()) {
