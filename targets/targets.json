@@ -2805,7 +2805,7 @@
     },
     "NUCLEO_G071RB": {
         "inherits": [
-            "MCU_STM32"
+            "MCU_STM32_BAREMETAL"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -2853,9 +2853,6 @@
         ],
         "detect_code": [
             "0221"
-        ],
-        "release_versions": [
-            "5"
         ],
         "device_name": "STM32G071RBTx",
         "bootloader_supported": true
