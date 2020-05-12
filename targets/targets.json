@@ -4233,10 +4233,6 @@
         "features": [
             "BLE"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "bootloader_supported": true
     },
     "MIMXRT1050_EVK": {
