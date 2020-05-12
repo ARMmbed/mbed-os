@@ -1424,6 +1424,9 @@ int TDBStore::do_reserved_data_get(void *reserved_data, size_t reserved_data_buf
         if (crc == trailer.crc) {
             // Correct data, copy it and return to caller
             if (reserved_data) {
+                if (reserved_data_buf_size < trailer.data_size) {
+                    return MBED_ERROR_INVALID_SIZE;
+                }
                 memcpy(reserved_data, buf, trailer.data_size);
             }
             if (actual_data_size) {
