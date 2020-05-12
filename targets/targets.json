@@ -1427,27 +1427,9 @@
         ],
         "device_name": "STM32F091RC"
     },
-    "DISCO_F100RB": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "core": "Cortex-M3",
-        "extra_labels_add": [
-            "STM32F1",
-            "STM32F100RB"
-        ],
-        "supported_toolchains": [
-            "GCC_ARM"
-        ],
-        "device_has_add": [],
-        "device_has_remove": [
-            "LPTICKER"
-        ],
-        "device_name": "STM32F100RB"
-    },
     "NUCLEO_F103RB": {
         "inherits": [
-            "MCU_STM32"
+            "MCU_STM32_BAREMETAL"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -1475,10 +1457,6 @@
         ],
         "device_has_remove": [
             "LPTICKER"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32F103RB"
     },
