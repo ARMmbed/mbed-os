@@ -1,6 +1,6 @@
 /*******************************************************************************
 * \file cy_sd_host.c
-* \version 1.30
+* \version 1.40
 *
 * \brief
 *  This file provides the driver code to the API for the SD Host Controller
@@ -8,7 +8,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,7 +40,7 @@ extern "C" {
 #define CY_SD_HOST_1_8_REG_STABLE_TIME_MS   (30UL)   /* The 1.8 voltage regulator stable time. */
 #define CY_SD_HOST_SUPPLY_RAMP_UP_TIME_MS   (35UL)   /* The host supply ramp up time. */
 #define CY_SD_HOST_BUS_RAMP_UP_TIME_MS      (1000UL) /* The host bus voltage ramp up time. */
-#define CY_SD_HOST_CLK_RAMP_UP_TIME_MS      (100UL)  /* The host power ramp up time. */
+
 #define CY_SD_HOST_EMMC_CMD6_TIMEOUT_MULT   (10UL)   /* The 10x multiplier of GENERIC_CMD6_TIME[248]. */
 #define CY_SD_HOST_RETRY_TIME               (1000UL) /* The number loops to make the timeout in msec. */
 #define CY_SD_HOST_VOLTAGE_CHECK_RETRY      (2UL)    /* The number loops for voltage check. */
@@ -4829,6 +4829,19 @@ uint32_t Cy_SD_Host_GetPresentState(SDHC_Type const *base)
 * \ref Cy_SysPm_CpuEnterDeepSleep : specify \ref CY_SYSPM_DEEPSLEEP as the callback
 * type and call \ref Cy_SysPm_RegisterCallback.
 *
+* \note When waking up from Deep Sleep, the SD Host driver requires up to 100ms
+* for clock stabilization. By default the SD Host driver will wait this length
+* of time on power up. The waiting loop is implemented in this function.
+* If the application is time sensitive this delay can be overridden by the
+* application by defining \ref CY_SD_HOST_CLK_RAMP_UP_TIME_MS_WAKEUP to a lower
+* value. This allows the application to perform other operations while the clock
+* is stabilizing in the background. However, the application must still make sure
+* that the SD Host clock has had time to stabilize before attempting to use the
+* SD card. The recommended way to override the value is to specify this as
+* a custom define on the compiler command line.  This can be done by appending
+* the entry to the DEFINES variable in the application Makefile.
+* Eg: DEFINES+=CY_SD_HOST_CLK_RAMP_UP_TIME_MS_WAKEUP=40.
+*
 * \param callbackParams
 * The pointer to the callback parameters structure
 * \ref cy_stc_syspm_callback_params_t.
@@ -4881,7 +4894,7 @@ cy_en_syspm_status_t Cy_SD_Host_DeepSleepCallback(cy_stc_syspm_callback_params_t
             Cy_SD_Host_EnableSdClk(locBase);
             
             /* Wait for the stable CLK */
-            Cy_SysLib_Delay(CY_SD_HOST_CLK_RAMP_UP_TIME_MS);
+            Cy_SysLib_Delay(CY_SD_HOST_CLK_RAMP_UP_TIME_MS_WAKEUP);
 
             ret = CY_SYSPM_SUCCESS;
         }

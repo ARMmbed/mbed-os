@@ -75,4 +75,14 @@
 #include "cy_usbfs_dev_drv.h"
 #include "cy_wdt.h"
 
+
+/** Driver Library major version */
+#define CY_PDL_VERSION_MAJOR        1
+
+/** Driver Library minor version */
+#define CY_PDL_VERSION_MINOR        5
+
+/** Driver Library version */
+#define CY_PDL_VERSION              105
+
 #endif /* CY_PDL_H */

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" release="PSoC Creator  4.2 Nightly Build 1127" template="Empty (17&quot; x 11&quot;)" xmlns="http://cypress.com/xsd/cyvis">
+<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" release="PSoC Creator  4.3" template="Empty (17&quot; x 11&quot;)" xmlns="http://cypress.com/xsd/cyvis">
   <Page index="0" name="Page 1" enabled="true" shapeCount="248">
-    <Instance shapeName="Shape_3" zorder="225" guid="2c52e5dc-5689-4025-975d-dc107b21e990" name="CSD0_CSD" component="cy_mxs40_csd">
+    <Instance shapeName="Shape_3" zorder="227" guid="2c52e5dc-5689-4025-975d-dc107b21e990" name="CSD0_CSD" component="cy_mxs40_csd">
       <Location x="258" y="246" />
       <Size width="72" height="108" />
       <SubShapes>
@@ -90,7 +90,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_7" zorder="296" guid="2fdcd5e7-fec0-49b1-b245-185dfc2e54c7" name="LPCOMP0_COMP0" component="cy_mxs40_lpcomp">
+    <Instance shapeName="Shape_7" zorder="0" guid="2fdcd5e7-fec0-49b1-b245-185dfc2e54c7" name="LPCOMP0_COMP0" component="cy_mxs40_lpcomp">
       <Location x="258" y="528" />
       <Size width="72" height="54" />
       <SubShapes>
@@ -148,7 +148,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_8" zorder="287" guid="adf55a04-242f-4bde-a7bc-d1edd10f613e" name="LPCOMP0_COMP1" component="cy_mxs40_lpcomp">
+    <Instance shapeName="Shape_8" zorder="1" guid="adf55a04-242f-4bde-a7bc-d1edd10f613e" name="LPCOMP0_COMP1" component="cy_mxs40_lpcomp">
       <Location x="258" y="432" />
       <Size width="72" height="54" />
       <SubShapes>
@@ -206,10 +206,10 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_11" zorder="266" guid="4d142d26-9d54-4013-aef7-19c9129b4ff6" name="LPCOMP0_AP1" component="swhv">
+    <Instance shapeName="Shape_11" zorder="268" guid="4d142d26-9d54-4013-aef7-19c9129b4ff6" name="LPCOMP0_AP1" component="swh">
       <Location x="210" y="450" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:LPCOMP0_COMP1</ShapeTags>
+      <ShapeTags>wl:lpcomp[0].comp[1]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="210" y="450" />
@@ -223,10 +223,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_12" zorder="269" guid="068393c8-39c5-4e06-ae93-c60dbba9dbf7" name="LPCOMP0_AN1" component="swhv">
+    <Instance shapeName="Shape_12" zorder="271" guid="068393c8-39c5-4e06-ae93-c60dbba9dbf7" name="LPCOMP0_AN1" component="swh">
       <Location x="210" y="468" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:LPCOMP0_COMP1</ShapeTags>
+      <ShapeTags>wl:lpcomp[0].comp[1]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="210" y="468" />
@@ -240,7 +240,7 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_28" zorder="289" guid="f9e5f34c-d69c-4c5b-a19d-b1387ab654e6" name="LPCOMP0_AP0" component="swhv">
+    <Instance shapeName="Shape_28" zorder="290" guid="f9e5f34c-d69c-4c5b-a19d-b1387ab654e6" name="LPCOMP0_AP0" component="swh">
       <Location x="210" y="546" />
       <Size width="12" height="11.99994" />
       <SubShapes>
@@ -256,7 +256,7 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_33" zorder="288" guid="f78f5ef8-9c06-4ac6-99d7-c4174abc0ce8" name="LPCOMP0_BP0" component="swhv">
+    <Instance shapeName="Shape_33" zorder="289" guid="f78f5ef8-9c06-4ac6-99d7-c4174abc0ce8" name="LPCOMP0_BP0" component="swh">
       <Location x="228" y="546" />
       <Size width="12" height="11.99994" />
       <SubShapes>
@@ -272,7 +272,7 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_48" zorder="291" guid="4daa0cac-ab21-45f1-a0a7-1afc7aa754ec" name="LPCOMP0_AN0" component="swhv">
+    <Instance shapeName="Shape_48" zorder="292" guid="4daa0cac-ab21-45f1-a0a7-1afc7aa754ec" name="LPCOMP0_AN0" component="swh">
       <Location x="210" y="564" />
       <Size width="12" height="11.99994" />
       <SubShapes>
@@ -288,7 +288,7 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_49" zorder="290" guid="2aa5332e-bfae-457b-a2f1-a5927f21a699" name="LPCOMP0_BN0" component="swhv">
+    <Instance shapeName="Shape_49" zorder="291" guid="2aa5332e-bfae-457b-a2f1-a5927f21a699" name="LPCOMP0_BN0" component="swh">
       <Location x="228" y="564" />
       <Size width="12" height="11.99994" />
       <SubShapes>
@@ -304,10 +304,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_56" zorder="267" guid="ce59ed90-4867-4482-8d80-2de4e41d2ff2" name="LPCOMP0_BP1" component="swhv">
+    <Instance shapeName="Shape_56" zorder="269" guid="ce59ed90-4867-4482-8d80-2de4e41d2ff2" name="LPCOMP0_BP1" component="swh">
       <Location x="228" y="450" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:LPCOMP0_COMP1</ShapeTags>
+      <ShapeTags>wl:lpcomp[0].comp[1]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="228" y="450" />
@@ -321,10 +321,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_59" zorder="268" guid="d18e9b2c-1649-4183-8cf9-db54a2a7551d" name="LPCOMP0_BN1" component="swhv">
+    <Instance shapeName="Shape_59" zorder="270" guid="d18e9b2c-1649-4183-8cf9-db54a2a7551d" name="LPCOMP0_BN1" component="swh">
       <Location x="228" y="468" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:LPCOMP0_COMP1</ShapeTags>
+      <ShapeTags>wl:lpcomp[0].comp[1]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="228" y="468" />
@@ -338,7 +338,7 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_75" zorder="93" guid="96ab5752-1a1c-4c54-b0b7-e88843802f38" name="PASS0_SARADC0_SAR" component="cy_mxs40_saradc">
+    <Instance shapeName="Shape_75" zorder="3" guid="96ab5752-1a1c-4c54-b0b7-e88843802f38" name="PASS0_SARADC0_SAR" component="cy_mxs40_saradc">
       <Location x="477" y="390" />
       <Size width="75" height="54" />
       <SubShapes>
@@ -404,7 +404,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_297" zorder="10" guid="0b9fe791-3607-458e-8b4e-45761eb22347" name="legend_2" component="legend">
+    <Instance shapeName="Shape_297" zorder="32" guid="0b9fe791-3607-458e-8b4e-45761eb22347" name="legend_2" component="cy_all_legend">
       <Location x="378" y="530" />
       <Size width="204" height="52" />
       <SubShapes>
@@ -542,7 +542,7 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_340" zorder="103" guid="d422e11f-6713-417f-9345-2278e6c1e428" name="P3_Pin1" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_340" zorder="117" guid="d422e11f-6713-417f-9345-2278e6c1e428" name="P3_Pin1" component="cy_all_pin">
       <Location x="552" y="492" />
       <Size width="29.99994" height="12" />
       <SubShapes>
@@ -573,7 +573,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_341" zorder="104" guid="861759c8-c32d-45af-b991-111ab45b0b88" name="P3_Pin0" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_341" zorder="118" guid="861759c8-c32d-45af-b991-111ab45b0b88" name="P3_Pin0" component="cy_all_pin">
       <Location x="552" y="474" />
       <Size width="29.99994" height="12" />
       <SubShapes>
@@ -604,10 +604,10 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_355" zorder="99" guid="31602a10-9378-4edf-910e-ac722f5301b4" name="IOSS0_PORT3_P3_P51" component="swhv">
+    <Instance shapeName="Shape_355" zorder="113" guid="31602a10-9378-4edf-910e-ac722f5301b4" name="IOSS0_PORT3_P3_P51" component="swh">
       <Location x="522" y="492" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:P3_Pin1</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[3].pin[1]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="522" y="492" />
@@ -621,10 +621,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_356" zorder="100" guid="c4a67ea1-c17b-43bf-931a-166a90a121a4" name="IOSS0_PORT3_P3_P41" component="swhv">
+    <Instance shapeName="Shape_356" zorder="114" guid="c4a67ea1-c17b-43bf-931a-166a90a121a4" name="IOSS0_PORT3_P3_P41" component="swh">
       <Location x="540" y="492" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:P3_Pin1</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[3].pin[1]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="540" y="492" />
@@ -638,10 +638,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_357" zorder="101" guid="f3c10c9e-5c3a-494d-8764-4bc1596877b5" name="IOSS0_PORT3_P3_P40" component="swhv">
+    <Instance shapeName="Shape_357" zorder="115" guid="f3c10c9e-5c3a-494d-8764-4bc1596877b5" name="IOSS0_PORT3_P3_P40" component="swh">
       <Location x="540" y="474" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:P3_Pin0</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[3].pin[0]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="540" y="474" />
@@ -655,10 +655,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_358" zorder="102" guid="13a12de2-01a6-4696-83ad-b2a91d2ffa1f" name="IOSS0_PORT3_P3_P50" component="swhv">
+    <Instance shapeName="Shape_358" zorder="116" guid="13a12de2-01a6-4696-83ad-b2a91d2ffa1f" name="IOSS0_PORT3_P3_P50" component="swh">
       <Location x="522" y="474" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:P3_Pin0</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[3].pin[0]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="522" y="474" />
@@ -672,29 +672,7 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Rectangle shapeName="Shape_359" zorder="98">
-      <Location x="519" y="491" />
-      <Size width="36" height="14" />
-      <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
-        <SolidBrush color="176, 176, 176" />
-      </Outline>
-      <Fill>
-        <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
-      </Fill>
-      <ShapeTags>w:P3_Pin1</ShapeTags>
-    </Rectangle>
-    <Rectangle shapeName="Shape_367" zorder="97">
-      <Location x="519" y="473" />
-      <Size width="36" height="14" />
-      <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
-        <SolidBrush color="176, 176, 176" />
-      </Outline>
-      <Fill>
-        <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
-      </Fill>
-      <ShapeTags>w:P3_Pin0</ShapeTags>
-    </Rectangle>
-    <Instance shapeName="Shape_505" zorder="301" guid="7a6d0def-bf5e-4ea5-bda9-8eafd4bbcdce" name="P5_Pin7" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_505" zorder="301" guid="7a6d0def-bf5e-4ea5-bda9-8eafd4bbcdce" name="P5_Pin7" component="cy_all_pin">
       <Location x="60" y="564" />
       <Size width="29.99999" height="12" />
       <SubShapes>
@@ -725,7 +703,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_506" zorder="302" guid="b348c4d5-3715-4c1a-b689-d157c4d4d080" name="P5_Pin6" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_506" zorder="302" guid="b348c4d5-3715-4c1a-b689-d157c4d4d080" name="P5_Pin6" component="cy_all_pin">
       <Location x="60" y="546" />
       <Size width="29.99999" height="12" />
       <SubShapes>
@@ -756,18 +734,18 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Wire shapeName="Shape_539" zorder="165" effectiveName="p8_0" type="Analog">
+    <Wire shapeName="Shape_539" zorder="175" effectiveName="p8_0" type="Analog">
       <Point1 x="90" y="174" />
       <Point2 x="120" y="174" />
-      <ShapeTags>w:P8_Pin0</ShapeTags>
-      <Annotation zorder="166">
-        <Location x="-84" y="846" />
+      <ShapeTags>wl:ioss[0].port[8].pin[0]</ShapeTags>
+      <Annotation zorder="176">
+        <Location x="117" y="168" />
         <Text>p8_0</Text>
         <Vertical value="false" />
         <TextAlignment value="TopRight" />
       </Annotation>
     </Wire>
-    <Instance shapeName="Shape_586" zorder="270" guid="3b6ae533-2326-46ac-a3d6-f64c0f7bb6fb" name="P6_Pin3" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_586" zorder="272" guid="3b6ae533-2326-46ac-a3d6-f64c0f7bb6fb" name="P6_Pin3" component="cy_all_pin">
       <Location x="60" y="468" />
       <Size width="29.99999" height="12" />
       <SubShapes>
@@ -798,7 +776,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_588" zorder="271" guid="cd2102f2-4fd6-4dd0-bedd-51a994204acf" name="P6_Pin2" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_588" zorder="273" guid="cd2102f2-4fd6-4dd0-bedd-51a994204acf" name="P6_Pin2" component="cy_all_pin">
       <Location x="60" y="450" />
       <Size width="29.99999" height="12" />
       <SubShapes>
@@ -829,7 +807,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_657" zorder="191" guid="44f9de0a-3871-440c-a36e-51b269a0fd47" name="P7_Pin7" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_657" zorder="193" guid="44f9de0a-3871-440c-a36e-51b269a0fd47" name="P7_Pin7" component="cy_all_pin">
       <Location x="60" y="408" />
       <Size width="29.99999" height="12" />
       <SubShapes>
@@ -860,7 +838,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_658" zorder="192" guid="8bc23902-f8c9-4a91-a4e7-20f1dd28ad55" name="P7_Pin6" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_658" zorder="194" guid="8bc23902-f8c9-4a91-a4e7-20f1dd28ad55" name="P7_Pin6" component="cy_all_pin">
       <Location x="60" y="390" />
       <Size width="29.99999" height="12" />
       <SubShapes>
@@ -891,7 +869,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_659" zorder="193" guid="f908fbd2-2095-4b00-b353-1937dc1d8053" name="P7_Pin5" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_659" zorder="195" guid="f908fbd2-2095-4b00-b353-1937dc1d8053" name="P7_Pin5" component="cy_all_pin">
       <Location x="60" y="372" />
       <Size width="29.99999" height="12" />
       <SubShapes>
@@ -922,7 +900,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_660" zorder="194" guid="6e1dff03-beed-4691-a5f5-68d771c2ab2e" name="P7_Pin4" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_660" zorder="196" guid="6e1dff03-beed-4691-a5f5-68d771c2ab2e" name="P7_Pin4" component="cy_all_pin">
       <Location x="60" y="354" />
       <Size width="29.99999" height="12" />
       <SubShapes>
@@ -953,7 +931,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_661" zorder="195" guid="58c5f3b4-c3f1-466a-89bd-c318bef4db50" name="P7_Pin3" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_661" zorder="197" guid="58c5f3b4-c3f1-466a-89bd-c318bef4db50" name="P7_Pin3" component="cy_all_pin">
       <Location x="60" y="336" />
       <Size width="29.99999" height="12" />
       <SubShapes>
@@ -984,7 +962,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_662" zorder="196" guid="925891a0-cd95-4af9-abf4-a4f271890a0c" name="P7_Pin2" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_662" zorder="198" guid="925891a0-cd95-4af9-abf4-a4f271890a0c" name="P7_Pin2" component="cy_all_pin">
       <Location x="60" y="318" />
       <Size width="29.99999" height="12" />
       <SubShapes>
@@ -1015,7 +993,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_663" zorder="197" guid="e6ebe0cc-c207-4411-bad9-42c9435a1409" name="P7_Pin1" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_663" zorder="199" guid="e6ebe0cc-c207-4411-bad9-42c9435a1409" name="P7_Pin1" component="cy_all_pin">
       <Location x="60" y="300" />
       <Size width="29.99999" height="12" />
       <SubShapes>
@@ -1046,7 +1024,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_664" zorder="198" guid="d8956787-ed85-4219-a6f1-d4f2aebc3eda" name="P7_Pin0" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_664" zorder="200" guid="d8956787-ed85-4219-a6f1-d4f2aebc3eda" name="P7_Pin0" component="cy_all_pin">
       <Location x="60" y="282" />
       <Size width="29.99999" height="12" />
       <SubShapes>
@@ -1077,10 +1055,10 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_665" zorder="181" guid="f0f32e88-de70-426b-bcf9-67a35dba2c9f" name="IOSS0_PORT7_P7_P55" component="swhv">
+    <Instance shapeName="Shape_665" zorder="183" guid="f0f32e88-de70-426b-bcf9-67a35dba2c9f" name="IOSS0_PORT7_P7_P55" component="swh">
       <Location x="108" y="372" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:P7_Pin5</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[7].pin[5]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="108" y="372" />
@@ -1094,10 +1072,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_666" zorder="182" guid="e12639a5-7e28-4db6-9634-ebb1675866d8" name="IOSS0_PORT7_P7_P56" component="swhv">
+    <Instance shapeName="Shape_666" zorder="184" guid="e12639a5-7e28-4db6-9634-ebb1675866d8" name="IOSS0_PORT7_P7_P56" component="swh">
       <Location x="108" y="390" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:P7_Pin6</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[7].pin[6]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="108" y="390" />
@@ -1111,10 +1089,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_667" zorder="183" guid="9eb16399-9f98-486a-b99e-3ad5375d3a09" name="IOSS0_PORT7_P7_P57" component="swhv">
+    <Instance shapeName="Shape_667" zorder="185" guid="9eb16399-9f98-486a-b99e-3ad5375d3a09" name="IOSS0_PORT7_P7_P57" component="swh">
       <Location x="108" y="408" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:P7_Pin7</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[7].pin[7]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="108" y="408" />
@@ -1128,13 +1106,13 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_668" zorder="184" guid="1ebdefb1-09fb-48e2-96c2-45839d9eec14" name="IOSS0_PORT7_P7_P47" component="swhv">
-      <Location x="90" y="408" />
+    <Instance shapeName="Shape_668" zorder="186" guid="1ebdefb1-09fb-48e2-96c2-45839d9eec14" name="IOSS0_PORT7_P7_P47" component="swh">
+      <Location x="89.99999" y="408" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:P7_Pin7</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[7].pin[7]</ShapeTags>
       <SubShapes>
         <Ellipse>
-          <Location x="90" y="408" />
+          <Location x="89.99999" y="408" />
           <Size width="12" height="11.99997" />
           <Outline dashStyle="Solid" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="1.5">
             <SolidBrush color="0, 0, 0" />
@@ -1145,13 +1123,13 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_669" zorder="185" guid="a69fbd11-fc58-4afb-9a8c-361cbe1e5fbb" name="IOSS0_PORT7_P7_P46" component="swhv">
-      <Location x="90" y="390" />
+    <Instance shapeName="Shape_669" zorder="187" guid="a69fbd11-fc58-4afb-9a8c-361cbe1e5fbb" name="IOSS0_PORT7_P7_P46" component="swh">
+      <Location x="89.99999" y="390" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:P7_Pin6</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[7].pin[6]</ShapeTags>
       <SubShapes>
         <Ellipse>
-          <Location x="90" y="390" />
+          <Location x="89.99999" y="390" />
           <Size width="12" height="11.99997" />
           <Outline dashStyle="Solid" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="1.5">
             <SolidBrush color="0, 0, 0" />
@@ -1162,13 +1140,13 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_670" zorder="186" guid="ab49089d-d4f4-4e51-be77-4c0b6838eb00" name="IOSS0_PORT7_P7_P45" component="swhv">
-      <Location x="90" y="372" />
+    <Instance shapeName="Shape_670" zorder="188" guid="ab49089d-d4f4-4e51-be77-4c0b6838eb00" name="IOSS0_PORT7_P7_P45" component="swh">
+      <Location x="89.99999" y="372" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:P7_Pin5</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[7].pin[5]</ShapeTags>
       <SubShapes>
         <Ellipse>
-          <Location x="90" y="372" />
+          <Location x="89.99999" y="372" />
           <Size width="12" height="11.99997" />
           <Outline dashStyle="Solid" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="1.5">
             <SolidBrush color="0, 0, 0" />
@@ -1179,13 +1157,13 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_671" zorder="187" guid="1f32ed62-36f5-4011-b2f9-3e81fe65b592" name="IOSS0_PORT7_P7_P44" component="swhv">
-      <Location x="90" y="354" />
+    <Instance shapeName="Shape_671" zorder="189" guid="1f32ed62-36f5-4011-b2f9-3e81fe65b592" name="IOSS0_PORT7_P7_P44" component="swh">
+      <Location x="89.99999" y="354" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:P7_Pin4</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[7].pin[4]</ShapeTags>
       <SubShapes>
         <Ellipse>
-          <Location x="90" y="354" />
+          <Location x="89.99999" y="354" />
           <Size width="12" height="11.99997" />
           <Outline dashStyle="Solid" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="1.5">
             <SolidBrush color="0, 0, 0" />
@@ -1196,10 +1174,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_672" zorder="188" guid="73429323-c4f1-4cff-948b-226e5aec22a1" name="IOSS0_PORT7_P7_P54" component="swhv">
+    <Instance shapeName="Shape_672" zorder="190" guid="73429323-c4f1-4cff-948b-226e5aec22a1" name="IOSS0_PORT7_P7_P54" component="swh">
       <Location x="108" y="354" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:P7_Pin4</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[7].pin[4]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="108" y="354" />
@@ -1213,10 +1191,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_673" zorder="189" guid="c3820805-d907-4cde-a17a-b78ae4132914" name="IOSS0_PORT7_P7_P53" component="swhv">
+    <Instance shapeName="Shape_673" zorder="191" guid="c3820805-d907-4cde-a17a-b78ae4132914" name="IOSS0_PORT7_P7_P53" component="swh">
       <Location x="108" y="336" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:P7_Pin3, w:CSD0_CSD</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[7].pin[3], wl:csd[0].csd[0]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="108" y="336" />
@@ -1230,13 +1208,13 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_674" zorder="190" guid="888577f6-b6d3-4711-aa8b-532f8d511b2d" name="IOSS0_PORT7_P7_P43" component="swhv">
-      <Location x="90" y="336" />
+    <Instance shapeName="Shape_674" zorder="192" guid="888577f6-b6d3-4711-aa8b-532f8d511b2d" name="IOSS0_PORT7_P7_P43" component="swh">
+      <Location x="89.99999" y="336" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:P7_Pin3, w:CSD0_CSD</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[7].pin[3], wl:csd[0].csd[0]</ShapeTags>
       <SubShapes>
         <Ellipse>
-          <Location x="90" y="336" />
+          <Location x="89.99999" y="336" />
           <Size width="12" height="11.99997" />
           <Outline dashStyle="Solid" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="1.5">
             <SolidBrush color="0, 0, 0" />
@@ -1247,13 +1225,13 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_675" zorder="204" guid="da828199-9385-4ca7-9fae-dffd929829ff" name="IOSS0_PORT7_P7_P42" component="swhv">
-      <Location x="90" y="318" />
+    <Instance shapeName="Shape_675" zorder="206" guid="da828199-9385-4ca7-9fae-dffd929829ff" name="IOSS0_PORT7_P7_P42" component="swh">
+      <Location x="89.99999" y="318" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:P7_Pin2, w:CSD0_CSD</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[7].pin[2], wl:csd[0].csd[0]</ShapeTags>
       <SubShapes>
         <Ellipse>
-          <Location x="90" y="318" />
+          <Location x="89.99999" y="318" />
           <Size width="12" height="11.99997" />
           <Outline dashStyle="Solid" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="1.5">
             <SolidBrush color="0, 0, 0" />
@@ -1264,10 +1242,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_676" zorder="203" guid="5457e1e9-8f60-4cbe-bc12-24c6906b6c1c" name="IOSS0_PORT7_P7_P52" component="swhv">
+    <Instance shapeName="Shape_676" zorder="205" guid="5457e1e9-8f60-4cbe-bc12-24c6906b6c1c" name="IOSS0_PORT7_P7_P52" component="swh">
       <Location x="108" y="318" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:P7_Pin2, w:CSD0_CSD</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[7].pin[2], wl:csd[0].csd[0]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="108" y="318" />
@@ -1281,10 +1259,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_677" zorder="202" guid="cdb8ad15-fb2d-4203-af49-d77f25e6b320" name="IOSS0_PORT7_P7_P51" component="swhv">
+    <Instance shapeName="Shape_677" zorder="204" guid="cdb8ad15-fb2d-4203-af49-d77f25e6b320" name="IOSS0_PORT7_P7_P51" component="swh">
       <Location x="108" y="300" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:P7_Pin1, w:CSD0_CSD</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[7].pin[1], wl:csd[0].csd[0]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="108" y="300" />
@@ -1298,13 +1276,13 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_678" zorder="201" guid="2bf223e3-e9a3-4b87-8632-2e242ab6145c" name="IOSS0_PORT7_P7_P41" component="swhv">
-      <Location x="90" y="300" />
+    <Instance shapeName="Shape_678" zorder="203" guid="2bf223e3-e9a3-4b87-8632-2e242ab6145c" name="IOSS0_PORT7_P7_P41" component="swh">
+      <Location x="89.99999" y="300" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:P7_Pin1, w:CSD0_CSD</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[7].pin[1], wl:csd[0].csd[0]</ShapeTags>
       <SubShapes>
         <Ellipse>
-          <Location x="90" y="300" />
+          <Location x="89.99999" y="300" />
           <Size width="12" height="11.99997" />
           <Outline dashStyle="Solid" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="1.5">
             <SolidBrush color="0, 0, 0" />
@@ -1315,13 +1293,13 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_679" zorder="200" guid="ea557a56-00b4-4137-963d-283d90b8ec34" name="IOSS0_PORT7_P7_P40" component="swhv">
-      <Location x="90" y="282" />
+    <Instance shapeName="Shape_679" zorder="202" guid="ea557a56-00b4-4137-963d-283d90b8ec34" name="IOSS0_PORT7_P7_P40" component="swh">
+      <Location x="89.99999" y="282" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:P7_Pin0</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[7].pin[0]</ShapeTags>
       <SubShapes>
         <Ellipse>
-          <Location x="90" y="282" />
+          <Location x="89.99999" y="282" />
           <Size width="12" height="11.99997" />
           <Outline dashStyle="Solid" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="1.5">
             <SolidBrush color="0, 0, 0" />
@@ -1332,10 +1310,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_680" zorder="199" guid="d6cd1dfc-0b4e-4eb5-b173-7867e6025107" name="IOSS0_PORT7_P7_P50" component="swhv">
+    <Instance shapeName="Shape_680" zorder="201" guid="d6cd1dfc-0b4e-4eb5-b173-7867e6025107" name="IOSS0_PORT7_P7_P50" component="swh">
       <Location x="108" y="282" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:P7_Pin0</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[7].pin[0]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="108" y="282" />
@@ -1349,95 +1327,7 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Rectangle shapeName="Shape_681" zorder="173">
-      <Location x="87" y="299" />
-      <Size width="36" height="14" />
-      <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
-        <SolidBrush color="176, 176, 176" />
-      </Outline>
-      <Fill>
-        <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
-      </Fill>
-      <ShapeTags>w:P7_Pin1, w:CSD0_CSD</ShapeTags>
-    </Rectangle>
-    <Rectangle shapeName="Shape_682" zorder="174">
-      <Location x="87" y="317" />
-      <Size width="36" height="14" />
-      <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
-        <SolidBrush color="176, 176, 176" />
-      </Outline>
-      <Fill>
-        <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
-      </Fill>
-      <ShapeTags>w:P7_Pin2, w:CSD0_CSD</ShapeTags>
-    </Rectangle>
-    <Rectangle shapeName="Shape_683" zorder="175">
-      <Location x="87" y="335" />
-      <Size width="36" height="14" />
-      <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
-        <SolidBrush color="176, 176, 176" />
-      </Outline>
-      <Fill>
-        <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
-      </Fill>
-      <ShapeTags>w:P7_Pin3, w:CSD0_CSD</ShapeTags>
-    </Rectangle>
-    <Rectangle shapeName="Shape_684" zorder="176">
-      <Location x="87" y="353" />
-      <Size width="36" height="14" />
-      <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
-        <SolidBrush color="176, 176, 176" />
-      </Outline>
-      <Fill>
-        <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
-      </Fill>
-      <ShapeTags>w:P7_Pin4</ShapeTags>
-    </Rectangle>
-    <Rectangle shapeName="Shape_685" zorder="177">
-      <Location x="87" y="371" />
-      <Size width="36" height="14" />
-      <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
-        <SolidBrush color="176, 176, 176" />
-      </Outline>
-      <Fill>
-        <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
-      </Fill>
-      <ShapeTags>w:P7_Pin5</ShapeTags>
-    </Rectangle>
-    <Rectangle shapeName="Shape_686" zorder="178">
-      <Location x="87" y="389" />
-      <Size width="36" height="14" />
-      <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
-        <SolidBrush color="176, 176, 176" />
-      </Outline>
-      <Fill>
-        <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
-      </Fill>
-      <ShapeTags>w:P7_Pin6</ShapeTags>
-    </Rectangle>
-    <Rectangle shapeName="Shape_687" zorder="179">
-      <Location x="87" y="407" />
-      <Size width="36" height="14" />
-      <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
-        <SolidBrush color="176, 176, 176" />
-      </Outline>
-      <Fill>
-        <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
-      </Fill>
-      <ShapeTags>w:P7_Pin7</ShapeTags>
-    </Rectangle>
-    <Rectangle shapeName="Shape_688" zorder="180">
-      <Location x="87" y="281" />
-      <Size width="36" height="14" />
-      <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
-        <SolidBrush color="176, 176, 176" />
-      </Outline>
-      <Fill>
-        <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
-      </Fill>
-      <ShapeTags>w:P7_Pin0</ShapeTags>
-    </Rectangle>
-    <Instance shapeName="Shape_740" zorder="161" guid="cd1de15b-728d-4558-8a71-eeea70f69476" name="P8_Pin3" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_740" zorder="171" guid="cd1de15b-728d-4558-8a71-eeea70f69476" name="P8_Pin3" component="cy_all_pin">
       <Location x="60" y="222" />
       <Size width="29.99999" height="12" />
       <SubShapes>
@@ -1468,7 +1358,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_741" zorder="162" guid="808cee7b-2fb7-42f6-8d08-366f390fb517" name="P8_Pin2" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_741" zorder="172" guid="808cee7b-2fb7-42f6-8d08-366f390fb517" name="P8_Pin2" component="cy_all_pin">
       <Location x="60" y="204" />
       <Size width="29.99999" height="12" />
       <SubShapes>
@@ -1499,7 +1389,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_742" zorder="163" guid="b2cd08f7-09f9-4d4d-ad09-0527106a2c6f" name="P8_Pin1" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_742" zorder="173" guid="b2cd08f7-09f9-4d4d-ad09-0527106a2c6f" name="P8_Pin1" component="cy_all_pin">
       <Location x="60" y="186" />
       <Size width="29.99999" height="12" />
       <SubShapes>
@@ -1530,7 +1420,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_743" zorder="164" guid="c623d000-41db-4fe6-b683-8436b205735d" name="P8_Pin0" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_743" zorder="174" guid="c623d000-41db-4fe6-b683-8436b205735d" name="P8_Pin0" component="cy_all_pin">
       <Location x="60" y="168" />
       <Size width="29.99999" height="12" />
       <SubShapes>
@@ -1561,10 +1451,10 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_753" zorder="153" guid="80af3abd-170c-4df3-b900-ce049982ccfe" name="IOSS0_PORT8_P8_P53" component="swhv">
+    <Instance shapeName="Shape_753" zorder="163" guid="80af3abd-170c-4df3-b900-ce049982ccfe" name="IOSS0_PORT8_P8_P53" component="swh">
       <Location x="108" y="222" />
       <Size width="12" height="11.99998" />
-      <ShapeTags>w:P8_Pin3</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[8].pin[3]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="108" y="222" />
@@ -1578,13 +1468,13 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_754" zorder="154" guid="42f02cc3-153f-42b3-8d83-1a58e0148878" name="IOSS0_PORT8_P8_P43" component="swhv">
-      <Location x="90" y="222" />
+    <Instance shapeName="Shape_754" zorder="164" guid="42f02cc3-153f-42b3-8d83-1a58e0148878" name="IOSS0_PORT8_P8_P43" component="swh">
+      <Location x="89.99999" y="222" />
       <Size width="12" height="11.99998" />
-      <ShapeTags>w:P8_Pin3</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[8].pin[3]</ShapeTags>
       <SubShapes>
         <Ellipse>
-          <Location x="90" y="222" />
+          <Location x="89.99999" y="222" />
           <Size width="12" height="11.99998" />
           <Outline dashStyle="Solid" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="1.5">
             <SolidBrush color="0, 0, 0" />
@@ -1595,13 +1485,13 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_756" zorder="155" guid="5ea7af1d-f032-4c0a-b3b6-71b7d4d8d5a2" name="IOSS0_PORT8_P8_P42" component="swhv">
-      <Location x="90" y="204" />
+    <Instance shapeName="Shape_756" zorder="165" guid="5ea7af1d-f032-4c0a-b3b6-71b7d4d8d5a2" name="IOSS0_PORT8_P8_P42" component="swh">
+      <Location x="89.99999" y="204" />
       <Size width="12" height="11.99998" />
-      <ShapeTags>w:P8_Pin2</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[8].pin[2]</ShapeTags>
       <SubShapes>
         <Ellipse>
-          <Location x="90" y="204" />
+          <Location x="89.99999" y="204" />
           <Size width="12" height="11.99998" />
           <Outline dashStyle="Solid" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="1.5">
             <SolidBrush color="0, 0, 0" />
@@ -1612,10 +1502,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_758" zorder="156" guid="570c17f8-6bb5-4af7-8336-6b9b3ebf11f4" name="IOSS0_PORT8_P8_P52" component="swhv">
+    <Instance shapeName="Shape_758" zorder="166" guid="570c17f8-6bb5-4af7-8336-6b9b3ebf11f4" name="IOSS0_PORT8_P8_P52" component="swh">
       <Location x="108" y="204" />
       <Size width="12" height="11.99998" />
-      <ShapeTags>w:P8_Pin2</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[8].pin[2]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="108" y="204" />
@@ -1629,10 +1519,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_760" zorder="157" guid="0dffb3c4-e9da-418a-9f73-a841edb508fd" name="IOSS0_PORT8_P8_P51" component="swhv">
+    <Instance shapeName="Shape_760" zorder="167" guid="0dffb3c4-e9da-418a-9f73-a841edb508fd" name="IOSS0_PORT8_P8_P51" component="swh">
       <Location x="108" y="186" />
       <Size width="12" height="11.99998" />
-      <ShapeTags>w:P8_Pin1</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[8].pin[1]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="108" y="186" />
@@ -1646,13 +1536,13 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_762" zorder="158" guid="10026f6a-0b80-4d21-b082-1b9fb8bce4ef" name="IOSS0_PORT8_P8_P41" component="swhv">
-      <Location x="90" y="186" />
+    <Instance shapeName="Shape_762" zorder="168" guid="10026f6a-0b80-4d21-b082-1b9fb8bce4ef" name="IOSS0_PORT8_P8_P41" component="swh">
+      <Location x="89.99999" y="186" />
       <Size width="12" height="11.99998" />
-      <ShapeTags>w:P8_Pin1</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[8].pin[1]</ShapeTags>
       <SubShapes>
         <Ellipse>
-          <Location x="90" y="186" />
+          <Location x="89.99999" y="186" />
           <Size width="12" height="11.99998" />
           <Outline dashStyle="Solid" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="1.5">
             <SolidBrush color="0, 0, 0" />
@@ -1663,13 +1553,13 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_763" zorder="159" guid="0f03f684-48e2-4310-b967-f34b32043584" name="IOSS0_PORT8_P8_P40" component="swhv">
-      <Location x="90" y="168" />
+    <Instance shapeName="Shape_763" zorder="169" guid="0f03f684-48e2-4310-b967-f34b32043584" name="IOSS0_PORT8_P8_P40" component="swh">
+      <Location x="89.99999" y="168" />
       <Size width="12" height="11.99998" />
-      <ShapeTags>w:P8_Pin0</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[8].pin[0]</ShapeTags>
       <SubShapes>
         <Ellipse>
-          <Location x="90" y="168" />
+          <Location x="89.99999" y="168" />
           <Size width="12" height="11.99998" />
           <Outline dashStyle="Solid" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="1.5">
             <SolidBrush color="0, 0, 0" />
@@ -1680,10 +1570,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_764" zorder="160" guid="9c6be191-090e-4105-914e-8dfe5d7bdef3" name="IOSS0_PORT8_P8_P50" component="swhv">
+    <Instance shapeName="Shape_764" zorder="170" guid="9c6be191-090e-4105-914e-8dfe5d7bdef3" name="IOSS0_PORT8_P8_P50" component="swh">
       <Location x="108" y="168" />
       <Size width="12" height="11.99998" />
-      <ShapeTags>w:P8_Pin0</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[8].pin[0]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="108" y="168" />
@@ -1697,51 +1587,7 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Rectangle shapeName="Shape_765" zorder="150">
-      <Location x="87" y="185" />
-      <Size width="36" height="14" />
-      <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
-        <SolidBrush color="176, 176, 176" />
-      </Outline>
-      <Fill>
-        <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
-      </Fill>
-      <ShapeTags>w:P8_Pin1</ShapeTags>
-    </Rectangle>
-    <Rectangle shapeName="Shape_766" zorder="151">
-      <Location x="87" y="203" />
-      <Size width="36" height="14" />
-      <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
-        <SolidBrush color="176, 176, 176" />
-      </Outline>
-      <Fill>
-        <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
-      </Fill>
-      <ShapeTags>w:P8_Pin2</ShapeTags>
-    </Rectangle>
-    <Rectangle shapeName="Shape_767" zorder="149">
-      <Location x="87" y="221" />
-      <Size width="36" height="14" />
-      <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
-        <SolidBrush color="176, 176, 176" />
-      </Outline>
-      <Fill>
-        <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
-      </Fill>
-      <ShapeTags>w:P8_Pin3</ShapeTags>
-    </Rectangle>
-    <Rectangle shapeName="Shape_772" zorder="152">
-      <Location x="87" y="167" />
-      <Size width="36" height="14" />
-      <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
-        <SolidBrush color="176, 176, 176" />
-      </Outline>
-      <Fill>
-        <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
-      </Fill>
-      <ShapeTags>w:P8_Pin0</ShapeTags>
-    </Rectangle>
-    <Instance shapeName="Shape_826" zorder="30" guid="7d984710-ddbd-4261-878a-862391eb2ee1" name="P9_Pin3" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_826" zorder="48" guid="7d984710-ddbd-4261-878a-862391eb2ee1" name="P9_Pin3" component="cy_all_pin">
       <Location x="288" y="60" />
       <Size width="12" height="29.99999" />
       <SubShapes>
@@ -1772,7 +1618,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_827" zorder="31" guid="d1f5c5d4-8550-4ecd-bf1a-013ff1e1bd58" name="P9_Pin2" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_827" zorder="49" guid="d1f5c5d4-8550-4ecd-bf1a-013ff1e1bd58" name="P9_Pin2" component="cy_all_pin">
       <Location x="306" y="60" />
       <Size width="12" height="29.99999" />
       <SubShapes>
@@ -1803,7 +1649,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_828" zorder="32" guid="c52a11b1-4a84-4a3b-84ea-5d395511888e" name="P9_Pin1" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_828" zorder="50" guid="c52a11b1-4a84-4a3b-84ea-5d395511888e" name="P9_Pin1" component="cy_all_pin">
       <Location x="324" y="60" />
       <Size width="12" height="29.99999" />
       <SubShapes>
@@ -1834,7 +1680,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_829" zorder="33" guid="ed4ccaf0-460a-4e9d-a941-08425f082a64" name="P9_Pin0" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_829" zorder="51" guid="ed4ccaf0-460a-4e9d-a941-08425f082a64" name="P9_Pin0" component="cy_all_pin">
       <Location x="342" y="60" />
       <Size width="12" height="29.99999" />
       <SubShapes>
@@ -1865,10 +1711,10 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_840" zorder="38" guid="4f25d1fc-2385-49ef-ba21-d2fc6f510c2b" name="IOSS0_PORT9_P9_P53" component="swhv">
+    <Instance shapeName="Shape_840" zorder="56" guid="4f25d1fc-2385-49ef-ba21-d2fc6f510c2b" name="IOSS0_PORT9_P9_P53" component="swh">
       <Location x="288" y="108" />
       <Size width="12" height="12" />
-      <ShapeTags>w:P9_Pin3</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[9].pin[3]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="288" y="108" />
@@ -1882,13 +1728,13 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_841" zorder="25" guid="00b88554-1ec0-45c5-aeaa-d544841c1feb" name="IOSS0_PORT9_P9_P43" component="swhv">
-      <Location x="288" y="90" />
+    <Instance shapeName="Shape_841" zorder="43" guid="00b88554-1ec0-45c5-aeaa-d544841c1feb" name="IOSS0_PORT9_P9_P43" component="swh">
+      <Location x="288" y="89.99999" />
       <Size width="12" height="12" />
-      <ShapeTags>w:P9_Pin3</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[9].pin[3]</ShapeTags>
       <SubShapes>
         <Ellipse>
-          <Location x="288" y="90" />
+          <Location x="288" y="89.99999" />
           <Size width="12" height="12" />
           <Outline dashStyle="Solid" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="1.5">
             <SolidBrush color="0, 0, 0" />
@@ -1899,13 +1745,13 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_842" zorder="26" guid="d96e3dcb-e411-4535-a10a-461b4df22257" name="IOSS0_PORT9_P9_P42" component="swhv">
-      <Location x="306" y="90" />
+    <Instance shapeName="Shape_842" zorder="44" guid="d96e3dcb-e411-4535-a10a-461b4df22257" name="IOSS0_PORT9_P9_P42" component="swh">
+      <Location x="306" y="89.99999" />
       <Size width="12" height="12" />
-      <ShapeTags>w:P9_Pin2</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[9].pin[2]</ShapeTags>
       <SubShapes>
         <Ellipse>
-          <Location x="306" y="90" />
+          <Location x="306" y="89.99999" />
           <Size width="12" height="12" />
           <Outline dashStyle="Solid" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="1.5">
             <SolidBrush color="0, 0, 0" />
@@ -1916,10 +1762,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_843" zorder="37" guid="cc346d58-f8b6-4b5c-b4e5-84a80ff2deb1" name="IOSS0_PORT9_P9_P52" component="swhv">
+    <Instance shapeName="Shape_843" zorder="55" guid="cc346d58-f8b6-4b5c-b4e5-84a80ff2deb1" name="IOSS0_PORT9_P9_P52" component="swh">
       <Location x="306" y="108" />
       <Size width="12" height="12" />
-      <ShapeTags>w:P9_Pin2</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[9].pin[2]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="306" y="108" />
@@ -1933,10 +1779,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_844" zorder="36" guid="f7fb561d-cdd2-4783-8265-abe150ca461c" name="IOSS0_PORT9_P9_P51" component="swhv">
+    <Instance shapeName="Shape_844" zorder="54" guid="f7fb561d-cdd2-4783-8265-abe150ca461c" name="IOSS0_PORT9_P9_P51" component="swh">
       <Location x="324" y="108" />
       <Size width="12" height="12" />
-      <ShapeTags>w:P9_Pin1</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[9].pin[1]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="324" y="108" />
@@ -1950,13 +1796,13 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_845" zorder="27" guid="bc7bbe69-8b43-45e4-96f3-a5c1bd72a70a" name="IOSS0_PORT9_P9_P41" component="swhv">
-      <Location x="324" y="90" />
+    <Instance shapeName="Shape_845" zorder="45" guid="bc7bbe69-8b43-45e4-96f3-a5c1bd72a70a" name="IOSS0_PORT9_P9_P41" component="swh">
+      <Location x="324" y="89.99999" />
       <Size width="12" height="12" />
-      <ShapeTags>w:P9_Pin1</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[9].pin[1]</ShapeTags>
       <SubShapes>
         <Ellipse>
-          <Location x="324" y="90" />
+          <Location x="324" y="89.99999" />
           <Size width="12" height="12" />
           <Outline dashStyle="Solid" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="1.5">
             <SolidBrush color="0, 0, 0" />
@@ -1967,13 +1813,13 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_846" zorder="28" guid="28533d79-bacc-43a1-86c5-b1c330b28f10" name="IOSS0_PORT9_P9_P40" component="swhv">
-      <Location x="342" y="90" />
+    <Instance shapeName="Shape_846" zorder="46" guid="28533d79-bacc-43a1-86c5-b1c330b28f10" name="IOSS0_PORT9_P9_P40" component="swh">
+      <Location x="342" y="89.99999" />
       <Size width="12" height="12" />
-      <ShapeTags>w:P9_Pin0</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[9].pin[0]</ShapeTags>
       <SubShapes>
         <Ellipse>
-          <Location x="342" y="90" />
+          <Location x="342" y="89.99999" />
           <Size width="12" height="12" />
           <Outline dashStyle="Solid" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="1.5">
             <SolidBrush color="0, 0, 0" />
@@ -1984,10 +1830,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_847" zorder="29" guid="dc33407c-39c9-44ec-9dc6-6c65edff5392" name="IOSS0_PORT9_P9_P50" component="swhv">
+    <Instance shapeName="Shape_847" zorder="47" guid="dc33407c-39c9-44ec-9dc6-6c65edff5392" name="IOSS0_PORT9_P9_P50" component="swh">
       <Location x="342" y="108" />
       <Size width="12" height="12" />
-      <ShapeTags>w:P9_Pin0</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[9].pin[0]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="342" y="108" />
@@ -2001,51 +1847,7 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Rectangle shapeName="Shape_849" zorder="22">
-      <Location x="323" y="87" />
-      <Size width="14" height="36" />
-      <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
-        <SolidBrush color="176, 176, 176" />
-      </Outline>
-      <Fill>
-        <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
-      </Fill>
-      <ShapeTags>w:P9_Pin1</ShapeTags>
-    </Rectangle>
-    <Rectangle shapeName="Shape_850" zorder="23">
-      <Location x="305" y="87" />
-      <Size width="14" height="36" />
-      <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
-        <SolidBrush color="176, 176, 176" />
-      </Outline>
-      <Fill>
-        <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
-      </Fill>
-      <ShapeTags>w:P9_Pin2</ShapeTags>
-    </Rectangle>
-    <Rectangle shapeName="Shape_851" zorder="24">
-      <Location x="287" y="87" />
-      <Size width="14" height="36" />
-      <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
-        <SolidBrush color="176, 176, 176" />
-      </Outline>
-      <Fill>
-        <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
-      </Fill>
-      <ShapeTags>w:P9_Pin3</ShapeTags>
-    </Rectangle>
-    <Rectangle shapeName="Shape_863" zorder="21">
-      <Location x="341" y="87" />
-      <Size width="14" height="36" />
-      <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
-        <SolidBrush color="176, 176, 176" />
-      </Outline>
-      <Fill>
-        <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
-      </Fill>
-      <ShapeTags>w:P9_Pin0</ShapeTags>
-    </Rectangle>
-    <Instance shapeName="Shape_912" zorder="49" guid="876e3a4f-8691-472e-b768-1ad6824814ff" name="P10_Pin7" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_912" zorder="67" guid="876e3a4f-8691-472e-b768-1ad6824814ff" name="P10_Pin7" component="cy_all_pin">
       <Location x="576" y="60" />
       <Size width="12" height="29.99999" />
       <SubShapes>
@@ -2076,7 +1878,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_913" zorder="50" guid="35ffb865-b18c-4e2d-b540-4ea12cf3c572" name="P10_Pin6" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_913" zorder="68" guid="35ffb865-b18c-4e2d-b540-4ea12cf3c572" name="P10_Pin6" component="cy_all_pin">
       <Location x="558" y="60" />
       <Size width="12" height="29.99999" />
       <SubShapes>
@@ -2107,7 +1909,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_914" zorder="51" guid="7396bd24-5a82-4863-9104-2692929c6120" name="P10_Pin5" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_914" zorder="69" guid="7396bd24-5a82-4863-9104-2692929c6120" name="P10_Pin5" component="cy_all_pin">
       <Location x="540" y="60" />
       <Size width="12" height="29.99999" />
       <SubShapes>
@@ -2138,7 +1940,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_916" zorder="52" guid="2db7e777-acbc-43a3-8b21-4a1a624c6fd3" name="P10_Pin4" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_916" zorder="70" guid="2db7e777-acbc-43a3-8b21-4a1a624c6fd3" name="P10_Pin4" component="cy_all_pin">
       <Location x="522" y="60" />
       <Size width="12" height="29.99999" />
       <SubShapes>
@@ -2169,7 +1971,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_917" zorder="53" guid="e6d3cfbe-9b5b-44f2-93a5-7994853c9924" name="P10_Pin3" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_917" zorder="71" guid="e6d3cfbe-9b5b-44f2-93a5-7994853c9924" name="P10_Pin3" component="cy_all_pin">
       <Location x="504" y="60" />
       <Size width="12" height="29.99999" />
       <SubShapes>
@@ -2200,7 +2002,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_918" zorder="54" guid="a749d76a-941a-4faf-9ce5-c995bfd35866" name="P10_Pin2" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_918" zorder="72" guid="a749d76a-941a-4faf-9ce5-c995bfd35866" name="P10_Pin2" component="cy_all_pin">
       <Location x="486" y="60" />
       <Size width="12" height="29.99999" />
       <SubShapes>
@@ -2231,7 +2033,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_919" zorder="55" guid="3d23252b-b7b8-433d-b540-14fafb0323f6" name="P10_Pin1" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_919" zorder="73" guid="3d23252b-b7b8-433d-b540-14fafb0323f6" name="P10_Pin1" component="cy_all_pin">
       <Location x="468" y="60" />
       <Size width="12" height="29.99999" />
       <SubShapes>
@@ -2262,7 +2064,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_1379" zorder="142" guid="9be833d7-6c43-461d-9748-63a40098d418" name="AMUXT2_BB_SR" component="swh">
+    <Instance shapeName="Shape_1379" zorder="156" guid="9be833d7-6c43-461d-9748-63a40098d418" name="AMUXT2_BB_SR" component="swh">
       <Location x="132" y="108" />
       <Size width="12" height="11.99999" />
       <SubShapes>
@@ -2278,7 +2080,7 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_1380" zorder="141" guid="c5dd09f9-ce93-4897-b372-b61ab26b55ea" name="AMUXT2_BB_SL" component="swh">
+    <Instance shapeName="Shape_1380" zorder="155" guid="c5dd09f9-ce93-4897-b372-b61ab26b55ea" name="AMUXT2_BB_SL" component="swh">
       <Location x="120" y="108" />
       <Size width="11.99999" height="11.99999" />
       <SubShapes>
@@ -2294,7 +2096,7 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_1381" zorder="140" guid="4c5a6954-dd81-4cf8-b778-7af0819f3035" name="AMUXT2_AA_SR" component="swh">
+    <Instance shapeName="Shape_1381" zorder="154" guid="4c5a6954-dd81-4cf8-b778-7af0819f3035" name="AMUXT2_AA_SR" component="swh">
       <Location x="132" y="90" />
       <Size width="12" height="11.99999" />
       <SubShapes>
@@ -2310,7 +2112,7 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_1382" zorder="139" guid="76dec818-ccc5-4fd9-8470-98a111e4b32e" name="AMUXT2_AA_SL" component="swh">
+    <Instance shapeName="Shape_1382" zorder="153" guid="76dec818-ccc5-4fd9-8470-98a111e4b32e" name="AMUXT2_AA_SL" component="swh">
       <Location x="120" y="90" />
       <Size width="11.99999" height="11.99999" />
       <SubShapes>
@@ -2326,7 +2128,7 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_1397" zorder="138" guid="5d178bd9-3b78-4988-a757-5936bb739f58" name="AMUXT3_BB_SR" component="swh">
+    <Instance shapeName="Shape_1397" zorder="152" guid="5d178bd9-3b78-4988-a757-5936bb739f58" name="AMUXT3_BB_SR" component="swh">
       <Location x="192" y="108" />
       <Size width="12" height="11.99999" />
       <SubShapes>
@@ -2342,7 +2144,7 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_1398" zorder="137" guid="5c0bd417-9a0f-4ff4-b88c-c8b8ebfe3afa" name="AMUXT3_BB_SL" component="swh">
+    <Instance shapeName="Shape_1398" zorder="151" guid="5c0bd417-9a0f-4ff4-b88c-c8b8ebfe3afa" name="AMUXT3_BB_SL" component="swh">
       <Location x="180" y="108" />
       <Size width="12" height="11.99999" />
       <SubShapes>
@@ -2358,7 +2160,7 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_1399" zorder="136" guid="3d47645d-8b09-4157-9703-22cd1a1be721" name="AMUXT3_AA_SR" component="swh">
+    <Instance shapeName="Shape_1399" zorder="150" guid="3d47645d-8b09-4157-9703-22cd1a1be721" name="AMUXT3_AA_SR" component="swh">
       <Location x="192" y="90" />
       <Size width="12" height="11.99999" />
       <SubShapes>
@@ -2374,7 +2176,7 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_1400" zorder="135" guid="74c3ae9b-d3f2-469d-8748-54029581eb0b" name="AMUXT3_AA_SL" component="swh">
+    <Instance shapeName="Shape_1400" zorder="149" guid="74c3ae9b-d3f2-469d-8748-54029581eb0b" name="AMUXT3_AA_SL" component="swh">
       <Location x="180" y="90" />
       <Size width="12" height="11.99999" />
       <SubShapes>
@@ -2390,18 +2192,18 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Wire shapeName="Shape_1491" zorder="90" effectiveName="pass0_sarmux0_temp0" type="Analog">
+    <Wire shapeName="Shape_1491" zorder="108" effectiveName="pass0_sarmux0_temp0" type="Analog">
       <Point1 x="408" y="366" />
       <Point2 x="480" y="366" />
-      <ShapeTags>w:PASS0_SARMUX0_TEMP0</ShapeTags>
-      <Annotation zorder="91">
-        <Location x="762" y="684" />
+      <ShapeTags>wl:pass[0].sarmux[0].tempsensor[0]</ShapeTags>
+      <Annotation zorder="109">
+        <Location x="459" y="360" />
         <Text>pass0_sarmux0_temp0</Text>
         <Vertical value="false" />
         <TextAlignment value="TopLeft" />
       </Annotation>
     </Wire>
-    <Instance shapeName="Shape_1742" zorder="56" guid="0c52d093-ac02-4915-9a2d-9801241ab49e" name="P10_Pin0" component="cy_mxs40_pin">
+    <Instance shapeName="Shape_1742" zorder="74" guid="0c52d093-ac02-4915-9a2d-9801241ab49e" name="P10_Pin0" component="cy_all_pin">
       <Location x="450" y="60" />
       <Size width="12" height="29.99999" />
       <SubShapes>
@@ -2432,116 +2234,116 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Wire shapeName="Shape_1758" zorder="219" effectiveName="p7_4" type="Analog">
+    <Wire shapeName="Shape_1758" zorder="221" effectiveName="p7_4" type="Analog">
       <Point1 x="90" y="360" />
       <Point2 x="120" y="360" />
-      <ShapeTags>w:P7_Pin4</ShapeTags>
-      <Annotation zorder="220">
-        <Location x="785" y="858" />
+      <ShapeTags>wl:ioss[0].port[7].pin[4]</ShapeTags>
+      <Annotation zorder="222">
+        <Location x="117" y="354" />
         <Text>p7_4</Text>
         <Vertical value="false" />
         <TextAlignment value="TopRight" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_1761" zorder="221" effectiveName="p7_5" type="Analog">
+    <Wire shapeName="Shape_1761" zorder="223" effectiveName="p7_5" type="Analog">
       <Point1 x="90" y="378" />
       <Point2 x="120" y="378" />
-      <ShapeTags>w:P7_Pin5</ShapeTags>
-      <Annotation zorder="222">
-        <Location x="779" y="846" />
+      <ShapeTags>wl:ioss[0].port[7].pin[5]</ShapeTags>
+      <Annotation zorder="224">
+        <Location x="117" y="372" />
         <Text>p7_5</Text>
         <Vertical value="false" />
         <Expression />
         <TextAlignment value="TopRight" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_1953" zorder="205" effectiveName="p7_0" type="Analog">
+    <Wire shapeName="Shape_1953" zorder="207" effectiveName="p7_0" type="Analog">
       <Point1 x="90" y="288" />
       <Point2 x="120" y="288" />
-      <ShapeTags>w:P7_Pin0</ShapeTags>
-      <Annotation zorder="206">
-        <Location x="773" y="924" />
+      <ShapeTags>wl:ioss[0].port[7].pin[0]</ShapeTags>
+      <Annotation zorder="208">
+        <Location x="117" y="282" />
         <Text>p7_0</Text>
         <Vertical value="false" />
         <Expression />
         <TextAlignment value="TopRight" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_1961" zorder="223" effectiveName="p7_6" type="Analog">
+    <Wire shapeName="Shape_1961" zorder="225" effectiveName="p7_6" type="Analog">
       <Point1 x="90" y="396" />
       <Point2 x="120" y="396" />
-      <ShapeTags>w:P7_Pin6</ShapeTags>
-      <Annotation zorder="224">
-        <Location x="821" y="906" />
+      <ShapeTags>wl:ioss[0].port[7].pin[6]</ShapeTags>
+      <Annotation zorder="226">
+        <Location x="117" y="390" />
         <Text>p7_6</Text>
         <Vertical value="false" />
         <TextAlignment value="TopRight" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_2055" zorder="263" effectiveName="amuxbus_a_vddio_1" type="Analog">
+    <Wire shapeName="Shape_2055" zorder="265" effectiveName="amuxbus_a_vddio_1" type="Analog">
       <Point1 x="216" y="516" solderDot="true" />
       <Point2 x="396" y="516" />
-      <ShapeTags>w:LPCOMP0_COMP0, w:LPCOMP0_COMP1</ShapeTags>
-      <Annotation zorder="264">
-        <Location x="1104" y="1164" />
+      <ShapeTags>wl:lpcomp[0].comp[0], wl:lpcomp[0].comp[1]</ShapeTags>
+      <Annotation zorder="266">
+        <Location x="258" y="510" />
         <Text>amuxbus_a_vddio_1</Text>
         <Vertical value="false" />
         <TextAlignment value="TopLeft" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_2057" zorder="257" effectiveName="amuxbus_b_vddio_1" type="Analog">
+    <Wire shapeName="Shape_2057" zorder="259" effectiveName="amuxbus_b_vddio_1" type="Analog">
       <Point1 x="234" y="498" solderDot="true" />
       <Point2 x="378" y="498" />
-      <ShapeTags>w:LPCOMP0_COMP0, w:LPCOMP0_COMP1</ShapeTags>
-      <Annotation zorder="258">
-        <Location x="984" y="1038" />
+      <ShapeTags>wl:lpcomp[0].comp[0], wl:lpcomp[0].comp[1]</ShapeTags>
+      <Annotation zorder="260">
+        <Location x="258" y="492" />
         <Text>amuxbus_b_vddio_1</Text>
         <Vertical value="false" />
         <TextAlignment value="TopLeft" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_2132" zorder="107" effectiveName="p3_1" type="Analog">
+    <Wire shapeName="Shape_2132" zorder="121" effectiveName="p3_1" type="Analog">
       <Point1 x="522" y="498" />
       <Point2 x="552" y="498" />
-      <ShapeTags>w:P3_Pin1</ShapeTags>
-      <Annotation zorder="108">
-        <Location x="720" y="960" />
+      <ShapeTags>wl:ioss[0].port[3].pin[1]</ShapeTags>
+      <Annotation zorder="122">
+        <Location x="525" y="491" />
         <Text>p3_1</Text>
         <Vertical value="false" />
         <Expression />
         <TextAlignment value="TopLeft" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_2134" zorder="105" effectiveName="p3_0" type="Analog">
+    <Wire shapeName="Shape_2134" zorder="119" effectiveName="p3_0" type="Analog">
       <Point1 x="522" y="480" />
       <Point2 x="552" y="480" />
-      <ShapeTags>w:P3_Pin0</ShapeTags>
-      <Annotation zorder="106">
-        <Location x="720" y="942" />
+      <ShapeTags>wl:ioss[0].port[3].pin[0]</ShapeTags>
+      <Annotation zorder="120">
+        <Location x="525" y="474" />
         <Text>p3_0</Text>
         <Vertical value="false" />
         <Expression />
         <TextAlignment value="TopLeft" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_2140" zorder="0" effectiveName="amuxbus_b_csd0" type="Analog">
+    <Wire shapeName="Shape_2140" zorder="22" effectiveName="amuxbus_b_csd0" type="Analog">
       <Point1 x="114" y="114" />
       <Point2 x="120" y="114" />
     </Wire>
-    <Wire shapeName="Shape_2181" zorder="231" effectiveName="amuxbus_a_csd1" type="Analog">
+    <Wire shapeName="Shape_2181" zorder="233" effectiveName="amuxbus_a_csd1" type="Analog">
       <Point1 x="168" y="270" />
       <Point2 x="258" y="270" />
-      <ShapeTags>w:CSD0_CSD</ShapeTags>
+      <ShapeTags>wl:csd[0].csd[0]</ShapeTags>
     </Wire>
-    <Wire shapeName="Shape_2185" zorder="233" effectiveName="amuxbus_b_csd1" type="Analog">
+    <Wire shapeName="Shape_2185" zorder="235" effectiveName="amuxbus_b_csd1" type="Analog">
       <Point1 x="150" y="288" />
       <Point2 x="258" y="288" />
-      <ShapeTags>w:CSD0_CSD</ShapeTags>
+      <ShapeTags>wl:csd[0].csd[0]</ShapeTags>
     </Wire>
-    <Instance shapeName="Shape_2279" zorder="89" guid="aab390ae-a463-4a62-ad74-4c2b7d6e80f8" name="PASS0_SARMUX0_sw17" component="swhv">
+    <Instance shapeName="Shape_2279" zorder="107" guid="aab390ae-a463-4a62-ad74-4c2b7d6e80f8" name="PASS0_SARMUX0_sw17" component="swh">
       <Location x="408" y="360" />
       <Size width="11.99997" height="12" />
-      <ShapeTags>w:PASS0_SARMUX0_TEMP0</ShapeTags>
+      <ShapeTags>wl:pass[0].sarmux[0].tempsensor[0]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="408" y="360" />
@@ -2555,10 +2357,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_2289" zorder="87" guid="78df0c24-725c-418c-87a4-44c4a80df775" name="PASS0_SARMUX0_sw15" component="swhv">
+    <Instance shapeName="Shape_2289" zorder="105" guid="78df0c24-725c-418c-87a4-44c4a80df775" name="PASS0_SARMUX0_sw15" component="swh">
       <Location x="426" y="312" />
       <Size width="11.99997" height="12" />
-      <ShapeTags>w:P10_Pin7</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[7]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="426" y="312" />
@@ -2572,10 +2374,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_2294" zorder="88" guid="9636e40a-3bc3-4585-a11a-868adf3e5af9" name="PASS0_SARMUX0_sw7" component="swhv">
+    <Instance shapeName="Shape_2294" zorder="106" guid="9636e40a-3bc3-4585-a11a-868adf3e5af9" name="PASS0_SARMUX0_sw7" component="swh">
       <Location x="408" y="312" />
       <Size width="11.99997" height="12" />
-      <ShapeTags>w:P10_Pin7</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[7]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="408" y="312" />
@@ -2589,10 +2391,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_2299" zorder="85" guid="8e7c4323-bc89-4700-a78f-59de38922696" name="PASS0_SARMUX0_sw6" component="swhv">
+    <Instance shapeName="Shape_2299" zorder="103" guid="8e7c4323-bc89-4700-a78f-59de38922696" name="PASS0_SARMUX0_sw6" component="swh">
       <Location x="408" y="294" />
       <Size width="11.99997" height="12" />
-      <ShapeTags>w:P10_Pin6</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[6]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="408" y="294" />
@@ -2606,10 +2408,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_2304" zorder="83" guid="9e62aa05-36dd-4401-895e-2f1c2e781c4c" name="PASS0_SARMUX0_sw5" component="swhv">
+    <Instance shapeName="Shape_2304" zorder="101" guid="9e62aa05-36dd-4401-895e-2f1c2e781c4c" name="PASS0_SARMUX0_sw5" component="swh">
       <Location x="408" y="276" />
       <Size width="11.99997" height="12" />
-      <ShapeTags>w:P10_Pin5</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[5]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="408" y="276" />
@@ -2623,10 +2425,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_2309" zorder="81" guid="89161f6e-93e5-4df8-b546-63e8da6c1d9b" name="PASS0_SARMUX0_sw4" component="swhv">
+    <Instance shapeName="Shape_2309" zorder="99" guid="89161f6e-93e5-4df8-b546-63e8da6c1d9b" name="PASS0_SARMUX0_sw4" component="swh">
       <Location x="408" y="258" />
       <Size width="11.99997" height="12" />
-      <ShapeTags>w:P10_Pin4</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[4]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="408" y="258" />
@@ -2640,10 +2442,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_2314" zorder="80" guid="f99d9bd9-e6ef-4acd-a54e-6fd2f6ed4de4" name="PASS0_SARMUX0_sw3" component="swhv">
+    <Instance shapeName="Shape_2314" zorder="98" guid="f99d9bd9-e6ef-4acd-a54e-6fd2f6ed4de4" name="PASS0_SARMUX0_sw3" component="swh">
       <Location x="408" y="240" />
       <Size width="11.99997" height="12" />
-      <ShapeTags>w:P10_Pin3</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[3]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="408" y="240" />
@@ -2657,10 +2459,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_2319" zorder="77" guid="8caeb445-b01d-48d8-aa79-cdeeb53c8b2b" name="PASS0_SARMUX0_sw2" component="swhv">
+    <Instance shapeName="Shape_2319" zorder="95" guid="8caeb445-b01d-48d8-aa79-cdeeb53c8b2b" name="PASS0_SARMUX0_sw2" component="swh">
       <Location x="408" y="222" />
       <Size width="11.99997" height="12" />
-      <ShapeTags>w:P10_Pin2</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[2]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="408" y="222" />
@@ -2674,10 +2476,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_2324" zorder="76" guid="267f104a-7a46-4dbe-8a25-518cca7334fc" name="PASS0_SARMUX0_sw1" component="swhv">
+    <Instance shapeName="Shape_2324" zorder="94" guid="267f104a-7a46-4dbe-8a25-518cca7334fc" name="PASS0_SARMUX0_sw1" component="swh">
       <Location x="408" y="204" />
       <Size width="11.99997" height="12" />
-      <ShapeTags>w:P10_Pin1</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[1]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="408" y="204" />
@@ -2691,10 +2493,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_2329" zorder="73" guid="4a1d7839-040a-4e64-9c45-fb3562443d9d" name="PASS0_SARMUX0_sw0" component="swhv">
+    <Instance shapeName="Shape_2329" zorder="91" guid="4a1d7839-040a-4e64-9c45-fb3562443d9d" name="PASS0_SARMUX0_sw0" component="swh">
       <Location x="408" y="186" />
       <Size width="11.99997" height="12" />
-      <ShapeTags>w:P10_Pin0</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[0]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="408" y="186" />
@@ -2708,7 +2510,7 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_2344" zorder="46" guid="50867626-6cb7-4e70-adb7-7f93323aa959" name="PASS0_SARMUX0_sw19" component="swhv">
+    <Instance shapeName="Shape_2344" zorder="64" guid="50867626-6cb7-4e70-adb7-7f93323aa959" name="PASS0_SARMUX0_sw19" component="swh">
       <Location x="408" y="108" />
       <Size width="11.99997" height="12" />
       <SubShapes>
@@ -2724,12 +2526,12 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_2349" zorder="48" guid="d8aae920-7be4-4ce9-861c-418c1a201564" name="PASS0_SARMUX0_sw18" component="swhv">
-      <Location x="408" y="90" />
+    <Instance shapeName="Shape_2349" zorder="66" guid="d8aae920-7be4-4ce9-861c-418c1a201564" name="PASS0_SARMUX0_sw18" component="swh">
+      <Location x="408" y="89.99999" />
       <Size width="11.99997" height="12" />
       <SubShapes>
         <Ellipse>
-          <Location x="408" y="90" />
+          <Location x="408" y="89.99999" />
           <Size width="11.99997" height="12" />
           <Outline dashStyle="Solid" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="1.5">
             <SolidBrush color="0, 0, 0" />
@@ -2740,12 +2542,12 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_2354" zorder="47" guid="30e352d4-929e-465b-9a63-bfd07f66ce69" name="PASS0_SARMUX0_sw20" component="swhv">
-      <Location x="426" y="90" />
+    <Instance shapeName="Shape_2354" zorder="65" guid="30e352d4-929e-465b-9a63-bfd07f66ce69" name="PASS0_SARMUX0_sw20" component="swh">
+      <Location x="426" y="89.99999" />
       <Size width="11.99997" height="12" />
       <SubShapes>
         <Ellipse>
-          <Location x="426" y="90" />
+          <Location x="426" y="89.99999" />
           <Size width="11.99997" height="12" />
           <Outline dashStyle="Solid" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="1.5">
             <SolidBrush color="0, 0, 0" />
@@ -2756,7 +2558,7 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_2359" zorder="45" guid="06898289-5210-4715-a9b3-b45847a33e84" name="PASS0_SARMUX0_sw21" component="swhv">
+    <Instance shapeName="Shape_2359" zorder="63" guid="06898289-5210-4715-a9b3-b45847a33e84" name="PASS0_SARMUX0_sw21" component="swh">
       <Location x="426" y="108" />
       <Size width="11.99997" height="12" />
       <SubShapes>
@@ -2772,10 +2574,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_2374" zorder="74" guid="4ed5eaef-b5b9-4e62-81b8-23927dfd19c4" name="PASS0_SARMUX0_sw8" component="swhv">
+    <Instance shapeName="Shape_2374" zorder="92" guid="4ed5eaef-b5b9-4e62-81b8-23927dfd19c4" name="PASS0_SARMUX0_sw8" component="swh">
       <Location x="426" y="186" />
       <Size width="11.99997" height="12" />
-      <ShapeTags>w:P10_Pin0</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[0]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="426" y="186" />
@@ -2789,10 +2591,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_2379" zorder="75" guid="e1fb3f8e-6aa3-4734-bf79-68b0db526b35" name="PASS0_SARMUX0_sw9" component="swhv">
+    <Instance shapeName="Shape_2379" zorder="93" guid="e1fb3f8e-6aa3-4734-bf79-68b0db526b35" name="PASS0_SARMUX0_sw9" component="swh">
       <Location x="426" y="204" />
       <Size width="11.99997" height="12" />
-      <ShapeTags>w:P10_Pin1</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[1]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="426" y="204" />
@@ -2806,10 +2608,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_2384" zorder="78" guid="91fb00d9-a34c-4c94-b867-6bb70742c1c5" name="PASS0_SARMUX0_sw10" component="swhv">
+    <Instance shapeName="Shape_2384" zorder="96" guid="91fb00d9-a34c-4c94-b867-6bb70742c1c5" name="PASS0_SARMUX0_sw10" component="swh">
       <Location x="426" y="222" />
       <Size width="11.99997" height="12" />
-      <ShapeTags>w:P10_Pin2</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[2]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="426" y="222" />
@@ -2823,10 +2625,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_2389" zorder="79" guid="941454e6-2f77-4dac-9bc7-61b2f093dad0" name="PASS0_SARMUX0_sw11" component="swhv">
+    <Instance shapeName="Shape_2389" zorder="97" guid="941454e6-2f77-4dac-9bc7-61b2f093dad0" name="PASS0_SARMUX0_sw11" component="swh">
       <Location x="426" y="240" />
       <Size width="11.99997" height="12" />
-      <ShapeTags>w:P10_Pin3</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[3]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="426" y="240" />
@@ -2840,10 +2642,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_2394" zorder="82" guid="05f58ff0-9462-4bf0-b3e8-fb090728978d" name="PASS0_SARMUX0_sw12" component="swhv">
+    <Instance shapeName="Shape_2394" zorder="100" guid="05f58ff0-9462-4bf0-b3e8-fb090728978d" name="PASS0_SARMUX0_sw12" component="swh">
       <Location x="426" y="258" />
       <Size width="11.99997" height="12" />
-      <ShapeTags>w:P10_Pin4</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[4]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="426" y="258" />
@@ -2857,10 +2659,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_2399" zorder="84" guid="8619493b-fd92-4885-9e74-b4aec93ae9ee" name="PASS0_SARMUX0_sw13" component="swhv">
+    <Instance shapeName="Shape_2399" zorder="102" guid="8619493b-fd92-4885-9e74-b4aec93ae9ee" name="PASS0_SARMUX0_sw13" component="swh">
       <Location x="426" y="276" />
       <Size width="11.99997" height="12" />
-      <ShapeTags>w:P10_Pin5</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[5]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="426" y="276" />
@@ -2874,10 +2676,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_2404" zorder="86" guid="49011563-6e5b-48d3-82b3-12f7f0184a15" name="PASS0_SARMUX0_sw14" component="swhv">
+    <Instance shapeName="Shape_2404" zorder="104" guid="49011563-6e5b-48d3-82b3-12f7f0184a15" name="PASS0_SARMUX0_sw14" component="swh">
       <Location x="426" y="294" />
       <Size width="11.99997" height="12" />
-      <ShapeTags>w:P10_Pin6</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[6]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="426" y="294" />
@@ -2894,7 +2696,7 @@
     <Instance shapeName="Shape_2943" zorder="307" guid="1aa69e64-77bd-48a0-bf15-75a870199f77" name="LPCOMP0_IN0" component="swh">
       <Location x="180" y="564" />
       <Size width="12" height="11.99994" />
-      <ShapeTags>w:P5_Pin7</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[5].pin[7]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="180" y="564" />
@@ -2911,7 +2713,7 @@
     <Instance shapeName="Shape_2944" zorder="308" guid="8953a961-23dc-4e11-a3dd-e6019f386676" name="LPCOMP0_IP0" component="swh">
       <Location x="180" y="546" />
       <Size width="12" height="11.99994" />
-      <ShapeTags>w:P5_Pin6</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[5].pin[6]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="180" y="546" />
@@ -2928,93 +2730,87 @@
     <Wire shapeName="Shape_2953" zorder="303" effectiveName="p5_6" type="Analog">
       <Point1 x="90" y="552" />
       <Point2 x="180" y="552" />
-      <ShapeTags>w:P5_Pin6</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[5].pin[6]</ShapeTags>
       <Annotation zorder="304">
-        <Location x="864" y="1092" />
+        <Location x="90" y="545" />
         <Text>p5_6</Text>
-        <Vertical value="true" />
-        <TextAlignment value="TopRight" />
+        <Vertical value="false" />
+        <TextAlignment value="TopLeft" />
       </Annotation>
     </Wire>
     <Wire shapeName="Shape_2956" zorder="305" effectiveName="p5_7" type="Analog">
       <Point1 x="90" y="570" />
       <Point2 x="180" y="570" />
-      <ShapeTags>w:P5_Pin7</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[5].pin[7]</ShapeTags>
       <Annotation zorder="306">
-        <Location x="864" y="1110" />
+        <Location x="90" y="563" />
         <Text>p5_7</Text>
-        <Vertical value="true" />
-        <TextAlignment value="TopRight" />
+        <Vertical value="false" />
+        <TextAlignment value="TopLeft" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_2959" zorder="272" effectiveName="p6_3" type="Analog">
+    <Wire shapeName="Shape_2959" zorder="274" effectiveName="p6_3" type="Analog">
       <Point1 x="90" y="474" />
       <Point2 x="180" y="474" />
-      <ShapeTags>w:P6_Pin3</ShapeTags>
-      <Annotation zorder="273">
-        <Location x="816" y="954" />
+      <ShapeTags>wl:ioss[0].port[6].pin[3]</ShapeTags>
+      <Annotation zorder="275">
+        <Location x="117" y="468" />
         <Text>p6_3</Text>
         <Vertical value="false" />
         <TextAlignment value="TopRight" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_2962" zorder="274" effectiveName="p6_2" type="Analog">
+    <Wire shapeName="Shape_2962" zorder="276" effectiveName="p6_2" type="Analog">
       <Point1 x="90" y="456" />
       <Point2 x="180" y="456" />
-      <ShapeTags>w:P6_Pin2</ShapeTags>
-      <Annotation zorder="275">
-        <Location x="822" y="966" />
+      <ShapeTags>wl:ioss[0].port[6].pin[2]</ShapeTags>
+      <Annotation zorder="277">
+        <Location x="117" y="450" />
         <Text>p6_2</Text>
         <Vertical value="false" />
         <TextAlignment value="TopRight" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_2967" zorder="8" effectiveName="amuxbus_b_csd1" type="Analog">
+    <Wire shapeName="Shape_2967" zorder="30" effectiveName="amuxbus_b_csd1" type="Analog">
       <Point1 x="144" y="114" />
       <Point2 x="150" y="114" solderDot="true" />
     </Wire>
-    <Wire shapeName="Shape_2968" zorder="6" effectiveName="amuxbus_b_csd1" type="Analog">
+    <Wire shapeName="Shape_2968" zorder="28" effectiveName="amuxbus_b_csd1" type="Analog">
       <Point1 x="150" y="114" solderDot="true" />
       <Point2 x="180" y="114" />
-      <Annotation zorder="7">
-        <Location x="840" y="852" />
-        <Text>amuxbus_b_csd1</Text>
-        <Vertical value="false" />
-        <TextAlignment value="TopLeft" />
-      </Annotation>
     </Wire>
-    <Wire shapeName="Shape_2978" zorder="147" effectiveName="amuxbus_a_sar" type="Analog">
+    <Wire shapeName="Shape_2978" zorder="161" effectiveName="amuxbus_a_sar" type="Analog">
       <Point1 x="204" y="96" />
       <Point2 x="438" y="96" />
-      <Annotation zorder="148">
-        <Location x="822" y="804" />
+      <Annotation zorder="162">
+        <Location x="207" y="90" />
         <Text>amuxbus_a_sar</Text>
         <Vertical value="false" />
         <TextAlignment value="TopLeft" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_2982" zorder="145" effectiveName="amuxbus_b_sar" type="Analog">
+    <Wire shapeName="Shape_2982" zorder="159" effectiveName="amuxbus_b_sar" type="Analog">
       <Point1 x="204" y="114" />
       <Point2 x="438" y="114" />
-      <Annotation zorder="146">
-        <Location x="720" y="798" />
+      <Annotation zorder="160">
+        <Location x="207" y="108" />
         <Text>amuxbus_b_sar</Text>
         <Vertical value="false" />
         <TextAlignment value="TopLeft" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3053" zorder="229" effectiveName="p7_7" type="Analog">
+    <Wire shapeName="Shape_3053" zorder="231" effectiveName="p7_7" type="Analog">
       <Point1 x="90" y="414" />
       <Point2 x="120" y="414" />
-      <ShapeTags>w:P7_Pin7</ShapeTags>
-      <Annotation zorder="230">
-        <Location x="756" y="906" />
+      <ShapeTags>wl:ioss[0].port[7].pin[7]</ShapeTags>
+      <Annotation zorder="232">
+        <Location x="117" y="408" />
         <Text>p7_7</Text>
         <Vertical value="false" />
         <TextAlignment value="TopRight" />
       </Annotation>
     </Wire>
-    <Instance shapeName="Shape_3063" zorder="309" guid="0611c18f-2510-4020-8507-da9fccea0c28" name="cy_shapetag_disconnect_11" component="cy_shapetag_disconnect">
+    <Instance shapeName="Shape_3063" zorder="309" guid="0611c18f-2510-4020-8507-da9fccea0c28" name="cy_shapetag_disconnect_11" component="cy_all_shapetag_disconnect">
       <Location x="237" y="549" />
       <Size width="9" height="6" />
       <SubShapes>
@@ -3027,21 +2823,21 @@
     <Wire shapeName="Shape_3064" zorder="299" effectiveName="lpcomp0_inp_comp0_segment0" type="Analog">
       <Point1 x="210" y="552" />
       <Point2 x="240" y="552" />
-      <ShapeTags>w:LPCOMP0_COMP0</ShapeTags>
+      <ShapeTags>wl:lpcomp[0].comp[0]</ShapeTags>
     </Wire>
     <Wire shapeName="Shape_3065" zorder="297" effectiveName="lpcomp0_inp_comp0_segment0" type="Analog">
       <Point1 x="240" y="552" />
       <Point2 x="258" y="552" />
-      <ShapeTags>w:LPCOMP0_COMP0</ShapeTags>
+      <ShapeTags>wl:lpcomp[0].comp[0]</ShapeTags>
       <Annotation zorder="298">
-        <Location x="774" y="1146" />
+        <Location x="243" y="546" />
         <Text>lpcomp0_inp_comp0_segment0</Text>
         <Vertical value="false" />
         <Expression />
         <TextAlignment value="TopLeft" />
       </Annotation>
     </Wire>
-    <Instance shapeName="Shape_3066" zorder="310" guid="e3d118f8-946e-477f-b4ca-d29f5ee0f03e" name="cy_shapetag_disconnect_12" component="cy_shapetag_disconnect">
+    <Instance shapeName="Shape_3066" zorder="310" guid="e3d118f8-946e-477f-b4ca-d29f5ee0f03e" name="cy_shapetag_disconnect_12" component="cy_all_shapetag_disconnect">
       <Location x="237" y="567" />
       <Size width="9" height="6" />
       <SubShapes>
@@ -3051,24 +2847,24 @@
         </Terminal>
       </SubShapes>
     </Instance>
-    <Wire shapeName="Shape_3067" zorder="294" effectiveName="lpcomp0_inn_comp0_segment0" type="Analog">
+    <Wire shapeName="Shape_3067" zorder="295" effectiveName="lpcomp0_inn_comp0_segment0" type="Analog">
       <Point1 x="210" y="570" />
       <Point2 x="240" y="570" />
-      <ShapeTags>w:LPCOMP0_COMP0</ShapeTags>
+      <ShapeTags>wl:lpcomp[0].comp[0]</ShapeTags>
     </Wire>
-    <Wire shapeName="Shape_3068" zorder="292" effectiveName="lpcomp0_inn_comp0_segment0" type="Analog">
+    <Wire shapeName="Shape_3068" zorder="293" effectiveName="lpcomp0_inn_comp0_segment0" type="Analog">
       <Point1 x="240" y="570" />
       <Point2 x="258" y="570" />
-      <ShapeTags>w:LPCOMP0_COMP0</ShapeTags>
-      <Annotation zorder="293">
-        <Location x="786" y="1152" />
+      <ShapeTags>wl:lpcomp[0].comp[0]</ShapeTags>
+      <Annotation zorder="294">
+        <Location x="243" y="564" />
         <Text>lpcomp0_inn_comp0_segment0</Text>
         <Vertical value="false" />
         <Expression>lpcomp0_inn_comp0</Expression>
         <TextAlignment value="TopLeft" />
       </Annotation>
     </Wire>
-    <Instance shapeName="Shape_3069" zorder="285" guid="41a40b80-ba5e-4b56-8e66-21c204b62def" name="cy_shapetag_disconnect_13" component="cy_shapetag_disconnect">
+    <Instance shapeName="Shape_3069" zorder="287" guid="41a40b80-ba5e-4b56-8e66-21c204b62def" name="cy_shapetag_disconnect_13" component="cy_all_shapetag_disconnect">
       <Location x="237" y="453" />
       <Size width="9" height="6" />
       <SubShapes>
@@ -3078,24 +2874,24 @@
         </Terminal>
       </SubShapes>
     </Instance>
-    <Wire shapeName="Shape_3070" zorder="283" effectiveName="lpcomp0_inp_comp1_segment0" type="Analog">
+    <Wire shapeName="Shape_3070" zorder="285" effectiveName="lpcomp0_inp_comp1_segment0" type="Analog">
       <Point1 x="210" y="456" />
       <Point2 x="240" y="456" />
-      <ShapeTags>w:LPCOMP0_COMP1</ShapeTags>
+      <ShapeTags>wl:lpcomp[0].comp[1]</ShapeTags>
     </Wire>
-    <Wire shapeName="Shape_3071" zorder="281" effectiveName="lpcomp0_inp_comp1_segment0" type="Analog">
+    <Wire shapeName="Shape_3071" zorder="283" effectiveName="lpcomp0_inp_comp1_segment0" type="Analog">
       <Point1 x="240" y="456" />
       <Point2 x="258" y="456" />
-      <ShapeTags>w:LPCOMP0_COMP1</ShapeTags>
-      <Annotation zorder="282">
-        <Location x="750" y="954" />
+      <ShapeTags>wl:lpcomp[0].comp[1]</ShapeTags>
+      <Annotation zorder="284">
+        <Location x="243" y="450" />
         <Text>lpcomp0_inp_comp1_segment0</Text>
         <Vertical value="false" />
         <Expression>lpcomp0_inp_comp1</Expression>
         <TextAlignment value="TopLeft" />
       </Annotation>
     </Wire>
-    <Instance shapeName="Shape_3072" zorder="286" guid="60ff457f-97a1-4624-9e5e-ffb85b353a51" name="cy_shapetag_disconnect_14" component="cy_shapetag_disconnect">
+    <Instance shapeName="Shape_3072" zorder="288" guid="60ff457f-97a1-4624-9e5e-ffb85b353a51" name="cy_shapetag_disconnect_14" component="cy_all_shapetag_disconnect">
       <Location x="237" y="471" />
       <Size width="9" height="6" />
       <SubShapes>
@@ -3105,286 +2901,284 @@
         </Terminal>
       </SubShapes>
     </Instance>
-    <Wire shapeName="Shape_3073" zorder="278" effectiveName="lpcomp0_inn_comp1_segment0" type="Analog">
+    <Wire shapeName="Shape_3073" zorder="280" effectiveName="lpcomp0_inn_comp1_segment0" type="Analog">
       <Point1 x="210" y="474" />
       <Point2 x="240" y="474" />
-      <ShapeTags>w:LPCOMP0_COMP1</ShapeTags>
+      <ShapeTags>wl:lpcomp[0].comp[1]</ShapeTags>
     </Wire>
-    <Wire shapeName="Shape_3074" zorder="276" effectiveName="lpcomp0_inn_comp1_segment0" type="Analog">
+    <Wire shapeName="Shape_3074" zorder="278" effectiveName="lpcomp0_inn_comp1_segment0" type="Analog">
       <Point1 x="240" y="474" />
       <Point2 x="258" y="474" />
-      <ShapeTags>w:LPCOMP0_COMP1</ShapeTags>
-      <Annotation zorder="277">
-        <Location x="738" y="960" />
+      <ShapeTags>wl:lpcomp[0].comp[1]</ShapeTags>
+      <Annotation zorder="279">
+        <Location x="243" y="468" />
         <Text>lpcomp0_inn_comp1_segment0</Text>
         <Vertical value="false" />
         <Expression>lpcomp0_inn_comp1</Expression>
         <TextAlignment value="TopLeft" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3075" zorder="207" effectiveName="p7_1" type="Analog">
+    <Wire shapeName="Shape_3075" zorder="209" effectiveName="p7_1" type="Analog">
       <Point1 x="120" y="306" />
       <Point2 x="258" y="306" />
-      <ShapeTags>w:CSD0_CSD</ShapeTags>
-      <Annotation zorder="208">
-        <Location x="899" y="882" />
+      <ShapeTags>wl:csd[0].csd[0]</ShapeTags>
+      <Annotation zorder="210">
+        <Location x="117" y="300" />
         <Text>p7_1</Text>
         <Vertical value="false" />
         <TextAlignment value="TopRight" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3076" zorder="211" effectiveName="p7_2" type="Analog">
+    <Wire shapeName="Shape_3076" zorder="213" effectiveName="p7_2" type="Analog">
       <Point1 x="120" y="324" />
       <Point2 x="258" y="324" />
-      <ShapeTags>w:CSD0_CSD</ShapeTags>
-      <Annotation zorder="212">
-        <Location x="719" y="828" />
+      <ShapeTags>wl:csd[0].csd[0]</ShapeTags>
+      <Annotation zorder="214">
+        <Location x="117" y="318" />
         <Text>p7_2</Text>
         <Vertical value="false" />
         <TextAlignment value="TopRight" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3120" zorder="4" effectiveName="amuxbus_a_csd1" type="Analog">
+    <Wire shapeName="Shape_3120" zorder="26" effectiveName="amuxbus_a_csd1" type="Analog">
       <Point1 x="144" y="96" />
       <Point2 x="168" y="96" solderDot="true" />
     </Wire>
-    <Wire shapeName="Shape_3121" zorder="2" effectiveName="amuxbus_a_csd1" type="Analog">
+    <Wire shapeName="Shape_3121" zorder="24" effectiveName="amuxbus_a_csd1" type="Analog">
       <Point1 x="168" y="96" solderDot="true" />
       <Point2 x="180" y="96" />
-      <Annotation zorder="3">
-        <Location x="774" y="804" />
-        <Text>amuxbus_a_csd1</Text>
-        <Vertical value="false" />
-        <TextAlignment value="TopLeft" />
-      </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3123" zorder="19" effectiveName="amuxbus_a_csd1" type="Analog">
+    <Wire shapeName="Shape_3123" zorder="41" effectiveName="amuxbus_a_csd1" type="Analog">
       <Point1 x="168" y="96" solderDot="true" />
       <Point2 x="168" y="270" />
-      <ShapeTags>w:CSD0_CSD</ShapeTags>
+      <ShapeTags>wl:csd[0].csd[0]</ShapeTags>
+      <Annotation zorder="42">
+        <Location x="162" y="204" />
+        <Text>amuxbus_a_csd1</Text>
+        <Vertical value="true" />
+        <TextAlignment value="TopRight" />
+      </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3125" zorder="17" effectiveName="amuxbus_b_csd1" type="Analog">
+    <Wire shapeName="Shape_3125" zorder="39" effectiveName="amuxbus_b_csd1" type="Analog">
       <Point1 x="150" y="114" solderDot="true" />
       <Point2 x="150" y="288" />
-      <ShapeTags>w:CSD0_CSD</ShapeTags>
+      <ShapeTags>wl:csd[0].csd[0]</ShapeTags>
+      <Annotation zorder="40">
+        <Location x="144" y="204" />
+        <Text>amuxbus_b_csd1</Text>
+        <Vertical value="true" />
+        <TextAlignment value="TopRight" />
+      </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3129" zorder="71" effectiveName="p10_0" type="Analog">
+    <Wire shapeName="Shape_3129" zorder="89" effectiveName="p10_0" type="Analog">
       <Point1 x="456" y="90" />
       <Point2 x="456" y="192" />
-      <ShapeTags>w:P10_Pin0</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[0]</ShapeTags>
+      <Annotation zorder="90">
+        <Location x="450" y="93" />
+        <Text>p10_0</Text>
+        <Vertical value="true" />
+        <TextAlignment value="TopLeft" />
+      </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3131" zorder="69" effectiveName="p10_1" type="Analog">
+    <Wire shapeName="Shape_3131" zorder="87" effectiveName="p10_1" type="Analog">
       <Point1 x="474" y="90" />
       <Point2 x="474" y="210" />
-      <ShapeTags>w:P10_Pin1</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[1]</ShapeTags>
+      <Annotation zorder="88">
+        <Location x="468" y="94" />
+        <Text>p10_1</Text>
+        <Vertical value="true" />
+        <TextAlignment value="TopLeft" />
+      </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3133" zorder="67" effectiveName="p10_4" type="Analog">
+    <Wire shapeName="Shape_3133" zorder="85" effectiveName="p10_4" type="Analog">
       <Point1 x="528" y="90" />
       <Point2 x="528" y="264" />
-      <ShapeTags>w:P10_Pin4</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[4]</ShapeTags>
+      <Annotation zorder="86">
+        <Location x="522" y="93" />
+        <Text>p10_4</Text>
+        <Vertical value="true" />
+        <TextAlignment value="TopLeft" />
+      </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3135" zorder="65" effectiveName="p10_3" type="Analog">
+    <Wire shapeName="Shape_3135" zorder="83" effectiveName="p10_3" type="Analog">
       <Point1 x="510" y="90" />
       <Point2 x="510" y="246" />
-      <ShapeTags>w:P10_Pin3</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[3]</ShapeTags>
+      <Annotation zorder="84">
+        <Location x="504" y="92" />
+        <Text>p10_3</Text>
+        <Vertical value="true" />
+        <TextAlignment value="TopLeft" />
+      </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3137" zorder="59" effectiveName="p10_2" type="Analog">
+    <Wire shapeName="Shape_3137" zorder="77" effectiveName="p10_2" type="Analog">
       <Point1 x="492" y="90" />
       <Point2 x="492" y="228" />
-      <ShapeTags>w:P10_Pin2</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[2]</ShapeTags>
+      <Annotation zorder="78">
+        <Location x="486" y="93" />
+        <Text>p10_2</Text>
+        <Vertical value="true" />
+        <TextAlignment value="TopLeft" />
+      </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3139" zorder="63" effectiveName="p10_5" type="Analog">
+    <Wire shapeName="Shape_3139" zorder="81" effectiveName="p10_5" type="Analog">
       <Point1 x="546" y="90" />
       <Point2 x="546" y="282" />
-      <ShapeTags>w:P10_Pin5</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[5]</ShapeTags>
+      <Annotation zorder="82">
+        <Location x="540" y="92" />
+        <Text>p10_5</Text>
+        <Vertical value="true" />
+        <TextAlignment value="TopLeft" />
+      </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3141" zorder="61" effectiveName="p10_7" type="Analog">
+    <Wire shapeName="Shape_3141" zorder="79" effectiveName="p10_7" type="Analog">
       <Point1 x="582" y="90" />
       <Point2 x="582" y="318" />
-      <ShapeTags>w:P10_Pin7</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[7]</ShapeTags>
+      <Annotation zorder="80">
+        <Location x="576" y="92" />
+        <Text>p10_7</Text>
+        <Vertical value="true" />
+        <TextAlignment value="TopLeft" />
+      </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3143" zorder="57" effectiveName="p10_6" type="Analog">
+    <Wire shapeName="Shape_3143" zorder="75" effectiveName="p10_6" type="Analog">
       <Point1 x="564" y="90" />
       <Point2 x="564" y="300" />
-      <ShapeTags>w:P10_Pin6</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[10].pin[6]</ShapeTags>
+      <Annotation zorder="76">
+        <Location x="558" y="93" />
+        <Text>p10_6</Text>
+        <Vertical value="true" />
+        <TextAlignment value="TopLeft" />
+      </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3145" zorder="133" effectiveName="p10_7" type="Analog">
+    <Wire shapeName="Shape_3145" zorder="147" effectiveName="p10_7" type="Analog">
       <Point1 x="408" y="318" />
       <Point2 x="582" y="318" />
-      <ShapeTags>w:P10_Pin7</ShapeTags>
-      <Annotation zorder="134">
-        <Location x="906" y="804" />
-        <Text>p10_7</Text>
-        <Vertical value="false" />
-        <Expression />
-        <TextAlignment value="TopLeft" />
-      </Annotation>
+      <ShapeTags>wl:ioss[0].port[10].pin[7]</ShapeTags>
     </Wire>
-    <Wire shapeName="Shape_3146" zorder="131" effectiveName="p10_6" type="Analog">
+    <Wire shapeName="Shape_3146" zorder="145" effectiveName="p10_6" type="Analog">
       <Point1 x="408" y="300" />
       <Point2 x="564" y="300" />
-      <ShapeTags>w:P10_Pin6</ShapeTags>
-      <Annotation zorder="132">
-        <Location x="900" y="822" />
-        <Text>p10_6</Text>
-        <Vertical value="false" />
-        <Expression />
-        <TextAlignment value="TopLeft" />
-      </Annotation>
+      <ShapeTags>wl:ioss[0].port[10].pin[6]</ShapeTags>
     </Wire>
-    <Wire shapeName="Shape_3147" zorder="129" effectiveName="p10_5" type="Analog">
+    <Wire shapeName="Shape_3147" zorder="143" effectiveName="p10_5" type="Analog">
       <Point1 x="408" y="282" />
       <Point2 x="546" y="282" />
-      <ShapeTags>w:P10_Pin5</ShapeTags>
-      <Annotation zorder="130">
-        <Location x="870" y="804" />
-        <Text>p10_5</Text>
-        <Vertical value="false" />
-        <Expression />
-        <TextAlignment value="TopLeft" />
-      </Annotation>
+      <ShapeTags>wl:ioss[0].port[10].pin[5]</ShapeTags>
     </Wire>
-    <Wire shapeName="Shape_3148" zorder="127" effectiveName="p10_4" type="Analog">
+    <Wire shapeName="Shape_3148" zorder="141" effectiveName="p10_4" type="Analog">
       <Point1 x="408" y="264" />
       <Point2 x="528" y="264" />
-      <ShapeTags>w:P10_Pin4</ShapeTags>
-      <Annotation zorder="128">
-        <Location x="846" y="756" />
-        <Text>p10_4</Text>
-        <Vertical value="false" />
-        <Expression />
-        <TextAlignment value="TopLeft" />
-      </Annotation>
+      <ShapeTags>wl:ioss[0].port[10].pin[4]</ShapeTags>
     </Wire>
-    <Wire shapeName="Shape_3149" zorder="125" effectiveName="p10_3" type="Analog">
+    <Wire shapeName="Shape_3149" zorder="139" effectiveName="p10_3" type="Analog">
       <Point1 x="408" y="246" />
       <Point2 x="510" y="246" />
-      <ShapeTags>w:P10_Pin3</ShapeTags>
-      <Annotation zorder="126">
-        <Location x="834" y="804" />
-        <Text>p10_3</Text>
-        <Vertical value="false" />
-        <Expression />
-        <TextAlignment value="TopLeft" />
-      </Annotation>
+      <ShapeTags>wl:ioss[0].port[10].pin[3]</ShapeTags>
     </Wire>
-    <Wire shapeName="Shape_3150" zorder="123" effectiveName="p10_2" type="Analog">
+    <Wire shapeName="Shape_3150" zorder="137" effectiveName="p10_2" type="Analog">
       <Point1 x="408" y="228" />
       <Point2 x="492" y="228" />
-      <ShapeTags>w:P10_Pin2</ShapeTags>
-      <Annotation zorder="124">
-        <Location x="816" y="804" />
-        <Text>p10_2</Text>
-        <Vertical value="false" />
-        <Expression />
-        <TextAlignment value="TopLeft" />
-      </Annotation>
+      <ShapeTags>wl:ioss[0].port[10].pin[2]</ShapeTags>
     </Wire>
-    <Wire shapeName="Shape_3151" zorder="121" effectiveName="p10_1" type="Analog">
+    <Wire shapeName="Shape_3151" zorder="135" effectiveName="p10_1" type="Analog">
       <Point1 x="408" y="210" />
       <Point2 x="474" y="210" />
-      <ShapeTags>w:P10_Pin1</ShapeTags>
-      <Annotation zorder="122">
-        <Location x="798" y="804" />
-        <Text>p10_1</Text>
-        <Vertical value="false" />
-        <Expression />
-        <TextAlignment value="TopLeft" />
-      </Annotation>
+      <ShapeTags>wl:ioss[0].port[10].pin[1]</ShapeTags>
     </Wire>
-    <Wire shapeName="Shape_3152" zorder="119" effectiveName="p10_0" type="Analog">
+    <Wire shapeName="Shape_3152" zorder="133" effectiveName="p10_0" type="Analog">
       <Point1 x="408" y="192" />
       <Point2 x="456" y="192" />
-      <ShapeTags>w:P10_Pin0</ShapeTags>
-      <Annotation zorder="120">
-        <Location x="780" y="804" />
-        <Text>p10_0</Text>
-        <Vertical value="false" />
-        <Expression />
-        <TextAlignment value="TopLeft" />
-      </Annotation>
+      <ShapeTags>wl:ioss[0].port[10].pin[0]</ShapeTags>
     </Wire>
-    <Wire shapeName="Shape_3157" zorder="117" effectiveName="pass0_sar_vplus0" type="Analog">
+    <Wire shapeName="Shape_3157" zorder="131" effectiveName="pass0_sar_vplus0" type="Analog">
       <Point1 x="414" y="90" />
       <Point2 x="414" y="372" />
-      <ShapeTags>w:PASS0_SARADC0_SAR</ShapeTags>
+      <ShapeTags>wl:pass[0].sar[0]</ShapeTags>
     </Wire>
-    <Wire shapeName="Shape_3158" zorder="13" effectiveName="pass0_sar_vplus0" type="Analog">
+    <Wire shapeName="Shape_3158" zorder="35" effectiveName="pass0_sar_vplus0" type="Analog">
       <Point1 x="414" y="372" />
       <Point2 x="414" y="432" />
-      <ShapeTags>w:PASS0_SARADC0_SAR</ShapeTags>
+      <ShapeTags>wl:pass[0].sar[0]</ShapeTags>
     </Wire>
-    <Wire shapeName="Shape_3160" zorder="15" effectiveName="pass0_sar_vminus0" type="Analog">
+    <Wire shapeName="Shape_3160" zorder="37" effectiveName="pass0_sar_vminus0" type="Analog">
       <Point1 x="432" y="414" />
       <Point2 x="480" y="414" />
-      <ShapeTags>w:PASS0_SARADC0_SAR</ShapeTags>
-      <Annotation zorder="16">
-        <Location x="912" y="810" />
+      <ShapeTags>wl:pass[0].sar[0]</ShapeTags>
+      <Annotation zorder="38">
+        <Location x="459" y="408" />
         <Text>pass0_sar_vminus0</Text>
         <Vertical value="false" />
         <TextAlignment value="TopLeft" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3194" zorder="259" effectiveName="AmuxB1_bridge" type="Analog">
+    <Wire shapeName="Shape_3194" zorder="261" effectiveName="AmuxB1_bridge" type="Analog">
       <Point1 x="372" y="108" />
       <Point2 x="372" y="504" />
-      <ShapeTags>w:LPCOMP0_COMP0, w:LPCOMP0_COMP1</ShapeTags>
-      <Annotation zorder="260">
-        <Location x="732" y="738" />
+      <ShapeTags>wl:lpcomp[0].comp[0], wl:lpcomp[0].comp[1]</ShapeTags>
+      <Annotation zorder="262">
+        <Location x="366" y="198" />
         <Text>AmuxB1_bridge</Text>
-        <Vertical value="false" />
-        <TextAlignment value="TopLeft" />
+        <Vertical value="true" />
+        <TextAlignment value="TopRight" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3196" zorder="261" effectiveName="AmuxA1_bridge" type="Analog">
+    <Wire shapeName="Shape_3196" zorder="263" effectiveName="AmuxA1_bridge" type="Analog">
       <Point1 x="390" y="90" />
       <Point2 x="390" y="522" />
-      <ShapeTags>w:LPCOMP0_COMP0, w:LPCOMP0_COMP1</ShapeTags>
-      <Annotation zorder="262">
-        <Location x="744" y="864" />
+      <ShapeTags>wl:lpcomp[0].comp[0], wl:lpcomp[0].comp[1]</ShapeTags>
+      <Annotation zorder="264">
+        <Location x="384" y="198" />
         <Text>AmuxA1_bridge</Text>
-        <Vertical value="false" />
-        <TextAlignment value="TopLeft" />
+        <Vertical value="true" />
+        <TextAlignment value="TopRight" />
       </Annotation>
     </Wire>
     <Wire shapeName="Shape_3209" zorder="315" effectiveName="amuxbus_b_vddio_1" type="Analog">
       <Point1 x="234" y="450" />
       <Point2 x="234" y="498" solderDot="true" />
-      <ShapeTags>w:LPCOMP0_COMP1</ShapeTags>
+      <ShapeTags>wl:lpcomp[0].comp[1]</ShapeTags>
     </Wire>
     <Wire shapeName="Shape_3210" zorder="313" effectiveName="amuxbus_b_vddio_1" type="Analog">
       <Point1 x="234" y="498" solderDot="true" />
       <Point2 x="234" y="576" />
-      <ShapeTags>w:LPCOMP0_COMP0</ShapeTags>
+      <ShapeTags>wl:lpcomp[0].comp[0]</ShapeTags>
       <Annotation zorder="314">
-        <Location x="840" y="972" />
+        <Location x="227" y="576" />
         <Text>amuxbus_b_vddio_1</Text>
-        <Vertical value="false" />
-        <TextAlignment value="TopLeft" />
+        <Vertical value="true" />
+        <TextAlignment value="TopRight" />
       </Annotation>
     </Wire>
     <Wire shapeName="Shape_3211" zorder="311" effectiveName="amuxbus_a_vddio_1" type="Analog">
       <Point1 x="216" y="450" />
       <Point2 x="216" y="516" solderDot="true" />
-      <ShapeTags>w:LPCOMP0_COMP1</ShapeTags>
+      <ShapeTags>wl:lpcomp[0].comp[1]</ShapeTags>
     </Wire>
     <Wire shapeName="Shape_3212" zorder="317" effectiveName="amuxbus_a_vddio_1" type="Analog">
       <Point1 x="216" y="516" solderDot="true" />
       <Point2 x="216" y="576" />
-      <ShapeTags>w:LPCOMP0_COMP0</ShapeTags>
+      <ShapeTags>wl:lpcomp[0].comp[0]</ShapeTags>
       <Annotation zorder="318">
-        <Location x="810" y="984" />
+        <Location x="210" y="576" />
         <Text>amuxbus_a_vddio_1</Text>
-        <Vertical value="false" />
-        <TextAlignment value="TopLeft" />
+        <Vertical value="true" />
+        <TextAlignment value="TopRight" />
       </Annotation>
     </Wire>
     <Wire shapeName="Shape_3213" zorder="319" effectiveName="lpcomp0_inn_comp0_segment0" type="Analog">
       <Point1 x="192" y="570" />
       <Point2 x="210" y="570" />
-      <ShapeTags>w:P5_Pin7</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[5].pin[7]</ShapeTags>
     </Wire>
-    <Instance shapeName="Shape_3215" zorder="321" guid="e6445985-2d8f-432c-96a1-f7cd0c95eb14" name="cy_shapetag_disconnect_2" component="cy_shapetag_disconnect">
+    <Instance shapeName="Shape_3215" zorder="321" guid="e6445985-2d8f-432c-96a1-f7cd0c95eb14" name="cy_shapetag_disconnect_2" component="cy_all_shapetag_disconnect">
       <Location x="207" y="567" />
       <Size width="9" height="6" />
       <SubShapes>
@@ -3394,7 +3188,7 @@
         </Terminal>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_3216" zorder="322" guid="33338bf0-cf10-44d0-b1ea-bc0d6f8aa004" name="cy_shapetag_disconnect_6" component="cy_shapetag_disconnect">
+    <Instance shapeName="Shape_3216" zorder="322" guid="33338bf0-cf10-44d0-b1ea-bc0d6f8aa004" name="cy_shapetag_disconnect_6" component="cy_all_shapetag_disconnect">
       <Location x="207" y="549" />
       <Size width="9" height="6" />
       <SubShapes>
@@ -3407,9 +3201,9 @@
     <Wire shapeName="Shape_3218" zorder="323" effectiveName="lpcomp0_inp_comp0_segment0" type="Analog">
       <Point1 x="192" y="552" />
       <Point2 x="210" y="552" />
-      <ShapeTags>w:P5_Pin6</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[5].pin[6]</ShapeTags>
     </Wire>
-    <Instance shapeName="Shape_3219" zorder="325" guid="1294380a-0b0a-4d6f-b4ab-623afd12289d" name="cy_shapetag_disconnect_7" component="cy_shapetag_disconnect">
+    <Instance shapeName="Shape_3219" zorder="325" guid="1294380a-0b0a-4d6f-b4ab-623afd12289d" name="cy_shapetag_disconnect_7" component="cy_all_shapetag_disconnect">
       <Location x="207" y="453" />
       <Size width="9" height="6" />
       <SubShapes>
@@ -3419,7 +3213,7 @@
         </Terminal>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_3220" zorder="326" guid="7e63687c-9b55-4641-a5b2-cb2f66a41328" name="cy_shapetag_disconnect_8" component="cy_shapetag_disconnect">
+    <Instance shapeName="Shape_3220" zorder="326" guid="7e63687c-9b55-4641-a5b2-cb2f66a41328" name="cy_shapetag_disconnect_8" component="cy_all_shapetag_disconnect">
       <Location x="207" y="471" />
       <Size width="9" height="6" />
       <SubShapes>
@@ -3432,14 +3226,14 @@
     <Wire shapeName="Shape_3221" zorder="327" effectiveName="lpcomp0_inp_comp1_segment0" type="Analog">
       <Point1 x="192" y="456" />
       <Point2 x="210" y="456" />
-      <ShapeTags>w:P6_Pin2</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[6].pin[2]</ShapeTags>
     </Wire>
     <Wire shapeName="Shape_3222" zorder="329" effectiveName="lpcomp0_inn_comp1_segment0" type="Analog">
       <Point1 x="192" y="474" />
       <Point2 x="210" y="474" />
-      <ShapeTags>w:P6_Pin2</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[6].pin[2]</ShapeTags>
     </Wire>
-    <Instance shapeName="Shape_3223" zorder="331" guid="d75b3612-4441-42cf-be04-447da0480a1c" name="cy_shapetag_disconnect_9" component="cy_shapetag_disconnect">
+    <Instance shapeName="Shape_3223" zorder="331" guid="d75b3612-4441-42cf-be04-447da0480a1c" name="cy_shapetag_disconnect_9" component="cy_all_shapetag_disconnect">
       <Location x="429" y="321" />
       <Size width="9" height="6" />
       <SubShapes>
@@ -3449,17 +3243,17 @@
         </Terminal>
       </SubShapes>
     </Instance>
-    <Wire shapeName="Shape_3224" zorder="115" effectiveName="pass0_sar_vminus0" type="Analog">
+    <Wire shapeName="Shape_3224" zorder="129" effectiveName="pass0_sar_vminus0" type="Analog">
       <Point1 x="432" y="90" />
       <Point2 x="432" y="324" />
-      <ShapeTags>w:PASS0_SARADC0_SAR</ShapeTags>
+      <ShapeTags>wl:pass[0].sar[0]</ShapeTags>
     </Wire>
-    <Wire shapeName="Shape_3225" zorder="113" effectiveName="pass0_sar_vminus0" type="Analog">
+    <Wire shapeName="Shape_3225" zorder="127" effectiveName="pass0_sar_vminus0" type="Analog">
       <Point1 x="432" y="324" />
       <Point2 x="432" y="414" />
-      <ShapeTags>w:PASS0_SARADC0_SAR</ShapeTags>
+      <ShapeTags>wl:pass[0].sar[0]</ShapeTags>
     </Wire>
-    <Instance shapeName="Shape_3238" zorder="332" guid="d9ff4836-2840-4c1b-bbfc-921c42885d02" name="cy_shapetag_disconnect_10" component="cy_shapetag_disconnect">
+    <Instance shapeName="Shape_3238" zorder="332" guid="d9ff4836-2840-4c1b-bbfc-921c42885d02" name="cy_shapetag_disconnect_10" component="cy_all_shapetag_disconnect">
       <Location x="111" y="399" />
       <Size width="9" height="6" />
       <SubShapes>
@@ -3469,18 +3263,7 @@
         </Terminal>
       </SubShapes>
     </Instance>
-    <Wire shapeName="Shape_3240" zorder="251" effectiveName="amuxbus_b_csd0" type="Analog">
-      <Point1 x="114" y="402" />
-      <Point2 x="114" y="420" />
-      <ShapeTags>w:P7_Pin7</ShapeTags>
-      <Annotation zorder="252">
-        <Location x="774" y="828" />
-        <Text>amuxbus_b_csd0</Text>
-        <Vertical value="false" />
-        <TextAlignment value="TopLeft" />
-      </Annotation>
-    </Wire>
-    <Instance shapeName="Shape_3241" zorder="333" guid="43f8442b-e5ce-4c64-8544-929afbf6bb20" name="cy_shapetag_disconnect_15" component="cy_shapetag_disconnect">
+    <Instance shapeName="Shape_3241" zorder="333" guid="43f8442b-e5ce-4c64-8544-929afbf6bb20" name="cy_shapetag_disconnect_15" component="cy_all_shapetag_disconnect">
       <Location x="93" y="399" />
       <Size width="9" height="6" />
       <SubShapes>
@@ -3490,18 +3273,7 @@
         </Terminal>
       </SubShapes>
     </Instance>
-    <Wire shapeName="Shape_3243" zorder="241" effectiveName="amuxbus_a_csd0" type="Analog">
-      <Point1 x="96" y="402" />
-      <Point2 x="96" y="420" />
-      <ShapeTags>w:P7_Pin7</ShapeTags>
-      <Annotation zorder="242">
-        <Location x="852" y="828" />
-        <Text>amuxbus_a_csd0</Text>
-        <Vertical value="false" />
-        <TextAlignment value="TopLeft" />
-      </Annotation>
-    </Wire>
-    <Instance shapeName="Shape_3244" zorder="334" guid="2fcdfc52-9c24-4304-a341-1614a02b79aa" name="cy_shapetag_disconnect_16" component="cy_shapetag_disconnect">
+    <Instance shapeName="Shape_3244" zorder="334" guid="2fcdfc52-9c24-4304-a341-1614a02b79aa" name="cy_shapetag_disconnect_16" component="cy_all_shapetag_disconnect">
       <Location x="111" y="381" />
       <Size width="9" height="6" />
       <SubShapes>
@@ -3511,12 +3283,7 @@
         </Terminal>
       </SubShapes>
     </Instance>
-    <Wire shapeName="Shape_3246" zorder="249" effectiveName="amuxbus_b_csd0" type="Analog">
-      <Point1 x="114" y="384" />
-      <Point2 x="114" y="402" />
-      <ShapeTags>w:P7_Pin7, w:P7_Pin6</ShapeTags>
-    </Wire>
-    <Instance shapeName="Shape_3247" zorder="335" guid="18ede51c-0167-478a-977c-b9d7df10afd1" name="cy_shapetag_disconnect_17" component="cy_shapetag_disconnect">
+    <Instance shapeName="Shape_3247" zorder="335" guid="18ede51c-0167-478a-977c-b9d7df10afd1" name="cy_shapetag_disconnect_17" component="cy_all_shapetag_disconnect">
       <Location x="93" y="381" />
       <Size width="9" height="6" />
       <SubShapes>
@@ -3526,12 +3293,7 @@
         </Terminal>
       </SubShapes>
     </Instance>
-    <Wire shapeName="Shape_3249" zorder="239" effectiveName="amuxbus_a_csd0" type="Analog">
-      <Point1 x="96" y="384" />
-      <Point2 x="96" y="402" />
-      <ShapeTags>w:P7_Pin7, w:P7_Pin6</ShapeTags>
-    </Wire>
-    <Instance shapeName="Shape_3250" zorder="336" guid="66bb7e7e-56ef-4005-bb78-c77fa4856e79" name="cy_shapetag_disconnect_18" component="cy_shapetag_disconnect">
+    <Instance shapeName="Shape_3250" zorder="336" guid="66bb7e7e-56ef-4005-bb78-c77fa4856e79" name="cy_shapetag_disconnect_18" component="cy_all_shapetag_disconnect">
       <Location x="111" y="363" />
       <Size width="9" height="6" />
       <SubShapes>
@@ -3541,12 +3303,7 @@
         </Terminal>
       </SubShapes>
     </Instance>
-    <Wire shapeName="Shape_3252" zorder="247" effectiveName="amuxbus_b_csd0" type="Analog">
-      <Point1 x="114" y="366" />
-      <Point2 x="114" y="384" />
-      <ShapeTags>w:P7_Pin7, w:P7_Pin6, w:P7_Pin5</ShapeTags>
-    </Wire>
-    <Instance shapeName="Shape_3253" zorder="337" guid="a9fe3162-554f-4544-839f-99c1b25dc91d" name="cy_shapetag_disconnect_19" component="cy_shapetag_disconnect">
+    <Instance shapeName="Shape_3253" zorder="337" guid="a9fe3162-554f-4544-839f-99c1b25dc91d" name="cy_shapetag_disconnect_19" component="cy_all_shapetag_disconnect">
       <Location x="93" y="363" />
       <Size width="9" height="6" />
       <SubShapes>
@@ -3556,7 +3313,7 @@
         </Terminal>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_3254" zorder="92" guid="00c41ad4-655c-4f91-be90-08bbdc857be9" name="PASS0_SARMUX0_TEMPSENSOR0" component="cy_mxs40_temp">
+    <Instance shapeName="Shape_3254" zorder="2" guid="00c41ad4-655c-4f91-be90-08bbdc857be9" name="PASS0_SARMUX0_TEMPSENSOR0" component="cy_mxs40_temp">
       <Location x="477" y="342" />
       <Size width="75" height="33" />
       <SubShapes>
@@ -3607,12 +3364,7 @@
         </Annotation>
       </SubShapes>
     </Instance>
-    <Wire shapeName="Shape_3256" zorder="237" effectiveName="amuxbus_a_csd0" type="Analog">
-      <Point1 x="96" y="366" />
-      <Point2 x="96" y="384" />
-      <ShapeTags>w:P7_Pin7, w:P7_Pin6, w:P7_Pin5</ShapeTags>
-    </Wire>
-    <Instance shapeName="Shape_3257" zorder="338" guid="9a8b480b-e5f4-41f3-8626-badb68715396" name="cy_shapetag_disconnect_20" component="cy_shapetag_disconnect">
+    <Instance shapeName="Shape_3257" zorder="338" guid="9a8b480b-e5f4-41f3-8626-badb68715396" name="cy_shapetag_disconnect_20" component="cy_all_shapetag_disconnect">
       <Location x="111" y="345" />
       <Size width="9" height="6" />
       <SubShapes>
@@ -3622,16 +3374,22 @@
         </Terminal>
       </SubShapes>
     </Instance>
-    <Wire shapeName="Shape_3258" zorder="253" effectiveName="amuxbus_b_csd0" type="Analog">
+    <Wire shapeName="Shape_3258" zorder="255" effectiveName="amuxbus_b_csd0" type="Analog">
       <Point1 x="114" y="114" />
       <Point2 x="114" y="348" />
+      <Annotation zorder="256">
+        <Location x="108" y="166" />
+        <Text>amuxbus_b_csd0</Text>
+        <Vertical value="true" />
+        <TextAlignment value="TopRight" />
+      </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3259" zorder="245" effectiveName="amuxbus_b_csd0" type="Analog">
+    <Wire shapeName="Shape_3259" zorder="251" effectiveName="amuxbus_b_csd0" type="Analog">
       <Point1 x="114" y="348" />
       <Point2 x="114" y="366" />
-      <ShapeTags>w:P7_Pin7, w:P7_Pin6, w:P7_Pin5, w:P7_Pin4</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[7].pin[7], wl:ioss[0].port[7].pin[6], wl:ioss[0].port[7].pin[5], wl:ioss[0].port[7].pin[4]</ShapeTags>
     </Wire>
-    <Instance shapeName="Shape_3260" zorder="339" guid="25fc7419-6b34-49a3-980e-0b962eb131de" name="cy_shapetag_disconnect_21" component="cy_shapetag_disconnect">
+    <Instance shapeName="Shape_3260" zorder="339" guid="25fc7419-6b34-49a3-980e-0b962eb131de" name="cy_shapetag_disconnect_21" component="cy_all_shapetag_disconnect">
       <Location x="93" y="345" />
       <Size width="9" height="6" />
       <SubShapes>
@@ -3641,88 +3399,430 @@
         </Terminal>
       </SubShapes>
     </Instance>
-    <Wire shapeName="Shape_3261" zorder="243" effectiveName="amuxbus_a_csd0" type="Analog">
+    <Wire shapeName="Shape_3261" zorder="245" effectiveName="amuxbus_a_csd0" type="Analog">
       <Point1 x="96" y="96" />
       <Point2 x="96" y="348" />
+      <Annotation zorder="246">
+        <Location x="90" y="166" />
+        <Text>amuxbus_a_csd0</Text>
+        <Vertical value="true" />
+        <TextAlignment value="TopRight" />
+      </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3262" zorder="235" effectiveName="amuxbus_a_csd0" type="Analog">
+    <Instance shapeName="Shape_3269" zorder="10" guid="b885f83f-131b-4bde-bc33-7d0cb241607c" name="MUX_BKG_1" component="cy_all_mux_bkg">
+      <Location x="87" y="407" />
+      <Size width="36" height="14" />
+      <ShapeTags>wl:ioss[0].port[7].pin[7]</ShapeTags>
+      <SubShapes>
+        <Rectangle>
+          <Location x="87" y="407" />
+          <Size width="36" height="14" />
+          <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
+            <SolidBrush color="176, 176, 176" />
+          </Outline>
+          <Fill>
+            <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
+          </Fill>
+        </Rectangle>
+      </SubShapes>
+    </Instance>
+    <Instance shapeName="Shape_3270" zorder="11" guid="7c2b3026-2636-478a-b4b5-c56dbacdc5ac" name="MUX_BKG_2" component="cy_all_mux_bkg">
+      <Location x="87" y="389" />
+      <Size width="36" height="14" />
+      <ShapeTags>wl:ioss[0].port[7].pin[6]</ShapeTags>
+      <SubShapes>
+        <Rectangle>
+          <Location x="87" y="389" />
+          <Size width="36" height="14" />
+          <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
+            <SolidBrush color="176, 176, 176" />
+          </Outline>
+          <Fill>
+            <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
+          </Fill>
+        </Rectangle>
+      </SubShapes>
+    </Instance>
+    <Instance shapeName="Shape_3271" zorder="12" guid="e4c5c8c9-0476-4e00-973b-0a8ebd584221" name="MUX_BKG_3" component="cy_all_mux_bkg">
+      <Location x="87" y="371" />
+      <Size width="36" height="14" />
+      <ShapeTags>wl:ioss[0].port[7].pin[5]</ShapeTags>
+      <SubShapes>
+        <Rectangle>
+          <Location x="87" y="371" />
+          <Size width="36" height="14" />
+          <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
+            <SolidBrush color="176, 176, 176" />
+          </Outline>
+          <Fill>
+            <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
+          </Fill>
+        </Rectangle>
+      </SubShapes>
+    </Instance>
+    <Instance shapeName="Shape_3272" zorder="13" guid="4843f1a9-c206-4293-af6b-93f49c1ec86a" name="MUX_BKG_4" component="cy_all_mux_bkg">
+      <Location x="87" y="353" />
+      <Size width="36" height="14" />
+      <ShapeTags>wl:ioss[0].port[7].pin[4]</ShapeTags>
+      <SubShapes>
+        <Rectangle>
+          <Location x="87" y="353" />
+          <Size width="36" height="14" />
+          <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
+            <SolidBrush color="176, 176, 176" />
+          </Outline>
+          <Fill>
+            <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
+          </Fill>
+        </Rectangle>
+      </SubShapes>
+    </Instance>
+    <Instance shapeName="Shape_3273" zorder="14" guid="708486f4-114f-4aca-aa47-beee38f74a7c" name="MUX_BKG_5" component="cy_all_mux_bkg">
+      <Location x="87" y="335" />
+      <Size width="36" height="14" />
+      <ShapeTags>wl:ioss[0].port[7].pin[3], wl:csd[0].csd[0]</ShapeTags>
+      <SubShapes>
+        <Rectangle>
+          <Location x="87" y="335" />
+          <Size width="36" height="14" />
+          <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
+            <SolidBrush color="176, 176, 176" />
+          </Outline>
+          <Fill>
+            <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
+          </Fill>
+        </Rectangle>
+      </SubShapes>
+    </Instance>
+    <Instance shapeName="Shape_3274" zorder="15" guid="8bef9255-159a-47c4-a03f-715979b7da8c" name="MUX_BKG_6" component="cy_all_mux_bkg">
+      <Location x="87" y="317" />
+      <Size width="36" height="14" />
+      <ShapeTags>wl:ioss[0].port[7].pin[2], wl:csd[0].csd[0]</ShapeTags>
+      <SubShapes>
+        <Rectangle>
+          <Location x="87" y="317" />
+          <Size width="36" height="14" />
+          <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
+            <SolidBrush color="176, 176, 176" />
+          </Outline>
+          <Fill>
+            <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
+          </Fill>
+        </Rectangle>
+      </SubShapes>
+    </Instance>
+    <Instance shapeName="Shape_3275" zorder="16" guid="686d645a-8801-464b-8a49-2f11f47bc942" name="MUX_BKG_7" component="cy_all_mux_bkg">
+      <Location x="87" y="299" />
+      <Size width="36" height="14" />
+      <ShapeTags>wl:ioss[0].port[7].pin[1], wl:csd[0].csd[0]</ShapeTags>
+      <SubShapes>
+        <Rectangle>
+          <Location x="87" y="299" />
+          <Size width="36" height="14" />
+          <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
+            <SolidBrush color="176, 176, 176" />
+          </Outline>
+          <Fill>
+            <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
+          </Fill>
+        </Rectangle>
+      </SubShapes>
+    </Instance>
+    <Instance shapeName="Shape_3276" zorder="17" guid="0b25bb28-6a47-4968-b246-729d40d2569a" name="MUX_BKG_8" component="cy_all_mux_bkg">
+      <Location x="87" y="281" />
+      <Size width="36" height="14" />
+      <ShapeTags>wl:ioss[0].port[7].pin[0]</ShapeTags>
+      <SubShapes>
+        <Rectangle>
+          <Location x="87" y="281" />
+          <Size width="36" height="14" />
+          <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
+            <SolidBrush color="176, 176, 176" />
+          </Outline>
+          <Fill>
+            <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
+          </Fill>
+        </Rectangle>
+      </SubShapes>
+    </Instance>
+    <Instance shapeName="Shape_3277" zorder="18" guid="5560f8f3-4b6e-42de-baac-ac26c6c4097b" name="MUX_BKG_9" component="cy_all_mux_bkg">
+      <Location x="87" y="221" />
+      <Size width="36" height="14" />
+      <ShapeTags>wl:ioss[0].port[8].pin[3]</ShapeTags>
+      <SubShapes>
+        <Rectangle>
+          <Location x="87" y="221" />
+          <Size width="36" height="14" />
+          <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
+            <SolidBrush color="176, 176, 176" />
+          </Outline>
+          <Fill>
+            <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
+          </Fill>
+        </Rectangle>
+      </SubShapes>
+    </Instance>
+    <Instance shapeName="Shape_3278" zorder="19" guid="d0992ecd-2740-4d80-b9b0-0fd8d12f6620" name="MUX_BKG_10" component="cy_all_mux_bkg">
+      <Location x="87" y="203" />
+      <Size width="36" height="14" />
+      <ShapeTags>wl:ioss[0].port[8].pin[2]</ShapeTags>
+      <SubShapes>
+        <Rectangle>
+          <Location x="87" y="203" />
+          <Size width="36" height="14" />
+          <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
+            <SolidBrush color="176, 176, 176" />
+          </Outline>
+          <Fill>
+            <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
+          </Fill>
+        </Rectangle>
+      </SubShapes>
+    </Instance>
+    <Instance shapeName="Shape_3279" zorder="20" guid="7478afbb-9979-4562-83ea-6824a5856190" name="MUX_BKG_11" component="cy_all_mux_bkg">
+      <Location x="87" y="185" />
+      <Size width="36" height="14" />
+      <ShapeTags>wl:ioss[0].port[8].pin[1]</ShapeTags>
+      <SubShapes>
+        <Rectangle>
+          <Location x="87" y="185" />
+          <Size width="36" height="14" />
+          <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
+            <SolidBrush color="176, 176, 176" />
+          </Outline>
+          <Fill>
+            <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
+          </Fill>
+        </Rectangle>
+      </SubShapes>
+    </Instance>
+    <Instance shapeName="Shape_3280" zorder="21" guid="77cb82af-3a9b-46bc-a23d-a07daa268846" name="MUX_BKG_12" component="cy_all_mux_bkg">
+      <Location x="87" y="167" />
+      <Size width="36" height="14" />
+      <ShapeTags>wl:ioss[0].port[8].pin[0]</ShapeTags>
+      <SubShapes>
+        <Rectangle>
+          <Location x="87" y="167" />
+          <Size width="36" height="14" />
+          <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
+            <SolidBrush color="176, 176, 176" />
+          </Outline>
+          <Fill>
+            <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
+          </Fill>
+        </Rectangle>
+      </SubShapes>
+    </Instance>
+    <Instance shapeName="Shape_3281" zorder="6" guid="ed198806-8e60-4c9a-ab8f-68253186f385" name="MUX_BKG_13" component="cy_all_mux_bkg">
+      <Location x="341" y="87" />
+      <Size width="14" height="36" />
+      <ShapeTags>wl:ioss[0].port[9].pin[0]</ShapeTags>
+      <SubShapes>
+        <Rectangle>
+          <Location x="341" y="87" />
+          <Size width="14" height="36" />
+          <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
+            <SolidBrush color="176, 176, 176" />
+          </Outline>
+          <Fill>
+            <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
+          </Fill>
+        </Rectangle>
+      </SubShapes>
+    </Instance>
+    <Instance shapeName="Shape_3282" zorder="7" guid="20ea91f6-2604-4ec9-a327-5d13f397e604" name="MUX_BKG_14" component="cy_all_mux_bkg">
+      <Location x="323" y="87" />
+      <Size width="14" height="36" />
+      <ShapeTags>wl:ioss[0].port[9].pin[1]</ShapeTags>
+      <SubShapes>
+        <Rectangle>
+          <Location x="323" y="87" />
+          <Size width="14" height="36" />
+          <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
+            <SolidBrush color="176, 176, 176" />
+          </Outline>
+          <Fill>
+            <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
+          </Fill>
+        </Rectangle>
+      </SubShapes>
+    </Instance>
+    <Instance shapeName="Shape_3283" zorder="8" guid="6566cb7a-e771-420c-a0d9-becd3cb770fa" name="MUX_BKG_15" component="cy_all_mux_bkg">
+      <Location x="305" y="87" />
+      <Size width="14" height="36" />
+      <ShapeTags>wl:ioss[0].port[9].pin[2]</ShapeTags>
+      <SubShapes>
+        <Rectangle>
+          <Location x="305" y="87" />
+          <Size width="14" height="36" />
+          <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
+            <SolidBrush color="176, 176, 176" />
+          </Outline>
+          <Fill>
+            <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
+          </Fill>
+        </Rectangle>
+      </SubShapes>
+    </Instance>
+    <Instance shapeName="Shape_3284" zorder="9" guid="86801966-64d3-4bd6-9191-dfddd8d65751" name="MUX_BKG_16" component="cy_all_mux_bkg">
+      <Location x="287" y="87" />
+      <Size width="14" height="36" />
+      <ShapeTags>wl:ioss[0].port[9].pin[3]</ShapeTags>
+      <SubShapes>
+        <Rectangle>
+          <Location x="287" y="87" />
+          <Size width="14" height="36" />
+          <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
+            <SolidBrush color="176, 176, 176" />
+          </Outline>
+          <Fill>
+            <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
+          </Fill>
+        </Rectangle>
+      </SubShapes>
+    </Instance>
+    <Instance shapeName="Shape_3285" zorder="4" guid="c9121f40-8802-4deb-bce2-4e8452ff0e60" name="MUX_BKG_17" component="cy_all_mux_bkg">
+      <Location x="519" y="473" />
+      <Size width="36" height="14" />
+      <ShapeTags>wl:ioss[0].port[3].pin[0]</ShapeTags>
+      <SubShapes>
+        <Rectangle>
+          <Location x="519" y="473" />
+          <Size width="36" height="14" />
+          <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
+            <SolidBrush color="176, 176, 176" />
+          </Outline>
+          <Fill>
+            <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
+          </Fill>
+        </Rectangle>
+      </SubShapes>
+    </Instance>
+    <Instance shapeName="Shape_3286" zorder="5" guid="75cb6857-5ab2-47fa-95dc-d45a771204f5" name="MUX_BKG_18" component="cy_all_mux_bkg">
+      <Location x="519" y="491" />
+      <Size width="36" height="14" />
+      <ShapeTags>wl:ioss[0].port[3].pin[1]</ShapeTags>
+      <SubShapes>
+        <Rectangle>
+          <Location x="519" y="491" />
+          <Size width="36" height="14" />
+          <Outline dashStyle="Dash" startCap="Flat" endCap="Flat" lineJoin="Miter" weight="0.5">
+            <SolidBrush color="176, 176, 176" />
+          </Outline>
+          <Fill>
+            <HatchBrush backColor="255, 255, 255" foreColor="192, 192, 192" style="Percent25" />
+          </Fill>
+        </Rectangle>
+      </SubShapes>
+    </Instance>
+    <Wire shapeName="Shape_3290" zorder="253" effectiveName="amuxbus_b_csd0" type="Analog">
+      <Point1 x="114" y="402" />
+      <Point2 x="114" y="420" />
+      <ShapeTags>wl:ioss[0].port[7].pin[7], wl:ioss[0].port[7].pin[6]</ShapeTags>
+    </Wire>
+    <Wire shapeName="Shape_3291" zorder="247" effectiveName="amuxbus_b_csd0" type="Analog">
+      <Point1 x="114" y="366" />
+      <Point2 x="114" y="384" />
+      <ShapeTags>wl:ioss[0].port[7].pin[7], wl:ioss[0].port[7].pin[6], wl:ioss[0].port[7].pin[5], wl:ioss[0].port[7].pin[4]</ShapeTags>
+    </Wire>
+    <Wire shapeName="Shape_3292" zorder="249" effectiveName="amuxbus_b_csd0" type="Analog">
+      <Point1 x="114" y="384" />
+      <Point2 x="114" y="402" />
+      <ShapeTags>wl:ioss[0].port[7].pin[7], wl:ioss[0].port[7].pin[6], wl:ioss[0].port[7].pin[5]</ShapeTags>
+    </Wire>
+    <Wire shapeName="Shape_3294" zorder="243" effectiveName="amuxbus_a_csd0" type="Analog">
+      <Point1 x="96" y="402" />
+      <Point2 x="96" y="420" />
+      <ShapeTags>wl:ioss[0].port[7].pin[7], wl:ioss[0].port[7].pin[6]</ShapeTags>
+    </Wire>
+    <Wire shapeName="Shape_3296" zorder="241" effectiveName="amuxbus_a_csd0" type="Analog">
+      <Point1 x="96" y="384" />
+      <Point2 x="96" y="402" />
+      <ShapeTags>wl:ioss[0].port[7].pin[7], wl:ioss[0].port[7].pin[6], wl:ioss[0].port[7].pin[5]</ShapeTags>
+    </Wire>
+    <Wire shapeName="Shape_3297" zorder="239" effectiveName="amuxbus_a_csd0" type="Analog">
       <Point1 x="96" y="348" />
       <Point2 x="96" y="366" />
-      <ShapeTags>w:P7_Pin7, w:P7_Pin6, w:P7_Pin5, w:P7_Pin4</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[7].pin[7], wl:ioss[0].port[7].pin[6], wl:ioss[0].port[7].pin[5], wl:ioss[0].port[7].pin[4]</ShapeTags>
     </Wire>
-    <Wire shapeName="Shape_3440" zorder="109" effectiveName="amuxbus_a_vssa" type="Digital">
+    <Wire shapeName="Shape_3298" zorder="237" effectiveName="amuxbus_a_csd0" type="Analog">
+      <Point1 x="96" y="366" />
+      <Point2 x="96" y="384" />
+      <ShapeTags>wl:ioss[0].port[7].pin[7], wl:ioss[0].port[7].pin[6], wl:ioss[0].port[7].pin[5], wl:ioss[0].port[7].pin[4]</ShapeTags>
+    </Wire>
+    <Wire shapeName="Shape_3440" zorder="123" effectiveName="amuxbus_a_vssa" type="Digital">
       <Point1 x="546" y="474" />
       <Point2 x="546" y="504" />
-      <ShapeTags>w:P3_Pin0, w:P3_Pin1</ShapeTags>
-      <Annotation zorder="110">
-        <Location x="882" y="840" />
+      <ShapeTags>wl:ioss[0].port[3].pin[0], wl:ioss[0].port[3].pin[1]</ShapeTags>
+      <Annotation zorder="124">
+        <Location x="540" y="570" />
         <Text>amuxbus_a_vssa</Text>
-        <Vertical value="false" />
-        <TextAlignment value="TopLeft" />
+        <Vertical value="true" />
+        <TextAlignment value="TopRight" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3441" zorder="111" effectiveName="amuxbus_b_vssa" type="Digital">
+    <Wire shapeName="Shape_3441" zorder="125" effectiveName="amuxbus_b_vssa" type="Digital">
       <Point1 x="528" y="474" />
       <Point2 x="528" y="504" />
-      <ShapeTags>w:P3_Pin0, w:P3_Pin1</ShapeTags>
-      <Annotation zorder="112">
-        <Location x="1242" y="1068" />
+      <ShapeTags>wl:ioss[0].port[3].pin[0], wl:ioss[0].port[3].pin[1]</ShapeTags>
+      <Annotation zorder="126">
+        <Location x="521" y="570" />
         <Text>amuxbus_b_vssa</Text>
-        <Vertical value="false" />
-        <TextAlignment value="TopLeft" />
+        <Vertical value="true" />
+        <TextAlignment value="TopRight" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3565" zorder="94" effectiveName="pass0_sar_vplus0" type="Analog">
+    <Wire shapeName="Shape_3565" zorder="110" effectiveName="pass0_sar_vplus0" type="Analog">
       <Point1 x="414" y="432" />
       <Point2 x="480" y="432" />
-      <ShapeTags>w:PASS0_SARADC0_SAR</ShapeTags>
-      <Annotation zorder="95">
-        <Location x="912" y="636" />
+      <ShapeTags>wl:pass[0].sar[0]</ShapeTags>
+      <Annotation zorder="111">
+        <Location x="459" y="426" />
         <Text>pass0_sar_vplus0</Text>
         <Vertical value="false" />
         <TextAlignment value="TopLeft" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3576" zorder="169" effectiveName="p8_2" type="Analog">
+    <Wire shapeName="Shape_3576" zorder="179" effectiveName="p8_2" type="Analog">
       <Point1 x="90" y="210" />
       <Point2 x="120" y="210" />
-      <ShapeTags>w:P8_Pin2</ShapeTags>
-      <Annotation zorder="170">
-        <Location x="-90" y="852" />
+      <ShapeTags>wl:ioss[0].port[8].pin[2]</ShapeTags>
+      <Annotation zorder="180">
+        <Location x="117" y="204" />
         <Text>p8_2</Text>
         <Vertical value="false" />
         <Expression />
         <TextAlignment value="TopRight" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3579" zorder="167" effectiveName="p8_1" type="Analog">
+    <Wire shapeName="Shape_3579" zorder="177" effectiveName="p8_1" type="Analog">
       <Point1 x="90" y="192" />
       <Point2 x="120" y="192" />
-      <ShapeTags>w:P8_Pin1</ShapeTags>
-      <Annotation zorder="168">
-        <Location x="-90" y="840" />
+      <ShapeTags>wl:ioss[0].port[8].pin[1]</ShapeTags>
+      <Annotation zorder="178">
+        <Location x="117" y="186" />
         <Text>p8_1</Text>
         <Vertical value="false" />
         <TextAlignment value="TopRight" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3582" zorder="171" effectiveName="p8_3" type="Analog">
+    <Wire shapeName="Shape_3582" zorder="181" effectiveName="p8_3" type="Analog">
       <Point1 x="90" y="228" />
       <Point2 x="120" y="228" />
-      <ShapeTags>w:P8_Pin3</ShapeTags>
-      <Annotation zorder="172">
-        <Location x="-90" y="864" />
+      <ShapeTags>wl:ioss[0].port[8].pin[3]</ShapeTags>
+      <Annotation zorder="182">
+        <Location x="117" y="222" />
         <Text>p8_3</Text>
         <Vertical value="false" />
         <Expression />
         <TextAlignment value="TopRight" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3590" zorder="11" effectiveName="amuxbus_a_csd0" type="Analog">
+    <Wire shapeName="Shape_3590" zorder="33" effectiveName="amuxbus_a_csd0" type="Analog">
       <Point1 x="96" y="96" />
       <Point2 x="120" y="96" />
     </Wire>
-    <Instance shapeName="Shape_3595" zorder="96" guid="85db2882-2edb-479d-bb8a-bec0148d47e1" name="cy_shapetag_disconnect_1" component="cy_shapetag_disconnect">
+    <Instance shapeName="Shape_3595" zorder="112" guid="85db2882-2edb-479d-bb8a-bec0148d47e1" name="cy_shapetag_disconnect_1" component="cy_all_shapetag_disconnect">
       <Location x="411" y="369" />
       <Size width="9" height="6" />
       <SubShapes>
@@ -3732,7 +3832,7 @@
         </Terminal>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_3601" zorder="226" guid="fcbbde84-319c-4c8f-9dbe-37676846ca9b" name="cy_shapetag_disconnect_3" component="cy_shapetag_disconnect">
+    <Instance shapeName="Shape_3601" zorder="228" guid="fcbbde84-319c-4c8f-9dbe-37676846ca9b" name="cy_shapetag_disconnect_3" component="cy_all_shapetag_disconnect">
       <Location x="117" y="303" />
       <Size width="9" height="6" />
       <SubShapes>
@@ -3742,12 +3842,12 @@
         </Terminal>
       </SubShapes>
     </Instance>
-    <Wire shapeName="Shape_3602" zorder="209" effectiveName="p7_1" type="Analog">
+    <Wire shapeName="Shape_3602" zorder="211" effectiveName="p7_1" type="Analog">
       <Point1 x="90" y="306" />
       <Point2 x="120" y="306" />
-      <ShapeTags>w:P7_Pin1, w:CSD0_CSD</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[7].pin[1], wl:csd[0].csd[0]</ShapeTags>
     </Wire>
-    <Instance shapeName="Shape_3604" zorder="227" guid="334a1b20-9e03-4a9c-a229-7809741485de" name="cy_shapetag_disconnect_4" component="cy_shapetag_disconnect">
+    <Instance shapeName="Shape_3604" zorder="229" guid="334a1b20-9e03-4a9c-a229-7809741485de" name="cy_shapetag_disconnect_4" component="cy_all_shapetag_disconnect">
       <Location x="117" y="321" />
       <Size width="9" height="6" />
       <SubShapes>
@@ -3757,12 +3857,12 @@
         </Terminal>
       </SubShapes>
     </Instance>
-    <Wire shapeName="Shape_3605" zorder="213" effectiveName="p7_2" type="Analog">
+    <Wire shapeName="Shape_3605" zorder="215" effectiveName="p7_2" type="Analog">
       <Point1 x="90" y="324" />
       <Point2 x="120" y="324" />
-      <ShapeTags>w:P7_Pin2, w:CSD0_CSD</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[7].pin[2], wl:csd[0].csd[0]</ShapeTags>
     </Wire>
-    <Instance shapeName="Shape_3607" zorder="228" guid="14d75739-a942-4edd-ab1b-65bb04bf8c58" name="cy_shapetag_disconnect_5" component="cy_shapetag_disconnect">
+    <Instance shapeName="Shape_3607" zorder="230" guid="14d75739-a942-4edd-ab1b-65bb04bf8c58" name="cy_shapetag_disconnect_5" component="cy_all_shapetag_disconnect">
       <Location x="117" y="339" />
       <Size width="9" height="6" />
       <SubShapes>
@@ -3772,70 +3872,70 @@
         </Terminal>
       </SubShapes>
     </Instance>
-    <Wire shapeName="Shape_3608" zorder="217" effectiveName="p7_3" type="Analog">
+    <Wire shapeName="Shape_3608" zorder="219" effectiveName="p7_3" type="Analog">
       <Point1 x="90" y="342" />
       <Point2 x="120" y="342" />
-      <ShapeTags>w:P7_Pin3, w:CSD0_CSD</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[7].pin[3], wl:csd[0].csd[0]</ShapeTags>
     </Wire>
-    <Wire shapeName="Shape_3609" zorder="215" effectiveName="p7_3" type="Analog">
+    <Wire shapeName="Shape_3609" zorder="217" effectiveName="p7_3" type="Analog">
       <Point1 x="120" y="342" />
       <Point2 x="258" y="342" />
-      <ShapeTags>w:CSD0_CSD</ShapeTags>
-      <Annotation zorder="216">
-        <Location x="827" y="864" />
+      <ShapeTags>wl:csd[0].csd[0]</ShapeTags>
+      <Annotation zorder="218">
+        <Location x="117" y="336" />
         <Text>p7_3</Text>
         <Vertical value="false" />
         <TextAlignment value="TopRight" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3626" zorder="39" effectiveName="p9_3" type="Analog">
+    <Wire shapeName="Shape_3626" zorder="57" effectiveName="p9_3" type="Analog">
       <Point1 x="294" y="90" />
       <Point2 x="294" y="120" />
-      <ShapeTags>w:P9_Pin3</ShapeTags>
-      <Annotation zorder="40">
-        <Location x="840" y="774" />
+      <ShapeTags>wl:ioss[0].port[9].pin[3]</ShapeTags>
+      <Annotation zorder="58">
+        <Location x="288" y="118" />
         <Text>p9_3</Text>
-        <Vertical value="false" />
-        <TextAlignment value="TopLeft" />
+        <Vertical value="true" />
+        <TextAlignment value="TopRight" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3629" zorder="41" effectiveName="p9_2" type="Analog">
+    <Wire shapeName="Shape_3629" zorder="59" effectiveName="p9_2" type="Analog">
       <Point1 x="312" y="90" />
       <Point2 x="312" y="120" />
-      <ShapeTags>w:P9_Pin2</ShapeTags>
-      <Annotation zorder="42">
-        <Location x="858" y="774" />
+      <ShapeTags>wl:ioss[0].port[9].pin[2]</ShapeTags>
+      <Annotation zorder="60">
+        <Location x="306" y="118" />
         <Text>p9_2</Text>
-        <Vertical value="false" />
-        <TextAlignment value="TopLeft" />
+        <Vertical value="true" />
+        <TextAlignment value="TopRight" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3632" zorder="43" effectiveName="p9_1" type="Analog">
+    <Wire shapeName="Shape_3632" zorder="61" effectiveName="p9_1" type="Analog">
       <Point1 x="330" y="90" />
       <Point2 x="330" y="120" />
-      <ShapeTags>w:P9_Pin1</ShapeTags>
-      <Annotation zorder="44">
-        <Location x="876" y="774" />
+      <ShapeTags>wl:ioss[0].port[9].pin[1]</ShapeTags>
+      <Annotation zorder="62">
+        <Location x="337" y="120" />
         <Text>p9_1</Text>
-        <Vertical value="false" />
-        <TextAlignment value="BottomLeft" />
+        <Vertical value="true" />
+        <TextAlignment value="BottomRight" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3635" zorder="34" effectiveName="p9_0" type="Analog">
+    <Wire shapeName="Shape_3635" zorder="52" effectiveName="p9_0" type="Analog">
       <Point1 x="348" y="90" />
       <Point2 x="348" y="120" />
-      <ShapeTags>w:P9_Pin0</ShapeTags>
-      <Annotation zorder="35">
-        <Location x="894" y="774" />
+      <ShapeTags>wl:ioss[0].port[9].pin[0]</ShapeTags>
+      <Annotation zorder="53">
+        <Location x="355" y="118" />
         <Text>p9_0</Text>
         <Vertical value="true" />
         <TextAlignment value="BottomRight" />
       </Annotation>
     </Wire>
-    <Instance shapeName="Shape_3713" zorder="143" guid="c27fc1b6-7e0b-492a-9f57-03dc8aa49a76" name="AMUXT1_AA_SL" component="swhv">
+    <Instance shapeName="Shape_3713" zorder="157" guid="c27fc1b6-7e0b-492a-9f57-03dc8aa49a76" name="AMUXT1_AA_SL" component="swh">
       <Location x="384" y="90" />
       <Size width="12" height="11.99999" />
-      <ShapeTags>w:LPCOMP0_COMP0, w:LPCOMP0_COMP1</ShapeTags>
+      <ShapeTags>wl:lpcomp[0].comp[0], wl:lpcomp[0].comp[1]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="384" y="90" />
@@ -3849,10 +3949,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_3716" zorder="144" guid="90e150ea-717b-4c51-901d-93530cbd395c" name="AMUXT1_BB_SL" component="swhv">
+    <Instance shapeName="Shape_3716" zorder="158" guid="90e150ea-717b-4c51-901d-93530cbd395c" name="AMUXT1_BB_SL" component="swh">
       <Location x="366" y="108" />
       <Size width="12" height="11.99999" />
-      <ShapeTags>w:LPCOMP0_COMP0, w:LPCOMP0_COMP1</ShapeTags>
+      <ShapeTags>wl:lpcomp[0].comp[0], wl:lpcomp[0].comp[1]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="366" y="108" />
@@ -3866,10 +3966,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_3721" zorder="256" guid="56b4d5ef-a350-4c71-9376-34b9f7e06778" name="AMUXT1_BB_SR" component="swhv">
+    <Instance shapeName="Shape_3721" zorder="258" guid="56b4d5ef-a350-4c71-9376-34b9f7e06778" name="AMUXT1_BB_SR" component="swh">
       <Location x="366" y="492" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:LPCOMP0_COMP0, w:LPCOMP0_COMP1</ShapeTags>
+      <ShapeTags>wl:lpcomp[0].comp[0], wl:lpcomp[0].comp[1]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="366" y="492" />
@@ -3883,10 +3983,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_3724" zorder="255" guid="7dc5e545-a6aa-41fe-9cab-c0098c3af6ea" name="AMUXT1_AA_SR" component="swhv">
+    <Instance shapeName="Shape_3724" zorder="257" guid="7dc5e545-a6aa-41fe-9cab-c0098c3af6ea" name="AMUXT1_AA_SR" component="swh">
       <Location x="384" y="510" />
       <Size width="12" height="11.99994" />
-      <ShapeTags>w:LPCOMP0_COMP0, w:LPCOMP0_COMP1</ShapeTags>
+      <ShapeTags>wl:lpcomp[0].comp[0], wl:lpcomp[0].comp[1]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="384" y="510" />
@@ -3900,10 +4000,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_4160" zorder="280" guid="8cad458e-7959-4e6a-abae-693012897f97" name="LPCOMP0_IP1" component="swh">
+    <Instance shapeName="Shape_4160" zorder="282" guid="8cad458e-7959-4e6a-abae-693012897f97" name="LPCOMP0_IP1" component="swh">
       <Location x="180" y="450" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:P6_Pin2</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[6].pin[2]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="180" y="450" />
@@ -3917,10 +4017,10 @@
         </Ellipse>
       </SubShapes>
     </Instance>
-    <Instance shapeName="Shape_4161" zorder="265" guid="cd95dc79-8472-4566-93c7-011887904238" name="LPCOMP0_IN1" component="swh">
+    <Instance shapeName="Shape_4161" zorder="267" guid="cd95dc79-8472-4566-93c7-011887904238" name="LPCOMP0_IN1" component="swh">
       <Location x="180" y="468" />
       <Size width="12" height="11.99997" />
-      <ShapeTags>w:P6_Pin2</ShapeTags>
+      <ShapeTags>wl:ioss[0].port[6].pin[2]</ShapeTags>
       <SubShapes>
         <Ellipse>
           <Location x="180" y="468" />

@@ -51,7 +51,7 @@
   <Param name="Automotive_qualified" value="No (Industrial Grade Only)" />
   <Param name="SiliconID" value="0xE4701202" />
   <Param name="Module" value="No" />
-  <Param name="REQUIRED_KITS" value="B0" />
+  <Param name="REQUIRED_KITS" value="None" />
   <Param name="Next_Best_Alt_Part" value="None" />
   <Param name="DATASHEET" value="http://www.cypress.com/ds218449 " />
   <Param name="EDITING_SUPPORT" value="Schematic" />

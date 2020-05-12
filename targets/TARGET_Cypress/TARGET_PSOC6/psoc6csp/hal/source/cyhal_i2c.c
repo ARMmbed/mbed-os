@@ -27,9 +27,10 @@
 #include "cyhal_i2c.h"
 #include "cyhal_scb_common.h"
 #include "cyhal_gpio.h"
-#include "cyhal_interconnect.h"
-#include "cyhal_system_impl.h"
 #include "cyhal_hwmgr.h"
+#include "cyhal_system.h"
+#include "cyhal_syspm.h"
+#include "cyhal_utils.h"
 
 #ifdef CY_IP_MXSCB
 
@@ -42,19 +43,6 @@ extern "C"
 #define PENDING_RX                      1
 #define PENDING_TX                      2
 #define PENDING_TX_RX                   3
-
-/* Must be between 1.55 MHz and 12.8 MHz for running i2c master at 100KHz   */
-#define SCB_PERI_CLOCK_SLAVE_STD      8000000
-/* Must be between 7.82 MHz and 15.38 MHz for running i2c master at 400KHz  */
-#define SCB_PERI_CLOCK_SLAVE_FST      12500000
-/* Must be between 15.84 MHz and 89.0 MHz for running i2c master at 1MHz */
-#define SCB_PERI_CLOCK_SLAVE_FSTP     50000000
-/* Must be between 1.55 MHz and 3.2 MHz for running i2c slave at 100KHz     */
-#define SCB_PERI_CLOCK_MASTER_STD     2000000
-/* Must be between 7.82 MHz and 10 MHz for running i2c slave at 400KHz      */
-#define SCB_PERI_CLOCK_MASTER_FST     8500000
-/* Must be between 14.32 MHz and 25.8 MHz for running i2c slave at 1MHz  */
-#define SCB_PERI_CLOCK_MASTER_FSTP    20000000
 
 #define CYHAL_I2C_MASTER_DEFAULT_FREQ 100000
 
@@ -80,20 +68,23 @@ static void cyhal_i2c_irq_handler(void)
 
     Cy_SCB_I2C_Interrupt(obj->base, &(obj->context));
 
-    if (obj->async)
+    if (obj->pending)
     {
         /* This code is part of cyhal_i2c_master_transfer_async() API functionality */
-        /* cyhal_i2c_master_transfer_async() API uses this interrupt handler for RX Transfer */
+        /* cyhal_i2c_master_transfer_async() API uses this interrupt handler for RX transfer */
         if (0 == (Cy_SCB_I2C_MasterGetStatus(obj->base,  &obj->context) & CY_SCB_I2C_MASTER_BUSY))
         {
-            if (obj->tx_config.bufferSize)
+            /* Check if TX is completed and run RX in case when TX and RX are enabled */
+            if (obj->pending == PENDING_TX_RX)
             {
-                /* Start RX Transfer */
+                /* Start RX transfer */
                 obj->pending = PENDING_RX;
                 Cy_SCB_I2C_MasterRead(obj->base, &obj->rx_config, &obj->context);
-                /* Finish Async Transfer */
+            }
+            else
+            {
+                /* Finish async TX or RX separate transfer */
                 obj->pending = PENDING_NONE;
-                obj->async = false;
             }
         }
     }
@@ -110,70 +101,48 @@ static void cyhal_i2c_cb_wrapper(uint32_t event)
     }
 }
 
-static uint32_t cyhal_set_peri_divider(cyhal_i2c_t *obj, uint32_t freq, bool is_slave)
+static bool cyhal_i2c_pm_callback_instance(void *obj_ptr, cyhal_syspm_callback_state_t state, cy_en_syspm_callback_mode_t pdl_mode)
 {
-    /* Return the actual data rate on success, 0 otherwise */
-    uint32_t peri_freq = 0;
-    if (freq == 0)
-    {
-        return 0;
-    }
-    if (freq <= CY_SCB_I2C_STD_DATA_RATE)
-    {
-        peri_freq = is_slave ? SCB_PERI_CLOCK_SLAVE_STD : SCB_PERI_CLOCK_MASTER_STD;
-    }
-    else if (freq <= CY_SCB_I2C_FST_DATA_RATE)
-    {
-        peri_freq = is_slave ? SCB_PERI_CLOCK_SLAVE_FST : SCB_PERI_CLOCK_MASTER_FST;
-    }
-    else if (freq <= CY_SCB_I2C_FSTP_DATA_RATE)
-    {
-        peri_freq = is_slave ? SCB_PERI_CLOCK_SLAVE_FSTP : SCB_PERI_CLOCK_MASTER_FSTP;
-    }
-    else
-    {
-        return 0;
-    }
-    cy_en_sysclk_status_t status = Cy_SysClk_PeriphAssignDivider((en_clk_dst_t)((uint8_t)PCLK_SCB0_CLOCK + obj->resource.block_num), obj->clock.div_type, obj->clock.div_num);
-    if (status == CY_SYSCLK_SUCCESS)
-        status = Cy_SysClk_PeriphDisableDivider(obj->clock.div_type, obj->clock.div_num);
-    if (status == CY_SYSCLK_SUCCESS)
-        status = Cy_SysClk_PeriphSetDivider(obj->clock.div_type, obj->clock.div_num, cyhal_divider_value(peri_freq, 0u));
-    if (status == CY_SYSCLK_SUCCESS)
-        status = Cy_SysClk_PeriphEnableDivider(obj->clock.div_type, obj->clock.div_num);
-    CY_ASSERT(CY_SYSCLK_SUCCESS == status);
+    cyhal_i2c_t *obj = (cyhal_i2c_t*)obj_ptr;
+    cy_stc_syspm_callback_params_t i2c_callback_params = {
+        .base = (void *) (obj->base),
+        .context = (void *) &(obj->context)
+    };
+    bool allow = true;
 
-    /* According to PDL API Reference Guide - Cy_SysClk_PeriphGetFrequency() use only for i2c master role */
-    if(!is_slave)
-    {
-    	return Cy_SCB_I2C_SetDataRate(obj->base, freq, Cy_SysClk_PeriphGetFrequency(obj->clock.div_type, obj->clock.div_num));
-    }
-    else
-    {
-    	return Cy_SCB_I2C_GetDataRate(obj->base, Cy_SysClk_PeriphGetFrequency(obj->clock.div_type, obj->clock.div_num));
-    }
+    if (CYHAL_SYSPM_CB_CPU_DEEPSLEEP == state)
+        allow = (CY_SYSPM_SUCCESS == Cy_SCB_I2C_DeepSleepCallback(&i2c_callback_params, pdl_mode));
+    else if (CYHAL_SYSPM_CB_SYSTEM_HIBERNATE == state)
+        allow = (CY_SYSPM_SUCCESS == Cy_SCB_I2C_HibernateCallback(&i2c_callback_params, pdl_mode));
+
+    return allow;
 }
 
 /* Start API implementing */
 
-cy_rslt_t cyhal_i2c_init(cyhal_i2c_t *obj, cyhal_gpio_t sda, cyhal_gpio_t scl, const cyhal_clock_divider_t *clk)
+cy_rslt_t cyhal_i2c_init(cyhal_i2c_t *obj, cyhal_gpio_t sda, cyhal_gpio_t scl, const cyhal_clock_t *clk)
 {
     CY_ASSERT(NULL != obj);
+    memset(obj, 0, sizeof(cyhal_i2c_t));
 
     /* Explicitly marked not allocated resources as invalid to prevent freeing them. */
     obj->resource.type = CYHAL_RSC_INVALID;
     obj->pin_scl = CYHAL_NC_PIN_VALUE;
     obj->pin_sda = CYHAL_NC_PIN_VALUE;
     obj->is_shared_clock = true;
+    /* Initial value for async operations */
+    obj->pending = PENDING_NONE;
 
     /* Reserve the I2C */
-    const cyhal_resource_pin_mapping_t *sda_map = CY_UTILS_GET_RESOURCE(sda, cyhal_pin_map_scb_i2c_sda);
-    const cyhal_resource_pin_mapping_t *scl_map = CY_UTILS_GET_RESOURCE(scl, cyhal_pin_map_scb_i2c_scl);
-    if ((NULL == sda_map) || (NULL == scl_map) || (sda_map->inst->block_num != scl_map->inst->block_num))
+    const cyhal_resource_pin_mapping_t *sda_map = CYHAL_FIND_SCB_MAP(sda, cyhal_pin_map_scb_i2c_sda);
+    const cyhal_resource_pin_mapping_t *scl_map = CYHAL_FIND_SCB_MAP(scl, cyhal_pin_map_scb_i2c_scl);
+    if ((NULL == sda_map) || (NULL == scl_map) || !cyhal_utils_resources_equal(sda_map->inst, scl_map->inst))
     {
         return CYHAL_I2C_RSLT_ERR_INVALID_PIN;
     }
     obj->resource = *(scl_map->inst);
+    obj->base = CYHAL_SCB_BASE_ADDRESSES[obj->resource.block_num];
+
     cy_rslt_t result = cyhal_hwmgr_reserve(&(obj->resource));
     if (result != CY_RSLT_SUCCESS)
     {
@@ -181,31 +150,20 @@ cy_rslt_t cyhal_i2c_init(cyhal_i2c_t *obj, cyhal_gpio_t sda, cyhal_gpio_t scl, c
     }
 
     /* Reserve the SDA pin */
-    cyhal_resource_inst_t pin_rsc = cyhal_utils_get_gpio_resource(sda);
-    result = cyhal_hwmgr_reserve(&pin_rsc);
     if (result == CY_RSLT_SUCCESS)
     {
-        obj->pin_sda = sda;
+        result = cyhal_utils_reserve_and_connect(sda, sda_map);
+        if (result == CY_RSLT_SUCCESS)
+            obj->pin_sda = sda;
     }
-    Cy_GPIO_SetHSIOM(CYHAL_GET_PORTADDR(sda), CYHAL_GET_PIN(sda), CY_GPIO_CFG_GET_HSIOM(scl_map->cfg));
-    Cy_GPIO_SetDrivemode(CYHAL_GET_PORTADDR(sda), CYHAL_GET_PIN(sda), CY_GPIO_DM_OD_DRIVESLOW);
 
     /* Reserve the SCL pin */
     if (result == CY_RSLT_SUCCESS)
     {
-        pin_rsc = cyhal_utils_get_gpio_resource(scl);
-        /* Connect SCB I2C function to pins */
-        cy_rslt_t result = cyhal_hwmgr_reserve(&pin_rsc);
+        result = cyhal_utils_reserve_and_connect(scl, scl_map);
         if (result == CY_RSLT_SUCCESS)
-        {
             obj->pin_scl = scl;
-        }
-        Cy_GPIO_SetHSIOM(CYHAL_GET_PORTADDR(scl), CYHAL_GET_PIN(scl), CY_GPIO_CFG_GET_HSIOM(scl_map->cfg));
-        Cy_GPIO_SetDrivemode(CYHAL_GET_PORTADDR(scl), CYHAL_GET_PIN(scl), CY_GPIO_DM_OD_DRIVESLOW);
-
     }
-
-    obj->base = CYHAL_SCB_BASE_ADDRESSES[obj->resource.block_num];
 
     if (result == CY_RSLT_SUCCESS)
     {
@@ -222,7 +180,7 @@ cy_rslt_t cyhal_i2c_init(cyhal_i2c_t *obj, cyhal_gpio_t sda, cyhal_gpio_t scl, c
 
     if (result == CY_RSLT_SUCCESS)
     {
-        uint32_t dataRate = cyhal_set_peri_divider(obj, CYHAL_I2C_MASTER_DEFAULT_FREQ, false);
+        uint32_t dataRate = cyhal_i2c_set_peri_divider(obj->base, obj->resource.block_num, &(obj->clock), CYHAL_I2C_MASTER_DEFAULT_FREQ, false);
         if (dataRate == 0)
         {
             /* Can not reach desired data rate */
@@ -238,13 +196,13 @@ cy_rslt_t cyhal_i2c_init(cyhal_i2c_t *obj, cyhal_gpio_t sda, cyhal_gpio_t scl, c
 
     if (result == CY_RSLT_SUCCESS)
     {
+        cyhal_scb_update_instance_data(obj->resource.block_num, (void*)obj, &cyhal_i2c_pm_callback_instance);
         /* Enable I2C to operate */
         Cy_SCB_I2C_Enable(obj->base);
 
         obj->callback_data.callback = NULL;
         obj->callback_data.callback_arg = NULL;
         obj->irq_cause = CYHAL_I2C_EVENT_NONE;
-        cyhal_scb_config_structs[obj->resource.block_num] = obj;
 
         cy_stc_sysint_t irqCfg = { CYHAL_SCB_IRQ_N[obj->resource.block_num], CYHAL_ISR_PRIORITY_DEFAULT };
         Cy_SysInt_Init(&irqCfg, cyhal_i2c_irq_handler);
@@ -262,8 +220,10 @@ void cyhal_i2c_free(cyhal_i2c_t *obj)
 {
     CY_ASSERT(NULL != obj);
 
+
     if (CYHAL_RSC_INVALID != obj->resource.type)
     {
+        cyhal_scb_update_instance_data(obj->resource.block_num, NULL, NULL);
         IRQn_Type irqn = CYHAL_SCB_IRQ_N[obj->resource.block_num];
         NVIC_DisableIRQ(irqn);
 
@@ -299,7 +259,7 @@ cy_rslt_t cyhal_i2c_configure(cyhal_i2c_t *obj, const cyhal_i2c_cfg_t *cfg)
     }
 
     /* Set data rate */
-    uint32_t dataRate = cyhal_set_peri_divider(obj, cfg->frequencyhal_hz, cfg->is_slave);
+    uint32_t dataRate = cyhal_i2c_set_peri_divider(obj->base, obj->resource.block_num, &(obj->clock), cfg->frequencyhal_hz, cfg->is_slave);
     if (dataRate == 0)
     {
         /* Can not reach desired data rate */
@@ -314,6 +274,9 @@ cy_rslt_t cyhal_i2c_configure(cyhal_i2c_t *obj, const cyhal_i2c_cfg_t *cfg)
 
 cy_rslt_t cyhal_i2c_master_write(cyhal_i2c_t *obj, uint16_t dev_addr, const uint8_t *data, uint16_t size, uint32_t timeout, bool send_stop)
 {
+    if (cyhal_scb_pm_transition_pending())
+        return CYHAL_SYSPM_RSLT_ERR_PM_PENDING;
+
     cy_en_scb_i2c_status_t status = obj->context.state == CY_SCB_I2C_IDLE
         ? Cy_SCB_I2C_MasterSendStart(obj->base, dev_addr, CY_SCB_I2C_WRITE_XFER, timeout, &obj->context)
         : Cy_SCB_I2C_MasterSendReStart(obj->base, dev_addr, CY_SCB_I2C_WRITE_XFER, timeout, &obj->context);
@@ -344,6 +307,9 @@ cy_rslt_t cyhal_i2c_master_write(cyhal_i2c_t *obj, uint16_t dev_addr, const uint
 
 cy_rslt_t cyhal_i2c_master_read(cyhal_i2c_t *obj, uint16_t dev_addr, uint8_t *data, uint16_t size, uint32_t timeout, bool send_stop)
 {
+    if (cyhal_scb_pm_transition_pending())
+        return CYHAL_SYSPM_RSLT_ERR_PM_PENDING;
+
     cy_en_scb_i2c_command_t ack = CY_SCB_I2C_ACK;
 
     /* Start transaction, send dev_addr */
@@ -377,16 +343,19 @@ cy_rslt_t cyhal_i2c_master_read(cyhal_i2c_t *obj, uint16_t dev_addr, uint8_t *da
     return status;
 }
 
+/* The following code is DEPRECATED and must not be used in new projects */
 cy_rslt_t cyhal_i2c_slave_config_write_buff(cyhal_i2c_t *obj, const uint8_t *data, uint16_t size)
 {
-    if (obj->context.state == CY_SCB_I2C_IDLE)
-    {
-        Cy_SCB_I2C_SlaveConfigReadBuf(obj->base, (uint8_t *)data, size, &obj->context);
-    }
-    return CY_RSLT_SUCCESS;
+    return cyhal_i2c_slave_config_read_buffer(obj, (uint8_t *)data, size);
 }
 
+/* The following code is DEPRECATED and must not be used in new projects */
 cy_rslt_t cyhal_i2c_slave_config_read_buff(cyhal_i2c_t *obj, uint8_t *data, uint16_t size)
+{
+    return cyhal_i2c_slave_config_write_buffer(obj, (uint8_t *)data, size);
+}
+
+cy_rslt_t cyhal_i2c_slave_config_write_buffer(cyhal_i2c_t *obj, const uint8_t *data, uint16_t size)
 {
     if (obj->context.state == CY_SCB_I2C_IDLE)
     {
@@ -395,8 +364,20 @@ cy_rslt_t cyhal_i2c_slave_config_read_buff(cyhal_i2c_t *obj, uint8_t *data, uint
     return CY_RSLT_SUCCESS;
 }
 
+cy_rslt_t cyhal_i2c_slave_config_read_buffer(cyhal_i2c_t *obj, uint8_t *data, uint16_t size)
+{
+    if (obj->context.state == CY_SCB_I2C_IDLE)
+    {
+        Cy_SCB_I2C_SlaveConfigReadBuf(obj->base, (uint8_t *)data, size, &obj->context);
+    }
+    return CY_RSLT_SUCCESS;
+}
+
 cy_rslt_t cyhal_i2c_master_mem_write(cyhal_i2c_t *obj, uint16_t address, uint16_t mem_addr, uint16_t mem_addr_size, const uint8_t *data, uint16_t size, uint32_t timeout)
 {
+    if (cyhal_scb_pm_transition_pending())
+        return CYHAL_SYSPM_RSLT_ERR_PM_PENDING;
+
     uint8_t mem_addr_buf[2];
     if (mem_addr_size == 1)
     {
@@ -435,6 +416,9 @@ cy_rslt_t cyhal_i2c_master_mem_write(cyhal_i2c_t *obj, uint16_t address, uint16_
 
 cy_rslt_t cyhal_i2c_master_mem_read(cyhal_i2c_t *obj, uint16_t address, uint16_t mem_addr, uint16_t mem_addr_size, uint8_t *data, uint16_t size, uint32_t timeout)
 {
+    if (cyhal_scb_pm_transition_pending())
+        return CYHAL_SYSPM_RSLT_ERR_PM_PENDING;
+
     uint8_t mem_addr_buf[2];
     if (mem_addr_size == 1)
     {
@@ -460,6 +444,9 @@ cy_rslt_t cyhal_i2c_master_mem_read(cyhal_i2c_t *obj, uint16_t address, uint16_t
 
 cy_rslt_t cyhal_i2c_master_transfer_async(cyhal_i2c_t *obj, uint16_t address, const void *tx, size_t tx_size, void *rx, size_t rx_size)
 {
+    if (cyhal_scb_pm_transition_pending())
+        return CYHAL_SYSPM_RSLT_ERR_PM_PENDING;
+
     obj->rx_config.slaveAddress = address;
     obj->tx_config.slaveAddress = address;
 
@@ -469,31 +456,31 @@ cy_rslt_t cyhal_i2c_master_transfer_async(cyhal_i2c_t *obj, uint16_t address, co
     obj->tx_config.buffer = (void *)tx;
     obj->tx_config.bufferSize = tx_size;
 
-    obj->async = true;
-
-    if (tx_size)
+    if (!obj->pending)
     {
-        /* Write first, then read, or write only. */
-        if (rx_size > 0)
+        /* Validate input data and do appropriate action */
+        if (tx_size)
         {
-            obj->pending = PENDING_TX_RX;
+            obj->pending = (rx_size)
+                ? PENDING_TX_RX
+                : PENDING_TX;
+            Cy_SCB_I2C_MasterWrite(obj->base, &obj->tx_config, &obj->context);
+            /* Receive covered by interrupt handler - cyhal_i2c_irq_handler() */
+        }
+        else if (rx_size)
+        {
+            obj->pending = PENDING_RX;
+            Cy_SCB_I2C_MasterRead(obj->base, &obj->rx_config, &obj->context);
         }
         else
         {
-            obj->pending = PENDING_TX;
+            return CYHAL_I2C_RSLT_ERR_TX_RX_BUFFERS_ARE_EMPTY;
         }
-        /* Transmit */
-        Cy_SCB_I2C_MasterWrite(obj->base, &obj->tx_config, &obj->context);
-
-        /* Receive covered by interrupt handler */
     }
-    else if (rx_size)
+    else
     {
-        /* Read transaction */
-        obj->pending = PENDING_RX;
-        Cy_SCB_I2C_MasterRead(obj->base, &obj->rx_config, &obj->context);
+        return CYHAL_I2C_RSLT_ERR_PREVIOUS_ASYNCH_PENDING;
     }
-
     return CY_RSLT_SUCCESS;
 }
 
@@ -569,7 +556,7 @@ void cyhal_i2c_register_callback(cyhal_i2c_t *obj, cyhal_i2c_event_callback_t ca
     obj->irq_cause = CYHAL_I2C_EVENT_NONE;
 }
 
-void cyhal_i2c_enable_event(cyhal_i2c_t *obj, cyhal_i2c_event_t event, uint8_t intrPriority, bool enable)
+void cyhal_i2c_enable_event(cyhal_i2c_t *obj, cyhal_i2c_event_t event, uint8_t intr_priority, bool enable)
 {
     if (enable)
     {
@@ -581,7 +568,7 @@ void cyhal_i2c_enable_event(cyhal_i2c_t *obj, cyhal_i2c_event_t event, uint8_t i
     }
 
     IRQn_Type irqn = CYHAL_SCB_IRQ_N[obj->resource.block_num];
-    NVIC_SetPriority(irqn, intrPriority);
+    NVIC_SetPriority(irqn, intr_priority);
 }
 
 #if defined(__cplusplus)

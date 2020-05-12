@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 
-/** @file
- * # NVRAM file for CY8CMOD-062S3-4343W (PSoC6 (512K) with CYW4343W WiFi-BT - Murata's
- *   Type 1DX Module) - Copied from bcm94343wwcd1.txt on 08/04/2019
- * # 2.4 GHz, 20 MHz BW mode; With Antenna Diversity
- */
-
 #ifndef INCLUDED_NVRAM_IMAGE_H_
 #define INCLUDED_NVRAM_IMAGE_H_
 
@@ -27,19 +21,17 @@
 #include <stdint.h>
 #include "generated_mac_address.txt"
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
  * Character array of NVRAM image
- *
  * Generated from cyw94343cy8cmod-062s3-4343w.txt
  */
 
 static const char wifi_nvram_image[] =
-        "NVRAMRev=$Rev: 722524 $"                                            "\x00"
+        "NVRAMRev=$Rev 724262 $"                                             "\x00"
         "manfid=0x2d0"                                                       "\x00"
         "prodid=0x086e"                                                      "\x00"
         "vendid=0x14e4"                                                      "\x00"
@@ -60,8 +52,9 @@ static const char wifi_nvram_image[] =
         "swdiv_gpio=2"                                                       "\x00"
         "pa0itssit=0x20"                                                     "\x00"
         "extpagain2g=0"                                                      "\x00"
-        "pa2ga0=-168,6905,-799"                                              "\x00"
+        "pa2ga0=-168,6393,-757"                                              "\x00"
         "AvVmid_c0=0x0,0xc8"                                                 "\x00"
+        "AvVmidIQcal=0x2,0xa8"                                               "\x00"
         "cckpwroffset0=5"                                                    "\x00"
         "maxp2ga0=84"                                                        "\x00"
         "txpwrbckof=6"                                                       "\x00"
@@ -80,13 +73,14 @@ static const char wifi_nvram_image[] =
         "deadman_to=0xffffffff"                                              "\x00"
         "muxenab=0x11"                                                       "\x00"
         "spurconfig=0x3 "                                                    "\x00"
+        "rssicorrnorm=1"                                                     "\x00"
         "\x00\x00";
-
 #ifdef __cplusplus
-} /* extern "C" */
+} /*extern "C" */
 #endif
 
 #else /* ifndef INCLUDED_NVRAM_IMAGE_H_ */
-#error Wi-Fi NVRAM image included twice
-#endif /* ifndef INCLUDED_NVRAM_IMAGE_H_ */
 
+#error Wi-Fi NVRAM image included twice
+
+#endif /* ifndef INCLUDED_NVRAM_IMAGE_H_ */

@@ -96,7 +96,7 @@ extern "C" {
 *******************************************************************************/
 
 /** Integer representation of no connect pin (required to exist in all BSPs) */
-#define CYHAL_NC_PIN_VALUE ((cyhal_gpio_t)0xFFFFFFFF)
+#define CYHAL_NC_PIN_VALUE (NC)
 
 /*******************************************************************************
 *       Enumerations
@@ -104,10 +104,10 @@ extern "C" {
 
 /** Pin events */
 typedef enum {
-    CYHAL_GPIO_IRQ_NONE,   /**< No interrupt */
-    CYHAL_GPIO_IRQ_RISE,   /**< Interrupt on rising edge */
-    CYHAL_GPIO_IRQ_FALL,   /**< Interrupt on falling edge */
-    CYHAL_GPIO_IRQ_BOTH,   /**< Interrupt on both rising and falling edges */
+    CYHAL_GPIO_IRQ_NONE = 0,                                            /**< No interrupt */
+    CYHAL_GPIO_IRQ_RISE = 1 << 0,                                       /**< Interrupt on rising edge */
+    CYHAL_GPIO_IRQ_FALL = 1 << 1,                                       /**< Interrupt on falling edge */
+    CYHAL_GPIO_IRQ_BOTH = (CYHAL_GPIO_IRQ_RISE | CYHAL_GPIO_IRQ_FALL),  /**< Interrupt on both rising and falling edges */
 } cyhal_gpio_event_t;
 
 /** Pin direction */
@@ -125,15 +125,15 @@ typedef enum {
  * If not, the <b> drive_mode </b> of the <b> pin </b> is set to <b> CYHAL_GPIO_DRIVE_NONE</b>.
  */
 typedef enum {
-    CYHAL_GPIO_DRIVE_NONE,                /**< Digital Hi-Z */
-    CYHAL_GPIO_DRIVE_ANALOG,              /**< Analog Hi-Z */
-    CYHAL_GPIO_DRIVE_PULLUP,              /**< Pull-up resistor */
-    CYHAL_GPIO_DRIVE_PULLDOWN,            /**< Pull-down resistor */
-    CYHAL_GPIO_DRIVE_OPENDRAINDRIVESLOW,  /**< Open-drain, Drives Low */
-    CYHAL_GPIO_DRIVE_OPENDRAINDRIVESHIGH, /**< Open-drain, Drives High */
-    CYHAL_GPIO_DRIVE_STRONG,              /**< Strong output */
-    CYHAL_GPIO_DRIVE_PULLUPDOWN,          /**< Pull-up and pull-down resistors */
-    CYHAL_GPIO_DRIVE_PULL_NONE,           /**< No Pull-up or pull-down resistors */
+    CYHAL_GPIO_DRIVE_NONE,                /**< Digital Hi-Z. Input only. Input init value(s): 0 or 1 */
+    CYHAL_GPIO_DRIVE_ANALOG,              /**< Analog Hi-Z. Use only for analog purpose */
+    CYHAL_GPIO_DRIVE_PULLUP,              /**< Pull-up resistor. Input and output. Input init value(s): 1, output value(s): 0 */
+    CYHAL_GPIO_DRIVE_PULLDOWN,            /**< Pull-down resistor. Input and output. Input init value(s): 0, output value(s): 1 */
+    CYHAL_GPIO_DRIVE_OPENDRAINDRIVESLOW,  /**< Open-drain, Drives Low. Input and output. Input init value(s): 1, output value(s): 0 */
+    CYHAL_GPIO_DRIVE_OPENDRAINDRIVESHIGH, /**< Open-drain, Drives High. Input and output. Input init value(s): 0, output value(s): 1 */
+    CYHAL_GPIO_DRIVE_STRONG,              /**< Strong output. Output only. Output init value(s): 0 or 1 */
+    CYHAL_GPIO_DRIVE_PULLUPDOWN,          /**< Pull-up and pull-down resistors. Input and output. Input init value(s): 0 or 1, output value(s): 0 or 1 */
+    CYHAL_GPIO_DRIVE_PULL_NONE,           /**< No Pull-up or pull-down resistors. Input and output. Input init value(s): 0 or 1, output value(s): 0 or 1 */
 } cyhal_gpio_drive_mode_t;
 
 /** GPIO callback function type */
@@ -152,6 +152,13 @@ typedef void (*cyhal_gpio_event_callback_t)(void *callback_arg, cyhal_gpio_event
  * @param[in] init_val    Initial value on the pin
  *
  * @return The status of the init request
+ *
+ * Guidance for using gpio drive modes ( \ref cyhal_gpio_drive_mode_t for details).
+ * For default use drive modes:
+ * Input GPIO direction - \ref CYHAL_GPIO_DRIVE_NONE
+ * Output GPIO direction - \ref CYHAL_GPIO_DRIVE_STRONG
+ * Bidirectional GPIO - \ref CYHAL_GPIO_DRIVE_PULLUPDOWN
+ * \warning Don't use \ref CYHAL_GPIO_DRIVE_STRONG for input GPIO direction. It may cause an overcurrent issue.
  */
 cy_rslt_t cyhal_gpio_init(cyhal_gpio_t pin, cyhal_gpio_direction_t direction, cyhal_gpio_drive_mode_t drive_mode, bool init_val);
 
@@ -164,13 +171,13 @@ void cyhal_gpio_free(cyhal_gpio_t pin);
 /** Configure the GPIO pin <br>
  * See \ref subsection_gpio_snippet_3.
  *
- * @param[in] pin       The GPIO pin
- * @param[in] direction The pin direction
- * @param[in] drvMode   The pin drive mode
+ * @param[in] pin          The GPIO pin
+ * @param[in] direction    The pin direction
+ * @param[in] drive_mode   The pin drive mode
  *
  * @return The status of the configure request
  */
-cy_rslt_t cyhal_gpio_configure(cyhal_gpio_t pin, cyhal_gpio_direction_t direction, cyhal_gpio_drive_mode_t drvMode);
+cy_rslt_t cyhal_gpio_configure(cyhal_gpio_t pin, cyhal_gpio_direction_t direction, cyhal_gpio_drive_mode_t drive_mode);
 
 /** Set the output value for the pin. This only works for output & in_out pins. <br>
  * See \ref subsection_gpio_snippet_2.
@@ -195,6 +202,9 @@ bool cyhal_gpio_read(cyhal_gpio_t pin);
 void cyhal_gpio_toggle(cyhal_gpio_t pin);
 
 /** Register/clear a callback handler for pin events <br>
+ *
+ * This function will be called when one of the events enabled by \ref cyhal_gpio_enable_event occurs.
+ *
  * See \ref subsection_gpio_snippet_4.
  *
  * @param[in] pin            The pin number
@@ -204,6 +214,9 @@ void cyhal_gpio_toggle(cyhal_gpio_t pin);
 void cyhal_gpio_register_callback(cyhal_gpio_t pin, cyhal_gpio_event_callback_t callback, void *callback_arg);
 
 /** Enable or Disable the specified GPIO event <br>
+ *
+ * When an enabled event occurs, the function specified by \ref cyhal_gpio_register_callback will be called.
+ *
  * See \ref subsection_gpio_snippet_4.
  *
  * @param[in] pin           The GPIO object

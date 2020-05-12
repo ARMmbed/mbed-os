@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!--****************************************************************************
+* \file fll.cypersonality
+* \version 1.0
+*
+* \brief
+* Coex personality description file.
+*
+********************************************************************************
+* \copyright
+* Copyright 2018-2019 Cypress Semiconductor Corporation
+* SPDX-License-Identifier: Apache-2.0
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*****************************************************************************-->
+
+<Personality id="coex" name="coex" version="1.0" path="Coex" xmlns="http://cypress.com/xsd/cyhwpersonality_v1">
+  <Dependencies>
+    <IpBlock name="43xxx_coex" />
+    <Resource name="coex\.bt" used="true" />
+  </Dependencies>
+  <ExposedMembers>
+    <ExposedMember key="lepriority" paramId="lepriority" />
+  </ExposedMembers>
+  <Parameters>
+    <!-- PDL documentation -->
+    <ParamDoc id="pdlDoc" name="Configuration Help" group="Peripheral Documentation" default="https://cypresssemiconductorco.github.io/coex/coex_api_reference_manual/html/index.html" linkText="Open Coexistence Documentation" visible="true" desc="Opens the Wifi/BT Coexistence  Documentation" />
+
+    <ParamChoice id="lepriority" name="BLE Scan/Discovery Priority" group="General" default="1" visible="true" editable="true" desc="Choose the BLE scan and discovery priority">
+      <Entry name="Low" value="0"   visible="true"/>
+      <Entry name="Medium"    value="1" visible="true"/>
+      <Entry name="High"    value="2" visible="true"/>
+    </ParamChoice>
+
+  </Parameters>
+  <ConfigFirmware>
+    <ConfigDefine name="CY_COEX_BLE_PRIORITY" value="`${lepriority}`" public="true" include="true" />
+  </ConfigFirmware>
+</Personality>
+

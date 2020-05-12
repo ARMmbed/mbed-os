@@ -26,16 +26,42 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_hal_system System (Power Management and System Clock)
+* \addtogroup group_hal_system System
 * \ingroup group_hal
 * \{
-* High level interface for interacting with the power management
-* and system clock configuration.
+* High level interface for interacting with reset and delays.
 *
+* \section section_system_features Features
 * This driver provides three categories of functionality:
-* * Retrieval and adjustment of system clock frequencies.
-* * Control over low power operating modes.
-* * The ability to disable interrupts during a critical section, and to renable them afterwards.
+* * Ability to get the last reset reason.
+* * Ability to delay for a period of time.
+* * The ability to disable interrupts during a critical section.
+*
+* \section subsection_system_quickstart Quick Start
+* * \ref cyhal_system_critical_section_enter and \ref
+* cyhal_system_critical_section_exit are used to control the interrupts
+* * \ref cyhal_system_delay_ms and \ref cyhal_system_delay_us are delay functions
+* used to halt the CPU exectution for a specified period of time
+* * \ref cyhal_system_get_reset_reason gets the cause of latest system reset and
+* \ref cyhal_system_clear_reset_reason clears the reset cause registers
+*
+* \section subsection_system_codesnippet Code Snippets
+* \subsection subsection_system_snippet1 Snippet 1: Critical Section
+* Critical section is a portion in the code where all active interrupts are
+* disabled. This is usually provided in places where the code execution must not
+* be disturbed by an interrupt. An example is a firmware controlled communication
+* protocol where timing of each byte must be maintained and any interrupt might
+* cause loss of data. <br>
+* \ref cyhal_system_critical_section_enter returns the current state of interrupts
+* which denote the active interrupts in the system. This must be passed as argument
+* to \ref cyhal_system_critical_section_exit while exiting the critical section.
+* \snippet system.c snippet_cyhal_system_critical_section
+*
+* \subsection subsection_system_snippet2 Snippet 2: Reset reason
+* \ref cyhal_system_get_reset_reason must be called at the beginning of the main to
+* determine the reason for reset. The return parameters are present in \ref
+* cyhal_reset_reason_t.
+* \snippet system.c snippet_cyhal_system_reset_reason
 */
 
 #pragma once
@@ -44,34 +70,35 @@
 #include <stdbool.h>
 #include "cy_result.h"
 #include "cyhal_hw_types.h"
-#include "cyhal_modules.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
+/** \addtogroup group_hal_results
+ *  \{ *//**
+ *  \{ @name System Results
+ */
+
 /** An error occurred in System module */
-#define CYHAL_SYSTEM_RSLT_ERROR (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SYSTEM , 0))
-/** An error occurred in System module */
-#define CYHAL_SYSTEM_RSLT_INVALID_CLK_DIVIDER (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SYSTEM , 1))
-/** An error occurred in System module */
-#define CYHAL_SYSTEM_RSLT_UNABLE_TO_SET_CLK_FREQ (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SYSTEM , 2))
-/** An error occurred in System module */
-#define CYHAL_SYSTEM_RSLT_SRC_CLK_DISABLED (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SYSTEM , 3))
-/** An error occurred in System module */
-#define CYHAL_SYSTEM_RSLT_NO_VALID_DIVIDER (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SYSTEM , 4))
+#define CYHAL_SYSTEM_RSLT_ERROR                         \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SYSTEM , 0))
+
+/**
+ * \} \}
+ */
 
 /** Flags enum of possible system reset causes */
 typedef enum
 {
-    CYHAL_SYSTEM_RESET_NONE            = 0,      /** No cause */
-    CYHAL_SYSTEM_RESET_WDT             = 1 << 0, /** A watchdog timer (WDT) reset has occurred */
-    CYHAL_SYSTEM_RESET_ACTIVE_FAULT    = 1 << 1, /** The fault logging system requested a reset from its Active logic. */
-    CYHAL_SYSTEM_RESET_DEEPSLEEP_FAULT = 1 << 2, /** The fault logging system requested a reset from its Deep-Sleep logic. */
-    CYHAL_SYSTEM_RESET_SOFT            = 1 << 3, /** The CPU requested a system reset through it's SYSRESETREQ. */
-    CYHAL_SYSTEM_RESET_HIB_WAKEUP      = 1 << 4, /** A reset has occurred due to a a wakeup from hibernate power mode. */
-    CYHAL_SYSTEM_RESET_WCO_ERR         = 1 << 5, /** A reset has occurred due to a watch-crystal clock error */
-    CYHAL_SYSTEM_RESET_SYS_CLK_ERR     = 1 << 6, /** A reset has occurred due to a system clock error */
+    CYHAL_SYSTEM_RESET_NONE            = 0,      /**< No cause */
+    CYHAL_SYSTEM_RESET_WDT             = 1 << 0, /**< A watchdog timer (WDT) reset has occurred */
+    CYHAL_SYSTEM_RESET_ACTIVE_FAULT    = 1 << 1, /**< The fault logging system requested a reset from its Active logic. */
+    CYHAL_SYSTEM_RESET_DEEPSLEEP_FAULT = 1 << 2, /**< The fault logging system requested a reset from its Deep-Sleep logic. */
+    CYHAL_SYSTEM_RESET_SOFT            = 1 << 3, /**< The CPU requested a system reset through it's SYSRESETREQ. */
+    CYHAL_SYSTEM_RESET_HIB_WAKEUP      = 1 << 4, /**< A reset has occurred due to a a wakeup from hibernate power mode. */
+    CYHAL_SYSTEM_RESET_WCO_ERR         = 1 << 5, /**< A reset has occurred due to a watch-crystal clock error */
+    CYHAL_SYSTEM_RESET_SYS_CLK_ERR     = 1 << 6, /**< A reset has occurred due to a system clock error */
 } cyhal_reset_reason_t;
 
 /** Enter a critical section
@@ -81,55 +108,22 @@ typedef enum
  *
  * @return Returns the state before entering the critical section. This value must be provided
  * to \ref cyhal_system_critical_section_exit() to properly restore the state
+ *
+ * See \ref subsection_system_snippet1 for code snippet on critical section
  */
 uint32_t cyhal_system_critical_section_enter(void);
 
 /** Exit a critical section
  *
  * Re-enables the interrupts if they were enabled before
-*  cyhal_system_critical_section_enter() was called. The argument should be the value
-*  returned from \ref cyhal_system_critical_section_enter().
+ *  cyhal_system_critical_section_enter() was called. The argument should be the value
+ *  returned from \ref cyhal_system_critical_section_enter().
  *
- * @param[in] oldState The state of interrupts from cyhal_system_critical_section_enter()
+ * @param[in] old_state The state of interrupts from cyhal_system_critical_section_enter()
+ *
+ * See \ref subsection_system_snippet1 for code snippet on critical section
  */
-void cyhal_system_critical_section_exit(uint32_t oldState);
-
-/** Send the device to sleep
- *
- *
- * The processor is setup ready for sleep, and sent to sleep using __WFI(). In this mode, the
- * system clock to the core is stopped until a reset or an interrupt occurs.
- *
- * @return Returns CY_RSLT_SUCCESS if the processor successfully entered and exited sleep,
- * otherwise error
- */
-cy_rslt_t cyhal_system_sleep(void);
-
-/** Send the device to deep sleep
- *
- * This processor is setup ready for deep sleep, and sent to sleep using __WFI(). This mode
- * has the same sleep features as sleep plus it powers down peripherals and clocks. All state
- * is still maintained.
- *
- * @return Returns CY_RSLT_SUCCESS if the processor successfully entered and exited sleep,
- * otherwise error
- */
-cy_rslt_t cyhal_system_deepsleep(void);
-
-/** Register the specified handler with the power manager to be notified when the power
- *  state changes.
- *
- * @param[in] callback The handler to notify on power transitions
- * @return The status of the register_callback request
- */
-cy_rslt_t cyhal_system_register_callback(cyhal_system_callback_t *callback);
-
-/** Removes the specified handler from the power manager so no future notification are made.
- *
- * @param[in] callback The handler to remove from receiving notifications
- * @return The status of the unregister_callback request
- */
-cy_rslt_t cyhal_system_unregister_callback(cyhal_system_callback_t const *callback);
+void cyhal_system_critical_section_exit(uint32_t old_state);
 
 /**
  * Requests that the current operation delays for at least the specified length of time.
@@ -157,34 +151,11 @@ cy_rslt_t cyhal_system_delay_ms(uint32_t milliseconds);
  */
 void cyhal_system_delay_us(uint16_t microseconds);
 
-/** Gets the specified clock's current frequency.
- *
- * @param[in]  clock        ID of clock to configure
- * @param[out] frequency_hz The frequency the clock is currently running at
- * @return The status of the get_frequency request
- */
-cy_rslt_t cyhal_system_clock_get_frequency(uint8_t clock, uint32_t *frequency_hz);
-
-/** Sets the specified clock's frequency and enables it.
- *  This will turn on any additional clocks needed to drive this.
- *
- * @param[in]  clock        ID of clock to configure
- * @param[in]  frequency_hz The frequency to run the clock at
- * @return The status of the set_frequency request
- */
-cy_rslt_t cyhal_system_clock_set_frequency(uint8_t clock, uint32_t frequency_hz);
-
-/** Divides the clock frequency by the divider
- *
- * @param[in] clock   The clock to configure divider value for
- * @param[in] divider The divider value to divide the frequency by
- * @return The status of the set_divider request
- */
-cy_rslt_t cyhal_system_clock_set_divider(cyhal_system_clock_t clock, cyhal_system_divider_t divider);
-
-/** Gets the cause of the latest reset or resets that occured in the system.
+/** Gets the cause of the latest reset or resets that occurred in the system.
  *
  * @return Returns an enum of flags with the cause of the last reset(s)
+ *
+ * Refer \ref subsection_system_snippet2 for code snippet on cyhal_system_get_reset_reason
  */
 cyhal_reset_reason_t cyhal_system_get_reset_reason(void);
 

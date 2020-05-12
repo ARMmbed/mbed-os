@@ -52,12 +52,18 @@ typedef struct {
 /** Contains data about all of the TCPWMs */
 extern const cyhal_tcpwm_data_t CYHAL_TCPWM_DATA[CY_IP_MXTCPWM_INSTANCES];
 
+/**
+ * Free a timer/counter or a PWM object's shared data
+ * 
+ * @param[in] obj The timer/counter or the PWM resource
+ */
+void cyhal_tcpwm_free(cyhal_tcpwm_common_t *obj);
+
 /** Initialize a timer/counter or PWM object's callback data.
  *
- * @param[in]     resource      The timer/counter or PWM resource
- * @param[in,out] callback_data The callback data object belonging to the timer/counter or PWM
+ * @param[in,out] tcpwm    The shared data struct between timer/counter and PWM
  */
-void cyhal_tcpwm_init_callback_data(cyhal_resource_inst_t *resource, cyhal_event_callback_data_t *callback_data);
+void cyhal_tcpwm_init_data(cyhal_tcpwm_common_t *tcpwm);
 
 /** The TCPWM interrupt handler registration
  *
@@ -72,10 +78,16 @@ void cyhal_tcpwm_register_callback(cyhal_resource_inst_t *resource, cy_israddres
  * @param[in] type          The type of the timer/counter or PWM
  * @param[in] resource      The timer/counter or PWM resource
  * @param[in] event         The timer/counter or PWM event type
- * @param[in] intrPriority  The priority for NVIC interrupt events
+ * @param[in] intr_priority The priority for NVIC interrupt events
  * @param[in] enable        True to turn on events, False to turn off
  */
-void cyhal_tcpwm_enable_event(TCPWM_Type *type, cyhal_resource_inst_t *resource, uint32_t event, uint8_t intrPriority, bool enable);
+void cyhal_tcpwm_enable_event(TCPWM_Type *type, cyhal_resource_inst_t *resource, uint32_t event, uint8_t intr_priority, bool enable);
+
+/** Returns whether power management transition should be allowed.
+ * 
+ * @return true if no tcpwm is actively blocking power mode transition
+ */
+bool cyhal_tcpwm_pm_transition_pending(void);
 
 /** \} group_hal_psoc6_tcpwm_common */
 /** \endcond */

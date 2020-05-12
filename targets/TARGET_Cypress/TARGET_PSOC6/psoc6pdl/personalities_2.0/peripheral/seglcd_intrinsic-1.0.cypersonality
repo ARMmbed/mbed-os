@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!--****************************************************************************
+* \file seglcd_intrinsic-1.0.cypersonality
+* \version 1.0
+*
+* \brief
+* Intrinsic SegLCD personality description file.
+*
+********************************************************************************
+* \copyright
+* Copyright 2018-2020 Cypress Semiconductor Corporation
+* SPDX-License-Identifier: Apache-2.0
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*****************************************************************************-->
+
+<Personality id="mxs40lcd_intrinsic" name="Segment LCD Instrinsic" intrinsic="true" version="1.0" xmlns="http://cypress.com/xsd/cyhwpersonality_v2">
+  <Dependencies>
+    <IpBlock name="mxlcd,mxlcd_ver2" />
+    <Resource name="lcd\.drive" />
+  </Dependencies>
+  <ExposedMembers/>
+  <Parameters>
+    <ParamString id="cfgFileName" name="cfgFileName" group="External Tools" default="design.cyseglcd" visible="false" editable="false" desc="" />
+    <ParamString id="cfgFilePath" name="cfgFilePath" group="External Tools" default="`${cy_design_path() . &quot;/&quot; . cfgFileName}`" visible="false" editable="false" desc="" />
+    <ParamBool id="lcdUsed" name="lcdUsed" group="Internal" default="`${isBlockUsed(&quot;lcd[0].drive[0]&quot;)}`" visible="false" editable="false" desc="" />
+  </Parameters>
+  <DRCs />
+  <ConfigFirmware>
+    <ConfigTool value="`${cy_tools_path(&quot;seglcd-configurator&quot;) . &quot;/seglcd-configurator-cli&quot;}`" include="`${!lcdUsed}`">
+      <Arg value="`${&quot;--config=&quot; . cfgFilePath}`" />
+      <Arg value="`${&quot;--clean&quot;}`" />
+    </ConfigTool>
+  </ConfigFirmware>
+</Personality>

@@ -1,15 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <baseview>
-  <shortsiliconid>0x00000000</shortsiliconid>
-  <familyid>0x000</familyid>
-  <major>0</major>
-  <minor>0</minor>
-  <mcu>CortexM3</mcu>
+  <mcu>
+  </mcu>
   <vendor>Cypress</vendor>
   <flash>0</flash>
   <ram>524288</ram>
   <package>63-WLBGA</package>
-  <pins>63</pins>
   <minvoltage>2400</minvoltage>
   <maxvoltage>4800</maxvoltage>
   <description>The CYW43438KUBG device.</description>

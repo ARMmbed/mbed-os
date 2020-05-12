@@ -31,7 +31,6 @@
 #include "cyhal_analog_common.h"
 #include "cyhal_gpio.h"
 #include "cyhal_hwmgr.h"
-#include "cyhal_interconnect.h"
 #include "cyhal_utils.h"
 
 #if defined(CY_IP_MXS40PASS_SAR_INSTANCES)
@@ -177,7 +176,7 @@ static uint8_t cyhal_adc_get_pin_addr(cyhal_gpio_t gpio, bool is_vplus)
 /*******************************************************************************
 *       ADC HAL Functions
 *******************************************************************************/
-cy_rslt_t cyhal_adc_init(cyhal_adc_t *obj, cyhal_gpio_t pin, const cyhal_clock_divider_t *clk)
+cy_rslt_t cyhal_adc_init(cyhal_adc_t *obj, cyhal_gpio_t pin, const cyhal_clock_t *clk)
 {
     const uint32_t DESIRED_DIVIDER = 8000000u; // 8 MHz. Required range is 1.7 - 18
 
@@ -185,18 +184,12 @@ cy_rslt_t cyhal_adc_init(cyhal_adc_t *obj, cyhal_gpio_t pin, const cyhal_clock_d
 
     cy_rslt_t result = CY_RSLT_SUCCESS;
 
-    if (CYHAL_NC_PIN_VALUE == pin)
-        result = CYHAL_ADC_RSLT_BAD_ARGUMENT;
-
-    if (CY_RSLT_SUCCESS == result)
-    {
-        memset(obj, 0, sizeof(cyhal_adc_t));
-        obj->base = NULL;
-        obj->channel_used = 0;
-        obj->clock.div_num = CYHAL_RSC_INVALID;
-        obj->resource.type = CYHAL_RSC_INVALID;
-        obj->dedicated_clock = false;
-    }
+    memset(obj, 0, sizeof(cyhal_adc_t));
+    obj->base = NULL;
+    obj->channel_used = 0;
+    obj->clock.div_num = CYHAL_RSC_INVALID;
+    obj->resource.type = CYHAL_RSC_INVALID;
+    obj->dedicated_clock = false;
 
     const cyhal_resource_pin_mapping_t *map = CY_UTILS_GET_RESOURCE(pin, cyhal_pin_map_pass_sarmux_pads);
     if (NULL == map)
@@ -295,49 +288,44 @@ cy_rslt_t cyhal_adc_channel_init(cyhal_adc_channel_t *obj, cyhal_adc_t* adc, cyh
 {
     CY_ASSERT(obj != NULL);
     CY_ASSERT(adc != NULL);
-    if (CYHAL_NC_PIN_VALUE == pin)
-        return CYHAL_ADC_RSLT_BAD_ARGUMENT;
 
     // Check for invalid pin or pin belonging to a different SAR
     const cyhal_resource_pin_mapping_t *map = CY_UTILS_GET_RESOURCE(pin, cyhal_pin_map_pass_sarmux_pads);
-    if (NULL == map || map->inst->block_num != adc->resource.block_num)
+    if (NULL == map || !cyhal_utils_resources_equal(map->inst, &(adc->resource)))
         return CYHAL_ADC_RSLT_BAD_ARGUMENT;
 
     memset(obj, 0, sizeof(cyhal_adc_channel_t));
-    cy_rslt_t result;
 
-    cyhal_resource_inst_t pinRsc = cyhal_utils_get_gpio_resource(pin);
-    if (CY_RSLT_SUCCESS != (result = cyhal_hwmgr_reserve(&pinRsc)))
-        return result;
-    obj->pin = pin;
-
+    cy_rslt_t result = cyhal_utils_reserve_and_connect(pin, map);
     if (CY_RSLT_SUCCESS == result)
-        result = cyhal_connect_pin(map);
-
-    // Find the first available channel
-    uint8_t chosen_channel = __CLZ(__RBIT(~adc->channel_used));
-    if(chosen_channel >= CY_SAR_MAX_NUM_CHANNELS) // No channels available
-        result = CYHAL_ADC_RSLT_NO_CHANNELS;
-    else
     {
-        // Don't set the ADC until here so that free knows whether we have allocated
-        // the channel on the parent ADC instance (and therefore doesn't try to free it if
-        // something fails further up)
-        obj->adc = adc;
-        obj->channel_idx = chosen_channel;
-        obj->adc->channel_used |= 1U << chosen_channel;
+        obj->pin = pin;
+
+        // Find the first available channel
+        uint8_t chosen_channel = __CLZ(__RBIT(~adc->channel_used));
+        if (chosen_channel >= CY_SAR_MAX_NUM_CHANNELS) // No channels available
+            result = CYHAL_ADC_RSLT_NO_CHANNELS;
+        else
+        {
+            // Don't set the ADC until here so that free knows whether we have allocated
+            // the channel on the parent ADC instance (and therefore doesn't try to free it if
+            // something fails further up)
+            obj->adc = adc;
+            obj->channel_idx = chosen_channel;
+            obj->adc->channel_used |= 1U << chosen_channel;
+        }
+
+        // The current version only supports single-ended channels, so always set the vplus switch
+        uint32_t fw_ctrl = cyhal_adc_get_fw_switch_control(pin, true);
+        uint32_t mux_ctrl = cyhal_adc_get_mux_switch_control(pin);
+
+        Cy_SAR_SetAnalogSwitch(obj->adc->base, CY_SAR_MUX_SWITCH0, fw_ctrl, CY_SAR_SWITCH_CLOSE);
+        Cy_SAR_SetSwitchSarSeqCtrl(obj->adc->base, mux_ctrl, CY_SAR_SWITCH_SEQ_CTRL_ENABLE);
+
+        uint8_t pin_select = cyhal_adc_get_pin_addr(pin, true);
+        uint32_t channel_config = CYHAL_SAR_DEFAULT_CH_CONFIG | pin_select;
+        obj->adc->base->CHAN_CONFIG[chosen_channel] = channel_config;
     }
-
-    // The current version only supports single-ended channels, so always set the vplus switch
-    uint32_t fw_ctrl = cyhal_adc_get_fw_switch_control(pin, true);
-    uint32_t mux_ctrl = cyhal_adc_get_mux_switch_control(pin);
-
-    Cy_SAR_SetAnalogSwitch(obj->adc->base, CY_SAR_MUX_SWITCH0, fw_ctrl, CY_SAR_SWITCH_CLOSE);
-    Cy_SAR_SetSwitchSarSeqCtrl(obj->adc->base, mux_ctrl, CY_SAR_SWITCH_SEQ_CTRL_ENABLE);
-
-    uint8_t pin_select = cyhal_adc_get_pin_addr(pin, true);
-    uint32_t channel_config = CYHAL_SAR_DEFAULT_CH_CONFIG | pin_select;
-    obj->adc->base->CHAN_CONFIG[chosen_channel] = channel_config;
 
     return result;
 }

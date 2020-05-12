@@ -2,12 +2,12 @@
 * \file cybsp.c
 *
 * Description:
-* Provides initialization code for starting up the hardware contained on the 
+* Provides initialization code for starting up the hardware contained on the
 * Cypress board.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,6 +29,7 @@
 #include "cybsp.h"
 #if defined(CY_USING_HAL)
 #include "cyhal_hwmgr.h"
+#include "cyhal_syspm.h"
 #endif
 
 #if defined(__cplusplus)
@@ -36,7 +37,7 @@ extern "C" {
 #endif
 
 /* The sysclk deep sleep callback is recommended to be the last callback that
-* is executed before entry into deep sleep mode and the first one upon 
+* is executed before entry into deep sleep mode and the first one upon
 * exit the deep sleep mode.
 * Doing so minimizes the time spent on low power mode entry and exit.
 */
@@ -81,6 +82,11 @@ cy_rslt_t cybsp_init(void)
     /* Setup hardware manager to track resource usage then initialize all system (clock/power) board configuration */
 #if defined(CY_USING_HAL)
     cy_rslt_t result = cyhal_hwmgr_init();
+
+    if (CY_RSLT_SUCCESS == result)
+    {
+        result = cyhal_syspm_init();
+    }
 #else
     cy_rslt_t result = CY_RSLT_SUCCESS;
 #endif
@@ -97,8 +103,8 @@ cy_rslt_t cybsp_init(void)
 #if defined(CYBSP_WIFI_CAPABLE) && defined(CY_USING_HAL)
     /* Initialize SDIO interface. This must be done before other HAL API calls as some SDIO implementations require
      * specific peripheral instances.
-     * NOTE: The full WiFi interface still needs to be initialized via cybsp_wifi_init_primary(). This is typically 
-     * done when starting up WiFi. 
+     * NOTE: The full WiFi interface still needs to be initialized via cybsp_wifi_init_primary(). This is typically
+     * done when starting up WiFi.
      */
     if (CY_RSLT_SUCCESS == result)
     {

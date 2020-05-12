@@ -8578,7 +8578,8 @@
         "components_add": [
             "WHD",
             "4343W",
-            "CYW43XXX"
+            "CYW43XXX",
+            "UDB_SDIO_P2"
         ],
         "supported_form_factors": [
             "ARDUINO"
@@ -8684,7 +8685,8 @@
         "components_add": [
             "WHD",
             "43438",
-            "CYW43XXX"
+            "CYW43XXX",
+            "UDB_SDIO_P2"
         ],
         "extra_labels_add": [
             "PSOC6_01",
@@ -8727,7 +8729,8 @@
         "components_add": [
             "WHD",
             "43012",
-            "CYW43XXX"
+            "CYW43XXX",
+            "UDB_SDIO_P12"
         ],
         "components_remove": [
             "QSPIF"

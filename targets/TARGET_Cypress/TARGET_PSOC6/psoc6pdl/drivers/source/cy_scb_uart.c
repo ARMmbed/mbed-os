@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_scb_uart.c
-* \version 2.40
+* \version 2.40.1
 *
 * Provides UART API implementation of the SCB driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -1216,7 +1216,7 @@ void Cy_SCB_UART_Interrupt(CySCB_Type *base, cy_stc_scb_uart_context_t *context)
                 context->cbEvents(CY_SCB_UART_TRANSMIT_EMTPY);
             }
 
-			Cy_SCB_ClearTxInterrupt(base, CY_SCB_UART_TX_EMPTY);
+            Cy_SCB_ClearTxInterrupt(base, CY_SCB_UART_TX_EMPTY);
         }
 
     }

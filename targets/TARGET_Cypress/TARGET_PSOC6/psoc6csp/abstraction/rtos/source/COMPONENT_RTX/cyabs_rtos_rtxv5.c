@@ -6,7 +6,7 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2018-2019 Cypress Semiconductor Corporation
+* Copyright 2018-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,8 +23,8 @@
 *******************************************************************************/
 
 #include <stdlib.h>
-#include "cy_utils.h"
-#include "cyabs_rtos.h"
+#include <cy_utils.h>
+#include <cyabs_rtos.h>
 
 #if defined(__cplusplus)
 extern "C" {
@@ -128,6 +128,10 @@ cy_rslt_t cy_rtos_create_thread(cy_thread_t *thread, cy_thread_entry_fn_t entry_
 
 cy_rslt_t cy_rtos_exit_thread()
 {
+    /* This does not have a return statement because the osThreadExit() function
+     * does not return so the return statement would be unreachable and causes a
+     * warning for IAR compiler.
+     */
     osThreadExit();
 }
 
@@ -236,7 +240,7 @@ cy_rslt_t cy_rtos_get_thread_handle(cy_thread_t *thread)
 *                 Mutexes
 ******************************************************/
 
-cy_rslt_t cy_rtos_init_mutex(cy_mutex_t *mutex)
+cy_rslt_t cy_rtos_init_mutex2(cy_mutex_t *mutex, bool recursive)
 {
     cy_rslt_t status;
     osMutexAttr_t attr;
@@ -246,7 +250,11 @@ cy_rslt_t cy_rtos_init_mutex(cy_mutex_t *mutex)
     else
     {
         attr.name = NULL;
-        attr.attr_bits = osMutexRecursive | osMutexPrioInherit;
+        attr.attr_bits = osMutexPrioInherit;
+        if (recursive)
+        {
+            attr.attr_bits |= osMutexRecursive;
+        }
         attr.cb_mem = malloc(osRtxMutexCbSize);
         attr.cb_size = osRtxMutexCbSize;
 
@@ -386,6 +394,19 @@ cy_rslt_t cy_rtos_set_semaphore(cy_semaphore_t *semaphore, bool in_isr)
         status = error_converter(statusInternal);
     }
 
+    return status;
+}
+
+cy_rslt_t cy_rtos_get_count_semaphore(cy_semaphore_t *semaphore, size_t *count)
+{
+    cy_rslt_t status;
+    if (semaphore == NULL || count == NULL)
+        status = CY_RTOS_BAD_PARAM;
+    else
+    {
+        *count = osSemaphoreGetCount(*semaphore);
+        status = CY_RSLT_SUCCESS;
+    }
     return status;
 }
 

@@ -5,7 +5,7 @@
 * Common header file to be included by the drivers.
 *
 * \note
-* Generator version: 1.6.0.81
+* Generator version: 1.6.0.111
 *
 ********************************************************************************
 * \copyright
@@ -238,8 +238,26 @@
     #include "cy8c6245lqi_s3d02.h"
 #elif defined (CY8C6245W_S3D72)
     #include "cy8c6245w_s3d72.h"
-#elif defined (PSoC6A256K)
-    #include "psoc6a256k.h"
+#elif defined (CY8C6244AZI_S4D92)
+    #include "cy8c6244azi_s4d92.h"
+#elif defined (CY8C6244LQI_S4D92)
+    #include "cy8c6244lqi_s4d92.h"
+#elif defined (CY8C6244AZI_S4D93)
+    #include "cy8c6244azi_s4d93.h"
+#elif defined (CY8C6244AZI_S4D82)
+    #include "cy8c6244azi_s4d82.h"
+#elif defined (CY8C6244LQI_S4D82)
+    #include "cy8c6244lqi_s4d82.h"
+#elif defined (CY8C6244AZI_S4D83)
+    #include "cy8c6244azi_s4d83.h"
+#elif defined (CY8C6244AZI_S4D62)
+    #include "cy8c6244azi_s4d62.h"
+#elif defined (CY8C6244LQI_S4D62)
+    #include "cy8c6244lqi_s4d62.h"
+#elif defined (CY8C6244AZI_S4D12)
+    #include "cy8c6244azi_s4d12.h"
+#elif defined (CY8C6244LQI_S4D12)
+    #include "cy8c6244lqi_s4d12.h"
 #else
     #include "cy_device_common.h"
 #endif

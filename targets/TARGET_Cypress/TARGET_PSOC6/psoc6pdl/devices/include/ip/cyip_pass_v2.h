@@ -5,7 +5,7 @@
 * PASS IP definitions
 *
 * \note
-* Generator version: 1.6.0.81
+* Generator version: 1.6.0.111
 *
 ********************************************************************************
 * \copyright
@@ -66,13 +66,17 @@ typedef struct {
 typedef struct {
   __IOM uint32_t CTRL;                          /*!< 0x00000000 FIFO control register */
   __IOM uint32_t CONFIG;                        /*!< 0x00000004 FIFO configuration register */
-   __IM uint32_t STATUS;                        /*!< 0x00000008 FIFO status register */
-   __IM uint32_t RD_DATA;                       /*!< 0x0000000C FIFO read data register */
-  __IOM uint32_t INTR;                          /*!< 0x00000010 Interrupt register */
-  __IOM uint32_t INTR_SET;                      /*!< 0x00000014 Interrupt set register */
-  __IOM uint32_t INTR_MASK;                     /*!< 0x00000018 Interrupt mask register */
-   __IM uint32_t INTR_MASKED;                   /*!< 0x0000001C Interrupt masked register */
-   __IM uint32_t RESERVED[56];
+  __IOM uint32_t CLEAR;                         /*!< 0x00000008 FIFO clear register */
+  __IOM uint32_t LEVEL;                         /*!< 0x0000000C FIFO level register */
+   __IM uint32_t USED;                          /*!< 0x00000010 FIFO used register */
+   __IM uint32_t STATUS;                        /*!< 0x00000014 FIFO status register */
+   __IM uint32_t RD_DATA;                       /*!< 0x00000018 FIFO read data register */
+   __IM uint32_t RESERVED;
+  __IOM uint32_t INTR;                          /*!< 0x00000020 Interrupt register */
+  __IOM uint32_t INTR_SET;                      /*!< 0x00000024 Interrupt set register */
+  __IOM uint32_t INTR_MASK;                     /*!< 0x00000028 Interrupt mask register */
+   __IM uint32_t INTR_MASKED;                   /*!< 0x0000002C Interrupt masked register */
+   __IM uint32_t RESERVED1[52];
 } PASS_FIFO_V2_Type;                            /*!< Size = 256 (0x100) */
 
 /**
@@ -96,18 +100,20 @@ typedef struct {
    __IM uint32_t RESERVED2[3];
   __IOM uint32_t SAR_DPSLP_CTRL[2];             /*!< 0x00000030 Deepsleep control for SARv3 */
    __IM uint32_t RESERVED3[2];
-  __IOM uint32_t SAR_DPSLP_CONFIG[2];           /*!< 0x00000040 Deepsleep configuration for SARv3 */
+  __IOM uint32_t SAR_CLOCK_SEL[2];              /*!< 0x00000040 Clock select for SARv3 */
    __IM uint32_t RESERVED4[2];
-  __IOM uint32_t SAR_HW_TR_SMP_CNT;             /*!< 0x00000050 SAR HW trigger sample control */
-  __IOM uint32_t SAR_HW_TR_CTRL;                /*!< 0x00000054 SAR HW trigger override */
-  __IOM uint32_t SAR_SIMULT_HW_TR_CTRL;         /*!< 0x00000058 SAR simultaneous trigger control */
-  __IOM uint32_t SAR_SIMULT_FW_START_CTRL;      /*!< 0x0000005C SAR simultaneous start control */
-  __IOM uint32_t SAR_TR_OUT_CTRL;               /*!< 0x00000060 SAR trigger out control */
-   __IM uint32_t RESERVED5[39];
+   __IM uint32_t SAR_TR_SCAN_CNT_STATUS[2];     /*!< 0x00000050 SAR trigger scan control status */
+   __IM uint32_t RESERVED5[2];
+  __IOM uint32_t SAR_TR_SCAN_CNT;               /*!< 0x00000060 SAR trigger scan control */
+  __IOM uint32_t SAR_OVR_CTRL;                  /*!< 0x00000064 SAR HW trigger override */
+  __IOM uint32_t SAR_SIMULT_CTRL;               /*!< 0x00000068 SAR simultaneous trigger control */
+  __IOM uint32_t SAR_SIMULT_FW_START_CTRL;      /*!< 0x0000006C SAR simultaneous start control */
+  __IOM uint32_t SAR_TR_OUT_CTRL;               /*!< 0x00000070 SAR trigger out control */
+   __IM uint32_t RESERVED6[35];
         PASS_TIMER_V2_Type TIMER;               /*!< 0x00000100 Programmable Analog Subsystem */
         PASS_LPOSC_V2_Type LPOSC;               /*!< 0x00000200 LPOSC configuration */
         PASS_FIFO_V2_Type FIFO[2];              /*!< 0x00000300 FIFO configuration */
-   __IM uint32_t RESERVED6[576];
+   __IM uint32_t RESERVED7[576];
         PASS_AREFV2_V2_Type AREFV2;             /*!< 0x00000E00 AREF configuration */
   __IOM uint32_t VREF_TRIM0;                    /*!< 0x00000F00 VREF Trim bits */
   __IOM uint32_t VREF_TRIM1;                    /*!< 0x00000F04 VREF Trim bits */
@@ -146,19 +152,26 @@ typedef struct {
 #define PASS_FIFO_V2_CTRL_ENABLED_Pos           31UL
 #define PASS_FIFO_V2_CTRL_ENABLED_Msk           0x80000000UL
 /* PASS_FIFO.CONFIG */
-#define PASS_FIFO_V2_CONFIG_LEVEL_Pos           0UL
-#define PASS_FIFO_V2_CONFIG_LEVEL_Msk           0xFFUL
-#define PASS_FIFO_V2_CONFIG_CHAN_ID_EN_Pos      8UL
-#define PASS_FIFO_V2_CONFIG_CHAN_ID_EN_Msk      0x100UL
-#define PASS_FIFO_V2_CONFIG_CHAIN_EN_Pos        9UL
-#define PASS_FIFO_V2_CONFIG_CHAIN_EN_Msk        0x200UL
+#define PASS_FIFO_V2_CONFIG_CHAN_ID_EN_Pos      0UL
+#define PASS_FIFO_V2_CONFIG_CHAN_ID_EN_Msk      0x1UL
+#define PASS_FIFO_V2_CONFIG_CHAIN_TO_NXT_Pos    1UL
+#define PASS_FIFO_V2_CONFIG_CHAIN_TO_NXT_Msk    0x2UL
+#define PASS_FIFO_V2_CONFIG_TR_CLR_RD_EN_Pos    2UL
+#define PASS_FIFO_V2_CONFIG_TR_CLR_RD_EN_Msk    0x4UL
+/* PASS_FIFO.CLEAR */
+#define PASS_FIFO_V2_CLEAR_CLEAR_Pos            0UL
+#define PASS_FIFO_V2_CLEAR_CLEAR_Msk            0x1UL
+/* PASS_FIFO.LEVEL */
+#define PASS_FIFO_V2_LEVEL_LEVEL_Pos            0UL
+#define PASS_FIFO_V2_LEVEL_LEVEL_Msk            0xFFUL
+/* PASS_FIFO.USED */
+#define PASS_FIFO_V2_USED_USED_Pos              0UL
+#define PASS_FIFO_V2_USED_USED_Msk              0xFFUL
 /* PASS_FIFO.STATUS */
-#define PASS_FIFO_V2_STATUS_USED_Pos            0UL
-#define PASS_FIFO_V2_STATUS_USED_Msk            0xFFUL
-#define PASS_FIFO_V2_STATUS_RD_PTR_Pos          16UL
-#define PASS_FIFO_V2_STATUS_RD_PTR_Msk          0xFF0000UL
-#define PASS_FIFO_V2_STATUS_WR_PTR_Pos          24UL
-#define PASS_FIFO_V2_STATUS_WR_PTR_Msk          0xFF000000UL
+#define PASS_FIFO_V2_STATUS_RD_PTR_Pos          0UL
+#define PASS_FIFO_V2_STATUS_RD_PTR_Msk          0xFFUL
+#define PASS_FIFO_V2_STATUS_WR_PTR_Pos          8UL
+#define PASS_FIFO_V2_STATUS_WR_PTR_Msk          0xFF00UL
 /* PASS_FIFO.RD_DATA */
 #define PASS_FIFO_V2_RD_DATA_RESULT_Pos         0UL
 #define PASS_FIFO_V2_RD_DATA_RESULT_Msk         0xFFFFUL
@@ -211,10 +224,6 @@ typedef struct {
 #define PASS_AREFV2_V2_AREF_CTRL_CLOCK_PUMP_PERI_SEL_Msk 0x80000UL
 #define PASS_AREFV2_V2_AREF_CTRL_VREF_SEL_Pos   20UL
 #define PASS_AREFV2_V2_AREF_CTRL_VREF_SEL_Msk   0x300000UL
-#define PASS_AREFV2_V2_AREF_CTRL_LP_VREF_EN_Pos 22UL
-#define PASS_AREFV2_V2_AREF_CTRL_LP_VREF_EN_Msk 0x400000UL
-#define PASS_AREFV2_V2_AREF_CTRL_IZTAT_SCALE_Pos 23UL
-#define PASS_AREFV2_V2_AREF_CTRL_IZTAT_SCALE_Msk 0x800000UL
 #define PASS_AREFV2_V2_AREF_CTRL_DEEPSLEEP_MODE_Pos 28UL
 #define PASS_AREFV2_V2_AREF_CTRL_DEEPSLEEP_MODE_Msk 0x30000000UL
 #define PASS_AREFV2_V2_AREF_CTRL_DEEPSLEEP_ON_Pos 30UL
@@ -270,30 +279,37 @@ typedef struct {
 /* PASS.SAR_DPSLP_CTRL */
 #define PASS_V2_SAR_DPSLP_CTRL_ENABLED_Pos      31UL
 #define PASS_V2_SAR_DPSLP_CTRL_ENABLED_Msk      0x80000000UL
-/* PASS.SAR_DPSLP_CONFIG */
-#define PASS_V2_SAR_DPSLP_CONFIG_DEEPSLEEP_ON_Pos 30UL
-#define PASS_V2_SAR_DPSLP_CONFIG_DEEPSLEEP_ON_Msk 0x40000000UL
-/* PASS.SAR_HW_TR_SMP_CNT */
-#define PASS_V2_SAR_HW_TR_SMP_CNT_SMP_CNT_Pos   0UL
-#define PASS_V2_SAR_HW_TR_SMP_CNT_SMP_CNT_Msk   0x3FUL
-/* PASS.SAR_HW_TR_CTRL */
-#define PASS_V2_SAR_HW_TR_CTRL_HW_TR_TIMER_SEL_Pos 0UL
-#define PASS_V2_SAR_HW_TR_CTRL_HW_TR_TIMER_SEL_Msk 0xFUL
-#define PASS_V2_SAR_HW_TR_CTRL_HW_TR_SMP_CNT_SEL_Pos 4UL
-#define PASS_V2_SAR_HW_TR_CTRL_HW_TR_SMP_CNT_SEL_Msk 0xF0UL
-/* PASS.SAR_SIMULT_HW_TR_CTRL */
-#define PASS_V2_SAR_SIMULT_HW_TR_CTRL_SIMULT_HW_TR_EN_Pos 0UL
-#define PASS_V2_SAR_SIMULT_HW_TR_CTRL_SIMULT_HW_TR_EN_Msk 0xFUL
-#define PASS_V2_SAR_SIMULT_HW_TR_CTRL_SIMULT_HW_TR_SRC_Pos 4UL
-#define PASS_V2_SAR_SIMULT_HW_TR_CTRL_SIMULT_HW_TR_SRC_Msk 0x30UL
-#define PASS_V2_SAR_SIMULT_HW_TR_CTRL_SIMULT_HW_TR_TIMER_SEL_Pos 8UL
-#define PASS_V2_SAR_SIMULT_HW_TR_CTRL_SIMULT_HW_TR_TIMER_SEL_Msk 0x100UL
-#define PASS_V2_SAR_SIMULT_HW_TR_CTRL_SIMULT_HW_TR_LEVEL_Pos 18UL
-#define PASS_V2_SAR_SIMULT_HW_TR_CTRL_SIMULT_HW_TR_LEVEL_Msk 0x40000UL
-#define PASS_V2_SAR_SIMULT_HW_TR_CTRL_SIMULT_HW_SYNC_TR_Pos 19UL
-#define PASS_V2_SAR_SIMULT_HW_TR_CTRL_SIMULT_HW_SYNC_TR_Msk 0x80000UL
-#define PASS_V2_SAR_SIMULT_HW_TR_CTRL_SIMULT_HW_TR_SMP_CNT_SEL_Pos 20UL
-#define PASS_V2_SAR_SIMULT_HW_TR_CTRL_SIMULT_HW_TR_SMP_CNT_SEL_Msk 0x100000UL
+/* PASS.SAR_CLOCK_SEL */
+#define PASS_V2_SAR_CLOCK_SEL_CLOCK_SEL_Pos     30UL
+#define PASS_V2_SAR_CLOCK_SEL_CLOCK_SEL_Msk     0x40000000UL
+/* PASS.SAR_TR_SCAN_CNT_STATUS */
+#define PASS_V2_SAR_TR_SCAN_CNT_STATUS_SCAN_CNT_STATUS_Pos 0UL
+#define PASS_V2_SAR_TR_SCAN_CNT_STATUS_SCAN_CNT_STATUS_Msk 0xFFUL
+/* PASS.SAR_TR_SCAN_CNT */
+#define PASS_V2_SAR_TR_SCAN_CNT_SCAN_CNT_Pos    0UL
+#define PASS_V2_SAR_TR_SCAN_CNT_SCAN_CNT_Msk    0xFFUL
+/* PASS.SAR_OVR_CTRL */
+#define PASS_V2_SAR_OVR_CTRL_HW_TR_TIMER_SEL_Pos 0UL
+#define PASS_V2_SAR_OVR_CTRL_HW_TR_TIMER_SEL_Msk 0xFUL
+#define PASS_V2_SAR_OVR_CTRL_TR_SCAN_CNT_SEL_Pos 4UL
+#define PASS_V2_SAR_OVR_CTRL_TR_SCAN_CNT_SEL_Msk 0xF0UL
+#define PASS_V2_SAR_OVR_CTRL_EOS_INTR_SCAN_CNT_SEL_Pos 8UL
+#define PASS_V2_SAR_OVR_CTRL_EOS_INTR_SCAN_CNT_SEL_Msk 0xF00UL
+/* PASS.SAR_SIMULT_CTRL */
+#define PASS_V2_SAR_SIMULT_CTRL_SIMULT_HW_TR_EN_Pos 0UL
+#define PASS_V2_SAR_SIMULT_CTRL_SIMULT_HW_TR_EN_Msk 0xFUL
+#define PASS_V2_SAR_SIMULT_CTRL_SIMULT_HW_TR_SRC_Pos 4UL
+#define PASS_V2_SAR_SIMULT_CTRL_SIMULT_HW_TR_SRC_Msk 0x30UL
+#define PASS_V2_SAR_SIMULT_CTRL_SIMULT_HW_TR_TIMER_SEL_Pos 8UL
+#define PASS_V2_SAR_SIMULT_CTRL_SIMULT_HW_TR_TIMER_SEL_Msk 0x100UL
+#define PASS_V2_SAR_SIMULT_CTRL_SIMULT_HW_TR_LEVEL_Pos 18UL
+#define PASS_V2_SAR_SIMULT_CTRL_SIMULT_HW_TR_LEVEL_Msk 0x40000UL
+#define PASS_V2_SAR_SIMULT_CTRL_SIMULT_HW_SYNC_TR_Pos 19UL
+#define PASS_V2_SAR_SIMULT_CTRL_SIMULT_HW_SYNC_TR_Msk 0x80000UL
+#define PASS_V2_SAR_SIMULT_CTRL_SIMULT_TR_SCAN_CNT_SEL_Pos 20UL
+#define PASS_V2_SAR_SIMULT_CTRL_SIMULT_TR_SCAN_CNT_SEL_Msk 0x100000UL
+#define PASS_V2_SAR_SIMULT_CTRL_SIMULT_EOS_INTR_SCAN_CNT_SEL_Pos 21UL
+#define PASS_V2_SAR_SIMULT_CTRL_SIMULT_EOS_INTR_SCAN_CNT_SEL_Msk 0x200000UL
 /* PASS.SAR_SIMULT_FW_START_CTRL */
 #define PASS_V2_SAR_SIMULT_FW_START_CTRL_FW_TRIGGER_Pos 0UL
 #define PASS_V2_SAR_SIMULT_FW_START_CTRL_FW_TRIGGER_Msk 0xFUL

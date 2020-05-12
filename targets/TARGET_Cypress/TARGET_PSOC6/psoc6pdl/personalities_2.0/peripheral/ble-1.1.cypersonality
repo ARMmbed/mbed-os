@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!--****************************************************************************
+* \file ble.cypersonality
+* \version 1.1
+*
+* \brief
+* BLE personality description file.
+*
+********************************************************************************
+* \copyright
+* Copyright 2018-2019 Cypress Semiconductor Corporation
+* SPDX-License-Identifier: Apache-2.0
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*****************************************************************************-->
+
+<Personality id="mxs40ble" name="BLE" version="1.1" path="Communications" xmlns="http://cypress.com/xsd/cyhwpersonality_v1">
+  <Dependencies>
+    <IpBlock name="mxbless" />
+    <Resource name="bless" used="true" />
+  </Dependencies>
+  <ExposedMembers />
+  <Parameters>
+    <!-- BLESS documentation on GitHub -->
+    <ParamDoc id="pdlDoc" name="Configuration Help" group="Peripheral Documentation" default="https://cypresssemiconductorco.github.io/bless/ble_api_reference_manual/html/index.html" linkText="Open BLE Documentation" visible="true" desc="Opens the Peripheral Driver Library Documentation" />
+
+   <!-- Core Selector -->
+    <ParamChoice id="BleCore" name="Target CPU core" group="Core Selector" default="4" visible="false" editable="false" desc="Configure the target CPU core for BLE middleware." >
+      <Entry name="Cortex M0+" value="0" visible="true" />
+      <Entry name="Cortex M4" value="4" visible="true" />
+      <Entry name="Cortex M0+ and Cortex M4" value="255" visible="true" />
+    </ParamChoice>
+    
+    <!-- Advanced Options -->
+    <ParamChoice id="BleSharing" name="OTA Bootloading with Code Sharing " group="Advanced" default="0" visible="true" editable="true" desc="This option is used in the over-the-air (OTA) implementation. It allows you to share the BLE component code between two component instances: one instance with profile-specific code and one with the stack." >
+      <Entry name="Disabled" value="0" visible="true" />
+      <Entry name="Stack and Profiles" value="1" visible="true" />
+      <Entry name="Profile only" value="2" visible="true" />
+    </ParamChoice>
+        
+    <ParamBool id="ExtPaLnaEnable" name="Enable External PA/LNA" group="Advanced" default="false" visible="true" editable="true" desc="Enable External PA/LNA outputs" />
+
+    <!-- Signals -->
+    <ParamSignal port="ext_pa_lna_chip_en_out[0]" name="PA LNA Chip Enable Output" group="Outputs" visible="`${ExtPaLnaEnable}`" desc="This signal is needed to put the front end to sleep or in standby whenever there is no radio activity. The signal is ON when either PA control or LNA control is ON.  The polarity of this signal is configurable and can be set in the EXT_PA_LNA_CTRL register by Cy_BLE_ConfigureExtPA() API." canBeEmpty="true" >
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="DEFAULT" reason="">
+          <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="INFO" reason="The pin Drive Mode parameter does not match expected.">
+          <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
+    </ParamSignal>
+    <ParamSignal port="ext_pa_tx_ctl_out[0]" name="PA TX Control Output" group="Outputs" visible="`${ExtPaLnaEnable}`" desc="This signal is turned ON during transmission and turned OFF when not transmitting. This signal is active a little earlier than the actual start of transmission to allow for the time it takes for the Power amplifier to ramp up. This delay can be set in the EXT_PA_LNA_DLY_CNFG register. The polarity of this signal is configurable and can be set in the EXT_PA_LNA_CTRL register by Cy_BLE_ConfigureExtPA() API." canBeEmpty="true" >
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="DEFAULT" reason="">
+          <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="INFO" reason="The pin Drive Mode parameter does not match expected.">
+          <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
+    </ParamSignal>
+    <ParamSignal port="ext_lna_rx_ctl_out[0]" name="LNA RX Control Output" group="Outputs" visible="`${ExtPaLnaEnable}`" desc="This signal is needed to choose between the bypass path and the LNA path. This signal is ON during reception and OFF when the receiver is OFF. The polarity of this signal is configurable and can be set in the EXT_PA_LNA_CTRL register by Cy_BLE_ConfigureExtPA() API." canBeEmpty="true" >
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="DEFAULT" reason="">
+          <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation="ioss\[\d+\]\.port\[\d+\]\.pin.*" valid="true" >
+        <Parameter id="DriveModes" severity="INFO" reason="The pin Drive Mode parameter does not match expected.">
+          <Fixed value="CY_GPIO_DM_STRONG_IN_OFF" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation=".*" valid="true" />
+    </ParamSignal>
+  </Parameters>
+  <DRCs />
+  <ConfigFirmware>
+    <ConfigInclude value="cyhal_hwmgr.h" include="true" guard="defined (CY_USING_HAL)" />
+    
+    <ConfigDefine name="CY_BLE_CORE_CORTEX_M4" value="4U" public="true" include="`${true}`" />
+    <ConfigDefine name="CY_BLE_CORE_CORTEX_M0P" value="0U" public="true" include="`${true}`" />
+    <ConfigDefine name="CY_BLE_CORE_DUAL" value="255U" public="true" include="`${true}`" />
+    <ConfigDefine name="CY_BLE_CORE" value="`${BleCore}`U" public="true" include="`${true}`" preventOverride="true" />
+    <ConfigDefine name="CY_BLE_SHARING_MODE" value="`${BleSharing}`U" public="true" include="`${(BleSharing != 0)}`" />
+    <ConfigDefine name="CY_BLE_IRQ" value="bless_interrupt_IRQn" public="true" include="true" />
+    
+    <ConfigStruct name="`${INST_NAME}`_obj" type="cyhal_resource_inst_t" const="true" public="true" include="true" guard="defined (CY_USING_HAL)" >
+      <Member name="type" value="CYHAL_RSC_BLESS" />
+      <Member name="block_num" value="`${getInstNumber(&quot;bless&quot;)}`U" />
+      <Member name="channel_num" value="0U" />
+    </ConfigStruct>
+    
+    <ConfigInstruction value="cyhal_hwmgr_reserve(&amp;`${INST_NAME}`_obj);" include="true" guard="defined (CY_USING_HAL)" />
+  </ConfigFirmware>
+</Personality>

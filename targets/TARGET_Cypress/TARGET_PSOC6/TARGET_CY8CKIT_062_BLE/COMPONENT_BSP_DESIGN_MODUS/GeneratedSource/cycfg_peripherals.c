@@ -4,8 +4,8 @@
 * Description:
 * Peripheral Hardware Block configuration
 * This file was automatically generated and should not be modified.
-* cfg-backend-cli: 1.2.0.1478
-* Device Support Library (../../../../output/psoc6/psoc6pdl): 1.4.0.1571
+* Device Configurator: 2.0.0.1483
+* Device Support Library (libs/psoc6pdl): 1.4.1.2240
 *
 ********************************************************************************
 * Copyright 2017-2019 Cypress Semiconductor Corporation
@@ -27,14 +27,14 @@
 #include "cycfg_peripherals.h"
 
 #if defined (CY_USING_HAL)
-	const cyhal_resource_inst_t CYBSP_BLE_obj = 
+	const cyhal_resource_inst_t CYBSP_BLE_obj =
 	{
 		.type = CYHAL_RSC_BLESS,
 		.block_num = 0U,
 		.channel_num = 0U,
 	};
 #endif //defined (CY_USING_HAL)
-cy_stc_csd_context_t cy_csd_0_context = 
+cy_stc_csd_context_t cy_csd_0_context =
 {
 	.lockKey = CY_CSD_NONE_KEY,
 };

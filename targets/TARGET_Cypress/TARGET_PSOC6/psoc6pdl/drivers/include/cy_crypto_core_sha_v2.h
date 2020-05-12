@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_crypto_core_sha_v2.h
-* \version 2.30.1
+* \version 2.30.2
 *
 * \brief
 *  This file provides constants and function prototypes
 *  for the API for the SHA method in the Crypto block driver.
 *
 ********************************************************************************
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");

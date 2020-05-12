@@ -1,12 +1,12 @@
 /***************************************************************************//**
 * \file cy_scb_ezi2c.c
-* \version 2.40
+* \version 2.40.1
 *
 * Provides EZI2C API implementation of the SCB driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2019 Cypress Semiconductor Corporation
+* Copyright 2016-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");

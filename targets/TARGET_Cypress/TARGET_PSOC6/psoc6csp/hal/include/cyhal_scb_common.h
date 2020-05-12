@@ -45,9 +45,6 @@ extern CySCB_Type* const CYHAL_SCB_BASE_ADDRESSES[CY_IP_MXSCB_INSTANCES];
 /** The interrupt number of the SCB blocks. */
 extern const IRQn_Type CYHAL_SCB_IRQ_N[CY_IP_MXSCB_INSTANCES];
 
-/** The configuration structs for the resource in use on each SCB block (e.g. cyhal_i2c_t) */
-extern void *cyhal_scb_config_structs[CY_IP_MXSCB_INSTANCES];
-
 
 /** Get the SCB block corresponding to an IRQn.
  *
@@ -60,12 +57,41 @@ uint8_t cyhal_scb_get_block_from_irqn(IRQn_Type irqn);
  *
  * @return A pointer to the SCB object corresponding to the currently running ISR.
  */
-__STATIC_INLINE void *cyhal_scb_get_irq_obj(void)
-{
-    IRQn_Type irqn = CYHAL_GET_CURRENT_IRQN();
-    uint8_t block = cyhal_scb_get_block_from_irqn(irqn);
-    return cyhal_scb_config_structs[block];
-}
+void *cyhal_scb_get_irq_obj(void);
+
+/** Sets the desired clocks & data rate to achieve the specified frequency
+ * @param[in] base      The I2C object to configure the peri divider for
+ * @param[in] block_num The SCB block number being used
+ * @praam[in] clock     The clock configuration to apply
+ * @praam[in] freq      The desired frequency
+ * @param[in] is_slave  Is this an I2C slave (true) or master (false)
+ * @return The achieved data rate in Hz, or 0 if there was an error.
+ */
+uint32_t cyhal_i2c_set_peri_divider(CySCB_Type *base, uint32_t block_num, cyhal_clock_t *clock, uint32_t freq, bool is_slave);
+
+/** Find an available SCB instance that matches 'pin'.
+ * @param pin Pin
+ * @param pin_map Pin mapping array
+ * @param count Number of entries in pin_map
+ * @return Pin map pointer or NULL if none found
+ */
+const cyhal_resource_pin_mapping_t* cyhal_find_scb_map(cyhal_gpio_t pin, const cyhal_resource_pin_mapping_t *pin_map, size_t count);
+
+#define CYHAL_FIND_SCB_MAP(pin, pin_map) cyhal_find_scb_map(pin, pin_map, sizeof(pin_map)/sizeof(cyhal_resource_pin_mapping_t))
+
+/**
+ * Function pointer to determine a specific scb instance can is ready for low power transition.
+ */
+typedef bool (*cyhal_scb_instance_pm_callback)(void *obj_ptr, cyhal_syspm_callback_state_t state, cy_en_syspm_callback_mode_t pdl_mode);
+
+/** Updates data in cyhal_scb_config_structs and cyhal_scb_config_modes_t structs based on block_num proveded
+ * @param[in] block_num Index of SCB block which data to be updated
+ * @param[in] obj       SCB-based driver object (cyhal_uart_t, cyhal_spi_t, cyhal_i2c_t or cyhal_ezi2c_t)
+ */
+void cyhal_scb_update_instance_data(uint8_t block_num, void *obj, cyhal_scb_instance_pm_callback pm_callback);
+
+/** Whether power management transition is pending and communication should be suspended. */
+bool cyhal_scb_pm_transition_pending(void);
 
 #if defined(__cplusplus)
 }

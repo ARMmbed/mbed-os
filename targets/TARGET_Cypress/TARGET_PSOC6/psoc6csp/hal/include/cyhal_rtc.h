@@ -34,9 +34,28 @@
 * The real time clock provides tracking of the current time and date, as
 * well as the ability to trigger a callback at a specific time in the future.
 *
-* If a suitable clock source is available, the RTC can continue timekeeping
-* operations even when the device is in a low power operating mode. See the
-* device datasheet for more details.
+* \section section_rtc_features Features
+* * Configurable interrupt and callback assignment on RTC event \ref cyhal_rtc_event_t
+* * Set alarm for a specific time and date \ref cyhal_rtc_set_alarm
+*
+* \section section_rtc_quickstart Quick Start
+*
+* Initialise the RTC using \ref cyhal_rtc_init. Set the current time and date using \ref cyhal_rtc_write. <br>
+* See \ref subsection_rtc_snippet_1 to initialize RTC, read and write current date and time to the RTC peripheral.
+* See \ref subsection_rtc_snippet_2 to set an alarm event on a specific time and date.
+*
+* \section section_rtc_snippets Code snippets
+* \subsection subsection_rtc_snippet_1 Snippet 1: Initialize RTC, write and read current time and date
+* The following code snippet initialises the RTC using the \ref cyhal_rtc_init. The current date and time are set using \ref cyhal_rtc_write.
+* The current date and time is read from the RTC using \ref cyhal_rtc_read. The time structure <b> tm </b>, contains the calendar date and time which
+* are broken down into its components. This structure is declared in standard C library time.h which is included by HAL.
+* \snippet rtc.c snippet_cyhal_rtc_read_write_data_time
+*
+* \subsection subsection_rtc_snippet_2 Snippet 2: RTC Alarm using Callbacks
+*  The following code snippet configures the RTC to trigger an alarm event on a specified date and time using \ref cyhal_rtc_set_alarm.
+*  A callback is registered to handle the alarm event using \ref cyhal_rtc_register_callback.
+* \snippet rtc.c snippet_cyhal_set_alarm_callback
+
 */
 
 #pragma once
@@ -46,16 +65,26 @@
 #include <time.h>
 #include "cy_result.h"
 #include "cyhal_hw_types.h"
-#include "cyhal_modules.h"
-
-/** RTC not initialized */
-#define CY_RSLT_RTC_NOT_INITIALIZED CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_RTC, 0)
-/** Bad argument */
-#define CY_RSLT_RTC_BAD_ARGUMENT CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_RTC, 1)
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
+
+/** \addtogroup group_hal_results
+ *  \{ *//**
+ *  \{ @name RTC Results
+ */
+
+/** RTC not initialized */
+#define CY_RSLT_RTC_NOT_INITIALIZED                     \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_RTC, 0))
+/** Bad argument */
+#define CY_RSLT_RTC_BAD_ARGUMENT                        \
+    (CYHAL_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_RTC, 1))
+
+/**
+ * \} \}
+ */
 
 /** RTC interrupt triggers */
 typedef enum {
@@ -65,12 +94,12 @@ typedef enum {
 /** @brief Defines which fields should be active for the alarm. */
 typedef struct
 {
-    uint8_t en_sec : 1; /** !< Enable match of seconds */
-    uint8_t en_min : 1; /** !< Enable match of minutes */
-    uint8_t en_hour : 1; /** !< Enable match of hours */
-    uint8_t en_day : 1; /** !< Enable match of day of week */
-    uint8_t en_date : 1; /** !< Enable match of date in month */
-    uint8_t en_month : 1; /** !< Enable match of month */
+    uint8_t en_sec : 1; /**< Enable match of seconds */
+    uint8_t en_min : 1; /**< Enable match of minutes */
+    uint8_t en_hour : 1; /**< Enable match of hours */
+    uint8_t en_day : 1; /**< Enable match of day of week */
+    uint8_t en_date : 1; /**< Enable match of date in month */
+    uint8_t en_month : 1; /**< Enable match of month */
 } cyhal_alarm_active_t;
 
 /** Enumeration used to configure the DST format */
@@ -111,10 +140,11 @@ typedef void (*cyhal_rtc_event_callback_t)(void *callback_arg, cyhal_rtc_event_t
  * before any other RTC functions are called. This does not change the state
  * of the RTC. It just enables access to it.
  * NOTE: Before calling this, make sure all necessary System Clocks are setup
- * correctly. Generally this means making sure the RTC has access to a Crystal
- * for optimal accuracy and operation in low power.
+ * correctly. Generally this means making sure the RTC has access to a crystal
+ * oscillator for optimal accuracy and operation in low power.
  *
- * @param[out] obj RTC object
+ * @param[out] obj  Pointer to an RTC object. The caller must allocate the memory
+ *  for this object but the init function will initialize its contents.
  * @return The status of the init request
  */
 cy_rslt_t cyhal_rtc_init(cyhal_rtc_t *obj);
@@ -137,7 +167,7 @@ void cyhal_rtc_free(cyhal_rtc_t *obj);
  */
 bool cyhal_rtc_is_enabled(cyhal_rtc_t *obj);
 
-/** Get the current time from the RTC peripheral
+/** Get the current time and date from the RTC peripheral
  *
  * @param[in]  obj RTC object
  * @param[out] time The current time (see: https://en.cppreference.com/w/cpp/chrono/c/tm)
@@ -145,7 +175,7 @@ bool cyhal_rtc_is_enabled(cyhal_rtc_t *obj);
  */
 cy_rslt_t cyhal_rtc_read(cyhal_rtc_t *obj, struct tm *time);
 
-/** Write the current time in seconds to the RTC peripheral
+/** Write the specified time and date to the RTC peripheral
  *
  * @param[in] obj  RTC object
  * @param[in] time The time to be set (see: https://en.cppreference.com/w/cpp/chrono/c/tm)
@@ -170,7 +200,7 @@ cy_rslt_t cyhal_rtc_set_dst(cyhal_rtc_t *obj, const cyhal_rtc_dst_t *start, cons
  */
 bool cyhal_rtc_is_dst(cyhal_rtc_t *obj);
 
-/** Set an alarm for the specified time in seconds to the RTC peripheral
+/** Set an alarm for the specified time and date using the RTC peripheral
  *
  * @param[in] obj    RTC object
  * @param[in] time   The alarm time to be set (see: https://en.cppreference.com/w/cpp/chrono/c/tm)
@@ -179,22 +209,36 @@ bool cyhal_rtc_is_dst(cyhal_rtc_t *obj);
  */
 cy_rslt_t cyhal_rtc_set_alarm(cyhal_rtc_t *obj, const struct tm *time, cyhal_alarm_active_t active);
 
-/** The RTC event callback handler registration
+/** Set an alarm at a specified number of seconds in the future
+ *
+ * @param[in] obj     RTC object
+ * @param[in] seconds The number of seconds in the future for the alarm to be
+ * set to. Because alarms cannot match the year (see \ref cyhal_alarm_active_t)
+ * the maximum number of seconds allowed is 365d*24h*60m*60s == 31,536,000s
+ * @return The status of the set_alarm_by_seconds request
+ */
+cy_rslt_t cyhal_rtc_set_alarm_by_seconds(cyhal_rtc_t *obj, const uint32_t seconds);
+
+/** Register a RTC event callback handler
+ *
+ * This function will be called when one of the events enabled by \ref cyhal_rtc_enable_event occurs.
  *
  * @param[in] obj          The RTC object
- * @param[in] callback     The callback handler which will be invoked when the alarm fires
+ * @param[in] callback     The callback handler which will be invoked when the alarm event fires
  * @param[in] callback_arg Generic argument that will be provided to the callback when called
  */
 void cyhal_rtc_register_callback(cyhal_rtc_t *obj, cyhal_rtc_event_callback_t callback, void *callback_arg);
 
 /** Configure RTC event enablement.
  *
- * @param[in] obj           The RTC object
- * @param[in] event         The RTC event type
- * @param[in] intrPriority  The priority for NVIC interrupt events
- * @param[in] enable        True to turn on interrupts, False to turn off
+ * When an enabled event occurs, the function specified by \ref cyhal_rtc_register_callback will be called.
+ *
+ * @param[in] obj            The RTC object
+ * @param[in] event          The RTC event type
+ * @param[in] intr_priority  The priority for NVIC interrupt events
+ * @param[in] enable         True to turn on interrupts, False to turn off
  */
-void cyhal_rtc_enable_event(cyhal_rtc_t *obj, cyhal_rtc_event_t event, uint8_t intrPriority, bool enable);
+void cyhal_rtc_enable_event(cyhal_rtc_t *obj, cyhal_rtc_event_t event, uint8_t intr_priority, bool enable);
 
 #if defined(__cplusplus)
 }
