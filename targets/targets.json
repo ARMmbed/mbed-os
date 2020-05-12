@@ -1308,6 +1308,30 @@
             "RESET_REASON"
         ]
     },
+    "MCU_STM32_BAREMETAL": {
+        "inherits": [
+            "MCU_STM32"
+        ],
+        "public": false,
+        "supported_c_libs": {
+            "arm": [
+                "small"
+            ],
+            "gcc_arm": [
+                "small"
+            ],
+            "iar": [
+                "std"
+            ]
+        },
+        "c_lib": "small",
+        "supported_application_profiles": [
+            "bare-metal"
+        ],
+        "overrides": {
+            "boot-stack-size": "0x400"
+        }
+    },
     "NUCLEO_F030R8": {
         "inherits": [
             "MCU_STM32"
@@ -1724,7 +1748,7 @@
     },
     "NUCLEO_F303K8": {
         "inherits": [
-            "MCU_STM32"
+            "MCU_STM32_BAREMETAL"
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -1741,13 +1765,11 @@
         },
         "overrides": {
             "lse_available": 0,
-            "boot-stack-size": "0x400",
             "tickless-from-us-ticker": true
         },
         "detect_code": [
             "0775"
         ],
-        "c_lib": "small",
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -1755,9 +1777,6 @@
         ],
         "device_has_remove": [
             "LPTICKER"
-        ],
-        "supported_application_profiles": [
-            "bare-metal"
         ],
         "device_name": "STM32F303K8"
     },
