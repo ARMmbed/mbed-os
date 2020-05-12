@@ -33,6 +33,7 @@
 #include "rtos/mbed_rtos1_types.h"
 
 #include "platform/mbed_toolchain.h"
+#include "platform/mbed_assert.h"
 #include "platform/NonCopyable.h"
 
 #ifndef MBED_NO_GLOBAL_USING_DIRECTIVE
@@ -105,11 +106,25 @@ public:
      * @return  Pointer to memory block that you can fill with mail or nullptr in case error.
      *
      * @note You may call this function from ISR context.
-     * @note If blocking is required, use Mail::alloc_for or Mail::alloc_until
+     * @note If blocking is required, use Mail::try_alloc_for or Mail::try_alloc_until
+     * @deprecated Replaced with try_alloc. In future alloc() will be an untimed blocking call.
      */
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Replaced with try_alloc. In future alloc() will be an untimed blocking call.")
     T *alloc(MBED_UNUSED uint32_t millisec = 0)
     {
-        return _pool.alloc();
+        return try_alloc();
+    }
+
+    /** Allocate a memory block of type T, without blocking.
+     *
+     * @return  Pointer to memory block that you can fill with mail or nullptr in case error.
+     *
+     * @note You may call this function from ISR context.
+     * @note If blocking is required, use Mail::try_alloc_for or Mail::try_alloc_until
+     */
+    T *try_alloc()
+    {
+        return _pool.try_alloc();
     }
 
     /** Allocate a memory block of type T, optionally blocking.
@@ -120,9 +135,9 @@ public:
      *
      * @note You may call this function from ISR context if the millisec parameter is set to 0.
      */
-    T *alloc_for(Kernel::Clock::duration_u32 rel_time)
+    T *try_alloc_for(Kernel::Clock::duration_u32 rel_time)
     {
-        return _pool.alloc_for(rel_time);
+        return _pool.try_alloc_for(rel_time);
     }
 
     /** Allocate a memory block of type T, optionally blocking.
@@ -137,7 +152,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
     T *alloc_for(uint32_t millisec)
     {
-        return alloc_for(std::chrono::duration<uint32_t, std::milli>(millisec));
+        return try_alloc_for(std::chrono::duration<uint32_t, std::milli>(millisec));
     }
 
     /** Allocate a memory block of type T, blocking.
@@ -152,9 +167,9 @@ public:
      *   wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
      *   the wait will time out earlier than specified.
      */
-    T *alloc_until(Kernel::Clock::time_point abs_time)
+    T *try_alloc_until(Kernel::Clock::time_point abs_time)
     {
-        return _pool.alloc_until(abs_time);
+        return _pool.try_alloc_until(abs_time);
     }
 
     /** Allocate a memory block of type T, blocking.
@@ -174,7 +189,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono time_point, not an integer millisecond count. For example use `Kernel::Clock::now() + 5s` rather than `Kernel::get_ms_count() + 5000`.")
     T *alloc_until(uint64_t millisec)
     {
-        return alloc_until(Kernel::Clock::time_point(std::chrono::duration<uint64_t, std::milli>(millisec)));
+        return try_alloc_until(Kernel::Clock::time_point(std::chrono::duration<uint64_t, std::milli>(millisec)));
     }
 
     /** Allocate a memory block of type T, and set memory block to zero.
@@ -183,12 +198,26 @@ public:
      *
      * @return  Pointer to memory block that you can fill with mail or nullptr in case error.
      *
-     * @note You may call this function from ISR context if the millisec parameter is set to 0.
-     * @note If blocking is required, use Mail::calloc_for or Mail::calloc_until
+     * @note You may call this function from ISR context.
+     * @note If blocking is required, use Mail::try_calloc_for or Mail::try_calloc_until
+     * @deprecated Replaced with try_calloc. In future calloc() will be an untimed blocking call.
      */
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Replaced with try_calloc. In future calloc() will be an untimed blocking call.")
     T *calloc(MBED_UNUSED uint32_t millisec = 0)
     {
-        return _pool.calloc();
+        return try_calloc();
+    }
+
+    /** Allocate a memory block of type T, and set memory block to zero.
+     *
+     * @return  Pointer to memory block that you can fill with mail or nullptr in case error.
+     *
+     * @note You may call this function from ISR context.
+     * @note If blocking is required, use Mail::try_calloc_for or Mail::try_calloc_until
+     */
+    T *try_calloc()
+    {
+        return _pool.try_calloc();
     }
 
     /** Allocate a memory block of type T, optionally blocking, and set memory block to zero.
@@ -199,9 +228,9 @@ public:
      *
      * @note You may call this function from ISR context if the rel_time parameter is set to 0.
      */
-    T *calloc_for(Kernel::Clock::duration_u32 rel_time)
+    T *try_calloc_for(Kernel::Clock::duration_u32 rel_time)
     {
-        return _pool.alloc_for(rel_time);
+        return _pool.try_calloc_for(rel_time);
     }
 
     /** Allocate a memory block of type T, optionally blocking, and set memory block to zero.
@@ -216,7 +245,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
     T *calloc_for(uint32_t millisec)
     {
-        return calloc_for(std::chrono::duration<uint32_t, std::milli>(millisec));
+        return try_calloc_for(std::chrono::duration<uint32_t, std::milli>(millisec));
     }
 
     /** Allocate a memory block of type T, blocking, and set memory block to zero.
@@ -231,9 +260,9 @@ public:
      *   wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
      *   the wait will time out earlier than specified.
      */
-    T *calloc_until(Kernel::Clock::time_point abs_time)
+    T *try_calloc_until(Kernel::Clock::time_point abs_time)
     {
-        return _pool.calloc_until(abs_time);
+        return _pool.try_calloc_until(abs_time);
     }
 
     /** Allocate a memory block of type T, blocking, and set memory block to zero.
@@ -253,7 +282,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono time_point, not an integer millisecond count. For example use `Kernel::Clock::now() + 5s` rather than `Kernel::get_ms_count() + 5000`.")
     T *calloc_until(uint64_t millisec)
     {
-        return calloc_until(Kernel::Clock::time_point(std::chrono::duration<uint64_t, std::milli>(millisec)));
+        return try_calloc_until(Kernel::Clock::time_point(std::chrono::duration<uint64_t, std::milli>(millisec)));
     }
 
     /** Put a mail in the queue.
@@ -261,31 +290,19 @@ public:
      * @param   mptr  Memory block previously allocated with Mail::alloc or Mail::calloc.
      *
      * @return  Status code that indicates the execution status of the function (osOK on success).
+     *          See note.
      *
      * @note You may call this function from ISR context.
+     * @note As the mail should have already been allocated, and the memory pool is the same size
+     *       as the queue, the put operation should always succeed, despite being implemented with
+     *       Queue::try_put - there is room in the queue for every mail from the pool. Therefore
+     *       use of the return value is deprecated, and the function will return void in future.
      */
     osStatus put(T *mptr)
     {
-        return _queue.put(mptr);
-    }
-
-    /** Get a mail from the queue.
-     *
-     * @param millisec Timeout value.
-     *
-     * @return Event that contains mail information or error code.
-     * @retval osEventMessage   Message received.
-     * @retval osOK             No mail is available (and no timeout was specified).
-     * @retval osEventTimeout   No mail has arrived during the given timeout period.
-     * @retval osErrorParameter A parameter is invalid or outside of a permitted range.
-     *
-     * @note You may call this function from ISR context if the millisec parameter is set to 0.
-     * @deprecated Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.
-     */
-    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
-    osEvent get(uint32_t millisec)
-    {
-        return get(std::chrono::duration<uint32_t, std::milli>(millisec));
+        bool ok = _queue.try_put(mptr);
+        MBED_ASSERT(ok);
+        return ok ? osOK : osErrorResource;
     }
 
     /** Get a mail from the queue.
@@ -300,14 +317,44 @@ public:
      *         @a osErrorParameter A parameter is invalid or outside of a permitted range.
      *
      * @note You may call this function from ISR context if the millisec parameter is set to 0.
+     * @deprecated Replaced with try_get and try_get_for. In future get will be an untimed blocking call.
      */
-    osEvent get(Kernel::Clock::duration_u32 rel_time = Kernel::wait_for_u32_forever)
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Replaced with try_get and try_get_for. In future get will be an untimed blocking call.")
+    osEvent get(uint32_t millisec = osWaitForever)
     {
-        osEvent evt = _queue.get(rel_time);
+        osEvent evt = _queue.get(millisec);
         if (evt.status == osEventMessage) {
             evt.status = osEventMail;
         }
         return evt;
+    }
+
+    /** Get a mail from the queue.
+     *
+     * @return Pointer to received mail, or nullptr if none was received.
+     *
+     * @note You may call this function from ISR context.
+     */
+    T *try_get()
+    {
+        T *mptr = nullptr;
+        _queue.try_get(&mptr);
+        return mptr;
+    }
+
+    /** Get a mail from the queue.
+     *
+     * @param rel_time Timeout value or Kernel::wait_for_u32_forever.
+     *
+     * @return Pointer to received mail, or nullptr if none was received.
+     *
+     * @note You may call this function from ISR context if the millisec parameter is set to 0.
+     */
+    T *try_get_for(Kernel::Clock::duration_u32 rel_time)
+    {
+        T *mptr = nullptr;
+        _queue.try_get_for(rel_time, &mptr);
+        return mptr;
     }
 
     /** Free a memory block from a mail.

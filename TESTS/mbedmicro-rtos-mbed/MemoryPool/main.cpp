@@ -23,10 +23,24 @@
 #error [NOT_SUPPORTED] MemoryPool test cases require a RTOS to run.
 #else
 
+#define TEST_ASSERT_DURATION_WITHIN(delta, expected, actual) \
+    do { \
+        using ct = std::common_type_t<decltype(delta), decltype(expected), decltype(actual)>; \
+        TEST_ASSERT_INT_WITHIN(ct(delta).count(), ct(expected).count(), ct(actual).count()); \
+    } while (0)
+
+#define TEST_ASSERT_TIME_POINT_WITHIN(delta, expected, actual) \
+    do { \
+        using ct_tp = std::common_type_t<decltype(expected), decltype(actual)>; \
+        using ct = std::common_type_t<decltype(delta), ct_tp::duration>; \
+        TEST_ASSERT_INT_WITHIN(ct(delta).count(), ct(expected.time_since_epoch()).count(), ct(actual.time_since_epoch()).count()); \
+    } while (0)
+
 using namespace utest::v1;
+using namespace std::chrono;
 
 #define THREAD_STACK_SIZE 512
-#define TEST_TIMEOUT 50
+#define TEST_TIMEOUT 50ms
 
 /* Enum used to select block allocation method. */
 typedef enum {
@@ -68,7 +82,7 @@ void comp_set(COMPLEX_TYPE *object, int a, char b, int c)
     object->c = c;
 }
 
-/* Template for functional tests for alloc(), calloc() functions
+/* Template for functional tests for try_alloc(), try_calloc() functions
  * of MemoryPool object.
  *
  * Given MemoryPool object of the specified type and queue size has
@@ -89,9 +103,9 @@ void test_mem_pool_alloc_success(AllocType atype)
     for (i = 0; i < numOfEntries; i++) {
         /* Allocate memory block. */
         if (atype == ALLOC) {
-            p_blocks[i] = mem_pool.alloc();
+            p_blocks[i] = mem_pool.try_alloc();
         } else {
-            p_blocks[i] = mem_pool.calloc();
+            p_blocks[i] = mem_pool.try_calloc();
         }
 
         /* Show that memory pool block has been allocated. */
@@ -112,7 +126,7 @@ void test_mem_pool_alloc_success(AllocType atype)
     }
 }
 
-/* Template for functional tests for alloc(), calloc() functions
+/* Template for functional tests for try_alloc(), try_calloc() functions
  * of MemoryPool object.
  *
  * Complex memory pool block type is used.
@@ -135,9 +149,9 @@ void test_mem_pool_alloc_success_complex(AllocType atype)
     for (i = 0; i < numOfEntries; i++) {
         /* Allocate memory block. */
         if (atype == ALLOC) {
-            p_blocks[i] = mem_pool.alloc();
+            p_blocks[i] = mem_pool.try_alloc();
         } else {
-            p_blocks[i] = mem_pool.calloc();
+            p_blocks[i] = mem_pool.try_calloc();
         }
 
         /* Show that memory pool block has been allocated. */
@@ -158,7 +172,7 @@ void test_mem_pool_alloc_success_complex(AllocType atype)
     }
 }
 
-/* Template for functional tests for alloc(), calloc() functions
+/* Template for functional tests for try_alloc(), try_calloc() functions
  * of MemoryPool object.
  *
  * Given MemoryPool has already max number of blocks allocated from the pool.
@@ -177,9 +191,9 @@ void test_mem_pool_alloc_fail(AllocType atype)
     /* Allocate all available blocks. */
     for (i = 0; i < numOfEntries; i++) {
         if (atype == ALLOC) {
-            p_blocks[i] = mem_pool.alloc();
+            p_blocks[i] = mem_pool.try_alloc();
         } else {
-            p_blocks[i] = mem_pool.calloc();
+            p_blocks[i] = mem_pool.try_calloc();
         }
 
         /* Show that memory pool block has been allocated. */
@@ -188,9 +202,9 @@ void test_mem_pool_alloc_fail(AllocType atype)
 
     /* There are no more blocks available. Try to allocate another block. */
     if (atype == ALLOC) {
-        p_extra_block = mem_pool.alloc();
+        p_extra_block = mem_pool.try_alloc();
     } else {
-        p_extra_block = mem_pool.calloc();
+        p_extra_block = mem_pool.try_calloc();
     }
 
     /* Show that memory pool block has NOT been allocated. */
@@ -216,9 +230,9 @@ void test_mem_pool_free_success(AllocType atype)
     /* Allocate all available blocks. */
     for (i = 0; i < numOfEntries; i++) {
         if (atype == ALLOC) {
-            p_blocks[i] = mem_pool.alloc();
+            p_blocks[i] = mem_pool.try_alloc();
         } else {
-            p_blocks[i] = mem_pool.calloc();
+            p_blocks[i] = mem_pool.try_calloc();
         }
 
         /* Show that memory pool block has been allocated. */
@@ -234,7 +248,7 @@ void test_mem_pool_free_success(AllocType atype)
     }
 }
 
-/* Template for functional tests for alloc(), calloc() functions
+/* Template for functional tests for try_alloc(), try_calloc() functions
  * of MemoryPool object.
  *
  * Basic memory pool block type is used.
@@ -256,9 +270,9 @@ void test_mem_pool_free_realloc_last(AllocType atype)
     /* Allocate all available blocks. */
     for (i = 0; i < numOfEntries; i++) {
         if (atype == ALLOC) {
-            p_blocks[i] = mem_pool.alloc();
+            p_blocks[i] = mem_pool.try_alloc();
         } else {
-            p_blocks[i] = mem_pool.calloc();
+            p_blocks[i] = mem_pool.try_calloc();
         }
 
         /* Init block. */
@@ -276,9 +290,9 @@ void test_mem_pool_free_realloc_last(AllocType atype)
 
     /* Try to allocate another block (one block is now available). */
     if (atype == ALLOC) {
-        p_blocks[numOfEntries - 1] = mem_pool.alloc();
+        p_blocks[numOfEntries - 1] = mem_pool.try_alloc();
     } else {
-        p_blocks[numOfEntries - 1] = mem_pool.calloc();
+        p_blocks[numOfEntries - 1] = mem_pool.try_calloc();
     }
 
     /* Show that memory pool block has been now allocated. */
@@ -290,7 +304,7 @@ void test_mem_pool_free_realloc_last(AllocType atype)
     }
 }
 
-/* Template for functional tests for alloc(), calloc() functions
+/* Template for functional tests for try_alloc(), try_calloc() functions
  * of MemoryPool object.
  *
  * Complex memory pool block type is used.
@@ -312,9 +326,9 @@ void test_mem_pool_free_realloc_last_complex(AllocType atype)
     /* Allocate all available blocks. */
     for (i = 0; i < numOfEntries; i++) {
         if (atype == ALLOC) {
-            p_blocks[i] = mem_pool.alloc();
+            p_blocks[i] = mem_pool.try_alloc();
         } else {
-            p_blocks[i] = mem_pool.calloc();
+            p_blocks[i] = mem_pool.try_calloc();
         }
 
         /* Init block. */
@@ -332,9 +346,9 @@ void test_mem_pool_free_realloc_last_complex(AllocType atype)
 
     /* Try to allocate another block (one block is now available). */
     if (atype == ALLOC) {
-        p_blocks[numOfEntries - 1] = mem_pool.alloc();
+        p_blocks[numOfEntries - 1] = mem_pool.try_alloc();
     } else {
-        p_blocks[numOfEntries - 1] = mem_pool.calloc();
+        p_blocks[numOfEntries - 1] = mem_pool.try_calloc();
     }
 
     /* Show that memory pool block has been now allocated. */
@@ -346,7 +360,7 @@ void test_mem_pool_free_realloc_last_complex(AllocType atype)
     }
 }
 
-/* Template for functional tests for alloc(), calloc() functions
+/* Template for functional tests for try_alloc(), try_calloc() functions
  * of MemoryPool object.
  *
  * Basic memory pool block type is used.
@@ -368,9 +382,9 @@ void test_mem_pool_free_realloc_first(AllocType atype)
     /* Allocate all available blocks. */
     for (i = 0; i < numOfEntries; i++) {
         if (atype == ALLOC) {
-            p_blocks[i] = mem_pool.alloc();
+            p_blocks[i] = mem_pool.try_alloc();
         } else {
-            p_blocks[i] = mem_pool.calloc();
+            p_blocks[i] = mem_pool.try_calloc();
         }
 
         /* Init block. */
@@ -388,9 +402,9 @@ void test_mem_pool_free_realloc_first(AllocType atype)
 
     /* Try to allocate another block (one block is now available). */
     if (atype == ALLOC) {
-        p_blocks[0] = mem_pool.alloc();
+        p_blocks[0] = mem_pool.try_alloc();
     } else {
-        p_blocks[0] = mem_pool.calloc();
+        p_blocks[0] = mem_pool.try_calloc();
     }
 
     /* Show that memory pool block has been now allocated. */
@@ -402,7 +416,7 @@ void test_mem_pool_free_realloc_first(AllocType atype)
     }
 }
 
-/* Template for functional tests for alloc(), calloc() functions
+/* Template for functional tests for try_alloc(), try_calloc() functions
  * of MemoryPool object.
  *
  * Complex memory pool block type is used.
@@ -424,9 +438,9 @@ void test_mem_pool_free_realloc_first_complex(AllocType atype)
     /* Allocate all available blocks. */
     for (i = 0; i < numOfEntries; i++) {
         if (atype == ALLOC) {
-            p_blocks[i] = mem_pool.alloc();
+            p_blocks[i] = mem_pool.try_alloc();
         } else {
-            p_blocks[i] = mem_pool.calloc();
+            p_blocks[i] = mem_pool.try_calloc();
         }
 
         /* Init block. */
@@ -444,9 +458,9 @@ void test_mem_pool_free_realloc_first_complex(AllocType atype)
 
     /* Try to allocate another block (one block is now available). */
     if (atype == ALLOC) {
-        p_blocks[0] = mem_pool.alloc();
+        p_blocks[0] = mem_pool.try_alloc();
     } else {
-        p_blocks[0] = mem_pool.calloc();
+        p_blocks[0] = mem_pool.try_calloc();
     }
 
     /* Show that memory pool block has been now allocated. */
@@ -458,7 +472,7 @@ void test_mem_pool_free_realloc_first_complex(AllocType atype)
     }
 }
 
-/* Test alloc timeout
+/* Test try_alloc_for/try_alloc_until timeout
  *
  * Given a pool with one slot for int data
  * When a thread tries to allocate two blocks with @ TEST_TIMEOUT timeout
@@ -471,18 +485,18 @@ void test_mem_pool_timeout()
     Timer timer;
     timer.start();
 
-    int *item = mem_pool.alloc_for(TEST_TIMEOUT);
+    int *item = mem_pool.try_alloc_for(TEST_TIMEOUT);
     TEST_ASSERT_NOT_NULL(item);
-    TEST_ASSERT_UINT32_WITHIN(TEST_TIMEOUT * 100, 0, timer.read_us());
+    TEST_ASSERT_DURATION_WITHIN(TEST_TIMEOUT / 10, 0ms, timer.elapsed_time());
 
-    item = mem_pool.alloc_for(TEST_TIMEOUT);
+    item = mem_pool.try_alloc_for(TEST_TIMEOUT);
     TEST_ASSERT_NULL(item);
-    TEST_ASSERT_UINT32_WITHIN(TEST_TIMEOUT * 100, TEST_TIMEOUT * 1000, timer.read_us());
+    TEST_ASSERT_DURATION_WITHIN(TEST_TIMEOUT / 10, TEST_TIMEOUT, timer.elapsed_time());
 
-    uint64_t end_time = Kernel::get_ms_count() + TEST_TIMEOUT;
-    item = mem_pool.alloc_until(end_time);
+    auto end_time = Kernel::Clock::now() + TEST_TIMEOUT;
+    item = mem_pool.try_alloc_until(end_time);
     TEST_ASSERT_NULL(item);
-    TEST_ASSERT_UINT64_WITHIN(TEST_TIMEOUT * 100, end_time, Kernel::get_ms_count());
+    TEST_ASSERT_TIME_POINT_WITHIN(TEST_TIMEOUT / 10, end_time, Kernel::Clock::now());
 }
 
 namespace {
@@ -516,18 +530,18 @@ void test_mem_pool_waitforever()
     Timer timer;
     timer.start();
 
-    int *item = pool.alloc_for(osWaitForever);
+    int *item = pool.try_alloc_for(Kernel::wait_for_u32_forever);
     TEST_ASSERT_NOT_NULL(item);
-    TEST_ASSERT_UINT32_WITHIN(TEST_TIMEOUT * 100, 0, timer.read_us());
+    TEST_ASSERT_DURATION_WITHIN(TEST_TIMEOUT / 10, 0ms, timer.elapsed_time());
 
     struct free_capture to_free;
     to_free.pool = &pool;
     to_free.item = item;
     t.start(callback(free_int_item, &to_free));
 
-    item = pool.alloc_for(osWaitForever);
+    item = pool.try_alloc_for(Kernel::wait_for_u32_forever);
     TEST_ASSERT_EQUAL(item, to_free.item);
-    TEST_ASSERT_UINT32_WITHIN(TEST_TIMEOUT * 100, TEST_TIMEOUT * 1000, timer.read_us());
+    TEST_ASSERT_DURATION_WITHIN(TEST_TIMEOUT / 10, TEST_TIMEOUT, timer.elapsed_time());
 
     t.join();
 }
@@ -632,12 +646,12 @@ void test_mem_pool_alloc_fail_wrapper()
 }
 
 Case cases[] = {
-    Case("Test: alloc()/calloc() - success, 4 bytes b_type, q_size equal to 1.", test_mem_pool_alloc_success_wrapper<int, 1>),
-    Case("Test: alloc()/calloc() - success, 4 bytes b_type, q_size equal to 3.", test_mem_pool_alloc_success_wrapper<int, 3>),
-    Case("Test: alloc()/calloc() - success, 1 bytes b_type, q_size equal to 1.", test_mem_pool_alloc_success_wrapper<char, 1>),
-    Case("Test: alloc()/calloc() - success, 1 bytes b_type, q_size equal to 3.", test_mem_pool_alloc_success_wrapper<char, 3>),
-    Case("Test: alloc()/calloc() - success, complex b_type, q_size equal to 1.", test_mem_pool_alloc_success_complex_wrapper<COMPLEX_TYPE, 1>),
-    Case("Test: alloc()/calloc() - success, complex b_type, q_size equal to 3.", test_mem_pool_alloc_success_complex_wrapper<COMPLEX_TYPE, 3>),
+    Case("Test: try_alloc()/try_calloc() - success, 4 bytes b_type, q_size equal to 1.", test_mem_pool_alloc_success_wrapper<int, 1>),
+    Case("Test: try_alloc()/try_calloc() - success, 4 bytes b_type, q_size equal to 3.", test_mem_pool_alloc_success_wrapper<int, 3>),
+    Case("Test: try_alloc()/try_calloc() - success, 1 bytes b_type, q_size equal to 1.", test_mem_pool_alloc_success_wrapper<char, 1>),
+    Case("Test: try_alloc()/try_calloc() - success, 1 bytes b_type, q_size equal to 3.", test_mem_pool_alloc_success_wrapper<char, 3>),
+    Case("Test: try_alloc()/try_calloc() - success, complex b_type, q_size equal to 1.", test_mem_pool_alloc_success_complex_wrapper<COMPLEX_TYPE, 1>),
+    Case("Test: try_alloc()/try_calloc() - success, complex b_type, q_size equal to 3.", test_mem_pool_alloc_success_complex_wrapper<COMPLEX_TYPE, 3>),
 
     Case("Test: free() - success, 4 bytes b_type, q_size equal to 1.", test_mem_pool_free_success_wrapper<int, 1>),
     Case("Test: free() - success, 4 bytes b_type, q_size equal to 3.", test_mem_pool_free_success_wrapper<int, 3>),

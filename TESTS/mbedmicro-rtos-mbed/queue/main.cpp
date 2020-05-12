@@ -38,44 +38,47 @@ using namespace std::chrono;
     } while (0)
 
 #define THREAD_STACK_SIZE 512
-#define TEST_UINT_MSG 0xDEADBEEF
-#define TEST_UINT_MSG2 0xE1EE7
 #define TEST_TIMEOUT 50ms
+
+static uint32_t msg;
+static uint32_t msg2;
 
 void thread_put_uint_msg(Queue<uint32_t, 1> *q)
 {
     ThisThread::sleep_for(TEST_TIMEOUT);
-    osStatus stat = q->put((uint32_t *) TEST_UINT_MSG);
-    TEST_ASSERT_EQUAL(osOK, stat);
+    bool stat = q->try_put(&msg);
+    TEST_ASSERT_TRUE(stat);
 }
 
 void thread_get_uint_msg(Queue<uint32_t, 1> *q)
 {
     ThisThread::sleep_for(TEST_TIMEOUT);
-    osEvent evt = q->get();
-    TEST_ASSERT_EQUAL(osEventMessage, evt.status);
-    TEST_ASSERT_EQUAL(TEST_UINT_MSG, evt.value.v);
+    uint32_t *v;
+    bool stat = q->try_get_for(Kernel::wait_for_u32_forever, &v);
+    TEST_ASSERT_TRUE(stat)
+    TEST_ASSERT_EQUAL(&msg, v);
 }
 
-/** Test pass uint msg
+/** Test pass msg
 
     Given a queue for uint32_t messages with one slot
     When a uin32_t value is inserted into the queue
         and a message is extracted from the queue
     Then the extracted message is the same as previously inserted message
  */
-void test_pass_uint()
+void test_pass()
 {
     Queue<uint32_t, 1> q;
-    osStatus stat = q.put((uint32_t *)TEST_UINT_MSG);
-    TEST_ASSERT_EQUAL(osOK, stat);
+    bool stat = q.try_put(&msg);
+    TEST_ASSERT_TRUE(stat)
 
-    osEvent evt = q.get();
-    TEST_ASSERT_EQUAL(osEventMessage, evt.status);
-    TEST_ASSERT_EQUAL(TEST_UINT_MSG, evt.value.v);
+    uint32_t *v;
+    stat = q.try_get_for(Kernel::wait_for_u32_forever, &v);
+    TEST_ASSERT_TRUE(stat)
+    TEST_ASSERT_EQUAL(&msg, v);
 }
 
-/** Test pass uint msg twice
+/** Test pass msg twice
 
     Given a queue for uint32_t messages with one slot
     When a uin32_t value is inserted into the queue
@@ -84,56 +87,38 @@ void test_pass_uint()
     Then the extracted message is the same as previously inserted message for both iterations
 
  */
-void test_pass_uint_twice()
+void test_pass_twice()
 {
     Queue<uint32_t, 1> q;
-    osStatus stat = q.put((uint32_t *)TEST_UINT_MSG);
-    TEST_ASSERT_EQUAL(osOK, stat);
+    bool stat = q.try_put(&msg);
+    TEST_ASSERT_TRUE(stat);
 
-    osEvent evt = q.get();
-    TEST_ASSERT_EQUAL(osEventMessage, evt.status);
-    TEST_ASSERT_EQUAL(TEST_UINT_MSG, evt.value.v);
+    uint32_t *v;
+    stat = q.try_get_for(Kernel::wait_for_u32_forever, &v);
+    TEST_ASSERT_TRUE(stat);
+    TEST_ASSERT_EQUAL(&msg, v);
 
-    stat = q.put((uint32_t *)TEST_UINT_MSG2);
-    TEST_ASSERT_EQUAL(osOK, stat);
+    stat = q.try_put(&msg2);
+    TEST_ASSERT_TRUE(stat);
 
-    evt = q.get();
-    TEST_ASSERT_EQUAL(osEventMessage, evt.status);
-    TEST_ASSERT_EQUAL(TEST_UINT_MSG2, evt.value.v);
-}
-
-/** Test pass ptr msg
-
-    Given a queue for pointers to uint32_t messages with one slot
-    When a pointer to an uint32_t is inserted into the queue
-        and a message is extracted from the queue
-    Then the extracted message is the same as previously inserted message
- */
-void test_pass_ptr()
-{
-    Queue<uint32_t, 1> q;
-    uint32_t msg = TEST_UINT_MSG;
-
-    osStatus stat = q.put(&msg);
-    TEST_ASSERT_EQUAL(osOK, stat);
-
-    osEvent evt = q.get();
-    TEST_ASSERT_EQUAL(osEventMessage, evt.status);
-    TEST_ASSERT_EQUAL(&msg, evt.value.p);
+    stat = q.try_get_for(Kernel::wait_for_u32_forever, &v);
+    TEST_ASSERT_TRUE(stat);
+    TEST_ASSERT_EQUAL(&msg2, v);
 }
 
 /** Test get from empty queue
 
     Given an empty queue for uint32_t values
     When @a get is called on the queue with timeout of 0
-    Then queue returns status of osOK, but no data
+    Then queue returns status of false
  */
 void test_get_empty_no_timeout()
 {
     Queue<uint32_t, 1> q;
 
-    osEvent evt = q.get(0ms);
-    TEST_ASSERT_EQUAL(osOK, evt.status);
+    uint32_t *v;
+    bool stat = q.try_get(&v);
+    TEST_ASSERT_FALSE(stat);
 }
 
 /** Test get from empty queue with timeout
@@ -148,8 +133,9 @@ void test_get_empty_timeout()
     Timer timer;
     timer.start();
 
-    osEvent evt = q.get(50ms);
-    TEST_ASSERT_EQUAL(osEventTimeout, evt.status);
+    uint32_t *v;
+    bool stat = q.try_get_for(50ms, &v);
+    TEST_ASSERT_FALSE(stat);
     TEST_ASSERT_DURATION_WITHIN(5ms, 50ms, timer.elapsed_time());
 }
 
@@ -171,9 +157,10 @@ void test_get_empty_wait_forever()
     Timer timer;
     timer.start();
 
-    osEvent evt = q.get();
-    TEST_ASSERT_EQUAL(osEventMessage, evt.status);
-    TEST_ASSERT_EQUAL(TEST_UINT_MSG, evt.value.v);
+    uint32_t *v;
+    bool stat = q.try_get_for(Kernel::wait_for_u32_forever, &v);
+    TEST_ASSERT_TRUE(stat);
+    TEST_ASSERT_EQUAL(&msg, v);
     TEST_ASSERT_DURATION_WITHIN(TEST_TIMEOUT / 10, TEST_TIMEOUT, timer.elapsed_time());
 }
 
@@ -181,37 +168,37 @@ void test_get_empty_wait_forever()
  *
  * Given a queue with one slot for uint32_t data
  * When a thread tries to insert two messages
- * Then first operation succeeds and second fails with @a osErrorResource
+ * Then first operation succeeds and second fails
  */
 void test_put_full_no_timeout()
 {
     Queue<uint32_t, 1> q;
 
-    osStatus stat = q.put((uint32_t *) TEST_UINT_MSG);
-    TEST_ASSERT_EQUAL(osOK, stat);
+    bool stat = q.try_put(&msg);
+    TEST_ASSERT_TRUE(stat);
 
-    stat = q.put((uint32_t *) TEST_UINT_MSG);
-    TEST_ASSERT_EQUAL(osErrorResource, stat);
+    stat = q.try_put(&msg);
+    TEST_ASSERT_FALSE(stat);
 }
 
 /** Test put full timeout
  *
  * Given a queue with one slot for uint32_t data
  * When a thread tries to insert two messages with @ TEST_TIMEOUT timeout
- * Then first operation succeeds and second fails with @a osErrorTimeout
+ * Then first operation succeeds and second fails
  */
 void test_put_full_timeout()
 {
     Queue<uint32_t, 1> q;
 
-    osStatus stat = q.put((uint32_t *) TEST_UINT_MSG, TEST_TIMEOUT);
-    TEST_ASSERT_EQUAL(osOK, stat);
+    bool stat = q.try_put_for(TEST_TIMEOUT, &msg);
+    TEST_ASSERT_TRUE(stat);
 
     Timer timer;
     timer.start();
 
-    stat = q.put((uint32_t *) TEST_UINT_MSG, TEST_TIMEOUT);
-    TEST_ASSERT_EQUAL(osErrorTimeout, stat);
+    stat = q.try_put_for(TEST_TIMEOUT, &msg);
+    TEST_ASSERT_FALSE(stat);
     TEST_ASSERT_DURATION_WITHIN(TEST_TIMEOUT / 10, TEST_TIMEOUT, timer.elapsed_time());
 }
 
@@ -230,13 +217,13 @@ void test_put_full_waitforever()
 
     t.start(callback(thread_get_uint_msg, &q));
 
-    osStatus stat = q.put((uint32_t *) TEST_UINT_MSG);
-    TEST_ASSERT_EQUAL(osOK, stat);
+    bool stat = q.try_put(&msg);
+    TEST_ASSERT_TRUE(stat);
 
     Timer timer;
     timer.start();
-    stat = q.put((uint32_t *) TEST_UINT_MSG, Kernel::wait_for_u32_forever);
-    TEST_ASSERT_EQUAL(osOK, stat);
+    stat = q.try_put_for(Kernel::wait_for_u32_forever, &msg);
+    TEST_ASSERT_TRUE(stat);
     TEST_ASSERT_DURATION_WITHIN(TEST_TIMEOUT / 10, TEST_TIMEOUT, timer.elapsed_time());
 
     t.join();
@@ -252,19 +239,20 @@ void test_msg_order()
 {
     Queue<uint32_t, 2> q;
 
-    osStatus stat = q.put((uint32_t *) TEST_UINT_MSG, TEST_TIMEOUT);
-    TEST_ASSERT_EQUAL(osOK, stat);
+    bool stat = q.try_put_for(TEST_TIMEOUT, &msg);
+    TEST_ASSERT_TRUE(stat);
 
-    stat = q.put((uint32_t *) TEST_UINT_MSG2, TEST_TIMEOUT);
-    TEST_ASSERT_EQUAL(osOK, stat);
+    stat = q.try_put_for(TEST_TIMEOUT, &msg2);
+    TEST_ASSERT_TRUE(stat);
 
-    osEvent evt = q.get();
-    TEST_ASSERT_EQUAL(osEventMessage, evt.status);
-    TEST_ASSERT_EQUAL(TEST_UINT_MSG, evt.value.v);
+    uint32_t *v;
+    stat = q.try_get(&v);
+    TEST_ASSERT_TRUE(stat);
+    TEST_ASSERT_EQUAL(&msg, v);
 
-    evt = q.get();
-    TEST_ASSERT_EQUAL(osEventMessage, evt.status);
-    TEST_ASSERT_EQUAL(TEST_UINT_MSG2, evt.value.v);
+    stat = q.try_get(&v);
+    TEST_ASSERT_TRUE(stat);
+    TEST_ASSERT_EQUAL(&msg2, v);
 }
 
 /** Test message priority
@@ -277,19 +265,20 @@ void test_msg_prio()
 {
     Queue<uint32_t, 2> q;
 
-    osStatus stat = q.put((uint32_t *) TEST_UINT_MSG, TEST_TIMEOUT, 0);
-    TEST_ASSERT_EQUAL(osOK, stat);
+    bool stat = q.try_put_for(TEST_TIMEOUT, &msg, 0);
+    TEST_ASSERT_TRUE(stat);
 
-    stat = q.put((uint32_t *) TEST_UINT_MSG2, TEST_TIMEOUT, 1);
-    TEST_ASSERT_EQUAL(osOK, stat);
+    stat = q.try_put_for(TEST_TIMEOUT, &msg2, 1);
+    TEST_ASSERT_TRUE(stat);
 
-    osEvent evt = q.get();
-    TEST_ASSERT_EQUAL(osEventMessage, evt.status);
-    TEST_ASSERT_EQUAL(TEST_UINT_MSG2, evt.value.v);
+    uint32_t *v;
+    stat = q.try_get(&v);
+    TEST_ASSERT_TRUE(stat);
+    TEST_ASSERT_EQUAL(&msg2, v);
 
-    evt = q.get();
-    TEST_ASSERT_EQUAL(osEventMessage, evt.status);
-    TEST_ASSERT_EQUAL(TEST_UINT_MSG, evt.value.v);
+    stat = q.try_get(&v);
+    TEST_ASSERT_TRUE(stat);
+    TEST_ASSERT_EQUAL(&msg, v);
 }
 
 /** Test queue empty
@@ -302,11 +291,11 @@ void test_queue_empty()
 {
     Queue<uint32_t, 1> q;
 
-    TEST_ASSERT_EQUAL(true, q.empty());
+    TEST_ASSERT_TRUE(q.empty());
 
-    q.put((uint32_t *) TEST_UINT_MSG, TEST_TIMEOUT, 1);
+    q.try_put_for(TEST_TIMEOUT, &msg, 1);
 
-    TEST_ASSERT_EQUAL(false, q.empty());
+    TEST_ASSERT_FALSE(q.empty());
 }
 
 /** Test queue empty
@@ -319,11 +308,11 @@ void test_queue_full()
 {
     Queue<uint32_t, 1> q;
 
-    TEST_ASSERT_EQUAL(false, q.full());
+    TEST_ASSERT_FALSE(q.full());
 
-    q.put((uint32_t *) TEST_UINT_MSG, TEST_TIMEOUT, 1);
+    q.try_put_for(TEST_TIMEOUT, &msg, 1);
 
-    TEST_ASSERT_EQUAL(true, q.full());
+    TEST_ASSERT_TRUE(q.full());
 }
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
@@ -333,9 +322,8 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-    Case("Test pass uint msg", test_pass_uint),
-    Case("Test pass uint msg twice", test_pass_uint_twice),
-    Case("Test pass ptr msg", test_pass_ptr),
+    Case("Test pass msg", test_pass),
+    Case("Test pass msg twice", test_pass_twice),
     Case("Test get from empty queue no timeout", test_get_empty_no_timeout),
     Case("Test get from empty queue timeout", test_get_empty_timeout),
     Case("Test get empty wait forever", test_get_empty_wait_forever),
