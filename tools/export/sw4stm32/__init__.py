@@ -38,21 +38,6 @@ class Sw4STM32(GNUARMEclipse):
     TOOLCHAIN = 'GCC_ARM'
 
     BOARDS = {
-        'B96B_F446VE':
-        {
-            'name': 'B96B-F446VE',
-            'mcuId': 'STM32F446VETx'
-        },
-        'DISCO_F401VC':
-        {
-            'name': 'STM32F401C-DISCO',
-            'mcuId': 'STM32F401VCTx'
-        },
-        'DISCO_F407VG':
-        {
-            'name': 'STM32F4DISCOVERY',
-            'mcuId': 'STM32F407VGTx'
-        },
         'DISCO_F413ZH':
         {
             'name': 'DISCO_F413',
@@ -142,11 +127,6 @@ class Sw4STM32(GNUARMEclipse):
         {
             'name': 'NUCLEO-F401RE',
             'mcuId': 'STM32F401RETx'
-        },
-        'NUCLEO_F410RB':
-        {
-            'name': 'NUCLEO-F410RB',
-            'mcuId': 'STM32F410RBTx'
         },
         'NUCLEO_F411RE':
         {

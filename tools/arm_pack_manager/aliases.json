@@ -1312,18 +1312,6 @@
       "STM32F334C8"
     ]
   },
-  "STM32F4-Discovery": {
-    "name": "STM32F4-Discovery",
-    "mounted_devices": [
-      "STM32F407VG"
-    ]
-  },
-  "STM32F401C-Discovery": {
-    "name": "STM32F401C-Discovery",
-    "mounted_devices": [
-      "STM32F401VC"
-    ]
-  },
   "STM32F429I-Discovery": {
     "name": "STM32F429I-Discovery",
     "mounted_devices": [

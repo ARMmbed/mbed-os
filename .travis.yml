@@ -249,7 +249,7 @@ matrix:
           rm -r rtos/source/TARGET_CORTEX drivers/source/usb features/cellular features/netsocket features/nanostack \
             features/lwipstack features/frameworks/greentea-client \
             features/frameworks/utest features/frameworks/unity components BUILD
-        - python tools/make.py -t GCC_ARM -m DISCO_F401VC --source=. --build=BUILD/DISCO_F401VC/GCC_ARM -j0
+        - python tools/make.py -t GCC_ARM -m NUCLEO_F412ZG --source=. --build=BUILD/NUCLEO_F412ZG/GCC_ARM -j0
         # Run local equeue tests
         - make -C ${EVENTS}/source test
         # Run profiling tests
