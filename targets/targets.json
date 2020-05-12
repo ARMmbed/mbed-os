@@ -2857,74 +2857,6 @@
         "device_name": "STM32G071RBTx",
         "bootloader_supported": true
     },
-    "NUCLEO_H743ZI": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "core": "Cortex-M7FD",
-        "extra_labels_add": [
-            "STM32H7",
-            "STM32H743xI"
-        ],
-        "mbed_rom_start": "0x08000000",
-        "mbed_rom_size": "0x200000",
-        "mbed_ram_start": "0x24000000",
-        "mbed_ram_size": "0x80000",
-        "config": {
-            "d11_configuration": {
-                "help": "Value: PA_7 for the default board configuration, PB_5 in case of solder bridge update (SB121 off/ SB122 on)",
-                "value": "PA_7",
-                "macro_name": "STM32_D11_SPI_ETHERNET_PIN"
-            },
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            },
-            "lpticker_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
-                "value": 1
-            },
-            "hse_value": {
-                "help": "HSE default value is 25MHz in HAL",
-                "value": "8000000",
-                "macro_name": "HSE_VALUE"
-            }
-        },
-        "components_add": [
-            "FLASHIAP"
-        ],
-        "macros_add": [
-            "STM32H743xx",
-            "EXTRA_IDLE_STACK_REQUIRED",
-            "MBED_TICKLESS"
-        ],
-        "overrides": {
-            "lpticker_delay_ticks": 0,
-            "network-default-interface-type": "ETHERNET"
-        },
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "detect_code": [
-            "0813"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "CAN",
-            "CRC",
-            "TRNG",
-            "FLASH",
-            "MPU",
-            "EMAC"
-        ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
-        "device_name": "STM32H743ZI",
-        "bootloader_supported": true
-    },
     "NUCLEO_H743ZI2": {
         "inherits": [
             "MCU_STM32"
@@ -2986,10 +2918,6 @@
             "MPU",
             "EMAC"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32H743ZI",
         "bootloader_supported": true
     },
@@ -3028,9 +2956,6 @@
             "FLASH",
             "QSPI",
             "MPU"
-        ],
-        "release_versions": [
-            "5"
         ],
         "bootloader_supported": true,
         "public": false
@@ -3134,10 +3059,6 @@
             "FLASH",
             "QSPI",
             "MPU"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32H747XIHx",
         "bootloader_supported": true
