@@ -63,11 +63,6 @@ class Sw4STM32(GNUARMEclipse):
             'name': 'DISCO-F769NI',
             'mcuId': 'STM32F769NIHx'
         },
-        'DISCO_L053C8':
-        {
-            'name': 'STM32L0538DISCOVERY',
-            'mcuId': 'STM32L053C8Tx'
-        },
         'DISCO_L072CZ_LRWAN1':
         {
             'name': 'DISCO-L072CZ-LRWAN1',
@@ -162,21 +157,6 @@ class Sw4STM32(GNUARMEclipse):
         {
             'name': 'NUCLEO-F767ZI',
             'mcuId': 'STM32F767ZITx'
-        },
-        'NUCLEO_L011K4':
-        {
-            'name': 'NUCLEO-L011K4',
-            'mcuId': 'STM32L011K4Tx'
-        },
-        'NUCLEO_L031K6':
-        {
-            'name': 'NUCLEO-L031K6',
-            'mcuId': 'STM32L031K6Tx'
-        },
-        'NUCLEO_L053R8':
-        {
-            'name': 'NUCLEO-L053R8',
-            'mcuId': 'STM32L053R8Tx'
         },
         'NUCLEO_L073RZ':
         {
