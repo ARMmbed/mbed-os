@@ -87,7 +87,6 @@ otherwise you will get a conflict: the LED on STM32 Nucleo boards is connected t
 Referring to the current list of tested platforms (see [X-NUCLEO-IDB05A1](https://developer.mbed.org/components/X-NUCLEO-IDB05A1-Bluetooth-Low-Energy/) page),
 the patch is required for
 - [ST-Nucleo-F103RB](https://developer.mbed.org/platforms/ST-Nucleo-F103RB/)
-- [ST-Nucleo-F302R8](https://developer.mbed.org/platforms/ST-Nucleo-F302R8/)
 - [ST-Nucleo-F411RE](https://developer.mbed.org/platforms/ST-Nucleo-F411RE/)
 - [ST-Nucleo-F446RE](https://developer.mbed.org/platforms/ST-Nucleo-F446RE/)
 - [FRDM-K64F](https://developer.mbed.org/platforms/FRDM-K64F/)
