@@ -267,7 +267,7 @@ private:
     void _spi_wait(uint8_t count);
 
     bool _wait_token(uint8_t token);        /**< Wait for token */
-    bool _wait_ready(uint16_t ms = 300);    /**< 300ms default wait for card to be ready */
+    bool _wait_ready(std::chrono::duration<uint32_t, std::milli> timeout = std::chrono::milliseconds{300});    /**< 300ms default wait for card to be ready */
     int _read(uint8_t *buffer, uint32_t length);
     int _read_bytes(uint8_t *buffer, uint32_t length);
     uint8_t _write(const uint8_t *buffer, uint8_t token, uint32_t length);
