@@ -132,7 +132,6 @@ class Uvision(Exporter):
     """
 
     POST_BINARY_WHITELIST = set([
-        "MCU_NRF51Code.binary_hook",
         "LPCTargetCode.lpc_patch",
         "MTSCode.combine_bins_mts_dragonfly",
         "LPC55S69Code.binary_hook",

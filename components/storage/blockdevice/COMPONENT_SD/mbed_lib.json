@@ -89,12 +89,6 @@
              "SPI_CLK":  "PD_14",
              "SPI_CS":   "PD_13"
         },
-        "nRF51822": {
-             "SPI_MOSI": "p12",
-             "SPI_MISO": "p13",
-             "SPI_CLK":  "p15",
-             "SPI_CS":   "p14"
-        },
         "RZ_A1H": {
              "SPI_MOSI": "P8_5",
              "SPI_MISO": "P8_6",

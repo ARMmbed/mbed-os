@@ -76,7 +76,7 @@
             "BLE_Thermometer"
       ],
       "features" : [],
-      "targets" : ["NRF51_DK", "NRF52_DK", "DISCO_L475VG_IOT01A"],
+      "targets" : ["NRF52_DK", "DISCO_L475VG_IOT01A"],
       "toolchains" : [],
       "exporters": [],
       "compile" : true,
