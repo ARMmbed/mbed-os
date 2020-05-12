@@ -6,6 +6,12 @@
             "help": "Nanostack's heap size [bytes: 0-‭4294967295‬]",
             "value": 32500
         },
+        "mac-neigh-table-size": {
+            "help": "Number of devices stored to the SW MAC neighbour table",
+            "value_min": 5,
+            "value_max": 255,
+            "value": 32
+        },
         "use-malloc-for-heap": {
             "help": "Use `malloc()` for reserving the Nanostack's internal heap.",
             "value": false
