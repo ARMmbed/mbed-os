@@ -950,12 +950,6 @@
       "nRF51422_xxAA"
     ]
   },
-  "NUCLEO-F030R8": {
-    "name": "NUCLEO-F030R8",
-    "mounted_devices": [
-      "STM32F030R8"
-    ]
-  },
   "NUCLEO-F072RB": {
     "name": "NUCLEO-F072RB",
     "mounted_devices": [
@@ -1304,24 +1298,6 @@
     "name": "STM32756G-EVAL",
     "mounted_devices": [
       "STM32F756NGHx"
-    ]
-  },
-  "STM32F030-Discovery": {
-    "name": "STM32F030-Discovery",
-    "mounted_devices": [
-      "STM32F030R8"
-    ]
-  },
-  "STM32F051-Discovery": {
-    "name": "STM32F051-Discovery",
-    "mounted_devices": [
-      "STM32F051R8"
-    ]
-  },
-  "STM32F072-Discovery": {
-    "name": "STM32F072-Discovery",
-    "mounted_devices": [
-      "STM32F072RB"
     ]
   },
   "STM32F3-Discovery": {
