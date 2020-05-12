@@ -3323,7 +3323,7 @@
     },
     "NUCLEO_L432KC": {
         "inherits": [
-            "MCU_STM32"
+            "MCU_STM32_BAREMETAL"
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -3361,10 +3361,6 @@
             "TRNG",
             "FLASH",
             "MPU"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32L432KC",
         "bootloader_supported": true
@@ -3414,10 +3410,6 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32L433RC",
         "bootloader_supported": true
     },
@@ -3441,9 +3433,6 @@
         "overrides": {
             "lse_available": 0
         },
-        "release_versions": [
-            "5"
-        ],
         "device_has_add": [
             "ANALOGOUT",
             "CRC",
@@ -3512,9 +3501,6 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": [
-            "5"
-        ],
         "device_name": "STM32L452RETx",
         "bootloader_supported": true
     },
@@ -3554,10 +3540,6 @@
         "macros_add": [
             "STM32L471xx",
             "MBED_SPLIT_HEAP"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32L471QG",
         "bootloader_supported": true
@@ -3667,10 +3649,6 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32L476RG",
         "bootloader_supported": true
     },
@@ -3721,10 +3699,6 @@
             "QSPI",
             "USBDEVICE",
             "MPU"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32L476VG",
         "bootloader_supported": true
@@ -3777,10 +3751,6 @@
             "QSPI",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32L476VG",
         "bootloader_supported": true
     },
@@ -3831,10 +3801,6 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32L486RG"
     },
     "ADV_WISE_1570": {
@@ -3880,9 +3846,6 @@
         ],
         "device_has_remove": [
             "LPTICKER"
-        ],
-        "release_versions": [
-            "5"
         ],
         "device_name": "STM32L486RG",
         "bootloader_supported": true,
@@ -3941,10 +3904,6 @@
             "USBDEVICE",
             "QSPI"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32L496AG",
         "bootloader_supported": true
     },
@@ -3993,10 +3952,6 @@
             "FLASH",
             "USBDEVICE",
             "MPU"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32L496ZG",
         "bootloader_supported": true
@@ -4057,10 +4012,6 @@
             "FLASH",
             "USBDEVICE",
             "MPU"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32L4R5ZI",
         "bootloader_supported": true
@@ -4124,10 +4075,6 @@
             "QSPI",
             "USBDEVICE",
             "MPU"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "bootloader_supported": false
     },
