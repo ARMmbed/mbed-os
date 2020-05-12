@@ -84,7 +84,8 @@
 #define SERIAL_LOOPBACK_REPS 100
 #define USB_RECONNECT_DELAY_MS 1
 
-#define LINE_CODING_STRLEN 13 // 6 + 2 + 1 + 1 + 3 * comma
+#define LINE_CODING_SEP (',')
+#define LINE_CODING_DELIM (';')
 
 #define USB_DEV_SN_LEN (32) // 32 hex digit UUID
 #define NONASCII_CHAR ('?')
@@ -776,9 +777,9 @@ void test_serial_line_coding_change()
     for (size_t i = 0; i < num_line_codings; i++) {
         lc_expected = &(test_codings[i]);
         num_expected_callbacks = lc_prev->get_num_diffs(*lc_expected);
-        rc = usb_serial.printf("%06i,%02i,%01i,%01i", lc_expected->baud, lc_expected->bits, lc_expected->parity,
-                               lc_expected->stop);
-        TEST_ASSERT_EQUAL_INT(LINE_CODING_STRLEN, rc);
+        rc = usb_serial.printf("%06i,%02i,%01i,%01i%c", lc_expected->baud, lc_expected->bits, lc_expected->parity,
+                               lc_expected->stop, LINE_CODING_DELIM);
+        TEST_ASSERT(rc > 0);
         // The pyserial Python module does not update all line coding params
         // at once. It updates params one by one instead, and since every
         // update is followed by port reconfiguration we get multiple

@@ -47,8 +47,8 @@ TERM_CLOSE_DELAY = 0.01
 # during terminal reopen test.
 TERM_REOPEN_DELAY = 0.1
 
-# 6 (baud) + 2 (bits) + 1 (parity) + 1 (stop) + 3 * comma
-LINE_CODING_STRLEN = 13
+LINE_CODING_SEP = ','
+LINE_CODING_DELIM = ';'
 
 
 def usb_serial_name(serial_number):
@@ -269,16 +269,17 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
         mbed_serial.reset_output_buffer()
         mbed_serial.dtr = True
         try:
-            payload = six.ensure_str(mbed_serial.read(LINE_CODING_STRLEN))
-            while len(payload) == LINE_CODING_STRLEN:
-                baud, bits, parity, stop = (int(i) for i in payload.split(','))
+            payload = six.ensure_str(mbed_serial.read_until(LINE_CODING_DELIM))
+            while len(payload) > 0:
+                baud, bits, parity, stop = (
+                    int(i) for i in payload.strip(LINE_CODING_DELIM).split(LINE_CODING_SEP))
                 new_line_coding = {
                     'baudrate': baud,
                     'bytesize': self._BYTESIZES[bits],
                     'parity': self._PARITIES[parity],
                     'stopbits': self._STOPBITS[stop]}
                 mbed_serial.apply_settings(new_line_coding)
-                payload = six.ensure_str(mbed_serial.read(LINE_CODING_STRLEN))
+                payload = six.ensure_str(mbed_serial.read_until(LINE_CODING_DELIM))
         except serial.SerialException as exc:
             self.log('TEST ERROR: {}'.format(exc))
             self.notify_complete(False)
