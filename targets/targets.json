@@ -1504,10 +1504,6 @@
         "device_has_remove": [
             "LPTICKER"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F207ZG",
         "bootloader_supported": true,
         "overrides": {
