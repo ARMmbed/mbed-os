@@ -17,6 +17,7 @@
 #include "flash_api.h"
 #include "flash_data.h"
 #include "mbed_critical.h"
+#include "M451_mem.h"
 
 // This is a flash algo binary blob. It is PIC (position independent code) that should be stored in RAM
 // NOTE: On ARMv7-M/ARMv8-M, instruction fetches are always little-endian.
@@ -61,14 +62,14 @@ static const flash_algo_t flash_algo_config = {
 };
 
 static const sector_info_t sectors_info[] = {
-    {0x0, 0x800},           // (start, sector size)
+    {MBED_ROM_START, 0x800},        // (start, sector size)
 };
 
 static const flash_target_config_t flash_target_config = {
-    .page_size  = 4,        // 4 bytes
-                            // Here page_size is program unit, which is different than FMC definition.
-    .flash_start = 0x0,
-    .flash_size = 0x40000,  // 256 KB
+    .page_size  = 4,                // 4 bytes
+                                    // Here page_size is program unit, which is different than FMC definition.
+    .flash_start = MBED_ROM_START,
+    .flash_size = MBED_ROM_SIZE,
     .sectors = sectors_info,
     .sector_info_count = sizeof(sectors_info) / sizeof(sector_info_t)
 };
