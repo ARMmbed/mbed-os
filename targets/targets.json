@@ -3244,9 +3244,6 @@
         "device_has_remove": [
             "SERIAL_FC"
         ],
-        "release_versions": [
-            "5"
-        ],
         "device_name": "STM32L151CC",
         "bootloader_supported": true,
         "detect_code": [
@@ -3291,10 +3288,6 @@
         "device_has_remove": [
             "SERIAL_FC"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32L152RC"
     },
     "NUCLEO_L152RE": {
@@ -3325,10 +3318,6 @@
             "SERIAL_ASYNCH",
             "FLASH",
             "MPU"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32L152RE"
     },
