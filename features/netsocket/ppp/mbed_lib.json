@@ -36,9 +36,6 @@
         "RZ_A1_EMAC": {
             "thread-stacksize": 896
         },
-        "CYW943012P6EVB_01": {
-            "thread-stacksize": 896
-        },
         "CY8CPROTO_062_4343W": {
             "thread-stacksize": 896
         },
