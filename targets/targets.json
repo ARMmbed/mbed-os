@@ -3088,6 +3088,92 @@
             "DISCO_H747I"
         ]
     },
+    "MCU_STM32H745I": {
+        "inherits": [
+            "FAMILY_STM32"
+        ],
+        "extra_labels_add": [
+            "STM32H7",
+            "STM32H745xI"
+        ],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_EXTC",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
+                "value": 1
+            }
+        },
+        "macros_add": [
+            "STM32H745xx",
+            "EXTRA_IDLE_STACK_REQUIRED",
+            "MBED_TICKLESS"
+        ],
+        "overrides": {
+            "lpticker_delay_ticks": 0
+        },
+        "device_has_add": [
+            "ANALOGOUT",
+            "CAN",
+            "CRC",
+            "TRNG",
+            "FLASH",
+            "QSPI",
+            "MPU"
+        ],
+        "release_versions": [
+            "5"
+        ],
+        "bootloader_supported": true,
+        "public": false
+    },
+    "MCU_STM32H745I_CM7": {
+        "inherits": [
+            "MCU_STM32H745I"
+        ],
+        "core": "Cortex-M7FD",
+        "mbed_rom_start": "0x08000000",
+        "mbed_rom_size": "0x100000",
+        "mbed_ram_start": "0x24000000",
+        "mbed_ram_size": "0x80000",
+        "macros_add": [
+            "CORE_CM7"
+        ],
+        "public": false
+    },
+    "MCU_STM32H745I_CM4": {
+        "inherits": [
+            "MCU_STM32H745I"
+        ],
+        "core": "Cortex-M4F",
+        "mbed_rom_start": "0x08100000",
+        "mbed_rom_size": "0x100000",
+        "mbed_ram_start": "0x10000000",
+        "mbed_ram_size": "0x48000",
+        "macros_add": [
+            "CORE_CM4"
+        ],
+        "public": false
+    },
+    "GENERIC_H745I_CM7": {
+        "inherits": [
+            "MCU_STM32H745I_CM7"
+        ],
+        "extra_labels_add": [
+            "GENERIC_H745I"
+        ]
+    },
+    "GENERIC_H745I_CM4": {
+        "inherits": [
+            "MCU_STM32H745I_CM4"
+        ],
+        "extra_labels_add": [
+            "GENERIC_H745I"
+        ]
+    },
     "UHURU_RAVEN": {
         "inherits": [
             "FAMILY_STM32"
