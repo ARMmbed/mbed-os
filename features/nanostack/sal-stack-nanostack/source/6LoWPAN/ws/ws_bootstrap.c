@@ -486,8 +486,8 @@ static uint8_t ws_generate_exluded_channel_list_from_active_channels(ws_excluded
 
 static void ws_fhss_configure_channel_masks(protocol_interface_info_entry_t *cur, fhss_ws_configuration_t *fhss_configuration)
 {
-    ws_generate_channel_list(fhss_configuration->channel_mask, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->hopping_schdule.regulatory_domain);
-    ws_generate_channel_list(fhss_configuration->unicast_channel_mask, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->hopping_schdule.regulatory_domain);
+    ws_generate_channel_list(fhss_configuration->channel_mask, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->hopping_schdule.regulatory_domain, cur->ws_info->hopping_schdule.operating_class);
+    ws_generate_channel_list(fhss_configuration->unicast_channel_mask, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->hopping_schdule.regulatory_domain, cur->ws_info->hopping_schdule.operating_class);
     // using bitwise AND operation for user set channel mask to remove channels not allowed in this device
     for (uint8_t n = 0; n < 8; n++) {
         fhss_configuration->unicast_channel_mask[n] &= cur->ws_info->cfg->fhss.fhss_channel_mask[n];
@@ -2731,7 +2731,7 @@ static void ws_set_asynch_channel_list(protocol_interface_info_entry_t *cur, asy
         uint16_t channel_number = cur->ws_info->cfg->fhss.fhss_uc_fixed_channel;
         async_req->channel_list.channel_mask[0 + (channel_number / 32)] = (1 << (channel_number % 32));
     } else {
-        ws_generate_channel_list(async_req->channel_list.channel_mask, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->hopping_schdule.regulatory_domain);
+        ws_generate_channel_list(async_req->channel_list.channel_mask, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->hopping_schdule.regulatory_domain, cur->ws_info->hopping_schdule.operating_class);
     }
 
     async_req->channel_list.channel_page = CHANNEL_PAGE_10;
