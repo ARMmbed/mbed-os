@@ -2515,10 +2515,6 @@
             "USBDEVICE",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F746NG",
         "bootloader_supported": true,
         "overrides": {
@@ -2573,10 +2569,6 @@
             "FLASH",
             "USBDEVICE",
             "MPU"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32F746ZG",
         "bootloader_supported": true,
@@ -2634,10 +2626,6 @@
             "USBDEVICE",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F756ZG",
         "overrides": {
             "lpticker_delay_ticks": 0,
@@ -2690,9 +2678,6 @@
         ],
         "features": [
             "LWIP"
-        ],
-        "release_versions": [
-            "5"
         ],
         "device_name": "STM32F767VI",
         "bootloader_supported": true
@@ -2751,10 +2736,6 @@
             "FLASH",
             "USBDEVICE",
             "MPU"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32F767ZI",
         "bootloader_supported": true,
@@ -2816,10 +2797,6 @@
             "QSPI"
         ],
         "bootloader_supported": true,
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F769NI",
         "overrides": {
             "lpticker_delay_ticks": 0,
