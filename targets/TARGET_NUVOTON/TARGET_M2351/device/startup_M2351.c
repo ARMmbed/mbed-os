@@ -464,52 +464,39 @@ void Reset_Handler_1(void)
     __iar_program_start();
 
 #elif defined(__GNUC__)
-    /* Move (multiple) .data section(s) from ROM to RAM */
-    {
-        /* Struct of copy table entry which must match linker script */
-        typedef struct copy_table_entry_ {
-            uint32_t    src;            // Address to copy from
-            uint32_t    dst;            // Address to copy to
-            uint32_t    size;           // Copy size in bytes
-        } copy_table_entry;
+        /* Move (multiple) .data section(s) from ROM to RAM */
+        {
+            copy_table_entry *copy_table_ind = (copy_table_entry *) &__copy_table_start__;
+            copy_table_entry *copy_table_end = (copy_table_entry *) &__copy_table_end__;
 
-        copy_table_entry *copy_table_ind = (copy_table_entry *) &__copy_table_start__;
-        copy_table_entry *copy_table_end = (copy_table_entry *) &__copy_table_end__;
-
-        for (; copy_table_ind != copy_table_end; copy_table_ind ++) {
-            uint32_t *src_ind = (uint32_t *) copy_table_ind->src;
-            uint32_t *src_end = (uint32_t *) (copy_table_ind->src + copy_table_ind->size);
-            uint32_t *dst_ind = (uint32_t *) copy_table_ind->dst;
-            if (src_ind != dst_ind) {
-                for (; src_ind < src_end;) {
-                    *dst_ind ++ = *src_ind ++;
+            for (; copy_table_ind != copy_table_end; copy_table_ind ++) {
+                uint32_t *src_ind = (uint32_t *) copy_table_ind->src;
+                uint32_t *src_end = (uint32_t *) (copy_table_ind->src + copy_table_ind->size);
+                uint32_t *dst_ind = (uint32_t *) copy_table_ind->dst;
+                if (src_ind != dst_ind) {
+                    for (; src_ind < src_end;) {
+                        *dst_ind ++ = *src_ind ++;
+                    }
                 }
             }
         }
-    }
 
-    /* Initialize (multiple) .bss sections to zero */
-    {
-        /* Struct of zero table entry which must match linker script */
-        typedef struct zero_table_entry_ {
-            uint32_t    start;          // Address to start zero'ing
-            uint32_t    size;           // Zero size in bytes
-        } zero_table_entry;
+        /* Initialize (multiple) .bss sections to zero */
+        {
+            zero_table_entry *zero_table_ind = (zero_table_entry *) &__zero_table_start__;
+            zero_table_entry *zero_table_end = (zero_table_entry *) &__zero_table_end__;
 
-        zero_table_entry *zero_table_ind = (zero_table_entry *) &__zero_table_start__;
-        zero_table_entry *zero_table_end = (zero_table_entry *) &__zero_table_end__;
+            for (; zero_table_ind != zero_table_end; zero_table_ind ++) {
+                uint32_t *dst_ind = (uint32_t *) zero_table_ind->start;
+                uint32_t *dst_end = (uint32_t *) (zero_table_ind->start + zero_table_ind->size);
 
-        for (; zero_table_ind != zero_table_end; zero_table_ind ++) {
-            uint32_t *dst_ind = (uint32_t *) zero_table_ind->start;
-            uint32_t *dst_end = (uint32_t *) (zero_table_ind->start + zero_table_ind->size);
-
-            for (; dst_ind < dst_end; ) {
-                *dst_ind ++ = 0;
+                for (; dst_ind < dst_end; ) {
+                    *dst_ind ++ = 0;
+                }
             }
         }
-    }
 
-    _start();
+        _start();
 
 #endif
 
