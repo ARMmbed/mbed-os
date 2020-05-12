@@ -3123,183 +3123,6 @@
         ],
         "bootloader_supported": true
     },
-    "NUCLEO_L011K4": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "core": "Cortex-M0+",
-        "extra_labels_add": [
-            "STM32L0",
-            "STM32L011K4"
-        ],
-        "supported_toolchains": [
-            "uARM"
-        ],
-        "default_toolchain": "uARM",
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            },
-            "lpticker_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
-                "value": 1
-            }
-        },
-        "overrides": {
-            "lpticker_delay_ticks": 0
-        },
-        "macros_add": [
-            "EXTRA_IDLE_STACK_REQUIRED"
-        ],
-        "detect_code": [
-            "0780"
-        ],
-        "device_has_add": [
-            "CRC",
-            "FLASH"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "STM32L011K4"
-    },
-    "NUCLEO_L031K6": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "core": "Cortex-M0+",
-        "extra_labels_add": [
-            "STM32L0",
-            "STM32L031K6"
-        ],
-        "default_toolchain": "uARM",
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            },
-            "lpticker_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
-                "value": 1
-            }
-        },
-        "macros_add": [
-            "EXTRA_IDLE_STACK_REQUIRED"
-        ],
-        "overrides": {
-            "lpticker_delay_ticks": 0
-        },
-        "detect_code": [
-            "0790"
-        ],
-        "device_has_add": [
-            "CRC",
-            "FLASH"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "STM32L031K6"
-    },
-    "DISCO_L053C8": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "core": "Cortex-M0+",
-        "extra_labels_add": [
-            "STM32L0",
-            "STM32L053x8",
-            "STM32L053C8"
-        ],
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            },
-            "lpticker_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
-                "value": 1
-            }
-        },
-        "macros_add": [
-            "MBED_TICKLESS",
-            "EXTRA_IDLE_STACK_REQUIRED"
-        ],
-        "overrides": {
-            "lse_available": 0,
-            "lpticker_delay_ticks": 0
-        },
-        "device_has_add": [
-            "ANALOGOUT",
-            "CRC",
-            "FLASH",
-            "MPU"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "STM32L053C8",
-        "detect_code": [
-            "0805"
-        ]
-    },
-    "NUCLEO_L053R8": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
-        ],
-        "core": "Cortex-M0+",
-        "extra_labels_add": [
-            "STM32L0",
-            "STM32L053x8",
-            "STM32L053R8"
-        ],
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            },
-            "lpticker_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
-                "value": 1
-            }
-        },
-        "macros_add": [
-            "EXTRA_IDLE_STACK_REQUIRED"
-        ],
-        "overrides": {
-            "lpticker_delay_ticks": 0
-        },
-        "detect_code": [
-            "0715"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "CRC",
-            "SERIAL_ASYNCH",
-            "FLASH",
-            "MPU"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "STM32L053R8"
-    },
     "DISCO_L072CZ_LRWAN1": {
         "inherits": [
             "MCU_STM32"
@@ -3344,15 +3167,11 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32L072CZ"
     },
     "NUCLEO_L073RZ": {
         "inherits": [
-            "MCU_STM32"
+            "MCU_STM32_BAREMETAL"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -3392,10 +3211,6 @@
             "TRNG",
             "FLASH",
             "MPU"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "bootloader_supported": true,
         "device_name": "STM32L073RZ"
