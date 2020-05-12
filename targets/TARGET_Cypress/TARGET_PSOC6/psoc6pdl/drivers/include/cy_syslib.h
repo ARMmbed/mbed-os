@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syslib.h
-* \version 2.50.2
+* \version 2.50.3
 *
 * Provides an API declaration of the SysLib driver.
 *
@@ -28,9 +28,9 @@
 * The system libraries provide APIs that can be called in the user application
 * to handle the timing, logical checking or register.
 *
-* The functions and other declarations used in this driver are in cy_syslib.h. 
-* You can include cy_pdl.h (ModusToolbox only) to get access to all functions 
-* and declarations in the PDL. 
+* The functions and other declarations used in this driver are in cy_syslib.h.
+* You can include cy_pdl.h (ModusToolbox only) to get access to all functions
+* and declarations in the PDL.
 *
 * The SysLib driver contains a set of different system functions. These functions
 * can be called in the application routine. Major features of the system library:
@@ -62,7 +62,7 @@
 * name and line number of the ASSERT into global variables, cy_assertFileName
 * and cy_assertLine . It then calls the Cy_SysLib_Halt() function.
 * \note Firmware can redefine the Cy_SysLib_AssertFailed() function for custom processing.
-* 
+*
 * The PDL source code uses this assert mechanism extensively. It is recommended
 * that you enable asserts when debugging firmware. \n
 * <b> Assertion Classes and Levels </b> <br />
@@ -89,15 +89,15 @@
 * </table>
 * Firmware defines which ASSERT class is enabled by defining CY_ASSERT_LEVEL.
 * This is a compiler command line argument, similar to how the DEBUG / NDEBUG
-* macro is passed. \n 
+* macro is passed. \n
 * Enabling any class also enables any lower-numbered class.
 * CY_ASSERT_CLASS_3 is the default level, and it enables asserts for all three
 * classes. The following example shows the command-line option to enable all
 * the assert levels:
 * \code -D CY_ASSERT_LEVEL=CY_ASSERT_CLASS_3 \endcode
 * \note The use of special characters, such as spaces, parenthesis, etc. must
-* be protected with quotes. 
-* 
+* be protected with quotes.
+*
 * After CY_ASSERT_LEVEL is defined, firmware can use
 * one of the three level macros to make an assertion. For example, if the
 * parameter can vary between devices, firmware uses the L1 macro.
@@ -135,9 +135,28 @@
 *   </tr>
 * </table>
 *
+* \section group_syslib_errata Known Issues
+*
+* <table class="doxtable">
+*   <tr><th>Issue</th><th>Workaround</th></tr>
+*   <tr>
+*     <td>The function malloc() does not return an error when the allocation
+*         size is bigger than the heap size.
+*     </td>
+*     <td>PDL does not implement the _sbrk function. The user needs to add
+*         custom _sbrk function.
+*     </td>
+*   </tr>
+* </table>
+*
 * \section group_syslib_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>2.50.3</td>
+*     <td>Add section Known Issues
+*     <td>Documentation update and clarification.</td>
+*   </tr>
 *   <tr>
 *     <td>2.50.1</td>
 *     <td>Used the core library defines for the message codes forming.
@@ -145,9 +164,9 @@
 *   </tr>
 *   <tr>
 *     <td>2.50</td>
-*     <td>Moved following macros to the core library: 
-*         CY_LO8,CY_HI8,CY_LO16,CY_HI16,CY_SWAP_ENDIAN16,CY_SWAP_ENDIAN32, 
-*         CY_SWAP_ENDIAN64,CY_GET_REG8,CY_SET_REG8,CY_GET_REG16,CY_SET_REG16, 
+*     <td>Moved following macros to the core library:
+*         CY_LO8,CY_HI8,CY_LO16,CY_HI16,CY_SWAP_ENDIAN16,CY_SWAP_ENDIAN32,
+*         CY_SWAP_ENDIAN64,CY_GET_REG8,CY_SET_REG8,CY_GET_REG16,CY_SET_REG16,
 *         CY_GET_REG24,CY_SET_REG24,CY_GET_REG32,CY_SET_REG32,_CLR_SET_FLD32U,
 *         CY_REG32_CLR_SET,_CLR_SET_FLD16U,CY_REG16_CLR_SET,_CLR_SET_FLD8U,
 *         CY_REG8_CLR_SET,_BOOL2FLD,_FLD2BOOL,CY_SYSLIB_DIV_ROUND,
@@ -204,7 +223,7 @@
 *   <tr>
 *     <td>Added register access layer. Use register access macros instead
 *         of direct register access using dereferenced pointers.</td>
-*     <td>Makes register access device-independent, so that the PDL does 
+*     <td>Makes register access device-independent, so that the PDL does
 *         not need to be recompiled for each supported part number.</td>
 *   </tr>
 *   <tr>
@@ -526,7 +545,7 @@ typedef double   float64_t; /**< Specific-length typedef for the basic numerical
 * Defines for the Assert Classes and Levels
 */
 
-/** 
+/**
 * Class 1 - The highest class, safety-critical functions which rely on parameters that could be
 * changed between different PSoC devices
 */
