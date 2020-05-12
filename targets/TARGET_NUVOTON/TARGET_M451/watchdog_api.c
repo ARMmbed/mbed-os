@@ -21,11 +21,30 @@
 
 #include "cmsis.h"
 
-/* Micro seconds per second */
-#define NU_US_PER_SEC               1000000
+/* Define WDT clock source in target configuration option */
+#ifndef MBED_CONF_TARGET_WDT_CLKSRC_SEL
+#define MBED_CONF_TARGET_WDT_CLKSRC_SEL     LXT
+#endif
+
+/* WDT clock source definition */
+#define NU_INTERN_WDT_CLKSRC_LXT            1
+#define NU_INTERN_WDT_CLKSRC_LIRC           2
+
+/* WDT clock source selection */
+#define NU_INTERN_WDT_CLKSRC_SEL__(SEL)     NU_INTERN_WDT_CLKSRC_##SEL
+#define NU_INTERN_WDT_CLKSRC_SEL_(SEL)      NU_INTERN_WDT_CLKSRC_SEL__(SEL)
+#define NU_INTERN_WDT_CLKSRC_SEL            NU_INTERN_WDT_CLKSRC_SEL_(MBED_CONF_TARGET_WDT_CLKSRC_SEL)
 
 /* Watchdog clock per second */
+#if NU_INTERN_WDT_CLKSRC_SEL == NU_INTERN_WDT_CLKSRC_LXT
+#define NU_WDTCLK_PER_SEC           (__LXT)
+#define NU_WDTCLK_PER_SEC_MAX       (__LXT)
+#define NU_WDTCLK_PER_SEC_MIN       (__LXT)
+#elif NU_INTERN_WDT_CLKSRC_SEL == NU_INTERN_WDT_CLKSRC_LIRC
 #define NU_WDTCLK_PER_SEC           (__LIRC)
+#define NU_WDTCLK_PER_SEC_MAX       ((uint32_t) ((__LIRC) * 1.5f))
+#define NU_WDTCLK_PER_SEC_MIN       ((uint32_t) ((__LIRC) * 0.5f))
+#endif
 
 /* Convert watchdog clock to nearest ms */
 #define NU_WDTCLK2MS(WDTCLK)        (((WDTCLK) * 1000 + ((NU_WDTCLK_PER_SEC) / 2)) / (NU_WDTCLK_PER_SEC))
@@ -43,8 +62,12 @@
 #define NU_WDT_65536CLK                 65536
 #define NU_WDT_262144CLK                262144
 
-/* Watchdog reset delay */
-#define NU_WDT_RESET_DELAY_RSTDSEL      WDT_RESET_DELAY_3CLK
+/* Watchdog reset delay
+ *
+ * 1. Cannot be too small. This is to avoid premature WDT reset in pieces of timeout cascading.
+ * 2. Cannot be too large. This is to pass Greentea reset_reason/watchdog_reset tests, which have e.g. 50~100 reset delay tolerance.
+ */
+#define NU_WDT_RESET_DELAY_RSTDSEL      WDT_RESET_DELAY_130CLK
 
 /* Support watchdog timeout values beyond H/W
  *
@@ -76,11 +99,19 @@ watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
     if (! wdt_hw_inited) {
         wdt_hw_inited = 1;
 
+        SYS_UnlockReg();
+
         /* Enable IP module clock */
         CLK_EnableModuleClock(WDT_MODULE);
 
         /* Select IP clock source */
+#if NU_INTERN_WDT_CLKSRC_SEL == NU_INTERN_WDT_CLKSRC_LXT
+        CLK_SetModuleClock(WDT_MODULE, CLK_CLKSEL1_WDTSEL_LXT, 0);
+#elif NU_INTERN_WDT_CLKSRC_SEL == NU_INTERN_WDT_CLKSRC_LIRC
         CLK_SetModuleClock(WDT_MODULE, CLK_CLKSEL1_WDTSEL_LIRC, 0);
+#endif
+
+        SYS_LockReg();
 
         /* Set up IP interrupt */
         NVIC_SetVector(WDT_IRQn, (uint32_t) WDT_IRQHandler);
@@ -125,9 +156,10 @@ watchdog_features_t hal_watchdog_get_platform_features(void)
     wdt_feat.update_config = 1;
     /* Support stopping watchdog timer */
     wdt_feat.disable_watchdog = 1;
-    /* Accuracy of watchdog timer */
-    wdt_feat.clock_typical_frequency = 10000;
-    wdt_feat.clock_max_frequency = 15000;
+    /* Typical frequency of not calibrated watchdog clock in Hz */
+    wdt_feat.clock_typical_frequency = NU_WDTCLK_PER_SEC;
+    /* Maximum frequency of not calibrated watchdog clock in Hz */
+    wdt_feat.clock_max_frequency = NU_WDTCLK_PER_SEC_MAX;
 
     return wdt_feat;
 }
