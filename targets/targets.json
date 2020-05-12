@@ -1226,7 +1226,6 @@
         ],
         "supported_toolchains": [
             "ARM",
-            "uARM",
             "IAR",
             "GCC_ARM"
         ],
@@ -1958,25 +1957,8 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "bootloader_supported": true,
-        "device_name": "STM32F303RE",
-        "supported_c_libs": {
-            "arm": [
-                "std",
-                "small"
-            ],
-            "gcc_arm": [
-                "std",
-                "small"
-            ],
-            "iar": [
-                "std"
-            ]
-        }
+        "device_name": "STM32F303RE"
     },
     "NUCLEO_F303ZE": {
         "inherits": [
@@ -2081,10 +2063,6 @@
             "SERIAL_ASYNCH",
             "FLASH",
             "MPU"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32F401RE"
     },
@@ -2205,25 +2183,8 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F411RE",
-        "bootloader_supported": true,
-        "supported_c_libs": {
-            "arm": [
-                "std",
-                "small"
-            ],
-            "gcc_arm": [
-                "std",
-                "small"
-            ],
-            "iar": [
-                "std"
-            ]
-        }
+        "bootloader_supported": true
     },
     "NUCLEO_F412ZG": {
         "inherits": [
@@ -2469,19 +2430,6 @@
         "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": "ETHERNET"
-        },
-        "supported_c_libs": {
-            "arm": [
-                "std",
-                "small"
-            ],
-            "gcc_arm": [
-                "std",
-                "small"
-            ],
-            "iar": [
-                "std"
-            ]
         }
     },
     "MTB_STM_S2LP": {
@@ -4501,25 +4449,8 @@
         "features": [
             "BLE"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32L475VG",
-        "bootloader_supported": true,
-        "supported_c_libs": {
-            "arm": [
-                "std",
-                "small"
-            ],
-            "gcc_arm": [
-                "std",
-                "small"
-            ],
-            "iar": [
-                "std"
-            ]
-        }
+        "bootloader_supported": true
     },
     "DISCO_L476VG": {
         "components_add": [
