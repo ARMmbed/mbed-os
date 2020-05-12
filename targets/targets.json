@@ -1510,42 +1510,6 @@
             "network-default-interface-type": "ETHERNET"
         }
     },
-    "NUCLEO_F302R8": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
-        ],
-        "core": "Cortex-M4F",
-        "extra_labels_add": [
-            "STM32F3",
-            "STM32F302x8",
-            "STM32F302R8"
-        ],
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            }
-        },
-        "detect_code": [
-            "0705"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "CAN",
-            "CRC",
-            "SERIAL_ASYNCH"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "STM32F302R8"
-    },
     "NUCLEO_F303K8": {
         "inherits": [
             "MCU_STM32_BAREMETAL"
@@ -1582,7 +1546,7 @@
     },
     "NUCLEO_F303RE": {
         "inherits": [
-            "MCU_STM32"
+            "MCU_STM32_BAREMETAL"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -1618,51 +1582,6 @@
         "bootloader_supported": true,
         "device_name": "STM32F303RE"
     },
-    "DISCO_F303VC": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "core": "Cortex-M4F",
-        "extra_labels_add": [
-            "STM32F3",
-            "STM32F303",
-            "STM32F303xC",
-            "STM32F303VC"
-        ],
-        "overrides": {
-            "lse_available": 0
-        },
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            }
-        },
-        "supported_toolchains": [
-            "ARM",
-            "uARM",
-            "GCC_ARM",
-            "IAR"
-        ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "CAN",
-            "CRC",
-            "MPU"
-        ],
-        "device_has_remove": [
-            "LPTICKER"
-        ],
-        "device_name": "STM32F303VC",
-        "detect_code": [
-            "0746"
-        ]
-    },
     "NUCLEO_F303ZE": {
         "inherits": [
             "MCU_STM32"
@@ -1694,84 +1613,7 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F303ZE"
-    },
-    "DISCO_F334C8": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "core": "Cortex-M4F",
-        "extra_labels_add": [
-            "STM32F3",
-            "STM32F334x8",
-            "STM32F334C8"
-        ],
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            }
-        },
-        "overrides": {
-            "lse_available": 0
-        },
-        "detect_code": [
-            "0810"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "CRC",
-            "SERIAL_ASYNCH"
-        ],
-        "device_has_remove": [
-            "LPTICKER"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "STM32F334C8"
-    },
-    "NUCLEO_F334R8": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
-        ],
-        "core": "Cortex-M4F",
-        "extra_labels_add": [
-            "STM32F3",
-            "STM32F334x8",
-            "STM32F334R8"
-        ],
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            }
-        },
-        "detect_code": [
-            "0735"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "CAN",
-            "CRC",
-            "SERIAL_ASYNCH"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "STM32F334R8"
     },
     "NUCLEO_F401RE": {
         "inherits": [
