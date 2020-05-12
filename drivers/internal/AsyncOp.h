@@ -68,7 +68,7 @@ public:
      *
      * @note - the host object's lock MUST NOT be held when this call is made
      */
-    void wait(rtos::Mutex *host_mutex, uint32_t milliseconds = osWaitForever);
+    void wait(rtos::Mutex *host_mutex, rtos::Kernel::Clock::duration_u32 rel_time = rtos::Kernel::wait_for_u32_forever);
 
     /**
      * Abort this asynchronous operation

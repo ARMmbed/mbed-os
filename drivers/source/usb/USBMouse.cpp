@@ -21,6 +21,7 @@
 #include "ThisThread.h"
 #include "usb_phy_api.h"
 
+using namespace std::chrono_literals;
 
 USBMouse::USBMouse(bool connect_blocking, MOUSE_TYPE mouse_type, uint16_t vendor_id, uint16_t product_id, uint16_t product_release):
     USBHID(get_usb_phy(), 0, 0, vendor_id, product_id, product_release)
@@ -157,7 +158,7 @@ bool USBMouse::double_click()
         _mutex.unlock();
         return false;
     }
-    rtos::ThisThread::sleep_for(100);
+    rtos::ThisThread::sleep_for(100ms);
     bool ret = click(MOUSE_LEFT);
 
     _mutex.unlock();
@@ -172,7 +173,7 @@ bool USBMouse::click(uint8_t button)
         _mutex.unlock();
         return false;
     }
-    rtos::ThisThread::sleep_for(10);
+    rtos::ThisThread::sleep_for(10ms);
     bool ret = update(0, 0, 0, 0);
 
     _mutex.unlock();
