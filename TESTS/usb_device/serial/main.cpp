@@ -149,11 +149,7 @@ line_coding_t test_codings[] = {
     { 9600, 8, 0, 0 },
     { 57600, 8, 0, 0 },
 };
-#if defined(MBED_CONF_RTOS_PRESENT)
-Mail<line_coding_t, 8> lc_mail;
-#else
 static CircularBuffer<line_coding_t, 8> lc_data;
-#endif
 
 #define EF_SEND (1ul << 0)
 EventFlags event_flags;
@@ -773,14 +769,6 @@ void test_serial_printf_scanf()
 
 void line_coding_changed_cb(int baud, int bits, int parity, int stop)
 {
-#if defined(MBED_CONF_RTOS_PRESENT)
-    line_coding_t *lc = lc_mail.alloc();
-    lc->baud = baud;
-    lc->bits = bits;
-    lc->parity = parity;
-    lc->stop = stop;
-    lc_mail.put(lc);
-#else
     line_coding_t lc = {
         .baud = baud,
         .bits = bits,
@@ -789,7 +777,6 @@ void line_coding_changed_cb(int baud, int bits, int parity, int stop)
     };
     lc_data.push(lc);
     event_flags.set(EF_SEND);
-#endif
 }
 
 /** Test Serial / CDC line coding change
@@ -813,9 +800,9 @@ void test_serial_line_coding_change()
     size_t num_line_codings = sizeof test_codings / sizeof test_codings[0];
     line_coding_t *lc_prev = &default_lc;
     line_coding_t *lc_expected = NULL;
-    line_coding_t *lc_actual = NULL;
     int num_expected_callbacks, rc;
     for (size_t i = 0; i < num_line_codings; i++) {
+        line_coding_t lc_actual = {0};
         lc_expected = &(test_codings[i]);
         num_expected_callbacks = lc_prev->get_num_diffs(*lc_expected);
         rc = usb_serial.printf("%06i,%02i,%01i,%01i%c", lc_expected->baud, lc_expected->bits, lc_expected->parity,
@@ -827,34 +814,16 @@ void test_serial_line_coding_change()
         // calls to line_coding_changed callback on the device.
         while (num_expected_callbacks > 0) {
             num_expected_callbacks--;
-#if defined(MBED_CONF_RTOS_PRESENT)
-            osEvent event = lc_mail.get();
-            TEST_ASSERT_EQUAL_UINT32(osEventMail, event.status);
-            lc_actual = (line_coding_t *) event.value.p;
-            if (lc_expected->get_num_diffs(*lc_actual) == 0) {
-                break;
-            } else if (num_expected_callbacks > 0) {
-                // Discard lc_actual only if there is still a chance to get new
-                // set of params.
-                lc_mail.free(lc_actual);
-            }
-#else
-            line_coding_t lc_receive = {0};
             event_flags.wait_all(EF_SEND);
-            lc_data.pop(lc_receive);
-            if (lc_expected->get_num_diffs(lc_receive) == 0) {
+            lc_data.pop(lc_actual);
+            if (lc_expected->get_num_diffs(lc_actual) == 0) {
                 break;
             }
-            lc_actual = &lc_receive;
-#endif
         }
-        TEST_ASSERT_EQUAL_INT(lc_expected->baud, lc_actual->baud);
-        TEST_ASSERT_EQUAL_INT(lc_expected->bits, lc_actual->bits);
-        TEST_ASSERT_EQUAL_INT(lc_expected->parity, lc_actual->parity);
-        TEST_ASSERT_EQUAL_INT(lc_expected->stop, lc_actual->stop);
-#if defined(MBED_CONF_RTOS_PRESENT)
-        lc_mail.free(lc_actual);
-#endif
+        TEST_ASSERT_EQUAL_INT(lc_expected->baud, lc_actual.baud);
+        TEST_ASSERT_EQUAL_INT(lc_expected->bits, lc_actual.bits);
+        TEST_ASSERT_EQUAL_INT(lc_expected->parity, lc_actual.parity);
+        TEST_ASSERT_EQUAL_INT(lc_expected->stop, lc_actual.stop);
         lc_prev = lc_expected;
     }
     // Wait for the host to close its port.
