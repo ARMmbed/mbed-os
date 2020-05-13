@@ -781,11 +781,12 @@ void line_coding_changed_cb(int baud, int bits, int parity, int stop)
     lc->stop = stop;
     lc_mail.put(lc);
 #else
-    line_coding_t lc = {0};
-    lc.baud = baud;
-    lc.bits = bits;
-    lc.parity = parity;
-    lc.stop = stop;
+    line_coding_t lc = {
+        .baud = baud,
+        .bits = bits,
+        .parity = parity,
+        .stop = stop
+    };
     lc_data.push(lc);
     event_flags.set(EF_SEND);
 #endif
