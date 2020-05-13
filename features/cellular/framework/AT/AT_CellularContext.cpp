@@ -27,13 +27,13 @@
 #endif // #if DEVICE_SERIAL
 #include "ThisThread.h"
 
-#define NETWORK_TIMEOUT 30 * 60 * 1000 // 30 minutes
-#define DEVICE_TIMEOUT 5 * 60 * 1000 // 5 minutes
+#define NETWORK_TIMEOUT 30min
+#define DEVICE_TIMEOUT 5min
 // Timeout to wait for URC indicating ciot optimization support from network
-#define CP_OPT_NW_REPLY_TIMEOUT 3000 // 3 seconds
+#define CP_OPT_NW_REPLY_TIMEOUT 3s
 
 #if NSAPI_PPP_AVAILABLE
-#define AT_SYNC_TIMEOUT 1000 // 1 second timeout
+#define AT_SYNC_TIMEOUT 1s
 #include "nsapi_ppp.h"
 #endif
 
@@ -45,6 +45,7 @@
 using namespace mbed_cellular_util;
 using namespace mbed;
 using namespace rtos;
+using namespace std::chrono_literals;
 
 AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, bool cp_req, bool nonip_req) :
     _current_op(OP_INVALID), _dcd_pin(NC), _active_high(false), _cp_req(cp_req), _is_connected(false), _at(at)
@@ -118,7 +119,7 @@ nsapi_error_t AT_CellularContext::connect()
     } else {
         if (_cb_data.error == NSAPI_ERROR_ALREADY) {
             // device is already attached, to be async we must use queue to connect and give proper callbacks
-            int id = _device->get_queue()->call_in(0, this, &AT_CellularContext::do_connect_with_retry);
+            int id = _device->get_queue()->call(this, &AT_CellularContext::do_connect_with_retry);
             if (id == 0) {
                 return NSAPI_ERROR_NO_MEMORY;
             }
@@ -162,7 +163,8 @@ nsapi_error_t AT_CellularContext::check_operation(nsapi_error_t err, ContextOper
     _current_op = op;
     if (err == NSAPI_ERROR_IN_PROGRESS || err == NSAPI_ERROR_OK) {
         if (_is_blocking) {
-            int sema_acq = _semaphore.try_acquire_for(get_timeout_for_operation(op)); // cellular network searching may take several minutes
+            auto d = std::chrono::duration<uint32_t, std::milli>(get_timeout_for_operation(op));
+            int sema_acq = _semaphore.try_acquire_for(d); // cellular network searching may take several minutes
             if (!sema_acq) {
                 tr_warning("No cellular connection");
                 return NSAPI_ERROR_TIMEOUT;
@@ -181,11 +183,11 @@ nsapi_connection_status_t AT_CellularContext::get_connection_status() const
 
 uint32_t AT_CellularContext::get_timeout_for_operation(ContextOperation op) const
 {
-    uint32_t timeout = NETWORK_TIMEOUT; // default timeout is 30 minutes as registration and attach may take time
+    std::chrono::duration<uint32_t, std::milli> timeout = NETWORK_TIMEOUT; // default timeout is 30 minutes as registration and attach may take time
     if (op == OP_SIM_READY || op == OP_DEVICE_READY) {
         timeout = DEVICE_TIMEOUT; // use 5 minutes for device ready and sim
     }
-    return timeout;
+    return timeout.count();
 }
 
 bool AT_CellularContext::is_connected()
@@ -716,7 +718,7 @@ nsapi_error_t AT_CellularContext::disconnect()
         do_disconnect();
         return _cb_data.error;
     } else {
-        int event_id = _device->get_queue()->call_in(0, this, &AT_CellularContext::do_disconnect);
+        int event_id = _device->get_queue()->call(this, &AT_CellularContext::do_disconnect);
         if (event_id == 0) {
             return NSAPI_ERROR_NO_MEMORY;
         }
@@ -742,7 +744,7 @@ void AT_CellularContext::deactivate_context()
 void AT_CellularContext::check_and_deactivate_context()
 {
     // CGACT and CGATT commands might take up to 3 minutes to respond.
-    _at.set_at_timeout(180 * 1000);
+    _at.set_at_timeout(3min);
     int active_contexts_count = 0;
     _is_context_active = _nw->is_active_context(&active_contexts_count, _cid);
 

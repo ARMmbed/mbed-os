@@ -33,6 +33,7 @@
 
 using namespace mbed;
 using namespace events;
+using namespace std::chrono_literals;
 
 // AStyle ignored as the definition is not clear due to preprocessor usage
 // *INDENT-OFF*
@@ -44,7 +45,7 @@ protected:
         ATHandler_stub::nsapi_error_value = 0;
         ATHandler_stub::nsapi_error_ok_counter = 0;
         ATHandler_stub::int_value = -1;
-        ATHandler_stub::timeout = 0;
+        ATHandler_stub::timeout = 0s;
         ATHandler_stub::default_timeout = 0;
         ATHandler_stub::debug_on = 0;
         ATHandler_stub::ssize_value = 0;

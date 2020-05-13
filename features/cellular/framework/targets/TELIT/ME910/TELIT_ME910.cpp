@@ -22,6 +22,7 @@
 #include "PinNames.h"
 #include "rtos/ThisThread.h"
 
+using namespace std::chrono_literals;
 using namespace mbed;
 using namespace rtos;
 using namespace events;
@@ -163,11 +164,11 @@ nsapi_error_t TELIT_ME910::hard_power_on()
 nsapi_error_t TELIT_ME910::soft_power_on()
 {
     _pwr_key = _active_high;
-    ThisThread::sleep_for(500);
+    ThisThread::sleep_for(500ms);
     _pwr_key = !_active_high;
-    ThisThread::sleep_for(5000);
+    ThisThread::sleep_for(5s);
     _pwr_key = _active_high;
-    ThisThread::sleep_for(5000);
+    ThisThread::sleep_for(5s);
 
     return NSAPI_ERROR_OK;
 }
@@ -175,7 +176,7 @@ nsapi_error_t TELIT_ME910::soft_power_on()
 nsapi_error_t TELIT_ME910::hard_power_off()
 {
     _pwr_key = !_active_high;
-    ThisThread::sleep_for(10000);
+    ThisThread::sleep_for(10s);
 
     return NSAPI_ERROR_OK;
 }

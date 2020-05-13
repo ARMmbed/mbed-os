@@ -96,6 +96,6 @@ void CellularStateMachine::set_retry_timeout_array(const uint16_t timeout[], int
     }
 }
 
-void CellularStateMachine::set_timeout(int timeout)
+void CellularStateMachine::set_timeout(std::chrono::duration<int, std::milli> timeout)
 {
 }

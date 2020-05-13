@@ -20,9 +20,11 @@
 
 #include "AT_CellularStack.h"
 
+using namespace std::chrono_literals;
+
 namespace mbed {
 
-#define M26_CREATE_SOCKET_TIMEOUT 75000 //75 seconds
+#define M26_CREATE_SOCKET_TIMEOUT 75s
 #define M26_SENT_BYTE_MAX 1460
 #define M26_RECV_BYTE_MAX 1024
 

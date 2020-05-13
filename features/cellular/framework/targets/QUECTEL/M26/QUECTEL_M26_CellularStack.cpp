@@ -19,8 +19,10 @@
 #include "QUECTEL/M26/QUECTEL_M26_CellularStack.h"
 #include "CellularLog.h"
 
-#define SOCKET_SEND_READY_TIMEOUT (30*1000)
-#define SOCKET_READ_TIMEOUT 1000
+using namespace std::chrono;
+
+#define SOCKET_SEND_READY_TIMEOUT 30s
+#define SOCKET_READ_TIMEOUT 1s
 
 using namespace mbed;
 
@@ -402,8 +404,8 @@ nsapi_size_or_error_t QUECTEL_M26_CellularStack::socket_sendto_impl(CellularSock
 
     if (socket->proto == NSAPI_TCP) {
         bool ready_to_send = false;
-        uint64_t start_time = rtos::Kernel::get_ms_count();
-        while (!ready_to_send && start_time < rtos::Kernel::get_ms_count() + SOCKET_SEND_READY_TIMEOUT) {
+        auto start_time = rtos::Kernel::Clock::now() ;
+        while (!ready_to_send && rtos::Kernel::Clock::now() < start_time + SOCKET_SEND_READY_TIMEOUT) {
             _at.cmd_start_stop("+QISACK", "=", "%d", socket->id);
             _at.resp_start("+QISACK:");
             sent_len_before = _at.read_int();
@@ -485,7 +487,7 @@ nsapi_size_or_error_t QUECTEL_M26_CellularStack::socket_recvfrom_impl(CellularSo
 
     tr_debug("QUECTEL_M26_CellularStack:%s:%u:[%d]", __FUNCTION__, __LINE__, size);
 
-    uint64_t start_time = rtos::Kernel::get_ms_count();
+    auto start_time = rtos::Kernel::Clock::now();
     nsapi_size_t len = 0;
     for (; len < size;) {
         unsigned int read_len = (size - len > M26_RECV_BYTE_MAX) ? M26_RECV_BYTE_MAX : size - len;
@@ -511,7 +513,7 @@ nsapi_size_or_error_t QUECTEL_M26_CellularStack::socket_recvfrom_impl(CellularSo
             return NSAPI_ERROR_DEVICE_ERROR;
         }
 
-        if (rtos::Kernel::get_ms_count() > start_time + SOCKET_READ_TIMEOUT) {
+        if (rtos::Kernel::Clock::now() > start_time + SOCKET_READ_TIMEOUT) {
             tr_warn("QUECTEL_M26_CellularStack:%s:%u:[ERROR NSAPI_ERROR_TIMEOUT]", __FUNCTION__, __LINE__);
             return NSAPI_ERROR_TIMEOUT;
         }

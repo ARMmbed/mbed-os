@@ -20,6 +20,7 @@
 
 using namespace mbed;
 using namespace mbed_cellular_util;
+using namespace std::chrono_literals;
 
 UBLOX_AT_CellularStack::UBLOX_AT_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type, AT_CellularDevice &device) :
     AT_CellularStack(atHandler, cid, stack_type, device)
@@ -454,9 +455,9 @@ nsapi_error_t UBLOX_AT_CellularStack::gethostbyname(const char *host, SocketAddr
         err = NSAPI_ERROR_OK;
     } else {
 #ifdef UBX_MDM_SARA_R41XM
-        _at.set_at_timeout(70000);
+        _at.set_at_timeout(70s);
 #else
-        _at.set_at_timeout(120000);
+        _at.set_at_timeout(120s);
 #endif
         // This interrogation can sometimes take longer than the usual 8 seconds
         _at.cmd_start_stop("+UDNSRN", "=0,", "%s", host);

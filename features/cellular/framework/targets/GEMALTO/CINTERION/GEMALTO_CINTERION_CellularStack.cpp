@@ -20,9 +20,11 @@
 #include "GEMALTO_CINTERION.h"
 #include "CellularLog.h"
 
+using namespace std::chrono_literals;
+
 // defines as per ELS61-E2_ATC_V01.000 and BGS2-W_ATC_V00.100
 #define UDP_PACKET_SIZE 1460
-#define FAILURE_TIMEOUT (30*1000) // failure timeout in milliseconds on modem side
+#define FAILURE_TIMEOUT 30s // failure timeout on modem side
 
 using namespace mbed;
 

@@ -27,6 +27,7 @@
 
 using namespace mbed;
 using namespace events;
+using namespace std::chrono_literals;
 static const uint16_t retry_timeout[] = {1, 2, 4};
 static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     AT_CellularNetwork::RegistrationModeLAC,// C_EREG
@@ -80,7 +81,7 @@ nsapi_error_t RM1000_AT::init()
 
     _at.at_cmd_discard("+SIM", "=physical");
 
-    _at.set_at_timeout(5000);
+    _at.set_at_timeout(5s);
     _at.at_cmd_discard("+CFUN", "=1"); // set full functionality
 
     _at.at_cmd_discard("+VERBOSE", "=0"); // verbose responses

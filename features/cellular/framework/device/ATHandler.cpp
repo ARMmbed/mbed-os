@@ -32,6 +32,7 @@
 using namespace mbed;
 using namespace events;
 using namespace mbed_cellular_util;
+using namespace std::chrono_literals;
 
 #include "CellularLog.h"
 
@@ -42,7 +43,7 @@ using namespace mbed_cellular_util;
 #endif
 
 // URCs should be handled fast, if you add debug traces within URC processing then you also need to increase this time
-#define PROCESS_URC_TIME 20
+#define PROCESS_URC_TIME 20ms
 
 // Suppress logging of very big packet payloads, maxlen is approximate due to write/read are cached
 #define DEBUG_MAXLEN 60
@@ -70,6 +71,11 @@ static const uint8_t map_3gpp_errors[][2] =  {
 };
 
 ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const char *output_delimiter, uint16_t send_delay) :
+    ATHandler(fh, queue, mbed::chrono::milliseconds_u32(timeout), output_delimiter, std::chrono::duration<uint16_t, std::milli>(send_delay))
+{
+}
+
+ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, mbed::chrono::milliseconds_u32 timeout, const char *output_delimiter, std::chrono::duration<uint16_t, std::milli> send_delay) :
 #if defined AT_HANDLER_MUTEX && defined MBED_CONF_RTOS_PRESENT
     _oobCv(_fileHandleMutex),
 #endif
@@ -82,7 +88,7 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const 
     _at_timeout(timeout),
     _previous_at_timeout(timeout),
     _at_send_delay(send_delay),
-    _last_response_stop(0),
+    _last_response_stop(0s),
     _ref_count(1),
     _is_fh_usable(false),
     _stop_tag(NULL),
@@ -94,7 +100,7 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const 
     _debug_on(DEBUG_AT_ENABLED),
     _cmd_start(false),
     _use_delimiter(true),
-    _start_time(0),
+    _start_time(),
     _event_id(0)
 {
     clear_error();
@@ -264,7 +270,7 @@ void ATHandler::lock()
     _fileHandleMutex.lock();
 #endif
     clear_error();
-    _start_time = rtos::Kernel::get_ms_count();
+    _start_time = rtos::Kernel::Clock::now();
 }
 
 void ATHandler::unlock()
@@ -286,13 +292,18 @@ nsapi_error_t ATHandler::unlock_return_error()
 
 void ATHandler::set_at_timeout(uint32_t timeout_milliseconds, bool default_timeout)
 {
+    set_at_timeout(mbed::chrono::milliseconds_u32(timeout_milliseconds), default_timeout);
+}
+
+void ATHandler::set_at_timeout(mbed::chrono::milliseconds_u32 timeout, bool default_timeout)
+{
     lock();
     if (default_timeout) {
-        _previous_at_timeout = timeout_milliseconds;
-        _at_timeout = timeout_milliseconds;
-    } else if (timeout_milliseconds != _at_timeout) {
+        _previous_at_timeout = timeout;
+        _at_timeout = timeout;
+    } else if (timeout != _at_timeout) {
         _previous_at_timeout = _at_timeout;
-        _at_timeout = timeout_milliseconds;
+        _at_timeout = timeout;
     }
     unlock();
 }
@@ -320,7 +331,7 @@ void ATHandler::process_oob()
     if (_fileHandle->readable() || (_recv_pos < _recv_len)) {
         tr_debug("AT OoB readable %d, len %u", _fileHandle->readable(), _recv_len - _recv_pos);
         _current_scope = NotSet;
-        uint32_t timeout = _at_timeout;
+        auto timeout = _at_timeout;
         while (true) {
             _at_timeout = timeout;
             if (match_urc()) {
@@ -337,7 +348,7 @@ void ATHandler::process_oob()
                     break;
                 }
             }
-            _start_time = rtos::Kernel::get_ms_count();
+            _start_time = rtos::Kernel::Clock::now();
         }
         _at_timeout = timeout;
         tr_debug("AT OoB done");
@@ -366,20 +377,20 @@ void ATHandler::rewind_buffer()
 
 int ATHandler::poll_timeout(bool wait_for_timeout)
 {
-    int timeout;
+    std::chrono::duration<int, std::milli> timeout;
     if (wait_for_timeout) {
-        uint64_t now = rtos::Kernel::get_ms_count();
+        auto now = rtos::Kernel::Clock::now();
         if (now >= _start_time + _at_timeout) {
-            timeout = 0;
-        } else if (_start_time + _at_timeout - now > INT_MAX) {
-            timeout = INT_MAX;
+            timeout = 0s;
+        } else if (_start_time + _at_timeout - now > timeout.max()) {
+            timeout = timeout.max();
         } else {
             timeout = _start_time + _at_timeout - now;
         }
     } else {
-        timeout = 0;
+        timeout = 0s;
     }
-    return timeout;
+    return timeout.count();
 }
 
 bool ATHandler::fill_buffer(bool wait_for_timeout)
@@ -1138,7 +1149,7 @@ void ATHandler::resp_stop()
     // Reset info resp prefix
     memset(_info_resp_prefix, 0, sizeof(_info_resp_prefix));
 
-    _last_response_stop = rtos::Kernel::get_ms_count();
+    _last_response_stop = rtos::Kernel::Clock::now();
 }
 
 void ATHandler::information_response_stop()
@@ -1178,7 +1189,7 @@ void ATHandler::cmd_start(const char *cmd)
         return;
     }
 
-    if (_at_send_delay) {
+    if (_at_send_delay != 0s) {
         rtos::ThisThread::sleep_until(_last_response_stop + _at_send_delay);
     }
 
@@ -1496,20 +1507,26 @@ void ATHandler::debug_print(const char *p, int len, ATType type)
 
 bool ATHandler::sync(int timeout_ms)
 {
+    return sync(std::chrono::duration<int, std::milli>(timeout_ms));
+
+}
+
+bool ATHandler::sync(std::chrono::duration<int, std::milli> timeout)
+{
     if (!_is_fh_usable) {
         _last_err = NSAPI_ERROR_BUSY;
         return false;
     }
     tr_debug("AT sync");
     lock();
-    uint32_t timeout = _at_timeout;
-    _at_timeout = timeout_ms;
+    auto old_timeout = _at_timeout;
+    _at_timeout = timeout;
     // poll for 10 seconds
     for (int i = 0; i < 10; i++) {
         // For sync use an AT command that is supported by all modems and likely not used frequently,
         // especially a common response like OK could be response to previous request.
         clear_error();
-        _start_time = rtos::Kernel::get_ms_count();
+        _start_time = rtos::Kernel::Clock::now();
         cmd_start("AT+CMEE?");
         cmd_stop();
         resp_start();
@@ -1518,20 +1535,20 @@ bool ATHandler::sync(int timeout_ms)
         set_stop_tag(OK);
         consume_to_stop_tag();
         if (!_last_err) {
-            _at_timeout = timeout;
+            _at_timeout = old_timeout;
             unlock();
             return true;
         }
     }
     tr_error("AT sync failed");
-    _at_timeout = timeout;
+    _at_timeout = old_timeout;
     unlock();
     return false;
 }
 
 void ATHandler::set_send_delay(uint16_t send_delay)
 {
-    _at_send_delay = send_delay;
+    _at_send_delay = std::chrono::duration<uint16_t, std::milli>(send_delay);
 }
 
 void ATHandler::write_hex_string(const char *str, size_t size)

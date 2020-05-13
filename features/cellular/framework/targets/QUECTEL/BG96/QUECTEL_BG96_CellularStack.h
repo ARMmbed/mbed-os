@@ -22,8 +22,8 @@
 
 namespace mbed {
 
-#define BG96_CREATE_SOCKET_TIMEOUT 150000 //150 seconds
-#define BG96_CLOSE_SOCKET_TIMEOUT 20000 // TCP socket max timeout is >10sec
+#define BG96_CREATE_SOCKET_TIMEOUT 150s
+#define BG96_CLOSE_SOCKET_TIMEOUT 20s // TCP socket max timeout is >10sec
 #define BG96_MAX_RECV_SIZE 1500
 #define BG96_MAX_SEND_SIZE 1460
 #define BG96_SOCKET_BIND_FAIL 556

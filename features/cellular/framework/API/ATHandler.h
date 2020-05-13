@@ -19,11 +19,13 @@
 #define AT_HANDLER_H_
 
 #include "platform/mbed_retarget.h"
+#include "platform/mbed_chrono.h"
 
 #include "events/EventQueue.h"
 #include "nsapi_types.h"
 
 #include "Callback.h"
+#include "rtos/Kernel.h"
 
 #include <cstdarg>
 
@@ -78,6 +80,16 @@ public:
      */
     ATHandler(FileHandle *fh, events::EventQueue &queue, uint32_t timeout, const char *output_delimiter, uint16_t send_delay = 0);
 
+    /** Constructor
+     *
+     *  @param fh               file handle used for reading AT responses and writing AT commands
+     *  @param queue            Event queue used to transfer sigio events to this thread
+     *  @param timeout          Timeout when reading for AT response
+     *  @param output_delimiter delimiter used when parsing at responses, "\r" should be used as output_delimiter
+     *  @param send_delay       the minimum delay in ms between the end of last response and the beginning of a new command
+     */
+    ATHandler(FileHandle *fh, events::EventQueue &queue, mbed::chrono::milliseconds_u32 timeout, const char *output_delimiter, std::chrono::duration<uint16_t, std::milli> send_delay = std::chrono::milliseconds(0));
+
     ~ATHandler();
 
     /** Return used file handle.
@@ -126,6 +138,13 @@ public:
      */
     void set_at_timeout(uint32_t timeout_milliseconds, bool default_timeout = false);
 
+    /** Set timeout in milliseconds for AT commands
+     *
+     *  @param timeout               Timeout in milliseconds
+     *  @param default_timeout       Store as default timeout
+     */
+    void set_at_timeout(mbed::chrono::milliseconds_u32 timeout, bool default_timeout = false);
+
     /** Restore timeout to previous timeout. Handy if there is a need to change timeout temporarily.
      */
     void restore_at_timeout();
@@ -156,6 +175,13 @@ public:
      *  @return true is synchronization was successful, false in case of failure
      */
     bool sync(int timeout_ms);
+
+    /** Synchronize AT command and response handling to modem.
+     *
+     *  @param timeout ATHandler timeout when trying to sync. Will be restored when function returns.
+     *  @return true is synchronization was successful, false in case of failure
+     */
+    bool sync(std::chrono::duration<int, std::milli> timeout);
 
     /** Sets the delay to be applied before sending any AT command.
      *
@@ -565,11 +591,11 @@ private: //Member variables
     char *_output_delimiter;
 
     oob_t *_oobs;
-    uint32_t _at_timeout;
-    uint32_t _previous_at_timeout;
+    mbed::chrono::milliseconds_u32 _at_timeout;
+    mbed::chrono::milliseconds_u32 _previous_at_timeout;
 
-    uint16_t _at_send_delay;
-    uint64_t _last_response_stop;
+    std::chrono::duration<uint16_t, std::milli> _at_send_delay;
+    rtos::Kernel::Clock::time_point _last_response_stop;
 
     int32_t _ref_count;
     bool _is_fh_usable;
@@ -610,7 +636,7 @@ private: //Member variables
     bool _use_delimiter;
 
     // time when a command or an URC processing was started
-    uint64_t _start_time;
+    rtos::Kernel::Clock::time_point _start_time;
     // eventqueue event id
     int _event_id;
 
