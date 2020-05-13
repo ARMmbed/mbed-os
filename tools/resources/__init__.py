@@ -425,6 +425,7 @@ class Resources(object):
                 path, base_path, [join(e, "*") for e in exclude_paths])
 
         for root, dirs, files in walk(path, followlinks=True):
+            #print("root=%s, dirs=%s=" % (root, str(dirs)))
             # Check if folder contains .mbedignore
             if IGNORE_FILENAME in files:
                 real_base = relpath(root, base_path)
@@ -434,8 +435,6 @@ class Resources(object):
             root_path = join(relpath(root, base_path))
             if self._ignoreset.is_ignored(join(root_path,"")):
                 self.ignore_dir(join(into_path, root_path))
-                dirs[:] = []
-                continue
 
             for d in copy(dirs):
                 dir_path = join(root, d)
@@ -451,13 +450,21 @@ class Resources(object):
                         relpath(dir_path, base_path)
                     ))
                     dirs.remove(d)
-                elif (d.startswith('.') or d in self._legacy_ignore_dirs or
-                      self._ignoreset.is_ignored(join(root_path, d, ""))):
+
+                # hardcoded ignore rules -- don't want to visit any of these subdirs
+                elif d.startswith('.') or d in self._legacy_ignore_dirs:
                     self.ignore_dir(join(
                         into_path,
                         relpath(dir_path, base_path)
                     ))
                     dirs.remove(d)
+
+                # manual ignore rules -- may want to visit subdirs if they have unignored files
+                elif self._ignoreset.is_ignored(join(root_path, d, "")):
+                    self.ignore_dir(join(
+                        into_path,
+                        relpath(dir_path, base_path)
+                    ))
 
             # Add root to include paths
             root = root.rstrip("/")
@@ -602,3 +609,38 @@ class Resources(object):
         for t in res_filter.file_types:
             self._file_refs[t] = set(filter(
                 res_filter.predicate, self._file_refs[t]))
+
+
+class ResourceFilter(object):
+    def __init__(self, file_types):
+        self.file_types = file_types
+
+    def predicate(self, ref):
+        raise NotImplemented
+
+
+class SpeOnlyResourceFilter(ResourceFilter):
+    def __init__(self):
+        ResourceFilter.__init__(
+            self, [FileType.ASM_SRC, FileType.C_SRC, FileType.CPP_SRC])
+
+    def predicate(self, ref):
+        return 'COMPONENT_SPE' in ref.name
+
+
+class OsAndSpeResourceFilter(ResourceFilter):
+    def __init__(self):
+        ResourceFilter.__init__(
+            self, [FileType.ASM_SRC, FileType.C_SRC, FileType.CPP_SRC])
+
+    def predicate(self, ref):
+        return ROOT in abspath(ref.name) or 'COMPONENT_SPE' in ref.name
+
+
+class PsaManifestResourceFilter(ResourceFilter):
+    def __init__(self):
+        ResourceFilter.__init__(
+            self, [FileType.JSON])
+
+    def predicate(self, ref):
+        return not ref.name.endswith('_psa.json')
