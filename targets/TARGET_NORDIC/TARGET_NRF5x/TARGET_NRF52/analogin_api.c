@@ -122,6 +122,40 @@ void analogin_init(analogin_t *obj, PinName pin)
     ANALOGIN_INIT_DIRECT(obj, &static_pinmap);
 }
 
+/** Reconfigure the analogin peripheral
+ *
+ * Configures the pin used by analogin.
+ * @param obj The analogin object to initialize
+ * @param config pointer to structure which holds analogin configuration
+ */
+void analogin_configure(analogin_t *obj, const analogin_config_t *config)
+{
+    MBED_ASSERT(obj);
+
+    /* Get associated channel from the adc object. */
+    uint32_t channel = obj->channel;
+    MBED_ASSERT(channel != (uint32_t) NC);
+
+    /* Account for an off-by-one in Channel definition and Input definition. */
+    nrf_saadc_input_t input = channel + 1;
+
+    /* Configure channel and pin */
+    nrf_saadc_channel_config_t channel_config = {
+    .resistor_p = config->resistor_p,
+    .resistor_n = config->resistor_n,
+    .gain       = config->gain,
+    .reference  = config->reference,
+    .acq_time   = config->acq_time,
+    .mode       = config->mode,
+    .burst      = config->burst,
+    .pin_p      = input,
+    .pin_n      = config->pin_n
+    };
+
+    ret_code_t result = nrfx_saadc_channel_init(channel, &channel_config);
+    MBED_ASSERT(result == NRFX_SUCCESS);
+}
+
 /** Read the input voltage, represented as a float in the range [0.0, 1.0]
  *
  * @param obj The analogin object

@@ -33,6 +33,10 @@ extern "C" {
  */
 typedef struct analogin_s analogin_t;
 
+/** Analogin configuration hal structure. analogin_config_s is declared in the target's hal
+ */
+typedef struct analogin_config_s analogin_config_t;
+
 /**
  * \defgroup hal_analogin Analogin hal functions
  *
@@ -76,6 +80,15 @@ void analogin_init_direct(analogin_t *obj, const PinMap *pinmap);
  * @param pin The analogin pin name
  */
 void analogin_init(analogin_t *obj, PinName pin);
+
+/** Initialize the analogin peripheral
+ *
+ * Configures the pin used by analogin.
+ * @param obj The analogin object to initialize
+ * @param pin The analogin pin name
+ * @param pinmap pointer to structure which holds analogin configuration
+ */
+void __attribute__((weak)) analogin_configure(analogin_t *obj, const analogin_config_t *config);
 
 /** Release the analogin peripheral
  *

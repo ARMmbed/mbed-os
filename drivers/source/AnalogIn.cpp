@@ -38,6 +38,13 @@ AnalogIn::AnalogIn(const PinMap &pinmap, float vref) : _vref(vref)
     unlock();
 }
 
+void AnalogIn::configure(const analogin_config_t &config)
+{
+    lock();
+    analogin_configure(&_adc, &config);
+    unlock();
+}
+
 float AnalogIn::read()
 {
     lock();

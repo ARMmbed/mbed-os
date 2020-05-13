@@ -50,6 +50,8 @@
 #endif
 #include "nrf_twi.h"
 
+#include "nrf_saadc.h"
+
 #include "nrf_pwm.h"
 
 #ifdef __cplusplus
@@ -146,6 +148,18 @@ struct i2c_s {
 
 struct analogin_s {
     uint8_t channel;
+};
+
+struct analogin_config_s {
+    nrf_saadc_resistor_t  resistor_p;
+    nrf_saadc_resistor_t  resistor_n;
+    nrf_saadc_gain_t      gain;
+    nrf_saadc_reference_t reference;
+    nrf_saadc_acqtime_t   acq_time;
+    nrf_saadc_mode_t      mode;
+    nrf_saadc_burst_t     burst;
+    nrf_saadc_input_t     pin_p;
+    nrf_saadc_input_t     pin_n;
 };
 
 struct gpio_irq_s {
