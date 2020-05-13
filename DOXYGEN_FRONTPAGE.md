@@ -6,3 +6,5 @@ For more information, please see:
 
 * [The mbed OS API References](https://docs.mbed.com/docs/mbed-os-api-reference/)
 * [The mbed OS Handbook](https://docs.mbed.com/docs/mbed-os-handbook/)
+
+TEST UPDATE FOR THE NEW RELEASE SCRIPT
