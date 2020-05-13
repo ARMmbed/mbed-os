@@ -133,6 +133,18 @@ public:
     */
     osStatus release(void);
 
+    /** Get the number of Semaphore tokens available.
+
+      @note You cannot call this function from ISR context.
+    */
+    uint32_t get_count(void){
+#if MBED_CONF_RTOS_PRESENT
+        return osSemaphoreGetCount(_id);
+#else
+        return _count;
+#endif
+    }
+
     /** Semaphore destructor
      *
      * @note You cannot call this function from ISR context.
