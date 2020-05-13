@@ -92,8 +92,6 @@ class MbedIgnoreSet(object):
         self._ignore_patterns.extend(patterns_normpath)
         self._ignore_regexes.extend(re.compile(fnmatch.translate(p)) for p in patterns_normpath)
 
-        #print("New ignore regex: " + str(self._ignore_regexes))
-
 
     def add_unignore_patterns(self, in_name, patterns):
         """Un-ignore all files and directories matching the patterns in
