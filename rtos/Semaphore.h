@@ -137,7 +137,8 @@ public:
 
       @note You cannot call this function from ISR context.
     */
-    uint32_t get_count(void){
+    uint32_t get_count(void)
+    {
 #if MBED_CONF_RTOS_PRESENT
         return osSemaphoreGetCount(_id);
 #else
