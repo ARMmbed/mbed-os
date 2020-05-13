@@ -48,6 +48,7 @@ extern "C" void numaker_eth_rx_next(void);
 /* \brief Flags for worker thread */
 #define FLAG_TX  1
 #define FLAG_RX  2
+#define FLAG_BUS_RESET 4
 
 /** \brief  Driver thread priority */
 #define THREAD_PRIORITY (osPriorityNormal)
@@ -82,6 +83,13 @@ void NUMAKER_EMAC::rx_isr()
     }
 }
 
+void NUMAKER_EMAC::bus_isr()
+{
+    if (thread) {
+        osThreadFlagsSet(thread, FLAG_BUS_RESET);
+    }
+}
+
 void NUMAKER_EMAC::tx_isr()
 {
   /* No-op at this stage */    
@@ -98,6 +106,8 @@ void NUMAKER_EMAC::ethernet_callback(char event, void *param)
       case 'T': //For TX event
         enet->tx_isr();
         break;
+      case 'B': // For BUS event
+        enet->bus_isr();
       default:
         break;
     }
@@ -172,10 +182,13 @@ void NUMAKER_EMAC::thread_function(void* pvParameters)
     static struct NUMAKER_EMAC *nu_enet = static_cast<NUMAKER_EMAC *>(pvParameters);
 
     for (;;) {
-        uint32_t flags = osThreadFlagsWait(FLAG_RX, osFlagsWaitAny, osWaitForever);
+        uint32_t flags = osThreadFlagsWait(FLAG_RX | FLAG_BUS_RESET, osFlagsWaitAny, osWaitForever);
 
         if (flags & FLAG_RX) {
             nu_enet->packet_rx();
+        } else if (flags & FLAG_BUS_RESET) {
+            NU_DEBUGF(("RX BUS error and reset bus\r\n"));
+            nu_enet->bus_reset();
         }
     }
 }
@@ -304,7 +317,7 @@ bool NUMAKER_EMAC::power_up()
     return false;
 
   /* Worker thread */
-  thread = create_new_thread("numaker_emac_thread", &NUMAKER_EMAC::thread_function, this, THREAD_STACKSIZE, THREAD_PRIORITY, &thread_cb);
+    thread = create_new_thread("numaker_emac_thread", &NUMAKER_EMAC::thread_function, this, THREAD_STACKSIZE * 2, THREAD_PRIORITY, &thread_cb);
 
   /* PHY monitoring task */
   phy_state = PHY_UNLINKED_STATE;
@@ -313,6 +326,15 @@ bool NUMAKER_EMAC::power_up()
 
   /* Allow the PHY task to detect the initial link state and set up the proper flags */
   osDelay(10);
+  numaker_eth_enable_interrupts();
+  return true;
+}
+
+bool NUMAKER_EMAC::bus_reset()
+{
+  /* Initialize the hardware */
+  if (!low_level_init_successful())
+    return false;
   numaker_eth_enable_interrupts();
   return true;
 }
