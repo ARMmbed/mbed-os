@@ -37,7 +37,7 @@ namespace rtos {
 
 Mutex::Mutex(bool recursive)
 {
-    constructor(recursive);
+    constructor(nullptr, recursive);
 }
 
 Mutex::Mutex(const char *name, bool recursive)
