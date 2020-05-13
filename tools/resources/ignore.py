@@ -31,19 +31,43 @@ class MbedIgnoreSet(object):
 
     def __init__(self):
         self._ignore_patterns = []
-        self._ignore_regex = re.compile("$^")
+        self._ignore_regexes = []
         self._unignore_patterns = []
-        self._unignore_regex = re.compile("$^")
+        self._unignore_regexes = []
 
     def is_ignored(self, file_path):
         """Check if file path is ignored by any .mbedignore thus far"""
-        ignore_match = self._ignore_regex.match(normcase(file_path))
-        unignore_match = self._unignore_regex.match(normcase(file_path))
 
-        if not ignore_match:
+        # find longest ignore and unignore pattern that matches the path
+        ignore_match_pattern = None
+        unignore_match_pattern = None
+
+        filepath_normcase = normcase(file_path)
+
+        for regex_index in range(0, len(self._ignore_regexes)):
+            this_regex_match = self._ignore_regexes[regex_index].match(filepath_normcase)
+            if this_regex_match:
+                if ignore_match_pattern is None:
+                    # no previous match
+                    ignore_match_pattern = self._ignore_patterns[regex_index]
+                elif len(self._ignore_patterns[regex_index]) > len(ignore_match_pattern):
+                    # found a longer match
+                    ignore_match_pattern = self._ignore_patterns[regex_index]
+
+        for regex_index in range(0, len(self._unignore_regexes)):
+            this_regex_match = self._unignore_regexes[regex_index].match(filepath_normcase)
+            if this_regex_match:
+                if unignore_match_pattern is None:
+                    # no previous match
+                    unignore_match_pattern = self._unignore_patterns[regex_index]
+                elif len(self._unignore_patterns[regex_index]) > len(unignore_match_pattern):
+                    # found a longer match
+                    unignore_match_pattern = self._unignore_patterns[regex_index]
+
+        if ignore_match_pattern is None:
             return False
 
-        if unignore_match is not None and len(unignore_match.group(0)) >= len(ignore_match.group(0)):
+        if unignore_match_pattern is not None and len(unignore_match_pattern) >= len(ignore_match_pattern):
             return False
 
         return True
@@ -61,13 +85,15 @@ class MbedIgnoreSet(object):
             return
 
         if in_name == ".":
-            self._ignore_patterns.extend(normcase(p) for p in patterns)
+            patterns_normpath = list(normcase(p) for p in patterns)
         else:
-            self._ignore_patterns.extend(
-                normcase(join(in_name, pat)) for pat in patterns)
+            patterns_normpath = list(normcase(join(in_name, pat)) for pat in patterns)
 
-        self._ignore_regex = re.compile("|".join(
-            fnmatch.translate(p) for p in self._ignore_patterns))
+        self._ignore_patterns.extend(patterns_normpath)
+        self._ignore_regexes.extend(re.compile(fnmatch.translate(p)) for p in patterns_normpath)
+
+        #print("New ignore regex: " + str(self._ignore_regexes))
+
 
     def add_unignore_patterns(self, in_name, patterns):
         """Un-ignore all files and directories matching the patterns in
@@ -86,13 +112,12 @@ class MbedIgnoreSet(object):
             return
 
         if in_name == ".":
-            self._unignore_patterns.extend(normcase(p) for p in patterns)
+            patterns_normpath = list(normcase(p) for p in patterns)
         else:
-            self._unignore_patterns.extend(
-                normcase(join(in_name, pat)) for pat in patterns)
+            patterns_normpath = list(normcase(join(in_name, pat)) for pat in patterns)
 
-        self._unignore_regex = re.compile("|".join(
-            fnmatch.translate(p) for p in self._unignore_patterns))
+        self._unignore_patterns.extend(patterns_normpath)
+        self._unignore_regexes.extend(re.compile(fnmatch.translate(p)) for p in patterns_normpath)
 
     def add_mbedignore(self, in_name, filepath):
         """Add a series of patterns to the ignored paths
