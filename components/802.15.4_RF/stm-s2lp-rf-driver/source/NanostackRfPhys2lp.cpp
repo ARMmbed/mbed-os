@@ -1423,10 +1423,10 @@ static bool rf_rx_filter(uint8_t *mac_header, uint8_t *mac_64bit_addr, uint8_t *
 #if MBED_CONF_S2LP_PROVIDE_DEFAULT
 NanostackRfPhy &NanostackRfPhy::get_default_instance()
 {
-    static NanostackRfPhys2lp rf_phy(MBED_CONF_S2LP_SPI_SDI, MBED_CONF_S2LP_SPI_SDO, MBED_CONF_S2LP_SPI_SCLK, MBED_CONF_S2LP_SPI_CS, MBED_CONF_S2LP_SPI_SDN
-                                     , MBED_CONF_S2LP_SPI_GPIO0, MBED_CONF_S2LP_SPI_GPIO1, MBED_CONF_S2LP_SPI_GPIO2, MBED_CONF_S2LP_SPI_GPIO3
+    static NanostackRfPhys2lp rf_phy(S2LP_SPI_SDI, S2LP_SPI_SDO, S2LP_SPI_SCLK, S2LP_SPI_CS, S2LP_SPI_SDN
+                                     , S2LP_SPI_GPIO0, S2LP_SPI_GPIO1, S2LP_SPI_GPIO2, S2LP_SPI_GPIO3
 #ifdef AT24MAC
-                                     , MBED_CONF_S2LP_I2C_SDA, MBED_CONF_S2LP_I2C_SCL
+                                     , S2LP_I2C_SDA, S2LP_I2C_SCL
 #endif //AT24MAC
                                     );
     return rf_phy;
