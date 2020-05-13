@@ -37,12 +37,12 @@ namespace rtos {
 
 Mutex::Mutex(bool recursive)
 {
-    constructor();
+    constructor(recursive);
 }
 
 Mutex::Mutex(const char *name, bool recursive)
 {
-    constructor(name);
+    constructor(name, recursive);
 }
 
 void Mutex::constructor(const char *name, bool recursive)
@@ -55,7 +55,7 @@ void Mutex::constructor(const char *name, bool recursive)
     attr.cb_size = sizeof(_obj_mem);
     attr.attr_bits = osMutexPrioInherit | osMutexRobust;
     if(recursive){
-     attr.attr_bits |= osMutexRecursive;
+        attr.attr_bits |= osMutexRecursive;
     }
 
     _id = osMutexNew(&attr);
