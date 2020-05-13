@@ -121,7 +121,8 @@ ESP8266Interface::ESP8266Interface(PinName tx, PinName rx, bool debug, PinName r
       _oob_event_id(0),
       _connect_event_id(0),
       _disconnect_event_id(0),
-      _software_conn_stat(IFACE_STATUS_DISCONNECTED)
+      _software_conn_stat(IFACE_STATUS_DISCONNECTED),
+      _dhcp(true)
 {
     memset(_cbs, 0, sizeof(_cbs));
     memset(ap_ssid, 0, sizeof(ap_ssid));
@@ -246,7 +247,7 @@ void ESP8266Interface::_connect_async()
         return;
     }
 
-    if (!_esp.dhcp(true, 1)) {
+    if (_dhcp && !_esp.dhcp(true, 1)) {
         _connect_retval = NSAPI_ERROR_DHCP_FAILURE;
         _esp.uart_enable_input(false);
         _software_conn_stat = IFACE_STATUS_DISCONNECTED;
@@ -406,6 +407,36 @@ int ESP8266Interface::set_channel(uint8_t channel)
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
+nsapi_error_t ESP8266Interface::set_network(const SocketAddress &ip_address, const SocketAddress &netmask, const SocketAddress &gateway)
+{
+    nsapi_error_t init_result = _init();
+    if (NSAPI_ERROR_OK != init_result) {
+        return init_result;
+    }
+
+    // netmask and gateway switched on purpose. ESP takes different argument order.
+    if (_esp.set_ip_addr(ip_address.get_ip_address(), gateway.get_ip_address(), netmask.get_ip_address())) {
+        _dhcp = false;
+        return NSAPI_ERROR_OK;
+    } else {
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
+}
+
+nsapi_error_t ESP8266Interface::set_dhcp(bool dhcp)
+{
+    nsapi_error_t init_result = _init();
+    if (NSAPI_ERROR_OK != init_result) {
+        return init_result;
+    }
+
+    _dhcp = dhcp;
+    if (_esp.dhcp(dhcp, 1)) {
+        return NSAPI_ERROR_OK;
+    } else {
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
+}
 
 void ESP8266Interface::_disconnect_async()
 {

@@ -412,6 +412,32 @@ const char *ESP8266::ip_addr(void)
     return _ip_buffer;
 }
 
+const bool ESP8266::set_ip_addr(const char *ip, const char *gateway, const char *netmask)
+{
+    if (ip == nullptr || ip[0] == '\0') {
+        return false;
+    }
+
+    bool ok = false;
+    bool parser_send = false;
+
+    _smutex.lock();
+
+    if ((gateway == nullptr) || (netmask == nullptr) || gateway[0] == '\0' || netmask[0] == '\0') {
+        parser_send = _parser.send("AT+CIPSTA_CUR=\"%s\"", ip);
+    } else {
+        parser_send = _parser.send("AT+CIPSTA_CUR=\"%s\",\"%s\",\"%s\"", ip, gateway, netmask);
+    }
+
+    if (parser_send  && _parser.recv("OK\n")) {
+        ok = true;
+    } else {
+        ok = false;
+    }
+    _smutex.unlock();
+    return ok;
+}
+
 const char *ESP8266::mac_addr(void)
 {
     _smutex.lock();
