@@ -54,7 +54,7 @@ void Mutex::constructor(const char *name, bool recursive)
     attr.cb_mem = &_obj_mem;
     attr.cb_size = sizeof(_obj_mem);
     attr.attr_bits = osMutexPrioInherit | osMutexRobust;
-    if(recursive){
+    if (recursive) {
         attr.attr_bits |= osMutexRecursive;
     }
 

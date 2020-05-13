@@ -70,14 +70,16 @@ typedef mbed::ScopedLock<Mutex> ScopedMutexLock;
 class Mutex : private mbed::NonCopyable<Mutex> {
 public:
     /** Create and Initialize a Mutex object
-     *
-     * @note You cannot call this function from ISR context.
+     @param recursive A boolean flag used to create a recursive / or not- mutex.
+
+     @note You cannot call this function from ISR context.
     */
     Mutex(bool recursive = true);
 
     /** Create and Initialize a Mutex object
 
      @param name name to be used for this mutex. It has to stay allocated for the lifetime of the thread.
+     @param recursive A boolean flag used to create a recursive / or not- mutex.
      @note You cannot call this function from ISR context.
     */
     Mutex(const char *name, bool recursive = true);
