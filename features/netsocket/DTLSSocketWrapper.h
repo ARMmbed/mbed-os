@@ -23,6 +23,7 @@
 #define DTLSSOCKETWRAPPER_H
 
 #include "TLSSocketWrapper.h"
+#include "rtos/Kernel.h"
 
 // This class requires Mbed TLS SSL/TLS client code
 #if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
@@ -43,7 +44,7 @@ private:
     static void timing_set_delay(void *ctx, uint32_t int_ms, uint32_t fin_ms);
     static int timing_get_delay(void *ctx);
     void timer_event();
-    uint64_t _int_ms_tick = 0;
+    rtos::Kernel::Clock::time_point _int_time;
     int _timer_event_id = 0;
     bool _timer_expired = false;
 };

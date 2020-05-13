@@ -50,8 +50,11 @@ void DTLSSocketWrapper::timing_set_delay(void *ctx, uint32_t int_ms, uint32_t fi
         return;
     }
 
-    context->_int_ms_tick = rtos::Kernel::get_ms_count() + int_ms;
-    context->_timer_event_id = mbed::mbed_event_queue()->call_in(fin_ms, context, &DTLSSocketWrapper::timer_event);
+    auto int_duration = std::chrono::duration<uint32_t, std::milli>(int_ms);
+    auto fin_duration = std::chrono::duration<uint32_t, std::milli>(fin_ms);
+
+    context->_int_time = rtos::Kernel::Clock::now() + int_duration;
+    context->_timer_event_id = mbed::mbed_event_queue()->call_in(fin_duration, context, &DTLSSocketWrapper::timer_event);
 }
 
 int DTLSSocketWrapper::timing_get_delay(void *ctx)
@@ -64,7 +67,7 @@ int DTLSSocketWrapper::timing_get_delay(void *ctx)
         return -1;
     } else if (context->_timer_expired) {
         return 2;
-    } else if (context->_int_ms_tick < rtos::Kernel::get_ms_count()) {
+    } else if (context->_int_time < rtos::Kernel::Clock::now()) {
         return 1;
     } else {
         return 0;
