@@ -88,6 +88,7 @@ public:
       Wait until a Mutex becomes available.
 
       @note You cannot call this function from ISR context.
+      @warning On a non-recursive mutex, calling lock twice will deadlock.
      */
     void lock();
 
