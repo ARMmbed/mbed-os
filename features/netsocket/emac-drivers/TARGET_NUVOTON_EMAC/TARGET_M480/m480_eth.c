@@ -18,22 +18,27 @@
  */
 #include "m480_eth.h"
 #include "mbed_toolchain.h"
+#define NU_TRACE
 #include "numaker_eth_hal.h"
 
 #define ETH_TRIGGER_RX()    do{EMAC->RXST = 0;}while(0)
 #define ETH_TRIGGER_TX()    do{EMAC->TXST = 0;}while(0)
 #define ETH_ENABLE_TX()     do{EMAC->CTL |= EMAC_CTL_TXON;}while(0)
-#define ETH_ENABLE_RX()     do{EMAC->CTL |= EMAC_CTL_RXON;}while(0)
+#define ETH_ENABLE_RX()     do{EMAC->CTL |= EMAC_CTL_RXON_Msk;}while(0)
 #define ETH_DISABLE_TX()    do{EMAC->CTL &= ~EMAC_CTL_TXON;}while(0)
-#define ETH_DISABLE_RX()    do{EMAC->CTL &= ~EMAC_CTL_RXON;}while(0)
+#define ETH_DISABLE_RX()    do{EMAC->CTL &= ~EMAC_CTL_RXON_Msk;}while(0)
     
+#define EMAC_ENABLE_INT(emac, u32eIntSel)    ((emac)->INTEN |= (u32eIntSel))
+#define EMAC_DISABLE_INT(emac, u32eIntSel)    ((emac)->INTEN &= ~ (u32eIntSel))    
 
 MBED_ALIGN(4) struct eth_descriptor rx_desc[RX_DESCRIPTOR_NUM];
 MBED_ALIGN(4) struct eth_descriptor tx_desc[TX_DESCRIPTOR_NUM];
 
 struct eth_descriptor volatile *cur_tx_desc_ptr, *cur_rx_desc_ptr, *fin_tx_desc_ptr;
 
+__attribute__ ((section("EMAC_RAM")))
 MBED_ALIGN(4) uint8_t rx_buf[RX_DESCRIPTOR_NUM][PACKET_BUFFER_SIZE];
+__attribute__ ((section("EMAC_RAM")))
 MBED_ALIGN(4) uint8_t tx_buf[TX_DESCRIPTOR_NUM][PACKET_BUFFER_SIZE];
 
 eth_callback_t nu_eth_txrx_cb = NULL;
@@ -164,7 +169,7 @@ static void init_rx_desc(void)
         rx_desc[i].status1 = OWNERSHIP_EMAC;
         rx_desc[i].buf = &rx_buf[i][0];
         rx_desc[i].status2 = 0;
-        rx_desc[i].next = &rx_desc[(i + 1) % TX_DESCRIPTOR_NUM];
+        rx_desc[i].next = &rx_desc[(i + 1) % RX_DESCRIPTOR_NUM];
     }
     EMAC->RXDSA = (unsigned int)&rx_desc[0];
     return;
@@ -263,6 +268,11 @@ void numaker_eth_init(uint8_t *mac_addr)
                     EMAC_CAMCTL_AMP_Msk |
                     EMAC_CAMCTL_ABP_Msk;
     EMAC->CAMEN = 1;    // Enable CAM entry 0    
+    /* Limit the max receive frame length to 1514 + 4 */
+    EMAC->MRFL = 1518;    
+
+    /* Set RX FIFO threshold as 8 words */
+    EMAC->FIFOCTL = 0x00200100;
 
     /* Limit the max receive frame length to 1514 + 4 */
     EMAC->MRFL = NU_ETH_MAX_FLEN;    
@@ -285,20 +295,22 @@ unsigned int m_status;
 
 void EMAC_RX_IRQHandler(void)
 {
-//    NU_DEBUGF(("%s ... nu_eth_txrx_cb=0x%x\r\n", __FUNCTION__, nu_eth_txrx_cb));
     m_status = EMAC->INTSTS & 0xFFFF;
     EMAC->INTSTS = m_status;
     if (m_status & EMAC_INTSTS_RXBEIF_Msk) {
         // Shouldn't goes here, unless descriptor corrupted
-		NU_DEBUGF(("RX descriptor corrupted \r\n"));
-		//return;
+        mbed_error_printf("### RX Bus error [0x%x]\r\n", m_status);
+        if (nu_eth_txrx_cb != NULL) nu_eth_txrx_cb('B', nu_userData); 
+        return;
     }
+    EMAC_DISABLE_INT(EMAC, (EMAC_INTEN_RDUIEN_Msk | EMAC_INTEN_RXGDIEN_Msk));
 	if (nu_eth_txrx_cb != NULL) nu_eth_txrx_cb('R', nu_userData); 
 }
 
 
 void numaker_eth_trigger_rx(void)
 {
+    EMAC_ENABLE_INT(EMAC, (EMAC_INTEN_RDUIEN_Msk | EMAC_INTEN_RXGDIEN_Msk));
     ETH_TRIGGER_RX();
 }
 
@@ -317,6 +329,12 @@ int numaker_eth_get_rx_buf(uint16_t *len, uint8_t **buf)
     if (status & RXFD_RXGD) {
         *buf = cur_rx_desc_ptr->buf;
         *len = status & 0xFFFF;
+        if( *len > 1514 ) {
+            NU_DEBUGF(("%s... unexpected long packet length=%d, buf=0x%x\r\n", __FUNCTION__, *len, *buf));
+
+            *len = 0; // Skip this unexpected long packet
+        }
+        if( *len == 1514 ) NU_DEBUGF(("%s... length=%d, buf=0x%x\r\n", __FUNCTION__, *len, *buf));
     }
     return 0;
 }    
@@ -335,6 +353,8 @@ void EMAC_TX_IRQHandler(void)
     EMAC->INTSTS = status;
     if(status & EMAC_INTSTS_TXBEIF_Msk) {
         // Shouldn't goes here, unless descriptor corrupted
+        mbed_error_printf("### TX Bus error [0x%x]\r\n", status);
+        if (nu_eth_txrx_cb != NULL) nu_eth_txrx_cb('B', nu_userData); 
         return;
     }
 
