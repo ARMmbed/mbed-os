@@ -17,7 +17,6 @@
 #if MBED_CONF_NSAPI_PRESENT
 
 #include "gpio_api.h"
-#include "platform/mbed_wait_api.h"
 #include "PinNames.h"
 
 #include "drivers/BufferedSerial.h"
@@ -33,23 +32,20 @@ ONBOARD_TELIT_HE910::ONBOARD_TELIT_HE910(FileHandle *fh) : TELIT_HE910(fh)
 
 nsapi_error_t ONBOARD_TELIT_HE910::hard_power_on()
 {
-    //does nothing at the moment, TODO: MultiTech to add hardware initialization stuff if needed
+    power_up();
     return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t ONBOARD_TELIT_HE910::hard_power_off()
 {
-    //does nothing at the moment, TODO: MultiTech to add hardware de-initialization stuff if needed
+    power_down();
     return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t ONBOARD_TELIT_HE910::soft_power_on()
 {
-
-    /* keep the power line low for 200 milisecond */
-    press_power_button(200);
-    /* give modem a little time to respond */
-    rtos::ThisThread::sleep_for(100);
+    power_down();
+    power_up();
     // From Telit_xE910 Global form factor App note: It is mandatory to avoid sending data to the serial ports during the first 200ms of the module start-up.
     rtos::ThisThread::sleep_for(200);
     return NSAPI_ERROR_OK;
@@ -57,25 +53,72 @@ nsapi_error_t ONBOARD_TELIT_HE910::soft_power_on()
 
 nsapi_error_t ONBOARD_TELIT_HE910::soft_power_off()
 {
-    gpio_t gpio;
-
-    gpio_init_out_ex(&gpio, MDMPWRON, 0);
-    /* keep the power line low for more than 10 seconds.
-     * If 3G_ON_OFF pin is kept low for more than a second, a controlled disconnect and shutdown takes
-     * place, Due to the network disconnect, shut-off can take up to 30 seconds. However, we wait for 10
-     * seconds only   */
-    rtos::ThisThread::sleep_for(10 * 1000);
+    power_down();
     return NSAPI_ERROR_OK;
 }
 
-void ONBOARD_TELIT_HE910::press_power_button(int time_ms)
+void ONBOARD_TELIT_HE910::press_power_button()
 {
     gpio_t gpio;
+    gpio_init_out_ex(&gpio, MDMPWRON, 0);
+}
 
+void ONBOARD_TELIT_HE910::release_power_button()
+{
+    gpio_t gpio;
     gpio_init_out_ex(&gpio, MDMPWRON, 1);
-    gpio_write(&gpio, 0);
-    rtos::ThisThread::sleep_for(time_ms);
-    gpio_write(&gpio, 1);
+}
+
+// 1.8v from the radio should be high before exiting this function. Do nothing if it's already high.
+// Releasing MDMPWRON (going high) tells the tiny9 to turn the radio back on, assuming 1.8v was low.
+void ONBOARD_TELIT_HE910::power_up()
+{
+    // Set up to read 1.8v from the radio.
+    gpio_t radioOn;
+    gpio_init_in(&radioOn, PC_5);
+
+    // Do nothing if it's already powered.
+    if (gpio_read(&radioOn)) {
+        return;
+    }
+    else {
+        // power it up.
+        release_power_button();
+    }
+
+    // wait a max of 60s for 1.8v to go high.
+    volatile int v1_8 = 0;
+    uint8_t timeout = 60;
+    do {
+        rtos::ThisThread::sleep_for(1000);
+        v1_8 = gpio_read(&radioOn);
+    } while (!v1_8 && timeout--);
+
+    // The radio should be ready for commands after another 2s minimum.
+    rtos::ThisThread::sleep_for(3000);
+}
+
+void ONBOARD_TELIT_HE910::power_down()
+{
+    gpio_t radioOn;
+    gpio_init_in(&radioOn, PC_5);
+
+    // Do nothing if it's already off.
+    if (!gpio_read(&radioOn)) {
+        return;
+    }
+    else {
+        // power down.
+        press_power_button();
+    }
+    
+    // wait a max of 60s for 1.8v to go low.
+    volatile int v1_8 = 1;
+    uint8_t timeout = 60;
+    do {
+        rtos::ThisThread::sleep_for(1000);
+        v1_8 = gpio_read(&radioOn);
+    } while (v1_8 && timeout--);
 }
 
 CellularDevice *CellularDevice::get_target_default_instance()
