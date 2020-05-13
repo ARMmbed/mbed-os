@@ -175,6 +175,15 @@ osStatus Semaphore::release(void)
 #endif // MBED_CONF_RTOS_PRESENT
 }
 
+uint32_t Semaphore::get_count() const
+{
+#if MBED_CONF_RTOS_PRESENT
+    return osSemaphoreGetCount(_id);
+#else
+    return core_util_atomic_load_s32(&_count);
+#endif
+}
+
 Semaphore::~Semaphore()
 {
 #if MBED_CONF_RTOS_PRESENT
