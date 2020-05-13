@@ -73,14 +73,14 @@ public:
      *
      * @note You cannot call this function from ISR context.
     */
-    Mutex();
+    Mutex(bool recursive = true);
 
     /** Create and Initialize a Mutex object
 
      @param name name to be used for this mutex. It has to stay allocated for the lifetime of the thread.
      @note You cannot call this function from ISR context.
     */
-    Mutex(const char *name);
+    Mutex(const char *name, bool recursive = true);
 
     /**
       Wait until a Mutex becomes available.
@@ -172,7 +172,7 @@ public:
 
 private:
 #if MBED_CONF_RTOS_PRESENT
-    void constructor(const char *name = nullptr);
+    void constructor(const char *name = nullptr, bool recursive = true);
     friend class ConditionVariable;
 
     osMutexId_t               _id;
@@ -182,11 +182,11 @@ private:
 };
 
 #if !MBED_CONF_RTOS_PRESENT
-inline Mutex::Mutex()
+inline Mutex::Mutex(bool)
 {
 }
 
-inline Mutex::Mutex(const char *)
+inline Mutex::Mutex(const char *, bool)
 {
 }
 

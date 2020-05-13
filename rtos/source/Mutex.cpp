@@ -35,17 +35,17 @@ using std::chrono::duration;
 
 namespace rtos {
 
-Mutex::Mutex()
+Mutex::Mutex(bool recursive)
 {
     constructor();
 }
 
-Mutex::Mutex(const char *name)
+Mutex::Mutex(const char *name, bool recursive)
 {
     constructor(name);
 }
 
-void Mutex::constructor(const char *name)
+void Mutex::constructor(const char *name, bool recursive)
 {
     _count = 0;
     osMutexAttr_t attr =
@@ -53,7 +53,11 @@ void Mutex::constructor(const char *name)
     attr.name = name ? name : "application_unnamed_mutex";
     attr.cb_mem = &_obj_mem;
     attr.cb_size = sizeof(_obj_mem);
-    attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
+    attr.attr_bits = osMutexPrioInherit | osMutexRobust;
+    if(recursive){
+     attr.attr_bits |= osMutexRecursive;
+    }
+
     _id = osMutexNew(&attr);
     // To permit certain cases where a device may get constructed in
     // by the attempt to print an error in a fatal shutdown, let a
