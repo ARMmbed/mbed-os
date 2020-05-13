@@ -1313,17 +1313,6 @@
             "MCU_STM32"
         ],
         "public": false,
-        "supported_c_libs": {
-            "arm": [
-                "small"
-            ],
-            "gcc_arm": [
-                "small"
-            ],
-            "iar": [
-                "std"
-            ]
-        },
         "c_lib": "small",
         "supported_application_profiles": [
             "bare-metal"
