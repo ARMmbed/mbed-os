@@ -40,6 +40,8 @@
 
 
 using namespace mbed;
+using namespace std::chrono;
+using std::milli;
 
 ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
     : _sdk_v(-1, -1, -1),
@@ -275,12 +277,12 @@ bool ESP8266::startup(int mode)
 
 bool ESP8266::reset(void)
 {
-    static const int ESP8266_BOOTTIME = 10000; // [ms]
+    static const auto ESP8266_BOOTTIME = 10s;
     bool done = false;
 
     _smutex.lock();
 
-    unsigned long int start_time = rtos::Kernel::get_ms_count();
+    auto start_time = rtos::Kernel::Clock::now();
     _reset_done = false;
     set_timeout(ESP8266_RECV_TIMEOUT);
     for (int i = 0; i < 2; i++) {
@@ -291,10 +293,10 @@ bool ESP8266::reset(void)
 
         while (!_reset_done) {
             _process_oob(ESP8266_RECV_TIMEOUT, true); // UART mutex claimed -> need to check for OOBs ourselves
-            if (_reset_done || (rtos::Kernel::get_ms_count() - start_time >= ESP8266_BOOTTIME)) {
+            if (_reset_done || rtos::Kernel::Clock::now() - start_time >= ESP8266_BOOTTIME) {
                 break;
             }
-            rtos::ThisThread::sleep_for(100);
+            rtos::ThisThread::sleep_for(100ms);
         }
 
         done = _reset_done;
@@ -520,12 +522,12 @@ int8_t ESP8266::rssi()
     return rssi;
 }
 
-int ESP8266::scan(WiFiAccessPoint *res, unsigned limit, scan_mode mode, unsigned t_max, unsigned t_min)
+int ESP8266::scan(WiFiAccessPoint *res, unsigned limit, scan_mode mode, duration<unsigned, milli> t_max, duration<unsigned, milli> t_min)
 {
     _smutex.lock();
 
     // Default timeout plus time spend scanning each channel
-    set_timeout(ESP8266_MISC_TIMEOUT + 13 * (t_max ? t_max : ESP8266_SCAN_TIME_MAX_DEFAULT));
+    set_timeout(ESP8266_MISC_TIMEOUT + 13 * (t_max != t_max.zero() ? t_max : duration<unsigned, milli>(ESP8266_SCAN_TIME_MAX_DEFAULT)));
 
     _scan_r.res = res;
     _scan_r.limit = limit;
@@ -534,7 +536,7 @@ int ESP8266::scan(WiFiAccessPoint *res, unsigned limit, scan_mode mode, unsigned
     bool ret_parse_send = true;
 
     if (FW_AT_LEAST_VERSION(_at_v.major, _at_v.minor, _at_v.patch, 0, ESP8266_AT_VERSION_WIFI_SCAN_CHANGE)) {
-        ret_parse_send = _parser.send("AT+CWLAP=,,,%u,%u,%u", (mode == SCANMODE_ACTIVE ? 0 : 1), t_min, t_max);
+        ret_parse_send = _parser.send("AT+CWLAP=,,,%u,%u,%u", (mode == SCANMODE_ACTIVE ? 0 : 1), t_min.count(), t_max.count());
     } else {
         ret_parse_send = _parser.send("AT+CWLAP");
     }
@@ -870,7 +872,7 @@ void ESP8266::_oob_packet_hdlr()
     _packets_end = &packet->next;
 }
 
-void ESP8266::_process_oob(uint32_t timeout, bool all)
+void ESP8266::_process_oob(duration<uint32_t, milli> timeout, bool all)
 {
     set_timeout(timeout);
     // Poll for inbound packets
@@ -879,14 +881,14 @@ void ESP8266::_process_oob(uint32_t timeout, bool all)
     set_timeout();
 }
 
-void ESP8266::bg_process_oob(uint32_t timeout, bool all)
+void ESP8266::bg_process_oob(duration<uint32_t, milli> timeout, bool all)
 {
     _smutex.lock();
     _process_oob(timeout, all);
     _smutex.unlock();
 }
 
-int32_t ESP8266::_recv_tcp_passive(int id, void *data, uint32_t amount, uint32_t timeout)
+int32_t ESP8266::_recv_tcp_passive(int id, void *data, uint32_t amount, duration<uint32_t, milli> timeout)
 {
     int32_t ret = NSAPI_ERROR_WOULD_BLOCK;
 
@@ -949,7 +951,7 @@ BUSY:
     return ret;
 }
 
-int32_t ESP8266::recv_tcp(int id, void *data, uint32_t amount, uint32_t timeout)
+int32_t ESP8266::recv_tcp(int id, void *data, uint32_t amount, duration<uint32_t, milli> timeout)
 {
     if (_tcp_passive) {
         return _recv_tcp_passive(id, data, amount, timeout);
@@ -1007,7 +1009,7 @@ int32_t ESP8266::recv_tcp(int id, void *data, uint32_t amount, uint32_t timeout)
     return NSAPI_ERROR_WOULD_BLOCK;
 }
 
-int32_t ESP8266::recv_udp(struct esp8266_socket *socket, void *data, uint32_t amount, uint32_t timeout)
+int32_t ESP8266::recv_udp(struct esp8266_socket *socket, void *data, uint32_t amount, duration<uint32_t, milli> timeout)
 {
     _smutex.lock();
     set_timeout(timeout);
@@ -1125,9 +1127,9 @@ bool ESP8266::close(int id)
     return false;
 }
 
-void ESP8266::set_timeout(uint32_t timeout_ms)
+void ESP8266::set_timeout(duration<uint32_t, milli> timeout)
 {
-    _parser.set_timeout(timeout_ms);
+    _parser.set_timeout(timeout.count());
 }
 
 bool ESP8266::readable()
@@ -1198,7 +1200,7 @@ bool ESP8266::get_sntp_time(std::tm *t)
     memset(buf, 0, 25);
 
     bool done = _parser.send("AT+CIPSNTPTIME?")
-                && _parser.scanf("+CIPSNTPTIME:%24c", &buf)
+                && _parser.scanf("+CIPSNTPTIME:%24c", buf)
                 && _parser.recv("OK\n");
     _smutex.unlock();
 

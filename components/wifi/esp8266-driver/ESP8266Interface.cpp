@@ -31,6 +31,8 @@
 #include "platform/mbed_debug.h"
 #include "rtos/ThisThread.h"
 
+using namespace std::chrono;
+
 #ifndef MBED_CONF_ESP8266_DEBUG
 #define MBED_CONF_ESP8266_DEBUG false
 #endif
@@ -197,7 +199,7 @@ void ESP8266Interface::PowerPin::power_on()
     if (_pwr_pin.is_connected()) {
         _pwr_pin = MBED_CONF_ESP8266_POWER_ON_POLARITY;
         tr_debug("power_on(): HW power-on.");
-        ThisThread::sleep_for(MBED_CONF_ESP8266_POWER_ON_TIME_MS);
+        ThisThread::sleep_for(milliseconds(MBED_CONF_ESP8266_POWER_ON_TIME_MS));
     }
 }
 
@@ -206,7 +208,7 @@ void ESP8266Interface::PowerPin::power_off()
     if (_pwr_pin.is_connected()) {
         _pwr_pin = !MBED_CONF_ESP8266_POWER_ON_POLARITY;
         tr_debug("power_off(): HW power-off.");
-        ThisThread::sleep_for(MBED_CONF_ESP8266_POWER_OFF_TIME_MS);
+        ThisThread::sleep_for(milliseconds(MBED_CONF_ESP8266_POWER_OFF_TIME_MS));
     }
 }
 
@@ -261,14 +263,14 @@ void ESP8266Interface::_connect_async()
         return;
     }
     _connect_retval = _esp.connect(ap_ssid, ap_pass);
-    int timeleft_ms = ESP8266_INTERFACE_CONNECT_TIMEOUT_MS - _conn_timer.read_ms();
+    auto timepassed = _conn_timer.elapsed_time();
     if (_connect_retval == NSAPI_ERROR_OK
             || _connect_retval == NSAPI_ERROR_AUTH_FAILURE
             || _connect_retval == NSAPI_ERROR_NO_SSID
-            || ((_if_blocking == true) && (timeleft_ms <= 0))) {
+            || ((_if_blocking == true) && (timepassed >= ESP8266_INTERFACE_CONNECT_TIMEOUT))) {
         _connect_event_id = 0;
         _conn_timer.stop();
-        if (timeleft_ms <= 0 && _connect_retval != NSAPI_ERROR_OK) {
+        if (timepassed >= ESP8266_INTERFACE_CONNECT_TIMEOUT && _connect_retval != NSAPI_ERROR_OK) {
             _connect_retval = NSAPI_ERROR_CONNECTION_TIMEOUT;
         }
         if (_connect_retval != NSAPI_ERROR_OK) {
@@ -280,7 +282,7 @@ void ESP8266Interface::_connect_async()
 #endif
     } else {
         // Postpone to give other stuff time to run
-        _connect_event_id = _global_event_queue->call_in(ESP8266_INTERFACE_CONNECT_INTERVAL_MS,
+        _connect_event_id = _global_event_queue->call_in(ESP8266_INTERFACE_CONNECT_INTERVAL,
                                                          callback(this, &ESP8266Interface::_connect_async));
         if (!_connect_event_id) {
             MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
@@ -442,11 +444,11 @@ void ESP8266Interface::_disconnect_async()
 {
     _cmutex.lock();
     _disconnect_retval = _esp.disconnect() ? NSAPI_ERROR_OK : NSAPI_ERROR_DEVICE_ERROR;
-    int timeleft_ms = ESP8266_INTERFACE_CONNECT_TIMEOUT_MS - _conn_timer.read_ms();
+    auto timepassed = _conn_timer.elapsed_time();
 
-    if (_disconnect_retval == NSAPI_ERROR_OK || ((_if_blocking == true) && (timeleft_ms <= 0))) {
+    if (_disconnect_retval == NSAPI_ERROR_OK || ((_if_blocking == true) && (timepassed >= ESP8266_INTERFACE_CONNECT_TIMEOUT))) {
 
-        if (timeleft_ms <= 0 && _connect_retval != NSAPI_ERROR_OK) {
+        if (timepassed >= ESP8266_INTERFACE_CONNECT_TIMEOUT && _connect_retval != NSAPI_ERROR_OK) {
             _disconnect_retval = NSAPI_ERROR_CONNECTION_TIMEOUT;
         } else {
             if (_conn_stat != NSAPI_STATUS_DISCONNECTED) {
@@ -467,7 +469,7 @@ void ESP8266Interface::_disconnect_async()
     } else {
         // Postpone to give other stuff time to run
         _disconnect_event_id = _global_event_queue->call_in(
-                                   ESP8266_INTERFACE_CONNECT_INTERVAL_MS,
+                                   ESP8266_INTERFACE_CONNECT_INTERVAL,
                                    callback(this, &ESP8266Interface::_disconnect_async));
         if (!_disconnect_event_id) {
             MBED_ERROR(
@@ -643,10 +645,10 @@ int8_t ESP8266Interface::get_rssi()
 
 int ESP8266Interface::scan(WiFiAccessPoint *res, unsigned count)
 {
-    return scan(res, count, SCANMODE_ACTIVE, 0, 0);
+    return scan(res, count, SCANMODE_ACTIVE);
 }
 
-int ESP8266Interface::scan(WiFiAccessPoint *res, unsigned count, scan_mode mode, unsigned t_max, unsigned t_min)
+int ESP8266Interface::scan(WiFiAccessPoint *res, unsigned count, scan_mode mode, mbed::chrono::milliseconds_u32 t_max, mbed::chrono::milliseconds_u32 t_min)
 {
     if (t_max > ESP8266_SCAN_TIME_MAX) {
         return NSAPI_ERROR_PARAMETER;
@@ -766,7 +768,15 @@ nsapi_error_t ESP8266Interface::_reset()
         _rst_pin.rst_assert();
         // If you happen to use Pin7 CH_EN as reset pin, not needed otherwise
         // https://www.espressif.com/sites/default/files/documentation/esp8266_hardware_design_guidelines_en.pdf
-        ThisThread::sleep_for(2); // Documentation says 200 us; need 2 ticks to get minimum 1 ms.
+        // First need to round up when converting to kernel ticks (eg 200us -> 1ms).
+        auto delay = duration_cast<Kernel::Clock::duration_u32>(200us);
+        if (delay < 200us) {
+            delay++;
+        }
+        // Then need to round the clock-resolution duration up; if we were at the end of a tick
+        // period, it might flip immediately.
+        delay++;
+        ThisThread::sleep_for(delay);
         _esp.flush();
         _rst_pin.rst_deassert();
     } else {
@@ -929,7 +939,7 @@ int ESP8266Interface::socket_send(void *handle, const void *data, unsigned size)
             && socket->proto == NSAPI_TCP
             && core_util_atomic_cas_u8(&_cbs[socket->id].deferred, &expect_false, true)) {
         tr_debug("socket_send(...): Postponing SIGIO from the device.");
-        if (!_global_event_queue->call_in(50, callback(this, &ESP8266Interface::event_deferred))) {
+        if (!_global_event_queue->call_in(50ms, callback(this, &ESP8266Interface::event_deferred))) {
             MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
                        "socket_send(): unable to add event to queue. Increase \"events.shared-eventsize\"\n");
         }
@@ -1086,7 +1096,7 @@ void ESP8266Interface::event()
 {
     if (!_oob_event_id) {
         // Throttles event creation by using arbitrary small delay
-        _oob_event_id = _global_event_queue->call_in(50, callback(this, &ESP8266Interface::proc_oob_evnt));
+        _oob_event_id = _global_event_queue->call_in(50ms, callback(this, &ESP8266Interface::proc_oob_evnt));
         if (!_oob_event_id) {
             MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
                        "ESP8266Interface::event(): unable to add event to queue. Increase \"events.shared-eventsize\"\n");
