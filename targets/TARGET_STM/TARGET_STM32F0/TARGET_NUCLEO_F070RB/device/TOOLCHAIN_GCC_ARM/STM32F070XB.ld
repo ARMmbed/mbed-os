@@ -1,22 +1,50 @@
 /* Linker script to configure memory regions. */
+/*
+ * SPDX-License-Identifier: BSD-3-Clause
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2016-2020 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
+ *
+ ******************************************************************************
+*/
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE 0x400
+
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START  MBED_ROM_START
 #endif
 
-StackSize = MBED_BOOT_STACK_SIZE;
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE  MBED_ROM_SIZE
+#endif
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+    /* This value is normally defined by the tools
+       to 0x1000 for bare metal and 0x400 for RTOS */
+    #define MBED_BOOT_STACK_SIZE  0x400
+#endif
+
+/* Round up VECTORS_SIZE to 8 bytes */
+#define NVIC_NUM_VECTORS 48
+#define VECTORS_SIZE  (((NVIC_NUM_VECTORS * 4) + 7) & 0xFFFFFFF8)
 
 MEMORY
-{ 
-  FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 128k
-  RAM (xrw)       : ORIGIN = 0x200000C0, LENGTH = 16k - 0x0C0
+{
+    FLASH (rx)   : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
+    RAM (rwx)    : ORIGIN = MBED_RAM_START + VECTORS_SIZE, LENGTH = MBED_RAM_SIZE - VECTORS_SIZE
 }
 
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.
  * It references following symbols, which must be defined in code:
  *   Reset_Handler : Entry of reset handler
- * 
+ *
  * It defines following symbols, which code can use without definition:
  *   __exidx_start
  *   __exidx_end
@@ -47,6 +75,7 @@ SECTIONS
     {
         KEEP(*(.isr_vector))
         *(.text*)
+
         KEEP(*(.init))
         KEEP(*(.fini))
 
@@ -83,7 +112,7 @@ SECTIONS
 
     __etext = .;
     _sidata = .;
-
+    
     .data : AT (__etext)
     {
         __data_start__ = .;
@@ -104,7 +133,6 @@ SECTIONS
         KEEP(*(.init_array))
         PROVIDE_HIDDEN (__init_array_end = .);
 
-
         . = ALIGN(8);
         /* finit data */
         PROVIDE_HIDDEN (__fini_array_start = .);
@@ -120,20 +148,19 @@ SECTIONS
 
     } > RAM
 
-    /* .stack section doesn't contains any symbols. It is only
-     * used for linker to reserve space for the main stack section
-     */
-    .stack (NOLOAD):
+    /* Uninitialized data section
+     * This region is not initialized by the C/C++ library and can be used to
+     * store state across soft reboots. */
+    .uninitialized (NOLOAD):
     {
-        __StackLimit = .;
-        *(.stack*);
-        . += StackSize - (. - __StackLimit);
+        . = ALIGN(32);
+        __uninitialized_start = .;
+        *(.uninitialized)
+        KEEP(*(.keep.uninitialized))
+        . = ALIGN(32);
+        __uninitialized_end = .;
     } > RAM
-    __StackTop = ADDR(.stack) + StackSize;
-    _estack = __StackTop;
-    __StackLimit = ADDR(.stack);
-    PROVIDE(__stack = __StackTop);
-
+    
     .bss :
     {
         . = ALIGN(8);
@@ -149,14 +176,27 @@ SECTIONS
     .heap (COPY):
     {
         __end__ = .;
-        end = __end__;
-        *(.heap*);
-        . += (ORIGIN(RAM) + LENGTH(RAM) - .);
+        PROVIDE(end = .);
+        *(.heap*)
+        . = ORIGIN(RAM) + LENGTH(RAM) - MBED_BOOT_STACK_SIZE;
         __HeapLimit = .;
     } > RAM
 
-    PROVIDE(__heap_size = SIZEOF(.heap));
-    PROVIDE(__mbed_sbrk_start = ADDR(.heap));
-    PROVIDE(__mbed_krbs_start = ADDR(.heap) + SIZEOF(.heap));
+    /* .stack_dummy section doesn't contains any symbols. It is only
+     * used for linker to calculate size of stack sections, and assign
+     * values to stack symbols later */
+    .stack_dummy (COPY):
+    {
+        *(.stack*)
+    } > RAM
 
+    /* Set stack top to end of RAM, and stack limit move down by
+     * size of stack_dummy section */
+    __StackTop = ORIGIN(RAM) + LENGTH(RAM);
+    _estack = __StackTop;
+    __StackLimit = __StackTop - MBED_BOOT_STACK_SIZE;
+    PROVIDE(__stack = __StackTop);
+
+    /* Check if data + heap + stack exceeds RAM limit */
+    ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
 }
