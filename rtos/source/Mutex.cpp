@@ -35,6 +35,16 @@ using std::chrono::duration;
 
 namespace rtos {
 
+Mutex::Mutex()
+{
+    constructor(nullptr, true);
+}
+
+Mutex::Mutex(const char *name)
+{
+    constructor(name, true);
+}
+
 Mutex::Mutex(bool recursive)
 {
     constructor(nullptr, recursive);

@@ -69,12 +69,26 @@ typedef mbed::ScopedLock<Mutex> ScopedMutexLock;
 */
 class Mutex : private mbed::NonCopyable<Mutex> {
 public:
+
+    /** Create and Initialize a Mutex object
+
+     @note You cannot call this function from ISR context.
+    */
+    Mutex();
+
+    /** Create and Initialize a Mutex object
+
+     @param name name to be used for this mutex. It has to stay allocated for the lifetime of the thread.
+     @note You cannot call this function from ISR context.
+    */
+    Mutex(const char *name);
+
     /** Create and Initialize a Mutex object
      @param recursive A boolean flag used to create a recursive / or not- mutex.
 
      @note You cannot call this function from ISR context.
     */
-    Mutex(bool recursive = true);
+    Mutex(bool recursive);
 
     /** Create and Initialize a Mutex object
 
@@ -82,7 +96,7 @@ public:
      @param recursive A boolean flag used to create a recursive / or not- mutex.
      @note You cannot call this function from ISR context.
     */
-    Mutex(const char *name, bool recursive = true);
+    Mutex(const char *name, bool recursive);
 
     /**
       Wait until a Mutex becomes available.
@@ -175,7 +189,7 @@ public:
 
 private:
 #if MBED_CONF_RTOS_PRESENT
-    void constructor(const char *name = nullptr, bool recursive = true);
+    void constructor(const char *name, bool recursive);
     friend class ConditionVariable;
 
     osMutexId_t               _id;
@@ -185,6 +199,14 @@ private:
 };
 
 #if !MBED_CONF_RTOS_PRESENT
+inline Mutex::Mutex()
+{
+}
+
+inline Mutex::Mutex(const char *)
+{
+}
+
 inline Mutex::Mutex(bool)
 {
 }
