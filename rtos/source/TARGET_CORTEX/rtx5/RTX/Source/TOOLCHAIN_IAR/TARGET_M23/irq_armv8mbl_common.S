@@ -1,5 +1,5 @@
 ;/*
-; * Copyright (c) 2016-2018 Arm Limited. All rights reserved.
+; * Copyright (c) 2016-2020 Arm Limited. All rights reserved.
 ; *
 ; * SPDX-License-Identifier: Apache-2.0
 ; *
@@ -226,15 +226,17 @@ Sys_ContextSave
                 BL       TZ_StoreContext_S      ; Store secure context
                 MOV      LR,R7                  ; Set EXC_RETURN
                 POP      {R1,R2,R3,R7}          ; Restore registers
-                MOV      R0,LR                  ; Get EXC_RETURN
-                LSLS     R0,R0,#25              ; Check domain of interrupted thread
-                BPL      Sys_ContextSave1       ; Branch if non-secure
-                MRS      R0,PSP                 ; Get PSP
-                STR      R0,[R1,#TCB_SP_OFS]    ; Store SP
-                B        Sys_ContextSave2
-                #endif
 
 Sys_ContextSave1
+                MOV      R0,LR                  ; Get EXC_RETURN
+                LSLS     R0,R0,#25              ; Check domain of interrupted thread
+                BPL      Sys_ContextSave2       ; Branch if non-secure
+                MRS      R0,PSP                 ; Get PSP
+                STR      R0,[R1,#TCB_SP_OFS]    ; Store SP
+                B        Sys_ContextSave3
+                #endif
+
+Sys_ContextSave2
                 MRS      R0,PSP                 ; Get PSP
                 SUBS     R0,R0,#32              ; Adjust address
                 STR      R0,[R1,#TCB_SP_OFS]    ; Store SP
@@ -245,7 +247,7 @@ Sys_ContextSave1
                 MOV      R7,R11
                 STMIA    R0!,{R4-R7}            ; Save R8..R11
 
-Sys_ContextSave2
+Sys_ContextSave3
                 MOV      R0,LR                  ; Get EXC_RETURN
                 ADDS     R1,R1,#TCB_SF_OFS      ; Adjust address
                 STRB     R0,[R1]                ; Store stack frame information

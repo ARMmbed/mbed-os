@@ -267,7 +267,6 @@ osMailQId osMailCreate (const osMailQDef_t *queue_def, osThreadId thread_id) {
   }
 
   ptr->mp_id = osMemoryPoolNew  (queue_def->queue_sz, queue_def->item_sz, &queue_def->mp_attr);
-  // coverity[suspicious_sizeof]
   ptr->mq_id = osMessageQueueNew(queue_def->queue_sz, sizeof(void *), &queue_def->mq_attr);
   if ((ptr->mp_id == NULL) || (ptr->mq_id == NULL)) {
     if (ptr->mp_id != NULL) {

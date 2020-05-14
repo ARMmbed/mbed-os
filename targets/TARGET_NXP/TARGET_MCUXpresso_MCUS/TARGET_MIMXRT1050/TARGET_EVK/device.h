@@ -40,6 +40,10 @@
 
 #define BOARD_ENET_PHY_ADDR    (2)
 
+/* CMSIS defines this, we use it as linker symbol, undefined it and let a linker symbol
+ to be as vector table */
+#undef __VECTOR_TABLE
+
 #include "objects.h"
 
 #endif

@@ -47,7 +47,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef __ARMCC_VERSION
 #include <rt_misc.h>
 #endif
+
+#define __PROGRAM_START
 #include <cmsis.h>
+#undef __PROGRAM_START
 #include <startup_ADuCM4050.h>
 #include <mbed_rtx.h>
 

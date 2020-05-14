@@ -1,35 +1,40 @@
-;/*
-; * Copyright (c) 2016-2018 Arm Limited. All rights reserved.
-; *
-; * SPDX-License-Identifier: Apache-2.0
-; *
-; * Licensed under the Apache License, Version 2.0 (the License); you may
-; * not use this file except in compliance with the License.
-; * You may obtain a copy of the License at
-; *
-; * www.apache.org/licenses/LICENSE-2.0
-; *
-; * Unless required by applicable law or agreed to in writing, software
-; * distributed under the License is distributed on an AS IS BASIS, WITHOUT
-; * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-; * See the License for the specific language governing permissions and
-; * limitations under the License.
-; *
-; * -----------------------------------------------------------------------------
-; *
-; * Project:     CMSIS-RTOS RTX
-; * Title:       ARMv8M Baseline Exception handlers
-; *
-; * -----------------------------------------------------------------------------
-; */
+/*
+ * Copyright (c) 2016-2020 Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the License); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * -----------------------------------------------------------------------------
+ *
+ * Project:     CMSIS-RTOS RTX
+ * Title:       ARMv8M Baseline Exception handlers
+ *
+ * -----------------------------------------------------------------------------
+ */
 
 
-        .file    "irq_armv8mbl.S"
         .syntax  unified
 
-#ifndef  DOMAIN_NS
-        .equ     DOMAIN_NS, 0
-#endif
+        #ifdef   _RTE_
+        #ifdef   RTE_CMSIS_RTOS2_RTX5_ARMV8M_NS
+        #define  DOMAIN_NS    1
+        #endif
+        #endif
+
+        #ifndef  DOMAIN_NS
+        #define  DOMAIN_NS    0
+        #endif
 
         .equ     I_T_RUN_OFS, 20        // osRtxInfo.thread.run offset
         .equ     TCB_SM_OFS,  48        // TCB.stack_mem offset
@@ -83,7 +88,7 @@ SVC_Context:
         CBZ      R1,SVC_ContextSwitch   // Branch if running thread is deleted
 
 SVC_ContextSave:
-        .if      DOMAIN_NS == 1
+        #if      (DOMAIN_NS == 1)
         LDR      R0,[R1,#TCB_TZM_OFS]   // Load TrustZone memory identifier
         CBZ      R0,SVC_ContextSave1    // Branch if there is no secure context
         PUSH     {R1,R2,R3,R7}          // Save registers
@@ -91,7 +96,7 @@ SVC_ContextSave:
         BL       TZ_StoreContext_S      // Store secure context
         MOV      LR,R7                  // Set EXC_RETURN
         POP      {R1,R2,R3,R7}          // Restore registers
-        .endif
+        #endif
 
 SVC_ContextSave1:
         MRS      R0,PSP                 // Get PSP
@@ -114,13 +119,13 @@ SVC_ContextSwitch:
         STR      R2,[R3]                // osRtxInfo.thread.run: curr = next
 
 SVC_ContextRestore:
-        .if      DOMAIN_NS == 1
+        #if      (DOMAIN_NS == 1)
         LDR      R0,[R2,#TCB_TZM_OFS]   // Load TrustZone memory identifier
         CBZ      R0,SVC_ContextRestore1 // Branch if there is no secure context
         PUSH     {R2,R3}                // Save registers
         BL       TZ_LoadContext_S       // Load secure context
         POP      {R2,R3}                // Restore registers
-        .endif
+        #endif
 
 SVC_ContextRestore1:
         MOV      R1,R2
@@ -131,16 +136,16 @@ SVC_ContextRestore1:
         ORRS     R0,R1
         MOV      LR,R0                  // Set EXC_RETURN
 
-        .if      DOMAIN_NS == 1
+        #if      (DOMAIN_NS == 1)
         LSLS     R0,R0,#25              // Check domain of interrupted thread
         BPL      SVC_ContextRestore2    // Branch if non-secure
         LDR      R0,[R2,#TCB_SP_OFS]    // Load SP
         MSR      PSP,R0                 // Set PSP
         BX       LR                     // Exit from handler
-        .else
+        #else
         LDR      R0,[R2,#TCB_SM_OFS]    // Load stack memory base
         MSR      PSPLIM,R0              // Set PSPLIM
-        .endif
+        #endif
 
 SVC_ContextRestore2:
         LDR      R0,[R2,#TCB_SP_OFS]    // Load SP
@@ -230,7 +235,7 @@ Sys_Context:
         BEQ      Sys_ContextExit        // Branch when threads are the same
 
 Sys_ContextSave:
-        .if      DOMAIN_NS == 1
+        #if      (DOMAIN_NS == 1)
         LDR      R0,[R1,#TCB_TZM_OFS]   // Load TrustZone memory identifier
         CBZ      R0,Sys_ContextSave1    // Branch if there is no secure context
         PUSH     {R1,R2,R3,R7}          // Save registers
@@ -238,15 +243,17 @@ Sys_ContextSave:
         BL       TZ_StoreContext_S      // Store secure context
         MOV      LR,R7                  // Set EXC_RETURN
         POP      {R1,R2,R3,R7}          // Restore registers
-        MOV      R0,LR                  // Get EXC_RETURN
-        LSLS     R0,R0,#25              // Check domain of interrupted thread
-        BPL      Sys_ContextSave1       // Branch if non-secure
-        MRS      R0,PSP                 // Get PSP
-        STR      R0,[R1,#TCB_SP_OFS]    // Store SP
-        B        Sys_ContextSave2
-        .endif
 
 Sys_ContextSave1:
+        MOV      R0,LR                  // Get EXC_RETURN
+        LSLS     R0,R0,#25              // Check domain of interrupted thread
+        BPL      Sys_ContextSave2       // Branch if non-secure
+        MRS      R0,PSP                 // Get PSP
+        STR      R0,[R1,#TCB_SP_OFS]    // Store SP
+        B        Sys_ContextSave3
+        #endif
+
+Sys_ContextSave2:
         MRS      R0,PSP                 // Get PSP
         SUBS     R0,R0,#32              // Adjust address
         STR      R0,[R1,#TCB_SP_OFS]    // Store SP
@@ -257,7 +264,7 @@ Sys_ContextSave1:
         MOV      R7,R11
         STMIA    R0!,{R4-R7}            // Save R8..R11
 
-Sys_ContextSave2:
+Sys_ContextSave3:
         MOV      R0,LR                  // Get EXC_RETURN
         ADDS     R1,R1,#TCB_SF_OFS      // Adjust address
         STRB     R0,[R1]                // Store stack frame information
@@ -267,13 +274,13 @@ Sys_ContextSwitch:
         STR      R2,[R3]                // osRtxInfo.run: curr = next
 
 Sys_ContextRestore:
-        .if      DOMAIN_NS == 1
+        #if      (DOMAIN_NS == 1)
         LDR      R0,[R2,#TCB_TZM_OFS]   // Load TrustZone memory identifier
         CBZ      R0,Sys_ContextRestore1 // Branch if there is no secure context
         PUSH     {R2,R3}                // Save registers
         BL       TZ_LoadContext_S       // Load secure context
         POP      {R2,R3}                // Restore registers
-        .endif
+        #endif
 
 Sys_ContextRestore1:
         MOV      R1,R2
@@ -284,16 +291,16 @@ Sys_ContextRestore1:
         ORRS     R0,R1
         MOV      LR,R0                  // Set EXC_RETURN
 
-        .if      DOMAIN_NS == 1
+        #if      (DOMAIN_NS == 1)
         LSLS     R0,R0,#25              // Check domain of interrupted thread
         BPL      Sys_ContextRestore2    // Branch if non-secure
         LDR      R0,[R2,#TCB_SP_OFS]    // Load SP
         MSR      PSP,R0                 // Set PSP
         BX       LR                     // Exit from handler
-        .else
+        #else
         LDR      R0,[R2,#TCB_SM_OFS]    // Load stack memory base
         MSR      PSPLIM,R0              // Set PSPLIM
-        .endif
+        #endif
 
 Sys_ContextRestore2:
         LDR      R0,[R2,#TCB_SP_OFS]    // Load SP

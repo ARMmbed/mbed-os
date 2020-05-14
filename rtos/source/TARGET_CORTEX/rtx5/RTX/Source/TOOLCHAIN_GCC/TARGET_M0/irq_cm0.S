@@ -24,7 +24,6 @@
  */
 
 
-        .file    "irq_cm0.S"
         .syntax  unified
 
         .equ     I_T_RUN_OFS, 20        // osRtxInfo.thread.run offset

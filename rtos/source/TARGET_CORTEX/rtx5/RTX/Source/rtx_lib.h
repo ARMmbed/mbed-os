@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018 Arm Limited. All rights reserved.
+ * Copyright (c) 2013-2020 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -28,8 +28,9 @@
 
 #include <string.h>
 #include "rtx_core_c.h"                 // Cortex core definitions
-#if ((defined(__ARM_ARCH_8M_BASE__) && (__ARM_ARCH_8M_BASE__ != 0)) || \
-     (defined(__ARM_ARCH_8M_MAIN__) && (__ARM_ARCH_8M_MAIN__ != 0)))
+#if ((defined(__ARM_ARCH_8M_BASE__)   && (__ARM_ARCH_8M_BASE__   != 0)) || \
+     (defined(__ARM_ARCH_8M_MAIN__)   && (__ARM_ARCH_8M_MAIN__   != 0)) || \
+     (defined(__ARM_ARCH_8_1M_MAIN__) && (__ARM_ARCH_8_1M_MAIN__ != 0)))
 #include "tz_context.h"                 // TrustZone Context API
 #endif
 #include "os_tick.h"                    // CMSIS OS Tick API
@@ -196,6 +197,7 @@ extern void osRtxTimerThread (void *argument);
 
 // Mutex Library functions
 extern void osRtxMutexOwnerRelease (os_mutex_t *mutex_list);
+extern void osRtxMutexOwnerRestore (const os_mutex_t *mutex, const os_thread_t *thread_wakeup);
 
 // Memory Heap Library functions
 extern uint32_t osRtxMemoryInit (void *mem, uint32_t size);
