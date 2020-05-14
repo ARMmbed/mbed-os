@@ -32,9 +32,6 @@
         "NUCLEO_F091RC": {
              "TEST_BUFFER": 4096
         },
-        "NUCLEO_F410RB": {
-             "TEST_BUFFER": 4096
-        },
         "KL22F": {
              "SPI_MOSI": "PTD6",
              "SPI_MISO": "PTD7",

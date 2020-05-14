@@ -1313,17 +1313,6 @@
             "MCU_STM32"
         ],
         "public": false,
-        "supported_c_libs": {
-            "arm": [
-                "small"
-            ],
-            "gcc_arm": [
-                "small"
-            ],
-            "iar": [
-                "std"
-            ]
-        },
         "c_lib": "small",
         "supported_application_profiles": [
             "bare-metal"
@@ -1332,160 +1321,9 @@
             "boot-stack-size": "0x400"
         }
     },
-    "NUCLEO_F030R8": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
-        ],
-        "core": "Cortex-M0",
-        "extra_labels_add": [
-            "STM32F0",
-            "STM32F030R8"
-        ],
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            }
-        },
-        "detect_code": [
-            "0725"
-        ],
-        "macros_add": [
-            "CMSIS_VECTAB_VIRTUAL",
-            "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
-        ],
-        "device_has_add": [
-            "CRC"
-        ],
-        "device_has_remove": [
-            "LPTICKER"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "STM32F030R8"
-    },
-    "NUCLEO_F031K6": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "core": "Cortex-M0",
-        "default_toolchain": "uARM",
-        "extra_labels_add": [
-            "STM32F0",
-            "STM32F031K6"
-        ],
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            }
-        },
-        "detect_code": [
-            "0791"
-        ],
-        "overrides": {
-            "lse_available": 0
-        },
-        "macros_add": [
-            "CMSIS_VECTAB_VIRTUAL",
-            "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
-        ],
-        "device_has_add": [
-            "CRC"
-        ],
-        "device_has_remove": [
-            "LPTICKER"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "STM32F031K6"
-    },
-    "NUCLEO_F042K6": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "core": "Cortex-M0",
-        "default_toolchain": "uARM",
-        "extra_labels_add": [
-            "STM32F0",
-            "STM32F042K6"
-        ],
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            }
-        },
-        "detect_code": [
-            "0785"
-        ],
-        "overrides": {
-            "lse_available": 0
-        },
-        "macros_add": [
-            "CMSIS_VECTAB_VIRTUAL",
-            "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
-        ],
-        "device_has_add": [
-            "CAN",
-            "CRC"
-        ],
-        "device_has_remove": [
-            "LPTICKER"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "STM32F042K6"
-    },
-    "DISCO_F051R8": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "core": "Cortex-M0",
-        "extra_labels_add": [
-            "STM32F0",
-            "STM32F051",
-            "STM32F051R8"
-        ],
-        "supported_toolchains": [
-            "GCC_ARM"
-        ],
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            }
-        },
-        "macros_add": [
-            "CMSIS_VECTAB_VIRTUAL",
-            "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
-        ],
-        "device_has_add": [
-            "CRC",
-            "MPU"
-        ],
-        "device_has_remove": [
-            "LPTICKER"
-        ],
-        "device_name": "STM32F051R8"
-    },
     "NUCLEO_F070RB": {
         "inherits": [
-            "MCU_STM32"
+            "MCU_STM32_BAREMETAL"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -1515,15 +1353,11 @@
             "SERIAL_ASYNCH",
             "FLASH"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F070RB"
     },
     "NUCLEO_F072RB": {
         "inherits": [
-            "MCU_STM32"
+            "MCU_STM32_BAREMETAL"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -1555,15 +1389,11 @@
             "SERIAL_ASYNCH",
             "FLASH"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F072RB"
     },
     "NUCLEO_F091RC": {
         "inherits": [
-            "MCU_STM32"
+            "MCU_STM32_BAREMETAL"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -1595,33 +1425,11 @@
             "SERIAL_ASYNCH",
             "FLASH"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F091RC"
-    },
-    "DISCO_F100RB": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "core": "Cortex-M3",
-        "extra_labels_add": [
-            "STM32F1",
-            "STM32F100RB"
-        ],
-        "supported_toolchains": [
-            "GCC_ARM"
-        ],
-        "device_has_add": [],
-        "device_has_remove": [
-            "LPTICKER"
-        ],
-        "device_name": "STM32F100RB"
     },
     "NUCLEO_F103RB": {
         "inherits": [
-            "MCU_STM32"
+            "MCU_STM32_BAREMETAL"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -1649,10 +1457,6 @@
         ],
         "device_has_remove": [
             "LPTICKER"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32F103RB"
     },
@@ -1700,51 +1504,11 @@
         "device_has_remove": [
             "LPTICKER"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F207ZG",
         "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
-    },
-    "NUCLEO_F302R8": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
-        ],
-        "core": "Cortex-M4F",
-        "extra_labels_add": [
-            "STM32F3",
-            "STM32F302x8",
-            "STM32F302R8"
-        ],
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            }
-        },
-        "detect_code": [
-            "0705"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "CAN",
-            "CRC",
-            "SERIAL_ASYNCH"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "STM32F302R8"
     },
     "NUCLEO_F303K8": {
         "inherits": [
@@ -1782,7 +1546,7 @@
     },
     "NUCLEO_F303RE": {
         "inherits": [
-            "MCU_STM32"
+            "MCU_STM32_BAREMETAL"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -1818,51 +1582,6 @@
         "bootloader_supported": true,
         "device_name": "STM32F303RE"
     },
-    "DISCO_F303VC": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "core": "Cortex-M4F",
-        "extra_labels_add": [
-            "STM32F3",
-            "STM32F303",
-            "STM32F303xC",
-            "STM32F303VC"
-        ],
-        "overrides": {
-            "lse_available": 0
-        },
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            }
-        },
-        "supported_toolchains": [
-            "ARM",
-            "uARM",
-            "GCC_ARM",
-            "IAR"
-        ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "CAN",
-            "CRC",
-            "MPU"
-        ],
-        "device_has_remove": [
-            "LPTICKER"
-        ],
-        "device_name": "STM32F303VC",
-        "detect_code": [
-            "0746"
-        ]
-    },
     "NUCLEO_F303ZE": {
         "inherits": [
             "MCU_STM32"
@@ -1894,84 +1613,7 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F303ZE"
-    },
-    "DISCO_F334C8": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "core": "Cortex-M4F",
-        "extra_labels_add": [
-            "STM32F3",
-            "STM32F334x8",
-            "STM32F334C8"
-        ],
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            }
-        },
-        "overrides": {
-            "lse_available": 0
-        },
-        "detect_code": [
-            "0810"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "CRC",
-            "SERIAL_ASYNCH"
-        ],
-        "device_has_remove": [
-            "LPTICKER"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "STM32F334C8"
-    },
-    "NUCLEO_F334R8": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
-        ],
-        "core": "Cortex-M4F",
-        "extra_labels_add": [
-            "STM32F3",
-            "STM32F334x8",
-            "STM32F334R8"
-        ],
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            }
-        },
-        "detect_code": [
-            "0735"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "CAN",
-            "CRC",
-            "SERIAL_ASYNCH"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "STM32F334R8"
     },
     "NUCLEO_F401RE": {
         "inherits": [
@@ -2005,64 +1647,6 @@
             "MPU"
         ],
         "device_name": "STM32F401RE"
-    },
-    "DISCO_F401VC": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "core": "Cortex-M4F",
-        "default_toolchain": "GCC_ARM",
-        "extra_labels_add": [
-            "STM32F4",
-            "STM32F401xC"
-        ],
-        "macros_add": [
-            "STM32F401xC"
-        ],
-        "supported_toolchains": [
-            "GCC_ARM"
-        ],
-        "device_has_add": [
-            "MPU"
-        ],
-        "device_name": "STM32F401VC"
-    },
-    "STEVAL_3DP001V1": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "core": "Cortex-M4F",
-        "extra_labels_add": [
-            "STM32F4",
-            "STM32F401xE"
-        ],
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            }
-        },
-        "macros_add": [
-            "STM32F401xE",
-            "HSE_VALUE=25000000"
-        ],
-        "device_has_add": [
-            "SERIAL_ASYNCH",
-            "FLASH",
-            "MPU"
-        ],
-        "device_has_remove": [
-            "LPTICKER"
-        ],
-        "overrides": {
-            "lse_available": 0
-        },
-        "release_versions": [
-            "2",
-            "5"
-        ],
-        "device_name": "STM32F401VE"
     },
     "ARCH_MAX": {
         "inherits": [
@@ -2102,10 +1686,6 @@
                 "macro_name": "CLOCK_SOURCE"
             }
         },
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F407VETx",
         "bootloader_supported": true,
         "overrides": {
@@ -2115,96 +1695,6 @@
         "detect_code": [
             "9011"
         ]
-    },
-    "DISCO_F407VG": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "core": "Cortex-M4F",
-        "extra_labels_add": [
-            "STM32F4",
-            "STM32F407xG"
-        ],
-        "macros_add": [
-            "STM32F407xx"
-        ],
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            },
-            "usb_speed": {
-                "help": "USE_USB_OTG_FS or USE_USB_OTG_HS or USE_USB_HS_IN_FS",
-                "value": "USE_USB_OTG_FS"
-            }
-        },
-        "overrides": {
-            "lse_available": 0
-        },
-        "device_has_add": [
-            "ANALOGOUT",
-            "TRNG",
-            "FLASH",
-            "MPU"
-        ],
-        "device_has_remove": [
-            "LPTICKER"
-        ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
-        "device_name": "STM32F407VG",
-        "detect_code": [
-            "0830"
-        ]
-    },
-    "NUCLEO_F410RB": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
-        ],
-        "core": "Cortex-M4F",
-        "extra_labels_add": [
-            "STM32F4",
-            "STM32F410xB"
-        ],
-        "macros_add": [
-            "STM32F410Rx"
-        ],
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            },
-            "lpticker_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
-                "value": 1
-            }
-        },
-        "overrides": {
-            "lpticker_delay_ticks": 4
-        },
-        "detect_code": [
-            "0744"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "SERIAL_ASYNCH",
-            "TRNG",
-            "FLASH",
-            "MPU"
-        ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
-        "device_name": "STM32F410RB"
     },
     "NUCLEO_F411RE": {
         "inherits": [
@@ -2278,10 +1768,6 @@
             "SERIAL_FC",
             "LPTICKER"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F411RE",
         "bootloader_supported": true,
         "detect_code": [
@@ -2306,10 +1792,6 @@
         ],
         "device_has_remove": [
             "SERIAL_FC"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "bootloader_supported": true,
         "device_name": "STM32F411RE",
@@ -2351,10 +1833,6 @@
             "MPU",
             "USBDEVICE"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F412ZG",
         "bootloader_supported": true
     },
@@ -2383,9 +1861,6 @@
             "TRNG",
             "FLASH",
             "MPU"
-        ],
-        "release_versions": [
-            "5"
         ],
         "device_name": "STM32F412ZG",
         "bootloader_supported": true,
@@ -2456,10 +1931,6 @@
             "SPIF"
         ],
         "bootloader_supported": true,
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F413RHTx",
         "mbed_rom_start": "0x08000000",
         "mbed_rom_size": "0x180000",
@@ -2514,10 +1985,6 @@
             "USBDEVICE"
         ],
         "bootloader_supported": true,
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F413ZH"
     },
     "NUCLEO_F413ZH": {
@@ -2562,10 +2029,6 @@
             "USBDEVICE"
         ],
         "bootloader_supported": true,
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F413ZH"
     },
     "NUCLEO_F429ZI": {
@@ -2616,10 +2079,6 @@
         "detect_code": [
             "0796"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F429ZI",
         "bootloader_supported": true,
         "overrides": {
@@ -2662,10 +2121,6 @@
         ],
         "device_has_remove": [
             "LPTICKER"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32F429ZI",
         "bootloader_supported": true,
@@ -2711,9 +2166,6 @@
         "detect_code": [
             "0467"
         ],
-        "release_versions": [
-            "5"
-        ],
         "device_name": "STM32F429ZI",
         "bootloader_supported": true,
         "overrides": {
@@ -2755,10 +2207,6 @@
         "detect_code": [
             "9014"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F439VI",
         "bootloader_supported": true,
         "overrides": {
@@ -2799,10 +2247,6 @@
         ],
         "detect_code": [
             "9015"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32F439VI",
         "components_add": [
@@ -2853,10 +2297,6 @@
         "detect_code": [
             "0797"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F439ZI",
         "bootloader_supported": true,
         "overrides": {
@@ -2896,44 +2336,8 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F446RE",
         "bootloader_supported": true
-    },
-    "B96B_F446VE": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
-        ],
-        "core": "Cortex-M4F",
-        "extra_labels_add": [
-            "STM32F4",
-            "STM32F446xE"
-        ],
-        "macros_add": [
-            "STM32F446xx"
-        ],
-        "detect_code": [
-            "0840"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "CAN",
-            "SERIAL_ASYNCH",
-            "FLASH",
-            "MPU"
-        ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
-        "device_name": "STM32F446VE"
     },
     "NUCLEO_F446ZE": {
         "inherits": [
@@ -2972,10 +2376,6 @@
             "FLASH",
             "MPU",
             "USBDEVICE"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32F446ZE"
     },
@@ -3016,10 +2416,6 @@
             "QSPI",
             "MPU",
             "USBDEVICE"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32F469NI",
         "bootloader_supported": true
@@ -3062,9 +2458,6 @@
             "LPTICKER"
         ],
         "device_name": "STM32F469NI",
-        "release_versions": [
-            "5"
-        ],
         "detect_code": [
             "0604"
         ]
@@ -3122,10 +2515,6 @@
             "USBDEVICE",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F746NG",
         "bootloader_supported": true,
         "overrides": {
@@ -3180,10 +2569,6 @@
             "FLASH",
             "USBDEVICE",
             "MPU"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32F746ZG",
         "bootloader_supported": true,
@@ -3241,10 +2626,6 @@
             "USBDEVICE",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F756ZG",
         "overrides": {
             "lpticker_delay_ticks": 0,
@@ -3297,9 +2678,6 @@
         ],
         "features": [
             "LWIP"
-        ],
-        "release_versions": [
-            "5"
         ],
         "device_name": "STM32F767VI",
         "bootloader_supported": true
@@ -3358,10 +2736,6 @@
             "FLASH",
             "USBDEVICE",
             "MPU"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32F767ZI",
         "bootloader_supported": true,
@@ -3423,10 +2797,6 @@
             "QSPI"
         ],
         "bootloader_supported": true,
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32F769NI",
         "overrides": {
             "lpticker_delay_ticks": 0,
@@ -3435,7 +2805,7 @@
     },
     "NUCLEO_G071RB": {
         "inherits": [
-            "MCU_STM32"
+            "MCU_STM32_BAREMETAL"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -3484,78 +2854,7 @@
         "detect_code": [
             "0221"
         ],
-        "release_versions": [
-            "5"
-        ],
         "device_name": "STM32G071RBTx",
-        "bootloader_supported": true
-    },
-    "NUCLEO_H743ZI": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "core": "Cortex-M7FD",
-        "extra_labels_add": [
-            "STM32H7",
-            "STM32H743xI"
-        ],
-        "mbed_rom_start": "0x08000000",
-        "mbed_rom_size": "0x200000",
-        "mbed_ram_start": "0x24000000",
-        "mbed_ram_size": "0x80000",
-        "config": {
-            "d11_configuration": {
-                "help": "Value: PA_7 for the default board configuration, PB_5 in case of solder bridge update (SB121 off/ SB122 on)",
-                "value": "PA_7",
-                "macro_name": "STM32_D11_SPI_ETHERNET_PIN"
-            },
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            },
-            "lpticker_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
-                "value": 1
-            },
-            "hse_value": {
-                "help": "HSE default value is 25MHz in HAL",
-                "value": "8000000",
-                "macro_name": "HSE_VALUE"
-            }
-        },
-        "components_add": [
-            "FLASHIAP"
-        ],
-        "macros_add": [
-            "STM32H743xx",
-            "EXTRA_IDLE_STACK_REQUIRED",
-            "MBED_TICKLESS"
-        ],
-        "overrides": {
-            "lpticker_delay_ticks": 0,
-            "network-default-interface-type": "ETHERNET"
-        },
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "detect_code": [
-            "0813"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "CAN",
-            "CRC",
-            "TRNG",
-            "FLASH",
-            "MPU",
-            "EMAC"
-        ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
-        "device_name": "STM32H743ZI",
         "bootloader_supported": true
     },
     "NUCLEO_H743ZI2": {
@@ -3619,10 +2918,6 @@
             "MPU",
             "EMAC"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32H743ZI",
         "bootloader_supported": true
     },
@@ -3661,9 +2956,6 @@
             "FLASH",
             "QSPI",
             "MPU"
-        ],
-        "release_versions": [
-            "5"
         ],
         "bootloader_supported": true,
         "public": false
@@ -3768,10 +3060,6 @@
             "QSPI",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32H747XIHx",
         "bootloader_supported": true
     },
@@ -3835,183 +3123,6 @@
         ],
         "bootloader_supported": true
     },
-    "NUCLEO_L011K4": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "core": "Cortex-M0+",
-        "extra_labels_add": [
-            "STM32L0",
-            "STM32L011K4"
-        ],
-        "supported_toolchains": [
-            "uARM"
-        ],
-        "default_toolchain": "uARM",
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            },
-            "lpticker_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
-                "value": 1
-            }
-        },
-        "overrides": {
-            "lpticker_delay_ticks": 0
-        },
-        "macros_add": [
-            "EXTRA_IDLE_STACK_REQUIRED"
-        ],
-        "detect_code": [
-            "0780"
-        ],
-        "device_has_add": [
-            "CRC",
-            "FLASH"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "STM32L011K4"
-    },
-    "NUCLEO_L031K6": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "core": "Cortex-M0+",
-        "extra_labels_add": [
-            "STM32L0",
-            "STM32L031K6"
-        ],
-        "default_toolchain": "uARM",
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            },
-            "lpticker_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
-                "value": 1
-            }
-        },
-        "macros_add": [
-            "EXTRA_IDLE_STACK_REQUIRED"
-        ],
-        "overrides": {
-            "lpticker_delay_ticks": 0
-        },
-        "detect_code": [
-            "0790"
-        ],
-        "device_has_add": [
-            "CRC",
-            "FLASH"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "STM32L031K6"
-    },
-    "DISCO_L053C8": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "core": "Cortex-M0+",
-        "extra_labels_add": [
-            "STM32L0",
-            "STM32L053x8",
-            "STM32L053C8"
-        ],
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            },
-            "lpticker_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
-                "value": 1
-            }
-        },
-        "macros_add": [
-            "MBED_TICKLESS",
-            "EXTRA_IDLE_STACK_REQUIRED"
-        ],
-        "overrides": {
-            "lse_available": 0,
-            "lpticker_delay_ticks": 0
-        },
-        "device_has_add": [
-            "ANALOGOUT",
-            "CRC",
-            "FLASH",
-            "MPU"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "STM32L053C8",
-        "detect_code": [
-            "0805"
-        ]
-    },
-    "NUCLEO_L053R8": {
-        "inherits": [
-            "MCU_STM32"
-        ],
-        "supported_form_factors": [
-            "ARDUINO",
-            "MORPHO"
-        ],
-        "core": "Cortex-M0+",
-        "extra_labels_add": [
-            "STM32L0",
-            "STM32L053x8",
-            "STM32L053R8"
-        ],
-        "config": {
-            "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
-                "macro_name": "CLOCK_SOURCE"
-            },
-            "lpticker_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
-                "value": 1
-            }
-        },
-        "macros_add": [
-            "EXTRA_IDLE_STACK_REQUIRED"
-        ],
-        "overrides": {
-            "lpticker_delay_ticks": 0
-        },
-        "detect_code": [
-            "0715"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
-            "CRC",
-            "SERIAL_ASYNCH",
-            "FLASH",
-            "MPU"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "STM32L053R8"
-    },
     "DISCO_L072CZ_LRWAN1": {
         "inherits": [
             "MCU_STM32"
@@ -4056,15 +3167,11 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32L072CZ"
     },
     "NUCLEO_L073RZ": {
         "inherits": [
-            "MCU_STM32"
+            "MCU_STM32_BAREMETAL"
         ],
         "supported_form_factors": [
             "ARDUINO",
@@ -4105,10 +3212,6 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "bootloader_supported": true,
         "device_name": "STM32L073RZ"
     },
@@ -4140,9 +3243,6 @@
         ],
         "device_has_remove": [
             "SERIAL_FC"
-        ],
-        "release_versions": [
-            "5"
         ],
         "device_name": "STM32L151CC",
         "bootloader_supported": true,
@@ -4188,10 +3288,6 @@
         "device_has_remove": [
             "SERIAL_FC"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32L152RC"
     },
     "NUCLEO_L152RE": {
@@ -4223,15 +3319,11 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32L152RE"
     },
     "NUCLEO_L432KC": {
         "inherits": [
-            "MCU_STM32"
+            "MCU_STM32_BAREMETAL"
         ],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -4269,10 +3361,6 @@
             "TRNG",
             "FLASH",
             "MPU"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32L432KC",
         "bootloader_supported": true
@@ -4322,10 +3410,6 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32L433RC",
         "bootloader_supported": true
     },
@@ -4349,9 +3433,6 @@
         "overrides": {
             "lse_available": 0
         },
-        "release_versions": [
-            "5"
-        ],
         "device_has_add": [
             "ANALOGOUT",
             "CRC",
@@ -4420,9 +3501,6 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": [
-            "5"
-        ],
         "device_name": "STM32L452RETx",
         "bootloader_supported": true
     },
@@ -4462,10 +3540,6 @@
         "macros_add": [
             "STM32L471xx",
             "MBED_SPLIT_HEAP"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32L471QG",
         "bootloader_supported": true
@@ -4575,10 +3649,6 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32L476RG",
         "bootloader_supported": true
     },
@@ -4629,10 +3699,6 @@
             "QSPI",
             "USBDEVICE",
             "MPU"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32L476VG",
         "bootloader_supported": true
@@ -4685,10 +3751,6 @@
             "QSPI",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32L476VG",
         "bootloader_supported": true
     },
@@ -4739,10 +3801,6 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32L486RG"
     },
     "ADV_WISE_1570": {
@@ -4788,9 +3846,6 @@
         ],
         "device_has_remove": [
             "LPTICKER"
-        ],
-        "release_versions": [
-            "5"
         ],
         "device_name": "STM32L486RG",
         "bootloader_supported": true,
@@ -4849,10 +3904,6 @@
             "USBDEVICE",
             "QSPI"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "device_name": "STM32L496AG",
         "bootloader_supported": true
     },
@@ -4901,10 +3952,6 @@
             "FLASH",
             "USBDEVICE",
             "MPU"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32L496ZG",
         "bootloader_supported": true
@@ -4965,10 +4012,6 @@
             "FLASH",
             "USBDEVICE",
             "MPU"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "device_name": "STM32L4R5ZI",
         "bootloader_supported": true
@@ -5033,10 +4076,6 @@
             "USBDEVICE",
             "MPU"
         ],
-        "release_versions": [
-            "2",
-            "5"
-        ],
         "bootloader_supported": false
     },
     "NUCLEO_L552ZE_Q": {
@@ -5089,10 +4128,7 @@
         "mbed_rom_start": "0x08000000",
         "mbed_rom_size": "0x80000",
         "mbed_ram_start": "0x20000000",
-        "mbed_ram_size": "0x40000",
-        "release_versions": [
-            "5"
-        ]
+        "mbed_ram_size": "0x40000"
     },
     "DISCO_L562QE": {
         "inherits": [
@@ -5152,10 +4188,7 @@
         "mbed_rom_start": "0x08000000",
         "mbed_rom_size": "0x80000",
         "mbed_ram_start": "0x20000000",
-        "mbed_ram_size": "0x40000",
-        "release_versions": [
-            "5"
-        ]
+        "mbed_ram_size": "0x40000"
     },
     "NUCLEO_WB55RG": {
         "inherits": [
@@ -5199,10 +4232,6 @@
         "device_name": "STM32WB55RGVx",
         "features": [
             "BLE"
-        ],
-        "release_versions": [
-            "2",
-            "5"
         ],
         "bootloader_supported": true
     },

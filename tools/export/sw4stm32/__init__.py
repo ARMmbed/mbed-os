@@ -38,36 +38,6 @@ class Sw4STM32(GNUARMEclipse):
     TOOLCHAIN = 'GCC_ARM'
 
     BOARDS = {
-        'B96B_F446VE':
-        {
-            'name': 'B96B-F446VE',
-            'mcuId': 'STM32F446VETx'
-        },
-        'DISCO_F051R8':
-        {
-            'name': 'STM32F0DISCOVERY',
-            'mcuId': 'STM32F051R8Tx'
-        },
-        'DISCO_F303VC':
-        {
-            'name': 'STM32F3DISCOVERY',
-            'mcuId': 'STM32F303VCTx'
-        },
-        'DISCO_F334C8':
-        {
-            'name': 'STM32F3348DISCOVERY',
-            'mcuId': 'STM32F334C8Tx'
-        },
-        'DISCO_F401VC':
-        {
-            'name': 'STM32F401C-DISCO',
-            'mcuId': 'STM32F401VCTx'
-        },
-        'DISCO_F407VG':
-        {
-            'name': 'STM32F4DISCOVERY',
-            'mcuId': 'STM32F407VGTx'
-        },
         'DISCO_F413ZH':
         {
             'name': 'DISCO_F413',
@@ -93,11 +63,6 @@ class Sw4STM32(GNUARMEclipse):
             'name': 'DISCO-F769NI',
             'mcuId': 'STM32F769NIHx'
         },
-        'DISCO_L053C8':
-        {
-            'name': 'STM32L0538DISCOVERY',
-            'mcuId': 'STM32L053C8Tx'
-        },
         'DISCO_L072CZ_LRWAN1':
         {
             'name': 'DISCO-L072CZ-LRWAN1',
@@ -112,21 +77,6 @@ class Sw4STM32(GNUARMEclipse):
         {
             'name': 'STM32L476G-DISCO',
             'mcuId': 'STM32L476VGTx'
-        },
-        'NUCLEO_F030R8':
-        {
-            'name': 'NUCLEO-F030R8',
-            'mcuId': 'STM32F030R8Tx'
-        },
-        'NUCLEO_F031K6':
-        {
-            'name': 'NUCLEO-F031K6',
-            'mcuId': 'STM32F031K6Tx'
-        },
-        'NUCLEO_F042K6':
-        {
-            'name': 'NUCLEO-F042K6',
-            'mcuId': 'STM32F042K6Tx'
         },
         'NUCLEO_F070RB':
         {
@@ -153,11 +103,6 @@ class Sw4STM32(GNUARMEclipse):
             'name': 'NUCLEO-F207ZG',
             'mcuId': 'STM32F207ZGTx'
         },
-        'NUCLEO_F302R8':
-        {
-            'name': 'NUCLEO-F302R8',
-            'mcuId': 'STM32F302R8Tx'
-        },
         'NUCLEO_F303K8':
         {
             'name': 'NUCLEO-F303K8',
@@ -173,20 +118,10 @@ class Sw4STM32(GNUARMEclipse):
             'name': 'NUCLEO-F303ZE',
             'mcuId': 'STM32F303ZETx'
         },
-        'NUCLEO_F334R8':
-        {
-            'name': 'NUCLEO-F334R8',
-            'mcuId': 'STM32F334R8Tx'
-        },
         'NUCLEO_F401RE':
         {
             'name': 'NUCLEO-F401RE',
             'mcuId': 'STM32F401RETx'
-        },
-        'NUCLEO_F410RB':
-        {
-            'name': 'NUCLEO-F410RB',
-            'mcuId': 'STM32F410RBTx'
         },
         'NUCLEO_F411RE':
         {
@@ -222,21 +157,6 @@ class Sw4STM32(GNUARMEclipse):
         {
             'name': 'NUCLEO-F767ZI',
             'mcuId': 'STM32F767ZITx'
-        },
-        'NUCLEO_L011K4':
-        {
-            'name': 'NUCLEO-L011K4',
-            'mcuId': 'STM32L011K4Tx'
-        },
-        'NUCLEO_L031K6':
-        {
-            'name': 'NUCLEO-L031K6',
-            'mcuId': 'STM32L031K6Tx'
-        },
-        'NUCLEO_L053R8':
-        {
-            'name': 'NUCLEO-L053R8',
-            'mcuId': 'STM32L053R8Tx'
         },
         'NUCLEO_L073RZ':
         {

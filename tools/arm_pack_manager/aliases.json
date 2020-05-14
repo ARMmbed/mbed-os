@@ -950,12 +950,6 @@
       "nRF51422_xxAA"
     ]
   },
-  "NUCLEO-F030R8": {
-    "name": "NUCLEO-F030R8",
-    "mounted_devices": [
-      "STM32F030R8"
-    ]
-  },
   "NUCLEO-F072RB": {
     "name": "NUCLEO-F072RB",
     "mounted_devices": [
@@ -984,12 +978,6 @@
     "name": "NUCLEO-F446RE",
     "mounted_devices": [
       "STM32F446RE"
-    ]
-  },
-  "NUCLEO-L053R8": {
-    "name": "NUCLEO-L053R8",
-    "mounted_devices": [
-      "STM32L053R8"
     ]
   },
   "NUCLEO-L152RE": {
@@ -1306,24 +1294,6 @@
       "STM32F756NGHx"
     ]
   },
-  "STM32F030-Discovery": {
-    "name": "STM32F030-Discovery",
-    "mounted_devices": [
-      "STM32F030R8"
-    ]
-  },
-  "STM32F051-Discovery": {
-    "name": "STM32F051-Discovery",
-    "mounted_devices": [
-      "STM32F051R8"
-    ]
-  },
-  "STM32F072-Discovery": {
-    "name": "STM32F072-Discovery",
-    "mounted_devices": [
-      "STM32F072RB"
-    ]
-  },
   "STM32F3-Discovery": {
     "name": "STM32F3-Discovery",
     "mounted_devices": [
@@ -1334,18 +1304,6 @@
     "name": "STM32F334-Discovery",
     "mounted_devices": [
       "STM32F334C8"
-    ]
-  },
-  "STM32F4-Discovery": {
-    "name": "STM32F4-Discovery",
-    "mounted_devices": [
-      "STM32F407VG"
-    ]
-  },
-  "STM32F401C-Discovery": {
-    "name": "STM32F401C-Discovery",
-    "mounted_devices": [
-      "STM32F401VC"
     ]
   },
   "STM32F429I-Discovery": {
@@ -1388,12 +1346,6 @@
     "name": "STM32L-Discovery",
     "mounted_devices": [
       "STM32L152RB"
-    ]
-  },
-  "STM32L053-Discovery": {
-    "name": "STM32L053-Discovery",
-    "mounted_devices": [
-      "STM32L053C8"
     ]
   },
   "STM32L073Z-EVAL": {

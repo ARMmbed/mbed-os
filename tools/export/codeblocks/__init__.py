@@ -121,7 +121,6 @@ class CodeBlocks(GccArm):
             'NCS36510': 'board/ncs36510_axdbg.cfg',
             'DISCO_F429ZI': 'board/stm32f429discovery.cfg',
             'DISCO_F469NI': 'board/stm32f469discovery.cfg',
-            'DISCO_L053C8': 'board/stm32l0discovery.cfg',
             'DISCO_L072CZ_LRWAN1': 'board/stm32l0discovery.cfg',
             'DISCO_F769NI': 'board/stm32f7discovery.cfg',
             'DISCO_L475VG_IOT01A': 'board/stm32l4discovery.cfg',
