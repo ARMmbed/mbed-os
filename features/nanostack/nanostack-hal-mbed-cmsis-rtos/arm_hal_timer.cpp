@@ -23,15 +23,16 @@
 #include "platform/arm_hal_interrupt.h"
 #include "platform/mbed_assert.h"
 #include "Timeout.h"
-#include "Timer.h"
-#include "Ticker.h"
 #include "events/Event.h"
 #include "events/mbed_shared_queues.h"
 
 using namespace mbed;
 using namespace events;
+using std::ratio;
+using std::milli;
+using std::micro;
+using namespace std::chrono;
 
-static SingletonPtr<Timer> timer;
 static SingletonPtr<Timeout> timeout;
 
 // If critical sections are implemented using mutexes, timers must be called in thread context, and
@@ -42,8 +43,11 @@ static SingletonPtr<Timeout> timeout;
 #if !MBED_CONF_NANOSTACK_HAL_CRITICAL_SECTION_USABLE_FROM_INTERRUPT
 static EventQueue *equeue;
 #endif
-
-static uint32_t due;
+namespace {
+using slot_period = std::ratio_multiply<ratio<50>, micro>;
+using slots_t = duration<uint32_t, slot_period>;
+}
+static HighResClock::time_point due;
 static void (*arm_hal_callback)(void);
 
 #if defined(NS_EVENTLOOP_USE_TICK_TIMER)
@@ -69,14 +73,15 @@ int8_t platform_tick_timer_register(void (*tick_timer_cb_handler)(void))
 int8_t platform_tick_timer_start(uint32_t period_ms)
 {
     int8_t retval = -1;
+    auto period = duration<uint32_t, milli>(period_ms);
     if (tick_timer_cb && tick_timer_id == 0) {
 #if !MBED_CONF_NANOSTACK_HAL_CRITICAL_SECTION_USABLE_FROM_INTERRUPT
-        tick_timer_id = equeue->call_every(period_ms, tick_timer_cb);
+        tick_timer_id = equeue->call_every(period, tick_timer_cb);
         if (tick_timer_id != 0) {
             retval = 0;
         }
 #else
-        tick_ticker->attach_us(tick_timer_cb, period_ms * 1000);
+        tick_ticker->attach(tick_timer_cb, period);
         tick_timer_id = 1;
         retval = 0;
 #endif
@@ -108,7 +113,6 @@ void platform_timer_enable(void)
     equeue = mbed_highprio_event_queue();
     MBED_ASSERT(equeue != NULL);
 #endif
-    timer->start();
     // Prime the SingletonPtr - can't construct from IRQ/critical section
     timeout.get();
 }
@@ -127,7 +131,7 @@ void platform_timer_set_cb(void (*new_fp)(void))
 
 static void timer_callback(void)
 {
-    due = 0;
+    due = HighResClock::time_point{};
 
 #if MBED_CONF_NANOSTACK_HAL_CRITICAL_SECTION_USABLE_FROM_INTERRUPT
     // Callback is interrupt safe so it can be called directly without
@@ -141,17 +145,17 @@ static void timer_callback(void)
 // This is called from inside platform_enter_critical - IRQs can't happen
 void platform_timer_start(uint16_t slots)
 {
-    timer->reset();
-    due = slots * UINT32_C(50);
-    timeout->attach_us(timer_callback, due);
+    slots_t rel_time{slots};
+    due = HighResClock::now() + rel_time;
+    timeout->attach_absolute(timer_callback, due);
 }
 
 // This is called from inside platform_enter_critical - IRQs can't happen
 uint16_t platform_timer_get_remaining_slots(void)
 {
-    uint32_t elapsed = timer->read_us();
-    if (elapsed < due) {
-        return (uint16_t)((due - elapsed) / 50);
+    auto now = HighResClock::now();
+    if (now < due) {
+        return duration_cast<slots_t>(due - now).count();
     } else {
         return 0;
     }
