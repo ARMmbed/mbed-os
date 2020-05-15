@@ -4906,40 +4906,6 @@
             "0405"
         ]
     },
-    "MAX32620HSP": {
-        "inherits": [
-            "Target"
-        ],
-        "core": "Cortex-M4F",
-        "extra_labels": [
-            "Maxim",
-            "MAX32620"
-        ],
-        "supported_toolchains": [
-            "GCC_ARM",
-            "IAR",
-            "ARM"
-        ],
-        "device_has": [
-            "ANALOGIN",
-            "I2C",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "SERIAL",
-            "SERIAL_FC",
-            "SLEEP",
-            "SPI",
-            "SPI_ASYNCH",
-            "STDIO_MESSAGES"
-        ],
-        "release_versions": [],
-        "detect_code": [
-            "0407"
-        ]
-    },
     "MAX32620FTHR": {
         "inherits": [
             "Target"
