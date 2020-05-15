@@ -417,7 +417,7 @@ def get_mbed_official_release(version):
     # in targets.json file
 
     if version == `2`:
-        raise InvalidReleaseTargetException("Mbed 2 not supported anymore with this version of tools")
+        raise InvalidReleaseTargetException("Mbed 2 is no longer supported with this version of the tools")
 
     mbed_official_release = (
         tuple(
