@@ -406,8 +406,12 @@ class Target(namedtuple(
         return 'NSPE_Target' in self.labels
 
     @property
+    def is_PSA_target(self):
+        return 'PSA' in self.features
+
+    @property
     def is_TFM_target(self):
-        return getattr(self, 'tfm_target_name', False)
+        return 'TFM' in self.labels
 
     def get_post_build_hook(self, toolchain_labels):
         """Initialize the post-build hooks for a toolchain. For now, this
