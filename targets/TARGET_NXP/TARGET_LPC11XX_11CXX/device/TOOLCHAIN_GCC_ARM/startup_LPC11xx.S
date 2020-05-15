@@ -44,36 +44,7 @@
    aborting compilation, it is not the run time limit:
    Heap_Size + Stack_Size = 0x80 + 0x80 = 0x100
  */
-    .section .stack
-    .align 3
-#ifdef __STACK_SIZE
-    .equ    Stack_Size, __STACK_SIZE
-#else
-    .equ    Stack_Size, 0x80
-#endif
-    .globl    __StackTop
-    .globl    __StackLimit
-__StackLimit:
-    .space    Stack_Size
-    .size __StackLimit, . - __StackLimit
-__StackTop:
-    .size __StackTop, . - __StackTop
 
-    .section .heap
-    .align 3
-#ifdef __HEAP_SIZE
-    .equ    Heap_Size, __HEAP_SIZE
-#else
-    .equ    Heap_Size, 0x80
-#endif
-    .globl    __HeapBase
-    .globl    __HeapLimit
-__HeapBase:
-    .space    Heap_Size
-    .size __HeapBase, . - __HeapBase
-__HeapLimit:
-    .size __HeapLimit, . - __HeapLimit
-    
     .section .isr_vector
     .align 2
     .globl __isr_vector
@@ -210,7 +181,5 @@ Reset_Handler:
     def_irq_default_handler    PIOINT2_IRQHandler
     def_irq_default_handler    PIOINT1_IRQHandler
     def_irq_default_handler    PIOINT0_IRQHandler
-    def_irq_default_handler    DEF_IRQHandler
 
     .end
-

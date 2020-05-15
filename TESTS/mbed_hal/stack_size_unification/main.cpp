@@ -45,6 +45,11 @@ extern uint32_t mbed_stack_isr_size;
 
 #define EXPECTED_USER_THREAD_DEFAULT_STACK_SIZE  (4096)
 
+#if ((MBED_RAM_SIZE - MBED_BOOT_STACK_SIZE) <= (EXPECTED_MAIN_THREAD_STACK_SIZE + EXPECTED_ISR_STACK_SIZE))
+#error [NOT_SUPPORTED] Insufficient stack for staci_size_unification tests
+#endif
+
+
 /* Test sizes of ISR stack, main thread stack, default user thread stack.
  *
  * On some platforms with lower RAM size (e.g. NUCLEO_F070RB - 16 KB RAM) it is impossible
