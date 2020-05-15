@@ -411,25 +411,24 @@ def get_mbed_official_release(version):
               RELEASE_VERSIONS
     """
 
+    # we ignore version for Mbed 6 as all targets in targets.json file are being supported
+    # if someone passes 2, we return emtpy tuple, if 5, we keep the behavior the same as 
+    # release version is deprecated and all targets are being supported that are present
+    # in targets.json file
+
+    if version == `2`:
+        raise InvalidReleaseTargetException("Mbed 2 not supported anymore with this version of tools")
+
     mbed_official_release = (
         tuple(
             tuple(
                 [
                     TARGET_MAP[target].name,
-                    tuple(transform_release_toolchains(
-                        TARGET_MAP[target], version))
+                    tuple('ARM', 'GCC_ARM')
                 ]
-            ) for target in TARGET_NAMES \
-            if (hasattr(TARGET_MAP[target], 'release_versions')
-                and version in TARGET_MAP[target].release_versions)
+            ) for target in TARGET_NAMES
         )
     )
-
-    for target in mbed_official_release:
-        is_official, reason = is_official_target(target[0], version)
-
-        if not is_official:
-            raise InvalidReleaseTargetException(reason)
 
     return mbed_official_release
 
