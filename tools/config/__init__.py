@@ -70,6 +70,7 @@ BOOTLOADER_OVERRIDES = ROM_OVERRIDES | RAM_OVERRIDES | DELIVERY_OVERRIDES
 
 ALLOWED_FEATURES = [
     "BOOTLOADER", "BLE", "LWIP", "STORAGE", "NANOSTACK", "CRYPTOCELL310",
+    "EXPERIMENTAL_API",
 ]
 
 # List of all possible ram memories that can be available for a target
