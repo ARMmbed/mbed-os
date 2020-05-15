@@ -20,6 +20,7 @@
  *  Provides SCL functionality to communicate with Network Processor
  */
 #include "scl_ipc.h"
+#include "scl_version.h"
 #include "scl_buffer_api.h"
 #include "cyabs_rtos.h"
 #include "mbed_wait_api.h"
@@ -49,6 +50,7 @@ static void scl_isr(void);
 static void scl_config(void);
 static void scl_rx_handler(void);
 static scl_result_t scl_thread_init(void);
+static scl_result_t scl_check_version_compatibility(void);
 scl_result_t scl_get_nw_parameters(network_params_t *nw_param);
 scl_result_t scl_send_data(int index, char *buffer, uint32_t timeout);
 scl_result_t scl_end(void);
@@ -73,6 +75,28 @@ struct scl_thread_info_t {
     cy_semaphore_t scl_rx_ready;
     uint32_t scl_thread_stack_size;
     cy_thread_priority_t scl_thread_priority;
+};
+
+/*
+ * Enumeration of SCL version compatibility
+ */
+typedef enum {
+    NOT_COMPATIBLE = 0,           /**< Current SCL version on CP may cause issues because of newer verison on NP */
+    NEW_FEATURES_AVAILABLE = 1,   /**< A new SCL version with enhanced features is available */
+    NEW_BUG_FIXES_AVAILABLE = 2,  /**< A new SCL version with minor bug fixes is available */
+    SCL_IS_COMPATIBLE = 3         /**< SCL versions are compatible */
+} scl_version_compatibility_value;
+
+/* Structure of SCL version info
+ *   major: SCL major version
+ *   minor: SCL minor version
+ *   patch: SCL patch version
+ */
+struct scl_version {
+    uint8_t major;
+    uint8_t minor;
+    uint8_t patch;
+    scl_version_compatibility_value scl_version_compatibility;
 };
 struct scl_thread_info_t g_scl_thread_info;
 
@@ -140,11 +164,35 @@ static scl_result_t scl_thread_init(void)
     }
     return SCL_SUCCESS;
 }
+static scl_result_t scl_check_version_compatibility(void) {
+    struct scl_version scl_version_number = {SCL_MAJOR_VERSION, SCL_MINOR_VERSION, SCL_PATCH_VERSION, NOT_COMPATIBLE};
+    scl_result_t retval = SCL_SUCCESS;
 
+    printf("SCL Version: %d.%d.%d\r\n",scl_version_number.major,scl_version_number.minor,scl_version_number.patch);
+
+    retval = scl_send_data(SCL_TX_SCL_VERSION_NUMBER, (char *) &scl_version_number, TIMER_DEFAULT_VALUE);
+
+    if (retval == SCL_SUCCESS) {
+        if (scl_version_number.scl_version_compatibility == NOT_COMPATIBLE) {
+            printf("Current SCL version may cause issues due to new firmware on NP please update SCL\n");
+        }
+        else if (scl_version_number.scl_version_compatibility == NEW_FEATURES_AVAILABLE) {
+            printf("A new SCL version with enhanced features is available\n");
+        }
+        else if (scl_version_number.scl_version_compatibility == NEW_BUG_FIXES_AVAILABLE) {
+            printf("A new SCL version with minor bug fixes is available\n");
+        }
+        else if (scl_version_number.scl_version_compatibility == SCL_IS_COMPATIBLE) {
+            printf("SCL version is compatible\n");
+        }
+    }
+    return retval;
+}
 scl_result_t scl_init(void)
 {
     scl_result_t retval = SCL_SUCCESS;
     uint32_t configuration_parameters = INTIAL_VALUE;
+
 #ifdef MBED_CONF_TARGET_NP_CLOUD_DISABLE
     configuration_parameters = (MBED_CONF_TARGET_NP_CLOUD_DISABLE << 1);
 #else
@@ -157,6 +205,13 @@ scl_result_t scl_init(void)
 #endif
     //SCL_LOG("configuration_parameters = %lu\r\n", configuration_parameters);
     scl_config();
+
+    retval = scl_check_version_compatibility();
+    if (retval != SCL_SUCCESS) {
+        printf("SCL handshake failed, please try again\n");
+        return retval;
+    }
+
     if (g_scl_thread_info.scl_inited != SCL_TRUE) {
         retval = scl_thread_init();
         if (retval != SCL_SUCCESS) {
@@ -164,10 +219,9 @@ scl_result_t scl_init(void)
             return SCL_ERROR;
         } else {
             retval = scl_send_data(SCL_TX_CONFIG_PARAMETERS, (char *) &configuration_parameters, TIMER_DEFAULT_VALUE);
-            return retval;
         }
     }
-    return SCL_SUCCESS;
+    return retval;
 }
 
 scl_result_t scl_send_data(int index, char *buffer, uint32_t timeout)
