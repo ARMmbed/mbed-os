@@ -111,12 +111,12 @@ public:
       @return  address of the allocated memory block or nullptr in case of no memory available.
 
       @note You may call this function from ISR context if the millisec parameter is set to 0.
-      @deprecated Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.
+      @deprecated Replaced with `try_alloc_for`. For example use `try_alloc_for(5s)` rather than `alloc_for(5000)`.
     */
-    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Replaced with `try_alloc_for`. For example use `try_alloc_for(5s)` rather than `alloc_for(5000)`.")
     T *alloc_for(uint32_t millisec)
     {
-        return alloc_for(std::chrono::duration<uint32_t, std::milli>(millisec));
+        return try_alloc_for(std::chrono::duration<uint32_t, std::milli>(millisec));
     }
 
     /** Allocate a memory block from a memory pool, optionally blocking.
@@ -139,13 +139,13 @@ public:
         due to internal 32-bit computations, but this is guaranteed to work if the
         wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
         the wait will time out earlier than specified.
-      @deprecated Pass a chrono time_point, not an integer millisecond count. For example use `Kernel::Clock::now() + 5s`
-                  rather than `Kernel::get_ms_count() + 5000`.
+      @deprecated Replaced with `try_alloc_until`. For example use `try_alloc_until(Kernel::Clock::now() + 5s)`
+                  rather than `alloc_until(Kernel::get_ms_count() + 5000)`.
     */
-    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono time_point, not an integer millisecond count. For example use `Kernel::Clock::now() + 5s` rather than `Kernel::get_ms_count() + 5000`.")
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Replaced with `try_alloc_until`. For example use `try_alloc_until(Kernel::Clock::now() + 5s)` rather than `alloc_until(Kernel::get_ms_count() + 5000)`.")
     T *alloc_until(uint64_t millisec)
     {
-        return alloc_until(Kernel::Clock::time_point(std::chrono::duration<uint64_t, std::milli>(millisec)));
+        return try_alloc_until(Kernel::Clock::time_point(std::chrono::duration<uint64_t, std::milli>(millisec)));
     }
 
     /** Allocate a memory block from a memory pool, blocking.
@@ -171,6 +171,7 @@ public:
         }
         return try_alloc_for(rel_time);
     }
+
     /** Allocate a memory block from a memory pool, without blocking, and set memory block to zero.
       @return  address of the allocated memory block or nullptr in case of no memory available.
 
@@ -202,12 +203,12 @@ public:
       @return  address of the allocated memory block or nullptr in case of no memory available.
 
       @note You may call this function from ISR context if the millisec parameter is set to 0.
-      @deprecated Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.
+      @deprecated Replaced with `try_calloc_for`. For example use `try_calloc_for(5s)` rather than `calloc_for(5000)`.
     */
-    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono duration, not an integer millisecond count. For example use `5s` rather than `5000`.")
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Replaced with `try_calloc_for`. For example use `try_calloc_for(5s)` rather than `calloc_for(5000)`.")
     T *calloc_for(uint32_t millisec)
     {
-        return calloc_for(std::chrono::duration<uint32_t, std::milli>(millisec));
+        return try_calloc_for(std::chrono::duration<uint32_t, std::milli>(millisec));
     }
 
     /** Allocate a memory block from a memory pool, optionally blocking, and set memory block to zero.
@@ -218,7 +219,7 @@ public:
     */
     T *try_calloc_for(Kernel::Clock::duration_u32 rel_time)
     {
-        T *item = alloc_for(rel_time);
+        T *item = try_alloc_for(rel_time);
         if (item != nullptr) {
             memset(item, 0, sizeof(T));
         }
@@ -234,13 +235,13 @@ public:
         due to internal 32-bit computations, but this is guaranteed to work if the
         wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
         the wait will time out earlier than specified.
-      @deprecated Pass a chrono time_point, not an integer millisecond count. For example use `Kernel::Clock::now() + 5s`
-                  rather than `Kernel::get_ms_count() + 5000`.
+      @deprecated Replaced with `try_calloc_until`. For example use `try_calloc_until(Kernel::Clock::now() + 5s)`
+                  rather than `calloc_until(Kernel::get_ms_count() + 5000)`.
     */
-    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Pass a chrono time_point, not an integer millisecond count. For example use `Kernel::Clock::now() + 5s` rather than `Kernel::get_ms_count() + 5000`.")
+    MBED_DEPRECATED_SINCE("mbed-os-6.0.0", "Replaced with `try_calloc_until`. For example use `try_calloc_until(Kernel::Clock::now() + 5s)` rather than `calloc_until(Kernel::get_ms_count() + 5000)`.")
     T *calloc_until(uint64_t millisec)
     {
-        return alloc_until(Kernel::Clock::time_point(std::chrono::duration<uint64_t, std::milli>(millisec)));
+        return try_calloc_until(Kernel::Clock::time_point(std::chrono::duration<uint64_t, std::milli>(millisec)));
     }
 
     /** Allocate a memory block from a memory pool, blocking, and set memory block to zero.
@@ -255,7 +256,7 @@ public:
     */
     T *try_calloc_until(Kernel::Clock::time_point abs_time)
     {
-        T *item = alloc_until(abs_time);
+        T *item = try_alloc_until(abs_time);
         if (item != nullptr) {
             memset(item, 0, sizeof(T));
         }
