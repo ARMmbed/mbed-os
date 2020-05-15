@@ -109,8 +109,6 @@ SPIFBlockDevice::SPIFBlockDevice(PinName mosi, PinName miso, PinName sclk, PinNa
     if (SPIF_BD_ERROR_OK != _spi_set_frequency(freq)) {
         tr_error("SPI Set Frequency Failed");
     }
-
-    _spi.deselect();
 }
 
 int SPIFBlockDevice::init()
