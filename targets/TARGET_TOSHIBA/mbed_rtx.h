@@ -25,10 +25,6 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP                        (0x20080000UL)
 #endif
-#ifdef MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE
-#undef MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE
-#endif
-#define MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE 3072
 
 #endif
 
