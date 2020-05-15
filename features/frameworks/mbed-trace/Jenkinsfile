@@ -13,7 +13,6 @@ properties ([
 def morpheusTargets = [
   //"LPC1768",
   //"NUCLEO_F401RE",
-  //"NRF51DK",
   "K64F"
 ]
 // Map morpheus toolchains to compiler labels on Jenkins
@@ -26,7 +25,6 @@ def toolchains = [
 def yottaTargets = [
   "frdm-k64f-gcc": "gcc",
   "frdm-k64f-armcc": "armcc",
-  "nrf51dk-gcc": "gcc",
   "stm32f429i-disco-gcc": "gcc",
   "x86-linux-native": "linux && astyle"
 ]
