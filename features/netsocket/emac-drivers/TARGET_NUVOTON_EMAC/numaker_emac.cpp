@@ -186,8 +186,9 @@ void NUMAKER_EMAC::thread_function(void* pvParameters)
 
         if (flags & FLAG_RX) {
             nu_enet->packet_rx();
-        } else if (flags & FLAG_BUS_RESET) {
-            NU_DEBUGF(("RX BUS error and reset bus\r\n"));
+        } 
+        if (flags & FLAG_BUS_RESET) {
+            NU_DEBUGF(("BUS error and reset bus\r\n"));
             nu_enet->bus_reset();
         }
     }

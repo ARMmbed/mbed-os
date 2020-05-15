@@ -16,9 +16,10 @@
  *
  * Description:   M480 MAC driver source file
  */
+#include <stdbool.h>
 #include "m480_eth.h"
 #include "mbed_toolchain.h"
-#define NU_TRACE
+//#define NU_TRACE
 #include "numaker_eth_hal.h"
 
 #define ETH_TRIGGER_RX()    do{EMAC->RXST = 0;}while(0)
@@ -45,6 +46,9 @@ eth_callback_t nu_eth_txrx_cb = NULL;
 void *nu_userData = NULL;
 
 extern void ack_emac_rx_isr(void);
+
+static bool isPhyReset = false;
+static uint16_t phyLPAval = 0;
 
 // PTP source clock is 84MHz (Real chip using PLL). Each tick is 11.90ns
 // Assume we want to set each tick to 100ns.
@@ -116,6 +120,7 @@ static int reset_phy(void)
         return(-1);
     } else {
         reg = mdio_read(CONFIG_PHY_ADDR, MII_LPA);
+        phyLPAval = reg;
 
         if(reg & ADVERTISE_100FULL) {
             NU_DEBUGF(("100 full\n"));
@@ -267,12 +272,32 @@ void numaker_eth_init(uint8_t *mac_addr)
                     EMAC_CAMCTL_ABP_Msk;
     EMAC->CAMEN = 1;    // Enable CAM entry 0    
     /* Limit the max receive frame length to 1514 + 4 */
-    EMAC->MRFL = 1518;    
-
+    EMAC->MRFL = NU_ETH_MAX_FLEN;
+    
     /* Set RX FIFO threshold as 8 words */
     EMAC->FIFOCTL = 0x00200100;
-
-    reset_phy();                    
+    
+    if (isPhyReset != true)
+    {
+        if (!reset_phy()) 
+        {
+            isPhyReset = true;
+        }
+    } else {
+        if (phyLPAval & ADVERTISE_100FULL) {
+            NU_DEBUGF(("100 full\n"));
+            EMAC->CTL |= (EMAC_CTL_OPMODE_Msk | EMAC_CTL_FUDUP_Msk);
+        } else if (phyLPAval & ADVERTISE_100HALF) {
+            NU_DEBUGF(("100 half\n"));
+            EMAC->CTL = (EMAC->CTL & ~EMAC_CTL_FUDUP_Msk) | EMAC_CTL_OPMODE_Msk;
+        } else if (phyLPAval & ADVERTISE_10FULL) {
+            NU_DEBUGF(("10 full\n"));
+            EMAC->CTL = (EMAC->CTL & ~EMAC_CTL_OPMODE_Msk) | EMAC_CTL_FUDUP_Msk;
+        } else {
+            NU_DEBUGF(("10 half\n"));
+            EMAC->CTL &= ~(EMAC_CTL_OPMODE_Msk | EMAC_CTL_FUDUP_Msk);
+        }        
+    }
                     
     EMAC_ENABLE_RX();
     EMAC_ENABLE_TX();
@@ -325,12 +350,12 @@ int numaker_eth_get_rx_buf(uint16_t *len, uint8_t **buf)
     if (status & RXFD_RXGD) {
         *buf = cur_rx_desc_ptr->buf;
         *len = status & 0xFFFF;
-        if( *len > 1514 ) {
+        // length of payload should be <= 1514
+        if ( *len > (NU_ETH_MAX_FLEN - 4) ) {
             NU_DEBUGF(("%s... unexpected long packet length=%d, buf=0x%x\r\n", __FUNCTION__, *len, *buf));
-
             *len = 0; // Skip this unexpected long packet
         }
-        if( *len == 1514 ) NU_DEBUGF(("%s... length=%d, buf=0x%x\r\n", __FUNCTION__, *len, *buf));
+        if (*len == (NU_ETH_MAX_FLEN - 4)) NU_DEBUGF(("%s... length=%d, buf=0x%x\r\n", __FUNCTION__, *len, *buf));
     }
     return 0;
 }    
