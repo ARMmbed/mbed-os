@@ -33,46 +33,34 @@ utest::v1::status_t greentea_failure_handler(const Case *const source, const fai
 }
 
 Case cases[] = {
-    Case("Callback called once (attach)", test_single_call<AttachTester<Timeout> >),
-    Case("Callback called once (attach_us)", test_single_call<AttachUSTester<Timeout> >),
+    Case("Callback called once", test_single_call<Timeout>),
 
-    Case("Callback not called when cancelled (attach)", test_cancel<AttachTester<Timeout> >),
-    Case("Callback not called when cancelled (attach_us)", test_cancel<AttachUSTester<Timeout> >),
+    Case("Callback not called when cancelled", test_cancel<Timeout>),
 
-    Case("Callback override (attach)", test_override<AttachTester<Timeout> >),
-    Case("Callback override (attach_us)", test_override<AttachUSTester<Timeout> >),
+    Case("Callback override", test_override<Timeout>),
 
-    Case("Multiple timeouts running in parallel (attach)", test_multiple<AttachTester<Timeout> >),
-    Case("Multiple timeouts running in parallel (attach_us)", test_multiple<AttachUSTester<Timeout> >),
+    Case("Multiple timeouts running in parallel", test_multiple<Timeout>),
 
-    Case("Zero delay (attach)", test_no_wait<AttachTester<Timeout> >),
-    Case("Zero delay (attach_us)", test_no_wait<AttachUSTester<Timeout> >),
+    Case("Zero delay", test_no_wait<Timeout>),
 
-    Case("10 ms delay accuracy (attach)", test_delay_accuracy<AttachTester<Timeout>, 10000, SHORT_DELTA_US>,
-         greentea_failure_handler),
-    Case("10 ms delay accuracy (attach_us)", test_delay_accuracy<AttachUSTester<Timeout>, 10000, SHORT_DELTA_US>,
+    Case("Reschedule in callback",  test_reschedule<Timeout>),
+
+    Case("10 ms delay accuracy", test_delay_accuracy<Timeout, 10000, SHORT_DELTA_US>,
          greentea_failure_handler),
 
-    Case("1 s delay accuracy (attach)", test_delay_accuracy<AttachTester<Timeout>, 1000000, LONG_DELTA_US>,
-         greentea_failure_handler),
-    Case("1 s delay accuracy (attach_us)", test_delay_accuracy<AttachUSTester<Timeout>, 1000000, LONG_DELTA_US>,
+    Case("1 s delay accuracy", test_delay_accuracy<Timeout, 1000000, LONG_DELTA_US>,
          greentea_failure_handler),
 
-    Case("5 s delay accuracy (attach)", test_delay_accuracy<AttachTester<Timeout>, 5000000, LONG_DELTA_US>,
-         greentea_failure_handler),
-    Case("5 s delay accuracy (attach_us)", test_delay_accuracy<AttachUSTester<Timeout>, 5000000, LONG_DELTA_US>,
+    Case("5 s delay accuracy", test_delay_accuracy<Timeout, 5000000, LONG_DELTA_US>,
          greentea_failure_handler),
 
 #if DEVICE_SLEEP
-    Case("1 s delay during sleep (attach)", test_sleep<AttachTester<Timeout>, 1000000, LONG_DELTA_US>,
-         greentea_failure_handler),
-    Case("1 s delay during sleep (attach_us)", test_sleep<AttachUSTester<Timeout>, 1000000, LONG_DELTA_US>,
+    Case("1 s delay during sleep", test_sleep<Timeout, 1000000, LONG_DELTA_US>,
          greentea_failure_handler),
 #endif
 
 #if !defined(SKIP_TIME_DRIFT_TESTS)
-    Case("Timing drift (attach)", test_drift<AttachTester<Timeout> >),
-    Case("Timing drift (attach_us)", test_drift<AttachUSTester<Timeout> >),
+    Case("Timing drift", test_drift<Timeout>),
 #endif
 };
 

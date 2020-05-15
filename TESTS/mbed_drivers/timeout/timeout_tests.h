@@ -20,12 +20,12 @@
 #include "mbed.h"
 #include "unity/unity.h"
 
-#define NUM_TIMEOUTS 16
-#define DRIFT_TEST_PERIOD_US 10000
+using namespace std::chrono;
 
-const float TEST_DELAY_S = 0.01;
-const uint32_t TEST_DELAY_MS = 1000.0F * TEST_DELAY_S;
-const us_timestamp_t TEST_DELAY_US = 1000000.0F * TEST_DELAY_S;
+#define NUM_TIMEOUTS 16
+const microseconds DRIFT_TEST_PERIOD = 10ms;
+
+const milliseconds TEST_DELAY = 10ms;
 
 /* Timeouts are quite arbitrary due to large number of boards with varying level of accuracy */
 #define LONG_DELTA_US (100000)
@@ -40,24 +40,6 @@ void cnt_callback(volatile uint32_t *cnt)
 {
     (*cnt)++;
 }
-
-template<typename TimeoutType>
-class AttachTester: public TimeoutType {
-public:
-    void attach_callback(Callback<void()> func, us_timestamp_t delay_us)
-    {
-        TimeoutType::attach(func, (float) delay_us / 1000000.0f);
-    }
-};
-
-template<typename TimeoutType>
-class AttachUSTester: public TimeoutType {
-public:
-    void attach_callback(Callback<void()> func, us_timestamp_t delay_us)
-    {
-        TimeoutType::attach_us(func, delay_us);
-    }
-};
 
 /** Template for tests: callback called once
  *
@@ -77,15 +59,15 @@ void test_single_call(void)
     Semaphore sem(0, 1);
     T timeout;
 
-    timeout.attach_callback(mbed::callback(sem_callback, &sem), TEST_DELAY_US);
+    timeout.attach(mbed::callback(sem_callback, &sem), TEST_DELAY);
 
     bool acquired = sem.try_acquire();
     TEST_ASSERT_FALSE(acquired);
 
-    acquired = sem.try_acquire_for(TEST_DELAY_MS + 2);
+    acquired = sem.try_acquire_for(TEST_DELAY + 2ms);
     TEST_ASSERT_TRUE(acquired);
 
-    acquired = sem.try_acquire_for(TEST_DELAY_MS + 2);
+    acquired = sem.try_acquire_for(TEST_DELAY + 2ms);
     TEST_ASSERT_FALSE(acquired);
 
     timeout.detach();
@@ -109,13 +91,13 @@ void test_cancel(void)
     Semaphore sem(0, 1);
     T timeout;
 
-    timeout.attach_callback(mbed::callback(sem_callback, &sem), 2.0f * TEST_DELAY_US);
+    timeout.attach(mbed::callback(sem_callback, &sem), 2 * TEST_DELAY);
 
-    bool acquired = sem.try_acquire_for(TEST_DELAY_MS);
+    bool acquired = sem.try_acquire_for(TEST_DELAY);
     TEST_ASSERT_FALSE(acquired);
     timeout.detach();
 
-    acquired = sem.try_acquire_for(TEST_DELAY_MS + 2);
+    acquired = sem.try_acquire_for(TEST_DELAY + 2ms);
     TEST_ASSERT_FALSE(acquired);
 }
 
@@ -142,13 +124,13 @@ void test_override(void)
     Semaphore sem2(0, 1);
     T timeout;
 
-    timeout.attach_callback(mbed::callback(sem_callback, &sem1), 2.0f * TEST_DELAY_US);
+    timeout.attach(mbed::callback(sem_callback, &sem1), 2 * TEST_DELAY);
 
-    bool acquired = sem1.try_acquire_for(TEST_DELAY_MS);
+    bool acquired = sem1.try_acquire_for(TEST_DELAY);
     TEST_ASSERT_FALSE(acquired);
-    timeout.attach_callback(mbed::callback(sem_callback, &sem2), 2.0f * TEST_DELAY_US);
+    timeout.attach(mbed::callback(sem_callback, &sem2), 2 * TEST_DELAY);
 
-    acquired = sem2.try_acquire_for(2 * TEST_DELAY_MS + 2);
+    acquired = sem2.try_acquire_for(2 * TEST_DELAY + 2ms);
     TEST_ASSERT_TRUE(acquired);
     acquired = sem1.try_acquire();
     TEST_ASSERT_FALSE(acquired);
@@ -176,9 +158,9 @@ void test_multiple(void)
     volatile uint32_t callback_count = 0;
     T timeouts[NUM_TIMEOUTS];
     for (size_t i = 0; i < NUM_TIMEOUTS; i++) {
-        timeouts[i].attach_callback(mbed::callback(cnt_callback, &callback_count), TEST_DELAY_US);
+        timeouts[i].attach(mbed::callback(cnt_callback, &callback_count), TEST_DELAY);
     }
-    ThisThread::sleep_for(TEST_DELAY_MS + 2);
+    ThisThread::sleep_for(TEST_DELAY + 2ms);
     TEST_ASSERT_EQUAL(NUM_TIMEOUTS, callback_count);
 }
 
@@ -200,7 +182,7 @@ void test_no_wait(void)
     for (int i = 0; i < 100; i++) {
         Semaphore sem(0, 1);
         T timeout;
-        timeout.attach_callback(mbed::callback(sem_callback, &sem), 0ULL);
+        timeout.attach(mbed::callback(sem_callback, &sem), 0s);
         bool sem_acquired = sem.try_acquire();
         TEST_ASSERT_EQUAL(true, sem_acquired);
         timeout.detach();
@@ -227,11 +209,11 @@ void test_delay_accuracy(void)
     Timer timer;
 
     timer.start();
-    timeout.attach_callback(mbed::callback(sem_callback, &sem), delay_us);
+    timeout.attach(mbed::callback(sem_callback, &sem), microseconds(delay_us));
 
     sem.acquire();
     timer.stop();
-    TEST_ASSERT_UINT64_WITHIN(delta_us, delay_us, timer.read_high_resolution_us());
+    TEST_ASSERT_UINT64_WITHIN(delta_us, delay_us, timer.elapsed_time().count());
 
     timeout.detach();
 }
@@ -262,7 +244,7 @@ void test_sleep(void)
 
     sleep_manager_lock_deep_sleep();
     timer.start();
-    timeout.attach_callback(mbed::callback(sem_callback, &sem), delay_us);
+    timeout.attach(mbed::callback(sem_callback, &sem), microseconds(delay_us));
 
     bool deep_sleep_allowed = sleep_manager_can_deep_sleep_test_check();
     TEST_ASSERT_FALSE_MESSAGE(deep_sleep_allowed, "Deep sleep should be disallowed");
@@ -270,7 +252,7 @@ void test_sleep(void)
     timer.stop();
 
     sleep_manager_unlock_deep_sleep();
-    TEST_ASSERT_UINT64_WITHIN(delta_us, delay_us, timer.read_high_resolution_us());
+    TEST_ASSERT_UINT64_WITHIN(delta_us, delay_us, timer.elapsed_time().count());
 
     timeout.detach();
 }
@@ -316,17 +298,17 @@ void test_deepsleep(void)
      * hardware buffers are empty. However, such an API does not exist now,
      * so we'll use the ThisThread::sleep_for() function for now.
      */
-    ThisThread::sleep_for(20);
+    ThisThread::sleep_for(20ms);
 
     timer.start();
-    timeout.attach_callback(mbed::callback(sem_callback, &sem), delay_us);
+    timeout.attach(mbed::callback(sem_callback, &sem), microseconds(delay_us));
 
     bool deep_sleep_allowed = sleep_manager_can_deep_sleep_test_check();
     TEST_ASSERT_TRUE_MESSAGE(deep_sleep_allowed, "Deep sleep should be allowed");
     sem.acquire();
     timer.stop();
 
-    TEST_ASSERT_UINT64_WITHIN(delta_us, delay_us, timer.read_high_resolution_us());
+    TEST_ASSERT_UINT64_WITHIN(delta_us, delay_us, timer.elapsed_time().count());
 
     timeout.detach();
 }
@@ -336,14 +318,14 @@ void test_deepsleep(void)
 template<typename TimeoutTesterType>
 class TimeoutDriftTester {
 public:
-    TimeoutDriftTester(us_timestamp_t period = 1000) :
+    TimeoutDriftTester(microseconds period = 1ms) :
         _callback_count(0), _period(period), _timeout()
     {
     }
 
     void reschedule_callback(void)
     {
-        _timeout.attach_callback(mbed::callback(this, &TimeoutDriftTester::reschedule_callback), _period);
+        _timeout.attach(mbed::callback(this, &TimeoutDriftTester::reschedule_callback), _period);
         _callback_count++;
     }
 
@@ -359,9 +341,29 @@ public:
 
 private:
     volatile uint32_t _callback_count;
-    us_timestamp_t _period;
+    microseconds _period;
     TimeoutTesterType _timeout;
 };
+
+/** Template for tests: rescheduling
+ *
+ * Given a Timeout object
+ * When a callback is attached with that reattaches itself, with @a attach()
+ * Then the callback is called repeatedly
+ *
+ * Given a Timeout object
+ * When a callback is attached with that reattaches itself, with @a attach_us()
+ * Then the callback is called repeatedly
+ */
+template<typename T>
+void test_reschedule(void)
+{
+    TimeoutDriftTester<T> timeout(TEST_DELAY);
+
+    timeout.reschedule_callback();
+    ThisThread::sleep_for(TEST_DELAY * 5);
+    TEST_ASSERT(timeout.get_callback_count() >= 3);
+}
 
 /** Template for tests: accuracy of timeout delay scheduled repeatedly
  *
@@ -389,7 +391,7 @@ void test_drift(void)
     char _key[11] = { };
     char _value[128] = { };
     int expected_key = 1;
-    TimeoutDriftTester<T> timeout(DRIFT_TEST_PERIOD_US);
+    TimeoutDriftTester<T> timeout(DRIFT_TEST_PERIOD);
 
     greentea_send_kv("timing_drift_check_start", 0);
     timeout.reschedule_callback();
@@ -400,11 +402,11 @@ void test_drift(void)
         expected_key = strcmp(_key, "base_time");
     } while (expected_key);
 
-    greentea_send_kv(_key, timeout.get_callback_count() * DRIFT_TEST_PERIOD_US);
+    greentea_send_kv(_key, timeout.get_callback_count() * DRIFT_TEST_PERIOD.count());
 
     // wait for 2nd signal from host
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
-    greentea_send_kv(_key, timeout.get_callback_count() * DRIFT_TEST_PERIOD_US);
+    greentea_send_kv(_key, timeout.get_callback_count() * DRIFT_TEST_PERIOD.count());
 
     timeout.detach_callback();
 
