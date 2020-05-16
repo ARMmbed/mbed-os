@@ -416,7 +416,7 @@ def get_mbed_official_release(version):
     # release version is deprecated and all targets are being supported that are present
     # in targets.json file
 
-    if version == `2`:
+    if version == '2':
         raise InvalidReleaseTargetException("Mbed 2 is no longer supported with this version of the tools")
 
     mbed_official_release = (
