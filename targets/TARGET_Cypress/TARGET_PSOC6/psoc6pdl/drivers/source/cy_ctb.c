@@ -1,13 +1,13 @@
 /***************************************************************************//**
 * \file cy_ctb.c
-* \version 1.10.1
+* \version 1.10.2
 *
 * \brief
 * Provides the public functions for the CTB driver.
 *
 ********************************************************************************
 * \copyright
-* Copyright 2017-2019 Cypress Semiconductor Corporation
+* Copyright 2017-2020 Cypress Semiconductor Corporation
 * SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -153,6 +153,9 @@ const cy_stc_ctb_fast_config_oa1_t Cy_CTB_Fast_Opamp1_Vdac_Ref_Pin5 =
 *
 * Initialize or restore the CTB and both opamps according to the
 * provided settings. Parameters are usually set only once, at initialization.
+* 
+* \note This function call disables a whole CTB block, 
+* call \ref Cy_CTB_Enable after this function call.
 *
 * \param base
 * Pointer to structure describing registers

@@ -170,8 +170,8 @@
 
    <!-- TCPKA Offload settings -->
     <ParamBool id="tcpkaOffload" name="Enable" group="TCP Keep Alive Offload" default="false" visible="true" editable="true" desc="Enable TCP Keep Alive offload feature." />
-    <ParamRange id="tcpkaInterval" name="Interval" group="TCP Keep Alive Offload" default="20" min="0" max="65535" resolution="1" visible="`${tcpkaOffload}`" editable="`${tcpkaOffload}`" desc="Interval in seconds between keep alive transmissions." />
-    <ParamRange id="tcpkaRetryInterval" name="Retry Interval" group="TCP Keep Alive Offload" default="3" min="0" max="65535" resolution="1" visible="`${tcpkaOffload}`" editable="`${tcpkaOffload}`" desc="Interval in seconds to retry a transmission if no keep alive ACK is received." />
+    <ParamRange id="tcpkaInterval" name="Interval (s)" group="TCP Keep Alive Offload" default="20" min="0" max="65535" resolution="1" visible="`${tcpkaOffload}`" editable="`${tcpkaOffload}`" desc="Interval in seconds between keep alive transmissions." />
+    <ParamRange id="tcpkaRetryInterval" name="Retry Interval (s)" group="TCP Keep Alive Offload" default="3" min="0" max="65535" resolution="1" visible="`${tcpkaOffload}`" editable="`${tcpkaOffload}`" desc="Interval in seconds to retry a transmission if no keep alive ACK is received." />
     <ParamRange id="tcpkaRetryCount" name="Retry Count" group="TCP Keep Alive Offload" default="3" min="0" max="65535" resolution="1" visible="`${tcpkaOffload}`" editable="`${tcpkaOffload}`" desc="Number of retries to send a keep alive if no ACK is received." />
     <!-- Up to 4 simultaneous connections -->
     <Repeat count="4">
@@ -205,14 +205,14 @@
     <ConfigInclude value="cy_lpa_wifi_ol.h" include="true" />
     <ConfigInclude value="cy_lpa_wifi_ol_common.h" include="true" />
     <ConfigInclude value="cy_lpa_wifi_arp_ol.h" include="`${arpOffload}`" />
-    <ConfigInclude value="cy_lpa_wifi_pf_ol.h" include="true" />
+    <ConfigInclude value="cy_lpa_wifi_pf_ol.h" include="`${pktFilterEn}`" />
     <ConfigInclude value="cy_lpa_wifi_tko_ol.h" include="`${tcpkaOffload}`" />
     <ConfigInclude value="cycfg_pins.h" include="`${hostWake}`" />
 
     <ConfigDefine name="CYCFG_WIFI_HOST_WAKE_ENABLED" public="true" value="(`${hostIRQConnected ? 1 : 0}`u)" include="`${hostWake}`" preventOverride="false" />
     <ConfigDefine name="CYCFG_ARP_OL_ENABLED" public="false" value="(1u)" include="`${arpOffload}`" preventOverride="false" />
     <ConfigDefine name="CYCFG_PF_OL_ENABLED" public="false" value="(1u)" include="`${pktFilterEn}`" preventOverride="false" />
-    <ConfigDefine name="CYCFG_TKO_OL_ENABLED" public="false" value="(1u)" include="`${pktFilterEn}`" preventOverride="false" />
+    <ConfigDefine name="CYCFG_TKO_OL_ENABLED" public="false" value="(1u)" include="`${tcpkaOffload}`" preventOverride="false" />
 
     <!-- HOST_WAKE Pin Configuration -->
     <ConfigDefine name="CYCFG_WIFI_HOST_WAKE_GPIO" public="true" value="`${hostIRQConnected ? hostIRQ . &quot;_HAL_PORT_PIN&quot; : &quot;CYHAL_NC_PIN_VALUE&quot;}`" include="`${hostWake}`" preventOverride="false" />
@@ -234,7 +234,7 @@
     </ConfigStruct>
 
     <!-- Packet Filter (PF) Offload Configuration -->
-    <ConfigStruct name="cy_pf_ol_cfg_0" type="cy_pf_ol_cfg_t" const="true" isArray="true" public="false" include="true">
+    <ConfigStruct name="cy_pf_ol_cfg_0" type="cy_pf_ol_cfg_t" const="true" isArray="true" public="false" include="`${pktFilterEn}`">
       <Member name="`${configTLSID}`u" value="{.feature = CY_PF_OL_FEAT_PORTNUM,&#xA;`${longIndent}`.bits = `${filterTLSAllow}``${filterTLSAction eq CY_PF_ACTION_DISCARD ? (&quot; | CY_PF_ACTION_DISCARD&quot;) : (&quot;&quot;)}`,&#xA;`${longIndent}`.id = `${configTLSID}`u,&#xA;`${longIndent}`.u = {&#xA;&#9;`${longIndent}`.pf = {&#xA;`${longIndent}``${longIndent}`.portnum = {.portnum = `${filterTLSPort}`u,&#xA;`${longIndent}``${longIndent}``${longIndent}`.range = 0u,&#xA;`${longIndent}``${longIndent}``${longIndent}`.direction = `${filterTLSDir}`,},&#xA;`${longIndent}``${longIndent}`.proto = `${filterTLSProt}`,&#xA;&#9;&#9;`${longIndent}`},&#xA;&#9;`${longIndent}`},&#xA;`${longIndent}`}" include="`${configTLS}`" />
 
       <Member name="`${configNonTLSID}`u" value="{.feature = CY_PF_OL_FEAT_PORTNUM,&#xA;`${longIndent}`.bits = `${filterNonTLSAllow}``${filterNonTLSAction eq CY_PF_ACTION_DISCARD ? (&quot; | CY_PF_ACTION_DISCARD&quot;) : (&quot;&quot;)}`,&#xA;`${longIndent}`.id = `${configNonTLSID}`u,&#xA;`${longIndent}`.u = {&#xA;&#9;`${longIndent}`.pf = {&#xA;`${longIndent}``${longIndent}`.portnum = {.portnum = `${filterNonTLSPort}`u,&#xA;`${longIndent}``${longIndent}``${longIndent}`.range = 0u,&#xA;`${longIndent}``${longIndent}``${longIndent}`.direction = `${filterNonTLSDir}`,},&#xA;`${longIndent}``${longIndent}`.proto = `${filterNonTLSProt}`,&#xA;&#9;&#9;`${longIndent}`},&#xA;&#9;`${longIndent}`},&#xA;`${longIndent}`}" include="`${configNonTLS}`" />

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syslib.c
-* \version 2.50.2
+* \version 2.50.3
 *
 *  Description:
 *   Provides system API implementation for the SysLib driver.
@@ -71,7 +71,7 @@
 * \param milliseconds  The number of milliseconds to delay.
 *
 * \note The function calls \ref Cy_SysLib_DelayCycles() API to generate a delay.
-*       If the function parameter (milliseconds) is bigger than 
+*       If the function parameter (milliseconds) is bigger than
 *       CY_DELAY_MS_OVERFLOW constant, then an additional loop runs to prevent
 *       an overflow in parameter passed to \ref Cy_SysLib_DelayCycles() API.
 *
@@ -294,7 +294,7 @@ void Cy_SysLib_ClearResetReason(void)
      */
     SRSS_RES_CAUSE  = 0xFFFFFFFFU;
     SRSS_RES_CAUSE2 = 0xFFFFFFFFU;
-    
+
     if(0U != _FLD2VAL(SRSS_PWR_HIBERNATE_TOKEN, SRSS_PWR_HIBERNATE))
     {
         /* Clears PWR_HIBERNATE token */
@@ -556,7 +556,7 @@ void Cy_SysLib_SetWaitStates(bool ulpMode, uint32_t clkHfMHz)
         waitStates =  (clkHfMHz <= cy_device->flashCtlMainWs0Freq) ? 0UL :
                      ((clkHfMHz <= cy_device->flashCtlMainWs1Freq) ? 1UL :
                      ((clkHfMHz <= cy_device->flashCtlMainWs2Freq) ? 2UL :
-                     ((clkHfMHz <= cy_device->flashCtlMainWs3Freq) ? 3UL : 
+                     ((clkHfMHz <= cy_device->flashCtlMainWs3Freq) ? 3UL :
                      ((clkHfMHz <= cy_device->flashCtlMainWs4Freq) ? 4UL : 5UL))));
     }
 

@@ -1,6 +1,6 @@
 /*******************************************************************************
 * \file cy_sd_host.c
-* \version 1.40
+* \version 1.50
 *
 * \brief
 *  This file provides the driver code to the API for the SD Host Controller
@@ -4829,18 +4829,18 @@ uint32_t Cy_SD_Host_GetPresentState(SDHC_Type const *base)
 * \ref Cy_SysPm_CpuEnterDeepSleep : specify \ref CY_SYSPM_DEEPSLEEP as the callback
 * type and call \ref Cy_SysPm_RegisterCallback.
 *
-* \note When waking up from Deep Sleep, the SD Host driver requires up to 100ms
+* \note When waking up from Deep Sleep, the SD Host driver requires up to 1 us
 * for clock stabilization. By default the SD Host driver will wait this length
 * of time on power up. The waiting loop is implemented in this function.
 * If the application is time sensitive this delay can be overridden by the
-* application by defining \ref CY_SD_HOST_CLK_RAMP_UP_TIME_MS_WAKEUP to a lower
-* value. This allows the application to perform other operations while the clock
+* application by defining \ref CY_SD_HOST_CLK_RAMP_UP_TIME_US_WAKEUP.
+* This allows the application to perform other operations while the clock
 * is stabilizing in the background. However, the application must still make sure
 * that the SD Host clock has had time to stabilize before attempting to use the
 * SD card. The recommended way to override the value is to specify this as
-* a custom define on the compiler command line.  This can be done by appending
+* a custom define on the compiler command line. This can be done by appending
 * the entry to the DEFINES variable in the application Makefile.
-* Eg: DEFINES+=CY_SD_HOST_CLK_RAMP_UP_TIME_MS_WAKEUP=40.
+* Eg: DEFINES+=CY_SD_HOST_CLK_RAMP_UP_TIME_US_WAKEUP=40.
 *
 * \param callbackParams
 * The pointer to the callback parameters structure
@@ -4894,7 +4894,7 @@ cy_en_syspm_status_t Cy_SD_Host_DeepSleepCallback(cy_stc_syspm_callback_params_t
             Cy_SD_Host_EnableSdClk(locBase);
             
             /* Wait for the stable CLK */
-            Cy_SysLib_Delay(CY_SD_HOST_CLK_RAMP_UP_TIME_MS_WAKEUP);
+            Cy_SysLib_DelayUs(CY_SD_HOST_CLK_RAMP_UP_TIME_US_WAKEUP);
 
             ret = CY_SYSPM_SUCCESS;
         }
