@@ -400,7 +400,7 @@ def transform_release_toolchains(target, version):
         else:
             return target.supported_toolchains
 
-def get_mbed_official_release(version):
+def get_mbed_official_release(version, profile=None):
     """ Given a release version string, return a tuple that contains a target
     and the supported toolchains for that release.
     Ex. Given '2', return (('LPC1768', ('ARM', 'GCC_ARM')),
@@ -411,25 +411,25 @@ def get_mbed_official_release(version):
               RELEASE_VERSIONS
     """
 
+    # we ignore version for Mbed 6 as all targets in targets.json file are being supported
+    # if someone passes 2, we return empty tuple, if 5, we keep the behavior the same as 
+    # release version is deprecated and all targets are being supported that are present
+    # in targets.json file
+
+    if version == '2':
+        return tuple(tuple([]))
+
     mbed_official_release = (
         tuple(
             tuple(
                 [
                     TARGET_MAP[target].name,
-                    tuple(transform_release_toolchains(
-                        TARGET_MAP[target], version))
+                    tuple(['ARM', 'GCC_ARM'])
                 ]
             ) for target in TARGET_NAMES \
-            if (hasattr(TARGET_MAP[target], 'release_versions')
-                and version in TARGET_MAP[target].release_versions)
+                if not profile or profile in TARGET_MAP[target].supported_application_profiles
         )
     )
-
-    for target in mbed_official_release:
-        is_official, reason = is_official_target(target[0], version)
-
-        if not is_official:
-            raise InvalidReleaseTargetException(reason)
 
     return mbed_official_release
 

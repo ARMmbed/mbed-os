@@ -32,6 +32,10 @@
                 "std"
             ]
         },
+        "supported_application_profiles": [
+            "rtos",
+            "bare-metal"
+            ],
         "config": {
             "console-uart": {
                 "help": "Target has UART console on pins STDIO_UART_TX, STDIO_UART_RX. Value is only significant if target has SERIAL device.",
@@ -313,7 +317,9 @@
             ]
         },
         "c_lib": "small",
-        "supported_application_profiles": ["bare-metal"],
+        "supported_application_profiles": [
+            "bare-metal"
+        ],
         "device_name": "LPC1114FN28/102",
         "detect_code": [
             "1114"
@@ -4745,6 +4751,7 @@
         "inherits": [
             "Target"
         ],
+        "public": false,
         "core": "Cortex-A9",
         "supported_toolchains": [
             "ARM",
