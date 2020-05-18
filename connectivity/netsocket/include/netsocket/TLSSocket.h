@@ -24,16 +24,21 @@
 
 #include "netsocket/TCPSocket.h"
 
+#ifdef USE_WOLFSSL_LIB
+#include "wolfssl/wolfcrypt/settings.h"
+#include "wolfssl/ssl.h"
+#else
 #include "mbedtls/platform.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/error.h"
+#endif
 
 #if !defined(MBED_CONF_NSAPI_OFFLOAD_TLSSOCKET) || !(MBED_CONF_NSAPI_OFFLOAD_TLSSOCKET)
 
 // This class requires Mbed TLS SSL/TLS client code
-#if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
+#if (defined(USE_WOLFSSL_LIB) && !defined(NO_WOLFSSL_CLIENT)) || defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
 
 #include "TLSSocketWrapper.h"
 

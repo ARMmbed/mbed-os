@@ -23,7 +23,7 @@
 #if !defined(MBED_CONF_NSAPI_OFFLOAD_TLSSOCKET) || !(MBED_CONF_NSAPI_OFFLOAD_TLSSOCKET)
 
 // This class requires Mbed TLS SSL/TLS client code
-#if defined(MBEDTLS_SSL_CLI_C)
+#if (defined(USE_WOLFSSL_LIB) && !defined(NO_WOLFSSL_CLIENT)) || defined(MBEDTLS_SSL_CLI_C)
 
 TLSSocket::~TLSSocket()
 {

@@ -40,7 +40,12 @@
 #include "6LoWPAN/ws/ws_pae_nvm_data.h"
 #include "6LoWPAN/ws/ws_pae_time.h"
 #include "6LoWPAN/ws/ws_pae_key_storage.h"
+#ifdef USE_WOLFSSL_LIB
+#include "wolfssl/wolfcrypt/settings.h"
+#include "wolfssl/wolfcrypt/sha256.h"
+#else
 #include "mbedtls/sha256.h"
+#endif
 
 #ifdef HAVE_WS
 
@@ -516,7 +521,20 @@ static int8_t ws_pae_controller_gak_from_gtk(uint8_t *gak, uint8_t *gtk, char *n
     memcpy(input + network_name_len, gtk, GTK_LEN);
 
     int8_t ret_val = 0;
+    uint8_t output[32];
 
+#ifdef USE_WOLFSSL_LIB
+    wc_Sha256 ctx;
+    wc_InitSha256(&ctx);
+    if (wc_Sha256Update(&ctx, input, network_name_len + GTK_LEN) != 0) {
+        ret_val = -1;
+        goto error;
+    }
+    if (wc_Sha256Final(&ctx, output) != 0) {
+        ret_val = -1;
+        goto error;
+    }
+#else
     mbedtls_sha256_context ctx;
 
     mbedtls_sha256_init(&ctx);
@@ -531,18 +549,20 @@ static int8_t ws_pae_controller_gak_from_gtk(uint8_t *gak, uint8_t *gtk, char *n
         goto error;
     }
 
-    uint8_t output[32];
-
     if (mbedtls_sha256_finish_ret(&ctx, output) != 0) {
         ret_val = -1;
         goto error;
     }
+#endif /* USE_WOLFSSL_LIB */
 
     memcpy(gak, &output[0], 16);
 
 error:
+#ifdef USE_WOLFSSL_LIB
+    wc_Sha256Free(&ctx);
+#else
     mbedtls_sha256_free(&ctx);
-
+#endif
     return ret_val;
 #else
     (void) network_name;

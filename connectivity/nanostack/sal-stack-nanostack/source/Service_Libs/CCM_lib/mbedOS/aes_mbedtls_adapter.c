@@ -46,6 +46,10 @@
 #include "platform/arm_hal_aes.h"
 #include "platform/arm_hal_interrupt.h"
 
+#ifdef USE_WOLFSSL_LIB
+#include "wolfssl/wolfcrypt/settings.h"
+#include "wolfssl/wolfcrypt/aes.h"
+#else
 /* Either pull in the external mbed TLS header for its AES functions, or
  * pull in our own local cut-down copy of the mbed TLS code.
  */
@@ -54,9 +58,14 @@
 #else
 #include "aes_mbedtls.c"
 #endif /* NS_USE_EXTERNAL_MBED_TLS */
+#endif /* USE_WOLFSSL_LIB */
 
 struct arm_aes_context {
+#ifdef USE_WOLFSSL_LIB
+    Aes ctx;
+#else
     mbedtls_aes_context ctx;
+#endif
     bool reserved;
 };
 
@@ -82,22 +91,37 @@ arm_aes_context_t *arm_aes_start(const uint8_t key[static 16])
 {
     arm_aes_context_t *context = mbed_tls_context_get();
     if (context) {
+    #ifdef USE_WOLFSSL_LIB
+        wc_AesInit(&context->ctx, NULL, INVALID_DEVID);
+        if (0 != wc_AesSetKey(&context->ctx, key, 16, NULL, AES_ENCRYPTION)) {
+            return NULL;
+        }
+    #else
         mbedtls_aes_init(&context->ctx);
         if (0 != mbedtls_aes_setkey_enc(&context->ctx, key, 128)) {
             return NULL;
         }
+    #endif
     }
     return context;
 }
 
 void arm_aes_encrypt(arm_aes_context_t *aes_context, const uint8_t src[static 16], uint8_t dst[static 16])
 {
+#ifdef USE_WOLFSSL_LIB
+    wc_AesEcbEncrypt(&aes_context->ctx, dst, src, AES_BLOCK_SIZE);
+#else
     mbedtls_aes_crypt_ecb(&aes_context->ctx, MBEDTLS_AES_ENCRYPT, src, dst);
+#endif
 }
 
 void arm_aes_finish(arm_aes_context_t *aes_context)
 {
+#ifdef USE_WOLFSSL_LIB
+    wc_AesFree(&aes_context->ctx);
+#else
     mbedtls_aes_free(&aes_context->ctx);
+#endif
     platform_enter_critical();
     aes_context->reserved = false;
     platform_exit_critical();

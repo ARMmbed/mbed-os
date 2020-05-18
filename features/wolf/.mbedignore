@@ -1,0 +1,14 @@
+wolfssl/ctaocrypt/src/*
+wolfssl/examples/*
+wolfssl/IDE/*
+wolfssl/mqx/*
+wolfssl/mplabx/*
+wolfssl/mcapi/*
+wolfssl/sslSniffer/*
+wolfssl/swig/*
+wolfssl/tests/*
+wolfssl/testsuite/*
+wolfssl/tirtos/*
+wolfssl/wolfcrypt/src/*.S
+wolfssl/wolfcrypt/src/port/*
+wolfssl/wolfcrypt/user-crypto/*

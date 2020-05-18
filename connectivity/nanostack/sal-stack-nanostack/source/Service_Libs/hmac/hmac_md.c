@@ -20,7 +20,12 @@
 #include "ns_types.h"
 #include "ns_list.h"
 #include "ns_trace.h"
+#ifdef USE_WOLFSSL_LIB
+#include "wolfssl/wolfcrypt/settings.h"
+#include "wolfssl/wolfcrypt/hmac.h"
+#else
 #include "mbedtls/md.h"
+#endif
 #include "hmac_md.h"
 
 #define TRACE_GROUP "hmac"
@@ -44,6 +49,27 @@ int8_t hmac_md_calc(const alg_hmac_md_e md, const uint8_t *key, uint16_t key_len
     }
 #endif
 
+#ifdef USE_WOLFSSL_LIB
+    int md_type;
+    Hmac ctx;
+    if (md == ALG_HMAC_MD5) {
+        md_type = WC_MD5;
+    } else {
+        md_type = WC_SHA;
+    }
+    wc_HmacInit(&ctx, NULL, INVALID_DEVID);
+    if (wc_HmacSetKey(&ctx, md_type, (const byte*)key, key_len) != 0) {
+        goto error;
+    }
+    if (wc_HmacUpdate(&ctx, data, data_len) != 0) {
+        goto error;
+    }
+    uint8_t result_value[20];
+    if (wc_HmacFinal(&ctx, result_value) != 0) {
+        goto error;
+    }
+    wc_HmacFree(&ctx);
+#else
     mbedtls_md_type_t md_type;
     if (md == ALG_HMAC_MD5) {
         md_type = MBEDTLS_MD_MD5;
@@ -77,6 +103,7 @@ int8_t hmac_md_calc(const alg_hmac_md_e md, const uint8_t *key, uint16_t key_len
     if (result_len > 20) {
         result_len = 20;
     }
+#endif
 
     memcpy(result, result_value, result_len);
 
@@ -86,6 +113,10 @@ int8_t hmac_md_calc(const alg_hmac_md_e md, const uint8_t *key, uint16_t key_len
     return 0;
 
 error:
+#ifdef USE_WOLFSSL_LIB
+    wc_HmacFree(&ctx);
+#else
     mbedtls_md_free(&ctx);
+#endif
     return -1;
 }

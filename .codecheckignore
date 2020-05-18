@@ -7,6 +7,7 @@
 ^connectivity/drivers/emac
 ^connectivity/drivers/mbedtls
 ^connectivity/mbedtls
+^features/wolf
 ^features/frameworks
 ^connectivity/lwipstack/lwip
 ^connectivity/lwipstack/lwip-sys

@@ -20,7 +20,9 @@
 #include "ns_types.h"
 #include "ns_list.h"
 #include "ns_trace.h"
+#ifndef USE_WOLFSSL_LIB
 #include "mbedtls/md.h"
+#endif
 #include "Service_Libs/ieee_802_11/ieee_802_11.h"
 #include "Service_Libs/hmac/hmac_md.h"
 

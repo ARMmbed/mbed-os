@@ -39,45 +39,80 @@
 #ifdef NS_USE_EXTERNAL_MBED_TLS
 
 #include <string.h>
-#include "mbedtls/sha256.h"
 
+#ifdef USE_WOLFSSL_LIB
+#include "wolfssl/wolfcrypt/settings.h"
+#include "wolfssl/wolfcrypt/hash.h"
+#include "wolfssl/wolfcrypt/sha256.h"
+typedef wc_Sha256 ns_sha256_context;
+#else
+#include "mbedtls/sha256.h"
 typedef mbedtls_sha256_context ns_sha256_context;
+#endif
 
 static inline void ns_sha256_init(ns_sha256_context *ctx)
 {
+#ifdef USE_WOLFSSL_LIB
+
+#else
     mbedtls_sha256_init(ctx);
+#endif
 }
 
 static inline void ns_sha256_free(ns_sha256_context *ctx)
 {
+#ifdef USE_WOLFSSL_LIB
+    wc_Sha256Free(ctx);
+#else
     mbedtls_sha256_free(ctx);
+#endif
 }
 
 static inline void ns_sha256_clone(ns_sha256_context *dst,
                                    const ns_sha256_context *src)
 {
+#ifdef USE_WOLFSSL_LIB
+    wc_Sha256Copy((wc_Sha256*)src, dst);
+#else
     mbedtls_sha256_clone(dst, src);
+#endif
 }
 
 static inline void ns_sha256_starts(ns_sha256_context *ctx)
 {
+#ifdef USE_WOLFSSL_LIB
+    (void)wc_InitSha256(ctx);
+#else
     (void)mbedtls_sha256_starts_ret(ctx, 0);
+#endif
 }
 
 static inline void ns_sha256_update(ns_sha256_context *ctx, const void *input,
                                     size_t ilen)
 {
+#ifdef USE_WOLFSSL_LIB
+    (void)wc_Sha256Update(ctx, input, ilen);
+#else
     (void)mbedtls_sha256_update_ret(ctx, input, ilen);
+#endif
 }
 
 static inline void ns_sha256_finish(ns_sha256_context *ctx, void *output)
 {
+#ifdef USE_WOLFSSL_LIB
+    (void)wc_Sha256Final(ctx, output);
+#else
     (void)mbedtls_sha256_finish_ret(ctx, output);
+#endif
 }
 
 static inline void ns_sha256(const void *input, size_t ilen, void *output)
 {
+#ifdef USE_WOLFSSL_LIB
+    (void)wc_Sha256Hash(input, ilen, output);
+#else
     (void)mbedtls_sha256_ret(input, ilen, output, 0);
+#endif
 }
 
 /* Extensions to standard mbed TLS - output the first bits of a hash only */
@@ -85,10 +120,18 @@ static inline void ns_sha256(const void *input, size_t ilen, void *output)
 static inline void ns_sha256_finish_nbits(ns_sha256_context *ctx, void *output, unsigned obits)
 {
     if (obits == 256) {
+    #ifdef USE_WOLFSSL_LIB
+        wc_Sha256Final(ctx, output);
+    #else
         (void)mbedtls_sha256_finish_ret(ctx, output);
+    #endif
     } else {
         uint8_t sha256[32];
+    #ifdef USE_WOLFSSL_LIB
+        (void)wc_Sha256Final(ctx, sha256);
+    #else
         (void)mbedtls_sha256_finish_ret(ctx, sha256);
+    #endif
         memcpy(output, sha256, obits / 8);
     }
 }
@@ -96,10 +139,18 @@ static inline void ns_sha256_finish_nbits(ns_sha256_context *ctx, void *output, 
 static inline void ns_sha256_nbits(const void *input, size_t ilen, void *output, unsigned obits)
 {
     if (obits == 256) {
+    #ifdef USE_WOLFSSL_LIB
+        (void)wc_Sha256Hash(input, ilen, output);
+    #else
         (void)mbedtls_sha256_ret(input, ilen, output, 0);
+    #endif
     } else {
         uint8_t sha256[32];
+    #ifdef USE_WOLFSSL_LIB
+        (void)wc_Sha256Hash(input, ilen, sha256);
+    #else
         (void)mbedtls_sha256_ret(input, ilen, sha256, 0);
+    #endif
         memcpy(output, sha256, obits / 8);
     }
 }

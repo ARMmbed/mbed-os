@@ -29,10 +29,15 @@
 
 #include "LoRaMacCrypto.h"
 #include "system/lorawan_data_structures.h"
+#ifdef USE_WOLFSSL_LIB
+#include "wolfssl/wolfcrypt/settings.h"
+#include "wolfssl/wolfcrypt/aes.h"
+#include "wolfssl/wolfcrypt/cmac.h"
+#else
 #include "mbedtls/platform.h"
+#endif
 
-
-#if defined(MBEDTLS_CMAC_C) && defined(MBEDTLS_AES_C) && defined(MBEDTLS_CIPHER_C)
+#if defined(USE_WOLFSSL_LIB) || (defined(MBEDTLS_CMAC_C) && defined(MBEDTLS_AES_C) && defined(MBEDTLS_CIPHER_C))
 
 LoRaMacCrypto::LoRaMacCrypto()
 {
@@ -76,6 +81,32 @@ int LoRaMacCrypto::compute_mic(const uint8_t *buffer, uint16_t size,
 
     mic_block_b0[15] = size & 0xFF;
 
+#ifdef USE_WOLFSSL_LIB
+    word32 tagSz = (word32)sizeof(computed_mic);
+    ret = wc_InitCmac(aes_cmac_ctx, key, key_length, WC_CMAC_AES, NULL);
+    if (0 != ret) {
+        goto exit;
+    }
+    ret = wc_CmacUpdate(aes_cmac_ctx, key, key_length);
+    if (0 != ret) {
+        goto exit;
+    }
+    ret = wc_CmacUpdate(aes_cmac_ctx, mic_block_b0, sizeof(mic_block_b0));
+    if (0 != ret) {
+        goto exit;
+    }
+
+    ret = wc_CmacUpdate(aes_cmac_ctx, buffer, size & 0xFF);
+    if (0 != ret) {
+        goto exit;
+    }
+
+    ret = wc_CmacFinal(aes_cmac_ctx, computed_mic, &tagSz);
+    if (0 != ret) {
+        goto exit;
+    }
+
+#else
     mbedtls_cipher_init(aes_cmac_ctx);
 
     const mbedtls_cipher_info_t *cipher_info = mbedtls_cipher_info_from_type(MBEDTLS_CIPHER_AES_128_ECB);
@@ -105,16 +136,23 @@ int LoRaMacCrypto::compute_mic(const uint8_t *buffer, uint16_t size,
         if (0 != ret) {
             goto exit;
         }
+#endif
 
         *mic = (uint32_t)((uint32_t) computed_mic[3] << 24
-                          | (uint32_t) computed_mic[2] << 16
-                          | (uint32_t) computed_mic[1] << 8 | (uint32_t) computed_mic[0]);
+                        | (uint32_t) computed_mic[2] << 16
+                        | (uint32_t) computed_mic[1] << 8 
+                        | (uint32_t) computed_mic[0]);
+
+#ifndef USE_WOLFSSL_LIB
     } else {
         ret = MBEDTLS_ERR_CIPHER_ALLOC_FAILED;
     }
+#endif
 
 exit:
+#ifndef USE_WOLFSSL_LIB
     mbedtls_cipher_free(aes_cmac_ctx);
+#endif
     return ret;
 }
 
@@ -130,11 +168,18 @@ int LoRaMacCrypto::encrypt_payload(const uint8_t *buffer, uint16_t size,
     uint8_t a_block[16] = {};
     uint8_t s_block[16] = {};
 
+#ifdef USE_WOLFSSL_LIB
+    wc_AesInit(&aes_ctx, NULL, INVALID_DEVID);
+    if (0 != wc_AesSetKey(&aes_ctx, key, key_length/8, NULL, AES_ENCRYPTION)) {
+        goto exit;
+    }
+#else
     mbedtls_aes_init(&aes_ctx);
     ret = mbedtls_aes_setkey_enc(&aes_ctx, key, key_length);
     if (0 != ret) {
         goto exit;
     }
+#endif
 
     a_block[0] = 0x01;
     a_block[5] = dir;
@@ -152,8 +197,12 @@ int LoRaMacCrypto::encrypt_payload(const uint8_t *buffer, uint16_t size,
     while (size >= 16) {
         a_block[15] = ((ctr) & 0xFF);
         ctr++;
+    #ifdef USE_WOLFSSL_LIB
+        ret = wc_AesEcbEncrypt(&aes_ctx, s_block, a_block, AES_BLOCK_SIZE);
+    #else
         ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, a_block,
                                     s_block);
+    #endif
         if (0 != ret) {
             goto exit;
         }
@@ -167,8 +216,12 @@ int LoRaMacCrypto::encrypt_payload(const uint8_t *buffer, uint16_t size,
 
     if (size > 0) {
         a_block[15] = ((ctr) & 0xFF);
+    #ifdef USE_WOLFSSL_LIB
+        ret = wc_AesEcbEncrypt(&aes_ctx, s_block, a_block, AES_BLOCK_SIZE);
+    #else
         ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, a_block,
                                     s_block);
+    #endif
         if (0 != ret) {
             goto exit;
         }
@@ -179,7 +232,11 @@ int LoRaMacCrypto::encrypt_payload(const uint8_t *buffer, uint16_t size,
     }
 
 exit:
+#ifdef USE_WOLFSSL_LIB
+    wc_AesFree(&aes_ctx);
+#else
     mbedtls_aes_free(&aes_ctx);
+#endif
     return ret;
 }
 
@@ -198,6 +255,26 @@ int LoRaMacCrypto::compute_join_frame_mic(const uint8_t *buffer, uint16_t size,
 {
     uint8_t computed_mic[16] = {};
     int ret = 0;
+
+#ifdef USE_WOLFSSL_LIB
+    word32 tagSz = (word32)sizeof(computed_mic);
+    ret = wc_InitCmac(aes_cmac_ctx, key, key_length, WC_CMAC_AES, NULL);
+    if (0 != ret) {
+        goto exit;
+    }
+    ret = wc_CmacUpdate(aes_cmac_ctx, key, key_length);
+    if (0 != ret) {
+        goto exit;
+    }
+    ret = wc_CmacUpdate(aes_cmac_ctx, buffer, size & 0xFF);
+    if (0 != ret) {
+        goto exit;
+    }
+    ret = wc_CmacFinal(aes_cmac_ctx, computed_mic, &tagSz);
+    if (0 != ret) {
+        goto exit;
+    }
+#else
 
     mbedtls_cipher_init(aes_cmac_ctx);
     const mbedtls_cipher_info_t *cipher_info = mbedtls_cipher_info_from_type(MBEDTLS_CIPHER_AES_128_ECB);
@@ -222,16 +299,23 @@ int LoRaMacCrypto::compute_join_frame_mic(const uint8_t *buffer, uint16_t size,
         if (0 != ret) {
             goto exit;
         }
+#endif
 
         *mic = (uint32_t)((uint32_t) computed_mic[3] << 24
-                          | (uint32_t) computed_mic[2] << 16
-                          | (uint32_t) computed_mic[1] << 8 | (uint32_t) computed_mic[0]);
+                        | (uint32_t) computed_mic[2] << 16
+                        | (uint32_t) computed_mic[1] << 8 
+                        | (uint32_t) computed_mic[0]);
+
+#ifndef USE_WOLFSSL_LIB
     } else {
         ret = MBEDTLS_ERR_CIPHER_ALLOC_FAILED;
     }
+#endif
 
 exit:
+#ifndef USE_WOLFSSL_LIB
     mbedtls_cipher_free(aes_cmac_ctx);
+#endif
     return ret;
 }
 
@@ -241,27 +325,46 @@ int LoRaMacCrypto::decrypt_join_frame(const uint8_t *buffer, uint16_t size,
 {
     int ret = 0;
 
+#ifdef USE_WOLFSSL_LIB
+    wc_AesInit(&aes_ctx, NULL, INVALID_DEVID);
+    if (0 != wc_AesSetKey(&aes_ctx, key, key_length/8, NULL, AES_ENCRYPTION)) {
+        goto exit;
+    }
+#else
     mbedtls_aes_init(&aes_ctx);
 
     ret = mbedtls_aes_setkey_enc(&aes_ctx, key, key_length);
     if (0 != ret) {
         goto exit;
     }
+#endif
 
+#ifdef USE_WOLFSSL_LIB
+    ret = wc_AesEcbEncrypt(&aes_ctx, dec_buffer, buffer, AES_BLOCK_SIZE);
+#else
     ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, buffer,
                                 dec_buffer);
+#endif
     if (0 != ret) {
         goto exit;
     }
 
     // Check if optional CFList is included
     if (size >= 16) {
+    #ifdef USE_WOLFSSL_LIB
+        ret = wc_AesEcbEncrypt(&aes_ctx, dec_buffer + 16, buffer + 16, AES_BLOCK_SIZE);
+    #else
         ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, buffer + 16,
                                     dec_buffer + 16);
+    #endif
     }
 
 exit:
+#ifdef USE_WOLFSSL_LIB
+    wc_AesFree(&aes_ctx);
+#else
     mbedtls_aes_free(&aes_ctx);
+#endif
     return ret;
 }
 
@@ -273,18 +376,29 @@ int LoRaMacCrypto::compute_skeys_for_join_frame(const uint8_t *key, uint32_t key
     uint8_t *p_dev_nonce = (uint8_t *) &dev_nonce;
     int ret = 0;
 
+#ifdef USE_WOLFSSL_LIB
+    wc_AesInit(&aes_ctx, NULL, INVALID_DEVID);
+    if (0 != wc_AesSetKey(&aes_ctx, key, key_length/8, NULL, AES_ENCRYPTION)) {
+        goto exit;
+    }
+#else
     mbedtls_aes_init(&aes_ctx);
 
     ret = mbedtls_aes_setkey_enc(&aes_ctx, key, key_length);
     if (0 != ret) {
         goto exit;
     }
+#endif
 
     memset(nonce, 0, sizeof(nonce));
     nonce[0] = 0x01;
     memcpy(nonce + 1, app_nonce, 6);
     memcpy(nonce + 7, p_dev_nonce, 2);
+#ifdef USE_WOLFSSL_LIB
+    ret = wc_AesEcbEncrypt(&aes_ctx, nwk_skey, nonce, AES_BLOCK_SIZE);
+#else
     ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, nwk_skey);
+#endif
     if (0 != ret) {
         goto exit;
     }
@@ -293,12 +407,21 @@ int LoRaMacCrypto::compute_skeys_for_join_frame(const uint8_t *key, uint32_t key
     nonce[0] = 0x02;
     memcpy(nonce + 1, app_nonce, 6);
     memcpy(nonce + 7, p_dev_nonce, 2);
+#ifdef USE_WOLFSSL_LIB
+    ret = wc_AesEcbEncrypt(&aes_ctx, app_skey, nonce, AES_BLOCK_SIZE);
+#else
     ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, app_skey);
+#endif
 
 exit:
+#ifdef USE_WOLFSSL_LIB
+    wc_AesFree(&aes_ctx);
+#else
     mbedtls_aes_free(&aes_ctx);
+#endif
     return ret;
 }
+
 #else
 
 LoRaMacCrypto::LoRaMacCrypto()

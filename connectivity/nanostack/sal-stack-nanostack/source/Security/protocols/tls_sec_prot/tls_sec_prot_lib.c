@@ -18,6 +18,13 @@
 #include "nsconfig.h"
 
 #ifdef HAVE_WS
+
+#ifdef USE_WOLFSSL_LIB
+#include "wolfssl/wolfcrypt/settings.h"
+#include "wolfssl/ssl.h"
+
+#else
+
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
 #else
@@ -689,4 +696,5 @@ uint16_t tls_sec_prot_lib_size(void)
     return 0;
 }
 #endif /* WS_MBEDTLS_SECURITY_ENABLED */
+#endif /* USE_WOLFSSL_LIB */
 #endif /* HAVE_WS */

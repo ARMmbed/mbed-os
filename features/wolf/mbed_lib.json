@@ -1,0 +1,6 @@
+{
+    "name": "wolfssl",
+    "macros" : [
+        "WOLFSSL_USER_SETTINGS"
+    ]
+}

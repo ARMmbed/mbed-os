@@ -19,6 +19,10 @@
 
 #include "ns_types.h"
 
+#ifdef USE_WOLFSSL_LIB
+#include "wolfssl/wolfcrypt/settings.h"
+#include "wolfssl/ssl.h"
+#else
 #ifdef NS_USE_EXTERNAL_MBED_TLS
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
@@ -32,6 +36,7 @@
 #endif
 
 #endif /* NS_USE_EXTERNAL_MBED_TLS */
+#endif /* USE_WOLFSSL_LIB */
 
 #define COOKIE_SIMPLE_LEN 8
 typedef struct simple_cookie {

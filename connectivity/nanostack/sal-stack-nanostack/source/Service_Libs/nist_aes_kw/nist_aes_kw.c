@@ -21,6 +21,9 @@
 #include "ns_list.h"
 #include "ns_trace.h"
 
+#ifdef USE_WOLFSSL_LIB
+#include "wolfssl/wolfcrypt/settings.h"
+#else
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
 #else
@@ -30,6 +33,7 @@
 #if defined(MBEDTLS_NIST_KW_C) && defined(HAVE_WS) && (defined(HAVE_PAE_SUPP) || defined(HAVE_PAE_AUTH))
 #include "mbedtls/nist_kw.h"
 #endif
+#endif /* USE_WOLFSSL_LIB */
 
 #include "Service_Libs/nist_aes_kw/nist_aes_kw.h"
 
