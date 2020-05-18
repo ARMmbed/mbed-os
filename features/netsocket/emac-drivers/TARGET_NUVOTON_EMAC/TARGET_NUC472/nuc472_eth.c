@@ -16,30 +16,38 @@
  *
  * Description:   NUC472 MAC driver source file
  */
+#include <stdbool.h>
 #include "nuc472_eth.h"
 #include "mbed_toolchain.h"
+//#define NU_TRACE
 #include "numaker_eth_hal.h"
 
 #define ETH_TRIGGER_RX()    do{EMAC->RXST = 0;}while(0)
 #define ETH_TRIGGER_TX()    do{EMAC->TXST = 0;}while(0)
 #define ETH_ENABLE_TX()     do{EMAC->CTL |= EMAC_CTL_TXON;}while(0)
-#define ETH_ENABLE_RX()     do{EMAC->CTL |= EMAC_CTL_RXON;}while(0)
+#define ETH_ENABLE_RX()     do{EMAC->CTL |= EMAC_CTL_RXON_Msk;}while(0)
 #define ETH_DISABLE_TX()    do{EMAC->CTL &= ~EMAC_CTL_TXON;}while(0)
-#define ETH_DISABLE_RX()    do{EMAC->CTL &= ~EMAC_CTL_RXON;}while(0)
+#define ETH_DISABLE_RX()    do{EMAC->CTL &= ~EMAC_CTL_RXON_Msk;}while(0)
     
+#define EMAC_ENABLE_INT(emac, u32eIntSel)    ((emac)->INTEN |= (u32eIntSel))
+#define EMAC_DISABLE_INT(emac, u32eIntSel)    ((emac)->INTEN &= ~ (u32eIntSel))    
 
 MBED_ALIGN(4) struct eth_descriptor rx_desc[RX_DESCRIPTOR_NUM];
 MBED_ALIGN(4) struct eth_descriptor tx_desc[TX_DESCRIPTOR_NUM];
 
 struct eth_descriptor volatile *cur_tx_desc_ptr, *cur_rx_desc_ptr, *fin_tx_desc_ptr;
 
+__attribute__ ((section("EMAC_RAM")))
 MBED_ALIGN(4) uint8_t rx_buf[RX_DESCRIPTOR_NUM][PACKET_BUFFER_SIZE];
+__attribute__ ((section("EMAC_RAM")))
 MBED_ALIGN(4) uint8_t tx_buf[TX_DESCRIPTOR_NUM][PACKET_BUFFER_SIZE];
 
 eth_callback_t nu_eth_txrx_cb = NULL;
 void *nu_userData = NULL;
 
 extern void ack_emac_rx_isr(void);
+static bool isPhyReset = false;
+static uint16_t phyLPAval = 0;
 
 // PTP source clock is 84MHz (Real chip using PLL). Each tick is 11.90ns
 // Assume we want to set each tick to 100ns.
@@ -111,6 +119,7 @@ static int reset_phy(void)
         return(-1);
     } else {
         reg = mdio_read(CONFIG_PHY_ADDR, MII_LPA);
+        phyLPAval = reg;
 
         if(reg & ADVERTISE_100FULL) {
             NU_DEBUGF(("100 full\n"));
@@ -162,7 +171,7 @@ static void init_rx_desc(void)
         rx_desc[i].status1 = OWNERSHIP_EMAC;
         rx_desc[i].buf = &rx_buf[i][0];
         rx_desc[i].status2 = 0;
-        rx_desc[i].next = &rx_desc[(i + 1) % TX_DESCRIPTOR_NUM];
+        rx_desc[i].next = &rx_desc[(i + 1) % (RX_DESCRIPTOR_NUM)];
     }
     EMAC->RXDSA = (unsigned int)&rx_desc[0];
     return;
@@ -186,10 +195,14 @@ void numaker_set_mac_addr(uint8_t *addr)
 
 static void __eth_clk_pin_init()
 {
+    /* Unlock protected registers */
+    SYS_UnlockReg();
 	 /* Enable IP clock */
     CLK_EnableModuleClock(EMAC_MODULE);
     // Configure MDC clock rate to HCLK / (127 + 1) = 656 kHz if system is running at 84 MHz
     CLK_SetModuleClock(EMAC_MODULE, 0, CLK_CLKDIV3_EMAC(127));
+    /* Update System Core Clock */
+    SystemCoreClockUpdate();
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init I/O Multi-function                                                                                 */
     /*---------------------------------------------------------------------------------------------------------*/
@@ -214,6 +227,8 @@ static void __eth_clk_pin_init()
     SYS->GPB_MFPH &= ~(SYS_GPB_MFPH_PB14MFP_Msk | SYS_GPB_MFPH_PB15MFP_Msk);
     SYS->GPB_MFPH |= SYS_GPB_MFPH_PB14MFP_EMAC_MII_MDC | SYS_GPB_MFPH_PB15MFP_EMAC_MII_MDIO;
 
+    /* Lock protected registers */
+    SYS_LockReg();
 }
 
 void numaker_eth_init(uint8_t *mac_addr)
@@ -223,12 +238,12 @@ void numaker_eth_init(uint8_t *mac_addr)
 	
     // Reset MAC
     EMAC->CTL = EMAC_CTL_RST_Msk;
+    while(EMAC->CTL & EMAC_CTL_RST_Msk) {}
 
     init_tx_desc();
     init_rx_desc();
 
     numaker_set_mac_addr(mac_addr);  // need to reconfigure hardware address 'cos we just RESET emc...
-    reset_phy();
 
     EMAC->CTL |= EMAC_CTL_STRIPCRC_Msk | EMAC_CTL_RXON_Msk | EMAC_CTL_TXON_Msk | EMAC_CTL_RMIIEN_Msk | EMAC_CTL_RMIIRXCTL_Msk;
     EMAC->INTEN |= EMAC_INTEN_RXIEN_Msk |
@@ -239,7 +254,36 @@ void numaker_eth_init(uint8_t *mac_addr)
                    EMAC_INTEN_TXABTIEN_Msk |
                    EMAC_INTEN_TXCPIEN_Msk |
                    EMAC_INTEN_TXBEIEN_Msk;
-    EMAC->RXST = 0;  // trigger Rx
+    /* Limit the max receive frame length to 1514 + 4 */
+    EMAC->MRFL = NU_ETH_MAX_FLEN;
+    
+    /* Set RX FIFO threshold as 8 words */
+    
+    if (isPhyReset != true)
+    {
+        if (!reset_phy()) 
+        {
+            isPhyReset = true;
+        }
+    } else {
+        if (phyLPAval & ADVERTISE_100FULL) {
+            NU_DEBUGF(("100 full\n"));
+            EMAC->CTL |= (EMAC_CTL_OPMODE_Msk | EMAC_CTL_FUDUP_Msk);
+        } else if (phyLPAval & ADVERTISE_100HALF) {
+            NU_DEBUGF(("100 half\n"));
+            EMAC->CTL = (EMAC->CTL & ~EMAC_CTL_FUDUP_Msk) | EMAC_CTL_OPMODE_Msk;
+        } else if (phyLPAval & ADVERTISE_10FULL) {
+            NU_DEBUGF(("10 full\n"));
+            EMAC->CTL = (EMAC->CTL & ~EMAC_CTL_OPMODE_Msk) | EMAC_CTL_FUDUP_Msk;
+        } else {
+            NU_DEBUGF(("10 half\n"));
+            EMAC->CTL &= ~(EMAC_CTL_OPMODE_Msk | EMAC_CTL_FUDUP_Msk);
+        }        
+    }
+                    
+    EMAC_ENABLE_RX();
+    EMAC_ENABLE_TX();
+
 }
 
 
@@ -254,20 +298,22 @@ unsigned int m_status;
 
 void EMAC_RX_IRQHandler(void)
 {
-//    NU_DEBUGF(("%s ... nu_eth_txrx_cb=0x%x\r\n", __FUNCTION__, nu_eth_txrx_cb));
     m_status = EMAC->INTSTS & 0xFFFF;
     EMAC->INTSTS = m_status;
     if (m_status & EMAC_INTSTS_RXBEIF_Msk) {
         // Shouldn't goes here, unless descriptor corrupted
-		NU_DEBUGF(("RX descriptor corrupted \r\n"));
-		//return;
+        mbed_error_printf("### RX Bus error [0x%x]\r\n", m_status);
+        if (nu_eth_txrx_cb != NULL) nu_eth_txrx_cb('B', nu_userData); 
+        return;
     }
+    EMAC_DISABLE_INT(EMAC, (EMAC_INTEN_RDUIEN_Msk | EMAC_INTEN_RXGDIEN_Msk));
 	if (nu_eth_txrx_cb != NULL) nu_eth_txrx_cb('R', nu_userData); 
 }
 
 
 void numaker_eth_trigger_rx(void)
 {
+    EMAC_ENABLE_INT(EMAC, (EMAC_INTEN_RDUIEN_Msk | EMAC_INTEN_RXGDIEN_Msk));
     ETH_TRIGGER_RX();
 }
 
@@ -286,6 +332,12 @@ int numaker_eth_get_rx_buf(uint16_t *len, uint8_t **buf)
     if (status & RXFD_RXGD) {
         *buf = cur_rx_desc_ptr->buf;
         *len = status & 0xFFFF;
+        // length of payload should be <= 1514
+        if ( *len > (NU_ETH_MAX_FLEN - 4) ) {
+            NU_DEBUGF(("%s... unexpected long packet length=%d, buf=0x%x\r\n", __FUNCTION__, *len, *buf));
+            *len = 0; // Skip this unexpected long packet
+        }
+        if (*len == (NU_ETH_MAX_FLEN - 4)) NU_DEBUGF(("%s... length=%d, buf=0x%x\r\n", __FUNCTION__, *len, *buf));
     }
     return 0;
 }    
@@ -304,6 +356,8 @@ void EMAC_TX_IRQHandler(void)
     EMAC->INTSTS = status;
     if(status & EMAC_INTSTS_TXBEIF_Msk) {
         // Shouldn't goes here, unless descriptor corrupted
+        mbed_error_printf("### TX Bus error [0x%x]\r\n", status);
+        if (nu_eth_txrx_cb != NULL) nu_eth_txrx_cb('B', nu_userData); 
         return;
     }
 
