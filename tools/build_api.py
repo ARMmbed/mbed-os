@@ -424,7 +424,7 @@ def get_mbed_official_release(version):
             tuple(
                 [
                     TARGET_MAP[target].name,
-                    tuple('ARM', 'GCC_ARM')
+                    tuple(['ARM', 'GCC_ARM'])
                 ]
             ) for target in TARGET_NAMES
         )
