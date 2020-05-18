@@ -400,7 +400,7 @@ def transform_release_toolchains(target, version):
         else:
             return target.supported_toolchains
 
-def get_mbed_official_release(version):
+def get_mbed_official_release(version, profile=None):
     """ Given a release version string, return a tuple that contains a target
     and the supported toolchains for that release.
     Ex. Given '2', return (('LPC1768', ('ARM', 'GCC_ARM')),
@@ -426,7 +426,8 @@ def get_mbed_official_release(version):
                     TARGET_MAP[target].name,
                     tuple(['ARM', 'GCC_ARM'])
                 ]
-            ) for target in TARGET_NAMES
+            ) for target in TARGET_NAMES \
+                if not profile or profile in TARGET_MAP[target].supported_application_profiles
         )
     )
 
