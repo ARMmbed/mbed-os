@@ -1247,26 +1247,22 @@ nsapi_error_t ESP8266Interface::set_country_code(bool track_ap, const char *coun
 
 void ESP8266Interface::interface_suspend(uint16_t direction)
 {
-    if(ESP8266_INPUT & direction)
-    {
+    if(ESP8266_INPUT & direction){
         _esp.uart_enable_input(false);
     }
 
-    if(ESP8266_OUTPUT & direction)
-    {
+    if(ESP8266_OUTPUT & direction){
         _esp.uart_enable_output(false);
     }
 }
  
 void ESP8266Interface::interface_resume(uint16_t direction)
 {
-    if(ESP8266_INPUT & direction)
-    {
+    if(ESP8266_INPUT & direction){
         _esp.uart_enable_input(true);
     }
 
-    if(ESP8266_OUTPUT & direction)
-    {
+    if(ESP8266_OUTPUT & direction){
         _esp.uart_enable_output(true);
     }
 }
