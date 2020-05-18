@@ -77,7 +77,7 @@ public:
     ESP8266Interface();
 
     /**
-      * \brief Enum to ESP8266 interface traffic direction
+      * @brief Enum to ESP8266 interface traffic direction
       */
     enum ESP8266_InterfaceMask {
         ESP8266_NONE         = 0x0,
@@ -305,13 +305,13 @@ public:
 
     /** Suspend the traffic of the interface
      *
-     *  @param the direction going to be suspended
+     *  @param direction The direction going to be suspended
      */
     virtual void interface_suspend(uint16_t direction);
 
     /** Resume the traffic of the interface
      *
-     *  @param the direction going to be suspended
+     *  @param direction The direction going to be suspended
      */
     virtual void interface_resume(uint16_t direction);
 
