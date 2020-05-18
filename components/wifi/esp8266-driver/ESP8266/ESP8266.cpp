@@ -1583,4 +1583,9 @@ int ESP8266::uart_enable_input(bool enabled)
     return _serial.enable_input(enabled);
 }
 
+int ESP8266::uart_enable_output(bool enabled)
+{
+    return _serial.enable_output(enabled);
+}
+
 #endif

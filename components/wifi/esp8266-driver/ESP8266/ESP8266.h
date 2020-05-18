@@ -494,6 +494,14 @@ public:
      */
     int uart_enable_input(bool lock);
 
+    /**
+     * Enables or disables uart output and deep sleep
+     *
+     * @param lock if TRUE, uart output is enabled and  deep sleep is locked
+     * if FALSE, uart input is disabled and  deep sleep is unlocked
+     */
+    int uart_enable_output(bool lock);
+
 private:
     // FW version
     struct fw_sdk_version _sdk_v;

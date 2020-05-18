@@ -75,6 +75,16 @@ public:
      *        Will use values defined in mbed_lib.json
      */
     ESP8266Interface();
+
+    /**
+      * \brief Enum to ESP8266 interface traffic direction
+      */
+    enum ESP8266_InterfaceMask {
+        ESP8266_NONE         = 0x0,
+        ESP8266_INPUT        = 0x01,
+        ESP8266_OUTPUT       = 0x02,
+        ESP8266_INPUT_OUTPUT = 0x03
+    };
 #endif
 
     /** ESP8266Interface lifetime
@@ -292,6 +302,18 @@ public:
      *  @return         The connection status according to ConnectionStatusType
      */
     virtual nsapi_connection_status_t get_connection_status() const;
+
+    /** Suspend the traffic of the interface
+     *
+     *  @param the direction going to be suspended
+     */
+    virtual void interface_suspend(uint16_t direction);
+
+    /** Resume the traffic of the interface
+     *
+     *  @param the direction going to be suspended
+     */
+    virtual void interface_resume(uint16_t direction);
 
 protected:
     /** Open a socket
