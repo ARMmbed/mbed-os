@@ -412,12 +412,12 @@ def get_mbed_official_release(version):
     """
 
     # we ignore version for Mbed 6 as all targets in targets.json file are being supported
-    # if someone passes 2, we return emtpy tuple, if 5, we keep the behavior the same as 
+    # if someone passes 2, we return empty tuple, if 5, we keep the behavior the same as 
     # release version is deprecated and all targets are being supported that are present
     # in targets.json file
 
     if version == '2':
-        raise InvalidReleaseTargetException("Mbed 2 is no longer supported with this version of the tools")
+        return tuple(tuple([]))
 
     mbed_official_release = (
         tuple(
