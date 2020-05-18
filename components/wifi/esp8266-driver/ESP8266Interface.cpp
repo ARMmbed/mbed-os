@@ -1255,7 +1255,7 @@ void ESP8266Interface::interface_suspend(uint16_t direction)
         _esp.uart_enable_output(false);
     }
 }
- 
+
 void ESP8266Interface::interface_resume(uint16_t direction)
 {
     if (ESP8266_INPUT & direction) {
