@@ -319,47 +319,6 @@
             "1114"
         ]
     },
-    "LPC11U68": {
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "core": "Cortex-M0+",
-        "default_toolchain": "uARM",
-        "extra_labels": [
-            "NXP",
-            "LPC11U6X"
-        ],
-        "supported_toolchains": [
-            "ARM",
-            "uARM",
-            "GCC_ARM",
-            "IAR"
-        ],
-        "inherits": [
-            "LPCTarget"
-        ],
-        "detect_code": [
-            "1168"
-        ],
-        "device_has": [
-            "ANALOGIN",
-            "I2C",
-            "I2CSLAVE",
-            "INTERRUPTIN",
-            "PWMOUT",
-            "SERIAL",
-            "SLEEP",
-            "SPI"
-        ],
-        "macros": [
-            "MBED_FAULT_HANDLER_DISABLED"
-        ],
-        "default_lib": "small",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "LPC11U68JBD100"
-    },
     "LPC1768": {
         "inherits": [
             "LPCTarget"
@@ -411,7 +370,6 @@
             "RESET_REASON"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "device_name": "LPC1768",
@@ -536,7 +494,6 @@
             "STDIO_MESSAGES"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "device_name": "MKL25Z128xxx4"
@@ -583,7 +540,6 @@
             "FLASH"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "device_name": "MKL46Z256xxx4",
@@ -654,7 +610,6 @@
             "MCU_K22F512"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "extra_labels_add": [
@@ -663,57 +618,6 @@
         "detect_code": [
             "0231"
         ]
-    },
-    "KL27Z": {
-        "inherits": [
-            "Target"
-        ],
-        "core": "Cortex-M0+",
-        "extra_labels": [
-            "Freescale",
-            "MCUXpresso_MCUS",
-            "KSDK2_MCUS",
-            "FRDM"
-        ],
-        "macros": [
-            "CPU_MKL27Z64VLH4",
-            "FSL_RTOS_MBED"
-        ],
-        "supported_toolchains": [
-            "ARM",
-            "GCC_ARM",
-            "IAR"
-        ],
-        "supported_form_factors": [
-            "ARDUINO"
-        ],
-        "is_disk_virtual": true,
-        "default_toolchain": "ARM",
-        "detect_code": [
-            "0261"
-        ],
-        "device_has": [
-            "USTICKER",
-            "LPTICKER",
-            "RTC",
-            "ANALOGIN",
-            "I2C",
-            "I2CSLAVE",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTOUT",
-            "PWMOUT",
-            "SERIAL",
-            "SLEEP",
-            "SPI",
-            "SPISLAVE",
-            "STDIO_MESSAGES"
-        ],
-        "default_lib": "std",
-        "release_versions": [
-            "2"
-        ],
-        "device_name": "MKL27Z64xxx4"
     },
     "KL43Z": {
         "supported_form_factors": [
@@ -768,7 +672,6 @@
             "FLASH"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "device_name": "MKL43Z256xxx4"
@@ -826,7 +729,6 @@
             "802_15_4_PHY"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "device_name": "MKW41Z512xxx4",
@@ -903,7 +805,6 @@
             "WATCHDOG"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "device_name": "MK64FN1M0xxx12",
@@ -1088,7 +989,6 @@
             "WATCHDOG"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "device_name": "MK64FN1M0xxx12",
@@ -1154,7 +1054,6 @@
             "FLASH"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "device_name": "MK66FN2M0xxx18",
@@ -1232,7 +1131,6 @@
             "QSPI"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "device_name": "MK82FN256xxx15"
@@ -4271,7 +4169,6 @@
             "FLASH"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "features": [
@@ -4336,7 +4233,6 @@
             "init-us-ticker-at-boot": true
         },
         "release_versions": [
-            "2",
             "5"
         ],
         "post_binary_hook": {
@@ -4412,7 +4308,6 @@
             "1056"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "components_add": [
@@ -4430,7 +4325,6 @@
             "QSPI"
         ],
         "release_versions": [
-            "2",
             "5"
         ]
     },
@@ -4493,7 +4387,6 @@
             "USTICKER"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "copy_method": "mps2",
@@ -4534,7 +4427,6 @@
             "USTICKER"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "copy_method": "mps2",
@@ -4576,7 +4468,6 @@
             "USTICKER"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "copy_method": "mps2",
@@ -4618,7 +4509,6 @@
             "USTICKER"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "copy_method": "mps2",
@@ -4660,7 +4550,6 @@
             "USTICKER"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "copy_method": "mps2",
@@ -4728,7 +4617,6 @@
             "MPU"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "copy_method": "mps2",
@@ -4918,7 +4806,6 @@
             "LPTICKER"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "device_name": "R7S72100",
@@ -4960,7 +4847,6 @@
             "ETHERNET"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "device_name": "R7S72103",
@@ -5014,45 +4900,10 @@
             "USTICKER"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "detect_code": [
             "0405"
-        ]
-    },
-    "MAX32620HSP": {
-        "inherits": [
-            "Target"
-        ],
-        "core": "Cortex-M4F",
-        "extra_labels": [
-            "Maxim",
-            "MAX32620"
-        ],
-        "supported_toolchains": [
-            "GCC_ARM",
-            "IAR",
-            "ARM"
-        ],
-        "device_has": [
-            "ANALOGIN",
-            "I2C",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "PWMOUT",
-            "SERIAL",
-            "SERIAL_FC",
-            "SLEEP",
-            "SPI",
-            "SPI_ASYNCH",
-            "STDIO_MESSAGES"
-        ],
-        "release_versions": [],
-        "detect_code": [
-            "0407"
         ]
     },
     "MAX32620FTHR": {
@@ -5093,7 +4944,6 @@
             "USTICKER"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "detect_code": [
@@ -5141,7 +4991,6 @@
             "USTICKER"
         ],
         "release_versions": [
-            "2",
             "5"
         ]
     },
@@ -5183,7 +5032,6 @@
         ],
         "device_name": "MAX32625",
         "release_versions": [
-            "2",
             "5"
         ],
         "public": false
@@ -5261,7 +5109,6 @@
             "MPU"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "detect_code": [
@@ -5304,7 +5151,6 @@
             "IAR"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "device_name": "EFM32GG990F1024",
@@ -5410,7 +5256,6 @@
             "IAR"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "device_name": "EFR32MG12P332F1024GL125",
@@ -5511,7 +5356,6 @@
             "IAR"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "device_name": "EFM32GG11B820F2048GL192",
@@ -6770,7 +6614,6 @@
             "1309"
         ],
         "release_versions": [
-            "2",
             "5"
         ],
         "device_name": "M252KG6AE",
