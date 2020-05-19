@@ -425,7 +425,7 @@ def get_mbed_official_release(version, profile=None):
                 [
                     TARGET_MAP[target].name,
                     tuple(transform_release_toolchains(
--                        TARGET_MAP[target], version))
+                        TARGET_MAP[target], version))
                 ]
             ) for target in TARGET_NAMES \
                 if not profile or profile in TARGET_MAP[target].supported_application_profiles
