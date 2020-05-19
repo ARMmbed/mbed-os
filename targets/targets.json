@@ -33,9 +33,8 @@
             ]
         },
         "supported_application_profiles": [
-            "rtos",
-            "bare-metal"
-            ],
+            "rtos"
+        ],
         "config": {
             "console-uart": {
                 "help": "Target has UART console on pins STDIO_UART_TX, STDIO_UART_RX. Value is only significant if target has SERIAL device.",
@@ -830,7 +829,10 @@
             "iar": [
                 "std"
             ]
-        }
+        },
+        "supported_application_profiles": [
+            "rtos", "bare-metal"
+        ]
     },
     "SDT64B": {
         "inherits": [
@@ -1497,7 +1499,10 @@
             "MPU"
         ],
         "bootloader_supported": true,
-        "device_name": "STM32F303RE"
+        "device_name": "STM32F303RE",
+        "supported_application_profiles": [
+            "rtos", "bare-metal"
+        ]
     },
     "NUCLEO_F303ZE": {
         "inherits": [
@@ -1648,7 +1653,10 @@
             "MPU"
         ],
         "device_name": "STM32F411RE",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "supported_application_profiles": [
+            "rtos", "bare-metal"
+        ]
     },
     "MTS_DRAGONFLY_F411RE": {
         "inherits": [
@@ -2000,7 +2008,10 @@
         "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": "ETHERNET"
-        }
+        },
+        "supported_application_profiles": [
+            "rtos", "bare-metal"
+        ]
     },
     "DISCO_F429ZI": {
         "inherits": [
@@ -3474,7 +3485,10 @@
             "BLE"
         ],
         "device_name": "STM32L475VG",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "supported_application_profiles": [
+            "rtos", "bare-metal"
+        ]
     },
     "NUCLEO_L476RG": {
         "inherits": [
@@ -5716,7 +5730,10 @@
                 "help": "Enable inclusion of objects_extensions.h",
                 "value": false
             }
-        }
+        },
+        "supported_application_profiles": [
+            "rtos", "bare-metal"
+        ]
     },
     "ARDUINO_NANO33BLE": {
         "inherits": [
