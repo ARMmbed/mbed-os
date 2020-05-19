@@ -34,7 +34,7 @@
         },
         "supported_application_profiles": [
             "rtos"
-            ],
+        ],
         "config": {
             "console-uart": {
                 "help": "Target has UART console on pins STDIO_UART_TX, STDIO_UART_RX. Value is only significant if target has SERIAL device.",
