@@ -316,11 +316,8 @@
             ]
         },
         "c_lib": "small",
-        "supported_application_profiles_add": [
+        "supported_application_profiles": [
             "bare-metal"
-        ],
-        "supported_application_profiles_remove": [
-            "rtos"
         ],
         "device_name": "LPC1114FN28/102",
         "detect_code": [
@@ -1233,11 +1230,8 @@
         ],
         "public": false,
         "c_lib": "small",
-        "supported_application_profiles_add": [
+        "supported_application_profiles": [
             "bare-metal"
-        ],
-        "supported_application_profiles_remove": [
-            "rtos"
         ],
         "overrides": {
             "boot-stack-size": "0x400"
@@ -5926,11 +5920,8 @@
             ]
         },
         "c_lib": "small",
-        "supported_application_profiles_add": [
+        "supported_application_profiles": [
             "bare-metal"
-        ],
-        "supported_application_profiles_remove": [
-            "rtos"
         ],
         "sectors": [
             [
@@ -6037,11 +6028,8 @@
             ]
         },
         "c_lib": "small",
-        "supported_application_profiles_add": [
+        "supported_application_profiles": [
             "bare-metal"
-        ],
-        "supported_application_profiles_remove": [
-            "rtos"
         ],
         "device_name": "NANO130KE3BN",
         "overrides": {
