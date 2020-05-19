@@ -385,7 +385,7 @@ def transform_release_toolchains(target, version):
               RELEASE_VERSIONS
     """
     if int(target.build_tools_metadata["version"]) > 0:
-        if version == '5':
+        if version in ['5', '6']:
             toolchains = copy(target.supported_toolchains)
 
             if "ARM" in toolchains:
@@ -395,7 +395,7 @@ def transform_release_toolchains(target, version):
             return toolchains
         return target.supported_toolchains
     else:
-        if version == '5':
+        if version in ['5', '6']:
             return ['ARM', 'GCC_ARM', 'IAR']
         else:
             return target.supported_toolchains
