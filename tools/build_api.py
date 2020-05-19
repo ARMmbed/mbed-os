@@ -51,7 +51,7 @@ from .toolchains.arm import UARM_TOOLCHAIN_WARNING
 from .toolchains.mbed_toolchain import should_replace_small_c_lib
 from .config import Config
 
-RELEASE_VERSIONS = ['2', '5', '6']
+RELEASE_VERSIONS = ['2', '5']
 
 def prep_report(report, target_name, toolchain_name, id_name):
     """Setup report keys
@@ -328,7 +328,7 @@ def is_official_target(target_name, version):
                     ("following toolchains: %s" %
                      ", ".join(target.supported_toolchains))
 
-        elif version in ['5', '6']:
+        elif version == '5':
             # For version 5, ARM, GCC_ARM, and IAR toolchain support is required
             required_toolchains = [
                 set(['ARM', 'GCC_ARM']),
@@ -385,7 +385,7 @@ def transform_release_toolchains(target, version):
               RELEASE_VERSIONS
     """
     if int(target.build_tools_metadata["version"]) > 0:
-        if version in ['5', '6']:
+        if version == '5':
             toolchains = copy(target.supported_toolchains)
 
             if "ARM" in toolchains:
@@ -395,7 +395,7 @@ def transform_release_toolchains(target, version):
             return toolchains
         return target.supported_toolchains
     else:
-        if version in ['5', '6']:
+        if version == '5':
             return ['ARM', 'GCC_ARM', 'IAR']
         else:
             return target.supported_toolchains
