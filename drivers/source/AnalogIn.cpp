@@ -56,17 +56,17 @@ unsigned short AnalogIn::read_u16()
 
 float AnalogIn::read_voltage()
 {
-    return (this->read() * this->_vref);
+    return read() * _vref;
 }
 
 void AnalogIn::set_reference_voltage(float vref)
 {
-    this->_vref = vref;
+    _vref = vref;
 }
 
-float AnalogIn::get_reference_voltage(void)
+float AnalogIn::get_reference_voltage(void) const
 {
-    return this->_vref;
+    return _vref;
 }
 
 } // namespace mbed
