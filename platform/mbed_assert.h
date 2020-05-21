@@ -77,61 +77,47 @@ do {                                                     \
  *  The assertion acts as a declaration that can be placed at file scope, in a
  *  code block (except after a label), or as a member of a C++ class/struct/union.
  *
- *  @note
- *  Use of MBED_STATIC_ASSERT as a member of a struct/union is limited:
- *  - In C++, MBED_STATIC_ASSERT is valid in class/struct/union scope.
- *  - In C, MBED_STATIC_ASSERT is not valid in struct/union scope, and
- *    MBED_STRUCT_STATIC_ASSERT is provided as an alternative that is valid
- *    in C and C++ class/struct/union scope.
- *
  *  @code
- *  MBED_STATIC_ASSERT(MBED_LIBRARY_VERSION >= 120,
- *          "The mbed library must be at least version 120");
+ *  MBED_STATIC_ASSERT(MBED_MAJOR_VERSION  >= 6,
+ *          "The mbed-os library must be at least version 6.0.0");
  *
  *  int main() {
  *      MBED_STATIC_ASSERT(sizeof(int) >= sizeof(char),
  *              "An int must be larger than a char");
  *  }
  *  @endcode
+ *
+ *  @deprecated This feature is now no longer necessary with the minimum
+ *  supported language versions. It will be removed in a forthcoming release.
+ *  Use `static_assert` instead. For C this is provided by `<assert.h>`, and
+ *  for C++ it is a built-in keyword.
  */
-#if defined(__cplusplus) && (__cplusplus >= 201103L || __cpp_static_assert >= 200410L)
-#define MBED_STATIC_ASSERT(expr, msg) static_assert(expr, msg)
-#elif !defined(__cplusplus) && __STDC_VERSION__ >= 201112L
-#define MBED_STATIC_ASSERT(expr, msg) _Static_assert(expr, msg)
-#elif defined(__cplusplus) && defined(__GNUC__) && defined(__GXX_EXPERIMENTAL_CXX0X__) \
-    && (__GNUC__*100 + __GNUC_MINOR__) > 403L
-#define MBED_STATIC_ASSERT(expr, msg) __extension__ static_assert(expr, msg)
-#elif !defined(__cplusplus) && defined(__GNUC__) \
-    && (__GNUC__*100 + __GNUC_MINOR__) > 406L
-#define MBED_STATIC_ASSERT(expr, msg) __extension__ _Static_assert(expr, msg)
-#elif defined(__ICCARM__)
+#if defined(__cplusplus)
 #define MBED_STATIC_ASSERT(expr, msg) static_assert(expr, msg)
 #else
-#define MBED_STATIC_ASSERT(expr, msg) \
-    enum {MBED_CONCAT(MBED_ASSERTION_AT_, __LINE__) = sizeof(char[(expr) ? 1 : -1])}
+#define MBED_STATIC_ASSERT(expr, msg) _Static_assert(expr, msg)
 #endif
 
 /** MBED_STRUCT_STATIC_ASSERT
  *  Declare compile-time assertions, results in compile-time error if condition is false
  *
- *  Unlike MBED_STATIC_ASSERT, MBED_STRUCT_STATIC_ASSERT can and must be used
- *  as a member of a C/C++ class/struct/union.
+ *  Previous supported compiler languages would not allow static_assert to be
+ *  used within a struct or a class. This is no longer the case. This macro
+ *  exists for backwards compatibility.
  *
  *  @code
  *  struct thing {
- *      MBED_STATIC_ASSERT(2 + 2 == 4,
+ *      MBED_STRUCT_STATIC_ASSERT(2 + 2 == 4,
  *              "Hopefully the universe is mathematically consistent");
  *  };
  *  @endcode
+ *
+ *  @deprecated This feature is now no longer necessary with the minimum
+ *  supported language versions. It will be removed in a forthcoming release.
+ *  Use `static_assert` instead. For C this is provided by `<assert.h>`, and
+ *  for C++ it is a built-in keyword.
  */
-#if defined(__cplusplus) && (__cplusplus >= 201103L || __cpp_static_assert >= 200410L)
-#define MBED_STRUCT_STATIC_ASSERT(expr, msg) static_assert(expr, msg)
-#elif !defined(__cplusplus) && __STDC_VERSION__ >= 201112L
-#define MBED_STRUCT_STATIC_ASSERT(expr, msg) _Static_assert(expr, msg)
-#else
-#include <stdbool.h>
-#define MBED_STRUCT_STATIC_ASSERT(expr, msg) bool : (expr) ? 0 : -1
-#endif
+#define MBED_STRUCT_STATIC_ASSERT(expr, message) MBED_STATIC_ASSERT(expr, message)
 
 #endif
 
