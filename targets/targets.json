@@ -4799,7 +4799,8 @@
             "MBED_FAULT_HANDLER_DISABLED",
             "CMSIS_NVIC_VIRTUAL",
             "LPTICKER_DELAY_TICKS=3",
-            "MBED_MPU_CUSTOM"
+            "MBED_MPU_CUSTOM",
+            "BL2"
         ],
         "extra_labels_add": [
             "MUSCA_B1_NS",
