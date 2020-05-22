@@ -652,7 +652,7 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
 
     @abstractmethod
     def parse_output(self, output):
-        """Take in compiler output and extract sinlge line warnings and errors from it.
+        """Take in compiler output and extract single line warnings and errors from it.
 
         Positional arguments:
         output -- a string of all the messages emitted by a run of the compiler
