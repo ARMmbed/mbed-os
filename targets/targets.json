@@ -2363,7 +2363,6 @@
             "lpticker_delay_ticks": 0
         },
         "device_has_add": [
-            "ANALOGOUT",
             "SERIAL_ASYNCH",
             "FLASH",
             "MPU"
@@ -2379,6 +2378,9 @@
         ],
         "macros_add": [
             "STM32G071xx"
+        ],
+        "device_has_add": [
+            "ANALOGOUT"
         ]
     },
     "NUCLEO_G071RB": {
@@ -2400,6 +2402,21 @@
             "0221"
         ],
         "device_name": "STM32G071RBTx"
+    },
+    "NUCLEO_G031K8": {
+        "inherits": [
+            "MCU_STM32G0"
+        ],
+        "extra_labels_add": [
+            "STM32G031xx"
+        ],
+        "macros_add": [
+            "STM32G031xx"
+        ],
+        "detect_code": [
+            "0852"
+        ],
+        "device_name": "STM32G031K8Tx"
     },
     "MCU_STM32G4": {
         "inherits": [

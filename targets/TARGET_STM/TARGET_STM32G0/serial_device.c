@@ -19,6 +19,11 @@
 
 #define UART_NUM (5)
 
+// Retarget this IRQn symbol for chips without USART3/4
+#if defined(STM32G031xx)
+#define USART3_4_LPUART1_IRQn LPUART1_IRQn
+#endif
+
 
 uint32_t serial_irq_ids[UART_NUM] = {0};
 UART_HandleTypeDef uart_handlers[UART_NUM];
