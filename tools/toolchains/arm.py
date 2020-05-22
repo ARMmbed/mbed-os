@@ -32,6 +32,14 @@ from tools.toolchains.mbed_toolchain import (
 from tools.utils import mkdir, NotSupportedException, run_cmd
 from tools.resources import FileRef
 
+ARMC5_MIGRATION_WARNING = (
+    "Warning: We noticed that you are using Arm Compiler 5. "
+    "We are deprecating the use of Arm Compiler 5. "
+    "Please upgrade your environment to Arm Compiler 6 "
+    "which is free to use with Mbed OS. For more information, "
+    "please visit https://os.mbed.com/docs/mbed-os/latest/tools/index.html"
+)
+
 UARM_TOOLCHAIN_WARNING = (
     "Warning: We noticed that you are using uARM Toolchain either via --toolchain command line or default_toolchain option. "
     "We are deprecating the use of the uARM Toolchain. "

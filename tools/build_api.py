@@ -47,6 +47,7 @@ from .notifier.mock import MockNotifier
 from .targets import TARGET_NAMES, TARGET_MAP, CORE_ARCH, Target
 from .libraries import Library
 from .toolchains import TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
+from .toolchains.arm import ARMC5_MIGRATION_WARNING
 from .toolchains.arm import UARM_TOOLCHAIN_WARNING
 from .toolchains.mbed_toolchain import should_replace_small_c_lib
 from .config import Config
@@ -244,11 +245,9 @@ def find_valid_toolchain(target, toolchain):
             ).format(toolchain_name, search_path)
         else:            
             if toolchain_name == "ARMC5":
-                raise NotSupportedException(
-                    "Arm Compiler 5 is no longer supported, please upgrade to Arm Compiler 6."
-                )                
+                end_warnings.append(ARMC5_MIGRATION_WARNING)
             if (
-                toolchain_name in ["uARM", "ARMC6"] 
+                toolchain_name in ["uARM", "ARMC5", "ARMC6"] 
                 and "uARM" in {toolchain_name, target.default_toolchain}
             ):
                 end_warnings.append(UARM_TOOLCHAIN_WARNING)
