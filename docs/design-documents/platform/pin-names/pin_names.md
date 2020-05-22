@@ -44,7 +44,7 @@ To achieve meaningful portability of application code across various Mbed enable
 
 ### Arduino Uno (Rev3) Header Pins
 
-All Arduino Uno (Rev3) form factor Mbed controller boards should define D0-D15 & A0-A5 pins as a default standard.
+All Arduino Uno (Rev3) form factor Mbed controller boards should define D0-D15 & A0-A5 pins as a default standard. "ARDUINO" should also be added as a 'supported-form-factors' in the targets.json file.
 
     // Arduino Uno (Rev3) header pin connection naming  
     // Px_xx relates to the processor pin connected to the Arduino Uno (Rev3) header pin
@@ -153,6 +153,8 @@ All SPI definitions for a new connector should be defined as follows:
 ### Board Components Pins
 
 **LED Definition**
+
+LEDs on the board should be numbered as shown below. Such numbered LED pin names should be assigned a unique processor pin. They can also be defined as aliases to other LED pin names. 
 
 All LED definitions should be defined as follows:
 
