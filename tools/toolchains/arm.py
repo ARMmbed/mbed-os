@@ -33,8 +33,7 @@ from tools.utils import mkdir, NotSupportedException, run_cmd
 from tools.resources import FileRef
 
 ARMC5_MIGRATION_WARNING = (
-    "Warning: We noticed that you are using Arm Compiler 5. "
-    "We are deprecating the use of Arm Compiler 5. "
+    "Warning: Arm Compiler 5 is no longer supported as of Mbed 6. "
     "Please upgrade your environment to Arm Compiler 6 "
     "which is free to use with Mbed OS. For more information, "
     "please visit https://os.mbed.com/docs/mbed-os/latest/tools/index.html"
