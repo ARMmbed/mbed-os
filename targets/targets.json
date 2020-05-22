@@ -2894,7 +2894,7 @@
             "GENERIC_H745I"
         ]
     },
-    "DISCO_H747I": {
+    "DISCO_H747I_CM7": {
         "inherits": [
             "MCU_STM32"
         ],
@@ -2910,7 +2910,8 @@
         "extra_labels_add": [
             "STM32H7",
             "STM32H747xI",
-            "DISCO_H747I_CM7",
+            "STM32H747xI_CM7",
+            "DISCO_H747I",
             "MT25QL512"
         ],
         "config": {
@@ -2953,9 +2954,9 @@
         "device_name": "STM32H747XIHx",
         "bootloader_supported": true
     },
-    "DISCO_H747I_CM7": {
+    "DISCO_H747I": {
         "inherits": [
-            "DISCO_H747I"
+            "DISCO_H747I_CM7"
         ]
     },
     "DISCO_H747I_CM4": {
@@ -2966,6 +2967,7 @@
         "extra_labels_add": [
             "STM32H7",
             "STM32H747xI",
+            "STM32H747xI_CM4",
             "DISCO_H747I",
             "MT25QL512"
         ],
