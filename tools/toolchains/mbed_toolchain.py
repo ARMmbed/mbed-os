@@ -778,14 +778,15 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
             self.link(elf, objects, libraries, lib_dirs, linker_script)
 
         if self.config.has_regions:
-            filename = "{}_application.{}".format(tail, ext)
+            stem = join(new_path, "{}_application".format(tail))
         else:
-            filename = "{}.{}".format(tail, ext)
-        full_path = join(new_path, filename)
+            stem = join(new_path, tail)
+        full_path = "{}.{}".format(stem, ext)
         if ext != 'elf':
             if full_path and self.need_update(full_path, [elf]):
                 self.progress("elf2bin", tail)
-                self.binary(r, elf, full_path)
+                self.binary(r, elf, "{}.{}".format(stem, 'bin'))
+                self.binary(r, elf, "{}.{}".format(stem, 'hex'))
             if self.config.has_regions:
                 full_path, updatable = self._do_region_merge(
                     tail, full_path, ext
