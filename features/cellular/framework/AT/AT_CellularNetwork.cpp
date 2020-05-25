@@ -122,7 +122,6 @@ void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
     read_reg_params(type, reg_params);
 
     if (_at.get_last_error() == NSAPI_ERROR_OK && _connection_status_cb) {
-        _reg_params._type = type;
         cell_callback_data_t data;
         data.error = NSAPI_ERROR_OK;
         if (reg_params._act != _reg_params._act) {
@@ -130,7 +129,7 @@ void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
             data.status_data = reg_params._act;
             _connection_status_cb((nsapi_event_t)CellularRadioAccessTechnologyChanged, (intptr_t)&data);
         }
-        if (reg_params._status != _reg_params._status) {
+        if (reg_params._status != _reg_params._status || type != _reg_params._type) {
             RegistrationStatus previous_registration_status = _reg_params._status;
             _reg_params._status = reg_params._status;
             data.status_data = reg_params._status;
@@ -150,6 +149,7 @@ void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
             data.status_data = reg_params._cell_id;
             _connection_status_cb((nsapi_event_t)CellularCellIDChanged, (intptr_t)&data);
         }
+        _reg_params._type = type;
     }
 }
 
