@@ -2,6 +2,7 @@
 ^cmsis
 ^features/cryptocell
 ^features/FEATURE_BLE
+^features/FEATURE_EXPERIMENTAL_API/TARGET_MBED_PSA_SRV
 ^features/FEATURE_EXPERIMENTAL_API/TARGET_PSA/TARGET_MBED_PSA_SRV/services/attestation/attestation.h
 ^features/FEATURE_EXPERIMENTAL_API/TARGET_PSA/TARGET_MBED_PSA_SRV/services/attestation/COMPONENT_PSA_SRV_IMPL/tfm_impl
 ^features/FEATURE_EXPERIMENTAL_API/TARGET_PSA/TARGET_MBED_PSA_SRV/services/attestation/qcbor

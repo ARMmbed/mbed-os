@@ -32,10 +32,11 @@ MBED_TLS_REPO_URL ?= git@github.com:ARMmbed/mbedtls.git
 
 # Translate between mbed TLS namespace and mbed namespace
 TARGET_PREFIX:=../
+TARGET_EXPERIMENTAL:=../../FEATURE_EXPERIMENTAL_API/
 TARGET_SRC:=$(TARGET_PREFIX)src
 TARGET_INC:=$(TARGET_PREFIX)inc
-TARGET_PSA:=$(TARGET_PREFIX)TARGET_MBED_PSA_SRV
-TARGET_PSA_INC:=$(TARGET_PREFIX)TARGET_MBED_PSA_SRV/inc
+TARGET_PSA:=$(TARGET_EXPERIMENTAL)TARGET_MBED_PSA_SRV
+TARGET_PSA_INC:=$(TARGET_PSA)/inc
 TARGET_TESTS:=$(TARGET_PREFIX)TESTS
 
 # A folder structure is introduced here for targets that have both a Secure
