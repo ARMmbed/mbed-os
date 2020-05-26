@@ -6558,7 +6558,34 @@
         "macros_add": [
             "CONFIG_GPIO_AS_PINRESET"
         ]
-},
+    },
+    "S1SBP6A": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4F",
+        "supported_toolchains": [
+            "GCC_ARM",
+            "ARMC6"
+        ],
+        "default_toolchain": "GCC_ARM",
+        "extra_labels": [
+            "Samsung",
+            "SIDK_S1SBP6A"
+        ],
+        "device_has": [
+            "USTICKER",
+            "INTERRUPTIN",
+            "SERIAL",
+            "MPU",
+            "SPI",
+            "I2C",
+            "RTC",
+            "FLASH",
+            "SLEEP",
+            "WATCHDOG"
+        ],
+        "release_versions": ["5"],
+        "detect_code": ["3703"]
+    },
     "__build_tools_metadata__": {
         "version": "1",
         "public": false
