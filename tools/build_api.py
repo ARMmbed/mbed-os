@@ -416,15 +416,6 @@ def get_mbed_official_release(version, profile=None):
     version - The version string. Should be a string contained within
               RELEASE_VERSIONS
     """
-
-    # we ignore version for Mbed 6 as all targets in targets.json file are being supported
-    # if someone passes 2, we return empty tuple, if 5, we keep the behavior the same as 
-    # release version is deprecated and all targets are being supported that are present
-    # in targets.json file
-
-    if version == '2':
-        return tuple(tuple([]))
-
     mbed_official_release = (
         tuple(
             tuple(
@@ -433,10 +424,17 @@ def get_mbed_official_release(version, profile=None):
                     tuple(transform_release_toolchains(
                         TARGET_MAP[target], version))
                 ]
-            ) for target in TARGET_NAMES \
-                if not profile or profile in TARGET_MAP[target].supported_application_profiles
+            ) for target in TARGET_NAMES
+            if (hasattr(TARGET_MAP[target], 'release_versions')
+                and version in TARGET_MAP[target].release_versions)
         )
     )
+
+    for target in mbed_official_release:
+        is_official, reason = is_official_target(target[0], version)
+
+        if not is_official:
+            raise InvalidReleaseTargetException(reason)
 
     return mbed_official_release
 
