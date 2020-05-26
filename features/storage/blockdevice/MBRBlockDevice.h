@@ -52,7 +52,9 @@ public:
      *
      *  @param bd       Block device to partition
      *  @param part     Partition to use, 1-4
-     *  @param type     8-bit partition type to identify partition contents
+     *  @param type     8-bit partition type to specify the filesystem to use in this partition.
+     *                  It can be found in the filesystem documentation or refer to
+     *                  https://en.wikipedia.org/wiki/Partition_type#List_of_partition_IDs
      *  @param start    Start block address to map to block 0 of partition.
      *                  Negative addresses are calculated from the end of the
      *                  underlying block devices. Block 0 is implicitly ignored
@@ -66,7 +68,9 @@ public:
      *
      *  @param bd       Block device to partition
      *  @param part     Partition to use, 1-4
-     *  @param type     8-bit partition type to identify partition contents
+     *  @param type     8-bit partition type to specify the filesystem to use in this partition.
+     *                  It can be found in the filesystem documentation or refer to
+     *                  https://en.wikipedia.org/wiki/Partition_type#List_of_partition_IDs
      *  @param start    Start block address to map to block 0 of partition,
      *                  negative addresses are calculated from the end of the
      *                  underlying block devices. Block 0 is implicitly ignored
