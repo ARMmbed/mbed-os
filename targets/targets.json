@@ -4661,6 +4661,9 @@
             "ARM_SSG",
             "MUSCA_A1"
         ],
+        "features_add": [
+            "EXPERIMENTAL_API"
+        ],
         "forced_reset_timeout": 7,
         "release_versions": [
             "5"
@@ -4717,6 +4720,9 @@
         "extra_labels": [
             "ARM_SSG",
             "MUSCA_B1"
+        ],
+        "features_add": [
+            "EXPERIMENTAL_API"
         ],
         "forced_reset_timeout": 20,
         "release_versions": [
