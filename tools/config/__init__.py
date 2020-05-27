@@ -1338,7 +1338,7 @@ class Config(object):
         self.cumulative_overrides['features']\
             .update_target(self.target)
 
-       return self.target.features
+        return self.target.features
 
     def validate_config(self):
         """ Validate configuration settings. This either returns True or
