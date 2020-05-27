@@ -1348,7 +1348,7 @@ class Config(object):
         for feature in self.target.features:
             if feature not in ALLOWED_FEATURES:
                 raise ConfigException(
-                    "Feature '%s' is not a supported features" % feature)
+                    "Feature '%s' is not a supported feature" % feature)
 
         return self.target.features
 
