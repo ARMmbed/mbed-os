@@ -19,7 +19,7 @@ val_status_t mbed_val_print(print_verbosity_t verbosity, const char *string, uin
 val_status_t mbed_val_get_secure_test_result(psa_handle_t *handle);
 val_status_t mbed_val_ipc_connect(uint32_t sid, uint32_t minor_version, psa_handle_t *handle);
 val_status_t mbed_val_ipc_call(psa_handle_t handle, psa_invec *in_vec, size_t in_len,
-                          psa_outvec *out_vec, size_t out_len);
+                               psa_outvec *out_vec, size_t out_len);
 void mbed_val_ipc_close(psa_handle_t handle);
 val_status_t mbed_val_wd_reprogram_timer(wd_timeout_type_t timeout_type);
 

@@ -76,10 +76,10 @@ psa_handle_t pal_ipc_connect(uint32_t sid, uint32_t minor_version)
  */
 
 psa_status_t pal_ipc_call(psa_handle_t handle,
-                         const psa_invec *in_vec,
-                         size_t in_len,
-                         psa_outvec *out_vec,
-                         size_t out_len)
+                          const psa_invec *in_vec,
+                          size_t in_len,
+                          psa_outvec *out_vec,
+                          size_t out_len)
 {
     return (psa_call(handle, in_vec, in_len, out_vec, out_len));
 }

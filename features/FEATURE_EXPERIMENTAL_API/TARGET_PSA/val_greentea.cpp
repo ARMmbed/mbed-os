@@ -5,7 +5,9 @@
 void pal_mbed_os_compliance_test_initialize(void);
 void pal_mbed_os_compliance_test_destroy(void);
 
+#ifdef __cplusplus
 extern "C" {
+#endif
 
 
 
@@ -31,12 +33,9 @@ void mbed_val_test_exit(void)
     uint32_t status = mbed_val_get_status();
     pal_mbed_os_compliance_test_destroy();
     /* return if test skipped or failed */
-    if (IS_TEST_FAIL(status) || IS_TEST_SKIP(status))
-    {
+    if (IS_TEST_FAIL(status) || IS_TEST_SKIP(status)) {
         GREENTEA_TESTSUITE_RESULT(false);
-    }
-    else
-    {
+    } else {
         GREENTEA_TESTSUITE_RESULT(true);
         mbed_val_set_status(RESULT_END(VAL_STATUS_SUCCESS));
     }
@@ -51,7 +50,7 @@ void mbed_val_test_exit(void)
 @return   - val_status_t
 **/
 val_status_t mbed_val_execute_non_secure_tests(uint32_t test_num, client_test_t *tests_list,
-                                            bool_t server_hs)
+                                               bool_t server_hs)
 {
     val_status_t status = VAL_STATUS_SUCCESS;
     int32_t test_status = VAL_STATUS_SUCCESS;
@@ -64,25 +63,20 @@ val_status_t mbed_val_execute_non_secure_tests(uint32_t test_num, client_test_t 
     test_info.test_num = test_num;
 
     mbed_val_print(PRINT_TEST, "[Info] Executing tests from non-secure\n", 0);
-    while (tests_list[i] != NULL)
-    {
+    while (tests_list[i] != NULL) {
         memset(testcase_name, 0, 100);
         sprintf(testcase_name, "Check%" PRIu32, i);
         GREENTEA_TESTCASE_START(testcase_name);
-        if (server_hs == TRUE)
-        {
+        if (server_hs == TRUE) {
             /* Handshake with server tests */
             test_info.block_num = i;
             status = mbed_val_execute_secure_test_func(&handle, test_info,
-                                                    SERVER_TEST_DISPATCHER_SID);
-            if (VAL_ERROR(status))
-            {
+                                                       SERVER_TEST_DISPATCHER_SID);
+            if (VAL_ERROR(status)) {
                 mbed_val_set_status(RESULT_FAIL(status));
                 mbed_val_print(PRINT_ERROR, "[Check%d] START\n", i);
                 return status;
-            }
-            else
-            {
+            } else {
                 mbed_val_print(PRINT_DEBUG, "[Check%d] START\n", i);
             }
         }
@@ -90,42 +84,36 @@ val_status_t mbed_val_execute_non_secure_tests(uint32_t test_num, client_test_t 
         /* Execute client tests */
         test_status = tests_list[i](CALLER_NONSECURE);
 
-        if (server_hs == TRUE)
-        {
+        if (server_hs == TRUE) {
             /* Retrive Server test status */
             status = mbed_val_get_secure_test_result(&handle);
         }
 
-        if (test_status != VAL_STATUS_SUCCESS)
-        {
+        if (test_status != VAL_STATUS_SUCCESS) {
             status = VAL_STATUS_ERROR;
         }
 
-        if (IS_TEST_SKIP(status))
-        {
+        if (IS_TEST_SKIP(status)) {
             mbed_val_set_status(status);
             mbed_val_print(PRINT_DEBUG, "[Check%d] SKIPPED\n", i);
             GREENTEA_TESTCASE_FINISH(testcase_name, 1, 0);
             continue_test = false;
-        }
-        else if (VAL_ERROR(status))
-        {
+        } else if (VAL_ERROR(status)) {
             mbed_val_set_status(RESULT_FAIL(status));
-            if (server_hs == TRUE)
+            if (server_hs == TRUE) {
                 mbed_val_print(PRINT_ERROR, "[Check%d] FAILED\n", i);
+            }
             GREENTEA_TESTCASE_FINISH(testcase_name, 0, 1);
             continue_test = false;
-        }
-        else
-        {
-            if (server_hs == TRUE)
+        } else {
+            if (server_hs == TRUE) {
                 mbed_val_print(PRINT_DEBUG, "[Check%d] PASSED\n", i);
+            }
             GREENTEA_TESTCASE_FINISH(testcase_name, 1, 0);
             continue_test = true;
         }
 
-        if (!continue_test)
-        {
+        if (!continue_test) {
             return status;
         }
 
@@ -172,8 +160,7 @@ val_status_t mbed_val_execute_secure_test_func(psa_handle_t *handle, test_info_t
     psa_status_t status_of_call = PSA_SUCCESS;
 
     *handle = pal_ipc_connect(sid, 0);
-    if (*handle < 0)
-    {
+    if (*handle < 0) {
         mbed_val_print(PRINT_ERROR, "Could not connect SID. Handle=%x\n", *handle);
         return VAL_STATUS_CONNECTION_FAILED;
     }
@@ -182,8 +169,7 @@ val_status_t mbed_val_execute_secure_test_func(psa_handle_t *handle, test_info_t
     psa_invec data[1] = {{&test_data, sizeof(test_data)}};
 
     status_of_call = pal_ipc_call(*handle, data, 1, NULL, 0);
-    if (status_of_call != PSA_SUCCESS)
-    {
+    if (status_of_call != PSA_SUCCESS) {
         status = VAL_STATUS_CALL_FAILED;
         mbed_val_print(PRINT_ERROR, "Call to dispatch SF failed. Status=%x\n", status_of_call);
         pal_ipc_close(*handle);
@@ -229,8 +215,7 @@ val_status_t mbed_val_get_secure_test_result(psa_handle_t *handle)
     psa_invec data[1] = {{&test_data, sizeof(test_data)}};
 
     status_of_call = pal_ipc_call(*handle, data, 1, &resp, 1);
-    if (status_of_call != PSA_SUCCESS)
-    {
+    if (status_of_call != PSA_SUCCESS) {
         status = VAL_STATUS_CALL_FAILED;
         mbed_val_print(PRINT_ERROR, "Call to dispatch SF failed. Status=%x\n", status_of_call);
     }
@@ -246,12 +231,11 @@ val_status_t mbed_val_get_secure_test_result(psa_handle_t *handle)
    @param  -handle - return connection handle
  * @return val_status_t
  */
-val_status_t mbed_val_ipc_connect(uint32_t sid, uint32_t minor_version, psa_handle_t *handle )
+val_status_t mbed_val_ipc_connect(uint32_t sid, uint32_t minor_version, psa_handle_t *handle)
 {
     *handle = pal_ipc_connect(sid, minor_version);
 
-    if (*handle < 0)
-    {
+    if (*handle < 0) {
         return VAL_STATUS_CONNECTION_FAILED;
     }
 
@@ -270,14 +254,13 @@ val_status_t mbed_val_ipc_connect(uint32_t sid, uint32_t minor_version, psa_hand
  * @return val_status_t
  */
 val_status_t mbed_val_ipc_call(psa_handle_t handle, psa_invec *in_vec, size_t in_len,
-                          psa_outvec *out_vec, size_t out_len)
+                               psa_outvec *out_vec, size_t out_len)
 {
     psa_status_t call_status = PSA_SUCCESS;
 
     call_status = pal_ipc_call(handle, in_vec, in_len, out_vec, out_len);
 
-    if (call_status != PSA_SUCCESS)
-    {
+    if (call_status != PSA_SUCCESS) {
         return VAL_STATUS_CALL_FAILED;
     }
 
@@ -309,7 +292,7 @@ val_status_t mbed_val_wd_reprogram_timer(wd_timeout_type_t timeout_type)
     return VAL_STATUS_SUCCESS;
 }
 
-
+#ifdef __cplusplus
 } // extern "C"
-
+#endif
 

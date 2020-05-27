@@ -29,22 +29,21 @@ int32_t pal_attestation_function(int type, va_list valist)
     uint8_t     *challenge, *token;
     uint32_t    challenge_size, *token_size, verify_token_size;
 
-    switch (type)
-    {
+    switch (type) {
         case PAL_INITIAL_ATTEST_GET_TOKEN:
-            challenge = va_arg(valist, uint8_t*);
+            challenge = va_arg(valist, uint8_t *);
             challenge_size = va_arg(valist, uint32_t);
-            token = va_arg(valist, uint8_t*);
-            token_size = va_arg(valist, uint32_t*);
+            token = va_arg(valist, uint8_t *);
+            token_size = va_arg(valist, uint32_t *);
             return psa_initial_attest_get_token(challenge, challenge_size, token, token_size);
         case PAL_INITIAL_ATTEST_GET_TOKEN_SIZE:
             challenge_size = va_arg(valist, uint32_t);
-            token_size = va_arg(valist, uint32_t*);
+            token_size = va_arg(valist, uint32_t *);
             return psa_initial_attest_get_token_size(challenge_size, token_size);
         case PAL_INITIAL_ATTEST_VERIFY_TOKEN:
-            challenge = va_arg(valist, uint8_t*);
+            challenge = va_arg(valist, uint8_t *);
             challenge_size = va_arg(valist, uint32_t);
-            token = va_arg(valist, uint8_t*);
+            token = va_arg(valist, uint8_t *);
             verify_token_size = va_arg(valist, uint32_t);
             return pal_initial_attest_verify_token(challenge, challenge_size,
                                                    token, verify_token_size);

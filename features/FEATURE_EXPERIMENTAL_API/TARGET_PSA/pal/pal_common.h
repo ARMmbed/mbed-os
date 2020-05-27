@@ -41,8 +41,7 @@ typedef uint32_t            cfg_id_t;
 
 #define PAL_STATUS_UNSUPPORTED_FUNC      0xFF
 
-typedef enum
-{
+typedef enum {
     PAL_STATUS_SUCCESS = 0x0,
     PAL_STATUS_ERROR   = 0x80
 } pal_status_t;

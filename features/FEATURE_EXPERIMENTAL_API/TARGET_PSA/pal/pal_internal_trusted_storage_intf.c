@@ -40,52 +40,51 @@ uint32_t pal_its_function(int type, va_list valist)
      */
     size_t actual_size;
 
-    switch (type)
-    {
-    case PAL_ITS_SET:
-        uid = va_arg(valist, psa_storage_uid_t);
-        data_length = va_arg(valist, uint32_t);
-        p_write_data = va_arg(valist, const void*);
-        its_create_flags = va_arg(valist, psa_storage_create_flags_t);
-        return psa_its_set(uid, data_length, p_write_data, its_create_flags);
-    case PAL_ITS_GET:
-        uid = va_arg(valist, psa_storage_uid_t);
-        offset = va_arg(valist, uint32_t);
-        data_length = va_arg(valist, uint32_t);
-        p_read_data = va_arg(valist, void*);
-        /* TODO: Actual size argument is currently not supported by the testing framework.
-         * Changes need to be implemented in the actual tests.
-         * Should be fixed by the next import of the tests.
-         */
-        return psa_its_get(uid, offset, data_length, p_read_data, &actual_size);
-    case PAL_ITS_GET_INFO:
-        uid = va_arg(valist, psa_storage_uid_t);
-        its_p_info = va_arg(valist, struct psa_its_info_t*);
-        return psa_its_get_info(uid, (struct psa_storage_info_t *)its_p_info);
-    case PAL_ITS_REMOVE:
-        uid = va_arg(valist, psa_storage_uid_t);
-        return psa_its_remove(uid);
-    /* case PAL_PS_SET: */
-    /*     uid = va_arg(valist, uint32_t); */
-    /*     data_length = va_arg(valist, uint32_t); */
-    /*     p_write_data = va_arg(valist, const void*); */
-    /*     ps_create_flags = va_arg(valist, psa_ps_create_flags_t); */
-    /*     return psa_ps_set(uid, data_length, p_write_data, ps_create_flags); */
-    /* case PAL_PS_GET: */
-    /*     uid = va_arg(valist, uint32_t); */
-    /*     offset = va_arg(valist, uint32_t); */
-    /*     data_length = va_arg(valist, uint32_t); */
-    /*     p_read_data = va_arg(valist, void*); */
-    /*     return psa_ps_get(uid, offset, data_length, p_read_data); */
-    /* case PAL_PS_GET_INFO: */
-    /*     uid = va_arg(valist, uint32_t); */
-    /*     ps_p_info = va_arg(valist, struct psa_eps_info_t*); */
-    /*     return psa_ps_get_info(uid, ps_p_info); */
-    /* case PAL_PS_REMOVE: */
-    /*     uid = va_arg(valist, uint32_t); */
-    /*     return psa_ps_remove(uid); */
-    default:
-        return PAL_STATUS_UNSUPPORTED_FUNC;
+    switch (type) {
+        case PAL_ITS_SET:
+            uid = va_arg(valist, psa_storage_uid_t);
+            data_length = va_arg(valist, uint32_t);
+            p_write_data = va_arg(valist, const void *);
+            its_create_flags = va_arg(valist, psa_storage_create_flags_t);
+            return psa_its_set(uid, data_length, p_write_data, its_create_flags);
+        case PAL_ITS_GET:
+            uid = va_arg(valist, psa_storage_uid_t);
+            offset = va_arg(valist, uint32_t);
+            data_length = va_arg(valist, uint32_t);
+            p_read_data = va_arg(valist, void *);
+            /* TODO: Actual size argument is currently not supported by the testing framework.
+             * Changes need to be implemented in the actual tests.
+             * Should be fixed by the next import of the tests.
+             */
+            return psa_its_get(uid, offset, data_length, p_read_data, &actual_size);
+        case PAL_ITS_GET_INFO:
+            uid = va_arg(valist, psa_storage_uid_t);
+            its_p_info = va_arg(valist, struct psa_its_info_t *);
+            return psa_its_get_info(uid, (struct psa_storage_info_t *)its_p_info);
+        case PAL_ITS_REMOVE:
+            uid = va_arg(valist, psa_storage_uid_t);
+            return psa_its_remove(uid);
+        /* case PAL_PS_SET: */
+        /*     uid = va_arg(valist, uint32_t); */
+        /*     data_length = va_arg(valist, uint32_t); */
+        /*     p_write_data = va_arg(valist, const void*); */
+        /*     ps_create_flags = va_arg(valist, psa_ps_create_flags_t); */
+        /*     return psa_ps_set(uid, data_length, p_write_data, ps_create_flags); */
+        /* case PAL_PS_GET: */
+        /*     uid = va_arg(valist, uint32_t); */
+        /*     offset = va_arg(valist, uint32_t); */
+        /*     data_length = va_arg(valist, uint32_t); */
+        /*     p_read_data = va_arg(valist, void*); */
+        /*     return psa_ps_get(uid, offset, data_length, p_read_data); */
+        /* case PAL_PS_GET_INFO: */
+        /*     uid = va_arg(valist, uint32_t); */
+        /*     ps_p_info = va_arg(valist, struct psa_eps_info_t*); */
+        /*     return psa_ps_get_info(uid, ps_p_info); */
+        /* case PAL_PS_REMOVE: */
+        /*     uid = va_arg(valist, uint32_t); */
+        /*     return psa_ps_remove(uid); */
+        default:
+            return PAL_STATUS_UNSUPPORTED_FUNC;
     }
 #else
     return PAL_STATUS_ERROR;

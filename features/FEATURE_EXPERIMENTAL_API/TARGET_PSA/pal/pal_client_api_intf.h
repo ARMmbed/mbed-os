@@ -65,9 +65,9 @@ uint32_t pal_ipc_framework_version(void);
 uint32_t pal_ipc_version(uint32_t sid);
 psa_handle_t pal_ipc_connect(uint32_t sid, uint32_t minor_version);
 psa_status_t pal_ipc_call(psa_handle_t handle,
-                      const psa_invec *in_vec,
-                      size_t in_len,
-                      psa_outvec *out_vec,
-                      size_t out_len);
+                          const psa_invec *in_vec,
+                          size_t in_len,
+                          psa_outvec *out_vec,
+                          size_t out_len);
 void pal_ipc_close(psa_handle_t handle);
 #endif /* _PAL_CLIENT_API_H_ */

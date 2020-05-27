@@ -72,10 +72,10 @@ psa_handle_t pal_ipc_connect(uint32_t sid, uint32_t minor_version);
  */
 
 psa_status_t pal_ipc_call(psa_handle_t handle,
-                         const psa_invec *in_vec,
-                         size_t in_len,
-                         psa_outvec *out_vec,
-                         size_t out_len);
+                          const psa_invec *in_vec,
+                          size_t in_len,
+                          psa_outvec *out_vec,
+                          size_t out_len);
 
 /**
  * @brief - Close a connection to a Root of Trust Service.

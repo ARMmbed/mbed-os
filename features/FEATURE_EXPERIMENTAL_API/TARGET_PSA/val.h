@@ -82,7 +82,7 @@
 
 
 /* Test Defines */
-#define TEST_PUBLISH(test_id, entry) 
+#define TEST_PUBLISH(test_id, entry)
 
 #define VAL_MAX_TEST_PER_COMP                200
 #define VAL_FF_BASE                            0
@@ -197,36 +197,36 @@ typedef enum {
 
 /* enums to report test sub-state */
 typedef enum {
-  VAL_STATUS_SUCCESS                     = 0x0,
-  VAL_STATUS_INVALID                     = 0x10,
-  VAL_STATUS_ERROR                       = 0x11,
-  VAL_STATUS_NOT_FOUND                   = 0x12,
-  VAL_STATUS_LOAD_ERROR                  = 0x13,
-  VAL_STATUS_INSUFFICIENT_SIZE           = 0x14,
-  VAL_STATUS_CONNECTION_FAILED           = 0x15,
-  VAL_STATUS_CALL_FAILED                 = 0x16,
-  VAL_STATUS_READ_FAILED                 = 0x17,
-  VAL_STATUS_WRITE_FAILED                = 0x18,
-  VAL_STATUS_ISOLATION_LEVEL_NOT_SUPP    = 0x19,
-  VAL_STATUS_INIT_FAILED                 = 0x1A,
-  VAL_STATUS_SPM_FAILED                  = 0x1B,
-  VAL_STATUS_SPM_UNEXPECTED_BEH          = 0x1C,
-  VAL_STATUS_FRAMEWORK_VERSION_FAILED    = 0x1D,
-  VAL_STATUS_VERSION_API_FAILED          = 0x1E,
-  VAL_STATUS_INVALID_HANDLE              = 0x1F,
-  VAL_STATUS_INVALID_MSG_TYPE            = 0x20,
-  VAL_STATUS_WRONG_IDENTITY              = 0x21,
-  VAL_STATUS_MSG_INSIZE_FAILED           = 0x22,
-  VAL_STATUS_MSG_OUTSIZE_FAILED          = 0x23,
-  VAL_STATUS_SKIP_FAILED                 = 0x24,
-  VAL_STATUS_CRYPTO_FAILURE              = 0x25,
-  VAL_STATUS_INVALID_SIZE                = 0x26,
-  VAL_STATUS_DATA_MISMATCH               = 0x27,
-  VAL_STATUS_BOOT_EXPECTED_BUT_FAILED    = 0x28,
-  VAL_STATUS_INIT_ALREADY_DONE           = 0x29,
-  VAL_STATUS_HEAP_NOT_AVAILABLE          = 0x2A,
-  VAL_STATUS_UNSUPPORTED                 = 0x2B,
-  VAL_STATUS_ERROR_MAX                   = INT_MAX,
+    VAL_STATUS_SUCCESS                     = 0x0,
+    VAL_STATUS_INVALID                     = 0x10,
+    VAL_STATUS_ERROR                       = 0x11,
+    VAL_STATUS_NOT_FOUND                   = 0x12,
+    VAL_STATUS_LOAD_ERROR                  = 0x13,
+    VAL_STATUS_INSUFFICIENT_SIZE           = 0x14,
+    VAL_STATUS_CONNECTION_FAILED           = 0x15,
+    VAL_STATUS_CALL_FAILED                 = 0x16,
+    VAL_STATUS_READ_FAILED                 = 0x17,
+    VAL_STATUS_WRITE_FAILED                = 0x18,
+    VAL_STATUS_ISOLATION_LEVEL_NOT_SUPP    = 0x19,
+    VAL_STATUS_INIT_FAILED                 = 0x1A,
+    VAL_STATUS_SPM_FAILED                  = 0x1B,
+    VAL_STATUS_SPM_UNEXPECTED_BEH          = 0x1C,
+    VAL_STATUS_FRAMEWORK_VERSION_FAILED    = 0x1D,
+    VAL_STATUS_VERSION_API_FAILED          = 0x1E,
+    VAL_STATUS_INVALID_HANDLE              = 0x1F,
+    VAL_STATUS_INVALID_MSG_TYPE            = 0x20,
+    VAL_STATUS_WRONG_IDENTITY              = 0x21,
+    VAL_STATUS_MSG_INSIZE_FAILED           = 0x22,
+    VAL_STATUS_MSG_OUTSIZE_FAILED          = 0x23,
+    VAL_STATUS_SKIP_FAILED                 = 0x24,
+    VAL_STATUS_CRYPTO_FAILURE              = 0x25,
+    VAL_STATUS_INVALID_SIZE                = 0x26,
+    VAL_STATUS_DATA_MISMATCH               = 0x27,
+    VAL_STATUS_BOOT_EXPECTED_BUT_FAILED    = 0x28,
+    VAL_STATUS_INIT_ALREADY_DONE           = 0x29,
+    VAL_STATUS_HEAP_NOT_AVAILABLE          = 0x2A,
+    VAL_STATUS_UNSUPPORTED                 = 0x2B,
+    VAL_STATUS_ERROR_MAX                   = INT_MAX,
 } val_status_t;
 
 /* verbosity enums */
@@ -253,10 +253,10 @@ typedef struct {
 } boot_t;
 
 typedef struct {
-    uint32_t pass_cnt:8;
-    uint32_t skip_cnt:8;
-    uint32_t fail_cnt:8;
-    uint32_t sim_error_cnt:8;
+    uint32_t pass_cnt: 8;
+    uint32_t skip_cnt: 8;
+    uint32_t fail_cnt: 8;
+    uint32_t sim_error_cnt: 8;
 } test_count_t;
 
 typedef struct {

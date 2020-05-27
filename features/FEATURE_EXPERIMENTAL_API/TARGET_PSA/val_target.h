@@ -46,46 +46,46 @@
    MAJOR IDs
 */
 typedef enum _GROUP_CONFIG_ID_ {
-  GROUP_SOC_PERIPHERAL      = 0x1,
-  GROUP_MEMORY              = 0x2,
-  GROUP_MISCELLANEOUS       = 0x3,
-  GROUP_MAX                 = 0xFF,
+    GROUP_SOC_PERIPHERAL      = 0x1,
+    GROUP_MEMORY              = 0x2,
+    GROUP_MISCELLANEOUS       = 0x3,
+    GROUP_MAX                 = 0xFF,
 } group_cfg_id_t;
 
 /*
    MINOR IDs
  */
 typedef enum _SOC_PERIPHERAL_CONFIG_ID_ {
-  SOC_PERIPHERAL_UART = 0x1,
-  SOC_PERIPHERAL_TIMER = 0x2,
-  SOC_PERIPHERAL_WATCHDOG = 0x3,
+    SOC_PERIPHERAL_UART = 0x1,
+    SOC_PERIPHERAL_TIMER = 0x2,
+    SOC_PERIPHERAL_WATCHDOG = 0x3,
 } soc_peripheral_cfg_id_t;
 
 typedef enum _MEMORY_CONFIG_ID_ {
-  MEMORY_NVMEM                    = 0x2,
-  MEMORY_NSPE_MMIO                = 0x3,
-  MEMORY_CLIENT_PARTITION_MMIO    = 0x4,
-  MEMORY_DRIVER_PARTITION_MMIO    = 0x5,
+    MEMORY_NVMEM                    = 0x2,
+    MEMORY_NSPE_MMIO                = 0x3,
+    MEMORY_CLIENT_PARTITION_MMIO    = 0x4,
+    MEMORY_DRIVER_PARTITION_MMIO    = 0x5,
 } memory_cfg_id_t;
 
 typedef enum _MISCELLANEOUS_CONFIG_ID_ {
-  MISCELLANEOUS_BOOT         = 0x1,
-  MISCELLANEOUS_DUT          = 0x2
+    MISCELLANEOUS_BOOT         = 0x1,
+    MISCELLANEOUS_DUT          = 0x2
 } miscellaneous_cfg_id_t;
 
 /**
   Assign group type to each system component
 **/
-typedef enum _COMPONENT_GROUPING_{
-  UART                     = GROUP_SOC_PERIPHERAL,
-  TIMER                    = GROUP_SOC_PERIPHERAL,
-  WATCHDOG                 = GROUP_SOC_PERIPHERAL,
-  NVMEM                    = GROUP_MEMORY,
-  NSPE_MMIO                = GROUP_MEMORY,
-  CLIENT_PARTITION_MMIO    = GROUP_MEMORY,
-  DRIVER_PARTITION_MMIO    = GROUP_MEMORY,
-  BOOT                     = GROUP_MISCELLANEOUS,
-  DUT                      = GROUP_MISCELLANEOUS,
+typedef enum _COMPONENT_GROUPING_ {
+    UART                     = GROUP_SOC_PERIPHERAL,
+    TIMER                    = GROUP_SOC_PERIPHERAL,
+    WATCHDOG                 = GROUP_SOC_PERIPHERAL,
+    NVMEM                    = GROUP_MEMORY,
+    NSPE_MMIO                = GROUP_MEMORY,
+    CLIENT_PARTITION_MMIO    = GROUP_MEMORY,
+    DRIVER_PARTITION_MMIO    = GROUP_MEMORY,
+    BOOT                     = GROUP_MISCELLANEOUS,
+    DUT                      = GROUP_MISCELLANEOUS,
 } comp_group_assign_t;
 
 /**
@@ -100,7 +100,7 @@ typedef struct _TARGET_CFG_HDR_ {
     uint32_t  version;
     /* Header Size */
     uint32_t  size;
-}target_cfg_hdr_t;
+} target_cfg_hdr_t;
 
 typedef enum {
     LEVEL1 = 0x1,
@@ -149,11 +149,11 @@ typedef struct _MEM_INFO_DESC_ {
 } memory_hdr_t;
 
 typedef struct _MEM_REGION_ {
-  cfg_type_t cfg_type;
-  addr_t     start;
-  addr_t     end;
-  mem_tgt_attr_t attribute;
-  perm_type_t permission;
+    cfg_type_t cfg_type;
+    addr_t     start;
+    addr_t     end;
+    mem_tgt_attr_t attribute;
+    perm_type_t permission;
 } memory_desc_t;
 
 /*
@@ -165,19 +165,19 @@ typedef struct _SOC_PER_INFO_NUM_ {
 } soc_peripheral_hdr_t;
 
 typedef struct _SOC_PER_INFO_DESC_ {
-  cfg_type_t  cfg_type;
-  uint32_t    vendor_id;
-  uint32_t    device_id;
-  addr_t      base;
-  uint32_t    size;
-  uint32_t    intr_id;
-  perm_type_t permission;
-  uint32_t    timeout_in_micro_sec_low;
-  uint32_t    timeout_in_micro_sec_medium;
-  uint32_t    timeout_in_micro_sec_high;
-  uint32_t    timeout_in_micro_sec_crypto;
-  uint32_t    num_of_tick_per_micro_sec;
-  dev_attr_t  attribute;
+    cfg_type_t  cfg_type;
+    uint32_t    vendor_id;
+    uint32_t    device_id;
+    addr_t      base;
+    uint32_t    size;
+    uint32_t    intr_id;
+    perm_type_t permission;
+    uint32_t    timeout_in_micro_sec_low;
+    uint32_t    timeout_in_micro_sec_medium;
+    uint32_t    timeout_in_micro_sec_high;
+    uint32_t    timeout_in_micro_sec_crypto;
+    uint32_t    num_of_tick_per_micro_sec;
+    dev_attr_t  attribute;
 } soc_peripheral_desc_t;
 
 /**

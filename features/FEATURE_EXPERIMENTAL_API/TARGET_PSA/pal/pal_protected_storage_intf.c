@@ -34,29 +34,28 @@ uint32_t pal_ps_function(int type, va_list valist)
     psa_storage_create_flags_t  ps_create_flags;
     struct psa_ps_info_t        *ps_p_info;
 
-    switch (type)
-    {
-    case PAL_PS_SET:
-        uid = va_arg(valist, psa_storage_uid_t);
-        data_length = va_arg(valist, uint32_t);
-        p_write_data = va_arg(valist, const void*);
-        ps_create_flags = va_arg(valist, psa_storage_create_flags_t);
-        return psa_ps_set(uid, data_length, p_write_data, ps_create_flags);
-    case PAL_PS_GET:
-        uid = va_arg(valist, psa_storage_uid_t);
-        offset = va_arg(valist, uint32_t);
-        data_length = va_arg(valist, uint32_t);
-        p_read_data = va_arg(valist, void*);
-        return psa_ps_get(uid, offset, data_length, p_read_data, &actual_length);
-    case PAL_PS_GET_INFO:
-        uid = va_arg(valist, psa_storage_uid_t);
-        ps_p_info = va_arg(valist, struct psa_ps_info_t*);
-        return psa_ps_get_info(uid, ps_p_info);
-    case PAL_PS_REMOVE:
-        uid = va_arg(valist, psa_storage_uid_t);
-        return psa_ps_remove(uid);
-    default:
-        return PAL_STATUS_UNSUPPORTED_FUNC;
+    switch (type) {
+        case PAL_PS_SET:
+            uid = va_arg(valist, psa_storage_uid_t);
+            data_length = va_arg(valist, uint32_t);
+            p_write_data = va_arg(valist, const void *);
+            ps_create_flags = va_arg(valist, psa_storage_create_flags_t);
+            return psa_ps_set(uid, data_length, p_write_data, ps_create_flags);
+        case PAL_PS_GET:
+            uid = va_arg(valist, psa_storage_uid_t);
+            offset = va_arg(valist, uint32_t);
+            data_length = va_arg(valist, uint32_t);
+            p_read_data = va_arg(valist, void *);
+            return psa_ps_get(uid, offset, data_length, p_read_data, &actual_length);
+        case PAL_PS_GET_INFO:
+            uid = va_arg(valist, psa_storage_uid_t);
+            ps_p_info = va_arg(valist, struct psa_ps_info_t *);
+            return psa_ps_get_info(uid, ps_p_info);
+        case PAL_PS_REMOVE:
+            uid = va_arg(valist, psa_storage_uid_t);
+            return psa_ps_remove(uid);
+        default:
+            return PAL_STATUS_UNSUPPORTED_FUNC;
     }
 #else
     return PAL_STATUS_ERROR;
