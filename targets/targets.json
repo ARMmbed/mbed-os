@@ -1363,7 +1363,10 @@
         "core": "Cortex-M3",
         "extra_labels_add": [
             "STM32F1",
-            "STM32F103RB"
+            "STM32F103xB"
+        ],
+        "macros_add": [
+            "STM32F103xB"
         ],
         "config": {
             "clock_source": {

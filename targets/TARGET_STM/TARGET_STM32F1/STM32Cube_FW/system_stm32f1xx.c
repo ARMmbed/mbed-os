@@ -76,7 +76,6 @@
 
 #include "stm32f1xx.h"
 
-
 /**
   * @}
   */
@@ -165,10 +164,6 @@ const uint8_t APBPrescTable[8U] =  {0, 0, 0, 0, 1, 2, 3, 4};
   * @{
   */
 
-/*+ MBED */
-#if 0
-/*- MBED */
-
 /**
   * @brief  Setup the microcontroller system
   *         Initialize the Embedded Flash Interface, the PLL and update the 
@@ -229,13 +224,8 @@ void SystemInit (void)
   SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM. */
 #else
   SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH. */
-#endif
-
+#endif 
 }
-
-/*+ MBED */
-#endif
-/*- MBED */
 
 /**
   * @brief  Update SystemCoreClock variable according to Clock Register Values.

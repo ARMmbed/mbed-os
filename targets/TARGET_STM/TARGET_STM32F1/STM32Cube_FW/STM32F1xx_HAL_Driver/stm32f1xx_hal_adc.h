@@ -43,10 +43,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal_def.h"  
-
-/* Include low level driver */
-#include "stm32f1xx_ll_adc.h"
-
 /** @addtogroup STM32F1xx_HAL_Driver
   * @{
   */

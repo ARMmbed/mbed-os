@@ -34,6 +34,12 @@
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "PinNames.h"
+#include "gpio_object.h"
+
+#include "stm32f1xx_ll_adc.h"
+#include "stm32f1xx_ll_usart.h"
+#include "stm32f1xx_ll_tim.h"
+#include "stm32f1xx_ll_pwr.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,7 +60,97 @@ struct port_s {
     __IO uint32_t *reg_out;
 };
 
-#include "common_objects.h"
+struct pwmout_s {
+    PWMName pwm;
+    PinName pin;
+    uint32_t prescaler;
+    uint32_t period;
+    uint32_t pulse;
+    uint8_t channel;
+    uint8_t inverted;
+};
+
+struct serial_s {
+    UARTName uart;
+    int index; // Used by irq
+    uint32_t baudrate;
+    uint32_t databits;
+    uint32_t stopbits;
+    uint32_t parity;
+    PinName pin_tx;
+    PinName pin_rx;
+#if DEVICE_SERIAL_ASYNCH
+    uint32_t events;
+#endif
+#if DEVICE_SERIAL_FC
+    uint32_t hw_flow_ctl;
+    PinName pin_rts;
+    PinName pin_cts;
+#endif
+};
+
+struct spi_s {
+    SPI_HandleTypeDef handle;
+    IRQn_Type spiIRQ;
+    SPIName spi;
+    PinName pin_miso;
+    PinName pin_mosi;
+    PinName pin_sclk;
+    PinName pin_ssel;
+#if DEVICE_SPI_ASYNCH
+    uint32_t event;
+    uint8_t transfer_type;
+#endif
+};
+
+struct i2c_s {
+    /*  The 1st 2 members I2CName i2c
+     *  and I2C_HandleTypeDef handle should
+     *  be kept as the first members of this struct
+     *  to ensure i2c_get_obj to work as expected
+     */
+    I2CName  i2c;
+    I2C_HandleTypeDef handle;
+    uint8_t index;
+    int hz;
+    PinName sda;
+    PinName scl;
+    IRQn_Type event_i2cIRQ;
+    IRQn_Type error_i2cIRQ;
+    uint32_t XferOperation;
+    volatile uint8_t event;
+#if DEVICE_I2CSLAVE
+    uint8_t slave;
+    volatile uint8_t pending_slave_tx_master_rx;
+    volatile uint8_t pending_slave_rx_maxter_tx;
+#endif
+#if DEVICE_I2C_ASYNCH
+    uint32_t address;
+    uint8_t stop;
+    uint8_t available_events;
+#endif
+};
+
+struct analogin_s {
+    ADC_HandleTypeDef handle;
+    PinName pin;
+    uint8_t channel;
+};
+
+#if DEVICE_CAN
+struct can_s {
+    CAN_HandleTypeDef CanHandle;
+    int index;
+    int hz;
+};
+#endif
+
+#if DEVICE_FLASH
+struct flash_s {
+    /*  nothing to be stored for now */
+    uint32_t dummy;
+};
+#endif
 
 #ifdef __cplusplus
 }

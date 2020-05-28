@@ -45,7 +45,7 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx.h"
 #if defined(USE_HAL_LEGACY)
-#include "stm32_hal_legacy.h" // MBED patch
+#include "Legacy/stm32_hal_legacy.h"
 #endif
 #include <stdio.h>
 
