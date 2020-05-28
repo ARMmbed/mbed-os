@@ -402,10 +402,6 @@ class Target(namedtuple(
         return self.is_TrustZone_non_secure_target
 
     @property
-    def is_PSA_non_secure_target(self):
-        return 'NSPE_Target' in self.labels
-
-    @property
     def is_PSA_target(self):
         return 'PSA' in self.features
 
