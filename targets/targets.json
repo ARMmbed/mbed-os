@@ -2306,21 +2306,48 @@
     },
     "SDP_K1": {
         "inherits": [
-            "MCU_STM32"
+            "Target"
         ],
         "core": "Cortex-M4F",
         "supported_form_factors": [
             "ARDUINO"
         ],
-        "extra_labels_add": [
+        "extra_labels": [
+            "STM",
             "STM32F4",
             "STM32F469xI"
         ],
+        "supported_toolchains": [
+            "ARMC6",
+            "IAR",
+            "GCC_ARM"
+        ],
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        },
+        "macros": [
+            "USE_HAL_DRIVER",
+            "USE_FULL_LL_DRIVER",
+            "TRANSACTION_QUEUE_SIZE_SPI=2",
+            "STM32F469xx"
+        ],
         "config": {
+            "stdio_uart_tx": {
+                "help": "default TX STDIO pins is defined in PinNames.h file, but it can be overridden"
+            },
+            "stdio_uart_rx": {
+                "help": "default RX STDIO pins is defined in PinNames.h file, but it can be overridden"
+            },
             "clock_source": {
-                "help": "Clock source to use, can be XTAL or RC",
+                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lse_available": {
+                "help": "Define if a Low Speed External xtal (LSE) is available on the board (0 = No, 1 = Yes). If Yes, the LSE will be used to clock the RTC, LPUART, ... otherwise the Low Speed Internal clock (LSI) will be used",
+                "value": "0"
             },
             "clock_freq": {
                 "help": "Clock frequency in Mhz",
@@ -2329,19 +2356,37 @@
             }
         },
         "overrides": {
-            "lse_available": 0
+            "deep-sleep-latency": 4,
+            "init-us-ticker-at-boot": true
         },
-        "macros_add": [
-            "STM32F469xx"
-        ],
-        "device_has_add": [
-            "ANALOGOUT",
+        "device_has": [
+            "USTICKER",
+            "ANALOGIN",
+            "I2C",
+            "I2CSLAVE",
+            "I2C_ASYNCH",
+            "INTERRUPTIN",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "PWMOUT",
+            "SERIAL",
+            "SLEEP",
+            "SPI",
+            "SPISLAVE",
+            "SPI_ASYNCH",
+            "STDIO_MESSAGES",
+            "WATCHDOG",
+            "RESET_REASON",
+            "TRNG",
+            "FLASH",
+            "QSPI",
             "MPU"
         ],
-        "device_has_remove": [
-            "LPTICKER"
-        ],
         "device_name": "STM32F469NI",
+        "release_versions": [
+            "5"
+        ],
         "detect_code": [
             "0604"
         ]
