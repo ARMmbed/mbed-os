@@ -88,7 +88,7 @@ nsapi_error_t UBLOX_AT_CellularNetwork::ubx_reboot()
     nsapi_error_t err = NSAPI_ERROR_OK;
     Timer t1;
     t1.start();
-    while (!(t1.read() >= 30)) {
+    while (!(t1.elapsed_time() >= 30s)) {
         err = _at.at_cmd_discard("E0", "");
         if (err == NSAPI_ERROR_OK) {
             break;

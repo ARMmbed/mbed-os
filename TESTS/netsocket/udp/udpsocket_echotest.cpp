@@ -23,13 +23,14 @@
 #include "utest.h"
 #include "udp_tests.h"
 
+using namespace std::chrono;
 using namespace utest::v1;
 
 namespace {
 static const int SIGNAL_SIGIO_RX = 0x1;
 static const int SIGNAL_SIGIO_TX = 0x2;
-static const int SIGIO_TIMEOUT = 5000; //[ms]
-static const int SOCKET_TIMEOUT = (10 * 1000); //[ms]
+static constexpr seconds SIGIO_TIMEOUT = 5s;
+static constexpr seconds SOCKET_TIMEOUT = 10s;
 static const int RETRIES = 2;
 
 static const double EXPECTED_LOSS_RATIO = 0.0;

@@ -26,6 +26,8 @@
 #include "enet_tasklet.h"
 #include "ip6string.h"
 
+using namespace std::chrono_literals;
+
 class PPPPhy : public NanostackPPPPhy {
 public:
     PPPPhy(NanostackMemoryManager &mem, PPP &m);
@@ -86,8 +88,8 @@ nsapi_error_t Nanostack::PPPInterface::bringup(bool dhcp, const char *ip,
     if (blocking) {
         uint8_t retries = 10;
         while (_connect_status != NSAPI_STATUS_GLOBAL_UP) {
-            int32_t count = connect_semaphore.try_acquire_for(3000);
-            if (count <= 0 && retries-- == 0) {
+            bool acquired = connect_semaphore.try_acquire_for(3s);
+            if (!acquired && retries-- == 0) {
                 return NSAPI_ERROR_DHCP_FAILURE; // sort of...
             }
             // Not up until global up
@@ -153,9 +155,9 @@ nsapi_error_t Nanostack::PPPInterface::bringdown()
     }
 
     if (_blocking) {
-        int32_t count = disconnect_semaphore.try_acquire_for(30000);
+        bool acquired = disconnect_semaphore.try_acquire_for(30s);
 
-        if (count <= 0) {
+        if (!acquired) {
             return NSAPI_ERROR_TIMEOUT;
         }
     }

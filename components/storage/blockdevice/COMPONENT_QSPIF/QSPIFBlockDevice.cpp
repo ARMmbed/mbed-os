@@ -28,6 +28,7 @@
 #include "mbed_trace.h"
 #define TRACE_GROUP "QSPIF"
 
+using namespace std::chrono;
 using namespace mbed;
 
 /* Default QSPIF Parameters */
@@ -1228,7 +1229,7 @@ bool QSPIFBlockDevice::_is_mem_ready()
     bool mem_ready = true;
 
     do {
-        rtos::ThisThread::sleep_for(1);
+        rtos::ThisThread::sleep_for(1ms);
         retries++;
         //Read Status Register 1 from device
         if (QSPI_STATUS_OK != _qspi_send_general_command(QSPIF_INST_RSR1, QSPI_NO_ADDRESS_COMMAND,
