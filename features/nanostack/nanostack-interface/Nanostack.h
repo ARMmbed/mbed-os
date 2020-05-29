@@ -50,7 +50,7 @@ public:
     /* Local variant with stronger typing and manual address specification */
     nsapi_error_t add_ppp_interface(PPP &ppp, bool default_if, Nanostack::PPPInterface **interface_out);
 
-    nsapi_error_t remove_ppp_interface(OnboardNetworkStack::Interface **interface_out);
+    nsapi_error_t remove_ppp_interface(OnboardNetworkStack::Interface **interface_out) override;
 
 protected:
 

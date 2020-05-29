@@ -341,7 +341,7 @@ public:
     nsapi_error_t add_dns_server(const SocketAddress &address, const char *interface_name) override;
 
     /** @copydoc NetworkStack::get_ip_address */
-    virtual nsapi_error_t get_ip_address(SocketAddress *address);
+    nsapi_error_t get_ip_address(SocketAddress *address) override;
 
     /** @copydoc NetworkStack::get_ip_address_if */
     nsapi_error_t get_ip_address_if(SocketAddress *address, const char *interface_name) override;
