@@ -140,17 +140,14 @@ void dmAdvActSetData(dmAdvMsg_t *pMsg)
 
   DM_TRACE_INFO1("dmAdvActSetData: state: %d", dmAdvCb.advState[DM_ADV_HANDLE_DEFAULT]);
 
-  if (dmAdvCb.advState[DM_ADV_HANDLE_DEFAULT] == DM_ADV_STATE_IDLE)
+  /* set new data in HCI */
+  if (pMsg->apiSetData.location == DM_DATA_LOC_ADV)
   {
-    /* set new data in HCI */
-    if (pMsg->apiSetData.location == DM_DATA_LOC_ADV)
-    {
-      HciLeSetAdvDataCmd(pMsg->apiSetData.len, pMsg->apiSetData.pData);
-    }
-    else
-    {
-      HciLeSetScanRespDataCmd(pMsg->apiSetData.len, pMsg->apiSetData.pData);
-    }
+    HciLeSetAdvDataCmd(pMsg->apiSetData.len, pMsg->apiSetData.pData);
+  }
+  else
+  {
+    HciLeSetScanRespDataCmd(pMsg->apiSetData.len, pMsg->apiSetData.pData);
   }
 }
 
