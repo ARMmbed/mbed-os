@@ -94,6 +94,7 @@ void mbed_init(void)
 
 void mbed_start(void)
 {
+    mbed_rtos_init_singleton_mutex();
     mbed_toolchain_init();
     mbed_tfm_init();
     mbed_main();
