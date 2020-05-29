@@ -272,7 +272,7 @@ osThreadId_t ThisThread::get_id()
 #endif
 }
 
-const char *get_name()
+const char *ThisThread::get_name()
 {
 #if MBED_CONF_RTOS_PRESENT
     osThreadId_t id = osThreadGetId();

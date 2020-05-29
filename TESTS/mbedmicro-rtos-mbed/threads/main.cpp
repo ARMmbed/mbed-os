@@ -500,9 +500,8 @@ void test_thread_name()
 
     const char tname[] = "Amazing thread";
     Thread t(osPriorityNormal, THREAD_STACK_SIZE, NULL, tname);
-    t.start(callback(thread_wait_flags));
     TEST_ASSERT_EQUAL(strcmp(tname, t.get_name()), 0);
-    t.flags_set(0x1);
+    t.start([&] { TEST_ASSERT_EQUAL(strcmp(tname, ThisThread::get_name()), 0); });
     t.join();
 }
 
