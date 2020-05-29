@@ -45,6 +45,7 @@ extern bool              m_common_rtc_enabled;
 extern uint32_t volatile m_common_rtc_overflows;
 extern bool volatile     lp_ticker_interrupt_fire;
 
+void     common_rtc_free(void);
 void     common_rtc_init(void);
 uint32_t common_rtc_32bit_ticks_get(void);
 uint64_t common_rtc_64bit_us_get(void);
