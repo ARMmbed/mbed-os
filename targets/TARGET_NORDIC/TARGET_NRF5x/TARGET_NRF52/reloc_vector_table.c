@@ -47,8 +47,8 @@
 #include "nrf_dfu_mbr.h"
 #endif
 
-#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
-    __attribute__ ((section(".bss.nvictable"),zero_init))
+#if defined(__ARMCC_VERSION)
+    __attribute__ ((section(".bss.nvictable")))
     uint32_t nrf_dispatch_vector[NVIC_NUM_VECTORS];
 #elif defined(__GNUC__)
     __attribute__ ((section(".nvictable")))
