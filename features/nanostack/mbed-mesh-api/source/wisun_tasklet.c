@@ -637,43 +637,40 @@ int wisun_tasklet_set_regulatory_domain(int8_t nwk_interface_id, uint8_t regulat
 
 int wisun_tasklet_set_own_certificate(uint8_t *cert, uint16_t cert_len, uint8_t *cert_key, uint16_t cert_key_len)
 {
-    if (wisun_tasklet_data_ptr) {
-        // this API can be only used before first connect()
-        tr_err("Already connected");
-        return -2;
+    if (wisun_tasklet_data_ptr && wisun_tasklet_data_ptr->network_interface_id != INVALID_INTERFACE_ID) {
+        // interface already active write certificates to stack.
+        arm_certificate_entry_s arm_cert_entry;
+        arm_cert_entry.cert = cert;
+        arm_cert_entry.cert_len = cert_len;
+        arm_cert_entry.key = cert_key;
+        arm_cert_entry.key_len = cert_key_len;
+        return arm_network_own_certificate_add(&arm_cert_entry);
     }
-
+    // Stack is inactive store the certificates and activate when connect() called
     return wisun_tasklet_store_certificate_data(cert, cert_len, cert_key, cert_key_len, false, false, false);
 }
 
 int wisun_tasklet_remove_own_certificates(void)
 {
-    if (wisun_tasklet_data_ptr) {
-        // this API can be only used before first connect()
-        tr_err("Already connected");
-        return -2;
-    }
-
     return wisun_tasklet_store_certificate_data(NULL, 0, NULL, 0, true, false, false);
 }
 
 int wisun_tasklet_remove_trusted_certificates(void)
 {
-    if (wisun_tasklet_data_ptr) {
-        // this API can be only used before first connect()
-        tr_err("Already connected");
-        return -2;
-    }
-
     return wisun_tasklet_store_certificate_data(NULL, 0, NULL, 0, false, true, false);
 }
 
 int wisun_tasklet_set_trusted_certificate(uint8_t *cert, uint16_t cert_len)
 {
-    if (wisun_tasklet_data_ptr) {
-        // this API can be only used before first connect()
-        tr_err("Already connected");
-        return -2;
+    if (wisun_tasklet_data_ptr && wisun_tasklet_data_ptr->network_interface_id != INVALID_INTERFACE_ID) {
+        // interface already active write certificates to stack.
+        arm_certificate_entry_s arm_cert_entry;
+        arm_cert_entry.cert = cert;
+        arm_cert_entry.cert_len = cert_len;
+        arm_cert_entry.key = NULL;
+        arm_cert_entry.key_len = 0;
+        return arm_network_trusted_certificate_add(&arm_cert_entry);
     }
+    // Stack is inactive store the certificates and activate when connect() called
     return wisun_tasklet_store_certificate_data(cert, cert_len, NULL, 0, false, false, true);
 }
