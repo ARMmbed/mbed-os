@@ -32,8 +32,11 @@ MBED_TLS_REPO_URL ?= git@github.com:ARMmbed/mbedtls.git
 
 # Translate between mbed TLS namespace and mbed namespace
 TARGET_PREFIX:=../
+TARGET_EXPERIMENTAL:=../../FEATURE_EXPERIMENTAL_API/
 TARGET_SRC:=$(TARGET_PREFIX)src
 TARGET_INC:=$(TARGET_PREFIX)inc
+TARGET_PSA:=$(TARGET_EXPERIMENTAL)TARGET_MBED_PSA_SRV
+TARGET_PSA_INC:=$(TARGET_PSA)/inc
 TARGET_TESTS:=$(TARGET_PREFIX)TESTS
 
 # A folder structure is introduced here for targets that have both a Secure
@@ -41,7 +44,7 @@ TARGET_TESTS:=$(TARGET_PREFIX)TESTS
 # (NSPE). Documentation for each folder as follows:
 # COMPONENT_PSA_SRV_IMPL - Include secure service implementation code. For
 # example PSA Crypto or PSA Secure Time implementations
-TARGET_SRV_IMPL:=$(TARGET_PREFIX)/platform/COMPONENT_PSA_SRV_IMPL
+TARGET_SRV_IMPL:=$(TARGET_PSA)/COMPONENT_PSA_SRV_IMPL
 # COMPONENT_NSPE - Include code that compiles ONLY to the NSPE image and never
 # compiles to the SPE image
 TARGET_NSPE:=$(TARGET_SRV_IMPL)/COMPONENT_NSPE
@@ -68,7 +71,7 @@ rsync:
 	rm -rf $(TARGET_INC)
 	mkdir -p $(TARGET_INC)
 	rsync -a --delete $(MBED_TLS_API) $(TARGET_INC)
-	rsync -a --delete --exclude='crypto_struct.h' $(CRYPTO_API) $(TARGET_INC)/
+	rsync -a --delete --exclude='crypto_struct.h' $(CRYPTO_API) $(TARGET_PSA_INC)/
 	#
 	# Copying licenses
 	cp $(MBED_TLS_DIR)/LICENSE $(TARGET_PREFIX)
