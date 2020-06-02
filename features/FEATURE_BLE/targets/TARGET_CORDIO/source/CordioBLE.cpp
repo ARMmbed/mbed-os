@@ -34,6 +34,7 @@
 #include "hci_drv.h"
 #include "CordioBLE.h"
 #include "mbed_assert.h"
+#include "bstream.h"
 
 #include "CordioPalAttClient.h"
 #include "CordioPalSecurityManager.h"
@@ -311,6 +312,22 @@ void BLE::processEvents()
             deviceInstance().initialization_status = INITIALIZED;
             _init_callback.call(&context);
         }   break;
+#if MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
+        case DM_UNHANDLED_CMD_CMPL_EVT_IND: {
+            // upcast to unhandled command complete event to access the payload
+            hciUnhandledCmdCmplEvt_t* unhandled = (hciUnhandledCmdCmplEvt_t*)msg;
+            if (unhandled->hdr.status == HCI_SUCCESS && unhandled->hdr.param == HCI_OPCODE_LE_TEST_END) {
+                // unhandled events are not parsed so we need to parse the payload ourselves
+                uint8_t status;
+                uint16_t packet_number;
+                status = unhandled->param[0];
+                BYTES_TO_UINT16(packet_number, unhandled->param + 1);
+
+                _hci_driver->handle_test_end(status == 0, packet_number);
+                return;
+            }
+        }
+#endif // MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
 
         default:
             impl::PalGapImpl::gap_handler(msg);
