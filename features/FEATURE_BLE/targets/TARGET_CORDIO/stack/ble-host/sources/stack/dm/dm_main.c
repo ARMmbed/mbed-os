@@ -230,7 +230,7 @@ dmCb_t dmCb;
 /*************************************************************************************************/
 static void dmHciEvtCback(hciEvt_t *pEvent)
 {
-  WSF_ASSERT(pEvent->hdr.event <= HCI_LE_READ_ANTENNA_INFO_CMD_CMPL_CBACK_EVT);
+  WSF_ASSERT(pEvent->hdr.event < sizeof(dmHciToIdTbl));
 
   /* if DM not resetting or resetting but incoming event is HCI reset sequence complete event */
   if (!dmCb.resetting || (pEvent->hdr.event == HCI_RESET_SEQ_CMPL_CBACK_EVT))
