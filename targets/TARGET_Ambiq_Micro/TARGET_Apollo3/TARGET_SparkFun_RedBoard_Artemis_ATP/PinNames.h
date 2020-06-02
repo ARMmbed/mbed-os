@@ -29,7 +29,7 @@ extern "C"
 {
 #endif
 
-#define NC_VAL (uint32_t)0xFFFFFFFF
+#define NC_VAL (int)0xFFFFFFFF
 
     typedef enum
     {
@@ -98,6 +98,7 @@ extern "C"
 
         // mbed original LED naming
         LED1 = AM_BSP_GPIO_LED0,
+        LED2 = 0,
 
         // Qwiic
         QWIIC_SCL = AM_BSP_QWIIC_I2C_SCL_PIN,

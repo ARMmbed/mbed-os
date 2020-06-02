@@ -1,5 +1,5 @@
 #include "us_ticker_api.h"
-
+#include <stdio.h>
 /**
  * \defgroup hal_us_ticker Microsecond Ticker
  * Low level interface to the microsecond ticker of a target
@@ -34,6 +34,8 @@
  */
 /* HAL us ticker */
 
+static bool us_ticker_initialized = false;
+
 /** Initialize the ticker
  *
  * Initialize or re-initialize the ticker. This resets all the
@@ -45,10 +47,17 @@
  */
 void us_ticker_init(void)
 {
-    am_hal_stimer_config(AM_HAL_STIMER_CFG_CLEAR | AM_HAL_STIMER_CFG_FREEZE);
-    am_hal_stimer_config(US_TICKER_FREQ);
+    if (us_ticker_initialized)
+    {
+        am_hal_stimer_int_disable(US_TICKER_STIMER_INT_COMPARE);
+        return;
+    }
+
     NVIC_SetVector(STIMER_CMPR0_IRQn, (uint32_t)us_ticker_irq_handler);
     NVIC_EnableIRQ(STIMER_CMPR0_IRQn);
+    am_hal_stimer_config(AM_HAL_STIMER_CFG_CLEAR | AM_HAL_STIMER_CFG_FREEZE);
+    am_hal_stimer_config(US_TICKER_FREQ);
+    us_ticker_initialized = true;
 }
 
 /** Deinitialize the us ticker
@@ -65,6 +74,7 @@ void us_ticker_free(void)
 {
     am_hal_stimer_config(AM_HAL_STIMER_CFG_FREEZE);
     am_hal_stimer_int_disable(US_TICKER_STIMER_INT_COMPARE);
+    us_ticker_initialized = false;
 }
 
 /** Read the current counter
@@ -97,6 +107,7 @@ uint32_t us_ticker_read(void)
  */
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
+
     uint32_t instance = 0;
     switch (US_TICKER_STIMER_INT_COMPARE)
     {
@@ -130,6 +141,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     am_hal_stimer_int_enable(US_TICKER_STIMER_INT_COMPARE);
     timestamp_t now = (timestamp_t)am_hal_stimer_counter_get();
     am_hal_stimer_compare_delta_set(instance, (timestamp - now));
+    CTIMER->STCFG |= (AM_HAL_STIMER_CFG_COMPARE_A_ENABLE << instance);
 }
 
 /** Disable us ticker interrupt
@@ -155,6 +167,7 @@ void us_ticker_clear_interrupt(void)
  */
 void us_ticker_fire_interrupt(void)
 {
+    am_hal_stimer_int_enable(US_TICKER_STIMER_INT_COMPARE);
     am_hal_stimer_int_set(US_TICKER_STIMER_INT_COMPARE);
 }
 

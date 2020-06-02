@@ -40,11 +40,12 @@ uint16_t AP3CordioHCITransportDriver::write(uint8_t packet_type, uint16_t len, u
     uint32_t intAtEnter = numInterruptsSinceLast;
     if (handle)
     {
-        while (bleBusy == true)
-        {
-        }
-        //am_hal_ble_wakeup_set(handle, true);
-        bleBusy = true;
+        //("w\r\n");
+        // while (bleBusy == true)
+        // {
+        // }
+        // //am_hal_ble_wakeup_set(handle, true);
+        // bleBusy = true;
 
         // am_hal_flash_delay(FLASH_CYCLES_US(1000 * (50)));
         // printf("Num interrupts since last action = %d\r\n", numInterruptsSinceLast);
@@ -52,6 +53,7 @@ uint16_t AP3CordioHCITransportDriver::write(uint8_t packet_type, uint16_t len, u
         // {
         //     len = 30;
         // }
+
         uint16_t retVal = (uint16_t)am_hal_ble_blocking_hci_write(handle, packet_type, (uint32_t *)data, (uint16_t)len);
 
         // uint8_t aFIFO0REM = BLEIFn(0)->FIFOPTR_b.FIFO0REM;
