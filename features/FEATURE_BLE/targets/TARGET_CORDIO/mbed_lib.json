@@ -63,6 +63,10 @@
             "help": "Where the CBC MAC calculatio is performed. Valid values are 0 (host) and 1 (controller through HCI).",
             "value": 1,
             "macro_name": "SEC_CCM_CFG"
+        },
+        "route_unhandled_command_complete_events": {
+            "help": "If enabled the stack will forward to the user all HCI events not handled by the stack.",
+            "value": 1
         }
     }
 }

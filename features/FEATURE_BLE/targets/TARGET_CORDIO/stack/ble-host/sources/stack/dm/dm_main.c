@@ -107,6 +107,14 @@ static const uint8_t dmHciToIdTbl[] =
   DM_ID_CONN_CTE,                               /* HCI_LE_CONN_CTE_REQ_ENABLE_CMD_CMPL_CBACK_EVT */
   DM_ID_CONN_CTE,                               /* HCI_LE_CONN_CTE_RSP_ENABLE_CMD_CMPL_CBACK_EVT */
   DM_ID_CONN_CTE                                /* HCI_LE_READ_ANTENNA_INFO_CMD_CMPL_CBACK_EVT */
+#if MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
+  /* these 3 were inexplicably missing */
+  , DM_ID_DEV                                   /* HCI_CIS_EST_CBACK_EVT */
+  , DM_ID_DEV                                   /* HCI_CIS_REQ_CBACK_EVT */
+  , DM_ID_DEV                                   /* HCI_REQ_PEER_SCA_CBACK_EVT */
+
+  , DM_ID_DEV                                   /* HCI_UNHANDLED_CMD_COMPL_CBACK_EVT */
+#endif
 };
 
 /* DM callback event length table */

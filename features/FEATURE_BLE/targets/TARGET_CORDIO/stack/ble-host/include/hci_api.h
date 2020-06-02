@@ -115,6 +115,9 @@ extern "C" {
 #define HCI_CIS_EST_CBACK_EVT                            68  /*!< \brief CIS established event */
 #define HCI_CIS_REQ_CBACK_EVT                            69  /*!< \brief CIS request event */
 #define HCI_REQ_PEER_SCA_CBACK_EVT                       70  /*!< \brief Request peer SCA complete */
+#if MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
+#define HCI_UNHANDLED_CMD_CMPL_CBACK_EVT                 71  /*!< \brief Unhandled event */
+#endif
 /**@}*/
 
 /**************************************************************************************************
@@ -679,6 +682,15 @@ typedef struct
   uint8_t             cteMaxLen;            /*!< \brief Max CTE Length. */
 } hciLeReadAntennaInfoCmdCmplEvt_t;
 
+#if MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
+/*! \brief LE read antenna information command complete event */
+typedef struct
+{
+  wsfMsgHdr_t         hdr;                  /*!< \brief Event header containing the opcode in hdr.param. */
+  uint8_t             param[1];             /*!< \brief Unhandled event payload. */
+} hciUnhandledCmdCmplEvt_t;
+#endif // MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
+
 /*! \brief Local version information */
 typedef struct
 {
@@ -754,6 +766,9 @@ typedef union
   hciLeConnCteReqEnableCmdCmplEvt_t   leConnCteReqEnableCmdCmpl;   /*!< \brief LE connection CTE request enable command complete. */
   hciLeConnCteRspEnableCmdCmplEvt_t   leConnCteRspEnableCmdCmpl;   /*!< \brief LE connection CTE response enable command complete. */
   hciLeReadAntennaInfoCmdCmplEvt_t    leReadAntennaInfoCmdCmpl;    /*!< \brief LE read antenna information command complete. */
+#if MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
+  hciUnhandledCmdCmplEvt_t            unhandledCmdCmpl;            /*!< \brief Unhandled events. */
+#endif
 } hciEvt_t;
 
 /*! \} */    /* STACK_HCI_EVT_API */
