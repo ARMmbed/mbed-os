@@ -67,12 +67,18 @@ bool Gap<EventHandler>::is_feature_supported_(
 template<class EventHandler>
 ble_error_t Gap<EventHandler>::initialize_()
 {
+    for (size_t i = 0; i < DM_NUM_ADV_SETS; ++i) {
+        direct_adv_cb[i] = direct_adv_cb_t();
+    }
     return BLE_ERROR_NONE;
 }
 
 template<class EventHandler>
 ble_error_t Gap<EventHandler>::terminate_()
 {
+    for (size_t i = 0; i < DM_NUM_ADV_SETS; ++i) {
+        direct_adv_cb[i] = direct_adv_cb_t();
+    }
     return BLE_ERROR_NONE;
 }
 
@@ -135,7 +141,12 @@ ble_error_t Gap<EventHandler>::set_advertising_parameters_(
         const_cast<uint8_t *>(peer_address.data())
     );
 
-    return BLE_ERROR_NONE;
+    return update_direct_advertising_parameters(
+        DM_ADV_HANDLE_DEFAULT,
+        advertising_type.value(),
+        peer_address,
+        peer_address_type
+    );
 }
 
 template<class EventHandler>
@@ -174,14 +185,50 @@ template<class EventHandler>
 ble_error_t Gap<EventHandler>::advertising_enable_(bool enable)
 {
     if (enable) {
-        uint8_t adv_handles[] = {DM_ADV_HANDLE_DEFAULT};
-        uint16_t adv_durations[] = { /* infinite */ 0};
-        uint8_t max_ea_events[] = {0};
-        DmAdvStart(1, adv_handles, adv_durations, max_ea_events);
+        // The Cordio stack requires to start direct advertising with
+        // the function DmConnAccept instead of the function DmAdvStart.
+        // First the algorithm retrieves if direct advertising has been
+        // configured and depending on the result use the right function.
+        direct_adv_cb_t* direct_adv_cb = get_pending_direct_adv_cb(DM_ADV_HANDLE_DEFAULT);
+        if (direct_adv_cb) {
+            direct_adv_cb->connection_handle = DmConnAccept(
+                DM_CLIENT_ID_APP,
+                DM_ADV_HANDLE_DEFAULT,
+                direct_adv_cb->low_duty_cycle ? DM_ADV_CONN_DIRECT_LO_DUTY : DM_ADV_CONN_DIRECT,
+                direct_adv_cb->low_duty_cycle ? 0 : HCI_ADV_DIRECTED_MAX_DURATION,
+                0,
+                direct_adv_cb->peer_address_type.value(),
+                direct_adv_cb->peer_address.data()
+            );
+            if (direct_adv_cb->connection_handle == DM_CONN_ID_NONE) {
+                return BLE_ERROR_INTERNAL_STACK_FAILURE;
+            } else {
+                direct_adv_cb->state = direct_adv_cb_t::running;
+            }
+        } else {
+            uint8_t adv_handles[] = {DM_ADV_HANDLE_DEFAULT};
+            uint16_t adv_durations[] = { /* infinite */ 0};
+            uint8_t max_ea_events[] = {0};
+            DmAdvStart(1, adv_handles, adv_durations, max_ea_events);
+        }
     } else {
-        uint8_t adv_handles[] = {DM_ADV_HANDLE_DEFAULT};
-        DmAdvStop(1, adv_handles);
+        // Functions to call to stop advertising if connectable direct
+        // advertising is used or not. DmConnClose is used if direct
+        // advertising is started otherwise use DmAdvStop.
+        direct_adv_cb_t* direct_adv_cb = get_running_direct_adv_cb(DM_ADV_HANDLE_DEFAULT);
+        if (direct_adv_cb) {
+            DmConnClose(
+                DM_CLIENT_ID_APP,
+                direct_adv_cb->connection_handle,
+                HCI_ERR_LOCAL_TERMINATED
+            );
+            direct_adv_cb->state = direct_adv_cb_t::free;
+        } else {
+            uint8_t adv_handles[] = {DM_ADV_HANDLE_DEFAULT};
+            DmAdvStop(1, adv_handles);
+        }
     }
+
     return BLE_ERROR_NONE;
 }
 
@@ -598,11 +645,21 @@ void Gap<EventHandler>::gap_handler(const wsfMsgHdr_t *msg)
         break;
 
         case DM_ADV_SET_STOP_IND: {
+            const hciLeAdvSetTermEvt_t *evt = (const hciLeAdvSetTermEvt_t *) msg;
+
+            // cleanup state in direct advertising list. This event is only
+            // called for set using extended advertsing when the advertising
+            // module is reset.
+            direct_adv_cb_t* adv_cb = get_gap().get_running_direct_adv_cb(evt->advHandle);
+
+            if (adv_cb) {
+                adv_cb->state = direct_adv_cb_t::free;
+            }
+
             if (!handler) {
                 break;
             }
 
-            const hciLeAdvSetTermEvt_t *evt = (const hciLeAdvSetTermEvt_t *) msg;
             handler->on_advertising_set_terminated(
                 hci_error_code_t(evt->status),
                 evt->advHandle,
@@ -682,6 +739,41 @@ void Gap<EventHandler>::gap_handler(const wsfMsgHdr_t *msg)
                 evt->latency,
                 evt->timeout
             );
+        }
+        break;
+
+        case DM_CONN_CLOSE_IND: {
+            // Intercept connection close indication received when direct  advertising timeout.
+            // Leave the rest of the processing to the event handlers bellow.
+            const hciDisconnectCmplEvt_t *evt = (const hciDisconnectCmplEvt_t *) msg;
+            if (evt->status == HCI_ERR_ADV_TIMEOUT) {
+                direct_adv_cb_t* adv_cb =
+                    get_gap().get_running_conn_direct_adv_cb(evt->hdr.param);
+                if (adv_cb) {
+                    adv_cb->state = direct_adv_cb_t::free;
+
+                    if (handler) {
+                        handler->on_advertising_set_terminated(
+                            hci_error_code_t(evt->status),
+                            adv_cb->advertising_handle,
+                            DM_CONN_ID_NONE,
+                            0
+                        );
+                    }
+                }
+            }
+        }
+        break;
+
+        case DM_CONN_OPEN_IND: {
+            // Intercept connection open indication received when direct advertising timeout.
+            // Leave the rest of the processing to the event handlers bellow.
+            // There is no advertising stop event generated for directed connectable advertising.
+            const hciLeConnCmplEvt_t *evt = (const hciLeConnCmplEvt_t *) msg;
+            direct_adv_cb_t* adv_cb = get_gap().get_running_conn_direct_adv_cb(evt->hdr.param);
+            if (adv_cb) {
+                adv_cb->state = direct_adv_cb_t::free;
+            }
         }
         break;
 #endif // BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL
@@ -869,7 +961,12 @@ ble_error_t Gap<EventHandler>::set_extended_advertising_parameters_(
         const_cast<uint8_t *>(peer_address.data())
     );
 
-    return BLE_ERROR_NONE;
+    return update_direct_advertising_parameters(
+        advertising_handle,
+        adv_type,
+        peer_address,
+        peer_address_type
+    );
 }
 
 template<class EventHandler>
@@ -962,29 +1059,86 @@ template<class EventHandler>
 ble_error_t Gap<EventHandler>::extended_advertising_enable_(
     bool enable,
     uint8_t number_of_sets,
-    const advertising_handle_t *handles,
-    const uint16_t *durations,
-    const uint8_t *max_extended_advertising_events
+    const advertising_handle_t *in_handles,
+    const uint16_t *in_durations,
+    const uint8_t *in_max_extended_advertising_events
 )
 {
+    if (number_of_sets > DM_NUM_ADV_SETS) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
     if (enable) {
-        uint16_t *durations_ms = new uint16_t[number_of_sets];
+        advertising_handle_t handles[DM_NUM_ADV_SETS];
+        uint8_t max_extended_advertising_events[DM_NUM_ADV_SETS];
+        uint16_t durations_ms[DM_NUM_ADV_SETS];
+        uint8_t non_direct_set_count = 0;
+
+        // Advertising sets broadcasting direct connectable advertisment can't be
+        // started with DmAdvStart. Therefore we first start all the advertising
+        // sets broadcasting with direct advertising then pass the remaining
+        // advertising sets to DmAdvStart.
         for (size_t i = 0; i < number_of_sets; ++i) {
-            uint32_t r = durations[i] * 10;
-            durations_ms[i] = r > 0xFFFF ? 0xFFFF : r;
+            uint32_t duration = in_durations[i] * 10;
+            duration = duration > 0xFFFF ? 0xFFFF : duration;
+
+            direct_adv_cb_t* direct_adv_cb = get_pending_direct_adv_cb(in_handles[i]);
+            if (direct_adv_cb) {
+                direct_adv_cb->connection_handle = DmConnAccept(
+                    DM_CLIENT_ID_APP,
+                    in_handles[i],
+                    direct_adv_cb->low_duty_cycle ?
+                        DM_ADV_CONN_DIRECT_LO_DUTY : DM_ADV_CONN_DIRECT,
+                    direct_adv_cb->low_duty_cycle ? duration : HCI_ADV_DIRECTED_MAX_DURATION,
+                    0,
+                    direct_adv_cb->peer_address_type.value(),
+                    direct_adv_cb->peer_address.data()
+                );
+                if (direct_adv_cb->connection_handle == DM_CONN_ID_NONE) {
+                    return BLE_ERROR_INTERNAL_STACK_FAILURE;
+                } else {
+                    direct_adv_cb->state = direct_adv_cb_t::running;
+                }
+            } else {
+                handles[non_direct_set_count] = in_handles[i];
+                max_extended_advertising_events[non_direct_set_count] = in_max_extended_advertising_events[i];
+                durations_ms[non_direct_set_count] = duration;
+                ++non_direct_set_count;
+            }
         }
 
         DmAdvStart(
-            number_of_sets,
+            non_direct_set_count,
             const_cast<uint8_t *>(handles),
             durations_ms,
             const_cast<uint8_t *>(max_extended_advertising_events)
         );
-
-        delete[] durations_ms;
     } else {
+        // reconstruct list for non directed advertising
+        advertising_handle_t handles[DM_NUM_ADV_SETS];
+        uint8_t non_direct_set_count = 0;
+
+        // Advertising sets broadcasting direct connectable advertisment can't be
+        // stopped with DmAdvStop. Therefore we first stop all the advertising
+        // sets broadcasting with direct advertising with DmConnClose then pass
+        // the remaining advertising sets to DmAdvStop.
+        for (size_t i = 0; i < number_of_sets; ++i) {
+            direct_adv_cb_t* direct_adv_cb = get_running_direct_adv_cb(in_handles[i]);
+            if (direct_adv_cb) {
+                DmConnClose(
+                    DM_CLIENT_ID_APP,
+                    direct_adv_cb->connection_handle,
+                    HCI_ERR_LOCAL_TERMINATED
+                );
+                direct_adv_cb->state = direct_adv_cb_t::free;
+            } else {
+                handles[non_direct_set_count] = in_handles[i];
+                ++non_direct_set_count;
+            }
+        }
+
         DmAdvStop(
-            number_of_sets,
+            non_direct_set_count,
             const_cast<uint8_t *>(handles)
         );
     }
@@ -1248,6 +1402,108 @@ ble_error_t Gap<EventHandler>::extended_create_connection_(
     }
 
     return BLE_ERROR_NONE;
+}
+
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::update_direct_advertising_parameters(
+    advertising_handle_t advertising_handle,
+    uint8_t advertising_type,
+    address_t peer_address,
+    advertising_peer_address_type_t peer_address_type
+)
+{
+    // The case where a direct advertising is running and parameters are updated
+    // is considered to be a programming error. User should stop advertising first.
+    direct_adv_cb_t* running = get_running_direct_adv_cb(advertising_handle);
+    if (running) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
+    // For pending direct advertising, update the configuration data structure
+    direct_adv_cb_t* pending = get_pending_direct_adv_cb(DM_ADV_HANDLE_DEFAULT);
+    if (pending) {
+        // Update existing config
+        if (advertising_type == DM_ADV_CONN_DIRECT ||
+            advertising_type == DM_ADV_CONN_DIRECT_LO_DUTY) {
+            pending->peer_address_type = peer_address_type;
+            pending->peer_address = peer_address;
+            pending->low_duty_cycle =
+                advertising_type == DM_ADV_CONN_DIRECT_LO_DUTY;
+        } else {
+            // set the advertising cb state to idle
+            pending->state = direct_adv_cb_t::free;
+        }
+        return BLE_ERROR_NONE;
+    }
+
+    // If this is the first configuration of direct advertising, acquire a cb
+    // then configure it.
+    if (advertising_type == DM_ADV_CONN_DIRECT ||
+        advertising_type == DM_ADV_CONN_DIRECT_LO_DUTY) {
+        direct_adv_cb_t* adv_cb = get_free_direct_adv_cb();
+        if (!adv_cb) {
+            return BLE_ERROR_INTERNAL_STACK_FAILURE;
+        }
+        adv_cb->state = direct_adv_cb_t::pending;
+        adv_cb->peer_address_type = peer_address_type;
+        adv_cb->peer_address = peer_address;
+        adv_cb->low_duty_cycle =
+            advertising_type == DM_ADV_CONN_DIRECT_LO_DUTY;
+    }
+
+    return BLE_ERROR_NONE;
+}
+
+template<class EventHandler>
+template<class Predicate>
+typename Gap<EventHandler>::direct_adv_cb_t*
+Gap<EventHandler>::get_adv_cb(const Predicate& predicate)
+{
+    for (size_t i = 0; i < DM_NUM_ADV_SETS; ++i) {
+        if (predicate(direct_adv_cb[i])) {
+            return direct_adv_cb + i;
+        }
+    }
+    return NULL;
+}
+
+template<class EventHandler>
+typename Gap<EventHandler>::direct_adv_cb_t*
+Gap<EventHandler>::get_running_direct_adv_cb(advertising_handle_t adv_handle)
+{
+    return get_adv_cb([adv_handle] (const direct_adv_cb_t& cb) {
+        return cb.state == direct_adv_cb_t::running &&
+            cb.advertising_handle == adv_handle;
+    });
+}
+
+template<class EventHandler>
+typename Gap<EventHandler>::direct_adv_cb_t*
+Gap<EventHandler>::get_running_conn_direct_adv_cb(connection_handle_t conn_handle)
+{
+    return get_adv_cb([conn_handle] (const direct_adv_cb_t& cb) {
+        return cb.state == direct_adv_cb_t::running &&
+            cb.connection_handle == conn_handle;
+    });
+}
+
+template<class EventHandler>
+typename Gap<EventHandler>::direct_adv_cb_t*
+Gap<EventHandler>::get_pending_direct_adv_cb(advertising_handle_t adv_handle)
+{
+    return get_adv_cb([adv_handle] (const direct_adv_cb_t& cb) {
+        return cb.state == direct_adv_cb_t::pending &&
+            cb.advertising_handle == adv_handle;
+    });
+}
+
+template<class EventHandler>
+typename Gap<EventHandler>::direct_adv_cb_t*
+Gap<EventHandler>::get_free_direct_adv_cb()
+{
+    return get_adv_cb([](const direct_adv_cb_t& cb) {
+        return cb.state == direct_adv_cb_t::free;
+    });
 }
 
 } // cordio
