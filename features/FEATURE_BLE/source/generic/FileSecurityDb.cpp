@@ -265,6 +265,22 @@ void FileSecurityDb::set_entry_peer_sign_counter(
     }
 }
 
+void FileSecurityDb::set_local_csrk(
+    const csrk_t &csrk
+) {
+    this->SecurityDb::set_local_csrk(csrk);
+    db_write(&_local_csrk, DB_OFFSET_LOCAL_CSRK);
+}
+
+void FileSecurityDb::set_local_identity(
+    const irk_t &irk,
+    const address_t &identity_address,
+    bool public_address
+) {
+    this->SecurityDb::set_local_identity(irk, identity_address, public_address);
+    db_write(&_local_identity, DB_OFFSET_LOCAL_IDENTITY);
+}
+
 /* saving and loading from nvm */
 
 void FileSecurityDb::restore() {
@@ -299,6 +315,7 @@ void FileSecurityDb::sync(entry_handle_t db_handle) {
 
     db_write(&entry->peer_sign_counter, entry->file_offset + DB_STORE_OFFSET_PEER_SIGNING_COUNT);
     db_write(&entry->flags, entry->file_offset + DB_STORE_OFFSET_FLAGS);
+    db_write(&_local_sign_counter, DB_OFFSET_LOCAL_SIGN_COUNT);
 }
 
 void FileSecurityDb::set_restore(bool reload) {

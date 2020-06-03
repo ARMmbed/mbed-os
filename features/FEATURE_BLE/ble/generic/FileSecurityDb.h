@@ -116,6 +116,21 @@ public:
         sign_count_t sign_counter
     );
 
+    /* local csrk and identity */
+
+    virtual void set_local_csrk(
+            const csrk_t &csrk
+    );
+
+    virtual void set_local_identity(
+            const irk_t &irk,
+            const address_t &identity_address,
+            bool public_address
+    );
+
+    /* I am not overriding set_local_sign_counter to avoid constant filesystem writes,
+     * instead this is synced by sync (which is called on disconnection) */
+
     /* saving and loading from nvm */
 
     virtual void restore();

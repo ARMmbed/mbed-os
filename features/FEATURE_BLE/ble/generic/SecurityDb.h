@@ -425,6 +425,22 @@ public:
         _local_sign_counter = sign_counter;
     }
 
+    /* local identity */
+    /**
+     * Update the local identity.
+     *
+     * @param[in] csrk new CSRK value
+     */
+    virtual void set_local_identity(
+            const irk_t &irk,
+            const address_t &identity_address,
+            bool public_address
+    )  {
+        _local_identity.irk = irk;
+        _local_identity.identity_address = identity_address;
+        _local_identity.identity_address_is_public = public_address;
+    }
+
     /* list management */
 
     /**
