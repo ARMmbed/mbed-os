@@ -21,6 +21,7 @@
 #include "ble/generic/GenericSecurityManager.h"
 #include "ble/generic/MemorySecurityDb.h"
 #include "ble/generic/FileSecurityDb.h"
+#include "ble/generic/KVStoreSecurityDb.h"
 
 using ble::pal::advertising_peer_address_type_t;
 using ble::pal::AuthenticationMask;
@@ -884,11 +885,19 @@ ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::init_da
 ) {
     delete _db;
 
+#if BLE_SECURITY_DATABASE_FILESYSTEM
     FILE* db_file = FileSecurityDb::open_db_file(db_path);
 
     if (db_file) {
         _db = new (std::nothrow) FileSecurityDb(db_file);
-    } else {
+    } else
+#endif
+#if BLE_SECURITY_DATABASE_KVSTORE
+    if (KVStoreSecurityDb::open_db()) {
+        _db = new (std::nothrow) KVStoreSecurityDb();
+    } else
+#endif
+    {
         _db = new (std::nothrow) MemorySecurityDb();
     }
 

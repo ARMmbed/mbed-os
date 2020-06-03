@@ -17,6 +17,8 @@
 #ifndef GENERIC_FILE_SECURITY_DB_H_
 #define GENERIC_FILE_SECURITY_DB_H_
 
+#if BLE_SECURITY_DATABASE_FILESYSTEM
+
 #include "SecurityDb.h"
 
 #include <stdio.h>
@@ -166,5 +168,7 @@ private:
 
 } /* namespace pal */
 } /* namespace ble */
+
+#endif // BLE_SECURITY_DATABASE_FILESYSTEM
 
 #endif /*GENERIC_FILE_SECURITY_DB_H_*/
