@@ -42,3 +42,7 @@ A partial implementation is present in the file
 delivering memory to the stack and a complete reset sequence. However, it does
 not define any initialization for the Bluetooth controller, this part being
 specific to the controller used.
+
+The driver also provides an interface to perform RF testing on the BLE trasnmitter.
+This is done using the LE Receiver/Transmitter Test command and LE Test End command
+as described in the Bluetooth Core spec in Vol.2, Part E, 7.8.28-30. 
