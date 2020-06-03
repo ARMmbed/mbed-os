@@ -964,7 +964,7 @@ public:
     ble_error_t set_private_address_timeout(
         uint16_t timeout_in_seconds
     ) {
-        return impl()->set_private_address_timeout(timeout_in_seconds);
+        return impl()->set_private_address_timeout_(timeout_in_seconds);
     }
 
     /**
