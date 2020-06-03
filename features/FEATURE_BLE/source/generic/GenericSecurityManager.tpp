@@ -167,7 +167,21 @@ template<template<class> class TPalSecurityManager, template<class> class Signin
 ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::purgeAllBondingState_(void) {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     _db->clear_entries();
-    return BLE_ERROR_NONE;
+
+    ble_error_t ret = BLE_ERROR_NONE;
+
+#if BLE_FEATURE_SIGNING
+    // generate new csrk and irk
+    ret = init_signing();
+    if (ret) {
+        return ret;
+    }
+#endif // BLE_FEATURE_SIGNING
+#if BLE_FEATURE_PRIVACY
+    ret = init_identity();
+#endif // BLE_FEATURE_PRIVACY
+
+    return ret;
 }
 
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
