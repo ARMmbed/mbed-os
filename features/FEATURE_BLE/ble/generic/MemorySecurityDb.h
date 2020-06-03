@@ -34,8 +34,6 @@ private:
         SecurityEntrySigning_t peer_signing;
     };
 
-    static const size_t MAX_ENTRIES = 5;
-
     static entry_t* as_entry(entry_handle_t db_handle)
     {
         return reinterpret_cast<entry_t*>(db_handle);
@@ -150,11 +148,11 @@ public:
 
 private:
     virtual uint8_t get_entry_count() {
-        return MAX_ENTRIES;
+        return BLE_SECURITY_DATABASE_MAX_ENTRIES;
     }
 
     virtual SecurityDistributionFlags_t* get_entry_handle_by_index(uint8_t index) {
-        if (index < MAX_ENTRIES) {
+        if (index < BLE_SECURITY_DATABASE_MAX_ENTRIES) {
             return &_entries[index].flags;
         } else {
             return NULL;
@@ -187,7 +185,7 @@ private:
     };
 
 private:
-    entry_t _entries[MAX_ENTRIES];
+    entry_t _entries[BLE_SECURITY_DATABASE_MAX_ENTRIES];
 };
 
 } /* namespace pal */

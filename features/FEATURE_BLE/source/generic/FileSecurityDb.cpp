@@ -54,7 +54,7 @@ const uint16_t DB_VERSION = 1;
     )
 
 #define DB_SIZE_STORES \
-    (FileSecurityDb::MAX_ENTRIES * DB_SIZE_STORE)
+    (BLE_SECURITY_DATABASE_MAX_ENTRIES * DB_SIZE_STORE)
 
 #define DB_OFFSET_VERSION          (0)
 #define DB_OFFSET_RESTORE          (DB_OFFSET_VERSION + sizeof(DB_VERSION))
@@ -308,11 +308,11 @@ void FileSecurityDb::set_restore(bool reload) {
 /* helper functions */
 
 uint8_t FileSecurityDb::get_entry_count() {
-    return MAX_ENTRIES;
+    return BLE_SECURITY_DATABASE_MAX_ENTRIES;
 }
 
 SecurityDistributionFlags_t* FileSecurityDb::get_entry_handle_by_index(uint8_t index) {
-    if (index < MAX_ENTRIES) {
+    if (index < BLE_SECURITY_DATABASE_MAX_ENTRIES) {
         return &_entries[index].flags;
     } else {
         return NULL;

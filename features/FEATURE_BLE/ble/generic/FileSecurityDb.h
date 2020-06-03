@@ -34,8 +34,6 @@ private:
         size_t file_offset;
     };
 
-    static const size_t MAX_ENTRIES = 5;
-
     static entry_t* as_entry(entry_handle_t db_handle) {
         return reinterpret_cast<entry_t*>(db_handle);
     }
@@ -146,7 +144,7 @@ private:
     static FILE* erase_db_file(FILE* db_file);
 
 private:
-    entry_t _entries[MAX_ENTRIES];
+    entry_t _entries[BLE_SECURITY_DATABASE_MAX_ENTRIES];
     FILE *_db_file;
     uint8_t _buffer[sizeof(SecurityEntryKeys_t)];
 };

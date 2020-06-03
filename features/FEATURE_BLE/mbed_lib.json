@@ -71,6 +71,11 @@
             "help": "Include periodic advertising support, depends on the extended advertising feature.",
             "value": true,
             "macro_name": "BLE_FEATURE_PERIODIC_ADVERTISING"
+        },
+        "ble-security-database-max-entries": {
+            "help": "How many entries can be stored in the db, depends on security manager.",
+            "value": 5,
+            "macro_name": "BLE_SECURITY_DATABASE_MAX_ENTRIES"
         }
     }
 }
