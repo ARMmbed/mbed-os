@@ -124,6 +124,10 @@ public:
         bool required = true
     );
 
+    ble_error_t getPeerIdentity_(
+        connection_handle_t connection
+    );
+
     ////////////////////////////////////////////////////////////////////////////
     // Feature support
     //
@@ -320,6 +324,13 @@ private:
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
     ble_error_t init_signing();
+
+    /**
+     * Generate the IRK if needed.
+     *
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    ble_error_t init_identity();
 
     /**
      * Fills the buffer with the specified number of bytes of random data
