@@ -750,7 +750,7 @@ private:
 
     /**
      * This will read in the requested information into a buffer that will remain valid
-     * until another read_in call is made.
+     * until another read_in call is made or an entry is written.
      * @param db_handle handle of the entry to be read
      * @return pointer to buffer holding the query result, NULL when not found
      */
@@ -758,7 +758,7 @@ private:
 
     /**
      * This will read in the requested information into a buffer that will remain valid
-     * until another read_in call is made.
+     * until another read_in call is made or an entry is written.
      * @param db_handle handle of the entry to be read
      * @return pointer to buffer holding the query result, NULL when not found
      */
@@ -766,7 +766,7 @@ private:
 
     /**
      * This will read in the requested information into a buffer that will remain valid
-     * until another read_in call is made.
+     * until another read_in call is made or an entry is written.
      * @param db_handle handle of the entry to be read
      * @return pointer to buffer holding the query result, NULL when not found
      */
@@ -774,7 +774,7 @@ private:
 
     /**
      * This will read in the requested information into a buffer that will remain valid
-     * until another read_in call is made.
+     * until another read_in call is made or an entry is written.
      * @param db_handle handle of the entry to be read
      * @return pointer to buffer holding the query result, NULL when not found
      */
