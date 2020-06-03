@@ -258,9 +258,9 @@ void LPSPI_MasterGetDefaultConfig(lpspi_master_config_t *masterConfig)
     masterConfig->cpha         = kLPSPI_ClockPhaseFirstEdge;
     masterConfig->direction    = kLPSPI_MsbFirst;
 
-    masterConfig->pcsToSckDelayInNanoSec        = 1000000000 / masterConfig->baudRate * 2;
-    masterConfig->lastSckToPcsDelayInNanoSec    = 1000000000 / masterConfig->baudRate * 2;
-    masterConfig->betweenTransferDelayInNanoSec = 1000000000 / masterConfig->baudRate * 2;
+    masterConfig->pcsToSckDelayInNanoSec        = 80;
+    masterConfig->lastSckToPcsDelayInNanoSec    = 60;
+    masterConfig->betweenTransferDelayInNanoSec = 160;
 
     masterConfig->whichPcs           = kLPSPI_Pcs0;
     masterConfig->pcsActiveHighOrLow = kLPSPI_PcsActiveLow;
@@ -871,14 +871,18 @@ status_t LPSPI_MasterTransferBlocking(LPSPI_Type *base, lpspi_transfer_t *transf
         {
         }
 
-        if (txData)
+        /* To prevent rxfifo overflow, ensure transmitting and receiving are executed in parallel */
+        if(((NULL == rxData) || (rxRemainingByteCount - txRemainingByteCount)/bytesEachRead < fifoSize))
         {
-            wordToSend = LPSPI_CombineWriteData(txData, bytesEachWrite, isByteSwap);
-            txData += bytesEachWrite;
-        }
+            if (txData)
+            {
+                wordToSend = LPSPI_CombineWriteData(txData, bytesEachWrite, isByteSwap);
+                txData += bytesEachWrite;
+            }
 
-        LPSPI_WriteData(base, wordToSend);
-        txRemainingByteCount -= bytesEachWrite;
+            LPSPI_WriteData(base, wordToSend);
+            txRemainingByteCount -= bytesEachWrite;
+        }
 
         /*Check whether there is RX data in RX FIFO . Read out the RX data so that the RX FIFO would not overrun.*/
         if (rxData)
