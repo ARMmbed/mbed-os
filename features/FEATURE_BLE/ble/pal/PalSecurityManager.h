@@ -967,6 +967,22 @@ public:
         return impl()->set_private_address_timeout(timeout_in_seconds);
     }
 
+    /**
+     * Retrieve the identity address used by the controller
+     *
+     * @param address Will contain the address retrieved.
+     * @param public_address will be true if the address is public and false
+     * otherwise.
+     * @return BLE_ERROR_NONE On success, else an error code indicating the reason
+     * of the failure
+     */
+    ble_error_t get_identity_address(
+        address_t& address,
+        bool& public_address
+    ) {
+        return impl()->get_identity_address_(address, public_address);
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // Keys
     //
