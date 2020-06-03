@@ -441,6 +441,15 @@ public:
         _local_identity.identity_address_is_public = public_address;
     }
 
+    /**
+     * Return local irk.
+     *
+     * @return irk
+     */
+    virtual irk_t get_local_irk() {
+        return _local_identity.irk;
+    }
+
     /* list management */
 
     /**
