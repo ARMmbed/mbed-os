@@ -617,6 +617,21 @@ public:
                 continue;
             }
 
+            // Add the connection address
+            whitelist->addresses[whitelist->size].address = flags->peer_address.data();
+
+            if (flags->peer_address_is_public) {
+                whitelist->addresses[whitelist->size].type = peer_address_type_t::PUBLIC;
+            } else {
+                whitelist->addresses[whitelist->size].type = peer_address_type_t::RANDOM;
+            }
+
+            whitelist->size++;
+            if (whitelist->size == whitelist->capacity) {
+                break;
+            }
+
+            // Add the identity address
             SecurityEntryIdentity_t* identity = read_in_entry_peer_identity(db_handle);
             if (!identity) {
                 continue;
