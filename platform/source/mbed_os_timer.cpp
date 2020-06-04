@@ -22,7 +22,7 @@
 #include "us_ticker_api.h"
 #include "lp_ticker_api.h"
 #include "mbed_critical.h"
-#include "mbed_assert.h"
+#include "mbed_error.h"
 #include <new>
 
 /* This provides the marshalling point for a system global SysTimer, which
@@ -47,15 +47,13 @@ OsTimer *init_os_timer()
     // Locking not required as it will be first called during
     // OS init, or else we're a non-RTOS single-threaded setup.
     if (!os_timer) {
-#if MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER && DEVICE_USTICKER
-        os_timer = new (os_timer_data) OsTimer(get_us_ticker_data());
-#elif !MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER && DEVICE_LPTICKER
+#if DEVICE_LPTICKER && !MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER
         os_timer = new (os_timer_data) OsTimer(get_lp_ticker_data());
+#elif DEVICE_USTICKER
+        os_timer = new (os_timer_data) OsTimer(get_us_ticker_data());
 #else
-        MBED_ASSERT("OS timer not available - check MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER" && false);
-        return NULL;
+        MBED_ERROR("OS timer not available");
 #endif
-        //os_timer->setup_irq();
     }
 
     return os_timer;
