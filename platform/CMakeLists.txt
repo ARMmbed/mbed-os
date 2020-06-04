@@ -17,7 +17,6 @@ target_sources(mbed-os PRIVATE
     Callback.h
     CircularBuffer.h
     CMakeLists.txt
-    critical.h
     CriticalSectionLock.h
     CThunk.h
     DeepSleepLock.h
@@ -45,7 +44,6 @@ target_sources(mbed-os PRIVATE
     mbed_retarget.h
     mbed_rtc_time.h
     mbed_semihost_api.h
-    mbed_sleep.h
     mbed_stats.h
     mbed_thread.h
     mbed_toolchain.h
@@ -54,19 +52,14 @@ target_sources(mbed-os PRIVATE
     NonCopyable.h
     platform.h
     PlatformMutex.h
-    rtc_time.h
     ScopedLock.h
     ScopedRamExecutionLock.h
     ScopedRomWriteLock.h
-    semihost_api.h
     SharedPtr.h
     SingletonPtr.h
-    sleep.h
     Span.h
     Stream.h
-    toolchain.h
     Transaction.h
-    wait_api.h
 
     source/ATCmdParser.cpp
     source/CriticalSectionLock.cpp
@@ -102,7 +95,6 @@ target_sources(mbed-os PRIVATE
     source/mbed_stats.c
     source/mbed_thread.cpp
     source/mbed_wait_api_no_rtos.c
-    source/mbed_wait_api_rtos.cpp
     source/Stream.cpp
     source/SysTimer.cpp
     source/SysTimer.h
