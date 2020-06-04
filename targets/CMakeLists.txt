@@ -1,3 +1,4 @@
 # SPDX-License-Identifier: Apache-2.0
 
-mbed_add_cmake_directory("" "${MBED_OS_TARGET_LABELS}")
+get_property(target_labels GLOBAL PROPERTY MBED_OS_TARGET_LABELS)
+mbed_add_cmake_directory("" "${target_labels}")
