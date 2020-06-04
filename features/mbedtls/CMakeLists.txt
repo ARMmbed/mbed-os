@@ -1,10 +1,69 @@
 # SPDX-License-Identifier: Apache-2.0
 
-add_subdirectory(mbed-crypto)
-
 mbed_add_cmake_directory_if_labels("platform/TARGET")
 
 target_sources(mbed-os PRIVATE platform/src/mbed_trng.cpp)
+
+target_sources(mbed-os
+PRIVATE
+    src/aes.c
+    src/aesni.c
+    src/arc4.c
+    src/aria.c
+    src/asn1parse.c
+    src/asn1write.c
+    src/base64.c
+    src/bignum.c
+    src/blowfish.c
+    src/camellia.c
+    src/ccm.c
+    src/chacha20.c
+    src/chachapoly.c
+    src/cipher.c
+    src/cipher_wrap.c
+    src/cmac.c
+    src/ctr_drbg.c
+    src/des.c
+    src/dhm.c
+    src/ecdh.c
+    src/ecdsa.c
+    src/ecjpake.c
+    src/ecp.c
+    src/ecp_curves.c
+    src/entropy.c
+    src/entropy_poll.c
+    src/gcm.c
+    src/havege.c
+    src/hkdf.c
+    src/hmac_drbg.c
+    src/md.c
+    src/md2.c
+    src/md4.c
+    src/md5.c
+    src/memory_buffer_alloc.c
+    src/nist_kw.c
+    src/oid.c
+    src/padlock.c
+    src/pem.c
+    src/pk.c
+    src/pk_wrap.c
+    src/pkcs12.c
+    src/pkcs5.c
+    src/pkparse.c
+    src/pkwrite.c
+    src/platform.c
+    src/platform_util.c
+    src/poly1305.c
+    src/ripemd160.c
+    src/rsa.c
+    src/rsa_internal.c
+    src/sha1.c
+    src/sha256.c
+    src/sha512.c
+    src/threading.c
+    src/timing.c
+    src/xtea.c
+)
 
 target_include_directories(mbed-os PUBLIC .)
 target_include_directories(mbed-os PUBLIC inc)
