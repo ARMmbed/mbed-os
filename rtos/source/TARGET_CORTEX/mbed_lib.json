@@ -76,6 +76,9 @@
         "STM32F072RB": {
             "main-thread-stack-size": 3072
         },
+        "TMPM46B": {
+            "main-thread-stack-size": 3072
+        },
         "NUVOTON": {
             "idle-thread-stack-size-debug-extra": 512
         }

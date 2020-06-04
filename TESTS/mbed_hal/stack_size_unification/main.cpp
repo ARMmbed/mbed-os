@@ -31,19 +31,11 @@ extern osThreadAttr_t _main_thread_attr;
 #endif
 extern uint32_t mbed_stack_isr_size;
 
-#if !defined(MBED_CONF_RTOS_PRESENT)
-#define EXPECTED_ISR_STACK_SIZE                  (4096)
-#else
-#define EXPECTED_ISR_STACK_SIZE                  (1024)
-#endif
+#define EXPECTED_ISR_STACK_SIZE                  (MBED_CONF_TARGET_BOOT_STACK_SIZE)
 
-#if defined(TARGET_NUCLEO_F070RB) || defined(TARGET_STM32F072RB) || defined(TARGET_TMPM46B) || defined(TARGET_TMPM066)
-#define EXPECTED_MAIN_THREAD_STACK_SIZE          (3072)
-#else
-#define EXPECTED_MAIN_THREAD_STACK_SIZE          (4096)
-#endif
+#define EXPECTED_MAIN_THREAD_STACK_SIZE          (MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE)
 
-#define EXPECTED_USER_THREAD_DEFAULT_STACK_SIZE  (4096)
+#define EXPECTED_USER_THREAD_DEFAULT_STACK_SIZE  (MBED_CONF_RTOS_THREAD_STACK_SIZE)
 
 #if ((MBED_RAM_SIZE - MBED_BOOT_STACK_SIZE) <= (EXPECTED_MAIN_THREAD_STACK_SIZE + EXPECTED_ISR_STACK_SIZE))
 #error [NOT_SUPPORTED] Insufficient stack for staci_size_unification tests
