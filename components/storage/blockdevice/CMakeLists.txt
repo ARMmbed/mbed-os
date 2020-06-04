@@ -1,14 +1,5 @@
 # Copyright (c) 2020 ARM Limited. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-target_include_directories(mbed-os
-	PUBLIC
-		${CMAKE_CURRENT_SOURCE_DIR}
-)
+mbed_add_cmake_directory_if_labels("COMPONENT")
 
-target_sources(mbed-os
-	PRIVATE
-		COMPONENT_FLASHIAP/FlashIAPBlockDevice.cpp
-		COMPONENT_SD/SDBlockDevice.cpp
-		COMPONENT_QSPIF/QSPIFBlockDevice.cpp
-)
