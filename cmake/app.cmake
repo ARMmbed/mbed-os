@@ -16,7 +16,9 @@ function(mbed_add_cmake_directory PREFIX KEYWORDLIST)
 endfunction()
 
 # Include other required CMake files
+# TODO: @mbed-os-tools This needs to come from tools, we should include here toolchain cmake
 include(${MBED_OS_ROOT}/cmake/gcc.cmake)
+
 include(${MBED_OS_ROOT}/cmake/target.cmake)
 include(${MBED_OS_ROOT}/cmake/env.cmake)
 
