@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Nuvoton Technology Corp. 
+ * Copyright (c) 2018 Nuvoton Technology Corp.
  * Copyright (c) 2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,7 +37,7 @@
 #include "numaker_eth_hal.h"
 
 /********************************************************************************
- * 
+ *
  ********************************************************************************/
 #define NU_BUFF_ALIGNMENT       4
 #define PHY_LINKED_STATE        1
@@ -48,6 +48,7 @@ extern "C" void numaker_eth_rx_next(void);
 /* \brief Flags for worker thread */
 #define FLAG_TX  1
 #define FLAG_RX  2
+#define FLAG_BUS_RESET 4
 
 /** \brief  Driver thread priority */
 #define THREAD_PRIORITY (osPriorityNormal)
@@ -82,24 +83,32 @@ void NUMAKER_EMAC::rx_isr()
     }
 }
 
+void NUMAKER_EMAC::bus_isr()
+{
+    if (thread) {
+        osThreadFlagsSet(thread, FLAG_BUS_RESET);
+    }
+}
+
 void NUMAKER_EMAC::tx_isr()
 {
-  /* No-op at this stage */    
-}    
+    /* No-op at this stage */
+}
 
 void NUMAKER_EMAC::ethernet_callback(char event, void *param)
 {
     NUMAKER_EMAC *enet = static_cast<NUMAKER_EMAC *>(param);
-    switch (event)
-    {
-      case 'R': //For RX event
-        enet->rx_isr();
-        break;
-      case 'T': //For TX event
-        enet->tx_isr();
-        break;
-      default:
-        break;
+    switch (event) {
+        case 'R': //For RX event
+            enet->rx_isr();
+            break;
+        case 'T': //For TX event
+            enet->tx_isr();
+            break;
+        case 'B': // For BUS event
+            enet->bus_isr();
+        default:
+            break;
     }
 }
 
@@ -112,13 +121,13 @@ bool NUMAKER_EMAC::low_level_init_successful()
     /* Init ETH */
 
     mbed_mac_address((char *)hwaddr);
-    printf("mac address %02x-%02x-%02x-%02x-%02x-%02x \r\n", hwaddr[0], hwaddr[1],hwaddr[2],hwaddr[3],hwaddr[4],hwaddr[5]);
+    printf("mac address %02x-%02x-%02x-%02x-%02x-%02x \r\n", hwaddr[0], hwaddr[1], hwaddr[2], hwaddr[3], hwaddr[4], hwaddr[5]);
     /* Enable clock & set EMAC configuration         */
     /* Enable MAC and DMA transmission and reception */
     numaker_eth_init(hwaddr);
-    
+
     numaker_eth_set_cb(&NUMAKER_EMAC::ethernet_callback, this);
-    
+
     return true;
 }
 
@@ -133,7 +142,7 @@ int NUMAKER_EMAC::low_level_input(emac_mem_buf_t **buf)
     uint32_t payloadoffset = 0;
 
     /* get received frame */
-    if ( numaker_eth_get_rx_buf(&len, &buffer) != 0) {
+    if (numaker_eth_get_rx_buf(&len, &buffer) != 0) {
         return -1;
     }
     byteslefttocopy = len;
@@ -148,10 +157,10 @@ int NUMAKER_EMAC::low_level_input(emac_mem_buf_t **buf)
         for (q = *buf; q != NULL; q = memory_manager->get_next(q)) {
             byteslefttocopy = memory_manager->get_len(q);
             payloadoffset = 0;
-            NU_DEBUGF(("offset=[%d], bytes-to-copy[%d]\r\n",bufferoffset,byteslefttocopy));
+            NU_DEBUGF(("offset=[%d], bytes-to-copy[%d]\r\n", bufferoffset, byteslefttocopy));
             /* Copy data in pbuf */
             memcpy(static_cast<uint8_t *>(memory_manager->get_ptr(q)) + payloadoffset, static_cast<uint8_t *>(buffer) + bufferoffset, byteslefttocopy);
-            
+
             bufferoffset = bufferoffset + byteslefttocopy;
         }
     }
@@ -167,15 +176,19 @@ int NUMAKER_EMAC::low_level_input(emac_mem_buf_t **buf)
  *  \param[in] pvParameters pointer to the interface data
  */
 
-void NUMAKER_EMAC::thread_function(void* pvParameters)
+void NUMAKER_EMAC::thread_function(void *pvParameters)
 {
     static struct NUMAKER_EMAC *nu_enet = static_cast<NUMAKER_EMAC *>(pvParameters);
 
     for (;;) {
-        uint32_t flags = osThreadFlagsWait(FLAG_RX, osFlagsWaitAny, osWaitForever);
+        uint32_t flags = osThreadFlagsWait(FLAG_RX | FLAG_BUS_RESET, osFlagsWaitAny, osWaitForever);
 
         if (flags & FLAG_RX) {
             nu_enet->packet_rx();
+        }
+        if (flags & FLAG_BUS_RESET) {
+            NU_DEBUGF(("BUS error and reset bus\r\n"));
+            nu_enet->bus_reset();
         }
     }
 }
@@ -187,20 +200,20 @@ void NUMAKER_EMAC::thread_function(void* pvParameters)
  */
 void NUMAKER_EMAC::packet_rx()
 {
-  /* move received packet into a new buf */
-  while (1) {
-      emac_mem_buf_t *p = NULL;
-      if (low_level_input(&p) < 0) {
-          break;
-      }
-      if (p) {
-          NU_DEBUGF(("%s ... p=0x%x\r\n",__FUNCTION__,p));
-          emac_link_input_cb(p);
-      }
-      numaker_eth_rx_next();
-  }
-  numaker_eth_trigger_rx();
-  
+    /* move received packet into a new buf */
+    while (1) {
+        emac_mem_buf_t *p = NULL;
+        if (low_level_input(&p) < 0) {
+            break;
+        }
+        if (p) {
+            NU_DEBUGF(("%s ... p=0x%x\r\n", __FUNCTION__, p));
+            emac_link_input_cb(p);
+        }
+        numaker_eth_rx_next();
+    }
+    numaker_eth_trigger_rx();
+
 }
 
 
@@ -231,15 +244,17 @@ bool NUMAKER_EMAC::link_out(emac_mem_buf_t *buf)
     /* Get exclusive access */
     TXLockMutex.lock();
     buffer = numaker_eth_get_tx_buf();
-    NU_DEBUGF(("%s ... buffer=0x%x\r\n",__FUNCTION__, buffer));
-    if( buffer == NULL ) goto error;
+    NU_DEBUGF(("%s ... buffer=0x%x\r\n", __FUNCTION__, buffer));
+    if (buffer == NULL) {
+        goto error;
+    }
     /* copy frame from buf to driver buffers */
     for (q = buf; q != NULL; q = memory_manager->get_next(q)) {
 
         /* Get bytes in current lwIP buffer */
         byteslefttocopy = memory_manager->get_len(q);
         payloadoffset = 0;
-        NU_DEBUGF(("offset=%d, bytes-to-copy=%d\r\n",bufferoffset, byteslefttocopy));
+        NU_DEBUGF(("offset=%d, bytes-to-copy=%d\r\n", bufferoffset, byteslefttocopy));
         /* Check if the length of data to copy is bigger than Tx buffer size*/
         while ((byteslefttocopy + bufferoffset) > PACKET_BUFFER_SIZE) {
             /* Copy data to Tx buffer*/
@@ -248,20 +263,22 @@ bool NUMAKER_EMAC::link_out(emac_mem_buf_t *buf)
             /* Point to next descriptor */
             numaker_eth_trigger_tx(PACKET_BUFFER_SIZE, NULL);
             buffer = numaker_eth_get_tx_buf();
-            if( buffer == NULL ) goto error;
-            
+            if (buffer == NULL) {
+                goto error;
+            }
+
             byteslefttocopy = byteslefttocopy - (PACKET_BUFFER_SIZE - bufferoffset);
             payloadoffset = payloadoffset + (PACKET_BUFFER_SIZE - bufferoffset);
             framelength = framelength + (PACKET_BUFFER_SIZE - bufferoffset);
             bufferoffset = 0;
         }
-        
+
         /* Copy the remaining bytes */
         memcpy(static_cast<uint8_t *>(buffer) + bufferoffset, static_cast<uint8_t *>(memory_manager->get_ptr(q)) + payloadoffset, byteslefttocopy);
         bufferoffset = bufferoffset + byteslefttocopy;
         framelength = framelength + byteslefttocopy;
     }
-    
+
     /* Prepare transmit descriptors to give to DMA */
     numaker_eth_trigger_tx(framelength, NULL);
 
@@ -280,57 +297,72 @@ error:
 
 void NUMAKER_EMAC::phy_task()
 {
-    
+
     // Get current status
     int state;
     state = numaker_eth_link_ok();
 
-    
+
     if ((state & PHY_LINKED_STATE) && !(phy_state & PHY_LINKED_STATE)) {
         NU_DEBUGF(("Link Up\r\n"));
-        if (emac_link_state_cb) emac_link_state_cb(true);
+        if (emac_link_state_cb) {
+            emac_link_state_cb(true);
+        }
     } else if (!(state & PHY_LINKED_STATE) && (phy_state & PHY_LINKED_STATE)) {
         NU_DEBUGF(("Link Down\r\n"));
-        if (emac_link_state_cb) emac_link_state_cb(false);
+        if (emac_link_state_cb) {
+            emac_link_state_cb(false);
+        }
     }
-    phy_state = state;        
+    phy_state = state;
 
 }
 
 bool NUMAKER_EMAC::power_up()
 {
-  /* Initialize the hardware */
-  if (!low_level_init_successful())
-    return false;
+    /* Initialize the hardware */
+    if (!low_level_init_successful()) {
+        return false;
+    }
 
-  /* Worker thread */
-  thread = create_new_thread("numaker_emac_thread", &NUMAKER_EMAC::thread_function, this, THREAD_STACKSIZE, THREAD_PRIORITY, &thread_cb);
+    /* Worker thread */
+    thread = create_new_thread("numaker_emac_thread", &NUMAKER_EMAC::thread_function, this, THREAD_STACKSIZE * 2, THREAD_PRIORITY, &thread_cb);
 
-  /* PHY monitoring task */
-  phy_state = PHY_UNLINKED_STATE;
+    /* PHY monitoring task */
+    phy_state = PHY_UNLINKED_STATE;
 
-  phy_task_handle = mbed::mbed_event_queue()->call_every(PHY_TASK_PERIOD_MS, mbed::callback(this, &NUMAKER_EMAC::phy_task));
+    phy_task_handle = mbed::mbed_event_queue()->call_every(PHY_TASK_PERIOD_MS, mbed::callback(this, &NUMAKER_EMAC::phy_task));
 
-  /* Allow the PHY task to detect the initial link state and set up the proper flags */
-  osDelay(10);
-  numaker_eth_enable_interrupts();
-  return true;
+    /* Allow the PHY task to detect the initial link state and set up the proper flags */
+    osDelay(10);
+    numaker_eth_enable_interrupts();
+    return true;
+}
+
+bool NUMAKER_EMAC::bus_reset()
+{
+    /* Initialize the hardware */
+    if (!low_level_init_successful()) {
+        return false;
+    }
+    numaker_eth_enable_interrupts();
+    return true;
 }
 
 
 uint32_t NUMAKER_EMAC::get_mtu_size() const
 {
-  return NU_ETH_MTU_SIZE;
+    return NU_ETH_MTU_SIZE;
 }
 
 uint32_t NUMAKER_EMAC::get_align_preference() const
 {
-  return NU_BUFF_ALIGNMENT;
+    return NU_BUFF_ALIGNMENT;
 }
 
 void NUMAKER_EMAC::get_ifname(char *name, uint8_t size) const
 {
-  memcpy(name, NU_ETH_IF_NAME, (size < sizeof(NU_ETH_IF_NAME)) ? size : sizeof(NU_ETH_IF_NAME));
+    memcpy(name, NU_ETH_IF_NAME, (size < sizeof(NU_ETH_IF_NAME)) ? size : sizeof(NU_ETH_IF_NAME));
 }
 
 uint8_t NUMAKER_EMAC::get_hwaddr_size() const
@@ -346,39 +378,39 @@ bool NUMAKER_EMAC::get_hwaddr(uint8_t *addr) const
 
 void NUMAKER_EMAC::set_hwaddr(const uint8_t *addr)
 {
-  memcpy(hwaddr, addr, sizeof hwaddr);
-  numaker_set_mac_addr(const_cast<uint8_t*>(addr));
+    memcpy(hwaddr, addr, sizeof hwaddr);
+    numaker_set_mac_addr(const_cast<uint8_t *>(addr));
 }
 
 void NUMAKER_EMAC::set_link_input_cb(emac_link_input_cb_t input_cb)
 {
-  emac_link_input_cb = input_cb;
+    emac_link_input_cb = input_cb;
 }
 
 void NUMAKER_EMAC::set_link_state_cb(emac_link_state_change_cb_t state_cb)
 {
-  emac_link_state_cb = state_cb;
+    emac_link_state_cb = state_cb;
 }
 
 void NUMAKER_EMAC::add_multicast_group(const uint8_t *addr)
 {
-  /* No-op at this stage */
+    /* No-op at this stage */
 }
 
 void NUMAKER_EMAC::remove_multicast_group(const uint8_t *addr)
 {
-  /* No-op at this stage */
+    /* No-op at this stage */
 }
 
 void NUMAKER_EMAC::set_all_multicast(bool all)
 {
-  /* No-op at this stage */
+    /* No-op at this stage */
 }
 
 
 void NUMAKER_EMAC::power_down()
 {
-  /* No-op at this stage */
+    /* No-op at this stage */
 }
 
 void NUMAKER_EMAC::set_memory_manager(EMACMemoryManager &mem_mngr)
@@ -387,13 +419,15 @@ void NUMAKER_EMAC::set_memory_manager(EMACMemoryManager &mem_mngr)
 }
 
 
-NUMAKER_EMAC &NUMAKER_EMAC::get_instance() {
+NUMAKER_EMAC &NUMAKER_EMAC::get_instance()
+{
     static NUMAKER_EMAC emac;
     return emac;
 }
 
 // Weak so a module can override
-MBED_WEAK EMAC &EMAC::get_default_instance() {
+MBED_WEAK EMAC &EMAC::get_default_instance()
+{
     return NUMAKER_EMAC::get_instance();
 }
 
