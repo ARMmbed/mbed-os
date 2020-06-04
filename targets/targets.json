@@ -3011,6 +3011,7 @@
             "QSPI",
             "MPU"
         ],
+        "OUTPUT_EXT": "hex",
         "bootloader_supported": true
     },
     "DISCO_L072CZ_LRWAN1": {
