@@ -29,6 +29,12 @@
 */
 
 #include "fsl_common.h"
+
+/* At least CMSIS 5.7 introduced vector table and define this GCC linker symbol to
+ __Vectors - not valid for many NXP MCU. To fix this, we undefine it if already defined
+ as it comes from a linker */
+#undef __VECTOR_TABLE
+
 void InstallIRQHandler(IRQn_Type irq, uint32_t irqHandler)
 {
 /* Addresses for VECTOR_TABLE and VECTOR_RAM come from the linker file */
