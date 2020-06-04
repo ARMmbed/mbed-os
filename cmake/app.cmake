@@ -1,9 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# TODO : this logic is for any TARGET, FEATURE etc,
-#  thus this should be done genericaly
-# Add TARGET_ directory to the CMake tree
-
 # PREFIX - TARGET or similar (can be empty string)
 # KEYWORD_LIST - list of labels that are used to include directories
 function(mbed_add_cmake_directory PREFIX KEYWORDLIST)
