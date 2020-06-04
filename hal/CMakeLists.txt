@@ -9,7 +9,6 @@ target_sources(mbed-os PRIVATE
     crc_api.h
     critical_section_api.h
     dma_api.h
-    ethernet_api.h
     flash_api.h
     gpio_api.h
     gpio_irq_api.h
@@ -41,7 +40,6 @@ target_sources(mbed-os PRIVATE
     serial_api.h
     sleep_api.h
     spi_api.h
-    spm_api.h
     static_pinmap.cpp
     static_pinmap.h
     ticker_api.h
