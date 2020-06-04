@@ -101,6 +101,12 @@ cy_rslt_t cybsp_init(void)
     sleep_manager_lock_deep_sleep();
 #endif
 
+    /* Reserve clock dividers used by NP. */
+    cyhal_clock_divider_t clock1;
+    cyhal_hwmgr_allocate_clock(&clock1, CY_SYSCLK_DIV_16_BIT, true);
+    cyhal_clock_divider_t clock2;
+    cyhal_hwmgr_allocate_clock(&clock2, CY_SYSCLK_DIV_16_BIT, true);
+
     /* CYHAL_HWMGR_RSLT_ERR_INUSE error code could be returned if any needed for BSP resource was reserved by
      * user previously. Please review the Device Configurator (design.modus) and the BSP reservation list
      * (cyreservedresources.list) to make sure no resources are reserved by both.
