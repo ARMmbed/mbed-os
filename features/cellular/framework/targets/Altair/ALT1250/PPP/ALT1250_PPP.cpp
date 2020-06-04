@@ -35,7 +35,7 @@ using namespace events;
 #endif
 
 static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
-    AT_CellularNetwork::RegistrationModeEnable,// C_EREG
+    AT_CellularNetwork::RegistrationModeLAC,// C_EREG
     AT_CellularNetwork::RegistrationModeDisable,    // C_GREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_REG
     1,  // AT_CGSN_WITH_TYPE
