@@ -1,9 +1,11 @@
 #! armcc -E
 ; Scatter-Loading Description File
+;
+; SPDX-License-Identifier: BSD-3-Clause
 ;******************************************************************************
 ;* @attention
 ;*
-;* Copyright (c) 2019 STMicroelectronics.
+;* Copyright (c) 2016-2020 STMicroelectronics.
 ;* All rights reserved.
 ;*
 ;* This software component is licensed by ST under BSD 3-Clause license,
@@ -13,39 +15,39 @@
 ;*
 ;******************************************************************************
 
+#include "../cmsis_nvic.h"
+
 #if !defined(MBED_APP_START)
-  #define MBED_APP_START 0x08100000
+  #define MBED_APP_START  MBED_ROM_START
 #endif
 
 #if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE 0x100000
+  #define MBED_APP_SIZE  MBED_ROM_SIZE
 #endif
 
 #if !defined(MBED_BOOT_STACK_SIZE)
-  #define MBED_BOOT_STACK_SIZE 0x400
+/* This value is normally defined by the tools to 0x1000 for bare metal and 0x400 for RTOS */
+  #define MBED_BOOT_STACK_SIZE  0x400
 #endif
 
-#define Stack_Size MBED_BOOT_STACK_SIZE
+/* Round up VECTORS_SIZE to 8 bytes */
+#define VECTORS_SIZE  (((NVIC_NUM_VECTORS * 4) + 7) AND ~7)
 
-#define MBED_RAM_START              0x10000000
-#define MBED_RAM_SIZE               0x48000
-#define MBED_VECTTABLE_RAM_START    (MBED_RAM_START)
-#define MBED_VECTTABLE_RAM_SIZE     0x298
-#define MBED_RAM0_START             (MBED_VECTTABLE_RAM_START + MBED_VECTTABLE_RAM_SIZE)
-#define MBED_RAM0_SIZE              (MBED_RAM_SIZE - MBED_VECTTABLE_RAM_SIZE)
+LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {
 
-LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
-
-  ER_IROM1 MBED_APP_START MBED_APP_SIZE  {  ; load address = execution address
-   *.o (RESET, +First)
-   *(InRoot$$Sections)
-   .ANY (+RO)
-  }
-  
-  RW_IRAM1 (MBED_RAM0_START) (MBED_RAM0_SIZE-Stack_Size)  {  ; RW data
-   .ANY (+RW +ZI)
+  ER_IROM1  MBED_APP_START  MBED_APP_SIZE  {
+    *.o (RESET, +First)
+    *(InRoot$$Sections)
+    .ANY (+RO)
   }
 
-  ARM_LIB_STACK (MBED_RAM0_START+MBED_RAM0_SIZE) EMPTY -Stack_Size { ; stack
+  RW_IRAM1  (MBED_RAM_START + VECTORS_SIZE)  {  ; RW data
+    .ANY (+RW +ZI)
+  }
+
+  ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (MBED_RAM_START + MBED_RAM_SIZE - MBED_BOOT_STACK_SIZE - AlignExpr(ImageLimit(RW_IRAM1), 16))  { ; Heap growing up
+  }
+
+  ARM_LIB_STACK  (MBED_RAM_START + MBED_RAM_SIZE)  EMPTY  -MBED_BOOT_STACK_SIZE  { ; Stack region growing down
   }
 }

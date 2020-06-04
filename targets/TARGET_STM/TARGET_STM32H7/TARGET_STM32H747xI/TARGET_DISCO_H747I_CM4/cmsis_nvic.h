@@ -3,7 +3,7 @@
  ******************************************************************************
  * @attention
  *
- * <h2><center>&copy; Copyright (c) 2015-2020 STMicroelectronics.
+ * <h2><center>&copy; Copyright (c) 2016-2020 STMicroelectronics.
  * All rights reserved.</center></h2>
  *
  * This software component is licensed by ST under BSD 3-Clause license,
@@ -17,24 +17,24 @@
 #ifndef MBED_CMSIS_NVIC_H
 #define MBED_CMSIS_NVIC_H
 
-// STM32F091RC
-// CORE: 16 vectors = 64 bytes from 0x00 to 0x3F
-// MCU Peripherals: 32 vectors = 128 bytes from 0x40 to 0xBF
-// Total: 48 vectors = 192 bytes (0xC0) to be reserved in RAM
-#define NVIC_NUM_VECTORS      48
-#define NVIC_USER_IRQ_OFFSET  16
-
-#include "cmsis.h"
-
-#ifdef __cplusplus
-extern "C" {
+#if !defined(MBED_ROM_START)
+#define MBED_ROM_START  0x8100000
 #endif
 
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
-uint32_t NVIC_GetVector(IRQn_Type IRQn);
-
-#ifdef __cplusplus
-}
+#if !defined(MBED_ROM_SIZE)
+#define MBED_ROM_SIZE  0x100000  // 1.0 MB
 #endif
+
+#if !defined(MBED_RAM_START)
+#define MBED_RAM_START  0x10000000
+#endif
+
+#if !defined(MBED_RAM_SIZE)
+#define MBED_RAM_SIZE  0x48000  // 288 KB
+#endif
+
+
+#define NVIC_NUM_VECTORS        166
+#define NVIC_RAM_VECTOR_ADDRESS MBED_RAM_START
 
 #endif

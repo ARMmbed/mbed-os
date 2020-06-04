@@ -1368,6 +1368,9 @@
                 "macro_name": "CLOCK_SOURCE"
             }
         },
+        "overrides": {
+            "tickless-from-us-ticker": true
+        },
         "detect_code": [
             "0700"
         ],
