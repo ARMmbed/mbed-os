@@ -11,7 +11,20 @@ function(_mbed_get_assembly_k64f)
     target_sources(mbed-os PRIVATE ${STARTUP_FILE})
 endfunction()
 
+function(_mbed_set_linker_file)
+    if(${MBED_OS_TOOLCHAIN} STREQUAL "GCC ARM")
+        set(LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/TOOLCHAIN_GCC_ARM/MK64FN1M0xxx12.ld)
+    elseif(${MBED_OS_TOOLCHAIN} STREQUAL ARM)
+        set(LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/TOOLCHAIN_ARM/MK64FN1M0xxx12.sct)
+    elseif(${MBED_OS_TOOLCHAIN} STREQUAL IAR)
+        set(LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/TOOLCHAIN_IAR/MK64FN1M0xxx12.icf)
+    endif()
+    set_property(GLOBAL PROPERTY MBED_OS_TARGET_LINKER_FILE ${LINKER_FILE})
+endfunction()
+
+
 _mbed_get_assembly_k64f()
+_mbed_set_linker_file()
 
 target_sources(mbed-os PRIVATE cmsis.h)
 target_sources(mbed-os PRIVATE cmsis_nvic.h)
