@@ -41,10 +41,7 @@ target_sources(mbed-os PRIVATE
     source/PortOut.cpp
     source/PwmOut.cpp
     source/QSPI.cpp
-    source/RawSerial.cpp
     source/ResetReason.cpp
-    source/Serial.cpp
-    source/Serial.cpp
     source/SerialWireOutput.cpp
     source/SFDP.cpp
     source/SPI.cpp
@@ -52,7 +49,6 @@ target_sources(mbed-os PRIVATE
     source/Timeout.cpp
     source/Timer.cpp
     source/TimerEvent.cpp
-    source/UARTSerial.cpp
     source/UnbufferedSerial.cpp
     source/Watchdog.cpp
     source/Watchdog.cpp
