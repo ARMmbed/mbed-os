@@ -653,22 +653,6 @@ void Gap<EventHandler>::gap_handler(const wsfMsgHdr_t *msg)
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING && BLE_ROLE_OBSERVER
 
 #if BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL
-        case DM_CONN_UPDATE_IND: {
-            if (!handler) {
-                break;
-            }
-
-            const hciLeConnUpdateCmplEvt_t *evt = (const hciLeConnUpdateCmplEvt_t *) msg;
-            handler->on_connection_update_complete(
-                (hci_error_code_t::type) evt->status,
-                evt->hdr.param,
-                evt->connInterval,
-                evt->connLatency,
-                evt->supTimeout
-            );
-        }
-        break;
-
         case DM_REM_CONN_PARAM_REQ_IND: {
             if (!handler) {
                 break;

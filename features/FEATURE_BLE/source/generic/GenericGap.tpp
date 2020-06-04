@@ -2391,29 +2391,24 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 )
 {
     if (_user_manage_connection_parameter_requests) {
-        // ignore for now as it is
-        _pal_gap.accept_connection_parameter_request(
-            connection_handle,
-            connection_interval_min,
-            connection_interval_max,
-            connection_latency,
-            supervision_timeout,
-            /* connection event length min */ 0,
-            /* connection event length max */ 0
-        );
-    } else {
-        if (!_eventHandler) {
-            return;
-        }
-
-        _eventHandler->onUpdateConnectionParametersRequest(
-            UpdateConnectionParametersRequestEvent(
-                connection_handle,
+        if (_eventHandler) {
+            _eventHandler->onUpdateConnectionParametersRequest(
+                UpdateConnectionParametersRequestEvent(connection_handle,
                 conn_interval_t(connection_interval_min),
                 conn_interval_t(connection_interval_max),
                 connection_latency,
-                supervision_timeout_t(supervision_timeout)
-            )
+                supervision_timeout_t(supervision_timeout))
+            );
+        } else {
+            MBED_ERROR(illegal_state_error, "Event handler required if connection params are user handled");
+        }
+    } else {
+        _pal_gap.accept_connection_parameter_request(
+            connection_handle,
+            connection_interval_min, connection_interval_max,
+            connection_latency, supervision_timeout,
+            /* minimum_connection_event_length */0,
+            /* maximum_connection_event_length */0
         );
     }
 }
