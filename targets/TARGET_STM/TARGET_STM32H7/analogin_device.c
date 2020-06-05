@@ -43,7 +43,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     // ADC Internal Channels "pins"  (Temperature, Vref, Vbat, ...)
     //   are described in PinNames.h and PeripheralPins.c
     //   Pin value must be between 0xF0 and 0xFF
-    if ((pin < 0xF0) || (pin >= 0x100)) {
+    if ((pin < 0xF0) || (pin >= ALT0)) {
         // Normal channels
         // Get the peripheral name from the pin and assign it to the object
         obj->handle.Instance = (ADC_TypeDef *)pinmap_peripheral(pin, PinMap_ADC);
@@ -59,6 +59,21 @@ void analogin_init(analogin_t *obj, PinName pin)
     }
     MBED_ASSERT(obj->handle.Instance != (ADC_TypeDef *)NC);
     MBED_ASSERT(function != (uint32_t)NC);
+
+#if defined(ALTC)
+    if (pin == PA_0C) {
+        HAL_SYSCFG_AnalogSwitchConfig(SYSCFG_SWITCH_PA0, SYSCFG_SWITCH_PA0_OPEN);
+    }
+    if (pin == PA_1C) {
+        HAL_SYSCFG_AnalogSwitchConfig(SYSCFG_SWITCH_PA1, SYSCFG_SWITCH_PA1_OPEN);
+    }
+    if (pin == PC_2C) {
+        HAL_SYSCFG_AnalogSwitchConfig(SYSCFG_SWITCH_PC2, SYSCFG_SWITCH_PC2_OPEN);
+    }
+    if (pin == PC_3C) {
+        HAL_SYSCFG_AnalogSwitchConfig(SYSCFG_SWITCH_PC3, SYSCFG_SWITCH_PC3_OPEN);
+    }
+#endif /* ALTC */
 
     obj->channel = STM_PIN_CHANNEL(function);
     obj->differential = STM_PIN_INVERTED(function);
