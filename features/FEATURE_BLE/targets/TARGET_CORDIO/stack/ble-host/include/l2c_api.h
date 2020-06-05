@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief L2CAP subsystem API.
+ *  \file
+ *
+ *  \brief  L2CAP subsystem API.
+ *
+ *  Copyright (c) 2009-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 #ifndef L2C_API_H
@@ -81,6 +83,8 @@ enum
 {
   L2C_COC_CONNECT_IND = L2C_COC_CBACK_START,        /*!< \brief Channel connect indication */
   L2C_COC_DISCONNECT_IND,                           /*!< \brief Channel disconnect indication */
+  L2C_COC_EN_CONNECT_IND,                           /*!< \brief Received enhanced connection indication */
+  L2C_COC_EN_RECONFIG_IND,                          /*!< \brief Received enhanced reconfiguration indication */
   L2C_COC_DATA_IND,                                 /*!< \brief Received data indication */
   L2C_COC_DATA_CNF                                  /*!< \brief Transmit data confirm */
 };
@@ -140,6 +144,28 @@ typedef struct
   uint16_t              cid;              /*!< \brief Local channel ID */
 } l2cCocDataCnf_t;
 
+/*! \brief Enhanced connection oriented channel connect indication structure */
+typedef struct
+{
+  wsfMsgHdr_t           hdr;              /*!< \brief Header structure */
+  uint16_t              mps;              /*!< \brief Data packet MPS peer can receive */
+  uint16_t              mtu;              /*!< \brief Data packet MTU peer can receive */
+  bool_t                req;              /*!< \brief TRUE if indicating a request, else a response. */
+  uint8_t               cidLen;           /*!< \brief Number of channels in cidList */
+  uint16_t              cidList[L2C_MAX_EN_CHAN]; /*!< \brief Local channel ID list */
+} l2cCocEnConnectInd_t;
+
+/*! \brief Enhanced connection oriented channel reconfiguration indication structure */
+typedef struct
+{
+  wsfMsgHdr_t           hdr;              /*!< \brief Header structure */
+  uint16_t              mps;              /*!< \brief Data packet MPS */
+  uint16_t              mtu;              /*!< \brief Data packet MTU */
+  bool_t                req;              /*!< \brief TRUE if indicating a request, else a response. */
+  uint8_t               cidLen;           /*!< \brief Number of channels in cidList */
+  uint16_t              cidList[L2C_MAX_EN_CHAN]; /*!< \brief Local channel ID list */
+} l2cCocEnReconfigInd_t;
+
 /*!
  * \brief Connection oriented channel event structure
  *
@@ -156,6 +182,8 @@ typedef union
   l2cCocDisconnectInd_t disconnectInd;    /*!< \brief Channel disconnect indication */
   l2cCocDataInd_t       dataInd;          /*!< \brief Received data indication */
   l2cCocDataCnf_t       dataCnf;          /*!< \brief Transmit data confirm */
+  l2cCocEnConnectInd_t  enConnectInd;     /*!< \brief Enhanced channel connect indication */
+  l2cCocEnReconfigInd_t enReconfigInd;    /*!< \brief Enhanced channel reconfigure indication */
 } l2cCocEvt_t;
 
 /*! \brief Configurable parameters */
@@ -226,6 +254,19 @@ typedef void (*l2cCtrlCback_t)(wsfMsgHdr_t *pMsg);
  */
 /*************************************************************************************************/
 typedef void (*l2cCocCback_t)(l2cCocEvt_t *pMsg);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  This callback function asks clients of connection oriented channels if a given number
+ *          of channels can be created on the PSM.
+ *
+ *  \param  connId    DM connection ID.
+ *  \param  numChans  number of channels requested.
+ *
+ *  \return number of channels permitted by client.
+ */
+/*************************************************************************************************/
+typedef uint8_t (*l2cCocAcceptCb_t)(dmConnId_t connId, uint8_t numChans);
 
 /*************************************************************************************************/
 /*!
@@ -371,6 +412,18 @@ void L2cCocDeregister(l2cCocRegId_t regId);
 
 /*************************************************************************************************/
 /*!
+ *  \brief  Set the channel accept callback.
+ *
+ *  \param  regId   Registration instance ID.
+ *  \param  cback   Client callback function.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void L2cCocSetAcceptCback(l2cCocRegId_t regId, l2cCocAcceptCb_t cback);
+
+/*************************************************************************************************/
+/*!
  *  \brief  Initiate a connection to the given peer PSM.
  *
  *  \param  connId    DM connection ID.
@@ -405,6 +458,38 @@ void L2cCocDisconnectReq(uint16_t cid);
  */
 /*************************************************************************************************/
 void L2cCocDataReq(uint16_t cid, uint16_t len, uint8_t *pPayload);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Send a request to open enhanced credit based channels.
+ *
+ *  \param  connId    DM connection ID.
+ *  \param  regId     The associated registration instance.
+ *  \param  psm       The protocol slave multiplexer.
+ *  \param  credits   The initial number of credits for each CID channel.
+ *  \param  numChan   The number of channels to create - L2C_MAX_EN_CHAN max.
+ *
+ *  \return FALSE if unable make request, else TRUE.
+ */
+/*************************************************************************************************/
+bool_t L2cCocEnhancedConnectReq(dmConnId_t connId, l2cCocRegId_t regId, uint16_t psm,
+                                uint16_t credits, uint8_t numChan);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Send a request to reconfigure enhanced credit based channels.
+ *
+ *  \param  connId    DM connection ID.
+ *  \param  mtu       The maximum transmission unit of each source CID channel.
+ *  \param  mps       The maximum payload size on each source CID channel.
+ *  \param  numChan   The number of channels to create (1 to L2C_MAX_EN_CHAN).
+ *  \param  pChanList A list of local CID to reconfigure (L2C_MAX_EN_CHAN channels, set unused to 0).
+ *
+ *  \return FALSE if unable make request, else TRUE.
+ */
+ /*************************************************************************************************/
+bool_t L2cCocEnhancedReconfigReq(dmConnId_t connId, uint16_t mtu, uint16_t mps,
+                                 uint8_t numChan, uint16_t *pChanList);
 
 /*************************************************************************************************/
 /*!

@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Embedded File System service.
+ *  \file   wsf_efs.h
+ *
+ *  \brief  Embedded File System service.
+ *
+ *  Copyright (c) 2014-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -155,39 +157,39 @@ typedef uint8_t wsfMediaInitFunc_t(void);
 /*!
  *  \brief  Media Erase function.
  *
- *  \param  address  Address in media to start erasing.
+ *  \param  pAddress Address in media to start erasing.
  *  \param  size     Number of bytes to erase.
  *
  *  \return Status of the operation.
  */
 /*************************************************************************************************/
-typedef uint8_t wsfMediaEraseFunc_t(uint32_t address, uint32_t size);
+typedef uint8_t wsfMediaEraseFunc_t(uint8_t *pAddress, uint32_t size);
 
 /*************************************************************************************************/
 /*!
  *  \brief  Media Read function.
  *
  *  \param  pBuf     Buffer to hold data.
- *  \param  address  Address in media to read from.
+ *  \param  pAddress Address in media to read from.
  *  \param  size     Size of pBuf in bytes.
  *
  *  \return Status of the operation.
  */
 /*************************************************************************************************/
-typedef uint8_t wsfMediaReadFunc_t(uint8_t *pBuf, uint32_t address, uint32_t size);
+typedef uint8_t wsfMediaReadFunc_t(uint8_t *pBuf, uint8_t *pAddress, uint32_t size);
 
 /*************************************************************************************************/
 /*!
  *  \brief  Media Write function.
  *
  *  \param  pBuf     Buffer with data to be written.
- *  \param  address  Address in media to write to.
+ *  \param  pAddress Address in media to write to.
  *  \param  size     Size of pBuf in bytes.
  *
  *  \return Status of the operation.
  */
 /*************************************************************************************************/
-typedef uint8_t wsfMediaWriteFunc_t(const uint8_t *pBuf, uint32_t address, uint32_t size);
+typedef uint8_t wsfMediaWriteFunc_t(const uint8_t *pBuf, uint8_t *pAddress, uint32_t size);
 
 /*************************************************************************************************/
 /*!

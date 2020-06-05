@@ -1,31 +1,33 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Message passing service.
+ *  \file   wsf_msg.c
+ *
+ *  \brief  Message passing service.
+ *
+ *  Copyright (c) 2009-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
 #include "wsf_types.h"
 #include "wsf_msg.h"
 #include "wsf_assert.h"
+#include "wsf_trace.h"
 #include "wsf_buf.h"
 #include "wsf_queue.h"
-#include "wsf_trace.h"
 #include "wsf_os.h"
 
 /**************************************************************************************************
@@ -83,8 +85,6 @@ void *WsfMsgAlloc(uint16_t len)
  *  \brief  Free a message buffer allocated with WsfMsgAlloc().
  *
  *  \param  pMsg  Pointer to message buffer.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfMsgFree(void *pMsg)
@@ -98,8 +98,6 @@ void WsfMsgFree(void *pMsg)
  *
  *  \param  handlerId   Event handler ID.
  *  \param  pMsg        Pointer to message buffer.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfMsgSend(wsfHandlerId_t handlerId, void *pMsg)
@@ -120,8 +118,6 @@ void WsfMsgSend(wsfHandlerId_t handlerId, void *pMsg)
  *  \param  pQueue    Pointer to queue.
  *  \param  handerId  Set message handler ID to this value.
  *  \param  pElem     Pointer to message buffer.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfMsgEnq(wsfQueue_t *pQueue, wsfHandlerId_t handlerId, void *pMsg)
@@ -177,6 +173,37 @@ void *WsfMsgDeq(wsfQueue_t *pQueue, wsfHandlerId_t *pHandlerId)
 void *WsfMsgPeek(wsfQueue_t *pQueue, wsfHandlerId_t *pHandlerId)
 {
   wsfMsg_t *pMsg = pQueue->pHead;
+
+  if (pMsg != NULL)
+  {
+    *pHandlerId = pMsg->handlerId;
+
+    /* hide header */
+    pMsg++;
+  }
+
+  return pMsg;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Get the Nth message without removing it from the queue.
+ *
+ *  \param  pQueue      Pointer to queue.
+ *  \param  n           Nth item from the top (0 = top element).
+ *  \param  pHandlerId  Handler ID of returned message; this is a return parameter.
+ *
+ *  \return Pointer to the next message on the queue or NULL if queue is empty.
+ */
+/*************************************************************************************************/
+void *WsfMsgNPeek(wsfQueue_t *pQueue, uint8_t n, wsfHandlerId_t *pHandlerId)
+{
+  wsfMsg_t *pMsg = pQueue->pHead;
+
+  while (pMsg && n--)
+  {
+    pMsg = pMsg->pNext;
+  }
 
   if (pMsg != NULL)
   {

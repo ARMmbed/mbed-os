@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Device manager connection management for master.
+ *  \file
+ *
+ *  \brief  Device manager connection management for master.
+ *
+ *  Copyright (c) 2009-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -28,6 +30,17 @@
 #include "dm_main.h"
 #include "dm_conn.h"
 #include "l2c_api.h"
+
+/**************************************************************************************************
+  Global Variables
+**************************************************************************************************/
+
+/* Action set for this module */
+const dmConnAct_t dmConnUpdActSetMaster[] =
+{
+  dmConnUpdActUpdateMaster,
+  dmConnUpdActL2cUpdateInd
+};
 
 /*************************************************************************************************/
 /*!
@@ -58,7 +71,7 @@ void dmConnSmActCancelOpen(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg)
  *  \return None.
  */
 /*************************************************************************************************/
-void dmConnSmActUpdateMaster(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg)
+void dmConnUpdActUpdateMaster(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg)
 {
   /* send HCI command */
   HciLeConnUpdateCmd(pCcb->handle, &pMsg->apiUpdate.connSpec);
@@ -74,7 +87,7 @@ void dmConnSmActUpdateMaster(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg)
  *  \return None.
  */
 /*************************************************************************************************/
-void dmConnSmActL2cUpdateInd(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg)
+void dmConnUpdActL2cUpdateInd(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg)
 {
   /* always send back response */
   L2cDmConnUpdateRsp(pMsg->l2cUpdateInd.identifier, pCcb->handle, L2C_CONN_PARAM_ACCEPTED);
@@ -105,7 +118,7 @@ void DmL2cConnUpdateInd(uint8_t identifier, uint16_t handle, hciConnSpec_t *pCon
     updateInd.pConnSpec = pConnSpec;
     updateInd.identifier = identifier;
 
-    dmConnSmExecute(pCcb, (dmConnMsg_t *) &updateInd);
+    dmConnUpdExecute(pCcb, (dmConnMsg_t *) &updateInd);
   }
 }
 

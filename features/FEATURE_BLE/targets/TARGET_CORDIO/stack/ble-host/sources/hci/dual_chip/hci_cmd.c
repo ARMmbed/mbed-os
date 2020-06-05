@@ -1,22 +1,27 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief HCI command module.
+ *  \file
+ *
+ *  \brief  HCI command module.
+ *
+ *  Copyright (c) 2009-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  This module builds and translates HCI command data structures. It also implements command
+ *  flow control.
  */
 /*************************************************************************************************/
 
@@ -610,6 +615,23 @@ void HciLeReadBufSizeCmd(void)
   uint8_t *pBuf;
 
   if ((pBuf = hciCmdAlloc(HCI_OPCODE_LE_READ_BUF_SIZE, HCI_LEN_LE_READ_BUF_SIZE)) != NULL)
+  {
+    hciCmdSend(pBuf);
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  HCI LE read buffer size version 2 command.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void HciLeReadBufSizeCmdV2(void)
+{
+  uint8_t *pBuf;
+
+  if ((pBuf = hciCmdAlloc(HCI_OPCODE_LE_READ_BUF_SIZE_V2, HCI_LEN_LE_READ_BUF_SIZE)) != NULL)
   {
     hciCmdSend(pBuf);
   }
@@ -1400,6 +1422,55 @@ void HciLeSetPrivacyModeCmd(uint8_t addrType, uint8_t *pAddr, uint8_t mode)
     UINT8_TO_BSTREAM(p, addrType);
     BDA_TO_BSTREAM(p, pAddr);
     UINT8_TO_BSTREAM(p, mode);
+    hciCmdSend(pBuf);
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      HCI LE request peer SCA command.
+ *
+ *  \param      handle    Connection handle.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void HciLeRequestPeerScaCmd(uint16_t handle)
+{
+  uint8_t *pBuf;
+  uint8_t *p;
+
+  if ((pBuf = hciCmdAlloc(HCI_OPCODE_LE_REQUEST_PEER_SCA, HCI_LEN_LE_REQUEST_PEER_SCA)) != NULL)
+  {
+    p = pBuf + HCI_CMD_HDR_LEN;
+    UINT16_TO_BSTREAM(p, handle);
+    hciCmdSend(pBuf);
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      HCI LE set host feature command.
+ *
+ *  \param      bitNum    Bit position in the FeatureSet.
+ *  \param      bitVal    Enable or disable feature.
+ *
+ *  \return     None.
+ *
+ *  \note Set or clear a bit in the feature controlled by the Host in the Link Layer FeatureSet
+ *  stored in the Controller.
+ */
+/*************************************************************************************************/
+void HciLeSetHostFeatureCmd(uint8_t bitNum, bool_t bitVal)
+{
+  uint8_t *pBuf;
+  uint8_t *p;
+
+  if ((pBuf = hciCmdAlloc(HCI_OPCODE_LE_SET_HOST_FEATURE, HCI_LEN_LE_SET_HOST_FEATURE)) != NULL)
+  {
+    p = pBuf + HCI_CMD_HDR_LEN;
+    UINT8_TO_BSTREAM(p, bitNum);
+    UINT8_TO_BSTREAM(p, bitVal);
     hciCmdSend(pBuf);
   }
 }

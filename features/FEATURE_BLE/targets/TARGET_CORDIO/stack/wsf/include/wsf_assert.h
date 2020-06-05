@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Assert macro.
+ *  \file   wsf_assert.h
+ *
+ *  \brief  Assert macro.
+ *
+ *  Copyright (c) 2009-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 #ifndef WSF_ASSERT_H
@@ -42,8 +44,6 @@ extern "C" {
  *
  *  \param  modId   Name of file originating assert.
  *  \param  line    Line number of assert statement.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfAssert(uint16_t modId, uint16_t line);
@@ -65,8 +65,6 @@ uint16_t WsfAssertNum(void);
  *  \brief  Enable assert trap.
  *
  *  \param  enaAssertTrap     TRUE to enable assert trap.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfAssertTrapEnable(bool_t enaAssertTrap);
@@ -90,8 +88,6 @@ void WsfAssertTrapEnable(bool_t enaAssertTrap);
  *  \brief  Run-time assert macro.  The assert executes when the expression is FALSE.
  *
  *  \param  expr    Boolean expression to be tested.
- *
- *  \return None
  */
 /*************************************************************************************************/
 #if WSF_ASSERT_ENABLED == TRUE
@@ -111,8 +107,6 @@ void WsfAssertTrapEnable(bool_t enaAssertTrap);
  *          test constant expressions.  Errors may result of it is used in executing code.
  *
  *  \param  expr    Boolean expression to be tested.
- *
- *  \return None
  */
 /*************************************************************************************************/
 #define WSF_CT_ASSERT(expr)     extern char wsf_ct_assert[(expr) ? 1 : -1]

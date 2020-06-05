@@ -1,31 +1,34 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Embedded File System service.
+ *  \file   wsf_efs.c
+ *
+ *  \brief  Embedded File System service.
+ *
+ *  Copyright (c) 2014-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
 #include <string.h>
 #include "wsf_types.h"
 #include "wsf_efs.h"
+
 #include "wsf_assert.h"
-#include "wsf_trace.h"
 #include "wsf_cs.h"
+#include "wsf_trace.h"
 #include "util/bstream.h"
 
 /* Media Control Block */
@@ -300,7 +303,7 @@ uint8_t WsfEfsErase(wsfEfsHandle_t handle)
         uint32_t address = pFile->address;
         uint32_t size = pFile->maxSize;
 
-        status = wsfEfsMediaTbl[media]->erase(address, size);
+        status = wsfEfsMediaTbl[media]->erase((uint8_t *) address, size);
         pFile->size = 0;
       }
     }
@@ -393,7 +396,7 @@ uint16_t WsfEfsGet(wsfEfsHandle_t handle, uint32_t offset, uint8_t *pBuffer, uin
             len = (uint16_t) (pFile->size - offset);
           }
 
-          wsfEfsMediaTbl[media]->read(pBuffer, address, len);
+          wsfEfsMediaTbl[media]->read(pBuffer, (uint8_t *) address, len);
 
           return len;
         }
@@ -442,7 +445,7 @@ uint16_t WsfEfsPut(wsfEfsHandle_t handle, uint32_t offset, const uint8_t *pBuffe
             len = (uint16_t) (pFile->maxSize - offset);
           }
 
-          wsfEfsMediaTbl[media]->write(pBuffer, address, len);
+          wsfEfsMediaTbl[media]->write(pBuffer, (uint8_t *) address, len);
 
           /* If writing to the end of the file, update the file size */
           if (offset + len > pFile->size)

@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief DM main module.
+ *  \file
+ *
+ *  \brief  DM main module.
+ *
+ *  Copyright (c) 2009-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 #ifndef DM_MAIN_H
@@ -48,16 +50,23 @@ extern "C" {
 #define DM_ID_SYNC                    11
 #define DM_ID_PAST                    12
 #define DM_ID_CONN_CTE                13
-#define DM_NUM_IDS                    14
+#define DM_ID_CONN_UPD                14
+#define DM_ID_PRIV_AES                15
+#define DM_ID_CIS                     16
+#define DM_ID_CIS_CIG                 17
+#define DM_ID_BIS                     18
+#define DM_ID_BIS_SYNC                19
+#define DM_ID_ISO                     20
+#define DM_NUM_IDS                    21
 
 /* Start of component message enumeration */
-#define DM_MSG_START(id)              ((id) << 4)
+#define DM_MSG_START(id)              ((id) << 3)
 
 /* Get the component ID from a message ID */
-#define DM_ID_FROM_MSG(msg)           ((msg) >> 4)
+#define DM_ID_FROM_MSG(msg)           ((msg) >> 3)
 
 /* Mask off the ID from the message ID */
-#define DM_MSG_MASK(msg)              ((msg) & 0x0F)
+#define DM_MSG_MASK(msg)              ((msg) & 0x07)
 
 /* Length of hash part of private resolvable address */
 #define DM_PRIV_HASH_LEN              3

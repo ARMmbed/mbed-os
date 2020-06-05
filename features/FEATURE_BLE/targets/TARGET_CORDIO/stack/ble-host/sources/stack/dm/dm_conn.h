@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief DM connection management module.
+ *  \file
+ *
+ *  \brief  DM connection management module.
+ *
+ *  Copyright (c) 2016-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 #ifndef DM_CONN_H
@@ -55,12 +57,6 @@ enum
   DM_CONN_MSG_API_OPEN = DM_MSG_START(DM_ID_CONN), /*!< Open Connection */
   DM_CONN_MSG_API_CLOSE,                           /*!< Close Connection */
   DM_CONN_MSG_API_ACCEPT,                          /*!< Accept Connection */
-  DM_CONN_MSG_API_UPDATE_MASTER,                   /*!< Master Connection Parameter Update */
-  DM_CONN_MSG_API_UPDATE_SLAVE,                    /*!< Slave Connecteion Parameter Update */
-
-  /* messages from L2C */
-  DM_CONN_MSG_L2C_UPDATE_IND,                      /*!< L2CAP Parameter update indication */
-  DM_CONN_MSG_L2C_UPDATE_CNF,                      /*!< L2CAP Parameter update confirmation */
 
   /* messages from HCI */
   DM_CONN_MSG_HCI_LE_CONN_CMPL_FAIL,               /*!< HCI LE Connection Complete Failure Event */
@@ -68,13 +64,10 @@ enum
   DM_CONN_MSG_HCI_DISCONNECT_CMPL,                 /*!< HCI Disconnection Complete Event */
   DM_CONN_MSG_HCI_LE_CONN_UPDATE_CMPL,             /*!< HCI LE Connection Update Complete Event */
   DM_CONN_MSG_HCI_LE_CREATE_CONN_CANCEL_CMD_CMPL,  /*!< HCI LE Create Connection Cancel Command Complet Event */
-
-  /* other internal messages */
-  DM_CONN_MSG_INT_UPDATE_TIMEOUT                   /*!< Internal Update Timeout */
 };
 
 /* Number of messages */
-#define DM_CONN_NUM_MSGS    (DM_CONN_MSG_INT_UPDATE_TIMEOUT - DM_CONN_MSG_API_OPEN + 1)
+#define DM_CONN_NUM_MSGS    (DM_CONN_MSG_HCI_LE_CREATE_CONN_CANCEL_CMD_CMPL - DM_CONN_MSG_API_OPEN + 1)
 
 /* DM conn event handler messages, non-state machine */
 enum
@@ -85,11 +78,23 @@ enum
   DM_CONN_MSG_API_REM_CONN_PARAM_REQ_NEG_REPLY,
   DM_CONN_MSG_API_SET_DATA_LEN,
   DM_CONN_MSG_API_WRITE_AUTH_TO,
-
-  /* messages from HCI */
-  DM_CONN_MSG_HCI_READ_RSSI_CMPL,
-  DM_CONN_MSG_HCI_FEAT_CMPL
+  DM_CONN_MSG_API_REQ_PEER_SCA
 };
+
+/*! DM conn event handler messages for connection update */
+enum
+{
+  /* messages from API */
+  DM_CONN_MSG_API_UPDATE_MASTER = DM_MSG_START(DM_ID_CONN_UPD), /*!< Master Connection Parameter Update */
+  DM_CONN_MSG_API_UPDATE_SLAVE,                                 /*!< Slave Connecteion Parameter Update */
+
+  /* messages from L2C */
+  DM_CONN_MSG_L2C_UPDATE_IND,                                   /*!< L2CAP Parameter update indication */
+  DM_CONN_MSG_L2C_UPDATE_CNF,                                   /*!< L2CAP Parameter update confirmation */
+};
+
+/* Number of messages */
+#define DM_CONN_UPD_NUM_MSGS    (DM_CONN_MSG_L2C_UPDATE_CNF - DM_CONN_MSG_API_UPDATE_MASTER + 1)
 
 /* State machine action function sets */
 enum
@@ -112,15 +117,23 @@ enum
 
   DM_CONN_SM_ACT_OPEN = DM_CONN_ACT_SET_INIT(DM_CONN_ACT_SET_MASTER),  /*!< Process Master Connection Open */
   DM_CONN_SM_ACT_CANCEL_OPEN,                                          /*!< Process Master Cancel Connection Open */
-  DM_CONN_SM_ACT_UPDATE_MASTER,                                        /*!< Process Master Connection Parameter Update */
-  DM_CONN_SM_ACT_L2C_UPDATE_IND,                                       /*!< Process Master L2CAP Connection Parameter Update Indication */
 
   DM_CONN_SM_ACT_ACCEPT = DM_CONN_ACT_SET_INIT(DM_CONN_ACT_SET_SLAVE), /*!< Process Slave Connection Accept */
   DM_CONN_SM_ACT_CANCEL_ACCEPT,                                        /*!< Process Slave Cancel Connection Accept */
-  DM_CONN_SM_ACT_UPDATE_SLAVE,                                         /*!< Process Slave Connection Update */
   DM_CONN_SM_ACT_CONN_ACCEPTED,                                        /*!< Process Slave Connection Accepted */
-  DM_CONN_SM_ACT_ACCEPT_FAILED,                                        /*!< Process Slave Connection Accept Failure */
-  DM_CONN_SM_ACT_L2C_UPDATE_CNF                                        /*!< Process Slave L2CAP Connection Parameter Update Confirmation */
+  DM_CONN_SM_ACT_ACCEPT_FAILED                                         /*!< Process Slave Connection Accept Failure */
+};
+
+/*! Connection update actions */
+enum
+{
+  DM_CONN_UPD_ACT_NONE = DM_CONN_ACT_SET_INIT(DM_CONN_ACT_SET_MAIN),            /*!< No Action */
+
+  DM_CONN_UPD_ACT_UPDATE_MASTER = DM_CONN_ACT_SET_INIT(DM_CONN_ACT_SET_MASTER), /*!< Process Master Connection Parameter Update */
+  DM_CONN_UPD_ACT_L2C_UPDATE_IND,                                               /*!< Process Master L2CAP Connection Parameter Update Indication */
+
+  DM_CONN_UPD_ACT_UPDATE_SLAVE = DM_CONN_ACT_SET_INIT(DM_CONN_ACT_SET_SLAVE),   /*!< Process Slave Connection Update */
+  DM_CONN_UPD_ACT_L2C_UPDATE_CNF                                                /*!< Process Slave L2CAP Connection Parameter Update Confirmation */
 };
 
 /*! State machine states */
@@ -236,6 +249,12 @@ typedef struct
   uint16_t                timeout;
 } dmConnApiWriteAuthPayloadTo_t;
 
+/*! Data structure for DM_CONN_MSG_API_REQ_PEER_SCA */
+typedef struct
+{
+  wsfMsgHdr_t             hdr;
+} dmConnApiReqPeerSca_t;
+
 /*! Union of all DM Conn 2 messages */
 typedef union
 {
@@ -246,6 +265,7 @@ typedef union
   dmConnApiRemConnParamReqNegReply_t  apiRemConnParamReqNegReply;
   dmConnApiSetDataLen_t               apiSetDataLen;
   dmConnApiWriteAuthPayloadTo_t       apiWriteAuthPayloadTo;
+  dmConnApiReqPeerSca_t               apiReqPeerSca;
 } dmConn2Msg_t;
 
 /*! Connection control block */
@@ -294,6 +314,15 @@ typedef struct
 /*! State machine action sets */
 extern dmConnAct_t *dmConnActSet[DM_CONN_NUM_ACT_SETS];
 
+/*! Connection update action sets */
+extern dmConnAct_t *dmConnUpdActSet[DM_CONN_NUM_ACT_SETS];
+
+/* Action set for master connection update */
+extern const dmConnAct_t dmConnUpdActSetMaster[];
+
+/* Action set for slave connection update */
+extern const dmConnAct_t dmConnUpdActSetSlave[];
+
 /*! Control block */
 extern dmConnCb_t dmConnCb;
 
@@ -322,8 +351,14 @@ void dmConnHciHandler(hciEvt_t *pEvent);
 void dmConn2MsgHandler(wsfMsgHdr_t *pMsg);
 void dmConn2HciHandler(hciEvt_t *pEvent);
 
+/* connection update inteface */
+void dmConnUpdMsgHandler(wsfMsgHdr_t *pMsg);
+
 /* state machine */
 void dmConnSmExecute(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg);
+
+/* connection update action execute */
+void dmConnUpdExecute(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg);
 
 /* main action functions */
 void dmConnSmActNone(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg);
@@ -333,10 +368,15 @@ void dmConnSmActConnFailed(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg);
 void dmConnSmActConnClosed(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg);
 void dmConnSmActHciUpdated(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg);
 
+/* connection update main action function */
+void dmConnUpdActNone(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg);
+
 /* common master action functions */
 void dmConnSmActCancelOpen(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg);
-void dmConnSmActUpdateMaster(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg);
-void dmConnSmActL2cUpdateInd(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg);
+
+/* connection update common master action functions */
+void dmConnUpdActUpdateMaster(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg);
+void dmConnUpdActL2cUpdateInd(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg);
 
 /* legacy master action functions */
 void dmConnSmActOpen(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg);
@@ -344,9 +384,9 @@ void dmConnSmActOpen(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg);
 /* extended master action functions */
 void dmExtConnSmActOpen(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg);
 
-/* common slave action functions */
-void dmConnSmActUpdateSlave(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg);
-void dmConnSmActL2cUpdateCnf(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg);
+/* connection update common slave action functions */
+void dmConnUpdActUpdateSlave(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg);
+void dmConnUpdActL2cUpdateCnf(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg);
 
 /* legacy slave action functions */
 void dmConnSmActAccept(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg);

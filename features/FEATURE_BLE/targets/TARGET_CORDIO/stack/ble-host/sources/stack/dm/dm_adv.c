@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Device manager advertising module.
+ *  \file
+ *
+ *  \brief  Device manager advertising module.
+ *
+ *  Copyright (c) 2016-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -153,14 +155,14 @@ void DmAdvSetData(uint8_t advHandle, uint8_t op, uint8_t location, uint8_t len, 
   WSF_ASSERT((location == DM_DATA_LOC_SCAN) || (location == DM_DATA_LOC_ADV));
   WSF_ASSERT(advHandle < DM_NUM_ADV_SETS);
 
-  if ((pMsg = WsfMsgAlloc(sizeof(dmAdvApiSetData_t) + len)) != NULL)
+  if ((pMsg = WsfMsgAlloc(sizeof(dmAdvApiSetData_t))) != NULL)
   {
     pMsg->hdr.event = DM_ADV_MSG_API_SET_DATA;
     pMsg->advHandle = advHandle;
     pMsg->op = op;
     pMsg->location = location;
     pMsg->len = len;
-    memcpy(pMsg->pData, pData, len);
+    pMsg->pData = pData;
     WsfMsgSend(dmCb.handlerId, pMsg);
   }
 }

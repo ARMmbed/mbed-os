@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief ATT server signed PDU processing functions.
+ *  \file
+ *
+ *  \brief  ATT server signed PDU processing functions.
+ *
+ *  Copyright (c) 2011-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -57,7 +59,6 @@ typedef struct
   uint32_t                signCounter;        /* sign counter for this connection */
   uint8_t                 *pCsrk;             /* signing key for this connection */
   attsSignBuf_t           *pBuf;              /* current data being processed */
-  bool_t                  authenticated;      /* Indicate if the CSRK is authenticated or not */
 } attsSignCcb_t;
 
 /* ATTS signed PDU control block */
@@ -126,10 +127,14 @@ static void attsSignedWriteStart(attsSignCcb_t *pCcb, attsSignBuf_t *pBuf)
       WsfBufFree(pCmacTxt);
     }
   }
+  else
+  {
+    /* no CSRK */
+    ATT_TRACE_WARN0("ATTS CSRK not set");
+  }
 
-  /* no CSRK-- free buffer */
+  /* free buffer */
   WsfBufFree(pBuf);
-  ATT_TRACE_WARN0("ATTS CSRK not set");
 }
 
 /*************************************************************************************************/
@@ -143,7 +148,7 @@ static void attsSignedWriteStart(attsSignCcb_t *pCcb, attsSignBuf_t *pBuf)
  *  \return None.
  */
 /*************************************************************************************************/
-static void attsProcSignedWrite(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
+static void attsProcSignedWrite(attsCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
 {
   uint8_t       *p;
   attsAttr_t    *pAttr;
@@ -161,69 +166,53 @@ static void attsProcSignedWrite(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
   /* find attribute */
   if ((pAttr = attsFindByHandle(handle, &pGroup)) != NULL)
   {
+    /* verify permissions */
+    if (attsPermissions(pCcb->connId, ATTS_PERMIT_WRITE, handle, pAttr->permissions) != ATT_SUCCESS)
+    {
+      return;
+    }
     /* verify signed write is permitted */
-    if ((pAttr->settings & ATTS_SET_ALLOW_SIGNED) == 0)
+    else if ((pAttr->settings & ATTS_SET_ALLOW_SIGNED) == 0)
     {
       return;
     }
-
-    /* verify that csrk is present */
-    if (attsSignCcbByConnId(pCcb->connId)->pCsrk == NULL) {
-      return;
-    }
-
-    /* verify basic permissions */
-    if ((pAttr->permissions & (ATTS_PERMIT_WRITE | ATTS_PERMIT_WRITE_ENC)) == 0)
-    {
-      return;
-    }
-
-    /* verify authentication */
-    if ((pAttr->permissions & ATTS_PERMIT_WRITE_AUTH) &&
-        (attsSignCcbByConnId(pCcb->connId)->authenticated == 0))
-    {
-      return;
-    }
-
-    /* Note: authorization not verified at this stage as it is reserved for lesc
-       writes; authorization occurs latter when the write cb is called */
-
     /* verify write length, fixed length */
-    if (((pAttr->settings & ATTS_SET_VARIABLE_LEN) == 0) &&
+    else if (((pAttr->settings & ATTS_SET_VARIABLE_LEN) == 0) &&
              (writeLen != pAttr->maxLen))
     {
       return;
     }
-
     /* verify write length, variable length */
-    if (((pAttr->settings & ATTS_SET_VARIABLE_LEN) != 0) &&
+    else if (((pAttr->settings & ATTS_SET_VARIABLE_LEN) != 0) &&
              (writeLen > pAttr->maxLen))
     {
       return;
     }
-
-    /* allocate buffer to store packet and parameters */
-    if ((pBuf = WsfBufAlloc(sizeof(attsSignBuf_t) - 1 + len)) != NULL)
+    else
     {
-      /* initialize buffer */
-      pBuf->pCcb = pCcb;
-      pBuf->handle = handle;
-      pBuf->writeLen = writeLen;
-      pBuf->connId = pCcb->connId;
-      memcpy(pBuf->packet, (pPacket + L2C_PAYLOAD_START), len);
-
-      /* check if a signed write is already in progress */
-      pSignCcb = attsSignCcbByConnId(pCcb->connId);
-
-      if (pSignCcb->pBuf != NULL)
+      /* allocate buffer to store packet and parameters */
+      if ((pBuf = WsfBufAlloc(sizeof(attsSignBuf_t) - 1 + len)) != NULL)
       {
-        /* signed write in progress; queue packet */
-        WsfQueueEnq(&attsSignCb.msgQueue, pBuf);
-      }
-      else
-      {
-        /* start signed data processing */
-        attsSignedWriteStart(pSignCcb, pBuf);
+        /* initialize buffer */
+        pBuf->pCcb = pCcb->pMainCcb;
+        pBuf->handle = handle;
+        pBuf->writeLen = writeLen;
+        pBuf->connId = pCcb->connId;
+        memcpy(pBuf->packet, (pPacket + L2C_PAYLOAD_START), len);
+
+        /* check if a signed write is already in progress */
+        pSignCcb = attsSignCcbByConnId(pCcb->connId);
+
+        if (pSignCcb->pBuf != NULL)
+        {
+          /* signed write in progress; queue packet */
+          WsfQueueEnq(&attsSignCb.msgQueue, pBuf);
+        }
+        else
+        {
+          /* start signed data processing */
+          attsSignedWriteStart(pSignCcb, pBuf);
+        }
       }
     }
   }
@@ -247,7 +236,7 @@ static void attsSignMsgCback(secCmacMsg_t *pMsg)
   uint32_t      signCounter;
 
   if (pMsg->hdr.event == ATTS_MSG_SIGN_CMAC_CMPL)
-  {
+  { 
     uint8_t signature[ATT_CMAC_RESULT_LEN] = {0};
 
     pCcb = attsSignCcbByConnId((dmConnId_t) pMsg->hdr.param);
@@ -353,15 +342,13 @@ void AttsSignInit(void)
  *
  *  \param  connId      DM connection ID.
  *  \param  pCsrk       Pointer to data signing key (CSRK).
- *  \param  authenticated True if CSRK is authenticated and false otherwise.
  *
  *  \return None.
  */
 /*************************************************************************************************/
-void AttsSetCsrk(dmConnId_t connId, uint8_t *pCsrk, bool_t authenticated)
+void AttsSetCsrk(dmConnId_t connId, uint8_t *pCsrk)
 {
   attsSignCcbByConnId(connId)->pCsrk = pCsrk;
-  attsSignCcbByConnId(connId)->authenticated = authenticated;
 }
 
 /*************************************************************************************************/

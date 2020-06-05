@@ -1,22 +1,25 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Device manager periodic advertising synchronization management and state machine
+ *  \file
+ *
+ *  \brief  Device manager periodic advertising synchronization management and state machine
+ *          module.
+ *
+ *  Copyright (c) 2016-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -87,9 +90,6 @@ enum
 
 /*! Translate HCI event to state machine message */
 #define DM_SYNC_HCI_EVT_2_MSG(evt)  (DM_SYNC_MSG_HCI_LE_SYNC_LOST - HCI_LE_PER_ADV_SYNC_LOST_CBACK_EVT + (evt))
-
-/*! Uninitialized HCI sync handle */
-#define DM_SYNC_HCI_HANDLE_NONE     0xFFFF
 
 /*! Action function */
 typedef void (*dmSyncAct_t)(dmSyncCb_t *pCcb, dmSyncMsg_t *pMsg);
@@ -760,6 +760,63 @@ void DmSyncStop(dmSyncId_t syncId)
     pMsg->event = DM_SYNC_MSG_API_STOP;
     WsfMsgSend(dmCb.handlerId, pMsg);
   }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Set the encryption mode of the BIG corresponding to the periodic advertising train
+ *          identified by the sync handle.
+ *
+ *  \param  syncHandle   Synch handle.
+ *  \param  encrypt      FALSE (Unencrypted) or FALSE (Encrypted).
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmSyncSetEncrypt(uint16_t syncHandle, bool_t encrypt)
+{
+  dmSyncCb_t *pScb;
+
+  if ((pScb = dmSyncCbByHandle(syncHandle)) != NULL)
+  {
+    pScb->encrypt = encrypt;
+  }
+}
+
+/*************************************************************************************************/
+/*!
+*  \brief  Get the encryption mode of the BIG corresponding to the periodic advertising train
+*          identified by the sync handle.
+*
+*  \param  syncHandle   Synch handle.
+*
+*  \return TRUE if sync encrypted. FALSE, otherwise.
+*/
+/*************************************************************************************************/
+bool_t DmSyncEncrypted(uint16_t syncHandle)
+{
+  dmSyncCb_t *pScb;
+
+  if ((pScb = dmSyncCbByHandle(syncHandle)) != NULL)
+  {
+    return pScb->encrypt;
+  }
+
+  return FALSE;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Get status of sync identified by the handle.
+ *
+ *  \param  syncHandle   Synch handle.
+ *
+ *  \return TRUE if sync is enabled for that handle. FALSE, otherwise.
+ */
+/*************************************************************************************************/
+bool_t DmSyncEnabled(uint16_t syncHandle)
+{
+  return (dmSyncCbByHandle(syncHandle) != NULL) ? TRUE : FALSE;
 }
 
 /*************************************************************************************************/
