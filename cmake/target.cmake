@@ -112,6 +112,7 @@ add_definitions(
 #     LIKE_CORTEX_M4;
 #     CORTEX;
 #     RTOS_M4_M7;
+#     FLASHIAP
 # )
 
 # # TODO: @mbed-os-tools Generate definitions
