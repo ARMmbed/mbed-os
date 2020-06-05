@@ -2,11 +2,11 @@
 
 # internal helper functions
 function(_mbed_set_handler)
-    if(${MBED_OS_TOOLCHAIN} STREQUAL "GCC ARM")
+    if(${MBED_OS_TOOLCHAIN} STREQUAL "GCC_ARM")
         target_sources(mbed-os PRIVATE source/TARGET_CORTEX_M/TOOLCHAIN_GCC/except.S)
-    elseif(${MBED_OS_TOOLCHAIN} STREQUAL ARM)
+    elseif(${MBED_OS_TOOLCHAIN} STREQUAL "ARM")
         target_sources(mbed-os PRIVATE source/TARGET_CORTEX_M/TOOLCHAIN_ARM/except.S)
-    elseif(${MBED_OS_TOOLCHAIN} STREQUAL IAR)
+    elseif(${MBED_OS_TOOLCHAIN} STREQUAL "IAR")
         target_sources(mbed-os PRIVATE source/TARGET_CORTEX_M/TOOLCHAIN_IAR/except.S)
         target_sources(mbed-os PRIVATE source/TARGET_CORTEX_M/TOOLCHAIN_IAR/cmain.S)
     endif()
