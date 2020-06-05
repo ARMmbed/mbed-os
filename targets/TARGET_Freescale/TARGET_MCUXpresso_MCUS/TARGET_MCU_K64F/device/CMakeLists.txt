@@ -25,22 +25,12 @@ endfunction()
 _mbed_get_assembly_k64f()
 _mbed_set_linker_file()
 
-target_sources(mbed-os PRIVATE
-    cmsis.h
-    cmsis_nvic.h
-    fsl_device_registers.h
-    MK64F12.h
-    MK64F12_features.h
-    system_MK64F12.c
-    system_MK64F12.h
-
-    cmsis.h
-    cmsis_nvic.h
-    fsl_device_registers.h
-    MK64F12.h
-    MK64F12_features.h
-    system_MK64F12.c
-    system_MK64F12.h
+target_sources(mbed-os
+    PRIVATE
+        system_MK64F12.c
 )
 
-target_include_directories(mbed-os PUBLIC .)
+target_include_directories(mbed-os
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)

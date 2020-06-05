@@ -2,8 +2,15 @@
 
 add_subdirectory(frameworks/mbed-trace)
 
-target_link_libraries(mbedTrace PRIVATE gen_config)
-target_link_libraries(mbed-os PUBLIC mbedTrace)
+target_link_libraries(mbedTrace
+    PRIVATE
+        gen_config
+)
+
+target_link_libraries(mbed-os
+    PUBLIC
+        mbedTrace
+)
 
 add_subdirectory(lwipstack)
 add_subdirectory(mbedtls)
@@ -14,4 +21,7 @@ add_subdirectory(nanostack)
 add_subdirectory(storage)
 add_subdirectory(device_key)
 
-target_include_directories(mbed-os PUBLIC .)
+target_include_directories(mbed-os
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
