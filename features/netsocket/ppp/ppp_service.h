@@ -138,7 +138,7 @@ public:
      * @param uname    User name
      * @param password Password
      */
-    void set_credentials(const char *uname, const char *password);
+    void set_credentials(const char *uname, const char *password) override;
 
     /** Gets local IP address
      *
