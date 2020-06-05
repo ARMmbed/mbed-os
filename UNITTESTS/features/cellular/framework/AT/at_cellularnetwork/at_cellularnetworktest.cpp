@@ -364,7 +364,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_network_registering_m
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
     mode = CellularNetwork::NWModeManual;
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.get_network_registering_mode(mode));
-    EXPECT_TRUE(mode == -1);
+    EXPECT_TRUE(mode == CellularNetwork::NWModeManual);
 }
 
 TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_registration_urc)

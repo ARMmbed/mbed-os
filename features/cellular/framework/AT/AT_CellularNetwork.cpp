@@ -202,7 +202,9 @@ nsapi_error_t AT_CellularNetwork::get_network_registering_mode(NWRegisteringMode
 {
     int ret;
     nsapi_error_t error = _at.at_cmd_int("+COPS", "?", ret);
-    mode = (NWRegisteringMode)ret;
+    if (error == NSAPI_ERROR_OK) {
+        mode = (NWRegisteringMode)ret;
+    }
     return error;
 }
 
