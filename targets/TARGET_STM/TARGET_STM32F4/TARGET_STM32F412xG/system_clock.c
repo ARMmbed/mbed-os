@@ -32,6 +32,7 @@
 #include "stm32f4xx.h"
 #include "mbed_error.h"
 
+
 // clock source is selected with CLOCK_SOURCE in json config
 #define USE_PLL_HSE_EXTC     0x8  // Use external clock (ST Link MCO)
 #define USE_PLL_HSE_XTAL     0x4  // Use external xtal (X3 on board - not provided by default)
@@ -69,8 +70,7 @@ void SetSysClock(void)
         {
 #if ((CLOCK_SOURCE) & USE_PLL_HSI)
             /* 3- If fail start with HSI clock */
-            uint8_t ret_HSIclk_status = SetSysClock_PLL_HSI();
-            if (ret_HSIclk_status == 0)
+            if (SetSysClock_PLL_HSI() == 0)
 #endif
             {
                 {
@@ -102,25 +102,32 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
        regarding system frequency refer to product datasheet. */
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
-    /* Enable HSE oscillator and activate PLL with HSE as source */
-    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSE;
-    if (bypass == 0) {
-        RCC_OscInitStruct.HSEState          = RCC_HSE_ON; /* External 8 MHz xtal on OSC_IN/OSC_OUT */
-    } else {
-        RCC_OscInitStruct.HSEState          = RCC_HSE_BYPASS; /* External 8 MHz clock on OSC_IN */
-    }
+    /* Get the Clocks configuration according to the internal RCC registers */
+    HAL_RCC_GetOscConfig(&RCC_OscInitStruct);
 
-    RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSE;
+    /* PLL could be already configured by bootlader */
+    if (RCC_OscInitStruct.PLL.PLLState != RCC_PLL_ON)
+    {
+        /* Enable HSE oscillator and activate PLL with HSE as source */
+        RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSE;
+        if (bypass == 0) {
+            RCC_OscInitStruct.HSEState          = RCC_HSE_ON; /* External 8 MHz xtal on OSC_IN/OSC_OUT */
+        } else {
+            RCC_OscInitStruct.HSEState          = RCC_HSE_BYPASS; /* External 8 MHz clock on OSC_IN */
+        }
 
-    RCC_OscInitStruct.PLL.PLLM            = 8;             // VCO input clock = 1 MHz (8 MHz / 8)
-    RCC_OscInitStruct.PLL.PLLN            = 200;           // VCO output clock = 200 MHz (1 MHz * 200)
-    RCC_OscInitStruct.PLL.PLLP            = RCC_PLLP_DIV2; // PLLCLK = 100 MHz (200 MHz / 2)
-    RCC_OscInitStruct.PLL.PLLQ            = 7;
-    RCC_OscInitStruct.PLL.PLLR            = 2;
+        RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
+        RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSE;
 
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-        return 0; // FAIL
+        RCC_OscInitStruct.PLL.PLLM            = 8;             // VCO input clock = 1 MHz (8 MHz / 8)
+        RCC_OscInitStruct.PLL.PLLN            = 200;           // VCO output clock = 200 MHz (1 MHz * 200)
+        RCC_OscInitStruct.PLL.PLLP            = RCC_PLLP_DIV2; // PLLCLK = 100 MHz (200 MHz / 2)
+        RCC_OscInitStruct.PLL.PLLQ            = 7;
+        RCC_OscInitStruct.PLL.PLLR            = 2;
+
+        if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+            return 0; // FAIL
+        }
     }
 
     /* Select PLLSAI output as USB clock source */
