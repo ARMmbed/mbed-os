@@ -42,7 +42,7 @@ target_sources(mbed-os PRIVATE RTX/Config/RTX_Config.h)
 target_sources(mbed-os PRIVATE RTX/Include/rtx_evr.h)
 target_sources(mbed-os PRIVATE RTX/Include/rtx_os.h)
 
-if(${MBED_OS_TOOLCHAIN} STREQUAL "GCC ARM")
+if(${MBED_OS_TOOLCHAIN} STREQUAL "GCC_ARM")
 _mbed_get_rtx_assembly(TOOLCHAIN_GCC)
 elseif(${MBED_OS_TOOLCHAIN} STREQUAL "ARM")
 _mbed_get_rtx_assembly(TOOLCHAIN_ARM)
