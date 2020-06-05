@@ -33,7 +33,6 @@ extern "C" {
  *
  * @note type parameter allows the driver layer to prepend the data with a
  * header on the same write transaction.
- * @note mbed os wrapper of hciDrvWrite
  */
 uint16_t hci_mbed_os_drv_write(uint8_t type, uint16_t len, uint8_t *pData);
 
