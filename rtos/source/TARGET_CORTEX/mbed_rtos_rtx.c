@@ -38,7 +38,6 @@ mbed_rtos_storage_thread_t _main_obj __attribute__((section(".bss.os.thread.cb")
 
 osMutexId_t               singleton_mutex_id;
 mbed_rtos_storage_mutex_t singleton_mutex_obj;
-osMutexAttr_t             singleton_mutex_attr;
 
 void mbed_rtos_init()
 {
@@ -47,11 +46,6 @@ void mbed_rtos_init()
 
 MBED_NORETURN void mbed_rtos_start()
 {
-    singleton_mutex_attr.name = "singleton_mutex";
-    singleton_mutex_attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
-    singleton_mutex_attr.cb_size = sizeof(singleton_mutex_obj);
-    singleton_mutex_attr.cb_mem = &singleton_mutex_obj;
-
     _main_thread_attr.stack_mem = _main_stack;
     _main_thread_attr.stack_size = sizeof(_main_stack);
     _main_thread_attr.cb_size = sizeof(_main_obj);
@@ -68,7 +62,6 @@ MBED_NORETURN void mbed_rtos_start()
     tfm_ns_lock_init();
 #endif // defined(TARGET_TFM) && defined(COMPONENT_NSPE)
 
-    singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
     osThreadId_t result = osThreadNew((osThreadFunc_t)mbed_start, NULL, &_main_thread_attr);
     if ((void *)result == NULL) {
         MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_INITIALIZATION_FAILED), "Pre main thread not created", &_main_thread_attr);
@@ -76,4 +69,15 @@ MBED_NORETURN void mbed_rtos_start()
 
     osKernelStart();
     MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_INITIALIZATION_FAILED), "Failed to start RTOS");
+}
+
+void mbed_rtos_init_singleton_mutex(void)
+{
+    const osMutexAttr_t singleton_mutex_attr = {
+        .name = "singleton_mutex",
+        .attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust,
+        .cb_size = sizeof(singleton_mutex_obj),
+        .cb_mem = &singleton_mutex_obj
+    };
+    singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
 }
