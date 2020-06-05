@@ -28,6 +28,7 @@
 #include "crys_dh.h"
 #include "ssi_pal_types.h"
 #include "ssi_aes.h"
+#include "sns_silib.h"
 #include "crys_aesccm.h"
 #endif
 
@@ -780,7 +781,7 @@ void PalCryptoInit(void)
 {
   NVIC_EnableIRQ(CRYPTOCELL_IRQn);
   NRF_CRYPTOCELL->ENABLE = 1;
-  SaSi_LibInit();
+  SaSi_LibInit(NULL, NULL);
 }
 
 /*************************************************************************************************/
@@ -793,7 +794,7 @@ void PalCryptoInit(void)
 void PalCryptoDeInit(void)
 {
   NRF_CRYPTOCELL->ENABLE = 1;
-  SaSi_LibFini();
+  SaSi_LibFini(NULL);
   NRF_CRYPTOCELL->ENABLE = 0;
 }
 
