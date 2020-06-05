@@ -501,9 +501,19 @@ class MTSCode(object):
         os.rename(target, binf)
 
     @staticmethod
+    def combine_bins_mts_dot(t_self, resources, elf, binf):
+        """A hook for the MTS MDOT"""
+        MTSCode._combine_bins_helper("MTS_MDOT_F411RE", binf)
+
+    @staticmethod
     def combine_bins_mts_dragonfly(t_self, resources, elf, binf):
         """A hoof for the MTS Dragonfly"""
         MTSCode._combine_bins_helper("MTS_DRAGONFLY_F411RE", binf)
+
+    @staticmethod
+    def combine_bins_mtb_mts_dragonfly(t_self, resources, elf, binf):
+        """A hook for the MTB MTS Dragonfly"""
+        MTSCode._combine_bins_helper("MTB_MTS_DRAGONFLY", binf)
 
 
 class LPC4088Code(object):
@@ -619,6 +629,14 @@ class MCU_NRF51Code(object):
 
         with open(binf.replace(".bin", ".hex"), "w") as fileout:
             binh.write_hex_file(fileout, write_start_addr=False)
+
+
+class NCS36510TargetCode(object):
+    @staticmethod
+    def ncs36510_addfib(t_self, resources, elf, binf):
+        from tools.targets.NCS import add_fib_at_start
+        print("binf ", binf)
+        add_fib_at_start(binf[:-4])
 
 
 class RTL8195ACode(object):
