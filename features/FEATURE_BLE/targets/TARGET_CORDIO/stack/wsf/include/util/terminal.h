@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Terminal handler.
+ *  \file       terminal.h
+ *
+ *  \brief      Terminal handler.
+ *
+ *  Copyright (c) 2015-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -79,8 +81,6 @@ typedef uint8_t (*terminalHandler_t)(uint32_t argc, char **argv);
  *
  *  \param  pBuf      Buffer to transmit.
  *  \param  len       Number of bytes to transmit.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 typedef bool_t (*terminalUartTx_t)(const uint8_t *pBuf, uint32_t len);
@@ -103,8 +103,6 @@ typedef struct terminalCommand_tag
  *  \brief  Initialize terminal.
  *
  *  \param  handlerId   Handler ID for TerminalHandler().
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void TerminalInit(wsfHandlerId_t handlerId);
@@ -114,8 +112,6 @@ void TerminalInit(wsfHandlerId_t handlerId);
  *  \brief  Register the UART Tx Function for the platform.
  *
  *  \param  uartTxFunc    UART Tx callback function.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void TerminalRegisterUartTxFunc(terminalUartTx_t uartTxFunc);
@@ -125,8 +121,6 @@ void TerminalRegisterUartTxFunc(terminalUartTx_t uartTxFunc);
  *  \brief  Register command with terminal.
  *
  *  \param  pCommand    Command.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void TerminalRegisterCommand(terminalCommand_t *pCommand);
@@ -137,8 +131,6 @@ void TerminalRegisterCommand(terminalCommand_t *pCommand);
  *
  *  \param  event       WSF event mask.
  *  \param  pMsg        WSF message.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void TerminalHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg);
@@ -148,8 +140,6 @@ void TerminalHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg);
  *  \brief  Called by application when a data byte is received.
  *
  *  \param  dataByte    received byte
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void TerminalRx(uint8_t dataByte);
@@ -159,8 +149,6 @@ void TerminalRx(uint8_t dataByte);
  *  \brief  Called by application to transmit string.
  *
  *  \param  pStr      String.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void TerminalTxStr(const char *pStr);
@@ -170,8 +158,6 @@ void TerminalTxStr(const char *pStr);
  *  \brief  Called by application to transmit character.
  *
  *  \param  c         Character.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void TerminalTxChar(char c);
@@ -182,8 +168,6 @@ void TerminalTxChar(char c);
  *
  *  \param  pStr      Message format string
  *  \param  ...       Additional arguments, printf-style
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void TerminalTxPrint(const char *pStr, ...);
@@ -194,8 +178,6 @@ void TerminalTxPrint(const char *pStr, ...);
  *
  *  \param  pData     Data.
  *  \param  len       Length of data, in bytes.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void TerminalTx(const uint8_t *pData, uint16_t len);

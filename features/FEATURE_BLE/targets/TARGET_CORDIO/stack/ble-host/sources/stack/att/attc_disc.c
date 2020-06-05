@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief ATT client service and characteristic utility functions.
+ *  \file
+ *
+ *  \brief  ATT client service and characteristic utility functions.
+ *
+ *  Copyright (c) 2011-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -43,6 +45,10 @@
 /* Read by type response lengths for characteristic discovery */
 #define ATT_READ_RSP_LEN_UUID16         (ATT_CHAR_DECL_LEN_UUID16 + 2)
 #define ATT_READ_RSP_LEN_UUID128        (ATT_CHAR_DECL_LEN_UUID128 + 2)
+
+/* Read by type response lengths for service include discovery */
+#define ATT_READ_RSP_INC_LEN_UUID16     (ATT_16_UUID_LEN + 6)
+#define ATT_READ_RSP_INC_LEN_UUID128    (ATT_128_UUID_LEN + 6)
 
 /* Find info response lengths */
 #define ATT_FIND_RSP_LEN_UUID16         (ATT_16_UUID_LEN + 2)
@@ -292,7 +298,7 @@ static uint8_t attcDiscProcDesc(attcDiscCb_t *pCb, attEvt_t *pMsg)
   }
 
   /* if descriptor discovery complete for this characteristic */
-  if (pMsg->hdr.status != ATT_SUCCESS || pMsg->continuing == FALSE)
+  if ((pMsg->hdr.status != ATT_SUCCESS) || (pMsg->continuing == FALSE))
   {
     /* go to next entry in list */
     pChar = &pCb->pCharList[pCb->charListIdx];
@@ -327,9 +333,7 @@ static uint8_t attcDiscProcDesc(attcDiscCb_t *pCb, attEvt_t *pMsg)
  *  \param  settings    Indicates 16 or 128 bit UUID.
  *  \param  pDecl       Pointer to declaration.
  *
- *  \return ATT_CONTINUING if successful and discovery procedure is continuing.
- *          ATT_SUCCESS if discovery procedure completed successfully.
- *          Otherwise the discovery procedure failed.
+ *  \return none.
  */
 /*************************************************************************************************/
 static void attcDiscProcCharDecl(attcDiscCb_t *pCb, uint8_t settings, uint8_t *pDecl)
@@ -381,6 +385,7 @@ static void attcDiscProcCharDecl(attcDiscCb_t *pCb, uint8_t settings, uint8_t *p
           }
 
           ATT_TRACE_INFO1("characteristic found handle:0x%x", hdl);
+          break;
         }
       }
     }
@@ -446,7 +451,7 @@ static uint8_t attcDiscProcChar(attcDiscCb_t *pCb, attEvt_t *pMsg)
   }
 
   /* if characteristic discovery complete */
-  if (pMsg->hdr.status != ATT_SUCCESS || pMsg->continuing == FALSE)
+  if ((pMsg->hdr.status != ATT_SUCCESS) || (pMsg->continuing == FALSE))
   {
     /* check if characteristic end handle needs to be set */
     if (pCb->endHdlIdx != ATT_DISC_HDL_IDX_NONE)
@@ -511,6 +516,55 @@ static uint8_t attcDiscConfigNext(dmConnId_t connId, attcDiscCb_t *pCb)
 
   /* nothing left to configure; we're done */
   return ATT_SUCCESS;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Process an included service.
+ *
+ *  \param  pCb         Pointer to service discovery control block.
+ *  \param  settings    Indicates 16 or 128 bit UUID.
+ *  \param  pDecl       Pointer to declaration.
+ *
+ *  \return none.
+ */
+/*************************************************************************************************/
+static void attcDiscProcIncSvc(attcDiscCb_t *pCb, uint8_t settings, uint8_t *pDecl)
+{
+  attcDiscChar_t  **pChar;
+  uint16_t        handle;
+  uint8_t         i;
+
+  /* parse it */
+  BSTREAM_TO_UINT16(handle, pDecl);
+  pDecl += 4;    /* skip start/end handle */
+
+  /* check handle */
+  if ((handle >= pCb->svcStartHdl) && handle <= (pCb->svcEndHdl))
+  {
+    /* now pDecl points to UUID; search for UUID in characteristic list */
+    for (i = 0, pChar = pCb->pCharList; i < pCb->charListLen; i++, pChar++)
+    {
+      /* if characteristic not already found */
+      if (pCb->pHdlList[i] == 0)
+      {
+        /* if UUIDs match */
+        if (attcUuidCmp(*pChar, pDecl, settings))
+        {
+          /* match found; store handle */
+          pCb->pHdlList[i] = handle;
+
+          ATT_TRACE_INFO1("service include found handle:0x%x", handle);
+          return;
+        }
+      }
+    }
+  }
+  else
+  {
+    /* invalid handle; skip this declaration */
+    ATT_TRACE_WARN1("invalid handle:0x%x", handle);
+  }
 }
 
 /*************************************************************************************************/
@@ -635,12 +689,111 @@ uint8_t AttcDiscCharCmpl(attcDiscCb_t *pCb, attEvt_t *pMsg)
   }
 
   /* if characteristic discovery failed clear any handles */
-  if (status != ATT_SUCCESS && status != ATT_CONTINUING)
+  if ((status != ATT_SUCCESS) && (status != ATT_CONTINUING))
   {
     memset(pCb->pHdlList, 0, (pCb->charListLen * sizeof(uint16_t)));
   }
 
   return status;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  This utility function starts included service discovery for a service on a peer device.
+ *          The service must have been previously discovered by calling AttcDiscService() and
+*           AttcDiscServiceCmpl().
+ *
+ *  \param  connId      DM connection ID.
+ *  \param  pCb         Pointer to service discovery control block.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void AttcDiscIncSvcStart(dmConnId_t connId, attcDiscCb_t *pCb)
+{
+  /* initialize control block */
+  pCb->charListIdx = 0;
+  pCb->endHdlIdx = ATT_DISC_HDL_IDX_NONE;
+
+  AttcReadByTypeReq(connId, pCb->svcStartHdl, pCb->svcEndHdl, ATT_16_UUID_LEN,
+                    (uint8_t *) attIncUuid, TRUE);
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  This utility function processes a service include discovery result.  It should be
+ *          called when an ATTC_READ_BY_TYPE_RSP allback event is received after service include
+ *          discovery is initiated by calling AttcDiscIncSvcStart().
+ *
+ *  \param  pCb         Pointer to service discovery control block.
+ *  \param  pMsg        ATT callback event message.
+ *
+ *  \return ATT_CONTINUING if successful and discovery procedure is continuing.
+ *          ATT_SUCCESS if discovery procedure completed successfully.
+ *          Otherwise the discovery procedure failed.
+ */
+/*************************************************************************************************/
+uint8_t AttcDiscIncSvcCmpl(attcDiscCb_t *pCb, attEvt_t *pMsg)
+{
+  uint8_t *p;
+  uint8_t *pEnd;
+  uint8_t pairLen;
+  uint8_t settings;
+
+  /* verify callback event */
+  if (pMsg->hdr.event != ATTC_READ_BY_TYPE_RSP)
+  {
+    ATT_TRACE_WARN1("unexpected callback event %d", pMsg->hdr.event);
+    return ATT_ERR_UNDEFINED;
+  }
+
+  /* if read by type successful */
+  if (pMsg->hdr.status == ATT_SUCCESS)
+  {
+    p = pMsg->pValue;
+    pEnd = pMsg->pValue + pMsg->valueLen;
+
+    /* verify attribute-handle pair length and determine UUID length */
+    BSTREAM_TO_UINT8(pairLen, p);
+    if (pairLen == ATT_READ_RSP_INC_LEN_UUID16)
+    {
+      settings = 0;
+    }
+    else if (pairLen == ATT_READ_RSP_INC_LEN_UUID128)
+    {
+      settings = ATTC_SET_UUID_128;
+    }
+    else
+    {
+      return ATT_ERR_INVALID_RSP;
+    }
+
+    /* for each characteristic declaration */
+    while (p < pEnd)
+    {
+      /* process service include */
+      attcDiscProcIncSvc(pCb, settings, p);
+
+      /* go to next */
+      p += pairLen;
+    }
+  }
+
+  /* if include discovery complete */
+  if ((pMsg->hdr.status != ATT_SUCCESS) || (pMsg->continuing == FALSE))
+  {
+    /* check if characteristic end handle needs to be set */
+    if (pCb->endHdlIdx != ATT_DISC_HDL_IDX_NONE)
+    {
+      /* end handle of characteristic declaration is end handle of service */
+      pCb->pHdlList[pCb->endHdlIdx] = pCb->svcEndHdl;
+    }
+
+    return ATT_SUCCESS;
+  }
+
+  /* still more to do */
+  return ATT_CONTINUING;
 }
 
 /*************************************************************************************************/

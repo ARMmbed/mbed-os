@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Attribute protocol UUIDs from the Bluetooth specification.
+ *  \file
+ *
+ *  \brief  Attribute protocol UUIDs from the Bluetooth specification.
+ *
+ *  Copyright (c) 2011-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 #ifndef ATT_UUID_H
@@ -207,6 +209,7 @@ extern "C" {
 #define ATT_UUID_MESH_PROXY_DATA_OUT        0x2ADE    /*!< \brief Mesh Proxy Data Out */
 #define ATT_UUID_CLIENT_SUPPORTED_FEATURES  0x2B29    /*!< \brief Client Supported Features */
 #define ATT_UUID_DATABASE_HASH              0x2B2A    /*!< \brief Database Hash */
+#define ATT_UUID_SERVER_SUPPORTED_FEATURES  0x2B3A    /*!< \brief Server Supported Features */
 #define ATT_UUID_CTE_ENABLE                 0x7F80    /*!< \brief Constant Tone Extension enable */
 #define ATT_UUID_CTE_MIN_LEN                0x7F81    /*!< \brief Constant Tone Extension minimum length */
 #define ATT_UUID_CTE_TX_CNT                 0x7F82    /*!< \brief Constant Tone Extension transmit count */
@@ -387,6 +390,9 @@ extern const uint8_t attPlxsSvcUuid[ATT_16_UUID_LEN];    /*!< \brief Pulse Oxime
 extern const uint8_t attUdsSvcUuid[ATT_16_UUID_LEN];     /*!< \brief User Data Service */
 extern const uint8_t attMprvSvcUuid[ATT_16_UUID_LEN];    /*!< \brief Mesh Provisioning Service */
 extern const uint8_t attMprxSvcUuid[ATT_16_UUID_LEN];    /*!< \brief Mesh Proxy Service */
+extern const uint8_t attWssSvcUuid[ATT_16_UUID_LEN];     /*!< \brief Weight scale service */
+extern const uint8_t attCteSvcUuid[ATT_16_UUID_LEN];     /*!< \brief Constant Tone Extension service */
+
 /**@}*/
 
 /** \name GATT UUID Variables
@@ -519,18 +525,18 @@ extern const uint8_t attMprvDinChUuid[ATT_16_UUID_LEN];  /*!< \brief Mesh Provis
 extern const uint8_t attMprvDoutChUuid[ATT_16_UUID_LEN]; /*!< \brief Mesh Provisioning Data Out */
 extern const uint8_t attMprxDinChUuid[ATT_16_UUID_LEN];  /*!< \brief Mesh Proxy Data In */
 extern const uint8_t attMprxDoutChUuid[ATT_16_UUID_LEN]; /*!< \brief Mesh Proxy Data Out */
-extern const uint8_t attWssSvcUuid[ATT_16_UUID_LEN];     /*!< \brief Weight scale service */
 extern const uint8_t attWmChUuid[ATT_16_UUID_LEN];       /*!< \brief Weight measurement */
 extern const uint8_t attWsfChUuid[ATT_16_UUID_LEN];      /*!< \brief Weight scale feature */
 extern const uint8_t attGattCsfChUuid[ATT_16_UUID_LEN];  /*!< \brief Client supported features */
 extern const uint8_t attGattDbhChUuid[ATT_16_UUID_LEN];  /*!< \brief Database hash */
-extern const uint8_t attCteSvcUuid[ATT_16_UUID_LEN];     /*!< \brief Constant Tone Extension service */
 extern const uint8_t attCteEnChUuid[ATT_16_UUID_LEN];    /*!< \brief Constant Tone Extension enable */
 extern const uint8_t attCteMinLenChUuid[ATT_16_UUID_LEN];/*!< \brief Constant Tone Extension minimum length */
 extern const uint8_t attCteTxCntChUuid[ATT_16_UUID_LEN]; /*!< \brief Constant Tone Extension minimum transmit count */
 extern const uint8_t attCteTxDurChUuid[ATT_16_UUID_LEN]; /*!< \brief Constant Tone Extension transmit duration */
 extern const uint8_t attCteIntChUuid[ATT_16_UUID_LEN];   /*!< \brief Constant Tone Extension interval */
 extern const uint8_t attCtePhyChUuid[ATT_16_UUID_LEN];   /*!< \brief Constant Tone Extension PHY */
+extern const uint8_t attSsfChUuid[ATT_16_UUID_LEN];     /*!< \brief Server supported features */
+
 /**@}*/
 
 /*! \} */    /* STACK_ATT_API */

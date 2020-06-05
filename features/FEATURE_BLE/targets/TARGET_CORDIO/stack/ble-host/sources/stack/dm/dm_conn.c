@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Device manager connection management module.
+ *  \file
+ *
+ *  \brief  Device manager connection management module.
+ *
+ *  Copyright (c) 2016-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -65,6 +67,12 @@ static const dmConnAct_t dmConnActSetMain[] =
   dmConnSmActHciUpdated
 };
 
+/* Action set for Connection Update module */
+static const dmConnAct_t dmConnUpdActSetMain[] =
+{
+  dmConnUpdActNone
+};
+
 /* Component function interface */
 static const dmFcnIf_t dmConnFcnIf =
 {
@@ -81,9 +89,30 @@ static const dmFcnIf_t dmConn2FcnIf =
   dmConn2MsgHandler
 };
 
+/* Connection update function interface */
+static const dmFcnIf_t dmConnUpdFcnIf =
+{
+  dmEmptyReset,
+  (dmHciHandler_t) dmEmptyHandler,
+  dmConnUpdMsgHandler
+};
+
+/*! Connection update action table */
+static const uint8_t dmConnUpdActTbl[DM_CONN_UPD_NUM_MSGS] =
+{
+  /* Event                      Action */
+  /* API_UPDATE_MASTER */       DM_CONN_UPD_ACT_UPDATE_MASTER,
+  /* API_UPDATE_SLAVE */        DM_CONN_UPD_ACT_UPDATE_SLAVE,
+  /* L2C_UPDATE_IND */          DM_CONN_UPD_ACT_L2C_UPDATE_IND,
+  /* L2C_UPDATE_CNF */          DM_CONN_UPD_ACT_L2C_UPDATE_CNF
+};
+
 /**************************************************************************************************
   Global Variables
 **************************************************************************************************/
+
+/*! Connection update action set array */
+dmConnAct_t *dmConnUpdActSet[DM_CONN_NUM_ACT_SETS];
 
 /* Control block */
 dmConnCb_t dmConnCb;
@@ -98,6 +127,7 @@ static void dmConn2ActWriteAuthToCmpl(dmConnCcb_t *pCcb, hciEvt_t *pEvent);
 static void dmConn2ActAuthToExpired(dmConnCcb_t *pCcb, hciEvt_t *pEvent);
 static void dmConn2ActReadRemoteFeaturesCmpl(dmConnCcb_t *pCcb, hciEvt_t *pEvent);
 static void dmConn2ActReadRemoteVerInfoCmpl(dmConnCcb_t *pCcb, hciEvt_t *pEvent);
+static void dmConn2ActReqPeerSca(dmConnCcb_t *pCcb, hciEvt_t *pEvent);
 
 /*************************************************************************************************/
 /*!
@@ -338,7 +368,8 @@ dmConnId_t dmConnOpenAccept(uint8_t clientId, uint8_t initPhys, uint8_t advHandl
 
   if (pCcb != NULL)
   {
-    if ((pMsg = WsfMsgAlloc(sizeof(dmConnApiOpen_t))) != NULL)
+    // Allocate sizeof(dmConnMsg_t) because message may be reused in state machine with different callbacks
+    if ((pMsg = WsfMsgAlloc(sizeof(dmConnMsg_t))) != NULL)
     {
       pMsg->hdr.param = pCcb->connId;
       pMsg->hdr.event = (role == DM_ROLE_MASTER) ?
@@ -551,6 +582,57 @@ void dmConnSmActHciUpdated(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg)
 
 /*************************************************************************************************/
 /*!
+ *  \brief  Empty action.
+ *
+ *  \param  pMsg    WSF message.
+ *  \param  pCcb    Connection control block.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void dmConnUpdActNone(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg)
+{
+  return;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Execute the DM connection update action.
+ *
+ *  \param  pCcb  Connection control block.
+ *  \param  pMsg  Event message.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void dmConnUpdExecute(dmConnCcb_t *pCcb, dmConnMsg_t *pMsg)
+{
+  dmConnAct_t *actSet;
+  uint8_t     action;
+
+  DM_TRACE_INFO2("dmConnUpdExecute event=%d state=%d", pMsg->hdr.event, pCcb->state);
+
+  /* get action */
+  action = dmConnUpdActTbl[DM_MSG_MASK(pMsg->hdr.event)];
+
+  /* look up action set */
+  actSet = dmConnUpdActSet[DM_CONN_ACT_SET_ID(action)];
+
+  /* if action set present */
+  if (actSet != NULL)
+  {
+    /* execute action function in action set */
+    (*actSet[DM_CONN_ACT_ID(action)])(pCcb, pMsg);
+  }
+  else
+  {
+    /* no action */
+    dmConnUpdActNone(pCcb, (dmConnMsg_t *) pMsg);
+  }
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief  Reset the scan module.
  *
  *  \return None.
@@ -724,6 +806,10 @@ void dmConn2MsgHandler(wsfMsgHdr_t *pMsg)
         HciWriteAuthPayloadTimeout(pCcb->handle, pConn2Msg->apiWriteAuthPayloadTo.timeout);
         break;
 
+      case DM_CONN_MSG_API_REQ_PEER_SCA:
+        HciLeRequestPeerScaCmd(pCcb->handle);
+        break;
+
       default:
         /* should never get here */
         break;
@@ -778,9 +864,38 @@ void dmConn2HciHandler(hciEvt_t *pEvent)
         dmConn2ActReadRemoteVerInfoCmpl(pCcb, pEvent);
         break;
 
+      case HCI_LE_REQ_PEER_SCA_CBACK_EVT:
+        dmConn2ActReqPeerSca(pCcb, pEvent);
+        break;
+
       default:
         /* should never get here */
         break;
+    }
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  DM Conn update WSF message handler.
+ *
+ *  \param  pMsg    WSF message.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void dmConnUpdMsgHandler(wsfMsgHdr_t *pMsg)
+{
+  dmConnCcb_t *pCcb;
+
+  /* look up ccb from conn id */
+  if ((pCcb = dmConnCcbById((dmConnId_t) pMsg->param)) != NULL)
+  {
+    /* if connected */
+    if (pCcb->state == DM_CONN_SM_ST_CONNECTED)
+    {
+      /* execute connection update action */
+      dmConnUpdExecute(pCcb, (dmConnMsg_t *) pMsg);
     }
   }
 }
@@ -970,6 +1085,30 @@ static void dmConn2ActReadRemoteVerInfoCmpl(dmConnCcb_t *pCcb, hciEvt_t *pEvent)
 
 /*************************************************************************************************/
 /*!
+*  \brief  Handle a request peer SCA event from HCI.
+*
+*  \param  pCcb    Connection control block.
+*  \param  pEvent  Pointer to HCI callback event structure.
+*
+*  \return None.
+*/
+/*************************************************************************************************/
+static void dmConn2ActReqPeerSca(dmConnCcb_t *pCcb, hciEvt_t *pEvent)
+{
+  HciLeReqPeerScaCmplEvt_t_t evt;
+  
+  /* call callback */
+  evt.hdr.event = DM_REQ_PEER_SCA_IND;
+  evt.hdr.param = pCcb->connId;
+  evt.status = evt.hdr.status = (uint8_t) pEvent->leReqPeerSca.status;
+  evt.handle = pCcb->handle;
+  evt.peerSca = pEvent->leReqPeerSca.peerSca;
+
+  (*dmConnCb.connCback[DM_CLIENT_ID_APP])((dmEvt_t *) &evt);
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief  Initialize DM connection manager.
  *
  *  \return None.
@@ -977,9 +1116,16 @@ static void dmConn2ActReadRemoteVerInfoCmpl(dmConnCcb_t *pCcb, hciEvt_t *pEvent)
 /*************************************************************************************************/
 void DmConnInit(void)
 {
+  WsfTaskLock();
+
   dmFcnIfTbl[DM_ID_CONN] = (dmFcnIf_t *) &dmConnFcnIf;
   dmFcnIfTbl[DM_ID_CONN_2] = (dmFcnIf_t *) &dmConn2FcnIf;
+  dmFcnIfTbl[DM_ID_CONN_UPD] = (dmFcnIf_t *) &dmConnUpdFcnIf;
+
   dmConnActSet[DM_CONN_ACT_SET_MAIN] = (dmConnAct_t *) dmConnActSetMain;
+  dmConnUpdActSet[DM_CONN_ACT_SET_MAIN] = (dmConnAct_t *) dmConnUpdActSetMain;
+
+  WsfTaskUnlock();
 }
 
 /*************************************************************************************************/
@@ -1017,7 +1163,8 @@ void DmConnClose(uint8_t clientId, dmConnId_t connId, uint8_t reason)
 {
   dmConnApiClose_t *pMsg;
 
-  if ((pMsg = WsfMsgAlloc(sizeof(dmConnApiClose_t))) != NULL)
+  // Allocate sizeof(dmConnMsg_t) because message may be reused in state machine with different callbacks
+  if ((pMsg = WsfMsgAlloc(sizeof(dmConnMsg_t))) != NULL)
   {
     pMsg->hdr.event = DM_CONN_MSG_API_CLOSE;
     pMsg->hdr.param = connId;
@@ -1048,6 +1195,8 @@ void DmReadRemoteFeatures(dmConnId_t connId)
     {
       hciLeReadRemoteFeatCmplEvt_t evt;
       uint8_t *p = evt.features;
+
+      memset(&evt, 0, sizeof(hciLeReadRemoteFeatCmplEvt_t));
 
       /* call callback */
       evt.hdr.event = DM_REMOTE_FEATURES_IND;
@@ -1103,7 +1252,8 @@ void DmConnUpdate(dmConnId_t connId, hciConnSpec_t *pConnSpec)
 {
   dmConnApiUpdate_t *pMsg;
 
-  if ((pMsg = WsfMsgAlloc(sizeof(dmConnApiUpdate_t))) != NULL)
+  // Allocate sizeof(dmConnMsg_t) because message may be reused in state machine with different callbacks
+  if ((pMsg = WsfMsgAlloc(sizeof(dmConnMsg_t))) != NULL)
   {
     pMsg->hdr.event = (DmConnRole(connId) == DM_ROLE_MASTER) ?
                       DM_CONN_MSG_API_UPDATE_MASTER : DM_CONN_MSG_API_UPDATE_SLAVE;
@@ -1360,6 +1510,28 @@ void DmWriteAuthPayloadTimeout(dmConnId_t connId, uint16_t timeout)
     pMsg->hdr.event = DM_CONN_MSG_API_WRITE_AUTH_TO;
     pMsg->hdr.param = connId;
     pMsg->timeout = timeout;
+
+    WsfMsgSend(dmCb.handlerId, pMsg);
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Request the Sleep Clock Accuracy (SCA) of a peer device.
+ *
+ *  \param  connId      Connection identifier.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void DmConnRequestPeerSca(dmConnId_t connId)
+{
+  dmConnApiReqPeerSca_t *pMsg;
+
+  if ((pMsg = WsfMsgAlloc(sizeof(dmConnApiReqPeerSca_t))) != NULL)
+  {
+    pMsg->hdr.event = DM_CONN_MSG_API_REQ_PEER_SCA;
+    pMsg->hdr.param = connId;
 
     WsfMsgSend(dmCb.handlerId, pMsg);
   }

@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief ATT server main module.
+ *  \file
+ *
+ *  \brief  ATT server main module.
+ *
+ *  Copyright (c) 2009-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -49,7 +51,7 @@
 
 static void attsDataCback(uint16_t handle, uint16_t len, uint8_t *pPacket);
 static void attsConnCback(attCcb_t *pCcb, dmEvt_t *pDmEvt);
-static void attsMsgCback(wsfMsgHdr_t *pMsg);
+void attsMsgCback(wsfMsgHdr_t *pMsg);
 static void attsL2cCtrlCback(wsfMsgHdr_t *pMsg);
 
 /**************************************************************************************************
@@ -66,7 +68,7 @@ static const attFcnIf_t attsFcnIf =
 };
 
 /* Minimum PDU lengths, indexed by method */
-static const uint8_t attsMinPduLen[] =
+const uint8_t attsMinPduLen[] =
 {
   0,                                  /* ATT_METHOD_ERR */
   ATT_MTU_REQ_LEN,                    /* ATT_METHOD_MTU */
@@ -84,6 +86,7 @@ static const uint8_t attsMinPduLen[] =
   0,                                  /* ATT_METHOD_VALUE_NTF */
   0,                                  /* ATT_METHOD_VALUE_IND */
   ATT_VALUE_CNF_LEN,                  /* ATT_METHOD_VALUE_CNF */
+  0,                                  /* ATT_METHOD_READ_MULT_VAR */
   ATT_SIGNED_WRITE_CMD_LEN            /* ATT_METHOD_SIGNED_WRITE_CMD */
 };
 
@@ -110,6 +113,7 @@ attsProcFcn_t attsProcFcnTbl[ATT_METHOD_SIGNED_WRITE_CMD+1] =
   NULL,                               /* ATT_METHOD_VALUE_NTF */
   NULL,                               /* ATT_METHOD_VALUE_IND */
   attsProcValueCnf,                   /* ATT_METHOD_VALUE_CNF */
+  attsProcReadMultiVarReq,            /* ATT_METHOD_READ_MULT_VAR */
   NULL                                /* ATT_METHOD_SIGNED_WRITE_CMD */
 };
 
@@ -133,11 +137,11 @@ static void attsDataCback(uint16_t handle, uint16_t len, uint8_t *pPacket)
   uint8_t       method;
   uint8_t       err;
   attsProcFcn_t procFcn;
-  attCcb_t      *pCcb;
+  attsCcb_t     *pCcb;
   uint16_t      attHandle;
 
   /* get connection cb for this handle */
-  if ((pCcb = attCcbByHandle(handle)) == NULL)
+  if ((pCcb = attsCcbByHandle(handle, ATT_BEARER_SLOT_ID)) == NULL)
   {
     return;
   }
@@ -155,6 +159,10 @@ static void attsDataCback(uint16_t handle, uint16_t len, uint8_t *pPacket)
   {
     method = ATT_METHOD_WRITE_CMD;
   }
+  else if (opcode == ATT_PDU_READ_MULT_VAR_REQ)
+  {
+    method = ATT_METHOD_READ_MULT_VAR;
+  }
   else if (opcode == ATT_PDU_SIGNED_WRITE_CMD)
   {
     method = ATT_METHOD_SIGNED_WRITE_CMD;
@@ -165,7 +173,7 @@ static void attsDataCback(uint16_t handle, uint16_t len, uint8_t *pPacket)
   }
 
   /* ignore packet if write response is pending. */
-  if (pCcb->control & ATT_CCB_STATUS_RSP_PENDING)
+  if (pCcb->pMainCcb->sccb[ATT_BEARER_SLOT_ID].control & ATT_CCB_STATUS_RSP_PENDING)
   {
     if (method != ATT_METHOD_VALUE_CNF)
     {
@@ -188,7 +196,7 @@ static void attsDataCback(uint16_t handle, uint16_t len, uint8_t *pPacket)
   if (attCb.errTest != ATT_SUCCESS)
   {
     BYTES_TO_UINT16(attHandle, pPacket + L2C_PAYLOAD_START + ATT_HDR_LEN);
-    attsErrRsp(handle, opcode, attHandle, attCb.errTest);
+    attsErrRsp(pCcb->pMainCcb, ATT_BEARER_SLOT_ID, opcode, attHandle, attCb.errTest);
     return;
   }
 #endif
@@ -226,7 +234,7 @@ static void attsDataCback(uint16_t handle, uint16_t len, uint8_t *pPacket)
   if (err && (opcode != ATT_PDU_MTU_REQ) && (opcode != ATT_PDU_VALUE_CNF) &&
       ((opcode & ATT_PDU_MASK_COMMAND) == 0))
   {
-    attsErrRsp(handle, opcode, attHandle, err);
+    attsErrRsp(pCcb->pMainCcb, ATT_BEARER_SLOT_ID, opcode, attHandle, err);
   }
 }
 
@@ -242,16 +250,23 @@ static void attsDataCback(uint16_t handle, uint16_t len, uint8_t *pPacket)
 /*************************************************************************************************/
 static void attsConnCback(attCcb_t *pCcb, dmEvt_t *pDmEvt)
 {
+  uint8_t i;
+
   /* if connection closed */
   if (pDmEvt->hdr.event == DM_CONN_CLOSE_IND)
   {
-    /* clear prepare write queue */
-    attsClearPrepWrites(pCcb);
-
-    /* stop service discovery idle timer, if running */
-    if (DmConnCheckIdle(pCcb->connId) & DM_IDLE_ATTS_DISC)
+    for (i = 0; i < ATT_BEARER_MAX; i++)
     {
-      WsfTimerStop(&pCcb->idleTimer);
+      attsCcb_t *pAttsCb = &attsCb.ccb[pCcb->connId - 1][i];
+
+      /* clear prepare write queue */
+      attsClearPrepWrites(pAttsCb);
+
+      /* stop service discovery idle timer, if running */
+      if (DmConnCheckIdle(pCcb->connId) & DM_IDLE_ATTS_DISC)
+      {
+        WsfTimerStop(&pAttsCb->idleTimer);
+      }
     }
   }
 
@@ -268,7 +283,7 @@ static void attsConnCback(attCcb_t *pCcb, dmEvt_t *pDmEvt)
  *  \return None.
  */
 /*************************************************************************************************/
-static void attsMsgCback(wsfMsgHdr_t *pMsg)
+void attsMsgCback(wsfMsgHdr_t *pMsg)
 {
   /* handle service discovery idle timeout */
   if (pMsg->event == ATTS_MSG_IDLE_TIMEOUT)
@@ -320,7 +335,7 @@ static void attsL2cCtrlCback(wsfMsgHdr_t *pMsg)
  *  \return None.
  */
 /*************************************************************************************************/
-void attsErrRsp(uint16_t handle, uint8_t opcode, uint16_t attHandle, uint8_t reason)
+void attsErrRsp(attCcb_t *pCcb, uint8_t slot, uint8_t opcode, uint16_t attHandle, uint8_t reason)
 {
   uint8_t *pBuf;
   uint8_t *p;
@@ -334,7 +349,7 @@ void attsErrRsp(uint16_t handle, uint8_t opcode, uint16_t attHandle, uint8_t rea
     UINT16_TO_BSTREAM(p, attHandle);
     UINT8_TO_BSTREAM(p, reason);
 
-    L2cDataReq(L2C_CID_ATT, handle, ATT_ERR_RSP_LEN, pBuf);
+    attL2cDataReq(pCcb, slot, ATT_ERR_RSP_LEN, pBuf);
   }
 }
 
@@ -347,11 +362,11 @@ void attsErrRsp(uint16_t handle, uint8_t opcode, uint16_t attHandle, uint8_t rea
  *  \return None.
  */
 /*************************************************************************************************/
-void attsClearPrepWrites(attCcb_t *pCcb)
+void attsClearPrepWrites(attsCcb_t *pCcb)
 {
   void *pBuf;
 
-  while ((pBuf = WsfQueueDeq(&pCcb->prepWriteQueue)) != NULL)
+  while ((pBuf = WsfQueueDeq(&attsCb.prepWriteQueue[pCcb->connId])) != NULL)
   {
     WsfBufFree(pBuf);
   }
@@ -366,17 +381,17 @@ void attsClearPrepWrites(attCcb_t *pCcb)
  *  \return None.
  */
 /*************************************************************************************************/
-void attsDiscBusy(attCcb_t *pCcb)
+void attsDiscBusy(attsCcb_t *pCcb)
 {
   if (pAttCfg->discIdleTimeout > 0)
   {
     /* set channel as busy */
-    DmConnSetIdle(pCcb->connId, DM_IDLE_ATTS_DISC, DM_CONN_BUSY);
+    DmConnSetIdle(pCcb->pMainCcb->connId, DM_IDLE_ATTS_DISC, DM_CONN_BUSY);
 
     /* start service discovery idle timer */
     pCcb->idleTimer.handlerId = attCb.handlerId;
     pCcb->idleTimer.msg.event = ATTS_MSG_IDLE_TIMEOUT;
-    pCcb->idleTimer.msg.param = pCcb->connId;
+    pCcb->idleTimer.msg.param = pCcb->pMainCcb->connId;
     WsfTimerStartSec(&pCcb->idleTimer, pAttCfg->discIdleTimeout);
   }
 }
@@ -414,7 +429,9 @@ void attsProcessDatabaseHashUpdate(secCmacMsg_t *pMsg)
     pMsg->pPlainText = NULL;
   }
 
+
   /* copy in little endian */
+  WStrReverse(pMsg->pCiphertext, ATT_DATABASE_HASH_LEN);
   evt.pValue = pMsg->pCiphertext;
 
   /* find GATT database handle */
@@ -424,7 +441,7 @@ void attsProcessDatabaseHashUpdate(secCmacMsg_t *pMsg)
   if (dbhCharHandle != ATT_HANDLE_NONE)
   {
     /* Set hash in service. */
-    AttsSetAttr(dbhCharHandle, SEC_CMAC_HASH_LEN, evt.pValue);
+    AttsSetAttr(dbhCharHandle, ATT_DATABASE_HASH_LEN, evt.pValue);
   }
 
   /* set hash update complete */
@@ -451,7 +468,7 @@ void attsCheckPendDbHashReadRsp(void)
       uint8_t *pBuf;
 
       /* allocate max size buffer for response */
-      if ((pBuf = attMsgAlloc(pCcb->mtu + L2C_PAYLOAD_START)) != NULL)
+      if ((pBuf = attMsgAlloc(pCcb->sccb[ATT_BEARER_SLOT_ID].mtu + L2C_PAYLOAD_START)) != NULL)
       {
         uint8_t *p;
         attsAttr_t  *pAttr;
@@ -475,12 +492,12 @@ void attsCheckPendDbHashReadRsp(void)
         }
         else
         {
-          attsErrRsp(pCcb->connId, ATT_PDU_READ_TYPE_REQ, pCcb->pPendDbHashRsp->startHandle, ATT_ERR_NOT_FOUND);
+          attsErrRsp(pCcb, ATT_BEARER_SLOT_ID, ATT_PDU_READ_TYPE_REQ, pCcb->pPendDbHashRsp->startHandle, ATT_ERR_NOT_FOUND);
         }
       }
       else
       {
-        attsErrRsp(pCcb->connId, ATT_PDU_READ_TYPE_REQ, pCcb->pPendDbHashRsp->startHandle, ATT_ERR_RESOURCES);
+        attsErrRsp(pCcb, ATT_BEARER_SLOT_ID, ATT_PDU_READ_TYPE_REQ, pCcb->pPendDbHashRsp->startHandle, ATT_ERR_RESOURCES);
       }
 
       /* Free pending state information. */
@@ -560,6 +577,47 @@ uint16_t attsIsHashableAttr(attsAttr_t *pAttr)
 
 /*************************************************************************************************/
 /*!
+ *  \brief  Return the ATTC connection control block connection ID.
+ *
+ *  \param  connId    Connection ID.
+ *
+ *  \return Pointer to connection control block or NULL if not in use.
+ */
+/*************************************************************************************************/
+attsCcb_t *attsCcbByConnId(dmConnId_t connId, uint8_t slot)
+{
+  if (DmConnInUse(connId))
+  {
+    return &attsCb.ccb[connId - 1][slot];
+  }
+
+  ATT_TRACE_WARN1("atts ccb not in use: %d", connId);
+  return NULL;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Return the connection control block for the given handle.
+ *
+ *  \param  handle    The connection handle.
+ *
+ *  \return Pointer to connection control block or NULL if not found.
+ */
+/*************************************************************************************************/
+attsCcb_t *attsCcbByHandle(uint16_t handle, uint8_t slot)
+{
+  dmConnId_t  connId;
+
+  if ((connId = DmConnIdByHandle(handle)) != DM_CONN_ID_NONE)
+  {
+    return &attsCb.ccb[connId - 1][slot];
+  }
+
+  return NULL;
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief  Initialize ATT server.
  *
  *  \return None.
@@ -567,10 +625,27 @@ uint16_t attsIsHashableAttr(attsAttr_t *pAttr)
 /*************************************************************************************************/
 void AttsInit(void)
 {
+  uint8_t   i, j;
+  attsCcb_t *pCcb;
+
   /* Initialize control block */
   WSF_QUEUE_INIT(&attsCb.groupQueue);
   attsCb.pInd = &attFcnDefault;
   attsCb.signMsgCback = (attMsgHandler_t) attEmptyHandler;
+
+  for (i = 0; i < DM_CONN_MAX; i++)
+  {
+    for (j = 0; j < ATT_BEARER_MAX; j++)
+    {
+      pCcb = &attsCb.ccb[i][j];
+
+      /* set pointer to main CCB */
+      pCcb->pMainCcb = &attCb.ccb[i];
+
+      pCcb->connId = i + 1;
+      pCcb->slot = j;
+    }
+  }
 
   /* set up callback interfaces */
   attCb.pServer = &attsFcnIf;

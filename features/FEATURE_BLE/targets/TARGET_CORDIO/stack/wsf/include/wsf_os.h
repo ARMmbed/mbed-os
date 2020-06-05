@@ -1,27 +1,30 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Software foundation OS API.
+ *  \file   wsf_os.h
+ *
+ *  \brief  Software foundation OS API.
+ *
+ *  Copyright (c) 2009-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 #ifndef WSF_OS_H
 #define WSF_OS_H
 
+#include "wsf_types.h"
 #include "wsf_queue.h"
 
 #ifdef __cplusplus
@@ -85,6 +88,9 @@ typedef wsfHandlerId_t  wsfTaskId_t;
 /*! \brief Task event mask data type */
 typedef uint8_t wsfTaskEvent_t;
 
+/*! \brief      Idle check function. */
+typedef bool_t (*WsfOsIdleCheckFunc_t)(void);
+
 /**************************************************************************************************
   External Variables
 **************************************************************************************************/
@@ -114,8 +120,6 @@ typedef struct
  *
  *  \param  event    Mask of events set for the event handler.
  *  \param  pMsg     Pointer to message for the event handler.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 typedef void (*wsfEventHandler_t)(wsfEventMask_t event, wsfMsgHdr_t *pMsg);
@@ -130,8 +134,6 @@ typedef void (*wsfEventHandler_t)(wsfEventMask_t event, wsfMsgHdr_t *pMsg);
  *
  *  \param  handlerId   Handler ID.
  *  \param  event       Event or events to set.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfSetEvent(wsfHandlerId_t handlerId, wsfEventMask_t event);
@@ -139,8 +141,6 @@ void WsfSetEvent(wsfHandlerId_t handlerId, wsfEventMask_t event);
 /*************************************************************************************************/
 /*!
  *  \brief  Lock task scheduling.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfTaskLock(void);
@@ -148,8 +148,6 @@ void WsfTaskLock(void);
 /*************************************************************************************************/
 /*!
  *  \brief  Unlock task scheduling.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfTaskUnlock(void);
@@ -160,8 +158,6 @@ void WsfTaskUnlock(void);
  *
  *  \param  handlerId   Event handler ID.
  *  \param  event       Task event mask.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfTaskSetReady(wsfHandlerId_t handlerId, wsfTaskEvent_t event);
@@ -201,8 +197,6 @@ bool_t wsfOsReadyToSleep(void);
 /*************************************************************************************************/
 /*!
  *  \brief  Event dispatched.  Designed to be called repeatedly from infinite loop.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void wsfOsDispatcher(void);
@@ -215,6 +209,22 @@ void wsfOsDispatcher(void);
 */
 /*************************************************************************************************/
 void WsfOsInit(void);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  OS starts main loop
+ */
+/*************************************************************************************************/
+void WsfOsEnterMainLoop(void);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Register service check functions.
+ *
+ *  \param  func   Service function.
+ */
+/*************************************************************************************************/
+void WsfOsRegisterSleepCheckFunc(WsfOsIdleCheckFunc_t func);
 
 /*! \} */    /* WSF_OS_API */
 

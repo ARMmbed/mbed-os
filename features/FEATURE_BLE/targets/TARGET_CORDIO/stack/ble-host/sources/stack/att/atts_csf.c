@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief ATT client supported features module.
+ *  \file
+ *
+ *  \brief  ATT client supported features module.
+ *
+ *  Copyright (c) 2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -253,7 +255,7 @@ uint8_t attsCsfActClientState(uint16_t handle, uint8_t opcode, uint8_t *pPacket)
  *        application) will have updated all persistent records prior to calling this function.
  */
 /*************************************************************************************************/
-void AttsCsfSetClientsChangeAwarenessState(dmConnId_t connId, uint8_t state)
+void AttsCsfSetClientChangeAwareState(dmConnId_t connId, uint8_t state)
 {
   if (connId == DM_CONN_ID_NONE)
   {
@@ -346,6 +348,7 @@ void AttsCsfInit(void)
 uint8_t AttsCsfWriteFeatures(dmConnId_t connId, uint16_t offset, uint16_t valueLen, uint8_t *pValue)
 {
   attsCsfRec_t *pCsfRec = &attsCsfCb.attsCsfTable[connId - 1];
+  uint8_t      newCsf;
 
   /* future parameter in case the client supported features characteristic becomes a multi-octet
    * structure.
@@ -356,14 +359,16 @@ uint8_t AttsCsfWriteFeatures(dmConnId_t connId, uint16_t offset, uint16_t valueL
   {
     return ATT_ERR_LENGTH;
   }
+  
+  newCsf = *pValue & ATTS_CSF_ALL_FEATURES;
 
-  /* A client can not clear any bits it has set. */
-  if ((pCsfRec->csf & *pValue) < pCsfRec->csf)
+  /* A client cannot clear any bits it has set. */
+  if ((pCsfRec->csf > 0) && (newCsf == 0))
   {
     return ATT_ERR_VALUE_NOT_ALLOWED;
   }
 
-  pCsfRec->csf = *pValue & ATTS_CSF_OCT0_FEATURES;
+  pCsfRec->csf |= newCsf;
 
   ATT_TRACE_INFO2("connId %d updated csf to 0x%02x", connId, pCsfRec->csf);
 
@@ -401,10 +406,10 @@ void AttsCsfGetFeatures(dmConnId_t connId, uint8_t *pCsfOut, uint8_t pCsfOutLen)
  *
  *  \param  connId      DM connection ID.
  *
- *  \return Client's change-aware state.
+ *  \return Client's change-aware state. See ::attClientAwareStates.
  */
 /*************************************************************************************************/
-uint8_t AttsCsfGetChangeAwareState(dmConnId_t connId)
+uint8_t AttsCsfGetClientChangeAwareState(dmConnId_t connId)
 {
   return attsCsfCb.attsCsfTable[connId - 1].changeAwareState;
 }

@@ -1,29 +1,31 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Baseband interface file.
+ *  \file
+ *
+ *  \brief      Baseband interface file.
+ *
+ *  Copyright (c) 2016-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
 #ifndef PAL_BB_H
 #define PAL_BB_H
 
-#include "stack/platform/include/pal_types.h"
+#include "pal_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,7 +36,7 @@ extern "C" {
 **************************************************************************************************/
 
 /*! \brief      Protocol types */
-enum
+typedef enum
 {
   BB_PROT_NONE,                         /*!< Non-protocol specific operation. */
   BB_PROT_BLE,                          /*!< Bluetooth Low Energy normal mode. */
@@ -42,7 +44,7 @@ enum
   BB_PROT_PRBS15,                       /*!< Enable the continuous PRBS15 transmit sequence. */
   BB_PROT_15P4,                         /*!< 802.15.4. */
   BB_PROT_NUM                           /*!< Number of protocols. */
-};
+} PalBbProt_t;
 
 /*! \brief      Status codes */
 enum
@@ -60,13 +62,13 @@ enum
 };
 
 /*! \brief      PHY types. */
-enum
+typedef enum
 {
   BB_PHY_BLE_1M    = 1,                 /*!< Bluetooth Low Energy 1Mbps PHY. */
   BB_PHY_BLE_2M    = 2,                 /*!< Bluetooth Low Energy 2Mbps PHY. */
   BB_PHY_BLE_CODED = 3,                 /*!< Bluetooth Low Energy Coded PHY (data coding unspecified). */
   BB_PHY_15P4      = 4,                 /*!< 802.15.4 PHY. */
-};
+} PalBbPhy_t;
 
 /*! \brief      PHY options. */
 enum
@@ -78,11 +80,11 @@ enum
 
 #ifndef BB_CLK_RATE_HZ
 /*! \brief      BB clock rate in hertz. */
-#define BB_CLK_RATE_HZ          1000000
+#define BB_CLK_RATE_HZ              1000000
 #endif
 
 /*! \brief      Binary divide with 1,000,000 divisor (n[max]=0xFFFFFFFF). */
-#define BB_MATH_DIV_10E6(n)     ((uint32_t)(((uint64_t)(n) * UINT64_C(4295)) >> 32))
+#define BB_MATH_DIV_10E6(n)         ((uint32_t)(((uint64_t)(n) * UINT64_C(4295)) >> 32))
 
 #if (BB_CLK_RATE_HZ == 1000000)
 /*! \brief      Return microseconds (no conversion required). */
@@ -92,7 +94,7 @@ enum
 #define BB_US_TO_BB_TICKS(us)       ((uint32_t)((us) << 3))
 #elif (BB_CLK_RATE_HZ == 32768)
 /*! \brief      Compute BB ticks from given time in microseconds (max time is interval=1,996s). */
-#define BB_US_TO_BB_TICKS(us)       ((uint32_t)(((uint64_t)(us) * UINT64_C(549755)) >> 24))   /* calculated value may be one tick low */
+#define BB_US_TO_BB_TICKS(us)       ((uint32_t)(((uint64_t)(us) * (uint64_t)(70368745)) >> 31))   /* calculated value may be one tick low */
 #else
 /*! \brief      Compute BB ticks from given time in microseconds (max time is interval=1,996s). */
 #define BB_US_TO_BB_TICKS(us)       BB_MATH_DIV_10E6((uint64_t)(us) * (uint64_t)(BB_CLK_RATE_HZ))
@@ -100,7 +102,6 @@ enum
 
 #define RTC_CLOCK_RATE              32768
 #define USE_RTC_BB_CLK              (BB_CLK_RATE_HZ == RTC_CLOCK_RATE)
-#define HFCLK_OSC_SETTLE_TICKS      (RTC_CLOCK_RATE / 1000)
 
 #if (BB_CLK_RATE_HZ == 1000000)
 /*! \brief      BB ticks to microseconds (no conversion required). */
@@ -125,6 +126,15 @@ enum
 /*! \brief      Typical operation setup delay in microseconds (BbRtCfg_t::schSetupDelayUs). */
 #define BB_SCH_SETUP_DELAY_US       500
 
+/*! \brief      Maximum time tick for 32 bit timer(1MHz) in microseconds (BbRtCfg_t::schSetupDelayUs). */
+#define BB_TIMER_1MHZ_MAX_VALUE_US  0xFFFFFFFF  /* 2^32 - 1 = 0xFFFFFFFF. */
+
+/*! \brief      Maximum time tick for 32 bit timer(8MHz) in microseconds (BbRtCfg_t::schSetupDelayUs). */
+#define BB_TIMER_8MHZ_MAX_VALUE_US  0x1FFFFFFF  /* 2^29 - 1 = 0x1FFFFFFF. */
+
+/*! \brief      Maximum time tick for 24 bit RTC counter(32768Hz) in microseconds. (BbRtCfg_t::BbTimerBoundaryUs) */
+#define BB_RTC_MAX_VALUE_US         511999999   /* 2^24 / 32768 * 10^6 - 1 = 512 * 10^6 - 1 = 511999999. */
+
 /**************************************************************************************************
   Type Definitions
 **************************************************************************************************/
@@ -139,6 +149,7 @@ typedef struct
   uint8_t  rfSetupDelayUsec;        /*!< RF setup delay in microseconds. */
   uint16_t maxScanPeriodMsec;       /*!< Maximum scan period in milliseconds. */
   uint16_t schSetupDelayUsec;       /*!< Schedule setup delay in microseconds. */
+  uint32_t BbTimerBoundaryUsec;     /*!< BB timer boundary translated in microseconds before wraparound. */
 } PalBbCfg_t;
 
 /**************************************************************************************************
@@ -155,8 +166,6 @@ typedef struct
 /*!
  *  \brief      Initialize the baseband driver.
  *
- *  \return     None.
- *
  *  One-time initialization of baseband resources. This routine can be used to setup baseband
  *  resources, load RF trim parameters and execute RF calibrations and seed the random number
  *  generator.
@@ -170,8 +179,6 @@ void PalBbInit(void);
 /*!
  *  \brief      Enable the BB hardware.
  *
- *  \return     None.
- *
  *  This routine brings the BB hardware out of low power (enable power and clocks) just before a
  *  first BB operation is executed.
  */
@@ -181,8 +188,6 @@ void PalBbEnable(void);
 /*************************************************************************************************/
 /*!
  *  \brief      Disable the BB hardware.
- *
- *  \return     None.
  *
  *  This routine signals the BB hardware to go into low power (disable power and clocks) after all
  *  BB operations have been disabled.
@@ -195,8 +200,6 @@ void PalBbDisable(void);
  *  \brief      Load BB timing configuration.
  *
  *  \param      pCfg                Return configuration values.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void PalBbLoadCfg(PalBbCfg_t *pCfg);
@@ -210,17 +213,14 @@ void PalBbLoadCfg(PalBbCfg_t *pCfg);
 
 /*************************************************************************************************/
 /*!
- *  \brief      Get the current BB clock value.
- *
- *  \param      useRtcBBClk   Use RTC BB clock.
+ *  \brief      Get the current BB clock value in microseconds.
  *
  *  \return     Current BB clock value, units are microseconds.
  *
- *  This routine reads the current value from the BB clock and returns its value.  The clock should
- *  increment at the rate BB_CLK_RATE_HZ (wrapping as appropriate) whenever the BB is enabled.
+ *  This routine reads the current value from the BB clock and returns its value.
  */
 /*************************************************************************************************/
-uint32_t PalBbGetCurrentTime(bool_t useRtcBBClk);
+uint32_t PalBbGetCurrentTime(void);
 
 /*************************************************************************************************/
 /*!
@@ -245,8 +245,6 @@ bool_t PalBbGetTimestamp(uint32_t *pTime);
  *  \param      protId      Protocol ID.
  *  \param      timerCback  Timer IRQ callback.
  *  \param      radioCback  Timer IRQ callback.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void PalBbRegisterProtIrq(uint8_t protId, bbDrvIrqCback_t timerCback, bbDrvIrqCback_t radioCback);
@@ -256,8 +254,6 @@ void PalBbRegisterProtIrq(uint8_t protId, bbDrvIrqCback_t timerCback, bbDrvIrqCb
  *  \brief      Set protocol ID.
  *
  *  \param      protId      Protocol ID.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void PalBbSetProtId(uint8_t protId);

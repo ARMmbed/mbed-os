@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Security service implemented using HCI.
+ *  \file
+ *
+ *  \brief  Security service implemented using HCI.
+ *
+ *  Copyright (c) 2010-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -31,7 +33,7 @@
 #include "hci_api.h"
 #include "util/calc128.h"
 #include "util/wstr.h"
-#include "stack/platform/include/pal_crypto.h"
+#include "pal_crypto.h"
 
 /**************************************************************************************************
   Global Variables
@@ -64,14 +66,17 @@ static void secHciCback(hciEvt_t *pEvent)
 
   case HCI_LE_ENCRYPT_CMD_CMPL_CBACK_EVT:
     pBuf = WsfMsgDeq(&secCb.aesEncQueue, &handlerId);
-
-    WSF_ASSERT(pBuf != NULL);
-
-    /* note: pBuf should never be NULL and is checked by assert above. */
-    /* coverity[dereference] */
-    if (pBuf->type == SEC_TYPE_CCM || pBuf->type == SEC_TYPE_CMAC || pBuf->type == SEC_TYPE_AES_REV)
+    if (pBuf != NULL)
     {
-      WStrReverse(pEvent->leEncryptCmdCmpl.data, HCI_ENCRYPT_DATA_LEN);
+      if (pBuf->type == SEC_TYPE_CCM || pBuf->type == SEC_TYPE_CMAC || pBuf->type == SEC_TYPE_AES_REV)
+      {
+        WStrReverse(pEvent->leEncryptCmdCmpl.data, HCI_ENCRYPT_DATA_LEN);
+      }
+    }
+    else
+    {
+      /* Should never happen */
+      WSF_ASSERT(0);
     }
     break;
 

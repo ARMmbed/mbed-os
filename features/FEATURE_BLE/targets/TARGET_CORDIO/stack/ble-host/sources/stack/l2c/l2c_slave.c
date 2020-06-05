@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief L2CAP module for slave operations.
+ *  \file
+ *
+ *  \brief  L2CAP module for slave operations.
+ *
+ *  Copyright (c) 2009-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -88,10 +90,16 @@ static void l2cSlaveReqTimeout(wsfMsgHdr_t *pMsg)
 /*************************************************************************************************/
 static void l2cSlaveRxSignalingPkt(uint16_t handle, uint16_t l2cLen, uint8_t *pPacket)
 {
-  uint8_t   code;
-  uint8_t   id;
-  uint16_t  len;
-  uint16_t  result;
+  uint8_t     code;
+  uint8_t     id;
+  uint16_t    len;
+  uint16_t    result;
+  dmConnId_t  connId;
+
+  if ((connId = DmConnIdByHandle(handle)) == DM_CONN_ID_NONE)
+  {
+    return;
+  }
 
   /* parse code, len, and identifier */
   pPacket += L2C_PAYLOAD_START;
@@ -111,16 +119,16 @@ static void l2cSlaveRxSignalingPkt(uint16_t handle, uint16_t l2cLen, uint8_t *pP
    * verify this is a conn param update rsp or command reject
    * verify parameter length
    */
-  if ((id == l2cSlaveCb.signId[handle])   &&
+  if ((id == l2cSlaveCb.signId[connId-1]) &&
       (l2cLen == (len + L2C_SIG_HDR_LEN)) &&
       (((code == L2C_SIG_CONN_UPDATE_RSP) && (len == L2C_SIG_CONN_UPDATE_RSP_LEN)) ||
        (code == L2C_SIG_CMD_REJ)))
   {
     /* get last sent code */
-    uint8_t lastCode = l2cSlaveCb.lastCode[handle];
+    uint8_t lastCode = l2cSlaveCb.lastCode[connId-1];
 
     /* clear pending signal id */
-    l2cSlaveCb.signId[handle] = L2C_SIGNAL_ID_INVALID;
+    l2cSlaveCb.signId[connId-1] = L2C_SIGNAL_ID_INVALID;
 
     /* parse result parameter */
     BSTREAM_TO_UINT16(result, pPacket);
@@ -190,13 +198,17 @@ void L2cSlaveInit(void)
 /*************************************************************************************************/
 void L2cDmSigReq(uint16_t handle, uint8_t code, uint16_t len, uint8_t *pParam)
 {
-  uint8_t *pPacket;
-  uint8_t *p;
+  uint8_t     *pPacket;
+  uint8_t     *p;
+  dmConnId_t  connId;
 
-  WSF_ASSERT(handle < DM_CONN_MAX);
+  if ((connId = DmConnIdByHandle(handle)) == DM_CONN_ID_NONE)
+  {
+    return;
+  }
 
   /* record code */
-  l2cSlaveCb.lastCode[handle] = code;
+  l2cSlaveCb.lastCode[connId-1] = code;
 
   /* Start signaling request timer and store handle */
   WsfTimerStartSec(&l2cSlaveCb.reqTimer, L2C_SIG_REQ_TIMEOUT);
@@ -208,7 +220,7 @@ void L2cDmSigReq(uint16_t handle, uint8_t code, uint16_t len, uint8_t *pParam)
     /* build message */
     p = pPacket + L2C_PAYLOAD_START;
     UINT8_TO_BSTREAM(p, code);                         /* command code */
-    l2cSlaveCb.signId[handle] = l2cCb.identifier;
+    l2cSlaveCb.signId[connId-1] = l2cCb.identifier;
     UINT8_TO_BSTREAM(p, l2cCb.identifier);             /* identifier */
     l2cCb.identifier = L2C_NEXT_ID(l2cCb.identifier);
     UINT16_TO_BSTREAM(p, len);                         /* parameter length */
@@ -231,11 +243,17 @@ void L2cDmSigReq(uint16_t handle, uint8_t code, uint16_t len, uint8_t *pParam)
 /*************************************************************************************************/
 void L2cDmConnUpdateReq(uint16_t handle, hciConnSpec_t *pConnSpec)
 {
-  uint8_t *pPacket;
-  uint8_t *p;
+  uint8_t     *pPacket;
+  uint8_t     *p;
+  dmConnId_t  connId;
+
+  if ((connId = DmConnIdByHandle(handle)) == DM_CONN_ID_NONE)
+  {
+    return;
+  }
 
   /* record code */
-  l2cSlaveCb.lastCode[handle] = L2C_SIG_CONN_UPDATE_REQ;
+  l2cSlaveCb.lastCode[connId-1] = L2C_SIG_CONN_UPDATE_REQ;
 
   /* Start signaling request timer and store handle */
   WsfTimerStartSec(&l2cSlaveCb.reqTimer, L2C_SIG_REQ_TIMEOUT);
@@ -248,7 +266,7 @@ void L2cDmConnUpdateReq(uint16_t handle, hciConnSpec_t *pConnSpec)
     p = pPacket + L2C_PAYLOAD_START;
     UINT8_TO_BSTREAM(p, L2C_SIG_CONN_UPDATE_REQ);       /* command code */
     UINT8_TO_BSTREAM(p, l2cCb.identifier);              /* identifier */
-    l2cSlaveCb.signId[handle] = l2cCb.identifier;
+    l2cSlaveCb.signId[connId-1] = l2cCb.identifier;
     l2cCb.identifier = L2C_NEXT_ID(l2cCb.identifier);
     UINT16_TO_BSTREAM(p, L2C_SIG_CONN_UPDATE_REQ_LEN);  /* parameter length */
     UINT16_TO_BSTREAM(p, pConnSpec->connIntervalMin);   /* interval min */

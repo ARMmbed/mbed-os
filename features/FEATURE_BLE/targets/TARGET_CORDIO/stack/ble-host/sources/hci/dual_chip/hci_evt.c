@@ -1,22 +1,27 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief HCI event module.
+ *  \file
+ *
+ *  \brief  HCI event module.
+ *
+ *  Copyright (c) 2009-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  This module implements parsing and translation of HCI event data structures. This module
+ *  contains separate implementations for dual chip and single chip.
  */
 /*************************************************************************************************/
 
@@ -24,6 +29,7 @@
 #include "wsf_types.h"
 #include "wsf_buf.h"
 #include "wsf_trace.h"
+#include "wsf_math.h"
 #include "util/bstream.h"
 #include "hci_api.h"
 #include "hci_main.h"
@@ -118,6 +124,23 @@ static void hciEvtParseLeSetConnCteTxParamsCmdCmpl(hciEvt_t *pMsg, uint8_t *p, u
 static void hciEvtParseLeConnCteReqEnableCmdCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len);
 static void hciEvtParseLeConnCteRspEnableCmdCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len);
 static void hciEvtParseLeReadAntennaInfoCmdCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len);
+static void hciEvtParseLeCisEst(hciEvt_t *pMsg, uint8_t *p, uint8_t len);
+static void hciEvtParseLeCisReq(hciEvt_t *pMsg, uint8_t *p, uint8_t len);
+static void hciEvtParseLeReqPeerScaCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len);
+static void hciEvtParseLeSetCigParamsCmdCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len);
+static void hciEvtParseLeRemoveCigCmdCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len);
+static void hciEvtParseLeSetupIsoDataPathCmdCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len);
+static void hciEvtParseLeRemoveIsoDataPathCmdCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len);
+static void hciEvtParseConfigDataPathCmdCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len);
+static void hciEvtParseReadLocalSupCodecsCmdCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len);
+static void hciEvtParseReadLocalSupCodecCapCmdCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len);
+static void hciEvtParseReadLocalSupCtrDlyCmdCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len);
+static void hciEvtParseLeCreateBigCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len);
+static void hciEvtParseLeTerminateBigCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len);
+static void hciEvtParseLeBigSyncEst(hciEvt_t *pMsg, uint8_t *p, uint8_t len);
+static void hciEvtParseLeBigSyncLost(hciEvt_t *pMsg, uint8_t *p, uint8_t len);
+static void hciEvtParseLeBigTermSyncCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len);
+static void hciEvtParseLeBigInfoAdvRpt(hciEvt_t *pMsg, uint8_t *p, uint8_t len);
 
 /**************************************************************************************************
   Local Variables
@@ -193,7 +216,25 @@ static const hciEvtParse_t hciEvtParseFcnTbl[] =
   hciEvtParseLeSetConnCteTxParamsCmdCmpl,
   hciEvtParseLeConnCteReqEnableCmdCmpl,
   hciEvtParseLeConnCteRspEnableCmdCmpl,
-  hciEvtParseLeReadAntennaInfoCmdCmpl
+  hciEvtParseLeReadAntennaInfoCmdCmpl,
+  hciEvtParseLeCisEst,
+  hciEvtParseLeCisReq,
+  hciEvtParseDisconnectCmpl,
+  hciEvtParseLeReqPeerScaCmpl,
+  hciEvtParseLeSetCigParamsCmdCmpl,
+  hciEvtParseLeRemoveCigCmdCmpl,
+  hciEvtParseLeSetupIsoDataPathCmdCmpl,
+  hciEvtParseLeRemoveIsoDataPathCmdCmpl,
+  hciEvtParseConfigDataPathCmdCmpl,
+  hciEvtParseReadLocalSupCodecsCmdCmpl,
+  hciEvtParseReadLocalSupCodecCapCmdCmpl,
+  hciEvtParseReadLocalSupCtrDlyCmdCmpl,
+  hciEvtParseLeCreateBigCmpl,
+  hciEvtParseLeTerminateBigCmpl,
+  hciEvtParseLeBigSyncEst,
+  hciEvtParseLeBigSyncLost,
+  hciEvtParseLeBigTermSyncCmpl,
+  hciEvtParseLeBigInfoAdvRpt
 };
 
 /* HCI event structure length table, indexed by internal callback event value */
@@ -266,7 +307,25 @@ static const uint8_t hciEvtCbackLen[] =
   sizeof(hciLeSetConnCteTxParamsCmdCmplEvt_t),
   sizeof(hciLeConnCteReqEnableCmdCmplEvt_t),
   sizeof(hciLeConnCteRspEnableCmdCmplEvt_t),
-  sizeof(hciLeReadAntennaInfoCmdCmplEvt_t)
+  sizeof(hciLeReadAntennaInfoCmdCmplEvt_t),
+  sizeof(HciLeCisEstEvt_t),
+  sizeof(HciLeCisReqEvt_t),
+  sizeof(hciDisconnectCmplEvt_t),
+  sizeof(HciLeReqPeerScaCmplEvt_t_t),
+  sizeof(hciLeSetCigParamsCmdCmplEvt_t),
+  sizeof(hciLeRemoveCigCmdCmplEvt_t),
+  sizeof(hciLeSetupIsoDataPathCmdCmplEvt_t),
+  sizeof(hciLeRemoveIsoDataPathCmdCmplEvt_t),
+  sizeof(hciConfigDataPathCmdCmplEvt_t),
+  sizeof(hciReadLocalSupCodecsCmdCmplEvt_t),
+  sizeof(hciReadLocalSupCodecCapCmdCmplEvt_t),
+  sizeof(hciReadLocalSupCtrDlyCmdCmplEvt_t),
+  sizeof(HciLeCreateBigCmplEvt_t),
+  sizeof(HciLeTerminateBigCmplEvt_t),
+  sizeof(HciLeBigSyncEstEvt_t),
+  sizeof(HciLeBigSyncLostEvt_t),
+  sizeof(HciLeBigTermSyncCmplEvt_t),
+  sizeof(HciLeBigInfoAdvRptEvt_t)
 };
 
 /* Global event statistics. */
@@ -1804,6 +1863,488 @@ static void hciEvtParseLeReadAntennaInfoCmdCmpl(hciEvt_t *pMsg, uint8_t *p, uint
 
 /*************************************************************************************************/
 /*!
+ *  \brief  Process an HCI LE CIS established event.
+ *
+ *  \param  pMsg    Pointer to output event message structure.
+ *  \param  p       Pointer to input HCI event parameter byte stream.
+ *  \param  len     Parameter byte stream length.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+static void hciEvtParseLeCisEst(hciEvt_t *pMsg, uint8_t *p, uint8_t len)
+{
+  BSTREAM_TO_UINT8(pMsg->leCisEst.status, p);
+  BSTREAM_TO_UINT16(pMsg->leCisEst.cisHandle, p);
+  BSTREAM_TO_UINT24(pMsg->leCisEst.cigSyncDelayUsec, p);
+  BSTREAM_TO_UINT24(pMsg->leCisEst.cisSyncDelayUsec, p);
+  BSTREAM_TO_UINT24(pMsg->leCisEst.transLatMToSUsec, p);
+  BSTREAM_TO_UINT24(pMsg->leCisEst.transLatSToMUsec, p);
+  BSTREAM_TO_UINT8(pMsg->leCisEst.phyMToS, p);
+  BSTREAM_TO_UINT8(pMsg->leCisEst.phySToM, p);
+  BSTREAM_TO_UINT8(pMsg->leCisEst.nse, p);
+  BSTREAM_TO_UINT8(pMsg->leCisEst.bnMToS, p);
+  BSTREAM_TO_UINT8(pMsg->leCisEst.bnSToM, p);
+  BSTREAM_TO_UINT8(pMsg->leCisEst.ftMToS, p);
+  BSTREAM_TO_UINT8(pMsg->leCisEst.ftSToM, p);
+  BSTREAM_TO_UINT16(pMsg->leCisEst.maxPduMToS, p);
+  BSTREAM_TO_UINT16(pMsg->leCisEst.maxPduSToM, p);
+  BSTREAM_TO_UINT16(pMsg->leCisEst.isoInterval, p);
+
+  pMsg->hdr.status = pMsg->leCisEst.status;
+  pMsg->hdr.param = pMsg->leCisEst.cisHandle;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Process an HCI LE CIS request event.
+ *
+ *  \param  pMsg    Pointer to output event message structure.
+ *  \param  p       Pointer to input HCI event parameter byte stream.
+ *  \param  len     Parameter byte stream length.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+static void hciEvtParseLeCisReq(hciEvt_t *pMsg, uint8_t *p, uint8_t len)
+{
+  BSTREAM_TO_UINT16(pMsg->leCisReq.aclHandle, p);
+  BSTREAM_TO_UINT16(pMsg->leCisReq.cisHandle, p);
+  BSTREAM_TO_UINT8(pMsg->leCisReq.cigId, p);
+  BSTREAM_TO_UINT8(pMsg->leCisReq.cisId, p);
+
+  pMsg->hdr.param = pMsg->leCisReq.cisHandle;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Process an HCI LE request peer SCA complete event.
+ *
+ *  \param  pMsg    Pointer to output event message structure.
+ *  \param  p       Pointer to input HCI event parameter byte stream.
+ *  \param  len     Parameter byte stream length.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+static void hciEvtParseLeReqPeerScaCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len)
+{
+  BSTREAM_TO_UINT8(pMsg->leReqPeerSca.status, p);
+  BSTREAM_TO_UINT16(pMsg->leReqPeerSca.handle, p);
+  BSTREAM_TO_UINT8(pMsg->leReqPeerSca.peerSca, p);
+
+  pMsg->hdr.status = pMsg->leReqPeerSca.status;
+  pMsg->hdr.param = pMsg->leReqPeerSca.handle;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Parse an HCI Command Complete event for the LE set CIG parameters command.
+ *
+ *  \param  pMsg    Pointer to output event message structure.
+ *  \param  p       Pointer to input HCI event parameter byte stream.
+ *  \param  len     Parameter byte stream length.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+static void hciEvtParseLeSetCigParamsCmdCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len)
+{
+  uint16_t *pCisHandle = pMsg->leSetCigParamsCmdCmpl.cisHandle;
+
+  BSTREAM_TO_UINT8(pMsg->leSetCigParamsCmdCmpl.status, p);
+  BSTREAM_TO_UINT8(pMsg->leSetCigParamsCmdCmpl.cigId, p);
+  BSTREAM_TO_UINT8(pMsg->leSetCigParamsCmdCmpl.numCis, p);
+
+  if (pMsg->leSetCigParamsCmdCmpl.numCis > HCI_MAX_CIS_COUNT)
+  {
+    pMsg->leSetCigParamsCmdCmpl.numCis = HCI_MAX_CIS_COUNT;
+  }
+
+  for (uint8_t i = pMsg->leSetCigParamsCmdCmpl.numCis; i > 0; i--, pCisHandle++)
+  {
+    BSTREAM_TO_UINT16(*pCisHandle, p);
+  }
+
+  pMsg->hdr.status = pMsg->leSetCigParamsCmdCmpl.status;
+  pMsg->hdr.param = pMsg->leSetCigParamsCmdCmpl.cigId;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Parse an HCI Command Complete event for the LE remove CIG command.
+ *
+ *  \param  pMsg    Pointer to output event message structure.
+ *  \param  p       Pointer to input HCI event parameter byte stream.
+ *  \param  len     Parameter byte stream length.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+static void hciEvtParseLeRemoveCigCmdCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len)
+{  
+  BSTREAM_TO_UINT8(pMsg->leRemoveCigCmdCmpl.status, p);
+  BSTREAM_TO_UINT8(pMsg->leRemoveCigCmdCmpl.cigId, p);
+
+  pMsg->hdr.status = pMsg->leRemoveCigCmdCmpl.status;
+  pMsg->hdr.param = pMsg->leRemoveCigCmdCmpl.cigId;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Parse an HCI Command Complete event for the LE setup ISO data path command.
+ *
+ *  \param  pMsg    Pointer to output event message structure.
+ *  \param  p       Pointer to input HCI event parameter byte stream.
+ *  \param  len     Parameter byte stream length.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+static void hciEvtParseLeSetupIsoDataPathCmdCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len)
+{  
+  BSTREAM_TO_UINT8(pMsg->leSetupIsoDataPathCmdCmpl.status, p);
+  BSTREAM_TO_UINT8(pMsg->leSetupIsoDataPathCmdCmpl.handle, p);
+
+  pMsg->hdr.status = pMsg->leSetupIsoDataPathCmdCmpl.status;
+  pMsg->hdr.param = pMsg->leSetupIsoDataPathCmdCmpl.handle;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Parse an HCI Command Complete event for the LE remove ISO data path command.
+ *
+ *  \param  pMsg    Pointer to output event message structure.
+ *  \param  p       Pointer to input HCI event parameter byte stream.
+ *  \param  len     Parameter byte stream length.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+static void hciEvtParseLeRemoveIsoDataPathCmdCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len)
+{  
+  BSTREAM_TO_UINT8(pMsg->leRemoveIsoDataPathCmdCmpl.status, p);
+  BSTREAM_TO_UINT8(pMsg->leRemoveIsoDataPathCmdCmpl.handle, p);
+
+  pMsg->hdr.status = pMsg->leRemoveIsoDataPathCmdCmpl.status;
+  pMsg->hdr.param = pMsg->leRemoveIsoDataPathCmdCmpl.handle;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Parse an HCI Command Complete event for the configure data path command.
+ *
+ *  \param  pMsg    Pointer to output event message structure.
+ *  \param  p       Pointer to input HCI event parameter byte stream.
+ *  \param  len     Parameter byte stream length.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+static void hciEvtParseConfigDataPathCmdCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len)
+{  
+  BSTREAM_TO_UINT8(pMsg->configDataPathCmdCmpl.status, p);
+
+  pMsg->hdr.status = pMsg->configDataPathCmdCmpl.status;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Parse an HCI Command Complete event for the read local supported codecs command.
+ *
+ *  \param  pMsg    Pointer to output event message structure.
+ *  \param  p       Pointer to input HCI event parameter byte stream.
+ *  \param  len     Parameter byte stream length.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+static void hciEvtParseReadLocalSupCodecsCmdCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len)
+{
+  uint8_t numCodecs;
+
+  BSTREAM_TO_UINT8(pMsg->readLocalSupCodecsCmdCmpl.status, p);
+  BSTREAM_TO_UINT8(numCodecs, p);
+
+  pMsg->readLocalSupCodecsCmdCmpl.numStdCodecs = WSF_MIN(numCodecs, HCI_MAX_CODEC);
+  for (uint8_t i = 0; i < pMsg->readLocalSupCodecsCmdCmpl.numStdCodecs; i++)
+  {
+    BSTREAM_TO_UINT8(pMsg->readLocalSupCodecsCmdCmpl.stdCodecs[i].codecId, p);
+    BSTREAM_TO_UINT8(pMsg->readLocalSupCodecsCmdCmpl.stdCodecTrans[i], p);
+  }
+
+  if (numCodecs > HCI_MAX_CODEC)
+  {
+    /* ignore remaining standard codec info */
+    HCI_TRACE_WARN1("Standard codec info block(s) dropped: %d", numCodecs - HCI_MAX_CODEC);
+
+    p += (numCodecs - HCI_MAX_CODEC) * 2;
+  }
+
+  BSTREAM_TO_UINT8(numCodecs, p);
+
+  pMsg->readLocalSupCodecsCmdCmpl.numVsCodecs = WSF_MIN(numCodecs, HCI_MAX_CODEC);
+  for (uint8_t i = 0; i < pMsg->readLocalSupCodecsCmdCmpl.numVsCodecs; i++)
+  {
+    BSTREAM_TO_UINT16(pMsg->readLocalSupCodecsCmdCmpl.vsCodecs[i].compId, p);
+    BSTREAM_TO_UINT16(pMsg->readLocalSupCodecsCmdCmpl.vsCodecs[i].codecId, p);
+    BSTREAM_TO_UINT8(pMsg->readLocalSupCodecsCmdCmpl.vsCodecTrans[i], p);
+  }
+
+  if (numCodecs > HCI_MAX_CODEC)
+  {
+    /* ignore remaining vendor-specific codec info */
+    HCI_TRACE_WARN1("Vendor-specific codec info block(s) dropped: %d", numCodecs - HCI_MAX_CODEC);
+  }
+
+  pMsg->hdr.status = pMsg->readLocalSupCodecsCmdCmpl.status;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Parse an HCI Command Complete event for the read local supported codec capabilities
+ *          command.
+ *
+ *  \param  pMsg    Pointer to output event message structure.
+ *  \param  p       Pointer to input HCI event parameter byte stream.
+ *  \param  len     Parameter byte stream length.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+static void hciEvtParseReadLocalSupCodecCapCmdCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len)
+{
+  uint8_t numCodecs, dataLen;
+
+  BSTREAM_TO_UINT8(pMsg->readLocalSupCodecCapCmdCmpl.status, p);
+  BSTREAM_TO_UINT8(numCodecs, p);
+
+  pMsg->readLocalSupCodecCapCmdCmpl.numCodecCaps = WSF_MIN(numCodecs, HCI_MAX_CODEC);
+  for (uint8_t i = 0; i < pMsg->readLocalSupCodecCapCmdCmpl.numCodecCaps; i++)
+  {
+    BSTREAM_TO_UINT8(dataLen, p);
+
+    pMsg->readLocalSupCodecCapCmdCmpl.codecCap[i].len = WSF_MIN(dataLen, HCI_CODEC_CAP_DATA_LEN);
+    memcpy(pMsg->readLocalSupCodecCapCmdCmpl.codecCap[i].data, p,
+           pMsg->readLocalSupCodecCapCmdCmpl.codecCap[i].len);
+    p += dataLen;
+
+    if (dataLen > HCI_CODEC_CAP_DATA_LEN)
+    {
+      /* ignore remaining codec-specfic data */
+      HCI_TRACE_WARN1("Codec-specific data dropped: %d", dataLen - HCI_CODEC_CAP_DATA_LEN);
+    }
+  }
+
+  if (numCodecs > HCI_MAX_CODEC)
+  {
+    /* ignore remaining codec capability info */
+    HCI_TRACE_WARN1("Codec capability block(s) dropped: %d", numCodecs - HCI_MAX_CODEC);
+  }
+
+  pMsg->hdr.status = pMsg->readLocalSupCodecCapCmdCmpl.status;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Parse an HCI Command Complete event for the read local supported controller delay
+ *          command.
+ *
+ *  \param  pMsg    Pointer to output event message structure.
+ *  \param  p       Pointer to input HCI event parameter byte stream.
+ *  \param  len     Parameter byte stream length.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+static void hciEvtParseReadLocalSupCtrDlyCmdCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len)
+{  
+  BSTREAM_TO_UINT8(pMsg->readLocalSupCtrDlyCmdCmpl.status, p);
+  BSTREAM_TO_UINT24(pMsg->readLocalSupCtrDlyCmdCmpl.minDly, p);
+  BSTREAM_TO_UINT24(pMsg->readLocalSupCtrDlyCmdCmpl.maxDly, p);
+
+  pMsg->hdr.status = pMsg->readLocalSupCtrDlyCmdCmpl.status;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Parse an HCI LE create BIG complete event.
+ *
+ *  \param  pMsg    Pointer to output event message structure.
+ *  \param  p       Pointer to input HCI event parameter byte stream.
+ *  \param  len     Parameter byte stream length.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+static void hciEvtParseLeCreateBigCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len)
+{
+  uint8_t numBis;
+
+  BSTREAM_TO_UINT8(pMsg->leCreateBigCmpl.status, p);
+  BSTREAM_TO_UINT8(pMsg->leCreateBigCmpl.bigHandle, p);
+  BSTREAM_TO_UINT24(pMsg->leCreateBigCmpl.syncDelayUsec, p);
+  BSTREAM_TO_UINT24(pMsg->leCreateBigCmpl.transLatUsec, p);
+  BSTREAM_TO_UINT8(pMsg->leCreateBigCmpl.phy, p);
+  BSTREAM_TO_UINT8(pMsg->leCreateBigCmpl.nse, p);
+  BSTREAM_TO_UINT8(pMsg->leCreateBigCmpl.bn, p);
+  BSTREAM_TO_UINT8(pMsg->leCreateBigCmpl.pto, p);
+  BSTREAM_TO_UINT8(pMsg->leCreateBigCmpl.irc, p);
+  BSTREAM_TO_UINT16(pMsg->leCreateBigCmpl.maxPdu, p);
+  BSTREAM_TO_UINT16(pMsg->leCreateBigCmpl.isoInterval, p);
+  BSTREAM_TO_UINT8(numBis, p);
+
+  pMsg->leCreateBigCmpl.numBis = WSF_MIN(numBis, HCI_MAX_BIS_COUNT);
+  for (uint8_t i = 0; i < pMsg->leCreateBigCmpl.numBis; i++)
+  {
+    BSTREAM_TO_UINT16(pMsg->leCreateBigCmpl.bisHandle[i], p);
+  }
+ 
+  if (numBis > HCI_MAX_BIS_COUNT)
+  {
+    /* ignore remaining BIS handles */
+    HCI_TRACE_WARN1("BIS handle(s) dropped: %d", numBis - HCI_MAX_BIS_COUNT);
+  }
+
+  pMsg->hdr.status = pMsg->leCreateBigCmpl.status;
+  pMsg->hdr.param = pMsg->leCreateBigCmpl.bigHandle;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Parse an HCI LE terminate BIG complete event.
+ *
+ *  \param  pMsg    Pointer to output event message structure.
+ *  \param  p       Pointer to input HCI event parameter byte stream.
+ *  \param  len     Parameter byte stream length.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+static void hciEvtParseLeTerminateBigCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len)
+{
+  BSTREAM_TO_UINT8(pMsg->leTerminateBigCmpl.bigHandle, p);
+  BSTREAM_TO_UINT8(pMsg->leTerminateBigCmpl.reason, p);
+
+  pMsg->hdr.status = pMsg->leTerminateBigCmpl.reason;
+  pMsg->hdr.param = pMsg->leTerminateBigCmpl.bigHandle;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Parse an HCI LE BIG sync established event.
+ *
+ *  \param  pMsg    Pointer to output event message structure.
+ *  \param  p       Pointer to input HCI event parameter byte stream.
+ *  \param  len     Parameter byte stream length.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+static void hciEvtParseLeBigSyncEst(hciEvt_t *pMsg, uint8_t *p, uint8_t len)
+{
+  uint8_t numBis;
+
+  BSTREAM_TO_UINT8(pMsg->leBigSyncEst.status, p);
+  BSTREAM_TO_UINT8(pMsg->leBigSyncEst.bigHandle, p);
+  BSTREAM_TO_UINT24(pMsg->leBigSyncEst.transLatUsec, p);
+  BSTREAM_TO_UINT8(pMsg->leBigSyncEst.nse, p);
+  BSTREAM_TO_UINT8(pMsg->leBigSyncEst.bn, p);
+  BSTREAM_TO_UINT8(pMsg->leBigSyncEst.pto, p);
+  BSTREAM_TO_UINT8(pMsg->leBigSyncEst.irc, p);
+  BSTREAM_TO_UINT16(pMsg->leBigSyncEst.maxPdu, p);
+  BSTREAM_TO_UINT16(pMsg->leBigSyncEst.isoInterval, p);
+  BSTREAM_TO_UINT8(numBis, p);
+
+  pMsg->leBigSyncEst.numBis = WSF_MIN(numBis, HCI_MAX_BIS_COUNT);
+  for (uint8_t i = 0; i < pMsg->leBigSyncEst.numBis; i++)
+  {
+    BSTREAM_TO_UINT16(pMsg->leBigSyncEst.bisHandle[i], p);
+  }
+
+  if (numBis > HCI_MAX_BIS_COUNT)
+  {
+    /* ignore remaining BIS handles */
+    HCI_TRACE_WARN1("BIS handle(s) dropped: %d", numBis - HCI_MAX_BIS_COUNT);
+  }
+
+  pMsg->hdr.status = pMsg->leBigSyncEst.status;
+  pMsg->hdr.param = pMsg->leBigSyncEst.bigHandle;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Parse an HCI LE BIG sync lost event.
+ *
+ *  \param  pMsg    Pointer to output event message structure.
+ *  \param  p       Pointer to input HCI event parameter byte stream.
+ *  \param  len     Parameter byte stream length.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+static void hciEvtParseLeBigSyncLost(hciEvt_t *pMsg, uint8_t *p, uint8_t len)
+{
+  BSTREAM_TO_UINT8(pMsg->leBigSyncLost.bigHandle, p);
+  BSTREAM_TO_UINT8(pMsg->leBigSyncLost.reason, p);
+
+  pMsg->hdr.status = pMsg->leBigSyncLost.reason;
+  pMsg->hdr.param = pMsg->leBigSyncLost.bigHandle;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Parse an HCI LE BIG terminate sync complete event.
+ *
+ *  \param  pMsg    Pointer to output event message structure.
+ *  \param  p       Pointer to input HCI event parameter byte stream.
+ *  \param  len     Parameter byte stream length.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+static void hciEvtParseLeBigTermSyncCmpl(hciEvt_t *pMsg, uint8_t *p, uint8_t len)
+{
+  BSTREAM_TO_UINT8(pMsg->leBigTermSyncCmpl.status, p);
+  BSTREAM_TO_UINT8(pMsg->leBigTermSyncCmpl.bigHandle, p);
+
+  pMsg->hdr.status = pMsg->leBigTermSyncCmpl.status;
+  pMsg->hdr.param = pMsg->leBigTermSyncCmpl.bigHandle;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Parse an HCI LE BIG Info advertising report event.
+ *
+ *  \param  pMsg    Pointer to output event message structure.
+ *  \param  p       Pointer to input HCI event parameter byte stream.
+ *  \param  len     Parameter byte stream length.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+static void hciEvtParseLeBigInfoAdvRpt(hciEvt_t *pMsg, uint8_t *p, uint8_t len)
+{
+  BSTREAM_TO_UINT16(pMsg->leBigInfoAdvRpt.syncHandle, p);
+  BSTREAM_TO_UINT8(pMsg->leBigInfoAdvRpt.numBis, p);
+  BSTREAM_TO_UINT8(pMsg->leBigInfoAdvRpt.nse, p);
+  BSTREAM_TO_UINT16(pMsg->leBigInfoAdvRpt.isoInterv, p);
+  BSTREAM_TO_UINT8(pMsg->leBigInfoAdvRpt.bn, p);
+  BSTREAM_TO_UINT8(pMsg->leBigInfoAdvRpt.pto, p);
+  BSTREAM_TO_UINT8(pMsg->leBigInfoAdvRpt.irc, p);
+  BSTREAM_TO_UINT16(pMsg->leBigInfoAdvRpt.maxPdu, p);
+  BSTREAM_TO_UINT24(pMsg->leBigInfoAdvRpt.sduInterv, p);
+  BSTREAM_TO_UINT16(pMsg->leBigInfoAdvRpt.maxSdu, p);
+  BSTREAM_TO_UINT8(pMsg->leBigInfoAdvRpt.phy, p);
+  BSTREAM_TO_UINT8(pMsg->leBigInfoAdvRpt.framing, p);
+  BSTREAM_TO_UINT8(pMsg->leBigInfoAdvRpt.encrypt, p);
+
+  pMsg->hdr.status = HCI_SUCCESS;
+  pMsg->hdr.param = pMsg->leBigInfoAdvRpt.syncHandle;
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief  Process HCI command status event with failure status.
  *
  *  \param  status  Event status.
@@ -1833,8 +2374,8 @@ void hciEvtCmdStatusFailure(uint8_t status, uint16_t opcode)
     break;
   }
 #if 0
-  handle these events:
-  translate the command status event into other appropriate event
+  /* TODO  handle these events:
+  translate the command status event into other appropriate event */
   HCI_OPCODE_DISCONNECT
   HCI_OPCODE_LE_CREATE_CONN
   HCI_OPCODE_LE_CONN_UPDATE
@@ -2040,6 +2581,42 @@ void hciEvtProcessCmdCmpl(uint8_t *p, uint8_t len)
 
   case HCI_OPCODE_LE_PER_ADV_SET_INFO_TRANSFER:
     cbackEvt = HCI_LE_PER_ADV_SET_INFO_TRSF_CMD_CMPL_CBACK_EVT;
+    break;
+
+  case HCI_OPCODE_LE_SET_CIG_PARAMS:
+    cbackEvt = HCI_LE_SET_CIG_PARAMS_CMD_CMPL_CBACK_EVT;
+    break;
+
+  case HCI_OPCODE_LE_REMOVE_CIG:
+    cbackEvt = HCI_LE_REMOVE_CIG_CMD_CMPL_CBACK_EVT;
+    break;
+
+  case HCI_OPCODE_LE_BIG_TERMINATE_SYNC:
+    cbackEvt = HCI_LE_BIG_TERM_SYNC_CMPL_CBACK_EVT;
+    break;
+
+  case HCI_OPCODE_LE_SETUP_ISO_DATA_PATH:
+    cbackEvt = HCI_LE_SETUP_ISO_DATA_PATH_CMD_CMPL_CBACK_EVT;
+    break;
+
+  case HCI_OPCODE_LE_REMOVE_ISO_DATA_PATH:
+    cbackEvt = HCI_LE_REMOVE_ISO_DATA_PATH_CMD_CMPL_CBACK_EVT;
+    break;
+
+  case HCI_OPCODE_CONFIG_DATA_PATH:
+    cbackEvt = HCI_CONFIG_DATA_PATH_CMD_CMPL_CBACK_EVT;
+    break;
+
+  case HCI_OPCODE_READ_LOCAL_SUP_CODECS:
+    cbackEvt = HCI_READ_LOCAL_SUP_CODECS_CMD_CMPL_CBACK_EVT;
+    break;
+
+  case HCI_OPCODE_READ_LOCAL_SUP_CODEC_CAP:
+    cbackEvt = HCI_READ_LOCAL_SUP_CODEC_CAP_CMD_CMPL_CBACK_EVT;
+    break;
+
+  case HCI_OPCODE_READ_LOCAL_SUP_CONTROLLER_DLY:
+    cbackEvt = HCI_READ_LOCAL_SUP_CTR_DLY_CMD_CMPL_CBACK_EVT;
     break;
 
   default:
@@ -2274,6 +2851,44 @@ void hciEvtProcessMsg(uint8_t *pEvt)
           cbackEvt = HCI_LE_CTE_REQ_FAILED_CBACK_EVT;
           break;
 
+        case HCI_LE_CIS_EST_EVT:
+          /* if CIS connection created successfully */
+          if (*pEvt == HCI_SUCCESS)
+          {
+            BYTES_TO_UINT16(handle, (pEvt + 1));
+            hciCoreCisOpen(handle);
+          }
+          cbackEvt = HCI_LE_CIS_EST_CBACK_EVT;
+          break;
+
+        case HCI_LE_CIS_REQ_EVT:
+          cbackEvt = HCI_LE_CIS_REQ_CBACK_EVT;
+          break;
+
+        case HCI_LE_CREATE_BIG_CMPL_EVT:
+          cbackEvt = HCI_LE_CREATE_BIG_CMPL_CBACK_EVT;
+          break;
+
+        case HCI_LE_TERMINATE_BIG_CMPL_EVT:
+          cbackEvt = HCI_LE_TERM_BIG_CMPL_CBACK_EVT;
+          break;
+
+        case HCI_LE_BIG_SYNC_EST_EVT:
+          cbackEvt = HCI_LE_BIG_SYNC_EST_CBACK_EVT;
+          break;
+
+        case HCI_LE_BIG_SYNC_LOST_EVT:
+          cbackEvt = HCI_LE_BIG_SYNC_LOST_CBACK_EVT;
+          break;
+
+        case HCI_LE_REQ_PEER_SCA_CMPLT_EVT:
+          cbackEvt = HCI_LE_REQ_PEER_SCA_CBACK_EVT;
+          break;
+
+        case HCI_LE_BIG_INFO_ADV_REPORT_EVT:
+          cbackEvt = HCI_LE_BIG_INFO_ADV_REPORT_CBACK_EVT;
+          break;
+
         default:
           break;
       }
@@ -2281,7 +2896,17 @@ void hciEvtProcessMsg(uint8_t *pEvt)
 
     case HCI_DISCONNECT_CMPL_EVT:
       hciEvtStats.numDiscCmplEvt++;
-      cbackEvt = HCI_DISCONNECT_CMPL_CBACK_EVT;
+
+      /* if disconnect is for CIS connection */
+      BYTES_TO_UINT16(handle, (pEvt + 1));
+      if (hciCoreCisByHandle(handle) != NULL)
+      {
+        cbackEvt = HCI_CIS_DISCONNECT_CMPL_CBACK_EVT;
+      }
+      else
+      {
+        cbackEvt = HCI_DISCONNECT_CMPL_CBACK_EVT;
+      }
       break;
 
     case HCI_ENC_CHANGE_EVT:
@@ -2365,6 +2990,11 @@ void hciEvtProcessMsg(uint8_t *pEvt)
     {
       BYTES_TO_UINT16(handle, (pEvt + 1));
       hciCoreConnClose(handle);
+    }
+    else if (cbackEvt == HCI_CIS_DISCONNECT_CMPL_CBACK_EVT)
+    {
+      BYTES_TO_UINT16(handle, (pEvt + 1));
+      hciCoreCisClose(handle);
     }
   }
 }

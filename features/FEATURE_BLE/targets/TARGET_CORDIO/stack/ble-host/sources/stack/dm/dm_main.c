@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Device manager main module.
+ *  \file
+ *
+ *  \brief  Device manager main module.
+ *
+ *  Copyright (c) 2009-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -106,13 +108,26 @@ static const uint8_t dmHciToIdTbl[] =
   DM_ID_CONN_CTE,                               /* HCI_LE_SET_CONN_CTE_TX_PARAMS_CMD_CMPL_CBACK_EVT */
   DM_ID_CONN_CTE,                               /* HCI_LE_CONN_CTE_REQ_ENABLE_CMD_CMPL_CBACK_EVT */
   DM_ID_CONN_CTE,                               /* HCI_LE_CONN_CTE_RSP_ENABLE_CMD_CMPL_CBACK_EVT */
-  DM_ID_CONN_CTE                                /* HCI_LE_READ_ANTENNA_INFO_CMD_CMPL_CBACK_EVT */
+  DM_ID_CONN_CTE,                               /* HCI_LE_READ_ANTENNA_INFO_CMD_CMPL_CBACK_EVT */
+  DM_ID_CIS,                                    /* HCI_LE_CIS_EST_CBACK_EVT */
+  DM_ID_CIS,                                    /* HCI_LE_CIS_REQ_CBACK_EVT */
+  DM_ID_CIS,                                    /* HCI_CIS_DISCONNECT_CMPL_CBACK_EVT */
+  DM_ID_CONN_2,                                 /* HCI_LE_REQ_PEER_SCA_CBACK_EVT */
+  DM_ID_CIS_CIG,                                /* HCI_LE_SET_CIG_PARAMS_CMD_CMPL_CBACK_EVT */
+  DM_ID_CIS_CIG,                                /* HCI_LE_REMOVE_CIG_CMD_CMPL_CBACK_EVT */
+  DM_ID_ISO,                                    /* HCI_LE_SETUP_ISO_DATA_PATH_CMD_CMPL_CBACK_EVT */
+  DM_ID_ISO,                                    /* HCI_LE_REMOVE_ISO_DATA_PATH_CMD_CMPL_CBACK_EVT */
+  DM_ID_ISO,                                    /* HCI_CONFIG_DATA_PATH_CMD_CMPL_CBACK_EVT */
+  DM_ID_ISO,                                    /* HCI_READ_LOCAL_SUP_CODECS_CMD_CMPL_CBACK_EVT */
+  DM_ID_ISO,                                    /* HCI_READ_LOCAL_SUP_CODEC_CAP_CMD_CMPL_CBACK_EVT */
+  DM_ID_ISO,                                    /* HCI_READ_LOCAL_SUP_CTR_DLY_CMD_CMPL_CBACK_EVT */
+  DM_ID_BIS,                                    /* HCI_LE_CREATE_BIG_CMPL_CBACK_EVT */
+  DM_ID_BIS,                                    /* HCI_LE_TERM_BIG_CMPL_CBACK_EVT */
+  DM_ID_BIS_SYNC,                               /* HCI_LE_BIG_SYNC_EST_CBACK_EVT */   
+  DM_ID_BIS_SYNC,                               /* HCI_LE_BIG_SYNC_LOST_CBACK_EVT */
+  DM_ID_BIS_SYNC,                               /* HCI_LE_BIG_TERM_SYNC_CMPL_CBACK_EVT */
+  DM_ID_BIS_SYNC                                /* HCI_LE_BIG_INFO_ADV_REPORT_CBACK_EVT */
 #if MBED_CONF_CORDIO_ROUTE_UNHANDLED_COMMAND_COMPLETE_EVENTS
-  /* these 3 were inexplicably missing */
-  , DM_ID_DEV                                   /* HCI_CIS_EST_CBACK_EVT */
-  , DM_ID_DEV                                   /* HCI_CIS_REQ_CBACK_EVT */
-  , DM_ID_DEV                                   /* HCI_REQ_PEER_SCA_CBACK_EVT */
-
   , DM_ID_DEV                                   /* HCI_UNHANDLED_CMD_COMPL_CBACK_EVT */
 #endif
 };
@@ -187,6 +202,25 @@ static const uint16_t dmEvtCbackLen[] =
   sizeof(hciLeConnCteRspEnableCmdCmplEvt_t),   /* DM_CONN_CTE_RSP_START_IND */
   sizeof(hciLeConnCteRspEnableCmdCmplEvt_t),   /* DM_CONN_CTE_RSP_STOP_IND */
   sizeof(hciLeReadAntennaInfoCmdCmplEvt_t),    /* DM_READ_ANTENNA_INFO_IND */
+  sizeof(hciLeSetCigParamsCmdCmplEvt_t),       /* DM_CIS_CIG_CONFIG_IND */
+  sizeof(hciLeRemoveCigCmdCmplEvt_t),          /* DM_CIS_CIG_REMOVE_IND */
+  sizeof(HciLeCisReqEvt_t),                    /* DM_CIS_REQ_IND */
+  sizeof(HciLeCisEstEvt_t),                    /* DM_CIS_OPEN_IND */
+  sizeof(hciDisconnectCmplEvt_t),              /* DM_CIS_CLOSE_IND */
+  sizeof(HciLeReqPeerScaCmplEvt_t_t),          /* DM_REQ_PEER_SCA_IND */
+  sizeof(hciLeSetupIsoDataPathCmdCmplEvt_t),   /* DM_ISO_DATA_PATH_SETUP_IND */
+  sizeof(hciLeRemoveIsoDataPathCmdCmplEvt_t),  /* DM_ISO_DATA_PATH_REMOVE_IND */
+  sizeof(hciConfigDataPathCmdCmplEvt_t),       /* DM_DATA_PATH_CONFIG_IND */
+  sizeof(hciReadLocalSupCodecsCmdCmplEvt_t),   /* DM_READ_LOCAL_SUP_CODECS_IND */
+  sizeof(hciReadLocalSupCodecCapCmdCmplEvt_t), /* DM_READ_LOCAL_SUP_CODEC_CAP_IND */
+  sizeof(hciReadLocalSupCtrDlyCmdCmplEvt_t),   /* DM_READ_LOCAL_SUP_CTR_DLY_IND */
+  sizeof(HciLeCreateBigCmplEvt_t),             /* DM_BIG_START_IND */
+  sizeof(HciLeTerminateBigCmplEvt_t),          /* DM_BIG_STOP_IND */
+  sizeof(HciLeBigSyncEstEvt_t),                /* DM_BIG_SYNC_EST_IND */
+  sizeof(HciLeBigSyncEstEvt_t),                /* DM_BIG_SYNC_EST_FAIL_IND */
+  sizeof(HciLeBigSyncLostEvt_t),               /* DM_BIG_SYNC_LOST_IND */
+  sizeof(HciLeBigTermSyncCmplEvt_t),           /* DM_BIG_SYNC_STOP_IND */
+  sizeof(HciLeBigInfoAdvRptEvt_t),             /* DM_BIG_INFO_ADV_REPORT_IND */
   sizeof(dmL2cCmdRejEvt_t),                    /* DM_L2C_CMD_REJ_IND */
   sizeof(wsfMsgHdr_t),                         /* DM_ERROR_IND */
   sizeof(hciHwErrorEvt_t),                     /* DM_HW_ERROR_IND */
@@ -221,7 +255,14 @@ dmFcnIf_t *dmFcnIfTbl[DM_NUM_IDS] =
   (dmFcnIf_t *) &dmFcnDefault,                /* DM_ID_ADV_PER */
   (dmFcnIf_t *) &dmFcnDefault,                /* DM_ID_SYNC */
   (dmFcnIf_t *) &dmFcnDefault,                /* DM_ID_PAST */
-  (dmFcnIf_t *) &dmFcnDefault                 /* DM_ID_CONN_CTE */
+  (dmFcnIf_t *) &dmFcnDefault,                /* DM_ID_CONN_CTE */
+  (dmFcnIf_t *) &dmFcnDefault,                /* DM_ID_CONN_UPD */
+  (dmFcnIf_t *) &dmFcnDefault,                /* DM_ID_PRIV_AES */
+  (dmFcnIf_t *) &dmFcnDefault,                /* DM_ID_CIS */
+  (dmFcnIf_t *) &dmFcnDefault,                /* DM_ID_CIS_CIG */
+  (dmFcnIf_t *) &dmFcnDefault,                /* DM_ID_BIS */
+  (dmFcnIf_t *) &dmFcnDefault,                /* DM_ID_BIS_SYNC */
+  (dmFcnIf_t *) &dmFcnDefault                 /* DM_ID_ISO */
 };
 
 /* Control block */

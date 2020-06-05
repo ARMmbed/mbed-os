@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Attribute protocol client and server API.
+ *  \file
+ *
+ *  \brief  Attribute protocol client and server API.
+ *
+ *  Copyright (c) 2009-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 #ifndef ATT_API_H
@@ -107,16 +109,21 @@ enum                                        /*!< \brief Internal note: event val
   ATTC_EXECUTE_WRITE_RSP,                   /*!< \brief Execute write response */
   ATTC_HANDLE_VALUE_NTF,                    /*!< \brief Handle value notification */
   ATTC_HANDLE_VALUE_IND,                    /*!< \brief Handle value indication */
+  ATTC_READ_MULT_VAR_RSP = 16,              /*!< \brief Read multiple variable length response */
+  ATTC_MULT_VALUE_NTF,                      /*!< \brief Read multiple value notification */
   /* ATT server callback events */
   ATTS_HANDLE_VALUE_CNF,                    /*!< \brief Handle value confirmation */
+  ATTS_MULT_VALUE_CNF,                      /*!< \brief Handle multiple value confirmation */
   ATTS_CCC_STATE_IND,                       /*!< \brief Client chracteristic configuration state change */
   ATTS_DB_HASH_CALC_CMPL_IND,               /*!< \brief Database hash calculation complete */
   /* ATT common callback events */
-  ATT_MTU_UPDATE_IND                        /*!< \brief Negotiated MTU value */
+  ATT_MTU_UPDATE_IND,                       /*!< \brief Negotiated MTU value */
+  ATT_EATT_CONN_CMPL_IND,                   /*!< \brief EATT Connect channels complete */
+  ATT_EATT_RECONFIG_CMPL_IND                /*!< \brief EATT Reconfigure complete */
 };
 
 /*! \brief ATT callback events */
-#define ATT_CBACK_END                    ATT_MTU_UPDATE_IND  /*!< \brief ATT callback event ending value */
+#define ATT_CBACK_END                    ATT_EATT_RECONFIG_CMPL_IND  /*!< \brief ATT callback event ending value */
 /**@}*/
 
 /** \name ATT Client Awareness of Database Change
@@ -145,6 +152,18 @@ typedef struct
   uint8_t           transTimeout;     /*!< \brief transcation timeout in seconds */
   uint8_t           numPrepWrites;    /*!< \brief number of queued prepare writes supported by server */
 } attCfg_t;
+
+/*! \brief EATT run-time configurable parameters */
+typedef struct
+{
+  uint16_t          mtu;              /*!< \brief MTU */
+  uint16_t          mps;              /*!< \brief MPS */
+  bool_t            initiateEatt;     /*!< \brief Open EATT channels automatically on connect */
+  uint8_t           authoriz;         /*!< \brief Authorization required */
+  uint8_t           secLevel;         /*!< \brief Security level required */
+  uint8_t           numChans;         /*!< \brief Number of enhanced l2cap channels per connection */
+  uint8_t           *pPriorityTbl;    /*!< \brief Min priority required for each channel */
+} eattCfg_t;
 
 /*!
  * \brief ATT callback event
@@ -386,6 +405,9 @@ typedef void (*attsCccCback_t)(attsCccEvt_t *pEvt);
 /**@{*/
 /*! \brief Configuration pointer */
 extern attCfg_t *pAttCfg;
+
+/*! \brief Enhanced configuration pointer */
+extern eattCfg_t *pEattCfg;
 /**@}*/
 /*! \} */    /* STACK_INIT */
 
@@ -771,12 +793,11 @@ void AttsContinueWriteReq(dmConnId_t connId, uint16_t handle, uint8_t status);
  *
  *  \param  connId      DM connection ID.
  *  \param  pCsrk       Pointer to data signing key (CSRK).
- *  \param  authenticated True if CSRK is authenticated and false otherwise.
  *
  *  \return None.
  */
 /*************************************************************************************************/
-void AttsSetCsrk(dmConnId_t connId, uint8_t *pCsrk, bool_t authenticated);
+void AttsSetCsrk(dmConnId_t connId, uint8_t *pCsrk);
 
 /*************************************************************************************************/
 /*!
@@ -865,10 +886,10 @@ void AttsCsfGetFeatures(dmConnId_t connId, uint8_t *pCsfOut, uint8_t pCsfOutLen)
  *
  *  \param  connId      DM connection ID.
  *
- *  \return Client's change-aware state.
+ *  \return Client's change-aware state.  See ::attClientAwareStates.
  */
 /*************************************************************************************************/
-uint8_t AttsCsfGetChangeAwareState(dmConnId_t connId);
+uint8_t AttsCsfGetClientChangeAwareState(dmConnId_t connId);
 
 /*************************************************************************************************/
 /*!
@@ -884,7 +905,7 @@ uint8_t AttsCsfGetChangeAwareState(dmConnId_t connId);
  *        application) will have updated all persistent records prior to calling this function.
  */
 /*************************************************************************************************/
-void AttsCsfSetClientsChangeAwarenessState(dmConnId_t connId, uint8_t state);
+void AttsCsfSetClientChangeAwareState(dmConnId_t connId, uint8_t state);
 
 /*************************************************************************************************/
 /*!
@@ -1275,6 +1296,36 @@ uint8_t AttcDiscCharCmpl(attcDiscCb_t *pCb, attEvt_t *pMsg);
 
 /*************************************************************************************************/
 /*!
+ *  \brief  This utility function starts service include discovery for a service on a peer device.
+ *          The service must have been previously discovered by calling AttcDiscService() and
+*           AttcDiscServiceCmpl().
+ *
+ *  \param  connId      DM connection ID.
+ *  \param  pCb         Pointer to service discovery control block.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void AttcDiscIncSvcStart(dmConnId_t connId, attcDiscCb_t *pCb);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  This utility function processes a service include discovery result.  It should be
+ *          called when an ATTC_READ_BY_TYPE_RSP allback event is received after service include
+ *          discovery is initiated by calling AttcDiscIncSvcStart().
+ *
+ *  \param  pCb         Pointer to service discovery control block.
+ *  \param  pMsg        ATT callback event message.
+ *
+ *  \return ATT_CONTINUING if successful and discovery procedure is continuing.
+ *          ATT_SUCCESS if discovery procedure completed successfully.
+ *          Otherwise the discovery procedure failed.
+ */
+/*************************************************************************************************/
+uint8_t AttcDiscIncSvcCmpl(attcDiscCb_t *pCb, attEvt_t *pMsg);
+
+/*************************************************************************************************/
+/*!
  *  \brief  This utility function starts characteristic configuration for characteristics on a
  *          peer device.  The characteristics must have been previously discovered by calling
  *          AttcDiscCharStart() and AttcDiscCharCmpl().
@@ -1321,12 +1372,17 @@ uint8_t AttcDiscConfigResume(dmConnId_t connId, attcDiscCb_t *pCb);
 
 /*************************************************************************************************/
 /*!
- *  \brief  For internal use only.
+ *  \brief  Initiate an attribute protocol Exchange MTU Request.
  *
  *  \param  connId    DM connection ID.
  *  \param  mtu       Attribute protocol MTU.
  *
  *  \return None.
+ *
+ *  \note   The Exchange MTU Request will be initiated automatically on a master connection.
+ *
+ *  \note   This API can be used by the application to initiate an Exchange MTU Request on slave
+ *          connections.
  */
 /*************************************************************************************************/
 void AttcMtuReq(dmConnId_t connId, uint16_t mtu);

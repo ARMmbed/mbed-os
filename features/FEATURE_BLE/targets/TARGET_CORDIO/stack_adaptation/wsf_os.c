@@ -1,18 +1,26 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
+/*************************************************************************************************/
+/*!
+ *  \file   wsf_os.c
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  \brief  Software foundation OS main module.
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *  Copyright (c) 2009-2019 Arm Ltd. All Rights Reserved.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
+/*************************************************************************************************/
 
 #ifdef __IAR_SYSTEMS_ICC__
 #include <intrinsics.h>
@@ -27,7 +35,10 @@
 #include "wsf_buf.h"
 #include "wsf_msg.h"
 #include "wsf_cs.h"
-#include "wsf_mbed_os_adaptation.h"
+
+#if defined (RTOS_CMSIS_RTX) && (RTOS_CMSIS_RTX == 1)
+#include "cmsis_os2.h"
+#endif
 
 /**************************************************************************************************
   Compile time assert checks
@@ -43,14 +54,22 @@ WSF_CT_ASSERT(sizeof(uint32_t) == 4);
 
 /* maximum number of event handlers per task */
 #ifndef WSF_MAX_HANDLERS
-#define WSF_MAX_HANDLERS      16
+#define WSF_MAX_HANDLERS                          16
 #endif
 
 #if WSF_OS_DIAG == TRUE
-#define WSF_OS_SET_ACTIVE_HANDLER_ID(id)          WsfActiveHandler = id;
+#define WSF_OS_SET_ACTIVE_HANDLER_ID(id)          (WsfActiveHandler = id);
 #else
 #define WSF_OS_SET_ACTIVE_HANDLER_ID(id)
 #endif /* WSF_OS_DIAG */
+
+#if defined (RTOS_CMSIS_RTX) && (RTOS_CMSIS_RTX == 1)
+/*! \brief Thread sleep flag */
+#define WSF_OS_THREAD_SLEEP_WAKEUP_FLAG           0x0001
+#endif
+
+/*! \brief OS serivice function number */
+#define WSF_OS_MAX_SERVICE_FUNCTIONS                  3
 
 /**************************************************************************************************
   Data Types
@@ -69,7 +88,9 @@ typedef struct
 /*! \brief  OS structure */
 typedef struct
 {
-  wsfOsTask_t           task;
+  wsfOsTask_t                 task;
+  WsfOsIdleCheckFunc_t        sleepCheckFuncs[WSF_OS_MAX_SERVICE_FUNCTIONS];
+  uint8_t                     numFunc;
 } wsfOs_t;
 
 /**************************************************************************************************
@@ -84,11 +105,13 @@ wsfOs_t wsfOs;
 wsfHandlerId_t WsfActiveHandler;
 #endif /* WSF_OS_DIAG */
 
+#if defined (RTOS_CMSIS_RTX) && (RTOS_CMSIS_RTX == 1)
+static osThreadId_t wsfOsThreadId;
+#endif
+
 /*************************************************************************************************/
 /*!
  *  \brief  Lock task scheduling.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfTaskLock(void)
@@ -99,8 +122,6 @@ void WsfTaskLock(void)
 /*************************************************************************************************/
 /*!
  *  \brief  Unock task scheduling.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfTaskUnlock(void)
@@ -114,14 +135,12 @@ void WsfTaskUnlock(void)
  *
  *  \param  handlerId   Handler ID.
  *  \param  event       Event or events to set.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfSetEvent(wsfHandlerId_t handlerId, wsfEventMask_t event)
 {
   WSF_CS_INIT(cs);
-  // coverity[CONSTANT_EXPRESSION_RESULT]
+
   WSF_ASSERT(WSF_HANDLER_FROM_ID(handlerId) < WSF_MAX_HANDLERS);
 
   WSF_TRACE_INFO2("WsfSetEvent handlerId:%u event:%u", handlerId, event);
@@ -132,7 +151,6 @@ void WsfSetEvent(wsfHandlerId_t handlerId, wsfEventMask_t event)
   WSF_CS_EXIT(cs);
 
   /* set event in OS */
-  wsf_mbed_ble_signal_event();
 }
 
 /*************************************************************************************************/
@@ -141,8 +159,6 @@ void WsfSetEvent(wsfHandlerId_t handlerId, wsfEventMask_t event)
  *
  *  \param  handlerId   Event handler ID.
  *  \param  event       Task event mask.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void WsfTaskSetReady(wsfHandlerId_t handlerId, wsfTaskEvent_t event)
@@ -157,7 +173,6 @@ void WsfTaskSetReady(wsfHandlerId_t handlerId, wsfTaskEvent_t event)
   WSF_CS_EXIT(cs);
 
   /* set event in OS */
-  wsf_mbed_ble_signal_event();
 }
 
 /*************************************************************************************************/
@@ -221,13 +236,15 @@ bool_t wsfOsReadyToSleep(void)
 void WsfOsInit(void)
 {
   memset(&wsfOs, 0, sizeof(wsfOs));
+
+#if defined (RTOS_CMSIS_RTX) && (RTOS_CMSIS_RTX == 1)
+  osKernelInitialize();                        /* Initialize CMSIS-RTOS. */
+#endif
 }
 
 /*************************************************************************************************/
 /*!
  *  \brief  Event dispatched.  Designed to be called repeatedly from infinite loop.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void wsfOsDispatcher(void)
@@ -288,6 +305,103 @@ void wsfOsDispatcher(void)
 
         (*pTask->handler[i])(eventMask, NULL);
       }
+    }
+  }
+}
+
+#if defined (RTOS_CMSIS_RTX) && (RTOS_CMSIS_RTX == 1)
+/*************************************************************************************************/
+/*!
+ *  \brief  Idle thread.
+ *
+ *  \param  pArg   Pointer to argument.
+ */
+/*************************************************************************************************/
+void osRtxIdleThread(void *pArg)
+{
+  bool_t activeFlag = FALSE;
+
+  (void) pArg;
+
+  while(TRUE)
+  {
+    activeFlag = FALSE;
+
+    for (unsigned int i = 0; i < wsfOs.numFunc; i++)
+    {
+      if (wsfOs.sleepCheckFuncs[i])
+      {
+        activeFlag |= wsfOs.sleepCheckFuncs[i]();
+      }
+    }
+
+    if (!activeFlag)
+    {
+      WsfTimerSleep();
+    }
+    osThreadFlagsSet(wsfOsThreadId, WSF_OS_THREAD_SLEEP_WAKEUP_FLAG);
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Main thread.
+ *
+ *  \param  pArg   Pointer to argument.
+ */
+/*************************************************************************************************/
+void wsfThread(void *pArg)
+{
+  (void) pArg;
+
+  while(TRUE)
+  {
+    WsfTimerSleepUpdate();
+    wsfOsDispatcher();
+    osThreadFlagsWait(WSF_OS_THREAD_SLEEP_WAKEUP_FLAG, osFlagsWaitAny ,osWaitForever);
+  }
+}
+#endif
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Register service check functions.
+ *
+ *  \param  func   Service function.
+ */
+/*************************************************************************************************/
+void WsfOsRegisterSleepCheckFunc(WsfOsIdleCheckFunc_t func)
+{
+  wsfOs.sleepCheckFuncs[wsfOs.numFunc++] = func;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  OS starts main loop
+ */
+/*************************************************************************************************/
+void WsfOsEnterMainLoop(void)
+{
+  bool_t activeFlag = FALSE;
+
+  while (TRUE)
+  {
+    WsfTimerSleepUpdate();
+    wsfOsDispatcher();
+
+    activeFlag = FALSE;
+
+    for (unsigned int i = 0; i < wsfOs.numFunc; i++)
+    {
+      if (wsfOs.sleepCheckFuncs[i])
+      {
+        activeFlag |= wsfOs.sleepCheckFuncs[i]();
+      }
+    }
+
+    if (!activeFlag)
+    {
+      WsfTimerSleep();
     }
   }
 }

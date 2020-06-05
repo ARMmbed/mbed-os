@@ -1,22 +1,24 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief L2CAP connection oriented channel module.
+ *  \file
+ *
+ *  \brief  L2CAP connection oriented channel module.
+ *
+ *  Copyright (c) 2014-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -53,9 +55,11 @@ enum
   L2C_MSG_API_DATA_REQ,
   L2C_MSG_API_CONNECT_REQ,
   L2C_MSG_API_DISCONNECT_REQ,
+  L2C_MSG_API_EN_CONNECT_REQ,
+  L2C_MSG_API_EN_RECONFIG_REQ,
 
   /* messages from timers */
-  L2C_MSG_COC_REQ_TIMEOUT
+  L2C_MSG_COC_REQ_TIMEOUT,
 };
 
 /**************************************************************************************************
@@ -71,7 +75,6 @@ typedef struct
   uint16_t          sduLen;
 } l2cApiDataReq_t;
 
-
 /* Data type for L2C_MSG_API_CONNECT_REQ */
 typedef struct
 {
@@ -80,12 +83,36 @@ typedef struct
   uint16_t          remotePsm;
 } l2cApiConnectReq_t;
 
+/* Data type for L2C_MSG_API_EN_CONNECT_REQ */
+typedef struct
+{
+  wsfMsgHdr_t       hdr;
+  uint16_t          psm;
+  uint16_t          credits;
+  uint16_t          handle;
+  uint8_t           numChan;
+  uint16_t          chanList[L2C_MAX_EN_CHAN];
+} l2cApiEnConnectReq_t;
+
+/* Data type for L2C_MSG_API_EN_RECONFIG_REQ */
+typedef struct
+{
+  wsfMsgHdr_t       hdr;
+  uint16_t          mtu;
+  uint16_t          mps;
+  uint16_t          handle;
+  uint8_t           numChan;
+  uint16_t          chanList[L2C_MAX_EN_CHAN];
+} l2cApiEnReconfigReq_t;
+
 /* Data type for event handler messages */
 typedef union
 {
-  wsfMsgHdr_t         hdr;
-  l2cApiDataReq_t     dataReq;
-  l2cApiConnectReq_t  connectReq;
+  wsfMsgHdr_t           hdr;
+  l2cApiDataReq_t       dataReq;
+  l2cApiConnectReq_t    connectReq;
+  l2cApiEnConnectReq_t  enConnectReq;
+  l2cApiEnReconfigReq_t enReconfigReq;
 } l2cCocMsg_t;
 
 /* Registration control block */
@@ -93,6 +120,7 @@ typedef struct
 {
   l2cCocReg_t       reg;                  /* Registration data structure */
   l2cCocCback_t     cback;                /* Client callback */
+  l2cCocAcceptCb_t  acceptCback;          /* Channel accept callback */
   l2cCocRegId_t     regId;                /* Registration instance ID */
   bool_t            inUse;                /* TRUE if in use */
 } l2cRegCb_t;
@@ -120,6 +148,8 @@ typedef struct
   uint16_t          psm;
   uint16_t          peerMps;
   uint16_t          peerMtu;
+  uint16_t          pendingMps;
+  uint16_t          pendingMtu;
   uint16_t          peerCredits;
   uint16_t          peerCid;
   uint16_t          localCredits;
@@ -148,6 +178,22 @@ l2cCocCb_t l2cCocCb;
 
 /*************************************************************************************************/
 /*!
+ *  \brief  Default acceptCback.
+ *
+ *  \param  connId    DM connection ID.
+ *  \param  numChans  number of channels requested.
+ *
+ *  \return number of channels permitted.
+ */
+/*************************************************************************************************/
+static uint8_t l2cCocAcceptDefaultCb(dmConnId_t connId, uint8_t numChans)
+{
+  /* Permit all requested channels by default. */
+  return numChans;
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief  Allocate a registration control block.
  *
  *  \param  cback   Client callback function.
@@ -167,6 +213,7 @@ l2cRegCb_t *l2cRegCbAlloc(l2cCocCback_t cback, l2cCocReg_t *pReg)
     {
       memcpy(&pCb->reg, pReg, sizeof(l2cCocReg_t));
       pCb->cback = cback;
+      pCb->acceptCback = l2cCocAcceptDefaultCb;
       pCb->regId = i + 1;
       pCb->inUse = TRUE;
 
@@ -245,7 +292,7 @@ bool_t l2cCheckPeerCid(dmConnId_t connId, uint16_t peerCid, l2cRegCb_t *pRegCb)
         (pChanCb->peerCid == peerCid))
     {
       /* peer CID found */
-      L2C_TRACE_WARN3("Peer CID in use psm:0x%04x connId:%d peerCid", pRegCb->reg.psm, connId, peerCid);
+      L2C_TRACE_WARN3("Peer CID in use psm:0x%04x connId:%d peerCid: %d", pRegCb->reg.psm, connId, peerCid);
       return TRUE;
     }
   }
@@ -339,6 +386,34 @@ l2cChanCb_t *l2cChanCbAlloc(uint8_t state)
 
 /*************************************************************************************************/
 /*!
+ *  \brief  Checks if the given number of channels are free.
+ *
+ *  \param  numChan Number of channels.
+ *
+ *  \return TRUE if numChan or more channels are free, else FALSE.
+ */
+ /*************************************************************************************************/
+bool_t l2cVerifyFreeChannels(uint8_t numChan)
+{
+  l2cChanCb_t  *pCb = l2cCocCb.chanCb;
+  uint8_t      i;
+
+  for (i = 0; i < L2C_COC_CHAN_MAX; i++, pCb++)
+  {
+    if (pCb->state == L2C_CHAN_STATE_UNUSED)
+    {
+      if (--numChan == 0)
+      {
+        return TRUE;
+      }
+    }
+  }
+
+  return FALSE;
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief  Get a channel control block by ID.
  *
  *  \param  cid     Local channel ID.
@@ -351,6 +426,32 @@ l2cChanCb_t *l2cChanCbByCid(uint16_t cid)
   WSF_ASSERT(cid >= L2C_CID_DYN_MIN && cid < (L2C_CID_DYN_MIN + L2C_COC_CHAN_MAX));
 
   return &l2cCocCb.chanCb[cid - L2C_CID_DYN_MIN];
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Get a channel control block by the peer's channel ID.
+ *
+ *  \param  handle  Connection handle.
+ *  \param  peerCid Peer channel ID.
+ *
+ *  \return Pointer to connection control block.
+ */
+/*************************************************************************************************/
+l2cChanCb_t *l2cChanCbByPeerCid(uint16_t handle, uint16_t peerCid)
+{
+  l2cChanCb_t *pCb = l2cCocCb.chanCb;
+  uint8_t      i;
+  
+  for (i = 0; i < L2C_COC_CHAN_MAX; i++, pCb++)
+  {
+    if (pCb->pConnCb && (pCb->pConnCb->handle == handle) && (pCb->peerCid == peerCid))
+    {
+      return pCb;
+    }
+  }
+  
+  return NULL;
 }
 
 /*************************************************************************************************/
@@ -395,6 +496,39 @@ l2cChanCb_t *l2cChanCbByCidState(uint16_t cid, uint8_t state)
   }
 
   return NULL;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Get a list of CIDs for the given identifier on the given channel.
+ *
+ *  \param  connId      Connection ID.
+ *  \param  identifier  Identifier value from request.
+ *  \param  state       Channel state.
+ *
+ *  \return Array of L2C_MAX_EN_CHAN ptr to l2cChanCb_t (NULL indicates unused).
+ */
+/*************************************************************************************************/
+l2cChanCb_t **l2cGetChanCbListByIdentifier(dmConnId_t connId, uint8_t identifier, uint8_t state)
+{
+  static l2cChanCb_t *pList[L2C_MAX_EN_CHAN];
+  l2cChanCb_t        *pCb = l2cCocCb.chanCb;
+  uint8_t            i;
+  uint8_t            cidPos = 0;
+
+  memset(pList, 0, sizeof(pList));
+
+  for (i = 0; i < L2C_COC_CHAN_MAX; i++, pCb++)
+  {
+    if (pCb->state == state &&
+        pCb->identifier == identifier &&
+        pCb->pConnCb->connId == connId)
+    {
+      pList[cidPos++] = pCb;
+    }
+  }
+
+  return pList;
 }
 
 /*************************************************************************************************/
@@ -779,6 +913,228 @@ static void l2cSendDisconnectRsp(uint16_t handle, uint16_t identifier, uint16_t 
 
 /*************************************************************************************************/
 /*!
+ *  \brief  Send an enhanced connection request.
+ *
+ *  \param  handle    The connection handle.
+ *  \param  psm       The protocol slave multiplexer.
+ *  \param  mtu       The maximum transmission unit size on each source CID channel.
+ *  \param  mps       The maximum payload size on each source CID channel.
+ *  \param  credits   The initial number of credits for each CID channel.
+ *  \param  numChans  The number of channels in pCidList - 5 channels max.
+ *  \param  pCidList  Array of 16-bit channel endpoint IDs.
+ *
+ *  \return None.
+ */
+ /*************************************************************************************************/
+static void l2cSendEnConnectReq(uint16_t handle, uint16_t psm, uint16_t mtu, uint16_t mps,
+                                uint16_t credits, uint8_t numChans, uint16_t *pCidList)
+{
+  l2cChanCb_t *pChanCb;
+  uint8_t *pPacket;
+  uint8_t *p;
+  uint8_t i;
+  uint8_t len;
+  
+  WSF_ASSERT(numChans <= L2C_MAX_EN_CHAN);
+  
+  len = L2C_SIG_EN_CONNECT_REQ_LEN + numChans * sizeof(uint16_t);
+
+  /* allocate msg buffer */
+  if ((pPacket = l2cMsgAlloc(L2C_SIG_PKT_BASE_LEN + len)) != NULL)
+  {
+    /* build message */
+    p = pPacket + L2C_PAYLOAD_START;
+    UINT8_TO_BSTREAM(p, L2C_SIG_EN_CONNECT_REQ);          /* command code */
+    UINT8_TO_BSTREAM(p, l2cCb.identifier);                /* identifier */
+
+    for (i = 0; i < numChans; i++)
+    {
+      if (pCidList[i])
+      {
+        pChanCb = l2cChanCbByCid(pCidList[i]);
+        pChanCb->identifier = l2cCb.identifier;
+      }
+    }
+
+    l2cCb.identifier = L2C_NEXT_ID(l2cCb.identifier);
+    UINT16_TO_BSTREAM(p, (uint16_t) len);                 /* parameter length */
+    UINT16_TO_BSTREAM(p, psm);                            /* protocol slave multiplexer */
+    UINT16_TO_BSTREAM(p, mtu);                            /* maximum transimission unit */
+    UINT16_TO_BSTREAM(p, mps);                            /* maximum pdu size */
+    UINT16_TO_BSTREAM(p, credits);                        /* initial credits */
+
+    for (i = 0; i < numChans; i++)
+    {
+      UINT16_TO_BSTREAM(p, pCidList[i]);                  /* channel endpoint id */
+    }
+
+    /* send packet */
+    L2cDataReq(L2C_CID_LE_SIGNALING, handle, (L2C_SIG_HDR_LEN + len), pPacket);
+
+    /* start timer */
+    pChanCb = l2cChanCbByCid(pCidList[0]);
+    WsfTimerStartSec(&pChanCb->reqTimer, pL2cCfg->reqTimeout);
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Send an enhanced connection response.
+ *
+ *  \param  handle      The connection handle.
+ *  \param  identifier  Identifier value in received request.
+ *  \param  mtu         The maximum transmission unit size on each source CID channel.
+ *  \param  mps         The maximum payload size on each source CID channel.
+ *  \param  credits     The initial number of credits for each CID channel.
+ *  \param  result      The result of the enhanced connection request.
+ *  \param  numChans    The number of channels in pCidList - 5 channels max.
+ *  \param  pCidList    Array of 16-bit channel endpoint IDs.
+ *
+ *  \return None.
+ */
+ /*************************************************************************************************/
+static void l2cSendEnConnectRsp(uint16_t handle, uint8_t identifier, uint16_t mtu, uint16_t mps,
+                                uint16_t credits, uint16_t result, uint8_t numChans, uint16_t *pCidList)
+{
+  uint8_t *pPacket;
+  uint8_t *p;
+  uint8_t i;
+  uint8_t len;
+  
+  WSF_ASSERT(numChans <= L2C_MAX_EN_CHAN);
+
+  len = L2C_SIG_EN_CONNECT_RSP_LEN + numChans * sizeof(uint16_t);
+
+  /* allocate msg buffer */
+  if ((pPacket = l2cMsgAlloc(L2C_SIG_PKT_BASE_LEN + len)) != NULL)
+  {
+    /* build message */
+    p = pPacket + L2C_PAYLOAD_START;
+    UINT8_TO_BSTREAM(p, L2C_SIG_EN_CONNECT_RSP);          /* command code */
+    UINT8_TO_BSTREAM(p, identifier);                      /* identifier */
+    UINT16_TO_BSTREAM(p, (uint16_t) len);                 /* parameter length */
+    UINT16_TO_BSTREAM(p, mtu);                            /* maximum transimission unit */
+    UINT16_TO_BSTREAM(p, mps);                            /* maximum pdu size */
+    UINT16_TO_BSTREAM(p, credits);                        /* initial credits */
+    UINT16_TO_BSTREAM(p, result);                         /* req result */
+
+    for (i = 0; i < numChans; i++)
+    {
+      UINT16_TO_BSTREAM(p, pCidList[i]);                  /* channel endpoint id */
+    }
+
+    /* send packet */
+    L2cDataReq(L2C_CID_LE_SIGNALING, handle, (L2C_SIG_HDR_LEN + len), pPacket);
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Send an enhanced reconfiguration request.
+ *
+ *  \param  handle    The connection handle.
+ *  \param  mtu       The maximum transmission unit size on each source CID channel.
+ *  \param  mps       The maximum payload size on each source CID channel.
+ *  \param  numChans  The number of channels in pCidList - 5 channels max.
+ *  \param  pCidList  Array of 16-bit channel endpoint IDs.
+ *
+ *  \return None.
+ */
+ /*************************************************************************************************/
+static void l2cSendEnReconfigReq(uint16_t handle, uint16_t mtu, uint16_t mps, uint8_t numChans,
+                                 uint16_t *pCidList)
+{
+  l2cChanCb_t *pChanCb;
+  uint8_t     *pPacket;
+  uint8_t     *p;
+  uint8_t      i;
+  uint8_t      len;
+  
+  WSF_ASSERT(numChans <= L2C_MAX_EN_CHAN);
+
+  len = L2C_SIG_EN_RECONFIG_REQ_LEN + numChans * sizeof(uint16_t);
+
+  /* allocate msg buffer */
+  if ((pPacket = l2cMsgAlloc(L2C_SIG_PKT_BASE_LEN + len)) != NULL)
+  {
+    /* build message */
+    p = pPacket + L2C_PAYLOAD_START;
+    UINT8_TO_BSTREAM(p, L2C_SIG_EN_RECONFIG_REQ);         /* command code */
+    UINT8_TO_BSTREAM(p, l2cCb.identifier);                /* identifier */
+
+    for (i = 0; i < numChans; i++)
+    {
+      if (pCidList[i])
+      {
+        pChanCb = l2cChanCbByCid(pCidList[i]);
+
+        if (pChanCb && pChanCb->state == L2C_CHAN_STATE_CONNECTED)
+        {
+          pChanCb->identifier = l2cCb.identifier;
+          pChanCb->pendingMps = mps;
+          pChanCb->pendingMtu = mtu;
+        }
+        else
+        {
+          /* Lost connection.  Free packet and give up.  Event to higher layer? */
+          WsfMsgFree(pPacket);
+          return;
+        }
+      }
+    }
+
+    l2cCb.identifier = L2C_NEXT_ID(l2cCb.identifier);
+    UINT16_TO_BSTREAM(p, (uint16_t) len);                 /* parameter length */
+    UINT16_TO_BSTREAM(p, mtu);                            /* maximum transimission unit */
+    UINT16_TO_BSTREAM(p, mps);                            /* maximum pdu size */
+
+    for (i = 0; i < numChans; i++)
+    {
+      UINT16_TO_BSTREAM(p, pCidList[i]);                  /* channel endpoint id */
+    }
+
+    /* send packet */
+    L2cDataReq(L2C_CID_LE_SIGNALING, handle, (L2C_SIG_HDR_LEN + len), pPacket);
+
+    /* start timer */
+    pChanCb = l2cChanCbByCid(pCidList[0]);
+    WsfTimerStartSec(&pChanCb->reqTimer, pL2cCfg->reqTimeout);
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Send an enhanced reconfiguration response.
+ *
+ *  \param  handle      The connection handle.
+ *  \param  identifier  Identifier value in received request.
+ *  \param  result      The result of the operation.
+ *
+ *  \return None.
+ */
+ /*************************************************************************************************/
+static void l2cSendEnReconfigRsp(uint16_t handle, uint8_t identifier, uint16_t result)
+{
+  uint8_t *pPacket;
+  uint8_t *p;
+
+  /* allocate msg buffer */
+  if ((pPacket = l2cMsgAlloc(L2C_SIG_PKT_BASE_LEN + L2C_SIG_EN_RECONFIG_RSP_LEN)) != NULL)
+  {
+    /* build message */
+    p = pPacket + L2C_PAYLOAD_START;
+    UINT8_TO_BSTREAM(p, L2C_SIG_EN_RECONFIG_RSP);         /* command code */
+    UINT8_TO_BSTREAM(p, identifier);                      /* identifier */
+    UINT16_TO_BSTREAM(p, L2C_SIG_EN_RECONFIG_RSP_LEN);    /* parameter length */
+    UINT16_TO_BSTREAM(p, result);                         /* result code */
+
+    /* send packet */
+    L2cDataReq(L2C_CID_LE_SIGNALING, handle, (L2C_SIG_HDR_LEN + L2C_SIG_EN_RECONFIG_RSP_LEN), pPacket);
+  }
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief  Disconnect a channel.
  *
  *  \param  pChanCb   Channel control block.
@@ -793,7 +1149,6 @@ static void l2cDisconnectChannel(l2cChanCb_t *pChanCb)
   /* send disconnect req */
   l2cSendDisconnectReq(pChanCb->pConnCb->handle, pChanCb->peerCid, pChanCb->localCid, pChanCb);
 }
-
 
 /*************************************************************************************************/
 /*!
@@ -825,6 +1180,8 @@ static void l2CocDataReassemble(l2cChanCb_t *pChanCb, uint16_t len, uint8_t *pPa
   {
     /* get sdu len */
     BSTREAM_TO_UINT16(sduLen, pPacket);
+    
+    L2C_TRACE_INFO2("l2CocDataReassemble: sduLen:%d len:%d", sduLen, len);
 
     /* verify sdu len not greater than our mtu */
     if (sduLen > pChanCb->pRegCb->reg.mtu)
@@ -845,7 +1202,7 @@ static void l2CocDataReassemble(l2cChanCb_t *pChanCb, uint16_t len, uint8_t *pPa
       dataInd.dataLen = sduLen;
       (*pChanCb->pRegCb->cback)((l2cCocEvt_t *) &dataInd);
     }
-    else if ((sduLen + L2C_LE_SDU_HDR_LEN) > len)
+    else if ((len >= L2C_LE_SDU_HDR_LEN) && ((sduLen + L2C_LE_SDU_HDR_LEN) > len))
     {
       /* reassembly required; allocate reassembly buffer */
       if ((pChanCb->pRxPkt = WsfMsgDataAlloc(sduLen, 0)) != NULL)
@@ -896,6 +1253,8 @@ static void l2CocDataReassemble(l2cChanCb_t *pChanCb, uint16_t len, uint8_t *pPa
       l2cDisconnectChannel(pChanCb);
 
       L2C_TRACE_WARN2("too much data currLen:%d payload len:%d", pChanCb->rxCurrLen, len);
+      WsfMsgFree(pChanCb->pRxPkt);
+      pChanCb->pRxPkt = NULL;
     }
   }
 }
@@ -969,7 +1328,7 @@ static void l2cProcFlowControlCredit(uint16_t handle, uint8_t identifier, uint8_
   BSTREAM_TO_UINT16(cid, pPacket);
   BSTREAM_TO_UINT16(credits, pPacket);
 
-  if ((pChanCb = l2cChanCbByCidState(cid, L2C_CHAN_STATE_CONNECTED)) != NULL)
+  if ((pChanCb = l2cChanCbByPeerCid(handle, cid)) != NULL)
   {
     if (credits != 0)
     {
@@ -1045,7 +1404,7 @@ static void l2cProcLeConnectReq(uint16_t handle, uint8_t identifier, uint8_t *pP
       if ((result = l2cCheckSecurity(connId, pRegCb)) == L2C_CONN_SUCCESS)
       {
         /* allocate channel */
-        if ((pChanCb = l2cChanCbAlloc(L2C_CHAN_STATE_CONNECTED)) != NULL)
+        if (pRegCb->acceptCback(connId, 1) && (pChanCb = l2cChanCbAlloc(L2C_CHAN_STATE_CONNECTED)) != NULL)
         {
           /* initialize control block */
           pChanCb->pRegCb = pRegCb;
@@ -1267,6 +1626,434 @@ static bool_t l2cProcCommandRej(uint16_t handle, uint8_t identifier, uint8_t *pP
 
 /*************************************************************************************************/
 /*!
+ *  \brief  Process an enhanced connection request message from peer.
+ *
+ *  \param  handle      The connection handle.
+ *  \param  identifier  Identifier value in received request.
+ *  \param  pPacket     Packet data.
+ *  \param  len         Length of pPacket in bytes.
+ *
+ *  \return TRUE if command processed, FALSE otherwise.
+ */
+ /*************************************************************************************************/
+static bool_t l2cProcEnConnectReq(uint16_t handle, uint8_t identifier, uint8_t *pPacket, uint16_t len)
+{
+  dmConnId_t connId;
+  uint8_t    numChans = (len - L2C_SIG_EN_CONNECT_REQ_LEN) / sizeof(uint16_t);
+   
+  if (numChans <= 0 || numChans > L2C_MAX_EN_CHAN)
+  {
+    return FALSE;
+  } 
+
+  /* get conn ID for handle */
+  if ((connId = DmConnIdByHandle(handle)) != DM_CONN_ID_NONE)
+  {
+    l2cCocEnConnectInd_t connInd;
+    uint16_t             cidList[L2C_MAX_EN_CHAN];
+    uint16_t             psm, mps, mtu;
+    uint16_t             localMps = 0, localMtu = 0, localCredits = 0;
+    uint16_t             result = L2C_CONN_SUCCESS;
+    l2cChanCb_t          *pChanCb = NULL;
+    uint8_t              cidLen = 0;
+    l2cRegCb_t           *pRegCb;
+  
+    memset(cidList, 0, sizeof(cidList));
+
+    /* parse psm */
+    BSTREAM_TO_UINT16(psm, pPacket);
+    
+    if ((pRegCb = l2cRegCbAccept(connId, psm)) != NULL)
+    {
+      uint16_t  credits;
+      uint8_t   permittedNumChannels = pRegCb->acceptCback(connId, numChans);
+
+      /* parse parameters */
+      BSTREAM_TO_UINT16(mtu, pPacket);
+      BSTREAM_TO_UINT16(mps, pPacket);
+      BSTREAM_TO_UINT16(credits, pPacket);
+
+      /* update local mps, mtu, and initial credits */
+      localMps = pRegCb->reg.mps;
+      localMtu = pRegCb->reg.mtu;
+      localCredits = pRegCb->reg.credits;
+
+      if (l2cCocCb.errTest != L2C_CONN_SUCCESS)
+      {
+        result = l2cCocCb.errTest;
+      }
+
+      /* check security level */
+      else if ((result = l2cCheckSecurity(connId, pRegCb)) == L2C_CONN_SUCCESS)
+      {
+        uint8_t i;
+        
+        for (i = 0; i < numChans; i++)
+        {
+          uint16_t peerCid;
+
+          /* parse peer cid */
+          BSTREAM_TO_UINT16(peerCid, pPacket);
+
+          if (peerCid)
+          {
+            /* check if peer CID already allocated to this psm */
+            if (!l2cCheckPeerCid(connId, peerCid, pRegCb))
+            {
+              /* allocate channel */
+              if ((permittedNumChannels > 0) && (pChanCb = l2cChanCbAlloc(L2C_CHAN_STATE_CONNECTED)) != NULL)
+              {
+                /* initialize control block */
+                pChanCb->pRegCb = pRegCb;
+                pChanCb->pConnCb = l2cConnCbById(connId);
+                pChanCb->psm = psm;
+                pChanCb->peerMps = mps;
+                pChanCb->peerMtu = mtu;
+                pChanCb->peerCredits = credits;
+                pChanCb->peerCid = peerCid;
+
+                pChanCb->localCredits = localCredits;
+
+                pChanCb->role = L2C_COC_ROLE_ACCEPTOR;
+
+                cidList[i] = pChanCb->localCid;
+                cidLen++;
+                permittedNumChannels--;
+              }
+              else
+              {
+                /* some refused - channel allocation failed */
+                result = L2C_CONN_FAIL_RES;
+              }
+            }
+            else
+            {
+              /* some refused - peer CID already allocated to this psm */
+              result = L2C_CONN_FAIL_ALLOCATED_SCID;
+            }
+          }
+        }
+      }
+    }
+    else
+    {
+      /* all refused - not registered on this psm */
+      result = L2C_CONN_FAIL_PSM;
+    }
+
+    if (pChanCb)
+    {
+      /* if a channel was created, send indication to higher level */
+      connInd.hdr.event = L2C_COC_EN_CONNECT_IND;
+      connInd.hdr.param = connId;
+      connInd.hdr.status = (uint8_t) result;
+      connInd.mps = mps;
+      connInd.mtu = mtu;
+      connInd.cidLen = cidLen;
+      connInd.req = TRUE;
+      memcpy(connInd.cidList, cidList, sizeof(cidList));
+
+      (*pChanCb->pRegCb->cback)((l2cCocEvt_t *) &connInd);
+    }
+
+    l2cSendEnConnectRsp(handle, identifier, localMtu, localMps, localCredits, result, numChans, cidList);
+
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Process an enhanced connection response message from peer.
+ *
+ *  \param  handle      The connection handle.
+ *  \param  identifier  Identifier value in received request.
+ *  \param  pPacket     Packet data.
+ *  \param  len         Length of pPacket in bytes.
+ *
+ *  \return TRUE if command processed, FALSE otherwise.
+ */
+ /*************************************************************************************************/
+static bool_t l2cProcEnConnectRsp(uint16_t handle, uint8_t identifier, uint8_t* pPacket, uint16_t len)
+{
+  l2cCocEnConnectInd_t connInd;
+  uint8_t              numChans = (len - L2C_SIG_EN_CONNECT_RSP_LEN) / sizeof(uint16_t);
+  uint16_t             mps, mtu, credits, result;
+  dmConnId_t           connId;
+  l2cChanCb_t          *pChanCb;
+  l2cRegCb_t           *pRegCb;
+  uint16_t             cidList[L2C_MAX_EN_CHAN];
+  uint8_t              i;
+
+  /* get conn ID for handle */
+  if ((connId = DmConnIdByHandle(handle)) != DM_CONN_ID_NONE)
+  {
+    l2cChanCb_t **pChanList;
+
+    /* clear CID list */
+    memset(cidList, 0, sizeof(cidList));
+
+    /* get the list of channels for the identifier */
+    pChanList = l2cGetChanCbListByIdentifier(connId, identifier, L2C_CHAN_STATE_CONNECTING);
+
+    /* stop timer */
+    pChanCb = pChanList[0];
+    WsfTimerStop(&pChanCb->reqTimer);
+
+    /* store a registration control block for sending an indication */
+    pRegCb = pChanCb->pRegCb;
+
+    /* parse parameters */
+    BSTREAM_TO_UINT16(mtu, pPacket);
+    BSTREAM_TO_UINT16(mps, pPacket);
+    BSTREAM_TO_UINT16(credits, pPacket);
+    BSTREAM_TO_UINT16(result, pPacket);
+
+    if ((result == L2C_CONN_SUCCESS) || (result == L2C_CONN_FAIL_RES) ||
+        (result == L2C_CONN_FAIL_INVALID_SCID) || (result == L2C_CONN_FAIL_ALLOCATED_SCID))
+    {
+      for (i = 0; i < L2C_MAX_EN_CHAN; i++)
+      {
+        uint16_t peerCid;
+
+        if (pChanList[i] == NULL)
+        {
+          break;
+        }
+
+        BSTREAM_TO_UINT16(peerCid, pPacket);
+
+        if ((peerCid == 0) || (i >= numChans))
+        {
+          /* Peer rejected this channel.  Free channel. */
+          l2cChanCbDealloc(pChanList[i]);
+        }
+        else
+        {
+          /* Complete channel */
+          pChanCb = pChanList[i];
+
+          /* store parameters */
+          pChanCb->state = L2C_CHAN_STATE_CONNECTED;
+
+          pChanCb->peerMps = (mps < pChanCb->pRegCb->reg.mps) ? mps : pChanCb->pRegCb->reg.mps;
+          pChanCb->peerMtu = mtu;
+          pChanCb->peerCredits = credits;
+          pChanCb->localCredits = pChanCb->pRegCb->reg.credits;
+          pChanCb->peerCid = peerCid;
+
+          /* maintain channel list for indication to higher level */
+          cidList[i] = pChanCb->localCid;
+        }
+      }
+    }
+    else
+    {
+      /* All connections refused */
+      for (i = 0; i < L2C_MAX_EN_CHAN; i++)
+      {
+        if (pChanList[i])
+        {
+          l2cChanCbDealloc(pChanList[i]);
+        }
+      }
+    }
+
+    /* send indication to higher level */
+    connInd.hdr.event = L2C_COC_EN_CONNECT_IND;
+    connInd.hdr.param = pChanCb->pConnCb->connId;
+    connInd.hdr.status = (uint8_t) result;
+    connInd.mps = mps;
+    connInd.mtu = mtu;
+    connInd.cidLen = numChans;
+    connInd.req = FALSE;
+    memcpy(connInd.cidList, cidList, sizeof(cidList));
+
+    (*pRegCb->cback)((l2cCocEvt_t *) &connInd);
+
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Process an enhanced reconfigure request message from peer.
+ *
+ *  \param  handle      The connection handle.
+ *  \param  identifier  Identifier value in received request.
+ *  \param  pPacket     Packet data.
+ *  \param  len         Length of pPacket in bytes.
+ *
+ *  \return TRUE if command processed, FALSE otherwise.
+ */
+ /*************************************************************************************************/
+static bool_t l2cProcEnReconfigReq(uint16_t handle, uint8_t identifier, uint8_t* pPacket, uint16_t len)
+{
+  l2cCocEnReconfigInd_t reconInd;
+  uint8_t               numChans = (len - L2C_SIG_EN_RECONFIG_REQ_LEN) / sizeof(uint16_t);
+  uint16_t              mps, mtu;
+  dmConnId_t            connId;
+  l2cChanCb_t           *pChanCb = NULL;
+  l2cRegCb_t            *pRegCb = NULL;
+  uint8_t               i, cidPos = 0;
+  uint16_t              result = HCI_SUCCESS;
+  
+  memset(&reconInd, 0, sizeof(reconInd));
+  
+  /* get conn ID for handle */
+  if ((connId = DmConnIdByHandle(handle)) != DM_CONN_ID_NONE)
+  {
+    if (l2cCocCb.errTest != L2C_CONN_SUCCESS)
+    {
+      result = l2cCocCb.errTest;
+    }
+    else
+    {
+      BSTREAM_TO_UINT16(mtu, pPacket);
+      BSTREAM_TO_UINT16(mps, pPacket);
+
+      for (i = 0; i < numChans; i++)
+      {
+        uint16_t peerCid;
+
+        BSTREAM_TO_UINT16(peerCid, pPacket);
+
+        if (peerCid != 0)
+        {
+          if ((pChanCb = l2cChanCbByPeerCid(handle, peerCid)) != NULL)
+          {
+            if (mtu < pChanCb->peerMtu)
+            {
+              result = L2C_RECONFIG_FAIL_MTU;
+              break;
+            }
+
+            if ((mps < pChanCb->peerMps) && (numChans != 1))
+            {
+              result = L2C_RECONFIG_FAIL_MPS;
+              break;
+            }
+
+            /* maintain channel list for indication to higher level */
+            reconInd.cidList[cidPos++] = pChanCb->localCid;
+            pRegCb = pChanCb->pRegCb;
+          }
+          else
+          {
+            result = L2C_RECONFIG_FAIL_CID;
+            pRegCb = NULL;
+            break;
+          }
+        }
+      }
+
+      /* Only modify MTU and MPS if value check above passes */
+      if (result == HCI_SUCCESS)
+      {
+        for (i = 0; i < numChans; i++)
+        {
+          if ((reconInd.cidList[i] != 0) && ((pChanCb = l2cChanCbByCid(reconInd.cidList[i])) != NULL))
+          {
+            /* modify the configuration for the channel */
+            pChanCb->peerMtu = mtu;
+            pChanCb->peerMps = mps;
+          }
+        }
+      }
+
+      if (pChanCb && pRegCb)
+      {
+        /* send indication to higher level */
+        reconInd.hdr.event = L2C_COC_EN_RECONFIG_IND;
+        reconInd.hdr.param = pChanCb->pConnCb->connId;
+        reconInd.hdr.status = HCI_SUCCESS;
+        reconInd.mps = mps;
+        reconInd.mtu = mtu;
+        reconInd.cidLen = cidPos;
+        reconInd.req = TRUE;
+
+        (*pRegCb->cback)((l2cCocEvt_t *) &reconInd);
+      }
+    }
+
+    l2cSendEnReconfigRsp(handle, identifier, result);
+
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Process an enhanced reconfigure response message from peer.
+ *
+ *  \param  handle      The connection handle.
+ *  \param  identifier  Identifier value in received request.
+ *  \param  pPacket     Packet data.
+ *  \param  len         Length of pPacket in bytes.
+ *
+ *  \return TRUE if command processed, FALSE otherwise.
+ */
+ /*************************************************************************************************/
+static bool_t l2cProcEnReconfigRsp(uint16_t handle, uint8_t identifier, uint8_t* pPacket)
+{
+  l2cCocEnReconfigInd_t reconInd;
+  l2cChanCb_t           *pChanCb;
+  l2cChanCb_t           **pChanList;
+  l2cRegCb_t            *pRegCb;
+  uint8_t               i, cidPos = 0;
+  uint16_t              result;
+
+  /* get the list of channels for the identifier */
+  pChanList = l2cGetChanCbListByIdentifier(DmConnIdByHandle(handle), identifier, L2C_CHAN_STATE_CONNECTED);
+
+  /* stop timer */
+  pChanCb = pChanList[0];
+  WsfTimerStop(&pChanCb->reqTimer);
+
+  /* store a registration control block for sending an indication */
+  pRegCb = pChanCb->pRegCb;
+
+  BSTREAM_TO_UINT16(result, pPacket);
+
+  if (result == HCI_SUCCESS)
+  {
+    for (i = 0; i < L2C_MAX_EN_CHAN; i++)
+    {
+      if (pChanList[i])
+      {
+        reconInd.cidList[cidPos++] = pChanList[i]->localCid;
+
+        pChanList[i]->peerMtu = pChanList[i]->pendingMtu;
+        pChanList[i]->pRegCb->reg.mtu = pChanList[i]->pendingMtu;
+
+        pChanList[i]->peerMps = pChanList[i]->pendingMps;
+        pChanList[i]->pRegCb->reg.mps = pChanList[i]->pendingMps;
+      }
+    }
+  }
+
+  /* send indication to higher level */
+  reconInd.hdr.event = L2C_COC_EN_RECONFIG_IND;
+  reconInd.hdr.param = pChanCb->pConnCb->connId;
+  reconInd.hdr.status = (uint8_t) result;
+  reconInd.mps = pChanCb->peerMps;
+  reconInd.mtu = pChanCb->peerMtu;
+  reconInd.cidLen = cidPos;
+  reconInd.req = FALSE;
+
+  (*pRegCb->cback)((l2cCocEvt_t *) &reconInd);
+
+  return TRUE;
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief  Manage local credits.
  *
  *  \param  pChanCb   Channel control block.
@@ -1395,6 +2182,26 @@ void l2cCocSignalingCback(uint16_t handle, uint16_t l2cLen, uint8_t *pPacket)
       /* pass to main signaling packet processing function if reject not handled */
       l2cRxSignalingPkt(handle, l2cLen, pPacket);
     }
+  }
+  /* if enhanced connection request */
+  else if ((code == L2C_SIG_EN_CONNECT_REQ) && (len >= L2C_SIG_EN_CONNECT_REQ_LEN))
+  {
+    l2cProcEnConnectReq(handle, id, p, len);
+  }
+  /* if enhanced connection response */
+  else if ((code == L2C_SIG_EN_CONNECT_RSP) && (len >= L2C_SIG_EN_CONNECT_RSP_LEN))
+  {
+    l2cProcEnConnectRsp(handle, id, p, len);
+  }
+  /* if enhanced reconfiguration request */
+  else if ((code == L2C_SIG_EN_RECONFIG_REQ) && (len >= L2C_SIG_EN_RECONFIG_REQ_LEN))
+  {
+    l2cProcEnReconfigReq(handle, id, p, len);
+  }
+  /* if enhanced reconfiguration response */
+  else if ((code == L2C_SIG_EN_RECONFIG_RSP) && (len >= L2C_SIG_EN_RECONFIG_RSP_LEN))
+  {
+    l2cProcEnReconfigRsp(handle, id, p);
   }
   /* else pass to main signaling packet processing function */
   else
@@ -1569,6 +2376,51 @@ static void l2cCocApiDisconnectReq(l2cCocMsg_t *pMsg)
 
 /*************************************************************************************************/
 /*!
+ *  \brief  Process ae enhanced connection request from API.
+ *
+ *  \param  pMsg  Message buffer.
+ *
+ *  \return None.
+ */
+ /*************************************************************************************************/
+void l2cCocApiEnConnectReq(l2cCocMsg_t *pMsg)
+{
+  l2cApiEnConnectReq_t *pReq = &pMsg->enConnectReq;
+  l2cChanCb_t          *pChanCb = l2cChanCbByCid(pReq->chanList[0]);
+
+  /* verify still in connecting state (link could have been disconnected) */
+  if (pChanCb->state == L2C_CHAN_STATE_CONNECTING)
+  {
+    l2cCocReg_t *pRegCb = &pChanCb->pRegCb->reg;
+
+    l2cSendEnConnectReq(pReq->handle, pReq->psm, pRegCb->mtu, pRegCb->mps, pReq->credits,
+                        pReq->numChan, pReq->chanList);
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Process ae enhanced reconfigure request from API.
+ *
+ *  \param  pMsg  Message buffer.
+ *
+ *  \return None.
+ */
+ /*************************************************************************************************/
+void l2cCocApiEnReconfigReq(l2cCocMsg_t *pMsg)
+{
+  l2cApiEnReconfigReq_t *pReq = &pMsg->enReconfigReq;
+  l2cChanCb_t           *pChanCb = l2cChanCbByCid(pReq->chanList[0]);
+
+  /* verify still in connecting state (link could have been disconnected) */
+  if (pChanCb->state == L2C_CHAN_STATE_CONNECTED)
+  {
+    l2cSendEnReconfigReq(pReq->handle, pReq->mtu, pReq->mps, pReq->numChan, pReq->chanList);
+  }
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief  Process a request timeout.
  *
  *  \param  pMsg  Message buffer.
@@ -1653,6 +2505,14 @@ void L2cCocHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
         l2cCocReqTimeout(pMsg);
         break;
 
+      case L2C_MSG_API_EN_CONNECT_REQ:
+        l2cCocApiEnConnectReq((l2cCocMsg_t*)pMsg);
+        break;
+
+      case L2C_MSG_API_EN_RECONFIG_REQ:
+        l2cCocApiEnReconfigReq((l2cCocMsg_t*)pMsg);
+        break;
+
       default:
         break;
     }
@@ -1693,6 +2553,28 @@ l2cCocRegId_t L2cCocRegister(l2cCocCback_t cback, l2cCocReg_t *pReg)
   }
 
   return L2C_COC_REG_ID_NONE;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Set the channel accept callback.
+ *
+ *  \param  regId   Registration instance ID.
+ *  \param  cback   Client callback function.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void L2cCocSetAcceptCback(l2cCocRegId_t regId, l2cCocAcceptCb_t cback)
+{
+  l2cRegCb_t    *pRegCb = l2cRegCbById(regId);
+
+  WSF_ASSERT(cback != NULL);
+  WSF_ASSERT(pRegCb);
+
+  WsfTaskLock();
+  pRegCb->acceptCback = cback;
+  WsfTaskUnlock();
 }
 
 /*************************************************************************************************/
@@ -1792,7 +2674,6 @@ void L2cCocDisconnectReq(uint16_t cid)
   }
 }
 
-
 /*************************************************************************************************/
 /*!
  *  \brief  Send an L2CAP data packet on the given connection oriented CID.
@@ -1836,6 +2717,148 @@ void L2cCocDataReq(uint16_t cid, uint16_t len, uint8_t *pPayload)
       WsfMsgFree(pPkt);
     }
   }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Send a request to open enhanced credit based channels.
+ *
+ *  \param  connId    DM connection ID.
+ *  \param  regId     The associated registration instance.
+ *  \param  psm       The protocol slave multiplexer.
+ *  \param  credits   The initial number of credits for each CID channel.
+ *  \param  numChan   The number of channels to create - L2C_MAX_EN_CHAN max.
+ *
+ *  \return FALSE if unable make request, else TRUE.
+ */
+/*************************************************************************************************/
+bool_t L2cCocEnhancedConnectReq(dmConnId_t connId, l2cCocRegId_t regId, uint16_t psm,
+                                uint16_t credits, uint8_t numChan)
+{
+  l2cApiEnConnectReq_t *pMsg;
+  l2cChanCb_t          *pChanCb;
+  l2cConnCb_t          *pConnCb = l2cConnCbById(connId);;
+  l2cRegCb_t           *pRegCb = l2cRegCbById(regId);
+  bool_t                success = FALSE;
+  uint8_t               i;
+
+  WSF_ASSERT(pRegCb);
+
+  WsfTaskLock();
+  
+  /* verify connected and resources available */
+  if (numChan <= L2C_MAX_EN_CHAN && pConnCb && (l2cVerifyFreeChannels(numChan)))
+  {  
+    if (pRegCb->inUse && connId != DM_CONN_ID_NONE)
+    {
+      /* alocate message buffer */
+      if ((pMsg = WsfMsgAlloc(sizeof(l2cApiEnConnectReq_t))) != NULL)
+      {
+        /* unused channels should be zero */
+        memset(pMsg->chanList, 0, sizeof(pMsg->chanList));
+
+        /* allocate channels */
+        for (i = 0; i < numChan; i++)
+        {
+          pChanCb = l2cChanCbAlloc(L2C_CHAN_STATE_CONNECTING);
+
+          WSF_ASSERT(pChanCb);
+          pChanCb->pRegCb = pRegCb;
+          pChanCb->pConnCb = pConnCb;
+          pChanCb->localCredits = credits;
+
+          pMsg->chanList[i] = pChanCb->localCid;
+        }
+
+        /* copy message parameters */
+        pMsg->psm = psm;
+        pMsg->credits = credits;
+        pMsg->handle = pConnCb->handle;
+        pMsg->numChan = numChan;
+
+        /* send message */
+        pMsg->hdr.event = L2C_MSG_API_EN_CONNECT_REQ;
+        WsfMsgSend(l2cCocCb.handlerId, pMsg);
+        success = TRUE;
+      }
+    }
+  }
+
+  WsfTaskUnlock();
+  return success;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Send a request to reconfigure enhanced credit based channels.
+ *
+ *  \param  connId    DM connection ID.
+ *  \param  mtu       The maximum transmission unit of each source CID channel.
+ *  \param  mps       The maximum payload size on each source CID channel.
+ *  \param  numChan   The number of channels to create (1 to L2C_MAX_EN_CHAN).
+ *  \param  pChanList A list of local CID to Reconfig (L2C_MAX_EN_CHAN channels, set unused to 0).
+ *
+ *  \return FALSE if unable make request, else TRUE.
+ */
+ /*************************************************************************************************/
+bool_t L2cCocEnhancedReconfigReq(dmConnId_t connId, uint16_t mtu, uint16_t mps,
+                                 uint8_t numChan, uint16_t *pChanList)
+{
+  l2cApiEnReconfigReq_t* pMsg;
+  l2cConnCb_t* pConnCb = l2cConnCbById(connId);
+  l2cChanCb_t *pChanCb;
+  bool_t success = FALSE;
+  uint16_t maxMtu = 0, maxMps = 0;
+  uint8_t i;
+
+  WsfTaskLock();
+
+  /* alocate message buffer */
+  if ((numChan <= L2C_MAX_EN_CHAN) && pConnCb)
+  {
+    for (i = 0; i < numChan; i++)
+    {
+      pChanCb = l2cChanCbByCid(pChanList[i]);
+
+      if (!pChanCb || (pChanCb->state != L2C_CHAN_STATE_CONNECTED))
+      {
+        WsfTaskUnlock();
+        return FALSE;
+      }
+
+      /* Record the maxMtu and maxMps from all channels for mtu and mps validation. */
+      if (pChanCb->peerMtu > maxMtu)
+      {
+        maxMtu = pChanCb->peerMtu;
+      }
+
+      if (pChanCb->peerMps > maxMps)
+      {
+        maxMps = pChanCb->peerMps;
+      }
+    }
+
+    /* Check that MTU is greater or equal to greatest of all mtu and do the same for MPS unless only 1 channel. */
+    if ((mtu >= maxMtu) && ((numChan == 1) || (mps >= maxMps)))
+    {
+      if ((pMsg = WsfMsgAlloc(sizeof(l2cApiEnConnectReq_t))) != NULL)
+      {
+        pMsg->mtu = mtu;
+        pMsg->mps = mps;
+        pMsg->handle = pConnCb->handle;
+        pMsg->numChan = numChan;
+        memcpy(pMsg->chanList, pChanList, numChan * sizeof(uint16_t));
+
+        /* send message */
+        pMsg->hdr.event = L2C_MSG_API_EN_RECONFIG_REQ;
+        WsfMsgSend(l2cCocCb.handlerId, pMsg);
+        success = TRUE;
+      }
+    }
+  }
+
+  WsfTaskUnlock();
+  return success;
 }
 
 /*************************************************************************************************/
