@@ -19,6 +19,22 @@
 
 #include "MeshInterfaceNanostack.h"
 
+/**
+ * \brief Struct router_information Wi-SUN router dynamic information.
+ */
+typedef struct router_information {
+    /** Address prefix given to devices in network  set to 0 if not available*/
+    uint8_t ipv6_prefix[8];
+    /** IID of router */
+    uint8_t ipv6_iid[8];
+    /** Router dodag id */
+    uint8_t rpl_dodag_id[16];
+    /** Router instance identifier */
+    uint8_t instance_id;
+    /** RPL version number */
+    uint8_t version;
+} router_information_t;
+
 /** Wi-SUN mesh network interface class
  *
  * Configure Nanostack to use Wi-SUN protocol.
@@ -432,6 +448,19 @@ public:
      * \return MESH_ERROR_UNKNOWN on error
      * */
     mesh_error_t read_mac_statistics(mesh_mac_statistics_t *statistics);
+
+    /**
+     * \brief Get Wi-SUN Router information.
+     *
+     * Function reads RPL information from nanostack.
+     * Mesh interface must be initialized before calling this function.
+     *
+     * \param info_ptr Structure given to stack where information will be stored
+     *
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN in case of failure.
+     * */
+    mesh_error_t get_info(router_information_t *info_ptr);
 
 protected:
     Nanostack::WisunInterface *get_interface() const;

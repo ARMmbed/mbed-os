@@ -24,9 +24,14 @@
 #include "fhss_api.h"
 #include "fhss_config.h"
 #include "ws_management_api.h"
+#include "net_rpl.h"
+#include "net_interface.h"
 
 #include "ns_trace.h"
 #define TRACE_GROUP "WSIn"
+
+#define RPL_INSTANCE_ID 1
+static uint8_t current_instance_id = RPL_INSTANCE_ID;
 
 class Nanostack::WisunInterface : public Nanostack::MeshInterface {
 public:
@@ -540,6 +545,33 @@ mesh_error_t WisunInterface::read_mac_statistics(mesh_mac_statistics_t *statisti
         ret_val = MESH_ERROR_UNKNOWN;
     }
     return ret_val;
+}
+
+mesh_error_t WisunInterface::get_info(router_information_t *info_ptr)
+{
+    rpl_dodag_info_t dodag_ptr = {0};
+    uint8_t global_address[16] = {0};
+
+    if(info_ptr == NULL) {
+        return MESH_ERROR_PARAM;
+    }
+
+    int status = rpl_read_dodag_info(&dodag_ptr, current_instance_id);
+    if (status < 0) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    if (arm_net_address_get(get_interface_id(), ADDR_IPV6_GP, global_address) != 0) {
+        // No global prefix available, Nothing to do.
+    }
+
+    info_ptr->instance_id = dodag_ptr.instance_id;
+    info_ptr->version = dodag_ptr.version_num;
+    memcpy(info_ptr->rpl_dodag_id, dodag_ptr.dodag_id, 16);
+    memcpy(info_ptr->ipv6_prefix, global_address, 8);
+    memcpy(info_ptr->ipv6_iid, global_address + 8, 8);
+
+    return MESH_ERROR_NONE;
 }
 
 #define WISUN 0x2345

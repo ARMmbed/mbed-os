@@ -17,6 +17,37 @@
 #ifndef WISUNBORDERROUTER_H
 #define WISUNBORDERROUTER_H
 
+/**
+ * \brief Struct br_information Border router dynamic information.
+ */
+typedef struct br_information {
+    /** Address prefix given to devices in network  set to 0 if not available*/
+    uint8_t ipv6_prefix[8];
+    /** IID of Border router */
+    uint8_t ipv6_iid[8];
+    /** Border router dodag id */
+    uint8_t rpl_dodag_id[16];
+    /** Border router instance identifier defined in RPL */
+    uint8_t instance_id;
+    /** RPL version number */
+    uint8_t version;
+    /** Timestamp of the the device. Can be used as version number*/
+    uint64_t host_timestamp;
+    /** Amount of devices in the network. */
+    uint16_t device_count;
+} br_information_t;
+
+/**
+ * \brief Struct br_route_info is parent child relation structure.
+ */
+typedef struct br_route_info {
+    /** IID of target device
+     * Public IPv6 address can be formed by combining prefix + IID*/
+    uint8_t target[8];
+    /** IID of parent*/
+    uint8_t parent[8];
+} br_route_info_t;
+
 /** Wi-SUN Border Router class
  *
  * Class can be used to start, stop and configure Wi-SUN Border Router.
@@ -146,6 +177,35 @@ public:
      * \return MESH_ERROR_UNKNOWN in case of failure.
      * */
     mesh_error_t validate_pan_configuration(uint16_t pan_id);
+
+    /**
+     * \brief Get Wi-SUN Border Router information.
+     *
+     * Function reads RPL information from Border Router.
+     * Mesh interface must be initialized before calling this function.
+     *
+     * \param info_ptr Structure given to stack where information will be stored
+     *
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN in case of failure.
+     * */
+    mesh_error_t get_info(br_information_t *info_ptr);
+
+    /**
+     * \brief Get Wi-SUN neighbor table information.
+     *
+     * Function reads Routing Table information from Border Router.
+     * Table is Parent child relation using the Global address IID of the devices.
+     * To get the full IPv6 address of the device, IPv6 =  Global Prefix + IID.
+     * Mesh interface must be initialized before calling this function.
+     *
+     * \param table_ptr Application allocated memory block where routing table is written.
+     * \param table_len Length of the table allocated by application given as amount of entries.
+     *
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN in case of failure.
+     * */
+    mesh_error_t get_routing_table(br_route_info_t *table_ptr, uint16_t table_len);
 
 private:
     int8_t _mesh_if_id = -1;
