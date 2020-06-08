@@ -276,6 +276,7 @@ typedef struct protocol_interface_rf_mac_setup {
     struct arm_device_driver_list *tun_extension_rf_driver;
     /* End of API Control */
     struct mlme_scan_conf_s *mac_mlme_scan_resp;
+    struct mac_cca_threshold *cca_threshold;
     //beacon_join_priority_tx_cb *beacon_join_priority_tx_cb_ptr;
     struct mac_statistics_s *mac_statistics;
     /* FHSS API*/

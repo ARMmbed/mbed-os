@@ -91,11 +91,13 @@ typedef struct mac_pre_build_frame {
     uint8_t csma_periods_left;
     uint8_t fhss_retry_count;
     uint8_t fhss_cca_retry_count;
+    uint16_t initial_tx_channel;
     uint32_t tx_time;
     bool upper_layer_request: 1;
     bool mac_allocated_payload_ptr: 1;
     bool asynch_request: 1;
     bool message_builded: 1;
+    bool DSN_allocated: 1;
     unsigned security_mic_len: 5;   //Max possible lengths 0, 4, 8, 16 bytes
     unsigned priority: 2;
     struct mac_pre_build_frame *next; //Pointer for queue purpose
