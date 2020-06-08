@@ -39,6 +39,7 @@ static const uint32_t tx_ep_sizes[NUM_ENDPOINTS] = {
     MAX_PACKET_SIZE_ISO
 };
 
+#if (MBED_CONF_TARGET_USB_SPEED != USE_USB_NO_OTG)
 uint32_t HAL_PCDEx_GetTxFiFo(PCD_HandleTypeDef *hpcd, uint8_t fifo)
 {
     uint32_t len;
@@ -49,15 +50,23 @@ uint32_t HAL_PCDEx_GetTxFiFo(PCD_HandleTypeDef *hpcd, uint8_t fifo)
     }
     return len * 4;
 }
+#endif
 
+/*  weak function redefinition  */
 void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd)
 {
     USBPhyHw *priv = ((USBPhyHw *)(hpcd->pData));
+#if (MBED_CONF_TARGET_USB_SPEED == USE_USB_NO_OTG)
+    if (priv->sof_enabled) {
+        priv->events->sof((hpcd->Instance->FNR) & USB_FNR_FN);
+    }
+#else
     USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
     uint32_t USBx_BASE = (uint32_t)USBx;
     if (priv->sof_enabled) {
         priv->events->sof((USBx_DEVICE->DSTS & USB_OTG_DSTS_FNSOF) >> 8);
     }
+#endif
 }
 
 /*  this call at device reception completion on a Out Enpoint  */
@@ -244,7 +253,37 @@ void USBPhyHw::init(USBPhyEvents *events)
     HAL_StatusTypeDef ret = HAL_PCD_Init(&hpcd);
     MBED_ASSERT(ret == HAL_OK);
 
+    // Configure FIFOs
+#if (MBED_CONF_TARGET_USB_SPEED == USE_USB_NO_OTG)
 
+    // EP0
+#define PMA_EP0_OUT_ADDR    (8 * 4)
+#define PMA_EP0_IN_ADDR     (PMA_EP0_OUT_ADDR + MAX_PACKET_SIZE_EP0)
+    HAL_PCDEx_PMAConfig(&hpcd, LOG_OUT_TO_EP(0), PCD_SNG_BUF, PMA_EP0_OUT_ADDR);  // HAL_PCDEx_PMAConfig always returns HAL_OK
+    HAL_PCDEx_PMAConfig(&hpcd, LOG_IN_TO_EP(0),  PCD_SNG_BUF, PMA_EP0_IN_ADDR);   // HAL_PCDEx_PMAConfig always returns HAL_OK
+    // EP1
+#define PMA_EP1_OUT_BASE    (PMA_EP0_IN_ADDR + MAX_PACKET_SIZE_EP0)
+#define PMA_EP1_OUT_ADDR   ((PMA_EP1_OUT_BASE + MAX_PACKET_SIZE_NON_ISO) | (PMA_EP1_OUT_BASE << 16U))
+#define PMA_EP1_IN_ADDR     (PMA_EP1_OUT_BASE + MAX_PACKET_SIZE_NON_ISO)
+#define PMA_EP1_CMD_ADDR    (PMA_EP1_IN_ADDR + MAX_PACKET_SIZE_NON_ISO)
+    HAL_PCDEx_PMAConfig(&hpcd, LOG_OUT_TO_EP(1), PCD_SNG_BUF, PMA_EP1_OUT_ADDR);  // HAL_PCDEx_PMAConfig always returns HAL_OK
+    HAL_PCDEx_PMAConfig(&hpcd, LOG_IN_TO_EP(1),  PCD_SNG_BUF, PMA_EP1_CMD_ADDR);  // HAL_PCDEx_PMAConfig always returns HAL_OK
+    // EP2
+#define PMA_EP2_OUT_BASE    (PMA_EP1_IN_ADDR + MAX_PACKET_SIZE_NON_ISO)
+#define PMA_EP2_OUT_ADDR   ((PMA_EP2_OUT_BASE + MAX_PACKET_SIZE_NON_ISO) | (PMA_EP2_OUT_BASE << 16U))
+#define PMA_EP2_IN_ADDR     (PMA_EP2_OUT_BASE + MAX_PACKET_SIZE_NON_ISO * 2)
+#define PMA_EP2_CMD_ADDR    (PMA_EP2_IN_ADDR + MAX_PACKET_SIZE_NON_ISO)
+    HAL_PCDEx_PMAConfig(&hpcd, LOG_OUT_TO_EP(2), PCD_DBL_BUF, PMA_EP2_OUT_ADDR);  // HAL_PCDEx_PMAConfig always returns HAL_OK
+    HAL_PCDEx_PMAConfig(&hpcd, LOG_IN_TO_EP(2),  PCD_SNG_BUF, PMA_EP2_CMD_ADDR);  // HAL_PCDEx_PMAConfig always returns HAL_OK
+    // EP3
+#define PMA_EP3_OUT_BASE    (PMA_EP2_IN_ADDR + MAX_PACKET_SIZE_NON_ISO)
+#define PMA_EP3_OUT_ADDR   ((PMA_EP3_OUT_BASE + MAX_PACKET_SIZE_ISO) | (PMA_EP3_OUT_BASE << 16U))
+#define PMA_EP3_IN_ADDR     (PMA_EP3_OUT_BASE + MAX_PACKET_SIZE_ISO)
+#define PMA_EP3_CMD_ADDR    (PMA_EP3_IN_ADDR + MAX_PACKET_SIZE_ISO)
+    HAL_PCDEx_PMAConfig(&hpcd, LOG_OUT_TO_EP(3), PCD_SNG_BUF, PMA_EP3_OUT_ADDR);  // HAL_PCDEx_PMAConfig always returns HAL_OK
+    HAL_PCDEx_PMAConfig(&hpcd, LOG_IN_TO_EP(3),  PCD_SNG_BUF, PMA_EP3_CMD_ADDR);  // HAL_PCDEx_PMAConfig always returns HAL_OK
+
+#else
     uint32_t total_bytes = 0;
 
     /* Reserve space in the RX buffer for:
@@ -266,6 +305,7 @@ void USBPhyHw::init(USBPhyEvents *events)
 
     /* 1.25 kbytes */
     MBED_ASSERT(total_bytes <= 1280);
+#endif
 
     // Configure interrupt vector
     NVIC_SetVector(USBHAL_IRQn, (uint32_t)&_usbisr);
@@ -293,8 +333,21 @@ bool USBPhyHw::powered()
 
 void USBPhyHw::connect()
 {
+#if (MBED_CONF_TARGET_USB_SPEED == USE_USB_NO_OTG)
+    DigitalOut usb_disc_pin(USB_DP, 1) ;
+    wait_ns(1000);
+    usb_disc_pin = 0;
+
+    uint32_t wInterrupt_Mask = USB_CNTR_CTRM | USB_CNTR_WKUPM | USB_CNTR_SUSPM | USB_CNTR_ERRM |
+                               USB_CNTR_SOFM | USB_CNTR_ESOFM | USB_CNTR_RESETM;
+    /*Set interrupt mask*/
+    hpcd.Instance->CNTR = wInterrupt_Mask;
+    HAL_PCD_DevConnect(&hpcd); // HAL_PCD_DevConnect always return HAL_OK
+    wait_us(10000);
+#else
     HAL_StatusTypeDef ret = HAL_PCD_Start(&hpcd);
     MBED_ASSERT(ret == HAL_OK);
+#endif
 }
 
 void USBPhyHw::disconnect()
@@ -405,6 +458,7 @@ void USBPhyHw::ep0_stall()
 
 bool USBPhyHw::endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_t type)
 {
+#if (MBED_CONF_TARGET_USB_SPEED != USE_USB_NO_OTG)
     uint32_t len;
 
     /*
@@ -415,6 +469,8 @@ bool USBPhyHw::endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_
         len = HAL_PCDEx_GetTxFiFo(&hpcd, endpoint & 0x7f);
         MBED_ASSERT(len >= max_packet);
     }
+#endif
+
     HAL_StatusTypeDef ret = HAL_PCD_EP_Open(&hpcd, endpoint, max_packet, type);
     MBED_ASSERT(ret != HAL_BUSY);
     return (ret == HAL_OK) ? true : false;

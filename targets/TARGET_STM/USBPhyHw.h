@@ -37,7 +37,7 @@
 #if MBED_CONF_TARGET_USB_SPEED == USE_USB_NO_OTG
 
 #if defined(TARGET_STM32F3) || defined(TARGET_STM32WB)
-#define USBHAL_IRQn  USB_HP_IRQn
+#define USBHAL_IRQn  USB_LP_IRQn
 #else
 #define USBHAL_IRQn  USB_IRQn
 #endif
@@ -50,7 +50,7 @@
 
 #endif
 
-#define NB_ENDPOINT  16
+#define NB_ENDPOINT  8
 
 // #define MAXTRANSFER_SIZE  0x200
 #define MAX_PACKET_SIZE_SETUP (48)
