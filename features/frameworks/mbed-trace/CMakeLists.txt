@@ -1,23 +1,15 @@
-INCLUDE(CMakeForceCompiler)
+# Copyright (c) 2020 ARM Limited. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 
-cmake_minimum_required (VERSION 2.8)
-SET(CMAKE_SYSTEM_NAME Generic)
-
-project(mbedTrace)
-
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/mbed-trace
-    ${CMAKE_CURRENT_SOURCE_DIR}/../nanostack-libservice/mbed-client-libservice
-    ${CMAKE_CURRENT_SOURCE_DIR}/../nanostack-libservice
+target_sources(mbed-os
+	PRIVATE
+		source/mbed_trace.c
 )
 
-set (MBED_TRACE_SRC ${CMAKE_CURRENT_SOURCE_DIR}/source/mbed_trace.c)
-
-
-add_library(mbedTrace "${MBED_TRACE_SRC}" "")
-
-target_include_directories(mbedTrace
+target_include_directories(mbed-os
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/mbed-trace
+        ${CMAKE_CURRENT_SOURCE_DIR}/../nanostack-libservice/mbed-client-libservice
+        ${CMAKE_CURRENT_SOURCE_DIR}/../nanostack-libservice
 )
