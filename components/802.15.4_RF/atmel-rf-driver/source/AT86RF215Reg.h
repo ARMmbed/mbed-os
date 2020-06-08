@@ -26,6 +26,7 @@ extern "C" {
 #define RF24_IRQS                   0x01
 #define BBC0_IRQS                   0x02
 #define BBC1_IRQS                   0x03
+#define RF_AUXS                     0x01
 #define RF_CFG                      0x06
 #define RF_IQIFC1                   0x0B
 #define RF_PN                       0x0D
@@ -47,6 +48,8 @@ extern "C" {
 #define RF_EDV                      0x10
 #define RF_TXCUTC                   0x12
 #define RF_TXDFE                    0x13
+#define RF_PAC                      0x14
+#define RF_PADFE                    0x16
 #define BBC_IRQM                    0x00
 #define BBC_PC                      0x01
 #define BBC_RXFLL                   0x04
@@ -55,6 +58,9 @@ extern "C" {
 #define BBC_TXFLH                   0x07
 #define BBC_FBLL                    0x08
 #define BBC_FBLH                    0x09
+#define BBC_OFDMPHRTX               0x0C
+#define BBC_OFDMC                   0x0E
+#define BBC_OFDMSW                  0x0F
 #define BBC_OQPSKC0                 0x10
 #define BBC_OQPSKC1                 0x11
 #define BBC_OQPSKC2                 0x12
@@ -82,6 +88,20 @@ extern "C" {
 #define BBC1_FBRXS                  0x3000
 #define BBC1_FBTXS                  0x3800
 
+// RF_AUXS
+#define EXTLNABYP                   (1 << 7)
+#define AGCMAP                      0x60
+#define AGCMAP_2                    (2 << 5)
+#define AVEN                        (1 << 3)
+
+// RF_PAC
+#define TXPWR                       0x1F
+#define TXPWR_11                    (11 << 0)
+
+// RF_PADFE
+#define PADFE                       0xC0
+#define RF_FEMODE3                  (3 << 6)
+
 // RF_AGCC
 #define AGCI                        (1 << 6)
 #define AVGS                        0x30
@@ -90,7 +110,7 @@ extern "C" {
 // RF_AGCS
 #define TGT                         0xE0
 #define TGT_1                       (1 << 5)
-
+#define TGT_3                       (3 << 5)
 
 // RF_RXBWC
 #define BW                          0x0F
@@ -131,6 +151,7 @@ extern "C" {
 // RF_TXDFE, RF_RXDFE
 #define RCUT                        0xE0
 #define RCUT_4                      (4 << 5)
+#define RCUT_3                      (3 << 5)
 #define RCUT_2                      (2 << 5)
 #define RCUT_1                      (1 << 5)
 #define RCUT_0                      (0 << 5)
@@ -143,6 +164,41 @@ extern "C" {
 #define SR_3                        (3 << 0)
 #define SR_2                        (2 << 0)
 #define SR_1                        (1 << 0)
+
+// BBC_OFDMPHRTX
+#define MCS                         0x07
+#define MCS_0                       (0 << 0)
+#define MCS_1                       (1 << 0)
+#define MCS_2                       (2 << 0)
+#define MCS_3                       (3 << 0)
+#define MCS_4                       (4 << 0)
+#define MCS_5                       (5 << 0)
+#define MCS_6                       (6 << 0)
+
+// BBC_OFDMC
+#define SSRX                        0xC0
+#define SSRX_0                      (0 << 6)
+#define SSRX_1                      (1 << 6)
+#define SSRX_2                      (2 << 6)
+#define SSRX_3                      (3 << 6)
+#define SSTX                        0x30
+#define SSTX_0                      (0 << 4)
+#define SSTX_1                      (1 << 4)
+#define SSTX_2                      (2 << 4)
+#define SSTX_3                      (3 << 4)
+#define LFO                         (1 << 3)
+#define POI                         (1 << 2)
+#define OPT                         0x03
+#define OPT_1                       (0 << 0)
+#define OPT_2                       (1 << 0)
+#define OPT_3                       (2 << 0)
+#define OPT_4                       (3 << 0)
+
+// BBC_OFDMSW
+#define OFDM_PDT                    0xE0
+#define OFDM_PDT_5                  (5 << 5)
+#define OFDM_PDT_4                  (4 << 5)
+#define OFDM_PDT_3                  (3 << 5)
 
 // BBC_FSKC0
 #define BT                          0xC0
