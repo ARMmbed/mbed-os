@@ -19,6 +19,7 @@
 #include "stack/platform/include/pal_uart.h"
 #include "stack/platform/include/pal_nvm.h"
 #include "hal/ticker_api.h"
+#include "mbed_critical.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -139,6 +140,17 @@ MBED_WEAK void PalSysAssertTrap()
 MBED_WEAK void PalSysSleep()
 {
     MBED_ERROR(function_not_implemented, "Provide implementation of PalSysSleep");
+}
+
+/* CS */
+
+MBED_WEAK void PalEnterCs(void)
+{
+    core_util_critical_section_enter();
+}
+MBED_WEAK void PalExitCs(void)
+{
+    core_util_critical_section_exit();
 }
 
 #ifdef __cplusplus
