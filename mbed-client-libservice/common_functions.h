@@ -509,9 +509,7 @@ COMMON_FUNCTIONS_FN uint_fast8_t common_count_leading_zeros(uint8_t value)
 
 COMMON_FUNCTIONS_FN uint_fast8_t common_count_leading_zeros_8(uint8_t value)
 {
-#ifdef  __CC_ARM
-    return value ? __clz((unsigned int) value << 24) : 8;
-#elif defined __GNUC__
+#if defined __GNUC__
     return value ? __builtin_clz((unsigned int) value << 24) : 8;
 #else
     uint_fast8_t cnt = 0;
@@ -536,9 +534,7 @@ COMMON_FUNCTIONS_FN uint_fast8_t common_count_leading_zeros_8(uint8_t value)
 
 COMMON_FUNCTIONS_FN uint_fast8_t common_count_leading_zeros_16(uint16_t value)
 {
-#ifdef  __CC_ARM
-    return value ? __clz((unsigned int) value << 16) : 16;
-#elif defined __GNUC__
+#if defined __GNUC__
     return value ? __builtin_clz((unsigned int) value << 16) : 16;
 #else
     uint_fast8_t cnt = 0;
@@ -567,9 +563,7 @@ COMMON_FUNCTIONS_FN uint_fast8_t common_count_leading_zeros_16(uint16_t value)
 
 COMMON_FUNCTIONS_FN uint_fast8_t common_count_leading_zeros_32(uint32_t value)
 {
-#ifdef  __CC_ARM
-    return __clz(value);
-#elif defined __GNUC__
+#if defined __GNUC__
     return value ? __builtin_clz(value) : 32;
 #else
     uint_fast8_t cnt = 0;
