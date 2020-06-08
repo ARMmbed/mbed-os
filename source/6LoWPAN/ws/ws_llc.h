@@ -78,11 +78,18 @@ typedef struct llc_neighbour_req {
     struct ws_neighbor_class_entry *ws_neighbor;                /**< Wi-sun Neighbor information entry. */
 } llc_neighbour_req_t;
 
+typedef struct eapol_temporary_info_s {
+    uint8_t eapol_rx_relay_filter; /*!< seconds for dropping duplicate id */
+    uint8_t last_rx_mac_sequency; /*!< Only compared when Timer is active */
+    uint16_t eapol_timeout; /*!< EAPOL relay Temporary entry lifetime */
+} eapol_temporary_info_t;
+
 /**
  * Neighbor temporary structure for storage FHSS data before create a real Neighbour info
  */
 typedef struct ws_neighbor_temp_class_s {
     struct ws_neighbor_class_entry neigh_info_list;  /*!< Allocated hopping info array*/
+    eapol_temporary_info_t eapol_temp_info;
     uint8_t mac64[8];
     uint8_t mpduLinkQuality;
     int8_t signal_dbm;
@@ -216,6 +223,10 @@ void ws_llc_set_pan_information_pointer(struct protocol_interface_info_entry *in
  *
  */
 void ws_llc_hopping_schedule_config(struct protocol_interface_info_entry *interface, struct ws_hopping_schedule_s *hopping_schedule);
+
+void ws_llc_timer_seconds(struct protocol_interface_info_entry *interface, uint16_t seconds_update);
+
+bool ws_llc_eapol_relay_forward_filter(struct protocol_interface_info_entry *interface, const uint8_t *joiner_eui64, uint8_t mac_sequency, uint32_t rx_timestamp);
 
 ws_neighbor_temp_class_t *ws_llc_get_multicast_temp_entry(struct protocol_interface_info_entry *interface, const uint8_t *mac64);
 

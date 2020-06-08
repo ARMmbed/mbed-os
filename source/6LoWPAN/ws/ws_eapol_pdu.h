@@ -99,6 +99,7 @@ typedef enum {
 
 typedef struct {
     eapol_pdu_recv_prior_t priority;           /**< Priority: high, medium or low */
+    bool filter_requsted: 1;                    /**< True when EAPOL temporary filter requsted, false for normal functionality */
     ws_eapol_pdu_address_check *addr_check;    /**< Address check callback */
     ws_eapol_pdu_receive *receive;             /**< PDU receive callback */
 } eapol_pdu_recv_cb_data_t;

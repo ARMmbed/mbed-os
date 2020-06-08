@@ -391,7 +391,7 @@ static void rpl_control_addr_notifier(struct protocol_interface_info_entry *inte
     }
 }
 
-static void rpl_control_etx_change_callback(int8_t  nwk_id, uint16_t previous_etx, uint16_t current_etx, uint8_t attribute_index)
+static void rpl_control_etx_change_callback(int8_t  nwk_id, uint16_t previous_etx, uint16_t current_etx, uint8_t attribute_index, const uint8_t *mac64)
 {
 
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(nwk_id);
@@ -405,14 +405,29 @@ static void rpl_control_etx_change_callback(int8_t  nwk_id, uint16_t previous_et
     uint16_t delay = rpl_policy_etx_change_parent_selection_delay(domain);
     tr_debug("Triggering parent selection due to ETX %s on neigh index %u, etx %u", better ? "better" : "worse", attribute_index, current_etx);
     rpl_dodag_t *dodag = NULL;
+    //Define Link Local Address
+    uint8_t ll_parent_address[16];
+    memcpy(ll_parent_address, ADDR_LINK_LOCAL_PREFIX, 8);
+    memcpy(ll_parent_address + 8, mac64, 8);
+    ll_parent_address[8] ^= 2;
 
     ns_list_foreach(rpl_instance_t, instance, &domain->instances) {
-        if (better) {
-            dodag = rpl_instance_current_dodag(instance);
-        }
-        rpl_instance_trigger_parent_selection(instance, delay, dodag);
+
         if (rpl_instance_am_root(instance)) {
             rpl_downward_paths_invalidate(instance);
+        } else {
+            if (better) {
+                //Only react here for candidate updates and when DODAG version is configured
+                if (rpl_instance_address_is_candidate(instance, ll_parent_address, 0)) {
+                    dodag = rpl_instance_current_dodag(instance);
+                    if (dodag) {
+                        rpl_instance_trigger_parent_selection(instance, delay, dodag);
+                    }
+                }
+            } else if (rpl_instance_address_is_parent(instance, ll_parent_address)) {
+                //Quick reaction for selected parent only
+                rpl_instance_trigger_parent_selection(instance, delay, NULL);
+            }
         }
     }
 }
@@ -1884,6 +1899,11 @@ static void rpl_domain_print(const rpl_domain_t *domain, route_print_fn_t *print
         rpl_upward_print_instance(instance, print_fn);
         rpl_downward_print_instance(instance, print_fn);
     }
+}
+
+uint16_t rpl_control_route_table_get(struct rpl_instance *instance, uint8_t *prefix, rpl_route_info_t *output_table, uint16_t output_table_len)
+{
+    return rpl_downward_route_table_get(instance, prefix, output_table, output_table_len);
 }
 
 void rpl_control_print(route_print_fn_t *print_fn)

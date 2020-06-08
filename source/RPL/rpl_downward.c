@@ -1754,6 +1754,52 @@ void rpl_downward_print_instance(rpl_instance_t *instance, route_print_fn_t *pri
     }
 }
 
+uint16_t rpl_downward_route_table_get(rpl_instance_t *instance, uint8_t *prefix, rpl_route_info_t *output_table, uint16_t output_table_len)
+{
+    uint16_t index = 0;
+
+    if (!prefix || !output_table || !output_table_len) {
+        return 0;
+    }
+    if (ns_list_is_empty(&instance->dao_targets)) {
+        return 0;
+    }
+    if (!rpl_instance_am_root(instance)) {
+        // Question should this be available also for non roots in storing mode
+        return 0;
+    }
+
+#ifdef HAVE_RPL_ROOT
+    rpl_downward_compute_paths(instance);
+
+    ns_list_foreach(rpl_dao_target_t, target, &instance->dao_targets) {
+        if (memcmp(target->prefix, prefix, 8) != 0) {
+            continue;
+        }
+
+        if (target->root) {
+            /* Target has root structure
+             * We take the first transit only from table as simple topology is needed
+             */
+            rpl_dao_root_transit_t *transit = ns_list_get_first(&target->info.root.transits);
+            if (transit) {
+                memcpy(output_table->node, &target->prefix[8], 8);
+                memcpy(output_table->parent, &transit->transit[8], 8);
+
+                index++;
+                if (index == output_table_len) {
+                    //table is full
+                    return index;
+                }
+                output_table++;
+            }
+        }
+        /* We dont put non roots to list so border router is not visible as a node in list*/
+    }
+#endif
+    return index;
+}
+
 rpl_dao_target_t *rpl_instance_get_active_target_confirmation(rpl_instance_t *instance)
 {
     ns_list_foreach_safe(rpl_dao_target_t, n, &instance->dao_targets) {
