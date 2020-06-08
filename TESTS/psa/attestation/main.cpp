@@ -95,7 +95,7 @@ static void check_initial_attestation_get_token()
     uint32_t token_size;
 
     status = psa_crypto_init();
-    TEST_ASSERT_EQUAL(status, PSA_SUCCESS);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
     status = psa_attestation_inject_key(private_key_data,
                                         sizeof(private_key_data),
                                         PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_CURVE_SECP_R1),
@@ -103,21 +103,21 @@ static void check_initial_attestation_get_token()
                                         sizeof(exported),
                                         &exported_length);
 
-    TEST_ASSERT_EQUAL(status, PSA_SUCCESS);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
     TEST_ASSERT_EQUAL(sizeof(public_key_data), exported_length);
-    TEST_ASSERT_EQUAL(memcmp(public_key_data, exported, exported_length), 0);
+    TEST_ASSERT_EQUAL(0, memcmp(public_key_data, exported, exported_length));
 
     attest_err = psa_initial_attest_get_token_size(TEST_CHALLENGE_OBJ_SIZE,
                                                    &token_size);
 
-    TEST_ASSERT_EQUAL(attest_err, PSA_ATTEST_ERR_SUCCESS);
+    TEST_ASSERT_EQUAL(PSA_ATTEST_ERR_SUCCESS, attest_err);
 
     attest_err = psa_initial_attest_get_token(challenge_buffer,
                                               TEST_CHALLENGE_OBJ_SIZE,
                                               token_buffer,
                                               &token_size);
 
-    TEST_ASSERT_EQUAL(attest_err, PSA_ATTEST_ERR_SUCCESS);
+    TEST_ASSERT_EQUAL(PSA_ATTEST_ERR_SUCCESS, attest_err);
 }
 /***************************************************************************************/
 
