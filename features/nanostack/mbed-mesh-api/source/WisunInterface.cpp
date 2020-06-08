@@ -552,7 +552,7 @@ mesh_error_t WisunInterface::get_info(router_information_t *info_ptr)
     rpl_dodag_info_t dodag_ptr = {0};
     uint8_t global_address[16] = {0};
 
-    if(info_ptr == NULL) {
+    if (info_ptr == NULL) {
         return MESH_ERROR_PARAM;
     }
 
