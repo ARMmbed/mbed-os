@@ -182,7 +182,9 @@ static bool rf_rx_filter(uint8_t *mac_header, uint8_t *mac_64bit_addr, uint8_t *
 static void rf_cca_timer_start(uint32_t slots);
 
 static RFPins *rf;
+#ifdef TEST_GPIOS_ENABLED
 static TestPins_S2LP *test_pins;
+#endif
 static phy_device_driver_s device_driver;
 static int8_t rf_radio_driver_id = -1;
 static uint8_t *tx_data_ptr;
@@ -207,6 +209,7 @@ static uint8_t s2lp_short_address[2];
 static uint8_t s2lp_MAC[8];
 static rf_mode_e rf_mode = RF_MODE_NORMAL;
 static bool rf_update_config = false;
+static bool rf_update_cca_threshold = false;
 static uint16_t cur_packet_len = 0xffff;
 static uint32_t receiver_ready_timestamp;
 static int16_t rssi_threshold = RSSI_THRESHOLD;
@@ -704,6 +707,13 @@ static int8_t rf_extension(phy_extension_type_e extension_type, uint8_t *data_pt
                 rf_receive(rf_rx_channel);
             }
             break;
+        case PHY_EXTENSION_SET_CHANNEL_CCA_THRESHOLD:
+            if ((rssi_threshold != (int8_t)*data_ptr) && (rf_state != RF_RX_STARTED)) {
+                rssi_threshold = (int8_t)*data_ptr; // *NOPAD*
+                rf_update_cca_threshold = true;
+                rf_receive(rf_rx_channel);
+            }
+            break;
         default:
             break;
     }
@@ -752,9 +762,9 @@ static void rf_tx_sent_handler(void)
     TEST_TX_DONE
     rf_backup_timer_stop();
     rf_disable_interrupt(TX_DATA_SENT);
+    rf_update_tx_active_time();
     if (rf_state != RF_TX_ACK) {
         tx_finnish_time = rf_get_timestamp();
-        rf_update_tx_active_time();
         rf_state = RF_IDLE;
         rf_receive(rf_rx_channel);
         if (device_driver.phy_tx_done_cb) {
@@ -821,7 +831,6 @@ static void rf_cca_timer_interrupt(void)
         }
         rf_flush_tx_fifo();
         tx_finnish_time = rf_get_timestamp();
-        rf_update_tx_active_time();
         if (device_driver.phy_tx_done_cb) {
             device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_CCA_FAIL, 0, 0);
         }
@@ -955,7 +964,6 @@ static void rf_handle_ack(uint8_t seq_number, uint8_t pending)
     phy_link_tx_status_e phy_status;
     if (tx_sequence == (uint16_t)seq_number) {
         tx_finnish_time = rf_get_timestamp();
-        rf_update_tx_active_time();
         if (pending) {
             phy_status = PHY_LINK_TX_DONE_PENDING;
         } else {
@@ -1046,6 +1054,12 @@ static void rf_receive(uint8_t rx_channel)
         rf_channel_multiplier = 1;
         rf_update_config = false;
         rf_set_channel_configuration_registers();
+    }
+    if (rf_update_cca_threshold == true) {
+        rf_update_cca_threshold = false;
+        uint8_t rssi_th;
+        rf_conf_calculate_rssi_threshold_registers(rssi_threshold, &rssi_th);
+        rf_write_register(RSSI_TH, rssi_th);
     }
     if (rx_channel != rf_rx_channel) {
         rf_write_register(CHNUM, rx_channel * rf_channel_multiplier);
@@ -1280,7 +1294,9 @@ int8_t NanostackRfPhys2lp::rf_register()
     }
 
     rf = _rf;
+#ifdef TEST_GPIOS_ENABLED
     test_pins = _test_pins;
+#endif
 
     int8_t radio_id = rf_device_register(_mac_addr);
     if (radio_id < 0) {
@@ -1303,18 +1319,18 @@ void NanostackRfPhys2lp::rf_unregister()
 }
 
 NanostackRfPhys2lp::NanostackRfPhys2lp(PinName spi_sdi, PinName spi_sdo, PinName spi_sclk, PinName spi_cs, PinName spi_sdn
-                                       ,PinName spi_gpio0, PinName spi_gpio1, PinName spi_gpio2, PinName spi_gpio3
+                                       , PinName spi_gpio0, PinName spi_gpio1, PinName spi_gpio2, PinName spi_gpio3
 #ifdef AT24MAC
-                                       ,PinName i2c_sda, PinName i2c_scl
+                                       , PinName i2c_sda, PinName i2c_scl
 #endif //AT24MAC
-                                       )
+                                      )
     :
 #ifdef AT24MAC
-                    _mac(i2c_sda, i2c_scl),
+    _mac(i2c_sda, i2c_scl),
 #endif //AT24MAC
-                    _mac_addr(), _rf(NULL), _mac_set(false),
-      _spi_sdi(spi_sdi), _spi_sdo(spi_sdo), _spi_sclk(spi_sclk), _spi_cs(spi_cs), _spi_sdn(spi_sdn),
-      _spi_gpio0(spi_gpio0), _spi_gpio1(spi_gpio1), _spi_gpio2(spi_gpio2), _spi_gpio3(spi_gpio3)
+    _mac_addr(), _rf(NULL), _mac_set(false),
+    _spi_sdi(spi_sdi), _spi_sdo(spi_sdo), _spi_sclk(spi_sclk), _spi_cs(spi_cs), _spi_sdn(spi_sdn),
+    _spi_gpio0(spi_gpio0), _spi_gpio1(spi_gpio1), _spi_gpio2(spi_gpio2), _spi_gpio3(spi_gpio3)
 {
     _rf = new RFPins(_spi_sdi, _spi_sdo, _spi_sclk, _spi_cs, _spi_sdn, _spi_gpio0, _spi_gpio1, _spi_gpio2, _spi_gpio3);
 #ifdef TEST_GPIOS_ENABLED
@@ -1424,11 +1440,11 @@ static bool rf_rx_filter(uint8_t *mac_header, uint8_t *mac_64bit_addr, uint8_t *
 NanostackRfPhy &NanostackRfPhy::get_default_instance()
 {
     static NanostackRfPhys2lp rf_phy(S2LP_SPI_SDI, S2LP_SPI_SDO, S2LP_SPI_SCLK, S2LP_SPI_CS, S2LP_SPI_SDN
-                                     ,S2LP_SPI_GPIO0, S2LP_SPI_GPIO1, S2LP_SPI_GPIO2, S2LP_SPI_GPIO3
+                                     , S2LP_SPI_GPIO0, S2LP_SPI_GPIO1, S2LP_SPI_GPIO2, S2LP_SPI_GPIO3
 #ifdef AT24MAC
-                                     ,S2LP_I2C_SDA, S2LP_I2C_SCL
+                                     , S2LP_I2C_SDA, S2LP_I2C_SCL
 #endif //AT24MAC
-                                     );
+                                    );
     return rf_phy;
 }
 #endif // MBED_CONF_S2LP_PROVIDE_DEFAULT
