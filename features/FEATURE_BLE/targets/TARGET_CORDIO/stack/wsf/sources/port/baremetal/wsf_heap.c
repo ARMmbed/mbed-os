@@ -37,8 +37,6 @@
 
 extern uint8_t *SystemHeapStart;
 extern uint32_t SystemHeapSize;
-extern unsigned long __heap_end__;
-extern unsigned long __heap_start__;
 
 /*************************************************************************************************/
 /*!
@@ -89,9 +87,5 @@ uint32_t WsfHeapCountAvailable(void)
 /*************************************************************************************************/
 uint32_t WsfHeapCountUsed(void)
 {
-#ifdef __GNUC__
-  return ((uint8_t *)&__heap_end__ - (uint8_t *)&__heap_start__) - SystemHeapSize;
-#else
   return 0;
-#endif
 }
