@@ -114,6 +114,19 @@ void WsfTimerUpdate(wsfTimerTicks_t ticks);
 
 /*************************************************************************************************/
 /*!
+ *  \brief  Return the number of ticks until the next timer expiration.  Note that this
+ *          function can return zero even if a timer is running, indicating the timer
+ *          has expired but has not yet been serviced.
+ *
+ *  \param  pTimerRunning   Returns TRUE if a timer is running, FALSE if no timers running.
+ *
+ *  \return The number of ticks until the next timer expiration.
+ */
+/*************************************************************************************************/
+wsfTimerTicks_t WsfTimerNextExpiration(bool_t *pTimerRunning);
+
+/*************************************************************************************************/
+/*!
  *  \brief  Service expired timers for the given task.  This function is typically called only
  *          WSF OS porting code.
  *
