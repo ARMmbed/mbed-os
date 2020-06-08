@@ -115,6 +115,7 @@ void MCR20Drv_Init
     xcvr_spi_configure_speed(gXcvrSpiInstance_c, 8000000);
 
     gXcvrDeassertCS_d();
+    MCR20Drv_RST_B_Deassert();
     RF_IRQ_Init();
     RF_IRQ_Disable();
     mPhyIrqDisableCnt = 1;
