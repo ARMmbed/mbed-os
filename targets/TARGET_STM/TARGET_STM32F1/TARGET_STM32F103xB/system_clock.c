@@ -96,6 +96,11 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_PeriphCLKInitTypeDef RCC_PeriphCLKInit;
 #endif /* DEVICE_USBDEVICE */
 
+    // Select HSI as system clock source to allow modification of the PLL configuration
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_SYSCLK;
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+    HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0);
+
     /* Enable HSE oscillator and activate PLL with HSE as source */
     RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSE;
     if (bypass == 0) {
