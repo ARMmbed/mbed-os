@@ -22,6 +22,8 @@
  */
 /*************************************************************************************************/
 
+#if defined(SEC_ECC_CFG)
+
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
@@ -34,10 +36,6 @@
 #include "wsf_buf.h"
 #include "hci_api.h"
 #include "util/calc128.h"
-
-#ifndef SEC_ECC_CFG
-#define SEC_ECC_CFG SEC_ECC_CFG_DEBUG
-#endif
 
 #if SEC_ECC_CFG == SEC_ECC_CFG_DEBUG
 
@@ -158,3 +156,4 @@ void SecEccInit()
 }
 
 #endif /* SEC_ECC_CFG */
+#endif /* defined(SEC_ECC_CFG) */
