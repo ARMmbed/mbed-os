@@ -2767,7 +2767,7 @@ static void USART_SetConfig(USART_HandleTypeDef *husart)
   CLEAR_BIT(husart->Instance->CR3, (USART_CR3_RTSE | USART_CR3_CTSE));
 
   /*-------------------------- USART BRR Configuration -----------------------*/
-  if((husart->Instance == USART1))
+  if (husart->Instance == USART1)
   {
     pclk = HAL_RCC_GetPCLK2Freq();
     husart->Instance->BRR = USART_BRR(pclk, husart->Init.BaudRate);
