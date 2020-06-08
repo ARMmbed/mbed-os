@@ -2811,7 +2811,7 @@
         "device_name": "STM32H743ZI",
         "bootloader_supported": true
     },
-    "MCU_STM32H745I": {
+    "MCU_STM32H745xI": {
         "inherits": [
             "MCU_STM32"
         ],
@@ -2850,9 +2850,12 @@
         "bootloader_supported": true,
         "public": false
     },
-    "MCU_STM32H745I_CM4": {
+    "MCU_STM32H745xI_CM4": {
         "inherits": [
-            "MCU_STM32H745I"
+            "MCU_STM32H745xI"
+        ],
+        "extra_labels_add": [
+            "STM32H745xI_CM4"
         ],
         "core": "Cortex-M4F",
         "mbed_rom_start": "0x08100000",
@@ -2864,17 +2867,12 @@
         ],
         "public": false
     },
-    "GENERIC_H745I_CM4": {
+    "MCU_STM32H745xI_CM7": {
         "inherits": [
-            "MCU_STM32H745I_CM4"
+            "MCU_STM32H745xI"
         ],
         "extra_labels_add": [
-            "GENERIC_H745I"
-        ]
-    },
-    "MCU_STM32H745I_CM7": {
-        "inherits": [
-            "MCU_STM32H745I"
+            "STM32H745xI_CM7"
         ],
         "core": "Cortex-M7FD",
         "mbed_rom_start": "0x08000000",
@@ -2885,14 +2883,6 @@
             "CORE_CM7"
         ],
         "public": false
-    },
-    "GENERIC_H745I_CM7": {
-        "inherits": [
-            "MCU_STM32H745I_CM7"
-        ],
-        "extra_labels_add": [
-            "GENERIC_H745I"
-        ]
     },
     "MCU_STM32H747xI": {
         "inherits": [
