@@ -65,13 +65,17 @@ l2cCfg_t *pL2cCfg = (l2cCfg_t *) &l2cCfg;
   ATT
 **************************************************************************************************/
 
+#if MBED_CONF_CORDIO_DESIRED_ATT_MTU < ATT_DEFAULT_MTU || MBED_CONF_CORDIO_DESIRED_ATT_MTU > ATT_MAX_MTU
+#error "CORDIO_CFG_DESIRED_ATT_MTU value is outside valid range"
+#endif
+
 /* Configuration structure */
-const attCfg_t attCfg =
+attCfg_t attCfg =
 {
-  15,                               /* ATT server service discovery connection idle timeout in seconds */
-  ATT_DEFAULT_MTU,                  /* desired ATT MTU */
-  ATT_MAX_TRANS_TIMEOUT,            /* transcation timeout in seconds */
-  4                                 /* number of queued prepare writes supported by server */
+  15,                                  /* ATT server service discovery connection idle timeout in seconds */
+  MBED_CONF_CORDIO_DESIRED_ATT_MTU,    /* desired ATT MTU */
+  ATT_MAX_TRANS_TIMEOUT,               /* transaction timeout in seconds */
+  MBED_CONF_CORDIO_MAX_PREPARED_WRITES /* number of queued prepare writes supported by server */
 };
 
 /* Configuration pointer */
@@ -104,7 +108,7 @@ WSF_CT_ASSERT(EATT_CONN_CHAN_MAX <= L2C_COC_CHAN_MAX);
 **************************************************************************************************/
 
 /* Configuration structure */
-const smpCfg_t smpCfg =
+smpCfg_t smpCfg =
 {
   500,                              /* 'Repeated attempts' timeout in msec */
   SMP_IO_NO_IN_NO_OUT,              /* I/O Capability */

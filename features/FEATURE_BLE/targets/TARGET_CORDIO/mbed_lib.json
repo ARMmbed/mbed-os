@@ -1,6 +1,6 @@
 {
     "name": "cordio",
-    "macros": [ "WSF_MS_PER_TICK=1" ],
+    "macros": ["WSF_MS_PER_TICK=1"],
     "config": {
         "max-connections": {
             "help": "Maximum number of connections",
@@ -71,6 +71,11 @@
         "preferred-tx-power": {
             "help": "Preferred value of tx power in dbm (-128,127). This value is not guaranteed and relies on existing support in the HCI driver.",
             "value": 0
+        },
+        "max-eatt-channels": {
+            "help": "Maximum number of EATT channels per DM connection.",
+            "value": 1,
+            "macro_name": "EATT_CONN_CHAN_MAX"
         }
     }
 }
