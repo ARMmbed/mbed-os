@@ -56,8 +56,8 @@ sec_prot_keys_t *sec_prot_keys_create(sec_prot_gtk_keys_t *gtks, const sec_prot_
 void sec_prot_keys_init(sec_prot_keys_t *sec_keys, sec_prot_gtk_keys_t *gtks, const sec_prot_certs_t *certs)
 {
     memset(sec_keys, 0, sizeof(sec_prot_keys_t));
-    sec_keys->pmk_lifetime = PMK_LIFETIME_INSTALL;
-    sec_keys->ptk_lifetime = PTK_LIFETIME_INSTALL;
+    sec_keys->pmk_lifetime = 0;
+    sec_keys->ptk_lifetime = 0;
     sec_keys->pmk_key_replay_cnt = 0;
     sec_keys->gtks = gtks;
     sec_keys->certs = certs;
@@ -101,12 +101,12 @@ void sec_prot_keys_gtks_delete(sec_prot_gtk_keys_t *gtks)
     ns_dyn_mem_free(gtks);
 }
 
-void sec_prot_keys_pmk_write(sec_prot_keys_t *sec_keys, uint8_t *pmk)
+void sec_prot_keys_pmk_write(sec_prot_keys_t *sec_keys, uint8_t *pmk, uint32_t pmk_lifetime)
 {
     memcpy(sec_keys->pmk, pmk, PMK_LEN);
     sec_keys->pmk_key_replay_cnt = 0;
     sec_keys->pmk_key_replay_cnt_set = false;
-    sec_keys->pmk_lifetime = PMK_LIFETIME_INSTALL;
+    sec_keys->pmk_lifetime = pmk_lifetime;
     sec_keys->pmk_set = true;
     sec_keys->updated = true;
 }
@@ -116,7 +116,7 @@ void sec_prot_keys_pmk_delete(sec_prot_keys_t *sec_keys)
     memset(sec_keys->pmk, 0, PMK_LEN);
     sec_keys->pmk_key_replay_cnt = 0;
     sec_keys->pmk_key_replay_cnt_set = false;
-    sec_keys->pmk_lifetime = PMK_LIFETIME_INSTALL;
+    sec_keys->pmk_lifetime = 0;
     sec_keys->pmk_set = false;
     sec_keys->updated = true;
 }
@@ -128,6 +128,15 @@ uint8_t *sec_prot_keys_pmk_get(sec_prot_keys_t *sec_keys)
     }
 
     return sec_keys->pmk;
+}
+
+uint32_t sec_prot_keys_pmk_lifetime_get(sec_prot_keys_t *sec_keys)
+{
+    if (!sec_keys->pmk_set) {
+        return 0;
+    }
+
+    return sec_keys->pmk_lifetime;
 }
 
 uint64_t sec_prot_keys_pmk_replay_cnt_get(sec_prot_keys_t *sec_keys)
@@ -184,14 +193,10 @@ bool sec_prot_keys_pmk_mismatch_is_set(sec_prot_keys_t *sec_keys)
     return sec_keys->pmk_mismatch;
 }
 
-bool sec_prot_keys_pmk_lifetime_decrement(sec_prot_keys_t *sec_keys, uint32_t default_lifetime, uint8_t seconds)
+bool sec_prot_keys_pmk_lifetime_decrement(sec_prot_keys_t *sec_keys, uint8_t seconds)
 {
     if (!sec_keys->pmk_set) {
         return false;
-    }
-
-    if (sec_keys->pmk_lifetime == PMK_LIFETIME_INSTALL) {
-        sec_keys->pmk_lifetime = default_lifetime;
     }
 
     if (sec_keys->pmk_lifetime > seconds) {
@@ -207,10 +212,10 @@ bool sec_prot_keys_pmk_lifetime_decrement(sec_prot_keys_t *sec_keys, uint32_t de
     return false;
 }
 
-void sec_prot_keys_ptk_write(sec_prot_keys_t *sec_keys, uint8_t *ptk)
+void sec_prot_keys_ptk_write(sec_prot_keys_t *sec_keys, uint8_t *ptk, uint32_t ptk_lifetime)
 {
     memcpy(sec_keys->ptk, ptk, PTK_LEN);
-    sec_keys->ptk_lifetime = PTK_LIFETIME_INSTALL;
+    sec_keys->ptk_lifetime = ptk_lifetime;
     sec_keys->ptk_set = true;
     sec_keys->updated = true;
 }
@@ -218,7 +223,7 @@ void sec_prot_keys_ptk_write(sec_prot_keys_t *sec_keys, uint8_t *ptk)
 void sec_prot_keys_ptk_delete(sec_prot_keys_t *sec_keys)
 {
     memset(sec_keys->ptk, 0, PTK_LEN);
-    sec_keys->ptk_lifetime = PTK_LIFETIME_INSTALL;
+    sec_keys->ptk_lifetime = 0;
     sec_keys->ptk_set = false;
     sec_keys->updated = true;
 }
@@ -230,6 +235,15 @@ uint8_t *sec_prot_keys_ptk_get(sec_prot_keys_t *sec_keys)
     }
 
     return sec_keys->ptk;
+}
+
+uint32_t sec_prot_keys_ptk_lifetime_get(sec_prot_keys_t *sec_keys)
+{
+    if (!sec_keys->ptk_set) {
+        return 0;
+    }
+
+    return sec_keys->ptk_lifetime;
 }
 
 void sec_prot_keys_ptk_mismatch_set(sec_prot_keys_t *sec_keys)
@@ -270,14 +284,10 @@ void sec_prot_keys_ptk_eui_64_delete(sec_prot_keys_t *sec_keys)
     sec_keys->updated = true;
 }
 
-bool sec_prot_keys_ptk_lifetime_decrement(sec_prot_keys_t *sec_keys, uint32_t default_lifetime, uint8_t seconds)
+bool sec_prot_keys_ptk_lifetime_decrement(sec_prot_keys_t *sec_keys, uint8_t seconds)
 {
     if (!sec_keys->ptk_set) {
         return false;
-    }
-
-    if (sec_keys->ptk_lifetime == PTK_LIFETIME_INSTALL) {
-        sec_keys->ptk_lifetime = default_lifetime;
     }
 
     if (sec_keys->ptk_lifetime > seconds) {
@@ -913,7 +923,7 @@ uint8_t sec_prot_keys_gtk_count(sec_prot_gtk_keys_t *gtks)
 void sec_prot_keys_ptk_installed_gtk_hash_clear_all(sec_prot_keys_t *sec_keys)
 {
     for (uint8_t index = 0; index < GTK_NUM; index++) {
-        memset(sec_keys->ins_gtk_hash[sec_keys->gtk_set_index].hash, 0, INS_GTK_HASH_LEN);
+        memset(sec_keys->ins_gtk_hash[index].hash, 0, INS_GTK_HASH_LEN);
     }
     sec_keys->ins_gtk_hash_set = 0;
     sec_keys->ins_gtk_4wh_hash_set = 0;

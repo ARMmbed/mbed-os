@@ -82,6 +82,7 @@ static int8_t ws_cfg_to_get(ws_cfgs_t **cfg, ws_cfgs_t *new_cfg, ws_cfg_validate
 static void ws_cfg_network_size_config_set_small(ws_cfg_nw_size_t *cfg);
 static void ws_cfg_network_size_config_set_medium(ws_cfg_nw_size_t *cfg);
 static void ws_cfg_network_size_config_set_large(ws_cfg_nw_size_t *cfg);
+static void ws_cfg_network_size_config_set_xlarge(ws_cfg_nw_size_t *cfg);
 static void ws_cfg_network_size_config_set_certificate(ws_cfg_nw_size_t *cfg);
 static int8_t ws_cfg_network_size_default_set(ws_gen_cfg_t *cfg);
 static int8_t ws_cfg_gen_default_set(ws_gen_cfg_t *cfg);
@@ -261,8 +262,10 @@ int8_t ws_cfg_network_size_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_
         set_function = ws_cfg_network_size_config_set_small;
     } else if (cfg->network_size <=  NETWORK_SIZE_MEDIUM) {
         set_function = ws_cfg_network_size_config_set_medium;
-    } else {
+    } else if (cfg->network_size <=  NETWORK_SIZE_LARGE) {
         set_function = ws_cfg_network_size_config_set_large;
+    } else {
+        set_function = ws_cfg_network_size_config_set_xlarge;
     }
 
     // Overrides the values on the new configuration
@@ -334,9 +337,12 @@ int8_t ws_cfg_network_size_configure(protocol_interface_info_entry_t *cur, uint1
     } else if (network_size < 800) {
         // Medium
         ws_cfg_network_size_config_set_medium(&new_nw_size_cfg);
+    } else if (network_size < 1500) {
+        // Medium
+        ws_cfg_network_size_config_set_large(&new_nw_size_cfg);
     } else {
         // Large
-        ws_cfg_network_size_config_set_large(&new_nw_size_cfg);
+        ws_cfg_network_size_config_set_xlarge(&new_nw_size_cfg);
     }
 
     ws_cfg_gen_set(cur, NULL, &new_nw_size_cfg.gen, &flags);
@@ -374,7 +380,13 @@ static void ws_cfg_network_size_config_set_small(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.sec_prot_trickle_imax = SEC_PROT_SMALL_IMAX;
     cfg->sec_prot.sec_prot_trickle_timer_exp = SEC_PROT_TIMER_EXPIRATIONS;
     cfg->sec_prot.sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_SMALL;
-    cfg->sec_prot.sec_max_ongoing_authentication = MAX_SIMULTANEOUS_EAP_TLS_NEGOTIATIONS_SMALL;
+
+    cfg->sec_prot.sec_max_ongoing_authentication = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_SMALL;
+
+    cfg->sec_prot.initial_key_retry_delay = DEFAULT_INITIAL_KEY_RETRY_TIMER;
+    cfg->sec_prot.initial_key_imin = SMALL_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
+    cfg->sec_prot.initial_key_imax = SMALL_NW_INITIAL_KEY_TRICKLE_IMAX_SECS;
+    cfg->sec_prot.initial_key_retry_cnt = DEFAULT_INITIAL_KEY_RETRY_COUNT;
 }
 
 static void ws_cfg_network_size_config_set_medium(ws_cfg_nw_size_t *cfg)
@@ -384,16 +396,16 @@ static void ws_cfg_network_size_config_set_medium(ws_cfg_nw_size_t *cfg)
     cfg->gen.rpl_selected_parent_max = WS_RPL_SELECTED_PARENT_MAX;
 
     // Configure the Wi-SUN timing trickle parameters
-    cfg->timing.disc_trickle_imin = TRICKLE_IMIN_30_SECS;       // 30 seconds
-    cfg->timing.disc_trickle_imax = TRICKLE_IMIN_30_SECS << 5;  // 960 seconds; 16 minutes
+    cfg->timing.disc_trickle_imin = TRICKLE_IMIN_60_SECS;       // 60 seconds
+    cfg->timing.disc_trickle_imax = TRICKLE_IMIN_60_SECS << 4;      // 960 seconds; 16 minutes
     cfg->timing.disc_trickle_k = 1;
     cfg->timing.pan_timeout = PAN_VERSION_MEDIUM_NETWORK_TIMEOUT;
     cfg->timing.temp_link_min_timeout = WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_SMALL;
     cfg->timing.temp_eapol_min_timeout = WS_EAPOL_TEMPORARY_ENTRY_MEDIUM_TIMEOUT;
 
     // RPL configuration
-    cfg->bbr.dio_interval_min = WS_RPL_DIO_IMIN_MEDIUM;              // 15; 32s
-    cfg->bbr.dio_interval_doublings = WS_RPL_DIO_DOUBLING_MEDIUM;    // 2; 1024s
+    cfg->bbr.dio_interval_min = WS_RPL_DIO_IMIN_MEDIUM;              // 17; 128s
+    cfg->bbr.dio_interval_doublings = WS_RPL_DIO_DOUBLING_MEDIUM;    // 3; 1024s
     cfg->bbr.dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY_MEDIUM; // 10
     cfg->bbr.dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE;
     cfg->bbr.min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE;
@@ -404,7 +416,13 @@ static void ws_cfg_network_size_config_set_medium(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.sec_prot_trickle_imax = SEC_PROT_SMALL_IMAX;
     cfg->sec_prot.sec_prot_trickle_timer_exp = SEC_PROT_TIMER_EXPIRATIONS;
     cfg->sec_prot.sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_SMALL;
-    cfg->sec_prot.sec_max_ongoing_authentication = MAX_SIMULTANEOUS_EAP_TLS_NEGOTIATIONS_MEDIUM;
+
+    cfg->sec_prot.sec_max_ongoing_authentication = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_MEDIUM;
+
+    cfg->sec_prot.initial_key_retry_delay = DEFAULT_INITIAL_KEY_RETRY_TIMER;
+    cfg->sec_prot.initial_key_imin = MEDIUM_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
+    cfg->sec_prot.initial_key_imax = MEDIUM_NW_INITIAL_KEY_TRICKLE_IMAX_SECS;
+    cfg->sec_prot.initial_key_retry_cnt = DEFAULT_INITIAL_KEY_RETRY_COUNT;
 }
 
 static void ws_cfg_network_size_config_set_large(ws_cfg_nw_size_t *cfg)
@@ -414,16 +432,16 @@ static void ws_cfg_network_size_config_set_large(ws_cfg_nw_size_t *cfg)
     cfg->gen.rpl_selected_parent_max = WS_RPL_SELECTED_PARENT_MAX;
 
     // Configure the Wi-SUN timing trickle parameters
-    cfg->timing.disc_trickle_imin = TRICKLE_IMIN_60_SECS;       // 60 seconds
-    cfg->timing.disc_trickle_imax = TRICKLE_IMIN_60_SECS << 4;  // 960 seconds; 16 minutes
+    cfg->timing.disc_trickle_imin = TRICKLE_IMIN_60_SECS << 2;       // 240 seconds
+    cfg->timing.disc_trickle_imax = 1536;      // 1536 seconds; 25 minutes
     cfg->timing.disc_trickle_k = 1;
     cfg->timing.pan_timeout = PAN_VERSION_LARGE_NETWORK_TIMEOUT;
     cfg->timing.temp_link_min_timeout = WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_LARGE;
     cfg->timing.temp_eapol_min_timeout = WS_EAPOL_TEMPORARY_ENTRY_LARGE_TIMEOUT;
 
     // RPL configuration
-    cfg->bbr.dio_interval_min = WS_RPL_DIO_IMIN_LARGE;               // 19; 524s, 9min
-    cfg->bbr.dio_interval_doublings = WS_RPL_DIO_DOUBLING_LARGE;     // 1; 1024s, 17min
+    cfg->bbr.dio_interval_min = WS_RPL_DIO_IMIN_LARGE;               // 18; 262s, 4.5min
+    cfg->bbr.dio_interval_doublings = WS_RPL_DIO_DOUBLING_LARGE;     // 3; 2048s, 34min
     cfg->bbr.dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY_LARGE;  // 10
     cfg->bbr.dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE;
     cfg->bbr.min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE;
@@ -434,7 +452,49 @@ static void ws_cfg_network_size_config_set_large(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.sec_prot_trickle_imax = SEC_PROT_LARGE_IMAX;
     cfg->sec_prot.sec_prot_trickle_timer_exp = SEC_PROT_TIMER_EXPIRATIONS;
     cfg->sec_prot.sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_LARGE;
-    cfg->sec_prot.sec_max_ongoing_authentication = MAX_SIMULTANEOUS_EAP_TLS_NEGOTIATIONS_LARGE;
+
+    cfg->sec_prot.sec_max_ongoing_authentication = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_LARGE;
+
+    cfg->sec_prot.initial_key_retry_delay = NONE_INITIAL_KEY_RETRY_TIMER;
+    cfg->sec_prot.initial_key_imin = LARGE_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
+    cfg->sec_prot.initial_key_imax = LARGE_NW_INITIAL_KEY_TRICKLE_IMAX_SECS;
+    cfg->sec_prot.initial_key_retry_cnt = LARGE_NW_INITIAL_KEY_RETRY_COUNT;
+}
+
+static void ws_cfg_network_size_config_set_xlarge(ws_cfg_nw_size_t *cfg)
+{
+    // Configure the Wi-SUN parent configuration
+    cfg->gen.rpl_parent_candidate_max = WS_RPL_PARENT_CANDIDATE_MAX;
+    cfg->gen.rpl_selected_parent_max = WS_RPL_SELECTED_PARENT_MAX;
+
+    // Configure the Wi-SUN timing trickle parameters
+    cfg->timing.disc_trickle_imin = TRICKLE_IMIN_60_SECS << 2;       // 240 seconds
+    cfg->timing.disc_trickle_imax = 1920;      // 1920 seconds; 32 minutes
+    cfg->timing.disc_trickle_k = 1;
+    cfg->timing.pan_timeout = PAN_VERSION_XLARGE_NETWORK_TIMEOUT;
+    cfg->timing.temp_link_min_timeout = WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_LARGE;
+    cfg->timing.temp_eapol_min_timeout = WS_EAPOL_TEMPORARY_ENTRY_LARGE_TIMEOUT;
+
+    // RPL configuration
+    cfg->bbr.dio_interval_min = WS_RPL_DIO_IMIN_XLARGE;               // 18; 262s, 4.5min
+    cfg->bbr.dio_interval_doublings = WS_RPL_DIO_DOUBLING_XLARGE;     // 4; 2048s, 34min
+    cfg->bbr.dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY_XLARGE;  // 10
+    cfg->bbr.dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE;
+    cfg->bbr.min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE;
+    cfg->bbr.dhcp_address_lifetime = WS_DHCP_ADDRESS_LIFETIME_LARGE;
+
+    // EAPOL configuration
+    cfg->sec_prot.sec_prot_trickle_imin = SEC_PROT_LARGE_IMIN;
+    cfg->sec_prot.sec_prot_trickle_imax = SEC_PROT_LARGE_IMAX;
+    cfg->sec_prot.sec_prot_trickle_timer_exp = SEC_PROT_TIMER_EXPIRATIONS;
+    cfg->sec_prot.sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_LARGE;
+
+    cfg->sec_prot.sec_max_ongoing_authentication = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_LARGE;
+
+    cfg->sec_prot.initial_key_retry_delay = NONE_INITIAL_KEY_RETRY_TIMER;
+    cfg->sec_prot.initial_key_imin = EXTRA_LARGE_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
+    cfg->sec_prot.initial_key_imax = EXTRA_LARGE_NW_INITIAL_KEY_TRICKLE_IMAX_SECS;
+    cfg->sec_prot.initial_key_retry_cnt = EXTRA_LARGE_NW_INITIAL_KEY_RETRY_COUNT;
 }
 
 static void ws_cfg_network_size_config_set_certificate(ws_cfg_nw_size_t *cfg)
@@ -464,7 +524,13 @@ static void ws_cfg_network_size_config_set_certificate(ws_cfg_nw_size_t *cfg)
     cfg->sec_prot.sec_prot_trickle_imax = SEC_PROT_SMALL_IMAX;
     cfg->sec_prot.sec_prot_trickle_timer_exp = SEC_PROT_TIMER_EXPIRATIONS;
     cfg->sec_prot.sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_SMALL;
-    cfg->sec_prot.sec_max_ongoing_authentication = MAX_SIMULTANEOUS_EAP_TLS_NEGOTIATIONS_SMALL;
+
+    cfg->sec_prot.sec_max_ongoing_authentication = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_SMALL;
+
+    cfg->sec_prot.initial_key_retry_delay = DEFAULT_INITIAL_KEY_RETRY_TIMER;
+    cfg->sec_prot.initial_key_imin = SMALL_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
+    cfg->sec_prot.initial_key_imax = SMALL_NW_INITIAL_KEY_TRICKLE_IMAX_SECS;
+    cfg->sec_prot.initial_key_retry_cnt = DEFAULT_INITIAL_KEY_RETRY_COUNT;
 }
 
 static int8_t ws_cfg_gen_default_set(ws_gen_cfg_t *cfg)
@@ -617,8 +683,8 @@ int8_t ws_cfg_phy_set(protocol_interface_info_entry_t *cur, ws_phy_cfg_t *cfg, w
 static int8_t ws_cfg_timing_default_set(ws_timing_cfg_t *cfg)
 {
     // Configure the Wi-SUN timing trickle parameters
-    cfg->disc_trickle_imin = TRICKLE_IMIN_30_SECS;       // 30 seconds
-    cfg->disc_trickle_imax = TRICKLE_IMIN_30_SECS << 5;  // 960 seconds; 16 minutes
+    cfg->disc_trickle_imin = TRICKLE_IMIN_60_SECS;       // 60 seconds
+    cfg->disc_trickle_imax = TRICKLE_IMIN_60_SECS << 4;  // 960 seconds; 16 minutes
     cfg->disc_trickle_k = 1;
     cfg->pan_timeout = PAN_VERSION_MEDIUM_NETWORK_TIMEOUT;
     cfg->temp_link_min_timeout = WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT_SMALL;
@@ -695,13 +761,13 @@ int8_t ws_cfg_timing_set(protocol_interface_info_entry_t *cur, ws_timing_cfg_t *
 static int8_t ws_cfg_bbr_default_set(ws_bbr_cfg_t *cfg)
 {
     // Something in between
-    // imin: 15 (32s)
-    // doublings:5 (960s)
+    // imin: 17 (128s)
+    // doublings:3 (1024s)
     // redundancy; 10
-    //ws_bbr_rpl_config(cur, 15, 5, 10, WS_RPL_MAX_HOP_RANK_INCREASE, WS_RPL_MIN_HOP_RANK_INCREASE);
+    //ws_bbr_rpl_config(cur, 17, 3, 10, WS_RPL_MAX_HOP_RANK_INCREASE, WS_RPL_MIN_HOP_RANK_INCREASE);
 
-    cfg->dio_interval_min = 15;        // 32s
-    cfg->dio_interval_doublings = 5;   // 1024s
+    cfg->dio_interval_min = WS_RPL_DIO_IMIN_MEDIUM;           // 128s
+    cfg->dio_interval_doublings = WS_RPL_DIO_DOUBLING_MEDIUM; // 1024s
     cfg->dio_redundancy_constant = 10;
     cfg->dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE;
     cfg->min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE;
@@ -1011,7 +1077,12 @@ static int8_t ws_cfg_sec_prot_default_set(ws_sec_prot_cfg_t *cfg)
     cfg->sec_prot_trickle_imax = SEC_PROT_SMALL_IMAX;
     cfg->sec_prot_trickle_timer_exp = 2;
     cfg->sec_prot_retry_timeout = SEC_PROT_RETRY_TIMEOUT_SMALL;
-    cfg->sec_max_ongoing_authentication = MAX_SIMULTANEOUS_EAP_TLS_NEGOTIATIONS_MEDIUM;
+    cfg->sec_max_ongoing_authentication = MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_MEDIUM;
+    cfg->initial_key_retry_delay = DEFAULT_INITIAL_KEY_RETRY_TIMER;
+    cfg->initial_key_imin = MEDIUM_NW_INITIAL_KEY_TRICKLE_IMIN_SECS;
+    cfg->initial_key_imax = MEDIUM_NW_INITIAL_KEY_TRICKLE_IMAX_SECS;
+    cfg->initial_key_retry_cnt = DEFAULT_INITIAL_KEY_RETRY_COUNT;
+
     return CFG_SETTINGS_OK;
 }
 
@@ -1032,7 +1103,11 @@ int8_t ws_cfg_sec_prot_validate(ws_sec_prot_cfg_t *cfg, ws_sec_prot_cfg_t *new_c
             cfg->sec_prot_trickle_imax != new_cfg->sec_prot_trickle_imax ||
             cfg->sec_prot_trickle_timer_exp != new_cfg->sec_prot_trickle_timer_exp ||
             cfg->sec_prot_retry_timeout != new_cfg->sec_prot_retry_timeout ||
-            cfg->sec_max_ongoing_authentication != new_cfg->sec_max_ongoing_authentication) {
+            cfg->sec_max_ongoing_authentication != new_cfg->sec_max_ongoing_authentication ||
+            cfg->initial_key_retry_delay != new_cfg->initial_key_retry_delay ||
+            cfg->initial_key_imin != new_cfg->initial_key_retry_delay ||
+            cfg->initial_key_imax != new_cfg->initial_key_retry_delay ||
+            cfg->initial_key_retry_cnt != new_cfg->initial_key_retry_delay) {
 
         return CFG_SETTINGS_CHANGED;
     }

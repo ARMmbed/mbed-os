@@ -113,7 +113,7 @@ typedef struct ws_info_s {
 
 #ifdef HAVE_WS
 
-int8_t ws_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain);
+int8_t ws_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain, uint8_t operating_class);
 
 uint32_t ws_decode_channel_spacing(uint8_t channel_spacing);
 

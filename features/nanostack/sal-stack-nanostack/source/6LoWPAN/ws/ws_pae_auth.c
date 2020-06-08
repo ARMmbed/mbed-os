@@ -59,19 +59,18 @@
 #define PAE_TASKLET_EVENT                      2
 #define PAE_TASKLET_TIMER                      3
 
-// Wait for for supplicant to indicate activity (e.g. to send a message)
-#define WAIT_FOR_AUTHENTICATION_TICKS          5 * 60 * 10  // 5 minutes
-
+/* Wait for supplicant to indicate activity (e.g. to send a message) when
+   authentication is ongoing */
+#define WAIT_FOR_AUTHENTICATION_TICKS          2 * 60 * 10  // 2 minutes
+// Wait after authentication has completed before supplicant entry goes inactive
+#define WAIT_AFTER_AUTHENTICATION_TICKS        15 * 10      // 15 seconds
 
 /* If EAP-TLS is delayed due to simultaneous negotiations limit, defines how
    long to wait for previous negotiation to complete */
 #define EAP_TLS_NEGOTIATION_TRIGGER_TIMEOUT    60 * 10 // 60 seconds
 
 // Default for maximum number of supplicants
-#define SUPPLICANT_MAX_NUMBER                  1000
-
-// Default for maximum number of active supplicants (making security negotiations)
-#define ACTIVE_SUPPLICANT_MAX_NUMBER           100
+#define SUPPLICANT_MAX_NUMBER                  5000
 
 /* Default for number of supplicants to purge per garbage collect call from
    nanostack monitor */
@@ -99,7 +98,6 @@ typedef struct {
     sec_timer_cfg_t *sec_timer_cfg;                          /**< Timer configuration */
     sec_prot_cfg_t *sec_prot_cfg;                            /**< Protocol Configuration */
     uint16_t supp_max_number;                                /**< Max number of stored supplicants */
-    uint16_t slow_timer_seconds;                             /**< Slow timer seconds */
     bool timer_running : 1;                                  /**< Timer is running */
     bool gtk_new_inst_req_exp : 1;                           /**< GTK new install required timer expired */
     bool gtk_new_act_time_exp: 1;                            /**< GTK new activation time expired */
@@ -128,7 +126,7 @@ static void ws_pae_auth_kmp_api_create_indication(kmp_api_t *kmp, kmp_type_e typ
 static void ws_pae_auth_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e result, kmp_sec_keys_t *sec_keys);
 static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *supp_entry);
 static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry_t *supp_entry);
-static kmp_api_t *ws_pae_auth_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, supp_entry_t *supp_entry, sec_prot_cfg_t *cfg);
+static kmp_api_t *ws_pae_auth_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, supp_entry_t *supp_entry, sec_prot_cfg_t *prot_cfg, sec_timer_cfg_t *timer_cfg);
 static void ws_pae_auth_kmp_api_finished(kmp_api_t *kmp);
 
 static int8_t tasklet_id = -1;
@@ -168,7 +166,6 @@ int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot
     pae_auth->sec_prot_cfg = sec_prot_cfg;
     pae_auth->supp_max_number = SUPPLICANT_MAX_NUMBER;
 
-    pae_auth->slow_timer_seconds = 0;
     pae_auth->gtk_new_inst_req_exp = false;
     pae_auth->gtk_new_act_time_exp = false;
 
@@ -709,11 +706,7 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
             }
         }
 
-        pae_auth->slow_timer_seconds += seconds;
-        if (pae_auth->slow_timer_seconds > 60) {
-            ws_pae_lib_supp_list_slow_timer_update(&pae_auth->active_supp_list, pae_auth->sec_timer_cfg, pae_auth->slow_timer_seconds);
-            pae_auth->slow_timer_seconds = 0;
-        }
+        ws_pae_lib_supp_list_slow_timer_update(&pae_auth->active_supp_list, seconds);
     }
 
     // Update key storage timer
@@ -871,7 +864,7 @@ static kmp_api_t *ws_pae_auth_kmp_incoming_ind(kmp_service_t *service, kmp_type_
 
     if (!supp_entry) {
         // Checks if active supplicant list has space for new supplicants
-        if (ws_pae_lib_supp_list_active_limit_reached(&pae_auth->active_supp_list, ACTIVE_SUPPLICANT_MAX_NUMBER)) {
+        if (ws_pae_lib_supp_list_active_limit_reached(&pae_auth->active_supp_list, pae_auth->sec_prot_cfg->sec_max_ongoing_authentication)) {
             tr_debug("PAE: active limit reached, eui-64: %s", trace_array(kmp_address_eui_64_get(addr), 8));
             return NULL;
         }
@@ -906,7 +899,7 @@ static kmp_api_t *ws_pae_auth_kmp_incoming_ind(kmp_service_t *service, kmp_type_
     }
 
     // Create a new KMP for initial eapol-key
-    kmp = kmp_api_create(service, type + IEEE_802_1X_INITIAL_KEY, pae_auth->sec_prot_cfg);
+    kmp = kmp_api_create(service, type + IEEE_802_1X_INITIAL_KEY, pae_auth->sec_prot_cfg, pae_auth->sec_timer_cfg);
 
     if (!kmp) {
         return 0;
@@ -986,6 +979,8 @@ static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *sup
     kmp_type_e next_type = ws_pae_auth_next_protocol_get(pae_auth, supp_entry);
 
     if (next_type == KMP_TYPE_NONE) {
+        // Supplicant goes inactive after 15 seconds
+        ws_pae_lib_supp_timer_ticks_set(supp_entry, WAIT_AFTER_AUTHENTICATION_TICKS);
         // All done
         return;
     } else {
@@ -1019,7 +1014,7 @@ static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *sup
     }
 
     // Create new instance
-    kmp_api_t *new_kmp = ws_pae_auth_kmp_create_and_start(pae_auth->kmp_service, next_type, supp_entry, pae_auth->sec_prot_cfg);
+    kmp_api_t *new_kmp = ws_pae_auth_kmp_create_and_start(pae_auth->kmp_service, next_type, supp_entry, pae_auth->sec_prot_cfg, pae_auth->sec_timer_cfg);
     if (!new_kmp) {
         return;
     }
@@ -1032,7 +1027,7 @@ static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *sup
             return;
         }
         // Create TLS instance */
-        if (ws_pae_auth_kmp_create_and_start(pae_auth->kmp_service, TLS_PROT, supp_entry, pae_auth->sec_prot_cfg) == NULL) {
+        if (ws_pae_auth_kmp_create_and_start(pae_auth->kmp_service, TLS_PROT, supp_entry, pae_auth->sec_prot_cfg, pae_auth->sec_timer_cfg) == NULL) {
             ws_pae_lib_kmp_list_delete(&supp_entry->kmp_list, new_kmp);
             return;
         }
@@ -1099,10 +1094,10 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
     return next_type;
 }
 
-static kmp_api_t *ws_pae_auth_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, supp_entry_t *supp_entry, sec_prot_cfg_t *cfg)
+static kmp_api_t *ws_pae_auth_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, supp_entry_t *supp_entry, sec_prot_cfg_t *prot_cfg, sec_timer_cfg_t *timer_cfg)
 {
     // Create KMP instance for new authentication
-    kmp_api_t *kmp = kmp_api_create(service, type, cfg);
+    kmp_api_t *kmp = kmp_api_create(service, type, prot_cfg, timer_cfg);
 
     if (!kmp) {
         return NULL;

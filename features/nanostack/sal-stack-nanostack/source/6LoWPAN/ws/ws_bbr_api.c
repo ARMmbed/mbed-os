@@ -20,6 +20,7 @@
 #include "ns_types.h"
 #include "ns_trace.h"
 #include "net_interface.h"
+#include "socket_api.h"
 #include "eventOS_event.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
@@ -94,7 +95,16 @@ static void ws_bbr_rpl_version_timer_start(protocol_interface_info_entry_t *cur,
         //stable version for RPL so slow timer update is ok
         cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME;
     } else {
-        cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART;
+        if (cur->ws_info->cfg->gen.network_size <= NETWORK_SIZE_SMALL) {
+            // handles also NETWORK_SIZE_CERTIFICATE
+            cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_SMALL;
+        } else if (cur->ws_info->cfg->gen.network_size <= NETWORK_SIZE_MEDIUM) {
+            cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_MEDIUM;
+        } else if (cur->ws_info->cfg->gen.network_size <= NETWORK_SIZE_LARGE) {
+            cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_LARGE;
+        } else  {
+            cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_EXTRA_LARGE;
+        }
     }
 }
 
@@ -232,7 +242,10 @@ static if_address_entry_t *ws_bbr_slaac_generate(protocol_interface_info_entry_t
 
 static void ws_bbr_slaac_remove(protocol_interface_info_entry_t *cur, uint8_t *ula_prefix)
 {
-    icmpv6_slaac_prefix_update(cur, ula_prefix, 64, 0, 0);
+    if (cur) {
+        icmpv6_slaac_prefix_update(cur, ula_prefix, 64, 0, 0);
+    }
+
     addr_policy_table_delete_entry(ula_prefix, 64);
 }
 
@@ -361,6 +374,9 @@ static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8
 }
 static void ws_bbr_dhcp_server_stop(protocol_interface_info_entry_t *cur, uint8_t *global_id)
 {
+    if (!cur) {
+        return;
+    }
     uint8_t temp_address[16];
     memcpy(temp_address, global_id, 8);
     memset(temp_address + 8, 0, 8);
@@ -368,7 +384,6 @@ static void ws_bbr_dhcp_server_stop(protocol_interface_info_entry_t *cur, uint8_
     DHCPv6_server_service_delete(cur->id, global_id, false);
     //Delete Client
     dhcp_client_global_address_delete(cur->id, NULL, temp_address);
-
 }
 
 static void ws_bbr_routing_stop(protocol_interface_info_entry_t *cur)
@@ -632,6 +647,11 @@ uint16_t test_pan_size_override = 0xffff;
 uint16_t ws_bbr_pan_size(protocol_interface_info_entry_t *cur)
 {
     uint16_t result = 0;
+
+    if (!cur || !cur->rpl_domain) {
+        return 0;
+    }
+
     if (test_pan_size_override != 0xffff) {
         return test_pan_size_override;
     }
@@ -710,7 +730,6 @@ void ws_bbr_stop(int8_t interface_id)
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     ws_bbr_routing_stop(cur);
-
     backbone_interface_id = -1;
     current_instance_id++;
 
@@ -763,6 +782,13 @@ int ws_bbr_info_get(int8_t interface_id, bbr_information_t *info_ptr)
 
     memcpy(info_ptr->dodag_id, current_dodag_id, 16);
     memcpy(info_ptr->prefix, current_global_prefix, 8);
+
+    // Get the Wi-SUN interface generated address that is used in the RF interface.
+    const uint8_t *wisun_if_addr = addr_select_with_prefix(cur, current_global_prefix, 64, SOCKET_IPV6_PREFER_SRC_PUBLIC);
+
+    if (wisun_if_addr) {
+        memcpy(info_ptr->IID, wisun_if_addr + 8, 8);
+    }
 
     info_ptr->devices_in_network = ws_bbr_pan_size(cur);
     info_ptr->instance_id = current_instance_id;
