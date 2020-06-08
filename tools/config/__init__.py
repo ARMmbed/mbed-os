@@ -1143,7 +1143,7 @@ class Config(object):
                                                     label)
                     elif (
                         name.startswith("target.") and
-                        (unit_kind is "application" or
+                        (unit_kind == "application" or
                          name in BOOTLOADER_OVERRIDES)
                     ):
                         _, attribute = name.split(".")
