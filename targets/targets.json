@@ -8874,11 +8874,9 @@
         "OUTPUT_EXT": "hex",
         "macros": [
             "MBED_FAULT_HANDLER_DISABLED",
-            "MBED_TZ_DEFAULT_ACCESS=1",
             "LPTICKER_DELAY_TICKS=4"
         ],
         "is_disk_virtual": true,
-        "supported_toolchains": ["ARMC6"],
         "config": {
             "gpio-irq-debounce-enable": {
                 "help": "Enable GPIO IRQ debounce",
@@ -8933,7 +8931,6 @@
         "release_versions": ["5"],
         "device_name": "M2351KIAAEES",
         "bootloader_supported": true,
-        "tickless-from-us-ticker": true,
         "forced_reset_timeout": 3,
         "public": false
     },
@@ -8941,6 +8938,7 @@
         "inherits": ["NU_PFM_M2351"],
         "core": "Cortex-M23-NS",
         "trustzone": true,
+        "supported_toolchains": ["ARMC6"],
         "extra_labels_add": [
             "M23_NS",
             "NU_PREBUILD_SECURE"
@@ -8951,25 +8949,30 @@
         "components_add": ["FLASHIAP"],
         "post_binary_hook": {"function": "M2351Code.merge_secure"},
         "secure_image_filename": "NuMaker-mbed-TZ-secure-example.hex",
-        "mbed_rom_start"        : "0x10040000",
-        "mbed_rom_size"         : "0x40000",
-        "mbed_ram_start"        : "0x30008000",
-        "mbed_ram_size"         : "0x10000"
+        "mbed_rom_start"        : "0x10010000",
+        "mbed_rom_size"         : "0x70000",
+        "mbed_ram_start"        : "0x30002000",
+        "mbed_ram_size"         : "0x16000"
     },
     "NU_PFM_M2351_NPSA_S": {
+        "overrides": {
+            "boot-stack-size"   : "0x600"
+        },
         "inherits": ["NU_PFM_M2351"],
         "core": "Cortex-M23",
         "trustzone": true,
+        "supported_toolchains": ["ARMC6"],
         "extra_labels_add": [
             "M23_S"
         ],
+        "device_has_remove": ["SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "LPTICKER"],
         "components_add": ["FLASHIAP"],
         "deliver_to_target": "NU_PFM_M2351_NPSA_NS",
         "delivery_dir": "TARGET_NUVOTON/TARGET_M2351/TARGET_M23_NS/TARGET_NU_PFM_M2351_NPSA_NS/TARGET_NU_PREBUILD_SECURE",
         "mbed_rom_start"        : "0x0",
-        "mbed_rom_size"         : "0x40000",
+        "mbed_rom_size"         : "0x10000",
         "mbed_ram_start"        : "0x20000000",
-        "mbed_ram_size"         : "0x8000"
+        "mbed_ram_size"         : "0x2000"
     },
     "NUMAKER_M252KG": {
         "core": "Cortex-M23",
