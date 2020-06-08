@@ -201,10 +201,12 @@ static uint32_t wsfTimerTicksToRtc(wsfTimerTicks_t wsfTicks)
  *          function can return zero even if a timer is running, indicating a timer
  *          has expired but has not yet been serviced.
  *
+ *  \param  pTimerRunning   Returns TRUE if a timer is running, FALSE if no timers running.
+ *
  *  \return The number of ticks until the next timer expiration.
  */
 /*************************************************************************************************/
-static wsfTimerTicks_t wsfTimerNextExpiration(void)
+wsfTimerTicks_t WsfTimerNextExpiration(bool_t *pTimerRunning)
 {
   wsfTimerTicks_t ticks;
 
@@ -213,10 +215,12 @@ static wsfTimerTicks_t wsfTimerNextExpiration(void)
 
   if (wsfTimerTimerQueue.pHead == NULL)
   {
+    *pTimerRunning = FALSE;
     ticks = 0;
   }
   else
   {
+    *pTimerRunning = TRUE;
     ticks = ((wsfTimer_t *) wsfTimerTimerQueue.pHead)->ticks;
   }
 
@@ -391,9 +395,10 @@ void WsfTimerSleep(void)
     return;
   }
 
-  nextExpiration = wsfTimerNextExpiration();
+  bool_t running;
+  nextExpiration = WsfTimerNextExpiration(&running);
 
-  if (nextExpiration > 0)
+  if (running)
   {
     uint32_t awake = wsfTimerTicksToRtc(nextExpiration);
     uint32_t rtcCurrentTicks = PalRtcCounterGet();
