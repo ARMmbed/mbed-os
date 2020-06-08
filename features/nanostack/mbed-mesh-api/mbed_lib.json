@@ -160,6 +160,10 @@
             "help": "Unicast dwell interval. Range: 15-255 milliseconds",
             "value": 0
         },
+        "wisun-device-type": {
+            "help": "Supported device operating modes: MESH_DEVICE_TYPE_WISUN_ROUTER, MESH_DEVICE_TYPE_WISUN_BORDER_ROUTER",
+            "value": "MESH_DEVICE_TYPE_WISUN_ROUTER"
+        },
         "certificate-header": {
             "help": "File name of the certificate header file (used on include directive)",
             "value": null

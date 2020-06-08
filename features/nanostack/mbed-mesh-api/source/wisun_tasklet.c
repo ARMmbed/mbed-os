@@ -223,7 +223,12 @@ static void wisun_tasklet_configure_and_connect_to_network(void)
     int status;
     fhss_timer_t *fhss_timer_ptr = &fhss_functions;
 
-    wisun_tasklet_data_ptr->operating_mode = NET_6LOWPAN_ROUTER;
+    if (MBED_CONF_MBED_MESH_API_WISUN_DEVICE_TYPE == MESH_DEVICE_TYPE_WISUN_BORDER_ROUTER) {
+        wisun_tasklet_data_ptr->operating_mode = NET_6LOWPAN_BORDER_ROUTER;
+    } else {
+        wisun_tasklet_data_ptr->operating_mode = NET_6LOWPAN_ROUTER;
+    }
+
     wisun_tasklet_data_ptr->operating_mode_extension = NET_6LOWPAN_WS;
 
     arm_nwk_interface_configure_6lowpan_bootstrap_set(
