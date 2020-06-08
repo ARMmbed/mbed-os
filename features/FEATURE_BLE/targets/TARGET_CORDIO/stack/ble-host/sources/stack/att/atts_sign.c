@@ -59,6 +59,7 @@ typedef struct
   uint32_t                signCounter;        /* sign counter for this connection */
   uint8_t                 *pCsrk;             /* signing key for this connection */
   attsSignBuf_t           *pBuf;              /* current data being processed */
+  bool_t                  authenticated;      /* Indicate if the CSRK is authenticated or not */
 } attsSignCcb_t;
 
 /* ATTS signed PDU control block */
@@ -342,13 +343,15 @@ void AttsSignInit(void)
  *
  *  \param  connId      DM connection ID.
  *  \param  pCsrk       Pointer to data signing key (CSRK).
+ *  \param  authenticated True if CSRK is authenticated and false otherwise.
  *
  *  \return None.
  */
 /*************************************************************************************************/
-void AttsSetCsrk(dmConnId_t connId, uint8_t *pCsrk)
+void AttsSetCsrk(dmConnId_t connId, uint8_t *pCsrk, bool_t authenticated)
 {
   attsSignCcbByConnId(connId)->pCsrk = pCsrk;
+  attsSignCcbByConnId(connId)->authenticated = authenticated;
 }
 
 /*************************************************************************************************/
