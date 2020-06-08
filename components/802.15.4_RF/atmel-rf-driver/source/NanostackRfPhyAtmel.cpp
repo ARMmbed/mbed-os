@@ -275,8 +275,15 @@ TestPins::TestPins(PinName test_pin_1, PinName test_pin_2, PinName test_pin_3, P
 {
 }
 
+Se2435Pins::Se2435Pins(PinName csd_pin, PinName ant_sel_pin)
+    :   CSD(csd_pin),
+        ANT_SEL(ant_sel_pin)
+{
+}
+
 static RFBits *rf;
 static TestPins *test_pins;
+static Se2435Pins *se2435_pa_pins;
 static uint8_t rf_part_num = 0;
 /*TODO: RSSI Base value setting*/
 static int8_t rf_rssi_base_val = -91;
@@ -2168,13 +2175,20 @@ static uint8_t rf_scale_lqi(int8_t rssi)
 NanostackRfPhyAtmel::NanostackRfPhyAtmel(PinName spi_mosi, PinName spi_miso,
                                          PinName spi_sclk, PinName spi_cs,  PinName spi_rst, PinName spi_slp, PinName spi_irq,
                                          PinName i2c_sda, PinName i2c_scl)
-    : _mac(i2c_sda, i2c_scl), _mac_addr(), _rf(NULL), _test_pins(NULL), _mac_set(false),
-      _spi_mosi(spi_mosi), _spi_miso(spi_miso), _spi_sclk(spi_sclk),
-      _spi_cs(spi_cs), _spi_rst(spi_rst), _spi_slp(spi_slp), _spi_irq(spi_irq)
+    :
+#if !defined(DISABLE_AT24MAC)
+    _mac(i2c_sda, i2c_scl),
+#endif
+    _mac_addr(), _rf(NULL), _test_pins(NULL), _se2435_pa_pins(NULL), _mac_set(false),
+    _spi_mosi(spi_mosi), _spi_miso(spi_miso), _spi_sclk(spi_sclk),
+    _spi_cs(spi_cs), _spi_rst(spi_rst), _spi_slp(spi_slp), _spi_irq(spi_irq)
 {
     _rf = new RFBits(_spi_mosi, _spi_miso, _spi_sclk, _spi_cs, _spi_rst, _spi_slp, _spi_irq);
 #ifdef TEST_GPIOS_ENABLED
     _test_pins = new TestPins(TEST_PIN_TX, TEST_PIN_RX, TEST_PIN_CSMA, TEST_PIN_SPARE_1, TEST_PIN_SPARE_2);
+#endif
+#ifdef SE2435L_PA
+    _se2435_pa_pins = new Se2435Pins(SE2435L_CSD, SE2435L_ANT_SEL);
 #endif
 }
 
@@ -2200,19 +2214,29 @@ int8_t NanostackRfPhyAtmel::rf_register()
     // Read the mac address if it hasn't been set by a user
     rf = _rf;
     test_pins = _test_pins;
+    se2435_pa_pins = _se2435_pa_pins;
     if (!_mac_set) {
+// Unless AT24MAC is available, using randomly generated MAC address
+#if !defined(DISABLE_AT24MAC)
         int ret = _mac.read_eui64((void *)_mac_addr);
         if (ret < 0) {
             rf = NULL;
             rf_if_unlock();
             return -1;
         }
+#else
+        randLIB_seed_random();
+        randLIB_get_n_bytes_random(_mac_addr, 8);
+        _mac_addr[0] |= 2; //Set Local Bit
+        _mac_addr[0] &= ~1; //Clear multicast bit
+#endif
     }
     /*Reset RF module*/
     rf_if_reset_radio();
     rf_part_num = rf_if_read_part_num();
     int8_t radio_id = -1;
     if (rf_part_num != PART_AT86RF231 && rf_part_num != PART_AT86RF233 && rf_part_num != PART_AT86RF212) {
+        rf->init_se2435_pa(_se2435_pa_pins);
         // Register RF type 215. Jumps to AT86RF215 driver.
         radio_id = rf->init_215_driver(_rf, _test_pins, _mac_addr, &rf_part_num);
     } else {
