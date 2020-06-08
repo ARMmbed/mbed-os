@@ -1,6 +1,7 @@
 /*!
 * Copyright (c) 2015, Freescale Semiconductor, Inc.
 * All rights reserved.
+* SPDX-License-Identifier: BSD-3-Clause
 *
 * \file MCR20Drv.c
 *
@@ -114,9 +115,7 @@ void MCR20Drv_Init
     xcvr_spi_configure_speed(gXcvrSpiInstance_c, 8000000);
 
     gXcvrDeassertCS_d();
-#if !defined(TARGET_KW24D)
     MCR20Drv_RST_B_Deassert();
-#endif
     RF_IRQ_Init();
     RF_IRQ_Disable();
     mPhyIrqDisableCnt = 1;
@@ -639,7 +638,6 @@ void MCR20Drv_RESET
     void
 )
 {
-#if !defined(TARGET_KW24D)
     volatile uint32_t delay = 1000;
     //assert RST_B
     MCR20Drv_RST_B_Assert();
@@ -648,7 +646,6 @@ void MCR20Drv_RESET
 
     //deassert RST_B
     MCR20Drv_RST_B_Deassert();
-#endif
 }
 
 /*---------------------------------------------------------------------------
