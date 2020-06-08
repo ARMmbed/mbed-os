@@ -1,4 +1,3 @@
-#! armcc -E
 ; Scatter-Loading Description File
 ;
 ; SPDX-License-Identifier: BSD-3-Clause
