@@ -25,86 +25,9 @@
 #include "wsf_types.h"
 #include "wsf_cs.h"
 
-#include "wsf_assert.h"
-#include "pal_sys.h"
+#include "wsf_mbed_os_adaptation.h"
 
-#if (WSF_CS_STATS == TRUE)
-#include "pal_bb.h"
-#endif
-
-/**************************************************************************************************
-  Global Variables
-**************************************************************************************************/
-
-/*! \brief  Critical section nesting level. */
-uint8_t wsfCsNesting = 0;
-
-#if (WSF_CS_STATS == TRUE)
-
-/*! \brief      Critical section start time. */
-static uint32_t wsfCsStatsStartTime = 0;
-
-/*! \brief      Critical section start time valid. */
-static bool_t wsfCsStatsStartTimeValid = FALSE;
-
-/*! \brief  Critical section duration watermark level. */
-uint16_t wsfCsStatsWatermarkUsec = 0;
-
-#endif
-
-#if (WSF_CS_STATS == TRUE)
-
-/*************************************************************************************************/
-/*!
- *  \brief  Get critical section duration watermark level.
- *
- *  \return Critical section duration watermark level.
- */
-/*************************************************************************************************/
-uint32_t WsfCsStatsGetCsWaterMark(void)
-{
-  return wsfCsStatsWatermarkUsec;
-}
-
-/*************************************************************************************************/
-/*!
- *  \brief  Mark the beginning of a CS.
- */
-/*************************************************************************************************/
-static void wsfCsStatsEnter(void)
-{
-  /* N.B. Code path must not use critical sections. */
-
-  wsfCsStatsStartTimeValid = PalBbGetTimestamp(&wsfCsStatsStartTime);
-}
-
-/*************************************************************************************************/
-/*!
- *  \brief  Record the CS watermark.
- */
-/*************************************************************************************************/
-static void wsfCsStatsExit(void)
-{
-  /* N.B. Code path must not use critical sections. */
-
-  if (wsfCsStatsStartTimeValid != TRUE)
-  {
-    return;
-  }
-
-  uint32_t exitTime;
-
-  if (PalBbGetTimestamp(&exitTime))
-  {
-    uint32_t durUsec = exitTime - wsfCsStatsStartTime;
-    if (durUsec > wsfCsStatsWatermarkUsec)
-    {
-      wsfCsStatsWatermarkUsec = durUsec;
-    }
-  }
-}
-
-#endif
+/* PORTING: WSF_CS_STATS are removed and critical section is handled by mbed-os */
 
 /*************************************************************************************************/
 /*!
@@ -113,15 +36,7 @@ static void wsfCsStatsExit(void)
 /*************************************************************************************************/
 void WsfCsEnter(void)
 {
-  if (wsfCsNesting == 0)
-  {
-    PalEnterCs();
-
-#if (WSF_CS_STATS == TRUE)
-    wsfCsStatsEnter();
-#endif
-  }
-  wsfCsNesting++;
+  wsf_mbed_os_critical_section_enter();
 }
 
 /*************************************************************************************************/
@@ -131,15 +46,5 @@ void WsfCsEnter(void)
 /*************************************************************************************************/
 void WsfCsExit(void)
 {
-  WSF_ASSERT(wsfCsNesting != 0);
-
-  wsfCsNesting--;
-  if (wsfCsNesting == 0)
-  {
-#if (WSF_CS_STATS == TRUE)
-    wsfCsStatsExit();
-#endif
-
-    PalExitCs();
-  }
+  wsf_mbed_os_critical_section_exit();
 }

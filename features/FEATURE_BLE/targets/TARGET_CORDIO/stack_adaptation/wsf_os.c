@@ -36,6 +36,8 @@
 #include "wsf_msg.h"
 #include "wsf_cs.h"
 
+#include "wsf_mbed_os_adaptation.h"
+
 #if defined (RTOS_CMSIS_RTX) && (RTOS_CMSIS_RTX == 1)
 #include "cmsis_os2.h"
 #endif
@@ -68,9 +70,6 @@ WSF_CT_ASSERT(sizeof(uint32_t) == 4);
 #define WSF_OS_THREAD_SLEEP_WAKEUP_FLAG           0x0001
 #endif
 
-/*! \brief OS serivice function number */
-#define WSF_OS_MAX_SERVICE_FUNCTIONS                  3
-
 /**************************************************************************************************
   Data Types
 **************************************************************************************************/
@@ -89,8 +88,7 @@ typedef struct
 typedef struct
 {
   wsfOsTask_t                 task;
-  WsfOsIdleCheckFunc_t        sleepCheckFuncs[WSF_OS_MAX_SERVICE_FUNCTIONS];
-  uint8_t                     numFunc;
+  /* PORTING: sleep checking funcs removed as not needed as handled by mbedos */
 } wsfOs_t;
 
 /**************************************************************************************************
@@ -151,6 +149,7 @@ void WsfSetEvent(wsfHandlerId_t handlerId, wsfEventMask_t event)
   WSF_CS_EXIT(cs);
 
   /* set event in OS */
+  wsf_mbed_ble_signal_event();
 }
 
 /*************************************************************************************************/
@@ -173,6 +172,7 @@ void WsfTaskSetReady(wsfHandlerId_t handlerId, wsfTaskEvent_t event)
   WSF_CS_EXIT(cs);
 
   /* set event in OS */
+  wsf_mbed_ble_signal_event();
 }
 
 /*************************************************************************************************/
@@ -363,45 +363,5 @@ void wsfThread(void *pArg)
 }
 #endif
 
-/*************************************************************************************************/
-/*!
- *  \brief  Register service check functions.
- *
- *  \param  func   Service function.
- */
-/*************************************************************************************************/
-void WsfOsRegisterSleepCheckFunc(WsfOsIdleCheckFunc_t func)
-{
-  wsfOs.sleepCheckFuncs[wsfOs.numFunc++] = func;
-}
+/* PORTING: main loop and sleep are redundant as the they are handled by mbedos */
 
-/*************************************************************************************************/
-/*!
- *  \brief  OS starts main loop
- */
-/*************************************************************************************************/
-void WsfOsEnterMainLoop(void)
-{
-  bool_t activeFlag = FALSE;
-
-  while (TRUE)
-  {
-    WsfTimerSleepUpdate();
-    wsfOsDispatcher();
-
-    activeFlag = FALSE;
-
-    for (unsigned int i = 0; i < wsfOs.numFunc; i++)
-    {
-      if (wsfOs.sleepCheckFuncs[i])
-      {
-        activeFlag |= wsfOs.sleepCheckFuncs[i]();
-      }
-    }
-
-    if (!activeFlag)
-    {
-      WsfTimerSleep();
-    }
-  }
-}
