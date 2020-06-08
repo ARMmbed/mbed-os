@@ -138,7 +138,7 @@ watchdog_features_t hal_watchdog_get_platform_features(void)
     features.clock_max_frequency = 50000;
 #elif defined(STM32H7) || defined(STM32L4) || defined(STM32WB)
     features.clock_max_frequency = 33600;
-#elif defined(STM32G0) || defined(STM32L5)
+#elif defined(STM32G0) || defined(STM32L5) || defined(STM32G4)
     features.clock_max_frequency = 34000;
 #else
 #error "unsupported target"
