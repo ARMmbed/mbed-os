@@ -504,6 +504,75 @@ class MTSCode(object):
         """A hoof for the MTS Dragonfly"""
         MTSCode._combine_bins_helper("MTS_DRAGONFLY_F411RE", binf)
 
+
+class MCU_NRF51Code(object):
+    """NRF51 Hooks"""
+    @staticmethod
+    def binary_hook(t_self, resources, _, binf):
+        """Hook that merges the soft device with the bin file"""
+        # Scan to find the actual paths of soft device
+        sdf = None
+        sd_with_offsets = t_self.target.EXPECTED_SOFTDEVICES_WITH_OFFSETS
+        for softdevice_and_offset_entry in sd_with_offsets:
+            for hexf in resources.get_file_paths(FileType.HEX):
+                if hexf.find(softdevice_and_offset_entry['name']) != -1:
+                    t_self.notify.debug("SoftDevice file found %s."
+                                        % softdevice_and_offset_entry['name'])
+                    sdf = hexf
+
+                if sdf is not None:
+                    break
+            if sdf is not None:
+                break
+
+        if sdf is None:
+            t_self.notify.debug("Hex file not found. Aborting.")
+            return
+
+        # Look for bootloader file that matches this soft device or bootloader
+        # override image
+        blf = None
+        if t_self.target.MERGE_BOOTLOADER is True:
+            for hexf in resources.get_file_paths(FileType.HEX):
+                if hexf.find(t_self.target.OVERRIDE_BOOTLOADER_FILENAME) != -1:
+                    t_self.notify.debug(
+                        "Bootloader file found %s."
+                        % t_self.target.OVERRIDE_BOOTLOADER_FILENAME
+                    )
+                    blf = hexf
+                    break
+                elif hexf.find(softdevice_and_offset_entry['boot']) != -1:
+                    t_self.notify.debug("Bootloader file found %s."
+                                        % softdevice_and_offset_entry['boot'])
+                    blf = hexf
+                    break
+
+        # Merge user code with softdevice
+        from intelhex import IntelHex
+        binh = IntelHex()
+        _, ext = os.path.splitext(binf)
+        if ext == ".hex":
+            binh.loadhex(binf)
+        elif ext == ".bin":
+            binh.loadbin(binf, softdevice_and_offset_entry['offset'])
+
+        if t_self.target.MERGE_SOFT_DEVICE is True:
+            t_self.notify.debug("Merge SoftDevice file %s"
+                                % softdevice_and_offset_entry['name'])
+            sdh = IntelHex(sdf)
+            sdh.start_addr = None
+            binh.merge(sdh)
+
+        if t_self.target.MERGE_BOOTLOADER is True and blf is not None:
+            t_self.notify.debug("Merge BootLoader file %s" % blf)
+            blh = IntelHex(blf)
+            blh.start_addr = None
+            binh.merge(blh)
+
+        with open(binf.replace(".bin", ".hex"), "w") as fileout:
+            binh.write_hex_file(fileout, write_start_addr=False)
+
+
 class RTL8195ACode(object):
     """RTL8195A Hooks"""
     @staticmethod
