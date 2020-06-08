@@ -80,6 +80,7 @@ typedef enum {
     PHY_EXTENSION_FILTERING_SUPPORT, /**<  Return filtering modes that can be supported by the PHY driver. See phy_link_filters_e */
     PHY_EXTENSION_SET_TX_POWER, /**<  Set TX output power which is given as percentage of maximum. 0 is the lowest possible TX power and 100 is the highest possible TX power */
     PHY_EXTENSION_SET_CCA_THRESHOLD, /**<  Set CCA threshold which is given as percentage of maximum threshold. 0 is the lowest(strictest) possible threshold and 100 is the highest possible threshold */
+    PHY_EXTENSION_SET_CHANNEL_CCA_THRESHOLD, /**<  Set CCA threshold which is given as dBm. This value is set in PHY_LINK_CCA_PREPARE callback and PHY driver should update the CCA threshold configuration */
     PHY_EXTENSION_SET_802_15_4_MODE /**<  Set IEEE 802.15.4 mode as defined by phy_802_15_4_mode_t*/
 } phy_extension_type_e;
 

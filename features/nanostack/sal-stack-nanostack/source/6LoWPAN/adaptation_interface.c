@@ -155,7 +155,7 @@ static void lowpan_adaptation_etx_update_cb(protocol_interface_info_entry_t *cur
                     // Gets table entry
                     mac_neighbor_table_entry_t *neigh_table_ptr = mac_neighbor_table_address_discover(mac_neighbor_info(cur), buf->dst_sa.address + PAN_ID_LEN, buf->dst_sa.addr_type);
                     if (neigh_table_ptr) {
-                        etx_transm_attempts_update(cur->id, 1 + confirm->tx_retries, success, neigh_table_ptr->index);
+                        etx_transm_attempts_update(cur->id, 1 + confirm->tx_retries, success, neigh_table_ptr->index, neigh_table_ptr->mac64);
                         // Updates ETX statistics
                         etx_storage_t *etx_entry = etx_storage_entry_get(cur->id, neigh_table_ptr->index);
                         if (etx_entry) {

@@ -82,6 +82,7 @@ typedef struct ws_info_s {
     trickle_params_t trickle_params_pan_discovery;
     uint8_t rpl_state; // state from rpl_event_t
     uint8_t pas_requests; // Amount of PAN solicits sent
+    uint8_t eapol_tx_index;
     parent_info_t parent_info[WS_PARENT_LIST_SIZE];
     parent_info_list_t parent_list_free;
     parent_info_list_t parent_list_reserved;

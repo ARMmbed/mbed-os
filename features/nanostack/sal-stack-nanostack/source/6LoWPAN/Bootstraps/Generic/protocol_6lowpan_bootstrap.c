@@ -588,7 +588,7 @@ static void mle_neigh_entry_update_by_mle_tlv_list(int8_t interface_id, mac_neig
             uint8_t link_idr;
             uint8_t iop_flags;
             if (mle_link_quality_tlv_parse(mac64, short_address, mle_tlv_info.dataPtr, mle_tlv_info.tlvLen, &iop_flags, &link_idr)) {
-                etx_remote_incoming_idr_update(interface_id, link_idr, entry_temp->index);
+                etx_remote_incoming_idr_update(interface_id, link_idr, entry_temp->index, entry_temp->mac64);
 
                 if ((iop_flags & MLE_NEIGHBOR_PRIORITY_LINK) == MLE_NEIGHBOR_PRIORITY_LINK) {
                     entry_temp->link_role = CHILD_NEIGHBOUR;
@@ -965,9 +965,9 @@ int protocol_6lowpan_router_synch_to_new_router(protocol_interface_info_entry_t 
 static uint8_t mle_calculate_idr(int8_t interface_id, mle_message_t *mle_msg, mac_neighbor_table_entry_t *entry_temp)
 {
     if (!entry_temp) {
-        return etx_lqi_dbm_update(-2, mle_msg->lqi, mle_msg->dbm, 0) >> 3;
+        return etx_lqi_dbm_update(-2, mle_msg->lqi, mle_msg->dbm, 0, NULL) >> 3;
     }
-    return etx_lqi_dbm_update(interface_id, mle_msg->lqi, mle_msg->dbm, entry_temp->index) >> 3;
+    return etx_lqi_dbm_update(interface_id, mle_msg->lqi, mle_msg->dbm, entry_temp->index, entry_temp->mac64) >> 3;
 
 }
 
@@ -1609,7 +1609,7 @@ static void lowpan_neighbor_entry_remove_notify(mac_neighbor_table_entry_t *entr
     }
     mac_helper_devicetable_remove(cur_interface->mac_api, entry_ptr->index, entry_ptr->mac64);
     //Removes ETX neighbor
-    etx_neighbor_remove(cur_interface->id, entry_ptr->index);
+    etx_neighbor_remove(cur_interface->id, entry_ptr->index, entry_ptr->mac64);
     //Remove MLE frame counter info
     mle_service_frame_counter_entry_delete(cur_interface->id, entry_ptr->index);
 

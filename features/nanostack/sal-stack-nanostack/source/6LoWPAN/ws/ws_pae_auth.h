@@ -43,18 +43,18 @@
  * \param local_port local port
  * \param remote_addr remote address
  * \param remote_port remote port
- * \param gtks group keys
  * \param next_gtks next group keys to be used
  * \param cert_chain certificate chain
  * \param timer_settings timer settings
  * \param sec_timer_cfg timer configuration
  * \param sec_prot_cfg protocol configuration
+ * \param sec_keys_nw_info security keys network information
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *next_gtks, const sec_prot_certs_t *certs, sec_timer_cfg_t *sec_timer_cfg, sec_prot_cfg_t *sec_prot_cfg);
+int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *next_gtks, const sec_prot_certs_t *certs, sec_timer_cfg_t *sec_timer_cfg, sec_prot_cfg_t *sec_prot_cfg, sec_prot_keys_nw_info_t *sec_keys_nw_info);
 
 /**
  * ws_pae_auth_addresses_set set relay addresses
@@ -169,6 +169,19 @@ int8_t ws_pae_auth_node_limit_set(protocol_interface_info_entry_t *interface_ptr
 void ws_pae_auth_forced_gc(protocol_interface_info_entry_t *interface_ptr);
 
 /**
+ * ws_pae_auth_nw_info_set set network information
+ *
+ * \param interface_ptr interface
+ * \param pan_id PAD ID
+ * \param network_name network name
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_auth_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name);
+
+/**
  * ws_pae_auth_gtk_hash_set GTK hash set callback
  *
  * \param interface_ptr interface
@@ -190,6 +203,14 @@ typedef void ws_pae_auth_gtk_hash_set(protocol_interface_info_entry_t *interface
 typedef int8_t ws_pae_auth_nw_key_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks);
 
 /**
+ * ws_pae_auth_nw_keys_remove remove network keys callback
+ *
+ * \param interface_ptr interface
+ *
+ */
+typedef void ws_pae_auth_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr);
+
+/**
  * ws_pae_auth_nw_key_index_set network send key index set callback
  *
  * \param interface_ptr interface
@@ -199,15 +220,24 @@ typedef int8_t ws_pae_auth_nw_key_insert(protocol_interface_info_entry_t *interf
 typedef void ws_pae_auth_nw_key_index_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
 
 /**
+ * ws_pae_auth_nw_info_updated security keys network information updated
+ *
+ * \param interface_ptr interface
+ *
+ */
+typedef void ws_pae_auth_nw_info_updated(protocol_interface_info_entry_t *interface_ptr);
+
+/**
  *  ws_pae_auth_cb_register register PAE authenticator callbacks
  *
  * \param interface_ptr interface
  * \param hash_set GTK hash set callback
  * \param nw_key_insert network key index callback
  * \param nw_key_index_set network send key index callback
+ * \param nw_info_updated network keys updated callback
  *
  */
-void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_auth_gtk_hash_set *hash_set, ws_pae_auth_nw_key_insert *nw_key_insert, ws_pae_auth_nw_key_index_set *nw_key_index_set);
+void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_auth_gtk_hash_set *hash_set, ws_pae_auth_nw_key_insert *nw_key_insert, ws_pae_auth_nw_key_index_set *nw_key_index_set, ws_pae_auth_nw_info_updated *nw_info_updated);
 
 #else
 
@@ -215,10 +245,11 @@ void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_
 #define ws_pae_auth_timing_adjust(timing)
 #define ws_pae_auth_addresses_set(interface_ptr, local_port, remote_addr, remote_port) 1
 #define ws_pae_auth_delete NULL
-#define ws_pae_auth_cb_register(interface_ptr, hash_set, nw_key_insert, nw_key_index_set) {(void) hash_set;}
+#define ws_pae_auth_cb_register(interface_ptr, hash_set, nw_key_insert, nw_key_index_set, nw_info_updated) {(void) hash_set;}
 #define ws_pae_auth_start(interface_ptr)
 #define ws_pae_auth_gtks_updated NULL
 #define ws_pae_auth_nw_key_index_update NULL
+#define ws_pae_auth_nw_info_set NULL
 #define ws_pae_auth_node_keys_remove(interface_ptr, eui64) -1
 #define ws_pae_auth_node_access_revoke_start(interface_ptr)
 #define ws_pae_auth_node_limit_set(interface_ptr, limit)

@@ -295,21 +295,6 @@ int8_t mac_sec_mib_device_description_set(uint8_t atribute_index, mlme_device_de
 
     *device_ptr = *device_descriptor;
 
-    if (rf_mac_setup->mac_ack_tx_active && !rf_mac_setup->ack_tx_possible &&
-            device_ptr->PANId == rf_mac_setup->enhanced_ack_buffer.DstPANId) {
-
-        //Compare address for pending neigbour add
-        if (rf_mac_setup->enhanced_ack_buffer.fcf_dsn.DstAddrMode == MAC_ADDR_MODE_16_BIT) {
-            uint16_t short_id = common_read_16_bit(rf_mac_setup->enhanced_ack_buffer.DstAddr);
-            if (short_id == device_ptr->ShortAddress) {
-                rf_mac_setup->ack_tx_possible = true;
-            }
-        } else if (rf_mac_setup->enhanced_ack_buffer.fcf_dsn.DstAddrMode == MAC_ADDR_MODE_64_BIT) {
-            if (memcmp(device_ptr->ExtAddress, rf_mac_setup->enhanced_ack_buffer.DstAddr, 8) == 0) {
-                rf_mac_setup->ack_tx_possible = true;
-            }
-        }
-    }
     platform_exit_critical();
 
     return 0;
