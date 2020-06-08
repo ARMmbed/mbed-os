@@ -87,6 +87,7 @@ typedef struct {
 } key_storage_array_t;
 
 typedef struct {
+    uint8_t settings_set;                               /**< Settings set, do not use defaults */
     uint8_t storages_empty;                             /**< Number of empty i.e. to be allocated storages */
     uint16_t storage_default_size;                      /**< Default size for storages */
     uint16_t replace_index;                             /**< Index to replace when storages are full */
@@ -138,6 +139,7 @@ int8_t ws_pae_key_storage_memory_set(uint8_t key_storages_number, const uint16_t
 
 int8_t ws_pae_key_storage_settings_set(uint8_t alloc_max_number, uint16_t alloc_size, uint16_t storing_interval)
 {
+    key_storage_params.settings_set = true;
     key_storage_params.storages_empty = alloc_max_number;
     key_storage_params.storage_default_size = alloc_size;
     key_storage_params.store_timer = storing_interval;
@@ -148,18 +150,19 @@ int8_t ws_pae_key_storage_settings_set(uint8_t alloc_max_number, uint16_t alloc_
 
 void ws_pae_key_storage_init(void)
 {
-    key_storage_params.storages_empty = DEFAULT_NUMBER_OF_STORAGES;
-    key_storage_params.storage_default_size = STORAGE_ARRAY_HEADER_LEN + (sizeof(sec_prot_keys_storage_t) * DEFAULT_NUMBER_OF_ENTRIES_IN_ONE_STORAGE);
+    if (!key_storage_params.settings_set) {
+        key_storage_params.storages_empty = DEFAULT_NUMBER_OF_STORAGES;
+        key_storage_params.storage_default_size = STORAGE_ARRAY_HEADER_LEN + (sizeof(sec_prot_keys_storage_t) * DEFAULT_NUMBER_OF_ENTRIES_IN_ONE_STORAGE);
+        key_storage_params.store_timer = DEFAULT_STORING_INTERVAL;
+        key_storage_params.store_timer_timeout = DEFAULT_STORING_INTERVAL;
+    }
     key_storage_params.replace_index = 0;
     key_storage_params.store_bitfield = 0,
-    key_storage_params.store_timer_timeout = DEFAULT_STORING_INTERVAL;
-    key_storage_params.store_timer = DEFAULT_STORING_INTERVAL;
     key_storage_params.restart_cnt = 0;
 }
 
 void ws_pae_key_storage_delete(void)
 {
-    memset(&key_storage_params, 0, sizeof(key_storage_params_t));
     ws_pae_key_storage_list_all_free();
 }
 

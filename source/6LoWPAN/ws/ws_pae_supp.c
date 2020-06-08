@@ -86,6 +86,7 @@ typedef struct {
     kmp_service_t *kmp_service;                            /**< KMP service */
     protocol_interface_info_entry_t *interface_ptr;        /**< Interface */
     ws_pae_supp_auth_completed *auth_completed;            /**< Authentication completed callback, continue bootstrap */
+    ws_pae_supp_auth_next_target *auth_next_target;        /**< Authentication next target callback */
     ws_pae_supp_nw_key_insert *nw_key_insert;              /**< Key insert callback */
     ws_pae_supp_nw_key_index_set *nw_key_index_set;        /**< Key index set callback */
     ws_pae_supp_gtk_hash_ptr_get *gtk_hash_ptr_get;        /**< Get pointer to GTK hash storage callback */
@@ -96,7 +97,8 @@ typedef struct {
     uint16_t initial_key_retry_timer;                      /**< Timer to trigger initial EAPOL-Key 1st retry */
     trickle_t auth_trickle_timer;                          /**< Trickle timer for re-sending initial EAPOL-key or for GTK mismatch */
     trickle_params_t auth_trickle_params;                  /**< Trickle parameters for initial EAPOL-key or for GTK mismatch */
-    uint8_t new_br_eui_64[8];                              /**< Border router EUI-64 indicated by bootstrap */
+    uint8_t new_br_eui_64[8];                              /**< Border router EUI-64 indicated by bootstrap after bootstrap start */
+    uint8_t comp_br_eui_64[8];                             /**< Border router EUI-64 indicated by bootstrap after bootstrap completed */
     sec_prot_keys_nw_info_t *sec_keys_nw_info;             /**< Security keys network information */
     sec_timer_cfg_t *sec_timer_cfg;                        /**< Timer configuration */
     sec_prot_cfg_t *sec_prot_cfg;                          /**< Protocol Configuration */
@@ -105,46 +107,26 @@ typedef struct {
     bool auth_trickle_running : 1;                         /**< Initial EAPOL-Key Trickle timer running */
     bool auth_requested : 1;                               /**< Authentication has been requested by the bootstrap */
     bool timer_running : 1;                                /**< Timer is running */
-    bool new_br_eui_64_set : 1;                            /**< Border router address has been set */
+    bool new_br_eui_64_set : 1;                            /**< Border router address has been set after bootstrap start */
     bool new_br_eui_64_fresh : 1;                          /**< Border router address is fresh (set during this authentication attempt) */
-    bool entry_address_active: 1;
+    bool comp_br_eui_64_set : 1;                           /**< Border router address has been set after bootstrap completed */
+    bool entry_address_active: 1;                          /**< EAPOL target address is set */
+    bool tx_failure_on_initial_key: 1;                     /**< TX failure has happened on initial EAPOL-key sequence */
 } pae_supp_t;
-
-// How many times sending of initial EAPOL-key is retried
-#define INITIAL_KEY_RETRY_COUNT            2
 
 // How many times sending of initial EAPOL-key is initiated on key update
 #define KEY_UPDATE_RETRY_COUNT             3
 #define LIFETIME_MISMATCH_RETRY_COUNT      1   /* No retries */
 
-// How long the wait is before the first initial EAPOL-key retry
-#define DEFAULT_INITIAL_KEY_RETRY_TIMER    120
-#define NONE_INITIAL_KEY_RETRY_TIMER       0
-
-// Default trickle values for sending of initial EAPOL-key
-#define DEFAULT_TRICKLE_IMIN_SECS          360   /* 6 to 12 minutes */
-#define DEFAULT_TRICKLE_IMAX_SECS          720
-
-// Very slow network values for sending of initial EAPOL-key
-#define VERY_SLOW_NW_TRICKLE_IMIN_SECS     600   /* 10 to 60 minutes */
-#define VERY_SLOW_NW_TRICKLE_IMAX_SECS     3600
-
 // Trickle timer on how long to wait response after last retry before failing authentication
 #define LAST_INTERVAL_TRICKLE_IMIN_SECS    240   /* 4 minutes */
 #define LAST_INTERVAL_TRICKLE_IMAX_SECS    240
-
-static trickle_params_t initial_eapol_key_trickle_params = {
-    .Imin = DEFAULT_TRICKLE_IMIN_SECS,    /* 360 second; ticks are 1 second */
-    .Imax = DEFAULT_TRICKLE_IMAX_SECS,    /* 720 second */
-    .k = 0,                               /* infinity - no consistency checking */
-    .TimerExpirations = 2
-};
 
 static void ws_pae_supp_free(pae_supp_t *pae_supp);
 static void ws_pae_supp_authenticate_response(pae_supp_t *pae_supp, auth_result_e result);
 static int8_t ws_pae_supp_initial_key_send(pae_supp_t *pae_supp);
 static void ws_pae_supp_nvm_update(pae_supp_t *pae_supp);
-static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan_id);
+static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan_id, char *dest_network_name);
 static int8_t ws_pae_supp_nvm_keys_write(pae_supp_t *pae_supp);
 static pae_supp_t *ws_pae_supp_get(protocol_interface_info_entry_t *interface_ptr);
 static int8_t ws_pae_supp_event_send(kmp_service_t *service, void *data);
@@ -175,6 +157,7 @@ static void ws_pae_supp_kmp_api_finished(kmp_api_t *kmp);
 
 static const eapol_pdu_recv_cb_data_t eapol_pdu_recv_cb_data = {
     .priority = EAPOL_PDU_RECV_HIGH_PRIORITY,
+    .filter_requsted = false,
     .addr_check = ws_pae_supp_eapol_pdu_address_check,
     .receive = kmp_eapol_pdu_if_receive
 };
@@ -183,7 +166,6 @@ static const char *KEYS_FILE = KEYS_FILE_NAME;
 
 static int8_t tasklet_id = -1;
 static NS_LIST_DEFINE(pae_supp_list, pae_supp_t, link);
-static uint8_t timing_value = 0; // Timing value set based e.g. on network size
 
 static void ws_pae_supp_address_set(pae_supp_t *pae_supp, kmp_addr_t *address)
 {
@@ -201,14 +183,14 @@ static bool ws_pae_supp_address_is_set(pae_supp_t *pae_supp)
     return pae_supp->entry_address_active;
 }
 
-int8_t ws_pae_supp_authenticate(protocol_interface_info_entry_t *interface_ptr, uint16_t dest_pan_id, uint8_t *dest_eui_64)
+int8_t ws_pae_supp_authenticate(protocol_interface_info_entry_t *interface_ptr, uint16_t dest_pan_id, uint8_t *dest_eui_64, char *dest_network_name)
 {
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
     if (!pae_supp) {
         return -1;
     }
 
-    if (ws_pae_supp_nw_keys_valid_check(pae_supp, dest_pan_id) >= 0) {
+    if (ws_pae_supp_nw_keys_valid_check(pae_supp, dest_pan_id, dest_network_name) >= 0) {
         pae_supp->auth_completed(interface_ptr, AUTH_RESULT_OK, NULL);
         return 0;
     }
@@ -216,9 +198,10 @@ int8_t ws_pae_supp_authenticate(protocol_interface_info_entry_t *interface_ptr, 
     // Delete GTKs
     sec_prot_keys_gtks_init(pae_supp->sec_keys_nw_info->gtks);
 
-    /* PAN ID has changed, delete key data associated with border router
+    /* Network name or PAN ID has changed, delete key data associated with border router
        i.e PMK, PTK, EA-IE data (border router EUI-64) */
-    if (pae_supp->sec_keys_nw_info->key_pan_id != 0xFFFF && pae_supp->sec_keys_nw_info->key_pan_id != dest_pan_id) {
+    if (strcmp(pae_supp->sec_keys_nw_info->network_name, dest_network_name) != 0 ||
+            (pae_supp->sec_keys_nw_info->key_pan_id != 0xFFFF && pae_supp->sec_keys_nw_info->key_pan_id != dest_pan_id)) {
         sec_prot_keys_pmk_delete(&pae_supp->entry.sec_keys);
         sec_prot_keys_ptk_delete(&pae_supp->entry.sec_keys);
         sec_prot_keys_ptk_eui_64_delete(&pae_supp->entry.sec_keys);
@@ -228,6 +211,7 @@ int8_t ws_pae_supp_authenticate(protocol_interface_info_entry_t *interface_ptr, 
 
     // Prepare to receive new border router address
     pae_supp->new_br_eui_64_fresh = false;
+    pae_supp->comp_br_eui_64_set = false;
 
     // Stores target/parent address
     kmp_address_init(KMP_ADDR_EUI_64, &pae_supp->target_addr, dest_eui_64);
@@ -268,9 +252,14 @@ int8_t ws_pae_supp_border_router_addr_read(protocol_interface_info_entry_t *inte
         return -1;
     }
 
+    // Check if there is border router EUI-64 on used on 4WH PTK generation
     uint8_t *br_eui_64 = sec_prot_keys_ptk_eui_64_get(&pae_supp->entry.sec_keys);
     if (!br_eui_64) {
-        return -1;
+        // Check if there is border router EUI-64 indicated by the bootstrap when bootstrap completed
+        if (!pae_supp->comp_br_eui_64_set) {
+            return -1;
+        }
+        br_eui_64 = pae_supp->comp_br_eui_64;
     }
 
     memcpy(eui_64, br_eui_64, 8);
@@ -278,14 +267,31 @@ int8_t ws_pae_supp_border_router_addr_read(protocol_interface_info_entry_t *inte
     return 0;
 }
 
-int8_t ws_pae_supp_nw_key_valid(protocol_interface_info_entry_t *interface_ptr)
+int8_t ws_pae_supp_nw_key_valid(protocol_interface_info_entry_t *interface_ptr, uint8_t *br_iid)
 {
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
     if (!pae_supp) {
         return -1;
     }
 
-    tr_info("NW key valid");
+    tr_info("NW key valid indication");
+
+    // Store border router EUI-64 received on bootstrap complete
+    memcpy(pae_supp->comp_br_eui_64, br_iid, 8);
+    pae_supp->comp_br_eui_64[0] ^= 0x02;
+    pae_supp->comp_br_eui_64_set = true;
+
+    // Get the EUI-64 used on 4WH handshake PTK generation
+    uint8_t *ptk_eui_64 = sec_prot_keys_ptk_eui_64_get(&pae_supp->entry.sec_keys);
+
+    /* If border router EUI-64 received on bootstrap complete does not match to
+       EUI-64 stored with keys, delete keys */
+    if (memcmp(ptk_eui_64, pae_supp->comp_br_eui_64, 8) != 0) {
+        tr_warn("Delete keys: PTK EUI-64 %s does not match to BR EUI-64 %s", tr_array(ptk_eui_64, 8), tr_array(pae_supp->comp_br_eui_64, 8));
+        sec_prot_keys_pmk_delete(&pae_supp->entry.sec_keys);
+        sec_prot_keys_ptk_delete(&pae_supp->entry.sec_keys);
+        sec_prot_keys_ptk_eui_64_delete(&pae_supp->entry.sec_keys);
+    }
 
     // Stored keys are valid
     pae_supp->nw_keys_used_cnt = 0;
@@ -482,7 +488,7 @@ static int8_t ws_pae_supp_initial_key_send(pae_supp_t *pae_supp)
     return 0;
 }
 
-static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan_id)
+static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan_id, char *dest_network_name)
 {
     // Checks how many times authentication has been tried with current network keys
     if (pae_supp->nw_keys_used_cnt >= STORED_KEYS_MAXIMUM_USE_COUNT) {
@@ -497,9 +503,11 @@ static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan
         return -1;
     }
 
-    /* Checks if keys match to PAN ID and that needed keys exists (PMK, PTK and a GTK),
-       and calls inserts function that will update the network keys as needed */
-    if ((pan_id == pae_supp->sec_keys_nw_info->key_pan_id) &&
+    /* Checks if keys match to network name and PAN ID and that needed keys exists (PMK,
+       PTK and a GTK), and calls inserts function that will update the network keys as
+       needed */
+    if ((strcmp(dest_network_name, pae_supp->sec_keys_nw_info->network_name) == 0 &&
+            pan_id == pae_supp->sec_keys_nw_info->key_pan_id) &&
             (sec_prot_keys_gtk_count(pae_supp->sec_keys_nw_info->gtks) > 0) &&
             (sec_prot_keys_pmk_get(&pae_supp->entry.sec_keys) != NULL) &&
             (sec_prot_keys_ptk_get(&pae_supp->entry.sec_keys) != NULL)) {
@@ -515,7 +523,7 @@ static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan
     }
 }
 
-void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_supp_auth_completed *completed, ws_pae_supp_nw_key_insert *nw_key_insert, ws_pae_supp_nw_key_index_set *nw_key_index_set, ws_pae_supp_gtk_hash_ptr_get *gtk_hash_ptr_get, ws_pae_supp_nw_info_updated *nw_info_updated)
+void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_supp_auth_completed *completed, ws_pae_supp_auth_next_target *auth_next_target, ws_pae_supp_nw_key_insert *nw_key_insert, ws_pae_supp_nw_key_index_set *nw_key_index_set, ws_pae_supp_gtk_hash_ptr_get *gtk_hash_ptr_get, ws_pae_supp_nw_info_updated *nw_info_updated)
 {
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
     if (!pae_supp) {
@@ -523,6 +531,7 @@ void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_
     }
 
     pae_supp->auth_completed = completed;
+    pae_supp->auth_next_target = auth_next_target;
     pae_supp->nw_key_insert = nw_key_insert;
     pae_supp->nw_key_index_set = nw_key_index_set;
     pae_supp->gtk_hash_ptr_get = gtk_hash_ptr_get;
@@ -546,13 +555,14 @@ int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const se
 
     pae_supp->interface_ptr = interface_ptr;
     pae_supp->auth_completed = NULL;
+    pae_supp->auth_next_target = NULL;
     pae_supp->nw_key_insert = NULL;
     pae_supp->nw_key_index_set = NULL;
     pae_supp->gtk_hash_ptr_get = NULL;
     pae_supp->initial_key_timer = 0;
     pae_supp->initial_key_retry_timer = 0;
     pae_supp->nw_keys_used_cnt = 0;
-    pae_supp->initial_key_retry_cnt = INITIAL_KEY_RETRY_COUNT;
+    pae_supp->initial_key_retry_cnt = DEFAULT_INITIAL_KEY_RETRY_COUNT;
     pae_supp->sec_keys_nw_info = sec_keys_nw_info;
     pae_supp->sec_timer_cfg = sec_timer_cfg;
     pae_supp->sec_prot_cfg = sec_prot_cfg;
@@ -561,6 +571,7 @@ int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const se
     pae_supp->timer_running = false;
     pae_supp->new_br_eui_64_set = false;
     pae_supp->new_br_eui_64_fresh = false;
+    pae_supp->comp_br_eui_64_set = false;
     pae_supp->entry_address_active = false;
 
     ws_pae_lib_supp_init(&pae_supp->entry);
@@ -786,6 +797,15 @@ void ws_pae_supp_slow_timer(uint16_t seconds)
                 // Checks if trickle timer expires
                 if (trickle_timer(&pae_supp->auth_trickle_timer, &pae_supp->auth_trickle_params, seconds)) {
                     if (pae_supp->initial_key_retry_cnt > 0) {
+                        // On initial EAPOL-key TX failure, check for other parents
+                        if (pae_supp->auth_requested && pae_supp->tx_failure_on_initial_key) {
+                            // Returns same target if no other valid targets found
+                            const uint8_t *next_target = pae_supp->auth_next_target(pae_supp->interface_ptr, kmp_address_eui_64_get(&pae_supp->target_addr), &pae_supp->sec_keys_nw_info->key_pan_id);
+                            kmp_address_eui_64_set(&pae_supp->target_addr, next_target);
+                            ws_pae_supp_address_set(pae_supp, &pae_supp->target_addr);
+                        }
+                        pae_supp->tx_failure_on_initial_key = false;
+                        // Sends initial EAPOL-key
                         if (ws_pae_supp_initial_key_send(pae_supp) < 0) {
                             tr_info("EAPOL-Key send failed");
                         }
@@ -800,7 +820,12 @@ void ws_pae_supp_slow_timer(uint16_t seconds)
                             tr_info("GTKs do not match to GTK hash");
                             retry = true;
                         }
-                        ws_pae_supp_authenticate_response(pae_supp, AUTH_RESULT_ERR_UNSPEC);
+                        auth_result_e result = AUTH_RESULT_ERR_UNSPEC;
+                        if (pae_supp->tx_failure_on_initial_key) {
+                            result = AUTH_RESULT_ERR_TX_NO_ACK;
+                            pae_supp->tx_failure_on_initial_key = false;
+                        }
+                        ws_pae_supp_authenticate_response(pae_supp, result);
                         if (retry) {
                             // Start trickle timer to try re-authentication
                             ws_pae_supp_initial_key_update_trickle_timer_start(pae_supp, KEY_UPDATE_RETRY_COUNT);
@@ -838,7 +863,7 @@ void ws_pae_supp_slow_timer(uint16_t seconds)
                 pae_supp->initial_key_timer -= seconds;
             } else {
                 pae_supp->initial_key_timer = 0;
-
+                pae_supp->tx_failure_on_initial_key = false;
                 // Sends initial EAPOL-Key message
                 if (ws_pae_supp_initial_key_send(pae_supp) < 0) {
                     tr_info("EAPOL-Key send failed");
@@ -852,46 +877,40 @@ void ws_pae_supp_slow_timer(uint16_t seconds)
 
 static void ws_pae_supp_initial_trickle_timer_start(pae_supp_t *pae_supp)
 {
-    pae_supp->auth_trickle_params = initial_eapol_key_trickle_params;
+    /* Starts trickle for initial EAPOL-key. Default sequence has fixed delay of 2 minutes,
+     * one re-transmit interval, last re-transmit interval transmit time and a wait time
+     * for the authenticator to answer the last re-transmit.
+     *
+     * Interval I [6,12] minutes. Sequence:
+     *
+     * fixed 2 minutes delay + I + last I transmit time t + wait for answer [2,4] minutes
+     *
+     * There are two retries. Minimum time that sequence takes before authentication failure
+     * is 16 minutes and maximum is 30 minutes.
+     *
+     *
+     * Extremely slow network
+     *
+     * Starts trickle for initial EAPOL-key, Interval I [10,60] minutes. Sequence:
+     * I + last I transmit time t + wait for answer [2,4] minutes
+     * There are two retries. Minimum time that sequence takes before authentication failure
+     * is 22 minutes and maximum is 124 minutes.
+     */
+    pae_supp->auth_trickle_params = pae_supp->sec_prot_cfg->initial_key_trickle_params;
+    pae_supp->initial_key_retry_timer = pae_supp->sec_prot_cfg->initial_key_retry_delay;
 
-    // Very fast, medium and slow network
-    if (timing_value < 25) {
-        /* Starts trickle for initial EAPOL-key. Sequence has fixed delay of 2 minutes,
-         * one re-transmit interval, last re-transmit interval transmit time and a wait time
-         * for the authenticator to answer the last re-transmit.
-         *
-         * Interval I [6,12] minutes. Sequence:
-         *
-         * fixed 2 minutes delay + I + last I transmit time t + wait for answer [2,4] minutes
-         *
-         * There are two retries. Minimum time that sequence takes before authentication failure
-         * is 16 minutes and maximum is 30 minutes.
-         */
-        pae_supp->initial_key_retry_timer = DEFAULT_INITIAL_KEY_RETRY_TIMER; // 2 minutes
-    } else {
-        /* Extremely slow network
-         *
-         * Starts trickle for initial EAPOL-key, Interval I [10,60] minutes. Sequence:
-         * I + last I transmit time t + wait for answer [2,4] minutes
-         * There are two retries. Minimum time that sequence takes before authentication failure
-         * is 22 minutes and maximum is 124 minutes.
-         */
-        pae_supp->auth_trickle_params.Imin = VERY_SLOW_NW_TRICKLE_IMIN_SECS;
-        pae_supp->auth_trickle_params.Imax = VERY_SLOW_NW_TRICKLE_IMAX_SECS;
-        pae_supp->initial_key_retry_timer = NONE_INITIAL_KEY_RETRY_TIMER; // 0 seconds
-    }
     trickle_start(&pae_supp->auth_trickle_timer, &pae_supp->auth_trickle_params);
     tr_info("Initial EAPOL-Key trickle I: [%i,%i] %i, t: %i", pae_supp->auth_trickle_params.Imin, pae_supp->auth_trickle_params.Imax, pae_supp->auth_trickle_timer.I, pae_supp->auth_trickle_timer.t);
     pae_supp->auth_trickle_running = true;
-    pae_supp->initial_key_retry_cnt = INITIAL_KEY_RETRY_COUNT;
+    pae_supp->initial_key_retry_cnt = pae_supp->sec_prot_cfg->initial_key_retry_cnt;
 }
 
 static void ws_pae_supp_initial_last_interval_trickle_timer_start(pae_supp_t *pae_supp)
 {
     // Starts trickle last to wait response after last retry before failing authentication
-    pae_supp->auth_trickle_params = initial_eapol_key_trickle_params;
     pae_supp->auth_trickle_params.Imin = LAST_INTERVAL_TRICKLE_IMIN_SECS;
     pae_supp->auth_trickle_params.Imax = LAST_INTERVAL_TRICKLE_IMAX_SECS;
+    pae_supp->auth_trickle_params.k = 0;
     pae_supp->auth_trickle_params.TimerExpirations = 1;
     // Set I to [iMin,iMax] (4 to 4 minutes) -> t is [I/2 - I] (2 minutes to 4 minutes)
     trickle_start(&pae_supp->auth_trickle_timer, &pae_supp->auth_trickle_params);
@@ -1119,7 +1138,7 @@ static kmp_api_t *ws_pae_supp_kmp_incoming_ind(kmp_service_t *service, kmp_type_
 static kmp_api_t *ws_pae_supp_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, pae_supp_t *pae_supp)
 {
     // Create new instance
-    kmp_api_t *kmp = kmp_api_create(service, type, pae_supp->sec_prot_cfg);
+    kmp_api_t *kmp = kmp_api_create(service, type, pae_supp->sec_prot_cfg, pae_supp->sec_timer_cfg);
     if (!kmp) {
         return NULL;
     }
@@ -1217,7 +1236,8 @@ static void ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e
         /* Fails authentication only if other authentication protocols are not yet
            started by authenticator */
         if (ws_pae_lib_kmp_list_count(&pae_supp->entry.kmp_list) <= 1) {
-            ws_pae_supp_authenticate_response(pae_supp, AUTH_RESULT_ERR_TX_NO_ACK);
+            // Continues with trickle but selects different parent
+            pae_supp->tx_failure_on_initial_key = true;
         }
     }
 }

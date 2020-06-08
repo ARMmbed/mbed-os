@@ -49,12 +49,34 @@ uint8_t DEVICE_MIN_SENS = 174 - 93;
 
 uint16_t test_max_child_count_override = 0xffff;
 
-
-int8_t ws_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain)
+int8_t ws_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain, uint8_t operating_class)
 {
-    (void)regulatory_domain;
-    for (uint8_t i = 0; i < number_of_channels; i++) {
-        channel_mask[0 + (i / 32)] |= (1 << (i % 32));
+    uint32_t excluded_start_channel = 0xFFFFFFFF;
+    uint32_t excluded_end_channel = 0xFFFFFFFF;
+
+    if (regulatory_domain == REG_DOMAIN_BZ) {
+        if (operating_class == 1) {
+            excluded_start_channel = 26;
+            excluded_end_channel = 64;
+        } else if (operating_class == 2) {
+            excluded_start_channel = 12;
+            excluded_end_channel = 32;
+        } else if (operating_class == 3) {
+            excluded_start_channel = 7;
+            excluded_end_channel = 21;
+        }
+    }
+
+    // Clear channel mask
+    for (uint8_t i = 0; i < 8; i++) {
+        channel_mask[i] = 0;
+    }
+
+    // Set channel maks outside excluded channels
+    for (uint16_t i = 0; i < number_of_channels; i++) {
+        if (i < excluded_start_channel || i > excluded_end_channel) {
+            channel_mask[0 + (i / 32)] |= (1 << (i % 32));
+        }
     }
     return 0;
 }
@@ -159,6 +181,19 @@ int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, 
         } else {
             return -1;
         }
+    } else if (hopping_schdule->regulatory_domain == REG_DOMAIN_BZ) {
+        if (hopping_schdule->operating_class == 1) {
+            hopping_schdule->ch0_freq = 9022;
+            hopping_schdule->channel_spacing = CHANNEL_SPACING_200;
+        } else if (hopping_schdule->operating_class == 2) {
+            hopping_schdule->ch0_freq = 9024;
+            hopping_schdule->channel_spacing = CHANNEL_SPACING_400;
+        } else if (hopping_schdule->operating_class == 3) {
+            hopping_schdule->ch0_freq = 9026;
+            hopping_schdule->channel_spacing = CHANNEL_SPACING_600;
+        } else {
+            return -1;
+        }
     } else if (hopping_schdule->regulatory_domain == REG_DOMAIN_JP) {
         if (hopping_schdule->operating_class == 1) {
             hopping_schdule->ch0_freq = 9206;
@@ -189,6 +224,7 @@ int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, 
     if (!hopping_schdule->number_of_channels) {
         return -1;
     }
+
     return 0;
 }
 
@@ -231,6 +267,14 @@ uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operat
             return 18;
         } else if (operating_class == 3) {
             return 12;
+        }
+    } else if (regulatory_domain == REG_DOMAIN_BZ) {
+        if (operating_class == 1) {
+            return 129;
+        } else if (operating_class == 2) {
+            return 64;
+        } else if (operating_class == 3) {
+            return 42;
         }
     } else if (regulatory_domain == REG_DOMAIN_WW) {
         if (operating_class == 1) {
@@ -391,8 +435,10 @@ uint32_t ws_common_latency_estimate_get(protocol_interface_info_entry_t *cur)
         latency = 4000;
     } else if (network_size <= NETWORK_SIZE_MEDIUM) {
         latency = 8000;
-    } else  {
+    } else if (network_size <= NETWORK_SIZE_LARGE) {
         latency = 16000;
+    } else  {
+        latency = 24000;
     }
 
     return latency;

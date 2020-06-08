@@ -1226,6 +1226,7 @@ mac_pre_build_frame_t *mcps_sap_prebuild_frame_buffer_get(uint16_t payload_size)
     memset(buffer, 0, sizeof(mac_pre_build_frame_t));
     buffer->initial_tx_channel = 0xffff;
     buffer->aux_header.frameCounter = 0xffffffff;
+    buffer->DSN_allocated = false;
     if (payload_size) {
         //Mac interlnal payload allocate
         buffer->mac_payload = ns_dyn_mem_temporary_alloc(payload_size);
@@ -1502,7 +1503,10 @@ static void mcps_generic_sequence_number_allocate(protocol_interface_rf_mac_setu
         switch (buffer->fcf_dsn.frametype) {
             case MAC_FRAME_CMD:
             case MAC_FRAME_DATA:
-                buffer->fcf_dsn.DSN = mac_mlme_set_new_sqn(rf_ptr);
+                if (!buffer->DSN_allocated) {
+                    buffer->fcf_dsn.DSN = mac_mlme_set_new_sqn(rf_ptr);
+                    buffer->DSN_allocated = true;
+                }
                 break;
             case MAC_FRAME_BEACON:
                 buffer->fcf_dsn.DSN = mac_mlme_set_new_beacon_sqn(rf_ptr);

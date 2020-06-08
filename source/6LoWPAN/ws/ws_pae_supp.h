@@ -81,13 +81,14 @@ void ws_pae_supp_slow_timer(uint16_t seconds);
  * \param interface_ptr interface
  * \param dest_pan_id EAPOL target PAN ID
  * \param dest_eui_64 EAPOL target
+ * \param dest_network_name EAPOL target network name
  *
  * \return < 0 failure
  * \return 0 authentication done, continue
  * \return > 0 authentication started
  *
  */
-int8_t ws_pae_supp_authenticate(protocol_interface_info_entry_t *interface_ptr, uint16_t dest_pan_id, uint8_t *dest_eui_64);
+int8_t ws_pae_supp_authenticate(protocol_interface_info_entry_t *interface_ptr, uint16_t dest_pan_id, uint8_t *dest_eui_64, char *dest_network_name);
 
 /**
  * ws_pae_supp_border_router_addr_write write border router address
@@ -117,12 +118,13 @@ int8_t ws_pae_supp_border_router_addr_read(protocol_interface_info_entry_t *inte
  * ws_pae_supp_nw_key_valid network key is valid i.e. used successfully on bootstrap
  *
  * \param interface_ptr interface
+ * \param br_iid border router IID for which the keys are valid
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-int8_t ws_pae_supp_nw_key_valid(protocol_interface_info_entry_t *interface_ptr);
+int8_t ws_pae_supp_nw_key_valid(protocol_interface_info_entry_t *interface_ptr, uint8_t *br_iid);
 
 /**
  * ws_pae_supp_gtk_hash_update GTK hash has been updated (on PAN configuration)
@@ -191,6 +193,17 @@ typedef void ws_pae_supp_nw_key_index_set(protocol_interface_info_entry_t *inter
 typedef void ws_pae_supp_auth_completed(protocol_interface_info_entry_t *interface_ptr, auth_result_e result, uint8_t *target_eui_64);
 
 /**
+ * ws_pae_supp_auth_next_target get next target to attempt authentication
+ *
+ * \param interface_ptr interface
+ * \param previous_eui_64 EUI-64 of previous target
+ *
+ * \return EUI-64 of the next target or previous target if new one not available
+ *
+ */
+typedef const uint8_t *ws_pae_supp_auth_next_target(protocol_interface_info_entry_t *interface_ptr, const uint8_t *previous_eui_64, uint16_t *pan_id);
+
+/**
  * ws_pae_supp_nw_key_insert network key insert callback
  *
  * \param interface_ptr interface
@@ -230,7 +243,7 @@ typedef void ws_pae_supp_nw_info_updated(protocol_interface_info_entry_t *interf
  * \param nw_info_updated security keys network information updated callback
  *
  */
-void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_supp_auth_completed *completed, ws_pae_supp_nw_key_insert *nw_key_insert, ws_pae_supp_nw_key_index_set *nw_key_index_set, ws_pae_supp_gtk_hash_ptr_get *gtk_hash_ptr_get, ws_pae_supp_nw_info_updated *nw_info_updated);
+void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_supp_auth_completed *completed, ws_pae_supp_auth_next_target *auth_next_target, ws_pae_supp_nw_key_insert *nw_key_insert, ws_pae_supp_nw_key_index_set *nw_key_index_set, ws_pae_supp_gtk_hash_ptr_get *gtk_hash_ptr_get, ws_pae_supp_nw_info_updated *nw_info_updated);
 
 #else
 

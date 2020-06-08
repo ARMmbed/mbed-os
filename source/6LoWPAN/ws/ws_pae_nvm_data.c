@@ -204,10 +204,12 @@ void ws_pae_nvm_store_keys_tlv_create(nvm_tlv_t *tlv_entry, sec_prot_keys_t *sec
     uint8_t *pmk = sec_prot_keys_pmk_get(sec_keys);
     if (pmk) {
         *tlv++ = PAE_NVM_FIELD_SET;
+        uint32_t lifetime = sec_prot_keys_pmk_lifetime_get(sec_keys);
+        tlv = common_write_32_bit(lifetime, tlv);
         memcpy(tlv, pmk, PMK_LEN);
     } else {
         *tlv++ = PAE_NVM_FIELD_NOT_SET;
-        memset(tlv, 0, PMK_LEN);
+        memset(tlv, 0, 4 + PMK_LEN);
     }
     tlv += PMK_LEN;
 
@@ -217,10 +219,12 @@ void ws_pae_nvm_store_keys_tlv_create(nvm_tlv_t *tlv_entry, sec_prot_keys_t *sec
     uint8_t *ptk = sec_prot_keys_ptk_get(sec_keys);
     if (ptk) {
         *tlv++ = PAE_NVM_FIELD_SET;
+        uint32_t lifetime = sec_prot_keys_ptk_lifetime_get(sec_keys);
+        tlv = common_write_32_bit(lifetime, tlv);
         memcpy(tlv, ptk, PTK_LEN);
     } else {
         *tlv++ = PAE_NVM_FIELD_NOT_SET;
-        memset(tlv, 0, PTK_LEN);
+        memset(tlv, 0, 4 + PTK_LEN);
     }
     tlv += PTK_LEN;
 
@@ -247,7 +251,11 @@ int8_t ws_pae_nvm_store_keys_tlv_read(nvm_tlv_t *tlv_entry, sec_prot_keys_t *sec
 
     // PMK set
     if (*tlv++ == PAE_NVM_FIELD_SET) {
-        sec_prot_keys_pmk_write(sec_keys, tlv);
+        uint32_t lifetime = common_read_32_bit(tlv);
+        tlv += 4;
+        sec_prot_keys_pmk_write(sec_keys, tlv, lifetime);
+    } else {
+        tlv += 4;
     }
     tlv += PMK_LEN;
 
@@ -257,7 +265,11 @@ int8_t ws_pae_nvm_store_keys_tlv_read(nvm_tlv_t *tlv_entry, sec_prot_keys_t *sec
 
     // PTK set
     if (*tlv++ == PAE_NVM_FIELD_SET) {
-        sec_prot_keys_ptk_write(sec_keys, tlv);
+        uint32_t lifetime = common_read_32_bit(tlv);
+        tlv += 4;
+        sec_prot_keys_ptk_write(sec_keys, tlv, lifetime);
+    } else {
+        tlv += 4;
     }
 
     tlv += PTK_LEN;

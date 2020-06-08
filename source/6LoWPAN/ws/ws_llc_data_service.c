@@ -100,7 +100,7 @@ typedef struct {
 typedef NS_LIST_HEAD(llc_message_t, link) llc_message_list_t;
 
 #define MAX_NEIGH_TEMPORARY_MULTICAST_SIZE 5
-#define MAX_NEIGH_TEMPORRY_EAPOL_SIZE 15
+#define MAX_NEIGH_TEMPORRY_EAPOL_SIZE 30
 #define MAX_NEIGH_TEMPORAY_LIST_SIZE (MAX_NEIGH_TEMPORARY_MULTICAST_SIZE + MAX_NEIGH_TEMPORRY_EAPOL_SIZE)
 
 typedef struct {
@@ -431,7 +431,7 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
             ws_neighbor_temp_class_t *temp_entry = ws_llc_discover_eapol_temp_entry(base->temp_entries, message->dst_address);
             if (temp_entry) {
                 //Update Temporary Lifetime
-                temp_entry->eapol_timeout = interface->ws_info->cfg->timing.temp_eapol_min_timeout + 1;
+                temp_entry->eapol_temp_info.eapol_timeout = interface->ws_info->cfg->timing.temp_eapol_min_timeout + 1;
             }
         }
     }
@@ -449,7 +449,7 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
                 }
 
                 if (message->dst_address_type == MAC_ADDR_MODE_64_BIT && base->ws_neighbor_info_request_cb(interface, message->dst_address, &neighbor_info, false)) {
-                    etx_transm_attempts_update(interface->id, 1 + data->tx_retries, success, neighbor_info.neighbor->index);
+                    etx_transm_attempts_update(interface->id, 1 + data->tx_retries, success, neighbor_info.neighbor->index, neighbor_info.neighbor->mac64);
                     //TODO discover RSL from Enchanced ACK Header IE elements
                     ws_utt_ie_t ws_utt;
                     if (ws_wh_utt_read(conf_data->headerIeList, conf_data->headerIeListLength, &ws_utt)) {
@@ -648,6 +648,11 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
         }
     }
 
+    if (!multicast && !ws_neighbor_class_neighbor_duplicate_packet_check(neighbor_info.ws_neighbor, data->DSN, data->timestamp)) {
+        tr_info("Drop duplicate message");
+        return;
+    }
+
     ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ws_utt, data->timestamp);
     if (us_ie_inline) {
         ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, &us_ie);
@@ -675,7 +680,7 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
 
     if (neighbor_info.neighbor) {
         //Refresh ETX dbm
-        etx_lqi_dbm_update(interface->id, data->mpduLinkQuality, data->signal_dbm, neighbor_info.neighbor->index);
+        etx_lqi_dbm_update(interface->id, data->mpduLinkQuality, data->signal_dbm, neighbor_info.neighbor->index, neighbor_info.neighbor->mac64);
         if (data->Key.SecurityLevel) {
             //SET trusted state
             mac_neighbor_table_trusted_neighbor(mac_neighbor_info(interface), neighbor_info.neighbor, true);
@@ -740,7 +745,7 @@ static void ws_llc_eapol_indication_cb(const mac_api_t *api, const mcps_data_ind
             return;
         }
         //Update Temporary Lifetime
-        temp_entry->eapol_timeout = interface->ws_info->cfg->timing.temp_eapol_min_timeout + 1;
+        temp_entry->eapol_temp_info.eapol_timeout = interface->ws_info->cfg->timing.temp_eapol_min_timeout + 1;
 
         neighbor_info.ws_neighbor = &temp_entry->neigh_info_list;
         //Storage Signal info for future ETX update possibility
@@ -837,78 +842,6 @@ static void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t
 
     if (ws_utt.message_type == WS_FT_EAPOL) {
         ws_llc_eapol_indication_cb(api, data, ie_ext, ws_utt);
-        return;
-        llc_data_base_t *base = ws_llc_mpx_frame_common_validates(api, data, ws_utt);
-        if (!base) {
-            return;
-        }
-
-        //Discover MPX header and handler
-        mac_payload_IE_t mpx_ie;
-        mpx_msg_t mpx_frame;
-        mpx_user_t *user_cb = ws_llc_mpx_header_parse(base, ie_ext, &mpx_frame, &mpx_ie);
-        if (!user_cb) {
-            return;
-        }
-
-        mac_payload_IE_t ws_wp_nested;
-        ws_us_ie_t us_ie;
-        bool us_ie_inline = false;
-        bool bs_ie_inline = false;
-        ws_wp_nested.id = WS_WP_NESTED_IE;
-        ws_bs_ie_t ws_bs_ie;
-        if (mac_ie_payload_discover(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_wp_nested) > 2) {
-            us_ie_inline = ws_wp_nested_us_read(ws_wp_nested.content_ptr, ws_wp_nested.length, &us_ie);
-            bs_ie_inline = ws_wp_nested_bs_read(ws_wp_nested.content_ptr, ws_wp_nested.length, &ws_bs_ie);
-        }
-
-        //Validate Unicast shedule Channel Plan
-        if (us_ie_inline && !ws_bootstrap_validate_channel_plan(&us_ie, base->interface_ptr)) {
-            //Channel plan configuration mismatch
-            return;
-        }
-
-        llc_neighbour_req_t neighbor_info;
-
-        if (!base->ws_neighbor_info_request_cb(base->interface_ptr, data->SrcAddr, &neighbor_info, true)) {
-            //tr_debug("Drop message no neighbor");
-            return;
-        }
-
-        ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ws_utt, data->timestamp);
-        if (us_ie_inline) {
-            ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, &us_ie);
-        }
-        //Update BS if it is part of message
-        if (bs_ie_inline) {
-            ws_neighbor_class_neighbor_broadcast_schedule_set(neighbor_info.ws_neighbor, &ws_bs_ie);
-        }
-
-        uint8_t auth_eui64[8];
-        //Discover and write Auhtenticator EUI-64
-        if (ws_wh_ea_read(ie_ext->headerIeList, ie_ext->headerIeListLength, auth_eui64)) {
-            ws_pae_controller_border_router_addr_write(base->interface_ptr, auth_eui64);
-        }
-
-
-        //Update BT if it is part of message
-        ws_bt_ie_t ws_bt;
-        if (ws_wh_bt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ws_bt)) {
-            ws_neighbor_class_neighbor_broadcast_time_info_update(neighbor_info.ws_neighbor, &ws_bt, data->timestamp);
-            if (neighbor_info.neighbor) {
-                if (neighbor_info.neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
-                    // We have broadcast schedule set up set the broadcast parent schedule
-                    ns_fhss_ws_set_parent(base->interface_ptr->ws_info->fhss_api, neighbor_info.neighbor->mac64, &neighbor_info.ws_neighbor->fhss_data.bc_timing_info, false);
-                } else {
-                    ws_bootstrap_eapol_parent_synch(base->interface_ptr, &neighbor_info);
-                }
-            }
-        }
-
-        mcps_data_ind_t data_ind = *data;
-        data_ind.msdu_ptr = mpx_frame.frame_ptr;
-        data_ind.msduLength = mpx_frame.frame_length;
-        user_cb->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
         return;
     }
 }
@@ -1401,6 +1334,7 @@ static void ws_init_temporary_neigh_data(ws_neighbor_temp_class_t *entry, const 
     entry->neigh_info_list.rsl_in = RSL_UNITITIALIZED;
     entry->neigh_info_list.rsl_out = RSL_UNITITIALIZED;
     memcpy(entry->mac64, mac64, 8);
+    entry->eapol_temp_info.eapol_rx_relay_filter = 0;
 }
 
 
@@ -1725,13 +1659,51 @@ void ws_llc_timer_seconds(struct protocol_interface_info_entry *interface, uint1
     }
 
     ns_list_foreach_safe(ws_neighbor_temp_class_t, entry, &base->temp_entries->active_eapol_temp_neigh) {
-        if (entry->eapol_timeout <= seconds_update) {
+        if (entry->eapol_temp_info.eapol_timeout <= seconds_update) {
             ns_list_remove(&base->temp_entries->active_eapol_temp_neigh, entry);
             ns_list_add_to_end(&base->temp_entries->free_temp_neigh, entry);
         } else {
-            entry->eapol_timeout -= seconds_update;
+            entry->eapol_temp_info.eapol_timeout -= seconds_update;
+            if (entry->eapol_temp_info.eapol_rx_relay_filter == 0) {
+                //No active filter period
+                continue;
+            }
+
+            //Update filter time
+            if (entry->eapol_temp_info.eapol_rx_relay_filter <= seconds_update) {
+                entry->eapol_temp_info.eapol_rx_relay_filter = 0;
+            } else {
+                entry->eapol_temp_info.eapol_rx_relay_filter -= seconds_update;
+            }
         }
     }
 }
+
+bool ws_llc_eapol_relay_forward_filter(struct protocol_interface_info_entry *interface, const uint8_t *joiner_eui64, uint8_t mac_sequency, uint32_t rx_timestamp)
+{
+    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
+    if (!base) {
+        return false;
+    }
+
+    ws_neighbor_temp_class_t *neighbor = ws_llc_discover_eapol_temp_entry(base->temp_entries, joiner_eui64);
+    if (!neighbor) {
+        llc_neighbour_req_t neighbor_info;
+        //Discover here Normal Neighbour
+        if (!base->ws_neighbor_info_request_cb(interface, joiner_eui64, &neighbor_info, false)) {
+            return false;
+        }
+        return ws_neighbor_class_neighbor_duplicate_packet_check(neighbor_info.ws_neighbor, mac_sequency, rx_timestamp);
+    }
+
+    if (neighbor->eapol_temp_info.eapol_rx_relay_filter && neighbor->eapol_temp_info.last_rx_mac_sequency == mac_sequency) {
+        return false;
+    }
+    neighbor->eapol_temp_info.last_rx_mac_sequency = mac_sequency;
+    neighbor->eapol_temp_info.eapol_rx_relay_filter = 6; //Activate 5-5.99 seconds filter time
+    return true;
+
+}
+
 
 #endif
