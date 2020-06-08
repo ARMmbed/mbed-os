@@ -2161,6 +2161,10 @@
                 "value": "PA_7",
                 "macro_name": "STM32_D11_SPI_ETHERNET_PIN"
             },
+            "usb_speed": {
+                "help": "USE_USB_OTG_FS or USE_USB_OTG_HS or USE_USB_HS_IN_FS",
+                "value": "USE_USB_OTG_FS"
+            },
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
@@ -2182,7 +2186,8 @@
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "detect_code": [
             "0797"
