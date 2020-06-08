@@ -322,5 +322,32 @@ void ws_neighbor_class_rsl_out_calculate(ws_neighbor_class_entry_t *ws_neighbor,
     return;
 }
 
+
+bool ws_neighbor_class_neighbor_duplicate_packet_check(ws_neighbor_class_entry_t *ws_neighbor, uint8_t mac_dsn, uint32_t rx_timestamp)
+{
+    if (ws_neighbor->last_DSN != mac_dsn) {
+        // New packet allways accepted
+        ws_neighbor->last_DSN = mac_dsn;
+        return true;
+    }
+
+    if (!ws_neighbor->unicast_data_rx) {
+        // No unicast info stored always accepted
+        return true;
+    }
+
+    rx_timestamp -= ws_neighbor->fhss_data.uc_timing_info.utt_rx_timestamp;
+    rx_timestamp /= 1000000; //Convert to s
+
+    //Compare only when last rx timestamp is less than 5 seconds
+    if (rx_timestamp < 5) {
+        //Packet is sent too fast filter it out
+        return false;
+    }
+
+    return true;
+}
+
+
 #endif /* HAVE_WS */
 

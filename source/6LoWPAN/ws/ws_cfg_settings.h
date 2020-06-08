@@ -27,6 +27,8 @@ typedef struct ws_gen_cfg_s {
     uint8_t network_size;               /**< Network size selection; default medium (= 8) */
     char network_name[33];              /**< Network name; max 32 octets + terminating 0 */
     uint16_t network_pan_id;            /**< PAN identifier; PAN_ID; default 0xffff */
+    uint16_t rpl_parent_candidate_max;  /**< RPL parent candidate maximum value; default 5 */
+    uint16_t rpl_selected_parent_max;   /**< RPL selected parent maximum value; default 2 */
 } ws_gen_cfg_t;
 
 /**
@@ -47,20 +49,20 @@ typedef struct ws_timing_cfg_s {
     uint8_t disc_trickle_k;             /**< Discovery trickle k; DISC_K; default 1 */
     uint16_t pan_timeout;               /**< PAN timeout; PAN_TIMEOUT; seconds; range 60-15300; default 3840 */
     uint16_t temp_link_min_timeout;     /**< Temporary neighbor link minimum timeout; seconds; default 260 */
+    uint16_t temp_eapol_min_timeout;     /**< Temporary neighbor link minimum timeout; seconds; default 330 */
 } ws_timing_cfg_t;
 
 /**
  * \brief Struct ws_rpl_cfg_t RPL configuration
  */
-typedef struct ws_rpl_cfg_s {
+typedef struct ws_bbr_cfg_s {
     uint8_t dio_interval_min;           /**> DIO interval min; DEFAULT_DIO_INTERVAL_MIN; 2^value in milliseconds; range 1-255; default */
     uint8_t dio_interval_doublings;     /**> DIO interval doublings; DEFAULT_DIO_INTERVAL_DOUBLINGS; range 1-8; default */
     uint8_t dio_redundancy_constant;    /**> DIO redundancy constant; DEFAULT_DIO_REDUNDANCY_CONSTANT; range 0-10; default */
     uint16_t dag_max_rank_increase;
     uint16_t min_hop_rank_increase;
-    uint16_t rpl_parent_candidate_max;  /**< RPL parent candidate maximum value; default 5 */
-    uint16_t rpl_selected_parent_max;   /**< RPL selected parent maximum value; default 2 */
-} ws_rpl_cfg_t;
+    uint32_t dhcp_address_lifetime;     /**> DHCP address lifetime in seconds minimum 2 hours and maximum as days hours*/
+} ws_bbr_cfg_t;
 
 /**
  * \brief Struct ws_fhss_cfg_t Frequency hopping configuration
@@ -106,11 +108,15 @@ typedef struct ws_sec_timer_cfg_s {
  * \brief Struct ws_sec_prot_cfg_t Security protocols configuration
  */
 typedef struct ws_sec_prot_cfg_s {
-    uint16_t sec_prot_retry_timeout;    /**< Security protocol retry timeout; seconds; default 330 */
-    uint16_t sec_prot_trickle_imin;     /**< Security protocol trickle parameters Imin; seconds; default 30 */
-    uint16_t sec_prot_trickle_imax;     /**< Security protocol trickle parameters Imax; seconds; default 90 */
-    uint8_t sec_prot_trickle_timer_exp; /**< Security protocol trickle timer expirations; default 2 */
-    uint16_t sec_max_ongoing_authentication; /**< Pae authenticator max Accept ongoing authentication count */
+    uint16_t sec_prot_retry_timeout;          /**< Security protocol retry timeout; seconds; default 330 */
+    uint16_t sec_prot_trickle_imin;           /**< Security protocol trickle parameters Imin; seconds; default 30 */
+    uint16_t sec_prot_trickle_imax;           /**< Security protocol trickle parameters Imax; seconds; default 90 */
+    uint8_t sec_prot_trickle_timer_exp;       /**< Security protocol trickle timer expirations; default 2 */
+    uint16_t sec_max_ongoing_authentication;  /**< Pae authenticator max Accept ongoing authentication count */
+    uint16_t initial_key_retry_delay;         /**< Delay before starting initial key trickle; seconds; default 120 */
+    uint16_t initial_key_imin;                /**< Initial key trickle Imin; seconds; default 360 */
+    uint16_t initial_key_imax;                /**< Initial key trickle Imax; seconds; default 720 */
+    uint8_t initial_key_retry_cnt;            /**< Number of initial key retries; default 2 */
 } ws_sec_prot_cfg_t;
 
 /**
@@ -120,7 +126,7 @@ typedef struct ws_cfg_s {
     ws_gen_cfg_t gen;                   /**< General configuration */
     ws_phy_cfg_t phy;                   /**< Physical layer configuration */
     ws_timing_cfg_t timing;             /**< Timing configuration */
-    ws_rpl_cfg_t rpl;                   /**< RPL configuration */
+    ws_bbr_cfg_t bbr;                   /**< RPL configuration */
     ws_fhss_cfg_t fhss;                 /**< Frequency hopping configuration */
     ws_mpl_cfg_t mpl;                   /**< Multicast configuration */
     ws_sec_timer_cfg_t sec_timer;       /**< Security timers configuration */
@@ -161,9 +167,9 @@ int8_t ws_cfg_timing_get(ws_timing_cfg_t *cfg, uint8_t *flags);
 int8_t ws_cfg_timing_validate(ws_timing_cfg_t *cfg, ws_timing_cfg_t *new_cfg);
 int8_t ws_cfg_timing_set(protocol_interface_info_entry_t *cur, ws_timing_cfg_t *cfg, ws_timing_cfg_t *new_cfg, uint8_t *flags);
 
-int8_t ws_cfg_rpl_get(ws_rpl_cfg_t *cfg, uint8_t *flags);
-int8_t ws_cfg_rpl_validate(ws_rpl_cfg_t *cfg, ws_rpl_cfg_t *new_cfg);
-int8_t ws_cfg_rpl_set(protocol_interface_info_entry_t *cur, ws_rpl_cfg_t *cfg, ws_rpl_cfg_t *new_cfg, uint8_t *flags);
+int8_t ws_cfg_bbr_get(ws_bbr_cfg_t *cfg, uint8_t *flags);
+int8_t ws_cfg_bbr_validate(ws_bbr_cfg_t *cfg, ws_bbr_cfg_t *new_cfg);
+int8_t ws_cfg_bbr_set(protocol_interface_info_entry_t *cur, ws_bbr_cfg_t *cfg, ws_bbr_cfg_t *new_cfg, uint8_t *flags);
 
 int8_t ws_cfg_mpl_get(ws_mpl_cfg_t *cfg, uint8_t *flags);
 int8_t ws_cfg_mpl_validate(ws_mpl_cfg_t *cfg, ws_mpl_cfg_t *new_cfg);

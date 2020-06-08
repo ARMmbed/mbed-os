@@ -34,7 +34,9 @@ SRCS += \
 	source/6LoWPAN/ws/ws_pae_lib.c \
 	source/6LoWPAN/ws/ws_pae_nvm_data.c \
 	source/6LoWPAN/ws/ws_pae_nvm_store.c \
+	source/6LoWPAN/ws/ws_pae_time.c \
 	source/6LoWPAN/ws/ws_pae_timers.c \
+	source/6LoWPAN/ws/ws_pae_key_storage.c \
 	source/6LoWPAN/ws/ws_eapol_relay.c \
 	source/6LoWPAN/ws/ws_eapol_auth_relay.c \
 	source/6LoWPAN/ws/ws_eapol_relay_lib.c \
@@ -79,6 +81,7 @@ SRCS += \
 	source/MAC/IEEE802_15_4/mac_timer.c \
 	source/MAC/IEEE802_15_4/sw_mac.c \
 	source/MAC/IEEE802_15_4/mac_fhss_callbacks.c \
+	source/MAC/IEEE802_15_4/mac_cca_threshold.c \
 	source/MAC/ethernet/ethernet_mac_api.c \
 	source/MAC/serial/serial_mac_api.c \
 	source/MAC/virtual_rf/virtual_rf_client.c \

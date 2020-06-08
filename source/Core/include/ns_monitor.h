@@ -35,5 +35,10 @@ void ns_monitor_timer(uint16_t seconds);
 
 int ns_monitor_heap_gc_threshold_set(uint8_t percentage_high, uint8_t percentage_critical);
 
+int ns_monitor_packet_ingress_rate_limit_by_memory(uint8_t free_heap_percentage);
+
+bool ns_monitor_packet_allocation_allowed(void);
+
+
 #endif // _NS_MONITOR_H
 

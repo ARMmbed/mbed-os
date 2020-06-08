@@ -31,13 +31,17 @@
 #define WS_RPL_DIO_DOUBLING_SMALL 2
 #define WS_RPL_DIO_REDUNDANCY_SMALL 0
 
-#define WS_RPL_DIO_IMIN_MEDIUM 15
-#define WS_RPL_DIO_DOUBLING_MEDIUM 5
+#define WS_RPL_DIO_IMIN_MEDIUM 17
+#define WS_RPL_DIO_DOUBLING_MEDIUM 3
 #define WS_RPL_DIO_REDUNDANCY_MEDIUM 10
 
-#define WS_RPL_DIO_IMIN_LARGE 19
-#define WS_RPL_DIO_DOUBLING_LARGE 1
+#define WS_RPL_DIO_IMIN_LARGE 18
+#define WS_RPL_DIO_DOUBLING_LARGE 3
 #define WS_RPL_DIO_REDUNDANCY_LARGE 10 // May need some tuning still
+
+#define WS_RPL_DIO_IMIN_XLARGE 18
+#define WS_RPL_DIO_DOUBLING_XLARGE 4
+#define WS_RPL_DIO_REDUNDANCY_XLARGE 10 // May need some tuning still
 
 #define WS_RPL_DIO_IMIN_AUTOMATIC 14
 #define WS_RPL_DIO_DOUBLING_AUTOMATIC 3
@@ -45,6 +49,10 @@
 
 #define WS_RPL_MIN_HOP_RANK_INCREASE 196
 #define WS_RPL_MAX_HOP_RANK_INCREASE 2048
+
+#define WS_DHCP_ADDRESS_LIFETIME_SMALL 2*3600 // small networks less than devices 100
+#define WS_DHCP_ADDRESS_LIFETIME_MEDIUM 12*3600 // Medium size networks from 100 - 1000 device networks
+#define WS_DHCP_ADDRESS_LIFETIME_LARGE 24*3600 // Large size networks 1000 + device networks
 
 #define WS_CERTIFICATE_RPL_MIN_HOP_RANK_INCREASE 128
 #define WS_CERTIFICATE_RPL_MAX_HOP_RANK_INCREASE 0
@@ -64,7 +72,10 @@
 // RPL version number update intervall
 // after restart version numbers are increased faster and then slowed down when network is stable
 #define RPL_VERSION_LIFETIME 12*3600
-#define RPL_VERSION_LIFETIME_RESTART 3600
+#define RPL_VERSION_LIFETIME_RESTART_SMALL 3600
+#define RPL_VERSION_LIFETIME_RESTART_MEDIUM 2*3600
+#define RPL_VERSION_LIFETIME_RESTART_LARGE 4*3600
+#define RPL_VERSION_LIFETIME_RESTART_EXTRA_LARGE 8*3600
 
 /* Border router connection lost timeout
  *
@@ -80,6 +91,8 @@
 #define PAN_VERSION_MEDIUM_NETWORK_TIMEOUT 64*60
 
 #define PAN_VERSION_LARGE_NETWORK_TIMEOUT 90*60
+
+#define PAN_VERSION_XLARGE_NETWORK_TIMEOUT 120*60
 
 /* Routing Cost Weighting factor
  */
@@ -153,10 +166,11 @@ extern uint8_t DEVICE_MIN_SENS;
 /*
  * MAC frame counter NVM storing configuration
  */
-#define FRAME_COUNTER_STORE_INTERVAL     60   // Time interval (on seconds) between frame counter store operations
-#define FRAME_COUNTER_STORE_TRIGGER      5    // Delay (on seconds) before storing, when storing of frame counters is triggered
-#define FRAME_COUNTER_INCREMENT          1000 // How much frame counter is incremented on start up
-#define FRAME_COUNTER_STORE_THRESHOLD    800  // How much frame counter must increment before it is stored
+#define FRAME_COUNTER_STORE_INTERVAL        60          // Time interval (on seconds) between checking if frame counter storing is needed
+#define FRAME_COUNTER_STORE_FORCE_INTERVAL  (3600 * 20) // Time interval (on seconds) before frame counter storing is forced (if no other storing operations triggered)
+#define FRAME_COUNTER_STORE_TRIGGER         5           // Delay (on seconds) before storing, when storing of frame counters is triggered
+#define FRAME_COUNTER_INCREMENT             1000        // How much frame counter is incremented on start up
+#define FRAME_COUNTER_STORE_THRESHOLD       800         // How much frame counter must increment before it is stored
 
 
 /*
@@ -199,10 +213,10 @@ extern uint8_t DEVICE_MIN_SENS;
 
 #define SEC_PROT_TIMER_EXPIRATIONS 2        // Number of retries
 
-// Maximum number of simultaneous EAP-TLS negotiations
-#define MAX_SIMULTANEOUS_EAP_TLS_NEGOTIATIONS_SMALL     3
-#define MAX_SIMULTANEOUS_EAP_TLS_NEGOTIATIONS_MEDIUM    20
-#define MAX_SIMULTANEOUS_EAP_TLS_NEGOTIATIONS_LARGE       50
+// Maximum number of simultaneous security negotiations
+#define MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_SMALL     3
+#define MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_MEDIUM    20
+#define MAX_SIMULTANEOUS_SECURITY_NEGOTIATIONS_LARGE     50
 
 /*
  *  Security protocol timer configuration parameters
@@ -217,5 +231,34 @@ extern uint8_t DEVICE_MIN_SENS;
 #define DEFAULT_GTK_REQUEST_IMAX                64                       // 64 minutes
 #define DEFAULT_GTK_MAX_MISMATCH                64                       // 64 minutes
 #define DEFAULT_GTK_NEW_INSTALL_REQUIRED        80                       // 80 percent of GTK lifetime --> 24 days
+
+/*
+ *  Security protocol initial EAPOL-key parameters
+ */
+
+// How long the wait is before the first initial EAPOL-key retry
+#define DEFAULT_INITIAL_KEY_RETRY_TIMER                120
+#define NONE_INITIAL_KEY_RETRY_TIMER                   0
+
+// Small network Default trickle values for sending of initial EAPOL-key
+#define SMALL_NW_INITIAL_KEY_TRICKLE_IMIN_SECS         360   /* 6 to 8.3 minutes */
+#define SMALL_NW_INITIAL_KEY_TRICKLE_IMAX_SECS         500
+
+// Small network Default trickle values for sending of initial EAPOL-key
+#define MEDIUM_NW_INITIAL_KEY_TRICKLE_IMIN_SECS        360   /* 6 to 12 minutes */
+#define MEDIUM_NW_INITIAL_KEY_TRICKLE_IMAX_SECS        720
+
+// Large network trickle values for sending of initial EAPOL-key
+#define LARGE_NW_INITIAL_KEY_TRICKLE_IMIN_SECS         600   /* 10 to 20 minutes */
+#define LARGE_NW_INITIAL_KEY_TRICKLE_IMAX_SECS         1200
+#define LARGE_NW_INITIAL_KEY_RETRY_COUNT               4
+
+// Very slow network values for sending of initial EAPOL-key
+#define EXTRA_LARGE_NW_INITIAL_KEY_TRICKLE_IMIN_SECS   600   /* 10 to 20 minutes */
+#define EXTRA_LARGE_NW_INITIAL_KEY_TRICKLE_IMAX_SECS   1200
+#define EXTRA_LARGE_NW_INITIAL_KEY_RETRY_COUNT         4
+
+// How many times sending of initial EAPOL-key is retried
+#define DEFAULT_INITIAL_KEY_RETRY_COUNT                2
 
 #endif /* WS_CONFIG_H_ */
