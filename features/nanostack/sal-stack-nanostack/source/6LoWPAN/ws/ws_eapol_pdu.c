@@ -31,6 +31,7 @@
 #include "6LoWPAN/MAC/mpx_api.h"
 #include "6LoWPAN/ws/ws_config.h"
 #include "6LoWPAN/ws/ws_eapol_pdu.h"
+#include "6LoWPAN/ws/ws_llc.h"
 
 #ifdef HAVE_WS
 
@@ -49,6 +50,7 @@ typedef NS_LIST_HEAD(eapol_pdu_msdu_t, link) eapol_pdu_msdu_list_t;
 
 typedef struct {
     uint8_t priority;
+    bool filter_requsted: 1;
     ws_eapol_pdu_address_check *addr_check;
     ws_eapol_pdu_receive *receive;
     ns_list_link_t link;
@@ -147,6 +149,7 @@ int8_t ws_eapol_pdu_cb_register(protocol_interface_info_entry_t *interface_ptr, 
     new_cb->priority = cb_data->priority;
     new_cb->addr_check = cb_data->addr_check;
     new_cb->receive = cb_data->receive;
+    new_cb->filter_requsted = cb_data->filter_requsted;
 
     ns_list_foreach(eapol_pdu_recv_cb_t, entry, &eapol_pdu_data->recv_cb_list) {
         if (new_cb->priority <= entry->priority) {
@@ -307,6 +310,11 @@ static void ws_eapol_pdu_mpx_data_indication(const mpx_api_t *api, const struct 
 
     ns_list_foreach(eapol_pdu_recv_cb_t, entry, &eapol_pdu_data->recv_cb_list) {
         if (entry->addr_check(eapol_pdu_data->interface_ptr, data->SrcAddr) >= 0) {
+            if (entry->filter_requsted && !ws_llc_eapol_relay_forward_filter(eapol_pdu_data->interface_ptr, data->SrcAddr, data->DSN, data->timestamp)) {
+                tr_info("EAPOL relay filter drop");
+                return;
+            }
+
             entry->receive(eapol_pdu_data->interface_ptr, data->SrcAddr, data->msdu_ptr, data->msduLength);
             break;
         }

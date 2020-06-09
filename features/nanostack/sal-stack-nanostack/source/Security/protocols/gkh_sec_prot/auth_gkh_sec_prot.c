@@ -261,7 +261,7 @@ static int8_t auth_gkh_sec_prot_message_send(sec_prot_t *prot, gkh_sec_prot_msg_
 static void auth_gkh_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks)
 {
     gkh_sec_prot_int_t *data = gkh_sec_prot_get(prot);
-    sec_prot_timer_timeout_handle(prot, &data->common, &prot->cfg->sec_prot_trickle_params, ticks);
+    sec_prot_timer_timeout_handle(prot, &data->common, &prot->prot_cfg->sec_prot_trickle_params, ticks);
 }
 
 static void auth_gkh_sec_prot_state_machine(sec_prot_t *prot)
@@ -290,7 +290,7 @@ static void auth_gkh_sec_prot_state_machine(sec_prot_t *prot)
             auth_gkh_sec_prot_message_send(prot, GKH_MESSAGE_1);
 
             // Start trickle timer to re-send if no response
-            sec_prot_timer_trickle_start(&data->common, &prot->cfg->sec_prot_trickle_params);
+            sec_prot_timer_trickle_start(&data->common, &prot->prot_cfg->sec_prot_trickle_params);
 
             sec_prot_state_set(prot, &data->common, GKH_STATE_MESSAGE_2);
 

@@ -38,8 +38,8 @@
 // pan_id (2) +  network name (33) + (GTK set (1) + GTK expiry timestamp (8) + status (1) + install order (1) + GTK (16)) * 4
 #define PAE_NVM_NW_INFO_LEN              2 + 33 + (1 + 8 + 1 + 1 + GTK_LEN) * GTK_NUM
 
-// PTK EUI-64 set (1) + PTK EUI-64 (8) + PMK set (1) + PMK (32) + PMK replay counter (8) + PTK set (1) + PTK (48)
-#define PAE_NVM_KEYS_LEN                 1 + 8 + 1 + PMK_LEN + 8 + 1 + PTK_LEN
+// PTK EUI-64 set (1) + PTK EUI-64 (8) + PMK set (1) + PMK lifetime (4) + PMK (32) + PMK replay counter (8) + PTK set (1) + PTK lifetime (4) + PTK (48)
+#define PAE_NVM_KEYS_LEN                 1 + 8 + 1 + 4 + PMK_LEN + 8 + 1 + 4 + PTK_LEN
 
 // restart counter + stored time + (frame counter set (1) + GTK (16) + frame counter (4)) * 4
 #define PAE_NVM_FRAME_COUNTER_LEN        4 + 8 + (1 + GTK_LEN + 4) * GTK_NUM

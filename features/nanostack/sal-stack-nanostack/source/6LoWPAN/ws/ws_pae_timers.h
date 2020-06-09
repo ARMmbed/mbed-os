@@ -18,18 +18,6 @@
 #ifndef WS_PAE_TIMERS_H_
 #define WS_PAE_TIMERS_H_
 
-typedef struct sec_timer_cfg_s {
-    uint32_t gtk_expire_offset;                      /* GTK lifetime; GTK_EXPIRE_OFFSET (seconds) */
-    uint32_t pmk_lifetime;                           /* PMK lifetime (seconds) */
-    uint32_t ptk_lifetime;                           /* PTK lifetime (seconds) */
-    uint16_t gtk_new_act_time;                       /* GTK_NEW_ACTIVATION_TIME (1/X of expire offset) */
-    uint16_t revocat_lifetime_reduct;                /* REVOCATION_LIFETIME_REDUCTION (reduction of lifetime) */
-    uint16_t gtk_request_imin;                       /* GTK_REQUEST_IMIN (seconds) */
-    uint16_t gtk_request_imax;                       /* GTK_REQUEST_IMAX (seconds) */
-    uint16_t gtk_max_mismatch;                       /* GTK_MAX_MISMATCH (seconds) */
-    uint8_t gtk_new_install_req;                     /* GTK_NEW_INSTALL_REQUIRED (percent of GTK lifetime) */
-} sec_timer_cfg_t;
-
 /**
  * ws_pae_timers_settings_init initializes timer settings structure
  *

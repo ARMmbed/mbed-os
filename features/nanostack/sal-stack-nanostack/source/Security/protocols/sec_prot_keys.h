@@ -56,9 +56,6 @@
 #define GTK_ALL_HASHES_LEN        GTK_HASH_LEN * GTK_NUM
 #define INS_GTK_HASH_LEN          2
 
-#define PMK_LIFETIME_INSTALL      0xFFFFF
-#define PTK_LIFETIME_INSTALL      0xFFFFF
-
 // Limit is 60000 (of 65536)
 #define PMK_KEY_REPLAY_CNT_LIMIT       60000              // Upper limit for PMK replay counter
 #define PMK_KEY_REPLAY_CNT_LIMIT_MASK  0xFFFF             // Upper limit mask
@@ -215,9 +212,10 @@ void sec_prot_keys_gtks_delete(sec_prot_gtk_keys_t *gtks);
  *
  * \param sec_keys security keys
  * \param pmk Pairwise Master Key
+ * \param pmk_lifetime PMK lifetime
  *
  */
-void sec_prot_keys_pmk_write(sec_prot_keys_t *sec_keys, uint8_t *pmk);
+void sec_prot_keys_pmk_write(sec_prot_keys_t *sec_keys, uint8_t *pmk, uint32_t pmk_lifetime);
 
 /**
  * sec_prot_keys_pmk_delete deletes PMK
@@ -236,6 +234,16 @@ void sec_prot_keys_pmk_delete(sec_prot_keys_t *sec_keys);
  *
  */
 uint8_t *sec_prot_keys_pmk_get(sec_prot_keys_t *sec_keys);
+
+/**
+ * sec_prot_keys_pmk_lifetime_get Pairwise Master Key lifetime
+ *
+ * \param sec_keys security keys
+ *
+ * \return PMK lifetime
+ *
+ */
+uint32_t sec_prot_keys_pmk_lifetime_get(sec_prot_keys_t *sec_keys);
 
 /**
  * sec_prot_keys_pmk_replay_cnt_get gets PMK replay counter value
@@ -309,23 +317,23 @@ bool sec_prot_keys_pmk_mismatch_is_set(sec_prot_keys_t *sec_keys);
  * sec_prot_keys_pmk_lifetime_decrement decrements PMK lifetime
  *
  * \param sec_keys security keys
- * \param default_lifetime default lifetime for PMK
  * \param seconds elapsed seconds
  *
  * \return true PMK expired and deleted both PMK and PTK
  * \return false PMK not expired
  *
  */
-bool sec_prot_keys_pmk_lifetime_decrement(sec_prot_keys_t *sec_keys, uint32_t default_lifetime, uint8_t seconds);
+bool sec_prot_keys_pmk_lifetime_decrement(sec_prot_keys_t *sec_keys, uint8_t seconds);
 
 /**
  * sec_prot_keys_ptk_write writes Pairwise Transient Key
  *
  * \param sec_keys security keys
  * \param ptk Pairwise Transient Key
+ * \param ptk_lifetime PTK lifetime
  *
  */
-void sec_prot_keys_ptk_write(sec_prot_keys_t *sec_keys, uint8_t *ptk);
+void sec_prot_keys_ptk_write(sec_prot_keys_t *sec_keys, uint8_t *ptk, uint32_t ptk_lifetime);
 
 /**
  * sec_prot_keys_ptk_delete deletes PTK
@@ -344,6 +352,16 @@ void sec_prot_keys_ptk_delete(sec_prot_keys_t *sec_keys);
  *
  */
 uint8_t *sec_prot_keys_ptk_get(sec_prot_keys_t *sec_keys);
+
+/**
+ * sec_prot_keys_ptk_lifetime_get gets Pairwise Transient Key lifetime
+ *
+ * \param sec_keys security keys
+ *
+ * \return PTK lifetime
+ *
+ */
+uint32_t sec_prot_keys_ptk_lifetime_get(sec_prot_keys_t *sec_keys);
 
 /**
  * sec_prot_keys_ptk_mismatch_set set PTK mismatch
@@ -402,14 +420,13 @@ void sec_prot_keys_ptk_eui_64_delete(sec_prot_keys_t *sec_keys);
  * sec_prot_keys_ptk_lifetime_decrement decrements PTK lifetime
  *
  * \param sec_keys security keys
- * \param default_lifetime default lifetime for PTK
  * \param seconds elapsed seconds
  *
  * \return true PTK expired and deleted
  * \return false PTK not expired
  *
  */
-bool sec_prot_keys_ptk_lifetime_decrement(sec_prot_keys_t *sec_keys, uint32_t default_lifetime, uint8_t seconds);
+bool sec_prot_keys_ptk_lifetime_decrement(sec_prot_keys_t *sec_keys, uint8_t seconds);
 
 /**
  * sec_prot_keys_are_updated returns security keys have been updated flag

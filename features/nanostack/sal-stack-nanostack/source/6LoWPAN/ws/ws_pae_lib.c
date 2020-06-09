@@ -26,8 +26,8 @@
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "6LoWPAN/ws/ws_cfg_settings.h"
 #include "6LoWPAN/ws/ws_config.h"
-#include "6LoWPAN/ws/ws_pae_timers.h"
 #include "Security/protocols/sec_prot_cfg.h"
+#include "6LoWPAN/ws/ws_pae_timers.h"
 #include "Security/kmp/kmp_addr.h"
 #include "Security/kmp/kmp_api.h"
 #include "Security/protocols/sec_prot_certs.h"
@@ -242,17 +242,16 @@ bool ws_pae_lib_supp_list_timer_update(void *instance, supp_list_t *active_supp_
     return timer_running;
 }
 
-void ws_pae_lib_supp_list_slow_timer_update(supp_list_t *supp_list, sec_timer_cfg_t *timer_settings, uint16_t seconds)
+void ws_pae_lib_supp_list_slow_timer_update(supp_list_t *supp_list, uint16_t seconds)
 {
     ns_list_foreach(supp_entry_t, entry, supp_list) {
-        if (sec_prot_keys_pmk_lifetime_decrement(&entry->sec_keys, timer_settings->pmk_lifetime, seconds)) {
+        if (sec_prot_keys_pmk_lifetime_decrement(&entry->sec_keys, seconds)) {
             tr_info("PMK and PTK expired, eui-64: %s, system time: %"PRIu32"", trace_array(entry->addr.eui_64, 8), protocol_core_monotonic_time / 10);
         }
-        if (sec_prot_keys_ptk_lifetime_decrement(&entry->sec_keys, timer_settings->ptk_lifetime, seconds)) {
+        if (sec_prot_keys_ptk_lifetime_decrement(&entry->sec_keys, seconds)) {
             tr_info("PTK expired, eui-64: %s, system time: %"PRIu32"", trace_array(entry->addr.eui_64, 8), protocol_core_monotonic_time / 10);
         }
     }
-
 }
 
 void ws_pae_lib_supp_init(supp_entry_t *entry)

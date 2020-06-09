@@ -37,9 +37,14 @@
 
 #define TRACE_GROUP "etx"
 
+typedef struct {
+    uint8_t attribute_index;
+    const uint8_t *mac64;
+} ext_neigh_info_t;
+
 static uint16_t etx_current_calc(uint16_t etx, uint8_t accumulated_failures);
 static uint16_t etx_dbm_lqi_calc(uint8_t lqi, int8_t dbm);
-static void etx_value_change_callback_needed_check(uint16_t etx, uint16_t *stored_diff_etx, uint8_t accumulated_failures, uint8_t attribute_index);
+static void etx_value_change_callback_needed_check(uint16_t etx, uint16_t *stored_diff_etx, uint8_t accumulated_failures, ext_neigh_info_t *etx_neigh_info);
 static void etx_accum_failures_callback_needed_check(etx_storage_t *entry, uint8_t attribute_index);
 static void etx_cache_entry_init(uint8_t attribute_index);
 
@@ -90,7 +95,7 @@ static ext_info_t etx_info = {
     .interface_id = -1
 };
 
-static void etx_calculation(etx_storage_t *entry, uint16_t attempts, uint8_t acks_rx, uint8_t attribute_index)
+static void etx_calculation(etx_storage_t *entry, uint16_t attempts, uint8_t acks_rx, ext_neigh_info_t *etx_neigh_info)
 {
     if (etx_info.hysteresis && !entry->stored_diff_etx) {
         if (entry->etx_samples >= etx_info.init_etx_sample_count) {
@@ -130,9 +135,9 @@ static void etx_calculation(etx_storage_t *entry, uint16_t attempts, uint8_t ack
     entry->etx = etx;
 
     if (entry->etx_samples >= etx_info.init_etx_sample_count) {
-        etx_cache_entry_init(attribute_index);
+        etx_cache_entry_init(etx_neigh_info->attribute_index);
         // Checks if ETX value change callback is needed
-        etx_value_change_callback_needed_check(entry->etx, &(entry->stored_diff_etx), entry->accumulated_failures, attribute_index);
+        etx_value_change_callback_needed_check(entry->etx, &(entry->stored_diff_etx), entry->accumulated_failures, etx_neigh_info);
     }
 }
 
@@ -203,7 +208,7 @@ static etx_sample_storage_t *etx_cache_sample_update(uint8_t attribute_index, ui
  * \param addr_type address type, ADDR_802_15_4_SHORT or ADDR_802_15_4_LONG
  * \param addr_ptr PAN ID with 802.15.4 address
  */
-void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool success, uint8_t attribute_index)
+void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool success, uint8_t attribute_index, const uint8_t *mac64_addr_ptr)
 {
     uint8_t accumulated_failures;
     // Gets table entry
@@ -211,6 +216,10 @@ void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool succ
     if (!entry) {
         return;
     }
+
+    ext_neigh_info_t etx_neigh_info;
+    etx_neigh_info.attribute_index = attribute_index;
+    etx_neigh_info.mac64 = mac64_addr_ptr;
 
     if (entry->etx_samples < 7) {
         entry->etx_samples++;
@@ -225,7 +234,7 @@ void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool succ
             return;
         }
 
-        etx_calculation(entry, storage->attempts_count, storage->received_acks, attribute_index);
+        etx_calculation(entry, storage->attempts_count, storage->received_acks, &etx_neigh_info);
 
         if (entry->etx_samples < 7 && !success) {
             entry->etx_samples = 7; //Stop Probing to failure
@@ -254,7 +263,7 @@ void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool succ
     if (entry->etx) {
 
         if (success) {
-            etx_calculation(entry, attempts + accumulated_failures, 1, attribute_index);
+            etx_calculation(entry, attempts + accumulated_failures, 1, &etx_neigh_info);
         }
     }
 }
@@ -268,35 +277,42 @@ void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool succ
  * \param remote_incoming_idr Remote incoming IDR
  * \param mac64_addr_ptr long MAC address
  */
-void etx_remote_incoming_idr_update(int8_t interface_id, uint8_t remote_incoming_idr, uint8_t attribute_index)
+void etx_remote_incoming_idr_update(int8_t interface_id, uint8_t remote_incoming_idr, uint8_t attribute_index, const uint8_t *mac64_addr_ptr)
 {
     etx_storage_t *entry = etx_storage_entry_get(interface_id, attribute_index);
-
-    if (entry) {
-        // If ETX has been set
-        if (entry->etx) {
-            // If hysteresis is set stores ETX value to enable comparison
-            if (etx_info.hysteresis && !entry->stored_diff_etx) {
-                entry->stored_diff_etx = entry->etx;
-            }
-            // remote EXT = remote incoming IDR^2 (12 bit fraction)
-            uint32_t remote_ext = ((uint32_t)remote_incoming_idr * remote_incoming_idr) << 2;
-
-            // ETX = 7/8 * current ETX + 1/8 * remote ETX */
-            uint32_t etx = entry->etx - (entry->etx >> ETX_MOVING_AVERAGE_FRACTION);
-            etx += remote_ext >> ETX_MOVING_AVERAGE_FRACTION;
-
-            if (etx > 0xffff) {
-                entry->etx = 0xffff;
-            } else {
-                entry->etx = etx;
-            }
-
-            // Checks if ETX value change callback is needed
-            etx_value_change_callback_needed_check(entry->etx, &(entry->stored_diff_etx), entry->accumulated_failures, attribute_index);
-        }
-        entry->remote_incoming_idr = remote_incoming_idr;
+    if (!entry) {
+        return;
     }
+
+    ext_neigh_info_t etx_neigh_info;
+    etx_neigh_info.attribute_index = attribute_index;
+    etx_neigh_info.mac64 = mac64_addr_ptr;
+
+
+    // If ETX has been set
+    if (entry->etx) {
+        // If hysteresis is set stores ETX value to enable comparison
+        if (etx_info.hysteresis && !entry->stored_diff_etx) {
+            entry->stored_diff_etx = entry->etx;
+        }
+        // remote EXT = remote incoming IDR^2 (12 bit fraction)
+        uint32_t remote_ext = ((uint32_t)remote_incoming_idr * remote_incoming_idr) << 2;
+
+        // ETX = 7/8 * current ETX + 1/8 * remote ETX */
+        uint32_t etx = entry->etx - (entry->etx >> ETX_MOVING_AVERAGE_FRACTION);
+        etx += remote_ext >> ETX_MOVING_AVERAGE_FRACTION;
+
+        if (etx > 0xffff) {
+            entry->etx = 0xffff;
+        } else {
+            entry->etx = etx;
+        }
+
+        // Checks if ETX value change callback is needed
+        etx_value_change_callback_needed_check(entry->etx, &(entry->stored_diff_etx), entry->accumulated_failures, &etx_neigh_info);
+    }
+    entry->remote_incoming_idr = remote_incoming_idr;
+
 }
 
 /**
@@ -442,14 +458,18 @@ static uint16_t etx_current_calc(uint16_t etx, uint8_t accumulated_failures)
  *
  * \return 0x0100 to 0xFFFF local incoming IDR value (8 bit fraction)
  */
-uint16_t etx_lqi_dbm_update(int8_t interface_id, uint8_t lqi, int8_t dbm, uint8_t attribute_index)
+uint16_t etx_lqi_dbm_update(int8_t interface_id, uint8_t lqi, int8_t dbm, uint8_t attribute_index, const uint8_t *mac64_addr_ptr)
 {
     uint32_t local_incoming_idr = 0;
     uint32_t etx = 0;
 
     etx_storage_t *entry = etx_storage_entry_get(interface_id, attribute_index);
 
+
     if (entry) {
+        ext_neigh_info_t etx_neigh_info;
+        etx_neigh_info.attribute_index = attribute_index;
+        etx_neigh_info.mac64 = mac64_addr_ptr;
         // If local ETX is not set calculate it based on LQI and dBm
         if (!entry->etx) {
             etx = etx_dbm_lqi_calc(lqi, dbm);
@@ -458,7 +478,7 @@ uint16_t etx_lqi_dbm_update(int8_t interface_id, uint8_t lqi, int8_t dbm, uint8_
             entry->tmp_etx = true;
             if (etx_info.callback_ptr) {
                 etx_info.callback_ptr(etx_info.interface_id, 0, entry->etx >> 4,
-                                      attribute_index);
+                                      attribute_index, mac64_addr_ptr);
             }
         }
         // If local ETX has been calculated without remote incoming IDR and
@@ -474,7 +494,7 @@ uint16_t etx_lqi_dbm_update(int8_t interface_id, uint8_t lqi, int8_t dbm, uint8_
             entry->etx = etx >> 12;
 
             local_incoming_idr >>= 4;
-            etx_value_change_callback_needed_check(entry->etx, &(entry->stored_diff_etx), entry->accumulated_failures, attribute_index);
+            etx_value_change_callback_needed_check(entry->etx, &(entry->stored_diff_etx), entry->accumulated_failures, &etx_neigh_info);
         }
     }
 
@@ -721,7 +741,7 @@ uint8_t etx_accum_failures_callback_register(nwk_interface_id nwk_id, int8_t int
  *
  * \return ETX value (12 bit fraction)
  */
-static void etx_value_change_callback_needed_check(uint16_t etx, uint16_t *stored_diff_etx, uint8_t accumulated_failures, uint8_t attribute_index)
+static void etx_value_change_callback_needed_check(uint16_t etx, uint16_t *stored_diff_etx, uint8_t accumulated_failures, ext_neigh_info_t *etx_neigh_info)
 {
     uint16_t current_etx;
     bool callback = false;
@@ -747,7 +767,7 @@ static void etx_value_change_callback_needed_check(uint16_t etx, uint16_t *store
 
     // Calls callback function
     if (callback) {
-        etx_info.callback_ptr(etx_info.interface_id, (*stored_diff_etx) >> 4, current_etx >> 4, attribute_index);
+        etx_info.callback_ptr(etx_info.interface_id, (*stored_diff_etx) >> 4, current_etx >> 4, etx_neigh_info->attribute_index, etx_neigh_info->mac64);
         *stored_diff_etx = current_etx;
     }
 }
@@ -782,7 +802,7 @@ static void etx_accum_failures_callback_needed_check(etx_storage_t *entry, uint8
  * \param mac64_addr_ptr long MAC address
  *
  */
-void etx_neighbor_remove(int8_t interface_id, uint8_t attribute_index)
+void etx_neighbor_remove(int8_t interface_id, uint8_t attribute_index, const uint8_t *mac64_addr_ptr)
 {
 
     //tr_debug("Remove attribute %u", attribute_index);
@@ -795,7 +815,8 @@ void etx_neighbor_remove(int8_t interface_id, uint8_t attribute_index)
             if (!stored_diff_etx) {
                 stored_diff_etx = 0xffff;
             }
-            etx_info.callback_ptr(etx_info.interface_id, stored_diff_etx, 0xffff, attribute_index);
+
+            etx_info.callback_ptr(etx_info.interface_id, stored_diff_etx, 0xffff, attribute_index, mac64_addr_ptr);
         }
 
         if (etx_info.cache_sample_requested) {
@@ -829,7 +850,10 @@ void etx_cache_timer(int8_t interface_id, uint16_t seconds_update)
         etx_sample_storage_t *storage = etx_info.etx_cache_storage_list + neighbour->index;
 
         if (etx_update_possible(storage, etx_entry, seconds_update)) {
-            etx_calculation(etx_entry, storage->attempts_count, storage->received_acks, neighbour->index);
+            ext_neigh_info_t etx_neigh_info;
+            etx_neigh_info.attribute_index = neighbour->index;
+            etx_neigh_info.mac64 = neighbour->mac64;
+            etx_calculation(etx_entry, storage->attempts_count, storage->received_acks, &etx_neigh_info);
         }
     }
 

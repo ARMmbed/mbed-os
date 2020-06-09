@@ -26,6 +26,7 @@ extern "C" {
 #define RF24_IRQS                   0x01
 #define BBC0_IRQS                   0x02
 #define BBC1_IRQS                   0x03
+#define RF_AUXS                     0x01
 #define RF_CFG                      0x06
 #define RF_IQIFC1                   0x0B
 #define RF_PN                       0x0D
@@ -47,6 +48,8 @@ extern "C" {
 #define RF_EDV                      0x10
 #define RF_TXCUTC                   0x12
 #define RF_TXDFE                    0x13
+#define RF_PAC                      0x14
+#define RF_PADFE                    0x16
 #define BBC_IRQM                    0x00
 #define BBC_PC                      0x01
 #define BBC_RXFLL                   0x04
@@ -85,6 +88,20 @@ extern "C" {
 #define BBC1_FBRXS                  0x3000
 #define BBC1_FBTXS                  0x3800
 
+// RF_AUXS
+#define EXTLNABYP                   (1 << 7)
+#define AGCMAP                      0x60
+#define AGCMAP_2                    (2 << 5)
+#define AVEN                        (1 << 3)
+
+// RF_PAC
+#define TXPWR                       0x1F
+#define TXPWR_11                    (11 << 0)
+
+// RF_PADFE
+#define PADFE                       0xC0
+#define RF_FEMODE3                  (3 << 6)
+
 // RF_AGCC
 #define AGCI                        (1 << 6)
 #define AVGS                        0x30
@@ -94,7 +111,6 @@ extern "C" {
 #define TGT                         0xE0
 #define TGT_1                       (1 << 5)
 #define TGT_3                       (3 << 5)
-
 
 // RF_RXBWC
 #define BW                          0x0F

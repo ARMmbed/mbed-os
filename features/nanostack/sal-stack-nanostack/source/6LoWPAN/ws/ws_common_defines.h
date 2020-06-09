@@ -242,7 +242,6 @@ typedef struct ws_bs_ie {
 
 #define WS_NEIGHBOR_ETX_SAMPLE_MAX 3
 #define WS_NEIGHBOR_FIRST_ETX_SAMPLE_MIN_COUNT 3 //This can't be bigger than WS_NEIGHBOR_ETX_SAMPLE_MAX
-#define WS_NEIGHBOUR_MAX_CANDIDATE_PROBE 5
 
 #define WS_PROBE_INIT_BASE_SECONDS 8
 
@@ -322,7 +321,7 @@ typedef struct ws_bs_ie {
 /*
  * Automatic CCA threshold: default threshold and range in dBm.
  */
-#define CCA_DEFAULT_DBM -85
+#define CCA_DEFAULT_DBM -60
 #define CCA_HIGH_LIMIT  -60
 #define CCA_LOW_LIMIT   -100
 

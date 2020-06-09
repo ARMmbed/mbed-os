@@ -40,6 +40,8 @@ typedef struct bbr_information {
     uint8_t dodag_id[16];
     /** Address prefix given to devices in network  set to 0 if not available*/
     uint8_t prefix[8];
+    /** Address IID of the border router set to 0 if not available*/
+    uint8_t IID[8];
     /** Amount of devices in the network. */
     uint16_t devices_in_network;
     /** Border router instance identifier defined in RPL */

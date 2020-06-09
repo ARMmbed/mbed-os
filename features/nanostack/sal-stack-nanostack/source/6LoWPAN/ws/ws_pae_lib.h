@@ -252,11 +252,10 @@ bool ws_pae_lib_supp_list_timer_update(void *instance, supp_list_t *active_supp_
  *  ws_pae_lib_supp_list_slow_timer_update updates slow timer on supplicant list
  *
  * \param supp_list list of supplicants
- * \param timer_settings timer settings
  * \param seconds seconds
  *
  */
-void ws_pae_lib_supp_list_slow_timer_update(supp_list_t *supp_list, sec_timer_cfg_t *timer_settings, uint16_t seconds);
+void ws_pae_lib_supp_list_slow_timer_update(supp_list_t *supp_list, uint16_t seconds);
 
 /**
  *  ws_pae_lib_supp_list_timer_update updates supplicant timers

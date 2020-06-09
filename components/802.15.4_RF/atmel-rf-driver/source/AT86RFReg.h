@@ -48,6 +48,7 @@ extern "C" {
 #define PART_AT86RF212              0x07
 #define PART_AT86RF233              0x0B
 #define PART_AT86RF215              0x34
+#define PART_AT86RF215M             0x36
 #define VERSION_AT86RF212           0x01
 #define VERSION_AT86RF212B          0x03
 

@@ -313,7 +313,7 @@ static int8_t auth_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_
 static void auth_fwh_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks)
 {
     fwh_sec_prot_int_t *data = fwh_sec_prot_get(prot);
-    sec_prot_timer_timeout_handle(prot, &data->common, &prot->cfg->sec_prot_trickle_params, ticks);
+    sec_prot_timer_timeout_handle(prot, &data->common, &prot->prot_cfg->sec_prot_trickle_params, ticks);
 }
 
 static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
@@ -350,7 +350,7 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
             auth_fwh_sec_prot_message_send(prot, FWH_MESSAGE_1);
 
             // Start trickle timer to re-send if no response
-            sec_prot_timer_trickle_start(&data->common, &prot->cfg->sec_prot_trickle_params);
+            sec_prot_timer_trickle_start(&data->common, &prot->prot_cfg->sec_prot_trickle_params);
 
             sec_prot_state_set(prot, &data->common, FWH_STATE_MESSAGE_2);
             break;
@@ -378,7 +378,7 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
                 auth_fwh_sec_prot_message_send(prot, FWH_MESSAGE_3);
 
                 // Start trickle timer to re-send if no response
-                sec_prot_timer_trickle_start(&data->common, &prot->cfg->sec_prot_trickle_params);
+                sec_prot_timer_trickle_start(&data->common, &prot->prot_cfg->sec_prot_trickle_params);
 
                 sec_prot_state_set(prot, &data->common, FWH_STATE_MESSAGE_4);
             }
@@ -406,7 +406,7 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
                 // Reset PTK mismatch
                 sec_prot_keys_ptk_mismatch_reset(prot->sec_keys);
                 // Update PTK
-                sec_prot_keys_ptk_write(prot->sec_keys, data->new_ptk);
+                sec_prot_keys_ptk_write(prot->sec_keys, data->new_ptk, prot->timer_cfg->ptk_lifetime);
                 sec_prot_keys_ptk_eui_64_write(prot->sec_keys, data->remote_eui64);
                 sec_prot_state_set(prot, &data->common, FWH_STATE_FINISH);
             }
