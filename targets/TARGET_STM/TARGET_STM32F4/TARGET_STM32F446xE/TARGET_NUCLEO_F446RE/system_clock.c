@@ -109,23 +109,30 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     __HAL_RCC_PWR_CLK_ENABLE();
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
-    // Enable HSE oscillator and activate PLL with HSE as source
-    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSE;
-    if (bypass == 0) {
-        RCC_OscInitStruct.HSEState          = RCC_HSE_ON; // External 8 MHz xtal on OSC_IN/OSC_OUT
-    } else {
-        RCC_OscInitStruct.HSEState          = RCC_HSE_BYPASS; // External 8 MHz clock on OSC_IN
-    }
+    /* Get the Clocks configuration according to the internal RCC registers */
+    HAL_RCC_GetOscConfig(&RCC_OscInitStruct);
 
-    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLM = 8;             // VCO input clock = 1 MHz (8 MHz / 8)
-    RCC_OscInitStruct.PLL.PLLN = 360;           // VCO output clock = 360 MHz (1 MHz * 360)
-    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2; // PLLCLK = 180 MHz (360 MHz / 2)
-    RCC_OscInitStruct.PLL.PLLQ = 7;             //
-    RCC_OscInitStruct.PLL.PLLR = 2;             //
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-        return 0; // FAIL
+    /* PLL could be already configured by bootlader */
+    if (RCC_OscInitStruct.PLL.PLLState != RCC_PLL_ON) {
+
+        // Enable HSE oscillator and activate PLL with HSE as source
+        RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSE;
+        if (bypass == 0) {
+            RCC_OscInitStruct.HSEState          = RCC_HSE_ON; // External 8 MHz xtal on OSC_IN/OSC_OUT
+        } else {
+            RCC_OscInitStruct.HSEState          = RCC_HSE_BYPASS; // External 8 MHz clock on OSC_IN
+        }
+
+        RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+        RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+        RCC_OscInitStruct.PLL.PLLM = 8;             // VCO input clock = 1 MHz (8 MHz / 8)
+        RCC_OscInitStruct.PLL.PLLN = 360;           // VCO output clock = 360 MHz (1 MHz * 360)
+        RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2; // PLLCLK = 180 MHz (360 MHz / 2)
+        RCC_OscInitStruct.PLL.PLLQ = 7;             //
+        RCC_OscInitStruct.PLL.PLLR = 2;             //
+        if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+            return 0; // FAIL
+        }
     }
 
     // Activate the OverDrive to reach the 180 MHz Frequency
