@@ -31,12 +31,12 @@
 #if MBED_CONF_RTOS_PRESENT
 
 #define ALIGN_UP(pos, align) ((pos) % (align) ? (pos) +  ((align) - (pos) % (align)) : (pos))
-MBED_STATIC_ASSERT(ALIGN_UP(0, 8) == 0, "ALIGN_UP macro error");
-MBED_STATIC_ASSERT(ALIGN_UP(1, 8) == 8, "ALIGN_UP macro error");
+static_assert(ALIGN_UP(0, 8) == 0, "ALIGN_UP macro error");
+static_assert(ALIGN_UP(1, 8) == 8, "ALIGN_UP macro error");
 
 #define ALIGN_DOWN(pos, align) ((pos) - ((pos) % (align)))
-MBED_STATIC_ASSERT(ALIGN_DOWN(7, 8) == 0, "ALIGN_DOWN macro error");
-MBED_STATIC_ASSERT(ALIGN_DOWN(8, 8) == 8, "ALIGN_DOWN macro error");
+static_assert(ALIGN_DOWN(7, 8) == 0, "ALIGN_DOWN macro error");
+static_assert(ALIGN_DOWN(8, 8) == 8, "ALIGN_DOWN macro error");
 
 namespace rtos {
 

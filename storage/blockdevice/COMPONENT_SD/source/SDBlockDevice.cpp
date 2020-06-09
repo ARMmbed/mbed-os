@@ -264,8 +264,8 @@ SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName c
     _card_type = SDCARD_NONE;
 
     // Set default to 100kHz for initialisation and 1MHz for data transfer
-    MBED_STATIC_ASSERT(((MBED_CONF_SD_INIT_FREQUENCY >= 100000) && (MBED_CONF_SD_INIT_FREQUENCY <= 400000)),
-                       "Initialization frequency should be between 100KHz to 400KHz");
+    static_assert(((MBED_CONF_SD_INIT_FREQUENCY >= 100000) && (MBED_CONF_SD_INIT_FREQUENCY <= 400000)),
+                  "Initialization frequency should be between 100KHz to 400KHz");
     _init_sck = MBED_CONF_SD_INIT_FREQUENCY;
     _transfer_sck = hz;
 
@@ -285,8 +285,8 @@ SDBlockDevice::SDBlockDevice(const spi_pinmap_t &spi_pinmap, PinName cs, uint64_
     _card_type = SDCARD_NONE;
 
     // Set default to 100kHz for initialisation and 1MHz for data transfer
-    MBED_STATIC_ASSERT(((MBED_CONF_SD_INIT_FREQUENCY >= 100000) && (MBED_CONF_SD_INIT_FREQUENCY <= 400000)),
-                       "Initialization frequency should be between 100KHz to 400KHz");
+    static_assert(((MBED_CONF_SD_INIT_FREQUENCY >= 100000) && (MBED_CONF_SD_INIT_FREQUENCY <= 400000)),
+                  "Initialization frequency should be between 100KHz to 400KHz");
     _init_sck = MBED_CONF_SD_INIT_FREQUENCY;
     _transfer_sck = hz;
 

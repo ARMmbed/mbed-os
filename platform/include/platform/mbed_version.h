@@ -64,7 +64,7 @@
   * master branch code
   */
 #define MBED_VERSION_CHECK(major, minor, patch) do { \
-                                       MBED_STATIC_ASSERT((MBED_VERSION >= MBED_ENCODE_VERSION((major),(minor),(patch))), "Incompatible mbed-os version detected!!"); \
+                                       static_assert((MBED_VERSION >= MBED_ENCODE_VERSION((major),(minor),(patch))), "Incompatible mbed-os version detected!!"); \
                                      } while(0)
 
 #endif

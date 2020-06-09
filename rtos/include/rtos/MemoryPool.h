@@ -57,7 +57,7 @@ namespace rtos {
 */
 template<typename T, uint32_t pool_sz>
 class MemoryPool : private mbed::NonCopyable<MemoryPool<T, pool_sz> > {
-    MBED_STATIC_ASSERT(pool_sz > 0, "Invalid memory pool size. Must be greater than 0.");
+    static_assert(pool_sz > 0, "Invalid memory pool size. Must be greater than 0.");
 public:
     /** Create and Initialize a memory pool.
      *

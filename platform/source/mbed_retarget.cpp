@@ -510,7 +510,7 @@ extern "C" std::FILE *fdopen(int fildes, const char *mode)
 {
     // This is to avoid scanf and the bloat it brings.
     char buf[1 + sizeof fildes]; /* @(integer) */
-    MBED_STATIC_ASSERT(sizeof buf == 5, "Integers should be 4 bytes.");
+    static_assert(sizeof buf == 5, "Integers should be 4 bytes.");
     buf[0] = '@';
     memcpy(buf + 1, &fildes, sizeof fildes);
 

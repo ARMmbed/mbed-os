@@ -141,7 +141,7 @@ struct Duration {
     Duration(Duration<OtherRep, OtherTB, OtherRange, OtherF> other) :
         duration(clamp(other.value() * (OtherTB / TB)))
     {
-        MBED_STATIC_ASSERT(OtherTB >= TB && (OtherTB % TB) == 0, "Incompatible units");
+        static_assert(OtherTB >= TB && (OtherTB % TB) == 0, "Incompatible units");
     }
 
     /**

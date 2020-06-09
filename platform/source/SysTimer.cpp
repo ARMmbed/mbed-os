@@ -337,7 +337,7 @@ void SysTimer<Period, IRQ>::handler()
 
 #if MBED_CONF_RTOS_PRESENT
 /* Whatever the OS wants (in case it isn't 1ms) */
-MBED_STATIC_ASSERT(1000000 % OS_TICK_FREQ == 0, "OS_TICK_FREQ must be a divisor of 1000000 for correct tick calculations");
+static_assert(1000000 % OS_TICK_FREQ == 0, "OS_TICK_FREQ must be a divisor of 1000000 for correct tick calculations");
 #define OS_TICK_US (1000000 / OS_TICK_FREQ)
 #if OS_TICK_US != 1000
 template class SysTimer<std::ratio_multiply<std::ratio<OS_TICK_US>, std::micro>>;

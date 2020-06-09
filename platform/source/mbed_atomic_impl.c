@@ -20,10 +20,10 @@
 #include "platform/mbed_critical.h"
 
 /* Inline bool implementations in the header use uint8_t versions to manipulate the bool */
-MBED_STATIC_ASSERT(sizeof(bool) == sizeof(uint8_t), "Surely bool is a byte");
+static_assert(sizeof(bool) == sizeof(uint8_t), "Surely bool is a byte");
 
 /* Inline implementations in the header use uint32_t versions to manipulate pointers */
-MBED_STATIC_ASSERT(sizeof(void *) == sizeof(uint32_t), "Alas, pointers must be 32-bit");
+static_assert(sizeof(void *) == sizeof(uint32_t), "Alas, pointers must be 32-bit");
 
 
 #define DO_MBED_LOCKED_OP(name, OP, retValue, T, fn_suffix)             \
