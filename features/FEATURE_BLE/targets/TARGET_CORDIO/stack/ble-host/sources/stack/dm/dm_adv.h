@@ -106,7 +106,7 @@ typedef struct
   uint8_t                 op;
   uint8_t                 location;
   uint8_t                 len;
-  uint8_t                 *pData;
+  uint8_t                 pData[];
 } dmAdvApiSetData_t;
 
 /* Data structure for DM_ADV_MSG_API_START */
@@ -156,7 +156,7 @@ typedef struct
   uint8_t                 advHandle;
   uint8_t                 op;
   uint8_t                 len;
-  uint8_t                 *pData;
+  uint8_t                 pData[];
 } dmAdvPerApiSetData_t;
 
 /* Data structure for DM_ADV_PER_MSG_API_START */
