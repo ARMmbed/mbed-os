@@ -80,7 +80,7 @@ MBED_WEAK void PalRtcDisableCompareIrq()
 
 MBED_WEAK uint32_t PalRtcCounterGet()
 {
-    MBED_ERROR(function_not_implemented, "Provide implementation of PalRtcDisableCompareIrq");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalRtcCounterGet");
     return 0;
 }
 
