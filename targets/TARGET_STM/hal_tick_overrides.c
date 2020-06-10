@@ -17,7 +17,7 @@
 #if DEVICE_USTICKER
 
 #include "hal/us_ticker_api.h"
-#include "us_ticker_data.h"
+#include "us_ticker_defines.h"
 
 // This variable is set to 1 at the of mbed_sdk_init function.
 // The ticker_read_us function must not be called until the mbed_sdk_init is terminated.
