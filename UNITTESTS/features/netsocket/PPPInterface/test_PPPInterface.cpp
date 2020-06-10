@@ -265,8 +265,6 @@ TEST_F(TestPPPInterface, get_interface_name)
 
     doConnect();
 
-    EXPECT_EQ(NULL, iface->get_interface_name(name));
-
     EXPECT_CALL(*netStackIface, get_interface_name(name))
     .Times(1)
     .WillOnce(Return(name));
