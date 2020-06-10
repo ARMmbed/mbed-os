@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Internal link layer controller extended scanning master interface file.
+ *  \file
+ *
+ *  \brief  Internal link layer controller extended scanning master interface file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -42,13 +43,22 @@ extern "C" {
 **************************************************************************************************/
 
 /*! \brief      Resolve the extended scan handle from the context pointer. */
-#define LCTR_GET_EXT_SCAN_HANDLE(pCtx)  (pCtx - lctrMstExtScanTbl)
+#define LCTR_GET_EXT_SCAN_HANDLE(pCtx)  (pCtx->handle)
+
+/*! \brief      Resolve the extended scan context from the handle. */
+#define LCTR_GET_EXT_SCAN_CTX(h)        (lctrMstExtScanTbl[h])
 
 /*! \brief      Resolve the periodic scanning handle from the context pointer. */
 #define LCTR_GET_PER_SCAN_HANDLE(pCtx)  (pCtx - lctrMstPerScanTbl)
 
+/*! \brief      Get topology manager handle from the periodic scanning context pointer. */
+#define LCTR_GET_PER_SCAN_TM_HANDLE(pCtx) (LL_MAX_CONN + LCTR_GET_PER_SCAN_HANDLE(pCtx))
+
 /*! \brief      Resolve the periodic scanning context from the handle. */
-#define LCTR_GET_PER_SCAN_CTX(h)        &(lctrMstPerScanTbl[h])
+#define LCTR_GET_PER_SCAN_CTX(h)        (&lctrMstPerScanTbl[h])
+
+/*! \brief      Valid active scan mask. */
+#define LCTR_VALID_ACTIVE_SCAN_MASK     ((1 << LCTR_SCAN_PHY_1M) |  (1 << LCTR_SCAN_PHY_CODED))
 
 /**************************************************************************************************
   Constants
@@ -121,9 +131,11 @@ typedef struct
   uint8_t           state;              /*!< Scan state. */
   bool_t            selfTerm;           /*!< Self-termination flag. */
   bool_t            shutdown;           /*!< Client initiated shutdown flag. */
-  uint32_t          scanWinStart;       /*!< Scan window origin. */
+  bool_t            bodAborted;         /*!< True if BOD was aborted by scheduler. */
+  uint32_t          scanWinStartUsec;   /*!< Scan window origin in microseconds. */
   LlScanParam_t     scanParam;          /*!< Scan parameters. */
                                         /* N.B. Scan parameters must persist after initiate. */
+  uint8_t           handle;             /*!< Scan handle. */
   union
   {
     struct
@@ -150,9 +162,7 @@ typedef struct
       uint64_t      localRpa;           /*!< Local RPA. */
       uint16_t      connHandle;         /*!< Connection handle. */
       uint16_t      connInterval;       /*!< Connection interval. */
-      uint32_t      firstCeDue;         /*!< First CE due time. */
-      uint32_t      scanWinStart;       /*!< Scan window origin. */
-      bool_t        connBodLoaded;      /*!< Connection BOD loaded flag. */
+      uint32_t      scanWinStartUsec;   /*!< Scan window origin in microseconds. */
       bool_t        isLegacy;           /*!< TRUE if legacy advertising PDU is received. */
       uint8_t       usedChSel;          /*!< Used channel selection. */
       uint8_t       filtPolicy;         /*!< Initiate filter policy. */
@@ -188,7 +198,7 @@ typedef struct
 {
   /* State. */
   uint8_t           enaPhys;            /*!< Enabled PHYs. */
-  bool_t            scanTermByHost;     /*!< Host initiated scan disable. */
+  uint8_t           scanTermByHost;     /*!< Times host initiated scan disable. */
   uint32_t          nextScanWinStart;   /*!< Next scan window origin. */
 
   /* Report */
@@ -203,6 +213,17 @@ typedef struct
   wsfTimer_t        tmrScanPer;         /*!< Scan period timer. */
 } lctrExtScanCtrlBlk_t;
 
+/*! \brief      Active extended scanning context. */
+typedef struct
+{
+  uint8_t           scanMask;           /*!< Mask for active scan contexts. */
+  uint8_t           scanIndex;          /*!< Index of the active scan context. */
+  uint8_t           bodSchMask;         /*!< Mask for BOD scheduling for each phy. */
+} lctrActiveExtScan_t;
+
+/*! \brief      Termination event handler call signature. */
+typedef void (*lctrTermHdlr_t)(uint16_t syncHandle);
+
 /*! \brief      Periodic scanning context. */
 typedef struct
 {
@@ -215,6 +236,7 @@ typedef struct
   bool_t            repDisabled;        /*!< Reporting disabled. */
   bool_t            bodAborted;         /*!< Tue if periodic scan BOD was aborted. */
   uint8_t           createDispId;       /*!< Dispatcher id to tell if periodic sync was created or transferred. */
+  lctrTermHdlr_t    termCback;          /*!< Termination callback. */
 
   /* Report handling. */
   LlPerAdvReportInd_t advRpt;           /*!< Periodic advertising report. */
@@ -227,18 +249,17 @@ typedef struct
 
   /* Peer periodic advertising parameters */
   uint16_t          eventCounter;       /*!< Connection event counter. */
-  uint32_t          perInter;           /*!< Periodic scanning interval in BB ticks. */
+  uint32_t          perInterUsec;       /*!< Periodic scanning interval in microseconds. */
   uint8_t           sca;                /*!< Sleep clock accuracy. */
-  uint32_t          skipInter;          /*!< Skip interval in BB ticks. */
+  uint32_t          skipInterUsec;      /*!< Skip interval in microseconds. */
   uint32_t          minDurUsec;         /*!< Minimum required duration in microseconds. */
   uint32_t          rxSyncDelayUsec;    /*!< Receive timeout in microseconds. */
-  uint32_t          lastAnchorPoint;    /*!< Last anchor point in BB tick. */
+  uint32_t          lastAnchorPointUsec;/*!< Last anchor point in microseconds. */
   uint16_t          lastActiveEvent;    /*!< Last active event counter. */
   uint16_t          initEventCounter;   /*!< Initial event counter received from sync_info. */
 
-  /* Acad control block */
-  /* Note: for now, the acad type only applies to the periodic context. */
-  lctrAcadParam_t   acadParams[LCTR_ACAD_NUM_ID]; /*!< Acad control block array. */
+  /* ACAD */
+  lctrAcadParam_t   acadParams[LCTR_ACAD_NUM_ID]; /*!< ACAD control block array. */
 
   /* Local periodic scanning parameters */
   uint16_t          skip;               /*!< Skip. */
@@ -249,7 +270,6 @@ typedef struct
 
   /* RF parameters */
   int8_t            rssi;               /*!< RSSI. */
-
   lmgrChanParam_t   chanParam;          /*!< Channel parameters. */
 
   /* Supervision */
@@ -279,19 +299,19 @@ typedef struct
   lctrPerScanCtx_t              *pPerScanCtx;       /*!< Current synchronous context. */
 } lctrPerCreateSyncCtrlBlk_t;
 
-/*! \brief      Acad message header. */
+/*! \brief      ACAD message header. */
 typedef struct
 {
   uint16_t          eventCtr;         /*!< Current event counter. */
   uint16_t          skip;             /*!< Skip amount. */
-  uint8_t           acadId;           /*!< Acad ID being processed. */
+  uint8_t           acadId;           /*!< ACAD ID being processed. */
   uint16_t          handle;           /*!< Active Handle. */
 } lctrAcadMsgHdr_t;
 
-/*! \brief      Acad message generic type. */
+/*! \brief      ACAD message generic type. */
 typedef union
 {
-  lctrAcadMsgHdr_t     hdr; /*!< Header of an Acad Msg. */
+  lctrAcadMsgHdr_t     hdr; /*!< Header of an ACAD message. */
 } lctrAcadMsg_t;
 
 /*! \brief      Periodic sync transfer state context. */
@@ -312,8 +332,9 @@ typedef struct
   Globals
 **************************************************************************************************/
 
-extern lctrExtScanCtx_t lctrMstExtScanTbl[LCTR_SCAN_PHY_TOTAL];
+extern lctrExtScanCtx_t * lctrMstExtScanTbl[LCTR_SCAN_PHY_TOTAL];
 extern lctrExtScanCtrlBlk_t lctrMstExtScan;
+extern lctrActiveExtScan_t lctrActiveExtScan;
 extern lctrPerCreateSyncCtrlBlk_t lctrPerCreateSync;
 extern lctrPerTransferSyncCtrlBlk_t lctrPerTransferSync;
 extern lctrPerScanCtx_t lctrMstPerScanTbl[LL_MAX_PER_SCAN];
@@ -333,7 +354,7 @@ void lctrMstPerScanTransferOpCommit(uint16_t connHandle);
 
 /* ISR: Discovery packet handlers */
 bool_t lctrMstDiscoverRxExtAdvPktHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf);
-void   lctrMstDiscoverRxExtAdvPktPostProcessHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf);
+void lctrMstDiscoverRxExtAdvPktPostProcessHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf);
 bool_t lctrMstDiscoverRxAuxAdvPktHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf);
 bool_t lctrMstDiscoverRxAuxScanRspHandler(BbOpDesc_t *pOp, const uint8_t *pRspBuf);
 uint32_t lctrMstDiscoverRxAuxChainHandler(BbOpDesc_t *pOp, const uint8_t *pChainBuf);
@@ -343,6 +364,7 @@ bool_t lctrMstDiscoverTxLegacyScanReqHandler(BbOpDesc_t *pOp, const uint8_t *pRe
 bool_t lctrMstDiscoverRxLegacyScanRspHandler(BbOpDesc_t *pOp, const uint8_t *pRspBuf);
 /* ISR: Discovery BOD handlers */
 void lctrMstExtDiscoverEndOp(BbOpDesc_t *pOp);
+void lctrMstExtDiscoverAbortOp(BbOpDesc_t *pOp);
 void lctrMstAuxDiscoverEndOp(BbOpDesc_t *pOp);
 void lctrMstPerScanEndOp(BbOpDesc_t *pOp);
 void lctrMstPerScanAbortOp(BbOpDesc_t *pOp);
@@ -353,7 +375,9 @@ bool_t lctrMstPerScanRxPerAdvPktPostHandler(BbOpDesc_t *pOp, const uint8_t *pAdv
 void lctrExtScanActDiscover(lctrExtScanCtx_t *pExtScanCtx);
 void lctrExtScanActShutdown(lctrExtScanCtx_t *pExtScanCtx);
 void lctrExtScanActScanCnf(lctrExtScanCtx_t *pExtScanCtx);
+void lctrExtScanHostDisable(lctrExtScanCtx_t *pExtScanCtx);
 void lctrExtScanActDisallowScan(lctrExtScanCtx_t *pExtScanCtx);
+void lctrExtScanActHostEnable(lctrExtScanCtx_t *pExtScanCtx);
 void lctrExtScanActScanTerm(lctrExtScanCtx_t *pExtScanCtx);
 void lctrExtScanActSelfTerm(lctrExtScanCtx_t *pExtScanCtx);
 void lctrExtScanActUpdateDiscover(lctrExtScanCtx_t *pExtScanCtx);
@@ -444,8 +468,6 @@ static inline uint8_t lctrConvertAuxPtrPhyToBbPhy(uint8_t auxPtrPhy)
  *  \param  pAuxPtr         Auxiliary Pointer.
  *  \param  pOffsetUsec     Return auxiliary offset in microseconds.
  *  \param  pSyncDelayUsec  Return synchronization delay in microseconds.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static inline void lctrMstComputeAuxOffset(lctrAuxPtr_t *pAuxPtr, uint32_t *pOffsetUsec, uint32_t *pSyncDelayUsec)

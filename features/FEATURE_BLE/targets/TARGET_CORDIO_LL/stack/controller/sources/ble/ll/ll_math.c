@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Common math utilities generic implementation file.
+ *  \file
+ *
+ *  \brief  Common math utilities generic implementation file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -37,9 +38,7 @@ static uint32_t wsfRngZ = 521288629;    /*!< Z seed for random number generation
 /*!
  *  \brief  Initialize random number seeds.
  *
- *  \param seed    Pointer to initial seed for random numbers.
- *
- *  \return None.
+ *  \param pSeed    Pointer to initial seed for random numbers.
  */
 /*************************************************************************************************/
 void LlMathSetSeed(const uint32_t *pSeed)
@@ -104,28 +103,54 @@ uint8_t LlMathGetNumBitsSet(uint64_t num)
 /*************************************************************************************************/
 uint32_t LlMathDivideUint32(uint32_t nu32, uint32_t de32)
 {
-  uint32_t temp = 1;
-  uint32_t result = 0;
-  uint64_t nu = nu32;
-  uint64_t de = de32;
-
-  while (de <= nu)
+  #if (defined(__ARM_ARCH_EXT_IDIV__) && (__ARM_ARCH_EXT_IDIV__))
   {
-    de <<= 1;
-    temp <<= 1;
+    /* Use divide instruction. */
+    return nu32 / de32;
   }
-
-  while (temp > 1)
+  #else
   {
-    de >>= 1;
-    temp >>= 1;
+    /* Use algorithmic divide. */
 
-    if (nu >= de)
+    uint32_t temp = 1;
+    uint32_t result = 0;
+    uint64_t nu = nu32;
+    uint64_t de = de32;
+
+    while (de <= nu)
     {
-      nu -= de;
-      result += temp;
+      de <<= 1;
+      temp <<= 1;
     }
-  }
 
-  return result;
+    while (temp > 1)
+    {
+      de >>= 1;
+      temp >>= 1;
+
+      if (nu >= de)
+      {
+        nu -= de;
+        result += temp;
+      }
+    }
+
+    return result;
+  }
+  #endif
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Return result of a division, rounding up.
+ *
+ *  \param  nu32        Numerator of size 32 bits.
+ *  \param  de32        Denominator of size 32 bits.
+ *
+ *  \return Result of a division.
+ */
+/*************************************************************************************************/
+uint32_t LlMathDivideUint32RoundUp(uint32_t nu32, uint32_t de32)
+{
+  return LlMathDivideUint32((nu32 + (de32 - 1)), de32);
 }

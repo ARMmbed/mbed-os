@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer (LL) slave parameter interface implementation file.
+ *  \file
+ *
+ *  \brief      Link layer (LL) slave parameter interface implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -50,8 +51,8 @@
 /*! \brief      Check if periodic adv is enabled (ae functionality). */
 LctrIsPerAdvEnabledFn_t LctrPerAdvEnabled; /*!< Lctr Per Adv Enabled check function (defined if AE supported). */
 
-/*! \brief      Check if periodic adv is enabled (ae functionality). */
-LctrIsPerAdvEnabledFn_t LctrPerAdvEnabled; /*!< Lctr Per Adv Enabled check function (defined if AE supported). */
+/*! \brief      Update the channel map for CIS. */
+LctrUpdateCisChanMapFn_t LctrUpdateCisChanMapFn; /*!< Lctr Per Adv Enabled check function (defined if AE supported). */
 
 /*! \brief      Check is Ext Scan is enabled (ae functionality). */
 LctrExtCheckFn_t LctrMstExtScanEnabled;
@@ -64,8 +65,6 @@ LctrExtCheckFn_t LctrMstExtInitEnabled;
  *  \brief      Set Bluetooth device address
  *
  *  \param      pAddr       Bluetooth device address.
- *
- *  \return     None.
  *
  *  Set the BD address to be used by LL.
  */
@@ -85,8 +84,6 @@ void LlSetBdAddr(const uint8_t *pAddr)
  *  \brief      Get Bluetooth device address
  *
  *  \param      pAddr       Bluetooth device address.
- *
- *  \return     None.
  *
  *  Get the BD address currently used by LL or all zeros if address is not set.
  */
@@ -230,8 +227,6 @@ uint8_t LlGetRandAddr(uint8_t *pAddr)
  *  \param      pCompId     Company ID.
  *  \param      pBtVer      Bluetooth version.
  *  \param      pImplRev    Implementation revision.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void LlGetVersion(uint16_t *pCompId, uint8_t *pBtVer, uint16_t *pImplRev)
@@ -248,8 +243,6 @@ void LlGetVersion(uint16_t *pCompId, uint8_t *pBtVer, uint16_t *pImplRev)
  *  \brief      Get supported states.
  *
  *  \param      pStates     Supported states bitmask.
- *
- *  \return     None.
  *
  *  Return the states supported by the LL.
  */
@@ -268,8 +261,6 @@ void LlGetSupStates(uint8_t *pStates)
  *  \brief      Get features.
  *
  *  \param      pFeatures   Supported features bitmask.
- *
- *  \return     None.
  *
  *  Return the LE features supported by the LL.
  */
@@ -352,6 +343,7 @@ uint8_t LlSetOpFlags(uint32_t flags, bool_t enable)
     LL_OP_MODE_FLAG_ENA_SLV_AUX_SCAN_RSP_ADI |
     LL_OP_MODE_FLAG_ENA_SLV_AUX_IND_ADVA |
     LL_OP_MODE_FLAG_ENA_ADV_CHAN_RAND |
+    LL_OP_MODE_DISABLE_POWER_MONITOR |
     LL_OP_MODE_FLAG_ENA_LLCP_TIMER |
     LL_OP_MODE_FLAG_IGNORE_CRC_ERR_TS;
 
@@ -519,6 +511,38 @@ uint8_t LlRemoveDeviceFromWhitelist(uint8_t addrType, bdAddr_t pAddr)
 
 /*************************************************************************************************/
 /*!
+ *  \brief      Set host feature.
+ *
+ *  \param      bitNum      Bit position in the FeatureSet.
+ *  \param      bitVal      Enable or disable feature.
+ *
+ *  \return     Status error code.
+ *
+ *  Set or clear a bit in the feature controlled by the Host in the Link Layer FeatureSet
+ *  stored in the Controller.
+ */
+/*************************************************************************************************/
+uint8_t LlSetHostFeatures(uint8_t bitNum, bool_t bitVal)
+{
+  LL_TRACE_INFO2("### LlApi ###  LlSetHostFeatures, Bit=%d Value=%d", bitNum, bitVal);
+
+  if ((LL_HOST_CONTROLLED_FEAT & (UINT64_C(1) << bitNum)) == 0)
+  {
+    return LL_ERROR_CODE_UNSUPPORTED_FEATURE_PARAM_VALUE;
+  }
+
+  if (lmgrCb.numConnEnabled)
+  {
+    return LL_ERROR_CODE_CMD_DISALLOWED;
+  }
+
+  lmgrCb.features = (lmgrCb.features & ~(UINT64_C(1) << bitNum)) | (((uint64_t) bitVal) << bitNum);
+
+  return LL_SUCCESS;
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief      Get random number.
  *
  *  \param      pRandNum        Buffer to store 8 bytes random data.
@@ -547,8 +571,6 @@ uint8_t LlGetRandNum(uint8_t *pRandNum)
  *  \param      pMinTxPwr   Return buffer for minimum transmit power.
  *  \param      pMaxTxPwr   Return buffer for maximum transmit power.
  *
- *  \return     None.
- *
  *  Read the minimum and maximum transmit powers supported by the LL.
  */
 /*************************************************************************************************/
@@ -565,8 +587,6 @@ void LlReadSupTxPower(int8_t *pMinTxPwr, int8_t *pMaxTxPwr)
  *
  *  \param      pTxPathComp     Return buffer for RF transmit path compensation value.
  *  \param      pRxPathComp     Return buffer for RF receive path compensation value.
- *
- *  \return     None.
  *
  *  Read the RF Path Compensation Values parameter used in the Tx Power Level and RSSI calculation.
  */
@@ -617,9 +637,7 @@ uint8_t LlWriteRfPathComp(int16_t txPathComp, int16_t rxPathComp)
 /*************************************************************************************************/
 uint8_t LlSetChannelClass(const uint8_t *pChanMap)
 {
-  lctrChanMapUpdate_t *pMsg;
   uint64_t chanMap;
-  uint16_t handle;
 
   LL_TRACE_INFO0("### LlApi ###  LlSetChannelClass");
 
@@ -632,70 +650,5 @@ uint8_t LlSetChannelClass(const uint8_t *pChanMap)
     return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
   }
 
-  lmgrCb.chanClass = chanMap;
-
-  /* Update for connections */
-  for (handle = 0; handle < pLctrRtCfg->maxConn; handle++)
-  {
-    if ((LctrIsConnHandleEnabled(handle)) &&
-        (LctrGetRole(handle) == LL_ROLE_MASTER))
-    {
-      if (LctrIsProcActPended(handle, LCTR_CONN_MSG_API_CHAN_MAP_UPDATE) == TRUE)
-      {
-        return LL_ERROR_CODE_CMD_DISALLOWED;
-      }
-
-      if ((pMsg = (lctrChanMapUpdate_t *)WsfMsgAlloc(sizeof(*pMsg))) != NULL)
-      {
-        pMsg->hdr.handle = handle;
-        pMsg->hdr.dispId = LCTR_DISP_CONN;
-        pMsg->hdr.event  = LCTR_CONN_MSG_API_CHAN_MAP_UPDATE;
-
-        pMsg->chanMap = chanMap;
-
-        WsfMsgSend(lmgrPersistCb.handlerId, pMsg);
-      }
-    }
-  }
-
-  /* If periodic advertising is not included, return here. */
-  if (LctrPerAdvEnabled)
-  {
-    /* Update for periodic adv sets */
-    for(uint8_t perAdvHandle = 0; perAdvHandle < pLctrRtCfg->maxAdvSets; perAdvHandle++)
-    {
-      if (LctrPerAdvEnabled(perAdvHandle) == TRUE)
-      {
-        if ((pMsg = (lctrChanMapUpdate_t *)WsfMsgAlloc(sizeof(*pMsg))) != NULL)
-        {
-          pMsg->hdr.handle = (uint16_t) perAdvHandle;
-          pMsg->hdr.dispId = LCTR_DISP_ACAD;
-          pMsg->hdr.event  = LCTR_ACAD_MSG_CHAN_UPDATE;
-          pMsg->chanMap = chanMap;
-
-          WsfMsgSend(lmgrPersistCb.handlerId, pMsg);
-        }
-      }
-    }
-  }
-
-  return LL_SUCCESS;
-}
-
-/*************************************************************************************************/
-/*!
- *  \brief      Set Hci supported command
- *
- *  \param      byte            Byte location of command
- *  \param      bit             Bit location of command
- *  \param      enable          Enable or disable command
- *
- *  \return     Status error code
- *
- */
-/*************************************************************************************************/
-uint8_t LlSetHciSupCmd(uint8_t byte, uint8_t bit, bool_t enable)
-{
-  lmgrCb.hciSupCommands[byte] = ((lmgrCb.hciSupCommands[byte] & ~(1 << bit)) | ((uint8_t) enable << bit));
-  return LL_SUCCESS;
+  return LctrSetChannelClass(chanMap);
 }

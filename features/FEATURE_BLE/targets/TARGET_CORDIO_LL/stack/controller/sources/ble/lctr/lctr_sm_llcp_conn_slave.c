@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller slave connection state machine implementation file.
+ *  \file
+ *
+ *  \brief  Link layer controller slave connection state machine implementation file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -68,8 +69,6 @@ LctrLlcpHdlr_t lctrSlvLlcpSmTbl[LCTR_LLCP_SM_TOTAL];
  *  \brief      Action indirection for start connection update.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrActStartConnUpd(lctrConnCtx_t *pCtx)
@@ -92,8 +91,6 @@ static void lctrActStartConnUpd(lctrConnCtx_t *pCtx)
  *  \brief      Action indirection for received host connection update command.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrActHostConnUpd(lctrConnCtx_t *pCtx)
@@ -108,8 +105,6 @@ static void lctrActHostConnUpd(lctrConnCtx_t *pCtx)
  *  \brief      Action indirection for received host connection update command.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrActPeerConnParam(lctrConnCtx_t *pCtx)
@@ -125,8 +120,6 @@ static void lctrActPeerConnParam(lctrConnCtx_t *pCtx)
  *  \brief      Action indirection for received host connection update command with collision.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrActPeerConnParamWithCollision(lctrConnCtx_t *pCtx)
@@ -139,8 +132,6 @@ static void lctrActPeerConnParamWithCollision(lctrConnCtx_t *pCtx)
  *  \brief      Action indirection for received peer LL_CONN_IND.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrActPeerConnInd(lctrConnCtx_t *pCtx)
@@ -154,8 +145,6 @@ static void lctrActPeerConnInd(lctrConnCtx_t *pCtx)
  *  \brief      Action indirection for host reply command.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrActHostReply(lctrConnCtx_t *pCtx)
@@ -170,8 +159,6 @@ static void lctrActHostReply(lctrConnCtx_t *pCtx)
  *  \brief      Action indirection for host negative reply command.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrActHostNegReply(lctrConnCtx_t *pCtx)
@@ -186,8 +173,6 @@ void lctrActHostNegReply(lctrConnCtx_t *pCtx)
  *  \brief      Notify host of peer rejected connection parameter procedure.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrActPeerRejectConnParam(lctrConnCtx_t *pCtx)
@@ -215,8 +200,6 @@ void lctrActPeerRejectConnParam(lctrConnCtx_t *pCtx)
  *  \brief      Notify host of connection update with success status.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrActNotifyHostConnUpdSuccess(lctrConnCtx_t *pCtx)
@@ -233,8 +216,6 @@ void lctrActNotifyHostConnUpdSuccess(lctrConnCtx_t *pCtx)
  *  \brief      Notify host connection completed due to colliding connection parameter from peer.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrActNotifyHostColliding(lctrConnCtx_t *pCtx)
@@ -248,8 +229,6 @@ static void lctrActNotifyHostColliding(lctrConnCtx_t *pCtx)
  *  \brief      Notify host of connection update with disallowed status.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrActConnUpdDisallow(lctrConnCtx_t *pCtx)
@@ -263,8 +242,6 @@ static void lctrActConnUpdDisallow(lctrConnCtx_t *pCtx)
  *  \brief      Send peer LL_REJECT_IND due to pending operation.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrActRejectCollision(lctrConnCtx_t *pCtx)
@@ -373,8 +350,6 @@ static const uint8_t lctrSlvConnUpdNextStateTbl[LCTR_CU_STATE_TOTAL][LCTR_CU_EVE
  *
  *  \param      pCtx    Connection context.
  *  \param      event   Event ID.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static inline void lctrExecAction(lctrConnCtx_t *pCtx, uint8_t event)
@@ -486,8 +461,6 @@ static uint8_t lctrSlvConnUpdRemapEvent(lctrConnCtx_t *pCtx, uint8_t event)
  *
  *  \param      event   Subsystem event.
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrResolveCollision(lctrConnCtx_t *pCtx, uint8_t event)
@@ -530,8 +503,6 @@ static void lctrResolveCollision(lctrConnCtx_t *pCtx, uint8_t event)
  *
  *  \param      pCtx    Connection context.
  *  \param      event   Subsystem event.
- *
- *  \return     None.
  *
  *  This routine will pend the active procedure and allow the connection update procedure to
  *  override it.
@@ -638,8 +609,6 @@ bool_t lctrSlvLlcpExecuteConnUpdSm(lctrConnCtx_t *pCtx, uint8_t event)
  *
  *  \param      pCtx    Connection context.
  *  \param      event   Control event.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrLlcpStatelessEventHandler(lctrConnCtx_t *pCtx, uint8_t event)
@@ -681,8 +650,6 @@ void lctrLlcpStatelessEventHandler(lctrConnCtx_t *pCtx, uint8_t event)
  *
  *  \param      pCtx    Connection context.
  *  \param      event   State machine event.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrSlvLlcpExecuteSm(lctrConnCtx_t *pCtx, uint8_t event)
@@ -698,6 +665,7 @@ void lctrSlvLlcpExecuteSm(lctrConnCtx_t *pCtx, uint8_t event)
         return;
       }
       break;
+
     default:
       break;
   }
@@ -708,7 +676,8 @@ void lctrSlvLlcpExecuteSm(lctrConnCtx_t *pCtx, uint8_t event)
       !(lctrSlvLlcpSmTbl[LCTR_LLCP_SM_PHY_UPD]  && lctrSlvLlcpSmTbl[LCTR_LLCP_SM_PHY_UPD](pCtx, event)) &&
       !(lctrSlvLlcpSmTbl[LCTR_LLCP_SM_CIS_EST]  && lctrSlvLlcpSmTbl[LCTR_LLCP_SM_CIS_EST](pCtx, event)) &&
       !(lctrSlvLlcpSmTbl[LCTR_LLCP_SM_CIS_TERM] && lctrSlvLlcpSmTbl[LCTR_LLCP_SM_CIS_TERM](pCtx, event)) &&
-      !(lctrSlvLlcpSmTbl[LCTR_LLCP_SM_CMN]      && lctrSlvLlcpSmTbl[LCTR_LLCP_SM_CMN](pCtx, event)))
+      !(lctrSlvLlcpSmTbl[LCTR_LLCP_SM_PC]       && lctrSlvLlcpSmTbl[LCTR_LLCP_SM_PC](pCtx, event)) &&
+      !(lctrSlvLlcpSmTbl[LCTR_LLCP_SM_CMN]      && lctrSlvLlcpSmTbl[LCTR_LLCP_SM_CMN](pCtx, event)) )
   {
     lctrLlcpStatelessEventHandler(pCtx, event);
   }

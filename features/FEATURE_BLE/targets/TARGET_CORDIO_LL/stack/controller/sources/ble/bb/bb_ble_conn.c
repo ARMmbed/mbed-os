@@ -1,29 +1,32 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Connectable BLE baseband porting implementation file.
+ *  \file
+ *
+ *  \brief      Connectable BLE baseband porting implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
+#include <string.h>
 #include "bb_api.h"
 #include "pal_bb.h"
 #include "bb_ble_int.h"
+#include "bb_ble_sniffer_api.h"
 
 #if BB_DATA_PLD_MAX_LEN < LL_MAX_DATA_LEN_MIN
 #error "Unsupported BB_DATA_PLD_MAX_LEN value, must be greater than 27 bytes"
@@ -46,8 +49,6 @@ BbBleDataPktStats_t bbConnStats;          /*!< Connection packet statistics. */
  *  \param      descs       Array of transmit buffer descriptor.
  *  \param      cnt         Number of descriptors.
  *
- *  \return     None.
- *
  *  \note       This function is expected to be called during the call context of
  *              \ref BbBleMstConnEvent_t::rxDataCback or \ref BbBleSlvConnEvent_t::rxDataCback
  *              callback routine.
@@ -55,10 +56,16 @@ BbBleDataPktStats_t bbConnStats;          /*!< Connection packet statistics. */
 /*************************************************************************************************/
 void BbBleTxData(PalBbBleTxBufDesc_t descs[], uint8_t cnt)
 {
+#if (BB_SNIFFER_ENABLED == TRUE)
+  if (bbSnifferCtx.enabled)
+  {
+    memcpy(bbSnifferCtx.txBuf, descs->pBuf, LL_DATA_HDR_MAX_LEN);
+  }
+#endif
   if ((BbGetCurrentBod()->prot.pBle->chan.opType == BB_BLE_OP_MST_CONN_EVENT) &&
       (bbBleCb.evtState == 0))
   {
-    bbBleSetIfs();     /* master always Rx's after Tx */
+    bbBleSetTifs();     /* master always Rx's after Tx */
     PalBbBleTxData(descs, cnt);
   }
   else
@@ -66,7 +73,7 @@ void BbBleTxData(PalBbBleTxBufDesc_t descs[], uint8_t cnt)
     BB_ISR_MARK(bbConnStats.txSetupUsec);
 
     /* TODO set only if master or if slave and Rx may follow in CE. */
-    bbBleSetIfs();
+    bbBleSetTifs();
     PalBbBleTxTifsData(descs, cnt);
   }
 }
@@ -77,8 +84,6 @@ void BbBleTxData(PalBbBleTxBufDesc_t descs[], uint8_t cnt)
  *
  *  \param      pBuf        Receive data buffer.
  *  \param      len         Maximum length of data buffer.
- *
- *  \return     None.
  *
  *  \note       This function is expected to be called during the call context of
  *              \ref BbBleMstConnEvent_t::rxDataCback or
@@ -99,7 +104,7 @@ void BbBleRxData(uint8_t *pBuf, uint16_t len)
   if ((BbGetCurrentBod()->prot.pBle->chan.opType == BB_BLE_OP_SLV_CONN_EVENT) &&
       (bbBleCb.evtState == 0))
   {
-    bbBleSetIfs();       /* slave always Tx's after Rx */
+    bbBleSetTifs();       /* slave always Tx's after Rx */
     PalBbBleRxData(pBuf, len);
   }
 }
@@ -107,8 +112,6 @@ void BbBleRxData(uint8_t *pBuf, uint16_t len)
 /*************************************************************************************************/
 /*!
  *  \brief      Get connection packet statistics.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void BbBleGetConnStats(BbBleDataPktStats_t *pStats)

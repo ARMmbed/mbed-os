@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief LL HCI event module implementation file.
+ *  \file
+ *
+ *  \brief  LL HCI event module implementation file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -108,8 +109,6 @@ bool_t lhciLlEvtHandler(LlEvt_t *pEvt)
 
   WSF_ASSERT(lhciEvtTbl[LHCI_MSG_ADV]);    /* proper init guarantees this handler exists. */
 
-  LL_TRACE_INFO1("Encoding LL event=%u", pEvt->hdr.event);
-
   /* Standard event handlers. */
   do
   {
@@ -165,8 +164,6 @@ bool_t lhciLlEvtHandler(LlEvt_t *pEvt)
  *  \brief  Send an HCI event and service the event queue.
  *
  *  \param  pBuf    Buffer containing HCI event to send or NULL to service the queue.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void LhciSendEvent(uint8_t *pBuf)

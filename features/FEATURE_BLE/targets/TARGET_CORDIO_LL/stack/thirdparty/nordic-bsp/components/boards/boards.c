@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016 - 2018, Nordic Semiconductor ASA
+ * Copyright (c) 2016 - 2019, Nordic Semiconductor ASA
  *
  * All rights reserved.
  *
@@ -43,7 +43,6 @@
 #endif
 #include <stdint.h>
 #include <stdbool.h>
-#include "nrf_assert.h"
 
 #if LEDS_NUMBER > 0
 static const uint8_t m_board_led_list[LEDS_NUMBER] = LEDS_LIST;

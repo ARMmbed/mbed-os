@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Controller HCI transport API.
+ *  \file
+ *
+ *  \brief  Controller HCI transport API.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -46,7 +47,7 @@ enum
 enum
 {
   CHCI_TR_TYPE_CMD  = 0,                  /*!< Command message (receive only). */
-  CHCI_TR_TYPE_DATA,                      /*!< ACL data message (send or receive). */
+  CHCI_TR_TYPE_ACL,                       /*!< ACL data message (send or receive). */
   CHCI_TR_TYPE_EVT,                       /*!< Event message (send only). */
   CHCI_TR_TYPE_ISO,                       /*!< ISO data message (send or receive). */
   CHCI_TR_TYPE_NUM                        /*!< Number of types. */
@@ -55,8 +56,9 @@ enum
 /*! \brief      Error codes. */
 enum
 {
-  CHCI_TR_CODE_INVALID_DATA  = 0xA0,      /*!< Invalid data received. */
-  CHCI_TR_CODE_OUT_OF_MEMORY = 0xA1       /*!< Out of memory. */
+  CHCI_TR_CODE_INVALID_DATA     = 0xA0,   /*!< Invalid data received. */
+  CHCI_TR_CODE_INVALID_DATA_LEN = 0xA1,   /*!< Invalid data length. */
+  CHCI_TR_CODE_OUT_OF_MEMORY    = 0xA2    /*!< Out of memory. */
 };
 
 /*! \brief      802.15.4 protocol command type. */
@@ -101,11 +103,11 @@ typedef void (*ChciTrSendHwErrorCback_t)(uint8_t code);
  *  \brief  Initialize the transport handler.
  *
  *  \param  handlerId       Handler ID.
- *
- *  \return None.
+ *  \param  maxAclLen       Maximum ACL data length.
+ *  \param  maxIsoSduLen       Maximum ISO data length.
  */
 /*************************************************************************************************/
-void ChciTrHandlerInit(wsfHandlerId_t handlerId);
+void ChciTrHandlerInit(wsfHandlerId_t handlerId, uint16_t maxAclLen, uint16_t maxIsoSduLen);
 
 /*************************************************************************************************/
 /*!
@@ -113,8 +115,6 @@ void ChciTrHandlerInit(wsfHandlerId_t handlerId);
  *
  *  \param      event       WSF event.
  *  \param      pMsg        WSF message.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void ChciTrHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg);
@@ -127,8 +127,6 @@ void ChciTrHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg);
  *  \param  recvCback           Message received callback.
  *  \param  sendCompleteCback   Message send complete callback.
  *  \param  serviceCback        Service callback.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void ChciTrSetCbacks(uint8_t prot, ChciTrRecvCback_t recvCback, ChciTrSendCompleteCback_t sendCompleteCback,
@@ -139,8 +137,6 @@ void ChciTrSetCbacks(uint8_t prot, ChciTrRecvCback_t recvCback, ChciTrSendComple
  *  \brief  Set send hardware error callback.
  *
  *  \param  sendHwErrorCback    Send hardware error callback.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void ChciTrSetSendHwErrorCback(ChciTrSendHwErrorCback_t sendHwErrorCback);
@@ -150,8 +146,6 @@ void ChciTrSetSendHwErrorCback(ChciTrSendHwErrorCback_t sendHwErrorCback);
  *  \brief  Flag protocol for needing service.
  *
  *  \param  prot                Protocol.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void ChciTrNeedsService(uint8_t prot);

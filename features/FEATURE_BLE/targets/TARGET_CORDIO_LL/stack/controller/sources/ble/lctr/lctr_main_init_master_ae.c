@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller master scanning operation builder implementation file.
+ *  \file
+ *
+ *  \brief  Link layer controller master scanning operation builder implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -35,6 +36,21 @@
 #include <stddef.h>
 
 /**************************************************************************************************
+  Macros
+**************************************************************************************************/
+/*! \brief      Resolve the extended initiate handle from the context pointer. */
+#define LCTR_GET_EXT_INIT_HANDLE(pCtx)  (pCtx - lctrMstExtInitTbl)
+
+/*! \brief      Typical PDU length of ADV_EXT_IND when initiating connection. */
+#define LCTR_INIT_ADV_EXT_IND_LEN       7       /*!< Includes Flags + ADI + AuxPtr. */
+
+/*! \brief      Typical PDU length of AUX_ADV_IND when initiating connection. */
+#define LCTR_INIT_AUX_ADV_IND_LEN       10      /*!< Includes Flags + AdvA + ADI. */
+
+/*! \brief      Typical PDU length of ADV_IND when initiating connection with legacy packets. */
+#define LCTR_INIT_ADV_IND_LEN           6
+
+/**************************************************************************************************
   Globals
 **************************************************************************************************/
 /*! \brief      Initiate operational context. */
@@ -47,8 +63,6 @@ lctrExtInitCtrlBlk_t lctrMstExtInit;
 /*************************************************************************************************/
 /*!
  *  \brief      Master initiate reset handler.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrMstExtInitResetHandler(void)
@@ -61,8 +75,6 @@ static void lctrMstExtInitResetHandler(void)
  *  \brief      Execute common master initiate state machine.
  *
  *  \param      pMsg    Pointer to message buffer.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrMstExtInitExecuteCommonSm(LctrExtScanMsg_t *pMsg)
@@ -94,7 +106,7 @@ static void lctrMstExtInitExecuteCommonSm(LctrExtScanMsg_t *pMsg)
           if ((status = lctrExtInitSetupInitiate(&lctrMstExtInitTbl[i], pExtInitMsg->peerAddrType, pExtInitMsg->peerAddr,
                                                  pExtInitMsg->filterPolicy, pExtInitMsg->ownAddrType)) != LL_SUCCESS)
           {
-            // TODO for multiple scanners, cleanup upon failure
+            /* TODO for multiple scanners, cleanup upon failure */
             break;
           }
         }
@@ -145,8 +157,6 @@ static void lctrMstExtInitExecuteCommonSm(LctrExtScanMsg_t *pMsg)
  *  \brief      Master initiate message dispatcher.
  *
  *  \param      pMsg    Pointer to message buffer.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrMstExtInitDisp(LctrExtScanMsg_t *pMsg)
@@ -270,7 +280,6 @@ uint8_t lctrMstExtInitiateBuildOp(lctrExtScanCtx_t *pExtInitCtx, LlConnSpec_t *p
 
   pScan->scanChMap = lmgrMstScanCb.scanChanMap;
 
-  pScan->preExecCback = lctrMstExtPreInitiateExecHandler;
   pScan->rxAdvCback = lctrMstInitiateRxExtAdvPktHandler;
   pScan->rxAdvPostCback = lctrMstInitiateRxExtAdvPktPostProcessHandler;
 
@@ -284,7 +293,7 @@ uint8_t lctrMstExtInitiateBuildOp(lctrExtScanCtx_t *pExtInitCtx, LlConnSpec_t *p
 
   pScan->txReqCback = lctrMstExtConnIndTxCompHandler;
 
-  // TODO move to common/shared init
+  /* TODO move to common/shared init */
   lctrConnInd_t * const pConnInd = &pExtInitCtx->data.init.connInd;
 
   pConnInd->accessAddr = lctrComputeAccessAddr();
@@ -371,8 +380,6 @@ uint8_t lctrMstExtInitiateBuildOp(lctrExtScanCtx_t *pExtInitCtx, LlConnSpec_t *p
  *  \brief  Commit initiate connection operation.
  *
  *  \param  pExtInitCtx     Extended scan context of the initiator.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrMstExtInitiateOpCommit(lctrExtScanCtx_t *pExtInitCtx)
@@ -390,7 +397,7 @@ void lctrMstExtInitiateOpCommit(lctrExtScanCtx_t *pExtInitCtx)
   pExtInitCtx->shutdown = FALSE;
 
   SchInsertNextAvailable(pOp);
-  pExtInitCtx->data.init.scanWinStart = pOp->due;
+  pExtInitCtx->data.init.scanWinStartUsec = pOp->dueUsec;
 }
 
 /*************************************************************************************************/
@@ -524,8 +531,6 @@ uint8_t lctrMstAuxInitiateBuildOp(lctrExtScanCtx_t *pExtInitCtx, LlConnSpec_t *p
 /*************************************************************************************************/
 /*!
  *  \brief      Initialize link layer controller resources for initiating master.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void LctrMstExtInitInit(void)
@@ -548,8 +553,6 @@ void LctrMstExtInitInit(void)
 /*************************************************************************************************/
 /*!
  *  \brief      Set default values for scanning master.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void LctrMstExtInitDefaults(void)
@@ -566,8 +569,6 @@ void LctrMstExtInitDefaults(void)
  *  \brief      Set enabled initiate scanning PHY.
  *
  *  \param      scanPhy     Enabled scanning PHY.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void LctrMstExtInitSetScanPhy(uint8_t scanPhy)
@@ -582,8 +583,6 @@ void LctrMstExtInitSetScanPhy(uint8_t scanPhy)
  *  \brief      Clear (disable) scanning PHY.
  *
  *  \param      scanPhy     Disabled scanning PHY.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void LctrMstExtInitClearScanPhy(uint8_t scanPhy)
@@ -600,8 +599,6 @@ void LctrMstExtInitClearScanPhy(uint8_t scanPhy)
  *  \param      initPhy     Extended initiating PHY.
  *  \param      pScanParam  Extended initiating scan parameters.
  *  \param      pConnSpec   Connection specification.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void LctrMstExtInitParam(uint8_t initPhy, const LlExtInitScanParam_t *pScanParam, const LlConnSpec_t *pConnSpec)
@@ -621,8 +618,6 @@ void LctrMstExtInitParam(uint8_t initPhy, const LlExtInitScanParam_t *pScanParam
  *
  *  \param  pExtInitCtx Extended initiate context.
  *  \param  event       Extended scan event.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrSendExtInitMsg(lctrExtScanCtx_t *pExtInitCtx, uint8_t event)

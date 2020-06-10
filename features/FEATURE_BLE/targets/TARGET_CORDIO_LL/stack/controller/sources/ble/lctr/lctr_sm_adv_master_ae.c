@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller master scan state machine implementation file.
+ *  \file
+ *
+ *  \brief  Link layer controller master scan state machine implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -61,8 +62,8 @@ static const lctrActFn_t lctrExtScanActionTbl[LCTR_EXT_SCAN_STATE_TOTAL][LCTR_EX
   },
   { /* LCTR_EXT_SCAN_STATE_SHUTDOWN */
     NULL,                           /* LCTR_EXT_SCAN_MSG_RESET */
-    lctrExtScanActDisallowScan,     /* LCTR_EXT_SCAN_MSG_DISCOVER_ENABLE */
-    lctrExtScanActDisallowScan,     /* LCTR_EXT_SCAN_MSG_DISCOVER_DISABLE */
+    lctrExtScanActHostEnable,       /* LCTR_EXT_SCAN_MSG_DISCOVER_ENABLE */
+    lctrExtScanHostDisable,         /* LCTR_EXT_SCAN_MSG_DISCOVER_DISABLE */
     lctrExtScanActScanTerm          /* LCTR_EXT_SCAN_MSG_TERMINATE */
   },
   { /* LCTR_EXT_SCAN_STATE_RESET */
@@ -325,8 +326,6 @@ static const uint8_t lctrPerScanNextStateTbl[LCTR_PER_SCAN_STATE_TOTAL][LCTR_PER
  *
  *  \param      pExtScanCtx     Extended scan context.
  *  \param      event           State machine event.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrMstExtScanExecuteSm(lctrExtScanCtx_t *pExtScanCtx, uint8_t event)
@@ -346,8 +345,6 @@ void lctrMstExtScanExecuteSm(lctrExtScanCtx_t *pExtScanCtx, uint8_t event)
  *  \brief      Execute master create sync state machine.
  *
  *  \param      event       State machine event.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrMstCreateSyncExecuteSm(uint8_t event)
@@ -367,8 +364,6 @@ void lctrMstCreateSyncExecuteSm(uint8_t event)
  *  \brief      Execute master transfer sync state machine.
  *
  *  \param      event       State machine event.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrMstTransferSyncExecuteSm(uint8_t event)
@@ -389,8 +384,6 @@ void lctrMstTransferSyncExecuteSm(uint8_t event)
  *
  *  \param      pPerScanCtx   Periodic scanning context.
  *  \param      event         State machine event.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrMstPerScanExecuteSm(lctrPerScanCtx_t *pPerScanCtx, uint8_t event)

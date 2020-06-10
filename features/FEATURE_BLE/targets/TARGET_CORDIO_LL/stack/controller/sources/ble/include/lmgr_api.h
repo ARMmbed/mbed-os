@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer manager common interface file.
+ *  \file
+ *
+ *  \brief      Link layer manager common interface file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -74,6 +75,8 @@ typedef struct
   uint16_t          perScanCtxSize;     /*!< Size of the periodic scanning context. */
   uint16_t          cisCtxSize;         /*!< Size of the CIS context. */
   uint16_t          cigCtxSize;         /*!< Size of the CIG context. */
+  uint16_t          bisCtxSize;         /*!< Size of the BIS context. */
+  uint16_t          bigCtxSize;         /*!< Size of the BIG context. */
   uint64_t          featuresDefault;    /*!< Default supported features. */
 
   llIsoCback_t      sendIsoCompCback;   /*!< ISO data send complete callback. */
@@ -126,22 +129,22 @@ typedef struct
   int8_t            powerThreshold[LL_MAX_PHYS];    /*!< Power threshold for each PHY. */
   uint8_t           localMinUsedChan[LL_MAX_PHYS];  /*!< Local minimum number of used channels for each PHY. */
 
-  uint8_t           hciSupCommands[HCI_SUP_CMD_LEN]; /*!< Supported HCI commands bit mask. */
+  /* Isochronous channels. */
+  bool_t            sendIsoCmplEvt;                  /*!< ISO event completion notification generation enable. */
 } lmgrCtrlBlk_t;
 
 /*! \brief      Channel parameters. */
 typedef struct
 {
   /* Channel parameters */
-  uint8_t       lastChanIdx;        /*!< Current channel index. */
-  uint8_t       numUsedChan;        /*!< Number of used channels. */
   uint64_t      chanMask;           /*!< Channel mask. */
   uint8_t       chanRemapTbl[LL_CHAN_DATA_MAX_IDX + 1]; /*!< Channel remapping table. */
+  uint8_t       numUsedChan;        /*!< Number of used channels. */
 
   uint8_t       usedChSel;          /*!< Used channel selection. */
   uint16_t      chIdentifier;       /*!< Channel identifier. */
 
-  /* For subevent calculation only */
+  /* Subevent parameters */
   uint16_t      prnLast;            /*!< Last used permutation. */
   uint8_t       subEvtIdx;          /*!< Subevent index. */
 } lmgrChanParam_t;
@@ -178,9 +181,7 @@ bool_t LmgrIsExtCommandAllowed(void);
 /* Utility */
 void LmgrBuildRemapTable(lmgrChanParam_t *pChanParam);
 uint8_t LmgrSelectNextChannel(lmgrChanParam_t *pChanParam, uint16_t eventCounter, uint16_t numSkip, bool_t calSubEvt);
-uint32_t LmgrCalcWindowWideningUsec(uint32_t unsyncTimeUsec, uint32_t caPpm);
 uint8_t LmgrSelectNextSubEvtChannel(lmgrChanParam_t *pChanParam);
-uint8_t * LmgrReadHciSupCmd(void);
 
 /* Event Messages */
 void LmgrSendAdvEnableCnf(uint8_t status);

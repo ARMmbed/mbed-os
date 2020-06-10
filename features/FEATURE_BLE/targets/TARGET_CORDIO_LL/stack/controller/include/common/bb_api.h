@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
  *  \file
+ *
  *  \brief      Baseband interface file.
+ *
+ *  Copyright (c) 2013-2018 ARM Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  *
  *  \addtogroup BB_API              Baseband (BB) API
  *  \{
@@ -68,6 +69,7 @@
 
 #include "wsf_types.h"
 #include "cfg_mac.h"
+#include "pal_bb.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -101,6 +103,7 @@ typedef struct
 
   /* Scheduler */
   uint16_t  schSetupDelayUs;        /*!< Operation setup delay in microseconds. */
+  uint32_t  BbTimerBoundaryUs;      /*!< BB timer tick boundary translated in microseconds before wraparound. */
 } BbRtCfg_t;
 
 /*! \} */    /* BB_API_INIT */
@@ -120,12 +123,14 @@ typedef void (*BbBodCback_t)(struct BbOpDesc_tag *pBod);
 /*! \brief     Protocol event callback signature. */
 typedef void (*BbProtCback_t)(void);
 
+/*! \brief     Low power callback. */
+typedef void (*BbLowPowerCback_t)(void);
+
 /*! \brief      BOD rescheduling policy (listed in priority order). */
 typedef enum
 {
   BB_RESCH_FIXED_PREFERRED,         /*!< BOD is fixed (rescheduling has limited recoverable consequences). */
   BB_RESCH_FIXED,                   /*!< BOD is fixed (rescheduling has recoverable consequences). */
-  BB_RESCH_PERIODIC,                /*!< BOD is periodic (rescheduling has consequences). */
   BB_RESCH_MOVEABLE_PREFERRED,      /*!< BOD is movable (rescheduling has minor consequences). */
   BB_RESCH_MOVEABLE,                /*!< BOD is movable (rescheduling has no consequences). */
   BB_RESCH_BACKGROUND               /*!< BOD is single background task. */
@@ -146,14 +151,13 @@ typedef struct BbOpDesc_tag
   struct BbOpDesc_tag *pPrev;       /*!< Previous BOD. */
   struct BbOpDesc_tag *pNext;       /*!< Next BOD. */
 
-  uint32_t      due;                /*!< Absolute clock due time. */
+  uint32_t      dueUsec;            /*!< Absolute clock due time in microseconds. */
   uint32_t      minDurUsec;         /*!< Minimum required duration in microseconds. */
   uint32_t      maxDurUsec;         /*!< Maximum required duration in microseconds. */
-  uint16_t      dueOffsetUsec;      /*!< Due time offset in microseconds. */
 
-  uint8_t       reschPolicy;        /*!< Rescheduling policy. */
+  BbReschPol_t  reschPolicy:8;      /*!< Rescheduling policy. */
 
-  uint8_t       protId;             /*!< Protocol type. */
+  PalBbProt_t   protId:8;           /*!< Protocol type. */
 
   BbBodCback_t  endCback;           /*!< End of BOD callback (when BOD ends). */
   BbBodCback_t  abortCback;         /*!< Abort BOD callback (when BOD is removed before beginning). */
@@ -183,8 +187,6 @@ typedef struct BbOpDesc_tag
  *
  *  \param      pCfg        Pointer to runtime configuration parameters (data must be static).
  *
- *  \return     None.
- *
  *  This function initializes the BB subsystem's runtime configuration.
  *
  *  \note       This routine must be called only once before any other initialization routine.
@@ -196,8 +198,6 @@ void BbInitRunTimeCfg(const BbRtCfg_t *pCfg);
 /*!
  *  \brief      Initialize the BB.
  *
- *  \return     None.
- *
  *  Initialize baseband resources.
  */
 /*************************************************************************************************/
@@ -208,8 +208,6 @@ void BbInit(void);
  *  \brief      Register operation completion handler.
  *
  *  \param      eventCback  Event callback.
- *
- *  \return     None.
  *
  *  Register operation completion handler.
  */
@@ -225,12 +223,20 @@ void BbRegister(BbBodCompCback_t eventCback);
  *  \param      cancelOpCback   Cancel operation callback.
  *  \param      startProtCback  Start protocol callback.
  *  \param      stopProtCback   Stop protocol callback.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
-void BbRegisterProt(uint8_t protId, BbBodCback_t execOpCback, BbBodCback_t cancelOpCback,
-    BbProtCback_t startProtCback, BbProtCback_t stopProtCback);
+void BbRegisterProt(PalBbProt_t protId, BbBodCback_t execOpCback, BbBodCback_t cancelOpCback,
+                    BbProtCback_t startProtCback, BbProtCback_t stopProtCback);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Register protocol handlers for low power.
+ *
+ *  \param      protId          Protocol ID.
+ *  \param      lowPowerOpCback Low power operation callback.
+ */
+/*************************************************************************************************/
+void BbRegisterProtLowPower(PalBbProt_t protId, BbLowPowerCback_t lowPowerOpCback);
 
 /*! \} */    /* BB_API_INIT */
 
@@ -243,14 +249,12 @@ void BbRegisterProt(uint8_t protId, BbBodCback_t execOpCback, BbBodCback_t cance
  *
  *  \param      protId  Protocol ID.
  *
- *  \return     None.
- *
  *  Enable BB and start processing the list of BODs.  This routine may be called several times, if
  *  a protocol layers has several simultaneously-enabled operations.  However, \ref BbStop() must
  *  be called an equal number of time to disable the baseband.
  */
 /*************************************************************************************************/
-void BbStart(uint8_t protId);
+void BbStart(PalBbProt_t protId);
 
 /*************************************************************************************************/
 /*!
@@ -264,15 +268,13 @@ void BbStart(uint8_t protId);
  *              balanced to ensure that the hardware is disabled if and only if appropriate.
  */
 /*************************************************************************************************/
-void BbStop(uint8_t protId);
+void BbStop(PalBbProt_t protId);
 
 /*************************************************************************************************/
 /*!
  *  \brief      Execute BOD.
  *
  *  \param      pBod    Pointer to the BOD to execute.
- *
- *  \return     None.
  *
  *  Execute the protocol specific BOD handler.
  */
@@ -282,8 +284,6 @@ void BbExecuteBod(BbOpDesc_t *pBod);
 /*************************************************************************************************/
 /*!
  *  \brief      Cancel current executing BOD.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void BbCancelBod(void);
@@ -300,8 +300,6 @@ BbOpDesc_t *BbGetCurrentBod(void);
 /*************************************************************************************************/
 /*!
  *  \brief      Set termination flag of current executing BOD.
- *
- *  \return     None.
  *
  *  \note       This function is expected to be called during the execution context of the
  *              current executing BOD, typically in the related ISRs. In the end, termination
@@ -323,8 +321,6 @@ bool_t BbGetBodTerminateFlag(void);
 /*!
  *  \brief      Terminate a BOD immediately.
  *
- *  \return     None.
- *
  *  \note       This function is expected to be called during the execution context of the
  *              current executing BOD, typically in the related ISRs.
  */
@@ -344,6 +340,16 @@ uint16_t BbGetClockAccuracy(void);
 
 /*************************************************************************************************/
 /*!
+ *  \brief      Get BB timer boundary before wraparound.
+ *
+ *  \return     Time boundary in microseconds.
+ *
+ */
+/*************************************************************************************************/
+uint32_t BbGetBbTimerBoundaryUs(void);
+
+/*************************************************************************************************/
+/*!
  *  \brief      Get scheduler setup delay.
  *
  *  \return     Scheduler setup delay in microseconds.
@@ -352,6 +358,35 @@ uint16_t BbGetClockAccuracy(void);
  */
 /*************************************************************************************************/
 uint16_t BbGetSchSetupDelayUs(void);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Adjust new time tick with wraparound.
+ *
+ *  \param      dueUsec    Time tick without wraparound in microseconds.
+
+ *
+ *  \return     Time tick with wraparound.
+ *
+ *  \note        dueUsec can only be at most +/-(BbTimerBoundaryUs/2) out of range.
+ */
+/*************************************************************************************************/
+uint32_t BbAdjustTime(uint32_t dueUsec);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Get Delta between target and reference time. Only valid if target time is in the future.
+ *
+ *  \param      targetUsec    Target time in microseconds.
+ *  \param      refUsec       Reference time in microseconds.
+ *
+ *  \return     Positive number in microseconds if target time is in the future.
+ *              Zero if target time is in the past or same compared with reference time.
+ *
+ *  \note       Caller has to make sure target time and reference time are within SCH_MAX_SPAN.
+ */
+/*************************************************************************************************/
+uint32_t BbGetTargetTimeDelta(uint32_t targetUsec, uint32_t refUsec);
 
 /*************************************************************************************************/
 /*!

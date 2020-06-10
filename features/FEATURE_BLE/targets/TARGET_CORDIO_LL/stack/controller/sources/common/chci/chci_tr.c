@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Controller HCI transport module implementation file.
+ *  \file
+ *
+ *  \brief  Controller HCI transport module implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -34,8 +35,12 @@
 #if (CHCI_TR_UART == 1)
 #include "pal_uart.h"
 #include "pal_sys.h"
-#else
-#include "fake_lhci_drv.h"
+#endif
+
+#if (CHCI_TR_CUSTOM == 1)
+/* Custom transport */
+extern void ChciTrInit(uint16_t maxAclLen, uint16_t maxIsoSduLen);
+extern void ChciTrWrite(uint8_t prot, uint8_t type, uint16_t len, uint8_t *pData);
 #endif
 
 /**************************************************************************************************
@@ -51,6 +56,9 @@
 /*! \brief      Maximum read header length. */
 #define LHCI_MAX_RD_HDR_LEN     (1 + 4)     /* type + max header length */
 
+/*! \brief      Maximum write buffer length allowed by UART DMA. */
+#define LHCI_MAX_DATA_LEN       4096
+
 /**************************************************************************************************
   Data Types
 **************************************************************************************************/
@@ -63,6 +71,9 @@ typedef struct
   uint8_t                     typePending;          /*!< Data type in progress. */
   uint8_t                     protPending;          /*!< Protocol in progress. */
   uint8_t                     nextAvailMask;        /*!< Next available mask. */
+
+  uint16_t                    maxAclLen;            /*!< Maximum ACL data length. */
+  uint16_t                    maxIsoSduLen;         /*!< Maximum ISO data length. */
 
   uint32_t                    cmdCount;             /*!< Counter of commands */
   uint32_t                    evtCount;             /*!< Counter of events */
@@ -77,17 +88,17 @@ typedef struct
   } protCbacks[CHCI_TR_PROT_NUM];                   /*!< Callback array indexed by protocol ID. */
 
   /* Read buffer state. */
-  uint8_t rxPktState;                               /*!< Receive state. */
-  uint8_t rdHdr[LHCI_MAX_RD_HDR_LEN];               /*!< Read header buffer. */
-  uint16_t rdBufOffs;                               /*!< Write data buffer offset. */
-  uint16_t rdBufLen;                                /*!< Write data buffer length. */
-  uint8_t *pRdBuf;                                  /*!< Read data buffer. */
+  uint8_t                     rxPktState;           /*!< Receive state. */
+  uint8_t                     rdHdr[LHCI_MAX_RD_HDR_LEN];   /*!< Read header buffer. */
+  uint16_t                    rdBufOffs;            /*!< Write data buffer offset. */
+  uint16_t                    rdBufLen;             /*!< Write data buffer length. */
+  uint8_t                     *pRdBuf;              /*!< Read data buffer. */
 
   /* Write buffer state. */
-  uint16_t wrBufOffs;                               /*!< Write data buffer offset. */
-  uint16_t wrBufLen;                                /*!< Write data buffer length. */
-  uint8_t  *pWrBuf;                                 /*!< Write data buffer. */
-  bool_t wrBufComp;                                 /*!< Write buffer completed. */
+  uint16_t                    wrBufOffs;            /*!< Write data buffer offset. */
+  uint16_t                    wrBufLen;             /*!< Write data buffer length. */
+  uint8_t                     *pWrBuf;              /*!< Write data buffer. */
+  bool_t                      wrBufComp;            /*!< Write buffer completed. */
 } chciTrCtrlBlk_t;
 
 /*! \brief      Send handler. */
@@ -118,28 +129,9 @@ chciTrCtrlBlk_t chciTrCb;
 
 /*************************************************************************************************/
 /*!
- *  \brief  Signal a hardware error.
- *
- *  \param  code    Error code.
- *
- *  \return None.
- */
-/*************************************************************************************************/
-static void chciTrHwError(uint8_t code)
-{
-  if (chciTrCb.sendHwErrorCback != NULL)
-  {
-    chciTrCb.sendHwErrorCback(code);
-  }
-}
-
-/*************************************************************************************************/
-/*!
  *  \brief  Increment the command and event counters.
  *
  *  \param  type          Type of message.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static void chciTrIncrementCounters(uint8_t type)
@@ -154,14 +146,29 @@ static void chciTrIncrementCounters(uint8_t type)
   }
 }
 
+#if (CHCI_TR_UART == 1)
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Signal a hardware error.
+ *
+ *  \param  code    Error code.
+ */
+/*************************************************************************************************/
+static void chciTrHwError(uint8_t code)
+{
+  if (chciTrCb.sendHwErrorCback != NULL)
+  {
+    chciTrCb.sendHwErrorCback(code);
+  }
+}
+
 /*************************************************************************************************/
 /*!
  *  \brief  Setup a read data buffer.
  *
  *  \param  len       Number of bytes to write.
  *  \param  pData     Byte array to write.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static void chciTrRead(uint16_t len, uint8_t *pData)
@@ -175,8 +182,6 @@ static void chciTrRead(uint16_t len, uint8_t *pData)
 /*************************************************************************************************/
 /*!
  *  \brief  Receive packet state machine.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static void chciRxPacketSM(void)
@@ -186,7 +191,7 @@ static void chciRxPacketSM(void)
   {
     chciTrCb.rxPktState = CHCI_RX_STATE_HEADER;
     /* Determine header length based on packet type. */
-    switch(chciTrCb.rdHdr[0])
+    switch (chciTrCb.rdHdr[0])
     {
       case HCI_CMD_TYPE:
         chciTrRead(HCI_CMD_HDR_LEN, &chciTrCb.rdHdr[1]);
@@ -213,6 +218,7 @@ static void chciRxPacketSM(void)
   {
     uint8_t hdrLen = 0;
     uint16_t dataLen = 0;
+    uint16_t allocLen = 0;
 
     /* Extract data length from header. */
     switch (chciTrCb.rdHdr[0])
@@ -220,26 +226,50 @@ static void chciRxPacketSM(void)
       case HCI_CMD_TYPE:
         hdrLen = HCI_CMD_HDR_LEN;
         dataLen = (uint16_t)chciTrCb.rdHdr[3];
+        allocLen = dataLen;
         break;
       case HCI_ACL_TYPE:
         hdrLen = HCI_ACL_HDR_LEN;
         BYTES_TO_UINT16(dataLen, &chciTrCb.rdHdr[3]);
+        if (dataLen > chciTrCb.maxAclLen)
+        {
+          chciTrHwError(CHCI_TR_CODE_INVALID_DATA_LEN);
+          chciTrCb.rxPktState = CHCI_RX_STATE_IDLE;
+          return;
+        }
+        /* Use data buffers located in the large pool. */
+        allocLen = chciTrCb.maxAclLen + CHCI_BUF_TAILROOM;
         break;
       case HCI_ISO_TYPE:
         hdrLen = HCI_ISO_HDR_LEN;
         BYTES_TO_UINT16(dataLen, &chciTrCb.rdHdr[3]);
+        if (dataLen > (chciTrCb.maxIsoSduLen + HCI_ISO_DL_MAX_LEN))
+        {
+          chciTrHwError(CHCI_TR_CODE_INVALID_DATA_LEN);
+          chciTrCb.rxPktState = CHCI_RX_STATE_IDLE;
+          return;
+        }
+        /* Use data buffers located in the large pool. */
+        allocLen = HCI_ISO_DL_MAX_LEN + chciTrCb.maxIsoSduLen + CHCI_BUF_TAILROOM;
         break;
       case CHCI_15P4_CMD_TYPE:
       case CHCI_15P4_DATA_TYPE:
         hdrLen = CHCI_15P4_HDR_LEN;
         BYTES_TO_UINT16(dataLen, &chciTrCb.rdHdr[2]);
+        allocLen = dataLen;
         break;
       default:
         /* already validated in CHCI_RX_STATE_TYPE */
         break;
     }
 
-    if ((chciTrCb.pRdBuf = (uint8_t *)WsfMsgAlloc(hdrLen + dataLen + CHCI_BUF_TAILROOM)) != NULL)
+    if (dataLen > LHCI_MAX_DATA_LEN)
+    {
+      /* Invalid byte received. */
+      chciTrHwError(CHCI_TR_CODE_INVALID_DATA);
+      chciTrCb.rxPktState = CHCI_RX_STATE_IDLE;
+    }
+    else if ((chciTrCb.pRdBuf = (uint8_t *)WsfMsgAlloc(hdrLen + allocLen)) != NULL)
     {
       if (dataLen > 0)
       {
@@ -294,20 +324,20 @@ static void chciRxPacketSM(void)
 
     switch (chciTrCb.rdHdr[0])
     {
-      case HCI_CMD_TYPE:
-        chciTrRecv(CHCI_TR_PROT_BLE, CHCI_TR_TYPE_CMD, chciTrCb.pRdBuf);
-        break;
-      case HCI_ACL_TYPE:
-        chciTrRecv(CHCI_TR_PROT_BLE, CHCI_TR_TYPE_DATA, chciTrCb.pRdBuf);
-        break;
       case HCI_ISO_TYPE:
         chciTrRecv(CHCI_TR_PROT_BLE, CHCI_TR_TYPE_ISO, chciTrCb.pRdBuf);
+        break;
+      case HCI_ACL_TYPE:
+        chciTrRecv(CHCI_TR_PROT_BLE, CHCI_TR_TYPE_ACL, chciTrCb.pRdBuf);
+        break;
+      case HCI_CMD_TYPE:
+        chciTrRecv(CHCI_TR_PROT_BLE, CHCI_TR_TYPE_CMD, chciTrCb.pRdBuf);
         break;
       case CHCI_15P4_CMD_TYPE:
         chciTrRecv(CHCI_TR_PROT_15P4, CHCI_TR_TYPE_CMD, chciTrCb.pRdBuf);
         break;
       case CHCI_15P4_DATA_TYPE:
-        chciTrRecv(CHCI_TR_PROT_15P4, CHCI_TR_TYPE_DATA, chciTrCb.pRdBuf);
+        chciTrRecv(CHCI_TR_PROT_15P4, CHCI_TR_TYPE_ACL, chciTrCb.pRdBuf);
         break;
       default:
         break;
@@ -331,8 +361,6 @@ static void chciRxPacketSM(void)
 /*************************************************************************************************/
 /*!
  *  \brief  Tx complete callback.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static void chciTxComplete(void)
@@ -353,6 +381,8 @@ static void chciTxComplete(void)
   }
 }
 
+#endif /* (CHCI_TR_UART == 1) */
+
 /*************************************************************************************************/
 /*!
  *  \brief  Write data the driver.
@@ -361,8 +391,6 @@ static void chciTxComplete(void)
  *  \param  type      Packet type.
  *  \param  len       Number of bytes to write.
  *  \param  pData     Byte array to write.
- *
- *  \return None.
  *
  *  \note   The type parameter allows the driver layer to prepend the data with a header on the
  *          same write transaction.
@@ -383,7 +411,7 @@ static void chciTrWrite(uint8_t prot, uint8_t type, uint16_t len, uint8_t *pData
     {
       *(pData - 1) = HCI_EVT_TYPE;
     }
-    else if (type == CHCI_TR_TYPE_DATA)
+    else if (type == CHCI_TR_TYPE_ACL)
     {
       *(pData - 1) = HCI_ACL_TYPE;
     }
@@ -399,10 +427,10 @@ static void chciTrWrite(uint8_t prot, uint8_t type, uint16_t len, uint8_t *pData
   /* Initiate Tx operation. */
   PalUartWriteData(PAL_UART_ID_CHCI, chciTrCb.pWrBuf, chciTrCb.wrBufOffs);
   PalSysSetBusy();
-#else
-  FakeChciTrWrite(prot, type, len, pData);
-  chciTrCb.wrBufComp = TRUE;
-  ChciTrService();
+#endif
+
+#if (CHCI_TR_CUSTOM == 1)
+  ChciTrWrite(prot, type, len, pData);
 #endif
 }
 
@@ -410,13 +438,11 @@ static void chciTrWrite(uint8_t prot, uint8_t type, uint16_t len, uint8_t *pData
 /*!
  *  \brief  Signal the completion of a message write.
  *
- *  \return None.
- *
  *  This routine is used for asynchronous write operations. When the driver has completed the
  *  use of the write buffer, this routine is called to free the buffer and release flow control.
  */
 /*************************************************************************************************/
-static void chciTrSendComplete(void)
+void chciTrSendComplete(void)
 {
   uint8_t *pBuf = chciTrCb.pDataPending;
   uint8_t type  = chciTrCb.typePending;
@@ -436,8 +462,6 @@ static void chciTrSendComplete(void)
  *
  *  \param  pCmdCount       Pointer to uint32_t to hold command count.
  *  \param  pEvtCount       Pointer to uint32_t to hold event count.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void ChciTrGetCmdEvtCounts(uint32_t *pCmdCount, uint32_t *pEvtCount)
@@ -449,8 +473,6 @@ void ChciTrGetCmdEvtCounts(uint32_t *pCmdCount, uint32_t *pEvtCount)
 /*************************************************************************************************/
 /*!
  *  \brief  Reset the HCI command and event counts to zero.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void ChciTrResetCmdEvtCounts(void)
@@ -464,28 +486,33 @@ void ChciTrResetCmdEvtCounts(void)
  *  \brief  Initialize the transport handler.
  *
  *  \param  handlerId       Handler ID.
- *
- *  \return None.
+ *  \param  maxAclLen       Maximum ACL data length.
+ *  \param  maxIsoSduLen    Maximum ISO data length.
  */
 /*************************************************************************************************/
-void ChciTrHandlerInit(wsfHandlerId_t handlerId)
+void ChciTrHandlerInit(wsfHandlerId_t handlerId, uint16_t maxAclLen, uint16_t maxIsoSduLen)
 {
   memset(&chciTrCb, 0, sizeof(chciTrCb));
   chciTrCb.handlerId = handlerId;
+  chciTrCb.maxAclLen = maxAclLen;
+  chciTrCb.maxIsoSduLen = maxIsoSduLen;
 
 #if (CHCI_TR_UART == 1)
   PalUartConfig_t cfg;
   cfg.baud   = UART_BAUD;
-  cfg.hwFlow = UART_DEFAULT_CONFIG_HWFC;
+  cfg.hwFlow = UART_HWFC;
   cfg.rdCback = chciRxPacketSM;
   cfg.wrCback = chciTxComplete;
   PalUartInit(PAL_UART_ID_CHCI, &cfg);
+
+  /* Start receiver. */
+  chciRxPacketSM();
+#elif (CHCI_TR_CUSTOM == 1)
+  ChciTrInit(maxAclLen, maxIsoSduLen);
 #else
   (void)chciRxPacketSM;
   (void)chciTxComplete;
 #endif
-  /* Start receiver. */
-  chciRxPacketSM();
 }
 
 /*************************************************************************************************/
@@ -494,8 +521,6 @@ void ChciTrHandlerInit(wsfHandlerId_t handlerId)
  *
  *  \param      event       WSF event.
  *  \param      pMsg        WSF message.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void ChciTrHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
@@ -536,8 +561,6 @@ void ChciTrHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
  *  \param  recvCback           Message received callback.
  *  \param  sendCompleteCback   Message send complete callback.
  *  \param  serviceCback        Service callback.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void ChciTrSetCbacks(uint8_t prot, ChciTrRecvCback_t recvCback, ChciTrSendCompleteCback_t sendCompleteCback,
@@ -556,8 +579,6 @@ void ChciTrSetCbacks(uint8_t prot, ChciTrRecvCback_t recvCback, ChciTrSendComple
  *  \brief  Set send hardware error callback.
  *
  *  \param  sendHwErrorCback    Send hardware error callback.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void ChciTrSetSendHwErrorCback(ChciTrSendHwErrorCback_t sendHwErrorCback)
@@ -570,8 +591,6 @@ void ChciTrSetSendHwErrorCback(ChciTrSendHwErrorCback_t sendHwErrorCback)
  *  \brief  Flag protocol for needing service.
  *
  *  \param  prot                Protocol.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void ChciTrNeedsService(uint8_t prot)
@@ -589,8 +608,6 @@ void ChciTrNeedsService(uint8_t prot)
  *  \param  prot    Protocol.
  *  \param  type    Message type.
  *  \param  pBuf    Message.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void chciTrRecv(uint8_t prot, uint8_t type, uint8_t *pBuf)
@@ -620,15 +637,15 @@ void chciTrRecv(uint8_t prot, uint8_t type, uint8_t *pBuf)
 /*************************************************************************************************/
 bool_t ChciTrService(void)
 {
+#if (CHCI_TR_UART == 1)
   if (chciTrCb.wrBufComp)
   {
     chciTrCb.wrBufComp = FALSE;
     chciTrSendComplete();
-  #if (CHCI_TR_UART == 1)
     PalSysSetIdle();
-  #endif
     return TRUE;
   }
+#endif
 
   return FALSE;
 }

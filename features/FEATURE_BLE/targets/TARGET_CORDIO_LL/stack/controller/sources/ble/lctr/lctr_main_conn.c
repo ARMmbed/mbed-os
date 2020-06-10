@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller data path implementation file.
+ *  \file
+ *
+ *  \brief  Link layer controller data path implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -25,6 +26,8 @@
 #include "lctr_pdu_conn.h"
 #include "lmgr_api_conn.h"
 #include "ll_math.h"
+#include "ll_api.h"
+#include "pal_radio.h"
 #include "wsf_assert.h"
 #include "wsf_cs.h"
 #include "wsf_math.h"
@@ -88,6 +91,39 @@ lctrLlcpEh_t lctrStorePeriodicSyncTrsfFn = NULL;
 /*! \brief      Pointer to lctrReceivePeriodicSyncInd function. */
 lctrLlcpEh_t lctrReceivePeriodicSyncIndFn = NULL;
 
+/*! \brief      Power monitoring scheme action table. */
+lctrPcMonAct_t lctrPcActTbl[LCTR_PC_MONITOR_SCHEME_TOTAL];
+
+/*! \brief      Pointer to lctrSendPowerChangeInd function. */
+lctrPcPowInd_t lctrSendPowerChangeIndCback = NULL;
+
+/*! \brief      Pointer to lctrNotifyPowerReportInd function. */
+lctrPcNotifyPwr_t lctrNotifyPowerReportIndCback = NULL;
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Return PHYs supported by LL.
+ *
+ *  \return     Bit field of supported PHYs.
+ */
+/*************************************************************************************************/
+static uint8_t llGetSupportedPhys(void)
+{
+  uint8_t supportPhyBits = LL_PHYS_LE_1M_BIT;
+
+  if ((lmgrCb.features & LL_FEAT_LE_2M_PHY))
+  {
+    supportPhyBits |= LL_PHYS_LE_2M_BIT;
+  }
+
+  if ((lmgrCb.features & LL_FEAT_LE_CODED_PHY))
+  {
+    supportPhyBits |= LL_PHYS_LE_CODED_BIT;
+  }
+
+  return supportPhyBits;
+}
+
 /*************************************************************************************************/
 /*!
  *  \brief      Initialize the connection memory resources.
@@ -146,8 +182,6 @@ uint16_t LctrInitConnMem(uint8_t *pFreeMem, uint32_t freeMemSize)
  *  \brief  Assign vendor specific PDU handlers.
  *
  *  \param  pHdlrs      Static definition for VS handlers.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void LctrVsConnInit(const LctrVsHandlers_t *pHdlrs)
@@ -166,16 +200,35 @@ void LctrVsConnInit(const LctrVsHandlers_t *pHdlrs)
 /*************************************************************************************************/
 uint8_t LctrValidateConnSpec(const LlConnSpec_t *pConnSpec)
 {
-  if ((pConnSpec->connIntervalMin < LL_MIN_CONN_INTERVAL) ||
-      (pConnSpec->connIntervalMax > LL_MAX_CONN_INTERVAL) ||
-      (pConnSpec->connIntervalMin > pConnSpec->connIntervalMax) ||
-      /* (pConnSpec->connLatency < connLatencyMin) || */
-      (pConnSpec->connLatency > LL_MAX_CONN_LATENCY) ||
-      (pConnSpec->supTimeout < LL_MIN_SUP_TIMEOUT) ||
-      (pConnSpec->supTimeout > LL_MAX_SUP_TIMEOUT) ||
-      (pConnSpec->supTimeout <= ((1 + pConnSpec->connLatency) * pConnSpec->connIntervalMax >> 2)))
+  /* Connection interval. */
+  if ((LL_API_PARAM_CHECK == 1) &&
+      ((pConnSpec->connIntervalMin > pConnSpec->connIntervalMax) ||
+       (pConnSpec->connIntervalMax < HCI_CONN_INTERVAL_MIN) ||
+       (pConnSpec->connIntervalMin < HCI_CONN_INTERVAL_MIN) ||
+       (pConnSpec->connIntervalMax > HCI_CONN_INTERVAL_MAX) ||
+       (pConnSpec->connIntervalMin > HCI_CONN_INTERVAL_MAX) ))
   {
-    LL_TRACE_WARN0("LctrValidateConnSpec: invalid parameters");
+    LL_TRACE_WARN0("LctrValidateConnSpec: Connection interval is invalid");
+    return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
+  }
+
+  /* Connection latency. */
+  if ((LL_API_PARAM_CHECK == 1) &&
+      ((pConnSpec->connLatency > HCI_CONN_LATENCY_MAX)))
+  {
+    LL_TRACE_WARN0("LctrValidateConnSpec: connection latency is invalid");
+    return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
+  }
+
+  /* Supervision timeout. */
+  uint32_t supTimeoutMin = ((uint32_t) pConnSpec->connLatency + 1) * LCTR_CONN_IND_US((uint32_t) pConnSpec->connIntervalMax) * 2;
+  uint32_t supTimeoutUs = LCTR_SUP_TIMEOUT_VAL_TO_US((uint32_t) pConnSpec->supTimeout);
+  if ((LL_API_PARAM_CHECK == 1) &&
+      ((supTimeoutUs <= supTimeoutMin) ||
+       (pConnSpec->supTimeout < HCI_SUP_TIMEOUT_MIN) ||
+       (pConnSpec->supTimeout > HCI_SUP_TIMEOUT_MAX)))
+  {
+    LL_TRACE_WARN0("LctrValidateConnSpec: supervision timeout is invalid");
     return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
   }
 
@@ -241,8 +294,6 @@ bool_t LctrIsProcActPended(uint16_t handle, uint8_t event)
  *  \param      handle          Connection handle.
  *  \param      pMode           New encryption mode.
  *
- *  \return     None.
- *
  *  Get the encryption mode used by a connection.
  */
 /*************************************************************************************************/
@@ -293,8 +344,6 @@ bool_t LctrSetEncMode(uint16_t handle, const LlEncMode_t *pMode)
  *  \param      handle  Connection handle.
  *  \param      flags   Flags.
  *  \param      enable  TRUE to set flags or FALSE to clear flags.
- *
- *  \return     None.
  *
  *  Set mode flags governing LL operations of a given connection.
  */
@@ -371,7 +420,7 @@ lctrConnCtx_t *lctrAllocConnCtx(void)
       pCtx->localDataPdu.maxRxLen = WSF_MIN(LCTR_MAX_DATA_LEN_MAX, pLctrRtCfg->maxAclLen);
       pCtx->localDataPdu.maxTxTime = lmgrConnCb.maxTxTime;
       /* Limit with absolute time. lctrSendDataLengthPdu() limits time by PHY capability. */
-      pCtx->localDataPdu.maxRxTime = LL_DATA_LEN_TO_TIME_CODED_S8(pCtx->localDataPdu.maxRxLen);
+      pCtx->localDataPdu.maxRxTime = LL_DATA_LEN_TO_TIME_CODED_S8(pCtx->localDataPdu.maxRxLen, TRUE);
       pCtx->effDataPdu.maxTxLen = LL_MAX_DATA_LEN_MIN;
       pCtx->effDataPdu.maxRxLen = LL_MAX_DATA_LEN_MIN;
       pCtx->effDataPdu.maxTxTime = LL_MAX_DATA_TIME_MIN;
@@ -407,6 +456,18 @@ lctrConnCtx_t *lctrAllocConnCtx(void)
         pLctrVsHdlrs->connSetup(connIdx);
       }
 
+      /* Power control initialization. */
+      if (pCtx->usedFeatSet & LL_FEAT_POWER_CONTROL_REQUEST)
+      {
+        pCtx->powerMonitorScheme = LCTR_PC_MONITOR_AUTO;
+        pCtx->monitoringState    = LCTR_PC_MONITOR_ENABLED;
+        pCtx->pclMonitorParam.autoMonitor.highThreshold = LCTR_RSSI_HIGH_THRESHOLD;
+        pCtx->pclMonitorParam.autoMonitor.lowThreshold = LCTR_RSSI_LOW_THRESHOLD;
+        pCtx->pclMonitorParam.autoMonitor.minTimeSpent = LCTR_PC_MIN_TIME;
+        pCtx->pclMonitorParam.autoMonitor.requestVal = LCTR_PC_REQUEST_VAL;
+        pCtx->pclMonitorParam.autoMonitor.curTimeSpent = 0;
+      }
+
       LmgrIncResetRefCount();
       lmgrCb.numConnEnabled++;
 
@@ -425,8 +486,6 @@ lctrConnCtx_t *lctrAllocConnCtx(void)
  *  \brief      Free a connection context.
  *
  *  \param      pCtx    Connection context.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrFreeConnCtx(lctrConnCtx_t *pCtx)
@@ -537,8 +596,6 @@ uint8_t lctrSelectNextDataChannel(lctrConnCtx_t *pCtx, uint16_t numSkip)
  *  \brief  Build channel remapping table.
  *
  *  \param  pCtx    Connection context.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrBuildRemapTable(lctrConnCtx_t *pCtx)
@@ -562,8 +619,6 @@ void lctrBuildRemapTable(lctrConnCtx_t *pCtx)
 /*************************************************************************************************/
 /*!
  *  \brief      Tx data completed task event handler.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrConnTxCompletedHandler(void)
@@ -611,8 +666,6 @@ void lctrConnTxCompletedHandler(void)
 /*************************************************************************************************/
 /*!
  *  \brief      Rx data pending task event handler.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrConnRxPendingHandler(void)
@@ -760,8 +813,6 @@ void lctrConnRxPendingHandler(void)
  *  \brief  Transmit ACL data path.
  *
  *  \param  pAclBuf     ACL buffer.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void LctrTxAcl(uint8_t *pAclBuf)
@@ -772,7 +823,7 @@ void LctrTxAcl(uint8_t *pAclBuf)
 
   lctrUnpackAclHdr(&aclHdr, pAclBuf);
 
-  /*** Assemble data PDU. ***/
+  /*** Resolve Connection context. ***/
 
   if (aclHdr.connHandle >= pLctrRtCfg->maxConn)
   {
@@ -815,7 +866,7 @@ void LctrTxAcl(uint8_t *pAclBuf)
     if ((aclHdr.pktBound == LCTR_PB_START_NON_AUTO_FLUSH) && (aclHdr.len == 0))
     {
       pCtx->forceStartPdu = TRUE; /* If this was supposed to be the start fragment, make the next packet a start fragment. */
-      LL_TRACE_INFO0("Next ACL header will be forced to a start fragment.");
+      LL_TRACE_INFO0("Next ACL header will be forced to a start fragment");
     }
     WsfMsgFree(pAclBuf);
     lmgrPersistCb.sendCompCback(aclHdr.connHandle, 1);
@@ -872,8 +923,6 @@ uint8_t *LctrRxAcl(void)
  *  \brief      Indicate that received ACL data buffer has been deallocated
  *
  *  \param      numBufs     Number of completed packets.
- *
- *  \return     None.
  *
  *  Indicate that received ACL data buffer has been deallocated.
  */
@@ -946,6 +995,31 @@ int8_t LctrGetRssi(uint16_t handle)
 
 /*************************************************************************************************/
 /*!
+ *  \brief      Get connection's TX power level for the selected phy.
+ *
+ *  \param      handle          Connection handle.
+ *  \param      phy             PHY.
+ *
+ *  \return     Transmit power level.
+ */
+/*************************************************************************************************/
+int8_t LctrGetPhyTxPowerLevel(uint16_t handle, uint8_t phy)
+{
+  lctrConnCtx_t * pCtx = LCTR_GET_CONN_CTX(handle);
+  uint8_t option = BB_PHY_OPTIONS_BLE_S8;
+
+  if (phy == LL_PC_PHY_CODED_S2)
+  {
+    phy = LL_PHY_LE_CODED;
+    option = BB_PHY_OPTIONS_BLE_S2;
+  }
+
+  int8_t txPower = LCTR_GET_TXPOWER(pCtx, phy, option);
+  return (txPower == LL_PWR_CTRL_TXPOWER_UNMANAGED) ? 0 : txPower;
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief  Get the transmit power level of a connection.
  *
  *  \param  handle      Connection handle.
@@ -960,17 +1034,121 @@ int8_t LctrGetTxPowerLevel(uint16_t handle)
 
 /*************************************************************************************************/
 /*!
- *  \brief  Set the transmit power level of a connection.
+ *  \brief  Set the transmit power level of a connection (all PHYs).
  *
  *  \param  handle      Connection handle.
  *  \param  level       Transmit power level.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void LctrSetTxPowerLevel(uint16_t handle, int8_t level)
 {
-  pLctrConnTbl[handle].bleData.chan.txPower = level;
+  lctrConnCtx_t * pCtx = LCTR_GET_CONN_CTX(handle);
+  BbBleData_t * pBle = &pCtx->bleData;
+  int8_t txPhyPwr = pBle->chan.txPower;
+  int8_t txPwrOld[LL_PC_PHY_TOTAL];
+  memcpy(txPwrOld, pCtx->phyTxPower, LL_PC_PHY_TOTAL);
+  int8_t adjustedLevel = PalRadioGetActualTxPower(level, FALSE);
+
+  if (adjustedLevel != level)
+  {
+    LL_TRACE_WARN2("Transmit Power set to %d instead of %d, due to hardware limitations.", adjustedLevel, level);
+  }
+
+  pBle->chan.txPower = adjustedLevel;
+  memset(pCtx->phyTxPower, adjustedLevel, LL_PC_PHY_TOTAL);
+
+  /* If supported, notify peer of power change on currently transmitting PHY. */
+  if ((pCtx->state == LCTR_CONN_STATE_ESTABLISHED_READY) &&
+      (txPhyPwr != adjustedLevel) &&
+      (pCtx->usedFeatSet & LL_FEAT_POWER_CHANGE_IND) &&
+      lctrSendPowerChangeIndCback)
+  {
+    lctrSendPowerChangeIndCback(pCtx, pBle->chan.txPhy, adjustedLevel - txPhyPwr, adjustedLevel, FALSE);
+  }
+
+  /* If enabled, notify host of power change on affected PHYs. */
+  if (pCtx->powerRptLocal)
+  {
+    int phy;
+    for (phy = 0; phy < LL_PC_PHY_TOTAL; phy++)
+    {
+      if (txPwrOld[phy] != adjustedLevel)
+      {
+        if (lctrNotifyPowerReportIndCback)
+        {
+          lctrNotifyPowerReportIndCback(pCtx, LL_POWER_REPORT_REASON_LOCAL, phy, adjustedLevel,
+                                    lctrGetPowerLimits(adjustedLevel),
+                                    adjustedLevel - txPwrOld[phy]);
+        }
+      }
+    }
+  }
+
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Set the transmit power level of a connection.
+ *
+ *  \param  handle      Connection handle.
+ *  \param  level       Transmit power level.
+ *  \param  phy         PHY to set power level for.
+ */
+/*************************************************************************************************/
+void LctrSetPhyTxPowerLevel(uint16_t handle, int8_t level, uint8_t phy)
+{
+  lctrConnCtx_t * pCtx = LCTR_GET_CONN_CTX(handle);
+  BbBleData_t * pBle = &pCtx->bleData;
+  int8_t txPwrOld = pBle->chan.txPower;
+  int8_t adjustedLevel;
+  int8_t delta;
+
+  /* Not specifying a PHY will set the current transmitting PHY. */
+  if (phy == LL_PHY_NONE)
+  {
+    phy = pBle->chan.txPhy;
+  }
+
+  adjustedLevel = PalRadioGetActualTxPower(level, FALSE);
+
+  if (adjustedLevel != level)
+  {
+    LL_TRACE_WARN2("Transmit Power set to %d instead of %d, due to hardware limitations.", adjustedLevel, level);
+  }
+
+  delta = adjustedLevel - txPwrOld;
+  if (delta == 0)
+  {
+    return;
+  }
+
+  if (phy == pBle->chan.txPhy)
+  {
+    pBle->chan.txPower = adjustedLevel;
+
+    /* If supported, notify peer of power change. */
+    if ((pCtx->state == LCTR_CONN_STATE_ESTABLISHED_READY) &&
+        (txPwrOld != adjustedLevel) &&
+        (pCtx->usedFeatSet & LL_FEAT_POWER_CHANGE_IND) &&
+        lctrSendPowerChangeIndCback)
+    {
+      lctrSendPowerChangeIndCback(pCtx, pBle->chan.txPhy, adjustedLevel - txPwrOld, adjustedLevel, FALSE);
+    }
+  }
+
+  LCTR_SET_TXPOWER(pCtx, phy, adjustedLevel);
+
+
+  /* If enabled, notify host of power change. */
+  if (pCtx->powerRptLocal)
+  {
+    if (lctrNotifyPowerReportIndCback)
+    {
+      lctrNotifyPowerReportIndCback(pCtx, LL_POWER_REPORT_REASON_LOCAL, pBle->chan.txPhy, adjustedLevel,
+                                lctrGetPowerLimits(pBle->chan.txPower),
+                                delta);
+    }
+  }
 }
 
 /*************************************************************************************************/
@@ -998,9 +1176,6 @@ uint64_t LctrGetChannelMap(uint16_t handle)
 /*************************************************************************************************/
 uint64_t LctrGetUsedFeatures(uint16_t handle)
 {
-//  LL_TRACE_INFO1("LctrGetUsedFeatures, lmgrCb.features=%x", lmgrCb.features);
-//  LL_TRACE_INFO1("LctrGetUsedFeatures, pLctrConnTbl[handle].usedFeatSet=%x", pLctrConnTbl[handle].usedFeatSet);
-
   return pLctrConnTbl[handle].usedFeatSet;
 }
 
@@ -1079,8 +1254,6 @@ bool_t LctrIsWaitingForReply(uint16_t handle, uint8_t reply)
  *
  *  \param  pCtx        Connection context.
  *  \param  event       Connection event.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrSendConnMsg(lctrConnCtx_t *pCtx, uint8_t event)
@@ -1247,12 +1420,12 @@ uint8_t lctrComputeSca(void)
 
 /*************************************************************************************************/
 /*!
- *  \brief      Get reference time(due time) of the connection handle.
+ *  \brief      Get reference time (due time) of the connection handle.
  *
  *  \param      connHandle    Connection handle.
  *  \param      pDurUsec      Pointer to duration of the connection BOD.
  *
- *  \return     Due time in BB ticks of the connection handle.
+ *  \return     Due time in microseconds of the connection handle.
  */
 /*************************************************************************************************/
 uint32_t lctrGetConnRefTime(uint8_t connHandle, uint32_t *pDurUsec)
@@ -1262,7 +1435,7 @@ uint32_t lctrGetConnRefTime(uint8_t connHandle, uint32_t *pDurUsec)
 
   if (pCtx->enabled && (pCtx->bleData.chan.opType == BB_BLE_OP_MST_CONN_EVENT))
   {
-    refTime = pCtx->connBod.due;
+    refTime = pCtx->connBod.dueUsec;
     if (pDurUsec)
     {
       *pDurUsec = pCtx->connBod.minDurUsec;
@@ -1291,12 +1464,12 @@ uint32_t lctrConnGetAnchorPoint(lctrConnCtx_t *pCtx, uint16_t ceCounter)
     if ((uint16_t)(ceCounter - pCtx->eventCounter) < (uint16_t)LCTR_MAX_INSTANT)  /* ceCounter is in the future. */
     {
       numCe = ceCounter - pCtx->eventCounter;
-      return (pCtx->connBod.due + BB_US_TO_BB_TICKS(LCTR_CONN_IND_US(pCtx->connInterval * numCe)));
+      return pCtx->connBod.dueUsec + LCTR_CONN_IND_US(pCtx->connInterval * numCe);
     }
     else
     {
       numCe = pCtx->eventCounter - ceCounter;
-      return (pCtx->connBod.due - BB_US_TO_BB_TICKS(LCTR_CONN_IND_US(pCtx->connInterval * numCe)));
+      return pCtx->connBod.dueUsec - LCTR_CONN_IND_US(pCtx->connInterval * numCe);
     }
   }
   else
@@ -1304,12 +1477,12 @@ uint32_t lctrConnGetAnchorPoint(lctrConnCtx_t *pCtx, uint16_t ceCounter)
     if ((uint16_t)(ceCounter - (pCtx->data.slv.lastActiveEvent - 1)) < (uint16_t)LCTR_MAX_INSTANT)  /* ceCounter is in the future. */
     {
       numCe = ceCounter - (pCtx->data.slv.lastActiveEvent - 1);
-      return (pCtx->data.slv.anchorPoint + BB_US_TO_BB_TICKS(LCTR_CONN_IND_US(pCtx->connInterval * numCe)));
+      return pCtx->data.slv.anchorPointUsec + LCTR_CONN_IND_US(pCtx->connInterval * numCe);
     }
     else
     {
       numCe = (pCtx->data.slv.lastActiveEvent - 1) - ceCounter;
-      return (pCtx->data.slv.anchorPoint - BB_US_TO_BB_TICKS(LCTR_CONN_IND_US(pCtx->connInterval * numCe)));
+      return pCtx->data.slv.anchorPointUsec - LCTR_CONN_IND_US(pCtx->connInterval * numCe);
     }
   }
 }
@@ -1331,4 +1504,147 @@ bool_t LctrIsCisEnabled(uint16_t handle)
   }
 
   return FALSE;
+}
+
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Set up transmit levels.
+ *
+ *  \param  pCtx  Connection Context.
+ */
+/*************************************************************************************************/
+void lctrInitPhyTxPower(lctrConnCtx_t *pCtx)
+{
+  /* All transmit powers start unmanaged or unavailable. */
+  uint8_t supportedPhys = llGetSupportedPhys();
+  supportedPhys |= (supportedPhys & LL_PHYS_LE_CODED_BIT) ? LL_PC_CODED_S2_BIT : 0;
+
+  uint8_t phyIdx = 0;
+  for (uint8_t phy = LL_PC_1M_BIT; phy <= LL_PC_MAX_BIT; phy = phy << 1)
+  {
+    if (supportedPhys & phy)
+    {
+      pCtx->phyTxPower[phyIdx++] = LL_PWR_CTRL_TXPOWER_UNMANAGED;
+    }
+    else
+    {
+      pCtx->phyTxPower[phyIdx++] = LL_PWR_CTRL_TXPOWER_UNAVAILABLE;
+    }
+  }
+
+  /* Peer transmit power will start as unavailable until we know it through a remote read or request. */
+  pCtx->peerTxPower = LL_PWR_CTRL_TXPOWER_UNAVAILABLE;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Set transmit power reporting parameters.
+ *
+ *  \param  handle       Connection handle.
+ *  \param  enableLocal  Enable local txPower change reporting.
+ *  \param  enableRemote Enable remote txPower change reporting.
+ *
+ *  \return Status error code.
+ */
+/*************************************************************************************************/
+uint8_t lctrSetTxPowerReporting(uint16_t handle, uint8_t enableLocal, uint8_t enableRemote)
+{
+  lctrConnCtx_t * pCtx = LCTR_GET_CONN_CTX(handle);
+
+  pCtx->powerRptLocal = enableLocal;
+  pCtx->powerRptRemote = enableRemote;
+
+  if (enableRemote)
+  {
+    pCtx->controllerInitRead = TRUE;
+    lctrMsgPwrCtrlReq_t *pMsg;
+    if ((pMsg = (lctrMsgPwrCtrlReq_t *)WsfMsgAlloc(sizeof(*pMsg))) != NULL)
+    {
+      pMsg->hdr.handle = LCTR_GET_CONN_HANDLE(pCtx);
+      pMsg->hdr.dispId = LCTR_DISP_CONN;
+      pMsg->hdr.event  = LCTR_CONN_MSG_API_PWR_CTRL_REQ;
+      pMsg->delta      = 0;
+      pMsg->phy        = pCtx->bleData.chan.rxPhy + ((pCtx->bleData.chan.rxPhy == BB_PHY_BLE_CODED) && (pCtx->bleData.chan.initTxPhyOptions == BB_PHY_OPTIONS_BLE_S2)) ? 1 : 0;
+
+      WsfMsgSend(lmgrPersistCb.handlerId, pMsg);
+    }
+  }
+
+  return LL_SUCCESS;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Set enable state for power monitoring.
+ *
+ *  \param  handle  Handle identifier for connection.
+ *  \param  enable  Enable status for power monitor.
+ *
+ *  \return Status error code.
+ *
+ *  \note  Path loss must be disabled.
+ */
+/*************************************************************************************************/
+uint8_t lctrSetPowerMonitorEnable(uint16_t handle, bool_t enable)
+{
+  lctrConnCtx_t *pCtx = LCTR_GET_CONN_CTX(handle);
+
+  if (!(pCtx->usedFeatSet & LL_FEAT_POWER_CONTROL_REQUEST))
+  {
+    return LL_ERROR_CODE_CMD_DISALLOWED;
+  }
+
+  if ((pCtx->powerMonitorScheme == LCTR_PC_MONITOR_PATH_LOSS) &&
+      (pCtx->monitoringState == LCTR_PC_MONITOR_ENABLED))
+  {
+    return LL_ERROR_CODE_CMD_DISALLOWED;
+  }
+
+  pCtx->powerMonitorScheme = LCTR_PC_MONITOR_AUTO;
+  pCtx->monitoringState    = enable;
+  pCtx->pclMonitorParam.autoMonitor.highThreshold = LCTR_RSSI_HIGH_THRESHOLD;
+  pCtx->pclMonitorParam.autoMonitor.lowThreshold = LCTR_RSSI_LOW_THRESHOLD;
+  pCtx->pclMonitorParam.autoMonitor.minTimeSpent = LCTR_PC_MIN_TIME;
+  pCtx->pclMonitorParam.autoMonitor.requestVal = LCTR_PC_REQUEST_VAL;
+  pCtx->pclMonitorParam.autoMonitor.curTimeSpent = 0;
+
+  return LL_SUCCESS;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Get power limit bit of specified txPower.
+ *
+ *  \param  txPower  Current transmit power.
+ *
+ *  \return Limit status of txPower
+ */
+/*************************************************************************************************/
+uint8_t lctrGetPowerLimits(int8_t txPower)
+{
+  int8_t min;
+  int8_t max;
+
+#if (LL_ENABLE_TESTER == TRUE)
+  if (llTesterCb.powerLimits)
+  {
+    return llTesterCb.powerLimits;
+  }
+#endif
+
+  PalRadioGetSupTxPower(&min, &max);
+
+  if (txPower == min)
+  {
+    return LL_PWR_CONTROL_LIMIT_MIN_BIT;
+  }
+  else if (txPower == max)
+  {
+    return LL_PWR_CONTROL_LIMIT_MAX_BIT;
+  }
+  else
+  {
+    return 0;
+  }
 }

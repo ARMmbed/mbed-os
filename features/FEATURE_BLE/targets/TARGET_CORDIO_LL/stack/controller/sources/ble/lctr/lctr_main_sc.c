@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller secure connections implementation file.
+ *  \file
+ *
+ *  \brief  Link layer controller secure connections implementation file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -38,8 +39,6 @@
  *  \brief      Baseband driver ECC service function.
  *
  *  \param      op      Operation to service.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrScBbDrvEcc(uint8_t op)
@@ -84,8 +83,6 @@ static int lctrRng(uint8_t *pDest, unsigned size)
  *  \param  pDest   Destination buffer.
  *  \param  pSrc    Source buffer.
  *  \param  len     Length of data, in octets.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static void lctrReverseCopy(uint8_t *pDest, const uint8_t *pSrc, uint16_t len)
@@ -103,8 +100,6 @@ static void lctrReverseCopy(uint8_t *pDest, const uint8_t *pSrc, uint16_t len)
  *
  *  \param  p       Buffer.
  *  \param  len     Length of data, in octets.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 static void lctrReverse(uint8_t *p, uint16_t len)
@@ -125,8 +120,6 @@ static void lctrReverse(uint8_t *p, uint16_t len)
 /*************************************************************************************************/
 /*!
  *  \brief  Start generating P-256 key pair.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrGenerateP256KeyPairStart(void)
@@ -148,8 +141,6 @@ void lctrGenerateP256KeyPairStart(void)
  *  \brief  Start generating P-256 public key with a specified private key.
  *
  *  \param  pPrivKey      Private key.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrGenerateP256PublicKeyStart(const uint8_t *pPrivKey)
@@ -190,8 +181,6 @@ bool_t lctrGenerateP256KeyPairContinue(void)
  *
  *  \param  pPubKey     Storage for public key.
  *  \param  pPrivKey    Storage for private key.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrGenerateP256KeyPairComplete(uint8_t *pPubKey, uint8_t *pPrivKey)
@@ -211,8 +200,6 @@ void lctrGenerateP256KeyPairComplete(uint8_t *pPubKey, uint8_t *pPrivKey)
  *
  *  \param  pPubKey     Public key.
  *  \param  pPrivKey    Private key.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrGenerateDhKeyStart(const uint8_t *pPubKey, const uint8_t *pPrivKey)
@@ -255,8 +242,6 @@ bool_t lctrGenerateDhKeyContinue(void)
  *  \brief  Get results from generating Diffie-Hellman key.
  *
  *  \param  pDhKey      Storage for Diffie-Hellman key.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrGenerateDhKeyComplete(uint8_t *pDhKey)
@@ -302,8 +287,6 @@ bool_t lctrValidatePublicKey(const uint8_t *pPubKey, bool_t generateKey)
  *  \brief      Notify host of key generation.
  *
  *  \param      pPubKey     Public key.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrNotifyReadLocalP256PubKeyInd(const uint8_t *pPubKey)
@@ -332,8 +315,6 @@ static void lctrNotifyReadLocalP256PubKeyInd(const uint8_t *pPubKey)
  *  \brief      Notify host of key generation.
  *
  *  \param      pDhKey    Diffie-Hellman key.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrNotifyGenerateDhKeyInd(const uint8_t *pDhKey)
@@ -359,8 +340,6 @@ static void lctrNotifyGenerateDhKeyInd(const uint8_t *pDhKey)
 /*************************************************************************************************/
 /*!
  *  \brief      P-256 key pair generation.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrScGenerateP256KeyPairContinue(void)
@@ -382,8 +361,6 @@ static void lctrScGenerateP256KeyPairContinue(void)
 /*************************************************************************************************/
 /*!
  *  \brief      DH Key generation.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrScGenerateDhKeyContinue(void)
@@ -548,8 +525,6 @@ uint8_t LctrSetValidatePublicKeyMode(uint8_t validateMode)
 /*************************************************************************************************/
 /*!
  *  \brief      Initialize link layer controller resources for secure connections.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void LctrScInit(void)

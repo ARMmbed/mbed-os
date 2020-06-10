@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer (LL) slave parameter interface implementation file.
+ *  \file
+ *
+ *  \brief      Link layer (LL) connection interface implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -26,6 +27,7 @@
 #include "lmgr_api.h"
 #include "lmgr_api_conn.h"
 #include "bb_ble_api.h"
+#include "pal_radio.h"
 #include "wsf_assert.h"
 #include "wsf_cs.h"
 #include "wsf_math.h"
@@ -128,17 +130,61 @@ uint8_t LlGetTxPowerLevel(uint16_t handle, uint8_t type, int8_t *pLevel)
 
 /*************************************************************************************************/
 /*!
- *  \brief      Set connection's TX power level.
+ *  \brief      Get connection's enhanced TX power level and max txPower.
+ *
+ *  \param      handle          Connection handle.
+ *  \param      phy             PHY.
+ *  \param      pCurPwr         Current transmit power level.
+ *  \param      pMaxPwr         Max power level.
+ *
+ *  \return     Status error code.
+ *
+ */
+/*************************************************************************************************/
+uint8_t LlGetEnhTxPowerLevel(uint16_t handle, uint8_t phy, int8_t *pCurPwr, int8_t *pMaxPwr)
+{
+  uint8_t result = LL_SUCCESS;
+
+  WSF_CS_INIT(cs);
+  WSF_CS_ENTER(cs);
+
+  if ((LL_API_PARAM_CHECK == 1) &&
+       ((handle >= pLctrRtCfg->maxConn) ||
+       !LctrIsConnHandleEnabled(handle)))
+  {
+    result = LL_ERROR_CODE_UNKNOWN_CONN_ID;
+  }
+  else if ((phy <= LL_PHY_NONE) || (phy > LL_PC_PHY_TOTAL))
+  {
+    result = LL_ERROR_CODE_UNSUPPORTED_FEATURE_PARAM_VALUE;
+  }
+  else
+  {
+    int8_t minPwr; /* Used for getting max power only .*/
+    PalRadioGetSupTxPower(&minPwr, pMaxPwr);
+    *pCurPwr = PalRadioGetActualTxPower(LctrGetPhyTxPowerLevel(handle, phy), FALSE);
+  }
+
+  WSF_CS_EXIT(cs);
+
+  LL_TRACE_INFO3("### LlApi ###  LlGetEnhancedTxPowerLevel, handle=%u, phy=%u, curPower=%d", handle, phy, *pCurPwr);
+
+  return result;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Set connection's TX power level (All PHYs).
  *
  *  \param      handle          Connection handle.
  *  \param      level           Transmit power level.
  *
  *  \return     Status error code.
  *
- *  Set the TX power of a connection.
+ *  Set the TX power of a connection (All PHYs).
  */
 /*************************************************************************************************/
-uint8_t LlSetTxPowerLevel(uint16_t handle, int8_t level)
+uint8_t LlSetAllPhyTxPowerLevel(uint16_t handle, int8_t level)
 {
   uint8_t result = LL_SUCCESS;
 
@@ -156,6 +202,47 @@ uint8_t LlSetTxPowerLevel(uint16_t handle, int8_t level)
   else
   {
     LctrSetTxPowerLevel(handle, level);
+  }
+
+  WSF_CS_EXIT(cs);
+
+  return result;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Set connection's TX power level for a PHY.
+ *
+ *  \param      handle          Connection handle.
+ *  \param      level           Transmit power level.
+ *
+ *  \return     Status error code.
+ *
+ *  Set the TX power of a connection for a PHY.
+ */
+/*************************************************************************************************/
+uint8_t LlSetPhyTxPowerLevel(uint16_t handle, int8_t level, uint8_t phy)
+{
+  uint8_t result = LL_SUCCESS;
+
+  LL_TRACE_INFO3("### LlApi ###  LlSetPhyTxPowerLevel, handle=%u, level=%d, phy=%u", handle, level, phy);
+
+  WSF_CS_INIT(cs);
+  WSF_CS_ENTER(cs);
+
+  if ((LL_API_PARAM_CHECK == 1) &&
+       ((handle >= pLctrRtCfg->maxConn) ||
+       !LctrIsConnHandleEnabled(handle)))
+  {
+    result = LL_ERROR_CODE_UNKNOWN_CONN_ID;
+  }
+  else if (phy > LL_PC_PHY_TOTAL)
+  {
+    result = LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
+  }
+  else
+  {
+    LctrSetPhyTxPowerLevel(handle, level, phy);
   }
 
   WSF_CS_EXIT(cs);
@@ -268,7 +355,7 @@ uint8_t LlDisconnect(uint16_t handle, uint8_t reason)
   LL_TRACE_INFO2("### LlApi ###  LlDisconnect, handle=%u, reason=%u", handle, reason);
 
   if ((LL_API_PARAM_CHECK == 1) &&
-       (handle >= (pLctrRtCfg->maxConn + pLctrRtCfg->maxCis * pLctrRtCfg->maxCig)))
+       (handle >= (LCTR_MAX_HANDLE_INDEX)))
   {
     return LL_ERROR_CODE_UNKNOWN_CONN_ID;
   }
@@ -441,7 +528,7 @@ uint8_t LlRemoteConnParamReqReply(uint16_t handle, const LlConnSpec_t *pConnSpec
  *  \param      handle          Connection handle.
  *  \param      reason          Reason code.
  *
- *  \return     None.
+ *  \return  Status error code.
  *
  *  Negative reply to a connection parameter request.
  */
@@ -585,8 +672,6 @@ uint8_t LlSetDataLen(uint16_t handle, uint16_t txLen, uint16_t txTime)
  *  \param      pMaxTxLen       Maximum number of payload bytes for a Data PDU
  *  \param      pMaxTxTime      Maximum microseconds for a Data PDU
  *
- *  \return     None.
- *
  *  Suggested length and microseconds that the local Controller should use to transmit a
  *  single Link Layer Data Channel PDU.
  */
@@ -650,8 +735,6 @@ uint8_t LlWriteDefaultDataLen(uint16_t maxTxLen, uint16_t maxTxTime)
  *  \param      pMaxRxLen       Maximum number of payload bytes for a Rx Data PDU
  *  \param      pMaxRxTime      Maximum microseconds for a Rx Data PDU
  *
- *  \return     None.
- *
  *  Read the Controller's maximum supported payload octets and packet duration times for
  *  transmission and reception.
  */
@@ -664,7 +747,7 @@ void LlReadMaximumDataLen(uint16_t *pMaxTxLen, uint16_t *pMaxTxTime, uint16_t *p
   WSF_ASSERT(pMaxTxTime);
 
   *pMaxTxLen  = WSF_MIN(pLctrRtCfg->maxAclLen, LCTR_MAX_DATA_LEN_MAX);
-  *pMaxTxTime = LL_DATA_LEN_TO_TIME_1M(*pMaxTxLen);
+  *pMaxTxTime = LL_DATA_LEN_TO_TIME_1M(*pMaxTxLen, TRUE);
   *pMaxRxLen  = *pMaxTxLen;
   *pMaxRxTime = *pMaxTxTime;
 }
@@ -831,8 +914,6 @@ uint8_t LlGetAclRxBufs(void)
  *
  *  \param      pData   Data buffer
  *
- *  \return     None.
- *
  *  Send an ACL data packet. pData points to an ACL buffer formatted according to [1]; the host
  *  must set the connection handle, flags, and length fields in the buffer.
  */
@@ -876,8 +957,6 @@ uint8_t *LlRecvAclData(void)
  *
  *  \param      numBufs     Number of completed packets.
  *
- *  \return     None.
- *
  *  Indicate that received ACL data buffer has been deallocated.
  */
 /*************************************************************************************************/
@@ -910,7 +989,7 @@ uint8_t LlRequestPeerSca(uint16_t handle)
   else if ((LL_API_PARAM_CHECK == 1) &&
            ((LctrGetUsedFeatures(handle) & LL_FEAT_SCA_UPDATE) == 0))
   {
-    return LL_ERROR_CODE_UNSUPPORTED_FEATURE_PARAM_VALUE;
+    return LL_ERROR_CODE_UNSUPPORTED_REMOTE_FEATURE;
   }
 
   if ((pMsg = (lctrScaReq_t *)WsfMsgAlloc(sizeof(*pMsg))) != NULL)
@@ -955,7 +1034,7 @@ uint8_t LlModifySleepClockAccuracy(uint8_t action)
   else /* status = LL_SUCCESS */
   {
     /* Update lmgrCb sca for future connections. */
-    switch(action)
+    switch (action)
     {
       case LL_MODIFY_SCA_MORE_ACCURATE:
         lmgrCb.scaMod++;
@@ -994,4 +1073,81 @@ uint8_t LlModifySleepClockAccuracy(uint8_t action)
   }
 
   return status;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Request change to or read peer txPower
+ *
+ *  \param      handle          Connection handle.
+ *  \param      delta           Requested change.
+ *  \param      phy             Phy this change requests the change on.
+ *
+ *  \return     Status error code.
+ */
+/*************************************************************************************************/
+uint8_t LlPowerCtrlReq(uint16_t handle, int8_t delta, uint8_t phy)
+{
+  lctrMsgPwrCtrlReq_t *pMsg;
+
+  LL_TRACE_INFO3("### LlApi ###  LlPowerCtrlReq, handle=%u, delta=%u, phy=%u", handle, delta, phy);
+
+  if ((LL_API_PARAM_CHECK == 1) &&
+       ((handle >= pLctrRtCfg->maxConn) ||
+       !LctrIsConnHandleEnabled(handle)))
+  {
+    return LL_ERROR_CODE_UNKNOWN_CONN_ID;
+  }
+  if ((LL_API_PARAM_CHECK == 1) &&
+      (phy > LL_PC_PHY_TOTAL))
+  {
+    return LL_ERROR_CODE_UNSUPPORTED_FEATURE_PARAM_VALUE;
+  }
+  else if ((LL_API_PARAM_CHECK == 1) &&
+           ((LctrGetUsedFeatures(handle) & LL_FEAT_POWER_CONTROL_REQUEST) == 0))
+  {
+    return LL_ERROR_CODE_UNSUPPORTED_FEATURE_PARAM_VALUE;
+  }
+
+  if ((pMsg = (lctrMsgPwrCtrlReq_t *)WsfMsgAlloc(sizeof(*pMsg))) != NULL)
+  {
+    pMsg->hdr.handle = handle;
+    pMsg->hdr.dispId = LCTR_DISP_CONN;
+    pMsg->hdr.event  = LCTR_CONN_MSG_API_PWR_CTRL_REQ;
+    pMsg->delta      = delta;
+    pMsg->phy        = phy;
+
+    WsfMsgSend(lmgrPersistCb.handlerId, pMsg);
+  }
+  else
+  {
+    return LL_ERROR_CODE_MEM_CAP_EXCEEDED;
+  }
+
+  return LL_SUCCESS;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Set transmit power change reporting enable.
+ *
+ *  \param      handle          Connection handle.
+ *  \param      enableLocal     Enable local reporting.
+ *  \param      enableRemote    Enable remote reporting.
+ *
+ *  \return     Status error code.
+ */
+/*************************************************************************************************/
+uint8_t LlSetTxPowerReporting(uint16_t handle, uint8_t enableLocal, uint8_t enableRemote)
+{
+  LL_TRACE_INFO3("### LlApi ###  LlSetTxPowerReporting, handle=%u, localEnable=%u, remoteEnable=%u", handle, enableLocal, enableRemote);
+
+  if ((LL_API_PARAM_CHECK == 1) &&
+       ((handle >= pLctrRtCfg->maxConn) ||
+       !LctrIsConnHandleEnabled(handle)))
+  {
+    return LL_ERROR_CODE_UNKNOWN_CONN_ID;
+  }
+
+  return lctrSetTxPowerReporting(handle, enableLocal, enableRemote);
 }

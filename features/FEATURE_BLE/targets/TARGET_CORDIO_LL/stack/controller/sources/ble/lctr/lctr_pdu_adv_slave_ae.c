@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller slave extended advertising operation builder implementation file.
+ *  \file
+ *
+ *  \brief  Link layer controller slave extended advertising operation builder implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -39,14 +40,23 @@
 /*! \brief      Assert minimum advertising payload length can contain a legacy length payload. */
 WSF_CT_ASSERT(BB_ADV_PLD_MAX_LEN > (LL_EXT_ADV_HDR_MAX_LEN + LL_ADVBU_MAX_LEN));
 
+/**************************************************************************************************
+  Local Variables
+**************************************************************************************************/
+
+/*! \brief Packing lookup table; local use only. */
+static const lctrPackAcad_t lctrPackAcad[LCTR_ACAD_NUM_ID] =
+{
+  lctrPackAcadChanMapUpd, /*!< Channel map update. */
+  lctrPackAcadBigInfo     /*!< BIG Info. */
+};
+
 /*************************************************************************************************/
 /*!
  *  \brief      Pack Sync info field.
  *
  *  \param      pAdvSet         Advertising set.
  *  \param      pSyncInfo       Packed SyncInfo field.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 static void lctrPackSyncInfo(lctrAdvSet_t *pAdvSet, uint8_t *pSyncInfo)
@@ -59,18 +69,18 @@ static void lctrPackSyncInfo(lctrAdvSet_t *pAdvSet, uint8_t *pSyncInfo)
   BbOpDesc_t *pPerOp = &pAdvSet->perParam.perAdvBod;
   BbBleData_t *pBle = &pAdvSet->perParam.perBleData;
 
-  tempDue = pPerOp->due;
+  tempDue = pPerOp->dueUsec;
 
   while (TRUE)
   {
     /* If sync PDU is due in the future and at least MAFS apart, update offset. */
-    if ((tempDue > pAuxOp->due) && ((BB_TICKS_TO_US(tempDue - pAuxOp->due)) > LL_BLE_MAFS_US))
+    if (BbGetTargetTimeDelta(tempDue, pAuxOp->dueUsec) > LL_BLE_MAFS_US)
     {
-      offsUsec = BB_TICKS_TO_US(tempDue - pAuxOp->due);
+      offsUsec = BbGetTargetTimeDelta(tempDue, pAuxOp->dueUsec);
       break;
     }
 
-    tempDue += pAdvSet->perParam.perAdvInter;
+    tempDue += pAdvSet->perParam.perAdvInterUsec;
   }
 
   if (offsUsec < LL_30_USEC_OFFS_MAX_USEC)
@@ -94,7 +104,7 @@ static void lctrPackSyncInfo(lctrAdvSet_t *pAdvSet, uint8_t *pSyncInfo)
                            (offsUnits << 13) |                      /* Offset units. */
                            (offsAdjust << 14));                     /* Offset adjust. */
   UINT16_TO_BUF(&pSyncInfo[2],                                      /* Interval. */
-                LCTR_PER_INTER_TO_MS(BB_TICKS_TO_US(pAdvSet->perParam.perAdvInter)));
+                LCTR_PER_INTER_TO_MS(pAdvSet->perParam.perAdvInterUsec));
   uint64_t temp =
      ((pAdvSet->perParam.perChanParam.chanMask & LL_CHAN_DATA_ALL) |/* Channel Map. */
      ((uint64_t)lctrComputeSca() << 37));                           /* SCA. */
@@ -118,7 +128,7 @@ static void lctrPackSyncInfo(lctrAdvSet_t *pAdvSet, uint8_t *pSyncInfo)
  *  \param      commExtAdvPdu   Common extended advertising PDU type.
  *  \param      isPeriodic      This header is part of periodic PDUs or not.
  *
- *  \return     PDU header buffer length.
+ *  \return     Combined Adv and ExtAdv headers length.
  */
 /*************************************************************************************************/
 static uint8_t lctrPackExtAdvHeader(lctrAdvSet_t *pAdvSet, uint8_t manExtHdrFlags, uint8_t optExtHdrFlags,
@@ -129,16 +139,8 @@ static uint8_t lctrPackExtAdvHeader(lctrAdvSet_t *pAdvSet, uint8_t manExtHdrFlag
   pPduHdr->len = 0;
   uint8_t *pAuxPtr = NULL;
 
-  uint8_t *pBuf = pPduBuf + LL_ADV_HDR_LEN + LCTR_EXT_HDR_CMN_LEN + LCTR_EXT_HDR_FLAG_LEN;
-
-  /* Check if we need to look for Acads to pack later. */
-  /* Future Acad may include PDUS:
-   * AUX_ADV_IND, AUX_SYNC_IND, AUX_SCAN_RSP */
-  bool_t acadNeeded = FALSE;
-  if (commExtAdvPdu == LCTR_PDU_AUX_SYNC_IND)
-  {
-    acadNeeded = TRUE;
-  }
+  uint8_t *pExtHdrBuf = pPduBuf + LL_ADV_HDR_LEN + LCTR_EXT_HDR_CMN_LEN;
+  uint8_t *pBuf = pExtHdrBuf + LCTR_EXT_HDR_FLAG_LEN;
 
   /* Determine the superior PDU. */
   if (commExtAdvPdu == LCTR_PDU_AUX_CHAIN_IND)
@@ -271,45 +273,61 @@ static uint8_t lctrPackExtAdvHeader(lctrAdvSet_t *pAdvSet, uint8_t manExtHdrFlag
     UINT8_TO_BSTREAM(pBuf, (uint8_t)actTxPwr);
   }
 
-  /* Pack Acad. */
-  if (acadNeeded)
+  /* ACAD assembly. */
+  bool_t acadPresent = FALSE;
+  if (commExtAdvPdu == LCTR_PDU_AUX_SYNC_IND)
   {
-    for (uint8_t acadId = 0; acadId < LCTR_ACAD_NUM_ID; acadId++)
+    for (unsigned int acadId = 0; acadId < LCTR_ACAD_NUM_ID; acadId++)
     {
-      if (pAdvSet->acadParams[acadId].hdr.state != LCTR_ACAD_STATE_DISABLED)
+      if (pAdvSet->acadParams[acadId].hdr.state == LCTR_ACAD_STATE_ENABLED)
       {
-        pBuf = lctrPackAcad(pAdvSet, commExtAdvPdu, pBuf, &remDataLen, acadId);
+        uint8_t acadLen = LL_ACAD_OPCODE_LEN + LL_ACAD_LEN_FIELD_LEN
+                          + pAdvSet->acadParams[acadId].hdr.len;
+
+        uint8_t availExtHdrLen = LL_EXT_ADV_HDR_MAX_LEN - (pBuf - pExtHdrBuf);
+
+        /* Only add ACAD if space available. */
+        if (acadLen <= availExtHdrLen)
+        {
+          acadPresent = TRUE;
+
+          /* Pack ACAD immediately after the Extended Header. */
+          pBuf += lctrPackAcad[acadId](pAdvSet, pBuf);
+        }
       }
     }
   }
 
+  if (!extHdrFlags && !acadPresent)
+  {
+    /* Recover optional ExtHdrFlag field since it is not used. */
+    pBuf = pExtHdrBuf;
+  }
+
+  /* Assign AdvData to this PDU, defer buffer assembly to DMA gather. */
   uint8_t advDataLen = 0;
   if (remDataLen)
   {
     const unsigned int maxAvailDataLen = LL_EXT_ADVB_MAX_LEN - (pBuf - pPduBuf);
     availDataLen = WSF_MIN(maxAvailDataLen, availDataLen);  /* Limit to maximum packet size. */
     advDataLen = WSF_MIN(remDataLen, availDataLen);         /* Reduce to remaining data. */
+
+    /* Commit AdvData fragment to this PDU. */
     pDataBuf->txOffs += advDataLen;
   }
 
-  if (extHdrFlags == 0)
-  {
-    /* Extended Header Flags only present if bits set. */
-    pBuf = pPduBuf + LL_ADV_HDR_LEN + LCTR_EXT_HDR_CMN_LEN;
-  }
-
   /* Pack Advertising Header now that Extended Advertising Header length is known. */
-  uint16_t extHdrLen = pBuf - pPduBuf - LL_ADV_HDR_LEN - LCTR_EXT_HDR_CMN_LEN;
-  pPduHdr->len = pBuf - pPduBuf - LL_ADV_HDR_LEN + advDataLen;
+  uint16_t extHdrLen = pBuf - pExtHdrBuf;
+  pPduHdr->len = LCTR_EXT_HDR_CMN_LEN + extHdrLen + advDataLen;
 
   lctrPackAdvbPduHdr(pPduBuf, pPduHdr);
 
-  /* Pack Extended Advertising header. */
+  /* Pack Extended Advertising header; unconditionally write even if unused. */
   pPduBuf[LL_ADV_HDR_LEN + 0] = extHdrLen |         /* Extended Header Length */
                                 (advMode << 6);     /* AdvMode */
   pPduBuf[LL_ADV_HDR_LEN + 1] = extHdrFlags;        /* Extended Header Flags */
 
-  switch(commExtAdvPdu)
+  switch (commExtAdvPdu)
   {
     case LCTR_PDU_ADV_EXT_IND:
       pAdvSet->auxOffsUsec = 0;
@@ -707,8 +725,6 @@ uint8_t lctrPackAuxConnRspPdu(lctrAdvSet_t *pAdvSet, uint8_t *pPduBuf, bool_t is
  *  \param      offsUsec        Auxiliary offset in microseconds.
  *  \param      chIdx           Channel index.
  *  \param      pAuxPtr         Packed AuxPtr buffer.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void lctrPackAuxPtr(lctrAdvSet_t const *pAdvSet, uint32_t offsUsec, uint8_t chIdx, uint8_t *pAuxPtr)
@@ -925,44 +941,79 @@ uint8_t lctrPackSyncIndPdu(lctrAdvSet_t *pAdvSet, uint8_t *pPduBuf, lctrAdvDataB
 
 /*************************************************************************************************/
 /*!
- *  \brief      Pack acad field
+ *  \brief      Pack Channel Map Update ACAD.
  *
  *  \param      pAdvSet         Advertising set.
- *  \param      commExtAdvPdu   Common ext adv pdu.
  *  \param      pBuf            Packed data buffer.
- *  \param      pRemLen         Remaining length of ext adv header.
- *  \param      acadId          Acad Id.
  *
- *  \return     Modified pBuf.
+ *  \return     Length of ACAD.
  */
 /*************************************************************************************************/
-uint8_t* lctrPackAcad(lctrAdvSet_t *pAdvSet, uint8_t commExtAdvPdu, uint8_t *pBuf, uint16_t *pRemLen, uint8_t acadId)
+uint8_t lctrPackAcadChanMapUpd(lctrAdvSet_t *pAdvSet, uint8_t *pBuf)
 {
-  switch(acadId)
+  const uint8_t len = LL_ACAD_LEN_FIELD_LEN + LL_ACAD_CHAN_MAP_UPD_LEN;
+
+  LctrAcadChanMapUpd_t *pChanMapUpd = &pAdvSet->acadParams[LCTR_ACAD_ID_CHAN_MAP_UPDATE].chanMapUpdate;
+
+  /* Pack ACAD */
+  UINT8_TO_BSTREAM (pBuf, LL_ACAD_CHAN_MAP_UPD_LEN);
+  UINT8_TO_BSTREAM (pBuf, LL_ACAD_OPCODE_CHAN_MAP_UPD);
+  UINT40_TO_BSTREAM(pBuf, pChanMapUpd->chanMask);
+  UINT16_TO_BSTREAM(pBuf, pChanMapUpd->instant);
+
+  return len;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Pack BIG Info ACAD.
+ *
+ *  \param      pAdvSet         Advertising set.
+ *  \param      pBuf            Packed data buffer.
+ *
+ *  \return     Length of ACAD.
+ */
+/*************************************************************************************************/
+uint8_t lctrPackAcadBigInfo(lctrAdvSet_t *pAdvSet, uint8_t *pBuf)
+{
+  LctrAcadBigInfo_t *pBigInfo = &pAdvSet->acadParams[LCTR_ACAD_ID_BIG_INFO].bigInfo;
+
+  const uint8_t len = LL_ACAD_LEN_FIELD_LEN + LL_ACAD_OPCODE_LEN + pBigInfo->hdr.len;
+
+  /* Convert PHY value to BIG Info enumeration. */
+  uint8_t bigPhy = pBigInfo->phy - 1;
+
+  /* Pack ACAD */
+  UINT8_TO_BSTREAM (pBuf, pBigInfo->hdr.len + LL_ACAD_LEN_FIELD_LEN);
+  UINT8_TO_BSTREAM (pBuf, LL_ACAD_OPCODE_BIG_INFO);
+
+  UINT32_TO_BSTREAM(pBuf, ((pBigInfo->bigOffs         & 0x3FFF) <<  0)    |
+                          ((pBigInfo->bigOffsUnits    & 0x0001) << 14)    |
+                          ((pBigInfo->isoInter                ) << 15)    |
+                          ((pBigInfo->numBis                  ) << 27));
+  UINT32_TO_BSTREAM(pBuf, ((pBigInfo->nse                     ) <<  0)    |
+                          ((pBigInfo->bn                      ) <<  5)    |
+                          ((pBigInfo->subEvtInterUsec         ) <<  8)    |
+                          ((pBigInfo->pto                     ) << 28));
+  UINT32_TO_BSTREAM(pBuf, ((pBigInfo->bisSpaceUsec            ) <<  0)    |
+                          ((pBigInfo->irc                     ) << 20)    |
+                          ((pBigInfo->maxPdu                  ) << 24));
+  UINT8_TO_BSTREAM (pBuf, ((0 /* RFU */                       ) <<  0));
+  UINT32_TO_BSTREAM(pBuf, ((pBigInfo->seedAccAddr             ) <<  0));
+  UINT32_TO_BSTREAM(pBuf, ((pBigInfo->sduInterUsec            ) <<  0)    |
+                          ((pBigInfo->maxSdu                  ) << 20));
+  UINT16_TO_BSTREAM(pBuf, ((pBigInfo->baseCrcInit             ) <<  0));
+  UINT40_TO_BSTREAM(pBuf, ((pBigInfo->chanMap                 ) <<  0)    |
+                (((uint64_t)bigPhy                            ) << 37));
+  UINT40_TO_BSTREAM(pBuf, ((pBigInfo->bisPldCtr & UINT64_C(0x7FFFFFFFFF)) <<  0) |
+                          ((pBigInfo->framing   & UINT64_C(1))            << 39));
+  if (pBigInfo->encrypt)
   {
-    case LCTR_ACAD_ID_CHAN_MAP_UPDATE:
-      {
-        uint8_t len = LL_ACAD_LEN_FIELD_LEN + LL_ACAD_UPDATE_CHANNEL_MAP_LEN;
-
-        if ((commExtAdvPdu != LCTR_PDU_AUX_SYNC_IND) ||
-            (len > *pRemLen))
-        {
-          return pBuf;
-        }
-
-        lctrAcadChanMapUpd_t *pData = &pAdvSet->acadParams[acadId].chanMapUpdate;
-
-        /* Pack Acad */
-        *pRemLen -= len;
-        UINT8_TO_BSTREAM(pBuf, LL_ACAD_UPDATE_CHANNEL_MAP_LEN);
-        UINT8_TO_BSTREAM(pBuf, LL_ACAD_OPCODE_CHANNEL_MAP_UPDATE);
-
-        UINT40_TO_BSTREAM(pBuf, pData->chanMask);
-        UINT16_TO_BSTREAM(pBuf, pData->instant);
-        return pBuf;
-      }
-
-    default:
-      return pBuf;
+    memcpy(pBuf, pBigInfo->giv, LL_GIV_LEN);
+    pBuf += LL_GIV_LEN;
+    memcpy(pBuf, pBigInfo->gskd, LL_GSKD_LEN);
+    pBuf += LL_GSKD_LEN;
   }
+
+  return len;
 }

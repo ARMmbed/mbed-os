@@ -1,23 +1,24 @@
-/* Copyright (c) 2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- * \file
- * \brief Link layer controller master advertising event ISR callbacks.
+ *  \file
+ *
+ *  \brief  Link layer controller master advertising event ISR callbacks.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -41,27 +42,33 @@
  *  \brief  End an initiate scan operation in the master role.
  *
  *  \param  pOp     Completed operation.
- *
- *  \return None.
  */
 /*************************************************************************************************/
 void lctrMstInitiateEndOp(BbOpDesc_t *pOp)
 {
-  if (!lctrMstInit.selfTerm)    /* implies not a LL_CONN_IND Tx completion */
+  lctrConnCtx_t *pCtx = LCTR_GET_CONN_CTX(lctrMstInit.data.init.connHandle);
+  BbOpDesc_t * pConnBod = &pCtx->connBod;
+
+  if (lctrMstInit.selfTerm)    /* implies a LL_CONN_IND Tx completion */
   {
-    lctrConnCtx_t *pCtx = LCTR_GET_CONN_CTX(lctrMstInit.data.init.connHandle);
+    uint16_t numIntervals = 0;
+    uint32_t anchorPointUsec = pConnBod->dueUsec;
 
-    /* Service RM. */
-    SchRmSetReference(lctrMstInit.data.init.connHandle);
-
-    /* Connection cleanup. */
-    if (lctrMstInit.data.init.connBodLoaded)
+    while (TRUE)
     {
-      lctrMstInit.data.init.connBodLoaded = FALSE;
+      if (SchInsertAtDueTime(pConnBod, lctrConnResolveConflict))
+      {
+        break;
+      }
 
-      bool_t result = SchRemove(&pCtx->connBod);
-      (void)result;
-      WSF_ASSERT(result);       /* non-head BOD always remove-able */
+      LL_TRACE_WARN1("!!! Establish CE schedule conflict handle=%u", LCTR_GET_CONN_HANDLE(pCtx));
+
+      numIntervals++;
+      pCtx->eventCounter++;
+
+      uint32_t connInterUsec = LCTR_CONN_IND_US(numIntervals * pCtx->connInterval);
+
+      pConnBod->dueUsec = anchorPointUsec + connInterUsec;
     }
   }
 
@@ -86,10 +93,12 @@ bool_t lctrMstInitiateAdvPktHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf)
   WSF_ASSERT(pOp->prot.pBle->chan.opType == BB_BLE_OP_MST_ADV_EVENT);
 
   lctrConnCtx_t *pCtx = LCTR_GET_CONN_CTX(lctrMstInit.data.init.connHandle);
+  BbOpDesc_t * const pConnBod = &pCtx->connBod;
   BbBleData_t * const pBle = pOp->prot.pBle;
   BbBleMstAdvEvent_t * const pScan = &pBle->op.mstAdv;
 
-  uint32_t advEndTs = pScan->advStartTs + BB_US_TO_BB_TICKS(LCTR_ADV_PKT_1M_US(pScan->filtResults.pduLen));
+  uint32_t advEndTs = pScan->advStartTsUsec + LCTR_ADV_PKT_1M_US(pScan->filtResults.pduLen);
+  uint32_t refTime = advEndTs;
 
   /*** Transmit response PDU processing. ***/
 
@@ -98,10 +107,6 @@ bool_t lctrMstInitiateAdvPktHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf)
   if (!pScan->filtResults.peerMatch)
   {
     /* Require peer match. */
-  }
-  else if (!lctrMstInit.data.init.connBodLoaded)
-  {
-    BbSetBodTerminateFlag();
   }
   else if (pScan->pTxReqBuf)
   {
@@ -169,21 +174,30 @@ bool_t lctrMstInitiateAdvPktHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf)
     lctrPackAdvbPduHdr(pScan->pTxReqBuf, &lctrMstInit.reqPduHdr);
 
     /* Update txWinOffset field in CONN_IND PDU. */
-    uint32_t txWinOffsetUsec = BB_TICKS_TO_US(lctrMstInit.data.init.firstCeDue - advEndTs) - LL_BLE_TIFS_US - LCTR_CONN_IND_PKT_1M_US;
-    uint16_t txWinOffset = LCTR_US_TO_CONN_IND(txWinOffsetUsec) - LCTR_DATA_CHAN_DLY;
+    refTime += LL_BLE_TIFS_US;
+    refTime += LCTR_CONN_IND_PKT_1M_US;
+    refTime += LCTR_CONN_IND_US(LCTR_DATA_CHAN_DLY);
+
+    /* Now reference time is the start of transmitWindowOffset. */
+    uint32_t txWinOffsetUsec = SchRmGetOffsetUsec(LCTR_CONN_IND_US(pCtx->connInterval), LCTR_GET_CONN_HANDLE(pCtx), refTime);
+    uint16_t txWinOffset = LCTR_US_TO_CONN_IND(txWinOffsetUsec);
+
     UINT16_TO_BUF(pScan->pTxReqBuf + LCTR_CONN_IND_TX_WIN_OFFSET, txWinOffset);
     lctrMstInit.data.init.connInd.txWinOffset = txWinOffset;
+
+    /*** Update due time of first CE. ***/
+    pConnBod->dueUsec = refTime + txWinOffsetUsec;
 
 #if (LL_ENABLE_TESTER)
     switch (llTesterCb.connFirstCePos)
     {
     case LL_TESTER_FIRST_CE_POS_BEGIN:
       /* BOD is not scheduled; force time adjustment here. */
-      pCtx->connBod.due = advEndTs + BB_US_TO_BB_TICKS(txWinOffsetUsec + LL_BLE_TIFS_US + LCTR_CONN_IND_PKT_1M_US);
+      pCtx->connBod.dueUsec = advEndTs + LCTR_CONN_IND_US(LCTR_DATA_CHAN_DLY) + txWinOffsetUsec + LL_BLE_TIFS_US + LCTR_CONN_IND_PKT_1M_US;
       break;
     case LL_TESTER_FIRST_CE_POS_END:
       /* BOD is not scheduled; force time adjustment here. */
-      pCtx->connBod.due = advEndTs + BB_US_TO_BB_TICKS(txWinOffsetUsec + LCTR_CONN_IND_US(lctrMstInit.data.init.connInd.txWinSize - 1) + LL_BLE_TIFS_US + LCTR_CONN_IND_PKT_1M_US);
+      pCtx->connBod.dueUsec = advEndTs + LCTR_CONN_IND_US(LCTR_DATA_CHAN_DLY) + txWinOffsetUsec + LCTR_CONN_IND_US(lctrMstInit.data.init.connInd.txWinSize - 1) + LL_BLE_TIFS_US + LCTR_CONN_IND_PKT_1M_US;
       break;
     case LL_TESTER_FIRST_CE_POS_NORMAL:
     default:
@@ -192,35 +206,18 @@ bool_t lctrMstInitiateAdvPktHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf)
     llTesterCb.connFirstCePos = LL_TESTER_FIRST_CE_POS_NORMAL;
 #endif
 
-    if (txWinOffsetUsec < LCTR_CONN_IND_US(LCTR_DATA_CHAN_DLY))
-    {
-      LL_TRACE_WARN1("AE too close to initial CE deltaUsec=%u, suppressed LL_CONN_IND delivery", BB_TICKS_TO_US(lctrMstInit.data.init.firstCeDue - advEndTs));
+    txConnInd = TRUE;
 
-      /* Restart scanning with better initial CE margin. */
-      BbSetBodTerminateFlag();
-    }
-    else if (txWinOffset > pCtx->connInterval)
-    {
-      LL_TRACE_WARN1("Scan period exceeded initial CE time by deltaUsec=%u, suppressed LL_CONN_IND delivery", BB_TICKS_TO_US(advEndTs - lctrMstInit.data.init.firstCeDue));
+    /*** Received advertising PDU post-processing. ***/
 
-      /* Restart scanning with CE in the future. */
-      BbSetBodTerminateFlag();
+    if ((lctrMstInit.reqPduHdr.chSel == LL_CH_SEL_2) &&   /* local initiator supports CS#2 */
+        (pAdvBuf[0] & (1 << LCTR_ADV_HDR_CH_SEL_SHIFT)))  /* peer advertiser supports CS#2 */
+    {
+      lctrMstInit.data.init.usedChSel = LL_CH_SEL_2;
     }
     else
     {
-      txConnInd = TRUE;
-
-      /*** Received advertising PDU post-processing. ***/
-
-      if ((lctrMstInit.reqPduHdr.chSel == LL_CH_SEL_2) &&   /* local initiator supports CS#2 */
-          (pAdvBuf[0] & (1 << LCTR_ADV_HDR_CH_SEL_SHIFT)))  /* peer advertiser supports CS#2 */
-      {
-        lctrMstInit.data.init.usedChSel = LL_CH_SEL_2;
-      }
-      else
-      {
-        lctrMstInit.data.init.usedChSel = LL_CH_SEL_1;
-      }
+      lctrMstInit.data.init.usedChSel = LL_CH_SEL_1;
     }
   }
 
