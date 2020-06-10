@@ -54,7 +54,7 @@ const uint16_t DB_VERSION = 1;
     )
 
 #define DB_SIZE_STORES \
-    (FileSecurityDb::MAX_ENTRIES * DB_SIZE_STORE)
+    (BLE_SECURITY_DATABASE_MAX_ENTRIES * DB_SIZE_STORE)
 
 #define DB_OFFSET_VERSION          (0)
 #define DB_OFFSET_RESTORE          (DB_OFFSET_VERSION + sizeof(DB_VERSION))
@@ -265,6 +265,22 @@ void FileSecurityDb::set_entry_peer_sign_counter(
     }
 }
 
+void FileSecurityDb::set_local_csrk(
+    const csrk_t &csrk
+) {
+    this->SecurityDb::set_local_csrk(csrk);
+    db_write(&_local_csrk, DB_OFFSET_LOCAL_CSRK);
+}
+
+void FileSecurityDb::set_local_identity(
+    const irk_t &irk,
+    const address_t &identity_address,
+    bool public_address
+) {
+    this->SecurityDb::set_local_identity(irk, identity_address, public_address);
+    db_write(&_local_identity, DB_OFFSET_LOCAL_IDENTITY);
+}
+
 /* saving and loading from nvm */
 
 void FileSecurityDb::restore() {
@@ -299,6 +315,7 @@ void FileSecurityDb::sync(entry_handle_t db_handle) {
 
     db_write(&entry->peer_sign_counter, entry->file_offset + DB_STORE_OFFSET_PEER_SIGNING_COUNT);
     db_write(&entry->flags, entry->file_offset + DB_STORE_OFFSET_FLAGS);
+    db_write(&_local_sign_counter, DB_OFFSET_LOCAL_SIGN_COUNT);
 }
 
 void FileSecurityDb::set_restore(bool reload) {
@@ -308,11 +325,11 @@ void FileSecurityDb::set_restore(bool reload) {
 /* helper functions */
 
 uint8_t FileSecurityDb::get_entry_count() {
-    return MAX_ENTRIES;
+    return BLE_SECURITY_DATABASE_MAX_ENTRIES;
 }
 
 SecurityDistributionFlags_t* FileSecurityDb::get_entry_handle_by_index(uint8_t index) {
-    if (index < MAX_ENTRIES) {
+    if (index < BLE_SECURITY_DATABASE_MAX_ENTRIES) {
         return &_entries[index].flags;
     } else {
         return NULL;

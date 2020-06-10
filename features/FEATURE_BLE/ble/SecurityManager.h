@@ -285,6 +285,22 @@ public:
             (void)result;
         }
 
+        /**
+         * Indicate that a peer address has been saved by the security manager or if we are
+         * bonded to the peer the identity has been retrieved from the database on connection.
+         *
+         * @param[in] connectionHandle Connection handle.
+         * @param[in] peer_address Peer address that has been saved by the security database, NULL it not found.
+         * @param[in] address_is_public Address type, true if public. Invalid if peer_address NULL.
+         */
+        virtual void peerIdentity(ble::connection_handle_t connectionHandle,
+                                  const address_t *peer_address,
+                                  bool address_is_public) {
+            (void)connectionHandle;
+            (void)peer_address;
+            (void)address_is_public;
+        }
+
         ////////////////////////////////////////////////////////////////////////////
         // Security
         //
@@ -560,6 +576,14 @@ public:
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
     ble_error_t setPairingRequestAuthorisation(bool required = true);
+
+    /**
+     * Retrieve identity address for the peer on the given connection.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    ble_error_t getPeerIdentity(ble::connection_handle_t connectionHandle);
 
     ////////////////////////////////////////////////////////////////////////////
     // Feature support
@@ -896,6 +920,10 @@ protected:
     );
 
     ble_error_t cancelPairingRequest_(
+        ble::connection_handle_t connectionHandle
+    );
+
+    ble_error_t getPeerIdentity_(
         ble::connection_handle_t connectionHandle
     );
 
