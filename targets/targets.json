@@ -1171,6 +1171,10 @@
                 "std"
             ]
         },
+        "supported_application_profiles": [
+            "rtos",
+            "bare-metal"
+        ],
         "macros": [
             "USE_HAL_DRIVER",
             "USE_FULL_LL_DRIVER",
@@ -1368,9 +1372,6 @@
                 "macro_name": "CLOCK_SOURCE"
             }
         },
-        "overrides": {
-            "tickless-from-us-ticker": true
-        },
         "detect_code": [
             "0700"
         ],
@@ -1452,8 +1453,7 @@
             }
         },
         "overrides": {
-            "lse_available": 0,
-            "tickless-from-us-ticker": true
+            "lse_available": 0
         },
         "detect_code": [
             "0775"
@@ -1504,10 +1504,7 @@
             "MPU"
         ],
         "bootloader_supported": true,
-        "device_name": "STM32F303RE",
-        "supported_application_profiles": [
-            "rtos", "bare-metal"
-        ]
+        "device_name": "STM32F303RE"
     },
     "NUCLEO_F303ZE": {
         "inherits": [
@@ -1658,10 +1655,7 @@
             "MPU"
         ],
         "device_name": "STM32F411RE",
-        "bootloader_supported": true,
-        "supported_application_profiles": [
-            "rtos", "bare-metal"
-        ]
+        "bootloader_supported": true
     },
     "MTS_DRAGONFLY_F411RE": {
         "inherits": [
@@ -2014,10 +2008,7 @@
         "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": "ETHERNET"
-        },
-        "supported_application_profiles": [
-            "rtos", "bare-metal"
-        ]
+        }
     },
     "DISCO_F429ZI": {
         "inherits": [
@@ -3492,10 +3483,7 @@
             "BLE"
         ],
         "device_name": "STM32L475VG",
-        "bootloader_supported": true,
-        "supported_application_profiles": [
-            "rtos", "bare-metal"
-        ]
+        "bootloader_supported": true
     },
     "NUCLEO_L476RG": {
         "inherits": [
