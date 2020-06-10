@@ -15,7 +15,7 @@
  */
 
 #include "mbed.h"
-#include "fake_lhci_drv.h"
+#include "custom_chci_tr.h"
 #include "chci_tr.h"
 #include "chci_api.h"
 #include "hci_defs.h"
@@ -25,7 +25,7 @@
 extern "C" {
 #endif
 
-uint16_t FakeChciTrRead(uint8_t prot, uint8_t hci_type, uint16_t len, uint8_t *pData)
+uint16_t CustomChciTrRead(uint8_t prot, uint8_t hci_type, uint16_t len, uint8_t *pData)
 {
     uint8_t controller_type;
     switch (hci_type) {
@@ -49,7 +49,7 @@ uint16_t FakeChciTrRead(uint8_t prot, uint8_t hci_type, uint16_t len, uint8_t *p
     return len;
 }
 
-uint16_t FakeChciTrWrite(uint8_t prot, uint8_t controller_type, uint16_t len, uint8_t *pData)
+uint16_t CustomChciTrWrite(uint8_t prot, uint8_t controller_type, uint16_t len, uint8_t *pData)
 {
     uint8_t hci_type;
     switch (controller_type) {
@@ -70,6 +70,12 @@ uint16_t FakeChciTrWrite(uint8_t prot, uint8_t controller_type, uint16_t len, ui
     }
 
     return ControllerToHostWrite(prot, hci_type, len, pData);
+}
+
+void CustomChciTrInit(uint16_t maxAclLen, uint16_t maxIsoSduLen)
+{
+    (void)maxAclLen;
+    (void)maxIsoSduLen;
 }
 
 #ifdef __cplusplus
