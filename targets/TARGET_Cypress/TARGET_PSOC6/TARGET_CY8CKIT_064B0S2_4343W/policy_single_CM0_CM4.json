@@ -1,0 +1,161 @@
+{
+    "debug" :
+    {
+        "m0p" : {
+            "permission" : "enabled",
+            "control" : "firmware",
+            "key" : 5
+        },
+        "m4" : {
+            "permission" : "allowed",
+            "control" : "firmware",
+            "key" : 5
+        },
+        "system" : {
+            "permission" : "enabled",
+            "control" : "firmware",
+            "key" : 5,
+            "flashw": true,
+            "flashr": true
+        },
+        "rma" : {
+            "permission" : "allowed",
+            "destroy_fuses" : [
+                {
+                    "start" : 888,
+                    "size" : 136
+                }
+            ],
+            "destroy_flash" : [
+                {
+                    "start" : 268435456,
+                    "size" : 512
+                }
+            ],
+            "key" : 5
+        }
+    },
+    "boot_upgrade" :
+    {
+        "title": "upgrade_policy",
+        "firmware": [
+            {
+                "boot_auth": [
+                    5
+                ],
+                "bootloader_keys": [
+                    { "kid": 5, "key": "../../common/prebuilt/oem_state.json" }
+                ],
+                "id": 0,
+                "launch": 1,
+                "acq_win": 100,
+                "monotonic": 0,
+                "clock_flags": 578,
+                "protect_flags": 1,
+                "upgrade": false,
+                "resources": [
+                    {
+                        "type": "FLASH_PC1_SPM",
+                        "address": 270336000,
+                        "size": 65536
+                    },
+                    {
+                        "type": "SRAM_SPM_PRIV",
+                        "address": 135135232,
+                        "size": 65536
+                    },
+                    {
+                        "type": "SRAM_DAP",
+                        "address": 135184384,
+                        "size": 16384
+                    }
+                ]
+            },
+            {
+                "boot_auth": [
+                    8
+                ],
+                "boot_keys": [
+                    { "kid": 8, "key": "./keys/USERAPP_CM4_KEY.json" }
+                ],
+                "id": 1,
+                "monotonic": 0,
+                "smif_id": 0,
+                "launch": 16,
+                "acq_win": 100,
+                "upgrade": true,
+                "version": "0.1",
+                "rollback_counter": 0,
+                "encrypt": false,
+                "encrypt_key_id": 1,
+                "encrypt_peer": "../keys/dev_pub_key.pem",
+                "resources": [
+                    {
+                        "type": "BOOT",
+                        "address": 268435456,
+                        "size": 950272
+                    },
+                    {
+                        "type": "UPGRADE",
+                        "address": 283639808,
+                        "size": 950272
+                    }
+                ]
+            },
+            {
+                "boot_auth": [
+                    8
+                ],
+                "boot_keys": [
+                    { "kid": 8, "key": "./keys/USERAPP_CM4_KEY.json" }
+                ],
+                "id": 16,
+                "monotonic": 8,
+                "smif_id": 0,
+                "upgrade": false,
+                "version": "0.1",
+                "rollback_counter": 0,
+                "encrypt": false,
+                "encrypt_key_id": 1,
+                "encrypt_peer": "./keys/dev_pub_key.pem",
+                "resources": [
+                    {
+                        "type": "BOOT",
+                        "address": 268500992,
+                        "size": 884736
+                    }
+                ]
+            }
+        ],
+        "reprogram": [
+            {
+                "start": 270336000,
+                "size": 65536
+            }
+        ],
+        "reprovision": {
+            "boot_loader": true,
+            "keys_and_policies": true
+        }
+    },
+    "cy_bootloader":
+    {
+        "mode": "debug"
+    },
+    "provisioning":
+    {
+        "packet_dir": "./packets",
+        "chain_of_trust": []
+    },
+    "pre_build": {
+        "oem_public_key": "./prebuilt/oem_state.json",
+        "oem_private_key": "./prebuilt/oem_state.json",
+        "hsm_public_key": "./prebuilt/hsm_state.json",
+        "hsm_private_key": "./prebuilt/hsm_state.json",
+        "provision_group_private_key": false,
+        "group_private_key": "./keys/grp_priv_key.json",
+        "provision_device_private_key": false,
+        "device_private_key": "./keys/dev_priv_key.json",
+        "cy_auth": "./packets/cy_auth_2m_b0_sample.jwt"
+    }
+}
