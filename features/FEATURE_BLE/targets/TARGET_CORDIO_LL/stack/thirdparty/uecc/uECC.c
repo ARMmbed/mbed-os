@@ -471,7 +471,7 @@ void uECC_set_rng(uECC_RNG_Function rng_function) {
     g_rng_function = rng_function;
 }
 
-#ifdef __GNUC__ /* Only support GCC inline asm for now */
+#if defined __GNUC__ && !defined(__ARMCC_VERSION) /* Only support GCC inline asm for now */
     #if (uECC_ASM && (uECC_PLATFORM == uECC_avr))
         #include "asm_avr.inc"
     #endif
