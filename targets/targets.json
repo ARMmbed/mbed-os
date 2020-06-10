@@ -5640,9 +5640,7 @@
             "WSF_MAX_HANDLERS=10",
             "MBED_MPU_CUSTOM",
             "SWI_DISABLE0",
-            "NRF52_PAN_20",
-            "UART_TWO_STOP_BITS_NOT_SUPPORTED",
-            "UART_ODD_PARITY_NOT_SUPPORTED"
+            "NRF52_PAN_20"
         ],
         "features": [
             "CRYPTOCELL310",
