@@ -20,7 +20,7 @@
 /**
  * \brief Struct br_information Border router dynamic information.
  */
-typedef struct br_information {
+typedef struct ws_br_info {
     /** Address prefix given to devices in network  set to 0 if not available*/
     uint8_t ipv6_prefix[8];
     /** IID of Border router */
@@ -35,18 +35,18 @@ typedef struct br_information {
     uint64_t host_timestamp;
     /** Amount of devices in the network. */
     uint16_t device_count;
-} br_information_t;
+} ws_br_info_t;
 
 /**
  * \brief Struct br_route_info is parent child relation structure.
  */
-typedef struct br_route_info {
+typedef struct ws_br_route_info {
     /** IID of target device
      * Public IPv6 address can be formed by combining prefix + IID*/
     uint8_t target[8];
     /** IID of parent*/
     uint8_t parent[8];
-} br_route_info_t;
+} ws_br_route_info_t;
 
 /** Wi-SUN Border Router class
  *
@@ -189,7 +189,7 @@ public:
      * \return MESH_ERROR_NONE on success.
      * \return MESH_ERROR_UNKNOWN in case of failure.
      * */
-    mesh_error_t get_info(br_information_t *info_ptr);
+    mesh_error_t info_get(ws_br_info_t *info_ptr);
 
     /**
      * \brief Get Wi-SUN neighbor table information.
@@ -205,7 +205,7 @@ public:
      * \return MESH_ERROR_NONE on success.
      * \return MESH_ERROR_UNKNOWN in case of failure.
      * */
-    mesh_error_t get_routing_table(br_route_info_t *table_ptr, uint16_t table_len);
+    mesh_error_t routing_table_get(ws_br_route_info_t *table_ptr, uint16_t table_len);
 
 private:
     int8_t _mesh_if_id = -1;

@@ -30,9 +30,6 @@
 #include "ns_trace.h"
 #define TRACE_GROUP "WSIn"
 
-#define RPL_INSTANCE_ID 1
-static uint8_t current_instance_id = RPL_INSTANCE_ID;
-
 class Nanostack::WisunInterface : public Nanostack::MeshInterface {
 public:
     virtual nsapi_error_t bringup(bool dhcp, const char *ip,
@@ -59,7 +56,7 @@ Nanostack::WisunInterface *WisunInterface::get_interface() const
 nsapi_error_t WisunInterface::do_initialize()
 {
     if (!_interface) {
-        _interface = new (std::nothrow) Nanostack::WisunInterface(*_phy);
+        _interface = new(std::nothrow) Nanostack::WisunInterface(*_phy);
         if (!_interface) {
             return NSAPI_ERROR_NO_MEMORY;
         }
@@ -126,8 +123,8 @@ nsapi_error_t WisunInterface::configure()
 }
 
 nsapi_error_t Nanostack::WisunInterface::bringup(bool dhcp, const char *ip,
-                                                 const char *netmask, const char *gw,
-                                                 nsapi_ip_stack_t stack, bool blocking)
+        const char *netmask, const char *gw,
+        nsapi_ip_stack_t stack, bool blocking)
 {
     nanostack_lock();
 
@@ -547,17 +544,40 @@ mesh_error_t WisunInterface::read_mac_statistics(mesh_mac_statistics_t *statisti
     return ret_val;
 }
 
-mesh_error_t WisunInterface::get_info(router_information_t *info_ptr)
+mesh_error_t WisunInterface::info_get(ws_rpl_info_t *info_ptr)
 {
-    rpl_dodag_info_t dodag_ptr = {0};
-    uint8_t global_address[16] = {0};
-
     if (info_ptr == NULL) {
         return MESH_ERROR_PARAM;
     }
 
-    int status = rpl_read_dodag_info(&dodag_ptr, current_instance_id);
-    if (status < 0) {
+    rpl_dodag_info_t dodag_ptr = {0};
+    uint8_t global_address[16] = {0};
+    uint8_t instance_id_list[10];
+    uint8_t rpl_instance_count;
+    uint8_t instance_id = RPL_INSTANCE_LOCAL;
+    uint8_t instance_id_new;
+    uint8_t instance_index;
+    rpl_instance_count = rpl_instance_list_read(&instance_id_list[0], sizeof(instance_id_list));
+
+    /* Find lowest global instance ID (assumption: RPL instance with lowest instance ID has
+           most generic routing rule and its rank should be indicated in beacon) */
+    for (instance_index = 0; instance_index < rpl_instance_count; instance_index++) {
+        instance_id_new = instance_id_list[instance_index];
+
+        if ((instance_id_new & RPL_INSTANCE_LOCAL) == RPL_INSTANCE_LOCAL) {
+            break;
+        } else {
+            if (instance_id_new < instance_id) {
+                instance_id = instance_id_new;
+            }
+        }
+    }
+
+    if (instance_id == RPL_INSTANCE_LOCAL) {
+        return MESH_ERROR_UNKNOWN;
+    }
+
+    if (!rpl_read_dodag_info(&dodag_ptr, instance_id)) {
         return MESH_ERROR_UNKNOWN;
     }
 

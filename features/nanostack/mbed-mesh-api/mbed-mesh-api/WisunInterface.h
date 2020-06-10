@@ -20,9 +20,9 @@
 #include "MeshInterfaceNanostack.h"
 
 /**
- * \brief Struct router_information Wi-SUN router dynamic information.
+ * \brief Struct ws_rpl_info Wi-SUN router RPL information.
  */
-typedef struct router_information {
+typedef struct ws_rpl_info {
     /** Address prefix given to devices in network  set to 0 if not available*/
     uint8_t ipv6_prefix[8];
     /** IID of router */
@@ -33,7 +33,7 @@ typedef struct router_information {
     uint8_t instance_id;
     /** RPL version number */
     uint8_t version;
-} router_information_t;
+} ws_rpl_info_t;
 
 /** Wi-SUN mesh network interface class
  *
@@ -460,7 +460,7 @@ public:
      * \return MESH_ERROR_NONE on success.
      * \return MESH_ERROR_UNKNOWN in case of failure.
      * */
-    mesh_error_t get_info(router_information_t *info_ptr);
+    mesh_error_t info_get(ws_rpl_info_t *info_ptr);
 
 protected:
     Nanostack::WisunInterface *get_interface() const;

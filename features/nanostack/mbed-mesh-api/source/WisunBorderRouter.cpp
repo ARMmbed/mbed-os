@@ -154,7 +154,7 @@ mesh_error_t WisunBorderRouter::validate_pan_configuration(uint16_t pan_id)
     return MESH_ERROR_NONE;
 }
 
-mesh_error_t WisunBorderRouter::get_info(br_information_t *info_ptr)
+mesh_error_t WisunBorderRouter::info_get(ws_br_info_t *info_ptr)
 {
     bbr_information_t bbr_info = {0};
 
@@ -178,7 +178,7 @@ mesh_error_t WisunBorderRouter::get_info(br_information_t *info_ptr)
     return MESH_ERROR_NONE;
 }
 
-mesh_error_t WisunBorderRouter::get_routing_table(br_route_info_t *table_ptr, uint16_t table_len)
+mesh_error_t WisunBorderRouter::routing_table_get(ws_br_route_info_t *table_ptr, uint16_t table_len)
 {
     if (table_ptr == NULL) {
         return MESH_ERROR_PARAM;
