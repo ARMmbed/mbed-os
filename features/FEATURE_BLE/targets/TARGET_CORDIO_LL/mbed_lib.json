@@ -50,6 +50,11 @@
             "help": "Does the board have a UART HCI. Valid values are 0 and 1 (must provide UART through PAL).",
             "value": 0,
             "macro_name": "CHCI_TR_UART"
+        },
+        "custom-hci-transport": {
+            "help": "This enables transport through port provided functions, do not disable unless you wish you use uart-hci.",
+            "value": 1,
+            "macro_name": "CHCI_TR_CUSTOM"
         }
     }
 }
