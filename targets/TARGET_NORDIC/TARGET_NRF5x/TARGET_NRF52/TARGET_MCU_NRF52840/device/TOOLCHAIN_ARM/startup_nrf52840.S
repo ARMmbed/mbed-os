@@ -117,8 +117,8 @@ Reset_Handler   PROC
                 IMPORT  SystemInit
                 IMPORT  __main
                 IMPORT  nrf_reloc_vector_table
-                
-                
+
+
                 LDR     R0, =SystemInit
                 BLX     R0
                 LDR     R0, =nrf_reloc_vector_table
