@@ -23,6 +23,7 @@ target_sources(mbed-os
         source/PwmOut.cpp
         source/QSPI.cpp
         source/ResetReason.cpp
+        source/SerialBase.cpp
         source/SerialWireOutput.cpp
         source/SFDP.cpp
         source/SPI.cpp
