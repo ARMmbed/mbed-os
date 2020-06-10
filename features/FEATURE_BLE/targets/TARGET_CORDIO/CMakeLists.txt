@@ -29,5 +29,5 @@ target_include_directories(mbed-os
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/driver
-        ${CMAKE_CURRENT_SOURCE_DIR}/stack_adaptation/
+        ${CMAKE_CURRENT_SOURCE_DIR}/stack_adaptation
 )
