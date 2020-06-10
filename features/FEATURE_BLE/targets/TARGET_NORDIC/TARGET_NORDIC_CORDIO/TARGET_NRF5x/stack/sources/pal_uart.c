@@ -4,15 +4,14 @@
  *
  *  \brief      UART driver definition.
  *
- *  Copyright (c) 2018-2019 ARM Ltd. All Rights Reserved.
- *  ARM Ltd. confidential and proprietary.
- *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *
+ *  
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ *  
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,237 +20,196 @@
  */
 /*************************************************************************************************/
 
-#include "stack/platform/include/pal_uart.h"
-#include "sdk_config.h"
+#include "pal_uart.h"
 #include "nrfx_uarte.h"
-#include "boards.h"
 
-#if NRFX_CHECK(NRFX_UARTE0_ENABLED)
+#if defined(BOARD_NRF6832)
+#define RX_PIN_NUMBER  26
+#define TX_PIN_NUMBER  27
+#define CTS_PIN_NUMBER 0xFF
+#define RTS_PIN_NUMBER 0xFF
+#else
+#include "boards.h"
+#endif
+
+/**************************************************************************************************
+  Type definitions
+**************************************************************************************************/
+
+/*! \brief      Control block. */
+typedef struct
+{
+  PalUartState_t  state;    /*!< UART state. */
+  PalUartConfig_t config;   /*!< UART configuration. */
+  nrfx_uarte_t    inst;     /*!< nRF UART driver instance. */
+} palUartCtrlBlk_t;
 
 /**************************************************************************************************
   Local Variables
 **************************************************************************************************/
-#define PAL_UART_INVALID_INSTANCE_NUM          0xFF
+
+#define PAL_UART_INVALID_INSTANCE_NUM       0xFF
 
 #ifdef DEBUG
 
 /*! \brief      Parameter check. */
-#define PAL_UART_PARAM_CHECK(num, expr)           { if (!(expr)) { palUartCb[num].state = PAL_UART_STATE_ERROR; while(1){}; } }
+#define PAL_UART_PARAM_CHECK(p, expr)       { if (!(expr)) { p->state = PAL_UART_STATE_ERROR; return; } }
 
 #else
 
 /*! \brief      Parameter check (disabled). */
-#define PAL_UART_PARAM_CHECK(num, expr)
+#define PAL_UART_PARAM_CHECK(p, expr)
 
 #endif
 
 /*! \brief      Control block. */
-static struct
-{
-  PalUartId_t           id;             /*!< PAL UART id. */
-  PalUartConfig_t       config;         /*!< PAL UART configuration. */
-  PalUartState_t        state;          /*!< PAL UART state. */
-  nrfx_uarte_t          uart;           /*!< NRF UART driver instance */
-} palUartCb[NRFX_UARTE0_ENABLED + NRFX_UARTE1_ENABLED] = {{0, {0}, 0, {NRF_UARTE0, NRFX_UARTE0_INST_IDX}}};
+static palUartCtrlBlk_t palUartCb[2];
 
 /**************************************************************************************************
   Local Functions
 **************************************************************************************************/
+
 /*************************************************************************************************/
 /*!
  *  \brief      Get UART instance number from UART ID.
  *
- *  \param      uartId           UART ID.
+ *  \param      id      UART ID.
  *
  *  \return     UART instance number.
  */
 /*************************************************************************************************/
-static uint8_t palUartGetNum(PalUartId_t uartId)
+static palUartCtrlBlk_t *palUartGetContext(PalUartId_t id)
 {
-  uint8_t uartNum;
-  /* Nordic platform has total two UART instances.
-   * By default, only UART0 is enabled.
-   */
-  switch (uartId)
+  switch (id)
   {
     case PAL_UART_ID_CHCI:
-      uartNum = 0;
-      break;
     case PAL_UART_ID_TERMINAL:
-      uartNum = 0;
-      break;
+      return &palUartCb[0];
+
     case PAL_UART_ID_USER:
-      uartNum = 0;
-      break;
+      return (NRFX_UARTE_ENABLED_COUNT > 1) ? &palUartCb[1] : &palUartCb[0];
 
     default:
-      uartNum = PAL_UART_INVALID_INSTANCE_NUM;
       break;
   }
 
-  return uartNum;
-}
-
-/*************************************************************************************************/
-/*!
- *  \brief  Set UART baud rate.
- *
- *  \param  baud        Baud rate.
- *
- *  \return nrf baud rate.
- */
-/*************************************************************************************************/
-static nrf_uarte_baudrate_t palUartSetBaud(uint32_t baud)
-{
-  nrf_uarte_baudrate_t baudRate;
-
-  switch (baud)
-  {
-    default:
-    case 115200:
-      baudRate = NRF_UARTE_BAUDRATE_115200;
-      break;
-    case 230400:
-      baudRate = NRF_UARTE_BAUDRATE_230400;
-      break;
-    case 460800:
-      baudRate = NRF_UARTE_BAUDRATE_460800;
-      break;
-    case 921600:
-      baudRate = NRF_UARTE_BAUDRATE_921600;
-      break;
-    case 1000000:
-      baudRate = NRF_UARTE_BAUDRATE_1000000;
-      break;
-  }
-
-  return baudRate;
+  return NULL;
 }
 
 /*************************************************************************************************/
 /*!
  *  \brief  UART NRF event handler.
  *
- *  \param  pEvent   Pointer to event.
- *  \param  pContext Pointer to event context.
- *
- *  \return None.
+ *  \param  pEvent      UART event.
+ *  \param  pContext    Instance context.
  */
 /*************************************************************************************************/
-static void palUartEventHandler(nrfx_uarte_event_t *pEvent, void *pContext)
+static void palUartEventHandler(nrfx_uarte_event_t const *pEvent, void *pInstCtx)
 {
-  uint8_t uartNum = palUartGetNum(*(PalUartId_t *)pContext);
+  palUartCtrlBlk_t *pCtx = (palUartCtrlBlk_t *)pInstCtx;
 
   switch (pEvent->type)
   {
     case NRFX_UARTE_EVT_RX_DONE:
-      if (palUartCb[uartNum].config.rdCback != NULL)
+      if (pCtx->config.rdCback != NULL)
       {
-        palUartCb[uartNum].config.rdCback();
+        pCtx->config.rdCback();
       }
       break;
     case NRFX_UARTE_EVT_TX_DONE:
-      palUartCb[uartNum].state = PAL_UART_STATE_READY;
-      if (palUartCb[uartNum].config.wrCback != NULL)
+      pCtx->state = PAL_UART_STATE_READY;
+      if (pCtx->config.wrCback != NULL)
       {
-        palUartCb[uartNum].config.wrCback();
+        pCtx->config.wrCback();
       }
       break;
     case NRFX_UARTE_EVT_ERROR:
-      palUartCb[uartNum].state = PAL_UART_STATE_ERROR;
+      pCtx->state = PAL_UART_STATE_ERROR;
       break;
     default:
       break;
   }
 }
 
-/**************************************************************************************************
-  Global Functions
-**************************************************************************************************/
 /*************************************************************************************************/
 /*!
  *  \brief      Initialize UART.
  *
- *  \param      id          UART Id.
- *  \param      pCfg        Peripheral configuration.
- *
- *  \return     None.
- *
- *  Initialize UART peripheral with \a pCfg values.
+ *  \param      id      UART ID.
+ *  \param      pCfg    Peripheral configuration.
  */
 /*************************************************************************************************/
-
 void PalUartInit(PalUartId_t id, const PalUartConfig_t *pCfg)
 {
-  uint8_t uartNum = palUartGetNum(id);
+  palUartCtrlBlk_t *pCtx = palUartGetContext(id);
+  PAL_UART_PARAM_CHECK(pCtx, pCtx != NULL);
+  PAL_UART_PARAM_CHECK(pCtx, pCfg != NULL);
 
-  if (uartNum == PAL_UART_INVALID_INSTANCE_NUM)
+  pCtx->config = *pCfg;
+
+  /* Resolve instance. */
+  switch (pCtx - palUartCb)
   {
-    return;
+    default:
+    case 0:
+      pCtx->inst.p_reg = NRF_UARTE0;
+      pCtx->inst.drv_inst_idx = 0;
+      break;
+#if (NRFX_UARTE1_ENABLED)
+    case 1:
+      pCtx->inst.p_reg = NRF_UARTE1;
+      pCtx->inst.drv_inst_idx = 1;
+      break;
+#endif
   }
 
-  palUartCb[uartNum].id = id;
+  nrfx_uarte_config_t nrfCfg = NRFX_UARTE_DEFAULT_CONFIG;
+  nrfCfg.pselrxd = RX_PIN_NUMBER;
+  nrfCfg.pseltxd = TX_PIN_NUMBER;
+  nrfCfg.pselcts = CTS_PIN_NUMBER;
+  nrfCfg.pselrts = RTS_PIN_NUMBER;
+  nrfCfg.p_context = pCtx;
+  nrfCfg.parity = NRF_UARTE_PARITY_EXCLUDED;
+  nrfCfg.interrupt_priority = 0xFF; /* Lowest priority. */
+  nrfCfg.hwfc = pCfg->hwFlow ? NRF_UARTE_HWFC_ENABLED : NRF_UARTE_HWFC_DISABLED;
 
-  PAL_UART_PARAM_CHECK(uartNum, pCfg != NULL);
+  switch (pCfg->baud)
+  {
+    default:
+    case  115200: nrfCfg.baudrate = NRF_UARTE_BAUDRATE_115200;  break;
+    case  230400: nrfCfg.baudrate = NRF_UARTE_BAUDRATE_230400;  break;
+    case  460800: nrfCfg.baudrate = NRF_UARTE_BAUDRATE_460800;  break;
+    case  921600: nrfCfg.baudrate = NRF_UARTE_BAUDRATE_921600;  break;
+    case 1000000: nrfCfg.baudrate = NRF_UARTE_BAUDRATE_1000000; break;
+  }
 
-  palUartCb[uartNum].config = *pCfg;
-
-  /* Configure UART. */
-  nrfx_uarte_config_t nrfConfig = NRFX_UARTE_DEFAULT_CONFIG;
-  nrfConfig.pselrxd = RX_PIN_NUMBER;
-  nrfConfig.pseltxd = TX_PIN_NUMBER;
-  nrfConfig.pselcts = CTS_PIN_NUMBER;
-  nrfConfig.pselrts = RTS_PIN_NUMBER;
-  nrfConfig.p_context = &(palUartCb[uartNum].id);
-  nrfConfig.parity = NRF_UARTE_PARITY_EXCLUDED;
-  nrfConfig.interrupt_priority = 0xFF; /* Lowest priority. */
-
-  nrfConfig.baudrate = palUartSetBaud(pCfg->baud);
-  nrfConfig.hwfc = pCfg->hwFlow ? NRF_UARTE_HWFC_ENABLED : NRF_UARTE_HWFC_DISABLED;
-
-  /* Make sure UART is uninitialized. */
-  nrfx_uarte_uninit(&(palUartCb[uartNum].uart));
-
-  /* Initialize UART. */
-  nrfx_err_t err_code = nrfx_uarte_init(&(palUartCb[uartNum].uart), &nrfConfig, (nrfx_uarte_event_handler_t)palUartEventHandler);
-
-  //this is for uart only not for uarte
-  //nrfx_uart_rx_enable(&palUartCb[uartNum].uart);
+  nrfx_err_t err_code = nrfx_uarte_init(&(pCtx->inst), &nrfCfg, palUartEventHandler);
 
   if (err_code != NRFX_SUCCESS)
   {
-    palUartCb[uartNum].state = PAL_UART_STATE_ERROR;
+    pCtx->state = PAL_UART_STATE_ERROR;
     return;
   }
 
-  palUartCb[uartNum].state = PAL_UART_STATE_READY;
-
-  NVIC_EnableIRQ(UART0_IRQn);
+  pCtx->state = PAL_UART_STATE_READY;
 }
 
 /*************************************************************************************************/
 /*!
  *  \brief      De-Initialize UART.
  *
- *  \param      id      UART id.
- *
- *  \return     None.
- *
- *  De-Initialize UART.
+ *  \param      id      UART ID.
  */
 /*************************************************************************************************/
 void PalUartDeInit(PalUartId_t id)
 {
-  uint8_t uartNum = palUartGetNum(id);
+  palUartCtrlBlk_t *pCtx = palUartGetContext(id);
+  PAL_UART_PARAM_CHECK(pCtx, pCtx != NULL);
+  PAL_UART_PARAM_CHECK(pCtx, pCtx->state == PAL_UART_STATE_READY);
 
-  if (uartNum == PAL_UART_INVALID_INSTANCE_NUM)
-  {
-    return;
-  }
+  nrfx_uarte_uninit(&pCtx->inst);
 
-  nrfx_uarte_uninit(&(palUartCb[uartNum].uart));
-
-  palUartCb[uartNum].state = PAL_UART_STATE_UNINIT;
+  pCtx->state = PAL_UART_STATE_UNINIT;
 }
 
 /*************************************************************************************************/
@@ -260,81 +218,62 @@ void PalUartDeInit(PalUartId_t id)
  *
  *  \param      id      UART id.
  *
-*  \return      Current state.
- *
- *  Return the current state.
+ *  \return      Current state.
  */
 /*************************************************************************************************/
 PalUartState_t PalUartGetState(PalUartId_t id)
 {
-  uint8_t uartNum = palUartGetNum(id);
+  palUartCtrlBlk_t *pCtx = palUartGetContext(id);
 
-  if (uartNum == PAL_UART_INVALID_INSTANCE_NUM)
+  if (pCtx == NULL)
   {
     return PAL_UART_STATE_ERROR;
   }
 
-  return palUartCb[uartNum].state;
+  return pCtx->state;
 }
 
 /*************************************************************************************************/
 /*!
  *  \brief      Read data from Rx FIFO.
  *
- *  \param      id          UART id.
- *  \param      pData       Read buffer.
- *  \param      len         Number of bytes to read.
- *
- *  \return     None.
- *
- *  Store \a len received bytes in \a pData. After \a len is transferred, call
- *  \a UartInitInfo_t::rdCback to signal read completion. Alway call this function to setup buffer
- *  when boot up or after a reading is done
+ *  \param      id      UART ID.
+ *  \param      pData   Read buffer.
+ *  \param      len     Number of bytes to read.
  */
 /*************************************************************************************************/
 void PalUartReadData(PalUartId_t id, uint8_t *pData, uint16_t len)
 {
-  uint8_t uartNum = palUartGetNum(id);
+  palUartCtrlBlk_t *pCtx = palUartGetContext(id);
+  PAL_UART_PARAM_CHECK(pCtx, pCtx != NULL);
+  PAL_UART_PARAM_CHECK(pCtx, pCtx->state != PAL_UART_STATE_UNINIT);
+  PAL_UART_PARAM_CHECK(pCtx, pData != NULL);
+  PAL_UART_PARAM_CHECK(pCtx, len > 0);
 
-  PAL_UART_PARAM_CHECK(uartNum, pData != NULL);
-  PAL_UART_PARAM_CHECK(uartNum, len > 0);
-  PAL_UART_PARAM_CHECK(uartNum, palUartCb[uartNum].state != PAL_UART_STATE_UNINIT);
-
-  if (uartNum == PAL_UART_INVALID_INSTANCE_NUM)
-  {
-    return;
-  }
-  nrfx_uarte_rx(&(palUartCb[uartNum].uart), pData, (uint16_t)len);
+  nrfx_err_t err = nrfx_uarte_rx(&pCtx->inst, pData, len);
+  PAL_UART_PARAM_CHECK(pCtx, err == NRFX_SUCCESS);
+  (void)err;
 }
 
 /*************************************************************************************************/
 /*!
  *  \brief      Write data to Tx FIFO.
  *
- *  \param      id          UART id.
- *  \param      pData       Write buffer.
- *  \param      len         Number of bytes to write.
- *
- *  \return     None.
- *
- *  Assign buffer and length and transmit data.
+ *  \param      id      UART ID.
+ *  \param      pData   Write buffer.
+ *  \param      len     Number of bytes to write.
  */
 /*************************************************************************************************/
 void PalUartWriteData(PalUartId_t id, const uint8_t *pData, uint16_t len)
 {
-  uint8_t uartNum = palUartGetNum(id);
+  palUartCtrlBlk_t *pCtx = palUartGetContext(id);
+  PAL_UART_PARAM_CHECK(pCtx, pCtx != NULL);
+  PAL_UART_PARAM_CHECK(pCtx, pCtx->state != PAL_UART_STATE_UNINIT);
+  PAL_UART_PARAM_CHECK(pCtx, pData != NULL);
+  PAL_UART_PARAM_CHECK(pCtx, len > 0);
 
-  PAL_UART_PARAM_CHECK(uartNum, pData != NULL);
-  PAL_UART_PARAM_CHECK(uartNum, len > 0);
-  PAL_UART_PARAM_CHECK(uartNum, palUartCb[uartNum].state == PAL_UART_STATE_READY);
-
-  if (uartNum == PAL_UART_INVALID_INSTANCE_NUM)
-  {
-    return;
-  }
-
-  nrfx_uarte_tx(&(palUartCb[uartNum].uart), pData, (uint16_t)len);
-  palUartCb[uartNum].state = PAL_UART_STATE_BUSY;
+  pCtx->state = PAL_UART_STATE_BUSY;
+  nrfx_err_t err = nrfx_uarte_tx(&pCtx->inst, pData, len);
+  PAL_UART_PARAM_CHECK(pCtx, err == NRFX_SUCCESS);
+  (void)err;
 }
-
-#endif // NRFX_CHECK(NRFX_UARTE0_ENABLED)

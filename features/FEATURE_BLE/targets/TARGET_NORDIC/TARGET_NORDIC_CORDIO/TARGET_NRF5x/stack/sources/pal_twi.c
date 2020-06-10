@@ -4,15 +4,14 @@
  *
  *  \brief      TWI driver implementation.
  *
- *  Copyright (c) 2018-2019 Arm Ltd. All Rights Reserved.
- *  Arm Ltd. confidential and proprietary.
- *
+ *  Copyright (c) 2019-2020 Packetcraft, Inc.
+ *  
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *
+ *  
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ *  
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,11 +20,15 @@
  */
 /*************************************************************************************************/
 
-#include <string.h>
-#include "stack/platform/include/pal_twi.h"
+#include "pal_twi.h"
 #include "nrfx_twim.h"
 #include "nrf_twim.h"
 #include "app_util_platform.h"
+#include <string.h>
+
+#if defined(BOARD_PCA10056) | defined(BOARD_PCA10040)
+#include "boards.h"
+#endif
 
 /**************************************************************************************************
   Macros
@@ -35,7 +38,7 @@
 #ifndef PAL_TWI_MAX_DEVICE
 
 /*! \brief      Maximum device count (must be an even multiple of 2^N). */
-#define PAL_TWI_MAX_DEVICE           4
+#define PAL_TWI_MAX_DEVICE      4
 #endif
 
 /*! \brief      Get next handle value, includes wrap around. */
@@ -44,10 +47,10 @@
 #ifdef DEBUG
 
 /*! \brief      Parameter check. */
-#define PAL_TWI_PARAM_CHECK(expr)           { if (!(expr)) { twiDevCb.drvState = PAL_TWI_STATE_ERROR; return; } }
+#define PAL_TWI_PARAM_CHECK(expr)           { if (!(expr)) { palTwiCb.drvState = PAL_TWI_STATE_ERROR; return; } }
 
 /*! \brief      Parameter check, with return value. */
-#define PAL_TWI_PARAM_CHECK_RET(expr, rv)   { if (!(expr)) { twiDevCb.drvState = PAL_TWI_STATE_ERROR; return (rv); } }
+#define PAL_TWI_PARAM_CHECK_RET(expr, rv)   { if (!(expr)) { palTwiCb.drvState = PAL_TWI_STATE_ERROR; return (rv); } }
 
 #else
 
@@ -62,12 +65,15 @@
 /*! \brief TWI instance ID. */
 #define PAL_TWI_INSTANCE_ID     0
 
-/*! \brief      Pin number for SCL. */
-#define PAL_TWI_CLOCK_PIN_NUMBER (27U)
+#if defined(BOARD_PCA10056) | defined(BOARD_PCA10040)
+#define PAL_TWI_SCL_PIN ARDUINO_SCL_PIN   /*!< Pin number for SCL. */
+#define PAL_TWI_SDA_PIN ARDUINO_SDA_PIN   /*!< Pin number for SDA. */
+#endif
 
-/*! \brief      Pin number for SDA. */
-#define PAL_TWI_DATA_PIN_NUMBER (26U)
-
+#if defined(BOARD_NRF6832)
+#define PAL_TWI_SCL_PIN (6U)    /*!< Pin number for SCL. */
+#define PAL_TWI_SDA_PIN (7U)    /*!< Pin number for SDA. */
+#endif
 
 /**************************************************************************************************
   Type Definitions
@@ -76,9 +82,9 @@
 /*! \brief      Commands state. */
 typedef enum
 {
-  PAL_TWI_CMD_IDLE,         /*!< Idle state. */
-  PAL_TWI_CMD_TX_DATA,      /*!< Write data state. */
-  PAL_TWI_CMD_RX_DATA       /*!< Read data state. */
+  PAL_TWI_CMD_IDLE,             /*!< Idle state. */
+  PAL_TWI_CMD_TX_DATA,          /*!< Write data state. */
+  PAL_TWI_CMD_RX_DATA           /*!< Read data state. */
 } PalTwiCmdState_t;
 
 /*! \brief      Device configuration. */
@@ -88,8 +94,6 @@ typedef struct
   PalTwiDevConfig_t devCfg;     /*!< Device configuration. */
 } PalTwiDevCtx_t;
 
-#if NRFX_CHECK(NRFX_TWIM0_ENABLED)
-
 /**************************************************************************************************
   Global Variables
 **************************************************************************************************/
@@ -98,10 +102,9 @@ typedef struct
 static struct
 {
   uint8_t curHandle;            /*!< Current device handle. */
-  PalTwiCmdState_t cmdState;       /*!< Command transaction state, Tx or Rx. */
-  PalTwiState_t drvState;          /*!< Current state. */
-  bool_t firstCmd;              /*!< First command after operation start flag. */
-} twiDevCb;
+  PalTwiCmdState_t cmdState;    /*!< Command transaction state, Tx or Rx. */
+  PalTwiState_t drvState;       /*!< Current state. */
+} palTwiCb = { 0 };
 
 /*! \brief      Device context table. */
 static PalTwiDevCtx_t twiDevCtx[PAL_TWI_MAX_DEVICE];
@@ -113,10 +116,10 @@ static const nrfx_twim_t twiId = NRFX_TWIM_INSTANCE(PAL_TWI_INSTANCE_ID);
 const nrfx_twim_config_t twiConfig =
 {
    .frequency          = NRF_TWIM_FREQ_400K,
-   .scl                = PAL_TWI_CLOCK_PIN_NUMBER,
-   .sda                = PAL_TWI_DATA_PIN_NUMBER,
-   .interrupt_priority = APP_IRQ_PRIORITY_LOWEST,
-   .hold_bus_uninit     = false
+   .scl                = PAL_TWI_SCL_PIN,
+   .sda                = PAL_TWI_SDA_PIN,
+   .interrupt_priority = APP_IRQ_PRIORITY_LOWEST,   // TODO define in common platform BSP
+   .hold_bus_uninit    = FALSE
 };
 
 /**************************************************************************************************
@@ -125,59 +128,59 @@ const nrfx_twim_config_t twiConfig =
 
 /*************************************************************************************************/
 /*!
- *  \brief      Control callback.
+ *  \brief      Operation complete callback.
  *
- *  \param      event     Event parameters.
- *
- *  \return     None.
+ *  \param      pEvt        Event parameters.
+ *  \param      pContext    Unused  context.
  */
 /*************************************************************************************************/
-static void palTwiCallback(nrfx_twim_evt_t *event, void *pContext)
+static void palTwiCallback(nrfx_twim_evt_t *pEvt, void *pCtx)
 {
+  (void)pCtx;
+
   /* Pre-resolve device configuration. */
-  PalTwiDevConfig_t *pCfg = &twiDevCtx[twiDevCb.curHandle].devCfg;
+  PalTwiDevConfig_t *pCfg = &twiDevCtx[palTwiCb.curHandle].devCfg;
   bool_t success = FALSE;
 
-  twiDevCb.firstCmd = FALSE;
-
-  if ((event->type) == NRFX_TWIM_EVT_DONE)
+  if ((pEvt->type) == NRFX_TWIM_EVT_DONE)
   {
     success = TRUE;
   }
 
-  if (twiDevCb.cmdState == PAL_TWI_CMD_TX_DATA)
+  if (palTwiCb.cmdState == PAL_TWI_CMD_TX_DATA)
   {
-    twiDevCb.cmdState = PAL_TWI_CMD_IDLE;
+    palTwiCb.cmdState = PAL_TWI_CMD_IDLE;
     if (pCfg->wrCback)
     {
-      pCfg->wrCback(twiDevCb.curHandle, success);
+      pCfg->wrCback(palTwiCb.curHandle, success);
     }
   }
-  else if (twiDevCb.cmdState == PAL_TWI_CMD_RX_DATA)
+  else if (palTwiCb.cmdState == PAL_TWI_CMD_RX_DATA)
   {
-    twiDevCb.cmdState = PAL_TWI_CMD_IDLE;
+    palTwiCb.cmdState = PAL_TWI_CMD_IDLE;
     if (pCfg->rdCback)
     {
-      pCfg->rdCback(twiDevCb.curHandle, success);
+      pCfg->rdCback(palTwiCb.curHandle, success);
     }
   }
+
+  palTwiCb.drvState = PAL_TWI_STATE_BUSY_DATA_PEND;
 }
 
 /*************************************************************************************************/
 /*!
  *  \brief      Initialize TWI resources.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void PalTwiInit(void)
 {
-  if (twiDevCb.drvState != PAL_TWI_STATE_UNINIT)
+  if (palTwiCb.drvState != PAL_TWI_STATE_UNINIT)
   {
+    /* Only initialize once. */
     return;
   }
 
-  memset(&twiDevCb, 0, sizeof(twiDevCb));
+  memset(&palTwiCb, 0, sizeof(palTwiCb));
 
   for (unsigned int handle = 0; handle < PAL_TWI_MAX_DEVICE; handle++)
   {
@@ -187,24 +190,20 @@ void PalTwiInit(void)
     twiDevCtx[handle].devCfg.wrCback      = NULL;
   }
 
-  twiDevCb.drvState = PAL_TWI_STATE_READY;
+  palTwiCb.drvState = PAL_TWI_STATE_READY;
 
   nrfx_twim_init(&twiId, &twiConfig, (nrfx_twim_evt_handler_t)palTwiCallback, NULL);
   nrfx_twim_enable(&twiId);
-  NVIC_ClearPendingIRQ(SPI0_TWI0_IRQn);
-  NVIC_EnableIRQ(SPI0_TWI0_IRQn);
 }
 
 /*************************************************************************************************/
 /*!
  *  \brief      De-Initialize the TWI resources.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void PalTwiDeInit(void)
 {
-  PAL_TWI_PARAM_CHECK(twiDevCb.drvState != PAL_TWI_STATE_BUSY);
+  PAL_TWI_PARAM_CHECK(palTwiCb.drvState == PAL_TWI_STATE_READY);
 
   for (unsigned int handle = 0; handle < PAL_TWI_MAX_DEVICE; handle++)
   {
@@ -214,10 +213,10 @@ void PalTwiDeInit(void)
     twiDevCtx[handle].devCfg.wrCback      = NULL;
   }
 
-  nrfx_twim_uninit(&twiId);
   nrfx_twim_disable(&twiId);
+  nrfx_twim_uninit(&twiId);
 
-  twiDevCb.drvState = PAL_TWI_STATE_UNINIT;
+  palTwiCb.drvState = PAL_TWI_STATE_UNINIT;
 }
 
 /*************************************************************************************************/
@@ -232,7 +231,6 @@ void PalTwiDeInit(void)
 uint8_t PalTwiRegisterDevice(PalTwiDevConfig_t *pDevCfg)
 {
   PAL_TWI_PARAM_CHECK_RET(pDevCfg != NULL, PAL_TWI_INVALID_ID);
-  PAL_TWI_PARAM_CHECK_RET(pDevCfg->opReadyCback, PAL_TWI_INVALID_ID);
 
   uint8_t retValue = PAL_TWI_INVALID_ID;
 
@@ -263,7 +261,7 @@ uint8_t PalTwiRegisterDevice(PalTwiDevConfig_t *pDevCfg)
 /*************************************************************************************************/
 PalTwiState_t PalTwiGetState(void)
 {
-  return twiDevCb.drvState;
+  return palTwiCb.drvState;
 }
 
 /**************************************************************************************************
@@ -275,28 +273,16 @@ PalTwiState_t PalTwiGetState(void)
  *  \brief      Always start an operation before reading or writing on TWI interface.
  *
  *  \param      handle      Device handle.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void PalTwiStartOperation(uint8_t handle)
 {
   PAL_TWI_PARAM_CHECK(handle < PAL_TWI_MAX_DEVICE);
 
-  if (twiDevCb.drvState != PAL_TWI_STATE_READY)
+  if (palTwiCb.drvState == PAL_TWI_STATE_READY)
   {
-    PAL_TWI_PARAM_CHECK(handle != twiDevCb.curHandle);          /* Client operation already in progress. */
-    PAL_TWI_PARAM_CHECK(twiDevCtx[handle].opPending == FALSE);  /* Client already pended an operation. */
-  }
-
-  __disable_irq();
-
-  if (twiDevCb.drvState == PAL_TWI_STATE_READY)
-  {
-    __enable_irq();
-    twiDevCb.drvState = PAL_TWI_STATE_BUSY;
-    twiDevCb.firstCmd = TRUE;
-    twiDevCb.curHandle = handle;
+    palTwiCb.drvState = PAL_TWI_STATE_BUSY_DATA_PEND;
+    palTwiCb.curHandle = handle;
     if (twiDevCtx[handle].devCfg.opReadyCback)
     {
       twiDevCtx[handle].devCfg.opReadyCback(handle);
@@ -304,9 +290,11 @@ void PalTwiStartOperation(uint8_t handle)
   }
   else
   {
+    PAL_TWI_PARAM_CHECK(handle != palTwiCb.curHandle);          /* Client operation already in progress. */
+    PAL_TWI_PARAM_CHECK(twiDevCtx[handle].opPending == FALSE);  /* Client already pended an operation. */
+
     /* Pend the operation until current operation completes. */
     twiDevCtx[handle].opPending = TRUE;
-    __enable_irq();
   }
 }
 
@@ -315,29 +303,18 @@ void PalTwiStartOperation(uint8_t handle)
  *  \brief      Always stop an operation after reading or writing on TWI interface.
  *
  *  \param      handle      Device handle.
- *
- *  \return     None.
  */
 /*************************************************************************************************/
 void PalTwiStopOperation(uint8_t handle)
 {
   PAL_TWI_PARAM_CHECK(handle < PAL_TWI_MAX_DEVICE);
-  PAL_TWI_PARAM_CHECK(handle == twiDevCb.curHandle);
-  PAL_TWI_PARAM_CHECK(twiDevCb.cmdState == PAL_TWI_CMD_IDLE);
-  PAL_TWI_PARAM_CHECK(twiDevCb.drvState == PAL_TWI_STATE_BUSY);
+  PAL_TWI_PARAM_CHECK(handle == palTwiCb.curHandle);
+  PAL_TWI_PARAM_CHECK(palTwiCb.cmdState == PAL_TWI_CMD_IDLE);
+  PAL_TWI_PARAM_CHECK(palTwiCb.drvState == PAL_TWI_STATE_BUSY_DATA_PEND);
 
   unsigned int nextHandle = PAL_TWI_GET_NEXT_HANDLE(handle);
 
-  twiDevCb.curHandle = PAL_TWI_INVALID_ID;
-
-  /* Only when address or command is sent, then issue stop. */
-  if (!twiDevCb.firstCmd)
-  {
-    nrf_twim_event_clear(twiId.p_twim, NRF_TWIM_EVENT_STOPPED);
-    nrf_twim_task_trigger(twiId.p_twim, NRF_TWIM_TASK_RESUME);
-    nrf_twim_task_trigger(twiId.p_twim, NRF_TWIM_TASK_STOP);
-    nrf_twim_int_disable(twiId.p_twim, 0xFFFFFFFF);
-  }
+  palTwiCb.curHandle = PAL_TWI_INVALID_ID;
 
   while (nextHandle != handle)
   {
@@ -346,13 +323,13 @@ void PalTwiStopOperation(uint8_t handle)
       /* Set the operation pending to FALSE first in case of race condition. */
       twiDevCtx[nextHandle].opPending = FALSE;
 
-      twiDevCb.firstCmd = TRUE;
-      twiDevCb.curHandle = nextHandle;
+      palTwiCb.curHandle = nextHandle;
       if (twiDevCtx[nextHandle].devCfg.opReadyCback)
       {
         twiDevCtx[nextHandle].devCfg.opReadyCback(nextHandle);
       }
 
+      /* Remain in BUSY state. */
       return;
     }
 
@@ -360,7 +337,32 @@ void PalTwiStopOperation(uint8_t handle)
   }
 
   /* No pending operations. */
-  twiDevCb.drvState = PAL_TWI_STATE_READY;
+  palTwiCb.drvState = PAL_TWI_STATE_READY;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Read data from TWI interface.
+ *
+ *  \param      handle      Device handle.
+ *  \param      pData       Read buffer.
+ *  \param      len         Number of bytes to write.
+ *
+ *  Read \a len bytes from \a pData to the TWI device.
+ */
+/*************************************************************************************************/
+void PalTwiReadData(uint8_t handle, uint8_t *pData, uint8_t len)
+{
+  PAL_TWI_PARAM_CHECK(len != 0);
+  PAL_TWI_PARAM_CHECK(pData != NULL);
+  PAL_TWI_PARAM_CHECK(handle < PAL_TWI_MAX_DEVICE);
+  PAL_TWI_PARAM_CHECK(handle == palTwiCb.curHandle);
+
+  palTwiCb.curHandle =handle;
+  palTwiCb.cmdState = PAL_TWI_CMD_RX_DATA;
+  palTwiCb.drvState = PAL_TWI_STATE_BUSY_DATA_XFER;
+
+  nrfx_twim_rx(&twiId, twiDevCtx[handle].devCfg.devAddr, pData, len);
 }
 
 /*************************************************************************************************/
@@ -371,8 +373,6 @@ void PalTwiStopOperation(uint8_t handle)
  *  \param      pData       Write buffer.
  *  \param      len         Number of bytes to write.
  *
- *  \return     None.
- *
  *  Transfer \a len bytes from \a pData to the TWI device.
  */
 /*************************************************************************************************/
@@ -381,43 +381,15 @@ void PalTwiWriteData(uint8_t handle, const uint8_t *pData, uint8_t len)
   PAL_TWI_PARAM_CHECK(len != 0);
   PAL_TWI_PARAM_CHECK(pData != NULL);
   PAL_TWI_PARAM_CHECK(handle < PAL_TWI_MAX_DEVICE);
-  PAL_TWI_PARAM_CHECK(handle == twiDevCb.curHandle);
-  PAL_TWI_PARAM_CHECK(twiDevCb.drvState == PAL_TWI_STATE_BUSY);
-  PAL_TWI_PARAM_CHECK(twiDevCb.cmdState == PAL_TWI_CMD_IDLE);
+  PAL_TWI_PARAM_CHECK(handle == palTwiCb.curHandle);
 
-  twiDevCb.curHandle = handle;
-  twiDevCb.cmdState = PAL_TWI_CMD_TX_DATA;
+  palTwiCb.curHandle = handle;
+  palTwiCb.cmdState = PAL_TWI_CMD_TX_DATA;
+  palTwiCb.drvState = PAL_TWI_STATE_BUSY_DATA_XFER;
 
-  nrfx_twim_tx(&twiId, twiDevCtx[handle].devCfg.devAddr, pData, len, NRFX_TWIM_FLAG_TX_NO_STOP);
+  nrfx_err_t err = nrfx_twim_tx(&twiId, twiDevCtx[handle].devCfg.devAddr, pData, len, NRFX_TWIM_FLAG_TX_NO_STOP);
+  PAL_TWI_PARAM_CHECK(err == NRFX_SUCCESS);
+  #ifndef DEBUG
+    (void)err;
+  #endif
 }
-
-/*************************************************************************************************/
-/*!
- *  \brief      Read data from TWI interface.
- *
- *  \param      handle      Device handle.
- *  \param      pData       Write buffer.
- *  \param      len         Number of bytes to write.
- *
- *  \return     None.
- *
- *  Read \a len bytes from \a pData to the TWI device.
- */
-/*************************************************************************************************/
-void PalTwiReadData(uint8_t handle, uint8_t *pData, uint8_t len)
-{
-  PAL_TWI_PARAM_CHECK(len != 0);
-  PAL_TWI_PARAM_CHECK(pData != NULL);
-  PAL_TWI_PARAM_CHECK(handle < PAL_TWI_MAX_DEVICE);
-  PAL_TWI_PARAM_CHECK(handle == twiDevCb.curHandle);
-  PAL_TWI_PARAM_CHECK(twiDevCb.drvState == PAL_TWI_STATE_BUSY);
-  PAL_TWI_PARAM_CHECK(twiDevCb.cmdState == PAL_TWI_CMD_IDLE);
-
-  twiDevCb.curHandle =handle;
-  twiDevCb.cmdState = PAL_TWI_CMD_RX_DATA;
-
-  nrfx_twim_rx(&twiId, twiDevCtx[handle].devCfg.devAddr, pData, len);
-}
-
-#endif // NRFX_CHECK(NRFX_TWIM0_ENABLED)
-
