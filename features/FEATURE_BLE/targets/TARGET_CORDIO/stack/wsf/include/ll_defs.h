@@ -45,6 +45,8 @@ extern "C" {
 #define LL_VER_BT_CORE_SPEC_5_2     0x0B    /*!< Bluetooth core specification 5.2 */
 #define LL_VER_BT_CORE_SPEC_SYDNEY  0x0C    /*!< Bluetooth core specification Sydney */
 
+#define LL_COMP_ID_ARM              0x005F  /*!< ARM Ltd. company ID. */
+
 /*** Common ***/
 
 #define LL_RSSI_MIN                 -127    /*!< Minimum RSSI value. */
