@@ -200,7 +200,7 @@ public:
 
     /** Get the current network registering mode
      *
-     *  @param mode     on successful return contains the current network registering mode
+     *  @param mode     on success the current network registering mode, otherwise unchanged
      *  @return         NSAPI_ERROR_OK on success
      *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
