@@ -72,4 +72,5 @@ target_include_directories(mbed-os
         ${CMAKE_CURRENT_SOURCE_DIR}
         inc
         inc/mbedtls
+        platform/inc
 )
