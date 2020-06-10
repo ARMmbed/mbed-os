@@ -54,7 +54,7 @@ typedef struct {
 typedef NS_LIST_HEAD(cert_chain_entry_t, link) cert_chain_list_t;
 typedef NS_LIST_HEAD(cert_revocat_list_entry_t, link) cert_revocat_lists_t;
 
-typedef struct {
+typedef struct sec_prot_certs_s {
     cert_chain_entry_t own_cert_chain;                  /**< Own certificate chain */
     cert_chain_list_t trusted_cert_chain_list;          /**< Trusted certificate chain lists */
     cert_revocat_lists_t cert_revocat_lists;            /**< Certificate Revocation Lists */

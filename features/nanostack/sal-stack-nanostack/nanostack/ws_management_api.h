@@ -75,10 +75,16 @@ extern "C" {
 #define CHANNEL_SPACING_100 0x03 // 100 khz
 #define CHANNEL_SPACING_250 0x04 // 250 khz
 
-#define NETWORK_SIZE_CERTIFICATE    0x00
-#define NETWORK_SIZE_SMALL          0x01
-#define NETWORK_SIZE_MEDIUM         0x08
-#define NETWORK_SIZE_LARGE          0x10
+/*
+ *  Network Size definitions are device amount in hundreds of devices.
+ *  These definitions are meant to give some estimates of sizes. Any value can be given as parameter
+ */
+
+#define NETWORK_SIZE_CERTIFICATE    0x00  // Network configuration used in Wi-SUN certification
+#define NETWORK_SIZE_SMALL          0x01  // Small networks
+#define NETWORK_SIZE_MEDIUM         0x08  // 100 - 800 device networks are medium sized
+#define NETWORK_SIZE_LARGE          0x0F  // 800 - 1500 device networks are large
+#define NETWORK_SIZE_XLARGE         0x19  // 2500+ devices
 #define NETWORK_SIZE_AUTOMATIC      0xFF
 
 /** Temporary API change flag. this will be removed when new version of API is implemented on applications
@@ -229,9 +235,9 @@ int ws_management_regulatory_domain_validate(
  *
  * timing parameters follows the specification example from Wi-SUN specification
  *
- * Default value: medium
- * small network size: hundreds of devices
- * Large network size: thousands of devices
+ * Default value: medium 100 - 800 device
+ * small network size: less than 100 devices
+ * Large network size: 800 - 1500 devices
  * automatic: when discovering the network network size is learned
  *            from advertisements and timings adjusted accordingly
  *

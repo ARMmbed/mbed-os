@@ -67,8 +67,8 @@
 #define S2LP_TEST_PIN_RX            D5
 #endif
 
-#if defined(TMBED_CONF_S2LP_TEST_PIN_CSMA)
-#define S2LP_TEST_PIN_CSMA          TMBED_CONF_S2LP_TEST_PIN_CSMA
+#if defined(MBED_CONF_S2LP_TEST_PIN_CSMA)
+#define S2LP_TEST_PIN_CSMA          MBED_CONF_S2LP_TEST_PIN_CSMA
 #else
 #define S2LP_TEST_PIN_CSMA          D4
 #endif
@@ -80,7 +80,7 @@
 #endif
 
 #if defined(MBED_CONF_S2LP_TEST_PIN_SPARE_2)
-#define S2LP_TEST_PIN_SPARE_2       DMBED_CONF_S2LP_TEST_PIN_SPARE_2
+#define S2LP_TEST_PIN_SPARE_2       MBED_CONF_S2LP_TEST_PIN_SPARE_2
 #else
 #define S2LP_TEST_PIN_SPARE_2       D8
 #endif

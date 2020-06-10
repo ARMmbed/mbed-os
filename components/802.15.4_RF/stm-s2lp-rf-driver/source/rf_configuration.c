@@ -157,7 +157,7 @@ void rf_conf_calculate_rx_filter_bandwidth_registers(uint32_t rx_bandwidth, uint
 
 int16_t rf_conf_cca_threshold_percent_to_rssi(uint8_t percent)
 {
-    uint8_t step = (MAX_RSSI_THRESHOLD-MIN_RSSI_THRESHOLD);
+    uint8_t step = (MAX_RSSI_THRESHOLD - MIN_RSSI_THRESHOLD);
     return MIN_RSSI_THRESHOLD + (step * percent) / 100;
 }
 

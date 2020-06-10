@@ -189,7 +189,7 @@ static int8_t auth_eap_tls_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_
                 // Call state machine
                 prot->state_machine(prot);
                 // Resets trickle timer to give time for supplicant to answer
-                sec_prot_timer_trickle_start(&data->common, &prot->cfg->sec_prot_trickle_params);
+                sec_prot_timer_trickle_start(&data->common, &prot->prot_cfg->sec_prot_trickle_params);
                 data->init_key_cnt++;
             }
             // Filters repeated initial EAPOL-key messages
@@ -297,7 +297,7 @@ static void auth_eap_tls_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks
     }
 
     sec_prot_timer_timeout_handle(prot, &data->common,
-                                  &prot->cfg->sec_prot_trickle_params, ticks);
+                                  &prot->prot_cfg->sec_prot_trickle_params, ticks);
 }
 
 static void auth_eap_tls_sec_prot_tls_create_indication(sec_prot_t *tls_prot)
@@ -421,7 +421,7 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             auth_eap_tls_sec_prot_message_send(prot, EAP_REQ, EAP_IDENTITY, EAP_TLS_EXCHANGE_NONE);
 
             // Start trickle timer to re-send if no response
-            sec_prot_timer_trickle_start(&data->common, &prot->cfg->sec_prot_trickle_params);
+            sec_prot_timer_trickle_start(&data->common, &prot->prot_cfg->sec_prot_trickle_params);
 
             sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_RESPONSE_ID);
             break;
@@ -445,7 +445,7 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             auth_eap_tls_sec_prot_message_send(prot, EAP_REQ, EAP_TLS, EAP_TLS_EXCHANGE_START);
 
             // Start trickle timer to re-send if no response
-            sec_prot_timer_trickle_start(&data->common, &prot->cfg->sec_prot_trickle_params);
+            sec_prot_timer_trickle_start(&data->common, &prot->prot_cfg->sec_prot_trickle_params);
 
             sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_RESPONSE_START);
             break;
@@ -527,7 +527,7 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
                 auth_eap_tls_sec_prot_message_send(prot, EAP_REQ, EAP_TLS, EAP_TLS_EXCHANGE_ONGOING);
 
                 // Start trickle timer to re-send if no response
-                sec_prot_timer_trickle_start(&data->common, &prot->cfg->sec_prot_trickle_params);
+                sec_prot_timer_trickle_start(&data->common, &prot->prot_cfg->sec_prot_trickle_params);
             } else {
                 // TLS done, indicate success to peer
                 if (data->tls_result == EAP_TLS_RESULT_HANDSHAKE_OVER) {

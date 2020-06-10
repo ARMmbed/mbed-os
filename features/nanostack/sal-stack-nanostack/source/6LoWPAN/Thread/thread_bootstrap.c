@@ -141,7 +141,7 @@ static void thread_neighbor_remove(mac_neighbor_table_entry_t *entry_ptr, void *
 
     thread_reset_neighbour_info(cur, entry_ptr);
     //Removes ETX neighbor
-    etx_neighbor_remove(cur->id, entry_ptr->index);
+    etx_neighbor_remove(cur->id, entry_ptr->index, entry_ptr->mac64);
     //Remove MLE frame counter info
     mle_service_frame_counter_entry_delete(cur->id, entry_ptr->index);
 }

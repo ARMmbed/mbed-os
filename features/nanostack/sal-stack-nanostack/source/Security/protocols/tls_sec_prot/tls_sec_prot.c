@@ -69,15 +69,20 @@ typedef struct {
     bool                          timer_running : 1; /**< TLS timer running */
     bool                          finished : 1;      /**< TLS finished */
     bool                          calculating : 1;   /**< TLS is calculating */
+#ifdef SERVER_TLS_EC_CALC_QUEUE
     bool                          queued : 1;        /**< TLS is queued */
+#endif
     bool                          library_init : 1;  /**< TLS library has been initialized */
     tls_sec_prot_lib_int_t        *tls_sec_inst;     /**< TLS security library storage, SHALL BE THE LAST FIELD */
 } tls_sec_prot_int_t;
 
+// TLS server EC queue is currently disabled, since EC calculation is made on server in one go
+#ifdef SERVER_TLS_EC_CALC_QUEUE
 typedef struct {
     ns_list_link_t link;                             /**< Link */
     sec_prot_t *prot;                                /**< Protocol instance */
 } tls_sec_prot_queue_t;
+#endif
 
 static uint16_t tls_sec_prot_size(void);
 static int8_t client_tls_sec_prot_init(sec_prot_t *prot);
@@ -102,15 +107,22 @@ static int8_t tls_sec_prot_tls_get_timer(void *handle);
 
 static int8_t tls_sec_prot_tls_configure_and_connect(sec_prot_t *prot, bool is_server);
 
+#ifdef SERVER_TLS_EC_CALC_QUEUE
 static bool tls_sec_prot_queue_check(sec_prot_t *prot);
 static bool tls_sec_prot_queue_process(sec_prot_t *prot);
 static void tls_sec_prot_queue_remove(sec_prot_t *prot);
+#else
+#define tls_sec_prot_queue_process(prot) true
+#define tls_sec_prot_queue_remove(prot)
+#endif /* SERVER_TLS_EC_CALC_QUEUE */
 
 static uint16_t tls_sec_prot_send_buffer_size_get(sec_prot_t *prot);
 
 #define tls_sec_prot_get(prot) (tls_sec_prot_int_t *) &prot->data
 
+#ifdef SERVER_TLS_EC_CALC_QUEUE
 static NS_LIST_DEFINE(tls_sec_prot_queue, tls_sec_prot_queue_t, link);
+#endif
 
 int8_t client_tls_sec_prot_register(kmp_service_t *service)
 {
@@ -168,7 +180,9 @@ static int8_t client_tls_sec_prot_init(sec_prot_t *prot)
     data->fin_timer_timeout = false;
     data->timer_running = false;
     data->calculating = false;
+#ifdef SERVER_TLS_EC_CALC_QUEUE
     data->queued = false;
+#endif
     data->library_init = false;
     return 0;
 }
@@ -198,7 +212,9 @@ static int8_t server_tls_sec_prot_init(sec_prot_t *prot)
     data->fin_timer_timeout = false;
     data->timer_running = false;
     data->calculating = false;
+#ifdef SERVER_TLS_EC_CALC_QUEUE
     data->queued = false;
+#endif
     data->library_init = false;
     return 0;
 }
@@ -281,7 +297,11 @@ static void tls_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks)
         if (data->fin_timer_timeout) {
             data->fin_timer_timeout = false;
             prot->state_machine(prot);
-        } else if (data->calculating || data->queued) {
+        } else if (data->calculating
+#ifdef SERVER_TLS_EC_CALC_QUEUE
+                   || data->queued
+#endif
+                  ) {
             prot->state_machine(prot);
         }
     }
@@ -355,7 +375,7 @@ static void client_tls_sec_prot_state_machine(sec_prot_t *prot)
             data->calculating = false;
 
             if (sec_prot_result_ok_check(&data->common)) {
-                sec_prot_keys_pmk_write(prot->sec_keys, data->new_pmk);
+                sec_prot_keys_pmk_write(prot->sec_keys, data->new_pmk, prot->timer_cfg->pmk_lifetime);
             }
 
             // KMP-FINISHED.indication,
@@ -385,7 +405,9 @@ static void server_tls_sec_prot_state_machine(sec_prot_t *prot)
 {
     tls_sec_prot_int_t *data = tls_sec_prot_get(prot);
     int8_t result;
+#ifdef SERVER_TLS_EC_CALC_QUEUE
     bool client_hello = false;
+#endif
 
     switch (sec_prot_state_get(&data->common)) {
         case TLS_STATE_INIT:
@@ -400,7 +422,9 @@ static void server_tls_sec_prot_state_machine(sec_prot_t *prot)
         case TLS_STATE_CLIENT_HELLO:
             tr_debug("TLS: start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
+#ifdef SERVER_TLS_EC_CALC_QUEUE
             client_hello = true;
+#endif
 
             sec_prot_state_set(prot, &data->common, TLS_STATE_CREATE_RESP);
 
@@ -430,6 +454,7 @@ static void server_tls_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case TLS_STATE_PROCESS:
+#ifdef SERVER_TLS_EC_CALC_QUEUE
             // If not client hello, reserves slot on TLS queue
             if (!client_hello && !tls_sec_prot_queue_check(prot)) {
                 data->queued = true;
@@ -437,6 +462,7 @@ static void server_tls_sec_prot_state_machine(sec_prot_t *prot)
             } else {
                 data->queued = false;
             }
+#endif
 
             result = tls_sec_prot_lib_process((tls_security_t *) &data->tls_sec_inst);
 
@@ -468,7 +494,7 @@ static void server_tls_sec_prot_state_machine(sec_prot_t *prot)
             data->calculating = false;
 
             if (sec_prot_result_ok_check(&data->common)) {
-                sec_prot_keys_pmk_write(prot->sec_keys, data->new_pmk);
+                sec_prot_keys_pmk_write(prot->sec_keys, data->new_pmk, prot->timer_cfg->pmk_lifetime);
             }
 
             // KMP-FINISHED.indication,
@@ -636,6 +662,7 @@ static int8_t tls_sec_prot_tls_configure_and_connect(sec_prot_t *prot, bool is_s
     return 0;
 }
 
+#ifdef SERVER_TLS_EC_CALC_QUEUE
 static bool tls_sec_prot_queue_check(sec_prot_t *prot)
 {
     bool queue_add = true;
@@ -703,6 +730,7 @@ static void tls_sec_prot_queue_remove(sec_prot_t *prot)
         }
     }
 }
+#endif
 
 static uint16_t tls_sec_prot_send_buffer_size_get(sec_prot_t *prot)
 {

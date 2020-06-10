@@ -89,6 +89,16 @@ typedef struct fhss_configuration {
 typedef int32_t fhss_vendor_defined_cf(const fhss_api_t *api, uint16_t slot, uint8_t eui64[8], uint16_t bsi, uint16_t number_of_channels);
 
 /**
+ * \brief Struct fhss_config_parameters defines FHSS configuration parameters.
+ *
+ */
+typedef struct fhss_config_parameters {
+    /** Number of channel retries defines how many consecutive channels are used when retransmitting a frame after initial transmission channel. */
+    uint8_t number_of_channel_retries;
+} fhss_config_parameters_t;
+
+
+/**
  * \brief Struct fhss_ws_configuration defines configuration of WS FHSS.
  */
 typedef struct fhss_ws_configuration {
@@ -124,6 +134,9 @@ typedef struct fhss_ws_configuration {
 
     /** Vendor defined channel function. */
     fhss_vendor_defined_cf *vendor_defined_cf;
+
+    /** Configuration parameters. */
+    fhss_config_parameters_t config_parameters;
 
 } fhss_ws_configuration_t;
 

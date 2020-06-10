@@ -51,6 +51,7 @@ public:
     Timeout cca_timer;
     Timer tx_timer;
     int init_215_driver(RFBits *_rf, TestPins *_test_pins, const uint8_t mac[8], uint8_t *rf_part_num);
+    int init_se2435_pa(Se2435Pins *_se2435_pa_pins);
 #ifdef MBED_CONF_RTOS_PRESENT
     Thread irq_thread;
     Thread irq_thread_215;
@@ -68,6 +69,13 @@ public:
     DigitalOut TEST3;
     DigitalOut TEST4;
     DigitalOut TEST5;
+};
+
+class Se2435Pins {
+public:
+    Se2435Pins(PinName csd_pin, PinName ant_sel_pin);
+    DigitalOut CSD;
+    DigitalOut ANT_SEL;
 };
 
 #endif /* RFBITS_H_ */

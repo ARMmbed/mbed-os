@@ -268,6 +268,7 @@ static int8_t key_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size)
         // Checks if supplicant indicates that it has valid PMK
         uint8_t remote_keyid[KEYID_LEN];
         if (kde_pmkid_read(kde, kde_len, remote_keyid) >= 0) {
+            tr_debug("recv PMKID: %s", trace_array(remote_keyid, 16));
             uint8_t pmkid[PMKID_LEN];
             if (sec_prot_lib_pmkid_generate(prot, pmkid, true) >= 0) {
                 if (memcmp(remote_keyid, pmkid, PMKID_LEN) == 0) {
@@ -278,6 +279,7 @@ static int8_t key_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size)
 
         // Checks if supplicant indicates that it has valid PTK
         if (kde_ptkid_read(kde, kde_len, remote_keyid) >= 0) {
+            tr_debug("recv PTKID: %s", trace_array(remote_keyid, 16));
             uint8_t ptkid[PTKID_LEN];
             if (sec_prot_lib_ptkid_generate(prot, ptkid, true) >= 0) {
                 if (memcmp(remote_keyid, ptkid, PTKID_LEN) == 0) {
