@@ -33,6 +33,10 @@
 #include "mbedtls/platform.h"
 #include "mbedtls/platform_util.h"
 
+#include "platform/PlatformMutex.h"
+#include "platform/SingletonPtr.h"
+
+static SingletonPtr<PlatformMutex> sha256_mutex;
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -50,16 +54,9 @@ void mbedtls_sha256_init(mbedtls_sha256_context *ctx)
 {
     SHA256_VALIDATE(ctx != NULL);
 
-    __disable_irq();
-#if defined(MBEDTLS_THREADING_C)
-    /* mutex cannot be initialized twice */
-    if (!hash_mutex_started) {
-        mbedtls_mutex_init(&hash_mutex);
-        hash_mutex_started = 1;
-    }
-#endif /* MBEDTLS_THREADING_C */
+    sha256_mutex->lock();
     hash_context_count++;
-    __enable_irq();
+    sha256_mutex->unlock();
 
     hash_zeroize(ctx, sizeof(mbedtls_sha256_context));
 }
@@ -70,23 +67,16 @@ void mbedtls_sha256_free(mbedtls_sha256_context *ctx)
         return;
     }
 
-    __disable_irq();
+    sha256_mutex->lock();
     if (hash_context_count > 0) {
         hash_context_count--;
-    }
 
-#if defined(MBEDTLS_THREADING_C)
-    if (hash_mutex_started) {
-        mbedtls_mutex_free(&hash_mutex);
-        hash_mutex_started = 0;
+        /* Shut down HASH on last context */
+        if (hash_context_count == 0) {
+            HAL_HASH_DeInit(&ctx->hhash);
+        }
     }
-#endif /* MBEDTLS_THREADING_C */
-    __enable_irq();
-
-    /* Shut down HASH on last context */
-    if (hash_context_count == 0) {
-        HAL_HASH_DeInit(&ctx->hhash);
-    }
+    sha256_mutex->unlock();
 
     hash_zeroize(ctx, sizeof(mbedtls_sha256_context));
 }

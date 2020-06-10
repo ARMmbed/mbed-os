@@ -29,6 +29,11 @@
 #include "mbedtls/platform_util.h"
 #include "mbedtls/platform.h"
 
+#include "platform/PlatformMutex.h"
+#include "platform/SingletonPtr.h"
+
+static SingletonPtr<PlatformMutex> gcm_mutex;
+
 
 /* Parameter validation macros */
 #define GCM_VALIDATE_RET( cond ) \
@@ -57,16 +62,9 @@ void mbedtls_gcm_init(mbedtls_gcm_context *ctx)
 {
     GCM_VALIDATE(ctx != NULL);
 
-    __disable_irq();
-#if defined(MBEDTLS_THREADING_C)
-    /* mutex cannot be initialized twice */
-    if (!cryp_mutex_started) {
-        mbedtls_mutex_init(&cryp_mutex);
-        cryp_mutex_started = 1;
-    }
-#endif /* MBEDTLS_THREADING_C */
+    sha1_mutex->lock();
     cryp_context_count++;
-    __enable_irq();
+    sha1_mutex->unlock();
 
     cryp_zeroize((void *)ctx, sizeof(mbedtls_gcm_context));
 }
@@ -502,23 +500,16 @@ void mbedtls_gcm_free(mbedtls_gcm_context *ctx)
         return;
     }
 
-    __disable_irq();
+    gcm_mutex->lock();
     if (cryp_context_count > 0) {
         cryp_context_count--;
-    }
 
-#if defined(MBEDTLS_THREADING_C)
-    if (cryp_mutex_started) {
-        mbedtls_mutex_free(&cryp_mutex);
-        cryp_mutex_started = 0;
+        /* Shut down CRYP on last context */
+        if (cryp_context_count == 0) {
+            HAL_CRYP_DeInit(&ctx->hcryp_gcm);
+        }
     }
-#endif /* MBEDTLS_THREADING_C */
-    __enable_irq();
-
-    /* Shut down CRYP on last context */
-    if (cryp_context_count == 0) {
-        HAL_CRYP_DeInit(&ctx->hcryp_gcm);
-    }
+    gcm_mutex->unlock();
 
     cryp_zeroize((void *)ctx, sizeof(mbedtls_gcm_context));
 }
