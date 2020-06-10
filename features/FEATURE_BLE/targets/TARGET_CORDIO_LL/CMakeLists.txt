@@ -1,0 +1,253 @@
+# Copyright (c) 2020 ARM Limited. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+target_include_directories(mbed-os
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/stack
+        ${CMAKE_CURRENT_SOURCE_DIR}/stack/controller
+        ${CMAKE_CURRENT_SOURCE_DIR}/stack/controller/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/stack/controller/include/ble
+        ${CMAKE_CURRENT_SOURCE_DIR}/stack/controller/include/common
+        ${CMAKE_CURRENT_SOURCE_DIR}/stack/controller/sources/ble/bb
+        ${CMAKE_CURRENT_SOURCE_DIR}/stack/controller/sources/ble/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/stack/controller/sources/ble/lctr
+        ${CMAKE_CURRENT_SOURCE_DIR}/stack/controller/sources/ble/lhci
+        ${CMAKE_CURRENT_SOURCE_DIR}/stack/controller/sources/ble/sch
+        ${CMAKE_CURRENT_SOURCE_DIR}/stack/controller/sources/common/bb
+        ${CMAKE_CURRENT_SOURCE_DIR}/stack/controller/sources/common/sch
+        ${CMAKE_CURRENT_SOURCE_DIR}/stack/thirdparty
+        ${CMAKE_CURRENT_SOURCE_DIR}/stack/thirdparty/nordic-bsp/components/boards
+        ${CMAKE_CURRENT_SOURCE_DIR}/stack/thirdparty/uecc
+        ${CMAKE_CURRENT_SOURCE_DIR}/stack_adaptation
+)
+
+target_sources(mbed-os
+    PRIVATE
+        stack/controller/sources/ble/bb/bb_ble_adv_master.c
+        stack/controller/sources/ble/bb/bb_ble_adv_master_ae.c
+        stack/controller/sources/ble/bb/bb_ble_adv_slave.c
+        stack/controller/sources/ble/bb/bb_ble_adv_slave_ae.c
+        stack/controller/sources/ble/bb/bb_ble_conn.c
+        stack/controller/sources/ble/bb/bb_ble_conn_master.c
+        stack/controller/sources/ble/bb/bb_ble_conn_slave.c
+        stack/controller/sources/ble/bb/bb_ble_main.c
+        stack/controller/sources/ble/bb/bb_ble_pdufilt.c
+        stack/controller/sources/ble/bb/bb_ble_periodiclist.c
+        stack/controller/sources/ble/bb/bb_ble_reslist.c
+        stack/controller/sources/ble/bb/bb_ble_test.c
+        stack/controller/sources/ble/bb/bb_ble_whitelist.c
+)
+
+target_sources(mbed-os
+    PRIVATE
+        stack/controller/sources/ble/init/init.c
+        stack/controller/sources/ble/init/init_ctr.c
+)
+
+target_sources(mbed-os
+    PRIVATE
+        stack/controller/sources/ble/lctr/lctr_act_adv_master.c
+        stack/controller/sources/ble/lctr/lctr_act_adv_master_ae.c
+        stack/controller/sources/ble/lctr/lctr_act_adv_slave.c
+        stack/controller/sources/ble/lctr/lctr_act_adv_slave_ae.c
+        stack/controller/sources/ble/lctr/lctr_act_conn.c
+        stack/controller/sources/ble/lctr/lctr_act_conn_master.c
+        stack/controller/sources/ble/lctr/lctr_act_conn_master_ae.c
+        stack/controller/sources/ble/lctr/lctr_act_conn_past.c
+        stack/controller/sources/ble/lctr/lctr_act_enc.c
+        stack/controller/sources/ble/lctr/lctr_act_enc_master.c
+        stack/controller/sources/ble/lctr/lctr_act_init_master.c
+        stack/controller/sources/ble/lctr/lctr_act_init_master_ae.c
+        stack/controller/sources/ble/lctr/lctr_act_phy.c
+        stack/controller/sources/ble/lctr/lctr_isr_adv_master.c
+        stack/controller/sources/ble/lctr/lctr_isr_adv_master_ae.c
+        stack/controller/sources/ble/lctr/lctr_isr_adv_slave.c
+        stack/controller/sources/ble/lctr/lctr_isr_adv_slave_ae.c
+        stack/controller/sources/ble/lctr/lctr_isr_conn.c
+        stack/controller/sources/ble/lctr/lctr_isr_conn_master.c
+        stack/controller/sources/ble/lctr/lctr_isr_conn_slave.c
+        stack/controller/sources/ble/lctr/lctr_isr_init_master.c
+        stack/controller/sources/ble/lctr/lctr_isr_init_master_ae.c
+        stack/controller/sources/ble/lctr/lctr_main.c
+        stack/controller/sources/ble/lctr/lctr_main_adv_master.c
+        stack/controller/sources/ble/lctr/lctr_main_adv_master_ae.c
+        stack/controller/sources/ble/lctr/lctr_main_adv_slave.c
+        stack/controller/sources/ble/lctr/lctr_main_adv_slave_ae.c
+        stack/controller/sources/ble/lctr/lctr_main_conn.c
+        stack/controller/sources/ble/lctr/lctr_main_conn_cs2.c
+        stack/controller/sources/ble/lctr/lctr_main_conn_data.c
+        stack/controller/sources/ble/lctr/lctr_main_conn_master.c
+        stack/controller/sources/ble/lctr/lctr_main_conn_slave.c
+        stack/controller/sources/ble/lctr/lctr_main_enc_master.c
+        stack/controller/sources/ble/lctr/lctr_main_enc_slave.c
+        stack/controller/sources/ble/lctr/lctr_main_init_master.c
+        stack/controller/sources/ble/lctr/lctr_main_init_master_ae.c
+        stack/controller/sources/ble/lctr/lctr_main_master_phy.c
+        stack/controller/sources/ble/lctr/lctr_main_past.c
+        stack/controller/sources/ble/lctr/lctr_main_priv.c
+        stack/controller/sources/ble/lctr/lctr_main_sc.c
+        stack/controller/sources/ble/lctr/lctr_main_slave_phy.c
+        stack/controller/sources/ble/lctr/lctr_pdu_adv_master_ae.c
+        stack/controller/sources/ble/lctr/lctr_pdu_adv_slave.c
+        stack/controller/sources/ble/lctr/lctr_pdu_adv_slave_ae.c
+        stack/controller/sources/ble/lctr/lctr_pdu_conn.c
+        stack/controller/sources/ble/lctr/lctr_pdu_enc.c
+        stack/controller/sources/ble/lctr/lctr_sm_adv_master.c
+        stack/controller/sources/ble/lctr/lctr_sm_adv_master_ae.c
+        stack/controller/sources/ble/lctr/lctr_sm_adv_slave.c
+        stack/controller/sources/ble/lctr/lctr_sm_adv_slave_ae.c
+        stack/controller/sources/ble/lctr/lctr_sm_conn_master.c
+        stack/controller/sources/ble/lctr/lctr_sm_conn_slave.c
+        stack/controller/sources/ble/lctr/lctr_sm_init_master.c
+        stack/controller/sources/ble/lctr/lctr_sm_init_master_ae.c
+        stack/controller/sources/ble/lctr/lctr_sm_llcp_conn.c
+        stack/controller/sources/ble/lctr/lctr_sm_llcp_conn_master.c
+        stack/controller/sources/ble/lctr/lctr_sm_llcp_conn_slave.c
+        stack/controller/sources/ble/lctr/lctr_sm_llcp_enc_master.c
+        stack/controller/sources/ble/lctr/lctr_sm_llcp_enc_slave.c
+        stack/controller/sources/ble/lctr/lctr_sm_llcp_master_phy.c
+        stack/controller/sources/ble/lctr/lctr_sm_llcp_slave_phy.c
+)
+
+target_sources(mbed-os
+    PRIVATE
+        stack/controller/sources/ble/lhci/lhci_cmd.c
+        stack/controller/sources/ble/lhci/lhci_cmd_adv_master.c
+        stack/controller/sources/ble/lhci/lhci_cmd_adv_master_ae.c
+        stack/controller/sources/ble/lhci/lhci_cmd_adv_priv.c
+        stack/controller/sources/ble/lhci/lhci_cmd_adv_slave.c
+        stack/controller/sources/ble/lhci/lhci_cmd_adv_slave_ae.c
+        stack/controller/sources/ble/lhci/lhci_cmd_conn.c
+        stack/controller/sources/ble/lhci/lhci_cmd_conn_master.c
+        stack/controller/sources/ble/lhci/lhci_cmd_conn_master_ae.c
+        stack/controller/sources/ble/lhci/lhci_cmd_conn_priv.c
+        stack/controller/sources/ble/lhci/lhci_cmd_enc_master.c
+        stack/controller/sources/ble/lhci/lhci_cmd_enc_slave.c
+        stack/controller/sources/ble/lhci/lhci_cmd_past.c
+        stack/controller/sources/ble/lhci/lhci_cmd_phy.c
+        stack/controller/sources/ble/lhci/lhci_cmd_sc.c
+        stack/controller/sources/ble/lhci/lhci_cmd_vs.c
+        stack/controller/sources/ble/lhci/lhci_cmd_vs_adv_master.c
+        stack/controller/sources/ble/lhci/lhci_cmd_vs_adv_master_ae.c
+        stack/controller/sources/ble/lhci/lhci_cmd_vs_adv_slave.c
+        stack/controller/sources/ble/lhci/lhci_cmd_vs_adv_slave_ae.c
+        stack/controller/sources/ble/lhci/lhci_cmd_vs_conn.c
+        stack/controller/sources/ble/lhci/lhci_cmd_vs_conn_master.c
+        stack/controller/sources/ble/lhci/lhci_cmd_vs_enc_slave.c
+        stack/controller/sources/ble/lhci/lhci_cmd_vs_ext.c
+        stack/controller/sources/ble/lhci/lhci_cmd_vs_sc.c
+        stack/controller/sources/ble/lhci/lhci_evt.c
+        stack/controller/sources/ble/lhci/lhci_evt_adv_master.c
+        stack/controller/sources/ble/lhci/lhci_evt_adv_master_ae.c
+        stack/controller/sources/ble/lhci/lhci_evt_adv_slave.c
+        stack/controller/sources/ble/lhci/lhci_evt_adv_slave_ae.c
+        stack/controller/sources/ble/lhci/lhci_evt_conn.c
+        stack/controller/sources/ble/lhci/lhci_evt_conn_cs2.c
+        stack/controller/sources/ble/lhci/lhci_evt_conn_master.c
+        stack/controller/sources/ble/lhci/lhci_evt_conn_priv.c
+        stack/controller/sources/ble/lhci/lhci_evt_enc_master.c
+        stack/controller/sources/ble/lhci/lhci_evt_enc_slave.c
+        stack/controller/sources/ble/lhci/lhci_evt_phy.c
+        stack/controller/sources/ble/lhci/lhci_evt_sc.c
+        stack/controller/sources/ble/lhci/lhci_evt_vs.c
+        stack/controller/sources/ble/lhci/lhci_init.c
+        stack/controller/sources/ble/lhci/lhci_init_adv_master.c
+        stack/controller/sources/ble/lhci/lhci_init_adv_master_ae.c
+        stack/controller/sources/ble/lhci/lhci_init_adv_priv.c
+        stack/controller/sources/ble/lhci/lhci_init_adv_slave.c
+        stack/controller/sources/ble/lhci/lhci_init_adv_slave_ae.c
+        stack/controller/sources/ble/lhci/lhci_init_conn.c
+        stack/controller/sources/ble/lhci/lhci_init_conn_cs2.c
+        stack/controller/sources/ble/lhci/lhci_init_conn_master.c
+        stack/controller/sources/ble/lhci/lhci_init_conn_master_ae.c
+        stack/controller/sources/ble/lhci/lhci_init_conn_priv.c
+        stack/controller/sources/ble/lhci/lhci_init_enc_master.c
+        stack/controller/sources/ble/lhci/lhci_init_enc_slave.c
+        stack/controller/sources/ble/lhci/lhci_init_past.c
+        stack/controller/sources/ble/lhci/lhci_init_phy.c
+        stack/controller/sources/ble/lhci/lhci_init_sc.c
+        stack/controller/sources/ble/lhci/lhci_main.c
+)
+
+target_sources(mbed-os
+    PRIVATE
+        stack/controller/sources/ble/ll/ll_init.c
+        stack/controller/sources/ble/ll/ll_init_adv_master.c
+        stack/controller/sources/ble/ll/ll_init_adv_master_ae.c
+        stack/controller/sources/ble/ll/ll_init_adv_slave.c
+        stack/controller/sources/ble/ll/ll_init_adv_slave_ae.c
+        stack/controller/sources/ble/ll/ll_init_conn_cs2.c
+        stack/controller/sources/ble/ll/ll_init_conn_master.c
+        stack/controller/sources/ble/ll/ll_init_conn_slave.c
+        stack/controller/sources/ble/ll/ll_init_enc_master.c
+        stack/controller/sources/ble/ll/ll_init_enc_slave.c
+        stack/controller/sources/ble/ll/ll_init_init_master.c
+        stack/controller/sources/ble/ll/ll_init_init_master_ae.c
+        stack/controller/sources/ble/ll/ll_init_master_phy.c
+        stack/controller/sources/ble/ll/ll_init_past.c
+        stack/controller/sources/ble/ll/ll_init_priv.c
+        stack/controller/sources/ble/ll/ll_init_sc.c
+        stack/controller/sources/ble/ll/ll_init_slave_phy.c
+        stack/controller/sources/ble/ll/ll_main.c
+        stack/controller/sources/ble/ll/ll_main_adv_master.c
+        stack/controller/sources/ble/ll/ll_main_adv_master_ae.c
+        stack/controller/sources/ble/ll/ll_main_adv_slave.c
+        stack/controller/sources/ble/ll/ll_main_adv_slave_ae.c
+        stack/controller/sources/ble/ll/ll_main_conn.c
+        stack/controller/sources/ble/ll/ll_main_conn_master.c
+        stack/controller/sources/ble/ll/ll_main_conn_master_ae.c
+        stack/controller/sources/ble/ll/ll_main_conn_slave.c
+        stack/controller/sources/ble/ll/ll_main_diag.c
+        stack/controller/sources/ble/ll/ll_main_dtm.c
+        stack/controller/sources/ble/ll/ll_main_enc_master.c
+        stack/controller/sources/ble/ll/ll_main_enc_slave.c
+        stack/controller/sources/ble/ll/ll_main_past.c
+        stack/controller/sources/ble/ll/ll_main_phy.c
+        stack/controller/sources/ble/ll/ll_main_priv.c
+        stack/controller/sources/ble/ll/ll_main_sc.c
+        stack/controller/sources/ble/ll/ll_math.c
+)
+
+target_sources(mbed-os
+    PRIVATE
+        stack/controller/sources/ble/lmgr/lmgr_events.c
+        stack/controller/sources/ble/lmgr/lmgr_main.c
+        stack/controller/sources/ble/lmgr/lmgr_main_adv_master_ae.c
+        stack/controller/sources/ble/lmgr/lmgr_main_adv_slave_ae.c
+        stack/controller/sources/ble/lmgr/lmgr_main_conn.c
+        stack/controller/sources/ble/lmgr/lmgr_main_master.c
+        stack/controller/sources/ble/lmgr/lmgr_main_priv.c
+        stack/controller/sources/ble/lmgr/lmgr_main_sc.c
+        stack/controller/sources/ble/lmgr/lmgr_main_slave.c
+)
+
+target_sources(mbed-os
+    PRIVATE
+        stack/controller/sources/ble/sch/sch_ble.c
+        stack/controller/sources/ble/sch/sch_rm.c
+)
+
+target_sources(mbed-os
+    PRIVATE
+        stack/controller/sources/common/bb/bb_main.c
+
+        stack/controller/sources/common/chci/chci_tr.c
+
+        stack/controller/sources/common/sch/sch_list.c
+        stack/controller/sources/common/sch/sch_main.c
+)
+
+target_sources(mbed-os
+    PRIVATE
+        stack/thirdparty/nordic-bsp/components/boards/boards.c
+
+        stack/thirdparty/uecc/asm_arm.inc
+        stack/thirdparty/uecc/uECC.c
+        stack/thirdparty/uecc/uECC_ll.c
+)
+
+target_sources(mbed-os
+    PRIVATE
+        stack_adaptation/fake_lhci_drv.cpp
+)
